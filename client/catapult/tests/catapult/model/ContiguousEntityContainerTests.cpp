@@ -1,0 +1,471 @@
+#include "catapult/model/ContiguousEntityContainer.h"
+#include "tests/test/nodeps/IteratorTestTraits.h"
+#include "tests/TestHarness.h"
+#include <vector>
+
+namespace catapult { namespace model {
+
+#define TEST_CLASS ContiguousEntityContainerTests
+
+	namespace {
+		struct EntityHeader {
+			uint32_t Size;
+			uint32_t Value;
+		};
+
+		std::vector<EntityHeader> CreateFixedSizedEntities(const std::vector<uint32_t>& values) {
+			std::vector<EntityHeader> entities;
+			for (auto value : values)
+				entities.push_back({ sizeof(EntityHeader), value });
+			return entities;
+		}
+
+		template<EntityContainerErrorPolicy ErrorPolicy>
+		struct EntityContainerBasedTraits {
+			template<typename TEntity>
+			static auto MakeContainer(TEntity* pEntity, size_t count, size_t size = 0) {
+				if (0 == size)
+					size = count * sizeof(EntityHeader);
+				return MakeContiguousEntityContainer(pEntity, size, ErrorPolicy);
+			}
+
+			template<typename TEntity>
+			static auto MakeContainer(const TEntity* pEntity, size_t count, size_t size = 0) {
+				if (0 == size)
+					size = count * sizeof(EntityHeader);
+				return MakeContiguousEntityContainer(pEntity, size, ErrorPolicy);
+			}
+
+			static const bool ThrowsOnError = EntityContainerErrorPolicy::Throw == ErrorPolicy;
+		};
+
+		using EntityContainerThrowBasedTraits = EntityContainerBasedTraits<EntityContainerErrorPolicy::Throw>;
+		using EntityContainerSuppressBasedTraits = EntityContainerBasedTraits<EntityContainerErrorPolicy::Suppress>;
+	}
+
+// there are four sets of tests: error policy { throw, suppress } X mutability { mutable, const }
+#define TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits, typename TContainerTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Throw_Mutable) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndTraits, EntityContainerThrowBasedTraits>(); \
+	} \
+	\
+	TEST(TEST_CLASS, TEST_NAME##_Throw_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits, EntityContainerThrowBasedTraits>(); \
+	} \
+	\
+	TEST(TEST_CLASS, TEST_NAME##_Suppress_Mutable) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndTraits, EntityContainerSuppressBasedTraits>(); \
+	} \
+	\
+	TEST(TEST_CLASS, TEST_NAME##_Suppress_Const) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits, EntityContainerSuppressBasedTraits>(); \
+	} \
+	template<typename TTraits, typename TContainerTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+// if TContainerTraits::ThrowsOnError is set, then expect an exception; otherwise, do not
+#define EXPECT_ITERATION_ERROR(STATEMENT) \
+	if (TContainerTraits::ThrowsOnError) { \
+		EXPECT_THROW((STATEMENT), catapult_runtime_error); \
+	} else { \
+		(STATEMENT); \
+	}
+
+	TRAITS_BASED_TEST(CanIterateOverZeroEntities) {
+		// Arrange:
+		auto container = TContainerTraits::template MakeContainer<EntityHeader>(nullptr, 0);
+
+		// Act + Assert:
+		EXPECT_EQ(TTraits::begin(container), TTraits::end(container));
+		EXPECT_FALSE(container.hasError());
+	}
+
+	TRAITS_BASED_TEST(CanIterateOverSingleEntityWithPostfixOperator) {
+		// Arrange:
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+		auto container = TContainerTraits::MakeContainer(&entities[0], 1);
+
+		// Act + Assert:
+		auto it = TTraits::begin(container);
+		EXPECT_EQ(17u, (*it++).Value);
+		EXPECT_EQ(it, TTraits::end(container));
+		EXPECT_FALSE(container.hasError());
+	}
+
+	TRAITS_BASED_TEST(CanIterateOverSingleEntityWithPrefixOperator) {
+		// Arrange:
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+		auto container = TContainerTraits::MakeContainer(&entities[0], 1);
+
+		// Act + Assert:
+		auto it = TTraits::begin(container);
+		EXPECT_EQ(17u, it->Value);
+		++it;
+		EXPECT_EQ(it, TTraits::end(container));
+		EXPECT_FALSE(container.hasError());
+	}
+
+	namespace {
+		template<typename TTraits, typename TContainerTraits, typename TEntity>
+		void AssertCanIterateOverMultipleEntitiesWithPostfixOperator() {
+			// Arrange:
+			auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+			auto container = TContainerTraits::template MakeContainer<TEntity>(&entities[0], 3);
+
+			// Act + Assert:
+			auto it = TTraits::begin(container);
+			EXPECT_EQ(17u, (*it++).Value);
+			EXPECT_EQ(25u, (*it++).Value);
+			EXPECT_EQ(14u, (*it++).Value);
+			EXPECT_EQ(it, TTraits::end(container));
+			EXPECT_FALSE(container.hasError());
+		}
+
+		template<typename TTraits, typename TContainerTraits, typename TEntity>
+		void AssertCanIterateOverMultipleEntitiesWithPrefixOperator() {
+			// Arrange:
+			auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+			auto container = TContainerTraits::template MakeContainer<TEntity>(&entities[0], 3);
+
+			// Act + Assert:
+			auto it = TTraits::begin(container);
+			EXPECT_EQ(17u, it->Value);
+			++it;
+			EXPECT_EQ(25u, it->Value);
+			++it;
+			EXPECT_EQ(14u, it->Value);
+			++it;
+			EXPECT_EQ(it, TTraits::end(container));
+			EXPECT_FALSE(container.hasError());
+		}
+	}
+
+	TRAITS_BASED_TEST(CanIterateOverMultipleEntitiesWithPostfixOperator) {
+		// Assert:
+		AssertCanIterateOverMultipleEntitiesWithPostfixOperator<TTraits, TContainerTraits, EntityHeader>();
+	}
+
+	TRAITS_BASED_TEST(CanIterateOverMultipleEntitiesWithPrefixOperator) {
+		// Assert:
+		AssertCanIterateOverMultipleEntitiesWithPrefixOperator<TTraits, TContainerTraits, EntityHeader>();
+	}
+
+	TRAITS_BASED_TEST(CanIterateOverMultipleConstEntitiesWithPostfixOperator) {
+		// Assert:
+		AssertCanIterateOverMultipleEntitiesWithPostfixOperator<TTraits, TContainerTraits, const EntityHeader>();
+	}
+
+	TRAITS_BASED_TEST(CanIterateOverMultipleConstEntitiesWithPrefixOperator) {
+		// Assert:
+		AssertCanIterateOverMultipleEntitiesWithPrefixOperator<TTraits, TContainerTraits, const EntityHeader>();
+	}
+
+	TRAITS_BASED_TEST(CanIterateOverMultipleVariableSizedEntitiesWithPostfixOperator) {
+		// Arrange:
+		std::vector<uint8_t> buffer(100);
+		reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
+		reinterpret_cast<EntityHeader&>(*&buffer[20]) = { 30, 25 };
+		reinterpret_cast<EntityHeader&>(*&buffer[50]) = { 10, 14 };
+		auto container = TContainerTraits::MakeContainer(reinterpret_cast<EntityHeader*>(&buffer[0]), 3, 20 + 30 + 10);
+
+		// Act + Assert:
+		auto it = TTraits::begin(container);
+		EXPECT_EQ(17u, (*it++).Value);
+		EXPECT_EQ(25u, (*it++).Value);
+		EXPECT_EQ(14u, (*it++).Value);
+		EXPECT_EQ(it, TTraits::end(container));
+		EXPECT_FALSE(container.hasError());
+	}
+
+	TRAITS_BASED_TEST(CanIterateOverMultipleVariableSizedEntitiesWithPrefixOperator) {
+		// Arrange:
+		std::vector<uint8_t> buffer(100);
+		reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
+		reinterpret_cast<EntityHeader&>(*&buffer[20]) = { 30, 25 };
+		reinterpret_cast<EntityHeader&>(*&buffer[50]) = { 10, 14 };
+		auto container = TContainerTraits::MakeContainer(reinterpret_cast<EntityHeader*>(&buffer[0]), 3, 20 + 30 + 10);
+
+		// Act + Assert:
+		auto it = TTraits::begin(container);
+		EXPECT_EQ(17u, it->Value);
+		++it;
+		EXPECT_EQ(25u, it->Value);
+		++it;
+		EXPECT_EQ(14u, it->Value);
+		++it;
+		EXPECT_EQ(it, TTraits::end(container));
+		EXPECT_FALSE(container.hasError());
+	}
+
+	TRAITS_BASED_TEST(CannotIterateBeyondEndWithPostfixOperator) {
+		// Arrange:
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
+
+		// Act + Assert:
+		auto it = TTraits::end(container);
+		EXPECT_THROW(it++, catapult_out_of_range);
+		EXPECT_THROW(it++, catapult_out_of_range);
+		EXPECT_FALSE(container.hasError());
+	}
+
+	TRAITS_BASED_TEST(CannotIterateBeyondEndWithPrefixOperator) {
+		// Arrange:
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
+
+		// Act + Assert:
+		auto it = TTraits::end(container);
+		EXPECT_THROW(++it, catapult_out_of_range);
+		EXPECT_THROW(++it, catapult_out_of_range);
+		EXPECT_FALSE(container.hasError());
+	}
+
+	TRAITS_BASED_TEST(CannotDereferenceAtEnd) {
+		// Arrange:
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
+
+		// Act + Assert:
+		auto it = TTraits::end(container);
+		EXPECT_THROW(*it, catapult_out_of_range);
+		EXPECT_THROW(it.operator->(), catapult_out_of_range);
+		EXPECT_FALSE(container.hasError());
+	}
+
+	TRAITS_BASED_TEST(BeginEndIteratorsBasedOnSameContainerAreEqual) {
+		// Arrange:
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
+
+		// Act + Assert:
+		EXPECT_EQ(TTraits::begin(container), TTraits::begin(container));
+		EXPECT_EQ(TTraits::end(container), TTraits::end(container));
+		EXPECT_NE(TTraits::begin(container), TTraits::end(container));
+		EXPECT_FALSE(container.hasError());
+	}
+
+	TRAITS_BASED_TEST(BeginEndIteratorsBasedOnSameUnderlyingDataAreEqual) {
+		// Arrange:
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+		auto container1 = TContainerTraits::MakeContainer(&entities[0], 3);
+		auto container2 = TContainerTraits::MakeContainer(&entities[0], 3);
+
+		// Act + Assert:
+		EXPECT_EQ(TTraits::begin(container1), TTraits::begin(container2));
+		EXPECT_EQ(TTraits::end(container1), TTraits::end(container2));
+		EXPECT_FALSE(container1.hasError());
+		EXPECT_FALSE(container2.hasError());
+	}
+
+	TRAITS_BASED_TEST(BeginEndIteratorsBasedOnDifferentUnderlyingDataAreNotEqual) {
+		// Arrange:
+		auto entities1 = CreateFixedSizedEntities({ 17, 25, 14 });
+		auto container1 = TContainerTraits::MakeContainer(&entities1[0], 3);
+
+		auto entities2 = CreateFixedSizedEntities({ 17, 25, 14 });
+		auto container2 = TContainerTraits::MakeContainer(&entities2[0], 3);
+
+		// Act + Assert:
+		EXPECT_NE(TTraits::begin(container1), TTraits::begin(container2));
+		EXPECT_NE(TTraits::end(container1), TTraits::end(container2));
+		EXPECT_FALSE(container1.hasError());
+		EXPECT_FALSE(container2.hasError());
+	}
+
+	TRAITS_BASED_TEST(CanMutateDataUsingMutableIterator) {
+		// Arrange:
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+
+		// Act: increment all entity values
+		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
+		for (auto& entity : container)
+			++entity.Value;
+
+		// Assert: all entity values were changed
+		EXPECT_EQ(18u, entities[0].Value);
+		EXPECT_EQ(26u, entities[1].Value);
+		EXPECT_EQ(15u, entities[2].Value);
+		EXPECT_FALSE(container.hasError());
+	}
+
+	namespace {
+		template<typename TContainer>
+		void IterateValues(TContainer& container, std::vector<uint32_t>& values) {
+			for (const auto& entity : container)
+				values.push_back(entity.Value);
+		}
+
+		template<typename TContainer>
+		std::vector<uint32_t> IterateValues(TContainer& container) {
+			std::vector<uint32_t> values;
+			IterateValues(container, values);
+			return values;
+		}
+	}
+
+	TRAITS_BASED_TEST(CanProcessFewerElementsThanInBuffer) {
+		// Arrange: buffer contains 3 entities, but container only wraps two of them
+		std::vector<uint8_t> buffer(100);
+		reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
+		reinterpret_cast<EntityHeader&>(*&buffer[20]) = { 30, 25 };
+		reinterpret_cast<EntityHeader&>(*&buffer[50]) = { 10, 14 };
+		auto pEntities = reinterpret_cast<EntityHeader*>(&buffer[0]);
+		auto container = TContainerTraits::MakeContainer(pEntities, 0, 20 + 30);
+
+		// Act:
+		auto values = IterateValues(container);
+
+		// Assert:
+		EXPECT_EQ(std::vector<uint32_t>({ 17, 25 }), values);
+		EXPECT_FALSE(container.hasError());
+	}
+
+	namespace {
+		struct FirstElementTraits {
+			static std::vector<uint8_t> PrepareBuffer(uint32_t size) {
+				std::vector<uint8_t> buffer(100);
+				reinterpret_cast<EntityHeader&>(*&buffer[0]) = { size, 17 };
+				reinterpret_cast<EntityHeader&>(*&buffer[20]) = { 30, 25 };
+				reinterpret_cast<EntityHeader&>(*&buffer[50]) = { 10, 14 };
+				return buffer;
+			}
+
+			static std::vector<uint32_t> ExpectedValues() {
+				return {};
+			}
+		};
+
+		struct MiddleElementTraits {
+			static std::vector<uint8_t> PrepareBuffer(uint32_t size) {
+				std::vector<uint8_t> buffer(100);
+				reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
+				reinterpret_cast<EntityHeader&>(*&buffer[20]) = { size, 25 };
+				reinterpret_cast<EntityHeader&>(*&buffer[50]) = { 10, 14 };
+				return buffer;
+			}
+
+			static std::vector<uint32_t> ExpectedValues() {
+				return { 17 };
+			}
+		};
+
+		struct LastElementTraits {
+			static std::vector<uint8_t> PrepareBuffer(uint32_t size) {
+				std::vector<uint8_t> buffer(100);
+				reinterpret_cast<EntityHeader&>(*&buffer[0]) = { 20, 17 };
+				reinterpret_cast<EntityHeader&>(*&buffer[20]) = { 30, 25 };
+				reinterpret_cast<EntityHeader&>(*&buffer[50]) = { size, 14 };
+				return buffer;
+			}
+
+			static std::vector<uint32_t> ExpectedValues() {
+				return { 17, 25 };
+			}
+		};
+
+// there are three sets of tests: first, middle, last
+#define POSITIONAL_TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits, typename TContainerTraits, typename TPositionalTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TRAITS_BASED_TEST(TEST_NAME##_First) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, FirstElementTraits>(); \
+	} \
+	TRAITS_BASED_TEST(TEST_NAME##_Middle) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, MiddleElementTraits>(); \
+	} \
+	\
+	TRAITS_BASED_TEST(TEST_NAME##_Last) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, LastElementTraits>(); \
+	} \
+	template<typename TTraits, typename TContainerTraits, typename TPositionalTraits> \
+	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+		template<typename TContainerTraits, typename TPositionalTraits>
+		void AssertShortCircuitOnInsufficientEntitySize(uint32_t size) {
+			// Arrange: buffer contains three elements but one is invalid
+			auto buffer = TPositionalTraits::PrepareBuffer(size);
+			auto pEntities = reinterpret_cast<EntityHeader*>(&buffer[0]);
+			auto container = TContainerTraits::MakeContainer(pEntities, 0, buffer.size());
+
+			// Act: an iteration error should be raised
+			std::vector<uint32_t> values;
+			EXPECT_ITERATION_ERROR(IterateValues(container, values));
+
+			// Assert: only the expected values were extracted before the error
+			EXPECT_EQ(TPositionalTraits::ExpectedValues(), values);
+			EXPECT_TRUE(container.hasError());
+		}
+	}
+
+	POSITIONAL_TRAITS_BASED_TEST(AbortsIfEntitySizeIsZero) {
+		// Assert:
+		AssertShortCircuitOnInsufficientEntitySize<TContainerTraits, TPositionalTraits>(0);
+	}
+
+	POSITIONAL_TRAITS_BASED_TEST(AbortsIfEntityHeaderExtendsBeyondBuffer) {
+		// Assert:
+		AssertShortCircuitOnInsufficientEntitySize<TContainerTraits, TPositionalTraits>(sizeof(EntityHeader) - 1);
+	}
+
+	POSITIONAL_TRAITS_BASED_TEST(AbortsIfEntityExtendsBeyondBuffer) {
+		// Assert: buffer contains three elements but one extends beyond buffer
+		AssertShortCircuitOnInsufficientEntitySize<TContainerTraits, TPositionalTraits>(101);
+	}
+
+	TRAITS_BASED_TEST(CannotAdvancePostfixIteratorAfterError) {
+		// Arrange: cause an error by setting the size of the second element to zero
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+		entities[1].Size = 0;
+		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
+
+		// Act + Assert:
+		// - initially no error
+		auto it = TTraits::begin(container);
+		EXPECT_EQ(17u, it->Value);
+		EXPECT_FALSE(container.hasError());
+
+		// - error after advancing
+		EXPECT_ITERATION_ERROR(it++);
+		EXPECT_TRUE(container.hasError());
+		EXPECT_EQ(TTraits::end(container), it);
+
+		// - cannot advance any further
+		EXPECT_THROW(it++, catapult_out_of_range);
+		EXPECT_THROW(it++, catapult_out_of_range);
+	}
+
+	TRAITS_BASED_TEST(CannotAdvancePrefixIteratorAfterError) {
+		// Arrange: cause an error by setting the size of the second element to zero
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+		entities[1].Size = 0;
+		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
+
+		// Act + Assert:
+		// - initially no error
+		auto it = TTraits::begin(container);
+		EXPECT_EQ(17u, it->Value);
+		EXPECT_FALSE(container.hasError());
+
+		// - error after advancing
+		EXPECT_ITERATION_ERROR(++it);
+		EXPECT_TRUE(container.hasError());
+		EXPECT_EQ(TTraits::end(container), it);
+
+		// - cannot advance any further
+		EXPECT_THROW(++it, catapult_out_of_range);
+		EXPECT_THROW(++it, catapult_out_of_range);
+	}
+
+	TRAITS_BASED_TEST(BeginAbortsIfFirstElementHasInvalidSize) {
+		// Arrange: cause an error by setting the size of the first element to zero
+		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+		entities[0].Size = 0;
+		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
+
+		// Act + Assert:
+		// - initially an error
+		EXPECT_ITERATION_ERROR(TTraits::begin(container));
+		EXPECT_TRUE(container.hasError());
+	}
+}}

@@ -1,0 +1,189 @@
+#include "catapult/utils/Casting.h"
+#include "tests/TestHarness.h"
+#include <functional>
+#include <sstream>
+
+namespace catapult { namespace utils {
+
+	// region as_const
+
+	TEST(CastingTests, AsConstReturnsConstReferenceForConstType) {
+		// Arrange:
+		const int val = 7;
+
+		// Act:
+		auto& ref = as_const(val);
+
+		// Assert:
+		EXPECT_EQ(7, ref);
+		EXPECT_TRUE(std::is_const<decltype(val)>::value);
+		EXPECT_TRUE(std::is_const<std::remove_reference<decltype(ref)>::type>::value);
+	}
+
+	TEST(CastingTests, AsConstReturnsConstReferenceForNonConstType) {
+		// Arrange:
+		int val = 7;
+
+		// Act:
+		auto& ref = as_const(val);
+
+		// Assert:
+		EXPECT_EQ(7, ref);
+		EXPECT_FALSE(std::is_const<decltype(val)>::value);
+		EXPECT_TRUE(std::is_const<std::remove_reference<decltype(ref)>::type>::value);
+	}
+
+	// endregion
+
+	// region to_underlying_type
+
+	namespace {
+		std::string CreateUnderlyingTypeMessage(const char* pTypeName) {
+			std::stringstream message;
+			message << "(underlying type = " << pTypeName << ")";
+			return message.str();
+		}
+
+		template<typename TUnderlyingType>
+		void AssertToUnderlyingTypePreservesEnumValues(const char* pTypeName) {
+			// Arrange:
+			enum class TestEnum : TUnderlyingType { Zero = 0, Two = 2, Four = 4 };
+			auto message = CreateUnderlyingTypeMessage(pTypeName);
+
+			// Act: convert all values in TestEnum
+			TUnderlyingType expected = 0;
+			for (auto value : { TestEnum::Zero, TestEnum::Two, TestEnum::Four }) {
+				auto rawValue = to_underlying_type(value);
+
+				// Assert: the values are the same
+				EXPECT_EQ(expected, rawValue) << "has same value " << message;
+				expected += 2;
+			}
+		}
+
+		template<typename TUnderlyingType>
+		void AssertToUnderlyingTypePreservesEnumType(const char* pTypeName) {
+			// Arrange:
+			enum class TestEnum : TUnderlyingType { Foo };
+			auto message = CreateUnderlyingTypeMessage(pTypeName);
+
+			// Act:
+			using TActualUnderlyingType = decltype(to_underlying_type(TestEnum::Foo));
+
+			// Assert: the underlying types are the same
+			EXPECT_EQ(sizeof(TUnderlyingType), sizeof(TActualUnderlyingType)) << "has same size " << message;
+			auto areTypesSame = std::is_same<TUnderlyingType, TActualUnderlyingType>::value;
+			EXPECT_TRUE(areTypesSame) << "has same type " << message;
+		}
+	}
+
+	TEST(CastingTests, ToUnderlyingTypePreservesEnumValues) {
+		// Assert:
+		AssertToUnderlyingTypePreservesEnumValues<int8_t>("int8_t");
+		AssertToUnderlyingTypePreservesEnumValues<uint64_t>("uint64_t");
+	}
+
+	TEST(CastingTests, ToUnderlyingTypePreservesEnumType) {
+		// Assert:
+		AssertToUnderlyingTypePreservesEnumType<int8_t>("int8_t");
+		AssertToUnderlyingTypePreservesEnumType<uint64_t>("uint64_t");
+	}
+
+	// endregion
+
+	// region checked_cast
+
+	namespace {
+		template<typename TSource, typename TDest>
+		void AssertCheckedCast(TSource value, TDest expectedValue) {
+			// Arrange:
+			std::stringstream message;
+			message << "casting " << static_cast<int64_t>(value);
+
+			// Act:
+			auto convertedValue = checked_cast<TSource, TDest>(value);
+
+			// Assert:
+			auto areTypesSame = std::is_same<TDest, decltype(convertedValue)>::value;
+			EXPECT_TRUE(areTypesSame) << message.str();
+			EXPECT_EQ(expectedValue, convertedValue) << message.str();
+		}
+
+		template<typename TSource, typename TDest>
+		void AssertCheckedCastFails(TSource value) {
+			// Arrange:
+			std::stringstream message;
+			message << "casting " << static_cast<int64_t>(value);
+			std::function<void()> cast = [value]() { checked_cast<TSource, TDest>(value); };
+
+			// Assert:
+			EXPECT_THROW(cast(), catapult_runtime_error) << message.str();
+		}
+
+		const auto UInt8_Min = std::numeric_limits<uint8_t>::min();
+		const auto UInt8_Max = std::numeric_limits<uint8_t>::max();
+		const auto Int8_Min = std::numeric_limits<int8_t>::min();
+		const auto Int8_Max = std::numeric_limits<int8_t>::max();
+
+		const auto UInt16_Max = std::numeric_limits<uint16_t>::max();
+		const auto Int16_Max = std::numeric_limits<int16_t>::max();
+		const auto Int16_Min = std::numeric_limits<int16_t>::min();
+	}
+
+	TEST(CastingTests, CheckedCastChecksUnsignedToSignedConversions) {
+		// Assert: can convert within bounds [UInt8_Min, Int8_Max]
+		//         (static casts are needed for signed / unsigned adjustments)
+		AssertCheckedCast<uint8_t, int8_t>(UInt8_Min, static_cast<int8_t>(UInt8_Min)); // min
+		AssertCheckedCast<uint8_t, int8_t>(static_cast<uint8_t>(Int8_Max / 2), Int8_Max / 2); // min < x < max
+		AssertCheckedCast<uint8_t, int8_t>(static_cast<uint8_t>(Int8_Max), Int8_Max); // max
+
+		// Assert: cannot convert outside of bounds
+		AssertCheckedCastFails<uint8_t, int8_t>(static_cast<uint8_t>(Int8_Min));
+		AssertCheckedCastFails<uint8_t, int8_t>(Int8_Max / 2 * 3);
+		AssertCheckedCastFails<uint8_t, int8_t>(UInt8_Max);
+	}
+
+	TEST(CastingTests, CheckedCastChecksSignedToUnsignedConversions) {
+		// Assert: can convert within bounds [UInt8_Min, Int8_Max]
+		//         (static casts are needed for signed / unsigned adjustments)
+		AssertCheckedCast<int8_t, uint8_t>(static_cast<int8_t>(UInt8_Min), UInt8_Min); // min
+		AssertCheckedCast<int8_t, uint8_t>(Int8_Max / 2, static_cast<uint8_t>(Int8_Max / 2)); // min < x < max
+		AssertCheckedCast<int8_t, uint8_t>(Int8_Max, static_cast<uint8_t>(Int8_Max)); // max
+
+		// Assert: cannot convert outside of bounds
+		AssertCheckedCastFails<int8_t, uint8_t>(Int8_Min);
+		AssertCheckedCastFails<int8_t, uint8_t>(static_cast<int8_t>(static_cast<uint8_t>(Int8_Max / 2 * 3)));
+		AssertCheckedCastFails<int8_t, uint8_t>(static_cast<int8_t>(UInt8_Max));
+	}
+
+	TEST(CastingTests, CheckedCastChecksUnsignedToUnsignedConversions) {
+		// Assert: can convert within bounds [UInt8_Min, UInt8_Max]
+		AssertCheckedCast<uint16_t, uint8_t>(UInt8_Min, UInt8_Min); // min
+		AssertCheckedCast<uint16_t, uint8_t>(UInt8_Max / 2, UInt8_Max / 2); // min < x < max
+		AssertCheckedCast<uint16_t, uint8_t>(UInt8_Max, UInt8_Max); // max
+
+		// Assert: cannot convert outside of bounds
+		AssertCheckedCastFails<uint16_t, uint8_t>(UInt8_Max + 1);
+		AssertCheckedCastFails<uint16_t, uint8_t>(UInt16_Max / 2);
+		AssertCheckedCastFails<uint16_t, uint8_t>(UInt16_Max);
+	}
+
+	TEST(CastingTests, CheckedCastChecksSignedToSignedConversions) {
+		// Assert: can convert within bounds [Int8_Min, Int8_Max]
+		AssertCheckedCast<int16_t, int8_t>(Int8_Min, Int8_Min); // min
+		AssertCheckedCast<int16_t, int8_t>(Int8_Min / 2, Int8_Min / 2); // min < y < 0
+		AssertCheckedCast<int16_t, int8_t>(0, 0); // y < 0 < x
+		AssertCheckedCast<int16_t, int8_t>(Int8_Max / 2, Int8_Max / 2); // 0 < x < max
+		AssertCheckedCast<int16_t, int8_t>(Int8_Max, Int8_Max); // max
+
+		// Assert: cannot convert outside of bounds
+		AssertCheckedCastFails<int16_t, int8_t>(Int16_Min);
+		AssertCheckedCastFails<int16_t, int8_t>(Int16_Min / 2);
+		AssertCheckedCastFails<int16_t, int8_t>(Int8_Min - 1);
+		AssertCheckedCastFails<int16_t, int8_t>(Int8_Max + 1);
+		AssertCheckedCastFails<int16_t, int8_t>(Int16_Max / 2);
+		AssertCheckedCastFails<int16_t, int8_t>(Int16_Max);
+	}
+
+	// endregion
+}}

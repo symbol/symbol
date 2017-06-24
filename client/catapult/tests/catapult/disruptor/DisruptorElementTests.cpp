@@ -1,0 +1,169 @@
+#include "catapult/disruptor/DisruptorElement.h"
+#include "tests/catapult/disruptor/utils/ConsumerInputTestUtils.h"
+#include "tests/test/other/DisruptorTestUtils.h"
+#include "tests/TestHarness.h"
+
+namespace catapult { namespace disruptor {
+
+#define TEST_CLASS DisruptorElementTests
+
+	namespace {
+		void EmptyProcessingCompleteFunc(DisruptorElementId, ConsumerResult)
+		{}
+
+		struct BlockTraits : public test::BlockTraits {
+		public:
+			static void AssertDisruptorElementCreation(size_t numBlocks) {
+				// Act::
+				test::EntitiesVector entities;
+				auto element = DisruptorElement(CreateInput(numBlocks, entities), 17, EmptyProcessingCompleteFunc);
+
+				// Assert:
+				AssertInput(element.input(), numBlocks, entities, InputSource::Unknown);
+				EXPECT_EQ(17u, element.id());
+				EXPECT_FALSE(element.isSkipped());
+			}
+		};
+
+		struct TransactionTraits : public test::TransactionTraits {
+		public:
+			static void AssertDisruptorElementCreation(size_t numTransactions) {
+				// Act:
+				test::EntitiesVector entities;
+				auto element = DisruptorElement(CreateInput(numTransactions, entities), 17, EmptyProcessingCompleteFunc);
+
+				// Assert:
+				AssertInput(element.input(), numTransactions, entities, InputSource::Unknown);
+				EXPECT_EQ(17u, element.id());
+				EXPECT_FALSE(element.isSkipped());
+			}
+		};
+	}
+
+#define ENTITY_TRAITS_BASED_TEST(TEST_NAME) ENTITY_TRAITS_BASED_CLASS_TEST(TEST_CLASS, TEST_NAME)
+
+	// region DisruptorElement
+
+	TEST(TEST_CLASS, CanCreateEmptyDisruptorElement) {
+		// Act:
+		DisruptorElement element;
+
+		// Assert:
+		test::AssertEmptyInput(element.input());
+		EXPECT_EQ(static_cast<uint64_t>(-1), element.id());
+		EXPECT_FALSE(element.isSkipped());
+		test::AssertContinued(element.completionResult());
+	}
+
+	ENTITY_TRAITS_BASED_TEST(CanCreateDisruptorElementAroundSingleEntity) {
+		// Assert:
+		TTraits::AssertDisruptorElementCreation(1);
+	}
+
+	ENTITY_TRAITS_BASED_TEST(CanCreateDisruptorElementAroundMultipleEntities) {
+		// Assert:
+		TTraits::AssertDisruptorElementCreation(3);
+	}
+
+	TEST(TEST_CLASS, CanMarkDisruptorElementAsSkipped) {
+		// Arrange:
+		DisruptorElement element;
+
+		// Sanity:
+		EXPECT_FALSE(element.isSkipped());
+
+		// Act:
+		element.markSkipped(7, 9);
+
+		// Assert:
+		EXPECT_TRUE(element.isSkipped());
+		test::AssertAborted(element.completionResult(), 9, 7);
+	}
+
+	TEST(TEST_CLASS, CanOutputDisruptorElement) {
+		// Arrange:
+		auto pTransaction1 = test::GenerateRandomTransaction();
+		auto pTransaction2 = test::GenerateRandomTransaction();
+		auto range = test::CreateEntityRange(std::vector<const model::Transaction*>{ pTransaction1.get(), pTransaction2.get() });
+		ConsumerInput input(std::move(range), InputSource::Remote_Pull);
+		input.transactions()[0].EntityHash = { { 0x00, 0xDA, 0x28, 0x96, 0xFF } };
+		DisruptorElement element(std::move(input), 21, EmptyProcessingCompleteFunc);
+
+		// Act:
+		auto str = test::ToString(element);
+
+		// Assert:
+		EXPECT_EQ("element 21 (2 txes [00DA2896] from Remote_Pull)", str);
+	}
+
+	namespace {
+		void AssertProcessingCompleteDelegatesToCompletionHandler(
+				const std::function<void (DisruptorElement&)>& elementModifier,
+				const ConsumerCompletionResult& expectedResult) {
+			// Arrange:
+			DisruptorElementId elementId;
+			ConsumerCompletionResult consumerResult;
+			DisruptorElement element(ConsumerInput(), 21, [&elementId, &consumerResult](auto id, auto result) {
+				elementId = id;
+				consumerResult = result;
+			});
+
+			elementModifier(element);
+
+			// Act:
+			element.markProcessingComplete();
+
+			// Assert:
+			EXPECT_EQ(21u, element.id());
+			test::AssertEqual(expectedResult, consumerResult);
+		}
+	}
+
+	TEST(TEST_CLASS, MarkProcessingCompleteDelegatesToCompletionHandlerIfElementIsNotSkipped) {
+		// Assert:
+		AssertProcessingCompleteDelegatesToCompletionHandler([](const auto&) {}, ConsumerCompletionResult());
+	}
+
+	TEST(TEST_CLASS, MarkProcessingCompleteDelegatesToCompletionHandlerIfElementIsSkipped) {
+		// Arrange:
+		auto expectedResult = ConsumerCompletionResult();
+		expectedResult.CompletionStatus = CompletionStatus::Aborted;
+		expectedResult.CompletionCode = 22;
+		expectedResult.FinalConsumerPosition = 123;
+
+		// Assert:
+		AssertProcessingCompleteDelegatesToCompletionHandler(
+				[](auto& element) { element.markSkipped(123, 22); },
+				expectedResult);
+	}
+
+	// endregion
+
+	// region IsIntervalElementId
+
+	TEST(TEST_CLASS, IsIntervalElementIdReturnsFalseWhenIntervalIsZero) {
+		// Assert:
+		EXPECT_FALSE(IsIntervalElementId(4, 0));
+		EXPECT_FALSE(IsIntervalElementId(7, 0));
+		EXPECT_FALSE(IsIntervalElementId(8, 0));
+		EXPECT_FALSE(IsIntervalElementId(9, 0));
+	}
+
+	TEST(TEST_CLASS, IsIntervalElementIdReturnsFalseWhenIdIsNotAMultipleOfInterval) {
+		// Assert:
+		EXPECT_FALSE(IsIntervalElementId(4, 8));
+		EXPECT_FALSE(IsIntervalElementId(7, 3));
+		EXPECT_FALSE(IsIntervalElementId(8, 3));
+		EXPECT_FALSE(IsIntervalElementId(9, 4));
+	}
+
+	TEST(TEST_CLASS, IsIntervalElementIdReturnsTrueWhenIdIsMultipleOfInterval) {
+		// Assert:
+		EXPECT_TRUE(IsIntervalElementId(4, 4));
+		EXPECT_TRUE(IsIntervalElementId(7, 7));
+		EXPECT_TRUE(IsIntervalElementId(8, 2));
+		EXPECT_TRUE(IsIntervalElementId(9, 3));
+	}
+
+	// endregion
+}}

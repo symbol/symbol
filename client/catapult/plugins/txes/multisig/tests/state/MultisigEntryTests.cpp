@@ -1,0 +1,121 @@
+#include "src/state/MultisigEntry.h"
+#include "tests/test/MultisigTestUtils.h"
+#include "tests/TestHarness.h"
+
+namespace catapult { namespace state {
+
+#define TEST_CLASS MultisigEntryTests
+
+	namespace {
+		void AssertSettings(uint8_t expectedMinApproval, uint8_t expectedMinRemoval, const MultisigEntry& entry) {
+			EXPECT_EQ(expectedMinApproval, entry.minApproval());
+			EXPECT_EQ(expectedMinRemoval, entry.minRemoval());
+		}
+
+		void AssertCosignatories(const std::vector<Key>& expectedCosignatories, const MultisigEntry& entry) {
+			test::AssertContents(expectedCosignatories, entry.cosignatories());
+		}
+
+		void AssertMultisigAccounts(const std::vector<Key>& expectedMultisigAccounts, const MultisigEntry& entry) {
+			test::AssertContents(expectedMultisigAccounts, entry.multisigAccounts());
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateMultisigEntry) {
+		// Act:
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto entry = MultisigEntry(key);
+
+		// Assert:
+		EXPECT_EQ(key, entry.key());
+
+		AssertSettings(0, 0, entry);
+		AssertCosignatories({}, entry);
+		AssertMultisigAccounts({}, entry);
+	}
+
+	TEST(TEST_CLASS, CanChangeSettings) {
+		// Arrange:
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto entry = MultisigEntry(key);
+
+		// Act:
+		entry.setMinApproval(12);
+		entry.setMinRemoval(34);
+
+		// Assert:
+		AssertSettings(12, 34, entry);
+		AssertCosignatories({}, entry);
+		AssertMultisigAccounts({}, entry);
+	}
+
+	TEST(TEST_CLASS, CanAddAndRemoveBothCosignatoriesAndAccounts) {
+		// Arrange:
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto accountKeys = test::GenerateKeys(10);
+		auto entry = MultisigEntry(key);
+
+		// Act:
+		entry.setMinApproval(55);
+		entry.setMinRemoval(66);
+
+		decltype(accountKeys) expectedCosignatories;
+		for (auto i = 0u; i < 10; ++i)
+			entry.cosignatories().insert(accountKeys[i]);
+
+		for (auto i = 0u; i < 10; i += 2)
+			entry.cosignatories().erase(accountKeys[i]);
+
+		for (auto i = 1u; i < 10; i += 2)
+			expectedCosignatories.push_back(accountKeys[i]);
+
+		decltype(accountKeys) expectedMultisigAccounts;
+		for (auto i = 0u; i < 10; ++i)
+			entry.multisigAccounts().insert(accountKeys[i]);
+
+		for (auto i = 1u; i < 10; i += 2)
+			entry.multisigAccounts().erase(accountKeys[i]);
+
+		for (auto i = 0u; i < 10; i += 2)
+			expectedMultisigAccounts.push_back(accountKeys[i]);
+
+		// Assert:
+		AssertSettings(55, 66, entry);
+		AssertCosignatories(expectedCosignatories, entry);
+		AssertMultisigAccounts(expectedMultisigAccounts, entry);
+	}
+
+	TEST(TEST_CLASS, HasCosignatoryReturnsTrueIfKeyIsCosignatory) {
+		// Arrange:
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto accountKeys = test::GenerateKeys(10);
+		auto entry = MultisigEntry(key);
+
+		for (auto i = 0u; i < 10; ++i)
+			entry.cosignatories().insert(accountKeys[i]);
+
+		// Act + Assert:
+		auto i = 0u;
+		for (const auto& accountKey : accountKeys) {
+			EXPECT_TRUE(entry.hasCosignatory(accountKey)) << "key " << i;
+			++i;
+		}
+	}
+
+	TEST(TEST_CLASS, HasCosignatoryReturnsFalseIfKeyIsNotCosignatory) {
+		// Arrange:
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto accountKeys = test::GenerateKeys(10);
+		auto entry = MultisigEntry(key);
+
+		for (auto i = 0u; i < 10; ++i)
+			entry.multisigAccounts().insert(accountKeys[i]);
+
+		// Act + Assert:
+		auto i = 0u;
+		for (const auto& accountKey : accountKeys) {
+			EXPECT_FALSE(entry.hasCosignatory(accountKey)) << "key " << i;
+			++i;
+		}
+	}
+}}

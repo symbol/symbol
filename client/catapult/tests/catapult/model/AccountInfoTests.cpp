@@ -1,0 +1,120 @@
+#include "catapult/model/AccountInfo.h"
+#include "tests/test/core/VariableSizedEntityTestUtils.h"
+#include "tests/test/nodeps/NumericTestUtils.h"
+#include "tests/TestHarness.h"
+
+namespace catapult { namespace model {
+
+#define TEST_CLASS AccountInfoTests
+
+	TEST(TEST_CLASS, EntityHasExpectedSize) {
+		// Arrange:
+		auto expectedSize =
+			sizeof(uint32_t) // size of account info
+			+ Address_Decoded_Size // account address
+			+ sizeof(Height) // address height
+			+ Key_Size // public key
+			+ sizeof(Height) // public key height
+			+ Importance_History_Size * sizeof(Importance) // account importances
+			+ Importance_History_Size * sizeof(ImportanceHeight) // account importance heights
+			+ sizeof(uint16_t); // number of mosaics
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(AccountInfo));
+		EXPECT_EQ(127u, sizeof(AccountInfo));
+	}
+
+	TEST(TEST_CLASS, AccountInfoMaxSizeHasCorrectValue) {
+		// Arrange:
+		auto expectedMaxSize =
+			sizeof(AccountInfo)
+			+ sizeof(Mosaic) * 65535; // size of mosaic * maximum number of mosaics
+
+		// Assert:
+		EXPECT_EQ(expectedMaxSize, AccountInfo_Max_Size);
+		EXPECT_EQ(127u + 16 * 65535, AccountInfo_Max_Size);
+	}
+
+	// region CalculateRealSize
+
+	TEST(TEST_CLASS, CanCalculateRealSizeWithReasonableValues) {
+		// Arrange:
+		AccountInfo accountInfo;
+		accountInfo.Size = 0;
+		accountInfo.NumMosaics = 100;
+
+		// Act:
+		auto realSize = CalculateRealSize(accountInfo);
+
+		// Assert:
+		EXPECT_EQ(sizeof(AccountInfo) + 100 * sizeof(Mosaic), realSize);
+	}
+
+	TEST(TEST_CLASS, CalculateRealSizeDoesNotOverflowWithMaxValues) {
+		// Arrange:
+		AccountInfo accountInfo;
+		accountInfo.Size = 0;
+		test::SetMaxValue(accountInfo.NumMosaics);
+
+		// Act:
+		auto realSize = CalculateRealSize(accountInfo);
+
+		// Assert:
+		EXPECT_EQ(sizeof(AccountInfo) + accountInfo.NumMosaics * sizeof(Mosaic), realSize);
+		EXPECT_GE(std::numeric_limits<uint32_t>::max(), realSize);
+	}
+
+	// endregion
+
+	// region FromAddress
+
+	TEST(TEST_CLASS, FromAddressReturnsAccountInfoWithInitializedFields) {
+		// Arrange:
+		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+
+		// Act:
+		auto pAccountInfo = AccountInfo::FromAddress(address);
+
+		// Assert:
+		EXPECT_EQ(sizeof(model::AccountInfo), pAccountInfo->Size);
+		EXPECT_EQ(address, pAccountInfo->Address);
+		EXPECT_EQ(Height(0), pAccountInfo->AddressHeight);
+		EXPECT_EQ(Key(), pAccountInfo->PublicKey);
+		EXPECT_EQ(Height(0), pAccountInfo->PublicKeyHeight);
+		EXPECT_EQ(0, pAccountInfo->NumMosaics);
+
+		for (auto i = 0u; i < Importance_History_Size; ++i) {
+			const auto message = "importance at " + std::to_string(i);
+			EXPECT_EQ(Importance(0), pAccountInfo->Importances[i]) << message;
+			EXPECT_EQ(model::ImportanceHeight(0), pAccountInfo->ImportanceHeights[i]) << message;
+		}
+	}
+
+	// endregion
+
+	namespace {
+		struct AccountInfoTraits {
+			static auto Create() {
+				AccountInfo accountInfo;
+				accountInfo.NumMosaics = 100;
+				return accountInfo;
+			}
+
+			static auto GenerateEntityWithAttachments(uint16_t count) {
+				uint32_t entitySize = sizeof(AccountInfo) + count * sizeof(Mosaic);
+				std::unique_ptr<AccountInfo> pAccountInfo(reinterpret_cast<AccountInfo*>(::operator new(entitySize)));
+				pAccountInfo->Size = entitySize;
+				pAccountInfo->NumMosaics = count;
+				return pAccountInfo;
+			}
+
+			template<typename TEntity>
+			static auto GetAttachmentPointer(TEntity& entity) {
+				return entity.MosaicsPtr();
+			}
+		};
+	}
+
+	DEFINE_IS_SIZE_VALID_TESTS(TEST_CLASS, AccountInfoTraits) // IsSizeValid
+	DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, AccountInfoTraits) // MosaicsPtr
+}}

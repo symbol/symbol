@@ -1,0 +1,185 @@
+#pragma once
+#include "catapult/utils/Casting.h"
+#include "tests/test/core/mocks/MockPacketIo.h"
+#include "tests/TestHarness.h"
+
+namespace catapult { namespace test {
+
+	/// Group of tests for testing remote apis.
+	template<typename TApiTraits>
+	class RemoteApiTests {
+	private:
+		using MockPacketIo = mocks::MockPacketIo;
+
+	public:
+		template<typename TTraits>
+		static void ExceptionIsThrownWhenRemoteNodeWriteFails() {
+			// Arrange: queue a write error
+			auto pPacketIo = std::make_shared<MockPacketIo>();
+			pPacketIo->queueWrite(ionet::SocketOperationCode::Write_Error);
+			auto pApi = TApiTraits::Create(pPacketIo);
+
+			// Act:
+			AssertThrowsApiError([&api = *pApi] { TTraits::Invoke(api).get(); }, "write to remote node failed");
+
+			// Assert:
+			EXPECT_EQ(1u, pPacketIo->numWrites());
+			EXPECT_EQ(0u, pPacketIo->numReads());
+		}
+
+		template<typename TTraits>
+		static void ExceptionIsThrownWhenRemoteNodeReadFails() {
+			// Arrange: queue a read error
+			auto pPacketIo = std::make_shared<MockPacketIo>();
+			pPacketIo->queueWrite(ionet::SocketOperationCode::Success);
+			pPacketIo->queueRead(ionet::SocketOperationCode::Read_Error);
+			auto pApi = TApiTraits::Create(pPacketIo);
+
+			// Act:
+			AssertThrowsApiError([&api = *pApi] { TTraits::Invoke(api).get(); }, "read from remote node failed");
+
+			// Assert:
+			EXPECT_EQ(1u, pPacketIo->numWrites());
+			EXPECT_EQ(1u, pPacketIo->numReads());
+		}
+
+	private:
+		template<typename TTraits>
+		static void AssertMalformedPacket(const std::shared_ptr<ionet::Packet>& pResponsePacket) {
+			// Arrange:
+			auto pPacketIo = std::make_shared<MockPacketIo>();
+			pPacketIo->queueWrite(ionet::SocketOperationCode::Success);
+			pPacketIo->queueRead(ionet::SocketOperationCode::Success, Wrap(pResponsePacket));
+			auto pApi = TApiTraits::Create(pPacketIo);
+
+			// Act:
+			AssertThrowsApiError(
+					[&api = *pApi] { TTraits::Invoke(api).get(); },
+					"remote node returned malformed packet");
+
+			// Assert:
+			EXPECT_EQ(1u, pPacketIo->numWrites());
+			EXPECT_EQ(1u, pPacketIo->numReads());
+		}
+
+	public:
+		template<typename TTraits>
+		static void ExceptionIsThrownWhenRemoteNodeReturnsPacketWithWrongType() {
+			// Act: return the wrong type of packet
+			auto pResponsePacket = TTraits::CreateValidResponsePacket();
+			pResponsePacket->Type = static_cast<ionet::PacketType>(utils::to_underlying_type(pResponsePacket->Type) + 1);
+			AssertMalformedPacket<TTraits>(pResponsePacket);
+		}
+
+		template<typename TTraits>
+		static void ExceptionIsThrownWhenRemoteNodeReturnsEmptyPacket() {
+			// Arrange: return an empty packet
+			auto pResponsePacket = TTraits::CreateValidResponsePacket();
+			pResponsePacket->Size = sizeof(ionet::Packet);
+			AssertMalformedPacket<TTraits>(pResponsePacket);
+		}
+
+		template<typename TTraits>
+		static void ExceptionIsThrownWhenRemoteNodeReturnsMalformedPacket() {
+			// Arrange: return a malformed packet
+			AssertMalformedPacket<TTraits>(TTraits::CreateMalformedResponsePacket());
+		}
+
+		template<typename TTraits>
+		static void WellFormedRequestIsWrittenToRemoteNode() {
+			// Arrange:
+			auto pPacketIo = std::make_shared<MockPacketIo>();
+			pPacketIo->queueWrite(ionet::SocketOperationCode::Success);
+			pPacketIo->queueRead(ionet::SocketOperationCode::Success, Wrap(TTraits::CreateValidResponsePacket()));
+			auto pApi = TApiTraits::Create(pPacketIo);
+
+			// Act:
+			TTraits::Invoke(*pApi).get();
+
+			// Assert:
+			const auto& request = pPacketIo->writtenPacketAt<ionet::Packet>(0);
+			TTraits::ValidateRequest(request);
+			EXPECT_EQ(1u, pPacketIo->numWrites());
+			EXPECT_EQ(1u, pPacketIo->numReads());
+		}
+
+		template<typename TTraits>
+		static void WellFormedResponseFromRemoteNodeIsCoercedIntoDesiredType() {
+			// Arrange:
+			auto pResponsePacket = TTraits::CreateValidResponsePacket();
+
+			auto pPacketIo = std::make_shared<MockPacketIo>();
+			pPacketIo->queueWrite(ionet::SocketOperationCode::Success);
+			pPacketIo->queueRead(ionet::SocketOperationCode::Success, Wrap(pResponsePacket));
+			auto pApi = TApiTraits::Create(pPacketIo);
+
+			// Act:
+			auto result = TTraits::Invoke(*pApi).get();
+
+			// Assert:
+			TTraits::ValidateResponse(*pResponsePacket, result);
+			EXPECT_EQ(1u, pPacketIo->numWrites());
+			EXPECT_EQ(1u, pPacketIo->numReads());
+		}
+
+		template<typename TTraits>
+		static void EmptyResponseIsConsideredValid() {
+			// Arrange:
+			auto pResponsePacket = TTraits::CreateValidResponsePacket();
+			pResponsePacket->Size = sizeof(ionet::Packet);
+
+			auto pPacketIo = std::make_shared<MockPacketIo>();
+			pPacketIo->queueWrite(ionet::SocketOperationCode::Success);
+			pPacketIo->queueRead(ionet::SocketOperationCode::Success, Wrap(pResponsePacket));
+			auto pApi = TApiTraits::Create(pPacketIo);
+
+			// Act:
+			auto result = TTraits::Invoke(*pApi).get();
+
+			// Assert:
+			EXPECT_EQ(0u, result.size());
+			EXPECT_EQ(1u, pPacketIo->numWrites());
+			EXPECT_EQ(1u, pPacketIo->numReads());
+		}
+
+	private:
+		static void AssertThrowsApiError(const std::function<void ()>& action, const char* expectedMessage) {
+			try {
+				action();
+				FAIL() << "Expected catapult_api_error but no exception was thrown";
+			} catch (const api::catapult_api_error& ex) {
+				EXPECT_STREQ(expectedMessage, ex.what());
+			} catch (...) {
+				FAIL() << "Expected catapult_api_error but different exception was thrown";
+			}
+		}
+
+		static MockPacketIo::GenerateReadPacket Wrap(const std::shared_ptr<ionet::Packet>& pPacket) {
+			return [pPacket](const auto*) { return pPacket; };
+		}
+	};
+
+#define DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, TEST_NAME) \
+	TEST(API_CLASS##Tests, TEST_NAME##_##API_FUNCTION) { \
+		test::RemoteApiTests<API_CLASS##Traits>::TEST_NAME<API_FUNCTION##Traits>(); \
+	} \
+
+/// Adds all remote api tests for the specified api class (\a API_CLASS) and function (\a API_FUNCTION).
+#define DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
+	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeWriteFails) \
+	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReadFails) \
+	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsPacketWithWrongType) \
+	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsMalformedPacket) \
+	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, WellFormedRequestIsWrittenToRemoteNode) \
+	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, WellFormedResponseFromRemoteNodeIsCoercedIntoDesiredType)
+
+// For those requests where a non-empty response is expected
+#define DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(API_CLASS, API_FUNCTION) \
+	DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
+	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsEmptyPacket)
+
+// For those requests where a non-empty response is common
+#define DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(API_CLASS, API_FUNCTION) \
+	DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
+	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, EmptyResponseIsConsideredValid)
+}}

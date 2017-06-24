@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.2)
+
+add_subdirectory(cache)
+add_subdirectory(core)
+add_subdirectory(int)
+add_subdirectory(local)
+add_subdirectory(mongo)
+add_subdirectory(net)
+add_subdirectory(nodeps)
+add_subdirectory(other)
+add_subdirectory(plugins)

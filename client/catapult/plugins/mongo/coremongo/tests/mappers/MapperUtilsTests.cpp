@@ -1,0 +1,275 @@
+#include "src/mappers/MapperUtils.h"
+#include "catapult/model/VerifiableEntity.h"
+#include "tests/test/mongo/MapperTestUtils.h"
+#include "tests/TestHarness.h"
+#ifndef _MSC_VER
+#pragma GCC visibility push(default)
+#endif
+#include <bsoncxx/exception/exception.hpp>
+#ifndef _MSC_VER
+#pragma GCC visibility pop
+#endif
+
+namespace catapult { namespace mongo { namespace mappers {
+
+#define TEST_CLASS MapperUtilsTests
+
+	// region ToBinary
+
+	TEST(TEST_CLASS, CanConvertRawPointerToBinary) {
+		// Arrange:
+		uint8_t data[10];
+
+		// Act
+		auto bsonBinary = ToBinary(data, 10);
+
+		// Assert:
+		EXPECT_EQ(data, bsonBinary.bytes);
+		EXPECT_EQ(10u, bsonBinary.size);
+	}
+
+	namespace {
+		template<size_t N>
+		void AssertCanConvertArrayToBinary() {
+			// Arrange:
+			auto data = test::GenerateRandomData<N>();
+
+			// Act
+			auto bsonBinary = ToBinary(data);
+
+			// Assert:
+			EXPECT_EQ(data.data(), bsonBinary.bytes);
+			EXPECT_EQ(N, bsonBinary.size);
+		}
+	}
+
+	TEST(TEST_CLASS, CanConvertArraysToBinary) {
+		// Assert:
+		AssertCanConvertArrayToBinary<123>();
+		AssertCanConvertArrayToBinary<111>();
+	}
+
+	// endregion
+
+	// region ToInt64 / ToInt32
+
+	namespace {
+		struct Uint64Traits {
+			struct Custom_tag {};
+			using Custom = utils::BaseValue<uint64_t, Custom_tag>;
+
+			static constexpr auto Fitting_In_Signed_Int = 0x12345670'89ABCDEFull;
+			static constexpr auto Not_Fitting_In_Signed_Int = 0x89ABCDEF'12345670ull;
+
+			static auto ToInt(Custom baseValue) {
+				return ToInt64(baseValue);
+			}
+		};
+
+		struct Uint32Traits {
+			struct Custom_tag {};
+			using Custom = utils::BaseValue<uint32_t, Custom_tag>;
+
+			static constexpr auto Fitting_In_Signed_Int = 0x12345670u;
+			static constexpr auto Not_Fitting_In_Signed_Int = 0x89ABCDEFu;
+
+			static auto ToInt(Custom baseValue) {
+				return ToInt32(baseValue);
+			}
+		};
+	}
+
+#define TRAIT_BASED_TO_INT_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ToInt64) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Uint64Traits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_ToInt32) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Uint32Traits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	TRAIT_BASED_TO_INT_TEST(CanConvertBaseValueInSignedRange) {
+		// Arrange:
+		typename TTraits::Custom customValue(TTraits::Fitting_In_Signed_Int);
+
+		// Act:
+		auto result = TTraits::ToInt(customValue);
+
+		// Assert:
+		EXPECT_EQ(customValue.unwrap(), result);
+	}
+
+	TRAIT_BASED_TO_INT_TEST(CanConvertBaseValueInUnsignedRange) {
+		// Arrange:
+		typename TTraits::Custom customValue(TTraits::Not_Fitting_In_Signed_Int);
+
+		// Act:
+		auto result = TTraits::ToInt(customValue);
+
+		// Assert:
+		EXPECT_EQ(customValue.unwrap(), static_cast<typename TTraits::Custom::ValueType>(result));
+	}
+
+	// endregion
+
+	// region ToUint32
+
+	TEST(TEST_CLASS, CanConvertInt32ToUint32) {
+		// Arrange: 2'147'483'647 is std::numeric_limits<int32_t>::max()
+		std::vector<int32_t> values{ -1, 0, 1, 100, std::numeric_limits<int32_t>::max() };
+		std::vector<uint32_t> expectedValues{ std::numeric_limits<uint32_t>::max(), 0, 1, 100, 2'147'483'647 };
+		std::vector<uint32_t> actualValues;
+
+		// Act:
+		for (auto value : values)
+			actualValues.push_back(ToUint32(value));
+
+		// Assert:
+		EXPECT_EQ(expectedValues, actualValues);
+	}
+
+	// endregion
+
+	// region GetValue64
+
+	TEST(TEST_CLASS, GetValue64_CanConvertInt64ToBaseValue) {
+		// Arrange: serialize to mongo
+		bson_stream::document builder;
+		builder << "val" << static_cast<int64_t>(1234);
+		auto view = builder.view();
+
+		// Sanity:
+		EXPECT_EQ(1u, test::GetFieldCount(view));
+
+		// Act:
+		auto value = GetValue64<Amount>(view["val"]);
+
+		// Assert:
+		EXPECT_EQ(Amount(1234), value);
+	}
+
+	TEST(TEST_CLASS, GetValue64_CannotConvertInt32ToBaseValue) {
+		// Arrange: serialize to mongo
+		bson_stream::document builder;
+		builder << "val" << static_cast<int32_t>(1234);
+		auto view = builder.view();
+
+		// Sanity:
+		EXPECT_EQ(1u, test::GetFieldCount(view));
+
+		// Act:
+		EXPECT_THROW(GetValue64<Amount>(view["val"]), bsoncxx::exception);
+	}
+
+	// endregion
+
+	// region DbArrayToModelArray
+
+	TEST(TEST_CLASS, DbBinaryToModelArray_CanMapBinaryToStlArray) {
+		// Arrange:
+		auto input = test::GenerateRandomData<17>();
+
+		// Act: serialize to mongo
+		bson_stream::document builder;
+		builder << "bin" << ToBinary(input);
+		auto view = builder.view();
+
+		// Sanity:
+		EXPECT_EQ(1u, test::GetFieldCount(view));
+		auto dbBinary = view["bin"].get_binary();
+
+		// Act:
+		std::array<uint8_t, 17> output;
+		DbBinaryToModelArray(output, dbBinary);
+
+		// Assert:
+		EXPECT_EQ(input, output);
+	}
+
+	namespace {
+		template<size_t InputSize, size_t OutputSize>
+		void AssertDbBinaryToModelArrayFailsIfOutputArrayHasUnexpectedSize() {
+			// Arrange:
+			auto input = test::GenerateRandomData<InputSize>();
+
+			// Act: serialize to mongo
+			bson_stream::document builder;
+			builder << "bin" << ToBinary(input);
+			auto view = builder.view();
+
+			// Sanity:
+			EXPECT_EQ(1u, test::GetFieldCount(view));
+			auto dbBinary = view["bin"].get_binary();
+
+			// Act:
+			std::array<uint8_t, OutputSize> output;
+			EXPECT_THROW(DbBinaryToModelArray(output, dbBinary), catapult_invalid_argument);
+		}
+	}
+
+	TEST(TEST_CLASS, DbBinaryToModelArray_FailsIfOutputArrayIsTooSmall) {
+		// Assert:
+		AssertDbBinaryToModelArrayFailsIfOutputArrayHasUnexpectedSize<17, 16>();
+	}
+
+	TEST(TEST_CLASS, DbBinaryToModelArray_FailsIfOutputArrayIsTooLarge) {
+		// Assert:
+		AssertDbBinaryToModelArrayFailsIfOutputArrayHasUnexpectedSize<17, 18>();
+	}
+
+	// endregion
+
+	// region StreamXyz
+
+	TEST(TEST_CLASS, CanStreamEmbeddedEntity) {
+		// Arrange:
+		model::EmbeddedEntity entity;
+		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&entity), sizeof(model::EmbeddedEntity) });
+
+		// Act: serialize to mongo
+		bson_stream::document builder;
+		StreamEmbeddedEntity(builder, entity);
+		auto view = builder.view();
+
+		// Assert:
+		EXPECT_EQ(3u, test::GetFieldCount(view));
+		test::AssertEqualEmbeddedEntityData(entity, view);
+	}
+
+	TEST(TEST_CLASS, CanStreamVerifiableEntity) {
+		// Arrange:
+		model::VerifiableEntity entity;
+		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&entity), sizeof(model::VerifiableEntity) });
+
+		// Act: serialize to mongo
+		bson_stream::document builder;
+		StreamVerifiableEntity(builder, entity);
+		auto view = builder.view();
+
+		// Assert:
+		EXPECT_EQ(4u, test::GetFieldCount(view));
+		test::AssertEqualVerifiableEntityData(entity, view);
+	}
+
+	TEST(TEST_CLASS, CanStreamMosaic) {
+		// Arrange:
+		auto id = test::GenerateRandomValue<MosaicId>();
+		auto amount = test::GenerateRandomValue<Amount>();
+
+		// Act: serialize to mongo
+		bson_stream::document builder;
+		auto mosaicsArray = builder << "arr" << bson_stream::open_array;
+		StreamMosaic(mosaicsArray, id, amount);
+		mosaicsArray << bson_stream::close_array;
+		auto view = builder.view();
+
+		// Assert:
+		EXPECT_EQ(1u, test::GetFieldCount(view));
+
+		auto dbArray = view["arr"].get_array().value;
+		ASSERT_EQ(1u, std::distance(dbArray.cbegin(), dbArray.cend()));
+
+		auto dbMosaic = dbArray.cbegin()->get_document().view();
+		EXPECT_EQ(id.unwrap(), test::GetUint64(dbMosaic, "id"));
+		EXPECT_EQ(amount.unwrap(), test::GetUint64(dbMosaic, "amount"));
+	}
+
+	// endregion
+}}}
