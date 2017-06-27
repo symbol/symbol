@@ -1,1 +1,10 @@
-node_modules
+*~
+_build*/
+node_modules/
+catapult-*.log*
+npm-*.log*
+.idea
+.vscode/
+typings.json
+typings/
+jsconfig.json

@@ -1,0 +1,183 @@
+import { expect } from 'chai';
+import formatters from '../../src/server/formatters';
+
+describe('formatters', () => {
+	function createFormatters() {
+		const formatUint64 = uint64 => (uint64 ? [uint64[0], uint64[1] * 2] : undefined);
+		return formatters.create({
+			chainInfo: {
+				format: chainInfo => ({
+					height: formatUint64(chainInfo.height),
+					scoreLow: formatUint64(chainInfo.scoreLow),
+					scoreHigh: formatUint64(chainInfo.scoreHigh)
+				})
+			}
+		});
+	}
+
+	function addBasicObjectFormattingTests(assertJsonFormat) {
+		// region non-error
+
+		it('can format null object', () => {
+			// Arrange:
+			const object = null;
+
+			// Assert:
+			assertJsonFormat(object, 'null', undefined);
+		});
+
+		it('can format basic object', () => {
+			// Arrange:
+			const object = { foo: 1, bar: 7 };
+
+			// Assert:
+			assertJsonFormat(object, '{"foo":1,"bar":7}', undefined);
+		});
+
+		it('can format catapult object', () => {
+			// Arrange:
+			const object = {
+				payload: {
+					height: [1, 2],
+					scoreLow: [112233, 8899],
+					scoreHigh: [4, 3]
+				},
+				type: 'chainInfo'
+			};
+
+			// Assert: formatter doubles high part
+			assertJsonFormat(object, '{"height":[1,4],"scoreLow":[112233,17798],"scoreHigh":[4,6]}', undefined);
+		});
+
+		it('can format catapult object array', () => {
+			// Arrange:
+			const object = {
+				payload: [
+					{ height: [1, 2] },
+					{ height: [8, 7] }
+				],
+				type: 'chainInfo'
+			};
+
+			// Assert: formatter doubles high part
+			assertJsonFormat(object, '[{"height":[1,4]},{"height":[8,14]}]', undefined);
+		});
+
+		// endregion
+
+		// region error
+
+		it('can format empty error object', () => {
+			// Arrange:
+			const object = new Error();
+
+			// Assert:
+			assertJsonFormat(object, '{"message":""}', 500);
+		});
+
+		it('can format error object with message', () => {
+			// Arrange:
+			const object = new Error();
+			object.message = 'bad message';
+
+			// Assert:
+			assertJsonFormat(object, '{"message":"bad message"}', 500);
+		});
+
+		it('can format error object with message and status code', () => {
+			// Arrange:
+			const object = new Error();
+			object.message = 'bad message';
+			object.statusCode = 404;
+
+			// Assert:
+			assertJsonFormat(object, '{"message":"bad message"}', 404);
+		});
+
+		it('can format error object with body', () => {
+			// Arrange: note that body takes precedence
+			const object = new Error();
+			object.body = { foo: 1, bar: 7 };
+			object.message = 'bad message';
+
+			// Assert:
+			assertJsonFormat(object, '{"foo":1,"bar":7}', 500);
+		});
+
+		it('can format error object with body and status code', () => {
+			// Arrange: note that body takes precedence
+			const object = new Error();
+			object.body = { foo: 1, bar: 7 };
+			object.message = 'bad message';
+			object.statusCode = 404;
+
+			// Assert:
+			assertJsonFormat(object, '{"foo":1,"bar":7}', 404);
+		});
+
+		// endregion
+	}
+
+	describe('json', () => {
+		addBasicObjectFormattingTests((object, expectedJson, expectedStatusCode) => {
+			// Arrange:
+			const req = {};
+
+			const resHeaders = [];
+			const res = {
+				setHeader: (key, value) => {
+					resHeaders.push({ key, value });
+				}
+			};
+
+			const cbParams = [];
+			const cb = (arg1, data) => {
+				cbParams.push({ arg1, data });
+			};
+
+			// Act:
+			createFormatters().json(req, res, object, cb);
+
+			// Assert:
+			expect(res.statusCode).to.equal(expectedStatusCode);
+
+			expect(resHeaders.length).to.equal(1);
+			expect(resHeaders[0]).to.deep.equal({
+				key: 'Content-Length',
+				value: expectedJson.length
+			});
+
+			expect(cbParams.length).to.equal(1);
+			expect(cbParams[0].arg1).to.equal(null);
+			expect(cbParams[0].data).to.equal(expectedJson);
+		});
+	});
+
+	describe('ws', () => {
+		// note that formatters.ws ignores the status code
+		addBasicObjectFormattingTests((object, expectedJson) => {
+			// Act:
+			const result = createFormatters().ws(object);
+
+			// Assert:
+			expect(result).to.equal(expectedJson);
+		});
+
+		it('can bypass formatting of raw object', () => {
+			// Arrange:
+			const object = {
+				payload: {
+					foo: 123,
+					bar: 987
+				},
+				type: 'raw'
+			};
+
+			// Act:
+			const result = createFormatters().ws(object);
+
+			// Assert:
+			expect(result).to.equal(object.payload);
+		});
+	});
+});
