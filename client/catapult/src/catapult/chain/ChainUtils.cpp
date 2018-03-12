@@ -1,7 +1,7 @@
 #include "ChainUtils.h"
 #include "BlockDifficultyScorer.h"
 #include "BlockScorer.h"
-#include "catapult/cache/BlockDifficultyCache.h"
+#include "catapult/cache_core/BlockDifficultyCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/BlockUtils.h"
 
@@ -15,7 +15,7 @@ namespace catapult { namespace chain {
 	}
 
 	namespace {
-		using cache::block_difficulty_cache_types::DifficultySet;
+		using DifficultySet = cache::BlockDifficultyCacheTypes::BaseSetType::SetType;
 
 		DifficultySet LoadDifficulties(
 				const cache::BlockDifficultyCache& cache,
@@ -24,17 +24,13 @@ namespace catapult { namespace chain {
 			auto view = cache.createView();
 			auto range = view->difficultyInfos(height, config.MaxDifficultyBlocks);
 
-			cache::block_difficulty_cache_types::DifficultySet set;
+			DifficultySet set;
 			set.insert(range.begin(), range.end());
 			return set;
 		}
 
-		Difficulty CalculateDifficulty(
-				const DifficultySet& difficulties,
-				const model::BlockChainConfiguration& config) {
-			return chain::CalculateDifficulty(
-					cache::DifficultyInfoRange(difficulties.cbegin(), difficulties.cend()),
-					config);
+		Difficulty CalculateDifficulty(const DifficultySet& difficulties, const model::BlockChainConfiguration& config) {
+			return chain::CalculateDifficulty(cache::DifficultyInfoRange(difficulties.cbegin(), difficulties.cend()), config);
 		}
 	}
 
@@ -70,9 +66,7 @@ namespace catapult { namespace chain {
 		return i;
 	}
 
-	model::ChainScore CalculatePartialChainScore(
-			const model::Block& parent,
-			const std::vector<const model::Block*>& blocks) {
+	model::ChainScore CalculatePartialChainScore(const model::Block& parent, const std::vector<const model::Block*>& blocks) {
 		model::ChainScore score;
 		auto pPreviousBlock = &parent;
 		for (const auto* pBlock : blocks) {

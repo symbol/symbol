@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 
-catapult_executable(catapult.tools.benchmark)
-target_link_libraries(catapult.tools.benchmark catapult.tools)
-catapult_target(catapult.tools.benchmark)
+set(TARGET_NAME catapult.tools.benchmark)
+
+catapult_executable(${TARGET_NAME})
+target_link_libraries(${TARGET_NAME} catapult.tools)
+catapult_target(${TARGET_NAME})

@@ -42,10 +42,7 @@ namespace catapult { namespace test {
 		return CreateUnsignedTransferTransaction(signerPublicKey, recipient, {}, { { Xem_Id, amount } });
 	}
 
-	std::unique_ptr<model::Transaction> CreateTransferTransaction(
-			const crypto::KeyPair& signer,
-			const Address& recipient,
-			Amount amount) {
+	std::unique_ptr<model::Transaction> CreateTransferTransaction(const crypto::KeyPair& signer, const Address& recipient, Amount amount) {
 		auto pTransaction = CreateUnsignedTransferTransaction(signer.publicKey(), recipient, amount);
 		extensions::SignTransaction(signer, *pTransaction);
 		return pTransaction;

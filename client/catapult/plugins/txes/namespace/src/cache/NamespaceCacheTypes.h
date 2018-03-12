@@ -2,14 +2,17 @@
 #include "src/state/Namespace.h"
 #include "src/state/NamespaceEntry.h"
 #include "src/state/RootNamespaceHistory.h"
-#include "catapult/deltaset/BaseSet.h"
+#include "catapult/cache/CacheDescriptorAdapters.h"
+#include "catapult/deltaset/BaseSetDelta.h"
 #include "catapult/utils/Hashers.h"
-#include <unordered_map>
 
 namespace catapult {
 	namespace cache {
 		class BasicNamespaceCacheDelta;
 		class BasicNamespaceCacheView;
+		class NamespaceCache;
+		class NamespaceCacheDelta;
+		class NamespaceCacheView;
 
 		template<typename TCache, typename TCacheDelta, typename TKey, typename TGetResult>
 		class ReadOnlyArtifactCache;
@@ -18,70 +21,80 @@ namespace catapult {
 
 namespace catapult { namespace cache {
 
-	namespace namespace_cache_types {
-		/// A read-only view of a namespace cache.
+	/// Describes a namespace cache.
+	struct NamespaceCacheDescriptor {
+	public:
+		// key value types
+		using KeyType = NamespaceId;
+		using ValueType = state::RootNamespaceHistory;
+
+		// cache types
+		using CacheType = NamespaceCache;
+		using CacheDeltaType = NamespaceCacheDelta;
+		using CacheViewType = NamespaceCacheView;
+
+	public:
+		/// Gets the key corresponding to \a history.
+		static auto GetKeyFromValue(const ValueType& history) {
+			return history.id();
+		}
+	};
+
+	/// Namespace cache types.
+	struct NamespaceCacheTypes {
+	public:
 		using CacheReadOnlyType = ReadOnlyArtifactCache<
 			BasicNamespaceCacheView,
 			BasicNamespaceCacheDelta,
 			NamespaceId,
 			state::NamespaceEntry>;
 
-		namespace namespace_id_namespace_map {
-			/// The map value type.
+	// region secondary descriptors
+
+	private:
+		struct FlatMapTypesDescriptor {
+		public:
+			using KeyType = NamespaceId;
 			using ValueType = state::Namespace;
 
-			/// The entity traits.
-			using EntityTraits = deltaset::MutableTypeTraits<ValueType>;
+		public:
+			static auto GetKeyFromValue(const ValueType& ns) {
+				return ns.id();
+			}
+		};
 
-			/// The underlying info map.
-			using NamespaceIdBasedNamespaceMap = std::unordered_map<
-				NamespaceId,
-				ValueType,
-				utils::BaseValueHasher<NamespaceId>>;
+	// endregion
 
-			/// Retrieves the map key from namespace \a ns.
-			struct NamespaceToNamespaceIdConverter {
-				static auto ToKey(const ValueType& ns) {
-					return ns.id();
-				}
-			};
+	public:
+		using PrimaryTypes = MutableUnorderedMapAdapter<NamespaceCacheDescriptor, utils::BaseValueHasher<NamespaceId>>;
+		using FlatMapTypes = MutableUnorderedMapAdapter<FlatMapTypesDescriptor, utils::BaseValueHasher<NamespaceId>>;
 
-			/// The base set type.
-			using BaseSetType = deltaset::BaseSet<
-				EntityTraits,
-				deltaset::MapStorageTraits<NamespaceIdBasedNamespaceMap, NamespaceToNamespaceIdConverter>>;
+	public:
+		// in order to compose namespace cache from multiple sets, define an aggregate set type
 
-			/// The base set delta type.
-			using BaseSetDeltaType = BaseSetType::DeltaType;
-		}
+		struct BaseSetDeltaPointerType {
+			PrimaryTypes::BaseSetDeltaPointerType pPrimary;
+			FlatMapTypes::BaseSetDeltaPointerType pFlatMap;
+		};
 
-		namespace namespace_id_root_namespace_history_map {
-			/// The map value type.
-			using ValueType = state::RootNamespaceHistory;
+		struct BaseSetType {
+		public:
+			PrimaryTypes::BaseSetType Primary;
+			FlatMapTypes::BaseSetType FlatMap;
 
-			/// The entity traits.
-			using EntityTraits = deltaset::MutableTypeTraits<ValueType>;
+		public:
+			BaseSetDeltaPointerType rebase() {
+				return { Primary.rebase(), FlatMap.rebase() };
+			}
 
-			/// The underlying history map.
-			using NamespaceIdBasedHistoryMap = std::unordered_map<
-				NamespaceId,
-				ValueType,
-				utils::BaseValueHasher<NamespaceId>>;
+			BaseSetDeltaPointerType rebaseDetached() const {
+				return { Primary.rebaseDetached(), FlatMap.rebaseDetached() };
+			}
 
-			/// Retrieves the map key from \a history.
-			struct RootNamespaceHistoryToNamespaceIdConverter {
-				static auto ToKey(const ValueType& history) {
-					return history.id();
-				}
-			};
-
-			/// The base set type.
-			using BaseSetType = deltaset::BaseSet<
-				EntityTraits,
-				deltaset::MapStorageTraits<NamespaceIdBasedHistoryMap, RootNamespaceHistoryToNamespaceIdConverter>>;
-
-			/// The base set delta type.
-			using BaseSetDeltaType = BaseSetType::DeltaType;
-		}
-	}
+			void commit() {
+				Primary.commit();
+				FlatMap.commit();
+			}
+		};
+	};
 }}

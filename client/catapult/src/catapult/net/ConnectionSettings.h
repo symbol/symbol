@@ -14,6 +14,7 @@ namespace catapult { namespace net {
 				: NetworkIdentifier(model::NetworkIdentifier::Zero)
 				, Timeout(utils::TimeSpan::FromSeconds(10))
 				, SocketWorkingBufferSize(utils::FileSize::FromKilobytes(4))
+				, SocketWorkingBufferSensitivity(0) // memory reclamation disabled
 				, MaxPacketDataSize(utils::FileSize::FromMegabytes(100))
 		{}
 
@@ -27,6 +28,9 @@ namespace catapult { namespace net {
 		/// The socket working buffer size.
 		utils::FileSize SocketWorkingBufferSize;
 
+		/// The socket working buffer sensitivity.
+		size_t SocketWorkingBufferSensitivity;
+
 		/// The maximum packet data size.
 		utils::FileSize MaxPacketDataSize;
 
@@ -35,6 +39,7 @@ namespace catapult { namespace net {
 		ionet::PacketSocketOptions toSocketOptions() const {
 			ionet::PacketSocketOptions options;
 			options.WorkingBufferSize = SocketWorkingBufferSize.bytes();
+			options.WorkingBufferSensitivity = SocketWorkingBufferSensitivity;
 			options.MaxPacketDataSize = MaxPacketDataSize.bytes();
 			return options;
 		}

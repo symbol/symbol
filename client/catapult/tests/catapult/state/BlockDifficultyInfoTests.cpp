@@ -4,6 +4,8 @@
 
 namespace catapult { namespace state {
 
+#define TEST_CLASS BlockDifficultyInfoTests
+
 	namespace {
 		auto data1 = BlockDifficultyInfo(Height(123), Timestamp(234), Difficulty(345));
 		auto data2 = BlockDifficultyInfo(Height(123), Timestamp(235), Difficulty(345));
@@ -11,7 +13,7 @@ namespace catapult { namespace state {
 		auto data4 = BlockDifficultyInfo(Height(124), Timestamp(234), Difficulty(345));
 	}
 
-	TEST(BlockDifficultyInfoTests, CanCreateDefaultBlockDifficultyInfo) {
+	TEST(TEST_CLASS, CanCreateDefaultBlockDifficultyInfo) {
 		// Act:
 		auto info = BlockDifficultyInfo();
 
@@ -21,7 +23,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Difficulty(0), info.BlockDifficulty);
 	}
 
-	TEST(BlockDifficultyInfoTests, CanCreateBlockDifficultyInfoFromParameters) {
+	TEST(TEST_CLASS, CanCreateBlockDifficultyInfoFromParameters) {
 		// Act:
 		auto info = BlockDifficultyInfo(Height(123), Timestamp(234), Difficulty(345));
 
@@ -31,7 +33,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Difficulty(345), info.BlockDifficulty);
 	}
 
-	TEST(BlockDifficultyInfoTests, CanCreateBlockDifficultyInfoFromHeightOnly) {
+	TEST(TEST_CLASS, CanCreateBlockDifficultyInfoFromHeightOnly) {
 		// Act:
 		auto info = BlockDifficultyInfo(Height(123));
 
@@ -41,7 +43,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Difficulty(0), info.BlockDifficulty);
 	}
 
-	TEST(BlockDifficultyInfoTests, OperatorLessThanReturnsTrueForSmallerValuesAndFalseOtherwise) {
+	TEST(TEST_CLASS, OperatorLessThanReturnsTrueForSmallerValuesAndFalseOtherwise) {
 		// Assert:
 		EXPECT_FALSE(data1 < data2);
 		EXPECT_FALSE(data2 < data1);
@@ -51,12 +53,12 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(data4 < data1);
 	}
 
-	TEST(BlockDifficultyInfoTests, OperatorEqualReturnsTrueOnlyForEqualValues) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
 		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects({ data1, data2, data3 }, { data4 } );
 	}
 
-	TEST(BlockDifficultyInfoTests, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
 		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects({ data1, data2, data3 }, { data4 });
 	}

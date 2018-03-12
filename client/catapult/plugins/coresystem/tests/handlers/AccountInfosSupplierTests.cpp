@@ -1,22 +1,23 @@
 #include "src/handlers/AccountInfosSupplier.h"
-#include "src/cache/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/state/AccountStateAdapter.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/TestHarness.h"
 #include <numeric>
 
 namespace catapult { namespace handlers {
 
-	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+#define TEST_CLASS AccountInfosSupplierTests
 
+	namespace {
 		using AccountInfos = std::vector<std::shared_ptr<const model::AccountInfo>>;
 		using AccountStates = std::vector<state::AccountState*>;
 
 		auto ExtractAccountStates(const cache::AccountStateCache& cache) {
 			AccountStates accountStates;
 			auto view = cache.createView();
-			for (auto iter = view->cbegin(); view->cend() != iter; ++iter)
-				accountStates.push_back(iter->second.get());
+			for (const auto& pair : *view)
+				accountStates.push_back(pair.second.get());
 
 			return accountStates;
 		}
@@ -32,13 +33,17 @@ namespace catapult { namespace handlers {
 		auto ToAccountInfos(const AccountStates& accountStates, const std::vector<size_t>& indexes) {
 			AccountInfos accountInfos;
 			for (auto index : indexes)
-				accountInfos.push_back(accountStates[index]->toAccountInfo());
+				accountInfos.push_back(state::ToAccountInfo(*accountStates[index]));
 
 			return accountInfos;
 		}
 
 		auto PrepareCache(size_t count) {
-			auto pCache = std::make_unique<cache::AccountStateCache>(Network_Identifier, 777);
+			auto pCache = std::make_unique<cache::AccountStateCache>(cache::AccountStateCacheTypes::Options{
+				model::NetworkIdentifier::Mijin_Test,
+				777,
+				Amount(std::numeric_limits<Amount::ValueType>::max())
+			});
 			auto delta = pCache->createDelta();
 			for (auto i = 0u; i < count; ++i) {
 				auto address = test::GenerateRandomData<Address_Decoded_Size>();
@@ -90,26 +95,26 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	TEST(AccountInfosSupplierTests, CanSupplySingleAccountInfo) {
+	TEST(TEST_CLASS, CanSupplySingleAccountInfo) {
 		// Assert:
 		for (auto i = 0u; i < Num_Account_States; ++i)
 			AssertCanSupplyAccountInfos({ i });
 	}
 
-	TEST(AccountInfosSupplierTests, CanSupplyMultipleAccountInfos) {
+	TEST(TEST_CLASS, CanSupplyMultipleAccountInfos) {
 		// Assert:
 		AssertCanSupplyAccountInfos({ 0, 2, 4 });
 		AssertCanSupplyAccountInfos({ 1, 3 });
 	}
 
-	TEST(AccountInfosSupplierTests, CanSupplyAllAccountInfos) {
+	TEST(TEST_CLASS, CanSupplyAllAccountInfos) {
 		// Assert:
 		auto indexes = std::vector<size_t>(Num_Account_States);
 		std::iota(indexes.begin(), indexes.end(), 0);
 		AssertCanSupplyAccountInfos(indexes);
 	}
 
-	TEST(AccountInfosSupplierTests, ReturnsMinimalInitializedAccountInfosForUnknownAccounts) {
+	TEST(TEST_CLASS, ReturnsMinimalInitializedAccountInfosForUnknownAccounts) {
 		// Arrange: change addresses so the corresponding account state cannot be found in the cache
 		AccountInfosContext context(Num_Account_States);
 		for (auto i = 0u; i < Num_Account_States; ++i)

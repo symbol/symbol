@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseValue.h"
+#include "catapult/types.h"
 #include <unordered_set>
-#include <stdint.h>
 
 namespace catapult { namespace utils {
 
@@ -15,5 +15,11 @@ namespace catapult { namespace utils {
 		}
 	};
 
-	using ShortHashesSet = std::unordered_set<utils::ShortHash, utils::ShortHashHasher>;
+	// An unordered set of short hashes.
+	using ShortHashesSet = std::unordered_set<ShortHash, ShortHashHasher>;
+
+	/// Gets the short hash corresponding to \a hash.
+	inline ShortHash ToShortHash(const Hash256& hash) {
+		return reinterpret_cast<const ShortHash&>(*hash.data());
+	}
 }}

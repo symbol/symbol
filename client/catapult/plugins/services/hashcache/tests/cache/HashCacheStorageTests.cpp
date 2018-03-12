@@ -1,18 +1,20 @@
 #include "src/cache/HashCacheStorage.h"
-#include "tests/test/core/mocks/MemoryStream.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
+
+#define TEST_CLASS HashCacheStorageTests
 
 	namespace {
 		using ValueType = state::TimestampedHash;
 		constexpr auto Value_Size = sizeof(Timestamp) + sizeof(ValueType::HashType);
 	}
 
-	TEST(HashCacheStorageTests, CanSaveValue) {
+	TEST(TEST_CLASS, CanSaveValue) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// - create a random value
 		ValueType originalValue;
@@ -29,14 +31,14 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(0u, stream.numFlushes());
 	}
 
-	TEST(HashCacheStorageTests, CanLoadValue) {
+	TEST(TEST_CLASS, CanLoadValue) {
 		// Arrange:
 		HashCache cache(utils::TimeSpan::FromHours(32));
 		auto delta = cache.createDelta();
 
 		std::vector<uint8_t> buffer(Value_Size);
 		test::FillWithRandomData(buffer);
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		HashCacheStorage::Load(stream, *delta);

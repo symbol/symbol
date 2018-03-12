@@ -33,7 +33,7 @@ namespace catapult { namespace builders {
 		m_divisibility = divisibility;
 	}
 
-	void MosaicDefinitionBuilder::setDuration(ArtifactDuration duration) {
+	void MosaicDefinitionBuilder::setDuration(BlockDuration duration) {
 		// drop if 'default duration'
 		if (Eternal_Artifact_Duration == duration)
 			dropOptionalProperty(model::MosaicPropertyId::Duration);
@@ -41,13 +41,12 @@ namespace catapult { namespace builders {
 			addOptionalProperty(model::MosaicPropertyId::Duration, duration.unwrap());
 	}
 
-	std::unique_ptr<model::MosaicDefinitionTransaction> MosaicDefinitionBuilder::build() const {
-		using TransactionType = model::MosaicDefinitionTransaction;
-
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> MosaicDefinitionBuilder::buildImpl() const {
 		// 1. allocate, zero (header), set model::Transaction fields
 		auto propertiesSize = sizeof(model::MosaicProperty) * m_optionalProperties.size();
 		auto size = sizeof(TransactionType) + propertiesSize + m_name.size();
-		auto pTransaction = createTransaction(size);
+		auto pTransaction = createTransaction<TransactionType>(size);
 
 		// 2. set transaction fields
 		pTransaction->ParentId = m_parentId;
@@ -70,5 +69,13 @@ namespace catapult { namespace builders {
 		// 5. set name
 		std::copy(m_name.cbegin(), m_name.cend(), pTransaction->NamePtr());
 		return pTransaction;
+	}
+
+	std::unique_ptr<MosaicDefinitionBuilder::Transaction> MosaicDefinitionBuilder::build() const {
+		return buildImpl<Transaction>();
+	}
+
+	std::unique_ptr<MosaicDefinitionBuilder::EmbeddedTransaction> MosaicDefinitionBuilder::buildEmbedded() const {
+		return buildImpl<EmbeddedTransaction>();
 	}
 }}

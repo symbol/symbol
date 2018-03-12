@@ -15,7 +15,7 @@ namespace catapult { namespace net {
 
 		void GenerateRandomChallenge(Challenge& challenge) {
 			std::random_device generator;
-			std::generate_n(challenge.begin(), challenge.size(), std::ref(generator));
+			std::generate_n(challenge.begin(), challenge.size(), [&generator]() { return static_cast<uint8_t>(generator()); });
 		}
 
 		void Sign(const crypto::KeyPair& keyPair, const Challenge& challenge, Signature& computedSignature) {
@@ -49,9 +49,7 @@ namespace catapult { namespace net {
 		return pResponse;
 	}
 
-	bool VerifyServerChallengeResponse(
-			const ServerChallengeResponse& response,
-			const Challenge& challenge) {
+	bool VerifyServerChallengeResponse(const ServerChallengeResponse& response, const Challenge& challenge) {
 		return Verify(response.PublicKey, challenge, response.Signature);
 	}
 
@@ -63,10 +61,7 @@ namespace catapult { namespace net {
 		return pResponse;
 	}
 
-	bool VerifyClientChallengeResponse(
-			const ClientChallengeResponse& response,
-			const Key& serverPublicKey,
-			const Challenge& challenge) {
+	bool VerifyClientChallengeResponse(const ClientChallengeResponse& response, const Key& serverPublicKey, const Challenge& challenge) {
 		return Verify(serverPublicKey, challenge, response.Signature);
 	}
 }}

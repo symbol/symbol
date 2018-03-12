@@ -86,7 +86,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a signer, \a namespaceId and \a duration.
-		explicit RootNamespaceNotification(const Key& signer, NamespaceId namespaceId, ArtifactDuration duration)
+		explicit RootNamespaceNotification(const Key& signer, NamespaceId namespaceId, BlockDuration duration)
 				: Notification(Notification_Type, sizeof(RootNamespaceNotification))
 				, Signer(signer)
 				, NamespaceId(namespaceId)
@@ -100,8 +100,8 @@ namespace catapult { namespace model {
 		/// The id of the namespace.
 		catapult::NamespaceId NamespaceId;
 
-		/// The amount of blocks for which the namespace should be valid.
-		ArtifactDuration Duration;
+		/// The number of blocks for which the namespace should be valid.
+		BlockDuration Duration;
 	};
 
 	/// Notification of a child namespace registration.

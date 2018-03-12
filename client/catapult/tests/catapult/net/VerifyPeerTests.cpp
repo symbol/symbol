@@ -14,6 +14,8 @@ using catapult::mocks::MockPacketIo;
 
 namespace catapult { namespace net {
 
+#define TEST_CLASS VerifyPeerTests
+
 	// region VerifyClient
 
 	namespace {
@@ -36,8 +38,7 @@ namespace catapult { namespace net {
 			return result;
 		}
 
-		MockPacketIo::GenerateReadPacket CreateServerChallengeResponseGenerator(
-				const std::function<void (ServerChallengeResponse&)>& modifyPacket) {
+		MockPacketIo::GenerateReadPacket CreateServerChallengeResponseGenerator(const consumer<ServerChallengeResponse&>& modifyPacket) {
 			return [modifyPacket](const auto* pPacket) {
 				auto pRequest = static_cast<const ServerChallengeRequest*>(pPacket);
 				auto pResponse = GenerateServerChallengeResponse(*pRequest, crypto::KeyPair::FromString(Client_Private_Key));
@@ -59,7 +60,7 @@ namespace catapult { namespace net {
 		}
 	}
 
-	TEST(VerifyPeerTests, VerifyClientFailsOnServerChallengeRequestWriteFailure) {
+	TEST(TEST_CLASS, VerifyClientFailsOnServerChallengeRequestWriteFailure) {
 		// Arrange: queue a write error
 		auto pMockIo = std::make_shared<MockPacketIo>();
 		pMockIo->queueWrite(ionet::SocketOperationCode::Write_Error);
@@ -73,7 +74,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, pMockIo->numWrites());
 	}
 
-	TEST(VerifyPeerTests, VerifyClientFailsOnServerChallengeResponseReadFailure) {
+	TEST(TEST_CLASS, VerifyClientFailsOnServerChallengeResponseReadFailure) {
 		// Arrange: queue a read error
 		auto pMockIo = std::make_shared<MockPacketIo>();
 		pMockIo->queueWrite(ionet::SocketOperationCode::Success);
@@ -88,7 +89,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, pMockIo->numWrites());
 	}
 
-	TEST(VerifyPeerTests, VerifyClientFailsOnServerChallengeResponseMalformedPacket) {
+	TEST(TEST_CLASS, VerifyClientFailsOnServerChallengeResponseMalformedPacket) {
 		AssertMalformedPacketHandling([](const auto& modifyPacket) {
 			// Arrange: queue a malformed packet
 			auto pMockIo = std::make_shared<MockPacketIo>();
@@ -105,7 +106,7 @@ namespace catapult { namespace net {
 		});
 	}
 
-	TEST(VerifyPeerTests, VerifyClientFailsOnClientChallengeReponseWriteFailure) {
+	TEST(TEST_CLASS, VerifyClientFailsOnClientChallengeReponseWriteFailure) {
 		// Arrange: queue a write error on the second write
 		auto pMockIo = std::make_shared<MockPacketIo>();
 		pMockIo->queueWrite(ionet::SocketOperationCode::Success);
@@ -121,7 +122,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(2u, pMockIo->numWrites());
 	}
 
-	TEST(VerifyPeerTests, VerifyClientFailsOnFailedChallenge) {
+	TEST(TEST_CLASS, VerifyClientFailsOnFailedChallenge) {
 		// Arrange: queue a response with an invalid signature
 		auto pMockIo = std::make_shared<MockPacketIo>();
 		pMockIo->queueWrite(ionet::SocketOperationCode::Success);
@@ -134,7 +135,7 @@ namespace catapult { namespace net {
 		auto result = VerifyClient(pMockIo);
 
 		// Assert:
-		EXPECT_EQ(VerifyResult::Failed_Challenge, result);
+		EXPECT_EQ(VerifyResult::Failure_Challenge, result);
 		EXPECT_EQ(1u, pMockIo->numReads());
 		EXPECT_EQ(1u, pMockIo->numWrites());
 	}
@@ -149,7 +150,7 @@ namespace catapult { namespace net {
 		}
 	}
 
-	TEST(VerifyPeerTests, VerifyClientSucceedsWhenResponseIsVerifiedWithoutIoErrors) {
+	TEST(TEST_CLASS, VerifyClientSucceedsWhenResponseIsVerifiedWithoutIoErrors) {
 		// Arrange: queue no errors
 		auto pMockIo = CreateSuccessfulClientIo();
 
@@ -162,7 +163,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(2u, pMockIo->numWrites());
 	}
 
-	TEST(VerifyPeerTests, VerifyClientWritesServerChallengeRequestWithNonZeroChallenge) {
+	TEST(TEST_CLASS, VerifyClientWritesServerChallengeRequestWithNonZeroChallenge) {
 		// Arrange:
 		auto pMockIo = CreateSuccessfulClientIo();
 
@@ -174,7 +175,7 @@ namespace catapult { namespace net {
 		EXPECT_NE(Challenge{}, packet.Challenge);
 	}
 
-	TEST(VerifyPeerTests, VerifyClientWritesClientChallengeResponseWithValidSignature) {
+	TEST(TEST_CLASS, VerifyClientWritesClientChallengeResponseWithValidSignature) {
 		// Arrange: queue no errors
 		Challenge challenge;
 		auto serverKeyPair = test::GenerateKeyPair();
@@ -225,8 +226,7 @@ namespace catapult { namespace net {
 			return VerifyServer(test::GenerateKeyPair(), test::GenerateKeyPair(), pServerIo);
 		}
 
-		MockPacketIo::GenerateReadPacket CreateServerChallengeRequestGenerator(
-				const std::function<void (ionet::Packet&)>& modifyPacket) {
+		MockPacketIo::GenerateReadPacket CreateServerChallengeRequestGenerator(const consumer<ionet::Packet&>& modifyPacket) {
 			return [modifyPacket](const auto*) {
 				auto pRequest = GenerateServerChallengeRequest();
 				modifyPacket(*pRequest);
@@ -238,8 +238,7 @@ namespace catapult { namespace net {
 			return CreateServerChallengeRequestGenerator([](const auto&) {});
 		}
 
-		MockPacketIo::GenerateReadPacket CreateClientChallengeResponseGenerator(
-				const std::function<void (ClientChallengeResponse&)>& modifyPacket) {
+		MockPacketIo::GenerateReadPacket CreateClientChallengeResponseGenerator(const consumer<ClientChallengeResponse&>& modifyPacket) {
 			return [modifyPacket](const auto* pPacket) {
 				auto pRequest = static_cast<const ClientChallengeRequest*>(pPacket);
 				auto pResponse = GenerateClientChallengeResponse(*pRequest, test::GenerateKeyPair());
@@ -248,8 +247,7 @@ namespace catapult { namespace net {
 			};
 		}
 
-		MockPacketIo::GenerateReadPacket CreateClientChallengeResponseGenerator(
-				const crypto::KeyPair& serverKeyPair) {
+		MockPacketIo::GenerateReadPacket CreateClientChallengeResponseGenerator(const crypto::KeyPair& serverKeyPair) {
 			return [&serverKeyPair](const auto* pPacket) {
 				auto pRequest = static_cast<const ClientChallengeRequest*>(pPacket);
 				return GenerateClientChallengeResponse(*pRequest, serverKeyPair);
@@ -257,7 +255,7 @@ namespace catapult { namespace net {
 		}
 	}
 
-	TEST(VerifyPeerTests, VerifyServerFailsOnServerChallengeRequestReadFailure) {
+	TEST(TEST_CLASS, VerifyServerFailsOnServerChallengeRequestReadFailure) {
 		// Arrange: queue a read error
 		auto pMockIo = std::make_shared<MockPacketIo>();
 		pMockIo->queueRead(ionet::SocketOperationCode::Read_Error);
@@ -271,7 +269,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(0u, pMockIo->numWrites());
 	}
 
-	TEST(VerifyPeerTests, VerifyServerFailsOnServerChallengeRequestMalformedPacket) {
+	TEST(TEST_CLASS, VerifyServerFailsOnServerChallengeRequestMalformedPacket) {
 		AssertMalformedPacketHandling([](const auto& modifyPacket) {
 			// Arrange: queue a malformed packet
 			auto pMockIo = std::make_shared<MockPacketIo>();
@@ -287,7 +285,7 @@ namespace catapult { namespace net {
 		});
 	}
 
-	TEST(VerifyPeerTests, VerifyServerFailsOnServerChallengeResponseWriteFailure) {
+	TEST(TEST_CLASS, VerifyServerFailsOnServerChallengeResponseWriteFailure) {
 		// Arrange: queue a write error
 		auto pMockIo = std::make_shared<MockPacketIo>();
 		pMockIo->queueRead(ionet::SocketOperationCode::Success, CreateServerChallengeRequestGenerator());
@@ -302,7 +300,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, pMockIo->numWrites());
 	}
 
-	TEST(VerifyPeerTests, VerifyServerFailsOnClientChallengeResponseReadFailure) {
+	TEST(TEST_CLASS, VerifyServerFailsOnClientChallengeResponseReadFailure) {
 		// Arrange: queue a read error
 		auto pMockIo = std::make_shared<MockPacketIo>();
 		pMockIo->queueRead(ionet::SocketOperationCode::Success, CreateServerChallengeRequestGenerator());
@@ -318,7 +316,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, pMockIo->numWrites());
 	}
 
-	TEST(VerifyPeerTests, VerifyServerFailsOnClientChallengeResponseMalformedPacket) {
+	TEST(TEST_CLASS, VerifyServerFailsOnClientChallengeResponseMalformedPacket) {
 		AssertMalformedPacketHandling([](const auto& modifyPacket) {
 			// Arrange: queue a malformed packet
 			auto pMockIo = std::make_shared<MockPacketIo>();
@@ -336,7 +334,7 @@ namespace catapult { namespace net {
 		});
 	}
 
-	TEST(VerifyPeerTests, VerifyServerFailsOnFailedChallenge) {
+	TEST(TEST_CLASS, VerifyServerFailsOnFailedChallenge) {
 		// Arrange: queue a response with an invalid signature
 		auto pMockIo = std::make_shared<MockPacketIo>();
 		pMockIo->queueRead(ionet::SocketOperationCode::Success, CreateServerChallengeRequestGenerator());
@@ -349,7 +347,7 @@ namespace catapult { namespace net {
 		auto result = VerifyServer(pMockIo);
 
 		// Assert:
-		EXPECT_EQ(VerifyResult::Failed_Challenge, result);
+		EXPECT_EQ(VerifyResult::Failure_Challenge, result);
 		EXPECT_EQ(2u, pMockIo->numReads());
 		EXPECT_EQ(1u, pMockIo->numWrites());
 	}
@@ -359,14 +357,12 @@ namespace catapult { namespace net {
 			auto pMockIo = std::make_shared<MockPacketIo>();
 			pMockIo->queueRead(ionet::SocketOperationCode::Success, CreateServerChallengeRequestGenerator());
 			pMockIo->queueWrite(ionet::SocketOperationCode::Success);
-			pMockIo->queueRead(
-					ionet::SocketOperationCode::Success,
-					CreateClientChallengeResponseGenerator(serverKeyPair));
+			pMockIo->queueRead(ionet::SocketOperationCode::Success, CreateClientChallengeResponseGenerator(serverKeyPair));
 			return pMockIo;
 		}
 	}
 
-	TEST(VerifyPeerTests, VerifyServerSucceedsWhenResponseIsVerifiedWithoutIoErrors) {
+	TEST(TEST_CLASS, VerifyServerSucceedsWhenResponseIsVerifiedWithoutIoErrors) {
 		// Arrange: queue no errors
 		auto serverKeyPair = test::GenerateKeyPair();
 		auto clientKeyPair = test::GenerateKeyPair();
@@ -381,7 +377,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, pMockIo->numWrites());
 	}
 
-	TEST(VerifyPeerTests, VerifyServerWritesServerChallengeRequestWithNonZeroChallenge) {
+	TEST(TEST_CLASS, VerifyServerWritesServerChallengeRequestWithNonZeroChallenge) {
 		// Arrange:
 		auto serverKeyPair = test::GenerateKeyPair();
 		auto clientKeyPair = test::GenerateKeyPair();
@@ -395,7 +391,7 @@ namespace catapult { namespace net {
 		EXPECT_NE(Challenge{}, packet.Challenge);
 	}
 
-	TEST(VerifyPeerTests, VerifyServerWritesClientChallengeResponseWithValidSignature) {
+	TEST(TEST_CLASS, VerifyServerWritesClientChallengeResponseWithValidSignature) {
 		// Arrange:
 		auto serverKeyPair = test::GenerateKeyPair();
 		auto clientKeyPair = test::GenerateKeyPair();
@@ -407,9 +403,7 @@ namespace catapult { namespace net {
 			return pRequest;
 		});
 		pMockIo->queueWrite(ionet::SocketOperationCode::Success);
-		pMockIo->queueRead(
-				ionet::SocketOperationCode::Success,
-				CreateClientChallengeResponseGenerator(serverKeyPair));
+		pMockIo->queueRead(ionet::SocketOperationCode::Success, CreateClientChallengeResponseGenerator(serverKeyPair));
 
 		// Act: verify and retrieve the first written packet
 		VerifyServer(serverKeyPair, clientKeyPair, pMockIo);
@@ -424,7 +418,7 @@ namespace catapult { namespace net {
 
 	// region VerifyClient / VerifyServer Handshake
 
-	TEST(VerifyPeerTests, VerifyClientAndVerifyServerCanMutuallyValidate) {
+	TEST(TEST_CLASS, VerifyClientAndVerifyServerCanMutuallyValidate) {
 		// Arrange:
 		auto serverKeyPair = test::GenerateKeyPair();
 		auto clientKeyPair = test::GenerateKeyPair();
@@ -435,7 +429,7 @@ namespace catapult { namespace net {
 		// Act: start a server and client verify operation
 		VerifyResult serverResult;
 		Key verifiedClientPublicKey;
-		test::SpawnPacketServerWork(service, [&](const auto& pSocket) -> void {
+		test::SpawnPacketServerWork(service, [&](const auto& pSocket) {
 			VerifyClient(pSocket, serverKeyPair, [&](auto result, const auto& key) {
 				serverResult = result;
 				verifiedClientPublicKey = key;
@@ -445,7 +439,7 @@ namespace catapult { namespace net {
 
 		VerifyResult clientResult;
 		Key verifiedServerPublicKey;
-		test::SpawnPacketClientWork(service, [&](const auto& pSocket) -> void {
+		test::SpawnPacketClientWork(service, [&](const auto& pSocket) {
 			VerifyServer(pSocket, serverKeyPair.publicKey(), clientKeyPair, [&](auto result, const auto& key) {
 				clientResult = result;
 				verifiedServerPublicKey = key;
@@ -454,7 +448,7 @@ namespace catapult { namespace net {
 		});
 
 		// - wait for both verifications to complete
-		WAIT_FOR_VALUE(numResults, 2u);
+		WAIT_FOR_VALUE(2u, numResults);
 
 		// Assert: both verifications succeeded
 		EXPECT_EQ(VerifyResult::Success, serverResult);

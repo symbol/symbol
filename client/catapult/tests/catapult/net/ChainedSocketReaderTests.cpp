@@ -2,42 +2,44 @@
 #include "catapult/ionet/BufferedPacketIo.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/ionet/SocketReader.h"
-#include "catapult/net/AsyncTcpServer.h"
 #include "catapult/thread/IoServiceThreadPool.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/net/SocketTestUtils.h"
-#include "tests/test/net/mocks/MockAsyncTcpServerAcceptContext.h"
-
-using catapult::mocks::MockAsyncTcpServerAcceptContext;
 
 namespace catapult { namespace net {
 
+#define TEST_CLASS ChainedSocketReaderTests
+
 	namespace {
+		// reference inside chained reader is actually wanted, so use alias not to trigger lint warning
+		using ChainedReaderCompletionCode = ionet::SocketOperationCode;
+
 		std::shared_ptr<ChainedSocketReader> CreateChainedReader(
-				boost::asio::io_service& service,
 				const std::shared_ptr<ionet::PacketSocket>& pSocket,
 				const ionet::ServerPacketHandlers& handlers,
-				ionet::SocketOperationCode& completionCode) {
-			auto pAcceptContext = std::make_shared<MockAsyncTcpServerAcceptContext>(service, pSocket);
-			return CreateChainedSocketReader(pAcceptContext, handlers, [&completionCode](auto code) {
+				const ionet::ReaderIdentity& identity,
+				ChainedReaderCompletionCode& completionCode) {
+			return CreateChainedSocketReader(pSocket, handlers, identity, [&completionCode](auto code) {
 				completionCode = code;
 			});
 		}
 
 		/// Options for configuring SendBuffers.
 		struct SendBuffersOptions {
+		public:
 			SendBuffersOptions()
 					: NumReadsToConfirm(0)
 					, HookPacketReceived([](const auto&) {})
 			{}
 
+		public:
 			/// The number of reads to confirm.
 			size_t NumReadsToConfirm;
 
 			/// Hook that is passed every packet as it is read.
-			std::function<void (ChainedSocketReader&)> HookPacketReceived;
+			consumer<ChainedSocketReader&> HookPacketReceived;
 		};
 
 		class WriteHandshakeContext {
@@ -66,7 +68,7 @@ namespace catapult { namespace net {
 
 					if (id <= m_numReadsToConfirm) {
 						CATAPULT_LOG(debug) << "confirming receipt of buffer " << id;
-						WAIT_FOR_VALUE(m_numReceivedBuffers, id);
+						WAIT_FOR_VALUE(id, m_numReceivedBuffers);
 					}
 
 					this->write(socket, sendBuffers, id);
@@ -78,12 +80,17 @@ namespace catapult { namespace net {
 			size_t m_numReadsToConfirm;
 		};
 
+		ionet::ReaderIdentity CreateDefaultClientIdentity() {
+			return { test::GenerateRandomData<Key_Size>(), "alice.com" };
+		}
+
 		/// Writes all \a sendBuffers to a socket and reads them with a reader.
 		std::pair<std::vector<ionet::ByteBuffer>, ionet::SocketOperationCode> SendBuffers(
 				const std::vector<ionet::ByteBuffer>& sendBuffers,
 				SendBuffersOptions options = SendBuffersOptions()) {
 			// Arrange:
 			ionet::ServerPacketHandlers handlers;
+			auto clientIdentity = CreateDefaultClientIdentity();
 			std::atomic<size_t> numReceivedBuffers(0);
 			std::vector<ionet::ByteBuffer> receivedBuffers;
 
@@ -92,8 +99,8 @@ namespace catapult { namespace net {
 			auto pPool = test::CreateStartedIoServiceThreadPool();
 			std::weak_ptr<ChainedSocketReader> pReader;
 			ionet::SocketOperationCode completionCode;
-			test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-				auto pReaderShared = CreateChainedReader(pPool->service(), pServerSocket, handlers, completionCode);
+			test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+				auto pReaderShared = CreateChainedReader(pServerSocket, handlers, clientIdentity, completionCode);
 				pReader = pReaderShared;
 
 				// Arrange: set up a packet handler that copies the received packet bytes into receivedBuffers
@@ -124,9 +131,10 @@ namespace catapult { namespace net {
 		}
 	}
 
-	TEST(ChainedSocketReaderTests, ReaderIsNotAutoStarted) {
+	TEST(TEST_CLASS, ReaderIsNotAutoStarted) {
 		// Arrange:
 		std::atomic<int> numReads(0);
+		auto clientIdentity = CreateDefaultClientIdentity();
 		ionet::ServerPacketHandlers handlers;
 		test::RegisterDefaultHandler(handlers, [&numReads](const auto&, const auto&) {
 			++numReads;
@@ -137,8 +145,8 @@ namespace catapult { namespace net {
 		auto pPool = test::CreateStartedIoServiceThreadPool();
 		auto completionCode = static_cast<ionet::SocketOperationCode>(123);
 		std::shared_ptr<ChainedSocketReader> pReader;
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-			pReader = CreateChainedReader(pPool->service(), pServerSocket, handlers, completionCode);
+		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+			pReader = CreateChainedReader(pServerSocket, handlers, clientIdentity, completionCode);
 		});
 		test::AddClientWriteBuffersTask(pPool->service(), { test::GenerateRandomPacketBuffer(50) });
 
@@ -150,7 +158,37 @@ namespace catapult { namespace net {
 		EXPECT_EQ(static_cast<ionet::SocketOperationCode>(123), completionCode);
 	}
 
-	TEST(ChainedSocketReaderTests, ReaderCanReadSinglePacket) {
+	TEST(TEST_CLASS, AppropriateHandlerContextIsForwardedToHandlers) {
+		// Arrange:
+		auto clientIdentity = CreateDefaultClientIdentity();
+		ionet::ReaderIdentity contextClientIdentity;
+
+		ionet::ServerPacketHandlers handlers;
+		test::RegisterDefaultHandler(handlers, [&contextClientIdentity](const auto&, const auto& context) {
+			// Act: save the context values
+			contextClientIdentity = { context.key(), context.host() };
+		});
+
+		// Act: "server" - creates a chained reader and starts it
+		//      "client" - sends a packet to the server
+		auto pPool = test::CreateStartedIoServiceThreadPool();
+		auto completionCode = static_cast<ionet::SocketOperationCode>(123);
+		std::shared_ptr<ChainedSocketReader> pReader;
+		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+			pReader = CreateChainedReader(pServerSocket, handlers, clientIdentity, completionCode);
+			pReader->start();
+		});
+		test::AddClientWriteBuffersTask(pPool->service(), { test::GenerateRandomPacketBuffer(50) });
+
+		// - wait for the test to complete
+		pPool->join();
+
+		// Assert: context has expected values
+		EXPECT_EQ(clientIdentity.PublicKey, contextClientIdentity.PublicKey);
+		EXPECT_EQ(clientIdentity.Host, contextClientIdentity.Host);
+	}
+
+	TEST(TEST_CLASS, ReaderCanReadSinglePacket) {
 		// Arrange: send a single packet
 		auto sendBuffer = test::GenerateRandomPacketBuffer(100, { 82, 75 });
 		std::vector<ionet::ByteBuffer> sendBuffers{ sendBuffer };
@@ -166,7 +204,7 @@ namespace catapult { namespace net {
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 82u, receivedBuffers[0]);
 	}
 
-	TEST(ChainedSocketReaderTests, ReaderCanReadMultiplePackets) {
+	TEST(TEST_CLASS, ReaderCanReadMultiplePackets) {
 		// Arrange: send three packets
 		auto sendBuffers = test::GenerateRandomPacketBuffers({ 20, 17, 50 });
 
@@ -183,7 +221,7 @@ namespace catapult { namespace net {
 		EXPECT_EQUAL_BUFFERS(sendBuffers[2], 0, 50u, receivedBuffers[2]);
 	}
 
-	TEST(ChainedSocketReaderTests, ReaderStopsAfterError) {
+	TEST(TEST_CLASS, ReaderStopsAfterError) {
 		// Arrange: send a buffer containing three packets with the second one malformed
 		auto sendBuffers = test::GenerateRandomPacketBuffers({ 20, 17, 50 });
 		test::SetPacketAt(sendBuffers[1], 0, 0);
@@ -199,7 +237,7 @@ namespace catapult { namespace net {
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 20u, receivedBuffers[0]);
 	}
 
-	TEST(ChainedSocketReaderTests, ReaderCanBeStopped) {
+	TEST(TEST_CLASS, ReaderCanBeStopped) {
 		// Arrange: send three packets
 		auto sendBuffers = test::GenerateRandomPacketBuffers({ 20, 17, 50 });
 
@@ -223,7 +261,7 @@ namespace catapult { namespace net {
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 20u, receivedBuffers[0]);
 	}
 
-	TEST(ChainedSocketReaderTests, ReadsAreChained) {
+	TEST(TEST_CLASS, ReadsAreChained) {
 		// Arrange: send two multi-packet buffers
 		std::vector<ionet::ByteBuffer> sendBuffers{
 			test::GenerateRandomPacketBuffer(87, { 20, 17, 50 }),

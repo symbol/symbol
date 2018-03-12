@@ -1,14 +1,9 @@
 #pragma once
+#include "MosaicEntry.h"
 #include "src/model/NamespaceConstants.h"
+#include "catapult/preprocessor.h"
 #include "catapult/types.h"
 #include <list>
-
-namespace catapult {
-	namespace state {
-		class MosaicDefinition;
-		class MosaicEntry;
-	}
-}
 
 namespace catapult { namespace state {
 
@@ -62,13 +57,19 @@ namespace catapult { namespace state {
 
 	public:
 		/// Returns a const iterator to the first entry.
-		auto cbegin() const {
+		auto begin() const {
 			return m_history.cbegin();
 		}
 
 		/// Returns a const iterator to the element following the last entry.
-		auto cend() const {
+		auto end() const {
 			return m_history.cend();
+		}
+
+	public:
+		/// Returns \c true if history is active at \a height.
+		bool isActive(Height height) const {
+			return !empty() && back().definition().isActive(height);
 		}
 
 	private:

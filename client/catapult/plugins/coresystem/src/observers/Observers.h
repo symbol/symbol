@@ -8,10 +8,10 @@ namespace catapult { namespace observers {
 	// region VerifiableEntity
 
 	/// Observes account address changes.
-	NotificationObserverPointerT<model::AccountAddressNotification> CreateAccountAddressObserver();
+	DECLARE_OBSERVER(AccountAddress, model::AccountAddressNotification)();
 
 	/// Observes account public key changes.
-	NotificationObserverPointerT<model::AccountPublicKeyNotification> CreateAccountPublicKeyObserver();
+	DECLARE_OBSERVER(AccountPublicKey, model::AccountPublicKeyNotification)();
 
 	// endregion
 
@@ -19,19 +19,22 @@ namespace catapult { namespace observers {
 
 	/// Observes block notifications and triggers importance recalculations using either \a pCommitCalculator (for commits)
 	/// or \a pRollbackCalculator (for rollbacks).
-	NotificationObserverPointerT<model::BlockNotification> CreateRecalculateImportancesObserver(
+	DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)(
 			std::unique_ptr<ImportanceCalculator>&& pCommitCalculator,
 			std::unique_ptr<ImportanceCalculator>&& pRollbackCalculator);
 
 	/// Observes block notifications and credits the harvester with transaction fees.
-	NotificationObserverPointerT<model::BlockNotification> CreateHarvestFeeObserver();
+	DECLARE_OBSERVER(HarvestFee, model::BlockNotification)();
+
+	/// Observes block difficulties.
+	DECLARE_OBSERVER(BlockDifficulty, model::BlockNotification)();
 
 	// endregion
 
 	// region Transaction
 
 	/// Observes balance changes triggered by balance transfer notifications.
-	NotificationObserverPointerT<model::BalanceTransferNotification> CreateBalanceObserver();
+	DECLARE_OBSERVER(Balance, model::BalanceTransferNotification)();
 
 	// endregion
 }}

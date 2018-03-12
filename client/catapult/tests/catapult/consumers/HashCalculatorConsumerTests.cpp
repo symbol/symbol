@@ -4,7 +4,7 @@
 #include "catapult/crypto/Hashes.h"
 #include "catapult/model/EntityHasher.h"
 #include "catapult/exceptions.h"
-#include "tests/catapult/consumers/utils/ConsumerTestUtils.h"
+#include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -13,10 +13,42 @@
 
 using catapult::disruptor::ConsumerInput;
 
+namespace catapult { namespace consumers {
+
 #define BLOCK_TEST_CLASS BlockHashCalculatorConsumerTests
 #define TRANSACTION_TEST_CLASS TransactionHashCalculatorConsumerTests
 
-namespace catapult { namespace consumers {
+	// region CustomBuffersTraits
+
+	namespace {
+		struct CustomBuffersTraits {
+			static model::TransactionRegistry CreateTransactionRegistry() {
+				auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(
+						mocks::OffsetRange{ 6, 10 },
+						std::vector<mocks::OffsetRange>{ { 7, 11 }, { 4, 7 }, { 12, 20 } });
+				auto registry = model::TransactionRegistry();
+				registry.registerPlugin(std::move(pPlugin));
+				return registry;
+			}
+
+			static Hash256 CalculateExpectedEntityHash(const model::Transaction& transaction) {
+				return model::CalculateHash(transaction, mocks::ExtractBuffer({ 6, 10 }, &transaction));
+			}
+
+			static Hash256 CalculateExpectedMerkleComponentHash(const Hash256& entityHash, const model::Transaction& transaction) {
+				Hash256 expectedMerkleComponentHash;
+				crypto::Sha3_256_Builder sha3;
+				sha3.update(entityHash);
+				sha3.update(mocks::ExtractBuffer({ 7, 11 }, &transaction));
+				sha3.update(mocks::ExtractBuffer({ 4, 7 }, &transaction));
+				sha3.update(mocks::ExtractBuffer({ 12, 20 }, &transaction));
+				sha3.final(expectedMerkleComponentHash);
+				return expectedMerkleComponentHash;
+			}
+		};
+	}
+
+	// endregion
 
 	// region BlockHashCalculatorConsumer
 
@@ -25,58 +57,76 @@ namespace catapult { namespace consumers {
 
 		void WriteTransactionAt(std::vector<uint8_t>& buffer, size_t offset) {
 			test::SetTransactionAt(buffer, offset, Transaction_Size);
-			auto& tx = reinterpret_cast<model::Transaction&>(buffer[offset]);
+			auto& tx = reinterpret_cast<mocks::MockTransaction&>(buffer[offset]);
+			tx.Type = mocks::MockTransaction::Entity_Type;
 			tx.Deadline = Timestamp(offset);
+			tx.Data.Size = 0;
 		}
 
-		ConsumerInput CreateBlockConsumerInput(uint32_t numBlocks, uint32_t numTransactionsPerBlock) {
+		ConsumerInput CreateBlockConsumerInput(
+				const model::TransactionRegistry& registry,
+				uint32_t numBlocks,
+				uint32_t numTransactionsPerBlock) {
 			uint32_t numBytesPerBlock = sizeof(model::Block) + numTransactionsPerBlock * Transaction_Size;
 			std::vector<uint8_t> buffer(numBlocks * numBytesPerBlock);
+			test::FillWithRandomData(buffer);
 
 			std::vector<size_t> offsets;
 			for (auto i = 0u; i < numBlocks; ++i) {
 				offsets.push_back(i * numBytesPerBlock);
 				auto& block = reinterpret_cast<model::Block&>(buffer[offsets.back()]);
 				block.Size = numBytesPerBlock;
-				block.Type = model::EntityType::Block;
+				block.Type = model::Entity_Type_Block;
 
 				for (auto j = 0u; j < numTransactionsPerBlock; ++j) {
 					auto txOffset = offsets.back() + sizeof(model::Block) + j * Transaction_Size;
 					WriteTransactionAt(buffer, txOffset);
 				}
 
-				extensions::UpdateBlockTransactionsHash(block);
+				extensions::BlockExtensions(registry).updateBlockTransactionsHash(block);
 			}
 
 			auto range = model::BlockRange::CopyVariable(buffer.data(), buffer.size(), offsets);
 			return ConsumerInput(std::move(range));
 		}
 
+		ConsumerInput CreateBlockConsumerInput(uint32_t numBlocks, uint32_t numTransactionsPerBlock) {
+			// use a default transaction registry
+			return CreateBlockConsumerInput(mocks::CreateDefaultTransactionRegistry(), numBlocks, numTransactionsPerBlock);
+		}
+
 		void AssertCorrectHash(const model::TransactionElement& element) {
-			auto expectedEntityHash = model::CalculateHash(element.Transaction);
+			const auto& transaction = element.Transaction;
+			auto expectedEntityHash = CustomBuffersTraits::CalculateExpectedEntityHash(transaction);
+			auto expectedMerkleComponentHash = CustomBuffersTraits::CalculateExpectedMerkleComponentHash(expectedEntityHash, transaction);
+
+			// Assert:
 			EXPECT_EQ(expectedEntityHash, element.EntityHash);
-			EXPECT_EQ(expectedEntityHash, element.MerkleComponentHash);
+			EXPECT_EQ(expectedMerkleComponentHash, element.MerkleComponentHash);
+			EXPECT_NE(expectedEntityHash, expectedMerkleComponentHash);
 		}
 
 		void AssertCorrectHashes(const model::BlockElement& element, uint32_t numExpectedTransactions) {
+			auto expectedBlockHash = model::CalculateHash(element.Block);
+			EXPECT_EQ(expectedBlockHash, element.EntityHash);
+
 			auto numTransactions = 0u;
-			for (const auto& txElement : element.Transactions) {
-				AssertCorrectHash(txElement);
+			for (const auto& transactionElement : element.Transactions) {
+				AssertCorrectHash(transactionElement);
 				++numTransactions;
 			}
 
 			EXPECT_EQ(numExpectedTransactions, numTransactions);
-			EXPECT_EQ(model::CalculateHash(element.Block), element.EntityHash);
 		}
 
 		void AssertBlockHashesAreCalculatedCorrectly(uint32_t numBlocks, uint32_t numTransactionsPerBlock) {
 			// Arrange:
-			auto pRegistry = mocks::CreateDefaultTransactionRegistry();
-			auto input = CreateBlockConsumerInput(numBlocks, numTransactionsPerBlock);
+			auto registry = CustomBuffersTraits::CreateTransactionRegistry();
+			auto input = CreateBlockConsumerInput(registry, numBlocks, numTransactionsPerBlock);
 			auto& blockElements = input.blocks();
 
 			// Act:
-			auto result = CreateBlockHashCalculatorConsumer(*pRegistry)(blockElements);
+			auto result = CreateBlockHashCalculatorConsumer(registry)(blockElements);
 
 			// Assert:
 			test::AssertContinued(result);
@@ -88,8 +138,8 @@ namespace catapult { namespace consumers {
 
 	TEST(BLOCK_TEST_CLASS, CanProcessZeroEntities) {
 		// Assert:
-		auto pRegistry = mocks::CreateDefaultTransactionRegistry();
-		test::AssertPassthroughForEmptyInput(CreateBlockHashCalculatorConsumer(*pRegistry));
+		auto registry = mocks::CreateDefaultTransactionRegistry();
+		test::AssertPassthroughForEmptyInput(CreateBlockHashCalculatorConsumer(registry));
 	}
 
 	TEST(BLOCK_TEST_CLASS, CanProcessSingleEntity) {
@@ -114,13 +164,13 @@ namespace catapult { namespace consumers {
 
 	TEST(BLOCK_TEST_CLASS, CalculatesCorrectHashForDeterministicEntity) {
 		// Arrange:
-		auto pRegistry = mocks::CreateDefaultTransactionRegistry();
+		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto pEntity = test::GenerateDeterministicBlock();
 		auto input = ConsumerInput(model::BlockRange::FromEntity(std::move(pEntity)));
 		auto& blockElements = input.blocks();
 
 		// Act:
-		auto result = CreateBlockHashCalculatorConsumer(*pRegistry)(blockElements);
+		auto result = CreateBlockHashCalculatorConsumer(registry)(blockElements);
 
 		// Assert:
 		test::AssertContinued(result);
@@ -130,18 +180,20 @@ namespace catapult { namespace consumers {
 
 	TEST(BLOCK_TEST_CLASS, ExceptionIsPropagatedIfMalformedTransactionIsProcessed) {
 		// Arrange: make the size of the third transaction invalid
-		auto pRegistry = mocks::CreateDefaultTransactionRegistry();
+		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto input = CreateBlockConsumerInput(3, 4);
 		auto& blockElements = input.blocks();
 
 		const auto* pTransaction = reinterpret_cast<const mocks::MockTransaction*>(&blockElements[1].Block + 1) + 2;
 		const_cast<mocks::MockTransaction*>(pTransaction)->Size = 2 * sizeof(mocks::MockTransaction) + 1;
 
-		// Act: transaction iteration throws an exception
-		EXPECT_THROW(CreateBlockHashCalculatorConsumer(*pRegistry)(blockElements), catapult_runtime_error);
+		// Act + Assert: transaction iteration throws an exception
+		EXPECT_THROW(CreateBlockHashCalculatorConsumer(registry)(blockElements), catapult_runtime_error);
 	}
 
-	// region block transactions hash validation
+	// endregion
+
+	// region BlockHashCalculatorConsumer - block transactions hash validation
 
 	namespace {
 		void AssertBlockWithMismatchedBlockTransactionsHashIsSkipped(
@@ -149,13 +201,13 @@ namespace catapult { namespace consumers {
 				uint32_t numTransactionsPerBlock,
 				uint32_t mismatchedIndex) {
 			// Arrange: corrupt the block transactions hash
-			auto pRegistry = mocks::CreateDefaultTransactionRegistry();
+			auto registry = mocks::CreateDefaultTransactionRegistry();
 			auto input = CreateBlockConsumerInput(numBlocks, numTransactionsPerBlock);
 			auto& blockElements = input.blocks();
 			const_cast<model::Block&>(blockElements[mismatchedIndex].Block).BlockTransactionsHash[0] ^= 0xFF;
 
 			// Act:
-			auto result = CreateBlockHashCalculatorConsumer(*pRegistry)(blockElements);
+			auto result = CreateBlockHashCalculatorConsumer(registry)(blockElements);
 
 			// Assert: the elements were skipped because a block transactions hash didn't match
 			test::AssertAborted(result, Failure_Consumer_Block_Transactions_Hash_Mismatch);
@@ -176,13 +228,12 @@ namespace catapult { namespace consumers {
 
 	// endregion
 
-	// endregion
-
 	// region TransactionHashCalculatorConsumer
 
 	namespace {
 		ConsumerInput CreateTransactionConsumerInput(uint32_t numTransactions) {
 			std::vector<uint8_t> buffer(numTransactions * Transaction_Size);
+			test::FillWithRandomData(buffer);
 
 			std::vector<size_t> offsets;
 			for (auto i = 0u; i < numTransactions; ++i) {
@@ -197,25 +248,25 @@ namespace catapult { namespace consumers {
 
 		void AssertTransactionHashesAreCalculatedCorrectly(uint32_t numTransactions) {
 			// Arrange:
-			auto pRegistry = mocks::CreateDefaultTransactionRegistry();
+			auto registry = CustomBuffersTraits::CreateTransactionRegistry();
 			auto input = CreateTransactionConsumerInput(numTransactions);
-			auto& txElements = input.transactions();
+			auto& transactionElements = input.transactions();
 
 			// Act:
-			auto result = CreateTransactionHashCalculatorConsumer(*pRegistry)(txElements);
+			auto result = CreateTransactionHashCalculatorConsumer(registry)(transactionElements);
 
 			// Assert:
 			test::AssertContinued(result);
-			EXPECT_EQ(numTransactions, txElements.size());
-			for (const auto& txElement : txElements)
-				AssertCorrectHash(txElement);
+			EXPECT_EQ(numTransactions, transactionElements.size());
+			for (const auto& transactionElement : transactionElements)
+				AssertCorrectHash(transactionElement);
 		}
 	}
 
 	TEST(TRANSACTION_TEST_CLASS, CanProcessZeroEntities) {
 		// Assert:
-		auto pRegistry = mocks::CreateDefaultTransactionRegistry();
-		test::AssertPassthroughForEmptyInput(CreateTransactionHashCalculatorConsumer(*pRegistry));
+		auto registry = mocks::CreateDefaultTransactionRegistry();
+		test::AssertPassthroughForEmptyInput(CreateTransactionHashCalculatorConsumer(registry));
 	}
 
 	TEST(TRANSACTION_TEST_CLASS, CanProcessSingleEntity) {
@@ -230,18 +281,18 @@ namespace catapult { namespace consumers {
 
 	TEST(TRANSACTION_TEST_CLASS, CalculatesCorrectHashForDeterministicEntity) {
 		// Arrange:
-		auto pRegistry = mocks::CreateDefaultTransactionRegistry();
+		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto pEntity = test::GenerateDeterministicTransaction();
 		auto input = ConsumerInput(model::TransactionRange::FromEntity(std::move(pEntity)));
-		auto& txElements = input.transactions();
+		auto& transactionElements = input.transactions();
 
 		// Act:
-		auto result = CreateTransactionHashCalculatorConsumer(*pRegistry)(txElements);
+		auto result = CreateTransactionHashCalculatorConsumer(registry)(transactionElements);
 
 		// Assert:
 		test::AssertContinued(result);
-		ASSERT_EQ(1u, txElements.size());
-		EXPECT_EQ(test::Deterministic_Transaction_Hash_String, test::ToHexString(txElements[0].EntityHash));
+		ASSERT_EQ(1u, transactionElements.size());
+		EXPECT_EQ(test::Deterministic_Transaction_Hash_String, test::ToHexString(transactionElements[0].EntityHash));
 	}
 
 	// endregion
@@ -319,31 +370,20 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 
-		const auto& txElement = TTraits::GetTransactionElement(input);
-		EXPECT_EQ(expectedEntityHash, txElement.EntityHash);
-		EXPECT_EQ(expectedEntityHash, txElement.MerkleComponentHash);
+		const auto& transactionElement = TTraits::GetTransactionElement(input);
+		EXPECT_EQ(expectedEntityHash, transactionElement.EntityHash);
+		EXPECT_EQ(expectedEntityHash, transactionElement.MerkleComponentHash);
 	}
 
 	DEPENDENT_HASH_CALCULATION_TEST(TransactionMerkleComponentHashIsDependentOnMerkleSupplementaryBuffers) {
 		// Arrange:
-		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(
-				mocks::OffsetRange{ 6, 10 },
-				std::vector<mocks::OffsetRange>{ { 7, 11 }, { 4, 7 }, { 12, 20 } });
-		auto registry = model::TransactionRegistry();
-		registry.registerPlugin(std::move(pPlugin));
+		auto registry = CustomBuffersTraits::CreateTransactionRegistry();
 
 		auto input = TTraits::CreateInput();
 		const auto& transaction = TTraits::GetTransaction(input);
 
-		auto expectedEntityHash = model::CalculateHash(transaction, mocks::ExtractBuffer({ 6, 10 }, &transaction));
-
-		Hash256 expectedMerkleComponentHash;
-		crypto::Sha3_256_Builder sha3;
-		sha3.update(expectedEntityHash);
-		sha3.update(mocks::ExtractBuffer({ 7, 11 }, &transaction));
-		sha3.update(mocks::ExtractBuffer({ 4, 7 }, &transaction));
-		sha3.update(mocks::ExtractBuffer({ 12, 20 }, &transaction));
-		sha3.final(expectedMerkleComponentHash);
+		auto expectedEntityHash = CustomBuffersTraits::CalculateExpectedEntityHash(transaction);
+		auto expectedMerkleComponentHash = CustomBuffersTraits::CalculateExpectedMerkleComponentHash(expectedEntityHash, transaction);
 
 		TTraits::UpdateWithExpectedMerkleHash(input, expectedMerkleComponentHash);
 
@@ -353,9 +393,10 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 
-		const auto& txElement = TTraits::GetTransactionElement(input);
-		EXPECT_EQ(expectedEntityHash, txElement.EntityHash);
-		EXPECT_EQ(expectedMerkleComponentHash, txElement.MerkleComponentHash);
+		const auto& transactionElement = TTraits::GetTransactionElement(input);
+		EXPECT_EQ(expectedEntityHash, transactionElement.EntityHash);
+		EXPECT_EQ(expectedMerkleComponentHash, transactionElement.MerkleComponentHash);
+		EXPECT_NE(expectedEntityHash, expectedMerkleComponentHash);
 	}
 
 	// endregion

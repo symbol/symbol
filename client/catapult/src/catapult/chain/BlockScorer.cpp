@@ -1,34 +1,79 @@
 #include "BlockScorer.h"
 #include "catapult/model/Block.h"
 #include "catapult/model/ImportanceHeight.h"
+#include "catapult/utils/IntegerMath.h"
 
 namespace catapult { namespace chain {
 
 	namespace {
-		constexpr uint64_t Two_To_54 = 18014398509481984;
+		constexpr uint64_t Two_To_54 = 1ull << 54;
 
-		const double Two_To_256 = std::pow(2, 256);
+		struct GenerationHashInfo {
+			uint32_t Value;
+			uint32_t NumLeadingZeros;
+		};
 
 		constexpr utils::TimeSpan TimeBetweenBlocks(const model::Block& parent, const model::Block& block) {
 			return utils::TimeSpan::FromDifference(block.Timestamp, parent.Timestamp);
 		}
+
+		uint32_t NumLeadingZeros(const Hash256& generationHash) {
+			for (auto i = 0u; i < Hash256_Size; ++i) {
+				if (0 != generationHash[i])
+					return 8u * i + 7u - utils::Log2(generationHash[i]);
+			}
+
+			return 256u;
+		}
+
+#ifdef _MSC_VER
+#define BSWAP(VAL) _byteswap_ulong(VAL)
+#else
+#define BSWAP(VAL) __builtin_bswap32(VAL)
+#endif
+
+		uint32_t ExtractFromHashAtPosition(const Hash256& hash, size_t index) {
+			return BSWAP(*reinterpret_cast<const uint32_t*>(hash.data() + index));
+		}
+
+		GenerationHashInfo ExtractGenerationHashInfo(const Hash256& generationHash) {
+			auto numLeadingZeros = NumLeadingZeros(generationHash);
+			if (224 <= numLeadingZeros)
+				return GenerationHashInfo{ ExtractFromHashAtPosition(generationHash, Hash256_Size - 4), 224 };
+
+			auto quotient = numLeadingZeros / 8;
+			auto remainder = numLeadingZeros % 8;
+			auto value = ExtractFromHashAtPosition(generationHash, quotient);
+			value <<= remainder;
+			value += generationHash[quotient + 4] >> (8 - remainder);
+			return GenerationHashInfo{ value, numLeadingZeros };
+		}
 	}
 
 	uint64_t CalculateHit(const Hash256& generationHash) {
-		// 1. v1 = generation-hash
-		BlockTarget value;
-		boost::multiprecision::import_bits(value, generationHash.cbegin(), generationHash.cend());
+		// we want to calculate 2^54 * abs(log(x)), where x = value/2^256 and value is a 256 bit integer
+		// note that x is always < 1, therefore log(x) is always negative
+		// the original version used boost::multiprecision to convert the generation hash (interpreted as 256 bit integer) to a double
+		// the new version uses only the 32 bits beginning at the first non-zero bit of the hash
+		// this results in a slightly less exact calculation but the difference is less than one ppm
+		auto hashInfo = ExtractGenerationHashInfo(generationHash);
 
-		// 2. temp = double(v1) / 2^256
-		auto temp = value.convert_to<double>() / Two_To_256;
-
-		// 3. temp = abs(log(temp))
-		temp = std::abs(std::log(temp));
-		if (std::isinf(temp))
+		// handle edge cases
+		if (0 == hashInfo.Value)
 			return std::numeric_limits<uint64_t>::max();
 
-		// 4. r = temp * 2^54
-		return static_cast<uint64_t>(temp * Two_To_54);
+		if (0xFFFFFFFF == hashInfo.Value)
+			return 0;
+
+		// calculate nearest integer for log2(value) * 2 ^ 54
+		auto logValue = utils::Log2TimesPowerOfTwo(hashInfo.Value, 54);
+
+		// result is 256 * 2^54 - logValue - (256 - 32 - hashInfo.NumLeadingZeros) * 2^54 which can be simplified
+		boost::multiprecision::uint128_t result = (32 + hashInfo.NumLeadingZeros) * Two_To_54 - logValue;
+
+		// divide by log2(e)
+		result = result * 10'000'000'000'000'000ull / 14'426'950'408'889'634ull;
+		return result.convert_to<uint64_t>();
 	}
 
 	uint64_t CalculateScore(const model::Block& parentBlock, const model::Block& currentBlock) {
@@ -76,16 +121,10 @@ namespace catapult { namespace chain {
 			return BlockTarget(0);
 
 		auto timeDiff = TimeBetweenBlocks(parentBlock, currentBlock);
-		return CalculateTarget(
-				timeDiff,
-				currentBlock.Difficulty,
-				signerImportance,
-				config);
+		return CalculateTarget(timeDiff, currentBlock.Difficulty, signerImportance, config);
 	}
 
-	BlockHitPredicate::BlockHitPredicate(
-			const model::BlockChainConfiguration& config,
-			const ImportanceLookupFunc& importanceLookup)
+	BlockHitPredicate::BlockHitPredicate(const model::BlockChainConfiguration& config, const ImportanceLookupFunc& importanceLookup)
 			: m_config(config)
 			, m_importanceLookup(importanceLookup)
 	{}

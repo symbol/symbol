@@ -3,7 +3,9 @@
 
 namespace catapult { namespace deltaset {
 
-	TEST(PruningBoundaryTests, CanCreateUnsetPruningBoundary) {
+#define TEST_CLASS PruningBoundaryTests
+
+	TEST(TEST_CLASS, CanCreateUnsetPruningBoundary) {
 		// Act:
 		PruningBoundary<int> boundary;
 
@@ -11,7 +13,7 @@ namespace catapult { namespace deltaset {
 		EXPECT_FALSE(boundary.isSet());
 	}
 
-	TEST(PruningBoundaryTests, CanCreateUnsetPruningBoundary_SharedPtr) {
+	TEST(TEST_CLASS, CanCreateUnsetPruningBoundary_SharedPtr) {
 		// Act:
 		PruningBoundary<std::shared_ptr<int>> boundary;
 
@@ -19,7 +21,7 @@ namespace catapult { namespace deltaset {
 		EXPECT_FALSE(boundary.isSet());
 	}
 
-	TEST(PruningBoundaryTests, CanCreatePruningBoundaryWithValue) {
+	TEST(TEST_CLASS, CanCreatePruningBoundaryWithValue) {
 		// Act:
 		PruningBoundary<int> boundary(17);
 
@@ -28,7 +30,7 @@ namespace catapult { namespace deltaset {
 		EXPECT_EQ(17, boundary.value());
 	}
 
-	TEST(PruningBoundaryTests, CanCreatePruningBoundaryWithValue_SharedPtr) {
+	TEST(TEST_CLASS, CanCreatePruningBoundaryWithValue_SharedPtr) {
 		// Act:
 		PruningBoundary<std::shared_ptr<int>> boundary(std::make_shared<int>(17));
 

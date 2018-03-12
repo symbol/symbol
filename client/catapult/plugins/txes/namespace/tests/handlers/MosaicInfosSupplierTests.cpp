@@ -9,6 +9,8 @@
 
 namespace catapult { namespace handlers {
 
+#define TEST_CLASS MosaicInfosSupplierTests
+
 	namespace {
 		using MosaicIds = std::vector<MosaicId>;
 		using MosaicInfos = std::vector<std::shared_ptr<const model::MosaicInfo>>;
@@ -27,7 +29,7 @@ namespace catapult { namespace handlers {
 					state::MosaicDefinition(
 							Height(i + 20),
 							Default_Owner,
-							test::CreateMosaicPropertiesWithDuration(ArtifactDuration(i + 30))));
+							test::CreateMosaicPropertiesWithDuration(BlockDuration(i + 30))));
 				entry.increaseSupply(Amount(i + 40));
 				delta->insert(entry);
 			}
@@ -83,19 +85,19 @@ namespace catapult { namespace handlers {
 
 	// region basic
 
-	TEST(MosaicInfosSupplierTests, CanSupplySingleMosaicInfo) {
+	TEST(TEST_CLASS, CanSupplySingleMosaicInfo) {
 		// Assert:
 		for (auto i = 0u; i < Num_Mosaic_Infos; ++i)
 			AssertCanSupplyMosaicInfos({ i });
 	}
 
-	TEST(MosaicInfosSupplierTests, CanSupplyMultipleMosaicInfos) {
+	TEST(TEST_CLASS, CanSupplyMultipleMosaicInfos) {
 		// Assert:
 		AssertCanSupplyMosaicInfos({ 1, 3, 5 });
 		AssertCanSupplyMosaicInfos({ 2, 4 });
 	}
 
-	TEST(MosaicInfosSupplierTests, CanSupplyAllMosaicInfos) {
+	TEST(TEST_CLASS, CanSupplyAllMosaicInfos) {
 		// Assert:
 		auto ids = std::vector<MosaicId::ValueType>(Num_Mosaic_Infos);
 		std::iota(ids.begin(), ids.end(), 0);
@@ -106,7 +108,7 @@ namespace catapult { namespace handlers {
 
 	// region unknown mosaic
 
-	TEST(MosaicInfosSupplierTests, ReturnsInfoForUnkownMosaic) {
+	TEST(TEST_CLASS, ReturnsInfoForUnkownMosaic) {
 		// Arrange: request an unknown mosaic to be supplied
 		MosaicInfosContext context;
 		MosaicId id(7);

@@ -8,16 +8,6 @@ namespace catapult { namespace test {
 	namespace {
 		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 
-		std::string GenerateValidName(size_t size) {
-			static constexpr char Valid_Alphabet[] = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-			std::string name(size, '\0');
-			std::generate(name.begin(), name.end(), []() {
-				return Valid_Alphabet[test::Random() % (CountOf(Valid_Alphabet) - 1)];
-			});
-			return name;
-		}
-
 		class TestMosaicDefinitionBuilder : public builders::MosaicDefinitionBuilder {
 		public:
 			TestMosaicDefinitionBuilder(const Key& signer, NamespaceId parentId, const RawString& name)
@@ -39,6 +29,17 @@ namespace catapult { namespace test {
 		}
 	}
 
+	std::string GenerateValidName(size_t size) {
+		constexpr auto Valid_Alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+		auto alphabetLength = strlen(Valid_Alphabet);
+
+		std::string name(size, '\0');
+		std::generate(name.begin(), name.end(), [&Valid_Alphabet, alphabetLength]() {
+			return Valid_Alphabet[test::Random() % alphabetLength];
+		});
+		return name;
+	}
+
 	// region MosaicDefinitionTransactionFactory
 
 	using MosaicDefinitionTxPointer = MosaicDefinitionTransactionFactory::TransactionPointerType;
@@ -47,7 +48,7 @@ namespace catapult { namespace test {
 			const Key& signerPublicKey,
 			const std::string& name,
 			NamespaceId parentId,
-			ArtifactDuration duration) {
+			BlockDuration duration) {
 		TestMosaicDefinitionBuilder builder(signerPublicKey, parentId, name);
 		builder.setDuration(duration);
 
@@ -55,17 +56,15 @@ namespace catapult { namespace test {
 	}
 
 	MosaicDefinitionTxPointer MosaicDefinitionTransactionFactory::GenerateRandomUnsigned(size_t nameSize) {
-		return GenerateRandomUnsigned(nameSize, test::GenerateRandomValue<ArtifactDuration>());
+		return GenerateRandomUnsigned(nameSize, test::GenerateRandomValue<BlockDuration>());
 	}
 
-	MosaicDefinitionTxPointer MosaicDefinitionTransactionFactory::GenerateRandomUnsigned(
-			size_t nameSize,
-			ArtifactDuration duration) {
+	MosaicDefinitionTxPointer MosaicDefinitionTransactionFactory::GenerateRandomUnsigned(size_t nameSize, BlockDuration duration) {
 		return GenerateRandomUnsignedWithName(GenerateValidName(nameSize), duration);
 	}
 
 	MosaicDefinitionTxPointer MosaicDefinitionTransactionFactory::GenerateRandomUnsignedWithName(const std::string& name) {
-		return GenerateRandomUnsignedWithName(name, test::GenerateRandomValue<ArtifactDuration>());
+		return GenerateRandomUnsignedWithName(name, test::GenerateRandomValue<BlockDuration>());
 	}
 
 	MosaicDefinitionTxPointer MosaicDefinitionTransactionFactory::GenerateRandomUnsignedWithProperties(
@@ -86,13 +85,9 @@ namespace catapult { namespace test {
 
 	MosaicDefinitionTxPointer MosaicDefinitionTransactionFactory::GenerateRandomUnsignedWithName(
 			const std::string& name,
-			ArtifactDuration duration) {
+			BlockDuration duration) {
 		auto signerPublicKey = test::GenerateRandomData<Key_Size>();
-		auto pTransaction = CreateUnsigned(
-				signerPublicKey,
-				name,
-				test::GenerateRandomValue<NamespaceId>(),
-				duration);
+		auto pTransaction = CreateUnsigned(signerPublicKey, name, test::GenerateRandomValue<NamespaceId>(), duration);
 		FillWithRandomData(pTransaction->Signature);
 		return pTransaction;
 	}
@@ -107,7 +102,7 @@ namespace catapult { namespace test {
 			const Key& signerPublicKey,
 			NamespaceId parentId,
 			const std::string& name,
-			ArtifactDuration duration) {
+			BlockDuration duration) {
 		builders::RegisterNamespaceBuilder builder(Network_Identifier, signerPublicKey, name);
 
 		if (Namespace_Base_Id != parentId)
@@ -137,11 +132,7 @@ namespace catapult { namespace test {
 			NamespaceId parentId,
 			const std::string& name) {
 		auto signerPublicKey = test::GenerateRandomData<Key_Size>();
-		auto pTransaction = CreateUnsigned(
-				signerPublicKey,
-				parentId,
-				name,
-				test::GenerateRandomValue<ArtifactDuration>());
+		auto pTransaction = CreateUnsigned(signerPublicKey, parentId, name, test::GenerateRandomValue<BlockDuration>());
 		FillWithRandomData(pTransaction->Signature);
 		return pTransaction;
 	}

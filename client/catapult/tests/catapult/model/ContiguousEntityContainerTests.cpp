@@ -13,10 +13,13 @@ namespace catapult { namespace model {
 			uint32_t Value;
 		};
 
+		// notice that this function is really creating fixed size *entities* (not structures) because EntityHeader has an entity layout
+		// that supports variable sizing
 		std::vector<EntityHeader> CreateFixedSizedEntities(const std::vector<uint32_t>& values) {
 			std::vector<EntityHeader> entities;
 			for (auto value : values)
 				entities.push_back({ sizeof(EntityHeader), value });
+
 			return entities;
 		}
 
@@ -26,6 +29,7 @@ namespace catapult { namespace model {
 			static auto MakeContainer(TEntity* pEntity, size_t count, size_t size = 0) {
 				if (0 == size)
 					size = count * sizeof(EntityHeader);
+
 				return MakeContiguousEntityContainer(pEntity, size, ErrorPolicy);
 			}
 
@@ -33,6 +37,7 @@ namespace catapult { namespace model {
 			static auto MakeContainer(const TEntity* pEntity, size_t count, size_t size = 0) {
 				if (0 == size)
 					size = count * sizeof(EntityHeader);
+
 				return MakeContiguousEntityContainer(pEntity, size, ErrorPolicy);
 			}
 
@@ -44,23 +49,17 @@ namespace catapult { namespace model {
 	}
 
 // there are four sets of tests: error policy { throw, suppress } X mutability { mutable, const }
+#define TRAITS_BASED_TEST_ENTRY(TEST_NAME, DESCRIPTION, BEGIN_END_TRAITS, ERROR_TRAITS) \
+	TEST(TEST_CLASS, TEST_NAME##_##DESCRIPTION) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BEGIN_END_TRAITS, ERROR_TRAITS>(); \
+	}
+
 #define TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits, typename TContainerTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Throw_Mutable) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndTraits, EntityContainerThrowBasedTraits>(); \
-	} \
-	\
-	TEST(TEST_CLASS, TEST_NAME##_Throw_Const) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits, EntityContainerThrowBasedTraits>(); \
-	} \
-	\
-	TEST(TEST_CLASS, TEST_NAME##_Suppress_Mutable) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BeginEndTraits, EntityContainerSuppressBasedTraits>(); \
-	} \
-	\
-	TEST(TEST_CLASS, TEST_NAME##_Suppress_Const) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::CBeginCEndTraits, EntityContainerSuppressBasedTraits>(); \
-	} \
+	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Throw_Mutable, test::BeginEndTraits, EntityContainerThrowBasedTraits); \
+	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Throw_Const, test::CBeginCEndTraits, EntityContainerThrowBasedTraits); \
+	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Suppress_Mutable, test::BeginEndTraits, EntityContainerSuppressBasedTraits); \
+	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Suppress_Const, test::CBeginCEndTraits, EntityContainerSuppressBasedTraits); \
 	template<typename TTraits, typename TContainerTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 // if TContainerTraits::ThrowsOnError is set, then expect an exception; otherwise, do not
@@ -86,9 +85,9 @@ namespace catapult { namespace model {
 		auto container = TContainerTraits::MakeContainer(&entities[0], 1);
 
 		// Act + Assert:
-		auto it = TTraits::begin(container);
-		EXPECT_EQ(17u, (*it++).Value);
-		EXPECT_EQ(it, TTraits::end(container));
+		auto iter = TTraits::begin(container);
+		EXPECT_EQ(17u, (*iter++).Value);
+		EXPECT_EQ(iter, TTraits::end(container));
 		EXPECT_FALSE(container.hasError());
 	}
 
@@ -98,10 +97,10 @@ namespace catapult { namespace model {
 		auto container = TContainerTraits::MakeContainer(&entities[0], 1);
 
 		// Act + Assert:
-		auto it = TTraits::begin(container);
-		EXPECT_EQ(17u, it->Value);
-		++it;
-		EXPECT_EQ(it, TTraits::end(container));
+		auto iter = TTraits::begin(container);
+		EXPECT_EQ(17u, iter->Value);
+		++iter;
+		EXPECT_EQ(iter, TTraits::end(container));
 		EXPECT_FALSE(container.hasError());
 	}
 
@@ -113,11 +112,11 @@ namespace catapult { namespace model {
 			auto container = TContainerTraits::template MakeContainer<TEntity>(&entities[0], 3);
 
 			// Act + Assert:
-			auto it = TTraits::begin(container);
-			EXPECT_EQ(17u, (*it++).Value);
-			EXPECT_EQ(25u, (*it++).Value);
-			EXPECT_EQ(14u, (*it++).Value);
-			EXPECT_EQ(it, TTraits::end(container));
+			auto iter = TTraits::begin(container);
+			EXPECT_EQ(17u, (*iter++).Value);
+			EXPECT_EQ(25u, (*iter++).Value);
+			EXPECT_EQ(14u, (*iter++).Value);
+			EXPECT_EQ(iter, TTraits::end(container));
 			EXPECT_FALSE(container.hasError());
 		}
 
@@ -128,14 +127,14 @@ namespace catapult { namespace model {
 			auto container = TContainerTraits::template MakeContainer<TEntity>(&entities[0], 3);
 
 			// Act + Assert:
-			auto it = TTraits::begin(container);
-			EXPECT_EQ(17u, it->Value);
-			++it;
-			EXPECT_EQ(25u, it->Value);
-			++it;
-			EXPECT_EQ(14u, it->Value);
-			++it;
-			EXPECT_EQ(it, TTraits::end(container));
+			auto iter = TTraits::begin(container);
+			EXPECT_EQ(17u, iter->Value);
+			++iter;
+			EXPECT_EQ(25u, iter->Value);
+			++iter;
+			EXPECT_EQ(14u, iter->Value);
+			++iter;
+			EXPECT_EQ(iter, TTraits::end(container));
 			EXPECT_FALSE(container.hasError());
 		}
 	}
@@ -169,11 +168,11 @@ namespace catapult { namespace model {
 		auto container = TContainerTraits::MakeContainer(reinterpret_cast<EntityHeader*>(&buffer[0]), 3, 20 + 30 + 10);
 
 		// Act + Assert:
-		auto it = TTraits::begin(container);
-		EXPECT_EQ(17u, (*it++).Value);
-		EXPECT_EQ(25u, (*it++).Value);
-		EXPECT_EQ(14u, (*it++).Value);
-		EXPECT_EQ(it, TTraits::end(container));
+		auto iter = TTraits::begin(container);
+		EXPECT_EQ(17u, (*iter++).Value);
+		EXPECT_EQ(25u, (*iter++).Value);
+		EXPECT_EQ(14u, (*iter++).Value);
+		EXPECT_EQ(iter, TTraits::end(container));
 		EXPECT_FALSE(container.hasError());
 	}
 
@@ -186,14 +185,14 @@ namespace catapult { namespace model {
 		auto container = TContainerTraits::MakeContainer(reinterpret_cast<EntityHeader*>(&buffer[0]), 3, 20 + 30 + 10);
 
 		// Act + Assert:
-		auto it = TTraits::begin(container);
-		EXPECT_EQ(17u, it->Value);
-		++it;
-		EXPECT_EQ(25u, it->Value);
-		++it;
-		EXPECT_EQ(14u, it->Value);
-		++it;
-		EXPECT_EQ(it, TTraits::end(container));
+		auto iter = TTraits::begin(container);
+		EXPECT_EQ(17u, iter->Value);
+		++iter;
+		EXPECT_EQ(25u, iter->Value);
+		++iter;
+		EXPECT_EQ(14u, iter->Value);
+		++iter;
+		EXPECT_EQ(iter, TTraits::end(container));
 		EXPECT_FALSE(container.hasError());
 	}
 
@@ -203,9 +202,9 @@ namespace catapult { namespace model {
 		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
 
 		// Act + Assert:
-		auto it = TTraits::end(container);
-		EXPECT_THROW(it++, catapult_out_of_range);
-		EXPECT_THROW(it++, catapult_out_of_range);
+		auto iter = TTraits::end(container);
+		EXPECT_THROW(iter++, catapult_out_of_range);
+		EXPECT_THROW(iter++, catapult_out_of_range);
 		EXPECT_FALSE(container.hasError());
 	}
 
@@ -215,9 +214,9 @@ namespace catapult { namespace model {
 		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
 
 		// Act + Assert:
-		auto it = TTraits::end(container);
-		EXPECT_THROW(++it, catapult_out_of_range);
-		EXPECT_THROW(++it, catapult_out_of_range);
+		auto iter = TTraits::end(container);
+		EXPECT_THROW(++iter, catapult_out_of_range);
+		EXPECT_THROW(++iter, catapult_out_of_range);
 		EXPECT_FALSE(container.hasError());
 	}
 
@@ -227,9 +226,9 @@ namespace catapult { namespace model {
 		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
 
 		// Act + Assert:
-		auto it = TTraits::end(container);
-		EXPECT_THROW(*it, catapult_out_of_range);
-		EXPECT_THROW(it.operator->(), catapult_out_of_range);
+		auto iter = TTraits::end(container);
+		EXPECT_THROW(*iter, catapult_out_of_range);
+		EXPECT_THROW(iter.operator->(), catapult_out_of_range);
 		EXPECT_FALSE(container.hasError());
 	}
 
@@ -368,16 +367,9 @@ namespace catapult { namespace model {
 #define POSITIONAL_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits, typename TContainerTraits, typename TPositionalTraits> \
 	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TRAITS_BASED_TEST(TEST_NAME##_First) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, FirstElementTraits>(); \
-	} \
-	TRAITS_BASED_TEST(TEST_NAME##_Middle) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, MiddleElementTraits>(); \
-	} \
-	\
-	TRAITS_BASED_TEST(TEST_NAME##_Last) { \
-		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, LastElementTraits>(); \
-	} \
+	TRAITS_BASED_TEST(TEST_NAME##_First) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, FirstElementTraits>(); } \
+	TRAITS_BASED_TEST(TEST_NAME##_Middle) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, MiddleElementTraits>(); } \
+	TRAITS_BASED_TEST(TEST_NAME##_Last) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TTraits, TContainerTraits, LastElementTraits>(); } \
 	template<typename TTraits, typename TContainerTraits, typename TPositionalTraits> \
 	void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
@@ -413,52 +405,94 @@ namespace catapult { namespace model {
 		AssertShortCircuitOnInsufficientEntitySize<TContainerTraits, TPositionalTraits>(101);
 	}
 
+	namespace {
+		struct PostfixIteratorTraits {
+			template<typename TIterator>
+			static void Advance(TIterator& iter) {
+				iter++;
+			}
+		};
+
+		struct PrefixIteratorTraits {
+			template<typename TIterator>
+			static void Advance(TIterator& iter) {
+				++iter;
+			}
+		};
+
+		template<typename TTraits, typename TContainerTraits, typename TIteratorTraits>
+		void AssertCannotAdvanceIteratorAfterError() {
+			// Arrange: trigger an error by setting the size of the second element to zero
+			auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
+			entities[1].Size = 0;
+			auto container = TContainerTraits::MakeContainer(&entities[0], 3);
+
+			// Act + Assert:
+			// - initially no error
+			auto iter = TTraits::begin(container);
+			EXPECT_EQ(17u, iter->Value);
+			EXPECT_FALSE(container.hasError());
+
+			// - error after advancing
+			EXPECT_ITERATION_ERROR(TIteratorTraits::Advance(iter));
+			EXPECT_TRUE(container.hasError());
+			EXPECT_EQ(TTraits::end(container), iter);
+
+			// - cannot advance any further
+			EXPECT_THROW(TIteratorTraits::Advance(iter), catapult_out_of_range);
+			EXPECT_THROW(TIteratorTraits::Advance(iter), catapult_out_of_range);
+		}
+
+		template<typename TTraits, typename TContainerTraits, typename TIteratorTraits>
+		void AssertCannotAdvanceIteratorAfterErrorAtEnd() {
+			// Arrange: trigger an error by indicating the container size is one byte too large
+			auto entities = CreateFixedSizedEntities({ 17, 14 });
+			auto container = TContainerTraits::MakeContainer(&entities[0], 0, 2 * sizeof(EntityHeader) + 1);
+
+			// Act + Assert:
+			// - initially no error
+			auto iter = TTraits::begin(container);
+			EXPECT_EQ(17u, iter->Value);
+			EXPECT_FALSE(container.hasError());
+
+			// - can advance without error
+			TIteratorTraits::Advance(iter);
+			EXPECT_EQ(14u, iter->Value);
+			EXPECT_FALSE(container.hasError());
+
+			// - error before reaching end
+			EXPECT_ITERATION_ERROR(TIteratorTraits::Advance(iter));
+			EXPECT_TRUE(container.hasError());
+			EXPECT_EQ(TTraits::end(container), iter);
+
+			// - cannot advance any further
+			EXPECT_THROW(TIteratorTraits::Advance(iter), catapult_out_of_range);
+			EXPECT_THROW(TIteratorTraits::Advance(iter), catapult_out_of_range);
+		}
+	}
+
 	TRAITS_BASED_TEST(CannotAdvancePostfixIteratorAfterError) {
-		// Arrange: cause an error by setting the size of the second element to zero
-		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
-		entities[1].Size = 0;
-		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
-
-		// Act + Assert:
-		// - initially no error
-		auto it = TTraits::begin(container);
-		EXPECT_EQ(17u, it->Value);
-		EXPECT_FALSE(container.hasError());
-
-		// - error after advancing
-		EXPECT_ITERATION_ERROR(it++);
-		EXPECT_TRUE(container.hasError());
-		EXPECT_EQ(TTraits::end(container), it);
-
-		// - cannot advance any further
-		EXPECT_THROW(it++, catapult_out_of_range);
-		EXPECT_THROW(it++, catapult_out_of_range);
+		// Assert:
+		AssertCannotAdvanceIteratorAfterError<TTraits, TContainerTraits, PostfixIteratorTraits>();
 	}
 
 	TRAITS_BASED_TEST(CannotAdvancePrefixIteratorAfterError) {
-		// Arrange: cause an error by setting the size of the second element to zero
-		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
-		entities[1].Size = 0;
-		auto container = TContainerTraits::MakeContainer(&entities[0], 3);
+		// Assert:
+		AssertCannotAdvanceIteratorAfterError<TTraits, TContainerTraits, PrefixIteratorTraits>();
+	}
 
-		// Act + Assert:
-		// - initially no error
-		auto it = TTraits::begin(container);
-		EXPECT_EQ(17u, it->Value);
-		EXPECT_FALSE(container.hasError());
+	TRAITS_BASED_TEST(CannotAdvancePostfixIteratorAfterErrorAtEnd) {
+		// Assert:
+		AssertCannotAdvanceIteratorAfterErrorAtEnd<TTraits, TContainerTraits, PostfixIteratorTraits>();
+	}
 
-		// - error after advancing
-		EXPECT_ITERATION_ERROR(++it);
-		EXPECT_TRUE(container.hasError());
-		EXPECT_EQ(TTraits::end(container), it);
-
-		// - cannot advance any further
-		EXPECT_THROW(++it, catapult_out_of_range);
-		EXPECT_THROW(++it, catapult_out_of_range);
+	TRAITS_BASED_TEST(CannotAdvancePrefixIteratorAfterErrorAtEnd) {
+		// Assert:
+		AssertCannotAdvanceIteratorAfterErrorAtEnd<TTraits, TContainerTraits, PrefixIteratorTraits>();
 	}
 
 	TRAITS_BASED_TEST(BeginAbortsIfFirstElementHasInvalidSize) {
-		// Arrange: cause an error by setting the size of the first element to zero
+		// Arrange: trigger an error by setting the size of the first element to zero
 		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 		entities[0].Size = 0;
 		auto container = TContainerTraits::MakeContainer(&entities[0], 3);

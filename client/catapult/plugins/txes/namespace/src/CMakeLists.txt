@@ -8,7 +8,7 @@ target_link_libraries(${PLUGIN_BASE_NAME}.sdk catapult.crypto)
 
 # create a deps lib (namespace plugin requires account cache)
 catapult_library_target(${PLUGIN_BASE_NAME}.deps cache config handlers observers validators)
-target_link_libraries(${PLUGIN_BASE_NAME}.deps ${PLUGIN_CATAPULT_LIBS} ${PLUGIN_BASE_NAME}.sdk catapult.plugins.coresystem)
+target_link_libraries(${PLUGIN_BASE_NAME}.deps ${PLUGIN_CATAPULT_LIBS} ${PLUGIN_BASE_NAME}.sdk)
 
 # create a plugin dll
 catapult_shared_library_target(${PLUGIN_BASE_NAME} plugins)

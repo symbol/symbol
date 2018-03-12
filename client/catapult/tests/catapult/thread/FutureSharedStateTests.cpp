@@ -1,8 +1,9 @@
-#include "catapult/thread/FutureSharedState.h"
+#include "catapult/thread/detail/FutureSharedState.h"
 #include "tests/TestHarness.h"
 #include <thread>
 
 namespace catapult { namespace thread {
+
 	using namespace detail;
 
 #define TEST_CLASS FutureSharedStateTests
@@ -22,11 +23,11 @@ namespace catapult { namespace thread {
 		shared_state<int> state;
 		state.set_continuation([](const auto&) {});
 
-		// Act: attempting to set a second continuation throws
+		// Act + Assert: attempting to set a second continuation throws
 		EXPECT_THROW(state.set_continuation([](const auto&) {}), std::logic_error);
 	}
 
-	TEST(FutureTests, StatePassedToContinuationHasMovedData) {
+	TEST(TEST_CLASS, StatePassedToContinuationHasMovedData) {
 		// Arrange:
 		auto pInt = std::make_unique<int>(7);
 		auto pIntRaw = pInt.get();
@@ -61,11 +62,12 @@ namespace catapult { namespace thread {
 			}
 
 			static void AssertState(SharedStateType& state, int value) {
+				// Assert:
 				EXPECT_EQ(value, state.get());
 			}
 
 			static void AssertMovedState(SharedStateType& state, int value) {
-				// since the type does not deform on move, the original value should persist
+				// Assert: since the type does not deform on move, the original value should persist
 				EXPECT_EQ(value, state.get());
 			}
 		};
@@ -85,7 +87,7 @@ namespace catapult { namespace thread {
 			}
 
 			static void AssertMovedState(SharedStateType& state, int) {
-				// since the type is move-only, the state should have been moved into the continuation
+				// Assert: since the type is move-only, the state should have been moved into the continuation
 				EXPECT_FALSE(!!state.get());
 			}
 		};
@@ -100,10 +102,12 @@ namespace catapult { namespace thread {
 			}
 
 			static void AssertState(SharedStateType& state, int) {
+				// Act + Assert:
 				EXPECT_THROW(state.get(), std::runtime_error);
 			}
 
 			static void AssertMovedState(SharedStateType& state, int) {
+				// Act + Assert:
 				EXPECT_THROW(state.get(), std::runtime_error);
 			}
 		};
@@ -112,12 +116,14 @@ namespace catapult { namespace thread {
 		using MoveOnlyExceptionTraits = ExceptionTraitsT<MoveOnlyValueTraits::ValueType>;
 	}
 
+#define SHARED_STATE_TEST(TEST_NAME) TEST(TEST_CLASS, SharedState_##TEST_NAME)
+
 #define SHARED_STATE_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, SharedState_##TEST_NAME##_Value) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValueTraits>(); } \
-	TEST(TEST_CLASS, SharedState_##TEST_NAME##_Value_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyValueTraits>(); } \
-	TEST(TEST_CLASS, SharedState_##TEST_NAME##_Exception) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExceptionTraits>(); } \
-	TEST(TEST_CLASS, SharedState_##TEST_NAME##_Exception_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyExceptionTraits>(); } \
+	SHARED_STATE_TEST(TEST_NAME##_Value) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValueTraits>(); } \
+	SHARED_STATE_TEST(TEST_NAME##_Value_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyValueTraits>(); } \
+	SHARED_STATE_TEST(TEST_NAME##_Exception) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExceptionTraits>(); } \
+	SHARED_STATE_TEST(TEST_NAME##_Exception_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyExceptionTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SHARED_STATE_TRAITS_BASED_TEST(CanGetValueAfterValueIsSet) {
@@ -160,7 +166,7 @@ namespace catapult { namespace thread {
 		// Sanity: the state should be ready
 		EXPECT_TRUE(state.is_ready());
 
-		// Assert: setting a value should fail
+		// Act + Assert: setting a value should fail
 		EXPECT_THROW(state.set_value(typename TTraits::ValueType()), std::future_error);
 	}
 
@@ -172,10 +178,8 @@ namespace catapult { namespace thread {
 		// Sanity: the state should be ready
 		EXPECT_TRUE(state.is_ready());
 
-		// Assert: setting an exception should fail
-		EXPECT_THROW(
-				state.set_exception(std::make_exception_ptr(std::runtime_error("state exception"))),
-				std::future_error);
+		// Act + Assert: setting an exception should fail
+		EXPECT_THROW(state.set_exception(std::make_exception_ptr(std::runtime_error("state exception"))), std::future_error);
 	}
 
 	SHARED_STATE_TRAITS_BASED_TEST(ContinuationSetBeforeValueIsTriggeredWhenValueIsSet) {

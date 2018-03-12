@@ -1,6 +1,6 @@
 #include "catapult/api/LocalChainApi.h"
 #include "catapult/model/EntityHasher.h"
-#include "tests/test/core/mocks/MemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace api {
@@ -52,7 +52,7 @@ namespace catapult { namespace api {
 			auto pStorage = mocks::CreateMemoryBasedStorageCache(numBlocks);
 			auto pApi = CreateLocalChainApi(*pStorage, 5);
 
-			// Act:
+			// Act + Assert:
 			auto future = TTraits::Invoke(*pApi, requestHeight);
 			EXPECT_THROW(future.get(), catapult_api_error);
 		}
@@ -102,8 +102,7 @@ namespace catapult { namespace api {
 				auto expectedHash = CalculateHash(*pBlock);
 
 				// - compare
-				EXPECT_EQ(test::ToHexString(expectedHash), test::ToHexString(hash))
-						<< "comparing hashes at " << i << " from " << requestHeight;
+				EXPECT_EQ(expectedHash, hash) << "comparing hashes at " << i << " from " << requestHeight;
 				++i;
 			}
 		}

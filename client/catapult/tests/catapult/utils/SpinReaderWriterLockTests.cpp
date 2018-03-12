@@ -4,7 +4,9 @@
 
 namespace catapult { namespace utils {
 
-	TEST(SpinReaderWriterLockTests, LockIsInitiallyUnlocked) {
+#define TEST_CLASS SpinReaderWriterLockTests
+
+	TEST(TEST_CLASS, LockIsInitiallyUnlocked) {
 		// Act:
 		SpinReaderWriterLock lock;
 
@@ -14,7 +16,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(lock.isReaderActive());
 	}
 
-	TEST(SpinReaderWriterLockTests, CanAcquireReaderLock) {
+	TEST(TEST_CLASS, CanAcquireReaderLock) {
 		// Act:
 		SpinReaderWriterLock lock;
 		auto readLock = lock.acquireReader();
@@ -25,7 +27,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(lock.isReaderActive());
 	}
 
-	TEST(SpinReaderWriterLockTests, CanReleaseReaderLock) {
+	TEST(TEST_CLASS, CanReleaseReaderLock) {
 		// Act:
 		SpinReaderWriterLock lock;
 		{
@@ -38,7 +40,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(lock.isReaderActive());
 	}
 
-	TEST(SpinReaderWriterLockTests, CanReleaseReaderLockAfterMove) {
+	TEST(TEST_CLASS, CanReleaseReaderLockAfterMove) {
 		// Act:
 		SpinReaderWriterLock lock;
 		{
@@ -52,7 +54,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(lock.isReaderActive());
 	}
 
-	TEST(SpinReaderWriterLockTests, CanPromoteReaderLockToWriterLock) {
+	TEST(TEST_CLASS, CanPromoteReaderLockToWriterLock) {
 		// Act:
 		SpinReaderWriterLock lock;
 		auto readLock = lock.acquireReader();
@@ -64,7 +66,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(lock.isReaderActive());
 	}
 
-	TEST(SpinReaderWriterLockTests, CanDemoteWriterLockToReaderLock) {
+	TEST(TEST_CLASS, CanDemoteWriterLockToReaderLock) {
 		// Act:
 		SpinReaderWriterLock lock;
 		auto readLock = lock.acquireReader();
@@ -78,7 +80,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(lock.isReaderActive());
 	}
 
-	TEST(SpinReaderWriterLockTests, CanReleaseWriterLock) {
+	TEST(TEST_CLASS, CanReleaseWriterLock) {
 		// Act:
 		SpinReaderWriterLock lock;
 		{
@@ -92,7 +94,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(lock.isReaderActive());
 	}
 
-	TEST(SpinReaderWriterLockTests, CanReleaseWriterLockAfterMove) {
+	TEST(TEST_CLASS, CanReleaseWriterLockAfterMove) {
 		// Act:
 		SpinReaderWriterLock lock;
 		{
@@ -107,17 +109,17 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(lock.isReaderActive());
 	}
 
-	TEST(SpinReaderWriterLockTests, CannotPromoteReaderLockToWriterLockMultipleTimes) {
-		// Act:
+	TEST(TEST_CLASS, CannotPromoteReaderLockToWriterLockMultipleTimes) {
+		// Arrange:
 		SpinReaderWriterLock lock;
 		auto readLock = lock.acquireReader();
 		auto writeLock = readLock.promoteToWriter();
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(readLock.promoteToWriter(), catapult_runtime_error);
 	}
 
-	TEST(SpinReaderWriterLockTests, CanPromoteReaderLockToWriterLockAfterDemotion) {
+	TEST(TEST_CLASS, CanPromoteReaderLockToWriterLockAfterDemotion) {
 		// Act: acquire a reader and then promote, demote, promote
 		SpinReaderWriterLock lock;
 		auto readLock = lock.acquireReader();
@@ -132,7 +134,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(lock.isReaderActive());
 	}
 
-	TEST(SpinReaderWriterLockTests, MultipleThreadsCanAquireReaderLock) {
+	TEST(TEST_CLASS, MultipleThreadsCanAquireReaderLock) {
 		// Arrange:
 		SpinReaderWriterLock lock;
 		std::atomic<uint32_t> counter(0);
@@ -149,7 +151,7 @@ namespace catapult { namespace utils {
 
 		// - wait for the counter to be incremented by all readers
 		CATAPULT_LOG(debug) << "waiting for readers";
-		WAIT_FOR_VALUE(counter, test::Num_Default_Lock_Threads);
+		WAIT_FOR_VALUE(test::Num_Default_Lock_Threads, counter);
 
 		// Assert: all threads were able to access the counter
 		EXPECT_EQ(test::Num_Default_Lock_Threads, counter);
@@ -180,7 +182,7 @@ namespace catapult { namespace utils {
 		};
 	}
 
-	TEST(SpinReaderWriterLockTests, LockGuaranteesExclusiveWriterAccess) {
+	TEST(TEST_CLASS, LockGuaranteesExclusiveWriterAccess) {
 		// Arrange:
 		SpinReaderWriterLock lock;
 
@@ -188,7 +190,7 @@ namespace catapult { namespace utils {
 		test::AssertLockGuaranteesExclusiveAccess<LockPolicy>(lock);
 	}
 
-	TEST(SpinReaderWriterLockTests, LockGuaranteesExclusiveWriterAccessAfterLockUnlockCycles) {
+	TEST(TEST_CLASS, LockGuaranteesExclusiveWriterAccessAfterLockUnlockCycles) {
 		// Arrange:
 		SpinReaderWriterLock lock;
 
@@ -196,7 +198,7 @@ namespace catapult { namespace utils {
 		test::AssertLockGuaranteesExclusiveAccessAfterLockUnlockCycles<LockPolicy>(lock);
 	}
 
-	TEST(SpinReaderWriterLockTests, ReaderBlocksWriter) {
+	TEST(TEST_CLASS, ReaderBlocksWriter) {
 		// Arrange:
 		SpinReaderWriterLock lock;
 		char value = '\0';
@@ -228,7 +230,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(lock.isReaderActive());
 	}
 
-	TEST(SpinReaderWriterLockTests, WriterBlocksReader) {
+	TEST(TEST_CLASS, WriterBlocksReader) {
 		// Arrange:
 		SpinReaderWriterLock lock;
 		char value = '\0';
@@ -311,7 +313,7 @@ namespace catapult { namespace utils {
 		};
 	}
 
-	TEST(SpinReaderWriterLockTests, WriterIsPreferredToReader) {
+	TEST(TEST_CLASS, WriterIsPreferredToReader) {
 		// Arrange:
 		//  M: |ReadLock     |      # M acquires ReadLock while other threads are spawned
 		//  W:   |WriteLock**  |    # when M ReadLock is released, pending writer is unblocked
@@ -336,7 +338,7 @@ namespace catapult { namespace utils {
 			});
 
 			// - block until both the reader and writer threads are pending
-			WAIT_FOR_VALUE(state.NumWaitingThreads, 2);
+			WAIT_FOR_VALUE(2, state.NumWaitingThreads);
 
 			// - wait a bit in case the state changes due to a bug
 			test::Pause();
@@ -349,7 +351,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ('w', state.ReleasedThreadId);
 	}
 
-	TEST(SpinReaderWriterLockTests, WriterIsBlockedByAllPendingReaders) {
+	TEST(TEST_CLASS, WriterIsBlockedByAllPendingReaders) {
 		// Arrange:
 		//  M: |ReadLock       |        # M acquires ReadLock while other threads are spawned
 		//  W:   |ReadLock           |  # when M ReadLock is released, pending reader1 is unblocked
@@ -367,18 +369,18 @@ namespace catapult { namespace utils {
 			// - spawn a thread that will acquire a writer lock after multiple readers (including itself) are active
 			testGuard.Threads.create_thread([&] {
 				auto writerThreadReadLock = state.acquireReader();
-				WAIT_FOR_VALUE(state.NumReaderThreads, 2);
+				WAIT_FOR_VALUE(2, state.NumReaderThreads);
 				state.doWriterWork(std::move(writerThreadReadLock));
 			});
 
 			// - spawn a thread that will acquire a reader lock after the writer thread
 			testGuard.Threads.create_thread([&] {
-				WAIT_FOR_VALUE(state.NumReaderThreads, 1);
+				WAIT_FOR_ONE(state.NumReaderThreads);
 				state.doReaderWork();
 			});
 
 			// - block until both the reader and writer threads have acquired a reader lock
-			WAIT_FOR_VALUE(state.NumReaderThreads, 2);
+			WAIT_FOR_VALUE(2, state.NumReaderThreads);
 
 			// - wait a bit in case the state changes due to a bug
 			test::Pause();

@@ -2,6 +2,7 @@
 #include "PodIoUtils.h"
 #include "RawFile.h"
 #include "catapult/model/Elements.h"
+#include "catapult/utils/MemoryUtils.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
 #include <inttypes.h>
@@ -14,8 +15,8 @@ namespace catapult { namespace io {
 	namespace {
 		static constexpr uint64_t Unset_Directory_Id = std::numeric_limits<uint64_t>::max();
 		static constexpr uint32_t Files_Per_Directory = 65536u;
-		static constexpr char Block_File_Extension[] = ".dat";
-		static constexpr char Index_File[] = "index.dat";
+		static constexpr auto Block_File_Extension = ".dat";
+		static constexpr auto Index_File = "index.dat";
 
 #ifdef _MSC_VER
 #define SPRINTF sprintf_s
@@ -23,18 +24,19 @@ namespace catapult { namespace io {
 #define SPRINTF sprintf
 #endif
 		boost::filesystem::path GetDirectoryPath(const std::string& baseDirectory, Height height) {
-			char subDirectory[10];
+			char subDirectory[16];
 			SPRINTF(subDirectory, "%05" PRId64, height.unwrap() / Files_Per_Directory);
 			boost::filesystem::path path = baseDirectory;
 			path /= subDirectory;
 			if (!boost::filesystem::exists(path))
 				boost::filesystem::create_directory(path);
+
 			return path;
 		}
 
 		boost::filesystem::path GetBlockPath(const std::string& baseDirectory, Height height) {
 			auto path = GetDirectoryPath(baseDirectory, height);
-			char filename[10];
+			char filename[16];
 			SPRINTF(filename, "%05" PRId64, height.unwrap() % Files_Per_Directory);
 			path /= filename;
 			path += Block_File_Extension;
@@ -148,20 +150,20 @@ namespace catapult { namespace io {
 
 	namespace {
 		std::shared_ptr<Block> ReadBlock(RawFile& blockFile) {
-			auto size = Read<uint32_t>(blockFile);
+			auto size = Read32(blockFile);
 			blockFile.seek(0);
 
-			std::shared_ptr<Block> pBlock(reinterpret_cast<Block*>(::operator new(size)));
+			auto pBlock = utils::MakeSharedWithSize<Block>(size);
 			blockFile.read({ reinterpret_cast<uint8_t*>(pBlock.get()), size });
 			return pBlock;
 		}
 
 		std::shared_ptr<model::BlockElement> ReadBlockElement(RawFile& blockFile) {
-			auto size = Read<uint32_t>(blockFile);
+			auto size = Read32(blockFile);
 			blockFile.seek(0);
 
 			// allocate memory for both the element and the block in one shot (Block data is appended)
-			std::unique_ptr<uint8_t> pData(reinterpret_cast<uint8_t*>(::operator new(sizeof(BlockElement) + size)));
+			auto pData = utils::MakeUniqueWithSize<uint8_t>(sizeof(BlockElement) + size);
 
 			// read the block data
 			auto pBlockData = pData.get() + sizeof(BlockElement);
@@ -179,7 +181,7 @@ namespace catapult { namespace io {
 		}
 
 		void ReadTransactionHashes(RawFile& blockFile, BlockElement& blockElement) {
-			auto numTransactions = Read<uint32_t>(blockFile);
+			auto numTransactions = Read32(blockFile);
 			std::vector<Hash256> hashes(2 * numTransactions);
 			blockFile.read({ reinterpret_cast<uint8_t*>(hashes.data()), hashes.size() * Hash256_Size });
 
@@ -238,10 +240,10 @@ namespace catapult { namespace io {
 			auto transactionsCount = static_cast<uint32_t>(blockElement.Transactions.size());
 			pBlockFile->write({ reinterpret_cast<const uint8_t*>(&transactionsCount), sizeof(uint32_t) });
 			std::vector<Hash256> hashes(2 * transactionsCount);
-			auto it = hashes.begin();
+			auto iter = hashes.begin();
 			for (const auto& transactionElement : blockElement.Transactions) {
-				*it++ = transactionElement.EntityHash;
-				*it++ = transactionElement.MerkleComponentHash;
+				*iter++ = transactionElement.EntityHash;
+				*iter++ = transactionElement.MerkleComponentHash;
 			}
 
 			pBlockFile->write({ reinterpret_cast<const uint8_t*>(hashes.data()), hashes.size() * Hash256_Size });

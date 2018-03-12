@@ -1,0 +1,110 @@
+#include "partialtransaction/src/api/RemotePtApi.h"
+#include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/other/RemoteApiFactory.h"
+#include "tests/test/other/RemoteApiTestUtils.h"
+#include "tests/TestHarness.h"
+
+namespace catapult { namespace api {
+
+	namespace {
+		using TransactionType = mocks::MockTransaction;
+
+		std::shared_ptr<ionet::Packet> CreatePacketWithTransactionInfos(uint16_t numTransactions) {
+			// Arrange: create transactions with variable (incrementing) sizes
+			//          (each info in this test has two parts: (1) tag, (2) transaction)
+			uint32_t variableDataSize = numTransactions * (numTransactions + 1) / 2;
+			uint32_t payloadSize = numTransactions * (sizeof(TransactionType) + sizeof(uint16_t)) + variableDataSize;
+			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
+			test::FillWithRandomData({ pPacket->Data(), payloadSize });
+
+			auto pData = pPacket->Data();
+			for (uint16_t i = 0u; i < numTransactions; ++i, pData += sizeof(TransactionType) + i) {
+				// - tag (transaction and no cosignatures)
+				reinterpret_cast<uint16_t&>(*pData) = 0x8000;
+				pData += sizeof(uint16_t);
+
+				// - transaction
+				auto& transaction = reinterpret_cast<TransactionType&>(*pData);
+				transaction.Size = sizeof(TransactionType) + i + 1;
+				transaction.Type = TransactionType::Entity_Type;
+				transaction.Deadline = Timestamp(5 * i);
+				transaction.Data.Size = i + 1;
+			}
+
+			return pPacket;
+		}
+
+		struct TransactionInfosTraits {
+			static constexpr uint32_t Request_Data_Size = 3 * sizeof(cache::ShortHashPair);
+
+			static std::vector<uint32_t> KnownHashesValues() {
+				return { 123, 234, 345, 981, 431, 512 };
+			}
+
+			static cache::ShortHashPairRange KnownShortHashPairs() {
+				// notice that the values from KnownHashesValues are "paired" up
+				return cache::ShortHashPairRange::CopyFixed(reinterpret_cast<uint8_t*>(KnownHashesValues().data()), 3);
+			}
+
+			static auto Invoke(const RemotePtApi& api) {
+				return api.transactionInfos(KnownShortHashPairs());
+			}
+
+			static auto CreateValidResponsePacket() {
+				auto pResponsePacket = CreatePacketWithTransactionInfos(3);
+				pResponsePacket->Type = ionet::PacketType::Pull_Partial_Transaction_Infos;
+				return pResponsePacket;
+			}
+
+			static auto CreateMalformedResponsePacket() {
+				// the packet is malformed because it has an incorrect tag specifying no transaction
+				auto pResponsePacket = CreateValidResponsePacket();
+				reinterpret_cast<uint16_t&>(*pResponsePacket->Data()) = 0x0000;
+				return pResponsePacket;
+			}
+
+			static void ValidateRequest(const ionet::Packet& packet) {
+				EXPECT_EQ(ionet::PacketType::Pull_Partial_Transaction_Infos, packet.Type);
+				EXPECT_EQ(sizeof(ionet::Packet) + Request_Data_Size, packet.Size);
+				EXPECT_TRUE(0 == std::memcmp(packet.Data(), KnownHashesValues().data(), Request_Data_Size));
+			}
+
+			static void ValidateResponse(
+					const ionet::Packet& response,
+					const partialtransaction::CosignedTransactionInfos& transactionInfos) {
+				ASSERT_EQ(3u, transactionInfos.size());
+
+				auto pExpectedData = response.Data();
+				auto parsedIter = transactionInfos.cbegin();
+				for (auto i = 0u; i < transactionInfos.size(); ++i) {
+					std::string message = "comparing info at " + std::to_string(i);
+
+					// - skip tag
+					pExpectedData += sizeof(uint16_t);
+
+					// - transaction
+					const auto& expectedTransaction = reinterpret_cast<const TransactionType&>(*pExpectedData);
+					const auto& actualTransaction = *parsedIter->pTransaction;
+					ASSERT_EQ(expectedTransaction.Size, actualTransaction.Size) << message;
+					EXPECT_EQ(Timestamp(5 * i), actualTransaction.Deadline) << message;
+					EXPECT_EQ(expectedTransaction, actualTransaction) << message;
+					pExpectedData += expectedTransaction.Size;
+
+					// - hash and cosignatures
+					EXPECT_EQ(Hash256(), parsedIter->EntityHash);
+					EXPECT_TRUE(parsedIter->Cosignatures.empty());
+
+					++parsedIter;
+				}
+			}
+		};
+
+		struct RemotePtApiTraits {
+			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
+				return test::CreateLifetimeExtendedApi(CreateRemotePtApi, *pPacketIo, mocks::CreateDefaultTransactionRegistry());
+			}
+		};
+	}
+
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(RemotePtApi, TransactionInfos)
+}}

@@ -6,17 +6,14 @@
 namespace catapult { namespace test {
 
 	WaitFunction CreateSyncWaitFunction(uint32_t waitMillis) {
-		return [waitMillis](const auto&, const auto& shouldWait) -> void {
+		return [waitMillis](const auto&, const auto& shouldWait) {
 			while (shouldWait())
 				Sleep(waitMillis);
 		};
 	}
 
 	namespace {
-		void WaitAsync(
-				boost::asio::io_service& service,
-				const ShouldWaitPredicate& shouldWait,
-				uint32_t waitMillis) {
+		void WaitAsync(boost::asio::io_service& service, const ShouldWaitPredicate& shouldWait, uint32_t waitMillis) {
 			if (!shouldWait())
 				return;
 
@@ -29,7 +26,7 @@ namespace catapult { namespace test {
 	}
 
 	WaitFunction CreateAsyncWaitFunction(uint32_t waitMillis) {
-		return [waitMillis](auto& service, const auto& shouldWait) -> void {
+		return [waitMillis](auto& service, const auto& shouldWait) {
 			WaitAsync(service, shouldWait, waitMillis);
 		};
 	}

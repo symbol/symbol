@@ -151,11 +151,14 @@ namespace catapult { namespace validators {
 		EXPECT_EQ("Failure_Aggregate_Too_Many_Cosignatures", test::ToString(ValidationResult(0x80410003)));
 		EXPECT_EQ("Failure_Chain_Unlinked", test::ToString(ValidationResult(0x80FF0066)));
 		EXPECT_EQ("Failure_Consumer_Remote_Chain_Improper_Link", test::ToString(ValidationResult(0x80FE2002)));
-		EXPECT_EQ("Failure_Core_Signature_Not_Verifiable", test::ToString(ValidationResult(0x80430008)));
+		EXPECT_EQ("Failure_Core_Insufficient_Balance", test::ToString(ValidationResult(0x80430005)));
+		EXPECT_EQ("Failure_Extension_Partial_Transaction_Cache_Prune", test::ToString(ValidationResult(0x80450101)));
 		EXPECT_EQ("Failure_Hash_Exists", test::ToString(ValidationResult(0x81480007)));
+		EXPECT_EQ("Failure_Lock_Invalid_Mosaic_Id", test::ToString(ValidationResult(0x804C0002)));
 		EXPECT_EQ("Failure_Mosaic_Invalid_Name", test::ToString(ValidationResult(0x804D0002)));
 		EXPECT_EQ("Failure_Multisig_Modify_Redundant_Modifications", test::ToString(ValidationResult(0x80550003)));
 		EXPECT_EQ("Failure_Namespace_Invalid_Name", test::ToString(ValidationResult(0x804E0002)));
+		EXPECT_EQ("Failure_Signature_Not_Verifiable", test::ToString(ValidationResult(0x80530008)));
 		EXPECT_EQ("Failure_Transfer_Message_Too_Large", test::ToString(ValidationResult(0x80540006)));
 	}
 

@@ -22,9 +22,7 @@ namespace catapult { namespace extensions {
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractEntitiesFromPacket<model::AccountInfo>(
-						packet,
-						static_cast<bool (*)(const model::AccountInfo&)>(model::IsSizeValid));
+				result = ionet::ExtractEntitiesFromPacket<model::AccountInfo>(packet, ionet::IsSizeValid<model::AccountInfo>);
 				return !result.empty();
 			}
 		};
@@ -41,7 +39,7 @@ namespace catapult { namespace extensions {
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractFixedSizeEntitiesFromPacket<state::TimestampedHash>(packet);
+				result = ionet::ExtractFixedSizeStructuresFromPacket<state::TimestampedHash>(packet);
 				return !result.empty() || sizeof(ionet::PacketHeader) == packet.Size;
 			}
 		};
@@ -58,24 +56,24 @@ namespace catapult { namespace extensions {
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractFixedSizeEntitiesFromPacket<model::DiagnosticCounterValue>(packet);
+				result = ionet::ExtractFixedSizeStructuresFromPacket<model::DiagnosticCounterValue>(packet);
 				return !result.empty();
 			}
 		};
 
-		struct MosaicInfosTraits {
+		struct ActiveNodeInfosTraits {
 		public:
-			using ResultType = model::EntityRange<model::MosaicInfo>;
-			static constexpr auto PacketType() { return ionet::PacketType::Mosaic_Infos; }
-			static constexpr auto FriendlyName() { return "mosaic infos"; }
+			using ResultType = model::EntityRange<ionet::PackedNodeInfo>;
+			static constexpr auto PacketType() { return ionet::PacketType::Active_Node_Infos; }
+			static constexpr auto FriendlyName() { return "active node infos"; }
 
-			static auto CreateRequestPacketPayload(model::EntityRange<MosaicId>&& mosaicIds) {
-				return ionet::PacketPayload::FromFixedSizeRange(PacketType(), std::move(mosaicIds));
+			static auto CreateRequestPacketPayload() {
+				return ionet::PacketPayload(PacketType());
 			}
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractFixedSizeEntitiesFromPacket<model::MosaicInfo>(packet);
+				result = ionet::ExtractEntitiesFromPacket<ionet::PackedNodeInfo>(packet, ionet::IsSizeValid<ionet::PackedNodeInfo>);
 				return !result.empty();
 			}
 		};
@@ -92,9 +90,24 @@ namespace catapult { namespace extensions {
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractEntitiesFromPacket<model::NamespaceInfo>(
-						packet,
-						static_cast<bool (*)(const model::NamespaceInfo&)>(model::IsSizeValid));
+				result = ionet::ExtractEntitiesFromPacket<model::NamespaceInfo>(packet, ionet::IsSizeValid<model::NamespaceInfo>);
+				return !result.empty();
+			}
+		};
+
+		struct MosaicInfosTraits {
+		public:
+			using ResultType = model::EntityRange<model::MosaicInfo>;
+			static constexpr auto PacketType() { return ionet::PacketType::Mosaic_Infos; }
+			static constexpr auto FriendlyName() { return "mosaic infos"; }
+
+			static auto CreateRequestPacketPayload(model::EntityRange<MosaicId>&& mosaicIds) {
+				return ionet::PacketPayload::FromFixedSizeRange(PacketType(), std::move(mosaicIds));
+			}
+
+		public:
+			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
+				result = ionet::ExtractFixedSizeStructuresFromPacket<model::MosaicInfo>(packet);
 				return !result.empty();
 			}
 		};
@@ -107,7 +120,7 @@ namespace catapult { namespace extensions {
 			using FutureType = thread::future<typename TTraits::ResultType>;
 
 		public:
-			explicit DefaultRemoteDiagnosticApi(const std::shared_ptr<ionet::PacketIo>& pIo) : m_impl(pIo)
+			explicit DefaultRemoteDiagnosticApi(ionet::PacketIo& io) : m_impl(io)
 			{}
 
 		public:
@@ -124,12 +137,16 @@ namespace catapult { namespace extensions {
 				return m_impl.dispatch(DiagnosticCountersTraits());
 			}
 
-			FutureType<MosaicInfosTraits> mosaicInfos(model::EntityRange<MosaicId>&& mosaicIds) const override {
-				return m_impl.dispatch(MosaicInfosTraits(), std::move(mosaicIds));
+			FutureType<ActiveNodeInfosTraits> activeNodeInfos() const override {
+				return m_impl.dispatch(ActiveNodeInfosTraits());
 			}
 
 			FutureType<NamespaceInfosTraits> namespaceInfos(model::EntityRange<NamespaceId>&& namespaceIds) const override {
 				return m_impl.dispatch(NamespaceInfosTraits(), std::move(namespaceIds));
+			}
+
+			FutureType<MosaicInfosTraits> mosaicInfos(model::EntityRange<MosaicId>&& mosaicIds) const override {
+				return m_impl.dispatch(MosaicInfosTraits(), std::move(mosaicIds));
 			}
 
 		private:
@@ -137,7 +154,7 @@ namespace catapult { namespace extensions {
 		};
 	}
 
-	std::unique_ptr<RemoteDiagnosticApi> CreateRemoteDiagnosticApi(const std::shared_ptr<ionet::PacketIo>& pIo) {
-		return std::make_unique<DefaultRemoteDiagnosticApi>(pIo);
+	std::unique_ptr<RemoteDiagnosticApi> CreateRemoteDiagnosticApi(ionet::PacketIo& io) {
+		return std::make_unique<DefaultRemoteDiagnosticApi>(io);
 	}
 }}

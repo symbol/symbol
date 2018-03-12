@@ -7,7 +7,7 @@ namespace catapult { namespace cache {
 
 	namespace {
 		void SaveKeySet(io::OutputStream& output, const utils::KeySet& keySet) {
-			io::Write(output, keySet.size());
+			io::Write64(output, keySet.size());
 			for (const auto& key : keySet)
 				io::Write(output, key);
 		}
@@ -15,8 +15,8 @@ namespace catapult { namespace cache {
 
 	void MultisigCacheStorage::Save(const ValueType& value, io::OutputStream& output) {
 		const auto& entry = value.second;
-		io::Write(output, entry.minApproval());
-		io::Write(output, entry.minRemoval());
+		io::Write8(output, entry.minApproval());
+		io::Write8(output, entry.minRemoval());
 		io::Write(output, entry.key());
 
 		SaveKeySet(output, entry.cosignatories());
@@ -25,7 +25,7 @@ namespace catapult { namespace cache {
 
 	namespace {
 		void LoadKeySet(io::InputStream& input, utils::KeySet& keySet) {
-			auto numKeys = io::Read<uint64_t>(input);
+			auto numKeys = io::Read64(input);
 			while (numKeys--) {
 				Key key;
 				input.read(key);
@@ -36,8 +36,8 @@ namespace catapult { namespace cache {
 
 	void MultisigCacheStorage::Load(io::InputStream& input, DestinationType& cacheDelta) {
 		// - read header
-		auto minApproval = io::Read<uint8_t>(input);
-		auto minRemoval = io::Read<uint8_t>(input);
+		auto minApproval = io::Read8(input);
+		auto minRemoval = io::Read8(input);
 		Key key;
 		input.read(key);
 

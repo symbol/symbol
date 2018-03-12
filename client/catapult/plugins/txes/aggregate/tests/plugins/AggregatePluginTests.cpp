@@ -1,11 +1,12 @@
 #include "src/plugins/AggregatePlugin.h"
+#include "src/model/AggregateEntityType.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace plugins {
 
 	namespace {
-		template<bool EnableStrict>
+		template<bool EnableStrict, bool EnableBonded>
 		struct BasicAggregatePluginTraits {
 		public:
 			template<typename TAction>
@@ -18,6 +19,7 @@ namespace catapult { namespace plugins {
 						{ "maxTransactionsPerAggregate", "0" },
 						{ "maxCosignaturesPerAggregate", "0" },
 						{ "enableStrictCosignatureCheck", EnableStrict ? "true" : "false" },
+						{ "enableBondedAggregateSupport", EnableBonded ? "true" : "false" },
 					}
 				}}));
 
@@ -29,10 +31,6 @@ namespace catapult { namespace plugins {
 			}
 
 		public:
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::EntityType::Aggregate };
-			}
-
 			static std::vector<std::string> GetCacheNames() {
 				return {};
 			}
@@ -58,23 +56,43 @@ namespace catapult { namespace plugins {
 			}
 		};
 
-		// notice that the configured stateless validators are config-dependent
+		// notice that the transaction types and stateless validators are config-dependent
 
-		struct AggregatePluginTraits : public BasicAggregatePluginTraits<false> {
+		struct AggregatePluginTraits : public BasicAggregatePluginTraits<false, false> {
 		public:
+			static std::vector<model::EntityType> GetTransactionTypes() {
+				return { model::Entity_Type_Aggregate_Complete };
+			}
+
 			static std::vector<std::string> GetStatelessValidatorNames() {
 				return { "BasicAggregateCosignaturesValidator" };
 			}
 		};
 
-		struct StrictAggregatePluginTraits : public BasicAggregatePluginTraits<true> {
+		struct StrictAggregatePluginTraits : public BasicAggregatePluginTraits<true, false> {
 		public:
+			static std::vector<model::EntityType> GetTransactionTypes() {
+				return { model::Entity_Type_Aggregate_Complete };
+			}
+
 			static std::vector<std::string> GetStatelessValidatorNames() {
 				return { "BasicAggregateCosignaturesValidator", "StrictAggregateCosignaturesValidator" };
+			}
+		};
+
+		struct BondedAggregatePluginTraits : public BasicAggregatePluginTraits<false, true> {
+		public:
+			static std::vector<model::EntityType> GetTransactionTypes() {
+				return { model::Entity_Type_Aggregate_Complete, model::Entity_Type_Aggregate_Bonded };
+			}
+
+			static std::vector<std::string> GetStatelessValidatorNames() {
+				return { "BasicAggregateCosignaturesValidator" };
 			}
 		};
 	}
 
 	DEFINE_PLUGIN_TESTS(AggregatePluginTests, AggregatePluginTraits);
 	DEFINE_PLUGIN_TESTS(StrictAggregatePluginTests, StrictAggregatePluginTraits);
+	DEFINE_PLUGIN_TESTS(BondedAggregatePluginTests, BondedAggregatePluginTraits);
 }}

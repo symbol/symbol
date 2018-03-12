@@ -1,13 +1,13 @@
 #pragma once
 #include "ConnectionSettings.h"
 #include "PeerConnectResult.h"
-#include <functional>
+#include "catapult/functions.h"
 #include <memory>
 
 namespace catapult {
 	namespace crypto { class KeyPair; }
 	namespace ionet {
-		struct Node;
+		class Node;
 		class PacketSocket;
 	}
 	namespace thread { class IoServiceThreadPool; }
@@ -19,9 +19,7 @@ namespace catapult { namespace net {
 	class ServerConnector {
 	public:
 		/// A callback that is passed the connect result and the connected socket on success.
-		using ConnectCallback = std::function<void (
-				PeerConnectResult,
-				const std::shared_ptr<ionet::PacketSocket>&)>;
+		using ConnectCallback = consumer<PeerConnectResult, const std::shared_ptr<ionet::PacketSocket>&>;
 
 	public:
 		virtual ~ServerConnector() {}
@@ -38,8 +36,7 @@ namespace catapult { namespace net {
 		virtual void shutdown() = 0;
 	};
 
-	/// Creates a server connector for a server with a key pair of \a keyPair using \a pPool and configured with
-	/// \a settings.
+	/// Creates a server connector for a server with a key pair of \a keyPair using \a pPool and configured with \a settings.
 	std::shared_ptr<ServerConnector> CreateServerConnector(
 			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,

@@ -8,8 +8,8 @@ namespace catapult { namespace cache {
 		void SaveDefinition(io::OutputStream& output, const state::MosaicDefinition& definition) {
 			io::Write(output, definition.height());
 			io::Write(output, definition.owner());
-			for (auto iter = definition.properties().cbegin(); definition.properties().cend() != iter; ++iter)
-				io::Write(output, iter->Value);
+			for (const auto& property : definition.properties())
+				io::Write64(output, property.Value);
 		}
 	}
 
@@ -20,14 +20,14 @@ namespace catapult { namespace cache {
 
 		io::Write(output, history.namespaceId());
 		io::Write(output, history.id());
-		io::Write(output, history.historyDepth());
+		io::Write64(output, history.historyDepth());
 
-		for (auto iter = history.cbegin(); history.cend() != iter; ++iter) {
-			if (iter->hasLevy())
+		for (const auto& mosaicEntry : history) {
+			if (mosaicEntry.hasLevy())
 				CATAPULT_THROW_RUNTIME_ERROR("cannot save mosaic entry with levy");
 
-			SaveDefinition(output, iter->definition());
-			io::Write(output, iter->supply());
+			SaveDefinition(output, mosaicEntry.definition());
+			io::Write(output, mosaicEntry.supply());
 		}
 	}
 
@@ -39,7 +39,7 @@ namespace catapult { namespace cache {
 
 			model::MosaicProperties::PropertyValuesContainer values{};
 			for (auto& value : values)
-				io::Read(input, value);
+				value = io::Read64(input);
 
 			return state::MosaicDefinition(height, owner, model::MosaicProperties::FromValues(values));
 		}
@@ -49,7 +49,7 @@ namespace catapult { namespace cache {
 		// - read header
 		auto namespaceId = io::Read<NamespaceId>(input);
 		auto id = io::Read<MosaicId>(input);
-		auto historyDepth = io::Read<uint64_t>(input);
+		auto historyDepth = io::Read64(input);
 
 		if (0 == historyDepth)
 			CATAPULT_THROW_RUNTIME_ERROR_1("mosaic history in storage is empty", id);

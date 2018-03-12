@@ -3,7 +3,9 @@
 
 namespace catapult { namespace disruptor {
 
-	TEST(ConsumerEntryTests, CanCreateAnEntry) {
+#define TEST_CLASS ConsumerEntryTests
+
+	TEST(TEST_CLASS, CanCreateAnEntry) {
 		// Arrange:
 		auto level = 123u;
 		ConsumerEntry consumer(level);
@@ -13,7 +15,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(0u, consumer.position());
 	}
 
-	TEST(ConsumerEntryTests, CanAdvanceConsumerPosition) {
+	TEST(TEST_CLASS, CanAdvanceConsumerPosition) {
 		// Arrange:
 		auto level = 123u;
 		ConsumerEntry consumer(level);

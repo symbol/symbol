@@ -19,7 +19,7 @@ namespace catapult { namespace test {
 		}
 	}
 
-#define DEFINE_COMPARISON_TEST(TEST_CLASS, TEST_NAME, INCREASING_VALUES, OPERATOR) \
+#define MAKE_COMPARISON_TEST(TEST_CLASS, TEST_NAME, INCREASING_VALUES, OPERATOR) \
 	TEST(TEST_CLASS, TEST_NAME) { \
 		test::AssertOperatorBehaviorForIncreasingValues( \
 				INCREASING_VALUES, \
@@ -28,14 +28,14 @@ namespace catapult { namespace test {
 
 /// Adds all comparison tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
 #define DEFINE_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES) \
-	DEFINE_COMPARISON_TEST(TEST_CLASS, OperatorLessThanReturnsTrueOnlyForSmallerValues, INCREASING_VALUES, <) \
-	DEFINE_COMPARISON_TEST(TEST_CLASS, OperatorLessThanOrEqualReturnsTrueOnlyForSmallerOrEqualValues, INCREASING_VALUES, <=) \
-	DEFINE_COMPARISON_TEST(TEST_CLASS, OperatorGreaterThanReturnsTrueOnlyForLargerValues, INCREASING_VALUES, >) \
-	DEFINE_COMPARISON_TEST(TEST_CLASS, OperatorGreaterThanOrEqualReturnsTrueOnlyForLargerOrEqualValues, INCREASING_VALUES, >=)
+	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorLessThanReturnsTrueOnlyForSmallerValues, INCREASING_VALUES, <) \
+	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorLessThanOrEqualReturnsTrueOnlyForSmallerOrEqualValues, INCREASING_VALUES, <=) \
+	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorGreaterThanReturnsTrueOnlyForLargerValues, INCREASING_VALUES, >) \
+	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorGreaterThanOrEqualReturnsTrueOnlyForLargerOrEqualValues, INCREASING_VALUES, >=)
 
 /// Adds all comparison and equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
 #define DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES) \
-	DEFINE_COMPARISON_TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues, INCREASING_VALUES, ==) \
-	DEFINE_COMPARISON_TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues, INCREASING_VALUES, !=) \
+	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues, INCREASING_VALUES, ==) \
+	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues, INCREASING_VALUES, !=) \
 	DEFINE_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES)
 }}

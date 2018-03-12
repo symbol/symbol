@@ -1,5 +1,6 @@
 #pragma once
 #include "catapult/exceptions.h"
+#include "catapult/functions.h"
 #include "catapult/preprocessor.h"
 #include <atomic>
 #include <chrono>
@@ -19,18 +20,14 @@ namespace catapult { namespace tools {
 	/// Waits for the specified function (\a func) to return the desired value (\a desired) with a configurable
 	/// timeout (\a timeoutMilliseconds). Returns \c true if the desired value was hit, \c false otherwise.
 	template<typename T>
-	bool TryWaitFor(
-			const std::function<T()>& func,
-			T desired,
-			size_t timeoutMilliseconds = Default_Wait_Timeout) {
+	bool TryWaitFor(const supplier<T>& func, T desired, size_t timeoutMilliseconds = Default_Wait_Timeout) {
 		auto begin = std::chrono::high_resolution_clock::now();
 
 		while (desired != func()) {
 			auto current = std::chrono::high_resolution_clock::now();
 			auto elapsedMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(current - begin).count();
-			if (static_cast<size_t>(elapsedMilliseconds) > timeoutMilliseconds) {
+			if (static_cast<size_t>(elapsedMilliseconds) > timeoutMilliseconds)
 				return false;
-			}
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}

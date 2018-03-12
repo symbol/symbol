@@ -52,7 +52,7 @@ namespace catapult { namespace test {
 	}
 
 	std::unique_ptr<ionet::Packet> BufferToPacket(const ionet::ByteBuffer& buffer) {
-		std::unique_ptr<ionet::Packet> pPacket(reinterpret_cast<ionet::Packet*>(::operator new (buffer.size())));
+		auto pPacket = utils::MakeUniqueWithSize<ionet::Packet>(buffer.size());
 		std::memcpy(pPacket.get(), buffer.data(), buffer.size());
 		return pPacket;
 	}
@@ -99,7 +99,7 @@ namespace catapult { namespace test {
 	}
 
 	void SetBlockAt(ionet::ByteBuffer& buffer, size_t offset, size_t size) {
-		SetVerifiableEntityAt<model::Block>(buffer, offset, size, model::EntityType::Block);
+		SetVerifiableEntityAt<model::Block>(buffer, offset, size, model::Entity_Type_Block);
 	}
 
 	ionet::Packet& SetPushBlockPacketInBuffer(ionet::ByteBuffer& buffer) {
@@ -115,5 +115,24 @@ namespace catapult { namespace test {
 		uint32_t entitySize = packet.Size - sizeof(ionet::Packet);
 		SetBlockAt(buffer, sizeof(ionet::Packet), entitySize);
 		return packet;
+	}
+
+	namespace {
+		template<typename TEntity>
+		std::shared_ptr<ionet::Packet> GeneratePushEntityPacket(ionet::PacketType type, const TEntity& entity) {
+			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(entity.Size);
+			pPacket->Type = type;
+
+			std::memcpy(pPacket.get() + 1, &entity, entity.Size);
+			return pPacket;
+		}
+	}
+
+	std::shared_ptr<ionet::Packet> GenerateRandomBlockPacket() {
+		return GeneratePushEntityPacket(ionet::PacketType::Push_Block, *GenerateEmptyRandomBlock());
+	}
+
+	std::shared_ptr<ionet::Packet> GenerateRandomTransactionPacket() {
+		return GeneratePushEntityPacket(ionet::PacketType::Push_Transactions, *GenerateRandomTransaction());
 	}
 }}

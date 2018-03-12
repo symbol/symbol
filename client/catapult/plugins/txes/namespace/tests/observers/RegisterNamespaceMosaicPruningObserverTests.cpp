@@ -10,14 +10,15 @@
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace observers {
+
+#define TEST_CLASS RegisterNamespaceMosaicPruningObserverTests
+
 	using ObserverTestContext = test::ObserverTestContextT<test::MosaicCacheFactory>;
 
-	DEFINE_COMMON_OBSERVER_TESTS(
-			RegisterNamespaceMosaicPruning,
-			model::NamespaceLifetimeConstraints(ArtifactDuration(), ArtifactDuration(), 31))
+	DEFINE_COMMON_OBSERVER_TESTS(RegisterNamespaceMosaicPruning, model::NamespaceLifetimeConstraints(BlockDuration(), BlockDuration(), 31))
 
 	namespace {
-		const model::NamespaceLifetimeConstraints Default_Constraints(ArtifactDuration(), ArtifactDuration(21), 10);
+		const model::NamespaceLifetimeConstraints Default_Constraints(BlockDuration(), BlockDuration(21), 10);
 
 		auto SeedCacheWithRoot25TreeSigner(const Key& signer) {
 			return [&signer](auto& namespaceCacheDelta) {
@@ -39,7 +40,7 @@ namespace catapult { namespace observers {
 		}
 
 		model::RootNamespaceNotification CreateNotification(const Key& key, NamespaceId id) {
-			return model::RootNamespaceNotification(key, id, ArtifactDuration());
+			return model::RootNamespaceNotification(key, id, BlockDuration());
 		}
 
 		template<typename TSeedCacheFunc, typename TCheckCacheFunc>
@@ -65,7 +66,7 @@ namespace catapult { namespace observers {
 
 	// region no operation
 
-	TEST(RegisterNamespaceMosaicPruningObserverTests, ObserverDoesNothingInModeRollback) {
+	TEST(TEST_CLASS, ObserverDoesNothingInModeRollback) {
 		// Arrange:
 		auto notification = CreateNotification(Key(), NamespaceId(25));
 
@@ -81,7 +82,7 @@ namespace catapult { namespace observers {
 				});
 	}
 
-	TEST(RegisterNamespaceMosaicPruningObserverTests, ObserverDoesNothingWhenRegisteringUnknownRoot) {
+	TEST(TEST_CLASS, ObserverDoesNothingWhenRegisteringUnknownRoot) {
 		// Arrange:
 		auto notification = CreateNotification(Key(), NamespaceId(246));
 
@@ -97,7 +98,7 @@ namespace catapult { namespace observers {
 				});
 	}
 
-	TEST(RegisterNamespaceMosaicPruningObserverTests, ObserverDoesNothingWhenRegisteringRootWithinGracePeriod) {
+	TEST(TEST_CLASS, ObserverDoesNothingWhenRegisteringRootWithinGracePeriod) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto notification = CreateNotification(owner, NamespaceId(25));
@@ -119,7 +120,7 @@ namespace catapult { namespace observers {
 
 	// region pruning
 
-	TEST(RegisterNamespaceMosaicPruningObserverTests, ObserverPrunesMosaicsWhenRegisteringRootOutsideGracePeriod) {
+	TEST(TEST_CLASS, ObserverPrunesMosaicsWhenRegisteringRootOutsideGracePeriod) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto notification = CreateNotification(owner, NamespaceId(25));
@@ -136,7 +137,7 @@ namespace catapult { namespace observers {
 				});
 	}
 
-	TEST(RegisterNamespaceMosaicPruningObserverTests, ObserverPrunesMosaicsWhenRegisteringRootWithDifferentOwner) {
+	TEST(TEST_CLASS, ObserverPrunesMosaicsWhenRegisteringRootWithDifferentOwner) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto notification = CreateNotification(owner, NamespaceId(25));
@@ -153,7 +154,7 @@ namespace catapult { namespace observers {
 				});
 	}
 
-	TEST(RegisterNamespaceMosaicPruningObserverTests, ObserverDoesNotPruneMosaicsOwnedByDifferentNamespace) {
+	TEST(TEST_CLASS, ObserverDoesNotPruneMosaicsOwnedByDifferentNamespace) {
 		// Arrange: notice that notification signer is not important in this test
 		auto notification = CreateNotification(Key(), NamespaceId(25));
 

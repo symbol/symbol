@@ -1,0 +1,352 @@
+#pragma once
+#include "MongoCacheStorageTestUtils.h"
+
+namespace catapult { namespace test {
+
+	/// Mongo historical cache storage test suite.
+	template<typename TTraits>
+	class MongoHistoricalCacheStorageTests : private MongoCacheStorageTestUtils<TTraits> {
+	private:
+		using CacheType = typename TTraits::CacheType;
+		using ElementType = typename TTraits::ModelType;
+
+		using BaseType = MongoCacheStorageTestUtils<TTraits>;
+		using BaseType::GetCollectionSize;
+		using BaseType::GetDelta;
+		using BaseType::AssertDbContents;
+		using CacheStorageWrapper = typename BaseType::CacheStorageWrapper;
+
+	public:
+		static void AssertSaveHasNoEffectWhenThereAreNoPendingChanges() {
+			// Arrange:
+			CacheStorageWrapper storage;
+			auto cache = TTraits::CreateCache();
+			auto delta = cache.createDelta();
+			cache.commit(Height());
+
+			// Act:
+			storage.get().saveDelta(delta);
+
+			// Assert:
+			EXPECT_EQ(0u, GetCollectionSize());
+		}
+
+		static void AssertAddedElementIsSavedToStorage() {
+			// Arrange:
+			CacheStorageWrapper storage;
+			auto cache = TTraits::CreateCache();
+			auto delta = cache.createDelta();
+
+			// - prepare the cache with a single element
+			auto originalElement = TTraits::GenerateRandomElement(11, 0, true);
+			TTraits::Add(delta, originalElement);
+			storage.get().saveDelta(delta);
+			cache.commit(Height());
+
+			// Sanity:
+			EXPECT_EQ(1u, GetCollectionSize());
+			AssertDbContents({ originalElement });
+
+			// Act:
+			auto newElement = TTraits::GenerateRandomElement(54321, 0, true);
+			TTraits::Add(delta, newElement);
+			storage.get().saveDelta(delta);
+
+			// Sanity:
+			EXPECT_EQ(1u, GetDelta(delta).addedElements().size());
+
+			// Assert:
+			EXPECT_EQ(2u, GetCollectionSize());
+			AssertDbContents({ originalElement, newElement });
+		}
+
+		static void AssertModifiedElementIsSavedToStorage() {
+			// Arrange:
+			CacheStorageWrapper storage;
+			auto cache = TTraits::CreateCache();
+			auto delta = cache.createDelta();
+
+			// - prepare the cache with a single element
+			auto element = TTraits::GenerateRandomElement(11, 0, true);
+			TTraits::Add(delta, element);
+			storage.get().saveDelta(delta);
+			cache.commit(Height());
+
+			// Sanity:
+			EXPECT_EQ(1u, GetCollectionSize());
+			AssertDbContents({ element });
+
+			// Act:
+			auto newElement = TTraits::Mutate(delta, element);
+			storage.get().saveDelta(delta);
+
+			// Sanity:
+			EXPECT_EQ(1u, GetDelta(delta).modifiedElements().size());
+
+			// Assert: both historical elements are stored
+			EXPECT_EQ(2u, GetCollectionSize());
+			AssertDbContents({ element, newElement });
+		}
+
+		static void AssertDeletedElementIsPartiallyRemovedFromStorage() {
+			// Arrange:
+			CacheStorageWrapper storage;
+			auto cache = TTraits::CreateCache();
+			auto delta = cache.createDelta();
+
+			// - prepare the cache with two elements
+			auto element1 = TTraits::GenerateRandomElement(11, 0, false);
+			auto element2 = TTraits::GenerateRandomElement(11, 1, true);
+			TTraits::Add(delta, element1);
+			TTraits::Add(delta, element2);
+			storage.get().saveDelta(delta);
+			cache.commit(Height());
+
+			// Sanity:
+			EXPECT_EQ(2u, GetCollectionSize());
+			AssertDbContents({ element1, element2 });
+
+			// Act:
+			TTraits::Remove(delta, element2);
+			storage.get().saveDelta(delta);
+
+			// Sanity:
+			EXPECT_EQ(1u, GetDelta(delta).modifiedElements().size());
+
+			// Assert:
+			EXPECT_EQ(1u, GetCollectionSize());
+			AssertDbContents({ element1 });
+		}
+
+		static void AssertDeletedElementIsCompletelyRemovedFromStorage() {
+			// Arrange:
+			CacheStorageWrapper storage;
+			auto cache = TTraits::CreateCache();
+			auto delta = cache.createDelta();
+
+			// - prepare the cache with two elements
+			auto element1 = TTraits::GenerateRandomElement(11, 0, true);
+			auto element2 = TTraits::GenerateRandomElement(12, 0, true);
+			TTraits::Add(delta, element1);
+			TTraits::Add(delta, element2);
+			storage.get().saveDelta(delta);
+			cache.commit(Height());
+
+			// Sanity:
+			EXPECT_EQ(2u, GetCollectionSize());
+			AssertDbContents({ element1, element2 });
+
+			// Act:
+			TTraits::Remove(delta, element2);
+			storage.get().saveDelta(delta);
+
+			// Sanity:
+			EXPECT_EQ(1u, GetDelta(delta).removedElements().size());
+
+			// Assert:
+			EXPECT_EQ(1u, GetCollectionSize());
+			AssertDbContents({ element1 });
+		}
+
+		static void AssertCanSaveMultipleElementsWithDistinctHistory() {
+			// Arrange:
+			CacheStorageWrapper storage;
+			auto cache = TTraits::CreateCache();
+			auto delta = cache.createDelta();
+
+			// Act:
+			std::vector<ElementType> elements;
+			for (auto i = 0u; i < 100u; ++i) {
+				elements.push_back(TTraits::GenerateRandomElement(i, 0, true));
+				TTraits::Add(delta, elements.back());
+			}
+
+			storage.get().saveDelta(delta);
+			cache.commit(Height());
+
+			// Assert:
+			EXPECT_EQ(100u, GetCollectionSize());
+			AssertDbContents(elements);
+		}
+
+		static void AssertCanSaveMultipleElementsWithSharedHistory() {
+			// Arrange:
+			CacheStorageWrapper storage;
+			auto cache = TTraits::CreateCache();
+			auto delta = cache.createDelta();
+
+			// Act: notice that indexes are 0-based
+			std::vector<ElementType> elements;
+			for (auto i = 0u; i < 100u; ++i) {
+				elements.push_back(TTraits::GenerateRandomElement(123, i, false));
+				TTraits::Add(delta, elements.back());
+			}
+
+			// - add active element
+			elements.push_back(TTraits::GenerateRandomElement(123, 100, true));
+			TTraits::Add(delta, elements.back());
+
+			storage.get().saveDelta(delta);
+			cache.commit(Height());
+
+			// Assert:
+			EXPECT_EQ(101u, GetCollectionSize());
+			AssertDbContents(elements);
+		}
+
+		static void AssertCanAddAndModifyAndDeleteMultipleElements() {
+			// Arrange:
+			CacheStorageWrapper storage;
+			auto cache = TTraits::CreateCache();
+			auto delta = cache.createDelta();
+
+			// - seed 100 elements
+			std::vector<ElementType> elements;
+			for (auto i = 0u; i < 100u; ++i) {
+				elements.push_back(TTraits::GenerateRandomElement(i, 0, true));
+				TTraits::Add(delta, elements.back());
+			}
+
+			storage.get().saveDelta(delta);
+			cache.commit(Height());
+
+			// Act: drop some and modify some
+			std::vector<ElementType> expected;
+			size_t numModified = 0;
+			size_t numRemoved = 0;
+			enum class Action : uint8_t { Remove, Modify, Add };
+			for (auto& element : elements) {
+				switch (static_cast<Action>(RandomByte() % 3)) {
+				case Action::Remove:
+					TTraits::Remove(delta, element);
+					++numRemoved;
+					break;
+
+				case Action::Modify:
+					expected.push_back(TTraits::Mutate(delta, element)); // both versions should be present
+					++numModified;
+#ifndef _MSC_VER
+					[[clang::fallthrough]];
+#endif
+				case Action::Add:
+					expected.push_back(element);
+					break;
+				}
+			}
+
+			storage.get().saveDelta(delta);
+
+			// Sanity:
+			EXPECT_NE(0u, numRemoved);
+			EXPECT_NE(0u, numModified);
+			EXPECT_LT(numModified, expected.size());
+
+			// Assert:
+			EXPECT_EQ(expected.size(), GetCollectionSize());
+			AssertDbContents(expected);
+		}
+
+		static void AssertCanLoadFromEmptyDatabase() {
+			// Arrange:
+			CacheStorageWrapper storage;
+			auto cache = TTraits::CreateCache();
+
+			// Act:
+			storage.get().loadAll(cache, Height(1));
+			auto contents = GetCacheContents(cache);
+
+			// Assert:
+			EXPECT_EQ(0u, GetCollectionSize());
+		}
+
+		static void AssertCanLoadFromNonEmptyDatabaseWithDistinctHistory() {
+			// Act:
+			RunCustomLoadTest([](auto& delta) {
+				// Arrange: seed the database with 100 elements
+				for (auto i = 0u; i < 100u; ++i)
+					TTraits::Add(delta, TTraits::GenerateRandomElement(i, 0, true));
+
+				return std::make_pair(100u, 100u);
+			});
+		}
+
+		static void AssertCanLoadFromNonEmptyDatabaseWithSharedHistory() {
+			// Act:
+			RunCustomLoadTest([](auto& delta) {
+				// Arrange: seed the database with 100 elements (notice that indexes are 0-based)
+				auto key = test::GenerateRandomData<Key_Size>();
+				for (auto i = 0u; i < 100u; ++i)
+					TTraits::Add(delta, TTraits::CreateElement(key, 123, i, false));
+
+				// - add active element
+				TTraits::Add(delta, TTraits::CreateElement(key, 123, 100, true));
+				return std::make_pair(101u, 101u);
+			});
+		}
+
+	public:
+		/// Executes a custom loading test after initializing the database with \a seedCache.
+		/// \note This is required for fully testing the branches in the namespace cache loading.
+		template<typename TSeedCache>
+		static void RunCustomLoadTest(TSeedCache seedCache) {
+			// Arrange:
+			CacheStorageWrapper storage;
+
+			// - seed the database with 100 elements
+			std::pair<size_t, size_t> expectedCollectionSizes; // (cache-size, deep-size)
+			{
+				auto cache1 = TTraits::CreateCache();
+				auto delta1 = cache1.createDelta();
+				expectedCollectionSizes = seedCache(delta1);
+				storage.get().saveDelta(delta1);
+			}
+
+			// Sanity:
+			EXPECT_EQ(expectedCollectionSizes.second, GetCollectionSize());
+
+			// Act: load into a second cache
+			auto cache2 = TTraits::CreateCache();
+			storage.get().loadAll(cache2, Height(1));
+			auto elements = GetCacheContents(cache2);
+
+			// Assert:
+			EXPECT_EQ(expectedCollectionSizes.first, elements.size());
+			AssertDbContents(elements, expectedCollectionSizes.second - expectedCollectionSizes.first);
+		}
+
+	private:
+		static auto GetCacheContents(const cache::CatapultCache& cache) {
+			std::vector<ElementType> contents;
+			const auto& subCache = cache.sub<CacheType>();
+			auto view = subCache.createView();
+			for (const auto& pair : *view) {
+				auto historyIndex = 0u;
+				const auto& history = pair.second;
+				for (const auto& historicalRecord : history) {
+					contents.push_back(TTraits::CreateElement(historicalRecord, historyIndex, historyIndex == history.historyDepth() - 1));
+					++historyIndex;
+				}
+			}
+
+			return contents;
+		}
+	};
+
+#define MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, TEST_NAME) \
+	TEST(TEST_CLASS, TEST_NAME##POSTFIX) { test::MongoHistoricalCacheStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+
+#define DEFINE_HISTORICAL_CACHE_STORAGE_TESTS(TRAITS_NAME, POSTFIX) \
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, SaveHasNoEffectWhenThereAreNoPendingChanges) \
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, AddedElementIsSavedToStorage) \
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, ModifiedElementIsSavedToStorage) \
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, DeletedElementIsPartiallyRemovedFromStorage) \
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, DeletedElementIsCompletelyRemovedFromStorage) \
+	\
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanSaveMultipleElementsWithDistinctHistory) \
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanSaveMultipleElementsWithSharedHistory) \
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanAddAndModifyAndDeleteMultipleElements) \
+	\
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanLoadFromEmptyDatabase) \
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanLoadFromNonEmptyDatabaseWithDistinctHistory) \
+	MAKE_HISTORICAL_CACHE_STORAGE_TEST(TRAITS_NAME, POSTFIX, CanLoadFromNonEmptyDatabaseWithSharedHistory)
+}}

@@ -7,6 +7,7 @@
 namespace catapult { namespace model { struct Block; } }
 
 namespace catapult { namespace chain {
+
 	using BlockTarget = boost::multiprecision::uint256_t;
 
 	/// Calculates the hit for a \a generationHash.
@@ -63,9 +64,7 @@ namespace catapult { namespace chain {
 	public:
 		/// Creates a predicate around a block chain configuration (\a config) and an importance lookup function
 		/// (\a importanceLookup).
-		BlockHitPredicate(
-				const model::BlockChainConfiguration& config,
-				const ImportanceLookupFunc& importanceLookup);
+		BlockHitPredicate(const model::BlockChainConfiguration& config, const ImportanceLookupFunc& importanceLookup);
 
 	public:
 		/// Determines if the \a block is a hit given its parent (\a parentBlock) and generation hash (\a generationHash).

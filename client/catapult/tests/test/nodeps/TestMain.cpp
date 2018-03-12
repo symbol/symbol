@@ -2,6 +2,13 @@
 #include "tests/TestHarness.h"
 #include <thread>
 
+#ifdef CATAPULT_DOCKER_TESTS
+extern int global_argc;
+extern char** global_argv;
+int global_argc;
+char** global_argv;
+#endif
+
 namespace catapult { namespace test {
 
 	uint32_t GetNumDefaultPoolThreads() {
@@ -28,5 +35,11 @@ int main(int argc, char **argv) {
 
 	std::cout << "Initializing and Running Tests..." << std::endl;
 	::testing::InitGoogleTest(&argc, argv);
+
+#ifdef CATAPULT_DOCKER_TESTS
+	global_argc = argc;
+	global_argv = argv;
+#endif
+
 	return RUN_ALL_TESTS();
 }

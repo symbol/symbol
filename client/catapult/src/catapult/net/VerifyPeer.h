@@ -1,6 +1,6 @@
 #pragma once
+#include "catapult/functions.h"
 #include "catapult/types.h"
-#include <functional>
 #include <memory>
 
 namespace catapult {
@@ -10,7 +10,6 @@ namespace catapult {
 
 namespace catapult { namespace net {
 
-/// Enumeration of verification results.
 #define VERIFY_RESULT_LIST \
 	/* There was an i/o error while processing a server challenge request. */ \
 	ENUM_VALUE(Io_Error_ServerChallengeRequest) \
@@ -25,26 +24,27 @@ namespace catapult { namespace net {
 	ENUM_VALUE(Malformed_Data) \
 	\
 	/* The peer failed the challenge. */ \
-	ENUM_VALUE(Failed_Challenge) \
+	ENUM_VALUE(Failure_Challenge) \
 	\
 	/* The peer passed the challenge. */ \
 	ENUM_VALUE(Success) \
 
-#define DECLARE_ENUM VerifyResult
-#define ENUM_LIST VERIFY_RESULT_LIST
-#include "catapult/utils/MacroBasedEnum.h"
-#undef ENUM_LIST
-#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+	/// Enumeration of verification results.
+	enum class VerifyResult {
+		VERIFY_RESULT_LIST
+	};
+#undef ENUM_VALUE
+
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, VerifyResult value);
 
 	/// Callback that is called with the result of a verify operation and the public key of the remote node on success.
-	using VerifyCallback = std::function<void (VerifyResult, const Key&)>;
+	using VerifyCallback = consumer<VerifyResult, const Key&>;
 
 	/// Attempts to verify a client (\a pClientIo) and calls \a callback on completion. \a keyPair used for
 	/// responses from the server.
-	void VerifyClient(
-			const std::shared_ptr<ionet::PacketIo>& pClientIo,
-			const crypto::KeyPair& keyPair,
-			const VerifyCallback& callback);
+	void VerifyClient(const std::shared_ptr<ionet::PacketIo>& pClientIo, const crypto::KeyPair& keyPair, const VerifyCallback& callback);
 
 	/// Attempts to verify a server (\a pServerIo) with public key \a serverPublicKey and calls \a callback on
 	/// completion. \a keyPair used used for responses from the client.

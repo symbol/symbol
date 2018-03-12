@@ -38,9 +38,9 @@ namespace catapult { namespace validators {
 	constexpr ValidationResult MakeValidationResult(ResultSeverity severity, FacilityCode facility, uint16_t code, ResultFlags flags) {
 		return static_cast<ValidationResult>(
 				(static_cast<uint32_t>(severity) & 0x03) << 30 | // 01..02: severity
-				(static_cast<uint32_t>(flags) & 0x3F) << 24 | // 03..08: flags
-				static_cast<uint32_t>(facility) << 16 | // 09..16: facility
-				code); // 16..32: code
+				(static_cast<uint32_t>(flags) & 0x3F) << 24 | //    03..08: flags
+				static_cast<uint32_t>(facility) << 16 | //          09..16: facility
+				code); //                                           16..32: code
 	}
 
 /// Defines a validation result given \a SEVERITY, \a FACILITY, \a DESCRIPTION, \a CODE and \a FLAGS.

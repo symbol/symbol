@@ -1,6 +1,6 @@
 #include "catapult/validators/DemuxValidatorBuilder.h"
 #include "catapult/cache/CatapultCache.h"
-#include "tests/catapult/validators/utils/AggregateValidatorTestUtils.h"
+#include "tests/catapult/validators/test/AggregateValidatorTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -13,6 +13,7 @@ namespace catapult { namespace validators {
 		public:
 			std::vector<uint16_t> Breadcrumbs;
 			std::unique_ptr<const stateful::AggregateNotificationValidator> pDemuxValidator;
+			size_t NumIsSuppressedFailureCalls = 0;
 
 		public:
 			ValidationResult validate(uint8_t notificationId) {
@@ -37,7 +38,10 @@ namespace catapult { namespace validators {
 					builder.add(mocks::CreateTaggedBreadcrumbValidator2(id, pContext->Breadcrumbs));
 			}
 
-			auto pDemuxValidator = builder.build();
+			auto pDemuxValidator = builder.build([&count = pContext->NumIsSuppressedFailureCalls](auto) {
+				++count;
+				return false;
+			});
 			pContext->pDemuxValidator = std::move(pDemuxValidator);
 			return pContext;
 		}
@@ -57,6 +61,7 @@ namespace catapult { namespace validators {
 		EXPECT_EQ(0u, pContext->Breadcrumbs.size());
 		EXPECT_EQ("{}", pContext->pDemuxValidator->name());
 		EXPECT_EQ(expectedNames, pContext->pDemuxValidator->names());
+		EXPECT_EQ(0u, pContext->NumIsSuppressedFailureCalls);
 	}
 
 	TEST(TEST_CLASS, CanCreateDemuxValidatorWithMultipleValidators) {
@@ -71,6 +76,7 @@ namespace catapult { namespace validators {
 		EXPECT_EQ(10u, pContext->Breadcrumbs.size());
 		EXPECT_EQ("{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }", pContext->pDemuxValidator->name());
 		EXPECT_EQ(expectedNames, pContext->pDemuxValidator->names());
+		EXPECT_EQ(10u, pContext->NumIsSuppressedFailureCalls);
 	}
 
 	TEST(TEST_CLASS, AddAllowsChaining) {
@@ -83,7 +89,7 @@ namespace catapult { namespace validators {
 			.add(mocks::CreateTaggedBreadcrumbValidator(2, pContext->Breadcrumbs))
 			.add(mocks::CreateTaggedBreadcrumbValidator2(3, pContext->Breadcrumbs))
 			.add(mocks::CreateTaggedBreadcrumbValidator(4, pContext->Breadcrumbs));
-		pContext->pDemuxValidator = builder.build();
+		pContext->pDemuxValidator = builder.build([](auto) { return false; });
 
 		// Act:
 		auto result = pContext->validate(7);
@@ -138,20 +144,16 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, NotificationsAreForwardedToChildValidators) {
 		// Assert:
-		AssertNotificationsAreForwardedToChildValidators(
-				stateful::DemuxValidatorBuilder(),
-				[](auto& builder, auto&& pValidator) {
-					builder.add(std::move(pValidator));
-				});
+		test::AssertNotificationsAreForwardedToChildValidators(stateful::DemuxValidatorBuilder(), [](auto& builder, auto&& pValidator) {
+			builder.add(std::move(pValidator));
+		});
 	}
 
 	TEST(TEST_CLASS, ContextsAreForwardedToChildValidators) {
 		// Assert:
-		AssertContextsAreForwardedToChildValidators(
-				stateful::DemuxValidatorBuilder(),
-				[](auto& builder, auto&& pValidator) {
-					builder.add(std::move(pValidator));
-				});
+		test::AssertContextsAreForwardedToChildValidators(stateful::DemuxValidatorBuilder(), [](auto& builder, auto&& pValidator) {
+			builder.add(std::move(pValidator));
+		});
 	}
 
 	// endregion
@@ -190,38 +192,52 @@ namespace catapult { namespace validators {
 				const std::string& name) {
 			return std::make_unique<MockBreadcrumbValidator<TNotification>>(name, breadcrumbs);
 		}
+
+		void AssertCanFilterValidatorsBasedOnNotificationType(const consumer<model::Notification&>& prepareNotification) {
+			// Arrange:
+			Breadcrumbs breadcrumbs;
+			stateful::DemuxValidatorBuilder builder;
+
+			auto cache = test::CreateEmptyCatapultCache();
+			auto cacheView = cache.createView();
+			auto context = test::CreateValidatorContext(Height(123), cacheView.toReadOnly());
+
+			builder
+				.add(CreateBreadcrumbValidator<model::AccountPublicKeyNotification>(breadcrumbs, "alpha"))
+				.add(CreateBreadcrumbValidator<model::AccountAddressNotification>(breadcrumbs, "OMEGA"))
+				.add(CreateBreadcrumbValidator(breadcrumbs, "zEtA"));
+			auto pValidator = builder.build([](auto) { return false; });
+
+			// Act:
+			auto notification = model::AccountPublicKeyNotification(Key());
+			prepareNotification(notification);
+			auto result = test::ValidateNotification<model::Notification>(*pValidator, notification, context);
+
+			// Assert:
+			EXPECT_EQ(ValidationResult::Success, result);
+
+			Breadcrumbs expectedNames{ "alpha", "OMEGA", "zEtA" };
+			EXPECT_EQ(expectedNames, pValidator->names());
+
+			// - alpha matches notification type
+			// - OMEGA does not match notification type
+			// - zEtA matches all types
+			Breadcrumbs expectedSelectedNames{ "alpha", "zEtA" };
+			EXPECT_EQ(expectedSelectedNames, breadcrumbs);
+		}
 	}
 
 	TEST(TEST_CLASS, CanFilterValidatorsBasedOnNotificationType) {
-		// Arrange:
-		Breadcrumbs breadcrumbs;
-		stateful::DemuxValidatorBuilder builder;
-
-		auto cache = test::CreateEmptyCatapultCache();
-		auto cacheView = cache.createView();
-		auto context = test::CreateValidatorContext(Height(123), cacheView.toReadOnly());
-
-		builder
-			.add(CreateBreadcrumbValidator<model::AccountPublicKeyNotification>(breadcrumbs, "alpha"))
-			.add(CreateBreadcrumbValidator<model::AccountAddressNotification>(breadcrumbs, "OMEGA"))
-			.add(CreateBreadcrumbValidator(breadcrumbs, "zEtA"));
-		auto pValidator = builder.build();
-
-		// Act:
-		auto notification = model::AccountPublicKeyNotification(Key());
-		auto result = test::ValidateNotification<model::Notification>(*pValidator, notification, context);
-
 		// Assert:
-		EXPECT_EQ(ValidationResult::Success, result);
+		AssertCanFilterValidatorsBasedOnNotificationType([](const auto&) {});
+	}
 
-		Breadcrumbs expectedNames{ "alpha", "OMEGA", "zEtA" };
-		EXPECT_EQ(expectedNames, pValidator->names());
-
-		// - alpha matches notification type
-		// - OMEGA does not match notification type
-		// - zEtA matches all types
-		Breadcrumbs expectedSelectedNames{ "alpha", "zEtA" };
-		EXPECT_EQ(expectedSelectedNames, breadcrumbs);
+	TEST(TEST_CLASS, CanFilterValidatorsBasedOnNotificationTypeIgnoringChannel) {
+		// Assert:
+		AssertCanFilterValidatorsBasedOnNotificationType([](auto& notification) {
+			// Arrange: change notification by changing channel
+			model::SetNotificationChannel(notification.Type, model::NotificationChannel::None);
+		});
 	}
 
 	// endregion

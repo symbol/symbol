@@ -1,76 +1,23 @@
-#include "catapult/local/p2p/LocalNode.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/io/RawFile.h"
-#include "catapult/ionet/BufferedPacketIo.h"
-#include "catapult/ionet/Packet.h"
-#include "catapult/ionet/PacketSocket.h"
-#include "catapult/local/LocalNodeStats.h"
-#include "catapult/net/ServerConnector.h"
-#include "catapult/net/VerifyPeer.h"
-#include "catapult/thread/IoServiceThreadPool.h"
-#include "catapult/thread/MultiServicePool.h"
-#include "tests/test/core/StorageTestUtils.h"
-#include "tests/test/int/Configuration.h"
-#include "tests/test/int/LocalNodeTestUtils.h"
-#include "tests/test/nodeps/Filesystem.h"
+#include "catapult/extensions/ServiceLocator.h"
+#include "tests/test/int/LocalNodeTestContext.h"
 #include "tests/TestHarness.h"
 #include <boost/filesystem.hpp>
 
-namespace catapult { namespace local { namespace p2p {
+namespace catapult { namespace local {
 
-	using NodeFlag = catapult::test::NodeFlag;
+#define TEST_CLASS LocalNodeTests
 
 	namespace {
-		class TestContext {
+		using NodeFlag = test::NodeFlag;
+		constexpr auto Sentinel_Counter_Value = extensions::ServiceLocator::Sentinel_Counter_Value;
+
+		class TestContext : public test::LocalNodeTestContext<test::LocalNodePeerTraits> {
 		public:
-			TestContext(NodeFlag nodeFlag) : m_serverKeyPair(test::LoadServerKeyPair()) {
-				test::PrepareStorage(m_tempDir.name());
-
-				m_pLocalNode = reboot(createConfig(nodeFlag));
-			}
-
-		public:
-			BootedLocalNode& localNode() {
-				return *m_pLocalNode;
-			}
-
-			test::PeerLocalNodeStats stats() const {
-				return test::CountersToPeerLocalNodeStats(m_pLocalNode->counters());
-			}
+			using test::LocalNodeTestContext<test::LocalNodePeerTraits>::LocalNodeTestContext;
 
 		public:
-			config::LocalNodeConfiguration createConfig(NodeFlag nodeFlag) {
-				return test::LoadLocalNodeConfiguration(static_cast<uint64_t>(nodeFlag), m_tempDir.name());
-			}
-
-			std::unique_ptr<BootedLocalNode> reboot(config::LocalNodeConfiguration&& config) const {
-				// in order for the nemesis block to be processed, at least the transfer plugin needs to be loaded
-				// notice that the api LocalNodeTests do not actually process the nemesis block, so they don't need plugin extensions
-				test::AddNemesisPluginExtensions(const_cast<model::BlockChainConfiguration&>(config.BlockChain));
-
-				return CreateLocalNode(
-						m_serverKeyPair,
-						std::move(config),
-						std::make_unique<thread::MultiServicePool>(
-								thread::MultiServicePool::DefaultPoolConcurrency(),
-								"LocalNodeTests-p2p"));
-			}
-
-		public:
-			void waitForNumActiveReaders(size_t value) const {
-				WAIT_FOR_VALUE_EXPR(stats().NumActiveReaders, value);
-			}
-
-			void waitForNumActiveWriters(size_t value) const {
-				WAIT_FOR_VALUE_EXPR(stats().NumActiveWriters, value);
-			}
-
-			void waitForNumScheduledTasks(size_t value) const {
-				WAIT_FOR_VALUE_EXPR(stats().NumScheduledTasks, value);
-			}
-
 			void waitForNumActiveBroadcastWriters(size_t value) const {
-				WAIT_FOR_VALUE_EXPR(stats().NumActiveBroadcastWriters, value);
+				WAIT_FOR_VALUE_EXPR(value, stats().NumActiveBroadcastWriters);
 			}
 
 		public:
@@ -80,7 +27,7 @@ namespace catapult { namespace local { namespace p2p {
 
 			Height loadSavedChainHeight() const {
 				auto path = getSupplementalStatePath();
-				io::RawFile file(path.string(), io::OpenMode::Read_Only);
+				io::RawFile file(path.generic_string(), io::OpenMode::Read_Only);
 				file.seek(file.size() - sizeof(Height));
 				return io::Read<Height>(file);
 			}
@@ -89,51 +36,41 @@ namespace catapult { namespace local { namespace p2p {
 			void assertShutdown() const {
 				// Assert:
 				auto stats = this->stats();
-				EXPECT_EQ(Sentinel_Stats_Value, stats.NumActiveReaders);
-				EXPECT_EQ(Sentinel_Stats_Value, stats.NumActiveWriters);
-				EXPECT_EQ(Sentinel_Stats_Value, stats.NumScheduledTasks);
-				EXPECT_EQ(Sentinel_Stats_Value, stats.NumActiveBroadcastWriters);
+				EXPECT_EQ(Sentinel_Counter_Value, stats.NumActiveReaders);
+				EXPECT_EQ(Sentinel_Counter_Value, stats.NumActiveWriters);
+				EXPECT_EQ(Sentinel_Counter_Value, stats.NumScheduledTasks);
+				EXPECT_EQ(Sentinel_Counter_Value, stats.NumActiveBroadcastWriters);
 			}
-
-		private:
-			boost::filesystem::path getSupplementalStatePath() const {
-				return boost::filesystem::path(m_tempDir.name()) / "state" / "supplemental.dat";
-			}
-
-		private:
-			crypto::KeyPair m_serverKeyPair;
-			test::TempDirectoryGuard m_tempDir;
-			std::unique_ptr<BootedLocalNode> m_pLocalNode;
 		};
 	}
 
 	// region basic tests
 
-	TEST(LocalNodeTests, CanBootLocalNodeWithoutPeers) {
+	TEST(TEST_CLASS, CanBootLocalNodeWithoutPeers) {
 		// Assert:
 		test::AssertCanBootLocalNodeWithoutPeers<TestContext>([](const auto&, const auto& stats) {
 			EXPECT_EQ(0u, stats.NumActiveBroadcastWriters);
 		});
 	}
 
-	TEST(LocalNodeTests, CanBootLocalNodeWithPeers) {
+	TEST(TEST_CLASS, CanBootLocalNodeWithPeers) {
 		// Assert:
 		test::AssertCanBootLocalNodeWithPeers<TestContext>([](const auto&, const auto& stats) {
 			EXPECT_EQ(0u, stats.NumActiveBroadcastWriters);
 		});
 	}
 
-	TEST(LocalNodeTests, CanShutdownNode) {
+	TEST(TEST_CLASS, CanShutdownNode) {
 		// Assert:
 		test::AssertCanShutdownLocalNode<TestContext>();
 	}
 
-	TEST(LocalNodeTests, AllPeriodicTasksAreScheduled) {
+	TEST(TEST_CLASS, AllPeriodicTasksAreScheduled) {
 		// Assert:
-		test::AssertLocalNodeSchedulesTasks<TestContext>(5);
+		test::AssertLocalNodeSchedulesTasks<TestContext>(9);
 	}
 
-	TEST(LocalNodeTests, AllCounterGroupsAreRegistered) {
+	TEST(TEST_CLASS, AllCounterGroupsAreRegistered) {
 		// Act:
 		TestContext context(NodeFlag::Regular);
 
@@ -143,9 +80,9 @@ namespace catapult { namespace local { namespace p2p {
 
 		// Assert: check candidate counters
 		EXPECT_TRUE(test::HasCounter(counters, "ACNTST C")) << "cache counters";
-		EXPECT_TRUE(test::HasCounter(counters, "TX ELEMENTS")) << "basic local node counters";
+		EXPECT_TRUE(test::HasCounter(counters, "TX ELEM TOT")) << "service local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "UNLKED ACCTS")) << "peer local node counters";
-		EXPECT_TRUE(test::HasCounter(counters, "UNCNFRMTX C")) << "peer local node counters";
+		EXPECT_TRUE(test::HasCounter(counters, "UT CACHE")) << "basic local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "MEM CUR RSS")) << "memory counters";
 	}
 
@@ -170,12 +107,12 @@ namespace catapult { namespace local { namespace p2p {
 		}
 	}
 
-	TEST(LocalNodeTests, BootUnlocksAccountIfAutoHarvestIsEnabled) {
+	TEST(TEST_CLASS, BootUnlocksAccountIfAutoHarvestIsEnabled) {
 		// Assert:
 		AssertNumUnlockedAccounts(Auto_Harvest, 1u);
 	}
 
-	TEST(LocalNodeTests, BootDoesNotUnlockAccountIfAutoHarvestIsDisabled) {
+	TEST(TEST_CLASS, BootDoesNotUnlockAccountIfAutoHarvestIsDisabled) {
 		// Assert:
 		AssertNumUnlockedAccounts(!Auto_Harvest, 0u);
 	}
@@ -188,8 +125,7 @@ namespace catapult { namespace local { namespace p2p {
 		template<typename THandler>
 		void RunExternalConnectionTest(unsigned short port, THandler handler) {
 			// Arrange: boot a local node and wait for the node to connect to the peer
-			TestContext context(NodeFlag::Regular);
-			context.waitForNumActiveReaders(1);
+			TestContext context(NodeFlag::With_Partner, { test::CreateLocalPartnerNode() });
 			context.waitForNumActiveWriters(1);
 
 			// Act: create an external connection to the node
@@ -198,42 +134,41 @@ namespace catapult { namespace local { namespace p2p {
 		}
 	}
 
-	TEST(LocalNodeTests, CanConnectToLocalNodeAsReader) {
+	TEST(TEST_CLASS, CanConnectToLocalNodeAsReader) {
 		// Act:
 		RunExternalConnectionTest(test::Local_Node_Port, [](auto& context) {
-			context.waitForNumActiveReaders(2);
+			context.waitForNumActiveReaders(1);
 			auto stats = context.stats();
 
 			// Assert:
-			EXPECT_EQ(2u, stats.NumActiveReaders);
+			EXPECT_EQ(1u, stats.NumActiveReaders);
 			EXPECT_EQ(1u, stats.NumActiveWriters);
 			EXPECT_EQ(0u, stats.NumActiveBroadcastWriters);
 		});
 	}
 
-	TEST(LocalNodeTests, CanConnectToLocalNodeAsBroadcastWriter) {
+	TEST(TEST_CLASS, CanConnectToLocalNodeAsBroadcastWriter) {
 		// Act:
 		RunExternalConnectionTest(test::Local_Node_Api_Port, [](auto& context) {
 			context.waitForNumActiveBroadcastWriters(1);
 			auto stats = context.stats();
 
 			// Assert:
-			EXPECT_EQ(1u, stats.NumActiveReaders);
+			EXPECT_EQ(0u, stats.NumActiveReaders);
 			EXPECT_EQ(1u, stats.NumActiveWriters);
 			EXPECT_EQ(1u, stats.NumActiveBroadcastWriters);
 		});
 	}
 
-	TEST(LocalNodeTests, CanShutdownLocalNodeWithExternalConnections) {
+	TEST(TEST_CLASS, CanShutdownLocalNodeWithExternalConnections) {
 		// Arrange: boot a local node and wait for the node to connect to the peer
-		TestContext context(NodeFlag::Regular);
-		context.waitForNumActiveReaders(1);
+		TestContext context(NodeFlag::With_Partner, { test::CreateLocalPartnerNode() });
 		context.waitForNumActiveWriters(1);
 
 		// Act: create external connections to the node
 		auto connection1 = test::CreateExternalConnection(test::Local_Node_Port);
 		auto connection2 = test::CreateExternalConnection(test::Local_Node_Api_Port);
-		context.waitForNumActiveReaders(2);
+		context.waitForNumActiveReaders(1);
 		context.waitForNumActiveBroadcastWriters(1);
 
 		// Act: shutdown the local node
@@ -248,7 +183,7 @@ namespace catapult { namespace local { namespace p2p {
 
 	// region state saving
 
-	TEST(LocalNodeTests, ShutdownSavesStateToDiskOnSuccessfulBoot) {
+	TEST(TEST_CLASS, ShutdownSavesStateToDiskOnSuccessfulBoot) {
 		// Arrange:
 		TestContext context(NodeFlag::Regular);
 
@@ -263,7 +198,7 @@ namespace catapult { namespace local { namespace p2p {
 		EXPECT_EQ(Height(1), context.loadSavedChainHeight());
 	}
 
-	TEST(LocalNodeTests, ShutdownDoesNotSaveStateToDiskOnFailedBoot) {
+	TEST(TEST_CLASS, ShutdownDoesNotSaveStateToDiskOnFailedBoot) {
 		// Arrange: create saved state
 		TestContext context(NodeFlag::Regular);
 		context.localNode().shutdown();
@@ -273,13 +208,13 @@ namespace catapult { namespace local { namespace p2p {
 		EXPECT_EQ(Height(1), context.loadSavedChainHeight());
 
 		// - prepare bad config
-		auto badConfig = context.createConfig(NodeFlag::Regular);
+		auto badConfig = context.createConfig();
 		const_cast<model::BlockChainConfiguration&>(badConfig.BlockChain).Plugins.emplace(
 				"catapult.plugins.awesome",
 				utils::ConfigurationBag({}));
 
-		// Act: simulate a boot failure by specifying an incorrect plugin
-		EXPECT_THROW(context.reboot(std::move(badConfig)), catapult_invalid_argument);
+		// Act + Assert: simulate a boot failure by specifying an incorrect plugin
+		EXPECT_THROW(context.boot(std::move(badConfig)), catapult_runtime_error);
 
 		// Assert: the config was not overwritten
 		EXPECT_TRUE(context.hasSavedState());
@@ -287,4 +222,4 @@ namespace catapult { namespace local { namespace p2p {
 	}
 
 	// endregion
-}}}
+}}

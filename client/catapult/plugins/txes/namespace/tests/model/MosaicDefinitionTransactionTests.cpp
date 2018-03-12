@@ -1,4 +1,5 @@
 #include "src/model/MosaicDefinitionTransaction.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
@@ -31,7 +32,7 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertTransactionHasExpectedProperties() {
 			// Assert:
-			EXPECT_EQ(EntityType::Mosaic_Definition, static_cast<EntityType>(T::Entity_Type));
+			EXPECT_EQ(Entity_Type_Mosaic_Definition, static_cast<EntityType>(T::Entity_Type));
 			EXPECT_EQ(2u, static_cast<uint8_t>(T::Current_Version));
 		}
 	}
@@ -48,8 +49,7 @@ namespace catapult { namespace model {
 				uint32_t entitySize = sizeof(MosaicDefinitionTransaction)
 						+ propertiesCount * sizeof(model::MosaicProperty)
 						+ nameSize;
-				std::unique_ptr<MosaicDefinitionTransaction> pTransaction(
-						reinterpret_cast<MosaicDefinitionTransaction*>(::operator new(entitySize)));
+				auto pTransaction = utils::MakeUniqueWithSize<MosaicDefinitionTransaction>(entitySize);
 				pTransaction->Size = entitySize;
 				pTransaction->MosaicNameSize = nameSize;
 				pTransaction->PropertiesHeader.Count = propertiesCount;

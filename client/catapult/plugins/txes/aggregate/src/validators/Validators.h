@@ -9,11 +9,11 @@ namespace catapult { namespace validators {
 	/// - the number of transactions does not exceed \a maxTransactions
 	/// - the number of implicit and explicit cosignatures does not exceed \a maxCosignatures
 	/// - there are no redundant cosigners
-	stateless::NotificationValidatorPointerT<model::AggregateCosignaturesNotification> CreateBasicAggregateCosignaturesValidator(
+	DECLARE_STATELESS_VALIDATOR(BasicAggregateCosignatures, model::AggregateCosignaturesNotification)(
 			uint32_t maxTransactions,
 			uint8_t maxCosignatures);
 
 	/// A validator implementation that applies to aggregate cosignatures notifications and validates that:
 	/// - the set of component signers is equal to the set of cosigners
-	stateless::NotificationValidatorPointerT<model::AggregateCosignaturesNotification> CreateStrictAggregateCosignaturesValidator();
+	DECLARE_STATELESS_VALIDATOR(StrictAggregateCosignatures, model::AggregateCosignaturesNotification)();
 }}

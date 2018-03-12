@@ -1,15 +1,122 @@
 #include "catapult/consumers/BlockConsumers.h"
 #include "catapult/consumers/InputUtils.h"
 #include "catapult/consumers/TransactionConsumers.h"
+#include "catapult/model/TransactionStatus.h"
 #include "catapult/validators/AggregateEntityValidator.h"
-#include "tests/catapult/consumers/utils/ConsumerTestUtils.h"
+#include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/other/mocks/MockDispatchFunctions.h"
+#include "tests/test/nodeps/ParamsCapture.h"
 #include "tests/TestHarness.h"
 
 using namespace catapult::validators;
 
 namespace catapult { namespace consumers {
+
+#define BLOCK_TEST_CLASS BlockStatelessValidationConsumerTests
+#define TRANSACTION_TEST_CLASS TransactionStatelessValidationConsumerTests
+
+	namespace {
+		// region MockParallelValidationPolicy
+
+		struct DispatchParams {
+		public:
+			explicit DispatchParams(const model::WeakEntityInfos& entityInfos, const ValidationFunctions& validationFunctions)
+					: EntityInfos(entityInfos)
+					, NumValidationFunctions(validationFunctions.size()) {
+				for (const auto& entityInfo : EntityInfos)
+					HashCopies.push_back(entityInfo.hash());
+			}
+
+		public:
+			model::WeakEntityInfos EntityInfos;
+			size_t NumValidationFunctions;
+			std::vector<Hash256> HashCopies;
+		};
+
+		template<typename TResultType>
+		class BasicMockParallelValidationPolicy : public test::ParamsCapture<DispatchParams>, public ParallelValidationPolicy {
+		protected:
+			using ResultType = TResultType;
+
+		public:
+			BasicMockParallelValidationPolicy()
+					: m_numValidateCalls(0)
+					, m_validateTrigger(std::numeric_limits<size_t>::max())
+			{}
+
+		public:
+			void setResult(const ResultType& result, size_t trigger = 0) {
+				m_result = result;
+				m_validateTrigger = trigger;
+			}
+
+		public:
+			[[noreturn]]
+			thread::future<ValidationResult> validateShortCircuit(
+					const model::WeakEntityInfos&,
+					const ValidationFunctions&) const override {
+				CATAPULT_THROW_RUNTIME_ERROR("validateShortCircuit not implemented");
+			}
+
+			[[noreturn]]
+			thread::future<std::vector<ValidationResult>> validateAll(
+					const model::WeakEntityInfos&,
+					const ValidationFunctions&) const override {
+				CATAPULT_THROW_RUNTIME_ERROR("validateAll not implemented");
+			}
+
+		protected:
+			thread::future<ResultType> validateImpl(
+					const model::WeakEntityInfos& entityInfos,
+					const ValidationFunctions& validationFunctions,
+					const ResultType& defaultResult) const {
+				const_cast<BasicMockParallelValidationPolicy*>(this)->push(entityInfos, validationFunctions);
+
+				// - invoke all sub validators once but ignore their results
+				//   (this emulates the real dispatcher delegating to the validationFunctions)
+				for (const auto& validationFunction : validationFunctions)
+					validationFunction(entityInfos.front());
+
+				// - determine the result based on the call count
+				auto result = ++m_numValidateCalls < m_validateTrigger ? defaultResult : m_result;
+				return toResult(result);
+			}
+
+		private:
+			thread::future<ResultType> toResult(ResultType& result) const {
+				thread::promise<ResultType> promise;
+				promise.set_value(std::move(result));
+				return promise.get_future();
+			}
+
+		private:
+			ResultType m_result;
+			mutable size_t m_numValidateCalls;
+			size_t m_validateTrigger;
+		};
+
+		class MockParallelShortCircuitValidationPolicy : public BasicMockParallelValidationPolicy<ValidationResult> {
+		public:
+			thread::future<ResultType> validateShortCircuit(
+					const model::WeakEntityInfos& entityInfos,
+					const ValidationFunctions& validationFunctions) const override {
+				return validateImpl(entityInfos, validationFunctions, ValidationResult::Success);
+			}
+		};
+
+		class MockParallelAllValidationPolicy : public BasicMockParallelValidationPolicy<std::vector<ValidationResult>> {
+		public:
+			thread::future<ResultType> validateAll(
+					const model::WeakEntityInfos& entityInfos,
+					const ValidationFunctions& validationFunctions) const override {
+				return validateImpl(entityInfos, validationFunctions, ResultType(entityInfos.size(), ValidationResult::Success));
+			}
+		};
+
+		// endregion
+	}
+
+	// region block - utils + traits
 
 	namespace {
 		constexpr bool RequiresAllPredicate(model::BasicEntityType, Timestamp, const Hash256&) {
@@ -20,15 +127,13 @@ namespace catapult { namespace consumers {
 		public:
 			explicit BlockTestContext(const RequiresValidationPredicate& requiresValidationPredicate = RequiresAllPredicate)
 					: pValidator(std::make_shared<stateless::AggregateEntityValidator>(ValidatorVectorT<>()))
-					, Consumer(CreateBlockStatelessValidationConsumer(
-							pValidator,
-							mocks::Wrap(DispatchFunc),
-							requiresValidationPredicate))
+					, pPolicy(std::make_shared<MockParallelShortCircuitValidationPolicy>())
+					, Consumer(CreateBlockStatelessValidationConsumer(pValidator, pPolicy, requiresValidationPredicate))
 			{}
 
 		public:
 			std::shared_ptr<stateless::AggregateEntityValidator> pValidator;
-			mocks::MockParallelDispatchFunc DispatchFunc;
+			std::shared_ptr<MockParallelShortCircuitValidationPolicy> pPolicy;
 			disruptor::ConstBlockConsumer Consumer;
 		};
 
@@ -53,7 +158,7 @@ namespace catapult { namespace consumers {
 
 			static void AssertEntities(
 					const disruptor::BlockElements& elements,
-					const std::vector<mocks::DispatchParams>& params,
+					const std::vector<DispatchParams>& params,
 					size_t numExpectedEntities,
 					const RequiresValidationPredicate& requiresValidationPredicate = RequiresAllPredicate) {
 				// Arrange:
@@ -67,135 +172,74 @@ namespace catapult { namespace consumers {
 				EXPECT_EQ(expectedEntityInfos, params[0].EntityInfos);
 			}
 		};
-
-		struct TransactionTestContext {
-		public:
-			TransactionTestContext()
-					: pValidator(std::make_shared<stateless::AggregateEntityValidator>(ValidatorVectorT<>()))
-					, Consumer(CreateTransactionStatelessValidationConsumer(pValidator, mocks::Wrap(DispatchFunc)))
-			{}
-
-		public:
-			std::shared_ptr<stateless::AggregateEntityValidator> pValidator;
-			mocks::MockParallelDispatchFunc DispatchFunc;
-			disruptor::ConstTransactionConsumer Consumer;
-		};
-
-		struct TransactionTraits {
-			using TestContextType = TransactionTestContext;
-
-			constexpr static auto Num_Sub_Entities_Single = 1u;
-			constexpr static auto Num_Sub_Entities_Multiple = 4u;
-
-			static auto CreateSingleEntityElements() {
-				auto pTransaction = test::GenerateRandomTransaction();
-				return test::CreateTransactionElements({ pTransaction.get() });
-			}
-
-			static auto CreateMultipleEntityElements() {
-				auto pTransaction1 = test::GenerateRandomTransaction();
-				auto pTransaction2 = test::GenerateRandomTransaction();
-				auto pTransaction3 = test::GenerateRandomTransaction();
-				auto pTransaction4 = test::GenerateRandomTransaction();
-				return test::CreateTransactionElements({
-					pTransaction1.get(),
-					pTransaction2.get(),
-					pTransaction3.get(),
-					pTransaction4.get()
-				});
-			}
-
-			static void AssertEntities(
-					const disruptor::TransactionElements& elements,
-					const std::vector<mocks::DispatchParams>& params,
-					size_t numExpectedEntities) {
-				// Arrange:
-				model::WeakEntityInfos expectedEntityInfos;
-				ExtractEntityInfos(elements, expectedEntityInfos);
-
-				// Assert:
-				ASSERT_EQ(1u, params.size());
-				EXPECT_EQ(numExpectedEntities, params[0].EntityInfos.size());
-				EXPECT_EQ(expectedEntityInfos.size(), params[0].EntityInfos.size());
-				EXPECT_EQ(expectedEntityInfos, params[0].EntityInfos);
-			}
-		};
 	}
 
-#define TEST_PREFIX StatelessValidationConsumerTests
-#define ENTITY_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)(); \
-	TEST(BlockStatelessValidationConsumerTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)<BlockTraits>(); } \
-	TEST(TransactionStatelessValidationConsumerTests, TEST_NAME) { TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)<TransactionTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_PREFIX, TEST_NAME)()
+	// endregion
 
-	// region shared tests
+	// region block
 
-	ENTITY_BASED_TEST(CanProcessZeroEntities) {
+	TEST(BLOCK_TEST_CLASS, CanProcessZeroEntities) {
+		// Arrange:
+		BlockTraits::TestContextType context;
+
 		// Assert:
-		typename TTraits::TestContextType context;
 		test::AssertPassthroughForEmptyInput(context.Consumer);
 	}
 
-	ENTITY_BASED_TEST(CanValidateSingleEntity) {
+	TEST(BLOCK_TEST_CLASS, CanValidateSingleEntity) {
 		// Arrange:
-		typename TTraits::TestContextType context;
-		auto elements = TTraits::CreateSingleEntityElements();
+		BlockTraits::TestContextType context;
+		auto elements = BlockTraits::CreateSingleEntityElements();
 
 		// Act:
 		auto result = context.Consumer(elements);
 
 		// Assert:
 		test::AssertContinued(result);
-		TTraits::AssertEntities(elements, context.DispatchFunc.params(), TTraits::Num_Sub_Entities_Single);
+		BlockTraits::AssertEntities(elements, context.pPolicy->params(), BlockTraits::Num_Sub_Entities_Single);
 	}
 
-	ENTITY_BASED_TEST(CanValidateMultipleEntities) {
+	TEST(BLOCK_TEST_CLASS, CanValidateMultipleEntities) {
 		// Arrange:
-		typename TTraits::TestContextType context;
-		auto elements = TTraits::CreateMultipleEntityElements();
+		BlockTraits::TestContextType context;
+		auto elements = BlockTraits::CreateMultipleEntityElements();
 
 		// Act:
 		auto result = context.Consumer(elements);
 
 		// Assert:
 		test::AssertContinued(result);
-		TTraits::AssertEntities(elements, context.DispatchFunc.params(), TTraits::Num_Sub_Entities_Multiple);
+		BlockTraits::AssertEntities(elements, context.pPolicy->params(), BlockTraits::Num_Sub_Entities_Multiple);
 	}
 
 	namespace {
-		template<typename TTraits>
-		void AssertSkipResult(ValidationResult validationResult) {
+		void AssertBlockSkipResult(ValidationResult validationResult) {
 			// Arrange:
-			typename TTraits::TestContextType context;
-			auto elements = TTraits::CreateSingleEntityElements();
+			BlockTraits::TestContextType context;
+			auto elements = BlockTraits::CreateSingleEntityElements();
 
-			context.DispatchFunc.setResult(validationResult);
+			context.pPolicy->setResult(validationResult);
 
 			// Act:
 			auto result = context.Consumer(elements);
 
 			// Assert:
 			test::AssertAborted(result, validationResult);
-			TTraits::AssertEntities(elements, context.DispatchFunc.params(), TTraits::Num_Sub_Entities_Single);
+			BlockTraits::AssertEntities(elements, context.pPolicy->params(), BlockTraits::Num_Sub_Entities_Single);
 		}
 	}
 
-	ENTITY_BASED_TEST(NeutralValidationResultIsMappedToSkipConsumerResult) {
+	TEST(BLOCK_TEST_CLASS, NeutralValidationResultIsMappedToSkipConsumerResult) {
 		// Assert:
-		AssertSkipResult<TTraits>(ValidationResult::Neutral);
+		AssertBlockSkipResult(ValidationResult::Neutral);
 	}
 
-	ENTITY_BASED_TEST(FailureValidationResultIsMappedToSkipConsumerResult) {
+	TEST(BLOCK_TEST_CLASS, FailureValidationResultIsMappedToSkipConsumerResult) {
 		// Assert:
-		AssertSkipResult<TTraits>(ValidationResult::Failure);
+		AssertBlockSkipResult(ValidationResult::Failure);
 	}
 
-	// endregion
-
-	// region block tests
-
-	TEST(BlockStatelessValidationConsumerTests, CanValidateEmptyBlock) {
+	TEST(BLOCK_TEST_CLASS, CanValidateEmptyBlock) {
 		// Arrange:
 		BlockTestContext context;
 		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(0, 246);
@@ -206,10 +250,10 @@ namespace catapult { namespace consumers {
 
 		// Assert:
 		test::AssertContinued(result);
-		BlockTraits::AssertEntities(elements, context.DispatchFunc.params(), 1);
+		BlockTraits::AssertEntities(elements, context.pPolicy->params(), 1);
 	}
 
-	TEST(BlockStatelessValidationConsumerTests, CanValidateMultipleBlocksWithCustomPredicate) {
+	TEST(BLOCK_TEST_CLASS, CanValidateMultipleBlocksWithCustomPredicate) {
 		// Arrange:
 		auto predicateFactory = []() {
 			auto pCounter = std::make_shared<size_t>(0u);
@@ -226,14 +270,240 @@ namespace catapult { namespace consumers {
 		test::AssertContinued(result);
 
 		auto numExpectedEntities = BlockTraits::Num_Sub_Entities_Multiple / 2;
-		BlockTraits::AssertEntities(elements, context.DispatchFunc.params(), numExpectedEntities, predicateFactory());
+		BlockTraits::AssertEntities(elements, context.pPolicy->params(), numExpectedEntities, predicateFactory());
 	}
 
 	// endregion
 
-	// region transaction tests
+	// region transaction - utils + traits
 
-	TEST(TransactionStatelessValidationConsumerTests, CanValidateMultipleTransactionsWithSomeSkipped) {
+	namespace {
+		struct TransactionTestContext {
+		public:
+			TransactionTestContext()
+					: pValidator(std::make_shared<stateless::AggregateEntityValidator>(ValidatorVectorT<>()))
+					, pPolicy(std::make_shared<MockParallelAllValidationPolicy>())
+					, Consumer(CreateTransactionStatelessValidationConsumer(
+							pValidator,
+							pPolicy,
+							[this](const auto& transaction, const auto& hash, auto result) {
+								// notice that transaction.Deadline is used as transaction marker
+								FailedTransactionStatuses.emplace_back(hash, utils::to_underlying_type(result), transaction.Deadline);
+							}))
+			{}
+
+		public:
+			std::shared_ptr<stateless::AggregateEntityValidator> pValidator;
+			std::shared_ptr<MockParallelAllValidationPolicy> pPolicy;
+			std::vector<model::TransactionStatus> FailedTransactionStatuses;
+			disruptor::TransactionConsumer Consumer;
+		};
+
+		struct TransactionTraits {
+			using TestContextType = TransactionTestContext;
+
+			static auto CreateSingleEntityElements() {
+				auto pTransaction = test::GenerateRandomTransaction();
+				return test::CreateTransactionElements({ pTransaction.get() });
+			}
+
+			static auto CreateMultipleEntityElements() {
+				auto pTransaction1 = test::GenerateRandomTransaction();
+				auto pTransaction2 = test::GenerateRandomTransaction();
+				auto pTransaction3 = test::GenerateRandomTransaction();
+				auto pTransaction4 = test::GenerateRandomTransaction();
+				return test::CreateTransactionElements({
+					pTransaction1.get(), pTransaction2.get(), pTransaction3.get(), pTransaction4.get()
+				});
+			}
+
+			static void AssertEntities(const model::WeakEntityInfos& expectedEntityInfos, const std::vector<DispatchParams>& params) {
+				// Assert:
+				ASSERT_EQ(1u, params.size());
+				EXPECT_EQ(expectedEntityInfos.size(), params[0].EntityInfos.size());
+				EXPECT_EQ(expectedEntityInfos, params[0].EntityInfos);
+			}
+		};
+
+		model::WeakEntityInfos FilterEntityInfos(const TransactionElements& elements, const std::set<size_t>& indexes) {
+			auto index = 0u;
+			model::WeakEntityInfos entityInfos;
+			for (const auto& element : elements) {
+				if (indexes.cend() != indexes.find(index++))
+					entityInfos.emplace_back(element.Transaction, element.EntityHash);
+			}
+
+			return entityInfos;
+		}
+
+		void AssertSkipped(const TransactionElements& elements, const std::set<size_t>& skippedIndexes) {
+			auto index = 0u;
+			for (const auto& element : elements) {
+				EXPECT_EQ(skippedIndexes.cend() != skippedIndexes.find(index), element.Skip);
+				++index;
+			}
+		}
+	}
+
+	// endregion
+
+	// region transaction
+
+	TEST(TRANSACTION_TEST_CLASS, CanProcessZeroEntities) {
+		// Arrange:
+		TransactionTraits::TestContextType context;
+
+		// Assert:
+		test::AssertPassthroughForEmptyInput(context.Consumer);
+	}
+
+	TEST(TRANSACTION_TEST_CLASS, CanValidateSingleEntity) {
+		// Arrange:
+		TransactionTraits::TestContextType context;
+		auto elements = TransactionTraits::CreateSingleEntityElements();
+
+		// Act:
+		auto result = context.Consumer(elements);
+
+		// Assert:
+		test::AssertContinued(result);
+		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0 }), context.pPolicy->params());
+		AssertSkipped(elements, {});
+		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
+	}
+
+	TEST(TRANSACTION_TEST_CLASS, CanValidateMultipleEntities) {
+		// Arrange:
+		TransactionTraits::TestContextType context;
+		auto elements = TransactionTraits::CreateMultipleEntityElements();
+
+		// Act:
+		auto result = context.Consumer(elements);
+
+		// Assert:
+		test::AssertContinued(result);
+		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
+		AssertSkipped(elements, {});
+		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
+	}
+
+	// endregion
+
+	// region transaction - neutral results
+
+	TEST(TRANSACTION_TEST_CLASS, NeutralValidationResultIsMappedToSkipConsumerResult) {
+		// Arrange:
+		TransactionTraits::TestContextType context;
+		auto elements = TransactionTraits::CreateSingleEntityElements();
+
+		context.pPolicy->setResult({ ValidationResult::Neutral });
+
+		// Act:
+		auto result = context.Consumer(elements);
+
+		// Assert:
+		test::AssertAborted(result, ValidationResult::Neutral);
+		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0 }), context.pPolicy->params());
+		AssertSkipped(elements, { 0 });
+		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
+	}
+
+	TEST(TRANSACTION_TEST_CLASS, PartialNeutralValidationResultIsMappedToContinueConsumerResult) {
+		// Arrange:
+		TransactionTraits::TestContextType context;
+		auto elements = TransactionTraits::CreateMultipleEntityElements();
+
+		// - configure some elements to be validated as success and others as neutral
+		constexpr auto Neutral_Result = ValidationResult::Neutral;
+		context.pPolicy->setResult({ ValidationResult::Success, Neutral_Result, Neutral_Result, ValidationResult::Success });
+
+		// Act:
+		auto result = context.Consumer(elements);
+
+		// Assert:
+		test::AssertContinued(result);
+		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
+		AssertSkipped(elements, { 1, 2 });
+		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
+	}
+
+	// endregion
+
+	// region transaction - failure results
+
+#define EXPECT_EQ_STATUS(EXPECTED_ELEMENT, EXPECTED_RESULT, STATUS) \
+	EXPECT_EQ(EXPECTED_ELEMENT.EntityHash, STATUS.Hash); \
+	EXPECT_EQ(utils::to_underlying_type(EXPECTED_RESULT), STATUS.Status); \
+	EXPECT_EQ(EXPECTED_ELEMENT.Transaction.Deadline, STATUS.Deadline);
+
+	TEST(TRANSACTION_TEST_CLASS, FailureValidationResultIsMappedToSkipConsumerResult) {
+		// Arrange:
+		TransactionTraits::TestContextType context;
+		auto elements = TransactionTraits::CreateSingleEntityElements();
+
+		context.pPolicy->setResult({ ValidationResult::Failure });
+
+		// Act:
+		auto result = context.Consumer(elements);
+
+		// Assert:
+		test::AssertAborted(result, ValidationResult::Failure);
+		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0 }), context.pPolicy->params());
+		AssertSkipped(elements, { 0 });
+
+		ASSERT_EQ(1u, context.FailedTransactionStatuses.size());
+		EXPECT_EQ_STATUS(elements[0], ValidationResult::Failure, context.FailedTransactionStatuses[0]);
+	}
+
+	TEST(TRANSACTION_TEST_CLASS, PartialFailureValidationResultIsMappedToContinueConsumerResult) {
+		// Arrange:
+		TransactionTraits::TestContextType context;
+		auto elements = TransactionTraits::CreateMultipleEntityElements();
+
+		// - configure some elements to be validated as success and others as failure
+		constexpr auto Failure_Result2 = MakeValidationResult(ResultSeverity::Failure, FacilityCode::Core, 0, ResultFlags::None);
+		context.pPolicy->setResult({ ValidationResult::Success, ValidationResult::Failure, Failure_Result2, ValidationResult::Success });
+
+		// Act:
+		auto result = context.Consumer(elements);
+
+		// Assert:
+		test::AssertContinued(result);
+		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
+		AssertSkipped(elements, { 1, 2 });
+
+		ASSERT_EQ(2u, context.FailedTransactionStatuses.size());
+		EXPECT_EQ_STATUS(elements[1], ValidationResult::Failure, context.FailedTransactionStatuses[0]);
+		EXPECT_EQ_STATUS(elements[2], Failure_Result2, context.FailedTransactionStatuses[1]);
+	}
+
+	TEST(TRANSACTION_TEST_CLASS, AllNonSuccessValidationResultIsMappedToSkipConsumerResult) {
+		// Arrange:
+		TransactionTraits::TestContextType context;
+		auto elements = TransactionTraits::CreateMultipleEntityElements();
+
+		// - configure some elements to be validated as neutral and others as failure
+		constexpr auto Failure_Result1 = MakeValidationResult(ResultSeverity::Failure, FacilityCode::Core, 0, ResultFlags::None);
+		context.pPolicy->setResult({ ValidationResult::Neutral, Failure_Result1, ValidationResult::Failure, ValidationResult::Neutral });
+
+		// Act:
+		auto result = context.Consumer(elements);
+
+		// Assert: notice that the first failure result is used (basic ValidationResult aggregation)
+		test::AssertAborted(result, Failure_Result1);
+		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
+		AssertSkipped(elements, { 0, 1, 2, 3 });
+
+		ASSERT_EQ(2u, context.FailedTransactionStatuses.size());
+		EXPECT_EQ_STATUS(elements[1], Failure_Result1, context.FailedTransactionStatuses[0]);
+		EXPECT_EQ_STATUS(elements[2], ValidationResult::Failure, context.FailedTransactionStatuses[1]);
+	}
+
+	// endregion
+
+	// region transaction - skipped
+
+	TEST(TRANSACTION_TEST_CLASS, CanValidateMultipleTransactionsWithSomeSkipped) {
 		// Arrange:
 		TransactionTestContext context;
 		auto elements = TransactionTraits::CreateMultipleEntityElements();
@@ -244,9 +514,30 @@ namespace catapult { namespace consumers {
 
 		// Assert:
 		test::AssertContinued(result);
+		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 2, 3 }), context.pPolicy->params());
+		AssertSkipped(elements, { 1 });
+		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
+	}
 
-		auto numExpectedEntities = TransactionTraits::Num_Sub_Entities_Multiple - 1;
-		TransactionTraits::AssertEntities(elements, context.DispatchFunc.params(), numExpectedEntities);
+	TEST(TRANSACTION_TEST_CLASS, CanValidateMultipleTransactionsWithSomeSkippedWithPartialFailure) {
+		// Arrange:
+		TransactionTestContext context;
+		auto elements = TransactionTraits::CreateMultipleEntityElements();
+		elements[1].Skip = true;
+		context.pPolicy->setResult({ ValidationResult::Success, ValidationResult::Failure, ValidationResult::Success });
+
+		// Act:
+		auto result = context.Consumer(elements);
+
+		// Assert:
+		test::AssertContinued(result);
+		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 2, 3 }), context.pPolicy->params());
+		AssertSkipped(elements, { 1, 2 });
+
+		// - notice that the 2nd result failure correctly mapped to the 3rd element
+		//   (results are only generated for elements that are not skipped initially)
+		ASSERT_EQ(1u, context.FailedTransactionStatuses.size());
+		EXPECT_EQ_STATUS(elements[2], ValidationResult::Failure, context.FailedTransactionStatuses[0]);
 	}
 
 	// endregion

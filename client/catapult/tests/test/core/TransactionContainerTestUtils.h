@@ -7,7 +7,7 @@ namespace catapult { namespace test {
 	template<typename TContainer>
 	size_t CountTransactions(TContainer transactions) {
 		size_t count = 0;
-		for (auto it = transactions.begin(); transactions.end() != it; ++it)
+		for (auto iter = transactions.begin(); transactions.end() != iter; ++iter)
 			++count;
 
 		return count;

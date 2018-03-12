@@ -14,7 +14,7 @@ namespace catapult { namespace builders {
 			CATAPULT_THROW_INVALID_ARGUMENT("cannot set empty name");
 	}
 
-	void RegisterNamespaceBuilder::setDuration(ArtifactDuration duration) {
+	void RegisterNamespaceBuilder::setDuration(BlockDuration duration) {
 		m_duration = duration;
 	}
 
@@ -22,12 +22,11 @@ namespace catapult { namespace builders {
 		m_parentId = parentId;
 	}
 
-	std::unique_ptr<model::RegisterNamespaceTransaction> RegisterNamespaceBuilder::build() const {
-		using TransactionType = model::RegisterNamespaceTransaction;
-
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> RegisterNamespaceBuilder::buildImpl() const {
 		// 1. allocate, zero (header), set model::Transaction fields
 		auto size = sizeof(TransactionType) + m_name.size();
-		auto pTransaction = createTransaction(size);
+		auto pTransaction = createTransaction<TransactionType>(size);
 
 		// 2. set transaction fields
 		if (Namespace_Base_Id == m_parentId) {
@@ -44,5 +43,13 @@ namespace catapult { namespace builders {
 		pTransaction->NamespaceNameSize = utils::checked_cast<size_t, uint8_t>(m_name.size());
 		std::copy(m_name.cbegin(), m_name.cend(), pTransaction->NamePtr());
 		return pTransaction;
+	}
+
+	std::unique_ptr<RegisterNamespaceBuilder::Transaction> RegisterNamespaceBuilder::build() const {
+		return buildImpl<Transaction>();
+	}
+
+	std::unique_ptr<RegisterNamespaceBuilder::EmbeddedTransaction> RegisterNamespaceBuilder::buildEmbedded() const {
+		return buildImpl<EmbeddedTransaction>();
 	}
 }}

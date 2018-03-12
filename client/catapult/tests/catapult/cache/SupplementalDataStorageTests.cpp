@@ -1,18 +1,20 @@
 #include "catapult/cache/SupplementalDataStorage.h"
 #include "catapult/cache/SupplementalData.h"
-#include "tests/test/core/mocks/MemoryStream.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
+
+#define TEST_CLASS SupplementalDataStorageTests
 
 	namespace {
 		constexpr auto Data_Size = sizeof(model::ImportanceHeight) + 2 * sizeof(uint64_t) + sizeof(Height);
 	}
 
-	TEST(SupplementalDataStorageTests, CanSaveData) {
+	TEST(TEST_CLASS, CanSaveData) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// - create random data
 		SupplementalData data;
@@ -34,14 +36,14 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(1u, stream.numFlushes());
 	}
 
-	TEST(SupplementalDataStorageTests, CanLoadData) {
+	TEST(TEST_CLASS, CanLoadData) {
 		// Arrange:
 		SupplementalData data;
 		Height chainHeight;
 
 		std::vector<uint8_t> buffer(Data_Size);
 		test::FillWithRandomData(buffer);
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		LoadSupplementalData(stream, data, chainHeight);

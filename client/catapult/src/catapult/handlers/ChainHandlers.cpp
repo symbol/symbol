@@ -45,7 +45,7 @@ namespace catapult { namespace handlers {
 				const ionet::Packet& packet,
 				ionet::ServerPacketHandlerContext& context,
 				bool allowZeroHeight) {
-			auto pRequest = ionet::CoercePacket<TRequest>(&packet);
+			const auto* pRequest = ionet::CoercePacket<TRequest>(&packet);
 			if (nullptr == pRequest)
 				return HeightRequestInfo<TRequest>();
 
@@ -62,7 +62,7 @@ namespace catapult { namespace handlers {
 		}
 
 		auto CreatePullBlockHandler(const io::BlockStorageCache& storage) {
-			return [&storage](const auto& packet, auto& context) -> void {
+			return [&storage](const auto& packet, auto& context) {
 				using RequestType = api::PullBlockRequest;
 				auto storageView = storage.view();
 				auto info = ProcessHeightRequest<RequestType>(storageView, packet, context, true);
@@ -73,9 +73,7 @@ namespace catapult { namespace handlers {
 				height = Height(0) == height ? info.ChainHeight : height;
 				auto pBlock = storageView.loadBlock(height);
 
-				auto payload = ionet::PacketPayload::FromEntity(
-						RequestType::Packet_Type,
-						std::move(pBlock));
+				auto payload = ionet::PacketPayload::FromEntity(RequestType::Packet_Type, std::move(pBlock));
 				context.response(std::move(payload));
 			};
 		}
@@ -86,8 +84,8 @@ namespace catapult { namespace handlers {
 	}
 
 	namespace {
-		auto CreateChainInfoHandler(const io::BlockStorageCache& storage, const ChainScoreSupplier& chainScoreSupplier) {
-			return [&storage, chainScoreSupplier](const auto& packet, auto& context) -> void {
+		auto CreateChainInfoHandler(const io::BlockStorageCache& storage, const model::ChainScoreSupplier& chainScoreSupplier) {
+			return [&storage, chainScoreSupplier](const auto& packet, auto& context) {
 				using RequestType = api::ChainInfoResponse;
 				if (!ionet::IsPacketValid(packet, RequestType::Packet_Type))
 					return;
@@ -106,13 +104,13 @@ namespace catapult { namespace handlers {
 	void RegisterChainInfoHandler(
 			ionet::ServerPacketHandlers& handlers,
 			const io::BlockStorageCache& storage,
-			const ChainScoreSupplier& chainScoreSupplier) {
+			const model::ChainScoreSupplier& chainScoreSupplier) {
 		handlers.registerHandler(ionet::PacketType::Chain_Info, CreateChainInfoHandler(storage, chainScoreSupplier));
 	}
 
 	namespace {
 		auto CreateBlockHashesHandler(const io::BlockStorageCache& storage, uint32_t maxHashes) {
-			return [&storage, maxHashes](const auto& packet, auto& context) -> void {
+			return [&storage, maxHashes](const auto& packet, auto& context) {
 				using RequestType = api::BlockHashesRequest;
 				auto storageView = storage.view();
 				auto info = ProcessHeightRequest<RequestType>(storageView, packet, context, false);
@@ -126,33 +124,24 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	void RegisterBlockHashesHandler(
-			ionet::ServerPacketHandlers& handlers,
-			const io::BlockStorageCache& storage,
-			uint32_t maxHashes) {
+	void RegisterBlockHashesHandler(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage, uint32_t maxHashes) {
 		handlers.registerHandler(ionet::PacketType::Block_Hashes, CreateBlockHashesHandler(storage, maxHashes));
 	}
 
 	namespace {
-		uint32_t ClampNumBlocks(
-				const HeightRequestInfo<api::PullBlocksRequest>& info,
-				const PullBlocksHandlerConfiguration& config) {
-			auto numBlocks = std::max(config.MinBlocks, std::min(config.MaxBlocks, info.pRequest->NumBlocks));
+		uint32_t ClampNumBlocks(const HeightRequestInfo<api::PullBlocksRequest>& info, const PullBlocksHandlerConfiguration& config) {
+			auto numBlocks = std::min(config.MaxBlocks, info.pRequest->NumBlocks);
 			return std::min(numBlocks, info.numAvailableBlocks());
 		}
 
 		uint32_t ClampNumResponseBytes(
 				const HeightRequestInfo<api::PullBlocksRequest>& info,
 				const PullBlocksHandlerConfiguration& config) {
-			return std::max(
-					config.MinResponseBytes,
-					std::min(config.MaxResponseBytes, info.pRequest->NumResponseBytes));
+			return std::min(config.MaxResponseBytes, info.pRequest->NumResponseBytes);
 		}
 
-		auto CreatePullBlocksHandler(
-				const io::BlockStorageCache& storage,
-				const PullBlocksHandlerConfiguration& config) {
-			return [&storage, config](const auto& packet, auto& context) -> void {
+		auto CreatePullBlocksHandler(const io::BlockStorageCache& storage, const PullBlocksHandlerConfiguration& config) {
+			return [&storage, config](const auto& packet, auto& context) {
 				using RequestType = api::PullBlocksRequest;
 				auto storageView = storage.view();
 				auto info = ProcessHeightRequest<RequestType>(storageView, packet, context, false);

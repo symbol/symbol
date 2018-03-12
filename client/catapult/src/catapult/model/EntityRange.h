@@ -419,6 +419,27 @@ namespace catapult { namespace model {
 	// endregion
 
 	public:
+		/// Gets a const pointer to the start of the data range.
+		/// \note This will throw if not supported.
+		const auto* data() const {
+			requireContiguousData();
+			return empty() ? nullptr : &*cbegin();
+		}
+
+		/// Gets a pointer to the start of the data range.
+		/// \note This will throw if not supported.
+		auto* data() {
+			requireContiguousData();
+			return empty() ? nullptr : &*begin();
+		}
+
+	private:
+		void requireContiguousData() const {
+			if (!m_multiBufferRange.empty())
+				CATAPULT_THROW_RUNTIME_ERROR("data is not accessible when range is composed of non-contiguous data");
+		}
+
+	public:
 		/// Creates an entity range by making a copy of an existing range \a rhs.
 		static EntityRange CopyRange(const EntityRange& rhs) {
 			return rhs.copySubRange();

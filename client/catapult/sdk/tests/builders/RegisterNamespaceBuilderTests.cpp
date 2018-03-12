@@ -1,23 +1,24 @@
 #include "src/builders/RegisterNamespaceBuilder.h"
 #include "plugins/txes/namespace/src/model/IdGenerator.h"
-#include "tests/TestHarness.h"
-
-#define TEST_CLASS RegisterNamespaceBuilderTests
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
 
+#define TEST_CLASS RegisterNamespaceBuilderTests
+
 	namespace {
-		auto CreateBuilderWithName(const RawString& name) {
-			return RegisterNamespaceBuilder(
-					static_cast<model::NetworkIdentifier>(0x62),
-					test::GenerateRandomData<Key_Size>(),
-					name);
+		using RegularTraits = test::RegularTransactionTraits<model::RegisterNamespaceTransaction>;
+		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedRegisterNamespaceTransaction>;
+
+		auto CreateBuilderWithName(const RawString& name, const Key& signer) {
+			return RegisterNamespaceBuilder(static_cast<model::NetworkIdentifier>(0x62), signer, name);
 		}
 
+		template<typename TTraits, typename TValidationFunction>
 		void AssertCanBuildTransaction(
 				const std::string& namespaceName,
-				const std::function<void (RegisterNamespaceBuilder&)>& buildTransaction,
-				const std::function<void (const model::RegisterNamespaceTransaction&)>& validateTransaction) {
+				const consumer<RegisterNamespaceBuilder&>& buildTransaction,
+				const TValidationFunction& validateTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
@@ -25,35 +26,29 @@ namespace catapult { namespace builders {
 			// Act:
 			RegisterNamespaceBuilder builder(networkId, signer, namespaceName);
 			buildTransaction(builder);
-			auto pTransaction = builder.build();
+			auto pTransaction = TTraits::InvokeBuilder(builder);
 
 			// Assert:
-			ASSERT_EQ(sizeof(model::RegisterNamespaceTransaction) + namespaceName.size(), pTransaction->Size);
-			EXPECT_EQ(Signature{}, pTransaction->Signature);
+			TTraits::CheckFields(namespaceName.size(), *pTransaction);
 			EXPECT_EQ(signer, pTransaction->Signer);
 			EXPECT_EQ(0x6202, pTransaction->Version);
-			EXPECT_EQ(model::EntityType::Register_Namespace, pTransaction->Type);
-
-			EXPECT_EQ(Amount(0), pTransaction->Fee);
-			EXPECT_EQ(Timestamp(0), pTransaction->Deadline);
+			EXPECT_EQ(model::Entity_Type_Register_Namespace, pTransaction->Type);
 
 			validateTransaction(*pTransaction);
 		}
 
-		void AssertNamespace(
-				const model::RegisterNamespaceTransaction& transaction,
-				NamespaceId parentId,
-				const std::string& namespaceName) {
+		template<typename TTransaction>
+		void AssertNamespace(const TTransaction& transaction, NamespaceId parentId, const std::string& namespaceName) {
 			// Assert:
 			EXPECT_EQ(namespaceName.size(), transaction.NamespaceNameSize);
-			EXPECT_EQ(0, memcmp(namespaceName.data(), transaction.NamePtr(), namespaceName.size()));
+			EXPECT_TRUE(0 == std::memcmp(namespaceName.data(), transaction.NamePtr(), namespaceName.size()));
 
 			// - id matches
 			auto expectedId = model::GenerateNamespaceId(parentId, namespaceName);
 			EXPECT_EQ(expectedId, transaction.NamespaceId);
 		}
 
-		auto CreateRootPropertyChecker(const std::string& namespaceName, ArtifactDuration namespaceDuration) {
+		auto CreateRootPropertyChecker(const std::string& namespaceName, BlockDuration namespaceDuration) {
 			return [&namespaceName, namespaceDuration](const auto& transaction) {
 				// Assert:
 				EXPECT_EQ(model::NamespaceType::Root, transaction.NamespaceType);
@@ -72,14 +67,20 @@ namespace catapult { namespace builders {
 		}
 	}
 
+#define TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
 	// region constructor
 
-	TEST(TEST_CLASS, CanCreateTransaction) {
+	TRAITS_BASED_TEST(CanCreateTransaction) {
 		// Arrange:
 		auto namespaceName = test::GenerateRandomString(10);
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				namespaceName,
 				[](const auto&) {},
 				CreateRootPropertyChecker(namespaceName, Eternal_Artifact_Duration));
@@ -91,15 +92,16 @@ namespace catapult { namespace builders {
 
 	TEST(TEST_CLASS, CannotSetEmptyName) {
 		// Act + Assert:
-		EXPECT_THROW(CreateBuilderWithName({}), catapult_invalid_argument);
+		EXPECT_THROW(CreateBuilderWithName({}, test::GenerateRandomData<Key_Size>()), catapult_invalid_argument);
 	}
 
 	TEST(TEST_CLASS, CannnotSetTooLongName) {
 		// Arrange:
 		auto namespaceName = test::GenerateRandomString(1 << (sizeof(model::RegisterNamespaceTransaction::NamespaceNameSize) * 8));
-		auto builder = CreateBuilderWithName(namespaceName);
+		auto signer = test::GenerateRandomData<Key_Size>();
+		auto builder = CreateBuilderWithName(namespaceName, signer);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(builder.build(), catapult_runtime_error);
 	}
 
@@ -107,25 +109,25 @@ namespace catapult { namespace builders {
 
 	// region other properties
 
-	TEST(TEST_CLASS, CanSetDuration) {
+	TRAITS_BASED_TEST(CanSetDuration) {
 		// Arrange:
 		auto namespaceName = test::GenerateRandomString(10);
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				namespaceName,
 				[](auto& builder) {
-					builder.setDuration(ArtifactDuration(12345));
+					builder.setDuration(BlockDuration(12345));
 				},
-				CreateRootPropertyChecker(namespaceName, ArtifactDuration(12345)));
+				CreateRootPropertyChecker(namespaceName, BlockDuration(12345)));
 	}
 
-	TEST(TEST_CLASS, CanSetParentId) {
+	TRAITS_BASED_TEST(CanSetParentId) {
 		// Arrange:
 		auto namespaceName = test::GenerateRandomString(10);
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				namespaceName,
 				[](auto& builder) {
 					builder.setParentId(NamespaceId(12345));
@@ -133,16 +135,16 @@ namespace catapult { namespace builders {
 				CreateChildPropertyChecker(namespaceName, NamespaceId(12345)));
 	}
 
-	TEST(TEST_CLASS, ParentIdTakesPrecedenceOverDuration) {
+	TRAITS_BASED_TEST(ParentIdTakesPrecedenceOverDuration) {
 		// Arrange:
 		auto namespaceName = test::GenerateRandomString(10);
 
 		// Assert: since the parent id is set, the duration is ignored
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				namespaceName,
 				[](auto& builder) {
 					builder.setParentId(NamespaceId(12345));
-					builder.setDuration(ArtifactDuration(98765));
+					builder.setDuration(BlockDuration(98765));
 				},
 				CreateChildPropertyChecker(namespaceName, NamespaceId(12345)));
 	}

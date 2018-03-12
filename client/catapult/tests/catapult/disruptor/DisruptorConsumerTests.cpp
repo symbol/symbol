@@ -51,7 +51,7 @@ namespace catapult { namespace disruptor {
 		// Arrange:
 		typename TTraits::ConsumersType typedConsumers;
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(TTraits::FromTypedConsumers(typedConsumers), catapult_invalid_argument);
 	}
 

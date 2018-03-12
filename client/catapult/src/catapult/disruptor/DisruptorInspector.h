@@ -5,5 +5,5 @@
 namespace catapult { namespace disruptor {
 
 	/// A disruptor inspector function.
-	using DisruptorInspector = std::function<void (ConsumerInput&, const ConsumerCompletionResult&)>;
+	using DisruptorInspector = consumer<ConsumerInput&, const ConsumerCompletionResult&>;
 }}

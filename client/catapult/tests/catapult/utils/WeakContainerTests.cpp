@@ -3,7 +3,9 @@
 
 namespace catapult { namespace utils {
 
-	TEST(WeakContainerTests, ContainerIsInitiallyEmpty) {
+#define TEST_CLASS WeakContainerTests
+
+	TEST(TEST_CLASS, ContainerIsInitiallyEmpty) {
 		// Act:
 		WeakContainer<int> container;
 
@@ -26,7 +28,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(WeakContainerTests, CanAddItemsToContainer) {
+	TEST(TEST_CLASS, CanAddItemsToContainer) {
 		// Arrange:
 		auto vec = GenerateVector({ 7, 3, 8 });
 
@@ -38,7 +40,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(3u, container.size());
 	}
 
-	TEST(WeakContainerTests, AlreadyDestroyedItemsAreRemoveByInsert) {
+	TEST(TEST_CLASS, AlreadyDestroyedItemsAreRemoveByInsert) {
 		// Arrange:
 		auto vec = GenerateVector({ 7, 3, 8, 5 });
 		WeakContainer<int> container;
@@ -57,7 +59,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(2u, container.size());
 	}
 
-	TEST(WeakContainerTests, AlreadyDestroyedItemsAreRemoveBySize) {
+	TEST(TEST_CLASS, AlreadyDestroyedItemsAreRemoveBySize) {
 		// Arrange:
 		auto vec = GenerateVector({ 7, 3, 8, 5 });
 		WeakContainer<int> container;
@@ -73,7 +75,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(1u, container.size());
 	}
 
-	TEST(WeakContainerTests, ClearRemovesAllItems) {
+	TEST(TEST_CLASS, ClearRemovesAllItems) {
 		// Arrange: create a container around 2 valid and 1 invalid element
 		auto vec = GenerateVector({ 7, 3, 8 });
 		WeakContainer<int> container;
@@ -87,7 +89,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(0u, container.size());
 	}
 
-	TEST(WeakContainerTests, ClearCallsCustomCloseFunctionForAllValidItems) {
+	TEST(TEST_CLASS, ClearCallsCustomCloseFunctionForAllValidItems) {
 		// Arrange: create a container around 2 valid and 1 invalid element
 		auto vec = GenerateVector({ 7, 3, 8 });
 		std::vector<int> closeIds;

@@ -3,9 +3,12 @@
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace validators {
+
+#define TEST_CLASS FunctionalNotificationValidatorTests
+
 	using NotificationType = model::AccountPublicKeyNotification;
 
-	TEST(FunctionalNotificationValidatorTests, HasCorrectName) {
+	TEST(TEST_CLASS, HasCorrectName) {
 		// Act:
 		FunctionalNotificationValidatorT<NotificationType> validator("Foo", [](const auto&) {
 			return ValidationResult::Success;
@@ -29,7 +32,7 @@ namespace catapult { namespace validators {
 		};
 	}
 
-	TEST(FunctionalNotificationValidatorTests, ValidateDelegatesToFunction) {
+	TEST(TEST_CLASS, ValidateDelegatesToFunction) {
 		// Arrange:
 		test::ParamsCapture<ValidateParams> capture;
 		FunctionalNotificationValidatorT<NotificationType, int> validator("Foo", [&](const auto& notification, auto context) {

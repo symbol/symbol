@@ -3,6 +3,7 @@
 #include "InputUtils.h"
 #include "catapult/chain/ChainUtils.h"
 #include "catapult/utils/Hashers.h"
+#include "catapult/utils/TimeSpan.h"
 #include <unordered_set>
 
 namespace catapult { namespace consumers {
@@ -16,7 +17,13 @@ namespace catapult { namespace consumers {
 
 		class BlockChainCheckConsumer {
 		public:
-			explicit BlockChainCheckConsumer(uint32_t maxChainSize) : m_maxChainSize(maxChainSize)
+			explicit BlockChainCheckConsumer(
+					uint32_t maxChainSize,
+					const utils::TimeSpan& maxBlockFutureTime,
+					const chain::TimeSupplier& timeSupplier)
+					: m_maxChainSize(maxChainSize)
+					, m_maxBlockFutureTime(maxBlockFutureTime)
+					, m_timeSupplier(timeSupplier)
 			{}
 
 		public:
@@ -27,21 +34,20 @@ namespace catapult { namespace consumers {
 				if (elements.size() > m_maxChainSize)
 					return Abort(Failure_Consumer_Remote_Chain_Too_Many_Blocks);
 
+				if (!isChainTimestampAllowed(elements.back().Block.Timestamp))
+					return Abort(Failure_Consumer_Remote_Chain_Too_Far_In_Future);
+
 				utils::HashPointerSet hashes;
 				const model::BlockElement* pPreviousElement = nullptr;
 				for (const auto& element : elements) {
 					// check for a valid chain link
-					if (nullptr != pPreviousElement && !IsLink(*pPreviousElement, element.Block)) {
-						CATAPULT_LOG(info) << "rejecting chain part due to improper link";
+					if (nullptr != pPreviousElement && !IsLink(*pPreviousElement, element.Block))
 						return Abort(Failure_Consumer_Remote_Chain_Improper_Link);
-					}
 
 					// check for duplicate transactions
-					for (const auto& txElement : element.Transactions) {
-						if (!hashes.insert(&txElement.EntityHash).second) {
-							CATAPULT_LOG(info) << "rejecting chain part due to duplicate transactions";
+					for (const auto& transactionElement : element.Transactions) {
+						if (!hashes.insert(&transactionElement.EntityHash).second)
 							return Abort(Failure_Consumer_Remote_Chain_Duplicate_Transactions);
-						}
 					}
 
 					pPreviousElement = &element;
@@ -51,11 +57,21 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
+			bool isChainTimestampAllowed(Timestamp chainTimestamp) const {
+				return chainTimestamp <= m_timeSupplier() + m_maxBlockFutureTime;
+			}
+
+		private:
 			uint32_t m_maxChainSize;
+			utils::TimeSpan m_maxBlockFutureTime;
+			chain::TimeSupplier m_timeSupplier;
 		};
 	}
 
-	disruptor::ConstBlockConsumer CreateBlockChainCheckConsumer(uint32_t maxChainSize) {
-		return BlockChainCheckConsumer(maxChainSize);
+	disruptor::ConstBlockConsumer CreateBlockChainCheckConsumer(
+			uint32_t maxChainSize,
+			const utils::TimeSpan& maxBlockFutureTime,
+			const chain::TimeSupplier& timeSupplier) {
+		return BlockChainCheckConsumer(maxChainSize, maxBlockFutureTime, timeSupplier);
 	}
 }}

@@ -1,8 +1,8 @@
 #include "TransactionRegistryFactory.h"
-#include "catapult/plugins/MosaicDefinitionTransactionPlugins.h"
-#include "catapult/plugins/MosaicSupplyChangeTransactionPlugins.h"
-#include "catapult/plugins/RegisterNamespaceTransactionPlugins.h"
-#include "catapult/plugins/TransferTransactionPlugins.h"
+#include "catapult/plugins/MosaicDefinitionTransactionPlugin.h"
+#include "catapult/plugins/MosaicSupplyChangeTransactionPlugin.h"
+#include "catapult/plugins/RegisterNamespaceTransactionPlugin.h"
+#include "catapult/plugins/TransferTransactionPlugin.h"
 
 namespace catapult { namespace tools { namespace nemgen {
 

@@ -3,7 +3,9 @@
 
 namespace catapult { namespace utils {
 
-	TEST(AtomicIncrementDecrementGuardTests, ConstructorIncrementsAtomic) {
+#define TEST_CLASS AtomicIncrementDecrementGuardTests
+
+	TEST(TEST_CLASS, ConstructorIncrementsAtomic) {
 		// Arrange:
 		std::atomic<int> value(7);
 
@@ -14,7 +16,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(8, value);
 	}
 
-	TEST(AtomicIncrementDecrementGuardTests, MakeFunctionIncrementsAtomic) {
+	TEST(TEST_CLASS, MakeFunctionIncrementsAtomic) {
 		// Arrange:
 		std::atomic<int> value(7);
 
@@ -25,7 +27,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(8, value);
 	}
 
-	TEST(AtomicIncrementDecrementGuardTests, DestructorDecrementsAtomic) {
+	TEST(TEST_CLASS, DestructorDecrementsAtomic) {
 		// Arrange:
 		std::atomic<int> value(7);
 

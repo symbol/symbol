@@ -6,8 +6,10 @@
 
 namespace catapult { namespace net {
 
+#define TEST_CLASS ChallengeTests
+
 	namespace {
-		void AssertRandomChallengeGenerator(const std::function<Challenge ()>& generate) {
+		void AssertRandomChallengeGenerator(const supplier<Challenge>& generate) {
 			// Arrange:
 			static const auto Num_Challenges = 100u;
 			std::set<Challenge> challenges;
@@ -29,7 +31,7 @@ namespace catapult { namespace net {
 
 	// region GenerateServerChallengeRequest
 
-	TEST(ChallengeTests, GenerateServerChallengeRequestCreatesAppropriateRequest) {
+	TEST(TEST_CLASS, GenerateServerChallengeRequestCreatesAppropriateRequest) {
 		// Act:
 		auto pRequest = GenerateServerChallengeRequest();
 
@@ -39,16 +41,16 @@ namespace catapult { namespace net {
 		EXPECT_NE(Challenge{}, pRequest->Challenge); // challenge is non-zero
 	}
 
-	TEST(ChallengeTests, GenerateServerChallengeRequestCreatesRandomChallenge) {
+	TEST(TEST_CLASS, GenerateServerChallengeRequestCreatesRandomChallenge) {
 		// Assert:
 		AssertRandomChallengeGenerator([]() { return GenerateServerChallengeRequest()->Challenge; });
 	}
 
 	// endregion
 
-	//region GenerateServerChallengeResponse
+	// region GenerateServerChallengeResponse
 
-	TEST(ChallengeTests, GenerateServerChallengeResponseCreatesAppropriateResponse) {
+	TEST(TEST_CLASS, GenerateServerChallengeResponseCreatesAppropriateResponse) {
 		// Arrange:
 		auto pRequest = GenerateServerChallengeRequest();
 		auto keyPair = test::GenerateKeyPair();
@@ -65,7 +67,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(keyPair.publicKey(), pResponse->PublicKey);
 	}
 
-	TEST(ChallengeTests, GenerateServerChallengeResponseCreatesRandomChallenge) {
+	TEST(TEST_CLASS, GenerateServerChallengeResponseCreatesRandomChallenge) {
 		// Assert:
 		AssertRandomChallengeGenerator([]() {
 			return GenerateServerChallengeResponse(ServerChallengeRequest(), test::GenerateKeyPair())->Challenge;
@@ -76,7 +78,7 @@ namespace catapult { namespace net {
 
 	// region VerifyServerChallengeResponse
 
-	TEST(ChallengeTests, VerifyServerChallengeResponseReturnsTrueForGoodResponse) {
+	TEST(TEST_CLASS, VerifyServerChallengeResponseReturnsTrueForGoodResponse) {
 		// Arrange:
 		auto pRequest = GenerateServerChallengeRequest();
 		auto keyPair = test::GenerateKeyPair();
@@ -89,7 +91,7 @@ namespace catapult { namespace net {
 		EXPECT_TRUE(isVerified);
 	}
 
-	TEST(ChallengeTests, VerifyServerChallengeResponseReturnsFalseForBadResponse) {
+	TEST(TEST_CLASS, VerifyServerChallengeResponseReturnsFalseForBadResponse) {
 		// Arrange: invalidate the signature
 		auto pRequest = GenerateServerChallengeRequest();
 		auto keyPair = test::GenerateKeyPair();
@@ -107,7 +109,7 @@ namespace catapult { namespace net {
 
 	// region GenerateClientChallengeResponse
 
-	TEST(ChallengeTests, GenerateClientChallengeResponseCreatesAppropriateResponse) {
+	TEST(TEST_CLASS, GenerateClientChallengeResponseCreatesAppropriateResponse) {
 		// Arrange:
 		auto pRequest = GenerateServerChallengeResponse(*GenerateServerChallengeRequest(), test::GenerateKeyPair());
 		auto keyPair = test::GenerateKeyPair();
@@ -125,7 +127,7 @@ namespace catapult { namespace net {
 
 	// region VerifyClientChallengeResponse
 
-	TEST(ChallengeTests, VerifyClientChallengeResponseReturnsTrueForGoodResponse) {
+	TEST(TEST_CLASS, VerifyClientChallengeResponseReturnsTrueForGoodResponse) {
 		// Arrange:
 		auto keyPair = test::GenerateKeyPair();
 		auto pRequest = GenerateServerChallengeResponse(*GenerateServerChallengeRequest(), keyPair);
@@ -138,7 +140,7 @@ namespace catapult { namespace net {
 		EXPECT_TRUE(isVerified);
 	}
 
-	TEST(ChallengeTests, VerifyClientChallengeResponseReturnsFalseForBadResponse) {
+	TEST(TEST_CLASS, VerifyClientChallengeResponseReturnsFalseForBadResponse) {
 		// Arrange: invalidate the signature
 		auto keyPair = test::GenerateKeyPair();
 		auto pRequest = GenerateServerChallengeResponse(*GenerateServerChallengeRequest(), keyPair);

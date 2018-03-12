@@ -1,8 +1,8 @@
 #include "PluginLoader.h"
 #include "PluginExceptions.h"
 #include "plugins/coresystem/src/CoreSystem.h"
-#include "plugins/services/blockdifficultycache/src/BlockDifficultyCacheSystem.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/functions.h"
 #include <boost/exception_ptr.hpp>
 #include <unordered_map>
 
@@ -13,9 +13,8 @@ namespace catapult { namespace plugins {
 	}
 
 	void LoadPluginByName(PluginManager& manager, PluginModules& modules, const std::string& directory, const std::string& name) {
-		std::unordered_map<std::string, std::function<void (PluginManager&)>> registrationFuncs = {
-			{ "catapult.plugins.coresystem", RegisterCoreSystem },
-			{ "catapult.plugins.blockdifficultycache", RegisterBlockDifficultyCacheSystem }
+		std::unordered_map<std::string, consumer<PluginManager&>> registrationFuncs = {
+			{ "catapult.coresystem", RegisterCoreSystem },
 		};
 
 		auto iter = registrationFuncs.find(name);

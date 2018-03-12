@@ -156,12 +156,10 @@ namespace catapult { namespace thread {
 				auto taskCopy = task;
 				taskCopy.Callback = [pThis = shared_from_this(), callback = task.Callback]() {
 					++pThis->m_numExecutingTaskCallbacks;
-					return compose(
-							callback(),
-							[pThis](auto&& resultFuture) {
-								--pThis->m_numExecutingTaskCallbacks;
-								return std::move(resultFuture);
-							});
+					return compose(callback(), [pThis](auto&& resultFuture) {
+						--pThis->m_numExecutingTaskCallbacks;
+						return std::move(resultFuture);
+					});
 				};
 
 				auto pTask = std::make_shared<StrandedTaskWrapper>(m_service, taskCopy);

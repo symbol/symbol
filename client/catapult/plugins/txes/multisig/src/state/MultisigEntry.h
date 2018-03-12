@@ -1,5 +1,5 @@
 #pragma once
-#include "catapult/utils/HashSet.h"
+#include "catapult/utils/ArraySet.h"
 
 namespace catapult { namespace state {
 

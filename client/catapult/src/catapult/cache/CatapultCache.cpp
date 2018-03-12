@@ -27,9 +27,7 @@ namespace catapult { namespace cache {
 
 	// region CatapultCacheView
 
-	CatapultCacheView::CatapultCacheView(
-			CacheHeightView&& cacheHeightView,
-			std::vector<std::unique_ptr<const SubCacheView>>&& subViews)
+	CatapultCacheView::CatapultCacheView(CacheHeightView&& cacheHeightView, std::vector<std::unique_ptr<const SubCacheView>>&& subViews)
 			: m_pCacheHeight(std::make_unique<CacheHeightView>(std::move(cacheHeightView)))
 			, m_subViews(std::move(subViews))
 	{}

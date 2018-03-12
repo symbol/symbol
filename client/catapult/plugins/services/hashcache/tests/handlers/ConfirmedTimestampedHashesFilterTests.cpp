@@ -5,6 +5,8 @@
 
 namespace catapult { namespace handlers {
 
+#define TEST_CLASS ConfirmedTimestampedHashesFilterTests
+
 	namespace {
 		using TimestampedHashes = std::vector<state::TimestampedHash>;
 		using TimestampedHashPointers = std::vector<const state::TimestampedHash*>;
@@ -60,9 +62,7 @@ namespace catapult { namespace handlers {
 			std::unique_ptr<cache::HashCache> pCache;
 			handlers::ConfirmedTimestampedHashesFilter Filter;
 		};
-	}
 
-	namespace {
 		constexpr size_t Num_Timestamped_Hashes = 10;
 
 		void AssertCanFilterTimestampedHashes(const std::vector<size_t>& requestIndexes, const std::vector<size_t>& responseIndexes) {
@@ -79,31 +79,31 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	TEST(ConfirmedTimestampedHashesFilterTests, CanFilterSingleKnownTimestampedHash) {
+	TEST(TEST_CLASS, CanFilterSingleKnownTimestampedHash) {
 		// Assert:
 		for (auto i = 0u; i < Num_Timestamped_Hashes; i += 2)
 			AssertCanFilterTimestampedHashes({ i }, {});
 	}
 
-	TEST(ConfirmedTimestampedHashesFilterTests, SingleUnknownTimestampedHashDoesNotGetFiltered) {
+	TEST(TEST_CLASS, SingleUnknownTimestampedHashDoesNotGetFiltered) {
 		// Assert:
 		for (auto i = 1u; i < Num_Timestamped_Hashes; i += 2)
 			AssertCanFilterTimestampedHashes({ i }, { i });
 	}
 
-	TEST(ConfirmedTimestampedHashesFilterTests, CanFilterMultipleKnownTimestampedHashes) {
+	TEST(TEST_CLASS, CanFilterMultipleKnownTimestampedHashes) {
 		// Assert:
 		AssertCanFilterTimestampedHashes({ 0, 4, 8 }, {});
 		AssertCanFilterTimestampedHashes({ 0, 8 }, {});
 	}
 
-	TEST(ConfirmedTimestampedHashesFilterTests, MultipleUnknownTimestampedHashesDoNotGetFiltered) {
+	TEST(TEST_CLASS, MultipleUnknownTimestampedHashesDoNotGetFiltered) {
 		// Assert:
 		AssertCanFilterTimestampedHashes({ 1, 5, 9 }, { 1, 5, 9 });
 		AssertCanFilterTimestampedHashes({ 5, 9 }, { 5, 9 });
 	}
 
-	TEST(ConfirmedTimestampedHashesFilterTests, OnlyKnownTimestampedHashesGetFiltered) {
+	TEST(TEST_CLASS, OnlyKnownTimestampedHashesGetFiltered) {
 		// Assert:
 		AssertCanFilterTimestampedHashes({ 1, 2, 4 }, { 1 });
 		AssertCanFilterTimestampedHashes({ 2, 4, 5, 8 }, { 5 });

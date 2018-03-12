@@ -1,17 +1,17 @@
 #include "Validators.h"
 #include "src/cache/MultisigCache.h"
-#include "catapult/utils/HashSet.h"
+#include "src/model/MultisigEntityType.h"
+#include "catapult/utils/ArraySet.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
 
 	using Notification = model::AggregateCosignaturesNotification;
-	// Key and Hash256 have same underlying type
-	using KeyPointerFlagMap = std::unordered_map<const Hash256*, bool, utils::Hash256PointerHasher, utils::Hash256PointerEquality>;
 
 	namespace {
-		const model::EmbeddedEntity* AdvanceNext(const model::EmbeddedEntity* pTransaction) {
-			return reinterpret_cast<const model::EmbeddedEntity*>(reinterpret_cast<const uint8_t*>(pTransaction) + pTransaction->Size);
+		const model::EmbeddedTransaction* AdvanceNext(const model::EmbeddedTransaction* pTransaction) {
+			const auto* pTransactionData = reinterpret_cast<const uint8_t*>(pTransaction);
+			return reinterpret_cast<const model::EmbeddedTransaction*>(pTransactionData + pTransaction->Size);
 		}
 
 		class AggregateCosignaturesChecker {
@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 				const auto* pTransaction = m_notification.TransactionsPtr;
 				for (auto i = 0u; i < m_notification.TransactionsCount; ++i) {
 					findEligibleCosigners(pTransaction->Signer);
-					if (model::EntityType::Modify_Multisig_Account == pTransaction->Type) {
+					if (model::Entity_Type_Modify_Multisig_Account == pTransaction->Type) {
 						const auto& multisigModify = static_cast<const model::EmbeddedModifyMultisigAccountTransaction&>(*pTransaction);
 						findEligibleCosigners(multisigModify);
 					}
@@ -87,16 +87,12 @@ namespace catapult { namespace validators {
 		private:
 			const Notification& m_notification;
 			const cache::MultisigCache::CacheReadOnlyType& m_multisigCache;
-			KeyPointerFlagMap m_cosigners;
+			utils::ArrayPointerFlagMap<Key> m_cosigners;
 		};
 	}
 
-	stateful::NotificationValidatorPointerT<Notification> CreateMultisigAggregateEligibleCosignersValidator() {
-		return std::make_unique<stateful::FunctionalNotificationValidatorT<Notification>>(
-				"MultisigAggregateEligibleCosignersValidator",
-				[](const auto& notification, const ValidatorContext& context) {
-					AggregateCosignaturesChecker checker(notification, context.Cache.sub<cache::MultisigCache>());
-					return checker.hasIneligibleCosigners() ? Failure_Multisig_Ineligible_Cosigners : ValidationResult::Success;
-				});
-	}
+	DEFINE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosigners, [](const auto& notification, const ValidatorContext& context) {
+		AggregateCosignaturesChecker checker(notification, context.Cache.sub<cache::MultisigCache>());
+		return checker.hasIneligibleCosigners() ? Failure_Aggregate_Ineligible_Cosigners : ValidationResult::Success;
+	});
 }}

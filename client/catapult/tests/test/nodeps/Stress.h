@@ -1,6 +1,6 @@
 #pragma once
+#include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Logging.h"
-#include <boost/exception/diagnostic_information.hpp>
 #include <sstream>
 #include <gtest/gtest.h>
 
@@ -22,17 +22,17 @@ namespace catapult { namespace test {
 	GTEST_TEST(TEST_FIXTURE, TEST_NAME) { \
 		for (auto stressCounter = 1u; stressCounter <= STRESS; ++stressCounter) { \
 			const auto Test_Fqn = TEST_FRIENDLY_NAME_(TEST_FIXTURE, TEST_NAME); \
-			CATAPULT_LOG(debug) << "---- iter " << stressCounter << "/" << STRESS << " " \
-				<< Test_Fqn << " ----"; \
+			CATAPULT_LOG(debug) << "---- iter " << stressCounter << "/" << STRESS << " " << Test_Fqn << " ----"; \
 			\
 			try { \
 				TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)(); \
 			} catch (...) { \
 				/* flatten error information into std::runtime_error for better jenkins reporting */ \
 				std::stringstream exceptionMessage; \
-				exceptionMessage << "Unhandled exception during " \
-					<< Test_Fqn << " iteration " << stressCounter << "!" << std::endl \
-					<< boost::current_exception_diagnostic_information(); \
+				exceptionMessage \
+						<< "unhandled exception during " \
+						<< Test_Fqn << " iteration " << stressCounter << "!" \
+						<< EXCEPTION_DIAGNOSTIC_MESSAGE(); \
 				CATAPULT_LOG(fatal) << exceptionMessage.str(); \
 				throw std::runtime_error(exceptionMessage.str().c_str()); \
 			} \

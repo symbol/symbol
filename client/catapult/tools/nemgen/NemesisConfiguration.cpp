@@ -38,7 +38,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			const std::string section = Namespace_Section_Prefix + namespaceName;
 			auto duration = bag.get<uint64_t>(utils::ConfigurationKey(section.c_str(), "duration"));
 			auto id = model::GenerateRootNamespaceId(namespaceName);
-			auto endHeight = 0 == duration ? Height(std::numeric_limits<ArtifactDuration::ValueType>::max()) : Height(duration + 1);
+			auto endHeight = 0 == duration ? Height(std::numeric_limits<BlockDuration::ValueType>::max()) : Height(duration + 1);
 			return state::RootNamespace(id, owner, state::NamespaceLifetime(Height(1), endHeight));
 		}
 
@@ -50,10 +50,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			auto namespaceName = name.substr(0, pos);
 			auto mosaicName = name.substr(pos + 1, name.size() - pos - 1);
 			auto ns = state::Namespace(extensions::GenerateNamespacePath(namespaceName));
-			auto entry = state::MosaicEntry(
-					ns.id(),
-					model::GenerateMosaicId(ns.id(), mosaicName),
-					definition);
+			auto entry = state::MosaicEntry(ns.id(), model::GenerateMosaicId(ns.id(), mosaicName), definition);
 			entry.increaseSupply(supply);
 			return entry;
 		}
@@ -95,8 +92,8 @@ namespace catapult { namespace tools { namespace nemgen {
 					if (!optionalNs.second)
 						continue;
 
-					auto pair = config.RootNamespaces.emplace(root.id(), root);
-					if (!pair.second)
+					auto result = config.RootNamespaces.emplace(root.id(), root);
+					if (!result.second)
 						CATAPULT_THROW_INVALID_ARGUMENT_1("duplicate root namespace", namespaceName);
 
 					config.NamespaceNames.emplace(root.id(), namespaceName);

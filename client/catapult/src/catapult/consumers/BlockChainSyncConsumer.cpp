@@ -97,10 +97,12 @@ namespace catapult { namespace consumers {
 					cache::CatapultCache& cache,
 					state::CatapultState& state,
 					io::BlockStorageCache& storage,
+					uint32_t maxRollbackBlocks,
 					const BlockChainSyncHandlers& handlers)
 					: m_cache(cache)
 					, m_state(state)
 					, m_storage(storage)
+					, m_maxRollbackBlocks(maxRollbackBlocks)
 					, m_handlers(handlers)
 			{}
 
@@ -138,26 +140,27 @@ namespace catapult { namespace consumers {
 				if (!IsLinked(peerStartHeight, localChainHeight, source))
 					return Abort(Failure_Consumer_Remote_Chain_Unlinked);
 
-				// 2. check difficulties against difficulties in cache
+				// 2. check that the remote chain is not too far behind the current chain
+				auto heightDifference = static_cast<int64_t>((localChainHeight - peerStartHeight).unwrap());
+				if (heightDifference > m_maxRollbackBlocks)
+					return Abort(Failure_Consumer_Remote_Chain_Too_Far_Behind);
+
+				// 3. check difficulties against difficulties in cache
 				auto blocks = ExtractBlocks(elements);
 				if (!m_handlers.DifficultyChecker(blocks, m_cache))
 					return Abort(Failure_Consumer_Remote_Chain_Mismatched_Difficulties);
 
-				// 3. unwind to the common block height and calculate the local chain score
+				// 4. unwind to the common block height and calculate the local chain score
 				syncState = SyncState(m_cache, m_state);
 				auto commonBlockHeight = peerStartHeight - Height(1);
-				auto unwindResult = unwindLocalChain(
-						localChainHeight,
-						commonBlockHeight,
-						storageView,
-						syncState.observerState());
+				auto unwindResult = unwindLocalChain(localChainHeight, commonBlockHeight, storageView, syncState.observerState());
 				const auto& localScore = unwindResult.Score;
 
-				// 4. calculate the remote chain score
+				// 5. calculate the remote chain score
 				auto pCommonBlockElement = storageView.loadBlockElement(commonBlockHeight);
 				auto peerScore = chain::CalculatePartialChainScore(pCommonBlockElement->Block, blocks);
 
-				// 5. do not accept a chain with the same score because two different blocks with the same height
+				// 6. do not accept a chain with the same score because two different blocks with the same height
 				//    that are pushed to the network could result in indefinite switching and lots of i/o
 				if (peerScore <= localScore) {
 					CATAPULT_LOG(warning) << "peer score (" << peerScore << ") is not better than local score (" << localScore << ")";
@@ -237,20 +240,20 @@ namespace catapult { namespace consumers {
 				auto revertedTransactionInfos = CollectRevertedTransactionInfos(
 						peerTransactionHashes,
 						syncState.detachRemovedTransactionInfos());
-				m_handlers.TransactionsChange(peerTransactionHashes, std::move(revertedTransactionInfos));
+				m_handlers.TransactionsChange({ peerTransactionHashes, revertedTransactionInfos });
 			}
 
 			void commitToStorage(Height commonBlockHeight, const BlockElements& elements) const {
 				auto storageModifier = m_storage.modifier();
 				storageModifier.dropBlocksAfter(commonBlockHeight);
-				for (const auto& element : elements)
-					storageModifier.saveBlock(element);
+				storageModifier.saveBlocks(elements);
 			}
 
 		private:
 			cache::CatapultCache& m_cache;
 			state::CatapultState& m_state;
 			io::BlockStorageCache& m_storage;
+			uint32_t m_maxRollbackBlocks;
 			BlockChainSyncHandlers m_handlers;
 		};
 	}
@@ -259,7 +262,8 @@ namespace catapult { namespace consumers {
 			cache::CatapultCache& cache,
 			state::CatapultState& state,
 			io::BlockStorageCache& storage,
+			uint32_t maxRollbackBlocks,
 			const BlockChainSyncHandlers& handlers) {
-		return BlockChainSyncConsumer(cache, state, storage, handlers);
+		return BlockChainSyncConsumer(cache, state, storage, maxRollbackBlocks, handlers);
 	}
 }}

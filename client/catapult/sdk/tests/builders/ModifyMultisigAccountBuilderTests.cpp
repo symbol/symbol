@@ -1,15 +1,20 @@
 #include "src/builders/ModifyMultisigAccountBuilder.h"
-#include "tests/TestHarness.h"
-
-#define TEST_CLASS ModifyMultisigAccountBuilderTests
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
 
+#define TEST_CLASS ModifyMultisigAccountBuilderTests
+
 	namespace {
+		using RegularTraits = test::RegularTransactionTraits<model::ModifyMultisigAccountTransaction>;
+		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedModifyMultisigAccountTransaction>;
+		using Modifications = std::vector<model::CosignatoryModification>;
+
+		template<typename TTraits, typename TValidationFunction>
 		void AssertCanBuildTransaction(
 				size_t additionalSize,
-				const std::function<void (ModifyMultisigAccountBuilder&)>& buildTransaction,
-				const std::function<void (const model::ModifyMultisigAccountTransaction&)>& validateTransaction) {
+				const consumer<ModifyMultisigAccountBuilder&>& buildTransaction,
+				const TValidationFunction& validateTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
@@ -17,25 +22,18 @@ namespace catapult { namespace builders {
 			// Act:
 			ModifyMultisigAccountBuilder builder(networkId, signer);
 			buildTransaction(builder);
-			auto pTransaction = builder.build();
+			auto pTransaction = TTraits::InvokeBuilder(builder);
 
 			// Assert:
-			ASSERT_EQ(sizeof(model::ModifyMultisigAccountTransaction) + additionalSize, pTransaction->Size);
-			EXPECT_EQ(Signature{}, pTransaction->Signature);
+			TTraits::CheckFields(additionalSize, *pTransaction);
 			EXPECT_EQ(signer, pTransaction->Signer);
 			EXPECT_EQ(0x6203, pTransaction->Version);
-			EXPECT_EQ(model::EntityType::Modify_Multisig_Account, pTransaction->Type);
-
-			EXPECT_EQ(Amount(0), pTransaction->Fee);
-			EXPECT_EQ(Timestamp(0), pTransaction->Deadline);
+			EXPECT_EQ(model::Entity_Type_Modify_Multisig_Account, pTransaction->Type);
 
 			validateTransaction(*pTransaction);
 		}
 
-		auto CreatePropertyChecker(
-				int8_t minRemovalDelta,
-				int8_t minApprovalDelta,
-				const std::vector<model::CosignatoryModification>& modifications) {
+		auto CreatePropertyChecker(int8_t minRemovalDelta, int8_t minApprovalDelta, const Modifications& modifications) {
 			return [minRemovalDelta, minApprovalDelta, &modifications](const auto& transaction) {
 				EXPECT_EQ(minRemovalDelta, transaction.MinRemovalDelta);
 				EXPECT_EQ(minApprovalDelta, transaction.MinApprovalDelta);
@@ -45,28 +43,33 @@ namespace catapult { namespace builders {
 				for (const auto& modification : modifications) {
 					EXPECT_EQ(modification.ModificationType, pModification->ModificationType)
 							<< "type " << static_cast<uint16_t>(modification.ModificationType) << "at index " << i;
-					EXPECT_EQ(modification.CosignatoryPublicKey, pModification->CosignatoryPublicKey)
-							<< " key " << test::ToHexString(modification.CosignatoryPublicKey) << "at index " << i;
+					EXPECT_EQ(modification.CosignatoryPublicKey, pModification->CosignatoryPublicKey) << "at index " << i;
 					++pModification;
 				}
 			};
 		}
 	}
 
+#define TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
 	// region constructor
 
-	TEST(TEST_CLASS, CanCreateTransactionWithDefaultValues) {
+	TRAITS_BASED_TEST(CanCreateTransactionWithDefaultValues) {
 		// Assert:
-		AssertCanBuildTransaction(0, [](const auto&) {}, CreatePropertyChecker(0, 0, {}));
+		AssertCanBuildTransaction<TTraits>(0, [](const auto&) {}, CreatePropertyChecker(0, 0, {}));
 	}
 
 	// endregion
 
 	// region min cosignatory settings
 
-	TEST(TEST_CLASS, CanSetMinRemovalDelta) {
+	TRAITS_BASED_TEST(CanSetMinRemovalDelta) {
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				0,
 				[](auto& builder) {
 					builder.setMinRemovalDelta(3);
@@ -74,9 +77,9 @@ namespace catapult { namespace builders {
 				CreatePropertyChecker(3, 0, {}));
 	}
 
-	TEST(TEST_CLASS, CanSetMinApprovalDelta) {
+	TRAITS_BASED_TEST(CanSetMinApprovalDelta) {
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				0,
 				[](auto& builder) {
 					builder.setMinApprovalDelta(3);
@@ -90,7 +93,7 @@ namespace catapult { namespace builders {
 
 	namespace {
 		auto CreateModifications(uint8_t count) {
-			std::vector<model::CosignatoryModification> modifications;
+			Modifications modifications;
 			for (auto i = 0u; i < count; ++i) {
 				auto type = 0 == i % 2 ? model::CosignatoryModificationType::Add : model::CosignatoryModificationType::Del;
 				modifications.push_back(model::CosignatoryModification{ type, test::GenerateRandomData<Key_Size>() });
@@ -99,18 +102,18 @@ namespace catapult { namespace builders {
 			return modifications;
 		}
 
-		void AddAll(ModifyMultisigAccountBuilder& builder, const std::vector<model::CosignatoryModification>& modifications) {
+		void AddAll(ModifyMultisigAccountBuilder& builder, const Modifications& modifications) {
 			for (const auto& modification : modifications)
 				builder.addCosignatoryModification(modification.ModificationType, modification.CosignatoryPublicKey);
 		}
 	}
 
-	TEST(TEST_CLASS, CanAddSingleModification) {
+	TRAITS_BASED_TEST(CanAddSingleModification) {
 		// Arrange:
 		auto modifications = CreateModifications(1);
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				sizeof(model::CosignatoryModification),
 				[&modifications](auto& builder) {
 					AddAll(builder, modifications);
@@ -118,12 +121,12 @@ namespace catapult { namespace builders {
 				CreatePropertyChecker(0, 0, modifications));
 	}
 
-	TEST(TEST_CLASS, CanAddMultipleModifications) {
+	TRAITS_BASED_TEST(CanAddMultipleModifications) {
 		// Arrange:
 		auto modifications = CreateModifications(5);
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				5 * sizeof(model::CosignatoryModification),
 				[&modifications](auto& builder) {
 					AddAll(builder, modifications);
@@ -131,12 +134,12 @@ namespace catapult { namespace builders {
 				CreatePropertyChecker(0, 0, modifications));
 	}
 
-	TEST(TEST_CLASS, CanSetDeltasAndAddModifications) {
+	TRAITS_BASED_TEST(CanSetDeltasAndAddModifications) {
 		// Arrange:
 		auto modifications = CreateModifications(4);
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				4 * sizeof(model::CosignatoryModification),
 				[&modifications](auto& builder) {
 					builder.setMinRemovalDelta(-3);

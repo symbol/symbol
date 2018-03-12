@@ -6,6 +6,7 @@
 namespace catapult { namespace cache { class ReadOnlyCatapultCache; } }
 
 namespace catapult { namespace cache {
+
 	/// Delta on top of a catapult cache.
 	class CatapultCacheDelta {
 	public:

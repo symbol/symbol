@@ -2,14 +2,15 @@
 #include "catapult/cache/CacheStorage.h"
 #include "catapult/cache/CatapultCacheBuilder.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "tests/test/cache/CacheSynchronizationTests.h"
+#include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/SimpleCache.h"
-#include "tests/test/core/mocks/MemoryStream.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
+
+namespace catapult { namespace cache {
 
 #define TEST_CLASS CatapultCacheTests
 
-namespace catapult { namespace cache {
 	namespace {
 		void IncrementAllSubCaches(CatapultCacheDelta& delta) {
 			// Act:
@@ -250,7 +251,7 @@ namespace catapult { namespace cache {
 			// Act: save all data
 			for (const auto& pStorage : const_cast<const CatapultCache&>(cache).storages()) {
 				std::vector<uint8_t> buffer;
-				mocks::MemoryStream stream("", buffer);
+				mocks::MockMemoryStream stream("", buffer);
 				pStorage->saveAll(stream);
 				serializedSubCaches.push_back(buffer);
 			}
@@ -260,7 +261,7 @@ namespace catapult { namespace cache {
 		auto i = 0u;
 		auto cache = CreateSimpleCatapultCache();
 		for (const auto& pStorage : cache.storages()) {
-			mocks::MemoryStream stream("", serializedSubCaches[i++]);
+			mocks::MockMemoryStream stream("", serializedSubCaches[i++]);
 			pStorage->loadAll(stream, 5);
 		}
 
@@ -270,42 +271,26 @@ namespace catapult { namespace cache {
 	}
 
 	// endregion
-}}
 
-namespace catapult { namespace test {
-	template<>
-	void AssertCacheContents(const cache::CatapultCacheView& view, const std::vector<size_t>& expectedEntities) {
-		test::AssertCacheContents(view.sub<test::SimpleCacheT<4>>(), expectedEntities);
-	}
-
-	template<>
-	void AssertCacheContents(const cache::CatapultCacheDelta& delta, const std::vector<size_t>& expectedEntities) {
-		test::AssertCacheContents(delta.sub<test::SimpleCacheT<4>>(), expectedEntities);
-	}
-}}
-
-namespace catapult { namespace cache {
-	// region general cache tests
+	// region general cache synchronization tests
 
 	namespace {
-		class CatapultCacheTestAdapter {
+		class CatapultCacheProxy {
 		public:
-			CatapultCacheTestAdapter() : m_cache(CreateSimpleCatapultCache())
+			CatapultCacheProxy() : m_cache(CreateSimpleCatapultCache())
 			{}
 
 		public:
 			auto createView() const {
-				// unique_ptr to allow one level of indirection as required by DEFINE_CACHE_SYNC_TESTS
-				return std::make_unique<CatapultCacheView>(m_cache.createView());
+				return ViewProxy<CatapultCacheView, test::SimpleCacheView>(m_cache.createView());
 			}
 
 			auto createDelta() {
-				// unique_ptr to allow one level of indirection as required by DEFINE_CACHE_SYNC_TESTS
-				return std::make_unique<CatapultCacheDelta>(m_cache.createDelta());
+				return ViewProxy<CatapultCacheDelta, test::SimpleCacheDelta>(m_cache.createDelta());
 			}
 
 			auto createDetachedDelta() const {
-				return m_cache.createDetachableDelta().detach();
+				return DetachedDeltaProxy(m_cache.createDetachableDelta().detach());
 			}
 
 			void commit() {
@@ -313,37 +298,74 @@ namespace catapult { namespace cache {
 			}
 
 		private:
+			template<typename TView, typename TRawView>
+			class ViewProxy {
+			public:
+				ViewProxy()
+						: m_view({})
+						, m_isValid(false)
+				{}
+
+				explicit ViewProxy(TView&& view)
+						: m_view(std::move(view))
+						, m_isValid(true)
+				{}
+
+			public:
+				const auto& operator*() const {
+					return static_cast<const TRawView&>(m_view.template sub<test::SimpleCacheT<4>>());
+				}
+
+				auto* operator->() {
+					return &static_cast<TRawView&>(m_view.template sub<test::SimpleCacheT<4>>());
+				}
+
+				explicit operator bool() const {
+					return m_isValid;
+				}
+
+			private:
+				TView m_view;
+				bool m_isValid;
+			};
+
+			class DetachedDeltaProxy {
+			public:
+				explicit DetachedDeltaProxy(CatapultCacheDetachedDelta&& detachedDelta) : m_detachedDelta(std::move(detachedDelta))
+				{}
+
+			public:
+				auto lock() {
+					auto pLockedDelta = m_detachedDelta.lock();
+					return pLockedDelta
+							? ViewProxy<CatapultCacheDelta, test::SimpleCacheDelta>(std::move(*pLockedDelta))
+							: ViewProxy<CatapultCacheDelta, test::SimpleCacheDelta>();
+				}
+
+			private:
+				CatapultCacheDetachedDelta m_detachedDelta;
+			};
+
+		private:
 			CatapultCache m_cache;
 		};
 
 		struct CatapultCacheTraits {
 		public:
-			using EntityVector = std::vector<size_t>;
+			using CacheType = CatapultCacheProxy;
 
 		public:
-			template<typename TAction>
-			static void RunCacheTest(TAction action) {
-				// Arrange: use the test::SimpleCacheT<4> as a marker cache
-				CatapultCacheTestAdapter cacheAdapter;
-				EntityVector entities;
-				{
-					auto pDelta = cacheAdapter.createDelta();
-					auto& subCacheDelta = pDelta->sub<test::SimpleCacheT<4>>();
-					for (auto id = 1u; id <= 3u; ++id) {
-						subCacheDelta.increment();
-						entities.push_back(id);
-					}
+			static size_t MakeId(uint8_t id) {
+				return id;
+			}
 
-					cacheAdapter.commit();
-				}
-
-				// Act:
-				action(cacheAdapter, entities);
+			static size_t CreateWithId(uint8_t id) {
+				return id;
 			}
 		};
 	}
 
-	DEFINE_CACHE_SYNC_TESTS(TEST_CLASS, CatapultCacheTraits)
+	DEFINE_CACHE_SYNC_TESTS(CatapultCacheTraits,)
 
 	// endregion
 }}

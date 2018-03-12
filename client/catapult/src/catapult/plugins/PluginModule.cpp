@@ -58,15 +58,14 @@ namespace catapult { namespace plugins {
 		auto pluginPath = GetPluginPath(directory, name);
 		CATAPULT_LOG(info) << "loading plugin from " << pluginPath;
 
-		m_pModule = std::shared_ptr<void>(
-				CatapultLoad(pluginPath),
-				[](auto* pModule) {
-					if (!pModule)
-						return;
+		m_pModule = std::shared_ptr<void>(CatapultLoad(pluginPath), [pluginPath](auto* pModule) {
+			if (!pModule)
+				return;
 
-					CATAPULT_LOG(debug) << "unloading module " << pModule;
-					CatapultUnload(pModule);
-				});
+			CATAPULT_LOG(debug) << "unloading module " << pModule << " (" << pluginPath << ")";
+			CatapultUnload(pModule);
+		});
+
 		if (!m_pModule)
 			CATAPULT_THROW_INVALID_ARGUMENT_1("unable to find plugin", pluginPath);
 

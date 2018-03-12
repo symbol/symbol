@@ -3,17 +3,19 @@
 
 namespace catapult {
 
-	TEST(CatapultTypesTests, AddressHasExpectedSize) {
+#define TEST_CLASS CatapultTypesTests
+
+	TEST(TEST_CLASS, AddressHasExpectedSize) {
 		// Assert:
 		EXPECT_EQ(Address_Decoded_Size, sizeof(Address));
 	}
 
-	TEST(CatapultTypesTests, KeyHasExpectedSize) {
+	TEST(TEST_CLASS, KeyHasExpectedSize) {
 		// Assert:
 		EXPECT_EQ(Key_Size, sizeof(Key));
 	}
 
-	TEST(CatapultTypesTests, SignatureHasExpectedSize) {
+	TEST(TEST_CLASS, SignatureHasExpectedSize) {
 		// Assert:
 		EXPECT_EQ(Signature_Size, sizeof(Signature));
 	}

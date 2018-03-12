@@ -1,6 +1,7 @@
 #pragma once
 #include "StrandOwnerLifetimeExtender.h"
 #include "catapult/utils/TimeSpan.h"
+#include "catapult/functions.h"
 #include <boost/asio/steady_timer.hpp>
 #include <memory>
 
@@ -12,7 +13,7 @@ namespace catapult { namespace thread {
 	class StrandedTimedCallback
 			: public std::enable_shared_from_this<StrandedTimedCallback<TCallback, TCallbackArgs...>> {
 	private:
-		using TimeoutHandlerType = std::function<void ()>;
+		using TimeoutHandlerType = action;
 
 	private:
 		/// Wraps a callback with a timer using an implicit strand.
@@ -95,10 +96,7 @@ namespace catapult { namespace thread {
 	public:
 		/// Creates a timed callback by wrapping \a callback with a timed callback using \a service.
 		/// On a timeout, the callback is invoked with \a timeoutArgs.
-		StrandedTimedCallback(
-				boost::asio::io_service& service,
-				const TCallback& callback,
-				TCallbackArgs&&... timeoutArgs)
+		StrandedTimedCallback(boost::asio::io_service& service, const TCallback& callback, TCallbackArgs&&... timeoutArgs)
 				: m_impl(*this, service, callback, std::forward<TCallbackArgs>(timeoutArgs)...)
 				, m_strand(service)
 				, m_strandWrapper(m_strand)

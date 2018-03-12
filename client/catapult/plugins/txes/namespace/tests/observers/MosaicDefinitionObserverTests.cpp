@@ -1,11 +1,15 @@
 #include "src/observers/Observers.h"
 #include "src/cache/MosaicCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/TransactionTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace observers {
+
+#define TEST_CLASS MosaicDefinitionObserverTests
+
 	using ObserverTestContext = test::ObserverTestContextT<test::MosaicCacheFactory>;
 
 	DEFINE_COMMON_OBSERVER_TESTS(MosaicDefinition,)
@@ -24,12 +28,17 @@ namespace catapult { namespace observers {
 		void RunTest(
 				const model::MosaicDefinitionNotification& notification,
 				ObserverTestContext&& context,
+				Amount initialOwnerBalance,
 				TSeedCacheFunc seedCache,
 				TCheckCacheFunc checkCache) {
 			// Arrange:
 			auto pObserver = CreateMosaicDefinitionObserver();
 
 			// - seed the cache
+			auto& accountStateCacheDelta = context.cache().sub<cache::AccountStateCache>();
+			auto& ownerState = accountStateCacheDelta.addAccount(notification.Signer, Height(1));
+			ownerState.Balances.credit(notification.MosaicId, initialOwnerBalance);
+
 			auto& mosaicCacheDelta = context.cache().sub<cache::MosaicCache>();
 			seedCache(mosaicCacheDelta);
 
@@ -37,7 +46,7 @@ namespace catapult { namespace observers {
 			test::ObserveNotification(*pObserver, notification, context);
 
 			// Assert: check the cache
-			checkCache(mosaicCacheDelta);
+			checkCache(mosaicCacheDelta, ownerState.Balances.get(notification.MosaicId));
 		}
 
 		void SeedCacheEmpty(cache::MosaicCacheDelta& mosaicCacheDelta) {
@@ -78,7 +87,7 @@ namespace catapult { namespace observers {
 
 	// region commit
 
-	TEST(MosaicDefinitionObserverTests, ObserverAddsMosaicOnCommit) {
+	TEST(TEST_CLASS, ObserverAddsMosaicOnCommit) {
 		// Arrange:
 		auto signer = test::GenerateRandomData<Key_Size>();
 		auto notification = CreateDefaultNotification(signer);
@@ -87,14 +96,18 @@ namespace catapult { namespace observers {
 		RunTest(
 				notification,
 				ObserverTestContext(NotifyMode::Commit, Height(888)),
+				Amount(0), // owner balance must be zero because the mosaic does not yet exist
 				SeedCacheEmpty,
-				[&signer](auto& mosaicCacheDelta) {
+				[&signer](const auto& mosaicCacheDelta, auto ownerBalance) {
 					// Assert: the mosaic was added
 					AssertMosaicAdded(mosaicCacheDelta, signer, Height(888), 1);
+
+					// - the owner balance is zero
+					EXPECT_EQ(Amount(0), ownerBalance);
 				});
 	}
 
-	TEST(MosaicDefinitionObserverTests, ObserverOverwritesMosaicOnCommit) {
+	TEST(TEST_CLASS, ObserverOverwritesMosaicOnCommit) {
 		// Arrange:
 		auto signer = test::GenerateRandomData<Key_Size>();
 		auto notification = CreateDefaultNotification(signer);
@@ -103,10 +116,14 @@ namespace catapult { namespace observers {
 		RunTest(
 				notification,
 				ObserverTestContext(NotifyMode::Commit, Height(888)),
+				Amount(1234),
 				SeedCacheWithDefaultMosaic,
-				[&signer](auto& mosaicCacheDelta) {
+				[&signer](const auto& mosaicCacheDelta, auto ownerBalance) {
 					// Assert: the mosaic was added
 					AssertMosaicAdded(mosaicCacheDelta, signer, Height(888), 2);
+
+					// - the owner balance is zero
+					EXPECT_EQ(Amount(0), ownerBalance);
 				});
 	}
 
@@ -114,7 +131,18 @@ namespace catapult { namespace observers {
 
 	// region rollback
 
-	TEST(MosaicDefinitionObserverTests, ObserverRemovesMosaicOnRollback) {
+	namespace {
+		void AddTwoMosaics(cache::MosaicCacheDelta& mosaicCacheDelta, uint32_t supplyMultiplier) {
+			auto definition = state::MosaicDefinition(Height(7), Key(), model::MosaicProperties::FromValues({}));
+			for (auto id : { Default_Mosaic_Id, MosaicId(987) }) {
+				auto entry = state::MosaicEntry(Default_Namespace_Id, id, definition);
+				entry.increaseSupply(Amount((id.unwrap() + 100) * supplyMultiplier));
+				mosaicCacheDelta.insert(entry);
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, ObserverRemovesMosaicOnRollbackWhenHistoryDepthIsOne) {
 		// Arrange:
 		auto signer = test::GenerateRandomData<Key_Size>();
 		auto notification = CreateDefaultNotification(signer);
@@ -123,20 +151,53 @@ namespace catapult { namespace observers {
 		RunTest(
 				notification,
 				ObserverTestContext(NotifyMode::Rollback, Height(888)),
+				Amount(1234),
 				[](auto& mosaicCacheDelta) {
 					// Arrange: create a cache with two mosaics
-					auto definition = state::MosaicDefinition(Height(7), Key(), model::MosaicProperties::FromValues({}));
-					for (auto id : { Default_Mosaic_Id, MosaicId(987) })
-						mosaicCacheDelta.insert(state::MosaicEntry(Default_Namespace_Id, id, definition));
+					AddTwoMosaics(mosaicCacheDelta, 1);
 
 					// Sanity:
 					test::AssertCacheContents(mosaicCacheDelta, { Default_Mosaic_Id.unwrap(), 987 });
 				},
-				[](auto& mosaicCacheDelta) {
+				[](const auto& mosaicCacheDelta, auto ownerBalance) {
 					// Assert: the mosaic was removed
 					EXPECT_EQ(1u, mosaicCacheDelta.size());
+					EXPECT_EQ(1u, mosaicCacheDelta.deepSize());
 					EXPECT_FALSE(mosaicCacheDelta.contains(Default_Mosaic_Id));
 					EXPECT_TRUE(mosaicCacheDelta.contains(MosaicId(987)));
+
+					// - the owner balance is zero
+					EXPECT_EQ(Amount(0), ownerBalance);
+				});
+	}
+
+	TEST(TEST_CLASS, ObserverRemovesLastMosaicEntryOnRollbackWhenHistoryDepthIsGreaterThanOne) {
+		// Arrange:
+		auto signer = test::GenerateRandomData<Key_Size>();
+		auto notification = CreateDefaultNotification(signer);
+
+		// Act: remove it
+		RunTest(
+				notification,
+				ObserverTestContext(NotifyMode::Rollback, Height(888)),
+				Amount(1234),
+				[](auto& mosaicCacheDelta) {
+					// Arrange: create a cache with two mosaics with two levels each
+					AddTwoMosaics(mosaicCacheDelta, 1);
+					AddTwoMosaics(mosaicCacheDelta, 2);
+
+					// Sanity:
+					test::AssertCacheContents(mosaicCacheDelta, { Default_Mosaic_Id.unwrap(), 987 });
+				},
+				[](const auto& mosaicCacheDelta, auto ownerBalance) {
+					// Assert: the mosaic was removed
+					EXPECT_EQ(2u, mosaicCacheDelta.size());
+					EXPECT_EQ(3u, mosaicCacheDelta.deepSize());
+					EXPECT_TRUE(mosaicCacheDelta.contains(Default_Mosaic_Id));
+					EXPECT_TRUE(mosaicCacheDelta.contains(MosaicId(987)));
+
+					// - the owner balance is equal to the supply of the first mosaic entry
+					EXPECT_EQ(Amount(100 + Default_Mosaic_Id.unwrap()), ownerBalance);
 				});
 	}
 

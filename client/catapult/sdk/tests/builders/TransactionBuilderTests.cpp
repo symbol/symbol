@@ -3,14 +3,14 @@
 #include "tests/TestHarness.h"
 #include <numeric>
 
-#define TEST_CLASS TransactionBuilderTests
-
 namespace catapult { namespace builders {
+
+#define TEST_CLASS TransactionBuilderTests
 
 	namespace {
 		constexpr auto Additional_Data_Size = 123;
 
-		class MockBuilder : public TransactionBuilder<mocks::MockTransaction> {
+		class MockBuilder : public TransactionBuilder {
 		public:
 			MockBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 					: TransactionBuilder(networkIdentifier, signer)
@@ -18,21 +18,21 @@ namespace catapult { namespace builders {
 
 		public:
 			std::unique_ptr<mocks::MockTransaction> build() const {
-				auto pTransaction = createTransaction(sizeof(mocks::MockTransaction) + Additional_Data_Size);
+				auto pTransaction = createTransaction<mocks::MockTransaction>(sizeof(mocks::MockTransaction) + Additional_Data_Size);
 
 				// 1. set sizes upfront, so that pointers are calculated correctly
 				pTransaction->Data.Size = Additional_Data_Size;
 
 				// 2. set data
 				auto pData = pTransaction->DataPtr();
-				std::iota(pData, pData + Additional_Data_Size, 0);
+				std::iota(pData, pData + Additional_Data_Size, static_cast<uint8_t>(0));
 				return pTransaction;
 			}
 		};
 
 		void AssertCanBuildTransaction(
-				const std::function<void (MockBuilder&)>& buildTransaction,
-				const std::function<void (const model::Transaction&)>& validateTransaction) {
+				const consumer<MockBuilder&>& buildTransaction,
+				const consumer<const model::Transaction&>& validateTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
@@ -52,8 +52,8 @@ namespace catapult { namespace builders {
 			validateTransaction(*pTransaction);
 
 			std::vector<uint8_t> expected(Additional_Data_Size);
-			std::iota(expected.begin(), expected.end(), 0);
-			EXPECT_TRUE(!memcmp(expected.data(), pTransaction->DataPtr(), expected.size()));
+			std::iota(expected.begin(), expected.end(), static_cast<uint8_t>(0));
+			EXPECT_TRUE(0 == std::memcmp(expected.data(), pTransaction->DataPtr(), expected.size()));
 		}
 
 		auto CreatePropertyChecker(Amount fee, Timestamp deadline) {

@@ -1,4 +1,5 @@
 #include "PacketSocket.h"
+#include "BufferedPacketIo.h"
 #include "Node.h"
 #include "WorkingBuffer.h"
 #include "catapult/thread/StrandOwnerLifetimeExtender.h"
@@ -48,10 +49,7 @@ namespace catapult { namespace ionet {
 		template<typename TSocketCallbackWrapper>
 		class BasicPacketSocket final {
 		public:
-			BasicPacketSocket(
-					boost::asio::io_service& service,
-					const PacketSocketOptions& options,
-					TSocketCallbackWrapper& wrapper)
+			BasicPacketSocket(boost::asio::io_service& service, const PacketSocketOptions& options, TSocketCallbackWrapper& wrapper)
 					: m_socket(service)
 					, m_wrapper(wrapper)
 					, m_buffer(options)
@@ -86,9 +84,9 @@ namespace catapult { namespace ionet {
 				}
 
 				bool tryComplete(const boost::system::error_code& ec) {
-					auto lastResult = mapWriteErrorCodeToSocketOperationCode(ec);
-					if (SocketOperationCode::Success != lastResult || m_nextBufferIndex >= m_payload.buffers().size()) {
-						m_callback(lastResult);
+					auto lastCode = mapWriteErrorCodeToSocketOperationCode(ec);
+					if (SocketOperationCode::Success != lastCode || m_nextBufferIndex >= m_payload.buffers().size()) {
+						m_callback(lastCode);
 						return true;
 					}
 
@@ -181,10 +179,7 @@ namespace catapult { namespace ionet {
 				m_socket.async_read_some(pAppendContext->Context.buffer(), m_wrapper.wrap(readHandler));
 			}
 
-			void checkAndHandleError(
-					PacketExtractResult extractResult,
-					const PacketSocket::ReadCallback& callback,
-					bool allowMultiple) {
+			void checkAndHandleError(PacketExtractResult extractResult, const PacketSocket::ReadCallback& callback, bool allowMultiple) {
 				// ignore non errors
 				switch (extractResult) {
 				case PacketExtractResult::Success:
@@ -208,7 +203,9 @@ namespace catapult { namespace ionet {
 			}
 
 		public:
-			socket& impl() { return m_socket; }
+			socket& impl() {
+				return m_socket;
+			}
 
 		private:
 			socket m_socket;
@@ -222,7 +219,7 @@ namespace catapult { namespace ionet {
 				: public PacketSocket
 				, public std::enable_shared_from_this<StrandedPacketSocket> {
 		private:
-			using TSocket = BasicPacketSocket<StrandedPacketSocket>;
+			using SocketType = BasicPacketSocket<StrandedPacketSocket>;
 
 		public:
 			StrandedPacketSocket(boost::asio::io_service& service, const PacketSocketOptions& options)
@@ -262,16 +259,23 @@ namespace catapult { namespace ionet {
 				post([](auto& socket) { socket.close(); });
 			}
 
-		public:
-			socket& impl() { return m_socket.impl(); }
+			std::shared_ptr<PacketIo> buffered() override {
+				return CreateBufferedPacketIo(shared_from_this(), m_strand);
+			}
 
-			boost::asio::strand& strand() { return m_strand; }
+		public:
+			socket& impl() {
+				return m_socket.impl();
+			}
+
+			boost::asio::strand& strand() {
+				return m_strand;
+			}
 
 		public:
 			template<typename THandler>
 			auto wrap(THandler handler) {
-				// when BasicPacketSocket calls wrap, the returned callback needs to extend the lifetime
-				// of this object
+				// when BasicPacketSocket calls wrap, the returned callback needs to extend the lifetime of this object
 				return m_strandWrapper.wrap(shared_from_this(), handler);
 			}
 
@@ -287,8 +291,10 @@ namespace catapult { namespace ionet {
 		private:
 			boost::asio::strand m_strand;
 			thread::StrandOwnerLifetimeExtender<StrandedPacketSocket> m_strandWrapper;
-			TSocket m_socket;
+			SocketType m_socket;
 		};
+
+		// region Accept
 
 		class AcceptHandler : public std::enable_shared_from_this<AcceptHandler> {
 		public:
@@ -315,11 +321,19 @@ namespace catapult { namespace ionet {
 			void handleAccept(const boost::system::error_code& ec) {
 				if (ec) {
 					CATAPULT_LOG(warning) << "async_accept returned an error: " << ec;
-					return m_accept(nullptr);
+					return m_accept(AcceptedPacketSocketInfo());
+				}
+
+				// try to determine the remote endpoint (ignore errors if socket was immediately closed after accept)
+				boost::system::error_code remoteEndpointEc;
+				const auto& asioEndpoint = m_pSocket->impl().remote_endpoint(remoteEndpointEc);
+				if (remoteEndpointEc) {
+					CATAPULT_LOG(warning) << "unable to determine remote endpoint: " << remoteEndpointEc;
+					return m_accept(AcceptedPacketSocketInfo());
 				}
 
 				CATAPULT_LOG(trace) << "invoking user callback after successful async_accept";
-				return m_accept(m_pSocket);
+				return m_accept(AcceptedPacketSocketInfo(asioEndpoint.address().to_string(), m_pSocket));
 			}
 
 		private:
@@ -339,19 +353,20 @@ namespace catapult { namespace ionet {
 		pHandler->start();
 	}
 
-	void Accept(
-			boost::asio::ip::tcp::acceptor& acceptor,
-			const PacketSocketOptions& options,
-			const AcceptCallback& accept) {
+	void Accept(boost::asio::ip::tcp::acceptor& acceptor, const PacketSocketOptions& options, const AcceptCallback& accept) {
 		Accept(acceptor, options, [](const auto&) {}, accept);
 	}
+
+	// endregion
+
+	// region Connect
 
 	namespace {
 		/// Basic connect handler implementation using an implicit strand.
 		template<typename TCallbackWrapper>
 		class BasicConnectHandler final {
 		private:
-			using TResolver = boost::asio::ip::tcp::resolver;
+			using Resolver = boost::asio::ip::tcp::resolver;
 
 		public:
 			BasicConnectHandler(
@@ -383,10 +398,12 @@ namespace catapult { namespace ionet {
 			}
 
 		public:
-			StrandedPacketSocket& impl() { return *m_pSocket; }
+			StrandedPacketSocket& impl() {
+				return *m_pSocket;
+			}
 
 		private:
-			void handleResolve(const boost::system::error_code& ec, const TResolver::iterator& iterator) {
+			void handleResolve(const boost::system::error_code& ec, const Resolver::iterator& iterator) {
 				if (shouldAbort(ec, "resolving address"))
 					return invokeCallback(ConnectResult::Resolve_Error);
 
@@ -408,8 +425,9 @@ namespace catapult { namespace ionet {
 				if (!ec && !m_isCancelled)
 					return false;
 
-				CATAPULT_LOG(error) << "failed when " << operation << " '" << m_host << "': " << ec.message()
-					<< " (cancelled? " << m_isCancelled << ")";
+				CATAPULT_LOG(error)
+						<< "failed when " << operation << " '" << m_host << "': " << ec.message()
+						<< " (cancelled? " << m_isCancelled << ")";
 				return true;
 			}
 
@@ -425,9 +443,9 @@ namespace catapult { namespace ionet {
 			TCallbackWrapper& m_wrapper;
 
 			std::shared_ptr<StrandedPacketSocket> m_pSocket;
-			TResolver m_resolver;
+			Resolver m_resolver;
 			std::string m_host;
-			boost::asio::ip::tcp::resolver::query m_query;
+			Resolver::query m_query;
 			bool m_isCancelled;
 			boost::asio::ip::tcp::endpoint m_endpoint;
 		};
@@ -435,9 +453,6 @@ namespace catapult { namespace ionet {
 		/// Implements connect handler using an explicit strand and ensures deterministic shutdown by using
 		/// enable_shared_from_this.
 		class StrandedConnectHandler : public std::enable_shared_from_this<StrandedConnectHandler> {
-		private:
-			using THandler = BasicConnectHandler<StrandedConnectHandler>;
-
 		public:
 			StrandedConnectHandler(
 					boost::asio::io_service& service,
@@ -472,12 +487,12 @@ namespace catapult { namespace ionet {
 			}
 
 		private:
-			THandler m_handler;
+			BasicConnectHandler<StrandedConnectHandler> m_handler;
 			thread::StrandOwnerLifetimeExtender<StrandedConnectHandler> m_strandWrapper;
 		};
 	}
 
-	std::function<void ()> Connect(
+	action Connect(
 			boost::asio::io_service& service,
 			const PacketSocketOptions& options,
 			const NodeEndpoint& endpoint,
@@ -486,4 +501,6 @@ namespace catapult { namespace ionet {
 		pHandler->start();
 		return [pHandler] { pHandler->cancel(); };
 	}
+
+	// endregion
 }}

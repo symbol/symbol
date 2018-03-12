@@ -1,5 +1,6 @@
 #pragma once
 #include "PacketHeader.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "catapult/utils/NonCopyable.h"
 #include "catapult/preprocessor.h"
 #include <memory>
@@ -28,7 +29,7 @@ namespace catapult { namespace ionet {
 	template<typename TPacket>
 	std::shared_ptr<TPacket> CreateSharedPacket(uint32_t payloadSize = 0) {
 		uint32_t packetSize = sizeof(TPacket) + payloadSize;
-		std::shared_ptr<TPacket> pPacket(reinterpret_cast<TPacket*>(::operator new (packetSize)));
+		auto pPacket = utils::MakeSharedWithSize<TPacket>(packetSize);
 		pPacket->Size = packetSize;
 		pPacket->Type = TPacket::Packet_Type;
 		return pPacket;
@@ -38,7 +39,7 @@ namespace catapult { namespace ionet {
 	CATAPULT_INLINE
 	std::shared_ptr<Packet> CreateSharedPacket(uint32_t payloadSize) {
 		uint32_t packetSize = sizeof(Packet) + payloadSize;
-		std::shared_ptr<Packet> pPacket(reinterpret_cast<Packet*>(::operator new (packetSize)));
+		auto pPacket = utils::MakeSharedWithSize<Packet>(packetSize);
 		pPacket->Size = packetSize;
 		pPacket->Type = PacketType::Undefined;
 		return pPacket;
@@ -52,7 +53,7 @@ namespace catapult { namespace ionet {
 			: static_cast<const TPacket*>(pPacket);
 	}
 
-	/// Checks if \a packet is valid with type \a type.
+	/// Checks if \a packet is valid with \a type.
 	constexpr
 	bool IsPacketValid(const Packet& packet, PacketType type) {
 		return sizeof(Packet) == packet.Size && type == packet.Type;

@@ -1,5 +1,5 @@
 #include "TransferPlugin.h"
-#include "TransferTransactionPlugins.h"
+#include "TransferTransactionPlugin.h"
 #include "src/config/TransferConfiguration.h"
 #include "src/validators/Validators.h"
 #include "catapult/plugins/PluginManager.h"

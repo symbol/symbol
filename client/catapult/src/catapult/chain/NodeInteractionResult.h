@@ -4,8 +4,10 @@
 
 namespace catapult { namespace chain {
 
-/// Possible node interaction results.
 #define NODE_INTERACTION_RESULT_LIST \
+	/* There was no experience. */ \
+	ENUM_VALUE(None) \
+	\
 	/* The experience was neutral. */ \
 	ENUM_VALUE(Neutral) \
 	\
@@ -15,9 +17,13 @@ namespace catapult { namespace chain {
 	/* The experience was bad. */ \
 	ENUM_VALUE(Failure) \
 
-#define DECLARE_ENUM NodeInteractionResult
-#define ENUM_LIST NODE_INTERACTION_RESULT_LIST
-#include "catapult/utils/MacroBasedEnum.h"
-#undef ENUM_LIST
-#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+	/// Possible node interaction results.
+	enum class NodeInteractionResult {
+		NODE_INTERACTION_RESULT_LIST
+	};
+#undef ENUM_VALUE
+
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, NodeInteractionResult value);
 }}

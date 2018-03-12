@@ -28,6 +28,11 @@ namespace catapult { namespace validators {
 	stateful::NotificationValidatorPointerT<model::ModifyMultisigNewCosignerNotification>
 	CreateModifyMultisigMaxCosignedAccountsValidator(uint8_t maxCosignedAccountsPerAccount);
 
+	/// A validator implementation that applies to modify multisig cosigners notifications and validates that:
+	/// - the multisig account has at most \a maxCosignersPerAccount cosignatories
+	stateful::NotificationValidatorPointerT<model::ModifyMultisigCosignersNotification>
+	CreateModifyMultisigMaxCosignersValidator(uint8_t maxCosignersPerAccount);
+
 	/// A validator implementation that applies to modify multisig new cosigner notifications and validates that:
 	/// - the multisig depth is at most \a maxMultisigDepth
 	/// - no multisig loops are created
@@ -35,10 +40,10 @@ namespace catapult { namespace validators {
 	CreateModifyMultisigLoopAndLevelValidator(uint8_t maxMultisigDepth);
 
 	/// A validator implementation that applies to modify multisig settings notifications and validates that:
-	/// - new min removal and min approval are greater than 0 and not greater than \a maxCosignersPerAccount
+	/// - new min removal and min approval are greater than 0
 	/// - new min removal and min approval settings are not greater than total number of cosignatories
 	stateful::NotificationValidatorPointerT<model::ModifyMultisigSettingsNotification>
-	CreateModifyMultisigInvalidSettingsValidator(uint8_t maxCosignersPerAccount);
+	CreateModifyMultisigInvalidSettingsValidator();
 
 	/// A validator implementation that applies to aggregate cosignatures notifications and validates that:
 	///  - all cosigners are eligible counterparties

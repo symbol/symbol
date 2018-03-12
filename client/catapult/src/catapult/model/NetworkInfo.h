@@ -3,7 +3,6 @@
 
 namespace catapult { namespace model {
 
-/// Possible network identifiers.
 #define NETWORK_IDENTIFIER_LIST \
 	/* A default (zero) identifier that does not identify any known network. */ \
 	ENUM_VALUE(Zero, 0) \
@@ -16,15 +15,15 @@ namespace catapult { namespace model {
 	/* The public test network identifier. */ \
 	ENUM_VALUE(Public_Test, 0x98)
 
-#define DECLARE_ENUM NetworkIdentifier
-#define EXPLICIT_VALUE_ENUM
-#define EXPLICIT_TYPE_ENUM uint8_t
-#define ENUM_LIST NETWORK_IDENTIFIER_LIST
-#include "catapult/utils/MacroBasedEnum.h"
-#undef ENUM_LIST
-#undef EXPLICIT_TYPE_ENUM
-#undef EXPLICIT_VALUE_ENUM
-#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
+	/// Possible network identifiers.
+	enum class NetworkIdentifier : uint8_t {
+		NETWORK_IDENTIFIER_LIST
+	};
+#undef ENUM_VALUE
+
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, NetworkIdentifier value);
 
 	/// Information about a network.
 	struct NetworkInfo {

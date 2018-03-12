@@ -1,10 +1,12 @@
 #include "src/cache/MosaicCacheStorage.h"
 #include "src/state/MosaicLevy.h"
 #include "tests/test/MosaicCacheTestUtils.h"
-#include "tests/test/core/mocks/MemoryStream.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
+
+#define TEST_CLASS MosaicCacheStorageTests
 
 	namespace {
 		using PropertyValuesArray = std::array<uint64_t, model::Num_Mosaic_Properties>;
@@ -77,21 +79,21 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(MosaicCacheStorageTests, CannotSaveEmptyHistory) {
+	TEST(TEST_CLASS, CannotSaveEmptyHistory) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		state::MosaicHistory history(NamespaceId(987), MosaicId(123));
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(MosaicCacheStorage::Save(std::make_pair(MosaicId(), history), stream), catapult_runtime_error);
 	}
 
-	TEST(MosaicCacheStorageTests, CannotSaveHistoryContainingMosaicLevy) {
+	TEST(TEST_CLASS, CannotSaveHistoryContainingMosaicLevy) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// - add a levy
 		auto definition = state::MosaicDefinition(Height(888), test::GenerateRandomData<Key_Size>(), CreateMosaicProperties(17));
@@ -100,14 +102,14 @@ namespace catapult { namespace cache {
 		history.push_back(definition, Amount(111));
 		history.back().setLevy(CreateMosaicLevy());
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(MosaicCacheStorage::Save(std::make_pair(MosaicId(), history), stream), catapult_runtime_error);
 	}
 
-	TEST(MosaicCacheStorageTests, CanSaveHistoryWithDepthOne) {
+	TEST(TEST_CLASS, CanSaveHistoryWithDepthOne) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		auto definition = state::MosaicDefinition(Height(888), test::GenerateRandomData<Key_Size>(), CreateMosaicProperties(17));
 		state::MosaicHistory history(NamespaceId(987), MosaicId(123));
@@ -122,10 +124,10 @@ namespace catapult { namespace cache {
 		AssertEntryHeader(buffer, sizeof(MosaicHistoryHeader), Height(888), definition.owner(), 17, Amount(111));
 	}
 
-	TEST(MosaicCacheStorageTests, CanSaveHistoryWithDepthGreaterThanOne) {
+	TEST(TEST_CLASS, CanSaveHistoryWithDepthGreaterThanOne) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		auto definition1 = state::MosaicDefinition(Height(888), test::GenerateRandomData<Key_Size>(), CreateMosaicProperties(17));
 		auto definition2 = state::MosaicDefinition(Height(950), test::GenerateRandomData<Key_Size>(), CreateMosaicProperties(42));
@@ -174,9 +176,9 @@ namespace catapult { namespace cache {
 			EXPECT_EQ(owner, definition.owner()) << message;
 
 			uint8_t i = 0;
-			for (auto iter = definition.properties().cbegin(); definition.properties().cend() != iter; ++iter) {
-				EXPECT_EQ(static_cast<model::MosaicPropertyId>(i), iter->Id) << message << " property " << i;
-				EXPECT_EQ(propertyValues[i], iter->Value) << message << " property " << i;
+			for (const auto& property : definition.properties()) {
+				EXPECT_EQ(static_cast<model::MosaicPropertyId>(i), property.Id) << message << " property " << i;
+				EXPECT_EQ(propertyValues[i], property.Value) << message << " property " << i;
 				++i;
 			}
 
@@ -185,20 +187,20 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(MosaicCacheStorageTests, CannotLoadEmptyHistory) {
+	TEST(TEST_CLASS, CannotLoadEmptyHistory) {
 		// Arrange:
 		MosaicCache cache;
 		auto delta = cache.createDelta();
 
 		std::vector<uint8_t> buffer(sizeof(MosaicHistoryHeader));
 		reinterpret_cast<MosaicHistoryHeader&>(*buffer.data()) = { NamespaceId(987), MosaicId(123), 0 };
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(MosaicCacheStorage::Load(stream, *delta), catapult_runtime_error);
 	}
 
-	TEST(MosaicCacheStorageTests, CanLoadHistoryWithDepthOne) {
+	TEST(TEST_CLASS, CanLoadHistoryWithDepthOne) {
 		// Arrange:
 		MosaicCache cache;
 		auto delta = cache.createDelta();
@@ -208,7 +210,7 @@ namespace catapult { namespace cache {
 		reinterpret_cast<MosaicHistoryHeader&>(*buffer.data()) = { NamespaceId(987), MosaicId(123), 1 };
 		auto offset = sizeof(MosaicHistoryHeader);
 		reinterpret_cast<MosaicEntryHeader&>(*(buffer.data() + offset)) = { Height(222), owner, { { 9, 8, 7 } }, Amount(786) };
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		MosaicCacheStorage::Load(stream, *delta);
@@ -220,7 +222,7 @@ namespace catapult { namespace cache {
 		AssertMosaicEntry(delta->get(MosaicId(123)), NamespaceId(987), Height(222), owner, { { 9, 8, 7 } }, Amount(786));
 	}
 
-	TEST(MosaicCacheStorageTests, CanLoadHistoryWithDepthGreaterThanOne) {
+	TEST(TEST_CLASS, CanLoadHistoryWithDepthGreaterThanOne) {
 		// Arrange:
 		MosaicCache cache;
 		auto delta = cache.createDelta();
@@ -235,7 +237,7 @@ namespace catapult { namespace cache {
 		reinterpret_cast<MosaicEntryHeader&>(*(buffer.data() + offset)) = { Height(321), owner2, { { 2, 5, 7 } }, Amount(999) };
 		offset += sizeof(MosaicEntryHeader);
 		reinterpret_cast<MosaicEntryHeader&>(*(buffer.data() + offset)) = { Height(456), owner1, { { 1, 2, 4 } }, Amount(645) };
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		MosaicCacheStorage::Load(stream, *delta);

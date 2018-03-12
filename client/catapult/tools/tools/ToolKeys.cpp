@@ -1,9 +1,9 @@
 #include "ToolKeys.h"
 #include "catapult/crypto/Hashes.h"
-#include <boost/exception/diagnostic_information.hpp>
 #include <random>
 
 namespace catapult { namespace tools {
+
 	namespace {
 		// a nemesis recipient account
 		constexpr auto Mijin_Test_Private_Key = "8473645728B15F007385CE2889D198D26369D2806DCDED4A9B219FD0DE23A505";
@@ -35,7 +35,7 @@ namespace catapult { namespace tools {
 			auto address = model::PublicKeyToAddress(seedKey, model::NetworkIdentifier::Mijin_Test);
 
 			// just to have addresses starting with 'SA'
-			if (0 == (address[1] & 0xf8))
+			if (0 == (address[1] & 0xF8))
 				addresses.push_back(address);
 		}
 

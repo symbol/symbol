@@ -6,10 +6,11 @@ namespace catapult { namespace validators {
 
 	using Notification = model::MosaicNameNotification;
 
-	stateless::NotificationValidatorPointerT<Notification> CreateMosaicNameValidator(uint8_t maxNameSize) {
-		return std::make_unique<stateless::FunctionalNotificationValidatorT<Notification>>(
-				"MosaicNameValidator",
-				[maxNameSize](const auto& notification) {
+	DECLARE_STATELESS_VALIDATOR(MosaicName, Notification)(uint8_t maxNameSize) {
+		return MAKE_STATELESS_VALIDATOR(MosaicName, [maxNameSize](const auto& notification) {
+			if (MosaicId() == notification.MosaicId)
+				return Failure_Mosaic_Name_Reserved;
+
 			if (maxNameSize < notification.NameSize || !model::IsValidName(notification.NamePtr, notification.NameSize))
 				return Failure_Mosaic_Invalid_Name;
 

@@ -3,9 +3,11 @@
 
 namespace catapult { namespace disruptor {
 
+#define TEST_CLASS DisruptorTypesTests
+
 	// region ConsumerResult
 
-	TEST(DisruptorTypesTests, CanCreateDefaultConsumerResult) {
+	TEST(TEST_CLASS, CanCreateDefaultConsumerResult) {
 		// Act:
 		auto result = ConsumerResult();
 
@@ -14,7 +16,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(0u, result.CompletionCode);
 	}
 
-	TEST(DisruptorTypesTests, CanCreateContinueConsumerResult) {
+	TEST(TEST_CLASS, CanCreateContinueConsumerResult) {
 		// Act:
 		auto result = ConsumerResult::Continue();
 
@@ -23,7 +25,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(0u, result.CompletionCode);
 	}
 
-	TEST(DisruptorTypesTests, CanCreateAbortConsumerResult) {
+	TEST(TEST_CLASS, CanCreateAbortConsumerResult) {
 		// Act:
 		auto result = ConsumerResult::Abort();
 
@@ -32,7 +34,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(0u, result.CompletionCode);
 	}
 
-	TEST(DisruptorTypesTests, CanCreateAbortConsumerResultWithCustomCompletionCode) {
+	TEST(TEST_CLASS, CanCreateAbortConsumerResultWithCustomCompletionCode) {
 		// Act:
 		auto result = ConsumerResult::Abort(456);
 
@@ -41,7 +43,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(456u, result.CompletionCode);
 	}
 
-	TEST(DisruptorTypesTests, CanCreateCompleteConsumerResult) {
+	TEST(TEST_CLASS, CanCreateCompleteConsumerResult) {
 		// Act:
 		auto result = ConsumerResult::Complete();
 
@@ -54,7 +56,7 @@ namespace catapult { namespace disruptor {
 
 	// region ConsumerCompletionResult
 
-	TEST(DisruptorTypesTests, CanCreateDefaultConsumerCompletionResult) {
+	TEST(TEST_CLASS, CanCreateDefaultConsumerCompletionResult) {
 		// Act:
 		auto result = ConsumerCompletionResult();
 

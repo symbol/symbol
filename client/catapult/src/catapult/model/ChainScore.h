@@ -1,4 +1,5 @@
 #pragma once
+#include "catapult/functions.h"
 #include <boost/multiprecision/cpp_int.hpp>
 #include <iosfwd>
 
@@ -93,4 +94,7 @@ namespace catapult { namespace model {
 	private:
 		boost::multiprecision::uint128_t m_score;
 	};
+
+	/// Prototype for a function that returns a chain score.
+	using ChainScoreSupplier = supplier<model::ChainScore>;
 }}

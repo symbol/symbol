@@ -27,8 +27,7 @@ namespace catapult { namespace disruptor {
 	using ConstTransactionConsumer = DisruptorConsumerT<const TransactionElements>;
 
 	/// Maps \a blockConsumers to disruptor consumers so that they can be used to create a ConsumerDispatcher.
-	std::vector<DisruptorConsumer> DisruptorConsumersFromBlockConsumers(
-			const std::vector<BlockConsumer>& blockConsumers);
+	std::vector<DisruptorConsumer> DisruptorConsumersFromBlockConsumers(const std::vector<BlockConsumer>& blockConsumers);
 
 	/// Maps \a transactionConsumers to disruptor consumers so that they can be used to create a ConsumerDispatcher.
 	std::vector<DisruptorConsumer> DisruptorConsumersFromTransactionConsumers(

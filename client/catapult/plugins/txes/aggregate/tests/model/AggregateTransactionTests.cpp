@@ -1,4 +1,5 @@
 #include "src/model/AggregateTransaction.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionContainerTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
@@ -22,7 +23,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, TransactionHasExpectedProperties) {
 		// Assert:
-		EXPECT_EQ(EntityType::Aggregate, static_cast<EntityType>(AggregateTransaction::Entity_Type));
+		EXPECT_EQ(Entity_Type_Aggregate_Complete, static_cast<EntityType>(AggregateTransaction::Entity_Type));
 		EXPECT_EQ(2u, static_cast<uint8_t>(AggregateTransaction::Current_Version));
 	}
 
@@ -31,34 +32,34 @@ namespace catapult { namespace model {
 	// region test utils
 
 	namespace {
-		using EmbeddedEntityType = mocks::EmbeddedMockTransaction;
+		using EmbeddedTransactionType = mocks::EmbeddedMockTransaction;
 
 		std::unique_ptr<AggregateTransaction> CreateAggregateTransaction(
 				uint32_t extraSize,
 				std::initializer_list<uint16_t> attachmentExtraSizes) {
 			uint32_t size = sizeof(AggregateTransaction) + extraSize;
 			for (auto attachmentExtraSize : attachmentExtraSizes)
-				size += sizeof(EmbeddedEntityType) + attachmentExtraSize;
+				size += sizeof(EmbeddedTransactionType) + attachmentExtraSize;
 
-			std::unique_ptr<AggregateTransaction> pTransaction(reinterpret_cast<AggregateTransaction*>(::operator new(size)));
+			auto pTransaction = utils::MakeUniqueWithSize<AggregateTransaction>(size);
 			pTransaction->Size = size;
 			pTransaction->PayloadSize = size - (sizeof(AggregateTransaction) + extraSize);
 
 			auto* pData = reinterpret_cast<uint8_t*>(pTransaction.get() + 1);
 			for (auto attachmentExtraSize : attachmentExtraSizes) {
-				auto pEmbeddedEntity = reinterpret_cast<EmbeddedEntityType*>(pData);
-				pEmbeddedEntity->Size = sizeof(EmbeddedEntityType) + attachmentExtraSize;
-				pEmbeddedEntity->Type = EmbeddedEntityType::Entity_Type;
-				pEmbeddedEntity->Data.Size = attachmentExtraSize;
-				pData += pEmbeddedEntity->Size;
+				auto pEmbeddedTransaction = reinterpret_cast<EmbeddedTransactionType*>(pData);
+				pEmbeddedTransaction->Size = sizeof(EmbeddedTransactionType) + attachmentExtraSize;
+				pEmbeddedTransaction->Type = EmbeddedTransactionType::Entity_Type;
+				pEmbeddedTransaction->Data.Size = attachmentExtraSize;
+				pData += pEmbeddedTransaction->Size;
 			}
 
 			return pTransaction;
 		}
 
-		EmbeddedEntityType& GetSecondTransaction(AggregateTransaction& transaction) {
+		EmbeddedTransactionType& GetSecondTransaction(AggregateTransaction& transaction) {
 			uint8_t* pBytes = reinterpret_cast<uint8_t*>(transaction.TransactionsPtr());
-			return *reinterpret_cast<EmbeddedEntityType*>(pBytes + transaction.TransactionsPtr()->Size);
+			return *reinterpret_cast<EmbeddedTransactionType*>(pBytes + transaction.TransactionsPtr()->Size);
 		}
 	}
 
@@ -188,16 +189,14 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region IsSizeValid
-
 	namespace {
 		bool IsSizeValid(const AggregateTransaction& transaction, mocks::PluginOptionFlags options = mocks::PluginOptionFlags::Default) {
-			auto pRegistry = mocks::CreateDefaultTransactionRegistry(options);
-			return IsSizeValid(transaction, *pRegistry);
+			auto registry = mocks::CreateDefaultTransactionRegistry(options);
+			return IsSizeValid(transaction, registry);
 		}
 	}
 
-	// region no transactions
+	// region IsSizeValid - no transactions
 
 	TEST(TEST_CLASS, SizeInvalidIfReportedSizeIsZero) {
 		// Arrange:
@@ -227,7 +226,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region invalid inner tx sizes
+	// region IsSizeValid - invalid inner tx sizes
 
 	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasPartialHeader) {
 		// Arrange: create an aggregate with 1 extra byte (which can be interpeted as a partial tx header)
@@ -266,7 +265,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region invalid inner tx types
+	// region IsSizeValid - invalid inner tx types
 
 	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasUnknownType) {
 		// Arrange:
@@ -287,7 +286,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region payload size
+	// region IsSizeValid - payload size
 
 	TEST(TEST_CLASS, SizeInvalidIfPayloadSizeIsTooLargeRelativeToSize) {
 		// Arrange:
@@ -310,6 +309,8 @@ namespace catapult { namespace model {
 	}
 
 	// endregion
+
+	// region IsSizeValid - valid transactions
 
 	TEST(TEST_CLASS, SizeValidIfReportedSizeIsEqualToHeaderSizePlusTransactionsSize) {
 		// Arrange:

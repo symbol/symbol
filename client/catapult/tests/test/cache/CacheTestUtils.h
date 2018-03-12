@@ -52,8 +52,8 @@ namespace catapult { namespace test {
 	std::vector<TValue> ExtractValuesFromCache(const TCache& cache) {
 		std::vector<TValue> values;
 		auto view = cache.createView();
-		for (auto iter = view->cbegin(); view->cend() != iter; ++iter)
-			values.push_back(iter->second);
+		for (const auto& pair : *view)
+			values.push_back(pair.second);
 
 		return values;
 	}

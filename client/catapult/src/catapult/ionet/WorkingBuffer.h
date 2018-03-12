@@ -14,19 +14,29 @@ namespace catapult { namespace ionet {
 
 	public:
 		/// Returns a const iterator to the beginning of the buffer
-		inline auto cbegin() const { return m_data.cbegin(); }
+		inline auto begin() const {
+			return m_data.cbegin();
+		}
 
 		/// Returns a const iterator to the end of the buffer.
-		inline auto cend() const { return m_data.cend(); }
+		inline auto end() const {
+			return m_data.cend();
+		}
 
 		/// Returns the size of the buffer.
-		inline auto size() const { return m_data.size(); }
+		inline auto size() const {
+			return m_data.size();
+		}
 
 		/// Returns a const pointer to the raw buffer.
-		inline auto data() const { return m_data.data(); }
+		inline auto data() const {
+			return m_data.data();
+		}
 
 		/// Returns the capacity of the raw buffer.
-		inline auto capacity() const { return m_data.capacity(); }
+		inline auto capacity() const {
+			return m_data.capacity();
+		}
 
 	public:
 		/// Creates an append context that can be used to append data to the working buffer.
@@ -36,7 +46,12 @@ namespace catapult { namespace ionet {
 		PacketExtractor preparePacketExtractor();
 
 	private:
+		void checkMemoryUsage();
+
+	private:
 		PacketSocketOptions m_options;
 		ByteBuffer m_data;
+		size_t m_numDataSizeSamples;
+		size_t m_maxDataSize;
 	};
 }}

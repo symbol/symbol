@@ -9,8 +9,11 @@
 namespace catapult { namespace builders {
 
 	/// Builder for a mosaic definition transaction.
-	class MosaicDefinitionBuilder : public TransactionBuilder<model::MosaicDefinitionTransaction> {
+	class MosaicDefinitionBuilder : public TransactionBuilder {
 	public:
+		using Transaction = model::MosaicDefinitionTransaction;
+		using EmbeddedTransaction = model::EmbeddedMosaicDefinitionTransaction;
+
 		/// Creates a mosaic definition builder for building a mosaic definition transaction for a mosaic inside namespace (\a parentId)
 		/// with \a name from \a signer for the network specified by \a networkIdentifier.
 		MosaicDefinitionBuilder(
@@ -33,11 +36,18 @@ namespace catapult { namespace builders {
 		void setDivisibility(uint8_t divisibility);
 
 		/// Sets the mosaic \a duration.
-		void setDuration(ArtifactDuration duration);
+		void setDuration(BlockDuration duration);
 
 	public:
 		/// Builds a new mosaic definition transaction.
-		std::unique_ptr<model::MosaicDefinitionTransaction> build() const;
+		std::unique_ptr<Transaction> build() const;
+
+		/// Builds a new embedded mosaic definition transaction.
+		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+
+	private:
+		template<typename TTransaction>
+		std::unique_ptr<TTransaction> buildImpl() const;
 
 	protected:
 		void addOptionalProperty(model::MosaicPropertyId propertyId, uint64_t value) {

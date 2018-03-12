@@ -1,18 +1,24 @@
 #include "plugins/services/hashcache/src/cache/HashCache.h"
-#include "catapult/cache/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NetworkInfo.h"
 #include "catapult/utils/SpinLock.h"
-#include "tests/int/stress/utils/StressThreadLogger.h"
+#include "tests/int/stress/test/StressThreadLogger.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 #include <boost/thread.hpp>
 #include <random>
 
 namespace catapult { namespace cache {
+
+#define TEST_CLASS CacheTests
+
 	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
-		constexpr auto Importance_Grouping = 359u;
+		constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
+			model::NetworkIdentifier::Mijin_Test,
+			359,
+			Amount(std::numeric_limits<Amount::ValueType>::max())
+		};
 
 #ifdef STRESS
 		constexpr size_t Num_Iterations = 20'000;
@@ -35,7 +41,7 @@ namespace catapult { namespace cache {
 		void RunMultithreadedReadWriteTest(size_t numReaders) {
 			// Arrange:
 			// - note that there can only ever be a single writer at a time since only one copy can be outstanding at once
-			AccountStateCache cache(Network_Identifier, Importance_Grouping);
+			AccountStateCache cache(Default_Cache_Options);
 			std::vector<Amount> sums(numReaders);
 
 			// Act: set up reader thread(s) that sum up all account balances
@@ -50,10 +56,11 @@ namespace catapult { namespace cache {
 						while (true) {
 							auto key = GetKeyFromId(i);
 							auto view = cache.createView();
-							auto pState = view->findAccount(key);
-							if (!pState) continue;
+							const auto* pAccountState = view->tryGet(key);
+							if (!pAccountState)
+								continue;
 
-							sums[r] = sums[r] + pState->Balances.get(Xem_Id);
+							sums[r] = sums[r] + pAccountState->Balances.get(Xem_Id);
 							break;
 						}
 					}
@@ -69,8 +76,8 @@ namespace catapult { namespace cache {
 					logger.notifyIteration(i, Num_Iterations);
 
 					auto key = GetKeyFromId(i);
-					auto pState = delta->addAccount(key, Height(456));
-					pState->Balances.credit(Xem_Id, Amount(i * 100'000));
+					auto& accountState = delta->addAccount(key, Height(456));
+					accountState.Balances.credit(Xem_Id, Amount(i * 100'000));
 					cache.commit();
 				}
 			});
@@ -86,19 +93,19 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	NO_STRESS_TEST(CacheTests, CacheCommitIsThreadSafeWithSingleReaderSingleWriter) {
+	NO_STRESS_TEST(TEST_CLASS, CacheCommitIsThreadSafeWithSingleReaderSingleWriter) {
 		// Assert:
 		RunMultithreadedReadWriteTest(1);
 	}
 
-	NO_STRESS_TEST(CacheTests, CacheCommitIsThreadSafeWithMultipleReadersSingleWriter) {
+	NO_STRESS_TEST(TEST_CLASS, CacheCommitIsThreadSafeWithMultipleReadersSingleWriter) {
 		// Assert:
 		RunMultithreadedReadWriteTest(test::GetNumDefaultPoolThreads());
 	}
 
-	NO_STRESS_TEST(CacheTests, CanAddManyAccounts) {
+	NO_STRESS_TEST(TEST_CLASS, CanAddManyAccounts) {
 		// Arrange:
-		AccountStateCache cache(Network_Identifier, Importance_Grouping);
+		AccountStateCache cache(Default_Cache_Options);
 		{
 			auto delta = cache.createDelta();
 
@@ -108,8 +115,8 @@ namespace catapult { namespace cache {
 				logger.notifyIteration(i, Num_Stress_Accounts);
 
 				auto key = GetKeyFromId(i);
-				auto pState = delta->addAccount(key, Height(456));
-				pState->Balances.credit(Xem_Id, Amount(i * 100'000));
+				auto& accountState = delta->addAccount(key, Height(456));
+				accountState.Balances.credit(Xem_Id, Amount(i * 100'000));
 				cache.commit();
 			}
 		}
@@ -121,7 +128,7 @@ namespace catapult { namespace cache {
 	// region hash cache performance
 
 	namespace {
-		using Generator = std::function<uint64_t ()>;
+		using Generator = supplier<uint64_t>;
 		using Samples = std::vector<state::TimestampedHash>;
 
 		class Stopwatch final {
@@ -172,7 +179,7 @@ namespace catapult { namespace cache {
 			for (auto i = 0u; i < count; ++i) {
 				auto hash = GenerateRandomHash(generator);
 				Timestamp timestamp(i);
-				delta->insert(timestamp, hash);
+				delta->insert(state::TimestampedHash(timestamp, hash));
 				if (0 == (i + 1) % (count / 10))
 					CATAPULT_LOG(info) << "hash cache size is " << delta->size();
 			}
@@ -222,7 +229,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	NO_STRESS_TEST(CacheTests, HashCachePerformance) {
+	NO_STRESS_TEST(TEST_CLASS, HashCachePerformance) {
 		// Arrange:
 #ifdef STRESS
 		constexpr size_t Initial_Count = 50'000'000; // how many entities the cache should initially contain
@@ -316,10 +323,10 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	NO_STRESS_TEST(CacheTests, AccountStateCachePerformance) {
+	NO_STRESS_TEST(TEST_CLASS, AccountStateCachePerformance) {
 		// Arrange:
 		constexpr size_t Num_Operations = 100'000;
-		AccountStateCache cache(Network_Identifier, Importance_Grouping);
+		AccountStateCache cache(Default_Cache_Options);
 
 		auto addresses = CreateAddresses(Num_Operations, test::Random);
 		auto keys = CreateKeys(Num_Operations, test::Random);

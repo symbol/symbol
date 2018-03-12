@@ -6,6 +6,8 @@
 
 namespace catapult { namespace cache {
 
+#define TEST_CLASS SynchronizedCacheTests
+
 	namespace {
 		template<typename TView>
 		void AssertContents(const TView& view, size_t expectedId) {
@@ -30,11 +32,9 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	// region basic
-
 	// region locked (read-only)
 
-	TEST(SynchronizedCacheTests, CanCreateLockedReadOnlyView) {
+	TEST(TEST_CLASS, CanCreateLockedReadOnlyView) {
 		// Act:
 		test::SimpleCache cache;
 		auto view = cache.createView();
@@ -43,7 +43,7 @@ namespace catapult { namespace cache {
 		AssertDefaultContents(view);
 	}
 
-	TEST(SynchronizedCacheTests, CanMoveConstructLockedReadOnlyView) {
+	TEST(TEST_CLASS, CanMoveConstructLockedReadOnlyView) {
 		// Arrange:
 		test::SimpleCache cache;
 		{
@@ -65,7 +65,7 @@ namespace catapult { namespace cache {
 		EXPECT_NE(&(*view1), &(*view2));
 	}
 
-	TEST(SynchronizedCacheTests, CanCreateMultipleLockedReadOnlyViews) {
+	TEST(TEST_CLASS, CanCreateMultipleLockedReadOnlyViews) {
 		// Assert:
 		test::CanCreateSubObjectOnMultipleThreads(
 				test::SimpleCache(),
@@ -77,11 +77,11 @@ namespace catapult { namespace cache {
 
 	// region commit
 
-	TEST(SynchronizedCacheTests, CannotCommitChangesWhenNoDeltasAreOutstanding) {
+	TEST(TEST_CLASS, CannotCommitChangesWhenNoDeltasAreOutstanding) {
 		// Arrange:
 		test::SimpleCache cache;
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(cache.commit(), catapult_runtime_error);
 	}
 
@@ -89,7 +89,7 @@ namespace catapult { namespace cache {
 
 	// region createDelta
 
-	TEST(SynchronizedCacheTests, CanCreateDelta) {
+	TEST(TEST_CLASS, CanCreateDelta) {
 		// Act:
 		test::SimpleCache cache;
 		auto delta = cache.createDelta();
@@ -98,7 +98,7 @@ namespace catapult { namespace cache {
 		AssertDefaultContents(delta);
 	}
 
-	TEST(SynchronizedCacheTests, CannotCreateMultipleDeltas) {
+	TEST(TEST_CLASS, CannotCreateMultipleDeltas) {
 		// Arrange:
 		test::SimpleCache cache;
 		{
@@ -115,7 +115,7 @@ namespace catapult { namespace cache {
 		AssertDefaultContents(delta);
 	}
 
-	TEST(SynchronizedCacheTests, CanChangeDeltaWithoutCommitting) {
+	TEST(TEST_CLASS, CanChangeDeltaWithoutCommitting) {
 		// Arrange:
 		test::SimpleCache cache;
 		{
@@ -132,7 +132,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(0u, cache.createView()->id());
 	}
 
-	TEST(SynchronizedCacheTests, CanCommitDeltaChanges) {
+	TEST(TEST_CLASS, CanCommitDeltaChanges) {
 		// Arrange:
 		test::SimpleCache cache;
 		{
@@ -150,7 +150,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(2u, cache.createView()->id());
 	}
 
-	TEST(SynchronizedCacheTests, OnlyChangesFromMostRecentDeltaAreCommitted) {
+	TEST(TEST_CLASS, OnlyChangesFromMostRecentDeltaAreCommitted) {
 		// Arrange:
 		test::SimpleCache cache;
 		{
@@ -177,7 +177,7 @@ namespace catapult { namespace cache {
 
 	// region createDetachedDelta
 
-	TEST(SynchronizedCacheTests, CanCreateAndLockDetachedDelta) {
+	TEST(TEST_CLASS, CanCreateAndLockDetachedDelta) {
 		// Act:
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
@@ -187,7 +187,7 @@ namespace catapult { namespace cache {
 		AssertDefaultContents(delta);
 	}
 
-	TEST(SynchronizedCacheTests, CanLockDetachedDeltaAfterReset) {
+	TEST(TEST_CLASS, CanLockDetachedDeltaAfterReset) {
 		// Arrange:
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
@@ -205,7 +205,7 @@ namespace catapult { namespace cache {
 		AssertDefaultContents(delta);
 	}
 
-	TEST(SynchronizedCacheTests, CanCreateMultipleDetachedDeltas) {
+	TEST(TEST_CLASS, CanCreateMultipleDetachedDeltas) {
 		// Arrange:
 		test::SimpleCache cache;
 		std::vector<decltype(cache.createDetachedDelta())> deltas;
@@ -224,7 +224,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(SynchronizedCacheTests, CanLockDetachedDeltaMultipleTimes) {
+	TEST(TEST_CLASS, CanLockDetachedDeltaMultipleTimes) {
 		// Arrange:
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
@@ -239,7 +239,7 @@ namespace catapult { namespace cache {
 		AssertContents(lockableDelta.lock(), 10);
 	}
 
-	TEST(SynchronizedCacheTests, CanChangeDetachedDeltaWithoutCommitting) {
+	TEST(TEST_CLASS, CanChangeDetachedDeltaWithoutCommitting) {
 		// Act:
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
@@ -257,7 +257,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(0u, cache.createView()->id());
 	}
 
-	TEST(SynchronizedCacheTests, CannotCommitDetachedDeltaChanges) {
+	TEST(TEST_CLASS, CannotCommitDetachedDeltaChanges) {
 		// Arrange:
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
@@ -276,7 +276,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(0u, cache.createView()->id());
 	}
 
-	TEST(SynchronizedCacheTests, CommitInvalidatesLockableCache) {
+	TEST(TEST_CLASS, CommitInvalidatesLockableCache) {
 		// Arrange:
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
@@ -303,11 +303,9 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// endregion
-
 	// region locking
 
-	TEST(SynchronizedCacheTests, CanGetMultipleViewsOfDifferentTypes) {
+	TEST(TEST_CLASS, CanGetMultipleViewsOfDifferentTypes) {
 		// Arrange:
 		static constexpr auto Num_Views = 7u;
 		test::SimpleCache cache;
@@ -316,7 +314,7 @@ namespace catapult { namespace cache {
 
 		auto handler = [&numViews](const auto& view) {
 			++numViews;
-			WAIT_FOR_VALUE(numViews, Num_Views);
+			WAIT_FOR_VALUE(Num_Views, numViews);
 
 			// Assert:
 			AssertDefaultContents(view);
@@ -344,7 +342,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Num_Views, numViews);
 	}
 
-	TEST(SynchronizedCacheTests, ViewBlocksCommit) {
+	TEST(TEST_CLASS, ViewBlocksCommit) {
 		// Act:
 		test::SimpleCache cache;
 		test::AssertExclusiveLocks(
@@ -355,7 +353,7 @@ namespace catapult { namespace cache {
 				});
 	}
 
-	TEST(SynchronizedCacheTests, LockedDetachedDeltaBlocksCommit) {
+	TEST(TEST_CLASS, LockedDetachedDeltaBlocksCommit) {
 		// Arrange:
 		struct DetachedDeltaGuard {
 		public:
@@ -379,7 +377,7 @@ namespace catapult { namespace cache {
 				});
 	}
 
-	TEST(SynchronizedCacheTests, UnlockedDetachedDeltaDoesNotBlockCommit) {
+	TEST(TEST_CLASS, UnlockedDetachedDeltaDoesNotBlockCommit) {
 		// Arrange:
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
@@ -412,8 +410,8 @@ namespace catapult { namespace cache {
 	namespace {
 		struct CommitLockGuard {
 		public:
-			explicit CommitLockGuard()
-					: m_cache(&m_flag)
+			CommitLockGuard()
+					: m_cache(m_flag)
 					, m_delta(m_cache.createDelta())
 			{}
 
@@ -441,68 +439,93 @@ namespace catapult { namespace cache {
 			LockedCacheDelta<test::SimpleCacheDelta> m_delta;
 		};
 
+		class ThreadGroup {
+		public:
+			~ThreadGroup() {
+				CATAPULT_LOG(debug) << ">>> joining all threads";
+				for (auto& thread : m_threads)
+					thread.join();
+
+				CATAPULT_LOG(debug) << "<<< joined all threads";
+			}
+
+		public:
+			template<typename TFunc>
+			void createThread(const std::string& name, TFunc func) {
+				CATAPULT_LOG(debug) << "+ creating thread: " << name;
+				m_threads.emplace_back([name, func]() mutable {
+					CATAPULT_LOG(debug) << "> spawning thread: " << name;
+					func();
+					CATAPULT_LOG(debug) << "< destroying thread: " << name;
+				});
+			}
+
+		private:
+			std::vector<std::thread> m_threads;
+		};
+
 		template<typename TBlockedOperationFunc>
 		void AssertCommitBlocksOperation(TBlockedOperationFunc blockedOperationFunc) {
 			// Arrange: create the cache and start a (long) commit operation
 			int flag = 0;
 			CommitLockGuard commitLockGuard;
 			auto& cache = commitLockGuard.cache();
-			std::thread([&flag, &commitLockGuard]() {
-				CATAPULT_LOG(debug) << "spawning wait for waiter thread";
 
-				// - spawn the lock acquisition on a separate thread because the lock should be acquired before signaling
-				thread::promise<bool> lockPromise;
-				auto lockFuture = lockPromise.get_future();
-				std::thread([&commitLockGuard, lockPromise = std::move(lockPromise)]() mutable {
-					CATAPULT_LOG(debug) << "spawning lock acquisition thread";
-					commitLockGuard.lock();
-					lockPromise.set_value(true);
-				}).detach();
-
-				// - wait for the newly spawned thread to wait on the commit lock guard and signal the lock was acquired
-				commitLockGuard.waitForWaiter();
-				flag = 1;
+			// - [A] spawn the thread that signals other threads once the lock is acquired
+			thread::promise<bool> lockPromise;
+			ThreadGroup threads;
+			threads.createThread("signal lock", [&flag, &commitLockGuard, &lockPromise]() {
+				// - wait for [B] to acquire the lock (in commit) and signal the lock was acquired
+				commitLockGuard.waitForWaiter(); // waits for [B]
+				flag = 1; // signals [C, main]
 
 				// - block this thread until the lock is released
-				lockFuture.get();
-			}).detach();
+				auto lockFuture = lockPromise.get_future();
+				lockFuture.get(); // waits for [B]
+			});
 
-			// - spawn another thread to attempt the blocked operation
-			std::thread([&flag, &cache, blockedOperationFunc]() {
-				CATAPULT_LOG(debug) << "spawning blocked operation thread";
+			// - [B] spawn the lock acquisition on a separate thread because the lock should be acquired before signaling
+			threads.createThread("lock acquisition", [&commitLockGuard, &lockPromise]() mutable {
+				commitLockGuard.lock(); // signals [A], waits for [main]
 
-				// - wait for the lock to be acquired by the first thread
-				WAIT_FOR_ONE_EXPR(flag);
+				CATAPULT_LOG(debug) << "lock acquisition thread locked cache";
+				lockPromise.set_value(true); // signals [A]
+			});
+
+			// - [C] spawn another thread to attempt the blocked operation
+			threads.createThread("blocked operation", [&flag, &cache, blockedOperationFunc]() {
+				// - wait for the lock to be acquired by [B]
+				WAIT_FOR_ONE_EXPR(flag); // waits for [A]
 
 				// - run the blocked operation
-				blockedOperationFunc(cache);
+				blockedOperationFunc(cache); // waits for [main]
 
 				// - signal the blocked operation completed
-				flag = 2;
-			}).detach();
+				flag = 2; // signals [main]
+			});
 
 			// Act: wait for the value to change and then pause
 			CATAPULT_LOG(debug) << "test thread waiting for flag";
-			WAIT_FOR_ONE_EXPR(flag);
+			WAIT_FOR_ONE_EXPR(flag); // waits for [A]
 
 			// - wait a bit to see if flag changes
 			test::Pause();
 
-			// Sanity: the flag should have only been updated by the commit lock thread
+			// Sanity: the flag should have only been updated by [A]
 			EXPECT_EQ(1, flag);
 
 			// Act: release the first (commit) lock
-			commitLockGuard.reset();
+			commitLockGuard.reset(); // signals [B (releases lock), C (acquires lock)]
 
 			// - wait for the flag value to change
-			WAIT_FOR_VALUE_EXPR(flag, 2);
+			WAIT_FOR_VALUE_EXPR(2, flag); // waits for [C]
 
-			// Assert: the other thread acquired the (second) lock
+			// Assert: [C] acquired the (second) lock
 			EXPECT_EQ(2, flag);
 		}
 	}
 
-	TEST(SynchronizedCacheTests, CommitBlocksView) {
+	TEST(TEST_CLASS, CommitBlocksView) {
 		// Act:
 		AssertCommitBlocksOperation([](const auto& cache) {
 			// Act:
@@ -512,15 +535,15 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	TEST(SynchronizedCacheTests, CommitBlocksDelta) {
+	TEST(TEST_CLASS, CommitBlocksDelta) {
 		// Act:
 		AssertCommitBlocksOperation([](auto& cache) {
-			// Act:
+			// Act + Assert:
 			EXPECT_THROW(cache.createDelta(), catapult_runtime_error);
 		});
 	}
 
-	TEST(SynchronizedCacheTests, CommitBlocksDetachedDelta) {
+	TEST(TEST_CLASS, CommitBlocksDetachedDelta) {
 		// Act:
 		AssertCommitBlocksOperation([](const auto& cache) {
 			// Act:

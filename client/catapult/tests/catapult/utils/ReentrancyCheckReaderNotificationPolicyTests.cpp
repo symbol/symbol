@@ -4,7 +4,9 @@
 
 namespace catapult { namespace utils {
 
-	TEST(ReentrancyCheckReaderNotificationPolicyTests, CannotAcquireReaderMultipleTimesFromSameThreadWithoutRelease) {
+#define TEST_CLASS ReentrancyCheckReaderNotificationPolicyTests
+
+	TEST(TEST_CLASS, CannotAcquireReaderMultipleTimesFromSameThreadWithoutRelease) {
 		// Arrange:
 		ReentrancyCheckReaderNotificationPolicy policy;
 		policy.readerAcquired();
@@ -13,7 +15,7 @@ namespace catapult { namespace utils {
 		EXPECT_THROW(policy.readerAcquired(), reader_reentrancy_error);
 	}
 
-	TEST(ReentrancyCheckReaderNotificationPolicyTests, CanAcquireReaderFromSameThreadAfterRelease) {
+	TEST(TEST_CLASS, CanAcquireReaderFromSameThreadAfterRelease) {
 		// Arrange:
 		ReentrancyCheckReaderNotificationPolicy policy;
 		policy.readerAcquired();
@@ -23,7 +25,7 @@ namespace catapult { namespace utils {
 		policy.readerAcquired();
 	}
 
-	TEST(ReentrancyCheckReaderNotificationPolicyTests, CanAcquireReaderMultipleTimesFromMultipleThreads) {
+	TEST(TEST_CLASS, CanAcquireReaderMultipleTimesFromMultipleThreads) {
 		// Arrange:
 		constexpr auto Num_Threads = 10u;
 		ReentrancyCheckReaderNotificationPolicy policy;

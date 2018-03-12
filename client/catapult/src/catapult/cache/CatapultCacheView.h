@@ -12,6 +12,7 @@ namespace catapult {
 }
 
 namespace catapult { namespace cache {
+
 	/// Locked view on top of the catapult cache.
 	class CatapultCacheView {
 	public:

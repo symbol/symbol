@@ -17,10 +17,14 @@ namespace catapult { namespace deltaset {
 
 	public:
 		/// Returns \c true if the pruning boundary value is set.
-		constexpr bool isSet() const { return m_isSet; }
+		constexpr bool isSet() const {
+			return m_isSet;
+		}
 
 		/// Returns the pruning boundary value.
-		constexpr const T& value() const { return m_value; }
+		constexpr const T& value() const {
+			return m_value;
+		}
 
 	private:
 		bool m_isSet;
@@ -37,8 +41,13 @@ namespace catapult { namespace deltaset {
 		{}
 
 	public:
-		constexpr bool isSet() const { return m_isSet; }
-		constexpr std::shared_ptr<T> value() const { return m_pValue; }
+		constexpr bool isSet() const {
+			return m_isSet;
+		}
+
+		constexpr std::shared_ptr<T> value() const {
+			return m_pValue;
+		}
 
 	private:
 		bool m_isSet;

@@ -2,7 +2,6 @@
 #include "catapult/model/NetworkInfo.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/observers/ObserverTypes.h"
-#include "catapult/validators/SequentialValidationPolicy.h"
 #include "catapult/validators/ValidatorTypes.h"
 
 namespace catapult { namespace chain {

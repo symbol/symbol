@@ -7,6 +7,8 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS ConfigurationValueParsersTests
+
 	namespace {
 		template<typename T>
 		bool TryParseValueT(const std::string& input, T& parsedValue) {
@@ -39,7 +41,7 @@ namespace catapult { namespace utils {
 		}};
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidEnumValue) {
+	TEST(TEST_CLASS, CanParseValidEnumValue) {
 		// Arrange:
 		auto assertSuccessfulParse = [](const auto& input, const auto& expectedParsedValue) {
 			test::AssertParse(input, expectedParsedValue, [](const auto& str, auto& parsedValue) {
@@ -53,14 +55,14 @@ namespace catapult { namespace utils {
 		assertSuccessfulParse("three", 9);
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidEnumValue) {
+	TEST(TEST_CLASS, CannotParseInvalidEnumValue) {
 		// Assert:
 		test::AssertEnumParseFailure("two", 7, [](const auto& str, auto& parsedValue) {
 			return TryParseEnumValue(String_To_Square_Mapping, str, parsedValue);
 		});
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidLogLevel) {
+	TEST(TEST_CLASS, CanParseValidLogLevel) {
 		// Assert:
 		using T = LogLevel;
 		AssertSuccessfulParse("Trace", T::Trace);
@@ -73,24 +75,24 @@ namespace catapult { namespace utils {
 		AssertSuccessfulParse("Max", T::Max);
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidLogLevel) {
+	TEST(TEST_CLASS, CannotParseInvalidLogLevel) {
 		// Assert:
 		AssertEnumParseFailure("Warning", LogLevel::Info);
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidLogSinkType) {
+	TEST(TEST_CLASS, CanParseValidLogSinkType) {
 		// Assert:
 		using T = LogSinkType;
 		AssertSuccessfulParse("Sync", T::Sync);
 		AssertSuccessfulParse("Async", T::Async);
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidLogSinkType) {
+	TEST(TEST_CLASS, CannotParseInvalidLogSinkType) {
 		// Assert:
 		AssertEnumParseFailure("Sync", LogSinkType::Async);
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidLogColorMode) {
+	TEST(TEST_CLASS, CanParseValidLogColorMode) {
 		// Assert:
 		using T = LogColorMode;
 		AssertSuccessfulParse("Ansi", T::Ansi);
@@ -98,18 +100,18 @@ namespace catapult { namespace utils {
 		AssertSuccessfulParse("None", T::None);
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidLogColorMode) {
+	TEST(TEST_CLASS, CannotParseInvalidLogColorMode) {
 		// Assert:
 		AssertEnumParseFailure("Ansi", LogColorMode::None);
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidBoolean) {
+	TEST(TEST_CLASS, CanParseValidBoolean) {
 		// Assert:
 		AssertSuccessfulParse("true", true);
 		AssertSuccessfulParse("false", false);
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidBoolean) {
+	TEST(TEST_CLASS, CannotParseInvalidBoolean) {
 		// Assert:
 		AssertEnumParseFailure("false", true);
 	}
@@ -175,42 +177,42 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidUInt8) {
+	TEST(TEST_CLASS, CanParseValidUInt8) {
 		// Assert:
 		AssertUnsignedIntParseSuccess(static_cast<uint8_t>(0xFF));
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidUInt8) {
+	TEST(TEST_CLASS, CannotParseInvalidUInt8) {
 		// Assert:
 		AssertUnsignedIntParseFailure<uint8_t>();
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidUInt16) {
+	TEST(TEST_CLASS, CanParseValidUInt16) {
 		// Assert:
 		AssertUnsignedIntParseSuccess(static_cast<uint16_t>(0xFFFF));
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidUInt16) {
+	TEST(TEST_CLASS, CannotParseInvalidUInt16) {
 		// Assert:
 		AssertUnsignedIntParseFailure<uint16_t>();
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidUInt32) {
+	TEST(TEST_CLASS, CanParseValidUInt32) {
 		// Assert:
 		AssertUnsignedIntParseSuccess(static_cast<uint32_t>(0xFFFF'FFFF));
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidUInt32) {
+	TEST(TEST_CLASS, CannotParseInvalidUInt32) {
 		// Assert:
 		AssertUnsignedIntParseFailure<uint32_t>();
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidUInt64) {
+	TEST(TEST_CLASS, CanParseValidUInt64) {
 		// Assert:
 		AssertUnsignedIntParseSuccess(static_cast<uint64_t>(0xFFFF'FFFF'FFFF'FFFF));
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidUInt64) {
+	TEST(TEST_CLASS, CannotParseInvalidUInt64) {
 		// Assert:
 		AssertUnsignedIntParseFailure<uint64_t>();
 	}
@@ -219,17 +221,17 @@ namespace catapult { namespace utils {
 
 	// region custom types
 
-	TEST(ConfigurationValueParsersTests, CanParseValidAmount) {
+	TEST(TEST_CLASS, CanParseValidAmount) {
 		// Assert:
 		AssertUnsignedIntParseSuccess<Amount, Amount::ValueType>(0xFFFF'FFFF'FFFF'FFFF);
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidAmount) {
+	TEST(TEST_CLASS, CannotParseInvalidAmount) {
 		// Assert:
 		AssertUnsignedIntParseFailure<Amount, Amount::ValueType>();
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidTimeSpan) {
+	TEST(TEST_CLASS, CanParseValidTimeSpan) {
 		// Assert:
 		auto maxValue = 0xFFFF'FFFF'FFFF'FFFF;
 		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "ms", TimeSpan::FromMilliseconds);
@@ -238,7 +240,7 @@ namespace catapult { namespace utils {
 		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "h", TimeSpan::FromHours);
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidTimeSpan) {
+	TEST(TEST_CLASS, CannotParseInvalidTimeSpan) {
 		// Assert:
 		auto initialValue = TimeSpan::FromMinutes(8888);
 		AssertUnsignedIntParseFailure<TimeSpan, uint64_t>(initialValue, "m");
@@ -249,14 +251,14 @@ namespace catapult { namespace utils {
 		AssertFailedParse("1234d", initialValue); // unknown specifier
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidBlockSpan) {
+	TEST(TEST_CLASS, CanParseValidBlockSpan) {
 		// Assert:
 		auto maxValue = 0xFFFF'FFFF'FFFF'FFFF;
 		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "h", BlockSpan::FromHours);
 		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "d", BlockSpan::FromDays);
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidBlockSpan) {
+	TEST(TEST_CLASS, CannotParseInvalidBlockSpan) {
 		// Assert:
 		auto initialValue = BlockSpan::FromHours(8888);
 		AssertUnsignedIntParseFailure<BlockSpan, uint64_t>(initialValue, "h");
@@ -267,7 +269,7 @@ namespace catapult { namespace utils {
 		AssertFailedParse("1234s", initialValue); // unknown specifier
 	}
 
-	TEST(ConfigurationValueParsersTests, CanParseValidFileSize) {
+	TEST(TEST_CLASS, CanParseValidFileSize) {
 		// Assert:
 		auto maxValue = 0xFFFF'FFFF'FFFF'FFFF;
 		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "B", FileSize::FromBytes);
@@ -275,7 +277,7 @@ namespace catapult { namespace utils {
 		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "MB", FileSize::FromMegabytes);
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidFileSize) {
+	TEST(TEST_CLASS, CannotParseInvalidFileSize) {
 		// Assert:
 		auto initialValue = FileSize::FromKilobytes(8888);
 		AssertUnsignedIntParseFailure<FileSize, uint64_t>(initialValue, "KB");
@@ -290,7 +292,7 @@ namespace catapult { namespace utils {
 
 	// region key
 
-	TEST(ConfigurationValueParsersTests, CanParseValidKey) {
+	TEST(TEST_CLASS, CanParseValidKey) {
 		// Assert:
 		AssertSuccessfulParse("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", Key{{
 			0x03, 0x17, 0x29, 0xD1, 0x0D, 0xB5, 0x2E, 0xCF, 0x0A, 0xD3, 0x68, 0x45, 0x58, 0xDB, 0x31, 0x89,
@@ -302,7 +304,7 @@ namespace catapult { namespace utils {
 		}});
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidKey) {
+	TEST(TEST_CLASS, CannotParseInvalidKey) {
 		// Arrange:
 		Key initialValue{ { 0x25 } };
 
@@ -318,7 +320,7 @@ namespace catapult { namespace utils {
 
 	// region string
 
-	TEST(ConfigurationValueParsersTests, CanParseString) {
+	TEST(TEST_CLASS, CanParseString) {
 		// Assert:
 		AssertSuccessfulParse("Foo BAR", std::string("Foo BAR"));
 		AssertSuccessfulParse("Ac$D*a98p124!", std::string("Ac$D*a98p124!"));
@@ -328,7 +330,7 @@ namespace catapult { namespace utils {
 
 	// region set
 
-	TEST(ConfigurationValueParsersTests, CanParseValidUnorderedSetOfString) {
+	TEST(TEST_CLASS, CanParseValidUnorderedSetOfString) {
 		// Arrange:
 		using Container = std::unordered_set<std::string>;
 
@@ -336,11 +338,11 @@ namespace catapult { namespace utils {
 		AssertSuccessfulParse("", Container()); // no values
 		AssertSuccessfulParse("alpha", Container{ "alpha" });
 		AssertSuccessfulParse("alpha,bEta,gammA", Container{ "alpha", "bEta", "gammA" });
-		AssertSuccessfulParse("\talpha\t,  bEta  , gammA,zeta ", Container{ "alpha", "bEta", "gammA", "zeta" });
+		AssertSuccessfulParse("\talpha\t,  bEta  "", gammA,zeta ", Container{ "alpha", "bEta", "gammA", "zeta" });
 		AssertSuccessfulParse("Foo BAR,Ac$D*a98p124!", Container{ "Foo BAR", "Ac$D*a98p124!" });
 	}
 
-	TEST(ConfigurationValueParsersTests, CannotParseInvalidUnorderedSetOfString) {
+	TEST(TEST_CLASS, CannotParseInvalidUnorderedSetOfString) {
 		// Arrange:
 		std::unordered_set<std::string> initialValue{ "default", "values" };
 

@@ -6,35 +6,49 @@
 namespace catapult { namespace ionet {
 
 	namespace {
-		std::string GetPrintableName(const NodeIdentity& identity, model::NetworkIdentifier networkIdentifier) {
-			if (identity.Name.empty())
-				return model::AddressToString(model::PublicKeyToAddress(identity.PublicKey, networkIdentifier));
+		void MakePrintable(std::string& str) {
+			for (auto& ch : str)
+				ch = std::isprint(ch) ? ch : '?';
+		}
 
-			auto i = 0u;
-			std::string printableName(identity.Name.size(), '?');
-			for (auto ch : identity.Name)
-				printableName[i++] = std::isprint(ch) ? ch : '?';
+		std::string GetPrintableName(const Key& identityKey, const NodeEndpoint& endpoint, const NodeMetadata& metadata) {
+			auto printableName = metadata.Name.empty()
+					? model::AddressToString(model::PublicKeyToAddress(identityKey, metadata.NetworkIdentifier))
+					: metadata.Name;
+
+			if (!endpoint.Host.empty())
+				printableName += " @ " + endpoint.Host;
 
 			return printableName;
 		}
-
-		std::string GetEndpointPostfix(const NodeEndpoint& endpoint) {
-			return endpoint.Host.empty() ? "" : " @ " + endpoint.Host;
-		}
 	}
 
-	Node::Node() : Node(NodeEndpoint(), NodeIdentity(), model::NetworkIdentifier::Zero)
+	Node::Node() : Node(Key(), NodeEndpoint(), NodeMetadata())
 	{}
 
-	Node::Node(const NodeEndpoint& endpoint, const NodeIdentity& identity, model::NetworkIdentifier networkIdentifier)
-			: Endpoint(endpoint)
-			, Identity(identity)
-			, NetworkIdentifier(networkIdentifier)
-			, m_printableName(GetPrintableName(Identity, networkIdentifier) + GetEndpointPostfix(Endpoint))
-	{}
+	Node::Node(const Key& identityKey, const NodeEndpoint& endpoint, const NodeMetadata& metadata)
+			: m_identityKey(identityKey)
+			, m_endpoint(endpoint)
+			, m_metadata(metadata) {
+		MakePrintable(m_metadata.Name);
+		MakePrintable(m_endpoint.Host);
+		m_printableName = GetPrintableName(m_identityKey, m_endpoint, m_metadata);
+	}
+
+	const Key& Node::identityKey() const {
+		return m_identityKey;
+	}
+
+	const NodeEndpoint& Node::endpoint() const {
+		return m_endpoint;
+	}
+
+	const NodeMetadata& Node::metadata() const {
+		return m_metadata;
+	}
 
 	bool Node::operator==(const Node& rhs) const {
-		return Identity.PublicKey == rhs.Identity.PublicKey && NetworkIdentifier == rhs.NetworkIdentifier;
+		return m_identityKey == rhs.m_identityKey && m_metadata.NetworkIdentifier == rhs.m_metadata.NetworkIdentifier;
 	}
 
 	bool Node::operator!=(const Node& rhs) const {

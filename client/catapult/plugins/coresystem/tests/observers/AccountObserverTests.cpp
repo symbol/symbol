@@ -1,5 +1,5 @@
 #include "src/observers/Observers.h"
-#include "src/cache/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/AccountObserverTestContext.h"
 #include "tests/test/plugins/ObserverTestUtils.h"

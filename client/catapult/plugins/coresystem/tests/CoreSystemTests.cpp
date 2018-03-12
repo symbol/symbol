@@ -23,7 +23,7 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetCacheNames() {
-				return { "AccountStateCache" };
+				return { "AccountStateCache", "BlockDifficultyCache" };
 			}
 
 			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
@@ -31,15 +31,21 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetDiagnosticCounterNames() {
-				return { "ACNTST C" };
+				return { "ACNTST C", "BLKDIF C" };
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
-				return { "NonFutureBlockValidator", "MaxTransactionsValidator", "NetworkValidator", "SignatureValidator" };
+				return { "MaxTransactionsValidator", "AddressValidator", "NetworkValidator" };
 			}
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
-				return { "DeadlineValidator", "NemesisSinkValidator", "EligibleHarvesterValidator", "BalanceValidator" };
+				return {
+					"DeadlineValidator",
+					"NemesisSinkValidator",
+					"EligibleHarvesterValidator",
+					"BalanceReserveValidator",
+					"BalanceTransferValidator"
+				};
 			}
 
 			static std::vector<std::string> GetObserverNames() {
@@ -48,7 +54,9 @@ namespace catapult { namespace plugins {
 					"AccountPublicKeyObserver",
 					"BalanceObserver",
 					"HarvestFeeObserver",
-					"RecalculateImportancesObserver"
+					"RecalculateImportancesObserver",
+					"BlockDifficultyObserver",
+					"BlockDifficultyPruningObserver"
 				};
 			}
 

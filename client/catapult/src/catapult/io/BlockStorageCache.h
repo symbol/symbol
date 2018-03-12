@@ -53,8 +53,11 @@ namespace catapult { namespace io {
 		{}
 
 	public:
-		/// Saves the block (\a blockElement).
+		/// Saves a block element (\a blockElement).
 		void saveBlock(const model::BlockElement& blockElement);
+
+		/// Saves multiple block elements (\a blockElements).
+		void saveBlocks(const std::vector<model::BlockElement>& blockElements);
 
 		/// Drops all blocks after \a height.
 		void dropBlocksAfter(Height height);

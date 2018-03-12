@@ -1,6 +1,8 @@
 #pragma once
 #include "catapult/model/EntityRange.h"
 #include "catapult/model/VerifiableEntity.h"
+#include "catapult/utils/MemoryUtils.h"
+#include "tests/TestHarness.h"
 #include <memory>
 #include <vector>
 
@@ -9,7 +11,7 @@ namespace catapult { namespace test {
 	/// Creates a copy of a verifiable \a entity.
 	template<typename T>
 	std::unique_ptr<T> CopyEntity(const T& entity) {
-		std::unique_ptr<T> pEntity(reinterpret_cast<T*>(::operator new (entity.Size)));
+		auto pEntity = utils::MakeUniqueWithSize<T>(entity.Size);
 		std::memcpy(pEntity.get(), &entity, entity.Size);
 		return pEntity;
 	}
@@ -39,7 +41,18 @@ namespace catapult { namespace test {
 		return totalSize;
 	}
 
-	/// Gets the tag associated with \a entity.
-	/// \note Depending on the entity type the tag can be stored in different fields.
-	Timestamp GetTag(const model::VerifiableEntity& entity);
+	/// Asserts that \a expectedRange is equal to \a actualRange and outputs \a message if not.
+	template<typename TEntity>
+	void AssertEqualRange(
+			const model::EntityRange<TEntity>& expectedRange,
+			const model::EntityRange<TEntity>& actualRange,
+			const char* message) {
+		ASSERT_EQ(expectedRange.size(), actualRange.size());
+		auto iter = expectedRange.cbegin();
+		auto i = 0u;
+		for (const auto& entity : actualRange) {
+			EXPECT_EQ(*iter++, entity) << message << " at " << i;
+			++i;
+		}
+	}
 }}

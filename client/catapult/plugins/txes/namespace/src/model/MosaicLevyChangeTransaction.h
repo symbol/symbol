@@ -1,6 +1,6 @@
 #pragma once
+#include "MosaicEntityType.h"
 #include "NamespaceConstants.h"
-#include "catapult/model/EntityType.h"
 #include "catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
@@ -26,7 +26,7 @@ namespace catapult { namespace model {
 		static constexpr uint8_t Current_Version = 1;
 
 		/// Transaction type.
-		static constexpr EntityType Entity_Type = EntityType::Mosaic_Levy_Change;
+		static constexpr EntityType Entity_Type = Entity_Type_Mosaic_Levy_Change;
 
 	public:
 		/// The id of the affected mosaic.

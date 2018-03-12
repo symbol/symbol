@@ -1,4 +1,5 @@
 #pragma once
+#include "FacilityCode.h"
 #include "catapult/utils/Casting.h"
 
 namespace catapult { namespace model {
@@ -15,44 +16,45 @@ namespace catapult { namespace model {
 		All = 0xFF
 	};
 
-	/// Possible notification facility codes.
-	enum class NotificationFacilityCode : uint8_t {
-		/// Aggregate facility code.
-		Aggregate = 0x41,
-		/// Core facility code.
-		Core = 0x43,
-		/// Mosaic facility code.
-		Mosaic = 0x4D,
-		/// Multisig facility code.
-		Multisig = 0x55,
-		/// Namespace facility code.
-		Namespace = 0x4E,
-		/// Transfer facility code.
-		Transfer = 0x54
-	};
-
 	/// Enumeration of all possible notification types.
 	enum class NotificationType : uint32_t {
 	};
 
 	/// Makes a notification type given \a channel, \a facility and \a code.
-	constexpr NotificationType MakeNotificationType(NotificationChannel channel, NotificationFacilityCode facility, uint16_t code) {
+	constexpr NotificationType MakeNotificationType(NotificationChannel channel, FacilityCode facility, uint16_t code) {
 		return static_cast<NotificationType>(
-				static_cast<uint32_t>(channel) << 24 | // 01..08: flags
+				static_cast<uint32_t>(channel) << 24 | //  01..08: channel
 				static_cast<uint32_t>(facility) << 16 | // 09..16: facility
-				code); // 16..32: code
+				code); //                                  16..32: code
 	}
 
 /// Defines a notification type given \a CHANNEL, \a FACILITY, \a DESCRIPTION and \a CODE.
 #define DEFINE_NOTIFICATION_TYPE(CHANNEL, FACILITY, DESCRIPTION, CODE) \
 	constexpr auto FACILITY##_##DESCRIPTION##_Notification = model::MakeNotificationType( \
 			(model::NotificationChannel::CHANNEL), \
-			(model::NotificationFacilityCode::FACILITY), \
+			(model::FacilityCode::FACILITY), \
 			CODE)
 
 	/// Checks if \a type has \a channel set.
 	constexpr bool IsSet(NotificationType type, NotificationChannel channel) {
 		return utils::to_underlying_type(channel) == (utils::to_underlying_type(channel) & (utils::to_underlying_type(type) >> 24));
+	}
+
+	/// Gets the notification channel set in \a type.
+	constexpr NotificationChannel GetNotificationChannel(NotificationType type) {
+		return static_cast<NotificationChannel>(utils::to_underlying_type(type) >> 24);
+	}
+
+	/// Sets the notification channel in \a type to \a channel.
+	CPP14_CONSTEXPR void SetNotificationChannel(NotificationType& type, NotificationChannel channel) {
+		type = static_cast<NotificationType>(
+				static_cast<uint32_t>(utils::to_underlying_type(channel) << 24u) |
+				(0x00FFFFFFu & utils::to_underlying_type(type)));
+	}
+
+	/// Returns true if \a lhs and \a rhs have the same source (facility and code).
+	constexpr bool AreEqualExcludingChannel(NotificationType lhs, NotificationType rhs) {
+		return (0x00FFFFFFu & utils::to_underlying_type(lhs)) == (0x00FFFFFFu & utils::to_underlying_type(rhs));
 	}
 
 	// region core notification types
@@ -61,7 +63,7 @@ namespace catapult { namespace model {
 #define DEFINE_CORE_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, Core, DESCRIPTION, CODE)
 
 	/// Account was used with specified address.
-	DEFINE_CORE_NOTIFICATION(Register_Account_Address, 0x0001, Observer);
+	DEFINE_CORE_NOTIFICATION(Register_Account_Address, 0x0001, All);
 
 	/// Account was used with specified public key.
 	DEFINE_CORE_NOTIFICATION(Register_Account_Public_Key, 0x0002, Observer);
@@ -80,6 +82,9 @@ namespace catapult { namespace model {
 
 	/// Signature was received.
 	DEFINE_CORE_NOTIFICATION(Signature, 0x0007, Validator);
+
+	/// Account is required to have minimum balance.
+	DEFINE_CORE_NOTIFICATION(Balance_Reserve, 0x0008, Validator);
 
 #undef DEFINE_CORE_NOTIFICATION
 

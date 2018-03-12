@@ -116,8 +116,7 @@ namespace catapult { namespace utils {
 
 	/// File logger options.
 	struct FileLoggerOptions : public BasicLoggerOptions {
-		/// Creates options that specify the creation of log files with the pattern \a filePattern in the
-		/// directory \a directory.
+		/// Creates options that specify the creation of log files with the pattern \a filePattern in the \a directory.
 		explicit FileLoggerOptions(const std::string& directory, const std::string& filePattern)
 				: Directory(directory)
 				, FilePattern(filePattern)
@@ -166,6 +165,10 @@ namespace catapult { namespace utils {
 
 	// endregion
 
+	/// Flushes all buffered log records and waits for all sinks to complete processing of them.
+	/// \note This function is only intended to be called right before a crash.
+	void CatapultLogFlush();
+
 	// region boost logging configuration and utils
 
 	namespace log {
@@ -173,10 +176,10 @@ namespace catapult { namespace utils {
 		template<typename TAttributes>
 		class EraseOnExit {
 		private:
-			using TIterator = typename std::remove_reference<TAttributes>::type::iterator;
+			using IteratorType = typename std::remove_reference<TAttributes>::type::iterator;
 
 		public:
-			EraseOnExit(TAttributes& attrs, TIterator& iter) : m_attrs(attrs), m_iter(iter)
+			EraseOnExit(TAttributes& attrs, IteratorType& iter) : m_attrs(attrs), m_iter(iter)
 			{}
 
 			~EraseOnExit() {
@@ -186,7 +189,7 @@ namespace catapult { namespace utils {
 
 		private:
 			TAttributes& m_attrs;
-			TIterator& m_iter;
+			IteratorType& m_iter;
 		};
 
 		/// A custom logging feature that allows tagging a log record with custom information.

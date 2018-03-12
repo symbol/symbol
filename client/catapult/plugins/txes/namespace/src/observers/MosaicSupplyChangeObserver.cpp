@@ -1,8 +1,10 @@
 #include "Observers.h"
 #include "src/cache/MosaicCache.h"
-#include "plugins/coresystem/src/cache/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 
 namespace catapult { namespace observers {
+
+	using Notification = model::MosaicSupplyChangeNotification;
 
 	namespace {
 		constexpr bool ShouldIncrease(NotifyMode mode, model::MosaicSupplyChangeDirection direction) {
@@ -12,22 +14,18 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	NotificationObserverPointerT<model::MosaicSupplyChangeNotification> CreateMosaicSupplyChangeObserver() {
-		return std::make_unique<FunctionalNotificationObserverT<model::MosaicSupplyChangeNotification>>(
-				"MosaicSupplyChangeObserver",
-				[](const auto& notification, const ObserverContext& context) {
-					auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-					auto& cache = context.Cache.sub<cache::MosaicCache>();
+	DEFINE_OBSERVER(MosaicSupplyChange, Notification, [](const auto& notification, const ObserverContext& context) {
+		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
+		auto& cache = context.Cache.sub<cache::MosaicCache>();
 
-					auto pState = accountStateCache.findAccount(notification.Signer);
-					auto& entry = cache.get(notification.MosaicId);
-					if (ShouldIncrease(context.Mode, notification.Direction)) {
-						pState->Balances.credit(notification.MosaicId, notification.Delta);
-						entry.increaseSupply(notification.Delta);
-					} else {
-						pState->Balances.debit(notification.MosaicId, notification.Delta);
-						entry.decreaseSupply(notification.Delta);
-					}
-				});
-	}
+		auto& accountState = accountStateCache.get(notification.Signer);
+		auto& entry = cache.get(notification.MosaicId);
+		if (ShouldIncrease(context.Mode, notification.Direction)) {
+			accountState.Balances.credit(notification.MosaicId, notification.Delta);
+			entry.increaseSupply(notification.Delta);
+		} else {
+			accountState.Balances.debit(notification.MosaicId, notification.Delta);
+			entry.decreaseSupply(notification.Delta);
+		}
+	});
 }}

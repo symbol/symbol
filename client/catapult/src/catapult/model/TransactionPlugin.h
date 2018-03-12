@@ -1,11 +1,11 @@
 #pragma once
 #include "TransactionRegistry.h"
-#include "catapult/model/WeakEntityInfo.h"
+#include "WeakEntityInfo.h"
 #include "catapult/types.h"
 
 namespace catapult {
 	namespace model {
-		struct EmbeddedEntity;
+		struct EmbeddedTransaction;
 		class NotificationSubscriber;
 		struct Transaction;
 	}
@@ -28,10 +28,10 @@ namespace catapult { namespace model {
 	};
 
 	/// An embedded transaction plugin.
-	class EmbeddedTransactionPlugin : public TransactionPluginT<EmbeddedEntity> {
+	class EmbeddedTransactionPlugin : public TransactionPluginT<EmbeddedTransaction> {
 	public:
 		/// Sends all notifications from \a transaction to \a sub.
-		virtual void publish(const EmbeddedEntity& transaction, NotificationSubscriber& sub) const = 0;
+		virtual void publish(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) const = 0;
 	};
 
 	/// A transaction plugin.

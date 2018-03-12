@@ -22,10 +22,7 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a container around \a pEntity structures spanning over \a entitiesSize bytes with the specified
 		/// error policy (\a errorPolicy).
-		constexpr BasicContiguousEntityContainer(
-				TEntity* pEntity,
-				size_t entitiesSize,
-				EntityContainerErrorPolicy errorPolicy)
+		constexpr BasicContiguousEntityContainer(TEntity* pEntity, size_t entitiesSize, EntityContainerErrorPolicy errorPolicy)
 				: m_pStart(pEntity)
 				, m_state(entitiesSize, EntityContainerErrorPolicy::Throw == errorPolicy)
 		{}
@@ -72,7 +69,7 @@ namespace catapult { namespace model {
 			}
 
 		public:
-			/// Creates an iterator.
+			/// Creates an iterator around \a pStart and \a state with specified current position (\a pCurrent).
 			iterator(value_type* pStart, value_type* pCurrent, State& state)
 					: m_pStart(pStart)
 					, m_pCurrent(pCurrent ? pCurrent : Advance(m_pStart, state.Size))
@@ -83,9 +80,7 @@ namespace catapult { namespace model {
 		public:
 			/// Returns \c true if this iterator and \a rhs are equal.
 			bool operator==(const iterator& rhs) const {
-				return m_pStart == rhs.m_pStart
-						&& m_state.Size == rhs.m_state.Size
-						&& m_pCurrent == rhs.m_pCurrent;
+				return m_pStart == rhs.m_pStart && m_state.Size == rhs.m_state.Size && m_pCurrent == rhs.m_pCurrent;
 			}
 
 			/// Returns \c true if this iterator and \a rhs are not equal.
@@ -130,8 +125,10 @@ namespace catapult { namespace model {
 
 		private:
 			constexpr bool isEntityInBuffer(value_type* pEntity) const noexcept {
-				return ToBytePointer(pEntity) <= endBytePointer()
-						&& ToBytePointer(pEntity) + pEntity->Size <= endBytePointer();
+				return
+						ToBytePointer(pEntity) <= endBytePointer() &&
+						ToBytePointer(pEntity) + sizeof(pEntity->Size) <= endBytePointer() && // ensure Size is readable
+						ToBytePointer(pEntity) + pEntity->Size <= endBytePointer();
 			}
 
 			constexpr bool isEnd(value_type* pEntity) const noexcept {
@@ -143,7 +140,7 @@ namespace catapult { namespace model {
 			}
 
 			void checkError() {
-				if (isEnd(m_pCurrent) || (m_pCurrent->Size >= sizeof(TEntity) && isEntityInBuffer(m_pCurrent)))
+				if (isEnd(m_pCurrent) || (isEntityInBuffer(m_pCurrent) && m_pCurrent->Size >= sizeof(TEntity)))
 					return;
 
 				m_pCurrent = reinterpret_cast<value_type*>(endBytePointer());

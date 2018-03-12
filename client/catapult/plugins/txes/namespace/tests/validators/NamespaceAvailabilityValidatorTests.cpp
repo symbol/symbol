@@ -12,15 +12,13 @@ namespace catapult { namespace validators {
 #define ROOT_TEST_CLASS RootNamespaceAvailabilityValidatorTests
 #define CHILD_TEST_CLASS ChildNamespaceAvailabilityValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(
-			RootNamespaceAvailability,
-			model::NamespaceLifetimeConstraints(ArtifactDuration(), ArtifactDuration(), 0))
+	DEFINE_COMMON_VALIDATOR_TESTS(RootNamespaceAvailability, model::NamespaceLifetimeConstraints(BlockDuration(), BlockDuration(), 0))
 	DEFINE_COMMON_VALIDATOR_TESTS(ChildNamespaceAvailability,)
 
 	namespace {
-		constexpr ArtifactDuration Max_Duration(105);
-		constexpr ArtifactDuration Default_Duration(10);
-		constexpr ArtifactDuration Grace_Period_Duration(20);
+		constexpr BlockDuration Max_Duration(105);
+		constexpr BlockDuration Default_Duration(10);
+		constexpr BlockDuration Grace_Period_Duration(20);
 		constexpr uint32_t Max_Rollback_Blocks(5);
 
 		template<typename TSeedCacheFunc>
@@ -87,8 +85,6 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	// region root
-
 	namespace {
 		void SeedCacheWithRoot25(cache::NamespaceCacheDelta& namespaceCacheDelta) {
 			// Arrange: create a cache with { 25 }
@@ -109,7 +105,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	// region eternal namespace duration check
+	// region root - eternal namespace duration check
 
 	TEST(ROOT_TEST_CLASS, CanAddRootNamespaceWithEternalDurationInNemesis) {
 		// Act: try to create a root with an eternal duration
@@ -132,7 +128,7 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region non-eternal (new)
+	// region root - non-eternal (new)
 
 	TEST(ROOT_TEST_CLASS, CanAddNewRootNamespaceWithNonEternalDuration) {
 		// Arrange:
@@ -145,7 +141,7 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region renew (owner grace period not expired)
+	// region root - renew (owner grace period not expired)
 
 	TEST(ROOT_TEST_CLASS, CanRenewRootNamespaceWithSameOwnerBeforeGracePeriodExpiration) {
 		// Arrange: namespace is deactivated at height 20 and grace period is 25, so it is available starting at 45
@@ -168,7 +164,7 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region renew (owner grace period expired)
+	// region root - renew (owner grace period expired)
 
 	TEST(ROOT_TEST_CLASS, CanRenewRootNamespaceWithSameOwnerAfterGracePeriodExpiration) {
 		// Arrange: namespace is deactivated at height 20 and grace period is 25, so it is available starting at 45
@@ -191,10 +187,10 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region renew duration
+	// region root - renew duration
 
 	namespace {
-		void AssertCannotChangeDuration(Height height, const state::NamespaceLifetime& lifetime, ArtifactDuration duration) {
+		void AssertCannotChangeDuration(Height height, const state::NamespaceLifetime& lifetime, BlockDuration duration) {
 			// Act: try to extend a root that is already in the cache
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), duration);
@@ -220,18 +216,18 @@ namespace catapult { namespace validators {
 	TEST(ROOT_TEST_CLASS, CannotRenewRootNamespaceWithEternalDuration) {
 		// Assert: "extend" an external namespace
 		AssertCannotChangeDuration(Height(1), test::CreateLifetime(10, 0xFFFF'FFFF'FFFF'FFFF), Eternal_Artifact_Duration);
-		AssertCannotChangeDuration(Height(100), test::CreateLifetime(10, 0xFFFF'FFFF'FFFF'FFFF), ArtifactDuration(2));
+		AssertCannotChangeDuration(Height(100), test::CreateLifetime(10, 0xFFFF'FFFF'FFFF'FFFF), BlockDuration(2));
 	}
 
 	TEST(ROOT_TEST_CLASS, CannotRenewRootNamespaceWithDurationTooLarge) {
 		// Arrange: max duration is 120 [Max_Duration(105) + Grace_Period_Duration(20) + height(15) - lifetime.End(20)]
-		for (auto duration : { ArtifactDuration(121), ArtifactDuration(200) })
+		for (auto duration : { BlockDuration(121), BlockDuration(200) })
 			AssertCannotChangeDuration(Height(15), test::CreateLifetime(10, 20), duration);
 	}
 
 	TEST(ROOT_TEST_CLASS, CanRenewRootNamespaceWithAcceptableDurations) {
 		// Arrange: max duration is 120 [Max_Duration(105) + Grace_Period_Duration(20) + height(15) - lifetime.End(20)]
-		for (auto duration : { ArtifactDuration(20), ArtifactDuration(75), ArtifactDuration(120) }) {
+		for (auto duration : { BlockDuration(20), BlockDuration(75), BlockDuration(120) }) {
 			// Act: try to renew a root
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), duration);
@@ -240,10 +236,6 @@ namespace catapult { namespace validators {
 	}
 
 	// endregion
-
-	// endregion
-
-	// region child
 
 	namespace {
 		auto SeedCacheWithRoot25TreeSigner(const Key& signer) {
@@ -259,7 +251,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	// region existence
+	// region child - existence
 
 	TEST(CHILD_TEST_CLASS, CanAddChildNamespaceThatDoesNotExistToRootParent) {
 		// Arrange:
@@ -292,7 +284,7 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region parent
+	// region child - parent
 
 	TEST(CHILD_TEST_CLASS, CannotAddChildNamespaceThatHasUnknownParent) {
 		// Act: try to create a child with an unknown (root) parent
@@ -310,7 +302,7 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region root
+	// region child - root
 
 	TEST(CHILD_TEST_CLASS, CannotAddChildNamespaceToExpiredRoot) {
 		// Arrange:
@@ -332,8 +324,6 @@ namespace catapult { namespace validators {
 			RunChildTest(Failure_Namespace_Owner_Conflict, notification, height, SeedCacheWithRoot25TreeSigner(rootSigner));
 		}
 	}
-
-	// endregion
 
 	// endregion
 }}

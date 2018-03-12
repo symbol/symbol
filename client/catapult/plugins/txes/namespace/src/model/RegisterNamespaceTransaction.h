@@ -1,7 +1,7 @@
 #pragma once
 #include "NamespaceConstants.h"
+#include "NamespaceEntityType.h"
 #include "NamespaceTypes.h"
-#include "catapult/model/EntityType.h"
 #include "catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
@@ -19,7 +19,7 @@ namespace catapult { namespace model {
 		static constexpr uint8_t Current_Version = 2;
 
 		/// Transaction type.
-		static constexpr EntityType Entity_Type = EntityType::Register_Namespace;
+		static constexpr EntityType Entity_Type = Entity_Type_Register_Namespace;
 
 	public:
 		/// Creates a register namespace transaction body.
@@ -35,9 +35,9 @@ namespace catapult { namespace model {
 			/// \note This field is only valid when NamespaceType is Child.
 			NamespaceId ParentId;
 
-			/// The amount of blocks for which a namespace should be valid.
+			/// The number of blocks for which a namespace should be valid.
 			/// \note This field is only valid when NamespaceType is Root.
-			ArtifactDuration Duration;
+			BlockDuration Duration;
 		};
 
 		/// The id of the namespace.

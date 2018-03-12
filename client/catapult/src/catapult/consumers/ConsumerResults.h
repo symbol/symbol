@@ -3,6 +3,7 @@
 #include "catapult/validators/ValidationResult.h"
 
 namespace catapult { namespace consumers {
+
 #endif
 /// Defines a consumer validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_CONSUMER_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Consumer, DESCRIPTION, CODE, None)
@@ -36,6 +37,12 @@ namespace catapult { namespace consumers {
 
 	/// Validation failed because the remote chain score is not better.
 	DEFINE_CONSUMER_RESULT(Remote_Chain_Score_Not_Better, 0x3003);
+
+	/// Validation failed because the remote chain is too far behind.
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Too_Far_Behind, 0x3004);
+
+	/// Validation failed because the remote chain timestamp is too far in the future.
+	DEFINE_CONSUMER_RESULT(Remote_Chain_Too_Far_In_Future, 0x3005);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

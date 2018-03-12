@@ -1,6 +1,6 @@
 #pragma once
-#include "Cosignature.h"
-#include "catapult/model/EmbeddedEntity.h"
+#include "catapult/model/Cosignature.h"
+#include "catapult/model/EmbeddedTransaction.h"
 #include "catapult/model/Notifications.h"
 
 namespace catapult { namespace model {
@@ -53,7 +53,7 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a signer, \a transaction, \a cosignaturesCount and \a pCosignatures.
 		explicit AggregateEmbeddedTransactionNotification(
 				const Key& signer,
-				const EmbeddedEntity& transaction,
+				const EmbeddedTransaction& transaction,
 				size_t cosignaturesCount,
 				const Cosignature* pCosignatures)
 				: BasicAggregateNotification<AggregateEmbeddedTransactionNotification>(signer, cosignaturesCount, pCosignatures)
@@ -62,7 +62,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// The embedded transaction.
-		const EmbeddedEntity& Transaction;
+		const EmbeddedTransaction& Transaction;
 	};
 
 	/// Notification of an aggregate transaction with transactions and cosignatures.
@@ -77,7 +77,7 @@ namespace catapult { namespace model {
 		explicit AggregateCosignaturesNotification(
 				const Key& signer,
 				size_t transactionsCount,
-				const EmbeddedEntity* pTransactions,
+				const EmbeddedTransaction* pTransactions,
 				size_t cosignaturesCount,
 				const Cosignature* pCosignatures)
 				: BasicAggregateNotification<AggregateCosignaturesNotification>(signer, cosignaturesCount, pCosignatures)
@@ -90,6 +90,6 @@ namespace catapult { namespace model {
 		size_t TransactionsCount;
 
 		/// Const pointer to the first transaction.
-		const EmbeddedEntity* TransactionsPtr;
+		const EmbeddedTransaction* TransactionsPtr;
 	};
 }}

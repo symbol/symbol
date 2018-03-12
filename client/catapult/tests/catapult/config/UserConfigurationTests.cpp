@@ -9,21 +9,21 @@ namespace catapult { namespace config {
 			using ConfigurationType = UserConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {{
+				return {
+					{
 						"account",
 						{
-							{ "bootKey", "boot-key" },
-							{ "harvestKey", "harvest-key" },
-							{ "isAutoHarvestingEnabled", "true" },
-							{ "maxUnlockedAccounts", "2" }
+							{ "bootKey", "boot-key" }
 						}
-				}, {
+					},
+					{
 						"storage",
 						{
 							{ "dataDirectory", "./db" },
 							{ "pluginsDirectory", "./ext" }
 						}
-				}};
+					}
+				};
 			}
 
 			static bool IsSectionOptional(const std::string&) {
@@ -33,9 +33,6 @@ namespace catapult { namespace config {
 			static void AssertZero(const UserConfiguration& config) {
 				// Assert:
 				EXPECT_EQ("", config.BootKey);
-				EXPECT_EQ("", config.HarvestKey);
-				EXPECT_FALSE(config.IsAutoHarvestingEnabled);
-				EXPECT_EQ(0u, config.MaxUnlockedAccounts);
 
 				EXPECT_EQ("", config.DataDirectory);
 				EXPECT_EQ("", config.PluginsDirectory);
@@ -44,9 +41,6 @@ namespace catapult { namespace config {
 			static void AssertCustom(const UserConfiguration& config) {
 				// Assert:
 				EXPECT_EQ("boot-key", config.BootKey);
-				EXPECT_EQ("harvest-key", config.HarvestKey);
-				EXPECT_TRUE(config.IsAutoHarvestingEnabled);
-				EXPECT_EQ(2u, config.MaxUnlockedAccounts);
 
 				EXPECT_EQ("./db", config.DataDirectory);
 				EXPECT_EQ("./ext", config.PluginsDirectory);

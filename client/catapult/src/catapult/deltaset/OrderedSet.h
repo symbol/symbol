@@ -8,18 +8,18 @@ namespace catapult { namespace deltaset {
 	namespace detail {
 		template<typename T>
 		using OrderedSetType = std::set<
-				typename std::remove_const<typename T::EntityType>::type,
-				DefaultComparator<typename T::EntityType>>;
+				typename std::remove_const<typename T::ElementType>::type,
+				DefaultComparator<typename T::ElementType>>;
 
-		/// Optionally prunes \a entities using \a pruningBoundary, which indicates the upper bound of entities
+		/// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements
 		/// to remove.
 		template<typename TSet>
-		void PruneBaseSet(TSet& entities, const PruningBoundary<typename TSet::value_type>& pruningBoundary) {
+		void PruneBaseSet(TSet& elements, const PruningBoundary<typename TSet::value_type>& pruningBoundary) {
 			if (!pruningBoundary.isSet())
 				return;
 
-			auto iter = entities.lower_bound(pruningBoundary.value());
-			entities.erase(entities.cbegin(), iter);
+			auto iter = elements.lower_bound(pruningBoundary.value());
+			elements.erase(elements.cbegin(), iter);
 		}
 
 		/// Policy for committing changes to an ordered set.
@@ -30,30 +30,28 @@ namespace catapult { namespace deltaset {
 
 		public:
 			template<typename TPruningBoundary>
-			static void Update(
-					SetType& entities,
-					const DeltaEntities<SetType>& deltas,
-					const TPruningBoundary& pruningBoundary) {
-				UpdateBaseSet<TSetTraits>(entities, deltas);
-				PruneBaseSet(entities, pruningBoundary);
+			static void Update(SetType& elements, const DeltaElements<SetType>& deltas, const TPruningBoundary& pruningBoundary) {
+				UpdateBaseSet<TSetTraits>(elements, deltas);
+				PruneBaseSet(elements, pruningBoundary);
 			}
 		};
 	}
 
 	/// A base set with ordered keys.
-	template<typename TEntityTraits, typename TStorageTraits = SetStorageTraits<detail::OrderedSetType<TEntityTraits>>>
-	using OrderedSet = BaseSet<
-			TEntityTraits,
-			TStorageTraits,
-			detail::OrderedSetCommitPolicy<TStorageTraits>>;
+	template<typename TElementTraits, typename TStorageTraits = SetStorageTraits<detail::OrderedSetType<TElementTraits>>>
+	class OrderedSet : public BaseSet<TElementTraits, TStorageTraits, detail::OrderedSetCommitPolicy<TStorageTraits>> {
+	private:
+		using BaseType = BaseSet<TElementTraits, TStorageTraits, detail::OrderedSetCommitPolicy<TStorageTraits>>;
+
+	public:
+		/// Indicates the set is ordered (used for capability detection in templates).
+		static constexpr auto Is_Ordered = true;
+
+	public:
+		using BaseType::BaseType;
+	};
 
 	/// A delta on top of a base set with ordered keys.
-	template<typename TEntityTraits, typename TStorageTraits = SetStorageTraits<detail::OrderedSetType<TEntityTraits>>>
-	using OrderedSetDelta = BaseSetDelta<TEntityTraits, TStorageTraits>;
-
-	/// Creates an ordered set.
-	template<typename TEntityTraits>
-	auto CreateOrderedSet() {
-		return std::make_shared<OrderedSet<TEntityTraits>>();
-	}
+	template<typename TElementTraits, typename TStorageTraits = SetStorageTraits<detail::OrderedSetType<TElementTraits>>>
+	using OrderedSetDelta = BaseSetDelta<TElementTraits, TStorageTraits>;
 }}

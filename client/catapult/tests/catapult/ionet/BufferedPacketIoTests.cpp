@@ -1,32 +1,33 @@
 #include "catapult/ionet/BufferedPacketIo.h"
+#include "catapult/ionet/PacketSocket.h"
 #include "tests/test/net/SocketTestUtils.h"
 
 namespace catapult { namespace ionet {
 
+#define TEST_CLASS BufferedPacketIoTests
+
 	namespace {
-		std::shared_ptr<PacketIo> Transform(
-				boost::asio::io_service& service,
-				const std::shared_ptr<PacketIo>& pIo) {
-			return CreateBufferedPacketIo(pIo, boost::asio::strand(service));
+		std::shared_ptr<PacketIo> Transform(const std::shared_ptr<PacketSocket>& pSocket) {
+			return pSocket->buffered();
 		}
 	}
 
-	TEST(BufferedPacketIoTests, WriteCanWriteMultipleConsecutivePayloads) {
+	TEST(TEST_CLASS, WriteCanWriteMultipleConsecutivePayloads) {
 		// Assert:
 		test::AssertWriteCanWriteMultipleConsecutivePayloads(Transform);
 	}
 
-	TEST(BufferedPacketIoTests, WriteCanWriteMultipleSimultaneousPayloadsWithoutInterleaving) {
+	TEST(TEST_CLASS, WriteCanWriteMultipleSimultaneousPayloadsWithoutInterleaving) {
 		// Assert:
 		test::AssertWriteCanWriteMultipleSimultaneousPayloadsWithoutInterleaving(Transform);
 	}
 
-	TEST(BufferedPacketIoTests, ReadCanReadMultipleConsecutivePayloads) {
+	TEST(TEST_CLASS, ReadCanReadMultipleConsecutivePayloads) {
 		// Assert:
 		test::AssertReadCanReadMultipleConsecutivePayloads(Transform);
 	}
 
-	TEST(BufferedPacketIoTests, ReadCanReadMultipleSimultaneousPayloadsWithoutInterleaving) {
+	TEST(TEST_CLASS, ReadCanReadMultipleSimultaneousPayloadsWithoutInterleaving) {
 		// Assert:
 		test::AssertReadCanReadMultipleSimultaneousPayloadsWithoutInterleaving(Transform);
 	}

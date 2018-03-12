@@ -1,4 +1,5 @@
 #include "catapult/model/SizePrefixedEntity.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 
@@ -135,7 +136,7 @@ namespace catapult { namespace model {
 		std::unique_ptr<SizePrefixedEntity> CreateSizePrefixedEntity(const std::vector<uint8_t>& payload) {
 			auto numSizeBytes = sizeof(SizePrefixedEntity::Size);
 			auto entitySize = numSizeBytes + payload.size();
-			std::unique_ptr<SizePrefixedEntity> pEntity(reinterpret_cast<SizePrefixedEntity*>(::operator new (entitySize)));
+			auto pEntity = utils::MakeUniqueWithSize<SizePrefixedEntity>(entitySize);
 
 			std::memcpy(reinterpret_cast<uint8_t*>(pEntity.get()) + numSizeBytes, payload.data(), payload.size());
 			pEntity->Size = static_cast<uint32_t>(entitySize);

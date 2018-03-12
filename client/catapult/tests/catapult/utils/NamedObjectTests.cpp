@@ -3,9 +3,11 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS NamedObjectTests
+
 	// region NamedObjectMixin
 
-	TEST(NamedObjectTests, CanCreateNamedObjectMixin) {
+	TEST(TEST_CLASS, CanCreateNamedObjectMixin) {
 		// Arrange + Act:
 		NamedObjectMixin mixin("foo");
 
@@ -21,7 +23,7 @@ namespace catapult { namespace utils {
 		using NamedObjectPointers = std::vector<std::shared_ptr<NamedObjectMixin>>;
 	}
 
-	TEST(NamedObjectTests, CanExtractNamesFromZeroObjects) {
+	TEST(TEST_CLASS, CanExtractNamesFromZeroObjects) {
 		// Arrange:
 		NamedObjectPointers objects;
 
@@ -32,7 +34,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(names.empty());
 	}
 
-	TEST(NamedObjectTests, CanExtractNamesFromSingleObject) {
+	TEST(TEST_CLASS, CanExtractNamesFromSingleObject) {
 		// Arrange:
 		NamedObjectPointers objects{ std::make_shared<NamedObjectMixin>("alpha") };
 
@@ -44,7 +46,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(expectedNames, names);
 	}
 
-	TEST(NamedObjectTests, CanExtractNamesFromMultipleObjects) {
+	TEST(TEST_CLASS, CanExtractNamesFromMultipleObjects) {
 		// Arrange:
 		NamedObjectPointers objects{
 			std::make_shared<NamedObjectMixin>("alpha"),
@@ -64,7 +66,7 @@ namespace catapult { namespace utils {
 
 	// region ReduceNames
 
-	TEST(NamedObjectTests, CanReduceZeroNames) {
+	TEST(TEST_CLASS, CanReduceZeroNames) {
 		// Act:
 		auto name = ReduceNames({});
 
@@ -72,7 +74,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ("{}", name);
 	}
 
-	TEST(NamedObjectTests, CanReduceSingleName) {
+	TEST(TEST_CLASS, CanReduceSingleName) {
 		// Act:
 		auto name = ReduceNames({ "alpha" });
 
@@ -80,7 +82,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ("{ alpha }", name);
 	}
 
-	TEST(NamedObjectTests, CanReduceMultipleNames) {
+	TEST(TEST_CLASS, CanReduceMultipleNames) {
 		// Act:
 		auto name = ReduceNames({ "alpha", "OMEGA", "zEtA" });
 

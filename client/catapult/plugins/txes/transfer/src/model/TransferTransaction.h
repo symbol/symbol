@@ -1,5 +1,5 @@
 #pragma once
-#include "catapult/model/EntityType.h"
+#include "TransferEntityType.h"
 #include "catapult/model/Mosaic.h"
 #include "catapult/model/Transaction.h"
 
@@ -18,7 +18,7 @@ namespace catapult { namespace model {
 		static constexpr uint8_t Current_Version = 3;
 
 		/// Transaction type.
-		static constexpr EntityType Entity_Type = EntityType::Transfer;
+		static constexpr EntityType Entity_Type = Entity_Type_Transfer;
 
 	public:
 		/// The transaction recipient.

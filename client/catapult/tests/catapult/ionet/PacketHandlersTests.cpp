@@ -5,6 +5,8 @@
 
 namespace catapult { namespace ionet {
 
+#define TEST_CLASS PacketHandlersTests
+
 	using PacketHandlers = ServerPacketHandlers;
 
 	namespace {
@@ -33,39 +35,49 @@ namespace catapult { namespace ionet {
 			}
 		}
 
+		ServerPacketHandlerContext CreateDefaultContext() {
+			return ServerPacketHandlerContext({}, "");
+		}
+
 		size_t ProcessPacket(PacketHandlers& handlers, uint32_t type) {
 			// Arrange:
 			Packet packet;
 			packet.Type = static_cast<PacketType>(type);
 
 			// Act:
-			ServerPacketHandlerContext context;
+			auto context = CreateDefaultContext();
 			return handlers.process(packet, context);
 		}
 	}
 
 	// region ServerPacketHandlerContext
 
-	TEST(PacketHandlersTests, ServerPacketHandlerContextInitiallyHasNoResponse) {
+	TEST(TEST_CLASS, ServerPacketHandlerContextInitiallyHasNoResponse) {
 		// Act:
-		ServerPacketHandlerContext context;
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto host = std::string("alice.com");
+		ServerPacketHandlerContext context(key, host);
 
 		// Assert:
 		EXPECT_FALSE(context.hasResponse());
+		EXPECT_EQ(key, context.key());
+		EXPECT_EQ("alice.com", context.host());
 	}
 
-	TEST(PacketHandlersTests, ServerPacketHandlerCannotAccessUnsetResponse) {
-		// Act:
-		ServerPacketHandlerContext context;
+	TEST(TEST_CLASS, ServerPacketHandlerCannotAccessUnsetResponse) {
+		// Arrange:
+		auto context = CreateDefaultContext();
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(context.response(), catapult_runtime_error);
 	}
 
-	TEST(PacketHandlersTests, ServerPacketHandlerContextCanHaveResponseSet) {
+	TEST(TEST_CLASS, ServerPacketHandlerContextCanHaveResponseSet) {
 		// Arrange:
 		auto pPacket = CreateSharedPacket<Packet>(25);
-		ServerPacketHandlerContext context;
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto host = std::string("alice.com");
+		ServerPacketHandlerContext context(key, host);
 
 		// Act:
 		context.response(pPacket);
@@ -73,21 +85,23 @@ namespace catapult { namespace ionet {
 		// Assert:
 		EXPECT_TRUE(context.hasResponse());
 		test::AssertPacketPayload(*pPacket, context.response());
+		EXPECT_EQ(key, context.key());
+		EXPECT_EQ("alice.com", context.host());
 	}
 
-	TEST(PacketHandlersTests, ServerPacketHandlerContextCannotHaveMultipleResponsesSet) {
+	TEST(TEST_CLASS, ServerPacketHandlerContextCannotHaveMultipleResponsesSet) {
 		// Arrange:
 		auto pPacket = CreateSharedPacket<Packet>(25);
-		ServerPacketHandlerContext context;
+		auto context = CreateDefaultContext();
 		context.response(pPacket);
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(context.response(pPacket), catapult_runtime_error);
 	}
 
 	// endregion
 
-	TEST(PacketHandlersTests, HandlersAreInitiallyEmpty) {
+	TEST(TEST_CLASS, HandlersAreInitiallyEmpty) {
 		// Act:
 		PacketHandlers handlers;
 
@@ -95,7 +109,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(0u, handlers.size());
 	}
 
-	TEST(PacketHandlersTests, CanAddSingleHandler) {
+	TEST(TEST_CLASS, CanAddSingleHandler) {
 		// Act:
 		PacketHandlers handlers;
 		RegisterHandler(handlers, 1);
@@ -104,7 +118,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(1u, handlers.size());
 	}
 
-	TEST(PacketHandlersTests, CanAddMultipleHandlers) {
+	TEST(TEST_CLASS, CanAddMultipleHandlers) {
 		// Act:
 		auto marker = 0u;
 		PacketHandlers handlers;
@@ -114,17 +128,49 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(3u, handlers.size());
 	}
 
-	TEST(PacketHandlersTests, CannotAddMultipleHandlersForSamePacketType) {
+	TEST(TEST_CLASS, CannotAddMultipleHandlersForSamePacketType) {
 		// Arrange:
 		auto marker = 0u;
 		PacketHandlers handlers;
 		RegisterHandlers(handlers, { 1, 2 }, marker);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(RegisterHandler(handlers, 1), catapult_runtime_error);
 	}
 
-	TEST(PacketHandlersTests, CanProcessReturnsTrueForPacketWithRegisteredHandler) {
+	// region canProcess
+
+	TEST(TEST_CLASS, CanProcessPacketTypeReturnsTrueForPacketWithRegisteredHandler) {
+		// Arrange:
+		uint32_t marker = 0u;
+		PacketHandlers handlers;
+		RegisterHandlers(handlers, { 1, 3, 5 }, marker);
+
+		for (auto type : { 1, 3, 5 }) {
+			// Act:
+			auto canProcess = handlers.canProcess(static_cast<PacketType>(type));
+
+			// Assert:
+			EXPECT_TRUE(canProcess) << "type " << type;
+		}
+	}
+
+	TEST(TEST_CLASS, CanProcessPacketTypeReturnsFalseForPacketWithNoRegisteredHandler) {
+		// Arrange:
+		uint32_t marker = 0u;
+		PacketHandlers handlers;
+		RegisterHandlers(handlers, { 1, 3, 5 }, marker);
+
+		for (auto type : { 0, 2, 4, 7 }) {
+			// Act:
+			auto canProcess = handlers.canProcess(static_cast<PacketType>(type));
+
+			// Assert:
+			EXPECT_FALSE(canProcess) << "type " << type;
+		}
+	}
+
+	TEST(TEST_CLASS, CanProcessPacketReturnsTrueForPacketWithRegisteredHandler) {
 		// Arrange:
 		uint32_t marker = 0u;
 		PacketHandlers handlers;
@@ -141,7 +187,7 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(PacketHandlersTests, CanProcessReturnsFalseForPacketWithNoRegisteredHandler) {
+	TEST(TEST_CLASS, CanProcessPacketReturnsFalseForPacketWithNoRegisteredHandler) {
 		// Arrange:
 		uint32_t marker = 0u;
 		PacketHandlers handlers;
@@ -158,7 +204,9 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(PacketHandlersTests, PacketHandlerForZeroTypeIsNotInitiallyRegistered) {
+	// endregion
+
+	TEST(TEST_CLASS, PacketHandlerForZeroTypeIsNotInitiallyRegistered) {
 		// Act:
 		Packet packet;
 		packet.Type = static_cast<PacketType>(0);
@@ -169,7 +217,7 @@ namespace catapult { namespace ionet {
 		EXPECT_FALSE(handlers.canProcess(packet));
 	}
 
-	TEST(PacketHandlersTests, CanAddHandlerForZeroType) {
+	TEST(TEST_CLASS, CanAddHandlerForZeroType) {
 		// Arrange:
 		Packet packet;
 		packet.Type = static_cast<PacketType>(0);
@@ -199,13 +247,13 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(PacketHandlersTests, CanProcessPacketWithZeroMatchingHandlers) {
+	TEST(TEST_CLASS, CanProcessPacketWithZeroMatchingHandlers) {
 		// Assert:
 		AssertNoMatchingHandlers(4); // empty slot
 		AssertNoMatchingHandlers(44); // beyond end
 	}
 
-	TEST(PacketHandlersTests, CanProcessPacketWithSingleMatchingHandler) {
+	TEST(TEST_CLASS, CanProcessPacketWithSingleMatchingHandler) {
 		// Arrange:
 		auto marker = 0u;
 		PacketHandlers handlers;
@@ -219,7 +267,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(0x00000010u, marker);
 	}
 
-	TEST(PacketHandlersTests, PacketIsPassedToHandler) {
+	TEST(TEST_CLASS, PacketIsPassedToHandler) {
 		// Arrange:
 		static const uint32_t Packet_Size = 25;
 		PacketHandlers handlers;
@@ -233,14 +281,14 @@ namespace catapult { namespace ionet {
 		auto pPacket = reinterpret_cast<Packet*>(&packetBuffer[0]);
 		pPacket->Size = Packet_Size;
 		pPacket->Type = static_cast<PacketType>(1);
-		ServerPacketHandlerContext handlerContext;
+		auto handlerContext = CreateDefaultContext();
 		handlers.process(*pPacket, handlerContext);
 
 		// Assert:
 		EXPECT_EQ(packetBuffer, packetBufferPassedToHandler);
 	}
 
-	TEST(PacketHandlersTests, MatchingHandlerCanRespondViaContext) {
+	TEST(TEST_CLASS, MatchingHandlerCanRespondViaContext) {
 		// Arrange: set up 3 handlers for packet types 1, 2, 3
 		//          the handler will write the packet type to the response packet based on the matching type
 		static const uint32_t Num_Handlers = 3;
@@ -259,7 +307,7 @@ namespace catapult { namespace ionet {
 		Packet packet;
 		packet.Size = sizeof(Packet);
 		packet.Type = static_cast<PacketType>(2);
-		ServerPacketHandlerContext handlerContext;
+		auto handlerContext = CreateDefaultContext();
 		handlers.process(packet, handlerContext);
 
 		// Assert:

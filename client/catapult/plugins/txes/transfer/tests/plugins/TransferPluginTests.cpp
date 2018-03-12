@@ -1,4 +1,5 @@
 #include "src/plugins/TransferPlugin.h"
+#include "plugins/txes/transfer/src/model/TransferEntityType.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -21,7 +22,7 @@ namespace catapult { namespace plugins {
 
 		public:
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return { model::EntityType::Transfer };
+				return { model::Entity_Type_Transfer };
 			}
 
 			static std::vector<std::string> GetCacheNames() {

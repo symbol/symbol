@@ -1,0 +1,1 @@
+# : private key (always 32 bytes) : private key, nis format with additional 00 for negatives : public key : address

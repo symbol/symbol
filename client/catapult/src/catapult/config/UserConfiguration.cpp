@@ -16,9 +16,6 @@ namespace catapult { namespace config {
 #define LOAD_ACCOUNT_PROPERTY(NAME) LOAD_PROPERTY("account", NAME)
 
 		LOAD_ACCOUNT_PROPERTY(BootKey);
-		LOAD_ACCOUNT_PROPERTY(HarvestKey);
-		LOAD_ACCOUNT_PROPERTY(IsAutoHarvestingEnabled);
-		LOAD_ACCOUNT_PROPERTY(MaxUnlockedAccounts);
 
 #undef LOAD_ACCOUNT_PROPERTY
 
@@ -29,7 +26,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_STORAGE_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 6);
+		utils::VerifyBagSizeLte(bag, 3);
 		return config;
 	}
 

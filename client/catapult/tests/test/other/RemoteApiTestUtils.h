@@ -1,4 +1,5 @@
 #pragma once
+#include "catapult/api/ApiTypes.h"
 #include "catapult/utils/Casting.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/TestHarness.h"
@@ -143,7 +144,7 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		static void AssertThrowsApiError(const std::function<void ()>& action, const char* expectedMessage) {
+		static void AssertThrowsApiError(const action& action, const char* expectedMessage) {
 			try {
 				action();
 				FAIL() << "Expected catapult_api_error but no exception was thrown";
@@ -159,27 +160,27 @@ namespace catapult { namespace test {
 		}
 	};
 
-#define DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, TEST_NAME) \
+#define MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, TEST_NAME) \
 	TEST(API_CLASS##Tests, TEST_NAME##_##API_FUNCTION) { \
 		test::RemoteApiTests<API_CLASS##Traits>::TEST_NAME<API_FUNCTION##Traits>(); \
 	} \
 
 /// Adds all remote api tests for the specified api class (\a API_CLASS) and function (\a API_FUNCTION).
 #define DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
-	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeWriteFails) \
-	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReadFails) \
-	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsPacketWithWrongType) \
-	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsMalformedPacket) \
-	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, WellFormedRequestIsWrittenToRemoteNode) \
-	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, WellFormedResponseFromRemoteNodeIsCoercedIntoDesiredType)
+	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeWriteFails) \
+	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReadFails) \
+	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsPacketWithWrongType) \
+	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsMalformedPacket) \
+	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, WellFormedRequestIsWrittenToRemoteNode) \
+	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, WellFormedResponseFromRemoteNodeIsCoercedIntoDesiredType)
 
 // For those requests where a non-empty response is expected
 #define DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(API_CLASS, API_FUNCTION) \
 	DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
-	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsEmptyPacket)
+	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsEmptyPacket)
 
 // For those requests where a non-empty response is common
 #define DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(API_CLASS, API_FUNCTION) \
 	DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
-	DEFINE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, EmptyResponseIsConsideredValid)
+	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, EmptyResponseIsConsideredValid)
 }}

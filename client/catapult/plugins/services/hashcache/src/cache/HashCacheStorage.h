@@ -1,21 +1,11 @@
 #pragma once
 #include "HashCache.h"
-
-namespace catapult {
-	namespace io {
-		class InputStream;
-		class OutputStream;
-	}
-}
+#include "catapult/cache/CacheStorageInclude.h"
 
 namespace catapult { namespace cache {
 
 	/// Policy for saving and loading hash cache data.
-	struct HashCacheStorage {
-		using SourceType = HashCacheView;
-		using DestinationType = HashCacheDelta;
-		using ValueType = hash_cache_types::ValueType;
-
+	struct HashCacheStorage : public SetCacheStorageFromDescriptor<HashCacheDescriptor> {
 		/// Saves \a value to \a output.
 		static void Save(const ValueType& value, io::OutputStream& output);
 

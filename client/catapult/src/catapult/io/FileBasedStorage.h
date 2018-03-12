@@ -1,7 +1,6 @@
 #pragma once
 #include "BlockStorage.h"
 #include "RawFile.h"
-#include <mutex>
 #include <string>
 
 namespace catapult { namespace io {

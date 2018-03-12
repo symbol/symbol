@@ -4,7 +4,7 @@
 namespace catapult { namespace test {
 
 	/// Creates mosaic properties with a custom \a duration.
-	model::MosaicProperties CreateMosaicPropertiesWithDuration(ArtifactDuration duration);
+	model::MosaicProperties CreateMosaicPropertiesWithDuration(BlockDuration duration);
 
 	/// Creates a mosaic definition with \a height.
 	state::MosaicDefinition CreateMosaicDefinition(Height height);
@@ -22,7 +22,7 @@ namespace catapult { namespace test {
 			Height height,
 			const Key& owner,
 			Amount supply,
-			ArtifactDuration duration);
+			BlockDuration duration);
 
 	/// Asserts that actual properties (\a actualProperties) exactly match expected properties (\a expectedProperties).
 	void AssertMosaicDefinitionProperties(

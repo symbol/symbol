@@ -1,5 +1,6 @@
 #pragma once
 #include "catapult/preprocessor.h"
+#include <cstdint>
 #include <limits>
 #include <type_traits>
 
@@ -14,15 +15,22 @@ namespace catapult { namespace utils {
 	/// Calculates log2(\a value).
 	template<typename T, typename X = typename std::enable_if<std::is_unsigned<T>::value>::type>
 	CPP14_CONSTEXPR T Log2(T value) {
-		for (T i = 0u; i < GetNumBits<T>(); ++i) {
-			if (static_cast<T>(1) == value)
-				return i;
+#ifdef _MSC_VER
+		unsigned long result;
+		if (!_BitScanReverse(&result, value))
+			return std::numeric_limits<T>::max();
 
-			value >>= 1;
-		}
+		return static_cast<T>(result);
+#else
+		if (!value)
+			return std::numeric_limits<T>::max();
 
-		return std::numeric_limits<T>::max();
+		return static_cast<T>(63 - __builtin_clzll(value));
+#endif
 	}
+
+	/// Calculates log2(\a value^(2^\a n)).
+	uint64_t Log2TimesPowerOfTwo(uint64_t value, uint64_t n);
 
 	/// Calculates 2^(\a value).
 	template<typename T, typename X = typename std::enable_if<std::is_unsigned<T>::value>::type>

@@ -9,10 +9,18 @@ namespace catapult { namespace thread {
 	/// Returns a future that is signaled when all futures in \a allFutures complete.
 	template<typename T>
 	future<std::vector<future<T>>> when_all(std::vector<future<T>>&& allFutures) {
+// workaround gcc bug by explicitly specifying inner struct visibility when inner struct contains lambda
+// https://www.mail-archive.com/gcc-bugs@gcc.gnu.org/msg534746.html
+#ifdef __GNUC__
+#define INNER_STRUCT_VISIBILILTY __attribute__ ((visibility ("hidden")))
+#else
+#define INNER_STRUCT_VISIBILILTY
+#endif
+
 		using FutureType = future<T>;
 		using JointPromiseType = promise<std::vector<FutureType>>;
 
-		struct ContinuationContext : public std::enable_shared_from_this<ContinuationContext> {
+		struct INNER_STRUCT_VISIBILILTY ContinuationContext : public std::enable_shared_from_this<ContinuationContext> {
 		public:
 			explicit ContinuationContext(size_t numFutures) : m_futures(numFutures), m_counter(0)
 			{}
@@ -49,6 +57,8 @@ namespace catapult { namespace thread {
 			pContext->setContinuation(future, i++);
 
 		return pContext->future();
+
+#undef INNER_STRUCT_VISIBILILTY
 	}
 
 	/// Returns a future that is signaled when both \a future1 and \a future2 complete.

@@ -6,8 +6,11 @@
 namespace catapult { namespace builders {
 
 	/// Builder for a modify multisig account transaction.
-	class ModifyMultisigAccountBuilder : public TransactionBuilder<model::ModifyMultisigAccountTransaction> {
+	class ModifyMultisigAccountBuilder : public TransactionBuilder {
 	public:
+		using Transaction = model::ModifyMultisigAccountTransaction;
+		using EmbeddedTransaction = model::EmbeddedModifyMultisigAccountTransaction;
+
 		/// Creates a modify multisig account builder for building a modify multisig account transaction from \a signer
 		/// for the network specified by \a networkIdentifier.
 		ModifyMultisigAccountBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
@@ -26,7 +29,14 @@ namespace catapult { namespace builders {
 
 	public:
 		/// Builds a new modify multisig account transaction.
-		std::unique_ptr<model::ModifyMultisigAccountTransaction> build() const;
+		std::unique_ptr<Transaction> build() const;
+
+		/// Builds a new embedded modify multisig account transaction.
+		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+
+	private:
+		template<typename TTransaction>
+		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
 		int8_t m_minRemovalDelta;

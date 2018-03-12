@@ -3,7 +3,9 @@
 
 namespace catapult { namespace utils {
 
-	TEST(ImmutableValueTests, CanCreateAsConstexpr) {
+#define TEST_CLASS ImmutableValueTests
+
+	TEST(TEST_CLASS, CanCreateAsConstexpr) {
 		// Act:
 		constexpr ImmutableValue<uint32_t> Const_Value(78u);
 
@@ -11,7 +13,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(78u, Const_Value);
 	}
 
-	TEST(ImmutableValueTests, CanCreateAroundMutableValue) {
+	TEST(TEST_CLASS, CanCreateAroundMutableValue) {
 		// Act:
 		ImmutableValue<uint32_t> value(78u);
 
@@ -19,7 +21,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(78u, value);
 	}
 
-	TEST(ImmutableValueTests, CanMoveConstruct) {
+	TEST(TEST_CLASS, CanMoveConstruct) {
 		// Act:
 		ImmutableValue<uint32_t> value(78u);
 		ImmutableValue<uint32_t> value2(std::move(value));
@@ -28,7 +30,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(78u, value2);
 	}
 
-	TEST(ImmutableValueTests, CanMoveAssign) {
+	TEST(TEST_CLASS, CanMoveAssign) {
 		// Act:
 		ImmutableValue<uint32_t> value(78u);
 		ImmutableValue<uint32_t> value2(12u);
@@ -39,7 +41,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(&value2, &assignResult);
 	}
 
-	TEST(ImmutableValueTests, CanCastToMutableValue) {
+	TEST(TEST_CLASS, CanCastToMutableValue) {
 		// Arrange:
 		ImmutableValue<uint32_t> value(78u);
 

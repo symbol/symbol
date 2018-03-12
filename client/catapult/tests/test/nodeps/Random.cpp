@@ -6,7 +6,7 @@ namespace catapult { namespace test {
 	namespace {
 		template<typename T>
 		void RandomFill(T& container) {
-			std::generate_n(container.begin(), container.size(), Random);
+			std::generate_n(container.begin(), container.size(), []() { return static_cast<typename T::value_type>(Random()); });
 		}
 
 		template<typename T>
@@ -38,7 +38,6 @@ namespace catapult { namespace test {
 		private:
 			std::mt19937_64 m_gen;
 		};
-
 	}
 
 	uint64_t Random() {
@@ -58,7 +57,7 @@ namespace catapult { namespace test {
 		str.resize(size);
 		std::generate_n(str.begin(), str.size(), []() {
 			auto value = Random() % 16;
-			return value < 10 ? (value + '0') : (value - 10 + 'a');
+			return static_cast<char>(value < 10 ? (value + '0') : (value - 10 + 'a'));
 		});
 		return str;
 	}

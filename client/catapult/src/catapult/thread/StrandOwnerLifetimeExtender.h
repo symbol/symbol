@@ -17,7 +17,7 @@ namespace catapult { namespace thread {
 		template<typename THandler>
 		auto wrap(const std::shared_ptr<TOwner>& pOwner, THandler handler) {
 			// when wrap is called the returned callback needs to extend the lifetime of pOwner
-			utils::WrappedWithOwnerDecorator<THandler> wrappedHandler(std::move(handler), pOwner);
+			utils::WrappedWithOwnerDecorator<THandler> wrappedHandler(pOwner, std::move(handler));
 			return m_strand.wrap(wrappedHandler);
 		}
 

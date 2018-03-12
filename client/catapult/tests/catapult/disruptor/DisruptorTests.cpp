@@ -8,6 +8,8 @@
 
 namespace catapult { namespace disruptor {
 
+#define TEST_CLASS DisruptorTests
+
 	namespace {
 		DisruptorElementId PushBlock(
 				Disruptor& disruptor,
@@ -17,7 +19,7 @@ namespace catapult { namespace disruptor {
 		}
 	}
 
-	TEST(DisruptorTests, CanCreateEmptyDisruptor) {
+	TEST(TEST_CLASS, CanCreateEmptyDisruptor) {
 		// Arrange:
 		Disruptor disruptor(16);
 
@@ -27,7 +29,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(16u, disruptor.capacity());
 	}
 
-	TEST(DisruptorTests, CanPushEntityIntoDisruptor) {
+	TEST(TEST_CLASS, CanPushEntityIntoDisruptor) {
 		// Arrange:
 		Disruptor disruptor(16);
 		auto pBlock = test::GenerateEmptyRandomBlock();
@@ -41,7 +43,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(16u, disruptor.capacity());
 	}
 
-	TEST(DisruptorTests, PushOverwritesElementsIfCapacityIsExceeded) {
+	TEST(TEST_CLASS, PushOverwritesElementsIfCapacityIsExceeded) {
 		// Arrange:
 		Disruptor disruptor(16);
 
@@ -75,7 +77,7 @@ namespace catapult { namespace disruptor {
 		}
 	}
 
-	TEST(DisruptorTests, AddReturnsElementId) {
+	TEST(TEST_CLASS, AddReturnsElementId) {
 		// Arrange:
 		Disruptor disruptor(16);
 		auto pBlock1 = test::GenerateEmptyRandomBlock();
@@ -131,7 +133,7 @@ namespace catapult { namespace disruptor {
 		}
 	}
 
-	TEST(DisruptorTests, AddCreatesElementWithExpectedIdAndCompletionHandler_ElementNotSkipped) {
+	TEST(TEST_CLASS, AddCreatesElementWithExpectedIdAndCompletionHandler_ElementNotSkipped) {
 		// Arrange:
 		AssertAddCreatesElementWithExpectedIdAndCompletionHandler(
 				[](auto& element) {
@@ -144,7 +146,7 @@ namespace catapult { namespace disruptor {
 				});
 	}
 
-	TEST(DisruptorTests, AddCreatesElementWithExpectedIdAndCompletionHandler_ElementSkipped) {
+	TEST(TEST_CLASS, AddCreatesElementWithExpectedIdAndCompletionHandler_ElementSkipped) {
 		// Arrange:
 		AssertAddCreatesElementWithExpectedIdAndCompletionHandler(
 				[](auto& element) {
@@ -158,7 +160,7 @@ namespace catapult { namespace disruptor {
 				});
 	}
 
-	TEST(DisruptorTests, CanMarkElements) {
+	TEST(TEST_CLASS, CanMarkElements) {
 		// Arrange:
 		Disruptor disruptor(16);
 		PrepareDisruptor(disruptor);

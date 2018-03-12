@@ -1,4 +1,5 @@
 #pragma once
+#include "ConsumerDispatcherOptions.h"
 #include "Disruptor.h"
 #include "DisruptorConsumer.h"
 #include "DisruptorInspector.h"
@@ -10,32 +11,6 @@ namespace catapult { namespace disruptor { class ConsumerEntry; } }
 
 namespace catapult { namespace disruptor {
 
-	/// Consumer dispatcher options.
-	struct ConsumerDispatcherOptions {
-	public:
-		/// Creates options around \a dispatcherName and \a disruptorSize.
-		constexpr ConsumerDispatcherOptions(const char* dispatcherName, size_t disruptorSize)
-				: ConsumerDispatcherOptions(dispatcherName, disruptorSize, 1)
-		{}
-
-		/// Creates options around \a dispatcherName, \a disruptorSize and \a elementTraceInterval.
-		constexpr ConsumerDispatcherOptions(const char* dispatcherName, size_t disruptorSize, size_t elementTraceInterval)
-				: DispatcherName(dispatcherName)
-				, DisruptorSize(disruptorSize)
-				, ElementTraceInterval(elementTraceInterval)
-		{}
-
-	public:
-		/// The name of the dispatcher.
-		const char* DispatcherName;
-
-		/// The disruptor size.
-		size_t DisruptorSize;
-
-		/// The multiple of elements at which an element should be traced through queue and completion.
-		size_t ElementTraceInterval;
-	};
-
 	/// Dispatcher for disruptor consumers.
 	class ConsumerDispatcher final : public utils::NamedObjectMixin {
 	public:
@@ -43,14 +18,12 @@ namespace catapult { namespace disruptor {
 		/// Inspector (\a inspector) is a special consumer that is always run (independent of skip) and as a last one.
 		/// Inspector runs within a thread of the last consumer.
 		ConsumerDispatcher(
-			const ConsumerDispatcherOptions& options,
-			const std::vector<DisruptorConsumer>& consumers,
-			const DisruptorInspector& inspector);
+				const ConsumerDispatcherOptions& options,
+				const std::vector<DisruptorConsumer>& consumers,
+				const DisruptorInspector& inspector);
 
 		/// Creates a dispatcher of \a consumers configured with \a options.
-		explicit ConsumerDispatcher(
-			const ConsumerDispatcherOptions& options,
-			const std::vector<DisruptorConsumer>& consumers);
+		explicit ConsumerDispatcher(const ConsumerDispatcherOptions& options, const std::vector<DisruptorConsumer>& consumers);
 
 		~ConsumerDispatcher();
 
@@ -74,19 +47,28 @@ namespace catapult { namespace disruptor {
 		/// Returns the total number of elements added to the disruptor.
 		size_t numAddedElements() const;
 
-	private:
-		void checkCapacity(const ConsumerEntry& consumerEntry) const;
+		/// Returns the number of elements currently in the disruptor.
+		size_t numActiveElements() const;
 
+	private:
 		DisruptorElement* tryNext(ConsumerEntry& consumerEntry);
 
 		void advance(ConsumerEntry& consumerEntry);
 
+		bool canProcessNextElement() const;
+
+		ProcessingCompleteFunc wrap(const ProcessingCompleteFunc& processingComplete);
+
 	private:
 		size_t m_elementTraceInterval;
+		bool m_shouldThrowIfFull;
 		std::atomic_bool m_keepRunning;
 		DisruptorBarriers m_barriers;
 		Disruptor m_disruptor;
 		DisruptorInspector m_inspector;
 		boost::thread_group m_threads;
+		std::atomic<size_t> m_numActiveElements;
+
+		utils::SpinLock m_addSpinLock; // lock to serialize access to Disruptor::add
 	};
 }}

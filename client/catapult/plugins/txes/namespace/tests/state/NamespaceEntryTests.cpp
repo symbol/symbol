@@ -4,9 +4,11 @@
 
 namespace catapult { namespace state {
 
+#define TEST_CLASS NamespaceEntryTests
+
 	// region compatible
 
-	TEST(NamespaceEntryTests, CanCreateNamespaceEntryAroundRoot) {
+	TEST(TEST_CLASS, CanCreateNamespaceEntryAroundRoot) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
@@ -21,7 +23,7 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(entry.ns().isRoot());
 	}
 
-	TEST(NamespaceEntryTests, CanCreateNamespaceEntryAroundChild) {
+	TEST(TEST_CLASS, CanCreateNamespaceEntryAroundChild) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
@@ -40,23 +42,23 @@ namespace catapult { namespace state {
 
 	// region incompatible
 
-	TEST(NamespaceEntryTests, CannotCreateNamespaceEntryAroundIncompatibleRoot) {
+	TEST(TEST_CLASS, CannotCreateNamespaceEntryAroundIncompatibleRoot) {
 		// Arrange: root.id() != ns.rootId()
 		auto owner = test::CreateRandomOwner();
 		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
 		auto ns = state::Namespace(test::CreatePath({ 124 }));
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(NamespaceEntry(ns, root), catapult_invalid_argument);
 	}
 
-	TEST(NamespaceEntryTests, CannotCreateNamespaceEntryAroundIncompatibleChild) {
+	TEST(TEST_CLASS, CannotCreateNamespaceEntryAroundIncompatibleChild) {
 		// Arrange: root.id() != ns.rootId()
 		auto owner = test::CreateRandomOwner();
 		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
 		auto ns = state::Namespace(test::CreatePath({ 124, 234, 456 }));
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(NamespaceEntry(ns, root), catapult_invalid_argument);
 	}
 

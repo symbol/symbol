@@ -2,6 +2,7 @@
 #include "src/model/MosaicInfo.h"
 #include "src/model/NamespaceInfo.h"
 #include "catapult/handlers/HandlerFactory.h"
+#include "catapult/utils/Casting.h"
 
 namespace catapult { namespace handlers {
 
@@ -9,7 +10,7 @@ namespace catapult { namespace handlers {
 
 	namespace {
 		struct MosaicInfosTraits {
-			using EntityType = MosaicId;
+			using RequestStructureType = MosaicId;
 			using SupplierResultsType = std::vector<std::shared_ptr<const model::MosaicInfo>>;
 
 			static constexpr auto Packet_Type = ionet::PacketType::Mosaic_Infos;
@@ -38,7 +39,7 @@ namespace catapult { namespace handlers {
 
 	namespace {
 		struct NamespaceInfosTraits {
-			using EntityType = NamespaceId;
+			using RequestStructureType = NamespaceId;
 			using SupplierResultsType = std::vector<std::shared_ptr<const model::NamespaceInfo>>;
 
 			static constexpr auto Packet_Type = ionet::PacketType::Namespace_Infos;

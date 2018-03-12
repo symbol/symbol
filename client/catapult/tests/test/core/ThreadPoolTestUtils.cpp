@@ -3,12 +3,12 @@
 
 namespace catapult { namespace test {
 
-	std::unique_ptr<thread::IoServiceThreadPool> CreateStartedIoServiceThreadPool() {
-		return CreateStartedIoServiceThreadPool(GetNumDefaultPoolThreads());
+	std::unique_ptr<thread::IoServiceThreadPool> CreateStartedIoServiceThreadPool(const char* name) {
+		return CreateStartedIoServiceThreadPool(GetNumDefaultPoolThreads(), name);
 	}
 
-	std::unique_ptr<thread::IoServiceThreadPool> CreateStartedIoServiceThreadPool(uint32_t numThreads) {
-		auto pPool = thread::CreateIoServiceThreadPool(numThreads);
+	std::unique_ptr<thread::IoServiceThreadPool> CreateStartedIoServiceThreadPool(uint32_t numThreads, const char* name) {
+		auto pPool = thread::CreateIoServiceThreadPool(numThreads, name);
 		pPool->start();
 		return pPool;
 	}

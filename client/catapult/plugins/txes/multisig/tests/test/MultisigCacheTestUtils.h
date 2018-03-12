@@ -17,16 +17,16 @@ namespace catapult { namespace test {
 		}
 
 	public:
+		/// Creates an empty catapult cache around default configuration.
+		static cache::CatapultCache Create() {
+			return Create(model::BlockChainConfiguration::Uninitialized());
+		}
+
 		/// Creates an empty catapult cache around \a config.
 		static cache::CatapultCache Create(const model::BlockChainConfiguration& config) {
 			auto subCaches = CreateSubCachesWithMultisigCache();
 			CoreSystemCacheFactory::CreateSubCaches(config, subCaches);
 			return cache::CatapultCache(std::move(subCaches));
-		}
-
-		/// Creates an empty catapult cache around default configuration.
-		static cache::CatapultCache Create() {
-			return Create(model::BlockChainConfiguration::Uninitialized());
 		}
 	};
 }}

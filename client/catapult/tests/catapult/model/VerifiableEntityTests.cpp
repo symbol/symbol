@@ -11,10 +11,10 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, EntityHasExpectedSize) {
 		// Arrange:
 		auto expectedSize = sizeof(uint32_t) // size
-			+ sizeof(Signature) // signature
-			+ sizeof(uint16_t) // version
-			+ sizeof(uint16_t) // entity type
-			+ sizeof(Key); // signer
+				+ sizeof(Signature) // signature
+				+ sizeof(uint16_t) // version
+				+ sizeof(uint16_t) // entity type
+				+ sizeof(Key); // signer
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(VerifiableEntity));
@@ -27,24 +27,22 @@ namespace catapult { namespace model {
 		// Arrange:
 		VerifiableEntity entity;
 		entity.Size = 121;
-		entity.Type = EntityType::Transfer;
+		entity.Type = Entity_Type_Nemesis_Block;
 		entity.Version = MakeVersion(NetworkIdentifier::Zero, 2);
 
 		// Act:
 		auto str = test::ToString(entity);
 
 		// Assert:
-		EXPECT_EQ("Transfer (v2) with size 121", str);
+		EXPECT_EQ("Nemesis_Block (v2) with size 121", str);
 	}
 
 	// endregion
 
-	// region IsSizeValid
-
 	namespace {
 		bool IsSizeValid(const VerifiableEntity& entity) {
-			auto pRegistry = mocks::CreateDefaultTransactionRegistry();
-			return IsSizeValid(entity, *pRegistry);
+			auto registry = mocks::CreateDefaultTransactionRegistry();
+			return IsSizeValid(entity, registry);
 		}
 	}
 
@@ -55,7 +53,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, TEST_NAME##_NonEmptyBlock) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonEmptyBlockPolicy>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	// region basic tests
+	// region IsSizeValid - basic tests
 
 	TRAITS_BASED_TEST(SizeIsValidWhenEntitySizeIsCorrect) {
 		// Arrange:
@@ -85,7 +83,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region block
+	// region IsSizeValid - block
 
 	namespace {
 		void AssertFailureForBlockWithEntityType(EntityType type) {
@@ -106,7 +104,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingIncompatibleEntityType) {
 		// Assert:
-		AssertFailureForBlockWithEntityType(model::EntityType::Nemesis_Block);
+		AssertFailureForBlockWithEntityType(model::Entity_Type_Nemesis_Block);
 	}
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingTransactionWithWrongSize) {
@@ -118,8 +116,6 @@ namespace catapult { namespace model {
 		// Assert:// Act + Assert:
 		EXPECT_FALSE(IsSizeValid(*pBlock));
 	}
-
-	// endregion
 
 	// endregion
 }}

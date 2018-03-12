@@ -5,6 +5,8 @@
 
 namespace catapult { namespace state {
 
+#define TEST_CLASS MosaicDefinitionTests
+
 	namespace {
 		constexpr Height Default_Height(345);
 
@@ -21,13 +23,13 @@ namespace catapult { namespace state {
 
 		MosaicDefinition CreateMosaicDefinition(uint64_t duration) {
 			auto owner = test::GenerateRandomData<Key_Size>();
-			return MosaicDefinition(Default_Height, owner, test::CreateMosaicPropertiesWithDuration(ArtifactDuration(duration)));
+			return MosaicDefinition(Default_Height, owner, test::CreateMosaicPropertiesWithDuration(BlockDuration(duration)));
 		}
 	}
 
 	// region ctor
 
-	TEST(MosaicDefinitionTests, CanCreateMosaicDefinition_DefaultProperties) {
+	TEST(TEST_CLASS, CanCreateMosaicDefinition_DefaultProperties) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto properties = model::MosaicProperties::FromValues({});
@@ -42,10 +44,10 @@ namespace catapult { namespace state {
 		AssertCustomOptionalProperties(properties, definition.properties());
 	}
 
-	TEST(MosaicDefinitionTests, CanCreateMosaicDefinition_CustomProperties) {
+	TEST(TEST_CLASS, CanCreateMosaicDefinition_CustomProperties) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
-		auto properties = test::CreateMosaicPropertiesWithDuration(ArtifactDuration(3));
+		auto properties = test::CreateMosaicPropertiesWithDuration(BlockDuration(3));
 
 		// Act:
 		MosaicDefinition definition(Height(877), owner, properties);
@@ -61,7 +63,7 @@ namespace catapult { namespace state {
 
 	// region isEternal
 
-	TEST(MosaicDefinitionTests, IsEternalReturnsTrueIfMosaicDefinitionHasEternalDuration) {
+	TEST(TEST_CLASS, IsEternalReturnsTrueIfMosaicDefinitionHasEternalDuration) {
 		// Arrange:
 		auto definition = CreateMosaicDefinition(Eternal_Artifact_Duration.unwrap());
 
@@ -69,7 +71,7 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(definition.isEternal());
 	}
 
-	TEST(MosaicDefinitionTests, IsEternalReturnsFalseIfMosaicDefinitionDoesNotHaveEternalDuration) {
+	TEST(TEST_CLASS, IsEternalReturnsFalseIfMosaicDefinitionDoesNotHaveEternalDuration) {
 		// Arrange:
 		for (auto duration : { 1u, 2u, 1000u, 10000u, 1'000'000'000u }) {
 			auto definition = CreateMosaicDefinition(duration);
@@ -84,10 +86,7 @@ namespace catapult { namespace state {
 	// region isActive
 
 	namespace {
-		void AssertActiveOrNot(
-				ArtifactDuration::ValueType duration,
-				const std::vector<Height::ValueType>& heights,
-				bool expectedResult) {
+		void AssertActiveOrNot(BlockDuration::ValueType duration, const std::vector<Height::ValueType>& heights, bool expectedResult) {
 			// Arrange: creation height is 345
 			auto definition = CreateMosaicDefinition(duration);
 
@@ -97,21 +96,21 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(MosaicDefinitionTests, IsActiveReturnsTrueIfMosaicDefinitionIsActive) {
+	TEST(TEST_CLASS, IsActiveReturnsTrueIfMosaicDefinitionIsActive) {
 		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();
 		AssertActiveOrNot(duration, { height, height + 1, height + 22, height + duration - 2, height + duration - 1 }, true);
 	}
 
-	TEST(MosaicDefinitionTests, IsActiveReturnsTrueIfMosaicDefinitionIsEternal) {
+	TEST(TEST_CLASS, IsActiveReturnsTrueIfMosaicDefinitionIsEternal) {
 		// Assert:
 		auto duration = Eternal_Artifact_Duration.unwrap();
 		auto height = Default_Height.unwrap();
 		AssertActiveOrNot(duration, { height - 1, height, height + 1, 500u, 5000u, std::numeric_limits<Height::ValueType>::max() }, true);
 	}
 
-	TEST(MosaicDefinitionTests, IsActiveReturnsFalseIfMosaicDefinitionIsNotActive) {
+	TEST(TEST_CLASS, IsActiveReturnsFalseIfMosaicDefinitionIsNotActive) {
 		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();
@@ -123,10 +122,7 @@ namespace catapult { namespace state {
 	// region isExpired
 
 	namespace {
-		void AssertExpiredOrNot(
-				ArtifactDuration::ValueType duration,
-				const std::vector<Height::ValueType>& heights,
-				bool expectedResult) {
+		void AssertExpiredOrNot(BlockDuration::ValueType duration, const std::vector<Height::ValueType>& heights, bool expectedResult) {
 			// Arrange: creation height is 345
 			auto definition = CreateMosaicDefinition(duration);
 
@@ -136,21 +132,21 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(MosaicDefinitionTests, IsExpiredReturnsTrueIfMosaicDefinitionIsExpired) {
+	TEST(TEST_CLASS, IsExpiredReturnsTrueIfMosaicDefinitionIsExpired) {
 		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();
 		AssertExpiredOrNot(duration, { height + duration, height + duration + 1, height + 10'000 }, true);
 	}
 
-	TEST(MosaicDefinitionTests, IsExpiredReturnsFalseIfMosaicDefinitionIsEternal) {
+	TEST(TEST_CLASS, IsExpiredReturnsFalseIfMosaicDefinitionIsEternal) {
 		// Assert:
 		auto duration = Eternal_Artifact_Duration.unwrap();
 		auto height = Default_Height.unwrap();
 		AssertExpiredOrNot(duration, { 1, height - 1, height, height + 1, 5000u, std::numeric_limits<Height::ValueType>::max() }, false);
 	}
 
-	TEST(MosaicDefinitionTests, IsExpiredReturnsFalseIfMosaicDefinitionIsNotExpired) {
+	TEST(TEST_CLASS, IsExpiredReturnsFalseIfMosaicDefinitionIsNotExpired) {
 		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();

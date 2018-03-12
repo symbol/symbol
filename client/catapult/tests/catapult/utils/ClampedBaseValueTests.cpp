@@ -3,6 +3,8 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS ClampedValueTests
+
 	namespace {
 		struct TestValueRange {
 			static constexpr int64_t Default_Value = 3;
@@ -13,7 +15,7 @@ namespace catapult { namespace utils {
 		using TestValue = ClampedBaseValue<int64_t, TestValueRange>;
 	}
 
-	TEST(ClampedValueTests, DefaultValueIsInitializedToRangeDefaultValue) {
+	TEST(TEST_CLASS, DefaultValueIsInitializedToRangeDefaultValue) {
 		// Arrange:
 		TestValue value;
 
@@ -21,7 +23,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(3, value.unwrap());
 	}
 
-	TEST(ClampedValueTests, ConstantsAreInitializedCorrectly) {
+	TEST(TEST_CLASS, ConstantsAreInitializedCorrectly) {
 		// Arrange:
 		TestValue value;
 
@@ -30,7 +32,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(TestValue(100), TestValue::Max());
 	}
 
-	TEST(ClampedValueTests, UnclampedTypeDoesNotClampValues) {
+	TEST(TEST_CLASS, UnclampedTypeDoesNotClampValues) {
 		// Act + Assert:
 		EXPECT_EQ(-1000, TestValue::Unclamped(-1000).unwrap());
 		EXPECT_EQ(1000, TestValue::Unclamped(1000).unwrap());
@@ -46,21 +48,21 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(ClampedValueTests, ClampedValueCannotBeSetBelowMin) {
+	TEST(TEST_CLASS, ClampedValueCannotBeSetBelowMin) {
 		// Assert:
 		std::vector<int64_t> deltas{ 1, 1000 };
 		for (auto delta : deltas)
 			AssertClampedValue(TestValueRange::Min_Value - delta, TestValueRange::Min_Value);
 	}
 
-	TEST(ClampedValueTests, ClampedValueCannotBeSetAboveMax) {
+	TEST(TEST_CLASS, ClampedValueCannotBeSetAboveMax) {
 		// Assert:
 		std::vector<int64_t> deltas{ 1, 1000 };
 		for (auto delta : deltas)
 			AssertClampedValue(TestValueRange::Max_Value + delta, TestValueRange::Max_Value);
 	}
 
-	TEST(ClampedValueTests, ClampedValueCanBeSetInAllowableRange) {
+	TEST(TEST_CLASS, ClampedValueCanBeSetInAllowableRange) {
 		// Assert: none of the values get clamped
 		std::vector<int64_t> values{ TestValueRange::Min_Value, -16, -8, 0, 50, 99, TestValueRange::Max_Value };
 		for (auto value : values)
@@ -69,7 +71,7 @@ namespace catapult { namespace utils {
 
 	// region copy construction / assignment
 
-	TEST(ClampedValueTests, CanCopyConstructValues) {
+	TEST(TEST_CLASS, CanCopyConstructValues) {
 		// Act:
 		TestValue v1(5);
 		TestValue v2 = v1;
@@ -80,7 +82,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(5, v2.unwrap());
 	}
 
-	TEST(ClampedValueTests, CanAssignValues) {
+	TEST(TEST_CLASS, CanAssignValues) {
 		// Act:
 		TestValue v1(5);
 		TestValue v2(7);
@@ -92,9 +94,11 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(5, v2.unwrap());
 	}
 
+	// endregion
+
 	// region addition and subtraction operators
 
-	TEST(ClampedValueTests, CanAddClampedValues) {
+	TEST(TEST_CLASS, CanAddClampedValues) {
 		// Arrange:
 		TestValue data1(-1);
 		TestValue::Unclamped data2(TestValue::Max().unwrap() + 20);
@@ -107,7 +111,7 @@ namespace catapult { namespace utils {
 		EXPECT_LT(TestValue::Max().unwrap(), data2.unwrap());
 	}
 
-	TEST(ClampedValueTests, CanSubtractClampedValues) {
+	TEST(TEST_CLASS, CanSubtractClampedValues) {
 		// Arrange:
 		TestValue data1(23);
 		TestValue data2(70);

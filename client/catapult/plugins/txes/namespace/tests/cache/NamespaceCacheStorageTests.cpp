@@ -1,10 +1,12 @@
 #include "src/cache/NamespaceCacheStorage.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
-#include "tests/test/core/mocks/MemoryStream.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
+
+#define TEST_CLASS NamespaceCacheStorageTests
 
 	namespace {
 #pragma pack(push, 1)
@@ -64,21 +66,21 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(NamespaceCacheStorageTests, CannotSaveEmptyHistory) {
+	TEST(TEST_CLASS, CannotSaveEmptyHistory) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		state::RootNamespaceHistory history(NamespaceId(123));
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(NamespaceCacheStorage::Save(std::make_pair(NamespaceId(), history), stream), catapult_runtime_error);
 	}
 
-	TEST(NamespaceCacheStorageTests, CanSaveHistoryWithDepthOneWithoutChildren) {
+	TEST(TEST_CLASS, CanSaveHistoryWithDepthOneWithoutChildren) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespaceHistory history(NamespaceId(123));
@@ -93,10 +95,10 @@ namespace catapult { namespace cache {
 		AssertRootHeader(buffer, sizeof(NamespaceHistoryHeader), owner, Height(222), Height(333), 0);
 	}
 
-	TEST(NamespaceCacheStorageTests, CanSaveHistoryWithDepthOneWithChildren) {
+	TEST(TEST_CLASS, CanSaveHistoryWithDepthOneWithChildren) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespaceHistory history(NamespaceId(123));
@@ -121,10 +123,10 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	TEST(NamespaceCacheStorageTests, CanSaveHistoryWithDepthGreaterThanOneWithSameOwner) {
+	TEST(TEST_CLASS, CanSaveHistoryWithDepthGreaterThanOneWithSameOwner) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespaceHistory history(NamespaceId(123));
@@ -161,10 +163,10 @@ namespace catapult { namespace cache {
 		AssertRootHeader(buffer, offset, owner, Height(444), Height(555), 0);
 	}
 
-	TEST(NamespaceCacheStorageTests, CanSaveHistoryWithDepthGreaterThanOneWithDifferentOwner) {
+	TEST(TEST_CLASS, CanSaveHistoryWithDepthGreaterThanOneWithDifferentOwner) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		auto owner1 = test::CreateRandomOwner();
 		auto owner2 = test::CreateRandomOwner();
@@ -233,20 +235,20 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(NamespaceCacheStorageTests, CannotLoadEmptyHistory) {
+	TEST(TEST_CLASS, CannotLoadEmptyHistory) {
 		// Arrange:
 		NamespaceCache cache;
 		auto delta = cache.createDelta();
 
 		std::vector<uint8_t> buffer(sizeof(NamespaceHistoryHeader));
 		reinterpret_cast<NamespaceHistoryHeader&>(*buffer.data()) = { NamespaceId(123), 0 };
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(NamespaceCacheStorage::Load(stream, *delta), catapult_runtime_error);
 	}
 
-	TEST(NamespaceCacheStorageTests, CanLoadHistoryWithDepthOneWithoutChildren) {
+	TEST(TEST_CLASS, CanLoadHistoryWithDepthOneWithoutChildren) {
 		// Arrange:
 		NamespaceCache cache;
 		auto delta = cache.createDelta();
@@ -256,7 +258,7 @@ namespace catapult { namespace cache {
 		reinterpret_cast<NamespaceHistoryHeader&>(*buffer.data()) = { NamespaceId(123), 1 };
 		auto offset = sizeof(NamespaceHistoryHeader);
 		reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset)) = { owner, Height(222), Height(333), 0 };
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		NamespaceCacheStorage::Load(stream, *delta);
@@ -268,7 +270,7 @@ namespace catapult { namespace cache {
 		AssertRootNamespace(delta->get(NamespaceId(123)).root(), owner, Height(222), Height(333), 0);
 	}
 
-	TEST(NamespaceCacheStorageTests, CanLoadHistoryWithDepthOneWithChildren) {
+	TEST(TEST_CLASS, CanLoadHistoryWithDepthOneWithChildren) {
 		// Arrange:
 		NamespaceCache cache;
 		auto delta = cache.createDelta();
@@ -284,7 +286,7 @@ namespace catapult { namespace cache {
 			{ NamespaceId(124), NamespaceId(125) },
 			{ NamespaceId(126), NamespaceId() }
 		});
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		NamespaceCacheStorage::Load(stream, *delta);
@@ -299,7 +301,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(NamespaceId(123), delta->get(NamespaceId(126)).ns().parentId());
 	}
 
-	TEST(NamespaceCacheStorageTests, CanLoadHistoryWithDepthOneWithOutOfOrderChildren) {
+	TEST(TEST_CLASS, CanLoadHistoryWithDepthOneWithOutOfOrderChildren) {
 		// Arrange:
 		NamespaceCache cache;
 		auto delta = cache.createDelta();
@@ -315,7 +317,7 @@ namespace catapult { namespace cache {
 			{ NamespaceId(124), NamespaceId() },
 			{ NamespaceId(126), NamespaceId() }
 		});
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		NamespaceCacheStorage::Load(stream, *delta);
@@ -330,7 +332,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(NamespaceId(123), delta->get(NamespaceId(126)).ns().parentId());
 	}
 
-	TEST(NamespaceCacheStorageTests, CanLoadHistoryWithDepthGreaterThanOneWithSameOwner) {
+	TEST(TEST_CLASS, CanLoadHistoryWithDepthGreaterThanOneWithSameOwner) {
 		// Arrange:
 		NamespaceCache cache;
 		auto delta = cache.createDelta();
@@ -351,7 +353,7 @@ namespace catapult { namespace cache {
 		reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset)) = { owner, Height(222), Height(333), 0 };
 		offset += sizeof(RootNamespaceHeader);
 		reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset)) = { owner, Height(444), Height(555), 0 };
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		NamespaceCacheStorage::Load(stream, *delta);
@@ -377,7 +379,7 @@ namespace catapult { namespace cache {
 		AssertRootNamespace(delta->get(NamespaceId(123)).root(), owner, Height(11), Height(111), 4);
 	}
 
-	TEST(NamespaceCacheStorageTests, CanLoadHistoryWithDepthGreaterThanOneWithDifferentOwner) {
+	TEST(TEST_CLASS, CanLoadHistoryWithDepthGreaterThanOneWithDifferentOwner) {
 		// Arrange:
 		NamespaceCache cache;
 		auto delta = cache.createDelta();
@@ -403,7 +405,7 @@ namespace catapult { namespace cache {
 		WriteNamespaceData(buffer, offset, {
 			{ NamespaceId(126), NamespaceId() }
 		});
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		NamespaceCacheStorage::Load(stream, *delta);
@@ -445,19 +447,19 @@ namespace catapult { namespace cache {
 				{ NamespaceId(126), NamespaceId() },
 				badData
 			});
-			mocks::MemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream("", buffer);
 
-			// Act:
+			// Act + Assert:
 			EXPECT_THROW(NamespaceCacheStorage::Load(stream, *delta), catapult_invalid_argument);
 		}
 	}
 
-	TEST(NamespaceCacheStorageTests, CannotLoadHistoryWithAnyChildMissingParent) {
+	TEST(TEST_CLASS, CannotLoadHistoryWithAnyChildMissingParent) {
 		// Assert: notice that 125 has parent 124, but 124 is not present
 		AssertCannotLoadWithBadData({ NamespaceId(124), NamespaceId(125) });
 	}
 
-	TEST(NamespaceCacheStorageTests, CannotLoadHistoryWithRootChild) {
+	TEST(TEST_CLASS, CannotLoadHistoryWithRootChild) {
 		// Assert: notice that this will be deserialized as root path { 123 }
 		AssertCannotLoadWithBadData({ NamespaceId(), NamespaceId() });
 	}

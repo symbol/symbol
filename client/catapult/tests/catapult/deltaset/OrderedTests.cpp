@@ -1,61 +1,61 @@
-#include "tests/catapult/deltaset/utils/BaseSetTestsInclude.h"
+#include "tests/catapult/deltaset/test/BaseSetTestsInclude.h"
 
 namespace catapult { namespace deltaset {
 
 	namespace {
-		using OrderedMutableTraits = OrderedTraits<MutableTypeTraits<MutableTestEntity>>;
-		using OrderedMutablePointerTraits = OrderedTraits<MutableTypeTraits<std::shared_ptr<MutableTestEntity>>>;
-		using OrderedImmutableTraits = OrderedTraits<ImmutableTypeTraits<const ImmutableTestEntity>>;
-		using OrderedImmutablePointerTraits = OrderedTraits<ImmutableTypeTraits<std::shared_ptr<const ImmutableTestEntity>>>;
+		using OrderedMutableTraits = test::OrderedTraits<MutableTypeTraits<test::MutableTestElement>>;
+		using OrderedMutablePointerTraits = test::OrderedTraits<MutableTypeTraits<std::shared_ptr<test::MutableTestElement>>>;
+		using OrderedImmutableTraits = test::OrderedTraits<ImmutableTypeTraits<const test::ImmutableTestElement>>;
+		using OrderedImmutablePointerTraits = test::OrderedTraits<ImmutableTypeTraits<std::shared_ptr<const test::ImmutableTestElement>>>;
 	}
-
-#define REGISTER_DELTA_MUTABLE_TYPES(TEST_NAME) \
-	REGISTER_TEST(TEST_NAME, DeltaTraits<OrderedMutableTraits>, DeltaOrderedMutable); \
-	REGISTER_TEST(TEST_NAME, DeltaTraits<OrderedMutablePointerTraits>, DeltaOrderedMutablePointer); \
-
-#define REGISTER_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
-	REGISTER_TEST(TEST_NAME, DeltaTraits<OrderedImmutableTraits>, DeltaOrderedImmutable); \
-	REGISTER_TEST(TEST_NAME, DeltaTraits<OrderedImmutablePointerTraits>, DeltaOrderedImmutablePointer); \
-
-#define REGISTER_NON_DELTA_MUTABLE_TYPES(TEST_NAME) \
-	REGISTER_TEST(TEST_NAME, BaseTraits<OrderedMutableTraits>, BaseOrderedMutable); \
-	REGISTER_TEST(TEST_NAME, BaseTraits<OrderedMutablePointerTraits>, BaseOrderedMutablePointer); \
-
-#define REGISTER_NON_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
-	REGISTER_TEST(TEST_NAME, BaseTraits<OrderedImmutableTraits>, BaseOrderedImmutable); \
-	REGISTER_TEST(TEST_NAME, BaseTraits<OrderedImmutablePointerTraits>, BaseOrderedImmutablePointer);
 }}
 
-#include "tests/catapult/deltaset/utils/BaseSetTestsImpl.h"
+#define REGISTER_DELTA_MUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::OrderedMutableTraits>, DeltaOrderedMutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::OrderedMutablePointerTraits>, DeltaOrderedMutablePointer); \
+
+#define REGISTER_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::OrderedImmutableTraits>, DeltaOrderedImmutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::OrderedImmutablePointerTraits>, DeltaOrderedImmutablePointer); \
+
+#define REGISTER_NON_DELTA_MUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::OrderedMutableTraits>, BaseOrderedMutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::OrderedMutablePointerTraits>, BaseOrderedMutablePointer); \
+
+#define REGISTER_NON_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::OrderedImmutableTraits>, BaseOrderedImmutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::OrderedImmutablePointerTraits>, BaseOrderedImmutablePointer); \
+
+#include "tests/catapult/deltaset/test/BaseSetTestsImpl.h"
 
 namespace catapult { namespace deltaset {
 /* forward tests only use ordered base variants */
 #define REGISTER_FORWARD_ORDER_TYPES(TEST_NAME) \
-	REGISTER_TEST(TEST_NAME, BaseTraits<OrderedMutableTraits>, OrderedMutable); \
-	REGISTER_TEST(TEST_NAME, BaseTraits<OrderedMutablePointerTraits>, OrderedMutablePointer); \
-	REGISTER_TEST(TEST_NAME, BaseTraits<OrderedImmutableTraits>, OrderedImmutable); \
-	REGISTER_TEST(TEST_NAME, BaseTraits<OrderedImmutablePointerTraits>, OrderedImmutablePointer); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::OrderedMutableTraits>, OrderedMutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::OrderedMutablePointerTraits>, OrderedMutablePointer); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::OrderedImmutableTraits>, OrderedImmutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::OrderedImmutablePointerTraits>, OrderedImmutablePointer); \
 
-#define FORWARD_ORDER_TRAITS_BASED_TEST(TEST_NAME) DEFINE_SIMPLE_TEST(TEST_NAME, REGISTER_FORWARD_ORDER_TYPES)
+#define DEFINE_FORWARD_ORDER_TESTS(TEST_NAME) DEFINE_BASE_SET_TESTS(TEST_NAME, REGISTER_FORWARD_ORDER_TYPES)
 
-	FORWARD_ORDER_TRAITS_BASED_TEST(OrderedBaseCanIterateThroughSetInOrder) {
+	DEFINE_FORWARD_ORDER_TESTS(OrderedBaseCanIterateThroughSetInOrder) {
 		// Arrange:
-		auto pBaseSet = TTraits::CreateWithEntities(3);
+		auto pBaseSet = TTraits::CreateWithElements(3);
 		auto pDelta = pBaseSet->rebase();
-		pDelta->emplace("TestEntity", 7u);
-		pDelta->emplace("TestEntity", 4u);
+		pDelta->emplace("TestElement", 7u);
+		pDelta->emplace("TestElement", 4u);
 		pBaseSet->commit();
-		auto it = pBaseSet->cbegin();
+		auto iter = pBaseSet->begin();
 
 		// Assert:
-		EXPECT_EQ(TestEntity("TestEntity", 0), *TTraits::ToPointerFromStorage(*it++));
-		EXPECT_EQ(TestEntity("TestEntity", 1), *TTraits::ToPointerFromStorage(*it++));
-		EXPECT_EQ(TestEntity("TestEntity", 2), *TTraits::ToPointerFromStorage(*it++));
-		EXPECT_EQ(TestEntity("TestEntity", 4), *TTraits::ToPointerFromStorage(*it++));
-		EXPECT_EQ(TestEntity("TestEntity", 7), *TTraits::ToPointerFromStorage(*it++));
-		EXPECT_EQ(pBaseSet->cend(), it);
+		EXPECT_EQ(test::TestElement("TestElement", 0), *TTraits::ToPointerFromStorage(*iter++));
+		EXPECT_EQ(test::TestElement("TestElement", 1), *TTraits::ToPointerFromStorage(*iter++));
+		EXPECT_EQ(test::TestElement("TestElement", 2), *TTraits::ToPointerFromStorage(*iter++));
+		EXPECT_EQ(test::TestElement("TestElement", 4), *TTraits::ToPointerFromStorage(*iter++));
+		EXPECT_EQ(test::TestElement("TestElement", 7), *TTraits::ToPointerFromStorage(*iter++));
+		EXPECT_EQ(pBaseSet->end(), iter);
 
 		// Sanity: the iterator elements are const
-		AssertConstIterator(*pBaseSet);
+		test::AssertConstIterator(*pBaseSet);
 	}
 }}

@@ -1,4 +1,5 @@
 #include "catapult/validators/AggregateValidationResult.h"
+#include "tests/test/other/ValidationResultTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace validators {
@@ -6,15 +7,11 @@ namespace catapult { namespace validators {
 #define TEST_CLASS AggregateValidationResultTests
 
 	namespace {
-		constexpr ValidationResult MakeValidationResult(ResultSeverity severity, uint16_t code) {
-			return MakeValidationResult(severity, FacilityCode::Chain, code, ResultFlags::None);
-		}
-
 		constexpr auto Success_Result = ValidationResult::Success;
-		constexpr auto Success2_Result = MakeValidationResult(ResultSeverity::Success, 1);
-		constexpr auto Neutral_Result = MakeValidationResult(ResultSeverity::Neutral, 2);
-		constexpr auto Failure_Result = MakeValidationResult(ResultSeverity::Failure, 3);
-		constexpr auto Failure2_Result = MakeValidationResult(ResultSeverity::Failure, 4);
+		constexpr auto Success2_Result = test::MakeValidationResult(ResultSeverity::Success, 1);
+		constexpr auto Neutral_Result = test::MakeValidationResult(ResultSeverity::Neutral, 2);
+		constexpr auto Failure_Result = test::MakeValidationResult(ResultSeverity::Failure, 3);
+		constexpr auto Failure2_Result = test::MakeValidationResult(ResultSeverity::Failure, 4);
 
 		template<typename TAggregate>
 		ValidationResult AggregateAndReturn(TAggregate& aggregate, ValidationResult value) {

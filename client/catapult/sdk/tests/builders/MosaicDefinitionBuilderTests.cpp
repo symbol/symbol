@@ -1,26 +1,27 @@
 #include "src/builders/MosaicDefinitionBuilder.h"
 #include "plugins/txes/namespace/src/model/IdGenerator.h"
-#include "tests/TestHarness.h"
-
-#define TEST_CLASS MosaicDefinitionBuilderTests
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
 
+#define TEST_CLASS MosaicDefinitionBuilderTests
+
 	namespace {
-		auto CreateBuilderWithName(const RawString& name) {
-			return MosaicDefinitionBuilder(
-				static_cast<model::NetworkIdentifier>(0x62),
-				test::GenerateRandomData<Key_Size>(),
-				test::GenerateRandomValue<NamespaceId>(),
-				name);
+		using RegularTraits = test::RegularTransactionTraits<model::MosaicDefinitionTransaction>;
+		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedMosaicDefinitionTransaction>;
+
+		auto CreateBuilderWithName(const RawString& name, const Key& signer) {
+			auto networkIdentifier = static_cast<model::NetworkIdentifier>(0x62);
+			return MosaicDefinitionBuilder(networkIdentifier, signer, test::GenerateRandomValue<NamespaceId>(), name);
 		}
 
+		template<typename TTraits, typename TValidationFunction>
 		void AssertCanBuildTransaction(
 				NamespaceId parentNamespaceId,
 				const std::string& mosaicName,
 				size_t propertiesSize,
-				const std::function<void (MosaicDefinitionBuilder&)>& buildTransaction,
-				const std::function<void (const model::MosaicDefinitionTransaction&)>& validateTransaction) {
+				const consumer<MosaicDefinitionBuilder&>& buildTransaction,
+				const TValidationFunction& validateTransaction) {
 
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
@@ -29,29 +30,23 @@ namespace catapult { namespace builders {
 			// Act:
 			MosaicDefinitionBuilder builder(networkId, signer, parentNamespaceId, mosaicName);
 			buildTransaction(builder);
-			auto pTransaction = builder.build();
+			auto pTransaction = TTraits::InvokeBuilder(builder);
 
 			// Assert:
-			ASSERT_EQ(sizeof(model::MosaicDefinitionTransaction) + mosaicName.size() + propertiesSize, pTransaction->Size);
-			EXPECT_EQ(Signature{}, pTransaction->Signature);
+			TTraits::CheckFields(mosaicName.size() + propertiesSize, *pTransaction);
 			EXPECT_EQ(signer, pTransaction->Signer);
 			EXPECT_EQ(0x6202, pTransaction->Version);
-			EXPECT_EQ(model::EntityType::Mosaic_Definition, pTransaction->Type);
+			EXPECT_EQ(model::Entity_Type_Mosaic_Definition, pTransaction->Type);
 			EXPECT_EQ(parentNamespaceId, pTransaction->ParentId);
-
-			EXPECT_EQ(Amount(0), pTransaction->Fee);
-			EXPECT_EQ(Timestamp(0), pTransaction->Deadline);
 
 			validateTransaction(*pTransaction);
 		}
 
-		void AssertMosaicDefinitionName(
-				const model::MosaicDefinitionTransaction& transaction,
-				NamespaceId parentId,
-				const std::string& mosaicName) {
+		template<typename TTransaction>
+		void AssertMosaicDefinitionName(const TTransaction& transaction, NamespaceId parentId, const std::string& mosaicName) {
 			// Assert:
 			EXPECT_EQ(mosaicName.size(), transaction.MosaicNameSize);
-			EXPECT_EQ(0, memcmp(mosaicName.data(), transaction.NamePtr(), mosaicName.size()));
+			EXPECT_TRUE(0 == std::memcmp(mosaicName.data(), transaction.NamePtr(), mosaicName.size()));
 
 			// - id matches
 			auto expectedId = model::GenerateMosaicId(parentId, mosaicName);
@@ -90,15 +85,21 @@ namespace catapult { namespace builders {
 		}
 	}
 
+#define TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
 	// region constructor
 
-	TEST(TEST_CLASS, CanCreateTransaction) {
+	TRAITS_BASED_TEST(CanCreateTransaction) {
 		// Arrange:
 		auto namespaceId = test::GenerateRandomValue<NamespaceId>();
 		auto mosaicName = test::GenerateRandomString(10);
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				namespaceId,
 				mosaicName,
 				0,
@@ -112,15 +113,16 @@ namespace catapult { namespace builders {
 
 	TEST(TEST_CLASS, CannotSetEmptyName) {
 		// Act + Assert:
-		EXPECT_THROW(CreateBuilderWithName({}), catapult_invalid_argument);
+		EXPECT_THROW(CreateBuilderWithName({}, test::GenerateRandomData<Key_Size>()), catapult_invalid_argument);
 	}
 
 	TEST(TEST_CLASS, CannnotSetTooLongName) {
 		// Arrange:
 		auto namespaceName = test::GenerateRandomString(1 << (sizeof(model::MosaicDefinitionTransaction::MosaicNameSize) * 8));
-		auto builder = CreateBuilderWithName(namespaceName);
+		auto signer = test::GenerateRandomData<Key_Size>();
+		auto builder = CreateBuilderWithName(namespaceName, signer);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(builder.build(), catapult_runtime_error);
 	}
 
@@ -129,15 +131,14 @@ namespace catapult { namespace builders {
 	// region required properties
 
 	namespace {
-		void AssertCanSetFlags(
-				model::MosaicFlags expectedFlags,
-				const std::function<void (MosaicDefinitionBuilder&)>& buildTransaction) {
+		template<typename TTraits>
+		void AssertCanSetFlags(model::MosaicFlags expectedFlags, const consumer<MosaicDefinitionBuilder&>& buildTransaction) {
 			// Arrange:
 			auto namespaceId = test::GenerateRandomValue<NamespaceId>();
 			auto mosaicName = test::GenerateRandomString(10);
 
 			// Assert:
-			AssertCanBuildTransaction(
+			AssertCanBuildTransaction<TTraits>(
 					namespaceId,
 					mosaicName,
 					0,
@@ -146,37 +147,37 @@ namespace catapult { namespace builders {
 		}
 	}
 
-	TEST(TEST_CLASS, CanSetFlags_SupplyMutable) {
+	TRAITS_BASED_TEST(CanSetFlags_SupplyMutable) {
 		// Assert:
-		AssertCanSetFlags(
+		AssertCanSetFlags<TTraits>(
 				model::MosaicFlags::Supply_Mutable,
 				[](auto& builder) {
 					builder.setSupplyMutable();
 				});
 	}
 
-	TEST(TEST_CLASS, CanSetFlags_Transferable) {
+	TRAITS_BASED_TEST(CanSetFlags_Transferable) {
 		// Assert:
-		AssertCanSetFlags(
+		AssertCanSetFlags<TTraits>(
 				model::MosaicFlags::Transferable,
 				[](auto& builder) {
 					builder.setTransferable();
 				});
 	}
 
-	TEST(TEST_CLASS, CanSetFlags_LevyMutable) {
+	TRAITS_BASED_TEST(CanSetFlags_LevyMutable) {
 		// Assert:
-		AssertCanSetFlags(
+		AssertCanSetFlags<TTraits>(
 				model::MosaicFlags::Levy_Mutable,
 				[](auto& builder) {
 					builder.setLevyMutable();
 				});
 	}
 
-	TEST(TEST_CLASS, CanSetFlags_All) {
+	TRAITS_BASED_TEST(CanSetFlags_All) {
 		// Assert:
-		AssertCanSetFlags(
-				model::MosaicFlags::Supply_Mutable | model::MosaicFlags::Transferable | model::MosaicFlags::Levy_Mutable ,
+		AssertCanSetFlags<TTraits>(
+				model::MosaicFlags::Supply_Mutable | model::MosaicFlags::Transferable | model::MosaicFlags::Levy_Mutable,
 				[](auto& builder) {
 					builder.setSupplyMutable();
 					builder.setLevyMutable();
@@ -184,13 +185,13 @@ namespace catapult { namespace builders {
 				});
 	}
 
-	TEST(TEST_CLASS, CanSetDivisibility) {
+	TRAITS_BASED_TEST(CanSetDivisibility) {
 		// Arrange:
 		auto namespaceId = test::GenerateRandomValue<NamespaceId>();
 		auto mosaicName = test::GenerateRandomString(10);
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				namespaceId,
 				mosaicName,
 				0,
@@ -204,18 +205,18 @@ namespace catapult { namespace builders {
 
 	// region optional properties
 
-	TEST(TEST_CLASS, CanSetOptionalProperty_Duration) {
+	TRAITS_BASED_TEST(CanSetOptionalProperty_Duration) {
 		// Arrange:
 		auto namespaceId = test::GenerateRandomValue<NamespaceId>();
 		auto mosaicName = test::GenerateRandomString(10);
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				namespaceId,
 				mosaicName,
 				sizeof(model::MosaicProperty),
 				[](auto& builder) {
-					builder.setDuration(ArtifactDuration(12345678));
+					builder.setDuration(BlockDuration(12345678));
 				},
 				CreatePropertyChecker(namespaceId, mosaicName, model::MosaicFlags::None, 0, { 12345678 }));
 	}

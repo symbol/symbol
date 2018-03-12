@@ -10,6 +10,68 @@
 namespace catapult { namespace validators {
 
 	namespace {
+		// region ShortCircuitTraits
+
+		struct ShortCircuitTraits {
+		public:
+			using ResultType = ValidationResult;
+
+			static constexpr bool IsEntityShortCircuitAllowed = true;
+
+		public:
+			explicit ShortCircuitTraits(size_t) : m_aggregateResult(ValidationResult::Success)
+			{}
+
+		public:
+			bool validateEntity(const model::WeakEntityInfo& entityInfo, const ValidationFunction& validationFunction, size_t) {
+				if (IsValidationResultFailure(m_aggregateResult))
+					return false;
+
+				auto result = validationFunction(entityInfo);
+				AggregateValidationResult(m_aggregateResult, result);
+				return true;
+			}
+
+			ValidationResult result() {
+				return m_aggregateResult;
+			}
+
+		private:
+			std::atomic<ValidationResult> m_aggregateResult;
+		};
+
+		// endregion
+
+		// region AllTraits
+
+		struct AllTraits {
+		public:
+			using ResultType = std::vector<ValidationResult>;
+
+			static constexpr bool IsEntityShortCircuitAllowed = false;
+
+		public:
+			explicit AllTraits(size_t numEntities) : m_results(numEntities, ValidationResult::Success)
+			{}
+
+		public:
+			bool validateEntity(const model::WeakEntityInfo& entityInfo, const ValidationFunction& validationFunction, size_t index) {
+				auto result = validationFunction(entityInfo);
+				AggregateValidationResult(m_results[index], result);
+				return !IsValidationResultFailure(m_results[index]);
+			}
+
+			std::vector<ValidationResult> result() {
+				return std::move(m_results);
+			}
+
+		private:
+			std::vector<ValidationResult> m_results;
+		};
+
+		// endregion
+
+		template<typename TTraits>
 		class ValidationWork {
 		public:
 			ValidationWork(
@@ -19,7 +81,7 @@ namespace catapult { namespace validators {
 					: m_pOwner(pOwner) // extend the owner lifetime to the lifetime of this context
 					, m_validationFunctions(validationFunctions)
 					, m_entityInfos(entityInfos)
-					, m_aggregateResult(ValidationResult::Success)
+					, m_impl(m_entityInfos.size())
 			{}
 
 		public:
@@ -33,16 +95,20 @@ namespace catapult { namespace validators {
 
 		public:
 			void complete() {
-				m_promise.set_value(m_aggregateResult);
+				m_promise.set_value(std::move(m_impl.result()));
 			}
 
-			bool validateEntity(const model::WeakEntityInfo& entityInfo) {
+			bool validateEntity(const model::WeakEntityInfo& entityInfo, size_t index) {
 				for (const auto& validationFunction : m_validationFunctions) {
-					if (IsValidationResultFailure(m_aggregateResult))
+					if (m_impl.validateEntity(entityInfo, validationFunction, index))
+						continue;
+
+					// if allowed by policy, bypass processing of subsequent entities after failure
+					if (TTraits::IsEntityShortCircuitAllowed)
 						return false;
 
-					auto result = validationFunction(entityInfo);
-					AggregateValidationResult(m_aggregateResult, result);
+					// subsequent validators can always be bypassed after failure
+					break;
 				}
 
 				return true;
@@ -52,33 +118,47 @@ namespace catapult { namespace validators {
 			std::shared_ptr<const void> m_pOwner;
 			ValidationFunctions m_validationFunctions;
 			model::WeakEntityInfos m_entityInfos;
-			std::atomic<ValidationResult> m_aggregateResult;
-			thread::promise<ValidationResult> m_promise;
+			thread::promise<typename TTraits::ResultType> m_promise;
+			TTraits m_impl;
 		};
 
-		class ParallelValidationPolicy final
-				: public std::enable_shared_from_this<ParallelValidationPolicy> {
+		class DefaultParallelValidationPolicy final
+				: public ParallelValidationPolicy
+				, public std::enable_shared_from_this<DefaultParallelValidationPolicy> {
 		public:
-			explicit ParallelValidationPolicy(const std::shared_ptr<thread::IoServiceThreadPool>& pPool)
+			explicit DefaultParallelValidationPolicy(const std::shared_ptr<thread::IoServiceThreadPool>& pPool)
 					: m_pPool(pPool)
 					, m_service(pPool->service()) {
-				CATAPULT_LOG(trace) << "DefaultParallelValidationPolicy created with "
-					<< pPool->numWorkerThreads() << " worker threads";
+				CATAPULT_LOG(trace) << "DefaultParallelValidationPolicy created with " << pPool->numWorkerThreads() << " worker threads";
 			}
 
-		public:
-			thread::future<ValidationResult> operator()(
-					const model::WeakEntityInfos& entityInfos,
-					const ValidationFunctions& validationFunctions) const {
-				auto pWork = std::make_shared<ValidationWork>(shared_from_this(), validationFunctions, entityInfos);
+		private:
+			template<typename TTraits>
+			auto validateT(const model::WeakEntityInfos& entityInfos, const ValidationFunctions& validationFunctions) const {
+				auto pWork = std::make_shared<ValidationWork<TTraits>>(shared_from_this(), validationFunctions, entityInfos);
 				return thread::compose(
-						thread::ParallelFor(m_service, pWork->entityInfos(), m_pPool->numWorkerThreads(), [pWork](const auto& entityInfo) {
-							return pWork->validateEntity(entityInfo);
+						thread::ParallelFor(m_service, pWork->entityInfos(), m_pPool->numWorkerThreads(), [pWork](
+								const auto& entityInfo,
+								auto index) {
+							return pWork->validateEntity(entityInfo, index);
 						}),
 						[pWork](const auto&) {
 							pWork->complete();
 							return pWork->future();
 						});
+			}
+
+		public:
+			thread::future<ValidationResult> validateShortCircuit(
+					const model::WeakEntityInfos& entityInfos,
+					const ValidationFunctions& validationFunctions) const override {
+				return validateT<ShortCircuitTraits>(entityInfos, validationFunctions);
+			}
+
+			thread::future<std::vector<ValidationResult>> validateAll(
+					const model::WeakEntityInfos& entityInfos,
+					const ValidationFunctions& validationFunctions) const override {
+				return validateT<AllTraits>(entityInfos, validationFunctions);
 			}
 
 		private:
@@ -87,11 +167,8 @@ namespace catapult { namespace validators {
 		};
 	}
 
-	ParallelValidationPolicyFunc CreateParallelValidationPolicy(
+	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(
 			const std::shared_ptr<thread::IoServiceThreadPool>& pPool) {
-		auto pPolicy = std::make_shared<const ParallelValidationPolicy>(pPool);
-		return ParallelValidationPolicyFunc([pPolicy = pPolicy.get()](const auto& entityInfos, const auto& validationFunctions) {
-			return (*pPolicy)(entityInfos, validationFunctions);
-		}, pPolicy);
+		return std::make_shared<const DefaultParallelValidationPolicy>(pPool);
 	}
 }}

@@ -1,5 +1,5 @@
 #pragma once
-#include "Traits.h"
+#include "traits/Traits.h"
 #include "catapult/preprocessor.h"
 #include <array>
 #include <iomanip>

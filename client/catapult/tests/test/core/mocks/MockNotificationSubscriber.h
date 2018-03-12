@@ -126,7 +126,7 @@ namespace catapult { namespace mocks {
 	public:
 		void notify(const model::Notification& notification) override {
 			++m_numNotifications;
-			if (m_type == notification.Type)
+			if (model::AreEqualExcludingChannel(m_type, notification.Type))
 				m_matchingNotifications.push_back(test::CastToDerivedNotification<TNotification>(notification));
 		}
 

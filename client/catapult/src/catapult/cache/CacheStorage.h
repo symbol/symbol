@@ -1,12 +1,6 @@
 #pragma once
+#include "CacheStorageInclude.h"
 #include <string>
-
-namespace catapult {
-	namespace io {
-		class InputStream;
-		class OutputStream;
-	}
-}
 
 namespace catapult { namespace cache {
 

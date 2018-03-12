@@ -9,7 +9,7 @@ namespace catapult { namespace validators {
 			return flags <= model::MosaicFlags::All;
 		}
 
-		ValidationResult CheckOptionalProperties(const Notification& notification, ArtifactDuration maxMosaicDuration) {
+		ValidationResult CheckOptionalProperties(const Notification& notification, BlockDuration maxMosaicDuration) {
 			if (0 == notification.PropertiesHeader.Count)
 				return ValidationResult::Success;
 
@@ -21,19 +21,15 @@ namespace catapult { namespace validators {
 				return Failure_Mosaic_Invalid_Property;
 
 			// note that Eternal_Artifact_Duration is default value and should not be specified explicitly
-			auto duration = ArtifactDuration(property.Value);
+			auto duration = BlockDuration(property.Value);
 			return maxMosaicDuration < duration || Eternal_Artifact_Duration == duration
 					? Failure_Mosaic_Invalid_Duration
 					: ValidationResult::Success;
 		}
 	}
 
-	stateless::NotificationValidatorPointerT<Notification> CreateMosaicPropertiesValidator(
-			uint8_t maxDivisibility,
-			ArtifactDuration maxMosaicDuration) {
-		return std::make_unique<stateless::FunctionalNotificationValidatorT<Notification>>(
-				"MosaicPropertiesValidator",
-				[maxDivisibility, maxMosaicDuration](const auto& notification) {
+	DECLARE_STATELESS_VALIDATOR(MosaicProperties, Notification)(uint8_t maxDivisibility, BlockDuration maxMosaicDuration) {
+		return MAKE_STATELESS_VALIDATOR(MosaicProperties, ([maxDivisibility, maxMosaicDuration](const auto& notification) {
 			if (!IsValidFlags(notification.PropertiesHeader.Flags))
 				return Failure_Mosaic_Invalid_Flags;
 
@@ -41,6 +37,6 @@ namespace catapult { namespace validators {
 				return Failure_Mosaic_Invalid_Divisibility;
 
 			return CheckOptionalProperties(notification, maxMosaicDuration);
-		});
+		}));
 	}
 }}

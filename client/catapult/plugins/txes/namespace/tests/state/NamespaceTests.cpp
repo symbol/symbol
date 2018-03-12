@@ -5,9 +5,11 @@
 
 namespace catapult { namespace state {
 
+#define TEST_CLASS NamespaceTests
+
 	// region ctor
 
-	TEST(NamespaceTests, CanCreateLevelOneNamespace) {
+	TEST(TEST_CLASS, CanCreateLevelOneNamespace) {
 		// Arrange:
 		auto path = test::CreatePath({ test::Default_Root_Id });
 
@@ -22,7 +24,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(test::CreatePath({ test::Default_Root_Id }), ns.path());
 	}
 
-	TEST(NamespaceTests, CanCreateHigherLevelNamespace) {
+	TEST(TEST_CLASS, CanCreateHigherLevelNamespace) {
 		// Arrange:
 		auto path = test::CreatePath({ test::Default_Root_Id, 357, 468 });
 
@@ -37,11 +39,11 @@ namespace catapult { namespace state {
 		EXPECT_EQ(test::CreatePath({ test::Default_Root_Id, 357, 468 }), ns.path());
 	}
 
-	TEST(NamespaceTests, CannotCreateNamespaceWithZeroSizedPath) {
+	TEST(TEST_CLASS, CannotCreateNamespaceWithZeroSizedPath) {
 		// Arrange:
 		auto path = test::CreatePath({});
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(Namespace ns(path), catapult_out_of_range);
 	}
 
@@ -49,7 +51,7 @@ namespace catapult { namespace state {
 
 	// region createChild
 
-	TEST(NamespaceTests, CanCreateChild) {
+	TEST(TEST_CLASS, CanCreateChild) {
 		// Arrange:
 		auto path = test::CreatePath({ test::Default_Root_Id, 357 });
 		Namespace ns(path);
@@ -65,12 +67,12 @@ namespace catapult { namespace state {
 		EXPECT_EQ(test::CreatePath({ test::Default_Root_Id, 357, 123 }), child.path());
 	}
 
-	TEST(NamespaceTests, CannotCreateChildIfMaxDepthIsExceeded) {
+	TEST(TEST_CLASS, CannotCreateChildIfMaxDepthIsExceeded) {
 		// Arrange:
 		auto path = test::CreatePath({ test::Default_Root_Id, 357, 468 });
 		Namespace ns(path);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(ns.createChild(NamespaceId(123)), catapult_out_of_range);
 	}
 
@@ -104,12 +106,12 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(NamespaceTests, OperatorEqualReturnsTrueForEqualObjects) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
 		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
-	TEST(NamespaceTests, OperatorNotEqualReturnsTrueForUnequalObjects) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
 		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}

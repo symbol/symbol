@@ -1,32 +1,119 @@
 #include "catapult/io/PodIoUtils.h"
-#include "catapult/io/RawFile.h"
-#include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
-
-using catapult::test::TempFileGuard;
 
 namespace catapult { namespace io {
 
 #define TEST_CLASS PodIoUtilsTests
 
 	namespace {
+		struct Traits64 {
+			static constexpr uint64_t Value = 0x12345678'90ABCDEFull;
+
+			static void Write(mocks::MockMemoryStream& stream) {
+				io::Write64(stream, Value);
+			}
+
+			static auto Read(mocks::MockMemoryStream& stream) {
+				return io::Read64(stream);
+			}
+		};
+
+		struct Traits32 {
+			static constexpr uint32_t Value = 0x12345678ul;
+
+			static void Write(mocks::MockMemoryStream& stream) {
+				io::Write32(stream, Value);
+			}
+
+			static auto Read(mocks::MockMemoryStream& stream) {
+				return io::Read32(stream);
+			}
+		};
+
+		struct Traits8 {
+			static constexpr uint8_t Value = 0x12u;
+
+			static void Write(mocks::MockMemoryStream& stream) {
+				io::Write8(stream, Value);
+			}
+
+			static auto Read(mocks::MockMemoryStream& stream) {
+				return io::Read8(stream);
+			}
+		};
+
+		template<typename TTraits>
+		void AssertCanRoundtripInteger() {
+			// Arrange:
+			std::vector<uint8_t> data;
+			mocks::MockMemoryStream stream("dummy", data);
+
+			// Act:
+			TTraits::Write(stream);
+
+			// Sanity:
+			EXPECT_EQ(sizeof(TTraits::Value), data.size());
+
+			// Act:
+			auto result = TTraits::Read(stream);
+
+			// Assert: (cast for gcc)
+			EXPECT_EQ(static_cast<decltype(TTraits::Value)>(TTraits::Value), result);
+			EXPECT_EQ(sizeof(TTraits::Value), stream.position());
+		}
+	}
+
+#define ROUNDTRIP_SIZE_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_64) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits64>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_32) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits32>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_8) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits8>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	ROUNDTRIP_SIZE_TEST(CanRoundtripInteger) {
+		// Assert:
+		AssertCanRoundtripInteger<TTraits>();
+	}
+
+	namespace {
 		struct ReadReturnValueTraits {
 			template<typename T>
-			static T Read(RawFile& file) {
+			static T Read(mocks::MockMemoryStream& stream) {
 				// Act: use return value read
-				return io::Read<T>(file);
+				return io::Read<T>(stream);
 			}
 		};
 
 		struct ReadOutParameterTraits {
 			template<typename T>
-			static T Read(RawFile& file) {
+			static T Read(mocks::MockMemoryStream& stream) {
 				// Act: use out parameter read
 				T value;
-				io::Read(file, value);
+				io::Read(stream, value);
 				return value;
 			}
 		};
+
+		struct WriteTraits {
+			template<typename TIo, typename T>
+			static void Write(TIo& stream, const T& value) {
+				io::Write(stream, value);
+			}
+		};
+
+		template<typename TReadTraits, typename T>
+		T RoundtripPod(const T& source) {
+			// Arrange:
+			std::vector<uint8_t> data;
+			mocks::MockMemoryStream stream("dummy", data);
+
+			// Act:
+			WriteTraits::template Write(stream, source);
+			return TReadTraits::template Read<T>(stream);
+		}
+
+	}
 
 #define ROUNDTRIP_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
@@ -34,37 +121,11 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, TEST_NAME##_ReadOutParameter) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReadOutParameterTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-		template<typename TReadTraits, typename T>
-		T RoundtripPod(const T& source) {
-			// Arrange:
-			TempFileGuard guard("test.dat");
-
-			// Act:
-			{
-				RawFile file(guard.name(), OpenMode::Read_Write);
-				Write(file, source);
-			}
-			T actual;
-			{
-				RawFile file(guard.name(), OpenMode::Read_Only);
-				actual = TReadTraits::template Read<T>(file);
-			}
-
-			return actual;
-		}
-
-#pragma pack(push, 1)
-		struct SampleData {
-			std::array<uint8_t, 10> Buffer;
-			uint32_t Value32;
-			double ValueDouble;
-		};
-#pragma pack(pop)
-	}
-
-	ROUNDTRIP_TEST(CanRoundtripBasicType) {
+	ROUNDTRIP_TEST(CanRoundtripBaseValue) {
 		// Arrange:
-		constexpr auto Expected = 0x12345678'90ABCDEFull;
+		struct Dummy_tag {};
+		using DummyValue = utils::BaseValue<uint64_t, Dummy_tag>;
+		constexpr DummyValue Expected(0x12345678'90ABCDEFull);
 
 		// Act:
 		auto actual = RoundtripPod<TTraits>(Expected);
@@ -73,20 +134,14 @@ namespace catapult { namespace io {
 		EXPECT_EQ(Expected, actual);
 	}
 
-	ROUNDTRIP_TEST(CanRoundtripCompoundType) {
+	ROUNDTRIP_TEST(CanRoundtripArray) {
 		// Arrange:
-		constexpr SampleData Expected = {
-			{ { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } },
-			0x12345678u,
-			1.234567890
-		};
+		std::array<uint8_t, 10> Expected = { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } };
 
 		// Act:
 		auto actual = RoundtripPod<TTraits>(Expected);
 
 		// Assert:
-		EXPECT_EQ(Expected.Buffer, actual.Buffer);
-		EXPECT_EQ(Expected.Value32, actual.Value32);
-		EXPECT_EQ(Expected.ValueDouble, actual.ValueDouble);
+		EXPECT_EQ(Expected, actual);
 	}
 }}

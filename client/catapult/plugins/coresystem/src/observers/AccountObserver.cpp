@@ -1,5 +1,5 @@
 #include "Observers.h"
-#include "src/cache/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/EntityType.h"
 #include "catapult/model/TransactionPlugin.h"
 
@@ -35,21 +35,13 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	NotificationObserverPointerT<model::AccountAddressNotification> CreateAccountAddressObserver() {
-		return std::make_unique<FunctionalNotificationObserverT<model::AccountAddressNotification>>(
-				"AccountAddressObserver",
-				[](const auto& notification, const auto& context) {
-					DefaultAccountVisitor visitor(context);
-					visitor.visit(notification.Address);
-				});
-	}
+	DEFINE_OBSERVER(AccountAddress, model::AccountAddressNotification, [](const auto& notification, const auto& context) {
+		DefaultAccountVisitor visitor(context);
+		visitor.visit(notification.Address);
+	});
 
-	NotificationObserverPointerT<model::AccountPublicKeyNotification> CreateAccountPublicKeyObserver() {
-		return std::make_unique<FunctionalNotificationObserverT<model::AccountPublicKeyNotification>>(
-				"AccountPublicKeyObserver",
-				[](const auto& notification, const auto& context) {
-					DefaultAccountVisitor visitor(context);
-					visitor.visit(notification.PublicKey);
-				});
-	}
+	DEFINE_OBSERVER(AccountPublicKey, model::AccountPublicKeyNotification, [](const auto& notification, const auto& context) {
+		DefaultAccountVisitor visitor(context);
+		visitor.visit(notification.PublicKey);
+	});
 }}

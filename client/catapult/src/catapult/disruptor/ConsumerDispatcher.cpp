@@ -1,5 +1,7 @@
 #include "ConsumerDispatcher.h"
 #include "ConsumerEntry.h"
+#include "catapult/thread/ThreadInfo.h"
+#include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Functional.h"
 #include <thread>
 
@@ -19,7 +21,7 @@ namespace catapult { namespace disruptor {
 
 			auto minPosition = barriers[barriers.size() - 1].position();
 			auto maxPosition = barriers[0].position();
-			CATAPULT_LOG(debug)
+			CATAPULT_LOG(info)
 					<< "completing processing of " << element
 					<< ", last consumer is " << (maxPosition - minPosition) << " elements behind";
 		}
@@ -35,17 +37,20 @@ namespace catapult { namespace disruptor {
 			const DisruptorInspector& inspector)
 			: NamedObjectMixin(CheckOptions(options).DispatcherName)
 			, m_elementTraceInterval(options.ElementTraceInterval)
+			, m_shouldThrowIfFull(options.ShouldThrowIfFull)
 			, m_keepRunning(true)
 			, m_barriers(consumers.size() + 1)
 			, m_disruptor(options.DisruptorSize, options.ElementTraceInterval)
-			, m_inspector(inspector) {
+			, m_inspector(inspector)
+			, m_numActiveElements(0) {
 		auto currentLevel = 0u;
 		for (const auto& consumer : consumers) {
 			ConsumerEntry consumerEntry(currentLevel++);
 			m_threads.create_thread([pThis = this, consumerEntry, consumer]() mutable {
+				thread::SetThreadName(std::to_string(consumerEntry.level()) + " " + pThis->name());
 				while (pThis->m_keepRunning) {
 					try {
-						auto pDisruptorElement = pThis->tryNext(consumerEntry);
+						auto* pDisruptorElement = pThis->tryNext(consumerEntry);
 						if (!pDisruptorElement) {
 							std::this_thread::sleep_for(std::chrono::milliseconds(10));
 							continue;
@@ -57,8 +62,10 @@ namespace catapult { namespace disruptor {
 
 						pThis->advance(consumerEntry);
 					} catch (...) {
-						CATAPULT_LOG(fatal) << "consumer at level " << consumerEntry.level() << " threw exception: "
-								<< boost::current_exception_diagnostic_information();
+						CATAPULT_LOG(fatal)
+								<< "consumer at level " << consumerEntry.level() << " threw exception: "
+								<< EXCEPTION_DIAGNOSTIC_MESSAGE();
+						utils::CatapultLogFlush();
 						throw;
 					}
 				}
@@ -89,20 +96,8 @@ namespace catapult { namespace disruptor {
 		return m_disruptor.added();
 	}
 
-	void ConsumerDispatcher::checkCapacity(const ConsumerEntry& consumerEntry) const {
-		auto minPosition = m_barriers[m_barriers.size() - 1].position();
-		auto maxPosition = m_barriers[0].position();
-		auto requiredCapacity = maxPosition - minPosition + 1;
-		auto totalCapacity = m_disruptor.capacity();
-
-		if (requiredCapacity < totalCapacity)
-			return;
-
-		CATAPULT_LOG(warning) << "disruptor is full (minPosition = " << minPosition << ", maxPosition = " << maxPosition
-				<< ") at consumer " << consumerEntry.level();
-
-		if (requiredCapacity > totalCapacity)
-			CATAPULT_THROW_RUNTIME_ERROR("consumer is too far behind");
+	size_t ConsumerDispatcher::numActiveElements() const {
+		return m_numActiveElements.load();
 	}
 
 	DisruptorElement* ConsumerDispatcher::tryNext(ConsumerEntry& consumerEntry) {
@@ -111,8 +106,6 @@ namespace catapult { namespace disruptor {
 			auto consumerPosition = consumerEntry.position();
 			if (consumerPosition == consumerBarrierPosition)
 				return nullptr;
-
-			checkCapacity(consumerEntry);
 
 			if (!m_disruptor.isSkipped(consumerPosition))
 				return &m_disruptor.elementAt(consumerPosition);
@@ -126,8 +119,7 @@ namespace catapult { namespace disruptor {
 		consumerEntry.advance();
 		m_barriers[consumerEntry.level() + 1].advance();
 
-		// If it's advance in the last consumer run the inspector.
-		// Inspector runs within a thread of the last consumer.
+		// if advance was called by the last consumer, then run the inspector on the (current) thread of the last consumer
 		if (consumerEntry.level() + 1 != m_barriers.size() - 1)
 			return;
 
@@ -137,13 +129,43 @@ namespace catapult { namespace disruptor {
 		element.markProcessingComplete();
 	}
 
+	bool ConsumerDispatcher::canProcessNextElement() const {
+		auto minPosition = m_barriers[m_barriers.size() - 1].position();
+		auto maxPosition = m_barriers[0].position();
+		auto requiredCapacity = maxPosition - minPosition + 1 + 1; // check for space for *next* element
+		auto totalCapacity = m_disruptor.capacity();
+
+		if (requiredCapacity < totalCapacity)
+			return true;
+
+		CATAPULT_LOG(warning) << "disruptor is full (minPosition = " << minPosition << ", maxPosition = " << maxPosition << ")";
+		return requiredCapacity == totalCapacity;
+	}
+
+	ProcessingCompleteFunc ConsumerDispatcher::wrap(const ProcessingCompleteFunc& processingComplete) {
+		return [processingComplete, &numActiveElements = m_numActiveElements](auto elementId, const auto& result) {
+			processingComplete(elementId, result);
+			--numActiveElements;
+		};
+	}
+
 	DisruptorElementId ConsumerDispatcher::processElement(ConsumerInput&& input, const ProcessingCompleteFunc& processingComplete) {
 		if (input.empty()) {
 			CATAPULT_LOG(trace) << "dispatcher is ignoring empty input (" << input << ")";
-			return 0u;
+			return 0;
 		}
 
-		auto id = m_disruptor.add(std::move(input), processingComplete);
+		// need to atomically check spare capacity AND add element
+		utils::SpinLockGuard guard(m_addSpinLock);
+		if (!canProcessNextElement()) {
+			if (m_shouldThrowIfFull)
+				CATAPULT_THROW_RUNTIME_ERROR("consumer is too far behind");
+
+			return 0;
+		}
+
+		++m_numActiveElements;
+		auto id = m_disruptor.add(std::move(input), wrap(processingComplete));
 		m_barriers[0].advance();
 		return id;
 	}

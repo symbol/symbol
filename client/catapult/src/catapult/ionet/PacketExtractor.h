@@ -5,7 +5,6 @@
 
 namespace catapult { namespace ionet {
 
-/// Possible results from PacketExtractor::tryExtractNextPacket.
 #define PACKET_EXTRACT_RESULT_LIST \
 	/* A packet was succesfully extracted. */ \
 	ENUM_VALUE(Success) \
@@ -16,11 +15,15 @@ namespace catapult { namespace ionet {
 	/* A packet was not extracted due to a packet error. */ \
 	ENUM_VALUE(Packet_Error)
 
-#define DECLARE_ENUM PacketExtractResult
-#define ENUM_LIST PACKET_EXTRACT_RESULT_LIST
-#include "catapult/utils/MacroBasedEnum.h"
-#undef ENUM_LIST
-#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+	/// Possible results from PacketExtractor::tryExtractNextPacket.
+	enum class PacketExtractResult {
+		PACKET_EXTRACT_RESULT_LIST
+	};
+#undef ENUM_VALUE
+
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, PacketExtractResult value);
 
 	/// Helper for extracting a packet from a working buffer.
 	class PacketExtractor {

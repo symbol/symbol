@@ -1,6 +1,7 @@
 #pragma once
 #include "IoServiceThreadPool.h"
 #include "catapult/utils/Logging.h"
+#include "catapult/functions.h"
 #include <memory>
 #include <thread>
 #include <vector>
@@ -11,6 +12,14 @@ namespace catapult { namespace thread {
 	/// \note Services are shutdown in reverse order of registration.
 	class MultiServicePool {
 	public:
+		/// The isolated pool mode.
+		enum class IsolatedPoolMode {
+			/// Sub pool isolation is enabled.
+			Enabled,
+			/// Sub pool isolation is disabled.
+			Disabled
+		};
+
 		/// A default pool concurrency level based on the local hardware configuration.
 		static constexpr size_t DefaultPoolConcurrency() {
 			return 0;
@@ -21,7 +30,7 @@ namespace catapult { namespace thread {
 
 		/// A group of services that should be shutdown together and might be interdependent.
 		/// \note AsyncTcpServer and accept handlers (PacketReaders, PacketWriters) have such a shutdown requirement
-		///       because AsyncTcpServer includes a shared_ptr to itself as part of its AsyncTcpServerAcceptContext,
+		///       because AsyncTcpServer includes a shared_ptr to itself as part of its accepted PacketSocket,
 		///       which is then kept alive by the accept handlers until they are also shutdown.
 		class ServiceGroup {
 		public:
@@ -50,6 +59,7 @@ namespace catapult { namespace thread {
 					pService->shutdown();
 				});
 
+				CATAPULT_LOG(debug) << "registered " << serviceName;
 				return pService;
 			}
 
@@ -78,16 +88,18 @@ namespace catapult { namespace thread {
 			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
 			std::string m_name;
 			std::vector<std::shared_ptr<void>> m_services;
-			std::vector<std::function<void ()>> m_shutdownFunctions;
+			std::vector<action> m_shutdownFunctions;
 		};
 
 		// endregion
 
 	public:
-		/// Creates a pool with the specified number of threads (\a numWorkerThreads) and \a name.
+		/// Creates a pool with the specified number of threads (\a numWorkerThreads) and \a name with optional
+		/// isolated pool mode (\a isolatedPoolMode).
 		/// \note If \a numWorkerThreads is \c 0, a default number of threads will be used.
-		MultiServicePool(size_t numWorkerThreads, const std::string& name)
+		MultiServicePool(const std::string& name, size_t numWorkerThreads, IsolatedPoolMode isolatedPoolMode = IsolatedPoolMode::Enabled)
 				: m_name(name)
+				, m_isolatedPoolMode(isolatedPoolMode)
 				, m_numTotalIsolatedPoolThreads(0)
 				, m_numServiceGroups(0)
 				, m_pPool(CreateThreadPool(numWorkerThreads, name))
@@ -144,9 +156,14 @@ namespace catapult { namespace thread {
 			return pGroup;
 		}
 
+		/// Creates a new isolated threadpool with a default number of threads and \a name.
+		std::shared_ptr<thread::IoServiceThreadPool> pushIsolatedPool(const std::string& name) {
+			return pushIsolatedPool(name, DefaultPoolConcurrency());
+		}
+
 		/// Creates a new isolated threadpool with the specified number of threads (\a numWorkerThreads) and \a name.
 		/// \note If \a numWorkerThreads is \c 0, a default number of threads will be used.
-		std::shared_ptr<thread::IoServiceThreadPool> pushIsolatedPool(size_t numWorkerThreads, const std::string& name) {
+		std::shared_ptr<thread::IoServiceThreadPool> pushIsolatedPool(const std::string& name, size_t numWorkerThreads) {
 			class PoolServiceAdapter {
 			public:
 				explicit PoolServiceAdapter(const std::shared_ptr<thread::IoServiceThreadPool>& pPool) : m_pPool(pPool)
@@ -161,6 +178,10 @@ namespace catapult { namespace thread {
 			private:
 				std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
 			};
+
+			// when isolated pool mode is disabled, use the main pool for everything
+			if (IsolatedPoolMode::Disabled == m_isolatedPoolMode)
+				return m_pPool;
 
 			auto pPool = CreateThreadPool(numWorkerThreads, name);
 			registerService(std::make_shared<PoolServiceAdapter>(pPool), name + " (isolated pool)");
@@ -208,10 +229,11 @@ namespace catapult { namespace thread {
 
 	private:
 		std::string m_name;
+		IsolatedPoolMode m_isolatedPoolMode;
 		size_t m_numTotalIsolatedPoolThreads;
 		size_t m_numServiceGroups;
 		std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
 		std::vector<std::shared_ptr<ServiceGroup>> m_serviceGroups;
-		std::vector<std::function<void ()>> m_shutdownFunctions;
+		std::vector<action> m_shutdownFunctions;
 	};
 }}

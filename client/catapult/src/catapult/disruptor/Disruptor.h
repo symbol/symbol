@@ -5,8 +5,6 @@
 #include "catapult/model/EntityRange.h"
 #include "catapult/utils/CircularBuffer.h"
 #include "catapult/utils/NonCopyable.h"
-#include "catapult/utils/SpinLock.h"
-#include <mutex>
 #include <vector>
 
 namespace catapult { namespace disruptor {
@@ -50,9 +48,7 @@ namespace catapult { namespace disruptor {
 		}
 
 	private:
-		using SpinLockGuard = std::lock_guard<utils::SpinLock>;
 		size_t m_elementTraceInterval;
-		utils::SpinLock m_containerSpinLock;
 		utils::CircularBuffer<DisruptorElement> m_container;
 		std::atomic<uint64_t> m_allElementsCount;
 	};

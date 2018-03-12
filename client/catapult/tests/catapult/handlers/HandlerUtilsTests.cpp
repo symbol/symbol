@@ -6,6 +6,8 @@
 
 namespace catapult { namespace handlers {
 
+#define TEST_CLASS HandlerUtilsTests
+
 	// region CreatePushEntityHandler
 
 	namespace {
@@ -14,19 +16,29 @@ namespace catapult { namespace handlers {
 
 		void AssertCreatePushEntityHandlerForwarding(const ionet::Packet& packet, size_t numExpectedForwards) {
 			// Arrange:
-			auto counter = 0u;
 			model::TransactionRegistry registry;
-			auto handler = CreatePushEntityHandler<model::Block>(registry, [&counter](const auto&) { ++counter; });
+			Key capturedSourcePublicKey;
+			auto counter = 0u;
+			auto handler = CreatePushEntityHandler<model::Block>(registry, [&capturedSourcePublicKey, &counter](const auto& range) {
+				capturedSourcePublicKey = range.SourcePublicKey;
+				++counter;
+			});
 
 			// Act:
-			handler(packet, ionet::ServerPacketHandlerContext());
+			auto sourcePublicKey = test::GenerateRandomData<Key_Size>();
+			handler(packet, ionet::ServerPacketHandlerContext(sourcePublicKey, ""));
 
 			// Assert:
 			EXPECT_EQ(numExpectedForwards, counter);
+
+			// - if the callback was called, context should have been forwarded along with the range
+			if (numExpectedForwards > 0) {
+				EXPECT_EQ(sourcePublicKey, capturedSourcePublicKey);
+			}
 		}
 	}
 
-	TEST(HandlerUtilsTests, CreatePushEntityHandler_DoesNotForwardMalformedEntityToRangeHandler) {
+	TEST(TEST_CLASS, CreatePushEntityHandler_DoesNotForwardMalformedEntityToRangeHandler) {
 		// Arrange:
 		ionet::ByteBuffer buffer(Block_Packet_Size);
 		auto& packet = test::SetPushBlockPacketInBuffer(buffer);
@@ -36,7 +48,7 @@ namespace catapult { namespace handlers {
 		AssertCreatePushEntityHandlerForwarding(packet, 0);
 	}
 
-	TEST(HandlerUtilsTests, CreatePushEntityHandler_ForwardsWellFormedEntityToRangeHandler) {
+	TEST(TEST_CLASS, CreatePushEntityHandler_ForwardsWellFormedEntityToRangeHandler) {
 		// Arrange:
 		ionet::ByteBuffer buffer(Block_Packet_Size);
 		const auto& packet = test::SetPushBlockPacketInBuffer(buffer);
@@ -45,7 +57,7 @@ namespace catapult { namespace handlers {
 		AssertCreatePushEntityHandlerForwarding(packet, 1);
 	}
 
-	TEST(HandlerUtilsTests, CreatePushEntityHandler_DoesNotForwardMalformedEntitiesToRangeHandler) {
+	TEST(TEST_CLASS, CreatePushEntityHandler_DoesNotForwardMalformedEntitiesToRangeHandler) {
 		// Arrange:
 		ionet::ByteBuffer buffer(Two_Blocks_Packet_Size);
 		auto& packet = test::SetPushBlockPacketInBuffer(buffer);
@@ -57,7 +69,7 @@ namespace catapult { namespace handlers {
 		AssertCreatePushEntityHandlerForwarding(packet, 0);
 	}
 
-	TEST(HandlerUtilsTests, CreatePushEntityHandler_ForwardsWellFormedEntitiesToRangeHandler) {
+	TEST(TEST_CLASS, CreatePushEntityHandler_ForwardsWellFormedEntitiesToRangeHandler) {
 		// Arrange:
 		ionet::ByteBuffer buffer(Two_Blocks_Packet_Size);
 		const auto& packet = test::SetPushBlockPacketInBuffer(buffer);

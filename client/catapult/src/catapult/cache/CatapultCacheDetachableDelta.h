@@ -5,6 +5,7 @@
 namespace catapult { namespace cache { class CacheHeightView; } }
 
 namespace catapult { namespace cache {
+
 	/// Detachable delta of the catapult cache.
 	/// \note This delta acquires a reader lock (via the cache height view) to the catapult cache that is released
 	///       when the delta is destroyed.

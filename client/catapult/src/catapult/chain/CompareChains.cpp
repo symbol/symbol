@@ -12,10 +12,7 @@ namespace catapult { namespace chain {
 
 		class CompareChainsContext : public std::enable_shared_from_this<CompareChainsContext> {
 		public:
-			CompareChainsContext(
-					const api::ChainApi& local,
-					const api::ChainApi& remote,
-					const CompareChainsOptions& options)
+			CompareChainsContext(const api::ChainApi& local, const api::ChainApi& remote, const CompareChainsOptions& options)
 					: m_local(local)
 					, m_remote(remote)
 					, m_options(options)
@@ -75,7 +72,9 @@ namespace catapult { namespace chain {
 
 				const auto& localScore = localInfo.Score;
 				const auto& remoteScore = remoteInfo.Score;
-				CATAPULT_LOG(debug) << "comparing chain scores: " << localScore << " (local) vs " << remoteScore << " (remote)";
+				CATAPULT_LOG_LEVEL(localScore == remoteScore ? utils::LogLevel::Trace : utils::LogLevel::Debug)
+						<< "comparing chain scores: " << localScore << " (local) vs " << remoteScore << " (remote)";
+
 				if (remoteScore > localScore) {
 					m_localHeight = localInfo.Height;
 					return Incomplete_Chain_Comparison_Code;
@@ -97,12 +96,12 @@ namespace catapult { namespace chain {
 						? localHeight - m_options.MaxBlocksToRewrite
 						: 1);
 				return thread::when_all(m_local.hashesFrom(startingHeight), m_remote.hashesFrom(startingHeight))
-						.then([pThis = shared_from_this(), startingHeight](auto&& aggregateFuture) {
-					auto hashesFuture = aggregateFuture.get();
-					const auto& localHashes = hashesFuture[0].get();
-					const auto& remoteHashes = hashesFuture[1].get();
-					return pThis->compareHashes(startingHeight, localHashes, remoteHashes);
-				});
+					.then([pThis = shared_from_this(), startingHeight](auto&& aggregateFuture) {
+						auto hashesFuture = aggregateFuture.get();
+						const auto& localHashes = hashesFuture[0].get();
+						const auto& remoteHashes = hashesFuture[1].get();
+						return pThis->compareHashes(startingHeight, localHashes, remoteHashes);
+					});
 			}
 
 			ChainComparisonCode compareHashes(
@@ -126,6 +125,7 @@ namespace catapult { namespace chain {
 					return ChainComparisonCode::Remote_Lied_About_Chain_Score;
 
 				m_commonBlockHeight = Height(startingHeight.unwrap() + firstDifferenceIndex - 1);
+				m_localHeight = startingHeight + Height(localHashes.size() - 1);
 				return ChainComparisonCode::Remote_Is_Not_Synced;
 			}
 

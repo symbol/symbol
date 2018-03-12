@@ -1,9 +1,12 @@
 #include "catapult/model/Elements.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
+
+#define TEST_CLASS ElementsTests
 
 	namespace {
 		class MultiBlockInput {
@@ -85,7 +88,7 @@ namespace catapult { namespace model {
 
 	// region ExtractMatchingEntityInfos
 
-	TEST(ElementsTests, ExtractMatchingEntityInfos_CanExtractAllEntitiesWithoutFilter) {
+	TEST(TEST_CLASS, ExtractMatchingEntityInfos_CanExtractAllEntitiesWithoutFilter) {
 		// Arrange:
 		WeakEntityInfos entityInfos;
 		auto input = MultiBlockInput();
@@ -105,7 +108,7 @@ namespace catapult { namespace model {
 		AssertEqual(elements[3], entityInfos[9], "3");
 	}
 
-	TEST(ElementsTests, ExtractMatchingEntityInfos_CanFilterOutBlocks) {
+	TEST(TEST_CLASS, ExtractMatchingEntityInfos_CanFilterOutBlocks) {
 		// Arrange:
 		WeakEntityInfos entityInfos;
 		auto input = MultiBlockInput();
@@ -127,7 +130,7 @@ namespace catapult { namespace model {
 		AssertTransactionsFromBlock(elements[3], 2, entityInfos, 6, "block 3");
 	}
 
-	TEST(ElementsTests, ExtractMatchingEntityInfos_CanFilterOutTransactions) {
+	TEST(TEST_CLASS, ExtractMatchingEntityInfos_CanFilterOutTransactions) {
 		// Arrange:
 		WeakEntityInfos entityInfos;
 		auto input = MultiBlockInput();
@@ -150,7 +153,7 @@ namespace catapult { namespace model {
 		AssertEqual(elements[3], entityInfos[7], "3");
 	}
 
-	TEST(ElementsTests, ExtractMatchingEntityInfos_ParamsArePassedToPredicate) {
+	TEST(TEST_CLASS, ExtractMatchingEntityInfos_ParamsArePassedToPredicate) {
 		// Arrange:
 		WeakEntityInfos entityInfos;
 		auto input = MultiBlockInput();
@@ -175,7 +178,7 @@ namespace catapult { namespace model {
 
 	// region ExtractEntityInfos
 
-	TEST(ElementsTests, ExtractEntityInfos_CanExtractAllEntitiesFromBlockWithoutTransactions) {
+	TEST(TEST_CLASS, ExtractEntityInfos_CanExtractAllEntitiesFromBlockWithoutTransactions) {
 		// Arrange:
 		WeakEntityInfos entityInfos;
 		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(0, 246);
@@ -189,7 +192,7 @@ namespace catapult { namespace model {
 		AssertEqual(element, entityInfos[0], "0");
 	}
 
-	TEST(ElementsTests, ExtractEntityInfos_CanExtractAllEntitiesFromBlockWithTransactions) {
+	TEST(TEST_CLASS, ExtractEntityInfos_CanExtractAllEntitiesFromBlockWithTransactions) {
 		// Arrange:
 		WeakEntityInfos entityInfos;
 		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(3, 246);
@@ -214,10 +217,12 @@ namespace catapult { namespace model {
 			auto pElement = std::make_shared<BlockElement>(block);
 			for (const auto& transaction : block.Transactions()) {
 				++i;
-				auto txElement = TransactionElement(transaction);
-				txElement.EntityHash = { { static_cast<uint8_t>(i * 2) } };
-				txElement.MerkleComponentHash = { { static_cast<uint8_t>(i * 3) } };
-				pElement->Transactions.push_back(txElement);
+				auto transactionElement = TransactionElement(transaction);
+				transactionElement.EntityHash = { { static_cast<uint8_t>(i * 2) } };
+				transactionElement.MerkleComponentHash = { { static_cast<uint8_t>(i * 3) } };
+				transactionElement.OptionalExtractedAddresses = std::make_shared<AddressSet>();
+				transactionElement.OptionalExtractedAddresses->insert(Address{ { static_cast<uint8_t>(i * 4) } });
+				pElement->Transactions.push_back(transactionElement);
 			}
 
 			return pElement;
@@ -228,9 +233,20 @@ namespace catapult { namespace model {
 			model::ExtractTransactionInfos(transactionInfos, std::move(pBlockElement));
 			return transactionInfos;
 		}
+
+		void AssertTransactionElement(
+				const model::Transaction& expectedTransaction,
+				const model::TransactionInfo& transactionInfo,
+				size_t id) {
+			EXPECT_EQ(expectedTransaction, *transactionInfo.pEntity) << "transaction at " << id;
+			EXPECT_EQ(2 * (id + 1), transactionInfo.EntityHash[0]) << "entity hash at " << id;
+			EXPECT_EQ(3 * (id + 1), transactionInfo.MerkleComponentHash[0]) << "merkle component hash at " << id;
+			ASSERT_EQ(1u, transactionInfo.OptionalExtractedAddresses->size()) << "extracted addresses at " << id;
+			ASSERT_EQ(4 * (id + 1), (*transactionInfo.OptionalExtractedAddresses->cbegin())[0]) << "extracted address 0 at " << id;
+		}
 	}
 
-	TEST(ElementsTests, CanExtractTransactionInfosFromBlockWithNoTransactions) {
+	TEST(TEST_CLASS, CanExtractTransactionInfosFromBlockWithNoTransactions) {
 		// Arrange: create a block with no transactions
 		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(0, 123);
 		auto pElement = PrepareBlockElement(*pBlock);
@@ -245,7 +261,7 @@ namespace catapult { namespace model {
 		EXPECT_TRUE(transactionInfos.empty());
 	}
 
-	TEST(ElementsTests, CanExtractTransactionInfosFromBlockWithTransactions) {
+	TEST(TEST_CLASS, CanExtractTransactionInfosFromBlockWithTransactions) {
 		// Arrange: create a block with transactions
 		constexpr auto Num_Transactions = 5u;
 		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(Num_Transactions, 123);
@@ -262,10 +278,7 @@ namespace catapult { namespace model {
 		size_t i = 0;
 		ASSERT_EQ(Num_Transactions, transactionInfos.size());
 		for (const auto& transactionCopy : pBlockCopy->Transactions()) {
-			const auto& info = transactionInfos[i];
-			EXPECT_EQ(transactionCopy, *info.pEntity) << "transaction at " << i;
-			EXPECT_EQ(2 * (i + 1), info.EntityHash[0]) << "entity hash at " << i;
-			EXPECT_EQ(3 * (i + 1), info.MerkleComponentHash[0]) << "merkle component hash at " << i;
+			AssertTransactionElement(transactionCopy, transactionInfos[i], i);
 			++i;
 		}
 
@@ -273,7 +286,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(Num_Transactions, i);
 	}
 
-	TEST(ElementsTests, ExtractTransactionInfosExtendsBlockElementLifetime) {
+	TEST(TEST_CLASS, ExtractTransactionInfosExtendsBlockElementLifetime) {
 		// Arrange: create a block with transactions
 		constexpr auto Num_Transactions = 5u;
 		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(Num_Transactions, 123);
@@ -295,7 +308,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(1, pElement.use_count());
 	}
 
-	TEST(ElementsTests, ExtractTransactionInfosAppendsToDestinationVector) {
+	TEST(TEST_CLASS, ExtractTransactionInfosAppendsToDestinationVector) {
 		// Arrange: create blocks with transactions
 		using Blocks = std::vector<std::unique_ptr<model::Block>>;
 		constexpr auto Num_Transactions = 5u;
@@ -318,15 +331,36 @@ namespace catapult { namespace model {
 		for (const auto& pBlockCopy : blockCopies) {
 			size_t j = 0;
 			for (const auto& transactionCopy : pBlockCopy->Transactions()) {
-				auto message = " at block " + std::to_string(i) + " and transaction " + std::to_string(j);
-				const auto& info = transactionInfos[i];
-				EXPECT_EQ(transactionCopy, *info.pEntity) << "transaction" << message;
-				EXPECT_EQ(2 * (j + 1), info.EntityHash[0]) << "entity hash" << message;
-				EXPECT_EQ(3 * (j + 1), info.MerkleComponentHash[0]) << "merkle component hash" << message;
+				AssertTransactionElement(transactionCopy, transactionInfos[i], j);
 				++j;
 				++i;
 			}
 		}
 	}
+
+	// endregion
+
+	// region MakeTransactionInfo
+
+	TEST(TEST_CLASS, CanMakeTransactionInfoFromTransactionAndTransactionElement) {
+		// Arrange:
+		auto pTransaction1 = utils::UniqueToShared(test::GenerateRandomTransaction());
+		auto transactionElement = TransactionElement(*pTransaction1);
+		transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
+		transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+		transactionElement.OptionalExtractedAddresses = std::make_shared<AddressSet>();
+
+		auto pTransaction2 = utils::UniqueToShared(test::GenerateRandomTransaction());
+
+		// Act:
+		auto transactionInfo = MakeTransactionInfo(pTransaction2, transactionElement);
+
+		// Assert:
+		EXPECT_EQ(pTransaction2.get(), transactionInfo.pEntity.get());
+		EXPECT_EQ(transactionElement.EntityHash, transactionInfo.EntityHash);
+		EXPECT_EQ(transactionElement.MerkleComponentHash, transactionInfo.MerkleComponentHash);
+		EXPECT_EQ(transactionElement.OptionalExtractedAddresses.get(), transactionInfo.OptionalExtractedAddresses.get());
+	}
+
 	// endregion
 }}

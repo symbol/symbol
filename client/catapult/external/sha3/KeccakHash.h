@@ -16,15 +16,22 @@ http://creativecommons.org/publicdomain/zero/1.0/
 #ifndef _KeccakHashInterface_h_
 #define _KeccakHashInterface_h_
 
-#include "KeccakSponge.h"
+#ifndef KeccakP1600_excluded
+
+#include "KeccakSpongeWidth1600.h"
 #include <string.h>
 
+#ifndef _Keccak_BitTypes_
+#define _Keccak_BitTypes_
 typedef unsigned char BitSequence;
-typedef size_t DataLength;
+
+typedef size_t BitLength;
+#endif
+
 typedef enum { SUCCESS = 0, FAIL = 1, BAD_HASHLEN = 2 } HashReturn;
 
 typedef struct {
-    Keccak_SpongeInstance sponge;
+    KeccakWidth1600_SpongeInstance sponge;
     unsigned int fixedOutputLength;
     unsigned char delimitedSuffix;
 } Keccak_HashInstance;
@@ -80,7 +87,7 @@ HashReturn Keccak_HashInitialize(Keccak_HashInstance *hashInstance, unsigned int
   * @pre    In the previous call to Keccak_HashUpdate(), databitlen was a multiple of 8.
   * @return SUCCESS if successful, FAIL otherwise.
   */
-HashReturn Keccak_HashUpdate(Keccak_HashInstance *hashInstance, const BitSequence *data, DataLength databitlen);
+HashReturn Keccak_HashUpdate(Keccak_HashInstance *hashInstance, const BitSequence *data, BitLength databitlen);
 
 /**
   * Function to call after all input blocks have been input and to get
@@ -90,7 +97,6 @@ HashReturn Keccak_HashUpdate(Keccak_HashInstance *hashInstance, const BitSequenc
   *     output bits is equal to @a hashbitlen.
   * If @a hashbitlen was 0 in the call to Keccak_HashInitialize(), the output bits
   *     must be extracted using the Keccak_HashSqueeze() function.
-  * @param  state       Pointer to the state of the sponge function initialized by Init().
   * @param  hashval     Pointer to the buffer where to store the output data.
   * @return SUCCESS if successful, FAIL otherwise.
   */
@@ -105,6 +111,8 @@ HashReturn Keccak_HashFinal(Keccak_HashInstance *hashInstance, BitSequence *hash
   * @pre    @a databitlen is a multiple of 8.
   * @return SUCCESS if successful, FAIL otherwise.
   */
-HashReturn Keccak_HashSqueeze(Keccak_HashInstance *hashInstance, BitSequence *data, DataLength databitlen);
+HashReturn Keccak_HashSqueeze(Keccak_HashInstance *hashInstance, BitSequence *data, BitLength databitlen);
+
+#endif
 
 #endif

@@ -4,9 +4,11 @@
 
 namespace catapult { namespace cache {
 
+#define TEST_CLASS ReadOnlyViewSupplierTests
+
 	using SimpleReadOnlyViewSupplier = ReadOnlyViewSupplier<test::SimpleCacheView>;
 
-	TEST(ReadOnlyViewSupplierTests, CanCreateViewSupplier) {
+	TEST(TEST_CLASS, CanCreateViewSupplier) {
 		// Act:
 		size_t id = 8;
 		SimpleReadOnlyViewSupplier supplier(id);
@@ -15,7 +17,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(8u, supplier.id());
 	}
 
-	TEST(ReadOnlyViewSupplierTests, CanCreateReadOnlyView) {
+	TEST(TEST_CLASS, CanCreateReadOnlyView) {
 		// Arrange:
 		size_t id = 7;
 		SimpleReadOnlyViewSupplier supplier(id);
@@ -27,7 +29,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(7u, readOnlyView.size());
 	}
 
-	TEST(ReadOnlyViewSupplierTests, CanMoveConstructSupplier) {
+	TEST(TEST_CLASS, CanMoveConstructSupplier) {
 		// Arrange:
 		size_t id = 6;
 		SimpleReadOnlyViewSupplier supplier1(id);
@@ -43,7 +45,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(6u, readOnlyView2.size());
 	}
 
-	TEST(ReadOnlyViewSupplierTests, ReadOnlyViewIsReused) {
+	TEST(TEST_CLASS, ReadOnlyViewIsReused) {
 		// Arrange:
 		size_t id = 5;
 		SimpleReadOnlyViewSupplier supplier(id);

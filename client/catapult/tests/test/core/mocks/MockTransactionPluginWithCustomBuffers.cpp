@@ -1,5 +1,5 @@
 #include "MockTransactionPluginWithCustomBuffers.h"
-#include "MockTransaction.h"
+#include "MockTransactionPluginUnsupported.h"
 
 namespace catapult { namespace mocks {
 
@@ -9,7 +9,7 @@ namespace catapult { namespace mocks {
 	}
 
 	namespace {
-		class MockTransactionPluginWithCustomBuffers : public model::TransactionPlugin {
+		class MockTransactionPluginWithCustomBuffers : public MockTransactionPluginUnsupported {
 		public:
 			explicit MockTransactionPluginWithCustomBuffers(
 					const OffsetRange& dataRange,
@@ -19,18 +19,6 @@ namespace catapult { namespace mocks {
 			{}
 
 		public:
-			model::EntityType type() const override {
-				return mocks::MockTransaction::Entity_Type;
-			}
-
-			uint64_t calculateRealSize(const model::Transaction&) const override {
-				CATAPULT_THROW_RUNTIME_ERROR("calculateRealSize - not implemented in mock");
-			}
-
-			void publish(const model::WeakEntityInfoT<model::Transaction>&, model::NotificationSubscriber&) const override {
-				CATAPULT_THROW_RUNTIME_ERROR("publish - not implemented in mock");
-			}
-
 			RawBuffer dataBuffer(const model::Transaction& transaction) const override {
 				return ExtractBuffer(m_dataRange, &transaction);
 			}
@@ -41,14 +29,6 @@ namespace catapult { namespace mocks {
 					supplementaryBuffers.push_back(ExtractBuffer(range, &transaction));
 
 				return supplementaryBuffers;
-			}
-
-			bool supportsEmbedding() const override {
-				return false;
-			}
-
-			const model::EmbeddedTransactionPlugin& embeddedPlugin() const override {
-				CATAPULT_THROW_RUNTIME_ERROR("embeddedPlugin - not implemented in mock");
 			}
 
 		private:

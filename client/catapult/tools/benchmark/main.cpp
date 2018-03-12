@@ -1,6 +1,6 @@
 #include "tools/ToolMain.h"
 #include "tools/ToolKeys.h"
-#include "tools/ToolUtils.h"
+#include "tools/ToolThreadUtils.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/thread/IoServiceThreadPool.h"
 #include "catapult/thread/ParallelFor.h"
@@ -54,7 +54,7 @@ namespace catapult { namespace tools { namespace benchmark {
 
 				RunParallel("Data Generation", *pPool, entries, [dataSize = m_dataSize](auto& entry) {
 					entry.Data.resize(dataSize);
-					std::generate_n(entry.Data.begin(), entry.Data.size(), std::rand);
+					std::generate_n(entry.Data.begin(), entry.Data.size(), []() { return static_cast<uint8_t>(std::rand()); });
 				});
 
 				RunParallel("Signature", *pPool, entries, [&keyPair](auto& entry) {
@@ -78,7 +78,7 @@ namespace catapult { namespace tools { namespace benchmark {
 					std::vector<BenchmarkEntry>& entries,
 					TAction action) const {
 				utils::StackLogger stopwatch(testName, utils::LogLevel::Info);
-				thread::ParallelFor(pool.service(), entries, m_numPartitions, [action](auto& entry) {
+				thread::ParallelFor(pool.service(), entries, m_numPartitions, [action](auto& entry, auto) {
 					action(entry);
 					return true;
 				}).get();

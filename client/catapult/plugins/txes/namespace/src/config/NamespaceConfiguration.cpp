@@ -22,6 +22,9 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(RootNamespaceRentalFeePerBlock);
 		LOAD_PROPERTY(ChildNamespaceRentalFee);
 
+		LOAD_PROPERTY(MaxChildNamespaces);
+		LOAD_PROPERTY(MaxMosaicsPerAccount);
+
 		LOAD_PROPERTY(MaxMosaicDuration);
 
 		LOAD_PROPERTY(IsMosaicLevyUpdateAllowed);
@@ -33,7 +36,7 @@ namespace catapult { namespace config {
 
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 13);
+		utils::VerifyBagSizeLte(bag, 15);
 		return config;
 	}
 }}

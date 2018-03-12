@@ -1,11 +1,10 @@
 #include "FileLock.h"
 #include "catapult/utils/Logging.h"
-#include <mutex>
 #include <thread>
 #include <fcntl.h>
 
 #ifdef _MSC_VER
-#include <io.h>
+#include <windows.h>
 #else
 #include <unistd.h>
 #include <sys/file.h>
@@ -13,23 +12,22 @@
 
 namespace catapult { namespace io {
 
+	using FdType = FileLock::FdType;
+
 	namespace {
-		const int Invalid_Descriptor = -1;
-
 #ifdef _MSC_VER
-		constexpr auto NemClose = ::_close;
+		const FdType Invalid_Descriptor = INVALID_HANDLE_VALUE;
+		constexpr auto NemClose = ::CloseHandle;
 
-		int NemOpen(const std::string& lockFilePath) {
-			constexpr auto Open_Flags = _O_RDONLY | _O_CREAT | _O_SHORT_LIVED | _O_TEMPORARY;
-
-			int fd;
-			return 0 == ::_sopen_s(&fd, lockFilePath.c_str(), Open_Flags, _SH_DENYRW, _S_IWRITE | _S_IREAD)
-					? fd
-					: Invalid_Descriptor;
+		auto NemOpen(const std::string& lockFilePath) {
+			return CreateFile(lockFilePath.c_str(), DELETE, FILE_SHARE_DELETE, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
 		}
 
-		void NemUnlink(const std::string&) {}
+		void NemUnlink(const std::string& lockFilePath) {
+			DeleteFile(lockFilePath.c_str());
+		}
 #else
+		constexpr FdType Invalid_Descriptor = -1;
 		constexpr auto NemClose = ::close;
 
 		bool TryLockFile(int fd) {
@@ -50,7 +48,7 @@ namespace catapult { namespace io {
 		}
 #endif
 
-		bool TryOpenLock(const std::string& lockFilePath, int& fd) {
+		bool TryOpenLock(const std::string& lockFilePath, FdType& fd) {
 			fd = NemOpen(lockFilePath);
 			if (Invalid_Descriptor == fd) {
 				CATAPULT_LOG(warning) << "LockOpen failed: " << errno;
@@ -60,7 +58,7 @@ namespace catapult { namespace io {
 			return true;
 		}
 
-		void DestroyLock(const std::string& lockFilePath, int& fd) {
+		void DestroyLock(const std::string& lockFilePath, FdType& fd) {
 			if (Invalid_Descriptor == fd)
 				return;
 
@@ -94,7 +92,7 @@ namespace catapult { namespace io {
 	}
 
 	void FileLock::unlock() noexcept {
-		std::lock_guard<utils::SpinLock> guard(m_spinLock);
+		utils::SpinLockGuard guard(m_spinLock);
 		DestroyLock(m_lockFilePath, m_fd);
 	}
 }}

@@ -9,6 +9,5 @@ function(catapult_int_test_executable_target TARGET_NAME)
 endfunction()
 
 add_subdirectory(api)
-add_subdirectory(mongo)
 add_subdirectory(p2p)
 add_subdirectory(stress)

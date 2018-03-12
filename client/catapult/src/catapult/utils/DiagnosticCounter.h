@@ -1,6 +1,6 @@
 #pragma once
 #include "DiagnosticCounterId.h"
-#include <functional>
+#include "catapult/functions.h"
 
 namespace catapult { namespace utils {
 
@@ -8,7 +8,7 @@ namespace catapult { namespace utils {
 	class DiagnosticCounter {
 	public:
 		/// Creates a counter around \a id and \a supplier.
-		DiagnosticCounter(const DiagnosticCounterId& id, const std::function<uint64_t ()>& supplier)
+		DiagnosticCounter(const DiagnosticCounterId& id, const supplier<uint64_t>& supplier)
 				: m_id(id)
 				, m_supplier(supplier)
 		{}
@@ -26,6 +26,6 @@ namespace catapult { namespace utils {
 
 	private:
 		DiagnosticCounterId m_id;
-		std::function<uint64_t ()> m_supplier;
+		supplier<uint64_t> m_supplier;
 	};
 }}

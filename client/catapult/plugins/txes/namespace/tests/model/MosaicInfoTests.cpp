@@ -10,10 +10,10 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, EntityHasExpectedSize) {
 		// Arrange:
 		auto expectedSize =
-			sizeof(NamespaceId) // namespace id
-			+ sizeof(MosaicId) // id
-			+ sizeof(ArtifactInfoAttributes) // attributes
-			+ sizeof(Amount); // supply
+				sizeof(NamespaceId) // namespace id
+				+ sizeof(MosaicId) // id
+				+ sizeof(ArtifactInfoAttributes) // attributes
+				+ sizeof(Amount); // supply
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(MosaicInfo));

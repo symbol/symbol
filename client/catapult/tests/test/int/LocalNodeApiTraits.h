@@ -9,8 +9,8 @@ namespace catapult { namespace test {
 		using ResultType = api::ChainInfo;
 		using RequestType = decltype(std::declval<api::RemoteChainApi>().chainInfo());
 
-		/// Initiates a valid request using \a remoteApi.
-		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteApi);
+		/// Initiates a valid request using \a remoteChainApi.
+		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteChainApi);
 
 		/// Verifies the result \a info.
 		static void VerifyResult(const ResultType& info);
@@ -21,11 +21,11 @@ namespace catapult { namespace test {
 		using ResultType = model::HashRange;
 		using RequestType = decltype(std::declval<api::RemoteChainApi>().hashesFrom(Height()));
 
-		/// Initiates a valid request using \a remoteApi.
-		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteApi);
+		/// Initiates a valid request using \a remoteChainApi.
+		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteChainApi);
 
-		/// Initiates an invalid request using \a remoteApi.
-		static RequestType InitiateInvalidRequest(const api::RemoteChainApi& remoteApi);
+		/// Initiates an invalid request using \a remoteChainApi.
+		static RequestType InitiateInvalidRequest(const api::RemoteChainApi& remoteChainApi);
 
 		/// Verifies the result \a hashes.
 		static void VerifyResult(const ResultType& hashes);
@@ -36,11 +36,11 @@ namespace catapult { namespace test {
 		using ResultType = std::shared_ptr<const model::Block>;
 		using RequestType = decltype(std::declval<api::RemoteChainApi>().blockAt(Height()));
 
-		/// Initiates a valid request using \a remoteApi.
-		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteApi);
+		/// Initiates a valid request using \a remoteChainApi.
+		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteChainApi);
 
-		/// Initiates an invalid request using \a remoteApi.
-		static RequestType InitiateInvalidRequest(const api::RemoteChainApi& remoteApi);
+		/// Initiates an invalid request using \a remoteChainApi.
+		static RequestType InitiateInvalidRequest(const api::RemoteChainApi& remoteChainApi);
 
 		/// Verifies the result \a pBlock.
 		static void VerifyResult(const ResultType& pBlock);
@@ -51,8 +51,8 @@ namespace catapult { namespace test {
 		using ResultType = std::shared_ptr<const model::Block>;
 		using RequestType = decltype(std::declval<api::RemoteChainApi>().blockLast());
 
-		/// Initiates a valid request using \a remoteApi.
-		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteApi);
+		/// Initiates a valid request using \a remoteChainApi.
+		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteChainApi);
 
 		/// Verifies the result \a pBlock.
 		static void VerifyResult(const ResultType& pBlock);
@@ -63,8 +63,8 @@ namespace catapult { namespace test {
 		using ResultType = model::BlockRange;
 		using RequestType = decltype(std::declval<api::RemoteChainApi>().blocksFrom(Height(), api::BlocksFromOptions()));
 
-		/// Initiates a valid request using \a remoteApi.
-		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteApi);
+		/// Initiates a valid request using \a remoteChainApi.
+		static RequestType InitiateValidRequest(const api::RemoteChainApi& remoteChainApi);
 
 		/// Verifies the result \a blocks.
 		static void VerifyResult(const ResultType& blocks);

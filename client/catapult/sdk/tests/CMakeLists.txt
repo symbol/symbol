@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
 
-find_package(GTest REQUIRED)
-include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
+set(TARGET_NAME tests.catapult.sdk)
 
-catapult_test_executable_target(tests.catapult.sdk core builders extensions)
+catapult_test_executable_target(${TARGET_NAME} core builders extensions parsers)

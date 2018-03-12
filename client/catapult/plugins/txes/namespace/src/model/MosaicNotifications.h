@@ -153,11 +153,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a signer, \a mosaicId, \a direction and \a delta.
-		explicit MosaicSupplyChangeNotification(
-				const Key& signer,
-				MosaicId mosaicId,
-				MosaicSupplyChangeDirection direction,
-				Amount delta)
+		explicit MosaicSupplyChangeNotification(const Key& signer, MosaicId mosaicId, MosaicSupplyChangeDirection direction, Amount delta)
 				: Notification(Notification_Type, sizeof(MosaicSupplyChangeNotification))
 				, Signer(signer)
 				, MosaicId(mosaicId)

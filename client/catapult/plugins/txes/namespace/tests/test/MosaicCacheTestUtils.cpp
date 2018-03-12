@@ -1,11 +1,11 @@
 #include "MosaicCacheTestUtils.h"
 #include "MosaicTestUtils.h"
-#include "plugins/coresystem/src/cache/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
 
-	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, ArtifactDuration duration, Amount supply) {
+	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, BlockDuration duration, Amount supply) {
 		auto& mosaicCacheDelta = cache.sub<cache::MosaicCache>();
 		auto definition = state::MosaicDefinition(height, Key(), test::CreateMosaicPropertiesWithDuration(duration));
 		auto entry = state::MosaicEntry(NamespaceId(11), id, definition);
@@ -18,7 +18,7 @@ namespace catapult { namespace test {
 			NamespaceId namespaceId,
 			MosaicId id,
 			Height height,
-			ArtifactDuration duration,
+			BlockDuration duration,
 			const Key& owner) {
 		auto& mosaicCacheDelta = cache.sub<cache::MosaicCache>();
 		auto definition = state::MosaicDefinition(height, owner, test::CreateMosaicPropertiesWithDuration(duration));
@@ -37,7 +37,7 @@ namespace catapult { namespace test {
 
 	void AddMosaicOwner(cache::CatapultCacheDelta& cache, MosaicId id, const Key& owner, Amount amount) {
 		auto& accountStateCacheDelta = cache.sub<cache::AccountStateCache>();
-		accountStateCacheDelta.addAccount(owner, Height(1))->Balances.credit(id, amount);
+		accountStateCacheDelta.addAccount(owner, Height(1)).Balances.credit(id, amount);
 	}
 
 	namespace {

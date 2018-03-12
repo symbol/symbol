@@ -1,6 +1,6 @@
 #include "src/validators/Validators.h"
-#include "catapult/cache/AccountStateCache.h"
 #include "catapult/cache/CatapultCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/constants.h"
 #include "tests/test/cache/BalanceTransferTestUtils.h"
@@ -10,28 +10,14 @@
 
 namespace catapult { namespace validators {
 
-	DEFINE_COMMON_VALIDATOR_TESTS(Balance,)
+	DEFINE_COMMON_VALIDATOR_TESTS(BalanceTransfer,)
+	DEFINE_COMMON_VALIDATOR_TESTS(BalanceReserve,)
 
-#define TEST_CLASS BalanceValidatorTests
+#define TEST_CLASS BalanceValidatorTests // used to generate unique function names in macros
+#define TRANSFER_TEST_CLASS BalanceTransferValidatorTests
+#define RESERVE_TEST_CLASS BalanceReserveValidatorTests
 
 	namespace {
-		void AssertValidationResult(
-				const cache::CatapultCache& cache,
-				const model::BalanceTransferNotification& notification,
-				ValidationResult expectedResult) {
-			// Arrange:
-			auto pValidator = CreateBalanceValidator();
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(1), readOnlyCache);
-
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
-
-			// Assert:
-			EXPECT_EQ(expectedResult, result);
-		}
-
 		// region traits
 
 		struct BalanceGreaterTraits {
@@ -58,17 +44,80 @@ namespace catapult { namespace validators {
 			}
 		};
 
+		template<typename TTraits>
+		void AssertValidationResult(
+				ValidationResult expectedResult,
+				const cache::CatapultCache& cache,
+				const model::BalanceTransferNotification& notification) {
+			// Arrange:
+			auto cacheView = cache.createView();
+			auto readOnlyCache = cacheView.toReadOnly();
+			auto context = test::CreateValidatorContext(Height(1), readOnlyCache);
+
+			// Act:
+			auto result = TTraits::Validate(notification, context);
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result);
+		}
+
+		struct TransferTraits {
+			static ValidationResult Validate(
+					const model::BalanceTransferNotification& notification,
+					const validators::ValidatorContext& context) {
+				auto pValidator = CreateBalanceTransferValidator();
+				return test::ValidateNotification(*pValidator, notification, context);
+			}
+		};
+
+		struct ReserveTraits {
+			static ValidationResult Validate(
+					const model::BalanceTransferNotification& notification,
+					const validators::ValidatorContext& context) {
+				auto pValidator = CreateBalanceReserveValidator();
+
+				// - map transfer notification to a reserve notification
+				auto reserveNotification = model::BalanceReserveNotification(
+						notification.Sender,
+						notification.MosaicId,
+						notification.Amount);
+
+				return test::ValidateNotification(*pValidator, reserveNotification, context);
+			}
+		};
+
+#define TRANSFER_OR_RESERVE_TEST(TEST_NAME) \
+	template<typename TValidatorTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TRANSFER_TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferTraits>(); } \
+	TEST(RESERVE_TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReserveTraits>(); } \
+	template<typename TValidatorTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
 #define VARIABLE_BALANCE_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, SuccessWhenBalanceIsGreater_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BalanceGreaterTraits>(); } \
-	TEST(TEST_CLASS, SuccessWhenBalanceIsExact_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BalanceEqualTraits>(); } \
-	TEST(TEST_CLASS, FailureWhenBalanceIsTooSmall_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BalanceLessTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TValidatorTraits, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TRANSFER_TEST_CLASS, SuccessWhenBalanceIsGreater_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferTraits, BalanceGreaterTraits>(); \
+	} \
+	TEST(TRANSFER_TEST_CLASS, SuccessWhenBalanceIsExact_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferTraits, BalanceEqualTraits>(); \
+	} \
+	TEST(TRANSFER_TEST_CLASS, FailureWhenBalanceIsTooSmall_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransferTraits, BalanceLessTraits>(); \
+	} \
+	TEST(RESERVE_TEST_CLASS, SuccessWhenBalanceIsGreater_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReserveTraits, BalanceGreaterTraits>(); \
+	} \
+	TEST(RESERVE_TEST_CLASS, SuccessWhenBalanceIsExact_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReserveTraits, BalanceEqualTraits>(); \
+	} \
+	TEST(RESERVE_TEST_CLASS, FailureWhenBalanceIsTooSmall_##TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReserveTraits, BalanceLessTraits>(); \
+	} \
+	template<typename TValidatorTraits, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 		// endregion
 	}
 
-	TEST(TEST_CLASS, FailureWhenTransactionSignerIsUnknown) {
+	TRANSFER_OR_RESERVE_TEST(FailureWhenTransactionSignerIsUnknown) {
 		// Arrange: do not register the signer with the cache
 		auto sender = test::GenerateRandomData<Key_Size>();
 		auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
@@ -76,7 +125,7 @@ namespace catapult { namespace validators {
 		auto cache = test::CreateEmptyCatapultCache();
 
 		// Assert:
-		AssertValidationResult(cache, notification, Failure_Core_Insufficient_Balance);
+		AssertValidationResult<TValidatorTraits>(Failure_Core_Insufficient_Balance, cache, notification);
 	}
 
 	VARIABLE_BALANCE_TEST(Xem) {
@@ -87,7 +136,7 @@ namespace catapult { namespace validators {
 		auto cache = test::CreateCache(sender, { { Xem_Id, TTraits::Adjust(Amount(234)) } });
 
 		// Assert:
-		AssertValidationResult(cache, notification, TTraits::Expected_Result);
+		AssertValidationResult<TValidatorTraits>(TTraits::Expected_Result, cache, notification);
 	}
 
 	VARIABLE_BALANCE_TEST(Xem_SeededByAddress) {
@@ -106,7 +155,7 @@ namespace catapult { namespace validators {
 		}
 
 		// Assert:
-		AssertValidationResult(cache, notification, TTraits::Expected_Result);
+		AssertValidationResult<TValidatorTraits>(TTraits::Expected_Result, cache, notification);
 	}
 
 	VARIABLE_BALANCE_TEST(OtherMosaic) {
@@ -117,6 +166,6 @@ namespace catapult { namespace validators {
 		auto cache = test::CreateCache(sender, { { MosaicId(12), TTraits::Adjust(Amount(234)) } });
 
 		// Assert:
-		AssertValidationResult(cache, notification, TTraits::Expected_Result);
+		AssertValidationResult<TValidatorTraits>(TTraits::Expected_Result, cache, notification);
 	}
 }}

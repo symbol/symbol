@@ -1,16 +1,14 @@
 #include "RemoteTransactionApi.h"
 #include "RemoteApiUtils.h"
 #include "RemoteRequestDispatcher.h"
-#include "catapult/ionet/Packet.h"
 #include "catapult/ionet/PacketEntityUtils.h"
-#include "catapult/ionet/PacketIo.h"
 
 namespace catapult { namespace api {
 
 	namespace {
 		// region traits
 
-		struct UnconfirmedTransactionsTraits : public RegistryDependentTraits<model::Transaction> {
+		struct UtTraits : public RegistryDependentTraits<model::Transaction> {
 		public:
 			using ResultType = model::TransactionRange;
 			static constexpr auto PacketType() { return ionet::PacketType::Pull_Transactions; }
@@ -37,28 +35,23 @@ namespace catapult { namespace api {
 			using FutureType = thread::future<typename TTraits::ResultType>;
 
 		public:
-			explicit DefaultRemoteTransactionApi(
-					const std::shared_ptr<ionet::PacketIo>& pIo,
-					const std::shared_ptr<const model::TransactionRegistry>& pRegistry)
-					: m_pRegistry(pRegistry)
-					, m_impl(pIo)
+			explicit DefaultRemoteTransactionApi(ionet::PacketIo& io, const model::TransactionRegistry& registry)
+					: m_registry(registry)
+					, m_impl(io)
 			{}
 
 		public:
-			FutureType<UnconfirmedTransactionsTraits> unconfirmedTransactions(
-					model::ShortHashRange&& knownShortHashes) const override {
-				return m_impl.dispatch(UnconfirmedTransactionsTraits(m_pRegistry), std::move(knownShortHashes));
+			FutureType<UtTraits> unconfirmedTransactions(model::ShortHashRange&& knownShortHashes) const override {
+				return m_impl.dispatch(UtTraits(m_registry), std::move(knownShortHashes));
 			}
 
 		private:
-			std::shared_ptr<const model::TransactionRegistry> m_pRegistry;
+			const model::TransactionRegistry& m_registry;
 			mutable RemoteRequestDispatcher m_impl;
 		};
 	}
 
-	std::unique_ptr<RemoteTransactionApi> CreateRemoteTransactionApi(
-			const std::shared_ptr<ionet::PacketIo>& pIo,
-			const std::shared_ptr<const model::TransactionRegistry>& pRegistry) {
-		return std::make_unique<DefaultRemoteTransactionApi>(pIo, pRegistry);
+	std::unique_ptr<RemoteTransactionApi> CreateRemoteTransactionApi(ionet::PacketIo& io, const model::TransactionRegistry& registry) {
+		return std::make_unique<DefaultRemoteTransactionApi>(io, registry);
 	}
 }}

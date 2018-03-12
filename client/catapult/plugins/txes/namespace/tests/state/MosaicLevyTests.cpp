@@ -4,7 +4,9 @@
 
 namespace catapult { namespace state {
 
-	TEST(MosaicLevyTests, CanCreateMosaicLevy) {
+#define TEST_CLASS MosaicLevyTests
+
+	TEST(TEST_CLASS, CanCreateMosaicLevy) {
 		// Arrange:
 		auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
 		MosaicLevyRuleFactory factory;

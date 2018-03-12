@@ -19,8 +19,5 @@ namespace catapult { namespace net {
 
 	/// Retrieves io interfaces to at most \a numRequested connections from \a picker.
 	/// The connections will timeout after \a ioDuration.
-	std::vector<ionet::NodePacketIoPair> PickMultiple(
-			PacketIoPicker& picker,
-			size_t numRequested,
-			const utils::TimeSpan& ioDuration);
+	std::vector<ionet::NodePacketIoPair> PickMultiple(PacketIoPicker& picker, size_t numRequested, const utils::TimeSpan& ioDuration);
 }}

@@ -1,6 +1,6 @@
 #pragma once
 #include "NotificationObserver.h"
-#include <functional>
+#include "catapult/functions.h"
 
 namespace catapult { namespace observers {
 
@@ -8,7 +8,7 @@ namespace catapult { namespace observers {
 	template<typename TNotification>
 	class FunctionalNotificationObserverT : public NotificationObserverT<TNotification> {
 	private:
-		using FunctionType = std::function<void (const TNotification&, const ObserverContext&)>;
+		using FunctionType = consumer<const TNotification&, const ObserverContext&>;
 
 	public:
 		/// Creates a functional notification observer around \a func with \a name.

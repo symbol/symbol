@@ -1,5 +1,6 @@
 #pragma once
-#include "EmbeddedEntity.h"
+#include "EntityBody.h"
+#include "SizePrefixedEntity.h"
 
 namespace catapult {
 	namespace crypto { class KeyPair; }

@@ -3,6 +3,7 @@
 #include "catapult/validators/ValidationResult.h"
 
 namespace catapult { namespace validators {
+
 #endif
 /// Defines a transfer validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_TRANSFER_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Transfer, DESCRIPTION, CODE, None)

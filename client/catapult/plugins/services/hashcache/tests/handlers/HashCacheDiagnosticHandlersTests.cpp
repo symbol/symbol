@@ -9,10 +9,10 @@ namespace catapult { namespace handlers {
 
 		struct ConfirmTimestampedHashesTraits {
 		public:
-			using RequestEntityType = state::TimestampedHash;
+			using RequestStructureType = state::TimestampedHash;
 			using ResponseType = UnconfirmedTimestampedHashes;
 			static constexpr auto Packet_Type = ionet::PacketType::Confirm_Timestamped_Hashes;
-			static constexpr auto Valid_Payload_Size = sizeof(state::TimestampedHash);
+			static constexpr auto Valid_Request_Payload_Size = sizeof(state::TimestampedHash);
 			static constexpr auto Register_Handler_Func = RegisterConfirmTimestampedHashesHandler;
 			static constexpr auto Message() { return "timestamped hash at "; }
 

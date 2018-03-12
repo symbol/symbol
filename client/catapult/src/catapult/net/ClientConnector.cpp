@@ -1,5 +1,4 @@
 #include "ClientConnector.h"
-#include "AsyncTcpServer.h"
 #include "VerifyPeer.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/PacketSocket.h"
@@ -32,19 +31,16 @@ namespace catapult { namespace net {
 				return m_sockets.size();
 			}
 
-			void accept(
-					const std::shared_ptr<AsyncTcpServerAcceptContext>& pAcceptContext,
-					const AcceptCallback& callback) override {
-				if (nullptr == pAcceptContext)
+			void accept(const std::shared_ptr<ionet::PacketSocket>& pPacketSocket, const AcceptCallback& callback) override {
+				if (!pPacketSocket)
 					return callback(PeerConnectResult::Socket_Error, Empty_Key);
 
-				auto pSocket = pAcceptContext->socket();
-				m_sockets.insert(pSocket);
+				m_sockets.insert(pPacketSocket);
 
 				auto pRequest = thread::MakeTimedCallback(m_pPool->service(), callback, PeerConnectResult::Timed_Out, Empty_Key);
 				pRequest->setTimeout(m_settings.Timeout);
-				pRequest->setTimeoutHandler([pSocket]() { pSocket->close(); });
-				VerifyClient(pSocket, m_keyPair, [pThis = shared_from_this(), pAcceptContext, pRequest](
+				pRequest->setTimeoutHandler([pPacketSocket]() { pPacketSocket->close(); });
+				VerifyClient(pPacketSocket, m_keyPair, [pThis = shared_from_this(), pPacketSocket, pRequest](
 						auto verifyResult,
 						const auto& key) {
 					if (VerifyResult::Success != verifyResult) {

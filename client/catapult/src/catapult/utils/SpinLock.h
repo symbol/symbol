@@ -1,6 +1,7 @@
 #pragma once
 #include "catapult/preprocessor.h"
 #include <atomic>
+#include <mutex>
 #include <thread>
 
 namespace catapult { namespace utils {
@@ -36,4 +37,7 @@ namespace catapult { namespace utils {
 	private:
 		std::atomic_flag m_isLocked;
 	};
+
+	/// A spin lock guard.
+	using SpinLockGuard = std::lock_guard<SpinLock>;
 }}

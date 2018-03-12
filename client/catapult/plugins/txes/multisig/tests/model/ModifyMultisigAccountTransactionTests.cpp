@@ -1,4 +1,5 @@
 #include "src/model/ModifyMultisigAccountTransaction.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
@@ -17,9 +18,9 @@ namespace catapult { namespace model {
 		void AssertEntityHasExpectedSize(size_t baseSize) {
 			// Arrange:
 			auto expectedSize = baseSize // base
-				+ sizeof(int8_t) // min cosignatories removal delta
-				+ sizeof(int8_t) // min cosignatories delta
-				+ sizeof(uint8_t); // modifications count
+					+ sizeof(int8_t) // min cosignatories removal delta
+					+ sizeof(int8_t) // min cosignatories delta
+					+ sizeof(uint8_t); // modifications count
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
@@ -29,7 +30,7 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertTransactionHasExpectedProperties() {
 			// Assert:
-			EXPECT_EQ(EntityType::Modify_Multisig_Account, static_cast<EntityType>(T::Entity_Type));
+			EXPECT_EQ(Entity_Type_Modify_Multisig_Account, static_cast<EntityType>(T::Entity_Type));
 			EXPECT_EQ(3u, static_cast<uint8_t>(T::Current_Version));
 		}
 	}
@@ -44,7 +45,7 @@ namespace catapult { namespace model {
 		struct ModifyMultisigAccountTransactionTraits {
 			static auto GenerateEntityWithAttachments(uint8_t numModifications) {
 				uint32_t entitySize = sizeof(TransactionType) + numModifications * sizeof(CosignatoryModification);
-				std::unique_ptr<TransactionType> pTransaction(reinterpret_cast<TransactionType*>(::operator new(entitySize)));
+				auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 				pTransaction->Size = entitySize;
 				pTransaction->ModificationsCount = numModifications;
 				return pTransaction;

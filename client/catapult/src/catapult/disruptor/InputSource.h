@@ -4,7 +4,6 @@
 
 namespace catapult { namespace disruptor {
 
-/// Possible consumer input sources.
 #define INPUT_SOURCE_LIST \
 	/* The input source is unknown. */ \
 	ENUM_VALUE(Unknown, 0u) \
@@ -18,13 +17,13 @@ namespace catapult { namespace disruptor {
 	/* The input was pushed by a remote node. */ \
 	ENUM_VALUE(Remote_Push, 4u)
 
-#define DECLARE_ENUM InputSource
-#define EXPLICIT_VALUE_ENUM
-#define EXPLICIT_TYPE_ENUM uint32_t
-#define ENUM_LIST INPUT_SOURCE_LIST
-#include "catapult/utils/MacroBasedEnum.h"
-#undef ENUM_LIST
-#undef EXPLICIT_TYPE_ENUM
-#undef EXPLICIT_VALUE_ENUM
-#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
+	/// Possible consumer input sources.
+	enum class InputSource : uint32_t {
+		INPUT_SOURCE_LIST
+	};
+#undef ENUM_VALUE
+
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, InputSource value);
 }}

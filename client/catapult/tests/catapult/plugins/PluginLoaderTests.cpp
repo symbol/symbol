@@ -1,12 +1,13 @@
 #include "catapult/plugins/PluginLoader.h"
 #include "catapult/plugins/PluginExceptions.h"
 #include "catapult/plugins/PluginManager.h"
+#include "catapult/utils/ExceptionLogging.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
-#define TEST_CLASS PluginLoaderTests
-
 namespace catapult { namespace plugins {
+
+#define TEST_CLASS PluginLoaderTests
 
 	namespace {
 		constexpr auto Known_Plugin_Name = "catapult.plugins.transfer";
@@ -36,10 +37,7 @@ namespace catapult { namespace plugins {
 
 		void AssertCanLoadKnownStaticallyLinkedPlugins(const std::string& directory) {
 			// Assert:
-			AssertCanLoadPlugins(directory, model::BlockChainConfiguration::Uninitialized(), false, {
-				"catapult.plugins.coresystem",
-				"catapult.plugins.blockdifficultycache"
-			});
+			AssertCanLoadPlugins(directory, model::BlockChainConfiguration::Uninitialized(), false, { "catapult.coresystem" });
 		}
 
 		void AssertCanLoadKnownDynamicallyLinkedPlugins(const std::string& directory) {
@@ -56,7 +54,7 @@ namespace catapult { namespace plugins {
 			PluginModules modules;
 			PluginManager manager(model::BlockChainConfiguration::Uninitialized());
 
-			// Act:
+			// Act + Assert:
 			EXPECT_THROW(LoadPluginByName(manager, modules, directory, "catapult.plugins.awesome"), catapult_invalid_argument);
 		}
 	}
@@ -106,7 +104,7 @@ namespace catapult { namespace plugins {
 			// Act:
 			LoadPluginByName(manager, modules, "", Known_Plugin_Name);
 		} catch (const plugin_load_error&) {
-			CATAPULT_LOG(debug) << "exception caught from module: " << boost::current_exception_diagnostic_information();
+			CATAPULT_LOG(debug) << UNHANDLED_EXCEPTION_MESSAGE("while running test");
 			isExceptionHandled = true;
 		}
 

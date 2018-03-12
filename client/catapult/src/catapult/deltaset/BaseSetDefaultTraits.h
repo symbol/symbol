@@ -56,40 +56,44 @@ namespace catapult { namespace deltaset {
 		/// Set values cannot be modified because they are hashed in native container.
 		static constexpr bool AllowsNativeValueModification = false;
 
-		/// Converts a value type (\a entity) to a key.
-		static constexpr const KeyType& ToKey(const ValueType& entity) {
-			return entity;
+		/// Converts a value type (\a element) to a key.
+		static constexpr const KeyType& ToKey(const ValueType& element) {
+			return element;
 		}
 
-		/// Converts a value type (\a entity) to a storage type.
-		static constexpr const StorageType& ToStorage(const ValueType& entity) {
-			return entity;
+		/// Converts a value type (\a element) to a storage type.
+		static constexpr const StorageType& ToStorage(const ValueType& element) {
+			return element;
 		}
 
-		/// Converts a storage type (\a entity) to a value type.
-		static constexpr const ValueType& ToValue(const StorageType& entity) {
-			return entity;
+		/// Converts a storage type (\a element) to a value type.
+		static constexpr const ValueType& ToValue(const StorageType& element) {
+			return element;
 		}
 	};
 
 	namespace detail {
-		template<typename TEntity>
+		template<typename TElement>
 		struct DerefHelper {
-			static const TEntity& Deref(const TEntity& entity) {
-				return entity;
+			using const_pointer_type = const TElement*;
+
+			static const TElement& Deref(const TElement& element) {
+				return element;
 			}
 		};
 
 		template<typename T>
 		struct DerefHelper<std::shared_ptr<T>> {
-			static const T& Deref(const std::shared_ptr<T>& entity) {
-				return *entity;
+			using const_pointer_type = const T*;
+
+			static const T& Deref(const std::shared_ptr<T>& element) {
+				return *element;
 			}
 		};
 	}
 
 	/// Base set compatible traits for stl map types.
-	template<typename TMap, typename TEntityToKeyConverter>
+	template<typename TMap, typename TElementToKeyConverter>
 	struct MapStorageTraits {
 		using SetType = TMap;
 		using KeyType = typename TMap::key_type;
@@ -99,29 +103,29 @@ namespace catapult { namespace deltaset {
 		/// Map values can be modified because they are not hashed in native container.
 		static constexpr bool AllowsNativeValueModification = true;
 
-		/// Converts a value type (\a entity) to a key.
-		static constexpr KeyType ToKey(const ValueType& entity) {
-			return TEntityToKeyConverter::ToKey(entity);
+		/// Converts a value type (\a element) to a key.
+		static constexpr KeyType ToKey(const ValueType& element) {
+			return TElementToKeyConverter::ToKey(element);
 		}
 
-		/// Converts a storage type (\a entity) to a key.
-		static constexpr const KeyType& ToKey(const StorageType& entity) {
-			return entity.first;
+		/// Converts a storage type (\a element) to a key.
+		static constexpr const KeyType& ToKey(const StorageType& element) {
+			return element.first;
 		}
 
-		/// Converts a value type (\a entity) to a storage type.
-		static constexpr StorageType ToStorage(const ValueType& entity) {
-			return std::make_pair(ToKey(entity), entity);
+		/// Converts a value type (\a element) to a storage type.
+		static constexpr StorageType ToStorage(const ValueType& element) {
+			return std::make_pair(ToKey(element), element);
 		}
 
-		/// Converts a storage type (\a entity) to a value type.
-		static constexpr const ValueType& ToValue(const StorageType& entity) {
-			return entity.second;
+		/// Converts a storage type (\a element) to a value type.
+		static constexpr const ValueType& ToValue(const StorageType& element) {
+			return element.second;
 		}
 
-		/// Converts a storage type (\a entity) to a value type.
-		static constexpr ValueType& ToValue(StorageType& entity) {
-			return entity.second;
+		/// Converts a storage type (\a element) to a value type.
+		static constexpr ValueType& ToValue(StorageType& element) {
+			return element.second;
 		}
 	};
 
@@ -134,24 +138,24 @@ namespace catapult { namespace deltaset {
 
 	namespace detail {
 		template<typename T>
-		struct EntityDeepCopy {
-			static constexpr T Copy(const T* pEntity) {
-				return *pEntity;
+		struct ElementDeepCopy {
+			static constexpr T Copy(const T* pElement) {
+				return *pElement;
 			}
 		};
 
 		template<typename T>
-		struct EntityDeepCopy<std::shared_ptr<T>> {
-			static std::shared_ptr<T> Copy(const std::shared_ptr<const T>& pEntity) {
-				return std::make_shared<T>(*pEntity);
+		struct ElementDeepCopy<std::shared_ptr<T>> {
+			static std::shared_ptr<T> Copy(const std::shared_ptr<const T>& pElement) {
+				return std::make_shared<T>(*pElement);
 			}
 		};
 	}
 
 	/// Traits used for describing a mutable type.
-	template<typename TEntity>
-	struct MutableTypeTraits : public detail::EntityDeepCopy<TEntity> {
-		using EntityType = TEntity;
+	template<typename TElement>
+	struct MutableTypeTraits : public detail::ElementDeepCopy<TElement> {
+		using ElementType = TElement;
 		using MutabilityTag = MutableTypeTag;
 	};
 
@@ -163,15 +167,15 @@ namespace catapult { namespace deltaset {
 	struct ImmutableTypeTag {};
 
 	/// Traits used for describing an immutable type.
-	template<typename TEntity>
+	template<typename TElement>
 	struct ImmutableTypeTraits {
-		using EntityType = const TEntity;
+		using ElementType = const TElement;
 		using MutabilityTag = ImmutableTypeTag;
 	};
 
 	template<typename T>
 	struct ImmutableTypeTraits<std::shared_ptr<T>> {
-		using EntityType = std::shared_ptr<T>;
+		using ElementType = std::shared_ptr<T>;
 		using MutabilityTag = ImmutableTypeTag;
 	};
 
@@ -181,7 +185,7 @@ namespace catapult { namespace deltaset {
 
 		// region FindTraits
 
-		/// Traits for customizing the behavior of find depending on entity type.
+		/// Traits for customizing the behavior of find depending on element type.
 		template<typename T, bool AllowsNativeValueModification>
 		struct FindTraits {
 			using ConstResultType = const T*;
@@ -225,11 +229,11 @@ namespace catapult { namespace deltaset {
 
 		// endregion
 
-		// region EntityCreator
+		// region ElementCreator
 
-		/// Traits for creating an entity from arguments.
+		/// Traits for creating an element from arguments.
 		template<typename T>
-		struct EntityCreator {
+		struct ElementCreator {
 			template<typename... TArgs>
 			static T Create(TArgs&&... args) {
 				return T(std::forward<TArgs>(args)...);
@@ -237,7 +241,7 @@ namespace catapult { namespace deltaset {
 		};
 
 		template<typename T>
-		struct EntityCreator<std::shared_ptr<T>> {
+		struct ElementCreator<std::shared_ptr<T>> {
 			template<typename... TArgs>
 			static std::shared_ptr<T> Create(TArgs&&... args) {
 				return std::make_shared<T>(std::forward<TArgs>(args)...);

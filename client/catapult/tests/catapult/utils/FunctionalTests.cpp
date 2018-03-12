@@ -11,7 +11,9 @@
 
 namespace catapult { namespace utils {
 
-	TEST(FunctionalTests, RunningReduceOnAnEmptyContainerYieldsInitialValue) {
+#define TEST_CLASS FunctionalTests
+
+	TEST(TEST_CLASS, RunningReduceOnAnEmptyContainerYieldsInitialValue) {
 		// Arrange:
 		std::vector<int> vec;
 
@@ -22,7 +24,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(result, 12345);
 	}
 
-	TEST(FunctionalTests, RunningReduceOnNonEmptyContainerExecutesCallbackOnAllElements) {
+	TEST(TEST_CLASS, RunningReduceOnNonEmptyContainerExecutesCallbackOnAllElements) {
 		// Arrange:
 		std::vector<int> vec{ 8, 13, 21, 34, 55 };
 
@@ -64,14 +66,14 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(FunctionalTests, CanRunReduceOnDifferentContainerTypes) {
+	TEST(TEST_CLASS, CanRunReduceOnDifferentContainerTypes) {
 		AssertReduce<std::list<uint64_t>>();
 		AssertReduce<std::set<uint64_t>>();
 		AssertReduce<std::vector<uint64_t>>();
 		AssertReduce<std::unordered_set<uint64_t>>();
 	}
 
-	TEST(FunctionalTests, ReturnedValueIsOfInitType) {
+	TEST(TEST_CLASS, ReturnedValueIsOfInitType) {
 		// Arrange:
 		std::map<std::string, int> container{
 			{ "alpha", 21 },
@@ -91,5 +93,53 @@ namespace catapult { namespace utils {
 
 		// Assert:
 		EXPECT_EQ(5u + 7 + 4, result);
+	}
+
+	TEST(TEST_CLASS, SumOnEmptyContainerReturnsZero) {
+		// Arrange:
+		std::vector<int> data;
+
+		// Act:
+		auto result = Sum(data, [](auto value) { return value; });
+
+		// Assert:
+		EXPECT_EQ(0, result);
+	}
+
+	TEST(TEST_CLASS, SumCallbackIsCalledOnEveryElement) {
+		// Arrange:
+		std::vector<int> data{ 8, 13, 21, 34, 55 };
+
+		// Act:
+		std::vector<int> collected;
+		Sum(data, [&collected](auto value) {
+			collected.push_back(value);
+			return 0;
+		});
+
+		// Assert:
+		EXPECT_EQ(data, collected);
+	}
+
+	TEST(TEST_CLASS, SumReturnsProperValue_SingleElement) {
+		// Arrange:
+		std::vector<int> data{ 8 };
+
+		// Act:
+		auto result = Sum(data, [](auto value) { return value; });
+
+		// Assert:
+		EXPECT_EQ(8, result);
+	}
+
+	TEST(TEST_CLASS, SumReturnsProperValue_MultipleElements) {
+		// Arrange:
+		std::vector<int> data{ 8, 13, 21, 34, 55 };
+
+		// Act:
+		auto result = Sum(data, [](auto value) { return value; });
+
+		// Assert:
+		EXPECT_EQ(131, result);
 	}
 }}

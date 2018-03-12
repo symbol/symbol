@@ -10,6 +10,16 @@ namespace catapult {
 
 namespace catapult { namespace model {
 
+	/// The publication mode.
+	enum class PublicationMode {
+		/// Only basic notifications are published.
+		Basic,
+		/// Only custom notifications are published.
+		Custom,
+		/// All notifications are published.
+		All
+	};
+
 	/// A notification publisher.
 	class NotificationPublisher {
 	public:
@@ -20,6 +30,8 @@ namespace catapult { namespace model {
 		virtual void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const = 0;
 	};
 
-	/// Creates a notification publisher around \a transactionRegistry.
-	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(const TransactionRegistry& transactionRegistry);
+	/// Creates a notification publisher around \a transactionRegistry for the specified \a mode.
+	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
+			const TransactionRegistry& transactionRegistry,
+			PublicationMode mode = PublicationMode::All);
 }}

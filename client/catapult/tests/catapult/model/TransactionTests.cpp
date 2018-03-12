@@ -17,8 +17,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, EntityHasExpectedSize) {
 		// Arrange:
 		auto expectedSize = sizeof(VerifiableEntity) // base
-			+ sizeof(uint64_t) // fee
-			+ sizeof(uint64_t); // deadline
+				+ sizeof(uint64_t) // fee
+				+ sizeof(uint64_t); // deadline
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(Transaction));
@@ -31,8 +31,8 @@ namespace catapult { namespace model {
 
 	namespace {
 		bool IsSizeValid(const Transaction& transaction) {
-			auto pRegistry = mocks::CreateDefaultTransactionRegistry();
-			return IsSizeValid(transaction, *pRegistry);
+			auto registry = mocks::CreateDefaultTransactionRegistry();
+			return IsSizeValid(transaction, registry);
 		}
 	}
 

@@ -4,9 +4,12 @@
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace observers {
+
+#define TEST_CLASS FunctionalNotificationObserverTests
+
 	using NotificationType = model::AccountPublicKeyNotification;
 
-	TEST(FunctionalNotificationObserverTests, HasCorrectName) {
+	TEST(TEST_CLASS, HasCorrectName) {
 		// Act:
 		FunctionalNotificationObserverT<NotificationType> observer("Foo", [](const auto&, const auto&) {});
 
@@ -28,7 +31,7 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	TEST(FunctionalNotificationObserverTests, NotifyDelegatesToFunction) {
+	TEST(TEST_CLASS, NotifyDelegatesToFunction) {
 		// Arrange:
 		test::ParamsCapture<NotifyParams> capture;
 		FunctionalNotificationObserverT<NotificationType> observer("Foo", [&](const auto& notification, const auto& context) {

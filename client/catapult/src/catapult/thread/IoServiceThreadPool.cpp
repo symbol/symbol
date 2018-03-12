@@ -1,5 +1,7 @@
 #include "IoServiceThreadPool.h"
+#include "ThreadInfo.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
+#include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/exceptions.h"
 #include <boost/asio.hpp>
@@ -70,8 +72,12 @@ namespace catapult { namespace thread {
 				// spawn the number of configured threads
 				CATAPULT_LOG(trace) << m_tag << " spawning threads";
 				m_pContext = std::make_unique<ThreadPoolContext>(m_service);
-				for (auto i = 0u; i < m_numConfiguredWorkerThreads; ++i)
-					m_pContext->createThread([this]() { ioWorkerFunction(); });
+				for (auto i = 0u; i < m_numConfiguredWorkerThreads; ++i) {
+					m_pContext->createThread([this, i]() {
+						thread::SetThreadName(std::to_string(i) + " " + this->tag() + " worker");
+						ioWorkerFunction();
+					});
+				}
 
 				// wait for the threads to be spawned
 				CATAPULT_LOG(trace) << m_tag << " waiting for threads to be spawned";
@@ -98,8 +104,8 @@ namespace catapult { namespace thread {
 				} catch (...) {
 					// if run throws an exception, something really bad happened
 					// log the error and bubble out the exception, which should terminate the process
-					CATAPULT_LOG(fatal) << m_tag << " worker thread threw exception: "
-						<< boost::current_exception_diagnostic_information();
+					CATAPULT_LOG(fatal) << m_tag << " worker thread threw exception: " << EXCEPTION_DIAGNOSTIC_MESSAGE();
+					utils::CatapultLogFlush();
 					throw;
 				}
 
@@ -115,10 +121,10 @@ namespace catapult { namespace thread {
 			std::atomic<uint32_t> m_numWorkerThreads;
 		};
 
-		std::string CreateTagFromName(const char* pName) {
+		std::string CreateTagFromName(const char* name) {
 			std::string tag;
-			if (pName) {
-				tag.append(pName);
+			if (name) {
+				tag.append(name);
 				tag.push_back(' ');
 			}
 
@@ -127,7 +133,7 @@ namespace catapult { namespace thread {
 		}
 	}
 
-	std::unique_ptr<IoServiceThreadPool> CreateIoServiceThreadPool(size_t numWorkerThreads, const char* pName) {
-		return std::make_unique<DefaultIoServiceThreadPool>(numWorkerThreads, CreateTagFromName(pName));
+	std::unique_ptr<IoServiceThreadPool> CreateIoServiceThreadPool(size_t numWorkerThreads, const char* name) {
+		return std::make_unique<DefaultIoServiceThreadPool>(numWorkerThreads, CreateTagFromName(name));
 	}
 }}

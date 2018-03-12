@@ -1,47 +1,24 @@
-#include "catapult/api/ChainPackets.h"
-#include "catapult/ionet/Packet.h"
-#include "catapult/local/p2p/LocalNode.h"
-#include "catapult/thread/MultiServicePool.h"
-#include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/core/StorageTestUtils.h"
-#include "tests/test/int/Configuration.h"
 #include "tests/test/int/LocalNodeApiTraits.h"
 #include "tests/test/int/LocalNodeIntegrityTestUtils.h"
-#include "tests/test/int/LocalNodeTestUtils.h"
-#include "tests/test/net/SocketTestUtils.h"
-#include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/int/LocalNodeTestContext.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace local { namespace p2p {
+namespace catapult { namespace local {
 
 #define TEST_CLASS LocalNodeIntegrityTests
 
 	namespace {
 		class TestContext {
 		public:
-			TestContext() : m_serverKeyPair(test::LoadServerKeyPair()) {
-				test::PrepareStorage(m_tempDir.name());
+			TestContext() : m_context(test::NodeFlag::With_Partner, { test::CreateLocalPartnerNode() })
+			{}
 
-				m_pLocalNode = CreateLocalNode(
-						m_serverKeyPair,
-						test::LoadLocalNodeConfigurationWithNemesisPluginExtensions(m_tempDir.name()),
-						std::make_unique<thread::MultiServicePool>(
-								thread::MultiServicePool::DefaultPoolConcurrency(),
-								"LocalNodeIntegrityTests"));
-			}
-
-			BootedLocalNode& localNode() const {
-				return *m_pLocalNode;
-			}
-
-			test::PeerLocalNodeStats stats() const {
-				return test::CountersToPeerLocalNodeStats(localNode().counters());
+			auto stats() const {
+				return m_context.stats();
 			}
 
 		private:
-			crypto::KeyPair m_serverKeyPair;
-			test::TempDirectoryGuard m_tempDir;
-			std::unique_ptr<BootedLocalNode> m_pLocalNode;
+			test::LocalNodeTestContext<test::LocalNodePeerTraits> m_context;
 		};
 
 		Height RetrieveHeight() {
@@ -49,8 +26,8 @@ namespace catapult { namespace local { namespace p2p {
 
 			std::atomic<Height::ValueType> height(0);
 			std::atomic_bool gotHeight(false);
-			connection.apiCall([&](const auto& remoteApi) {
-				remoteApi.chainInfo().then([&gotHeight, &height](auto&& infoFuture) {
+			connection.apiCall([&](const auto& pRemoteChainApi) {
+				pRemoteChainApi->chainInfo().then([&gotHeight, &height](auto&& infoFuture) {
 					height = infoFuture.get().Height.unwrap();
 					gotHeight = true;
 				});
@@ -61,7 +38,7 @@ namespace catapult { namespace local { namespace p2p {
 
 		void AssertReaderConnection(const test::PeerLocalNodeStats& stats) {
 			// Assert: the external reader connection is still active
-			EXPECT_EQ(2u, stats.NumActiveReaders);
+			EXPECT_EQ(1u, stats.NumActiveReaders);
 			EXPECT_EQ(1u, stats.NumActiveWriters);
 			EXPECT_EQ(0u, stats.NumActiveBroadcastWriters);
 		}
@@ -82,9 +59,9 @@ namespace catapult { namespace local { namespace p2p {
 		auto pIo = test::PushValidBlock(connection);
 
 		// - wait for the chain height to change and for all height readers to disconnect
-		WAIT_FOR_VALUE_EXPR(RetrieveHeight(), Height(2));
+		WAIT_FOR_VALUE_EXPR(Height(2), RetrieveHeight());
 		auto chainHeight = RetrieveHeight();
-		WAIT_FOR_VALUE_EXPR(context.stats().NumActiveReaders, 2u);
+		WAIT_FOR_ONE_EXPR(context.stats().NumActiveReaders);
 
 		// Assert: the chain height is two
 		EXPECT_EQ(Height(2), chainHeight);
@@ -132,4 +109,4 @@ namespace catapult { namespace local { namespace p2p {
 	}
 
 	// endregion
-}}}
+}}

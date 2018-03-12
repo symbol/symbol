@@ -1,6 +1,6 @@
 #pragma once
 #include "src/model/ModifyMultisigAccountTransaction.h"
-#include "plugins/txes/aggregate/src/model/Cosignature.h"
+#include "catapult/model/Cosignature.h"
 #include "catapult/utils/HexFormatter.h"
 #include "tests/TestHarness.h"
 

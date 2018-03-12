@@ -42,7 +42,7 @@ namespace catapult { namespace consumers {
 			const observers::ObserverState&)>;
 
 	/// A predicate for determining whether or not two blocks form a hit.
-	using BlockHitPredicate = std::function<bool (const model::Block&, const model::Block&, const Hash256&)>;
+	using BlockHitPredicate = predicate<const model::Block&, const model::Block&, const Hash256&>;
 
 	/// A factory for creating a predicate for determining whether or not two blocks form a hit.
 	using BlockHitPredicateFactory = std::function<BlockHitPredicate (const cache::ReadOnlyCatapultCache&)>;
@@ -51,5 +51,5 @@ namespace catapult { namespace consumers {
 	/// and batch entity processor (\a batchEntityProcessor).
 	BlockChainProcessor CreateBlockChainProcessor(
 			const BlockHitPredicateFactory& blockHitPredicateFactory,
-			const chain::BatchEntityProcessor batchEntityProcessor);
+			const chain::BatchEntityProcessor& batchEntityProcessor);
 }}

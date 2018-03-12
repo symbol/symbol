@@ -1,13 +1,15 @@
 #pragma once
 #include "src/state/MultisigEntry.h"
-#include "catapult/deltaset/BaseSet.h"
+#include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/utils/Hashers.h"
-#include <unordered_map>
 
 namespace catapult {
 	namespace cache {
 		class BasicMultisigCacheDelta;
 		class BasicMultisigCacheView;
+		class MultisigCache;
+		class MultisigCacheDelta;
+		class MultisigCacheView;
 
 		template<typename TCache, typename TCacheDelta, typename TKey, typename TGetResult>
 		class ReadOnlyArtifactCache;
@@ -16,41 +18,31 @@ namespace catapult {
 
 namespace catapult { namespace cache {
 
-	namespace multisig_cache_types {
-		namespace account_multisig_entries_map {
-			/// The map value type.
-			using ValueType = state::MultisigEntry;
+	/// Describes a multisig cache.
+	struct MultisigCacheDescriptor {
+	public:
+		// key value types
+		using KeyType = Key;
+		using ValueType = state::MultisigEntry;
 
-			/// The entity traits.
-			using EntityTraits = deltaset::MutableTypeTraits<ValueType>;
+		// cache types
+		using CacheType = MultisigCache;
+		using CacheDeltaType = MultisigCacheDelta;
+		using CacheViewType = MultisigCacheView;
 
-			/// The map key type.
-			using KeyType = Key;
-
-			/// The underlying entries map.
-			using PublicKeyBasedMultisigEntriesMap = std::unordered_map<KeyType, ValueType, utils::ArrayHasher<KeyType>>;
-
-			/// Retrieves the map key from multisig \a entry.
-			struct MultisigEntryToPublicKeyConverter {
-				static auto ToKey(const ValueType& entry) {
-					return entry.key();
-				}
-			};
-
-			/// The base set type.
-			using BaseSetType = deltaset::BaseSet<
-				EntityTraits,
-				deltaset::MapStorageTraits<PublicKeyBasedMultisigEntriesMap, MultisigEntryToPublicKeyConverter>>;
-
-			/// A pointer to the base set delta type.
-			using BaseSetDeltaPointerType = std::shared_ptr<BaseSetType::DeltaType>;
+	public:
+		/// Gets the key corresponding to \a entry.
+		static const auto& GetKeyFromValue(const ValueType& entry) {
+			return entry.key();
 		}
+	};
 
-		/// A read-only view of a multisig entry cache.
+	/// Multisig cache types.
+	struct MultisigCacheTypes : public MutableUnorderedMapAdapter<MultisigCacheDescriptor, utils::ArrayHasher<Key>> {
 		using CacheReadOnlyType = ReadOnlyArtifactCache<
-				BasicMultisigCacheView,
-				BasicMultisigCacheDelta,
-				const Key&,
-				state::MultisigEntry>;
-	}
+			BasicMultisigCacheView,
+			BasicMultisigCacheDelta,
+			const Key&,
+			const state::MultisigEntry&>;
+	};
 }}

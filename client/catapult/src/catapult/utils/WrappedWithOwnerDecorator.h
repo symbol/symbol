@@ -10,9 +10,9 @@ namespace catapult { namespace utils {
 	public:
 		/// Wraps \a handler and keeps \a pOwner alive.
 		template<typename TOwner>
-		WrappedWithOwnerDecorator(THandler handler, const std::shared_ptr<TOwner>& pOwner)
-				: m_handler(std::move(handler))
-				, m_pOwner(pOwner)
+		WrappedWithOwnerDecorator(const std::shared_ptr<TOwner>& pOwner, THandler handler)
+				: m_pOwner(pOwner)
+				, m_handler(std::move(handler))
 		{}
 
 	public:
@@ -28,8 +28,8 @@ namespace catapult { namespace utils {
 		}
 
 	protected:
+		std::shared_ptr<const void> m_pOwner; // owner must be destroyed last in case handler holds raw reference(s) to it
 		THandler m_handler;
-		std::shared_ptr<const void> m_pOwner;
 	};
 
 	/// Decorates a handler by additionally capturing a shared pointer to an owning object,
@@ -39,8 +39,8 @@ namespace catapult { namespace utils {
 	public:
 		/// Wraps \a handler and keeps \a pOwner alive.
 		template<typename TOwner>
-		ResettableWrappedWithOwnerDecorator(THandler handler, const std::shared_ptr<TOwner>& pOwner)
-				: WrappedWithOwnerDecorator<THandler>(std::move(handler), pOwner)
+		ResettableWrappedWithOwnerDecorator(const std::shared_ptr<TOwner>& pOwner, THandler handler)
+				: WrappedWithOwnerDecorator<THandler>(pOwner, std::move(handler))
 		{}
 
 	public:

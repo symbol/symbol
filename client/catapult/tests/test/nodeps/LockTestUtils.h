@@ -2,7 +2,6 @@
 #include "catapult/utils/Logging.h"
 #include "tests/TestHarness.h"
 #include <boost/thread.hpp>
-#include <mutex>
 #include <thread>
 
 namespace catapult { namespace test {
@@ -86,10 +85,7 @@ namespace catapult { namespace test {
 	/// Asserts that \a source can create multiple sub-objects (via \a createSubObject) on multiple threads
 	/// that are validated by \a verifySubObject.
 	template<typename TSource, typename TCreateSubObject, typename TVerifySubObject>
-	void CanCreateSubObjectOnMultipleThreads(
-			TSource&& source,
-			TCreateSubObject createSubObject,
-			TVerifySubObject verifySubObject) {
+	void CanCreateSubObjectOnMultipleThreads(TSource&& source, TCreateSubObject createSubObject, TVerifySubObject verifySubObject) {
 		// Arrange:
 		constexpr auto Num_Sub_Objects = 10u;
 		std::atomic<size_t> numSubObjects(0);
@@ -101,7 +97,7 @@ namespace catapult { namespace test {
 				auto subObject = createSubObject(source);
 				++numSubObjects;
 
-				WAIT_FOR_VALUE(numSubObjects, Num_Sub_Objects);
+				WAIT_FOR_VALUE(Num_Sub_Objects, numSubObjects);
 
 				// Assert:
 				verifySubObject(subObject);

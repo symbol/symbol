@@ -2,12 +2,12 @@
 #include "catapult/utils/HexFormatter.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
-#include "tests/test/core/mocks/MemoryStream.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
-#define TEST_CLASS MultisigCacheStorageTests
-
 namespace catapult { namespace cache {
+
+#define TEST_CLASS MultisigCacheStorageTests
 
 	namespace {
 		class TestContext {
@@ -18,12 +18,12 @@ namespace catapult { namespace cache {
 			{}
 
 		public:
-			auto& outputStream() {
-				return m_stream;
-			}
-
 			auto& buffer() {
 				return m_buffer;
+			}
+
+			auto& outputStream() {
+				return m_stream;
 			}
 
 		public:
@@ -46,7 +46,7 @@ namespace catapult { namespace cache {
 
 		private:
 			std::vector<uint8_t> m_buffer;
-			mocks::MemoryStream m_stream;
+			mocks::MockMemoryStream m_stream;
 			std::vector<Key> m_accountKeys;
 		};
 
@@ -107,6 +107,8 @@ namespace catapult { namespace cache {
 		}
 	}
 
+	// region Save
+
 	TEST(TEST_CLASS, CanSaveSingleEntryWithNeitherCosignersNorMultisigAccounts) {
 		// Arrange:
 		TestContext context;
@@ -155,13 +157,54 @@ namespace catapult { namespace cache {
 		AssertEntryBuffer(entry2, pBuffer2, expectedSize2);
 	}
 
+	// endregion
+
+	// region Load
+
 	namespace {
+		void CopyKeySetIntoBuffer(uint8_t*& pData, const utils::KeySet& keySet) {
+			auto* pKey = reinterpret_cast<Key*>(pData);
+			for (const auto& key : keySet)
+				*pKey++ = key;
+
+			pData += Key_Size * keySet.size();
+		}
+
+		std::vector<uint8_t> CreateBuffer(const state::MultisigEntry& entry) {
+			// minApproval / minRemoval / key / cosignatories / multisigAccounts
+			size_t cosignatoriesSize = entry.cosignatories().size();
+			size_t multisigAccountsSize = entry.multisigAccounts().size();
+			size_t bufferSize = 1 + 1 + Key_Size + 2 * sizeof(uint64_t) + Key_Size * (cosignatoriesSize + multisigAccountsSize);
+			std::vector<uint8_t> buffer(bufferSize);
+
+			// - minApproval / minRemoval
+			buffer[0] = entry.minApproval();
+			buffer[1] = entry.minRemoval();
+
+			// - multisig account key
+			auto* pData = buffer.data() + 2;
+			memcpy(pData, entry.key().data(), Key_Size);
+			pData += Key_Size;
+
+			// - cosignatories
+			memcpy(pData, &cosignatoriesSize, sizeof(uint64_t));
+			pData += sizeof(uint64_t);
+			CopyKeySetIntoBuffer(pData, entry.cosignatories());
+
+			// - multisig accounts
+			memcpy(pData, &multisigAccountsSize, sizeof(uint64_t));
+			pData += sizeof(uint64_t);
+			CopyKeySetIntoBuffer(pData, entry.multisigAccounts());
+
+			return buffer;
+		}
+
 		void AssertCanLoadSingleEntry(size_t numCosignatories, size_t numMultisigAccounts) {
 			// Arrange:
 			TestContext context;
 			auto entry = context.createEntry(0, numCosignatories, numMultisigAccounts);
-			MultisigCacheStorage::Save(std::make_pair(entry.key(), entry), context.outputStream());
-			mocks::MemoryStream inputStream("", context.buffer());
+			auto buffer = CreateBuffer(entry);
+			mocks::MockMemoryStream inputStream("", buffer);
 
 			// Act:
 			MultisigCache cache;
@@ -170,14 +213,14 @@ namespace catapult { namespace cache {
 			cache.commit();
 
 			// Assert: whole buffer has been read
-			EXPECT_EQ(context.buffer().size(), inputStream.position());
+			EXPECT_EQ(buffer.size(), inputStream.position());
 
 			// Assert:
 			auto view = cache.createView();
-			auto iter = std::find_if(view->cbegin(), view->cend(), [&entry](const auto& pair) {
+			auto iter = std::find_if(view->begin(), view->end(), [&entry](const auto& pair) {
 				return entry.key() == pair.second.key();
 			});
-			ASSERT_NE(view->cend(), iter);
+			ASSERT_NE(view->end(), iter);
 			AssertEqual(entry, iter->second);
 		}
 	}
@@ -197,4 +240,6 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CanLoadSingleEntryWithCosignatoriesAndMultisigAccounts) {
 		AssertCanLoadSingleEntry(3, 4);
 	}
+
+	// endregion
 }}

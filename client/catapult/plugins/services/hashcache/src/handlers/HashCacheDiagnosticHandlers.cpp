@@ -1,12 +1,13 @@
 #include "HashCacheDiagnosticHandlers.h"
 #include "catapult/handlers/HandlerFactory.h"
+#include "catapult/utils/Casting.h"
 
 namespace catapult { namespace handlers {
 
 	namespace {
 		struct ConfirmTimestampedHashesTraits {
-			using EntityType = state::TimestampedHash;
-			using SupplierResultsType = std::vector<const EntityType*>;
+			using RequestStructureType = state::TimestampedHash;
+			using SupplierResultsType = std::vector<const RequestStructureType*>;
 
 			static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Confirm_Timestamped_Hashes;
 

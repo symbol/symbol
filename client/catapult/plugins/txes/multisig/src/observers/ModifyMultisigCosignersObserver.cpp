@@ -53,23 +53,19 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	NotificationObserverPointerT<Notification> CreateModifyMultisigCosignersObserver() {
-		return std::make_unique<FunctionalNotificationObserverT<Notification>>(
-				"ModifyMultisigCosignersObserver",
-				[](const auto& notification, const ObserverContext& context) {
-					auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
+	DEFINE_OBSERVER(ModifyMultisigCosigners, Notification, [](const auto& notification, const ObserverContext& context) {
+		auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
 
-					MultisigAccountFacade multisigAccountFacade(multisigCache, notification.Signer);
-					const auto* pModifications = notification.ModificationsPtr;
-					for (auto i = 0u; i < notification.ModificationsCount; ++i) {
-						auto isNotificationAdd = model::CosignatoryModificationType::Add == pModifications[i].ModificationType;
-						auto isNotificationForward = NotifyMode::Commit == context.Mode;
+		MultisigAccountFacade multisigAccountFacade(multisigCache, notification.Signer);
+		const auto* pModifications = notification.ModificationsPtr;
+		for (auto i = 0u; i < notification.ModificationsCount; ++i) {
+			auto isNotificationAdd = model::CosignatoryModificationType::Add == pModifications[i].ModificationType;
+			auto isNotificationForward = NotifyMode::Commit == context.Mode;
 
-						if (isNotificationAdd == isNotificationForward)
-							multisigAccountFacade.addCosignatory(pModifications[i].CosignatoryPublicKey);
-						else
-							multisigAccountFacade.removeCosignatory(pModifications[i].CosignatoryPublicKey);
-					}
-				});
-	}
+			if (isNotificationAdd == isNotificationForward)
+				multisigAccountFacade.addCosignatory(pModifications[i].CosignatoryPublicKey);
+			else
+				multisigAccountFacade.removeCosignatory(pModifications[i].CosignatoryPublicKey);
+		}
+	});
 }}

@@ -1,6 +1,7 @@
 #include "MultisigTestUtils.h"
 #include "src/cache/MultisigCache.h"
 #include "catapult/cache/CatapultCacheDelta.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {
@@ -23,10 +24,10 @@ namespace catapult { namespace test {
 		using TransactionType = model::EmbeddedModifyMultisigAccountTransaction;
 		auto numModifications = static_cast<uint8_t>(modificationTypes.size());
 		uint32_t entitySize = sizeof(TransactionType) + numModifications * sizeof(model::CosignatoryModification);
-		std::unique_ptr<TransactionType> pTransaction(reinterpret_cast<TransactionType*>(::operator new(entitySize)));
+		auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 		pTransaction->Size = entitySize;
 		pTransaction->ModificationsCount = numModifications;
-		pTransaction->Type = model::EntityType::Modify_Multisig_Account;
+		pTransaction->Type = model::Entity_Type_Modify_Multisig_Account;
 		pTransaction->Signer = signer;
 
 		auto* pModification = pTransaction->ModificationsPtr();

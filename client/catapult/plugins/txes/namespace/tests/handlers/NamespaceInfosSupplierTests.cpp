@@ -8,6 +8,8 @@
 
 namespace catapult { namespace handlers {
 
+#define TEST_CLASS NamespaceInfosSupplierTests
+
 	namespace {
 		using NamespaceIds = std::vector<NamespaceId>;
 		using NamespaceInfos = std::vector<std::shared_ptr<const model::NamespaceInfo>>;
@@ -75,19 +77,19 @@ namespace catapult { namespace handlers {
 
 	// region basic
 
-	TEST(NamespaceInfosSupplierTests, CanSupplySingleNamespaceInfo) {
+	TEST(TEST_CLASS, CanSupplySingleNamespaceInfo) {
 		// Assert:
 		for (auto i = 1u; i <= Num_Namespace_Infos; ++i)
 			AssertCanSupplyNamespaceInfos({ i });
 	}
 
-	TEST(NamespaceInfosSupplierTests, CanSupplyMultipleNamespaceInfos) {
+	TEST(TEST_CLASS, CanSupplyMultipleNamespaceInfos) {
 		// Assert:
 		AssertCanSupplyNamespaceInfos({ 1, 3, 5 });
 		AssertCanSupplyNamespaceInfos({ 2, 4 });
 	}
 
-	TEST(NamespaceInfosSupplierTests, CanSupplyAllNamespaceInfos) {
+	TEST(TEST_CLASS, CanSupplyAllNamespaceInfos) {
 		// Assert:
 		auto ids = std::vector<NamespaceId::ValueType>(Num_Namespace_Infos);
 		std::iota(ids.begin(), ids.end(), 1);
@@ -104,7 +106,7 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	TEST(NamespaceInfosSupplierTests, ReturnsInfoForUnkownNamespace) {
+	TEST(TEST_CLASS, ReturnsInfoForUnkownNamespace) {
 		// Arrange: request an unknown namespace to be supplied
 		NamespaceInfosContext context;
 		auto idRange = CreateSingleIdRange(NamespaceId(7));
@@ -119,10 +121,10 @@ namespace catapult { namespace handlers {
 		EXPECT_EQ(sizeof(model::NamespaceInfo), pInfo->Size);
 		EXPECT_EQ(NamespaceId(7), pInfo->Id);
 		EXPECT_EQ(model::ArtifactInfoAttributes::None, pInfo->Attributes);
-		EXPECT_EQ(0u, pInfo->NumChildren);
+		EXPECT_EQ(0u, pInfo->ChildCount);
 	}
 
-	TEST(NamespaceInfosSupplierTests, ReturnsInfoForChildNamespace) {
+	TEST(TEST_CLASS, ReturnsInfoForChildNamespace) {
 		// Arrange: request a child namespace to be supplied
 		NamespaceInfosContext context;
 		auto idRange = CreateSingleIdRange(NamespaceId(4));
@@ -137,10 +139,10 @@ namespace catapult { namespace handlers {
 		EXPECT_EQ(sizeof(model::NamespaceInfo), pInfo->Size);
 		EXPECT_EQ(NamespaceId(4), pInfo->Id);
 		EXPECT_EQ(model::ArtifactInfoAttributes::Is_Known, pInfo->Attributes);
-		EXPECT_EQ(0u, pInfo->NumChildren);
+		EXPECT_EQ(0u, pInfo->ChildCount);
 	}
 
-	TEST(NamespaceInfosSupplierTests, ReturnsInfoForRootNamespace) {
+	TEST(TEST_CLASS, ReturnsInfoForRootNamespace) {
 		// Arrange: request a root namespace to be supplied
 		NamespaceInfosContext context;
 		auto idRange = CreateSingleIdRange(NamespaceId(1));
@@ -155,7 +157,7 @@ namespace catapult { namespace handlers {
 		EXPECT_EQ(sizeof(model::NamespaceInfo) + 3 * sizeof(NamespaceId), pInfo->Size);
 		EXPECT_EQ(NamespaceId(1), pInfo->Id);
 		EXPECT_EQ(model::ArtifactInfoAttributes::Is_Known, pInfo->Attributes);
-		ASSERT_EQ(3u, pInfo->NumChildren);
+		ASSERT_EQ(3u, pInfo->ChildCount);
 
 		// - check children (note that order is not important)
 		const auto* pChildIds = pInfo->ChildrenPtr();

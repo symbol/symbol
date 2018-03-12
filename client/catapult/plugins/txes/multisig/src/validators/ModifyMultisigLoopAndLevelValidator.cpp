@@ -40,12 +40,12 @@ namespace catapult { namespace validators {
 		};
 	}
 
-	stateful::NotificationValidatorPointerT<Notification> CreateModifyMultisigLoopAndLevelValidator(uint8_t maxMultisigDepth) {
-		return std::make_unique<stateful::FunctionalNotificationValidatorT<Notification>>(
-				"ModifyMultisigLoopAndLevelValidator",
-				[maxMultisigDepth](const auto& notification, const ValidatorContext& context) {
-					auto checker = LoopAndLevelChecker(context.Cache.sub<cache::MultisigCache>(), maxMultisigDepth);
-					return checker.validate(notification.MultisigAccountKey, notification.CosignatoryKey);
-				});
+	DECLARE_STATEFUL_VALIDATOR(ModifyMultisigLoopAndLevel, Notification)(uint8_t maxMultisigDepth) {
+		return MAKE_STATEFUL_VALIDATOR(ModifyMultisigLoopAndLevel, [maxMultisigDepth](
+					const auto& notification,
+					const ValidatorContext& context) {
+			auto checker = LoopAndLevelChecker(context.Cache.sub<cache::MultisigCache>(), maxMultisigDepth);
+			return checker.validate(notification.MultisigAccountKey, notification.CosignatoryKey);
+		});
 	}
 }}

@@ -1,11 +1,14 @@
 #include "src/observers/Observers.h"
 #include "src/cache/MosaicCache.h"
-#include "plugins/coresystem/src/cache/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace observers {
+
+#define TEST_CLASS MosaicSupplyChangeObserverTests
+
 	using ObserverTestContext = test::ObserverTestContextT<test::MosaicCacheFactory>;
 
 	DEFINE_COMMON_OBSERVER_TESTS(MosaicSupplyChange,)
@@ -40,7 +43,8 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(finalSupply, mosaicCacheDelta.get(Default_Mosaic_Id).supply());
 
 			const auto& accountStateCacheDelta = context.cache().sub<cache::AccountStateCache>();
-			EXPECT_EQ(finalOwnerSupply, accountStateCacheDelta.findAccount(signer)->Balances.get(Default_Mosaic_Id));
+			auto signerAddress = accountStateCacheDelta.get(signer).Address;
+			EXPECT_EQ(finalOwnerSupply, accountStateCacheDelta.get(signerAddress).Balances.get(Default_Mosaic_Id));
 		}
 
 		void AssertSupplyIncrease(model::MosaicSupplyChangeDirection direction, NotifyMode mode) {
@@ -54,22 +58,22 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	TEST(MosaicSupplyChangeObserverTests, IncreaseCommitIncreasesSupply) {
+	TEST(TEST_CLASS, IncreaseCommitIncreasesSupply) {
 		// Assert:
 		AssertSupplyIncrease(model::MosaicSupplyChangeDirection::Increase, NotifyMode::Commit);
 	}
 
-	TEST(MosaicSupplyChangeObserverTests, DecreaseCommitDecreasesSupply) {
+	TEST(TEST_CLASS, DecreaseCommitDecreasesSupply) {
 		// Assert:
 		AssertSupplyDecrease(model::MosaicSupplyChangeDirection::Decrease, NotifyMode::Commit);
 	}
 
-	TEST(MosaicSupplyChangeObserverTests, IncreaseRollbackDecreasesSupply) {
+	TEST(TEST_CLASS, IncreaseRollbackDecreasesSupply) {
 		// Assert:
 		AssertSupplyDecrease(model::MosaicSupplyChangeDirection::Increase, NotifyMode::Rollback);
 	}
 
-	TEST(MosaicSupplyChangeObserverTests, DecreaseRollbackIncreasesSupply) {
+	TEST(TEST_CLASS, DecreaseRollbackIncreasesSupply) {
 		// Assert:
 		AssertSupplyIncrease(model::MosaicSupplyChangeDirection::Decrease, NotifyMode::Rollback);
 	}

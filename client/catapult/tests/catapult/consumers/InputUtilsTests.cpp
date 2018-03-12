@@ -1,12 +1,14 @@
 #include "catapult/consumers/InputUtils.h"
-#include "tests/catapult/consumers/utils/ConsumerTestUtils.h"
+#include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/TestHarness.h"
 
 using catapult::disruptor::ConsumerInput;
 
 namespace catapult { namespace consumers {
+
+#define TEST_CLASS InputUtilsTests
 
 	namespace {
 		auto CreateMultiBlockElements() {
@@ -26,12 +28,12 @@ namespace catapult { namespace consumers {
 		}
 
 		bool Contains(const utils::HashPointerSet& hashes, const Hash256& hash) {
-			auto copyHash = hash; // use a copy to ensure pointers are not being compared
-			return hashes.cend() != hashes.find(&copyHash);
+			auto hashCopy = hash; // use a copy to ensure pointers are not being compared
+			return hashes.cend() != hashes.find(&hashCopy);
 		}
 	}
 
-	TEST(InputUtilsTests, ExtractTransactionHashes_CanExtractAllTransationHashesFromInput) {
+	TEST(TEST_CLASS, ExtractTransactionHashes_CanExtractAllTransationHashesFromInput) {
 		// Arrange:
 		auto elements = CreateMultiBlockElements();
 
@@ -52,7 +54,7 @@ namespace catapult { namespace consumers {
 
 	// region ExtractBlocks
 
-	TEST(InputUtilsTests, ExtractBlocks_CanExtractAllBlocksFromInput) {
+	TEST(TEST_CLASS, ExtractBlocks_CanExtractAllBlocksFromInput) {
 		// Arrange:
 		auto elements = CreateMultiBlockElements();
 
@@ -78,16 +80,18 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(InputUtilsTests, ExtractEntityInfos_CanExtractAllEntitiesWhenNoneAreSkipped) {
+	TEST(TEST_CLASS, ExtractEntityInfos_CanExtractAllEntitiesWhenNoneAreSkipped) {
 		// Arrange:
 		ConsumerInput input(test::CreateTransactionEntityRange(5));
 		const auto& elements = input.transactions();
 
 		// Act:
 		model::WeakEntityInfos entityInfos;
-		ExtractEntityInfos(elements, entityInfos);
+		std::vector<size_t> entityInfoElementIndexes;
+		ExtractEntityInfos(elements, entityInfos, entityInfoElementIndexes);
 
 		// Assert:
+		EXPECT_EQ(std::vector<size_t>({ 0, 1, 2, 3, 4 }), entityInfoElementIndexes);
 		ASSERT_EQ(5u, entityInfos.size());
 
 		auto i = 0u;
@@ -97,7 +101,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(InputUtilsTests, ExtractEntityInfos_CanExtractZeroEntitiesWhenAllAreSkipped) {
+	TEST(TEST_CLASS, ExtractEntityInfos_CanExtractZeroEntitiesWhenAllAreSkipped) {
 		// Arrange:
 		ConsumerInput input(test::CreateTransactionEntityRange(5));
 		auto& elements = input.transactions();
@@ -106,13 +110,15 @@ namespace catapult { namespace consumers {
 
 		// Act:
 		model::WeakEntityInfos entityInfos;
-		ExtractEntityInfos(elements, entityInfos);
+		std::vector<size_t> entityInfoElementIndexes;
+		ExtractEntityInfos(elements, entityInfos, entityInfoElementIndexes);
 
 		// Assert:
+		EXPECT_TRUE(entityInfoElementIndexes.empty());
 		EXPECT_TRUE(entityInfos.empty());
 	}
 
-	TEST(InputUtilsTests, ExtractEntityInfos_CanExtractOnlyNonSkippedElementsWhenSomeAreSkipped) {
+	TEST(TEST_CLASS, ExtractEntityInfos_CanExtractOnlyNonSkippedElementsWhenSomeAreSkipped) {
 		// Arrange:
 		ConsumerInput input(test::CreateTransactionEntityRange(5));
 		auto& elements = input.transactions();
@@ -122,10 +128,13 @@ namespace catapult { namespace consumers {
 
 		// Act:
 		model::WeakEntityInfos entityInfos;
-		ExtractEntityInfos(elements, entityInfos);
+		std::vector<size_t> entityInfoElementIndexes;
+		ExtractEntityInfos(elements, entityInfos, entityInfoElementIndexes);
 
 		// Assert:
+		EXPECT_EQ(std::vector<size_t>({ 1, 4 }), entityInfoElementIndexes);
 		ASSERT_EQ(2u, entityInfos.size());
+
 		AssertEqual(elements[1], entityInfos[0], "0");
 		AssertEqual(elements[4], entityInfos[1], "1");
 	}
@@ -134,74 +143,54 @@ namespace catapult { namespace consumers {
 
 	// region CollectRevertedTransactionInfos
 
-	namespace {
-		model::TransactionInfo GenerateRandomTransactionInfo() {
-			return model::TransactionInfo(
-					test::GenerateRandomTransaction(),
-					test::GenerateRandomData<Hash256_Size>(),
-					test::GenerateRandomData<Hash256_Size>());
-		}
-
-		TransactionInfos GenerateRandomTransactionInfos(size_t count) {
-			TransactionInfos infos;
-			for (auto i = 0u; i < count; ++i)
-				infos.push_back(GenerateRandomTransactionInfo());
-
-			return infos;
-		}
-
-		void AssertAreEqual(const model::TransactionInfo& lhs, const model::TransactionInfo& rhs) {
-			// Assert:
-			EXPECT_EQ(*lhs.pEntity, *rhs.pEntity);
-			EXPECT_EQ(lhs.EntityHash, rhs.EntityHash);
-		}
-	}
-
-	TEST(InputUtilsTests, CollectRevertedTransactionInfos_ReturnsNoInfosWhenHashesMatchAllTransactions) {
+	TEST(TEST_CLASS, CollectRevertedTransactionInfos_ReturnsNoInfosWhenHashesMatchAllTransactions) {
 		// Arrange:
-		auto infos = GenerateRandomTransactionInfos(4);
+		auto transactionInfos = test::CreateTransactionInfos(4);
 
 		// Act:
 		auto revertedTransactionsInfos = CollectRevertedTransactionInfos(
-				{ &infos[0].EntityHash, &infos[1].EntityHash, &infos[2].EntityHash, &infos[3].EntityHash },
-				test::CopyTransactionInfos(infos));
+				{
+					&transactionInfos[0].EntityHash,
+					&transactionInfos[1].EntityHash,
+					&transactionInfos[2].EntityHash,
+					&transactionInfos[3].EntityHash
+				},
+				test::CopyTransactionInfos(transactionInfos));
 
 		// Assert:
 		EXPECT_TRUE(revertedTransactionsInfos.empty());
 	}
 
-	TEST(InputUtilsTests, CollectRevertedTransactionInfos_ReturnsAllInfosWhenHashesMatchNoTransactions) {
+	TEST(TEST_CLASS, CollectRevertedTransactionInfos_ReturnsAllInfosWhenHashesMatchNoTransactions) {
 		// Arrange:
-		auto infos = GenerateRandomTransactionInfos(4);
+		auto transactionInfos = test::CreateTransactionInfos(4);
 		auto hash1 = test::GenerateRandomData<Hash256_Size>();
 		auto hash2 = test::GenerateRandomData<Hash256_Size>();
 
 		// Act:
-		auto revertedTransactionsInfos = CollectRevertedTransactionInfos(
-				{ &hash1, &hash2 },
-				test::CopyTransactionInfos(infos));
+		auto revertedTransactionsInfos = CollectRevertedTransactionInfos({ &hash1, &hash2 }, test::CopyTransactionInfos(transactionInfos));
 
 		// Assert:
 		ASSERT_EQ(4u, revertedTransactionsInfos.size());
 		for (auto i = 0u; i < revertedTransactionsInfos.size(); ++i)
-			AssertAreEqual(infos[i], revertedTransactionsInfos[i]);
+			test::AssertEqual(transactionInfos[i], revertedTransactionsInfos[i], "reverted info " + std::to_string(i));
 	}
 
-	TEST(InputUtilsTests, CollectRevertedTransactionInfos_OnlyReturnsInfosWithoutMatchingHashes) {
+	TEST(TEST_CLASS, CollectRevertedTransactionInfos_OnlyReturnsInfosWithoutMatchingHashes) {
 		// Arrange:
-		auto infos = GenerateRandomTransactionInfos(4);
+		auto transactionInfos = test::CreateTransactionInfos(4);
 		auto hash1 = test::GenerateRandomData<Hash256_Size>();
 		auto hash2 = test::GenerateRandomData<Hash256_Size>();
 
 		// Act:
 		auto revertedTransactionsInfos = CollectRevertedTransactionInfos(
-				{ &hash1, &hash2, &infos[2].EntityHash, &infos[0].EntityHash },
-				test::CopyTransactionInfos(infos));
+				{ &hash1, &hash2, &transactionInfos[2].EntityHash, &transactionInfos[0].EntityHash },
+				test::CopyTransactionInfos(transactionInfos));
 
 		// Assert:
 		ASSERT_EQ(2u, revertedTransactionsInfos.size());
-		AssertAreEqual(infos[1], revertedTransactionsInfos[0]);
-		AssertAreEqual(infos[3], revertedTransactionsInfos[1]);
+		test::AssertEqual(transactionInfos[1], revertedTransactionsInfos[0], "reverted info 0");
+		test::AssertEqual(transactionInfos[3], revertedTransactionsInfos[1], "reverted info 1");
 	}
 
 	// endregion

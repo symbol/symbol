@@ -1,5 +1,4 @@
 #include "ServerConnector.h"
-#include "AsyncTcpServer.h"
 #include "VerifyPeer.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/Node.h"
@@ -43,12 +42,12 @@ namespace catapult { namespace net {
 				auto cancel = ionet::Connect(
 						service,
 						m_settings.toSocketOptions(),
-						node.Endpoint,
+						node.endpoint(),
 						[pThis = shared_from_this(), node, pRequest](auto result, const auto& pSocket) {
 							if (ionet::ConnectResult::Connected != result)
 								return pRequest->callback(PeerConnectResult::Socket_Error, nullptr);
 
-							pThis->verify(node.Identity.PublicKey, pSocket, pRequest);
+							pThis->verify(node.identityKey(), pSocket, pRequest);
 						});
 
 				pRequest->setTimeoutHandler([cancel]() {

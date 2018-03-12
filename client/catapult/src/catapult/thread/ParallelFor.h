@@ -63,7 +63,8 @@ namespace catapult { namespace thread {
 		DecrementGuard mainOperationGuard(*pParallelContext);
 
 		auto numRemainingPartitions = numPartitions;
-		auto numRemainingItems = items.size();
+		auto numTotalItems = items.size();
+		auto numRemainingItems = numTotalItems;
 		auto itBegin = items.begin();
 		while (numRemainingItems > 0) {
 			// note: in the case that numRemainingItems is not divisible by numRemainingPartitions,
@@ -76,10 +77,11 @@ namespace catapult { namespace thread {
 
 			// each thread captures pParallelContext by value, which keeps that object alive
 			pParallelContext->incrementOutstandingOperations();
+			auto startIndex = numTotalItems - numRemainingItems;
 			auto batchIndex = numPartitions - numRemainingPartitions;
-			service.post([callback, pParallelContext, itBegin, itEnd, batchIndex]() {
+			service.post([callback, pParallelContext, itBegin, itEnd, startIndex, batchIndex]() {
 				DecrementGuard threadOperationGuard(*pParallelContext);
-				callback(itBegin, itEnd, batchIndex);
+				callback(itBegin, itEnd, startIndex, batchIndex);
 			});
 
 			numRemainingItems -= size;
@@ -93,14 +95,11 @@ namespace catapult { namespace thread {
 	/// Uses \a service to process \a items in \a numPartitions batches and calls \a callback for each item.
 	/// A future is returned that is resolved when all items have been processed.
 	template<typename TItems, typename TWorkCallback>
-	thread::future<bool> ParallelFor(
-			boost::asio::io_service& service,
-			TItems& items,
-			size_t numPartitions,
-			TWorkCallback callback) {
-		return ParallelForPartition(service, items, numPartitions, [callback](auto itBegin, auto itEnd, auto) {
-			std::all_of(itBegin, itEnd, [callback](auto& item) {
-				return callback(item);
+	thread::future<bool> ParallelFor(boost::asio::io_service& service, TItems& items, size_t numPartitions, TWorkCallback callback) {
+		return ParallelForPartition(service, items, numPartitions, [&items, callback](auto itBegin, auto itEnd, auto startIndex, auto) {
+			auto i = 0u;
+			std::all_of(itBegin, itEnd, [callback, startIndex, &i](auto& item) {
+				return callback(item, startIndex + i++);
 			});
 		});
 	}

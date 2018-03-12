@@ -38,17 +38,12 @@ namespace catapult { namespace utils {
 		}
 
 		/// Returns the approximate number of blocks given the generation target time (\a generationTargetTime).
-		uint64_t blocks(const TimeSpan& generationTargetTime) const {
+		BlockDuration blocks(const TimeSpan& generationTargetTime) const {
 			auto millisPerHour = TimeSpan::FromHours(1).millis();
 			if (m_hours > std::numeric_limits<uint64_t>::max() / millisPerHour)
 				CATAPULT_THROW_RUNTIME_ERROR_1("overflow while calculating blocks from hours", m_hours);
 
-			return m_hours * millisPerHour / generationTargetTime.millis();
-		}
-
-		/// Returns the approximate number of blocks given the generation target time (\a generationTargetTime) as a uint32_t.
-		uint32_t blocks32(const TimeSpan& generationTargetTime) const {
-			return checked_cast<uint64_t, uint32_t>(blocks(generationTargetTime));
+			return BlockDuration(m_hours * millisPerHour / generationTargetTime.millis());
 		}
 
 	public:

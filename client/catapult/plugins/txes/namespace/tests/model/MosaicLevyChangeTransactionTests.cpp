@@ -1,4 +1,6 @@
 #include "src/model/MosaicLevyChangeTransaction.h"
+#include "src/model/MosaicEntityType.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/TestHarness.h"
@@ -23,7 +25,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, TransactionHasExpectedProperties) {
 		// Assert:
-		EXPECT_EQ(EntityType::Mosaic_Levy_Change, static_cast<EntityType>(MosaicLevyChangeTransaction::Entity_Type));
+		EXPECT_EQ(Entity_Type_Mosaic_Levy_Change, static_cast<EntityType>(MosaicLevyChangeTransaction::Entity_Type));
 		EXPECT_EQ(1u, static_cast<uint8_t>(MosaicLevyChangeTransaction::Current_Version));
 	}
 
@@ -33,8 +35,7 @@ namespace catapult { namespace model {
 		struct MosaicLevyChangeTransactionTraits {
 			static auto GenerateEntityWithAttachments(uint16_t count) {
 				uint32_t entitySize = sizeof(MosaicLevyChangeTransaction) + count * sizeof(RuleDefinition);
-				std::unique_ptr<MosaicLevyChangeTransaction> pTransaction(
-						reinterpret_cast<MosaicLevyChangeTransaction*>(::operator new(entitySize)));
+				auto pTransaction = utils::MakeUniqueWithSize<MosaicLevyChangeTransaction>(entitySize);
 				pTransaction->Size = entitySize;
 				pTransaction->RuleDefinitionCount = static_cast<uint8_t>(count);
 				return pTransaction;

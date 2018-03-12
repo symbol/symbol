@@ -3,10 +3,7 @@
 
 namespace catapult { namespace builders {
 
-	MosaicSupplyChangeBuilder::MosaicSupplyChangeBuilder(
-			model::NetworkIdentifier networkIdentifier,
-			const Key& signer,
-			MosaicId mosaicId)
+	MosaicSupplyChangeBuilder::MosaicSupplyChangeBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer, MosaicId mosaicId)
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_mosaicId(mosaicId)
 			, m_decrease(false)
@@ -28,11 +25,10 @@ namespace catapult { namespace builders {
 		m_delta = delta;
 	}
 
-	std::unique_ptr<model::MosaicSupplyChangeTransaction> MosaicSupplyChangeBuilder::build() {
-		using TransactionType = model::MosaicSupplyChangeTransaction;
-
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> MosaicSupplyChangeBuilder::buildImpl() const {
 		// 1. allocate, zero (header), set model::Transaction fields
-		auto pTransaction = createTransaction(sizeof(TransactionType));
+		auto pTransaction = createTransaction<TransactionType>(sizeof(TransactionType));
 
 		// 2. set transaction fields
 		pTransaction->MosaicId = m_mosaicId;
@@ -40,5 +36,13 @@ namespace catapult { namespace builders {
 		pTransaction->Delta = m_delta;
 
 		return pTransaction;
+	}
+
+	std::unique_ptr<MosaicSupplyChangeBuilder::Transaction> MosaicSupplyChangeBuilder::build() const {
+		return buildImpl<Transaction>();
+	}
+
+	std::unique_ptr<MosaicSupplyChangeBuilder::EmbeddedTransaction> MosaicSupplyChangeBuilder::buildEmbedded() const {
+		return buildImpl<EmbeddedTransaction>();
 	}
 }}

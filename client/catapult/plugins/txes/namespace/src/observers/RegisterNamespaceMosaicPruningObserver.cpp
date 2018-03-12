@@ -5,6 +5,8 @@
 
 namespace catapult { namespace observers {
 
+	using Notification = model::RootNamespaceNotification;
+
 	namespace {
 		bool IsOwnerExtendingRootLifetime(
 				const Key& signer,
@@ -15,27 +17,26 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	NotificationObserverPointerT<model::RootNamespaceNotification> CreateRegisterNamespaceMosaicPruningObserver(
-			const model::NamespaceLifetimeConstraints& constraints) {
-		return std::make_unique<FunctionalNotificationObserverT<model::RootNamespaceNotification>>(
-				"RegisterNamespaceMosaicPruningObserver",
-				[constraints](const auto& notification, const ObserverContext& context) {
-					if (NotifyMode::Rollback == context.Mode)
-						return;
+	DECLARE_OBSERVER(RegisterNamespaceMosaicPruning, Notification)(const model::NamespaceLifetimeConstraints& constraints) {
+		return MAKE_OBSERVER(RegisterNamespaceMosaicPruning, Notification, [constraints](
+				const auto& notification,
+				const ObserverContext& context) {
+			if (NotifyMode::Rollback == context.Mode)
+				return;
 
-					// note that the pruning observer should run before the transaction itself is observed
-					const auto& namespaceCache = context.Cache.sub<cache::NamespaceCache>();
-					if (!namespaceCache.contains(notification.NamespaceId))
-						return;
+			// note that the pruning observer should run before the transaction itself is observed
+			const auto& namespaceCache = context.Cache.sub<cache::NamespaceCache>();
+			if (!namespaceCache.contains(notification.NamespaceId))
+				return;
 
-					const auto& root = namespaceCache.get(notification.NamespaceId).root();
-					if (IsOwnerExtendingRootLifetime(notification.Signer, root, context.Height, constraints))
-						return;
+			const auto& root = namespaceCache.get(notification.NamespaceId).root();
+			if (IsOwnerExtendingRootLifetime(notification.Signer, root, context.Height, constraints))
+				return;
 
-					auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
-					mosaicCache.remove(root.id());
-					for (auto pair : root.children())
-						mosaicCache.remove(pair.first);
-				});
+			auto& mosaicCache = context.Cache.sub<cache::MosaicCache>();
+			mosaicCache.remove(root.id());
+			for (const auto& pair : root.children())
+				mosaicCache.remove(pair.first);
+		});
 	}
 }}

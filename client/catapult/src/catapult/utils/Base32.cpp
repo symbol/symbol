@@ -29,13 +29,13 @@ namespace catapult { namespace utils {
 			*it++ = Allowed_Chars[(pData[2] & 0x0F) << 1 | pData[3] >> 7];
 			*it++ = Allowed_Chars[(pData[3] & 0x7F) >> 2];
 			*it++ = Allowed_Chars[(pData[3] & 0x03) << 3 | pData[4] >> 5];
-			*it = Allowed_Chars[pData[4] & 0x1f];
+			*it = Allowed_Chars[pData[4] & 0x1F];
 		}
 
-		bool TryDecodeBlock(const char* pEncodedData, uint8_t* it) {
+		bool TryDecodeBlock(const char* encodedData, uint8_t* it) {
 			std::array<uint8_t, Encoded_Block_Size> bytes;
 			for (auto i = 0u; i < Encoded_Block_Size; i++) {
-				if (!TryDecodeChar(pEncodedData[i], bytes[i]))
+				if (!TryDecodeChar(encodedData[i], bytes[i]))
 					return false;
 			}
 

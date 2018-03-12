@@ -29,10 +29,7 @@ namespace catapult { namespace test {
 		EXPECT_FALSE(context.hasResponse());
 	}
 
-	void AssertPacketHeader(
-			const ionet::ServerPacketHandlerContext& context,
-			size_t expectedSize,
-			ionet::PacketType expectedType) {
+	void AssertPacketHeader(const ionet::ServerPacketHandlerContext& context, size_t expectedSize, ionet::PacketType expectedType) {
 		// Assert: the context has a response with a header that has the expected size and type
 		ASSERT_TRUE(context.hasResponse());
 		AssertPacketHeader(context.response(), expectedSize, expectedType);
@@ -45,5 +42,21 @@ namespace catapult { namespace test {
 			CATAPULT_THROW_RUNTIME_ERROR_1("response has unexpected number of buffers", buffers.size());
 
 		return buffers[0].pData;
+	}
+
+	void AssertEqualPayload(const ionet::PacketPayload& expectedPayload, const ionet::PacketPayload& payload) {
+		auto expectedHeader = expectedPayload.header();
+		auto header = payload.header();
+		EXPECT_EQ(expectedHeader.Size, header.Size);
+		EXPECT_EQ(expectedHeader.Type, header.Type);
+
+		auto expectedBuffers = expectedPayload.buffers();
+		auto buffers = payload.buffers();
+		ASSERT_EQ(expectedBuffers.size(), buffers.size());
+		for (auto i = 0u; i < expectedBuffers.size(); ++i) {
+			auto message = "at index " + std::to_string(i);
+			ASSERT_EQ(expectedBuffers[i].Size, buffers[i].Size) << message;
+			EXPECT_TRUE(0 == std::memcmp(expectedBuffers[i].pData, buffers[i].pData, expectedBuffers[i].Size)) << message;
+		}
 	}
 }}

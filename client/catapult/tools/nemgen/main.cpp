@@ -145,7 +145,7 @@ namespace catapult { namespace tools { namespace nemgen {
 			{}
 
 		public:
-			void addRegisterNamespace(const std::string& namespaceName, ArtifactDuration duration) {
+			void addRegisterNamespace(const std::string& namespaceName, BlockDuration duration) {
 				builders::RegisterNamespaceBuilder builder(m_networkIdentifier, m_signer.publicKey(), namespaceName);
 				builder.setDuration(duration);
 				signAndAdd(builder.build());
@@ -157,10 +157,7 @@ namespace catapult { namespace tools { namespace nemgen {
 				signAndAdd(builder.build());
 			}
 
-			void addMosaicDefinition(
-					NamespaceId parentId,
-					const std::string& mosaicName,
-					const model::MosaicProperties& properties) {
+			void addMosaicDefinition(NamespaceId parentId, const std::string& mosaicName, const model::MosaicProperties& properties) {
 				builders::MosaicDefinitionBuilder builder(m_networkIdentifier, m_signer.publicKey(), parentId, mosaicName);
 				builder.setDivisibility(properties.divisibility());
 				builder.setDuration(properties.duration());
@@ -219,9 +216,9 @@ namespace catapult { namespace tools { namespace nemgen {
 				// - root
 				const auto& root = rootPair.second;
 				const auto& rootName = config.NamespaceNames.at(root.id());
-				auto duration = std::numeric_limits<ArtifactDuration::ValueType>::max() == root.lifetime().End.unwrap()
+				auto duration = std::numeric_limits<BlockDuration::ValueType>::max() == root.lifetime().End.unwrap()
 						? Eternal_Artifact_Duration
-						: ArtifactDuration((root.lifetime().End - root.lifetime().Start).unwrap());
+						: BlockDuration((root.lifetime().End - root.lifetime().Start).unwrap());
 				transactions.addRegisterNamespace(rootName, duration);
 
 				// - children
@@ -259,8 +256,8 @@ namespace catapult { namespace tools { namespace nemgen {
 
 			model::PreviousBlockContext context;
 			auto pBlock = model::CreateBlock(context, config.NetworkIdentifier, signer.publicKey(), transactions.transactions());
-			pBlock->Type = model::EntityType::Nemesis_Block;
-			extensions::SignFullBlock(signer, *pBlock);
+			pBlock->Type = model::Entity_Type_Nemesis_Block;
+			extensions::BlockExtensions().signFullBlock(signer, *pBlock);
 			return pBlock;
 		}
 
@@ -286,7 +283,9 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		void UpdateMemoryBasedStorageData(const model::Block& block, const std::string& cppFile) {
 			io::RawFile dataFile(cppFile, io::OpenMode::Read_Write);
-			auto header = "#include \"MemoryBasedStorage.h\"\n\n"
+			auto header =
+				"#pragma once\n"
+				"#include \"MockMemoryBasedStorage.h\"\n\n"
 				"namespace catapult { namespace mocks {\n\n"
 				"\tconst unsigned char MemoryBasedStorage_NemesisBlockData[] = {\n";
 			dataFile.write(RawBuffer(reinterpret_cast<const uint8_t*>(header), strlen(header)));
@@ -319,7 +318,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		void UpdateFileBasedStorageData(const model::Block& block, const Hash256& generationHash, const std::string& binDirectory) {
 			auto registry = CreateTransactionRegistry();
 			io::FileBasedStorage storage(binDirectory);
-			auto blockElement = extensions::ConvertBlockToBlockElement(block, generationHash, registry);
+			auto blockElement = extensions::BlockExtensions(registry).convertBlockToBlockElement(block, generationHash);
 			CATAPULT_LOG(info) << "nemesis block hash: " << utils::HexFormat(blockElement.EntityHash);
 			storage.saveBlock(blockElement);
 		}

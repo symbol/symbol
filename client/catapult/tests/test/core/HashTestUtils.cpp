@@ -20,7 +20,7 @@ namespace catapult { namespace test {
 	}
 
 	model::HashRange GenerateRandomHashesSubset(const model::HashRange& source, size_t numHashes) {
-		return CopyHashes(&*source.begin(), numHashes);
+		return CopyHashes(source.data(), numHashes);
 	}
 
 	void InsertAll(std::vector<Hash256>& dest, const model::HashRange& source) {

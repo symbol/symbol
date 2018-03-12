@@ -3,6 +3,7 @@
 #include "catapult/validators/ValidationResult.h"
 
 namespace catapult { namespace validators {
+
 #endif
 /// Defines a namespace validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_NAMESPACE_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Namespace, DESCRIPTION, CODE, None)
@@ -32,9 +33,6 @@ namespace catapult { namespace validators {
 	/// Validation failed because the parent owner conflicts with the child owner.
 	DEFINE_NAMESPACE_MOSAIC_RESULT(Owner_Conflict, 5);
 
-	/// Validation failed because the existing parent id does not match the supplied parent id.
-	DEFINE_NAMESPACE_MOSAIC_RESULT(Parent_Id_Conflict, 6);
-
 	// endregion
 
 	// region namespace
@@ -60,24 +58,33 @@ namespace catapult { namespace validators {
 	/// Validation failed because an eternal namespace was received after the nemesis block.
 	DEFINE_NAMESPACE_RESULT(Eternal_After_Nemesis_Block, 152);
 
+	/// Validation failed because the maximum number of children for a root namespace was exceeded.
+	DEFINE_NAMESPACE_RESULT(Max_Children_Exceeded, 153);
+
 	// endregion
 
 	// region mosaic
 
+	/// Validation failed because the existing parent id does not match the supplied parent id.
+	DEFINE_MOSAIC_RESULT(Parent_Id_Conflict, 100);
+
 	/// Validation failed because a mosaic property is invalid.
-	DEFINE_MOSAIC_RESULT(Invalid_Property, 100);
+	DEFINE_MOSAIC_RESULT(Invalid_Property, 101);
 
 	/// Validation failed because the mosaic flags are invalid.
-	DEFINE_MOSAIC_RESULT(Invalid_Flags, 101);
+	DEFINE_MOSAIC_RESULT(Invalid_Flags, 102);
 
 	/// Validation failed because the mosaic divisibility is invalid.
-	DEFINE_MOSAIC_RESULT(Invalid_Divisibility, 102);
+	DEFINE_MOSAIC_RESULT(Invalid_Divisibility, 103);
 
 	/// Validation failed because the mosaic supply change direction is invalid.
-	DEFINE_MOSAIC_RESULT(Invalid_Supply_Change_Direction, 103);
+	DEFINE_MOSAIC_RESULT(Invalid_Supply_Change_Direction, 104);
 
 	/// Validation failed because the mosaic supply change amount is invalid.
-	DEFINE_MOSAIC_RESULT(Invalid_Supply_Change_Amount, 104);
+	DEFINE_MOSAIC_RESULT(Invalid_Supply_Change_Amount, 105);
+
+	/// Validation failed because the mosaic has a reserved name.
+	DEFINE_MOSAIC_RESULT(Name_Reserved, 106);
 
 	/// Validation failed because mosaic modification is not allowed.
 	DEFINE_MOSAIC_RESULT(Modification_Disallowed, 150);
@@ -96,6 +103,9 @@ namespace catapult { namespace validators {
 
 	/// Validation failed because the mosaic is not transferable.
 	DEFINE_MOSAIC_RESULT(Non_Transferable, 164);
+
+	/// Validation failed because the credit of the mosaic would exceed the maximimun of different mosaics an account is allowed to own.
+	DEFINE_MOSAIC_RESULT(Max_Mosaics_Exceeded, 170);
 
 	// endregion
 

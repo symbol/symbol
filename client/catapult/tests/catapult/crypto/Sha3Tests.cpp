@@ -9,13 +9,14 @@ namespace catapult { namespace crypto {
 	namespace {
 		// data taken from http://mumble.net/~campbell/hg/sha3/kat/ShortMsgKAT_SHA3-256.txt)
 		// same data is used for 512 variant
-		static const char* Data_Sets_Long[] = {
+		const char* Data_Sets_Long[] = {
 			"9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10",
 			"DE8F1B3FAA4B7040ED4563C3B8E598253178E87E4D0DF75E4FF2F2DEDD5A0BE046",
 			"62F154EC394D0BC757D045C798C8B87A00E0655D0481A7D2D9FB58D93AEDC676B5A0",
 			"F5961DFD2B1FFFFDA4FFBF30560C165BFEDAB8CE0BE525845DEB8DC61004B7DB38467205F5DCFB34A2ACFE96C0"
 		};
-		static const char* Data_Set_Shorter[] = {
+
+		const char* Data_Set_Shorter[] = {
 			"",
 			"CC",
 			"41FB",
@@ -23,18 +24,19 @@ namespace catapult { namespace crypto {
 			"C1ECFDFC",
 			"9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10",
 		};
+
 		template<typename THashBuilder, typename TCalculateHashSingle>
 		void AssertConcatenatedSha3MatchesSingleCallVariant(TCalculateHashSingle calculateHashSingle) {
-			using TOutputHash = typename THashBuilder::OutputType;
+			using OutputHashType = typename THashBuilder::OutputType;
 			// Arrange:
 			for (const auto& dataStr : Data_Sets_Long) {
-				TOutputHash expected;
+				OutputHashType expected;
 				auto data = test::ToVector(dataStr);
 				calculateHashSingle(data, expected);
 
 				// Act:
 				auto splitInTwo = data.size() / 2;
-				TOutputHash result1;
+				OutputHashType result1;
 				{
 					THashBuilder sha3obj;
 					sha3obj.update({
@@ -44,7 +46,7 @@ namespace catapult { namespace crypto {
 				}
 
 				auto splitInThree = data.size() / 3;
-				TOutputHash result2;
+				OutputHashType result2;
 				{
 					THashBuilder sha3obj;
 					sha3obj.update({
@@ -55,7 +57,7 @@ namespace catapult { namespace crypto {
 				}
 
 				auto splitInFour = data.size() / 4;
-				TOutputHash result3;
+				OutputHashType result3;
 				{
 					THashBuilder sha3obj;
 					sha3obj.update({
@@ -67,23 +69,23 @@ namespace catapult { namespace crypto {
 				}
 
 				// Assert:
-				EXPECT_EQ(test::ToHexString(expected), test::ToHexString(result1)) << "two splits";
-				EXPECT_EQ(test::ToHexString(expected), test::ToHexString(result2)) << "three splits";
-				EXPECT_EQ(test::ToHexString(expected), test::ToHexString(result3)) << "four splits";
+				EXPECT_EQ(expected, result1) << "two splits";
+				EXPECT_EQ(expected, result2) << "three splits";
+				EXPECT_EQ(expected, result3) << "four splits";
 			}
 		}
 
 		template<typename THashBuilder, typename TCalculateHashSingle>
 		void AssertObjectBasedShaMatchesSingleCallVariant(TCalculateHashSingle calculateHashSingle) {
-			using TOutputHash = typename THashBuilder::OutputType;
+			using OutputHashType = typename THashBuilder::OutputType;
 			// Arrange:
 			for (const auto& dataStr : Data_Sets_Long) {
-				TOutputHash expected;
+				OutputHashType expected;
 				auto data = test::ToVector(dataStr);
 				calculateHashSingle(data, expected);
 
 				// Act:
-				TOutputHash results[5];
+				OutputHashType results[5];
 				for (auto j = 2u; j < 2 + CountOf(results); ++j) {
 					auto partSize = data.size() / j;
 					THashBuilder sha3obj;
@@ -95,14 +97,16 @@ namespace catapult { namespace crypto {
 
 				// Assert:
 				for (const auto& result : results)
-					EXPECT_EQ(test::ToHexString(expected), test::ToHexString(result));
+					EXPECT_EQ(expected, result);
 			}
 		}
 	}
 
-	TEST(Sha3_512Test, SampleSha512TestVectors) {
+#define SHA3_512_TEST(TEST_NAME) TEST(Sha3_512Test, TEST_NAME)
+
+	SHA3_512_TEST(SampleSha512TestVectors) {
 		// Arrange:
-#ifdef NIS1_COMPATIBLE_SIGNATURES
+#ifdef SIGNATURE_SCHEME_NIS1
 		std::string expectedSet[] {
 			"0EAB42DE4C3CEB9235FC91ACFFE746B29C29A8C366B7C60E4E67C466F36A4304C00FA9CAF9D87976BA469BCBE06713B435F091EF2769FB160CDAB33D3670680E",
 			"8630C13CBD066EA74BBE7FE468FEC1DEE10EDC1254FB4C1B7C5FD69B646E44160B8CE01D05A0908CA790DFB080F4B513BC3B6225ECE7A810371441A5AC666EB9",
@@ -135,19 +139,21 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(Sha3_512Test, ConcatenatedShaMatchesSingleCallVariant) {
+	SHA3_512_TEST(ConcatenatedShaMatchesSingleCallVariant) {
 		auto fun1 = static_cast<void(*)(const RawBuffer&, Hash512&)>(&crypto::Sha3_512);
 		AssertConcatenatedSha3MatchesSingleCallVariant<Sha3_512_Builder>(fun1);
 	}
 
-	TEST(Sha3_512Test, ObjectBasedShaMatchesSingleCallVariant) {
+	SHA3_512_TEST(ObjectBasedShaMatchesSingleCallVariant) {
 		auto fun1 = static_cast<void(*)(const RawBuffer&, Hash512&)>(&crypto::Sha3_512);
 		AssertObjectBasedShaMatchesSingleCallVariant<Sha3_512_Builder>(fun1);
 	}
 
-	TEST(Sha3_256Test, SampleSha256TestVectors) {
+#define SHA3_256_TEST(TEST_NAME) TEST(Sha3_256Test, TEST_NAME)
+
+	SHA3_256_TEST(SampleSha256TestVectors) {
 		// Arrange:
-#ifdef NIS1_COMPATIBLE_SIGNATURES
+#ifdef SIGNATURE_SCHEME_NIS1
 		std::string expectedSet[] {
 			"C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470",
 			"EEAD6DBFC7340A56CAEDC044696A168870549A6A7F6F56961E84A54BD9970B8A",
@@ -180,17 +186,17 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(Sha3_256Test, ConcatenatedShaMatchesSingleCallVariant) {
+	SHA3_256_TEST(ConcatenatedShaMatchesSingleCallVariant) {
 		auto fun1 = static_cast<void(*)(const RawBuffer&, Hash256&)>(&crypto::Sha3_256);
 		AssertConcatenatedSha3MatchesSingleCallVariant<Sha3_256_Builder>(fun1);
 	}
 
-	TEST(Sha3_256Test, ObjectBasedShaMatchesSingleCallVariant) {
+	SHA3_256_TEST(ObjectBasedShaMatchesSingleCallVariant) {
 		auto fun1 = static_cast<void(*)(const RawBuffer&, Hash256&)>(&crypto::Sha3_256);
 		AssertObjectBasedShaMatchesSingleCallVariant<Sha3_256_Builder>(fun1);
 	}
 
-	TEST(Sha3_256Test, NonAlignedShaObjectProducesSameResults) {
+	SHA3_256_TEST(NonAlignedShaObjectProducesSameResults) {
 		// Arrange:
 		auto data = test::GenerateRandomVector(1 * 1024 * 1024);
 

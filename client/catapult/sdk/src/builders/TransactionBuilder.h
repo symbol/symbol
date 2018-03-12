@@ -2,19 +2,17 @@
 #include "catapult/model/NetworkInfo.h"
 #include "catapult/model/Transaction.h"
 #include "catapult/utils/Casting.h"
+#include "catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace builders {
 
 	/// Base transaction builder.
-	template<typename TTransaction>
 	class TransactionBuilder {
 	public:
 		/// Creates a transaction builder with \a networkIdentifier and \a signer.
 		TransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 				: m_networkIdentifier(networkIdentifier)
 				, m_signer(signer)
-				, m_type(TTransaction::Entity_Type)
-				, m_version(MakeVersion(m_networkIdentifier, TTransaction::Current_Version))
 		{}
 
 	public:
@@ -28,28 +26,35 @@ namespace catapult { namespace builders {
 			m_fee = fee;
 		}
 
+	private:
+		void setAdditionalFields(model::EmbeddedTransaction&) const {
+		}
+
+		void setAdditionalFields(model::Transaction& transaction) const {
+			transaction.Deadline = m_deadline;
+			transaction.Fee = m_fee;
+		}
+
 	protected:
+		template<typename TTransaction>
 		std::unique_ptr<TTransaction> createTransaction(size_t size) const {
-			std::unique_ptr<TTransaction> pTransaction(reinterpret_cast<TTransaction*>(::operator new(size)));
+			auto pTransaction = utils::MakeUniqueWithSize<TTransaction>(size);
 			std::memset(pTransaction.get(), 0, sizeof(TTransaction));
 
 			// verifiable entity data
 			pTransaction->Size = utils::checked_cast<size_t, uint32_t>(size);
-			pTransaction->Type = m_type;
-			pTransaction->Version = m_version;
+			pTransaction->Type = TTransaction::Entity_Type;
+			pTransaction->Version = MakeVersion(m_networkIdentifier, TTransaction::Current_Version);
 			pTransaction->Signer = m_signer;
 
 			// transaction data
-			pTransaction->Deadline = m_deadline;
-			pTransaction->Fee = m_fee;
+			setAdditionalFields(*pTransaction);
 			return pTransaction;
 		}
 
 	private:
 		const model::NetworkIdentifier m_networkIdentifier;
 		const Key& m_signer;
-		const model::EntityType m_type;
-		const uint16_t m_version;
 
 		Timestamp m_deadline;
 		Amount m_fee;

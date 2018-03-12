@@ -31,7 +31,7 @@ namespace catapult { namespace test {
 	};
 
 	/// Adds mosaic \a id to the mosaic cache in \a cache at \a height with \a duration and \a supply.
-	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, ArtifactDuration duration, Amount supply);
+	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, BlockDuration duration, Amount supply);
 
 	/// Adds mosaic \a id in namespace \a namespaceId to the mosaic cache in \a cache at \a height with \a duration
 	/// and \a owner.
@@ -40,7 +40,7 @@ namespace catapult { namespace test {
 			NamespaceId namespaceId,
 			MosaicId id,
 			Height height,
-			ArtifactDuration duration,
+			BlockDuration duration,
 			const Key& owner);
 
 	/// Adds eternal mosaic \a id in namespace \a namespaceId to the mosaic cache in \a cache at \a height.

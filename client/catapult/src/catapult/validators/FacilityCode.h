@@ -1,27 +1,32 @@
 #pragma once
-#include <stdint.h>
+#include "catapult/model/FacilityCode.h"
+#include "catapult/utils/Casting.h"
 
 namespace catapult { namespace validators {
 
-	/// Possible facility codes.
+#define COPY_FACILITY_CODE(FACILITY_NAME) FACILITY_NAME = utils::to_underlying_type(model::FacilityCode::FACILITY_NAME)
+
+	/// Possible validation facility codes.
 	enum class FacilityCode : uint8_t {
-		/// Aggregate facility code.
-		Aggregate = 0x41,
+		COPY_FACILITY_CODE(Aggregate),
+		COPY_FACILITY_CODE(Core),
+		COPY_FACILITY_CODE(Lock),
+		COPY_FACILITY_CODE(Mosaic),
+		COPY_FACILITY_CODE(Multisig),
+		COPY_FACILITY_CODE(Namespace),
+		COPY_FACILITY_CODE(Transfer),
+
 		/// Chain facility code.
 		Chain = 0xFF,
 		/// Consumer facility code.
 		Consumer = 0xFE,
-		/// Core facility code.
-		Core = 0x43,
+		/// Extension facility code.
+		Extension = 0x45,
 		/// Hash facility code.
 		Hash = 0x48,
-		/// Mosaic facility code.
-		Mosaic = 0x4D,
-		/// Multisig facility code.
-		Multisig = 0x55,
-		/// Namespace facility code.
-		Namespace = 0x4E,
-		/// Transfer facility code.
-		Transfer = 0x54
+		/// Signature facility code.
+		Signature = 0x53
 	};
+
+#undef COPY_FACILITY_CODE
 }}

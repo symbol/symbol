@@ -9,12 +9,17 @@ namespace catapult { namespace crypto {
 	}
 
 	utils::ContainerHexFormatter<Key::const_iterator> FormatKey(const PrivateKey& key) {
-		return utils::HexFormat(key.cbegin(), key.cend());
+		return utils::HexFormat(key.begin(), key.end());
 	}
 
 	Key ParseKey(const std::string& keyString) {
 		Key key;
 		utils::ParseHexStringIntoContainer(keyString.c_str(), keyString.size(), key);
 		return key;
+	}
+
+	bool IsValidKeyString(const std::string& str) {
+		Key key;
+		return utils::TryParseHexStringIntoContainer(str.data(), str.size(), key);
 	}
 }}

@@ -5,6 +5,8 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS ModificationSafeIterableContainerTests
+
 	namespace {
 		using IntIterableList = ModificationSafeIterableContainer<std::list<int>>;
 
@@ -31,7 +33,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(ModificationSafeIterableContainerTests, CanCreateEmptyContainer) {
+	TEST(TEST_CLASS, CanCreateEmptyContainer) {
 		// Act:
 		IntIterableList container;
 
@@ -39,7 +41,7 @@ namespace catapult { namespace utils {
 		AssertContents(container, {});
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextBehavesCorrectlyForEmptyContainer) {
+	TEST(TEST_CLASS, NextBehavesCorrectlyForEmptyContainer) {
 		// Act:
 		IntIterableList container;
 
@@ -49,7 +51,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(!!container.next());
 	}
 
-	TEST(ModificationSafeIterableContainerTests, CanCreateSingleElementContainer) {
+	TEST(TEST_CLASS, CanCreateSingleElementContainer) {
 		// Act:
 		IntIterableList container;
 		container.push_back(7);
@@ -58,7 +60,7 @@ namespace catapult { namespace utils {
 		AssertContents(container, { 7 });
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextBehavesCorrectlyForSingleElementContainer) {
+	TEST(TEST_CLASS, NextBehavesCorrectlyForSingleElementContainer) {
 		// Act:
 		IntIterableList container;
 		container.push_back(7);
@@ -69,7 +71,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(7, *container.next());
 	}
 
-	TEST(ModificationSafeIterableContainerTests, CanCreateMultiElementContainer) {
+	TEST(TEST_CLASS, CanCreateMultiElementContainer) {
 		// Act:
 		IntIterableList container;
 		container.push_back(1);
@@ -80,7 +82,7 @@ namespace catapult { namespace utils {
 		AssertContents(container, { 1, 5, 4 });
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextBehavesCorrectlyForMultiElementContainer) {
+	TEST(TEST_CLASS, NextBehavesCorrectlyForMultiElementContainer) {
 		// Act:
 		IntIterableList container;
 		container.push_back(1);
@@ -94,7 +96,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(1, *container.next());
 	}
 
-	TEST(ModificationSafeIterableContainerTests, CanClearContainer) {
+	TEST(TEST_CLASS, CanClearContainer) {
 		// Arrange:
 		IntIterableList container;
 		PushAll(container, { 5, 7, 3, 2 });
@@ -106,7 +108,7 @@ namespace catapult { namespace utils {
 		AssertContents(container, {});
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextBehavesCorrectlyAfterClear) {
+	TEST(TEST_CLASS, NextBehavesCorrectlyAfterClear) {
 		// Arrange:
 		IntIterableList container;
 		PushAll(container, { 5, 7, 3, 2 });
@@ -123,7 +125,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(!!container.next());
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextBehavesCorrectlyAfterInsertAfterClear) {
+	TEST(TEST_CLASS, NextBehavesCorrectlyAfterInsertAfterClear) {
 		// Arrange:
 		IntIterableList container;
 		PushAll(container, { 5, 7, 3, 2 });
@@ -157,17 +159,17 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(ModificationSafeIterableContainerTests, CanEraseFirstElement) {
+	TEST(TEST_CLASS, CanEraseFirstElement) {
 		// Assert:
 		RunEraseTest([](auto& container) { return container.begin(); }, { 7, 3, 2 });
 	}
 
-	TEST(ModificationSafeIterableContainerTests, CanEraseMiddleElement) {
+	TEST(TEST_CLASS, CanEraseMiddleElement) {
 		// Assert:
 		RunEraseTest([](auto& container) { return ++container.begin(); }, { 5, 3, 2 });
 	}
 
-	TEST(ModificationSafeIterableContainerTests, CanEraseLastElement) {
+	TEST(TEST_CLASS, CanEraseLastElement) {
 		// Assert:
 		RunEraseTest([](auto& container) { return --container.end(); }, { 5, 7, 3 });
 	}
@@ -197,7 +199,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextBehavesCorrectlyAfterEraseFirstElement) {
+	TEST(TEST_CLASS, NextBehavesCorrectlyAfterEraseFirstElement) {
 		// Assert:
 		auto getIterator = [](auto& container) { return container.begin(); };
 		RunNextAfterEraseTest(getIterator, {}, { 7, 3, 2, 7 });
@@ -207,7 +209,7 @@ namespace catapult { namespace utils {
 		RunNextAfterEraseTest(getIterator, { 5, 7, 3, 2 }, { 7 });
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextBehavesCorrectlyAfterEraseMiddleElement) {
+	TEST(TEST_CLASS, NextBehavesCorrectlyAfterEraseMiddleElement) {
 		// Assert:
 		auto getIterator = [](auto& container) { return ++container.begin(); };
 		RunNextAfterEraseTest(getIterator, {}, { 5, 3, 2, 5, 3 });
@@ -217,7 +219,7 @@ namespace catapult { namespace utils {
 		RunNextAfterEraseTest(getIterator, { 5, 7, 3, 2 }, { 5, 3 });
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextBehavesCorrectlyAfterEraseLastElement) {
+	TEST(TEST_CLASS, NextBehavesCorrectlyAfterEraseLastElement) {
 		// Assert:
 		auto getIterator = [](auto& container) { return --container.end(); };
 		RunNextAfterEraseTest(getIterator, {}, { 5, 7, 3, 5 });
@@ -227,7 +229,7 @@ namespace catapult { namespace utils {
 		RunNextAfterEraseTest(getIterator, { 5, 7, 3, 2 }, { 5, 7, 3, 5 });
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextIfReturnsNullptrIfContainerIsEmpty) {
+	TEST(TEST_CLASS, NextIfReturnsNullptrIfContainerIsEmpty) {
 		// Arrange:
 		IntIterableList container;
 
@@ -238,7 +240,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(!!pValue);
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextIfReturnsFirstMatchingElement) {
+	TEST(TEST_CLASS, NextIfReturnsFirstMatchingElement) {
 		// Arrange:
 		IntIterableList container;
 		PushAll(container, { 5, 4, 3, 2 });
@@ -251,7 +253,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(4, *pValue);
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextIfReturnsFirstMatchingElementRelativeToNextPosition) {
+	TEST(TEST_CLASS, NextIfReturnsFirstMatchingElementRelativeToNextPosition) {
 		// Arrange:
 		IntIterableList container;
 		PushAll(container, { 5, 4, 3, 2 });
@@ -266,7 +268,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(2, *pValue);
 	}
 
-	TEST(ModificationSafeIterableContainerTests, NextIfReturnsNullptrIfNoElementsMatch) {
+	TEST(TEST_CLASS, NextIfReturnsNullptrIfNoElementsMatch) {
 		// Arrange:
 		IntIterableList container;
 		PushAll(container, { 5, 4, 3, 2 });

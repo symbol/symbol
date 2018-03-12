@@ -4,11 +4,11 @@ from enum import Enum
 from colorPrint import colorPrint, Fore
 from cppLexer import * #pylint: disable=wildcard-import,unused-wildcard-import
 from SimpleValidator import SimpleValidator, Line
-from exclusions import SKIP_FORWARDS
+from exclusions import SKIP_FORWARDS, FILTER_NAMESPACES
 
 PRINT_INFO = False
 def info(*args):
-    if 1 == PRINT_INFO:
+    if PRINT_INFO:
         colorPrint(Fore.GREEN, *args)
 
 class SimpleNsTokenizer:
@@ -46,6 +46,12 @@ class Mode(Enum):
     CollectTypeName = 4
     CollectSemiColon = 5
     SkipTillEol = 6
+    CollectNamespaceKeyword = 7
+    CollectEnum = 8
+
+class NamespaceType(Enum):
+    Normal = 1
+    Inline = 2
 
 def createDict():
     return {'namespaces':{}, 'forwards':{}}
@@ -66,6 +72,7 @@ class ForwardsValidator(SimpleValidator):
         self.matchLineNumber = 0
         self.parsingDone = False
         self.mode = Mode.Normal
+        self.namespaceType = None
         self.tokenizer = SimpleNsTokenizer()
         self.tok = None
         self.namespaceStack = []
@@ -74,13 +81,12 @@ class ForwardsValidator(SimpleValidator):
         self.lastName = None
         self.preTypeLines = []
         self.hadForwards = False
+        self.lastForwardLineNumber = 0
         self.lastLineNumber = None
+        self.lastNamespaceLineNumber = None
+        self.lastNamespaceNextLineLength = 0
         self.previousBlockLineNumber = None
         self.collectedLines = []
-
-        for pattern in SKIP_FORWARDS:
-            if re.match(pattern, path):
-                self.parsingDone = True
 
     def check(self, lineNumber, line):
         if 0 == self.matchLineNumber:
@@ -97,13 +103,18 @@ class ForwardsValidator(SimpleValidator):
         self.lastLineNumber = lineNumber
         self.collectedLines.append(line)
 
+        if self.lastNamespaceLineNumber and self.lastNamespaceLineNumber + 1 == lineNumber:
+            self.lastNamespaceNextLineLength = len(line)
+
         self.tokenizer.feed(line + '\n')
         self.line = line
         dispatch = {
             Mode.Normal: self._keywordCheck,
+            Mode.CollectNamespaceKeyword: self._collectNamespaceKeyword,
             Mode.CollectNsName: self._collectNsName,
             Mode.CollectOpeningBrace: self._collectOpeningBrace,
             Mode.CollectTypeName: self._collectTypeName,
+            Mode.CollectEnum: self._collectEnum,
             Mode.CollectSemiColon: self._collectSemiColon,
             Mode.SkipTillEol: self._skipTillEol
         }
@@ -121,12 +132,21 @@ class ForwardsValidator(SimpleValidator):
     def _keywordCheck(self):
         if self.tok == 'namespace':
             self.mode = Mode.CollectNsName
+            self.namespaceType = NamespaceType.Normal
+        elif self.tok == 'inline':
+            self.mode = Mode.CollectNamespaceKeyword
         elif self.tok == 'class' or self.tok == 'struct':
             self.mode = Mode.CollectTypeName
+            self.typeType = self.tok
+        elif self.tok == 'enum':
+            self.mode = Mode.CollectEnum
             self.typeType = self.tok
         elif self.tok == 'template':
             self.mode = Mode.SkipTillEol
             self.preTypeLines.append(self.line[self.tokPos : ])
+        elif self.tok == 'extern':
+            # we assume it's a single line extern and simply ignore the content
+            self.mode = Mode.SkipTillEol
         elif self.tok.startswith('#'):
             self.mode = Mode.SkipTillEol
         elif self.tok.startswith('//'):
@@ -146,6 +166,14 @@ class ForwardsValidator(SimpleValidator):
             current = current['namespaces'][namespaceName]
         return current
 
+    def _collectNamespaceKeyword(self):
+        if 'namespace' == self.tok:
+            self.mode = Mode.CollectNsName
+            self.namespaceType = NamespaceType.Inline
+        else:
+            info('final token', self.tok)
+            self.parsingDone = True
+
     def _collectNsName(self):
         if not self.namespaceStack:
             self.previousBlockLineNumber = self.lastLineNumber
@@ -158,9 +186,17 @@ class ForwardsValidator(SimpleValidator):
         current = self._getPath()
         if self.tok not in current['namespaces']:
             current['namespaces'][self.tok] = createDict()
+            current['namespaces'][self.tok]['type'] = self.namespaceType
 
         self.namespaceStack.append(self.tok)
         self.mode = Mode.CollectOpeningBrace
+
+        fqNamespace = '::'.join(self.namespaceStack)
+        for filtered in FILTER_NAMESPACES:
+            if re.match(filtered, fqNamespace):
+                break
+        else:
+            self.lastNamespaceLineNumber = self.lastLineNumber
 
     def _addForward(self, typeType, typeName):
         if not (self.typeType and self.lastName):
@@ -173,6 +209,7 @@ class ForwardsValidator(SimpleValidator):
         current['forwards'][typeName] = {'type': typeType, 'pre': self.preTypeLines}
 
         self.hadForwards = True
+        self.lastForwardLineNumber = self.lastLineNumber
         self.typeType = None
         self.lastName = None
         self.preTypeLines = []
@@ -195,6 +232,29 @@ class ForwardsValidator(SimpleValidator):
         self.lastName = self.tok
         self.mode = Mode.CollectSemiColon
 
+    def _collectEnum(self):
+        if 'class' == self.tok:
+            self.typeType = 'enum class'
+            return
+
+        if not self.lastName:
+            self.lastName = self.tok
+            return
+
+        if ':' in self.lastName and self.lastName.endswith(' :'):
+            self.lastName += ' {}'.format(self.tok)
+            return
+
+        if ':' == self.tok:
+            self.lastName += ' {}'.format(self.tok)
+            return
+
+        if ';' == self.tok:
+            self._collectSemiColon()
+        else:
+            info('invalid token >>{}<<, expected: ; in >>{} {}<<'.format(self.tok, self.typeType, self.lastName))
+            self.parsingDone = True
+
     def _skipTillEol(self):
         if self.tok == '\n':
             self.mode = Mode.Normal
@@ -214,18 +274,28 @@ class ForwardsValidator(SimpleValidator):
         return '\t' + line if line else line
 
     @staticmethod
-    def _format(declarations):
+    def _format(declarations, level=1):
         result = []
         if declarations['namespaces']:
+            # deliberately start from 1, to simplify condition at the bottom of the loop
             for namespaceName, subDeclarations in sorted(declarations['namespaces'].items()):
-                lines = ForwardsValidator._format(subDeclarations)
+                lines = ForwardsValidator._format(subDeclarations, level + 1)
+                nsType = declarations['namespaces'][namespaceName]['type']
+                content = 'inline ' if NamespaceType.Inline == nsType else ''
+
                 if not lines:
-                    pass
-                elif len(lines) == 1:
-                    result.append('namespace %s { %s }' % (namespaceName, lines[0]))
+                    continue
+
+                if 1 == level and result:
+                    result.append('')
+
+                if len(lines) == 1:
+                    content += 'namespace %s { %s }' % (namespaceName, lines[0])
+                    result.append(content)
 
                 else:
-                    result.append('namespace %s {' % namespaceName)
+                    content += 'namespace %s {' % namespaceName
+                    result.append(content)
                     indentLines = map(ForwardsValidator.identNonEmpty, lines)
                     result.extend(indentLines)
                     result.append('}')
@@ -245,9 +315,19 @@ class ForwardsValidator(SimpleValidator):
         return result
 
     def finalize(self):
-        if self.hadForwards:
-            current = '\n'.join(self.collectedLines[: (self.previousBlockLineNumber - 1 - self.matchLineNumber)])
-            expected = '\n'.join(self._format(self.declarations))
+        reportForwardsError = True
+        for pattern in SKIP_FORWARDS:
+            if re.match(pattern, self.path):
+                reportForwardsError = False
+                break
+
+        if self.lastNamespaceNextLineLength and self.lastNamespaceLineNumber > self.lastForwardLineNumber:
+            self.errorReporter(self.NAME, Line(self.path, '', self.lastNamespaceLineNumber + 1, 'missingEmptyLine'))
+
+        if reportForwardsError and self.hadForwards:
+            expectedLines = self._format(self.declarations)
+            expected = '\n'.join(expectedLines)
+            current = '\n'.join(self.collectedLines[:len(expectedLines)])
             if current != expected:
                 self.errorReporter(self.NAME, Line(self.path, current, (self.matchLineNumber, self.previousBlockLineNumber - 1), expected))
 
@@ -257,6 +337,11 @@ class ForwardsValidator(SimpleValidator):
             name = err.path
             errorFmt = '{}:{} - {} forward declarations mismatch, has:\n{}\nshould be:\n{}'
             return errorFmt.format(name, err.lineno[0], err.lineno[1], err.line, err.kind)
+
+        if err.kind == 'missingEmptyLine':
+            name = err.path
+            errorFmt = '{}:{} - missing empty line after namespace'
+            return errorFmt.format(name, err.lineno, err.line)
 
         name = err.path
         errorFmt = '{}:{} - redefinition of a type forward declaration: {}'

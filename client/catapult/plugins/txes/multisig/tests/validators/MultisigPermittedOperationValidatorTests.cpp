@@ -18,7 +18,7 @@ namespace catapult { namespace validators {
 			auto readOnlyCache = cacheView.toReadOnly();
 			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
 
-			model::TransactionNotification notification(signer, Hash256(), Timestamp());
+			model::TransactionNotification notification(signer, Hash256(), model::EntityType(), Timestamp());
 			auto pValidator = CreateMultisigPermittedOperationValidator();
 
 			// Act:

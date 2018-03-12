@@ -5,12 +5,14 @@
 
 namespace catapult { namespace validators {
 
+#define TEST_CLASS MaxTransactionsValidatorTests
+
 	DEFINE_COMMON_VALIDATOR_TESTS(MaxTransactions, 123)
 
 	namespace {
 		constexpr uint32_t Max_Transactions = 10;
 
-		void AssertValidationResult(uint32_t numTransactions, ValidationResult expectedResult) {
+		void AssertValidationResult(ValidationResult expectedResult, uint32_t numTransactions) {
 			// Arrange:
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = test::CreateBlockNotification(signer);
@@ -27,28 +29,30 @@ namespace catapult { namespace validators {
 
 	// region validation
 
-	TEST(MaxTransactionsValidatorTests, SuccessWhenBlockContainsNoTransactions) {
+	TEST(TEST_CLASS, SuccessWhenBlockContainsNoTransactions) {
 		// Assert:
-		AssertValidationResult(0, ValidationResult::Success);
+		AssertValidationResult(ValidationResult::Success, 0);
 	}
 
-	TEST(MaxTransactionsValidatorTests, SuccessWhenBlockContainsLessThanMaxTransactions) {
+	TEST(TEST_CLASS, SuccessWhenBlockContainsLessThanMaxTransactions) {
 		// Assert:
-		AssertValidationResult(1, ValidationResult::Success);
-		AssertValidationResult(5, ValidationResult::Success);
-		AssertValidationResult(Max_Transactions - 1, ValidationResult::Success);
+		constexpr auto expectedResult = ValidationResult::Success;
+		AssertValidationResult(expectedResult, 1);
+		AssertValidationResult(expectedResult, 5);
+		AssertValidationResult(expectedResult, Max_Transactions - 1);
 	}
 
-	TEST(MaxTransactionsValidatorTests, SuccessWhenBlockContainsMaxTransactions) {
+	TEST(TEST_CLASS, SuccessWhenBlockContainsMaxTransactions) {
 		// Assert:
-		AssertValidationResult(Max_Transactions, ValidationResult::Success);
+		AssertValidationResult(ValidationResult::Success, Max_Transactions);
 	}
 
-	TEST(MaxTransactionsValidatorTests, FailureWhenBlockContainsMoreThanMaxTransactions) {
+	TEST(TEST_CLASS, FailureWhenBlockContainsMoreThanMaxTransactions) {
 		// Assert:
-		AssertValidationResult(Max_Transactions + 1, Failure_Core_Too_Many_Transactions);
-		AssertValidationResult(Max_Transactions + 10, Failure_Core_Too_Many_Transactions);
-		AssertValidationResult(Max_Transactions + 100, Failure_Core_Too_Many_Transactions);
+		constexpr auto expectedResult = Failure_Core_Too_Many_Transactions;
+		AssertValidationResult(expectedResult, Max_Transactions + 1);
+		AssertValidationResult(expectedResult, Max_Transactions + 10);
+		AssertValidationResult(expectedResult, Max_Transactions + 100);
 	}
 
 	// endregion

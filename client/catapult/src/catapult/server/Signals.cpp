@@ -5,7 +5,7 @@
 namespace catapult { namespace server {
 
 	namespace {
-		struct SignalInformation {
+		struct SignalInfo {
 			boost::system::error_code Error;
 			int Id;
 		};
@@ -15,7 +15,7 @@ namespace catapult { namespace server {
 		boost::asio::io_service service;
 		boost::asio::signal_set signals(service, SIGINT, SIGTERM);
 
-		SignalInformation info;
+		SignalInfo info;
 		signals.async_wait([&info](const auto& ec, auto signalId) {
 			info.Error = ec;
 			info.Id = signalId;

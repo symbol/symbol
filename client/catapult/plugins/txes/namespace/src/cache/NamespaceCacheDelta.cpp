@@ -6,15 +6,7 @@
 namespace catapult { namespace cache {
 
 	namespace {
-		using NamespaceByIdMap = namespace_cache_types::namespace_id_namespace_map::BaseSetDeltaType;
-
-		const state::Namespace& GetNamespace(const NamespaceByIdMap& namespaceById, NamespaceId id) {
-			const auto* pNamespace = namespaceById.find(id);
-			if (!pNamespace)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("unknown namespace", id);
-
-			return *pNamespace;
-		}
+		using NamespaceByIdMap = NamespaceCacheTypes::FlatMapTypes::BaseSetDeltaType;
 
 		void AddAll(NamespaceByIdMap& namespaceById, const state::RootNamespace::Children& children) {
 			for (const auto& pair : children)
@@ -27,46 +19,15 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	const BasicNamespaceCacheDelta::HistoryValueType& BasicNamespaceCacheDelta::getHistory(NamespaceId id) const {
-		const auto& ns = GetNamespace(*m_pNamespaceById, id);
-		const auto* pHistory = utils::as_const(*m_pHistoryById).find(ns.rootId());
-		if (!pHistory)
-			CATAPULT_THROW_RUNTIME_ERROR_1("no history for root namespace found", ns.rootId());
-
-		return *pHistory;
-	}
-
-	size_t BasicNamespaceCacheDelta::size() const {
-		return m_pHistoryById->size();
-	}
-
-	size_t BasicNamespaceCacheDelta::activeSize() const {
-		size_t sum = 0;
-		return std::accumulate(m_pHistoryById->cbegin(), m_pHistoryById->cend(), sum, [](auto value, const auto& pair) {
-			return value + 1 + pair.second.numActiveRootChildren();
-		});
-	}
-
-	size_t BasicNamespaceCacheDelta::deepSize() const {
-		size_t sum = 0;
-		return std::accumulate(m_pHistoryById->cbegin(), m_pHistoryById->cend(), sum, [](auto value, const auto& pair) {
-			return value + pair.second.historyDepth() + pair.second.numAllHistoricalChildren();
-		});
-	}
-
-	bool BasicNamespaceCacheDelta::contains(NamespaceId id) const {
-		return m_pNamespaceById->contains(id);
-	}
-
-	bool BasicNamespaceCacheDelta::isActive(NamespaceId id, Height height) const {
-		return contains(id) && getHistory(id).back().lifetime().isActive(height);
-	}
-
-	state::NamespaceEntry BasicNamespaceCacheDelta::get(NamespaceId id) const {
-		const auto& ns = GetNamespace(*m_pNamespaceById, id);
-		const auto& root = utils::as_const(*m_pHistoryById).find(ns.rootId())->back();
-		return state::NamespaceEntry(ns, root);
-	}
+	BasicNamespaceCacheDelta::BasicNamespaceCacheDelta(const NamespaceCacheTypes::BaseSetDeltaPointerType& namespaceSets)
+			: NamespaceCacheDeltaMixins::Size(*namespaceSets.pPrimary)
+			, NamespaceCacheDeltaMixins::Contains(*namespaceSets.pFlatMap)
+			, NamespaceCacheDeltaMixins::DeltaElements(*namespaceSets.pPrimary)
+			, NamespaceCacheDeltaMixins::NamespaceDeepSize(*namespaceSets.pPrimary)
+			, NamespaceCacheDeltaMixins::NamespaceLookup(*namespaceSets.pPrimary, *namespaceSets.pFlatMap)
+			, m_pNamespaceById(namespaceSets.pFlatMap)
+			, m_pHistoryById(namespaceSets.pPrimary)
+	{}
 
 	void BasicNamespaceCacheDelta::insert(const state::RootNamespace& ns) {
 		auto* pHistory = m_pHistoryById->find(ns.id());
@@ -79,7 +40,7 @@ namespace catapult { namespace cache {
 			return;
 		}
 
-		HistoryValueType history(ns.id());
+		state::RootNamespaceHistory history(ns.id());
 		history.push_back(ns.owner(), ns.lifetime());
 		m_pHistoryById->insert(std::move(history));
 
@@ -138,8 +99,8 @@ namespace catapult { namespace cache {
 
 	void BasicNamespaceCacheDelta::prune(Height height) {
 		std::unordered_set<NamespaceId, utils::BaseValueHasher<NamespaceId>> rootIds;
-		for (auto iter = m_pHistoryById->cbegin(); m_pHistoryById->cend() != iter; ++iter)
-			rootIds.insert(iter->first);
+		for (const auto& pair : *m_pHistoryById)
+			rootIds.insert(pair.first);
 
 		for (auto id : rootIds) {
 			auto* pHistory = m_pHistoryById->find(id);
@@ -150,36 +111,5 @@ namespace catapult { namespace cache {
 			if (pHistory->empty())
 				m_pHistoryById->remove(pHistory->id());
 		}
-	}
-
-	namespace {
-		template<typename TDestination, typename TSource>
-		void CollectAll(TDestination& dest, const TSource& source) {
-			for (const auto& pair : source)
-				dest.push_back(&pair.second);
-		}
-	}
-
-	std::vector<const state::RootNamespaceHistory*> BasicNamespaceCacheDelta::addedRootNamespaceHistories() const {
-		std::vector<const state::RootNamespaceHistory*> addedHistories;
-		auto deltas = m_pHistoryById->deltas();
-		CollectAll(addedHistories, deltas.Added);
-		return addedHistories;
-	}
-
-	std::vector<const state::RootNamespaceHistory*> BasicNamespaceCacheDelta::modifiedRootNamespaceHistories() const {
-		std::vector<const state::RootNamespaceHistory*> modifiedHistories;
-		auto deltas = m_pHistoryById->deltas();
-		CollectAll(modifiedHistories, deltas.Copied);
-		return modifiedHistories;
-	}
-
-	std::vector<NamespaceId> BasicNamespaceCacheDelta::removedRootNamespaceHistories() const {
-		std::vector<NamespaceId> removedHistories;
-		auto deltas = m_pHistoryById->deltas();
-		for (const auto& pair : deltas.Removed)
-			removedHistories.push_back(pair.first);
-
-		return removedHistories;
 	}
 }}

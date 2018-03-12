@@ -3,11 +3,11 @@
 #include "Hashes.h"
 #include "catapult/exceptions.h"
 #include <cstring>
-#include <ref10/ge.h>
-#include <ref10/sc.h>
+#include <ref10/crypto_verify_32.h>
 
 extern "C" {
-#include <ref10/crypto_verify_32.h>
+#include <ref10/ge.h>
+#include <ref10/sc.h>
 }
 
 #ifdef _MSC_VER
@@ -66,7 +66,7 @@ namespace catapult { namespace crypto {
 		HashPrivateKey(keyPair.privateKey(), privHash);
 
 		// r = H(privHash[256:512] || data)
-		// "EdDSA avoids these issues by generating r = H(h_b, . . . , h_2b?1, M), so that
+		// "EdDSA avoids these issues by generating r = H(h_b, ..., h_2b?1, M), so that
 		//  different messages will lead to different, hard-to-predict values of r."
 		Hash512 r;
 		Sha3_512_Builder sha3_r;
@@ -93,8 +93,8 @@ namespace catapult { namespace crypto {
 		sc_reduce(h.data());
 
 		// a = fieldElement(privHash[0:256])
-		privHash[0] &= 0xf8;
-		privHash[31] &= 0x7f;
+		privHash[0] &= 0xF8;
+		privHash[31] &= 0x7F;
 		privHash[31] |= 0x40;
 
 		// S = (r + h * a) mod group order

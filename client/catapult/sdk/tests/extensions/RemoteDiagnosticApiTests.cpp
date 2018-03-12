@@ -1,9 +1,7 @@
 #include "src/extensions/RemoteDiagnosticApi.h"
-#include "catapult/api/ApiTypes.h"
 #include "catapult/handlers/DiagnosticHandlers.h"
 #include "catapult/ionet/Packet.h"
 #include "catapult/model/AccountInfo.h"
-#include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -31,7 +29,7 @@ namespace catapult { namespace extensions {
 					auto& accountInfo = reinterpret_cast<model::AccountInfo&>(*pData);
 					accountInfo.Size = Response_Entity_Size;
 					accountInfo.AddressHeight = Height(5 * i);
-					accountInfo.NumMosaics = 1u;
+					accountInfo.MosaicsCount = 1u;
 					auto pMosaic = accountInfo.MosaicsPtr();
 					pMosaic->MosaicId = Xem_Id;
 					pMosaic->Amount = Amount(123 * i);
@@ -176,54 +174,65 @@ namespace catapult { namespace extensions {
 
 		// endregion
 
-		// region DiagnosticApiTraits
+		// region ActiveNodeInfosTraits
 
-		template<typename TTraits>
-		struct DiagnosticApiTraits {
-			static constexpr uint32_t Num_Entities = 3;
-			static constexpr uint32_t Request_Data_Size = Num_Entities * TTraits::Request_Entity_Size;
-
-			static auto CreateRequestParam() {
-				return TTraits::RequestParamType::CopyFixed(
-						reinterpret_cast<uint8_t*>(TTraits::RequestParamValues().data()),
-						Num_Entities);
-			}
+		struct ActiveNodeInfosTraits {
+			static constexpr auto Packet_Type = ionet::PacketType::Active_Node_Infos;
+			static constexpr auto Response_Entity_Size = sizeof(ionet::PackedNodeInfo) + 2 * sizeof(ionet::PackedConnectionState);
+			static constexpr auto Num_Node_Infos = 3u;
 
 			static auto Invoke(const RemoteDiagnosticApi& api) {
-				return TTraits::Invoke(api, CreateRequestParam());
+				return api.activeNodeInfos();
 			}
 
 			static auto CreateValidResponsePacket() {
-				auto pResponsePacket = TTraits::CreateResponsePacket(Num_Entities);
-				pResponsePacket->Type = TTraits::PacketType();
+				uint32_t payloadSize = Num_Node_Infos * Response_Entity_Size;
+				auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
+				pResponsePacket->Type = Packet_Type;
+				test::FillWithRandomData({ pResponsePacket->Data(), payloadSize });
+
+				// set sizes appropriately
+				auto* pData = pResponsePacket->Data();
+				for (auto i = 0u; i < Num_Node_Infos; ++i) {
+					auto& nodeInfo = reinterpret_cast<ionet::PackedNodeInfo&>(*pData);
+					nodeInfo.Size = Response_Entity_Size;
+					nodeInfo.ConnectionStatesCount = 2;
+					pData += Response_Entity_Size;
+				}
+
 				return pResponsePacket;
 			}
 
 			static auto CreateMalformedResponsePacket() {
-				// the packet is malformed because it contains a partial entity
+				// just change the size because no responses are intrinsically invalid
 				auto pResponsePacket = CreateValidResponsePacket();
 				--pResponsePacket->Size;
 				return pResponsePacket;
 			}
 
 			static void ValidateRequest(const ionet::Packet& packet) {
-				EXPECT_EQ(TTraits::PacketType(), packet.Type);
-				EXPECT_EQ(sizeof(ionet::Packet) + Request_Data_Size, packet.Size);
-				EXPECT_TRUE(0 == std::memcmp(packet.Data(), TTraits::RequestParamValues().data(), Request_Data_Size));
+				EXPECT_TRUE(ionet::IsPacketValid(packet, Packet_Type));
 			}
 
-			static void ValidateResponse(const ionet::Packet& response, const typename TTraits::ResponseType& responseEntities) {
-				TTraits::ValidateResponse(response, responseEntities);
-			}
-		};
+			static void ValidateResponse(const ionet::Packet& response, const model::EntityRange<ionet::PackedNodeInfo>& nodeInfos) {
+				ASSERT_EQ(static_cast<uint32_t>(Num_Node_Infos), nodeInfos.size());
 
-		// endregion
+				auto iter = nodeInfos.cbegin();
+				const auto* pResponseData = response.Data();
+				for (auto i = 0u; i < Num_Node_Infos; ++i) {
+					auto expectedSize = Response_Entity_Size;
+					auto message = "node info at " + std::to_string(i);
 
-		// region RemoteDiagnosticApiTraits
+					// Sanity:
+					ASSERT_EQ(expectedSize, reinterpret_cast<const ionet::PackedNodeInfo&>(*pResponseData).Size) << message;
 
-		struct RemoteDiagnosticApiTraits {
-			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return CreateRemoteDiagnosticApi(pPacketIo);
+					// Assert: check the node info size then the memory
+					ASSERT_EQ(expectedSize, iter->Size) << message;
+					EXPECT_TRUE(0 == memcmp(pResponseData, &*iter, iter->Size)) << message;
+
+					pResponseData += expectedSize;
+					++iter;
+				}
 			}
 		};
 
@@ -249,7 +258,7 @@ namespace catapult { namespace extensions {
 					auto& namespaceInfo = reinterpret_cast<model::NamespaceInfo&>(*pData);
 					namespaceInfo.Size = Response_Entity_Size;
 					namespaceInfo.Id = NamespaceId(5 * i);
-					namespaceInfo.NumChildren = 3;
+					namespaceInfo.ChildCount = 3;
 					auto* pChildId = namespaceInfo.ChildrenPtr();
 					*pChildId++ = NamespaceId(5 * i + 1);
 					*pChildId++ = NamespaceId(5 * i + 2);
@@ -267,9 +276,7 @@ namespace catapult { namespace extensions {
 				return api.namespaceInfos(std::move(param));
 			}
 
-			static void ValidateResponse(
-					const ionet::Packet& response,
-					const model::EntityRange<model::NamespaceInfo>& namespaceInfos) {
+			static void ValidateResponse(const ionet::Packet& response, const model::EntityRange<model::NamespaceInfo>& namespaceInfos) {
 				ASSERT_EQ(3u, namespaceInfos.size());
 
 				auto pData = response.Data();
@@ -342,16 +349,71 @@ namespace catapult { namespace extensions {
 		};
 
 		// endregion
+
+		// region DiagnosticApiTraits
+
+		template<typename TTraits>
+		struct DiagnosticApiTraits {
+			static constexpr uint32_t Num_Entities = 3;
+			static constexpr uint32_t Request_Data_Size = Num_Entities * TTraits::Request_Entity_Size;
+
+			static auto CreateRequestParam() {
+				return TTraits::RequestParamType::CopyFixed(
+						reinterpret_cast<uint8_t*>(TTraits::RequestParamValues().data()),
+						Num_Entities);
+			}
+
+			static auto Invoke(const RemoteDiagnosticApi& api) {
+				return TTraits::Invoke(api, CreateRequestParam());
+			}
+
+			static auto CreateValidResponsePacket() {
+				auto pResponsePacket = TTraits::CreateResponsePacket(Num_Entities);
+				pResponsePacket->Type = TTraits::PacketType();
+				return pResponsePacket;
+			}
+
+			static auto CreateMalformedResponsePacket() {
+				// the packet is malformed because it contains a partial entity
+				auto pResponsePacket = CreateValidResponsePacket();
+				--pResponsePacket->Size;
+				return pResponsePacket;
+			}
+
+			static void ValidateRequest(const ionet::Packet& packet) {
+				EXPECT_EQ(TTraits::PacketType(), packet.Type);
+				EXPECT_EQ(sizeof(ionet::Packet) + Request_Data_Size, packet.Size);
+				EXPECT_TRUE(0 == std::memcmp(packet.Data(), TTraits::RequestParamValues().data(), Request_Data_Size));
+			}
+
+			static void ValidateResponse(const ionet::Packet& response, const typename TTraits::ResponseType& responseEntities) {
+				TTraits::ValidateResponse(response, responseEntities);
+			}
+		};
+
+		// endregion
+
+		// region RemoteDiagnosticApiTraits
+
+		struct RemoteDiagnosticApiTraits {
+			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
+				return CreateRemoteDiagnosticApi(*pPacketIo);
+			}
+		};
+
+		// endregion
 	}
 
 	using DiagnosticAccountInfosTraits = DiagnosticApiTraits<AccountInfosTraits>;
 	using DiagnosticConfirmTimestampedHashesTraits = DiagnosticApiTraits<ConfirmTimestampedHashesTraits>;
-	using DiagnosticMosaicInfosTraits = DiagnosticApiTraits<MosaicInfosTraits>;
-	using DiagnosticNamespaceInfosTraits = DiagnosticApiTraits<NamespaceInfosTraits>;
-
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticAccountInfos)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(RemoteDiagnosticApi, DiagnosticConfirmTimestampedHashes)
+
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticCounters)
-	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticMosaicInfos)
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, ActiveNodeInfos)
+
+	using DiagnosticNamespaceInfosTraits = DiagnosticApiTraits<NamespaceInfosTraits>;
+	using DiagnosticMosaicInfosTraits = DiagnosticApiTraits<MosaicInfosTraits>;
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticNamespaceInfos)
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticMosaicInfos)
 }}

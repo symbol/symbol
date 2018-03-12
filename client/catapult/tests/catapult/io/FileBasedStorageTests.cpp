@@ -8,6 +8,8 @@ using catapult::test::TempDirectoryGuard;
 
 namespace catapult { namespace io {
 
+#define TEST_CLASS FileBasedStorageTests
+
 	namespace {
 		struct FileBasedTraits {
 			using Guard = TempDirectoryGuard;
@@ -27,7 +29,7 @@ namespace catapult { namespace io {
 	}
 }}
 
-#define STORAGE_TESTS_CLASS_NAME FileBasedStorageTests
+#define STORAGE_TESTS_CLASS_NAME TEST_CLASS
 #define STORAGE_TESTS_TRAITS_NAME FileBasedTraits
 
 #include "BlockStorageTests.h"
@@ -40,7 +42,7 @@ namespace catapult { namespace io {
 	// these tests do not make sense for memory-based storage because blocks stored in memory-based storage
 	// do not persist across instances
 
-	TEST(FileBasedStorageTests, CanReadSavedBlockAcrossDifferentStorageInstances) {
+	TEST(TEST_CLASS, CanReadSavedBlockAcrossDifferentStorageInstances) {
 		// Arrange:
 		TempDirectoryGuard tempDir;
 		auto pBlock = CreateRandomBlock(Height(2));
@@ -55,10 +57,10 @@ namespace catapult { namespace io {
 		auto pBlockElement = storage.loadBlockElement(Height(2));
 
 		// Assert:
-		test::AssertBlockElement(element, *pBlockElement);
+		test::AssertEqual(element, *pBlockElement);
 	}
 
-	TEST(FileBasedStorageTests, CanReadMultipleSavedBlocksAcrossDifferentStorageInstances) {
+	TEST(TEST_CLASS, CanReadMultipleSavedBlocksAcrossDifferentStorageInstances) {
 		// Arrange:
 		TempDirectoryGuard tempDir;
 		auto pBlock1 = CreateRandomBlock(Height(2));
@@ -77,8 +79,8 @@ namespace catapult { namespace io {
 		auto pBlockElement2 = storage.loadBlockElement(Height(3));
 
 		// Assert:
-		test::AssertBlockElement(element1, *pBlockElement1);
-		test::AssertBlockElement(element2, *pBlockElement2);
+		test::AssertEqual(element1, *pBlockElement1);
+		test::AssertEqual(element2, *pBlockElement2);
 	}
 
 	namespace {
@@ -116,7 +118,7 @@ namespace catapult { namespace io {
 		}
 	}
 
-	TEST(FileBasedStorageTests, PruneBlocksBefore_CanPruneAtHeightBeforeChainHeight) {
+	TEST(TEST_CLASS, PruneBlocksBefore_CanPruneAtHeightBeforeChainHeight) {
 		// Arrange:
 		auto pStorage = PrepareStorageWithBlocks<FileBasedTraits>(10);
 
@@ -128,7 +130,7 @@ namespace catapult { namespace io {
 		AssertBlockFiles(pStorage.pTempDirectoryGuard->name(), { 1, 8, 9, 10 });
 	}
 
-	TEST(FileBasedStorageTests, PruneBlocksBefore_CanPruneAtHeightEqualToChainHeight) {
+	TEST(TEST_CLASS, PruneBlocksBefore_CanPruneAtHeightEqualToChainHeight) {
 		// Arrange:
 		auto pStorage = PrepareStorageWithBlocks<FileBasedTraits>(10);
 
@@ -140,7 +142,7 @@ namespace catapult { namespace io {
 		AssertBlockFiles(pStorage.pTempDirectoryGuard->name(), { 1, 10 });
 	}
 
-	TEST(FileBasedStorageTests, PruneBlocksBefore_ThrowsAtHeightAfterChainHeight) {
+	TEST(TEST_CLASS, PruneBlocksBefore_ThrowsAtHeightAfterChainHeight) {
 		// Arrange:
 		auto pStorage = PrepareStorageWithBlocks<FileBasedTraits>(5);
 
@@ -148,7 +150,7 @@ namespace catapult { namespace io {
 		EXPECT_THROW(pStorage->pruneBlocksBefore(Height(10)), catapult_invalid_argument);
 	}
 
-	TEST(FileBasedStorageTests, PruneBlocksStopsOnFirstNonexistentFile) {
+	TEST(TEST_CLASS, PruneBlocksStopsOnFirstNonexistentFile) {
 		// Arrange:
 		auto pStorage = PrepareStorageWithBlocks<FileBasedTraits>(10);
 		DeleteBlockFile(pStorage.pTempDirectoryGuard->name(), 4);

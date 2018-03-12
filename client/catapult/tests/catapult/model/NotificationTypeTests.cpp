@@ -7,7 +7,7 @@ namespace catapult { namespace model {
 
 	namespace {
 		constexpr NotificationType MakeNotificationType(NotificationChannel channel, uint8_t facility, uint16_t code) {
-			return MakeNotificationType(channel, static_cast<NotificationFacilityCode>(facility), code);
+			return MakeNotificationType(channel, static_cast<FacilityCode>(facility), code);
 		}
 
 		constexpr NotificationType MakeNotificationType(uint8_t channel, uint8_t facility, uint16_t code) {
@@ -48,7 +48,7 @@ namespace catapult { namespace model {
 	// region IsSet
 
 	TEST(TEST_CLASS, CanCheckIfChannelFlagIsSet) {
-		// Assert:
+		// Act + Assert:
 		// - none
 		auto type = MakeNotificationType(NotificationChannel::None, 0, 0);
 		EXPECT_FALSE(IsSet(type, static_cast<NotificationChannel>(0x01)));
@@ -71,6 +71,55 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSet(type, static_cast<NotificationChannel>(0x07)));
 		EXPECT_FALSE(IsSet(type, static_cast<NotificationChannel>(0x08)));
 		EXPECT_FALSE(IsSet(type, static_cast<NotificationChannel>(0x15)));
+	}
+
+	// endregion
+
+	// region GetNotificationChannel
+
+	TEST(TEST_CLASS, CanGetNotificationChannelFromNotificationType) {
+		// Act + Assert:
+		// - none
+		auto type = MakeNotificationType(NotificationChannel::None, 0, 0);
+		EXPECT_EQ(NotificationChannel::None, GetNotificationChannel(type));
+
+		// - all
+		type = MakeNotificationType(NotificationChannel::All, 0, 0);
+		EXPECT_EQ(NotificationChannel::All, GetNotificationChannel(type));
+
+		// - some
+		type = MakeNotificationType(static_cast<NotificationChannel>(0x84), 0, 0);
+		EXPECT_EQ(static_cast<NotificationChannel>(0x84), GetNotificationChannel(type));
+	}
+
+	// endregion
+
+	// region SetNotificationChannel
+
+	TEST(TEST_CLASS, CanSetNotificationChannelInNotificationType) {
+		// Arrange:
+		auto type = MakeNotificationType(static_cast<NotificationChannel>(0x74), 0xAB, 0x9876);
+
+		// Act:
+		SetNotificationChannel(type, static_cast<NotificationChannel>(0x84));
+
+		// Assert:
+		EXPECT_EQ(static_cast<NotificationType>(0x84AB9876), type);
+	}
+
+	// endregion
+
+	// region AreEqualExcludingChannel
+
+	TEST(TEST_CLASS, AreEqualExcludingChannelReturnsTrueIfAndOnlyIfTypesHaveSameFacilityAndCode) {
+		// Arrange:
+		auto type = MakeNotificationType(NotificationChannel::Observer, 0xAB, 0x9876);
+
+		// Act + Assert:
+		EXPECT_TRUE(AreEqualExcludingChannel(type, type));
+		EXPECT_TRUE(AreEqualExcludingChannel(type, MakeNotificationType(NotificationChannel::Validator, 0xAB, 0x9876)));
+		EXPECT_FALSE(AreEqualExcludingChannel(type, MakeNotificationType(NotificationChannel::Observer, 0xAC, 0x9876)));
+		EXPECT_FALSE(AreEqualExcludingChannel(type, MakeNotificationType(NotificationChannel::Observer, 0xAB, 0x9875)));
 	}
 
 	// endregion

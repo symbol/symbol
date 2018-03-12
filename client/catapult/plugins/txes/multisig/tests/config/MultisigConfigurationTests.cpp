@@ -9,14 +9,16 @@ namespace catapult { namespace config {
 			using ConfigurationType = MultisigConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {{
+				return {
+					{
 						"",
 						{
 							{ "maxMultisigDepth", "159" },
 							{ "maxCosignersPerAccount", "23" },
 							{ "maxCosignedAccountsPerAccount", "77" },
 						}
-				}};
+					}
+				};
 			}
 
 			static bool IsSectionOptional(const std::string&) {

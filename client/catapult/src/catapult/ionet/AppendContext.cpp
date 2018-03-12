@@ -5,10 +5,16 @@ namespace catapult { namespace ionet {
 
 	AppendContext::AppendContext(ByteBuffer& data, size_t size)
 			: m_data(data)
-			, m_appendSize(size)
 			, m_originalSize(m_data.size())
 			, m_isCommitted(false) {
-		m_data.resize(m_originalSize + size);
+		// only guarantee that at least half of size can be appended (safe because buffer() uses correct size)
+		// in cases where boost sends only 8-byte packet headers, this will use less memory than guaranteeing full size
+		if (m_data.capacity() - m_data.size() < size / 2)
+			m_data.resize(m_originalSize + size);
+		else
+			m_data.resize(std::min(m_originalSize + size, m_data.capacity()));
+
+		m_appendSize = m_data.size() - m_originalSize;
 	}
 
 	AppendContext::AppendContext(AppendContext&& rhs)

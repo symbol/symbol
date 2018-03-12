@@ -1,4 +1,5 @@
 #include "catapult/model/TransactionContainer.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionContainerTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -31,7 +32,7 @@ namespace catapult { namespace model {
 			for (auto attachmentExtraSize : attachmentExtraSizes)
 				size += sizeof(ContainerComponent) + attachmentExtraSize;
 
-			std::unique_ptr<Container> pContainer(reinterpret_cast<Container*>(::operator new(size)));
+			auto pContainer = utils::MakeUniqueWithSize<Container>(size);
 			pContainer->Size = size;
 
 			auto* pData = reinterpret_cast<uint8_t*>(pContainer.get() + 1);

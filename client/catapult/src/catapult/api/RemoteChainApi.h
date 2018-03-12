@@ -39,17 +39,13 @@ namespace catapult { namespace api {
 
 		/// Gets the blocks starting at \a height with the specified \a options.
 		/// \note An empty range will be returned if remote chain height is less than \a height.
-		virtual thread::future<model::BlockRange> blocksFrom(
-				Height height,
-				const BlocksFromOptions& options) const = 0;
+		virtual thread::future<model::BlockRange> blocksFrom(Height height, const BlocksFromOptions& options) const = 0;
 	};
 
-	/// Creates a chain api for interacting with a remote node with the specified io (\a pIo).
-	std::unique_ptr<ChainApi> CreateRemoteChainApi(const std::shared_ptr<ionet::PacketIo>& pIo);
+	/// Creates a chain api for interacting with a remote node with the specified \a io.
+	std::unique_ptr<ChainApi> CreateRemoteChainApiWithoutRegistry(ionet::PacketIo& io);
 
-	/// Creates a chain api for interacting with a remote node with the specified io (\a pIo)
-	/// and transaction registry (\a pRegistry) composed of supported transactions.
-	std::unique_ptr<RemoteChainApi> CreateRemoteChainApi(
-			const std::shared_ptr<ionet::PacketIo>& pIo,
-			const std::shared_ptr<const model::TransactionRegistry>& pRegistry);
+	/// Creates a chain api for interacting with a remote node with the specified \a io
+	/// and transaction \a registry composed of supported transactions.
+	std::unique_ptr<RemoteChainApi> CreateRemoteChainApi(ionet::PacketIo& io, const model::TransactionRegistry& registry);
 }}

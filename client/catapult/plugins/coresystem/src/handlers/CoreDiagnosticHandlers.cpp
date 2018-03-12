@@ -5,7 +5,7 @@ namespace catapult { namespace handlers {
 
 	namespace {
 		struct AccountInfosTraits {
-			using EntityType = Address;
+			using RequestStructureType = Address;
 			using SupplierResultsType = std::vector<std::shared_ptr<const model::AccountInfo>>;
 
 			static constexpr auto Packet_Type = ionet::PacketType::Account_Infos;

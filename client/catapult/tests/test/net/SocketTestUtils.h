@@ -27,14 +27,39 @@ namespace catapult { namespace test {
 	/// Creates a default PacketSocketOptions.
 	ionet::PacketSocketOptions CreatePacketSocketOptions();
 
-	/// Creates a local host acceptor around \a service.
-	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateLocalHostAcceptor(boost::asio::io_service& service);
+	/// A local host tcp acceptor facade with timeout.
+	class TcpAcceptor {
+	public:
+		/// Creates an acceptor around \a service.
+		explicit TcpAcceptor(boost::asio::io_service& service);
+
+		/// Destroys the acceptor.
+		~TcpAcceptor();
+
+	public:
+		/// Gets the underlying acceptor.
+		boost::asio::ip::tcp::acceptor& get() const;
+
+		/// Gets a strand that should be used when calling the acceptor.
+		boost::asio::strand& strand() const;
+
+	private:
+		class Impl;
+		std::unique_ptr<Impl> m_pImpl;
+	};
+
+	/// Creates an implicitly closed local host acceptor around \a service.
+	/// \note This acceptor can only be used in tests where it is implicitly closed by stopping \a service.
+	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateImplicitlyClosedLocalHostAcceptor(boost::asio::io_service& service);
 
 	/// Function representing custom work that a socket should perform using a packet aware socket.
-	using PacketSocketWork = std::function<void (const std::shared_ptr<ionet::PacketSocket>&)>;
+	using PacketSocketWork = consumer<const std::shared_ptr<ionet::PacketSocket>&>;
 
 	/// Spawns custom server work on \a service by passing an accepted socket to \a serverWork.
 	void SpawnPacketServerWork(boost::asio::io_service& service, const PacketSocketWork& serverWork);
+
+	/// Spawns custom server work using \a acceptor by passing an accepted socket to \a serverWork.
+	void SpawnPacketServerWork(const TcpAcceptor& acceptor, const PacketSocketWork& serverWork);
 
 	/// Spawns custom client work on \a service by passing an accepted socket to \a clientWork.
 	void SpawnPacketClientWork(boost::asio::io_service& service, const PacketSocketWork& clientWork);
@@ -43,9 +68,7 @@ namespace catapult { namespace test {
 	bool IsSocketOpen(ionet::PacketSocket& socket);
 
 	/// Function representing transforming a PacketIo into a different implementation.
-	using PacketIoTransform = std::function<std::shared_ptr<ionet::PacketIo> (
-			boost::asio::io_service&,
-			const std::shared_ptr<ionet::PacketIo>&)>;
+	using PacketIoTransform = std::function<std::shared_ptr<ionet::PacketIo> (const std::shared_ptr<ionet::PacketSocket>&)>;
 
 	/// Asserts that the PacketIo returned by \a transform can write multiple consecutive payloads.
 	void AssertWriteCanWriteMultipleConsecutivePayloads(const PacketIoTransform& transform);
@@ -59,9 +82,9 @@ namespace catapult { namespace test {
 	/// Asserts that the PacketIo returned by \a transform can read multiple simultaneous payloads.
 	void AssertReadCanReadMultipleSimultaneousPayloadsWithoutInterleaving(const PacketIoTransform& transform);
 
-	/// Asserts that \a readResult indicates the socket was closed during read.
-	void AssertSocketClosedDuringRead(const ionet::SocketOperationCode& readResult);
+	/// Asserts that \a readCode indicates the socket was closed during read.
+	void AssertSocketClosedDuringRead(ionet::SocketOperationCode readCode);
 
-	/// Asserts that \a writeResult indicates the socket was closed during write.
-	void AssertSocketClosedDuringWrite(const ionet::SocketOperationCode& writeResult);
+	/// Asserts that \a writeCode indicates the socket was closed during write.
+	void AssertSocketClosedDuringWrite(ionet::SocketOperationCode writeCode);
 }}

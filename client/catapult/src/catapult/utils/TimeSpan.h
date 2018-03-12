@@ -114,4 +114,9 @@ namespace catapult { namespace utils {
 	constexpr Timestamp operator+(const Timestamp& timestamp, const TimeSpan& timeSpan) {
 		return timestamp + Timestamp(timeSpan.millis());
 	}
+
+	/// Subtracts \a timeSpan from \a timestamp and returns the maximum of the difference and zero.
+	constexpr Timestamp SubtractNonNegative(const Timestamp& timestamp, const TimeSpan& timeSpan) {
+		return Timestamp(timestamp.unwrap() < timeSpan.millis() ? 0u : timestamp.unwrap() - timeSpan.millis());
+	}
 }}

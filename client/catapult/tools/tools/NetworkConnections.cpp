@@ -1,17 +1,18 @@
 #include "NetworkConnections.h"
-#include "tools/ToolKeys.h"
-#include "tools/ToolMain.h"
-#include "tools/ToolUtils.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "ToolKeys.h"
+#include "ToolThreadUtils.h"
+#include "Waits.h"
+#include "catapult/api/RemoteChainApi.h"
+#include "catapult/net/PacketWriters.h"
 #include "catapult/thread/FutureUtils.h"
 #include "catapult/thread/IoServiceThreadPool.h"
 
 namespace catapult { namespace tools {
 
-	NetworkConnections::NetworkConnections(const config::LocalNodeConfiguration& config)
+	NetworkConnections::NetworkConnections(const std::vector<ionet::Node>& nodes)
 			: m_pPool(CreateStartedThreadPool(std::thread::hardware_concurrency()))
 			, m_clientKeyPair(GenerateRandomKeyPair())
-			, m_config(config) {
+			, m_nodes(nodes) {
 		net::ConnectionSettings settings;
 		settings.NetworkIdentifier = model::NetworkIdentifier::Mijin_Test;
 		m_pPacketWriters = net::CreatePacketWriters(m_pPool, m_clientKeyPair, settings);
@@ -21,11 +22,23 @@ namespace catapult { namespace tools {
 		shutdown();
 	}
 
+	size_t NetworkConnections::numActiveConnections() const {
+		return m_pPacketWriters->numActiveConnections();
+	}
+
+	size_t NetworkConnections::numActiveWriters() const {
+		return m_pPacketWriters->numActiveWriters();
+	}
+
+	size_t NetworkConnections::numAvailableWriters() const {
+		return m_pPacketWriters->numAvailableWriters();
+	}
+
 	thread::future<bool> NetworkConnections::connectAll() {
 		std::vector<thread::future<bool>> futures;
-		futures.reserve(m_config.Peers.size());
+		futures.reserve(m_nodes.size());
 
-		for (const auto& node : m_config.Peers) {
+		for (const auto& node : m_nodes) {
 			auto pPromise = std::make_shared<thread::promise<bool>>();
 			futures.push_back(pPromise->get_future());
 
@@ -54,6 +67,36 @@ namespace catapult { namespace tools {
 		if (m_pPool) {
 			m_pPacketWriters->shutdown();
 			m_pPool->join();
+		}
+	}
+
+	Height GetHeight(const NetworkConnections& connections) {
+		auto ioPair = connections.pickOne();
+		if (!ioPair)
+			CATAPULT_THROW_RUNTIME_ERROR("no connection to network available");
+
+		auto pChainApi = api::CreateRemoteChainApiWithoutRegistry(*ioPair.io());
+		return pChainApi->chainInfo().get().Height;
+	}
+
+	bool WaitForBlocks(const NetworkConnections& connections, size_t numBlocks) {
+		try {
+			CATAPULT_LOG(info) << "waiting for " << numBlocks << " blocks...";
+			auto currentHeight = GetHeight(connections);
+			auto endHeight = currentHeight + Height(numBlocks);
+			CATAPULT_LOG(info) << "waiting for block " << endHeight << ", current block is " << currentHeight;
+			while (currentHeight < endHeight) {
+				Sleep();
+				Height oldHeight = currentHeight;
+				currentHeight = GetHeight(connections);
+				if (currentHeight != oldHeight)
+					CATAPULT_LOG(info) << "block " << currentHeight << " was harvested";
+			}
+
+			return true;
+		} catch (const std::exception& e) {
+			CATAPULT_LOG(error) << "exception thrown while waiting for new blocks: " << e.what();
+			throw;
 		}
 	}
 }}

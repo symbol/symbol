@@ -1,4 +1,5 @@
 #include "src/model/TransferTransaction.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
@@ -27,7 +28,7 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertTransactionHasExpectedProperties() {
 			// Assert:
-			EXPECT_EQ(EntityType::Transfer, static_cast<EntityType>(T::Entity_Type));
+			EXPECT_EQ(Entity_Type_Transfer, static_cast<EntityType>(T::Entity_Type));
 			EXPECT_EQ(3u, static_cast<uint8_t>(T::Current_Version));
 		}
 	}
@@ -42,7 +43,7 @@ namespace catapult { namespace model {
 		struct TransferTransactionTraits {
 			static auto GenerateEntityWithAttachments(uint16_t messageSize, uint8_t numMosaics) {
 				uint32_t entitySize = sizeof(TransferTransaction) + messageSize + numMosaics * sizeof(Mosaic);
-				std::unique_ptr<TransferTransaction> pTransaction(reinterpret_cast<TransferTransaction*>(::operator new(entitySize)));
+				auto pTransaction = utils::MakeUniqueWithSize<TransferTransaction>(entitySize);
 				pTransaction->Size = entitySize;
 				pTransaction->MessageSize = messageSize;
 				pTransaction->MosaicsCount = numMosaics;

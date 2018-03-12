@@ -7,6 +7,8 @@
 
 namespace catapult { namespace observers {
 
+#define TEST_CLASS HarvestFeeObserverTests
+
 	DEFINE_COMMON_OBSERVER_TESTS(HarvestFee,)
 
 	namespace {
@@ -22,7 +24,7 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	TEST(HarvestFeeObserverTests, CommitCreditsHarvester) {
+	TEST(TEST_CLASS, CommitCreditsHarvester) {
 		// Arrange:
 		RunHarvestFeeObserverTest(NotifyMode::Commit, [](test::AccountObserverTestContext& context, const auto& observer) {
 			auto signer = test::GenerateRandomData<Key_Size>();
@@ -39,7 +41,7 @@ namespace catapult { namespace observers {
 		});
 	}
 
-	TEST(HarvestFeeObserverTests, RollbackDebitsHarvester) {
+	TEST(TEST_CLASS, RollbackDebitsHarvester) {
 		// Arrange:
 		RunHarvestFeeObserverTest(NotifyMode::Rollback, [](test::AccountObserverTestContext& context, const auto& observer) {
 			auto signer = test::GenerateRandomData<Key_Size>();

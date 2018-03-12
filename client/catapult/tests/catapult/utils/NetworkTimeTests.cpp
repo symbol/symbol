@@ -5,7 +5,9 @@ using TimeSpan = catapult::test::DeterministicTimeSpan;
 
 namespace catapult { namespace utils {
 
-	TEST(NetworkTimeTests, NetworkTimeReturnsExpectedTimestamp) {
+#define TEST_CLASS NetworkTimeTests
+
+	TEST(TEST_CLASS, NetworkTimeReturnsExpectedTimestamp) {
 		// Arrange:
 		Timestamp networkTime;
 
@@ -18,7 +20,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(static_cast<uint64_t>(duration.count() - Epoch_Time.count()), networkTime.unwrap());
 	}
 
-	TEST(NetworkTimeTests, ToNetworkTimeReturnsExpectedTimestamp) {
+	TEST(TEST_CLASS, ToNetworkTimeReturnsExpectedTimestamp) {
 		// Arrange:
 		Timestamp ts1(Epoch_Time.count());
 		Timestamp ts2(Epoch_Time.count() + 1);
@@ -35,19 +37,19 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(Timestamp(123456), networkTime3);
 	}
 
-	TEST(NetworkTimeTests, ToNetworkTimeThrowsIfSuppliedTimestampIsBeforeEpochTime) {
+	TEST(TEST_CLASS, ToNetworkTimeThrowsIfSuppliedTimestampIsBeforeEpochTime) {
 		// Arrange:
 		Timestamp ts1(Epoch_Time.count() - 1);
 		Timestamp ts2(Epoch_Time.count() - 10);
 		Timestamp ts3(Epoch_Time.count() - 1000);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(ToNetworkTime(ts1), catapult_invalid_argument);
 		EXPECT_THROW(ToNetworkTime(ts2), catapult_invalid_argument);
 		EXPECT_THROW(ToNetworkTime(ts3), catapult_invalid_argument);
 	}
 
-	TEST(NetworkTimeTests, ToUnixTimeReturnsExpectedTimestamp) {
+	TEST(TEST_CLASS, ToUnixTimeReturnsExpectedTimestamp) {
 		// Arrange:
 		Timestamp ts(123456);
 
@@ -58,15 +60,15 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(Timestamp(Epoch_Time.count() + 123456), unixTime);
 	}
 
-	TEST(NetworkTimeTests, ToUnixTimeDetectsOverflow) {
+	TEST(TEST_CLASS, ToUnixTimeDetectsOverflow) {
 		// Arrange:
 		Timestamp ts(std::numeric_limits<uint64_t>::max() - Epoch_Time.count() + 1);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(ToUnixTime(ts), catapult_invalid_argument);
 	}
 
-	TEST(NetworkTimeTests, ConvertingTimeForthAndBackResultsInAnEquivalentTimestamp) {
+	TEST(TEST_CLASS, ConvertingTimeForthAndBackResultsInAnEquivalentTimestamp) {
 		// Arrange: represents a network time
 		auto ts = test::GenerateRandomValue<Timestamp>();
 

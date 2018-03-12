@@ -1,4 +1,6 @@
 #include "src/plugins/NamespacePlugin.h"
+#include "src/model/MosaicEntityType.h"
+#include "src/model/NamespaceEntityType.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -25,6 +27,9 @@ namespace catapult { namespace plugins {
 						{ "rootNamespaceRentalFeePerBlock", "0" },
 						{ "childNamespaceRentalFee", "0" },
 
+						{ "maxChildNamespaces", "0" },
+						{ "maxMosaicsPerAccount", "0" },
+
 						{ "maxMosaicDuration", "0h" },
 
 						{ "isMosaicLevyUpdateAllowed", "false" },
@@ -46,9 +51,9 @@ namespace catapult { namespace plugins {
 		public:
 			static std::vector<model::EntityType> GetTransactionTypes() {
 				return {
-					model::EntityType::Register_Namespace,
-					model::EntityType::Mosaic_Definition,
-					model::EntityType::Mosaic_Supply_Change
+					model::Entity_Type_Register_Namespace,
+					model::Entity_Type_Mosaic_Definition,
+					model::Entity_Type_Mosaic_Supply_Change
 				};
 			}
 
@@ -79,10 +84,13 @@ namespace catapult { namespace plugins {
 				return {
 					"RootNamespaceAvailabilityValidator",
 					"ChildNamespaceAvailabilityValidator",
+					"RootNamespaceMaxChildrenValidator",
 					"MosaicChangeAllowedValidator",
 					"NamespaceMosaicConsistencyValidator",
 					"MosaicAvailabilityValidator",
 					"MosaicTransferValidator",
+					"MaxMosaicsBalanceTransferValidator",
+					"MaxMosaicsSupplyChangeValidator",
 					"MosaicSupplyChangeAllowedValidator"
 				};
 			}
@@ -95,8 +103,7 @@ namespace catapult { namespace plugins {
 					"NamespacePruningObserver",
 					"MosaicDefinitionObserver",
 					"MosaicSupplyChangeObserver",
-					"MosaicPruningObserver",
-					"NemesisBalanceChangeObserver"
+					"MosaicPruningObserver"
 				};
 			}
 
@@ -108,8 +115,7 @@ namespace catapult { namespace plugins {
 					"NamespacePruningObserver",
 					"MosaicDefinitionObserver",
 					"MosaicSupplyChangeObserver",
-					"MosaicPruningObserver",
-					"NemesisBalanceChangeObserver"
+					"MosaicPruningObserver"
 				};
 			}
 		};

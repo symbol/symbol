@@ -42,13 +42,12 @@ namespace catapult { namespace builders {
 		addMosaic(mosaicId, amount);
 	}
 
-	std::unique_ptr<model::TransferTransaction> TransferBuilder::build() const {
-		using TransactionType = model::TransferTransaction;
-
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> TransferBuilder::buildImpl() const {
 		// 1. allocate, zero (header), set model::Transaction fields
 		auto size = sizeof(TransactionType) + m_message.size();
 		size += m_mosaicTransfers.size() * sizeof(model::Mosaic);
-		auto pTransaction = createTransaction(size);
+		auto pTransaction = createTransaction<TransactionType>(size);
 
 		// 2. set transaction fields
 		pTransaction->Recipient = m_recipient;
@@ -72,5 +71,13 @@ namespace catapult { namespace builders {
 		}
 
 		return pTransaction;
+	}
+
+	std::unique_ptr<TransferBuilder::Transaction> TransferBuilder::build() const {
+		return buildImpl<Transaction>();
+	}
+
+	std::unique_ptr<TransferBuilder::EmbeddedTransaction> TransferBuilder::buildEmbedded() const {
+		return buildImpl<EmbeddedTransaction>();
 	}
 }}

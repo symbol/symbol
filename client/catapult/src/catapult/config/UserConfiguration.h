@@ -11,15 +11,6 @@ namespace catapult { namespace config {
 		/// The boot key.
 		std::string BootKey;
 
-		/// The harvest key.
-		std::string HarvestKey;
-
-		/// \c true if auto harvesting is enabled.
-		bool IsAutoHarvestingEnabled;
-
-		/// The maximum number of unlocked accounts.
-		uint32_t MaxUnlockedAccounts;
-
 		/// The data directory.
 		std::string DataDirectory;
 

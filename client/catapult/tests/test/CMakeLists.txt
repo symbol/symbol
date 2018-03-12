@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.2)
 
+catapult_add_gtest_dependencies()
+
 add_subdirectory(cache)
 add_subdirectory(core)
 add_subdirectory(int)
 add_subdirectory(local)
-add_subdirectory(mongo)
+add_subdirectory(nemesis)
 add_subdirectory(net)
 add_subdirectory(nodeps)
 add_subdirectory(other)

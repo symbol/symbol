@@ -1,12 +1,12 @@
 #pragma once
 #include "VerifiableEntity.h"
+#include "catapult/functions.h"
 #include "catapult/preprocessor.h"
-#include <functional>
 
 namespace catapult { namespace model {
 
 	/// Prototype for a verifiable entity predicate.
-	using VerifiableEntityPredicate = std::function<bool (const VerifiableEntity&)>;
+	using VerifiableEntityPredicate = predicate<const VerifiableEntity&>;
 
 	/// Creates a predicate that always returns \c true.
 	CATAPULT_INLINE

@@ -1,6 +1,7 @@
 #include "catapult/cache/MemoryUtCache.h"
 #include "catapult/utils/ShortHash.h"
-#include "tests/test/cache/UnconfirmedTransactionsTestUtils.h"
+#include "tests/catapult/cache/test/TransactionCacheTests.h"
+#include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/nodeps/LockTestUtils.h"
@@ -8,13 +9,13 @@
 
 namespace catapult { namespace cache {
 
+#define TEST_CLASS MemoryUtCacheTests
+
 	namespace {
-		constexpr auto Default_Options = MemoryUtCacheOptions(1'000'000, 1'000);
+		constexpr auto Default_Options = MemoryCacheOptions(1'000'000, 1'000);
 		using UnknownTransactions = std::vector<std::shared_ptr<const model::Transaction>>;
 
-		void AssertDeadlines(
-				const UnknownTransactions& transactions,
-				const std::vector<Timestamp::ValueType>& expectedDeadlines) {
+		void AssertDeadlines(const UnknownTransactions& transactions, const std::vector<Timestamp::ValueType>& expectedDeadlines) {
 			// Arrange:
 			std::vector<Timestamp::ValueType> rawDeadlines;
 			for (const auto& pTransaction : transactions)
@@ -29,8 +30,8 @@ namespace catapult { namespace cache {
 				const std::vector<Timestamp::ValueType>& expectedDeadlines) {
 			// Arrange:
 			std::vector<Timestamp::ValueType> rawDeadlines;
-			for (const auto& info : transactionInfos)
-				rawDeadlines.push_back(info.pEntity->Deadline.unwrap());
+			for (const auto& transactionInfo : transactionInfos)
+				rawDeadlines.push_back(transactionInfo.pEntity->Deadline.unwrap());
 
 			// Assert:
 			EXPECT_EQ(expectedDeadlines, rawDeadlines);
@@ -50,17 +51,17 @@ namespace catapult { namespace cache {
 			return hashes;
 		}
 
-		auto PrepareCache(size_t count, const MemoryUtCacheOptions& options = Default_Options) {
+		auto PrepareCache(size_t count, const MemoryCacheOptions& options = Default_Options) {
 			auto pCache = std::make_unique<MemoryUtCache>(options);
-			auto infos = test::CreateTransactionInfos(count);
-			test::AddAll(*pCache, std::move(infos));
+			auto transactionInfos = test::CreateTransactionInfos(count);
+			test::AddAll(*pCache, transactionInfos);
 			return pCache;
 		}
 	}
 
-	// region constructor / add
+	// region constructor
 
-	TEST(MemoryUtCacheTests, InitiallyCacheIsEmpty) {
+	TEST(TEST_CLASS, InitiallyCacheIsEmpty) {
 		// Act:
 		MemoryUtCache cache(Default_Options);
 
@@ -68,78 +69,78 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(0u, cache.view().size());
 	}
 
-	TEST(MemoryUtCacheTests, CanAddSingleTransactionInfo) {
+	// endregion
+
+	// region add
+
+	TEST(TEST_CLASS, CanAddSingleTransactionInfo) {
 		// Arrange:
 		MemoryUtCache cache(Default_Options);
-		auto pTransaction = std::shared_ptr<model::Transaction>(test::GenerateRandomTransaction());
-		auto entityHash = test::GenerateRandomData<Hash256_Size>();
-		auto merkleComponentHash = test::GenerateRandomData<Hash256_Size>();
-		auto info = model::TransactionInfo(pTransaction, entityHash, merkleComponentHash);
+		auto originalInfo = test::CreateRandomTransactionInfo();
 
 		// Act:
-		EXPECT_TRUE(cache.modifier().add(std::move(info)));
+		EXPECT_TRUE(cache.modifier().add(originalInfo));
 
 		// Assert:
 		auto view = cache.view();
-		auto infos = test::ExtractTransactionInfos(view, 1);
 		EXPECT_EQ(1u, view.size());
-		EXPECT_EQ(1u, infos.size());
-		EXPECT_EQ(*pTransaction, *infos[0]->pEntity);
-		EXPECT_EQ(entityHash, infos[0]->EntityHash);
-		EXPECT_EQ(merkleComponentHash, infos[0]->MerkleComponentHash);
+
+		auto transactionInfos = test::ExtractTransactionInfos(view, 1);
+		ASSERT_EQ(1u, transactionInfos.size());
+
+		test::AssertEqual(originalInfo, *transactionInfos[0]);
 	}
 
-	TEST(MemoryUtCacheTests, CanAddMultipleTransactionInfo) {
+	TEST(TEST_CLASS, CanAddMultipleTransactionInfos) {
 		// Arrange:
 		MemoryUtCache cache(Default_Options);
-		auto originalInfos = test::CreateTransactionInfos(5);
+		auto originalTransactionInfos = test::CreateTransactionInfos(5);
 
 		// Act:
-		for (const auto& info : originalInfos) {
-			auto copy = info.copy();
-			EXPECT_TRUE(cache.modifier().add(std::move(copy)));
-		}
+		for (const auto& transactionInfo : originalTransactionInfos)
+			EXPECT_TRUE(cache.modifier().add(transactionInfo));
 
 		// Assert:
 		auto view = cache.view();
-		auto infos = test::ExtractTransactionInfos(view, 5);
 		EXPECT_EQ(5u, view.size());
-		EXPECT_EQ(5u, infos.size());
+
+		auto transactionInfos = test::ExtractTransactionInfos(view, 5);
+		ASSERT_EQ(5u, transactionInfos.size());
+
 		auto i = 0u;
-		for (const auto& info : originalInfos)
-			test::AssertEqual(info, *infos[i++]);
+		for (const auto& transactionInfo : originalTransactionInfos)
+			test::AssertEqual(transactionInfo, *transactionInfos[i++]);
 	}
 
-	TEST(MemoryUtCacheTests, AddingSameTransactionInfosTwiceHasNoEffect) {
+	TEST(TEST_CLASS, AddingSameTransactionInfosTwiceHasNoEffect) {
 		// Arrange:
 		MemoryUtCache cache(Default_Options);
-		auto originalInfos = test::CreateTransactionInfos(1);
-		auto pTransaction = test::GenerateRandomTransaction();
-		auto copy = originalInfos[0].copy();
-		EXPECT_TRUE(cache.modifier().add(std::move(copy)));
+		auto originalTransactionInfo = test::CreateRandomTransactionInfo();
+		EXPECT_TRUE(cache.modifier().add(originalTransactionInfo));
 
 		// Sanity:
 		EXPECT_EQ(1u, cache.view().size());
 
 		// Act:
-		auto copy2 = originalInfos[0].copy();
-		EXPECT_FALSE(cache.modifier().add(std::move(copy2)));
+		EXPECT_FALSE(cache.modifier().add(originalTransactionInfo));
 
 		// Assert:
 		auto view = cache.view();
-		auto infos = test::ExtractTransactionInfos(view, 1);
 		EXPECT_EQ(1u, view.size());
-		EXPECT_EQ(1u, infos.size());
-		test::AssertEqual(originalInfos[0], *infos[0]);
+
+		auto transactionInfos = test::ExtractTransactionInfos(view, 1);
+		ASSERT_EQ(1u, transactionInfos.size());
+
+		test::AssertEqual(originalTransactionInfo, *transactionInfos[0]);
 	}
 
-	TEST(MemoryUtCacheTests, AddedTransactionInfosHaveIncreasingIdsStartingWithOne) {
+	TEST(TEST_CLASS, AddedTransactionInfosHaveIncreasingIdsStartingWithOne) {
 		// Arrange:
 		MemoryUtCache cache(Default_Options);
-		auto infos = test::CreateTransactionInfos(5);
+		auto transactionInfos = test::CreateTransactionInfos(5);
 
 		// Act:
-		test::AddAll(cache, std::move(infos));
+		test::AddAll(cache, transactionInfos);
 
 		// Assert:
 		EXPECT_EQ(5u, cache.view().size());
@@ -150,21 +151,31 @@ namespace catapult { namespace cache {
 
 	// region remove
 
-	TEST(MemoryUtCacheTests, CanRemoveTransactionInfosByHash) {
+	TEST(TEST_CLASS, CanRemoveTransactionInfosByHash) {
 		// Arrange:
 		auto pCache = PrepareCache(10);
 		auto hashes = ExtractEverySecondHash(*pCache);
 
 		// Act:
+		std::vector<model::TransactionInfo> removedTransactionInfos;
 		for (const auto& hash : hashes)
-			pCache->modifier().remove(hash);
+			removedTransactionInfos.push_back(pCache->modifier().remove(hash));
 
 		// Assert:
 		EXPECT_EQ(5u, pCache->view().size());
 		test::AssertDeadlines(*pCache, { 2, 4, 6, 8, 10 });
+
+		// - all removed infos should contain original transaction
+		EXPECT_EQ(5u, removedTransactionInfos.size());
+
+		auto i = 0u;
+		for (const auto& removedInfo : removedTransactionInfos) {
+			EXPECT_EQ(Timestamp(2 * i + 1), removedInfo.pEntity->Deadline) << "removed info at " << i;
+			++i;
+		}
 	}
 
-	TEST(MemoryUtCacheTests, RemovingNonExistingTransactionInfosByHashHasNoEffect) {
+	TEST(TEST_CLASS, RemovingNonExistingTransactionInfosByHashHasNoEffect) {
 		// Arrange:
 		auto pCache = PrepareCache(5);
 
@@ -173,15 +184,45 @@ namespace catapult { namespace cache {
 		test::AssertDeadlines(*pCache, { 1, 2, 3, 4, 5 });
 
 		// Act:
-		for (auto i = 0u; i < 10; ++i)
-			pCache->modifier().remove(test::GenerateRandomData<Hash256_Size>());
+		std::vector<model::TransactionInfo> removedTransactionInfos;
+		for (auto i = 0u; i < 10u; ++i)
+			removedTransactionInfos.push_back(pCache->modifier().remove(test::GenerateRandomData<Hash256_Size>()));
 
 		// Assert:
 		EXPECT_EQ(5u, pCache->view().size());
 		test::AssertDeadlines(*pCache, { 1, 2, 3, 4, 5 });
+
+		// - all removed infos should be empty
+		EXPECT_EQ(10u, removedTransactionInfos.size());
+
+		auto i = 0u;
+		for (const auto& removedInfo : removedTransactionInfos) {
+			EXPECT_FALSE(!!removedInfo) << "removed info at " << i;
+			++i;
+		}
 	}
 
-	TEST(MemoryUtCacheTests, AddingNewTransactionInfosAfterRemovingAddsAtTheEnd) {
+	TEST(TEST_CLASS, CanAddNewTransactionInfoWithSameHashAsRemovedTransactionInfo) {
+		// Arrange:
+		auto pCache = PrepareCache(5);
+		auto hashes = ExtractEverySecondHash(*pCache);
+		pCache->modifier().remove(hashes[1]);
+
+		// Sanity:
+		EXPECT_EQ(4u, pCache->view().size());
+		test::AssertDeadlines(*pCache, { 1, 2, 4, 5 });
+
+		// Act:
+		auto newTransactionInfo = test::CreateTransactionInfoWithDeadline(103);
+		newTransactionInfo.EntityHash = hashes[1];
+		pCache->modifier().add(std::move(newTransactionInfo));
+
+		// Assert:
+		EXPECT_EQ(5u, pCache->view().size());
+		test::AssertDeadlines(*pCache, { 1, 2, 4, 5, 103 });
+	}
+
+	TEST(TEST_CLASS, AddingNewTransactionInfosAfterRemovingAddsAtTheEnd) {
 		// Arrange:
 		auto pCache = PrepareCache(10);
 		auto hashes = ExtractEverySecondHash(*pCache);
@@ -192,8 +233,8 @@ namespace catapult { namespace cache {
 		test::AssertDeadlines(*pCache, { 2, 4, 6, 8, 10 });
 
 		// Act:
-		auto newInfos = test::CreateTransactionInfos(5);
-		test::AddAll(*pCache, std::move(newInfos));
+		auto newTransactionInfos = test::CreateTransactionInfos(5);
+		test::AddAll(*pCache, newTransactionInfos);
 
 		// Assert:
 		EXPECT_EQ(10u, pCache->view().size());
@@ -204,50 +245,49 @@ namespace catapult { namespace cache {
 
 	// region removeAll
 
-	TEST(MemoryUtCacheTests, CanRemoveAllTransactionsFromCache) {
+	TEST(TEST_CLASS, CanRemoveAllTransactionsFromCache) {
 		// Arrange:
-		auto pCache = std::make_unique<MemoryUtCache>(Default_Options);
-		auto infos = test::CreateTransactionInfos(5);
-		auto copyInfos = test::CopyTransactionInfos(infos);
-		test::AddAll(*pCache, std::move(infos));
+		MemoryUtCache cache(Default_Options);
+		auto transactionInfos = test::CreateTransactionInfos(5);
+		test::AddAll(cache, transactionInfos);
 
 		// Sanity:
-		EXPECT_EQ(5u, pCache->view().size());
-		test::AssertDeadlines(*pCache, { 1, 2, 3, 4, 5 });
+		EXPECT_EQ(5u, cache.view().size());
+		test::AssertDeadlines(cache, { 1, 2, 3, 4, 5 });
 
 		// Act:
-		auto removedTransactionInfos = pCache->modifier().removeAll();
+		auto removedTransactionInfos = cache.modifier().removeAll();
 
 		// Assert: cache was cleared and all removed transactions were returned
-		EXPECT_EQ(0u, pCache->view().size());
-		test::AssertContainsNone(*pCache, removedTransactionInfos);
+		EXPECT_EQ(0u, cache.view().size());
+		test::AssertContainsNone(cache, removedTransactionInfos);
 
 		AssertDeadlines(removedTransactionInfos, { 1, 2, 3, 4, 5 });
 		auto i = 0u;
-		for (const auto& info : copyInfos)
-			test::AssertEqual(info, removedTransactionInfos[i++]);
+		for (const auto& transactionInfo : transactionInfos)
+			test::AssertEqual(transactionInfo, removedTransactionInfos[i++]);
 	}
 
 	// endregion
 
 	// region contains
 
-	TEST(MemoryUtCacheTests, ContainsReturnsTrueIfTransactionInfoIsContainedInCache) {
+	TEST(TEST_CLASS, ContainsReturnsTrueIfTransactionInfoIsContainedInCache) {
 		// Arrange:
 		MemoryUtCache cache(Default_Options);
-		auto infos = test::CreateTransactionInfos(10);
+		auto transactionInfos = test::CreateTransactionInfos(10);
 
 		// Sanity:
-		test::AssertContainsNone(cache, infos);
+		test::AssertContainsNone(cache, transactionInfos);
 
-		test::AddAll(cache, std::move(infos));
+		test::AddAll(cache, transactionInfos);
 		auto hashes = ExtractEverySecondHash(cache);
 
 		// Assert:
 		test::AssertContainsAll(cache, hashes);
 	}
 
-	TEST(MemoryUtCacheTests, ContainsReturnsFalseIfTransactionInfoIsNotContainedInCache) {
+	TEST(TEST_CLASS, ContainsReturnsFalseIfTransactionInfoIsNotContainedInCache) {
 		// Arrange:
 		auto pCache = PrepareCache(10);
 		auto hashes = ExtractEverySecondHash(*pCache);
@@ -286,90 +326,45 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(MemoryUtCacheTests, ForEachForwardsNoTransactionInfosIfCacheIsEmpty) {
+	TEST(TEST_CLASS, ForEachForwardsNoTransactionInfosIfCacheIsEmpty) {
 		// Assert:
 		AssertForEachBehavior(0, 3, 0);
 	}
 
-	TEST(MemoryUtCacheTests, ForEachForwardsAllTransactionsIfNotShortCircuited) {
+	TEST(TEST_CLASS, ForEachForwardsAllTransactionsIfNotShortCircuited) {
 		// Assert:
 		AssertForEachBehavior(10, 100, 10);
 	}
 
-	TEST(MemoryUtCacheTests, ForEachForwardsSubsetOfTransactionsIfShortCircuited) {
+	TEST(TEST_CLASS, ForEachForwardsSubsetOfTransactionsIfShortCircuited) {
 		// Assert:
 		AssertForEachBehavior(10, 5, 5);
 	}
 
 	// endregion
 
-	// region prune
-
-	namespace {
-		void AssertPruning(size_t pruneCount) {
-			// Arrange: transactions have deadlines with timestamp 1, 2, ..., 10
-			auto pCache = PrepareCache(10);
-
-			// Act:
-			for (auto i = 0u; i < pruneCount; ++i)
-				pCache->modifier().prune(Timestamp(5));
-
-			// Assert:
-			EXPECT_EQ(6u, pCache->view().size());
-			test::AssertDeadlines(*pCache, { 5, 6, 7, 8, 9, 10 });
-		}
-	}
-
-	TEST(MemoryUtCacheTests, PruneRemovesSequentialExpiredTransactions) {
-		// Assert:
-		AssertPruning(1);
-	}
-
-	TEST(MemoryUtCacheTests, PruneRemovesNonSequentialExpiredTransactions) {
-		// Arrange:
-		MemoryUtCache cache(Default_Options);
-		auto infos = test::CreateTransactionInfos(10, [](auto i) {
-			return Timestamp(0 == i % 2 ? i + 1 : 100 - i);
-		});
-
-		test::AddAll(cache, std::move(infos));
-
-		// Sanity:
-		EXPECT_EQ(10u, cache.view().size());
-		test::AssertDeadlines(cache, { 1, 99, 3, 97, 5, 95, 7, 93, 9, 91 });
-
-		// Act:
-		cache.modifier().prune(Timestamp(50));
-
-		// Assert: only the transaction whose deadlines were modified did not expire
-		EXPECT_EQ(5u, cache.view().size());
-		test::AssertDeadlines(cache, { 99, 97, 95, 93, 91 });
-	}
-
-	TEST(MemoryUtCacheTests, PruneIsIdempotent) {
-		// Assert:
-		AssertPruning(10);
-	}
-
-	// endregion
-
 	// region shortHashes
 
-	TEST(MemoryUtCacheTests, ShortHashesReturnsAllShortHashes) {
+	TEST(TEST_CLASS, ShortHashesReturnsAllShortHashes) {
 		// Arrange:
-		auto pCache = PrepareCache(10);
-		auto expectedShortHashes = test::ExtractShortHashes(*pCache);
+		MemoryUtCache cache(Default_Options);
+		auto transactionInfos = test::CreateTransactionInfos(10);
+		std::vector<utils::ShortHash> expectedShortHashes;
+		for (const auto& transactionInfo : transactionInfos)
+			expectedShortHashes.push_back(utils::ToShortHash(transactionInfo.EntityHash));
+
+		test::AddAll(cache, transactionInfos);
 
 		// Act:
-		auto shortHashes = pCache->view().shortHashes();
+		auto shortHashes = cache.view().shortHashes();
 
 		// Assert:
 		EXPECT_EQ(expectedShortHashes.size(), shortHashes.size());
 
 		auto i = 0u;
 		auto iter = shortHashes.cbegin();
-		for (const auto& shortHash : expectedShortHashes) {
-			EXPECT_EQ(shortHash, *iter) << "at index " << i;
+		for (const auto& expectedShortHash : expectedShortHashes) {
+			EXPECT_EQ(expectedShortHash, *iter) << "at index " << i;
 			++iter;
 			++i;
 		}
@@ -379,83 +374,48 @@ namespace catapult { namespace cache {
 
 	// region unknownTransactions
 
-	TEST(MemoryUtCacheTests, UnknownTransactionsReturnsEmptyVectorIfCacheIsEmpty) {
-		// Arrange:
-		auto pCache = PrepareCache(0);
+	namespace {
+		struct MemoryUtCacheUnknownTransactionsTraits {
+		public:
+			using CacheType = MemoryUtCache;
 
-		// Act:
-		auto transactions = pCache->view().unknownTransactions(utils::ShortHashesSet());
-
-		// Assert:
-		EXPECT_EQ(0u, transactions.size());
-	}
-
-	TEST(MemoryUtCacheTests, UnknownTransactionsReturnsAllTransactionsIfShortHashSetIsEmpty) {
-		// Arrange:
-		auto pCache = PrepareCache(5);
-
-		// Act:
-		auto transactions = pCache->view().unknownTransactions(utils::ShortHashesSet());
-
-		// Assert:
-		EXPECT_EQ(5u, transactions.size());
-		AssertDeadlines(transactions, { 1, 2, 3, 4, 5 });
-	}
-
-	TEST(MemoryUtCacheTests, UnknownTransactionsReturnsAllTransactionsNotInShortHashSet) {
-		// Arrange:
-		auto pCache = PrepareCache(10);
-		auto view = pCache->view();
-		auto i = 0u;
-		utils::ShortHashesSet shortHashes;
-		auto infos = test::ExtractTransactionInfos(view, view.size());
-		for (const auto* pInfo : infos) {
-			if (0 == i % 2) {
-				auto shortHash = *reinterpret_cast<const utils::ShortHash*>(pInfo->EntityHash.data());
-				shortHashes.insert(shortHash);
+		public:
+			static void AddAllToCache(cache::UtCache& cache, const std::vector<model::TransactionInfo>& transactionInfos) {
+				test::AddAll(cache, transactionInfos);
 			}
 
-			++i;
-		}
+			static void AssertUnknownResult(
+					const std::vector<model::TransactionInfo>& expectedTransactionInfos,
+					const std::vector<std::shared_ptr<const model::Transaction>>& unknownTransactions) {
+				std::vector<Timestamp::ValueType> expectedDeadlines;
+				for (const auto& transactionInfo : expectedTransactionInfos)
+					expectedDeadlines.push_back(transactionInfo.pEntity->Deadline.unwrap());
 
-		// Act:
-		auto transactions = view.unknownTransactions(shortHashes);
+				AssertDeadlines(unknownTransactions, expectedDeadlines);
+			}
 
-		// Assert:
-		EXPECT_EQ(5u, transactions.size());
-		AssertDeadlines(transactions, { 2, 4, 6, 8, 10 });
+			static auto MapToFilterId(const model::TransactionInfo& transactionInfo) {
+				return utils::ToShortHash(transactionInfo.EntityHash);
+			}
+		};
 	}
 
-	TEST(MemoryUtCacheTests, UnknownTransactionsReturnsEmptyVectorIfAllTransactionsAreKnown) {
-		// Arrange:
-		auto pCache = PrepareCache(10);
-		auto view = pCache->view();
-		utils::ShortHashesSet shortHashes;
-		auto infos = test::ExtractTransactionInfos(view, view.size());
-		for (const auto* pInfo : infos) {
-			auto shortHash = *reinterpret_cast<const utils::ShortHash*>(pInfo->EntityHash.data());
-			shortHashes.insert(shortHash);
-		}
-
-		// Act:
-		auto transactions = view.unknownTransactions(shortHashes);
-
-		// Assert:
-		EXPECT_EQ(0u, transactions.size());
-	}
+	DEFINE_BASIC_UNKNOWN_TRANSACTIONS_TESTS(MemoryUtCacheTests, MemoryUtCacheUnknownTransactionsTraits);
 
 	namespace {
-		void AssertMaxResponseSizeIsRespected(uint32_t maxResponseSize, uint32_t numExpectedTransactions) {
+		void AssertMaxResponseSizeIsRespected(uint32_t numExpectedTransactions, uint32_t maxResponseSize) {
 			// Arrange:
-			auto pCache = PrepareCache(5, MemoryUtCacheOptions(maxResponseSize, 1000));
+			MemoryUtCache cache(MemoryCacheOptions(maxResponseSize, 1000));
+			test::AddAll(cache, test::CreateTransactionInfos(5));
 
 			// Act:
-			auto transactions = pCache->view().unknownTransactions(utils::ShortHashesSet());
+			auto transactions = cache.view().unknownTransactions({});
 
 			// Assert:
 			EXPECT_EQ(numExpectedTransactions, transactions.size());
 			EXPECT_GE(maxResponseSize, test::TotalSize(transactions));
 
+			// - notice that transactions are ordered by id
 			std::vector<Timestamp::ValueType> expectedRawDealines;
 			for (auto i = 0u; i < numExpectedTransactions; ++i)
 				expectedRawDealines.push_back(i + 1);
@@ -464,17 +424,17 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(MemoryUtCacheTests, UnknownTransactionsReturnsTransactionsWithTotalSizeOfAtMostMaxResponseSize) {
+	TEST(TEST_CLASS, UnknownTransactionsReturnsTransactionsWithTotalSizeOfAtMostMaxResponseSize) {
 		// Arrange: determine transaction size from a generated transaction
 		auto transactionSize = test::CreateTransactionInfos(1)[0].pEntity->Size;
 
 		// Assert:
-		AssertMaxResponseSizeIsRespected(3 * transactionSize - 1, 2);
-		AssertMaxResponseSizeIsRespected(3 * transactionSize, 3);
-		AssertMaxResponseSizeIsRespected(3 * transactionSize + 1, 3);
-		AssertMaxResponseSizeIsRespected(3 * transactionSize + 10, 3);
-		AssertMaxResponseSizeIsRespected(4 * transactionSize - 1, 3);
-		AssertMaxResponseSizeIsRespected(4 * transactionSize, 4);
+		AssertMaxResponseSizeIsRespected(2, 3 * transactionSize - 1);
+		AssertMaxResponseSizeIsRespected(3, 3 * transactionSize);
+		AssertMaxResponseSizeIsRespected(3, 3 * transactionSize + 1);
+
+		AssertMaxResponseSizeIsRespected(3, 4 * transactionSize - 1);
+		AssertMaxResponseSizeIsRespected(4, 4 * transactionSize);
 	}
 
 	// endregion
@@ -483,23 +443,18 @@ namespace catapult { namespace cache {
 
 	namespace {
 		auto CreateTransactionInfoWithDeadline(Timestamp deadline) {
-			auto pTransaction = test::GenerateRandomTransaction();
-			pTransaction->Deadline = deadline;
-			return model::TransactionInfo(
-					std::move(pTransaction),
-					test::GenerateRandomData<Hash256_Size>(),
-					test::GenerateRandomData<Hash256_Size>());
+			return test::CreateTransactionInfoWithDeadline(deadline.unwrap());
 		}
 	}
 
-	TEST(MemoryUtCacheTests, CacheCanContainMaxTransactions) {
+	TEST(TEST_CLASS, CacheCanContainMaxTransactions) {
 		// Arrange: fill the cache with one less than max transactions
-		MemoryUtCache cache(MemoryUtCacheOptions(1024, 5));
+		MemoryUtCache cache(MemoryCacheOptions(1024, 5));
 		test::AddAll(cache, test::CreateTransactionInfos(4));
-		auto info = CreateTransactionInfoWithDeadline(Timestamp(1234));
+		auto transactionInfo = CreateTransactionInfoWithDeadline(Timestamp(1234));
 
 		// Act: add another info
-		auto isAdded = cache.modifier().add(std::move(info));
+		auto isAdded = cache.modifier().add(transactionInfo);
 
 		// Assert: the new info was added
 		EXPECT_TRUE(isAdded);
@@ -507,14 +462,14 @@ namespace catapult { namespace cache {
 		test::AssertDeadlines(cache, { 1, 2, 3, 4, 1234 });
 	}
 
-	TEST(MemoryUtCacheTests, CacheCannotContainMoreThanMaxTransactions) {
+	TEST(TEST_CLASS, CacheCannotContainMoreThanMaxTransactions) {
 		// Arrange: fill the cache with max transactions
-		MemoryUtCache cache(MemoryUtCacheOptions(1024, 5));
+		MemoryUtCache cache(MemoryCacheOptions(1024, 5));
 		test::AddAll(cache, test::CreateTransactionInfos(5));
-		auto info = CreateTransactionInfoWithDeadline(Timestamp(1234));
+		auto transactionInfo = CreateTransactionInfoWithDeadline(Timestamp(1234));
 
 		// Act: add another info
-		auto isAdded = cache.modifier().add(std::move(info));
+		auto isAdded = cache.modifier().add(transactionInfo);
 
 		// Assert: the new info was not added
 		EXPECT_FALSE(isAdded);
@@ -522,22 +477,22 @@ namespace catapult { namespace cache {
 		test::AssertDeadlines(cache, { 1, 2, 3, 4, 5 });
 	}
 
-	TEST(MemoryUtCacheTests, CacheCanAcceptNewTransactionsAfterMaxTransactionsAreReduced) {
+	TEST(TEST_CLASS, CacheCanAcceptNewTransactionsAfterMaxTransactionsAreReduced) {
 		// Arrange:
-		MemoryUtCache cache(MemoryUtCacheOptions(1024, 5));
-		auto info = CreateTransactionInfoWithDeadline(Timestamp(1234));
+		MemoryUtCache cache(MemoryCacheOptions(1024, 5));
+		auto transactionInfo = CreateTransactionInfoWithDeadline(Timestamp(1234));
 
 		// - fill the cache with max transactions
 		auto seedInfos = test::CreateTransactionInfos(5);
 		auto seedHash = seedInfos[2].EntityHash;
-		test::AddAll(cache, std::move(seedInfos));
+		test::AddAll(cache, seedInfos);
 
 		// Act: remove a transaction from the cache and add a new transaction
 		auto isAdded = false;
 		{
 			auto modifier = cache.modifier();
 			modifier.remove(seedHash);
-			isAdded = modifier.add(std::move(info));
+			isAdded = modifier.add(transactionInfo);
 		}
 
 		// Assert: the new info was added

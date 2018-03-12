@@ -42,9 +42,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, TEST_NAME##_WithOwner) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryGetWithOwnerTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	// region tryGet
-
-	// region active checks
+	// region tryGet - active checks
 
 	TRY_GET_BASED_TEST(CannotGetUnknownMosaic) {
 		// Arrange:
@@ -64,7 +62,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 		auto delta = cache.createDelta();
-		test::AddMosaic(delta, MosaicId(123), Height(50), ArtifactDuration(100), Amount());
+		test::AddMosaic(delta, MosaicId(123), Height(50), BlockDuration(100), Amount());
 		cache.commit(Height());
 
 		auto readOnlyCache = delta.toReadOnly();
@@ -114,7 +112,7 @@ namespace catapult { namespace validators {
 
 	// endregion
 
-	// region owner checks
+	// region tryGet - owner checks
 
 	template<typename TAction>
 	void RunTestWithActiveMosaic(const Key& owner, TAction action) {
@@ -170,8 +168,6 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(MosaicId(123), pEntry->mosaicId());
 		});
 	}
-
-	// endregion
 
 	// endregion
 }}

@@ -12,7 +12,8 @@ namespace catapult { namespace validators {
 	private:
 		template<typename TNotification>
 		using NotificationValidatorPointerT = std::unique_ptr<const NotificationValidatorT<TNotification, TArgs...>>;
-		using NotificationValidatorPredicate = std::function<bool (const model::Notification&)>;
+		using NotificationValidatorPredicate = predicate<const model::Notification&>;
+		using AggregateValidatorPointer = std::unique_ptr<const AggregateNotificationValidatorT<model::Notification, TArgs...>>;
 
 	public:
 		/// Adds a validator (\a pValidator) to the builder that is invoked only when matching notifications are processed.
@@ -21,7 +22,7 @@ namespace catapult { namespace validators {
 				typename X = typename std::enable_if<!std::is_same<model::Notification, TNotification>::value>::type>
 		DemuxValidatorBuilderT& add(NotificationValidatorPointerT<TNotification>&& pValidator) {
 			auto predicate = [type = TNotification::Notification_Type](const auto& notification) {
-				return type == notification.Type;
+				return model::AreEqualExcludingChannel(type, notification.Type);
 			};
 			m_builder.add(std::make_unique<ConditionalValidator<TNotification>>(std::move(pValidator), predicate));
 			return *this;
@@ -33,9 +34,9 @@ namespace catapult { namespace validators {
 			return *this;
 		}
 
-		/// Builds a demultiplexing validator.
-		std::unique_ptr<const AggregateNotificationValidatorT<model::Notification, TArgs...>> build() {
-			return m_builder.build();
+		/// Builds a demultiplexing validator that ignores suppressed failures according to \a isSuppressedFailure.
+		AggregateValidatorPointer build(const ValidationResultPredicate& isSuppressedFailure) {
+			return m_builder.build(isSuppressedFailure);
 		}
 
 	private:

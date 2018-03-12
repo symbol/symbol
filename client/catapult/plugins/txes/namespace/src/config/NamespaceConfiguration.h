@@ -30,6 +30,12 @@ namespace catapult { namespace config {
 		/// The child namespace rental fee.
 		Amount ChildNamespaceRentalFee;
 
+		/// The maximum number of children for a root namespace.
+		uint16_t MaxChildNamespaces;
+
+		/// The maximum number of mosaics that an account can own.
+		uint16_t MaxMosaicsPerAccount;
+
 		/// The maximum mosaic duration.
 		utils::BlockSpan MaxMosaicDuration;
 

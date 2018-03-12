@@ -1,6 +1,7 @@
 #pragma once
-#include "catapult/local/LocalNodeStateRef.h"
+#include "catapult/extensions/LocalNodeStateRef.h"
 #include <memory>
+#include <string>
 
 namespace catapult { namespace model { struct BlockChainConfiguration; } }
 
@@ -18,15 +19,21 @@ namespace catapult { namespace test {
 		/// Creates default state around \a cache.
 		explicit LocalNodeTestState(cache::CatapultCache&& cache);
 
+		/// Creates default state around \a config, \a userDataDirectory and \a cache.
+		LocalNodeTestState(
+				const model::BlockChainConfiguration& config,
+				const std::string& userDataDirectory,
+				cache::CatapultCache&& cache);
+
 		/// Destroys the state.
 		~LocalNodeTestState();
 
 	public:
 		/// Returns a state ref.
-		local::LocalNodeStateRef ref();
+		extensions::LocalNodeStateRef ref();
 
 		/// Returns a const state ref.
-		local::LocalNodeStateConstRef cref() const;
+		extensions::LocalNodeStateConstRef cref() const;
 
 	private:
 		struct Impl;

@@ -14,11 +14,13 @@ namespace catapult { namespace thread {
 	ENUM_VALUE(Timed_Out) \
 	ENUM_VALUE(Completed) \
 
-#define ENUM_LIST TIMED_CALLBACK_RESULT_CODE
-#define DECLARE_ENUM TimedCallbackResultCode
-#include "catapult/utils/MacroBasedEnum.h"
-#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+		enum class TimedCallbackResultCode {
+			TIMED_CALLBACK_RESULT_CODE
+		};
+#undef ENUM_VALUE
 
+#define ENUM_LIST TIMED_CALLBACK_RESULT_CODE
 #define DEFINE_ENUM TimedCallbackResultCode
 #include "catapult/utils/MacroBasedEnum.h"
 #undef DEFINE_ENUM
@@ -38,13 +40,13 @@ namespace catapult { namespace thread {
 
 		class TestContext {
 		public:
-			using TCallback = std::function<void (TimedCallbackResultCode)>;
-			using TTimedCallback = StrandedTimedCallback<TCallback, TimedCallbackResultCode>;
+			using Callback = consumer<TimedCallbackResultCode>;
+			using TimedCallback = StrandedTimedCallback<Callback, TimedCallbackResultCode>;
 
 		public:
 			explicit TestContext(bool setDefaultTimeoutHandler = true, const std::shared_ptr<int>& pObject = nullptr)
 					: m_pPool(test::CreateStartedIoServiceThreadPool()) {
-				TCallback callback = [&result = m_result, pObject](auto code) {
+				Callback callback = [&result = m_result, pObject](auto code) {
 					result.Code = code;
 					++result.NumCallbackCalls;
 				};
@@ -58,7 +60,7 @@ namespace catapult { namespace thread {
 			}
 
 		public:
-			TTimedCallback& timedCallback() {
+			TimedCallback& timedCallback() {
 				return *m_pTimedCallback;
 			}
 
@@ -76,7 +78,7 @@ namespace catapult { namespace thread {
 
 		private:
 			std::shared_ptr<IoServiceThreadPool> m_pPool;
-			std::shared_ptr<TTimedCallback> m_pTimedCallback;
+			std::shared_ptr<TimedCallback> m_pTimedCallback;
 			TimedCallbackResult m_result;
 		};
 
@@ -126,7 +128,7 @@ namespace catapult { namespace thread {
 			return true;
 		}
 
-		void RunNonDeterministicTriggerTest(const std::function<bool ()>& test) {
+		void RunNonDeterministicTriggerTest(const predicate<>& test) {
 			// Assert: non-deterministic because timeout trigger is elapsed time
 			test::RunNonDeterministicTest("Timeout", test);
 		}
@@ -341,7 +343,7 @@ namespace catapult { namespace thread {
 			TTraits::Trigger(context);
 
 			// - create a timeout handler that captures pObject
-			std::function<void ()> timeoutHandler = [pObject]() {};
+			action timeoutHandler = [pObject]() {};
 			EXPECT_EQ(2u, pObject.use_count()); // sanity
 
 			// - change the timeout handler (with one that captures the object)

@@ -1,7 +1,6 @@
 #pragma once
 #include "SpinLock.h"
 #include "catapult/exceptions.h"
-#include <mutex>
 #include <thread>
 #include <unordered_set>
 
@@ -37,7 +36,7 @@ namespace catapult { namespace utils {
 		template<typename TAction>
 		void executeSynchronized(TAction action) {
 			auto id = std::this_thread::get_id();
-			std::lock_guard<SpinLock> lock(m_mutex);
+			SpinLockGuard lock(m_mutex);
 
 			action(id);
 		}

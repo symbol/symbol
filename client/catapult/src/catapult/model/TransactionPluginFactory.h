@@ -1,6 +1,7 @@
 #pragma once
+#include "Transaction.h"
 #include "TransactionPlugin.h"
-#include "catapult/model/Transaction.h"
+#include "catapult/functions.h"
 
 namespace catapult { namespace model {
 
@@ -23,7 +24,7 @@ namespace catapult { namespace model {
 		template<typename TTransaction, typename TDerivedTransaction, typename TPlugin>
 		class BasicTransactionPluginT : public TPlugin {
 		private:
-			using PublishFunc = std::function<void (const TDerivedTransaction&, NotificationSubscriber&)>;
+			using PublishFunc = consumer<const TDerivedTransaction&, NotificationSubscriber&>;
 
 		public:
 			explicit BasicTransactionPluginT(const PublishFunc& publishFunc) : m_publishFunc(publishFunc)
@@ -49,9 +50,9 @@ namespace catapult { namespace model {
 
 		template<typename TEmbeddedTransaction>
 		class EmbeddedTransactionPluginT
-				: public BasicTransactionPluginT<EmbeddedEntity, TEmbeddedTransaction, EmbeddedTransactionPlugin> {
+				: public BasicTransactionPluginT<EmbeddedTransaction, TEmbeddedTransaction, EmbeddedTransactionPlugin> {
 		private:
-			using BaseType = BasicTransactionPluginT<EmbeddedEntity, TEmbeddedTransaction, EmbeddedTransactionPlugin>;
+			using BaseType = BasicTransactionPluginT<EmbeddedTransaction, TEmbeddedTransaction, EmbeddedTransactionPlugin>;
 
 		public:
 			template<typename TPublishEmbeddedFunc>
@@ -59,7 +60,7 @@ namespace catapult { namespace model {
 			{}
 
 		public:
-			void publish(const EmbeddedEntity& transaction, NotificationSubscriber& sub) const override {
+			void publish(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) const override {
 				BaseType::publishImpl(transaction, sub);
 			}
 		};

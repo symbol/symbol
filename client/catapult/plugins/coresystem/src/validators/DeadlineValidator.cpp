@@ -18,11 +18,9 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	stateful::NotificationValidatorPointerT<Notification> CreateDeadlineValidator(const utils::TimeSpan& maxTransactionLifetime) {
-		return std::make_unique<stateful::FunctionalNotificationValidatorT<Notification>>(
-				"DeadlineValidator",
-				[maxTransactionLifetime](const auto& notification, const auto& context) {
-					return ValidateTransactionDeadline(context.BlockTime, notification.Deadline, maxTransactionLifetime);
-				});
+	DECLARE_STATEFUL_VALIDATOR(Deadline, Notification)(const utils::TimeSpan& maxTransactionLifetime) {
+		return MAKE_STATEFUL_VALIDATOR(Deadline, [maxTransactionLifetime](const auto& notification, const auto& context) {
+			return ValidateTransactionDeadline(context.BlockTime, notification.Deadline, maxTransactionLifetime);
+		});
 	}
 }}

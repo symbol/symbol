@@ -4,6 +4,8 @@
 
 namespace catapult { namespace plugins {
 
+#define TEST_CLASS PluginModuleTests
+
 	namespace {
 		constexpr auto Valid_Plugin_Name = "catapult.plugins.transfer";
 		constexpr auto Valid_Symbol_Name = "RegisterSubsystem";
@@ -13,22 +15,22 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		void AssertCannotLoadPlugin(const std::string& directory, const std::string& name) {
-			// Assert:
+			// Act + Assert:
 			EXPECT_THROW(PluginModule(directory, name), catapult_invalid_argument) << directory << " " << name;
 		}
 	}
 
-	TEST(PluginModuleTests, CannotLoadPluginFromWrongDirectory) {
+	TEST(TEST_CLASS, CannotLoadPluginFromWrongDirectory) {
 		// Assert:
 		AssertCannotLoadPlugin("foobar", Valid_Plugin_Name);
 	}
 
-	TEST(PluginModuleTests, CannotLoadUnkownPlugin_ExplicitDirectory) {
+	TEST(TEST_CLASS, CannotLoadUnkownPlugin_ExplicitDirectory) {
 		// Assert:
 		AssertCannotLoadPlugin(test::GetExplicitPluginsDirectory(), "catapult.plugins.awesome");
 	}
 
-	TEST(PluginModuleTests, CannotLoadUnkownPlugin_ImplicitDirectory) {
+	TEST(TEST_CLASS, CannotLoadUnkownPlugin_ImplicitDirectory) {
 		// Assert:
 		AssertCannotLoadPlugin("", "catapult.plugins.awesome");
 	}
@@ -37,7 +39,7 @@ namespace catapult { namespace plugins {
 
 	// region symbol access failure
 
-	TEST(PluginModuleTests, CannotExtractUnknownSymbol_LoadedModule) {
+	TEST(TEST_CLASS, CannotExtractUnknownSymbol_LoadedModule) {
 		// Arrange:
 		PluginModule module("", Valid_Plugin_Name);
 
@@ -46,7 +48,7 @@ namespace catapult { namespace plugins {
 		EXPECT_THROW(module.symbol<void*>("abc"), catapult_runtime_error);
 	}
 
-	TEST(PluginModuleTests, CannotExtractUnknownSymbol_UnloadedModule) {
+	TEST(TEST_CLASS, CannotExtractUnknownSymbol_UnloadedModule) {
 		// Arrange:
 		PluginModule module;
 
@@ -73,12 +75,12 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	TEST(PluginModuleTests, CanExtractKnownSymbol_ExplicitDirectory) {
+	TEST(TEST_CLASS, CanExtractKnownSymbol_ExplicitDirectory) {
 		// Assert:
 		AssertCanLoadPluginAndExtractSymbol(test::GetExplicitPluginsDirectory());
 	}
 
-	TEST(PluginModuleTests, CanExtractKnownSymbol_ImplicitDirectory) {
+	TEST(TEST_CLASS, CanExtractKnownSymbol_ImplicitDirectory) {
 		// Assert:
 		AssertCanLoadPluginAndExtractSymbol("");
 	}
@@ -87,7 +89,7 @@ namespace catapult { namespace plugins {
 
 	// region move / release
 
-	TEST(PluginModuleTests, CanMovePluginModuleWithoutUnloading) {
+	TEST(TEST_CLASS, CanMovePluginModuleWithoutUnloading) {
 		// Arrange:
 		PluginModule module;
 		{
@@ -118,12 +120,12 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	TEST(PluginModuleTests, CannotExtractKnownSymbolAfterRelease) {
+	TEST(TEST_CLASS, CannotExtractKnownSymbolAfterRelease) {
 		// Assert:
 		AssertCannotExtractKnownSymbolAfterRelease(1);
 	}
 
-	TEST(PluginModuleTests, ReleaseIsIdempotent) {
+	TEST(TEST_CLASS, ReleaseIsIdempotent) {
 		// Assert:
 		AssertCannotExtractKnownSymbolAfterRelease(4);
 	}

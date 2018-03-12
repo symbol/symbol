@@ -3,6 +3,8 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS CircularBufferTests
+
 	namespace {
 		std::vector<int> ToVector(const CircularBuffer<int>& buffer) {
 			std::vector<int> values(buffer.size());
@@ -17,7 +19,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(CircularBufferTests, BufferIsInitiallyEmpty) {
+	TEST(TEST_CLASS, BufferIsInitiallyEmpty) {
 		// Act:
 		CircularBuffer<int> buffer(10);
 
@@ -26,7 +28,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(10u, buffer.capacity());
 	}
 
-	TEST(CircularBufferTests, CanAddFewerThanCapacityElementsToBuffer) {
+	TEST(TEST_CLASS, CanAddFewerThanCapacityElementsToBuffer) {
 		// Arrange:
 		CircularBuffer<int> buffer(10);
 
@@ -43,7 +45,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(expectedValues, ToVector(buffer));
 	}
 
-	TEST(CircularBufferTests, CanAddLvaluesAndRvaluesToBuffer) {
+	TEST(TEST_CLASS, CanAddLvaluesAndRvaluesToBuffer) {
 		// Arrange:
 		CircularBuffer<int> buffer(10);
 
@@ -62,7 +64,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(expectedValues, ToVector(buffer));
 	}
 
-	TEST(CircularBufferTests, CanAddCapacityElementsToBuffer) {
+	TEST(TEST_CLASS, CanAddCapacityElementsToBuffer) {
 		// Act:
 		CircularBuffer<int> buffer(7);
 		PushAll(buffer, { 5, 7, 3, 2, 1, 4, 6 });
@@ -74,7 +76,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(expectedValues, ToVector(buffer));
 	}
 
-	TEST(CircularBufferTests, PushBackWrapsAroundAfterAddingCapacityElementsToBuffer) {
+	TEST(TEST_CLASS, PushBackWrapsAroundAfterAddingCapacityElementsToBuffer) {
 		// Arrange:
 		CircularBuffer<int> buffer(7);
 		PushAll(buffer, { 5, 7, 3, 2, 1, 4, 6 });
@@ -89,7 +91,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(expectedValues, ToVector(buffer));
 	}
 
-	TEST(CircularBufferTests, PushBackCanWrapAroundMultipleTimes) {
+	TEST(TEST_CLASS, PushBackCanWrapAroundMultipleTimes) {
 		// Arrange:
 		CircularBuffer<int> buffer(7);
 		PushAll(buffer, { 5, 7, 3, 2, 1, 4, 6 });
@@ -139,22 +141,22 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(CircularBufferTests, CanRandomAccessElementInBuffer) {
+	TEST(TEST_CLASS, CanRandomAccessElementInBuffer) {
 		// Assert:
 		AssertCanRandomAccessThirdElementInBuffer(2);
 	}
 
-	TEST(CircularBufferTests, CanRandomAccessElementInBufferWithWrapAroundIndex) {
+	TEST(TEST_CLASS, CanRandomAccessElementInBufferWithWrapAroundIndex) {
 		// Assert:
 		AssertCanRandomAccessThirdElementInBuffer(10 + 2);
 	}
 
-	TEST(CircularBufferTests, CanRandomAccessElementInConstBuffer) {
+	TEST(TEST_CLASS, CanRandomAccessElementInConstBuffer) {
 		// Assert:
 		AssertCanRandomAccessThirdElementInConstBuffer(2);
 	}
 
-	TEST(CircularBufferTests, CanRandomAccessElementInConstBufferWithWrapAroundIndex) {
+	TEST(TEST_CLASS, CanRandomAccessElementInConstBufferWithWrapAroundIndex) {
 		// Assert:
 		AssertCanRandomAccessThirdElementInConstBuffer(10 + 2);
 	}

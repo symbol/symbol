@@ -31,7 +31,7 @@ namespace catapult { namespace consumers {
 				auto i = 0u;
 				for (const auto& element : input.transactions()) {
 					if (!element.Skip)
-						transactionInfos.emplace_back(transactions[i], element.EntityHash, element.MerkleComponentHash);
+						transactionInfos.emplace_back(model::MakeTransactionInfo(transactions[i], element));
 
 					++i;
 				}

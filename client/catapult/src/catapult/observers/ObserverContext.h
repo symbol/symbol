@@ -5,7 +5,6 @@
 
 namespace catapult { namespace observers {
 
-/// Enumeration of possible notification modes.
 #define NOTIFY_MODE_LIST \
 	/* Execute actions. */ \
 	ENUM_VALUE(Commit) \
@@ -13,11 +12,15 @@ namespace catapult { namespace observers {
 	/* Reverse actions. */ \
 	ENUM_VALUE(Rollback)
 
-#define DECLARE_ENUM NotifyMode
-#define ENUM_LIST NOTIFY_MODE_LIST
-#include "catapult/utils/MacroBasedEnum.h"
-#undef ENUM_LIST
-#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+	/// Enumeration of possible notification modes.
+	enum class NotifyMode {
+		NOTIFY_MODE_LIST
+	};
+#undef ENUM_VALUE
+
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, NotifyMode value);
 
 	/// Mutatable state passed to all the observers.
 	struct ObserverState {
@@ -45,11 +48,7 @@ namespace catapult { namespace observers {
 		{}
 
 		/// Creates an observer context around \a cache and \a state at \a height with specified \a mode.
-		constexpr ObserverContext(
-				cache::CatapultCacheDelta& cache,
-				state::CatapultState& state,
-				Height height,
-				NotifyMode mode)
+		constexpr ObserverContext(cache::CatapultCacheDelta& cache, state::CatapultState& state, Height height, NotifyMode mode)
 				: Cache(cache)
 				, State(state)
 				, Height(height)

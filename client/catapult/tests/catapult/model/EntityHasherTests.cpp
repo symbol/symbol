@@ -6,9 +6,9 @@
 #include "tests/TestHarness.h"
 #include <array>
 
-#define TEST_CLASS EntityHasherTests
-
 namespace catapult { namespace model {
+
+#define TEST_CLASS EntityHasherTests
 
 	namespace {
 		struct BlockTraits {
@@ -47,7 +47,7 @@ namespace catapult { namespace model {
 		};
 	}
 
-	// region basic
+	// region CalculateHash - basic
 
 #define BASIC_HASH_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
@@ -111,7 +111,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region block
+	// region CalculateHash - block
 
 	TEST(TEST_CLASS, CalculateBlockHashReturnsExpectedHash) {
 		// Arrange: create a predefined block with one predefined transaction
@@ -141,7 +141,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region transaction
+	// region CalculateHash - transaction
 
 	TEST(TEST_CLASS, CalculateTransactionHashReturnsExpectedHash) {
 		// Arrange: create a predefined transaction
@@ -156,7 +156,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region verifiable entity
+	// region CalculateHash - verifiable entity
 
 	TEST(TEST_CLASS, VerifiableEntityHashChangesIfDataBufferDataChanges) {
 		// Arrange:
@@ -186,7 +186,56 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region transaction element
+	// region CalculateMerkleComponentHash (transaction)
+
+	TEST(TEST_CLASS, CalculateMerkleComponentHash_ReturnsTransactionHashWhenThereAreNoSupplementaryBuffers) {
+		// Arrange:
+		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(mocks::OffsetRange{ 5, 15 }, {});
+		auto registry = TransactionRegistry();
+		registry.registerPlugin(std::move(pPlugin));
+
+		auto pTransaction = test::GenerateRandomTransaction();
+		const auto& transaction = *pTransaction;
+		auto transactionHash = test::GenerateRandomData<Hash256_Size>();
+
+		// Act:
+		auto merkleComponentHash = CalculateMerkleComponentHash(transaction, transactionHash, registry);
+
+		// Assert:
+		EXPECT_EQ(transactionHash, merkleComponentHash);
+	}
+
+	TEST(TEST_CLASS, CalculateMerkleComponentHash_IsDependentOnMerkleSupplementaryBuffers) {
+		// Arrange:
+		auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(
+				mocks::OffsetRange{ 6, 10 },
+				std::vector<mocks::OffsetRange>{ { 7, 11 }, { 4, 7 }, { 12, 20 } });
+		auto registry = TransactionRegistry();
+		registry.registerPlugin(std::move(pPlugin));
+
+		auto pTransaction = test::GenerateRandomTransaction();
+		const auto& transaction = *pTransaction;
+		auto transactionHash = test::GenerateRandomData<Hash256_Size>();
+
+		Hash256 expectedMerkleComponentHash;
+		crypto::Sha3_256_Builder sha3;
+		sha3.update(transactionHash);
+		sha3.update(mocks::ExtractBuffer({ 7, 11 }, &transaction));
+		sha3.update(mocks::ExtractBuffer({ 4, 7 }, &transaction));
+		sha3.update(mocks::ExtractBuffer({ 12, 20 }, &transaction));
+		sha3.final(expectedMerkleComponentHash);
+
+		// Act:
+		auto merkleComponentHash = CalculateMerkleComponentHash(transaction, transactionHash, registry);
+
+		// Assert:
+		EXPECT_EQ(expectedMerkleComponentHash, merkleComponentHash);
+		EXPECT_NE(transactionHash, merkleComponentHash);
+	}
+
+	// endregion
+
+	// region UpdateHashes (transaction element)
 
 	TEST(TEST_CLASS, UpdateHashes_TransactionEntityHashIsDependentOnDataBuffer) {
 		// Arrange:
@@ -195,19 +244,19 @@ namespace catapult { namespace model {
 		registry.registerPlugin(std::move(pPlugin));
 
 		auto pTransaction = test::GenerateRandomTransaction();
-		auto txElement = TransactionElement(*pTransaction);
+		auto transactionElement = TransactionElement(*pTransaction);
 		const auto& transaction = *pTransaction;
 
 		// - since there are no supplementary buffers, the transaction hash is equal to the merkle hash
 		auto expectedEntityHash = CalculateHash(transaction, mocks::ExtractBuffer({ 5, 15 }, &transaction));
 
 		// Act:
-		UpdateHashes(registry, txElement);
+		UpdateHashes(registry, transactionElement);
 
 		// Assert:
-		EXPECT_EQ(expectedEntityHash, txElement.EntityHash);
-		EXPECT_EQ(expectedEntityHash, txElement.MerkleComponentHash);
-		EXPECT_EQ(txElement.EntityHash, txElement.MerkleComponentHash);
+		EXPECT_EQ(expectedEntityHash, transactionElement.EntityHash);
+		EXPECT_EQ(expectedEntityHash, transactionElement.MerkleComponentHash);
+		EXPECT_EQ(transactionElement.EntityHash, transactionElement.MerkleComponentHash);
 	}
 
 	TEST(TEST_CLASS, UpdateHashes_TransactionMerkleComponentHashIsDependentOnMerkleSupplementaryBuffers) {
@@ -219,7 +268,7 @@ namespace catapult { namespace model {
 		registry.registerPlugin(std::move(pPlugin));
 
 		auto pTransaction = test::GenerateRandomTransaction();
-		auto txElement = TransactionElement(*pTransaction);
+		auto transactionElement = TransactionElement(*pTransaction);
 		const auto& transaction = *pTransaction;
 
 		auto expectedEntityHash = CalculateHash(transaction, mocks::ExtractBuffer({ 6, 10 }, &transaction));
@@ -233,12 +282,12 @@ namespace catapult { namespace model {
 		sha3.final(expectedMerkleComponentHash);
 
 		// Act:
-		UpdateHashes(registry, txElement);
+		UpdateHashes(registry, transactionElement);
 
 		// Assert:
-		EXPECT_EQ(expectedEntityHash, txElement.EntityHash);
-		EXPECT_EQ(expectedMerkleComponentHash, txElement.MerkleComponentHash);
-		EXPECT_NE(txElement.EntityHash, txElement.MerkleComponentHash);
+		EXPECT_EQ(expectedEntityHash, transactionElement.EntityHash);
+		EXPECT_EQ(expectedMerkleComponentHash, transactionElement.MerkleComponentHash);
+		EXPECT_NE(transactionElement.EntityHash, transactionElement.MerkleComponentHash);
 	}
 
 	// endregion

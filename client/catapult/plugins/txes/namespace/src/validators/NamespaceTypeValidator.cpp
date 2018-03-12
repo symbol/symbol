@@ -10,13 +10,9 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	stateless::NotificationValidatorPointerT<Notification> CreateNamespaceTypeValidator() {
-		return std::make_unique<stateless::FunctionalNotificationValidatorT<Notification>>(
-				"NamespaceTypeValidator",
-				[](const auto& notification) {
-			return IsValidNamespaceType(notification.NamespaceType)
-					? ValidationResult::Success
-					: Failure_Namespace_Invalid_Namespace_Type;
-		});
-	}
+	DEFINE_STATELESS_VALIDATOR(NamespaceType, [](const auto& notification) {
+		return IsValidNamespaceType(notification.NamespaceType)
+				? ValidationResult::Success
+				: Failure_Namespace_Invalid_Namespace_Type;
+	});
 }}

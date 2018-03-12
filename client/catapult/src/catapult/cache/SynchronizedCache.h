@@ -14,9 +14,7 @@ namespace catapult { namespace cache {
 		struct CacheViewReadLockPair {
 		public:
 			/// Creates a pair around \a cacheView and \a readLock.
-			CacheViewReadLockPair(
-					TCacheView&& cacheView,
-					utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+			CacheViewReadLockPair(TCacheView&& cacheView, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 					: CacheView(std::move(cacheView))
 					, ReadLock(std::move(readLock))
 			{}
@@ -43,7 +41,7 @@ namespace catapult { namespace cache {
 
 		public:
 			/// Returns \c true if the underlying cache view is valid.
-			operator bool() const {
+			explicit operator bool() const {
 				return !!m_pCacheView;
 			}
 
@@ -83,9 +81,7 @@ namespace catapult { namespace cache {
 	class LockedCacheView : public detail::CacheViewAccessor<TCacheView> {
 	public:
 		/// Creates a view around \a cacheView and \a readLock.
-		LockedCacheView(
-				TCacheView&& cacheView,
-				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+		LockedCacheView(TCacheView&& cacheView, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 				: detail::CacheViewAccessor<TCacheView>(&m_cacheView)
 				, m_cacheView(std::move(cacheView))
 				, m_readLock(std::move(readLock))
@@ -135,9 +131,7 @@ namespace catapult { namespace cache {
 		{}
 
 		/// Creates a view around \a cacheView and \a pReadLock.
-		OptionalLockedCacheDelta(
-				TCacheView& cacheView,
-				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+		OptionalLockedCacheDelta(TCacheView& cacheView, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 				: detail::CacheViewAccessor<TCacheView>(&cacheView)
 				, m_readLock(std::move(readLock))
 		{}
@@ -155,10 +149,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a lockable cache delta around \a cacheDelta using the specified \a lock
 		/// and commit counter (\a commitCounter).
-		LockableCacheDelta(
-				TCacheDelta&& cacheDelta,
-				const size_t& commitCounter,
-				utils::SpinReaderWriterLock& lock)
+		LockableCacheDelta(TCacheDelta&& cacheDelta, const size_t& commitCounter, utils::SpinReaderWriterLock& lock)
 				: m_cacheDelta(std::move(cacheDelta))
 				, m_initialCommitCount(commitCounter)
 				, m_commitCounter(commitCounter)

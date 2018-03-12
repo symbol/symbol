@@ -1,5 +1,6 @@
 #include "BlockStorageCache.h"
 #include "catapult/model/Elements.h"
+#include "catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace io {
 
@@ -17,7 +18,7 @@ namespace catapult { namespace io {
 			using model::BlockElement;
 
 			auto dataSize = sizeof(BlockElement) + originalBlockElement.Block.Size;
-			std::unique_ptr<uint8_t> pData(reinterpret_cast<uint8_t*>(::operator new(dataSize)));
+			auto pData = utils::MakeUniqueWithSize<uint8_t>(dataSize);
 
 			// copy the block data
 			auto pBlockData = pData.get() + sizeof(BlockElement);
@@ -133,13 +134,28 @@ namespace catapult { namespace io {
 
 	// region BlockStorageModifier
 
+	namespace {
+		void CacheBlockElement(CachedData& cachedData, const model::BlockElement& blockElement) {
+			if (blockElement.Block.Height > cachedData.getHeight())
+				cachedData.update(blockElement.Block.Height);
+
+			cachedData.update(blockElement);
+		}
+	}
+
 	void BlockStorageModifier::saveBlock(const model::BlockElement& blockElement) {
 		m_storage.saveBlock(blockElement);
+		CacheBlockElement(m_cachedData, blockElement);
+	}
 
-		if (blockElement.Block.Height > m_cachedData.getHeight())
-			m_cachedData.update(blockElement.Block.Height);
+	void BlockStorageModifier::saveBlocks(const std::vector<model::BlockElement>& blockElements) {
+		if (blockElements.empty())
+			return;
 
-		m_cachedData.update(blockElement);
+		for (const auto& blockElement : blockElements)
+			m_storage.saveBlock(blockElement);
+
+		CacheBlockElement(m_cachedData, blockElements.back());
 	}
 
 	void BlockStorageModifier::dropBlocksAfter(Height height) {

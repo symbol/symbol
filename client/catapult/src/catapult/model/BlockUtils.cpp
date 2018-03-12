@@ -2,6 +2,7 @@
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/crypto/Signer.h"
+#include "catapult/utils/MemoryUtils.h"
 #include <cstring>
 
 namespace catapult { namespace model {
@@ -79,12 +80,12 @@ namespace catapult { namespace model {
 				const Key& signerPublicKey,
 				const TContainer& transactions) {
 			auto size = sizeof(Block) + CalculateTotalSize(transactions);
-			std::unique_ptr<Block> pBlock(reinterpret_cast<Block*>(::operator new(size)));
+			auto pBlock = utils::MakeUniqueWithSize<Block>(size);
 
 			auto& block = *pBlock;
 			block.Size = static_cast<uint32_t>(size);
 			block.Version = MakeVersion(networkIdentifier, 3);
-			block.Type = EntityType::Block;
+			block.Type = Entity_Type_Block;
 			block.Signer = signerPublicKey;
 			block.Signature = Signature{}; // zero the signature
 			block.Timestamp = Timestamp();

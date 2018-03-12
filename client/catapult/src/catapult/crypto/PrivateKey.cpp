@@ -54,7 +54,7 @@ namespace catapult { namespace crypto {
 		return FromString(pRawKey, keySize);
 	}
 
-	PrivateKey PrivateKey::Generate(const std::function<uint8_t()>& generator) {
+	PrivateKey PrivateKey::Generate(const supplier<uint8_t>& generator) {
 		PrivateKey key;
 		std::generate_n(key.m_key.begin(), key.m_key.size(), generator);
 		return key;

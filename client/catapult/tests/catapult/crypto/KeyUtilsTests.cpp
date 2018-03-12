@@ -2,8 +2,11 @@
 #include "catapult/crypto/PrivateKey.h"
 #include "tests/TestHarness.h"
 #include <array>
+#include <unordered_map>
 
 namespace catapult { namespace crypto {
+
+#define TEST_CLASS KeyUtilsTests
 
 	namespace {
 		template<typename T>
@@ -14,9 +17,9 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(KeyUtilsTests, CanOutputPublicKey) {
+	TEST(TEST_CLASS, CanOutputPublicKey) {
 		// Arrange:
-		auto key = ParseKey("031729d10db52ecf0ad3684558db31895ddfa5cd7f4143af6e822e114e16e31c");
+		auto key = ParseKey("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C");
 
 		// Act:
 		std::string actual = FormatKeyAsString(key);
@@ -25,9 +28,9 @@ namespace catapult { namespace crypto {
 		EXPECT_EQ("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", actual);
 	}
 
-	TEST(KeyUtilsTests, CanOutputPrivateKey) {
+	TEST(TEST_CLASS, CanOutputPrivateKey) {
 		// Arrange:
-		auto key = PrivateKey::FromString("031729d10db52ecf0ad3684558db31895ddfa5cd7f4143af6e822e114e16e31c");
+		auto key = PrivateKey::FromString("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C");
 
 		// Act:
 		std::string actual = FormatKeyAsString(key);
@@ -36,9 +39,9 @@ namespace catapult { namespace crypto {
 		EXPECT_EQ("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", actual);
 	}
 
-	TEST(KeyUtilsTests, CanParseValidKeyString) {
+	TEST(TEST_CLASS, CanParseValidKeyString) {
 		// Act:
-		auto key = ParseKey("031729d10db52ecf0ad3684558db31895ddfa5cd7f4143af6e822e114e16e31c");
+		auto key = ParseKey("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C");
 
 		// Assert:
 		Key expected = {{
@@ -48,8 +51,36 @@ namespace catapult { namespace crypto {
 		EXPECT_EQ(expected, key);
 	}
 
-	TEST(KeyUtilsTests, CannotParseInvalidKeyString) {
+	TEST(TEST_CLASS, CannotParseInvalidKeyString) {
+		// Act + Assert:
+		EXPECT_THROW(ParseKey("031729D10DB52ECT0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C"), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, IsValidKeyStringReturnsTrueForValidKeyString) {
 		// Act:
-		EXPECT_THROW(ParseKey("031729d10db52ect0ad3684558db31895ddfa5cd7f4143af6e822e114e16e31c"), catapult_invalid_argument);
+		auto isValid = IsValidKeyString("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C");
+
+		// Assert:
+		EXPECT_TRUE(isValid);
+	}
+
+	TEST(TEST_CLASS, IsValidKeyStringReturnsFalseForInvalidKeyString) {
+		// Arrange:
+		std::unordered_map<std::string, std::string> keyStrings = {
+			{ "T31729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", "invalid char T at the beginning" },
+			{ "031729D10DB52ECF0AD3684558DB31895TDFA5CD7F4143AF6E822E114E16E31T", "invalid char T in the middle part" },
+			{ "031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31T", "invalid char T at the end" },
+			{ "U31729D10DB52ECF0XD3684558DB3189YDDFA5CD7F4143AF6Z822E114E16E31T", "multiple invalid chars" },
+			{ "031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E3", "string too short" },
+			{ "031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31CFF", "string too long" }
+		};
+
+		for (const auto& pair : keyStrings) {
+			// Act:
+			auto isValid = IsValidKeyString(pair.first);
+
+			// Assert:
+			EXPECT_FALSE(isValid) << pair.second;
+		}
 	}
 }}

@@ -6,9 +6,9 @@
 namespace catapult { namespace model {
 
 	namespace {
-		class DefaultNotificationPublisher : public NotificationPublisher {
+		class BasicNotificationPublisher : public NotificationPublisher {
 		public:
-			explicit DefaultNotificationPublisher(const TransactionRegistry& transactionRegistry)
+			explicit BasicNotificationPublisher(const TransactionRegistry& transactionRegistry)
 					: m_transactionRegistry(transactionRegistry)
 			{}
 
@@ -16,7 +16,7 @@ namespace catapult { namespace model {
 			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
 				const auto& entity = entityInfo.entity();
 				sub.notify(AccountPublicKeyNotification(entity.Signer));
-				sub.notify(EntityNotification(static_cast<NetworkIdentifier>(entity.Network())));
+				sub.notify(EntityNotification(entity.Network()));
 
 				switch (ToBasicEntityType(entityInfo.type())) {
 				case BasicEntityType::Block:
@@ -48,19 +48,70 @@ namespace catapult { namespace model {
 			}
 
 			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
-				sub.notify(TransactionNotification(transaction.Signer, hash, transaction.Deadline));
+				sub.notify(TransactionNotification(transaction.Signer, hash, transaction.Type, transaction.Deadline));
 
-				const auto* pPlugin = m_transactionRegistry.findPlugin(transaction.Type);
-				sub.notify(SignatureNotification(transaction.Signer, transaction.Signature, pPlugin->dataBuffer(transaction)));
-				pPlugin->publish(WeakEntityInfoT<model::Transaction>(transaction, hash), sub);
+				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
+				sub.notify(SignatureNotification(transaction.Signer, transaction.Signature, plugin.dataBuffer(transaction)));
 			}
 
 		private:
 			const TransactionRegistry& m_transactionRegistry;
 		};
+
+		class CustomNotificationPublisher : public NotificationPublisher {
+		public:
+			explicit CustomNotificationPublisher(const TransactionRegistry& transactionRegistry)
+					: m_transactionRegistry(transactionRegistry)
+			{}
+
+		public:
+			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
+				if (BasicEntityType::Transaction != ToBasicEntityType(entityInfo.type()))
+					return;
+
+				return publish(static_cast<const Transaction&>(entityInfo.entity()), entityInfo.hash(), sub);
+			}
+
+			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
+				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
+				plugin.publish(WeakEntityInfoT<model::Transaction>(transaction, hash), sub);
+			}
+
+		private:
+			const TransactionRegistry& m_transactionRegistry;
+		};
+
+		class AllNotificationPublisher : public NotificationPublisher {
+		public:
+			explicit AllNotificationPublisher(const TransactionRegistry& transactionRegistry)
+					: m_basicPublisher(transactionRegistry)
+					, m_customPublisher(transactionRegistry)
+			{}
+
+		public:
+			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
+				m_basicPublisher.publish(entityInfo, sub);
+				m_customPublisher.publish(entityInfo, sub);
+			}
+
+		private:
+			BasicNotificationPublisher m_basicPublisher;
+			CustomNotificationPublisher m_customPublisher;
+		};
 	}
 
-	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(const TransactionRegistry& transactionRegistry) {
-		return std::make_unique<DefaultNotificationPublisher>(transactionRegistry);
+	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
+			const TransactionRegistry& transactionRegistry,
+			PublicationMode mode) {
+		switch (mode) {
+		case PublicationMode::Basic:
+			return std::make_unique<BasicNotificationPublisher>(transactionRegistry);
+
+		case PublicationMode::Custom:
+			return std::make_unique<CustomNotificationPublisher>(transactionRegistry);
+
+		default:
+			return std::make_unique<AllNotificationPublisher>(transactionRegistry);
+		}
 	}
 }}

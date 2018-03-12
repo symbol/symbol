@@ -3,6 +3,7 @@
 #include "src/handlers/HashCacheDiagnosticHandlers.h"
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
+#include "catapult/observers/ObserverUtils.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
@@ -31,7 +32,7 @@ namespace catapult { namespace plugins {
 		manager.addTransientObserverHook([&config](auto& builder) {
 			builder
 				.add(observers::CreateTransactionHashObserver())
-				.add(observers::CreateTransactionHashPruningObserver(config.BlockPruneInterval));
+				.add(observers::CreateCacheTimePruningObserver<cache::HashCache>("TransactionHash", config.BlockPruneInterval));
 		});
 	}
 }}

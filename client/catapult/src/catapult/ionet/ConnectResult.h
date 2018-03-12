@@ -3,7 +3,6 @@
 
 namespace catapult { namespace ionet {
 
-/// Enumeration of possible connection results.
 #define CONNECT_RESULT_LIST \
 	/* Client address could not be resolved. */ \
 	ENUM_VALUE(Resolve_Error) \
@@ -17,9 +16,13 @@ namespace catapult { namespace ionet {
 	/* Connection was successfully established. */ \
 	ENUM_VALUE(Connected)
 
-#define DECLARE_ENUM ConnectResult
-#define ENUM_LIST CONNECT_RESULT_LIST
-#include "catapult/utils/MacroBasedEnum.h"
-#undef ENUM_LIST
-#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+	/// Enumeration of possible connection results.
+	enum class ConnectResult {
+		CONNECT_RESULT_LIST
+	};
+#undef ENUM_VALUE
+
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, ConnectResult value);
 }}

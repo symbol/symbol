@@ -8,59 +8,103 @@
 
 namespace catapult { namespace disruptor {
 
+#define TEST_CLASS ConsumerDispatcherTests
+
 	namespace {
 		static constexpr ConsumerDispatcherOptions Test_Dispatcher_Options{ "ConsumerDispatcherTests", 16u * 1024 };
 
 		auto CreateNoOpConsumer() {
-			return [](ConsumerInput&) {
+			return [](const auto&) {
 				return ConsumerResult::Continue();
 			};
 		}
+
+		void ProcessAll(ConsumerDispatcher& dispatcher, std::vector<model::BlockRange>&& ranges) {
+			for (auto& range : ranges)
+				dispatcher.processElement(ConsumerInput(std::move(range)));
+		}
+
+		void AssertHasProcessedNoElements(ConsumerDispatcher& dispatcher) {
+			EXPECT_EQ(0u, dispatcher.numAddedElements());
+			EXPECT_EQ(0u, dispatcher.numActiveElements());
+			EXPECT_TRUE(dispatcher.isRunning());
+		}
 	}
 
-	TEST(ConsumerDispatcherTests, CannotCreateDispatcherWithNullName) {
+	// region create + shutdown
+
+	TEST(TEST_CLASS, CannotCreateDispatcherWithNullName) {
 		// Arrange:
 		auto options = Test_Dispatcher_Options;
 		options.DispatcherName = nullptr;
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(ConsumerDispatcher(options, {}), catapult_invalid_argument);
 	}
 
-	TEST(ConsumerDispatcherTests, CannotCreateDispatcherWithZeroSizeDisruptor) {
+	TEST(TEST_CLASS, CannotCreateDispatcherWithZeroSizeDisruptor) {
 		// Arrange:
 		auto options = Test_Dispatcher_Options;
 		options.DisruptorSize = 0;
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(ConsumerDispatcher(options, {}), catapult_invalid_argument);
 	}
 
-	TEST(ConsumerDispatcherTests, CanCreateEmptyDispatcher) {
+	TEST(TEST_CLASS, CanCreateEmptyDispatcher) {
 		// Arrange:
 		ConsumerDispatcher dispatcher(Test_Dispatcher_Options, {});
 
 		// Assert:
 		EXPECT_EQ(Test_Dispatcher_Options.DispatcherName, dispatcher.name());
 		EXPECT_EQ(0u, dispatcher.size());
-		EXPECT_EQ(0u, dispatcher.numAddedElements());
-		EXPECT_TRUE(dispatcher.isRunning());
+		AssertHasProcessedNoElements(dispatcher);
 	}
 
-	TEST(ConsumerDispatcherTests, CanCreateDispatcherWithConsumer) {
+	TEST(TEST_CLASS, CanCreateDispatcherWithConsumer) {
 		// Arrange + Act:
 		ConsumerDispatcher dispatcher(Test_Dispatcher_Options, { CreateNoOpConsumer() });
 
 		// Assert:
 		EXPECT_EQ(Test_Dispatcher_Options.DispatcherName, dispatcher.name());
 		EXPECT_EQ(1u, dispatcher.size());
-		EXPECT_EQ(0u, dispatcher.numAddedElements());
-		EXPECT_TRUE(dispatcher.isRunning());
+		AssertHasProcessedNoElements(dispatcher);
 	}
+
+	TEST(TEST_CLASS, ShutdownStopsDispatcher) {
+		// Arrange:
+		auto numConsumerCalls = 0u;
+		auto numInspectorCalls = 0u;
+		auto ranges = test::PrepareRanges(1);
+		ConsumerDispatcher dispatcher(
+				Test_Dispatcher_Options,
+				{
+					[&numConsumerCalls](const auto&) {
+						++numConsumerCalls;
+						return ConsumerResult::Continue();
+					}
+				},
+				[&numInspectorCalls](const auto&, const auto&) { ++numInspectorCalls; });
+
+		// Act:
+		dispatcher.shutdown();
+		ProcessAll(dispatcher, std::move(ranges));
+
+		// Assert:
+		EXPECT_EQ(1u, dispatcher.size());
+		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());
+		EXPECT_EQ(0u, numConsumerCalls);
+		EXPECT_FALSE(dispatcher.isRunning());
+		EXPECT_EQ(0u, numInspectorCalls);
+	}
+
+	// endregion
+
+	// region completion handler
 
 	namespace {
 		auto CreateAlternatingResultConsumer() {
-			auto pCounter = std::make_shared<uint8_t>(0);
+			auto pCounter = std::make_shared<uint8_t>(static_cast<uint8_t>(0));
 			return [pCounter](const auto&) {
 				auto id = ++*pCounter;
 				return 0 == id % 2 ? ConsumerResult::Continue() : ConsumerResult::Abort(id * id);
@@ -68,7 +112,7 @@ namespace catapult { namespace disruptor {
 		}
 	}
 
-	TEST(ConsumerDispatcherTests, CompletionHandlerIsCalledWhenProcessingIsComplete) {
+	TEST(TEST_CLASS, CompletionHandlerIsCalledWhenProcessingIsComplete) {
 		// Arrange:
 		ConsumerDispatcher dispatcher(Test_Dispatcher_Options, { CreateAlternatingResultConsumer() });
 		auto ranges = test::PrepareRanges(3);
@@ -80,16 +124,15 @@ namespace catapult { namespace disruptor {
 		std::atomic<size_t> numCapturedElements(0);
 		for (auto i = 0u; i < ranges.size(); ++i) {
 			// note: the alternating result consumer starts with ConsumerResult::Abort()
-			elementIds.push_back(dispatcher.processElement(
-					ConsumerInput(std::move(ranges[i])),
-					[&capturedElementIds, &capturedResults, &numCapturedElements](auto id, const auto& result) {
-						capturedElementIds.push_back(id);
-						capturedResults.push_back(result);
-						++numCapturedElements;
-					}));
+			auto processingCompleteCallback = [&capturedElementIds, &capturedResults, &numCapturedElements](auto id, const auto& result) {
+				capturedElementIds.push_back(id);
+				capturedResults.push_back(result);
+				++numCapturedElements;
+			};
+			elementIds.push_back(dispatcher.processElement(ConsumerInput(std::move(ranges[i])), processingCompleteCallback));
 		}
 
-		WAIT_FOR_VALUE(numCapturedElements, ranges.size());
+		WAIT_FOR_VALUE(ranges.size(), numCapturedElements);
 
 		// Assert:
 		std::vector<DisruptorElementId> expectedElementIds{ 1u, 2u, 3u };
@@ -107,24 +150,68 @@ namespace catapult { namespace disruptor {
 		test::AssertAborted(capturedResults[2], 9, 2);
 	}
 
-	TEST(ConsumerDispatcherTests, CompletionHandlerIsNotCalledWhenInputIsEmpty) {
+	TEST(TEST_CLASS, CompletionHandlerIsNotCalledWhenInputIsEmpty) {
 		// Arrange:
 		ConsumerDispatcher dispatcher(Test_Dispatcher_Options, { CreateNoOpConsumer() });
 		auto handlerCallCount = 0u;
 
 		// Act:
-		auto elementId = dispatcher.processElement(ConsumerInput(model::BlockRange()), [&handlerCallCount](auto, auto) {
+		auto elementId = dispatcher.processElement(ConsumerInput(model::BlockRange()), [&handlerCallCount](auto, const auto&) {
 			++handlerCallCount;
 		});
 
 		// Assert:
 		EXPECT_EQ(Test_Dispatcher_Options.DispatcherName, dispatcher.name());
 		EXPECT_EQ(1u, dispatcher.size());
-		EXPECT_EQ(0u, dispatcher.numAddedElements());
-		EXPECT_TRUE(dispatcher.isRunning());
+		AssertHasProcessedNoElements(dispatcher);
 		EXPECT_EQ(0u, elementId);
 		EXPECT_EQ(0u, handlerCallCount);
 	}
+
+	// endregion
+
+	// region numActiveElements
+
+	TEST(TEST_CLASS, NumActiveElementsReportsNumberOfInProgressElements) {
+		// Arrange:
+		test::AutoSetFlag isExecutingBlockedElementCallback;
+		test::AutoSetFlag isElementCallbackUnblocked;
+		auto ranges = test::PrepareRanges(6);
+
+		ConsumerDispatcher dispatcher(Test_Dispatcher_Options, { CreateNoOpConsumer() });
+
+		// Act: block the third element
+		for (auto i = 0u; i < 6u; ++i) {
+			if (2 != i) {
+				dispatcher.processElement(ConsumerInput(std::move(ranges[i])));
+				continue;
+			}
+
+			dispatcher.processElement(ConsumerInput(std::move(ranges[i])), [&](auto, const auto&) {
+				isExecutingBlockedElementCallback.set();
+				isElementCallbackUnblocked.wait();
+			});
+		}
+
+		// - wait until the blocked element callback is called
+		isExecutingBlockedElementCallback.wait();
+
+		// Assert: all elements should be added and four should be active
+		EXPECT_EQ(6u, dispatcher.numAddedElements());
+		EXPECT_EQ(4u, dispatcher.numActiveElements());
+
+		// Act: allow all elements to complete
+		isElementCallbackUnblocked.set();
+		WAIT_FOR_ZERO_EXPR(dispatcher.numActiveElements());
+
+		// Assert: no elements should be active
+		EXPECT_EQ(6u, dispatcher.numAddedElements());
+		EXPECT_EQ(0u, dispatcher.numActiveElements());
+	}
+
+	// endregion
+
+	// region process + consume (no inspect)
 
 	namespace {
 		auto GetExpectedHeights(const std::vector<model::BlockRange>& ranges) {
@@ -144,20 +231,15 @@ namespace catapult { namespace disruptor {
 		using Heights = std::vector<Height>;
 
 		auto CreateConsumer(std::vector<Heights>& collector) {
-			return [&](ConsumerInput& consumerInput) -> ConsumerResult {
+			return [&](auto& consumerInput) {
 				auto heights = BlockElementVectorToHeights(consumerInput.blocks());
 				collector.push_back(heights);
 				return ConsumerResult::Continue();
 			};
 		}
-
-		void ProcessAll(ConsumerDispatcher& dispatcher, std::vector<model::BlockRange>&& ranges) {
-			for (auto& range : ranges)
-				dispatcher.processElement(ConsumerInput(std::move(range)));
-		}
 	}
 
-	TEST(ConsumerDispatcherTests, ProcessElementReturnsElementId) {
+	TEST(TEST_CLASS, ProcessElementReturnsElementId) {
 		// Arrange:
 		auto ranges = test::PrepareRanges(6);
 		ConsumerDispatcher dispatcher(Test_Dispatcher_Options, { CreateNoOpConsumer() });
@@ -165,11 +247,11 @@ namespace catapult { namespace disruptor {
 		std::vector<DisruptorElementId> expectedIds{ 1, 2, 3, 4, 5, 6 };
 
 		// Act: push single element
-		for (auto i = 0u; i < 6; ++i) {
+		for (auto i = 0u; i < 6u; ++i) {
 			if (0 == i % 2)
 				ids.push_back(dispatcher.processElement(ConsumerInput(std::move(ranges[i]))));
 			else
-				ids.push_back(dispatcher.processElement(ConsumerInput(std::move(ranges[i])), [](auto, auto) {}));
+				ids.push_back(dispatcher.processElement(ConsumerInput(std::move(ranges[i])), [](auto, const auto&) {}));
 		}
 
 		// Assert:
@@ -177,7 +259,37 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(expectedIds, ids);
 	}
 
-	TEST(ConsumerDispatcherTests, ConsumerCanConsumeSingleElement) {
+	TEST(TEST_CLASS, ConsumerIsNotPassedEmptyInput) {
+		// Arrange:
+		std::vector<model::BlockRange> ranges;
+		ranges.push_back(model::BlockRange());
+
+		auto numConsumerCalls = 0u;
+		auto numInspectorCalls = 0u;
+		ConsumerDispatcher dispatcher(
+				Test_Dispatcher_Options,
+				{
+					[&numConsumerCalls](const auto&) {
+						++numConsumerCalls;
+						return ConsumerResult::Continue();
+					}
+				},
+				[&numInspectorCalls](const auto&, const auto&) { ++numInspectorCalls; });
+
+		// Act: push single (empty) element
+		ProcessAll(dispatcher, std::move(ranges));
+		// - pause is here, to let both the consumer and inspector continue for a bit more,
+		//   in case if it would still be running and there'd be bug in implementation
+		test::Pause();
+
+		// Assert: the element was not passed to the consumer or inspector
+		EXPECT_EQ(0u, dispatcher.numAddedElements());
+		EXPECT_EQ(0u, dispatcher.numActiveElements());
+		EXPECT_EQ(0u, numConsumerCalls);
+		EXPECT_EQ(0u, numInspectorCalls);
+	}
+
+	TEST(TEST_CLASS, ConsumerCanConsumeSingleElement) {
 		// Arrange:
 		auto ranges = test::PrepareRanges(1);
 		auto expectedHeights = GetExpectedHeights(ranges);
@@ -195,7 +307,11 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(expectedHeights, collectedHeights);
 	}
 
-	TEST(ConsumerDispatcherTests, CanInspectSingleElement) {
+	// endregion
+
+	// region inspect + consume
+
+	TEST(TEST_CLASS, CanInspectSingleElement) {
 		// Arrange:
 		auto ranges = test::PrepareRanges(1);
 		auto expectedHeights = GetExpectedHeights(ranges);
@@ -217,66 +333,21 @@ namespace catapult { namespace disruptor {
 		// Assert:
 		EXPECT_EQ(1u, collectedHeights.size());
 		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());
+		EXPECT_EQ(0u, dispatcher.numActiveElements());
 		EXPECT_EQ(expectedHeights, collectedHeights);
 		EXPECT_EQ(1u, numInspectorCalls);
 	}
 
-	TEST(ConsumerDispatcherTests, ConsumerIsNotPassedEmptyInput) {
-		// Arrange:
-		std::vector<model::BlockRange> ranges;
-		ranges.push_back(model::BlockRange());
-
-		auto numConsumerCalls = 0u;
-		auto numInspectorCalls = 0u;
-		ConsumerDispatcher dispatcher(
-				Test_Dispatcher_Options,
-				{ [&numConsumerCalls](const auto&) -> ConsumerResult { ++numConsumerCalls; return ConsumerResult::Continue(); } },
-				[&numInspectorCalls](const auto&, const auto&) { ++numInspectorCalls; });
-
-		// Act: push single (empty) element
-		ProcessAll(dispatcher, std::move(ranges));
-		// - pause is here, to let both the consumer and inspector continue for a bit more,
-		//   in case if it would still be running and there'd be bug in implementation
-		test::Pause();
-
-		// Assert: the element was not passed to the consumer or inspector
-		EXPECT_EQ(0u, dispatcher.numAddedElements());
-		EXPECT_EQ(0u, numConsumerCalls);
-		EXPECT_EQ(0u, numInspectorCalls);
-	}
-
-	TEST(ConsumerDispatcherTests, ShutdownStopsDispatcher) {
-		// Arrange:
-		auto numConsumerCalls = 0u;
-		auto numInspectorCalls = 0u;
-		auto ranges = test::PrepareRanges(1);
-		ConsumerDispatcher dispatcher(
-				Test_Dispatcher_Options,
-				{ [&numConsumerCalls](const auto&) -> ConsumerResult { ++numConsumerCalls; return ConsumerResult::Continue(); } },
-				[&numInspectorCalls](const auto&, const auto&) { ++numInspectorCalls; });
-
-		// Act:
-		dispatcher.shutdown();
-		ProcessAll(dispatcher, std::move(ranges));
-
-		// Assert:
-		EXPECT_EQ(1u, dispatcher.size());
-		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());
-		EXPECT_EQ(0u, numConsumerCalls);
-		EXPECT_FALSE(dispatcher.isRunning());
-		EXPECT_EQ(0u, numInspectorCalls);
-	}
-
 	namespace {
 		auto CreateCollectingInspector(std::vector<Heights>& heightsCollector, std::vector<CompletionStatus>& statusCollector) {
-			return [&](ConsumerInput& input, const ConsumerCompletionResult& completionResult) {
+			return [&](auto& input, const auto& completionResult) {
 				heightsCollector.push_back(BlockElementVectorToHeights(input.blocks()));
 				statusCollector.push_back(completionResult.CompletionStatus);
 			};
 		}
 	}
 
-	TEST(ConsumerDispatcherTests, CanConsumeAndInspectAllElementsWithSingleConsumer) {
+	TEST(TEST_CLASS, CanConsumeAndInspectAllElementsWithSingleConsumer) {
 		// Arrange:
 		auto ranges = test::PrepareRanges(5);
 		auto expectedHeights = GetExpectedHeights(ranges);
@@ -292,16 +363,18 @@ namespace catapult { namespace disruptor {
 
 		// - push multiple elements
 		ProcessAll(dispatcher, std::move(ranges));
-		WAIT_FOR_VALUE_EXPR(inspectedHeights.size(), 5u);
+		WAIT_FOR_VALUE_EXPR(5u, inspectedHeights.size());
+		WAIT_FOR_ZERO_EXPR(dispatcher.numActiveElements());
 
 		// Assert:
 		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());
+		EXPECT_EQ(0u, dispatcher.numActiveElements());
 		EXPECT_EQ(expectedHeights, collectedHeights);
 		EXPECT_EQ(expectedHeights, inspectedHeights);
 		EXPECT_EQ(std::vector<CompletionStatus>(5, CompletionStatus::Normal), inspectedStatuses);
 	}
 
-	TEST(ConsumerDispatcherTests, CanConsumeAndInspectAllElementsWithMultipleConsumers) {
+	TEST(TEST_CLASS, CanConsumeAndInspectAllElementsWithMultipleConsumers) {
 		// Arrange:
 		auto ranges = test::PrepareRanges(5);
 		auto expectedHeights = GetExpectedHeights(ranges);
@@ -321,10 +394,12 @@ namespace catapult { namespace disruptor {
 
 		// - push multiple elements
 		ProcessAll(dispatcher, std::move(ranges));
-		WAIT_FOR_VALUE_EXPR(inspectedHeights.size(), 5u);
+		WAIT_FOR_VALUE_EXPR(5u, inspectedHeights.size());
+		WAIT_FOR_ZERO_EXPR(dispatcher.numActiveElements());
 
 		// Assert:
 		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());
+		EXPECT_EQ(0u, dispatcher.numActiveElements());
 		EXPECT_EQ(expectedHeights, collectedHeights[0]);
 		EXPECT_EQ(expectedHeights, collectedHeights[1]);
 		EXPECT_EQ(expectedHeights, collectedHeights[2]);
@@ -332,9 +407,13 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(std::vector<CompletionStatus>(5, CompletionStatus::Normal), inspectedStatuses);
 	}
 
+	// endregion
+
+	// region element marking
+
 	namespace {
 		auto CreateSkipIfFirstBlockIsEvenConsumer() {
-			return [](ConsumerInput& consumerInput) -> ConsumerResult {
+			return [](auto& consumerInput) {
 				return 0 == consumerInput.blocks()[0].Block.Height.unwrap() % 2
 						? ConsumerResult::Abort()
 						: ConsumerResult::Continue();
@@ -342,7 +421,7 @@ namespace catapult { namespace disruptor {
 		}
 	}
 
-	TEST(ConsumerDispatcherTests, MarkedElementsAreSkippedByHigherConsumers) {
+	TEST(TEST_CLASS, MarkedElementsAreSkippedByHigherConsumers) {
 		// Arrange:
 		std::vector<Heights> collectedHeights;
 		auto ranges = test::PrepareRanges(5);
@@ -364,14 +443,14 @@ namespace catapult { namespace disruptor {
 
 		// push multiple elements
 		ProcessAll(dispatcher, std::move(ranges));
-		WAIT_FOR_VALUE_EXPR(collectedHeights.size(), 3u);
+		WAIT_FOR_VALUE_EXPR(3u, collectedHeights.size());
 
 		// Assert:
 		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());
 		EXPECT_EQ(expectedHeights, collectedHeights);
 	}
 
-	TEST(ConsumerDispatcherTests, MarkedElementsArePassedToInspector) {
+	TEST(TEST_CLASS, MarkedElementsArePassedToInspector) {
 		// Arrange:
 		std::vector<Heights> inspectedHeights;
 		std::vector<CompletionStatus> inspectedStatuses;
@@ -390,7 +469,7 @@ namespace catapult { namespace disruptor {
 
 		// - push multiple elements
 		ProcessAll(dispatcher, std::move(ranges));
-		WAIT_FOR_VALUE_EXPR(inspectedHeights.size(), 5u);
+		WAIT_FOR_VALUE_EXPR(5u, inspectedHeights.size());
 
 		// Assert:
 		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());
@@ -403,6 +482,10 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(expectedStatuses, inspectedStatuses);
 	}
 
+	// endregion
+
+	// region exception + space exhaution
+
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wused-but-marked-unused"
@@ -414,7 +497,7 @@ namespace catapult { namespace disruptor {
 #pragma warning(disable:4702) /* "unreachable code" */
 #endif
 
-	TEST(ConsumerDispatcherTests, ExceptionThrownFromTheConsumerTerminates) {
+	TEST(TEST_CLASS, ExceptionThrownFromTheConsumerTerminates) {
 		ASSERT_DEATH({
 			// Arrange:
 			auto ranges = test::PrepareRanges(1);
@@ -422,7 +505,7 @@ namespace catapult { namespace disruptor {
 			ConsumerDispatcher dispatcher(
 					Test_Dispatcher_Options,
 					{
-						[](const auto&) -> ConsumerResult {
+						[](const auto&) {
 							CATAPULT_THROW_RUNTIME_ERROR("dummy consumer exception");
 							return ConsumerResult::Continue();
 						}
@@ -430,7 +513,7 @@ namespace catapult { namespace disruptor {
 
 			// Act:
 			ProcessAll(dispatcher, std::move(ranges));
-			WAIT_FOR_VALUE_EXPR(dispatcher.isRunning(), false);
+			WAIT_FOR_EXPR(!dispatcher.isRunning());
 		}, "");
 	}
 
@@ -438,37 +521,93 @@ namespace catapult { namespace disruptor {
 #pragma warning(pop)
 #endif
 
-	TEST(ConsumerDispatcherTests, ConsumerThrowsIfDisruptorSpaceIsExhausted) {
-		ASSERT_DEATH({
-			// Arrange:
-			constexpr size_t Disruptor_Size = 8;
-			auto ranges = test::PrepareRanges(Disruptor_Size - 1);
-			std::atomic<size_t> counter(0);
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
-			ConsumerDispatcher dispatcher(
-					{ "ConsumerDispatcherTests", Disruptor_Size },
-					{
-						[&](const auto&) -> ConsumerResult {
-							++counter;
-							CATAPULT_LOG(info) << "consumer is processing element " << counter;
-							return ConsumerResult::Continue();
-						},
-						[&](const auto&) -> ConsumerResult {
-							while (true)
-								test::Sleep(5);
-						}
-					});
+	namespace {
+		template<typename TAction>
+		void RunDispatcherFullTest(const ConsumerDispatcherOptions& options, TAction action) {
+			// Arrange:
+			auto ranges = test::PrepareRanges(options.DisruptorSize - 1);
+			std::atomic<size_t> counter(0);
+			std::unique_ptr<ConsumerDispatcher> pDispatcher;
+			test::AutoSetFlag continueFlag;
+			pDispatcher = std::make_unique<ConsumerDispatcher>(options, std::vector<DisruptorConsumer>{
+				[&counter](const auto&) {
+					++counter;
+					CATAPULT_LOG(info) << "consumer is processing element " << counter;
+					return ConsumerResult::Continue();
+				},
+				[&continueFlag](const auto&) {
+					continueFlag.wait();
+					return ConsumerResult::Continue();
+				}
+			});
 
 			// Act: first consumer is processing disruptorSize - 1 elements, second consumer just waits
-			ProcessAll(dispatcher, std::move(ranges));
-			WAIT_FOR_VALUE(counter, Disruptor_Size - 1);
+			ProcessAll(*pDispatcher, std::move(ranges));
+			WAIT_FOR_VALUE(options.DisruptorSize - 1, counter);
 
-			// - adding another element to the disruptor will let the first consumer detect the failure
+			// Assert:
+			action(*pDispatcher, continueFlag);
+		}
+	}
+
+	TEST(TEST_CLASS, DispatcherThrowsIfDisruptorSpaceIsExhausted) {
+		// Act:
+		static constexpr auto Disruptor_Size = 8u;
+		RunDispatcherFullTest({ "ConsumerDispatcherTests", Disruptor_Size }, [](auto& dispatcher, const auto&) {
+			// Act + Assert: adding another element to the disruptor will fail
 			CATAPULT_LOG(info) << "consumer attempting to process another element";
-			auto killerRange = test::CreateBlockEntityRange(1);
-			dispatcher.processElement(ConsumerInput(std::move(killerRange)));
-			WAIT_FOR_VALUE(counter, Disruptor_Size);
-		}, "");
+			EXPECT_THROW(dispatcher.processElement(ConsumerInput(test::CreateBlockEntityRange(1))), catapult_runtime_error);
+		});
+	}
+
+	TEST(TEST_CLASS, DispatcherReturnsZeroIfDisruptorSpaceIsExhaustedAndShouldThrowIfFullIsFalse) {
+		// Arrange:
+		static constexpr auto Disruptor_Size = 8u;
+		auto options = ConsumerDispatcherOptions{ "ConsumerDispatcherTests", Disruptor_Size };
+		options.ShouldThrowIfFull = false;
+
+		// Act:
+		RunDispatcherFullTest(options, [](auto& dispatcher, const auto&) {
+			CATAPULT_LOG(info) << "consumer attempting to process another element";
+			auto killerId = dispatcher.processElement(ConsumerInput(test::CreateBlockEntityRange(1)));
+
+			// Assert: no element was added to disruptor
+			EXPECT_EQ(0u, killerId);
+			EXPECT_EQ(Disruptor_Size - 1, dispatcher.numAddedElements());
+			EXPECT_EQ(Disruptor_Size - 1, dispatcher.numActiveElements());
+		});
+	}
+
+	TEST(TEST_CLASS, DispatcherCanProcessAdditionalElementsAfterZeroIsReturnedDueToFullDisruptor) {
+		// Arrange:
+		static constexpr auto Disruptor_Size = 8u;
+		auto options = ConsumerDispatcherOptions{ "ConsumerDispatcherTests", Disruptor_Size };
+		options.ShouldThrowIfFull = false;
+
+		// Act:
+		RunDispatcherFullTest(options, [](auto& dispatcher, auto& continueFlag) {
+			CATAPULT_LOG(info) << "consumer attempting to process another element";
+			auto killerId = dispatcher.processElement(ConsumerInput(test::CreateBlockEntityRange(1)));
+
+			// Sanity: dispatcher is full
+			EXPECT_EQ(0u, killerId);
+			EXPECT_EQ(Disruptor_Size - 1, dispatcher.numAddedElements());
+
+			// Act: drain the dispatcher
+			continueFlag.set();
+			WAIT_FOR_ZERO_EXPR(dispatcher.numActiveElements());
+
+			// - add another range
+			auto lastId = dispatcher.processElement(ConsumerInput(test::CreateBlockEntityRange(1)));
+
+			// Assert: the range was added
+			EXPECT_EQ(Disruptor_Size, lastId);
+			EXPECT_EQ(Disruptor_Size, dispatcher.numAddedElements());
+		});
 	}
 
 	namespace {
@@ -479,7 +618,7 @@ namespace catapult { namespace disruptor {
 				const test::AutoSetFlag& continueFlag) {
 			std::vector<DisruptorConsumer> consumers(counters.size());
 			for (auto i = 0u; i < counters.size(); ++i) {
-				auto consumer = [&counters, &totalCounter, &continueFlag, i, offset](const auto&) -> ConsumerResult {
+				auto consumer = [&counters, &totalCounter, &continueFlag, i, offset](const auto&) {
 					CATAPULT_LOG(info) << "consumer " << i << " is processing element " << (counters[i] + 1);
 					++counters[i];
 					++totalCounter;
@@ -499,61 +638,53 @@ namespace catapult { namespace disruptor {
 		}
 
 		void AssertDeathIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions(size_t offset) {
-			ASSERT_DEATH({
-				// Arrange:
-				std::atomic<size_t> totalCounter(0);
-				constexpr auto Disruptor_Size = 4u;
-				std::vector<size_t> counters(Disruptor_Size);
-				std::unique_ptr<ConsumerDispatcher> pDispatcher;
-				test::AutoSetFlag continueFlag;
-				auto consumers = CreateConsumers(counters, totalCounter, offset, continueFlag);
-				pDispatcher = std::make_unique<ConsumerDispatcher>(
-						ConsumerDispatcherOptions({ "ConsumerDispatcherTests", Disruptor_Size }),
-						consumers);
+			// Arrange:
+			std::atomic<size_t> totalCounter(0);
+			constexpr auto Disruptor_Size = 4u;
+			std::vector<size_t> counters(Disruptor_Size);
+			std::unique_ptr<ConsumerDispatcher> pDispatcher;
+			test::AutoSetFlag continueFlag;
+			auto consumers = CreateConsumers(counters, totalCounter, offset, continueFlag);
+			pDispatcher = std::make_unique<ConsumerDispatcher>(
+					ConsumerDispatcherOptions{ "ConsumerDispatcherTests", Disruptor_Size },
+					consumers);
 
-				// - let consumers process offset ranges, their position is at offset afterwards
-				//   (except for the inspector which is at position offset - 1)
-				auto phase1Ranges = test::PrepareRanges(offset);
-				for (auto i = 0u; i < offset; ++i) {
-					pDispatcher->processElement(ConsumerInput(std::move(phase1Ranges[i])));
+			// - let consumers process offset ranges, their position is at offset afterwards
+			//   (except for the inspector which is at position offset - 1)
+			auto phase1Ranges = test::PrepareRanges(offset);
+			for (auto i = 0u; i < offset; ++i) {
+				pDispatcher->processElement(ConsumerInput(std::move(phase1Ranges[i])));
 
-					// wait for each element to be fully processed so consumer 0 does not get too far ahead
-					WAIT_FOR_VALUE(totalCounter, (i + 1) * Disruptor_Size);
-				}
+				// wait for each element to be fully processed so consumer 0 does not get too far ahead
+				WAIT_FOR_VALUE((i + 1) * Disruptor_Size, totalCounter);
+			}
 
-				// Act:
-				// - consumer 0 + 1 will advance Disruptor_Size - 2 positions
-				// - consumer 2 will advance Disruptor_Size - 3 positions
-				// - consumer 3 will stay where it is
-				auto phase2Ranges = test::PrepareRanges(Disruptor_Size - 2);
-				ProcessAll(*pDispatcher, std::move(phase2Ranges));
-				WAIT_FOR_VALUE(totalCounter, offset * Disruptor_Size + 2 + 2 + 1);
+			// Act:
+			// - consumer 0 + 1 will advance Disruptor_Size - 2 positions
+			// - consumer 2 will advance Disruptor_Size - 3 positions
+			// - consumer 3 will stay where it is
+			auto phase2Ranges = test::PrepareRanges(Disruptor_Size - 2);
+			ProcessAll(*pDispatcher, std::move(phase2Ranges));
+			WAIT_FOR_VALUE(offset * Disruptor_Size + 2 + 2 + 1, totalCounter);
 
-				CATAPULT_LOG(info) << "all consumers reached their predefined positions";
-				for (auto i = 0u; i < counters.size(); ++i)
-					CATAPULT_LOG(debug) << "counters[" << i << "]: " << counters[i];
+			CATAPULT_LOG(info) << "all consumers reached their predefined positions";
+			for (auto i = 0u; i < counters.size(); ++i)
+				CATAPULT_LOG(debug) << "counters[" << i << "]: " << counters[i];
 
-				// adding another element to the disruptor will let consumer 0 detect the failure
-				// consumer 0 will attempt to process at (offset - 1 + Disruptor_Size) but inspector is only at (offset - 1)
-				auto killerRange = test::CreateBlockEntityRange(1);
-				CATAPULT_LOG(info) << "consumer 0 is processing the deadly element";
-				pDispatcher->processElement(ConsumerInput(std::move(killerRange)));
-
-				// intentionally use dummy value, as this code should never be reached (due to earlier throw)
-				WAIT_FOR_VALUE_EXPR(counters[0], 123456u);
-			}, "");
+			// Act + Assert: adding another element to the disruptor will let processElement detect the failure
+			//         processElement will attempt to process at (offset - 1 + Disruptor_Size) but inspector is only at (offset - 1)
+			CATAPULT_LOG(info) << "consumer 0 is processing the deadly element";
+			EXPECT_THROW(pDispatcher->processElement(ConsumerInput(test::CreateBlockEntityRange(1))), catapult_runtime_error);
 		}
 	}
 
-	TEST(ConsumerDispatcherTests, ConsumerThrowsIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions_NoWrapAround) {
+	TEST(TEST_CLASS, DispatcherThrowsIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions_NoWrapAround) {
 		AssertDeathIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions(1);
 	}
 
-	TEST(ConsumerDispatcherTests, ConsumerThrowsIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions_WrapAround) {
+	TEST(TEST_CLASS, DispatcherThrowsIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions_WrapAround) {
 		AssertDeathIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions(10);
 	}
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+	// endregion
 }}

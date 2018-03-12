@@ -1,11 +1,11 @@
 #pragma once
+#include "catapult/model/Mosaic.h"
 #include "catapult/types.h"
 #include <functional>
 #include <vector>
 
-namespace catapult { namespace model { struct Mosaic; } }
-
 namespace catapult { namespace state {
+
 	/// Prototype for a mosaic levy rule.
 	using MosaicLevyRule = std::function<model::Mosaic (const model::Mosaic&)>;
 

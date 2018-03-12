@@ -1,5 +1,5 @@
 #include "catapult/observers/DemuxObserverBuilder.h"
-#include "tests/catapult/observers/utils/AggregateObserverTestUtils.h"
+#include "tests/catapult/observers/test/AggregateObserverTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -138,20 +138,16 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, NotificationsAreForwardedToChildObservers) {
 		// Assert:
-		AssertNotificationsAreForwardedToChildObservers(
-				DemuxObserverBuilder(),
-				[](auto& builder, auto&& pObserver) {
-					builder.template add<model::Notification>(std::move(pObserver));
-				});
+		test::AssertNotificationsAreForwardedToChildObservers(DemuxObserverBuilder(), [](auto& builder, auto&& pObserver) {
+			builder.template add<model::Notification>(std::move(pObserver));
+		});
 	}
 
 	TEST(TEST_CLASS, ContextsAreForwardedToChildObservers) {
 		// Assert:
-		AssertContextsAreForwardedToChildObservers(
-				DemuxObserverBuilder(),
-				[](auto& builder, auto&& pObserver) {
-					builder.template add<model::Notification>(std::move(pObserver));
-				});
+		test::AssertContextsAreForwardedToChildObservers(DemuxObserverBuilder(), [](auto& builder, auto&& pObserver) {
+			builder.template add<model::Notification>(std::move(pObserver));
+		});
 	}
 
 	// endregion
@@ -187,37 +183,51 @@ namespace catapult { namespace observers {
 		NotificationObserverPointerT<TNotification> CreateBreadcrumbObserver(Breadcrumbs& breadcrumbs, const std::string& name) {
 			return std::make_unique<MockBreadcrumbObserver<TNotification>>(name, breadcrumbs);
 		}
+
+		void AssertCanFilterObserversBasedOnNotificationType(const consumer<model::Notification&>& prepareNotification) {
+			// Arrange:
+			Breadcrumbs breadcrumbs;
+			DemuxObserverBuilder builder;
+
+			state::CatapultState state;
+			cache::CatapultCache cache({});
+			auto cacheDelta = cache.createDelta();
+			auto context = test::CreateObserverContext(cacheDelta, state, Height(123), NotifyMode::Commit);
+
+			builder
+				.add(CreateBreadcrumbObserver<model::AccountPublicKeyNotification>(breadcrumbs, "alpha"))
+				.add(CreateBreadcrumbObserver<model::AccountAddressNotification>(breadcrumbs, "OMEGA"))
+				.add(CreateBreadcrumbObserver(breadcrumbs, "zEtA"));
+			auto pObserver = builder.build();
+
+			// Act:
+			auto notification = model::AccountPublicKeyNotification(Key());
+			prepareNotification(notification);
+			test::ObserveNotification<model::Notification>(*pObserver, notification, context);
+
+			// Assert:
+			Breadcrumbs expectedNames{ "alpha", "OMEGA", "zEtA" };
+			EXPECT_EQ(expectedNames, pObserver->names());
+
+			// - alpha matches notification type
+			// - OMEGA does not match notification type
+			// - zEtA matches all types
+			Breadcrumbs expectedSelectedNames{ "alpha", "zEtA" };
+			EXPECT_EQ(expectedSelectedNames, breadcrumbs);
+		}
 	}
 
 	TEST(TEST_CLASS, CanFilterObserversBasedOnNotificationType) {
-		// Arrange:
-		Breadcrumbs breadcrumbs;
-		DemuxObserverBuilder builder;
-
-		state::CatapultState state;
-		cache::CatapultCache cache({});
-		auto cacheDelta = cache.createDelta();
-		auto context = test::CreateObserverContext(cacheDelta, state, Height(123), NotifyMode::Commit);
-
-		builder
-			.add(CreateBreadcrumbObserver<model::AccountPublicKeyNotification>(breadcrumbs, "alpha"))
-			.add(CreateBreadcrumbObserver<model::AccountAddressNotification>(breadcrumbs, "OMEGA"))
-			.add(CreateBreadcrumbObserver(breadcrumbs, "zEtA"));
-		auto pObserver = builder.build();
-
-		// Act:
-		auto notification = model::AccountPublicKeyNotification(Key());
-		test::ObserveNotification<model::Notification>(*pObserver, notification, context);
-
 		// Assert:
-		Breadcrumbs expectedNames{ "alpha", "OMEGA", "zEtA" };
-		EXPECT_EQ(expectedNames, pObserver->names());
+		AssertCanFilterObserversBasedOnNotificationType([](const auto&) {});
+	}
 
-		// - alpha matches notification type
-		// - OMEGA does not match notification type
-		// - zEtA matches all types
-		Breadcrumbs expectedSelectedNames{ "alpha", "zEtA" };
-		EXPECT_EQ(expectedSelectedNames, breadcrumbs);
+	TEST(TEST_CLASS, CanFilterObserversBasedOnNotificationTypeIgnoringChannel) {
+		// Assert:
+		AssertCanFilterObserversBasedOnNotificationType([](auto& notification) {
+			// Arrange: change notification by changing channel
+			model::SetNotificationChannel(notification.Type, model::NotificationChannel::None);
+		});
 	}
 
 	// endregion

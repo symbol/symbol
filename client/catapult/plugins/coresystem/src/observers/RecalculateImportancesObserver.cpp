@@ -1,6 +1,6 @@
 #include "Observers.h"
 #include "ImportanceCalculator.h"
-#include "src/cache/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 
 namespace catapult { namespace observers {
 
@@ -63,7 +63,7 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	NotificationObserverPointerT<model::BlockNotification> CreateRecalculateImportancesObserver(
+	DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)(
 			std::unique_ptr<ImportanceCalculator>&& pCommitCalculator,
 			std::unique_ptr<ImportanceCalculator>&& pRollbackCalculator) {
 		return std::make_unique<RecalculateImportancesObserver>(std::move(pCommitCalculator), std::move(pRollbackCalculator));

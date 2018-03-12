@@ -4,7 +4,9 @@
 
 namespace catapult { namespace cache {
 
-	TEST(CacheHeightTests, HeightIsInitiallyZero) {
+#define TEST_CLASS CacheHeightTests
+
+	TEST(TEST_CLASS, HeightIsInitiallyZero) {
 		// Act:
 		CacheHeight height;
 
@@ -12,7 +14,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Height(0), height.view().get());
 	}
 
-	TEST(CacheHeightTests, CanChangeHeight) {
+	TEST(TEST_CLASS, CanChangeHeight) {
 		// Arrange:
 		CacheHeight height;
 
@@ -31,7 +33,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	DEFINE_LOCK_PROVIDER_TESTS(CacheHeightTests)
+	DEFINE_LOCK_PROVIDER_TESTS(TEST_CLASS)
 
 	// endregion
 }}

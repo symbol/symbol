@@ -1,6 +1,6 @@
 #pragma once
-#include "plugins/coresystem/src/cache/AccountStateCache.h"
-#include "tests/test/plugins/ObserverTestContext.h"
+#include "ObserverTestContext.h"
+#include "catapult/cache_core/AccountStateCache.h"
 
 namespace catapult { namespace test {
 
@@ -10,19 +10,23 @@ namespace catapult { namespace test {
 		using ObserverTestContext::ObserverTestContext;
 
 	public:
-		/// Finds the account identified by \a accountIdentifier.
-		template<typename IdType>
-		std::shared_ptr<const state::AccountState> find(const IdType& accountIdentifier) const {
-			return cache().sub<cache::AccountStateCache>().findAccount(accountIdentifier);
+		/// Finds the account identified by \a address.
+		const state::AccountState* find(const Address& address) const {
+			return cache().sub<cache::AccountStateCache>().tryGet(address);
+		}
+
+		/// Finds the account identified by \a publicKey.
+		const state::AccountState* find(const Key& publicKey) const {
+			return cache().sub<cache::AccountStateCache>().tryGet(publicKey);
 		}
 
 	private:
-		std::shared_ptr<state::AccountState> addAccount(const Key& publicKey) {
-			return cache().sub<cache::AccountStateCache>().addAccount(publicKey, Height(1));
+		state::AccountState& addAccount(const Address& address) {
+			return cache().sub<cache::AccountStateCache>().addAccount(address, Height(1234));
 		}
 
-		std::shared_ptr<state::AccountState> addAccount(const Address& address) {
-			return cache().sub<cache::AccountStateCache>().addAccount(address, Height(1234));
+		state::AccountState& addAccount(const Key& publicKey) {
+			return cache().sub<cache::AccountStateCache>().addAccount(publicKey, Height(1));
 		}
 
 	public:
@@ -35,9 +39,9 @@ namespace catapult { namespace test {
 		/// Sets the (xem) balance of the account identified by \a accountIdentifier to \a amount.
 		template<typename IdType>
 		state::AccountBalances& setAccountBalance(const IdType& accountIdentifier, Amount amount) {
-			auto pAccountState = addAccount(accountIdentifier);
-			pAccountState->Balances.credit(Xem_Id, amount);
-			return pAccountState->Balances;
+			auto& accountState = addAccount(accountIdentifier);
+			accountState.Balances.credit(Xem_Id, amount);
+			return accountState.Balances;
 		}
 
 		/// Gets the (xem) balance of the account identified by \a accountIdentifier.

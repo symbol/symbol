@@ -1,8 +1,10 @@
 #pragma once
 #ifndef CUSTOM_RESULT_DEFINITION
+#include "plugins/txes/aggregate/src/validators/Results.h"
 #include "catapult/validators/ValidationResult.h"
 
 namespace catapult { namespace validators {
+
 #endif
 /// Defines a multisig validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_MULTISIG_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Multisig, DESCRIPTION, CODE, None)
@@ -37,20 +39,17 @@ namespace catapult { namespace validators {
 	/// Validation failed because the cosignatory already cosigns the maximum number of accounts.
 	DEFINE_MULTISIG_RESULT(Modify_Max_Cosigned_Accounts, 10);
 
+	/// Validation failed because the multisig account already has the maximum number of cosignatories.
+	DEFINE_MULTISIG_RESULT(Modify_Max_Cosigners, 11);
+
 	/// Validation failed because a multisig loop is created.
-	DEFINE_MULTISIG_RESULT(Modify_Loop, 11);
+	DEFINE_MULTISIG_RESULT(Modify_Loop, 12);
 
 	/// Validation failed because the max multisig depth is exceeded.
-	DEFINE_MULTISIG_RESULT(Modify_Max_Multisig_Depth, 12);
+	DEFINE_MULTISIG_RESULT(Modify_Max_Multisig_Depth, 13);
 
 	/// Validation failed because an operation is not permitted by a multisig account.
 	DEFINE_MULTISIG_RESULT(Operation_Not_Permitted_By_Account, 0x0800);
-
-	/// Validation failed because at least one cosigner is ineligible.
-	DEFINE_MULTISIG_RESULT(Ineligible_Cosigners, 0x1001);
-
-	/// Validation failed because at least one required cosigner is missing.
-	DEFINE_MULTISIG_RESULT(Missing_Cosigners, 0x1002);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

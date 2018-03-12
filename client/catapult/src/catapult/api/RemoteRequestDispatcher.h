@@ -8,8 +8,8 @@ namespace catapult { namespace api {
 	/// Dispatches requests to a remote node
 	class RemoteRequestDispatcher {
 	public:
-		/// Creates a remote request dispatcher around \a pIo.
-		explicit RemoteRequestDispatcher(const std::shared_ptr<ionet::PacketIo>& pIo) : m_pIo(pIo)
+		/// Creates a remote request dispatcher around \a io.
+		explicit RemoteRequestDispatcher(ionet::PacketIo& io) : m_io(io)
 		{}
 
 	public:
@@ -37,23 +37,25 @@ namespace catapult { namespace api {
 		template<typename TFuncTraits, typename TCallback>
 		void send(const TFuncTraits& traits, const ionet::PacketPayload& packetPayload, const TCallback& callback) {
 			using ResultType = typename TFuncTraits::ResultType;
-			m_pIo->write(packetPayload, [traits, callback, pIo = m_pIo](const ionet::SocketOperationCode& code) {
+			m_io.write(packetPayload, [traits, callback, &io = m_io](auto code) {
 				if (ionet::SocketOperationCode::Success != code)
 					return callback(RemoteChainResult::Write_Error, ResultType());
 
-				pIo->read([traits, callback](auto readCode, const auto* pResponsePacket) {
+				io.read([traits, callback](auto readCode, const auto* pResponsePacket) {
 					if (ionet::SocketOperationCode::Success != readCode)
 						return callback(RemoteChainResult::Read_Error, ResultType());
 
 					if (TFuncTraits::PacketType() != pResponsePacket->Type) {
-						CATAPULT_LOG(warning) << "received packet of type " << pResponsePacket->Type
+						CATAPULT_LOG(warning)
+								<< "received packet of type " << pResponsePacket->Type
 								<< " but expected type " << TFuncTraits::PacketType();
 						return callback(RemoteChainResult::Malformed_Packet, ResultType());
 					}
 
 					ResultType result;
 					if (!traits.tryParseResult(*pResponsePacket, result)) {
-						CATAPULT_LOG(warning) << "unable to parse " << pResponsePacket->Type
+						CATAPULT_LOG(warning)
+								<< "unable to parse " << pResponsePacket->Type
 								<< " packet (size = " << pResponsePacket->Size << ")";
 						return callback(RemoteChainResult::Malformed_Packet, ResultType());
 					}
@@ -84,6 +86,6 @@ namespace catapult { namespace api {
 		}
 
 	private:
-		std::shared_ptr<ionet::PacketIo> m_pIo;
+		ionet::PacketIo& m_io;
 	};
 }}

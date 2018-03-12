@@ -33,7 +33,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			void handleServerChallengeRequestWrite(const ionet::SocketOperationCode& code) const {
+			void handleServerChallengeRequestWrite(ionet::SocketOperationCode code) const {
 				if (ionet::SocketOperationCode::Success != code)
 					return invokeCallback(VerifyResult::Io_Error_ServerChallengeRequest);
 
@@ -42,18 +42,16 @@ namespace catapult { namespace net {
 				});
 			}
 
-			void handleServerChallengeResponseRead(
-					const ionet::SocketOperationCode& code,
-					const ionet::Packet* pPacket) const {
+			void handleServerChallengeResponseRead(ionet::SocketOperationCode code, const ionet::Packet* pPacket) const {
 				if (ionet::SocketOperationCode::Success != code)
 					return invokeCallback(VerifyResult::Io_Error_ServerChallengeResponse);
 
-				auto pResponse = ionet::CoercePacket<ServerChallengeResponse>(pPacket);
+				const auto* pResponse = ionet::CoercePacket<ServerChallengeResponse>(pPacket);
 				if (nullptr == pResponse)
 					return invokeCallback(VerifyResult::Malformed_Data);
 
 				if (!VerifyServerChallengeResponse(*pResponse, m_pRequest->Challenge))
-					return invokeCallback(VerifyResult::Failed_Challenge);
+					return invokeCallback(VerifyResult::Failure_Challenge);
 
 				const auto& clientPublicKey = pResponse->PublicKey;
 				auto pServerResponse = GenerateClientChallengeResponse(*pResponse, m_keyPair);
@@ -62,7 +60,7 @@ namespace catapult { namespace net {
 				});
 			}
 
-			void handleClientChallengeReponseWrite(const ionet::SocketOperationCode& code, const Key& clientPublicKey) const {
+			void handleClientChallengeReponseWrite(ionet::SocketOperationCode code, const Key& clientPublicKey) const {
 				if (ionet::SocketOperationCode::Success != code)
 					return invokeCallback(VerifyResult::Io_Error_ClientChallengeResponse, clientPublicKey);
 
@@ -87,10 +85,7 @@ namespace catapult { namespace net {
 		};
 	}
 
-	void VerifyClient(
-			const std::shared_ptr<ionet::PacketIo>& pClientIo,
-			const crypto::KeyPair& keyPair,
-			const VerifyCallback& callback) {
+	void VerifyClient(const std::shared_ptr<ionet::PacketIo>& pClientIo, const crypto::KeyPair& keyPair, const VerifyCallback& callback) {
 		auto pHandler = std::make_shared<VerifyClientHandler>(pClientIo, keyPair, callback);
 		pHandler->start();
 	}
@@ -117,11 +112,11 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			void handleServerChallengeRequestRead(const ionet::SocketOperationCode& code, const ionet::Packet* pPacket) {
+			void handleServerChallengeRequestRead(ionet::SocketOperationCode code, const ionet::Packet* pPacket) {
 				if (ionet::SocketOperationCode::Success != code)
 					return invokeCallback(VerifyResult::Io_Error_ServerChallengeRequest);
 
-				auto pRequest = ionet::CoercePacket<ServerChallengeRequest>(pPacket);
+				const auto* pRequest = ionet::CoercePacket<ServerChallengeRequest>(pPacket);
 				if (nullptr == pRequest)
 					return invokeCallback(VerifyResult::Malformed_Data);
 
@@ -131,7 +126,7 @@ namespace catapult { namespace net {
 				});
 			}
 
-			void handleServerChallengeResponseWrite(const ionet::SocketOperationCode& code) const {
+			void handleServerChallengeResponseWrite(ionet::SocketOperationCode code) const {
 				if (ionet::SocketOperationCode::Success != code)
 					return invokeCallback(VerifyResult::Io_Error_ServerChallengeResponse);
 
@@ -140,21 +135,16 @@ namespace catapult { namespace net {
 				});
 			}
 
-			void handleClientChallengeReponseRead(
-					const ionet::SocketOperationCode& code,
-					const ionet::Packet* pPacket) const {
+			void handleClientChallengeReponseRead(ionet::SocketOperationCode code, const ionet::Packet* pPacket) const {
 				if (ionet::SocketOperationCode::Success != code)
 					return invokeCallback(VerifyResult::Io_Error_ClientChallengeResponse);
 
-				auto pResponse = ionet::CoercePacket<ClientChallengeResponse>(pPacket);
+				const auto* pResponse = ionet::CoercePacket<ClientChallengeResponse>(pPacket);
 				if (nullptr == pResponse)
 					return invokeCallback(VerifyResult::Malformed_Data);
 
-				auto isVerified = VerifyClientChallengeResponse(
-						*pResponse,
-						m_serverPublicKey,
-						m_pRequest->Challenge);
-				invokeCallback(isVerified ? VerifyResult::Success: VerifyResult::Failed_Challenge);
+				auto isVerified = VerifyClientChallengeResponse(*pResponse, m_serverPublicKey, m_pRequest->Challenge);
+				invokeCallback(isVerified ? VerifyResult::Success: VerifyResult::Failure_Challenge);
 			}
 
 		private:

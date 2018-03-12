@@ -3,7 +3,7 @@
 #include "catapult/utils/HexFormatter.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
-#include "tests/test/core/mocks/MemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include <numeric>
 
@@ -45,8 +45,13 @@ namespace catapult { namespace io {
 			std::unique_ptr<typename TTraits::StorageType> pStorage;
 
 		public:
-			typename TTraits::StorageType& operator*() { return *pStorage; }
-			typename TTraits::StorageType* operator->() { return pStorage.get(); }
+			typename TTraits::StorageType& operator*() {
+				return *pStorage;
+			}
+
+			typename TTraits::StorageType* operator->() {
+				return pStorage.get();
+			}
 		};
 
 		template<typename TTraits>
@@ -67,12 +72,14 @@ namespace catapult { namespace io {
 					const model::Block& block,
 					const Hash256& expectedHash,
 					const std::shared_ptr<const model::BlockElement>& pBlockElement) {
+				// Assert:
 				EXPECT_EQ(block.Signature, pBlockElement->Block.Signature);
 				EXPECT_EQ(block, pBlockElement->Block);
 				EXPECT_EQ(expectedHash, pBlockElement->EntityHash);
 			}
 
 			static void AssertLoadError(const BlockStorage& storage, Height height) {
+				// Act + Assert:
 				EXPECT_THROW(Load(storage, height), catapult_invalid_argument);
 			}
 		};
@@ -98,11 +105,13 @@ namespace catapult { namespace io {
 			}
 
 			static void Assert(const model::Block&, const Hash256& expectedHash, const model::HashRange& hashes) {
+				// Assert:
 				EXPECT_EQ(1u, hashes.size());
 				EXPECT_EQ(expectedHash, *hashes.cbegin());
 			}
 
 			static void AssertLoadError(const BlockStorage& storage, Height height) {
+				// Assert:
 				auto result = Load(storage, height);
 				EXPECT_EQ(0u, result.size());
 			}
@@ -129,17 +138,23 @@ namespace catapult { namespace io {
 
 	TRAITS_BASED_TEST(StorageSeedInitiallyContainsNemesisBlock) {
 		// Arrange:
+#ifdef SIGNATURE_SCHEME_NIS1
+		constexpr auto Source_Directory = "../seed/mijin-test.nis1";
+#else
+		constexpr auto Source_Directory = "../seed/mijin-test";
+#endif
+
 		const auto* pNemesisBlock = reinterpret_cast<const model::Block*>(&mocks::MemoryBasedStorage_NemesisBlockData);
 		auto nemesisBlockElement = test::BlockToBlockElement(*pNemesisBlock);
 		nemesisBlockElement.GenerationHash = test::GetNemesisGenerationHash();
 
 		// Act:
-		const auto pStorage = TTraits::OpenStorage("../seed/mijin-test");
+		const auto pStorage = TTraits::OpenStorage(Source_Directory);
 		auto pBlockElement = pStorage->loadBlockElement(Height(1));
 
 		// Assert:
 		EXPECT_EQ(Height(1), pStorage->chainHeight());
-		test::AssertBlockElement(nemesisBlockElement, *pBlockElement);
+		test::AssertEqual(nemesisBlockElement, *pBlockElement);
 		EXPECT_TRUE(model::VerifyBlockHeaderSignature(pBlockElement->Block));
 	}
 
@@ -188,7 +203,7 @@ namespace catapult { namespace io {
 
 		// Assert:
 		EXPECT_EQ(Height(11), pStorage->chainHeight());
-		test::AssertBlockElement(expectedBlockElement, *pBlockElement);
+		test::AssertEqual(expectedBlockElement, *pBlockElement);
 	}
 
 	TRAITS_BASED_TEST(CanOverwriteBlockWithDifferentData) {
@@ -209,7 +224,7 @@ namespace catapult { namespace io {
 
 		// Assert: the modified data was loaded
 		EXPECT_EQ(Height(11), pStorage->chainHeight());
-		test::AssertBlockElement(expectedBlockElement, *pBlockElement);
+		test::AssertEqual(expectedBlockElement, *pBlockElement);
 	}
 
 	namespace {
@@ -218,7 +233,7 @@ namespace catapult { namespace io {
 			// Arrange:
 			auto pStorage = PrepareStorageWithBlocks<TTraits>(numSeedBlocks);
 
-			// Act:
+			// Act + Assert:
 			auto pNewBlock = CreateRandomBlock(newBlockHeight);
 			EXPECT_THROW(pStorage->saveBlock(test::BlockToBlockElement(*pNewBlock)), catapult_invalid_argument);
 		}
@@ -389,7 +404,7 @@ namespace catapult { namespace io {
 	TRAITS_BASED_TEST(LoadHashesFrom_LoadsCanCrossIndexFileBoundary) {
 		// Arrange: (note hashes are set inside SeedBlocks)
 		std::vector<uint8_t> expectedHashes(11);
-		std::iota(expectedHashes.begin(), expectedHashes.end(), 65530 % 0xff);
+		std::iota(expectedHashes.begin(), expectedHashes.end(), static_cast<uint8_t>(65530 % 0xFF));
 
 		StorageContext<TTraits> context;
 		context.pTempDirectoryGuard = std::make_unique<typename TTraits::Guard>();

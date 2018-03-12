@@ -15,8 +15,16 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 set(CORE_CATAPULT_LIBS catapult.io catapult.ionet catapult.model catapult.thread catapult.utils)
 
 add_subdirectory(external)
-add_subdirectory(plugins)
-add_subdirectory(sdk)
+
+# run catapult tests first
 add_subdirectory(src)
 add_subdirectory(tests)
+
+# run other tests second
+add_subdirectory(sdk)
+add_subdirectory(plugins)
+add_subdirectory(extensions)
+
+add_subdirectory(resources)
+
 add_subdirectory(tools)

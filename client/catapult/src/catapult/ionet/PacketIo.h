@@ -2,7 +2,7 @@
 #include "Packet.h"
 #include "PacketPayload.h"
 #include "SocketOperationCode.h"
-#include <functional>
+#include "catapult/functions.h"
 #include <memory>
 
 namespace catapult { namespace ionet {
@@ -10,8 +10,8 @@ namespace catapult { namespace ionet {
 	/// An interface for reading and writing packets.
 	class PacketIo {
 	public:
-		using ReadCallback = std::function<void (SocketOperationCode, const Packet*)>;
-		using WriteCallback = std::function<void (SocketOperationCode)>;
+		using ReadCallback = consumer<SocketOperationCode, const Packet*>;
+		using WriteCallback = consumer<SocketOperationCode>;
 
 	public:
 		virtual ~PacketIo() {}

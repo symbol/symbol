@@ -8,7 +8,7 @@ namespace catapult { namespace cache {
 
 	namespace {
 		void SaveChildren(io::OutputStream& output, const state::RootNamespace::Children& children) {
-			io::Write(output, children.size());
+			io::Write64(output, children.size());
 			for (const auto& child : children) {
 				const auto& path = child.second;
 
@@ -30,22 +30,22 @@ namespace catapult { namespace cache {
 			CATAPULT_THROW_RUNTIME_ERROR_1("cannot save empty namespace history", history.id());
 
 		io::Write(output, history.id());
-		io::Write(output, history.historyDepth());
+		io::Write64(output, history.historyDepth());
 
 		const Key *pLastOwner = nullptr;
-		for (auto iter = history.cbegin(); history.cend() != iter; ++iter) {
-			output.write(iter->owner());
-			io::Write(output, iter->lifetime().Start);
-			io::Write(output, iter->lifetime().End);
+		for (const auto& root : history) {
+			io::Write(output, root.owner());
+			io::Write(output, root.lifetime().Start);
+			io::Write(output, root.lifetime().End);
 
-			if (pLastOwner && *pLastOwner == iter->owner()) {
+			if (pLastOwner && *pLastOwner == root.owner()) {
 				// shared owner, don't rewrite children
-				io::Write(output, static_cast<uint64_t>(0));
+				io::Write64(output, 0);
 				continue;
 			}
 
-			pLastOwner = &iter->owner();
-			SaveChildren(output, iter->children());
+			pLastOwner = &root.owner();
+			SaveChildren(output, root.children());
 		}
 	}
 
@@ -84,7 +84,7 @@ namespace catapult { namespace cache {
 	void NamespaceCacheStorage::Load(io::InputStream& input, DestinationType& cacheDelta) {
 		// - read header
 		auto id = io::Read<NamespaceId>(input);
-		auto historyDepth = io::Read<uint64_t>(input);
+		auto historyDepth = io::Read64(input);
 
 		if (0 == historyDepth)
 			CATAPULT_THROW_RUNTIME_ERROR_1("namespace history in storage is empty", id);
@@ -96,7 +96,7 @@ namespace catapult { namespace cache {
 			auto lifetimeEnd = io::Read<Height>(input);
 			cacheDelta.insert(state::RootNamespace(id, owner, state::NamespaceLifetime(lifetimeStart, lifetimeEnd)));
 
-			auto numChildren = io::Read<uint64_t>(input);
+			auto numChildren = io::Read64(input);
 			LoadChildren(input, cacheDelta, id, numChildren);
 		}
 	}

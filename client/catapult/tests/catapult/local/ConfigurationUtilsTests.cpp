@@ -4,14 +4,16 @@
 
 namespace catapult { namespace local {
 
-	TEST(ConfigurationUtilsTests, CanExtractUnconfirmedTransactionsCacheOptionsFromNodeConfiguration) {
+#define TEST_CLASS ConfigurationUtilsTests
+
+	TEST(TEST_CLASS, CanExtractUtCacheOptionsFromNodeConfiguration) {
 		// Arrange:
 		auto config = config::NodeConfiguration::Uninitialized();
 		config.UnconfirmedTransactionsCacheMaxResponseSize = utils::FileSize::FromKilobytes(4);
 		config.UnconfirmedTransactionsCacheMaxSize = 234;
 
 		// Act:
-		auto options = GetUnconfirmedTransactionsCacheOptions(config);
+		auto options = GetUtCacheOptions(config);
 
 		// Assert:
 		EXPECT_EQ(4096u, options.MaxResponseSize);

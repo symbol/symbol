@@ -14,10 +14,10 @@ namespace catapult { namespace handlers {
 
 		struct MosaicInfosTraits {
 		public:
-			using RequestEntityType = MosaicId;
+			using RequestStructureType = MosaicId;
 			using ResponseType = MosaicInfos;
 			static constexpr auto Packet_Type = ionet::PacketType::Mosaic_Infos;
-			static constexpr auto Valid_Payload_Size = sizeof(MosaicId);
+			static constexpr auto Valid_Request_Payload_Size = sizeof(MosaicId);
 			static constexpr auto Register_Handler_Func = RegisterMosaicInfosHandler;
 			static constexpr auto Message() { return "mosaic at "; }
 
@@ -61,10 +61,10 @@ namespace catapult { namespace handlers {
 
 		struct NamespaceInfosTraits {
 		public:
-			using RequestEntityType = NamespaceId;
+			using RequestStructureType = NamespaceId;
 			using ResponseType = NamespaceInfos;
 			static constexpr auto Packet_Type = ionet::PacketType::Namespace_Infos;
-			static constexpr auto Valid_Payload_Size = sizeof(NamespaceId);
+			static constexpr auto Valid_Request_Payload_Size = sizeof(NamespaceId);
 			static constexpr auto Register_Handler_Func = RegisterNamespaceInfosHandler;
 			static constexpr auto Message() { return "namespace at "; }
 

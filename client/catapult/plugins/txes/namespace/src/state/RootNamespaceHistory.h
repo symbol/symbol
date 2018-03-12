@@ -14,6 +14,16 @@ namespace catapult { namespace state {
 		explicit RootNamespaceHistory(NamespaceId id) : m_id(id)
 		{}
 
+		/// Copy constructor.
+		/// \note this constructor is needed to ensure that the copy is sharing children among consecutive roots with same owners.
+		RootNamespaceHistory(const RootNamespaceHistory& history);
+
+		/// Move constructor.
+		RootNamespaceHistory(RootNamespaceHistory&& history) = default;
+
+	public:
+		RootNamespace& operator=(const RootNamespace& rhs) = delete;
+
 	public:
 		/// Gets a value indicating whether or not the history is empty.
 		bool empty() const {
@@ -38,10 +48,7 @@ namespace catapult { namespace state {
 		/// Gets the number of all children.
 		/// \note Children are counted more than one time if they are in more than one root namespace.
 		size_t numAllHistoricalChildren() const {
-			size_t sum = 0;
-			return utils::Reduce(m_rootHistory, sum, [](auto curValue, const auto& rootNamespace) {
-				return curValue + rootNamespace.size();
-			});
+			return utils::Sum(m_rootHistory, [](const auto& rootNamespace) { return rootNamespace.size(); });
 		}
 
 	public:
@@ -66,12 +73,12 @@ namespace catapult { namespace state {
 
 	public:
 		/// Returns a const iterator to the first root namespace.
-		auto cbegin() const {
+		auto begin() const {
 			return m_rootHistory.cbegin();
 		}
 
 		/// Returns a const iterator to the element following the last root namespace.
-		auto cend() const {
+		auto end() const {
 			return m_rootHistory.cend();
 		}
 

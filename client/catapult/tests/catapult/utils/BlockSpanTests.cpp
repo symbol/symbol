@@ -5,14 +5,16 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS BlockSpanTests
+
 	// region creation
 
-	TEST(BlockSpanTests, CanCreateDefaultBlockSpan) {
+	TEST(TEST_CLASS, CanCreateDefaultBlockSpan) {
 		// Assert:
 		EXPECT_EQ(0u, BlockSpan().hours());
 	}
 
-	TEST(BlockSpanTests, CanCreateBlockSpanFromDays) {
+	TEST(TEST_CLASS, CanCreateBlockSpanFromDays) {
 		// Assert:
 		EXPECT_EQ(24u, BlockSpan::FromDays(1).hours());
 		EXPECT_EQ(2 * 24u, BlockSpan::FromDays(2).hours());
@@ -20,7 +22,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123 * 24u, BlockSpan::FromDays(123).hours());
 	}
 
-	TEST(BlockSpanTests, CanCreateBlockSpanFromHours) {
+	TEST(TEST_CLASS, CanCreateBlockSpanFromHours) {
 		// Assert:
 		EXPECT_EQ(1u, BlockSpan::FromHours(1).hours());
 		EXPECT_EQ(2u, BlockSpan::FromHours(2).hours());
@@ -32,7 +34,7 @@ namespace catapult { namespace utils {
 
 	// region accessor conversions
 
-	TEST(BlockSpanTests, DaysAreTruncatedWhenConverted) {
+	TEST(TEST_CLASS, DaysAreTruncatedWhenConverted) {
 		// Assert:
 		constexpr uint64_t Base_Hours = 10 * 24u;
 		EXPECT_EQ(9u, BlockSpan::FromHours(Base_Hours - 1).days());
@@ -40,66 +42,45 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(10u, BlockSpan::FromHours(Base_Hours + 1).days());
 	}
 
-	TEST(BlockSpanTests, BlocksAreDependentOnGenerationTime) {
+	TEST(TEST_CLASS, BlocksAreDependentOnGenerationTime) {
 		// Arrange:
 		auto blockSpan = BlockSpan::FromHours(120);
 
 		// Assert:
-		EXPECT_EQ(14'400u, blockSpan.blocks(TimeSpan::FromSeconds(30)));
-		EXPECT_EQ(7'200u, blockSpan.blocks(TimeSpan::FromMinutes(1)));
-		EXPECT_EQ(2'400u, blockSpan.blocks(TimeSpan::FromMinutes(3)));
+		EXPECT_EQ(BlockDuration(14'400u), blockSpan.blocks(TimeSpan::FromSeconds(30)));
+		EXPECT_EQ(BlockDuration(7'200u), blockSpan.blocks(TimeSpan::FromMinutes(1)));
+		EXPECT_EQ(BlockDuration(2'400u), blockSpan.blocks(TimeSpan::FromMinutes(3)));
 	}
 
-	TEST(BlockSpanTests, BlocksAreTruncatedWhenConverted) {
+	TEST(TEST_CLASS, BlocksAreTruncatedWhenConverted) {
 		// Arrange:
 		auto blockSpan = BlockSpan::FromHours(119);
 
 		// Assert:
-		EXPECT_EQ(32'953u, blockSpan.blocks(TimeSpan::FromSeconds(13)));
-		EXPECT_EQ(7'140u, blockSpan.blocks(TimeSpan::FromMinutes(1)));
-		EXPECT_EQ(649u, blockSpan.blocks(TimeSpan::FromMinutes(11)));
+		EXPECT_EQ(BlockDuration(32'953u), blockSpan.blocks(TimeSpan::FromSeconds(13)));
+		EXPECT_EQ(BlockDuration(7'140u), blockSpan.blocks(TimeSpan::FromMinutes(1)));
+		EXPECT_EQ(BlockDuration(649u), blockSpan.blocks(TimeSpan::FromMinutes(11)));
 	}
 
 	namespace {
-		void Assert32BitBlockSpan(uint32_t value) {
-			// Act:
-			auto blockSpan = BlockSpan::FromHours(value);
-
-			// Assert: the value is accessible via blocks32 and blocks
-			EXPECT_EQ(value, blockSpan.blocks32(TimeSpan::FromHours(1)));
-			EXPECT_EQ(value, blockSpan.blocks(TimeSpan::FromHours(1)));
-		}
-
 		void Assert64BitBlockSpan(uint64_t value) {
-			// Act:
+			// Arrange:
 			auto blockSpan = BlockSpan::FromHours(value);
 
-			// Assert: the value is accessible via blocks but not blocks32
-			EXPECT_THROW(blockSpan.blocks32(TimeSpan::FromHours(1)), catapult_runtime_error);
-			EXPECT_EQ(value, blockSpan.blocks(TimeSpan::FromHours(1)));
+			// Act + Assert: the value is accessible via blocks
+			EXPECT_EQ(BlockDuration(value), blockSpan.blocks(TimeSpan::FromHours(1)));
 		}
 
 		void Assert64BitBlockSpanOverflow(uint64_t value) {
-			// Act:
+			// Arrange:
 			auto blockSpan = BlockSpan::FromHours(value);
 
-			// Assert: the value is accessible neither via blocks nor blocks32
-			EXPECT_THROW(blockSpan.blocks32(TimeSpan::FromHours(1)), catapult_runtime_error);
+			// Act + Assert: the value is not accessible via blocks
 			EXPECT_THROW(blockSpan.blocks(TimeSpan::FromHours(1)), catapult_runtime_error);
 		}
 	}
 
-	TEST(BlockSpanTests, Blocks32ReturnsBlocksWhenBlocks64FitsInto32Bit) {
-		// Assert:
-		using NumericLimits = std::numeric_limits<uint32_t>;
-		Assert32BitBlockSpan(NumericLimits::min()); // min
-		Assert32BitBlockSpan(1); // other values
-		Assert32BitBlockSpan(1234);
-		Assert32BitBlockSpan(8692);
-		Assert32BitBlockSpan(NumericLimits::max()); // max
-	}
-
-	TEST(BlockSpanTests, Blocks32ThrowsWhenBlocks64DoesNotFitInto32Bit) {
+	TEST(TEST_CLASS, BlocksSupportsValuesAbove32Bits) {
 		// Assert:
 		uint64_t max32 = std::numeric_limits<uint32_t>::max();
 		Assert64BitBlockSpan(max32 + 1);
@@ -108,7 +89,7 @@ namespace catapult { namespace utils {
 		Assert64BitBlockSpan(std::numeric_limits<uint64_t>::max() / (60 * 60'000));
 	}
 
-	TEST(BlockSpanTests, BlocksThrowsWhenOverflowIsDetectedCalculatingBlocksFromHours) {
+	TEST(TEST_CLASS, BlocksThrowsWhenOverflowIsDetectedCalculatingBlocksFromHours) {
 		// Assert:
 		uint64_t max64 = std::numeric_limits<uint64_t>::max();
 		Assert64BitBlockSpanOverflow(max64 / (60 * 60'000) + 1);
@@ -137,12 +118,12 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(BlockSpanTests, OperatorEqualReturnsTrueOnlyForEqualValues) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
 		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects("96 h", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
-	TEST(BlockSpanTests, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
 		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("96 h", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
@@ -162,7 +143,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	DEFINE_COMPARISON_TESTS(BlockSpanTests, GenerateIncreasingValues())
+	DEFINE_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingValues())
 
 	// endregion
 
@@ -181,7 +162,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(BlockSpanTests, CanOutputBlockSpan) {
+	TEST(TEST_CLASS, CanOutputBlockSpan) {
 		// Assert:
 		// - zero
 		AssertStringRepresentation("0d 0h", 0, 0);

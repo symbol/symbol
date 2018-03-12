@@ -2,9 +2,11 @@
 #include "catapult/ionet/ConnectResult.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/local/BootedLocalNode.h"
+#include "catapult/utils/BitwiseEnum.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/local/NetworkTestUtils.h"
+#include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -18,47 +20,131 @@ namespace catapult { namespace test {
 
 	/// Possible node flags.
 	enum class NodeFlag {
-		/// A node with peers.
-		Regular = local_node_flags::None,
+		/// A node with a single (self) peer.
+		Regular = utils::to_underlying_type(LocalNodeFlags::None),
 
 		/// A node with auto harvesting.
-		Auto_Harvest = local_node_flags::Should_Auto_Harvest,
+		Auto_Harvest = utils::to_underlying_type(LocalNodeFlags::Should_Auto_Harvest),
 
-		/// A node without any peers.
-		No_Peers = local_node_flags::No_Peers,
+		/// A node with custom peers.
+		Custom_Peers = 4,
+
+		/// A node with a partner node.
+		With_Partner = 8,
+
+		/// A simulated api node.
+		Simulated_Api = 16
 	};
+
+	MAKE_BITWISE_ENUM(NodeFlag);
+
+	// region counter -> stats adapter
+
+	/// Basic statistics about a local node.
+	struct BasicLocalNodeStats {
+		/// The number of active packet readers.
+		uint64_t NumActiveReaders;
+
+		/// The number of active packet writers.
+		uint64_t NumActiveWriters;
+
+		/// The number of scheduled tasks.
+		uint64_t NumScheduledTasks;
+
+		/// The number of block elements added to the disruptor.
+		uint64_t NumAddedBlockElements;
+
+		/// The number of transaction elements added to the disruptor.
+		uint64_t NumAddedTransactionElements;
+	};
+
+	/// Statistics about a local p2p node.
+	struct PeerLocalNodeStats : public BasicLocalNodeStats {
+		/// The number of active broadcast packet writers.
+		uint64_t NumActiveBroadcastWriters;
+
+		/// The number of unlocked accounts.
+		uint64_t NumUnlockedAccounts;
+	};
+
+	/// Returns \c true if \a counters contains a counter with \a name.
+	bool HasCounter(const local::LocalNodeCounterValues& counters, const std::string& name);
+
+	/// Extracts all basic statistics from \a counters.
+	BasicLocalNodeStats CountersToBasicLocalNodeStats(const local::LocalNodeCounterValues& counters);
+
+	/// Extracts all basic and peer statistics from \a counters.
+	PeerLocalNodeStats CountersToPeerLocalNodeStats(const local::LocalNodeCounterValues& counters);
+
+	// endregion
+
+	// region partner nodes
+
+	/// Returns partner server key pair.
+	crypto::KeyPair LoadPartnerServerKeyPair();
+
+	/// Creates a local partner node.
+	ionet::Node CreateLocalPartnerNode();
+
+	/// Boots a local partner node around \a dataDirectory with \a keyPair.
+	std::unique_ptr<local::BootedLocalNode> BootLocalPartnerNode(const std::string& dataDirectory, const crypto::KeyPair& keyPair);
+
+	// endregion
 
 	// region basic tests
 
 	/// Asserts that the local node can be booted without peers and then calls \a handler.
 	template<typename TTestContext, typename THandlerFunc>
 	void AssertCanBootLocalNodeWithoutPeers(THandlerFunc handler) {
-		// Act:
-		TTestContext context(NodeFlag::No_Peers);
+		// Act: create the node with no peers (really it is a peer to itself)
+		TTestContext context(NodeFlag::Custom_Peers, {});
 
 		context.waitForNumActiveReaders(0);
 		auto stats = context.stats();
+		auto nodes = context.localNode().nodes();
 
-		// Assert:
+		// Assert: check stats
 		EXPECT_EQ(0u, stats.NumActiveReaders);
 		EXPECT_EQ(0u, stats.NumActiveWriters);
 		handler(context, stats);
+
+		// - check nodes
+		EXPECT_EQ(1u, nodes.size());
+		auto expectedContents = BasicNodeDataContainer{ { LoadServerKeyPair().publicKey(), "LOCAL", ionet::NodeSource::Local } };
+		EXPECT_EQ(expectedContents, test::CollectAll(nodes));
 	}
 
 	/// Asserts that the local node can be booted with peers and then calls \a handler.
 	template<typename TTestContext, typename THandlerFunc>
 	void AssertCanBootLocalNodeWithPeers(THandlerFunc handler) {
-		// Act:
-		TTestContext context(NodeFlag::Regular);
+		// Act: create the node with custom peers
+		auto keys = GenerateRandomDataVector<Key>(3);
+		TTestContext context(NodeFlag::Custom_Peers | NodeFlag::With_Partner, {
+			CreateNamedNode(keys[0], "alice"),
+			CreateNamedNode(keys[1], "bob"),
+			CreateNamedNode(keys[2], "charlie"),
+			CreateLocalPartnerNode()
+		});
 
-		context.waitForNumActiveReaders(1);
 		context.waitForNumActiveWriters(1);
 		auto stats = context.stats();
+		auto nodes = context.localNode().nodes();
 
-		// Assert:
-		EXPECT_EQ(1u, stats.NumActiveReaders);
+		// Assert: check stats
+		EXPECT_EQ(0u, stats.NumActiveReaders);
 		EXPECT_EQ(1u, stats.NumActiveWriters);
 		handler(context, stats);
+
+		// - check nodes
+		EXPECT_EQ(5u, nodes.size());
+		auto expectedContents = BasicNodeDataContainer{
+			{ LoadServerKeyPair().publicKey(), "LOCAL", ionet::NodeSource::Local },
+			{ CreateLocalPartnerNode().identityKey(), "PARTNER", ionet::NodeSource::Static },
+			{ keys[0], "alice", ionet::NodeSource::Static },
+			{ keys[1], "bob", ionet::NodeSource::Static },
+			{ keys[2], "charlie", ionet::NodeSource::Static }
+		};
+		EXPECT_EQ(expectedContents, test::CollectAll(nodes));
 	}
 
 	/// Asserts that the local node can be shutdown.
@@ -104,7 +190,7 @@ namespace catapult { namespace test {
 		auto options = CreatePacketSocketOptions();
 		auto endpoint = CreateLocalHostNodeEndpoint(port);
 		auto clientKeyPair = GenerateKeyPair();
-		ionet::Connect(pPool->service(), options, endpoint, [&](auto connectResult, const auto&) -> void {
+		ionet::Connect(pPool->service(), options, endpoint, [&](auto connectResult, const auto&) {
 			CATAPULT_LOG(debug) << "connection attempt completed with " << connectResult;
 			result = connectResult;
 			isConnectionAttemptComplete = true;
@@ -126,49 +212,6 @@ namespace catapult { namespace test {
 
 	/// Creates an external connection to the local node on \a port.
 	ExternalConnection CreateExternalConnection(unsigned short port);
-
-	// endregion
-
-	// region counter -> stats adapter
-
-	/// Basic statistics about a local node.
-	struct BasicLocalNodeStats {
-		/// The number of active packet readers.
-		uint64_t NumActiveReaders;
-
-		/// The number of active packet writers.
-		uint64_t NumActiveWriters;
-
-		/// The number of scheduled tasks.
-		uint64_t NumScheduledTasks;
-
-		/// The number of block elements added to the disruptor.
-		uint64_t NumAddedBlockElements;
-
-		/// The number of transaction elements added to the disruptor.
-		uint64_t NumAddedTransactionElements;
-	};
-
-	/// Statistics about a local p2p node.
-	struct PeerLocalNodeStats : public BasicLocalNodeStats {
-		/// The number of active broadcast packet writers.
-		uint64_t NumActiveBroadcastWriters;
-
-		/// The number of unlocked accounts.
-		uint64_t NumUnlockedAccounts;
-	};
-
-	/// Returns \c true if \a counters contains a counter with \a name.
-	bool HasCounter(const local::LocalNodeCounterValues& counters, const std::string& name);
-
-	/// Returns the value of the counter \a name in \a counters.
-	uint64_t GetCounterValue(const local::LocalNodeCounterValues& counters, const std::string& name);
-
-	/// Extracts all basic statistics from \a counters.
-	BasicLocalNodeStats CountersToBasicLocalNodeStats(const local::LocalNodeCounterValues& counters);
-
-	/// Extracts all basic and peer statistics from \a counters.
-	PeerLocalNodeStats CountersToPeerLocalNodeStats(const local::LocalNodeCounterValues& counters);
 
 	// endregion
 }}

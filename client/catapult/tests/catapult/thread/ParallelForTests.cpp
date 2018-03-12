@@ -5,16 +5,16 @@
 #include <list>
 #include <numeric>
 
-#define TEST_CLASS ParallelForTests
-
 namespace catapult { namespace thread {
+
+#define TEST_CLASS ParallelForTests
 
 	namespace {
 		using ItemType = uint16_t;
 
 		std::vector<ItemType> CreateIncrementingValues(size_t size) {
 			auto items = std::vector<ItemType>(size);
-			std::iota(items.begin(), items.end(), 1);
+			std::iota(items.begin(), items.end(), static_cast<ItemType>(1));
 			return items;
 		}
 
@@ -45,13 +45,13 @@ namespace catapult { namespace thread {
 		struct ListTraits {
 			using ContainerType = std::list<ItemType>;
 		};
+	}
 
 #define CONTAINER_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_Vector) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VectorTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_List) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ListTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-	}
 
 	// region ParallelForPartition basic
 
@@ -62,7 +62,7 @@ namespace catapult { namespace thread {
 
 		// Act:
 		std::atomic<size_t> counter(0);
-		ParallelForPartition(context.pPool->service(), items, context.NumThreads, [&counter](auto, auto, auto) {
+		ParallelForPartition(context.pPool->service(), items, context.NumThreads, [&counter](auto, auto, auto, auto) {
 			++counter;
 		}).get();
 
@@ -71,17 +71,35 @@ namespace catapult { namespace thread {
 	}
 
 	namespace {
-		// use vector of uint8_t instead of bool because latter does not guarantee that
-		// different elements in the same container can be modified concurrently by different threads
-		auto CreatePartitionAggregate(std::atomic<size_t>& sum, std::vector<uint8_t>& indexFlags) {
-			return [&sum, &indexFlags](auto itBegin, auto itEnd, auto index) {
+		struct PartitionAggregateCapture {
+		public:
+			explicit PartitionAggregateCapture(size_t numItems, size_t numPartitions)
+					: Sum(0)
+					, IndexFlags(numItems, 0)
+					, BatchIndexFlags(numPartitions, 0)
+			{}
+
+		public:
+			std::atomic<size_t> Sum;
+
+			// use vector of uint8_t instead of bool because latter does not guarantee that
+			// different elements in the same container can be modified concurrently by different threads
+			std::vector<uint8_t> IndexFlags;
+			std::vector<uint8_t> BatchIndexFlags;
+		};
+
+		auto CreatePartitionAggregate(PartitionAggregateCapture& capture) {
+			return [&capture](auto itBegin, auto itEnd, auto startIndex, auto batchIndex) {
 				// Sanity: fail if any index is too large
-				ASSERT_GT(indexFlags.size(), index) << "unexpected index " << index;
+				ASSERT_GT(capture.IndexFlags.size(), startIndex) << "unexpected start index " << startIndex;
+				ASSERT_GT(capture.BatchIndexFlags.size(), batchIndex) << "unexpected batch index " << batchIndex;
 
 				// Act:
-				indexFlags[index] = 1;
-				for (auto iter = itBegin; itEnd != iter; ++iter)
-					sum += *iter;
+				++capture.BatchIndexFlags[batchIndex];
+				for (auto iter = itBegin; itEnd != iter; ++iter) {
+					++capture.IndexFlags[startIndex++]; // use start index to visit all items
+					capture.Sum += *iter;
+				}
 			};
 		}
 	}
@@ -92,13 +110,13 @@ namespace catapult { namespace thread {
 		auto items = typename TTraits::ContainerType{ 7 };
 
 		// Act:
-		std::atomic<size_t> sum(0);
-		std::vector<uint8_t> indexFlags(1, 0);
-		ParallelForPartition(context.pPool->service(), items, context.NumThreads, CreatePartitionAggregate(sum, indexFlags)).get();
+		PartitionAggregateCapture capture(1, 1);
+		ParallelForPartition(context.pPool->service(), items, context.NumThreads, CreatePartitionAggregate(capture)).get();
 
 		// Assert: the callback was only called once (since there is only one item and one partition)
-		EXPECT_EQ(7u, sum);
-		EXPECT_EQ(std::vector<uint8_t>(1, 1), indexFlags);
+		EXPECT_EQ(7u, capture.Sum);
+		EXPECT_EQ(std::vector<uint8_t>(1, 1), capture.IndexFlags);
+		EXPECT_EQ(std::vector<uint8_t>(1, 1), capture.BatchIndexFlags);
 	}
 
 	namespace {
@@ -108,14 +126,13 @@ namespace catapult { namespace thread {
 			BasicTestContext<typename TTraits::ContainerType> context(static_cast<size_t>(numItemsAdjustment));
 
 			// Act:
-			std::atomic<size_t> sum(0);
-			std::vector<uint8_t> indexFlags(context.NumThreads, 0);
-			auto partitionAggregate = CreatePartitionAggregate(sum, indexFlags);
-			ParallelForPartition(context.pPool->service(), context.Items, context.NumThreads, partitionAggregate).get();
+			PartitionAggregateCapture capture(context.Items.size(), context.NumThreads);
+			ParallelForPartition(context.pPool->service(), context.Items, context.NumThreads, CreatePartitionAggregate(capture)).get();
 
 			// Assert:
-			EXPECT_EQ(context.ItemsSum, sum);
-			EXPECT_EQ(std::vector<uint8_t>(context.NumThreads, 1), indexFlags);
+			EXPECT_EQ(context.ItemsSum, capture.Sum);
+			EXPECT_EQ(std::vector<uint8_t>(context.Items.size(), 1), capture.IndexFlags);
+			EXPECT_EQ(std::vector<uint8_t>(context.NumThreads, 1), capture.BatchIndexFlags);
 		}
 	}
 
@@ -139,7 +156,7 @@ namespace catapult { namespace thread {
 		BasicTestContext<typename TTraits::ContainerType> context;
 
 		// Act:
-		ParallelForPartition(context.pPool->service(), context.Items, context.NumThreads, [](auto itBegin, auto itEnd, auto) {
+		ParallelForPartition(context.pPool->service(), context.Items, context.NumThreads, [](auto itBegin, auto itEnd, auto, auto) {
 			for (auto iter = itBegin; itEnd != iter; ++iter)
 				*iter = *iter * *iter + 1;
 		}).get();
@@ -163,7 +180,7 @@ namespace catapult { namespace thread {
 
 		// Act:
 		std::atomic<size_t> counter(0);
-		ParallelFor(context.pPool->service(), items, context.NumThreads, [&counter](auto) {
+		ParallelFor(context.pPool->service(), items, context.NumThreads, [&counter](auto, auto) {
 			++counter;
 			return true;
 		}).get();
@@ -172,10 +189,18 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(0u, counter);
 	}
 
+	// use vector of uint8_t instead of bool because latter does not guarantee that
+	// different elements in the same container can be modified concurrently by different threads
 	namespace {
-		auto CreateItemAggregate(std::atomic<size_t>& sum) {
-			return [&sum](auto value) {
+		auto CreateItemAggregate(std::atomic<size_t>& sum, std::vector<uint8_t>& indexFlags) {
+			return [&sum, &indexFlags](auto value, auto index) {
+				// Sanity: fail if any index is too large
+				EXPECT_GT(indexFlags.size(), index) << "unexpected index " << index;
+				if (indexFlags.size() <= index)
+					return false;
+
 				sum += value;
+				++indexFlags[index];
 				return true;
 			};
 		}
@@ -188,10 +213,12 @@ namespace catapult { namespace thread {
 
 		// Act:
 		std::atomic<size_t> sum(0);
-		ParallelFor(context.pPool->service(), items, context.NumThreads, CreateItemAggregate(sum)).get();
+		std::vector<uint8_t> indexFlags(1, 0);
+		ParallelFor(context.pPool->service(), items, context.NumThreads, CreateItemAggregate(sum, indexFlags)).get();
 
 		// Assert: the callback was only called once (since there is only one item)
 		EXPECT_EQ(7u, sum);
+		EXPECT_EQ(std::vector<uint8_t>(1, 1), indexFlags);
 	}
 
 	namespace {
@@ -202,10 +229,12 @@ namespace catapult { namespace thread {
 
 			// Act:
 			std::atomic<size_t> sum(0);
-			ParallelFor(context.pPool->service(), context.Items, context.NumThreads, CreateItemAggregate(sum)).get();
+			std::vector<uint8_t> indexFlags(context.NumItems, 0);
+			ParallelFor(context.pPool->service(), context.Items, context.NumThreads, CreateItemAggregate(sum, indexFlags)).get();
 
 			// Assert:
 			EXPECT_EQ(context.ItemsSum, sum);
+			EXPECT_EQ(std::vector<uint8_t>(context.NumItems, 1), indexFlags);
 		}
 	}
 
@@ -230,7 +259,7 @@ namespace catapult { namespace thread {
 
 		// Act:
 		std::atomic<size_t> sum(0);
-		ParallelFor(context.pPool->service(), context.Items, context.NumThreads, [&sum, itemsSum = context.ItemsSum](auto value) {
+		ParallelFor(context.pPool->service(), context.Items, context.NumThreads, [&sum, itemsSum = context.ItemsSum](auto value, auto) {
 			sum += value;
 			return itemsSum < sum;
 		}).get();
@@ -244,7 +273,7 @@ namespace catapult { namespace thread {
 		BasicTestContext<typename TTraits::ContainerType> context;
 
 		// Act:
-		ParallelFor(context.pPool->service(), context.Items, context.NumThreads, [](auto& value) {
+		ParallelFor(context.pPool->service(), context.Items, context.NumThreads, [](auto& value, auto) {
 			value = value * value + 1;
 			return true;
 		}).get();
@@ -255,6 +284,27 @@ namespace catapult { namespace thread {
 			EXPECT_EQ(i * i + 1u, value) << "item at " << i;
 			++i;
 		}
+	}
+
+	CONTAINER_TEST(CorrectIndexesAreAssociatedWithItems) {
+		// Arrange:
+		BasicTestContext<typename TTraits::ContainerType> context;
+
+		// Act: capture all values by their index
+		std::vector<uint16_t> capturedValues(context.NumItems, 0);
+		ParallelFor(context.pPool->service(), context.Items, context.NumThreads, [&capturedValues](auto value, auto index) {
+			// Sanity: fail if any index is too large
+			EXPECT_GT(capturedValues.size(), index) << "unexpected index " << index;
+			if (capturedValues.size() <= index)
+				return false;
+
+			capturedValues[index] = value;
+			return true;
+		}).get();
+
+		// Assert: values start at 1
+		for (auto i = 0u; i < capturedValues.size(); ++i)
+			EXPECT_EQ(i + 1, capturedValues[i]) << "i " << i;
 	}
 
 	// endregion
@@ -279,7 +329,7 @@ namespace catapult { namespace thread {
 					size_t numThreads,
 					MultiThreadedState& state) {
 				std::atomic<size_t> numItemsProcessed(0);
-				thread::ParallelFor(service, items, numThreads, [&state, &numItemsProcessed, numThreads](auto value) {
+				thread::ParallelFor(service, items, numThreads, [&state, &numItemsProcessed, numThreads](auto value, auto) {
 					// - process the value
 					state.process(value);
 
@@ -298,7 +348,11 @@ namespace catapult { namespace thread {
 					size_t numThreads,
 					MultiThreadedState& state) {
 				std::atomic<size_t> numItemsProcessed(0);
-				ParallelForPartition(service, items, numThreads, [&state, &numItemsProcessed, numThreads](auto itBegin, auto itEnd, auto) {
+				ParallelForPartition(service, items, numThreads, [&state, &numItemsProcessed, numThreads](
+						auto itBegin,
+						auto itEnd,
+						auto,
+						auto) {
 					// - process the values
 					for (auto iter = itBegin; itEnd != iter; ++iter)
 						state.process(*iter);

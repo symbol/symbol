@@ -4,7 +4,9 @@
 
 namespace catapult { namespace ionet {
 
-	TEST(NodePacketIoPairTests, CanCreateEmptyPair) {
+#define TEST_CLASS NodePacketIoPairTests
+
+	TEST(TEST_CLASS, CanCreateEmptyPair) {
 		// Act:
 		NodePacketIoPair pair;
 
@@ -14,9 +16,9 @@ namespace catapult { namespace ionet {
 		EXPECT_FALSE(!!pair);
 	}
 
-	TEST(NodePacketIoPairTests, CanCreateNonEmptyPair) {
+	TEST(TEST_CLASS, CanCreateNonEmptyPair) {
 		// Act:
-		auto node = Node({}, { test::GenerateRandomData<Key_Size>(), "" }, model::NetworkIdentifier::Zero);
+		auto node = Node(test::GenerateRandomData<Key_Size>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
 		auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
 		NodePacketIoPair pair(node, pPacketIo);
 

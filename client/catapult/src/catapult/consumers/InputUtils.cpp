@@ -16,18 +16,24 @@ namespace catapult { namespace consumers {
 		utils::HashPointerSet hashes;
 
 		for (const auto& element : elements)
-			for (const auto& txElement : element.Transactions)
-				hashes.insert(&txElement.EntityHash);
+			for (const auto& transactionElement : element.Transactions)
+				hashes.insert(&transactionElement.EntityHash);
 
 		return hashes;
 	}
 
-	void ExtractEntityInfos(const TransactionElements& elements, model::WeakEntityInfos& entityInfos) {
+	void ExtractEntityInfos(
+			const TransactionElements& elements,
+			model::WeakEntityInfos& entityInfos,
+			std::vector<size_t>& entityInfoElementIndexes) {
+		auto index = 0u;
 		for (const auto& element : elements) {
+			++index;
 			if (element.Skip)
 				continue;
 
-			entityInfos.push_back(model::WeakEntityInfo(element.Transaction, element.EntityHash));
+			entityInfos.emplace_back(element.Transaction, element.EntityHash);
+			entityInfoElementIndexes.push_back(index - 1);
 		}
 	}
 
@@ -35,11 +41,11 @@ namespace catapult { namespace consumers {
 			const utils::HashPointerSet& addedTransactionHashes,
 			TransactionInfos&& removedTransactionInfos) {
 		TransactionInfos revertedTransactionInfos;
-		for (auto& info : removedTransactionInfos) {
-			if (addedTransactionHashes.cend() != addedTransactionHashes.find(&info.EntityHash))
+		for (auto& transactionInfo : removedTransactionInfos) {
+			if (addedTransactionHashes.cend() != addedTransactionHashes.find(&transactionInfo.EntityHash))
 				continue;
 
-			revertedTransactionInfos.push_back(std::move(info));
+			revertedTransactionInfos.push_back(std::move(transactionInfo));
 		}
 
 		return revertedTransactionInfos;

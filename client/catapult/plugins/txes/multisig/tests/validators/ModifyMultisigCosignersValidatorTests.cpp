@@ -56,7 +56,7 @@ namespace catapult { namespace validators {
 
 		// Assert:
 		constexpr auto expectedResult = Failure_Multisig_Modify_Unsupported_Modification_Type;
-		for (auto type : { 0, 3, 0xFF }) {
+		for (auto type : { 2, 3, 0xFF }) {
 			CATAPULT_LOG(debug) << "validating modification with type " << type;
 			AssertValidationResult(expectedResult, { { static_cast<model::CosignatoryModificationType>(type), key } });
 		}
@@ -98,7 +98,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureWhenAnyAccountHasUnsupportedModification) {
 		// Assert:
 		constexpr auto expectedResult = Failure_Multisig_Modify_Unsupported_Modification_Type;
-		for (auto type : { 0, 3, 0xFF }) {
+		for (auto type : { 2, 3, 0xFF }) {
 			CATAPULT_LOG(debug) << "validating modification with type " << type;
 			AssertResultWhenDifferentAccountsUsed(expectedResult, { Add, static_cast<model::CosignatoryModificationType>(type), Add });
 		}

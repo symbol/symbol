@@ -1,4 +1,5 @@
 #include "src/model/RegisterNamespaceTransaction.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
@@ -28,7 +29,7 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertTransactionHasExpectedProperties() {
 			// Assert:
-			EXPECT_EQ(EntityType::Register_Namespace, static_cast<EntityType>(T::Entity_Type));
+			EXPECT_EQ(Entity_Type_Register_Namespace, static_cast<EntityType>(T::Entity_Type));
 			EXPECT_EQ(2u, static_cast<uint8_t>(T::Current_Version));
 		}
 	}
@@ -42,8 +43,7 @@ namespace catapult { namespace model {
 	namespace {
 		std::unique_ptr<RegisterNamespaceTransaction> GenerateRegisterNamespaceWithName(uint8_t nameSize) {
 			uint32_t entitySize = sizeof(RegisterNamespaceTransaction) + nameSize;
-			std::unique_ptr<RegisterNamespaceTransaction> pTransaction(
-					reinterpret_cast<RegisterNamespaceTransaction*>(::operator new(entitySize)));
+			auto pTransaction = utils::MakeUniqueWithSize<RegisterNamespaceTransaction>(entitySize);
 			pTransaction->Size = entitySize;
 			pTransaction->NamespaceNameSize = nameSize;
 			return pTransaction;

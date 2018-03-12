@@ -9,6 +9,7 @@ namespace catapult {
 }
 
 namespace catapult { namespace cache {
+
 	/// A subcache view.
 	class SubCacheView {
 	public:

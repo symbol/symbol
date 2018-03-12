@@ -1,0 +1,100 @@
+#pragma once
+#include "extensions/mongo/src/MongoBulkWriter.h"
+#include "extensions/mongo/src/MongoTransactionPlugin.h"
+#include "tests/test/core/ThreadPoolTestUtils.h"
+#include <mongocxx/client.hpp>
+
+namespace catapult {
+	namespace model { struct TransactionInfo; }
+	namespace mongo {
+		class MongoStorageContext;
+		class MongoTransactionRegistry;
+	}
+	namespace state { struct AccountState; }
+}
+
+namespace catapult { namespace test {
+
+	/// Returns the database name for tests.
+	std::string DatabaseName();
+
+	/// Returns the default db uri for tests.
+	mongocxx::uri DefaultDbUri();
+
+	/// Creates a mongo database connection.
+	mongocxx::client CreateDbConnection();
+
+	/// Resets the mongo database with name \a dbName by dropping and recreating it (in order to have empty collections).
+	void ResetDatabase(const std::string& dbName);
+
+	/// Prepares the mongo database with name \a dbName by
+	/// 1) dropping and recreating it (in order to have empty collections).
+	/// 2) adding indexes to the accounts and transactions collections.
+	void PrepareDatabase(const std::string& dbName);
+
+	/// Creates a filter for the given \a pAccountState.
+	bsoncxx::document::value CreateFilter(const std::shared_ptr<state::AccountState>& pAccountState);
+
+	/// Creates a default mongo storage context for database \a dbName.
+	std::unique_ptr<mongo::MongoStorageContext> CreateDefaultMongoStorageContext(const std::string& dbName);
+
+	/// Creates a default mongo transaction registry that supports mock transactions.
+	mongo::MongoTransactionRegistry CreateDefaultMongoTransactionRegistry();
+
+	/// Database mixin for preparing mongo database access.
+	struct PrepareDatabaseMixin {
+		/// Creates a database mixin around the test database.
+		PrepareDatabaseMixin() {
+			PrepareDatabase(DatabaseName());
+		}
+	};
+
+	/// Asserts that the mongo database collection with name \a collectionName has size \a expectedSize.
+	void AssertCollectionSize(const std::string& collectionName, uint64_t expectedSize);
+
+	/// Asserts that \a collection contains \a expectedNumDependentDocuments dependent documents from \a transactionSigner.
+	void AssertDependentDocuments(mongocxx::collection& collection, const Key& transactionSigner, size_t expectedNumDependentDocuments);
+
+	/// Asserts that the collection with name \a collectionName contains \a expectedTransactionInfos and
+	/// \a expectedNumDependentDocuments dependent documents.
+	void AssertTransactions(
+			const std::string& collectionName,
+			const std::vector<model::TransactionInfo>& expectedTransactionInfos,
+			size_t expectedNumDependentDocuments = 0);
+
+	/// Enumerates the possible database initializations types.
+	enum class DbInitializationType {
+		/// Performs no initialization action.
+		None,
+
+		/// Drops the database.
+		Reset,
+
+		/// Drops the database, recreates it and creates indexes for the collections.
+		Prepare
+	};
+
+	template<typename TStorage>
+	using StorageFactory = std::function<std::unique_ptr<TStorage> (mongo::MongoStorageContext&, const mongo::MongoTransactionRegistry&)>;
+
+	/// Creates a mongo transaction storage around \a pTransactionPlugin using \a dbInitializationType for initializing the database
+	/// and \a storageFactory to create the storage.
+	template<typename TStorage>
+	std::shared_ptr<TStorage> CreateStorage(
+			std::unique_ptr<mongo::MongoTransactionPlugin>&& pTransactionPlugin,
+			DbInitializationType dbInitializationType,
+			const StorageFactory<TStorage>& storageFactory) {
+		if (test::DbInitializationType::Reset == dbInitializationType)
+			ResetDatabase(DatabaseName());
+		else if (test::DbInitializationType::Prepare == dbInitializationType)
+			PrepareDatabase(DatabaseName());
+
+		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), DatabaseName(), CreateStartedIoServiceThreadPool(8));
+		auto pMongoContext = std::make_shared<mongo::MongoStorageContext>(DefaultDbUri(), DatabaseName(), pWriter);
+
+		auto pRegistry = std::make_shared<mongo::MongoTransactionRegistry>();
+		pRegistry->registerPlugin(std::move(pTransactionPlugin));
+		auto pStorage = utils::UniqueToShared(storageFactory(*pMongoContext, *pRegistry));
+		return decltype(pStorage)(pStorage.get(), [pMongoContext, pRegistry, pStorage](const auto*) {});
+	}
+}}

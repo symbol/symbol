@@ -6,6 +6,8 @@
 
 namespace catapult { namespace net {
 
+#define TEST_CLASS PacketIoPickerTests
+
 	namespace {
 		const auto Default_Timeout = []() { return utils::TimeSpan::FromMinutes(1); }();
 
@@ -19,7 +21,7 @@ namespace catapult { namespace net {
 			// Assert:
 			EXPECT_EQ(expectedNumReturned, packetIos.size());
 			for (auto i = 0u; i < packetIos.size(); ++i)
-				EXPECT_EQ(std::to_string(i + 1), packetIos[i].node().Identity.Name) << "packetIo at " << i;
+				EXPECT_EQ(std::to_string(i + 1), packetIos[i].node().metadata().Name) << "packetIo at " << i;
 
 			auto i = 0u;
 			EXPECT_EQ(expectedNumPicks, picker.durations().size());
@@ -28,22 +30,22 @@ namespace catapult { namespace net {
 		}
 	}
 
-	TEST(PacketIoPickerTests, PickMultipleReturnsZeroIosIfZeroAreRequested) {
+	TEST(TEST_CLASS, PickMultipleReturnsZeroIosIfZeroAreRequested) {
 		// Assert:
 		AssertPickMultiple(5, 0, 0, 0);
 	}
 
-	TEST(PacketIoPickerTests, PickMultipleReturnsZeroIosIfZeroAreAvailable) {
+	TEST(TEST_CLASS, PickMultipleReturnsZeroIosIfZeroAreAvailable) {
 		// Assert:
 		AssertPickMultiple(0, 5, 0, 1);
 	}
 
-	TEST(PacketIoPickerTests, PickMultipleReturnsAllIosIfRequestedIsGreaterThanAvailable) {
+	TEST(TEST_CLASS, PickMultipleReturnsAllIosIfRequestedIsGreaterThanAvailable) {
 		// Assert:
 		AssertPickMultiple(3, 5, 3, 4);
 	}
 
-	TEST(PacketIoPickerTests, PickMultipleReturnsRequestedIosIfActualIsAtLeastRequested) {
+	TEST(TEST_CLASS, PickMultipleReturnsRequestedIosIfActualIsAtLeastRequested) {
 		// Assert:
 		AssertPickMultiple(5, 5, 5, 5);
 		AssertPickMultiple(9, 5, 5, 5);

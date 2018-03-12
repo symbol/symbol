@@ -3,6 +3,9 @@
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {
+
+#define TEST_CLASS BaseValueTests
+
 	namespace {
 		struct TestValue_tag {};
 		using TestValue = BaseValue<uint64_t, TestValue_tag>;
@@ -13,7 +16,7 @@ namespace catapult { namespace utils {
 		using SameSizeValue = BaseValue<uint64_t, SameSizeValue_tag>;
 	}
 
-	TEST(BaseValueTests, DefaultValueIsZeroInitialized) {
+	TEST(TEST_CLASS, DefaultValueIsZeroInitialized) {
 		// Arrange:
 		TestValue data;
 
@@ -21,7 +24,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(0u, data.unwrap());
 	}
 
-	TEST(BaseValueTests, CanStoreValue) {
+	TEST(TEST_CLASS, CanStoreValue) {
 		// Arrange:
 		TestValue data(123);
 
@@ -29,7 +32,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123u, data.unwrap());
 	}
 
-	TEST(ImmutableValueTests, CanStoreValueAsConstexpr) {
+	TEST(TEST_CLASS, CanStoreValueAsConstexpr) {
 		// Act:
 		constexpr TestValue Const_Data(123);
 
@@ -37,7 +40,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(TestValue(123u), Const_Data);
 	}
 
-	TEST(BaseValueTests, CanCopyAssign) {
+	TEST(TEST_CLASS, CanCopyAssign) {
 		// Arrange:
 		TestValue data(123);
 		TestValue newData(642);
@@ -51,7 +54,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(&data, &assignResult);
 	}
 
-	TEST(BaseValueTests, CanCopyConstruct) {
+	TEST(TEST_CLASS, CanCopyConstruct) {
 		// Act:
 		TestValue data(123);
 		TestValue newData(data);
@@ -61,7 +64,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123u, data.unwrap());
 	}
 
-	TEST(BaseValueTests, CanMoveAssign) {
+	TEST(TEST_CLASS, CanMoveAssign) {
 		// Arrange:
 		TestValue data(123);
 		TestValue newData(642);
@@ -74,7 +77,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(&newData, &assignResult);
 	}
 
-	TEST(BaseValueTests, CanMoveConstruct) {
+	TEST(TEST_CLASS, CanMoveConstruct) {
 		// Act:
 		TestValue data(123);
 		TestValue newData(std::move(data));
@@ -83,7 +86,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123u, newData.unwrap());
 	}
 
-	TEST(BaseValueTests, CanUnwrapAndRetrieveRawValue) {
+	TEST(TEST_CLASS, CanUnwrapAndRetrieveRawValue) {
 		// Arrange:
 		TestValue data(123);
 
@@ -96,7 +99,7 @@ namespace catapult { namespace utils {
 
 	// region comparison operators
 
-	TEST(BaseValueTests, OperatorEqualReturnsTrueOnlyForEqualValues) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
 		// Arrange:
 		TestValue data1(123);
 		TestValue data2(123);
@@ -107,7 +110,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(data3 == data1);
 	}
 
-	TEST(BaseValueTests, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
 		// Arrange:
 		TestValue data1(123);
 		TestValue data2(123);
@@ -118,7 +121,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(data3 != data1);
 	}
 
-	TEST(BaseValueTests, OperatorLessThanReturnsTrueOnlyForSmallerValues) {
+	TEST(TEST_CLASS, OperatorLessThanReturnsTrueOnlyForSmallerValues) {
 		// Arrange:
 		TestValue data1(123);
 		TestValue data2(123);
@@ -129,7 +132,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(data3 < data1);
 	}
 
-	TEST(BaseValueTests, OperatorLessThanOrEqualReturnsTrueOnlyForSmallerOrEqualValues) {
+	TEST(TEST_CLASS, OperatorLessThanOrEqualReturnsTrueOnlyForSmallerOrEqualValues) {
 		// Arrange:
 		TestValue data1(123);
 		TestValue data2(123);
@@ -140,7 +143,7 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(data3 <= data1);
 	}
 
-	TEST(BaseValueTests, OperatorGreaterThanReturnsTrueOnlyForGreaterValues) {
+	TEST(TEST_CLASS, OperatorGreaterThanReturnsTrueOnlyForGreaterValues) {
 		// Arrange:
 		TestValue data1(123);
 		TestValue data2(123);
@@ -151,7 +154,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(data3 > data1);
 	}
 
-	TEST(BaseValueTests, OperatorGreaterThanOrEqualReturnsTrueOnlyForGreaterOrEqualValues) {
+	TEST(TEST_CLASS, OperatorGreaterThanOrEqualReturnsTrueOnlyForGreaterOrEqualValues) {
 		// Arrange:
 		TestValue data1(123);
 		TestValue data2(123);
@@ -166,7 +169,7 @@ namespace catapult { namespace utils {
 
 	// region addition and subtraction operators
 
-	TEST(BaseValueTests, CanAddBaseValues) {
+	TEST(TEST_CLASS, CanAddBaseValues) {
 		// Arrange:
 		TestValue data1(123);
 		TestValue data2(234);
@@ -180,7 +183,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(TestValue(357), data3);
 	}
 
-	TEST(BaseValueTests, CanSubtractBaseValues) {
+	TEST(TEST_CLASS, CanSubtractBaseValues) {
 		// Arrange:
 		TestValue data1(543);
 		TestValue data2(123);
@@ -196,13 +199,13 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	TEST(BaseValueTests, CanAssignAliasedType) {
+	TEST(TEST_CLASS, CanAssignAliasedType) {
 		// Assert:
 		bool result = std::is_convertible<TestValue, AliasedValue>::value;
 		EXPECT_TRUE(result);
 	}
 
-	TEST(BaseValueTests, CannotAssignUsingDifferentType) {
+	TEST(TEST_CLASS, CannotAssignUsingDifferentType) {
 		// Assert:
 		bool result = std::is_convertible<TestValue, SameSizeValue>::value;
 		EXPECT_FALSE(result);
@@ -250,7 +253,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(BaseValueTests, CatapultTypesTests) {
+	TEST(TEST_CLASS, CatapultTypesTests) {
 		AssertCannotConvertTypes<Set<Timestamp, Amount, Height, Difficulty>>();
 	}
 }}

@@ -5,14 +5,16 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS TimeSpanTests
+
 	// region creation
 
-	TEST(TimeSpanTests, CanCreateDefaultTimeSpan) {
+	TEST(TEST_CLASS, CanCreateDefaultTimeSpan) {
 		// Assert:
 		EXPECT_EQ(0u, TimeSpan().millis());
 	}
 
-	TEST(TimeSpanTests, CanCreateTimeSpanFromHours) {
+	TEST(TEST_CLASS, CanCreateTimeSpanFromHours) {
 		// Assert:
 		EXPECT_EQ(60 * 60 * 1000u, TimeSpan::FromHours(1).millis());
 		EXPECT_EQ(2 * 60 * 60 * 1000u, TimeSpan::FromHours(2).millis());
@@ -20,7 +22,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123 * 60 * 60 * 1000u, TimeSpan::FromHours(123).millis());
 	}
 
-	TEST(TimeSpanTests, CanCreateTimeSpanFromMinutes) {
+	TEST(TEST_CLASS, CanCreateTimeSpanFromMinutes) {
 		// Assert:
 		EXPECT_EQ(60 * 1000u, TimeSpan::FromMinutes(1).millis());
 		EXPECT_EQ(2 * 60 * 1000u, TimeSpan::FromMinutes(2).millis());
@@ -28,7 +30,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123 * 60 * 1000u, TimeSpan::FromMinutes(123).millis());
 	}
 
-	TEST(TimeSpanTests, CanCreateTimeSpanFromSeconds) {
+	TEST(TEST_CLASS, CanCreateTimeSpanFromSeconds) {
 		// Assert:
 		EXPECT_EQ(1000u, TimeSpan::FromSeconds(1).millis());
 		EXPECT_EQ(2 * 1000u, TimeSpan::FromSeconds(2).millis());
@@ -36,7 +38,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123 * 1000u, TimeSpan::FromSeconds(123).millis());
 	}
 
-	TEST(TimeSpanTests, CanCreateTimeSpanFromMilliseconds) {
+	TEST(TEST_CLASS, CanCreateTimeSpanFromMilliseconds) {
 		// Assert:
 		EXPECT_EQ(1u, TimeSpan::FromMilliseconds(1).millis());
 		EXPECT_EQ(2u, TimeSpan::FromMilliseconds(2).millis());
@@ -44,7 +46,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123u, TimeSpan::FromMilliseconds(123).millis());
 	}
 
-	TEST(TimeSpanTests, CanCreateTimeSpanFromTimestampDifference) {
+	TEST(TEST_CLASS, CanCreateTimeSpanFromTimestampDifference) {
 		// Arrange:
 		Timestamp start(11111);
 		Timestamp end(54321);
@@ -59,7 +61,7 @@ namespace catapult { namespace utils {
 
 	// region accessor conversions
 
-	TEST(TimeSpanTests, HoursAreTruncatedWhenConverted) {
+	TEST(TEST_CLASS, HoursAreTruncatedWhenConverted) {
 		// Assert:
 		constexpr uint64_t Base_Millis = 10 * 60 * 60 * 1000u;
 		EXPECT_EQ(9u, TimeSpan::FromMilliseconds(Base_Millis - 1).hours());
@@ -67,7 +69,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(10u, TimeSpan::FromMilliseconds(Base_Millis + 1).hours());
 	}
 
-	TEST(TimeSpanTests, MinutesAreTruncatedWhenConverted) {
+	TEST(TEST_CLASS, MinutesAreTruncatedWhenConverted) {
 		// Assert:
 		constexpr uint64_t Base_Millis = 10 * 60 * 1000u;
 		EXPECT_EQ(9u, TimeSpan::FromMilliseconds(Base_Millis - 1).minutes());
@@ -75,7 +77,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(10u, TimeSpan::FromMilliseconds(Base_Millis + 1).minutes());
 	}
 
-	TEST(TimeSpanTests, SecondsAreTruncatedWhenConverted) {
+	TEST(TEST_CLASS, SecondsAreTruncatedWhenConverted) {
 		// Assert:
 		constexpr uint64_t Base_Millis = 10 * 1000u;
 		EXPECT_EQ(9u, TimeSpan::FromMilliseconds(Base_Millis - 1).seconds());
@@ -107,12 +109,12 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(TimeSpanTests, OperatorEqualReturnsTrueOnlyForEqualValues) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
 		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects("123000 ms", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
-	TEST(TimeSpanTests, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
 		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("123000 ms", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
@@ -158,7 +160,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(TimeSpanTests, CanOutputTimeSpan) {
+	TEST(TEST_CLASS, CanOutputTimeSpan) {
 		// Assert:
 		// - zero
 		AssertStringRepresentation("00:00:00", 0, 0, 0, 0);
@@ -182,7 +184,7 @@ namespace catapult { namespace utils {
 		AssertStringRepresentation("12:52:46.081", 12, 52, 46, 81);
 	}
 
-	TEST(TimeSpanTests, OutputFormattingChangesDoNotLeak) {
+	TEST(TEST_CLASS, OutputFormattingChangesDoNotLeak) {
 		// Arrange:
 		std::ostringstream out;
 		out.flags(std::ios::hex | std::ios::uppercase);
@@ -200,7 +202,7 @@ namespace catapult { namespace utils {
 
 	// region other operators
 
-	TEST(TimeSpanTests, CanAddTimeSpanToTimestamp) {
+	TEST(TEST_CLASS, CanAddTimeSpanToTimestamp) {
 		/// Arrange:
 		Timestamp initial(12345678);
 
@@ -213,10 +215,37 @@ namespace catapult { namespace utils {
 		};
 
 		/// Assert:
-		EXPECT_EQ(initial + Timestamp(3 * 60 * 60 * 1000u), results[0]);
-		EXPECT_EQ(initial + Timestamp(5 * 60 * 1000u), results[1]);
-		EXPECT_EQ(initial + Timestamp(7 * 1000u), results[2]);
-		EXPECT_EQ(initial + Timestamp(1234u), results[3]);
+		EXPECT_EQ(initial + Timestamp(3 * 60 * 60 * 1000), results[0]);
+		EXPECT_EQ(initial + Timestamp(5 * 60 * 1000), results[1]);
+		EXPECT_EQ(initial + Timestamp(7 * 1000), results[2]);
+		EXPECT_EQ(initial + Timestamp(1234), results[3]);
+	}
+
+	TEST(TEST_CLASS, CanSubtractTimeSpanFromTimestamp) {
+		/// Arrange: approximately 3.4 hours
+		Timestamp initial(12345678);
+
+		/// Act:
+		Timestamp results[] = {
+			SubtractNonNegative(initial, TimeSpan::FromHours(3)),
+			SubtractNonNegative(initial, TimeSpan::FromMinutes(5)),
+			SubtractNonNegative(initial, TimeSpan::FromSeconds(7)),
+			SubtractNonNegative(initial, TimeSpan::FromMilliseconds(1234)),
+
+			SubtractNonNegative(initial, TimeSpan::FromMilliseconds(12345678)),
+			SubtractNonNegative(initial, TimeSpan::FromMilliseconds(12345679)),
+			SubtractNonNegative(initial, TimeSpan::FromMilliseconds(99999999))
+		};
+
+		/// Assert:
+		EXPECT_EQ(initial - Timestamp(3 * 60 * 60 * 1000), results[0]);
+		EXPECT_EQ(initial - Timestamp(5 * 60 * 1000), results[1]);
+		EXPECT_EQ(initial - Timestamp(7 * 1000), results[2]);
+		EXPECT_EQ(initial - Timestamp(1234), results[3]);
+
+		EXPECT_EQ(Timestamp(0), results[4]);
+		EXPECT_EQ(Timestamp(0), results[5]);
+		EXPECT_EQ(Timestamp(0), results[6]);
 	}
 
 	// endregion

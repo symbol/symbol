@@ -3,12 +3,16 @@
 
 namespace catapult { namespace state {
 
+#define TEST_CLASS AccountBalancesTests
+
 	namespace {
 		constexpr MosaicId Test_Mosaic_Id = MosaicId(12345);
 		constexpr MosaicId Test_Mosaic_Id2 = MosaicId(54321);
 	}
 
-	TEST(AccountBalancesTests, GetReturnsZeroForUnknownMosaics) {
+	// region construction + assignment
+
+	TEST(TEST_CLASS, CanCreateEmptyAccountBalances) {
 		// Arrange:
 		AccountBalances balances;
 
@@ -22,9 +26,86 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(0), amount2);
 	}
 
+	namespace {
+		AccountBalances CreateBalancesForConstructionTests() {
+			AccountBalances balances;
+			balances.credit(Test_Mosaic_Id, Amount(777));
+			balances.credit(Xem_Id, Amount(1000));
+			return balances;
+		}
+	}
+
+	TEST(TEST_CLASS, CanCopyConstructAccountBalances) {
+		// Arrange:
+		auto balances = CreateBalancesForConstructionTests();
+
+		// Act:
+		AccountBalances balancesCopy(balances);
+		balancesCopy.credit(Xem_Id, Amount(500));
+
+		// Assert: the copy is detached from the original
+		EXPECT_EQ(Amount(777), balances.get(Test_Mosaic_Id));
+		EXPECT_EQ(Amount(1000), balances.get(Xem_Id));
+
+		EXPECT_EQ(Amount(777), balancesCopy.get(Test_Mosaic_Id));
+		EXPECT_EQ(Amount(1500), balancesCopy.get(Xem_Id));
+	}
+
+	TEST(TEST_CLASS, CanMoveConstructAccountBalances) {
+		// Arrange:
+		auto balances = CreateBalancesForConstructionTests();
+
+		// Act:
+		AccountBalances balancesMoved(std::move(balances));
+
+		// Assert: the original values are moved into the copy (move does not clear first mosaic)
+		EXPECT_EQ(Amount(777), balances.get(Test_Mosaic_Id));
+		EXPECT_EQ(Amount(0), balances.get(Xem_Id));
+
+		EXPECT_EQ(Amount(777), balancesMoved.get(Test_Mosaic_Id));
+		EXPECT_EQ(Amount(1000), balancesMoved.get(Xem_Id));
+	}
+
+	TEST(TEST_CLASS, CanAssignAccountBalances) {
+		// Arrange:
+		auto balances = CreateBalancesForConstructionTests();
+
+		// Act:
+		AccountBalances balancesCopy;
+		const auto& assignResult = balancesCopy = balances;
+		balancesCopy.credit(Xem_Id, Amount(500));
+
+		// Assert: the copy is detached from the original
+		EXPECT_EQ(&balancesCopy, &assignResult);
+		EXPECT_EQ(Amount(777), balances.get(Test_Mosaic_Id));
+		EXPECT_EQ(Amount(1000), balances.get(Xem_Id));
+
+		EXPECT_EQ(Amount(777), balancesCopy.get(Test_Mosaic_Id));
+		EXPECT_EQ(Amount(1500), balancesCopy.get(Xem_Id));
+	}
+
+	TEST(TEST_CLASS, CanMoveAssignAccountBalances) {
+		// Arrange:
+		auto balances = CreateBalancesForConstructionTests();
+
+		// Act:
+		AccountBalances balancesMoved;
+		const auto& assignResult = balancesMoved = std::move(balances);
+
+		// Assert: the original values are moved into the copy (move does not clear first mosaic)
+		EXPECT_EQ(&balancesMoved, &assignResult);
+		EXPECT_EQ(Amount(777), balances.get(Test_Mosaic_Id));
+		EXPECT_EQ(Amount(0), balances.get(Xem_Id));
+
+		EXPECT_EQ(Amount(777), balancesMoved.get(Test_Mosaic_Id));
+		EXPECT_EQ(Amount(1000), balancesMoved.get(Xem_Id));
+	}
+
+	// endregion
+
 	// region credit
 
-	TEST(AccountBalancesTests, CreditDoesNotAddZeroBalance) {
+	TEST(TEST_CLASS, CreditDoesNotAddZeroBalance) {
 		// Arrange:
 		AccountBalances balances;
 
@@ -36,7 +117,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(0), balances.get(Xem_Id));
 	}
 
-	TEST(AccountBalancesTests, CreditIncreasesAmountStored) {
+	TEST(TEST_CLASS, CreditIncreasesAmountStored) {
 		// Arrange:
 		AccountBalances balances;
 
@@ -48,7 +129,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(12345), balances.get(Xem_Id));
 	}
 
-	TEST(AccountBalancesTests, InterleavingCreditsYieldCorrectState) {
+	TEST(TEST_CLASS, InterleavingCreditsYieldCorrectState) {
 		// Arrange:
 		AccountBalances balances;
 
@@ -67,7 +148,7 @@ namespace catapult { namespace state {
 
 	// region debit
 
-	TEST(AccountBalancesTests, CanDebitZeroFromZeroBalance) {
+	TEST(TEST_CLASS, CanDebitZeroFromZeroBalance) {
 		// Arrange:
 		AccountBalances balances;
 
@@ -79,7 +160,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(0), balances.get(Xem_Id));
 	}
 
-	TEST(AccountBalancesTests, DebitDecreasesAmountStored) {
+	TEST(TEST_CLASS, DebitDecreasesAmountStored) {
 		// Arrange:
 		AccountBalances balances;
 		balances.credit(Xem_Id, Amount(12345));
@@ -92,7 +173,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(12345 - 222), balances.get(Xem_Id));
 	}
 
-	TEST(AccountBalancesTests, FullDebitRemovesTheMosaicFromCache) {
+	TEST(TEST_CLASS, FullDebitRemovesMosaicFromCache) {
 		// Arrange:
 		AccountBalances balances;
 		Amount amount = Amount(12345);
@@ -107,7 +188,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(0), xemHeld);
 	}
 
-	TEST(AccountBalancesTests, InterleavingDebitsYieldCorrectState) {
+	TEST(TEST_CLASS, InterleavingDebitsYieldCorrectState) {
 		// Arrange:
 		AccountBalances balances;
 		balances.credit(Xem_Id, Amount(12345));
@@ -124,12 +205,12 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(3456 - 1111), balances.get(Test_Mosaic_Id));
 	}
 
-	TEST(AccountBalancesTests, DebitDoesNotAllowUnderflowOfNonZeroBalance) {
+	TEST(TEST_CLASS, DebitDoesNotAllowUnderflowOfNonZeroBalance) {
 		// Arrange:
 		AccountBalances balances;
 		balances.credit(Xem_Id, Amount(12345));
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(balances.debit(Xem_Id, Amount(12346)), catapult_runtime_error);
 
 		// Assert:
@@ -137,11 +218,11 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(12345), balances.get(Xem_Id));
 	}
 
-	TEST(AccountBalancesTests, DebitDoesNotAllowUnderflowOfZeroBalance) {
+	TEST(TEST_CLASS, DebitDoesNotAllowUnderflowOfZeroBalance) {
 		// Arrange:
 		AccountBalances balances;
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(balances.debit(Xem_Id, Amount(222)), catapult_runtime_error);
 
 		// Assert:
@@ -153,7 +234,7 @@ namespace catapult { namespace state {
 
 	// region credit + debit
 
-	TEST(AccountBalancesTests, InterleavingDebitsAndCreditsYieldCorrectState) {
+	TEST(TEST_CLASS, InterleavingDebitsAndCreditsYieldCorrectState) {
 		// Arrange:
 		AccountBalances balances;
 		balances.credit(Xem_Id, Amount(12345));
@@ -173,7 +254,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(3456 - 1111 + 5432), balances.get(Test_Mosaic_Id));
 	}
 
-	TEST(AccountBalancesTests, ChainedInterleavingDebitsAndCreditsYieldCorrectState) {
+	TEST(TEST_CLASS, ChainedInterleavingDebitsAndCreditsYieldCorrectState) {
 		// Arrange:
 		AccountBalances balances;
 		balances
@@ -199,7 +280,7 @@ namespace catapult { namespace state {
 
 	// region iteration
 
-	TEST(AccountBalancesTests, CanIterateOverAllBalances) {
+	TEST(TEST_CLASS, CanIterateOverAllBalances) {
 		// Arrange:
 		AccountBalances balances;
 		balances

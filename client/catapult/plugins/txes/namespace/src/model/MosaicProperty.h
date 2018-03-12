@@ -1,5 +1,5 @@
 #pragma once
-#include "catapult/utils/Casting.h"
+#include "catapult/utils/BitwiseEnum.h"
 #include <stdint.h>
 
 namespace catapult { namespace model {
@@ -43,15 +43,7 @@ namespace catapult { namespace model {
 		All = 0x07
 	};
 
-	/// Bitwise or operator for mosaic flags.
-	constexpr MosaicFlags operator|(MosaicFlags lhs, MosaicFlags rhs) {
-		return static_cast<MosaicFlags>(utils::to_underlying_type(lhs) | utils::to_underlying_type(rhs));
-	}
-
-	/// Bitwise or assignment operator for mosaic flags.
-	constexpr MosaicFlags& operator|=(MosaicFlags& lhs, MosaicFlags rhs) {
-		return lhs = lhs | rhs;
-	}
+	MAKE_BITWISE_ENUM(MosaicFlags)
 
 #pragma pack(push, 1)
 

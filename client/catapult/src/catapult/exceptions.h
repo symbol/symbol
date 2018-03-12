@@ -1,7 +1,7 @@
 #pragma once
-#include "catapult/utils/BaseValue.h"
-#include "catapult/utils/Logging.h"
-#include "catapult/utils/NonCopyable.h"
+#include "utils/BaseValue.h"
+#include "utils/Logging.h"
+#include "utils/NonCopyable.h"
 #include <boost/exception/exception.hpp>
 #include <boost/exception/info.hpp>
 #include <boost/throw_exception.hpp>
@@ -114,8 +114,7 @@ namespace catapult {
 /// Macro used to throw a catapult exception with one parameter.
 #define CATAPULT_THROW_AND_LOG_1(TYPE, MESSAGE, PARAM1) { \
 	auto detail1 = exception_detail::Make<ErrorParam1>::From(PARAM1); \
-	CATAPULT_LOG(error) << "Throwing exception: " << MESSAGE \
-			<< " (" << detail1.value() << ")"; \
+	CATAPULT_LOG(error) << "Throwing exception: " << MESSAGE << " (" << detail1.value() << ")"; \
 	CATAPULT_THROW_EXCEPTION(TYPE(MESSAGE) << detail1); \
 }
 
@@ -123,8 +122,7 @@ namespace catapult {
 #define CATAPULT_THROW_AND_LOG_2(TYPE, MESSAGE, PARAM1, PARAM2) { \
 	auto detail1 = exception_detail::Make<ErrorParam1>::From(PARAM1); \
 	auto detail2 = exception_detail::Make<ErrorParam2>::From(PARAM2); \
-	CATAPULT_LOG(error) << "Throwing exception: " << MESSAGE \
-			<< " (" << detail1.value() << ", " << detail2.value() << ")"; \
+	CATAPULT_LOG(error) << "Throwing exception: " << MESSAGE << " (" << detail1.value() << ", " << detail2.value() << ")"; \
 	CATAPULT_THROW_EXCEPTION(TYPE(MESSAGE) << detail1 << detail2); \
 }
 

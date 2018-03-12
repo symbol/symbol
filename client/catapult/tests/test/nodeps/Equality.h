@@ -17,7 +17,7 @@ namespace catapult { namespace test {
 			const std::string& defaultKey,
 			const std::unordered_map<std::string, TEntity>& descToEntityMap,
 			const std::unordered_set<std::string>& equalityTags,
-			const std::function<bool (const TEntity&, const TEntity&)>& equal) {
+			const predicate<const TEntity&, const TEntity&>& equal) {
 		// Arrange:
 		const auto& Default_Entity = descToEntityMap.find(defaultKey)->second;
 		for (const auto& entity : descToEntityMap) {
@@ -72,7 +72,7 @@ namespace catapult { namespace test {
 			const std::string& defaultKey,
 			const std::unordered_map<std::string, TEntity>& descToEntityMap,
 			const std::unordered_set<std::string>& equalityTags,
-			const std::function<bool (const TEntity&, const TEntity&)>& notEqual) {
+			const predicate<const TEntity&, const TEntity&>& notEqual) {
 		// Arrange:
 		const auto& Default_Entity = descToEntityMap.find(defaultKey)->second;
 		for (const auto& entity : descToEntityMap) {

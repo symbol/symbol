@@ -79,7 +79,7 @@ namespace catapult { namespace disruptor {
 	};
 
 	/// Function signature for signaling that processing finished.
-	using ProcessingCompleteFunc = std::function<void (DisruptorElementId, const ConsumerCompletionResult&)>;
+	using ProcessingCompleteFunc = consumer<DisruptorElementId, const ConsumerCompletionResult&>;
 
 	/// Processing element for a transaction unassociated with a block composed of a transaction and metadata.
 	struct FreeTransactionElement : public model::TransactionElement {

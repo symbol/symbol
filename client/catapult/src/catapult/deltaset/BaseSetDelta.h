@@ -1,6 +1,6 @@
 #pragma once
 #include "BaseSetDefaultTraits.h"
-#include "DeltaEntities.h"
+#include "DeltaElements.h"
 #include "catapult/utils/NonCopyable.h"
 #include "catapult/exceptions.h"
 #include "catapult/preprocessor.h"
@@ -8,24 +8,50 @@
 
 namespace catapult { namespace deltaset {
 
+	/// Possible results of an insert into a base set delta.
+	enum class InsertResult {
+		/// An element pending removal was reverted.
+		Unremoved,
+		/// An existing element was updated (mutable elements only).
+		Updated,
+		/// Insert failed because the element already exists (immutable elements only).
+		Redundant,
+		/// A new element was inserted.
+		Inserted
+	};
+
+	/// Possible results of a remove from a base set delta.
+	enum class RemoveResult {
+		/// No matching element was found.
+		None,
+		/// An element pending modification was reverted and removed (mutable elements only).
+		Unmodified_And_Removed,
+		/// An element pending insert was reverted.
+		Uninserted,
+		/// Remove failed because the element already was removed.
+		Redundant,
+		/// An existing element was removed.
+		Removed
+	};
+
 	/// A delta on top of a base set.
-	/// \tparam TEntityTraits Traits describing the type of entity.
+	/// \tparam TElementTraits Traits describing the type of element.
 	/// \tparam TSetTraits Traits describing the underlying set.
 	///
 	/// The delta offers methods to insert/remove/update elements.
 	/// \note This class is not thread safe.
-	template<typename TEntityTraits, typename TSetTraits>
+	template<typename TElementTraits, typename TSetTraits>
 	class BaseSetDelta : public utils::NonCopyable {
 	public:
-		using EntityType = typename TEntityTraits::EntityType;
+		using ElementType = typename TElementTraits::ElementType;
 		using SetType = typename TSetTraits::SetType;
 		using KeyType = typename TSetTraits::KeyType;
-		using FindTraits = detail::FindTraits<EntityType, TSetTraits::AllowsNativeValueModification>;
+		using FindTraits = detail::FindTraits<ElementType, TSetTraits::AllowsNativeValueModification>;
 		using SetTraits = TSetTraits;
 
 	public:
-		/// Creates a delta on top of \a originalEntities.
-		explicit BaseSetDelta(const SetType& originalEntities) : m_originalEntities(originalEntities)
+		/// Creates a delta on top of \a originalElements.
+		explicit BaseSetDelta(const SetType& originalElements) : m_originalElements(originalElements)
 		{}
 
 	public:
@@ -36,18 +62,18 @@ namespace catapult { namespace deltaset {
 
 		/// Gets the size of this set.
 		size_t size() const {
-			return m_originalEntities.size() - m_removedEntities.size() + m_addedEntities.size();
+			return m_originalElements.size() - m_removedElements.size() + m_addedElements.size();
 		}
 
 	public:
 		/// Searches for \a key in this set.
-		/// Returns a pointer to the matching entity if it is found or \c nullptr if it is not found.
+		/// Returns a pointer to the matching element if it is found or \c nullptr if it is not found.
 		typename FindTraits::ConstResultType find(const KeyType& key) const {
 			return find<decltype(*this), typename FindTraits::ConstResultType>(*this, key);
 		}
 
 		/// Searches for \a key in this set.
-		/// Returns a pointer to the matching entity if it is found or \c nullptr if it is not found.
+		/// Returns a pointer to the matching element if it is found or \c nullptr if it is not found.
 		typename FindTraits::ResultType find(const KeyType& key) {
 			return find<decltype(*this), typename FindTraits::ResultType>(*this, key);
 		}
@@ -60,49 +86,48 @@ namespace catapult { namespace deltaset {
 
 		template<typename TBaseSetDelta, typename TResult>
 		static TResult find(TBaseSetDelta& set, const KeyType& key) {
-			if (contains(set.m_removedEntities, key))
+			if (contains(set.m_removedElements, key))
 				return nullptr;
 
-			auto pOriginal = set.find(key, typename TEntityTraits::MutabilityTag());
+			auto pOriginal = set.find(key, typename TElementTraits::MutabilityTag());
 			if (nullptr != pOriginal)
 				return pOriginal;
 
-			auto addedIter = set.m_addedEntities.find(key);
-			return set.m_addedEntities.cend() != addedIter ? ToResult(*addedIter) : nullptr;
+			auto addedIter = set.m_addedElements.find(key);
+			return set.m_addedElements.cend() != addedIter ? ToResult(*addedIter) : nullptr;
 		}
 
 		typename FindTraits::ResultType find(const KeyType& key, MutableTypeTag) {
-			auto copyIter = m_copiedEntities.find(key);
-			if (m_copiedEntities.cend() != copyIter)
-				return ToResult(*copyIter);
+			auto copiedIter = m_copiedElements.find(key);
+			if (m_copiedElements.cend() != copiedIter)
+				return ToResult(*copiedIter);
 
 			auto pOriginal = find(key, ImmutableTypeTag());
 			if (nullptr == pOriginal)
 				return nullptr;
 
-			auto copy = TEntityTraits::Copy(pOriginal);
-			auto result = m_copiedEntities.insert(SetTraits::ToStorage(copy));
+			auto copy = TElementTraits::Copy(pOriginal);
+			auto result = m_copiedElements.insert(SetTraits::ToStorage(copy));
 			return ToResult(*result.first);
 		}
 
 		typename FindTraits::ConstResultType find(const KeyType& key, MutableTypeTag) const {
-			auto copyIter = m_copiedEntities.find(key);
-			return m_copiedEntities.cend() != copyIter
-					? ToResult(*copyIter)
+			auto copiedIter = m_copiedElements.find(key);
+			return m_copiedElements.cend() != copiedIter
+					? ToResult(*copiedIter)
 					: find(key, ImmutableTypeTag());
 		}
 
 		typename FindTraits::ConstResultType find(const KeyType& key, ImmutableTypeTag) const {
-			auto originalIter = m_originalEntities.find(key);
-			return m_originalEntities.cend() != originalIter ? ToResult(*originalIter) : nullptr;
+			auto originalIter = m_originalElements.find(key);
+			return m_originalElements.cend() != originalIter ? ToResult(*originalIter) : nullptr;
 		}
 
 	public:
 		/// Searches for \a key in this set.
 		/// Returns \c true if it is found or \c false if it is not found.
 		bool contains(const KeyType& key) const {
-			return !contains(m_removedEntities, key)
-					&& (contains(m_addedEntities, key) || contains(m_originalEntities, key));
+			return !contains(m_removedElements, key) && (contains(m_addedElements, key) || contains(m_originalElements, key));
 		}
 
 	private:
@@ -111,92 +136,103 @@ namespace catapult { namespace deltaset {
 		}
 
 	public:
-		/// Inserts \a entity into this set.
+		/// Inserts \a element into this set.
 		/// \note The algorithm relies on the data used for comparing elements being immutable.
-		void insert(const EntityType& entity) {
-			insert(entity, typename TEntityTraits::MutabilityTag());
+		InsertResult insert(const ElementType& element) {
+			return insert(element, typename TElementTraits::MutabilityTag());
 		}
 
-		/// Creates an entity around the passed arguments (\a args) and inserts the entity into this set.
+		/// Creates an element around the passed arguments (\a args) and inserts the element into this set.
 		template<typename... TArgs>
-		void emplace(TArgs&&... args) {
-			auto entity = detail::EntityCreator<EntityType>::Create(std::forward<TArgs>(args)...);
-			insert(entity);
+		InsertResult emplace(TArgs&&... args) {
+			auto element = detail::ElementCreator<ElementType>::Create(std::forward<TArgs>(args)...);
+			return insert(element);
 		}
 
 	private:
-		void insert(const EntityType& entity, MutableTypeTag) {
-			const auto& key = TSetTraits::ToKey(entity);
-			auto removedIter = m_removedEntities.find(key);
-			if (m_removedEntities.cend() != removedIter) {
-				// since the entity is in the set of removed entities, it must be an original entity
-				// and cannot be in the set of added entities
-				m_removedEntities.erase(removedIter);
+		InsertResult insert(const ElementType& element, MutableTypeTag) {
+			const auto& key = TSetTraits::ToKey(element);
+			auto removedIter = m_removedElements.find(key);
+			if (m_removedElements.cend() != removedIter) {
+				// since the element is in the set of removed elements, it must be an original element
+				// and cannot be in the set of added elements
+				m_removedElements.erase(removedIter);
 
-				// since the entity is mutable, it could have been modified, so add it to the copied entities
-				m_copiedEntities.insert(TSetTraits::ToStorage(entity));
-				return;
+				// since the element is mutable, it could have been modified, so add it to the copied elements
+				m_copiedElements.insert(TSetTraits::ToStorage(element));
+				return InsertResult::Unremoved;
 			}
 
-			auto& targetContainer = contains(m_originalEntities, key)
-					? m_copiedEntities // original entity, possibly modified
-					: m_addedEntities; // not an original entity
+			auto insertResult = InsertResult::Inserted;
+			decltype(m_copiedElements)* pTargetElements;
+			if (contains(m_originalElements, key)) {
+				pTargetElements = &m_copiedElements; // original element, possibly modified
+				insertResult = InsertResult::Updated;
+			} else {
+				pTargetElements = &m_addedElements; // not an original element
+				if (contains(m_addedElements, key))
+					insertResult = InsertResult::Updated;
+			}
 
-			// copy the storage before erasing in case entity is sourced from the same container being updated
-			auto storage = TSetTraits::ToStorage(entity);
-			targetContainer.erase(key);
-			targetContainer.insert(std::move(storage));
+			// copy the storage before erasing in case element is sourced from the same container being updated
+			auto storage = TSetTraits::ToStorage(element);
+			pTargetElements->erase(key);
+			pTargetElements->insert(std::move(storage));
+			return insertResult;
 		}
 
-		void insert(const EntityType& entity, ImmutableTypeTag) {
-			const auto& key = TSetTraits::ToKey(entity);
-			auto removedIter = m_removedEntities.find(key);
-			if (m_removedEntities.cend() != removedIter) {
-				// since the entity is in the set of removed entities, it must be an original entity
-				// and cannot be in the set of added entities
-				m_removedEntities.erase(removedIter);
-				return;
+		InsertResult insert(const ElementType& element, ImmutableTypeTag) {
+			const auto& key = TSetTraits::ToKey(element);
+			auto removedIter = m_removedElements.find(key);
+			if (m_removedElements.cend() != removedIter) {
+				// since the element is in the set of removed elements, it must be an original element
+				// and cannot be in the set of added elements
+				m_removedElements.erase(removedIter);
+				return InsertResult::Unremoved;
 			}
 
-			if (contains(m_originalEntities, key))
-				return;
+			if (contains(m_originalElements, key) || contains(m_addedElements, key))
+				return InsertResult::Redundant;
 
-			m_addedEntities.insert(TSetTraits::ToStorage(entity));
+			m_addedElements.insert(TSetTraits::ToStorage(element));
+			return InsertResult::Inserted;
 		}
 
 	public:
-		/// Removes the entity identified by \a key from the delta.
-		void remove(const KeyType& key) {
-			if (contains(m_removedEntities, key))
-				return;
+		/// Removes the element identified by \a key from the delta.
+		RemoveResult remove(const KeyType& key) {
+			if (contains(m_removedElements, key))
+				return RemoveResult::Redundant;
 
-			remove(key, typename TEntityTraits::MutabilityTag());
+			return remove(key, typename TElementTraits::MutabilityTag());
 		}
 
 	private:
-		void remove(const KeyType& key, MutableTypeTag) {
-			auto copyIter = m_copiedEntities.find(key);
-			if (m_copiedEntities.cend() != copyIter) {
-				m_removedEntities.insert(*copyIter);
-				m_copiedEntities.erase(copyIter);
-				return;
+		RemoveResult remove(const KeyType& key, MutableTypeTag) {
+			auto copiedIter = m_copiedElements.find(key);
+			if (m_copiedElements.cend() != copiedIter) {
+				m_removedElements.insert(*copiedIter);
+				m_copiedElements.erase(copiedIter);
+				return RemoveResult::Unmodified_And_Removed;
 			}
 
-			remove(key, ImmutableTypeTag());
+			return remove(key, ImmutableTypeTag());
 		}
 
-		void remove(const KeyType& key, ImmutableTypeTag) {
-			auto addedIter = m_addedEntities.find(key);
-			if (m_addedEntities.cend() != addedIter) {
-				m_addedEntities.erase(addedIter);
-				return;
+		RemoveResult remove(const KeyType& key, ImmutableTypeTag) {
+			auto addedIter = m_addedElements.find(key);
+			if (m_addedElements.cend() != addedIter) {
+				m_addedElements.erase(addedIter);
+				return RemoveResult::Uninserted;
 			}
 
-			auto originalIter = m_originalEntities.find(key);
-			if (m_originalEntities.cend() != originalIter) {
-				m_removedEntities.insert(*originalIter);
-				return;
+			auto originalIter = m_originalElements.find(key);
+			if (m_originalElements.cend() != originalIter) {
+				m_removedElements.insert(*originalIter);
+				return RemoveResult::Removed;
 			}
+
+			return RemoveResult::None;
 		}
 
 	public:
@@ -210,27 +246,24 @@ namespace catapult { namespace deltaset {
 			using iterator_category = std::forward_iterator_tag;
 
 		public:
-			/// Creates an iterator around the original \a entities and \a deltas at position \a position.
-			iterator(
-					const SetType& entities,
-					const DeltaEntities<SetType>& deltas,
-					size_t position)
-					: m_entities(entities)
+			/// Creates an iterator around the original \a elements and \a deltas at \a position.
+			iterator(const SetType& elements, const DeltaElements<SetType>& deltas, size_t position)
+					: m_elements(elements)
 					, m_deltas(deltas)
 					, m_position(position)
-					, m_size(m_entities.size() + m_deltas.Added.size() - m_deltas.Removed.size())
+					, m_size(m_elements.size() + m_deltas.Added.size() - m_deltas.Removed.size())
 					, m_stage(IterationStage::Copied)
 					, m_iter(m_deltas.Copied.cbegin()) {
 				if (m_position == m_size)
 					m_iter = m_deltas.Added.cend();
 				else
-					moveToValidEntity();
+					moveToValidElement();
 			}
 
 		public:
 			/// Returns \c true if this iterator and \a rhs are equal.
 			bool operator==(const iterator& rhs) const {
-				return &m_entities == &rhs.m_entities && m_position == rhs.m_position;
+				return &m_elements == &rhs.m_elements && m_position == rhs.m_position;
 			}
 
 			/// Returns \c true if this iterator and \a rhs are not equal.
@@ -246,7 +279,7 @@ namespace catapult { namespace deltaset {
 
 				++m_position;
 				++m_iter;
-				moveToValidEntity();
+				moveToValidElement();
 				return *this;
 			}
 
@@ -258,21 +291,21 @@ namespace catapult { namespace deltaset {
 			}
 
 		private:
-			void moveToValidEntity() {
+			void moveToValidElement() {
 				if (IterationStage::Copied == m_stage) {
 					if (handleCopiedStage())
 						return;
 
-					// all copied entities have been iterated, so advance to the next stage
+					// all copied elements have been iterated, so advance to the next stage
 					m_stage = IterationStage::Original;
-					m_iter = m_entities.cbegin();
+					m_iter = m_elements.cbegin();
 				}
 
 				if (IterationStage::Original == m_stage) {
 					if (handleOriginalStage())
 						return;
 
-					// all original entities have been iterated, so advance to the next stage
+					// all original elements have been iterated, so advance to the next stage
 					m_stage = IterationStage::Added;
 					m_iter = m_deltas.Added.cbegin();
 				}
@@ -281,8 +314,8 @@ namespace catapult { namespace deltaset {
 			}
 
 			bool handleOriginalStage() {
-				// advance to the first original entity that has neither been removed nor copied
-				for (; m_entities.end() != m_iter; ++m_iter) {
+				// advance to the first original element that has neither been removed nor copied
+				for (; m_elements.end() != m_iter; ++m_iter) {
 					const auto& key = TSetTraits::ToKey(*m_iter);
 					if (!contains(m_deltas.Removed, key) && !contains(m_deltas.Copied, key))
 						return true;
@@ -300,7 +333,7 @@ namespace catapult { namespace deltaset {
 			}
 
 		public:
-			/// Returns a pointer to the current entity.
+			/// Returns a pointer to the current element.
 			value_type* operator->() const {
 				if (m_position == m_size)
 					CATAPULT_THROW_OUT_OF_RANGE("cannot dereference at end");
@@ -308,7 +341,7 @@ namespace catapult { namespace deltaset {
 				return &*m_iter;
 			}
 
-			/// Returns a reference to the current entity.
+			/// Returns a reference to the current element.
 			value_type& operator*() const {
 				return *(this->operator->());
 			}
@@ -317,8 +350,8 @@ namespace catapult { namespace deltaset {
 			enum class IterationStage { Copied, Original, Added };
 
 		private:
-			const SetType& m_entities;
-			DeltaEntities<SetType> m_deltas;
+			const SetType& m_elements;
+			DeltaElements<SetType> m_deltas;
 			size_t m_position;
 			size_t m_size;
 			IterationStage m_stage;
@@ -326,32 +359,32 @@ namespace catapult { namespace deltaset {
 		};
 
 		/// Returns a const iterator to the first element of the underlying set.
-		auto cbegin() const {
-			return iterator(m_originalEntities, deltas(), 0);
+		auto begin() const {
+			return iterator(m_originalElements, deltas(), 0);
 		}
 
 		/// Returns a const iterator to the element following the last element of the underlying set.
-		auto cend() const {
-			return iterator(m_originalEntities, deltas(), size());
+		auto end() const {
+			return iterator(m_originalElements, deltas(), size());
 		}
 
 	public:
 		/// Gets const references to the pending modifications.
-		DeltaEntities<SetType> deltas() const {
-			return DeltaEntities<SetType>(m_addedEntities, m_removedEntities, m_copiedEntities);
+		DeltaElements<SetType> deltas() const {
+			return DeltaElements<SetType>(m_addedElements, m_removedElements, m_copiedElements);
 		}
 
 		/// Resets all pending modifications.
 		void reset() {
-			m_addedEntities.clear();
-			m_removedEntities.clear();
-			m_copiedEntities.clear();
+			m_addedElements.clear();
+			m_removedElements.clear();
+			m_copiedElements.clear();
 		}
 
 	private:
-		const SetType& m_originalEntities;
-		SetType m_addedEntities;
-		SetType m_removedEntities;
-		SetType m_copiedEntities;
+		const SetType& m_originalElements;
+		SetType m_addedElements;
+		SetType m_removedElements;
+		SetType m_copiedElements;
 	};
 }}

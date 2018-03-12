@@ -19,6 +19,23 @@ set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
+### detect signature scheme
+if(USE_KECCAK AND USE_REVERSED_PRIVATE_KEYS)
+	add_definitions(-DSIGNATURE_SCHEME_NIS1)
+elseif(NOT USE_KECCAK AND NOT USE_REVERSED_PRIVATE_KEYS)
+	add_definitions(-DSIGNATURE_SCHEME_CATAPULT)
+else()
+	message(FATAL_ERROR "unsupported signature scheme specified - please check USE_KECCAK and USE_REVERSED_PRIVATE_KEYS options")
+endif()
+
+### forward docker build settings
+if(CATAPULT_TEST_DB_URL)
+	add_definitions(-DCATAPULT_TEST_DB_URL="${CATAPULT_TEST_DB_URL}")
+endif()
+if(CATAPULT_DOCKER_TESTS)
+	add_definitions(-DCATAPULT_DOCKER_TESTS)
+endif()
+
 ### set compiler settings
 if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /EHsc")
@@ -34,7 +51,7 @@ if(MSVC)
 	add_definitions(-DBOOST_ALL_NO_LIB)
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 	# basically equivalent to MSVC W4
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-invalid-offsetof -Werror")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-invalid-offsetof -Wno-maybe-uninitialized -Werror")
 
 	# add memset_s
 	add_definitions(-D_STDC_WANT_LIB_EXT1_=1)
@@ -45,6 +62,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	# basically equivalent to MSVC W4
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+		-std=c++11 -stdlib=libc++ \
 		-Weverything \
 		-Werror \
 		-Wno-c++98-compat \
@@ -75,40 +93,23 @@ if(("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MAT
 	# use rpath for executables (executable rpath will be used for loading indirect libs, this is needed because boost libs
 	#   do not set runpath)
 	# use newer runpath for shared libs
-	set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--enable-new-dtags")
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--enable-new-dtags")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
 endif()
 
-### find and set mongo libraries
-function(catapult_add_mongo_dependencies TARGET_NAME)
-	find_package(LIBMONGOCXX REQUIRED)
-	find_package(LIBBSONCXX REQUIRED)
+if(USE_SANITATION)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
 
-	if(MSVC)
-		find_library(MONGOCXX_LIB ${LIBMONGOCXX_LIBRARIES} ${LIBMONGOCXX_LIBRARY_DIRS})
-		find_library(BSONCXX_LIB ${LIBBSONCXX_LIBRARIES} ${LIBBSONCXX_LIBRARY_DIRS})
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
+endif()
 
-		find_library(MONGOC_LIB mongoc-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
-		find_library(BSONC_LIB bson-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
-
-		set(MONGO_ADDITIONAL_LIBS bcrypt crypt32 secur32 ws2_32)
-	else()
-		find_library(MONGOCXX_LIB ${LIBMONGOCXX_LIBRARIES} ${LIBMONGOCXX_LIBRARY_DIRS})
-		find_library(BSONCXX_LIB ${LIBBSONCXX_LIBRARIES} ${LIBBSONCXX_LIBRARY_DIRS})
-
-		find_library(MONGOC_LIB mongoc-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
-		find_library(BSONC_LIB bson-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
-		set(MONGO_ADDITIONAL_LIBS)
-	endif()
-
-	message("mongo c    lib: ${MONGOC_LIB}")
-	message(" bson c    lib: ${BSONC_LIB}")
-	message("mongo cxx dirs: ${MONGOCXX_LIB} ${LIBMONGOCXX_INCLUDE_DIRS} ${LIBMONGOCXX_LIBRARY_DIRS} ${LIBMONGOCXX_LIBRARIES}")
-	message(" bson cxx dirs: ${BSONCXX_LIB} ${LIBBSONCXX_INCLUDE_DIRS} ${LIBBSONCXX_LIBRARY_DIRS} ${LIBBSONCXX_LIBRARIES}")
-
-	add_definitions(-DBSONCXX_STATIC -DMONGOCXX_STATIC)
-	include_directories(SYSTEM ${LIBMONGOCXX_INCLUDE_DIRS} ${LIBBSONCXX_INCLUDE_DIRS})
-	target_link_libraries(${TARGET_NAME} ${MONGOCXX_LIB} ${BSONCXX_LIB} ${MONGOC_LIB} ${BSONC_LIB} ${MONGO_ADDITIONAL_LIBS})
-endfunction(catapult_add_mongo_dependencies)
+### find and set gtest includes
+function(catapult_add_gtest_dependencies)
+	find_package(GTest REQUIRED)
+	include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
+endfunction()
 
 ### define helper functions
 
@@ -146,9 +147,13 @@ function(catapult_target TARGET_NAME)
 	if(TARGET_NAME MATCHES "\.tools")
 		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "tools")
 	endif()
-endfunction(catapult_target)
+endfunction()
 
-function(find_all_target_files TARGET_NAME)
+function(catapult_find_all_target_files TARGET_TYPE TARGET_NAME)
+	if (CMAKE_VERBOSE_MAKEFILE)
+		message("processing ${TARGET_TYPE} '${TARGET_NAME}'")
+	endif()
+
 	file(GLOB ${TARGET_NAME}_INCLUDE_SRC "*.h")
 	file(GLOB ${TARGET_NAME}_SRC "*.cpp")
 
@@ -159,7 +164,10 @@ function(find_all_target_files TARGET_NAME)
 	# add any (optional) subdirectories
 	foreach(arg ${ARGN})
 		set(SUBDIR ${arg})
-		message("+ processing subdirectory '${arg}'")
+		if (CMAKE_VERBOSE_MAKEFILE)
+			message("+ processing subdirectory '${arg}'")
+		endif()
+
 		file(GLOB ${TARGET_NAME}_${SUBDIR}_INCLUDE_SRC "${SUBDIR}/*.h")
 		file(GLOB ${TARGET_NAME}_${SUBDIR}_SRC "${SUBDIR}/*.cpp")
 
@@ -169,12 +177,11 @@ function(find_all_target_files TARGET_NAME)
 	endforeach()
 
 	set(${TARGET_NAME}_FILES ${TARGET_FILES} PARENT_SCOPE)
-endfunction(find_all_target_files)
+endfunction()
 
 # used to define a catapult library, creating an appropriate source group and adding a library
 function(catapult_library TARGET_NAME)
-	message("processing lib '${TARGET_NAME}'")
-	find_all_target_files(${TARGET_NAME} ${ARGN})
+	catapult_find_all_target_files("lib" ${TARGET_NAME} ${ARGN})
 
 	if (ENABLE_STRESS)
 		if (NOT STRESS_COUNT)
@@ -196,8 +203,7 @@ endfunction()
 
 # used to define a catapult shared library, creating an appropriate source group and adding a library
 function(catapult_shared_library TARGET_NAME)
-	message("processing shared lib '${TARGET_NAME}'")
-	find_all_target_files(${TARGET_NAME} ${ARGN})
+	catapult_find_all_target_files("shared lib" ${TARGET_NAME} ${ARGN})
 
 	add_definitions(-DDLL_EXPORTS)
 
@@ -212,8 +218,7 @@ endfunction()
 
 # used to define a catapult executable, creating an appropriate source group and adding an executable
 function(catapult_executable TARGET_NAME)
-	message("processing exe '${TARGET_NAME}'")
-	find_all_target_files(${TARGET_NAME} ${ARGN})
+	catapult_find_all_target_files("exe" ${TARGET_NAME} ${ARGN})
 
 	add_executable(${TARGET_NAME} ${${TARGET_NAME}_FILES})
 
@@ -224,8 +229,7 @@ endfunction()
 
 function(catapult_header_only_target TARGET_NAME)
 	if(MSVC)
-		message("processing hdr '${TARGET_NAME}'")
-		find_all_target_files(${TARGET_NAME} ${ARGN})
+		catapult_find_all_target_files("hdr" ${TARGET_NAME} ${ARGN})
 
 		# unfortunately add_library INTERFACE doesn't seem to work
 		# http://stackoverflow.com/questions/5957134/how-to-setup-cmake-to-generate-header-only-projects
@@ -236,6 +240,9 @@ endfunction()
 
 # used to define a catapult test executable
 function(catapult_test_executable TARGET_NAME)
+	find_package(GTest REQUIRED)
+	include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
+
 	catapult_executable(${TARGET_NAME} ${ARGN})
 	add_test(NAME ${TARGET_NAME} WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${TARGET_NAME})
 

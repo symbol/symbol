@@ -4,7 +4,9 @@
 
 namespace catapult { namespace validators {
 
-	TEST(ValidatorContextTests, CanCreateValidatorContextAroundHeightAndNetworkAndCache) {
+#define TEST_CLASS ValidatorContextTests
+
+	TEST(TEST_CLASS, CanCreateValidatorContextAroundHeightAndNetworkAndCache) {
 		// Act:
 		auto networkInfo = model::NetworkInfo(static_cast<model::NetworkIdentifier>(0xAD), {}, {});
 		auto cache = test::CreateEmptyCatapultCache();

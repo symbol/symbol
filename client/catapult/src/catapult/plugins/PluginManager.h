@@ -2,6 +2,7 @@
 #include "catapult/cache/CatapultCacheBuilder.h"
 #include "catapult/ionet/PacketHandlers.h"
 #include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/TransactionPlugin.h"
 #include "catapult/observers/DemuxObserverBuilder.h"
 #include "catapult/observers/ObserverTypes.h"
@@ -15,11 +16,11 @@ namespace catapult { namespace plugins {
 	/// A manager for registering plugins.
 	class PluginManager {
 	private:
-		using HandlerHook = std::function<void (ionet::ServerPacketHandlers&, const cache::CatapultCache&)>;
-		using CounterHook = std::function<void (std::vector<utils::DiagnosticCounter>&, const cache::CatapultCache&)>;
-		using StatelessValidatorHook = std::function<void (validators::stateless::DemuxValidatorBuilder&)>;
-		using StatefulValidatorHook = std::function<void (validators::stateful::DemuxValidatorBuilder&)>;
-		using ObserverHook = std::function<void (observers::DemuxObserverBuilder&)>;
+		using HandlerHook = consumer<ionet::ServerPacketHandlers&, const cache::CatapultCache&>;
+		using CounterHook = consumer<std::vector<utils::DiagnosticCounter>&, const cache::CatapultCache&>;
+		using StatelessValidatorHook = consumer<validators::stateless::DemuxValidatorBuilder&>;
+		using StatefulValidatorHook = consumer<validators::stateful::DemuxValidatorBuilder&>;
+		using ObserverHook = consumer<observers::DemuxObserverBuilder&>;
 
 	public:
 		/// Creates a new plugin manager around \a config.
@@ -102,22 +103,32 @@ namespace catapult { namespace plugins {
 				hook(builder, std::forward<TArgs>(args)...);
 		}
 
-		template<typename TBuilder, typename THooks>
-		static auto Build(const THooks& hooks) {
+		template<typename TBuilder, typename THooks, typename... TArgs>
+		static auto Build(const THooks& hooks, TArgs&&... args) {
 			TBuilder builder;
 			ApplyAll(builder, hooks);
-			return builder.build();
+			return builder.build(std::forward<TArgs>(args)...);
 		}
 
 	public:
-		/// Creates a stateless validator.
-		auto createStatelessValidator() const {
-			return Build<validators::stateless::DemuxValidatorBuilder>(m_statelessValidatorHooks);
+		/// Creates a stateless validator that ignores suppressed failures according to \a isSuppressedFailure.
+		auto createStatelessValidator(const validators::ValidationResultPredicate& isSuppressedFailure) const {
+			return Build<validators::stateless::DemuxValidatorBuilder>(m_statelessValidatorHooks, isSuppressedFailure);
 		}
 
-		/// Creates a stateful validator.
+		/// Creates a stateless validator with no suppressed failures.
+		auto createStatelessValidator() const {
+			return createStatelessValidator([](auto) { return false; });
+		}
+
+		/// Creates a stateful validator that ignores suppressed failures according to \a isSuppressedFailure.
+		auto createStatefulValidator(const validators::ValidationResultPredicate& isSuppressedFailure) const {
+			return Build<validators::stateful::DemuxValidatorBuilder>(m_statefulValidatorHooks, isSuppressedFailure);
+		}
+
+		/// Creates a stateful validator with no suppressed failures.
 		auto createStatefulValidator() const {
-			return Build<validators::stateful::DemuxValidatorBuilder>(m_statefulValidatorHooks);
+			return createStatefulValidator([](auto) { return false; });
 		}
 
 		/// Creates an observer.
@@ -131,6 +142,11 @@ namespace catapult { namespace plugins {
 		/// Creates an observer that only observes permanent state changes.
 		auto createPermanentObserver() const {
 			return Build<observers::DemuxObserverBuilder>(m_observerHooks);
+		}
+
+		/// Creates a notification publisher for the specified \a mode.
+		auto createNotificationPublisher(model::PublicationMode mode = model::PublicationMode::All) const {
+			return model::CreateNotificationPublisher(m_transactionRegistry, mode);
 		}
 
 	private:

@@ -1,9 +1,10 @@
 #pragma once
-#include "catapult/utils/ClampedBaseValue.h"
-#include "catapult/utils/RawBuffer.h"
+#include "utils/ClampedBaseValue.h"
+#include "utils/RawBuffer.h"
 #include <array>
 
 namespace catapult {
+
 	constexpr size_t Signature_Size = 64;
 	constexpr size_t Hash512_Size = 64;
 	constexpr size_t Hash256_Size = 32;
@@ -30,6 +31,9 @@ namespace catapult {
 
 	struct Height_tag {};
 	using Height = utils::BaseValue<uint64_t, Height_tag>;
+
+	struct BlockDuration_tag {};
+	using BlockDuration = utils::BaseValue<uint64_t, BlockDuration_tag>;
 
 	struct Difficulty_tag {
 	public:

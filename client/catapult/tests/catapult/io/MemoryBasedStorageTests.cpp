@@ -1,16 +1,18 @@
-#include "tests/test/core/mocks/MemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace io {
 
 	namespace {
 		struct MemoryBasedGuard {
-			std::string name() const { return std::string(); }
+			std::string name() const {
+				return std::string();
+			}
 		};
 
 		struct MemoryBasedTraits {
 			using Guard = MemoryBasedGuard;
-			using StorageType = mocks::MemoryBasedStorage;
+			using StorageType = mocks::MockMemoryBasedStorage;
 
 			static std::unique_ptr<StorageType> OpenStorage(const std::string&) {
 				return std::make_unique<StorageType>();

@@ -4,9 +4,11 @@
 
 namespace catapult { namespace model {
 
+#define TEST_CLASS TransactionRegistryTests
+
 	// region basic
 
-	TEST(TransactionRegistryTests, NoPluginsAreInitiallyRegistered) {
+	TEST(TEST_CLASS, NoPluginsAreInitiallyRegistered) {
 		// Act:
 		TransactionRegistry registry;
 
@@ -18,7 +20,7 @@ namespace catapult { namespace model {
 
 	// region registerPlugin
 
-	TEST(TransactionRegistryTests, CanRegisterPlugin) {
+	TEST(TEST_CLASS, CanRegisterPlugin) {
 		// Act:
 		TransactionRegistry registry;
 		registry.registerPlugin(mocks::CreateMockTransactionPlugin(124));
@@ -27,7 +29,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(1u, registry.size());
 	}
 
-	TEST(TransactionRegistryTests, CanRegisterMultiplePlugin) {
+	TEST(TEST_CLASS, CanRegisterMultiplePlugin) {
 		// Act:
 		TransactionRegistry registry;
 		for (auto i : { 123, 7, 222 })
@@ -37,12 +39,12 @@ namespace catapult { namespace model {
 		EXPECT_EQ(3u, registry.size());
 	}
 
-	TEST(TransactionRegistryTests, CannotRegisterMultiplePluginsWithSameType) {
-		// Act:
+	TEST(TEST_CLASS, CannotRegisterMultiplePluginsWithSameType) {
+		// Arrange:
 		TransactionRegistry registry;
 		registry.registerPlugin(mocks::CreateMockTransactionPlugin(124));
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(registry.registerPlugin(mocks::CreateMockTransactionPlugin(124)), catapult_invalid_argument);
 	}
 
@@ -50,7 +52,7 @@ namespace catapult { namespace model {
 
 	// region findPlugin
 
-	TEST(TransactionRegistryTests, CanFindRegistedPlugin) {
+	TEST(TEST_CLASS, CanFindRegistedPlugin) {
 		// Arrange:
 		TransactionRegistry registry;
 		for (auto i : { 123, 7, 222 })
@@ -64,7 +66,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(static_cast<EntityType>(7), pPlugin->type());
 	}
 
-	TEST(TransactionRegistryTests, CannotFindUnregistedPlugin) {
+	TEST(TEST_CLASS, CannotFindUnregistedPlugin) {
 		// Arrange:
 		TransactionRegistry registry;
 		for (auto i : { 123, 7, 222 })

@@ -3,6 +3,8 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS Base32Tests
+
 	// region Base32Encode
 
 	namespace {
@@ -34,7 +36,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(Base32Tests, GetEncodedDataSizeReturnsCorrectSizes) {
+	TEST(TEST_CLASS, GetEncodedDataSizeReturnsCorrectSizes) {
 		// Assert:
 		EXPECT_EQ(0u, GetEncodedDataSize(0));
 		EXPECT_EQ(8u, GetEncodedDataSize(5));
@@ -44,7 +46,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(24u, GetEncodedDataSize(16));
 	}
 
-	TEST(Base32Tests, EncodeEmptyByteArrayReturnsEmptyString) {
+	TEST(TEST_CLASS, EncodeEmptyByteArrayReturnsEmptyString) {
 		// Act:
 		auto data = test::ToVector("");
 		auto encoded = Base32Encode(data);
@@ -53,7 +55,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ("", encoded);
 	}
 
-	TEST(Base32Tests, EncodeSampleTestVectors) {
+	TEST(TEST_CLASS, EncodeSampleTestVectors) {
 		EXPECT_EQ(CountOf(Decoded_Set), CountOf(Encoded_Set));
 		for (size_t i = 0; i < CountOf(Decoded_Set); ++i) {
 			auto data = test::ToVector(Decoded_Set[i]);
@@ -66,17 +68,17 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(Base32Tests, EncodeThrowsIfArraySizeIsNotAMultipleOfFive) {
+	TEST(TEST_CLASS, EncodeThrowsIfArraySizeIsNotAMultipleOfFive) {
 		for (auto i = 2u; i < 10; i += 2) {
 			// Arrange:
 			auto data = test::ToVector(std::string(i, '1'));
 
-			// Assert:
+			// Act + Assert:
 			EXPECT_THROW(Base32Encode(data), catapult_runtime_error);
 		}
 	}
 
-	TEST(Base32Tests, EncodeAcceptsAllByteValues) {
+	TEST(TEST_CLASS, EncodeAcceptsAllByteValues) {
 		// Arrange:
 		std::vector<uint8_t> data;
 		data.resize(260); // must be multiple of 5
@@ -102,7 +104,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(expected, encoded);
 	}
 
-	TEST(Base32Tests, EncodeCanEncodeInPlace) {
+	TEST(TEST_CLASS, EncodeCanEncodeInPlace) {
 		// Arrange:
 		auto input = test::ToVector(Decoded_Set[0]);
 		auto output = std::string(Encoded_String_Size, '0');
@@ -114,16 +116,16 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(Encoded_Set[0], output);
 	}
 
-	TEST(Base32Tests, EncodeThrowsIfOutputBufferIsTooSmall) {
+	TEST(TEST_CLASS, EncodeThrowsIfOutputBufferIsTooSmall) {
 		// Arrange:
 		auto input = test::ToVector(Decoded_Set[0]);
 		auto output = std::string(Encoded_String_Size - 1, '0');
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(Base32Encode(input, output), catapult_runtime_error);
 	}
 
-	TEST(Base32Tests, TryEncodeReturnsTrueIfInputIsValid) {
+	TEST(TEST_CLASS, TryEncodeReturnsTrueIfInputIsValid) {
 		// Arrange:
 		auto input = test::ToVector(Decoded_Set[0]);
 		auto output = std::string(Encoded_String_Size, '0');
@@ -136,7 +138,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(Encoded_Set[0], output);
 	}
 
-	TEST(Base32Tests, TryEncodeReturnsFalseIfInputIsBad) {
+	TEST(TEST_CLASS, TryEncodeReturnsFalseIfInputIsBad) {
 		// Arrange:
 		std::string illegalStringSet[] {
 			"68BA9E8D1AA4502E1F73DA19784B5D7DA16CA1E4AF895FAC12AAAAAAAAAA", // too long
@@ -157,7 +159,7 @@ namespace catapult { namespace utils {
 
 	// region Base32Decode
 
-	TEST(Base32Tests, GetDecodedDataSizeReturnsCorrectSizes) {
+	TEST(TEST_CLASS, GetDecodedDataSizeReturnsCorrectSizes) {
 		// Assert:
 		EXPECT_EQ(0u, GetDecodedDataSize(0));
 		EXPECT_EQ(5u, GetDecodedDataSize(8));
@@ -167,7 +169,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(15u, GetDecodedDataSize(25));
 	}
 
-	TEST(Base32Tests, DecodeEmptyStringReturnsVectorOfSizeZero) {
+	TEST(TEST_CLASS, DecodeEmptyStringReturnsVectorOfSizeZero) {
 		// Act:
 		auto decoded = Base32Decode(RawString("", 0));
 
@@ -175,7 +177,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(decoded.empty());
 	}
 
-	TEST(Base32Tests, DecodeSampleTestVectors) {
+	TEST(TEST_CLASS, DecodeSampleTestVectors) {
 		EXPECT_EQ(CountOf(Decoded_Set), CountOf(Encoded_Set));
 		for (size_t i = 0; i < CountOf(Encoded_Set); ++i) {
 			// Act:
@@ -186,17 +188,17 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(Base32Tests, DecodeThrowsIfStringLengthIsNotAMultipleOfEight) {
+	TEST(TEST_CLASS, DecodeThrowsIfStringLengthIsNotAMultipleOfEight) {
 		for (auto i = 1u; i < 8; ++i) {
 			// Arrange:
 			auto data = std::string(i, 'A');
 
-			// Assert:
+			// Act + Assert:
 			EXPECT_THROW(Base32Decode(data), catapult_runtime_error);
 		}
 	}
 
-	TEST(Base32Tests, DecodeAcceptsAllValidCharacters) {
+	TEST(TEST_CLASS, DecodeAcceptsAllValidCharacters) {
 		// Arrange:
 		std::string validString{ "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567" };
 
@@ -207,7 +209,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ("00443214C74254B635CF84653A56D7C675BE77DF", test::ToHexString(decoded));
 	}
 
-	TEST(Base32Tests, DecodeThrowsIfStringContainsIllegalCharacter) {
+	TEST(TEST_CLASS, DecodeThrowsIfStringContainsIllegalCharacter) {
 		// Arrange:
 		std::string illegalStringSet[] {
 			"NC5J5DI2URIC4H3T3IMXQS21PWQWZIPEV6EV7LAS", // contains char '1'
@@ -219,12 +221,12 @@ namespace catapult { namespace utils {
 			// Arrange:
 			auto data = illegalStringSet[i];
 
-			// Assert:
+			// Act + Assert:
 			EXPECT_THROW(Base32Decode(data), catapult_runtime_error);
 		}
 	}
 
-	TEST(Base32Tests, DecodeCanDecodeInPlace) {
+	TEST(TEST_CLASS, DecodeCanDecodeInPlace) {
 		// Arrange:
 		auto input = std::string(Encoded_Set[0]);
 		auto output = test::GenerateRandomData<Decoded_String_Size>();
@@ -236,16 +238,16 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(Decoded_Set[0], test::ToHexString(output));
 	}
 
-	TEST(Base32Tests, DecodeThrowsIfOutputBufferIsTooSmall) {
+	TEST(TEST_CLASS, DecodeThrowsIfOutputBufferIsTooSmall) {
 		// Arrange:
 		auto input = std::string(Encoded_Set[0]);
 		auto output = test::GenerateRandomData<Decoded_String_Size - 1>();
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(Base32Decode(input, output), catapult_runtime_error);
 	}
 
-	TEST(Base32Tests, DecodeCanDecodeIntoArray) {
+	TEST(TEST_CLASS, DecodeCanDecodeIntoArray) {
 		// Arrange:
 		auto input = std::string(Encoded_Set[0]);
 
@@ -256,7 +258,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(Decoded_Set[0], test::ToHexString(output));
 	}
 
-	TEST(Base32Tests, TryDecodeReturnsTrueIfInputIsValid) {
+	TEST(TEST_CLASS, TryDecodeReturnsTrueIfInputIsValid) {
 		// Arrange:
 		auto input = std::string(Encoded_Set[0]);
 		auto output = test::GenerateRandomData<Decoded_String_Size>();
@@ -269,7 +271,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(Decoded_Set[0], test::ToHexString(output));
 	}
 
-	TEST(Base32Tests, TryDecodeReturnsFalseIfInputIsBad) {
+	TEST(TEST_CLASS, TryDecodeReturnsFalseIfInputIsBad) {
 		// Arrange:
 		std::string illegalStringSet[] {
 			"NC5J5DI2URIC4H3T3IMXQS25PWQWZIPEV6EV1LAS", // contains invalid char
@@ -290,7 +292,7 @@ namespace catapult { namespace utils {
 
 	// region round trip
 
-	TEST(Base32Tests, RoundTripStartingFromEncodedDoesNotChangeAnything) {
+	TEST(TEST_CLASS, RoundTripStartingFromEncodedDoesNotChangeAnything) {
 		std::string encodedForRoundTrip[] {
 			"BDS73DQ5NC33MKYI3K6GXLJ53C2HJ35A",
 			"46FNYP7T4DD3SWAO6C4NX62FJI5CBA26"
@@ -306,7 +308,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(Base32Tests, RoundTripStartingFromDecodedDoesNotChangeAnything) {
+	TEST(TEST_CLASS, RoundTripStartingFromDecodedDoesNotChangeAnything) {
 		// Arrange:
 		std::string decodedForRoundTrip[] {
 			"8A4E7DF5B61CC0F97ED572A95F6ACA",

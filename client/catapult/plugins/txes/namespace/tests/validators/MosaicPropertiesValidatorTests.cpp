@@ -6,17 +6,17 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MosaicPropertiesValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MosaicProperties, 0, ArtifactDuration())
+	DEFINE_COMMON_VALIDATOR_TESTS(MosaicProperties, 0, BlockDuration())
 
 	namespace {
 		constexpr auto Max_Divisibility = std::numeric_limits<uint8_t>::max();
-		constexpr ArtifactDuration Max_Duration(std::numeric_limits<ArtifactDuration::ValueType>::max());
+		constexpr BlockDuration Max_Duration(std::numeric_limits<BlockDuration::ValueType>::max());
 	}
 
 	// region flags
 
 	namespace {
-		void AssertFlagsResult(model::MosaicFlags flags, ValidationResult expectedResult) {
+		void AssertFlagsResult(ValidationResult expectedResult, model::MosaicFlags flags) {
 			// Arrange:
 			auto pValidator = CreateMosaicPropertiesValidator(Max_Divisibility, Max_Duration);
 			model::MosaicPropertiesHeader header{};
@@ -34,13 +34,13 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, SuccessWhenValidatingValidMosaicFlags) {
 		// Assert:
 		for (auto flags : { 0x00, 0x02, 0x05, 0x07 })
-			AssertFlagsResult(static_cast<model::MosaicFlags>(flags), ValidationResult::Success);
+			AssertFlagsResult(ValidationResult::Success, static_cast<model::MosaicFlags>(flags));
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingInvalidMosaicFlags) {
 		// Assert:
 		for (auto flags : { 0x08, 0x09, 0xFF })
-			AssertFlagsResult(static_cast<model::MosaicFlags>(flags), Failure_Mosaic_Invalid_Flags);
+			AssertFlagsResult(Failure_Mosaic_Invalid_Flags, static_cast<model::MosaicFlags>(flags));
 	}
 
 	// endregion
@@ -48,7 +48,7 @@ namespace catapult { namespace validators {
 	// region divisibility
 
 	namespace {
-		void AssertDivisibilityValidationResult(uint8_t divisibility, uint8_t maxDivisibility, ValidationResult expectedResult) {
+		void AssertDivisibilityValidationResult(ValidationResult expectedResult, uint8_t divisibility, uint8_t maxDivisibility) {
 			// Arrange:
 			auto pValidator = CreateMosaicPropertiesValidator(maxDivisibility, Max_Duration);
 			model::MosaicPropertiesHeader header{};
@@ -67,18 +67,18 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityLessThanMax) {
 		// Assert:
-		AssertDivisibilityValidationResult(7, 11, ValidationResult::Success);
+		AssertDivisibilityValidationResult(ValidationResult::Success, 7, 11);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityEqualToMax) {
 		// Assert:
-		AssertDivisibilityValidationResult(11, 11, ValidationResult::Success);
+		AssertDivisibilityValidationResult(ValidationResult::Success, 11, 11);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingDivisibilityGreaterThanMax) {
 		// Assert:
-		AssertDivisibilityValidationResult(12, 11, Failure_Mosaic_Invalid_Divisibility);
-		AssertDivisibilityValidationResult(111, 11, Failure_Mosaic_Invalid_Divisibility);
+		AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 12, 11);
+		AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 111, 11);
 	}
 
 	// endregion
@@ -86,9 +86,9 @@ namespace catapult { namespace validators {
 	// region duration
 
 	namespace {
-		void AssertDurationValidationResult(uint16_t duration, uint16_t maxDuration, ValidationResult expectedResult) {
+		void AssertDurationValidationResult(ValidationResult expectedResult, uint16_t duration, uint16_t maxDuration) {
 			// Arrange:
-			auto pValidator = CreateMosaicPropertiesValidator(Max_Divisibility, ArtifactDuration(maxDuration));
+			auto pValidator = CreateMosaicPropertiesValidator(Max_Divisibility, BlockDuration(maxDuration));
 			model::MosaicPropertiesHeader header{};
 			header.Count = 1;
 			auto properties = std::vector<model::MosaicProperty>{ { model::MosaicPropertyId::Duration, duration } };
@@ -104,23 +104,23 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDurationLessThanMax) {
 		// Assert:
-		AssertDurationValidationResult(12312, 12345, ValidationResult::Success);
+		AssertDurationValidationResult(ValidationResult::Success, 12312, 12345);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDurationEqualToMax) {
 		// Assert:
-		AssertDurationValidationResult(12345, 12345, ValidationResult::Success);
+		AssertDurationValidationResult(ValidationResult::Success, 12345, 12345);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingDurationGreaterThanMax) {
 		// Assert:
-		AssertDurationValidationResult(12346, 12345, Failure_Mosaic_Invalid_Duration);
-		AssertDurationValidationResult(65432, 12345, Failure_Mosaic_Invalid_Duration);
+		AssertDurationValidationResult(Failure_Mosaic_Invalid_Duration, 12346, 12345);
+		AssertDurationValidationResult(Failure_Mosaic_Invalid_Duration, 65432, 12345);
 	}
 
 	TEST(TEST_CLASS, FailuresWhenValidatingZeroDuration) {
 		// Assert: eternal duration is allowed but cannot be specified explicitly
-		AssertDurationValidationResult(0, 12345, Failure_Mosaic_Invalid_Duration);
+		AssertDurationValidationResult(Failure_Mosaic_Invalid_Duration, 0, 12345);
 	}
 
 	// endregion

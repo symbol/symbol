@@ -12,6 +12,8 @@
 
 namespace catapult { namespace net {
 
+#define TEST_CLASS AsyncTcpServerTests
+
 	namespace {
 		const uint32_t Num_Default_Threads = test::GetNumDefaultPoolThreads();
 		const auto& Local_Host = test::Local_Host;
@@ -45,16 +47,21 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			void logState(const char* pMessage) {
+			void logState(const char* message) {
 				CATAPULT_LOG(debug)
-					<< pMessage
+					<< message
 					<< "(numWorkerThreads: " << m_pPool->numWorkerThreads()
 					<< ", numPendingAccepts: " << m_pServer->numPendingAccepts() << ")";
 			}
 
 		public:
-			AsyncTcpServer& operator*() { return *m_pServer; }
-			AsyncTcpServer* operator->() { return m_pServer.get(); }
+			AsyncTcpServer& operator*() {
+				return *m_pServer;
+			}
+
+			AsyncTcpServer* operator->() {
+				return m_pServer.get();
+			}
 
 		private:
 			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
@@ -87,13 +94,21 @@ namespace catapult { namespace net {
 			}
 
 		public:
-			uint32_t numConnects() const { return m_numConnects; }
-			uint32_t numConnectFailures() const { return m_numConnectFailures; }
-			uint32_t numConnectTimeouts() const { return m_numConnectTimeouts; }
+			uint32_t numConnects() const {
+				return m_numConnects;
+			}
+
+			uint32_t numConnectFailures() const {
+				return m_numConnectFailures;
+			}
+
+			uint32_t numConnectTimeouts() const {
+				return m_numConnectTimeouts;
+			}
 
 			void wait() const {
 				// note that a timed out connection is also counted as failed
-				WAIT_FOR_VALUE_EXPR(m_numConnects + m_numConnectFailures, m_numAttempts);
+				WAIT_FOR_VALUE_EXPR(m_numAttempts, m_numConnects + m_numConnectFailures);
 			}
 
 			void shutdown() {
@@ -113,7 +128,7 @@ namespace catapult { namespace net {
 
 			class SpawnContext : public std::enable_shared_from_this<SpawnContext> {
 			private:
-				using ConnectionHandler = std::function<void (ConnectionStatus)>;
+				using ConnectionHandler = consumer<ConnectionStatus>;
 
 			public:
 				SpawnContext(boost::asio::io_service& service, size_t id)
@@ -176,7 +191,7 @@ namespace catapult { namespace net {
 			void spawnConnectionAttempts(uint32_t numAttempts) {
 				for (auto i = 0u; i < numAttempts; ++i) {
 					auto pContext = std::make_shared<SpawnContext>(m_service, i);
-					m_service.post([this, pContext]() -> void {
+					m_service.post([this, pContext]() {
 						// set a 50ms deadline on the async_connect
 						pContext->setDeadline(50);
 						pContext->connect([this](auto status) {
@@ -223,11 +238,12 @@ namespace catapult { namespace net {
 		class AcceptServer {
 		public:
 			explicit AcceptServer(const test::WaitFunction& wait)
-					: m_shouldWait(1)
+					: m_pPool(test::CreateStartedIoServiceThreadPool(1))
+					, m_shouldWait(1)
 					, m_numAcceptCallbacks(0) {
-				m_pSettings = std::make_unique<AsyncTcpServerSettings>([&, wait](const auto& pContext) -> void {
+				m_pSettings = std::make_unique<AsyncTcpServerSettings>([&, wait](const auto& acceptedSocketInfo) {
 					++m_numAcceptCallbacks;
-					wait(pContext->service(), [this, pContext]() { return 0 != m_shouldWait; });
+					wait(m_pPool->service(), [this, acceptedSocketInfo]() { return 0 != m_shouldWait; });
 				});
 				m_pSettings->MaxActiveConnections = Default_Max_Active_Connections;
 			}
@@ -242,7 +258,7 @@ namespace catapult { namespace net {
 			}
 
 			void waitForAccepts(uint32_t numAccepts) {
-				WAIT_FOR_VALUE(m_numAcceptCallbacks, numAccepts);
+				WAIT_FOR_VALUE(numAccepts, m_numAcceptCallbacks);
 			}
 
 			void unblock() {
@@ -255,9 +271,12 @@ namespace catapult { namespace net {
 			}
 
 		public:
-			const AsyncTcpServer& asyncServer() const { return **m_ppServer; }
+			const AsyncTcpServer& asyncServer() const {
+				return **m_ppServer;
+			}
 
 		private:
+			std::unique_ptr<thread::IoServiceThreadPool> m_pPool;
 			std::unique_ptr<AsyncTcpServerSettings> m_pSettings;
 			std::atomic<uint32_t> m_shouldWait;
 			std::atomic<uint32_t> m_numAcceptCallbacks;
@@ -281,7 +300,7 @@ namespace catapult { namespace net {
 
 	// region basic start and shutdown
 
-	TEST(AsyncTcpServerTests, ServerCreatesSinglePendingAccept) {
+	TEST(TEST_CLASS, ServerCreatesSinglePendingAccept) {
 		// Act: set up a multithreaded server
 		auto pServer = CreateLocalHostAsyncTcpServer(Empty_Accept_Handler);
 
@@ -291,15 +310,15 @@ namespace catapult { namespace net {
 		EXPECT_EQ(0u, pServer->numCurrentConnections());
 	}
 
-	TEST(AsyncTcpServerTests, CannotCreateTwoServersOnSamePort) {
+	TEST(TEST_CLASS, CannotCreateTwoServersOnSamePort) {
 		// Arrange: create a server that should occupy the server port
 		auto pServer = CreateLocalHostAsyncTcpServer(Empty_Accept_Handler, true);
 
-		// Act: attempt to create another server on the same port
+		// Act + Assert: attempt to create another server on the same port
 		EXPECT_THROW(CreateLocalHostAsyncTcpServer(Empty_Accept_Handler, false), boost::exception);
 	}
 
-	TEST(AsyncTcpServerTests, ServerShutdownDestroysAllPendingAccepts) {
+	TEST(TEST_CLASS, ServerShutdownDestroysAllPendingAccepts) {
 		// Arrange: set up a multithreaded server
 		auto pServer = CreateLocalHostAsyncTcpServer(Empty_Accept_Handler);
 
@@ -316,7 +335,7 @@ namespace catapult { namespace net {
 
 	// region other shutdown tests
 
-	TEST(AsyncTcpServerTests, ServerShutdownIsIdempotent) {
+	TEST(TEST_CLASS, ServerShutdownIsIdempotent) {
 		// Arrange: set up a multithreaded server
 		auto pServer = CreateLocalHostAsyncTcpServer(Empty_Accept_Handler);
 
@@ -331,7 +350,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(0u, pServer->numCurrentConnections());
 	}
 
-	TEST(AsyncTcpServerTests, ServerCannotAcceptNewClientsAfterShutdown) {
+	TEST(TEST_CLASS, ServerCannotAcceptNewClientsAfterShutdown) {
 		// Arrange: set up a multithreaded server
 		auto pServer = CreateLocalHostAsyncTcpServer(Empty_Accept_Handler);
 
@@ -351,7 +370,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(boost::system::errc::connection_refused, connectEc);
 	}
 
-	TEST(AsyncTcpServerTests, ServerShutdownDoesNotAbortThreads) {
+	TEST(TEST_CLASS, ServerShutdownDoesNotAbortThreads) {
 		// Arrange: set up a multithreaded server
 		std::atomic_bool isAccepted(false);
 		std::atomic<uint32_t> numWaits(0);
@@ -385,7 +404,32 @@ namespace catapult { namespace net {
 
 	// endregion
 
-	TEST(AsyncTcpServerTests, ServerCanServeMoreRequestsThanWorkerThreads) {
+	TEST(TEST_CLASS, ServerForwardsAppropriateAcceptedSocketInfoOnSuccess) {
+		// Arrange: set up a multithreaded server
+		ionet::AcceptedPacketSocketInfo* pAcceptedSocketInfoRaw;
+		std::atomic_bool isAccepted(false);
+		auto acceptHandler = [&pAcceptedSocketInfoRaw, &isAccepted](const auto& acceptedSocketInfo) {
+			*pAcceptedSocketInfoRaw = acceptedSocketInfo;
+			isAccepted = true;
+		};
+		auto pServer = CreateLocalHostAsyncTcpServer(CreateSettings(acceptHandler));
+
+		// - for correct shutdown, the captured accepted socket needs to be destroyed before pServer
+		auto pAcceptedSocketInfo = std::make_unique<ionet::AcceptedPacketSocketInfo>();
+		pAcceptedSocketInfoRaw = pAcceptedSocketInfo.get();
+
+		// Act: connect to the server
+		ClientService clientService(1, 1);
+		WAIT_FOR(isAccepted);
+
+		// Assert: check the accept info (loopback address is used in tests)
+		const auto& acceptedSocketInfo = *pAcceptedSocketInfo;
+		EXPECT_TRUE(!!acceptedSocketInfo);
+		EXPECT_TRUE(!!acceptedSocketInfo.socket());
+		EXPECT_EQ("127.0.0.1", acceptedSocketInfo.host());
+	}
+
+	TEST(TEST_CLASS, ServerCanServeMoreRequestsThanWorkerThreads) {
 		// Arrange: set up a multithreaded server
 		std::atomic<uint32_t> numCallbacks(0);
 		auto pServer = CreateLocalHostAsyncTcpServer([&numCallbacks](const auto&) { ++numCallbacks; });
@@ -394,7 +438,7 @@ namespace catapult { namespace net {
 		ClientService clientService(2 * Num_Default_Threads, 1);
 
 		// - wait for the server to execute all accept handlers and then stop the server
-		WAIT_FOR_VALUE(numCallbacks, 2 * Num_Default_Threads);
+		WAIT_FOR_VALUE(2 * Num_Default_Threads, numCallbacks);
 		pServer.stopAll();
 
 		// Assert: the server should have executed 2X > X accept handlers and all should have completed
@@ -402,7 +446,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(0u, pServer->numCurrentConnections());
 	}
 
-	TEST(AsyncTcpServerTests, ServerWorkerThreadsCannotServiceAdditionalRequestsWhenHandlersWaitBlocking) {
+	TEST(TEST_CLASS, ServerWorkerThreadsCannotServiceAdditionalRequestsWhenHandlersWaitBlocking) {
 		// Arrange: set up a multithreaded server
 		BlockingAcceptServer server;
 		server.init();
@@ -423,7 +467,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
 	}
 
-	TEST(AsyncTcpServerTests, ServerWorkerThreadsCanServiceAdditionalRequestsWhenHandlersWaitNonBlocking) {
+	TEST(TEST_CLASS, ServerWorkerThreadsCanServiceAdditionalRequestsWhenHandlersWaitNonBlocking) {
 		// Arrange: set up a multithreaded server
 		NonBlockingAcceptServer server;
 		server.init();
@@ -443,7 +487,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
 	}
 
-	TEST(AsyncTcpServerTests, ServerHonorsMaxActiveConnectionsForNonBlockingOperations) {
+	TEST(TEST_CLASS, ServerHonorsMaxActiveConnectionsForNonBlockingOperations) {
 		// Arrange: set up a multithreaded server
 		NonBlockingAcceptServer server;
 		server.settings().MaxActiveConnections = 5;
@@ -464,7 +508,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(0u, server.asyncServer().numPendingAccepts());
 	}
 
-	TEST(AsyncTcpServerTests, ServerAddsNewAcceptWorkItemsAsConnectionsAreCompleted) {
+	TEST(TEST_CLASS, ServerAddsNewAcceptWorkItemsAsConnectionsAreCompleted) {
 		// Arrange: set up a multithreaded server
 		NonBlockingAcceptServer server;
 		server.settings().MaxActiveConnections = 5;
@@ -476,7 +520,7 @@ namespace catapult { namespace net {
 		CATAPULT_LOG(debug) << "Five threads entered callback, unblocking";
 		server.unblock();
 		server.waitForAccepts(8);
-		WAIT_FOR_VALUE_EXPR(server.asyncServer().numCurrentConnections(), 0);
+		WAIT_FOR_ZERO_EXPR(server.asyncServer().numCurrentConnections());
 
 		// Assert: all eight connections should have completed, and the server should have one pending accept
 		EXPECT_EQ(8u, server.asyncServer().numLifetimeConnections());
@@ -484,18 +528,21 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
 	}
 
-	TEST(AsyncTcpServerTests, ServerAllowsManyConnections) {
+	TEST(TEST_CLASS, ServerAllowsManyConnections) {
 		test::RunNonDeterministicTest("server allows many connections", []() {
 			// Arrange: set up a multithreaded server and 100 max connections and block in the accept handler
 			BlockingAcceptServer server;
-			server.settings().MaxConnections = 100;
+			server.settings().MaxPendingConnections = 100;
 			server.init();
 
 			// Act: queue 100 connects to the server on a single thread
 			ClientService clientService(100, 1);
 
-			// - wait for deterministic results
+			// - wait for all connections to be queued
 			clientService.wait();
+
+			// - wait for all threads to have work
+			WAIT_FOR_VALUE_EXPR(Num_Default_Threads, server.asyncServer().numLifetimeConnections());
 
 			if (clientService.numConnectTimeouts() > 0) {
 				CATAPULT_LOG(debug) << clientService.numConnectTimeouts() << " connection(s) timed out";
@@ -522,7 +569,7 @@ namespace catapult { namespace net {
 			constexpr uint32_t Listener_Queue_Slack = 4;
 
 			BlockingAcceptServer server;
-			server.settings().MaxConnections = static_cast<int>(Max_Test_Connections);
+			server.settings().MaxPendingConnections = static_cast<int>(Max_Test_Connections);
 			server.init();
 
 			// Act: queue connects to the server
@@ -564,14 +611,12 @@ namespace catapult { namespace net {
 		}
 	}
 
-	TEST(AsyncTcpServerTests, ServerEnforcesMaximumOnNumberOfConnections) {
+	TEST(TEST_CLASS, ServerEnforcesMaximumOnNumberOfConnections) {
 		// Assert: non-deterministic because it is possible for some expected successful connections to fail / timeout
-		test::RunNonDeterministicTest(
-				"Max number of connections",
-				RunServerEnforcesMaximumOnNumberOfConnectionsIteration);
+		test::RunNonDeterministicTest("Max number of connections", RunServerEnforcesMaximumOnNumberOfConnectionsIteration);
 	}
 
-	TEST(AsyncTcpServerTests, ServerCallsConfigureSocketHandlerForAllSockets) {
+	TEST(TEST_CLASS, ServerCallsConfigureSocketHandlerForAllSockets) {
 		// Arrange: set up a multithreaded server
 		std::atomic<uint32_t> numAcceptCallbacks(0);
 		std::atomic<uint32_t> numConfigureSocketCallbacks(0);
@@ -583,7 +628,7 @@ namespace catapult { namespace net {
 		ClientService clientService(4, 1);
 
 		// - wait for the server to get four accepts
-		WAIT_FOR_VALUE(numAcceptCallbacks, 4);
+		WAIT_FOR_VALUE(4, numAcceptCallbacks);
 		pServer.stopAll();
 
 		// Assert: the server should have configured 5 sockets (one per request + one pending accept)
@@ -591,7 +636,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(4u, numAcceptCallbacks);
 	}
 
-	TEST(AsyncTcpServerTests, ServerAcceptorsAreNotKilledBySocketAcceptFailures) {
+	TEST(TEST_CLASS, ServerAcceptorsAreNotKilledBySocketAcceptFailures) {
 		// Arrange: set up a multithreaded server and cause the first two accepts to fail (already open)
 		NonBlockingAcceptServer server;
 		std::atomic<uint32_t> numConfigureSocketCallbacks(0);
@@ -615,30 +660,5 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
 		EXPECT_EQ(2 * Num_Default_Threads, server.asyncServer().numLifetimeConnections());
 		EXPECT_EQ(2 * Num_Default_Threads, server.asyncServer().numCurrentConnections());
-	}
-
-	TEST(AsyncTcpServerTests, DestructionOfServerAcceptContextClosesSocket) {
-		// Arrange: set up a multithreaded server
-		std::shared_ptr<AsyncTcpServerAcceptContext> pAcceptContext;
-		auto pServer = CreateLocalHostAsyncTcpServer([&pAcceptContext](const auto& pContext) { pAcceptContext = pContext; });
-
-		// Act: make a single connection to the server
-		ClientService clientService(1, 1);
-
-		// - wait for the server to return an accept context
-		WAIT_FOR_EXPR(nullptr != pAcceptContext);
-		auto pSocket = pAcceptContext->socket();
-
-		// Assert: the server should have one connection
-		EXPECT_EQ(1u, pServer->numCurrentConnections());
-		EXPECT_TRUE(test::IsSocketOpen(*pSocket));
-
-		// Act: destroy the accept context but not the socket
-		pAcceptContext.reset();
-		WAIT_FOR_VALUE_EXPR(pServer->numCurrentConnections(), 0);
-
-		// Assert: the server should have zero connections and the socket should be closed
-		EXPECT_EQ(0u, pServer->numCurrentConnections());
-		EXPECT_FALSE(test::IsSocketOpen(*pSocket));
 	}
 }}

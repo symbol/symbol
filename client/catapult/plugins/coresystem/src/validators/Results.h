@@ -3,6 +3,7 @@
 #include "catapult/validators/ValidationResult.h"
 
 namespace catapult { namespace validators {
+
 #endif
 /// Defines a core validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_CORE_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Core, DESCRIPTION, CODE, None)
@@ -16,12 +17,6 @@ namespace catapult { namespace validators {
 	/// Validation failed because the account has an insufficient balance.
 	DEFINE_CORE_RESULT(Insufficient_Balance, 5);
 
-	/// Validation failed because the verification of the signature failed.
-	DEFINE_CORE_RESULT(Signature_Not_Verifiable, 8);
-
-	/// Validation failed because the timestamp is too far in the future.
-	DEFINE_CORE_RESULT(Timestamp_Too_Far_In_Future, 10);
-
 	/// Validation failed because there are too many transactions in a block.
 	DEFINE_CORE_RESULT(Too_Many_Transactions, 15);
 
@@ -30,6 +25,9 @@ namespace catapult { namespace validators {
 
 	/// Validation failed because the entity has the wrong network specified.
 	DEFINE_CORE_RESULT(Wrong_Network, 20);
+
+	/// Validation failed because an address is invalid.
+	DEFINE_CORE_RESULT(Invalid_Address, 21);
 
 	/// Validation failed because a block was harvested by an ineligible harvester.
 	DEFINE_CORE_RESULT(Block_Harvester_Ineligible, 105);

@@ -1,6 +1,7 @@
 #include "catapult/validators/AggregateValidatorBuilder.h"
 #include "catapult/cache/CatapultCache.h"
-#include "tests/catapult/validators/utils/AggregateValidatorTestUtils.h"
+#include "tests/catapult/validators/test/AggregateValidatorTestUtils.h"
+#include "tests/test/other/ValidationResultTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace validators {
@@ -9,6 +10,9 @@ namespace catapult { namespace validators {
 
 	namespace {
 		using AggregateNotificationValidator = AggregateNotificationValidatorT<test::TaggedNotification, const ValidatorContext&>;
+
+		constexpr auto Failure1_Result = test::MakeValidationResult(ResultSeverity::Failure, 3);
+		constexpr auto Failure2_Result = test::MakeValidationResult(ResultSeverity::Failure, 4);
 
 		struct TestContext {
 		public:
@@ -24,13 +28,17 @@ namespace catapult { namespace validators {
 			}
 		};
 
-		std::unique_ptr<TestContext> CreateTestContext(const std::vector<ValidationResult>& results) {
+		std::unique_ptr<TestContext> CreateTestContext(
+				const std::vector<ValidationResult>& results,
+				const std::set<ValidationResult>& suppressedFailures = {}) {
 			auto pContext = std::make_unique<TestContext>();
 			AggregateValidatorBuilder<test::TaggedNotification, const ValidatorContext&> builder;
 			for (auto i = 0u; i < results.size(); ++i)
 				builder.add(mocks::CreateTaggedBreadcrumbValidator(static_cast<uint8_t>(i + 1), pContext->Breadcrumbs, results[i]));
 
-			pContext->pAggregateValidator = builder.build();
+			pContext->pAggregateValidator = builder.build([failures = suppressedFailures](auto result) {
+				return failures.cend() != failures.find(result);
+			});
 			return pContext;
 		}
 
@@ -77,7 +85,7 @@ namespace catapult { namespace validators {
 			.add(mocks::CreateTaggedBreadcrumbValidator(2, pContext->Breadcrumbs))
 			.add(mocks::CreateTaggedBreadcrumbValidator(3, pContext->Breadcrumbs))
 			.add(mocks::CreateTaggedBreadcrumbValidator(4, pContext->Breadcrumbs));
-		pContext->pAggregateValidator = builder.build();
+		pContext->pAggregateValidator = builder.build([](auto) { return false; });
 
 		// Act:
 		auto result = pContext->validate(7);
@@ -132,14 +140,14 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, NotificationsAreForwardedToChildValidators) {
 		// Assert:
-		AssertNotificationsAreForwardedToChildValidators(
+		test::AssertNotificationsAreForwardedToChildValidators(
 				AggregateValidatorBuilder<model::Notification, const ValidatorContext&>(),
 				[](auto& builder, auto&& pValidator) { builder.add(std::move(pValidator)); });
 	}
 
 	TEST(TEST_CLASS, ContextsAreForwardedToChildValidators) {
 		// Assert:
-		AssertContextsAreForwardedToChildValidators(
+		test::AssertContextsAreForwardedToChildValidators(
 				AggregateValidatorBuilder<model::Notification, const ValidatorContext&>(),
 				[](auto& builder, auto&& pValidator) { builder.add(std::move(pValidator)); });
 	}
@@ -184,6 +192,34 @@ namespace catapult { namespace validators {
 
 		std::vector<uint16_t> expectedBreadcrumbs{ 0x0701 };
 		EXPECT_EQ(1u, pContext->Breadcrumbs.size());
+		EXPECT_EQ(expectedBreadcrumbs, pContext->Breadcrumbs);
+	}
+
+	TEST(TEST_CLASS, FailuresCanBeSuppressed) {
+		// Act: create a validator with a single suppressed failure
+		auto pContext = CreateTestContext({ Failure1_Result, ValidationResult::Success, ValidationResult::Neutral }, { Failure1_Result });
+		auto result = pContext->validate(7);
+
+		// Assert: all validators were called
+		EXPECT_EQ(ValidationResult::Neutral, result);
+
+		std::vector<uint16_t> expectedBreadcrumbs{ 0x0701, 0x702, 0x703 };
+		EXPECT_EQ(3u, pContext->Breadcrumbs.size());
+		EXPECT_EQ(expectedBreadcrumbs, pContext->Breadcrumbs);
+	}
+
+	TEST(TEST_CLASS, UnsuppressedFailureResultDominatesSuppressedFailureResult) {
+		// Act: create a validator with suppressed (failure 1) and unsuppressed (failure 2) failures
+		auto pContext = CreateTestContext(
+				{ Failure1_Result, ValidationResult::Success, Failure2_Result, ValidationResult::Neutral },
+				{ Failure1_Result });
+		auto result = pContext->validate(7);
+
+		// Assert: all validators were called until the first unsuppressed failure result
+		EXPECT_EQ(Failure2_Result, result);
+
+		std::vector<uint16_t> expectedBreadcrumbs{ 0x0701, 0x702, 0x703 };
+		EXPECT_EQ(3u, pContext->Breadcrumbs.size());
 		EXPECT_EQ(expectedBreadcrumbs, pContext->Breadcrumbs);
 	}
 

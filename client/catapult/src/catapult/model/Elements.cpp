@@ -5,9 +5,7 @@ namespace catapult { namespace model {
 	namespace {
 		class ConditionalEntityInfosBuilder {
 		public:
-			ConditionalEntityInfosBuilder(
-					WeakEntityInfos& entityInfos,
-					const MatchingEntityPredicate& predicate)
+			ConditionalEntityInfosBuilder(WeakEntityInfos& entityInfos, const MatchingEntityPredicate& predicate)
 					: m_entityInfos(entityInfos)
 					, m_predicate(predicate)
 			{}
@@ -47,8 +45,8 @@ namespace catapult { namespace model {
 		};
 
 		void AddBlockElement(ConditionalEntityInfosBuilder& builder, const BlockElement& element) {
-			for (const auto& txElement : element.Transactions)
-				builder.add(txElement);
+			for (const auto& transactionElement : element.Transactions)
+				builder.add(transactionElement);
 
 			// block element must be added last
 			builder.add(element);
@@ -64,9 +62,7 @@ namespace catapult { namespace model {
 			AddBlockElement(builder, element);
 	}
 
-	void ExtractEntityInfos(
-			const BlockElement& element,
-			WeakEntityInfos& entityInfos) {
+	void ExtractEntityInfos(const BlockElement& element, WeakEntityInfos& entityInfos) {
 		ConditionalEntityInfosBuilder builder(entityInfos, [](auto, auto, const auto&) { return true; });
 		AddBlockElement(builder, element);
 	}
@@ -77,7 +73,16 @@ namespace catapult { namespace model {
 		for (const auto& transactionElement : pBlockElement->Transactions) {
 			// tie the lifetime of the transaction to the block element
 			auto pTransaction = std::shared_ptr<const Transaction>(&transactionElement.Transaction, [pBlockElement](const auto*) {});
-			transactionInfos.emplace_back(pTransaction, transactionElement.EntityHash, transactionElement.MerkleComponentHash);
+			transactionInfos.push_back(MakeTransactionInfo(pTransaction, transactionElement));
 		}
+	}
+
+	model::TransactionInfo MakeTransactionInfo(
+			const std::shared_ptr<const Transaction>& pTransaction,
+			const model::TransactionElement& transactionElement) {
+		model::TransactionInfo transactionInfo(pTransaction, transactionElement.EntityHash);
+		transactionInfo.MerkleComponentHash = transactionElement.MerkleComponentHash;
+		transactionInfo.OptionalExtractedAddresses = transactionElement.OptionalExtractedAddresses;
+		return transactionInfo;
 	}
 }}

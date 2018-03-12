@@ -7,6 +7,7 @@
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/thread/IoServiceThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include <boost/asio/steady_timer.hpp>
 
 namespace catapult { namespace test {
 
@@ -37,37 +38,139 @@ namespace catapult { namespace test {
 		}
 	}
 
-	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateLocalHostAcceptor(boost::asio::io_service& service) {
+	// region TcpAcceptor
+
+	class TcpAcceptor::Impl {
+	public:
+		explicit Impl(boost::asio::io_service& service)
+				: m_acceptorStrand(service)
+				, m_timer(service)
+				, m_isClosed(false)
+				, m_pAcceptor(CreateLocalHostAcceptor(service, m_acceptorStrand, m_isClosed)) {
+			// setup the timer
+			m_timer.expires_from_now(std::chrono::seconds(2 * test::detail::Default_Wait_Timeout));
+			m_timer.async_wait([this](const auto& ec) {
+				if (boost::asio::error::operation_aborted == ec)
+					return;
+
+				EXPECT_EQ(boost::asio::error::operation_aborted, ec) << "TcpAcceptor timer fired, forcing close of acceptor";
+				this->postClose();
+			});
+		}
+
+		~Impl() {
+			m_timer.cancel();
+			m_pAcceptor.reset();
+
+			// wait for the acceptor to close, this ensures that:
+			// 1. the acceptor's lifetime is tied to the owning Impl
+			// 2. the acceptor is completely shut down when the Impl is destroyed
+			//    [either explicitly as a stack object or implicitly as captured by a threadpool lambda]
+			WAIT_FOR(m_isClosed);
+		}
+
+	public:
+		auto& acceptor() {
+			return *m_pAcceptor;
+		}
+
+		auto& strand() {
+			return m_acceptorStrand;
+		}
+
+	private:
+		void postClose() {
+			m_acceptorStrand.post([pAcceptor = m_pAcceptor, &isClosed = m_isClosed]() {
+				Close(*pAcceptor, isClosed);
+			});
+		}
+
+	private:
+		static std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateLocalHostAcceptor(
+				boost::asio::io_service& service,
+				boost::asio::strand& strand,
+				std::atomic_bool& isClosed) {
+			if (Has_Outstanding_Acceptor)
+				CATAPULT_THROW_INVALID_ARGUMENT("detected creation of multiple localhost acceptors - probably a bug");
+
+			Has_Outstanding_Acceptor = true;
+			auto pAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(service);
+			BindAcceptor(*pAcceptor, Local_Host);
+			pAcceptor->listen();
+
+			return std::shared_ptr<boost::asio::ip::tcp::acceptor>(pAcceptor.get(), [&strand, &isClosed, pAcceptor](const auto*) {
+				CATAPULT_LOG(debug) << "closing socket acceptor";
+				strand.post([&isClosed, pAcceptor]() { Close(*pAcceptor, isClosed); });
+			});
+		}
+
+		static void Close(boost::asio::ip::tcp::acceptor& acceptor, std::atomic_bool& isClosed) {
+			acceptor.close();
+			Has_Outstanding_Acceptor = false;
+			isClosed = true;
+
+			CATAPULT_LOG(debug) << "socket acceptor closed";
+		}
+
+	private:
+		// on MacOS, there is a potential race condition when kevent (triggered by async_await) and close are called concurrently
+		// this is now *properly* mitigated by wrapping acceptor operations in a strand
+		boost::asio::strand m_acceptorStrand;
+		boost::asio::steady_timer m_timer;
+		std::atomic_bool m_isClosed;
+		std::shared_ptr<boost::asio::ip::tcp::acceptor> m_pAcceptor;
+
+	private:
+		// use a global to detect (and fail) tests that create multiple acceptors (not foolproof but should detect egregious misuse)
+		static bool Has_Outstanding_Acceptor;
+	};
+
+	bool TcpAcceptor::Impl::Has_Outstanding_Acceptor = false;
+
+	TcpAcceptor::TcpAcceptor(boost::asio::io_service& service) : m_pImpl(std::make_unique<Impl>(service))
+	{}
+
+	TcpAcceptor::~TcpAcceptor() = default;
+
+	boost::asio::ip::tcp::acceptor& TcpAcceptor::get() const {
+		return m_pImpl->acceptor();
+	}
+
+	boost::asio::strand& TcpAcceptor::strand() const {
+		return m_pImpl->strand();
+	}
+
+	// endregion
+
+	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateImplicitlyClosedLocalHostAcceptor(boost::asio::io_service& service) {
 		auto pAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(service);
 		BindAcceptor(*pAcceptor, Local_Host);
 		pAcceptor->listen();
-		return std::shared_ptr<boost::asio::ip::tcp::acceptor>(pAcceptor.get(), [&service, pAcceptor](const auto*) {
-			// prevent calling close from async_accept handler (where reference count usually goes to zero)
-			// to mitigate MacOS race condition (and hang) when kevent and close are called by different threads
-			service.post([pAcceptor]() {
-				CATAPULT_LOG(debug) << "closing socket acceptor";
-				pAcceptor->close();
-				CATAPULT_LOG(debug) << "socket acceptor closed";
-			});
-		});
+		return pAcceptor;
 	}
 
 	void SpawnPacketServerWork(boost::asio::io_service& service, const PacketSocketWork& serverWork) {
 		// Arrange: start listening immediately
 		//          this will prevent a race condition where the client work (async_connect) is dispatched before
-		//          the server work has set up a listener (listen), resulting in an unwanted connection
-		//          refused error
+		//          the server work has set up a listener (listen), resulting in an unwanted connection refused error
 		CATAPULT_LOG(debug) << "starting server listening on " << Local_Host;
-		auto pAcceptor = CreateLocalHostAcceptor(service);
+		auto pAcceptor = std::make_shared<TcpAcceptor>(service);
 
-		// - post the work to the threadpool
-		service.post([&service, serverWork, pAcceptor]() {
-			// Arrange: accept a connection
-			ionet::Accept(*pAcceptor, CreatePacketSocketOptions(), [serverWork, pAcceptor](const auto& pSocket) {
-				CATAPULT_LOG(debug) << "server socket accepted: " << pSocket.get();
+		// - post the work to the threadpool and extend the acceptor lifetime
+		SpawnPacketServerWork(*pAcceptor, [serverWork, pAcceptor](const auto& pSocket) {
+			serverWork(pSocket);
+		});
+	}
+
+	void SpawnPacketServerWork(const TcpAcceptor& acceptor, const PacketSocketWork& serverWork) {
+		// Arrange: post the work to the threadpool
+		acceptor.strand().post([serverWork, &acceptor]() {
+			// - accept a connection
+			ionet::Accept(acceptor.get(), CreatePacketSocketOptions(), [serverWork](const auto& socketInfo) {
+				CATAPULT_LOG(debug) << "server socket accepted: " << socketInfo.socket().get();
 
 				// Act: perform the server work
-				serverWork(pSocket);
+				serverWork(socketInfo.socket());
 			});
 		});
 	}
@@ -109,7 +212,7 @@ namespace catapult { namespace test {
 		public:
 			const ionet::ByteBuffer Buffer;
 			const std::shared_ptr<ionet::Packet> pPacket;
-			ionet::SocketOperationCode Result;
+			ionet::SocketOperationCode Code;
 
 		public:
 			template<typename T>
@@ -128,13 +231,13 @@ namespace catapult { namespace test {
 		// Act: "server" - starts two chained async write operations
 		//      "client" - reads a payload from the socket
 		auto pPool = CreateStartedIoServiceThreadPool();
-		SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-			auto pIo = transform(pPool->service(), pServerSocket);
-			pIo->write(payload1.pPacket, [pIo, &payload1, &payload2](auto result1) -> void {
-				payload1.Result = result1;
+		SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+			auto pIo = transform(pServerSocket);
+			pIo->write(payload1.pPacket, [pIo, &payload1, &payload2](auto writeCode1) {
+				payload1.Code = writeCode1;
 
-				pIo->write(payload2.pPacket, [&payload2](auto result2) {
-					payload2.Result = result2;
+				pIo->write(payload2.pPacket, [&payload2](auto writeCode2) {
+					payload2.Code = writeCode2;
 				});
 			});
 		});
@@ -142,8 +245,8 @@ namespace catapult { namespace test {
 		pPool->join();
 
 		// Assert: both writes should have succeeded and no data should have been interleaved
-		EXPECT_EQ(ionet::SocketOperationCode::Success, payload1.Result);
-		EXPECT_EQ(ionet::SocketOperationCode::Success, payload2.Result);
+		EXPECT_EQ(ionet::SocketOperationCode::Success, payload1.Code);
+		EXPECT_EQ(ionet::SocketOperationCode::Success, payload2.Code);
 
 		auto pReceiveBuffer1End = receiveBuffer.cbegin() + Large_Buffer_Size;
 		EXPECT_TRUE(payload1.isBufferEqualTo(receiveBuffer.cbegin(), pReceiveBuffer1End));
@@ -159,21 +262,21 @@ namespace catapult { namespace test {
 		// Act: "server" - starts two concurrent async write operations
 		//      "client" - reads a payload from the socket
 		auto pPool = CreateStartedIoServiceThreadPool();
-		SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-			auto pIo = transform(pPool->service(), pServerSocket);
-			pIo->write(payload1.pPacket, [&payload1](auto result) {
-				payload1.Result = result;
+		SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+			auto pIo = transform(pServerSocket);
+			pIo->write(payload1.pPacket, [&payload1](auto writeCode) {
+				payload1.Code = writeCode;
 			});
-			pIo->write(payload2.pPacket, [&payload2](auto result) {
-				payload2.Result = result;
+			pIo->write(payload2.pPacket, [&payload2](auto writeCode) {
+				payload2.Code = writeCode;
 			});
 		});
 		AddClientReadBufferTask(pPool->service(), receiveBuffer);
 		pPool->join();
 
 		// Assert: both writes should have succeeded and no data should have been interleaved
-		EXPECT_EQ(ionet::SocketOperationCode::Success, payload1.Result);
-		EXPECT_EQ(ionet::SocketOperationCode::Success, payload2.Result);
+		EXPECT_EQ(ionet::SocketOperationCode::Success, payload1.Code);
+		EXPECT_EQ(ionet::SocketOperationCode::Success, payload2.Code);
 
 		auto pReceiveBuffer1End = receiveBuffer.cbegin() + Large_Buffer_Size;
 		EXPECT_TRUE(payload1.isBufferEqualTo(receiveBuffer.cbegin(), pReceiveBuffer1End));
@@ -191,11 +294,11 @@ namespace catapult { namespace test {
 		public:
 			const ionet::ByteBuffer Buffer;
 			ionet::ByteBuffer ReadBuffer;
-			ionet::SocketOperationCode Result;
+			ionet::SocketOperationCode Code;
 
 		public:
-			void update(const ionet::SocketOperationCode& result, const ionet::Packet* pPacket) {
-				Result = result;
+			void update(ionet::SocketOperationCode code, const ionet::Packet* pPacket) {
+				Code = code;
 				if (!pPacket)
 					return;
 
@@ -223,9 +326,9 @@ namespace catapult { namespace test {
 		// Act: "server" - starts two chained async read operations
 		//      "client" - writes the payloads to the socket
 		auto pPool = CreateStartedIoServiceThreadPool();
-		SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-			auto pIo = transform(pPool->service(), pServerSocket);
-			pIo->read([pIo, &payload1, &payload2](auto result1, const auto* pPacket1) -> void {
+		SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+			auto pIo = transform(pServerSocket);
+			pIo->read([pIo, &payload1, &payload2](auto result1, const auto* pPacket1) {
 				payload1.update(result1, pPacket1);
 
 				pIo->read([&payload2](auto result2, const auto* pPacket2) {
@@ -237,8 +340,8 @@ namespace catapult { namespace test {
 		pPool->join();
 
 		// Assert: both reads should have succeeded and no data should have been interleaved
-		EXPECT_EQ(ionet::SocketOperationCode::Success, payload1.Result);
-		EXPECT_EQ(ionet::SocketOperationCode::Success, payload2.Result);
+		EXPECT_EQ(ionet::SocketOperationCode::Success, payload1.Code);
+		EXPECT_EQ(ionet::SocketOperationCode::Success, payload2.Code);
 
 		EXPECT_TRUE(payload1.isBufferRead());
 		EXPECT_TRUE(payload2.isBufferRead());
@@ -252,8 +355,8 @@ namespace catapult { namespace test {
 		// Act: "server" - starts two concurrent async read operations
 		//      "client" - writes the payloads to the socket
 		auto pPool = CreateStartedIoServiceThreadPool();
-		SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-			auto pIo = transform(pPool->service(), pServerSocket);
+		SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+			auto pIo = transform(pServerSocket);
 			pIo->read([&payload1](auto result, const auto* pPacket) {
 				payload1.update(result, pPacket);
 			});
@@ -265,26 +368,26 @@ namespace catapult { namespace test {
 		pPool->join();
 
 		// Assert: both reads should have succeeded and no data should have been interleaved
-		EXPECT_EQ(ionet::SocketOperationCode::Success, payload1.Result);
-		EXPECT_EQ(ionet::SocketOperationCode::Success, payload2.Result);
+		EXPECT_EQ(ionet::SocketOperationCode::Success, payload1.Code);
+		EXPECT_EQ(ionet::SocketOperationCode::Success, payload2.Code);
 
 		EXPECT_TRUE(payload1.isBufferRead());
 		EXPECT_TRUE(payload2.isBufferRead());
 	}
 
-	void AssertSocketClosedDuringRead(const ionet::SocketOperationCode& readResult) {
+	void AssertSocketClosedDuringRead(ionet::SocketOperationCode readCode) {
 		// Assert: the socket was closed
 		//         the underlying socket can either return eof (Closed) or operation cancelled (Read_Error)
 		std::set<ionet::SocketOperationCode> possibleValues{
 			ionet::SocketOperationCode::Closed,
 			ionet::SocketOperationCode::Read_Error
 		};
-		EXPECT_TRUE(possibleValues.end() != possibleValues.find(readResult)) << "read result: " << readResult;
+		EXPECT_TRUE(possibleValues.end() != possibleValues.find(readCode)) << "read code: " << readCode;
 	}
 
-	void AssertSocketClosedDuringWrite(const ionet::SocketOperationCode& writeResult) {
+	void AssertSocketClosedDuringWrite(ionet::SocketOperationCode writeCode) {
 		// Assert: the socket was closed
 		//         the underlying socket can return operation cancelled (Write_Error)
-		EXPECT_EQ(ionet::SocketOperationCode::Write_Error, writeResult);
+		EXPECT_EQ(ionet::SocketOperationCode::Write_Error, writeCode);
 	}
 }}

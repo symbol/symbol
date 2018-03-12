@@ -1,5 +1,5 @@
 #include "catapult/disruptor/ConsumerInput.h"
-#include "tests/catapult/disruptor/utils/ConsumerInputTestUtils.h"
+#include "tests/catapult/disruptor/test/ConsumerInputTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace disruptor {
@@ -11,10 +11,10 @@ namespace catapult { namespace disruptor {
 		public:
 			using test::BlockTraits::CreateInput;
 
-			static ConsumerInput CreateInput(size_t numEntities, InputSource source, test::EntitiesVector& entities) {
+			static model::BlockRange CreateRange(size_t numEntities, test::EntitiesVector& entities) {
 				auto range = test::CreateBlockEntityRange(numEntities);
 				entities = test::ExtractEntities(range);
-				return ConsumerInput(std::move(range), source);
+				return range;
 			}
 
 			static auto DetachRange(ConsumerInput& input) {
@@ -35,10 +35,10 @@ namespace catapult { namespace disruptor {
 		public:
 			using test::TransactionTraits::CreateInput;
 
-			static ConsumerInput CreateInput(size_t numEntities, InputSource source, test::EntitiesVector& entities) {
+			static model::TransactionRange CreateRange(size_t numEntities, test::EntitiesVector& entities) {
 				auto range = test::CreateTransactionEntityRange(numEntities);
 				entities = test::ExtractEntities(range);
-				return ConsumerInput(std::move(range), source);
+				return range;
 			}
 
 			static auto DetachRange(ConsumerInput& input) {
@@ -69,10 +69,23 @@ namespace catapult { namespace disruptor {
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputWithCustomSource) {
 		// Arrange:
 		test::EntitiesVector entities;
-		auto input = TTraits::CreateInput(3, InputSource::Local, entities);
+		auto range = TTraits::CreateRange(3, entities);
+		auto input = ConsumerInput(std::move(range), InputSource::Local);
 
 		// Assert:
 		TTraits::AssertInput(input, 3, entities, InputSource::Local);
+	}
+
+	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputWithCustomContext) {
+		// Arrange:
+		test::EntitiesVector entities;
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto range = TTraits::CreateRange(3, entities);
+		auto input = ConsumerInput({ std::move(range), key }, InputSource::Local);
+
+		// Assert:
+		TTraits::AssertInput(input, 3, entities, InputSource::Local);
+		EXPECT_EQ(key, input.sourcePublicKey());
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputAroundSingleEntity) {
@@ -92,6 +105,7 @@ namespace catapult { namespace disruptor {
 
 		// Sanity:
 		EXPECT_FALSE(input.empty());
+		EXPECT_TRUE(input.hasBlocks() || input.hasTransactions());
 		ASSERT_EQ(2u, entities.size());
 
 		// Act:
@@ -99,6 +113,7 @@ namespace catapult { namespace disruptor {
 
 		// Assert:
 		EXPECT_TRUE(input.empty());
+		EXPECT_FALSE(input.hasBlocks() || input.hasTransactions());
 		ASSERT_EQ(2u, detachedEntities.size());
 
 		auto iter = detachedEntities.cbegin();
@@ -112,7 +127,7 @@ namespace catapult { namespace disruptor {
 		// Arrange:
 		auto input = ConsumerInput();
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(TTraits::DetachRange(input), catapult_runtime_error);
 	}
 
@@ -124,7 +139,7 @@ namespace catapult { namespace disruptor {
 		// Act: the first detach should succeed
 		TTraits::DetachRange(input);
 
-		// Assert: subsequent detaches should fail
+		// Act + Assert: subsequent detaches should fail
 		EXPECT_THROW(TTraits::DetachRange(input), catapult_runtime_error);
 		EXPECT_THROW(TTraits::DetachRange(input), catapult_runtime_error);
 	}

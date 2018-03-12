@@ -4,14 +4,16 @@
 
 namespace catapult { namespace crypto {
 
+#define TEST_CLASS KeyGeneratorTests
+
 	namespace {
 		const Key Public_Key_Zero = []() {
 			Key zeroKey;
-			std::fill(zeroKey.begin(), zeroKey.end(), 0);
+			std::fill(zeroKey.begin(), zeroKey.end(), static_cast<uint8_t>(0));
 			return zeroKey; }();
 	}
 
-	TEST(KeyGeneratorTests, CanExtractPublicKeyFromPrivateKey) {
+	TEST(TEST_CLASS, CanExtractPublicKeyFromPrivateKey) {
 		// Arrange:
 		auto privateKey = PrivateKey::Generate(test::RandomByte);
 		Key publicKey;
@@ -23,11 +25,11 @@ namespace catapult { namespace crypto {
 		EXPECT_NE(Public_Key_Zero, publicKey);
 	}
 
-	TEST(KeyGeneratorTests, CanExtractSamePublicKeyFromSamePrivateKey) {
+	TEST(TEST_CLASS, CanExtractSamePublicKeyFromSamePrivateKey) {
 		// Arrange::
 		auto generatePublicKey = []() {
 			Key publicKey;
-			auto privateKey = PrivateKey::Generate([]() { return 7; });
+			auto privateKey = PrivateKey::Generate([]() { return static_cast<uint8_t>(7); });
 			ExtractPublicKeyFromPrivateKey(privateKey, publicKey);
 			return publicKey;
 		};

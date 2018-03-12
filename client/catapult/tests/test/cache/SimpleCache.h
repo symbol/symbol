@@ -15,6 +15,7 @@ namespace catapult {
 }
 
 namespace catapult { namespace test {
+
 	using SimpleCacheReadOnlyType = cache::ReadOnlySimpleCache<BasicSimpleCacheView, BasicSimpleCacheDelta, size_t>;
 
 	// region SimpleCacheView
@@ -67,12 +68,12 @@ namespace catapult { namespace test {
 
 	public:
 		/// Returns a const iterator to the first cache element.
-		auto cbegin() const {
+		auto begin() const {
 			return m_ids.cbegin();
 		}
 
 		/// Returns a const iterator to the element following the last cache element.
-		auto cend() const {
+		auto end() const {
 			return m_ids.cend();
 		}
 
@@ -142,6 +143,11 @@ namespace catapult { namespace test {
 			return id <= m_id;
 		}
 
+		/// Inserts \a id into the cache.
+		void insert(size_t id) {
+			m_id = id;
+		}
+
 	private:
 		size_t m_id;
 	};
@@ -191,8 +197,10 @@ namespace catapult { namespace test {
 
 		/// Commits all pending changes in \a delta to the underlying storage.
 		void commit(const CacheDeltaType& delta) {
-			if (m_pFlag)
+			if (m_pFlag) {
+				CATAPULT_LOG(debug) << "blocking in commit using auto set flag (" << m_pFlag << ")";
 				m_pFlag->wait();
+			}
 
 			m_id = delta.id();
 		}
@@ -209,9 +217,14 @@ namespace catapult { namespace test {
 		static constexpr auto Name = "SimpleCache";
 
 	public:
-		/// Creates a cache with an optional auto set flag (\a pFlag).
-		explicit SimpleCache(const test::AutoSetFlag* pFlag = nullptr) : SynchronizedCache(BasicSimpleCache(pFlag))
+		/// Creates a cache.
+		SimpleCache() : SynchronizedCache(BasicSimpleCache(nullptr))
 		{}
+
+		/// Creates a cache with an auto set \a flag.
+		explicit SimpleCache(const test::AutoSetFlag& flag) : SynchronizedCache(BasicSimpleCache(&flag)) {
+			CATAPULT_LOG(debug) << "created SimpleCache with auto set flag (" << &flag << ") with state " << flag.isSet();
+		}
 	};
 
 	/// Synchronized cache composed of simple data with a specific id.
@@ -234,13 +247,13 @@ namespace catapult { namespace test {
 		/// Saves \a value to \a output.
 		static void Save(size_t value, io::OutputStream& output) {
 			// Act: encode each value before writing
-			io::Write(output, value ^ 0xFFFFFFFF);
+			io::Write64(output, value ^ 0xFFFFFFFF'FFFFFFFFull);
 		}
 
 		/// Loads a single value from \a input into \a cacheDelta.
 		static void Load(io::InputStream& input, DestinationType& cacheDelta) {
 			// Act: decode each value after reading (and ensure the expected values are read)
-			auto value = io::Read<uint64_t>(input) ^ 0xFFFFFFFF;
+			auto value = io::Read64(input) ^ 0xFFFFFFFF'FFFFFFFFull;
 			if (value - 1 != cacheDelta.id())
 				CATAPULT_THROW_RUNTIME_ERROR_2("read value was unexpected (value, id)", value, cacheDelta.id());
 

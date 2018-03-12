@@ -1,4 +1,5 @@
 #include "Logging.h"
+#include "BitwiseEnum.h"
 #include "catapult/types.h"
 #include <boost/core/null_deleter.hpp>
 #include <boost/log/attributes.hpp>
@@ -49,7 +50,8 @@ namespace catapult { namespace utils {
 			return boost::log::expressions::attr<typename TTraits::Type>(TTraits::Name);
 		}
 
-		enum Colors {
+		enum class Colors : uint8_t {
+			None = 0,
 			Fg_Black = 30,
 			Fg_Red = 31,
 			Fg_Green = 32,
@@ -58,17 +60,17 @@ namespace catapult { namespace utils {
 			Fg_Magenta = 35,
 			Fg_Cyan = 36,
 			Fg_White = 37,
-			Fg_Mask = 0x7f,
+			Fg_Mask = 0x7F,
 			Mode_Bright = 0x80
 		};
 
-		uint32_t ColorMappingFlags[] = {
-			/* trace   */ 0,
-			/* debug   */ 0,
-			/* info    */ 0,
-			/* warning */ Fg_Yellow,
-			/* error   */ Fg_Red,
-			/* fatal   */ Fg_Red
+		Colors ColorMappingFlags[] = {
+			/* trace   */ Colors::None,
+			/* debug   */ Colors::None,
+			/* info    */ Colors::None,
+			/* warning */ Colors::Fg_Yellow,
+			/* error   */ Colors::Fg_Red,
+			/* fatal   */ Colors::Fg_Red
 		};
 
 		template<LogColorMode Mode>
@@ -77,8 +79,8 @@ namespace catapult { namespace utils {
 		};
 
 		template<LogColorMode Mode>
-		void OutputAnsiCode(boost::log::formatting_ostream& stream, uint32_t flags) {
-			auto foreground = flags & Fg_Mask;
+		void OutputAnsiCode(boost::log::formatting_ostream& stream, Colors colors) {
+			auto foreground = to_underlying_type(colors) & to_underlying_type(Colors::Fg_Mask);
 			if (0 == foreground)
 				return;
 
@@ -92,14 +94,14 @@ namespace catapult { namespace utils {
 				boost::log::formatting_ostream& stream,
 				const boost::log::to_log_manip<boost::log::trivial::severity_level, severity_color<Mode>>& manipulator) {
 			auto level = static_cast<std::size_t>(manipulator.get());
-			if (level < CountOf(ColorMappingFlags) && ColorMappingFlags[level])
+			if (level < CountOf(ColorMappingFlags) && Colors::None != ColorMappingFlags[level])
 				OutputAnsiCode<Mode>(stream, ColorMappingFlags[level]);
 
 			return stream;
 		}
 
 		std::string GetFormatSequence(LogColorMode colorMode) {
-			// 2016-04-24 12:22:06.358231 0x00007fff774eb000: <info> (boot::Logging.cpp@106) msg
+			// 2016-04-24 12:22:06.358231 0x00007FFF774EB000: <info> (boot::Logging.cpp@106) msg
 			std::string format("%1% %2%: <%3%> (%4%::%5%@%6%) %7%");
 			return LogColorMode::None == colorMode
 					? format
@@ -145,9 +147,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	// region LogFilter
-
-	// region Impl
+	// region LogFilter::Impl
 
 	class LogFilter::Impl {
 	public:
@@ -171,6 +171,8 @@ namespace catapult { namespace utils {
 
 	// endregion
 
+	// region LogFilter
+
 	LogFilter::LogFilter(LogLevel level) : m_pImpl(std::make_unique<Impl>()) {
 		m_pImpl->setLevel(level);
 	}
@@ -187,9 +189,7 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// region LoggingBootstrapper
-
-	// region Impl
+	// region LoggingBootstrapper::Impl
 
 	class LoggingBootstrapper::Impl {
 	public:
@@ -230,6 +230,8 @@ namespace catapult { namespace utils {
 
 	// endregion
 
+	// region LoggingBootstrapper
+
 	LoggingBootstrapper::LoggingBootstrapper() : m_pImpl(std::make_unique<Impl>()) {
 		InitializeGlobalLogAttributes();
 	}
@@ -265,4 +267,8 @@ namespace catapult { namespace utils {
 	}
 
 	// endregion
+
+	void CatapultLogFlush() {
+		boost::log::core::get()->flush();
+	}
 }}

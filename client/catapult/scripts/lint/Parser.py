@@ -1,10 +1,12 @@
 from collections import defaultdict
 from enum import Enum
+import re
 import traceback
 from xml.sax.saxutils import escape as xmlEscape
 
 from colorPrint import warning, colorPrint, Fore, Style
 from cppLexer import * #pylint: disable=wildcard-import,unused-wildcard-import
+from validation import Line
 
 lex.lex()
 
@@ -20,11 +22,16 @@ class Mode(Enum):
     FindClosingBrace = 9
     Operator = 10
 
+class NextTokenBehavior(Enum):
+    Skip = 1
+    Pick = 2
+
 PRINT_INFO = 0
 PRINT_DEBUG = 0
 PRINT_TRACE = 0
 
 TEXT_OUTPUT = False
+DEST_DIR = '.'
 
 def info(*args):
     if 1 == PRINT_INFO:
@@ -107,7 +114,8 @@ class NamespaceInfo: # pylint: disable=too-few-public-methods
 
 # pylint: disable=too-many-instance-attributes
 class NamespacesParser:
-    def __init__(self, path):
+    def __init__(self, errorReporter, path):
+        self.errorReporter = errorReporter
         self.path = path
         self.lineNumber = 0
         self.mode = Mode.Normal
@@ -204,6 +212,10 @@ class NamespacesParser:
             self.namespaceStack[-1].hadInclude = True
             info('HAD INCLUDE')
 
+        if not self.namespaceStack and re.match(r'#define [A-Z_]*TEST_CLASS ', tok.value):
+            errorMsg = '`#define TEST_CLASS` outside of any namespace'
+            self.errorReporter('preprocessorOther', Line(self.path, '', tok.lineno, errorMsg))
+
     def _parseNormalOpenParen(self, tok):
         debug('open paren')
         self._quitIfNoNamestack(tok)
@@ -237,27 +249,57 @@ class NamespacesParser:
         self.mode = Mode.FindSemiColon
 
     def saveTokenOrBye(self, previousToken, token, tokenName):
+        del previousToken
         if token.type == tokenName:
             self.nameStack.append(token)
         else:
-            print('ERROR operator', previousToken, token)
             self.quit(token)
+
+    def _operatorEquals(self, nextToken):
+        # operator==
+        if nextToken.type == 'EQUALS':
+            self.nameStack.append(nextToken)
+            return NextTokenBehavior.Pick
+
+        # operator=
+        self.tok = nextToken
+        return NextTokenBehavior.Skip
+
+    def _operatorPlus(self, nextToken):
+        # operator+= operator++
+        if nextToken.type == 'EQUALS' or nextToken.type == 'PLUS':
+            self.nameStack.append(nextToken)
+            return NextTokenBehavior.Pick
+
+        # operator+
+        self.tok = nextToken
+        return NextTokenBehavior.Skip
+
+    def _operatorMinus(self, nextToken):
+        # operator-= operator-- operator->
+        if nextToken.type == 'EQUALS' or nextToken.type == 'MINUS' or nextToken.type == 'CLOSE_BRACKET':
+            self.nameStack.append(nextToken)
+            return NextTokenBehavior.Pick
+
+        # operator-
+        self.tok = nextToken
+        return NextTokenBehavior.Skip
 
     def collectOperator(self):
         tok = lex.token()
         self.nameStack.append(tok)
         tok2 = lex.token()
         # operator()
+        behavior = NextTokenBehavior.Pick
         if tok.type == 'OPEN_PAREN':
             self.saveTokenOrBye(tok, tok2, 'CLOSE_PAREN')
-        # operator== operator+= operator-=
-        elif tok.type == 'EQUALS' or tok.type == 'PLUS' or tok.type == 'MINUS':
-            if tok2.type == 'EQUALS':
-                self.nameStack.append(tok2)
-            else:
-                # operator= operator+ operator-
-                self.tok = tok2
-                return
+        # operator==
+        elif tok.type == 'EQUALS':
+            behavior = self._operatorEquals(tok2)
+        elif tok.type == 'PLUS':
+            behavior = self._operatorPlus(tok2)
+        elif tok.type == 'MINUS':
+            behavior = self._operatorMinus(tok2)
         # operator!=
         elif tok.type == 'EXCLAMATION':
             self.saveTokenOrBye(tok, tok2, 'EQUALS')
@@ -265,13 +307,20 @@ class NamespacesParser:
         elif tok.type == 'PIPE':
             self.tok = tok2
             return
+        # operator*
+        elif tok.type == 'ASTERISK':
+            if tok2.type != 'OPEN_PAREN':
+                self.quit(tok2)
+            self.tok = tok2
+            return
         # operator<<
         elif tok.type == 'OPEN_BRACKET':
             self.saveTokenOrBye(tok, tok2, 'OPEN_BRACKET')
         else:
-            print('error', tok)
             self.quit(tok2)
-        self.tok = lex.token()
+
+        if behavior == NextTokenBehavior.Pick:
+            self.tok = lex.token()
 
     def addNamespace(self):
         name = '::'.join(map(lambda c: c.current, self.namespaceStack))
@@ -337,7 +386,7 @@ class NamespacesParser:
 
     def quit(self, tok):
         if not TEXT_OUTPUT:
-            with open('_build/tests.fatalerror.xml', 'w') as outputStream:
+            with open(DEST_DIR + '/tests.fatalerror.xml', 'w') as outputStream:
                 outputStream.write('<?xml version="1.0" encoding="UTF-8"?>\n')
                 outputStream.write('<testsuites tests="0" failures="0" disabled="0" errors="1" time="0" name="AllTests">\n')
                 outputStream.write('  <testsuite name="Parser" tests="0" failures="0" disabled="0" errors="1" time="0">\n')

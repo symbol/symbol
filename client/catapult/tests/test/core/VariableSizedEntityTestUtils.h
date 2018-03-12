@@ -3,43 +3,6 @@
 
 namespace catapult { namespace test {
 
-	// region IsSizeValid
-
-	/// Asserts that entity with correct size is valid.
-	template<typename TEntityTraits>
-	void AssertSizeIsValidWhenEntitySizeIsCorrect() {
-		// Arrange:
-		auto entity = TEntityTraits::Create();
-		entity.Size = static_cast<uint32_t>(CalculateRealSize(entity));
-
-		// Act + Assert:
-		EXPECT_TRUE(IsSizeValid(entity));
-	}
-
-	/// Asserts that entity with size too small is invalid.
-	template<typename TEntityTraits>
-	void AssertSizeIsInvalidWhenEntitySizeIsTooSmall() {
-		// Arrange:
-		auto entity = TEntityTraits::Create();
-		entity.Size = static_cast<uint32_t>(CalculateRealSize(entity)) - 1;
-
-		// Act + Assert:
-		EXPECT_FALSE(IsSizeValid(entity));
-	}
-
-	/// Asserts that entity with size too large is invalid.
-	template<typename TEntityTraits>
-	void AssertSizeIsInvalidWhenEntitySizeIsTooLarge() {
-		// Arrange:
-		auto entity = TEntityTraits::Create();
-		entity.Size = static_cast<uint32_t>(CalculateRealSize(entity)) + 1;
-
-		// Act + Assert:
-		EXPECT_FALSE(IsSizeValid(entity));
-	}
-
-	// endregion
-
 	// region (single) attachment pointer
 
 	/// Asserts that attachment data pointer is inaccessible when entity has size less than minimum entity size.
@@ -243,37 +206,28 @@ namespace catapult { namespace test {
 	};
 }}
 
-#define DEFINE_IS_SIZE_VALID_TEST(TEST_CLASS, TEST_TRAITS, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { test::Assert##TEST_NAME<TEST_TRAITS>(); } \
-
-/// Adds all IsSizeValid tests to the specified test class (\a TEST_CLASS) using \a TEST_TRAITS.
-#define DEFINE_IS_SIZE_VALID_TESTS(TEST_CLASS, TEST_TRAITS) \
-	DEFINE_IS_SIZE_VALID_TEST(TEST_CLASS, TEST_TRAITS, SizeIsValidWhenEntitySizeIsCorrect) \
-	DEFINE_IS_SIZE_VALID_TEST(TEST_CLASS, TEST_TRAITS, SizeIsInvalidWhenEntitySizeIsTooSmall) \
-	DEFINE_IS_SIZE_VALID_TEST(TEST_CLASS, TEST_TRAITS, SizeIsInvalidWhenEntitySizeIsTooLarge)
-
-#define DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, TEST_NAME) \
+#define DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, TEST_NAME) \
 	TEST(TEST_CLASS, TEST_NAME##_Const) { test::Assert##TEST_NAME<TEST_TRAITS, test::ConstAccessor>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_NonConst) { test::Assert##TEST_NAME<TEST_TRAITS, test::NonConstAccessor>(); } \
 
 /// Adds all attachment pointer tests to the specified test class (\a TEST_CLASS) using \a TEST_TRAITS.
 /// \note These tests only support entities with a single pointer.
 #define DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, TEST_TRAITS) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, AttachmentPointerIsInaccessibleWhenSizeIsLessThanEntitySize) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, AttachmentPointerIsInaccessibleWhenNoAttachmentsArePresent) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, AttachmentPointerIsInaccessibleWhenSizeIsLessThanCalculatedSize) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, AttachmentPointerIsInaccessibleWhenSizeIsGreaterThanCalculatedSize) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, AttachmentPointerIsValidWhenAttachmentsArePresent)
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, AttachmentPointerIsInaccessibleWhenSizeIsLessThanEntitySize) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, AttachmentPointerIsInaccessibleWhenNoAttachmentsArePresent) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, AttachmentPointerIsInaccessibleWhenSizeIsLessThanCalculatedSize) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, AttachmentPointerIsInaccessibleWhenSizeIsGreaterThanCalculatedSize) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, AttachmentPointerIsValidWhenAttachmentsArePresent)
 
 /// Adds all attachment pointer tests to the specified test class (\a TEST_CLASS) using \a TEST_TRAITS.
 /// \note These tests only support entities with two pointers.
 #define DEFINE_DUAL_ATTACHMENT_POINTER_TESTS(TEST_CLASS, TEST_TRAITS) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenSizeIsLessThanEntitySize) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenNoDataArePresent) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenSizeIsLessThanCalculatedSizeWithFirstData) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenSizeIsLessThanCalculatedSizeWithSecondData) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenSizeIsLessThanCalculatedSizeWithAllData) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenSizeIsGreaterThanCalculatedSizeWithAllData) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, FirstPointerIsValidWhenOnlyFirstDataIsPresent) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, SecondPointerIsValidWhenOnlySecondDataIsPresent) \
-	DEFINE_ATTACHMENT_POINTER_TEST(TEST_CLASS, TEST_TRAITS, AllPointersAreValidWhenAllDataArePresent)
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenSizeIsLessThanEntitySize) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenNoDataArePresent) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenSizeIsLessThanCalculatedSizeWithFirstData) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenSizeIsLessThanCalculatedSizeWithSecondData) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenSizeIsLessThanCalculatedSizeWithAllData) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, DataPointersAreInaccessibleWhenSizeIsGreaterThanCalculatedSizeWithAllData) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, FirstPointerIsValidWhenOnlyFirstDataIsPresent) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, SecondPointerIsValidWhenOnlySecondDataIsPresent) \
+	DEFINE_ATTACHMENT_ACCESS_TESTS(TEST_CLASS, TEST_TRAITS, AllPointersAreValidWhenAllDataArePresent)

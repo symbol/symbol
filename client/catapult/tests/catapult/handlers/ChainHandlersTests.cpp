@@ -4,7 +4,7 @@
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
-#include "tests/test/core/mocks/MemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
 
@@ -26,16 +26,26 @@ namespace catapult { namespace handlers {
 				packet.Size -= sizeAdjustment;
 
 				ionet::ServerPacketHandlers handlers;
-				auto pRegistry = mocks::CreateDefaultTransactionRegistry();
+				auto registry = mocks::CreateDefaultTransactionRegistry();
+				Key capturedSourcePublicKey;
 				std::vector<size_t> counters;
-				RegisterPushBlockHandler(handlers, *pRegistry, [&counters](const auto& range) { counters.push_back(range.size()); });
+				RegisterPushBlockHandler(handlers, registry, [&capturedSourcePublicKey, &counters](const auto& range) {
+					capturedSourcePublicKey = range.SourcePublicKey;
+					counters.push_back(range.Range.size());
+				});
 
 				// Act:
-				ionet::ServerPacketHandlerContext context;
+				auto sourcePublicKey = test::GenerateRandomData<Key_Size>();
+				ionet::ServerPacketHandlerContext context(sourcePublicKey, "");
 				EXPECT_TRUE(handlers.process(packet, context));
 
 				// Assert:
 				action(counters);
+
+				// - if the callback was called, context should have been forwarded along with the range
+				if (!counters.empty()) {
+					EXPECT_EQ(sourcePublicKey, capturedSourcePublicKey);
+				}
 			}
 		}
 	}
@@ -74,7 +84,7 @@ namespace catapult { namespace handlers {
 		}
 
 		std::unique_ptr<io::BlockStorageCache> CreateStorage(size_t numBlocks) {
-			auto pStorage = std::make_unique<io::BlockStorageCache>(std::make_unique<mocks::MemoryBasedStorage>());
+			auto pStorage = std::make_unique<io::BlockStorageCache>(std::make_unique<mocks::MockMemoryBasedStorage>());
 
 			// storage already contains nemesis block (height 1)
 			auto storageModifier = pStorage->modifier();
@@ -134,9 +144,7 @@ namespace catapult { namespace handlers {
 
 			static void Register(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage) {
 				PullBlocksHandlerConfiguration config;
-				config.MinBlocks = 0;
 				config.MaxBlocks = 100;
-				config.MinResponseBytes = 0;
 				config.MaxResponseBytes = 10 * 1024 * 1024;
 				RegisterPullBlocksHandler(handlers, storage, config);
 			}
@@ -153,7 +161,7 @@ namespace catapult { namespace handlers {
 			pPacket->Height = requestHeight;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context;
+			ionet::ServerPacketHandlerContext context({}, "");
 			EXPECT_TRUE(handlers.process(*pPacket, context));
 
 			// Assert: only a payload header is written
@@ -182,7 +190,7 @@ namespace catapult { namespace handlers {
 		++pPacket->Size;
 
 		// Act:
-		ionet::ServerPacketHandlerContext context;
+		ionet::ServerPacketHandlerContext context({}, "");
 		EXPECT_TRUE(handlers.process(*pPacket, context));
 
 		// Assert: no response was written because the request was malformed
@@ -208,7 +216,7 @@ namespace catapult { namespace handlers {
 			pPacket->Height = requestHeight;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context;
+			ionet::ServerPacketHandlerContext context({}, "");
 			EXPECT_TRUE(handlers.process(*pPacket, context));
 
 			// Assert:
@@ -254,7 +262,7 @@ namespace catapult { namespace handlers {
 		++pPacket->Size;
 
 		// Act:
-		ionet::ServerPacketHandlerContext context;
+		ionet::ServerPacketHandlerContext context({}, "");
 		EXPECT_TRUE(handlers.process(*pPacket, context));
 
 		// Assert: malformed packet is ignored
@@ -275,7 +283,7 @@ namespace catapult { namespace handlers {
 		pPacket->Type = ionet::PacketType::Chain_Info;
 
 		// Act:
-		ionet::ServerPacketHandlerContext context;
+		ionet::ServerPacketHandlerContext context({}, "");
 		EXPECT_TRUE(handlers.process(*pPacket, context));
 
 		// Assert: chain score is written
@@ -311,7 +319,7 @@ namespace catapult { namespace handlers {
 			pPacket->Height = requestHeight;
 
 			// Act:
-			ionet::ServerPacketHandlerContext context;
+			ionet::ServerPacketHandlerContext context({}, "");
 			EXPECT_TRUE(handlers.process(*pPacket, context));
 
 			// Assert:
@@ -328,9 +336,7 @@ namespace catapult { namespace handlers {
 				const auto& hash = reinterpret_cast<const Hash256&>(*pData);
 
 				// - compare
-				EXPECT_EQ(test::ToHexString(expectedHash), test::ToHexString(hash))
-						<< "comparing hashes at " << i << " from " << requestHeight;
-
+				EXPECT_EQ(expectedHash, hash) << "comparing hashes at " << i << " from " << requestHeight;
 				pData += sizeof(Hash256);
 			}
 		}
@@ -372,7 +378,7 @@ namespace catapult { namespace handlers {
 			RegisterPullBlocksHandler(handlers, *pStorage, config);
 
 			// Act:
-			ionet::ServerPacketHandlerContext context;
+			ionet::ServerPacketHandlerContext context({}, "");
 			EXPECT_TRUE(handlers.process(request, context));
 
 			// Assert:
@@ -408,9 +414,7 @@ namespace catapult { namespace handlers {
 			pRequest->NumResponseBytes = maxResponseBytes;
 
 			PullBlocksHandlerConfiguration config;
-			config.MinBlocks = 0;
 			config.MaxBlocks = maxBlocks;
-			config.MinResponseBytes = 0;
 			config.MaxResponseBytes = maxResponseBytes;
 
 			// Assert:
@@ -458,7 +462,6 @@ namespace catapult { namespace handlers {
 		void AssertCanRetrieveBlocksWithNumBlocksClamping(
 				size_t numBlocks,
 				uint32_t numRequestBlocks,
-				uint32_t minBlocks,
 				uint32_t maxBlocks,
 				Height requestHeight,
 				const std::vector<Height>& expectedHeights) {
@@ -469,35 +472,23 @@ namespace catapult { namespace handlers {
 			pRequest->NumResponseBytes = 100 * 1024 * 1024;
 
 			PullBlocksHandlerConfiguration config;
-			config.MinBlocks = minBlocks;
 			config.MaxBlocks = maxBlocks;
-			config.MinResponseBytes = 0;
 			config.MaxResponseBytes = 100 * 1024 * 1024;
 
 			// Assert:
 			AssertCanRetrieveBlocks(numBlocks, *pRequest, config, expectedHeights);
 		}
 
-		TEST(TEST_CLASS, PullBlocksHandler_NumBlocksIsClampedBetweenMinAndMaxBlocks) {
-			// Arrange: chain-size == 12, request-height == 2, min == 3, max == 7
+		TEST(TEST_CLASS, PullBlocksHandler_NumBlocksIsClampedByMaxBlocks) {
+			// Arrange: chain-size == 12, request-height == 2, max == 7
 			auto assertFunc = [](auto numRequestBlocks, const auto& expectedBlockHeights) {
-				AssertCanRetrieveBlocksWithNumBlocksClamping(
-						12,
-						numRequestBlocks,
-						3,
-						7,
-						Height(2),
-						expectedBlockHeights);
+				AssertCanRetrieveBlocksWithNumBlocksClamping(12, numRequestBlocks, 7, Height(2), expectedBlockHeights);
 			};
 
 			// Assert:
-			// - request (1 < min) is increased to min (3)
-			std::vector<Height> expectedBlockHeights{ Height(2), Height(3), Height(4) };
-			assertFunc(1u, expectedBlockHeights);
+			std::vector<Height> expectedBlockHeights{ Height(2), Height(3), Height(4), Height(5), Height(6) };
 
-			// - request (min < 5 < max) is unchanged
-			expectedBlockHeights.push_back(Height(5));
-			expectedBlockHeights.push_back(Height(6));
+			// - request (5 < max) is unchanged
 			assertFunc(5u, expectedBlockHeights);
 
 			// - request (9 > max) is decreased to max (7)
@@ -509,7 +500,6 @@ namespace catapult { namespace handlers {
 		void AssertCanRetrieveBlocksWithNumResponseBytesClamping(
 				size_t numBlocks,
 				uint32_t numRequestResponseBytes,
-				uint32_t minResponseBytes,
 				uint32_t maxResponseBytes,
 				Height requestHeight,
 				const std::vector<Height>& expectedHeights) {
@@ -520,39 +510,31 @@ namespace catapult { namespace handlers {
 			pRequest->NumResponseBytes = numRequestResponseBytes;
 
 			PullBlocksHandlerConfiguration config;
-			config.MinBlocks = 0;
 			config.MaxBlocks = 100;
-			config.MinResponseBytes = minResponseBytes;
 			config.MaxResponseBytes = maxResponseBytes;
 
 			// Assert:
 			AssertCanRetrieveBlocks(numBlocks, *pRequest, config, expectedHeights);
 		}
 
-		TEST(TEST_CLASS, PullBlocksHandler_NumResponseBytesIsClampedBetweenMinAndMaxResponseBytes) {
-			// Arrange: chain-size == 12, request-height == 2, min == 3, max == 7
-			auto minBytes = GetSumBlockSizesAtHeights({ Height(2), Height(3), Height(4) });
-			auto maxBytes = minBytes + GetSumBlockSizesAtHeights({ Height(5), Height(6), Height(7), Height(8) });
-			auto assertFunc = [minBytes, maxBytes](auto numRequestResponseBytes, const auto& expectedBlockHeights) {
+		TEST(TEST_CLASS, PullBlocksHandler_NumResponseBytesIsClampedByMaxResponseBytes) {
+			// Arrange: chain-size == 12, request-height == 2, max == 7
+			std::vector<Height> heights{ Height(2), Height(3), Height(4), Height(5), Height(6), Height(7), Height(8) };
+			auto maxBytes = GetSumBlockSizesAtHeights(heights);
+			auto assertFunc = [maxBytes](auto numRequestResponseBytes, const auto& expectedBlockHeights) {
 				AssertCanRetrieveBlocksWithNumResponseBytesClamping(
 						12,
 						numRequestResponseBytes,
-						minBytes,
 						maxBytes,
 						Height(2),
 						expectedBlockHeights);
 			};
 
 			// Assert:
-			// - requestBytes < minBytes is increased to minBytes
-			std::vector<Height> expectedBlockHeights{ Height(2), Height(3), Height(4) };
-			auto requestBytes = GetSumBlockSizesAtHeights({ Height(2) });
-			assertFunc(requestBytes, expectedBlockHeights);
+			std::vector<Height> expectedBlockHeights{ Height(2), Height(3), Height(4), Height(5), Height(6) };
 
-			// - minBytes < requestBytes < maxBytes is unchanged
-			expectedBlockHeights.push_back(Height(5));
-			expectedBlockHeights.push_back(Height(6));
-			requestBytes = minBytes + GetSumBlockSizesAtHeights({ Height(5), Height(6) });
+			// - requestBytes < maxBytes is unchanged
+			auto requestBytes = GetSumBlockSizesAtHeights(expectedBlockHeights);
 			assertFunc(requestBytes, expectedBlockHeights);
 
 			// - requestBytes > maxBytes is decreased to maxBytes

@@ -5,6 +5,8 @@
 
 namespace catapult { namespace handlers {
 
+#define TEST_CLASS HandlerFactoryTests
+
 	namespace {
 		constexpr auto Valid_Packet_Type = static_cast<ionet::PacketType>(17);
 		constexpr auto Valid_Payload_Size = sizeof(uint64_t);
@@ -22,7 +24,7 @@ namespace catapult { namespace handlers {
 		struct SimpleEntitiesTraits {
 			// notice that the supplier supplies results as SupplierResultsType
 			// notice that SimpleEntity is intentionally the same size as uint64_t for test purposes
-			using EntityType = SimpleEntity;
+			using RequestStructureType = SimpleEntity;
 			using SupplierResultsType = std::vector<uint64_t>;
 
 			static constexpr auto Packet_Type = Valid_Packet_Type;
@@ -85,7 +87,7 @@ namespace catapult { namespace handlers {
 
 	// region failure
 
-	TEST(HandlerFactoryTests, TooSmallPacketIsRejected) {
+	TEST(TEST_CLASS, TooSmallPacketIsRejected) {
 		// Arrange:
 		ionet::Packet packet;
 		packet.Size = sizeof(ionet::PacketHeader) - 1;
@@ -95,17 +97,17 @@ namespace catapult { namespace handlers {
 		AssertPacketIsRejected(packet);
 	}
 
-	TEST(HandlerFactoryTests, PacketWithWrongTypeIsRejected) {
+	TEST(TEST_CLASS, PacketWithWrongTypeIsRejected) {
 		// Assert: wrong packet type
 		AssertPacketIsRejected(Valid_Payload_Size, ionet::PacketType::Pull_Transactions);
 	}
 
-	TEST(HandlerFactoryTests, PacketWithInvalidPayloadIsRejected) {
+	TEST(TEST_CLASS, PacketWithInvalidPayloadIsRejected) {
 		// Assert: payload size is not divisible by Valid_Payload_Size
 		AssertPacketIsRejected(Valid_Payload_Size + 5, Valid_Packet_Type);
 	}
 
-	TEST(HandlerFactoryTests, PacketWithNoPayloadIsRejected) {
+	TEST(TEST_CLASS, PacketWithNoPayloadIsRejected) {
 		// Assert: no payload
 		AssertPacketIsRejected(0, Valid_Packet_Type);
 	}
@@ -114,7 +116,7 @@ namespace catapult { namespace handlers {
 
 	// region success
 
-	TEST(HandlerFactoryTests, ValidPacketWithNonEmptyPayloadIsAccepted) {
+	TEST(TEST_CLASS, ValidPacketWithNonEmptyPayloadIsAccepted) {
 		// Arrange:
 		size_t numHandlerCalls = 0;
 		auto handler = BatchHandlerFactory<SimpleEntitiesTraits>::Create([&numHandlerCalls](const auto&) {
@@ -179,7 +181,7 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	TEST(HandlerFactoryTests, ResponseIsSetIfPacketIsValid) {
+	TEST(TEST_CLASS, ResponseIsSetIfPacketIsValid) {
 		// Assert:
 		AssertResponseIsSetIfPacketIsValid(3, 1);
 		AssertResponseIsSetIfPacketIsValid(5, 3);

@@ -3,13 +3,15 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS HashersTests
+
 	// region ArrayHasher
 
 	namespace {
 		using TestArray = std::array<uint8_t, 4 + sizeof(size_t)>;
 	}
 
-	TEST(HashersTests, Array_SameObjectReturnsSameHash) {
+	TEST(TEST_CLASS, Array_SameObjectReturnsSameHash) {
 		// Arrange:
 		ArrayHasher<TestArray> hasher;
 		auto data1 = test::GenerateRandomData<sizeof(TestArray)>();
@@ -22,7 +24,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(result1, result2);
 	}
 
-	TEST(HashersTests, Array_EqualObjectsReturnSameHash) {
+	TEST(TEST_CLASS, Array_EqualObjectsReturnSameHash) {
 		// Arrange:
 		ArrayHasher<TestArray> hasher;
 		auto data1 = test::GenerateRandomData<sizeof(TestArray)>();
@@ -36,12 +38,12 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(result1, result2);
 	}
 
-	TEST(HashersTests, Array_DifferentObjectsReturnDifferentHashes) {
+	TEST(TEST_CLASS, Array_DifferentObjectsReturnDifferentHashes) {
 		// Arrange:
 		ArrayHasher<TestArray> hasher;
 		auto data1 = test::GenerateRandomData<sizeof(TestArray)>();
 		TestArray data2;
-		std::transform(data1.cbegin(), data1.cend(), data2.begin(), [](uint8_t c) { return c ^ 0xFF; });
+		std::transform(data1.cbegin(), data1.cend(), data2.begin(), [](auto byte) { return static_cast<uint8_t>(byte ^ 0xFF); });
 
 		// Act:
 		auto result1 = hasher(data1);
@@ -51,7 +53,7 @@ namespace catapult { namespace utils {
 		EXPECT_NE(result1, result2);
 	}
 
-	TEST(HashersTests, Array_DifferentHasherOffsetsReturnDifferentHashes) {
+	TEST(TEST_CLASS, Array_DifferentHasherOffsetsReturnDifferentHashes) {
 		// Arrange:
 		auto data1 = test::GenerateRandomData<sizeof(TestArray)>();
 
@@ -67,7 +69,7 @@ namespace catapult { namespace utils {
 
 	// region BaseValueHasher
 
-	TEST(HashersTests, BaseValue_SameObjectReturnsSameHash) {
+	TEST(TEST_CLASS, BaseValue_SameObjectReturnsSameHash) {
 		// Arrange:
 		BaseValueHasher<Amount> hasher;
 		auto amount1 = Amount(7);
@@ -80,7 +82,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(result1, result2);
 	}
 
-	TEST(HashersTests, BaseValue_EqualObjectsReturnSameHash) {
+	TEST(TEST_CLASS, BaseValue_EqualObjectsReturnSameHash) {
 		// Arrange:
 		BaseValueHasher<Amount> hasher;
 		auto amount1 = Amount(7);
@@ -94,7 +96,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(result1, result2);
 	}
 
-	TEST(HashersTests, BaseValue_DifferentObjectsReturnDifferentHashes) {
+	TEST(TEST_CLASS, BaseValue_DifferentObjectsReturnDifferentHashes) {
 		// Arrange:
 		BaseValueHasher<Amount> hasher;
 		auto amount1 = Amount(7);

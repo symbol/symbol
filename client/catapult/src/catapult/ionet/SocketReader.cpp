@@ -17,10 +17,12 @@ namespace catapult { namespace ionet {
 					const std::shared_ptr<BatchPacketReader>& pReader,
 					const std::shared_ptr<PacketIo>& pWriter,
 					const ServerPacketHandlers& handlers,
+					const ReaderIdentity& identity,
 					const SocketReader::ReadCallback& callback)
 					: m_pReader(pReader)
 					, m_pWriter(pWriter)
 					, m_handlers(handlers)
+					, m_identity(identity)
 					, m_callback(callback)
 					, m_numOutstandingOperations(0)
 					, m_state(operation_state::Unknown)
@@ -47,9 +49,9 @@ namespace catapult { namespace ionet {
 				if (SocketOperationCode::Success != code)
 					return invokeCallback(code);
 
-				ServerPacketHandlerContext handlerContext;
+				ServerPacketHandlerContext handlerContext(m_identity.PublicKey, m_identity.Host);
 				if (!m_handlers.process(*pPacket, handlerContext)) {
-					CATAPULT_LOG(warning) << "ignoring unknown packet of type " << pPacket->Type;
+					CATAPULT_LOG(warning) << m_identity << " ignoring unknown packet of type " << pPacket->Type;
 					return invokeCallback(SocketOperationCode::Malformed_Data);
 				}
 
@@ -102,6 +104,7 @@ namespace catapult { namespace ionet {
 			std::shared_ptr<BatchPacketReader> m_pReader;
 			std::shared_ptr<PacketIo> m_pWriter;
 			const ServerPacketHandlers& m_handlers;
+			const ReaderIdentity& m_identity;
 			SocketReader::ReadCallback m_callback;
 
 			// these will be synchronized because they are modified by callbacks that execute on the
@@ -115,10 +118,12 @@ namespace catapult { namespace ionet {
 			DefaultSocketReader(
 					const std::shared_ptr<BatchPacketReader>& pReader,
 					const std::shared_ptr<PacketIo>& pWriter,
-					const ServerPacketHandlers& handlers)
+					const ServerPacketHandlers& handlers,
+					const ReaderIdentity& identity)
 					: m_pReader(pReader)
 					, m_pWriter(pWriter)
 					, m_handlers(handlers)
+					, m_identity(identity)
 			{}
 
 		public:
@@ -126,11 +131,7 @@ namespace catapult { namespace ionet {
 				if (!canRead())
 					CATAPULT_THROW_RUNTIME_ERROR("simultaneous reads are not supported");
 
-				auto pOperation = std::make_shared<PacketReadWriteOperation>(
-					m_pReader,
-					m_pWriter,
-					m_handlers,
-					callback);
+				auto pOperation = makeOperation(callback);
 				pOperation->start();
 
 				m_pOperation = pOperation;
@@ -142,18 +143,24 @@ namespace catapult { namespace ionet {
 				return !pOperation || pOperation->isComplete();
 			}
 
+			std::shared_ptr<PacketReadWriteOperation> makeOperation(const ReadCallback& callback) {
+				return std::make_shared<PacketReadWriteOperation>(m_pReader, m_pWriter, m_handlers, m_identity, callback);
+			}
+
 		private:
 			std::shared_ptr<BatchPacketReader> m_pReader;
 			std::shared_ptr<PacketIo> m_pWriter;
 			std::weak_ptr<PacketReadWriteOperation> m_pOperation;
-			const ServerPacketHandlers& m_handlers;
+			const ServerPacketHandlers& m_handlers; // handlers are unique per process and externally owned (by PacketReaders)
+			ReaderIdentity m_identity; // identity is copied because it is unique per socket
 		};
 	}
 
 	std::unique_ptr<SocketReader> CreateSocketReader(
 			const std::shared_ptr<BatchPacketReader>& pReader,
 			const std::shared_ptr<PacketIo>& pWriter,
-			const ServerPacketHandlers& handlers) {
-		return std::make_unique<DefaultSocketReader>(pReader, pWriter, handlers);
+			const ServerPacketHandlers& handlers,
+			const ReaderIdentity& identity) {
+		return std::make_unique<DefaultSocketReader>(pReader, pWriter, handlers, identity);
 	}
 }}

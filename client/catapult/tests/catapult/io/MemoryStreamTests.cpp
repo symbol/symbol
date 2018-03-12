@@ -1,5 +1,5 @@
-#include "tests/test/core/mocks/MemoryStream.h"
-#include "tests/catapult/io/utils/StreamTests.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/catapult/io/test/StreamTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace io {
@@ -11,11 +11,11 @@ namespace catapult { namespace io {
 			{}
 
 			auto outputStream() {
-				return std::make_unique<mocks::MemoryStream>(m_name, m_buffer);
+				return std::make_unique<mocks::MockMemoryStream>(m_name, m_buffer);
 			}
 
 			auto inputStream() {
-				return std::make_unique<mocks::MemoryStream>(m_name, m_buffer);
+				return std::make_unique<mocks::MockMemoryStream>(m_name, m_buffer);
 			}
 
 		private:

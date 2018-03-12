@@ -14,4 +14,7 @@ namespace catapult { namespace crypto {
 
 	/// Parses a key from a string (\a keyString) and returns the result.
 	Key ParseKey(const std::string& keyString);
+
+	/// Returns \c true if \a str represents a valid public key, \c false otherwise.
+	bool IsValidKeyString(const std::string& str);
 }}

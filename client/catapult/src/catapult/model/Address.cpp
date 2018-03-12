@@ -5,6 +5,7 @@
 #include "catapult/exceptions.h"
 
 namespace catapult { namespace model {
+
 	const uint8_t Checksum_Size = 4;
 
 	Address StringToAddress(const std::string& str) {

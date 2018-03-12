@@ -4,6 +4,8 @@
 
 namespace catapult { namespace crypto {
 
+#define TEST_CLASS MerkleHashBuilderTests
+
 	namespace {
 		using Hashes = std::vector<Hash256>;
 
@@ -25,18 +27,18 @@ namespace catapult { namespace crypto {
 			auto merkleHash = CalculateMerkleHash(hashes);
 
 			// Assert:
-			EXPECT_EQ(test::ToHexString(expectedHash), test::ToHexString(merkleHash));
+			EXPECT_EQ(expectedHash, merkleHash);
 		}
 	}
 
 	// region zero + one
 
-	TEST(MerkleHashBuilderTests, CanBuildMerkleHashFromZeroHashes) {
+	TEST(TEST_CLASS, CanBuildMerkleHashFromZeroHashes) {
 		// Assert:
 		AssertMerkleHash({}, Hash256());
 	}
 
-	TEST(MerkleHashBuilderTests, CanBuildMerkleHashFromSingleHash) {
+	TEST(TEST_CLASS, CanBuildMerkleHashFromSingleHash) {
 		// Arrange:
 		auto seedHash = test::GenerateRandomData<Hash256_Size>();
 
@@ -69,7 +71,7 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(MerkleHashBuilderTests, CanBuildMerkleHashFromBalancedTree) {
+	TEST(TEST_CLASS, CanBuildMerkleHashFromBalancedTree) {
 		// Arrange:
 		auto seedHashes = GenerateRandomHashes(8);
 		auto expectedHash = Reduce(Reduce(Reduce(seedHashes)))[0];
@@ -78,7 +80,7 @@ namespace catapult { namespace crypto {
 		AssertMerkleHash(seedHashes, expectedHash);
 	}
 
-	TEST(MerkleHashBuilderTests, CanBuildMerkleHashFromUnbalancedTree) {
+	TEST(TEST_CLASS, CanBuildMerkleHashFromUnbalancedTree) {
 		// Arrange:
 		auto seedHashes = GenerateRandomHashes(5);
 		auto seedHashes2 = Reduce({ seedHashes[0], seedHashes[1], seedHashes[2], seedHashes[3], seedHashes[4], seedHashes[4] });
@@ -89,7 +91,7 @@ namespace catapult { namespace crypto {
 		AssertMerkleHash(seedHashes, expectedHash);
 	}
 
-	TEST(MerkleHashBuilderTests, CanBuildMerkleHashFromBalancedTree_Deterministic) {
+	TEST(TEST_CLASS, CanBuildMerkleHashFromBalancedTree_Deterministic) {
 		// Arrange:
 		auto seedHashes = {
 			test::ToArray<Hash256_Size>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
@@ -103,10 +105,15 @@ namespace catapult { namespace crypto {
 		};
 
 		// Assert:
-		AssertMerkleHash(seedHashes, test::ToArray<Hash256_Size>("7D853079F5F9EE30BDAE49C4956AF20CDF989647AFE971C069AC263DA1FFDF7E"));
+#ifdef SIGNATURE_SCHEME_NIS1
+		auto expectedHash = "454EF245CE568DA6A1C2D0B14FF3AEA09EC5CB0E76F356A4118F220E01B4BB8D";
+#else
+		auto expectedHash = "7D853079F5F9EE30BDAE49C4956AF20CDF989647AFE971C069AC263DA1FFDF7E";
+#endif
+		AssertMerkleHash(seedHashes, test::ToArray<Hash256_Size>(expectedHash));
 	}
 
-	TEST(MerkleHashBuilderTests, CanBuildMerkleHashFromUnbalancedTree_Deterministic) {
+	TEST(TEST_CLASS, CanBuildMerkleHashFromUnbalancedTree_Deterministic) {
 		// Arrange:
 		auto seedHashes = {
 			test::ToArray<Hash256_Size>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
@@ -117,7 +124,12 @@ namespace catapult { namespace crypto {
 		};
 
 		// Assert:
-		AssertMerkleHash(seedHashes, test::ToArray<Hash256_Size>("DEFB4BF7ACF2145500087A02C88F8D1FCF27B8DEF4E0FDABE09413D87A3F0D09"));
+#ifdef SIGNATURE_SCHEME_NIS1
+		auto expectedHash = "B526B3459648D92D0570646D13FF39C8B18EEA926BD2F97A0B19A6401D600671";
+#else
+		auto expectedHash = "DEFB4BF7ACF2145500087A02C88F8D1FCF27B8DEF4E0FDABE09413D87A3F0D09";
+#endif
+		AssertMerkleHash(seedHashes, test::ToArray<Hash256_Size>(expectedHash));
 	}
 
 	// endregion
@@ -125,7 +137,7 @@ namespace catapult { namespace crypto {
 	// region changes
 
 	namespace {
-		void AssertSignificantChange(size_t numHashes, const std::function<void (Hashes&)>& modifier) {
+		void AssertSignificantChange(size_t numHashes, const consumer<Hashes&>& modifier) {
 			// Arrange:
 			auto seedHashes1 = GenerateRandomHashes(numHashes);
 			auto seedHashes2 = seedHashes1;
@@ -136,17 +148,17 @@ namespace catapult { namespace crypto {
 			auto merkleHash2 = CalculateMerkleHash(seedHashes2);
 
 			// Assert:
-			EXPECT_NE(test::ToHexString(merkleHash1), test::ToHexString(merkleHash2));
+			EXPECT_NE(merkleHash1, merkleHash2);
 
 		}
 	}
 
-	TEST(MerkleHashBuilderTests, ChangingSubHashOrderChangesMerkleHash) {
+	TEST(TEST_CLASS, ChangingSubHashOrderChangesMerkleHash) {
 		// Assert:
 		AssertSignificantChange(8, [](auto& hashes) { std::swap(hashes[3], hashes[5]); });
 	}
 
-	TEST(MerkleHashBuilderTests, ChangingSubHashChangesMerkleHash) {
+	TEST(TEST_CLASS, ChangingSubHashChangesMerkleHash) {
 		// Assert:
 		AssertSignificantChange(8, [](auto& hashes) { hashes[3][0] ^= 0xFF; });
 	}

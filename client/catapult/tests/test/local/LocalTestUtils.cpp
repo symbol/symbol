@@ -1,10 +1,11 @@
 #include "LocalTestUtils.h"
 #include "catapult/cache/MemoryUtCache.h"
-#include "catapult/chain/UnconfirmedTransactionsUpdater.h"
+#include "catapult/chain/UtUpdater.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/plugins/PluginLoader.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/Nemesis.h"
 
 namespace catapult { namespace test {
 
@@ -12,11 +13,6 @@ namespace catapult { namespace test {
 		constexpr unsigned short Local_Node_Port = Local_Host_Port;
 		constexpr unsigned short Local_Node_Api_Port = Local_Node_Port + 1;
 		constexpr const char* Local_Node_Private_Key = "4A236D9F894CF0C4FC8C042DB5DB41CCF35118B7B220163E5B4BC1872C1CD618";
-		constexpr const char* Local_Node_Public_Key = "75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C";
-
-		constexpr bool ShouldAutoHarvest(uint64_t localNodeFlags) {
-			return 0 != (local_node_flags::Should_Auto_Harvest & localNodeFlags);
-		}
 
 		config::NodeConfiguration CreateNodeConfiguration() {
 			auto config = config::NodeConfiguration::Uninitialized();
@@ -24,9 +20,7 @@ namespace catapult { namespace test {
 			config.ApiPort = Local_Node_Api_Port;
 			config.ShouldAllowAddressReuse = true;
 
-			config.MinBlocksPerSyncAttempt = 100;
 			config.MaxBlocksPerSyncAttempt = 4 * 100;
-			config.MinChainBytesPerSyncAttempt = utils::FileSize::FromKilobytes(512);
 			config.MaxChainBytesPerSyncAttempt = utils::FileSize::FromKilobytes(8 * 512);
 
 			config.ShortLivedCacheMaxSize = 10;
@@ -38,13 +32,24 @@ namespace catapult { namespace test {
 
 			config.BlockDisruptorSize = 4 * 1024;
 			config.TransactionDisruptorSize = 16 * 1024;
+
+			config.Local.Host = "127.0.0.1";
+			config.Local.FriendlyName = "LOCAL";
+			config.Local.Roles = ionet::NodeRoles::Peer;
+
+			config.OutgoingConnections.MaxConnections = 25;
+			config.OutgoingConnections.MaxConnectionAge = 10;
+
+			config.IncomingConnections.MaxConnections = 25;
+			config.IncomingConnections.MaxConnectionAge = 10;
+			config.IncomingConnections.BacklogSize = 100;
 			return config;
 		}
 
 		void SetNetwork(model::NetworkInfo& network) {
 			network.Identifier = model::NetworkIdentifier::Mijin_Test;
 			network.PublicKey = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key).publicKey();
-			network.GenerationHash = crypto::ParseKey("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6");
+			network.GenerationHash = test::GetNemesisGenerationHash();
 		}
 	}
 
@@ -61,7 +66,7 @@ namespace catapult { namespace test {
 		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(1);
 
 		config.ImportanceGrouping = 1;
-		config.MaxRollbackBlocks = 0;
+		config.MaxRollbackBlocks = 10;
 		config.MaxDifficultyBlocks = 60;
 
 		config.TotalChainBalance = Amount(8'999'999'998'000'000);
@@ -71,35 +76,26 @@ namespace catapult { namespace test {
 		return config;
 	}
 
-	config::LocalNodeConfiguration LoadLocalNodeConfiguration(uint64_t localNodeFlags, const std::string& dataDirectory) {
-		return LoadLocalNodeConfiguration(CreateLocalNodeBlockChainConfiguration(), localNodeFlags, dataDirectory);
+	config::LocalNodeConfiguration LoadLocalNodeConfiguration(const std::string& dataDirectory) {
+		return LoadLocalNodeConfiguration(CreateLocalNodeBlockChainConfiguration(), dataDirectory);
 	}
 
 	config::LocalNodeConfiguration LoadLocalNodeConfiguration(
 			model::BlockChainConfiguration&& blockChainConfiguration,
-			uint64_t localNodeFlags,
 			const std::string& dataDirectory) {
 		auto userConfig = config::UserConfiguration::Uninitialized();
 		userConfig.BootKey = Local_Node_Private_Key;
-		userConfig.HarvestKey = Local_Node_Private_Key;
-		userConfig.IsAutoHarvestingEnabled = ShouldAutoHarvest(localNodeFlags);
-		userConfig.MaxUnlockedAccounts = 10;
 		userConfig.DataDirectory = dataDirectory;
 
-		auto peers = std::vector<ionet::Node>();
-		if (0 == (local_node_flags::No_Peers & localNodeFlags))
-			peers.push_back(CreateLocalHostNode(crypto::ParseKey(Local_Node_Public_Key), Local_Node_Port));
-
 		return config::LocalNodeConfiguration(
-			std::move(blockChainConfiguration),
-			CreateNodeConfiguration(),
-			config::LoggingConfiguration::Uninitialized(),
-			std::move(userConfig),
-			std::move(peers));
+				std::move(blockChainConfiguration),
+				CreateNodeConfiguration(),
+				config::LoggingConfiguration::Uninitialized(),
+				std::move(userConfig));
 	}
 
 	config::LocalNodeConfiguration CreatePrototypicalLocalNodeConfiguration() {
-		return LoadLocalNodeConfiguration(0, ""); // create the configuration without a valid data directory
+		return LoadLocalNodeConfiguration(""); // create the configuration without a valid data directory
 	}
 
 	config::LocalNodeConfiguration CreateUninitializedLocalNodeConfiguration() {
@@ -109,41 +105,29 @@ namespace catapult { namespace test {
 
 		auto userConfig = config::UserConfiguration::Uninitialized();
 		userConfig.BootKey = Local_Node_Private_Key;
-		userConfig.IsAutoHarvestingEnabled = false;
 
 		return config::LocalNodeConfiguration(
 				std::move(blockChainConfig),
 				config::NodeConfiguration::Uninitialized(),
 				config::LoggingConfiguration::Uninitialized(),
-				std::move(userConfig),
-				{ CreateLocalHostNode(crypto::ParseKey(Local_Node_Public_Key), Local_Node_Port) });
+				std::move(userConfig));
 	}
 
-	std::unique_ptr<cache::MemoryUtCache> CreateUnconfirmedTransactionsCache() {
-		return std::make_unique<cache::MemoryUtCache>(cache::MemoryUtCacheOptions(1024, 1000));
+	std::unique_ptr<cache::MemoryUtCache> CreateUtCache() {
+		return std::make_unique<cache::MemoryUtCache>(cache::MemoryCacheOptions(1024, 1000));
 	}
 
-	std::unique_ptr<chain::UnconfirmedTransactionsUpdater> CreateUnconfirmedTransactionsUpdater(
-			const cache::CatapultCache& cache,
-			cache::UtCache& unconfirmedTransactionsCache) {
-		return std::make_unique<chain::UnconfirmedTransactionsUpdater>(
-				unconfirmedTransactionsCache,
-				cache,
-				chain::ExecutionConfiguration(),
-				[]() { return Timestamp(111); });
-	}
-
-	std::function<cache::MemoryUtCacheView ()> CreateViewProvider(const cache::MemoryUtCache& unconfirmedTransactionsCache) {
-		const auto& viewProvider = unconfirmedTransactionsCache;
-		return [&viewProvider]() { return viewProvider.view(); };
+	std::unique_ptr<cache::MemoryUtCacheProxy> CreateUtCacheProxy() {
+		return std::make_unique<cache::MemoryUtCacheProxy>(cache::MemoryCacheOptions(1024, 1000));
 	}
 
 	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManager() {
 		auto config = model::BlockChainConfiguration::Uninitialized();
 		SetNetwork(config.Network);
-		config.TotalChainBalance = Amount(15'000'000);
+		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(1);
 		config.ImportanceGrouping = 123;
 		config.MaxDifficultyBlocks = 123;
+		config.TotalChainBalance = Amount(15'000'000);
 		config.BlockPruneInterval = 360;
 		return CreateDefaultPluginManager(config);
 	}
@@ -151,8 +135,7 @@ namespace catapult { namespace test {
 	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManager(const model::BlockChainConfiguration& config) {
 		std::vector<plugins::PluginModule> modules;
 		auto pPluginManager = std::make_shared<plugins::PluginManager>(config);
-		for (const auto& pluginName : { "coresystem", "blockdifficultycache" })
-			LoadPluginByName(*pPluginManager, modules, "", std::string("catapult.plugins.") + pluginName);
+		LoadPluginByName(*pPluginManager, modules, "", "catapult.coresystem");
 
 		for (const auto& pair : config.Plugins)
 			LoadPluginByName(*pPluginManager, modules, "", pair.first);

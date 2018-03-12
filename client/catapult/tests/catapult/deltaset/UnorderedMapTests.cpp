@@ -1,49 +1,50 @@
-#include "tests/catapult/deltaset/utils/BaseSetTestsInclude.h"
+#include "tests/catapult/deltaset/test/BaseSetTestsInclude.h"
 
 namespace catapult { namespace deltaset {
 
 	namespace {
-		using UnorderedMapMutableTraits = UnorderedMapTraits<MutableTypeTraits<MutableTestEntity>>;
-		using UnorderedMapMutablePointerTraits = UnorderedMapTraits<MutableTypeTraits<std::shared_ptr<MutableTestEntity>>>;
-		using UnorderedMapImmutableTraits = UnorderedMapTraits<ImmutableTypeTraits<const ImmutableTestEntity>>;
-		using UnorderedMapImmutablePointerTraits = UnorderedMapTraits<ImmutableTypeTraits<std::shared_ptr<const ImmutableTestEntity>>>;
+		using UnorderedMapMutableTraits = test::UnorderedMapTraits<MutableTypeTraits<test::MutableTestElement>>;
+		using UnorderedMapMutablePointerTraits = test::UnorderedMapTraits<MutableTypeTraits<std::shared_ptr<test::MutableTestElement>>>;
+		using UnorderedMapImmutableTraits = test::UnorderedMapTraits<ImmutableTypeTraits<const test::ImmutableTestElement>>;
+		using UnorderedMapImmutablePointerTraits =
+			test::UnorderedMapTraits<ImmutableTypeTraits<std::shared_ptr<const test::ImmutableTestElement>>>;
 	}
-
-	#define REGISTER_DELTA_MUTABLE_TYPES(TEST_NAME) \
-		REGISTER_TEST(TEST_NAME, DeltaTraits<UnorderedMapMutableTraits>, DeltaUnorderedMapMutable); \
-		REGISTER_TEST(TEST_NAME, DeltaTraits<UnorderedMapMutablePointerTraits>, DeltaUnorderedMapMutablePointer); \
-
-	#define REGISTER_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
-		REGISTER_TEST(TEST_NAME, DeltaTraits<UnorderedMapImmutableTraits>, DeltaUnorderedMapImmutable); \
-		REGISTER_TEST(TEST_NAME, DeltaTraits<UnorderedMapImmutablePointerTraits>, DeltaUnorderedMapImmutablePointer); \
-
-	#define REGISTER_NON_DELTA_MUTABLE_TYPES(TEST_NAME) \
-		REGISTER_TEST(TEST_NAME, BaseTraits<UnorderedMapMutableTraits>, BaseUnorderedMapMutable); \
-		REGISTER_TEST(TEST_NAME, BaseTraits<UnorderedMapMutablePointerTraits>, BaseUnorderedMapMutablePointer); \
-
-	#define REGISTER_NON_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
-		REGISTER_TEST(TEST_NAME, BaseTraits<UnorderedMapImmutableTraits>, BaseUnorderedMapImmutable); \
-		REGISTER_TEST(TEST_NAME, BaseTraits<UnorderedMapImmutablePointerTraits>, BaseUnorderedMapImmutablePointer);
 }}
 
-#include "tests/catapult/deltaset/utils/BaseSetTestsImpl.h"
+#define REGISTER_DELTA_MUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedMapMutableTraits>, DeltaUnorderedMapMutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedMapMutablePointerTraits>, DeltaUnorderedMapMutablePointer); \
+
+#define REGISTER_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedMapImmutableTraits>, DeltaUnorderedMapImmutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedMapImmutablePointerTraits>, DeltaUnorderedMapImmutablePointer); \
+
+#define REGISTER_NON_DELTA_MUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::UnorderedMapMutableTraits>, BaseUnorderedMapMutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::UnorderedMapMutablePointerTraits>, BaseUnorderedMapMutablePointer); \
+
+#define REGISTER_NON_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::UnorderedMapImmutableTraits>, BaseUnorderedMapImmutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::UnorderedMapImmutablePointerTraits>, BaseUnorderedMapImmutablePointer); \
+
+#include "tests/catapult/deltaset/test/BaseSetTestsImpl.h"
 
 namespace catapult { namespace deltaset {
 
-	DELTA_MUTABLE_TRAITS_BASED_TEST(NonConstFindAllowsElementModification) {
+	DEFINE_DELTA_MUTABLE_TESTS(NonConstFindAllowsElementModification) {
 		// Arrange:
 		auto pSet = TTraits::CreateBase();
 		auto pDelta = pSet->rebase();
 
-		auto entity = TTraits::CreateEntity("TestEntity", 4);
-		pDelta->insert(entity);
+		auto element = TTraits::CreateElement("TestElement", 4);
+		pDelta->insert(element);
 		pSet->commit();
 
 		// Act: mutate can be called
-		auto pDeltaEntity = pDelta->find(TTraits::ToKey(entity));
-		pDeltaEntity->mutate();
+		auto pDeltaElement = pDelta->find(TTraits::ToKey(element));
+		pDeltaElement->mutate();
 
 		// Assert:
-		EXPECT_FALSE(std::is_const<decltype(Unwrap(pDeltaEntity))>());
+		EXPECT_FALSE(std::is_const<decltype(test::Unwrap(pDeltaElement))>());
 	}
 }}

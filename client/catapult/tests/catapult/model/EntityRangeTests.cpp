@@ -58,6 +58,7 @@ namespace catapult { namespace model {
 		template<typename TRange>
 		void AssertDifferentBackingMemory(const TRange& lhs, const TRange& rhs) {
 			// Assert: the backing memory of the first elements should be different
+			//         (do not use data() because this function is also called with non-contiguous data ranges)
 			EXPECT_NE(&*lhs.cbegin(), &*rhs.cbegin());
 		}
 
@@ -73,12 +74,13 @@ namespace catapult { namespace model {
 			AssertEmptyIteration(mutableRange.begin(), mutableRange.end());
 			AssertEmptyIteration(range.begin(), range.end());
 			AssertEmptyIteration(range.cbegin(), range.cend());
+
+			// - data pointers are not accessible
+			EXPECT_FALSE(!!mutableRange.data());
+			EXPECT_FALSE(!!range.data());
 		}
 
-		void AssertNonEmptyRange(
-				const EntityRange<uint32_t>& range,
-				const std::vector<uint32_t>& expected,
-				size_t excessSize = 0) {
+		void AssertBasicNonEmptyRange(const EntityRange<uint32_t>& range, const std::vector<uint32_t>& expected, size_t excessSize = 0) {
 			// Assert: the range has the correct size
 			EXPECT_FALSE(range.empty());
 			EXPECT_EQ(expected.size(), range.size());
@@ -89,6 +91,29 @@ namespace catapult { namespace model {
 			AssertIteration(mutableRange.begin(), mutableRange.end(), expected);
 			AssertIteration(range.begin(), range.end(), expected);
 			AssertIteration(range.cbegin(), range.cend(), expected);
+		}
+
+		void AssertNonEmptyRange(const EntityRange<uint32_t>& range, const std::vector<uint32_t>& expected, size_t excessSize = 0) {
+			// Assert:
+			AssertBasicNonEmptyRange(range, expected, excessSize);
+
+			// - data pointers should point to first element
+			auto& mutableRange = const_cast<EntityRange<uint32_t>&>(range);
+			EXPECT_EQ(&*range.begin(), mutableRange.data());
+			EXPECT_EQ(&*range.begin(), range.data());
+		}
+
+		void AssertNonEmptyRangeWithNonContiguousData(
+				const EntityRange<uint32_t>& range,
+				const std::vector<uint32_t>& expected,
+				size_t excessSize = 0) {
+			// Assert:
+			AssertBasicNonEmptyRange(range, expected, excessSize);
+
+			// - data pointers are not accessible
+			auto& mutableRange = const_cast<EntityRange<uint32_t>&>(range);
+			EXPECT_THROW(mutableRange.data(), catapult_runtime_error);
+			EXPECT_THROW(range.data(), catapult_runtime_error);
 		}
 	}
 
@@ -276,6 +301,8 @@ namespace catapult { namespace model {
 		AssertEntities(GetExpectedMultiEntityBufferValues(), entities);
 	}
 
+	// endregion
+
 	// region overlay (variable) buffer
 
 	namespace {
@@ -293,10 +320,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateOverlayRangeAroundPartOfMultipleEntityBuffer) {
 		// Act:
-		auto range = EntityRange<uint32_t>::CopyVariable(
-				Multi_Entity_Overlay_Buffer.data(),
-				Multi_Entity_Overlay_Buffer.size(),
-				{ 2, 6 });
+		auto range = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), { 2, 6 });
 
 		// Assert: the range is 8 bytes larger than expected (only 2 uint32_t in a 16 byte buffer are used)
 		AssertNonEmptyRange(range, GetExpectedMultiEntityOverlayBufferValues(), 8);
@@ -318,10 +342,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanExtractEntitiesFromOverlayRangeAroundPartOfMultipleEntityBuffer) {
 		// Act:
-		auto range = EntityRange<uint32_t>::CopyVariable(
-				Multi_Entity_Overlay_Buffer.data(),
-				Multi_Entity_Overlay_Buffer.size(),
-				{ 2, 6 });
+		auto range = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), { 2, 6 });
 		auto entities = EntityRange<uint32_t>::ExtractEntitiesFromRange(std::move(range));
 
 		// Sanity:
@@ -330,8 +351,6 @@ namespace catapult { namespace model {
 		// Assert:
 		AssertEntities(GetExpectedMultiEntityOverlayBufferValues(), entities);
 	}
-
-	// endregion
 
 	// endregion
 
@@ -454,7 +473,7 @@ namespace catapult { namespace model {
 		auto mergedRange = EntityRange<uint32_t>::MergeRanges(std::move(ranges));
 
 		// Assert:
-		AssertNonEmptyRange(mergedRange, GetExpectedMultiEntityBufferValues());
+		AssertNonEmptyRangeWithNonContiguousData(mergedRange, GetExpectedMultiEntityBufferValues());
 	}
 
 	namespace {
@@ -489,7 +508,7 @@ namespace catapult { namespace model {
 		expectedEntities.insert(expectedEntities.end(), expectedEntities2.begin(), expectedEntities2.end());
 		expectedEntities.insert(expectedEntities.end(), expectedEntities3.begin(), expectedEntities3.end());
 
-		AssertNonEmptyRange(mergedRange, expectedEntities);
+		AssertNonEmptyRangeWithNonContiguousData(mergedRange, expectedEntities);
 	}
 
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanMergeEmptyAndNonEmptyEntityRanges) {
@@ -509,7 +528,7 @@ namespace catapult { namespace model {
 		auto expectedEntities2 = GetExpectedSingleEntityBufferValues();
 		expectedEntities.insert(expectedEntities.end(), expectedEntities2.begin(), expectedEntities2.end());
 
-		AssertNonEmptyRange(mergedRange, expectedEntities);
+		AssertNonEmptyRangeWithNonContiguousData(mergedRange, expectedEntities);
 	}
 
 	namespace {
@@ -561,12 +580,12 @@ namespace catapult { namespace model {
 		// Arrange:
 		RunHeterogeneousMergeRangesTest([](const auto& blocks, const auto& mergedRange) {
 			// Act:
-			auto copyRange = BlockRange::CopyRange(mergedRange);
+			auto rangeCopy = BlockRange::CopyRange(mergedRange);
 
 			// Assert:
 			AssertMultiBlockRange(blocks, mergedRange);
-			AssertMultiBlockRange(blocks, copyRange);
-			AssertDifferentBackingMemory(mergedRange, copyRange);
+			AssertMultiBlockRange(blocks, rangeCopy);
+			AssertDifferentBackingMemory(mergedRange, rangeCopy);
 		});
 	}
 
@@ -602,11 +621,11 @@ namespace catapult { namespace model {
 		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
 
 		// Act + Assert:
-		auto it = TTraits::begin(range);
-		EXPECT_EQ(0x33221100u, (*it++));
-		EXPECT_EQ(0x99BBDDFFu, (*it++));
-		EXPECT_EQ(0x34129876u, (*it++));
-		EXPECT_EQ(it, TTraits::end(range));
+		auto iter = TTraits::begin(range);
+		EXPECT_EQ(0x33221100u, (*iter++));
+		EXPECT_EQ(0x99BBDDFFu, (*iter++));
+		EXPECT_EQ(0x34129876u, (*iter++));
+		EXPECT_EQ(iter, TTraits::end(range));
 	}
 
 	ITERATOR_BASED_BASED_TEST(CanIterateOverMultipleEntitiesWithPrefixOperator) {
@@ -614,14 +633,14 @@ namespace catapult { namespace model {
 		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
 
 		// Act + Assert:
-		auto it = TTraits::begin(range);
-		EXPECT_EQ(0x33221100u, *it);
-		++it;
-		EXPECT_EQ(0x99BBDDFFu, *it);
-		++it;
-		EXPECT_EQ(0x34129876u, *it);
-		++it;
-		EXPECT_EQ(it, TTraits::end(range));
+		auto iter = TTraits::begin(range);
+		EXPECT_EQ(0x33221100u, *iter);
+		++iter;
+		EXPECT_EQ(0x99BBDDFFu, *iter);
+		++iter;
+		EXPECT_EQ(0x34129876u, *iter);
+		++iter;
+		EXPECT_EQ(iter, TTraits::end(range));
 	}
 
 	ITERATOR_BASED_BASED_TEST(CanReverseIterateOverMultipleEntitiesWithPrefixOperator) {
@@ -629,11 +648,11 @@ namespace catapult { namespace model {
 		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
 
 		// Act + Assert:
-		auto it = TTraits::end(range);
-		EXPECT_EQ(0x34129876u, (*--it));
-		EXPECT_EQ(0x99BBDDFFu, (*--it));
-		EXPECT_EQ(0x33221100u, (*--it));
-		EXPECT_EQ(it, TTraits::begin(range));
+		auto iter = TTraits::end(range);
+		EXPECT_EQ(0x34129876u, (*--iter));
+		EXPECT_EQ(0x99BBDDFFu, (*--iter));
+		EXPECT_EQ(0x33221100u, (*--iter));
+		EXPECT_EQ(iter, TTraits::begin(range));
 	}
 
 	ITERATOR_BASED_BASED_TEST(CanReverseIterateOverMultipleEntitiesWithPostfixOperator) {
@@ -641,29 +660,29 @@ namespace catapult { namespace model {
 		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
 
 		// Act + Assert:
-		auto it = TTraits::end(range);
-		it--;
-		EXPECT_EQ(0x34129876u, *it);
-		it--;
-		EXPECT_EQ(0x99BBDDFFu, *it);
-		it--;
-		EXPECT_EQ(0x33221100u, *it);
-		EXPECT_EQ(it, TTraits::begin(range));
+		auto iter = TTraits::end(range);
+		iter--;
+		EXPECT_EQ(0x34129876u, *iter);
+		iter--;
+		EXPECT_EQ(0x99BBDDFFu, *iter);
+		iter--;
+		EXPECT_EQ(0x33221100u, *iter);
+		EXPECT_EQ(iter, TTraits::begin(range));
 	}
 
 	ITERATOR_BASED_BASED_TEST(CanDereferenceIterator) {
 		// Arrange:
 		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
-		auto it = TTraits::begin(range);
-		++it;
+		auto iter = TTraits::begin(range);
+		++iter;
 
 		// Assert:
-		EXPECT_EQ(0x99BBDDFFu, *it);
-		EXPECT_EQ(0x99BBDDFFu, *(it.operator->()));
+		EXPECT_EQ(0x99BBDDFFu, *iter);
+		EXPECT_EQ(0x99BBDDFFu, *(iter.operator->()));
 
-		const auto cit = it;
-		EXPECT_EQ(0x99BBDDFFu, *cit);
-		EXPECT_EQ(0x99BBDDFFu, *(cit.operator->()));
+		const auto constIter = iter;
+		EXPECT_EQ(0x99BBDDFFu, *constIter);
+		EXPECT_EQ(0x99BBDDFFu, *(constIter.operator->()));
 	}
 
 	ITERATOR_BASED_BASED_TEST(BeginEndIteratorsBasedOnSameContainerAreEqual) {
@@ -679,13 +698,13 @@ namespace catapult { namespace model {
 	ITERATOR_BASED_BASED_TEST(CanCheckArbitraryIteratorsForEquality) {
 		// Arrange:
 		auto range = FixedTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
-		auto it = TTraits::begin(range);
-		++it;
+		auto iter = TTraits::begin(range);
+		++iter;
 
 		// Act + Assert:
-		EXPECT_NE(TTraits::begin(range), it);
-		EXPECT_EQ(++TTraits::begin(range), it);
-		EXPECT_NE(TTraits::end(range), it);
+		EXPECT_NE(TTraits::begin(range), iter);
+		EXPECT_EQ(++TTraits::begin(range), iter);
+		EXPECT_NE(TTraits::end(range), iter);
 	}
 
 	namespace {
@@ -715,10 +734,7 @@ namespace catapult { namespace model {
 
 	namespace {
 		template<typename TEntity>
-		void AssertDifferenceIndex(
-				const EntityRange<TEntity>& range1,
-				const EntityRange<TEntity>& range2,
-				size_t expectedIndex) {
+		void AssertDifferenceIndex(const EntityRange<TEntity>& range1, const EntityRange<TEntity>& range2, size_t expectedIndex) {
 			// Assert:
 			EXPECT_EQ(expectedIndex, FindFirstDifferenceIndex(range1, range2));
 			EXPECT_EQ(expectedIndex, FindFirstDifferenceIndex(range2, range1));

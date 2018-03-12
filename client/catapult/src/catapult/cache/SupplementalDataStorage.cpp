@@ -9,29 +9,29 @@ namespace catapult { namespace cache {
 		io::Write(output, supplementalData.State.LastRecalculationHeight);
 
 		auto scoreArray = supplementalData.ChainScore.toArray();
-		io::Write(output, scoreArray[0]);
-		io::Write(output, scoreArray[1]);
+		io::Write64(output, scoreArray[0]);
+		io::Write64(output, scoreArray[1]);
 
 		io::Write(output, chainHeight);
 
 		CATAPULT_LOG(debug)
-				<< "wrote last recalculation height: " << supplementalData.State.LastRecalculationHeight
-				<< " score: " << scoreArray[0] << " " << scoreArray[1]
-				<< " height: " << chainHeight;
+				<< "wrote last recalculation height " << supplementalData.State.LastRecalculationHeight
+				<< " (score = [" << scoreArray[0] << ", " << scoreArray[1] << "]"
+				<< ", height = " << chainHeight << ")";
 
 		output.flush();
 	}
 
 	void LoadSupplementalData(io::InputStream& input, SupplementalData& supplementalData, Height& chainHeight) {
 		io::Read(input, supplementalData.State.LastRecalculationHeight);
-		auto scoreHigh = io::Read<uint64_t>(input);
-		auto scoreLow = io::Read<uint64_t>(input);
+		auto scoreHigh = io::Read64(input);
+		auto scoreLow = io::Read64(input);
 		supplementalData.ChainScore = model::ChainScore(scoreHigh, scoreLow);
 		io::Read(input, chainHeight);
 
 		CATAPULT_LOG(debug)
-				<< "read last recalculation height: " << supplementalData.State.LastRecalculationHeight
-				<< " score: " << scoreHigh << " " << scoreLow
-				<< " height: " << chainHeight;
+				<< "read last recalculation height " << supplementalData.State.LastRecalculationHeight
+				<< " (score = [" << scoreHigh << ", " << scoreLow << "]"
+				<< ", height = " << chainHeight << ")";
 	}
 }}

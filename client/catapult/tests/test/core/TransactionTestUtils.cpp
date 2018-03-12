@@ -35,11 +35,16 @@ namespace catapult { namespace test {
 	}
 
 	std::unique_ptr<model::Transaction> GenerateRandomTransaction(size_t entitySize) {
-		using TEntity = model::Transaction;
-		std::unique_ptr<TEntity> pEntity(reinterpret_cast<TEntity*>(::operator new(entitySize)));
+		auto pEntity = utils::MakeUniqueWithSize<model::Transaction>(entitySize);
 		FillWithRandomData(MutableRawBuffer{ reinterpret_cast<uint8_t*>(pEntity.get()), entitySize });
 		pEntity->Size = static_cast<uint32_t>(entitySize);
 		return pEntity;
+	}
+
+	std::unique_ptr<model::Transaction> GenerateTransactionWithDeadline(Timestamp deadline) {
+		auto pTransaction = GenerateRandomTransaction();
+		pTransaction->Deadline = deadline;
+		return pTransaction;
 	}
 
 	std::unique_ptr<model::Transaction> GenerateDeterministicTransaction() {
@@ -59,14 +64,6 @@ namespace catapult { namespace test {
 
 	std::unique_ptr<model::Transaction> CopyTransaction(const model::Transaction& transaction) {
 		return CopyEntity(transaction);
-	}
-
-	std::vector<model::TransactionInfo> CopyTransactionInfos(const std::vector<model::TransactionInfo>& transactionInfos) {
-		std::vector<model::TransactionInfo> copy;
-		for (const auto& transactionInfo : transactionInfos)
-			copy.emplace_back(transactionInfo.copy());
-
-		return copy;
 	}
 
 	namespace {
@@ -90,5 +87,13 @@ namespace catapult { namespace test {
 
 	model::TransactionRange CreateEntityRange(const std::vector<const model::Transaction*>& transactions) {
 		return CreateEntityRange<model::Transaction>(transactions);
+	}
+
+	model::DetachedCosignature CreateRandomCosignature() {
+		return model::DetachedCosignature{
+			test::GenerateRandomData<Key_Size>(),
+			test::GenerateRandomData<Signature_Size>(),
+			test::GenerateRandomData<Hash256_Size>(),
+		};
 	}
 }}

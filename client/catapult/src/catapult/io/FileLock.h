@@ -8,8 +8,17 @@ namespace catapult { namespace io {
 	/// Lock based on an underlying lock file.
 	class FileLock : public utils::NonCopyable {
 	public:
-		/// Creates a lock file inside \a directoryPath.
-		explicit FileLock(const std::string& directoryPath);
+		/// Implementation dependent type of file descriptor.
+		/// \note Windows version is using void* instead of HANDLE to avoid including windows.h
+#ifdef _MSC_VER
+		using FdType = void*;
+#else
+		using FdType = int;
+#endif
+
+	public:
+		/// Creates a lock file with path \a lockFilePath.
+		explicit FileLock(const std::string& lockFilePath);
 
 		/// Releases the lock file.
 		~FileLock();
@@ -27,6 +36,6 @@ namespace catapult { namespace io {
 	private:
 		std::string m_lockFilePath;
 		utils::SpinLock m_spinLock;
-		int m_fd;
+		FdType m_fd;
 	};
 }}

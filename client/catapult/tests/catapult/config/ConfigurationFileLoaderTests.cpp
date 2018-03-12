@@ -6,18 +6,24 @@
 
 namespace catapult { namespace config {
 
+#define TEST_CLASS ConfigurationFileLoaderTests
+
 	namespace {
 		constexpr auto Config_Filename = "config.properties";
+		constexpr auto Config_Peers_Filename = "peers.json";
 		constexpr auto Not_Config_Filename = "not-config.properties";
 
 		void CreateTemporaryDirectory(const boost::filesystem::path& directoryPath) {
 			boost::filesystem::create_directories(directoryPath);
-			std::ofstream fout((directoryPath / Config_Filename).generic_string());
-			fout
+
+			std::ofstream((directoryPath / Config_Filename).generic_string())
 					<< "[test]" << std::endl << std::endl
 					<< "alpha = 7" << std::endl
 					<< "beta = foo" << std::endl
 					<< "gamma = z" << std::endl;
+
+			std::ofstream((directoryPath / Config_Peers_Filename).generic_string())
+					<< "{ \"knownPeers\": [] }" << std::endl;
 		}
 
 		template<typename TFunc>
@@ -33,23 +39,21 @@ namespace catapult { namespace config {
 
 	// region LoadConfiguration
 
-	TEST(ConfigurationFileLoaderTests, LoadConfigurationFailsIfFileDoesNotExist) {
+	TEST(TEST_CLASS, LoadConfigurationFailsIfFileDoesNotExist) {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
-			// Act:
+			// Act + Assert:
 			std::vector<std::string> callbackFilePaths;
 			EXPECT_THROW(
 					LoadConfiguration(path / Not_Config_Filename, [&callbackFilePaths](const auto& filePath) {
 						callbackFilePaths.push_back(filePath);
 					}),
 					catapult_runtime_error);
-
-			// Assert:
 			EXPECT_TRUE(callbackFilePaths.empty());
 		});
 	}
 
-	TEST(ConfigurationFileLoaderTests, LoadConfigurationSucceedsIfFileExists) {
+	TEST(TEST_CLASS, LoadConfigurationSucceedsIfFileExists) {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
 			// Act:
@@ -86,17 +90,15 @@ namespace catapult { namespace config {
 		};
 	}
 
-	TEST(ConfigurationFileLoaderTests, LoadIniConfigurationFailsIfFileDoesNotExist) {
+	TEST(TEST_CLASS, LoadIniConfigurationFailsIfFileDoesNotExist) {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
-			// Act:
-			EXPECT_THROW(
-					LoadIniConfiguration<TestConfiguration>(path / Not_Config_Filename),
-					catapult_runtime_error);
+			// Act + Assert:
+			EXPECT_THROW(LoadIniConfiguration<TestConfiguration>(path / Not_Config_Filename), catapult_runtime_error);
 		});
 	}
 
-	TEST(ConfigurationFileLoaderTests, LoadIniConfigurationSucceedsIfFileExists) {
+	TEST(TEST_CLASS, LoadIniConfigurationSucceedsIfFileExists) {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
 			// Act:
@@ -106,6 +108,29 @@ namespace catapult { namespace config {
 			EXPECT_EQ(7u, config.Alpha);
 			EXPECT_EQ("foo", config.Beta);
 			EXPECT_EQ("z", config.Gamma);
+		});
+	}
+
+	// endregion
+
+	// region LoadPeersConfiguration
+
+	TEST(TEST_CLASS, LoadPeersConfigurationFailsIfFileDoesNotExist) {
+		// Arrange:
+		RunTestWithTemporaryDirectory([](const auto& path) {
+			// Act + Assert:
+			EXPECT_THROW(LoadPeersConfiguration(path / Not_Config_Filename, model::NetworkIdentifier::Zero), catapult_runtime_error);
+		});
+	}
+
+	TEST(TEST_CLASS, LoadPeersConfigurationSucceedsIfFileExists) {
+		// Arrange:
+		RunTestWithTemporaryDirectory([](const auto& path) {
+			// Act:
+			auto nodes = LoadPeersConfiguration(path / Config_Peers_Filename, model::NetworkIdentifier::Zero);
+
+			// Assert:
+			EXPECT_TRUE(nodes.empty());
 		});
 	}
 

@@ -1,8 +1,8 @@
 #pragma once
+#include "TransactionTestUtils.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/RangeTypes.h"
-#include "tests/test/core/TransactionTestUtils.h"
 #include <list>
 #include <memory>
 #include <vector>
@@ -10,28 +10,26 @@
 namespace catapult { namespace test {
 
 	/// The hash string of the deterministic block.
-	constexpr auto Deterministic_Block_Hash_String = "1B47698B46B2FF17ED873B13C87D9B8E5661E483D58006DF7F5455B7282AAD8C";
+#ifdef SIGNATURE_SCHEME_NIS1
+	constexpr auto Deterministic_Block_Hash_String = "E0FE82A8A8A3A4D795C1342B60D2931650524F679163CA2E4175A0A71305FA03";
+#else
+	constexpr auto Deterministic_Block_Hash_String = "E9B914E58470576B7F5AE875E28FB08310A5A43010D4C6DEF7F08C732DC00F45";
+#endif
 
 	/// Generates an empty block with random signer and no transactions.
 	std::unique_ptr<model::Block> GenerateEmptyRandomBlock();
 
 	/// Generates a block with random signer and given \a transactions.
-	std::unique_ptr<model::Block> GenerateRandomBlockWithTransactions(
-			const ConstTransactions& transactions);
+	std::unique_ptr<model::Block> GenerateRandomBlockWithTransactions(const ConstTransactions& transactions);
 
 	/// Generates a block with random signer and given \a transactions.
-	std::unique_ptr<model::Block> GenerateRandomBlockWithTransactions(
-			const MutableTransactions& transactions);
+	std::unique_ptr<model::Block> GenerateRandomBlockWithTransactions(const MutableTransactions& transactions);
 
 	/// Generates a block with a given \a signer and given \a transactions.
-	std::unique_ptr<model::Block> GenerateBlockWithTransactions(
-			const crypto::KeyPair& signer,
-			const ConstTransactions& transactions);
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const ConstTransactions& transactions);
 
 	/// Generates a block with a given \a signer and given \a transactions.
-	std::unique_ptr<model::Block> GenerateBlockWithTransactions(
-			const crypto::KeyPair& signer,
-			const MutableTransactions& transactions);
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const MutableTransactions& transactions);
 
 	/// Generates a block with \a numTransactions transactions.
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions);
@@ -45,10 +43,10 @@ namespace catapult { namespace test {
 	/// Generates a block with \a numTransactions transactions at \a height and \a timestamp.
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height, Timestamp timestamp);
 
-	/// Generates a block with no transactions and height \a height that can be verified.
+	/// Generates a block with no transactions and \a height that can be verified.
 	std::unique_ptr<model::Block> GenerateVerifiableBlockAtHeight(Height height);
 
-	/// Generates a block with no transactions and height \a height that cannot be verified.
+	/// Generates a block with no transactions and \a height that cannot be verified.
 	std::unique_ptr<model::Block> GenerateNonVerifiableBlockAtHeight(Height height);
 
 	/// Generates a predefined block, i.e. this function will always return the same block.
@@ -91,7 +89,7 @@ namespace catapult { namespace test {
 	model::BlockElement BlockToBlockElement(const model::Block& block);
 
 	/// Verifies that block elements \a expectedBlockElement and \a blockElement are equivalent.
-	void AssertBlockElement(const model::BlockElement& expectedBlockElement, const model::BlockElement& blockElement);
+	void AssertEqual(const model::BlockElement& expectedBlockElement, const model::BlockElement& blockElement);
 
 	/// Signs \a block as \a signer and calculates the block transactions hash.
 	/// \note All data is assumed to be present and valid.

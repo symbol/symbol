@@ -1,6 +1,7 @@
 #include "catapult/api/RemoteChainApi.h"
 #include "catapult/api/ChainPackets.h"
 #include "catapult/model/TransactionPlugin.h"
+#include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -16,7 +17,7 @@ namespace catapult { namespace api {
 			for (auto i = 0u; i < numBlocks; ++i, pData += sizeof(model::Block)) {
 				auto& block = reinterpret_cast<model::Block&>(*pData);
 				block.Size = sizeof(model::Block);
-				block.Type = model::EntityType::Block;
+				block.Type = model::Entity_Type_Block;
 				block.Height = startHeight + Height(i);
 			}
 
@@ -76,7 +77,7 @@ namespace catapult { namespace api {
 			}
 
 			static void ValidateRequest(const ionet::Packet& packet) {
-				auto pRequest = ionet::CoercePacket<BlockHashesRequest>(&packet);
+				const auto* pRequest = ionet::CoercePacket<BlockHashesRequest>(&packet);
 				ASSERT_TRUE(!!pRequest);
 				EXPECT_EQ(RequestHeight(), pRequest->Height);
 			}
@@ -125,7 +126,7 @@ namespace catapult { namespace api {
 			}
 
 			static void ValidateRequest(const ionet::Packet& packet) {
-				auto pRequest = ionet::CoercePacket<PullBlockRequest>(&packet);
+				const auto* pRequest = ionet::CoercePacket<PullBlockRequest>(&packet);
 				ASSERT_TRUE(!!pRequest);
 				EXPECT_EQ(TInvoker::RequestHeight(), pRequest->Height);
 			}
@@ -162,7 +163,7 @@ namespace catapult { namespace api {
 			}
 
 			static void ValidateRequest(const ionet::Packet& packet) {
-				auto pRequest = ionet::CoercePacket<PullBlocksRequest>(&packet);
+				const auto* pRequest = ionet::CoercePacket<PullBlocksRequest>(&packet);
 				ASSERT_TRUE(!!pRequest);
 				EXPECT_EQ(RequestHeight(), pRequest->Height);
 				EXPECT_EQ(200u, pRequest->NumBlocks);
@@ -189,13 +190,13 @@ namespace catapult { namespace api {
 
 		struct RemoteChainApiBlocklessTraits {
 			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return CreateRemoteChainApi(pPacketIo);
+				return CreateRemoteChainApiWithoutRegistry(*pPacketIo);
 			}
 		};
 
 		struct RemoteChainApiTraits {
 			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return CreateRemoteChainApi(pPacketIo, std::make_shared<model::TransactionRegistry>());
+				return test::CreateLifetimeExtendedApi(CreateRemoteChainApi, *pPacketIo, model::TransactionRegistry());
 			}
 		};
 	}

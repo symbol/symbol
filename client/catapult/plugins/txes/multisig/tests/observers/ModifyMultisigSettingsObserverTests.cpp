@@ -62,6 +62,8 @@ namespace catapult { namespace observers {
 
 		struct CommitTraits {
 		public:
+			static constexpr NotifyMode Mode = NotifyMode::Commit;
+
 			static void AssertTestWithSettings(const TestSettings& removal, const TestSettings& approval) {
 				// Arrange:
 				auto signer = test::GenerateRandomData<Key_Size>();
@@ -69,7 +71,7 @@ namespace catapult { namespace observers {
 
 				// Act + Assert:
 				RunTest(
-						ObserverTestContext(NotifyMode::Commit, Height(777)),
+						ObserverTestContext(Mode, Height(777)),
 						signer,
 						{ removal.Current, approval.Current },
 						notification,
@@ -79,6 +81,8 @@ namespace catapult { namespace observers {
 
 		struct RollbackTraits {
 		public:
+			static constexpr NotifyMode Mode = NotifyMode::Rollback;
+
 			static void AssertTestWithSettings(const TestSettings& removal, const TestSettings& approval) {
 				// Arrange:
 				auto signer = test::GenerateRandomData<Key_Size>();
@@ -86,7 +90,7 @@ namespace catapult { namespace observers {
 
 				// Act + Assert:
 				RunTest(
-						ObserverTestContext(NotifyMode::Rollback, Height(777)),
+						ObserverTestContext(Mode, Height(777)),
 						signer,
 						{ removal.Expected, approval.Expected },
 						notification,
@@ -101,31 +105,39 @@ namespace catapult { namespace observers {
 	TEST(TEST_CLASS, TEST_NAME##_Rollback) { TEST_NAME<RollbackTraits>(); } \
 	template<typename TTraits> void TEST_NAME()
 
+	NOTIFY_MODE_BASED_TRAITS(ObserverIgnoresNotificationIfAccountIsUnknown) {
+		// Arrange:
+		auto signer = test::GenerateRandomData<Key_Size>();
+		auto notification = CreateNotification(signer, 0, 0);
+
+		auto pObserver = CreateModifyMultisigSettingsObserver();
+		ObserverTestContext context(TTraits::Mode, Height(777));
+
+		// Act: observer does not throw
+		test::ObserveNotification(*pObserver, notification, context);
+
+		// Assert: cache was not altered
+		const auto& multisigCache = context.cache().sub<cache::MultisigCache>();
+		EXPECT_EQ(0u, multisigCache.size());
+	}
+
 	NOTIFY_MODE_BASED_TRAITS(ZeroDeltaDoesNotChangeSettings) {
 		// Assert:
-		TTraits::AssertTestWithSettings(
-				{ 10, 10, 0 },
-				{ 123, 123, 0 });
+		TTraits::AssertTestWithSettings({ 10, 10, 0 }, { 123, 123, 0 });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(PositiveDeltaIncreasesSettings) {
 		// Assert:
-		TTraits::AssertTestWithSettings(
-				{ 22, 10, 12, },
-				{ 157, 123, 34 });
+		TTraits::AssertTestWithSettings({ 22, 10, 12, }, { 157, 123, 34 });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(NegativeDeltaDecreasesSettings) {
 		// Assert:
-		TTraits::AssertTestWithSettings(
-				{ 7, 10, -3 },
-				{ 89, 123, -34 });
+		TTraits::AssertTestWithSettings({ 7, 10, -3 }, { 89, 123, -34 });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(ObserverDoesNotCareAboutWrapAround) {
 		// Assert: note: that's something that settings validator checks
-		TTraits::AssertTestWithSettings(
-				{ 124, 254, 126 },
-				{ 128, 0, -128 });
+		TTraits::AssertTestWithSettings({ 124, 254, 126 }, { 128, 0, -128 });
 	}
 }}

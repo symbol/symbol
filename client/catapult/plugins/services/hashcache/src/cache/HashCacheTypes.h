@@ -1,12 +1,15 @@
 #pragma once
-#include "src/state/TimestampedHash.h"
-#include "catapult/deltaset/OrderedSet.h"
-#include "catapult/utils/NonCopyable.h"
+#include "catapult/cache/CacheDescriptorAdapters.h"
+#include "catapult/state/TimestampedHash.h"
+#include "catapult/utils/TimeSpan.h"
 
 namespace catapult {
 	namespace cache {
 		class BasicHashCacheDelta;
 		class BasicHashCacheView;
+		class HashCache;
+		class HashCacheDelta;
+		class HashCacheView;
 
 		template<typename TCache, typename TCacheDelta, typename TKey>
 		class ReadOnlySimpleCache;
@@ -15,20 +18,33 @@ namespace catapult {
 
 namespace catapult { namespace cache {
 
-	namespace hash_cache_types {
-		/// The cache value type.
+	/// Describes a hash cache.
+	struct HashCacheDescriptor {
+	public:
+		// key value types
+		using KeyType = state::TimestampedHash;
 		using ValueType = state::TimestampedHash;
 
-		/// The entity traits
-		using EntityTraits = deltaset::ImmutableTypeTraits<ValueType>;
+		// cache types
+		using CacheType = HashCache;
+		using CacheDeltaType = HashCacheDelta;
+		using CacheViewType = HashCacheView;
 
-		/// The base set type.
-		using BaseSetType = deltaset::OrderedSet<EntityTraits>;
+	public:
+		/// Gets the key corresponding to \a timestampedHash.
+		static const auto& GetKeyFromValue(const ValueType& timestampedHash) {
+			return timestampedHash;
+		}
+	};
 
-		/// A pointer to the base set delta type.
-		using BaseSetDeltaPointerType = std::shared_ptr<BaseSetType::DeltaType>;
+	/// Hash cache types.
+	struct HashCacheTypes : public ImmutableOrderedSetAdapter<HashCacheDescriptor> {
+		using CacheReadOnlyType = ReadOnlySimpleCache<BasicHashCacheView, BasicHashCacheDelta, state::TimestampedHash>;
 
-		/// A read-only view of a hash cache.
-		using CacheReadOnlyType = ReadOnlySimpleCache<BasicHashCacheView, BasicHashCacheDelta, ValueType>;
-	}
+		/// Custom sub view options.
+		struct Options {
+			/// Cache retention time.
+			utils::TimeSpan RetentionTime;
+		};
+	};
 }}

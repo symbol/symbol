@@ -34,9 +34,7 @@ namespace catapult { namespace test {
 	}
 
 	/// Creates a validator context around a \a height and \a cache.
-	constexpr validators::ValidatorContext CreateValidatorContext(
-			Height height,
-			const cache::ReadOnlyCatapultCache& cache) {
+	constexpr validators::ValidatorContext CreateValidatorContext(Height height, const cache::ReadOnlyCatapultCache& cache) {
 		return CreateValidatorContext(height, model::NetworkInfo(), cache);
 	}
 

@@ -1,4 +1,5 @@
 #include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
@@ -6,16 +7,17 @@
 
 namespace catapult { namespace config {
 
+#define TEST_CLASS LocalNodeConfigurationTests
+
 	// region LocalNodeConfiguration file io
 
 	namespace {
 		const char* Resources_Path = "../resources";
 		const char* Config_Filenames[] = {
-			"config-log.properties",
+			"config-logging.properties",
 			"config-network.properties",
 			"config-node.properties",
-			"config-user.properties",
-			"peers-mijin.json"
+			"config-user.properties"
 		};
 
 		void AssertDefaultBlockChainConfiguration(const model::BlockChainConfiguration& config) {
@@ -38,7 +40,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(Amount(1'000'000'000'000), config.MinHarvesterBalance);
 
 			EXPECT_EQ(360u, config.BlockPruneInterval);
-			EXPECT_EQ(15'000u, config.MaxTransactionsPerBlock);
+			EXPECT_EQ(200'000u, config.MaxTransactionsPerBlock);
 
 			EXPECT_FALSE(config.Plugins.empty());
 		}
@@ -48,16 +50,15 @@ namespace catapult { namespace config {
 			EXPECT_EQ(7900u, config.Port);
 			EXPECT_EQ(7901u, config.ApiPort);
 			EXPECT_FALSE(config.ShouldAllowAddressReuse);
+			EXPECT_FALSE(config.ShouldUseSingleThreadPool);
 
-			EXPECT_EQ(100u, config.MinBlocksPerSyncAttempt);
 			EXPECT_EQ(400u, config.MaxBlocksPerSyncAttempt);
-			EXPECT_EQ(utils::FileSize::FromKilobytes(512), config.MinChainBytesPerSyncAttempt);
-			EXPECT_EQ(utils::FileSize::FromMegabytes(10), config.MaxChainBytesPerSyncAttempt);
+			EXPECT_EQ(utils::FileSize::FromMegabytes(100), config.MaxChainBytesPerSyncAttempt);
 
 			EXPECT_EQ(utils::TimeSpan::FromMinutes(10), config.ShortLivedCacheTransactionDuration);
 			EXPECT_EQ(utils::TimeSpan::FromMinutes(100), config.ShortLivedCacheBlockDuration);
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(90), config.ShortLivedCachePruneInterval);
-			EXPECT_EQ(1'000'000u, config.ShortLivedCacheMaxSize);
+			EXPECT_EQ(10'000'000u, config.ShortLivedCacheMaxSize);
 
 			EXPECT_EQ(utils::FileSize::FromMegabytes(20), config.UnconfirmedTransactionsCacheMaxResponseSize);
 			EXPECT_EQ(1'000'000u, config.UnconfirmedTransactionsCacheMaxSize);
@@ -66,13 +67,37 @@ namespace catapult { namespace config {
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(60), config.SyncTimeout);
 
 			EXPECT_EQ(utils::FileSize::FromKilobytes(512), config.SocketWorkingBufferSize);
+			EXPECT_EQ(100u, config.SocketWorkingBufferSensitivity);
 			EXPECT_EQ(utils::FileSize::FromMegabytes(150), config.MaxPacketDataSize);
 
 			EXPECT_EQ(4096u, config.BlockDisruptorSize);
 			EXPECT_EQ(1u, config.BlockElementTraceInterval);
 			EXPECT_EQ(16384u, config.TransactionDisruptorSize);
 			EXPECT_EQ(10u, config.TransactionElementTraceInterval);
-			EXPECT_EQ(utils::TimeSpan::FromMilliseconds(500), config.TransactionBatchPeriod);
+
+			EXPECT_TRUE(config.ShouldAbortWhenDispatcherIsFull);
+			EXPECT_FALSE(config.ShouldAuditDispatcherInputs);
+			EXPECT_FALSE(config.ShouldPrecomputeTransactionAddresses);
+
+			EXPECT_EQ("", config.Local.Host);
+			EXPECT_EQ("", config.Local.FriendlyName);
+			EXPECT_EQ(0u, config.Local.Version);
+			EXPECT_EQ(ionet::NodeRoles::Peer, config.Local.Roles);
+
+			EXPECT_EQ(10u, config.OutgoingConnections.MaxConnections);
+			EXPECT_EQ(5u, config.OutgoingConnections.MaxConnectionAge);
+
+			EXPECT_EQ(512u, config.IncomingConnections.MaxConnections);
+			EXPECT_EQ(10u, config.IncomingConnections.MaxConnectionAge);
+			EXPECT_EQ(512u, config.IncomingConnections.BacklogSize);
+
+			auto expectedExtensions = std::unordered_set<std::string>{
+				"extension.eventsource", "extension.harvesting", "extension.syncsource",
+				"extension.diagnostics", "extension.filechain", "extension.hashcache", "extension.networkheight",
+				"extension.nodediscovery", "extension.packetserver", "extension.sync", "extension.transactionsink",
+				"extension.unbondedpruning"
+			};
+			EXPECT_EQ(expectedExtensions, config.Extensions);
 		}
 
 		void AssertDefaultLoggingConfiguration(const LoggingConfiguration& config) {
@@ -101,16 +126,13 @@ namespace catapult { namespace config {
 		void AssertDefaultUserConfiguration(const UserConfiguration& config) {
 			// Assert:
 			EXPECT_EQ("0000000000000000000000000000000000000000000000000000000000000000", config.BootKey);
-			EXPECT_EQ("", config.HarvestKey);
-			EXPECT_FALSE(config.IsAutoHarvestingEnabled);
-			EXPECT_EQ(5u, config.MaxUnlockedAccounts);
 
 			EXPECT_EQ("../data", config.DataDirectory);
 			EXPECT_EQ(".", config.PluginsDirectory);
 		}
 	}
 
-	TEST(LocalNodeConfigurationTests, CannotLoadConfigWhenAnyConfigFileIsMissing) {
+	TEST(TEST_CLASS, CannotLoadConfigWhenAnyConfigFileIsMissing) {
 		// Arrange:
 		for (const auto& filenameToRemove : Config_Filenames) {
 			// - copy all files into a temp directory
@@ -126,14 +148,12 @@ namespace catapult { namespace config {
 			CATAPULT_LOG(debug) << "removing " << filenameToRemove;
 			EXPECT_TRUE(boost::filesystem::remove(boost::filesystem::path(tempDir.name()) / filenameToRemove));
 
-			// Act: attempt to load the config
-			EXPECT_THROW(
-					LocalNodeConfiguration::LoadFromPath(tempDir.name()),
-					catapult_runtime_error);
+			// Act + Assert: attempt to load the config
+			EXPECT_THROW(LocalNodeConfiguration::LoadFromPath(tempDir.name()), catapult_runtime_error);
 		}
 	}
 
-	TEST(LocalNodeConfigurationTests, ResourcesDirectoryContainsAllConfigFiles) {
+	TEST(TEST_CLASS, ResourcesDirectoryContainsAllConfigFiles) {
 		// Arrange:
 		auto resourcesPath = boost::filesystem::path(Resources_Path);
 		std::set<boost::filesystem::path> expectedFilenames;
@@ -155,7 +175,7 @@ namespace catapult { namespace config {
 			EXPECT_NE(actualFilenames.cend(), actualFilenames.find(expectedFilename)) << "expected " << expectedFilename;
 	}
 
-	TEST(LocalNodeConfigurationTests, CanLoadConfigFromResourcesDirectory) {
+	TEST(TEST_CLASS, CanLoadConfigFromResourcesDirectory) {
 		// Act: attempt to load from the "real" resources directory
 		auto config = LocalNodeConfiguration::LoadFromPath(Resources_Path);
 
@@ -164,7 +184,56 @@ namespace catapult { namespace config {
 		AssertDefaultNodeConfiguration(config.Node);
 		AssertDefaultLoggingConfiguration(config.Logging);
 		AssertDefaultUserConfiguration(config.User);
-		EXPECT_EQ(4u, config.Peers.size());
+	}
+
+	// endregion
+
+	// region ToLocalNode
+
+	namespace {
+		auto CreateLocalNodeConfiguration(const std::string& privateKeyString) {
+			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+			blockChainConfig.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
+
+			auto nodeConfig = NodeConfiguration::Uninitialized();
+			nodeConfig.Port = 9876;
+			nodeConfig.Local.Host = "alice.com";
+			nodeConfig.Local.FriendlyName = "a GREAT node";
+			nodeConfig.Local.Version = 123;
+			nodeConfig.Local.Roles = ionet::NodeRoles::Api;
+
+			auto userConfig = UserConfiguration::Uninitialized();
+			userConfig.BootKey = privateKeyString;
+
+			return LocalNodeConfiguration(
+					std::move(blockChainConfig),
+					std::move(nodeConfig),
+					LoggingConfiguration::Uninitialized(),
+					std::move(userConfig));
+		}
+	}
+
+	TEST(TEST_CLASS, CanExtractLocalNodeFromConfiguration) {
+		// Arrange:
+		auto privateKeyString = test::GenerateRandomHexString(2 * Key_Size);
+		auto keyPair = crypto::KeyPair::FromString(privateKeyString);
+		auto config = CreateLocalNodeConfiguration(privateKeyString);
+
+		// Act:
+		auto node = ToLocalNode(config);
+
+		// Assert:
+		EXPECT_EQ(keyPair.publicKey(), node.identityKey());
+
+		const auto& endpoint = node.endpoint();
+		EXPECT_EQ("alice.com", endpoint.Host);
+		EXPECT_EQ(9876u, endpoint.Port);
+
+		const auto& metadata = node.metadata();
+		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkIdentifier);
+		EXPECT_EQ("a GREAT node", metadata.Name);
+		EXPECT_EQ(ionet::NodeVersion(123), metadata.Version);
+		EXPECT_EQ(ionet::NodeRoles::Api, metadata.Roles);
 	}
 
 	// endregion

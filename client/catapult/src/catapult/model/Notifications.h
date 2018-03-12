@@ -1,4 +1,5 @@
 #pragma once
+#include "EntityType.h"
 #include "NetworkInfo.h"
 #include "NotificationType.h"
 #include "catapult/types.h"
@@ -64,18 +65,14 @@ namespace catapult { namespace model {
 
 	// region balance
 
-	/// Notifies a balance transfer from sender to recipient.
-	struct BalanceTransferNotification : public Notification {
+	/// A basic balance notification.
+	template<typename TDerivedNotification>
+	struct BasicBalanceNotification : public Notification {
 	public:
-		/// The matching notification type.
-		static constexpr auto Notification_Type = Core_Balance_Transfer_Notification;
-
-	public:
-		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
-		explicit BalanceTransferNotification(const Key& sender, const Address& recipient, MosaicId mosaicId, Amount amount)
-				: Notification(Notification_Type, sizeof(BalanceTransferNotification))
+		/// Creates a notification around \a sender, \a mosaicId and \a amount.
+		explicit BasicBalanceNotification(const Key& sender, MosaicId mosaicId, Amount amount)
+				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
 				, Sender(sender)
-				, Recipient(recipient)
 				, MosaicId(mosaicId)
 				, Amount(amount)
 		{}
@@ -84,14 +81,43 @@ namespace catapult { namespace model {
 		/// The sender.
 		const Key& Sender;
 
-		/// The recipient.
-		const Address& Recipient;
-
 		/// The mosaic id.
 		catapult::MosaicId MosaicId;
 
 		/// The amount.
 		catapult::Amount Amount;
+	};
+
+	/// Notifies a balance transfer from sender to recipient.
+	struct BalanceTransferNotification : public BasicBalanceNotification<BalanceTransferNotification> {
+	public:
+		/// The matching notification type.
+		static constexpr auto Notification_Type = Core_Balance_Transfer_Notification;
+
+	public:
+		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
+		explicit BalanceTransferNotification(
+				const Key& sender,
+				const Address& recipient,
+				catapult::MosaicId mosaicId,
+				catapult::Amount amount)
+				: BasicBalanceNotification(sender, mosaicId, amount)
+				, Recipient(recipient)
+		{}
+
+	public:
+		/// The recipient.
+		const Address& Recipient;
+	};
+
+	/// Notifies a balance reservation by sender.
+	struct BalanceReserveNotification : public BasicBalanceNotification<BalanceReserveNotification> {
+	public:
+		/// The matching notification type.
+		static constexpr auto Notification_Type = Core_Balance_Reserve_Notification;
+
+	public:
+		using BasicBalanceNotification<BalanceReserveNotification>::BasicBalanceNotification;
 	};
 
 	// endregion
@@ -164,11 +190,12 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Transaction_Notification;
 
 	public:
-		/// Creates a transaction notification around \a signer, \a entityHash and \a deadline.
-		explicit TransactionNotification(const Key& signer, const Hash256& entityHash, Timestamp deadline)
+		/// Creates a transaction notification around \a signer, \a transactionHash, \a transactionType and \a deadline.
+		explicit TransactionNotification(const Key& signer, const Hash256& transactionHash, EntityType transactionType, Timestamp deadline)
 				: Notification(Notification_Type, sizeof(TransactionNotification))
 				, Signer(signer)
-				, EntityHash(entityHash)
+				, TransactionHash(transactionHash)
+				, TransactionType(transactionType)
 				, Deadline(deadline)
 		{}
 
@@ -177,7 +204,10 @@ namespace catapult { namespace model {
 		const Key& Signer;
 
 		/// The transaction hash.
-		const Hash256& EntityHash;
+		const Hash256& TransactionHash;
+
+		/// The transaction type.
+		EntityType TransactionType;
 
 		/// The transaction deadline.
 		Timestamp Deadline;

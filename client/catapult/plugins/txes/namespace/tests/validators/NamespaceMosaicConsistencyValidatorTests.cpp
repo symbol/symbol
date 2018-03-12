@@ -13,11 +13,7 @@ namespace catapult { namespace validators {
 
 	namespace {
 		model::MosaicDefinitionNotification CreateNotification(const Key& signer, NamespaceId parentId, MosaicId id) {
-			return model::MosaicDefinitionNotification(
-					signer,
-					parentId,
-					id,
-					model::MosaicProperties::FromValues({}));
+			return model::MosaicDefinitionNotification(signer, parentId, id, model::MosaicProperties::FromValues({}));
 		}
 
 		template<typename TSeedCacheFunc>

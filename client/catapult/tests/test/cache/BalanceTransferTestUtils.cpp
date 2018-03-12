@@ -1,7 +1,7 @@
 #include "BalanceTransferTestUtils.h"
 #include "CacheTestUtils.h"
-#include "catapult/cache/AccountStateCache.h"
 #include "catapult/cache/CatapultCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
@@ -10,9 +10,9 @@ namespace catapult { namespace test {
 		template<typename TKey>
 		void SetCacheBalancesT(cache::CatapultCacheDelta& cache, const TKey& key, const BalanceTransfers& transfers) {
 			auto& accountStateCache = cache.sub<cache::AccountStateCache>();
-			auto pAccount = accountStateCache.addAccount(key, Height(123));
+			auto& accountState = accountStateCache.addAccount(key, Height(123));
 			for (const auto& transfer : transfers)
-				pAccount->Balances.credit(transfer.MosaicId, transfer.Amount);
+				accountState.Balances.credit(transfer.MosaicId, transfer.Amount);
 		}
 	}
 

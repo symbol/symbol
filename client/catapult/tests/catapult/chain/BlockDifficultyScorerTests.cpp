@@ -3,13 +3,13 @@
 #include "tests/TestHarness.h"
 #include <cmath>
 
-using catapult::cache::block_difficulty_cache_types::DifficultySet;
-
 namespace catapult { namespace chain {
 
 #define TEST_CLASS BlockDifficultyScorerTests
 
 	namespace {
+		using DifficultySet = cache::BlockDifficultyCacheTypes::BaseSetType::SetType;
+
 		constexpr Difficulty Base_Difficulty = Difficulty(100'000'000'000'000);
 
 		cache::DifficultyInfoRange ToRange(const DifficultySet& set) {
@@ -149,8 +149,7 @@ namespace catapult { namespace chain {
 				// Act: calculate the difficulty using current information
 				auto difficulty = CalculateDifficulty(ToRange(set), config);
 				auto difficultyDiff = static_cast<int64_t>((difficulty - previousDifficulty).unwrap());
-				auto percentageChange = static_cast<int32_t>(
-						std::round(difficultyDiff * 100.0 / previousDifficulty.unwrap()));
+				auto percentageChange = static_cast<int32_t>(std::round(difficultyDiff * 100.0 / previousDifficulty.unwrap()));
 
 				if (IsClamped(difficulty)) {
 					CATAPULT_LOG(debug) << "difficulty is clamped after " << i << " samples";
@@ -249,6 +248,7 @@ namespace catapult { namespace chain {
 					const cache::BlockDifficultyCache& cache,
 					Height height,
 					const model::BlockChainConfiguration& config) {
+				// Act + Assert:
 				EXPECT_THROW(chain::CalculateDifficulty(cache, height, config), catapult_invalid_argument);
 			}
 		};

@@ -8,7 +8,9 @@ namespace catapult { namespace ionet {
 	namespace {
 		class WriteRequest {
 		public:
-			explicit WriteRequest(PacketIo& io, const PacketPayload& payload) : m_io(io) , m_payload(payload)
+			explicit WriteRequest(PacketIo& io, const PacketPayload& payload)
+					: m_io(io)
+					, m_payload(payload)
 			{}
 
 		public:
@@ -65,11 +67,9 @@ namespace catapult { namespace ionet {
 				request.first.invoke(m_wrapper.wrap(WrappedWithRequests<TCallback>(request.second, *this)));
 			}
 
-			using TRequestQueue = RequestQueue<TRequest, TCallback, TCallbackWrapper>;
-
 			template<typename THandler>
 			struct WrappedWithRequests {
-				WrappedWithRequests(THandler handler, TRequestQueue& queue)
+				WrappedWithRequests(THandler handler, RequestQueue& queue)
 						: m_handler(std::move(handler))
 						, m_queue(queue)
 				{}
@@ -89,7 +89,7 @@ namespace catapult { namespace ionet {
 
 			private:
 				THandler m_handler;
-				TRequestQueue& m_queue;
+				RequestQueue& m_queue;
 			};
 
 		private:
@@ -125,22 +125,22 @@ namespace catapult { namespace ionet {
 				: public PacketIo
 				, public std::enable_shared_from_this<DefaultBufferedPacketIo> {
 		public:
-			DefaultBufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::strand&& strand)
+			DefaultBufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::strand& strand)
 					: m_pIo(pIo)
-					, m_strand(std::move(strand))
+					, m_strand(strand)
 					, m_pWriteOperation(std::make_unique<QueuedWriteOperation>(m_strand))
 					, m_pReadOperation(std::make_unique<QueuedReadOperation>(m_strand))
 			{}
 
 		public:
-			virtual void write(const PacketPayload& payload, const WriteCallback& callback) override {
+			void write(const PacketPayload& payload, const WriteCallback& callback) override {
 				auto request = WriteRequest(*m_pIo, payload);
 				m_pWriteOperation->push(request, [pThis = shared_from_this(), callback](auto code) {
 					callback(code);
 				});
 			}
 
-			virtual void read(const ReadCallback& callback) override {
+			void read(const ReadCallback& callback) override {
 				auto request = ReadRequest(*m_pIo);
 				m_pReadOperation->push(request, [pThis = shared_from_this(), callback](auto code, const auto* pPacket) {
 					callback(code, pPacket);
@@ -149,15 +149,13 @@ namespace catapult { namespace ionet {
 
 		private:
 			std::shared_ptr<PacketIo> m_pIo;
-			boost::asio::strand m_strand;
+			boost::asio::strand& m_strand;
 			std::unique_ptr<QueuedWriteOperation> m_pWriteOperation;
 			std::unique_ptr<QueuedReadOperation> m_pReadOperation;
 		};
 	}
 
-	std::shared_ptr<PacketIo> CreateBufferedPacketIo(
-			const std::shared_ptr<PacketIo>& pIo,
-			boost::asio::strand&& strand) {
-		return std::make_shared<DefaultBufferedPacketIo>(pIo, std::move(strand));
+	std::shared_ptr<PacketIo> CreateBufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::strand& strand) {
+		return std::make_shared<DefaultBufferedPacketIo>(pIo, strand);
 	}
 }}

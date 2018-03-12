@@ -3,17 +3,14 @@
 
 namespace catapult { namespace test {
 
-	model::MosaicProperties CreateMosaicPropertiesWithDuration(ArtifactDuration duration) {
+	model::MosaicProperties CreateMosaicPropertiesWithDuration(BlockDuration duration) {
 		model::MosaicProperties::PropertyValuesContainer values{};
 		values[utils::to_underlying_type(model::MosaicPropertyId::Duration)] = duration.unwrap();
 		return model::MosaicProperties::FromValues(values);
 	}
 
 	state::MosaicDefinition CreateMosaicDefinition(Height height) {
-		return state::MosaicDefinition(
-				height,
-				test::GenerateRandomData<Key_Size>(),
-				model::MosaicProperties::FromValues({}));
+		return state::MosaicDefinition(height, test::GenerateRandomData<Key_Size>(), model::MosaicProperties::FromValues({}));
 	}
 
 	state::MosaicEntry CreateMosaicEntry(MosaicId id, Amount supply) {
@@ -27,7 +24,7 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		state::MosaicDefinition CreateMosaicDefinition(Height height, const Key& owner, ArtifactDuration duration) {
+		state::MosaicDefinition CreateMosaicDefinition(Height height, const Key& owner, BlockDuration duration) {
 			return state::MosaicDefinition(height, owner, CreateMosaicPropertiesWithDuration(duration));
 		}
 	}
@@ -38,7 +35,7 @@ namespace catapult { namespace test {
 			Height height,
 			const Key& owner,
 			Amount supply,
-			ArtifactDuration duration) {
+			BlockDuration duration) {
 		auto pEntry = std::make_shared<state::MosaicEntry>(namespaceId, id, CreateMosaicDefinition(height, owner, duration));
 		pEntry->increaseSupply(supply);
 		return pEntry;

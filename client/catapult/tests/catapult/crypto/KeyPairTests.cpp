@@ -3,29 +3,29 @@
 
 namespace catapult { namespace crypto {
 
+#define TEST_CLASS KeyPairTests
+
 	namespace {
 		void AssertCannotCreatePrivateKeyFromStringWithSize(size_t size, char keyFirstChar) {
 			// Arrange:
 			auto rawKeyString = test::GenerateRandomHexString(size);
 			rawKeyString[0] = keyFirstChar;
 
-			// Act / Assert: key creation should fail but string should not be cleared
-			EXPECT_THROW(
-				KeyPair::FromString(rawKeyString),
-				catapult_invalid_argument) << "string size: " << size;
+			// Act + Assert: key creation should fail but string should not be cleared
+			EXPECT_THROW(KeyPair::FromString(rawKeyString), catapult_invalid_argument) << "string size: " << size;
 			EXPECT_EQ(keyFirstChar, rawKeyString[0]);
 		}
 	}
 
-	TEST(KeyPairTests, CannotCreateKeyPairFromInvalidString) {
+	TEST(TEST_CLASS, CannotCreateKeyPairFromInvalidString) {
 		AssertCannotCreatePrivateKeyFromStringWithSize(Key_Size * 1, 'a');
 		AssertCannotCreatePrivateKeyFromStringWithSize(Key_Size * 2, 'g');
 		AssertCannotCreatePrivateKeyFromStringWithSize(Key_Size * 3, 'a');
 	}
 
-	TEST(KeyPairTests, CanCreateKeyPairFromValidString) {
+	TEST(TEST_CLASS, CanCreateKeyPairFromValidString) {
 		// Arrange:
-#ifdef NIS1_COMPATIBLE_SIGNATURES
+#ifdef SIGNATURE_SCHEME_NIS1
 		auto rawKeyString = std::string("3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB");
 		auto expectedKey = std::string("C54D6E33ED1446EEDD7F7A80A588DD01857F723687A09200C1917D5524752F8B");
 #else
@@ -40,7 +40,7 @@ namespace catapult { namespace crypto {
 		EXPECT_EQ(rawKeyString, test::ToHexString(keyPair.privateKey().data(), keyPair.privateKey().size()));
 	}
 
-	TEST(KeyPairTests, CanCreateKeyPairFromPrivateKey) {
+	TEST(TEST_CLASS, CanCreateKeyPairFromPrivateKey) {
 		// Arrange:
 		auto privateKeyStr = test::GenerateRandomHexString(Key_Size * 2);
 		auto privateKey = PrivateKey::FromString(privateKeyStr);
@@ -55,7 +55,7 @@ namespace catapult { namespace crypto {
 		EXPECT_EQ(expectedPublicKey, keyPair.publicKey());
 	}
 
-	TEST(KeyPairTests, KeyPairCreatedFromPrivateKeyMatchesKeyPairCreatedFromString) {
+	TEST(TEST_CLASS, KeyPairCreatedFromPrivateKeyMatchesKeyPairCreatedFromString) {
 		// Arrange:
 		auto privateKeyStr = std::string("3485d98efd7eb07adafcfd1a157d89de2796a95e780813c0258af3f5f84ed8cb");
 		auto privateKey = PrivateKey::FromString(privateKeyStr);
@@ -68,9 +68,9 @@ namespace catapult { namespace crypto {
 		EXPECT_EQ(keyPair1.privateKey(), keyPair2.privateKey());
 	}
 
-	TEST(KeyPairTests, PassesNemTestVectors) {
+	TEST(TEST_CLASS, PassesNemTestVectors) {
 		// Arrange:
-#ifdef NIS1_COMPATIBLE_SIGNATURES
+#ifdef SIGNATURE_SCHEME_NIS1
 		// from nem https://github.com/NewEconomyMovement/nem-test-vectors)
 		std::string dataSet[] {
 			"575dbb3062267eff57c970a336ebbc8fbcfe12c5bd3ed7bc11eb0481d7704ced",

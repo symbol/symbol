@@ -55,9 +55,7 @@ namespace catapult { namespace net {
 			const crypto::KeyPair& keyPair);
 
 	/// Verifies a client's \a response to \a challenge.
-	bool VerifyServerChallengeResponse(
-			const ServerChallengeResponse& response,
-			const Challenge& challenge);
+	bool VerifyServerChallengeResponse(const ServerChallengeResponse& response, const Challenge& challenge);
 
 	/// Generates a server response to a client challenge (\a request) using the server key pair (\a keyPair).
 	std::shared_ptr<ClientChallengeResponse> GenerateClientChallengeResponse(
@@ -66,8 +64,5 @@ namespace catapult { namespace net {
 
 	/// Verifies a server's \a response to \a challenge assuming the server has a public key
 	/// of \a serverPublicKey.
-	bool VerifyClientChallengeResponse(
-			const ClientChallengeResponse& response,
-			const Key& serverPublicKey,
-			const Challenge& challenge);
+	bool VerifyClientChallengeResponse(const ClientChallengeResponse& response, const Key& serverPublicKey, const Challenge& challenge);
 }}

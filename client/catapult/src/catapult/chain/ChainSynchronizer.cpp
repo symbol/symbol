@@ -1,7 +1,6 @@
 #include "ChainSynchronizer.h"
 #include "CompareChains.h"
-#include "RemoteApi.h"
-#include "catapult/api/ChainApi.h"
+#include "catapult/api/RemoteChainApi.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/thread/FutureUtils.h"
 #include "catapult/utils/SpinLock.h"
@@ -34,12 +33,12 @@ namespace catapult { namespace chain {
 			}
 
 			size_t numBytes() {
-				SpinLockGuard guard(m_spinLock);
+				utils::SpinLockGuard guard(m_spinLock);
 				return m_numBytes;
 			}
 
 			bool shouldStartSync() {
-				SpinLockGuard guard(m_spinLock);
+				utils::SpinLockGuard guard(m_spinLock);
 				if (m_numBytes >= m_maxSize || m_hasPendingSync || m_dirty)
 					return false;
 
@@ -48,12 +47,12 @@ namespace catapult { namespace chain {
 			}
 
 			Height maxHeight() {
-				SpinLockGuard guard(m_spinLock);
+				utils::SpinLockGuard guard(m_spinLock);
 				return m_elements.empty() ? Height(0) : m_elements.back().EndHeight;
 			}
 
 			bool add(model::BlockRange&& range) {
-				SpinLockGuard guard(m_spinLock);
+				utils::SpinLockGuard guard(m_spinLock);
 				if (m_dirty)
 					return false;
 
@@ -65,6 +64,11 @@ namespace catapult { namespace chain {
 				auto newId = m_blockRangeConsumer(std::move(range), [pThis = shared_from_this()](auto id, auto result) {
 					pThis->remove(id, result.CompletionStatus);
 				});
+
+				// if the disruptor is full, abort processing
+				if (0 == newId)
+					return false;
+
 				auto info = ElementInfo{ newId, endHeight, bufferSize };
 				m_numBytes += info.NumBytes;
 				m_elements.emplace(info);
@@ -72,7 +76,7 @@ namespace catapult { namespace chain {
 			}
 
 			void remove(disruptor::DisruptorElementId id, disruptor::CompletionStatus status) {
-				SpinLockGuard guard(m_spinLock);
+				utils::SpinLockGuard guard(m_spinLock);
 				const auto& info = m_elements.front();
 				if (info.Id != id)
 					CATAPULT_THROW_INVALID_ARGUMENT_1("unexpected element id", id);
@@ -83,7 +87,7 @@ namespace catapult { namespace chain {
 			}
 
 			void clearPendingSync() {
-				SpinLockGuard guard(m_spinLock);
+				utils::SpinLockGuard guard(m_spinLock);
 				m_hasPendingSync = false;
 
 				if (m_dirty)
@@ -96,7 +100,6 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			using SpinLockGuard = std::lock_guard<utils::SpinLock>;
 			utils::SpinLock m_spinLock;
 			CompletionAwareBlockRangeConsumerFunc m_blockRangeConsumer;
 			std::queue<ElementInfo> m_elements;
@@ -140,9 +143,9 @@ namespace catapult { namespace chain {
 			std::vector<model::BlockRange> m_ranges;
 		};
 
-		auto CreateFutureSupplier(const chain::RemoteApi& remoteApi, const api::BlocksFromOptions& options) {
-			return [&remoteApi, options](auto height) {
-				return remoteApi.pChainApi->blocksFrom(height, options);
+		auto CreateFutureSupplier(const api::RemoteChainApi& remoteChainApi, const api::BlocksFromOptions& options) {
+			return [&remoteChainApi, options](auto height) {
+				return remoteChainApi.blocksFrom(height, options);
 			};
 		}
 
@@ -171,13 +174,13 @@ namespace catapult { namespace chain {
 
 							// if the range is empty, stop processing
 							if (range.empty()) {
-								CATAPULT_LOG(debug) << "peer returned 0 blocks";
+								CATAPULT_LOG(info) << "peer returned 0 blocks";
 								return CompleteChainBlocksFrom(*pRangeAggregator, unprocessedElements);
 							}
 
 							// if the range is not empty, continue processing
 							auto endHeight = (--range.cend())->Height;
-							CATAPULT_LOG(debug)
+							CATAPULT_LOG(info)
 									<< "peer returned " << range.size()
 									<< " blocks (heights " << range.cbegin()->Height << " - " << endHeight << ")";
 
@@ -188,7 +191,7 @@ namespace catapult { namespace chain {
 							auto nextHeight = endHeight + Height(1);
 							return ChainBlocksFrom(futureSupplier, nextHeight, forkDepth, pRangeAggregator, unprocessedElements);
 						} catch (const catapult_runtime_error& e) {
-							CATAPULT_LOG(debug) << "exception thrown while requesting blocks: " << e.what();
+							CATAPULT_LOG(warning) << "exception thrown while requesting blocks: " << e.what();
 							return thread::make_ready_future(NodeInteractionResult::Failure);
 						}
 			});
@@ -196,40 +199,40 @@ namespace catapult { namespace chain {
 
 		class DefaultChainSynchronizer {
 		public:
+			using RemoteApiType = api::RemoteChainApi;
+
+		public:
 			// note: the synchronizer will only request config.MaxRollbackBlocks blocks so that even if the peer returns
 			//       a chain part that is a fork of the real chain, that fork is still resolvable because it can be rolled back
 			explicit DefaultChainSynchronizer(
 					const std::shared_ptr<const api::ChainApi>& pLocalChainApi,
 					const ChainSynchronizerConfiguration& config,
-					const ShortHashesSupplier& shortHashesSupplier,
-					const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer,
-					const TransactionRangeConsumerFunc& transactionRangeConsumer)
+					const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer)
 					: m_pLocalChainApi(pLocalChainApi)
 					, m_compareChainOptions(config.MaxBlocksPerSyncAttempt, config.MaxRollbackBlocks)
 					, m_blocksFromOptions(config.MaxRollbackBlocks, config.MaxChainBytesPerSyncAttempt)
-					, m_shortHashesSupplier(shortHashesSupplier)
-					, m_transactionRangeConsumer(transactionRangeConsumer)
 					, m_pUnprocessedElements(std::make_shared<UnprocessedElements>(
 							blockRangeConsumer,
 							3 * config.MaxChainBytesPerSyncAttempt))
 			{}
 
 		public:
-			NodeInteractionFuture operator()(const RemoteApi& remoteApi) {
+			NodeInteractionFuture operator()(const RemoteApiType& remoteChainApi) {
 				if (!m_pUnprocessedElements->shouldStartSync())
 					return thread::make_ready_future(NodeInteractionResult::Neutral);
 
+				auto syncFuture = thread::compose(
+						compareChains(remoteChainApi),
+						[this, &remoteChainApi](auto&& compareChainsFuture) {
+							try {
+								return this->syncWithPeer(remoteChainApi, compareChainsFuture.get());
+							} catch (const catapult_runtime_error& e) {
+								CATAPULT_LOG(warning) << "exception thrown while comparing chains: " << e.what();
+								return thread::make_ready_future(NodeInteractionResult::Failure);
+							}
+						});
 				return thread::compose(
-						thread::compose(
-								compareChains(remoteApi),
-								[this, &remoteApi](auto&& compareChainsFuture) -> NodeInteractionFuture {
-									try {
-										return this->syncWithPeer(remoteApi, compareChainsFuture.get());
-									} catch (const catapult_runtime_error& e) {
-										CATAPULT_LOG(debug) << "exception thrown while comparing chains: " << e.what();
-										return thread::make_ready_future(NodeInteractionResult::Failure);
-									}
-								}),
+						std::move(syncFuture),
 						[&unprocessedElements = *m_pUnprocessedElements](auto&& nodeInteractionFuture) {
 							// mark the current sync as completed
 							unprocessedElements.clearPendingSync();
@@ -240,9 +243,9 @@ namespace catapult { namespace chain {
 		private:
 			// in case that there are no unprocessed elements in the disruptor, we do a normal synchronization round
 			// else we bypass chain comparison and expand the existing chain part by pulling more blocks
-			thread::future<CompareChainsResult> compareChains(const RemoteApi& remoteApi) {
+			thread::future<CompareChainsResult> compareChains(const RemoteApiType& remoteChainApi) {
 				if (m_pUnprocessedElements->empty())
-					return CompareChains(*m_pLocalChainApi, *remoteApi.pChainApi, m_compareChainOptions);
+					return CompareChains(*m_pLocalChainApi, remoteChainApi, m_compareChainOptions);
 
 				CompareChainsResult result;
 				result.Code = ChainComparisonCode::Remote_Is_Not_Synced;
@@ -251,24 +254,8 @@ namespace catapult { namespace chain {
 				return thread::make_ready_future(std::move(result));
 			}
 
-			NodeInteractionFuture syncWithPeer(const RemoteApi& remoteApi, const CompareChainsResult& compareResult) const {
+			NodeInteractionFuture syncWithPeer(const RemoteApiType& remoteChainApi, const CompareChainsResult& compareResult) const {
 				switch (compareResult.Code) {
-				case ChainComparisonCode::Remote_Reported_Equal_Chain_Score: {
-					const auto& transactionRangeConsumer = m_transactionRangeConsumer;
-					return remoteApi.pTransactionApi->unconfirmedTransactions(m_shortHashesSupplier())
-						.then([&transactionRangeConsumer](auto&& transactionsFuture) -> NodeInteractionResult {
-							try {
-								auto range = transactionsFuture.get();
-								CATAPULT_LOG(debug) << "peer returned " << range.size() << " unconfirmed transactions";
-								transactionRangeConsumer(std::move(range));
-								return NodeInteractionResult::Neutral;
-							} catch (const catapult_runtime_error& e) {
-								CATAPULT_LOG(debug) << "exception thrown while requesting unconfirmed transactions: " << e.what();
-								return NodeInteractionResult::Failure;
-							}
-						});
-				}
-
 				case ChainComparisonCode::Remote_Is_Not_Synced:
 					break;
 
@@ -280,14 +267,14 @@ namespace catapult { namespace chain {
 					return thread::make_ready_future(std::move(result));
 				}
 
-				CATAPULT_LOG(debug) << "pulling blocks from remote with common height " << compareResult.CommonBlockHeight;
-				auto futureSupplier = CreateFutureSupplier(remoteApi, m_blocksFromOptions);
-				auto pRangeAggregator = std::make_shared<RangeAggregator>();
+				CATAPULT_LOG(debug)
+						<< "pulling blocks from remote with common height " << compareResult.CommonBlockHeight
+						<< " (fork depth = " << compareResult.ForkDepth << ")";
 				return ChainBlocksFrom(
-						futureSupplier,
+						CreateFutureSupplier(remoteChainApi, m_blocksFromOptions),
 						compareResult.CommonBlockHeight + Height(1),
 						compareResult.ForkDepth,
-						pRangeAggregator,
+						std::make_shared<RangeAggregator>(),
 						*m_pUnprocessedElements);
 			}
 
@@ -295,31 +282,15 @@ namespace catapult { namespace chain {
 			std::shared_ptr<const api::ChainApi> m_pLocalChainApi;
 			CompareChainsOptions m_compareChainOptions;
 			api::BlocksFromOptions m_blocksFromOptions;
-			ShortHashesSupplier m_shortHashesSupplier;
-			TransactionRangeConsumerFunc m_transactionRangeConsumer;
 			std::shared_ptr<UnprocessedElements> m_pUnprocessedElements;
 		};
 	}
 
-	ChainSynchronizer CreateChainSynchronizer(
+	RemoteNodeSynchronizer<api::RemoteChainApi> CreateChainSynchronizer(
 			const std::shared_ptr<const api::ChainApi>& pLocalChainApi,
 			const ChainSynchronizerConfiguration& config,
-			const ShortHashesSupplier& shortHashesSupplier,
-			const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer,
-			const TransactionRangeConsumerFunc& transactionRangeConsumer) {
-		auto pSynchronizer = std::make_shared<DefaultChainSynchronizer>(
-				pLocalChainApi,
-				config,
-				shortHashesSupplier,
-				blockRangeConsumer,
-				transactionRangeConsumer);
-
-		return [pSynchronizer](const auto& remoteApi) {
-			// pSynchronizer is captured in the second lambda to compose, which extends its lifetime until
-			// the async operation is complete
-			return thread::compose(pSynchronizer->operator()(remoteApi), [pSynchronizer](auto&& future) {
-				return std::move(future);
-			});
-		};
+			const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer) {
+		auto pSynchronizer = std::make_shared<DefaultChainSynchronizer>(pLocalChainApi, config, blockRangeConsumer);
+		return CreateRemoteNodeSynchronizer(pSynchronizer);
 	}
 }}

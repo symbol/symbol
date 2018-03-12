@@ -1,10 +1,10 @@
 #pragma once
 #include "CacheStorage.h"
-#include "catapult/cache/CatapultCache.h"
+#include "CatapultCache.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/Stream.h"
-#include "catapult/utils/Traits.h"
-#include <functional>
+#include "catapult/utils/traits/Traits.h"
+#include "catapult/functions.h"
 #include <vector>
 
 namespace catapult { namespace cache {
@@ -12,9 +12,9 @@ namespace catapult { namespace cache {
 	/// Saves \a source data to \a output.
 	template<typename TStorageTraits>
 	void SaveAllData(const typename TStorageTraits::SourceType& source, io::OutputStream& output) {
-		io::Write(output, static_cast<uint64_t>(source.size()));
-		for (auto iter = source.cbegin(); source.cend() != iter; ++iter)
-			TStorageTraits::Save(*iter, output);
+		io::Write64(output, source.size());
+		for (const auto& value : source)
+			TStorageTraits::Save(value, output);
 
 		output.flush();
 	}
@@ -23,7 +23,7 @@ namespace catapult { namespace cache {
 	template<typename TStorageTraits>
 	class ChunkedDataLoader {
 	private:
-		using LoaderFunc = std::function<void (io::InputStream&, typename TStorageTraits::DestinationType&)>;
+		using LoaderFunc = consumer<io::InputStream&, typename TStorageTraits::DestinationType&>;
 
 		enum class LoaderType { Basic, Stateful, CacheDependent };
 		using BasicLoaderFlag = std::integral_constant<LoaderType, LoaderType::Basic>;
@@ -35,7 +35,7 @@ namespace catapult { namespace cache {
 		explicit ChunkedDataLoader(io::InputStream& input, const cache::CatapultCache& catapultCache)
 				: m_input(input)
 				, m_loader(CreateLoader(LoadStateAccessor<TStorageTraits>(), catapultCache)) {
-			io::Read(input, m_numRemainingEntries);
+			m_numRemainingEntries = io::Read64(input);
 		}
 
 	public:

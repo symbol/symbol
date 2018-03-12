@@ -4,7 +4,9 @@
 
 namespace catapult { namespace cache {
 
-	TEST(ReadOnlySimpleCacheTests, ReadOnlyViewOnlyContainsCommittedEntities) {
+#define TEST_CLASS ReadOnlySimpleCacheTests
+
+	TEST(TEST_CLASS, ReadOnlyViewOnlyContainsCommittedElements) {
 		// Arrange:
 		test::SimpleCache cache;
 		{
@@ -25,7 +27,7 @@ namespace catapult { namespace cache {
 		EXPECT_FALSE(readOnlyCache.contains(3));
 	}
 
-	TEST(ReadOnlySimpleCacheTests, ReadOnlyDeltaContainsBothCommittedAndUncommittedEntities) {
+	TEST(TEST_CLASS, ReadOnlyDeltaContainsBothCommittedAndUncommittedElements) {
 		// Arrange:
 		test::SimpleCache cache;
 		auto cacheDelta = cache.createDelta();

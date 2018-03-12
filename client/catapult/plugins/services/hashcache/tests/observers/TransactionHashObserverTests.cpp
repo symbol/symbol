@@ -7,6 +7,9 @@
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace observers {
+
+#define TEST_CLASS TransactionHashObserverTests
+
 	using ObserverTestContext = test::ObserverTestContextT<test::HashCacheFactory>;
 
 	DEFINE_COMMON_OBSERVER_TESTS(TransactionHash,)
@@ -25,11 +28,11 @@ namespace catapult { namespace observers {
 		}
 
 		model::TransactionNotification MakeNotification(Timestamp deadline, const Hash256& hash) {
-			return model::TransactionNotification(Key(), hash, deadline);
+			return model::TransactionNotification(Key(), hash, model::EntityType(), deadline);
 		}
 	}
 
-	TEST(TransactionHashObserverTests, ObserverInsertsHashIntoCacheInModeCommit) {
+	TEST(TEST_CLASS, ObserverInsertsHashIntoCacheInModeCommit) {
 		// Arrange:
 		ObserverTestContext context(NotifyMode::Commit);
 		auto pObserver = CreateTransactionHashObserver();
@@ -53,7 +56,7 @@ namespace catapult { namespace observers {
 		EXPECT_TRUE(cache.contains(timestampedHash));
 	}
 
-	TEST(TransactionHashObserverTests, ObserverRemovesHashFromCacheInModeRollback) {
+	TEST(TEST_CLASS, ObserverRemovesHashFromCacheInModeRollback) {
 		// Arrange:
 		ObserverTestContext context(NotifyMode::Rollback);
 		auto pObserver = CreateTransactionHashObserver();

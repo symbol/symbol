@@ -12,15 +12,15 @@ namespace catapult { namespace validators {
 #define TEST_CLASS NemesisSinkValidatorTests
 
 	namespace {
-		constexpr ValidationResult Success_Result = ValidationResult::Success;
-		constexpr ValidationResult Failure_Result = Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block;
+		constexpr auto Success_Result = ValidationResult::Success;
+		constexpr auto Failure_Result = Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block;
 
 		crypto::KeyPair GetNemesisAccount() {
 			// note that the nemesis account is fake in order to ensure that it is being retrieved from the context
 			return crypto::KeyPair::FromString("0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF");
 		}
 
-		void AssertValidationResult(const Key& signer, Height::ValueType height, ValidationResult expectedResult) {
+		void AssertValidationResult(ValidationResult expectedResult, const Key& signer, Height::ValueType height) {
 			// Arrange:
 			auto cache = test::CreateEmptyCatapultCache();
 			auto cacheView = cache.createView();
@@ -45,12 +45,12 @@ namespace catapult { namespace validators {
 		auto signer = test::GenerateRandomData<Key_Size>();
 
 		// Sanity:
-		EXPECT_NE(test::ToHexString(GetNemesisAccount().publicKey()), test::ToHexString(signer));
+		EXPECT_NE(GetNemesisAccount().publicKey(), signer);
 
 		// Assert: signer is allowed at all heights
-		AssertValidationResult(signer, 1, Success_Result);
-		AssertValidationResult(signer, 10, Success_Result);
-		AssertValidationResult(signer, 100, Success_Result);
+		AssertValidationResult(Success_Result, signer, 1);
+		AssertValidationResult(Success_Result, signer, 10);
+		AssertValidationResult(Success_Result, signer, 100);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingEntityAtHeightOneSignedByNemesisAccount) {
@@ -58,10 +58,10 @@ namespace catapult { namespace validators {
 		auto signer = GetNemesisAccount().publicKey();
 
 		// Sanity:
-		EXPECT_EQ(test::ToHexString(GetNemesisAccount().publicKey()), test::ToHexString(signer));
+		EXPECT_EQ(GetNemesisAccount().publicKey(), signer);
 
 		// Assert: allowed at height one
-		AssertValidationResult(signer, 1, Success_Result);
+		AssertValidationResult(Success_Result, signer, 1);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingEntityNotAtHeightOneSignedByNemesisAccount) {
@@ -69,11 +69,11 @@ namespace catapult { namespace validators {
 		auto signer = GetNemesisAccount().publicKey();
 
 		// Sanity:
-		EXPECT_EQ(test::ToHexString(GetNemesisAccount().publicKey()), test::ToHexString(signer));
+		EXPECT_EQ(GetNemesisAccount().publicKey(), signer);
 
 		// Assert: not allowed at heights greater than one
-		AssertValidationResult(signer, 2, Failure_Result);
-		AssertValidationResult(signer, 10, Failure_Result);
-		AssertValidationResult(signer, 100, Failure_Result);
+		AssertValidationResult(Failure_Result, signer, 2);
+		AssertValidationResult(Failure_Result, signer, 10);
+		AssertValidationResult(Failure_Result, signer, 100);
 	}
 }}

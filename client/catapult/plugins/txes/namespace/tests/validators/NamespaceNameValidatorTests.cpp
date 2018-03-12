@@ -7,7 +7,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS NamespaceNameValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(NamespaceName, 0)
+	DEFINE_COMMON_VALIDATOR_TESTS(NamespaceName, 0, {})
 
 	namespace {
 		model::NamespaceNameNotification CreateNamespaceNameNotification(uint8_t nameSize, const uint8_t* pName) {
@@ -20,9 +20,9 @@ namespace catapult { namespace validators {
 	// region name size
 
 	namespace {
-		void AssertSizeValidationResult(uint8_t nameSize, uint8_t maxNameSize, ValidationResult expectedResult) {
+		void AssertSizeValidationResult(ValidationResult expectedResult, uint8_t nameSize, uint8_t maxNameSize) {
 			// Arrange:
-			auto pValidator = CreateNamespaceNameValidator(maxNameSize);
+			auto pValidator = CreateNamespaceNameValidator(maxNameSize, {});
 			auto name = std::string(nameSize, 'a');
 			auto notification = CreateNamespaceNameNotification(nameSize, reinterpret_cast<const uint8_t*>(name.data()));
 
@@ -38,23 +38,23 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNamespaceWithNameSizeLessThanMax) {
 		// Assert:
-		AssertSizeValidationResult(100, 123, ValidationResult::Success);
+		AssertSizeValidationResult(ValidationResult::Success, 100, 123);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNamespaceWithNameSizeEqualToMax) {
 		// Assert:
-		AssertSizeValidationResult(123, 123, ValidationResult::Success);
+		AssertSizeValidationResult(ValidationResult::Success, 123, 123);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNamespaceWithNameSizeGreaterThanMax) {
 		// Assert:
-		AssertSizeValidationResult(124, 123, Failure_Namespace_Invalid_Name);
-		AssertSizeValidationResult(200, 123, Failure_Namespace_Invalid_Name);
+		AssertSizeValidationResult(Failure_Namespace_Invalid_Name, 124, 123);
+		AssertSizeValidationResult(Failure_Namespace_Invalid_Name, 200, 123);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingEmptyNamespaceName) {
 		// Assert:
-		AssertSizeValidationResult(0, 123, Failure_Namespace_Invalid_Name);
+		AssertSizeValidationResult(Failure_Namespace_Invalid_Name, 0, 123);
 	}
 
 	// endregion
@@ -62,9 +62,9 @@ namespace catapult { namespace validators {
 	// region name characters
 
 	namespace {
-		void AssertNameValidationResult(const std::string& name, ValidationResult expectedResult) {
+		void AssertNameValidationResult(ValidationResult expectedResult, const std::string& name) {
 			// Arrange:
-			auto pValidator = CreateNamespaceNameValidator(static_cast<uint8_t>(name.size()));
+			auto pValidator = CreateNamespaceNameValidator(static_cast<uint8_t>(name.size()), {});
 			auto notification = CreateNamespaceNameNotification(
 					static_cast<uint8_t>(name.size()),
 					reinterpret_cast<const uint8_t*>(name.data()));
@@ -73,20 +73,20 @@ namespace catapult { namespace validators {
 			auto result = test::ValidateNotification(*pValidator, notification);
 
 			// Assert:
-			EXPECT_EQ(expectedResult, result) << "namespace with name" << name;
+			EXPECT_EQ(expectedResult, result) << "namespace with name " << name;
 		}
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingValidNamespaceNames) {
 		// Assert:
 		for (const auto& name : { "a", "be", "cat", "doom", "al-ce", "al_ce", "alice-", "alice_" })
-			AssertNameValidationResult(name, ValidationResult::Success);
+			AssertNameValidationResult(ValidationResult::Success, name);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingInvalidNamespaceNames) {
 		// Assert:
 		for (const auto& name : { "-alice", "_alice", "al.ce", "alIce", "al ce", "al@ce", "al#ce", "!@#$%" })
-			AssertNameValidationResult(name, Failure_Namespace_Invalid_Name);
+			AssertNameValidationResult(Failure_Namespace_Invalid_Name, name);
 	}
 
 	// endregion
@@ -95,7 +95,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNamespaceWithMatchingNameAndId) {
 		// Arrange: note that CreateNamespaceNameNotification creates proper id
-		auto pValidator = CreateNamespaceNameValidator(100);
+		auto pValidator = CreateNamespaceNameValidator(100, {});
 		auto name = std::string(10, 'a');
 		auto notification = CreateNamespaceNameNotification(
 				static_cast<uint8_t>(name.size()),
@@ -110,7 +110,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenValidatingNamespaceWithMismatchedNameAndId) {
 		// Arrange: corrupt the id
-		auto pValidator = CreateNamespaceNameValidator(100);
+		auto pValidator = CreateNamespaceNameValidator(100, {});
 		auto name = std::string(10, 'a');
 		auto notification = CreateNamespaceNameNotification(
 				static_cast<uint8_t>(name.size()),
@@ -122,6 +122,67 @@ namespace catapult { namespace validators {
 
 		// Assert:
 		EXPECT_EQ(Failure_Namespace_Name_Id_Mismatch, result);
+	}
+
+	// endregion
+
+	// region reserved root names
+
+	namespace {
+		model::NamespaceNameNotification CreateRootNamespaceNotification(const std::string& name) {
+			auto nameSize = static_cast<uint8_t>(name.size());
+			const auto* pName = reinterpret_cast<const uint8_t*>(name.data());
+			auto notification = model::NamespaceNameNotification(NamespaceId(), Namespace_Base_Id, nameSize, pName);
+			notification.NamespaceId = model::GenerateNamespaceId(Namespace_Base_Id, name);
+			return notification;
+		}
+
+		model::NamespaceNameNotification CreateChildNamespaceNotification(const std::string& parentName) {
+			const auto* pChildName = reinterpret_cast<const uint8_t*>("alice");
+			auto notification = model::NamespaceNameNotification(NamespaceId(), NamespaceId(), 5, pChildName);
+			notification.ParentId = model::GenerateNamespaceId(Namespace_Base_Id, parentName);
+			notification.NamespaceId = model::GenerateNamespaceId(notification.ParentId, reinterpret_cast<const char*>(pChildName));
+			return notification;
+		}
+
+		void AssertReservedRootNamesValidationResult(
+				ValidationResult expectedResult,
+				const std::string& name,
+				const std::function<model::NamespaceNameNotification(const std::string&)>& createNotification) {
+			// Arrange:
+			auto pValidator = CreateNamespaceNameValidator(20, { "foo", "foobar" });
+			auto notification = createNotification(name);
+
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notification);
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "namespace with name " << name;
+		}
+	}
+
+	TEST(TEST_CLASS, SuccessWhenValidatingAllowedRootNamespaceNames) {
+		// Assert:
+		for (const auto& name : { "fo", "foo123", "bar", "bazz", "qux" })
+			AssertReservedRootNamesValidationResult(ValidationResult::Success, name, CreateRootNamespaceNotification);
+	}
+
+	TEST(TEST_CLASS, FailureWhenValidatingReservedRootNamespaceNames) {
+		// Assert:
+		for (const auto& name : { "foo", "foobar" })
+			AssertReservedRootNamesValidationResult(Failure_Namespace_Root_Name_Reserved, name, CreateRootNamespaceNotification);
+	}
+
+	TEST(TEST_CLASS, SuccessWhenValidatingChildNamespaceWithAllowedParentNamespaceNames) {
+		// Assert:
+		for (const auto& name : { "fo", "foo123", "bar", "bazz", "qux" })
+			AssertReservedRootNamesValidationResult(ValidationResult::Success, name, CreateChildNamespaceNotification);
+	}
+
+	TEST(TEST_CLASS, FailureWhenValidatingChildNamespaceWithReservedParentNamespaceNames) {
+		// Assert:
+		for (const auto& name : { "foo", "foobar" })
+			AssertReservedRootNamesValidationResult(Failure_Namespace_Root_Name_Reserved, name, CreateChildNamespaceNotification);
 	}
 
 	// endregion

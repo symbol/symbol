@@ -3,6 +3,8 @@
 
 namespace catapult { namespace ionet {
 
+#define TEST_CLASS PacketExtractorTests
+
 	namespace {
 		uint32_t Default_Max_Packet_Data_Size = 150 * 1024;
 		uint32_t Default_Max_Packet_Size = Default_Max_Packet_Data_Size + sizeof(PacketHeader);
@@ -51,7 +53,7 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(PacketExtractorTests, CannotExtractPacketWithIncompleteSize) {
+	TEST(TEST_CLASS, CannotExtractPacketWithIncompleteSize) {
 		// Assert:
 		AssertCannotExtractPacketWithIncompleteSize(0);
 		AssertCannotExtractPacketWithIncompleteSize(3);
@@ -69,12 +71,12 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(PacketExtractorTests, CannotExtractPacketWithSizeLessThanMin) {
+	TEST(TEST_CLASS, CannotExtractPacketWithSizeLessThanMin) {
 		// Assert:
 		AssertCannotExtractPacketWithSize(sizeof(PacketHeader) - 1);
 	}
 
-	TEST(PacketExtractorTests, CannotExtractPacketWithSizeGreaterThanMax) {
+	TEST(TEST_CLASS, CannotExtractPacketWithSizeGreaterThanMax) {
 		// Assert:
 		AssertCannotExtractPacketWithSize(Default_Max_Packet_Size + 1);
 		AssertCannotExtractPacketWithSize(21, 20 - sizeof(PacketHeader));
@@ -92,7 +94,7 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(PacketExtractorTests, CannotExtractIncompletePacketWithKnownSize) {
+	TEST(TEST_CLASS, CannotExtractIncompletePacketWithKnownSize) {
 		// Assert:
 		AssertCannotExtractIncompletePacketWithKnownSize(sizeof(PacketHeader));
 		AssertCannotExtractIncompletePacketWithKnownSize(10);
@@ -112,18 +114,18 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(PacketExtractorTests, CanExtractCompletePacketWithLessThanMaxSize) {
+	TEST(TEST_CLASS, CanExtractCompletePacketWithLessThanMaxSize) {
 		// Assert:
 		AssertCanExtractCompletePacket(19, 20 - sizeof(PacketHeader));
 		AssertCanExtractCompletePacket(sizeof(PacketHeader), 20 - sizeof(PacketHeader));
 	}
 
-	TEST(PacketExtractorTests, CanExtractCompletePacketWithMaxSize) {
+	TEST(TEST_CLASS, CanExtractCompletePacketWithMaxSize) {
 		// Assert:
 		AssertCanExtractCompletePacket(20, 20 - sizeof(PacketHeader));
 	}
 
-	TEST(PacketExtractorTests, CanExtractMultipleCompletePacketsWithKnownSize) {
+	TEST(TEST_CLASS, CanExtractMultipleCompletePacketsWithKnownSize) {
 		// Arrange:
 		ByteBuffer buffer(32);
 		SetValueAtOffset(buffer, 0, 20);
@@ -137,7 +139,7 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(32u, buffer.size());
 	}
 
-	TEST(PacketExtractorTests, CanExtractMultipleCompletePacketsWithKnownSizeInterspersedWithConsumes) {
+	TEST(TEST_CLASS, CanExtractMultipleCompletePacketsWithKnownSizeInterspersedWithConsumes) {
 		// Arrange:
 		ByteBuffer buffer(32);
 		SetValueAtOffset(buffer, 0, 20);
@@ -154,7 +156,7 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(2u, buffer.size());
 	}
 
-	TEST(PacketExtractorTests, BufferIsNotConsumedByExtractorIfConsumeIsNotCalledExplicitly) {
+	TEST(TEST_CLASS, BufferIsNotConsumedByExtractorIfConsumeIsNotCalledExplicitly) {
 		// Arrange:
 		auto buffer = test::GenerateRandomVector(20);
 		SetValueAtOffset(buffer, 0, 20);
@@ -169,7 +171,7 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(20u, buffer.size());
 	}
 
-	TEST(PacketExtractorTests, BufferCanBeCompletelyConsumedByExtractor) {
+	TEST(TEST_CLASS, BufferCanBeCompletelyConsumedByExtractor) {
 		// Arrange:
 		auto buffer = test::GenerateRandomVector(20);
 		SetValueAtOffset(buffer, 0, 20);
@@ -183,7 +185,7 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(0u, buffer.size());
 	}
 
-	TEST(PacketExtractorTests, BufferCanBePartiallyConsumedByExtractor) {
+	TEST(TEST_CLASS, BufferCanBePartiallyConsumedByExtractor) {
 		// Arrange:
 		auto buffer = test::GenerateRandomVector(22);
 		SetValueAtOffset(buffer, 0, 20);
@@ -197,7 +199,7 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(2u, buffer.size());
 	}
 
-	TEST(PacketExtractorTests, ConsumeIsIdempotent) {
+	TEST(TEST_CLASS, ConsumeIsIdempotent) {
 		// Arrange:
 		auto buffer = test::GenerateRandomVector(22);
 		SetValueAtOffset(buffer, 0, 20);
@@ -214,7 +216,7 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(2u, buffer.size());
 	}
 
-	TEST(PacketExtractorTests, CannotConsumeInsufficientData) {
+	TEST(TEST_CLASS, CannotConsumeInsufficientData) {
 		// Arrange:
 		ByteBuffer buffer(20);
 		SetValueAtOffset(buffer, 0, 21);

@@ -31,6 +31,6 @@ namespace catapult { namespace thread {
 	};
 
 	/// Creates an io service thread pool with the specified number of threads (\a numWorkerThreads) and the
-	/// optional friendly name used in logging (\a pName).
-	std::unique_ptr<IoServiceThreadPool> CreateIoServiceThreadPool(size_t numWorkerThreads, const char* pName = nullptr);
+	/// optional friendly \a name used in logging.
+	std::unique_ptr<IoServiceThreadPool> CreateIoServiceThreadPool(size_t numWorkerThreads, const char* name = nullptr);
 }}

@@ -87,7 +87,7 @@ namespace catapult { namespace model {
 		for (const auto& pair : SingleGroupingTraits::GetHeightToImportanceHeightMap()) {
 			auto inputHeight = Height(pair.first);
 
-			// Act:
+			// Act + Assert:
 			EXPECT_THROW(ConvertToImportanceHeight(inputHeight, 0), catapult_invalid_argument) << "for height " << inputHeight;
 		}
 	}

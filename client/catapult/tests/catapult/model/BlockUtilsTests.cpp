@@ -7,7 +7,7 @@
 
 namespace catapult { namespace model {
 
-	//region hashes
+#define TEST_CLASS BlockUtilsTests
 
 	// region CalculateBlockTransactionsHash
 
@@ -21,7 +21,8 @@ namespace catapult { namespace model {
 				for (auto i = 0u; i < numTransactions; ++i) {
 					auto entityHash = test::GenerateRandomData<Hash256_Size>();
 					auto merkleComponentHash = test::GenerateRandomData<Hash256_Size>();
-					TransactionInfos.emplace_back(test::GenerateRandomTransaction(), entityHash, merkleComponentHash);
+					TransactionInfos.emplace_back(test::GenerateRandomTransaction(), entityHash);
+					TransactionInfos.back().MerkleComponentHash = merkleComponentHash;
 					TransactionInfoPointers.push_back(&TransactionInfos.back());
 
 					// calculate the expected block transactions hash
@@ -38,7 +39,7 @@ namespace catapult { namespace model {
 		};
 	}
 
-	TEST(BlockUtilsTests, CanCalculateBlockTransactionsHash) {
+	TEST(TEST_CLASS, CanCalculateBlockTransactionsHash) {
 		// Arrange:
 		CalculateBlockTransactionsHashTestContext context(5);
 
@@ -47,11 +48,11 @@ namespace catapult { namespace model {
 		CalculateBlockTransactionsHash(context.TransactionInfoPointers, actualBlockTransactionsHash);
 
 		// Assert:
-		EXPECT_EQ(test::ToHexString(context.ExpectedBlockTransactionsHash), test::ToHexString(actualBlockTransactionsHash));
+		EXPECT_EQ(context.ExpectedBlockTransactionsHash, actualBlockTransactionsHash);
 	}
 
 	namespace {
-		using CalculateBlockTransactionsHashTestContextModifierFunc = std::function<void (CalculateBlockTransactionsHashTestContext&)>;
+		using CalculateBlockTransactionsHashTestContextModifierFunc = consumer<CalculateBlockTransactionsHashTestContext&>;
 
 		void AssertSignificantChange(size_t numHashes, const CalculateBlockTransactionsHashTestContextModifierFunc& modifier) {
 			// Arrange:
@@ -68,16 +69,16 @@ namespace catapult { namespace model {
 			CalculateBlockTransactionsHash(context.TransactionInfoPointers, blockTransactionsHash2);
 
 			// Assert:
-			EXPECT_NE(test::ToHexString(blockTransactionsHash1), test::ToHexString(blockTransactionsHash2));
+			EXPECT_NE(blockTransactionsHash1, blockTransactionsHash2);
 		}
 	}
 
-	TEST(BlockUtilsTests, BlockTransactionsHashChangesIfAnyTransactionMerkleComponentHashChanges) {
+	TEST(TEST_CLASS, BlockTransactionsHashChangesIfAnyTransactionMerkleComponentHashChanges) {
 		// Assert:
 		AssertSignificantChange(5, [](auto& context) { context.TransactionInfos[2].MerkleComponentHash[0] ^= 0xFF; });
 	}
 
-	TEST(BlockUtilsTests, BlockTransactionsHashChangesIfTransactionOrderChanges) {
+	TEST(TEST_CLASS, BlockTransactionsHashChangesIfTransactionOrderChanges) {
 		// Assert:
 		AssertSignificantChange(5, [](auto& context) {
 			std::swap(context.TransactionInfoPointers[1], context.TransactionInfoPointers[2]);
@@ -100,16 +101,16 @@ namespace catapult { namespace model {
 			CalculateBlockTransactionsHash(context.TransactionInfoPointers, blockTransactionsHash2);
 
 			// Assert:
-			EXPECT_EQ(test::ToHexString(blockTransactionsHash1), test::ToHexString(blockTransactionsHash2));
+			EXPECT_EQ(blockTransactionsHash1, blockTransactionsHash2);
 		}
 	}
 
-	TEST(BlockUtilsTests, BlockTransactionsHashDoesNotChangeIfAnyTransactionEntityHashChanges) {
+	TEST(TEST_CLASS, BlockTransactionsHashDoesNotChangeIfAnyTransactionEntityHashChanges) {
 		// Assert:
 		AssertInsignificantChange(5, [](auto& context) { context.TransactionInfos[2].EntityHash[0] ^= 0xFF; });
 	}
 
-	TEST(BlockUtilsTests, CanCalculateBlockTransactionsHash_Deterministic) {
+	TEST(TEST_CLASS, CanCalculateBlockTransactionsHash_Deterministic) {
 		// Arrange:
 		auto seedHashes = {
 			test::ToArray<Hash256_Size>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
@@ -119,13 +120,14 @@ namespace catapult { namespace model {
 			test::ToArray<Hash256_Size>("421D6B68A6DF8BB1D5C9ACF7ED44515E77945D42A491BECE68DA009B551EE6CE")
 		};
 
-		std::vector<TransactionInfo> infos;
-		infos.reserve(seedHashes.size());
+		std::vector<TransactionInfo> transactionInfos;
+		transactionInfos.reserve(seedHashes.size());
 		std::vector<const TransactionInfo*> transactionInfoPointers;
 		for (const auto& seedHash : seedHashes) {
 			// - notice that only MerkleComponentHash should be used in calculation
-			infos.emplace_back(test::GenerateRandomTransaction(), test::GenerateRandomData<Hash256_Size>(), seedHash);
-			transactionInfoPointers.push_back(&infos.back());
+			transactionInfos.emplace_back(test::GenerateRandomTransaction(), test::GenerateRandomData<Hash256_Size>());
+			transactionInfos.back().MerkleComponentHash = seedHash;
+			transactionInfoPointers.push_back(&transactionInfos.back());
 		}
 
 		// Act:
@@ -133,14 +135,19 @@ namespace catapult { namespace model {
 		CalculateBlockTransactionsHash(transactionInfoPointers, actualBlockTransactionsHash);
 
 		// Assert:
-		EXPECT_EQ("DEFB4BF7ACF2145500087A02C88F8D1FCF27B8DEF4E0FDABE09413D87A3F0D09", test::ToHexString(actualBlockTransactionsHash));
+#ifdef SIGNATURE_SCHEME_NIS1
+		auto expectedHash = "B526B3459648D92D0570646D13FF39C8B18EEA926BD2F97A0B19A6401D600671";
+#else
+		auto expectedHash = "DEFB4BF7ACF2145500087A02C88F8D1FCF27B8DEF4E0FDABE09413D87A3F0D09";
+#endif
+		EXPECT_EQ(expectedHash, test::ToHexString(actualBlockTransactionsHash));
 	}
 
 	// endregion
 
 	// region CalculateGenerationHash
 
-	TEST(BlockUtilsTests, GenerationHashIsCalculatedAsExpected) {
+	TEST(TEST_CLASS, GenerationHashIsCalculatedAsExpected) {
 		// Arrange:
 		auto previousGenerationHash = test::ToArray<Hash256_Size>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6");
 		auto keyPair = crypto::KeyPair::FromString("A41BE076B942D915EA3330B135D35C5A959A2DCC50BBB393C6407984D4A3B564");
@@ -149,7 +156,12 @@ namespace catapult { namespace model {
 		auto hash = CalculateGenerationHash(previousGenerationHash, keyPair.publicKey());
 
 		// Assert:
-		EXPECT_EQ("575E4F520DC2C026F1C9021FD3773F236F0872A03B4AEFC22A9E0066FF204A23", test::ToHexString(hash));
+#ifdef SIGNATURE_SCHEME_NIS1
+		auto expectedHash = "8E0BE6A4656B15EA3690DA5F3CFE2A60F97D14D78DDFD5EDD8FD0E2D9E3471D9";
+#else
+		auto expectedHash = "575E4F520DC2C026F1C9021FD3773F236F0872A03B4AEFC22A9E0066FF204A23";
+#endif
+		EXPECT_EQ(expectedHash, test::ToHexString(hash));
 	}
 
 	// endregion
@@ -160,13 +172,13 @@ namespace catapult { namespace model {
 		auto CreateSignedBlock(size_t numTransactions) {
 			auto signer = test::GenerateKeyPair();
 			auto pBlock = test::GenerateBlockWithTransactions(signer, test::GenerateRandomTransactions(numTransactions));
-			extensions::UpdateBlockTransactionsHash(*pBlock);
+			extensions::BlockExtensions().updateBlockTransactionsHash(*pBlock);
 			SignBlockHeader(signer, *pBlock);
 			return pBlock;
 		}
 	}
 
-	TEST(BlockUtilsTests, CanSignAndVerifyBlockWithoutTransactions) {
+	TEST(TEST_CLASS, CanSignAndVerifyBlockWithoutTransactions) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(0);
 
@@ -177,7 +189,7 @@ namespace catapult { namespace model {
 		EXPECT_TRUE(isVerified);
 	}
 
-	TEST(BlockUtilsTests, CanSignAndVerifyBlockWithTransactions) {
+	TEST(TEST_CLASS, CanSignAndVerifyBlockWithTransactions) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(3);
 
@@ -188,7 +200,7 @@ namespace catapult { namespace model {
 		EXPECT_TRUE(isVerified);
 	}
 
-	TEST(BlockUtilsTests, CanSignAndVerifyBlockHeaderWithTransactions) {
+	TEST(TEST_CLASS, CanSignAndVerifyBlockHeaderWithTransactions) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(3);
 		pBlock->Size = sizeof(model::Block);
@@ -200,7 +212,7 @@ namespace catapult { namespace model {
 		EXPECT_TRUE(isVerified);
 	}
 
-	TEST(BlockUtilsTests, CannotVerifyBlockWithAlteredSignature) {
+	TEST(TEST_CLASS, CannotVerifyBlockWithAlteredSignature) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(3);
 		pBlock->Signature[0] ^= 0xFF;
@@ -212,7 +224,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(isVerified);
 	}
 
-	TEST(BlockUtilsTests, CannotVerifyBlockWithAlteredData) {
+	TEST(TEST_CLASS, CannotVerifyBlockWithAlteredData) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(3);
 		pBlock->Timestamp = pBlock->Timestamp + Timestamp(1);
@@ -224,7 +236,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(isVerified);
 	}
 
-	TEST(BlockUtilsTests, CannotVerifyBlockWithAlteredBlockTransactionsHash) {
+	TEST(TEST_CLASS, CannotVerifyBlockWithAlteredBlockTransactionsHash) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(3);
 		pBlock->BlockTransactionsHash[0] ^= 0xFF;
@@ -236,12 +248,12 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(isVerified);
 	}
 
-	TEST(BlockUtilsTests, CanVerifyBlockWithAlteredTransaction) {
+	TEST(TEST_CLASS, CanVerifyBlockWithAlteredTransaction) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(3);
-		auto it = pBlock->Transactions().begin();
-		++it;
-		it->Deadline = it->Deadline + Timestamp(1);
+		auto iter = pBlock->Transactions().begin();
+		++iter;
+		iter->Deadline = iter->Deadline + Timestamp(1);
 
 		// Act:
 		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
@@ -254,7 +266,7 @@ namespace catapult { namespace model {
 
 	// region PreviousBlockContext
 
-	TEST(BlockUtilsTests, CanCreateDefaultPreviousBlockContext) {
+	TEST(TEST_CLASS, CanCreateDefaultPreviousBlockContext) {
 		// Act:
 		PreviousBlockContext context;
 
@@ -265,7 +277,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(Timestamp(0), context.Timestamp);
 	}
 
-	TEST(BlockUtilsTests, CanCreatePreviousBlockContextFromBlockElement) {
+	TEST(TEST_CLASS, CanCreatePreviousBlockContextFromBlockElement) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		pBlock->Height = Height(123);
@@ -288,7 +300,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region create
+	// region create block
 
 	namespace {
 		struct SharedPointerTraits {
@@ -321,8 +333,8 @@ namespace catapult { namespace model {
 
 			// Assert: the only reason for static_casts here is to solve gcc's linking problem
 			const auto& block = *pBlock;
-			EXPECT_EQ(EntityType::Block, block.Type);
-			EXPECT_EQ(static_cast<uint8_t>(0x17), block.Network());
+			EXPECT_EQ(Entity_Type_Block, block.Type);
+			EXPECT_EQ(static_cast<NetworkIdentifier>(0x17), block.Network());
 			EXPECT_EQ(static_cast<uint8_t>(Block::Current_Version), block.EntityVersion());
 			EXPECT_EQ(signer.publicKey(), block.Signer);
 			EXPECT_EQ(Signature{}, block.Signature);
@@ -346,12 +358,12 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TEST(BlockUtilsTests, CreateBlockSetsProperFields_WithoutTransactions_SharedPointer) {
+	TEST(TEST_CLASS, CreateBlockSetsProperFields_WithoutTransactions_SharedPointer) {
 		// Assert:
 		AssertBlockSetsProperFields<SharedPointerTraits>(0);
 	}
 
-	TEST(BlockUtilsTests, CreateBlockSetsProperFields_WithTransactions_SharedPointer) {
+	TEST(TEST_CLASS, CreateBlockSetsProperFields_WithTransactions_SharedPointer) {
 		// Assert:
 		AssertBlockSetsProperFields<SharedPointerTraits>(5);
 	}

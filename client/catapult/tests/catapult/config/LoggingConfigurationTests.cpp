@@ -4,26 +4,31 @@
 
 namespace catapult { namespace config {
 
+#define TEST_CLASS LoggingConfigurationTests
+
 	namespace {
 		struct LoggingConfigurationTraits {
 			using ConfigurationType = LoggingConfiguration;
 			using ComponentLevelsMap = utils::ConfigurationBag::KeyValueMap<utils::LogLevel>;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {{
+				return {
+					{
 						"console",
 						{
 							{ "sinkType", "Async" },
 							{ "level", "Warning" },
 							{ "colorMode", "AnsiBold" }
 						}
-				}, {
+					},
+					{
 						"console.component.levels",
 						{
 							{ "net", "Trace" },
 							{ "random", "Fatal" }
 						}
-				}, {
+					},
+					{
 						"file",
 						{
 							{ "sinkType", "Sync" },
@@ -34,14 +39,16 @@ namespace catapult { namespace config {
 							{ "maxTotalSize", "10MB" },
 							{ "minFreeSpace", "987KB" }
 						}
-				}, {
+					},
+					{
 						"file.component.levels",
 						{
 							{ "io", "Info" },
 							{ "net", "Warning" },
 							{ "?", "Info" }
 						}
-				}};
+					}
+				};
 			}
 
 			static bool IsSectionOptional(const std::string& section) {
@@ -107,7 +114,7 @@ namespace catapult { namespace config {
 		};
 	}
 
-	DEFINE_CONFIGURATION_TESTS(LoggingConfigurationTests, Logging)
+	DEFINE_CONFIGURATION_TESTS(TEST_CLASS, Logging)
 
 	// region logger configuration -> logger options
 
@@ -118,7 +125,7 @@ namespace catapult { namespace config {
 		}
 	}
 
-	TEST(LoggingConfigurationTests, CanMapToConsoleLoggerOptions) {
+	TEST(TEST_CLASS, CanMapToConsoleLoggerOptions) {
 		// Arrange:
 		auto config = LoadCustomConfiguration();
 
@@ -130,7 +137,7 @@ namespace catapult { namespace config {
 		EXPECT_EQ(utils::LogColorMode::AnsiBold, options.ColorMode);
 	}
 
-	TEST(LoggingConfigurationTests, CanMapToFileLoggerOptions) {
+	TEST(TEST_CLASS, CanMapToFileLoggerOptions) {
 		// Arrange:
 		auto config = LoadCustomConfiguration();
 

@@ -4,10 +4,12 @@
 
 namespace catapult { namespace validators {
 
+#define TEST_CLASS TransferMessageValidatorTests
+
 	DEFINE_COMMON_VALIDATOR_TESTS(TransferMessage, 0)
 
 	namespace {
-		void AssertValidationResult(uint16_t messageSize, uint16_t maxMessageSize, ValidationResult expectedResult) {
+		void AssertValidationResult(ValidationResult expectedResult, uint16_t messageSize, uint16_t maxMessageSize) {
 			// Arrange:
 			auto notification = model::TransferMessageNotification(messageSize);
 			auto pValidator = CreateTransferMessageValidator(maxMessageSize);
@@ -20,18 +22,18 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TransferMessageValidatorTests, SuccessWhenValidatingNotificationWithMessageSizeLessThanMax) {
+	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMessageSizeLessThanMax) {
 		// Assert:
-		AssertValidationResult(100, 1234, ValidationResult::Success);
+		AssertValidationResult(ValidationResult::Success, 100, 1234);
 	}
 
-	TEST(TransferMessageValidatorTests, SuccessWhenValidatingNotificationWithMessageSizeEqualToMax) {
+	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMessageSizeEqualToMax) {
 		// Assert:
-		AssertValidationResult(1234, 1234, ValidationResult::Success);
+		AssertValidationResult(ValidationResult::Success, 1234, 1234);
 	}
 
-	TEST(TransferMessageValidatorTests, FailureWhenValidatingNotificationWithMessageSizeGreaterThanMax) {
+	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMessageSizeGreaterThanMax) {
 		// Assert:
-		AssertValidationResult(1235, 1234, Failure_Transfer_Message_Too_Large);
+		AssertValidationResult(Failure_Transfer_Message_Too_Large, 1235, 1234);
 	}
 }}

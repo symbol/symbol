@@ -1,12 +1,13 @@
 #include "MemoryUtCache.h"
+#include "CacheSizeLogger.h"
 #include "catapult/model/EntityInfo.h"
 
 namespace catapult { namespace cache {
 
 	struct TransactionData : public model::TransactionInfo, public utils::NonCopyable {
 	public:
-		explicit TransactionData(model::TransactionInfo&& transactionInfo, size_t id)
-				: model::TransactionInfo(std::move(transactionInfo))
+		explicit TransactionData(const model::TransactionInfo& transactionInfo, size_t id)
+				: model::TransactionInfo(transactionInfo.copy())
 				, Id(id)
 		{}
 
@@ -28,17 +29,17 @@ namespace catapult { namespace cache {
 
 	MemoryUtCacheView::MemoryUtCacheView(
 			uint64_t maxResponseSize,
-			const std::set<TransactionData>& transactionDataSet,
+			const TransactionDataContainer& transactionDataContainer,
 			const IdLookup& idLookup,
 			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 			: m_maxResponseSize(maxResponseSize)
-			, m_transactionDataSet(transactionDataSet)
+			, m_transactionDataContainer(transactionDataContainer)
 			, m_idLookup(idLookup)
 			, m_readLock(std::move(readLock))
 	{}
 
 	size_t MemoryUtCacheView::size() const {
-		return m_transactionDataSet.size();
+		return m_transactionDataContainer.size();
 	}
 
 	bool MemoryUtCacheView::contains(const Hash256& hash) const {
@@ -46,33 +47,26 @@ namespace catapult { namespace cache {
 	}
 
 	void MemoryUtCacheView::forEach(const TransactionInfoConsumer& consumer) const {
-		for (const auto& data : m_transactionDataSet) {
+		for (const auto& data : m_transactionDataContainer) {
 			if (!consumer(data))
 				return;
 		}
 	}
 
-	namespace {
-		utils::ShortHash ToShortHash(const Hash256& hash) {
-			return reinterpret_cast<const utils::ShortHash&>(*hash.data());
-		}
-	}
-
 	model::ShortHashRange MemoryUtCacheView::shortHashes() const {
-		auto shortHashes = model::EntityRange<utils::ShortHash>::PrepareFixed(m_transactionDataSet.size());
+		auto shortHashes = model::EntityRange<utils::ShortHash>::PrepareFixed(m_transactionDataContainer.size());
 		auto shortHashesIter = shortHashes.begin();
-		for (const auto& data : m_transactionDataSet)
-			*shortHashesIter++ = ToShortHash(data.EntityHash);
+		for (const auto& data : m_transactionDataContainer)
+			*shortHashesIter++ = utils::ToShortHash(data.EntityHash);
 
 		return shortHashes;
 	}
 
-	MemoryUtCacheView::UnknownTransactions MemoryUtCacheView::unknownTransactions(
-			const utils::ShortHashesSet& knownShortHashes) const {
-		UnknownTransactions transactions;
+	MemoryUtCacheView::UnknownTransactions MemoryUtCacheView::unknownTransactions(const utils::ShortHashesSet& knownShortHashes) const {
 		uint64_t totalSize = 0;
-		for (const auto& data : m_transactionDataSet) {
-			auto shortHash = ToShortHash(data.EntityHash);
+		UnknownTransactions transactions;
+		for (const auto& data : m_transactionDataContainer) {
+			auto shortHash = utils::ToShortHash(data.EntityHash);
 			auto iter = knownShortHashes.find(shortHash);
 			if (knownShortHashes.cend() == iter) {
 				auto pTransaction = data.pEntity;
@@ -92,13 +86,6 @@ namespace catapult { namespace cache {
 	// region MemoryUtCacheModifier
 
 	namespace {
-		void LogCacheSizeIf(size_t actual, uint64_t desired, const char* description) {
-			if (actual != desired)
-				return;
-
-			CATAPULT_LOG(warning) << "unconfirmed transactions cache is " << description << " (size = " << actual << ")";
-		}
-
 		class MemoryUtCacheModifier : public UtCacheModifier {
 		private:
 			using IdLookup = std::unordered_map<Hash256, size_t, utils::ArrayHasher<Hash256>>;
@@ -107,74 +94,65 @@ namespace catapult { namespace cache {
 			explicit MemoryUtCacheModifier(
 					uint64_t maxCacheSize,
 					size_t& idSequence,
-					std::set<TransactionData>& transactionDataSet,
+					TransactionDataContainer& transactionDataContainer,
 					IdLookup& idLookup,
 					utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 					: m_maxCacheSize(maxCacheSize)
 					, m_idSequence(idSequence)
-					, m_transactionDataSet(transactionDataSet)
+					, m_transactionDataContainer(transactionDataContainer)
 					, m_idLookup(idLookup)
 					, m_readLock(std::move(readLock))
 					, m_writeLock(m_readLock.promoteToWriter())
 			{}
 
 		public:
-			bool add(model::TransactionInfo&& transactionInfo) override {
-				if (m_maxCacheSize <= m_transactionDataSet.size())
+			bool add(const model::TransactionInfo& transactionInfo) override {
+				if (m_maxCacheSize <= m_transactionDataContainer.size())
 					return false;
 
 				if (m_idLookup.cend() != m_idLookup.find(transactionInfo.EntityHash))
 					return false;
 
 				m_idLookup.emplace(transactionInfo.EntityHash, ++m_idSequence);
-				m_transactionDataSet.emplace(std::move(transactionInfo), m_idSequence);
+				m_transactionDataContainer.emplace(transactionInfo, m_idSequence);
 
-				LogCacheSizeIf(m_transactionDataSet.size(), m_maxCacheSize / 2, "half full");
-				LogCacheSizeIf(m_transactionDataSet.size(), m_maxCacheSize, "full");
+				LogSizes("unconfirmed transactions", m_transactionDataContainer.size(), m_maxCacheSize);
 				return true;
 			}
 
-			void remove(const Hash256& hash) override {
+			model::TransactionInfo remove(const Hash256& hash) override {
 				auto iter = m_idLookup.find(hash);
 				if (m_idLookup.cend() == iter)
-					return;
+					return model::TransactionInfo();
 
-				m_transactionDataSet.erase(TransactionData(iter->second));
+				auto dataIter = m_transactionDataContainer.find(TransactionData(iter->second));
+				auto erasedInfo = dataIter->copy();
+
+				m_transactionDataContainer.erase(dataIter);
 				m_idLookup.erase(iter);
+				return erasedInfo;
 			}
 
 			std::vector<model::TransactionInfo> removeAll() override {
-				CATAPULT_LOG(debug) << "UT Cache: " << m_transactionDataSet.size() << " elements";
+				if (!m_transactionDataContainer.empty())
+					CATAPULT_LOG(debug) << "removing " << m_transactionDataContainer.size() << " elements from ut cache";
 
-				// unfortunately cannot just move m_transactionDataSet because it contains a different (derived) type
-				std::vector<model::TransactionInfo> copiedInfos;
-				copiedInfos.reserve(m_transactionDataSet.size());
+				// unfortunately cannot just move m_transactionDataContainer because it contains a different (derived) type
+				std::vector<model::TransactionInfo> transactionInfosCopy;
+				transactionInfosCopy.reserve(m_transactionDataContainer.size());
 
-				for (auto& data : m_transactionDataSet)
-					copiedInfos.emplace_back(data.copy());
+				for (const auto& data : m_transactionDataContainer)
+					transactionInfosCopy.emplace_back(data.copy());
 
-				m_transactionDataSet.clear();
+				m_transactionDataContainer.clear();
 				m_idLookup.clear();
-				return copiedInfos;
-			}
-
-			void prune(Timestamp timestamp) override {
-				for (auto iter = m_transactionDataSet.begin(); m_transactionDataSet.end() != iter;) {
-					const auto& info = *iter;
-					if (timestamp > info.pEntity->Deadline) {
-						m_idLookup.erase(info.EntityHash);
-						iter = m_transactionDataSet.erase(iter);
-						continue;
-					}
-
-					++iter;
-				}
+				return transactionInfosCopy;
 			}
 
 		private:
 			uint64_t m_maxCacheSize;
 			size_t& m_idSequence;
-			std::set<TransactionData>& m_transactionDataSet;
+			TransactionDataContainer& m_transactionDataContainer;
 			IdLookup& m_idLookup;
 			utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 			utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
@@ -186,11 +164,11 @@ namespace catapult { namespace cache {
 	// region MemoryUtCache
 
 	struct MemoryUtCache::Impl {
-		std::set<TransactionData> TransactionDataSet;
+		cache::TransactionDataContainer TransactionDataContainer;
 		std::unordered_map<Hash256, size_t, utils::ArrayHasher<Hash256>> IdLookup;
 	};
 
-	MemoryUtCache::MemoryUtCache(const MemoryUtCacheOptions& options)
+	MemoryUtCache::MemoryUtCache(const MemoryCacheOptions& options)
 			: m_options(options)
 			, m_idSequence(0)
 			, m_pImpl(std::make_unique<Impl>())
@@ -199,18 +177,14 @@ namespace catapult { namespace cache {
 	MemoryUtCache::~MemoryUtCache() = default;
 
 	MemoryUtCacheView MemoryUtCache::view() const {
-		return MemoryUtCacheView(
-				m_options.MaxResponseSize,
-				m_pImpl->TransactionDataSet,
-				m_pImpl->IdLookup,
-				m_lock.acquireReader());
+		return MemoryUtCacheView(m_options.MaxResponseSize, m_pImpl->TransactionDataContainer, m_pImpl->IdLookup, m_lock.acquireReader());
 	}
 
 	UtCacheModifierProxy MemoryUtCache::modifier() {
 		return UtCacheModifierProxy(std::make_unique<MemoryUtCacheModifier>(
 				m_options.MaxCacheSize,
 				m_idSequence,
-				m_pImpl->TransactionDataSet,
+				m_pImpl->TransactionDataContainer,
 				m_pImpl->IdLookup,
 				m_lock.acquireReader()));
 	}

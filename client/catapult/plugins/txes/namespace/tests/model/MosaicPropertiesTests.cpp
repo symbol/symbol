@@ -52,7 +52,7 @@ namespace catapult { namespace model {
 		EXPECT_TRUE(properties.is(MosaicFlags::Levy_Mutable));
 
 		EXPECT_EQ(5u, properties.divisibility());
-		EXPECT_EQ(ArtifactDuration(234u), properties.duration());
+		EXPECT_EQ(BlockDuration(234u), properties.duration());
 	}
 
 	// endregion
@@ -118,10 +118,10 @@ namespace catapult { namespace model {
 		// Act:
 		std::array<MosaicProperty, Num_Mosaic_Properties> extractedProperties;
 		std::vector<uint8_t> ids;
-		for (auto iter = properties.cbegin(); properties.cend() != iter; ++iter) {
-			auto id = utils::to_underlying_type(iter->Id);
+		for (const auto& property : properties) {
+			auto id = utils::to_underlying_type(property.Id);
 			ids.push_back(id);
-			extractedProperties[id] = *iter;
+			extractedProperties[id] = property;
 		}
 
 		// Assert:

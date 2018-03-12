@@ -4,9 +4,11 @@
 
 namespace catapult { namespace state {
 
+#define TEST_CLASS MosaicLevyRuleFactoryTests
+
 	// region ctor
 
-	TEST(MosaicLevyRuleFactoryTests, CanCreateMosaicLevyRuleFactory) {
+	TEST(TEST_CLASS, CanCreateMosaicLevyRuleFactory) {
 		// Act:
 		MosaicLevyRuleFactory factory;
 
@@ -15,8 +17,6 @@ namespace catapult { namespace state {
 	}
 
 	// endregion
-
-	// region createRule
 
 	namespace {
 		constexpr MosaicId Default_Mosaic_Id(123);
@@ -48,7 +48,7 @@ namespace catapult { namespace state {
 
 	// region RuleId::Constant
 
-	TEST(MosaicLevyRuleFactoryTests, ConstantRule_AlwaysReturnsSameMosaic) {
+	TEST(TEST_CLASS, ConstantRule_AlwaysReturnsSameMosaic) {
 		// Arrange:
 		std::vector <Amount::ValueType> amounts{ 0u, 1u, 10u, 1000u, 10000u, 100000u, 1000000u };
 		std::vector<Amount::ValueType> expectedAmounts{ 357u, 357u, 357u, 357u, 357u, 357u, 357u };
@@ -61,7 +61,7 @@ namespace catapult { namespace state {
 
 	// region RuleId::Percentile
 
-	TEST(MosaicLevyRuleFactoryTests, PercentileRule_AlwaysReturnsMosaicProportionalToAmount) {
+	TEST(TEST_CLASS, PercentileRule_AlwaysReturnsMosaicProportionalToAmount) {
 		// Arrange: truncated 1% of amount
 		std::vector <Amount::ValueType> amounts{ 0u, 1u, 99u, 100u, 101u, 500u, 567u, 12345u, 987654321u };
 		std::vector<Amount::ValueType> expectedAmounts{ 0u, 0u, 0u, 1u, 1u, 5u, 5u, 123u, 9876543u };
@@ -74,7 +74,7 @@ namespace catapult { namespace state {
 
 	// region RuleId::Lower_Bounded_Percentile
 
-	TEST(MosaicLevyRuleFactoryTests, LowerBoundedPercentileRule_RespectsLowerBound) {
+	TEST(TEST_CLASS, LowerBoundedPercentileRule_RespectsLowerBound) {
 		// Arrange: lower bound: 12, percentile: truncated 1% of amount
 		std::vector <Amount::ValueType> amounts{ 0u, 99u, 100u, 101u, 1000u, 1299u };
 		std::vector<Amount::ValueType> expectedAmounts{ 12u, 12u, 12u, 12u, 12u, 12u };
@@ -83,7 +83,7 @@ namespace catapult { namespace state {
 		AssertRule(12, 0, 100, RuleId::Lower_Bounded_Percentile, amounts, expectedAmounts);
 	}
 
-	TEST(MosaicLevyRuleFactoryTests, LowerBoundedPercentileRule_ReturnsPercentileIfHigherThanLowerBound) {
+	TEST(TEST_CLASS, LowerBoundedPercentileRule_ReturnsPercentileIfHigherThanLowerBound) {
 		// Arrange: lower bound: 12, percentile: truncated 1% of amount
 		std::vector <Amount::ValueType> amounts{ 1300u, 2000u, 12345u, 987654321u };
 		std::vector<Amount::ValueType> expectedAmounts{ 13u, 20u, 123u, 9876543u };
@@ -96,7 +96,7 @@ namespace catapult { namespace state {
 
 	// region RuleId::Upper_Bounded_Percentile
 
-	TEST(MosaicLevyRuleFactoryTests, UpperBoundedPercentileRule_RespectsUpperBound) {
+	TEST(TEST_CLASS, UpperBoundedPercentileRule_RespectsUpperBound) {
 		// Arrange: upper bound: 12, percentile: truncated 1% of amount
 		std::vector <Amount::ValueType> amounts{ 1200u, 1201u, 1500u, 5000u, 12345u, 987654321u };
 		std::vector<Amount::ValueType> expectedAmounts{ 12u, 12u, 12u, 12u, 12u, 12u };
@@ -105,7 +105,7 @@ namespace catapult { namespace state {
 		AssertRule(0, 12, 100, RuleId::Upper_Bounded_Percentile, amounts, expectedAmounts);
 	}
 
-	TEST(MosaicLevyRuleFactoryTests, UpperBoundedPercentileRule_ReturnsPercentileIfLowerThanUpperBound) {
+	TEST(TEST_CLASS, UpperBoundedPercentileRule_ReturnsPercentileIfLowerThanUpperBound) {
 		// Arrange: upper bound: 12, percentile: truncated 1% of amount
 		std::vector <Amount::ValueType> amounts{ 0u, 1u, 100u, 521u, 1000u, 1199u };
 		std::vector<Amount::ValueType> expectedAmounts{ 0u, 0u, 1u, 5u, 10u, 11u };
@@ -118,7 +118,7 @@ namespace catapult { namespace state {
 
 	// region RuleId::Bounded_Percentile
 
-	TEST(MosaicLevyRuleFactoryTests, BoundedPercentileRule_RespectsLowerBound) {
+	TEST(TEST_CLASS, BoundedPercentileRule_RespectsLowerBound) {
 		// Arrange: lower bound: 12, upper bound: 20, percentile: truncated 1% of amount
 		std::vector <Amount::ValueType> amounts{ 0u, 99u, 100u, 101u, 1000u, 1299u };
 		std::vector<Amount::ValueType> expectedAmounts{ 12u, 12u, 12u, 12u, 12u, 12u };
@@ -127,7 +127,7 @@ namespace catapult { namespace state {
 		AssertRule(12, 20, 100, RuleId::Bounded_Percentile, amounts, expectedAmounts);
 	}
 
-	TEST(MosaicLevyRuleFactoryTests, BoundedPercentileRule_RespectsUpperBound) {
+	TEST(TEST_CLASS, BoundedPercentileRule_RespectsUpperBound) {
 		// Arrange: lower bound: 12, upper bound: 20, percentile: truncated 1% of amount
 		std::vector <Amount::ValueType> amounts{ 2000u, 2001u, 4500u, 9000u, 12345u, 987654321u };
 		std::vector<Amount::ValueType> expectedAmounts{ 20u, 20u, 20u, 20u, 20u, 20u };
@@ -136,7 +136,7 @@ namespace catapult { namespace state {
 		AssertRule(12, 20, 100, RuleId::Bounded_Percentile, amounts, expectedAmounts);
 	}
 
-	TEST(MosaicLevyRuleFactoryTests, BoundedPercentileRule_ReturnsPercentileIfBetweenLowerAndUpperBound) {
+	TEST(TEST_CLASS, BoundedPercentileRule_ReturnsPercentileIfBetweenLowerAndUpperBound) {
 		// Arrange: lower bound: 12, upper bound: 20, percentile: truncated 1% of amount
 		std::vector <Amount::ValueType> amounts{ 1300u, 1301u, 1500u, 2000u, 2099u };
 		std::vector<Amount::ValueType> expectedAmounts{ 13u, 13u, 15u, 20u, 20u };
@@ -149,7 +149,7 @@ namespace catapult { namespace state {
 
 	// region edge case
 
-	TEST(MosaicLevyRuleFactoryTests, BoundedPercentileRule_IsConstantRuleIfLowerBoundIsGreaterThanOrEqualToUpperBound) {
+	TEST(TEST_CLASS, BoundedPercentileRule_IsConstantRuleIfLowerBoundIsGreaterThanOrEqualToUpperBound) {
 		// Arrange: lower bound: 12, upper bound: 10, percentile: truncated 1% of amount
 		std::vector <Amount::ValueType> amounts{ 0u, 1u, 10u, 1000u, 10000u, 100000u, 1000000u };
 		std::vector<Amount::ValueType> expectedAmounts{ 10u, 10u, 10u, 10u, 10u, 10u, 10u };
@@ -160,14 +160,14 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// endregion
+	// region unknown rule
 
-	TEST(MosaicLevyRuleFactoryTests, CreateRuleThrowsIfRuleIsUnknown) {
+	TEST(TEST_CLASS, CreateRuleThrowsIfRuleIsUnknown) {
 		// Arrange:
 		MosaicLevyRuleFactory factory;
 		uint8_t numRules = static_cast<uint8_t>(factory.size());
 
-		// Assert:
+		// Act + Assert:
 		// note that VS complains if curly braces are removed
 		for (uint8_t ruleId : { numRules, std::numeric_limits<uint8_t>::max() }) {
 			EXPECT_THROW(factory.createRule(Amount(100), Amount(200), 300u, static_cast<RuleId>(ruleId)), catapult_invalid_argument)

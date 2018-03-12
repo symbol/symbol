@@ -61,14 +61,14 @@ namespace catapult { namespace utils {
 	PARSE_TRAITS_BASED_TEST(CanConvertAllValidHexCharCombinationsToByte) {
 		// Arrange:
 		std::vector<std::pair<char, uint8_t>> charToValueMappings;
-		for (char ch = '0'; ch <= '9'; ++ch) charToValueMappings.push_back(std::make_pair(ch, ch - '0'));
-		for (char ch = 'a'; ch <= 'f'; ++ch) charToValueMappings.push_back(std::make_pair(ch, ch - 'a' + 10));
-		for (char ch = 'A'; ch <= 'F'; ++ch) charToValueMappings.push_back(std::make_pair(ch, ch - 'A' + 10));
+		for (char ch = '0'; ch <= '9'; ++ch) charToValueMappings.push_back(std::make_pair(ch, static_cast<uint8_t>(ch - '0')));
+		for (char ch = 'a'; ch <= 'f'; ++ch) charToValueMappings.push_back(std::make_pair(ch, static_cast<uint8_t>(ch - 'a' + 10)));
+		for (char ch = 'A'; ch <= 'F'; ++ch) charToValueMappings.push_back(std::make_pair(ch, static_cast<uint8_t>(ch - 'A' + 10)));
 
 		// Act:
 		auto numTests = 0;
-		for (auto pair1 : charToValueMappings) {
-			for (auto pair2 : charToValueMappings) {
+		for (const auto& pair1 : charToValueMappings) {
+			for (const auto& pair2 : charToValueMappings) {
 				// Act:
 				uint8_t byte = TTraits::Parse(pair1.first, pair2.first);
 

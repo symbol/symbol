@@ -5,6 +5,8 @@
 
 namespace catapult { namespace observers {
 
+#define TEST_CLASS ObserverContextTests
+
 	namespace {
 		constexpr auto Default_Height = Height(123);
 
@@ -20,7 +22,7 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	TEST(ObserverContextTests, CanCreateObserverState) {
+	TEST(TEST_CLASS, CanCreateObserverState) {
 		// Act:
 		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
 			ObserverState observerState(cacheDelta, state);
@@ -31,7 +33,7 @@ namespace catapult { namespace observers {
 		});
 	}
 
-	TEST(ObserverContextTests, CanCreateCommitObserverContextAroundObserverState) {
+	TEST(TEST_CLASS, CanCreateCommitObserverContextAroundObserverState) {
 		// Act:
 		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
 			ObserverContext context(ObserverState(cacheDelta, state), Default_Height, NotifyMode::Commit);
@@ -44,7 +46,7 @@ namespace catapult { namespace observers {
 		});
 	}
 
-	TEST(ObserverContextTests, CanCreateCommitObserverContextAroundCacheAndState) {
+	TEST(TEST_CLASS, CanCreateCommitObserverContextAroundCacheAndState) {
 		// Act:
 		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
 			ObserverContext context(cacheDelta, state, Default_Height, NotifyMode::Commit);
@@ -57,7 +59,7 @@ namespace catapult { namespace observers {
 		});
 	}
 
-	TEST(ObserverContextTests, CanCreateRollbackObserverContextAroundObserverState) {
+	TEST(TEST_CLASS, CanCreateRollbackObserverContextAroundObserverState) {
 		// Act:
 		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
 			ObserverContext context(ObserverState(cacheDelta, state), Default_Height, NotifyMode::Rollback);
@@ -70,7 +72,7 @@ namespace catapult { namespace observers {
 		});
 	}
 
-	TEST(ObserverContextTests, CanCreateRollbackObserverContextAroundCacheAndState) {
+	TEST(TEST_CLASS, CanCreateRollbackObserverContextAroundCacheAndState) {
 		// Act:
 		RunTestWithStateAndCache([](auto& cacheDelta, auto& state) {
 			ObserverContext context(cacheDelta, state, Default_Height, NotifyMode::Rollback);

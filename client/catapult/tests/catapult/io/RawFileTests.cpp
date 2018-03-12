@@ -82,7 +82,7 @@ namespace catapult { namespace io {
 		RawFile r(guard.name(), OpenMode::Read_Only);
 		auto data = test::GenerateRandomVector(Default_Bytes_Written);
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(r.write(data), catapult_file_io_error);
 	}
 
@@ -305,7 +305,7 @@ namespace catapult { namespace io {
 		TempFileGuard guard("test.dat");
 		RawFile r(guard.name(), TTraits::Mode);
 
-		// Act/assert:
+		// Act + Assert:
 		EXPECT_EQ(0ull, r.size());
 		EXPECT_THROW(r.seek(10ull), catapult_file_io_error);
 	}
@@ -361,7 +361,7 @@ namespace catapult { namespace io {
 		RawFile r(guard.name(), TTraits::Mode);
 		r.write(inputData);
 
-		// Act + Assert
+		// Act + Assert:
 		EXPECT_THROW(r.seek(inputData.size() + 1), catapult_file_io_error);
 	}
 

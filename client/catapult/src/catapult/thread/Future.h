@@ -1,5 +1,5 @@
 #pragma once
-#include "FutureSharedState.h"
+#include "detail/FutureSharedState.h"
 #include "catapult/utils/NonCopyable.h"
 
 namespace catapult { namespace thread {
@@ -36,9 +36,7 @@ namespace catapult { namespace thread {
 				typename TContinuation,
 				typename TResultType = typename std::result_of<TContinuation(future<T>&&)>::type
 		>
-		auto then(
-				TContinuation continuation,
-				typename std::enable_if<!std::is_same<TResultType, void>::value>::type* = nullptr) {
+		auto then(TContinuation continuation, typename std::enable_if<!std::is_same<TResultType, void>::value>::type* = nullptr) {
 			auto pResultState = std::make_shared<detail::shared_state<TResultType>>();
 			m_pState->set_continuation([pResultState, continuation](const auto& pState) {
 				try {
@@ -51,19 +49,29 @@ namespace catapult { namespace thread {
 			return future<TResultType>(pResultState);
 		}
 
+// if vs 2017+
+#if defined(_MSC_VER) && _MSC_VER > 1900
+#pragma warning(push)
+#pragma warning(disable:4702) /* "unreachable code" triggered by FutureTests.cpp, but due to bug in VS need to disable warning here... */
+#endif
+
 		/// Configures \a continuation to run at the completion of this future.
 		template<
 				typename TContinuation,
 				typename TResultType = typename std::result_of<TContinuation(future<T>&&)>::type
 		>
-		auto then(
-				TContinuation continuation,
-				typename std::enable_if<std::is_same<TResultType, void>::value>::type* = nullptr) {
+		auto then(TContinuation continuation, typename std::enable_if<std::is_same<TResultType, void>::value>::type* = nullptr) {
 			return then([continuation](auto&& future) {
 				continuation(std::move(future));
+				// 'unreachable code'
 				return true;
 			});
 		}
+
+// if vs 2017+
+#if defined(_MSC_VER) && _MSC_VER > 1900
+#pragma warning(pop)
+#endif
 
 	private:
 		std::shared_ptr<detail::shared_state<T>> m_pState;

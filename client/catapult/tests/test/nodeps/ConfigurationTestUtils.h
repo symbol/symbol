@@ -77,10 +77,8 @@ namespace catapult { namespace test {
 		// Arrange:
 		auto bag = utils::ConfigurationBag(utils::ConfigurationBag::ValuesContainer());
 
-		// Act:
-		EXPECT_THROW(
-				TTraits::ConfigurationType::LoadFromBag(bag),
-				utils::property_not_found_error);
+		// Act + Assert:
+		EXPECT_THROW(TTraits::ConfigurationType::LoadFromBag(bag), utils::property_not_found_error);
 	}
 
 	/// Asserts that a configuration cannot be loaded from a bag that contains a missing property.
@@ -98,14 +96,12 @@ namespace catapult { namespace test {
 				const auto& name = namePair.first;
 				CATAPULT_LOG(debug) << "attempting to load configuration without " << section << "::" << name;
 
-				// Act: copy the properties and remove the desired key
-				auto copyProperties = TTraits::CreateProperties();
-				copyProperties[section].erase(name);
+				// - copy the properties and remove the desired key
+				auto propertiesCopy = TTraits::CreateProperties();
+				propertiesCopy[section].erase(name);
 
-				// Assert: the load failed
-				EXPECT_THROW(
-						TTraits::ConfigurationType::LoadFromBag(std::move(copyProperties)),
-						utils::property_not_found_error);
+				// Act + Assert: the load failed
+				EXPECT_THROW(TTraits::ConfigurationType::LoadFromBag(std::move(propertiesCopy)), utils::property_not_found_error);
 			}
 		}
 	}
@@ -123,14 +119,12 @@ namespace catapult { namespace test {
 
 			CATAPULT_LOG(debug) << "attempting to load configuration with extra property in " << section;
 
-			// Act: copy the properties and add an unknown key to the desired section
-			auto copyProperties = TTraits::CreateProperties();
-			copyProperties[section].emplace("hidden", "abc");
+			// - copy the properties and add an unknown key to the desired section
+			auto propertiesCopy = TTraits::CreateProperties();
+			propertiesCopy[section].emplace("hidden", "abc");
 
-			// Assert: the load failed
-			EXPECT_THROW(
-					TTraits::ConfigurationType::LoadFromBag(std::move(copyProperties)),
-					catapult_invalid_argument);
+			// Act + Assert: the load failed
+			EXPECT_THROW(TTraits::ConfigurationType::LoadFromBag(std::move(propertiesCopy)), catapult_invalid_argument);
 		}
 	}
 
@@ -142,10 +136,8 @@ namespace catapult { namespace test {
 		container.insert({ "hidden", { { "foo", "1234" } } });
 		auto bag = utils::ConfigurationBag(std::move(container));
 
-		// Act:
-		EXPECT_THROW(
-				TTraits::ConfigurationType::LoadFromBag(bag),
-				catapult_invalid_argument);
+		// Act + Assert:
+		EXPECT_THROW(TTraits::ConfigurationType::LoadFromBag(bag), catapult_invalid_argument);
 	}
 
 	/// Asserts that a configuration loaded from a custom property bag has custom values.

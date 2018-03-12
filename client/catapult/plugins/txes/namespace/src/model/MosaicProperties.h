@@ -53,12 +53,12 @@ namespace catapult { namespace model {
 		}
 
 		/// Returns a const iterator to the first property.
-		auto cbegin() const {
+		auto begin() const {
 			return m_properties.cbegin();
 		}
 
 		/// Returns a const iterator to the element following the last property.
-		auto cend() const {
+		auto end() const {
 			return m_properties.cend();
 		}
 
@@ -71,7 +71,7 @@ namespace catapult { namespace model {
 	public:
 		/// Returns \c true if mosaic flags contain \a testedFlag.
 		bool is(MosaicFlags testedFlag) const {
-			return !!(property<uint8_t>(MosaicPropertyId::Flags) & utils::to_underlying_type(testedFlag));
+			return HasFlag(testedFlag, property<MosaicFlags>(MosaicPropertyId::Flags));
 		}
 
 		/// Gets mosaic divisibility.
@@ -80,8 +80,8 @@ namespace catapult { namespace model {
 		}
 
 		/// Gets mosaic duration.
-		ArtifactDuration duration() const {
-			return property<ArtifactDuration>(MosaicPropertyId::Duration);
+		BlockDuration duration() const {
+			return property<BlockDuration>(MosaicPropertyId::Duration);
 		}
 
 	public:

@@ -1,7 +1,7 @@
 #include "Validators.h"
 #include "src/cache/MultisigCache.h"
 #include "src/model/ModifyMultisigAccountTransaction.h"
-#include "catapult/utils/HashSet.h"
+#include "catapult/utils/ArraySet.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
@@ -11,8 +11,8 @@ namespace catapult { namespace validators {
 	namespace {
 		enum class OperationType { Normal, Removal, Max };
 
-		OperationType GetOperationType(const model::EmbeddedEntity& transaction) {
-			if (model::EntityType::Modify_Multisig_Account != transaction.Type)
+		OperationType GetOperationType(const model::EmbeddedTransaction& transaction) {
+			if (model::Entity_Type_Modify_Multisig_Account != transaction.Type)
 				return OperationType::Normal;
 
 			bool hasAdds = false;
@@ -88,12 +88,8 @@ namespace catapult { namespace validators {
 		};
 	}
 
-	stateful::NotificationValidatorPointerT<Notification> CreateMultisigAggregateSufficientCosignersValidator() {
-		return std::make_unique<stateful::FunctionalNotificationValidatorT<Notification>>(
-				"MultisigAggregateSufficientCosignersValidator",
-				[](const auto& notification, const ValidatorContext& context) {
-					AggregateCosignaturesChecker checker(notification, context.Cache.sub<cache::MultisigCache>());
-					return checker.hasSufficientCosigners() ? ValidationResult::Success : Failure_Multisig_Missing_Cosigners;
-				});
-	}
+	DEFINE_STATEFUL_VALIDATOR(MultisigAggregateSufficientCosigners, [](const auto& notification, const ValidatorContext& context) {
+		AggregateCosignaturesChecker checker(notification, context.Cache.sub<cache::MultisigCache>());
+		return checker.hasSufficientCosigners() ? ValidationResult::Success : Failure_Aggregate_Missing_Cosigners;
+	});
 }}

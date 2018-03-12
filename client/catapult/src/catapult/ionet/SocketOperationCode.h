@@ -3,7 +3,6 @@
 
 namespace catapult { namespace ionet {
 
-/// Enumeration of socket operation results.
 #define SOCKET_OPERATION_CODE_LIST \
 	/* The socket operation succeeded. */ \
 	ENUM_VALUE(Success) \
@@ -23,9 +22,13 @@ namespace catapult { namespace ionet {
 	/* The socket operation completed due to insufficient data. */ \
 	ENUM_VALUE(Insufficient_Data)
 
-#define DECLARE_ENUM SocketOperationCode
-#define ENUM_LIST SOCKET_OPERATION_CODE_LIST
-#include "catapult/utils/MacroBasedEnum.h"
-#undef ENUM_LIST
-#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+	/// Enumeration of socket operation results.
+	enum class SocketOperationCode {
+		SOCKET_OPERATION_CODE_LIST
+	};
+#undef ENUM_VALUE
+
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, SocketOperationCode value);
 }}

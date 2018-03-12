@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 set(PLUGIN_BASE_NAME catapult.plugins.hashcache)
 
 # create a cache lib
-catapult_library_target(${PLUGIN_BASE_NAME}.cache cache state)
+catapult_library_target(${PLUGIN_BASE_NAME}.cache cache)
 target_link_libraries(${PLUGIN_BASE_NAME}.cache catapult.cache)
 
 # create a deps lib

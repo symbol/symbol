@@ -1,28 +1,21 @@
 #pragma once
 #include "ConsumerInput.h"
 #include "catapult/utils/SpinLock.h"
-#include <mutex>
 
 namespace catapult { namespace disruptor {
 
 	/// Augments consumer input with disruptor metadata.
 	class DisruptorElement {
-	private:
-		using SpinLockGuard = std::lock_guard<utils::SpinLock>;
-
 	public:
 		/// Creates a default disruptor element.
-		explicit DisruptorElement()
+		DisruptorElement()
 				: m_id(static_cast<uint64_t>(-1))
 				, m_processingComplete([](auto, auto) {})
 				, m_pSpinLock(std::make_unique<utils::SpinLock>())
 		{}
 
 		/// Creates a disruptor element around \a input with \a id and a completion handler \a processingComplete.
-		explicit DisruptorElement(
-				ConsumerInput&& input,
-				DisruptorElementId id,
-				const ProcessingCompleteFunc& processingComplete)
+		explicit DisruptorElement(ConsumerInput&& input, DisruptorElementId id, const ProcessingCompleteFunc& processingComplete)
 				: m_input(std::move(input))
 				, m_id(id)
 				, m_processingComplete(processingComplete)
@@ -47,20 +40,20 @@ namespace catapult { namespace disruptor {
 
 		/// Returns \c true if the element is skipped.
 		bool isSkipped() const {
-			SpinLockGuard guard(*m_pSpinLock);
+			utils::SpinLockGuard guard(*m_pSpinLock);
 			return CompletionStatus::Aborted == m_result.CompletionStatus;
 		}
 
 		/// Gets the current element completion result.
 		ConsumerCompletionResult completionResult() const {
-			SpinLockGuard guard(*m_pSpinLock);
+			utils::SpinLockGuard guard(*m_pSpinLock);
 			return m_result;
 		}
 
 	public:
 		/// Marks the element as skipped at \a position with \a code.
 		void markSkipped(PositionType position, CompletionCode code) {
-			SpinLockGuard guard(*m_pSpinLock);
+			utils::SpinLockGuard guard(*m_pSpinLock);
 			m_result.CompletionStatus = CompletionStatus::Aborted;
 			m_result.CompletionCode = code;
 			m_result.FinalConsumerPosition = position;

@@ -6,5 +6,5 @@ namespace catapult { namespace config { struct NodeConfiguration; } }
 namespace catapult { namespace local {
 
 	/// Extracts unconfirmed transactions cache options from \a config.
-	cache::MemoryUtCacheOptions GetUnconfirmedTransactionsCacheOptions(const config::NodeConfiguration& config);
+	cache::MemoryCacheOptions GetUtCacheOptions(const config::NodeConfiguration& config);
 }}

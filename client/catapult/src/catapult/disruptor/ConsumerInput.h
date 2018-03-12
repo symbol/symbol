@@ -1,6 +1,7 @@
 #pragma once
 #include "DisruptorTypes.h"
 #include "InputSource.h"
+#include "catapult/model/AnnotatedEntityRange.h"
 #include "catapult/model/RangeTypes.h"
 
 namespace catapult { namespace disruptor {
@@ -13,27 +14,39 @@ namespace catapult { namespace disruptor {
 		{}
 
 		/// Creates a consumer input around a block \a range with an optional input source (\a inputSource).
-		explicit ConsumerInput(model::BlockRange&& range, InputSource source = InputSource::Unknown)
-				: m_blockRange(std::move(range))
-				, m_source(source) {
+		explicit ConsumerInput(model::AnnotatedBlockRange&& range, InputSource source = InputSource::Unknown)
+				: m_blockRange(std::move(range.Range))
+				, m_source(source)
+				, m_sourcePublicKey(range.SourcePublicKey) {
 			m_blockElements.reserve(m_blockRange.size());
 			for (const auto& block : m_blockRange)
 				m_blockElements.push_back(model::BlockElement(block));
 		}
 
 		/// Creates a consumer input around a transaction \a range with an optional input source (\a inputSource).
-		explicit ConsumerInput(model::TransactionRange&& range, InputSource source = InputSource::Unknown)
-				: m_transactionRange(std::move(range))
-				, m_source(source) {
+		explicit ConsumerInput(model::AnnotatedTransactionRange&& range, InputSource source = InputSource::Unknown)
+				: m_transactionRange(std::move(range.Range))
+				, m_source(source)
+				, m_sourcePublicKey(range.SourcePublicKey) {
 			m_transactionElements.reserve(m_transactionRange.size());
 			for (const auto& transaction : m_transactionRange)
 				m_transactionElements.push_back(FreeTransactionElement(transaction));
 		}
 
 	public:
-		/// Returns \c true if this input is empty and has no elements..
+		/// Returns \c true if this input is empty and has no elements.
 		bool empty() const {
 			return m_blockRange.empty() && m_transactionRange.empty();
+		}
+
+		/// Returns \c true if this input is non-empty and has blocks.
+		bool hasBlocks() const {
+			return !m_blockRange.empty();
+		}
+
+		/// Returns \c true if this input is non-empty and has transactions.
+		bool hasTransactions() const {
+			return !m_transactionRange.empty();
 		}
 
 	public:
@@ -68,6 +81,11 @@ namespace catapult { namespace disruptor {
 			return m_source;
 		}
 
+		/// Gets the (optional) source public key.
+		const Key& sourcePublicKey() const {
+			return m_sourcePublicKey;
+		}
+
 	public:
 		/// Detaches the block range associated with this input.
 		model::BlockRange detachBlockRange() {
@@ -99,5 +117,6 @@ namespace catapult { namespace disruptor {
 		TransactionElements m_transactionElements;
 
 		InputSource m_source;
+		Key m_sourcePublicKey;
 	};
 }}

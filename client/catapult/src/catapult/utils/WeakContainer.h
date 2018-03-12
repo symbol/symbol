@@ -1,24 +1,21 @@
 #pragma once
 #include "SpinLock.h"
+#include "catapult/functions.h"
 #include <list>
 #include <memory>
-#include <mutex>
 
 namespace catapult { namespace utils {
 
 	/// A container of weak_ptr<T> pointing to closable items.
 	template<typename T>
 	class WeakContainer {
-	private:
-		using SpinLockGuard = std::lock_guard<utils::SpinLock>;
-
 	public:
 		/// Creates an empty container.
 		WeakContainer() : WeakContainer([](const auto&) {})
 		{}
 
 		/// Creates an empty container with a custom close function (\a close).
-		WeakContainer(const std::function<void (T&)>& close) : m_close(close)
+		WeakContainer(const consumer<T&>& close) : m_close(close)
 		{}
 
 	public:
@@ -26,38 +23,38 @@ namespace catapult { namespace utils {
 		size_t size() const {
 			SpinLockGuard guard(m_lock);
 			const_cast<WeakContainer*>(this)->pruneInternal();
-			return m_entities.size();
+			return m_entries.size();
 		}
 
-		/// Adds \a pEntity to this container and removes all previously deleted items.
-		void insert(const std::weak_ptr<T>& pEntity) {
+		/// Adds \a pEntry to this container and removes all previously deleted items.
+		void insert(const std::weak_ptr<T>& pEntry) {
 			SpinLockGuard guard(m_lock);
 			pruneInternal();
-			m_entities.push_back(pEntity);
+			m_entries.push_back(pEntry);
 		}
 
 		/// Closes and removes all items in this container.
 		void clear() {
 			SpinLockGuard guard(m_lock);
-			for (const auto& pEntity : m_entities) {
-				auto pSharedEntity = pEntity.lock();
-				if (!pSharedEntity)
+			for (const auto& pEntry : m_entries) {
+				auto pSharedEntry = pEntry.lock();
+				if (!pSharedEntry)
 					continue;
 
-				m_close(*pSharedEntity);
+				m_close(*pSharedEntry);
 			}
 
-			m_entities.clear();
+			m_entries.clear();
 		}
 
 	private:
 		void pruneInternal() {
-			m_entities.remove_if([](const auto& pExistingEntity) { return !pExistingEntity.lock(); });
+			m_entries.remove_if([](const auto& pExistingEntry) { return !pExistingEntry.lock(); });
 		}
 
 	private:
-		std::function<void (T&)> m_close;
-		std::list<std::weak_ptr<T>> m_entities;
+		consumer<T&> m_close;
+		std::list<std::weak_ptr<T>> m_entries;
 		mutable utils::SpinLock m_lock;
 	};
 }}

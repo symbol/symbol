@@ -1,15 +1,11 @@
 #pragma once
-#include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/NodePacketIoPair.h"
-#include "catapult/net/PacketWriters.h"
+#include "catapult/thread/Future.h"
 
 namespace catapult {
-	namespace thread {
-		template<typename T>
-		class future;
-		class IoServiceThreadPool;
-	}
+	namespace net { class PacketWriters; }
+	namespace thread { class IoServiceThreadPool; }
 }
 
 namespace catapult { namespace tools {
@@ -17,31 +13,25 @@ namespace catapult { namespace tools {
 	/// Class that holds connections to network peers.
 	class NetworkConnections {
 	public:
-		/// Creates a network connections object around \a config.
-		explicit NetworkConnections(const config::LocalNodeConfiguration& config);
+		/// Creates a network connections object around \a nodes.
+		explicit NetworkConnections(const std::vector<ionet::Node>& nodes);
 
-		/// Move constructor
+		/// Move constructor.
 		NetworkConnections(NetworkConnections&& rhs) = default;
 
-	public:
+		/// Destroys the connections.
 		~NetworkConnections();
 
 	public:
 		/// Gets the number of active connections (including pending connections).
-		size_t numActiveConnections() const {
-			return m_pPacketWriters->numActiveConnections();
-		}
+		size_t numActiveConnections() const;
 
 		/// Gets the number of active writers.
-		size_t numActiveWriters() const {
-			return m_pPacketWriters->numActiveWriters();
-		}
+		size_t numActiveWriters() const;
 
 		/// Gets the number of available writers.
 		/// \note There will be fewer available writers than active writers when some writers are checked out.
-		size_t numAvailableWriters() const {
-			return m_pPacketWriters->numAvailableWriters();
-		}
+		size_t numAvailableWriters() const;
 
 	public:
 		/// Establishes connections to all peers in the network.
@@ -56,7 +46,13 @@ namespace catapult { namespace tools {
 	private:
 		std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
 		crypto::KeyPair m_clientKeyPair;
-		config::LocalNodeConfiguration m_config;
+		const std::vector<ionet::Node> m_nodes;
 		std::shared_ptr<net::PacketWriters> m_pPacketWriters;
 	};
+
+	/// Gets the current network height using \a connections.
+	Height GetHeight(const NetworkConnections& connections);
+
+	/// Waits for the network to produce \a numBlocks blocks using \a connections.
+	bool WaitForBlocks(const NetworkConnections& connections, size_t numBlocks);
 }}

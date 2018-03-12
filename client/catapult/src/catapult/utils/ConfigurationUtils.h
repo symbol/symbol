@@ -1,24 +1,11 @@
 #pragma once
 #include "ConfigurationBag.h"
-#include "catapult/exceptions.h"
-#include "catapult/preprocessor.h"
-#include <cctype>
+#include <unordered_set>
 
 namespace catapult { namespace utils {
 
 	/// Gets the ini property name corresponding to the cpp variable name (\a cppVariableName).
-	CATAPULT_INLINE
-	std::string GetIniPropertyName(const char* cppVariableName) {
-		if (nullptr == cppVariableName || strlen(cppVariableName) < 2)
-			CATAPULT_THROW_INVALID_ARGUMENT("cpp variable name must be at least two characters");
-
-		auto firstChar = cppVariableName[0];
-		if (!std::isalpha(firstChar))
-			CATAPULT_THROW_INVALID_ARGUMENT("cpp variable name must start with a letter");
-
-		// lowercase the first character
-		return static_cast<char>(std::tolower(firstChar)) + std::string(&cppVariableName[1]);
-	}
+	std::string GetIniPropertyName(const char* cppVariableName);
 
 	/// Loads an ini property from \a bag into \a value given a section name (\a section) and a cpp variable name
 	/// (\a cppVariableName).
@@ -28,17 +15,12 @@ namespace catapult { namespace utils {
 	}
 
 	/// Verifies that the number of properties in \a bag is no greater than \a expectedSize.
-	CATAPULT_INLINE
-	void VerifyBagSizeLte(const ConfigurationBag& bag, size_t expectedSize) {
-		if (bag.size() > expectedSize)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("configuration bag contains too many properties", bag.size());
-	}
+	void VerifyBagSizeLte(const ConfigurationBag& bag, size_t expectedSize);
 
 	/// Extracts all \a section properties from \a bag into a new bag with a single section with a default (empty string) name.
-	CATAPULT_INLINE
-	ConfigurationBag ExtractSectionAsBag(const ConfigurationBag& bag, const char* section) {
-		ConfigurationBag::ValuesContainer values;
-		values.emplace("", bag.getAll<std::string>(section));
-		return ConfigurationBag(std::move(values));
-	}
+	ConfigurationBag ExtractSectionAsBag(const ConfigurationBag& bag, const char* section);
+
+	/// Extracts all \a section properties from \a bag into an unordered set.
+	/// \note All section properties are expected to be boolean and only ones with \c true values will be included.
+	std::pair<std::unordered_set<std::string>, size_t> ExtractSectionAsUnorderedSet(const ConfigurationBag& bag, const char* section);
 }}

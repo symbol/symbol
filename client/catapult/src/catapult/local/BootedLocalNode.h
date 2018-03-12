@@ -5,6 +5,7 @@
 
 namespace catapult {
 	namespace cache { class CatapultCache; }
+	namespace ionet { class NodeContainerView; }
 	namespace model { class ChainScore; }
 }
 
@@ -21,15 +22,15 @@ namespace catapult { namespace local {
 		{}
 
 	public:
-			/// Gets the counter id.
-			const utils::DiagnosticCounterId& id() const {
-				return m_id;
-			}
+		/// Gets the counter id.
+		const utils::DiagnosticCounterId& id() const {
+			return m_id;
+		}
 
-			/// Gets the counter value.
-			uint64_t value() const {
-				return m_value;
-			}
+		/// Gets the counter value.
+		uint64_t value() const {
+			return m_value;
+		}
 
 	private:
 		utils::DiagnosticCounterId m_id;
@@ -53,6 +54,9 @@ namespace catapult { namespace local {
 
 		/// Gets the current node counters.
 		virtual LocalNodeCounterValues counters() const = 0;
+
+		/// Gets the current nodes.
+		virtual ionet::NodeContainerView nodes() const = 0;
 
 	public:
 		/// Shutdowns the local node.

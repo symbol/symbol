@@ -4,6 +4,8 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS ConfigurationBagTests
+
 	namespace {
 		using FooAlphaType = uint32_t;
 		constexpr FooAlphaType Default_Foo_Alpha_Value = 123;
@@ -40,7 +42,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(ConfigurationBagTests, CanLoadBagFromEmptyIniFile) {
+	TEST(TEST_CLASS, CanLoadBagFromEmptyIniFile) {
 		// Act:
 		auto bag = LoadFromString("");
 
@@ -49,7 +51,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(MakeSectionsSet({}), bag.sections());
 	}
 
-	TEST(ConfigurationBagTests, CanLoadBagFromIniFileWithSingleValue) {
+	TEST(TEST_CLASS, CanLoadBagFromIniFileWithSingleValue) {
 		// Act:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 
@@ -59,7 +61,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(MakeSectionsSet({ "foo" }), bag.sections());
 	}
 
-	TEST(ConfigurationBagTests, CanLoadBagFromIniFileWithMultipleValues) {
+	TEST(TEST_CLASS, CanLoadBagFromIniFileWithMultipleValues) {
 		// Act:
 		auto bag = LoadFromString(R"(
 			[foo]
@@ -74,7 +76,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(MakeSectionsSet({ "foo" }), bag.sections());
 	}
 
-	TEST(ConfigurationBagTests, CanLoadBagFromIniFileWithMultipleValuesInMultipleSections) {
+	TEST(TEST_CLASS, CanLoadBagFromIniFileWithMultipleValuesInMultipleSections) {
 		// Act:
 		auto bag = LoadFromString(R"(
 			[foo]
@@ -96,7 +98,7 @@ namespace catapult { namespace utils {
 
 	// region contains
 
-	TEST(ConfigurationBagTests, ContainsReturnsTrueIfBothSectionAndNameMatch) {
+	TEST(TEST_CLASS, ContainsReturnsTrueIfBothSectionAndNameMatch) {
 		// Arrange:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 
@@ -104,7 +106,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(bag.contains(Foo_Alpha_Key)); // match
 	}
 
-	TEST(ConfigurationBagTests, ContainsReturnsFalseIfEitherSectionOrNameDoesNotMatch) {
+	TEST(TEST_CLASS, ContainsReturnsFalseIfEitherSectionOrNameDoesNotMatch) {
 		// Arrange:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 
@@ -118,7 +120,7 @@ namespace catapult { namespace utils {
 
 	// region tryGet
 
-	TEST(ConfigurationBagTests, TryGetReturnsValueIfBothSectionAndNameMatch) {
+	TEST(TEST_CLASS, TryGetReturnsValueIfBothSectionAndNameMatch) {
 		// Arrange:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 
@@ -147,14 +149,14 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(ConfigurationBagTests, TryGetReturnsFalseIfEitherSectionOrNameDoesNotMatch) {
+	TEST(TEST_CLASS, TryGetReturnsFalseIfEitherSectionOrNameDoesNotMatch) {
 		// Assert:
 		AssertTryGetFailure(Foo_Beta_Key, 17u); // different name
 		AssertTryGetFailure(Bar_Alpha_Key, 18u); // different section
 		AssertTryGetFailure(Bar_Beta_Key, 19u); // unrelated
 	}
 
-	TEST(ConfigurationBagTests, TryGetThrowsIfValueCannotBeParsed) {
+	TEST(TEST_CLASS, TryGetThrowsIfValueCannotBeParsed) {
 		// Arrange:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 		auto initialValue = TimeSpan::FromSeconds(123);
@@ -171,7 +173,7 @@ namespace catapult { namespace utils {
 
 	// region get
 
-	TEST(ConfigurationBagTests, GetReturnsValueIfBothSectionAndNameMatch) {
+	TEST(TEST_CLASS, GetReturnsValueIfBothSectionAndNameMatch) {
 		// Arrange:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 
@@ -188,23 +190,23 @@ namespace catapult { namespace utils {
 			// Arrange:
 			auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 
-			// Act:
+			// Act + Assert:
 			EXPECT_THROW(bag.get<T>(key), TException);
 		}
 	}
 
-	TEST(ConfigurationBagTests, GetThrowsIfEitherSectionOrNameDoesNotMatch) {
+	TEST(TEST_CLASS, GetThrowsIfEitherSectionOrNameDoesNotMatch) {
 		// Assert:
-		using TException = property_not_found_error;
-		AssertGetFailure<FooAlphaType, TException>(Foo_Beta_Key); // different name
-		AssertGetFailure<FooAlphaType, TException>(Bar_Alpha_Key); // different section
-		AssertGetFailure<FooAlphaType, TException>(Bar_Beta_Key); // unrelated
+		using ExceptionType = property_not_found_error;
+		AssertGetFailure<FooAlphaType, ExceptionType>(Foo_Beta_Key); // different name
+		AssertGetFailure<FooAlphaType, ExceptionType>(Bar_Alpha_Key); // different section
+		AssertGetFailure<FooAlphaType, ExceptionType>(Bar_Beta_Key); // unrelated
 	}
 
-	TEST(ConfigurationBagTests, GetThrowsIfIfValueCannotBeParsed) {
+	TEST(TEST_CLASS, GetThrowsIfIfValueCannotBeParsed) {
 		// Assert:
-		using TException = property_malformed_error;
-		AssertGetFailure<utils::TimeSpan, TException>(Foo_Alpha_Key);
+		using ExceptionType = property_malformed_error;
+		AssertGetFailure<utils::TimeSpan, ExceptionType>(Foo_Alpha_Key);
 	}
 
 	// endregion
@@ -223,7 +225,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(ConfigurationBagTests, CanRetrievePropertyCountForKnownSection) {
+	TEST(TEST_CLASS, CanRetrievePropertyCountForKnownSection) {
 		// Arrange:
 		auto bag = LoadMultiSectionBag();
 
@@ -233,7 +235,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(2u, bag.size("bar"));
 	}
 
-	TEST(ConfigurationBagTests, CanRetrievePropertyCountForUnknownSection) {
+	TEST(TEST_CLASS, CanRetrievePropertyCountForUnknownSection) {
 		// Act:
 		auto bag = LoadMultiSectionBag();
 
@@ -242,7 +244,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(0u, bag.size("baz"));
 	}
 
-	TEST(ConfigurationBagTests, GetAllRetrievesAllPropertiesForKnownSection) {
+	TEST(TEST_CLASS, GetAllRetrievesAllPropertiesForKnownSection) {
 		// Arrange:
 		auto bag = LoadMultiSectionBag();
 
@@ -257,7 +259,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(expectedBarProperties, barProperties);
 	}
 
-	TEST(ConfigurationBagTests, GetAllReturnsEmptyPropertiesForUnknownSection) {
+	TEST(TEST_CLASS, GetAllReturnsEmptyPropertiesForUnknownSection) {
 		// Act:
 		auto bag = LoadMultiSectionBag();
 
@@ -268,7 +270,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(properties.empty());
 	}
 
-	TEST(ConfigurationBagTests, GetAllCanParseValuesIntoStronglyTypedValues) {
+	TEST(TEST_CLASS, GetAllCanParseValuesIntoStronglyTypedValues) {
 		// Arrange:
 		auto bag = LoadMultiSectionBag();
 
@@ -280,7 +282,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(expectedProperties, properties);
 	}
 
-	TEST(ConfigurationBagTests, GetAllThrowsIfAnyValueCannotBeParsed) {
+	TEST(TEST_CLASS, GetAllThrowsIfAnyValueCannotBeParsed) {
 		// Arrange:
 		auto bag = LoadFromString(R"(
 			[bar]
@@ -289,7 +291,7 @@ namespace catapult { namespace utils {
 			beta = 99
 		)");
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(bag.getAll<uint32_t>("bar"), property_malformed_error);
 	}
 

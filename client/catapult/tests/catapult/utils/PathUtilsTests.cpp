@@ -4,6 +4,8 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS PathUtilsTests
+
 #ifdef _WIN32
 #define SEPARATOR "\\"
 #else
@@ -27,7 +29,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(PathUtilsTests, IsDirectorySeparatorReturnsTrueOnlyForSlashes) {
+	TEST(TEST_CLASS, IsDirectorySeparatorReturnsTrueOnlyForSlashes) {
 		// Act:
 		for (int i = std::numeric_limits<char>::min(); i <= std::numeric_limits<char>::max(); ++i) {
 			auto ch = static_cast<char>(i);
@@ -40,7 +42,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(PathUtilsTests, AdvanceToEndCanAdvanceToEndOfStrings) {
+	TEST(TEST_CLASS, AdvanceToEndCanAdvanceToEndOfStrings) {
 		// Arrange:
 		auto empty = "";
 		auto nonempty = "hello";
@@ -54,7 +56,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(embeddedNuls + 3, AdvanceToEnd(embeddedNuls));
 	}
 
-	TEST(PathUtilsTests, ExtractFilenameExtractsCorrectPartOfPath) {
+	TEST(TEST_CLASS, ExtractFilenameExtractsCorrectPartOfPath) {
 		// Act + Assert:
 		// - edge cases
 		EXPECT_STREQ("", ExtractFilename(""));
@@ -77,7 +79,7 @@ namespace catapult { namespace utils {
 		EXPECT_STREQ("foo.cpp", ExtractFilename("cat" SEPARATOR_3 "baz" SEPARATOR_3 "bar" SEPARATOR_3 "foo.cpp"));
 	}
 
-	TEST(PathUtilsTests, ExtractDirectoryAndFilenameExtractsCorrectPartOfPath) {
+	TEST(TEST_CLASS, ExtractDirectoryAndFilenameExtractsCorrectPartOfPath) {
 		// Act + Assert:
 		// - edge cases
 		EXPECT_STREQ("", ExtractDirectoryAndFilename(""));
@@ -96,9 +98,7 @@ namespace catapult { namespace utils {
 		EXPECT_STREQ("bar" SEPARATOR_3 "foo.cpp", ExtractDirectoryAndFilename("bar" SEPARATOR_3 "foo.cpp"));
 
 		// - multiple directories
-		EXPECT_STREQ(
-				"bar" SEPARATOR "foo.cpp",
-				ExtractDirectoryAndFilename("cat" SEPARATOR "baz" SEPARATOR "bar" SEPARATOR "foo.cpp"));
+		EXPECT_STREQ("bar" SEPARATOR "foo.cpp", ExtractDirectoryAndFilename("cat" SEPARATOR "baz" SEPARATOR "bar" SEPARATOR "foo.cpp"));
 		EXPECT_STREQ(
 				"bar" SEPARATOR_3 "foo.cpp",
 				ExtractDirectoryAndFilename("cat" SEPARATOR_3 "baz" SEPARATOR_3 "bar" SEPARATOR_3 "foo.cpp"));
@@ -119,7 +119,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(PathUtilsTests, ExtractDirectoryNameExtractsCorrectPartOfPath) {
+	TEST(TEST_CLASS, ExtractDirectoryNameExtractsCorrectPartOfPath) {
 		// Act + Assert
 		// - edge cases
 		AssertDirectoryName("", "");
@@ -142,7 +142,7 @@ namespace catapult { namespace utils {
 		AssertDirectoryName("bar", "cat" SEPARATOR_3 "baz" SEPARATOR_3 "bar" SEPARATOR_3 "foo.cpp");
 	}
 
-	TEST(PathUtilsTests, CorrectInformationIsExtractedFromRealPaths) {
+	TEST(TEST_CLASS, CorrectInformationIsExtractedFromRealPaths) {
 		// Arrange:
 		constexpr const char* Nix_Path = "catapult/utils/PathUtils.h";
 		constexpr const char* Windows_Path = "catapult\\utils\\PathUtils.h";

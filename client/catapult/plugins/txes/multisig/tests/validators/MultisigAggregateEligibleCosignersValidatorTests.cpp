@@ -19,12 +19,12 @@ namespace catapult { namespace validators {
 				const std::vector<Key>& cosigners) {
 			// Arrange:
 			// - setup transactions
-			std::vector<uint8_t> txBuffer(sizeof(model::EmbeddedEntity) * embeddedSigners.size());
-			auto* pTransactions = reinterpret_cast<model::EmbeddedEntity*>(txBuffer.data());
+			std::vector<uint8_t> txBuffer(sizeof(model::EmbeddedTransaction) * embeddedSigners.size());
+			auto* pTransactions = reinterpret_cast<model::EmbeddedTransaction*>(txBuffer.data());
 			for (auto i = 0u; i < embeddedSigners.size(); ++i) {
 				auto& transaction = pTransactions[i];
-				transaction.Type = model::EntityType::Transfer;
-				transaction.Size = sizeof(model::EmbeddedEntity);
+				transaction.Type = static_cast<model::EntityType>(0xFFFF);
+				transaction.Size = sizeof(model::EmbeddedTransaction);
 				transaction.Signer = embeddedSigners[i];
 			}
 
@@ -109,7 +109,7 @@ namespace catapult { namespace validators {
 		auto ineligibleSigner = test::GenerateRandomData<Key_Size>();
 
 		// Assert: invalid because cosigner is not an embedded transaction signer
-		AssertValidationResult<TTraits>(Failure_Multisig_Ineligible_Cosigners, embeddedSigners[0], embeddedSigners, { ineligibleSigner });
+		AssertValidationResult<TTraits>(Failure_Aggregate_Ineligible_Cosigners, embeddedSigners[0], embeddedSigners, { ineligibleSigner });
 	}
 
 	NON_MULTISIG_TRAITS_TEST(AggregateSignerIsIneligibleIfItIsUnrelatedAccount) {
@@ -118,7 +118,7 @@ namespace catapult { namespace validators {
 		auto ineligibleSigner = test::GenerateRandomData<Key_Size>();
 
 		// Assert: invalid because aggregate signer is not an embedded transaction signer
-		AssertValidationResult<TTraits>(Failure_Multisig_Ineligible_Cosigners, ineligibleSigner, embeddedSigners, { embeddedSigners[1] });
+		AssertValidationResult<TTraits>(Failure_Aggregate_Ineligible_Cosigners, ineligibleSigner, embeddedSigners, { embeddedSigners[1] });
 	}
 
 	NON_MULTISIG_TRAITS_TEST(CosignersAreEligibleIfAllMatchEmbeddedTransactionSigners) {
@@ -135,7 +135,7 @@ namespace catapult { namespace validators {
 		auto cosigners = { embeddedSigners[0], test::GenerateRandomData<Key_Size>(), embeddedSigners[2] };
 
 		// Assert: invalid because a single cosigner is not an embedded transaction signer
-		AssertValidationResult<TTraits>(Failure_Multisig_Ineligible_Cosigners, embeddedSigners[0], embeddedSigners, cosigners);
+		AssertValidationResult<TTraits>(Failure_Aggregate_Ineligible_Cosigners, embeddedSigners[0], embeddedSigners, cosigners);
 	}
 
 	// endregion
@@ -240,7 +240,7 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				const cache::CatapultCache& cache,
 				const Key& signer,
-				const model::EmbeddedEntity& transaction,
+				const model::EmbeddedTransaction& transaction,
 				const std::vector<Key>& cosigners) {
 			// Arrange:
 			// - setup cosignatures
@@ -289,7 +289,7 @@ namespace catapult { namespace validators {
 		const auto* pModifications = pTransaction->ModificationsPtr();
 		for (const auto& cosignatory : { pModifications[1].CosignatoryPublicKey, pModifications[3].CosignatoryPublicKey }) {
 			CATAPULT_LOG(debug) << "cosigning with cosigner " << i++;
-			AssertValidationResult(Failure_Multisig_Ineligible_Cosigners, cache, signer, *pTransaction, { cosignatory });
+			AssertValidationResult(Failure_Aggregate_Ineligible_Cosigners, cache, signer, *pTransaction, { cosignatory });
 		}
 	}
 

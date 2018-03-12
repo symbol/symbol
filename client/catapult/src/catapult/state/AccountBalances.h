@@ -1,4 +1,5 @@
 #pragma once
+#include "CompactMosaicUnorderedMap.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/exceptions.h"
 #include "catapult/types.h"
@@ -9,68 +10,49 @@ namespace catapult { namespace state {
 	/// Container holding information about account.
 	class AccountBalances {
 	public:
+		/// Creates an empty account balances.
+		AccountBalances();
+
+		/// Copy constructor that makes a deep copy of \a accountBalances.
+		AccountBalances(const AccountBalances& accountBalances);
+
+		/// Move constructor that move constructs an account balances from \a accountBalances.
+		AccountBalances(AccountBalances&& accountBalances);
+
+	public:
+		/// Assignment operator that makes a deep copy of \a accountBalances.
+		AccountBalances& operator=(const AccountBalances& accountBalances);
+
+		/// Move assignment operator that assigns \a accountBalances.
+		AccountBalances& operator=(AccountBalances&& accountBalances);
+
+	public:
 		/// Returns the number of mosaics owned.
 		size_t size() const {
 			return m_balances.size();
 		}
 
-		/// Returns amount of funds of a given mosaic (\a mosaicId).
-		Amount get(MosaicId mosaicId) const {
-			auto it = m_balances.find(mosaicId);
-			return m_balances.cend() == it ? Amount(0) : it->second;
-		}
-
 		/// Returns a const iterator to the first element of the underlying set.
 		auto begin() const {
-			return m_balances.cbegin();
+			return m_balances.begin();
 		}
 
 		/// Returns a const iterator to the element following the last element of the underlying set.
 		auto end() const {
-			return m_balances.cend();
+			return m_balances.end();
 		}
+
+		/// Returns amount of funds of a given mosaic (\a mosaicId).
+		Amount get(MosaicId mosaicId) const;
 
 	public:
 		/// Adds \a amount funds to a given mosaic (\a mosaicId).
-		AccountBalances& credit(MosaicId mosaicId, Amount amount) {
-			if (IsZero(amount))
-				return *this;
-
-			// there's a side-effect here, that balance will be set to zero
-			// if it wasn't in map yet
-			auto& currentBalance = m_balances[mosaicId];
-			currentBalance = currentBalance + amount;
-			return *this;
-		}
+		AccountBalances& credit(MosaicId mosaicId, Amount amount);
 
 		/// Subtracts \a amount funds from a given mosaic (\a mosaicId).
-		AccountBalances& debit(MosaicId mosaicId, Amount amount) {
-			if (IsZero(amount))
-				return *this;
-
-			auto iter = m_balances.find(mosaicId);
-			auto hasZeroBalance = m_balances.end() == iter;
-			if (hasZeroBalance || amount > iter->second) {
-				CATAPULT_THROW_RUNTIME_ERROR_2(
-						"debit amount is greater than current balance",
-						amount,
-						hasZeroBalance ? Amount(0) : iter->second);
-			}
-
-			auto& currentBalance = iter->second;
-			currentBalance = currentBalance - amount;
-			if (IsZero(currentBalance))
-				m_balances.erase(mosaicId);
-
-			return *this;
-		}
+		AccountBalances& debit(MosaicId mosaicId, Amount amount);
 
 	private:
-		constexpr static bool IsZero(Amount amount) {
-			return Amount(0) == amount;
-		}
-
-	private:
-		std::unordered_map<MosaicId, Amount, utils::BaseValueHasher<MosaicId>> m_balances;
+		CompactMosaicUnorderedMap m_balances;
 	};
 }}

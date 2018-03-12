@@ -1,6 +1,6 @@
 #include "catapult/consumers/BlockConsumers.h"
-#include "tests/catapult/consumers/utils/ConsumerInputFactory.h"
-#include "tests/catapult/consumers/utils/ConsumerTestUtils.h"
+#include "tests/catapult/consumers/test/ConsumerInputFactory.h"
+#include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 #include "tests/TestHarness.h"
@@ -9,6 +9,8 @@ using catapult::disruptor::ConsumerInput;
 using catapult::disruptor::InputSource;
 
 namespace catapult { namespace consumers {
+
+#define TEST_CLASS NewBlockConsumerTests
 
 	namespace {
 		struct NewBlockSinkParams {
@@ -51,7 +53,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(NewBlockConsumerTests, CanProcessZeroEntities) {
+	TEST(TEST_CLASS, CanProcessZeroEntities) {
 		// Assert:
 		ConsumerTestContext context(GetRemoteMask());
 		test::AssertPassthroughForEmptyInput(context.Consumer);
@@ -92,25 +94,25 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(NewBlockConsumerTests, SingleBlockMatchingMaskIsForwarded) {
+	TEST(TEST_CLASS, SingleBlockMatchingMaskIsForwarded) {
 		// Assert:
 		AssertBlockForwarded(CreateInput(1, InputSource::Remote_Pull));
 		AssertBlockForwarded(CreateInput(1, InputSource::Remote_Push));
 	}
 
-	TEST(NewBlockConsumerTests, SingleBlockNotMatchingMaskIsNotForwarded) {
+	TEST(TEST_CLASS, SingleBlockNotMatchingMaskIsNotForwarded) {
 		// Assert:
 		AssertBlockNotForwarded(CreateInput(1, InputSource::Unknown));
 		AssertBlockNotForwarded(CreateInput(1, InputSource::Local));
 	}
 
-	TEST(NewBlockConsumerTests, MultipleBlocksMatchingMaskAreNotForwarded) {
+	TEST(TEST_CLASS, MultipleBlocksMatchingMaskAreNotForwarded) {
 		// Assert:
 		AssertBlockNotForwarded(CreateInput(3, InputSource::Remote_Pull));
 		AssertBlockNotForwarded(CreateInput(3, InputSource::Remote_Push));
 	}
 
-	TEST(NewBlockConsumerTests, MultipleBlocksNotMatchingMaskAreNotForwarded) {
+	TEST(TEST_CLASS, MultipleBlocksNotMatchingMaskAreNotForwarded) {
 		// Assert:
 		AssertBlockNotForwarded(CreateInput(3, InputSource::Unknown));
 		AssertBlockNotForwarded(CreateInput(3, InputSource::Local));

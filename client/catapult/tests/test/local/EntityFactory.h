@@ -31,10 +31,7 @@ namespace catapult { namespace test {
 			Amount amount);
 
 	/// Creates basic signed TransferTransaction with \a signer, \a recipient and \a amount.
-	std::unique_ptr<model::Transaction> CreateTransferTransaction(
-			const crypto::KeyPair& signer,
-			const Address& recipient,
-			Amount amount);
+	std::unique_ptr<model::Transaction> CreateTransferTransaction(const crypto::KeyPair& signer, const Address& recipient, Amount amount);
 
 	/// Creates basic signed TransferTransaction with \a signer, \a recipientPublicKey and \a amount.
 	std::unique_ptr<model::Transaction> CreateTransferTransaction(

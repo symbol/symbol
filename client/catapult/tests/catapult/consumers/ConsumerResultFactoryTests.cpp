@@ -3,7 +3,9 @@
 
 namespace catapult { namespace consumers {
 
-	TEST(ConsumerResultFactoryTests, CanCreateContinueConsumerResult) {
+#define TEST_CLASS ConsumerResultFactoryTests
+
+	TEST(TEST_CLASS, CanCreateContinueConsumerResult) {
 		// Act:
 		auto result = Continue();
 
@@ -12,7 +14,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ(0u, result.CompletionCode);
 	}
 
-	TEST(ConsumerResultFactoryTests, CanCreateAbortConsumerResult) {
+	TEST(TEST_CLASS, CanCreateAbortConsumerResult) {
 		// Act:
 		auto result = Abort(static_cast<validators::ValidationResult>(456));
 
@@ -21,7 +23,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ(456u, result.CompletionCode);
 	}
 
-	TEST(ConsumerResultFactoryTests, CanCreateCompleteConsumerResult) {
+	TEST(TEST_CLASS, CanCreateCompleteConsumerResult) {
 		// Act:
 		auto result = Complete();
 

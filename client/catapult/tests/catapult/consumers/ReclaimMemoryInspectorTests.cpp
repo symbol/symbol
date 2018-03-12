@@ -1,5 +1,5 @@
 #include "catapult/consumers/ReclaimMemoryInspector.h"
-#include "tests/catapult/consumers/utils/ConsumerInputFactory.h"
+#include "tests/catapult/consumers/test/ConsumerInputFactory.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace consumers {

@@ -5,9 +5,11 @@
 
 namespace catapult { namespace model {
 
+#define TEST_CLASS NetworkInfoTests
+
 	// region construction
 
-	TEST(NetworkInfoTests, CanCreateDefaultNetwork) {
+	TEST(TEST_CLASS, CanCreateDefaultNetwork) {
 		// Act:
 		NetworkInfo info;
 
@@ -17,7 +19,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(Hash256{}, info.GenerationHash);
 	}
 
-	TEST(NetworkInfoTests, CanCreateCustomNetwork) {
+	TEST(TEST_CLASS, CanCreateCustomNetwork) {
 		// Arrange:
 		auto publicKey = test::GenerateRandomData<Key_Size>();
 		auto generationHash = test::GenerateRandomData<Hash256_Size>();
@@ -35,7 +37,7 @@ namespace catapult { namespace model {
 
 	// region parsing
 
-	TEST(NetworkInfoTests, CanParseValidNetworkValue) {
+	TEST(TEST_CLASS, CanParseValidNetworkValue) {
 		// Arrange:
 		auto assertSuccessfulParse = [](const auto& input, const auto& expectedParsedValue) {
 			test::AssertParse(input, expectedParsedValue, [](const auto& str, auto& parsedValue) {
@@ -54,7 +56,7 @@ namespace catapult { namespace model {
 		assertSuccessfulParse("255", static_cast<NetworkIdentifier>(255));
 	}
 
-	TEST(NetworkInfoTests, CannotParseInvalidNetworkValue) {
+	TEST(TEST_CLASS, CannotParseInvalidNetworkValue) {
 		// Assert:
 		test::AssertEnumParseFailure("mijin", NetworkIdentifier::Public, [](const auto& str, auto& parsedValue) {
 			return TryParseValue(str, parsedValue);

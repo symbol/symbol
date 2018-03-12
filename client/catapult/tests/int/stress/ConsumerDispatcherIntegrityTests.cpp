@@ -9,6 +9,8 @@
 
 namespace catapult { namespace disruptor {
 
+#define TEST_CLASS ConsumerDispatcherIntegrityTests
+
 	namespace {
 #ifdef STRESS
 		constexpr size_t Adjustment_Divisor = 1u;
@@ -21,7 +23,7 @@ namespace catapult { namespace disruptor {
 		constexpr size_t Default_Disruptor_Size = 16 * 1024 / Adjustment_Divisor;
 	}
 
-	NO_STRESS_TEST(ConsumerDispatcherIntegrityTests, MultipleConsumersCanProcessAllPushedElements) {
+	NO_STRESS_TEST(TEST_CLASS, MultipleConsumersCanProcessAllPushedElements) {
 		// Arrange:
 		test::GlobalLogFilter testLogFilter(utils::LogLevel::Info);
 		auto ranges = test::PrepareRanges(1);
@@ -29,14 +31,16 @@ namespace catapult { namespace disruptor {
 		std::atomic<uint64_t> counter1(Difficulty::Min().unwrap());
 		std::atomic<uint64_t> counter2(0);
 		std::atomic<uint64_t> inspectorCounter(0);
+		ConsumerDispatcherOptions options{ "ConsumerDispatcherIntegrityTests", Default_Disruptor_Size };
+		options.ElementTraceInterval = Elements_Per_Inner_Iteration * 8;
 		ConsumerDispatcher dispatcher(
-				{ "ConsumerDispatcherIntegrityTests", Default_Disruptor_Size },
+				options,
 				{
-					[&counter1](ConsumerInput&) -> ConsumerResult {
+					[&counter1](auto&) {
 						++counter1;
 						return ConsumerResult::Continue();
 					},
-					[&counter2](ConsumerInput&) -> ConsumerResult {
+					[&counter2](auto&) {
 						++counter2;
 						return ConsumerResult::Continue();
 					}
@@ -50,15 +54,13 @@ namespace catapult { namespace disruptor {
 				dispatcher.processElement(ConsumerInput(std::move(range)));
 			}
 
-			// if producer is further than "half of disruptor", let it sleep for a bit
-			// and let the consumer keep up
-			if (j * Elements_Per_Inner_Iteration - counter2 > (Default_Disruptor_Size / 2))
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			// if the dispatcher is more than half full, wait for the consumers to catch up
+			WAIT_FOR_EXPR(Default_Disruptor_Size / 2 > dispatcher.numAddedElements() - inspectorCounter);
 		}
 
 		// Assert (counter1 is modified by first consumer, counter2 by the second):
 		constexpr uint64_t Iteration_Count = Outer_Iteration * Elements_Per_Inner_Iteration;
-		WAIT_FOR_VALUE(inspectorCounter, Iteration_Count);
+		WAIT_FOR_VALUE(Iteration_Count, inspectorCounter);
 
 		EXPECT_EQ(Difficulty::Min().unwrap() + Iteration_Count, counter1);
 		EXPECT_EQ(Iteration_Count, counter2);

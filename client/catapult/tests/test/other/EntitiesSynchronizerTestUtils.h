@@ -1,0 +1,195 @@
+#pragma once
+#include "catapult/model/AnnotatedEntityRange.h"
+#include "tests/test/core/EntityTestUtils.h"
+#include "tests/test/core/mocks/MockPacketIo.h"
+#include "tests/TestHarness.h"
+
+namespace catapult { namespace test {
+
+	/// Tests for an entities synchronizer.
+	template<typename TTraits>
+	class EntitiesSynchronizerTests {
+	private:
+		using RequestRangeType = model::EntityRange<typename TTraits::RequestElementType>;
+		using ResponseContainerType = typename TTraits::ResponseContainerType;
+
+	private:
+		struct TestContext {
+			explicit TestContext(const RequestRangeType& localRequestRange)
+					: pIo(std::make_shared<mocks::MockPacketIo>())
+					, RequestRangeSupplierCalls(0)
+					, RequestRange(RequestRangeType::CopyRange(localRequestRange))
+					, ResponseContainerConsumerCalls(0)
+			{}
+
+			std::shared_ptr<mocks::MockPacketIo> pIo;
+
+			// request sent to the remote
+			size_t RequestRangeSupplierCalls;
+			RequestRangeType RequestRange;
+
+			// response received from the remote
+			size_t ResponseContainerConsumerCalls;
+			ResponseContainerType ConsumerResponseContainer;
+		};
+
+	private:
+		static auto CreateSynchronizer(TestContext& context) {
+			auto& requestRangeSupplierCalls = context.RequestRangeSupplierCalls;
+			const auto& requestRange = context.RequestRange;
+			auto requestRangeSupplier = [&requestRangeSupplierCalls, &requestRange]() {
+				++requestRangeSupplierCalls;
+				return RequestRangeType::CopyRange(requestRange);
+			};
+
+			auto& responseContainerConsumerCalls = context.ResponseContainerConsumerCalls;
+			auto& capturedResponseContainer = context.ConsumerResponseContainer;
+			auto responseContainerConsumer = [&responseContainerConsumerCalls, &capturedResponseContainer](auto&& responseContainer) {
+				++responseContainerConsumerCalls;
+				capturedResponseContainer = std::move(responseContainer);
+			};
+
+			return TTraits::CreateSynchronizer(requestRangeSupplier, responseContainerConsumer);
+		}
+
+		template<typename TResponseContainer, typename TResponseEntity>
+		static void AssertResponse(
+				const TResponseContainer& expectedResponse,
+				const model::AnnotatedEntityRange<TResponseEntity>& actualResponse) {
+			// Assert: range contains expected contents and has anonymous source
+			test::AssertEqualRange(expectedResponse, actualResponse.Range, "response");
+			EXPECT_EQ(Key(), actualResponse.SourcePublicKey);
+		}
+
+		template<typename TResponseContainer>
+		static void AssertResponse(const TResponseContainer& expectedResponse, const TResponseContainer& actualResponse) {
+			// Assert: response contains expected contents
+			TTraits::AssertCustomResponse(expectedResponse, actualResponse);
+		}
+
+	public:
+		/// Asserts a successful interaction when new data is pulled.
+		static void AssertSuccessInteractionWhenNewDataIsPulled() {
+			// Arrange:
+			// - create the synchronizer
+			auto requestRange = TTraits::CreateRequestRange(5);
+			TestContext context(requestRange);
+			auto synchronizer = CreateSynchronizer(context);
+
+			// - create the api
+			auto responseContainer = TTraits::CreateResponseContainer(5);
+			auto remoteApiWrapper = TTraits::CreateRemoteApi(responseContainer);
+
+			// Act:
+			auto result = synchronizer(remoteApiWrapper.api()).get();
+
+			// Assert: check result and counters
+			EXPECT_EQ(chain::NodeInteractionResult::Success, result);
+			EXPECT_EQ(1u, context.RequestRangeSupplierCalls);
+			EXPECT_EQ(1u, context.ResponseContainerConsumerCalls);
+
+			// - check request range
+			ASSERT_EQ(1u, remoteApiWrapper.numCalls());
+			test::AssertEqualRange(requestRange, remoteApiWrapper.singleRequest(), "request");
+
+			// - check response container
+			AssertResponse(responseContainer, context.ConsumerResponseContainer);
+		}
+
+		/// Asserts a neutral interaction when no data is pulled.
+		static void AssertNeutralInteractionWhenNoDataIsPulled() {
+			// Arrange:
+			// - create the synchronizer
+			auto requestRange = TTraits::CreateRequestRange(5);
+			TestContext context(requestRange);
+			auto synchronizer = CreateSynchronizer(context);
+
+			// - create the api
+			auto remoteApiWrapper = TTraits::CreateRemoteApi({});
+
+			// Act:
+			auto result = synchronizer(remoteApiWrapper.api()).get();
+
+			// Assert: check result and counters
+			EXPECT_EQ(chain::NodeInteractionResult::Neutral, result);
+			EXPECT_EQ(1u, context.RequestRangeSupplierCalls);
+			EXPECT_EQ(0u, context.ResponseContainerConsumerCalls);
+
+			// - check request range
+			ASSERT_EQ(1u, remoteApiWrapper.numCalls());
+			test::AssertEqualRange(requestRange, remoteApiWrapper.singleRequest(), "request");
+
+			// - no response container
+		}
+
+		/// Asserts a failed interaction when remote api throws.
+		static void AssertFailedInteractionWhenRemoteApiThrows() {
+			// Arrange:
+			// - create the synchronizer
+			auto requestRange = TTraits::CreateRequestRange(5);
+			TestContext context(requestRange);
+			auto synchronizer = CreateSynchronizer(context);
+
+			// - create the api
+			auto responseContainer = TTraits::CreateResponseContainer(5);
+			auto remoteApiWrapper = TTraits::CreateRemoteApi(responseContainer);
+			remoteApiWrapper.setError();
+
+			// Act:
+			auto result = synchronizer(remoteApiWrapper.api()).get();
+
+			// Assert: check result and counters
+			EXPECT_EQ(chain::NodeInteractionResult::Failure, result);
+			EXPECT_EQ(1u, context.RequestRangeSupplierCalls);
+			EXPECT_EQ(0u, context.ResponseContainerConsumerCalls);
+
+			// - check request range
+			ASSERT_EQ(1u, remoteApiWrapper.numCalls());
+			test::AssertEqualRange(requestRange, remoteApiWrapper.singleRequest(), "request");
+
+			// - no response container
+		}
+
+		// Asserts that a successful interaction can follow a failed interaction.
+		static void AssertCanRecoverAfterFailedInteraction() {
+			// Arrange:
+			// - create the synchronizer
+			auto requestRange = TTraits::CreateRequestRange(5);
+			TestContext context(requestRange);
+			auto synchronizer = CreateSynchronizer(context);
+
+			// - create the api
+			auto responseContainer = TTraits::CreateResponseContainer(5);
+			auto remoteApiWrapper = TTraits::CreateRemoteApi(responseContainer);
+
+			std::vector<chain::NodeInteractionResult> interactionResults;
+
+			// Act: set an exception and sync
+			remoteApiWrapper.setError();
+			interactionResults.push_back(synchronizer(remoteApiWrapper.api()).get());
+
+			// - clear the exception and sync
+			remoteApiWrapper.setError(false);
+			interactionResults.push_back(synchronizer(remoteApiWrapper.api()).get());
+
+			// Assert: the first sync failed but the second succeeded
+			EXPECT_EQ(2u, context.RequestRangeSupplierCalls);
+			EXPECT_EQ(1u, context.ResponseContainerConsumerCalls);
+
+			std::vector<chain::NodeInteractionResult> expectedInteractionResults{
+				chain::NodeInteractionResult::Failure,
+				chain::NodeInteractionResult::Success
+			};
+			EXPECT_EQ(expectedInteractionResults, interactionResults);
+		}
+	};
+
+#define MAKE_ENTITIES_SYNCHRONIZER_TEST(TEST_CLASS, TRAITS_NAME, TEST_NAME) \
+	TEST(TEST_CLASS, TEST_NAME) { test::EntitiesSynchronizerTests<TRAITS_NAME>::Assert##TEST_NAME(); }
+
+#define DEFINE_ENTITIES_SYNCHRONIZER_TESTS(SYNCHRONIZER_NAME) \
+	MAKE_ENTITIES_SYNCHRONIZER_TEST(SYNCHRONIZER_NAME##Tests, SYNCHRONIZER_NAME##Traits, SuccessInteractionWhenNewDataIsPulled) \
+	MAKE_ENTITIES_SYNCHRONIZER_TEST(SYNCHRONIZER_NAME##Tests, SYNCHRONIZER_NAME##Traits, NeutralInteractionWhenNoDataIsPulled) \
+	MAKE_ENTITIES_SYNCHRONIZER_TEST(SYNCHRONIZER_NAME##Tests, SYNCHRONIZER_NAME##Traits, FailedInteractionWhenRemoteApiThrows) \
+	MAKE_ENTITIES_SYNCHRONIZER_TEST(SYNCHRONIZER_NAME##Tests, SYNCHRONIZER_NAME##Traits, CanRecoverAfterFailedInteraction)
+}}

@@ -17,6 +17,5 @@ SOURCE_GROUP("ref10" FILES ${external_ref10_SRC})
 SOURCE_GROUP("sha3" FILES ${external_sha3_SRC})
 SOURCE_GROUP("ripemd160" FILES ${external_ripemd160_SRC})
 
-add_library(external ${external_ref10_SRC} ${external_sha3_SRC} ${external_ripemd160_SRC})
+add_library(external ${external_ref10_SRC} ${external_sha3_SRC} ${external_ripemd160_SRC} README.txt)
 set_property(TARGET external PROPERTY POSITION_INDEPENDENT_CODE ON)
-

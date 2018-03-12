@@ -2,9 +2,9 @@
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 
-#define TEST_CLASS TransactionExtensionsTests
-
 namespace catapult { namespace extensions {
+
+#define TEST_CLASS TransactionExtensionsTests
 
 	namespace {
 		struct NormalTraits {
@@ -65,4 +65,19 @@ namespace catapult { namespace extensions {
 		// Act + Assert:
 		EXPECT_FALSE(VerifyTransactionSignature(*pEntity));
 	}
+
+	// region Deterministic Entity Sanity
+
+	TEST(TEST_CLASS, DeterministicTransactionIsFullyVerifiable) {
+		// Arrange:
+		auto pTransaction = test::GenerateDeterministicTransaction();
+
+		// Act:
+		auto isVerified = VerifyTransactionSignature(*pTransaction);
+
+		// Assert:
+		EXPECT_TRUE(isVerified);
+	}
+
+	// endregion
 }}

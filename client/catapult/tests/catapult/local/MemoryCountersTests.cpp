@@ -4,6 +4,8 @@
 
 namespace catapult { namespace local {
 
+#define TEST_CLASS MemoryCountersTests
+
 	namespace {
 		using Counters = std::vector<utils::DiagnosticCounter>;
 
@@ -33,7 +35,7 @@ namespace catapult { namespace local {
 		}
 	}
 
-	TEST(MemoryCountersTests, CanAddMemoryCounters) {
+	TEST(TEST_CLASS, CanAddMemoryCounters) {
 		// Act:
 		Counters counters;
 		AddMemoryCounters(counters);
@@ -57,7 +59,7 @@ namespace catapult { namespace local {
 #endif
 	}
 
-	TEST(MemoryCountersTests, CountersHaveNonZeroValues) {
+	TEST(TEST_CLASS, CountersHaveNonZeroValues) {
 		// Arrange:
 		Counters counters;
 		AddMemoryCounters(counters);
@@ -71,7 +73,7 @@ namespace catapult { namespace local {
 		}
 	}
 
-	TEST(MemoryCountersTests, CountersHaveExpectedRelationship) {
+	TEST(TEST_CLASS, CountersHaveExpectedRelationship) {
 		// Arrange:
 		Counters counters;
 		AddMemoryCounters(counters);

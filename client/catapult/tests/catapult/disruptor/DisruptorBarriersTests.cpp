@@ -2,7 +2,10 @@
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace disruptor {
-	TEST(DisruptorBarriersTests, CanCreateBarriersWithoutBarriers) {
+
+#define TEST_CLASS DisruptorBarriersTests
+
+	TEST(TEST_CLASS, CanCreateBarriersWithoutBarriers) {
 		// Arrange+Act:
 		DisruptorBarriers barriers(0);
 
@@ -10,7 +13,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(0u, barriers.size());
 	}
 
-	TEST(DisruptorBarriersTests, CanCreateBarriersWithASingleBarrier) {
+	TEST(TEST_CLASS, CanCreateBarriersWithASingleBarrier) {
 		// Arrange+Act:
 		DisruptorBarriers barriers(1);
 
@@ -20,7 +23,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(0u, barriers[0].level());
 	}
 
-	TEST(DisruptorBarriersTests, CanCreateBarriersWithMultipleBarriers) {
+	TEST(TEST_CLASS, CanCreateBarriersWithMultipleBarriers) {
 		// Arrange+Act:
 		DisruptorBarriers barriers(10);
 
@@ -32,7 +35,7 @@ namespace catapult { namespace disruptor {
 		}
 	}
 
-	TEST(DisruptorBarriersTests, CanAccessBarriersViaConstInterface) {
+	TEST(TEST_CLASS, CanAccessBarriersViaConstInterface) {
 		// Arrange+Act:
 		DisruptorBarriers testedBarriers(10);
 

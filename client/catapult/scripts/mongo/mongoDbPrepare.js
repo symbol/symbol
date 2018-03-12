@@ -1,30 +1,60 @@
-db.createCollection('blocks');
-db.blocks.createIndex({ 'block.signer': 1 });
-db.blocks.createIndex({ 'block.timestamp': -1 }, { unique: true });
-db.blocks.createIndex({ 'block.height': -1 }, { unique: true });
-db.blocks.createIndex({ 'block.signer': 1, 'block.height': -1 }, { unique: true });
+(function prepareDbConfiguration() {
+	db.setProfilingLevel(1, 100); // log slow queries
+})();
 
-db.createCollection('transactions');
-db.transactions.createIndex({ 'transaction.deadline': -1 });
-db.transactions.createIndex({ 'transaction.signer': 1, _id: -1 });
-db.transactions.createIndex({ 'transaction.recipient': 1, _id: -1 });
-db.transactions.createIndex({ 'meta.height': -1 });
-db.transactions.createIndex({ 'meta.aggregateId': 1 }, { sparse: true });
+(function prepareDbCollections() {
+	function makeSparse(propertyName) {
+		return { partialFilterExpression: { [propertyName]: { $exists: true } } };
+	}
 
-db.createCollection('accounts');
-db.accounts.createIndex({ 'account.publicKey': 1 }); // cannot be unique because zeroed public keys are stored
-db.accounts.createIndex({ 'account.address': 1 }, { unique: true });
+	function addCommonTransactionIndexes(collection) {
+		collection.createIndex({ 'transaction.signer': 1, _id: -1 });
+		collection.createIndex({ 'transaction.recipient': 1, _id: -1 });
+		collection.createIndex({ 'meta.hash': 1 }, Object.assign({ unique: true }, makeSparse('meta.hash')));
+		collection.createIndex({ 'meta.addresses': 1 }, makeSparse('meta.addresses'));
+		collection.createIndex({ 'meta.aggregateId': 1 }, makeSparse('meta.aggregateId'));
+	}
 
-db.createCollection('unconfirmedTransactions');
-db.unconfirmedTransactions.createIndex({ 'meta.hash': 1 }, { unique: true, sparse: true });
-db.unconfirmedTransactions.createIndex({ 'transaction.signer': 1, _id: -1 });
-db.unconfirmedTransactions.createIndex({ 'transaction.recipient': 1, _id: -1 });
-db.unconfirmedTransactions.createIndex({ 'meta.aggregateId': 1 }, { sparse: true });
+	function addTransactionCollection(collectionName) {
+		db.createCollection(collectionName);
+		addCommonTransactionIndexes(db[collectionName]);
+		db[collectionName].createIndex({ 'meta.aggregateHash': 1 }, makeSparse('meta.aggregateHash'));
+	}
 
-db.blocks.getIndexes();
-db.transactions.getIndexes();
-db.accounts.getIndexes();
-db.unconfirmedTransactions.getIndexes();
+	db.createCollection('blocks');
+	db.blocks.createIndex({ 'block.signer': 1 });
+	db.blocks.createIndex({ 'block.timestamp': -1 }, { unique: true });
+	db.blocks.createIndex({ 'block.height': -1 }, { unique: true });
+	db.blocks.createIndex({ 'block.signer': 1, 'block.height': -1 }, { unique: true });
 
-load("mongo/mongoMultisigDbPrepare.js")
-load("mongo/mongoNamespaceDbPrepare.js")
+	db.createCollection('transactions');
+	addCommonTransactionIndexes(db.transactions);
+	db.transactions.createIndex({ 'meta.height': -1 });
+	db.transactions.createIndex({ 'transaction.deadline': -1 });
+	db.transactions.createIndex({ 'transaction.cosignatures.signer': 1 }, makeSparse('transaction.cosignatures.signer'));
+	db.transactions.createIndex({ 'transaction.mosaicId': 1, 'transaction.type': 1 }, makeSparse('transaction.mosaicId'));
+	db.transactions.createIndex({ 'transaction.namespaceId': 1, 'transaction.type': 1 }, makeSparse('transaction.namespaceId'));
+
+	db.createCollection('accounts');
+	db.accounts.createIndex({ 'account.publicKey': 1 }); // cannot be unique because zeroed public keys are stored
+	db.accounts.createIndex({ 'account.address': 1 }, { unique: true });
+
+	addTransactionCollection('unconfirmedTransactions');
+
+	addTransactionCollection('partialTransactions');
+
+	db.createCollection('transactionStatuses');
+	db.transactionStatuses.createIndex({ hash: 1 }, { unique: true });
+	db.transactionStatuses.createIndex({ deadline: -1 });
+
+	db.blocks.getIndexes();
+	db.transactions.getIndexes();
+	db.accounts.getIndexes();
+	db.unconfirmedTransactions.getIndexes();
+	db.partialTransactions.getIndexes();
+	db.transactionStatuses.getIndexes();
+})();
+
+load('mongoLockInfoDbPrepare.js')
+load('mongoMultisigDbPrepare.js')
+load('mongoNamespaceDbPrepare.js')

@@ -1,5 +1,5 @@
 #include "src/validators/Validators.h"
-#include "catapult/cache/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/constants.h"
 #include "tests/test/MosaicCacheTestUtils.h"
@@ -31,10 +31,7 @@ namespace catapult { namespace validators {
 		}
 
 		state::MosaicDefinition CreateMosaicDefinition(Height height, const Key& owner, model::MosaicFlags flags) {
-			return state::MosaicDefinition(
-					height,
-					owner,
-					CreateMosaicProperties(flags));
+			return state::MosaicDefinition(height, owner, CreateMosaicProperties(flags));
 		}
 
 		state::MosaicEntry CreateMosaicEntry(NamespaceId namespaceId, MosaicId mosaicId, const Key& owner, model::MosaicFlags flags) {
@@ -151,8 +148,9 @@ namespace catapult { namespace validators {
 
 			if (notificationFlags & Owner_Is_Sender)
 				sender = owner;
+
 			if (notificationFlags & Owner_Is_Recipient)
-				recipient = cache.createView().sub<cache::AccountStateCache>().findAccount(owner)->Address;
+				recipient = cache.createView().sub<cache::AccountStateCache>().get(owner).Address;
 
 			// Assert:
 			AssertValidationResult(expectedResult, cache, notification);

@@ -5,17 +5,6 @@ namespace catapult { namespace model { class TransactionRegistry; } }
 
 namespace catapult { namespace extensions {
 
-	/// Calculates and updates the block transactions hash of \a block.
-	/// \note This function requires a full block and will calculate all transaction hashes.
-	void UpdateBlockTransactionsHash(model::Block& block);
-
-	/// Calculates the block transactions hash of \a block into \a blockTransactionsHash.
-	/// \note This function requires a full block and will calculate all transaction hashes.
-	void CalculateBlockTransactionsHash(const model::Block& block, Hash256& blockTransactionsHash);
-
-	/// Cryptographically signs a full \a block with \a signer.
-	void SignFullBlock(const crypto::KeyPair& signer, model::Block& block);
-
 	/// Possible results of verifying a full block.
 	enum class VerifyFullBlockResult {
 		/// The block is valid.
@@ -28,18 +17,36 @@ namespace catapult { namespace extensions {
 		Invalid_Transaction_Signature,
 	};
 
-	/// Cryptographically verifies a full \a block by checking all signatures and hashes.
-	VerifyFullBlockResult VerifyFullBlock(const model::Block& block);
+	/// Extensions for working with blocks.
+	class BlockExtensions {
+	public:
+		/// Creates extensions for a block containing only basic transactions.
+		BlockExtensions();
 
-	/// Converts \a block to a block element with the specified generation hash (\a generationHash).
-	/// \note This function requires a full block and will calculate all block and transaction hashes assuming basic transactions.
-	model::BlockElement ConvertBlockToBlockElement(const model::Block& block, const Hash256& generationHash);
+		/// Creates extensions for a block containing transactions registered in \a transactionRegistry.
+		explicit BlockExtensions(const model::TransactionRegistry& transactionRegistry);
 
-	/// Converts \a block to a block element with the specified generation hash (\a generationHash).
-	/// \note This function requires a full block and will calculate all block and transaction hashes using transaction
-	///       information from \a transactionRegistry.
-	model::BlockElement ConvertBlockToBlockElement(
-			const model::Block& block,
-			const Hash256& generationHash,
-			const model::TransactionRegistry& transactionRegistry);
+	public:
+		/// Calculates and updates the block transactions hash of \a block.
+		/// \note This function requires a full block and will calculate all transaction hashes.
+		void updateBlockTransactionsHash(model::Block& block) const;
+
+		/// Calculates the block transactions hash of \a block into \a blockTransactionsHash.
+		/// \note This function requires a full block and will calculate all transaction hashes.
+		void calculateBlockTransactionsHash(const model::Block& block, Hash256& blockTransactionsHash) const;
+
+		/// Cryptographically signs a full \a block with \a signer.
+		void signFullBlock(const crypto::KeyPair& signer, model::Block& block) const;
+
+		/// Cryptographically verifies a full \a block by checking all signatures and hashes.
+		VerifyFullBlockResult verifyFullBlock(const model::Block& block) const;
+
+		/// Converts \a block to a block element with the specified generation hash (\a generationHash).
+		/// \note This function requires a full block and will calculate all block and transaction hashes.
+		model::BlockElement convertBlockToBlockElement(const model::Block& block, const Hash256& generationHash) const;
+
+	private:
+		std::function<Hash256 (const model::Transaction&)> m_calculateTransactionEntityHash;
+		std::function<Hash256 (const model::Transaction&, const Hash256&)> m_calculateTransactionMerkleComponentHash;
+	};
 }}

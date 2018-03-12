@@ -1,63 +1,66 @@
-#include "tests/catapult/deltaset/utils/BaseSetTestsInclude.h"
+#include "tests/catapult/deltaset/test/BaseSetTestsInclude.h"
 
 namespace catapult { namespace deltaset {
 
 	namespace {
-		using ReverseOrderedMutableTraits = ReverseOrderedTraits<MutableTypeTraits<MutableTestEntity>>;
+		using ReverseOrderedMutableTraits = test::ReverseOrderedTraits<MutableTypeTraits<test::MutableTestElement>>;
 		using ReverseOrderedMutablePointerTraits =
-				ReverseOrderedTraits<MutableTypeTraits<std::shared_ptr<MutableTestEntity>>>;
-		using ReverseOrderedImmutableTraits = ReverseOrderedTraits<ImmutableTypeTraits<const ImmutableTestEntity>>;
+				test::ReverseOrderedTraits<MutableTypeTraits<std::shared_ptr<test::MutableTestElement>>>;
+		using ReverseOrderedImmutableTraits = test::ReverseOrderedTraits<ImmutableTypeTraits<const test::ImmutableTestElement>>;
 		using ReverseOrderedImmutablePointerTraits =
-				ReverseOrderedTraits<ImmutableTypeTraits<std::shared_ptr<const ImmutableTestEntity>>>;
+				test::ReverseOrderedTraits<ImmutableTypeTraits<std::shared_ptr<const test::ImmutableTestElement>>>;
 	}
-
-#define REGISTER_DELTA_MUTABLE_TYPES(TEST_NAME) \
-	REGISTER_TEST(TEST_NAME, DeltaTraits<ReverseOrderedMutableTraits>, DeltaReverseOrderedMutable); \
-	REGISTER_TEST(TEST_NAME, DeltaTraits<ReverseOrderedMutablePointerTraits>, DeltaReverseOrderedMutablePointer); \
-
-#define REGISTER_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
-	REGISTER_TEST(TEST_NAME, DeltaTraits<ReverseOrderedImmutableTraits>, DeltaReverseOrderedImmutable); \
-	REGISTER_TEST(TEST_NAME, DeltaTraits<ReverseOrderedImmutablePointerTraits>, DeltaReverseOrderedImmutablePointer); \
-
-#define REGISTER_NON_DELTA_MUTABLE_TYPES(TEST_NAME) \
-	REGISTER_TEST(TEST_NAME, BaseTraits<ReverseOrderedMutableTraits>, BaseReverseOrderedMutable); \
-	REGISTER_TEST(TEST_NAME, BaseTraits<ReverseOrderedMutablePointerTraits>, BaseReverseOrderedMutablePointer); \
-
-#define REGISTER_NON_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
-	REGISTER_TEST(TEST_NAME, BaseTraits<ReverseOrderedImmutableTraits>, BaseReverseOrderedImmutable); \
-	REGISTER_TEST(TEST_NAME, BaseTraits<ReverseOrderedImmutablePointerTraits>, BaseReverseOrderedImmutablePointer);
 }}
 
-#include "tests/catapult/deltaset/utils/BaseSetTestsImpl.h"
+#define REGISTER_DELTA_MUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::ReverseOrderedMutableTraits>, DeltaReverseOrderedMutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::ReverseOrderedMutablePointerTraits>, DeltaReverseOrderedMutablePointer); \
+
+#define REGISTER_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::ReverseOrderedImmutableTraits>, DeltaReverseOrderedImmutable); \
+	MAKE_BASE_SET_TEST( \
+			TEST_NAME, \
+			test::DeltaTraits<deltaset::ReverseOrderedImmutablePointerTraits>, \
+			DeltaReverseOrderedImmutablePointer); \
+
+#define REGISTER_NON_DELTA_MUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::ReverseOrderedMutableTraits>, BaseReverseOrderedMutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::ReverseOrderedMutablePointerTraits>, BaseReverseOrderedMutablePointer); \
+
+#define REGISTER_NON_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::ReverseOrderedImmutableTraits>, BaseReverseOrderedImmutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::ReverseOrderedImmutablePointerTraits>, BaseReverseOrderedImmutablePointer); \
+
+#include "tests/catapult/deltaset/test/BaseSetTestsImpl.h"
 
 namespace catapult { namespace deltaset {
 /* reverse tests only use ordered base variants */
 #define REGISTER_REVERSE_ORDER_TYPES(TEST_NAME) \
-	REGISTER_TEST(TEST_NAME, BaseTraits<ReverseOrderedMutableTraits>, ReverseOrderedMutable); \
-	REGISTER_TEST(TEST_NAME, BaseTraits<ReverseOrderedMutablePointerTraits>, ReverseOrderedMutablePointer); \
-	REGISTER_TEST(TEST_NAME, BaseTraits<ReverseOrderedImmutableTraits>, ReverseOrderedImmutable); \
-	REGISTER_TEST(TEST_NAME, BaseTraits<ReverseOrderedImmutablePointerTraits>, ReverseOrderedImmutablePointer); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::ReverseOrderedMutableTraits>, ReverseOrderedMutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::ReverseOrderedMutablePointerTraits>, ReverseOrderedMutablePointer); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::ReverseOrderedImmutableTraits>, ReverseOrderedImmutable); \
+	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::ReverseOrderedImmutablePointerTraits>, ReverseOrderedImmutablePointer); \
 
-#define REVERSE_ORDER_TRAITS_BASED_TEST(TEST_NAME) DEFINE_SIMPLE_TEST(TEST_NAME, REGISTER_REVERSE_ORDER_TYPES)
+#define DEFINE_REVERSE_ORDER_TESTS(TEST_NAME) DEFINE_BASE_SET_TESTS(TEST_NAME, REGISTER_REVERSE_ORDER_TYPES)
 
-	REVERSE_ORDER_TRAITS_BASED_TEST(ReverseOrderedBaseCanIterateThroughSetInReverseOrder) {
+	DEFINE_REVERSE_ORDER_TESTS(ReverseOrderedBaseCanIterateThroughSetInReverseOrder) {
 		// Arrange:
-		auto pReversedBaseSet = TTraits::CreateWithEntities(3);
+		auto pReversedBaseSet = TTraits::CreateWithElements(3);
 		auto pDelta = pReversedBaseSet->rebase();
-		pDelta->emplace("TestEntity", 7u);
-		pDelta->emplace("TestEntity", 4u);
+		pDelta->emplace("TestElement", 7u);
+		pDelta->emplace("TestElement", 4u);
 		pReversedBaseSet->commit();
-		auto it = pReversedBaseSet->cbegin();
+		auto iter = pReversedBaseSet->begin();
 
 		// Assert:
-		EXPECT_EQ(TestEntity("TestEntity", 7), *TTraits::ToPointerFromStorage(*it++));
-		EXPECT_EQ(TestEntity("TestEntity", 4), *TTraits::ToPointerFromStorage(*it++));
-		EXPECT_EQ(TestEntity("TestEntity", 2), *TTraits::ToPointerFromStorage(*it++));
-		EXPECT_EQ(TestEntity("TestEntity", 1), *TTraits::ToPointerFromStorage(*it++));
-		EXPECT_EQ(TestEntity("TestEntity", 0), *TTraits::ToPointerFromStorage(*it++));
-		EXPECT_EQ(pReversedBaseSet->cend(), it);
+		EXPECT_EQ(test::TestElement("TestElement", 7), *TTraits::ToPointerFromStorage(*iter++));
+		EXPECT_EQ(test::TestElement("TestElement", 4), *TTraits::ToPointerFromStorage(*iter++));
+		EXPECT_EQ(test::TestElement("TestElement", 2), *TTraits::ToPointerFromStorage(*iter++));
+		EXPECT_EQ(test::TestElement("TestElement", 1), *TTraits::ToPointerFromStorage(*iter++));
+		EXPECT_EQ(test::TestElement("TestElement", 0), *TTraits::ToPointerFromStorage(*iter++));
+		EXPECT_EQ(pReversedBaseSet->end(), iter);
 
 		// Sanity: the iterator elements are const
-		AssertConstIterator(*pReversedBaseSet);
+		test::AssertConstIterator(*pReversedBaseSet);
 	}
 }}

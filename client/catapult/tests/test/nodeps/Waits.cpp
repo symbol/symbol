@@ -20,7 +20,7 @@ namespace catapult { namespace test {
 		}
 	}
 
-	DeterministicTimeSpan RunDeterministicOperation(const std::function<void()>& operation) {
+	DeterministicTimeSpan RunDeterministicOperation(const action& operation) {
 		constexpr size_t Max_Attempts = 100;
 		size_t i = 0;
 		DeterministicTimeSpan operationStart;
@@ -29,9 +29,7 @@ namespace catapult { namespace test {
 		do {
 			if (++i > Max_Attempts) {
 				auto duration = std::chrono::duration_cast<std::chrono::microseconds>(operationStart - operationEnd);
-				CATAPULT_THROW_RUNTIME_ERROR_1(
-						"RunDeterministicOperation timed out with duration (um)",
-						duration.count());
+				CATAPULT_THROW_RUNTIME_ERROR_1("RunDeterministicOperation timed out with duration (um)", duration.count());
 			}
 
 			operationStart = GetCurrentTime();
@@ -42,14 +40,17 @@ namespace catapult { namespace test {
 		return operationEnd;
 	}
 
-	void RunNonDeterministicTest(const char* description, const std::function<bool ()>& test) {
+	void RunNonDeterministicTest(const char* description, const predicate<>& test) {
 		RunNonDeterministicTest(description, [test](auto) { return test(); });
 	}
 
-	void RunNonDeterministicTest(const char* description, const std::function<bool (size_t)>& test) {
-		constexpr auto Num_Retries = test::Max_Non_Deterministic_Test_Retries;
+	void RunNonDeterministicTest(const char* description, const predicate<size_t>& test) {
+		RunNonDeterministicTest(description, Max_Non_Deterministic_Test_Retries, test);
+	}
+
+	void RunNonDeterministicTest(const char* description, size_t numRetries, const predicate<size_t>& test) {
 		auto i = 0u;
-		while (i < Num_Retries) {
+		while (i < numRetries) {
 			if (test(++i)) {
 				CATAPULT_LOG(debug) << description << " test was deterministic for iteration " << i;
 				return;
@@ -59,6 +60,10 @@ namespace catapult { namespace test {
 		}
 
 		auto message = std::string(description) + " test was inconclusive for all iterations";
-		CATAPULT_THROW_RUNTIME_ERROR_1(message.c_str(), Num_Retries);
+		CATAPULT_THROW_RUNTIME_ERROR_1(message.c_str(), numRetries);
+	}
+
+	uint32_t GetTimeUnitForIteration(size_t i) {
+		return static_cast<uint32_t>(i * 5u);
 	}
 }}

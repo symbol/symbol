@@ -5,14 +5,16 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS FileSizeTests
+
 	// region creation
 
-	TEST(FileSizeTests, CanCreateDefaultFileSize) {
+	TEST(TEST_CLASS, CanCreateDefaultFileSize) {
 		// Assert:
 		EXPECT_EQ(0u, FileSize().bytes());
 	}
 
-	TEST(FileSizeTests, CanCreateFileSizeFromMegabytes) {
+	TEST(TEST_CLASS, CanCreateFileSizeFromMegabytes) {
 		// Assert:
 		EXPECT_EQ(1024 * 1024u, FileSize::FromMegabytes(1).bytes());
 		EXPECT_EQ(2 * 1024 * 1024u, FileSize::FromMegabytes(2).bytes());
@@ -20,7 +22,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123 * 1024 * 1024u, FileSize::FromMegabytes(123).bytes());
 	}
 
-	TEST(FileSizeTests, CanCreateFileSizeFromKilobytes) {
+	TEST(TEST_CLASS, CanCreateFileSizeFromKilobytes) {
 		// Assert:
 		EXPECT_EQ(1024u, FileSize::FromKilobytes(1).bytes());
 		EXPECT_EQ(2 * 1024u, FileSize::FromKilobytes(2).bytes());
@@ -28,7 +30,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123 * 1024u, FileSize::FromKilobytes(123).bytes());
 	}
 
-	TEST(FileSizeTests, CanCreateFileSizeFromBytes) {
+	TEST(TEST_CLASS, CanCreateFileSizeFromBytes) {
 		// Assert:
 		EXPECT_EQ(1u, FileSize::FromBytes(1).bytes());
 		EXPECT_EQ(2u, FileSize::FromBytes(2).bytes());
@@ -40,7 +42,7 @@ namespace catapult { namespace utils {
 
 	// region accessor conversions
 
-	TEST(FileSizeTests, MegabytesAreTruncatedWhenConverted) {
+	TEST(TEST_CLASS, MegabytesAreTruncatedWhenConverted) {
 		// Assert:
 		constexpr uint64_t Base_Bytes = 10 * 1024 * 1024u;
 		EXPECT_EQ(9u, FileSize::FromBytes(Base_Bytes - 1).megabytes());
@@ -48,7 +50,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(10u, FileSize::FromBytes(Base_Bytes + 1).megabytes());
 	}
 
-	TEST(FileSizeTests, KilobytesAreTruncatedWhenConverted) {
+	TEST(TEST_CLASS, KilobytesAreTruncatedWhenConverted) {
 		// Assert:
 		constexpr uint64_t Base_Bytes = 10 * 1024u;
 		EXPECT_EQ(9u, FileSize::FromBytes(Base_Bytes - 1).kilobytes());
@@ -58,25 +60,25 @@ namespace catapult { namespace utils {
 
 	namespace {
 		void Assert32BitFileSize(uint32_t value) {
-			// Act:
+			// Arrange:
 			auto fileSize = FileSize::FromBytes(value);
 
-			// Assert: the value is accessible via bytes32 and bytes
+			// Act + Assert: the value is accessible via bytes32 and bytes
 			EXPECT_EQ(value, fileSize.bytes32());
 			EXPECT_EQ(value, fileSize.bytes());
 		}
 
 		void Assert64BitFileSize(uint64_t value) {
-			// Act:
+			// Arrange:
 			auto fileSize = FileSize::FromBytes(value);
 
-			// Assert: the value is accessible via bytes but not bytes32
+			// Act + Assert: the value is accessible via bytes but not bytes32
 			EXPECT_THROW(fileSize.bytes32(), catapult_runtime_error);
 			EXPECT_EQ(value, fileSize.bytes());
 		}
 	}
 
-	TEST(FileSizeTests, Bytes32ReturnsBytesWhenBytes64FitsInto32Bit) {
+	TEST(TEST_CLASS, Bytes32ReturnsBytesWhenBytes64FitsInto32Bit) {
 		// Assert:
 		using NumericLimits = std::numeric_limits<uint32_t>;
 		Assert32BitFileSize(NumericLimits::min()); // min
@@ -86,7 +88,7 @@ namespace catapult { namespace utils {
 		Assert32BitFileSize(NumericLimits::max()); // max
 	}
 
-	TEST(FileSizeTests, Bytes32ThrowsWhenBytes64DoesNotFitInto32Bit) {
+	TEST(TEST_CLASS, Bytes32ThrowsWhenBytes64DoesNotFitInto32Bit) {
 		// Assert:
 		uint64_t max32 = std::numeric_limits<uint32_t>::max();
 		Assert64BitFileSize(max32 + 1);
@@ -118,12 +120,12 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(FileSizeTests, OperatorEqualReturnsTrueOnlyForEqualValues) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
 		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects("10240 B", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
-	TEST(FileSizeTests, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
 		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("10240 B", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
@@ -144,18 +146,14 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	DEFINE_COMPARISON_TESTS(FileSizeTests, GenerateIncreasingValues())
+	DEFINE_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingValues())
 
 	// endregion
 
 	// region to string
 
 	namespace {
-		void AssertStringRepresentation(
-				const std::string& expected,
-				uint64_t numMegabytes,
-				uint64_t numKilobytes,
-				uint64_t numBytes) {
+		void AssertStringRepresentation(const std::string& expected, uint64_t numMegabytes, uint64_t numKilobytes, uint64_t numBytes) {
 			// Arrange:
 			auto timeSpan = FileSize::FromBytes(((numMegabytes * 1024) + numKilobytes) * 1024 + numBytes);
 
@@ -167,7 +165,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(FileSizeTests, CanOutputFileSize) {
+	TEST(TEST_CLASS, CanOutputFileSize) {
 		// Assert:
 		// - zero
 		AssertStringRepresentation("0B", 0, 0, 0);

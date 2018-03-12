@@ -1,4 +1,5 @@
 #include "src/model/NamespaceInfo.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/TestHarness.h"
@@ -10,10 +11,10 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, EntityHasExpectedSize) {
 		// Arrange:
 		auto expectedSize =
-			sizeof(uint32_t) // size of namespace info
-			+ sizeof(NamespaceId) // id
-			+ sizeof(ArtifactInfoAttributes) // attributes
-			+ sizeof(uint16_t); // number of children
+				sizeof(uint32_t) // size of namespace info
+				+ sizeof(NamespaceId) // id
+				+ sizeof(ArtifactInfoAttributes) // attributes
+				+ sizeof(uint16_t); // number of children
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(NamespaceInfo));
@@ -26,10 +27,10 @@ namespace catapult { namespace model {
 		// Arrange:
 		NamespaceInfo namespaceInfo;
 		namespaceInfo.Size = 0;
-		namespaceInfo.NumChildren = 100;
+		namespaceInfo.ChildCount = 100;
 
 		// Act:
-		auto realSize = CalculateRealSize(namespaceInfo);
+		auto realSize = NamespaceInfo::CalculateRealSize(namespaceInfo);
 
 		// Assert:
 		EXPECT_EQ(sizeof(NamespaceInfo) + 100 * sizeof(NamespaceId), realSize);
@@ -39,13 +40,13 @@ namespace catapult { namespace model {
 		// Arrange:
 		NamespaceInfo namespaceInfo;
 		namespaceInfo.Size = 0;
-		test::SetMaxValue(namespaceInfo.NumChildren);
+		test::SetMaxValue(namespaceInfo.ChildCount);
 
 		// Act:
-		auto realSize = CalculateRealSize(namespaceInfo);
+		auto realSize = NamespaceInfo::CalculateRealSize(namespaceInfo);
 
 		// Assert:
-		EXPECT_EQ(sizeof(NamespaceInfo) + namespaceInfo.NumChildren * sizeof(NamespaceId), realSize);
+		EXPECT_EQ(sizeof(NamespaceInfo) + namespaceInfo.ChildCount * sizeof(NamespaceId), realSize);
 		EXPECT_GE(std::numeric_limits<uint32_t>::max(), realSize);
 	}
 
@@ -53,17 +54,11 @@ namespace catapult { namespace model {
 
 	namespace {
 		struct NamespaceInfoTraits {
-			static auto Create() {
-				NamespaceInfo namespaceInfo;
-				namespaceInfo.NumChildren = 100;
-				return namespaceInfo;
-			}
-
 			static auto GenerateEntityWithAttachments(uint16_t count) {
 				uint32_t entitySize = sizeof(NamespaceInfo) + count * sizeof(NamespaceId);
-				std::unique_ptr<NamespaceInfo> pNamespaceInfo(reinterpret_cast<NamespaceInfo*>(::operator new(entitySize)));
+				auto pNamespaceInfo = utils::MakeUniqueWithSize<NamespaceInfo>(entitySize);
 				pNamespaceInfo->Size = entitySize;
-				pNamespaceInfo->NumChildren = count;
+				pNamespaceInfo->ChildCount = count;
 				return pNamespaceInfo;
 			}
 
@@ -74,6 +69,5 @@ namespace catapult { namespace model {
 		};
 	}
 
-	DEFINE_IS_SIZE_VALID_TESTS(TEST_CLASS, NamespaceInfoTraits) // IsSizeValid
 	DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, NamespaceInfoTraits) // ChildrenPtr
 }}

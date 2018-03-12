@@ -1,11 +1,6 @@
 #ifndef GE_H
 #define GE_H
 
-#if __cplusplus
-extern "C" {
-#endif
-
-
 /*
 ge means group element.
 
@@ -96,10 +91,5 @@ extern void ge_add(ge_p1p1 *,const ge_p3 *,const ge_cached *);
 extern void ge_sub(ge_p1p1 *,const ge_p3 *,const ge_cached *);
 extern void ge_scalarmult_base(ge_p3 *,const unsigned char *);
 extern void ge_double_scalarmult_vartime(ge_p2 *,const unsigned char *,const ge_p3 *,const unsigned char *);
-
-
-#if __cplusplus
-}
-#endif
 
 #endif

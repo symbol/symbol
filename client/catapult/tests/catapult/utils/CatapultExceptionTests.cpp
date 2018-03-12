@@ -48,12 +48,12 @@ namespace catapult {
 #define CUSTOM_TAG_NAMESPACE "catapult::`anonymous namespace'::"
 #define CLASSPREFIX "class "
 #define STRUCTPREFIX "struct "
-#define PTRSUFIX " * __ptr64"
+#define PTRSUFFIX " * __ptr64"
 #else
 #define CUSTOM_TAG_NAMESPACE "catapult::(anonymous namespace)::"
 #define CLASSPREFIX ""
 #define STRUCTPREFIX ""
-#define PTRSUFIX "*"
+#define PTRSUFFIX "*"
 #endif
 
 		template<typename TException, typename TTraits>
@@ -68,7 +68,7 @@ namespace catapult {
 
 			std::set<std::string> expectedTagLines;
 			for (const auto& pair : expected.TagPairs)
-				expectedTagLines.insert("[" STRUCTPREFIX + pair.first + PTRSUFIX "] = " + pair.second);
+				expectedTagLines.insert("[" STRUCTPREFIX + pair.first + PTRSUFFIX "] = " + pair.second);
 
 			auto diagLines = GetLocationIndependentDiagnosticInformation(ex);
 
@@ -119,7 +119,7 @@ namespace catapult {
 	// region exception hierarchy tests
 
 	TEST(TEST_CLASS, ExceptionHierarchyIsCorrect) {
-		// Assert: first level exceptions
+		// Act + Assert: first level exceptions
 		EXPECT_THROW(throw catapult_runtime_error("error"), std::runtime_error);
 		EXPECT_THROW(throw catapult_invalid_argument("error"), std::invalid_argument);
 		EXPECT_THROW(throw catapult_out_of_range("error"), std::out_of_range);
@@ -142,7 +142,7 @@ namespace catapult {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	EXCEPTION_TRAITS_BASED_TEST(ExceptionDerivesFromBasicExceptionTypes) {
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(throw typename TTraits::ExceptionType("error"), std::exception);
 		EXPECT_THROW(throw typename TTraits::ExceptionType("error"), boost::exception);
 	}

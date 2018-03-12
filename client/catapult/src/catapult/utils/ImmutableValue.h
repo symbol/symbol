@@ -9,9 +9,6 @@ namespace catapult { namespace utils {
 	template<typename TValue>
 	class ImmutableValue : public utils::MoveOnly {
 	public:
-		using TImmutableValue = ImmutableValue<TValue>;
-
-	public:
 		/// Creates an immutable value around \a value.
 		constexpr explicit ImmutableValue(TValue value) : m_value(value)
 		{}

@@ -1,4 +1,5 @@
 #pragma once
+#include "PeersConfiguration.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include <boost/filesystem.hpp>
 #include <iostream>
@@ -26,6 +27,14 @@ namespace catapult { namespace config {
 	TConfiguration LoadIniConfiguration(const boost::filesystem::path& path) {
 		return LoadConfiguration(path, [](const auto& filePath) {
 			return TConfiguration::LoadFromBag(utils::ConfigurationBag::FromPath(filePath));
+		});
+	}
+
+	/// Loads peers configuration from \a path for network \a networkIdentifier.
+	inline
+	std::vector<ionet::Node> LoadPeersConfiguration(const boost::filesystem::path& path, model::NetworkIdentifier networkIdentifier) {
+		return LoadConfiguration(path, [networkIdentifier](const auto& filePath) {
+			return LoadPeersFromPath(filePath, networkIdentifier);
 		});
 	}
 }}

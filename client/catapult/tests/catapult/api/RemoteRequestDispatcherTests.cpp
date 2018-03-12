@@ -142,7 +142,7 @@ namespace catapult { namespace api {
 			}
 
 			static void ValidateRequest(const ionet::Packet& packet) {
-				auto pRequest = ionet::CoercePacket<GenericRequestWithParams>(&packet);
+				const auto* pRequest = ionet::CoercePacket<GenericRequestWithParams>(&packet);
 				ASSERT_TRUE(!!pRequest);
 				EXPECT_EQ(6u, pRequest->Alpha);
 				EXPECT_EQ(2u, pRequest->Beta);
@@ -154,7 +154,7 @@ namespace catapult { namespace api {
 
 		struct RemoteRequestDispatcherTraits {
 			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return std::make_unique<RemoteRequestDispatcher>(pPacketIo);
+				return std::make_unique<RemoteRequestDispatcher>(*pPacketIo);
 			}
 		};
 	}

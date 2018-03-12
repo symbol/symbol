@@ -1,6 +1,6 @@
 #include "src/observers/Observers.h"
-#include "src/cache/AccountStateCache.h"
 #include "src/observers/ImportanceCalculator.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
@@ -18,9 +18,7 @@ namespace catapult { namespace observers {
 
 		struct ImportanceCalculatorParams {
 		public:
-			explicit ImportanceCalculatorParams(
-					model::ImportanceHeight importanceHeight,
-					const cache::AccountStateCacheDelta& cache)
+			explicit ImportanceCalculatorParams(model::ImportanceHeight importanceHeight, const cache::AccountStateCacheDelta& cache)
 					: ImportanceHeight(importanceHeight)
 					, Cache(cache)
 			{}
@@ -57,8 +55,8 @@ namespace catapult { namespace observers {
 		}
 
 		struct CommitTraits {
-			static NotifyMode Mode() { return NotifyMode::Commit; }
-			static Height BaseHeight() { return Height(Importance_Grouping); }
+			static constexpr NotifyMode Mode() { return NotifyMode::Commit; }
+			static constexpr Height BaseHeight() { return Height(Importance_Grouping); }
 
 			static auto CreateObserver(std::unique_ptr<ImportanceCalculator>&& pCalculator) {
 				return CreateRecalculateImportancesObserver(std::move(pCalculator), CreateFailingCalculator());
@@ -66,8 +64,8 @@ namespace catapult { namespace observers {
 		};
 
 		struct RollbackTraits {
-			static NotifyMode Mode() { return NotifyMode::Rollback; }
-			static Height BaseHeight() { return Height(Importance_Grouping + 1); }
+			static constexpr NotifyMode Mode() { return NotifyMode::Rollback; }
+			static constexpr Height BaseHeight() { return Height(Importance_Grouping + 1); }
 
 			static auto CreateObserver(std::unique_ptr<ImportanceCalculator>&& pCalculator) {
 				return CreateRecalculateImportancesObserver(CreateFailingCalculator(), std::move(pCalculator));
@@ -137,9 +135,7 @@ namespace catapult { namespace observers {
 		}
 
 		auto ConvertToImportanceHeight(Height height, NotifyMode mode) {
-			return model::ConvertToImportanceHeight(
-					height + (NotifyMode::Commit == mode ? Height(1) : Height(0)),
-					Importance_Grouping);
+			return model::ConvertToImportanceHeight(height + (NotifyMode::Commit == mode ? Height(1) : Height(0)), Importance_Grouping);
 		}
 
 		template<typename TTraits>

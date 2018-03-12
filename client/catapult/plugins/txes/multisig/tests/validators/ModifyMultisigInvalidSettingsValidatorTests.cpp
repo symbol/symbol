@@ -10,12 +10,10 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS ModifyMultisigInvalidSettingsValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(ModifyMultisigInvalidSettings, 0)
+	DEFINE_COMMON_VALIDATOR_TESTS(ModifyMultisigInvalidSettings,)
 
 	namespace {
 		using Modifications = std::vector<model::CosignatoryModification>;
-
-		constexpr uint8_t Max_Cosigners_Per_Account = 215;
 
 		auto CreateNotification(const Key& signer, int8_t minRemovalDelta, int8_t minApprovalDelta) {
 			return model::ModifyMultisigSettingsNotification(signer, minRemovalDelta, minApprovalDelta);
@@ -23,7 +21,7 @@ namespace catapult { namespace validators {
 
 		auto GetValidationResult(const cache::CatapultCache& cache, const model::ModifyMultisigSettingsNotification& notification) {
 			// Arrange:
-			auto pValidator = CreateModifyMultisigInvalidSettingsValidator(Max_Cosigners_Per_Account);
+			auto pValidator = CreateModifyMultisigInvalidSettingsValidator();
 
 			// - create the validator context
 			auto cacheView = cache.createView();
@@ -35,18 +33,42 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, CannotChangeSettingsIfAccountIsUnknown) {
+	TEST(TEST_CLASS, SuccessIfAccountIsUnknownAndDeltasAreSetToMinusOne) {
 		// Arrange:
 		auto signer = test::GenerateRandomData<Key_Size>();
-		auto notification = CreateNotification(signer, 0, 0);
+		auto notification = CreateNotification(signer, -1, -1);
 
 		auto cache = test::MultisigCacheFactory::Create();
 
 		// Act:
 		auto result = GetValidationResult(cache, notification);
 
+		// Assert: for explanation of the behavior see comment in validator
+		EXPECT_EQ(ValidationResult::Success, result);
+	}
+
+	TEST(TEST_CLASS, FailureIfAccountIsUnknownAndAtLeastOneDeltaIsNotSetToMinusOne) {
+		// Arrange:
+		auto signer = test::GenerateRandomData<Key_Size>();
+		std::vector<model::ModifyMultisigSettingsNotification> notifications{
+			CreateNotification(signer, 0, 1),
+			CreateNotification(signer, 0, -1),
+			CreateNotification(signer, -1, 0)
+		};
+		std::vector<ValidationResult> results;
+
+		auto cache = test::MultisigCacheFactory::Create();
+
+		// Act:
+		for (const auto& notification : notifications)
+			results.push_back(GetValidationResult(cache, notification));
+
 		// Assert:
-		EXPECT_EQ(Failure_Multisig_Modify_Unknown_Multisig_Account, result);
+		auto i = 0u;
+		for (auto result : results) {
+			EXPECT_EQ(Failure_Multisig_Modify_Min_Setting_Out_Of_Range, result) << "at index " << i;
+			++i;
+		}
 	}
 
 	// region basic bound check
@@ -148,29 +170,6 @@ namespace catapult { namespace validators {
 			}
 		};
 
-		// max cosigners per account is 215 (all pairs below sum to exactly 215)
-		struct EqualToMaxTraits {
-		public:
-			static auto Data() {
-				return std::vector<MultisigSettings>{
-					{ 109, 106 },
-					{ 214, 1 }
-				};
-			}
-		};
-
-		struct GreaterThanMaxTraits {
-		public:
-			static auto Data() {
-				return std::vector<MultisigSettings>{
-					{ 109, 107 },
-					{ 109, 127 },
-					{ 215, 1 },
-					{ 215, 127 }
-				};
-			}
-		};
-
 		template<typename TContainer>
 		auto Get(const TContainer& container, size_t index) {
 			return container[index % container.size()];
@@ -212,14 +211,6 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_SETTINGS_TEST(FailureIfResultingSettingIsGreaterThanNumberOfCosignatories, GreaterThan15Traits) {
 		RunTest<TRemovalTraits, TApprovalTraits>(Failure_Multisig_Modify_Min_Setting_Larger_Than_Num_Cosignatories, 15);
-	}
-
-	TRAITS_BASED_SETTINGS_TEST(SuccessIfResultingSettingIsEqualToMaximum, EqualToMaxTraits) {
-		RunTest<TRemovalTraits, TApprovalTraits>(ValidationResult::Success, 400);
-	}
-
-	TRAITS_BASED_SETTINGS_TEST(FailureIfResultingSettingIsGreaterThanMaximum, GreaterThanMaxTraits) {
-		RunTest<TRemovalTraits, TApprovalTraits>(Failure_Multisig_Modify_Min_Setting_Out_Of_Range, 400);
 	}
 
 	// endregion

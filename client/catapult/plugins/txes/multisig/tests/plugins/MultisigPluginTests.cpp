@@ -1,4 +1,5 @@
 #include "src/plugins/MultisigPlugin.h"
+#include "plugins/txes/multisig/src/model/MultisigEntityType.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -29,7 +30,7 @@ namespace catapult { namespace plugins {
 
 		public:
 			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {};
+				return { model::Entity_Type_Modify_Multisig_Account };
 			}
 
 			static std::vector<std::string> GetCacheNames() {
@@ -52,6 +53,7 @@ namespace catapult { namespace plugins {
 				return {
 					"MultisigPermittedOperationValidator",
 					"ModifyMultisigMaxCosignedAccountsValidator",
+					"ModifyMultisigMaxCosignersValidator",
 					"ModifyMultisigInvalidCosignersValidator",
 					"ModifyMultisigInvalidSettingsValidator",
 					"ModifyMultisigLoopAndLevelValidator",

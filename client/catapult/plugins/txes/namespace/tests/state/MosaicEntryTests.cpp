@@ -5,9 +5,11 @@
 
 namespace catapult { namespace state {
 
+#define TEST_CLASS MosaicEntryTests
+
 	// region ctor
 
-	TEST(MosaicEntryTests, CanCreateMosaicEntry) {
+	TEST(TEST_CLASS, CanCreateMosaicEntry) {
 		// Arrange:
 		auto definition = test::CreateMosaicDefinition(Height(123));
 
@@ -26,7 +28,7 @@ namespace catapult { namespace state {
 
 	// region supply
 
-	TEST(MosaicEntryTests, CanIncreaseSupply) {
+	TEST(TEST_CLASS, CanIncreaseSupply) {
 		// Arrange:
 		auto definition = test::CreateMosaicDefinition(Height(123));
 		auto entry = MosaicEntry(NamespaceId(111), MosaicId(225), definition);
@@ -39,7 +41,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(432 + 321), entry.supply());
 	}
 
-	TEST(MosaicEntryTests, CanDecreaseSupply) {
+	TEST(TEST_CLASS, CanDecreaseSupply) {
 		// Arrange:
 		auto definition = test::CreateMosaicDefinition(Height(123));
 		auto entry = MosaicEntry(NamespaceId(111), MosaicId(225), definition);
@@ -52,7 +54,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(432 - 321), entry.supply());
 	}
 
-	TEST(MosaicEntryTests, CanDecreaseSupplyToZero) {
+	TEST(TEST_CLASS, CanDecreaseSupplyToZero) {
 		// Arrange:
 		auto definition = test::CreateMosaicDefinition(Height(123));
 		auto entry = MosaicEntry(NamespaceId(111), MosaicId(225), definition);
@@ -65,7 +67,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(), entry.supply());
 	}
 
-	TEST(MosaicEntryTests, CannotDecreaseSupplyBelowZero) {
+	TEST(TEST_CLASS, CannotDecreaseSupplyBelowZero) {
 		// Arrange:
 		auto definition = test::CreateMosaicDefinition(Height(123));
 		auto entry = MosaicEntry(NamespaceId(111), MosaicId(225), definition);
@@ -86,7 +88,7 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(MosaicEntryTests, CannotAccessLevyIfNoneIsPresent) {
+	TEST(TEST_CLASS, CannotAccessLevyIfNoneIsPresent) {
 		// Arrange:
 		auto definition = test::CreateMosaicDefinition(Height(123));
 		auto entry = MosaicEntry(NamespaceId(111), MosaicId(225), definition);
@@ -98,7 +100,7 @@ namespace catapult { namespace state {
 		EXPECT_THROW(entry.levy(), catapult_runtime_error);
 	}
 
-	TEST(MosaicEntryTests, CanSetLevyIfNoneIsPresent) {
+	TEST(TEST_CLASS, CanSetLevyIfNoneIsPresent) {
 		// Arrange:
 		auto definition = test::CreateMosaicDefinition(Height(123));
 		auto entry = MosaicEntry(NamespaceId(111), MosaicId(225), definition);
@@ -121,7 +123,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(2u, levy.rules().size());
 	}
 
-	TEST(MosaicEntryTests, CannotSetLevyIfAlreadyPresent) {
+	TEST(TEST_CLASS, CannotSetLevyIfAlreadyPresent) {
 		// Arrange:
 		auto definition = test::CreateMosaicDefinition(Height(123));
 		auto entry = MosaicEntry(NamespaceId(111), MosaicId(225), definition);

@@ -1,5 +1,5 @@
 #pragma once
-#include "PacketTypes.h"
+#include "PacketType.h"
 
 namespace catapult { namespace ionet {
 

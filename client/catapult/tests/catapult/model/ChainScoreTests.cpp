@@ -4,9 +4,11 @@
 
 namespace catapult { namespace model {
 
+#define TEST_CLASS ChainScoreTests
+
 	// region constructor / assign
 
-	TEST(ChainScoreTests, CanCreateDefaultChainScore) {
+	TEST(TEST_CLASS, CanCreateDefaultChainScore) {
 		// Act:
 		ChainScore score;
 		auto scoreArray = score.toArray();
@@ -16,7 +18,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(0u, scoreArray[1]);
 	}
 
-	TEST(ChainScoreTests, CanCreateChainScoreFrom64BitValue) {
+	TEST(TEST_CLASS, CanCreateChainScoreFrom64BitValue) {
 		// Act:
 		ChainScore score(0x7A6B3481023543B6);
 		auto scoreArray = score.toArray();
@@ -26,7 +28,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(0x7A6B3481023543B6, scoreArray[1]);
 	}
 
-	TEST(ChainScoreTests, CanCreateChainScoreFrom128BitValue) {
+	TEST(TEST_CLASS, CanCreateChainScoreFrom128BitValue) {
 		// Act:
 		ChainScore score(0x8FDE42679C23D678, 0x7A6B3481023543B6);
 		auto scoreArray = score.toArray();
@@ -36,7 +38,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(0x7A6B3481023543B6, scoreArray[1]);
 	}
 
-	TEST(ChainScoreTests, CanCopyConstructChainScore) {
+	TEST(TEST_CLASS, CanCopyConstructChainScore) {
 		// Act:
 		ChainScore score(0x8FDE42679C23D678, 0x7A6B3481023543B6);
 		ChainScore scoreCopy(score);
@@ -47,7 +49,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(0x7A6B3481023543B6, scoreArray[1]);
 	}
 
-	TEST(ChainScoreTests, CanAssignChainScore) {
+	TEST(TEST_CLASS, CanAssignChainScore) {
 		// Act:
 		ChainScore score(0x8FDE42679C23D678, 0x7A6B3481023543B6);
 		ChainScore scoreCopy;
@@ -76,13 +78,13 @@ namespace catapult { namespace model {
 		}
 	}
 
-	DEFINE_EQUALITY_AND_COMPARISON_TESTS(ChainScoreTests, GenerateIncreasingValues())
+	DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingValues())
 
 	// endregion
 
 	// region add / subtract
 
-	TEST(ChainScoreTests, CanAddToChainScore) {
+	TEST(TEST_CLASS, CanAddToChainScore) {
 		// Arrange:
 		ChainScore score(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
 
@@ -96,7 +98,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(0x7C6B'3981'0265'43BB, scoreArray[1]);
 	}
 
-	TEST(ChainScoreTests, CanSubtractFromChainScore) {
+	TEST(TEST_CLASS, CanSubtractFromChainScore) {
 		// Arrange:
 		ChainScore score(0x8FDE'4267'9C23'D678, 0x7A6B'3481'0235'43B6);
 
@@ -114,7 +116,7 @@ namespace catapult { namespace model {
 
 	// region insertion operator
 
-	TEST(ChainScoreTests, CanOutput64BitChainScoreToStream) {
+	TEST(TEST_CLASS, CanOutput64BitChainScoreToStream) {
 		// Arrange:
 		ChainScore score(1235498201);
 
@@ -125,7 +127,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ("1235498201", str);
 	}
 
-	TEST(ChainScoreTests, CanOutput128BitChainScoreToStream) {
+	TEST(TEST_CLASS, CanOutput128BitChainScoreToStream) {
 		// Arrange:
 		ChainScore score(0x8FDE'4267'9C23'D678, 0x006B'3481'0235'43B6);
 

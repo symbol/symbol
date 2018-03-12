@@ -1,35 +1,29 @@
 #pragma once
 #include "ValidatorTypes.h"
 #include "catapult/thread/Future.h"
-#include "catapult/utils/WrappedWithOwnerDecorator.h"
-#include "catapult/exceptions.h"
 
 namespace catapult { namespace thread { class IoServiceThreadPool; } }
 
 namespace catapult { namespace validators {
 
-	/// Wraps a parallel validation function and its owning object.
-	/// \note The owning object needs to be \em exposed instead of simply captured in order to allow deterministic
-	///       shutdown.
-	class ParallelValidationPolicyFunc
-			: public utils::ResettableWrappedWithOwnerDecorator<ValidationPolicyFunc<thread::future<ValidationResult>>> {
+	/// A parallel validation policy that performs parallel validations on multiple threads.
+	class ParallelValidationPolicy {
 	public:
-		/// Creates an empty function.
-		ParallelValidationPolicyFunc()
-				: ParallelValidationPolicyFunc(ValidationPolicyFunc<thread::future<ValidationResult>>(), nullptr)
-		{}
+		virtual ~ParallelValidationPolicy() {}
 
-		/// Creates a function around \a func with \a pOwner.
-		ParallelValidationPolicyFunc(
-				const ValidationPolicyFunc<thread::future<ValidationResult>>& func,
-				const std::shared_ptr<const void>& pOwner)
-				: utils::ResettableWrappedWithOwnerDecorator<ValidationPolicyFunc<thread::future<ValidationResult>>>(
-						func,
-						pOwner)
-		{}
+	public:
+		/// Validates all \a entityInfos using \a validationFunctions and short circuits on first failure.
+		virtual thread::future<ValidationResult> validateShortCircuit(
+				const model::WeakEntityInfos& entityInfos,
+				const ValidationFunctions& validationFunctions) const = 0;
+
+		/// Validates all \a entityInfos using \a validationFunctions and does \em NOT short circuit on failures.
+		virtual thread::future<std::vector<ValidationResult>> validateAll(
+				const model::WeakEntityInfos& entityInfos,
+				const ValidationFunctions& validationFunctions) const = 0;
 	};
 
-	/// Creates a parallel validation policy.
-	ParallelValidationPolicyFunc CreateParallelValidationPolicy(
+	/// Creates a parallel validation policy using \a pPool for parallelization.
+	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(
 			const std::shared_ptr<thread::IoServiceThreadPool>& pPool);
 }}

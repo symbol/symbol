@@ -2,6 +2,7 @@
 #include "catapult/state/AccountState.h"
 
 namespace catapult { namespace state {
+
 	namespace {
 		void AddAllIds(std::set<NamespaceId>& ids, const RootNamespace::Children& children) {
 			for (const auto& pair : children)
@@ -11,6 +12,19 @@ namespace catapult { namespace state {
 		void RemoveAllIds(std::set<NamespaceId>& ids, const RootNamespace::Children& children) {
 			for (const auto& pair : children)
 				ids.erase(pair.first);
+		}
+	}
+
+	RootNamespaceHistory::RootNamespaceHistory(const RootNamespaceHistory& history) : RootNamespaceHistory(history.m_id) {
+		std::shared_ptr<RootNamespace::Children> pChildren;
+		auto owner = Key{};
+		for (const auto& root : history) {
+			if (owner != root.owner()) {
+				pChildren = std::make_shared<RootNamespace::Children>(root.children());
+				owner = root.owner();
+			}
+
+			m_rootHistory.emplace_back(root.id(), root.owner(), root.lifetime(), pChildren);
 		}
 	}
 

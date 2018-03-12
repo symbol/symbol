@@ -6,8 +6,6 @@
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/TestHarness.h"
 
-using namespace catapult::crypto;
-
 namespace catapult {
 
 #define TEST_CLASS AddressIntegrityTests
@@ -15,8 +13,8 @@ namespace catapult {
 	TEST(TEST_CLASS, CanFindAddressStartingWithMA) {
 		// Arrange:
 		for (auto i = 0u; i < 1000; ++i) {
-			auto sk = PrivateKey::Generate(test::RandomByte);
-			auto kp = KeyPair::FromPrivate(std::move(sk));
+			auto sk = crypto::PrivateKey::Generate(test::RandomByte);
+			auto kp = crypto::KeyPair::FromPrivate(std::move(sk));
 			auto rawAddress = model::PublicKeyToAddress(kp.publicKey(), model::NetworkIdentifier::Mijin);
 			auto address = model::AddressToString(rawAddress);
 			if (address[0] == 'M' && address[1] == 'A')
@@ -29,8 +27,14 @@ namespace catapult {
 	namespace {
 		struct MijinTestNetworkTraits {
 			static const auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
-			static auto NemesisPrivateKey() { return test::Mijin_Test_Nemesis_Private_Key; }
-			static std::string ExpectedNemesisAddress() { return "SARNASAS2BIAB6LMFA3FPMGBPGIJGK6IJETM3ZSP"; }
+			static constexpr auto NemesisPrivateKey() { return test::Mijin_Test_Nemesis_Private_Key; }
+			static constexpr auto ExpectedNemesisAddress() {
+#ifdef SIGNATURE_SCHEME_NIS1
+				return "SDXZPM4GUCEYAMMJH6QRPTRMEZ4JIXUU5W276BYK";
+#else
+				return "SARNASAS2BIAB6LMFA3FPMGBPGIJGK6IJETM3ZSP";
+#endif
+			}
 
 			static std::vector<const char*> PrivateKeys() {
 				return std::vector<const char*>(&test::Mijin_Test_Private_Keys[0], &test::Mijin_Test_Private_Keys[11]);
@@ -38,6 +42,19 @@ namespace catapult {
 
 			static std::vector<std::string> ExpectedAddresses() {
 				return {
+#ifdef SIGNATURE_SCHEME_NIS1
+					"SCA6I5AP4X4B3U4GTO2FU7SJD4UDX37I6SEVR3GP",
+					"SCHC72JZZSO3OKXIB6TSOVA4BTT6A2CRXMVKOJAV",
+					"SBJMEHK43TA4GYFDK6WZDYZEIDNTI7UVFLA4ISCQ",
+					"SCTMMUHWPBQSVQGHWOZBOHWM3QRNU6KZRAPS3TDP",
+					"SAZGBECYA55CDZV5S2Q32CKABW7ZCVNIXCJWQVQC",
+					"SDMZAQJZJ7WCFUCOJIKXAAXVEMDBLXFLSW2HVX2F",
+					"SBTZ7EHSKCXDIO2TUEMD4JGSZ3SBAPLNV5ZMO25O",
+					"SCPLDDFMD4KKNHRBTA774MYW63XCP5QZIKIY2LKJ",
+					"SAGCA236SGPMW2HWU2EBJSHQ74SDZ6OB7W35SMVN",
+					"SDLCP3E4V6S3DXV3C4AKNQOZITH5NLXK7QGNAFTT",
+					"SAOFFTLCERCRXWMQ6B3253D7QNYVK33PGPYQBAI4"
+#else
 					"SAAA244WMCB2JXGNQTQHQOS45TGBFF4V2MJBVOUI",
 					"SAAA34PEDKJHKIHGVXV3BSKBSQPPQDDMO2ATWMY3",
 					"SAAA467G4ZDNOEGLNXLGWUAXZKC6VAES74J7N34D",
@@ -49,12 +66,13 @@ namespace catapult {
 					"SAAAL4JPUQLKCWRRWMXQT3T2F3GMHIG4RUKQB24N",
 					"SAAAMZYSPE5TRAVH7I3VSF7ZD542EVDLB7JT7Z4K",
 					"SAAAZY5C3L6ONXRAPH2WYAPC3FKYFIPBBPFMLAS4"
+#endif
 				};
 			}
 		};
 
 		auto PrivateKeyStringToAddressString(const std::string& pkString, model::NetworkIdentifier networkIdentifier) {
-			auto kp = KeyPair::FromString(pkString);
+			auto kp = crypto::KeyPair::FromString(pkString);
 			auto rawAddress = model::PublicKeyToAddress(kp.publicKey(), networkIdentifier);
 			return model::AddressToString(rawAddress);
 		}

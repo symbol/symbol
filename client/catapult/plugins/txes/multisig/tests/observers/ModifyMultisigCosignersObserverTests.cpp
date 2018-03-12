@@ -18,10 +18,7 @@ namespace catapult { namespace observers {
 		using Modifications = std::vector<model::CosignatoryModification>;
 
 		auto CreateNotification(const Key& signerKey, const std::vector<model::CosignatoryModification>& modifications) {
-			return Notification(
-					signerKey,
-					static_cast<uint8_t>(modifications.size()),
-					modifications.data());
+			return Notification(signerKey, static_cast<uint8_t>(modifications.size()), modifications.data());
 		}
 
 		void LinkMultisigWithCosignatory(
@@ -220,16 +217,7 @@ namespace catapult { namespace observers {
 		auto notification = CreateNotification(keys[0], modifications);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(
-				keys,
-				{ 0, 1, 2, 3 },
-				{},
-				notification,
-				{},
-				{
-					{ 0, { 1, 2, 3 } }
-				}
-		);
+		TTraits::RunMultisigTest(keys, { 0, 1, 2, 3 }, {}, notification, {}, {{ 0, { 1, 2, 3 } }});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(CanConvertCosignatoryToMultisigAccount) {
@@ -239,19 +227,7 @@ namespace catapult { namespace observers {
 		auto notification = CreateNotification(keys[1], modifications);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(
-				keys,
-				{ 3, 4 },
-				{
-					{ 0, { 1, 2 } }
-				},
-				notification,
-				{},
-				{
-					{ 0, { 1, 2 } },
-					{ 1, { 3, 4 } },
-				}
-		);
+		TTraits::RunMultisigTest(keys, { 3, 4 }, {{ 0, { 1, 2 } }}, notification, {}, {{ 0, { 1, 2 } }, { 1, { 3, 4 } }, });
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(CanAddMultisigAccountAsACosignatory) {
@@ -261,19 +237,7 @@ namespace catapult { namespace observers {
 		auto notification = CreateNotification(keys[0], modifications);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(
-				keys,
-				{ 0, 4 },
-				{
-					{ 1, { 2, 3 } }
-				},
-				notification,
-				{},
-				{
-					{ 0, { 1, 4 } },
-					{ 1, { 2, 3 } },
-				}
-		);
+		TTraits::RunMultisigTest(keys, { 0, 4 }, {{ 1, { 2, 3 } }}, notification, {}, {{ 0, { 1, 4 } }, { 1, { 2, 3 } }, });
 	}
 
 	// endregion
@@ -287,18 +251,7 @@ namespace catapult { namespace observers {
 		auto notification = CreateNotification(keys[0], modifications);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(
-				keys,
-				{ 1, 4 },
-				{
-					{ 0, { 2, 3 } }
-				},
-				notification,
-				{ 2, 3 },
-				{
-					{ 0, { 1, 4 } }
-				}
-		);
+		TTraits::RunMultisigTest(keys, { 1, 4 }, {{ 0, { 2, 3 } }}, notification, { 2, 3 }, {{ 0, { 1, 4 } }});
 	}
 
 	// endregion
@@ -312,16 +265,7 @@ namespace catapult { namespace observers {
 		auto notification = CreateNotification(keys[0], modifications);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(
-				keys,
-				{},
-				{
-					{ 0, { 1 } }
-				},
-				notification,
-				{ 0, 1 },
-				{}
-		);
+		TTraits::RunMultisigTest(keys, {}, {{ 0, { 1 } }}, notification, { 0, 1 }, {});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_RemovesCosignatoryWithNoLinks_LeavesMultisigAccountWithCosignatories) {
@@ -331,18 +275,7 @@ namespace catapult { namespace observers {
 		auto notification = CreateNotification(keys[0], modifications);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(
-				keys,
-				{},
-				{
-					{ 0, { 1, 2 } }
-				},
-				notification,
-				{ 2 },
-				{
-					{ 0, { 1 } }
-				}
-		);
+		TTraits::RunMultisigTest(keys, {}, {{ 0, { 1, 2 } }}, notification, { 2 }, {{ 0, { 1 } }});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_RemovesCosignatoryWithNoLinks_LeavesMultisigAccountWithMultisigAccounts) {
@@ -352,19 +285,7 @@ namespace catapult { namespace observers {
 		auto notification = CreateNotification(keys[1], modifications);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(
-				keys,
-				{},
-				{
-					{ 0, { 1 } },
-					{ 1, { 2 } }
-				},
-				notification,
-				{ 2 },
-				{
-					{ 0, { 1 } }
-				}
-		);
+		TTraits::RunMultisigTest(keys, {}, {{ 0, { 1 } }, { 1, { 2 } }}, notification, { 2 }, {{ 0, { 1 } }});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_LeavesCosignatoryWithCosignatories_RemovesMultisigAccountWitNoLinks) {
@@ -374,19 +295,7 @@ namespace catapult { namespace observers {
 		auto notification = CreateNotification(keys[0], modifications);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(
-				keys,
-				{},
-				{
-					{ 0, { 1 } },
-					{ 1, { 2 } }
-				},
-				notification,
-				{ 0 },
-				{
-					{ 1, { 2 } }
-				}
-		);
+		TTraits::RunMultisigTest(keys, {}, {{ 0, { 1 } }, { 1, { 2 } }}, notification, { 0 }, {{ 1, { 2 } }});
 	}
 
 	NOTIFY_MODE_BASED_TRAITS(RemovingCosignatory_LeavesCosignatoryWithMultisigAccounts_RemovesMultisigAccountWitNoLinks) {
@@ -396,19 +305,7 @@ namespace catapult { namespace observers {
 		auto notification = CreateNotification(keys[0], modifications);
 
 		// Act + Assert:
-		TTraits::RunMultisigTest(
-				keys,
-				{},
-				{
-					{ 0, { 2 } },
-					{ 1, { 2 } }
-				},
-				notification,
-				{ 0 },
-				{
-					{ 1, { 2 } }
-				}
-		);
+		TTraits::RunMultisigTest(keys, {}, {{ 0, { 2 } }, { 1, { 2 } }}, notification, { 0 }, {{ 1, { 2 } }});
 	}
 
 	// endregion

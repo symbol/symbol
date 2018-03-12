@@ -28,23 +28,28 @@ namespace catapult { namespace test {
 			}
 
 		public:
-			thread::future<ClientSocket*> connect() override {
-				return connect(test::Local_Host_Port);
+			thread::future<ClientSocket*> connect(ConnectOptions options) override {
+				return connect(test::Local_Host_Port, options);
 			}
 
-			thread::future<ClientSocket*> connect(unsigned short port) override {
+			thread::future<ClientSocket*> connect(unsigned short port, ConnectOptions options) override {
 				auto pPromise = std::make_shared<thread::promise<ClientSocket*>>();
 				auto future = pPromise->get_future();
 
 				// connect to the local host
 				auto endpoint = test::CreateLocalHostEndpoint(port);
 				CATAPULT_LOG(debug) << "attempting client socket connection to " << endpoint;
-				m_socket.async_connect(
-						endpoint,
-						[pThis = shared_from_this(), pPromise](const auto& ec) {
+				m_socket.async_connect(endpoint, [pThis = shared_from_this(), options, pPromise](const auto& ec) {
 					CATAPULT_LOG(debug) << "client socket connected " << ToMessage(ec);
 					if (ec)
 						return SetPromiseException(*pPromise, ec);
+
+					if (ConnectOptions::Abort == options) {
+						CATAPULT_LOG(debug) << "aborting client socket connection";
+						pThis->m_socket.set_option(boost::asio::socket_base::linger(true, 0));
+						pThis->m_socket.close();
+						CATAPULT_LOG(debug) << "aborted client socket connection";
+					}
 
 					pPromise->set_value(pThis.get());
 				});
@@ -92,9 +97,7 @@ namespace catapult { namespace test {
 				return write({ sendBuffer }, 0);
 			}
 
-			thread::future<size_t> write(
-					const std::vector<ionet::ByteBuffer>& sendBuffers,
-					size_t delayMillis) override {
+			thread::future<size_t> write(const std::vector<ionet::ByteBuffer>& sendBuffers, size_t delayMillis) override {
 				auto pPromise = std::make_shared<thread::promise<size_t>>();
 				auto future = pPromise->get_future();
 
@@ -104,9 +107,7 @@ namespace catapult { namespace test {
 			}
 
 		private:
-			void startWrite(
-					const std::shared_ptr<WriteContext>& pWriteContext,
-					const std::shared_ptr<thread::promise<size_t>>& pPromise) {
+			void startWrite(const std::shared_ptr<WriteContext>& pWriteContext, const std::shared_ptr<thread::promise<size_t>>& pPromise) {
 				// stop - all buffers have been written
 				auto& nextId = pWriteContext->NextId;
 				const auto& sendBuffers = pWriteContext->SendBuffers;
@@ -137,7 +138,7 @@ namespace catapult { namespace test {
 			}
 
 		public:
-			void delay(const std::function<void ()>& continuation, size_t delayMillis) override {
+			void delay(const action& continuation, size_t delayMillis) override {
 				// if there is no delay, just invoke the continuation
 				if (0 == delayMillis) {
 					continuation();
@@ -174,14 +175,14 @@ namespace catapult { namespace test {
 	}
 
 	void AddClientReadBufferTask(boost::asio::io_service& service, ionet::ByteBuffer& receiveBuffer) {
-		CreateClientSocket(service)->connect()
-			.then([&receiveBuffer](auto&& socketFuture) { socketFuture.get()->read(receiveBuffer); });
+		CreateClientSocket(service)->connect().then([&receiveBuffer](auto&& socketFuture) {
+			socketFuture.get()->read(receiveBuffer);
+		});
 	}
 
-	void AddClientWriteBuffersTask(
-			boost::asio::io_service& service,
-			const std::vector<ionet::ByteBuffer>& sendBuffers) {
-		CreateClientSocket(service)->connect()
-			.then([sendBuffers](auto&& socketFuture) { socketFuture.get()->write(sendBuffers); });
+	void AddClientWriteBuffersTask(boost::asio::io_service& service, const std::vector<ionet::ByteBuffer>& sendBuffers) {
+		CreateClientSocket(service)->connect().then([sendBuffers](auto&& socketFuture) {
+			socketFuture.get()->write(sendBuffers);
+		});
 	}
 }}

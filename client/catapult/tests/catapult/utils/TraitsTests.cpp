@@ -1,9 +1,11 @@
-#include "catapult/utils/Traits.h"
+#include "catapult/utils/traits/Traits.h"
 #include "catapult/types.h"
 #include "tests/TestHarness.h"
 #include <array>
 
 namespace catapult { namespace utils {
+
+#define TEST_CLASS TraitsTests
 
 	// region is_scalar / is_pod
 
@@ -37,7 +39,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(TraitsTests, IsScalarReturnsTrueOnlyForIntegralAndIntegralLikeTypes) {
+	TEST(TEST_CLASS, IsScalarReturnsTrueOnlyForIntegralAndIntegralLikeTypes) {
 		// Assert:
 		// - basic and pointer types
 		AssertIsScalar<int>();
@@ -57,7 +59,7 @@ namespace catapult { namespace utils {
 		AssertIsNotScalar<std::array<unsigned char, 1>>();
 	}
 
-	TEST(TraitsTests, IsPodReturnsTrueOnlyForIntegralAndIntegralLikeTypes) {
+	TEST(TEST_CLASS, IsPodReturnsTrueOnlyForIntegralAndIntegralLikeTypes) {
 		// Assert:
 		// - basic and pointer types
 		AssertIsPod<int>();
@@ -94,7 +96,7 @@ namespace catapult { namespace utils {
 	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT&&>::value));
 	}
 
-	TEST(TraitsTests, IsBaseOfIgnoreReferenceReturnsTrueIfLeftStrippedOfReferenceIsDerivedFromBase) {
+	TEST(TEST_CLASS, IsBaseOfIgnoreReferenceReturnsTrueIfLeftStrippedOfReferenceIsDerivedFromBase) {
 		// Assert:
 		// - (Base, Base) with any reference qualifiers is true
 		EXPECT_IS_BASE_OF_IGNORE_REFERENCE_RESULT(true, Base, Base);
@@ -139,7 +141,7 @@ namespace catapult { namespace utils {
 		};
 	}
 
-	TEST(TraitsTests, EnableIfTypeCanBeUsedToConditionallySelectTypeBasedOnPresenceOfSubTypeAlias) {
+	TEST(TEST_CLASS, EnableIfTypeCanBeUsedToConditionallySelectTypeBasedOnPresenceOfSubTypeAlias) {
 		// Arrange:
 		struct FooContainer { using Foo = int; };
 		struct OtherContainer {};

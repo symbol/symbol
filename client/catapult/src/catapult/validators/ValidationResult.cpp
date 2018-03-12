@@ -27,12 +27,15 @@ namespace catapult { namespace validators {
 			// custom plugin results
 			#include "plugins/coresystem/src/validators/Results.h"
 			#include "plugins/services/hashcache/src/validators/Results.h"
+			#include "plugins/services/signature/src/validators/Results.h"
 			#include "plugins/txes/aggregate/src/validators/Results.h"
+			#include "plugins/txes/lock/src/validators/Results.h"
 			#include "plugins/txes/multisig/src/validators/Results.h"
 			#include "plugins/txes/namespace/src/validators/Results.h"
 			#include "plugins/txes/transfer/src/validators/Results.h"
 			#include "src/catapult/consumers/BlockChainProcessorResults.h"
 			#include "src/catapult/consumers/ConsumerResults.h"
+			#include "src/catapult/extensions/Results.h"
 			}
 
 			return nullptr;

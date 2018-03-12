@@ -5,9 +5,11 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS CastingTests
+
 	// region as_const
 
-	TEST(CastingTests, AsConstReturnsConstReferenceForConstType) {
+	TEST(TEST_CLASS, AsConstReturnsConstReferenceForConstType) {
 		// Arrange:
 		const int val = 7;
 
@@ -20,7 +22,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(std::is_const<std::remove_reference<decltype(ref)>::type>::value);
 	}
 
-	TEST(CastingTests, AsConstReturnsConstReferenceForNonConstType) {
+	TEST(TEST_CLASS, AsConstReturnsConstReferenceForNonConstType) {
 		// Arrange:
 		int val = 7;
 
@@ -38,17 +40,17 @@ namespace catapult { namespace utils {
 	// region to_underlying_type
 
 	namespace {
-		std::string CreateUnderlyingTypeMessage(const char* pTypeName) {
+		std::string CreateUnderlyingTypeMessage(const char* typeName) {
 			std::stringstream message;
-			message << "(underlying type = " << pTypeName << ")";
+			message << "(underlying type = " << typeName << ")";
 			return message.str();
 		}
 
 		template<typename TUnderlyingType>
-		void AssertToUnderlyingTypePreservesEnumValues(const char* pTypeName) {
+		void AssertToUnderlyingTypePreservesEnumValues(const char* typeName) {
 			// Arrange:
 			enum class TestEnum : TUnderlyingType { Zero = 0, Two = 2, Four = 4 };
-			auto message = CreateUnderlyingTypeMessage(pTypeName);
+			auto message = CreateUnderlyingTypeMessage(typeName);
 
 			// Act: convert all values in TestEnum
 			TUnderlyingType expected = 0;
@@ -62,28 +64,28 @@ namespace catapult { namespace utils {
 		}
 
 		template<typename TUnderlyingType>
-		void AssertToUnderlyingTypePreservesEnumType(const char* pTypeName) {
+		void AssertToUnderlyingTypePreservesEnumType(const char* typeName) {
 			// Arrange:
 			enum class TestEnum : TUnderlyingType { Foo };
-			auto message = CreateUnderlyingTypeMessage(pTypeName);
+			auto message = CreateUnderlyingTypeMessage(typeName);
 
 			// Act:
-			using TActualUnderlyingType = decltype(to_underlying_type(TestEnum::Foo));
+			using ActualUnderlyingType = decltype(to_underlying_type(TestEnum::Foo));
 
 			// Assert: the underlying types are the same
-			EXPECT_EQ(sizeof(TUnderlyingType), sizeof(TActualUnderlyingType)) << "has same size " << message;
-			auto areTypesSame = std::is_same<TUnderlyingType, TActualUnderlyingType>::value;
+			EXPECT_EQ(sizeof(TUnderlyingType), sizeof(ActualUnderlyingType)) << "has same size " << message;
+			auto areTypesSame = std::is_same<TUnderlyingType, ActualUnderlyingType>::value;
 			EXPECT_TRUE(areTypesSame) << "has same type " << message;
 		}
 	}
 
-	TEST(CastingTests, ToUnderlyingTypePreservesEnumValues) {
+	TEST(TEST_CLASS, ToUnderlyingTypePreservesEnumValues) {
 		// Assert:
 		AssertToUnderlyingTypePreservesEnumValues<int8_t>("int8_t");
 		AssertToUnderlyingTypePreservesEnumValues<uint64_t>("uint64_t");
 	}
 
-	TEST(CastingTests, ToUnderlyingTypePreservesEnumType) {
+	TEST(TEST_CLASS, ToUnderlyingTypePreservesEnumType) {
 		// Assert:
 		AssertToUnderlyingTypePreservesEnumType<int8_t>("int8_t");
 		AssertToUnderlyingTypePreservesEnumType<uint64_t>("uint64_t");
@@ -114,9 +116,9 @@ namespace catapult { namespace utils {
 			// Arrange:
 			std::stringstream message;
 			message << "casting " << static_cast<int64_t>(value);
-			std::function<void()> cast = [value]() { checked_cast<TSource, TDest>(value); };
+			action cast = [value]() { checked_cast<TSource, TDest>(value); };
 
-			// Assert:
+			// Act + Assert:
 			EXPECT_THROW(cast(), catapult_runtime_error) << message.str();
 		}
 
@@ -130,7 +132,7 @@ namespace catapult { namespace utils {
 		const auto Int16_Min = std::numeric_limits<int16_t>::min();
 	}
 
-	TEST(CastingTests, CheckedCastChecksUnsignedToSignedConversions) {
+	TEST(TEST_CLASS, CheckedCastChecksUnsignedToSignedConversions) {
 		// Assert: can convert within bounds [UInt8_Min, Int8_Max]
 		//         (static casts are needed for signed / unsigned adjustments)
 		AssertCheckedCast<uint8_t, int8_t>(UInt8_Min, static_cast<int8_t>(UInt8_Min)); // min
@@ -143,7 +145,7 @@ namespace catapult { namespace utils {
 		AssertCheckedCastFails<uint8_t, int8_t>(UInt8_Max);
 	}
 
-	TEST(CastingTests, CheckedCastChecksSignedToUnsignedConversions) {
+	TEST(TEST_CLASS, CheckedCastChecksSignedToUnsignedConversions) {
 		// Assert: can convert within bounds [UInt8_Min, Int8_Max]
 		//         (static casts are needed for signed / unsigned adjustments)
 		AssertCheckedCast<int8_t, uint8_t>(static_cast<int8_t>(UInt8_Min), UInt8_Min); // min
@@ -156,7 +158,7 @@ namespace catapult { namespace utils {
 		AssertCheckedCastFails<int8_t, uint8_t>(static_cast<int8_t>(UInt8_Max));
 	}
 
-	TEST(CastingTests, CheckedCastChecksUnsignedToUnsignedConversions) {
+	TEST(TEST_CLASS, CheckedCastChecksUnsignedToUnsignedConversions) {
 		// Assert: can convert within bounds [UInt8_Min, UInt8_Max]
 		AssertCheckedCast<uint16_t, uint8_t>(UInt8_Min, UInt8_Min); // min
 		AssertCheckedCast<uint16_t, uint8_t>(UInt8_Max / 2, UInt8_Max / 2); // min < x < max
@@ -168,7 +170,7 @@ namespace catapult { namespace utils {
 		AssertCheckedCastFails<uint16_t, uint8_t>(UInt16_Max);
 	}
 
-	TEST(CastingTests, CheckedCastChecksSignedToSignedConversions) {
+	TEST(TEST_CLASS, CheckedCastChecksSignedToSignedConversions) {
 		// Assert: can convert within bounds [Int8_Min, Int8_Max]
 		AssertCheckedCast<int16_t, int8_t>(Int8_Min, Int8_Min); // min
 		AssertCheckedCast<int16_t, int8_t>(Int8_Min / 2, Int8_Min / 2); // min < y < 0

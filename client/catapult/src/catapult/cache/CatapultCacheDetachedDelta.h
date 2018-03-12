@@ -5,6 +5,7 @@
 namespace catapult { namespace cache { class DetachedSubCacheView; } }
 
 namespace catapult { namespace cache {
+
 	/// Detached delta of the catapult cache.
 	class CatapultCacheDetachedDelta {
 	public:

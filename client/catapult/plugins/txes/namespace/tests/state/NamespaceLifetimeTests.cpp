@@ -4,9 +4,11 @@
 
 namespace catapult { namespace state {
 
-	/// region ctor
+#define TEST_CLASS NamespaceLifetimeTests
 
-	TEST(NamespaceLifetimeTests, CanCreateNamespaceLifetime) {
+	// region ctor
+
+	TEST(TEST_CLASS, CanCreateNamespaceLifetime) {
 		// Act:
 		NamespaceLifetime lifetime(Height(123), Height(234));
 
@@ -15,7 +17,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Height(234), lifetime.End);
 	}
 
-	TEST(NamespaceLifetimeTests, CanCreateNamespaceLifetimeWithMinLifetime) {
+	TEST(TEST_CLASS, CanCreateNamespaceLifetimeWithMinLifetime) {
 		// Act:
 		NamespaceLifetime lifetime(Height(233), Height(234));
 
@@ -24,13 +26,13 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Height(234), lifetime.End);
 	}
 
-	TEST(NamespaceLifetimeTests, CannotCreateNamespaceLifetimeWithZeroLifetime) {
-		// Assert:
+	TEST(TEST_CLASS, CannotCreateNamespaceLifetimeWithZeroLifetime) {
+		// Act + Assert:
 		EXPECT_THROW(NamespaceLifetime(Height(123), Height(123)), catapult_invalid_argument);
 	}
 
-	TEST(NamespaceLifetimeTests, CannotCreateNamespaceLifetimeWithNegativeLifetime) {
-		// Assert:
+	TEST(TEST_CLASS, CannotCreateNamespaceLifetimeWithNegativeLifetime) {
+		// Act + Assert:
 		EXPECT_THROW(NamespaceLifetime(Height(125), Height(124)), catapult_invalid_argument);
 		EXPECT_THROW(NamespaceLifetime(Height(125), Height(63)), catapult_invalid_argument);
 	}
@@ -39,7 +41,7 @@ namespace catapult { namespace state {
 
 	// region isActive
 
-	TEST(NamespaceLifetimeTests, IsActiveReturnsTrueIfHeightIsWithinLifetime) {
+	TEST(TEST_CLASS, IsActiveReturnsTrueIfHeightIsWithinLifetime) {
 		// Arrange:
 		NamespaceLifetime lifetime(Height(123), Height(234));
 
@@ -48,7 +50,7 @@ namespace catapult { namespace state {
 			EXPECT_TRUE(lifetime.isActive(Height(height))) << "at height " << height;
 	}
 
-	TEST(NamespaceLifetimeTests, IsActiveReturnsFalseIfHeightIsNotWithinLifetime) {
+	TEST(TEST_CLASS, IsActiveReturnsFalseIfHeightIsNotWithinLifetime) {
 		// Arrange:
 		NamespaceLifetime lifetime(Height(123), Height(234));
 
@@ -79,12 +81,12 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(NamespaceLifetimeTests, OperatorEqualReturnsTrueForEqualObjects) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
 		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
-	TEST(NamespaceLifetimeTests, OperatorNotEqualReturnsTrueForUnequalObjects) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
 		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}

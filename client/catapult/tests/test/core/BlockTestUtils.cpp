@@ -1,9 +1,8 @@
 #include "BlockTestUtils.h"
+#include "EntityTestUtils.h"
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/EntityHasher.h"
-#include "tests/test/core/EntityTestUtils.h"
-#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 #include <memory>
 
@@ -28,18 +27,14 @@ namespace catapult { namespace test {
 		return GenerateRandomBlockWithTransactions(MakeConst(transactions));
 	}
 
-	std::unique_ptr<model::Block> GenerateBlockWithTransactions(
-			const crypto::KeyPair& signer,
-			const ConstTransactions& transactions) {
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const ConstTransactions& transactions) {
 		model::PreviousBlockContext context;
 		auto pBlock = CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
 		SignBlock(signer, *pBlock);
 		return pBlock;
 	}
 
-	std::unique_ptr<model::Block> GenerateBlockWithTransactions(
-			const crypto::KeyPair& signer,
-			const MutableTransactions& transactions) {
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const MutableTransactions& transactions) {
 		return GenerateBlockWithTransactions(signer, MakeConst(transactions));
 	}
 
@@ -99,7 +94,7 @@ namespace catapult { namespace test {
 		for (auto i = 0u; i < numBlocks; ++i) {
 			auto& block = reinterpret_cast<model::Block&>(buffer[i * Entity_Size]);
 			block.Size = Entity_Size;
-			block.Type = model::EntityType::Block;
+			block.Type = model::Entity_Type_Block;
 		}
 
 		return buffer;
@@ -129,11 +124,16 @@ namespace catapult { namespace test {
 	model::BlockElement BlockToBlockElement(const model::Block& block, const Hash256& hash) {
 		auto blockElement = BlockToBlockElement(block);
 		blockElement.EntityHash = hash;
+		for (auto& transactionElement : blockElement.Transactions) {
+			transactionElement.OptionalExtractedAddresses = std::make_shared<model::AddressSet>();
+			transactionElement.OptionalExtractedAddresses->emplace(test::GenerateRandomData<Address_Decoded_Size>());
+		}
+
 		return blockElement;
 	}
 
 	model::BlockElement BlockToBlockElement(const model::Block& block) {
-		return extensions::ConvertBlockToBlockElement(block, {});
+		return extensions::BlockExtensions().convertBlockToBlockElement(block, {});
 	}
 
 	namespace {
@@ -153,7 +153,7 @@ namespace catapult { namespace test {
 		}
 	}
 
-	void AssertBlockElement(const model::BlockElement& expectedBlockElement, const model::BlockElement& blockElement) {
+	void AssertEqual(const model::BlockElement& expectedBlockElement, const model::BlockElement& blockElement) {
 		EXPECT_EQ(expectedBlockElement.Block.Signature, blockElement.Block.Signature);
 		EXPECT_EQ(expectedBlockElement.Block, blockElement.Block);
 		EXPECT_EQ(expectedBlockElement.EntityHash, blockElement.EntityHash);
@@ -162,6 +162,6 @@ namespace catapult { namespace test {
 	}
 
 	void SignBlock(const crypto::KeyPair& signer, model::Block& block) {
-		extensions::SignFullBlock(signer, block);
+		extensions::BlockExtensions().signFullBlock(signer, block);
 	}
 }}

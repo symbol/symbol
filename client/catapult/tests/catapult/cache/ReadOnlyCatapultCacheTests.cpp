@@ -4,7 +4,9 @@
 
 namespace catapult { namespace cache {
 
-	TEST(ReadOnlyCatapultCacheTests, CanCreateAroundArbitraryCaches) {
+#define TEST_CLASS ReadOnlyCatapultCacheTests
+
+	TEST(TEST_CLASS, CanCreateAroundArbitraryCaches) {
 		// Arrange:
 		test::SimpleCacheT<0> cache0;
 		test::SimpleCacheT<2> cache2;

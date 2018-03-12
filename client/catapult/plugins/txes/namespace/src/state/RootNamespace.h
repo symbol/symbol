@@ -16,18 +16,7 @@ namespace catapult { namespace state {
 				: RootNamespace(id, owner, lifetime, std::make_shared<Children>())
 		{}
 
-		/// Copy constructor.
-		RootNamespace(const RootNamespace& root)
-				: RootNamespace(root.m_id, root.m_owner, root.m_lifetime, std::make_shared<Children>(root.children()))
-		{}
-
-		/// Move constructor.
-		RootNamespace(RootNamespace&& root) = default;
-
-	public:
-		RootNamespace& operator=(const RootNamespace& rhs) = delete;
-
-	private:
+		/// Creates a root namespace around \a id, \a owner, \a liftime and \a pChildren.
 		explicit RootNamespace(
 				NamespaceId id,
 				const Key& owner,

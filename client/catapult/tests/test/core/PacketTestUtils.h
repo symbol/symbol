@@ -2,6 +2,7 @@
 #include "catapult/ionet/IoTypes.h"
 #include "catapult/ionet/Packet.h"
 #include "catapult/ionet/PacketHandlers.h"
+#include "tests/test/core/mocks/MockTransaction.h"
 #include <memory>
 #include <vector>
 
@@ -11,14 +12,12 @@ namespace catapult { namespace test {
 /// with size \a SEND_BUFFER_SIZE is equal to \a RECEIVED_BUFFER.
 #define EXPECT_EQUAL_BUFFERS(SEND_BUFFER, SEND_BUFFER_OFFSET, SEND_BUFFER_SIZE, RECEIVED_BUFFER) \
 	EXPECT_EQ(SEND_BUFFER_SIZE, RECEIVED_BUFFER.size()); \
-	EXPECT_EQ( \
-			test::ToHexString(&SEND_BUFFER[SEND_BUFFER_OFFSET], SEND_BUFFER_SIZE), \
-			test::ToHexString(RECEIVED_BUFFER));
+	EXPECT_EQ(test::ToHexString(&SEND_BUFFER[SEND_BUFFER_OFFSET], SEND_BUFFER_SIZE), test::ToHexString(RECEIVED_BUFFER));
 
 	/// The default packet type used in tests. This type is guaranteed to not conflict any with known packet types.
 	constexpr ionet::PacketType Default_Packet_Type = ionet::PacketType::Undefined;
 
-	/// Writes a packet header in \a buffer at \a offset for a packet with size \a size and a default type.
+	/// Writes a packet header in \a buffer at \a offset for a packet with \a size and a default type.
 	void SetPacketAt(ionet::ByteBuffer& buffer, size_t offset, uint32_t size);
 
 	/// Generates a random packet buffer of size \a packetSize containing a default packet of size
@@ -61,4 +60,23 @@ namespace catapult { namespace test {
 
 	/// Sets a push block packet in \a buffer.
 	ionet::Packet& SetPushBlockPacketInBuffer(ionet::ByteBuffer& buffer);
+
+	/// Generates a random push block packet.
+	std::shared_ptr<ionet::Packet> GenerateRandomBlockPacket();
+
+	/// Generates a random push transaction packet.
+	std::shared_ptr<ionet::Packet> GenerateRandomTransactionPacket();
+
+	/// Coerces a packet \a buffer to an entity of the specified type.
+	template<typename TEntity>
+	const TEntity& CoercePacketToEntity(const ionet::ByteBuffer& buffer) {
+		return *reinterpret_cast<const TEntity*>(buffer.data() + sizeof(ionet::PacketHeader));
+	}
+
+	/// Performs a default size check of \a entity.
+	template<typename TEntity>
+	bool DefaultSizeCheck(const TEntity& entity) {
+		auto registry = mocks::CreateDefaultTransactionRegistry();
+		return IsSizeValid(entity, registry);
+	}
 }}

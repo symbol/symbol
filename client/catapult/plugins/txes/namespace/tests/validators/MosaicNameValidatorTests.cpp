@@ -17,10 +17,28 @@ namespace catapult { namespace validators {
 		}
 	}
 
+	// region reserved ids
+
+	TEST(TEST_CLASS, FailureWhenMosaicNameIsReserved) {
+		// Arrange:
+		auto pValidator = CreateMosaicNameValidator(100);
+		auto name = std::string(10, 'a');
+		auto notification = CreateMosaicNameNotification(static_cast<uint8_t>(name.size()), reinterpret_cast<const uint8_t*>(name.data()));
+		notification.MosaicId = MosaicId();
+
+		// Act:
+		auto result = test::ValidateNotification(*pValidator, notification);
+
+		// Assert:
+		EXPECT_EQ(Failure_Mosaic_Name_Reserved, result);
+	}
+
+	// endregion
+
 	// region name size
 
 	namespace {
-		void AssertSizeValidationResult(uint8_t nameSize, uint8_t maxNameSize, ValidationResult expectedResult) {
+		void AssertSizeValidationResult(ValidationResult expectedResult, uint8_t nameSize, uint8_t maxNameSize) {
 			// Arrange:
 			auto pValidator = CreateMosaicNameValidator(maxNameSize);
 			auto name = std::string(nameSize, 'a');
@@ -38,23 +56,23 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingMosaicWithNameSizeLessThanMax) {
 		// Assert:
-		AssertSizeValidationResult(100, 123, ValidationResult::Success);
+		AssertSizeValidationResult(ValidationResult::Success, 100, 123);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingMosaicWithNameSizeEqualToMax) {
 		// Assert:
-		AssertSizeValidationResult(123, 123, ValidationResult::Success);
+		AssertSizeValidationResult(ValidationResult::Success, 123, 123);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingMosaicWithNameSizeGreaterThanMax) {
 		// Assert:
-		AssertSizeValidationResult(124, 123, Failure_Mosaic_Invalid_Name);
-		AssertSizeValidationResult(200, 123, Failure_Mosaic_Invalid_Name);
+		AssertSizeValidationResult(Failure_Mosaic_Invalid_Name, 124, 123);
+		AssertSizeValidationResult(Failure_Mosaic_Invalid_Name, 200, 123);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingEmptyMosaicName) {
 		// Assert:
-		AssertSizeValidationResult(0, 123, Failure_Mosaic_Invalid_Name);
+		AssertSizeValidationResult(Failure_Mosaic_Invalid_Name, 0, 123);
 	}
 
 	// endregion
@@ -62,7 +80,7 @@ namespace catapult { namespace validators {
 	// region name characters
 
 	namespace {
-		void AssertNameValidationResult(const std::string& name, ValidationResult expectedResult) {
+		void AssertNameValidationResult(ValidationResult expectedResult, const std::string& name) {
 			// Arrange:
 			auto pValidator = CreateMosaicNameValidator(static_cast<uint8_t>(name.size()));
 			auto notification = CreateMosaicNameNotification(
@@ -80,13 +98,13 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, SuccessWhenValidatingValidMosaicNames) {
 		// Assert:
 		for (const auto& name : { "a", "be", "cat", "doom", "al-ce", "al_ce", "alice-", "alice_" })
-			AssertNameValidationResult(name, ValidationResult::Success);
+			AssertNameValidationResult(ValidationResult::Success, name);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingInvalidMosaicNames) {
 		// Assert:
 		for (const auto& name : { "-alice", "_alice", "al.ce", "alIce", "al ce", "al@ce", "al#ce", "!@#$%" })
-			AssertNameValidationResult(name, Failure_Mosaic_Invalid_Name);
+			AssertNameValidationResult(Failure_Mosaic_Invalid_Name, name);
 	}
 
 	// endregion
@@ -97,9 +115,7 @@ namespace catapult { namespace validators {
 		// Arrange: note that CreateMosaicNameNotification creates proper id
 		auto pValidator = CreateMosaicNameValidator(100);
 		auto name = std::string(10, 'a');
-		auto notification = CreateMosaicNameNotification(
-				static_cast<uint8_t>(name.size()),
-				reinterpret_cast<const uint8_t*>(name.data()));
+		auto notification = CreateMosaicNameNotification(static_cast<uint8_t>(name.size()), reinterpret_cast<const uint8_t*>(name.data()));
 
 		// Act:
 		auto result = test::ValidateNotification(*pValidator, notification);
@@ -112,9 +128,7 @@ namespace catapult { namespace validators {
 		// Arrange: corrupt the id
 		auto pValidator = CreateMosaicNameValidator(100);
 		auto name = std::string(10, 'a');
-		auto notification = CreateMosaicNameNotification(
-				static_cast<uint8_t>(name.size()),
-				reinterpret_cast<const uint8_t*>(name.data()));
+		auto notification = CreateMosaicNameNotification(static_cast<uint8_t>(name.size()), reinterpret_cast<const uint8_t*>(name.data()));
 		notification.MosaicId = notification.MosaicId + MosaicId(1);
 
 		// Act:

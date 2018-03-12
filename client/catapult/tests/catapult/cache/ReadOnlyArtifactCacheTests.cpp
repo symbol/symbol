@@ -3,6 +3,9 @@
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
+
+#define TEST_CLASS ReadOnlyArtifactCacheTests
+
 	using ReadOnlyArtifactCacheType = ReadOnlyArtifactCache<test::BasicSimpleCacheView, test::BasicSimpleCacheDelta, size_t, size_t>;
 
 	namespace {
@@ -50,7 +53,7 @@ namespace catapult { namespace cache {
 
 	// region contains
 
-	TEST(ReadOnlyArtifactCacheTests, ReadOnlyViewOnlyContainsCommittedEntities) {
+	TEST(TEST_CLASS, ReadOnlyViewOnlyContainsCommittedElements) {
 		// Assert:
 		RunReadOnlyViewTest([](const auto& readOnlyCache) {
 			EXPECT_TRUE(readOnlyCache.contains(1));
@@ -61,7 +64,7 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	TEST(ReadOnlyArtifactCacheTests, ReadOnlyDeltaContainsBothCommittedAndUncommittedEntities) {
+	TEST(TEST_CLASS, ReadOnlyDeltaContainsBothCommittedAndUncommittedElements) {
 		// Assert:
 		RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
 			EXPECT_TRUE(readOnlyCache.contains(1));
@@ -76,7 +79,7 @@ namespace catapult { namespace cache {
 
 	// region get
 
-	TEST(ReadOnlyArtifactCacheTests, ReadOnlyViewCanAccessCommittedEntitiesViaGet) {
+	TEST(TEST_CLASS, ReadOnlyViewCanAccessCommittedElementsViaGet) {
 		// Assert:
 		RunReadOnlyViewTest([](const auto& readOnlyCache) {
 			EXPECT_EQ(1u, readOnlyCache.get(1));
@@ -84,15 +87,15 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	TEST(ReadOnlyArtifactCacheTests, ReadOnlyViewCannotAccessUncommittedEntitiesViaGet) {
-		// Assert:
+	TEST(TEST_CLASS, ReadOnlyViewCannotAccessUncommittedElementsViaGet) {
+		// Act + Assert:
 		RunReadOnlyViewTest([](const auto& readOnlyCache) {
 			EXPECT_THROW(readOnlyCache.get(3), catapult_out_of_range);
 			EXPECT_THROW(readOnlyCache.get(4), catapult_out_of_range);
 		});
 	}
 
-	TEST(ReadOnlyArtifactCacheTests, ReadOnlyDeltaCanAccessBothCommittedAndUncommittedEntitiesViaGet) {
+	TEST(TEST_CLASS, ReadOnlyDeltaCanAccessBothCommittedAndUncommittedElementsViaGet) {
 		// Assert:
 		RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
 			EXPECT_EQ(1u, readOnlyCache.get(1));
@@ -106,7 +109,7 @@ namespace catapult { namespace cache {
 
 	// region isActive
 
-	TEST(ReadOnlyArtifactCacheTests, ReadOnlyViewCanDetermineIfArtifactIsActive) {
+	TEST(TEST_CLASS, ReadOnlyViewCanDetermineIfArtifactIsActive) {
 		// Assert:
 		RunReadOnlyViewTest([](const auto& readOnlyCache) {
 			// - height 2 (ids % 2 are active)
@@ -130,7 +133,7 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	TEST(ReadOnlyArtifactCacheTests, ReadOnlyDeltaCanDetermineIfArtifactIsActive) {
+	TEST(TEST_CLASS, ReadOnlyDeltaCanDetermineIfArtifactIsActive) {
 		// Assert:
 		RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
 			// - height 2 (ids % 2 are active)

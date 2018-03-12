@@ -1,22 +1,14 @@
 #include "PacketWriters.h"
-#include "AsyncTcpServer.h"
 #include "ClientConnector.h"
 #include "ServerConnector.h"
-#include "VerifyPeer.h"
-#include "catapult/crypto/KeyPair.h"
-#include "catapult/crypto/KeyUtils.h"
-#include "catapult/ionet/BufferedPacketIo.h"
-#include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/thread/IoServiceThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
-#include "catapult/utils/Hashers.h"
-#include "catapult/utils/Logging.h"
+#include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/ModificationSafeIterableContainer.h"
 #include "catapult/utils/SpinLock.h"
+#include "catapult/utils/ThrottleLogger.h"
 #include <list>
-#include <mutex>
-#include <unordered_set>
 
 namespace catapult { namespace net {
 
@@ -25,21 +17,14 @@ namespace catapult { namespace net {
 
 		struct WriterState {
 		public:
-			constexpr WriterState() : IsAvailable(true)
+			WriterState() : IsAvailable(true)
 			{}
 
 		public:
 			bool IsAvailable;
-			std::shared_ptr<ionet::Node> pNode;
+			ionet::Node Node;
 			SocketPointer pSocket;
 			std::shared_ptr<ionet::PacketIo> pBufferedIo;
-			std::shared_ptr<AsyncTcpServerAcceptContext> pAcceptContext;
-		};
-
-		struct NodeHasher {
-			size_t operator()(const ionet::Node& node) const {
-				return utils::ArrayHasher<Key>()(node.Identity.PublicKey);
-			}
 		};
 
 		bool IsStateAvailable(const WriterState& state) {
@@ -53,22 +38,31 @@ namespace catapult { namespace net {
 		class WriterContainer {
 		private:
 			using Writers = utils::ModificationSafeIterableContainer<std::list<WriterState>>;
-			using ExclusiveLock = std::lock_guard<utils::SpinLock>;
 
 		public:
 			size_t size() const {
-				ExclusiveLock guard(m_lock);
+				utils::SpinLockGuard guard(m_lock);
 				return m_writers.size();
 			}
 
+			size_t numOutgoingConnections() const {
+				utils::SpinLockGuard guard(m_lock);
+				return m_outgoingNodeIdentityKeys.size();
+			}
+
 			size_t availableSize() const {
-				ExclusiveLock guard(m_lock);
+				utils::SpinLockGuard guard(m_lock);
 				return static_cast<size_t>(std::count_if(m_writers.cbegin(), m_writers.cend(), IsStateAvailable));
+			}
+
+			utils::KeySet identities() const {
+				utils::SpinLockGuard guard(m_lock);
+				return m_nodeIdentityKeys;
 			}
 
 			template<typename THandler>
 			void forEach(THandler handler) {
-				ExclusiveLock guard(m_lock);
+				utils::SpinLockGuard guard(m_lock);
 				for (const auto& state : m_writers) {
 					if (!state.IsAvailable)
 						continue;
@@ -78,8 +72,8 @@ namespace catapult { namespace net {
 			}
 
 			bool pickOne(WriterState& state) {
-				ExclusiveLock guard(m_lock);
-				auto pState = m_writers.nextIf(IsStateAvailable);
+				utils::SpinLockGuard guard(m_lock);
+				auto* pState = m_writers.nextIf(IsStateAvailable);
 				if (!pState)
 					return false;
 
@@ -89,7 +83,7 @@ namespace catapult { namespace net {
 			}
 
 			void makeAvailable(const SocketPointer& pSocket) {
-				ExclusiveLock guard(m_lock);
+				utils::SpinLockGuard guard(m_lock);
 				auto iter = findStateBySocket(pSocket);
 				if (m_writers.end() == iter)
 					return;
@@ -98,41 +92,64 @@ namespace catapult { namespace net {
 			}
 
 			bool prepareConnect(const ionet::Node& node) {
-				ExclusiveLock guard(m_lock);
-				if (!m_nodes.insert(node).second) {
-					CATAPULT_LOG(trace) << "bypassing connection to already connected peer " << node;
+				utils::SpinLockGuard guard(m_lock);
+				if (!m_outgoingNodeIdentityKeys.insert(node.identityKey()).second) {
+					CATAPULT_LOG(debug) << "bypassing connection to already connected peer " << node;
 					return false;
 				}
 
 				return true;
 			}
 
-			void insert(const WriterState& state) {
-				ExclusiveLock guard(m_lock);
+			bool insert(const WriterState& state) {
+				utils::SpinLockGuard guard(m_lock);
+
+				// if the state is for an already connected node, ignore it
+				// 1. required for filtering accepted connections
+				// 2. prepareConnect proactively filters connections
+				// 3. failsafe for mixed connect + accept use cases (currently unused, so not optimized)
+				if (!m_nodeIdentityKeys.emplace(state.Node.identityKey()).second) {
+					CATAPULT_LOG(debug) << "ignoring connection to already connected peer " << state.Node;
+					return false;
+				}
+
 				m_writers.push_back(state);
+				return true;
 			}
 
 			void abortConnect(const ionet::Node& node) {
-				ExclusiveLock guard(m_lock);
+				utils::SpinLockGuard guard(m_lock);
 				CATAPULT_LOG(debug) << "aborting connection to: " << node;
-				m_nodes.erase(node);
+				m_outgoingNodeIdentityKeys.erase(node.identityKey());
 			}
 
 			void remove(const SocketPointer& pSocket) {
-				ExclusiveLock guard(m_lock);
+				utils::SpinLockGuard guard(m_lock);
 				auto iter = findStateBySocket(pSocket);
 				if (m_writers.end() == iter) {
 					CATAPULT_LOG(warning) << "ignoring request to remove unknown socket";
 					return;
 				}
 
-				m_nodes.erase(*iter->pNode);
-				m_writers.erase(iter);
+				remove(iter);
+			}
+
+			bool close(const Key& identityKey) {
+				utils::SpinLockGuard guard(m_lock);
+				auto iter = findStateByKey(identityKey);
+				if (m_writers.end() == iter)
+					return false;
+
+				CATAPULT_LOG(debug) << "closing connection to " << utils::HexFormat(identityKey);
+				iter->pSocket->close();
+				remove(iter);
+				return true;
 			}
 
 			void clear() {
-				ExclusiveLock guard(m_lock);
-				m_nodes.clear();
+				utils::SpinLockGuard guard(m_lock);
+				m_nodeIdentityKeys.clear();
+				m_outgoingNodeIdentityKeys.clear();
 				m_writers.clear();
 			}
 
@@ -143,16 +160,30 @@ namespace catapult { namespace net {
 				});
 			}
 
+			Writers::iterator findStateByKey(const Key& identityKey) {
+				return std::find_if(m_writers.begin(), m_writers.end(), [&identityKey](const auto& state) {
+					return state.Node.identityKey() == identityKey;
+				});
+			}
+
+			void remove(Writers::iterator iter) {
+				const auto& identityKey = iter->Node.identityKey();
+				m_nodeIdentityKeys.erase(identityKey);
+				m_outgoingNodeIdentityKeys.erase(identityKey);
+				m_writers.erase(iter);
+			}
+
 		private:
-			std::unordered_set<ionet::Node, NodeHasher> m_nodes;
+			utils::KeySet m_nodeIdentityKeys; // keys of active writers (both connected AND accepted)
+			utils::KeySet m_outgoingNodeIdentityKeys; // keys of connecting or connected writers
 			Writers m_writers;
 			mutable utils::SpinLock m_lock;
 		};
 
 		class ErrorHandlingPacketIo : public ionet::PacketIo {
 		public:
-			using ErrorCallback = std::function<void ()>;
-			using CompletionCallback = std::function<void (bool)>;
+			using ErrorCallback = action;
+			using CompletionCallback = consumer<bool>;
 
 		public:
 			ErrorHandlingPacketIo(
@@ -184,10 +215,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			static void CheckError(
-					const ionet::SocketOperationCode& code,
-					const ErrorCallback& handler,
-					const char* operation) {
+			static void CheckError(ionet::SocketOperationCode code, const ErrorCallback& handler, const char* operation) {
 				if (ionet::SocketOperationCode::Success == code)
 					return;
 
@@ -219,7 +247,9 @@ namespace catapult { namespace net {
 
 		public:
 			size_t numActiveConnections() const override {
-				return m_pServerConnector->numActiveConnections() + m_pClientConnector->numActiveConnections();
+				// use m_writers.numOutgoingConnections() instead of m_pServerConnector->numActiveConnections() because the latter
+				// does not count pending connections (before socket CONNECT succeeds)
+				return m_writers.numOutgoingConnections() + m_pClientConnector->numActiveConnections();
 			}
 
 			size_t numActiveWriters() const override {
@@ -228,6 +258,10 @@ namespace catapult { namespace net {
 
 			size_t numAvailableWriters() const override {
 				return m_writers.availableSize();
+			}
+
+			utils::KeySet identities() const override {
+				return m_writers.identities();
 			}
 
 		public:
@@ -246,15 +280,14 @@ namespace catapult { namespace net {
 			ionet::NodePacketIoPair pickOne(const utils::TimeSpan& ioDuration) override {
 				WriterState state;
 				if (!m_writers.pickOne(state)) {
-					CATAPULT_LOG(warning) << "no packet io available for checkout";
+					CATAPULT_LOG_THROTTLE(warning, 60'000) << "no packet io available for checkout";
 					return ionet::NodePacketIoPair();
 				}
 
-				CATAPULT_LOG(trace) << "checked out an io for " << ioDuration;
-
 				// important - capture pSocket by value in order to prevent it from being removed out from under the
 				// error handling packet io, also capture this for the same reason
-				auto errorHandler = [pThis = shared_from_this(), pSocket = state.pSocket]() {
+				auto errorHandler = [pThis = shared_from_this(), pSocket = state.pSocket, node = state.Node]() {
+					CATAPULT_LOG(warning) << "error handler triggered for " << node;
 					pThis->removeWriter(pSocket);
 				};
 
@@ -262,7 +295,9 @@ namespace catapult { namespace net {
 						state.pBufferedIo,
 						errorHandler,
 						createTimedCompletionHandler(state.pSocket, ioDuration, errorHandler));
-				return ionet::NodePacketIoPair(*state.pNode, pPacketIo);
+
+				CATAPULT_LOG(trace) << "checked out an io for " << ioDuration;
+				return ionet::NodePacketIoPair(state.Node, pPacketIo);
 			}
 
 		private:
@@ -270,8 +305,7 @@ namespace catapult { namespace net {
 					const SocketPointer& pSocket,
 					const utils::TimeSpan& ioDuration,
 					const ErrorHandlingPacketIo::ErrorCallback& errorHandler) {
-				ErrorHandlingPacketIo::CompletionCallback completionHandler = [pThis = shared_from_this(), pSocket](
-						auto isCompleted) {
+				ErrorHandlingPacketIo::CompletionCallback completionHandler = [pThis = shared_from_this(), pSocket](auto isCompleted) {
 					CATAPULT_LOG(trace) << "completed pickOne operation, success? " << isCompleted;
 					pThis->makeWriterAvailable(pSocket);
 				};
@@ -283,7 +317,7 @@ namespace catapult { namespace net {
 					errorHandler();
 				});
 
-				return [pTimedCompletionHandler](auto isCompleted) -> void {
+				return [pTimedCompletionHandler](auto isCompleted) {
 					pTimedCompletionHandler->callback(isCompleted);
 				};
 			}
@@ -294,50 +328,45 @@ namespace catapult { namespace net {
 					return callback(PeerConnectResult::Already_Connected);
 
 				auto connectCallback = [pThis = shared_from_this(), node, callback](auto result, const auto& pSocket) {
-					if (PeerConnectResult::Accepted == result)
-						pThis->addWriter(std::make_shared<ionet::Node>(node), pSocket, nullptr);
-					else
+					// abort the connection if it failed or is redundant
+					if (PeerConnectResult::Accepted != result || !pThis->addWriter(node, pSocket)) {
 						pThis->m_writers.abortConnect(node);
+
+						if (PeerConnectResult::Accepted == result)
+							result = PeerConnectResult::Already_Connected;
+					}
 
 					callback(result);
 				};
 				m_pServerConnector->connect(node, connectCallback);
 			}
 
-			void accept(
-					const std::shared_ptr<AsyncTcpServerAcceptContext>& pAcceptContext,
-					const ConnectCallback& callback) override {
-				auto acceptCallback = [pThis = shared_from_this(), pAcceptContext, callback](auto result, const auto& remoteKey) {
-					if (PeerConnectResult::Accepted == result)
-						pThis->addWriter(remoteKey, pAcceptContext->socket(), pAcceptContext);
+			void accept(const std::shared_ptr<ionet::PacketSocket>& pPacketSocket, const ConnectCallback& callback) override {
+				auto acceptCallback = [pThis = shared_from_this(), pPacketSocket, callback](auto result, const auto& remoteKey) {
+					if (PeerConnectResult::Accepted == result) {
+						if (!pThis->addWriter(remoteKey, pPacketSocket))
+							result = PeerConnectResult::Already_Connected;
+					}
 
 					callback(result);
 				};
-				m_pClientConnector->accept(pAcceptContext, acceptCallback);
+				m_pClientConnector->accept(pPacketSocket, acceptCallback);
 			}
 
 		private:
-			void addWriter(
-					const Key& key,
-					const SocketPointer& pSocket,
-					const std::shared_ptr<AsyncTcpServerAcceptContext>& pAcceptContext) {
-				auto pNode = std::make_shared<ionet::Node>(
-						ionet::NodeEndpoint(),
-						ionet::NodeIdentity{ key, "" },
-						m_networkIdentifier);
-				addWriter(pNode, pSocket, pAcceptContext);
+			bool addWriter(const Key& key, const SocketPointer& pSocket) {
+				// this is for supporting eventsource extension where api writers register to receive pushed data
+				// endpoint and metadata are unimportant because only key-based filtering is required
+				auto node = ionet::Node(key, ionet::NodeEndpoint(), ionet::NodeMetadata(m_networkIdentifier));
+				return addWriter(node, pSocket);
 			}
 
-			void addWriter(
-					const std::shared_ptr<ionet::Node>& pNode,
-					const SocketPointer& pSocket,
-					const std::shared_ptr<AsyncTcpServerAcceptContext>& pAcceptContext) {
+			bool addWriter(const ionet::Node& node, const SocketPointer& pSocket) {
 				WriterState state;
-				state.pNode = pNode;
+				state.Node = node;
 				state.pSocket = pSocket;
-				state.pAcceptContext = pAcceptContext;
-				state.pBufferedIo = ionet::CreateBufferedPacketIo(pSocket, boost::asio::strand(m_pPool->service()));
-				m_writers.insert(state);
+				state.pBufferedIo = pSocket->buffered();
+				return m_writers.insert(state);
 			}
 
 			void makeWriterAvailable(const SocketPointer& pSocket) {
@@ -350,6 +379,10 @@ namespace catapult { namespace net {
 			}
 
 		public:
+			bool closeOne(const Key& identityKey) override {
+				return m_writers.close(identityKey);
+			}
+
 			void shutdown() override {
 				CATAPULT_LOG(info) << "closing all connections in PacketWriters";
 				m_pClientConnector->shutdown();

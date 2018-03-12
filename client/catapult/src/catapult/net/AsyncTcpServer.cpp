@@ -11,41 +11,6 @@ namespace catapult { namespace net {
 		/// Allow at most one pending accept at a time.
 		const uint32_t Max_Pending_Accepts = 1;
 
-		/// Wraps the socket returned by ionet::Accept and triggers a callback when it is destroyed.
-		/// (When wrapped around a valid connection, the destruction callback is used to decrement the current
-		/// connections counter).
-		class DefaultAsyncTcpServerAcceptContext : public AsyncTcpServerAcceptContext {
-		public:
-			explicit DefaultAsyncTcpServerAcceptContext(
-					boost::asio::io_service& service,
-					const std::shared_ptr<ionet::PacketSocket>& pSocket,
-					std::function<void (bool)> destructionCallback)
-					: m_service(service)
-					, m_pSocket(std::move(pSocket))
-					, m_destructionCallback(destructionCallback)
-			{}
-
-			~DefaultAsyncTcpServerAcceptContext() {
-				// don't allow the socket to stay open after the destruction of its associated context
-				if (isValid())
-					m_pSocket->close();
-
-				m_destructionCallback(isValid());
-			}
-
-		public:
-			boost::asio::io_service& service() override { return m_service; }
-			std::shared_ptr<ionet::PacketSocket> socket() override { return m_pSocket; }
-
-		public:
-			bool isValid() { return nullptr != m_pSocket; }
-
-		private:
-			boost::asio::io_service& m_service;
-			std::shared_ptr<ionet::PacketSocket> m_pSocket;
-			std::function<void (bool)> m_destructionCallback;
-		};
-
 		void EnableAddressReuse(boost::asio::ip::tcp::acceptor& acceptor) {
 			acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 
@@ -89,18 +54,26 @@ namespace catapult { namespace net {
 				CATAPULT_LOG(info) << "AsyncTcpServer created around " << endpoint;
 			}
 
-			virtual ~DefaultAsyncTcpServer() override {
+			~DefaultAsyncTcpServer() override {
 				shutdown();
 			}
 
 		public:
-			uint32_t numPendingAccepts() const override { return m_numPendingAccepts; }
-			uint32_t numCurrentConnections() const override { return m_numCurrentConnections; }
-			uint32_t numLifetimeConnections() const override { return m_numLifetimeConnections; }
+			uint32_t numPendingAccepts() const override {
+				return m_numPendingAccepts;
+			}
+
+			uint32_t numCurrentConnections() const override {
+				return m_numCurrentConnections;
+			}
+
+			uint32_t numLifetimeConnections() const override {
+				return m_numLifetimeConnections;
+			}
 
 		public:
 			void start() {
-				m_acceptor.listen(m_settings.MaxConnections);
+				m_acceptor.listen(m_settings.MaxPendingConnections);
 				tryStartAccept();
 
 				CATAPULT_LOG(trace) << "AsyncTcpServer waiting for threads to enter pending accept state";
@@ -129,20 +102,20 @@ namespace catapult { namespace net {
 				m_acceptor.close(ignored_ec);
 			}
 
-			void handleAccept(const std::shared_ptr<ionet::PacketSocket>& pSocket) {
-				// create an accept context and post additional handling to the strand
-				auto pAcceptContext = createAcceptContext(pSocket);
-				m_acceptorStrand.post([pThis = shared_from_this(), pAcceptContext]() {
-					pThis->handleAcceptOnStrand(pAcceptContext);
+			void handleAccept(const ionet::AcceptedPacketSocketInfo& socketInfo) {
+				// add a destruction hook to the socket and post additional handling to the strand
+				ionet::AcceptedPacketSocketInfo decoratedSocketInfo(socketInfo.host(), addDestructionHook(socketInfo.socket()));
+				m_acceptorStrand.post([pThis = shared_from_this(), decoratedSocketInfo]() {
+					pThis->handleAcceptOnStrand(decoratedSocketInfo);
 				});
 			}
 
-			void handleAcceptOnStrand(const std::shared_ptr<DefaultAsyncTcpServerAcceptContext>& pAcceptContext) {
+			void handleAcceptOnStrand(const ionet::AcceptedPacketSocketInfo& socketInfo) {
 				// decrement the number of pending accepts
 				--m_numPendingAccepts;
 
 				// if accept had an error, try to start an accept and exit
-				if (!pAcceptContext->isValid()) {
+				if (!socketInfo) {
 					tryStartAccept();
 					return;
 				}
@@ -153,27 +126,23 @@ namespace catapult { namespace net {
 				tryStartAccept();
 
 				// post the user callback on the threadpool (outside of the strand)
-				m_pPool->service().post([userCallback = m_settings.Accept, pAcceptContext] {
-					userCallback(pAcceptContext);
+				m_pPool->service().post([userCallback = m_settings.Accept, socketInfo] {
+					userCallback(socketInfo);
 				});
 			}
 
-			std::shared_ptr<DefaultAsyncTcpServerAcceptContext> createAcceptContext(
-					const std::shared_ptr<ionet::PacketSocket>& pSocket) {
-				auto destructionHandler = [pThis = shared_from_this()](auto isValid) -> void {
-					if (!isValid)
+			std::shared_ptr<ionet::PacketSocket> addDestructionHook(const std::shared_ptr<ionet::PacketSocket>& pSocket) {
+				return std::shared_ptr<ionet::PacketSocket>(pSocket.get(), [pSocket, pThis = shared_from_this()](auto* pRawSocket) {
+					if (!pRawSocket)
 						return;
 
-					// if a valid connection was wrapped, decrement the number of current connections
-					// and attempt to start a new accept
+					pRawSocket->close();
+
+					// if a valid connection was wrapped, decrement the number of current connections and attempt to start a new accept
 					pThis->m_acceptorStrand.post([pThis] {
 						pThis->handleContextDestructionOnStrand();
 					});
-				};
-				return std::make_shared<DefaultAsyncTcpServerAcceptContext>(
-						m_pPool->service(),
-						pSocket,
-						destructionHandler);
+				});
 			}
 
 			void handleContextDestructionOnStrand() {
@@ -192,7 +161,8 @@ namespace catapult { namespace net {
 				uint32_t numActiveConnections = m_numPendingAccepts + m_numCurrentConnections;
 				uint32_t numOpenConnectionSlots = m_settings.MaxActiveConnections - numActiveConnections;
 				if (m_numPendingAccepts >= Max_Pending_Accepts || numOpenConnectionSlots <= 0) {
-					CATAPULT_LOG(trace) << "bypassing Accept due to limit (numPendingAccepts="
+					CATAPULT_LOG(debug)
+							<< "bypassing Accept due to limit (numPendingAccepts="
 							<< m_numPendingAccepts << ", numOpenConnectionSlots=" << numOpenConnectionSlots << ")";
 					return;
 				}
@@ -203,7 +173,7 @@ namespace catapult { namespace net {
 						m_acceptor,
 						m_settings.PacketSocketOptions,
 						m_settings.ConfigureSocket,
-						[pThis = shared_from_this()](const auto& pSocket) { pThis->handleAccept(pSocket); });
+						[pThis = shared_from_this()](const auto& socketInfo) { pThis->handleAccept(socketInfo); });
 			}
 
 		private:

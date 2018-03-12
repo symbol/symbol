@@ -1,39 +1,10 @@
 #pragma once
-#include "Future.h"
-#include "catapult/utils/TimeSpan.h"
-#include <functional>
-#include <memory>
+#include "Task.h"
 #include <string>
 
 namespace catapult { namespace thread { class IoServiceThreadPool; } }
 
 namespace catapult { namespace thread {
-
-	/// The result of a task.
-	enum class TaskResult {
-		/// The task should repeat.
-		Continue,
-
-		/// The task should not repeat.
-		Break
-	};
-
-	using TaskCallback = std::function<thread::future<TaskResult> ()>;
-
-	/// A task that can be dispatched to the scheduler.
-	struct Task {
-		/// The delay until the first execution of the task.
-		utils::TimeSpan StartDelay;
-
-		/// The delay until the next execution of the task.
-		utils::TimeSpan RepeatDelay;
-
-		/// The callback associated with the task.
-		TaskCallback Callback;
-
-		/// The (optional) friendly name of the task.
-		std::string Name;
-	};
 
 	/// A scheduler.
 	class Scheduler {

@@ -9,8 +9,8 @@ namespace catapult { namespace model {
 	public:
 		/// Creates constraints around \a maxDuration, \a gracePeriodDuration and \a maxRollbackBlocks.
 		constexpr explicit NamespaceLifetimeConstraints(
-				ArtifactDuration maxDuration,
-				ArtifactDuration gracePeriodDuration,
+				BlockDuration maxDuration,
+				BlockDuration gracePeriodDuration,
 				uint32_t maxRollbackBlocks)
 				: TotalGracePeriodDuration(gracePeriodDuration.unwrap() + maxRollbackBlocks)
 				, MaxNamespaceDuration(maxDuration.unwrap() + gracePeriodDuration.unwrap())
@@ -18,10 +18,10 @@ namespace catapult { namespace model {
 
 	public:
 		/// The total grace period duration including the possibility of a chain rollback.
-		ArtifactDuration TotalGracePeriodDuration;
+		BlockDuration TotalGracePeriodDuration;
 
 		/// The maximum lifetime a namespace may have including the grace period.
-		ArtifactDuration MaxNamespaceDuration;
+		BlockDuration MaxNamespaceDuration;
 
 	public:
 		/// Returns a value indicating whether or not \a height is within the total grace period given \a lifetimeEnd.

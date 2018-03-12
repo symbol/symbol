@@ -13,53 +13,53 @@ namespace catapult { namespace utils {
 #endif
 	}
 
-	/// Advances \a pStr to its end (the \c NUL terminator).
-	CPP14_CONSTEXPR const char* AdvanceToEnd(const char* pStr) {
-		const char* pEnd = pStr;
+	/// Advances \a str to its end (the \c NUL terminator).
+	CPP14_CONSTEXPR const char* AdvanceToEnd(const char* str) {
+		const auto* pEnd = str;
 		while (*pEnd != '\0') ++pEnd;
 		return pEnd;
 	}
 
-	/// Extracts the filename part from \a pFullPath.
+	/// Extracts the filename part from \a fullPath.
 	/// e.g. ExtractFilename("cat/bar/baz/foo.cpp") == "foo.cpp"
-	CPP14_CONSTEXPR const char* ExtractFilename(const char* pFullPath) {
-		const char* pEnd = AdvanceToEnd(pFullPath);
-		for (const char* pCh = pEnd - 1; pCh >= pFullPath; --pCh) {
+	CPP14_CONSTEXPR const char* ExtractFilename(const char* fullPath) {
+		const auto* pEnd = AdvanceToEnd(fullPath);
+		for (const auto* pCh = pEnd - 1; pCh >= fullPath; --pCh) {
 			if (IsDirectorySeparator(*pCh))
 				return pCh + 1;
 		}
 
-		return pFullPath;
+		return fullPath;
 	}
 
-	/// Extracts the last directory and filename from \a pFullPath.
+	/// Extracts the last directory and filename from \a fullPath.
 	/// e.g. ExtractDirectoryAndFilename("cat/baz/bar/foo.cpp") == "bar/foo.cpp"
-	CPP14_CONSTEXPR const char* ExtractDirectoryAndFilename(const char* pFullPath) {
-		const char* pEnd = ExtractFilename(pFullPath);
+	CPP14_CONSTEXPR const char* ExtractDirectoryAndFilename(const char* fullPath) {
+		const auto* pEnd = ExtractFilename(fullPath);
 
 		// skip consecutive directory separators
-		const char* pCh = pEnd - 1;
-		for (; pCh >= pFullPath; --pCh) {
+		const auto* pCh = pEnd - 1;
+		for (; pCh >= fullPath; --pCh) {
 			if (!IsDirectorySeparator(*pCh))
 				break;
 		}
 
 		// find next directory separator
-		for (; pCh >= pFullPath; --pCh) {
+		for (; pCh >= fullPath; --pCh) {
 			if (IsDirectorySeparator(*pCh))
 				return pCh + 1;
 		}
 
-		return pFullPath;
+		return fullPath;
 	}
 
-	/// Extracts the last directory name from \a pFullPath.
+	/// Extracts the last directory name from \a fullPath.
 	/// e.g. ExtractLastDirectoryName("cat/baz/bar/foo.cpp") == "bar"
-	CPP14_CONSTEXPR RawString ExtractDirectoryName(const char* pFullPath) {
-		const char* pDirectoryName = ExtractDirectoryAndFilename(pFullPath);
-		const char* pEnd = ExtractFilename(pFullPath);
+	CPP14_CONSTEXPR RawString ExtractDirectoryName(const char* fullPath) {
+		const auto* pDirectoryName = ExtractDirectoryAndFilename(fullPath);
+		const auto* pEnd = ExtractFilename(fullPath);
 
-		const char* pCh = pDirectoryName;
+		const auto* pCh = pDirectoryName;
 		for (; pCh < pEnd; ++pCh) {
 			if (IsDirectorySeparator(*pCh))
 				break;

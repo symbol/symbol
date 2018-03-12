@@ -12,19 +12,85 @@
 
 namespace catapult { namespace ionet {
 
+#define TEST_CLASS SocketReaderTests
+
 	namespace {
 		struct SocketReadResult {
 			std::vector<SocketOperationCode> CompletionCodes;
 			size_t NumUnconsumedBytes;
 		};
 
-		std::shared_ptr<SocketReader> CreateSocketReader(
-				boost::asio::io_service& service,
-				const std::shared_ptr<PacketSocket>& pSocket,
-				const ServerPacketHandlers& handlers) {
-			auto pBufferedIo = CreateBufferedPacketIo(pSocket, boost::asio::strand(service));
-			return ionet::CreateSocketReader(pSocket, pBufferedIo, handlers);
-		}
+		class ReaderFactory {
+		public:
+			ReaderFactory() : ReaderFactory(test::GenerateRandomData<Key_Size>(), std::string())
+			{}
+
+			explicit ReaderFactory(const Key& clientPublicKey, const std::string& clientHost)
+					: m_pPool(test::CreateStartedIoServiceThreadPool())
+					, m_clientPublicKey(clientPublicKey)
+					, m_clientHost(clientHost)
+			{}
+
+		public:
+			std::unique_ptr<SocketReader> createReader(
+					const std::shared_ptr<PacketSocket>& pSocket,
+					const ServerPacketHandlers& handlers) {
+				auto pBufferedIo = pSocket->buffered();
+				return ionet::CreateSocketReader(pSocket, pBufferedIo, handlers, { m_clientPublicKey, m_clientHost });
+			}
+
+			template<typename TContinuation>
+			void createReader(const ServerPacketHandlers& handlers, TContinuation continuation) {
+				test::SpawnPacketServerWork(m_pPool->service(), [this, &handlers, continuation](const auto& pServerSocket) {
+					continuation(pServerSocket, this->createReader(pServerSocket, handlers));
+				});
+			}
+
+			/// Starts a reader around \a handlers to update \a readResult.
+			template<typename TContinuation>
+			void startReader(const ServerPacketHandlers& handlers, SocketReadResult& readResult, TContinuation continuation) {
+				createReader(handlers, [this, &readResult, continuation](const auto& pSocket, auto&& pReader) {
+					this->startReader(*pReader, pSocket, readResult);
+					continuation(std::move(pReader));
+				});
+			}
+
+			/// Starts a reader on \a pSocket, around \a handlers to update \a readResult.
+			template<typename TContinuation>
+			void startReader(
+					const std::shared_ptr<PacketSocket>& pSocket,
+					const ServerPacketHandlers& handlers,
+					SocketReadResult& readResult,
+					TContinuation continuation) {
+				auto pReader = createReader(pSocket, handlers);
+				startReader(*pReader, pSocket, readResult);
+				continuation(std::move(pReader));
+			}
+
+		private:
+			void startReader(SocketReader& reader, const std::shared_ptr<PacketSocket>& pSocket, SocketReadResult& readResult) {
+				reader.read([pSocket, &readResult](auto result) {
+					readResult.CompletionCodes.push_back(result);
+					pSocket->stats([&readResult](const auto& stats) {
+						readResult.NumUnconsumedBytes = stats.NumUnprocessedBytes;
+					});
+				});
+			}
+
+		public:
+			auto& service() {
+				return m_pPool->service();
+			}
+
+			void join() {
+				m_pPool->join();
+			}
+
+		private:
+			std::unique_ptr<thread::IoServiceThreadPool> m_pPool;
+			Key m_clientPublicKey;
+			std::string m_clientHost;
+		};
 
 		/// Creates server packet handlers that have a noop registered for the default packet type.
 		ServerPacketHandlers CreateNoOpHandlers() {
@@ -33,27 +99,10 @@ namespace catapult { namespace ionet {
 			return handlers;
 		}
 
-		/// Starts a reader around \a service, \a pSocket, and \a handlers and sets up callbacks to
-		/// update \a readResult.
-		std::shared_ptr<SocketReader> StartReader(
-				boost::asio::io_service& service,
-				const std::shared_ptr<PacketSocket>& pSocket,
-				const ServerPacketHandlers& handlers,
-				SocketReadResult& readResult) {
-			auto pReader = CreateSocketReader(service, pSocket, handlers);
-			pReader->read([pSocket, &readResult](auto result) -> void {
-				readResult.CompletionCodes.push_back(result);
-				pSocket->stats([&readResult](const auto& stats) {
-					readResult.NumUnconsumedBytes = stats.NumUnprocessedBytes;
-				});
-			});
-			return pReader;
-		}
-
 		/// Writes all \a sendBuffers to a socket and reads them with a reader.
-		std::pair<std::vector<ByteBuffer>, SocketReadResult> SendBuffers(
-				const std::vector<ByteBuffer>& sendBuffers) {
+		std::pair<std::vector<ByteBuffer>, SocketReadResult> SendBuffers(const std::vector<ByteBuffer>& sendBuffers) {
 			// Arrange: set up a packet handler that copies the received packet bytes into receivedBuffers
+			ReaderFactory factory;
 			ServerPacketHandlers handlers;
 			std::vector<ByteBuffer> receivedBuffers;
 			test::AddCopyBuffersHandler(handlers, receivedBuffers);
@@ -61,15 +110,14 @@ namespace catapult { namespace ionet {
 			// Act: "server" - reads packets from the socket using the reader
 			//      "client" - writes sendBuffers to the socket
 			SocketReadResult readResult;
-			auto pPool = test::CreateStartedIoServiceThreadPool();
-			std::shared_ptr<SocketReader> pReader;
-			test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-				pReader = StartReader(pPool->service(), pServerSocket, handlers, readResult);
+			std::unique_ptr<SocketReader> pReader;
+			factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
+				pReader = std::move(pStartedReader);
 			});
-			test::AddClientWriteBuffersTask(pPool->service(), sendBuffers);
+			test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
 
 			// - wait for the test to complete
-			pPool->join();
+			factory.join();
 			return std::make_pair(receivedBuffers, readResult);
 		}
 
@@ -91,10 +139,7 @@ namespace catapult { namespace ionet {
 			EXPECT_EQ(expectedCodes, result.CompletionCodes);
 		}
 
-		void AssertSocketReadSuccess(
-				const SocketReadResult& result,
-				size_t expectedNumReads,
-				size_t expectedNumUnconsumedBytes) {
+		void AssertSocketReadSuccess(const SocketReadResult& result, size_t expectedNumReads, size_t expectedNumUnconsumedBytes) {
 			// Assert: there should be `expectedNumReads` success codes followed by one insufficient data code,
 			//         which indicates the end of a (successful) batch operation
 			std::vector<SocketOperationCode> expectedCodes;
@@ -122,7 +167,7 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(SocketReaderTests, CanReadSinglePacket) {
+	TEST(TEST_CLASS, CanReadSinglePacket) {
 		// Arrange: send a single buffer containing a single packet
 		auto sendBuffer = test::GenerateRandomPacketBuffer(100, { 82, 75 });
 		std::vector<ByteBuffer> sendBuffers{ sendBuffer };
@@ -137,7 +182,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 82u, receivedBuffers[0]);
 	}
 
-	TEST(SocketReaderTests, CanReadSinglePacketSpanningReads) {
+	TEST(TEST_CLASS, CanReadSinglePacketSpanningReads) {
 		// Arrange: send a packet spanning three buffers
 		auto sendBuffers = test::GenerateRandomPacketBuffers({ 50, 50, 50 });
 		test::SetPacketAt(sendBuffers[0], 0, 125);
@@ -156,7 +201,7 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(test::ToHexString(&sendBuffers[2][0], 25), test::ToHexString(&receivedBuffers[0][100], 25));
 	}
 
-	TEST(SocketReaderTests, CanReadMultiplePacketsInSingleRead) {
+	TEST(TEST_CLASS, CanReadMultiplePacketsInSingleRead) {
 		// Arrange: send a buffer containing three packets
 		auto sendBuffer = test::GenerateRandomPacketBuffer(100, { 20, 17, 50, 25 });
 		std::vector<ByteBuffer> sendBuffers{ sendBuffer };
@@ -173,13 +218,14 @@ namespace catapult { namespace ionet {
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 37, 50u, receivedBuffers[2]);
 	}
 
-	TEST(SocketReaderTests, CanRespondToPacket) {
+	TEST(TEST_CLASS, CanRespondToPacket) {
 		// Arrange: send a buffer containing three packets
 		auto sendBuffer = test::GenerateRandomPacketBuffer(100, { 0x14, 0x11, 0x32, 0x19 });
 		std::vector<ByteBuffer> sendBuffers{ sendBuffer };
 
 		// - set up a packet handler that sends the sizes of all previously received packets back to the client
 		//   as well as the total number of received packets
+		ReaderFactory factory;
 		ServerPacketHandlers handlers;
 		std::vector<uint32_t> packetSizes;
 		test::RegisterDefaultHandler(handlers, [&packetSizes](const auto& packet, auto& context) {
@@ -196,12 +242,11 @@ namespace catapult { namespace ionet {
 		//      "client" - writes sendBuffers to the socket and reads the response data into responseBytes
 		SocketReadResult readResult;
 		std::vector<uint8_t> responseBytes(3 * sizeof(Packet) + 9);
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		std::shared_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-			pReader = StartReader(pPool->service(), pServerSocket, handlers, readResult);
+		std::unique_ptr<SocketReader> pReader;
+		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
+			pReader = std::move(pStartedReader);
 		});
-		test::CreateClientSocket(pPool->service())->connect().then([&sendBuffers, &responseBytes](auto&& socketFuture) {
+		test::CreateClientSocket(factory.service())->connect().then([&sendBuffers, &responseBytes](auto&& socketFuture) {
 			auto pClientSocket = socketFuture.get();
 			pClientSocket->write(sendBuffers).then([pClientSocket, &responseBytes](auto) {
 				pClientSocket->read(responseBytes);
@@ -209,7 +254,7 @@ namespace catapult { namespace ionet {
 		});
 
 		// - wait for the test to complete
-		pPool->join();
+		factory.join();
 
 		// Assert:
 		AssertSocketReadSuccess(readResult, 3, 13);
@@ -230,56 +275,58 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(test::ToHexString(expectedClientBytes), test::ToHexString(responseBytes));
 	}
 
-	TEST(SocketReaderTests, ReadFailsOnReadError) {
+	TEST(TEST_CLASS, ReadFailsOnReadError) {
 		// Arrange: send one buffer containing one packet
 		auto sendBuffer = test::GenerateRandomPacketBuffer(50, { 30, 70 });
 		std::vector<ByteBuffer> sendBuffers{ sendBuffer };
+		ReaderFactory factory;
 		auto handlers = CreateNoOpHandlers();
 
 		// Act: "server" - closes the socket and then reads packets from the socket using the reader
 		//      "client" - writes sendBuffers to the socket
 		SocketReadResult readResult;
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		std::shared_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
+		std::unique_ptr<SocketReader> pReader;
+		test::SpawnPacketServerWork(factory.service(), [&](const auto& pServerSocket) {
 			pServerSocket->close();
-			pReader = StartReader(pPool->service(), pServerSocket, handlers, readResult);
+			factory.startReader(pServerSocket, handlers, readResult, [&pReader](auto&& pStartedReader) {
+				pReader = std::move(pStartedReader);
+			});
 		});
-		test::AddClientWriteBuffersTask(pPool->service(), sendBuffers);
+		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
 
 		// - wait for the test to complete
-		pPool->join();
+		factory.join();
 
 		// Assert: the server should get a read error when attempting to read the buffer from the client
 		//         (since the read failed, no bytes were read and none were consumed)
 		AssertSocketReadFailure(readResult, 1, SocketOperationCode::Read_Error, 0);
 	}
 
-	TEST(SocketReaderTests, ReadFailsForUnknownPacket) {
+	TEST(TEST_CLASS, ReadFailsForUnknownPacket) {
 		// Arrange: send one buffer containing one packet
 		auto sendBuffer = test::GenerateRandomPacketBuffer(50, { 30, 70 });
 		std::vector<ByteBuffer> sendBuffers{ sendBuffer };
+		ReaderFactory factory;
 		ServerPacketHandlers handlers;
 
 		// Act: "server" - reads packets from the socket using the reader but does not have any handlers registered
 		//      "client" - writes sendBuffers to the socket
 		SocketReadResult readResult;
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		std::shared_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-			pReader = StartReader(pPool->service(), pServerSocket, handlers, readResult);
+		std::unique_ptr<SocketReader> pReader;
+		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
+			pReader = std::move(pStartedReader);
 		});
-		test::AddClientWriteBuffersTask(pPool->service(), sendBuffers);
+		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
 
 		// - wait for the test to complete
-		pPool->join();
+		factory.join();
 
 		// Assert: the server treats the unknown packet as malformed
 		//         (the 20 unconsumed bytes are the remainder in the buffer after consuming the first packet)
 		AssertSocketReadFailure(readResult, 1, SocketOperationCode::Malformed_Data, 20);
 	}
 
-	TEST(SocketReaderTests, ReadFailsOnWriteError) {
+	TEST(TEST_CLASS, ReadFailsOnWriteError) {
 		// Arrange: send one buffer containing one packet
 		auto sendBuffer = test::GenerateRandomPacketBuffer(100, { 75, 50 });
 		std::vector<ByteBuffer> sendBuffers{ sendBuffer };
@@ -287,11 +334,11 @@ namespace catapult { namespace ionet {
 		// Act: "server" - reads packets from the socket using the reader
 		//               - closes the socket in the packet handler (before write) and then attempts to write
 		//      "client" - writes sendBuffers to the socket
-		auto pPool = test::CreateStartedIoServiceThreadPool();
+		ReaderFactory factory;
 		ServerPacketHandlers handlers;
 		SocketReadResult readResult;
-		std::shared_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
+		std::unique_ptr<SocketReader> pReader;
+		test::SpawnPacketServerWork(factory.service(), [&](const auto& pServerSocket) {
 			test::RegisterDefaultHandler(handlers, [pServerSocket](const auto&, auto& context) {
 				// - shut down the server socket
 				pServerSocket->close();
@@ -301,17 +348,19 @@ namespace catapult { namespace ionet {
 				RespondWithBytes(context, {});
 			});
 
-			pReader = StartReader(pPool->service(), pServerSocket, handlers, readResult);
+			factory.startReader(pServerSocket, handlers, readResult, [&pReader](auto&& pStartedReader) {
+				pReader = std::move(pStartedReader);
+			});
 		});
-		test::AddClientWriteBuffersTask(pPool->service(), sendBuffers);
-		pPool->join();
+		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
+		factory.join();
 
 		// Assert: the server should get a write error when attempting to write to the client
 		//         (the 25 unconsumed bytes are the remainder in the buffer after consuming the first packet)
 		AssertSocketReadFailure(readResult, 1, SocketOperationCode::Write_Error, 25);
 	}
 
-	TEST(SocketReaderTests, ReadFailsOnMalformedPacket) {
+	TEST(TEST_CLASS, ReadFailsOnMalformedPacket) {
 		// Arrange: send a buffer containing three packets with the second one malformed
 		auto sendBuffer = test::GenerateRandomPacketBuffer(100, { 20, 0 });
 		test::SetPacketAt(sendBuffer, 37, 50);
@@ -328,11 +377,12 @@ namespace catapult { namespace ionet {
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 20u, receivedBuffers[0]);
 	}
 
-	TEST(SocketReaderTests, CanChainReadOperations) {
+	TEST(TEST_CLASS, CanChainReadOperations) {
 		// Arrange: create two buffers
 		auto sendBuffers = test::GenerateRandomPacketBuffers({ 20, 30 });
 
 		// - set up a packet handler that copies the received packet bytes into receivedBuffers
+		ReaderFactory factory;
 		ServerPacketHandlers handlers;
 		std::vector<ByteBuffer> receivedBuffers;
 		test::AddCopyBuffersHandler(handlers, receivedBuffers);
@@ -340,29 +390,28 @@ namespace catapult { namespace ionet {
 		// Act: "server" - reads the first packet from the socket; signals; reads the second packet
 		//      "client" - writes the first packet to the socket; waits; writes the second packet
 		std::atomic_bool isFirstPacketRead(false);
-		std::vector<std::vector<SocketOperationCode>> readResults(2);
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		std::shared_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-			pReader = CreateSocketReader(pPool->service(), pServerSocket, handlers);
+		std::vector<std::vector<SocketOperationCode>> readCodes(2);
+		std::unique_ptr<SocketReader> pReader;
+		test::SpawnPacketServerWork(factory.service(), [&](const auto& pServerSocket) {
+			pReader = factory.createReader(pServerSocket, handlers);
 
 			// - first read
-			pReader->read([&readResults, &isFirstPacketRead, &pReader](auto result1) -> void {
-				readResults[0].push_back(result1);
+			pReader->read([&readCodes, &isFirstPacketRead, &pReader](auto readCode1) {
+				readCodes[0].push_back(readCode1);
 
 				// - only chain the second read on a termination condition
-				if (SocketOperationCode::Success == result1)
+				if (SocketOperationCode::Success == readCode1)
 					return;
 
 				isFirstPacketRead = true;
 
 				// - second read
-				pReader->read([&readResults](auto result2) -> void {
-					readResults[1].push_back(result2);
+				pReader->read([&readCodes](auto readCode2) {
+					readCodes[1].push_back(readCode2);
 				});
 			});
 		});
-		test::CreateClientSocket(pPool->service())->connect().then([&](auto&& socketFuture) {
+		test::CreateClientSocket(factory.service())->connect().then([&](auto&& socketFuture) {
 			auto pClientSocket = socketFuture.get();
 			pClientSocket->write(sendBuffers[0]).then([&, pClientSocket](auto) {
 				WAIT_FOR(isFirstPacketRead);
@@ -371,10 +420,10 @@ namespace catapult { namespace ionet {
 		});
 
 		// - wait for the test to complete
-		pPool->join();
+		factory.join();
 
 		// Assert: both buffers were read
-		for (const auto& codes : readResults) {
+		for (const auto& codes : readCodes) {
 			ASSERT_EQ(2u, codes.size());
 			EXPECT_EQ(SocketOperationCode::Success, codes[0]);
 			EXPECT_EQ(SocketOperationCode::Insufficient_Data, codes[1]);
@@ -385,32 +434,33 @@ namespace catapult { namespace ionet {
 		EXPECT_EQUAL_BUFFERS(sendBuffers[1], 0, 30u, receivedBuffers[1]);
 	}
 
-	TEST(SocketReaderTests, CanCloseDuringRead) {
+	TEST(TEST_CLASS, CanCloseDuringRead) {
 		// Act: "server" - starts a read and closes the socket
 		//      "client" - connects to the server
+		ReaderFactory factory;
 		auto handlers = CreateNoOpHandlers();
-		SocketOperationCode readResult;
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		std::shared_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-			pReader = CreateSocketReader(pPool->service(), pServerSocket, handlers);
-			pReader->read([&readResult](auto result) {
-				readResult = result;
+		SocketOperationCode readCode;
+		std::unique_ptr<SocketReader> pReader;
+		test::SpawnPacketServerWork(factory.service(), [&](const auto& pServerSocket) {
+			pReader = factory.createReader(pServerSocket, handlers);
+			pReader->read([&readCode](auto code) {
+				readCode = code;
 			});
 			pServerSocket->close();
 		});
-		test::AddClientConnectionTask(pPool->service());
+		test::AddClientConnectionTask(factory.service());
 
 		// - wait for the test to complete
-		pPool->join();
+		factory.join();
 
 		// Assert: the socket was closed
-		test::AssertSocketClosedDuringRead(readResult);
+		test::AssertSocketClosedDuringRead(readCode);
 	}
 
-	TEST(SocketReaderTests, CannotStartSimultaneousReads) {
+	TEST(TEST_CLASS, CannotStartSimultaneousReads) {
 		// Arrange: block the server handler until all reads have been attempted
 		test::AutoSetFlag allReadsAttempted;
+		ReaderFactory factory;
 		ServerPacketHandlers handlers;
 		handlers.registerHandler(test::Default_Packet_Type, [&](const auto&, const auto&) {
 			allReadsAttempted.wait();
@@ -420,20 +470,51 @@ namespace catapult { namespace ionet {
 
 		// Act: "server" - starts multiple reads
 		//      "client" - writes a buffer to the socket
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		std::shared_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) -> void {
-			pReader = CreateSocketReader(pPool->service(), pServerSocket, handlers);
+		std::unique_ptr<SocketReader> pReader;
+		test::SpawnPacketServerWork(factory.service(), [&](const auto& pServerSocket) {
+			pReader = factory.createReader(pServerSocket, handlers);
 			pReader->read([](auto) {});
 
-			// Assert: attempting additional reads will throw
+			// Act + Assert: attempting additional reads will throw
 			EXPECT_THROW(pReader->read([](auto) {}), catapult_runtime_error);
 			EXPECT_THROW(pReader->read([](auto) {}), catapult_runtime_error);
 			allReadsAttempted.set();
 		});
-		test::AddClientWriteBuffersTask(pPool->service(), sendBuffers);
+		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
 
 		// - wait for the test to complete
-		pPool->join();
+		factory.join();
+	}
+
+	TEST(TEST_CLASS, AppropriateHandlerContextIsForwardedToHandlers) {
+		// Arrange:
+		auto clientPublicKey = test::GenerateRandomData<Key_Size>();
+		auto clientHost = std::string("alice.com");
+		ReaderIdentity contextClientIdentity;
+
+		ReaderFactory factory(clientPublicKey, clientHost);
+		ServerPacketHandlers handlers;
+		handlers.registerHandler(test::Default_Packet_Type, [&](const auto&, const auto& context) {
+			// Act: save the context values
+			contextClientIdentity = { context.key(), context.host() };
+		});
+
+		auto sendBuffers = test::GenerateRandomPacketBuffers({ 10 });
+
+		// Act: "server" - reads packets from the socket using the reader
+		//      "client" - writes sendBuffers to the socket
+		SocketReadResult readResult;
+		std::unique_ptr<SocketReader> pReader;
+		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
+			pReader = std::move(pStartedReader);
+		});
+		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
+
+		// - wait for the test to complete
+		factory.join();
+
+		// Assert: context has expected values
+		EXPECT_EQ(clientPublicKey, contextClientIdentity.PublicKey);
+		EXPECT_EQ(clientHost, contextClientIdentity.Host);
 	}
 }}

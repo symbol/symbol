@@ -7,8 +7,11 @@
 namespace catapult { namespace builders {
 
 	/// Builder for a transfer transaction.
-	class TransferBuilder : public TransactionBuilder<model::TransferTransaction> {
+	class TransferBuilder : public TransactionBuilder {
 	public:
+		using Transaction = model::TransferTransaction;
+		using EmbeddedTransaction = model::EmbeddedTransferTransaction;
+
 		/// Creates a transfer builder for building a transfer transaction from \a signer to \a recipient for the network specified by
 		/// \a networkIdentifier.
 		TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer, const Address& recipient);
@@ -29,7 +32,14 @@ namespace catapult { namespace builders {
 
 	public:
 		/// Builds a new transfer transaction.
-		std::unique_ptr<model::TransferTransaction> build() const;
+		std::unique_ptr<Transaction> build() const;
+
+		/// Builds a new embedded transfer transaction.
+		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
+
+	private:
+		template<typename TTransaction>
+		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
 		const Address& m_recipient;

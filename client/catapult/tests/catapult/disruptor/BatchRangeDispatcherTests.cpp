@@ -4,8 +4,11 @@
 
 namespace catapult { namespace disruptor {
 
+#define TEST_CLASS BatchRangeDispatcherTests
+
 	namespace {
-		using SourceToRangeMap = std::map<InputSource, model::BlockRange>;
+		using SourceToRangeMap = std::map<std::pair<InputSource, Key>, model::BlockRange>;
+		using BatchBlockRangeDispatcher = BatchRangeDispatcher<model::AnnotatedBlockRange>;
 
 		template<typename TTestFunc>
 		void RunTestWithConsumerDispatcher(TTestFunc test) {
@@ -13,10 +16,11 @@ namespace catapult { namespace disruptor {
 			SourceToRangeMap inputs;
 			auto inputCaptureConsumer = [&inputs](auto& input) {
 				// Sanity:
-				auto rangeIter = inputs.find(input.source());
-				EXPECT_EQ(inputs.cend(), rangeIter) << "unexpected entry for " << input.source();
+				auto key = std::make_pair(input.source(), input.sourcePublicKey());
+				auto iter = inputs.find(key);
+				EXPECT_EQ(inputs.cend(), iter) << "unexpected entry for " << key.first << ", " << utils::HexFormat(key.second);
 
-				inputs.emplace(input.source(), input.detachBlockRange());
+				inputs.emplace(key, input.detachBlockRange());
 				return ConsumerResult::Continue();
 			};
 
@@ -29,21 +33,21 @@ namespace catapult { namespace disruptor {
 
 	// region empty / queue
 
-	TEST(BatchDispatcherTests, BatchDispatcherIsInitiallyEmpty) {
+	TEST(TEST_CLASS, BatchDispatcherIsInitiallyEmpty) {
 		// Arrange:
 		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto&) {
 			// Act:
-			BatchRangeDispatcher<model::BlockRange> batchDispatcher(dispatcher);
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher);
 
 			// Assert:
 			EXPECT_TRUE(batchDispatcher.empty());
 		});
 	}
 
-	TEST(BatchDispatcherTests, CanQueueSingleRange) {
+	TEST(TEST_CLASS, CanQueueSingleRange) {
 		// Arrange:
 		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto&) {
-			BatchRangeDispatcher<model::BlockRange> batchDispatcher(dispatcher);
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher);
 
 			// Act:
 			batchDispatcher.queue(test::CreateBlockEntityRange(7), InputSource::Local);
@@ -57,10 +61,10 @@ namespace catapult { namespace disruptor {
 
 	// region dispatch
 
-	TEST(BatchDispatcherTests, DispatchWhenEmptyHasNoEffect) {
+	TEST(TEST_CLASS, DispatchWhenEmptyHasNoEffect) {
 		// Arrange:
 		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
-			BatchRangeDispatcher<model::BlockRange> batchDispatcher(dispatcher);
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher);
 
 			// Act:
 			batchDispatcher.dispatch();
@@ -85,7 +89,7 @@ namespace catapult { namespace disruptor {
 
 		void AssertNumForwardedInputs(
 				const ConsumerDispatcher& dispatcher,
-				const BatchRangeDispatcher<model::BlockRange>& batchDispatcher,
+				const BatchBlockRangeDispatcher& batchDispatcher,
 				const SourceToRangeMap& inputs,
 				size_t numExpectedInputs) {
 			// Assert:
@@ -93,29 +97,35 @@ namespace catapult { namespace disruptor {
 			EXPECT_EQ(numExpectedInputs, dispatcher.numAddedElements());
 
 			// - wait for processing to finish
-			WAIT_FOR_VALUE_EXPR(inputs.size(), numExpectedInputs);
+			WAIT_FOR_VALUE_EXPR(numExpectedInputs, inputs.size());
 			EXPECT_EQ(numExpectedInputs, inputs.size());
 		}
 
 		void AssertDispatchedInput(
-				const SourceToRangeMap::value_type& entry,
+				const SourceToRangeMap& inputs,
 				InputSource expectedSource,
-				const std::vector<Height::ValueType>& expectedHeights) {
+				const std::vector<Height::ValueType>& expectedHeights,
+				const Key& expectedSourcePublicKey = Key()) {
 			// Arrange:
+			auto iter = inputs.find(std::make_pair(expectedSource, expectedSourcePublicKey));
+			ASSERT_NE(inputs.cend(), iter) << "no entry for " << expectedSource << ", " << utils::HexFormat(expectedSourcePublicKey);
+			const auto& entry = *iter;
+
 			std::vector<Height::ValueType> heights;
 			for (const auto& block : entry.second)
 				heights.push_back(block.Height.unwrap());
 
 			// Assert:
-			EXPECT_EQ(expectedSource, entry.first);
+			EXPECT_EQ(expectedSource, entry.first.first);
+			EXPECT_EQ(expectedSourcePublicKey, entry.first.second);
 			EXPECT_EQ(expectedHeights, heights);
 		}
 	}
 
-	TEST(BatchDispatcherTests, DispatchCanForwardSingleQueuedRange) {
+	TEST(TEST_CLASS, DispatchCanForwardSingleQueuedRange) {
 		// Arrange:
 		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
-			BatchRangeDispatcher<model::BlockRange> batchDispatcher(dispatcher);
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher);
 			batchDispatcher.queue(CreateBlockEntityRange(3, Height(6)), InputSource::Local);
 
 			// Act:
@@ -124,15 +134,14 @@ namespace catapult { namespace disruptor {
 			// Assert:
 			AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 1);
 
-			auto iter = inputs.cbegin();
-			AssertDispatchedInput(*iter, InputSource::Local, { 6, 7, 8 });
+			AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8 });
 		});
 	}
 
-	TEST(BatchDispatcherTests, DispatchCanForwardMultipleQueuedRangesFromSameSource) {
+	TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromSameSource) {
 		// Arrange:
 		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
-			BatchRangeDispatcher<model::BlockRange> batchDispatcher(dispatcher);
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher);
 			batchDispatcher.queue(CreateBlockEntityRange(3, Height(6)), InputSource::Local);
 			batchDispatcher.queue(CreateBlockEntityRange(2, Height(10)), InputSource::Local);
 			batchDispatcher.queue(CreateBlockEntityRange(4, Height(7)), InputSource::Local);
@@ -143,15 +152,14 @@ namespace catapult { namespace disruptor {
 			// Assert:
 			AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 1);
 
-			auto iter = inputs.cbegin();
-			AssertDispatchedInput(*iter, InputSource::Local, { 6, 7, 8, 10, 11, 7, 8, 9, 10 });
+			AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 10, 11, 7, 8, 9, 10 });
 		});
 	}
 
-	TEST(BatchDispatcherTests, DispatchCanForwardMultipleQueuedRangesFromDifferentSources) {
+	TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromDifferentSourcesWithSamePublicKey) {
 		// Arrange:
 		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
-			BatchRangeDispatcher<model::BlockRange> batchDispatcher(dispatcher);
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher);
 			batchDispatcher.queue(CreateBlockEntityRange(3, Height(6)), InputSource::Local);
 			batchDispatcher.queue(CreateBlockEntityRange(2, Height(10)), InputSource::Remote_Push);
 			batchDispatcher.queue(CreateBlockEntityRange(4, Height(7)), InputSource::Local);
@@ -163,10 +171,35 @@ namespace catapult { namespace disruptor {
 			// Assert:
 			AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 3);
 
-			auto iter = inputs.cbegin();
-			AssertDispatchedInput(*(iter++), InputSource::Local, { 6, 7, 8, 7, 8, 9, 10 });
-			AssertDispatchedInput(*(iter++), InputSource::Remote_Pull, { 50 });
-			AssertDispatchedInput(*iter, InputSource::Remote_Push, { 10, 11 });
+			AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 7, 8, 9, 10 });
+			AssertDispatchedInput(inputs, InputSource::Remote_Pull, { 50 });
+			AssertDispatchedInput(inputs, InputSource::Remote_Push, { 10, 11 });
+		});
+	}
+
+	TEST(TEST_CLASS, DispatchCanForwardMultipleQueuedRangesFromDifferentSourcesAndDifferentPublicKeys) {
+		// Arrange:
+		RunTestWithConsumerDispatcher([](auto& dispatcher, const auto& inputs) {
+			auto keys = test::GenerateRandomDataVector<Key>(3);
+
+			BatchBlockRangeDispatcher batchDispatcher(dispatcher);
+			batchDispatcher.queue({ CreateBlockEntityRange(3, Height(6)), keys[1] }, InputSource::Local);
+			batchDispatcher.queue({ CreateBlockEntityRange(2, Height(10)), keys[2] }, InputSource::Remote_Push);
+			batchDispatcher.queue({ CreateBlockEntityRange(4, Height(7)), keys[1] }, InputSource::Local);
+			batchDispatcher.queue({ CreateBlockEntityRange(1, Height(50)), keys[1] }, InputSource::Remote_Pull);
+			batchDispatcher.queue({ CreateBlockEntityRange(2, Height(70)), keys[0] }, InputSource::Remote_Push);
+			batchDispatcher.queue({ CreateBlockEntityRange(2, Height(60)), keys[2] }, InputSource::Remote_Push);
+
+			// Act:
+			batchDispatcher.dispatch();
+
+			// Assert:
+			AssertNumForwardedInputs(dispatcher, batchDispatcher, inputs, 4);
+
+			AssertDispatchedInput(inputs, InputSource::Local, { 6, 7, 8, 7, 8, 9, 10 }, keys[1]);
+			AssertDispatchedInput(inputs, InputSource::Remote_Push, { 10, 11, 60, 61 }, keys[2]);
+			AssertDispatchedInput(inputs, InputSource::Remote_Pull, { 50 }, keys[1]);
+			AssertDispatchedInput(inputs, InputSource::Remote_Push, { 70, 71 }, keys[0]);
 		});
 	}
 

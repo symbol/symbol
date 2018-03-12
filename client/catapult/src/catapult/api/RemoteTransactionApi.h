@@ -12,14 +12,11 @@ namespace catapult { namespace api {
 		virtual ~RemoteTransactionApi() {}
 
 	public:
-		/// Gets all unconfirmed transactions from the remote whose short hashes are not in \a knownShortHashes.
-		virtual thread::future<model::TransactionRange> unconfirmedTransactions(
-				model::ShortHashRange&& knownShortHashes) const = 0;
+		/// Gets all unconfirmed transactions from the remote excluding those with hashes in \a knownShortHashes.
+		virtual thread::future<model::TransactionRange> unconfirmedTransactions(model::ShortHashRange&& knownShortHashes) const = 0;
 	};
 
-	/// Creates a transaction api for interacting with a remote node with the specified io (\a pIo)
-	/// and transaction registry (\a pRegistry) composed of supported transactions.
-	std::unique_ptr<RemoteTransactionApi> CreateRemoteTransactionApi(
-			const std::shared_ptr<ionet::PacketIo>& pIo,
-			const std::shared_ptr<const model::TransactionRegistry>& pRegistry);
+	/// Creates a transaction api for interacting with a remote node with the specified \a io
+	/// and transaction \a registry composed of supported transactions.
+	std::unique_ptr<RemoteTransactionApi> CreateRemoteTransactionApi(ionet::PacketIo& io, const model::TransactionRegistry& registry);
 }}

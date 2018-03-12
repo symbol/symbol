@@ -4,6 +4,8 @@
 
 namespace catapult { namespace cache {
 
+#define TEST_CLASS CatapultCacheBuilderTests
+
 	namespace {
 		template<size_t CacheId>
 		void AddSubCacheWithId(CatapultCacheBuilder& builder) {
@@ -15,7 +17,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(CatapultCacheBuilder, CanCreateEmptyCatapultCache) {
+	TEST(TEST_CLASS, CanCreateEmptyCatapultCache) {
 		// Arrange:
 		CatapultCacheBuilder builder;
 
@@ -26,7 +28,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(0u, GetNumSubCaches(cache));
 	}
 
-	TEST(CatapultCacheBuilder, CanCreateCatapultCacheWithSingleSubCache) {
+	TEST(TEST_CLASS, CanCreateCatapultCacheWithSingleSubCache) {
 		// Arrange:
 		CatapultCacheBuilder builder;
 		AddSubCacheWithId<2>(builder);
@@ -38,7 +40,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(1u, GetNumSubCaches(cache));
 	}
 
-	TEST(CatapultCacheBuilder, CanCreateCatapultCacheWithMultipleSubCaches) {
+	TEST(TEST_CLASS, CanCreateCatapultCacheWithMultipleSubCaches) {
 		// Arrange:
 		CatapultCacheBuilder builder;
 		AddSubCacheWithId<2>(builder);
@@ -52,14 +54,14 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(3u, GetNumSubCaches(cache));
 	}
 
-	TEST(CatapultCacheBuilder, CannotAddMultipleSubCachesWithSameId) {
+	TEST(TEST_CLASS, CannotAddMultipleSubCachesWithSameId) {
 		// Arrange:
 		CatapultCacheBuilder builder;
 		AddSubCacheWithId<2>(builder);
 		AddSubCacheWithId<6>(builder);
 		AddSubCacheWithId<4>(builder);
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(AddSubCacheWithId<6>(builder), catapult_invalid_argument);
 	}
 }}

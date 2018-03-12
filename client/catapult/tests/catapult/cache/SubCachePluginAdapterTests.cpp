@@ -1,11 +1,13 @@
 #include "catapult/cache/SubCachePluginAdapter.h"
 #include "catapult/cache/CatapultCache.h"
-#include "tests/test/cache/CacheSynchronizationTests.h"
+#include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/SimpleCache.h"
-#include "tests/test/core/mocks/MemoryStream.h"
+#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
+
+#define TEST_CLASS SubCachePluginAdapterTests
 
 	namespace {
 		using SimpleCachePluginAdapter = SubCachePluginAdapter<test::SimpleCache, test::SimpleCacheStorageTraits>;
@@ -61,7 +63,7 @@ namespace catapult { namespace cache {
 
 	// region constructor
 
-	TEST(SubCachePluginAdapterTests, CanAccessRawCachePointer) {
+	TEST(TEST_CLASS, CanAccessRawCachePointer) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
 
@@ -77,7 +79,7 @@ namespace catapult { namespace cache {
 
 	// region createView / createDelta
 
-	TEST(SubCachePluginAdapterTests, CanAccessView) {
+	TEST(TEST_CLASS, CanAccessView) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
 
@@ -88,7 +90,7 @@ namespace catapult { namespace cache {
 		AssertView<test::SimpleCacheView>(pView, 5);
 	}
 
-	TEST(SubCachePluginAdapterTests, CanAccessDelta) {
+	TEST(TEST_CLASS, CanAccessDelta) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
 
@@ -103,7 +105,7 @@ namespace catapult { namespace cache {
 
 	// region createDetachedDelta
 
-	TEST(SubCachePluginAdapterTests, CanAccessDetachedDelta) {
+	TEST(TEST_CLASS, CanAccessDetachedDelta) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
 
@@ -112,7 +114,7 @@ namespace catapult { namespace cache {
 		ASSERT_TRUE(!!pDetachedDelta);
 	}
 
-	TEST(SubCachePluginAdapterTests, CanAccessDeltaViewViaDetachedDelta) {
+	TEST(TEST_CLASS, CanAccessDeltaViewViaDetachedDelta) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
 		auto pDetachedDelta = adapter.createDetachedDelta();
@@ -125,7 +127,7 @@ namespace catapult { namespace cache {
 		AssertView<test::SimpleCacheDelta>(pDelta, 5);
 	}
 
-	TEST(SubCachePluginAdapterTests, CannotAccessDeltaViewViaOutdatedDetachedDelta) {
+	TEST(TEST_CLASS, CannotAccessDeltaViewViaOutdatedDetachedDelta) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
 		auto pDetachedDelta = adapter.createDetachedDelta();
@@ -150,7 +152,7 @@ namespace catapult { namespace cache {
 
 	// region commit
 
-	TEST(SubCachePluginAdapterTests, CanDiscardNonCommittedChanges) {
+	TEST(TEST_CLASS, CanDiscardNonCommittedChanges) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
 		{
@@ -166,7 +168,7 @@ namespace catapult { namespace cache {
 		AssertView<test::SimpleCacheView>(pView, 5);
 	}
 
-	TEST(SubCachePluginAdapterTests, CanCommitChanges) {
+	TEST(TEST_CLASS, CanCommitChanges) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
 		{
@@ -187,14 +189,14 @@ namespace catapult { namespace cache {
 
 	// region createStorage
 
-	TEST(SubCachePluginAdapterTests, CanSerializeCacheToStorage) {
+	TEST(TEST_CLASS, CanSerializeCacheToStorage) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
 		auto catapultCache = cache::CatapultCache({});
 		auto pCacheStorage = adapter.createStorage(catapultCache);
 
 		std::vector<uint8_t> buffer;
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		pCacheStorage->saveAll(stream);
@@ -206,10 +208,10 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(5u, pData64[0]); // size;
 
 		for (auto i = 1u; i <= 5u; ++i)
-			EXPECT_EQ(i ^ 0xFFFFFFFF, pData64[i]) << "value at " << i;
+			EXPECT_EQ(i ^ 0xFFFFFFFF'FFFFFFFF, pData64[i]) << "value at " << i;
 	}
 
-	TEST(SubCachePluginAdapterTests, CanDeserializeCacheFromStorage) {
+	TEST(TEST_CLASS, CanDeserializeCacheFromStorage) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(0));
 		auto catapultCache = cache::CatapultCache({});
@@ -220,9 +222,9 @@ namespace catapult { namespace cache {
 		auto* pData64 = reinterpret_cast<uint64_t*>(buffer.data());
 		pData64[0] = 3; // size
 		for (auto i = 1u; i <= 3u; ++i)
-			pData64[i] = i ^ 0xFFFFFFFF;
+			pData64[i] = i ^ 0xFFFFFFFF'FFFFFFFF;
 
-		mocks::MemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream("", buffer);
 
 		// Act:
 		pCacheStorage->loadAll(stream, 2);
@@ -233,24 +235,13 @@ namespace catapult { namespace cache {
 	}
 
 	// endregion
-}}
 
-namespace catapult { namespace test {
-	template<>
-	void AssertCacheContents(const cache::SubCacheView& view, const std::vector<size_t>& expectedEntities) {
-		// Assert: just compare the sizes because the simple cache is composed of a single number
-		const auto* pReadOnlyView = static_cast<const test::SimpleCacheReadOnlyType*>(view.asReadOnly());
-		EXPECT_EQ(expectedEntities.size(), pReadOnlyView->size());
-	}
-}}
-
-namespace catapult { namespace cache {
-	// region general cache tests
+	// region general cache synchronization tests
 
 	namespace {
-		class SubCachePluginAdapterTestAdapter {
+		class SubCachePluginAdapterProxy {
 		public:
-			explicit SubCachePluginAdapterTestAdapter(size_t value) : m_cache(CreateSimpleCacheWithValue(value))
+			SubCachePluginAdapterProxy() : m_cache(CreateSimpleCacheWithValue(0))
 			{}
 
 		public:
@@ -282,6 +273,14 @@ namespace catapult { namespace cache {
 					return *static_cast<const TRawView*>(m_pView->get());
 				}
 
+				auto* operator->() {
+					return static_cast<TRawView*>(m_pView->get());
+				}
+
+				explicit operator bool() const {
+					return !!m_pView;
+				}
+
 			private:
 				std::unique_ptr<TView> m_pView;
 			};
@@ -293,7 +292,7 @@ namespace catapult { namespace cache {
 
 			public:
 				auto lock() {
-					return m_pView->lock();
+					return ViewProxy<SubCacheView, test::SimpleCacheDelta>(m_pView->lock());
 				}
 
 			private:
@@ -306,22 +305,20 @@ namespace catapult { namespace cache {
 
 		struct SubCachePluginAdapterTraits {
 		public:
-			using EntityVector = std::vector<size_t>;
+			using CacheType = SubCachePluginAdapterProxy;
 
 		public:
-			template<typename TAction>
-			static void RunCacheTest(TAction action) {
-				// Arrange:
-				SubCachePluginAdapterTestAdapter cacheAdapter(3);
-				EntityVector entities{ 1, 2, 3 };
+			static size_t MakeId(uint8_t id) {
+				return id;
+			}
 
-				// Act:
-				action(cacheAdapter, entities);
+			static size_t CreateWithId(uint8_t id) {
+				return id;
 			}
 		};
 	}
 
-	DEFINE_CACHE_SYNC_TESTS(SubCachePluginAdapterTests, SubCachePluginAdapterTraits)
+	DEFINE_CACHE_SYNC_TESTS(SubCachePluginAdapterTraits,)
 
 	// endregion
 }}

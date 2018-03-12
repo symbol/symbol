@@ -3,6 +3,7 @@
 #include "catapult/validators/ValidationResult.h"
 
 namespace catapult { namespace validators {
+
 #endif
 /// Defines an aggregate validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_AGGREGATE_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Aggregate, DESCRIPTION, CODE, None)

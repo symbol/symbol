@@ -21,7 +21,7 @@ namespace catapult { namespace ionet {
 #pragma pack(pop)
 	}
 
-	//region CreateSharedPacket
+	// region CreateSharedPacket
 
 	TEST(TEST_CLASS, CanCreateSharedPacketOfBaseType) {
 		// Act:
@@ -120,13 +120,13 @@ namespace catapult { namespace ionet {
 	// region CoercePacket
 
 	namespace {
-		void AssertCannotCoercePacket(const std::function<void (Packet&)>& modifyPacket) {
+		void AssertCannotCoercePacket(const consumer<Packet&>& modifyPacket) {
 			// Arrange:
 			auto pPacket = CreateSharedPacket<TestPacket>();
 			modifyPacket(*pPacket);
 
 			// Act:
-			auto pCoercedPacket = CoercePacket<TestPacket>(pPacket.get());
+			const auto* pCoercedPacket = CoercePacket<TestPacket>(pPacket.get());
 
 			// Assert:
 			EXPECT_FALSE(!!pCoercedPacket);
@@ -153,7 +153,7 @@ namespace catapult { namespace ionet {
 		auto pPacket = CreateSharedPacket<TestPacket>();
 
 		// Act:
-		auto pCoercedPacket = CoercePacket<TestPacket>(pPacket.get());
+		const auto* pCoercedPacket = CoercePacket<TestPacket>(pPacket.get());
 
 		// Assert:
 		EXPECT_TRUE(!!pCoercedPacket);
@@ -164,7 +164,7 @@ namespace catapult { namespace ionet {
 	// region IsPacketValid
 
 	namespace {
-		void AssertPacketIsNotValid(const std::function<void (Packet&)>& modifyPacket) {
+		void AssertPacketIsNotValid(const consumer<Packet&>& modifyPacket) {
 			// Arrange:
 			auto pPacket = CreateSharedPacket<Packet>();
 			pPacket->Type = Test_Packet_Type;

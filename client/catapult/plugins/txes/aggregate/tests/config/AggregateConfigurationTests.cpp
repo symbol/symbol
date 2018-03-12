@@ -9,14 +9,17 @@ namespace catapult { namespace config {
 			using ConfigurationType = AggregateConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {{
+				return {
+					{
 						"",
 						{
 							{ "maxTransactionsPerAggregate", "674" },
 							{ "maxCosignaturesPerAggregate", "52" },
 							{ "enableStrictCosignatureCheck", "true" },
+							{ "enableBondedAggregateSupport", "true" }
 						}
-				}};
+					}
+				};
 			}
 
 			static bool IsSectionOptional(const std::string&) {
@@ -28,6 +31,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(0u, config.MaxTransactionsPerAggregate);
 				EXPECT_EQ(0u, config.MaxCosignaturesPerAggregate);
 				EXPECT_FALSE(config.EnableStrictCosignatureCheck);
+				EXPECT_FALSE(config.EnableBondedAggregateSupport);
 			}
 
 			static void AssertCustom(const AggregateConfiguration& config) {
@@ -35,6 +39,7 @@ namespace catapult { namespace config {
 				EXPECT_EQ(674u, config.MaxTransactionsPerAggregate);
 				EXPECT_EQ(52u, config.MaxCosignaturesPerAggregate);
 				EXPECT_TRUE(config.EnableStrictCosignatureCheck);
+				EXPECT_TRUE(config.EnableBondedAggregateSupport);
 			}
 		};
 	}

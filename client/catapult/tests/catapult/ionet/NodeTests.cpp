@@ -8,30 +8,90 @@
 
 namespace catapult { namespace ionet {
 
-	TEST(NodeTests, CanCreateDefaultNode) {
+#define TEST_CLASS NodeTests
+
+	// region constructor
+
+	TEST(TEST_CLASS, CanCreateDefaultMetadata) {
+		// Act:
+		NodeMetadata metadata;
+
+		// Assert:
+		EXPECT_EQ(model::NetworkIdentifier::Zero, metadata.NetworkIdentifier);
+		EXPECT_EQ("", metadata.Name);
+		EXPECT_EQ(NodeVersion(), metadata.Version);
+		EXPECT_EQ(NodeRoles::None, metadata.Roles);
+	}
+
+	TEST(TEST_CLASS, CanCreateMetadataWithNetworkIdentifier) {
+		// Act:
+		NodeMetadata metadata(model::NetworkIdentifier::Mijin_Test);
+
+		// Assert:
+		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkIdentifier);
+		EXPECT_EQ("", metadata.Name);
+		EXPECT_EQ(NodeVersion(), metadata.Version);
+		EXPECT_EQ(NodeRoles::None, metadata.Roles);
+	}
+
+	TEST(TEST_CLASS, CanCreateMetadataWithNetworkIdentifierAndName) {
+		// Act:
+		NodeMetadata metadata(model::NetworkIdentifier::Mijin_Test, "alice");
+
+		// Assert:
+		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkIdentifier);
+		EXPECT_EQ("alice", metadata.Name);
+		EXPECT_EQ(NodeVersion(), metadata.Version);
+		EXPECT_EQ(NodeRoles::None, metadata.Roles);
+	}
+
+	TEST(TEST_CLASS, CanCreateCustomMetadata) {
+		// Act:
+		NodeMetadata metadata(model::NetworkIdentifier::Mijin_Test, "alice", NodeVersion(123), NodeRoles::Api);
+
+		// Assert:
+		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, metadata.NetworkIdentifier);
+		EXPECT_EQ("alice", metadata.Name);
+		EXPECT_EQ(NodeVersion(123), metadata.Version);
+		EXPECT_EQ(NodeRoles::Api, metadata.Roles);
+	}
+
+	TEST(TEST_CLASS, CanCreateDefaultNode) {
 		// Act:
 		Node node;
 
 		// Assert:
-		EXPECT_EQ("", node.Endpoint.Host);
-		EXPECT_EQ(0u, node.Endpoint.Port);
-		EXPECT_EQ(Key{}, node.Identity.PublicKey);
-		EXPECT_EQ("", node.Identity.Name);
-		EXPECT_EQ(model::NetworkIdentifier::Zero, node.NetworkIdentifier);
+		EXPECT_EQ(Key(), node.identityKey());
+
+		EXPECT_EQ("", node.endpoint().Host);
+		EXPECT_EQ(0u, node.endpoint().Port);
+
+		EXPECT_EQ(model::NetworkIdentifier::Zero, node.metadata().NetworkIdentifier);
+		EXPECT_EQ("", node.metadata().Name);
+		EXPECT_EQ(NodeVersion(), node.metadata().Version);
+		EXPECT_EQ(NodeRoles::None, node.metadata().Roles);
 	}
 
-	TEST(NodeTests, CanCreateCustomNode) {
+	TEST(TEST_CLASS, CanCreateCustomNode) {
 		// Act:
 		auto key = test::GenerateRandomData<Key_Size>();
-		Node node = { { "bob.com", 1234 }, { key, "bob" }, model::NetworkIdentifier::Mijin_Test };
+		Node node(key, { "bob.com", 1234 }, { model::NetworkIdentifier::Mijin_Test, "bob", NodeVersion(7), NodeRoles::Peer });
 
 		// Assert:
-		EXPECT_EQ("bob.com", node.Endpoint.Host);
-		EXPECT_EQ(1234u, node.Endpoint.Port);
-		EXPECT_EQ(key, node.Identity.PublicKey);
-		EXPECT_EQ("bob", node.Identity.Name);
-		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, node.NetworkIdentifier);
+		EXPECT_EQ(key, node.identityKey());
+
+		EXPECT_EQ("bob.com", node.endpoint().Host);
+		EXPECT_EQ(1234u, node.endpoint().Port);
+
+		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, node.metadata().NetworkIdentifier);
+		EXPECT_EQ("bob", node.metadata().Name);
+		EXPECT_EQ(NodeVersion(7), node.metadata().Version);
+		EXPECT_EQ(NodeRoles::Peer, node.metadata().Roles);
 	}
+
+	// endregion
+
+	// region comparison
 
 	namespace {
 		const char* Default_Key = "default";
@@ -42,35 +102,36 @@ namespace catapult { namespace ionet {
 			auto networkIdentifier1 = static_cast<model::NetworkIdentifier>(0x25);
 			auto networkIdentifier2 = static_cast<model::NetworkIdentifier>(0x26);
 			return {
-				{ Default_Key, { { "bob.com", 1234 }, { key1, "bob" }, networkIdentifier1 } },
-				{ "diff-host", { { "alice.com", 1234 }, { key1, "bob" }, networkIdentifier1 } },
-				{ "diff-port", { { "bob.com", 1233 }, { key1, "bob" }, networkIdentifier1 } },
-				{ "diff-key", { { "bob.com", 1234 }, { key2, "bob" }, networkIdentifier1 } },
-				{ "diff-name", { { "bob.com", 1234 }, { key1, "alice" }, networkIdentifier1 } },
-				{ "diff-network-id", { { "bob.com", 1234 }, { key1, "bob" }, networkIdentifier2 } },
+				{ Default_Key, { key1, { "bob.com", 1234 }, NodeMetadata(networkIdentifier1, "bob") } },
+				{ "diff-key", { key2, { "bob.com", 1234 }, NodeMetadata(networkIdentifier1, "bob") } },
+				{ "diff-host", { key1, { "alice.com", 1234 }, NodeMetadata(networkIdentifier1, "bob") } },
+				{ "diff-port", { key1, { "bob.com", 1233 }, NodeMetadata(networkIdentifier1, "bob") } },
+				{ "diff-meta-network", { key1, { "bob.com", 1234 }, NodeMetadata(networkIdentifier2, "bob") } },
+				{ "diff-meta-name", { key1, { "bob.com", 1234 }, NodeMetadata(networkIdentifier1, "alice") } },
+				{ "diff-meta-version", { key1, { "bob.com", 1234 }, { networkIdentifier1, "bob", NodeVersion(1), NodeRoles::None } } },
+				{ "diff-meta-roles", { key1, { "bob.com", 1234 }, { networkIdentifier1, "bob", NodeVersion(), NodeRoles::Peer } } }
 			};
 		}
 
 		std::unordered_set<std::string> GetEqualTags() {
-			return { Default_Key, "diff-host", "diff-port", "diff-name" };
+			// only significant differences are key and meta-network
+			return { Default_Key, "diff-host", "diff-port", "diff-meta-name", "diff-meta-version", "diff-meta-roles" };
 		}
 	}
 
-	TEST(NodeTests, OperatorEqualReturnsTrueForEqualObjects) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
 		// Assert:
-		test::AssertOperatorEqualReturnsTrueForEqualObjects(
-			Default_Key,
-			GenerateEqualityInstanceMap(),
-			GetEqualTags());
+		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
-	TEST(NodeTests, OperatorNotEqualReturnsTrueForUnequalObjects) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
 		// Assert:
-		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(
-			Default_Key,
-			GenerateEqualityInstanceMap(),
-			GetEqualTags());
+		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
+
+	// endregion
+
+	// region insertion operator
 
 	namespace {
 		void AssertOutputOperator(const Node& node, const std::string& expected) {
@@ -82,36 +143,109 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(NodeTests, CanOutputNodeWithName) {
+	TEST(TEST_CLASS, CanOutputNodeWithName) {
+		// Arrange:
+		Node node({ test::GenerateRandomData<Key_Size>(), { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
+
 		// Assert:
-		AssertOutputOperator(
-				{ { "bob.com", 1234 }, { test::GenerateRandomData<Key_Size>(), "alice" }, model::NetworkIdentifier::Zero },
-				"alice @ bob.com");
+		AssertOutputOperator(node, "alice @ bob.com");
 	}
 
-	TEST(NodeTests, CanOutputNodeWithUnprintableNameCharacters) {
+	TEST(TEST_CLASS, CanOutputNodeWithUnprintableNameCharacters) {
+		// Arrange:
+		std::string name = "al\a" + std::string(1, '\0') + "ce\t";
+		Node node({ test::GenerateRandomData<Key_Size>(), { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, name) });
+
 		// Assert:
-		AssertOutputOperator(
-				{ { "bob.com", 1234 }, { test::GenerateRandomData<Key_Size>(), "al\ace\t" }, model::NetworkIdentifier::Zero },
-				"al?ce? @ bob.com");
+		AssertOutputOperator(node, "al??ce? @ bob.com");
 	}
 
-	TEST(NodeTests, CanOutputNodeWithoutName) {
+	TEST(TEST_CLASS, CanOutputNodeWithUnprintableHostCharacters) {
+		// Arrange:
+		std::string host = "bo\a" + std::string(1, '\0') + "b.co\tm";
+		Node node({ test::GenerateRandomData<Key_Size>(), { host, 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
+
+		// Assert:
+		AssertOutputOperator(node, "alice @ bo??b.co?m");
+	}
+
+	TEST(TEST_CLASS, CanOutputNodeWithoutName) {
+		// Arrange:
+#ifdef SIGNATURE_SCHEME_NIS1
+		auto expectedMijinAddress = "MAOJUDIG67LNG5WHL5MI4RAR5Y46RKTENICGQU5C";
+		auto expectedTwentyFiveAddress = "EUOJUDIG67LNG5WHL5MI4RAR5Y46RKTENKUJJCQV";
+#else
+		auto expectedMijinAddress = "MCX7YGZ5D524BZVRCPJL3M34MV23QJKFRND6NWMJ";
+		auto expectedTwentyFiveAddress = "EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UKO";
+#endif
+
 		// Assert: note that the public key -> address conversion is dependent on network
 		auto key = crypto::ParseKey("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 		AssertOutputOperator(
-				{ { "bob.com", 1234 }, { key, "" }, model::NetworkIdentifier::Mijin },
-				"MCX7YGZ5D524BZVRCPJL3M34MV23QJKFRND6NWMJ @ bob.com");
+				{ key, { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Mijin) },
+				std::string(expectedMijinAddress) + " @ bob.com");
 
 		AssertOutputOperator(
-				{ { "bob.com", 1234 }, { key, "" }, static_cast<model::NetworkIdentifier>(0x25) },
-				"EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UKO @ bob.com");
+				{ key, { "bob.com", 1234 }, NodeMetadata(static_cast<model::NetworkIdentifier>(0x25)) },
+				std::string(expectedTwentyFiveAddress) + " @ bob.com");
 	}
 
-	TEST(NodeTests, CanOutputNodeWithoutHost) {
+	TEST(TEST_CLASS, CanOutputNodeWithoutHost) {
 		// Assert:
-		AssertOutputOperator(
-				{ {}, { test::GenerateRandomData<Key_Size>(), "alice" }, model::NetworkIdentifier::Zero },
-				"alice");
+		Node node({ test::GenerateRandomData<Key_Size>(), NodeEndpoint(), NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
+		AssertOutputOperator(node, "alice");
 	}
+
+	// endregion
+
+	// region hasher
+
+	TEST(TEST_CLASS, Hasher_EqualNodesWithSameKeyReturnSameHash) {
+		// Arrange:
+		auto key = test::GenerateRandomData<Key_Size>();
+		Node node1({ key, NodeEndpoint(), NodeMetadata() });
+		Node node2({ key, NodeEndpoint(), NodeMetadata() });
+
+		// Sanity:
+		EXPECT_EQ(node1, node2);
+
+		// Act:
+		auto result1 = NodeHasher()(node1);
+		auto result2 = NodeHasher()(node2);
+
+		// Assert:
+		EXPECT_EQ(result1, result2);
+	}
+
+	TEST(TEST_CLASS, Hasher_UnequalNodesWithSameKeyReturnSameHash) {
+		// Arrange:
+		auto key = test::GenerateRandomData<Key_Size>();
+		Node node1({ key, NodeEndpoint(), NodeMetadata(model::NetworkIdentifier::Zero) });
+		Node node2({ key, NodeEndpoint(), NodeMetadata(model::NetworkIdentifier::Mijin) });
+
+		// Sanity:
+		EXPECT_NE(node1, node2);
+
+		// Act:
+		auto result1 = NodeHasher()(node1);
+		auto result2 = NodeHasher()(node2);
+
+		// Assert:
+		EXPECT_EQ(result1, result2);
+	}
+
+	TEST(TEST_CLASS, Hasher_NodesWithDifferentKeysReturnDifferentHash) {
+		// Arrange:
+		Node node1({ test::GenerateRandomData<Key_Size>(), NodeEndpoint(), NodeMetadata() });
+		Node node2({ test::GenerateRandomData<Key_Size>(), NodeEndpoint(), NodeMetadata() });
+
+		// Act:
+		auto result1 = NodeHasher()(node1);
+		auto result2 = NodeHasher()(node2);
+
+		// Assert:
+		EXPECT_NE(result1, result2);
+	}
+
+	// endregion
 }}

@@ -10,11 +10,11 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, EntityHasExpectedSize) {
 		// Arrange:
 		auto expectedSize = sizeof(VerifiableEntity) // base
-			+ sizeof(uint64_t) // height
-			+ sizeof(uint64_t) // timestamp
-			+ sizeof(uint64_t) // difficulty
-			+ Hash256_Size // previous block hash
-			+ Hash256_Size; // block transactions hash
+				+ sizeof(uint64_t) // height
+				+ sizeof(uint64_t) // timestamp
+				+ sizeof(uint64_t) // difficulty
+				+ Hash256_Size // previous block hash
+				+ Hash256_Size; // block transactions hash
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(Block));
@@ -95,16 +95,14 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region IsSizeValid
-
 	namespace {
 		bool IsSizeValid(const Block& block, mocks::PluginOptionFlags options = mocks::PluginOptionFlags::Default) {
-			auto pRegistry = mocks::CreateDefaultTransactionRegistry(options);
-			return IsSizeValid(block, *pRegistry);
+			auto registry = mocks::CreateDefaultTransactionRegistry(options);
+			return IsSizeValid(block, registry);
 		}
 	}
 
-	// region no transactions
+	// region IsSizeValid - no transactions
 
 	TEST(TEST_CLASS, SizeInvalidIfReportedSizeIsZero) {
 		// Arrange:
@@ -132,7 +130,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region invalid inner tx sizes
+	// region IsSizeValid - invalid inner tx sizes
 
 	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasPartialHeader) {
 		// Arrange: create a block with 1 extra byte (which should be interpeted as a partial tx header)
@@ -171,7 +169,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region invalid inner tx types
+	// region IsSizeValid - invalid inner tx types
 
 	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasUnknownType) {
 		// Arrange:
@@ -191,6 +189,8 @@ namespace catapult { namespace model {
 	}
 
 	// endregion
+
+	// region IsSizeValid - valid transactions
 
 	TEST(TEST_CLASS, SizeInvalidIfBlockWithTransactionsHasLargerReportedSizeThanActual) {
 		// Arrange:

@@ -1,4 +1,5 @@
 #pragma once
+#include "EmbeddedTransaction.h"
 #include "VerifiableEntity.h"
 
 namespace catapult { namespace model { class TransactionRegistry; } }
@@ -24,6 +25,6 @@ namespace catapult { namespace model {
 
 /// Defines a transaction with \a NAME that supports embedding.
 #define DEFINE_EMBEDDABLE_TRANSACTION(NAME) \
-	struct Embedded##NAME##Transaction : public NAME##TransactionBody<model::EmbeddedEntity> {}; \
+	struct Embedded##NAME##Transaction : public NAME##TransactionBody<model::EmbeddedTransaction> {}; \
 	struct NAME##Transaction : public NAME##TransactionBody<model::Transaction> {};
 }}

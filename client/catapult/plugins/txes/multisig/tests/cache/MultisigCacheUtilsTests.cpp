@@ -3,9 +3,9 @@
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
 
-#define TEST_CLASS MultisigCacheUtilsTests
-
 namespace catapult { namespace cache {
+
+#define TEST_CLASS MultisigCacheUtilsTests
 
 	namespace {
 		constexpr auto Num_Tree_Accounts = 14;

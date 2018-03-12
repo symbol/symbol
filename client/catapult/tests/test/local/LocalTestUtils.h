@@ -11,24 +11,23 @@ namespace catapult {
 	namespace cache {
 		class CatapultCache;
 		class MemoryUtCache;
+		class MemoryUtCacheProxy;
 		class MemoryUtCacheView;
 		class UtCache;
 	}
-	namespace chain { class UnconfirmedTransactionsUpdater; }
+	namespace chain { class UtUpdater; }
 }
 
 namespace catapult { namespace test {
 
-	namespace local_node_flags {
+	/// Bit flags for configuring a LocalNode under test.
+	enum class LocalNodeFlags {
 		/// No special configuration flag is set.
-		constexpr uint64_t None = 0;
+		None = 0,
 
 		/// The local node should harvest upon startup.
-		constexpr uint64_t Should_Auto_Harvest = 2;
-
-		/// The local node should not have any peers.
-		constexpr uint64_t No_Peers = 4;
-	}
+		Should_Auto_Harvest = 2,
+	};
 
 	/// Returns server key pair.
 	crypto::KeyPair LoadServerKeyPair();
@@ -36,16 +35,12 @@ namespace catapult { namespace test {
 	/// Creates a block chain configuration.
 	model::BlockChainConfiguration CreateLocalNodeBlockChainConfiguration();
 
-	/// Creates a test configuration for a local node according to the supplied flags (\a localNodeFlags)
-	/// with a storage in the specified directory (\a dataDirectory).
-	config::LocalNodeConfiguration LoadLocalNodeConfiguration(uint64_t localNodeFlags, const std::string& dataDirectory);
+	/// Creates a test configuration for a local node with a storage in the specified directory (\a dataDirectory).
+	config::LocalNodeConfiguration LoadLocalNodeConfiguration(const std::string& dataDirectory);
 
-	/// Creates a test configuration for a local node according to the supplied configuration (\a config) and
-	/// flags (\a localNodeFlags) with a storage in the specified directory (\a dataDirectory).
-	config::LocalNodeConfiguration LoadLocalNodeConfiguration(
-			model::BlockChainConfiguration&& config,
-			uint64_t localNodeFlags,
-			const std::string& dataDirectory);
+	/// Creates a test configuration for a local node according to the supplied configuration (\a config)
+	/// with a storage in the specified directory (\a dataDirectory).
+	config::LocalNodeConfiguration LoadLocalNodeConfiguration(model::BlockChainConfiguration&& config, const std::string& dataDirectory);
 
 	/// Creates a prototypical local node configuration that is safe to use in local node tests.
 	config::LocalNodeConfiguration CreatePrototypicalLocalNodeConfiguration();
@@ -54,15 +49,10 @@ namespace catapult { namespace test {
 	config::LocalNodeConfiguration CreateUninitializedLocalNodeConfiguration();
 
 	/// Creates a default unconfirmed transactions cache.
-	std::unique_ptr<cache::MemoryUtCache> CreateUnconfirmedTransactionsCache();
+	std::unique_ptr<cache::MemoryUtCache> CreateUtCache();
 
-	/// Creates a default unconfirmed transactions updater around \a cache and \a unconfirmedTransactionsCache.
-	std::unique_ptr<chain::UnconfirmedTransactionsUpdater> CreateUnconfirmedTransactionsUpdater(
-			const cache::CatapultCache& cache,
-			cache::UtCache& unconfirmedTransactionsCache);
-
-	/// Creates a default unconfirmed transactions cache view provider around \a unconfirmedTransactionsCache.
-	std::function<cache::MemoryUtCacheView ()> CreateViewProvider(const cache::MemoryUtCache& unconfirmedTransactionsCache);
+	/// Creates a default unconfirmed transactions cache proxy.
+	std::unique_ptr<cache::MemoryUtCacheProxy> CreateUtCacheProxy();
 
 	/// Creates a default plugin manager.
 	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManager();

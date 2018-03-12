@@ -6,6 +6,8 @@
 
 namespace catapult { namespace validators {
 
+#define TEST_CLASS MosaicSupplyChangeAllowedValidatorTests
+
 	DEFINE_COMMON_VALIDATOR_TESTS(MosaicSupplyChangeAllowed, Amount())
 
 	namespace {
@@ -72,12 +74,12 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CanIncreaseImmutableSupplyWhenOwnerHasCompleteSupply) {
+	TEST(TEST_CLASS, CanIncreaseImmutableSupplyWhenOwnerHasCompleteSupply) {
 		// Assert:
 		AssertCanChangeImmutableSupplyWhenOwnerHasCompleteSupply(model::MosaicSupplyChangeDirection::Increase);
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CanDecreaseImmutableSupplyWhenOwnerHasCompleteSupply) {
+	TEST(TEST_CLASS, CanDecreaseImmutableSupplyWhenOwnerHasCompleteSupply) {
 		// Assert:
 		AssertCanChangeImmutableSupplyWhenOwnerHasCompleteSupply(model::MosaicSupplyChangeDirection::Decrease);
 	}
@@ -96,12 +98,12 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CannotIncreaseImmutableSupplyWhenOwnerHasPartialSupply) {
+	TEST(TEST_CLASS, CannotIncreaseImmutableSupplyWhenOwnerHasPartialSupply) {
 		// Assert:
 		AssertCannotChangeImmutableSupplyWhenOwnerHasPartialSupply(model::MosaicSupplyChangeDirection::Increase);
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CannotDecreaseImmutableSupplyWhenOwnerHasPartialSupply) {
+	TEST(TEST_CLASS, CannotDecreaseImmutableSupplyWhenOwnerHasPartialSupply) {
 		// Assert:
 		AssertCannotChangeImmutableSupplyWhenOwnerHasPartialSupply(model::MosaicSupplyChangeDirection::Decrease);
 	}
@@ -125,18 +127,18 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CanDecreaseMutableSupplyByLessThanOwnerSupply) {
+	TEST(TEST_CLASS, CanDecreaseMutableSupplyByLessThanOwnerSupply) {
 		// Assert:
 		AssertDecreaseValidationResult(ValidationResult::Success, Amount(500), Amount(400), Amount(300));
 		AssertDecreaseValidationResult(ValidationResult::Success, Amount(500), Amount(400), Amount(399));
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CanDecreaseMutableSupplyByEntireOwnerSupply) {
+	TEST(TEST_CLASS, CanDecreaseMutableSupplyByEntireOwnerSupply) {
 		// Assert:
 		AssertDecreaseValidationResult(ValidationResult::Success, Amount(500), Amount(400), Amount(400));
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CannotDecreaseMutableSupplyByGreaterThanOwnerSupply) {
+	TEST(TEST_CLASS, CannotDecreaseMutableSupplyByGreaterThanOwnerSupply) {
 		// Assert:
 		AssertDecreaseValidationResult(Failure_Mosaic_Supply_Negative, Amount(500), Amount(400), Amount(401));
 		AssertDecreaseValidationResult(Failure_Mosaic_Supply_Negative, Amount(500), Amount(400), Amount(500));
@@ -147,11 +149,7 @@ namespace catapult { namespace validators {
 	// region increase
 
 	namespace {
-		void AssertIncreaseValidationResult(
-				ValidationResult expectedResult,
-				Amount maxDivisibleUnits,
-				Amount mosaicSupply,
-				Amount delta) {
+		void AssertIncreaseValidationResult(ValidationResult expectedResult, Amount maxDivisibleUnits, Amount mosaicSupply, Amount delta) {
 			// Arrange:
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto direction = model::MosaicSupplyChangeDirection::Increase;
@@ -165,24 +163,24 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CanIncreaseMutableSupplyToLessThanDivisibleUnits) {
+	TEST(TEST_CLASS, CanIncreaseMutableSupplyToLessThanDivisibleUnits) {
 		// Assert:
 		AssertIncreaseValidationResult(ValidationResult::Success, Amount(900), Amount(500), Amount(300));
 		AssertIncreaseValidationResult(ValidationResult::Success, Amount(900), Amount(500), Amount(399));
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CanIncreaseMutableSupplyToExactlyDivisibleUnits) {
+	TEST(TEST_CLASS, CanIncreaseMutableSupplyToExactlyDivisibleUnits) {
 		// Assert:
 		AssertIncreaseValidationResult(ValidationResult::Success, Amount(900), Amount(500), Amount(400));
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CannotIncreaseMutableSupplyToGreaterThanDivisibleUnits) {
+	TEST(TEST_CLASS, CannotIncreaseMutableSupplyToGreaterThanDivisibleUnits) {
 		// Assert:
 		AssertIncreaseValidationResult(Failure_Mosaic_Supply_Exceeded, Amount(900), Amount(500), Amount(401));
 		AssertIncreaseValidationResult(Failure_Mosaic_Supply_Exceeded, Amount(900), Amount(500), Amount(500));
 	}
 
-	TEST(MosaicSupplyChangeAllowedValidatorTests, CannotIncreaseMutableSupplyIfOverflowIsDetected) {
+	TEST(TEST_CLASS, CannotIncreaseMutableSupplyIfOverflowIsDetected) {
 		// Assert:
 		AssertIncreaseValidationResult(Failure_Mosaic_Supply_Exceeded, Amount(900), Amount(500), Max_Divisible_Units);
 	}

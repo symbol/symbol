@@ -16,7 +16,7 @@ namespace catapult { namespace validators {
 				const Key& signer,
 				NamespaceId parentId,
 				MosaicId id,
-				ArtifactDuration duration) {
+				BlockDuration duration) {
 			return model::MosaicDefinitionNotification(
 					signer,
 					parentId,
@@ -54,7 +54,7 @@ namespace catapult { namespace validators {
 
 		void AddMosaic(cache::CatapultCache& cache, MosaicId id, Amount mosaicSupply, const Key& owner, Amount ownerSupply) {
 			auto delta = cache.createDelta();
-			test::AddMosaic(delta, id, Height(50), ArtifactDuration(100), mosaicSupply);
+			test::AddMosaic(delta, id, Height(50), BlockDuration(100), mosaicSupply);
 			test::AddMosaicOwner(delta, id, owner, ownerSupply);
 			cache.commit(Height());
 		}
@@ -102,7 +102,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, CanReplaceKnownMosaicHavingSameParentNamespace) {
 		// Arrange:
 		auto signer = test::GenerateRandomData<Key_Size>();
-		auto notification = CreateNotification(signer, NamespaceId(234), MosaicId(123), ArtifactDuration(100));
+		auto notification = CreateNotification(signer, NamespaceId(234), MosaicId(123), BlockDuration(100));
 
 		// - seed the cache with a mosaic with the same id and same parent id
 		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
@@ -115,7 +115,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, CannotReplaceKnownMosaicHavingDifferentParentNamespace) {
 		// Arrange:
 		auto signer = test::GenerateRandomData<Key_Size>();
-		auto notification = CreateNotification(signer, NamespaceId(345), MosaicId(123), ArtifactDuration(100));
+		auto notification = CreateNotification(signer, NamespaceId(345), MosaicId(123), BlockDuration(100));
 
 		// - seed the cache with a mosaic with the same id and different parent id
 		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
@@ -132,7 +132,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, CannotReplaceActiveMosaicWhenDefinitionIsUnchanged) {
 		// Arrange: create a transaction with matching properties
 		auto signer = test::GenerateRandomData<Key_Size>();
-		auto notification = CreateNotification(signer, NamespaceId(11), MosaicId(123), ArtifactDuration(100));
+		auto notification = CreateNotification(signer, NamespaceId(11), MosaicId(123), BlockDuration(100));
 
 		// - seed the cache with an active mosaic with the same id (notice that added mosaic has duration of 100)
 		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
@@ -180,7 +180,7 @@ namespace catapult { namespace validators {
 		// - seed the cache with an active mosaic with the same id but with an unknown owner
 		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 		auto delta = cache.createDelta();
-		test::AddMosaic(delta, MosaicId(123), Height(50), ArtifactDuration(100), Amount(500));
+		test::AddMosaic(delta, MosaicId(123), Height(50), BlockDuration(100), Amount(500));
 		cache.commit(Height());
 
 		// Assert:

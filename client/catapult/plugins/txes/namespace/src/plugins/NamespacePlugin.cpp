@@ -1,7 +1,7 @@
 #include "NamespacePlugin.h"
-#include "MosaicDefinitionTransactionPlugins.h"
-#include "MosaicSupplyChangeTransactionPlugins.h"
-#include "RegisterNamespaceTransactionPlugins.h"
+#include "MosaicDefinitionTransactionPlugin.h"
+#include "MosaicSupplyChangeTransactionPlugin.h"
+#include "RegisterNamespaceTransactionPlugin.h"
 #include "src/cache/MosaicCacheStorage.h"
 #include "src/cache/NamespaceCacheStorage.h"
 #include "src/config/NamespaceConfiguration.h"
@@ -10,6 +10,7 @@
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
 #include "catapult/model/Address.h"
+#include "catapult/observers/ObserverUtils.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
@@ -17,10 +18,6 @@ namespace catapult { namespace plugins {
 	namespace {
 		constexpr auto GetPluginName() {
 			return "catapult.plugins.namespace";
-		}
-
-		ArtifactDuration ToDuration(const utils::BlockSpan& blockSpan, const utils::TimeSpan& generationTargetTime) {
-			return ArtifactDuration(blockSpan.blocks32(generationTargetTime));
 		}
 
 		// region mosaic
@@ -52,7 +49,7 @@ namespace catapult { namespace plugins {
 				counters.emplace_back(utils::DiagnosticCounterId("MOSAIC C DS"), [&cache]() { return GetMosaicView(cache)->deepSize(); });
 			});
 
-			auto maxDuration = ToDuration(config.MaxMosaicDuration, manager.config().BlockGenerationTargetTime);
+			auto maxDuration = config.MaxMosaicDuration.blocks(manager.config().BlockGenerationTargetTime);
 			manager.addStatelessValidatorHook([config, maxDuration](auto& builder) {
 				builder
 					.add(validators::CreateMosaicNameValidator(config.MaxNameSize))
@@ -60,23 +57,26 @@ namespace catapult { namespace plugins {
 					.add(validators::CreateMosaicSupplyChangeValidator());
 			});
 
-			manager.addStatefulValidatorHook([maxDivisibleUnits = config.MaxMosaicDivisibleUnits](auto& builder) {
+			auto maxMosaics = config.MaxMosaicsPerAccount;
+			auto maxDivisibleUnits = config.MaxMosaicDivisibleUnits;
+			manager.addStatefulValidatorHook([maxMosaics, maxDivisibleUnits](auto& builder) {
 				builder
 					.add(validators::CreateMosaicChangeAllowedValidator())
 					.add(validators::CreateNamespaceMosaicConsistencyValidator())
 					.add(validators::CreateMosaicAvailabilityValidator())
 					.add(validators::CreateMosaicTransferValidator())
+					.add(validators::CreateMaxMosaicsBalanceTransferValidator(maxMosaics))
+					.add(validators::CreateMaxMosaicsSupplyChangeValidator(maxMosaics))
 					// note that the following validator depends on MosaicChangeAllowedValidator
 					.add(validators::CreateMosaicSupplyChangeAllowedValidator(maxDivisibleUnits));
 			});
 
-			auto maxRollbackBlocks = manager.config().MaxRollbackBlocks;
+			auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
 			manager.addObserverHook([maxRollbackBlocks](auto& builder) {
 				builder
 					.add(observers::CreateMosaicDefinitionObserver())
 					.add(observers::CreateMosaicSupplyChangeObserver())
-					.add(observers::CreateMosaicPruningObserver(maxRollbackBlocks))
-					.add(observers::CreateNemesisBalanceChangeObserver());
+					.add(observers::CreateCacheBlockPruningObserver<cache::MosaicCache>("Mosaic", 1, maxRollbackBlocks));
 			});
 		}
 
@@ -110,9 +110,7 @@ namespace catapult { namespace plugins {
 				handlers::RegisterNamespaceInfosHandler(
 						handlers,
 						handlers::CreateNamespaceInfosSupplier(cache.sub<cache::NamespaceCache>()));
-				handlers::RegisterMosaicInfosHandler(
-						handlers,
-						handlers::CreateMosaicInfosSupplier(cache.sub<cache::MosaicCache>()));
+				handlers::RegisterMosaicInfosHandler(handlers, handlers::CreateMosaicInfosSupplier(cache.sub<cache::MosaicCache>()));
 			});
 
 			manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
@@ -121,21 +119,23 @@ namespace catapult { namespace plugins {
 				counters.emplace_back(utils::DiagnosticCounterId("NS C DS"), [&cache]() { return GetNamespaceView(cache)->deepSize(); });
 			});
 
-			auto maxDuration = ToDuration(config.MaxNamespaceDuration, manager.config().BlockGenerationTargetTime);
+			auto maxDuration = config.MaxNamespaceDuration.blocks(manager.config().BlockGenerationTargetTime);
 			manager.addStatelessValidatorHook([config, maxDuration](auto& builder) {
 				const auto& reservedNames = config.ReservedRootNamespaceNames;
 				builder
 					.add(validators::CreateNamespaceTypeValidator())
-					.add(validators::CreateNamespaceNameValidator(config.MaxNameSize))
-					.add(validators::CreateRootNamespaceValidator(maxDuration, reservedNames));
+					.add(validators::CreateNamespaceNameValidator(config.MaxNameSize, reservedNames))
+					.add(validators::CreateRootNamespaceValidator(maxDuration));
 			});
 
-			auto gracePeriodDuration = ToDuration(config.NamespaceGracePeriodDuration, manager.config().BlockGenerationTargetTime);
+			auto gracePeriodDuration = config.NamespaceGracePeriodDuration.blocks(manager.config().BlockGenerationTargetTime);
 			model::NamespaceLifetimeConstraints constraints(maxDuration, gracePeriodDuration, manager.config().MaxRollbackBlocks);
-			manager.addStatefulValidatorHook([constraints](auto& builder) {
+			manager.addStatefulValidatorHook([constraints, maxChildNamespaces = config.MaxChildNamespaces](auto& builder) {
 				builder
 					.add(validators::CreateRootNamespaceAvailabilityValidator(constraints))
-					.add(validators::CreateChildNamespaceAvailabilityValidator());
+					// note that the following validator needs to run before the RootNamespaceMaxChildrenValidator
+					.add(validators::CreateChildNamespaceAvailabilityValidator())
+					.add(validators::CreateRootNamespaceMaxChildrenValidator(maxChildNamespaces));
 			});
 
 			auto pruneInterval = manager.config().BlockPruneInterval;
@@ -144,7 +144,10 @@ namespace catapult { namespace plugins {
 					.add(observers::CreateRegisterNamespaceMosaicPruningObserver(constraints))
 					.add(observers::CreateRootNamespaceObserver())
 					.add(observers::CreateChildNamespaceObserver())
-					.add(observers::CreateNamespacePruningObserver(constraints.TotalGracePeriodDuration, pruneInterval));
+					.add(observers::CreateCacheBlockPruningObserver<cache::NamespaceCache>(
+							"Namespace",
+							pruneInterval,
+							constraints.TotalGracePeriodDuration));
 			});
 		}
 

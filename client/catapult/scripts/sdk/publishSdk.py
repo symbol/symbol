@@ -13,6 +13,10 @@ def find_headers(directory):
     return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f)) and f.endswith('.h')]
 
 
+def find_subdirectories(directory):
+    return [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
+
+
 def require_existence(path):
     if not os.path.exists(path):
         raise Exception('{} does not exist'.format(path))
@@ -70,9 +74,8 @@ class Publisher:
         # publish all headers
         self.publish_headers(component_directory, component)
 
-    def publish_plugin(self, group, plugin, components):
+    def publish_components(self, plugin_directory, components):
         # ensure the source directory exists and register it as a source_directory
-        plugin_directory = os.path.join(self.root_directory, 'plugins', group, plugin, 'src')
         self.register_source_directory(plugin_directory)
 
         for component in components:
@@ -82,6 +85,14 @@ class Publisher:
 
             # publish all headers
             self.publish_headers(component_directory, component)
+
+    def publish_extension(self, extension, components):
+        plugin_directory = os.path.join(self.root_directory, 'extensions', extension, 'src')
+        self.publish_components(plugin_directory, components)
+
+    def publish_plugin(self, group, plugin, components):
+        plugin_directory = os.path.join(self.root_directory, 'plugins', group, plugin, 'src')
+        self.publish_components(plugin_directory, components)
 
     def publish_merged_file(self, filename):
         merged_path = os.path.join(self.publish_catapult_directory, filename)
@@ -128,6 +139,17 @@ class Publisher:
         for header in find_headers(source_directory):
             self.publish_header(source_directory, component, header)
 
+        # search first-level subdirectories
+        for subdirectory in find_subdirectories(source_directory):
+            self.log('***** processing {}/{} ****'.format(source_directory, subdirectory))
+
+            # ensure the destination directory exists
+            os.makedirs(os.path.join(publish_component_directory, subdirectory), exist_ok=True)
+
+            # find and publish all headers
+            for header in find_headers(os.path.join(source_directory, subdirectory)):
+                self.publish_header(source_directory, component, os.path.join(subdirectory, header))
+
     def publish_header(self, source_directory, component, header):
         self.headers.append(os.path.join('catapult', component, header))
 
@@ -158,13 +180,16 @@ def publish_all():
     for component in ['api', 'config', 'crypto', 'io', 'ionet', 'model', 'net', 'state', 'thread', 'utils']:
         publisher.publish_component(component)
 
-    for transaction in ['namespace', 'transfer']:
+    for transaction in ['aggregate', 'lock', 'multisig', 'namespace', 'transfer']:
         publisher.publish_plugin('txes', transaction, ['model', 'plugins', 'state'])
 
     for service in ['hashcache']:
         publisher.publish_plugin('services', service, ['state'])
 
-    for filename in ['constants', 'exceptions', 'plugins', 'preprocessor', 'types']:
+    for extension in ['nodediscovery']:
+        publisher.publish_extension(extension, ['api'])
+
+    for filename in ['constants', 'exceptions', 'functions', 'plugins', 'preprocessor', 'types']:
         publisher.publish_merged_file(filename + '.h')
 
     for component in ['builders', 'extensions']:

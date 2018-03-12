@@ -1,6 +1,6 @@
 #pragma once
+#include "catapult/functions.h"
 #include "catapult/types.h"
-#include <functional>
 
 namespace catapult { namespace crypto {
 
@@ -32,20 +32,28 @@ namespace catapult { namespace crypto {
 		static PrivateKey FromStringSecure(char* pRawKey, size_t keySize);
 
 		/// Generates a new private key using the specified byte \a generator.
-		static PrivateKey Generate(const std::function<uint8_t()>& generator);
+		static PrivateKey Generate(const supplier<uint8_t>& generator);
 
 	public:
 		/// Returns a const iterator to the beginning of the raw key.
-		inline auto cbegin() const { return m_key.cbegin(); }
+		inline auto begin() const {
+			return m_key.cbegin();
+		}
 
 		/// Returns a const iterator to the end of the raw key.
-		inline auto cend() const { return m_key.cend(); }
+		inline auto end() const {
+			return m_key.cend();
+		}
 
 		/// Returns the size of the key.
-		inline auto size() const { return m_key.size(); }
+		inline auto size() const {
+			return m_key.size();
+		}
 
 		/// Returns a const pointer to the raw key.
-		inline auto data() const { return m_key.data(); }
+		inline auto data() const {
+			return m_key.data();
+		}
 
 	public:
 		/// Returns \c true if this key and \a rhs are equal.

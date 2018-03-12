@@ -18,17 +18,14 @@ namespace catapult { namespace consumers {
 		}
 
 		bool IsLinked(const WeakBlockInfo& parentBlockInfo, const BlockElements& elements) {
-			return chain::IsChainLink(
-					parentBlockInfo.entity(),
-					parentBlockInfo.hash(),
-					elements[0].Block);
+			return chain::IsChainLink(parentBlockInfo.entity(), parentBlockInfo.hash(), elements[0].Block);
 		}
 
 		class DefaultBlockChainProcessor {
 		public:
 			DefaultBlockChainProcessor(
 					const BlockHitPredicateFactory& blockHitPredicateFactory,
-					const chain::BatchEntityProcessor batchEntityProcessor)
+					const chain::BatchEntityProcessor& batchEntityProcessor)
 					: m_blockHitPredicateFactory(blockHitPredicateFactory)
 					, m_batchEntityProcessor(batchEntityProcessor)
 			{}
@@ -50,16 +47,20 @@ namespace catapult { namespace consumers {
 				const auto* pParent = &parentBlockInfo.entity();
 				const auto* pParentGenerationHash = &parentBlockInfo.generationHash();
 				for (auto& element : elements) {
-					element.GenerationHash = model::CalculateGenerationHash(*pParentGenerationHash, element.Block.Signer);
-					if (!blockHitPredicate(*pParent, element.Block, element.GenerationHash))
-						return Failure_Chain_Block_Not_Hit;
-
 					const auto& block = element.Block;
-					auto result = m_batchEntityProcessor(block.Height, block.Timestamp, ExtractEntityInfos(element), state);
-					if (ValidationResult::Success != result)
-						return result;
+					element.GenerationHash = model::CalculateGenerationHash(*pParentGenerationHash, block.Signer);
+					if (!blockHitPredicate(*pParent, block, element.GenerationHash)) {
+						CATAPULT_LOG(warning) << "block " << block.Height << " failed hit";
+						return Failure_Chain_Block_Not_Hit;
+					}
 
-					pParent = &element.Block;
+					auto result = m_batchEntityProcessor(block.Height, block.Timestamp, ExtractEntityInfos(element), state);
+					if (!IsValidationResultSuccess(result)) {
+						CATAPULT_LOG(warning) << "batch processing of block " << block.Height << " failed with " << result;
+						return result;
+					}
+
+					pParent = &block;
 					pParentGenerationHash = &element.GenerationHash;
 				}
 
@@ -74,7 +75,7 @@ namespace catapult { namespace consumers {
 
 	BlockChainProcessor CreateBlockChainProcessor(
 			const BlockHitPredicateFactory& blockHitPredicateFactory,
-			const chain::BatchEntityProcessor batchEntityProcessor) {
+			const chain::BatchEntityProcessor& batchEntityProcessor) {
 		return DefaultBlockChainProcessor(blockHitPredicateFactory, batchEntityProcessor);
 	}
 }}

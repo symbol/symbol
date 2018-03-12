@@ -9,8 +9,8 @@ namespace catapult { namespace handlers {
 	template<typename TRequestTraits>
 	struct BatchHandlerFactory {
 	private:
-		using EntityType = typename TRequestTraits::EntityType;
-		using EntityRangeType = model::EntityRange<EntityType>;
+		using RequestStructureType = typename TRequestTraits::RequestStructureType;
+		using RequestRangeType = model::EntityRange<RequestStructureType>;
 
 	public:
 		/// The packet type supported by the created handler.
@@ -47,9 +47,9 @@ namespace catapult { namespace handlers {
 	private:
 		static auto ProcessRequest(const ionet::Packet& packet) {
 			if (TRequestTraits::Packet_Type != packet.Type)
-				return PacketInfo<EntityRangeType>(EntityRangeType());
+				return PacketInfo<RequestRangeType>(RequestRangeType());
 
-			return PacketInfo<EntityRangeType>(ionet::ExtractFixedSizeEntitiesFromPacket<EntityType>(packet));
+			return PacketInfo<RequestRangeType>(ionet::ExtractFixedSizeStructuresFromPacket<RequestStructureType>(packet));
 		}
 	};
 }}

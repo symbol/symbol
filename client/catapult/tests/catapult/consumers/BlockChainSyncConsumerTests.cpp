@@ -1,13 +1,13 @@
 #include "catapult/consumers/BlockConsumers.h"
-#include "catapult/cache/AccountStateCache.h"
-#include "catapult/cache/BlockDifficultyCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/cache_core/BlockDifficultyCache.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/ChainScore.h"
-#include "tests/catapult/consumers/utils/ConsumerInputFactory.h"
-#include "tests/catapult/consumers/utils/ConsumerTestUtils.h"
+#include "tests/catapult/consumers/test/ConsumerInputFactory.h"
+#include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/core/mocks/MemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 #include "tests/TestHarness.h"
 
@@ -18,15 +18,16 @@ using catapult::validators::ValidationResult;
 
 namespace catapult { namespace consumers {
 
+#define TEST_CLASS BlockChainSyncConsumerTests
+
 	namespace {
 		constexpr auto Base_Difficulty = Difficulty().unwrap();
+		constexpr auto Max_Rollback_Blocks = 25u;
 		constexpr model::ImportanceHeight Initial_Last_Recalculation_Height(1234);
 		constexpr model::ImportanceHeight Modified_Last_Recalculation_Height(7777);
 		const Key Sentinel_Processor_Public_Key = test::GenerateRandomData<Key_Size>();
 
-		constexpr model::ImportanceHeight AddImportanceHeight(
-				model::ImportanceHeight lhs,
-				model::ImportanceHeight::ValueType rhs) {
+		constexpr model::ImportanceHeight AddImportanceHeight(model::ImportanceHeight lhs, model::ImportanceHeight::ValueType rhs) {
 			return model::ImportanceHeight(lhs.unwrap() + rhs);
 		}
 
@@ -34,9 +35,7 @@ namespace catapult { namespace consumers {
 
 		struct DifficultyCheckerParams {
 		public:
-			DifficultyCheckerParams(
-					const std::vector<const model::Block*>& blocks,
-					const cache::CatapultCache& cache)
+			DifficultyCheckerParams(const std::vector<const model::Block*>& blocks, const cache::CatapultCache& cache)
 					: Blocks(blocks)
 					, Cache(cache)
 			{}
@@ -106,10 +105,7 @@ namespace catapult { namespace consumers {
 
 		struct ProcessorParams {
 		public:
-			ProcessorParams(
-					const WeakBlockInfo& parentBlockInfo,
-					const BlockElements& elements,
-					const observers::ObserverState& state)
+			ProcessorParams(const WeakBlockInfo& parentBlockInfo, const BlockElements& elements, const observers::ObserverState& state)
 					: pParentBlock(test::CopyBlock(parentBlockInfo.entity()))
 					, ParentHash(parentBlockInfo.hash())
 					, pElements(&elements)
@@ -192,9 +188,7 @@ namespace catapult { namespace consumers {
 
 		struct TransactionsChangeParams {
 		public:
-			TransactionsChangeParams(
-					const HashSet& addedTransactionHashes,
-					const HashSet& revertedTransactionHashes)
+			TransactionsChangeParams(const HashSet& addedTransactionHashes, const HashSet& revertedTransactionHashes)
 					: AddedTransactionHashes(addedTransactionHashes)
 					, RevertedTransactionHashes(revertedTransactionHashes)
 			{}
@@ -206,11 +200,10 @@ namespace catapult { namespace consumers {
 
 		class MockTransactionsChange : public test::ParamsCapture<TransactionsChangeParams> {
 		public:
-			void operator()(
-					const utils::HashPointerSet& addedTransactionHashes,
-					std::vector<model::TransactionInfo>&& revertedTransactionInfos) const {
-
-				TransactionsChangeParams params(CopyHashes(addedTransactionHashes), CopyHashes(revertedTransactionInfos));
+			void operator()(const TransactionsChangeInfo& changeInfo) const {
+				TransactionsChangeParams params(
+						CopyHashes(changeInfo.AddedTransactionHashes),
+						CopyHashes(changeInfo.RevertedTransactionInfos));
 				const_cast<MockTransactionsChange*>(this)->push(std::move(params));
 			}
 
@@ -225,8 +218,8 @@ namespace catapult { namespace consumers {
 
 			static HashSet CopyHashes(const std::vector<model::TransactionInfo>& transactionInfos) {
 				HashSet hashes;
-				for (const auto& info : transactionInfos)
-					hashes.insert(info.EntityHash);
+				for (const auto& transactionInfo : transactionInfos)
+					hashes.insert(transactionInfo.EntityHash);
 
 				return hashes;
 			}
@@ -244,7 +237,7 @@ namespace catapult { namespace consumers {
 		public:
 			ConsumerTestContext()
 					: Cache(test::CreateCatapultCacheWithMarkerAccount())
-					, Storage(std::make_unique<mocks::MemoryBasedStorage>()) {
+					, Storage(std::make_unique<mocks::MockMemoryBasedStorage>()) {
 				State.LastRecalculationHeight = Initial_Last_Recalculation_Height;
 
 				BlockChainSyncHandlers handlers;
@@ -260,11 +253,11 @@ namespace catapult { namespace consumers {
 				handlers.StateChange = [this](const auto& changeInfo) {
 					return StateChange(changeInfo);
 				};
-				handlers.TransactionsChange = [this](const auto& addedTransactionHashes, auto&& revertedTransactionInfos) {
-					return TransactionsChange(addedTransactionHashes, std::move(revertedTransactionInfos));
+				handlers.TransactionsChange = [this](const auto& changeInfo) {
+					return TransactionsChange(changeInfo);
 				};
 
-				Consumer = CreateBlockChainSyncConsumer(Cache, State, Storage, handlers);
+				Consumer = CreateBlockChainSyncConsumer(Cache, State, Storage, Max_Rollback_Blocks, handlers);
 			}
 
 		public:
@@ -296,8 +289,8 @@ namespace catapult { namespace consumers {
 
 					// - seed with random tx hashes
 					auto blockElement = test::BlockToBlockElement(*pBlock);
-					for (auto& txElement : blockElement.Transactions)
-						txElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
+					for (auto& transactionElement : blockElement.Transactions)
+						transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
 
 					storageModifier.saveBlock(blockElement);
 					OriginalBlocks.push_back(std::move(pBlock));
@@ -411,7 +404,7 @@ namespace catapult { namespace consumers {
 		};
 	}
 
-	TEST(BlockChainSyncConsumerTests, CanProcessZeroEntities) {
+	TEST(TEST_CLASS, CanProcessZeroEntities) {
 		// Arrange:
 		ConsumerTestContext context;
 
@@ -439,7 +432,12 @@ namespace catapult { namespace consumers {
 			return input;
 		}
 
-		void AssertInvalidHeight(Height localHeight, Height remoteHeight, uint32_t numRemoteBlocks, InputSource source) {
+		void AssertInvalidHeightWithResult(
+				Height localHeight,
+				Height remoteHeight,
+				uint32_t numRemoteBlocks,
+				InputSource source,
+				ValidationResult expectedResult) {
 			// Arrange:
 			ConsumerTestContext context;
 			context.seedStorage(localHeight);
@@ -449,11 +447,16 @@ namespace catapult { namespace consumers {
 			auto result = context.Consumer(input);
 
 			// Assert:
-			test::AssertAborted(result, Failure_Consumer_Remote_Chain_Unlinked);
+			test::AssertAborted(result, expectedResult);
 			EXPECT_EQ(0u, context.DifficultyChecker.params().size());
 			EXPECT_EQ(0u, context.UndoBlock.params().size());
 			EXPECT_EQ(0u, context.Processor.params().size());
 			context.assertNoStorageChanges();
+		}
+
+		void AssertInvalidHeight(Height localHeight, Height remoteHeight, uint32_t numRemoteBlocks, InputSource source) {
+			// Assert:
+			AssertInvalidHeightWithResult(localHeight, remoteHeight, numRemoteBlocks, source, Failure_Consumer_Remote_Chain_Unlinked);
 		}
 
 		void AssertValidHeight(Height localHeight, Height remoteHeight, uint32_t numRemoteBlocks, InputSource source) {
@@ -472,7 +475,7 @@ namespace catapult { namespace consumers {
 
 	// region height check
 
-	TEST(BlockChainSyncConsumerTests, RemoteChainWithHeightLessThanTwoIsRejected) {
+	TEST(TEST_CLASS, RemoteChainWithHeightLessThanTwoIsRejected) {
 		// Assert:
 		for (auto source : GetAllInputSources()) {
 			LogInputSource(source);
@@ -481,7 +484,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainSyncConsumerTests, RemoteChainWithHeightAtLeastTwoIsValid) {
+	TEST(TEST_CLASS, RemoteChainWithHeightAtLeastTwoIsValid) {
 		// Assert:
 		for (auto source : GetAllInputSources()) {
 			LogInputSource(source);
@@ -490,7 +493,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainSyncConsumerTests, RemoteChainWithHeightMoreThanOneGreaterThanLocalHeightIsRejected) {
+	TEST(TEST_CLASS, RemoteChainWithHeightMoreThanOneGreaterThanLocalHeightIsRejected) {
 		// Assert:
 		for (auto source : GetAllInputSources()) {
 			LogInputSource(source);
@@ -499,7 +502,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainSyncConsumerTests, RemoteChainWithHeightLessThanLocalHeightIsOnlyValidForRemotePullSource) {
+	TEST(TEST_CLASS, RemoteChainWithHeightLessThanLocalHeightIsOnlyValidForRemotePullSource) {
 		// Assert:
 		for (auto source : GetAllInputSources()) {
 			LogInputSource(source);
@@ -509,7 +512,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainSyncConsumerTests, RemoteChainWithHeightAtOrOneGreaterThanLocalHeightIsValidForAllSources) {
+	TEST(TEST_CLASS, RemoteChainWithHeightAtOrOneGreaterThanLocalHeightIsValidForAllSources) {
 		// Assert:
 		for (auto source : GetAllInputSources()) {
 			LogInputSource(source);
@@ -518,11 +521,23 @@ namespace catapult { namespace consumers {
 		}
 	}
 
+	TEST(TEST_CLASS, RemoteChainWithHeightDifferenceEqualToMaxRollbackBlocksIsValidForRemotePullSource) {
+		// Assert: (this test only makes sense for Remote_Pull because it is the only source that allows multiple block rollbacks)
+		AssertValidHeight(Height(100), Height(100 - Max_Rollback_Blocks), 4, InputSource::Remote_Pull);
+	}
+
+	TEST(TEST_CLASS, RemoteChainWithHeightDifferencGreaterThanMaxRollbackBlocksIsInvalidForRemotePullSource) {
+		// Assert: (this test only makes sense for Remote_Pull because it is the only source that allows multiple block rollbacks)
+		auto expectedResult = Failure_Consumer_Remote_Chain_Too_Far_Behind;
+		AssertInvalidHeightWithResult(Height(100), Height(100 - Max_Rollback_Blocks - 1), 4, InputSource::Remote_Pull, expectedResult);
+		AssertInvalidHeightWithResult(Height(100), Height(100 - Max_Rollback_Blocks - 10), 4, InputSource::Remote_Pull, expectedResult);
+	}
+
 	// endregion
 
 	// region difficulties check
 
-	TEST(BlockChainSyncConsumerTests, RemoteChainWithIncorrectDifficultiesIsRejected) {
+	TEST(TEST_CLASS, RemoteChainWithIncorrectDifficultiesIsRejected) {
 		// Arrange: trigger a difficulty check failure
 		ConsumerTestContext context;
 		context.seedStorage(Height(3));
@@ -545,7 +560,7 @@ namespace catapult { namespace consumers {
 
 	// region chain score test
 
-	TEST(BlockChainSyncConsumerTests, ChainWithSmallerScoreIsRejected) {
+	TEST(TEST_CLASS, ChainWithSmallerScoreIsRejected) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 5-6
 		//          (note that the test setup ensures scores are linearly correlated with number of blocks)
 		ConsumerTestContext context;
@@ -564,7 +579,7 @@ namespace catapult { namespace consumers {
 		context.assertNoStorageChanges();
 	}
 
-	TEST(BlockChainSyncConsumerTests, ChainWithIdenticalScoreIsRejected) {
+	TEST(TEST_CLASS, ChainWithIdenticalScoreIsRejected) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 6-7
 		//          (note that the test setup ensures scores are linearly correlated with number of blocks)
 		ConsumerTestContext context;
@@ -608,12 +623,12 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainSyncConsumerTests, RemoteChainWithProcessorFailureIsRejected_Neutral) {
+	TEST(TEST_CLASS, RemoteChainWithProcessorFailureIsRejected_Neutral) {
 		// Assert:
 		AssertRemoteChainWithNonSuccessProcessorResultIsRejected(ValidationResult::Neutral);
 	}
 
-	TEST(BlockChainSyncConsumerTests, RemoteChainWithProcessorFailureIsRejected_Failure) {
+	TEST(TEST_CLASS, RemoteChainWithProcessorFailureIsRejected_Failure) {
 		// Assert:
 		AssertRemoteChainWithNonSuccessProcessorResultIsRejected(ValidationResult::Failure);
 	}
@@ -622,7 +637,7 @@ namespace catapult { namespace consumers {
 
 	// region successful syncs
 
-	TEST(BlockChainSyncConsumerTests, CanSyncCompatibleChains) {
+	TEST(TEST_CLASS, CanSyncCompatibleChains) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 8-11
 		ConsumerTestContext context;
 		context.seedStorage(Height(7));
@@ -639,7 +654,7 @@ namespace catapult { namespace consumers {
 		context.assertStored(input, model::ChainScore(4 * (Base_Difficulty - 1)));
 	}
 
-	TEST(BlockChainSyncConsumerTests, CanSyncIncompatibleChains) {
+	TEST(TEST_CLASS, CanSyncIncompatibleChains) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 5-8
 		ConsumerTestContext context;
 		context.seedStorage(Height(7));
@@ -657,7 +672,7 @@ namespace catapult { namespace consumers {
 		context.assertStored(input, model::ChainScore(Base_Difficulty - 1));
 	}
 
-	TEST(BlockChainSyncConsumerTests, CanSyncIncompatibleChainsWithOnlyLastBlockDifferent) {
+	TEST(TEST_CLASS, CanSyncIncompatibleChainsWithOnlyLastBlockDifferent) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 7-10
 		ConsumerTestContext context;
 		context.seedStorage(Height(7));
@@ -675,7 +690,7 @@ namespace catapult { namespace consumers {
 		context.assertStored(input, model::ChainScore(3 * (Base_Difficulty - 1)));
 	}
 
-	TEST(BlockChainSyncConsumerTests, CanSyncIncompatibleChainsWhereShorterRemoteChainHasHigherScore) {
+	TEST(TEST_CLASS, CanSyncIncompatibleChainsWhereShorterRemoteChainHasHigherScore) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 5
 		ConsumerTestContext context;
 		context.seedStorage(Height(7));
@@ -732,21 +747,21 @@ namespace catapult { namespace consumers {
 				auto pBlockElement = storage.view().loadBlockElement(height);
 
 				auto i = 0u;
-				for (const auto& txElement : pBlockElement->Transactions) {
+				for (const auto& transactionElement : pBlockElement->Transactions) {
 					if (i++ != txIndex)
 						continue;
 
-					add(elementIndex, test::CopyTransaction(txElement.Transaction), txElement.EntityHash);
+					add(elementIndex, test::CopyTransaction(transactionElement.Transaction), transactionElement.EntityHash);
 					break;
 				}
 			}
 
 		private:
 			void add(size_t elementIndex, const std::shared_ptr<model::Transaction>& pTransaction, const Hash256& hash) {
-				auto txElement = model::TransactionElement(*pTransaction);
-				txElement.EntityHash = hash;
+				auto transactionElement = model::TransactionElement(*pTransaction);
+				transactionElement.EntityHash = hash;
 
-				m_input.blocks()[elementIndex].Transactions.push_back(txElement);
+				m_input.blocks()[elementIndex].Transactions.push_back(transactionElement);
 				m_addedHashes.push_back(hash);
 				m_transactions.push_back(pTransaction); // keep the transaction alive
 			}
@@ -772,7 +787,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainSyncConsumerTests, CanSyncCompatibleChains_TransactionNotification) {
+	TEST(TEST_CLASS, CanSyncCompatibleChains_TransactionNotification) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 8-11
 		ConsumerTestContext context;
 		context.seedStorage(Height(7), 3);
@@ -804,7 +819,7 @@ namespace catapult { namespace consumers {
 		EXPECT_TRUE(txChangeParams.RevertedTransactionHashes.empty());
 	}
 
-	TEST(BlockChainSyncConsumerTests, CanSyncIncompatibleChains_TransactionNotification) {
+	TEST(TEST_CLASS, CanSyncIncompatibleChains_TransactionNotification) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 5-8
 		ConsumerTestContext context;
 		context.seedStorage(Height(7), 3);
@@ -841,7 +856,7 @@ namespace catapult { namespace consumers {
 		AssertHashesAreEqual(expectedRevertedHashes, txChangeParams.RevertedTransactionHashes);
 	}
 
-	TEST(BlockChainSyncConsumerTests, CanSyncIncompatibleChainsWithSharedTransacions_TransactionNotification) {
+	TEST(TEST_CLASS, CanSyncIncompatibleChainsWithSharedTransacions_TransactionNotification) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 5-8
 		ConsumerTestContext context;
 		context.seedStorage(Height(7), 3);
@@ -886,7 +901,7 @@ namespace catapult { namespace consumers {
 
 	// region element updates
 
-	TEST(BlockChainSyncConsumerTests, AllowsUpdateOfInputElements) {
+	TEST(TEST_CLASS, AllowsUpdateOfInputElements) {
 		// Arrange: create a local storage with blocks 1-7 and a remote storage with blocks 8-11
 		ConsumerTestContext context;
 		context.seedStorage(Height(7));

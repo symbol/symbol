@@ -52,39 +52,11 @@ namespace catapult { namespace ionet {
 
 		/// Creates a packet payload with the specified packet \a type around multiple \a entities.
 		template<typename TEntity>
-		static PacketPayload FromEntities(PacketType type, const std::vector<std::shared_ptr<TEntity>>& entities) {
-			PacketPayload payload;
-			payload.m_header.Size = sizeof(PacketHeader);
-			payload.m_header.Type = type;
+		static PacketPayload FromEntities(PacketType type, const std::vector<std::shared_ptr<TEntity>>& entities);
 
-			for (auto pEntity : entities) {
-				// check for overflow
-				if (payload.m_header.Size > payload.m_header.Size + pEntity->Size)
-					CATAPULT_THROW_RUNTIME_ERROR("entities are too large for single packet payload");
-
-				payload.m_header.Size += pEntity->Size;
-				payload.m_buffers.push_back({ reinterpret_cast<const uint8_t*>(pEntity.get()), pEntity->Size });
-				payload.m_entities.push_back(pEntity);
-			}
-
-			return payload;
-		}
-
-		/// Creates a packet payload with the specified packet \a type around a fixed size entity \a range.
-		template<typename TEntity>
-		static PacketPayload FromFixedSizeRange(PacketType type, model::EntityRange<TEntity>&& range) {
-			auto rangeSize = static_cast<uint32_t>(sizeof(TEntity) * range.size());
-			PacketPayload payload;
-			payload.m_header.Size = sizeof(PacketHeader) + rangeSize;
-			payload.m_header.Type = type;
-
-			if (!range.empty()) {
-				payload.m_buffers.push_back({ reinterpret_cast<const uint8_t*>(&*range.cbegin()), rangeSize });
-				payload.m_entities.push_back(std::make_shared<model::EntityRange<TEntity>>(std::move(range)));
-			}
-
-			return payload;
-		}
+		/// Creates a packet payload with the specified packet \a type around a fixed size structure \a range.
+		template<typename TStructure>
+		static PacketPayload FromFixedSizeRange(PacketType type, model::EntityRange<TStructure>&& range);
 
 	public:
 		/// Returns \c true if this packet payload is unset.
@@ -109,5 +81,89 @@ namespace catapult { namespace ionet {
 		// the backing data
 		std::shared_ptr<Packet> m_pPacket;
 		std::vector<std::shared_ptr<const void>> m_entities;
+
+	private:
+		friend class PacketPayloadBuilder;
 	};
+
+	/// A packet payload builder for creating payloads composed of heterogeneous data.
+	class PacketPayloadBuilder {
+	public:
+		/// Creates builder for a packet with the specified \a type.
+		explicit PacketPayloadBuilder(PacketType type) : m_payload(type)
+		{}
+
+	public:
+		/// Appends all \a entities to the payload.
+		template<typename TEntity>
+		void appendEntities(const std::vector<std::shared_ptr<TEntity>>& entities) {
+			for (const auto& pEntity : entities)
+				appendEntity(pEntity);
+		}
+
+		/// Appends a single entity (\a pEntity) to the payload
+		template<typename TEntity>
+		void appendEntity(const std::shared_ptr<TEntity>& pEntity) {
+			increaseSize(pEntity->Size);
+			m_payload.m_buffers.push_back({ reinterpret_cast<const uint8_t*>(pEntity.get()), pEntity->Size });
+			m_payload.m_entities.push_back(pEntity);
+		}
+
+		/// Appends a fixed size \a range to the payload.
+		template<typename TEntity>
+		void appendRange(model::EntityRange<TEntity>&& range) {
+			if (range.empty())
+				return;
+
+			auto rangeSize = static_cast<uint32_t>(sizeof(TEntity) * range.size());
+			increaseSize(rangeSize);
+			m_payload.m_buffers.push_back({ reinterpret_cast<const uint8_t*>(range.data()), rangeSize });
+			m_payload.m_entities.push_back(std::make_shared<model::EntityRange<TEntity>>(std::move(range)));
+		}
+
+		/// Appends a fixed size \a value to the payload.
+		template<typename TValue>
+		void appendValue(const TValue& value) {
+			increaseSize(sizeof(TValue));
+
+			auto pValue = std::make_shared<TValue>(value);
+			m_payload.m_buffers.push_back({ reinterpret_cast<const uint8_t*>(pValue.get()), sizeof(TValue) });
+			m_payload.m_entities.push_back(pValue);
+		}
+
+	public:
+		/// Builds the packet payload.
+		PacketPayload build() {
+			return std::move(m_payload);
+		}
+
+	private:
+		void increaseSize(uint32_t numBytes) {
+			// check for overflow
+			auto& header = m_payload.m_header;
+			if (header.Size > header.Size + numBytes)
+				CATAPULT_THROW_RUNTIME_ERROR("cannot append data that will exceed max packet size");
+
+			header.Size += numBytes;
+		}
+
+	private:
+		PacketPayload m_payload;
+	};
+
+	// out of line to use PacketPayloadBuilder
+
+	template<typename TEntity>
+	PacketPayload PacketPayload::FromEntities(PacketType type, const std::vector<std::shared_ptr<TEntity>>& entities) {
+		PacketPayloadBuilder builder(type);
+		builder.appendEntities(entities);
+		return builder.build();
+	}
+
+	template<typename TStructure>
+	PacketPayload PacketPayload::FromFixedSizeRange(PacketType type, model::EntityRange<TStructure>&& range) {
+		PacketPayloadBuilder builder(type);
+		builder.appendRange(std::move(range));
+		return builder.build();
+	}
 }}

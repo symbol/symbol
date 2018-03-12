@@ -1,11 +1,11 @@
 #include "catapult/consumers/BlockChainProcessor.h"
-#include "catapult/cache/AccountStateCache.h"
-#include "catapult/cache/BlockDifficultyCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/cache_core/BlockDifficultyCache.h"
 #include "catapult/consumers/BlockChainProcessorResults.h"
 #include "catapult/consumers/InputUtils.h"
 #include "catapult/model/BlockUtils.h"
-#include "tests/catapult/consumers/utils/ConsumerTestUtils.h"
+#include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
@@ -15,6 +15,8 @@ using namespace catapult::validators;
 using catapult::disruptor::BlockElements;
 
 namespace catapult { namespace consumers {
+
+#define TEST_CLASS BlockChainProcessorTests
 
 	namespace {
 		// region MockBlockHitPredicate
@@ -183,10 +185,7 @@ namespace catapult { namespace consumers {
 				auto cache = test::CreateCatapultCacheWithMarkerAccount();
 				auto delta = cache.createDelta();
 
-				return Processor(
-						WeakBlockInfo(parentBlockElement),
-						elements,
-						observers::ObserverState(delta, State));
+				return Processor(WeakBlockInfo(parentBlockElement), elements, observers::ObserverState(delta, State));
 			}
 
 			ValidationResult Process(const model::Block& parentBlock, BlockElements& elements) {
@@ -258,7 +257,7 @@ namespace catapult { namespace consumers {
 		};
 	}
 
-	TEST(BlockChainProcessorTests, EmptyInputResultsInNeutralResult) {
+	TEST(TEST_CLASS, EmptyInputResultsInNeutralResult) {
 		// Arrange:
 		ProcessorTestContext context;
 		auto pParentBlock = test::GenerateEmptyRandomBlock();
@@ -273,7 +272,7 @@ namespace catapult { namespace consumers {
 	}
 
 	namespace {
-		void AssertUnlinkedChain(const std::function<void (model::Block&)>& unlink) {
+		void AssertUnlinkedChain(const consumer<model::Block&>& unlink) {
 			ProcessorTestContext context;
 			auto pParentBlock = test::GenerateEmptyRandomBlock();
 			pParentBlock->Height = Height(11);
@@ -290,12 +289,12 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainProcessorTests, ChainPartHeightMustLinkToParent) {
+	TEST(TEST_CLASS, ChainPartHeightMustLinkToParent) {
 		// Assert: invalidate the height
 		AssertUnlinkedChain([](auto& block) { block.Height = block.Height + Height(1); });
 	}
 
-	TEST(BlockChainProcessorTests, ChainPartPreviousBlockHashMustLinkToParent) {
+	TEST(TEST_CLASS, ChainPartPreviousBlockHashMustLinkToParent) {
 		// Assert: invalidate the previous block hash
 		AssertUnlinkedChain([](auto& block) { ++block.PreviousBlockHash[0]; });
 	}
@@ -319,7 +318,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainProcessorTests, CanProcessSingleBlockWithoutTransactions) {
+	TEST(TEST_CLASS, CanProcessSingleBlockWithoutTransactions) {
 		// Arrange:
 		auto elements = test::CreateBlockElements(1);
 
@@ -327,7 +326,7 @@ namespace catapult { namespace consumers {
 		AssertCanProcessValidElements(elements, 1);
 	}
 
-	TEST(BlockChainProcessorTests, CanProcessSingleBlockWithTransactions) {
+	TEST(TEST_CLASS, CanProcessSingleBlockWithTransactions) {
 		// Arrange:
 		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(3, 12);
 		auto elements = test::CreateBlockElements({ pBlock.get() });
@@ -336,7 +335,7 @@ namespace catapult { namespace consumers {
 		AssertCanProcessValidElements(elements, 1);
 	}
 
-	TEST(BlockChainProcessorTests, CanProcessMultipleBlocksWithoutTransactionss) {
+	TEST(TEST_CLASS, CanProcessMultipleBlocksWithoutTransactionss) {
 		// Arrange:
 		auto elements = test::CreateBlockElements(3);
 
@@ -344,7 +343,7 @@ namespace catapult { namespace consumers {
 		AssertCanProcessValidElements(elements, 3);
 	}
 
-	TEST(BlockChainProcessorTests, CanProcessMultipleBlocksWithTransactions) {
+	TEST(TEST_CLASS, CanProcessMultipleBlocksWithTransactions) {
 		// Arrange:
 		auto pBlock1 = test::GenerateBlockWithTransactionsAtHeight(3, 12);
 		auto pBlock2 = test::GenerateBlockWithTransactionsAtHeight(2, 13);
@@ -355,7 +354,7 @@ namespace catapult { namespace consumers {
 		AssertCanProcessValidElements(elements, 3);
 	}
 
-	TEST(BlockChainProcessorTests, ExecuteShortCircutsOnUnhitBlock) {
+	TEST(TEST_CLASS, ExecuteShortCircutsOnUnhitBlock) {
 		// Arrange: cause the second hit check to return false
 		ProcessorTestContext context;
 		context.BlockHitPredicate.setFailure(2);
@@ -403,12 +402,12 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainProcessorTests, ExecuteShortCircutsOnProcessorResult_Neutral) {
+	TEST(TEST_CLASS, ExecuteShortCircutsOnProcessorResult_Neutral) {
 		// Assert:
 		AssertShortCircutsOnProcessorResult(ValidationResult::Neutral);
 	}
 
-	TEST(BlockChainProcessorTests, ExecuteShortCircutsOnProcessorResult_Failure) {
+	TEST(TEST_CLASS, ExecuteShortCircutsOnProcessorResult_Failure) {
 		// Assert:
 		AssertShortCircutsOnProcessorResult(ValidationResult::Failure);
 	}
@@ -447,7 +446,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainProcessorTests, SetsGenerationHashesInSingleBlockInput) {
+	TEST(TEST_CLASS, SetsGenerationHashesInSingleBlockInput) {
 		// Arrange:
 		auto elements = test::CreateBlockElements(1);
 
@@ -455,11 +454,13 @@ namespace catapult { namespace consumers {
 		AssertGenerationHashesAreUpdatedCorrectly(elements, 1);
 	}
 
-	TEST(BlockChainProcessorTests, SetsGenerationHashesInMultiBlockInput) {
+	TEST(TEST_CLASS, SetsGenerationHashesInMultiBlockInput) {
 		// Arrange:
 		auto elements = test::CreateBlockElements(3);
 
 		// Assert:
 		AssertGenerationHashesAreUpdatedCorrectly(elements, 3);
 	}
+
+	// endregion
 }}

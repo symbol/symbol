@@ -9,6 +9,8 @@
 
 namespace catapult { namespace thread {
 
+#define TEST_CLASS IoServiceThreadPoolTests
+
 	namespace {
 		const uint32_t Num_Default_Threads = test::GetNumDefaultPoolThreads();
 
@@ -17,7 +19,7 @@ namespace catapult { namespace thread {
 		}
 	}
 
-	TEST(IoServiceThreadPoolTests, CanCreateThreadPoolWithDefaultName) {
+	TEST(TEST_CLASS, CanCreateThreadPoolWithDefaultName) {
 		// Act: set up a pool with a default name
 		auto pPool = CreateDefaultIoServiceThreadPool();
 
@@ -25,7 +27,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ("IoServiceThreadPool", pPool->tag());
 	}
 
-	TEST(IoServiceThreadPoolTests, CanCreateThreadPoolWithCustomName) {
+	TEST(TEST_CLASS, CanCreateThreadPoolWithCustomName) {
 		// Act: set up a pool with a custom name
 		auto pPool = CreateIoServiceThreadPool(Num_Default_Threads, "Crazy Amazing");
 
@@ -33,7 +35,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ("Crazy Amazing IoServiceThreadPool", pPool->tag());
 	}
 
-	TEST(IoServiceThreadPoolTests, ConstructorDoesNotCreateAnyThreads) {
+	TEST(TEST_CLASS, ConstructorDoesNotCreateAnyThreads) {
 		// Act: set up a pool
 		auto pPool = CreateDefaultIoServiceThreadPool();
 
@@ -41,7 +43,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(0u, pPool->numWorkerThreads());
 	}
 
-	TEST(IoServiceThreadPoolTests, StartSpawnsSpecifiedNumberOfWorkerThreads) {
+	TEST(TEST_CLASS, StartSpawnsSpecifiedNumberOfWorkerThreads) {
 		// Act: set up a pool
 		auto pPool = CreateDefaultIoServiceThreadPool();
 		pPool->start();
@@ -50,7 +52,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(Num_Default_Threads, pPool->numWorkerThreads());
 	}
 
-	TEST(IoServiceThreadPoolTests, JoinDestroysAllWorkerThreads) {
+	TEST(TEST_CLASS, JoinDestroysAllWorkerThreads) {
 		// Arrange: set up a pool
 		auto pPool = CreateDefaultIoServiceThreadPool();
 		pPool->start();
@@ -62,7 +64,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(0u, pPool->numWorkerThreads());
 	}
 
-	TEST(IoServiceThreadPoolTests, JoinIsIdempotent) {
+	TEST(TEST_CLASS, JoinIsIdempotent) {
 		// Arrange: set up a pool
 		auto pPool = CreateDefaultIoServiceThreadPool();
 		pPool->start();
@@ -75,7 +77,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(0u, pPool->numWorkerThreads());
 	}
 
-	TEST(IoServiceThreadPoolTests, PoolCanBeRestarted) {
+	TEST(TEST_CLASS, PoolCanBeRestarted) {
 		// Arrange: set up a pool
 		auto pPool = CreateDefaultIoServiceThreadPool();
 		pPool->start();
@@ -88,16 +90,16 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(Num_Default_Threads, pPool->numWorkerThreads());
 	}
 
-	TEST(IoServiceThreadPoolTests, PoolCannotBeRestartedWhenRunning) {
+	TEST(TEST_CLASS, PoolCannotBeRestartedWhenRunning) {
 		// Arrange: set up a pool
 		auto pPool = CreateDefaultIoServiceThreadPool();
 		pPool->start();
 
-		// Act: restart the pool
+		// Act + Assert: restart the pool
 		EXPECT_THROW(pPool->start(), catapult_runtime_error);
 	}
 
-	TEST(IoServiceThreadPoolTests, JoinDoesNotAbortThreads) {
+	TEST(TEST_CLASS, JoinDoesNotAbortThreads) {
 		// Arrange: set up a pool
 		auto pPool = CreateDefaultIoServiceThreadPool();
 		pPool->start();
@@ -129,7 +131,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(maxWaits, numWaits);
 	}
 
-	TEST(IoServiceThreadPoolTests, PoolCanServeMoreRequestsThanWorkerThreads) {
+	TEST(TEST_CLASS, PoolCanServeMoreRequestsThanWorkerThreads) {
 		// Arrange: set up a pool
 		auto pPool = CreateDefaultIoServiceThreadPool();
 		pPool->start();
@@ -152,7 +154,7 @@ namespace catapult { namespace thread {
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-	TEST(IoServiceThreadPoolTests, PoolFailsFastWhenAcceptHandlerExcepts) {
+	TEST(TEST_CLASS, PoolFailsFastWhenAcceptHandlerExcepts) {
 		// Assert: if an exception bubbles out of thread pool work, program termination is expected
 		ASSERT_DEATH([]() {
 			// Arrange: set up a pool
@@ -194,7 +196,9 @@ namespace catapult { namespace thread {
 			}
 
 		public:
-			uint32_t numHandlerCalls() const { return m_numHandlerCalls; }
+			uint32_t numHandlerCalls() const {
+				return m_numHandlerCalls;
+			}
 
 		public:
 			void post(size_t numPosts) {
@@ -210,7 +214,7 @@ namespace catapult { namespace thread {
 			}
 
 			void waitForNumHandlerCalls(uint32_t numCalls) {
-				WAIT_FOR_VALUE(m_numHandlerCalls, numCalls);
+				WAIT_FOR_VALUE(numCalls, m_numHandlerCalls);
 			}
 
 		private:
@@ -242,7 +246,7 @@ namespace catapult { namespace thread {
 		};
 	}
 
-	TEST(IoServiceThreadPoolTests, PoolWorkerThreadsCannotServiceAdditionalRequestsWhenHandlersWaitBlocking) {
+	TEST(TEST_CLASS, PoolWorkerThreadsCannotServiceAdditionalRequestsWhenHandlersWaitBlocking) {
 		// Arrange: set up a pool
 		auto pPool = CreateDefaultIoServiceThreadPool();
 
@@ -262,7 +266,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(Num_Default_Threads, work.numHandlerCalls());
 	}
 
-	TEST(IoServiceThreadPoolTests, PoolWorkerThreadsCanServiceAdditionalRequestsWhenHandlersWaitNonBlocking) {
+	TEST(TEST_CLASS, PoolWorkerThreadsCanServiceAdditionalRequestsWhenHandlersWaitNonBlocking) {
 		// Arrange: set up a pool
 		auto pPool = CreateDefaultIoServiceThreadPool();
 

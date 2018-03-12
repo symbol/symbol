@@ -12,7 +12,7 @@ namespace catapult { namespace mocks {
 #define DEFINE_MOCK_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) \
 	constexpr auto Mock_##DESCRIPTION##_Notification = model::MakeNotificationType( \
 			(model::NotificationChannel::CHANNEL), \
-			(static_cast<model::NotificationFacilityCode>(-1)), \
+			(static_cast<model::FacilityCode>(-1)), \
 			CODE)
 
 	/// A mock notification raised on the observer channel.
@@ -128,18 +128,21 @@ namespace catapult { namespace mocks {
 	/// Creates a mock transaction with a \a fee and \a transfers.
 	std::unique_ptr<mocks::MockTransaction> CreateTransactionWithFeeAndTransfers(Amount fee, const test::BalanceTransfers& transfers);
 
+	/// Creates a mock transaction with \a signer and \a recipient.
+	std::unique_ptr<MockTransaction> CreateMockTransactionWithSignerAndRecipient(const Key& signer, const Key& recipient);
+
 	/// Mock transaction plugin options.
-	enum class PluginOptionFlags {
+	enum class PluginOptionFlags : uint8_t {
 		/// Default plugin options.
-		Default,
+		Default = 1,
 		/// Configures the mock transaction plugin to not support embedding.
-		Not_Embeddable,
+		Not_Embeddable = 2,
 		/// Configures the mock transaction plugin to publish extra transaction data as balance transfers.
-		Publish_Transfers,
+		Publish_Transfers = 4,
 		/// Configures the mock transaction plugin to publish extra custom notifications.
-		Publish_Custom_Notifications,
+		Publish_Custom_Notifications = 8,
 		/// Configures the mock transaction plugin to return a custom data buffer (equal to the mock transaction's payload sans header).
-		Custom_Buffers
+		Custom_Buffers = 16
 	};
 
 	/// Returns \c true if \a options has \a flag set.
@@ -149,10 +152,11 @@ namespace catapult { namespace mocks {
 	std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPlugin(int type);
 
 	/// Creates a (mock) transaction plugin with \a options.
-	std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPlugin(
-			PluginOptionFlags options = PluginOptionFlags::Default);
+	std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPlugin(PluginOptionFlags options = PluginOptionFlags::Default);
+
+	/// Creates a (mock) transaction plugin with the specified \a type and \a options.
+	std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPlugin(int type, PluginOptionFlags options);
 
 	/// Creates a default transaction registry with a single registered (mock) transaction with \a options.
-	std::unique_ptr<model::TransactionRegistry> CreateDefaultTransactionRegistry(
-			PluginOptionFlags options = PluginOptionFlags::Default);
+	model::TransactionRegistry CreateDefaultTransactionRegistry(PluginOptionFlags options = PluginOptionFlags::Default);
 }}

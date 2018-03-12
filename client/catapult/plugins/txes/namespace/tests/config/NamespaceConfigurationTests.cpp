@@ -13,7 +13,8 @@ namespace catapult { namespace config {
 			using ConfigurationType = NamespaceConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {{
+				return {
+					{
 						"",
 						{
 							{ "maxNameSize", "123" },
@@ -25,6 +26,9 @@ namespace catapult { namespace config {
 							{ "rootNamespaceRentalFeePerBlock", "78" },
 							{ "childNamespaceRentalFee", "11223322" },
 
+							{ "maxChildNamespaces", "1234" },
+							{ "maxMosaicsPerAccount", "4321" },
+
 							{ "maxMosaicDuration", "2340h" },
 
 							{ "isMosaicLevyUpdateAllowed", "true" },
@@ -34,7 +38,8 @@ namespace catapult { namespace config {
 							{ "mosaicRentalFeeSinkPublicKey", Mosaic_Rental_Fee_Sink_Public_Key },
 							{ "mosaicRentalFee", "773388" }
 						}
-				}};
+					}
+				};
 			}
 
 			static bool IsSectionOptional(const std::string&) {
@@ -51,6 +56,9 @@ namespace catapult { namespace config {
 				EXPECT_EQ(Key(), config.NamespaceRentalFeeSinkPublicKey);
 				EXPECT_EQ(Amount(), config.RootNamespaceRentalFeePerBlock);
 				EXPECT_EQ(Amount(), config.ChildNamespaceRentalFee);
+
+				EXPECT_EQ(0u, config.MaxChildNamespaces);
+				EXPECT_EQ(0u, config.MaxMosaicsPerAccount);
 
 				EXPECT_EQ(utils::BlockSpan(), config.MaxMosaicDuration);
 
@@ -72,6 +80,9 @@ namespace catapult { namespace config {
 				EXPECT_EQ(crypto::ParseKey(Namespace_Rental_Fee_Sink_Public_Key), config.NamespaceRentalFeeSinkPublicKey);
 				EXPECT_EQ(Amount(78), config.RootNamespaceRentalFeePerBlock);
 				EXPECT_EQ(Amount(11223322), config.ChildNamespaceRentalFee);
+
+				EXPECT_EQ(1234u, config.MaxChildNamespaces);
+				EXPECT_EQ(4321u, config.MaxMosaicsPerAccount);
 
 				EXPECT_EQ(utils::BlockSpan::FromHours(2340), config.MaxMosaicDuration);
 

@@ -3,7 +3,9 @@
 
 namespace catapult { namespace disruptor {
 
-	TEST(DisruptorBarrierTests, CanCreateBarrier) {
+#define TEST_CLASS DisruptorBarrierTests
+
+	TEST(TEST_CLASS, CanCreateBarrier) {
 		// Arrange:
 		DisruptorBarrier barrier(100, 1);
 
@@ -12,7 +14,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(1u, barrier.position());
 	}
 
-	TEST(DisruptorBarrierTests, CanAdvanceBarrier) {
+	TEST(TEST_CLASS, CanAdvanceBarrier) {
 		// Arrange:
 		DisruptorBarrier barrier(100, 1);
 

@@ -6,6 +6,8 @@
 
 namespace catapult { namespace utils {
 
+#define TEST_CLASS ArrayTests
+
 	namespace {
 		constexpr size_t Default_Size = 10;
 
@@ -14,7 +16,7 @@ namespace catapult { namespace utils {
 
 	// region ctor
 
-	TEST(ArrayTests, CanCreateArray) {
+	TEST(TEST_CLASS, CanCreateArray) {
 		// Act:
 		UintArray array;
 
@@ -28,7 +30,7 @@ namespace catapult { namespace utils {
 
 	// region push_back
 
-	TEST(ArrayTests, CanAddSingleElement) {
+	TEST(TEST_CLASS, CanAddSingleElement) {
 		// Arrange:
 		UintArray array;
 
@@ -42,7 +44,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(3u, array[0]);
 	}
 
-	TEST(ArrayTests, CanAddMultipleElements) {
+	TEST(TEST_CLASS, CanAddMultipleElements) {
 		// Arrange:
 		UintArray array;
 
@@ -60,7 +62,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(2357u, array[2]);
 	}
 
-	TEST(ArrayTests, AddingElementThrowsIfCapacityIsExceeded) {
+	TEST(TEST_CLASS, AddingElementThrowsIfCapacityIsExceeded) {
 		// Arrange:
 		UintArray array;
 		for (auto i = 0u; i < Default_Size; ++i)
@@ -69,7 +71,7 @@ namespace catapult { namespace utils {
 		// Sanity:
 		EXPECT_EQ(array.capacity(), array.size());
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(array.push_back(123), catapult_out_of_range);
 	}
 
@@ -77,7 +79,7 @@ namespace catapult { namespace utils {
 
 	// region operator[]
 
-	TEST(ArrayTests, SubscriptOperatorReturnsExpectedElement) {
+	TEST(TEST_CLASS, SubscriptOperatorReturnsExpectedElement) {
 		// Arrange:
 		UintArray array;
 		for (auto i = 0u; i < Default_Size; ++i)
@@ -91,7 +93,7 @@ namespace catapult { namespace utils {
 			EXPECT_EQ(i * i, array[i]) << "element at " << i;
 	}
 
-	TEST(ArrayTests, SubscriptOperatorThrowsIfIndexIsOutOfRange) {
+	TEST(TEST_CLASS, SubscriptOperatorThrowsIfIndexIsOutOfRange) {
 		// Arrange:
 		UintArray array;
 		for (auto i = 0u; i < Default_Size / 2; ++i)
@@ -100,7 +102,7 @@ namespace catapult { namespace utils {
 		// Sanity:
 		EXPECT_EQ(Default_Size / 2, array.size());
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(array[Default_Size / 2], catapult_out_of_range);
 		EXPECT_THROW(array[Default_Size / 2 + 1], catapult_out_of_range);
 		EXPECT_THROW(array[Default_Size], catapult_out_of_range);
@@ -140,12 +142,12 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(ArrayTests, OperatorEqualReturnsTrueForEqualObjects) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
 		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
-	TEST(ArrayTests, OperatorNotEqualReturnsTrueForUnequalObjects) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
 		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}

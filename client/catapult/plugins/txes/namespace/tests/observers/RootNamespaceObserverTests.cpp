@@ -14,7 +14,7 @@ namespace catapult { namespace observers {
 
 	namespace {
 		model::RootNamespaceNotification CreateRootNotification(const Key& signer, NamespaceId id) {
-			return model::RootNamespaceNotification(signer, id, ArtifactDuration());
+			return model::RootNamespaceNotification(signer, id, BlockDuration());
 		}
 
 		template<typename TSeedCacheFunc, typename TCheckCacheFunc>
@@ -80,7 +80,7 @@ namespace catapult { namespace observers {
 		// Arrange: create a new root namespace with a finite duration
 		auto signer = test::GenerateRandomData<Key_Size>();
 		auto notification = CreateRootNotification(signer, NamespaceId(25));
-		notification.Duration = ArtifactDuration(1100);
+		notification.Duration = BlockDuration(1100);
 
 		// Act: add it
 		RunRootTest(
@@ -137,7 +137,7 @@ namespace catapult { namespace observers {
 			// - create a root namespace with a finite duration
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = CreateRootNotification(signer, NamespaceId(25));
-			notification.Duration = ArtifactDuration(1100);
+			notification.Duration = BlockDuration(1100);
 
 			// Act: renew it before its expiry
 			RunRootTest(
@@ -157,7 +157,7 @@ namespace catapult { namespace observers {
 			// - create a root namespace with a finite duration
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = CreateRootNotification(signer, NamespaceId(25));
-			notification.Duration = ArtifactDuration(1100);
+			notification.Duration = BlockDuration(1100);
 
 			// Act: renew it after its expiry
 			RunRootTest(
@@ -198,7 +198,7 @@ namespace catapult { namespace observers {
 			// - create a root namespace with a finite duration
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = CreateRootNotification(signer, NamespaceId(25));
-			notification.Duration = ArtifactDuration(1100);
+			notification.Duration = BlockDuration(1100);
 
 			// Act: change owner before its expiry (this is prevented by a validator)
 			RunRootTest(
@@ -218,7 +218,7 @@ namespace catapult { namespace observers {
 			// - create a root namespace with a finite duration
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = CreateRootNotification(signer, NamespaceId(25));
-			notification.Duration = ArtifactDuration(1100);
+			notification.Duration = BlockDuration(1100);
 
 			// Act: change owner after its expiry
 			RunRootTest(

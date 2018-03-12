@@ -7,10 +7,11 @@
 #include "catapult/net/ServerConnector.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
-#include "tests/test/core/mocks/MemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/other/RemoteApiFactory.h"
 
 namespace catapult { namespace test {
 
@@ -32,8 +33,8 @@ namespace catapult { namespace test {
 
 	public:
 		/// Connects to the local node and calls \a onConnect on completion.
-		void connect(const std::function<void (const std::shared_ptr<ionet::PacketSocket>&)>& onConnect) {
-			m_pConnector->connect(m_localNode, [&pIo = m_pIo, onConnect](auto connectResult, const auto& pPacketSocket) -> void {
+		void connect(const consumer<const std::shared_ptr<ionet::PacketSocket>&>& onConnect) {
+			m_pConnector->connect(m_localNode, [&pIo = m_pIo, onConnect](auto connectResult, const auto& pPacketSocket) {
 				// save pIo in a member to tie the lifetime of the connection to the lifetime of the owning ExternalSourceConnection
 				pIo = pPacketSocket;
 				if (net::PeerConnectResult::Accepted == connectResult)
@@ -42,15 +43,15 @@ namespace catapult { namespace test {
 		}
 
 		/// Connects to the local node and calls \a onConnect on completion.
-		void apiCall(const std::function<void (const api::RemoteChainApi&)>& onConnect) {
-			connect([onConnect](const auto& pPacketSocket) {
-				auto pApi = api::CreateRemoteChainApi(pPacketSocket, CreateTransactionRegistry());
-				onConnect(*pApi);
+		void apiCall(const consumer<const std::shared_ptr<api::RemoteChainApi>&>& onConnect) {
+			connect([onConnect](const auto& pPacketIo) {
+				auto pRemoteApi = CreateLifetimeExtendedApi(api::CreateRemoteChainApi, pPacketIo, CreateTransactionRegistry());
+				onConnect(pRemoteApi);
 			});
 		}
 
 	private:
-		static std::shared_ptr<model::TransactionRegistry> CreateTransactionRegistry();
+		static model::TransactionRegistry CreateTransactionRegistry();
 
 	private:
 		std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
@@ -64,7 +65,6 @@ namespace catapult { namespace test {
 	/// Waits for \a context to be booted.
 	template<typename TTestContext>
 	void WaitForBoot(const TTestContext& context) {
-		WAIT_FOR_ONE_EXPR(context.stats().NumActiveReaders);
 		WAIT_FOR_ONE_EXPR(context.stats().NumActiveWriters);
 	}
 
@@ -78,7 +78,7 @@ namespace catapult { namespace test {
 			const std::shared_ptr<TEntity>& pEntity) {
 		CATAPULT_LOG(debug) << " >>>> starting push";
 		std::atomic_bool isWriteFinished(false);
-		connection.connect([&](const auto& pPacketSocket) -> void {
+		connection.connect([&](const auto& pPacketSocket) {
 			auto pPacket = ionet::PacketPayload::FromEntity(type, pEntity);
 
 			CATAPULT_LOG(debug) << "writing entity";
@@ -89,7 +89,7 @@ namespace catapult { namespace test {
 		});
 
 		WAIT_FOR(isWriteFinished);
-		CATAPULT_LOG(debug) << " <<<< push finished";
+		CATAPULT_LOG(debug) << " <<< push finished";
 		return connection.io();
 	}
 
@@ -114,8 +114,8 @@ namespace catapult { namespace test {
 		bool isExceptionRaised = false;
 		typename TApiTraits::ResultType result;
 		ExternalSourceConnection connection;
-		connection.apiCall([&](const auto& remoteApi) -> void {
-			TApiTraits::InitiateValidRequest(remoteApi).then([&](auto&& future) {
+		connection.apiCall([&](const auto& pRemoteChainApi) {
+			TApiTraits::InitiateValidRequest(*pRemoteChainApi).then([&, pRemoteChainApi](auto&& future) {
 				try {
 					result = std::move(future.get());
 				} catch (const catapult_runtime_error& ex) {
@@ -145,9 +145,9 @@ namespace catapult { namespace test {
 		// Act:
 		std::atomic_bool isReadFinished(false);
 		ExternalSourceConnection connection;
-		connection.apiCall([&](const auto& remoteApi) -> void {
-			requestInitator(remoteApi).then([&](auto&& future) {
-				// Assert:
+		connection.apiCall([&](const auto& pRemoteChainApi) {
+			requestInitator(*pRemoteChainApi).then([&, pRemoteChainApi](auto&& future) {
+				// Act + Assert:
 				EXPECT_THROW(future.get(), catapult_runtime_error);
 				isReadFinished = true;
 			});

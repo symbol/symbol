@@ -1,5 +1,5 @@
 #pragma once
-#include "catapult/model/EntityType.h"
+#include "MultisigEntityType.h"
 #include "catapult/model/Transaction.h"
 
 namespace catapult { namespace model {
@@ -9,10 +9,10 @@ namespace catapult { namespace model {
 	/// The cosignatory modification type.
 	enum class CosignatoryModificationType : uint8_t {
 		/// Add cosignatory.
-		Add = 1,
+		Add,
 
 		/// Remove cosignatory.
-		Del = 2
+		Del
 	};
 
 	/// Binary layout for cosignatory modification.
@@ -36,7 +36,7 @@ namespace catapult { namespace model {
 		static constexpr uint8_t Current_Version = 3;
 
 		/// Transaction type.
-		static constexpr EntityType Entity_Type = EntityType::Modify_Multisig_Account;
+		static constexpr EntityType Entity_Type = Entity_Type_Modify_Multisig_Account;
 
 	public:
 		/// The relative change of the minimal number of cosignatories required when removing an account.

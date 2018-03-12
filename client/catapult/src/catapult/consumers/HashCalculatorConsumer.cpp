@@ -24,11 +24,11 @@ namespace catapult { namespace consumers {
 					// process), so their sizes have already been validated
 					crypto::MerkleHashBuilder transactionsHashBuilder;
 					for (const auto& transaction : element.Block.Transactions()) {
-						model::TransactionElement txElement(transaction);
-						model::UpdateHashes(m_transactionRegistry, txElement);
-						element.Transactions.push_back(txElement);
+						model::TransactionElement transactionElement(transaction);
+						model::UpdateHashes(m_transactionRegistry, transactionElement);
+						element.Transactions.push_back(transactionElement);
 
-						transactionsHashBuilder.update(txElement.MerkleComponentHash);
+						transactionsHashBuilder.update(transactionElement.MerkleComponentHash);
 					}
 
 					Hash256 transactionsHash;

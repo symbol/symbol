@@ -1,23 +1,15 @@
+#include "ApiNodeHealthUtils.h"
+#include "tools/NetworkCensusTool.h"
 #include "tools/ToolMain.h"
-#include "tools/ToolKeys.h"
-#include "tools/ToolUtils.h"
+#include "tools/ToolThreadUtils.h"
 #include "catapult/api/RemoteChainApi.h"
-#include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/extensions/RemoteDiagnosticApi.h"
-#include "catapult/thread/FutureUtils.h"
 #include "catapult/utils/DiagnosticCounterId.h"
-#include <boost/filesystem/path.hpp>
-#include <thread>
 
-namespace catapult { namespace tools { namespace uts {
+namespace catapult { namespace tools { namespace health {
 
 	namespace {
-		config::LocalNodeConfiguration LoadConfiguration(const std::string& resourcesPathStr) {
-			boost::filesystem::path resourcesPath = resourcesPathStr;
-			resourcesPath /= "resources";
-			std::cout << "loading resources from " << resourcesPath << std::endl;
-			return config::LocalNodeConfiguration::LoadFromPath(resourcesPath);
-		}
+		// region node info
 
 		struct NodeInfo {
 		public:
@@ -25,65 +17,47 @@ namespace catapult { namespace tools { namespace uts {
 			{}
 
 		public:
-			std::shared_ptr<ionet::PacketIo> pIo;
 			ionet::Node Node;
 			Height ChainHeight;
 			model::ChainScore ChainScore;
 			model::EntityRange<model::DiagnosticCounterValue> DiagnosticCounters;
 		};
 
-		using NodeInfoPointer = std::shared_ptr<NodeInfo>;
-		using NodeInfoFuture = thread::future<NodeInfoPointer>;
+		using NodeInfoPointer = NetworkCensusTool<NodeInfo>::NodeInfoPointer;
 
-		thread::future<bool> CreateChainInfoFuture(const std::shared_ptr<ionet::PacketIo>& pIo, NodeInfo& nodeInfo) {
-			auto pApi = api::CreateRemoteChainApi(pIo);
-			return pApi->chainInfo().then([&nodeInfo](auto&& infoFuture) {
-				try {
-					auto info = infoFuture.get();
+		// endregion
+
+		// region futures
+
+		thread::future<bool> CreateChainInfoFuture(thread::IoServiceThreadPool& pool, ionet::PacketIo& io, NodeInfo& nodeInfo) {
+			thread::future<api::ChainInfo> chainInfoFuture;
+			if (!HasFlag(ionet::NodeRoles::Peer, nodeInfo.Node.metadata().Roles)) {
+				chainInfoFuture = CreateApiNodeChainInfoFuture(pool, nodeInfo.Node);
+			} else {
+				auto pApi = api::CreateRemoteChainApiWithoutRegistry(io);
+				chainInfoFuture = pApi->chainInfo();
+			}
+
+			return chainInfoFuture.then([&nodeInfo](auto&& infoFuture) {
+				return UnwrapFutureAndSuppressErrors("querying chain info", std::move(infoFuture), [&nodeInfo](const auto& info) {
 					nodeInfo.ChainHeight = info.Height;
 					nodeInfo.ChainScore = info.Score;
-					return true;
-				} catch (...) {
-					// suppress
-					return false;
-				}
+				});
 			});
 		}
 
-		thread::future<bool> CreateDiagnosticCountersFuture(const std::shared_ptr<ionet::PacketIo>& pIo, NodeInfo& nodeInfo) {
-			auto pApi = extensions::CreateRemoteDiagnosticApi(pIo);
+		thread::future<bool> CreateDiagnosticCountersFuture(ionet::PacketIo& io, NodeInfo& nodeInfo) {
+			auto pApi = extensions::CreateRemoteDiagnosticApi(io);
 			return pApi->diagnosticCounters().then([&nodeInfo](auto&& countersFuture) {
-				try {
-					nodeInfo.DiagnosticCounters = countersFuture.get();
-					return true;
-				} catch (...) {
-					// suppress
-					return false;
-				}
+				UnwrapFutureAndSuppressErrors("querying diagnostic counters", std::move(countersFuture), [&nodeInfo](auto&& counters) {
+					nodeInfo.DiagnosticCounters = std::move(counters);
+				});
 			});
 		}
 
-		NodeInfoFuture CreateNodeInfoFuture(
-				const crypto::KeyPair& clientKeyPair,
-				const ionet::Node& node,
-				const std::shared_ptr<thread::IoServiceThreadPool>& pPool) {
-			auto pNodeInfo = std::make_shared<NodeInfo>(node);
-			return thread::compose(
-					ConnectToNode(clientKeyPair, node, pPool),
-					[pNodeInfo](auto&& ioFuture) {
-						try {
-							auto pIo = ioFuture.get();
-							std::vector<thread::future<bool>> infoFutures;
-							infoFutures.emplace_back(CreateChainInfoFuture(pIo, *pNodeInfo));
-							infoFutures.emplace_back(CreateDiagnosticCountersFuture(pIo, *pNodeInfo));
-							return thread::when_all(std::move(infoFutures)).then([pNodeInfo](auto&&) { return pNodeInfo; });
-						} catch (...) {
-							// suppress
-							CATAPULT_LOG(error) << pNodeInfo->Node << " appears to be offline";
-							return thread::make_ready_future(decltype(pNodeInfo)(pNodeInfo));
-						}
-					});
-		}
+		// endregion
+
+		// region formatting
 
 		template<typename T>
 		size_t GetStringSize(const T& value) {
@@ -141,6 +115,7 @@ namespace catapult { namespace tools { namespace uts {
 				auto level = MapRelativeHeightToLogLevel(pNodeInfo->ChainHeight, maxChainHeight);
 				CATAPULT_LOG_LEVEL(level)
 						<< std::string(GetLevelLeftPadding(level), ' ') << std::setw(static_cast<int>(maxNodeNameSize)) << pNodeInfo->Node
+						<< " [" << (HasFlag(ionet::NodeRoles::Api, pNodeInfo->Node.metadata().Roles) ? "API" : "P2P") << "]"
 						<< " at height " << std::setw(static_cast<int>(maxHeightSize)) << pNodeInfo->ChainHeight
 						<< " with score " << pNodeInfo->ChainScore;
 			}
@@ -171,7 +146,7 @@ namespace catapult { namespace tools { namespace uts {
 					table << std::endl;
 			}
 
-			CATAPULT_LOG(debug) << table.str();
+			CATAPULT_LOG(info) << table.str();
 		}
 
 		void PrettyPrint(const std::vector<NodeInfoPointer>& nodeInfos) {
@@ -183,41 +158,26 @@ namespace catapult { namespace tools { namespace uts {
 			PrettyPrintSummary(nodeInfos);
 		}
 
-		class HealthTool : public Tool {
+		// endregion
+
+		class HealthTool : public NetworkCensusTool<NodeInfo> {
 		public:
-			std::string name() const override {
-				return "Catapult Block Chain Health Tool";
+			HealthTool() : NetworkCensusTool("Health")
+			{}
+
+		private:
+			std::vector<thread::future<bool>> getNodeInfoFutures(
+					thread::IoServiceThreadPool& pool,
+					ionet::PacketIo& io,
+					NodeInfo& nodeInfo) override {
+				std::vector<thread::future<bool>> infoFutures;
+				infoFutures.emplace_back(CreateChainInfoFuture(pool, io, nodeInfo));
+				infoFutures.emplace_back(CreateDiagnosticCountersFuture(io, nodeInfo));
+				return infoFutures;
 			}
 
-			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional& positional) override {
-				optionsBuilder("resources,r",
-						OptionsValue<std::string>(m_resourcesPath)->default_value(".."),
-						"the path to the resources directory");
-				positional.add("resources", -1);
-			}
-
-			int run(const Options&) override {
-				auto config = LoadConfiguration(m_resourcesPath);
-
-				auto clientKeyPair = GenerateRandomKeyPair();
-				auto pPool = CreateStartedThreadPool();
-
-				std::vector<NodeInfoFuture> nodeInfoFutures;
-				for (const auto& node : config.Peers) {
-					CATAPULT_LOG(debug) << "preparing to get stats from node " << node;
-					nodeInfoFutures.push_back(CreateNodeInfoFuture(clientKeyPair, node, pPool));
-				}
-
-				auto finalFuture = thread::when_all(std::move(nodeInfoFutures)).then([](auto&& allFutures) {
-					std::vector<NodeInfoPointer> nodeInfos;
-					for (auto& nodeInfoFuture : allFutures.get())
-						nodeInfos.push_back(nodeInfoFuture.get());
-
-					PrettyPrint(nodeInfos);
-				});
-
-				finalFuture.get();
-				return 0;
+			void processNodeInfos(const std::vector<NodeInfoPointer>& nodeInfos) override {
+				PrettyPrint(nodeInfos);
 			}
 
 		private:
@@ -227,6 +187,6 @@ namespace catapult { namespace tools { namespace uts {
 }}}
 
 int main(int argc, const char** argv) {
-	catapult::tools::uts::HealthTool healthTool;
-	return catapult::tools::ToolMain(argc, argv, healthTool);
+	catapult::tools::health::HealthTool tool;
+	return catapult::tools::ToolMain(argc, argv, tool);
 }

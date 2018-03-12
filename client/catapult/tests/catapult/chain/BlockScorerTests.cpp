@@ -5,6 +5,8 @@
 
 namespace catapult { namespace chain {
 
+#define TEST_CLASS BlockScorerTests
+
 	namespace {
 		model::BlockChainConfiguration CreateConfiguration() {
 			auto config = model::BlockChainConfiguration::Uninitialized();
@@ -24,13 +26,33 @@ namespace catapult { namespace chain {
 		void SetDifficultyTrillions(model::Block& block, uint64_t difficulty) {
 			SetDifficultyBillions(block, difficulty * 1'000);
 		}
+
+		uint64_t CalculateHitWithDoubles(const Hash256& generationHash) {
+			constexpr uint64_t Two_To_54 = 18014398509481984;
+			const double Two_To_256 = std::pow(2, 256);
+
+			// 1. v1 = generation-hash
+			BlockTarget value;
+			boost::multiprecision::import_bits(value, generationHash.cbegin(), generationHash.cend());
+
+			// 2. temp = double(v1) / 2^256
+			auto temp = value.convert_to<double>() / Two_To_256;
+
+			// 3. temp = abs(log(temp))
+			temp = std::abs(std::log(temp));
+			if (std::isinf(temp))
+				return std::numeric_limits<uint64_t>::max();
+
+			// 4. r = temp * 2^54
+			return static_cast<uint64_t>(temp * Two_To_54);
+		}
 	}
 
 	// region CalculateHit
 
-	TEST(BlockScorerTests, CanCalculateHit) {
+	TEST(TEST_CLASS, CanCalculateHit) {
 		// Arrange:
-		Hash256 generationHash{ {
+		const Hash256 generationHash{ {
 			0xF7, 0xF6, 0xF5, 0xF4, 0xF3, 0xF2, 0xF1, 0xF0,
 			0xE7, 0xE6, 0xE5, 0xE4, 0xE3, 0xE2, 0xE1, 0xE0,
 			0xD7, 0xD6, 0xD5, 0xD4, 0xD3, 0xD2, 0xD1, 0xD0,
@@ -41,12 +63,12 @@ namespace catapult { namespace chain {
 		auto hit = CalculateHit(generationHash);
 
 		// Assert:
-		EXPECT_EQ(0x20A80E8435E74u, hit);
+		EXPECT_EQ(0x20A80E8A6AF7Fu, hit);
 	}
 
-	TEST(BlockScorerTests, CanCalculateHitWhenGenerationHashIsZero) {
+	TEST(TEST_CLASS, CanCalculateHitWhenGenerationHashIsZero) {
 		// Arrange:
-		Hash256 generationHash{ {} };
+		const Hash256 generationHash{ {} };
 
 		// Act:
 		auto hit = CalculateHit(generationHash);
@@ -55,11 +77,50 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(std::numeric_limits<uint64_t>::max(), hit);
 	}
 
+	TEST(TEST_CLASS, CanCalculateHitWhenGenerationHashIsMax) {
+		// Arrange:
+		const Hash256 generationHash{ {
+			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+		} };
+
+		// Act:
+		auto hit = CalculateHit(generationHash);
+
+		// Assert:
+		EXPECT_EQ(0u, hit);
+	}
+
+	TEST(TEST_CLASS, HitCalculationDeviationFromHitCalculationWithDoublesIsTolerable) {
+		for (auto i = 0u; i < Hash256_Size; ++i) {
+			uint8_t value = 8;
+			for (auto j = 0; j < 16; ++j) {
+				// Arrange:
+				Hash256 generationHash{};
+				generationHash[i] = value;
+
+				// Act:
+				auto hit = CalculateHit(generationHash);
+				auto oldHit = CalculateHitWithDoubles(generationHash);
+				auto ratio = static_cast<double>(hit) / static_cast<double>(oldHit);
+
+				// Assert:
+				auto message = "at index " + std::to_string(i) + ", value = " + std::to_string(value);
+				EXPECT_LT(0.999999, ratio) << message;
+				EXPECT_GT(1.000001, ratio) << message;
+
+				value += 0x10;
+			}
+		}
+	}
+
 	// endregion
 
 	// region CalculateScore
 
-	TEST(BlockScorerTests, CanCalculateScore) {
+	TEST(TEST_CLASS, CanCalculateScore) {
 		// Arrange:
 		model::Block parent;
 		SetTimestampSeconds(parent, 5567320ull);
@@ -90,7 +151,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(BlockScorerTests, BlockScoreIsZeroWhenElapsedTimeIsZero) {
+	TEST(TEST_CLASS, BlockScoreIsZeroWhenElapsedTimeIsZero) {
 		// Act:
 		auto score = CalculateBlockScore(1000, 1000);
 
@@ -98,7 +159,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(0u, score);
 	}
 
-	TEST(BlockScorerTests, BlockScoreIsZeroWhenElapsedTimeIsNegative) {
+	TEST(TEST_CLASS, BlockScoreIsZeroWhenElapsedTimeIsNegative) {
 		// Act:
 		auto score = CalculateBlockScore(1000, 900);
 
@@ -144,7 +205,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(BlockScorerTests, BlockTargetIsZeroWhenEffectiveImportanceIsZero) {
+	TEST(TEST_CLASS, BlockTargetIsZeroWhenEffectiveImportanceIsZero) {
 		// Act:
 		auto target = CalculateBlockTarget(1000, 1100, 0);
 
@@ -152,7 +213,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(BlockTarget(0), target);
 	}
 
-	TEST(BlockScorerTests, BlockTargetIsZeroWhenElapsedTimeIsZero) {
+	TEST(TEST_CLASS, BlockTargetIsZeroWhenElapsedTimeIsZero) {
 		// Act:
 		auto target = CalculateBlockTarget(1000, 1000, 100);
 
@@ -160,7 +221,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(BlockTarget(0), target);
 	}
 
-	TEST(BlockScorerTests, BlockTargetIsZeroWhenElapsedTimeIsNegative) {
+	TEST(TEST_CLASS, BlockTargetIsZeroWhenElapsedTimeIsNegative) {
 		// Act:
 		auto target = CalculateBlockTarget(1000, 900, 100);
 
@@ -168,7 +229,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(BlockTarget(0), target);
 	}
 
-	TEST(BlockScorerTests, BlockTargetIncreasesAsTimeElapses) {
+	TEST(TEST_CLASS, BlockTargetIncreasesAsTimeElapses) {
 		// Act:
 		auto target1 = CalculateBlockTarget(900, 1000, 72000);
 		auto target2 = CalculateBlockTarget(900, 1100, 72000);
@@ -177,7 +238,7 @@ namespace catapult { namespace chain {
 		EXPECT_GT(target2, target1);
 	}
 
-	TEST(BlockScorerTests, BlockTargetIncreasesAsImportanceIncreases) {
+	TEST(TEST_CLASS, BlockTargetIncreasesAsImportanceIncreases) {
 		// Act:
 		auto target1 = CalculateBlockTarget(900, 1000, 72000);
 		auto target2 = CalculateBlockTarget(900, 1000, 74000);
@@ -186,7 +247,7 @@ namespace catapult { namespace chain {
 		EXPECT_GT(target2, target1);
 	}
 
-	TEST(BlockScorerTests, BlockTargetIncreasesAsDifficultyDecreases) {
+	TEST(TEST_CLASS, BlockTargetIncreasesAsDifficultyDecreases) {
 		// Act:
 		auto target1 = CalculateBlockTarget(900, 1000, 72000, 50);
 		auto target2 = CalculateBlockTarget(900, 1000, 72000, 40);
@@ -203,7 +264,7 @@ namespace catapult { namespace chain {
 		}();
 	}
 
-	TEST(BlockScorerTests, BlockTargetIsCorrectlyCalculated) {
+	TEST(TEST_CLASS, BlockTargetIsCorrectlyCalculated) {
 		// Act:
 		auto target = CalculateBlockTarget(900, 1000, 72000, 50);
 
@@ -217,7 +278,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(expectedTarget, target);
 	}
 
-	TEST(BlockScorerTests, TargetIsCorrectlyCalculatedFromRawValues) {
+	TEST(TEST_CLASS, TargetIsCorrectlyCalculatedFromRawValues) {
 		// Act:
 		auto target = CalculateTargetFromRawValues(900, 1000, 72000, 50);
 
@@ -231,7 +292,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(expectedTarget, target);
 	}
 
-	TEST(BlockScorerTests, BlockTargetIsConsistentWithLegacyBlockTarget) {
+	TEST(TEST_CLASS, BlockTargetIsConsistentWithLegacyBlockTarget) {
 		// Act:
 		auto target = CalculateBlockTarget(1, 101, 72000 * 8'000'000'000L);
 
@@ -244,7 +305,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(expectedTarget, target);
 	}
 
-	TEST(BlockScorerTests, GenerationTimeHasNoImpactOnTargetWhenSmoothingIsDisabled) {
+	TEST(TEST_CLASS, GenerationTimeHasNoImpactOnTargetWhenSmoothingIsDisabled) {
 		// Act:
 		auto config = CreateConfiguration();
 		config.BlockTimeSmoothingFactor = 0;
@@ -258,7 +319,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(target2, target1);
 	}
 
-	TEST(BlockScorerTests, BlockTargetIncreasesAsGenerationTimeDecreasesWhenSmoothingIsEnabled) {
+	TEST(TEST_CLASS, BlockTargetIncreasesAsGenerationTimeDecreasesWhenSmoothingIsEnabled) {
 		// Act:
 		auto config = CreateConfiguration();
 		config.BlockTimeSmoothingFactor = 6000;
@@ -308,27 +369,27 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(BlockScorerTests, BlockTargetWithSmoothingIsGreaterThanTargetWithoutSmoothingWhenLastBlockTimeIsLarger) {
+	TEST(TEST_CLASS, BlockTargetWithSmoothingIsGreaterThanTargetWithoutSmoothingWhenLastBlockTimeIsLarger) {
 		// Assert:
 		AssertLargerSmoothingFactorBiasesTowardsLargerTargetWhenLastBlockTimeIsLarger(0, 6000);
 	}
 
-	TEST(BlockScorerTests, BlockTargetWithSmoothingIsLessThanTargetWithoutSmoothingWhenLastBlockTimeIsSmaller) {
+	TEST(TEST_CLASS, BlockTargetWithSmoothingIsLessThanTargetWithoutSmoothingWhenLastBlockTimeIsSmaller) {
 		// Assert:
 		AssertLargerSmoothingFactorBiasesTowardsSmallerTargetWhenLastBlockTimeIsSmaller(0, 6000);
 	}
 
-	TEST(BlockScorerTests, LargerSmoothingFactorBiasesTowardsLargerTargetWhenLastBlockTimeIsLarger) {
+	TEST(TEST_CLASS, LargerSmoothingFactorBiasesTowardsLargerTargetWhenLastBlockTimeIsLarger) {
 		// Assert:
 		AssertLargerSmoothingFactorBiasesTowardsLargerTargetWhenLastBlockTimeIsLarger(3000, 6000);
 	}
 
-	TEST(BlockScorerTests, LargerSmoothingFactorBiasesTowardsSmallerTargetWhenLastBlockTimeIsSmaller) {
+	TEST(TEST_CLASS, LargerSmoothingFactorBiasesTowardsSmallerTargetWhenLastBlockTimeIsSmaller) {
 		// Assert:
 		AssertLargerSmoothingFactorBiasesTowardsSmallerTargetWhenLastBlockTimeIsSmaller(3000, 6000);
 	}
 
-	TEST(BlockScorerTests, BlockTargetIsCorrectlyCalculatedWhenSmoothingIsEnabled) {
+	TEST(TEST_CLASS, BlockTargetIsCorrectlyCalculatedWhenSmoothingIsEnabled) {
 		// Act:
 		auto config = CreateConfiguration();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(10);
@@ -348,7 +409,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(expectedTarget, target);
 	}
 
-	TEST(BlockScorerTests, BlockTargetSmoothingIsCapped) {
+	TEST(TEST_CLASS, BlockTargetSmoothingIsCapped) {
 		// Act:
 		auto config = CreateConfiguration();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(10);
@@ -387,10 +448,7 @@ namespace catapult { namespace chain {
 			std::vector<std::pair<Key, Height>> ImportanceLookupParams;
 		};
 
-		std::unique_ptr<model::Block> CreateBlock(
-				Height height,
-				uint32_t timestampSeconds,
-				uint32_t difficultyTrillions) {
+		std::unique_ptr<model::Block> CreateBlock(Height height, uint32_t timestampSeconds, uint32_t difficultyTrillions) {
 			auto pBlock = std::make_unique<model::Block>();
 			pBlock->Signer = test::GenerateRandomData<Hash256_Size>();
 			pBlock->Height = height;
@@ -400,7 +458,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(BlockScorerTests, BlockHitPredicateReturnsTrueWhenHitIsLessThanTarget) {
+	TEST(TEST_CLASS, BlockHitPredicateReturnsTrueWhenHitIsLessThanTarget) {
 		// Arrange:
 		auto pParent = CreateBlock(Height(10), 900, 0);
 		auto pCurrent = CreateBlock(Height(11), 1000, 50);
@@ -421,7 +479,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(pCurrent->Height, context.ImportanceLookupParams[0].second);
 	}
 
-	TEST(BlockScorerTests, BlockHitPredicateReturnsTrueWhenHitIsLessThanTarget_Context) {
+	TEST(TEST_CLASS, BlockHitPredicateReturnsTrueWhenHitIsLessThanTarget_Context) {
 		// Arrange:
 		BlockHitContext hitContext;
 		hitContext.GenerationHash = { { 0xF7, 0xF6, 0xF5, 0xF4 } };
@@ -447,7 +505,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(hitContext.Height, context.ImportanceLookupParams[0].second);
 	}
 
-	TEST(BlockScorerTests, BlockHitPredicateReturnsFalseWhenHitIsEqualToTarget) {
+	TEST(TEST_CLASS, BlockHitPredicateReturnsFalseWhenHitIsEqualToTarget) {
 		// Arrange:
 		auto pParent = CreateBlock(Height(10), 900, 0);
 		auto pCurrent = CreateBlock(Height(11), 900, 50);
@@ -473,7 +531,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(pCurrent->Height, context.ImportanceLookupParams[0].second);
 	}
 
-	TEST(BlockScorerTests, BlockHitPredicateReturnsFalseWhenHitIsEqualToTarget_Context) {
+	TEST(TEST_CLASS, BlockHitPredicateReturnsFalseWhenHitIsEqualToTarget_Context) {
 		// Arrange:
 		BlockHitContext hitContext;
 		hitContext.GenerationHash = { {
@@ -504,7 +562,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(hitContext.Height, context.ImportanceLookupParams[0].second);
 	}
 
-	TEST(BlockScorerTests, BlockHitPredicateReturnsFalseWhenHitIsGreaterThanTarget) {
+	TEST(TEST_CLASS, BlockHitPredicateReturnsFalseWhenHitIsGreaterThanTarget) {
 		// Arrange:
 		auto pParent = CreateBlock(Height(10), 900, 0);
 		auto pCurrent = CreateBlock(Height(11), 1000, 50);
@@ -525,7 +583,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(pCurrent->Height, context.ImportanceLookupParams[0].second);
 	}
 
-	TEST(BlockScorerTests, BlockHitPredicateReturnsFalseWhenHitIsGreaterThanTarget_Context) {
+	TEST(TEST_CLASS, BlockHitPredicateReturnsFalseWhenHitIsGreaterThanTarget_Context) {
 		// Arrange:
 		BlockHitContext hitContext;
 		hitContext.GenerationHash = { { 0xF7, 0xF6, 0xF5, 0xF4 } };

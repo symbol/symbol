@@ -2,6 +2,7 @@
 #include "src/cache/NamespaceCache.h"
 #include "src/model/NamespaceInfo.h"
 #include "catapult/utils/Casting.h"
+#include "catapult/utils/MemoryUtils.h"
 
 namespace catapult { namespace handlers {
 
@@ -11,19 +12,19 @@ namespace catapult { namespace handlers {
 			pInfo->Size = sizeof(model::NamespaceInfo);
 			pInfo->Id = id;
 			pInfo->Attributes = attributes;
-			pInfo->NumChildren = 0;
+			pInfo->ChildCount = 0;
 			return pInfo;
 		}
 
 		std::shared_ptr<const model::NamespaceInfo> MakeRootInfo(const state::RootNamespace& root) {
 			auto numChildren = utils::checked_cast<size_t, uint16_t>(root.size());
 			uint32_t entitySize = sizeof(model::NamespaceInfo) + numChildren * sizeof(NamespaceId);
-			std::shared_ptr<model::NamespaceInfo> pInfo(reinterpret_cast<model::NamespaceInfo*>(::operator new(entitySize)));
+			auto pInfo = utils::MakeSharedWithSize<model::NamespaceInfo>(entitySize);
 
 			pInfo->Size = entitySize;
 			pInfo->Id = root.id();
 			pInfo->Attributes = model::ArtifactInfoAttributes::Is_Known;
-			pInfo->NumChildren = numChildren;
+			pInfo->ChildCount = numChildren;
 
 			auto* pChildNamespaceId = pInfo->ChildrenPtr();
 			for (const auto& pair : root.children())

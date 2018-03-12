@@ -1,5 +1,5 @@
 #include "catapult/chain/BatchEntityProcessor.h"
-#include "tests/catapult/chain/utils/MockExecutionConfiguration.h"
+#include "tests/catapult/chain/test/MockExecutionConfiguration.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -52,7 +52,7 @@ namespace catapult { namespace chain {
 					// - context
 					EXPECT_EQ(height, params.Context.Height) << message;
 					EXPECT_EQ(timestamp, params.Context.BlockTime) << message;
-					EXPECT_EQ(Mock_Execution_Configuration_Network_Identifier, params.Context.Network.Identifier) << message;
+					EXPECT_EQ(test::Mock_Execution_Configuration_Network_Identifier, params.Context.Network.Identifier) << message;
 
 					// - cache contents + sequence (NumDifficultyInfos is incremented by each observer call)
 					EXPECT_TRUE(params.IsPassedMarkedCache) << message;
@@ -127,7 +127,7 @@ namespace catapult { namespace chain {
 			}
 
 		private:
-			MockExecutionConfiguration m_executionConfig;
+			test::MockExecutionConfiguration m_executionConfig;
 			state::CatapultState m_state;
 			BatchEntityProcessor m_processor;
 		};

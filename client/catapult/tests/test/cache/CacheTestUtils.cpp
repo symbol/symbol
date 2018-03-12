@@ -1,8 +1,8 @@
 #include "CacheTestUtils.h"
-#include "plugins/coresystem/src/cache/AccountStateCacheStorage.h"
-#include "plugins/services/blockdifficultycache/src/cache/BlockDifficultyCacheStorage.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache/SubCachePluginAdapter.h"
+#include "catapult/cache_core/AccountStateCacheStorage.h"
+#include "catapult/cache_core/BlockDifficultyCacheStorage.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/nodeps/Random.h"
 
@@ -24,11 +24,16 @@ namespace catapult { namespace test {
 			const model::BlockChainConfiguration& config,
 			std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches) {
 		using namespace cache;
-		subCaches[AccountStateCache::Id] = MakeSubCachePlugin<AccountStateCache, AccountStateCacheStorage>(
-				config.Network.Identifier,
-				config.ImportanceGrouping);
-		subCaches[BlockDifficultyCache::Id] = MakeSubCachePlugin<BlockDifficultyCache, BlockDifficultyCacheStorage>(
-				CalculateDifficultyHistorySize(config));
+
+		auto accountStateCacheOptions = AccountStateCacheTypes::Options{
+			config.Network.Identifier,
+			config.ImportanceGrouping,
+			config.MinHarvesterBalance
+		};
+		subCaches[AccountStateCache::Id] = MakeSubCachePlugin<AccountStateCache, AccountStateCacheStorage>(accountStateCacheOptions);
+
+		auto difficultyHistorySize = CalculateDifficultyHistorySize(config);
+		subCaches[BlockDifficultyCache::Id] = MakeSubCachePlugin<BlockDifficultyCache, BlockDifficultyCacheStorage>(difficultyHistorySize);
 	}
 
 	// endregion

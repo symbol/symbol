@@ -6,6 +6,8 @@
 
 namespace catapult { namespace model {
 
+#define TEST_CLASS BlockChainConfigurationTests
+
 	// region loading
 
 	namespace {
@@ -16,14 +18,16 @@ namespace catapult { namespace model {
 			using ConfigurationType = BlockChainConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {{
+				return {
+					{
 						"network",
 						{
 							{ "identifier", "public-test" },
 							{ "publicKey", Nemesis_Public_Key },
 							{ "generationHash", Nemesis_Generation_Hash }
 						}
-				}, {
+					},
+					{
 						"chain",
 						{
 							{ "blockGenerationTargetTime", "10m" },
@@ -42,16 +46,21 @@ namespace catapult { namespace model {
 							{ "blockPruneInterval", "432" },
 							{ "maxTransactionsPerBlock", "120" }
 						}
-				}, {
-					"plugin:alpha", {
-						{ "foo", "alpha" }
+					},
+					{
+						"plugin:alpha",
+						{
+							{ "foo", "alpha" }
+						}
+					},
+					{
+						"plugin:beta",
+						{
+							{ "bar", "11" },
+							{ "baz", "zeta" }
+						}
 					}
-				}, {
-					"plugin:beta", {
-						{ "bar", "11" },
-						{ "baz", "zeta" }
-					}
-				}};
+				};
 			}
 
 			static bool IsSectionOptional(const std::string& section) {
@@ -118,59 +127,58 @@ namespace catapult { namespace model {
 		};
 	}
 
-	DEFINE_CONFIGURATION_TESTS(BlockChainConfigurationTests, BlockChain)
+	DEFINE_CONFIGURATION_TESTS(TEST_CLASS, BlockChain)
 
-	TEST(BlockChainConfigurationTests, CannotLoadBlockChainConfigurationWithInvalidNetwork) {
+	TEST(TEST_CLASS, CannotLoadBlockChainConfigurationWithInvalidNetwork) {
 		// Arrange: set an unknown network in the container
-		using TTraits = BlockChainConfigurationTraits;
-		auto container = TTraits::CreateProperties();
+		using Traits = BlockChainConfigurationTraits;
+		auto container = Traits::CreateProperties();
 		container["network"]["identifier"] = "foonet";
 
-		// Act:
-		EXPECT_THROW(
-				TTraits::ConfigurationType::LoadFromBag(std::move(container)),
-				utils::property_malformed_error);
+		// Act + Assert:
+		EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(container)), utils::property_malformed_error);
 	}
 
 	namespace {
 		void AssertCannotLoadWithSection(const std::string& section) {
-			using TTraits = BlockChainConfigurationTraits;
+			// Arrange:
+			using Traits = BlockChainConfigurationTraits;
 			CATAPULT_LOG(debug) << "attempting to load configuration with extra section '" << section << "'";
 
-			// Act: create the properties and add the desired section
-			auto properties = TTraits::CreateProperties();
+			// - create the properties and add the desired section
+			auto properties = Traits::CreateProperties();
 			properties.insert({ section, { { "foo", "1234" } } });
 
-			// Assert: the load failed
-			EXPECT_THROW(TTraits::ConfigurationType::LoadFromBag(std::move(properties)), catapult_invalid_argument);
+			// Act + Assert: the load failed
+			EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(properties)), catapult_invalid_argument);
 		}
 	}
 
-	TEST(BlockChainConfigurationTests, ParseFailsWhenPluginSectionNameIsNotWellFormed) {
+	TEST(TEST_CLASS, ParseFailsWhenPluginSectionNameIsNotWellFormed) {
 		// Arrange: section name must start with 'plugin:' and have a name
 		auto invalidSectionNames = { "", "plug", "plugina", "plug:a", "plugina:a", "a plugin:", "a plugin:b", "plugin:", " plugin:a" };
 		for (const auto& section : invalidSectionNames)
 			AssertCannotLoadWithSection(section);
 	}
 
-	TEST(BlockChainConfigurationTests, ParseFailsWhenPluginSectionNameContainsInvalidPluginName) {
+	TEST(TEST_CLASS, ParseFailsWhenPluginSectionNameContainsInvalidPluginName) {
 		// Arrange:
 		auto invalidPluginNames = { " ", "$$$", "some long name", "Zeta", "ZETA" };
 		for (const auto& pluginName : invalidPluginNames)
 			AssertCannotLoadWithSection(std::string("plugin:") + pluginName);
 	}
 
-	TEST(BlockChainConfigurationTests, ParseSucceedsWhenPluginSectionNameContainsValidPluginName) {
+	TEST(TEST_CLASS, ParseSucceedsWhenPluginSectionNameContainsValidPluginName) {
 		// Arrange:
-		using TTraits = BlockChainConfigurationTraits;
+		using Traits = BlockChainConfigurationTraits;
 		auto validPluginNames = { "a", "j", "z", ".", "zeta", "some.long.name" };
 		for (const auto& pluginName : validPluginNames) {
 			CATAPULT_LOG(debug) << "attempting to load configuration with plugin named " << pluginName;
 
 			// Act: create the properties and add the desired section
-			auto properties = TTraits::CreateProperties();
+			auto properties = Traits::CreateProperties();
 			properties.insert({ std::string("plugin:") + pluginName, { { "foo", "1234" } } });
-			auto config = TTraits::ConfigurationType::LoadFromBag(std::move(properties));
+			auto config = Traits::ConfigurationType::LoadFromBag(std::move(properties));
 
 			// Assert:
 			EXPECT_EQ(3u, config.Plugins.size());
@@ -193,7 +201,7 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TEST(BlockChainConfigurationTests, CanCalculateDependentSettingsFromCustomBlockChainConfiguration) {
+	TEST(TEST_CLASS, CanCalculateDependentSettingsFromCustomBlockChainConfiguration) {
 		// Act:
 		auto config = BlockChainConfiguration::Uninitialized();
 		config.BlockGenerationTargetTime = TimeSpanFromMillis(30'001);
@@ -208,7 +216,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(645u, CalculateDifficultyHistorySize(config));
 	}
 
-	TEST(BlockChainConfigurationTests, TransactionCacheDurationIncludesBufferTimeOfAtLeastOneHour) {
+	TEST(TEST_CLASS, TransactionCacheDurationIncludesBufferTimeOfAtLeastOneHour) {
 		// Act:
 		auto config = BlockChainConfiguration::Uninitialized();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(15);
@@ -244,10 +252,10 @@ namespace catapult { namespace model {
 		};
 	}
 
-	TEST(BlockChainConfigurationTests, LoadPluginConfigurationSucceedsWhenPluginConfigurationIsPresent) {
+	TEST(TEST_CLASS, LoadPluginConfigurationSucceedsWhenPluginConfigurationIsPresent) {
 		// Arrange:
-		using TTraits = BlockChainConfigurationTraits;
-		auto config = TTraits::ConfigurationType::LoadFromBag(TTraits::CreateProperties());
+		using Traits = BlockChainConfigurationTraits;
+		auto config = Traits::ConfigurationType::LoadFromBag(Traits::CreateProperties());
 
 		// Act:
 		auto betaConfig = LoadPluginConfiguration<BetaConfiguration>(config, "beta");
@@ -257,12 +265,12 @@ namespace catapult { namespace model {
 		EXPECT_EQ("zeta", betaConfig.Baz);
 	}
 
-	TEST(BlockChainConfigurationTests, LoadPluginConfigurationFailsWhenPluginConfigurationIsNotPresent) {
+	TEST(TEST_CLASS, LoadPluginConfigurationFailsWhenPluginConfigurationIsNotPresent) {
 		// Arrange:
-		using TTraits = BlockChainConfigurationTraits;
-		auto config = TTraits::ConfigurationType::LoadFromBag(TTraits::CreateProperties());
+		using Traits = BlockChainConfigurationTraits;
+		auto config = Traits::ConfigurationType::LoadFromBag(Traits::CreateProperties());
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(LoadPluginConfiguration<BetaConfiguration>(config, "gamma"), utils::property_not_found_error);
 	}
 

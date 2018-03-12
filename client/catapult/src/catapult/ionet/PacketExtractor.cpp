@@ -24,10 +24,9 @@ namespace catapult { namespace ionet {
 
 		const Packet* pPacket = reinterpret_cast<const Packet*>(&m_data[m_consumedBytes]);
 		if (!IsSizeValid(pPacket->Size, m_maxPacketDataSize)) {
-			CATAPULT_LOG(warning) << "unable to extract packet with size " << pPacket->Size
-					<< " (" << m_data.size() << " bytes, "
-					<< remainingDataSize << " remaining, "
-					<< m_consumedBytes << " consumed)";
+			CATAPULT_LOG(warning)
+					<< "unable to extract packet with size " << pPacket->Size
+					<< " (" << m_data.size() << " bytes, " << remainingDataSize << " remaining, " << m_consumedBytes << " consumed)";
 			return PacketExtractResult::Packet_Error;
 		}
 

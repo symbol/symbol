@@ -1,5 +1,5 @@
 #pragma once
-#include "catapult/model/EntityType.h"
+#include "EntityType.h"
 #include "catapult/exceptions.h"
 #include <memory>
 #include <vector>

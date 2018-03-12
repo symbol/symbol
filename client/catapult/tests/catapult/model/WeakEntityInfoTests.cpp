@@ -5,13 +5,11 @@
 
 namespace catapult { namespace model {
 
+#define TEST_CLASS WeakEntityInfoTests
+
 	namespace {
 		template<typename TEntity>
-		void AssertAreEqual(
-				const WeakEntityInfoT<TEntity>& info,
-				const VerifiableEntity& entity,
-				const Hash256& hash,
-				const char* tag) {
+		void AssertAreEqual(const WeakEntityInfoT<TEntity>& info, const VerifiableEntity& entity, const Hash256& hash, const char* tag) {
 			// Assert:
 			ASSERT_TRUE(info.isSet()) << tag;
 			EXPECT_EQ(&entity, &info.entity()) << tag;
@@ -21,7 +19,7 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TEST(WeakEntityInfoTests, CanCreateUnsetWeakEntityInfo) {
+	TEST(TEST_CLASS, CanCreateUnsetWeakEntityInfo) {
 		// Act:
 		WeakEntityInfo info;
 
@@ -30,7 +28,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(info.isHashSet());
 	}
 
-	TEST(WeakEntityInfoTests, CanCreateWeakEntityInfoWithoutHash) {
+	TEST(TEST_CLASS, CanCreateWeakEntityInfoWithoutHash) {
 		// Arrange:
 		VerifiableEntity entity;
 
@@ -42,7 +40,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(info.isHashSet());
 	}
 
-	TEST(WeakEntityInfoTests, CanCreateWeakEntityInfo) {
+	TEST(TEST_CLASS, CanCreateWeakEntityInfo) {
 		// Arrange:
 		VerifiableEntity entity;
 		Hash256 hash;
@@ -54,7 +52,7 @@ namespace catapult { namespace model {
 		AssertAreEqual(info, entity, hash, "info");
 	}
 
-	TEST(WeakEntityInfoTests, CanAssignWeakEntityInfo) {
+	TEST(TEST_CLASS, CanAssignWeakEntityInfo) {
 		// Arrange:
 		VerifiableEntity entity;
 		Hash256 hash;
@@ -73,17 +71,17 @@ namespace catapult { namespace model {
 		AssertAreEqual(info2, entity, hash, "info2");
 	}
 
-	TEST(WeakEntityInfoTests, CanAccessEntityType) {
+	TEST(TEST_CLASS, CanAccessEntityType) {
 		// Arrange:
 		VerifiableEntity entity;
 		Hash256 hash;
-		entity.Type = EntityType::Transfer;
+		entity.Type = static_cast<model::EntityType>(0x5432);
 
 		// Act:
 		WeakEntityInfo info(entity, hash);
 
 		// Assert:
-		EXPECT_EQ(EntityType::Transfer, info.type());
+		EXPECT_EQ(static_cast<model::EntityType>(0x5432), info.type());
 	}
 
 	namespace {
@@ -109,17 +107,17 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TEST(WeakEntityInfoTests, OperatorEqualReturnsTrueOnlyForEqualValues) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
 		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
-	TEST(WeakEntityInfoTests, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
 		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
-	TEST(WeakEntityInfoTests, UnsetInfosAreEqual) {
+	TEST(TEST_CLASS, UnsetInfosAreEqual) {
 		// Arrange:
 		WeakEntityInfo unsetInfo1;
 		WeakEntityInfo unsetInfo2;
@@ -129,7 +127,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(unsetInfo1 != unsetInfo2);
 	}
 
-	TEST(WeakEntityInfoTests, CanConvertToStronglyTypedInfo) {
+	TEST(TEST_CLASS, CanConvertToStronglyTypedInfo) {
 		// Arrange:
 		Block block;
 		Hash256 hash;
@@ -146,7 +144,7 @@ namespace catapult { namespace model {
 		EXPECT_TRUE(isEntityTyped);
 	}
 
-	TEST(WeakEntityInfoTests, CanOutputUnsetEntityInfo) {
+	TEST(TEST_CLASS, CanOutputUnsetEntityInfo) {
 		// Arrange:
 		WeakEntityInfo info;
 
@@ -157,21 +155,20 @@ namespace catapult { namespace model {
 		EXPECT_EQ("WeakEntityInfo (unset)", str);
 	}
 
-	TEST(WeakEntityInfoTests, CanOutputSetEntityInfo) {
+	TEST(TEST_CLASS, CanOutputSetEntityInfo) {
 		// Arrange:
 		VerifiableEntity entity;
 		entity.Size = 121;
-		entity.Type = EntityType::Transfer;
+		entity.Type = Entity_Type_Nemesis_Block;
 		entity.Version = MakeVersion(NetworkIdentifier::Zero, 2);
 
 		Hash256 hash = test::ToArray<Hash256_Size>("C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470");
-
 		WeakEntityInfo info(entity, hash);
 
 		// Act:
 		auto str = test::ToString(info);
 
 		// Assert:
-		EXPECT_EQ("Transfer (v2) with size 121 [C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470]", str);
+		EXPECT_EQ("Nemesis_Block (v2) with size 121 [C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470]", str);
 	}
 }}

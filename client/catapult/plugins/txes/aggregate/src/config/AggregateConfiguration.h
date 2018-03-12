@@ -18,6 +18,10 @@ namespace catapult { namespace config {
 		/// \c false if cosignatures should be validated externally.
 		bool EnableStrictCosignatureCheck;
 
+		/// \c true if bonded aggregates should be allowed.
+		/// \c false if bonded aggregates should be rejected.
+		bool EnableBondedAggregateSupport;
+
 	private:
 		AggregateConfiguration() = default;
 

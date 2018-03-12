@@ -4,7 +4,12 @@
 #include <functional>
 #include <memory>
 
-namespace catapult { namespace net { class AsyncTcpServerAcceptContext; } }
+namespace catapult {
+	namespace ionet {
+		class PacketSocket;
+		struct ReaderIdentity;
+	}
+}
 
 namespace catapult { namespace net {
 
@@ -16,7 +21,7 @@ namespace catapult { namespace net {
 
 	public:
 		/// Callback that is called when the read chain is broken.
-		using CompletionHandler = std::function<void (ionet::SocketOperationCode)>;
+		using CompletionHandler = consumer<ionet::SocketOperationCode>;
 
 	public:
 		/// Starts reading.
@@ -26,16 +31,18 @@ namespace catapult { namespace net {
 		virtual void stop() = 0;
 	};
 
-	/// Creates a chained socket reader around \a pAcceptContext and \a serverHandlers with a default completion
-	/// handler.
+	/// Creates a chained socket reader around \a pPacketSocket and \a serverHandlers with a default completion
+	/// handler given an \a identity.
 	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
-			const std::shared_ptr<AsyncTcpServerAcceptContext>& pAcceptContext,
-			const ionet::ServerPacketHandlers& serverHandlers);
-
-	/// Creates a chained socket reader around \a pAcceptContext and \a serverHandlers with a custom completion
-	/// handler (\a completionHandler).
-	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
-			const std::shared_ptr<AsyncTcpServerAcceptContext>& pAcceptContext,
+			const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
 			const ionet::ServerPacketHandlers& serverHandlers,
+			const ionet::ReaderIdentity& identity);
+
+	/// Creates a chained socket reader around \a pPacketSocket and \a serverHandlers with a custom completion
+	/// handler (\a completionHandler) given an \a identity.
+	std::shared_ptr<ChainedSocketReader> CreateChainedSocketReader(
+			const std::shared_ptr<ionet::PacketSocket>& pPacketSocket,
+			const ionet::ServerPacketHandlers& serverHandlers,
+			const ionet::ReaderIdentity& identity,
 			const ChainedSocketReader::CompletionHandler& completionHandler);
 }}

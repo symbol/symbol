@@ -5,6 +5,8 @@
 
 namespace catapult { namespace state {
 
+#define TEST_CLASS MosaicHistoryTests
+
 	namespace {
 		constexpr NamespaceId Default_Namespace_Id(234);
 		constexpr MosaicId Default_Mosaic_Id(345);
@@ -14,7 +16,7 @@ namespace catapult { namespace state {
 		}
 
 		auto CreateMosaicDefinition(const Key& owner, uint64_t duration) {
-			return MosaicDefinition(Height(123), owner, test::CreateMosaicPropertiesWithDuration(ArtifactDuration(duration)));
+			return MosaicDefinition(Height(123), owner, test::CreateMosaicPropertiesWithDuration(BlockDuration(duration)));
 		}
 
 		auto CreateDefaultMosaicDefinition(const Key& owner) {
@@ -53,8 +55,8 @@ namespace catapult { namespace state {
 		std::vector<Amount> GetSupplies(const MosaicHistory& history) {
 			// check the supplies as a way to validate iteration
 			std::vector<Amount> supplies;
-			for (auto iter = history.cbegin(); history.cend() != iter; ++iter)
-				supplies.push_back(iter->supply());
+			for (const auto& mosaicEntry : history)
+				supplies.push_back(mosaicEntry.supply());
 
 			return supplies;
 		}
@@ -62,7 +64,7 @@ namespace catapult { namespace state {
 
 	// region ctor
 
-	TEST(MosaicHistoryTests, CanCreateEmptyMosaicHistory) {
+	TEST(TEST_CLASS, CanCreateEmptyMosaicHistory) {
 		// Act:
 		auto history = CreateDefaultHistory();
 
@@ -78,7 +80,7 @@ namespace catapult { namespace state {
 
 	// region push_back
 
-	TEST(MosaicHistoryTests, CanAddSingleMosaicEntry) {
+	TEST(TEST_CLASS, CanAddSingleMosaicEntry) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto definition = CreateDefaultMosaicDefinition(owner);
@@ -97,7 +99,7 @@ namespace catapult { namespace state {
 		AssertMosaicEntry(definition, Amount(567), history.back());
 	}
 
-	TEST(MosaicHistoryTests, CanAddMultipleMosaicEntries) {
+	TEST(TEST_CLASS, CanAddMultipleMosaicEntries) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto definition1 = CreateDefaultMosaicDefinition(owner);
@@ -124,7 +126,7 @@ namespace catapult { namespace state {
 
 	// region pop_back
 
-	TEST(MosaicHistoryTests, PopBackRemovesLastMosaicEntry) {
+	TEST(TEST_CLASS, PopBackRemovesLastMosaicEntry) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto definition = CreateDefaultMosaicDefinition(owner);
@@ -147,7 +149,7 @@ namespace catapult { namespace state {
 
 	// region back
 
-	TEST(MosaicHistoryTests, BackReturnsMostRecentMosaicEntry) {
+	TEST(TEST_CLASS, BackReturnsMostRecentMosaicEntry) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto definition = CreateDefaultMosaicDefinition(owner);
@@ -173,7 +175,7 @@ namespace catapult { namespace state {
 
 	// region prune
 
-	TEST(MosaicHistoryTests, PruneDoesNotRemoveEternalMosaicEntries) {
+	TEST(TEST_CLASS, PruneDoesNotRemoveEternalMosaicEntries) {
 		// Arrange: default mosaic definition has eternal lifetime
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto definition = CreateDefaultMosaicDefinition(owner);
@@ -192,7 +194,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(std::vector<Amount> ({ Amount(567), Amount(678), Amount(789) }), GetSupplies(history));
 	}
 
-	TEST(MosaicHistoryTests, PruneRemovesMostRecentExpiredMosaicEntryAndAllPriorMosaicEntries_OrderedExpiry) {
+	TEST(TEST_CLASS, PruneRemovesMostRecentExpiredMosaicEntryAndAllPriorMosaicEntries_OrderedExpiry) {
 		// Arrange: mosaic definition has height 123
 		// - create three definitions:
 		// - definition1 expires at height 123 + 50 = 173
@@ -219,7 +221,7 @@ namespace catapult { namespace state {
 		AssertMosaicEntry(definition3, Amount(345), history.back());
 	}
 
-	TEST(MosaicHistoryTests, PruneRemovesMostRecentExpiredMosaicEntryAndAllPriorMosaicEntries_UnorderedExpiry) {
+	TEST(TEST_CLASS, PruneRemovesMostRecentExpiredMosaicEntryAndAllPriorMosaicEntries_UnorderedExpiry) {
 		// Arrange: mosaic definition has height 123
 		// - create four definitions:
 		// - definition1 expires at height 123 + 50 = 173
@@ -249,7 +251,7 @@ namespace catapult { namespace state {
 		AssertMosaicEntry(definition4, Amount(456), history.back());
 	}
 
-	TEST(MosaicHistoryTests, PruneCanRemoveAllEntries) {
+	TEST(TEST_CLASS, PruneCanRemoveAllEntries) {
 		// Arrange: mosaic definition has height 123
 		// - create three definitions:
 		// - definition1 expires at height 123 + 50 = 173
@@ -274,7 +276,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(std::vector<Amount>(), GetSupplies(history));
 	}
 
-	TEST(MosaicHistoryTests, PruneCanBeCalledOnEmptyHistory) {
+	TEST(TEST_CLASS, PruneCanBeCalledOnEmptyHistory) {
 		// Arrange:
 		auto history = CreateDefaultHistory();
 
@@ -286,6 +288,50 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_TRUE(history.empty());
+	}
+
+	// endregion
+
+	// region IsActive
+
+	TEST(TEST_CLASS, IsActiveReturnsFalseWhenHistoryIsEmpty) {
+		// Arrange:
+		auto history = CreateDefaultHistory();
+
+		// Sanity:
+		EXPECT_TRUE(history.empty());
+
+		// Act + Assert:
+		EXPECT_FALSE(history.isActive(Height(250)));
+	}
+
+	TEST(TEST_CLASS, IsActiveReturnsFalseWhenHistoryDefinitionIsInactive) {
+		// Arrange:
+		// - definition1 expires at height 123 + 50 = 173
+		// - definition2 expires at height 123 + 150 = 273
+		auto owner = test::GenerateRandomData<Key_Size>();
+		auto history = CreateHistoryWithSupplies(CreateMosaicDefinition(owner, 50), { 123 });
+		history.push_back(CreateMosaicDefinition(owner, 150), Amount(234));
+
+		// Act + Assert:
+		EXPECT_FALSE(history.isActive(Height(50)));
+		EXPECT_FALSE(history.isActive(Height(122)));
+		EXPECT_FALSE(history.isActive(Height(273)));
+		EXPECT_FALSE(history.isActive(Height(350)));
+	}
+
+	TEST(TEST_CLASS, IsActiveReturnsTrueWhenHistoryDefinitionIsActive) {
+		// Arrange:
+		// - definition1 expires at height 123 + 50 = 173
+		// - definition2 expires at height 123 + 150 = 273
+		auto owner = test::GenerateRandomData<Key_Size>();
+		auto history = CreateHistoryWithSupplies(CreateMosaicDefinition(owner, 50), { 123 });
+		history.push_back(CreateMosaicDefinition(owner, 150), Amount(234));
+
+		// Act + Assert:
+		EXPECT_TRUE(history.isActive(Height(123)));
+		EXPECT_TRUE(history.isActive(Height(250)));
+		EXPECT_TRUE(history.isActive(Height(272)));
 	}
 
 	// endregion

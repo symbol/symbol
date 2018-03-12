@@ -1,8 +1,8 @@
 #include "LocalNodeIntegrityTestUtils.h"
-#include "plugins/txes/namespace/src/plugins/MosaicDefinitionTransactionPlugins.h"
-#include "plugins/txes/namespace/src/plugins/MosaicSupplyChangeTransactionPlugins.h"
-#include "plugins/txes/namespace/src/plugins/RegisterNamespaceTransactionPlugins.h"
-#include "plugins/txes/transfer/src/plugins/TransferTransactionPlugins.h"
+#include "plugins/txes/namespace/src/plugins/MosaicDefinitionTransactionPlugin.h"
+#include "plugins/txes/namespace/src/plugins/MosaicSupplyChangeTransactionPlugin.h"
+#include "plugins/txes/namespace/src/plugins/RegisterNamespaceTransactionPlugin.h"
+#include "plugins/txes/transfer/src/plugins/TransferTransactionPlugin.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/EntityFactory.h"
 
@@ -10,13 +10,13 @@ namespace catapult { namespace test {
 
 	// region ExternalSourceConnection
 
-	std::shared_ptr<model::TransactionRegistry> ExternalSourceConnection::CreateTransactionRegistry() {
-		auto pRegistry = std::make_shared<model::TransactionRegistry>();
-		pRegistry->registerPlugin(plugins::CreateTransferTransactionPlugin());
-		pRegistry->registerPlugin(plugins::CreateRegisterNamespaceTransactionPlugin({ Key(), Address(), Amount(), Amount(), Key() }));
-		pRegistry->registerPlugin(plugins::CreateMosaicDefinitionTransactionPlugin({ Key(), Address(), Amount(), Key() }));
-		pRegistry->registerPlugin(plugins::CreateMosaicSupplyChangeTransactionPlugin());
-		return pRegistry;
+	model::TransactionRegistry ExternalSourceConnection::CreateTransactionRegistry() {
+		auto registry = model::TransactionRegistry();
+		registry.registerPlugin(plugins::CreateTransferTransactionPlugin());
+		registry.registerPlugin(plugins::CreateRegisterNamespaceTransactionPlugin({ Key(), Address(), Amount(), Amount(), Key() }));
+		registry.registerPlugin(plugins::CreateMosaicDefinitionTransactionPlugin({ Key(), Address(), Amount(), Key() }));
+		registry.registerPlugin(plugins::CreateMosaicSupplyChangeTransactionPlugin());
+		return registry;
 	}
 
 	// endregion
@@ -30,7 +30,7 @@ namespace catapult { namespace test {
 			constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 			auto signer = GetNemesisAccountKeyPair();
 
-			mocks::MemoryBasedStorage storage;
+			mocks::MockMemoryBasedStorage storage;
 			auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
 
 			model::PreviousBlockContext context(*pNemesisBlockElement);

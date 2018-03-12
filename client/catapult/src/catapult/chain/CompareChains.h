@@ -13,9 +13,7 @@ namespace catapult { namespace chain {
 
 		/// Creates compare-chains options from a maximum number of blocks to analyze (\a maxBlocksToAnalyze)
 		/// and a maximum number of blocks to rewrite (\a maxBlocksToRewrite).
-		CompareChainsOptions(
-				uint32_t maxBlocksToAnalyze,
-				uint32_t maxBlocksToRewrite)
+		CompareChainsOptions(uint32_t maxBlocksToAnalyze, uint32_t maxBlocksToRewrite)
 				: MaxBlocksToAnalyze(maxBlocksToAnalyze)
 				, MaxBlocksToRewrite(maxBlocksToRewrite)
 		{}

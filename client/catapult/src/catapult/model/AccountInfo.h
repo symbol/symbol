@@ -1,6 +1,7 @@
 #pragma once
 #include "ImportanceHeight.h"
 #include "Mosaic.h"
+#include "TrailingVariableDataLayout.h"
 #include "catapult/constants.h"
 #include "catapult/types.h"
 #include <cstring>
@@ -11,10 +12,8 @@ namespace catapult { namespace model {
 #pragma pack(push, 1)
 
 	/// Binary layout for an account info.
-	struct AccountInfo {
-		/// Size of the account info.
-		uint32_t Size;
-
+	struct AccountInfo : public TrailingVariableDataLayout<AccountInfo, Mosaic> {
+	public:
 		/// Address of the account.
 		catapult::Address Address;
 
@@ -31,10 +30,23 @@ namespace catapult { namespace model {
 		catapult::Importance Importances[Importance_History_Size];
 
 		/// Importance heights (current followed by historical).
-		model::ImportanceHeight ImportanceHeights[Importance_History_Size];
+		ImportanceHeight ImportanceHeights[Importance_History_Size];
 
-		/// The number of mosaics the account owns.
-		uint16_t NumMosaics;
+		/// Number of types of mosaics owned by the account.
+		uint16_t MosaicsCount;
+
+		// followed by mosaics data if MosaicsCount != 0
+
+	public:
+		/// Returns a const pointer to the first mosaic contained in this account info.
+		const Mosaic* MosaicsPtr() const {
+			return MosaicsCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
+		}
+
+		/// Returns a pointer to the first mosaic contained in this account info.
+		Mosaic* MosaicsPtr() {
+			return MosaicsCount ? ToTypedPointer(PayloadStart(*this)) : nullptr;
+		}
 
 	public:
 		/// Creates a zero-initialized account info with \a address.
@@ -47,60 +59,15 @@ namespace catapult { namespace model {
 			return pAccountInfo;
 		}
 
-	private:
-		static const uint8_t* ToBytePointer(const AccountInfo& accountInfo) {
-			return reinterpret_cast<const uint8_t*>(&accountInfo);
-		}
-
-		static uint8_t* ToBytePointer(AccountInfo& accountInfo) {
-			return reinterpret_cast<uint8_t*>(&accountInfo);
-		}
-
-		template<typename T>
-		static auto PayloadStart(T& accountInfo) {
-			return accountInfo.Size != CalculateRealSize(accountInfo) ? nullptr : ToBytePointer(accountInfo) + sizeof(T);
-		}
-
-		static const Mosaic* ToMosaicPointer(const uint8_t* pData) {
-			return reinterpret_cast<const Mosaic*>(pData);
-		}
-
-		static Mosaic* ToMosaicPointer(uint8_t* pData) {
-			return reinterpret_cast<Mosaic*>(pData);
-		}
-
 	public:
-		/// Returns a const pointer to the first mosaic contained in this account info.
-		const Mosaic* MosaicsPtr() const {
-			return NumMosaics ? ToMosaicPointer(PayloadStart(*this)) : nullptr;
-		}
-
-		/// Returns a pointer to the first mosaic contained in this account info.
-		Mosaic* MosaicsPtr() {
-			return NumMosaics ? ToMosaicPointer(PayloadStart(*this)) : nullptr;
-		}
-
-	private:
+		/// Calculates the real size of \a accountInfo.
 		static constexpr uint64_t CalculateRealSize(const AccountInfo& accountInfo) noexcept {
-			return sizeof(AccountInfo) + accountInfo.NumMosaics * sizeof(Mosaic);
+			return sizeof(AccountInfo) + accountInfo.MosaicsCount * sizeof(Mosaic);
 		}
-
-		friend constexpr uint64_t CalculateRealSize(const AccountInfo& accountInfo) noexcept;
 	};
 
 #pragma pack(pop)
 
 	/// Maximum size of AccountInfo containing maximum allowed number of mosaics.
-	constexpr auto AccountInfo_Max_Size =
-			sizeof(model::AccountInfo) + sizeof(model::Mosaic) * ((1 << (8 * sizeof(model::AccountInfo().NumMosaics))) - 1);
-
-	/// Calculates the real size of \a accountInfo.
-	constexpr uint64_t CalculateRealSize(const AccountInfo& accountInfo) noexcept {
-		return AccountInfo::CalculateRealSize(accountInfo);
-	}
-
-	/// Checks the real size of \a accountInfo against its reported size and returns \c true if the sizes match.
-	constexpr bool IsSizeValid(const AccountInfo& accountInfo) noexcept {
-		return CalculateRealSize(accountInfo) == accountInfo.Size;
-	}
+	constexpr auto AccountInfo_Max_Size = sizeof(AccountInfo) + sizeof(Mosaic) * ((1 << (8 * sizeof(AccountInfo::MosaicsCount))) - 1);
 }}

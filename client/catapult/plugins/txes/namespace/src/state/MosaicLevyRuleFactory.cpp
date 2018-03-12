@@ -28,7 +28,7 @@ namespace catapult { namespace state {
 		m_rules.push_back([](Amount lowerBound, Amount, uint64_t) {
 			return BoundedPercentile(lowerBound, lowerBound, 0);
 		});
-		
+
 		// Percentile
 		m_rules.push_back([](Amount, Amount, uint64_t percentile) {
 			return BoundedPercentile(Min_Amount, Max_Amount, percentile);
@@ -50,11 +50,7 @@ namespace catapult { namespace state {
 		});
 	}
 
-	MosaicLevyRule MosaicLevyRuleFactory::createRule(
-			Amount lowerBound,
-			Amount upperBound,
-			uint64_t percentile,
-			RuleId ruleId) {
+	MosaicLevyRule MosaicLevyRuleFactory::createRule(Amount lowerBound, Amount upperBound, uint64_t percentile, RuleId ruleId) {
 		auto id = utils::to_underlying_type(ruleId);
 		if (m_rules.size() <= id)
 			CATAPULT_THROW_INVALID_ARGUMENT_1("unknown rule with id", static_cast<uint32_t>(id));

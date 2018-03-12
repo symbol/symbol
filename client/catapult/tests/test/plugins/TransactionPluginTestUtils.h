@@ -35,7 +35,7 @@ namespace catapult { namespace test {
 	};
 
 /// Defines traits for transaction plugin based tests for \a NAME transaction requiring configuration of type \a CONFIG_TYPE.
-#define DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(NAME, CONFIG_TYPE) \
+#define TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(NAME, CONFIG_TYPE) \
 	struct RegularTraits { \
 		using TransactionType = model::NAME##Transaction; \
 		\

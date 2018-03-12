@@ -1,7 +1,6 @@
 #include "catapult/api/RemoteTransactionApi.h"
-#include "catapult/api/ApiTypes.h"
-#include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/other/RemoteApiFactory.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -29,7 +28,7 @@ namespace catapult { namespace api {
 			return pPacket;
 		}
 
-		struct UnconfirmedTransactionsTraits {
+		struct UtTraits {
 			static constexpr uint32_t Request_Data_Size = 3 * sizeof(utils::ShortHash);
 
 			static std::vector<uint32_t> KnownHashesValues() {
@@ -66,27 +65,27 @@ namespace catapult { namespace api {
 			static void ValidateResponse(const ionet::Packet& response, const model::TransactionRange& transactions) {
 				ASSERT_EQ(3u, transactions.size());
 
-				auto pData = response.Data();
-				auto iter = transactions.cbegin();
+				auto pExpectedData = response.Data();
+				auto parsedIter = transactions.cbegin();
 				for (auto i = 0u; i < transactions.size(); ++i) {
 					std::string message = "comparing transactions at " + std::to_string(i);
-					const auto& expectedTransaction = reinterpret_cast<const TransactionType&>(*pData);
-					const auto& actualTransaction = *iter;
+					const auto& expectedTransaction = reinterpret_cast<const TransactionType&>(*pExpectedData);
+					const auto& actualTransaction = *parsedIter;
 					ASSERT_EQ(expectedTransaction.Size, actualTransaction.Size) << message;
 					EXPECT_EQ(Timestamp(5 * i), actualTransaction.Deadline) << message;
 					EXPECT_EQ(expectedTransaction, actualTransaction) << message;
-					++iter;
-					pData += expectedTransaction.Size;
+					++parsedIter;
+					pExpectedData += expectedTransaction.Size;
 				}
 			}
 		};
 
 		struct RemoteTransactionApiTraits {
 			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return CreateRemoteTransactionApi(pPacketIo, mocks::CreateDefaultTransactionRegistry());
+				return test::CreateLifetimeExtendedApi(CreateRemoteTransactionApi, *pPacketIo, mocks::CreateDefaultTransactionRegistry());
 			}
 		};
 	}
 
-	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(RemoteTransactionApi, UnconfirmedTransactions)
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(RemoteTransactionApi, Ut)
 }}

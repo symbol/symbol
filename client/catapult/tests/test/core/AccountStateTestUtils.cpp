@@ -1,5 +1,5 @@
 #include "AccountStateTestUtils.h"
-#include "tests/test/core/AddressTestUtils.h"
+#include "AddressTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {

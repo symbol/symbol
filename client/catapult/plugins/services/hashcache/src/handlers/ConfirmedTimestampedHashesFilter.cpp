@@ -4,7 +4,7 @@
 namespace catapult { namespace handlers {
 
 	ConfirmedTimestampedHashesFilter CreateConfirmedTimestampedHashesFilter(const cache::HashCache& hashCache) {
-		return [&hashCache](const auto& timestampedHashes) -> std::vector<const state::TimestampedHash*> {
+		return [&hashCache](const auto& timestampedHashes) {
 			ConfirmedTimestampedHashesFilter::result_type unknownTimestampedHashes;
 			auto view = hashCache.createView();
 			for (const auto& timestampedHash : timestampedHashes)

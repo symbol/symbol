@@ -4,6 +4,8 @@
 
 namespace catapult { namespace crypto {
 
+#define TEST_CLASS SignerTests
+
 	namespace {
 		template<typename TArray>
 		Signature SignPayload(const KeyPair& keyPair, const TArray& payload) {
@@ -22,22 +24,22 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(SignerTests, SignFillsTheSignature) {
+	TEST(TEST_CLASS, SignFillsTheSignature) {
 		// Arrange:
 		auto payload = test::GenerateRandomData<100>();
 
 		// Act:
 		Signature signature;
-		std::iota(signature.begin(), signature.end(), 0);
+		std::iota(signature.begin(), signature.end(), static_cast<uint8_t>(0));
 		Sign(GetDefaultKeyPair(), payload, signature);
 
 		// Assert: the signature got overwritten in call to Sign() above
 		Signature invalid;
-		std::iota(invalid.begin(), invalid.end(), 0);
+		std::iota(invalid.begin(), invalid.end(), static_cast<uint8_t>(0));
 		EXPECT_NE(invalid, signature);
 	}
 
-	TEST(SignerTests, SignaturesGeneratedForSameDataBySameKeyPairsAreEqual) {
+	TEST(TEST_CLASS, SignaturesGeneratedForSameDataBySameKeyPairsAreEqual) {
 		// Arrange:
 		auto keyPair1 = KeyPair::FromString(Default_Key_String);
 		auto keyPair2 = KeyPair::FromString(Default_Key_String);
@@ -52,7 +54,7 @@ namespace catapult { namespace crypto {
 		EXPECT_EQ(signature1, signature2);
 	}
 
-	TEST(SignerTests, SignaturesGeneratedForSameDataByDifferentKeyPairsAreDifferent) {
+	TEST(TEST_CLASS, SignaturesGeneratedForSameDataByDifferentKeyPairsAreDifferent) {
 		// Arrange:
 		auto payload = test::GenerateRandomData<100>();
 
@@ -64,7 +66,7 @@ namespace catapult { namespace crypto {
 		EXPECT_NE(signature1, signature2);
 	}
 
-	TEST(SignerTests, SignedDataCanBeVerified) {
+	TEST(TEST_CLASS, SignedDataCanBeVerified) {
 		// Arrange:
 		auto payload = test::GenerateRandomData<100>();
 		auto signature = SignPayload(GetDefaultKeyPair(), payload);
@@ -76,7 +78,7 @@ namespace catapult { namespace crypto {
 		EXPECT_TRUE(isVerified);
 	}
 
-	TEST(SignerTests, SignedDataCannotBeVerifiedWithDifferentKeyPair) {
+	TEST(TEST_CLASS, SignedDataCannotBeVerifiedWithDifferentKeyPair) {
 		// Arrange:
 		auto payload = test::GenerateRandomData<100>();
 		auto signature = SignPayload(GetDefaultKeyPair(), payload);
@@ -105,19 +107,19 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(SignerTests, SignatureDoesNotVerifyIfRPartOfSignatureIsModified) {
+	TEST(TEST_CLASS, SignatureDoesNotVerifyIfRPartOfSignatureIsModified) {
 		// Assert:
 		for (auto i = 0u; i < Signature_Size / 2; ++i)
 			AssertSignatureChangeInvalidatesSignature(i);
 	}
 
-	TEST(SignerTests, SignatureDoesNotVerifyIfSPartOfSignatureIsModified) {
+	TEST(TEST_CLASS, SignatureDoesNotVerifyIfSPartOfSignatureIsModified) {
 		// Assert:
 		for (auto i = Signature_Size / 2; i < Signature_Size; ++i)
 			AssertSignatureChangeInvalidatesSignature(i);
 	}
 
-	TEST(SignerTests, SignatureDoesNotVerifyIfPayloadIsModified) {
+	TEST(TEST_CLASS, SignatureDoesNotVerifyIfPayloadIsModified) {
 		// Arrange:
 		auto keyPair = GetDefaultKeyPair();
 		auto payload = test::GenerateRandomData<100>();
@@ -133,14 +135,14 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(SignerTests, PublicKeyNotOnACurveCausesVerifyToFail) {
+	TEST(TEST_CLASS, PublicKeyNotOnACurveCausesVerifyToFail) {
 		// Arrange:
 		auto hackedKeyPair = GetDefaultKeyPair();
 		auto payload = test::GenerateRandomData<100>();
 
 		// hack the key, to an invalid one (not on a curve)
 		auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
-		std::fill(hackPublic.begin(), hackPublic.end(), 0x00);
+		std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
 		hackPublic.back() = 0x01;
 
 		auto signature = SignPayload(hackedKeyPair, payload);
@@ -152,7 +154,7 @@ namespace catapult { namespace crypto {
 		EXPECT_FALSE(isVerified);
 	}
 
-	TEST(SignerTests, VerificationFailsIfPublicKeyDoesNotCorrespondToPrivateKey) {
+	TEST(TEST_CLASS, VerificationFailsIfPublicKeyDoesNotCorrespondToPrivateKey) {
 		// Arrange:
 		auto hackedKeyPair = GetDefaultKeyPair();
 		auto payload = test::GenerateRandomData<100>();
@@ -160,7 +162,7 @@ namespace catapult { namespace crypto {
 		// hack the key, to an invalid one
 		auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
 		std::transform(hackPublic.begin(), hackPublic.end(), hackPublic.begin(), [](uint8_t x) {
-			return x ^ 0xff;
+			return static_cast<uint8_t>(x ^ 0xFF);
 		});
 
 		auto signature = SignPayload(hackedKeyPair, payload);
@@ -172,14 +174,14 @@ namespace catapult { namespace crypto {
 		EXPECT_FALSE(isVerified);
 	}
 
-	TEST(SignerTests, VerifyRejectsZeroPublicKey) {
+	TEST(TEST_CLASS, VerifyRejectsZeroPublicKey) {
 		// Arrange:
 		auto hackedKeyPair = GetDefaultKeyPair();
 		auto payload = test::GenerateRandomData<100>();
 
 		// hack the key, to an invalid one
 		auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
-		std::fill(hackPublic.begin(), hackPublic.end(), 0);
+		std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
 
 		auto signature = SignPayload(hackedKeyPair, payload);
 
@@ -205,7 +207,7 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(SignerTests, CannotVerifyNonCanonicalSignature) {
+	TEST(TEST_CLASS, CannotVerifyNonCanonicalSignature) {
 		// Arrange:
 		std::array<uint8_t, 10> payload{ { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } };
 
@@ -242,7 +244,7 @@ namespace catapult { namespace crypto {
 				"d2488e854dbcdfdb2c9d16c8c0b2fdbc0abb6bac991bfe2b14d359a6bc99d66c00fd60d731ae06d0",
 			};
 
-#ifdef NIS1_COMPATIBLE_SIGNATURES
+#ifdef SIGNATURE_SCHEME_NIS1
 			input.PrivateKeys = {
 				"abf4cf55a2b3f742d7543d9cc17f50447b969e6e06f5ea9195d428ab12b7318d",
 				"6aa6dad25d3acb3385d5643293133936cdddd7f7e11818771db1ff2f9d3f9215",
@@ -296,7 +298,7 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(SignerTests, SignPassesTestVectors) {
+	TEST(TEST_CLASS, SignPassesTestVectors) {
 		// Arrange:
 		auto input = GetTestVectorsInput();
 
@@ -313,7 +315,7 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(SignerTests, VerifyPassesTestVectors) {
+	TEST(TEST_CLASS, VerifyPassesTestVectors) {
 		// Arrange:
 		auto input = GetTestVectorsInput();
 
@@ -331,7 +333,7 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(SignerTests, SignatureForConsecutiveDataMatchesSignatureForChunkedData) {
+	TEST(TEST_CLASS, SignatureForConsecutiveDataMatchesSignatureForChunkedData) {
 		// Arrange:
 		auto payload = test::GenerateRandomVector(123);
 		auto properSignature = SignPayload(GetDefaultKeyPair(), payload);

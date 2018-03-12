@@ -62,9 +62,7 @@ namespace catapult { namespace extensions {
 		auto namespacePath = GenerateNamespacePath(namespaceName);
 		auto namespaceId = namespacePath[namespacePath.size() - 1];
 
-		return model::GenerateMosaicId(
-				namespaceId,
-				ExtractPartName(name, mosaicSeparatorIndex + 1, name.Size - mosaicSeparatorIndex - 1));
+		return model::GenerateMosaicId(namespaceId, ExtractPartName(name, mosaicSeparatorIndex + 1, name.Size - mosaicSeparatorIndex - 1));
 	}
 
 	NamespacePath GenerateNamespacePath(const RawString& name) {

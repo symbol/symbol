@@ -3,41 +3,45 @@
 
 namespace catapult { namespace utils {
 
-	// region output
+#define TEST_CLASS MacroBasedEnumTests
 
-	// region implicit backing type
+	// region output - implicit backing type
 
 	namespace {
-		// declare and define a GreekLetters enumeration composed of some greek letters with an implicit backing type
-		#define GREEK_LETTERS_LIST \
-			ENUM_VALUE(Alpha) \
-			ENUM_VALUE(Beta) \
-			ENUM_VALUE(Gamma) \
-			ENUM_VALUE(Delta) \
-			ENUM_VALUE(Epslion) \
-			ENUM_VALUE(Zeta) \
-			ENUM_VALUE(Eta) \
+// declare and define a GreekLetters enumeration composed of some greek letters with an implicit backing type
+#define GREEK_LETTERS_LIST \
+	ENUM_VALUE(Alpha) \
+	ENUM_VALUE(Beta) \
+	ENUM_VALUE(Gamma) \
+	ENUM_VALUE(Delta) \
+	ENUM_VALUE(Epslion) \
+	ENUM_VALUE(Zeta) \
+	ENUM_VALUE(Eta) \
 
-		#define ENUM_LIST GREEK_LETTERS_LIST
-			#define DECLARE_ENUM GreekLetters
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+		enum class GreekLetters {
+			GREEK_LETTERS_LIST
+		};
+#undef ENUM_VALUE
 
-			#define DEFINE_ENUM GreekLetters
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DEFINE_ENUM
-		#undef ENUM_LIST
+#define ENUM_LIST GREEK_LETTERS_LIST
+#define DEFINE_ENUM GreekLetters
+#include "catapult/utils/MacroBasedEnum.h"
+#undef DEFINE_ENUM
+#undef ENUM_LIST
 
 		const uint8_t Num_Greek_Letters = []() {
 			uint8_t numValues = 0;
-			#define ENUM_VALUE(LABEL) ++numValues;
+
+#define ENUM_VALUE(LABEL) ++numValues;
 			GREEK_LETTERS_LIST
-			#undef ENUM_VALUE
+#undef ENUM_VALUE
+
 			return numValues;
 		}();
 	}
 
-	TEST(MacroBasedEnumTests, KnownValuesAreOutputAsLabel) {
+	TEST(TEST_CLASS, KnownValuesAreOutputAsLabel) {
 		// Assert:
 		EXPECT_EQ("Gamma", test::ToString(GreekLetters::Gamma));
 
@@ -49,7 +53,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ("Eta", test::ToString(static_cast<GreekLetters>(Num_Greek_Letters - 1)));
 	}
 
-	TEST(MacroBasedEnumTests, UnknownValuesAreOutputAsRawValue) {
+	TEST(TEST_CLASS, UnknownValuesAreOutputAsRawValue) {
 		// Assert:
 		EXPECT_EQ("GreekLetters(0x00000007)", test::ToString(static_cast<GreekLetters>(Num_Greek_Letters)));
 		EXPECT_EQ("GreekLetters(0x00000087)", test::ToString(static_cast<GreekLetters>(0x87)));
@@ -58,24 +62,24 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// region uint8_t backing type
+	// region output - uint8_t backing type
 
 	namespace {
-		// declare and define a GreekLetters enumeration composed of some greek letters with a uint8_t backing type
-		#define ENUM_LIST GREEK_LETTERS_LIST
-			#define DECLARE_ENUM GreekLettersByte
-			#define EXPLICIT_TYPE_ENUM uint8_t
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef EXPLICIT_TYPE_ENUM
-			#undef DECLARE_ENUM
+// declare and define a GreekLetters enumeration composed of some greek letters with a uint8_t backing type
+#define ENUM_VALUE(LABEL) LABEL,
+		enum class GreekLettersByte : uint8_t {
+			GREEK_LETTERS_LIST
+		};
+#undef ENUM_VALUE
 
-			#define DEFINE_ENUM GreekLettersByte
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DEFINE_ENUM
-		#undef ENUM_LIST
+#define ENUM_LIST GREEK_LETTERS_LIST
+#define DEFINE_ENUM GreekLettersByte
+#include "catapult/utils/MacroBasedEnum.h"
+#undef DEFINE_ENUM
+#undef ENUM_LIST
 	}
 
-	TEST(MacroBasedEnumTests, KnownValuesAreOutputAsLabel_UInt8) {
+	TEST(TEST_CLASS, KnownValuesAreOutputAsLabel_UInt8) {
 		using GreekLetters = GreekLettersByte;
 
 		// Assert:
@@ -89,7 +93,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ("Eta", test::ToString(static_cast<GreekLetters>(Num_Greek_Letters - 1)));
 	}
 
-	TEST(MacroBasedEnumTests, UnknownValuesAreOutputAsRawValue_UInt8) {
+	TEST(TEST_CLASS, UnknownValuesAreOutputAsRawValue_UInt8) {
 		using GreekLetters = GreekLettersByte;
 
 		// Assert:
@@ -100,28 +104,28 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// endregion
-
 	namespace {
-		// declare and define a VersionParts enumeration composed of version parts
-		#define VERSION_PARTS_LIST \
-			ENUM_VALUE(Major) \
-			ENUM_VALUE(Minor) \
-			ENUM_VALUE(Build) \
-			ENUM_VALUE(Revision) \
+// declare and define a VersionParts enumeration composed of version parts
+#define VERSION_PARTS_LIST \
+	ENUM_VALUE(Major) \
+	ENUM_VALUE(Minor) \
+	ENUM_VALUE(Build) \
+	ENUM_VALUE(Revision) \
 
-		#define ENUM_LIST VERSION_PARTS_LIST
-			#define DECLARE_ENUM VersionParts
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+		enum class VersionParts {
+			VERSION_PARTS_LIST
+		};
+#undef ENUM_VALUE
 
-			#define DEFINE_ENUM VersionParts
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DEFINE_ENUM
-		#undef ENUM_LIST
+#define ENUM_LIST VERSION_PARTS_LIST
+#define DEFINE_ENUM VersionParts
+#include "catapult/utils/MacroBasedEnum.h"
+#undef DEFINE_ENUM
+#undef ENUM_LIST
 	}
 
-	TEST(MacroBasedEnumTests, NoConflictsBetweenDifferentEnumTypes) {
+	TEST(TEST_CLASS, NoConflictsBetweenDifferentEnumTypes) {
 		// Assert: overlapping known values
 		EXPECT_EQ("Gamma", test::ToString(static_cast<GreekLetters>(2)));
 		EXPECT_EQ("Build", test::ToString(static_cast<VersionParts>(2)));
@@ -132,30 +136,32 @@ namespace catapult { namespace utils {
 	}
 
 	namespace {
-		// declare and define a GreekLettersExplicit enumeration composed of some greek letters with explicit values
-		#define GREEK_LETTERS_LIST_EXPLICIT \
-			ENUM_VALUE(Alpha, 10) \
-			ENUM_VALUE(Beta, 4) \
-			ENUM_VALUE(Gamma, 7) \
-			ENUM_VALUE(Delta, 18) \
-			ENUM_VALUE(Epslion, 9) \
-			ENUM_VALUE(Zeta, 2) \
-			ENUM_VALUE(Eta, 5) \
+// declare and define a GreekLettersExplicit enumeration composed of some greek letters with explicit values
+#define GREEK_LETTERS_LIST_EXPLICIT \
+	ENUM_VALUE(Alpha, 10) \
+	ENUM_VALUE(Beta, 4) \
+	ENUM_VALUE(Gamma, 7) \
+	ENUM_VALUE(Delta, 18) \
+	ENUM_VALUE(Epslion, 9) \
+	ENUM_VALUE(Zeta, 2) \
+	ENUM_VALUE(Eta, 5) \
 
-		#define ENUM_LIST GREEK_LETTERS_LIST_EXPLICIT
-		#define EXPLICIT_VALUE_ENUM
-			#define DECLARE_ENUM GreekLettersExplicit
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
+		enum class GreekLettersExplicit {
+			GREEK_LETTERS_LIST_EXPLICIT
+		};
+#undef ENUM_VALUE
 
-			#define DEFINE_ENUM GreekLettersExplicit
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DEFINE_ENUM
-		#undef EXPLICIT_VALUE_ENUM
-		#undef ENUM_LIST
+#define ENUM_LIST GREEK_LETTERS_LIST_EXPLICIT
+#define EXPLICIT_VALUE_ENUM
+#define DEFINE_ENUM GreekLettersExplicit
+#include "catapult/utils/MacroBasedEnum.h"
+#undef DEFINE_ENUM
+#undef EXPLICIT_VALUE_ENUM
+#undef ENUM_LIST
 	}
 
-	TEST(MacroBasedEnumTests, KnownExplicitValuesAreOutputAsLabel) {
+	TEST(TEST_CLASS, KnownExplicitValuesAreOutputAsLabel) {
 		// Assert:
 		EXPECT_EQ("Gamma", test::ToString(GreekLetters::Gamma));
 
@@ -167,7 +173,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ("Eta", test::ToString(static_cast<GreekLettersExplicit>(5)));
 	}
 
-	TEST(MacroBasedEnumTests, UnknownExplicitValuesAreOutputAsRawValue) {
+	TEST(TEST_CLASS, UnknownExplicitValuesAreOutputAsRawValue) {
 		// Assert:
 		EXPECT_EQ("GreekLettersExplicit(0x00000000)", test::ToString(static_cast<GreekLettersExplicit>(0)));
 		EXPECT_EQ("GreekLettersExplicit(0x00000003)", test::ToString(static_cast<GreekLettersExplicit>(3)));
@@ -176,58 +182,62 @@ namespace catapult { namespace utils {
 	}
 
 	namespace {
-		// declare and define multiple enums with a single value and varying backing types
-		#define SINGLE_VALUE_ENUM_LIST \
-			ENUM_VALUE(Foo)
+// declare and define multiple enums with a single value and varying backing types
+#define SINGLE_VALUE_ENUM_LIST \
+	ENUM_VALUE(Foo)
 
-		#define ENUM_LIST SINGLE_VALUE_ENUM_LIST
-			#define DECLARE_ENUM SingleValueEnumUInt8
-			#define EXPLICIT_TYPE_ENUM uint8_t
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef EXPLICIT_TYPE_ENUM
-			#undef DECLARE_ENUM
+#define ENUM_LIST SINGLE_VALUE_ENUM_LIST
 
-			#define DECLARE_ENUM SingleValueEnumImplicit
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+		enum class SingleValueEnumUInt8 : uint8_t {
+			ENUM_LIST
+		};
+#undef ENUM_VALUE
 
-			#define DECLARE_ENUM SingleValueEnumUInt64
-			#define EXPLICIT_TYPE_ENUM uint64_t
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef EXPLICIT_TYPE_ENUM
-			#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+		enum class SingleValueEnumImplicit {
+			ENUM_LIST
+		};
+#undef ENUM_VALUE
 
-			// define and use the operator<< to avoid compiler warnings
-			#define DEFINE_ENUM SingleValueEnumUInt8
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DEFINE_ENUM
+#define ENUM_VALUE(LABEL) LABEL,
+		enum class SingleValueEnumUInt64 : uint64_t {
+			ENUM_LIST
+		};
+#undef ENUM_VALUE
 
-			#define DEFINE_ENUM SingleValueEnumImplicit
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DEFINE_ENUM
+// define and use the operator<< to avoid compiler warnings
+#define DEFINE_ENUM SingleValueEnumUInt8
+#include "catapult/utils/MacroBasedEnum.h"
+#undef DEFINE_ENUM
 
-			#define DEFINE_ENUM SingleValueEnumUInt64
-			#include "catapult/utils/MacroBasedEnum.h"
-			#undef DEFINE_ENUM
-		#undef ENUM_LIST
+#define DEFINE_ENUM SingleValueEnumImplicit
+#include "catapult/utils/MacroBasedEnum.h"
+#undef DEFINE_ENUM
+
+#define DEFINE_ENUM SingleValueEnumUInt64
+#include "catapult/utils/MacroBasedEnum.h"
+#undef DEFINE_ENUM
+
+#undef ENUM_LIST
 
 		template<typename TEnum, typename TExpectedBackingType>
 		void AssertHasBackingType() {
 			// Act:
-			using TActualBackingType = std::underlying_type_t<TEnum>;
-			auto areTypesSame = std::is_same<TExpectedBackingType, TActualBackingType>::value;
+			using ActualBackingType = std::underlying_type_t<TEnum>;
+			auto areTypesSame = std::is_same<TExpectedBackingType, ActualBackingType>::value;
 
 			// Assert:
 			EXPECT_TRUE(areTypesSame) << "sizeof(TEnum): " << sizeof(TEnum) << " " << TEnum::Foo;
 		}
 	}
 
-	TEST(MacroBasedEnumTests, CanSpecifyImplicitEnumBackingType) {
+	TEST(TEST_CLASS, CanSpecifyImplicitEnumBackingType) {
 		// Assert:
 		AssertHasBackingType<SingleValueEnumImplicit, int32_t>();
 	}
 
-	TEST(MacroBasedEnumTests, CanSpecifyExplicitEnumBackingType) {
+	TEST(TEST_CLASS, CanSpecifyExplicitEnumBackingType) {
 		// Assert:
 		AssertHasBackingType<SingleValueEnumUInt8, uint8_t>();
 		AssertHasBackingType<SingleValueEnumUInt64, uint64_t>();

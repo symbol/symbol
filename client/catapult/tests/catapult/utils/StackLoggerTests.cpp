@@ -6,24 +6,29 @@
 #endif
 
 #include "catapult/utils/StackLogger.h"
-#include "tests/catapult/utils/utils/LoggingTestUtils.h"
+#include "tests/catapult/utils/test/LoggingTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {
 
-	TEST(StackLoggerTests, ElapsedMillisIsInitiallyZero) {
-		// Arrange:
-		StackLogger stackLogger("trace", LogLevel::Trace);
+#define TEST_CLASS StackLoggerTests
 
-		// Act:
-		auto elapsedMillis = stackLogger.millis();
+	TEST(TEST_CLASS, ElapsedMillisIsInitiallyZero) {
+		// Arrange:
+		uint64_t elapsedMillis;
+		test::RunDeterministicOperation([&elapsedMillis]() {
+			StackLogger stackLogger("trace", LogLevel::Trace);
+
+			// Act:
+			elapsedMillis = stackLogger.millis();
+		});
 
 		// Assert:
 		EXPECT_EQ(0u, elapsedMillis);
 	}
 
-	TEST(StackLoggerTests, ElapsedMillisIncreasesOverTime) {
+	TEST(TEST_CLASS, ElapsedMillisIncreasesOverTime) {
 		// Arrange:
 		StackLogger stackLogger("trace", LogLevel::Trace);
 
@@ -47,7 +52,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(StackLoggerTests, ElapsedMillisCanBeAccessedAtPointInTime) {
+	TEST(TEST_CLASS, ElapsedMillisCanBeAccessedAtPointInTime) {
 		// Arrange: non-deterministic due to sleep
 		test::RunNonDeterministicTest("specific elapsed time", []() {
 			StackLogger stackLogger("trace", LogLevel::Trace);
@@ -76,15 +81,15 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(StackLoggerTests, CanLogStackMessages) {
+	TEST(TEST_CLASS, CanLogStackMessages) {
 		// Arrange: non-deterministic due to sleep
 		test::RunNonDeterministicTest("log stack messages", []() {
-			test::TempFileGuard logFileGuard(Test_Log_Filename);
+			test::TempFileGuard logFileGuard(test::Test_Log_Filename);
 
 			{
 				// Arrange: add a file logger
 				LoggingBootstrapper bootstrapper;
-				bootstrapper.addFileLogger(CreateTestFileLoggerOptions(), LogFilter(LogLevel::Min));
+				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Min));
 
 				// Act: log messages by creating and destroying a stack logger
 				{
@@ -96,12 +101,12 @@ namespace catapult { namespace utils {
 			}
 
 			// Assert:
-			auto records = ParseLogLines(logFileGuard.name());
+			auto records = test::ParseLogLines(logFileGuard.name());
 			EXPECT_EQ(2u, records.size());
 			if (2u != records.size())
 				return true; // test will fail due to previous EXPECT_EQ
 
-			EXPECT_EQ("<warning> (utils::StackLogger.h@14) pushing scope 'test'", records[0].Message);
+			EXPECT_EQ("<warning> (utils::StackLogger.h@17) pushing scope 'test'", records[0].Message);
 
 			auto elapsedMillis = ParseElapsedMillis(records[1].Message);
 			if (!IsWithinSleepEpsilonRange(elapsedMillis)) {
@@ -110,7 +115,7 @@ namespace catapult { namespace utils {
 			}
 
 			auto elapsedMillisString = " (" + std::to_string(elapsedMillis) + "ms)";
-			EXPECT_EQ("<warning> (utils::StackLogger.h@24) popping scope 'test'" + elapsedMillisString, records[1].Message);
+			EXPECT_EQ("<warning> (utils::StackLogger.h@27) popping scope 'test'" + elapsedMillisString, records[1].Message);
 			return true;
 		});
 	}

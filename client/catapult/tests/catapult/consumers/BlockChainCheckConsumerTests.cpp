@@ -1,21 +1,26 @@
 #include "catapult/consumers/BlockConsumers.h"
 #include "catapult/model/BlockUtils.h"
-#include "tests/catapult/consumers/utils/ConsumerTestUtils.h"
+#include "catapult/utils/TimeSpan.h"
+#include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace consumers {
 
+#define TEST_CLASS BlockChainCheckConsumerTests
+
 	namespace {
 		constexpr uint32_t Test_Block_Chain_Limit = 20;
 
 		disruptor::ConstBlockConsumer CreateDefaultBlockChainCheckConsumer() {
-			return CreateBlockChainCheckConsumer(Test_Block_Chain_Limit);
+			return CreateBlockChainCheckConsumer(Test_Block_Chain_Limit, utils::TimeSpan::FromHours(1), []() {
+				return Timestamp(100);
+			});
 		}
 	}
 
-	TEST(BlockChainCheckConsumerTests, CanProcessZeroEntities) {
+	TEST(TEST_CLASS, CanProcessZeroEntities) {
 		// Assert:
 		test::AssertPassthroughForEmptyInput(CreateDefaultBlockChainCheckConsumer());
 	}
@@ -40,19 +45,66 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainCheckConsumerTests, BlockChainSizeCanBeLessThanBlockLimit) {
+	TEST(TEST_CLASS, BlockChainSizeCanBeLessThanBlockLimit) {
 		// Assert:
 		AssertBlockChainSizeValidation(Test_Block_Chain_Limit - 1, disruptor::CompletionStatus::Normal);
 	}
 
-	TEST(BlockChainCheckConsumerTests, BlockChainSizeCanBeEqualToBlockLimit) {
+	TEST(TEST_CLASS, BlockChainSizeCanBeEqualToBlockLimit) {
 		// Assert:
 		AssertBlockChainSizeValidation(Test_Block_Chain_Limit, disruptor::CompletionStatus::Normal);
 	}
 
-	TEST(BlockChainCheckConsumerTests, BlockChainSizeCannotBeGreaterThanBlockLimit) {
+	TEST(TEST_CLASS, BlockChainSizeCannotBeGreaterThanBlockLimit) {
 		// Assert:
 		AssertBlockChainSizeValidation(Test_Block_Chain_Limit + 1, disruptor::CompletionStatus::Aborted);
+	}
+
+	// endregion
+
+	// region future blocks
+
+	namespace {
+		void AssertFutureBlocksValidation(
+				uint32_t chainSize,
+				Timestamp currentTime,
+				const utils::TimeSpan& maxBlockFutureTime,
+				disruptor::CompletionStatus expectedStatus) {
+			// Arrange:
+			auto elements = test::CreateBlockElements(chainSize);
+			test::LinkBlocks(Height(12), elements);
+			auto consumer = CreateBlockChainCheckConsumer(Test_Block_Chain_Limit, maxBlockFutureTime, [currentTime]() {
+				return currentTime;
+			});
+
+			// Sanity: first block should have timestamp 2 * height but validation is only against *last* block
+			EXPECT_EQ(Timestamp(24), (elements.begin())->Block.Timestamp);
+			EXPECT_EQ(Timestamp(24 + chainSize - 1), (--elements.end())->Block.Timestamp);
+
+			// Act:
+			auto result = consumer(elements);
+
+			// Assert:
+			if (disruptor::CompletionStatus::Normal == expectedStatus)
+				test::AssertContinued(result);
+			else
+				test::AssertAborted(result, Failure_Consumer_Remote_Chain_Too_Far_In_Future);
+		}
+	}
+
+	TEST(TEST_CLASS, ChainTimestampCanBeLessThanAcceptedLimit) {
+		// Assert: chain timestamp (28ms) < limit (11ms + 18ms)
+		AssertFutureBlocksValidation(5, Timestamp(11), utils::TimeSpan::FromMilliseconds(18), disruptor::CompletionStatus::Normal);
+	}
+
+	TEST(TEST_CLASS, ChainTimestampCanBeEqualToAcceptedLimit) {
+		// Assert: chain timestamp (28ms) == limit (11ms + 17ms)
+		AssertFutureBlocksValidation(5, Timestamp(11), utils::TimeSpan::FromMilliseconds(17), disruptor::CompletionStatus::Normal);
+	}
+
+	TEST(TEST_CLASS, ChainTimestampCannotBeGreaterThanAcceptedLimit) {
+		// Assert: chain timestamp (28ms) > limit (11ms + 16ms)
+		AssertFutureBlocksValidation(5, Timestamp(11), utils::TimeSpan::FromMilliseconds(16), disruptor::CompletionStatus::Aborted);
 	}
 
 	// endregion
@@ -63,15 +115,15 @@ namespace catapult { namespace consumers {
 		std::unique_ptr<model::Block> CreateBlockFromTransactions(
 				const test::ConstTransactions& transactions,
 				const std::vector<size_t>& transactionIndexes) {
-			test::ConstTransactions copiedTransactions;
+			test::ConstTransactions transactionsCopy;
 			for (auto index : transactionIndexes)
-				copiedTransactions.push_back(test::CopyEntity(*transactions[index]));
+				transactionsCopy.push_back(test::CopyEntity(*transactions[index]));
 
-			return test::GenerateRandomBlockWithTransactions(copiedTransactions);
+			return test::GenerateRandomBlockWithTransactions(transactionsCopy);
 		}
 	}
 
-	TEST(BlockChainCheckConsumerTests, ChainIsInvalidIfOneBlockContainsTheSameTransactionTwice) {
+	TEST(TEST_CLASS, ChainIsInvalidIfOneBlockContainsTheSameTransactionTwice) {
 		// Arrange: create three blocks where the middle one has duplicate transactions
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(9));
 		auto pBlock1 = CreateBlockFromTransactions(transactions, { 0, 1, 2 });
@@ -87,7 +139,7 @@ namespace catapult { namespace consumers {
 		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Duplicate_Transactions);
 	}
 
-	TEST(BlockChainCheckConsumerTests, ChainIsInvalidIfTwoBlocksContainTheSameTransaction) {
+	TEST(TEST_CLASS, ChainIsInvalidIfTwoBlocksContainTheSameTransaction) {
 		// Arrange: create three blocks where the first and third share transactions
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(9));
 		auto pBlock1 = CreateBlockFromTransactions(transactions, { 0, 1, 2 });
@@ -103,7 +155,7 @@ namespace catapult { namespace consumers {
 		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Duplicate_Transactions);
 	}
 
-	TEST(BlockChainCheckConsumerTests, ChainIsValidIfAllTransactionsAreUnique) {
+	TEST(TEST_CLASS, ChainIsValidIfAllTransactionsAreUnique) {
 		// Arrange: create three blocks where all transactions are unique
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(9));
 		auto pBlock1 = CreateBlockFromTransactions(transactions, { 0, 1, 2 });
@@ -124,7 +176,7 @@ namespace catapult { namespace consumers {
 	// region chain link
 
 	namespace {
-		void AssertUnlinkedChain(const std::function<void (model::Block&)>& unlink) {
+		void AssertUnlinkedChain(const consumer<model::Block&>& unlink) {
 			// Arrange: unlink the second and third block
 			auto elements = test::CreateBlockElements(4);
 			test::LinkBlocks(Height(12), elements);
@@ -139,17 +191,17 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(BlockChainCheckConsumerTests, AllBlocksInChainMustHaveCorrectHeight) {
+	TEST(TEST_CLASS, AllBlocksInChainMustHaveCorrectHeight) {
 		// Assert:
 		AssertUnlinkedChain([](auto& block) { block.Height = Height(12 + 4); });
 	}
 
-	TEST(BlockChainCheckConsumerTests, AllBlocksInChainMustHaveCorrectPreviousBlockHash) {
+	TEST(TEST_CLASS, AllBlocksInChainMustHaveCorrectPreviousBlockHash) {
 		// Assert:
 		AssertUnlinkedChain([](auto& block) { ++block.PreviousBlockHash[0]; });
 	}
 
-	TEST(BlockChainCheckConsumerTests, AllBlocksInChainMustHaveCorrectHeightInCorrectOrder) {
+	TEST(TEST_CLASS, AllBlocksInChainMustHaveCorrectHeightInCorrectOrder) {
 		// Arrange: swap the heights of the second and third block
 		auto elements = test::CreateBlockElements(4);
 		test::LinkBlocks(Height(12), elements);

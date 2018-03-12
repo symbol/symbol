@@ -1,61 +1,59 @@
 #include "src/builders/MosaicSupplyChangeBuilder.h"
 #include "plugins/txes/namespace/src/model/IdGenerator.h"
-#include "tests/TestHarness.h"
-
-#define TEST_CLASS MosaicSupplyChangeBuilderTests
+#include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
 
+#define TEST_CLASS MosaicSupplyChangeBuilderTests
+
 	namespace {
+		using RegularTraits = test::RegularTransactionTraits<model::MosaicSupplyChangeTransaction>;
+		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedMosaicSupplyChangeTransaction>;
+
 		using TransactionType = model::MosaicSupplyChangeTransaction;
 		using TransactionPtr = std::unique_ptr<TransactionType>;
 
-		auto CreateTransactionBuilder(MosaicId mosaicId, const std::function<void (MosaicSupplyChangeBuilder&)>& prepareTransaction) {
+		auto CreateTransactionBuilder(MosaicId mosaicId, const consumer<MosaicSupplyChangeBuilder&>& prepareTransaction) {
 			return [mosaicId, prepareTransaction](model::NetworkIdentifier networkId, const Key& signer) {
 				MosaicSupplyChangeBuilder builder(networkId, signer, mosaicId);
 				prepareTransaction(builder);
-				return builder.build();
+				return builder;
 			};
 		}
 
 		auto CreateTransactionBuilder(
 				NamespaceId namespaceId,
 				const std::string& mosaicName,
-				const std::function<void (MosaicSupplyChangeBuilder&)>& prepareTransaction) {
+				const consumer<MosaicSupplyChangeBuilder&>& prepareTransaction) {
 			return [namespaceId, mosaicName, prepareTransaction](model::NetworkIdentifier networkId, const Key& signer) {
 				MosaicSupplyChangeBuilder builder(networkId, signer, namespaceId, mosaicName);
 				prepareTransaction(builder);
-				return builder.build();
+				return builder;
 			};
 		}
 
+		template<typename TTraits, typename TValidationFunction>
 		void AssertCanBuildTransaction(
-				const std::function<TransactionPtr (model::NetworkIdentifier, const Key&)>& buildTransaction,
-				const std::function<void (const model::MosaicSupplyChangeTransaction&)>& validateTransaction) {
+				const std::function<MosaicSupplyChangeBuilder (model::NetworkIdentifier, const Key&)>& builderFactory,
+				const TValidationFunction& validateTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
 
 			// Act:
-			auto pTransaction = buildTransaction(networkId, signer);
+			auto builder = builderFactory(networkId, signer);
+			auto pTransaction = TTraits::InvokeBuilder(builder);
 
 			// Assert:
-			ASSERT_EQ(sizeof(model::MosaicSupplyChangeTransaction), pTransaction->Size);
-			EXPECT_EQ(Signature{}, pTransaction->Signature);
+			TTraits::CheckFields(0, *pTransaction);
 			EXPECT_EQ(signer, pTransaction->Signer);
 			EXPECT_EQ(0x6202, pTransaction->Version);
-			EXPECT_EQ(model::EntityType::Mosaic_Supply_Change, pTransaction->Type);
-
-			EXPECT_EQ(Amount(0), pTransaction->Fee);
-			EXPECT_EQ(Timestamp(0), pTransaction->Deadline);
+			EXPECT_EQ(model::Entity_Type_Mosaic_Supply_Change, pTransaction->Type);
 
 			validateTransaction(*pTransaction);
 		}
 
-		auto CreatePropertyChecker(
-				MosaicId mosaicId,
-				model::MosaicSupplyChangeDirection direction,
-				Amount delta) {
+		auto CreatePropertyChecker(MosaicId mosaicId, model::MosaicSupplyChangeDirection direction, Amount delta) {
 			return [mosaicId, direction, delta](const auto& transaction) {
 				EXPECT_EQ(mosaicId, transaction.MosaicId);
 				EXPECT_EQ(direction, transaction.Direction);
@@ -64,26 +62,32 @@ namespace catapult { namespace builders {
 		}
 	}
 
+#define TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
 	// region constructor
 
-	TEST(TEST_CLASS, CanCreateTransaction) {
+	TRAITS_BASED_TEST(CanCreateTransaction) {
 		// Arrange:
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				CreateTransactionBuilder(mosaicId, [](const auto&) {}),
 				CreatePropertyChecker(mosaicId, model::MosaicSupplyChangeDirection::Increase, Amount(0)));
 	}
 
-	TEST(TEST_CLASS, CanCreateTransactionUsingNamespaceIdAndName) {
+	TRAITS_BASED_TEST(CanCreateTransactionUsingNamespaceIdAndName) {
 		// Arrange:
 		auto namespaceId = test::GenerateRandomValue<NamespaceId>();
 		auto mosaicName = std::string();
 
 		// Assert:
 		auto mosaicId = model::GenerateMosaicId(namespaceId, mosaicName);
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				CreateTransactionBuilder(namespaceId, mosaicName, [](const auto&) {}),
 				CreatePropertyChecker(mosaicId, model::MosaicSupplyChangeDirection::Increase, Amount(0)));
 	}
@@ -92,36 +96,36 @@ namespace catapult { namespace builders {
 
 	// region settings
 
-	TEST(TEST_CLASS, CanSetDecrease) {
+	TRAITS_BASED_TEST(CanSetDecrease) {
 		// Arrange:
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				CreateTransactionBuilder(mosaicId, [](auto& builder) {
 					builder.setDecrease();
 				}),
 				CreatePropertyChecker(mosaicId, model::MosaicSupplyChangeDirection::Decrease, Amount(0)));
 	}
 
-	TEST(TEST_CLASS, CanSetDelta) {
+	TRAITS_BASED_TEST(CanSetDelta) {
 		// Arrange:
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				CreateTransactionBuilder(mosaicId, [](auto& builder) {
 					builder.setDelta(Amount(12345678));
 				}),
 				CreatePropertyChecker(mosaicId, model::MosaicSupplyChangeDirection::Increase, Amount(12345678)));
 	}
 
-	TEST(TEST_CLASS, CanSetDecreaseAndDelta) {
+	TRAITS_BASED_TEST(CanSetDecreaseAndDelta) {
 		// Arrange:
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
 
 		// Assert:
-		AssertCanBuildTransaction(
+		AssertCanBuildTransaction<TTraits>(
 				CreateTransactionBuilder(mosaicId, [](auto& builder) {
 					builder.setDecrease();
 					builder.setDelta(Amount(12345678));

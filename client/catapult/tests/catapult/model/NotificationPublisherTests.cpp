@@ -14,12 +14,12 @@ namespace catapult { namespace model {
 				utils::to_underlying_type(mocks::PluginOptionFlags::Publish_Custom_Notifications));
 
 		template<typename TEntity, typename TAssertSubFunc>
-		void PublishAll(const TEntity& entity, TAssertSubFunc assertSub) {
+		void PublishAll(const TEntity& entity, PublicationMode mode, TAssertSubFunc assertSub) {
 			// Arrange:
 			mocks::MockNotificationSubscriber sub;
 
-			auto pRegistry = mocks::CreateDefaultTransactionRegistry(Plugin_Option_Flags);
-			auto pPub = CreateNotificationPublisher(*pRegistry);
+			auto registry = mocks::CreateDefaultTransactionRegistry(Plugin_Option_Flags);
+			auto pPub = CreateNotificationPublisher(registry, mode);
 
 			// Act:
 			auto hash = test::GenerateRandomData<Key_Size>();
@@ -29,13 +29,18 @@ namespace catapult { namespace model {
 			assertSub(sub);
 		}
 
+		template<typename TEntity, typename TAssertSubFunc>
+		void PublishAll(const TEntity& entity, TAssertSubFunc assertSub) {
+			PublishAll(entity, PublicationMode::All, assertSub);
+		}
+
 		template<typename TNotification, typename TEntity, typename TAssertNotification>
 		void PublishOne(const TEntity& entity, const Hash256& hash, TAssertNotification assertNotification) {
 			// Arrange:
 			mocks::MockTypedNotificationSubscriber<TNotification> sub;
 
-			auto pRegistry = mocks::CreateDefaultTransactionRegistry(Plugin_Option_Flags);
-			auto pPub = CreateNotificationPublisher(*pRegistry);
+			auto registry = mocks::CreateDefaultTransactionRegistry(Plugin_Option_Flags);
+			auto pPub = CreateNotificationPublisher(registry);
 
 			// Act:
 			pPub->publish(model::WeakEntityInfo(entity, hash), sub);
@@ -145,6 +150,17 @@ namespace catapult { namespace model {
 		});
 	}
 
+	TEST(TEST_CLASS, CanSuppressBasicBlockNotifications) {
+		// Arrange:
+		auto pBlock = GenerateBlockWithTransactionFees({});
+
+		// Act:
+		PublishAll(*pBlock, PublicationMode::Custom, [](const auto& sub) {
+			// Assert: all notifications were suppressed (blocks do not have custom notifications)
+			ASSERT_EQ(0u, sub.numNotifications());
+		});
+	}
+
 	// endregion
 
 	// region transaction
@@ -207,7 +223,8 @@ namespace catapult { namespace model {
 		PublishOne<TransactionNotification>(*pTransaction, hash, [&signer = pTransaction->Signer, &hash](const auto& notification) {
 			// Assert:
 			EXPECT_EQ(signer, notification.Signer);
-			EXPECT_EQ(hash, notification.EntityHash);
+			EXPECT_EQ(hash, notification.TransactionHash);
+			EXPECT_EQ(static_cast<model::EntityType>(mocks::MockTransaction::Entity_Type), notification.TransactionType);
 			EXPECT_EQ(Timestamp(454), notification.Deadline);
 		});
 	}
@@ -243,6 +260,41 @@ namespace catapult { namespace model {
 		});
 	}
 
+	TEST(TEST_CLASS, CanSuppressCustomTransactionNotifications) {
+		// Arrange:
+		auto pTransaction = mocks::CreateMockTransaction(12);
+
+		// Act:
+		PublishAll(*pTransaction, PublicationMode::Basic, [&transaction = *pTransaction](const auto& sub) {
+			// Assert: 4 raised by NotificationPublisher, none raised by MockTransaction::publish
+			ASSERT_EQ(4u, sub.numNotifications());
+			EXPECT_EQ(Core_Register_Account_Public_Key_Notification, sub.notificationTypes()[0]);
+			EXPECT_EQ(Core_Entity_Notification, sub.notificationTypes()[1]);
+			EXPECT_EQ(Core_Transaction_Notification, sub.notificationTypes()[2]);
+			EXPECT_EQ(Core_Signature_Notification, sub.notificationTypes()[3]);
+		});
+	}
+
+	TEST(TEST_CLASS, CanSuppressBasicTransactionNotifications) {
+		// Arrange:
+		auto pTransaction = mocks::CreateMockTransaction(12);
+
+		// Act:
+		PublishAll(*pTransaction, PublicationMode::Custom, [&transaction = *pTransaction](const auto& sub) {
+			// Assert: 8 raised by MockTransaction::publish (first is AccountPublicKeyNotification)
+			ASSERT_EQ(1u + 7, sub.numNotifications());
+
+			EXPECT_EQ(Core_Register_Account_Public_Key_Notification, sub.notificationTypes()[0]);
+			EXPECT_EQ(mocks::Mock_Observer_1_Notification, sub.notificationTypes()[1]);
+			EXPECT_EQ(mocks::Mock_Validator_1_Notification, sub.notificationTypes()[2]);
+			EXPECT_EQ(mocks::Mock_All_1_Notification, sub.notificationTypes()[3]);
+			EXPECT_EQ(mocks::Mock_Observer_2_Notification, sub.notificationTypes()[4]);
+			EXPECT_EQ(mocks::Mock_Validator_2_Notification, sub.notificationTypes()[5]);
+			EXPECT_EQ(mocks::Mock_All_2_Notification, sub.notificationTypes()[6]);
+			EXPECT_EQ(mocks::Mock_Hash_Notification, sub.notificationTypes()[7]);
+		});
+	}
+
 	// endregion
 
 	// region other
@@ -272,6 +324,18 @@ namespace catapult { namespace model {
 		PublishOne<EntityNotification>(entity, [](const auto& notification) {
 			// Assert:
 			EXPECT_EQ(static_cast<NetworkIdentifier>(0x11), notification.NetworkIdentifier);
+		});
+	}
+
+	TEST(TEST_CLASS, CanSuppressBasicOtherNotifications) {
+		// Arrange:
+		VerifiableEntity entity{};
+		test::FillWithRandomData(entity.Signer);
+
+		// Act:
+		PublishAll(entity, PublicationMode::Custom, [](const auto& sub) {
+			// Assert: all notifications were suppressed (other entities do not have custom notifications)
+			ASSERT_EQ(0u, sub.numNotifications());
 		});
 	}
 

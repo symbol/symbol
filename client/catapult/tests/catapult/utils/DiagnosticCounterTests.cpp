@@ -3,7 +3,9 @@
 
 namespace catapult { namespace utils {
 
-	TEST(DiagnosticCounterTests, CanCreateCounter) {
+#define TEST_CLASS DiagnosticCounterTests
+
+	TEST(TEST_CLASS, CanCreateCounter) {
 		// Act:
 		DiagnosticCounter counter(DiagnosticCounterId("CAT"), []() { return 123; });
 
@@ -12,7 +14,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123u, counter.value());
 	}
 
-	TEST(DiagnosticCounterTests, CounterValueAccessesSupplierForLatestValue) {
+	TEST(TEST_CLASS, CounterValueAccessesSupplierForLatestValue) {
 		// Arrange:
 		auto i = 0;
 		DiagnosticCounter counter(DiagnosticCounterId(), [&i]() {

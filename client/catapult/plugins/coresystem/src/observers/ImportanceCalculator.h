@@ -18,9 +18,7 @@ namespace catapult { namespace observers {
 	public:
 		/// Recalculates importances for all accounts in \a cache at \a importanceHeight that are eligible for
 		/// harvesting.
-		virtual void recalculate(
-				model::ImportanceHeight importanceHeight,
-				cache::AccountStateCacheDelta& cache) const = 0;
+		virtual void recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache) const = 0;
 	};
 
 	/// Creates an importance calculator for the block chain described by \a config.

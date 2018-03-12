@@ -1,5 +1,5 @@
 #include "catapult/disruptor/DisruptorElement.h"
-#include "tests/catapult/disruptor/utils/ConsumerInputTestUtils.h"
+#include "tests/catapult/disruptor/test/ConsumerInputTestUtils.h"
 #include "tests/test/other/DisruptorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -98,7 +98,7 @@ namespace catapult { namespace disruptor {
 
 	namespace {
 		void AssertProcessingCompleteDelegatesToCompletionHandler(
-				const std::function<void (DisruptorElement&)>& elementModifier,
+				const consumer<DisruptorElement&>& elementModifier,
 				const ConsumerCompletionResult& expectedResult) {
 			// Arrange:
 			DisruptorElementId elementId;

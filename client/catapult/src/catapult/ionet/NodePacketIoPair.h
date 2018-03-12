@@ -31,7 +31,7 @@ namespace catapult { namespace ionet {
 
 	public:
 		/// Returns \c true if this pair is not empty.
-		operator bool() const {
+		explicit operator bool() const {
 			return !!m_pPacketIo;
 		}
 

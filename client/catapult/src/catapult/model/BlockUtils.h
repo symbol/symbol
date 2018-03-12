@@ -7,7 +7,7 @@ namespace catapult { namespace crypto { class KeyPair; } }
 
 namespace catapult { namespace model {
 
-	//region hashes
+	// region hashes
 
 	/// Calculates the block transactions hash of \a transactionInfos into \a blockTransactionsHash.
 	void CalculateBlockTransactionsHash(const std::vector<const TransactionInfo*>& transactionInfos, Hash256& blockTransactionsHash);

@@ -15,7 +15,7 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				const cache::CatapultCache& cache,
 				const Key& signer,
-				const model::EmbeddedEntity& subTransaction,
+				const model::EmbeddedTransaction& subTransaction,
 				const std::vector<Key>& cosigners) {
 			// Arrange:
 			// - setup cosignatures
@@ -37,8 +37,8 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(expectedResult, result);
 		}
 
-		std::unique_ptr<model::EmbeddedEntity> CreateEmbeddedTransaction(const Key& signer) {
-			auto pTransaction = std::make_unique<model::EmbeddedEntity>();
+		std::unique_ptr<model::EmbeddedTransaction> CreateEmbeddedTransaction(const Key& signer) {
+			auto pTransaction = std::make_unique<model::EmbeddedTransaction>();
 			pTransaction->Signer = signer;
 			return pTransaction;
 		}
@@ -114,7 +114,7 @@ namespace catapult { namespace validators {
 		auto cosigners = test::GenerateRandomDataVector<Key>(2);
 
 		// Assert: embedded transaction signer is neither aggregate signer nor cosigner
-		AssertValidationResult<TTraits>(Failure_Multisig_Missing_Cosigners, embeddedSigner, aggregateSigner, cosigners);
+		AssertValidationResult<TTraits>(Failure_Aggregate_Missing_Cosigners, embeddedSigner, aggregateSigner, cosigners);
 	}
 
 	// endregion
@@ -171,7 +171,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, InsufficientWhenMultisigEmbeddedTransactionSignerHasLessThanMinApprovers) {
 		// Assert: 2 < 3
 		AssertBasicMultisigResult(
-				Failure_Multisig_Missing_Cosigners,
+				Failure_Aggregate_Missing_Cosigners,
 				[](const auto& cosignatories) { return std::vector<Key>{ cosignatories[0], cosignatories[2] }; });
 	}
 
@@ -249,7 +249,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, InsufficientWhenMultilevelMultisigEmbeddedTransactionSignerHasLessThanMinApprovers) {
 		// Assert: 2 < 3
 		AssertBasicMultilevelMultisigResult(
-				Failure_Multisig_Missing_Cosigners,
+				Failure_Aggregate_Missing_Cosigners,
 				[](const auto& cosignatories) { return std::vector<Key>{ cosignatories[0], cosignatories[2] }; });
 	}
 
@@ -300,7 +300,7 @@ namespace catapult { namespace validators {
 			// Assert:
 			CATAPULT_LOG(debug) << "running test with " << expectedLimit - 1 << " cosigners (insufficient)";
 			auto insufficientCosigners = std::vector<Key>(cosignatories.cbegin(), cosignatories.cbegin() + expectedLimit - 1);
-			AssertValidationResult(Failure_Multisig_Missing_Cosigners, cache, aggregateSigner, *pSubTransaction, insufficientCosigners);
+			AssertValidationResult(Failure_Aggregate_Missing_Cosigners, cache, aggregateSigner, *pSubTransaction, insufficientCosigners);
 
 			CATAPULT_LOG(debug) << "running test with " << expectedLimit << " cosigners (sufficient)";
 			auto sufficientCosigners = std::vector<Key>(cosignatories.cbegin(), cosignatories.cbegin() + expectedLimit);
@@ -363,12 +363,12 @@ namespace catapult { namespace validators {
 		CATAPULT_LOG(debug) << "running test with 3 + 3 cosigners (insufficient)";
 		auto insufficient33Cosigners = base23Cosigners;
 		insufficient33Cosigners.push_back(cosignatories[2]);
-		AssertValidationResult(Failure_Multisig_Missing_Cosigners, cache, aggregateSigner, *pSubTransaction, insufficient33Cosigners);
+		AssertValidationResult(Failure_Aggregate_Missing_Cosigners, cache, aggregateSigner, *pSubTransaction, insufficient33Cosigners);
 
 		CATAPULT_LOG(debug) << "running test with 2 + 4 cosigners (insufficient)";
 		auto insufficient24Cosigners = base23Cosigners;
 		insufficient24Cosigners.push_back(secondLevelCosignatories[3]);
-		AssertValidationResult(Failure_Multisig_Missing_Cosigners, cache, aggregateSigner, *pSubTransaction, insufficient24Cosigners);
+		AssertValidationResult(Failure_Aggregate_Missing_Cosigners, cache, aggregateSigner, *pSubTransaction, insufficient24Cosigners);
 
 		CATAPULT_LOG(debug) << "running test with 3 + 4 cosigners (sufficient)";
 		auto sufficientCosigners = base23Cosigners;

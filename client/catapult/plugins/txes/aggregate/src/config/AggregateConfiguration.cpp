@@ -15,9 +15,10 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(MaxTransactionsPerAggregate);
 		LOAD_PROPERTY(MaxCosignaturesPerAggregate);
 		LOAD_PROPERTY(EnableStrictCosignatureCheck);
+		LOAD_PROPERTY(EnableBondedAggregateSupport);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 3);
+		utils::VerifyBagSizeLte(bag, 4);
 		return config;
 	}
 }}

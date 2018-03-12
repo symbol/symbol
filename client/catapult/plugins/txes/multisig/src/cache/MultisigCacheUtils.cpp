@@ -4,8 +4,6 @@
 namespace catapult { namespace cache {
 
 	namespace {
-		using ReadOnlyMultisigCache = multisig_cache_types::CacheReadOnlyType;
-
 		struct AncestorTraits {
 			static const auto& GetKeySet(const state::MultisigEntry& multisigEntry) {
 				return multisigEntry.multisigAccounts();
@@ -19,7 +17,7 @@ namespace catapult { namespace cache {
 		};
 
 		template<typename TTraits>
-		size_t FindAll(const ReadOnlyMultisigCache& multisigCache, const Key& publicKey, utils::KeySet& keySet) {
+		size_t FindAll(const MultisigCacheTypes::CacheReadOnlyType& multisigCache, const Key& publicKey, utils::KeySet& keySet) {
 			if (!multisigCache.contains(publicKey))
 				return 0;
 
@@ -34,11 +32,11 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	size_t FindAncestors(const ReadOnlyMultisigCache& cache, const Key& key, utils::KeySet& ancestorKeys) {
+	size_t FindAncestors(const MultisigCacheTypes::CacheReadOnlyType& cache, const Key& key, utils::KeySet& ancestorKeys) {
 		return FindAll<AncestorTraits>(cache, key, ancestorKeys);
 	}
 
-	size_t FindDescendants(const ReadOnlyMultisigCache& cache, const Key& key, utils::KeySet& descendantKeys) {
+	size_t FindDescendants(const MultisigCacheTypes::CacheReadOnlyType& cache, const Key& key, utils::KeySet& descendantKeys) {
 		return FindAll<DescendantTraits>(cache, key, descendantKeys);
 	}
 }}

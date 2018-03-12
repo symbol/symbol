@@ -1,5 +1,5 @@
 #include "catapult/chain/ChainUtils.h"
-#include "catapult/cache/BlockDifficultyCache.h"
+#include "catapult/cache_core/BlockDifficultyCache.h"
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/EntityHasher.h"
@@ -8,6 +8,8 @@
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace chain {
+
+#define TEST_CLASS ChainUtilsTests
 
 	// region IsChainLink
 
@@ -36,7 +38,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(ChainUtilsTests, IsChainLinkReturnsFalseIfHeightIsMismatched) {
+	TEST(TEST_CLASS, IsChainLinkReturnsFalseIfHeightIsMismatched) {
 		// Assert:
 		AssertNotLinkedForHeights(Height(70), Height(60));
 		AssertNotLinkedForHeights(Height(70), Height(69));
@@ -45,7 +47,7 @@ namespace catapult { namespace chain {
 		AssertNotLinkedForHeights(Height(70), Height(80));
 	}
 
-	TEST(ChainUtilsTests, IsChainLinkReturnsFalseIfPreviousBlockHashIsIncorrect) {
+	TEST(TEST_CLASS, IsChainLinkReturnsFalseIfPreviousBlockHashIsIncorrect) {
 		// Arrange:
 		auto pParent = GenerateBlockAtHeight(Height(70), Timestamp(100));
 		auto pChild = GenerateBlockAtHeight(Height(71), Timestamp(101));
@@ -73,7 +75,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(ChainUtilsTests, IsChainLinkReturnsFalseIfTimestampsAreNotIncreasing) {
+	TEST(TEST_CLASS, IsChainLinkReturnsFalseIfTimestampsAreNotIncreasing) {
 		// Assert:
 		AssertNotLinkedForTimestamps(Timestamp(70), Timestamp(60));
 		AssertNotLinkedForTimestamps(Timestamp(70), Timestamp(69));
@@ -95,7 +97,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(ChainUtilsTests, IsChainLinkReturnsTrueIfBothHeightAndHashesAreCorrectAndTimestampsAreIncreasing) {
+	TEST(TEST_CLASS, IsChainLinkReturnsTrueIfBothHeightAndHashesAreCorrectAndTimestampsAreIncreasing) {
 		// Assert:
 		AssertLinkedForTimestamps(Timestamp(70), Timestamp(71));
 		AssertLinkedForTimestamps(Timestamp(70), Timestamp(700));
@@ -113,17 +115,12 @@ namespace catapult { namespace chain {
 			return Timestamp((height - Height(1)).unwrap() * timeBetweenBlocks.millis());
 		}
 
-		std::unique_ptr<cache::BlockDifficultyCache> SeedBlockDifficultyCache(
-				Height maxHeight,
-				const utils::TimeSpan& timeBetweenBlocks) {
+		std::unique_ptr<cache::BlockDifficultyCache> SeedBlockDifficultyCache(Height maxHeight, const utils::TimeSpan& timeBetweenBlocks) {
 			auto pCache = std::make_unique<cache::BlockDifficultyCache>(0);
 			auto delta = pCache->createDelta();
 
 			for (auto height = Height(1); height <= maxHeight; height = height + Height(1)) {
-				state::BlockDifficultyInfo info(
-						height,
-						CalculateTimestamp(height, timeBetweenBlocks),
-						Difficulty());
+				state::BlockDifficultyInfo info(height, CalculateTimestamp(height, timeBetweenBlocks), Difficulty());
 				delta->insert(info);
 			}
 
@@ -163,7 +160,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(ChainUtilsTests, DifficultiesAreValidIfPeerChainIsEmpty) {
+	TEST(TEST_CLASS, DifficultiesAreValidIfPeerChainIsEmpty) {
 		// Arrange: set up the config
 		auto config = CreateConfiguration();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromMilliseconds(10000);
@@ -200,27 +197,25 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(ChainUtilsTests, DifficultiesAreValidIfAllDifficultiesAreCorrectAndFullHistoryIsPresent_Equal) {
+	TEST(TEST_CLASS, DifficultiesAreValidIfAllDifficultiesAreCorrectAndFullHistoryIsPresent_Equal) {
 		// Assert:
 		AssertDifficultiesAreValidForBlocksWithEqualDifficulties(15, Height(20));
 	}
 
-	TEST(ChainUtilsTests, DifficultiesAreValidIfAllDifficultiesAreCorrectAndPartialHistoryIsPresent_Equal) {
+	TEST(TEST_CLASS, DifficultiesAreValidIfAllDifficultiesAreCorrectAndPartialHistoryIsPresent_Equal) {
 		// Assert:
 		AssertDifficultiesAreValidForBlocksWithEqualDifficulties(15, Height(5));
 	}
 
 	namespace {
-		void AssertDifficultiesAreValidForBlocksWithIncreasingDifficulties(
-				uint32_t maxDifficultyBlocks,
-				Height chainHeight) {
+		void AssertDifficultiesAreValidForBlocksWithIncreasingDifficulties(uint32_t maxDifficultyBlocks, Height chainHeight) {
 			// Arrange: set up the config
 			auto config = CreateConfiguration();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromMilliseconds(10000);
 			config.MaxDifficultyBlocks = maxDifficultyBlocks;
 
 			// - seed the difficulty cache with chainHeight infos and copy all the infos
-			using cache::block_difficulty_cache_types::DifficultySet;
+			using DifficultySet = cache::BlockDifficultyCacheTypes::BaseSetType::SetType;
 			auto pCache = SeedBlockDifficultyCache(chainHeight, utils::TimeSpan::FromMilliseconds(9000));
 			DifficultySet set;
 			{
@@ -255,12 +250,12 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(ChainUtilsTests, DifficultiesAreValidIfAllDifficultiesAreCorrectAndFullHistoryIsPresent_Increasing) {
+	TEST(TEST_CLASS, DifficultiesAreValidIfAllDifficultiesAreCorrectAndFullHistoryIsPresent_Increasing) {
 		// Assert:
 		AssertDifficultiesAreValidForBlocksWithIncreasingDifficulties(15, Height(20));
 	}
 
-	TEST(ChainUtilsTests, DifficultiesAreValidIfAllDifficultiesAreCorrectAndPartialHistoryIsPresent_Increasing) {
+	TEST(TEST_CLASS, DifficultiesAreValidIfAllDifficultiesAreCorrectAndPartialHistoryIsPresent_Increasing) {
 		// Assert:
 		AssertDifficultiesAreValidForBlocksWithIncreasingDifficulties(15, Height(5));
 	}
@@ -292,17 +287,17 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(ChainUtilsTests, DifficultiesAreInvalidIfFirstBlockHasIncorrectDifficulty) {
+	TEST(TEST_CLASS, DifficultiesAreInvalidIfFirstBlockHasIncorrectDifficulty) {
 		// Assert:
 		AssertDifficultiesAreInvalidForDifferenceAt(15, Height(20), 5, 0);
 	}
 
-	TEST(ChainUtilsTests, DifficultiesAreInvalidIfMiddleBlockHasIncorrectDifficulty) {
+	TEST(TEST_CLASS, DifficultiesAreInvalidIfMiddleBlockHasIncorrectDifficulty) {
 		// Assert:
 		AssertDifficultiesAreInvalidForDifferenceAt(15, Height(20), 5, 2);
 	}
 
-	TEST(ChainUtilsTests, DifficultiesAreInvalidIfLastBlockHasIncorrectDifficulty) {
+	TEST(TEST_CLASS, DifficultiesAreInvalidIfLastBlockHasIncorrectDifficulty) {
 		// Assert:
 		AssertDifficultiesAreInvalidForDifferenceAt(15, Height(20), 5, 4);
 	}
@@ -320,7 +315,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(ChainUtilsTests, CanCalculatePartialChainScoreForEmptyChain) {
+	TEST(TEST_CLASS, CanCalculatePartialChainScoreForEmptyChain) {
 		// Arrange:
 		auto pParentBlock = CreateBlock(Timestamp(100'000), Difficulty());
 
@@ -331,7 +326,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(model::ChainScore(0), score);
 	}
 
-	TEST(ChainUtilsTests, CanCalculatePartialChainScoreForSingleBlockChain) {
+	TEST(TEST_CLASS, CanCalculatePartialChainScoreForSingleBlockChain) {
 		// Arrange:
 		auto pParentBlock = CreateBlock(Timestamp(100'000), Difficulty());
 		std::vector<std::unique_ptr<model::Block>> blocks;
@@ -344,7 +339,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(model::ChainScore(Base_Difficulty + 111 - (150 - 100)), score);
 	}
 
-	TEST(ChainUtilsTests, CanCalculatePartialChainScoreForMultiBlockChain) {
+	TEST(TEST_CLASS, CanCalculatePartialChainScoreForMultiBlockChain) {
 		// Arrange:
 		auto pParentBlock = CreateBlock(Timestamp(100'000), Difficulty());
 		std::vector<std::unique_ptr<model::Block>> blocks;
@@ -356,9 +351,7 @@ namespace catapult { namespace chain {
 		auto score = CalculatePartialChainScore(*pParentBlock, { blocks[0].get(), blocks[1].get(), blocks[2].get() });
 
 		// Assert:
-		EXPECT_EQ(
-				model::ChainScore(3 * Base_Difficulty + 111 - (150 - 100) + 200 - (175 - 150) + 300 - (190 - 175)),
-				score);
+		EXPECT_EQ(model::ChainScore(3 * Base_Difficulty + 111 - (150 - 100) + 200 - (175 - 150) + 300 - (190 - 175)), score);
 	}
 
 	// endregion

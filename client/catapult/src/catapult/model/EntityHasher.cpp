@@ -34,21 +34,34 @@ namespace catapult { namespace model {
 		return entityHash;
 	}
 
-	void UpdateHashes(const TransactionRegistry& transactionRegistry, TransactionElement& txElement) {
-		const auto& transaction = txElement.Transaction;
-		const auto* pPlugin = transactionRegistry.findPlugin(transaction.Type);
-		txElement.EntityHash = model::CalculateHash(transaction, pPlugin->dataBuffer(transaction));
+	Hash256 CalculateMerkleComponentHash(
+			const Transaction& transaction,
+			const Hash256& transactionHash,
+			const TransactionRegistry& transactionRegistry) {
+		const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
 
-		auto supplementaryBuffers = pPlugin->merkleSupplementaryBuffers(transaction);
-		if (!supplementaryBuffers.empty()) {
-			crypto::Sha3_256_Builder sha3;
-			sha3.update(txElement.EntityHash);
-			for (const auto& supplementaryBuffer : supplementaryBuffers)
-				sha3.update(supplementaryBuffer);
+		auto supplementaryBuffers = plugin.merkleSupplementaryBuffers(transaction);
+		if (supplementaryBuffers.empty())
+			return transactionHash;
 
-			sha3.final(txElement.MerkleComponentHash);
-		} else {
-			txElement.MerkleComponentHash = txElement.EntityHash;
-		}
+		crypto::Sha3_256_Builder sha3;
+		sha3.update(transactionHash);
+		for (const auto& supplementaryBuffer : supplementaryBuffers)
+			sha3.update(supplementaryBuffer);
+
+		Hash256 merkleComponentHash;
+		sha3.final(merkleComponentHash);
+		return merkleComponentHash;
+	}
+
+	void UpdateHashes(const TransactionRegistry& transactionRegistry, TransactionElement& transactionElement) {
+		const auto& transaction = transactionElement.Transaction;
+		const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
+
+		transactionElement.EntityHash = CalculateHash(transaction, plugin.dataBuffer(transaction));
+		transactionElement.MerkleComponentHash = CalculateMerkleComponentHash(
+				transaction,
+				transactionElement.EntityHash,
+				transactionRegistry);
 	}
 }}

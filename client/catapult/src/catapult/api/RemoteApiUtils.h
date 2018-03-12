@@ -10,17 +10,17 @@ namespace catapult { namespace api {
 	template<typename TEntity>
 	struct RegistryDependentTraits {
 	public:
-		/// Creates traits around \a pRegistry.
-		explicit RegistryDependentTraits(const std::shared_ptr<const model::TransactionRegistry>& pRegistry) : m_pRegistry(pRegistry)
+		/// Creates traits around \a registry.
+		explicit RegistryDependentTraits(const model::TransactionRegistry& registry) : m_registry(registry)
 		{}
 
 	public:
 		/// Returns \c true if \a entity passes size checks.
 		bool operator()(const TEntity& entity) {
-			return IsSizeValid(entity, *m_pRegistry);
+			return IsSizeValid(entity, m_registry);
 		}
 
 	private:
-		std::shared_ptr<const model::TransactionRegistry> m_pRegistry;
+		const model::TransactionRegistry& m_registry;
 	};
 }}

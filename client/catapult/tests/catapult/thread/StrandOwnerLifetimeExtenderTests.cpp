@@ -5,6 +5,8 @@
 
 namespace catapult { namespace thread {
 
+#define TEST_CLASS StrandOwnerLifetimeExtenderTests
+
 	using BreadcrumbsType = std::vector<uint16_t>;
 
 	namespace {
@@ -46,7 +48,7 @@ namespace catapult { namespace thread {
 		};
 	}
 
-	TEST(StrandOwnerLifetimeExtenderTests, WrapExtendsLifetime) {
+	TEST(TEST_CLASS, WrapExtendsLifetime) {
 		// Arrange:
 		TestContext context;
 
@@ -73,7 +75,7 @@ namespace catapult { namespace thread {
 		EXPECT_FALSE(!!context.pOwner); // sanity
 	}
 
-	TEST(StrandOwnerLifetimeExtenderTests, PostExtendsLifetime) {
+	TEST(TEST_CLASS, PostExtendsLifetime) {
 		// Arrange:
 		TestContext context;
 
@@ -94,7 +96,7 @@ namespace catapult { namespace thread {
 		EXPECT_FALSE(!!context.pOwner); // sanity
 	}
 
-	TEST(StrandOwnerLifetimeExtenderTests, WrapAndPostAreProtectedByStrand) {
+	TEST(TEST_CLASS, WrapAndPostAreProtectedByStrand) {
 		// Arrange:
 		TestContext context;
 
@@ -123,7 +125,7 @@ namespace catapult { namespace thread {
 		EXPECT_FALSE(!!context.pOwner); // sanity
 	}
 
-	TEST(StrandOwnerLifetimeExtenderTests, StrandCanBeSharedBetweenInstances) {
+	TEST(TEST_CLASS, StrandCanBeSharedBetweenInstances) {
 		// Arrange: create three extenders
 		TestContext context;
 		ExtenderType extender2(context.Strand);

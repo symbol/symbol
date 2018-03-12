@@ -25,8 +25,8 @@ namespace catapult { namespace utils {
 		};
 
 		struct StringTraits {
-			static std::string ToString(const char* pData, size_t dataSize) {
-				return std::string(pData, dataSize);
+			static std::string ToString(const char* str, size_t dataSize) {
+				return std::string(str, dataSize);
 			}
 		};
 

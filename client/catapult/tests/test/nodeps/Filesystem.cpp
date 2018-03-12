@@ -10,6 +10,11 @@
 #include "catapult/exceptions.h"
 #include <boost/filesystem.hpp>
 
+#ifdef CATAPULT_DOCKER_TESTS
+extern int global_argc;
+extern char** global_argv;
+#endif
+
 namespace catapult { namespace test {
 
 	// region directory guard
@@ -63,7 +68,7 @@ namespace catapult { namespace test {
 
 			using boost::filesystem::directory_iterator;
 			for (auto iter = directory_iterator(directory); directory_iterator() != iter; ++iter) {
-				if (std::string::npos != iter->path().string().find("catapult.plugins")) {
+				if (std::string::npos != iter->path().generic_string().find("catapult.plugins")) {
 					pluginsDirectory = directory;
 					return true;
 				}
@@ -71,7 +76,7 @@ namespace catapult { namespace test {
 				if (!recurse || !boost::filesystem::is_directory(iter->path()))
 					continue;
 
-				if (TryFindPluginsDirectory(iter->path().string(), false, pluginsDirectory))
+				if (TryFindPluginsDirectory(iter->path().generic_string(), false, pluginsDirectory))
 					return true;
 			}
 
@@ -80,6 +85,16 @@ namespace catapult { namespace test {
 	}
 
 	std::string GetExplicitPluginsDirectory() {
+#ifdef CATAPULT_DOCKER_TESTS
+		for (auto i = 0; i < global_argc; ++i) {
+			std::string pluginsDirectory;
+			if (TryFindPluginsDirectory(global_argv[i], true, pluginsDirectory)) {
+				CATAPULT_LOG(debug) << "selecting '" << pluginsDirectory << "' as explicit directory";
+				return pluginsDirectory;
+			}
+		}
+#endif
+
 		for (const auto& directory : { "bin", "." }) {
 			std::string pluginsDirectory;
 			if (TryFindPluginsDirectory(directory, true, pluginsDirectory)) {

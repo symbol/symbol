@@ -1,8 +1,8 @@
 #pragma once
 #include "catapult/exceptions.h"
+#include "catapult/functions.h"
 #include "catapult/preprocessor.h"
 #include <atomic>
-#include <functional>
 #include <thread>
 
 namespace catapult { namespace utils {
@@ -37,7 +37,7 @@ namespace catapult { namespace utils {
 		/// Base class for RAII lock guards.
 		class LockGuard {
 		protected:
-			explicit LockGuard(const std::function<void ()>& resetFunc)
+			explicit LockGuard(const action& resetFunc)
 					: m_resetFunc(resetFunc)
 					, m_isMoved(false)
 			{}
@@ -55,7 +55,7 @@ namespace catapult { namespace utils {
 			}
 
 		private:
-			std::function<void ()> m_resetFunc;
+			action m_resetFunc;
 			bool m_isMoved;
 		};
 
@@ -183,7 +183,7 @@ namespace catapult { namespace utils {
 	};
 
 	/// A no-op reader notification policy.
-	struct NoopReaderNotificationPolicy {
+	struct NoOpReaderNotificationPolicy {
 		/// A reader was acquried by the current thread.
 		CPP14_CONSTEXPR
 		void readerAcquired()
@@ -204,7 +204,7 @@ namespace catapult { namespace utils {
 #ifdef ENABLE_CATAPULT_DIAGNOSTICS
 	using DefaultReaderNotificationPolicy = ReentrancyCheckReaderNotificationPolicy;
 #else
-	using DefaultReaderNotificationPolicy = NoopReaderNotificationPolicy;
+	using DefaultReaderNotificationPolicy = NoOpReaderNotificationPolicy;
 #endif
 
 	/// A default reader writer lock.

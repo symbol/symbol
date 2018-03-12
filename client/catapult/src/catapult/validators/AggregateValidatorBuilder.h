@@ -12,6 +12,7 @@ namespace catapult { namespace validators {
 	private:
 		using NotificationValidatorPointer = std::unique_ptr<const NotificationValidatorT<TNotification, TArgs...>>;
 		using NotificationValidatorPointerVector = std::vector<NotificationValidatorPointer>;
+		using AggregateValidatorPointer = std::unique_ptr<const AggregateNotificationValidatorT<TNotification, TArgs...>>;
 
 	public:
 		/// Adds \a pValidator to the builder and allows chaining.
@@ -20,16 +21,19 @@ namespace catapult { namespace validators {
 			return *this;
 		}
 
-		/// Builds a strongly typed notification validator.
-		std::unique_ptr<const AggregateNotificationValidatorT<TNotification, TArgs...>> build() {
-			return std::make_unique<DefaultAggregateNotificationValidator>(std::move(m_validators));
+		/// Builds a strongly typed notification validator that ignores suppressed failures according to \a isSuppressedFailure.
+		AggregateValidatorPointer build(const ValidationResultPredicate& isSuppressedFailure) {
+			return std::make_unique<DefaultAggregateNotificationValidator>(std::move(m_validators), isSuppressedFailure);
 		}
 
 	private:
 		class DefaultAggregateNotificationValidator : public AggregateNotificationValidatorT<TNotification, TArgs...> {
 		public:
-			explicit DefaultAggregateNotificationValidator(NotificationValidatorPointerVector&& validators)
+			explicit DefaultAggregateNotificationValidator(
+					NotificationValidatorPointerVector&& validators,
+					const ValidationResultPredicate& isSuppressedFailure)
 					: m_validators(std::move(validators))
+					, m_isSuppressedFailure(isSuppressedFailure)
 					, m_name(utils::ReduceNames(utils::ExtractNames(m_validators)))
 			{}
 
@@ -44,8 +48,14 @@ namespace catapult { namespace validators {
 
 			ValidationResult validate(const TNotification& notification, TArgs&&... args) const override {
 				auto aggregateResult = ValidationResult::Success;
-				for (auto iter = m_validators.cbegin(); m_validators.cend() != iter; ++iter) {
-					auto result = (*iter)->validate(notification, std::forward<TArgs>(args)...);
+				for (const auto& pValidator : m_validators) {
+					auto result = pValidator->validate(notification, std::forward<TArgs>(args)...);
+
+					// ignore suppressed failures
+					if (m_isSuppressedFailure(result))
+						continue;
+
+					// exit on other failures
 					if (IsValidationResultFailure(result))
 						return result;
 
@@ -57,6 +67,7 @@ namespace catapult { namespace validators {
 
 		private:
 			NotificationValidatorPointerVector m_validators;
+			ValidationResultPredicate m_isSuppressedFailure;
 			std::string m_name;
 		};
 

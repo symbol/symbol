@@ -1,6 +1,6 @@
 #include "catapult/observers/AggregateObserverBuilder.h"
 #include "catapult/cache/CatapultCache.h"
-#include "tests/catapult/observers/utils/AggregateObserverTestUtils.h"
+#include "tests/catapult/observers/test/AggregateObserverTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -131,14 +131,14 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, NotificationsAreForwardedToChildObservers) {
 		// Assert:
-		AssertNotificationsAreForwardedToChildObservers(
+		test::AssertNotificationsAreForwardedToChildObservers(
 				AggregateObserverBuilder<model::Notification>(),
 				[](auto& builder, auto&& pObserver) { builder.add(std::move(pObserver)); });
 	}
 
 	TEST(TEST_CLASS, ContextsAreForwardedToChildObservers) {
 		// Assert:
-		AssertContextsAreForwardedToChildObservers(
+		test::AssertContextsAreForwardedToChildObservers(
 				AggregateObserverBuilder<model::Notification>(),
 				[](auto& builder, auto&& pObserver) { builder.add(std::move(pObserver)); });
 	}

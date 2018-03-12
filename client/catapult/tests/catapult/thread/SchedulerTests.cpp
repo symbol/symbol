@@ -1,6 +1,7 @@
 #include "catapult/thread/Scheduler.h"
 #include "catapult/thread/IoServiceThreadPool.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
+#include "tests/test/core/SchedulerTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/WaitFunctions.h"
 #include "tests/TestHarness.h"
@@ -8,6 +9,8 @@
 #include <thread>
 
 namespace catapult { namespace thread {
+
+#define TEST_CLASS SchedulerTests
 
 	namespace {
 		const uint32_t Num_Default_Threads = test::GetNumDefaultPoolThreads();
@@ -32,11 +35,11 @@ namespace catapult { namespace thread {
 		}
 
 		void WaitForScheduled(Scheduler& scheduler, uint32_t numScheduledTasks) {
-			WAIT_FOR_VALUE_EXPR(scheduler.numScheduledTasks(), numScheduledTasks);
+			WAIT_FOR_VALUE_EXPR(numScheduledTasks, scheduler.numScheduledTasks());
 		}
 
 		void WaitForExecuting(Scheduler& scheduler, uint32_t numExecutingTaskCallbacks) {
-			WAIT_FOR_VALUE_EXPR(scheduler.numExecutingTaskCallbacks(), numExecutingTaskCallbacks);
+			WAIT_FOR_VALUE_EXPR(numExecutingTaskCallbacks, scheduler.numExecutingTaskCallbacks());
 		}
 
 		class PoolSchedulerPair {
@@ -61,8 +64,13 @@ namespace catapult { namespace thread {
 			}
 
 		public:
-			Scheduler& operator*() { return *m_pScheduler; }
-			Scheduler* operator->() { return m_pScheduler.get(); }
+			Scheduler& operator*() {
+				return *m_pScheduler;
+			}
+
+			Scheduler* operator->() {
+				return m_pScheduler.get();
+			}
 
 		private:
 			std::shared_ptr<IoServiceThreadPool> m_pPool;
@@ -78,12 +86,15 @@ namespace catapult { namespace thread {
 
 		// region [Scheduler|Blocking|NonBlocking]Work
 
+		enum class WaitStrategy { WaitDuringPost, NoWaitDuringPost };
+
 		class SchedulerWork {
 		private:
 			class State : public std::enable_shared_from_this<State> {
 			public:
-				State(const test::WaitFunction& wait, boost::asio::io_service& service)
+				State(const test::WaitFunction& wait, WaitStrategy waitStrategy, boost::asio::io_service& service)
 						: m_wait(wait)
+						, m_waitStrategy(waitStrategy)
 						, m_service(service)
 						, m_isPostingWork(false)
 						, m_shouldWait(true)
@@ -114,20 +125,21 @@ namespace catapult { namespace thread {
 
 			private:
 				bool shouldWait() const {
-					return !m_isPostingWork && m_shouldWait;
+					return (WaitStrategy::WaitDuringPost == m_waitStrategy || !m_isPostingWork) && m_shouldWait;
 				}
 
 			private:
 				test::WaitFunction m_wait;
+				WaitStrategy m_waitStrategy;
 				boost::asio::io_service& m_service;
 				std::atomic_bool m_isPostingWork;
 				std::atomic_bool m_shouldWait;
 			};
 
 		public:
-			explicit SchedulerWork(const test::WaitFunction& wait)
+			explicit SchedulerWork(const test::WaitFunction& wait, WaitStrategy waitStrategy)
 					: m_pPool(test::CreateStartedIoServiceThreadPool(1))
-					, m_pState(std::make_shared<State>(wait, m_pPool->service()))
+					, m_pState(std::make_shared<State>(wait, waitStrategy, m_pPool->service()))
 			{}
 
 			~SchedulerWork() {
@@ -138,8 +150,11 @@ namespace catapult { namespace thread {
 
 		public:
 			void post(Scheduler& scheduler, uint32_t numPosts) {
-				// allow all work to be posted to the scheduler BEFORE blocking otherwise the WaitBlocking test
-				// is timing dependent (depending on how many were posted before the threads started wait blocking)
+				// depending on the type of work there are different waiting strategies for the tasks:
+				// BlockingWork: allow all work to be posted to the scheduler BEFORE blocking, otherwise the WaitBlocking test
+				//               is timing dependent (depending on how many were posted before the threads started wait blocking)
+				// NonBlockingWork: tasks are not completing until the test is over in order to prevent any task from decrementing the
+				//                  m_numExecutingTaskCallbacks member of the scheduler which is used in an assert
 				m_pState->isPostingWork(true);
 
 				for (auto i = 0u; i < numPosts; ++i)
@@ -164,13 +179,13 @@ namespace catapult { namespace thread {
 
 		class BlockingWork : public SchedulerWork {
 		public:
-			BlockingWork() : SchedulerWork(test::CreateSyncWaitFunction(Wait_Duration_Millis))
+			BlockingWork() : SchedulerWork(test::CreateSyncWaitFunction(Wait_Duration_Millis), WaitStrategy::NoWaitDuringPost)
 			{}
 		};
 
 		class NonBlockingWork : public SchedulerWork {
 		public:
-			NonBlockingWork() : SchedulerWork(test::CreateAsyncWaitFunction(Wait_Duration_Millis))
+			NonBlockingWork() : SchedulerWork(test::CreateAsyncWaitFunction(Wait_Duration_Millis), WaitStrategy::WaitDuringPost)
 			{}
 		};
 
@@ -179,7 +194,7 @@ namespace catapult { namespace thread {
 
 	// region basic
 
-	TEST(SchedulerTests, SchedulerInitiallyHasNoWork) {
+	TEST(TEST_CLASS, SchedulerInitiallyHasNoWork) {
 		// Act: set up a scheduler
 		auto pScheduler = CreateScheduler();
 
@@ -207,30 +222,32 @@ namespace catapult { namespace thread {
 		}
 	}
 
-	TEST(SchedulerTests, SchedulerShutdownSucceedsWhenSchedulerHasNoTasks) {
+	TEST(TEST_CLASS, SchedulerShutdownSucceedsWhenSchedulerHasNoTasks) {
 		// Assert:
 		AssertCanShutdownScheduler(1);
 	}
 
-	TEST(SchedulerTests, SchedulerShutdownIsIdempotent) {
+	TEST(TEST_CLASS, SchedulerShutdownIsIdempotent) {
 		// Assert:
 		AssertCanShutdownScheduler(3);
 	}
 
-	TEST(SchedulerTests, SchedulerCannotAcceptNewTasksAfterShutdown) {
+	TEST(TEST_CLASS, SchedulerCannotAcceptNewTasksAfterShutdown) {
 		// Arrange: set up a scheduler
 		auto pScheduler = CreateScheduler();
 
 		// - stop the scheduler
 		pScheduler->shutdown();
 
-		// Act: add a task
+		// Act + Assert: add a task
 		EXPECT_THROW(pScheduler->addTask(CreateContinuousTask()), catapult_runtime_error);
 	}
 
-	// region non-executing tasks
+	// endregion
 
-	TEST(SchedulerTests, SchedulerCanShutdownWithWaitingTasks) {
+	// region shutdown - non-executing tasks
+
+	TEST(TEST_CLASS, SchedulerCanShutdownWithWaitingTasks) {
 		// Arrange: set up a scheduler and add a task that executes (30s) in the future
 		auto pScheduler = CreateScheduler();
 		pScheduler->addTask(CreateContinuousTask(30'000));
@@ -246,7 +263,7 @@ namespace catapult { namespace thread {
 
 	// endregion
 
-	// region executing tasks
+	// region shutdown - executing tasks
 
 	namespace {
 		template<typename TWaitFunction>
@@ -294,23 +311,21 @@ namespace catapult { namespace thread {
 		}
 	}
 
-	TEST(SchedulerTests, SchedulerShutdownDoesNotAbortExecutingBlockingCallbacks) {
+	TEST(TEST_CLASS, SchedulerShutdownDoesNotAbortExecutingBlockingCallbacks) {
 		// Assert:
 		AssertSchedulerShutdownDoesNotAbortExecutingCallbacks(test::CreateSyncWaitFunction(Wait_Duration_Millis));
 	}
 
-	TEST(SchedulerTests, SchedulerShutdownDoesNotAbortExecutingNonBlockingCallbacks) {
+	TEST(TEST_CLASS, SchedulerShutdownDoesNotAbortExecutingNonBlockingCallbacks) {
 		// Assert:
 		AssertSchedulerShutdownDoesNotAbortExecutingCallbacks(test::CreateAsyncWaitFunction(Wait_Duration_Millis));
 	}
 
 	// endregion
 
-	// endregion
-
 	// region Wait[Non]Blocking
 
-	TEST(SchedulerTests, SchedulerWorkerThreadsCannotServiceAdditionalRequestsWhenHandlersWaitBlocking) {
+	TEST(TEST_CLASS, SchedulerWorkerThreadsCannotServiceAdditionalRequestsWhenHandlersWaitBlocking) {
 		// Arrange: set up a scheduler
 		auto pScheduler = CreateScheduler();
 
@@ -332,7 +347,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(Num_Default_Threads, pScheduler->numExecutingTaskCallbacks());
 	}
 
-	TEST(SchedulerTests, SchedulerWorkerThreadsCanServiceAdditionalRequestsWhenHandlersWaitNonBlocking) {
+	TEST(TEST_CLASS, SchedulerWorkerThreadsCanServiceAdditionalRequestsWhenHandlersWaitNonBlocking) {
 		// Arrange: set up a scheduler
 		auto pScheduler = CreateScheduler();
 
@@ -358,7 +373,7 @@ namespace catapult { namespace thread {
 
 	// region addTask
 
-	TEST(SchedulerTests, CanAddTask) {
+	TEST(TEST_CLASS, CanAddTask) {
 		// Arrange: create a scheduler
 		auto pScheduler = CreateScheduler();
 
@@ -371,7 +386,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(0u, pScheduler->numExecutingTaskCallbacks());
 	}
 
-	TEST(SchedulerTests, CanAddMultipleTasks) {
+	TEST(TEST_CLASS, CanAddMultipleTasks) {
 		// Arrange: create a scheduler
 		auto pScheduler = CreateScheduler();
 
@@ -390,7 +405,7 @@ namespace catapult { namespace thread {
 
 	// region TaskResult::Break
 
-	TEST(SchedulerTests, TaskIsExecutedUntilBreak) {
+	TEST(TEST_CLASS, TaskIsExecutedUntilBreak) {
 		// Arrange: create a scheduler
 		auto pScheduler = CreateScheduler();
 
@@ -401,7 +416,7 @@ namespace catapult { namespace thread {
 		}));
 
 		// wait for the task to run to completion
-		WAIT_FOR_VALUE(numCallbacks, 5);
+		WAIT_FOR_VALUE(5, numCallbacks);
 		WaitForScheduled(*pScheduler, 0);
 
 		// Assert: the task should no longer be scheduled but the callback should have been called 5 times
@@ -415,10 +430,6 @@ namespace catapult { namespace thread {
 	// region delay timing
 
 	namespace {
-		uint32_t GetTimeUnitForIteration(size_t i) {
-			return static_cast<uint32_t>(i * 5u);
-		}
-
 		template<typename TSleep>
 		Task CreateContinuousTaskWithCounterAndSleep(
 				uint32_t startDelayMs,
@@ -430,7 +441,6 @@ namespace catapult { namespace thread {
 				utils::TimeSpan::FromMilliseconds(refreshDelayMs),
 				[&counter, sleep]() {
 					++counter;
-
 					return sleep();
 				},
 				"task with counter"
@@ -465,39 +475,27 @@ namespace catapult { namespace thread {
 				return pPromise->get_future();
 			});
 		}
-
-		template<typename T1, typename T2>
-		bool ExpectEqualOrRetry(const T1& expected, const T2& actual, const char* expectedName, const char* actualName) {
-			if (expected != actual) {
-				CATAPULT_LOG(debug) << "value of " << actualName << ": " << actual
-						<< ", expected " << expectedName << " == " << expected << ", retrying...";
-				return false;
-			}
-
-			EXPECT_EQ(expected, actual);
-			return true;
-		}
 	}
 
-#define EXPECT_EQ_RETRY(EXPECTED, ACTUAL) ExpectEqualOrRetry((EXPECTED), (ACTUAL), #EXPECTED, #ACTUAL)
+#define EXPECT_EQ_RETRY(EXPECTED, ACTUAL) test::ExpectEqualOrRetry((EXPECTED), (ACTUAL), #EXPECTED, #ACTUAL)
 
-	TEST(SchedulerTests, InitialDelayIsRespected) {
+	TEST(TEST_CLASS, InitialDelayIsRespected) {
 		// Assert: non-deterministic because delay is impacted by scheduling
 		test::RunNonDeterministicTest("Scheduler", [](auto i) {
 			// Arrange: create a scheduler and add a single task to it
-			const auto Time_Unit = GetTimeUnitForIteration(i);
+			auto timeUnit = test::GetTimeUnitForIteration(i);
 			auto pScheduler = CreateScheduler();
 			std::atomic<uint32_t> counter(0);
-			pScheduler->addTask(CreateContinuousTaskWithCounter(2 * Time_Unit, 20 * Time_Unit, 0, counter));
+			pScheduler->addTask(CreateContinuousTaskWithCounter(2 * timeUnit, 20 * timeUnit, 0, counter));
 
 			// Assert: after sleeping 0.5x the initial delay, no tasks should have run
-			test::Sleep(Time_Unit);
+			test::Sleep(timeUnit);
 			if (!EXPECT_EQ_RETRY(0u, counter))
 				return false;
 
 			// Assert: after sleeping 1.5x the initial delay, one task should have run and
 			//         the task should still be scheduled
-			test::Sleep(2 * Time_Unit);
+			test::Sleep(2 * timeUnit);
 			if (!EXPECT_EQ_RETRY(1u, counter))
 				return false;
 
@@ -506,17 +504,17 @@ namespace catapult { namespace thread {
 		});
 	}
 
-	TEST(SchedulerTests, RefreshDelayIsRespected) {
+	TEST(TEST_CLASS, RefreshDelayIsRespected) {
 		// Assert: non-deterministic because delay is impacted by scheduling
 		test::RunNonDeterministicTest("Scheduler", [](auto i) {
 			// Arrange: create a scheduler and add a single task to it
-			const auto Time_Unit = GetTimeUnitForIteration(i);
+			auto timeUnit = test::GetTimeUnitForIteration(i);
 			auto pScheduler = CreateScheduler();
 			std::atomic<uint32_t> counter(0);
-			pScheduler->addTask(CreateContinuousTaskWithCounter(Time_Unit, 2 * Time_Unit, 0, counter));
+			pScheduler->addTask(CreateContinuousTaskWithCounter(timeUnit, 2 * timeUnit, 0, counter));
 
 			// Assert: after sleeping 6x, the timer should have fired at 1, 3, 5
-			test::Sleep(6 * Time_Unit);
+			test::Sleep(6 * timeUnit);
 			if (!EXPECT_EQ_RETRY(3u, counter))
 				return false;
 
@@ -531,13 +529,13 @@ namespace catapult { namespace thread {
 			// Assert: non-deterministic because delay is impacted by scheduling
 			test::RunNonDeterministicTest("Scheduler", [createTask](auto i) {
 				// Arrange: create a scheduler and add a single task to it
-				const auto Time_Unit = GetTimeUnitForIteration(i);
+				auto timeUnit = test::GetTimeUnitForIteration(i);
 				auto pScheduler = CreateScheduler();
 				std::atomic<uint32_t> counter(0);
-				pScheduler->addTask(createTask(0u, 2u * Time_Unit, 3u * Time_Unit, counter));
+				pScheduler->addTask(createTask(0u, 2u * timeUnit, 3u * timeUnit, counter));
 
 				// Assert: after sleeping 6x, the timer should have fired at 0, 5
-				test::Sleep(6 * Time_Unit);
+				test::Sleep(6 * timeUnit);
 				if (!EXPECT_EQ_RETRY(2u, counter))
 					return false;
 
@@ -547,12 +545,12 @@ namespace catapult { namespace thread {
 		}
 	}
 
-	TEST(SchedulerTests, RefreshDelayIsRelativeToCallbackTime_Blocking) {
+	TEST(TEST_CLASS, RefreshDelayIsRelativeToCallbackTime_Blocking) {
 		// Assert:
 		AssertRefreshDelayIsRelativeToCallbackTime(CreateContinuousTaskWithCounter);
 	}
 
-	TEST(SchedulerTests, RefreshDelayIsRelativeToCallbackTime_NonBlocking) {
+	TEST(TEST_CLASS, RefreshDelayIsRelativeToCallbackTime_NonBlocking) {
 		// Arrange: create pool here so that current thread joins the pool (in the pool destructor)
 		auto pPool = test::CreateStartedIoServiceThreadPool(1);
 

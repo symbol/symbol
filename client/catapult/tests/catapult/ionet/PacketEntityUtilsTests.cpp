@@ -2,26 +2,72 @@
 #include "catapult/ionet/IoTypes.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
-#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace ionet {
 
 #define TEST_CLASS PacketEntityUtilsTests
 
+	// region IsSizeValid
+
+	namespace {
+#pragma pack(push, 1)
+
+		struct VariableSizedEntity {
+		public:
+			explicit VariableSizedEntity(uint8_t extraSize) : ExtraSize(extraSize)
+			{}
+
+		public:
+			uint32_t Size;
+			uint8_t ExtraSize;
+
+		public:
+			static uint64_t CalculateRealSize(const VariableSizedEntity& entity) {
+				return sizeof(VariableSizedEntity) + entity.ExtraSize;
+			}
+		};
+
+#pragma pack(pop)
+	}
+
+	TEST(TEST_CLASS, IsSizeValidReturnsTrueWhenEntitySizeIsCorrect) {
+		// Arrange:
+		auto entity = VariableSizedEntity(123);
+		entity.Size = sizeof(VariableSizedEntity) + 123;
+
+		// Act + Assert:
+		EXPECT_TRUE(IsSizeValid(entity));
+	}
+
+	TEST(TEST_CLASS, IsSizeValidReturnsFalseWhenEntitySizeIsTooSmall) {
+		// Arrange:
+		auto entity = VariableSizedEntity(123);
+		entity.Size = sizeof(VariableSizedEntity) + 123 - 1;
+
+		// Act + Assert:
+		EXPECT_FALSE(IsSizeValid(entity));
+	}
+
+	TEST(TEST_CLASS, IsSizeValidReturnsFalseWhenEntitySizeIsTooLarge) {
+		// Arrange:
+		auto entity = VariableSizedEntity(123);
+		entity.Size = sizeof(VariableSizedEntity) + 123 + 1;
+
+		// Act + Assert:
+		EXPECT_FALSE(IsSizeValid(entity));
+	}
+
+	// endregion
+
 	// region ExtractEntitiesFromPacket / ExtractEntityFromPacket
 
 	namespace {
+		constexpr auto Default_Packet_Type = PacketType::Push_Block; // packet type is not validated by the parser
 		constexpr uint32_t Transaction_Size = sizeof(mocks::MockTransaction);
 		constexpr uint32_t Block_Packet_Size = sizeof(Packet) + sizeof(model::Block);
 		constexpr uint32_t Block_Transaction_Size = sizeof(model::Block) + Transaction_Size;
 		constexpr uint32_t Block_Transaction_Packet_Size = sizeof(Packet) + Block_Transaction_Size;
-
-		template<typename TEntity>
-		bool DefaultSizeCheck(const TEntity& entity) {
-			auto pRegistry = mocks::CreateDefaultTransactionRegistry();
-			return IsSizeValid(entity, *pRegistry);
-		}
 
 		void SetTransactionAt(ByteBuffer& buffer, size_t offset) {
 			test::SetTransactionAt(buffer, offset, Transaction_Size);
@@ -34,7 +80,7 @@ namespace catapult { namespace ionet {
 			}
 
 			static auto Extract(const Packet& packet) {
-				return Extract(packet, DefaultSizeCheck<model::Block>);
+				return Extract(packet, test::DefaultSizeCheck<model::Block>);
 			}
 
 			static bool IsEmpty(const std::unique_ptr<model::Block>& pBlock) {
@@ -63,7 +109,7 @@ namespace catapult { namespace ionet {
 			}
 
 			static auto Extract(const Packet& packet) {
-				return Extract(packet, DefaultSizeCheck<model::Block>);
+				return Extract(packet, test::DefaultSizeCheck<model::Block>);
 			}
 
 			static bool IsEmpty(const model::BlockRange& range) {
@@ -72,7 +118,7 @@ namespace catapult { namespace ionet {
 
 			static void Unwrap(const model::BlockRange& range, const model::Block*& pBlockOut) {
 				ASSERT_EQ(1u, range.size());
-				pBlockOut = &*range.cbegin();
+				pBlockOut = range.data();
 			}
 		};
 
@@ -99,9 +145,9 @@ namespace catapult { namespace ionet {
 			}
 		};
 
-		struct ExtractFixedSizeEntitiesTraits {
+		struct ExtractFixedSizeStructuresTraits {
 			static auto Extract(const Packet& packet) {
-				return ExtractFixedSizeEntitiesFromPacket<Hash256>(packet);
+				return ExtractFixedSizeStructuresFromPacket<Hash256>(packet);
 			}
 
 			static bool IsEmpty(const model::HashRange& range) {
@@ -114,13 +160,13 @@ namespace catapult { namespace ionet {
 			// Arrange:
 			Packet packet;
 			packet.Size = size;
-			packet.Type = PacketType::Push_Block;
+			packet.Type = Default_Packet_Type;
 
 			// Act:
-			auto extractedResult = TTraits::Extract(packet);
+			auto extractResult = TTraits::Extract(packet);
 
 			// Assert:
-			EXPECT_TRUE(TTraits::IsEmpty(extractedResult)) << "packet size " << size;
+			EXPECT_TRUE(TTraits::IsEmpty(extractResult)) << "packet size " << size;
 		}
 
 		template<typename TTraits>
@@ -130,10 +176,10 @@ namespace catapult { namespace ionet {
 			const auto& packet = TTraits::CreatePacketWithOverflowSize(buffer, size);
 
 			// Act:
-			auto extractedResult = TTraits::Extract(packet);
+			auto extractResult = TTraits::Extract(packet);
 
 			// Assert:
-			EXPECT_TRUE(TTraits::IsEmpty(extractedResult)) << "overflow size " << size;
+			EXPECT_TRUE(TTraits::IsEmpty(extractResult)) << "overflow size " << size;
 		}
 	}
 
@@ -141,13 +187,15 @@ namespace catapult { namespace ionet {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_ExtractEntity) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntityTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_FixedSizeEntities) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractFixedSizeEntitiesTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_FixedSizeStructures) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractFixedSizeStructuresTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define PACKET_FAILURE_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_ExtractEntity) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntityTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities_Single) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesSingleEntityTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities_Single) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesSingleEntityTraits>(); \
+	} \
 	TEST(TEST_CLASS, TEST_NAME##_ExtractEntities_Last) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExtractEntitiesMultiEntityTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
@@ -169,15 +217,13 @@ namespace catapult { namespace ionet {
 
 	PACKET_FAILURE_TEST(CannotExtractFromPacketWithoutFullEntityHeader) {
 		// Assert:
-		std::vector<uint32_t> sizes{ 1, sizeof(model::VerifiableEntity) - 1 };
-		for (auto size : sizes)
+		for (auto size : std::vector<uint32_t>{ 1, sizeof(model::VerifiableEntity) - 1 })
 			AssertCannotExtractEntitiesFromPacketWithSize<TTraits>(size);
 	}
 
 	PACKET_FAILURE_TEST(CannotExtractFromPacketWithoutFullEntityData) {
 		// Assert:
-		std::vector<uint32_t> sizes{ sizeof(model::VerifiableEntity), sizeof(model::Block) - 1 };
-		for (auto size : sizes)
+		for (auto size : std::vector<uint32_t>{ sizeof(model::VerifiableEntity), sizeof(model::Block) - 1 })
 			AssertCannotExtractEntitiesFromPacketWithSize<TTraits>(size);
 	}
 
@@ -191,10 +237,10 @@ namespace catapult { namespace ionet {
 		packet.Size -= Transaction_Size;
 
 		// Act:
-		auto extractedResult = TTraits::Extract(packet);
+		auto extractResult = TTraits::Extract(packet);
 
 		// Assert:
-		EXPECT_TRUE(TTraits::IsEmpty(extractedResult));
+		EXPECT_TRUE(TTraits::IsEmpty(extractResult));
 	}
 
 	PACKET_FAILURE_TEST(CannotExtractFromPacketWhenPacketExpandsBeyondLastEntity) {
@@ -208,10 +254,10 @@ namespace catapult { namespace ionet {
 		packet.Size += Transaction_Size;
 
 		// Act:
-		auto extractedResult = TTraits::Extract(packet);
+		auto extractResult = TTraits::Extract(packet);
 
 		// Assert:
-		EXPECT_TRUE(TTraits::IsEmpty(extractedResult));
+		EXPECT_TRUE(TTraits::IsEmpty(extractResult));
 	}
 
 	PACKET_SINGLE_ENTITY_TEST(CanExtractSingleBlockWithoutTransactions) {
@@ -220,9 +266,9 @@ namespace catapult { namespace ionet {
 		const auto& packet = test::SetPushBlockPacketInBuffer(buffer);
 
 		// Act:
-		auto extractedResult = TTraits::Extract(packet);
+		auto extractResult = TTraits::Extract(packet);
 		const model::Block* pBlock = nullptr;
-		TTraits::Unwrap(extractedResult, pBlock);
+		TTraits::Unwrap(extractResult, pBlock);
 
 		// Assert:
 		ASSERT_TRUE(!!pBlock);
@@ -237,14 +283,14 @@ namespace catapult { namespace ionet {
 
 		// Act: extract and return false from the isValid predicate even though the packet has a valid size
 		auto numValidCalls = 0;
-		auto extractedResult = TTraits::Extract(packet, [&numValidCalls](const auto&) {
+		auto extractResult = TTraits::Extract(packet, [&numValidCalls](const auto&) {
 			++numValidCalls;
 			return false;
 		});
 
 		// Assert: valid was called once and extraction failed
 		EXPECT_EQ(1u, numValidCalls);
-		EXPECT_TRUE(TTraits::IsEmpty(extractedResult));
+		EXPECT_TRUE(TTraits::IsEmpty(extractResult));
 	}
 
 	PACKET_SINGLE_ENTITY_TEST(CanExtractSingleBlockWithTransaction) {
@@ -254,9 +300,9 @@ namespace catapult { namespace ionet {
 		SetTransactionAt(buffer, static_cast<uint32_t>(buffer.size() - Transaction_Size));
 
 		// Act:
-		auto extractedResult = TTraits::Extract(packet);
+		auto extractResult = TTraits::Extract(packet);
 		const model::Block* pBlock = nullptr;
-		TTraits::Unwrap(extractedResult, pBlock);
+		TTraits::Unwrap(extractResult, pBlock);
 
 		// Assert:
 		ASSERT_TRUE(!!pBlock);
@@ -283,7 +329,7 @@ namespace catapult { namespace ionet {
 		const auto& packet = PrepareMultiBlockPacket(buffer);
 
 		// Act:
-		auto range = ExtractEntitiesFromPacket<model::Block>(packet, DefaultSizeCheck<model::Block>);
+		auto range = ExtractEntitiesFromPacket<model::Block>(packet, test::DefaultSizeCheck<model::Block>);
 
 		// Assert:
 		ASSERT_EQ(3u, range.size());
@@ -314,7 +360,7 @@ namespace catapult { namespace ionet {
 		const auto& packet = PrepareMultiBlockPacket(buffer);
 
 		// Act:
-		auto pBlock = ExtractEntityFromPacket<model::Block>(packet, DefaultSizeCheck<model::Block>);
+		auto pBlock = ExtractEntityFromPacket<model::Block>(packet, test::DefaultSizeCheck<model::Block>);
 
 		// Assert:
 		EXPECT_FALSE(!!pBlock);
@@ -322,13 +368,13 @@ namespace catapult { namespace ionet {
 
 	// endregion
 
-	// region ExtractFixedSizeEntitiesFromPacket
+	// region ExtractFixedSizeStructuresFromPacket
 
 	namespace {
 		constexpr auto Fixed_Size = 62;
-		using FixedSizeEntity = std::array<uint8_t, Fixed_Size>;
+		using FixedSizeStructure = std::array<uint8_t, Fixed_Size>;
 
-		void AssertCannotExtractFixedSizeEntitiesFromPacketWithSize(uint32_t size) {
+		void AssertCannotExtractFixedSizeStructuresFromPacketWithSize(uint32_t size) {
 			// Arrange:
 			ByteBuffer buffer(size);
 			test::FillWithRandomData(buffer);
@@ -336,24 +382,24 @@ namespace catapult { namespace ionet {
 			packet.Size = size;
 
 			// Act:
-			auto range = ExtractFixedSizeEntitiesFromPacket<FixedSizeEntity>(packet);
+			auto range = ExtractFixedSizeStructuresFromPacket<FixedSizeStructure>(packet);
 
 			// Assert:
 			EXPECT_TRUE(range.empty()) << "packet size " << size;
 		}
 	}
 
-	TEST(TEST_CLASS, CannotExtractFromPacketWithPartialEntities_FixedSizeEntities) {
+	TEST(TEST_CLASS, CannotExtractFromPacketWithPartialStructures_FixedSizeStructures) {
 		// Assert:
-		AssertCannotExtractFixedSizeEntitiesFromPacketWithSize(sizeof(Packet) + 1);
-		AssertCannotExtractFixedSizeEntitiesFromPacketWithSize(sizeof(Packet) + Fixed_Size - 1);
-		AssertCannotExtractFixedSizeEntitiesFromPacketWithSize(sizeof(Packet) + Fixed_Size + 1);
-		AssertCannotExtractFixedSizeEntitiesFromPacketWithSize(sizeof(Packet) + 3 * Fixed_Size - 1);
-		AssertCannotExtractFixedSizeEntitiesFromPacketWithSize(sizeof(Packet) + 3 * Fixed_Size + 1);
+		AssertCannotExtractFixedSizeStructuresFromPacketWithSize(sizeof(Packet) + 1);
+		AssertCannotExtractFixedSizeStructuresFromPacketWithSize(sizeof(Packet) + Fixed_Size - 1);
+		AssertCannotExtractFixedSizeStructuresFromPacketWithSize(sizeof(Packet) + Fixed_Size + 1);
+		AssertCannotExtractFixedSizeStructuresFromPacketWithSize(sizeof(Packet) + 3 * Fixed_Size - 1);
+		AssertCannotExtractFixedSizeStructuresFromPacketWithSize(sizeof(Packet) + 3 * Fixed_Size + 1);
 	}
 
-	TEST(TEST_CLASS, CanExtractSingleEntity_FixedSizeEntities) {
-		// Arrange: create a packet containing a single fixed size entity
+	TEST(TEST_CLASS, CanExtractSingleStructure_FixedSizeStructures) {
+		// Arrange: create a packet containing a single fixed size structure
 		constexpr auto Packet_Size = sizeof(Packet) + Fixed_Size;
 		ByteBuffer buffer(Packet_Size);
 		test::FillWithRandomData(buffer);
@@ -361,16 +407,16 @@ namespace catapult { namespace ionet {
 		packet.Size = Packet_Size;
 
 		// Act:
-		auto range = ExtractFixedSizeEntitiesFromPacket<FixedSizeEntity>(packet);
+		auto range = ExtractFixedSizeStructuresFromPacket<FixedSizeStructure>(packet);
 
 		// Assert:
 		ASSERT_EQ(1u, range.size());
-		const auto& entity = *range.cbegin();
-		EXPECT_TRUE(0 == std::memcmp(&buffer[sizeof(Packet)], &entity, Fixed_Size));
+		const auto& structure = *range.cbegin();
+		EXPECT_TRUE(0 == std::memcmp(&buffer[sizeof(Packet)], &structure, Fixed_Size));
 	}
 
-	TEST(TEST_CLASS, CanExtractMultipleEntities_FixedSizeEntities) {
-		// Arrange: create a packet containing three fixed size entities
+	TEST(TEST_CLASS, CanExtractMultipleStructures_FixedSizeStructures) {
+		// Arrange: create a packet containing three fixed size structures
 		constexpr auto Packet_Size = sizeof(Packet) + 3 * Fixed_Size;
 		ByteBuffer buffer(Packet_Size);
 		test::FillWithRandomData(buffer);
@@ -378,22 +424,22 @@ namespace catapult { namespace ionet {
 		packet.Size = Packet_Size;
 
 		// Act:
-		auto range = ExtractFixedSizeEntitiesFromPacket<FixedSizeEntity>(packet);
+		auto range = ExtractFixedSizeStructuresFromPacket<FixedSizeStructure>(packet);
 
 		// Assert:
 		ASSERT_EQ(3u, range.size());
 
-		// - entity 1
+		// - structure 1
 		auto iter = range.cbegin();
 		size_t offset = sizeof(Packet);
 		EXPECT_TRUE(0 == std::memcmp(&buffer[offset], &*iter, Fixed_Size));
 
-		// - entity 2
+		// - structure 2
 		++iter;
 		offset += Fixed_Size;
 		EXPECT_TRUE(0 == std::memcmp(&buffer[offset], &*iter, Fixed_Size));
 
-		// - entity 3
+		// - structure 3
 		++iter;
 		offset += Fixed_Size;
 		EXPECT_TRUE(0 == std::memcmp(&buffer[offset], &*iter, Fixed_Size));

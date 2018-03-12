@@ -15,6 +15,11 @@ namespace catapult { namespace utils {
 			template<typename... TArgs>
 			using DecoratorType = ResettableWrappedWithOwnerDecorator<TArgs...>;
 		};
+
+		template<typename TTraits, typename TOwner, typename THandler>
+		auto Decorate(const std::shared_ptr<TOwner>& pOwner, THandler handler) {
+			return typename TTraits::template DecoratorType<THandler>(pOwner, handler);
+		}
 	}
 
 #define DECORATOR_BASED_TEST(TEST_NAME) \
@@ -27,10 +32,9 @@ namespace catapult { namespace utils {
 		// Arrange: wrap a decorator around a lambda that depends on pOwner
 		auto pOwner = std::make_shared<uint32_t>(7);
 		auto counter = 0u;
-		auto callable = [owner = *pOwner, &counter](uint32_t multiple) {
+		auto decorator = Decorate<TTraits>(pOwner, [owner = *pOwner, &counter](uint32_t multiple) {
 			counter += owner * multiple;
-		};
-		typename TTraits::template DecoratorType<decltype(callable)> decorator(callable, pOwner);
+		});
 
 		// Act: invoke the lambda
 		decorator(3u);
@@ -44,10 +48,9 @@ namespace catapult { namespace utils {
 	DECORATOR_BASED_TEST(DecoratorForwardsResultsFromCallabale) {
 		// Arrange: wrap a decorator around a lambda that depends on pOwner
 		auto pOwner = std::make_shared<uint32_t>(7);
-		auto callable = [owner = *pOwner](uint32_t multiple) {
+		auto decorator = Decorate<TTraits>(pOwner, [owner = *pOwner](uint32_t multiple) {
 			return owner * multiple;
-		};
-		typename TTraits::template DecoratorType<decltype(callable)> decorator(callable, pOwner);
+		});
 
 		// Act: invoke the lambda
 		auto result1 = decorator(3u);
@@ -63,10 +66,9 @@ namespace catapult { namespace utils {
 		// Arrange: wrap a decorator around a lambda that depends on pOwner
 		auto pOwner = std::make_shared<uint32_t>(7);
 		auto counter = 0u;
-		auto callable = [owner = *pOwner, &counter](uint32_t multiple) {
+		auto decorator = Decorate<TTraits>(pOwner, [owner = *pOwner, &counter](uint32_t multiple) {
 			counter += owner * multiple;
-		};
-		typename TTraits::template DecoratorType<decltype(callable)> decorator(callable, pOwner);
+		});
 
 		// Act: reset the local owner pointer
 		EXPECT_EQ(2u, decorator.owner().use_count());
@@ -80,14 +82,66 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(21u, counter);
 	}
 
-	TEST(WrappedWithOwnerDecorator, ResettableDecoratorCanBeReset) {
+	namespace {
+		// RAII class that updates a counter in its destructor
+		class DestructingCounterUpdater {
+		public:
+			DestructingCounterUpdater(uint32_t& owner, uint32_t& counter)
+					: m_owner(owner)
+					, m_counter(counter)
+					, m_multiple(0)
+			{}
+
+			~DestructingCounterUpdater() {
+				// updating the counter in the destructor implies that both the counter and owner must still be valid
+				m_counter = m_owner * m_multiple;
+			}
+
+		public:
+			void setMultiple(uint32_t multiple) {
+				m_multiple = multiple;
+			}
+
+		private:
+			uint32_t& m_owner;
+			uint32_t& m_counter;
+			uint32_t m_multiple;
+		};
+	}
+
+	DECORATOR_BASED_TEST(DecoratorDestroysOwnerLast) {
+		// Arrange: wrap a decorator around a lambda that depends on pOwner
+		auto counter = 0u;
+		{
+			auto pOwner = std::make_shared<uint32_t>(7);
+			auto pUpdater = std::make_shared<DestructingCounterUpdater>(*pOwner, counter);
+			auto decorator = Decorate<TTraits>(pOwner, [pUpdater = std::move(pUpdater)](uint32_t multiple) {
+				pUpdater->setMultiple(multiple);
+			});
+
+			// Act: make the decorator hold the last reference to the owner
+			pOwner.reset();
+			EXPECT_EQ(1u, decorator.owner().use_count());
+
+			// - invoke the lambda
+			decorator(3u);
+
+			// Sanity: the counter was not yet updated
+			EXPECT_EQ(0u, counter);
+		}
+
+		// Assert: the function was called and decorator has kept the owner alive
+		//         shutdown order must be: decorator::handler -> pUpdater(references owner) -> decorator::owner
+		EXPECT_EQ(21u, counter);
+	}
+
+	TEST(TEST_CLASS, ResettableDecoratorCanBeReset) {
 		// Arrange: wrap a decorator around a lambda that depends on pOwner
 		auto pOwner = std::make_shared<uint32_t>(7);
 		auto counter = 0u;
-		ResettableWrappedWithOwnerDecorator<std::function<void (uint32_t)>> decorator([pOwner, &counter](
-				uint32_t multiple) {
+		auto decorator = Decorate<ResettableTraits>(pOwner, consumer<uint32_t>([pOwner, &counter](uint32_t multiple) {
 			counter += *pOwner * multiple;
-		}, pOwner);
+		}));
 
 		// Sanity: local, captured owner in lambda, captured owner in decorator
 		EXPECT_EQ(3u, pOwner.use_count());

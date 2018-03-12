@@ -1,10 +1,15 @@
 #pragma once
+#include "NodeRoles.h"
 #include "catapult/model/NetworkInfo.h"
-#include "catapult/types.h"
-#include <iosfwd>
-#include <string>
+#include "catapult/utils/Hashers.h"
+#include <unordered_set>
 
 namespace catapult { namespace ionet {
+
+	struct NodeVersion_tag {};
+
+	/// 32-bit node version where first three bytes represent { major, minor, build } and last byte is user defined.
+	using NodeVersion = utils::BaseValue<uint32_t, NodeVersion_tag>;
 
 	/// A node's publicly accessible endpoint.
 	struct NodeEndpoint {
@@ -15,38 +20,62 @@ namespace catapult { namespace ionet {
 		unsigned short Port;
 	};
 
-	/// A unique node identifier.
-	struct NodeIdentity {
-		/// The public key.
-		Key PublicKey;
+	/// Additional node information.
+	struct NodeMetadata {
+	public:
+		/// Creates default metadata.
+		NodeMetadata() : NodeMetadata(model::NetworkIdentifier::Zero)
+		{}
+
+		/// Creates metadata for a node in the network identified by \a networkIdentifier.
+		explicit NodeMetadata(model::NetworkIdentifier networkIdentifier) : NodeMetadata(networkIdentifier, "")
+		{}
+
+		/// Creates metadata for a node with \a name in the network identified by \a networkIdentifier.
+		NodeMetadata(model::NetworkIdentifier networkIdentifier, const std::string& name)
+				: NodeMetadata(networkIdentifier, name, NodeVersion(), NodeRoles::None)
+		{}
+
+		/// Creates metadata for a node with \a name, \a version and \a roles in the network identified by \a networkIdentifier.
+		NodeMetadata(model::NetworkIdentifier networkIdentifier, const std::string& name, NodeVersion version, NodeRoles roles)
+				: NetworkIdentifier(networkIdentifier)
+				, Name(name)
+				, Version(version)
+				, Roles(roles)
+		{}
+
+	public:
+		/// The network identifier.
+		model::NetworkIdentifier NetworkIdentifier;
 
 		/// The (optional) friendly name.
 		std::string Name;
+
+		/// The version.
+		NodeVersion Version;
+
+		/// The role(s).
+		NodeRoles Roles;
 	};
 
-	/// A node in the P2P network.
-	/// \note This class does not support assignment (as a result of const members) in order to allow
-	///       precomputation of printable names.
-	struct Node {
-	public:
-		/// The endpoint.
-		const NodeEndpoint Endpoint;
-
-		/// The identity.
-		const NodeIdentity Identity;
-
-		/// The network identifier.
-		const model::NetworkIdentifier NetworkIdentifier;
-
+	/// A node in the catapult network.
+	class Node {
 	public:
 		/// Creates a default node.
 		Node();
 
-		/// Creates a node around \a endpoint and \a identity for a network identified by \a networkIdentifier.
-		Node(
-				const NodeEndpoint& endpoint,
-				const NodeIdentity& identity,
-				model::NetworkIdentifier networkIdentifier);
+		/// Creates a node around a unique identifier (\a identityKey) with \a endpoint and \a metadata.
+		Node(const Key& identityKey, const NodeEndpoint& endpoint, const NodeMetadata& metadata);
+
+	public:
+		/// Gets the unique identifier (a public key).
+		const Key& identityKey() const;
+
+		/// Gets the endpoint.
+		const NodeEndpoint& endpoint() const;
+
+		/// Gets tne metadata.
+		const NodeMetadata& metadata() const;
 
 	public:
 		/// Returns \c true if this node is equal to \a rhs.
@@ -60,6 +89,21 @@ namespace catapult { namespace ionet {
 		friend std::ostream& operator<<(std::ostream& out, const Node& node);
 
 	private:
+		Key m_identityKey;
+		NodeEndpoint m_endpoint;
+		NodeMetadata m_metadata;
+
 		std::string m_printableName;
 	};
+
+	/// Hasher object for a node.
+	struct NodeHasher {
+		/// Hashes \a node.
+		size_t operator()(const Node& node) const {
+			return utils::ArrayHasher<Key>()(node.identityKey());
+		}
+	};
+
+	/// A set of nodes.
+	using NodeSet = std::unordered_set<Node, NodeHasher>;
 }}

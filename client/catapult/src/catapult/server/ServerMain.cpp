@@ -5,8 +5,9 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/io/FileLock.h"
+#include "catapult/thread/ThreadInfo.h"
+#include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Logging.h"
-#include <boost/exception/diagnostic_information.hpp>
 #include <iostream>
 
 namespace catapult { namespace server {
@@ -43,9 +44,6 @@ namespace catapult { namespace server {
 			CATAPULT_LOG(info) << "shutting down local node";
 			pLocalNode.reset();
 		}
-
-#define UNHANDLED_EXCEPTION_MESSAGE(ACTION) \
-	"Unhandled exception while " << ACTION << "!" << std::endl << boost::current_exception_diagnostic_information();
 	}
 
 	boost::filesystem::path GetResourcesPath(int argc, const char** argv) {
@@ -53,6 +51,8 @@ namespace catapult { namespace server {
 	}
 
 	int ServerMain(int argc, const char** argv, const CreateLocalNodeFunc& createLocalNode) {
+		thread::SetThreadName("Server Main");
+
 		try {
 			// 1. load and validate the configuration
 			auto config = LoadConfiguration(argc, argv);
@@ -64,7 +64,7 @@ namespace catapult { namespace server {
 			// 3. check instance
 			boost::filesystem::path lockFilePath = config.User.DataDirectory;
 			lockFilePath /= "file.lock";
-			io::FileLock instanceLock(lockFilePath.string());
+			io::FileLock instanceLock(lockFilePath.generic_string());
 			if (!instanceLock.try_lock()) {
 				CATAPULT_LOG(fatal) << "could not acquire instance lock " << lockFilePath;
 				return -3;

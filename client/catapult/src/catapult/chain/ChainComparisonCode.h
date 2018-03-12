@@ -7,7 +7,6 @@ namespace catapult { namespace chain {
 	/// Chain comparison code flag that is set if the code indicates an evil remote node.
 	constexpr uint32_t Remote_Is_Evil_Flag = 0x80000000;
 
-/// Possible chain comparison end states.
 #define CHAIN_COMPARISON_CODE_LIST \
 	/* The remote node is too far behind the local node. */ \
 	ENUM_VALUE(Remote_Is_Too_Far_Behind, 3) \
@@ -30,15 +29,15 @@ namespace catapult { namespace chain {
 	/* The remote node lied about having a higher chain score. */ \
 	ENUM_VALUE(Remote_Lied_About_Chain_Score, Remote_Is_Evil_Flag | 4)
 
-#define DECLARE_ENUM ChainComparisonCode
-#define EXPLICIT_VALUE_ENUM
-#define EXPLICIT_TYPE_ENUM uint32_t
-#define ENUM_LIST CHAIN_COMPARISON_CODE_LIST
-#include "catapult/utils/MacroBasedEnum.h"
-#undef ENUM_LIST
-#undef EXPLICIT_TYPE_ENUM
-#undef EXPLICIT_VALUE_ENUM
-#undef DECLARE_ENUM
+#define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
+	/// Possible chain comparison end states.
+	enum class ChainComparisonCode : uint32_t {
+		CHAIN_COMPARISON_CODE_LIST
+	};
+#undef ENUM_VALUE
+
+	/// Insertion operator for outputting \a value to \a out.
+	std::ostream& operator<<(std::ostream& out, ChainComparisonCode value);
 
 	/// Gets a value indicating whether or not \a code indicates that the remote node is evil.
 	bool IsRemoteEvil(ChainComparisonCode code);

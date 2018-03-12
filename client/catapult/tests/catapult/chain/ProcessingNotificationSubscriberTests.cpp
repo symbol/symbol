@@ -14,7 +14,7 @@ namespace catapult { namespace chain {
 
 	namespace {
 		constexpr auto MakeTestNotificationType(model::NotificationChannel channel, uint16_t code = 1) {
-				return model::MakeNotificationType(channel, static_cast<model::NotificationFacilityCode>(0), code);
+				return model::MakeNotificationType(channel, static_cast<model::FacilityCode>(0), code);
 		}
 
 		constexpr auto Notification_Type_None = MakeTestNotificationType(model::NotificationChannel::None);
@@ -88,10 +88,8 @@ namespace catapult { namespace chain {
 				// Assert:
 				ASSERT_EQ(expectedHashes.size(), m_observer.notificationTypes().size());
 
-				for (auto i = 0u; i < expectedHashes.size(); ++i) {
-					EXPECT_EQ(test::ToHexString(expectedHashes[i]), test::ToHexString(m_observer.notificationHashes()[i]))
-							<< "observer notification hash at " << std::to_string(i);
-				}
+				for (auto i = 0u; i < expectedHashes.size(); ++i)
+					EXPECT_EQ(expectedHashes[i], m_observer.notificationHashes()[i]) << "observer notification hash at " << i;
 			}
 
 		private:
@@ -318,6 +316,8 @@ namespace catapult { namespace chain {
 		EXPECT_THROW(context.sub().undo(), catapult_runtime_error);
 	}
 
+	// endregion
+
 	// region basic fixed size undo (zero, single, multiple)
 
 #define NOTIFY_MODE_TRAITS_BASED_TEST(TEST_NAME) \
@@ -400,7 +400,7 @@ namespace catapult { namespace chain {
 		auto notification1 = model::AccountPublicKeyNotification(signer);
 		auto notification2 = test::CreateNotification(Notification_Type_All);
 		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Mijin_Test);
-		auto notification4 = model::TransactionNotification(signer, hash, Timestamp(11));
+		auto notification4 = model::TransactionNotification(signer, hash, model::EntityType(22), Timestamp(11));
 
 		// - process notifications
 		context.sub().notify(notification1);
@@ -472,6 +472,4 @@ namespace catapult { namespace chain {
 			Notification_Type_All_3, Notification_Type_All_2
 		}, 3);
 	}
-
-	// endregion
 }}

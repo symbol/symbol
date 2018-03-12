@@ -3,8 +3,8 @@
 
 namespace catapult { namespace local {
 
-	cache::MemoryUtCacheOptions GetUnconfirmedTransactionsCacheOptions(const config::NodeConfiguration& config) {
-		return cache::MemoryUtCacheOptions(
+	cache::MemoryCacheOptions GetUtCacheOptions(const config::NodeConfiguration& config) {
+		return cache::MemoryCacheOptions(
 				config.UnconfirmedTransactionsCacheMaxResponseSize.bytes(),
 				config.UnconfirmedTransactionsCacheMaxSize);
 	}

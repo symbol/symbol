@@ -1,5 +1,6 @@
 #pragma once
-#include "Cosignature.h"
+#include "AggregateEntityType.h"
+#include "catapult/model/Cosignature.h"
 #include "catapult/model/EntityType.h"
 #include "catapult/model/Transaction.h"
 #include "catapult/model/TransactionContainer.h"
@@ -15,7 +16,7 @@ namespace catapult { namespace model {
 		static constexpr uint8_t Current_Version = 2;
 
 		/// Transaction type.
-		static constexpr EntityType Entity_Type = EntityType::Aggregate;
+		static constexpr EntityType Entity_Type = Entity_Type_Aggregate_Complete;
 
 	public:
 		/// The transaction payload size in bytes.
@@ -27,7 +28,7 @@ namespace catapult { namespace model {
 	};
 
 	/// Binary layout for an aggregate transaction.
-	struct AggregateTransaction : public TransactionContainer<AggregateTransactionHeader, EmbeddedEntity> {
+	struct AggregateTransaction : public TransactionContainer<AggregateTransactionHeader, EmbeddedTransaction> {
 	private:
 		template<typename T>
 		static auto* CosignaturesPtrT(T& transaction) {

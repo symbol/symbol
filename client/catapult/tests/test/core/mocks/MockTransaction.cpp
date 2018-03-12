@@ -1,6 +1,7 @@
 #include "MockTransaction.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NotificationSubscriber.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 
@@ -12,7 +13,7 @@ namespace catapult { namespace mocks {
 		template<typename TMockTransaction>
 		std::unique_ptr<TMockTransaction> CreateMockTransactionT(uint16_t dataSize) {
 			uint32_t entitySize = sizeof(TMockTransaction) + dataSize;
-			std::unique_ptr<TMockTransaction> pTransaction(reinterpret_cast<TMockTransaction*>(::operator new(entitySize)));
+			auto pTransaction = utils::MakeUniqueWithSize<TMockTransaction>(entitySize);
 
 			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
 			pTransaction->Size = entitySize;
@@ -44,6 +45,14 @@ namespace catapult { namespace mocks {
 		return pTransaction;
 	}
 
+	std::unique_ptr<MockTransaction> CreateMockTransactionWithSignerAndRecipient(const Key& signer, const Key& recipient) {
+		auto pTransaction = CreateMockTransactionT<MockTransaction>(0);
+		pTransaction->Signer = signer;
+		pTransaction->Recipient = recipient;
+		pTransaction->Version = MakeVersion(model::NetworkIdentifier::Mijin_Test, 1);
+		return pTransaction;
+	}
+
 	bool IsPluginOptionFlagSet(PluginOptionFlags options, PluginOptionFlags flag) {
 		return utils::to_underlying_type(flag) == (utils::to_underlying_type(options) & utils::to_underlying_type(flag));
 	}
@@ -67,7 +76,7 @@ namespace catapult { namespace mocks {
 
 			auto pMosaics = reinterpret_cast<const Mosaic*>(mockTransaction.DataPtr());
 			for (auto i = 0u; i < mockTransaction.Data.Size / sizeof(Mosaic); ++i) {
-				auto sender = mockTransaction.Signer;
+				const auto& sender = mockTransaction.Signer;
 				auto recipient = PublicKeyToAddress(mockTransaction.Recipient, NetworkIdentifier::Mijin_Test);
 				sub.notify(BalanceTransferNotification(sender, recipient, pMosaics[i].MosaicId, pMosaics[i].Amount));
 			}
@@ -96,15 +105,15 @@ namespace catapult { namespace mocks {
 		};
 
 		class EmbeddedMockTransactionPlugin
-				: public MockTransactionPluginT<EmbeddedEntity, EmbeddedMockTransaction, EmbeddedTransactionPlugin> {
+				: public MockTransactionPluginT<EmbeddedTransaction, EmbeddedMockTransaction, EmbeddedTransactionPlugin> {
 		public:
 			explicit EmbeddedMockTransactionPlugin(EntityType type, PluginOptionFlags options)
-					: MockTransactionPluginT<EmbeddedEntity, EmbeddedMockTransaction, EmbeddedTransactionPlugin>(type, options)
+					: MockTransactionPluginT<EmbeddedTransaction, EmbeddedMockTransaction, EmbeddedTransactionPlugin>(type, options)
 					, m_options(options)
 			{}
 
 		public:
-			void publish(const EmbeddedEntity& transaction, NotificationSubscriber& sub) const override {
+			void publish(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) const override {
 				Publish(static_cast<const EmbeddedMockTransaction&>(transaction), m_options, sub);
 			}
 
@@ -176,9 +185,13 @@ namespace catapult { namespace mocks {
 		return std::make_unique<MockTransactionPlugin>(static_cast<EntityType>(MockTransaction::Entity_Type), options);
 	}
 
-	std::unique_ptr<TransactionRegistry> CreateDefaultTransactionRegistry(PluginOptionFlags options) {
-		auto pRegistry = std::make_unique<TransactionRegistry>();
-		pRegistry->registerPlugin(CreateMockTransactionPlugin(options));
-		return pRegistry;
+	std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(int type, PluginOptionFlags options) {
+		return std::make_unique<MockTransactionPlugin>(static_cast<EntityType>(type), options);
+	}
+
+	TransactionRegistry CreateDefaultTransactionRegistry(PluginOptionFlags options) {
+		auto registry = TransactionRegistry();
+		registry.registerPlugin(CreateMockTransactionPlugin(options));
+		return registry;
 	}
 }}

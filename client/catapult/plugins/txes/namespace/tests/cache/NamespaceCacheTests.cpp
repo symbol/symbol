@@ -1,20 +1,59 @@
 #include "src/cache/NamespaceCache.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
-#include "tests/test/cache/CacheContentsTests.h"
-#include "tests/test/cache/CacheIterationTests.h"
-#include "tests/test/cache/CacheSynchronizationTests.h"
+#include "tests/test/cache/CacheBasicTests.h"
+#include "tests/test/cache/CacheMixinsTests.h"
+#include "tests/test/cache/DeltaElementsMixinTests.h"
 #include "tests/TestHarness.h"
-
-#define TEST_CLASS NamespaceCacheTests
 
 namespace catapult { namespace cache {
 
+#define TEST_CLASS NamespaceCacheTests
+
+	// region mixin traits based tests
+
 	namespace {
-		void AddRoots(
-				LockedCacheDelta<NamespaceCacheDelta>& delta,
-				const Key& rootOwner,
-				const std::vector<NamespaceId::ValueType>& ids) {
+		struct NamespaceCacheMixinTraits {
+			using CacheType = NamespaceCache;
+			using IdType = NamespaceId;
+			using ValueType = state::RootNamespaceHistory;
+
+			static uint8_t GetRawId(const IdType& id) {
+				return static_cast<uint8_t>(id.unwrap());
+			}
+
+			static IdType GetId(const ValueType& history) {
+				return history.id();
+			}
+
+			static IdType MakeId(uint8_t id) {
+				return IdType(id);
+			}
+
+			static state::RootNamespace CreateWithId(uint8_t id) {
+				// RootNamespaceHistory does not move correctly with Key()
+				return state::RootNamespace(MakeId(id), Key{ { 1 } }, test::CreateLifetime(234, 321));
+			}
+		};
+	}
+
+	DEFINE_CACHE_CONTAINS_TESTS(NamespaceCacheMixinTraits, ViewAccessor, _View);
+	DEFINE_CACHE_CONTAINS_TESTS(NamespaceCacheMixinTraits, DeltaAccessor, _Delta);
+
+	DEFINE_CACHE_ITERATION_TESTS(NamespaceCacheMixinTraits, ViewAccessor, _View);
+
+	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(NamespaceCacheMixinTraits, _Delta);
+
+	DEFINE_CACHE_BASIC_TESTS(NamespaceCacheMixinTraits,);
+
+	// (accessors and predicates have custom tests because they're depedent on multiple caches)
+
+	// endregion
+
+	// *** custom tests ***
+
+	namespace {
+		void AddRoots(LockedCacheDelta<NamespaceCacheDelta>& delta, const Key& rootOwner, const std::vector<NamespaceId::ValueType>& ids) {
 			for (auto id : ids)
 				delta->insert(state::RootNamespace(NamespaceId(id), rootOwner, test::CreateLifetime(234, 321)));
 		}
@@ -36,21 +75,6 @@ namespace catapult { namespace cache {
 			delta->insert(delta->get(NamespaceId(1)).root().renew(test::CreateLifetime(345, 456)));
 		}
 	}
-
-	// region basic tests
-
-	TEST(TEST_CLASS, CacheInitiallyContainsNoNamespaces) {
-		// Arrange:
-		NamespaceCache cache;
-		auto view = cache.createView();
-
-		// Assert:
-		test::AssertCacheSizes(*view, 0, 0, 0);
-	}
-
-	// note: basic contains tests are supplied by CacheContentsTests
-
-	// endregion
 
 	// region deep size
 
@@ -488,7 +512,7 @@ namespace catapult { namespace cache {
 		state::RootNamespace root(NamespaceId(123), owner, test::CreateLifetime(234, 321));
 		delta->insert(root);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(delta->insert(state::Namespace(test::CreatePath({ 123, 126, 127 }))), catapult_invalid_argument);
 		EXPECT_THROW(delta->insert(state::Namespace(test::CreatePath({ 125, 127 }))), catapult_invalid_argument);
 		EXPECT_THROW(delta->insert(state::Namespace(test::CreatePath({ 122 }))), catapult_invalid_argument);
@@ -505,7 +529,7 @@ namespace catapult { namespace cache {
 		auto owner = test::CreateRandomOwner();
 		PopulateCache(delta, owner);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(delta->remove(NamespaceId(12)), catapult_invalid_argument);
 		EXPECT_THROW(delta->remove(NamespaceId(123)), catapult_invalid_argument);
 		EXPECT_THROW(delta->remove(NamespaceId(3579)), catapult_invalid_argument);
@@ -661,7 +685,7 @@ namespace catapult { namespace cache {
 		ASSERT_TRUE(delta->contains(NamespaceId(3)));
 		EXPECT_FALSE(delta->get(NamespaceId(3)).root().empty());
 
-		// Assert: namespace with id 3 has 1 child
+		// Act + Assert: namespace with id 3 has 1 child
 		EXPECT_THROW(delta->remove(NamespaceId(3)), catapult_runtime_error);
 	}
 
@@ -670,7 +694,6 @@ namespace catapult { namespace cache {
 	// region prune
 
 	namespace {
-
 		void SetupCacheForPruneTests(NamespaceCache& cache, const Key& rootOwner) {
 			// 10 roots with id i and lifetime (10 * i, 10 * (i + 1)) for i = 0, ..., 9
 			// each root has 2 children
@@ -823,198 +846,6 @@ namespace catapult { namespace cache {
 		test::AssertCacheSizes(*delta, 5, 15, 15);
 		test::AssertCacheContents(cache, { 5, 6, 7, 8, 9, 15, 25, 16, 26, 17, 27, 18, 28, 19, 29 });
 	}
-
-	// endregion
-
-	// region addedHistories / modifiedHistories / removedHistories
-
-	namespace {
-		std::set<NamespaceId> CollectNamespaceIds(const std::vector<const state::RootNamespaceHistory*>& histories) {
-			std::set<NamespaceId> ids;
-			for (const auto* pHistory : histories)
-				ids.insert(pHistory->id());
-
-			return ids;
-		}
-
-		std::set<NamespaceId> ToSet(const std::vector<NamespaceId>& ids) {
-			return std::set<NamespaceId>(ids.cbegin(), ids.cend());
-		}
-
-		state::RootNamespace CreateRoot(const Key& owner, NamespaceId id) {
-			return state::RootNamespace(id, owner, state::NamespaceLifetime(Height(23), Height(34)));
-		}
-
-		void AssertMarkedHistories(
-				const NamespaceCacheDelta& delta,
-				const std::set<NamespaceId>& expectedAddedHistories,
-				const std::set<NamespaceId>& expectedModifiedHistories,
-				const std::set<NamespaceId>& expectedRemovedHistories) {
-			// note that std::set is used because order of returned histories is not important
-			EXPECT_EQ(expectedAddedHistories, CollectNamespaceIds(delta.addedRootNamespaceHistories()));
-			EXPECT_EQ(expectedModifiedHistories, CollectNamespaceIds(delta.modifiedRootNamespaceHistories()));
-			EXPECT_EQ(expectedRemovedHistories, ToSet(delta.removedRootNamespaceHistories()));
-		}
-	}
-
-	TEST(TEST_CLASS, InitiallyNoHistoriesAreMarkedAsAddedOrModifiedOrRemoved) {
-		// Arrange:
-		NamespaceCache cache;
-		auto delta = cache.createDelta();
-
-		// Assert:
-		AssertMarkedHistories(*delta, {}, {}, {});
-	}
-
-	TEST(TEST_CLASS, AddedHistoriesAreMarkedAsAdded) {
-		// Arrange:
-		NamespaceCache cache;
-		auto owner = test::GenerateRandomData<Key_Size>();
-		auto delta = cache.createDelta();
-
-		// Act:
-		delta->insert(CreateRoot(owner, NamespaceId(123)));
-
-		// Assert:
-		AssertMarkedHistories(*delta, { NamespaceId(123) }, {}, {});
-	}
-
-	TEST(TEST_CLASS, ModifiedHistoriesAreMarkedAsModified) {
-		// Arrange:
-		NamespaceCache cache;
-		auto owner = test::GenerateRandomData<Key_Size>();
-		auto delta = cache.createDelta();
-		delta->insert(CreateRoot(owner, NamespaceId(123)));
-		cache.commit();
-
-		// Act:
-		delta->insert(CreateRoot(owner, NamespaceId(123)));
-
-		// Assert:
-		AssertMarkedHistories(*delta, {}, { NamespaceId(123) }, {});
-	}
-
-	TEST(TEST_CLASS, RemovedHistoriesAreMarkedAsRemoved) {
-		// Arrange:
-		NamespaceCache cache;
-		auto owner = test::GenerateRandomData<Key_Size>();
-		auto delta = cache.createDelta();
-		delta->insert(CreateRoot(owner, NamespaceId(123)));
-		cache.commit();
-
-		// Act:
-		delta->remove(NamespaceId(123));
-
-		// Assert:
-		AssertMarkedHistories(*delta, {}, {}, { NamespaceId(123) });
-	}
-
-	TEST(TEST_CLASS, MultipleMarkedHistoriesCanBeTracked) {
-		NamespaceCache cache;
-		auto owner = test::GenerateRandomData<Key_Size>();
-		auto delta = cache.createDelta();
-		for (auto i = 100u; i < 110; ++i)
-			delta->insert(CreateRoot(owner, NamespaceId(i)));
-
-		cache.commit();
-
-		// Act:
-		// - add two
-		delta->insert(CreateRoot(owner, NamespaceId(123)));
-		delta->insert(CreateRoot(owner, NamespaceId(128)));
-
-		// - modify three
-		delta->insert(CreateRoot(owner, NamespaceId(105)));
-		delta->insert(CreateRoot(owner, NamespaceId(107)));
-		delta->insert(CreateRoot(owner, NamespaceId(108)));
-
-		// - remove four
-		delta->remove(NamespaceId(100));
-		delta->remove(NamespaceId(101));
-		delta->remove(NamespaceId(104));
-		delta->remove(NamespaceId(106));
-
-		// Assert:
-		AssertMarkedHistories(
-				*delta,
-				{ NamespaceId(123), NamespaceId(128) },
-				{ NamespaceId(105), NamespaceId(107), NamespaceId(108) },
-				{ NamespaceId(100), NamespaceId(101), NamespaceId(104), NamespaceId(106) });
-	}
-
-	// endregion
-
-	// region general cache tests
-
-	namespace {
-		struct NamespaceCacheEntityTraits {
-		public:
-			using KeyType = NamespaceId;
-
-			static auto CreateEntity(size_t id) {
-				return state::RootNamespace(NamespaceId(id), test::CreateRandomOwner(), test::CreateLifetime(234, 321));
-			}
-
-			static auto ToKey(const state::RootNamespace& ns) {
-				return ns.id();
-			}
-
-			static auto ToKey(const std::pair<NamespaceId, state::RootNamespaceHistory>& pair) {
-				return pair.first;
-			}
-		};
-
-		struct NamespaceCacheTraits {
-		public:
-			using EntityTraits = NamespaceCacheEntityTraits;
-
-		public:
-			template<typename TAction>
-			static void RunEmptyCacheTest(TAction action) {
-				// Arrange:
-				NamespaceCache cache;
-
-				// Act:
-				action(cache);
-			}
-
-			template<typename TAction>
-			static void RunCacheTest(TAction action) {
-				// Arrange:
-				NamespaceCache cache;
-				auto entities = InsertMultiple(cache, { 1, 4, 9 });
-
-				// Act:
-				action(cache, entities);
-			}
-
-			static std::vector<NamespaceId> InsertMultiple(NamespaceCache& cache, std::initializer_list<size_t> ids) {
-				auto delta = cache.createDelta();
-				std::vector<NamespaceId> entities;
-				for (auto id : ids) {
-					auto ns = EntityTraits::CreateEntity(id);
-					delta->insert(ns);
-					entities.push_back(EntityTraits::ToKey(ns));
-				}
-
-				cache.commit();
-				return entities;
-			}
-
-		public:
-			static void Insert(NamespaceCacheDelta& delta, const state::RootNamespace& ns) {
-				delta.insert(ns);
-			}
-
-			static void Remove(NamespaceCacheDelta& delta, const state::RootNamespace& ns) {
-				delta.remove(EntityTraits::ToKey(ns));
-			}
-		};
-	}
-
-	DEFINE_CACHE_CONTENTS_TESTS(TEST_CLASS, NamespaceCacheTraits)
-	DEFINE_CACHE_ITERATION_TESTS(TEST_CLASS, NamespaceCacheTraits, Unordered)
-	DEFINE_CACHE_SYNC_TESTS(TEST_CLASS, NamespaceCacheTraits)
 
 	// endregion
 }}

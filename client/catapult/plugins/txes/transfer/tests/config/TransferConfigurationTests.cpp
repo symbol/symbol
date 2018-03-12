@@ -9,12 +9,14 @@ namespace catapult { namespace config {
 			using ConfigurationType = TransferConfiguration;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
-				return {{
+				return {
+					{
 						"",
 						{
 							{ "maxMessageSize", "859" }
 						}
-				}};
+					}
+				};
 			}
 
 			static bool IsSectionOptional(const std::string&) {

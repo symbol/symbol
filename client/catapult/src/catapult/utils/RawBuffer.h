@@ -1,5 +1,5 @@
 #pragma once
-#include "Traits.h"
+#include "traits/Traits.h"
 #include <ostream>
 #include <string>
 #include <stddef.h>
@@ -54,8 +54,8 @@ namespace catapult { namespace utils {
 		constexpr RawString() : BasicRawBuffer()
 		{}
 
-		/// Creates a string buffer around a NUL-terminated string (\a pStr).
-		RawString(const char* pStr);
+		/// Creates a string buffer around a NUL-terminated string (\a str).
+		RawString(const char* str);
 	};
 
 	/// A mutable string buffer.

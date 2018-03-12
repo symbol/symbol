@@ -14,29 +14,34 @@ namespace catapult { namespace validators {
 
 	/// A validator implementation that applies to namespace notifications and validates that:
 	/// - namespace type is valid
-	stateless::NotificationValidatorPointerT<model::NamespaceNotification> CreateNamespaceTypeValidator();
+	DECLARE_STATELESS_VALIDATOR(NamespaceType, model::NamespaceNotification)();
 
 	/// A validator implementation that applies to namespace name notifications and validates that:
 	/// - namespace name has a maximum size of \a maxNameSize
 	/// - namespace name consists only of allowed characters
-	stateless::NotificationValidatorPointerT<model::NamespaceNameNotification> CreateNamespaceNameValidator(uint8_t maxNameSize);
+	/// - for root namespaces, name is not in \a reservedRootNamespaceNames
+	/// - for child namespaces, the parent id is not an id that can be generated from \a reservedRootNamespaceNames
+	DECLARE_STATELESS_VALIDATOR(NamespaceName, model::NamespaceNameNotification)(
+			uint8_t maxNameSize,
+			const std::unordered_set<std::string>& reservedRootNamespaceNames);
 
 	/// A validator implementation that applies to root namespace notifications and validates that:
 	/// - namespace duration is less than or equal to \a maxDuration for root namespace
 	/// - namespace duration is zero for child namespace
-	/// - name is not in \a reservedRootNamespaceNames
-	stateless::NotificationValidatorPointerT<model::RootNamespaceNotification> CreateRootNamespaceValidator(
-			ArtifactDuration maxDuration,
-			const std::unordered_set<std::string>& reservedRootNamespaceNames);
+	DECLARE_STATELESS_VALIDATOR(RootNamespace, model::RootNamespaceNotification)(BlockDuration maxDuration);
 
 	/// A validator implementation that applies to root register namespace transactions and validates that:
 	/// - the namespace is available and can be created or renewed given namespace lifetime \a constraints
-	stateful::NotificationValidatorPointerT<model::RootNamespaceNotification> CreateRootNamespaceAvailabilityValidator(
+	DECLARE_STATEFUL_VALIDATOR(RootNamespaceAvailability, model::RootNamespaceNotification)(
 			const model::NamespaceLifetimeConstraints& constraints);
 
 	/// A validator implementation that applies to child register namespace transactions and validates that:
 	/// - the namespace is available and can be created
-	stateful::NotificationValidatorPointerT<model::ChildNamespaceNotification> CreateChildNamespaceAvailabilityValidator();
+	DECLARE_STATEFUL_VALIDATOR(ChildNamespaceAvailability, model::ChildNamespaceNotification)();
+
+	/// A validator implementation that applies to child register namespace transactions and validates that:
+	/// - the maximum number of children (\a maxChildren) for a root namespace is not exceeded
+	DECLARE_STATEFUL_VALIDATOR(RootNamespaceMaxChildren, model::ChildNamespaceNotification)(uint16_t maxChildren);
 
 	// endregion
 
@@ -44,7 +49,7 @@ namespace catapult { namespace validators {
 
 	/// A validator implementation that applies to mosaic change notifications and validates that:
 	/// - change transaction owner has permission to change mosaic
-	stateful::NotificationValidatorPointerT<model::MosaicChangeNotification> CreateMosaicChangeAllowedValidator();
+	DECLARE_STATEFUL_VALIDATOR(MosaicChangeAllowed, model::MosaicChangeNotification)();
 
 	// endregion
 
@@ -53,24 +58,24 @@ namespace catapult { namespace validators {
 	/// A validator implementation that applies to mosaic name notifications and validates that:
 	/// - mosaic name has a maximum size of \a maxNameSize
 	/// - mosaic name consists only of allowed characters
-	stateless::NotificationValidatorPointerT<model::MosaicNameNotification> CreateMosaicNameValidator(uint8_t maxNameSize);
+	DECLARE_STATELESS_VALIDATOR(MosaicName, model::MosaicNameNotification)(uint8_t maxNameSize);
 
 	/// A validator implementation that applies to mosaic properties notifications and validates that:
 	/// - definition has valid mosaic flags
 	/// - definition has divisibility no greater than \a maxDivisibility
 	/// - mosaic duration has a value not larger than \a maxMosaicDuration
 	/// - optional mosaic properties are sorted, known and not duplicative
-	stateless::NotificationValidatorPointerT<model::MosaicPropertiesNotification> CreateMosaicPropertiesValidator(
+	DECLARE_STATELESS_VALIDATOR(MosaicProperties, model::MosaicPropertiesNotification)(
 			uint8_t maxDivisibility,
-			ArtifactDuration maxMosaicDuration);
+			BlockDuration maxMosaicDuration);
 
 	/// A validator implementation that applies to mosaic definition notifications and validates that:
 	/// - a mosaic is consistent with its purported namespace
-	stateful::NotificationValidatorPointerT<model::MosaicDefinitionNotification> CreateNamespaceMosaicConsistencyValidator();
+	DECLARE_STATEFUL_VALIDATOR(NamespaceMosaicConsistency, model::MosaicDefinitionNotification)();
 
 	/// A validator implementation that applies to mosaic definition notifications and validates that:
 	/// - the mosaic is available and can be created or modified
-	stateful::NotificationValidatorPointerT<model::MosaicDefinitionNotification> CreateMosaicAvailabilityValidator();
+	DECLARE_STATEFUL_VALIDATOR(MosaicAvailability, model::MosaicDefinitionNotification)();
 
 	// endregion
 
@@ -79,19 +84,30 @@ namespace catapult { namespace validators {
 	/// A validator implementation that applies to mosaic supply change notifications and validates that:
 	/// - direction has a valid value
 	/// - delta amount is non-zero
-	stateless::NotificationValidatorPointerT<model::MosaicSupplyChangeNotification> CreateMosaicSupplyChangeValidator();
+	DECLARE_STATELESS_VALIDATOR(MosaicSupplyChange, model::MosaicSupplyChangeNotification)();
 
 	/// A validator implementation that applies to all balance transfer notifications and validates that:
 	/// - transferred mosaic is active and is transferable
-	stateful::NotificationValidatorPointerT<model::BalanceTransferNotification> CreateMosaicTransferValidator();
+	DECLARE_STATEFUL_VALIDATOR(MosaicTransfer, model::BalanceTransferNotification)();
 
 	/// A validator implementation that applies to mosaic supply change notifications and validates that:
 	/// - the affected mosaic has mutable supply
 	/// - decrease does not cause owner amount to become negative
 	/// - increase does not cause total divisible units to exceed \a maxDivisibleUnits
 	/// \note This validator is dependent on MosaicChangeAllowedValidator.
-	stateful::NotificationValidatorPointerT<model::MosaicSupplyChangeNotification> CreateMosaicSupplyChangeAllowedValidator(
-			Amount maxDivisibleUnits);
+	DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, model::MosaicSupplyChangeNotification)(Amount maxDivisibleUnits);
+
+	/// A validator implementation that applies to mosaic supply change notifications and validates that:
+	/// - the account changing the supply does not exceed the maximum number of mosaics (\a maxMosaics) an account is allowed to own
+	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsSupplyChange, model::MosaicSupplyChangeNotification)(uint16_t maxMosaics);
+
+	// endregion
+
+	// region TransferTransaction
+
+	/// A validator implementation that applies to all balance transfer notifications and validates that:
+	/// - the recipient does not exceed the maximum number of mosaics (\a maxMosaics) an account is allowed to own
+	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsBalanceTransfer, model::BalanceTransferNotification)(uint16_t maxMosaics);
 
 	// endregion
 }}

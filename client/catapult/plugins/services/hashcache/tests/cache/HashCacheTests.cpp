@@ -1,12 +1,56 @@
 #include "src/cache/HashCache.h"
-#include "tests/test/cache/CacheContentsTests.h"
-#include "tests/test/cache/CacheIterationTests.h"
-#include "tests/test/cache/CacheSynchronizationTests.h"
+#include "tests/test/cache/CacheBasicTests.h"
+#include "tests/test/cache/CacheMixinsTests.h"
 #include "tests/TestHarness.h"
+
+namespace catapult { namespace cache {
 
 #define TEST_CLASS HashCacheTests
 
-namespace catapult { namespace cache {
+	// region mixin traits based tests
+
+	namespace {
+		struct HashCacheMixinTraits {
+			class CacheType : public HashCache {
+			public:
+				CacheType() : HashCache(utils::TimeSpan::FromMinutes(10))
+				{}
+			};
+
+			using IdType = state::TimestampedHash;
+			using ValueType = state::TimestampedHash;
+
+			static uint8_t GetRawId(const IdType& id) {
+				return static_cast<uint8_t>(id.Time.unwrap());
+			}
+
+			static const IdType& GetId(const ValueType& value) {
+				return value;
+			}
+
+			static IdType MakeId(uint8_t id) {
+				return state::TimestampedHash(Timestamp(id), { { static_cast<uint8_t>(id * id) } });
+			}
+
+			static ValueType CreateWithId(uint8_t id) {
+				return MakeId(id);
+			}
+		};
+	}
+
+	DEFINE_CACHE_CONTAINS_TESTS(HashCacheMixinTraits, ViewAccessor, _View);
+	DEFINE_CACHE_CONTAINS_TESTS(HashCacheMixinTraits, DeltaAccessor, _Delta);
+
+	DEFINE_CACHE_ITERATION_TESTS_ORDERING(HashCacheMixinTraits, ViewAccessor, Ordered, _View);
+
+	DEFINE_CACHE_MUTATION_TESTS(HashCacheMixinTraits, DeltaAccessor, _Delta);
+
+	DEFINE_CACHE_BASIC_TESTS(HashCacheMixinTraits,);
+
+	// endregion
+
+	// *** custom tests ***
+
 	// region ctor
 
 	TEST(TEST_CLASS, CanCreateHashCacheWithCustomRetentionTime) {
@@ -45,49 +89,6 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Timestamp(8 * 60 * 60 * 1000), pruningBoundary.value().Time);
 		EXPECT_EQ(state::TimestampedHash::HashType(), pruningBoundary.value().Hash);
 	}
-
-	// endregion
-
-	// region general cache tests
-
-	namespace {
-		struct HashCacheEntityTraits {
-		public:
-			static auto CreateEntity(size_t id) {
-				return state::TimestampedHash(Timestamp(id), { { static_cast<uint8_t>(id * id) } });
-			}
-
-			static const auto& ToKey(const state::TimestampedHash& value) {
-				return value;
-			}
-		};
-
-		struct HashCacheTraits : test::SetCacheTraits<HashCache, state::TimestampedHash, HashCacheEntityTraits> {
-		public:
-			template<typename TAction>
-			static void RunEmptyCacheTest(TAction action) {
-				// Arrange:
-				HashCache cache(utils::TimeSpan::FromHours(123));
-
-				// Act:
-				action(cache);
-			}
-
-			template<typename TAction>
-			static void RunCacheTest(TAction action) {
-				// Arrange:
-				HashCache cache(utils::TimeSpan::FromHours(123));
-				auto entities = InsertMultiple(cache, { 1, 4, 9 });
-
-				// Act:
-				action(cache, entities);
-			}
-		};
-	}
-
-	DEFINE_CACHE_CONTENTS_TESTS(TEST_CLASS, HashCacheTraits)
-	DEFINE_CACHE_ITERATION_TESTS(TEST_CLASS, HashCacheTraits, Ordered)
-	DEFINE_CACHE_SYNC_TESTS(TEST_CLASS, HashCacheTraits)
 
 	// endregion
 }}

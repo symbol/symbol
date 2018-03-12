@@ -156,7 +156,7 @@ namespace catapult { namespace thread {
 		// Arrange:
 		IntFuturesVector futures;
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(when_all(std::move(futures)), catapult_invalid_argument);
 	}
 
@@ -236,18 +236,21 @@ namespace catapult { namespace thread {
 				CreateSleepExceptionFuture(15),
 				[](auto&& future) { return CreateSleepContinuationFuture(10, std::move(future)); });
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(composedFuture.get(), catapult_runtime_error);
 		EXPECT_TRUE(composedFuture.is_ready());
 	}
 
 	TEST(TEST_CLASS, CanComposeFuturesWhenSecondFutureCannotBeCreated) {
 		// Arrange:
-		auto composedFuture = compose(
-				CreateSleepValueFuture(15, 7),
-				[](const auto&) -> future<std::string> { throw catapult_runtime_error("failed to create second future"); });
+		struct Functions {
+			static future<std::string> FailToCreateSecondFuture(future<int>&&) {
+				throw catapult_runtime_error("failed to create second future");
+			}
+		};
+		auto composedFuture = compose(CreateSleepValueFuture(15, 7), Functions::FailToCreateSecondFuture);
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(composedFuture.get(), catapult_runtime_error);
 		EXPECT_TRUE(composedFuture.is_ready());
 	}
@@ -258,7 +261,7 @@ namespace catapult { namespace thread {
 				CreateSleepValueFuture(15, 7),
 				[](const auto&) { return CreateSleepExceptionFuture(10); });
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(composedFuture.get(), catapult_runtime_error);
 		EXPECT_TRUE(composedFuture.is_ready());
 	}
@@ -399,7 +402,7 @@ namespace catapult { namespace thread {
 		futures.push_back(CreateSleepValueFuture(7, 3));
 		futures.push_back(CreateSleepExceptionFuture(5));
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(get_all(std::move(futures)), catapult_runtime_error);
 	}
 

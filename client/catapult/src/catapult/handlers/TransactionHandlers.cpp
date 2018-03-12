@@ -29,7 +29,7 @@ namespace catapult { namespace handlers {
 			if (ionet::PacketType::Pull_Transactions != packet.Type)
 				return PullTransactionsInfo();
 
-			auto range = ionet::ExtractFixedSizeEntitiesFromPacket<utils::ShortHash>(packet);
+			auto range = ionet::ExtractFixedSizeStructuresFromPacket<utils::ShortHash>(packet);
 			if (range.empty() && sizeof(ionet::Packet) != packet.Size)
 				return PullTransactionsInfo();
 
@@ -42,21 +42,19 @@ namespace catapult { namespace handlers {
 			return info;
 		}
 
-		auto CreatePullTransactionsHandler(const UnconfirmedTransactionsRetriever& unconfirmedTransactionsRetriever) {
-			return [unconfirmedTransactionsRetriever](const auto& packet, auto& context) -> void {
+		auto CreatePullTransactionsHandler(const UtRetriever& utRetriever) {
+			return [utRetriever](const auto& packet, auto& context) {
 				auto info = ProcessPullTransactionsRequest(packet);
 				if (!info.IsValid)
 					return;
 
-				auto transactions = unconfirmedTransactionsRetriever(info.ShortHashes);
+				auto transactions = utRetriever(info.ShortHashes);
 				context.response(ionet::PacketPayload::FromEntities(ionet::PacketType::Pull_Transactions, transactions));
 			};
 		}
 	}
 
-	void RegisterPullTransactionsHandler(
-			ionet::ServerPacketHandlers& handlers,
-			const UnconfirmedTransactionsRetriever& unconfirmedTransactionsRetriever) {
-		handlers.registerHandler(ionet::PacketType::Pull_Transactions, CreatePullTransactionsHandler(unconfirmedTransactionsRetriever));
+	void RegisterPullTransactionsHandler(ionet::ServerPacketHandlers& handlers, const UtRetriever& utRetriever) {
+		handlers.registerHandler(ionet::PacketType::Pull_Transactions, CreatePullTransactionsHandler(utRetriever));
 	}
 }}

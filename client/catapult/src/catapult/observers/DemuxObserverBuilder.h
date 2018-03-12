@@ -9,14 +9,14 @@ namespace catapult { namespace observers {
 	/// A demultiplexing observer builder.
 	class DemuxObserverBuilder {
 	private:
-		using NotificationObserverPredicate = std::function<bool (const model::Notification&)>;
+		using NotificationObserverPredicate = predicate<const model::Notification&>;
 
 	public:
 		/// Adds an observer (\a pObserver) to the builder that is invoked only when matching notifications are processed.
 		template<typename TNotification>
 		DemuxObserverBuilder& add(NotificationObserverPointerT<TNotification>&& pObserver) {
 			auto predicate = [type = TNotification::Notification_Type](const auto& notification) {
-				return type == notification.Type;
+				return model::AreEqualExcludingChannel(type, notification.Type);
 			};
 			m_builder.add(std::make_unique<ConditionalObserver<TNotification>>(std::move(pObserver), predicate));
 			return *this;
@@ -31,9 +31,7 @@ namespace catapult { namespace observers {
 		template<typename TNotification>
 		class ConditionalObserver : public NotificationObserver {
 		public:
-			ConditionalObserver(
-					NotificationObserverPointerT<TNotification>&& pObserver,
-					const NotificationObserverPredicate& predicate)
+			ConditionalObserver(NotificationObserverPointerT<TNotification>&& pObserver, const NotificationObserverPredicate& predicate)
 					: m_pObserver(std::move(pObserver))
 					, m_predicate(predicate)
 			{}

@@ -2,7 +2,7 @@
 #include "catapult/io/FileBasedStorage.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/utils/SpinLock.h"
-#include "tests/int/stress/utils/StressThreadLogger.h"
+#include "tests/int/stress/test/StressThreadLogger.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
@@ -10,6 +10,8 @@
 #include <boost/thread.hpp>
 
 namespace catapult { namespace io {
+
+#define TEST_CLASS StorageTests
 
 	namespace {
 #ifdef STRESS
@@ -67,12 +69,12 @@ namespace catapult { namespace io {
 		}
 	}
 
-	NO_STRESS_TEST(StorageTests, StorageIsThreadSafeWithSingleReaderSingleWriter) {
+	NO_STRESS_TEST(TEST_CLASS, StorageIsThreadSafeWithSingleReaderSingleWriter) {
 		// Assert:
 		RunMultithreadedReadWriteTest(1);
 	}
 
-	NO_STRESS_TEST(StorageTests, StorageIsThreadSafeWithMultipleReadersSingleWriter) {
+	NO_STRESS_TEST(TEST_CLASS, StorageIsThreadSafeWithMultipleReadersSingleWriter) {
 		// Assert:
 		RunMultithreadedReadWriteTest(test::GetNumDefaultPoolThreads());
 	}

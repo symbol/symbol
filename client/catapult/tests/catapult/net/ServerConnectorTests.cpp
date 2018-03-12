@@ -2,7 +2,6 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/net/AsyncTcpServer.h"
 #include "catapult/net/VerifyPeer.h"
 #include "catapult/thread/IoServiceThreadPool.h"
 #include "tests/test/core/AddressTestUtils.h"
@@ -10,20 +9,10 @@
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
-#include "tests/test/net/mocks/MockAsyncTcpServerAcceptContext.h"
-
-using catapult::mocks::MockAsyncTcpServerAcceptContext;
 
 namespace catapult { namespace net {
 
-	TEST(ServerConnectorTests, InitiallyNoConnectionsAreActive) {
-		// Act:
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pConnector = CreateServerConnector(std::move(pPool), test::GenerateKeyPair(), ConnectionSettings());
-
-		// Assert:
-		EXPECT_EQ(0u, pConnector->numActiveConnections());
-	}
+#define TEST_CLASS ServerConnectorTests
 
 	namespace {
 		struct ConnectorTestContext {
@@ -57,12 +46,21 @@ namespace catapult { namespace net {
 			}
 
 			void waitForActiveConnections(uint32_t numConnections) const {
-				WAIT_FOR_VALUE_EXPR(pConnector->numActiveConnections(), numConnections);
+				WAIT_FOR_VALUE_EXPR(numConnections, pConnector->numActiveConnections());
 			}
 		};
 	}
 
-	TEST(ServerConnectorTests, ConnectFailsOnConnectError) {
+	TEST(TEST_CLASS, InitiallyNoConnectionsAreActive) {
+		// Act:
+		auto pPool = test::CreateStartedIoServiceThreadPool();
+		auto pConnector = CreateServerConnector(std::move(pPool), test::GenerateKeyPair(), ConnectionSettings());
+
+		// Assert:
+		EXPECT_EQ(0u, pConnector->numActiveConnections());
+	}
+
+	TEST(TEST_CLASS, ConnectFailsOnConnectError) {
 		// Arrange:
 		ConnectorTestContext context;
 		std::atomic<size_t> numCallbacks(0);
@@ -83,28 +81,28 @@ namespace catapult { namespace net {
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
-	TEST(ServerConnectorTests, ConnectFailsOnVerifyError) {
+	TEST(TEST_CLASS, ConnectFailsOnVerifyError) {
 		// Arrange:
 		ConnectorTestContext context;
 		std::atomic<size_t> numCallbacks(0);
 
 		// Act: start a server and client verify operation
 		PeerConnectResult result;
-		test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) -> void {
+		test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) {
 			// - trigger a verify error by closing the socket without responding
 			pSocket->close();
 			++numCallbacks;
 		});
 
 		std::shared_ptr<ionet::PacketSocket> pSocket;
-		context.pConnector->connect(context.serverNode(), [&](auto connectResult, const auto& pConnectedSocket) -> void {
+		context.pConnector->connect(context.serverNode(), [&](auto connectResult, const auto& pConnectedSocket) {
 			result = connectResult;
 			pSocket = pConnectedSocket;
 			++numCallbacks;
 		});
 
 		// - wait for both callbacks to complete and the connection to close
-		WAIT_FOR_VALUE(numCallbacks, 2u);
+		WAIT_FOR_VALUE(2u, numCallbacks);
 		context.waitForActiveConnections(0);
 
 		// Assert: the verification should have failed and all connections should have been destroyed
@@ -123,9 +121,10 @@ namespace catapult { namespace net {
 		MultiConnectionState SetupMultiConnectionTest(const ConnectorTestContext& context, size_t numConnections) {
 			// Act: start multiple server and client verify operations
 			MultiConnectionState state;
+			test::TcpAcceptor acceptor(context.Service);
 			for (auto i = 0u; i < numConnections; ++i) {
 				std::atomic<size_t> numCallbacks(0);
-				test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) -> void {
+				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
 					VerifyClient(pSocket, context.ServerKeyPair, [&](auto, const auto&) {
 						++numCallbacks;
@@ -139,16 +138,16 @@ namespace catapult { namespace net {
 				});
 
 				// - wait for both verifications to complete
-				WAIT_FOR_VALUE(numCallbacks, 2u);
+				WAIT_FOR_VALUE(2u, numCallbacks);
 			}
 
 			return state;
 		}
 
-		using ResultServerClientHandler = std::function<void (
+		using ResultServerClientHandler = consumer<
 				PeerConnectResult,
 				std::shared_ptr<ionet::PacketSocket>&,
-				std::shared_ptr<ionet::PacketSocket>&)>;
+				std::shared_ptr<ionet::PacketSocket>&>;
 
 		void RunConnectedSocketTest(const ConnectorTestContext& context, const ResultServerClientHandler& handler) {
 			// Act: establish a single connection
@@ -159,7 +158,7 @@ namespace catapult { namespace net {
 		}
 	}
 
-	TEST(ServerConnectorTests, ConnectSucceedsOnVerifySuccess) {
+	TEST(TEST_CLASS, ConnectSucceedsOnVerifySuccess) {
 		// Act:
 		ConnectorTestContext context;
 		RunConnectedSocketTest(context, [&](auto result, const auto&, const auto& pClientSocket) {
@@ -170,7 +169,7 @@ namespace catapult { namespace net {
 		});
 	}
 
-	TEST(ServerConnectorTests, ShutdownClosesConnectedSocket) {
+	TEST(TEST_CLASS, ShutdownClosesConnectedSocket) {
 		// Act:
 		ConnectorTestContext context;
 		RunConnectedSocketTest(context, [&](auto, const auto&, const auto& pClientSocket) {
@@ -183,7 +182,7 @@ namespace catapult { namespace net {
 		});
 	}
 
-	TEST(ServerConnectorTests, CanManageMultipleConnections) {
+	TEST(TEST_CLASS, CanManageMultipleConnections) {
 		// Act: establish multiple connections
 		static const auto Num_Connections = 5u;
 		ConnectorTestContext context;
@@ -200,7 +199,7 @@ namespace catapult { namespace net {
 	}
 
 	namespace {
-		void RunConnectingSocketTest(const ConnectorTestContext& context, const std::function<void ()>& handler) {
+		void RunConnectingSocketTest(const ConnectorTestContext& context, const action& handler) {
 			std::atomic<size_t> numCallbacks(0);
 
 			// Act: start a verify operation that the server does not respond to
@@ -230,7 +229,7 @@ namespace catapult { namespace net {
 		}
 	}
 
-	TEST(ServerConnectorTests, VerifyingConnectionIsIncludedInNumActiveConnections) {
+	TEST(TEST_CLASS, VerifyingConnectionIsIncludedInNumActiveConnections) {
 		// Act:
 		ConnectorTestContext context;
 		RunConnectingSocketTest(context, [&]() {
@@ -239,7 +238,7 @@ namespace catapult { namespace net {
 		});
 	}
 
-	TEST(ServerConnectorTests, ShutdownClosesVerifyingSocket) {
+	TEST(TEST_CLASS, ShutdownClosesVerifyingSocket) {
 		// Act:
 		ConnectorTestContext context;
 		RunConnectingSocketTest(context, [&]() {
@@ -263,18 +262,20 @@ namespace catapult { namespace net {
 			// Act: start a verify operation that the server does not respond to
 			// - server: accept a single connection
 			CATAPULT_LOG(debug) << "starting async accept";
-			auto pAcceptor = test::CreateLocalHostAcceptor(context.Service);
+			test::TcpAcceptor acceptor(context.Service);
 			auto serverSocket = boost::asio::ip::tcp::socket(context.Service);
-			pAcceptor->async_accept(serverSocket, [&numCallbacks](const auto& acceptEc) {
-				CATAPULT_LOG(debug) << "async_accept completed with: " << acceptEc.message();
-				++numCallbacks;
+			acceptor.strand().post([&acceptor = acceptor.get(), &numCallbacks, &serverSocket]() {
+				acceptor.async_accept(serverSocket, [&numCallbacks](const auto& acceptEc) {
+					CATAPULT_LOG(debug) << "async_accept completed with: " << acceptEc.message();
+					++numCallbacks;
+				});
 			});
 
 			// - client: start a connection to the server
 			PeerConnectResult result;
 			size_t numActiveConnections = 0;
 			std::shared_ptr<ionet::PacketSocket> pClientSocket;
-			context.pConnector->connect(context.serverNode(), [&](auto connectResult, const auto& pSocket) -> void {
+			context.pConnector->connect(context.serverNode(), [&](auto connectResult, const auto& pSocket) {
 				// - note that any active connections will not be destroyed until the completion of this callback
 				numActiveConnections = context.pConnector->numActiveConnections();
 
@@ -288,12 +289,14 @@ namespace catapult { namespace net {
 
 					// - cancel all outstanding acceptor operations to allow the server to shutdown
 					CATAPULT_LOG(debug) << "cancelling outstanding acceptor operations";
-					pAcceptor->cancel();
+					acceptor.strand().post([&acceptor = acceptor.get()]() {
+						acceptor.cancel();
+					});
 				}
 			});
 
 			// - wait for both callbacks to be called
-			WAIT_FOR_VALUE(numCallbacks, 2u);
+			WAIT_FOR_VALUE(2u, numCallbacks);
 
 			// Retry: if there are an unexpected number of connections or dummy connections
 			if (numActiveConnections != numDesiredActiveConnections || numDummyConnections == numDesiredActiveConnections) {
@@ -320,7 +323,7 @@ namespace catapult { namespace net {
 		}
 	}
 
-	TEST(ServerConnectorTests, TimeoutClosesConnectingSocket) {
+	TEST(TEST_CLASS, TimeoutClosesConnectingSocket) {
 		// Arrange: timeout immediately (during connect where 0 active connections are expected)
 		const auto Num_Expected_Active_Connections = 0;
 		ConnectionSettings settings;
@@ -330,7 +333,7 @@ namespace catapult { namespace net {
 		RunTimeoutTest(settings, Num_Expected_Active_Connections);
 	}
 
-	TEST(ServerConnectorTests, TimeoutClosesVerifyingSocket) {
+	TEST(TEST_CLASS, TimeoutClosesVerifyingSocket) {
 		// Arrange: timeout with some delay (during verify where 1 active connection is expected)
 		const auto Num_Expected_Active_Connections = 1;
 		ConnectionSettings settings;

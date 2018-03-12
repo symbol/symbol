@@ -3,13 +3,15 @@
 #include "catapult/utils/Casting.h"
 
 extern "C" {
-#include <ripemd160/rmd160.h>
+#include <ripemd160/ripemd160.h>
 }
 
 namespace catapult { namespace crypto {
 
 	void Ripemd160(const RawBuffer& dataBuffer, Hash160& hash) noexcept {
-		ripemd(hash.data(), dataBuffer.pData, static_cast<dword>(dataBuffer.Size));
+		struct ripemd160 context;
+		ripemd160(&context, dataBuffer.pData, dataBuffer.Size);
+		memcpy(hash.data(), context.u.u8, Hash160_Size);
 	}
 
 	void Sha3_256(const RawBuffer& dataBuffer, Hash256& hash) noexcept {
@@ -29,9 +31,9 @@ namespace catapult { namespace crypto {
 			return reinterpret_cast<Keccak_HashInstance*>(pHashContext);
 		}
 
-#ifdef NIS1_COMPATIBLE_SIGNATURES
+#ifdef SIGNATURE_SCHEME_NIS1
 		inline void KeccakFinal(uint8_t* context, uint8_t* output, int hashSize) noexcept {
-			Keccak_HashSqueeze(CastToKeccakHashInstance(context), output, hashSize * 8);
+			Keccak_HashSqueeze(CastToKeccakHashInstance(context), output, static_cast<uint32_t>(hashSize * 8));
 		}
 #else
 		inline void KeccakFinal(uint8_t* context, uint8_t* output, int /* ignore last argument */) noexcept {

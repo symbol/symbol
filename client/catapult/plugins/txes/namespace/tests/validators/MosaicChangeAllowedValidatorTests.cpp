@@ -8,6 +8,8 @@
 
 namespace catapult { namespace validators {
 
+#define TEST_CLASS MosaicChangeAllowedValidatorTests
+
 	DEFINE_COMMON_VALIDATOR_TESTS(MosaicChangeAllowed,)
 
 	namespace {
@@ -39,7 +41,7 @@ namespace catapult { namespace validators {
 			// - create the validator context
 			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 			auto delta = cache.createDelta();
-			test::AddMosaic(delta, NamespaceId(36), Default_Mosaic_Id, Height(50), ArtifactDuration(100), artifactOwner);
+			test::AddMosaic(delta, NamespaceId(36), Default_Mosaic_Id, Height(50), BlockDuration(100), artifactOwner);
 			SeedCacheWithRoot25TreeSigner(delta.sub<cache::NamespaceCache>(), artifactOwner);
 			cache.commit(Height());
 
@@ -59,29 +61,29 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(MosaicChangeAllowedValidatorTests, CannotChangeUnknownMosaic) {
+	TEST(TEST_CLASS, CannotChangeUnknownMosaic) {
 		// Assert:
 		AssertValidationResult(Failure_Mosaic_Expired, Default_Mosaic_Id + MosaicId(1), Height(100));
 	}
 
-	TEST(MosaicChangeAllowedValidatorTests, CannotChangeExpiredMosaic) {
+	TEST(TEST_CLASS, CannotChangeExpiredMosaic) {
 		// Assert:
 		AssertValidationResult(Failure_Mosaic_Expired, Default_Mosaic_Id, Mosaic_Expiry_Height);
 	}
 
-	TEST(MosaicChangeAllowedValidatorTests, CannotChangeMosaicWithExpiredNamespace) {
+	TEST(TEST_CLASS, CannotChangeMosaicWithExpiredNamespace) {
 		// Assert:
 		AssertValidationResult(Failure_Namespace_Expired, Default_Mosaic_Id, Namespace_Expiry_Height);
 	}
 
-	TEST(MosaicChangeAllowedValidatorTests, CannotChangeActiveMosaicWithWrongOwner) {
+	TEST(TEST_CLASS, CannotChangeActiveMosaicWithWrongOwner) {
 		// Assert:
 		auto key1 = test::GenerateRandomData<Key_Size>();
 		auto key2 = test::GenerateRandomData<Key_Size>();
 		AssertValidationResult(Failure_Mosaic_Owner_Conflict, Default_Mosaic_Id, Height(100), key1, key2);
 	}
 
-	TEST(MosaicChangeAllowedValidatorTests, CanChangeActiveMosaicWithCorrectOwner) {
+	TEST(TEST_CLASS, CanChangeActiveMosaicWithCorrectOwner) {
 		// Assert:
 		AssertValidationResult(ValidationResult::Success, Default_Mosaic_Id, Height(100));
 	}

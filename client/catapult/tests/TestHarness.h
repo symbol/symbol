@@ -1,11 +1,21 @@
 #pragma once
+#include "catapult/utils/HexFormatter.h"
 #include "tests/test/nodeps/Conversions.h"
 #include "tests/test/nodeps/Random.h"
 #include "tests/test/nodeps/Stress.h" /* note that gtest.h is included by Stress.h */
 #include "tests/test/nodeps/Waits.h"
 
-namespace catapult {
-	namespace test {
+namespace std {
+
+	// custom formatter for byte arrays
+	template<size_t N>
+	void PrintTo(const array<uint8_t, N>& array, std::ostream* pOut) {
+		*pOut << catapult::utils::HexFormat(array);
+	}
+}
+
+namespace catapult { namespace test {
+
 /// The default local host port.
 #ifdef STRESS
 		constexpr unsigned short Local_Host_Port = 3014;

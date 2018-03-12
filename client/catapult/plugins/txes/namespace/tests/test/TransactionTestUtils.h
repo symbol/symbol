@@ -5,6 +5,9 @@
 
 namespace catapult { namespace test {
 
+	/// Generates valid namespace name of length \a size.
+	std::string GenerateValidName(size_t size);
+
 	// region MosaicDefinitionTransactionFactory
 
 	/// Factory for creating mosaic definition transactions.
@@ -18,13 +21,13 @@ namespace catapult { namespace test {
 				const Key& signerPublicKey,
 				const std::string& name,
 				NamespaceId parentId,
-				ArtifactDuration duration);
+				BlockDuration duration);
 
 		/// Generates a random mosaic definition transaction with name of given size (\a nameSize).
 		static TransactionPointerType GenerateRandomUnsigned(size_t nameSize);
 
 		/// Generates a random mosaic definition transaction with name of given size (\a nameSize) and \a duration.
-		static TransactionPointerType GenerateRandomUnsigned(size_t nameSize, ArtifactDuration duration);
+		static TransactionPointerType GenerateRandomUnsigned(size_t nameSize, BlockDuration duration);
 
 		/// Generates a random mosaic definition transaction with given \a name.
 		static TransactionPointerType GenerateRandomUnsignedWithName(const std::string& name);
@@ -37,7 +40,7 @@ namespace catapult { namespace test {
 				std::initializer_list<model::MosaicProperty> optionalProperties);
 
 	private:
-		static TransactionPointerType GenerateRandomUnsignedWithName(const std::string& name, ArtifactDuration duration);
+		static TransactionPointerType GenerateRandomUnsignedWithName(const std::string& name, BlockDuration duration);
 	};
 
 	// endregion
@@ -55,7 +58,7 @@ namespace catapult { namespace test {
 				const Key& signerPublicKey,
 				NamespaceId parentId,
 				const std::string& name,
-				ArtifactDuration duration);
+				BlockDuration duration);
 
 		/// Generates a random register namespace transaction with name of given size (\a nameSize).
 		static TransactionPointerType GenerateRandomUnsigned(size_t nameSize);

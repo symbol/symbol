@@ -46,7 +46,7 @@ namespace catapult { namespace thread {
 		promise<int> promise;
 		auto future = promise.get_future();
 
-		// Act:
+		// Act + Assert:
 		EXPECT_THROW(promise.get_future(), std::future_error);
 		EXPECT_THROW(promise.get_future(), std::future_error);
 	}
@@ -119,7 +119,7 @@ namespace catapult { namespace thread {
 		auto future = promise.get_future();
 		future.then([](const auto&) { return 7; });
 
-		// Act: attempting to set a second continuation throws
+		// Act + Assert: attempting to set a second continuation throws
 		EXPECT_THROW(future.then([](const auto&) { return 7; }), std::logic_error);
 		EXPECT_THROW(future.then([](const auto&) { return 7; }), std::logic_error);
 	}
@@ -313,12 +313,14 @@ namespace catapult { namespace thread {
 		}
 	}
 
+#define PROMISE_FUTURE_TEST(TEST_NAME) TEST(TEST_CLASS, PromiseFuture_##TEST_NAME)
+
 #define PROMISE_FUTURE_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, PromiseFuture_##TEST_NAME##_Value) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValueTraits>(); } \
-	TEST(TEST_CLASS, PromiseFuture_##TEST_NAME##_Value_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyValueTraits>(); } \
-	TEST(TEST_CLASS, PromiseFuture_##TEST_NAME##_Exception) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExceptionTraits>(); } \
-	TEST(TEST_CLASS, PromiseFuture_##TEST_NAME##_Exception_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyExceptionTraits>(); } \
+	PROMISE_FUTURE_TEST(TEST_NAME##_Value) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValueTraits>(); } \
+	PROMISE_FUTURE_TEST(TEST_NAME##_Value_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyValueTraits>(); } \
+	PROMISE_FUTURE_TEST(TEST_NAME##_Exception) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExceptionTraits>(); } \
+	PROMISE_FUTURE_TEST(TEST_NAME##_Exception_MoveOnly) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MoveOnlyExceptionTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	PROMISE_FUTURE_TRAITS_BASED_TEST(CanGetValueAfterValueIsSet) {
@@ -364,7 +366,7 @@ namespace catapult { namespace thread {
 		// Sanity: the future should be ready
 		EXPECT_TRUE(future.is_ready());
 
-		// Assert: setting a value should fail
+		// Act + Assert: setting a value should fail
 		EXPECT_THROW(promise.set_value(typename TTraits::ValueType()), std::future_error);
 	}
 
@@ -377,10 +379,8 @@ namespace catapult { namespace thread {
 		// Sanity: the future should be ready
 		EXPECT_TRUE(future.is_ready());
 
-		// Assert: setting an exception should fail
-		EXPECT_THROW(
-				promise.set_exception(std::make_exception_ptr(std::runtime_error("future exception"))),
-				std::future_error);
+		// Act + Assert: setting an exception should fail
+		EXPECT_THROW(promise.set_exception(std::make_exception_ptr(std::runtime_error("future exception"))), std::future_error);
 	}
 
 	namespace {

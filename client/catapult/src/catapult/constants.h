@@ -1,5 +1,5 @@
 #pragma once
-#include "catapult/types.h"
+#include "types.h"
 
 namespace catapult {
 
@@ -9,8 +9,9 @@ namespace catapult {
 	/// The size of hashes in the hash cache.
 	constexpr size_t Cached_Hash_Size = Hash256_Size;
 
-#ifdef NIS1_COMPATIBLE_SIGNATURES
-	constexpr MosaicId Xem_Id = MosaicId(0xcb1804395a65a504ULL);
+	/// The XEM mosaic id.
+#ifdef SIGNATURE_SCHEME_NIS1
+	constexpr MosaicId Xem_Id = MosaicId(0x493B6D561C49F4B8ULL);
 #else
 	constexpr MosaicId Xem_Id = MosaicId(0xD525AD41D95FCF29ULL);
 #endif

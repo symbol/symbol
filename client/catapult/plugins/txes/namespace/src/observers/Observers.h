@@ -12,19 +12,11 @@ namespace catapult { namespace observers {
 
 	/// Observes changes triggered by mosaic definition notifications, including:
 	/// - creation of mosaics
-	NotificationObserverPointerT<model::MosaicDefinitionNotification> CreateMosaicDefinitionObserver();
+	DECLARE_OBSERVER(MosaicDefinition, model::MosaicDefinitionNotification)();
 
 	/// Observes changes triggered by mosaic supply change notifications, including:
 	/// - increase or decrease of supply
-	NotificationObserverPointerT<model::MosaicSupplyChangeNotification> CreateMosaicSupplyChangeObserver();
-
-	/// Observes balance transfer notifications in the nemesis block and:
-	/// - adjusts nemesis supply
-	NotificationObserverPointerT<model::BalanceTransferNotification> CreateNemesisBalanceChangeObserver();
-
-	/// Observes block notifications and triggers pruning if necessary.
-	/// Pruning is done every block using the specified \a maxRollbackBlocks.
-	NotificationObserverPointerT<model::BlockNotification> CreateMosaicPruningObserver(uint32_t maxRollbackBlocks);
+	DECLARE_OBSERVER(MosaicSupplyChange, model::MosaicSupplyChangeNotification)();
 
 	// endregion
 
@@ -32,21 +24,15 @@ namespace catapult { namespace observers {
 
 	/// Observes changes triggered by root namespace notifications, including:
 	/// - creation of namespaces
-	NotificationObserverPointerT<model::RootNamespaceNotification> CreateRootNamespaceObserver();
+	DECLARE_OBSERVER(RootNamespace, model::RootNamespaceNotification)();
 
 	/// Observes changes triggered by child namespace notifications, including:
 	/// - creation of namespaces
-	NotificationObserverPointerT<model::ChildNamespaceNotification> CreateChildNamespaceObserver();
-
-	/// Observes block notifications and triggers pruning if necessary.
-	/// Pruning is done every \a pruneInterval blocks using the specified \a gracePeriodDuration.
-	NotificationObserverPointerT<model::BlockNotification> CreateNamespacePruningObserver(
-			ArtifactDuration gracePeriodDuration,
-			size_t pruneInterval);
+	DECLARE_OBSERVER(ChildNamespace, model::ChildNamespaceNotification)();
 
 	/// Observes changes triggered by root namespace notifications, including:
 	/// - pruning triggered by root namespace replacement given \a constraints
-	NotificationObserverPointerT<model::RootNamespaceNotification> CreateRegisterNamespaceMosaicPruningObserver(
+	DECLARE_OBSERVER(RegisterNamespaceMosaicPruning, model::RootNamespaceNotification)(
 			const model::NamespaceLifetimeConstraints& constraints);
 
 	// endregion

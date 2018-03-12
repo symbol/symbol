@@ -2,9 +2,7 @@
 #include "ChainPackets.h"
 #include "RemoteApiUtils.h"
 #include "RemoteRequestDispatcher.h"
-#include "catapult/ionet/Packet.h"
 #include "catapult/ionet/PacketEntityUtils.h"
-#include "catapult/ionet/PacketIo.h"
 
 namespace catapult { namespace api {
 
@@ -23,7 +21,7 @@ namespace catapult { namespace api {
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				auto pResponse = ionet::CoercePacket<ChainInfoResponse>(&packet);
+				const auto* pResponse = ionet::CoercePacket<ChainInfoResponse>(&packet);
 				if (!pResponse)
 					return false;
 
@@ -47,7 +45,7 @@ namespace catapult { namespace api {
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractFixedSizeEntitiesFromPacket<Hash256>(packet);
+				result = ionet::ExtractFixedSizeStructuresFromPacket<Hash256>(packet);
 				return !result.empty();
 			}
 		};
@@ -104,11 +102,9 @@ namespace catapult { namespace api {
 			using FutureType = thread::future<typename TTraits::ResultType>;
 
 		public:
-			explicit DefaultRemoteChainApi(
-					const std::shared_ptr<ionet::PacketIo>& pIo,
-					const std::shared_ptr<const model::TransactionRegistry>& pRegistry)
+			explicit DefaultRemoteChainApi(ionet::PacketIo& io, const model::TransactionRegistry* pRegistry)
 					: m_pRegistry(pRegistry)
-					, m_impl(pIo)
+					, m_impl(io)
 			{}
 
 		public:
@@ -121,31 +117,29 @@ namespace catapult { namespace api {
 			}
 
 			FutureType<BlockAtTraits> blockLast() const override {
-				return m_impl.dispatch(BlockAtTraits(m_pRegistry), Height(0));
+				return m_impl.dispatch(BlockAtTraits(*m_pRegistry), Height(0));
 			}
 
 			FutureType<BlockAtTraits> blockAt(Height height) const override {
-				return m_impl.dispatch(BlockAtTraits(m_pRegistry), height);
+				return m_impl.dispatch(BlockAtTraits(*m_pRegistry), height);
 			}
 
 			FutureType<BlocksFromTraits> blocksFrom(Height height, const BlocksFromOptions& options) const override {
-				return m_impl.dispatch(BlocksFromTraits(m_pRegistry), height, options);
+				return m_impl.dispatch(BlocksFromTraits(*m_pRegistry), height, options);
 			}
 
 		private:
-			std::shared_ptr<const model::TransactionRegistry> m_pRegistry;
+			const model::TransactionRegistry* m_pRegistry;
 			mutable RemoteRequestDispatcher m_impl;
 		};
 	}
 
-	std::unique_ptr<ChainApi> CreateRemoteChainApi(const std::shared_ptr<ionet::PacketIo>& pIo) {
+	std::unique_ptr<ChainApi> CreateRemoteChainApiWithoutRegistry(ionet::PacketIo& io) {
 		// since the returned interface is only chain-api, the registry is unused and can be null
-		return CreateRemoteChainApi(pIo, nullptr);
+		return std::make_unique<DefaultRemoteChainApi>(io, nullptr);
 	}
 
-	std::unique_ptr<RemoteChainApi> CreateRemoteChainApi(
-			const std::shared_ptr<ionet::PacketIo>& pIo,
-			const std::shared_ptr<const model::TransactionRegistry>& pRegistry) {
-		return std::make_unique<DefaultRemoteChainApi>(pIo, pRegistry);
+	std::unique_ptr<RemoteChainApi> CreateRemoteChainApi(ionet::PacketIo& io, const model::TransactionRegistry& registry) {
+		return std::make_unique<DefaultRemoteChainApi>(io, &registry);
 	}
 }}

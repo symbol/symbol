@@ -1,9 +1,9 @@
-#include "catapult/crypto/KeyPair.h"
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
+#include "catapult/crypto/KeyPair.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/NetworkInfo.h"
-#include "tests/int/stress/utils/EntityDump.h"
+#include "tests/int/stress/test/EntityDump.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/EntityFactory.h"
 #include "tests/test/nodeps/MijinConstants.h"
@@ -13,12 +13,14 @@ using catapult::crypto::KeyPair;
 
 namespace catapult {
 
+#define TEST_CLASS NemesisBlockGeneratorTests
+
 	namespace {
 		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 		constexpr Amount Nemesis_Amount(9000000000ull / CountOf(test::Mijin_Test_Private_Keys) * 1000000ull);
 	}
 
-	TEST(NemesisBlockGeneratorTests, CreateTransaction) {
+	TEST(TEST_CLASS, CreateTransaction) {
 		// Arrange:
 		auto signer = KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
 		auto recipient = KeyPair::FromString(test::Mijin_Test_Private_Keys[0]);
@@ -31,7 +33,7 @@ namespace catapult {
 		EXPECT_TRUE(extensions::VerifyTransactionSignature(*pTransaction));
 	}
 
-	TEST(NemesisBlockGeneratorTests, CreateNemesisBlockTransactions) {
+	TEST(TEST_CLASS, CreateNemesisBlockTransactions) {
 		// Arrange:
 		auto signer = KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
 
@@ -65,11 +67,11 @@ namespace catapult {
 		}
 
 		void VerifyNemesisBlock(const model::Block& block) {
-			EXPECT_EQ(extensions::VerifyFullBlockResult::Success, extensions::VerifyFullBlock(block));
+			EXPECT_EQ(extensions::VerifyFullBlockResult::Success, extensions::BlockExtensions().verifyFullBlock(block));
 		}
 	}
 
-	TEST(NemesisBlockGeneratorTests, CreateNemesisBlock) {
+	TEST(TEST_CLASS, CreateNemesisBlock) {
 		// Act:
 		auto pBlock = CreateNemesisBlock();
 		test::EntityDump(*pBlock);

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 
-catapult_executable(catapult.tools.health)
-target_link_libraries(catapult.tools.health catapult.tools catapult.local catapult.sdk)
-catapult_target(catapult.tools.health)
+set(TARGET_NAME catapult.tools.health)
+
+catapult_executable(${TARGET_NAME})
+target_link_libraries(${TARGET_NAME} catapult.tools catapult.sdk)
+catapult_target(${TARGET_NAME})

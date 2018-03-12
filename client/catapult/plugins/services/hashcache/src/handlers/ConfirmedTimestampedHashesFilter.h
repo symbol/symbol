@@ -1,5 +1,5 @@
 #pragma once
-#include "src/state/TimestampedHash.h"
+#include "catapult/state/TimestampedHash.h"
 #include <functional>
 #include <vector>
 

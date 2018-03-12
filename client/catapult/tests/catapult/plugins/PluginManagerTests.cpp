@@ -1,13 +1,18 @@
 #include "catapult/plugins/PluginManager.h"
+#include "catapult/cache/CatapultCache.h"
 #include "tests/test/cache/SimpleCache.h"
+#include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace plugins {
 
+#define TEST_CLASS PluginManagerTests
+
 	// region basic
 
-	TEST(PluginManagerTests, CanCreateManager) {
+	TEST(TEST_CLASS, CanCreateManager) {
 		// Act:
 		auto config = model::BlockChainConfiguration::Uninitialized();
 		config.BlockPruneInterval = 15;
@@ -21,7 +26,7 @@ namespace catapult { namespace plugins {
 
 	// region tx plugins
 
-	TEST(PluginManagerTests, CanRegisterCustomTransactions) {
+	TEST(TEST_CLASS, CanRegisterCustomTransactions) {
 		// Arrange:
 		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
 
@@ -49,7 +54,7 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	TEST(PluginManagerTests, CanRegisterCustomCaches) {
+	TEST(TEST_CLASS, CanRegisterCustomCaches) {
 		// Arrange:
 		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
 
@@ -70,7 +75,7 @@ namespace catapult { namespace plugins {
 
 	// region diagnostic handler plugins
 
-	TEST(PluginManagerTests, CanRegisterCustomDiagnosticHandlers) {
+	TEST(TEST_CLASS, CanRegisterCustomDiagnosticHandlers) {
 		// Arrange:
 		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
 
@@ -105,7 +110,7 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	TEST(PluginManagerTests, CanRegisterCustomDiagnosticCounters) {
+	TEST(TEST_CLASS, CanRegisterCustomDiagnosticCounters) {
 		// Arrange:
 		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
 
@@ -130,7 +135,7 @@ namespace catapult { namespace plugins {
 
 	// endregion
 
-	// region validators
+	// region validators - helpers
 
 	namespace {
 		template<typename TNotification, typename... TArgs>
@@ -144,9 +149,8 @@ namespace catapult { namespace plugins {
 				return m_name;
 			}
 
-			[[noreturn]]
 			validators::ValidationResult validate(const TNotification&, TArgs&&...) const override {
-				CATAPULT_THROW_RUNTIME_ERROR("not implemented in mock");
+				return validators::ValidationResult::Failure;
 			}
 
 		private:
@@ -162,7 +166,11 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	TEST(PluginManagerTests, CanRegisterStatelessValidators) {
+	// endregion
+
+	// region validators - stateless
+
+	TEST(TEST_CLASS, CanRegisterStatelessValidators) {
 		// Arrange:
 		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
 		manager.addStatelessValidatorHook([](auto& builder) {
@@ -181,7 +189,49 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ(expectedNames, pValidator->names());
 	}
 
-	TEST(PluginManagerTests, CanRegisterStatefulValidators) {
+	namespace {
+		validators::ValidationResult ValidateStateless(const PluginManager& manager, bool suppress) {
+			auto pValidator = suppress
+					? manager.createStatelessValidator([](auto) { return true; })
+					: manager.createStatelessValidator();
+			auto notification = model::AccountPublicKeyNotification(test::GenerateRandomData<Key_Size>());
+			return pValidator->validate(notification);
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateStatelessValidatorWithNoSuppressedFailureFiltering) {
+		// Arrange:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		manager.addStatelessValidatorHook([](auto& builder) {
+			builder.add(CreateNamedStatelessValidator("alpha"));
+		});
+
+		// Act: no suppression
+		auto result = ValidateStateless(manager, false);
+
+		// Assert:
+		EXPECT_EQ(validators::ValidationResult::Failure, result);
+	}
+
+	TEST(TEST_CLASS, CanCreateStatelessValidatorWithCustomSuppressedFailureFiltering) {
+		// Arrange:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		manager.addStatelessValidatorHook([](auto& builder) {
+			builder.add(CreateNamedStatelessValidator("alpha"));
+		});
+
+		// Act: suppress everything
+		auto result = ValidateStateless(manager, true);
+
+		// Assert:
+		EXPECT_EQ(validators::ValidationResult::Success, result);
+	}
+
+	// endregion
+
+	// region validators - stateful
+
+	TEST(TEST_CLASS, CanRegisterStatefulValidators) {
 		// Arrange:
 		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
 		manager.addStatefulValidatorHook([](auto& builder) {
@@ -198,6 +248,46 @@ namespace catapult { namespace plugins {
 		// Assert:
 		auto expectedNames = std::vector<std::string>{ "alpha", "beta", "gamma" };
 		EXPECT_EQ(expectedNames, pValidator->names());
+	}
+
+	namespace {
+		validators::ValidationResult ValidateStateful(const PluginManager& manager, bool suppress) {
+			auto pValidator = suppress
+					? manager.createStatefulValidator([](auto) { return true; })
+					: manager.createStatefulValidator();
+			auto notification = model::AccountPublicKeyNotification(test::GenerateRandomData<Key_Size>());
+			auto cache = cache::CatapultCache({});
+			auto context = test::CreateValidatorContext(Height(123), cache.createView().toReadOnly());
+			return pValidator->validate(notification, context);
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateStatefulValidatorWithNoSuppressedFailureFiltering) {
+		// Arrange:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		manager.addStatefulValidatorHook([](auto& builder) {
+			builder.add(CreateNamedStatefulValidator("alpha"));
+		});
+
+		// Act: no suppression
+		auto result = ValidateStateful(manager, false);
+
+		// Assert:
+		EXPECT_EQ(validators::ValidationResult::Failure, result);
+	}
+
+	TEST(TEST_CLASS, CanCreateStatefulValidatorWithCustomSuppressedFailureFiltering) {
+		// Arrange:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		manager.addStatefulValidatorHook([](auto& builder) {
+			builder.add(CreateNamedStatefulValidator("alpha"));
+		});
+
+		// Act: suppress everything
+		auto result = ValidateStateful(manager, true);
+
+		// Assert:
+		EXPECT_EQ(validators::ValidationResult::Success, result);
 	}
 
 	// endregion
@@ -250,7 +340,7 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	TEST(PluginManagerTests, CanRegisterObservers_PermanentOnly) {
+	TEST(TEST_CLASS, CanRegisterObservers_PermanentOnly) {
 		// Arrange:
 		RunObserverTest([](const auto& manager) {
 			// Act:
@@ -262,7 +352,7 @@ namespace catapult { namespace plugins {
 		});
 	}
 
-	TEST(PluginManagerTests, CanObservers_All) {
+	TEST(TEST_CLASS, CanRegisterObservers_All) {
 		// Arrange:
 		RunObserverTest([](const auto& manager) {
 			// Act:
@@ -271,6 +361,43 @@ namespace catapult { namespace plugins {
 			// Assert: permanent observers run before transient observers
 			auto expectedNames = std::vector<std::string>{ "alpha", "beta", "gamma", "zeta", "omega" };
 			EXPECT_EQ(expectedNames, pObserver->names());
+		});
+	}
+
+	// endregion
+
+	// region notification publisher
+
+	namespace {
+		template<typename TPublisherFactory>
+		void AssertCanCreateNotificationPublisher(size_t expectedNumNotifications, TPublisherFactory publisherFactory) {
+			// Arrange:
+			PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+			manager.addTransactionSupport(mocks::CreateMockTransactionPlugin());
+
+			auto pTransaction = mocks::CreateMockTransaction(0);
+			mocks::MockNotificationSubscriber subscriber;
+
+			// Act: create a publisher and publish a transaction
+			auto pPublisher = publisherFactory(manager);
+			pPublisher->publish(*pTransaction, subscriber);
+
+			// Assert: all expected notifications were raised
+			EXPECT_EQ(expectedNumNotifications, subscriber.notificationTypes().size());
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateDefaultNotificationPublisher) {
+		// Assert: 4 basic and 1 custom notifications should be raised
+		AssertCanCreateNotificationPublisher(5u, [](const auto& manager) {
+			return manager.createNotificationPublisher();
+		});
+	}
+
+	TEST(TEST_CLASS, CanCreateCustomNotificationPublisher) {
+		// Assert: 4 basic notifications should be raised
+		AssertCanCreateNotificationPublisher(4u, [](const auto& manager) {
+			return manager.createNotificationPublisher(model::PublicationMode::Basic);
 		});
 	}
 

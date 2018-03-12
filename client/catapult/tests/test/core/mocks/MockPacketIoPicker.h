@@ -1,6 +1,6 @@
 #pragma once
+#include "MockPacketIo.h"
 #include "catapult/net/PacketIoPicker.h"
-#include "tests/test/core/mocks/MockPacketIo.h"
 #include <list>
 
 namespace catapult { namespace mocks {
@@ -32,7 +32,7 @@ namespace catapult { namespace mocks {
 			if (m_nextIndex++ >= m_packetIos.size())
 				return ionet::NodePacketIoPair();
 
-			auto node = ionet::Node({}, { {}, std::to_string(m_nextIndex) }, model::NetworkIdentifier::Zero);
+			auto node = ionet::Node({}, {}, { model::NetworkIdentifier::Zero, std::to_string(m_nextIndex) });
 			return ionet::NodePacketIoPair(node, m_packetIos[m_nextIndex - 1]);
 		}
 

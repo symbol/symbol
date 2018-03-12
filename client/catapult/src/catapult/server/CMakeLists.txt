@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 
-catapult_library_target(catapult.servermain)
-target_link_libraries(catapult.servermain catapult.local)
+set(TARGET_NAME catapult.server)
 
-add_subdirectory(api)
-add_subdirectory(p2p)
+catapult_executable(${TARGET_NAME})
+target_link_libraries(${TARGET_NAME} catapult.local)
+catapult_target(${TARGET_NAME})

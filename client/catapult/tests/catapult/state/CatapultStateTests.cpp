@@ -3,7 +3,9 @@
 
 namespace catapult { namespace state {
 
-	TEST(CatapultStateTests, CanCreateDefaultState) {
+#define TEST_CLASS CatapultStateTests
+
+	TEST(TEST_CLASS, CanCreateDefaultState) {
 		// Act:
 		CatapultState state;
 

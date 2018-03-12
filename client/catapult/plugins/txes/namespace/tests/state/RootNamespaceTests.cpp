@@ -6,13 +6,15 @@
 
 namespace catapult { namespace state {
 
+#define TEST_CLASS RootNamespaceTests
+
 	namespace {
 		using ChildNamespaces = test::ChildNamespaces;
 	}
 
-	/// region ctor
+	// region ctor
 
-	TEST(RootNamespaceTests, CanCreateRootNamespace) {
+	TEST(TEST_CLASS, CanCreateRootNamespace) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto id = test::GenerateRandomValue<NamespaceId>();
@@ -28,7 +30,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(0u, root.size());
 	}
 
-	TEST(RootNamespaceTests, CanCreateRootNamespaceWithChildren) {
+	TEST(TEST_CLASS, CanCreateRootNamespaceWithChildren) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto id = NamespaceId(123);
@@ -54,99 +56,28 @@ namespace catapult { namespace state {
 		test::AssertChildren(expectedChildren, root.children());
 	}
 
-	TEST(RootNamespaceTests, CanCopyConstructRootNamespaceWithoutChildren) {
-		// Arrange:
-		auto owner = test::CreateRandomOwner();
-		auto id = test::GenerateRandomValue<NamespaceId>();
-		RootNamespace original(id, owner, test::CreateLifetime(234, 321));
-
-		// Act:
-		RootNamespace root(original);
-
-		// Assert:
-		EXPECT_EQ(id, root.id());
-		EXPECT_EQ(owner, root.owner());
-		EXPECT_EQ(test::CreateLifetime(234, 321), root.lifetime());
-		EXPECT_TRUE(root.empty());
-		EXPECT_EQ(0u, root.size());
-	}
-
-	TEST(RootNamespaceTests, CanCopyConstructRootNamespaceWithChildren) {
+	TEST(TEST_CLASS, CanCreateRootNamespaceWithExistingChildren) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto id = NamespaceId(123);
-		auto expectedChildren = test::CreateChildren({
+		auto pExpectedChildren = std::make_shared<RootNamespace::Children>(test::CreateChildren({
 			test::CreatePath({ 123, 124 }),
 			test::CreatePath({ 123, 125 }),
 			test::CreatePath({ 123, 124, 126 })
-		});
-
-		RootNamespace original(id, owner, test::CreateLifetime(234, 321));
-		original.add(state::Namespace(test::CreatePath({ 123, 124 })));
-		original.add(state::Namespace(test::CreatePath({ 123, 125 })));
-		original.add(state::Namespace(test::CreatePath({ 123, 124, 126 })));
+		}));
 
 		// Act:
-		RootNamespace root(original);
+		RootNamespace root(id, owner, test::CreateLifetime(234, 321), pExpectedChildren);
 
 		// Assert:
 		EXPECT_EQ(id, root.id());
 		EXPECT_EQ(owner, root.owner());
 		EXPECT_EQ(test::CreateLifetime(234, 321), root.lifetime());
 		EXPECT_EQ(3u, root.size());
+		EXPECT_FALSE(root.empty());
 		EXPECT_EQ(3u, root.children().size());
-		test::AssertChildren(expectedChildren, root.children());
-
-		// copy constructor copies children
-		EXPECT_NE(&original.children(), &root.children());
-	}
-
-	TEST(RootNamespaceTests, CanMoveConstructRootNamespaceWithoutChildren) {
-		// Arrange:
-		auto owner = test::CreateRandomOwner();
-		auto id = test::GenerateRandomValue<NamespaceId>();
-		RootNamespace original(id, owner, test::CreateLifetime(234, 321));
-
-		// Act:
-		RootNamespace root(std::move(original));
-
-		// Assert:
-		EXPECT_EQ(id, root.id());
-		EXPECT_EQ(owner, root.owner());
-		EXPECT_EQ(test::CreateLifetime(234, 321), root.lifetime());
-		EXPECT_TRUE(root.empty());
-		EXPECT_EQ(0u, root.size());
-	}
-
-	TEST(RootNamespaceTests, CanMoveConstructRootNamespaceWithChildren) {
-		// Arrange:
-		auto owner = test::CreateRandomOwner();
-		auto id = NamespaceId(123);
-		auto expectedChildren = test::CreateChildren({
-			test::CreatePath({ 123, 124 }),
-			test::CreatePath({ 123, 125 }),
-			test::CreatePath({ 123, 124, 126 })
-		});
-
-		RootNamespace original(id, owner, test::CreateLifetime(234, 321));
-		original.add(state::Namespace(test::CreatePath({ 123, 124 })));
-		original.add(state::Namespace(test::CreatePath({ 123, 125 })));
-		original.add(state::Namespace(test::CreatePath({ 123, 124, 126 })));
-		const auto* pOriginalChildren = &original.children();
-
-		// Act:
-		RootNamespace root(std::move(original));
-
-		// Assert:
-		EXPECT_EQ(id, root.id());
-		EXPECT_EQ(owner, root.owner());
-		EXPECT_EQ(test::CreateLifetime(234, 321), root.lifetime());
-		EXPECT_EQ(3u, root.size());
-		EXPECT_EQ(3u, root.children().size());
-		test::AssertChildren(expectedChildren, root.children());
-
-		// move constructor does not copy children
-		EXPECT_EQ(pOriginalChildren, &root.children());
+		EXPECT_EQ(pExpectedChildren.get(), &root.children());
+		test::AssertChildren(*pExpectedChildren, root.children());
 	}
 
 	// endregion
@@ -176,7 +107,7 @@ namespace catapult { namespace state {
 
 	// region child
 
-	TEST(RootNamespaceTests, CanGetExistingChild) {
+	TEST(TEST_CLASS, CanGetExistingChild) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRootWithChildren(owner);
@@ -189,7 +120,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(root.id(), childNamespace.rootId());
 	}
 
-	TEST(RootNamespaceTests, CanGetExistingChildWithDescendents) {
+	TEST(TEST_CLASS, CanGetExistingChildWithDescendents) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRootWithChildren(owner);
@@ -202,12 +133,12 @@ namespace catapult { namespace state {
 		EXPECT_EQ(root.id(), childNamespace.rootId());
 	}
 
-	TEST(RootNamespaceTests, CannotGetUnknownChild) {
+	TEST(TEST_CLASS, CannotGetUnknownChild) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRootWithChildren(owner);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(root.child(NamespaceId(1337)), catapult_invalid_argument);
 	}
 
@@ -215,7 +146,7 @@ namespace catapult { namespace state {
 
 	// region add
 
-	TEST(RootNamespaceTests, CanAddSingleChild) {
+	TEST(TEST_CLASS, CanAddSingleChild) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRoot(owner, 123);
@@ -229,7 +160,7 @@ namespace catapult { namespace state {
 		test::AssertChildren(children, root.children());
 	}
 
-	TEST(RootNamespaceTests, CanAddMultipleChilddren) {
+	TEST(TEST_CLASS, CanAddMultipleChilddren) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRoot(owner, 123);
@@ -248,40 +179,40 @@ namespace catapult { namespace state {
 		test::AssertChildren(children, root.children());
 	}
 
-	TEST(RootNamespaceTests, CannotAddSameChildTwice) {
+	TEST(TEST_CLASS, CannotAddSameChildTwice) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRoot(owner, 123);
 		root.add(Namespace(test::CreatePath({ 123, 124 })));
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(root.add(Namespace(test::CreatePath({ 123, 124 }))), catapult_invalid_argument);
 	}
 
-	TEST(RootNamespaceTests, CannotAddChildWithUnknownParent) {
+	TEST(TEST_CLASS, CannotAddChildWithUnknownParent) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRootWithChildren(owner);
 
-		// Assert: parent 129 does not exist
+		// Act + Assert: parent 129 does not exist
 		EXPECT_THROW(root.add(Namespace(test::CreatePath({ 123, 129, 130 }))), catapult_invalid_argument);
 	}
 
-	TEST(RootNamespaceTests, CannotAddChildWithIncorrectPath) {
+	TEST(TEST_CLASS, CannotAddChildWithIncorrectPath) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRootWithChildren(owner);
 
-		// Assert: parent 128 has level 2 but in child map parent has level 3
+		// Act + Assert: parent 128 has level 2 but in child map parent has level 3
 		EXPECT_THROW(root.add(Namespace(test::CreatePath({ 123, 128, 130 }))), catapult_invalid_argument);
 	}
 
-	TEST(RootNamespaceTests, CannotAddChildWithDifferentRoot) {
+	TEST(TEST_CLASS, CannotAddChildWithDifferentRoot) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRootWithChildren(owner);
 
-		// Assert: root is different
+		// Act + Assert: root is different
 		EXPECT_THROW(root.add(Namespace(test::CreatePath({ 122, 124, 136 }))), catapult_invalid_argument);
 	}
 
@@ -319,36 +250,36 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(RootNamespaceTests, CanRemoveSingleChild) {
+	TEST(TEST_CLASS, CanRemoveSingleChild) {
 		// Assert:
 		AssertCanRemoveChildren({ 128 });
 	}
 
-	TEST(RootNamespaceTests, CanRemoveMultipleChildren) {
+	TEST(TEST_CLASS, CanRemoveMultipleChildren) {
 		// Assert:
 		AssertCanRemoveChildren({ 357, 128, 125 });
 	}
 
-	TEST(RootNamespaceTests, CanRemoveAllChildren) {
+	TEST(TEST_CLASS, CanRemoveAllChildren) {
 		// Assert:
 		AssertCanRemoveChildren({ 357, 128, 125, 124 });
 	}
 
-	TEST(RootNamespaceTests, CannotRemoveUnknownChild) {
+	TEST(TEST_CLASS, CannotRemoveUnknownChild) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRootWithChildren(owner);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(root.remove(NamespaceId(1337)), catapult_invalid_argument);
 	}
 
-	TEST(RootNamespaceTests, CannotRemoveChildWithDescendents) {
+	TEST(TEST_CLASS, CannotRemoveChildWithDescendents) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRootWithChildren(owner);
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_THROW(root.remove(NamespaceId(124)), catapult_invalid_argument);
 	}
 
@@ -377,12 +308,12 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(RootNamespaceTests, OperatorEqualReturnsTrueForEqualObjects) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
 		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
-	TEST(RootNamespaceTests, OperatorNotEqualReturnsTrueForUnequalObjects) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
 		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
@@ -391,7 +322,7 @@ namespace catapult { namespace state {
 
 	// region renew
 
-	TEST(RootNamespaceTests, CanRenewRoot) {
+	TEST(TEST_CLASS, CanRenewRoot) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRootWithChildren(owner);

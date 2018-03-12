@@ -1,5 +1,5 @@
 #include "src/validators/Validators.h"
-#include "src/cache/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Block.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/validators/ValidatorContext.h"
@@ -9,6 +9,8 @@
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace validators {
+
+#define TEST_CLASS EligibleHarvesterValidatorTests
 
 	DEFINE_COMMON_VALIDATOR_TESTS(EligibleHarvester, Amount(1234))
 
@@ -32,14 +34,14 @@ namespace catapult { namespace validators {
 				model::ImportanceHeight importanceHeight,
 				Amount balance) {
 			auto delta = cache.createDelta();
-			auto pState = delta.sub<cache::AccountStateCache>().addAccount(publicKey, Height(100));
-			pState->ImportanceInfo.set(importance, importanceHeight);
-			pState->Balances.credit(Xem_Id, balance);
+			auto& accountState = delta.sub<cache::AccountStateCache>().addAccount(publicKey, Height(100));
+			accountState.ImportanceInfo.set(importance, importanceHeight);
+			accountState.Balances.credit(Xem_Id, balance);
 			cache.commit(Height());
 		}
 	}
 
-	TEST(EligibleHarvesterValidatorTests, FailureIfAccountIsUnknown) {
+	TEST(TEST_CLASS, FailureIfAccountIsUnknown) {
 		// Arrange:
 		auto cache = CreateEmptyCatapultCache();
 		auto key = test::GenerateRandomData<Key_Size>();
@@ -63,11 +65,11 @@ namespace catapult { namespace validators {
 
 	namespace {
 		void AssertValidationResult(
+				ValidationResult expectedResult,
 				int64_t minBalanceDelta,
 				Importance importance,
 				model::ImportanceHeight importanceHeight,
-				Height blockHeight,
-				ValidationResult expectedResult) {
+				Height blockHeight) {
 			// Arrange:
 			auto cache = CreateEmptyCatapultCache();
 			auto key = test::GenerateRandomData<Key_Size>();
@@ -89,33 +91,31 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(EligibleHarvesterValidatorTests, FailureIfBalanceIsBelowMinBalance) {
+	TEST(TEST_CLASS, FailureIfBalanceIsBelowMinBalance) {
 		// Assert:
+		constexpr auto expectedResult = Failure_Core_Block_Harvester_Ineligible;
 		auto height = Height(10000);
-		auto expectedResult = Failure_Core_Block_Harvester_Ineligible;
-		AssertValidationResult(-1, Importance(123), ConvertToImportanceHeight(height), height, expectedResult);
-		AssertValidationResult(-100, Importance(123), ConvertToImportanceHeight(height), height, expectedResult);
+		AssertValidationResult(expectedResult, -1, Importance(123), ConvertToImportanceHeight(height), height);
+		AssertValidationResult(expectedResult, -100, Importance(123), ConvertToImportanceHeight(height), height);
 	}
 
-	TEST(EligibleHarvesterValidatorTests, FailureIfImportanceIsZero) {
+	TEST(TEST_CLASS, FailureIfImportanceIsZero) {
 		// Assert:
 		auto height = Height(10000);
-		auto expectedResult = Failure_Core_Block_Harvester_Ineligible;
-		AssertValidationResult(12345, Importance(0), ConvertToImportanceHeight(height), height, expectedResult);
+		AssertValidationResult(Failure_Core_Block_Harvester_Ineligible, 12345, Importance(0), ConvertToImportanceHeight(height), height);
 	}
 
-	TEST(EligibleHarvesterValidatorTests, FailureIfImportanceIsNotSetAtCorrectHeight) {
+	TEST(TEST_CLASS, FailureIfImportanceIsNotSetAtCorrectHeight) {
 		// Assert:
-		auto expectedResult = Failure_Core_Block_Harvester_Ineligible;
-		AssertValidationResult(12345, Importance(0), model::ImportanceHeight(123), Height(1234), expectedResult);
+		AssertValidationResult(Failure_Core_Block_Harvester_Ineligible, 12345, Importance(0), model::ImportanceHeight(123), Height(1234));
 	}
 
-	TEST(EligibleHarvesterValidatorTests, SuccessIfAllCriteriaAreMet) {
+	TEST(TEST_CLASS, SuccessIfAllCriteriaAreMet) {
 		// Assert:
+		constexpr auto expectedResult = ValidationResult::Success;
 		auto height = Height(10000);
-		auto expectedResult = ValidationResult::Success;
-		AssertValidationResult(0, Importance(123), ConvertToImportanceHeight(height), height, expectedResult);
-		AssertValidationResult(1, Importance(123), ConvertToImportanceHeight(height), height, expectedResult);
-		AssertValidationResult(12345, Importance(123), ConvertToImportanceHeight(height), height, expectedResult);
+		AssertValidationResult(expectedResult, 0, Importance(123), ConvertToImportanceHeight(height), height);
+		AssertValidationResult(expectedResult, 1, Importance(123), ConvertToImportanceHeight(height), height);
+		AssertValidationResult(expectedResult, 12345, Importance(123), ConvertToImportanceHeight(height), height);
 	}
 }}

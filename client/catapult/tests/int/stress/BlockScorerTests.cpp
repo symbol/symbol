@@ -7,6 +7,8 @@
 
 namespace catapult { namespace chain {
 
+#define TEST_CLASS BlockScorerTests
+
 	namespace {
 #ifdef STRESS
 		constexpr size_t Num_Iterations = 100'000;
@@ -126,7 +128,7 @@ namespace catapult { namespace chain {
 			return bestGenerationHash;
 		}
 
-		void AssertLinearlyCorrelatedHitCounts(const ImportanceGroups& importances) {
+		uint64_t CalculateLinearlyCorrelatedHitCountAndImportanceAverageDeviation(const ImportanceGroups& importances) {
 			// log all values
 			for (const auto& pGroup : importances)
 				CATAPULT_LOG(debug) << pGroup->Importance << " -> " << pGroup->HitCount;
@@ -140,9 +142,12 @@ namespace catapult { namespace chain {
 				auto previousHitCount = previousGroup.HitCount.load();
 				auto currentHitCount = currentGroup.HitCount.load();
 
-				// - current hit count is greater than previous
+				// - current hit count is greater than previous (and previous is nonzero to avoid divide by zero)
 				EXPECT_GT(currentHitCount, previousHitCount) << "current " << i;
-				ASSERT_GT(previousHitCount, 0u) << "current " << i; // sanity to avoid divide by zero
+				if (0 == previousHitCount) {
+					CATAPULT_LOG(debug) << "no hits for iteration " << (i - 1);
+					return Max_Average_Deviation + 1;
+				}
 
 				// - expected hit count for current is 2x previous because importance is 2x
 				auto expectedHitCount = 2 * previousHitCount;
@@ -152,12 +157,19 @@ namespace catapult { namespace chain {
 
 				// - allow a max percentage deviation between consecutive groups
 				auto hasSufficientHits = currentHitCount >= Min_Hits_For_Percentage_Deviation;
-				CATAPULT_LOG(debug) << previousGroup.Importance << " -> " << currentGroup.Importance
+				CATAPULT_LOG(debug)
+						<< previousGroup.Importance << " -> " << currentGroup.Importance
 						<< " deviation: " << percentageDeviation << "%"
 						<< (hasSufficientHits ? "" : " (insufficient hits)");
 
 				if (!hasSufficientHits)
 					continue;
+
+				// - if the deviation is too large, fail the iteration
+				if (Max_Percentage_Deviation <= percentageDeviation) {
+					CATAPULT_LOG(debug) << "Max_Percentage_Deviation <= percentageDeviation (" << percentageDeviation << ")";
+					return Max_Average_Deviation + 1;
+				}
 
 				EXPECT_GT(Max_Percentage_Deviation, percentageDeviation);
 				cumulativePercentageDeviation += percentageDeviation;
@@ -167,15 +179,15 @@ namespace catapult { namespace chain {
 			// - allow max average percentage deviation among all groups with sufficient hits
 			auto averageDeviation = cumulativePercentageDeviation / numGroupsWithSufficientHits;
 			CATAPULT_LOG(debug) << "average deviation " << averageDeviation << " (num groups " << numGroupsWithSufficientHits << ")";
-			EXPECT_GT(Max_Average_Deviation, averageDeviation);
+			return averageDeviation;
 		}
 
-		void AssertHitProbabilityIsLinearlyCorrelatedWithImportance(const model::BlockChainConfiguration& config) {
+		uint64_t CalculateLinearlyCorrelatedHitCountAndImportanceAverageDeviation(const model::BlockChainConfiguration& config) {
 			// Arrange: set up test importances
 			auto importances = CreateDoublingImportances();
 
 			// - set up chain
-			BlockHitPredicate predicate(config, [&importances](const auto& signerKey, auto) -> Importance {
+			BlockHitPredicate predicate(config, [&importances](const auto& signerKey, auto) {
 				auto iter = std::find_if(importances.cbegin(), importances.cend(), [&signerKey](const auto& pGroup) {
 					return pGroup->Signer == signerKey;
 				});
@@ -198,7 +210,7 @@ namespace catapult { namespace chain {
 					model::Block current;
 					current.Difficulty = Difficulty((50 + i) * 1'000'000'000'000);
 
-					CATAPULT_LOG(debug) << "generation hash " << i << ": " << test::ToHexString(parentGenerationHash);
+					CATAPULT_LOG(debug) << "generation hash " << i << ": " << utils::HexFormat(parentGenerationHash);
 
 					// Act: calculate hit counts for lots of blocks
 					for (auto j = 0u; j < numIterationsPerThread; ++j)
@@ -210,17 +222,26 @@ namespace catapult { namespace chain {
 			threads.join_all();
 
 			// Assert: the distribution is linearly correlated with importance
-			AssertLinearlyCorrelatedHitCounts(importances);
+			return CalculateLinearlyCorrelatedHitCountAndImportanceAverageDeviation(importances);
+		}
+
+		void AssertHitProbabilityIsLinearlyCorrelatedWithImportance(const model::BlockChainConfiguration& config) {
+			// Arrange: non-deterministic because operation is probabilistic
+			test::RunNonDeterministicTest("hit probability and importance correlation", [&config]() {
+				// Assert:
+				auto averageDeviation = CalculateLinearlyCorrelatedHitCountAndImportanceAverageDeviation(config);
+				return Max_Average_Deviation > averageDeviation;
+			});
 		}
 	}
 
-	NO_STRESS_TEST(BlockScorerTests, HitProbabilityIsLinearlyCorrelatedWithImportance) {
+	NO_STRESS_TEST(TEST_CLASS, HitProbabilityIsLinearlyCorrelatedWithImportance) {
 		// Assert:
 		auto config = CreateConfiguration();
 		AssertHitProbabilityIsLinearlyCorrelatedWithImportance(config);
 	}
 
-	NO_STRESS_TEST(BlockScorerTests, HitProbabilityIsLinearlyCorrelatedWithImportanceWhenSmoothingIsEnabled) {
+	NO_STRESS_TEST(TEST_CLASS, HitProbabilityIsLinearlyCorrelatedWithImportanceWhenSmoothingIsEnabled) {
 		// Assert:
 		auto config = CreateConfiguration();
 		config.BlockTimeSmoothingFactor = 10000;

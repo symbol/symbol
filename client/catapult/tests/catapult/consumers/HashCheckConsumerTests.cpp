@@ -1,6 +1,6 @@
 #include "catapult/consumers/BlockConsumers.h"
 #include "catapult/consumers/TransactionConsumers.h"
-#include "tests/catapult/consumers/utils/ConsumerTestUtils.h"
+#include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 #include "tests/TestHarness.h"
@@ -10,7 +10,7 @@ namespace catapult { namespace consumers {
 	namespace {
 		constexpr auto Default_Options = HashCheckOptions(600'000, 60'000, 1'000);
 
-		std::function<Timestamp ()> CreateTimeGenerator(const std::vector<Timestamp::ValueType>& times) {
+		chain::TimeSupplier CreateTimeSupplier(const std::vector<Timestamp::ValueType>& times) {
 			size_t index = 0;
 			return [times, index]() mutable {
 				auto timestamp = Timestamp(times[index] * 1000);
@@ -26,8 +26,8 @@ namespace catapult { namespace consumers {
 				return test::CreateBlockElements(1);
 			}
 
-			static auto CreateConsumer(const std::function<Timestamp ()>& timeGenerator, const HashCheckOptions& options) {
-				return CreateBlockHashCheckConsumer(timeGenerator, options);
+			static auto CreateConsumer(const chain::TimeSupplier& timeSupplier, const HashCheckOptions& options) {
+				return CreateBlockHashCheckConsumer(timeSupplier, options);
 			}
 
 			static void AssertContinued(ConsumerResult result, const disruptor::BlockElements& elements) {
@@ -46,8 +46,8 @@ namespace catapult { namespace consumers {
 				return test::CreateTransactionElements(1);
 			}
 
-			static auto CreateConsumer(const std::function<Timestamp ()>& timeGenerator, const HashCheckOptions& options) {
-				return CreateTransactionHashCheckConsumer(timeGenerator, options, [](auto, const auto&) { return false; });
+			static auto CreateConsumer(const chain::TimeSupplier& timeSupplier, const HashCheckOptions& options) {
+				return CreateTransactionHashCheckConsumer(timeSupplier, options, [](auto, const auto&) { return false; });
 			}
 
 			static void AssertContinued(ConsumerResult result, const disruptor::TransactionElements& elements) {
@@ -131,9 +131,7 @@ namespace catapult { namespace consumers {
 		auto elements1 = TTraits::CreateSingleEntityElements();
 		auto elements2 = TTraits::CreateSingleEntityElements();
 
-		auto consumer = TTraits::CreateConsumer(
-				CreateTimeGenerator({ 10, 11, 611, 612 }),
-				Default_Options);
+		auto consumer = TTraits::CreateConsumer(CreateTimeSupplier({ 10, 11, 611, 612 }), Default_Options);
 
 		// - cache the entity
 		consumer(elements1); // t11
@@ -151,9 +149,7 @@ namespace catapult { namespace consumers {
 		auto elements1 = TTraits::CreateSingleEntityElements();
 		auto elements2 = TTraits::CreateSingleEntityElements();
 
-		auto consumer = TTraits::CreateConsumer(
-				CreateTimeGenerator({ 10, 11, 612, 613 }),
-				Default_Options);
+		auto consumer = TTraits::CreateConsumer(CreateTimeSupplier({ 10, 11, 612, 613 }), Default_Options);
 
 		// - cache the entity
 		consumer(elements1); // t11
@@ -170,9 +166,7 @@ namespace catapult { namespace consumers {
 		// Arrange:
 		auto elements = TTraits::CreateSingleEntityElements();
 
-		auto consumer = TTraits::CreateConsumer(
-				CreateTimeGenerator({ 10, 11, 612, 613 }),
-				Default_Options);
+		auto consumer = TTraits::CreateConsumer(CreateTimeSupplier({ 10, 11, 612, 613 }), Default_Options);
 
 		// - cache the entity
 		consumer(elements); // t11
@@ -190,9 +184,7 @@ namespace catapult { namespace consumers {
 		auto elements1 = TTraits::CreateSingleEntityElements();
 		auto elements2 = TTraits::CreateSingleEntityElements();
 
-		auto consumer = TTraits::CreateConsumer(
-				CreateTimeGenerator({ 10, 11, 553, 612, 613 }),
-				Default_Options);
+		auto consumer = TTraits::CreateConsumer(CreateTimeSupplier({ 10, 11, 553, 612, 613 }), Default_Options);
 
 		// - cache the entity
 		consumer(elements1); // t11
@@ -211,9 +203,7 @@ namespace catapult { namespace consumers {
 		auto elements1 = TTraits::CreateSingleEntityElements();
 		auto elements2 = TTraits::CreateSingleEntityElements();
 
-		auto consumer = TTraits::CreateConsumer(
-				CreateTimeGenerator({ 10, 11, 552, 612, 613 }),
-				Default_Options);
+		auto consumer = TTraits::CreateConsumer(CreateTimeSupplier({ 10, 11, 552, 612, 613 }), Default_Options);
 
 		// - cache the entity
 		consumer(elements1); // t11
@@ -235,9 +225,7 @@ namespace catapult { namespace consumers {
 		auto elements4 = TTraits::CreateSingleEntityElements();
 		auto elements5 = TTraits::CreateSingleEntityElements();
 
-		auto consumer = TTraits::CreateConsumer(
-				CreateTimeGenerator({ 10, 11, 12, 12, 14, 14, 613 }),
-				Default_Options);
+		auto consumer = TTraits::CreateConsumer(CreateTimeSupplier({ 10, 11, 12, 12, 14, 14, 613 }), Default_Options);
 
 		// - cache the entities
 		consumer(elements1); // t11
@@ -272,9 +260,7 @@ namespace catapult { namespace consumers {
 
 	SINGLE_ENTITY_BASED_TEST(SingleEntityPreviouslySeenThatFillsCacheIsSkipped) {
 		// Arrange:
-		auto consumer = TTraits::CreateConsumer(
-				CreateTimeGenerator({ 10, 11, 12, 13, 14, 15 }),
-				Max_Cache_Size_Options);
+		auto consumer = TTraits::CreateConsumer(CreateTimeSupplier({ 10, 11, 12, 13, 14, 15 }), Max_Cache_Size_Options);
 
 		// - fill the cache except for one entity
 		FillConsumer<TTraits>(consumer, Max_Cache_Size - 1); // t11..t14
@@ -292,9 +278,7 @@ namespace catapult { namespace consumers {
 
 	SINGLE_ENTITY_BASED_TEST(SingleEntityPreviouslySeenWhenCacheIsFullIsNotSkipped) {
 		// Arrange:
-		auto consumer = TTraits::CreateConsumer(
-				CreateTimeGenerator({ 10, 11, 12, 13, 14, 15, 16 }),
-				Max_Cache_Size_Options);
+		auto consumer = TTraits::CreateConsumer(CreateTimeSupplier({ 10, 11, 12, 13, 14, 15, 16 }), Max_Cache_Size_Options);
 
 		// - fill the cache
 		FillConsumer<TTraits>(consumer, Max_Cache_Size); // t11..t15
@@ -312,9 +296,7 @@ namespace catapult { namespace consumers {
 
 	SINGLE_ENTITY_BASED_TEST(SingleEntityPreviouslySeenWhenCacheIsFullAndEvictedAtLeastOneEntityIsSkipped) {
 		// Arrange:
-		auto consumer = TTraits::CreateConsumer(
-				CreateTimeGenerator({ 10, 11, 12, 13, 14, 15, 612 }),
-				Max_Cache_Size_Options);
+		auto consumer = TTraits::CreateConsumer(CreateTimeSupplier({ 10, 11, 12, 13, 14, 15, 612 }), Max_Cache_Size_Options);
 
 		// - fill the cache
 		FillConsumer<TTraits>(consumer, Max_Cache_Size); // t11..t15
@@ -334,7 +316,9 @@ namespace catapult { namespace consumers {
 
 	// region block tests
 
-	TEST(BlockHashCheckConsumerTests, MultipleEntitiesNotPreviouslySeenAreNotSkipped) {
+#define BLOCK_HASH_CHECK_CONSUMER_TEST(TEST_NAME) TEST(BlockHashCheckConsumerTests, TEST_NAME)
+
+	BLOCK_HASH_CHECK_CONSUMER_TEST(MultipleEntitiesNotPreviouslySeenAreNotSkipped) {
 		// Arrange:
 		auto elements = test::CreateBlockElements(3);
 		auto consumer = CreateDefaultConsumer<BlockTraits>();
@@ -347,7 +331,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ(3u, elements.size());
 	}
 
-	TEST(BlockHashCheckConsumerTests, MultipleEntitiesPreviouslySeenAreNotSkipped) {
+	BLOCK_HASH_CHECK_CONSUMER_TEST(MultipleEntitiesPreviouslySeenAreNotSkipped) {
 		// Arrange:
 		auto elements = test::CreateBlockElements(3);
 		auto consumer = CreateDefaultConsumer<BlockTraits>();
@@ -365,13 +349,13 @@ namespace catapult { namespace consumers {
 
 	namespace {
 		auto CreateElementsAroundFirstBlock(const disruptor::BlockElements& elements) {
-			auto copyElements = test::CreateBlockElements({ &elements[0].Block });
-			copyElements[0].EntityHash = elements[0].EntityHash;
-			return copyElements;
+			auto elementsCopy = test::CreateBlockElements({ &elements[0].Block });
+			elementsCopy[0].EntityHash = elements[0].EntityHash;
+			return elementsCopy;
 		}
 	}
 
-	TEST(BlockHashCheckConsumerTests, SingleEntityPreviouslySeenAsPartOfMultipleEntitiesIsNotSkipped) {
+	BLOCK_HASH_CHECK_CONSUMER_TEST(SingleEntityPreviouslySeenAsPartOfMultipleEntitiesIsNotSkipped) {
 		// Arrange:
 		auto elements = test::CreateBlockElements(3);
 		auto elementsWithFirstBlock = CreateElementsAroundFirstBlock(elements);
@@ -388,7 +372,7 @@ namespace catapult { namespace consumers {
 		BlockTraits::AssertContinued(result, elementsWithFirstBlock);
 	}
 
-	TEST(BlockHashCheckConsumerTests, MultipleEntitiesContainingSinglePreviouslySeenEntityIsNotSkipped) {
+	BLOCK_HASH_CHECK_CONSUMER_TEST(MultipleEntitiesContainingSinglePreviouslySeenEntityIsNotSkipped) {
 		// Arrange:
 		auto elements = test::CreateBlockElements(3);
 		auto elementsWithFirstBlock = CreateElementsAroundFirstBlock(elements);
@@ -419,9 +403,7 @@ namespace catapult { namespace consumers {
 			return test::CreateTransactionElements(rawTransactions);
 		}
 
-		auto CreateTransactionElements(
-				const test::ConstTransactions& transactions,
-				const std::vector<long>& indexes) {
+		auto CreateTransactionElements(const test::ConstTransactions& transactions, const std::vector<long>& indexes) {
 			std::vector<const model::Transaction*> rawTransactions;
 			for (auto index : indexes)
 				rawTransactions.push_back(std::next(transactions.cbegin(), index)->get());
@@ -430,7 +412,9 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(TransactionHashCheckConsumerTests, MultipleEntitiesCanBeProcessedAtOnce) {
+#define TRANSACTION_HASH_CHECK_CONSUMER_TEST(TEST_NAME) TEST(TransactionHashCheckConsumerTests, TEST_NAME)
+
+	TRANSACTION_HASH_CHECK_CONSUMER_TEST(MultipleEntitiesCanBeProcessedAtOnce) {
 		// Arrange: prepare an input with 6 elements
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(6));
 		auto elements = CreateTransactionElements(transactions);
@@ -447,7 +431,26 @@ namespace catapult { namespace consumers {
 			EXPECT_FALSE(element.Skip) << "element at " << i++;
 	}
 
-	TEST(TransactionHashCheckConsumerTests, PreviouslySeenEntitiesWithinMultipleEntitiesAreSkipped) {
+	TRANSACTION_HASH_CHECK_CONSUMER_TEST(PreviouslySeenEntitiesWithinSingleElementRangeAreSkipped) {
+		// Arrange: prepare an input with 4 unique elements and some duplicated elements
+		auto transactions = test::MakeConst(test::GenerateRandomTransactions(6));
+		auto elements = CreateTransactionElements(transactions, { 1, 3, 4, 3, 1, 2 });
+
+		auto consumer = CreateDefaultConsumer<TransactionTraits>();
+
+		// Act: process the input
+		auto result = consumer(elements);
+
+		// Assert: only previously seen elements were skipped
+		test::AssertContinued(result);
+		for (auto i : { 3u, 4u })
+			EXPECT_TRUE(elements[i].Skip) << "element at " << i;
+
+		for (auto i : { 0u, 1u, 2u, 5u })
+			EXPECT_FALSE(elements[i].Skip) << "element at " << i;
+	}
+
+	TRANSACTION_HASH_CHECK_CONSUMER_TEST(PreviouslySeenEntitiesWithinMultipleEntitiesAreSkipped) {
 		// Arrange: prepare an input with 6 elements (2) and a subset input with 3 elements (1)
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(6));
 		auto subsetElements = CreateTransactionElements(transactions, { 1, 3, 4 });
@@ -470,7 +473,7 @@ namespace catapult { namespace consumers {
 			EXPECT_FALSE(elements[i].Skip) << "element at " << i;
 	}
 
-	TEST(TransactionHashCheckConsumerTests, SkipResultIsReturnedIfAllEntitiesWithinMultipleEntitiesAreSkipped) {
+	TRANSACTION_HASH_CHECK_CONSUMER_TEST(SkipResultIsReturnedIfAllEntitiesWithinMultipleEntitiesAreSkipped) {
 		// Arrange: prepare an input with 6 elements
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(6));
 		auto elements = CreateTransactionElements(transactions);
@@ -543,7 +546,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(TransactionHashCheckConsumerTests, SingleEntityOnlyPreviouslySeenExternallyIsSkipped) {
+	TRANSACTION_HASH_CHECK_CONSUMER_TEST(SingleEntityOnlyPreviouslySeenExternallyIsSkipped) {
 		// Arrange: create a single entity input
 		auto elements = TransactionTraits::CreateSingleEntityElements();
 
@@ -563,7 +566,7 @@ namespace catapult { namespace consumers {
 		AssertEqual(elements, 0, predicate.params(), 0);
 	}
 
-	TEST(TransactionHashCheckConsumerTests, ExternallySeenEntitiesWithinMultipleEntitiesAreSkipped) {
+	TRANSACTION_HASH_CHECK_CONSUMER_TEST(ExternallySeenEntitiesWithinMultipleEntitiesAreSkipped) {
 		// Arrange: prepare an input with 6 elements
 		constexpr auto Num_Transactions = 6u;
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(Num_Transactions));
@@ -593,7 +596,7 @@ namespace catapult { namespace consumers {
 			AssertEqual(elements, i, predicate.params(), i);
 	}
 
-	TEST(TransactionHashCheckConsumerTests, PreviouslySeenAndExternallySeenEntitiesWithinMultipleEntitiesAreSkipped) {
+	TRANSACTION_HASH_CHECK_CONSUMER_TEST(PreviouslySeenAndExternallySeenEntitiesWithinMultipleEntitiesAreSkipped) {
 		// Arrange: prepare an input with 9 elements (2) and a subset input with 4 elements (1)
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(9));
 		auto subsetElements = CreateTransactionElements(transactions, { 1, 4, 5, 6 });
