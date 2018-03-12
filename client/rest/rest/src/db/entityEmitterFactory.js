@@ -1,7 +1,7 @@
-import EventEmitter from 'events';
-import winston from 'winston';
+const EventEmitter = require('events');
+const winston = require('winston');
 
-export default {
+module.exports = {
 	createEntityEmitter: createOpEmitter => {
 		const entityEmitter = new EventEmitter();
 		return createOpEmitter({ ns: 'catapult.blocks', op: 'i' })
@@ -10,7 +10,7 @@ export default {
 					entityEmitter.emit('block', doc.o);
 				});
 				opEmitter.on('error', err => {
-					winston.error(`detected error watching blocks: ${err.message}`);
+					winston.error('detected error watching blocks', err);
 					entityEmitter.emit('error', err);
 				});
 			})

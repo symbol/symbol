@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import BinaryParser from '../../src/parser/BinaryParser';
+const { expect } = require('chai');
+const BinaryParser = require('../../src/parser/BinaryParser');
 
 describe('BinaryParser', () => {
 	// region push
@@ -46,7 +46,7 @@ describe('BinaryParser', () => {
 
 	// region uint8 / uint16 / uint32 / uint64 / buffer
 
-	function addTypeParserTests(name, validData, expected) {
+	const addTypeParserTests = (name, validData, expected) => {
 		it(`cannot extract ${name} with insufficient data`, () => {
 			// Arrange:
 			const parser = new BinaryParser();
@@ -101,7 +101,7 @@ describe('BinaryParser', () => {
 			expect(result).to.deep.equal(expected);
 			expect(parser.numUnprocessedBytes()).to.equal(0);
 		});
-	}
+	};
 
 	addTypeParserTests('uint8', [0xFC], 0xFC);
 	addTypeParserTests('uint16', [0x11, 0xC2], 0xC211);

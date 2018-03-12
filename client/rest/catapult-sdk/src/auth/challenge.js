@@ -1,15 +1,15 @@
 /** @module auth/challenge */
-import crypto from 'crypto';
-import { sign, verify } from '../crypto/keyPair';
-import packetHeader from '../packet/header';
-import PacketType from '../packet/PacketType';
+const crypto = require('crypto');
+const { sign, verify } = require('../crypto/keyPair');
+const packetHeader = require('../packet/header');
+const PacketType = require('../packet/PacketType');
 
 const sizes = {
 	header: packetHeader.size,
 	challenge: 64
 };
 
-export default {
+module.exports = {
 	// region verify server challenges
 
 	/**

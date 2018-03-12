@@ -8,14 +8,15 @@
  * Codec for serializing and deserializing a model.
  * @interface
  */
-export default {
+module.exports = {
 	/**
 	 * Deserializes a model.
 	 * @instance
 	 * @param {object} parser The parser.
+	 * @param {object} options Optional implementation-dependent deserialization options.
 	 * @returns {object} The parsed model.
 	 */
-	deserialize: parser => undefined,
+	deserialize: (parser, options) => undefined,
 
 	/**
 	 * Serializes a model.

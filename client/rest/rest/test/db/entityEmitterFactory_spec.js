@@ -1,36 +1,34 @@
-import { expect } from 'chai';
-import EventEmitter from 'events';
-import entityEmitterFactory from '../../src/db/entityEmitterFactory';
+const { expect } = require('chai');
+const EventEmitter = require('events');
+const entityEmitterFactory = require('../../src/db/entityEmitterFactory');
 
 describe('entity emitter factory', () => {
 	it('registers block listener', () => {
 		// Act:
 		const queries = [];
-		entityEmitterFactory.createEntityEmitter(query => {
+		const entityEmitterPromise = entityEmitterFactory.createEntityEmitter(query => {
 			queries.push(query);
 			return Promise.resolve(new EventEmitter());
-		})
-		.then(() => {
+		});
+		entityEmitterPromise.then(() => {
 			// Assert:
 			expect(queries.length).to.equal(1);
 			expect(queries[0]).to.deep.equal({ ns: 'catapult.blocks', op: 'i' });
 		});
 	});
 
-	function createEntityEmitter(opEmitters) {
-		return entityEmitterFactory.createEntityEmitter(query => {
-			const opEmitter = new EventEmitter();
-			opEmitters[query.ns] = opEmitter;
-			return Promise.resolve(opEmitter);
-		});
-	}
+	const createEntityEmitter = opEmitters => entityEmitterFactory.createEntityEmitter(query => {
+		const opEmitter = new EventEmitter();
+		opEmitters[query.ns] = opEmitter;
+		return Promise.resolve(opEmitter);
+	});
 
-	function assertNoEvents(emitter, eventName) {
+	const assertNoEvents = (emitter, eventName) => {
 		emitter.once(eventName, () => {
 			// Assert: fail the test if the event was raised
 			expect(true, `${eventName} event was unexpected`).to.equal(false);
 		});
-	}
+	};
 
 	it('maps op event to block event', () => {
 		// Arrange:

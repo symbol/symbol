@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import BinarySerializer from '../../src/serializer/BinarySerializer';
+const { expect } = require('chai');
+const BinarySerializer = require('../../src/serializer/BinarySerializer');
 
 describe('BinarySerializer', () => {
 	// region constructor
@@ -28,7 +28,7 @@ describe('BinarySerializer', () => {
 
 	// region writeUint8 / writeUint16 / writeUint32 / writeUint64 / writeBuffer
 
-	function addTypeSerializerTests(name, validData, dataLength, expected) {
+	const addTypeSerializerTests = (name, validData, dataLength, expected) => {
 		it(`cannot serialize ${name} with insufficient bytes left in buffer`, () => {
 			// Arrange: consume 1 byte to cause the insufficient buffer size problem
 			const serializer = new BinarySerializer(dataLength);
@@ -64,7 +64,7 @@ describe('BinarySerializer', () => {
 			expect(serializer.bufferSize()).to.equal(dataLength + 2);
 			expect(serializer.buffer()).to.deep.equal(expectedBuffer);
 		});
-	}
+	};
 
 	addTypeSerializerTests('writeUint8', 0xDE, 1, Buffer.from([0xDE]));
 	addTypeSerializerTests('writeUint16', 0xF393, 2, Buffer.from([0x93, 0xF3]));

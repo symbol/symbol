@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import SchemaType from '../../src/utils/SchemaType';
+const { expect } = require('chai');
+const SchemaType = require('../../src/utils/SchemaType');
 
 describe('schema type enumeration', () => {
 	it('exposes expected types', () => {

@@ -1,7 +1,7 @@
 /** @module plugins/transfer */
-import EntityType from '../model/EntityType';
-import ModelType from '../model/ModelType';
-import sizes from '../modelBinary/sizes';
+const EntityType = require('../model/EntityType');
+const ModelType = require('../model/ModelType');
+const sizes = require('../modelBinary/sizes');
 
 const constants = { sizes };
 
@@ -9,9 +9,9 @@ const constants = { sizes };
  * Creates a transfer plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-export default {
+module.exports = {
 	registerSchema: builder => {
-		builder.addTransactionSupport('transfer', {
+		builder.addTransactionSupport(EntityType.transfer, {
 			recipient: ModelType.binary,
 			message: { type: ModelType.object, schemaName: 'transfer.message' },
 			mosaics: { type: ModelType.array, schemaName: 'mosaic' }
@@ -33,7 +33,7 @@ export default {
 				if (0 < messageSize) {
 					transaction.message = {};
 					transaction.message.type = parser.uint8();
-					transaction.message.payload = parser.buffer(messageSize - 1);
+					transaction.message.payload = 1 < messageSize ? parser.buffer(messageSize - 1) : [];
 				}
 
 				if (0 < numMosaics) {
@@ -62,16 +62,18 @@ export default {
 				const numMosaics = transaction.mosaics ? transaction.mosaics.length : 0;
 				serializer.writeUint8(numMosaics);
 
-				if (0 < payloadSize) {
+				if (transaction.message) {
 					serializer.writeUint8(transaction.message.type);
-					serializer.writeBuffer(transaction.message.payload);
+
+					if (0 < payloadSize)
+						serializer.writeBuffer(transaction.message.payload);
 				}
 
 				if (0 < numMosaics) {
-					for (const mosaic of transaction.mosaics) {
+					transaction.mosaics.forEach(mosaic => {
 						serializer.writeUint64(mosaic.id);
 						serializer.writeUint64(mosaic.amount);
-					}
+					});
 				}
 			}
 		});

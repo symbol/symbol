@@ -38,15 +38,16 @@ class BufferContainer {
 
 	writeBuffer(buffer) {
 		this.requireBufferSpace(buffer.length);
-		for (const byte of buffer)
+		buffer.forEach(byte => {
 			this.writeUint8(byte);
+		});
 	}
 }
 
 /**
  * Provides an interface for writing to a fixed size buffer.
  */
-export default class BinarySerializer {
+class BinarySerializer {
 	/**
 	 * Creates a binary serializer.
 	 * @param {numeric} size The size of the underlying fixed size buffer.
@@ -114,3 +115,5 @@ export default class BinarySerializer {
 		this.container.writeBuffer(buffer);
 	}
 }
+
+module.exports = BinarySerializer;

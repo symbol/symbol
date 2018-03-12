@@ -1,24 +1,26 @@
 /** @module model/ModelFormatterBuilder */
-import schemaFormatter from '../utils/schemaFormatter';
+const schemaFormatter = require('../utils/schemaFormatter');
 
-function createFormatter(type, modelSchema, formattingRules) {
-	return { format: entity => schemaFormatter.format(entity, modelSchema[type], modelSchema, formattingRules) };
-}
+const createFormatter = (type, modelSchema, formattingRules) => ({
+	format: entity => schemaFormatter.format(entity, modelSchema[type], modelSchema, formattingRules)
+});
 
 /**
  * Builder for creating a model formatter.
  */
-export default class ModelFormatterBuilder {
+class ModelFormatterBuilder {
 	/**
 	 * Creates a model formatter builder.
 	 */
 	constructor() {
 		this.subFormatterTypes = new Set([
-			'transactionWithMetadata',
-			'blockHeaderWithMetadata',
 			'accountWithMetadata',
+			'blockHeaderWithMetadata',
+			'transactionWithMetadata',
+
 			'chainInfo',
-			'storageInfo'
+			'storageInfo',
+			'transactionStatus'
 		]);
 	}
 
@@ -41,9 +43,12 @@ export default class ModelFormatterBuilder {
 	 */
 	build(modelSchema, formattingRules) {
 		const formatter = {};
-		for (const type of this.subFormatterTypes)
+		this.subFormatterTypes.forEach(type => {
 			formatter[type] = createFormatter(type, modelSchema, formattingRules);
+		});
 
 		return formatter;
 	}
 }
+
+module.exports = ModelFormatterBuilder;

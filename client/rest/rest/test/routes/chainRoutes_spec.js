@@ -1,18 +1,15 @@
-import { expect } from 'chai';
-import chainRoutes from '../../src/routes/chainRoutes';
-import test from './utils/routeTestUtils';
+const { expect } = require('chai');
+const chainRoutes = require('../../src/routes/chainRoutes');
+const test = require('./utils/routeTestUtils');
 
 describe('chain routes', () => {
-	function executeRoute(routeName, db, assertResponse) {
-		return test.route.executeSingle(chainRoutes.register, routeName, 'get', {}, db, assertResponse);
-	}
+	const executeRoute = (routeName, db, assertResponse) =>
+		test.route.executeSingle(chainRoutes.register, routeName, 'get', {}, db, undefined, assertResponse);
 
 	describe('get', () => {
-		function createMockChainInfoDb(height, scoreLow, scoreHigh) {
-			return {
-				chainInfo: () => Promise.resolve({ height, scoreLow, scoreHigh })
-			};
-		}
+		const createMockChainInfoDb = (height, scoreLow, scoreHigh) => ({
+			chainInfo: () => Promise.resolve({ height, scoreLow, scoreHigh })
+		});
 
 		it('can retrieve height', () => {
 			// Arrange:

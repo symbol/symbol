@@ -1,114 +1,92 @@
-import catapult from 'catapult-sdk';
-import accountRoutes from '../../src/routes/accountRoutes';
-import test from './utils/routeTestUtils';
+const { expect } = require('chai');
+const catapult = require('catapult-sdk');
+const accountRoutes = require('../../src/routes/accountRoutes');
+const test = require('./utils/routeTestUtils');
 
-const address = catapult.model.address;
-const convert = catapult.utils.convert;
+const { address } = catapult.model;
+const { convert } = catapult.utils;
+const { addresses, publicKeys } = test.sets;
 
 describe('account routes', () => {
-	const factory = {
-		createAccountRouteInfo: (routeName, dbApiName) => ({
-			routes: accountRoutes,
-			routeName,
-			createDb: (queriedIdentifiers, account) => ({
-				[dbApiName]: id => {
-					queriedIdentifiers.push(id);
-					return Promise.resolve(account);
-				}
-			})
-		}),
-		createAccountTransactionsPagingRouteInfo: (routeName, createDb) => ({
-			routes: accountRoutes,
-			routeName,
-			createDb
-		})
-	};
+	describe('get by account', () => {
+		const addGetTests = (key, ids, parsedIds) => {
+			const errorMessage = 'has an invalid format';
+			test.route.document.addGetPostDocumentRouteTests(accountRoutes.register, {
+				routes: { singular: '/account/:accountId', plural: '/account' },
+				inputs: {
+					valid: { object: { accountId: ids[0] }, parsed: [{ [key]: parsedIds[0] }], printable: ids[0] },
+					validMultiple: { object: { accountIds: ids }, parsed: parsedIds.map(parsedId => ({ [key]: parsedId })) },
+					invalid: { object: { accountId: '12345' }, error: `accountId ${errorMessage}` },
+					invalidMultiple: {
+						object: { accountIds: [ids[0], '12345', ids[1]] },
+						error: `element in array accountIds ${errorMessage}`
+					}
+				},
+				dbApiName: 'accountsByIds',
+				type: 'accountWithMetadata',
+				config: { transactionStates: [] }
+			});
+		};
 
-	function addAccountGetTests(accountRouteInfo, traits) {
-		it('returns account if found', () =>
-			// Assert:
-			test.route.document.assertReturnsEntityIfFound(accountRouteInfo, {
-				params: traits.params,
-				paramsIdentifier: traits.paramsIdentifier,
-				dbEntity: { id: 8 },
-				type: 'accountWithMetadata'
-			}));
+		describe('by address', () =>
+			addGetTests('address', addresses.valid, addresses.valid.map(address.stringToAddress)));
 
-		it('returns 404 if account is not found', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorIfNotFound(accountRouteInfo, {
-				params: traits.params,
-				paramsIdentifier: traits.paramsIdentifier,
-				printableParamsIdentifier: traits.printableParamsIdentifier,
-				dbEntity: undefined
-			}));
-	}
+		describe('by publicKey', () =>
+			addGetTests('publicKey', publicKeys.valid, publicKeys.valid.map(convert.hexToUint8)));
 
-	describe('get (encoded)', () => {
-		const accountRouteInfo = factory.createAccountRouteInfo('/account/address/:address', 'accountGet');
+		it('supports lookups of heterogenous ids', () => {
+			// Arrange:
+			const keyGroups = [];
+			const db = test.setup.createCapturingDb('accountsByIds', keyGroups, [{ value: 'this is nonsense' }]);
+			const config = { transactionStates: [] };
 
-		const Valid_Address = 'SAAA244WMCB2JXGNQTQHQOS45TGBFF4V2MJBVOUI';
-		addAccountGetTests(accountRouteInfo, {
-			params: { address: Valid_Address },
-			paramsIdentifier: address.stringToAddress(Valid_Address),
-			printableParamsIdentifier: Valid_Address
+			// Act:
+			const ids = [addresses.valid[0], publicKeys.valid[0], addresses.valid[1]];
+			const parsedIds = [
+				{ address: address.stringToAddress(ids[0]) },
+				{ publicKey: convert.hexToUint8(ids[1]) },
+				{ address: address.stringToAddress(ids[2]) }
+			];
+			return test.route.executeSingle(accountRoutes.register, '/account', 'post', { accountIds: ids }, db, config, response => {
+				// Assert:
+				expect(keyGroups).to.deep.equal([parsedIds]);
+				expect(response).to.deep.equal({ payload: [{ value: 'this is nonsense' }], type: 'accountWithMetadata' });
+			});
 		});
-
-		it('returns 409 if address is invalid', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorForInvalidParams(accountRouteInfo, {
-				params: { address: '12345' },
-				error: 'address has an invalid format: 12345 does not represent a valid encoded address'
-			}));
-	});
-
-	describe('get (public key)', () => {
-		const accountRouteInfo = factory.createAccountRouteInfo('/account/key/:publicKey', 'accountGetFromPublicKey');
-
-		const Valid_Public_Key = '75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C';
-		addAccountGetTests(accountRouteInfo, {
-			params: { publicKey: Valid_Public_Key },
-			paramsIdentifier: convert.hexToUint8(Valid_Public_Key),
-			printableParamsIdentifier: Valid_Public_Key
-		});
-
-		it('returns 409 if key is invalid', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorForInvalidParams(accountRouteInfo, {
-				params: { publicKey: '12345' },
-				error: 'publicKey has an invalid format: hex string has unexpected size \'5\''
-			}));
 	});
 
 	describe('account transfers', () => {
-		function addAccountTransactionsTests(apiPath, dbApiPath) {
+		const addAccountTransactionsTests = (apiPath, dbApiPath) => {
 			describe(dbApiPath, () => {
-				const Valid_Public_Key = '75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C';
 				const pagingTestsFactory = test.setup.createPagingTestsFactory(
-					factory.createAccountTransactionsPagingRouteInfo(
-						`/account/key/:publicKey/${apiPath}`,
-						(queriedIdentifiers, transactions) => ({
+					{
+						routes: accountRoutes,
+						routeName: `/account/:publicKey/${apiPath}`,
+						createDb: (queriedIdentifiers, transactions) => ({
 							[dbApiPath]: (publicKey, pageId, pageSize) => {
 								queriedIdentifiers.push({ publicKey, pageId, pageSize });
 								return Promise.resolve(transactions);
 							}
-						})),
-					{ publicKey: Valid_Public_Key },
-					{ publicKey: convert.hexToUint8(Valid_Public_Key) },
-					'transactionWithMetadata');
+						}),
+						config: { transactionStates: [{ dbPostfix: 'Partial', routePostfix: '/partial' }] }
+					},
+					{ publicKey: publicKeys.valid[0] },
+					{ publicKey: convert.hexToUint8(publicKeys.valid[0]) },
+					'transactionWithMetadata'
+				);
 
-				test.assert.addPagingTests(pagingTestsFactory);
-
-				pagingTestsFactory.addFailureTest(
-					'key is invalid',
-					{ publicKey: '12345' },
-					'publicKey has an invalid format: hex string has unexpected size \'5\'');
+				pagingTestsFactory.addDefault();
+				pagingTestsFactory.addNonPagingParamFailureTest('publicKey', '12345');
 			});
-		}
+		};
 
+		// default transaction states
 		addAccountTransactionsTests('transactions', 'accountTransactionsAll');
 		addAccountTransactionsTests('transactions/incoming', 'accountTransactionsIncoming');
 		addAccountTransactionsTests('transactions/outgoing', 'accountTransactionsOutgoing');
 		addAccountTransactionsTests('transactions/unconfirmed', 'accountTransactionsUnconfirmed');
+
+		// custom transaction states (enabled via custom configuration)
+		addAccountTransactionsTests('transactions/partial', 'accountTransactionsPartial');
 	});
 });

@@ -1,8 +1,8 @@
 /** @module auth/verifyPeer */
-import EventEmitter from 'events';
-import challengeHandler from './challenge';
-import challengeParser from './challengeParser';
-import VerifyResult from './VerifyResult';
+const EventEmitter = require('events');
+const challengeHandler = require('./challenge');
+const challengeParser = require('./challengeParser');
+const VerifyResult = require('./VerifyResult');
 
 class AuthPacketHandler {
 	constructor(serverSocket, clientKeyPair, serverPublicKey) {
@@ -86,7 +86,7 @@ class AuthPacketHandler {
  * @fires verify The verification result.
  */
 
-export default {
+module.exports = {
 	/**
 	 * Creates a server verifier for performing a verification handshake with a catapult server.
 	 * @param {net.Socket} serverSocket A socket connection to the catapult server.

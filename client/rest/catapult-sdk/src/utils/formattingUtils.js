@@ -1,6 +1,6 @@
 /** @module utils/formattingUtils */
 
-export default {
+module.exports = {
 	/**
 	 * Formats all entities in an array.
 	 * @param {module:utils/schemaFormatter~EntityFormatter} formatter The formatter.
@@ -9,9 +9,7 @@ export default {
 	 */
 	formatArray(formatter, collection) {
 		const formattedEntities = [];
-		for (const entity of collection)
-			formattedEntities.push(formatter.format(entity));
-
+		collection.forEach(entity => { formattedEntities.push(formatter.format(entity)); });
 		return formattedEntities;
 	}
 };

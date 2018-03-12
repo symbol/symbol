@@ -7,7 +7,7 @@
  * @property {object} map The character map.
  */
 
-export default {
+module.exports = {
 	/**
 	 * Creates a builder for building a character map.
 	 * @returns {module:utils/charMapping~CharacterMapBuilder} A character map builder.

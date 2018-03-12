@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import address from '../../src/model/address';
-import convert from '../../src/utils/convert';
-import test from '../testUtils';
+const { expect } = require('chai');
+const address = require('../../src/model/address');
+const convert = require('../../src/utils/convert');
+const test = require('../testUtils');
 
 const Address_Decoded_Size = 25;
 const Network_Mijin_Identifier = 0x60;
@@ -9,10 +9,10 @@ const Network_Public_Test_Identifier = 0x98;
 
 describe('address', () => {
 	describe('stringToAddress', () => {
-		function assertCannotCreateAddress(encoded, message) {
+		const assertCannotCreateAddress = (encoded, message) => {
 			// Assert:
 			expect(() => { address.stringToAddress(encoded); }).to.throw(message);
-		}
+		};
 
 		it('can create address from valid encoded address', () => {
 			// Arrange:
@@ -31,7 +31,8 @@ describe('address', () => {
 			// Assert:
 			assertCannotCreateAddress(
 				'NC5J5DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LASABCDEFGH',
-				'NC5J5DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LASABCDEFGH does not represent a valid encoded address');
+				'NC5J5DI2URIC4H3T3IMXQS25PWQWZIPEV6EV7LASABCDEFGH does not represent a valid encoded address'
+			);
 		});
 
 		it('cannot create address from invalid encoded string', () => {
@@ -60,7 +61,7 @@ describe('address', () => {
 		it('can create address from public key for well known network', () => {
 			// Arrange:
 			const expectedHex = '6023BB7C3C089D996585466380EDBDC19D49591848B3727714';
-			const publicKey = convert.hexToUint8('3485d98efd7eb07adafcfd1a157d89de2796a95e780813c0258af3f5f84ed8cb');
+			const publicKey = convert.hexToUint8('3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB');
 
 			// Act:
 			const decoded = address.publicKeyToAddress(publicKey, Network_Mijin_Identifier);
@@ -74,7 +75,7 @@ describe('address', () => {
 		it('can create address from public key for custom network', () => {
 			// Arrange:
 			const expectedHex = '9823BB7C3C089D996585466380EDBDC19D495918484BF7E997';
-			const publicKey = convert.hexToUint8('3485d98efd7eb07adafcfd1a157d89de2796a95e780813c0258af3f5f84ed8cb');
+			const publicKey = convert.hexToUint8('3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB');
 
 			// Act:
 			const decoded = address.publicKeyToAddress(publicKey, Network_Public_Test_Identifier);
@@ -87,7 +88,7 @@ describe('address', () => {
 
 		it('address calculation is deterministic', () => {
 			// Arrange:
-			const publicKey = convert.hexToUint8('3485d98efd7eb07adafcfd1a157d89de2796a95e780813c0258af3f5f84ed8cb');
+			const publicKey = convert.hexToUint8('3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB');
 
 			// Act:
 			const decoded1 = address.publicKeyToAddress(publicKey, Network_Mijin_Identifier);

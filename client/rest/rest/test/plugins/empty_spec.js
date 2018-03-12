@@ -1,17 +1,11 @@
-import { expect } from 'chai';
-import empty from '../../src/plugins/empty';
-import test from '../routes/utils/routeTestUtils';
+const empty = require('../../src/plugins/empty');
+const pluginTest = require('./utils/pluginTestUtils');
+const test = require('../routes/utils/routeTestUtils');
 
 describe('transfer plugin', () => {
-	describe('create db', () => {
-		it('returns undefined', () => {
-			// Act:
-			const db = empty.createDb();
-
-			// Assert:
-			expect(db).to.equal(undefined);
-		});
-	});
+	pluginTest.assertThat.pluginDoesNotCreateDb(empty);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(empty);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(empty);
 
 	describe('register routes', () => {
 		it('does not register routes', () => {

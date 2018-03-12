@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import challengeParser from '../../src/auth/challengeParser';
+const { expect } = require('chai');
+const challengeParser = require('../../src/auth/challengeParser');
 
 describe('challenge parser', () => {
 	const Test_Buffer_64 = Buffer.of(
@@ -10,9 +10,10 @@ describe('challenge parser', () => {
 		0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC, 0xDD, 0xDD,
 		0xEE, 0xEE, 0xFF, 0xFF, 0xAA, 0xAA, 0xBB, 0xBB,
 		0xCC, 0xCC, 0xDD, 0xDD, 0xEE, 0xEE, 0xFF, 0xFF,
-		0x12, 0x34, 0x11, 0x11, 0x22, 0x22, 0x33, 0x33);
+		0x12, 0x34, 0x11, 0x11, 0x22, 0x22, 0x33, 0x33
+	);
 
-	function addParseTests(traits) {
+	const addParseTests = traits => {
 		it('can parse from packet', () => {
 			// Arrange:
 			const packet = traits.createTemplatePacket();
@@ -47,7 +48,7 @@ describe('challenge parser', () => {
 			// Assert:
 			expect(parsedPacket).to.equal(undefined);
 		});
-	}
+	};
 
 	describe('server challenge request', () => {
 		addParseTests({

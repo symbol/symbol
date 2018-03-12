@@ -1,18 +1,12 @@
-import { expect } from 'chai';
-import multisig from '../../src/plugins/multisig';
-import MultisigDb from '../../src/plugins/db/MultisigDb';
-import test from '../routes/utils/routeTestUtils';
+const multisig = require('../../src/plugins/multisig');
+const MultisigDb = require('../../src/plugins/db/MultisigDb');
+const pluginTest = require('./utils/pluginTestUtils');
+const test = require('../routes/utils/routeTestUtils');
 
 describe('multisig plugin', () => {
-	describe('create db', () => {
-		it('returns multisig db', () => {
-			// Act:
-			const db = multisig.createDb();
-
-			// Assert:
-			expect(db).to.be.instanceOf(MultisigDb);
-		});
-	});
+	pluginTest.assertThat.pluginCreatesDb(multisig, MultisigDb);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(multisig);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(multisig);
 
 	describe('register routes', () => {
 		it('registers multisig GET routes', () => {
@@ -25,7 +19,8 @@ describe('multisig plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/key/:publicKey/multisig'
+				'/account/:accountId/multisig',
+				'/account/:accountId/multisig/graph'
 			]);
 		});
 	});

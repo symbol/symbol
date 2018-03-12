@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import convert from '../../src/utils/convert';
+const { expect } = require('chai');
+const convert = require('../../src/utils/convert');
 
 describe('convert', () => {
 	describe('toByte', () => {
@@ -54,12 +54,12 @@ describe('convert', () => {
 			];
 
 			// Act:
-			for (const input of inputs) {
+			inputs.forEach(input => {
 				const isHexString = convert.isHexString(input);
 
 				// Assert:
 				expect(isHexString, `input ${input}`).to.equal(true);
-			}
+			});
 		});
 
 		it('returns false for invalid hex strings', () => {
@@ -70,12 +70,12 @@ describe('convert', () => {
 			];
 
 			// Act:
-			for (const input of inputs) {
+			inputs.forEach(input => {
 				const isHexString = convert.isHexString(input);
 
 				// Assert:
 				expect(isHexString, `input ${input}`).to.equal(false);
-			}
+			});
 		});
 	});
 
@@ -145,7 +145,7 @@ describe('convert', () => {
 	});
 
 	describe('tryParseUint', () => {
-		function addTryParseSuccessTest(name, str, expectedValue) {
+		const addTryParseSuccessTest = (name, str, expectedValue) => {
 			it(name, () => {
 				// Act:
 				const value = convert.tryParseUint(str);
@@ -153,7 +153,7 @@ describe('convert', () => {
 				// Assert:
 				expect(value).to.equal(expectedValue);
 			});
-		}
+		};
 
 		addTryParseSuccessTest('can parse decimal string', '14952', 14952);
 		addTryParseSuccessTest('can parse zero decimal string', '0', 0);
@@ -161,7 +161,7 @@ describe('convert', () => {
 		addTryParseSuccessTest('can parse decimal string with zeros', '10002', 10002);
 		addTryParseSuccessTest('can parse max safe integer decimal string', Number.MAX_SAFE_INTEGER.toString(), 9007199254740991);
 
-		function addTryParseFailureTest(name, str) {
+		const addTryParseFailureTest = (name, str) => {
 			it(name, () => {
 				// Act:
 				const value = convert.tryParseUint(str);
@@ -169,7 +169,7 @@ describe('convert', () => {
 				// Assert:
 				expect(value).to.equal(undefined);
 			});
-		}
+		};
 
 		addTryParseFailureTest('cannot parse decimal string with left padding', ' 14952');
 		addTryParseFailureTest('cannot parse decimal string with right padding', '14952 ');
@@ -221,6 +221,70 @@ describe('convert', () => {
 
 			// Assert:
 			expect(actual).to.deep.equal(Uint8Array.of(0x02, 0x6E, 0x89, 0xAB, 0xCD, 0xEF, 0xE4, 0x15));
+		});
+	});
+
+	describe('signed <-> unsigned byte', () => {
+		const testCases = [
+			{ signed: -128, unsigned: 0x80, description: 'min negative' },
+			{ signed: -127, unsigned: 0x81, description: 'min negative plus one' },
+			{ signed: -87, unsigned: 0xA9, description: 'negative' },
+			{ signed: -1, unsigned: 0xFF, description: 'negative one' },
+			{ signed: 0, unsigned: 0, description: 'zero' },
+			{ signed: 1, unsigned: 0x01, description: 'positive one' },
+			{ signed: 57, unsigned: 0x39, description: 'positive' },
+			{ signed: 126, unsigned: 0x7E, description: 'max positive minus one' },
+			{ signed: 127, unsigned: 0x7F, description: 'max positive' }
+		];
+
+		describe('uint8ToInt8', () => {
+			const failureTestCases = [
+				{ input: 256, description: 'one too large' },
+				{ input: 1000, description: 'very large' }
+			];
+
+			failureTestCases.forEach(testCase => {
+				it(`cannot convert number that is ${testCase.description}`, () => {
+					// Assert:
+					expect(() => convert.uint8ToInt8(testCase.input)).to.throw(`input '${testCase.input}' is out of range`);
+				});
+			});
+
+			testCases.forEach(testCase => {
+				it(`can convert ${testCase.description}`, () => {
+					// Act:
+					const value = convert.uint8ToInt8(testCase.unsigned);
+
+					// Assert:
+					expect(value).to.equal(testCase.signed);
+				});
+			});
+		});
+
+		describe('int8ToUint8', () => {
+			const failureTestCases = [
+				{ input: -1000, description: 'very small' },
+				{ input: -129, description: 'one too small' },
+				{ input: 128, description: 'one too large' },
+				{ input: 1000, description: 'very large' }
+			];
+
+			failureTestCases.forEach(testCase => {
+				it(`cannot convert number that is ${testCase.description}`, () => {
+					// Assert:
+					expect(() => convert.int8ToUint8(testCase.input)).to.throw(`input '${testCase.input}' is out of range`);
+				});
+			});
+
+			testCases.forEach(testCase => {
+				it(`can convert ${testCase.description}`, () => {
+					// Act:
+					const value = convert.int8ToUint8(testCase.signed);
+
+					// Assert:
+					expect(value).to.equal(testCase.unsigned);
+				});
+			});
 		});
 	});
 });

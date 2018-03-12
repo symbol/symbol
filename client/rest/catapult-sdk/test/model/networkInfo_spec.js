@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import networkInfo from '../../src/model/networkInfo';
+const { expect } = require('chai');
+const networkInfo = require('../../src/model/networkInfo');
 
 describe('network info', () => {
 	describe('networks', () => {
@@ -40,13 +40,13 @@ describe('network info', () => {
 	describe('find by id', () => {
 		it('can find all known networks', () => {
 			// Arrange:
-			for (const networkName of Object.keys(networkInfo.networks)) {
+			Object.keys(networkInfo.networks).forEach(networkName => {
 				// Act:
 				const network = networkInfo.findById(networkInfo.networks[networkName].id);
 
 				// Assert:
 				expect(network).to.equal(networkInfo.networks[networkName]);
-			}
+			});
 		});
 
 		it('returns undefined for unknown network', () => {
@@ -61,13 +61,13 @@ describe('network info', () => {
 	describe('find by char prefix', () => {
 		it('can find all known networks', () => {
 			// Arrange:
-			for (const networkName of Object.keys(networkInfo.networks)) {
+			Object.keys(networkInfo.networks).forEach(networkName => {
 				// Act:
 				const network = networkInfo.findByCharPrefix(networkInfo.networks[networkName].charPrefix);
 
 				// Assert:
 				expect(network).to.equal(networkInfo.networks[networkName]);
-			}
+			});
 		});
 
 		it('returns undefined for unknown network', () => {

@@ -1,31 +1,62 @@
-import allRoutes from '../../src/routes/allRoutes';
-import test from './utils/routeTestUtils';
+const allRoutes = require('../../src/routes/allRoutes');
+const test = require('./utils/routeTestUtils');
 
 describe('all routes', () => {
+	const registerAll = server => {
+		const config = {
+			pageSize: { min: 10, max: 100, step: 25 },
+			transactionStates: []
+		};
+		allRoutes.register(server, {}, { config });
+	};
+
 	it('registers all get routes', () => {
 		// Arrange:
 		const routes = [];
 		const server = test.setup.createCapturingMockServer('get', routes);
 
 		// Act:
-		allRoutes.register(server, {});
+		registerAll(server);
 
 		// Assert:
 		test.assert.assertRoutes(routes, [
-			'/account/address/:address',
-			'/account/key/:publicKey',
-			'/account/key/:publicKey/transactions',
-			'/account/key/:publicKey/transactions/incoming',
-			'/account/key/:publicKey/transactions/outgoing',
-			'/account/key/:publicKey/transactions/unconfirmed',
-			'/block/height/:height',
-			'/block/height/:height/transactions',
-			'/blocks/from/:height/group/:grouping',
+			'/account/:accountId',
+			'/account/:publicKey/transactions',
+			'/account/:publicKey/transactions/incoming',
+			'/account/:publicKey/transactions/outgoing',
+			'/account/:publicKey/transactions/unconfirmed',
+			// no custom account transactions routes are registered
+
+			'/block/:height',
+			'/block/:height/transactions',
+			'/blocks/:height/limit/:limit',
+
 			'/chain/height',
 			'/chain/score',
-			'/transaction/id/:id',
-			'/diagnostic/storage',
-			'/diagnostic/blocks/:height/count/:count'
+
+			'/network',
+
+			'/transaction/:transactionId',
+			'/transaction/:hash/status',
+
+			'/diagnostic/blocks/:height/limit/:limit',
+			'/diagnostic/storage'
+		]);
+	});
+
+	it('registers all post routes', () => {
+		// Arrange:
+		const routes = [];
+		const server = test.setup.createCapturingMockServer('post', routes);
+
+		// Act:
+		registerAll(server);
+
+		// Assert:
+		test.assert.assertRoutes(routes, [
+			'/account',
+			'/transaction',
+			'/transaction/statuses'
 		]);
 	});
 
@@ -35,11 +66,11 @@ describe('all routes', () => {
 		const server = test.setup.createCapturingMockServer('put', routes);
 
 		// Act:
-		allRoutes.register(server, {});
+		registerAll(server);
 
 		// Assert:
 		test.assert.assertRoutes(routes, [
-			'/transaction/send'
+			'/transaction'
 		]);
 	});
 
@@ -49,11 +80,11 @@ describe('all routes', () => {
 		const server = test.setup.createCapturingMockServer('ws', routes);
 
 		// Act:
-		allRoutes.register(server, {});
+		registerAll(server);
 
 		// Assert:
 		test.assert.assertRoutes(routes, [
-			'/ws/block'
+			'/ws'
 		]);
 	});
 });

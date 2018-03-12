@@ -1,8 +1,8 @@
 /** @module crypto/keyPair */
-import sha3Hasher from './sha3Hasher';
-import nacl from '../external/nacl_catapult';
-import array from '../utils/array';
-import convert from '../utils/convert';
+const sha3Hasher = require('./sha3Hasher');
+const nacl = require('../external/nacl_catapult');
+const array = require('../utils/array');
+const convert = require('../utils/convert');
 
 const Key_Size = 32;
 const Signature_Size = 64;
@@ -18,25 +18,25 @@ catapult.hash = {
 };
 
 // custom catapult crypto functions
-catapult.crypto = (function () {
-	function clamp(d) {
+catapult.crypto = (() => {
+	const clamp = d => {
 		d[0] &= 248;
 		d[31] &= 127;
 		d[31] |= 64;
-	}
+	};
 
-	function prepareForScalarMult(sk, hashfunc) {
+	const prepareForScalarMult = (sk, hashfunc) => {
 		const d = new Uint8Array(Hash_Size);
 		hashfunc(d, sk);
 		clamp(d);
 		return d;
-	}
+	};
 
-	const encodedSChecker = (function () {
+	const encodedSChecker = (() => {
 		const Is_Reduced = 1;
 		const Is_Zero = 2;
 
-		function validateEncodedSPart(s) {
+		const validateEncodedSPart = s => {
 			if (array.isZero(s))
 				return Is_Zero | Is_Reduced;
 
@@ -45,7 +45,7 @@ catapult.crypto = (function () {
 
 			nacl.catapult.reduce(copy);
 			return array.deepEqual(s, copy, Half_Signature_Size) ? Is_Reduced : 0;
-		}
+		};
 
 		return {
 			isCanonical: s => Is_Reduced === validateEncodedSPart(s),
@@ -185,54 +185,52 @@ catapult.crypto = (function () {
  * @property {Uint8Array} privateKey The private key.
  */
 
-/**
- * Creates a key pair from a private key string.
- * @param {string} privateKeyString A hex encoded private key string.
- * @returns {module:crypto/keyPair~KeyPair} The key pair.
- */
-export function createKeyPairFromPrivateKeyString(privateKeyString) {
-	const privateKey = convert.hexToUint8(privateKeyString);
-	if (Key_Size !== privateKey.length)
-		throw Error(`private key has unexpected size: ${privateKey.length}`);
+module.exports = {
+	/**
+ 	 * Creates a key pair from a private key string.
+	 * @param {string} privateKeyString A hex encoded private key string.
+	 * @returns {module:crypto/keyPair~KeyPair} The key pair.
+	 */
+	createKeyPairFromPrivateKeyString: privateKeyString => {
+		const privateKey = convert.hexToUint8(privateKeyString);
+		if (Key_Size !== privateKey.length)
+			throw Error(`private key has unexpected size: ${privateKey.length}`);
 
-	const publicKey = catapult.crypto.extractPublicKey(privateKey, catapult.hash.func);
-	return { privateKey, publicKey };
-}
+		const publicKey = catapult.crypto.extractPublicKey(privateKey, catapult.hash.func);
+		return { privateKey, publicKey };
+	},
 
-/**
- * Signs a data buffer with a key pair.
- * @param {module:crypto/keyPair~KeyPair} keyPair The key pair to use for signing.
- * @param {Uint8Array} data The data to sign.
- * @returns {Uint8Array} The signature.
- */
-export function sign(keyPair, data) {
-	return catapult.crypto.sign(data, keyPair.publicKey, keyPair.privateKey, catapult.hash.createHasher());
-}
+	/**
+	 * Signs a data buffer with a key pair.
+	 * @param {module:crypto/keyPair~KeyPair} keyPair The key pair to use for signing.
+	 * @param {Uint8Array} data The data to sign.
+	 * @returns {Uint8Array} The signature.
+	 */
+	sign: (keyPair, data) => catapult.crypto.sign(data, keyPair.publicKey, keyPair.privateKey, catapult.hash.createHasher()),
 
-/**
- * Verifies a signature.
- * @param {module:crypto/keyPair~PublicKey} publicKey The public key to use for verification.
- * @param {Uint8Array} data The data to verify.
- * @param {Uint8Array} signature The signature to verify.
- * @returns {boolean} true if the signature is verifiable, false otherwise.
- */
-export function verify(publicKey, data, signature) {
-	return catapult.crypto.verify(publicKey, data, signature, catapult.hash.createHasher());
-}
+	/**
+	 * Verifies a signature.
+	 * @param {module:crypto/keyPair~PublicKey} publicKey The public key to use for verification.
+	 * @param {Uint8Array} data The data to verify.
+	 * @param {Uint8Array} signature The signature to verify.
+	 * @returns {boolean} true if the signature is verifiable, false otherwise.
+	 */
+	verify: (publicKey, data, signature) => catapult.crypto.verify(publicKey, data, signature, catapult.hash.createHasher()),
 
-/**
- * Creates a shared key given a key pair and an arbitrary public key.
- * The shared key can be used for encrypted message passing between the two.
- * @param {module:crypto/keyPair~KeyPair} keyPair The key pair for which to create the shared key.
- * @param {module:crypto/keyPair~PublicKey} publicKey The public key for which to create the shared key.
- * @param {Uint8Array} salt A salt that should be applied to the shared key.
- * @returns {Uint8Array} The shared key.
- */
-export function deriveSharedKey(keyPair, publicKey, salt) {
-	if (Key_Size !== salt.length)
-		throw Error(`salt has unexpected size: ${salt.length}`);
+	/**
+	 * Creates a shared key given a key pair and an arbitrary public key.
+	 * The shared key can be used for encrypted message passing between the two.
+	 * @param {module:crypto/keyPair~KeyPair} keyPair The key pair for which to create the shared key.
+	 * @param {module:crypto/keyPair~PublicKey} publicKey The public key for which to create the shared key.
+	 * @param {Uint8Array} salt A salt that should be applied to the shared key.
+	 * @returns {Uint8Array} The shared key.
+	 */
+	deriveSharedKey: (keyPair, publicKey, salt) => {
+		if (Key_Size !== salt.length)
+			throw Error(`salt has unexpected size: ${salt.length}`);
 
-	return catapult.crypto.deriveSharedKey(salt, keyPair.privateKey, publicKey, catapult.hash.func);
-}
+		return catapult.crypto.deriveSharedKey(salt, keyPair.privateKey, publicKey, catapult.hash.func);
+	}
+};
 
 // endregion

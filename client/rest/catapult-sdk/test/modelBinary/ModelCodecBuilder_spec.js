@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import ModelCodecBuilder from '../../src/modelBinary/ModelCodecBuilder';
-import BinaryParser from '../../src/parser/BinaryParser';
-import test from '../binaryTestUtils';
+const { expect } = require('chai');
+const ModelCodecBuilder = require('../../src/modelBinary/ModelCodecBuilder');
+const BinaryParser = require('../../src/parser/BinaryParser');
+const test = require('../binaryTestUtils');
 
 const constants = {
 	knownTxType: 0x4123,
@@ -13,11 +13,9 @@ const constants = {
 };
 
 describe('model codec builder', () => {
-	function countCodecs(codecs) {
-		return codecs.reduce((count, value) => count + (undefined === value ? 0 : 1), 0);
-	}
+	const countCodecs = codecs => codecs.reduce((count, value) => count + (undefined === value ? 0 : 1), 0);
 
-	function getCodec() {
+	const getCodec = () => {
 		const builder = new ModelCodecBuilder();
 		builder.addTransactionSupport(constants.knownTxType, {
 			deserialize: (parser, size, txCodecs) => {
@@ -48,9 +46,9 @@ describe('model codec builder', () => {
 		});
 
 		return builder.build();
-	}
+	};
 
-	function generateVerifiableEntity(size, type = 0x451C) {
+	const generateVerifiableEntity = (size, type = 0x451C) => {
 		const Signature_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signature));
 		const Signer_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signer));
 
@@ -68,9 +66,9 @@ describe('model codec builder', () => {
 				type
 			}
 		};
-	}
+	};
 
-	function generateBlockHeader() {
+	const generateBlockHeader = () => {
 		const Previous_Block_Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash));
 		const Block_Transactions_Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash));
 
@@ -92,9 +90,9 @@ describe('model codec builder', () => {
 			blockTransactionsHash: Block_Transactions_Hash_Buffer
 		});
 		return data;
-	}
+	};
 
-	function generateTransaction(type = constants.knownTxType, tag = 0x75) {
+	const generateTransaction = (type = constants.knownTxType, tag = 0x75) => {
 		const data = generateVerifiableEntity(constants.sizes.transaction, type);
 		data.buffer = Buffer.concat([
 			data.buffer,
@@ -123,7 +121,7 @@ describe('model codec builder', () => {
 		}
 
 		return data;
-	}
+	};
 
 	describe('block', () => {
 		test.binary.test.addAll(getCodec(), constants.sizes.blockHeader, generateBlockHeader);
@@ -131,6 +129,7 @@ describe('model codec builder', () => {
 
 	describe('block with transactions', () => {
 		// notice that these tests pass -1 as size to assertDeserialization because the deserializer does not use the reported size
+		// in fact, the passed size is interpreted as options that can be used to customize parsing behavior
 
 		it('can be deserialized with known transactions', () => {
 			// Arrange:
@@ -159,10 +158,10 @@ describe('model codec builder', () => {
 			data.buffer.writeUInt32LE(constants.sizes.blockHeader + (3 * constants.sizes.transaction));
 
 			data.object.transactions = [txData1.object, txData2.object, txData3.object];
-			for (const transaction of data.object.transactions) {
+			data.object.transactions.forEach(transaction => {
 				delete transaction.alpha;
 				delete transaction.beta;
-			}
+			});
 
 			// Assert:
 			test.binary.assertDeserialization(getCodec(), -1, data.buffer, data.object);
@@ -181,18 +180,32 @@ describe('model codec builder', () => {
 			data.buffer.writeUInt32LE(constants.sizes.blockHeader + (3 * constants.sizes.transaction) + 25);
 
 			data.object.transactions = [txData1.object, txData2.object, txData3.object];
-			for (const transaction of data.object.transactions) {
+			data.object.transactions.forEach(transaction => {
 				delete transaction.alpha;
 				delete transaction.beta;
-			}
+			});
 
 			// Assert:
 			test.binary.assertDeserialization(getCodec(), -1, data.buffer, data.object);
 		});
 
+		it('can bypass transaction deserialization with custom deserialization options', () => {
+			// Arrange:
+			const data = generateBlockHeader();
+			const txData1 = generateTransaction(constants.knownTxType, 1);
+			const txData2 = generateTransaction(constants.knownTxType, 2);
+			const txData3 = generateTransaction(constants.knownTxType, 3);
+
+			const fullBlockBuffer = Buffer.concat([data.buffer, txData1.buffer, txData2.buffer, txData3.buffer]);
+			fullBlockBuffer.writeUInt32LE(constants.sizes.blockHeader + (3 * constants.sizes.transaction));
+
+			// Assert: only the block was deserialized (without the sub transactions)
+			test.binary.assertDeserialization(getCodec(), { skipBlockTransactions: true }, fullBlockBuffer, data.object);
+		});
+
 		it('fails if block size is too small', () => {
 			// Arrange:
-			for (const blockSize of [0, 4, constants.sizes.blockHeader - 1]) {
+			[0, 4, constants.sizes.blockHeader - 1].forEach(blockSize => {
 				const data = generateBlockHeader();
 				data.buffer.writeUInt32LE(blockSize);
 				const txData1 = generateTransaction(0x4124, 1);
@@ -204,12 +217,12 @@ describe('model codec builder', () => {
 				// Assert:
 				expect(() => test.binary.assertDeserialization(getCodec(), -1, data.buffer, data.object), `blockSize ${blockSize}`)
 					.to.throw('block must contain complete block header');
-			}
+			});
 		});
 
 		it('fails if transaction size is too small', () => {
 			// Arrange:
-			for (const txSize of [0, 4, constants.sizes.transactionHeader - 1]) {
+			[0, 4, constants.sizes.transactionHeader - 1].forEach(txSize => {
 				const data = generateBlockHeader();
 				const txData1 = generateTransaction(0x4124, 1);
 				const txData2 = generateTransaction(0x4122, 2);
@@ -222,7 +235,7 @@ describe('model codec builder', () => {
 				// Assert:
 				expect(() => test.binary.assertDeserialization(getCodec(), -1, data.buffer, data.object), `txSize ${txSize}`)
 					.to.throw('transaction must contain complete transaction header');
-			}
+			});
 		});
 	});
 
@@ -278,8 +291,9 @@ describe('model codec builder', () => {
 			const builder = new ModelCodecBuilder();
 
 			// Assert:
-			for (const type of [0x8000, 0x8FFF])
+			[0x8000, 0x8FFF].forEach(type => {
 				expect(() => builder.addTransactionSupport(type, {}), type).to.throw('already registered');
+			});
 		});
 
 		it('cannot serialize unknown model', () => {

@@ -1,12 +1,25 @@
-import accountRoutes from './accountRoutes';
-import blockRoutes from './blockRoutes';
-import chainRoutes from './chainRoutes';
-import diagnosticRoutes from './diagnosticRoutes';
-import transactionRoutes from './transactionRoutes';
+const accountRoutes = require('./accountRoutes');
+const blockRoutes = require('./blockRoutes');
+const chainRoutes = require('./chainRoutes');
+const diagnosticRoutes = require('./diagnosticRoutes');
+const networkRoutes = require('./networkRoutes');
+const transactionRoutes = require('./transactionRoutes');
+const transactionStatusRoutes = require('./transactionStatusRoutes');
+const wsRoutes = require('./wsRoutes');
 
-export default {
+module.exports = {
 	register: (...args) => {
-		for (const routes of [accountRoutes, blockRoutes, chainRoutes, diagnosticRoutes, transactionRoutes])
+		const allRoutes = [
+			accountRoutes,
+			blockRoutes,
+			chainRoutes,
+			diagnosticRoutes,
+			networkRoutes,
+			transactionRoutes,
+			transactionStatusRoutes,
+			wsRoutes];
+		allRoutes.forEach(routes => {
 			routes.register(...args);
+		});
 	}
 };

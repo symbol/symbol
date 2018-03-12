@@ -1,10 +1,10 @@
-import { expect } from 'chai';
-import auth from '../../src/auth/auth';
-import VerifyResult from '../../src/auth/VerifyResult';
-import test from './utils/authUtils';
+const { expect } = require('chai');
+const auth = require('../../src/auth/auth');
+const VerifyResult = require('../../src/auth/VerifyResult');
+const test = require('./utils/authUtils');
 
 describe('create auth promise', () => {
-	function generateServerChallengeRequest() {
+	const generateServerChallengeRequest = () => {
 		const parsedRequest = test.packets.generateServerChallengeRequest();
 		const size = 0x00000048;
 		const buffer = Buffer.alloc(size);
@@ -12,9 +12,9 @@ describe('create auth promise', () => {
 		buffer.writeInt32LE(parsedRequest.type, 4);
 		parsedRequest.challenge.copy(buffer, 8);
 		return buffer;
-	}
+	};
 
-	function generateClientChallengeResponse(serverResponse, serverKeyPair) {
+	const generateClientChallengeResponse = (serverResponse, serverKeyPair) => {
 		const parsedResponse = test.packets.generateClientChallengeResponse(serverResponse, serverKeyPair);
 		const size = 0x00000048;
 		const buffer = Buffer.alloc(size);
@@ -22,9 +22,9 @@ describe('create auth promise', () => {
 		buffer.writeInt32LE(parsedResponse.type, 4);
 		Buffer.from(parsedResponse.signature).copy(buffer, 8);
 		return buffer;
-	}
+	};
 
-	function createPromiseContext(logger) {
+	const createPromiseContext = logger => {
 		// Arrange:
 		const state = {
 			writtenPayloads: [],
@@ -79,7 +79,7 @@ describe('create auth promise', () => {
 				serverSocket.destroy();
 			}
 		};
-	}
+	};
 
 	it('resolves promise successfully when verify succeeds', () => {
 		// Arrange:

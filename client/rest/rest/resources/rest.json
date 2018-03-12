@@ -1,15 +1,20 @@
 {
-  "networkId": 144,
+  "network": {
+    "name": "mijinTest",
+    "description": "catapult development network"
+  },
+
   "port": 3000,
-  "crossDomainHttpMethods": ["GET", "POST", "PUT"],
+  "crossDomainHttpMethods": ["GET", "POST", "PUT", "OPTIONS"],
   "clientPrivateKey": "0000000000000000000000000000000000000000000000000000000000000000",
-  "extensions": ["aggregate", "multisig", "namespace", "transfer"],
+  "extensions": ["aggregate", "lock", "multisig", "namespace", "transfer"],
 
   "db": {
     "url": "mongodb://localhost:27017/",
     "name": "catapult",
     "pageSizeMin": 10,
     "pageSizeMax": 100,
+    "pageSizeStep": 25,
     "maxConnectionAttempts": 5,
     "baseRetryDelay": 500
   },
@@ -18,6 +23,17 @@
     "host": "127.0.0.1",
     "port": 7900,
     "publicKey": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+  },
+
+  "websocket": {
+    "mq": {
+      "host": "127.0.0.1",
+      "port": 7902,
+      "monitorInterval": 500,
+      "connectTimeout": 10000,
+      "monitorLoggingThrottle": 60000
+    },
+    "allowOptionalAddress": true
   },
 
   "logging": {

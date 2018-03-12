@@ -1,20 +1,24 @@
-import crypto from 'crypto';
-import MongoDb from 'mongodb';
-import winston from 'winston';
+const catapult = require('catapult-sdk');
+const crypto = require('crypto');
+const MongoDb = require('mongodb');
+const winston = require('winston');
 
-const Key_Size = 32;
-const Hash_Size = 32;
-const Signature_Size = 64;
-const Address_Decoded_Size = 25;
+const { sizes } = catapult.constants;
+const random = {
+	bytes: size => crypto.randomBytes(size),
+	publicKey: () => crypto.randomBytes(sizes.signer),
+	hash: () => crypto.randomBytes(sizes.hash),
+	signature: () => crypto.randomBytes(sizes.signature),
+	address: () => crypto.randomBytes(sizes.addressDecoded),
+	account: () => ({
+		publicKey: random.publicKey(),
+		address: random.address()
+	})
+};
 
-export default {
-	random: {
-		bytes: size => crypto.randomBytes(size),
-		publicKey: () => crypto.randomBytes(Key_Size),
-		hash: () => crypto.randomBytes(Hash_Size),
-		signature: () => crypto.randomBytes(Signature_Size),
-		address: () => crypto.randomBytes(Address_Decoded_Size)
-	},
+module.exports = {
+	constants: { sizes },
+	random,
 	factory: {
 		createBinary: buffer => new MongoDb.Binary(buffer),
 		createLong: (low, high) => new MongoDb.Long(low, high),
@@ -22,5 +26,14 @@ export default {
 	},
 	log: (...args) => {
 		winston.debug(...args);
+	},
+	createLogger: () => winston,
+	createMockLogger: () => {
+		const logger = {};
+		logger.numLogs = 0;
+		['debug', 'info', 'warn', 'error'].forEach(level => {
+			logger[level] = () => { ++logger.numLogs; };
+		});
+		return logger;
 	}
 };

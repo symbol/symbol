@@ -1,25 +1,23 @@
-import { expect } from 'chai';
-import serialize from '../../src/modelBinary/serialize';
-import convert from '../../src/utils/convert';
+const { expect } = require('chai');
+const serialize = require('../../src/modelBinary/serialize');
+const convert = require('../../src/utils/convert');
 
 describe('serialize', () => {
-	function getCodec() {
-		return {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.alpha = parser.uint16();
-				transaction.beta = parser.uint32();
-				return transaction;
-			},
+	const getCodec = () => ({
+		deserialize: parser => {
+			const transaction = {};
+			transaction.alpha = parser.uint16();
+			transaction.beta = parser.uint32();
+			return transaction;
+		},
 
-			serialize: (transaction, serializer) => {
-				serializer.writeUint16(transaction.alpha);
-				serializer.writeUint32(transaction.beta);
-			}
-		};
-	}
+		serialize: (transaction, serializer) => {
+			serializer.writeUint16(transaction.alpha);
+			serializer.writeUint32(transaction.beta);
+		}
+	});
 
-	function runTest(actAndAssert) {
+	const runTest = actAndAssert => {
 		// Arrange:
 		const expectedBuffer = Buffer.concat([
 			Buffer.of(0x46, 0x8B), // alpha
@@ -33,7 +31,7 @@ describe('serialize', () => {
 
 		// Act + Assert:
 		actAndAssert(expectedBuffer, transaction);
-	}
+	};
 
 	it('to buffer returns appropriate buffer', () => {
 		// Arrange:

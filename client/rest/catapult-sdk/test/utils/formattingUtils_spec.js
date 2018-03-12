@@ -1,9 +1,7 @@
-import { expect } from 'chai';
-import formattingUtils from '../../src/utils/formattingUtils';
+const { expect } = require('chai');
+const formattingUtils = require('../../src/utils/formattingUtils');
 
-function createEntity(seed) {
-	return { foo: seed, bar: seed + 1, bazz: seed + 2 };
-}
+const createEntity = seed => ({ foo: seed, bar: seed + 1, bazz: seed + 2 });
 
 const formatter = {
 	format: entity => ({
@@ -46,7 +44,6 @@ describe('formatting utils', () => {
 		expect(formattedResult).to.deep.equal([
 			{ foo: 4, bar: 9, bazz: 20 },
 			{ foo: 10, bar: 18, bazz: 35 },
-			{ foo: 22, bar: 36, bazz: 65 }]
-		);
+			{ foo: 22, bar: 36, bazz: 65 }]);
 	});
 });

@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import ModelFormatterBuilder from '../../src/model/ModelFormatterBuilder';
-import ModelSchemaBuilder from '../../src/model/ModelSchemaBuilder';
-import ModelType from '../../src/model/ModelType';
+const { expect } = require('chai');
+const ModelFormatterBuilder = require('../../src/model/ModelFormatterBuilder');
+const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
+const ModelType = require('../../src/model/ModelType');
 
 const modelSchema = new ModelSchemaBuilder().build();
 const formattingRules = {
@@ -23,11 +23,13 @@ describe('model formatter builder', () => {
 
 			// Assert:
 			expect(subFormatterTypes).to.deep.equal([
-				'transactionWithMetadata',
-				'blockHeaderWithMetadata',
 				'accountWithMetadata',
+				'blockHeaderWithMetadata',
+				'transactionWithMetadata',
+
 				'chainInfo',
-				'storageInfo'
+				'storageInfo',
+				'transactionStatus'
 			]);
 		});
 

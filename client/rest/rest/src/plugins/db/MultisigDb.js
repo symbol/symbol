@@ -1,5 +1,6 @@
-export default class MultisigDb {
+const AccountType = require('../AccountType');
 
+class MultisigDb {
 	/**
 	 * Creates MultisigDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
@@ -11,16 +12,18 @@ export default class MultisigDb {
 	// region multisig retrieval
 
 	/**
-	 * Retrieves the multisig entry for a given account.
-	 * @param {string} publicKey The account's public key.
-	 * @returns {Promise.<object>} The account's multisig entry.
+	 * Retrieves the multisig entries for given accounts.
+	 * @param {module:db/AccountType} type The type of account ids.
+	 * @param {array<object>} accountIds The account ids.
+	 * @returns {Promise.<array>} The multisig entries for all accounts.
 	 */
-	multisigByAccount(publicKey) {
-		const bufferPublicKey = Buffer.from(publicKey);
-		const conditions = { account: bufferPublicKey };
-		return this.catapultDb.queryDocument('multisigs', conditions)
-			.then(this.catapultDb.sanitizer.deleteId);
+	multisigsByAccounts(type, accountIds) {
+		const buffers = accountIds.map(accountId => Buffer.from(accountId));
+		const fieldName = (AccountType.publicKey === type) ? 'multisig.account' : 'multisig.accountAddress';
+		return this.catapultDb.queryDocuments('multisigs', { [fieldName]: { $in: buffers } });
 	}
 
 	// endregion
 }
+
+module.exports = MultisigDb;

@@ -1,16 +1,18 @@
-import restify from 'restify';
-import catapult from 'catapult-sdk';
-import crypto from 'crypto';
-import winston from 'winston';
-import transactionUtils from './model/transactionUtils';
-import spammerOptions from './utils/spammerOptions';
-import utils from './utils/spammerUtils';
+const restify = require('restify');
+const catapult = require('catapult-sdk');
+const crypto = require('crypto');
+const winston = require('winston');
+const spammerUtils = require('./model/spammerUtils');
+const transactionFactory = require('./model/transactionFactory');
+const random = require('./utils/random');
+const spammerOptions = require('./utils/spammerOptions');
 
-const address = catapult.model.address;
-const serialize = catapult.modelBinary.serialize;
-const modelCodec = catapult.plugins.catapultModelSystem.configure(['transfer']).codec;
+const { address } = catapult.model;
+const { serialize, transactionExtensions } = catapult.modelBinary;
+const modelCodec = catapult.plugins.catapultModelSystem.configure(['transfer', 'aggregate'], {}).codec;
+const { uint64 } = catapult.utils;
 
-(function () {
+(() => {
 	const Mijin_Test_Network = catapult.model.networkInfo.networks.mijinTest.id;
 	const options = spammerOptions.options();
 
@@ -27,20 +29,20 @@ const modelCodec = catapult.plugins.catapultModelSystem.configure(['transfer']).
 	];
 
 	const txCounters = { initiated: 0, successful: 0 };
-	const timer = (function () {
+	const timer = (() => {
 		const startTime = new Date().getTime();
 		return { elapsed: () => new Date().getTime() - startTime };
 	})();
 
-	function logStats(spammerStats) {
+	const logStats = spammerStats => {
 		if (0 !== spammerStats.successful % 10)
 			return;
 
 		const throughput = (spammerStats.successful * 1000 / timer.elapsed()).toFixed(2);
 		winston.info(`transactions successfully sent so far: ${spammerStats.successful} (${throughput} txes / s)`);
-	}
+	};
 
-	const predefinedRecipient = (function () {
+	const predefinedRecipient = (() => {
 		const Seed_Private_Key = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
 		const recipients = [];
 		let curPrivateKey = Seed_Private_Key;
@@ -50,72 +52,129 @@ const modelCodec = catapult.plugins.catapultModelSystem.configure(['transfer']).
 			recipients.push(address.publicKeyToAddress(keyPair.publicKey, Mijin_Test_Network));
 		}
 
-		return () => recipients[utils.random(options.predefinedRecipients - 1)];
+		return () => recipients[random.uint32(options.predefinedRecipients - 1)];
 	})();
 
-	function randomRecipient() {
+	const randomRecipient = () => {
 		const keySize = 32;
 		const privateKey = crypto.randomBytes(keySize);
 		const keyPair = catapult.crypto.createKeyPairFromPrivateKeyString(catapult.utils.convert.uint8ToHex(privateKey));
 		return address.publicKeyToAddress(keyPair.publicKey, Mijin_Test_Network);
-	}
+	};
 
-	const pickKeyPair = (function (privateKeys) {
-		const keyPairs = [];
-		for (const privateKey of privateKeys)
-			keyPairs.push(catapult.crypto.createKeyPairFromPrivateKeyString(privateKey));
-
+	const pickKeyPair = (privateKeys => {
+		const keyPairs = privateKeys.map(privateKey => catapult.crypto.createKeyPairFromPrivateKeyString(privateKey));
 		return () => keyPairs[crypto.randomBytes(1)[0] % privateKeys.length];
 	})(Private_Keys);
 
-	function createPayload(transfer) {
-		return { payload: serialize.toHex(modelCodec, transfer) };
-	}
+	const createPayload = transfer => ({ payload: serialize.toHex(modelCodec, transfer) });
 
-	function sendTransaction() {
-		return new Promise(resolve => {
-			// don't initiate more transactions than wanted. If a send fails txCounters.initiated will be decremented
-			// and thus another transaction will be sent.
-			if (txCounters.initiated >= options.total)
-				return;
+	const prepareTransferTransaction = txId => {
+		const keyPair = pickKeyPair();
+		const transfer = transactionFactory.createRandomTransfer(
+			{ signerPublicKey: keyPair.publicKey, networkId: Mijin_Test_Network, transferId: txId },
+			0 === options.predefinedRecipients ? randomRecipient : predefinedRecipient
+		);
+		transactionExtensions.sign(modelCodec, keyPair, transfer);
+		return transfer;
+	};
 
-			++txCounters.initiated;
-			const keyPair = pickKeyPair();
-			const txId = txCounters.initiated;
-			const transfer = transactionUtils.createRandomTransfer(
-				{ signerPublicKey: keyPair.publicKey, networkId: Mijin_Test_Network,	transferId: txId },
-				0 === options.predefinedRecipients ? randomRecipient : predefinedRecipient);
-			transactionUtils.signTransaction(modelCodec, keyPair, transfer);
-			const txData = createPayload(transfer);
-			client.put('/transaction/send', txData, err => {
-				if (err) {
-					--txCounters.initiated;
-					winston.error(`an error occurred while sending the transaction with id ${txId}: ${err.message}`);
-				} else {
-					++txCounters.successful;
-					logStats(txCounters);
-				}
+	const sendTransaction = createAndPrepareTransaction => new Promise(resolve => {
+		// don't initiate more transactions than wanted. If a send fails txCounters.initiated will be decremented
+		// and thus another transaction will be sent.
+		if (txCounters.initiated >= options.total)
+			return;
 
-				resolve(txCounters.successful);
-			});
+		++txCounters.initiated;
+		const transaction = createAndPrepareTransaction(txCounters.initiated);
+
+		const txData = createPayload(transaction);
+		client.put('/transaction', txData, err => {
+			if (err) {
+				winston.error(`an error occurred while sending the transaction with id ${txCounters.initiated}`, err);
+				--txCounters.initiated;
+			} else {
+				++txCounters.successful;
+				logStats(txCounters);
+			}
+
+			resolve(txCounters.successful);
 		});
-	}
+	});
+
+	const randomKeyPair = () => {
+		const keySize = 32;
+		const privateKey = crypto.randomBytes(keySize);
+		return catapult.crypto.createKeyPairFromPrivateKeyString(catapult.utils.convert.uint8ToHex(privateKey));
+	};
+
+	const createTransfer = (signer, recipient, transferId, amount) => {
+		const transfer = transactionFactory.createRandomTransfer(
+			{ signerPublicKey: signer, networkId: Mijin_Test_Network, transferId },
+			() => recipient
+		);
+
+		transfer.mosaics[0].amount = amount;
+		return transfer;
+	};
+
+	const prepareAggregateTransaction = txId => {
+		const keyPairSender = pickKeyPair();
+		const numProxies = 1 + random.uint32(5);
+		const keyPairs = Array.from(Array(numProxies), randomKeyPair);
+		keyPairs.unshift(keyPairSender);
+
+		const addresses = keyPairs.map(keyPair => address.publicKeyToAddress(keyPair.publicKey, Mijin_Test_Network));
+		const transfers = [];
+
+		for (let i = 0; i < numProxies; ++i) {
+			transfers.push(createTransfer(
+				keyPairs[i].publicKey,
+				addresses[i + 1],
+				txId,
+				uint64.fromUint(((numProxies + 1 - i) * 1000000) + random.uint32(1000000))
+			));
+		}
+
+		transfers.push(createTransfer(
+			keyPairs[keyPairs.length - 1].publicKey,
+			randomRecipient(),
+			txId,
+			uint64.fromUint(random.uint32(1000000))
+		));
+
+		const aggregate = transactionFactory.createAggregateTransaction(
+			{ signerPublicKey: keyPairSender.publicKey, networkId: Mijin_Test_Network },
+			transfers
+		);
+
+		keyPairs.shift();
+		spammerUtils.signAndStitchAggregateTransaction(modelCodec, keyPairSender, keyPairs, aggregate);
+		return aggregate;
+	};
 
 	if (options.help) {
 		winston.info(spammerOptions.usage());
 		process.exit();
 	}
 
-	(function () {
-		const timerId = setInterval(
-				() => sendTransaction().then(numSuccessfulTransactions => {
-					if (numSuccessfulTransactions < options.total)
-						return;
+	(() => {
+		const transactionFactories = {
+			transfer: prepareTransferTransaction,
+			aggregate: prepareAggregateTransaction
+		};
 
-					clearInterval(timerId);
-					winston.info('finished');
-					process.exit();
-				}),
-				1000 / options.rate);
+		const mode = options.mode in transactionFactories ? options.mode : 'transfer';
+		const timerId = setInterval(
+			() => sendTransaction(transactionFactories[mode]).then(numSuccessfulTransactions => {
+				if (numSuccessfulTransactions < options.total)
+					return;
+
+				clearInterval(timerId);
+				winston.info('finished');
+				process.exit();
+			}),
+			1000 / options.rate
+		);
 	})();
 })();

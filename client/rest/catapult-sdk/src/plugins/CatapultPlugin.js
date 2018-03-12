@@ -8,7 +8,7 @@
  * Adds support for a particular subsystem.
  * @interface
  */
-export default {
+module.exports = {
 	/**
 	 * Registers schema extensions.
 	 * @instance

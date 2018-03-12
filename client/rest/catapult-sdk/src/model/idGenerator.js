@@ -1,4 +1,4 @@
-import { sha3_256 } from 'js-sha3';
+const { sha3_256 } = require('js-sha3');
 
 const constants = {
 	namespace_base_id: [0, 0],
@@ -6,19 +6,19 @@ const constants = {
 	name_pattern: /^[a-z0-9][a-z0-9-_]*$/
 };
 
-function generateId(parentId, name) {
+const generateId = (parentId, name) => {
 	const hash = sha3_256.create();
 	hash.update(Uint32Array.from(parentId).buffer);
 	hash.update(name);
 	const result = new Uint32Array(hash.arrayBuffer());
 	return [result[0], result[1]];
-}
+};
 
-function throwInvalidFqn(reason, name) {
+const throwInvalidFqn = (reason, name) => {
 	throw Error(`fully qualified id is invalid due to ${reason} (${name})`);
-}
+};
 
-function findMosaicSeparatorIndex(name) {
+const findMosaicSeparatorIndex = name => {
 	const mosaicSeparatorIndex = name.lastIndexOf(':');
 	if (0 > mosaicSeparatorIndex)
 		throwInvalidFqn('missing mosaic', name);
@@ -27,9 +27,9 @@ function findMosaicSeparatorIndex(name) {
 		throwInvalidFqn('empty part', name);
 
 	return mosaicSeparatorIndex;
-}
+};
 
-function extractPartName(name, start, size) {
+const extractPartName = (name, start, size) => {
 	if (0 === size)
 		throwInvalidFqn('empty part', name);
 
@@ -38,16 +38,16 @@ function extractPartName(name, start, size) {
 		throwInvalidFqn(`invalid part name [${partName}]`, name);
 
 	return partName;
-}
+};
 
-function append(path, id, name) {
+const append = (path, id, name) => {
 	if (constants.namespace_max_depth === path.length)
 		throwInvalidFqn('too many parts', name);
 
 	path.push(id);
-}
+};
 
-function split(name, processor) {
+const split = (name, processor) => {
 	let start = 0;
 	for (let index = 0; index < name.length; ++index) {
 		if ('.' === name[index]) {
@@ -57,7 +57,7 @@ function split(name, processor) {
 	}
 
 	return start;
-}
+};
 
 /** @exports model/idGenerator */
 const idGenerator = {
@@ -76,9 +76,7 @@ const idGenerator = {
 		const namespacePath = idGenerator.generateNamespacePath(namespaceName);
 		const namespaceId = namespacePath[namespacePath.length - 1];
 
-		return generateId(
-				namespaceId,
-				extractPartName(name, mosaicSeparatorIndex + 1, name.length - mosaicSeparatorIndex - 1));
+		return generateId(namespaceId, extractPartName(name, mosaicSeparatorIndex + 1, name.length - mosaicSeparatorIndex - 1));
 	},
 
 	/**
@@ -103,4 +101,4 @@ const idGenerator = {
 	}
 };
 
-export default idGenerator;
+module.exports = idGenerator;

@@ -1,7 +1,7 @@
-import crypto from 'crypto';
-import { sign } from '../../../src/crypto/keyPair';
-import PacketType from '../../../src/packet/PacketType';
-import test from '../../testUtils';
+const crypto = require('crypto');
+const { sign } = require('../../../src/crypto/keyPair');
+const PacketType = require('../../../src/packet/PacketType');
+const test = require('../../testUtils');
 
 const Challenge_Size = 64;
 const Signature_Size = 64;
@@ -60,4 +60,4 @@ const authUtils = {
 Object.assign(authUtils, test);
 authUtils.random.challenge = () => test.random.bytes(Challenge_Size);
 
-export default authUtils;
+module.exports = authUtils;

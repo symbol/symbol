@@ -1,15 +1,14 @@
-import catapult from 'catapult-sdk';
+const catapult = require('catapult-sdk');
 
-const ModelType = catapult.model.ModelType;
-const BinaryParser = catapult.parser.BinaryParser;
-const catapultModelSystem = catapult.plugins.catapultModelSystem;
-const convert = catapult.utils.convert;
-const schemaFormatter = catapult.utils.schemaFormatter;
-const uint64 = catapult.utils.uint64;
+const { ModelType } = catapult.model;
+const { BinaryParser } = catapult.parser;
+const { catapultModelSystem } = catapult.plugins;
+const { convert, schemaFormatter, uint64 } = catapult.utils;
 
-const system = catapultModelSystem.configure();
+const system = catapultModelSystem.configure([], {});
 
 const formatter = (() => {
+	// use schemaFormatter explicitly because blockHeader is not a top-level formatter
 	const modelSchema = system.schema;
 	return {
 		format: entity => schemaFormatter.format(entity, modelSchema.blockHeader, modelSchema, {
@@ -20,7 +19,7 @@ const formatter = (() => {
 	};
 })();
 
-export default {
+module.exports = {
 	parseAndFormatBlock: buffer => {
 		const parser = new BinaryParser();
 		parser.push(buffer);

@@ -1,36 +1,11 @@
-import { expect } from 'chai';
-import test from './utils/mosaicDbTestUtils';
+const { expect } = require('chai');
+const test = require('./utils/mosaicDbTestUtils');
 
 describe('mosaics db', () => {
-	function createMosaics(numNamespaces, numMosaicsPerNamespace) {
+	const createMosaics = (numNamespaces, numMosaicsPerNamespace) => {
 		const owner = test.random.publicKey();
 		return test.db.createMosaics(owner, numNamespaces, numMosaicsPerNamespace);
-	}
-
-	describe('mosaic by id', () => {
-		it('returns undefined for unknown mosaic id', () => {
-			// Arrange: create 4 namespaces, 3 mosaics per namespace followed by 1 inactive mosaic
-			const mosaics = createMosaics(4, 3);
-
-			// Assert:
-			return test.db.runDbTest(
-				mosaics,
-				db => db.mosaicById([123, 456]),
-				entity => { expect(entity).to.equal(undefined); });
-		});
-
-		it('returns mosaic for known mosaic id', () => {
-			// Arrange: create 4 namespaces, 3 mosaics per namespace followed by 1 inactive mosaic
-			// mosaic ids: 10000, 10001, ... 10011, (inactive) 10000, 10003, 10006, 10009
-			const mosaics = createMosaics(4, 3);
-
-			// Assert:
-			return test.db.runDbTest(
-				mosaics,
-				db => db.mosaicById([10007, 0]),
-				entity => { expect(entity).to.deep.equal(mosaics[7]); });
-		});
-	});
+	};
 
 	describe('mosaics by ids', () => {
 		it('returns empty array for unknown mosaic ids', () => {
@@ -41,7 +16,8 @@ describe('mosaics db', () => {
 			return test.db.runDbTest(
 				mosaics,
 				db => db.mosaicsByIds([[123, 456]]),
-				entities => { expect(entities).to.deep.equal([]); });
+				entities => { expect(entities).to.deep.equal([]); }
+			);
 		});
 
 		it('returns single matching mosaic', () => {
@@ -52,7 +28,8 @@ describe('mosaics db', () => {
 			return test.db.runDbTest(
 				mosaics,
 				db => db.mosaicsByIds([[10010, 0]]),
-				entities => { expect(entities).to.deep.equal([mosaics[10]]); });
+				entities => { expect(entities).to.deep.equal([mosaics[10]]); }
+			);
 		});
 
 		it('returns multiple matching mosaics', () => {
@@ -63,7 +40,8 @@ describe('mosaics db', () => {
 			return test.db.runDbTest(
 				mosaics,
 				db => db.mosaicsByIds([[10010, 0], [10007, 0], [10003, 0]]),
-				entities => { expect(entities).to.deep.equal([mosaics[10], mosaics[7], mosaics[3]]); });
+				entities => { expect(entities).to.deep.equal([mosaics[10], mosaics[7], mosaics[3]]); }
+			);
 		});
 
 		it('returns only known mosaics', () => {
@@ -74,12 +52,13 @@ describe('mosaics db', () => {
 			return test.db.runDbTest(
 				mosaics,
 				db => db.mosaicsByIds([[10010, 0], [10021, 0], [10003, 0]]),
-				entities => expect(entities).to.deep.equal([mosaics[10], mosaics[3]]));
+				entities => expect(entities).to.deep.equal([mosaics[10], mosaics[3]])
+			);
 		});
 	});
 
 	describe('mosaics by namespace id', () => {
-		function assertMosaics(dbCallParams, allMosaics, expectedMosaics) {
+		const assertMosaics = (dbCallParams, allMosaics, expectedMosaics) => {
 			// Arrange:
 			const dbEntities = allMosaics;
 
@@ -94,8 +73,9 @@ describe('mosaics db', () => {
 					expect(mosaics.length).to.equal(expectedMosaics.length);
 					expect(ids).to.deep.equal(expectedIds);
 					expect(mosaics).to.deep.equal(expectedMosaics);
-				});
-		}
+				}
+			);
+		};
 
 		it('for namespace with no mosaics', () => {
 			// Arrange: create 4 namespaces, 3 mosaics per namespace followed by 1 inactive mosaic
@@ -133,7 +113,7 @@ describe('mosaics db', () => {
 			return assertMosaics([namespaceId, mosaics[12]._id.toString()], mosaics, expectedMosaics);
 		});
 
-		function assertPageSize(pageSize, expectedSize) {
+		const assertPageSize = (pageSize, expectedSize) => {
 			// Arrange: create 100 mosaics in single namespace
 			// mosaic ids: 10000, 10001, ... 10099, (inactive) 10000
 			// slice picks mosaics: 10000, 10001, ... 10099 (without last mosaic that is inactive)
@@ -143,7 +123,7 @@ describe('mosaics db', () => {
 			// Assert:
 			const namespaceId = [20000, 0];
 			return assertMosaics([namespaceId, undefined, pageSize], mosaics, expectedMosaics);
-		}
+		};
 
 		// minimum and maximum values are set in CatapultDb ctor
 		it('query respects page size', () => assertPageSize(12, 12));

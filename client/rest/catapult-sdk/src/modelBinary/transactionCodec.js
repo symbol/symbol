@@ -1,6 +1,6 @@
 /** @module modelBinary/transactionCodec */
 
-export default {
+module.exports = {
 	/**
 	 * Parses a transaction.
 	 * @param {object} parser The parser.

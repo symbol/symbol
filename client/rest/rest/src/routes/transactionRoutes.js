@@ -1,39 +1,52 @@
-import catapult from 'catapult-sdk';
-import routeResultTypes from './routeResultTypes';
-import routeUtils from './routeUtils';
+const catapult = require('catapult-sdk');
+const routeResultTypes = require('./routeResultTypes');
+const routeUtils = require('./routeUtils');
 
-const convert = catapult.utils.convert;
-const packetHeader = catapult.packet.header;
-const PacketType = catapult.packet.PacketType;
+const { convert } = catapult.utils;
+const { PacketType } = catapult.packet;
 
-function createPushTransactionsPacketBuffer(hexData) {
-	const data = convert.hexToUint8(hexData);
-	const length = packetHeader.size + data.length;
-	const header = packetHeader.createBuffer(PacketType.pushTransactions, length);
-	const buffers = [header, Buffer.from(data)];
-	return Buffer.concat(buffers, length);
-}
+const constants = {
+	sizes: {
+		hash: 64,
+		objectId: 24
+	}
+};
 
-export default {
+const parseObjectId = str => {
+	if (!convert.isHexString(str))
+		throw Error('must be 12-byte hex string');
+
+	return str;
+};
+
+module.exports = {
 	register: (server, db, services) => {
-		function sendTransactionOrNotFound(id, res, next) {
-			return routeUtils.sendEntityOrNotFound(id, routeResultTypes.transfer, res, next);
-		}
+		const sender = routeUtils.createSender(routeResultTypes.transfer);
 
-		server.put('/transaction/send', (req, res, next) => {
-			const packetBuffer = routeUtils.parseArgument(req.params, 'payload', createPushTransactionsPacketBuffer);
-			return services.connections.lease()
-				.then(connection => connection.send(packetBuffer))
-				.then(() => {
-					res.send(202, { message: 'transaction(s) were pushed to the network' });
-					next();
-				});
-		});
+		routeUtils.addPutPacketRoute(
+			server,
+			services.connections,
+			{ routeName: '/transaction', packetType: PacketType.pushTransactions },
+			params => routeUtils.parseArgument(params, 'payload', convert.hexToUint8)
+		);
 
-		server.get('/transaction/id/:id', (req, res, next) => {
-			const id = routeUtils.parseArgument(req.params, 'id', 'objectId');
-			return db.transactionById(id)
-				.then(sendTransactionOrNotFound(id, res, next));
-		});
+		routeUtils.addGetPostDocumentRoutes(
+			server,
+			sender,
+			{ base: '/transaction', singular: 'transactionId', plural: 'transactionIds' },
+			// params has already been converted by a parser below, so it is: string - in case of objectId, Uint8Array - in case of hash
+			params => (('string' === typeof params[0]) ? db.transactionsByIds(params) : db.transactionsByHashes(params)),
+			(transactionId, index, array) => {
+				if (0 < index && array[0].length !== transactionId.length)
+					throw Error(`all ids must be homogeneous, element ${index}`);
+
+				if (constants.sizes.objectId === transactionId.length)
+					return parseObjectId(transactionId);
+				else if (constants.sizes.hash === transactionId.length)
+					return convert.hexToUint8(transactionId);
+
+				throw Error(`invalid length of transaction id '${transactionId}'`);
+			}
+		);
 	}
 };

@@ -1,9 +1,9 @@
 /** @module modelBinary/verifiableEntityCodec */
-import sizes from './sizes';
+const sizes = require('./sizes');
 
 const constants = { sizes };
 
-export default {
+module.exports = {
 	/**
 	 * Parses a verifiable entity.
 	 * @param {object} parser The parser.

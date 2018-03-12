@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import BinaryParser from '../src/parser/BinaryParser';
-import BinarySerializer from '../src/serializer/BinarySerializer';
-import test from './testUtils';
+const { expect } = require('chai');
+const BinaryParser = require('../src/parser/BinaryParser');
+const BinarySerializer = require('../src/serializer/BinarySerializer');
+const test = require('./testUtils');
 
 const binaryTestUtils = {
 	binary: {
@@ -28,28 +28,30 @@ const binaryTestUtils = {
 			expect(model).to.deep.equal(object);
 		},
 
-		assertRoundtrip(codec, size, object, txCodecs) {
+		assertRoundtrip(codec, size, object, txCodecs, preprocessedHeaderSize) {
 			// Arrange: serialize an object
 			const serializer = new BinarySerializer(size);
 			codec.serialize(object, serializer, txCodecs);
 
-			// Act: deserialize it
+			// Act: deserialize it (the size passed to deserialize should include the preprocessed header size)
 			const parser = new BinaryParser();
 			parser.push(serializer.buffer());
-			const model = codec.deserialize(parser, size, txCodecs);
+			const model = codec.deserialize(parser, size + preprocessedHeaderSize, txCodecs);
 
 			// Assert:
 			expect(model).to.deep.equal(object);
 		},
 
 		test: {
-			addAll(codec, size, dataGenerator, txCodecs) {
+			addAll(codec, size, dataGenerator, txCodecs, preprocessedHeaderSize = 0) {
+				const { binary } = binaryTestUtils;
+
 				it('can be serialized', () => {
 					// Arrange:
 					const data = dataGenerator();
 
 					// Assert:
-					binaryTestUtils.binary.assertSerialization(codec, size, data.object, data.buffer, txCodecs);
+					binary.assertSerialization(codec, size - preprocessedHeaderSize, data.object, data.buffer, txCodecs);
 				});
 
 				it('can be deserialized', () => {
@@ -57,7 +59,7 @@ const binaryTestUtils = {
 					const data = dataGenerator();
 
 					// Assert:
-					binaryTestUtils.binary.assertDeserialization(codec, size, data.buffer, data.object, txCodecs);
+					binary.assertDeserialization(codec, size, data.buffer, data.object, txCodecs);
 				});
 
 				it('can be roundtripped', () => {
@@ -65,7 +67,7 @@ const binaryTestUtils = {
 					const data = dataGenerator();
 
 					// Assert:
-					binaryTestUtils.binary.assertRoundtrip(codec, size, data.object, txCodecs);
+					binary.assertRoundtrip(codec, size - preprocessedHeaderSize, data.object, txCodecs, preprocessedHeaderSize);
 				});
 			}
 		}
@@ -74,4 +76,4 @@ const binaryTestUtils = {
 
 Object.assign(binaryTestUtils, test);
 
-export default binaryTestUtils;
+module.exports = binaryTestUtils;

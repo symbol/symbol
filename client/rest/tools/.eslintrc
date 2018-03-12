@@ -1,0 +1,99 @@
+---
+env:
+  es6: true
+  browser: true
+extends: airbnb
+parserOptions:
+  sourceType: module
+rules:
+  indent:
+  - error
+  - tab
+  linebreak-style:
+  - error
+  - unix
+  quotes:
+  - error
+  - single
+  semi:
+  - error
+  - always
+  yoda:
+  - error
+  - always
+  curly:
+  - error
+  - multi-or-nest
+  - consistent
+  max-len:
+  - error
+  - code: 140
+
+  no-tabs:
+  - off
+  no-bitwise:
+  - off
+  no-plusplus:
+  - off
+  no-mixed-operators:
+  - error
+  - allowSamePrecedence: true
+  no-param-reassign:
+  - error
+  - props: false
+  no-underscore-dangle:
+  - error
+  - allow:
+    - _id # mongodb identifier
+
+  camelcase:
+  - off # for consts, e.g. Foo_Bar
+  comma-dangle:
+  - error
+  - never
+  default-case:
+  - off
+
+  arrow-parens:
+  - error
+  - as-needed
+  func-names:
+  - error
+  - never
+  func-style:
+  - error
+  - expression
+  wrap-iife:
+  - error
+  - inside
+
+  prefer-destructuring:
+  - error
+  - object: true
+    array: false
+
+  valid-jsdoc:
+  - error
+  - requireReturn: false
+    prefer:
+      arg: param
+      argument: param
+      class: constructor
+      return: returns
+    preferType:
+      Boolean: boolean
+      Number: number
+      Object: object
+      String: string
+
+  import/extensions:
+  - error
+  - never
+  import/no-absolute-path:
+  - error
+  import/no-unresolved:
+  - 2
+  import/no-deprecated:
+  - error
+  import/named:
+  - error

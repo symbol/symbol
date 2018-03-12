@@ -1,50 +1,198 @@
-import catapult from 'catapult-sdk';
-import multisigRoutes from '../../../src/plugins/routes/multisigRoutes';
-import test from '../../routes/utils/routeTestUtils';
+const { expect } = require('chai');
+const catapult = require('catapult-sdk');
+const multisigRoutes = require('../../../src/plugins/routes/multisigRoutes');
+const test = require('../../routes/utils/routeTestUtils');
+const routeAccountIdGetTestUtils = require('./utils/routeAccountIdGetTestUtils');
 
-const convert = catapult.utils.convert;
+const { convert } = catapult.utils;
 
 describe('multisig routes', () => {
-	const factory = {
-		createRouteInfo: (routeName, dbApiName) => ({
-			routes: multisigRoutes,
-			routeName,
-			createDb: (queriedIdentifiers, multisigEntry) => ({
-				[dbApiName]: id => {
-					queriedIdentifiers.push(id);
-					return Promise.resolve(multisigEntry);
-				}
-			})
-		})
-	};
-
 	describe('get by account', () => {
-		const multisigRouteInfo = factory.createRouteInfo('/account/key/:publicKey/multisig', 'multisigByAccount');
-		const Valid_Public_Key = '75D8BB873DA8F5CCA741435DE76A46AFC2840803DEED80E931195B048D77F88C';
+		routeAccountIdGetTestUtils.addDefaultTests({
+			registerRoutes: multisigRoutes.register,
+			route: '/account/:accountId/multisig',
+			dbApiName: 'multisigsByAccounts',
+			dbType: 'multisigEntry'
+		});
+	});
 
-		it('returns multisig entry if found', () =>
-			// Assert:
-			test.route.document.assertReturnsEntityIfFound(multisigRouteInfo, {
-				params: { publicKey: Valid_Public_Key },
-				paramsIdentifier: convert.hexToUint8(Valid_Public_Key),
-				dbEntity: { id: 8 },
-				type: 'multisigEntry'
+	describe('get multisig graph by account', () => {
+		const createRouteDescriptor = routeAccountIdGetTestUtils.routeDescriptorFactory({
+			registerRoutes: multisigRoutes.register,
+			route: '/account/:accountId/multisig/graph',
+			dbApiName: 'multisigsByAccounts',
+			dbType: 'multisigGraph'
+		});
+
+		const addGetTests = dataTraits => {
+			const routeDescriptor = createRouteDescriptor(dataTraits);
+			routeDescriptor.extendDb = db => {
+				(originalMultisigsByAccounts => {
+					db.multisigsByAccounts = (...args) => originalMultisigsByAccounts(...args)
+						.then(result => (undefined === result ? [] : result));
+				})(db.multisigsByAccounts);
+			};
+			const getDocumentRouteTests = test.route.document.prepareGetDocumentRouteTests(multisigRoutes.register, routeDescriptor);
+			getDocumentRouteTests.addNotFoundInputTest(routeDescriptor.inputs.valid);
+			getDocumentRouteTests.addInvalidKeyTest(routeDescriptor.inputs.invalid);
+		};
+
+		// note: multisig/graph has complicated "valid" tests (below), so instead of using
+		// addDefaultTests, use addGetDocumentTests to run only invalid tests.
+		routeAccountIdGetTestUtils.addGetDocumentTests(addGetTests);
+
+		const createMultisigEntry = (marker, upstreamCount, downstreamCount) => {
+			const upstreamArray = [];
+			for (let i = 0; i < upstreamCount; ++i) {
+				const publicKey = test.random.publicKey();
+				publicKey[0] = marker - 1;
+				upstreamArray.push({ buffer: publicKey });
+			}
+
+			const downstreamArray = [];
+			for (let i = 0; i < downstreamCount; ++i) {
+				const publicKey = test.random.publicKey();
+				publicKey[0] = marker + 1;
+				downstreamArray.push({ buffer: publicKey });
+			}
+
+			return {
+				multisig: {
+					account: { buffer: test.random.publicKey() },
+					multisigAccounts: upstreamArray,
+					cosignatories: downstreamArray
+				}
+			};
+		};
+
+		const extractPublicKeys = (multisigEntryArray, fieldname) => {
+			const publicKeys = [];
+			multisigEntryArray.forEach(multisigEntry => multisigEntry.multisig[fieldname].forEach(publicKey => {
+				publicKeys.push(publicKey.buffer);
 			}));
 
-		it('returns 404 if multisig entry is not found', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorIfNotFound(multisigRouteInfo, {
-				params: { publicKey: Valid_Public_Key },
-				paramsIdentifier: convert.hexToUint8(Valid_Public_Key),
-				printableParamsIdentifier: Valid_Public_Key,
-				dbEntity: undefined
-			}));
+			return publicKeys;
+		};
 
-		it('returns 409 if public key is invalid', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorForInvalidParams(multisigRouteInfo, {
-				params: { publicKey: '12345' }, // odd number of chars
-				error: 'publicKey has an invalid format: hex string has unexpected size \'5\''
-			}));
+		const createPublicKeyWithMarker = marker => {
+			const publicKey = new Uint8Array(test.random.publicKey());
+			publicKey[0] = marker;
+			return publicKey;
+		};
+
+		const runTest = (publicKeyParam, multisigEntriesArray, expectedParams) => {
+			// Arrange:
+			// Note that the first byte of each public key is used as index into the  multisigEntriesArray
+			const multisigsByAccountsParams = [];
+			const db = {
+				multisigsByAccounts: (type, accountIds) => {
+					multisigsByAccountsParams.push(accountIds);
+					if (0 === accountIds.length)
+						return Promise.resolve([]);
+
+					return Promise.resolve(multisigEntriesArray[accountIds[0][0]]);
+				}
+			};
+
+			// Act:
+			return test.route.executeSingle(
+				multisigRoutes.register,
+				'/account/:accountId/multisig/graph',
+				'get',
+				{ accountId: convert.uint8ToHex(publicKeyParam) },
+				db,
+				undefined,
+				response => {
+					// Assert: parameters passed to db functions are correct
+					// note that sort is needed since the upstream and downstream operations run concurrently resulting in
+					// indeterminate call order of the db function
+					expect(multisigsByAccountsParams.sort()).to.deep.equal(expectedParams.sort());
+
+					// check response (publicKeyParam[0] is index, which is negative of level)
+					let level = 0 - publicKeyParam[0];
+					const expectedPayload = multisigEntriesArray.map(multisigEntries => ({ level: level++, multisigEntries }));
+
+					expect(response).to.deep.equal({ payload: expectedPayload, type: 'multisigGraph' });
+				}
+			);
+		};
+
+		it('returns correct graph if multisig account has neither upstream nor downstream accounts', () => {
+			// Arrange:
+			const multisigEntriesArray = [[createMultisigEntry(0, 0, 0)]];
+			const publicKey = createPublicKeyWithMarker(0);
+			const expectedParams = [[publicKey], [], []];
+
+			// Act + Assert:
+			return runTest(publicKey, multisigEntriesArray, expectedParams);
+		});
+
+		it('returns correct graph if multisig account has only upstream accounts', () => {
+			// Arrange:
+			// A1 - B1
+			//        \
+			// A2 - B2- C
+			const multisigEntriesArray = [
+				[createMultisigEntry(0, 0, 1), createMultisigEntry(0, 0, 1)],
+				[createMultisigEntry(1, 1, 1), createMultisigEntry(1, 1, 1)],
+				[createMultisigEntry(2, 2, 0)]
+			];
+			const publicKey = createPublicKeyWithMarker(2);
+			const expectedParams = [
+				[publicKey],
+				extractPublicKeys(multisigEntriesArray[2], 'multisigAccounts'),
+				extractPublicKeys(multisigEntriesArray[1], 'multisigAccounts'),
+				extractPublicKeys(multisigEntriesArray[0], 'multisigAccounts'),
+				[]];
+
+			// Act + Assert:
+			return runTest(publicKey, multisigEntriesArray, expectedParams);
+		});
+
+		it('returns correct graph if multisig account has only downstream accounts', () => {
+			// Arrange:
+			//    D1 - E1
+			//   /
+			// C - D2 - E2
+			const multisigEntriesArray = [
+				[createMultisigEntry(0, 0, 2)],
+				[createMultisigEntry(1, 1, 1), createMultisigEntry(1, 1, 1)],
+				[createMultisigEntry(1, 1, 0), createMultisigEntry(1, 1, 0)]
+			];
+			const publicKey = createPublicKeyWithMarker(0);
+			const expectedParams = [
+				[publicKey],
+				[],
+				extractPublicKeys(multisigEntriesArray[0], 'cosignatories'),
+				extractPublicKeys(multisigEntriesArray[1], 'cosignatories'),
+				extractPublicKeys(multisigEntriesArray[2], 'cosignatories')];
+
+			// Act + Assert:
+			return runTest(publicKey, multisigEntriesArray, expectedParams);
+		});
+
+		it('returns correct graph if multisig account has upstream and downstream accounts', () => {
+			// Arrange:
+			//     B1      D1
+			//   /   \   /
+			// A - B2- C - D2
+			const multisigEntriesArray = [
+				[createMultisigEntry(0, 0, 2)],
+				[createMultisigEntry(1, 1, 1), createMultisigEntry(1, 1, 1)],
+				[createMultisigEntry(2, 2, 2)],
+				[createMultisigEntry(3, 1, 0), createMultisigEntry(3, 1, 0)]
+			];
+			const publicKey = createPublicKeyWithMarker(2);
+			const expectedParams = [
+				[publicKey],
+				extractPublicKeys(multisigEntriesArray[2], 'multisigAccounts'),
+				extractPublicKeys(multisigEntriesArray[1], 'multisigAccounts'),
+				[],
+				extractPublicKeys(multisigEntriesArray[2], 'cosignatories'),
+				[]];
+
+			// Act + Assert:
+			return runTest(publicKey, multisigEntriesArray, expectedParams);
+		});
 	});
 });

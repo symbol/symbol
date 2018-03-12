@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import PacketParser from '../../src/parser/PacketParser';
+const { expect } = require('chai');
+const PacketParser = require('../../src/parser/PacketParser');
 
 describe('PacketParser', () => {
 	const Test_Buffer_64 = Buffer.of(
@@ -10,14 +10,15 @@ describe('PacketParser', () => {
 		0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC, 0xDD, 0xDD,
 		0xEE, 0xEE, 0xFF, 0xFF, 0xAA, 0xAA, 0xBB, 0xBB,
 		0xCC, 0xCC, 0xDD, 0xDD, 0xEE, 0xEE, 0xFF, 0xFF,
-		0x12, 0x34, 0x11, 0x11, 0x22, 0x22, 0x33, 0x33);
+		0x12, 0x34, 0x11, 0x11, 0x22, 0x22, 0x33, 0x33
+	);
 
 	describe('basic', () => {
-		function createPacketParser(packets) {
+		const createPacketParser = packets => {
 			const parser = new PacketParser();
 			parser.onPacket(packet => packets.push(packet));
 			return parser;
-		}
+		};
 
 		it('fails if packet sizes are invalid', () => {
 			// Arrange:

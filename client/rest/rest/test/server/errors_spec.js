@@ -1,6 +1,6 @@
-import { expect } from 'chai';
-import restify from 'restify';
-import errors from '../../src/server/errors';
+const { expect } = require('chai');
+const restifyErrors = require('restify-errors');
+const errors = require('../../src/server/errors');
 
 describe('errors', () => {
 	describe('toRestError', () => {
@@ -10,7 +10,7 @@ describe('errors', () => {
 
 			// Assert:
 			expect(err.statusCode).to.equal(500);
-			expect(err.body).to.deep.equal({ code: 'InternalError', message: 'unexpected error' });
+			expect(err.body).to.deep.equal({ code: 'Internal', message: 'unexpected error' });
 		});
 
 		it('can map basic error with message', () => {
@@ -19,16 +19,16 @@ describe('errors', () => {
 
 			// Assert:
 			expect(err.statusCode).to.equal(500);
-			expect(err.body).to.deep.equal({ code: 'InternalError', message: 'badness' });
+			expect(err.body).to.deep.equal({ code: 'Internal', message: 'badness' });
 		});
 
 		it('can map rest error', () => {
 			// Act:
-			const err = new restify.errors.NotFoundError('not found');
+			const err = new restifyErrors.NotFoundError('not found');
 
 			// Assert:
 			expect(err.statusCode).to.equal(404);
-			expect(err.body).to.deep.equal({ code: 'NotFoundError', message: 'not found' });
+			expect(err.body).to.deep.equal({ code: 'NotFound', message: 'not found' });
 		});
 	});
 
@@ -49,6 +49,18 @@ describe('errors', () => {
 			// Assert:
 			expect(err.statusCode).to.equal(409);
 			expect(err.body).to.deep.equal({ code: 'InvalidArgument', message: 'badness' });
+			expect(err.jse_cause).to.equal(undefined);
+		});
+
+		it('can create invalid argument error with cause', () => {
+			// Act:
+			const err = errors.createInvalidArgumentError('badness', new Error('foo'));
+
+			// Assert:
+			expect(err.statusCode).to.equal(409);
+			expect(err.body).to.deep.equal({ code: 'InvalidArgument', message: 'badness' });
+			expect(err.jse_cause).to.not.equal(undefined);
+			expect(err.jse_cause.message).to.equal('foo');
 		});
 
 		it('can create service unavailable error', () => {
@@ -57,7 +69,7 @@ describe('errors', () => {
 
 			// Assert:
 			expect(err.statusCode).to.equal(503);
-			expect(err.body).to.deep.equal({ code: 'ServiceUnavailableError', message: 'badness' });
+			expect(err.body).to.deep.equal({ code: 'ServiceUnavailable', message: 'badness' });
 		});
 
 		it('can create internal error', () => {
@@ -66,7 +78,7 @@ describe('errors', () => {
 
 			// Assert:
 			expect(err.statusCode).to.equal(500);
-			expect(err.body).to.deep.equal({ code: 'InternalError', message: 'badness' });
+			expect(err.body).to.deep.equal({ code: 'Internal', message: 'badness' });
 		});
 	});
 });

@@ -1,6 +1,6 @@
 /** @module model/networkInfo */
-import base32 from '../utils/base32';
-import convert from '../utils/convert';
+const base32 = require('../utils/base32');
+const convert = require('../utils/convert');
 
 /**
  * Information about a catapult network.
@@ -10,10 +10,10 @@ import convert from '../utils/convert';
  * @property {string} charPrefix The first character of a compatible network (encoded) address.
  */
 
-const networks = (function () {
-	function createNetworkInfo(id) {
-		return { id, bytePrefix: convert.uint8ToHex([id]), charPrefix: base32.encode(Uint8Array.of(id, 0, 0, 0, 0))[0] };
-	}
+const networks = (() => {
+	const createNetworkInfo = id => ({
+		id, bytePrefix: convert.uint8ToHex([id]), charPrefix: base32.encode(Uint8Array.of(id, 0, 0, 0, 0))[0]
+	});
 
 	/**
 	 * Information about well known catapult networks.
@@ -31,16 +31,12 @@ const networks = (function () {
 	};
 })();
 
-function findNetwork(key, value) {
-	for (const name of Object.keys(networks)) {
-		if (value === networks[name][key])
-			return networks[name];
-	}
+const findNetwork = (key, value) => {
+	const matchNetworkName = Object.keys(networks).find(name => value === networks[name][key]);
+	return undefined === matchNetworkName ? undefined : networks[matchNetworkName];
+};
 
-	return undefined;
-}
-
-export default {
+module.exports = {
 	/** @property {module:model/networkInfo~WellKnownNetworks} networks Information about well known networks. */
 	networks,
 

@@ -1,21 +1,21 @@
 /** @module modelBinary/serialize */
-import BinarySerializer from '../serializer/BinarySerializer';
-import SerializedSizeCalculator from '../serializer/SerializedSizeCalculator';
-import convert from '../utils/convert';
+const BinarySerializer = require('../serializer/BinarySerializer');
+const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
+const convert = require('../utils/convert');
 
-function serializeToBuffer(codec, entity) {
+const serializeToBuffer = (codec, entity) => {
 	const calculator = new SerializedSizeCalculator();
 	codec.serialize(entity, calculator);
 
 	const serializer = new BinarySerializer(calculator.size());
 	codec.serialize(entity, serializer);
 	return serializer.buffer();
-}
+};
 
 /**
  * Serializer utility functions.
  */
-export default {
+module.exports = {
 	/**
 	 * Serializes an entity to a hex string using a codec.
 	 * @param {module:modelBinary/ModelCodec} codec The model codec.

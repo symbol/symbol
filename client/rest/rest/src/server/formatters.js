@@ -1,17 +1,12 @@
-import catapult from 'catapult-sdk';
+const catapult = require('catapult-sdk');
 
-const formatArray = catapult.utils.formattingUtils.formatArray;
+const { formatArray } = catapult.utils.formattingUtils;
 
-function isCatapultObject(body) {
-	return body && body.payload && body.type;
-}
+const isCatapultObject = body => body && body.payload && body.type;
 
-function formatBody(modelFormatter, body) {
-	function formatCatapultObject(payload, type) {
-		return !Array.isArray(payload)
-			? modelFormatter[type].format(payload)
-			: formatArray(modelFormatter[type], payload);
-	}
+const formatBody = (modelFormatter, body) => {
+	const formatCatapultObject = (payload, type) =>
+		(!Array.isArray(payload) ? modelFormatter[type].format(payload) : formatArray(modelFormatter[type], payload));
 
 	let view = body;
 	let statusCode;
@@ -27,31 +22,30 @@ function formatBody(modelFormatter, body) {
 		statusCode,
 		json: JSON.stringify(view)
 	};
-}
+};
 
-export default {
+module.exports = {
 	/**
 	 * Creates server formatters around a model formatter.
-	 * @param {object} modelFormatter The model formatter.
+	 * @param {array<object>} modelFormatters The model formatters.
 	 * @returns {object} The server formatters.
 	 */
-	create: modelFormatter => ({
+	create: modelFormatters => ({
 		/**
 		 * Restify compatible formatter for JSON responses.
 		 * @param {object} req The request.
 		 * @param {object} res The response.
 		 * @param {object} body The body.
-		 * @param {Function} cb The callback.
 		 * @returns {object} The result of the callback.
 		 */
-		json: (req, res, body, cb) => {
+		json: (req, res, body) => {
 			// implementation based on https://github.com/restify/node-restify/blob/4.x/lib/formatters/json.js
-			const view = formatBody(modelFormatter, body);
+			const view = formatBody(modelFormatters.json, body);
 			if (view.statusCode)
 				res.statusCode = view.statusCode;
 
 			res.setHeader('Content-Length', Buffer.byteLength(view.json));
-			return cb(null, view.json);
+			return view.json;
 		},
 
 		/**
@@ -59,6 +53,6 @@ export default {
 		 * @param {object} body The body.
 		 * @returns {object} The formatted body.
 		 */
-		ws: body => (isCatapultObject(body) && 'raw' === body.type ? body.payload : formatBody(modelFormatter, body).json)
+		ws: body => (isCatapultObject(body) && 'raw' === body.type ? body.payload : formatBody(modelFormatters.ws, body).json)
 	})
 };

@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import charMapping from '../../src/utils/charMapping';
+const { expect } = require('chai');
+const charMapping = require('../../src/utils/charMapping');
 
 describe('char mapping', () => {
 	describe('builder', () => {
@@ -8,7 +8,7 @@ describe('char mapping', () => {
 			const builder = charMapping.createBuilder();
 
 			// Act:
-			const map = builder.map;
+			const { map } = builder;
 
 			// Assert:
 			expect(map).to.deep.equal({});
@@ -20,7 +20,7 @@ describe('char mapping', () => {
 
 			// Act:
 			builder.addRange('d', 'f', 0);
-			const map = builder.map;
+			const { map } = builder;
 
 			// Assert:
 			expect(map).to.deep.equal({
@@ -36,7 +36,7 @@ describe('char mapping', () => {
 
 			// Act:
 			builder.addRange('d', 'f', 17);
-			const map = builder.map;
+			const { map } = builder;
 
 			// Assert:
 			expect(map).to.deep.equal({
@@ -54,7 +54,7 @@ describe('char mapping', () => {
 			builder.addRange('b', 'b', 8);
 			builder.addRange('d', 'f', 17);
 			builder.addRange('y', 'z', 0);
-			const map = builder.map;
+			const { map } = builder;
 
 			// Assert:
 			expect(map).to.deep.equal({
@@ -75,7 +75,7 @@ describe('char mapping', () => {
 			builder.addRange('b', 'b', 18);
 			builder.addRange('d', 'f', 17);
 			builder.addRange('y', 'z', 19);
-			const map = builder.map;
+			const { map } = builder;
 
 			// Assert:
 			expect(map).to.deep.equal({

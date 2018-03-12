@@ -1,50 +1,49 @@
-import catapult from 'catapult-sdk';
-import fs from 'fs';
-import { createConnection } from 'net';
-import winston from 'winston';
-import createConnectionService from './connection/connectionService';
-import CatapultDb from './db/CatapultDb';
-import connector from './db/connector';
-import formattingRules from './db/formattingRules';
-import entityEmitterFactory from './db/entityEmitterFactory';
-import routeSystem from './plugins/routeSystem';
-import allRoutes from './routes/allRoutes';
-import bootstrapper from './server/bootstrapper';
-import formatters from './server/formatters';
+const catapult = require('catapult-sdk');
+const fs = require('fs');
+const { createConnection } = require('net');
+const winston = require('winston');
+const { createConnectionService } = require('./connection/connectionService');
+const { createZmqConnectionService } = require('./connection/zmqService');
+const CatapultDb = require('./db/CatapultDb');
+const dbFormattingRules = require('./db/dbFormattingRules');
+const routeSystem = require('./plugins/routeSystem');
+const allRoutes = require('./routes/allRoutes');
+const bootstrapper = require('./server/bootstrapper');
+const formatters = require('./server/formatters');
+const messageFormattingRules = require('./server/messageFormattingRules');
 
-const createAuthPromise = catapult.auth.createAuthPromise;
-const objects = catapult.utils.objects;
-
-function configureLogging(config) {
+const configureLogging = config => {
 	winston.remove(winston.transports.Console);
-	winston.add(winston.transports.Console, config.console);
-	winston.add(winston.transports.File, config.file);
-}
+	if ('production' !== process.env.NODE_ENV)
+		winston.add(winston.transports.Console, config.console);
 
-function loadConfig() {
+	winston.add(winston.transports.File, config.file);
+};
+
+const loadConfig = () => {
 	let configFiles = process.argv.slice(2);
 	if (0 === configFiles.length)
 		configFiles = ['../resources/rest.json'];
 
 	let config;
-	for (const configFile of configFiles) {
+	configFiles.forEach(configFile => {
 		winston.info(`loading config from ${configFile}`);
 		const partialConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 
 		if (config) {
 			// override config
-			objects.checkSchemaAgainstTemplate(config, partialConfig);
-			objects.deepAssign(config, partialConfig);
+			catapult.utils.objects.checkSchemaAgainstTemplate(config, partialConfig);
+			catapult.utils.objects.deepAssign(config, partialConfig);
 		} else {
 			// primary config
 			config = partialConfig;
 		}
-	}
+	});
 
 	return config;
-}
+};
 
-function createServiceManager() {
+const createServiceManager = () => {
 	const shutdownHandlers = [];
 	return {
 		pushService: (object, shutdownHandlerName) => {
@@ -55,37 +54,68 @@ function createServiceManager() {
 				shutdownHandlers.pop()();
 		}
 	};
-}
+};
 
-function connectToDbWithRetry(db, config) {
-	return catapult.utils.future.makeRetryable(
-		() => db.connect(config.url, config.name),
-		config.maxConnectionAttempts,
-		(i, err) => {
-			const waitTime = Math.pow(2, i - 1) * config.baseRetryDelay;
-			winston.warn(`db connection failed, retrying in ${waitTime}ms: ${err.message}`);
-			return waitTime;
-		});
-}
+const connectToDbWithRetry = (db, config) => catapult.utils.future.makeRetryable(
+	() => db.connect(config.url, config.name),
+	config.maxConnectionAttempts,
+	(i, err) => {
+		const waitTime = (2 ** (i - 1)) * config.baseRetryDelay;
+		winston.warn(`db connection failed, retrying in ${waitTime}ms`, err);
+		return waitTime;
+	}
+);
 
-function createServer(config) {
-	const modelSystem = catapult.plugins.catapultModelSystem.configure(config.extensions, formattingRules);
-	return bootstrapper.createServer(config.crossDomainHttpMethods, formatters.create(modelSystem.formatter));
-}
+const createServer = config => {
+	const modelSystem = catapult.plugins.catapultModelSystem.configure(config.extensions, {
+		json: dbFormattingRules,
+		ws: messageFormattingRules
+	});
+	return {
+		server: bootstrapper.createServer(config.crossDomainHttpMethods, formatters.create(modelSystem.formatters)),
+		codec: modelSystem.codec
+	};
+};
 
-function registerRoutes(config, server, db, services) {
-	allRoutes.register(server, db, services);
-	routeSystem.configure(config.extensions, server, db);
-}
+const registerRoutes = (server, db, services) => {
+	// 1. create a services view for extension routes
+	const servicesView = {
+		config: {
+			network: services.config.network,
+			pageSize: {
+				min: services.config.db.pageSizeMin,
+				max: services.config.db.pageSizeMax,
+				step: services.config.db.pageSizeStep
+			}
+		},
+		connections: services.connectionService
+	};
 
-(function () {
+	// 2. configure extension routes
+	const { transactionStates, messageChannelDescriptors } = routeSystem.configure(services.config.extensions, server, db, servicesView);
+
+	// 3. augment services with extension-dependent config and services
+	servicesView.config.transactionStates = transactionStates;
+	servicesView.zmqService = createZmqConnectionService(services.config.websocket.mq, services.codec, messageChannelDescriptors, winston);
+
+	// 4. configure basic routes
+	allRoutes.register(server, db, servicesView);
+};
+
+(() => {
 	const config = loadConfig();
 	configureLogging(config.logging);
 	winston.verbose('finished loading rest server config', config);
 
+	const network = catapult.model.networkInfo.networks[config.network.name];
+	if (!network) {
+		winston.error(`no network found with name: '${config.network.name}'`);
+		return;
+	}
+
 	const serviceManager = createServiceManager();
 	const db = new CatapultDb({
-		networkId: config.networkId,
+		networkId: network.id,
 		pageSizeMin: config.db.pageSizeMin,
 		pageSizeMax: config.db.pageSizeMax
 	});
@@ -94,31 +124,20 @@ function registerRoutes(config, server, db, services) {
 
 	winston.info(`connecting to ${config.db.url} (database:${config.db.name})`);
 	connectToDbWithRetry(db, config.db)
-		.then(() => entityEmitterFactory.createEntityEmitter(query =>
-			connector.startTailingOplog(config.db.url, query)
-				.then(emitterConnection => {
-					serviceManager.pushService(emitterConnection.emitter, 'stop');
-					serviceManager.pushService(emitterConnection.db, 'close');
-					return emitterConnection.emitter;
-				})))
-		.then(entityEmitter => {
+		.then(() => {
 			winston.info('registering routes');
-			const server = createServer(config);
+			const serverAndCodec = createServer(config);
+			const { server } = serverAndCodec;
 			serviceManager.pushService(server, 'close');
 
-			const connectionService = createConnectionService(config, createConnection, createAuthPromise, winston.verbose);
-			const services = {
-				connections: connectionService,
-				entityEmitter
-			};
-
-			registerRoutes(config, server, db, services);
+			const connectionService = createConnectionService(config, createConnection, catapult.auth.createAuthPromise, winston.verbose);
+			registerRoutes(server, db, { codec: serverAndCodec.codec, config, connectionService });
 
 			winston.info(`listening on port ${config.port}`);
 			server.listen(config.port);
 		})
 		.catch(err => {
-			winston.error(`rest server is exiting due to error: ${err.message}`);
+			winston.error('rest server is exiting due to error', err);
 			serviceManager.stopAll();
 		});
 

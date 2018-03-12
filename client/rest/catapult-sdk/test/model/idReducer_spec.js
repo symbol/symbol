@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import idReducer from '../../src/model/idReducer';
+const { expect } = require('chai');
+const idReducer = require('../../src/model/idReducer');
 
 describe('id reducer', () => {
 	describe('id to name lookup', () => {

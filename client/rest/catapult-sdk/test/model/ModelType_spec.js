@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import ModelType from '../../src/model/ModelType';
+const { expect } = require('chai');
+const ModelType = require('../../src/model/ModelType');
 
 describe('model type enumeration', () => {
 	it('exposes expected types', () => {
@@ -13,7 +13,8 @@ describe('model type enumeration', () => {
 			uint64: 5,
 			objectId: 6,
 			string: 7,
-			max: 7
+			statusCode: 8,
+			max: 8
 		});
 	});
 });

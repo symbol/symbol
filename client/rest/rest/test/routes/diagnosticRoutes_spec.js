@@ -1,18 +1,15 @@
-import { expect } from 'chai';
-import diagnosticRoutes from '../../src/routes/diagnosticRoutes';
-import test from './utils/routeTestUtils';
+const { expect } = require('chai');
+const diagnosticRoutes = require('../../src/routes/diagnosticRoutes');
+const test = require('./utils/routeTestUtils');
 
 describe('diagnostic routes', () => {
-	function executeRoute(routeName, db, assertResponse) {
-		return test.route.executeSingle(diagnosticRoutes.register, routeName, 'get', {}, db, assertResponse);
-	}
+	const executeRoute = (routeName, db, assertResponse) =>
+		test.route.executeSingle(diagnosticRoutes.register, routeName, 'get', {}, db, undefined, assertResponse);
 
 	describe('storage', () => {
-		function createMockStorageInfoDb(numBlocks, numTransactions, numAccounts) {
-			return {
-				storageInfo: () => Promise.resolve({ numBlocks, numTransactions, numAccounts })
-			};
-		}
+		const createMockStorageInfoDb = (numBlocks, numTransactions, numAccounts) => ({
+			storageInfo: () => Promise.resolve({ numBlocks, numTransactions, numAccounts })
+		});
 
 		it('can retrieve info', () => {
 			// Arrange:
@@ -30,46 +27,20 @@ describe('diagnostic routes', () => {
 	});
 
 	describe('blocks', () => {
-		const diagnosticBlocksRouteInfo = {
-			routes: diagnosticRoutes,
-			routeName: '/diagnostic/blocks/:height/count/:count',
-			createDb: (queriedIdentifiers, entity) => ({
-				blocksFrom: (height, count) => {
-					queriedIdentifiers.push({ height, count });
-					return Promise.resolve(entity);
-				}
-			})
-		};
+		const builder = test.route.document.prepareGetDocumentsRouteTests(diagnosticRoutes.register, {
+			route: '/diagnostic/blocks/:height/limit/:limit',
+			dbApiName: 'blocksFrom',
+			type: 'blockHeaderWithMetadata'
+		});
 
-		function createTraitsForDiagnosticBlocks(options) {
-			return {
-				params: { height: options.height, count: options.count },
-				paramsIdentifier: options.expected,
-				dbEntity: [1, 2, 3],
-				type: 'blockHeaderWithMetadata'
-			};
-		}
+		builder.addValidInputTest({ object: { height: '1234', limit: '4321' }, parsed: [1234, 4321] });
+		builder.addEmptyArrayTest({ object: { height: '1234', limit: '4321' }, parsed: [1234, 4321] });
 
-		function assertSuccess(options) {
-			return test.route.document.assertReturnsEntityIfFound(diagnosticBlocksRouteInfo, createTraitsForDiagnosticBlocks(options));
-		}
-
-		function assertFailure(name, options) {
-			return test.route.document.assertReturnsErrorForInvalidParams(diagnosticBlocksRouteInfo, {
-				params: { height: options.height, count: options.count },
-				error: `${name} has an invalid format: must be non-negative number`
-			});
-		}
-
-		it('returns blocks if request is valid', () =>
-			// Assert:
-			assertSuccess({ height: '1234', count: '4321', expected: { height: 1234, count: 4321 } }));
-
-		for (const property of ['height', 'count']) {
-			it(`throws an error if ${property} is invalid`, () =>
-				Promise.all(['-12345', '50A'].map(invalidValue =>
-					// Assert:
-					assertFailure(property, Object.assign({ height: '1234', count: '25' }, { [property]: invalidValue })))));
-		}
+		// notice that this expands to four tests { 'height', 'limit'} x { '10A', '-4321' }
+		['height', 'limit'].forEach(property => ['10A', '-4321'].forEach(value => {
+			const object = Object.assign({ height: '1234', limit: '4321' }, { [property]: value });
+			const errorMessage = `${property} has an invalid format`;
+			builder.addInvalidKeyTest({ object, error: errorMessage }, `(${property} with value ${value})`);
+		}));
 	});
 });

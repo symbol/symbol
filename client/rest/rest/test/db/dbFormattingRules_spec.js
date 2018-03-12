@@ -1,11 +1,11 @@
-import { expect } from 'chai';
-import catapult from 'catapult-sdk';
-import formattingRules from '../../src/db/formattingRules';
-import test from '../testUtils';
+const { expect } = require('chai');
+const catapult = require('catapult-sdk');
+const formattingRules = require('../../src/db/dbFormattingRules');
+const test = require('../testUtils');
 
-const ModelType = catapult.model.ModelType;
+const { ModelType } = catapult.model;
 
-describe('formatting rules', () => {
+describe('db formatting rules', () => {
 	it('can format none type', () => {
 		// Arrange:
 		const object = { foo: 8 };
@@ -50,14 +50,14 @@ describe('formatting rules', () => {
 		expect(result).to.equal('3AEDCBA9876F94725732547F');
 	});
 
-	it('can format string type', () => {
-		// Arrange:
-		const object = test.factory.createBinary(Buffer.from('6361746170756C74', 'hex'));
+	it('can format status code type', () => {
+		// Arrange: notice that codes are signed in db
+		[0x80530008, -2142044152].forEach(code => {
+			// Act:
+			const result = formattingRules[ModelType.statusCode](code);
 
-		// Act:
-		const result = formattingRules[ModelType.string](object);
-
-		// Assert:
-		expect(result).to.equal('catapult');
+			// Assert:
+			expect(result, `${code} code`).to.equal('Failure_Signature_Not_Verifiable');
+		});
 	});
 });

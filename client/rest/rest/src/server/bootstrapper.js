@@ -1,32 +1,59 @@
-import restify from 'restify';
-import winston from 'winston';
-import WebSocket from 'ws';
-import errors from './errors';
+const restify = require('restify');
+const restifyErrors = require('restify-errors');
+const winston = require('winston');
+const WebSocket = require('ws');
+const errors = require('./errors');
+const SubscriptionManager = require('./SubscriptionManager');
+const websocketMessageHandler = require('./websocketMessageHandler');
+const websocketUtils = require('./websocketUtils');
 
-function isPromise(object) {
-	return object && object.catch;
-}
+const isPromise = object => object && object.catch;
 
-function toRestError(err) {
+const toRestError = err => {
 	const restError = errors.toRestError(err);
-	winston.error(`caught error ${restError.statusCode}: ${restError.message}`);
+	winston.error(`caught error ${restError.statusCode}`, restError);
 	return restError;
-}
+};
 
-function createCrossDomainHandler(crossDomainHttpMethods) {
+const createCrossDomainHeaderAdder = crossDomainHttpMethods => {
 	const allowMethods = crossDomainHttpMethods.join(',');
-	return (req, res, next) => {
-		if (crossDomainHttpMethods.some(method => method === req.route.method)) {
+	return (requestMethod, res) => {
+		if (crossDomainHttpMethods.some(method => method === requestMethod)) {
 			res.header('Access-Control-Allow-Origin', '*');
 			res.header('Access-Control-Allow-Methods', allowMethods);
 			res.header('Access-Control-Allow-Headers', 'Content-Type');
 		}
+	};
+};
+
+const catapultRestifyPlugins = {
+	crossDomain: addCrossDomainHeaders => (req, res, next) => {
+		addCrossDomainHeaders(req.method, res);
+		next();
+	},
+	body: () => (req, res, next) => {
+		// reject any GET or OPTIONS request with a body
+		const mediaType = req.contentType().toLowerCase();
+		if (['GET', 'OPTIONS'].includes(req.method)) {
+			if (!req.contentLength())
+				next();
+			else
+				next(new restifyErrors.UnsupportedMediaTypeError(mediaType));
+
+			return;
+		}
+
+		// for other HTTP methods reject mismatched media types even if body is empty
+		if ('application/json' !== mediaType) {
+			next(new restifyErrors.UnsupportedMediaTypeError(mediaType));
+			return;
+		}
 
 		next();
-	};
-}
+	}
+};
 
-export default {
+module.exports = {
 	/**
 	 * Creates a REST api server.
 	 * @param {array} crossDomainHttpMethods The HTTP methods that are allowed to be accessed cross-domain.
@@ -36,23 +63,42 @@ export default {
 	createServer: (crossDomainHttpMethods, formatters) => {
 		// create the server using a custom formatter
 		const server = restify.createServer({
+			name: '', // disable server header in response
 			formatters: {
 				'application/json': formatters.json
 			}
 		});
 
 		// only allow application/json
-		server.use(createCrossDomainHandler(crossDomainHttpMethods || []));
-		server.use(restify.acceptParser('application/json'));
-		server.use(restify.queryParser());
-		server.use(restify.bodyParser({ rejectUnknown: true }));
+		const addCrossDomainHeaders = createCrossDomainHeaderAdder(crossDomainHttpMethods || []);
+		server.pre(catapultRestifyPlugins.body());
 
-		// make the server promise aware (only GET and PUT are supported)
+		server.use(catapultRestifyPlugins.crossDomain(addCrossDomainHeaders));
+		server.use(restify.plugins.acceptParser('application/json'));
+		server.use(restify.plugins.queryParser({ mapParams: true }));
+		server.use(restify.plugins.jsonBodyParser({ mapParams: true }));
+
+		// make the server promise aware (only a subset of HTTP methods are supported)
+		const routeDescriptors = [];
 		const promiseAwareServer = {
-			listen: port => server.listen(port)
+			listen: port => {
+				// sort routes by route name in descending order (catapult is only using string routes) in order to ensure that
+				// exact match routes (e.g. /foo/fixed) take precedence over wildcard routes (e.g. /foo/:variable)
+				routeDescriptors.sort((lhs, rhs) => {
+					if (lhs.route === rhs.route)
+						return 0;
+
+					return lhs.route < rhs.route ? 1 : -1;
+				});
+				routeDescriptors.forEach(descriptor => {
+					server[descriptor.method](descriptor.route, descriptor.handler);
+				});
+
+				return server.listen(port);
+			}
 		};
 
-		for (const method of ['get', 'put', 'post']) {
+		['get', 'put', 'post'].forEach(method => {
 			promiseAwareServer[method] = (route, handler) => {
 				const promiseAwareHandler = (req, res, next) => {
 					try {
@@ -68,9 +114,20 @@ export default {
 					}
 				};
 
-				server[method](route, promiseAwareHandler);
+				routeDescriptors.push({ method, route, handler: promiseAwareHandler });
 			};
-		}
+		});
+
+		server.on('MethodNotAllowed', (req, res) => {
+			if ('OPTIONS' === req.method) {
+				// notice that headers need to be added explicitly because catapultRestifyPlugins.crossDomain is not called after errors
+				addCrossDomainHeaders(req.method, res);
+				return res.send(204);
+			}
+
+			// fallback to default behavior
+			return res.send(new restifyErrors.MethodNotAllowedError(`${req.method} is not allowed`));
+		});
 
 		// handle upgrade events (for websocket support)
 		const wss = new WebSocket.Server({ noServer: true, clientTracking: false });
@@ -82,42 +139,35 @@ export default {
 		});
 
 		const clientGroups = [];
-		promiseAwareServer.ws = (route, handler) => {
-			let id = 0;
+		promiseAwareServer.ws = (route, callbacks) => {
+			const subscriptionManager = new SubscriptionManager(Object.assign({}, callbacks, {
+				newChannel: (channel, subscribers) =>
+					callbacks.newChannel(channel, websocketUtils.createMultisender(subscribers, formatters.ws))
+			}));
+
 			const clients = new Set();
-			clientGroups.push(clients);
+			clientGroups.push({ clients, subscriptionManager });
+
 			wss.on(`connection${route}`, client => {
-				const clientId = ++id;
+				const messageHandler = messageJson => websocketMessageHandler.handleMessage(client, messageJson, subscriptionManager);
+				websocketUtils.handshake(client, messageHandler);
+
+				winston.verbose(`websocket ${client.uid}: created ${route} websocket connection`);
 				clients.add(client);
-				winston.verbose(`created ${route} websocket connection ${clientId}`);
 
 				client.on('close', () => {
+					subscriptionManager.deleteClient(client);
 					clients.delete(client);
-					winston.verbose(`disconnected ${route} websocket connection ${clientId}`);
+					winston.verbose(`websocket ${client.uid}: disconnected ${route} websocket connection`);
 				});
-			});
-
-			handler({
-				send: data => {
-					const view = formatters.ws(data);
-					for (const client of clients) {
-						client.send(view, err => {
-							if (err) {
-								winston.error(`error sending data to websocket: ${err.message}`);
-								client.close();
-							}
-						});
-					}
-				}
 			});
 		};
 
 		promiseAwareServer.close = () => {
 			// close all connected websockets
-			for (const clients of clientGroups) {
-				for (const client of clients)
-					client.terminate();
-			}
+			clientGroups.forEach(clientGroup => clientGroup.clients.forEach(client => {
+				client.terminate();
+			}));
 
 			// close the servers
 			wss.close();

@@ -1,14 +1,14 @@
-import MongoDb from 'mongodb';
+const AccountType = require('../AccountType');
+const MongoDb = require('mongodb');
 
-const Long = MongoDb.Long;
+const { Long } = MongoDb;
 
-function createActiveConditions() {
+const createActiveConditions = () => {
 	const conditions = { $and: [{ 'meta.active': true }] };
 	return conditions;
-}
+};
 
-export default class NamespaceDb {
-
+class NamespaceDb {
 	/**
 	 * Creates NamespaceDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
@@ -41,17 +41,20 @@ export default class NamespaceDb {
 	}
 
 	/**
-	 * Retrieves namespaces owned by given owner.
-	 * @param {string} publicKey The owner's public key.
+	 * Retrieves namespaces owned by specified owners.
+	 * @param {module:db/AccountType} type The type of account ids.
+	 * @param {array<object>} accountIds The account ids.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} options Additional options.
 	 * @returns {Promise.<array>} Owned namespaces.
 	 */
-	namespacesByOwner(publicKey, id, pageSize, options) {
-		const bufferPublicKey = Buffer.from(publicKey);
+	namespacesByOwners(type, accountIds, id, pageSize, options) {
+		const buffers = accountIds.map(accountId => Buffer.from(accountId));
 		const conditions = createActiveConditions();
-		conditions.$and.push({ 'namespace.owner': bufferPublicKey });
+		const fieldName = (AccountType.publicKey === type) ? 'namespace.owner' : 'namespace.ownerAddress';
+		conditions.$and.push({ [fieldName]: { $in: buffers } });
+
 		return this.catapultDb.queryPagedDocuments('namespaces', conditions, id, pageSize, options)
 			.then(this.catapultDb.sanitizer.copyAndDeleteIds);
 	}
@@ -59,19 +62,6 @@ export default class NamespaceDb {
 	// endregion
 
 	// region mosaic retrieval
-
-	/**
-	 * Retrieves a mosaic.
-	 * @param {module:catapult.utils/uint64~uint64} id The mosaic id.
-	 * @returns {Promise.<object>} The mosaic.
-	 */
-	mosaicById(id) {
-		const mosaicId = new Long(id[0], id[1]);
-		const conditions = createActiveConditions();
-		conditions.$and.push({ 'mosaic.mosaicId': mosaicId });
-		return this.catapultDb.queryDocument('mosaics', conditions)
-			.then(this.catapultDb.sanitizer.copyAndDeleteId);
-	}
 
 	/**
 	 * Retrieves mosaics.
@@ -107,3 +97,5 @@ export default class NamespaceDb {
 
 	// endregion
 }
+
+module.exports = NamespaceDb;

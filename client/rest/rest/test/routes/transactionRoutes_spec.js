@@ -1,118 +1,93 @@
-import { expect } from 'chai';
-import transactionRoutes from '../../src/routes/transactionRoutes';
-import test from './utils/routeTestUtils';
+const catapult = require('catapult-sdk');
+const transactionRoutes = require('../../src/routes/transactionRoutes');
+const test = require('./utils/routeTestUtils');
+
+const { convert } = catapult.utils;
 
 describe('transaction routes', () => {
-	describe('send', () => {
-		function prepareExecuteRoute(routeName, params, assertRoute) {
-			// Arrange: set up a mock server
-			const routes = {};
-			const server = test.setup.createMockServer('put', routes);
-
-			// - set up the route params
-			const routeContext = {
-				sendPayloads: [],
-				numNextCalls: 0
-			};
-
-			const services = {
-				connections: {
-					lease: () => Promise.resolve({
-						send: payload => {
-							routeContext.sendPayloads.push(payload);
-							return Promise.resolve();
-						}
-					})
-				}
-			};
-
-			const next = () => { ++routeContext.numNextCalls; };
-			const req = { params };
-
-			routeContext.responses = [];
-			const res = { send: (status, response) => { routeContext.responses.push({ status, response }); } };
-
-			// - register the routes
-			transactionRoutes.register(server, undefined, services);
-
-			// Act: get the desired route and call it
-			const route = test.setup.findRoute(routes, routeName);
-			routeContext.routeInvoker = () => route(req, res, next);
-			return assertRoute(routeContext);
-		}
-
-		it('succeeds if payload is valid', () =>
-			// Act:
-			prepareExecuteRoute('/transaction/send', { payload: '123456' }, routeContext =>
-				routeContext.routeInvoker().then(() => {
-					// Assert: next is called
-					expect(routeContext.numNextCalls).to.equal(1);
-
-					// - the send payload is correct
-					expect(routeContext.sendPayloads.length).to.equal(1);
-					expect(routeContext.sendPayloads[0]).to.deep.equal(Buffer.of(
+	describe('PUT transaction', () => {
+		test.route.packet.addPutPacketRouteTests(transactionRoutes.register, {
+			routeName: '/transaction',
+			packetType: '9',
+			inputs: {
+				valid: {
+					params: { payload: '123456' },
+					parsed: Buffer.of(
 						0x0B, 0x00, 0x00, 0x00, // size (header)
 						0x09, 0x00, 0x00, 0x00, // type (header)
 						0x12, 0x34, 0x56 // payload
-					));
-
-					// - the response is correct
-					expect(routeContext.responses.length).to.equal(1);
-					expect(routeContext.responses[0]).to.deep.equal({
-						status: 202,
-						response: { message: 'transaction(s) were pushed to the network' }
-					});
-				})));
-
-		it('throws if payload is invalid', () =>
-			// Act:
-			prepareExecuteRoute('/transaction/send', { payload: '1234S6' }, routeContext => {
-				test.assert.invokerThrowsError(routeContext.routeInvoker, {
-					statusCode: 409,
-					message: 'payload has an invalid format: unrecognized hex char \'S6\''
-				});
-			}));
+					)
+				},
+				invalid: {
+					params: { payload: '1234S6' },
+					error: { key: 'payload' }
+				}
+			}
+		});
 	});
 
-	describe('get transaction by id', () => {
-		function createTransactionRouteInfo(routeName, dbApiName) {
-			return {
-				routes: transactionRoutes,
-				routeName,
-				createDb: (queriedIds, entity) => ({
-					[dbApiName]: id => {
-						queriedIds.push(id);
-						return Promise.resolve(entity);
+	describe('get', () => {
+		const addGetPostTests = (dbApiName, key, ids, parsedIds) => {
+			const errorMessage = 'has an invalid format';
+			test.route.document.addGetPostDocumentRouteTests(transactionRoutes.register, {
+				routes: { singular: '/transaction/:transactionId', plural: '/transaction' },
+				inputs: {
+					valid: { object: { transactionId: ids[0] }, parsed: [parsedIds[0]], printable: ids[0] },
+					validMultiple: { object: { transactionIds: ids }, parsed: parsedIds },
+					invalid: { object: { transactionId: '12345' }, error: `transactionId ${errorMessage}` },
+					invalidMultiple: {
+						object: { transactionIds: ['12345', ids[0], ids[1]] },
+						error: `element in array transactionIds ${errorMessage}`
 					}
-				})
-			};
-		}
+				},
+				dbApiName,
+				type: 'transactionWithMetadata'
+			});
+		};
 
-		const transactionRouteInfo = createTransactionRouteInfo('/transaction/id/:id', 'transactionById');
-		const Valid_Id = '11223344556677889900AABB';
+		const addHomogeneousCheck = (validIds, invalidId) => {
+			it('does not support lookup of heterogenous ids', () => {
+				// Arrange:
+				const keyGroups = [];
+				const db = test.setup.createCapturingDb('transactionsByIds', keyGroups, [{ value: 'this is nonsense' }]);
 
-		it('returns transaction if it is found in db', () =>
-				test.route.document.assertReturnsEntityIfFound(transactionRouteInfo, {
-					params: { id: Valid_Id },
-					paramsIdentifier: Valid_Id,
-					dbEntity: { id: 7 },
-					type: 'transactionWithMetadata'
-				}));
+				// Act:
+				const registerRoutes = transactionRoutes.register;
+				const ids = [validIds[0], validIds[1], invalidId, validIds[2]];
+				const errorMessage = 'element in array transactionIds has an invalid format';
+				return test.route.executeThrows(
+					registerRoutes,
+					'/transaction',
+					'post',
+					{ transactionIds: ids },
+					db,
+					undefined,
+					errorMessage,
+					409
+				);
+			});
+		};
 
-		it('returns 404 if transaction is not found in db', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorIfNotFound(transactionRouteInfo, {
-				params: { id: Valid_Id },
-				paramsIdentifier: Valid_Id,
-				printableParamsIdentifier: Valid_Id,
-				dbEntity: undefined
-			}));
+		const Valid_Object_Ids = ['00112233445566778899AABB', 'CCDDEEFF0011223344556677', '8899AABBCCDDEEFF00112233'];
+		const Valid_Transaction_Hashes = [
+			'00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF',
+			'112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00',
+			'2233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF0011'
+		];
 
-		it('returns 409 if transaction id is invalid', () => Promise.all(['123', '11223344556677889900AAxx'].map(invalidId =>
-			// Assert:
-			test.route.document.assertReturnsErrorForInvalidParams(transactionRouteInfo, {
-				params: { id: invalidId },
-				error: 'id has an invalid format: must be 12-byte hex string'
-			}))));
+		describe('objectId', () => {
+			addGetPostTests('transactionsByIds', 'transactionId', Valid_Object_Ids, Valid_Object_Ids);
+			addHomogeneousCheck(Valid_Object_Ids, Valid_Transaction_Hashes[0]);
+		});
+
+		describe('transactionHash', () => {
+			addGetPostTests(
+				'transactionsByHashes',
+				'transactionId',
+				Valid_Transaction_Hashes,
+				Valid_Transaction_Hashes.map(convert.hexToUint8)
+			);
+			addHomogeneousCheck(Valid_Transaction_Hashes, Valid_Object_Ids[0]);
+		});
 	});
 });

@@ -1,6 +1,6 @@
 /** @module parser/PacketParser */
-import EventEmitter from 'events';
-import BinaryParser from './BinaryParser';
+const EventEmitter = require('events');
+const BinaryParser = require('./BinaryParser');
 
 const Packet_Header_Size = 8;
 
@@ -65,7 +65,7 @@ class PacketParserImpl {
 /**
  * Accepts and buffers binary data and emits events when full packets have been received.
  */
-export default class PacketParser {
+class PacketParser {
 	/**
 	 * Creates a packet parser.
 	 */
@@ -89,3 +89,5 @@ export default class PacketParser {
 		this.impl.emitter.on('packet', handler);
 	}
 }
+
+module.exports = PacketParser;

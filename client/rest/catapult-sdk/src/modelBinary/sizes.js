@@ -1,6 +1,6 @@
 /** @module modelBinary/sizes */
 
-export default {
+module.exports = {
 	/**
 	 * @property {numeric} The size of a signature.
 	 */
@@ -19,5 +19,10 @@ export default {
 	/**
 	 * @property {numeric} The size of a hash.
 	 */
-	hash: 32
+	hash: 32,
+
+	/**
+	 * @property {numeric} The size of a transaction header.
+	 */
+	transactionHeader: 4 + 64 + 32
 };

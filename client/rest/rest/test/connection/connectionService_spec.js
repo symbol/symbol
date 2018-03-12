@@ -1,9 +1,9 @@
-import { expect } from 'chai';
-import catapult from 'catapult-sdk';
-import createConnectionService from '../../src/connection/connectionService';
+const { expect } = require('chai');
+const catapult = require('catapult-sdk');
+const { createConnectionService } = require('../../src/connection/connectionService');
 
-const convert = catapult.utils.convert;
-const createKeyPairFromPrivateKeyString = catapult.crypto.createKeyPairFromPrivateKeyString;
+const { convert } = catapult.utils;
+const { createKeyPairFromPrivateKeyString } = catapult.crypto;
 
 describe('connection service', () => {
 	const Test_Config = {
@@ -19,7 +19,7 @@ describe('connection service', () => {
 		apiNodePublicKey: convert.hexToUint8(Test_Config.apiNode.publicKey)
 	};
 
-	function createTestContext() {
+	const createTestContext = () => {
 		const routeContext = {
 			onCalls: {},
 			mockSockets: [], // stores all mock sockets created by factory
@@ -54,12 +54,12 @@ describe('connection service', () => {
 					return promiseFactory();
 				},
 			createSuccessAuthPromise: () => routeContext.createAuthPromise(() => Promise.resolve()),
-			createFailureAuthPromise: () => routeContext.createAuthPromise(() => Promise.reject('failure auth promise'))
+			createFailureAuthPromise: () => routeContext.createAuthPromise(() => Promise.reject(Error('failure auth promise')))
 		};
 		return routeContext;
-	}
+	};
 
-	function assertData(context) {
+	const assertData = context => {
 		expect(context.host).to.equal(Test_Config.apiNode.host);
 		expect(context.port).to.equal(Test_Config.apiNode.port);
 		expect(context.numConnectionFactoryCalls).to.equal(1);
@@ -70,7 +70,7 @@ describe('connection service', () => {
 		expect(context.auth.apiNodePublicKey).to.deep.equal(Test_Config.expected.apiNodePublicKey);
 
 		expect(context.onCalls).to.have.all.keys(['close', 'error']);
-	}
+	};
 
 	it('authentication success is forwarded', () => {
 		// Arrange:
@@ -98,7 +98,7 @@ describe('connection service', () => {
 		return promise.catch(err => {
 			// Assert:
 			assertData(context);
-			expect(err).to.equal('failure auth promise');
+			expect(err.message).to.equal('failure auth promise');
 		});
 	});
 
@@ -107,7 +107,7 @@ describe('connection service', () => {
 		const context = createTestContext();
 		const promiseInterruptedByDisconnect = context.createAuthPromise(() => {
 			// note: assumption is that connection() registers 'close' event and
-			// that it rejects promise if close occured
+			// that it rejects promise if close occurred
 			context.onCalls.close();
 			return Promise.resolve();
 		});
@@ -124,11 +124,15 @@ describe('connection service', () => {
 			});
 	});
 
-	function assertAfterFirstConnectionSucceeded(name, followingActions) {
+	const assertAfterFirstConnectionSucceeded = (name, followingActions) => {
 		it(`first connection succeeded, ${name}`, () => {
 			// Arrange:
 			const context = createTestContext();
-			const connectionService = createConnectionService(Test_Config, context.mockConnectionFactory, context.createSuccessAuthPromise());
+			const connectionService = createConnectionService(
+				Test_Config,
+				context.mockConnectionFactory,
+				context.createSuccessAuthPromise()
+			);
 
 			// Act:
 			return connectionService.lease().then(firstConnection => {
@@ -137,7 +141,7 @@ describe('connection service', () => {
 				return followingActions(context, connectionService, firstConnection);
 			});
 		});
-	}
+	};
 
 	assertAfterFirstConnectionSucceeded('connection is cached', (context, connectionService, firstConnection) =>
 		// Act: connection succeeded, let's try to make another one, and check that they match:
@@ -168,7 +172,7 @@ describe('connection service', () => {
 
 	assertAfterFirstConnectionSucceeded('error alone does not affect connection', (context, connectionService, firstConnection) => {
 		// Act: emit an error
-		context.onCalls.error();
+		context.onCalls.error(new Error());
 
 		return connectionService.lease().then(secondConnection => {
 			// Assert: connection was created only once

@@ -1,9 +1,9 @@
 /** @module modelBinary/embeddedEntityCodec */
-import sizes from './sizes';
+const sizes = require('./sizes');
 
 const constants = { sizes };
 
-export default {
+module.exports = {
 	/**
 	 * Parses an embedded entity.
 	 * @param {object} parser The parser.

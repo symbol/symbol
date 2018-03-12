@@ -1,7 +1,7 @@
 /** @module model/idReducer */
-import uint64 from '../utils/uint64';
+const uint64 = require('../utils/uint64');
 
-export default {
+module.exports = {
 	/**
 	 * Creates an id to name lookup object around namespace name tuples.
 	 * @param {array} nameTuples The namespace name tuples.
@@ -12,7 +12,7 @@ export default {
 
 		// copy all tuples into an id -> value dictionary
 		const lookupMap = {};
-		for (const nameTuple of nameTuples) {
+		nameTuples.forEach(nameTuple => {
 			const key = uint64.toHex(nameTuple.namespaceId);
 
 			// give preference to first of conflicts
@@ -23,14 +23,12 @@ export default {
 					nextRoundKeys.push(key);
 				}
 			}
-		}
+		});
 
 		// each round processes the tuples from the previous round that have a nonzero parent
-		while (0 !== nextRoundKeys.length) {
-			const currentRoundKeys = nextRoundKeys.slice();
-			nextRoundKeys = [];
-
-			for (const key of currentRoundKeys) {
+		const processRoundKeys = roundKeys => {
+			const additionalProcessingKeys = [];
+			roundKeys.forEach(key => {
 				const nameTuple = lookupMap[key];
 				const parentEntry = lookupMap[uint64.toHex(nameTuple.nextId)];
 				nameTuple.fqn = parentEntry ? `${parentEntry.name}.${nameTuple.fqn}` : undefined;
@@ -40,9 +38,16 @@ export default {
 				} else {
 					// if the nextId is nonzero, additional processing is required
 					nameTuple.nextId = parentEntry.parentId;
-					nextRoundKeys.push(key);
+					additionalProcessingKeys.push(key);
 				}
-			}
+			});
+
+			return additionalProcessingKeys;
+		};
+
+		while (0 !== nextRoundKeys.length) {
+			const currentRoundKeys = nextRoundKeys.slice();
+			nextRoundKeys = processRoundKeys(currentRoundKeys);
 		}
 
 		return {

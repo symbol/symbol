@@ -5,25 +5,37 @@
  */
 const EntityType = {
 	/** Transfer transaction. */
-	transfer: 0x4101,
+	transfer: 0x4154,
 
 	/** Register namespace transaction. */
-	registerNamespace: 0x4201,
+	registerNamespace: 0x414E,
 
 	/** Mosaic definition transaction. */
-	mosaicDefinition: 0x4202,
-
-	/** Mosaic levy change transaction. */
-	mosaicLevyChange: 0x4203,
+	mosaicDefinition: 0x414D,
 
 	/** Mosaic supply change transaction. */
-	mosaicSupplyChange: 0x4204,
+	mosaicSupplyChange: 0x424D,
+
+	/** Mosaic levy change transaction. */
+	mosaicLevyChange: 0x434D,
 
 	/** Modify multisig account transaction. */
-	modifyMultisigAccount: 0x4401,
+	modifyMultisigAccount: 0x4155,
 
-	/** Aggregate transaction. */
-	aggregate: 0x4801
+	/** Aggregate complete transaction. */
+	aggregateComplete: 0x4141,
+
+	/** Aggregate bonded transaction. */
+	aggregateBonded: 0x4241,
+
+	/** Hash lock transaction. */
+	hashLock: 0x414C,
+
+	/** Secret lock transaction. */
+	secretLock: 0x424C,
+
+	/** Secret proof transaction. */
+	secretProof: 0x434C
 };
 
-export default EntityType;
+module.exports = EntityType;

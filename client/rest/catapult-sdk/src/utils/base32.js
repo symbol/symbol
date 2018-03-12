@@ -1,5 +1,5 @@
 /** @module utils/base32 */
-import charMapping from './charMapping';
+const charMapping = require('./charMapping');
 
 const Alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 const Decoded_Block_Size = 5;
@@ -7,7 +7,7 @@ const Encoded_Block_Size = 8;
 
 // region encode
 
-function encodeBlock(input, inputOffset, output, outputOffset) {
+const encodeBlock = (input, inputOffset, output, outputOffset) => {
 	output[outputOffset + 0] = Alphabet[input[inputOffset + 0] >> 3];
 	output[outputOffset + 1] = Alphabet[((input[inputOffset + 0] & 0x07) << 2) | (input[inputOffset + 1] >> 6)];
 	output[outputOffset + 2] = Alphabet[(input[inputOffset + 1] & 0x3E) >> 1];
@@ -16,28 +16,28 @@ function encodeBlock(input, inputOffset, output, outputOffset) {
 	output[outputOffset + 5] = Alphabet[(input[inputOffset + 3] & 0x7F) >> 2];
 	output[outputOffset + 6] = Alphabet[((input[inputOffset + 3] & 0x03) << 3) | (input[inputOffset + 4] >> 5)];
 	output[outputOffset + 7] = Alphabet[input[inputOffset + 4] & 0x1F];
-}
+};
 
 // endregion
 
 // region decode
 
-const Char_To_Decoded_Char_Map = (function () {
+const Char_To_Decoded_Char_Map = (() => {
 	const builder = charMapping.createBuilder();
 	builder.addRange('A', 'Z', 0);
 	builder.addRange('2', '7', 26);
 	return builder.map;
 })();
 
-function decodeChar(c) {
+const decodeChar = c => {
 	const decodedChar = Char_To_Decoded_Char_Map[c];
 	if (undefined !== decodedChar)
 		return decodedChar;
 
 	throw Error(`illegal base32 character ${c}`);
-}
+};
 
-function decodeBlock(input, inputOffset, output, outputOffset) {
+const decodeBlock = (input, inputOffset, output, outputOffset) => {
 	const bytes = new Uint8Array(Encoded_Block_Size);
 	for (let i = 0; i < Encoded_Block_Size; ++i)
 		bytes[i] = decodeChar(input[inputOffset + i]);
@@ -47,11 +47,11 @@ function decodeBlock(input, inputOffset, output, outputOffset) {
 	output[outputOffset + 2] = ((bytes[3] & 0x0F) << 4) | (bytes[4] >> 1);
 	output[outputOffset + 3] = ((bytes[4] & 0x01) << 7) | (bytes[5] << 2) | (bytes[6] >> 3);
 	output[outputOffset + 4] = ((bytes[6] & 0x07) << 5) | bytes[7];
-}
+};
 
 // endregion
 
-export default {
+module.exports = {
 	/**
 	 * Base32 encodes a binary buffer.
 	 * @param {Uint8Array} data The binary data to encode.

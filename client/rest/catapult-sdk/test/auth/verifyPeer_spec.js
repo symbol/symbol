@@ -1,31 +1,31 @@
-import { expect } from 'chai';
-import { verify } from '../../src/crypto/keyPair';
-import PacketType from '../../src/packet/PacketType';
-import verifyPeer from '../../src/auth/verifyPeer';
-import VerifyResult from '../../src/auth/VerifyResult';
-import test from './utils/authUtils';
+const { expect } = require('chai');
+const { verify } = require('../../src/crypto/keyPair');
+const PacketType = require('../../src/packet/PacketType');
+const verifyPeer = require('../../src/auth/verifyPeer');
+const VerifyResult = require('../../src/auth/VerifyResult');
+const test = require('./utils/authUtils');
 
 describe('verify peer', () => {
 	describe('verify server', () => {
-		function generateServerChallengeRequest() {
+		const generateServerChallengeRequest = () => {
 			const parsedRequest = test.packets.generateServerChallengeRequest();
 			return {
 				type: parsedRequest.type,
 				size: 0x00000048,
 				payload: parsedRequest.challenge
 			};
-		}
+		};
 
-		function generateClientChallengeResponse(serverResponse, serverKeyPair) {
+		const generateClientChallengeResponse = (serverResponse, serverKeyPair) => {
 			const parsedResponse = test.packets.generateClientChallengeResponse(serverResponse, serverKeyPair);
 			return {
 				type: parsedResponse.type,
 				size: 0x00000048,
 				payload: parsedResponse.signature
 			};
-		}
+		};
 
-		function createHandlerContext() {
+		const createHandlerContext = () => {
 			// Arrange:
 			const state = {
 				writtenPayloads: [],
@@ -40,7 +40,7 @@ describe('verify peer', () => {
 			const serverKeyPair = test.random.keyPair();
 			const verifier = verifyPeer.createServerVerifier(serverSocket, clientKeyPair, serverKeyPair.publicKey);
 
-			const handler = verifier.handler;
+			const { handler } = verifier;
 			verifier.on('verify', result => {
 				// Sanity: verify event should only be raised once
 				expect(state.verifyResult).to.equal(undefined);
@@ -68,7 +68,7 @@ describe('verify peer', () => {
 					return { serverRequest, clientResponse };
 				}
 			};
-		}
+		};
 
 		describe('events', () => {
 			it('on allows chaining', () => {
@@ -106,7 +106,7 @@ describe('verify peer', () => {
 				expect(response.challenge).to.not.deep.equal(new Uint8Array(64)); // challenge is non-zero
 				expect(response.challenge).to.not.deep.equal(request.challenge); // challenge is not the same as the request challenge
 
-				const clientKeyPair = context.config.clientKeyPair;
+				const { clientKeyPair } = context.config;
 				const isVerified = verify(clientKeyPair.publicKey, request.payload, response.signature);
 				expect(isVerified).to.equal(true);
 
@@ -145,7 +145,7 @@ describe('verify peer', () => {
 		});
 
 		describe('client challenge', () => {
-			function assertClientChallengeHandling(createClientResponse, expectedVerifyResult) {
+			const assertClientChallengeHandling = (createClientResponse, expectedVerifyResult) => {
 				// Arrange:
 				const context = createHandlerContext();
 				const serverRequest = generateServerChallengeRequest();
@@ -164,14 +164,15 @@ describe('verify peer', () => {
 				// Assert:
 				expect(context.state.verifyResult).to.equal(expectedVerifyResult);
 				expect(context.state.writtenPayloads.length).to.equal(1);
-			}
+			};
 
 			it('is successful if server passes challenge', () => {
 				// Assert:
 				assertClientChallengeHandling(
 					// - create a (valid) client response
 					generateClientChallengeResponse,
-					VerifyResult.success);
+					VerifyResult.success
+				);
 			});
 
 			it('is rejected if server fails challenge', () => {
@@ -183,7 +184,8 @@ describe('verify peer', () => {
 						clientResponse.payload[0] ^= 0xFF;
 						return clientResponse;
 					},
-					VerifyResult.failedChallenge);
+					VerifyResult.failedChallenge
+				);
 			});
 
 			it('is rejected if server responds with wrong challenge', () => {
@@ -192,8 +194,10 @@ describe('verify peer', () => {
 					// - create an invalid client response (challenge does not match)
 					(serverResponse, serverKeyPair) => generateClientChallengeResponse(
 						{ challenge: test.random.bytes(64) },
-						serverKeyPair),
-					VerifyResult.failedChallenge);
+						serverKeyPair
+					),
+					VerifyResult.failedChallenge
+				);
 			});
 
 			it('is rejected if the first packet', () => {
@@ -201,7 +205,7 @@ describe('verify peer', () => {
 				const context = createHandlerContext();
 
 				// - create a client response
-				const serverKeyPair = context.config.serverKeyPair;
+				const { serverKeyPair } = context.config;
 				const clientResponse = generateClientChallengeResponse({ challenge: test.random.bytes(64) }, serverKeyPair);
 
 				// Act:
@@ -268,7 +272,7 @@ describe('verify peer', () => {
 				expect(context.state.writtenPayloads.length).to.equal(0);
 			});
 
-			function assertNonAuthPacketsCanBeHandledAfterAuthentication(packets) {
+			const assertNonAuthPacketsCanBeHandledAfterAuthentication = packets => {
 				// Arrange:
 				const context = createHandlerContext();
 				context.authenticate();
@@ -277,13 +281,14 @@ describe('verify peer', () => {
 				expect(context.state.verifyResult).to.equal(VerifyResult.success);
 
 				// Act: send all packets
-				for (const packet of packets)
+				packets.forEach(packet => {
 					context.handler(packet);
+				});
 
 				// Assert: connection is still verified
 				expect(context.state.verifyResult).to.equal(VerifyResult.success);
 				expect(context.state.writtenPayloads.length).to.equal(1);
-			}
+			};
 
 			it('is ignored if connection is authenticated', () => {
 				// Assert:

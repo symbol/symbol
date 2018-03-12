@@ -1,17 +1,17 @@
-import catapult from 'catapult-sdk';
-import fs from 'fs';
-import { createConnection } from 'net';
-import winston from 'winston';
-import modelFormatter from './model/modelFormatter';
+const catapult = require('catapult-sdk');
+const fs = require('fs');
+const { createConnection } = require('net');
+const winston = require('winston');
+const modelFormatter = require('./model/modelFormatter');
 
-const createAuthPromise = catapult.auth.createAuthPromise;
-const createKeyPairFromPrivateKeyString = catapult.crypto.createKeyPairFromPrivateKeyString;
-const PacketType = catapult.packet.PacketType;
-const convert = catapult.utils.convert;
+const { createAuthPromise } = catapult.auth;
+const { createKeyPairFromPrivateKeyString } = catapult.crypto;
+const { PacketType } = catapult.packet;
+const { convert } = catapult.utils;
 
-(function () {
+(() => {
 	// 1. load configuration
-	const config = (function () {
+	const config = (() => {
 		const configFile = process.argv[2] || '../resources/monitor.json';
 
 		winston.info(`loading config from ${configFile}`);
@@ -19,7 +19,7 @@ const convert = catapult.utils.convert;
 	})();
 
 	// 2. configure logging
-	(function () {
+	(() => {
 		winston.remove(winston.transports.Console);
 		winston.add(winston.transports.Console, config.logging.console);
 	})();

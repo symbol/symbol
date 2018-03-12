@@ -1,6 +1,6 @@
 /** @module utils/future */
 
-export default {
+module.exports = {
 	/**
 	 * Makes a future retryable.
 	 * @param {Function} futureSupplier The function that returns a new instance of the wrapped future.

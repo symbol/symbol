@@ -1,11 +1,8 @@
-function isObject(object) {
-	// differentiate between object, array and null even though they all report the same type ('object')
-	return 'object' === typeof object && !Array.isArray(object) && null !== object;
-}
+// differentiate between object, array and null even though they all report the same type ('object')
+const isObject = object => 'object' === typeof object && !Array.isArray(object) && null !== object;
 
-function areCompatible(lhs, rhs) {
-	return typeof lhs === typeof rhs && ((null === lhs) === (null === rhs)) && (Array.isArray(lhs) === Array.isArray(rhs));
-}
+const areCompatible = (lhs, rhs) =>
+	typeof lhs === typeof rhs && ((null === lhs) === (null === rhs)) && (Array.isArray(lhs) === Array.isArray(rhs));
 
 /** @exports utils/objects */
 const objects = {
@@ -16,14 +13,12 @@ const objects = {
 	 * @returns {object} The target object (for chaining).
 	 */
 	deepAssign: (target, ...sources) => {
-		for (const source of sources) {
-			for (const key of Object.keys(source)) {
-				if (isObject(target[key]) && isObject(source[key]))
-					objects.deepAssign(target[key], source[key]);
-				else
-					target[key] = source[key];
-			}
-		}
+		sources.forEach(source => Object.keys(source).forEach(key => {
+			if (isObject(target[key]) && isObject(source[key]))
+				objects.deepAssign(target[key], source[key]);
+			else
+				target[key] = source[key];
+		}));
 
 		return target;
 	},
@@ -36,7 +31,7 @@ const objects = {
 	 */
 	checkSchemaAgainstTemplate: (template, object) => {
 		// object can contain a subset of template properties but cannot contain any that template does not
-		for (const key of Object.keys(object)) {
+		Object.keys(object).forEach(key => {
 			if (isObject(template[key]) && isObject(object[key])) {
 				objects.checkSchemaAgainstTemplate(template[key], object[key]);
 			} else {
@@ -46,8 +41,8 @@ const objects = {
 				if (!areCompatible(template[key], object[key]))
 					throw new Error(`override '${key}' property has wrong type`);
 			}
-		}
+		});
 	}
 };
 
-export default objects;
+module.exports = objects;

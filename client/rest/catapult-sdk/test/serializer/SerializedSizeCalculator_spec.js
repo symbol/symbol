@@ -1,8 +1,8 @@
-import { expect } from 'chai';
-import SerializedSizeCalculator from '../../src/serializer/SerializedSizeCalculator';
+const { expect } = require('chai');
+const SerializedSizeCalculator = require('../../src/serializer/SerializedSizeCalculator');
 
 describe('EntitySizeCalculator', () => {
-	function addTypeSerializerTests(name, validData, expectedSize) {
+	const addTypeSerializerTests = (name, validData, expectedSize) => {
 		it(`can serialize ${name}`, () => {
 			// Arrange:
 			const serializer = new SerializedSizeCalculator();
@@ -13,7 +13,7 @@ describe('EntitySizeCalculator', () => {
 			// Assert:
 			expect(serializer.size()).to.equal(expectedSize);
 		});
-	}
+	};
 
 	addTypeSerializerTests('writeUint8', 0xDE, 1);
 	addTypeSerializerTests('writeUint16', 0xF393, 2);

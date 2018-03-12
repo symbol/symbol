@@ -1,8 +1,8 @@
-import { sha3_256 } from 'js-sha3';
-import Ripemd160 from 'ripemd160';
-import array from '../utils/array';
-import base32 from '../utils/base32';
-import convert from '../utils/convert';
+const { sha3_256 } = require('js-sha3');
+const Ripemd160 = require('ripemd160');
+const array = require('../utils/array');
+const base32 = require('../utils/base32');
+const convert = require('../utils/convert');
 
 const constants = {
 	sizes: {
@@ -51,7 +51,7 @@ const address = {
 		const publicKeyHash = sha3_256.arrayBuffer(publicKey);
 
 		// step 2: ripemd160 hash of (1)
-		const ripemdHash = new Ripemd160().update(new Buffer(publicKeyHash)).digest();
+		const ripemdHash = new Ripemd160().update(Buffer.from(publicKeyHash)).digest();
 
 		// step 3: add network identifier byte in front of (2)
 		const decodedAddress = new Uint8Array(constants.sizes.addressDecoded);
@@ -97,4 +97,4 @@ const address = {
 	}
 };
 
-export default address;
+module.exports = address;

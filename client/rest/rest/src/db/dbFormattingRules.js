@@ -1,12 +1,13 @@
-import catapult from 'catapult-sdk';
+const catapult = require('catapult-sdk');
 
-const ModelType = catapult.model.ModelType;
-const convert = catapult.utils.convert;
+const { ModelType, status } = catapult.model;
+const { convert } = catapult.utils;
 
-export default {
+module.exports = {
 	[ModelType.none]: value => value,
 	[ModelType.binary]: value => convert.uint8ToHex(value.buffer),
 	[ModelType.uint64]: value => [value.getLowBitsUnsigned(), value.getHighBits() >>> 0],
 	[ModelType.objectId]: value => value.toHexString().toUpperCase(),
-	[ModelType.string]: value => value.toString()
+	[ModelType.string]: value => value.toString(),
+	[ModelType.statusCode]: value => status.toString(value >>> 0)
 };

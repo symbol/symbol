@@ -1,17 +1,17 @@
 /** @module auth/challengeParser */
-import PacketType from '../packet/PacketType';
+const PacketType = require('../packet/PacketType');
 
 const headerInfos = {
 	server: { type: PacketType.serverChallenge, size: 72 },
 	client: { type: PacketType.clientChallenge, size: 72 }
 };
 
-function isPacketHeaderValid(packet, packetTypeName) {
+const isPacketHeaderValid = (packet, packetTypeName) => {
 	const headerInfo = headerInfos[packetTypeName];
 	return packet.type === headerInfo.type && packet.size === headerInfo.size;
-}
+};
 
-export default {
+module.exports = {
 	/**
 	 * Tries to parse a server challenge request packet.
 	 * @param {module:parser/PacketParser~RawPacket} packet The raw packet to parse.

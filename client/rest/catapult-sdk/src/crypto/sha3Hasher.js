@@ -1,13 +1,11 @@
 /** @module crypto/sha3Hasher */
-import { sha3_256, sha3_512 } from 'js-sha3';
-import array from '../utils/array';
-import convert from '../utils/convert';
+const { sha3_256, sha3_512 } = require('js-sha3');
+const array = require('../utils/array');
+const convert = require('../utils/convert');
 
-function getHasher(length = 64) {
-	return { 32: sha3_256, 64: sha3_512 }[length];
-}
+const getHasher = (length = 64) => ({ 32: sha3_256, 64: sha3_512 }[length]);
 
-export default {
+module.exports = {
 	/**
 	 * Calculates the hash of data.
 	 * @param {Uint8Array} dest The computed hash destination.

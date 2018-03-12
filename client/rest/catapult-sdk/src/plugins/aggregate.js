@@ -1,32 +1,33 @@
 /** @module plugins/aggregate */
-import EntityType from '../model/EntityType';
-import ModelType from '../model/ModelType';
-import embeddedEntityCodec from '../modelBinary/embeddedEntityCodec';
-import sizes from '../modelBinary/sizes';
-import SerializedSizeCalculator from '../serializer/SerializedSizeCalculator';
+const EntityType = require('../model/EntityType');
+const ModelType = require('../model/ModelType');
+const embeddedEntityCodec = require('../modelBinary/embeddedEntityCodec');
+const sizes = require('../modelBinary/sizes');
+const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
 
 const constants = { sizes: {} };
 Object.assign(constants.sizes, sizes, {
-	aggregate: 4,
+	aggregate: 120 + 4, // size passed into deserialize includes full transaction size (even previously processed parts)
 	embedded: 40,
 	cosignature: sizes.signer + sizes.signature
 });
 
-function createSubTransactionCodec(txCodecs) {
-	function getTxCodec(type) {
+const createSubTransactionCodec = txCodecs => {
+	const getTxCodec = type => {
 		// unlike in block case (handled by ModelCodecBuilder), don't fallback to unknown transaction type
 		const txCodec = txCodecs[type];
 		if (!txCodec)
 			throw Error(`error unsupported transaction type (${type}) in aggregate`);
 
 		return txCodec;
-	}
+	};
 
-	function serializeAll(transaction, serializer) {
+	const serializeAll = (transaction, serializer) => {
 		const codecs = [embeddedEntityCodec, getTxCodec(transaction.type)];
-		for (const codec of codecs)
+		codecs.forEach(codec => {
 			codec.serialize(transaction, serializer);
-	}
+		});
+	};
 
 	// notice that the subTxCodec is not conformant and is slightly different from other codecs
 	const subTxCodec = {
@@ -52,34 +53,38 @@ function createSubTransactionCodec(txCodecs) {
 	};
 
 	return subTxCodec;
-}
+};
 
-function requireCodecs(txCodecs) {
+const requireCodecs = txCodecs => {
 	// this check causes rejection of embedded aggregates because aggregate codec intentionally does not forward tx codecs to
 	// sub transaction codecs
 	if (undefined === txCodecs)
 		throw Error('aggregate transaction is not embeddable');
-}
+};
 
 /**
  * Creates an aggregate plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-export default {
+module.exports = {
 	registerSchema: builder => {
-		builder.addTransactionSupport('aggregate', {
+		const aggregateSchema = {
 			transactions: { type: ModelType.array, schemaName: 'transactionWithMetadata' },
 			cosignatures: { type: ModelType.array, schemaName: 'aggregate.cosignature' }
-		});
+		};
+
+		builder.addTransactionSupport(EntityType.aggregateComplete, aggregateSchema);
+		builder.addTransactionSupport(EntityType.aggregateBonded, aggregateSchema);
 
 		builder.addSchema('aggregate.cosignature', {
 			signer: ModelType.binary,
-			signature: ModelType.binary
+			signature: ModelType.binary,
+			parentHash: ModelType.binary
 		});
 	},
 
 	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.aggregate, {
+		const aggregateBuilder = {
 			deserialize: (parser, size, txCodecs) => {
 				requireCodecs(txCodecs);
 
@@ -99,7 +104,7 @@ export default {
 					let processedSize = 0;
 					while (processedSize < payloadSize) {
 						const subTransaction = txCodec.deserialize(parser);
-						transaction.transactions.push(subTransaction.entity);
+						transaction.transactions.push({ transaction: subTransaction.entity });
 						processedSize += subTransaction.size;
 
 						if (subTransaction.size < constants.sizes.embedded)
@@ -130,31 +135,37 @@ export default {
 
 				// 1. calculate payload size
 				const txCodec = createSubTransactionCodec(txCodecs);
-				const transactions = transaction.transactions || [];
+
+				// notice that inner tx metadata is not serialized because it is derivable
+				const transactions = (transaction.transactions || []).map(transactionWithMetadata => transactionWithMetadata.transaction);
 				const subTransactionSizes = [];
 
 				let payloadSize = 0;
-				for (const subTransaction of transactions) {
+				transactions.forEach(subTransaction => {
 					const subTransactionSize = txCodec.size(subTransaction);
 					subTransactionSizes.push(subTransactionSize);
 					payloadSize += subTransactionSize;
-				}
+				});
 
 				serializer.writeUint32(payloadSize);
 
 				// 2. serialize transactions
 				let i = 0;
-				for (const subTransaction of transactions)
+				transactions.forEach(subTransaction => {
 					txCodec.serialize(subTransaction, serializer, subTransactionSizes[i++]);
+				});
 
 				// 3. serialize cosignatures
 				if (transaction.cosignatures) {
-					for (const cosignature of transaction.cosignatures) {
+					transaction.cosignatures.forEach(cosignature => {
 						serializer.writeBuffer(cosignature.signer);
 						serializer.writeBuffer(cosignature.signature);
-					}
+					});
 				}
 			}
-		});
+		};
+
+		codecBuilder.addTransactionSupport(EntityType.aggregateComplete, aggregateBuilder);
+		codecBuilder.addTransactionSupport(EntityType.aggregateBonded, aggregateBuilder);
 	}
 };

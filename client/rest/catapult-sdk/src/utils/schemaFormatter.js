@@ -1,15 +1,12 @@
 /** @module utils/schemaFormatter */
-import SchemaType from './SchemaType';
+const SchemaType = require('./SchemaType');
 
-function getSchemaType(definition) {
-	// if 'definition' is a number, it is the type
-	// otherwise, it is an object with an optional type property (default type is none)
-	return 'number' === typeof definition
-		? definition
-		: definition.type || SchemaType.none;
-}
 
-function getDefinition(schema, key) {
+// if 'definition' is a number, it is the type
+// otherwise, it is an object with an optional type property (default type is none)
+const getSchemaType = definition => ('number' === typeof definition ? definition : definition.type || SchemaType.none);
+
+const getDefinition = (schema, key) => {
 	const definition = schema[key] || {};
 	const type = getSchemaType(definition);
 
@@ -18,11 +15,9 @@ function getDefinition(schema, key) {
 		resultKey: definition.resultKey || key,
 		schemaName: definition.schemaName
 	};
-}
+};
 
-function getSchemaName(schemaName, entity) {
-	return 'function' === typeof schemaName ? schemaName(entity) : schemaName;
-}
+const getSchemaName = (schemaName, entity) => ('function' === typeof schemaName ? schemaName(entity) : schemaName);
 
 /**
  * Formatter for formatting a catapult entity.
@@ -50,23 +45,18 @@ const schemaFormatter = {
 	format: (entity, entitySchema, schemaDictionary, formattingRules) => {
 		// set object and array rules
 		formattingRules[SchemaType.object] = (value, format) => format(value);
-		formattingRules[SchemaType.array] = (array, format) => {
-			const result = [];
-			for (const value of array)
-				result.push(format(value));
-
-			return result;
-		};
+		formattingRules[SchemaType.array] = (array, format) => array.map(value => format(value));
 		formattingRules[SchemaType.dictionary] = (dictionary, format) => {
 			const result = {};
-			for (const key of Object.keys(dictionary))
+			Object.keys(dictionary).forEach(key => {
 				result[key] = format(dictionary[key]);
+			});
 
 			return result;
 		};
 
 		const result = {};
-		for (const key of Object.keys(entity)) {
+		Object.keys(entity).forEach(key => {
 			const definition = getDefinition(entitySchema, key);
 			const rule = formattingRules[definition.type];
 			if (rule) {
@@ -75,12 +65,13 @@ const schemaFormatter = {
 					entity[key],
 					'number' === typeof schemaName // if schemaName is a number, interpret it as a rule id and format child parts as values
 						? formattingRules[schemaName]
-						: value => schemaFormatter.format(value, schemaDictionary[schemaName], schemaDictionary, formattingRules));
+						: value => schemaFormatter.format(value, schemaDictionary[schemaName], schemaDictionary, formattingRules)
+				);
 			}
-		}
+		});
 
 		return result;
 	}
 };
 
-export default schemaFormatter;
+module.exports = schemaFormatter;

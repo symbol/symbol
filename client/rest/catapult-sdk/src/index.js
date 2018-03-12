@@ -1,31 +1,33 @@
-import { createKeyPairFromPrivateKeyString, sign, verify } from './crypto/keyPair';
-import sha3Hasher from './crypto/sha3Hasher';
-import auth from './auth/auth';
-import address from './model/address';
-import EntityType from './model/EntityType';
-import idReducer from './model/idReducer';
-import ModelType from './model/ModelType';
-import networkInfo from './model/networkInfo';
-import serialize from './modelBinary/serialize';
-import sizes from './modelBinary/sizes';
-import packetHeader from './packet/header';
-import PacketType from './packet/PacketType';
-import BinaryParser from './parser/BinaryParser';
-import PacketParser from './parser/PacketParser';
-import catapultModelSystem from './plugins/catapultModelSystem';
-import BinarySerializer from './serializer/BinarySerializer';
-import SerializedSizeCalculator from './serializer/SerializedSizeCalculator';
-import array from './utils/array';
-import base32 from './utils/base32';
-import convert from './utils/convert';
-import formattingUtils from './utils/formattingUtils';
-import future from './utils/future';
-import objects from './utils/objects';
-import schemaFormatter from './utils/schemaFormatter';
-import SchemaType from './utils/SchemaType';
-import uint64 from './utils/uint64';
+const { createKeyPairFromPrivateKeyString, sign, verify } = require('./crypto/keyPair');
+const sha3Hasher = require('./crypto/sha3Hasher');
+const auth = require('./auth/auth');
+const address = require('./model/address');
+const EntityType = require('./model/EntityType');
+const idReducer = require('./model/idReducer');
+const ModelType = require('./model/ModelType');
+const networkInfo = require('./model/networkInfo');
+const status = require('./model/status');
+const serialize = require('./modelBinary/serialize');
+const sizes = require('./modelBinary/sizes');
+const transactionExtensions = require('./modelBinary/transactionExtensions');
+const packetHeader = require('./packet/header');
+const PacketType = require('./packet/PacketType');
+const BinaryParser = require('./parser/BinaryParser');
+const PacketParser = require('./parser/PacketParser');
+const catapultModelSystem = require('./plugins/catapultModelSystem');
+const BinarySerializer = require('./serializer/BinarySerializer');
+const SerializedSizeCalculator = require('./serializer/SerializedSizeCalculator');
+const array = require('./utils/array');
+const base32 = require('./utils/base32');
+const convert = require('./utils/convert');
+const formattingUtils = require('./utils/formattingUtils');
+const future = require('./utils/future');
+const objects = require('./utils/objects');
+const schemaFormatter = require('./utils/schemaFormatter');
+const SchemaType = require('./utils/SchemaType');
+const uint64 = require('./utils/uint64');
 
-export default {
+module.exports = {
 	auth,
 	constants: {
 		sizes
@@ -41,10 +43,12 @@ export default {
 		EntityType,
 		idReducer,
 		ModelType,
-		networkInfo
+		networkInfo,
+		status
 	},
 	modelBinary: {
-		serialize
+		serialize,
+		transactionExtensions
 	},
 	packet: {
 		header: packetHeader,

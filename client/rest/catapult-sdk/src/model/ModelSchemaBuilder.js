@@ -1,11 +1,11 @@
 /** @module model/ModelSchemaBuilder */
-import EntityType from './EntityType';
-import ModelType from './ModelType';
+const EntityType = require('./EntityType');
+const ModelType = require('./ModelType');
 
 /**
  * Builder for creating a model schema.
  */
-export default class ModelSchemaBuilder {
+class ModelSchemaBuilder {
 	/**
 	 * Creates a model schema builder.
 	 */
@@ -48,11 +48,12 @@ export default class ModelSchemaBuilder {
 				fee: ModelType.uint64
 			},
 			transactionMetadata: {
+				aggregateHash: ModelType.binary,
+				aggregateId: ModelType.objectId,
 				id: ModelType.objectId,
 				height: ModelType.uint64,
 				hash: ModelType.binary,
-				merkleComponentHash: ModelType.binary,
-				aggregateId: ModelType.objectId
+				merkleComponentHash: ModelType.binary
 			},
 			transactionWithMetadata: {
 				meta: { type: ModelType.object, schemaName: 'transactionMetadata' },
@@ -61,6 +62,17 @@ export default class ModelSchemaBuilder {
 					// notice that this needs to be set in build to allow graceful fallback when some txes are not registered
 					schemaName: undefined
 				}
+			},
+
+			// endregion
+
+			// region transactionStatus
+
+			transactionStatus: {
+				hash: ModelType.binary,
+				status: ModelType.statusCode,
+				deadline: ModelType.uint64,
+				height: ModelType.uint64
 			},
 
 			// endregion
@@ -105,14 +117,41 @@ export default class ModelSchemaBuilder {
 
 		Object.assign(this.schema.blockHeader, this.schema.verifiableEntity);
 		Object.assign(this.schema.transaction, this.schema.verifiableEntity);
+
+		this.setAllowedTransactions(EntityType);
 	}
 
 	/**
-	 * Adds support for a named transaction.
-	 * @param {string} name The transaction name.
+	 * Sets transactions allowed by addTransactionSupport.
+	 * @param {object} allowedTransactions Allowed transactions.
+	 */
+	setAllowedTransactions(allowedTransactions) {
+		// prepare reverse mapping id => string
+		this.entityTypeToString = Object.keys(allowedTransactions).reduce((state, name) => {
+			state[allowedTransactions[name]] = name;
+			return state;
+		}, {});
+	}
+
+	/**
+	 * Returns name for allowed transaction.
+	 * @param {module:model/EntityType} transactionType Transaction type.
+	 * @returns {string} Transaction name corresponding to type.
+	 */
+	typeToName(transactionType) {
+		if (!(transactionType in this.entityTypeToString))
+			throw Error(`transactionType is not in the list of allowed transactions '${transactionType}'`);
+
+		return this.entityTypeToString[transactionType];
+	}
+
+	/**
+	 * Adds support for a transaction type.
+	 * @param {module:model/EntityType} transactionType The transaction type.
 	 * @param {object} schema The transaction schema.
 	 */
-	addTransactionSupport(name, schema) {
+	addTransactionSupport(transactionType, schema) {
+		const name = this.typeToName(transactionType);
 		this.addSchema(name, schema);
 		Object.assign(this.schema[name], this.schema.transaction);
 	}
@@ -134,15 +173,9 @@ export default class ModelSchemaBuilder {
 	 * @returns {function} The transaction schema lookup function.
 	 */
 	transactionSchemaNameSupplier() {
-		// make reverse mapping id => string
-		const entityTypeToString = Object.keys(EntityType).reduce((state, name) => {
-			state[EntityType[name]] = name;
-			return state;
-		}, {});
-
 		// default to transaction
 		return transaction => {
-			const transactionName = entityTypeToString[transaction.type];
+			const transactionName = this.entityTypeToString[transaction.type];
 			return transactionName && this.schema[transactionName] ? transactionName : 'transaction';
 		};
 	}
@@ -156,3 +189,5 @@ export default class ModelSchemaBuilder {
 		return this.schema;
 	}
 }
+
+module.exports = ModelSchemaBuilder;

@@ -1,15 +1,21 @@
-import { expect } from 'chai';
-import hippie from 'hippie';
-import WebSocket from 'ws';
-import formatters from '../../src/server/formatters';
-import bootstrapper from '../../src/server/bootstrapper';
-import errors from '../../src/server/errors';
-import test from '../testUtils';
+const { expect } = require('chai');
+const catapult = require('catapult-sdk');
+const hippie = require('hippie');
+const EventEmitter = require('events');
+const WebSocket = require('ws');
+const zmq = require('zmq');
+const { createZmqConnectionService } = require('../../src/connection/zmqService');
+const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
+const formatters = require('../../src/server/formatters');
+const bootstrapper = require('../../src/server/bootstrapper');
+const errors = require('../../src/server/errors');
+const test = require('../testUtils');
 
 const supportedHttpMethods = ['get', 'post', 'put'];
 
 const dummyIds = {
 	valid: 'valid',
+	replayTag: 'replayTag',
 	notFound: 'notFound',
 	redirect: 'redirect',
 	error: 'error',
@@ -17,27 +23,33 @@ const dummyIds = {
 	asyncError: 'asyncError'
 };
 
-// region dummy endpoint
+// region dummy route
 
-function createChainInfo(height, scoreLow, scoreHigh) {
-	// note that custom formatting will strip high part
-	return {
-		id: 123,
-		height: [height, height],
-		scoreLow: [scoreLow, scoreLow],
-		scoreHigh: [scoreHigh, scoreHigh]
-	};
-}
+// note that custom formatting will strip high part
+const createChainInfo = (height, scoreLow, scoreHigh) => ({
+	id: 123,
+	height: [height, height],
+	scoreLow: [scoreLow, scoreLow],
+	scoreHigh: [scoreHigh, scoreHigh]
+});
 
-function addRestEndpoints(server) {
-	for (const method of supportedHttpMethods) {
-		server[method]('/dummy/:id', (req, res, next) => {
-			const id = req.params.id;
+const addRestRoutes = server => {
+	supportedHttpMethods.forEach(method => {
+		server[method]('/dummy/:dummyId', (req, res, next) => {
+			const { dummyId } = req.params;
 
-			switch (id) {
+			switch (dummyId) {
 			case dummyIds.valid: {
 				// respond with a valid chain info
 				const chainInfo = createChainInfo(10, 16, 11);
+				res.send({ payload: chainInfo, type: 'chainInfo' });
+				break;
+			}
+
+			case dummyIds.replayTag: {
+				// respond with a valid chain info computed from the tag parameter
+				const tag = req.params.tag | 0; // query parameters are parsed as strings so convert to int
+				const chainInfo = createChainInfo(tag, tag, tag);
 				res.send({ payload: chainInfo, type: 'chainInfo' });
 				break;
 			}
@@ -48,7 +60,7 @@ function addRestEndpoints(server) {
 
 			case dummyIds.redirect:
 				res.redirect(`/dummy/${dummyIds.valid}`, next);
-				break;
+				return undefined; // don't call next below because it is called by res.redirect
 
 			case dummyIds.asyncValid:
 				return Promise.resolve({ height: [11, 11] })
@@ -58,7 +70,7 @@ function addRestEndpoints(server) {
 					});
 
 			case dummyIds.asyncError:
-				return Promise.reject('async badness');
+				return Promise.reject(Error('async badness'));
 
 			default:
 				throw Error('badness'); // exceptions are handled properly
@@ -68,437 +80,813 @@ function addRestEndpoints(server) {
 			next();
 			return undefined;
 		});
-	}
-}
+	});
+};
 
 // endregion
 
-function createServer(options) {
-	const formatUint64 = uint64 => (uint64 ? [uint64[0], 0] : undefined);
+const servers = [];
+
+const createServer = options => {
 	const serverFormatters = formatters.create({
-		chainInfo: {
-			format: chainInfo => ({
-				id: chainInfo.id,
-				height: formatUint64(chainInfo.height),
-				scoreLow: formatUint64(chainInfo.scoreLow),
-				scoreHigh: formatUint64(chainInfo.scoreHigh)
-			})
+		[(options && options.formatterName) || 'json']: {
+			chainInfo: {
+				// real formatting is not actually being tested, so just drop high part
+				format: chainInfo => {
+					const formatUint64 = uint64 => (uint64 ? [uint64[0], 0] : undefined);
+					return {
+						id: chainInfo.id,
+						height: formatUint64(chainInfo.height),
+						scoreLow: formatUint64(chainInfo.scoreLow),
+						scoreHigh: formatUint64(chainInfo.scoreHigh)
+					};
+				}
+			},
+			blockHeaderWithMetadata: {
+				// real formatting is not actually being tested, so just format a few properties
+				format: blockHeaderWithMetadata => {
+					const { block } = blockHeaderWithMetadata;
+					return {
+						height: block.height,
+						signer: catapult.utils.convert.uint8ToHex(block.signer)
+					};
+				}
+			}
 		}
 	});
-	return bootstrapper.createServer((options || {}).crossDomainHttpMethods, serverFormatters);
-}
 
-describe('server', () => {
-	function makeJsonHippie(endpoint, method, options) {
-		const server = createServer(options);
-		addRestEndpoints(server);
+	const server = bootstrapper.createServer((options || {}).crossDomainHttpMethods, serverFormatters);
+	servers.push(server);
+	return server;
+};
 
-		const mockServer = hippie(server).json()[method](endpoint);
+const createWebSocketServer = () => createServer({ formatterName: 'ws' });
 
-		// wrap the server to make sure errors are handled appropriately across all tests
-		const hippieAdapter = {
-			end: handler => {
-				mockServer.end((err, res, body) => {
-					if (err)
-						throw err;
+describe('server (bootstrapper)', () => {
+	afterEach(() => {
+		// close servers used during the previous test
+		while (0 < servers.length) {
+			const server = servers.pop();
+			server.close();
+		}
+	});
 
-					handler(res.headers, body);
-				});
-				return hippieAdapter;
+	describe('HTTP', () => {
+		const wrapHippieEndHandler = handler => (err, res, body) => {
+			if (err)
+				throw err;
+
+			handler(res.headers, body);
+		};
+
+		const makeJsonHippie = (route, method, options) => {
+			const server = createServer(options);
+			addRestRoutes(server);
+
+			const mockServer = hippie(server).json()[method](route);
+			if ('get' === method) {
+				// hippie.form() overrides Content-Type to 'application/x-www-form-urlencoded' and uses a matching serializer
+				// since hippie.json() was called before, Accept is still 'application/json' and has a matching parser
+				mockServer.form();
+			}
+
+			// wrap the server to make sure errors are handled appropriately across all tests
+			const hippieAdapter = {
+				end: handler => {
+					mockServer.end(wrapHippieEndHandler(handler));
+					return hippieAdapter;
+				}
+			};
+
+			// expose allowed methods
+			['header', 'send', 'expectStatus', 'expectHeader'].forEach(delegatingMethod => {
+				hippieAdapter[delegatingMethod] = (...args) => {
+					mockServer[delegatingMethod](...args);
+					return hippieAdapter;
+				};
+			});
+
+			return hippieAdapter;
+		};
+
+		const assertPayloadHeaders = (headers, expectedContentLength, options = {}) => {
+			const shouldAllowCrossDomain = !!options.allowMethods;
+			const shouldHaveContent = undefined !== expectedContentLength;
+
+			const message = `received headers: ${JSON.stringify(headers)}`;
+			const numExpectedHeaders =
+				2
+				+ (options.numAdditionalHeaders | 0)
+				+ (shouldAllowCrossDomain ? 3 : 0)
+				+ (shouldHaveContent ? 2 : 0);
+			expect(Object.keys(headers).length, message).to.equal(numExpectedHeaders);
+
+			// these headers should always be stamped
+			expect(headers.connection).to.equal('close');
+			expect(headers.date).to.not.equal(undefined);
+
+			// these headers should be stamped when there is a response body
+			if (shouldHaveContent) {
+				expect(headers['content-length'], message).to.equal(expectedContentLength.toString());
+				expect(headers['content-type']).to.equal('application/json');
+			}
+
+			// these headers should be stamped when cross domain is allowed
+			if (shouldAllowCrossDomain) {
+				expect(headers['access-control-allow-origin']).to.equal('*');
+				expect(headers['access-control-allow-methods']).to.equal(options.allowMethods);
+				expect(headers['access-control-allow-headers']).to.equal('Content-Type');
 			}
 		};
 
-		// expose allowed methods
-		for (const delegatingMethod of ['header', 'send', 'expectStatus', 'expectHeader']) {
-			hippieAdapter[delegatingMethod] = (...args) => {
-				mockServer[delegatingMethod](...args);
-				return hippieAdapter;
-			};
-		}
+		const addCommonTestsForHttpMethod = method => {
+			const methodOptions = {};
 
-		return hippieAdapter;
-	}
+			// region sync route handling
 
-	function assertPayloadHeaders(headers, expectedContentLength, options = {}) {
-		const shouldAllowCrossDomain = !!options.allowMethods;
-		expect(Object.keys(headers).length).to.equal(4 + (options.numAdditionalHeaders | 0) + (shouldAllowCrossDomain ? 3 : 0));
-		expect(headers['content-length']).to.equal(expectedContentLength.toString());
-		expect(headers['content-type']).to.equal('application/json');
+			it('handles success properly', done => {
+				makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
+					.expectStatus(200)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 63, methodOptions);
+						expect(body).to.deep.equal({
+							id: 123, height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0]
+						});
+						done();
+					});
+			});
 
-		expect(headers.connection).to.equal('close');
-		expect(headers.date).to.not.equal(undefined);
+			it('can parse query params', done => {
+				makeJsonHippie(`/dummy/${dummyIds.replayTag}?tag=25`, method)
+					.expectStatus(200)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 63, methodOptions);
+						expect(body).to.deep.equal({
+							id: 123, height: [25, 0], scoreLow: [25, 0], scoreHigh: [25, 0]
+						});
+						done();
+					});
+			});
 
-		if (shouldAllowCrossDomain) {
-			expect(headers['access-control-allow-origin']).to.equal('*');
-			expect(headers['access-control-allow-methods']).to.equal(options.allowMethods);
-			expect(headers['access-control-allow-headers']).to.equal('Content-Type');
-		}
-	}
+			it('handles not found properly', done => {
+				makeJsonHippie(`/dummy/${dummyIds.notFound}`, method)
+					.expectStatus(404)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 72, methodOptions);
+						expect(body).to.deep.equal({ code: 'ResourceNotFound', message: 'no resource exists with id \'foo\'' });
+						done();
+					});
+			});
 
-	function addCommonTestsForHttpMethod(method) {
-		const methodOptions = {};
+			it('handles error properly', done => {
+				makeJsonHippie(`/dummy/${dummyIds.error}`, method)
+					.expectStatus(500)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 39, methodOptions);
+						expect(body).to.deep.equal({ code: 'Internal', message: 'badness' });
+						done();
+					});
+			});
 
-		// region sync route handling
+			// endregion
 
-		it('handles success properly', done => {
-			makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
-				.expectStatus(200)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 63, methodOptions);
-					expect(body).to.deep.equal({ id: 123, height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] });
-					done();
-				});
-		});
+			// region async route handling
 
-		it('handles not found properly', done => {
-			makeJsonHippie(`/dummy/${dummyIds.notFound}`, method)
-				.expectStatus(404)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 72, methodOptions);
-					expect(body).to.deep.equal({ code: 'ResourceNotFound', message: 'no resource exists with id \'foo\'' });
-					done();
-				});
-		});
+			it('handles async success properly', done => {
+				makeJsonHippie(`/dummy/${dummyIds.asyncValid}`, method)
+					.expectStatus(200)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 17, methodOptions);
+						expect(body).to.deep.equal({ height: [11, 0] });
+						done();
+					});
+			});
 
-		it('handles error properly', done => {
-			makeJsonHippie(`/dummy/${dummyIds.error}`, method)
-				.expectStatus(500)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 44, methodOptions);
-					expect(body).to.deep.equal({ code: 'InternalError', message: 'badness' });
-					done();
-				});
-		});
+			it('handles async error properly', done => {
+				makeJsonHippie(`/dummy/${dummyIds.asyncError}`, method)
+					.expectStatus(500)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 45, methodOptions);
+						expect(body).to.deep.equal({ code: 'Internal', message: 'async badness' });
+						done();
+					});
+			});
 
-		// endregion
+			// endregion
 
-		// region async route handling
+			// region server errors
 
-		it('handles async success properly', done => {
-			makeJsonHippie(`/dummy/${dummyIds.asyncValid}`, method)
-				.expectStatus(200)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 17, methodOptions);
-					expect(body).to.deep.equal({ height: [11, 0] });
-					done();
-				});
-		});
+			it('handles non existent route properly', done => {
+				makeJsonHippie(`/fake/${dummyIds.valid}`, method)
+					.expectStatus(404)
+					.end((headers, body) => {
+						// Assert: note that non-existent routes never support cross domain
+						assertPayloadHeaders(headers, 66);
+						expect(body).to.deep.equal({ code: 'ResourceNotFound', message: '/fake/valid does not exist' });
+						done();
+					});
+			});
 
-		it('handles async error properly', done => {
-			makeJsonHippie(`/dummy/${dummyIds.asyncError}`, method)
-				.expectStatus(500)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 50, methodOptions);
-					expect(body).to.deep.equal({ code: 'InternalError', message: 'async badness' });
-					done();
-				});
-		});
+			it('rejects request with invalid accept header', done => {
+				makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
+					.header('Accept', 'text/plain')
+					.expectStatus(406)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 69, methodOptions);
+						expect(body).to.deep.equal({ code: 'NotAcceptable', message: 'Server accepts: application/json' });
+						done();
+					});
+			});
 
-		// endregion
+			// endregion
 
-		// region server errors
+			// region cross domain
 
-		it('handles non existent route properly', done => {
-			makeJsonHippie(`/fake/${dummyIds.valid}`, method)
-				.expectStatus(404)
-				.end((headers, body) => {
-					// Assert: note that non-existent routes never support cross domain
-					assertPayloadHeaders(headers, 66);
-					expect(body).to.deep.equal({ code: 'ResourceNotFound', message: '/fake/valid does not exist' });
-					done();
-				});
-		});
+			it('does not add cross domain headers when not in configured cross domain http methods ', done => {
+				makeJsonHippie(`/dummy/${dummyIds.valid}`, method, { crossDomainHttpMethods: ['FOO', 'BAR'] })
+					.expectStatus(200)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 63, { allowMethods: undefined });
+						expect(body).to.deep.equal({
+							id: 123, height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0]
+						});
+						done();
+					});
+			});
 
-		it('rejects request with invalid accept header', done => {
-			makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
-				.header('Accept', 'text/plain')
-				.expectStatus(406)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 74, methodOptions);
-					expect(body).to.deep.equal({ code: 'NotAcceptableError', message: 'Server accepts: application/json' });
-					done();
-				});
-		});
+			it('adds cross domain headers when in configured cross domain http methods ', done => {
+				makeJsonHippie(`/dummy/${dummyIds.valid}`, method, { crossDomainHttpMethods: ['FOO', method.toUpperCase(), 'BAR'] })
+					.expectStatus(200)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 63, { allowMethods: `FOO,${method.toUpperCase()},BAR` });
+						expect(body).to.deep.equal({
+							id: 123, height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0]
+						});
+						done();
+					});
+			});
 
-		// endregion
+			// endregion
+		};
 
-		// region cross domain
+		// region unsupported media type
 
-		it('does not add cross domain headers when not in configured cross domain http methods ', done => {
-			makeJsonHippie(`/dummy/${dummyIds.valid}`, method, { crossDomainHttpMethods: ['FOO', 'BAR'] })
-				.expectStatus(200)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 63, { allowMethods: undefined });
-					expect(body).to.deep.equal({ id: 123, height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] });
-					done();
-				});
-		});
-
-		it('adds cross domain headers when in configured cross domain http methods ', done => {
-			makeJsonHippie(`/dummy/${dummyIds.valid}`, method, { crossDomainHttpMethods: ['FOO', method.toUpperCase(), 'BAR'] })
-				.expectStatus(200)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 63, { allowMethods: `FOO,${method.toUpperCase()},BAR` });
-					expect(body).to.deep.equal({ id: 123, height: [10, 0], scoreLow: [16, 0], scoreHigh: [11, 0] });
-					done();
-				});
-		});
-
-		// endregion
-	}
-
-	describe('GET', () => {
-		addCommonTestsForHttpMethod('get');
-	});
-
-	function addRejectsUnsupportedMediaTypeTest(method) {
-		it('rejects request with unsupported media type', done => {
-			makeJsonHippie(`/dummy/${dummyIds.valid}`, method)
-				.header('Content-Type', 'text/plain')
-				.send({ foo: 'bar' })
+		const runUnsupportedMediaTypeTest = (server, mediaType, sendBody, done) => {
+			server
+				.header('Content-Type', mediaType)
+				.send(sendBody ? { foo: 'bar' } : '')
 				.expectStatus(415)
 				.end((headers, body) => {
 					// Assert:
-					assertPayloadHeaders(headers, 59);
-					expect(body).to.deep.equal({ code: 'UnsupportedMediaTypeError', message: 'text/plain' });
+					assertPayloadHeaders(headers, 44 + mediaType.length);
+					expect(body).to.deep.equal({ code: 'UnsupportedMediaType', message: mediaType });
 					done();
 				});
-		});
-	}
+		};
 
-	describe('PUT', () => {
-		addCommonTestsForHttpMethod('put');
-		addRejectsUnsupportedMediaTypeTest('put');
-	});
+		const runUnsupportedMediaTypeTestForMethod = (method, mediaType, sendBody, done) => {
+			const server = makeJsonHippie(`/dummy/${dummyIds.valid}`, method);
+			runUnsupportedMediaTypeTest(server, mediaType, sendBody, done);
+		};
 
-	describe('POST', () => {
-		addCommonTestsForHttpMethod('post');
-		addRejectsUnsupportedMediaTypeTest('post');
-	});
+		// endregion
 
-	describe('other', () => {
-		it('rejects invalid methods', done => {
-			makeJsonHippie(`/dummy/${dummyIds.valid}`, 'del')
-				.expectStatus(405)
-				.expectHeader('allow', 'GET, POST, PUT')
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 66, { numAdditionalHeaders: 1 });
-					expect(body).to.deep.equal({ code: 'MethodNotAllowedError', message: 'DELETE is not allowed' });
-					done();
-				});
+		describe('GET', () => {
+			addCommonTestsForHttpMethod('get');
+
+			it('rejects request with body with supported media type', done => {
+				runUnsupportedMediaTypeTestForMethod('get', 'application/json', true, done);
+			});
+
+			it('rejects request with body with unsupported media type', done => {
+				runUnsupportedMediaTypeTestForMethod('get', 'application/octet-stream', true, done);
+			});
 		});
 
-		it('follows redirects', done => {
-			// Arrange: 'redirect' should redirect to 'valid'
-			makeJsonHippie(`/dummy/${dummyIds.redirect}`, 'get')
-				.expectStatus(302)
-				.expectHeader('location', `/dummy/${dummyIds.valid}`)
-				.end((headers, body) => {
-					// Assert:
-					assertPayloadHeaders(headers, 4, { numAdditionalHeaders: 1 });
-					expect(body).to.equal(null);
-					done();
-				});
+		const addRejectsUnsupportedMediaTypeTests = method => {
+			it('rejects request with unsupported (custom) media type without body', done => {
+				runUnsupportedMediaTypeTestForMethod(method, 'text/plain', false, done);
+			});
+
+			it('rejects request with unsupported (custom) media type with body', done => {
+				runUnsupportedMediaTypeTestForMethod(method, 'text/plain', true, done);
+			});
+
+			it('rejects request with unsupported (built-in) media type without body', done => {
+				runUnsupportedMediaTypeTestForMethod(method, 'application/x-www-form-urlencoded', false, done);
+			});
+
+			it('rejects request with unsupported (built-in) media type with body', done => {
+				runUnsupportedMediaTypeTestForMethod(method, 'application/x-www-form-urlencoded', true, done);
+			});
+		};
+
+		const addBodyParsingTest = method => {
+			it('can parse json body', done => {
+				makeJsonHippie(`/dummy/${dummyIds.replayTag}`, method)
+					.send({ tag: 25 })
+					.expectStatus(200)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 63, {});
+						expect(body).to.deep.equal({
+							id: 123, height: [25, 0], scoreLow: [25, 0], scoreHigh: [25, 0]
+						});
+						done();
+					});
+			});
+		};
+
+		describe('PUT', () => {
+			const method = 'put';
+			addCommonTestsForHttpMethod(method);
+			addRejectsUnsupportedMediaTypeTests(method);
+			addBodyParsingTest(method);
+		});
+
+		describe('POST', () => {
+			const method = 'post';
+			addCommonTestsForHttpMethod(method);
+			addRejectsUnsupportedMediaTypeTests(method);
+			addBodyParsingTest(method);
+		});
+
+		describe('OPTIONS', () => {
+			const makeJsonHippieForOptions = route => {
+				const server = createServer({ crossDomainHttpMethods: ['FOO', 'OPTIONS', 'BAR'] });
+				const routeHandler = (req, res, next) => {
+					res.send(200);
+					next();
+				};
+
+				server.get('/dummy/:dummyId', routeHandler);
+				server.post('/dummy/names', routeHandler);
+				server.post('/dummy', routeHandler);
+
+				return hippie(server).url(route).method('OPTIONS')
+					.json()
+					.form();
+			};
+
+			const runBasicOptionsTest = (route, expectedMethod, done) => {
+				makeJsonHippieForOptions(route)
+					.expectStatus(204)
+					.expectHeader('allow', expectedMethod)
+					.end(wrapHippieEndHandler((headers, body) => {
+						// Assert: there should be no body
+						assertPayloadHeaders(headers, undefined, { allowMethods: 'FOO,OPTIONS,BAR', numAdditionalHeaders: 1 });
+						expect(body).to.equal(null);
+						done();
+					}));
+			};
+
+			it('supports GET', done => {
+				runBasicOptionsTest('/dummy/123', 'GET', done);
+			});
+
+			it('supports POST', done => {
+				runBasicOptionsTest('/dummy', 'POST', done);
+			});
+
+			it('prefers exact matches', done => {
+				// notice that /dummy/names could potentially match GET /dummy/:dummyId
+				runBasicOptionsTest('/dummy/names', 'POST', done);
+			});
+
+			it('handles non existent route properly', done => {
+				makeJsonHippieForOptions(`/fake/${dummyIds.valid}`)
+					.expectStatus(404)
+					.end(wrapHippieEndHandler((headers, body) => {
+						// Assert: note that non-existent routes never support cross domain
+						assertPayloadHeaders(headers, 66);
+						expect(body).to.deep.equal({ code: 'ResourceNotFound', message: '/fake/valid does not exist' });
+						done();
+					}));
+			});
+
+			const runUnsupportedMediaTypeTestForOptions = (mediaType, done) => {
+				makeJsonHippieForOptions('/dummy')
+					.header('Content-Type', mediaType)
+					.send({ foo: 'bar' })
+					.expectStatus(415)
+					.end(wrapHippieEndHandler((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 44 + mediaType.length);
+						expect(body).to.deep.equal({ code: 'UnsupportedMediaType', message: mediaType });
+						done();
+					}));
+			};
+
+			it('rejects request with body with supported media type', done => {
+				runUnsupportedMediaTypeTestForOptions('application/json', done);
+			});
+
+			it('rejects request with body with unsupported media type', done => {
+				runUnsupportedMediaTypeTestForOptions('application/octet-stream', done);
+			});
+		});
+
+		describe('other', () => {
+			it('rejects invalid methods', done => {
+				makeJsonHippie(`/dummy/${dummyIds.valid}`, 'del')
+					.expectStatus(405)
+					.expectHeader('allow', 'GET, POST, PUT')
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 61, { numAdditionalHeaders: 1 });
+						expect(body).to.deep.equal({ code: 'MethodNotAllowed', message: 'DELETE is not allowed' });
+						done();
+					});
+			});
+
+			it('follows redirects', done => {
+				// Arrange: 'redirect' should redirect to 'valid'
+				makeJsonHippie(`/dummy/${dummyIds.redirect}`, 'get')
+					.expectStatus(302)
+					.expectHeader('location', `/dummy/${dummyIds.valid}`)
+					.end((headers, body) => {
+						// Assert:
+						assertPayloadHeaders(headers, 4, { numAdditionalHeaders: 1 });
+						expect(body).to.equal(null);
+						done();
+					});
+			});
 		});
 	});
 
 	describe('websockets', () => {
-		const port = 1234;
+		// note: although rest server implementation uses single websocket route ('/ws'),
+		// server.ws allows you to register any name and you can register multiple different routes
+		// the tests are using custom `/ws/block*` routes
 
-		function registerRoute(server, route) {
-			let serverWs;
-			server.ws(route, ws => { serverWs = ws; });
-			return serverWs;
-		}
+		const ports = { server: 1234, mq: 7902 };
+		const delays = { publish: 50 };
 
-		function createClientSockets(route, options, handlers) {
-			let numRemainingClients = options.numClients;
-			let messageIds = options.messageIds;
+		const createBlockBuffer = tag => Buffer.concat([
+			Buffer.of(0xC0, 0x00, 0x00, 0x00), // size
+			Buffer.from(test.random.bytes(test.constants.sizes.signature)), // signature
+			Buffer.from('A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F', 'hex'), // signer
+			Buffer.of(0x03, 0x00, 0x00, 0x80), // version, type
+			Buffer.of(0x97, 0x87, 0x45, 0x0E, tag || 0xE1, 0x6C, 0xB6, 0x62), // height
+			Buffer.from(test.random.bytes(8)), // timestamp
+			Buffer.from(test.random.bytes(8)), // difficulty
+			Buffer.from(test.random.bytes(test.constants.sizes.hash)), // previous block hash
+			Buffer.from(test.random.bytes(test.constants.sizes.hash)) // block transactions hash
+		]);
 
-			if ('number' === typeof options) {
-				numRemainingClients = options;
-				messageIds = new Set();
-				for (let i = 1; i <= numRemainingClients; ++i)
-					messageIds.add(i);
-			}
+		// notice that the formatter only returns height and signer
+		const createFormattedBlock = tag => ({
+			height: [0x0E458797, 0x62B66C00 | (tag || 0xE1)],
+			signer: 'A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F'
+		});
 
-			function openCallback() {
-				if (0 === --numRemainingClients)
-					handlers.onAllOpen();
-			}
+		const registerRoute = (server, route) => {
+			// create a zmq service that supports only basic (non-transaction) models
+			const modelSystem = catapult.plugins.catapultModelSystem.configure([], {});
+			const config = {
+				host: '127.0.0.1', port: ports.mq, connectTimeout: 1000, monitorInterval: 50
+			};
+			const channelDescriptors = new MessageChannelBuilder().build();
+			const zmqService = createZmqConnectionService(config, modelSystem.codec, channelDescriptors, test.createMockLogger());
 
-			function curryMessageCallback(id) {
-				return text => {
-					test.log(`${route} (id ${id}) received message: ${text}`);
+			// create a custom emitter for raising client connected events
+			const emitter = new EventEmitter();
+
+			// register a ws route (notice that these callbacks make the same calls to zmqService as the callbacks in wsRoutes)
+			// except for newClient, which is exclusively used for testing
+			server.ws(route, {
+				newChannel: (channel, sender) => zmqService.on(channel, object => sender.send(object)),
+				removeChannel: channel => zmqService.removeAllListeners(channel),
+				newClient: () => { emitter.emit('clientConnected'); }
+			});
+
+			return emitter;
+		};
+
+		const extractBasicClientOptionValues = options => {
+			if ('number' !== typeof options)
+				return { numTotalClients: options.numClients, messageIds: options.messageIds };
+
+			// by default, expect all message ids
+			const messageIds = new Set();
+			for (let i = 1; i <= options; ++i)
+				messageIds.add(i);
+
+			return { numTotalClients: options, messageIds };
+		};
+
+		const createBoundZsocket = () => {
+			const zsocket = zmq.socket('pub');
+			zsocket.bindSync(`tcp://127.0.0.1:${ports.mq}`);
+			return zsocket;
+		};
+
+		const publishBlock = (zsocket, buffer) => {
+			// publish the block buffer to the block topic after short delay to allow subscribers to finish attaching
+			setTimeout(() => {
+				test.log('publishing block data');
+				zsocket.send([Buffer.of(0x49, 0x6A, 0xCA, 0x80, 0xE4, 0xD8, 0xF2, 0x9F), buffer]);
+			}, delays.publish);
+		};
+
+		const createClientSockets = (route, emitter, options, handlers) => {
+			const { numTotalClients, messageIds } = extractBasicClientOptionValues(options);
+
+			//  bind to a publisher if one is not provided
+			const zsocket = options.zsocket || createBoundZsocket();
+			const sockets = [];
+
+			const curryMessageCallback = (ws, id) => messageJson => {
+				test.log(`${route} (id ${id}) received message: ${messageJson}`);
+
+				// 1. if uid is sent, subscribe to topic 'block'
+				const message = messageJson ? JSON.parse(messageJson) : {};
+				if ('uid' in message) {
+					const responseJson = JSON.stringify(Object.assign(message, { subscribe: 'block' }));
+					ws.send(responseJson);
+					test.log('subscribed to block');
+
+					// store the client id in the socket
+					ws.uid = message.uid;
+					return;
+				}
+
+				// 2. if uid is not sent, handle payload (should be block buffer)
+				const messageHandler = () => {
 					expect(messageIds.has(id), `message id ${id}`).to.equal(true);
 					messageIds.delete(id);
+					handlers.onMessage(JSON.parse(messageJson));
 
-					handlers.onMessage(JSON.parse(text));
-					if (0 === messageIds.size)
-						handlers.onAllMessages();
+					if (0 === messageIds.size) {
+						test.log('all messages processed');
+						handlers.onAllMessages(zsocket, sockets);
+					}
 				};
-			}
 
-			const sockets = [];
-			const numTotalClients = numRemainingClients;
-			for (let i = 1; i <= numTotalClients; ++i) {
-				const ws = new WebSocket(`ws://localhost:${port}${route}`);
-				sockets.push(ws);
-
-				ws.on('open', openCallback);
-				ws.on('message', curryMessageCallback(i));
-			}
-
-			return sockets;
-		}
-
-		function createHandlers(server, serverWs, done, height, scoreLow, scoreHigh) {
-			return {
-				onAllOpen: () => {
-					// Act: send a payload to the websocket after all connections are established
-					serverWs.send({ payload: createChainInfo(height, scoreLow, scoreHigh), type: 'chainInfo' });
-				},
-				onMessage: payload => {
-					// Assert:
-					expect(payload).to.deep.equal({ id: 123, height: [height, 0], scoreLow: [scoreLow, 0], scoreHigh: [scoreHigh, 0] });
-				},
-				onAllMessages: () => {
-					server.close();
-					done();
-				}
+				messageHandler(id, messageJson);
 			};
-		}
 
-		it('handles single connection', done => {
-			// Arrange: set up the server with a single ws route
-			const server = createServer();
-			const serverWs = registerRoute(server, '/ws/chainInfo');
-			server.listen(port);
+			// create web sockets
+			let numRemainingClients = numTotalClients;
+			for (let i = 1; i <= numTotalClients; ++i) {
+				const ws = new WebSocket(`ws://localhost:${ports.server}${route}`);
+				sockets.push(ws);
+				ws.on('message', curryMessageCallback(ws, i));
+			}
 
-			// - create a client websocket
-			createClientSockets(
-				'/ws/chainInfo',
-				1,
-				createHandlers(server, serverWs, done, 17, 6, 11));
+			// aggregate test 'clientConnected' events to raise onAllConnected
+			emitter.on('clientConnected', () => {
+				if (0 === --numRemainingClients) {
+					test.log('all clients connected');
+					handlers.onAllConnected(zsocket, sockets);
+				}
+			});
+		};
+
+		const createHandlers = (server, done, blockTag = undefined) => ({
+			onAllConnected: zsocket => {
+				// Act: publish a block
+				publishBlock(zsocket, createBlockBuffer(blockTag));
+			},
+			onMessage: payload => {
+				// Assert: notice that payload is already formatted
+				expect(payload, `blockTag: ${blockTag}`).to.deep.equal(createFormattedBlock(blockTag));
+			},
+			onAllMessages: zsocket => {
+				// close mq socket and server, otherwise subsequent tests would fail
+				zsocket.close();
+				server.close();
+				done();
+			}
 		});
 
-		it('handles multiple connections to same route', done => {
+		const runSingleRouteTest = (numClients, done) => {
 			// Arrange: set up the server with a single ws route
-			const server = createServer();
-			const serverWs = registerRoute(server, '/ws/chainInfo');
-			server.listen(port);
+			const server = createWebSocketServer();
+			const emitter = registerRoute(server, '/ws/block');
+			server.listen(ports.server);
+
+			// Act + Assert: create a client websocket and run the test
+			createClientSockets('/ws/block', emitter, numClients, createHandlers(server, done));
+		};
+
+		// region subscribe
+
+		it('handles single subscription', done => runSingleRouteTest(1, done));
+		it('handles multiple subscriptions to same route', done => runSingleRouteTest(3, done));
+
+		it('handles multiple subscriptions to different routes', done => {
+			// Arrange: set up the server with two ws routes
+			const server = createWebSocketServer();
+			const emitter1 = registerRoute(server, '/ws/block1');
+			const emitter2 = registerRoute(server, '/ws/block2');
+			server.listen(ports.server);
+
+			const counts = {
+				numAllConnectedHandlers: 0,
+				numAllMessagesHandlers: 0
+			};
+			const customHandlers = {
+				onAllConnected: zsocket => {
+					// - push to the mq only when both websockets are connected
+					if (2 === ++counts.numAllConnectedHandlers)
+						createHandlers(server, done).onAllConnected(zsocket);
+				},
+				onAllMessages: zsocket => {
+					// - close the server only when messages from both websockets are received and processed
+					if (2 === ++counts.numAllMessagesHandlers)
+						createHandlers(server, done).onAllMessages(zsocket);
+				}
+			};
+
+			// - bind to a zsocket
+			const zsocket = createBoundZsocket();
+
+			// Act + Assert: create two client websockets pointed to different routes
+			// (the routes themselves are meaningless and both will get the same data; the single push above pushes to both routes)
+			// (the only difference is that the set of connections and ids are per-route, which is why both connections will have id 1)
+			const createOptions = () => ({ numClients: 1, messageIds: new Set([1]), zsocket });
+			createClientSockets('/ws/block1', emitter1, createOptions(), Object.assign(createHandlers(server, done), customHandlers));
+			createClientSockets('/ws/block2', emitter2, createOptions(), Object.assign(createHandlers(server, done), customHandlers));
+		});
+
+		// endregion
+
+		// region unsubscribe
+
+		it('handles unsubscription of client from subscribed channel', done => {
+			// Arrange: set up the server with a single ws route
+			const server = createWebSocketServer();
+			const emitter = registerRoute(server, '/ws/block');
+			server.listen(ports.server);
 
 			// - create three client websockets
+			const defaultHandlers = createHandlers(server, done);
+			const defaultOnAllConnected = defaultHandlers.onAllConnected;
+			const defaultOnAllMessages = defaultHandlers.onAllMessages;
 			createClientSockets(
-				'/ws/chainInfo',
-				3,
-				createHandlers(server, serverWs, done, 17, 6, 11));
-		});
+				'/ws/block',
+				emitter,
+				{ numClients: 3, messageIds: new Set([1, 3]) }, // messages should only be sent to the first and last sockets
+				Object.assign(defaultHandlers, {
+					onAllConnected: (zsocket, sockets) => {
+						// Act: unsubscribe the second websocket
+						test.log('unsubscribing second websocket');
+						sockets[1].send(JSON.stringify({ uid: sockets[1].uid, unsubscribe: 'block' }));
+						defaultOnAllConnected(zsocket, sockets);
+					},
+					onAllMessages: (zsocket, sockets) => {
+						// Assert: all sockets are still open
+						sockets.forEach(socket => {
+							expect(socket.readyState).to.equal(WebSocket.OPEN);
+						});
 
-		it('handles multiple connections to different routes', done => {
-			// Arrange: set up the server with two ws routes
-			const server = createServer();
-			const serverWs1 = registerRoute(server, '/ws/chainInfo1');
-			const serverWs2 = registerRoute(server, '/ws/chainInfo2');
-			server.listen(port);
-
-			// - create two client websockets pointed to different routes
-			let numAllMessagesHandlers = 0;
-			const customHandlers = {
-				onAllMessages: () => {
-					if (2 === ++numAllMessagesHandlers) {
-						server.close();
-						done();
+						defaultOnAllMessages(zsocket);
 					}
-				}
-			};
-
-			createClientSockets(
-				'/ws/chainInfo1',
-				1,
-				Object.assign(createHandlers(server, serverWs1, done, 17, 6, 11), customHandlers));
-			createClientSockets(
-				'/ws/chainInfo2',
-				1,
-				Object.assign(createHandlers(server, serverWs2, done, 8, 9, 7), customHandlers));
+				})
+			);
 		});
+
+		it('handles unsubscription of client from unknown channel', done => {
+			// Arrange: set up the server with a single ws route
+			const server = createWebSocketServer();
+			const emitter = registerRoute(server, '/ws/block');
+			server.listen(ports.server);
+
+			// - create three client websockets
+			const defaultHandlers = createHandlers(server, done);
+			const defaultOnAllConnected = defaultHandlers.onAllConnected;
+			createClientSockets(
+				'/ws/block',
+				emitter,
+				3,
+				Object.assign(defaultHandlers, {
+					onAllConnected: (zsocket, sockets) => {
+						// Act: unsubscribe the second websocket from an unknown channel (this should have no effect)
+						test.log('unsubscribing second websocket');
+						sockets[1].send(JSON.stringify({ uid: sockets[1].uid, unsubscribe: 'chainInfo' }));
+						defaultOnAllConnected(zsocket, sockets);
+					}
+				})
+			);
+		});
+
+		// endregion
+
+		// region disconnect (client)
 
 		it('handles disconnecting client sockets', done => {
 			// Arrange: set up the server with a single ws route
-			const server = createServer();
-			const serverWs = registerRoute(server, '/ws/chainInfo');
-			server.listen(port);
+			const server = createWebSocketServer();
+			const emitter = registerRoute(server, '/ws/block');
+			server.listen(ports.server);
 
 			// - create three client websockets
-			const defaultHandlers = createHandlers(server, serverWs, done, 17, 6, 11);
-			const defaultOnAllOpen = defaultHandlers.onAllOpen;
-			const sockets = createClientSockets(
-				'/ws/chainInfo',
+			const defaultHandlers = createHandlers(server, done);
+			const defaultOnAllConnected = defaultHandlers.onAllConnected;
+			createClientSockets(
+				'/ws/block',
+				emitter,
 				{ numClients: 3, messageIds: new Set([1, 3]) }, // messages should only be sent to the first and last sockets
 				Object.assign(defaultHandlers, {
-					onAllOpen: () => {
+					onAllConnected: (zsocket, sockets) => {
 						// Act: close the second websocket
+						test.log('closing second websocket');
 						sockets[1].close();
-						defaultOnAllOpen();
+						defaultOnAllConnected(zsocket, sockets);
 					}
-				}));
+				})
+			);
 		});
 
-		it('handles errors sending data to client sockets', done => {
+		// endregion
+
+		// region invalid subscription requests
+
+		const runInvalidClientTest = (done, messageCallback) => {
 			// Arrange: set up the server with a single ws route
-			const route = '/ws/chainInfo';
-			const server = createServer();
-			const serverWs = registerRoute(server, route);
-			server.listen(port);
+			const server = createWebSocketServer();
+			registerRoute(server, '/ws/block');
+			server.listen(ports.server);
 
-			// - create a client websocket
-			const ws = new WebSocket(`ws://localhost:${port}${route}`);
+			// - connect four clients to the route
+			const numConnections = 4;
+			let numCloses = 0;
+			const addHandlers = (ws, id) => {
+				ws.on('message', messageJson => messageCallback(ws, messageJson));
+				ws.on('close', () => {
+					// Assert: all clients have been closed
+					test.log(`client ${id} was closed`);
+					if (numConnections === ++numCloses) {
+						// close server, otherwise subsequent tests would fail
+						server.close();
+						done();
+					}
+				});
+			};
 
-			ws.on('open', () => {
-				// Act: send bad data (raw payload) followed by good data
-				serverWs.send({ payload: createChainInfo(1, 2, 3), type: 'raw' });
-				serverWs.send({ payload: createChainInfo(4, 5, 6), type: 'chainInfo' });
-			});
+			for (let i = 0; i < numConnections; ++i) {
+				const ws = new WebSocket(`ws://localhost:${ports.server}/ws/block`);
+				addHandlers(ws, i);
+			}
+		};
 
-			ws.on('message', text => {
-				// Assert: an empty message was sent (due to an error)
-				test.log(`${route} received message: ${text}`);
-				expect(text).to.equal('');
-			});
-
-			ws.on('close', () => {
-				// Assert: the client was closed
-				//         (if the client was not closed, the close event would not fire and this test would hang)
-				server.close();
-				done();
+		it('invalid data disconnects client', done => {
+			runInvalidClientTest(done, ws => {
+				// Act: non-json data
+				ws.send('hello');
 			});
 		});
+
+		it('malformed request disconnects client', done => {
+			runInvalidClientTest(done, (ws, messageJson) => {
+				// Arrange:
+				const message = JSON.parse(messageJson);
+				Object.assign(message, { subscribe: 7 });
+
+				// Act: subscribe must be a string
+				ws.send(JSON.stringify(message));
+			});
+		});
+
+		it('unsupported topic subscribe request disconnects client', done => {
+			runInvalidClientTest(done, (ws, messageJson) => {
+				// Act: try to subscribe to an unsupported topic
+				const responseJson = JSON.stringify(Object.assign(JSON.parse(messageJson), { subscribe: 'chainInfo' }));
+				ws.send(responseJson);
+			});
+		});
+
+		// endregion
+
+		// region close (server)
 
 		it('closing server closes all clients', done => {
 			// Arrange: set up the server with two ws routes
-			const server = createServer();
-			registerRoute(server, '/ws/chainInfo1');
-			registerRoute(server, '/ws/chainInfo2');
-			server.listen(port);
+			const server = createWebSocketServer();
+			registerRoute(server, '/ws/block1');
+			registerRoute(server, '/ws/block2');
+			server.listen(ports.server);
 
 			// - connect two clients to each route
 			const numConnections = 4;
 			let numOpens = 0;
 			let numCloses = 0;
 
-			function addHandlers(ws, id) {
+			const addHandlers = (ws, id) => {
 				ws.on('open', () => {
 					// Act: close the server after all connections have been opened
 					if (numConnections === ++numOpens)
+						// close server, otherwise subsequent tests would fail
 						server.close();
 				});
 
@@ -508,14 +896,16 @@ describe('server', () => {
 					if (numConnections === ++numCloses)
 						done();
 				});
-			}
+			};
 
 			for (let i = 0; i < numConnections; ++i) {
 				const routePostfix = (i % 2) + 1;
-				const ws = new WebSocket(`ws://localhost:${port}/ws/chainInfo${routePostfix}`);
+				const ws = new WebSocket(`ws://localhost:${ports.server}/ws/block${routePostfix}`);
 				addHandlers(ws, i);
 			}
 		});
+
+		// endregion
 	});
 
 	// endregion

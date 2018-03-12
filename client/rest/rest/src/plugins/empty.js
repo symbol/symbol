@@ -4,8 +4,12 @@
  * Creates an empty plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
-export default {
+module.exports = {
 	createDb: () => undefined,
+
+	registerTransactionStates: () => {},
+
+	registerMessageChannels: () => {},
 
 	registerRoutes: () => {}
 };

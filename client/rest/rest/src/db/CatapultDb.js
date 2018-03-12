@@ -1,77 +1,73 @@
 /** @module db/CatapultDb */
 
-import catapult from 'catapult-sdk';
-import MongoDb from 'mongodb';
-import connector from './connector';
+const catapult = require('catapult-sdk');
+const MongoDb = require('mongodb');
+const connector = require('./connector');
 
-const address = catapult.model.address;
-const aggregateEntityType = catapult.model.EntityType.aggregate;
+const { address, EntityType } = catapult.model;
+const { ObjectId } = MongoDb;
 
-const ObjectId = MongoDb.ObjectID;
-const Binary = MongoDb.Binary;
+const isAggregateType = document => EntityType.aggregateComplete === document.transaction.type
+	|| EntityType.aggregateBonded === document.transaction.type;
 
-function createLong(value) {
+const createLong = value => {
 	if (Number.isInteger(value))
 		return MongoDb.Long.fromNumber(value);
 
 	// if value is an array, assume it is a uint64
 	return Array.isArray(value) ? new MongoDb.Long(value[0], value[1]) : value;
-}
+};
 
-function createAccountTransactionsAllConditions(publicKey, networkId) {
-	const decoded = address.publicKeyToAddress(publicKey, networkId);
+const createAccountTransactionsAllConditions = (publicKey, networkId) => {
+	const decodedAddress = address.publicKeyToAddress(publicKey, networkId);
 	const bufferPublicKey = Buffer.from(publicKey);
-	const bufferAddress = Buffer.from(decoded);
+	const bufferAddress = Buffer.from(decodedAddress);
 	return {
 		$or: [
-			{ 'transaction.signer': bufferPublicKey },
-			{ 'transaction.recipient': bufferAddress },
-			{ 'transaction.cosignatures': { $elemMatch: { signer: bufferPublicKey } } }
+			{ 'transaction.cosignatures.signer': bufferPublicKey },
+			{ 'meta.addresses': bufferAddress }
 		]
 	};
-}
+};
 
-function createSanitizer() {
-	return {
-		copyAndDeleteId: dbObject => {
-			if (dbObject) {
-				dbObject.meta.id = dbObject._id;
-				delete dbObject._id;
-			}
-
-			return dbObject;
-		},
-
-		copyAndDeleteIds: dbObjects => {
-			for (const dbObject of dbObjects) {
-				dbObject.meta.id = dbObject._id;
-				delete dbObject._id;
-			}
-
-			return dbObjects;
-		},
-
-		deleteId: dbObject => {
-			if (dbObject)
-				delete dbObject._id;
-
-			return dbObject;
-		},
-
-		deleteIds: dbObjects => {
-			for (const dbObject of dbObjects)
-				delete dbObject._id;
-
-			return dbObjects;
+const createSanitizer = () => ({
+	copyAndDeleteId: dbObject => {
+		if (dbObject) {
+			dbObject.meta.id = dbObject._id;
+			delete dbObject._id;
 		}
-	};
-}
 
-function mapToPromise(dbObject) {
-	return Promise.resolve(null === dbObject ? undefined : dbObject);
-}
+		return dbObject;
+	},
 
-function buildBlocksFromOptions(height, numBlocks, chainHeight) {
+	copyAndDeleteIds: dbObjects => {
+		dbObjects.forEach(dbObject => {
+			dbObject.meta.id = dbObject._id;
+			delete dbObject._id;
+		});
+
+		return dbObjects;
+	},
+
+	deleteId: dbObject => {
+		if (dbObject)
+			delete dbObject._id;
+
+		return dbObject;
+	},
+
+	deleteIds: dbObjects => {
+		dbObjects.forEach(dbObject => {
+			delete dbObject._id;
+		});
+
+		return dbObjects;
+	}
+});
+
+const mapToPromise = dbObject => Promise.resolve(null === dbObject ? undefined : dbObject);
+
+const buildBlocksFromOptions = (height, numBlocks, chainHeight) => {
 	const one = createLong(1);
 	const startHeight = height.isZero() ? chainHeight.subtract(numBlocks).add(one) : height;
 
@@ -81,14 +77,11 @@ function buildBlocksFromOptions(height, numBlocks, chainHeight) {
 
 	const endHeight = calculatedEndHeight.lessThan(chainEndHeight) ? calculatedEndHeight : chainEndHeight;
 	return { startHeight, endHeight, numBlocks: endHeight.subtract(startHeight).toNumber() };
-}
+};
 
-function boundPageSize(pageSize, bounds) {
-	return Math.max(bounds.pageSizeMin, Math.min(bounds.pageSizeMax, pageSize));
-}
+const boundPageSize = (pageSize, bounds) => Math.max(bounds.pageSizeMin, Math.min(bounds.pageSizeMax, pageSize));
 
-export default class CatapultDb {
-
+class CatapultDb {
 	// region construction / connect / disconnect
 
 	constructor(options) {
@@ -103,14 +96,18 @@ export default class CatapultDb {
 
 	connect(url, dbName) {
 		return connector.connectToDatabase(url, dbName)
-			.then(db => { this.database = db; });
+			.then(client => {
+				this.client = client;
+				this.database = client.db();
+			});
 	}
 
 	close() {
 		if (!this.database)
 			return;
 
-		this.database.close();
+		this.client.close();
+		this.client = undefined;
 		this.database = undefined;
 	}
 
@@ -118,23 +115,38 @@ export default class CatapultDb {
 
 	// region helpers
 
-	queryDocument(collectionName, conditions, fields) {
+	queryDocument(collectionName, conditions, projection) {
 		const collection = this.database.collection(collectionName);
-		return collection.findOne(conditions, fields)
+		return collection.findOne(conditions, { projection })
 			.then(mapToPromise);
 	}
 
-	queryPagedDocuments(collectionName, conditions, id, pageSize, options) {
-		const sortOrder = (options || {}).sortOrder || -1;
+	queryDocuments(collectionName, conditions) {
+		const collection = this.database.collection(collectionName);
+		return collection.find(conditions)
+			.toArray()
+			.then(this.sanitizer.deleteIds);
+	}
+
+	queryDocumentsAndCopyIds(collectionName, conditions, options = {}) {
+		const collection = this.database.collection(collectionName);
+		return collection.find(conditions)
+			.project(options.projection)
+			.toArray()
+			.then(this.sanitizer.copyAndDeleteIds);
+	}
+
+	queryPagedDocuments(collectionName, conditions, id, pageSize, options = {}) {
+		const sortOrder = options.sortOrder || -1;
 		if (id)
 			conditions.$and.push({ _id: { [0 > sortOrder ? '$lt' : '$gt']: new ObjectId(id) } });
 
 		const collection = this.database.collection(collectionName);
 		return collection.find(conditions)
+			.project(options.projection)
 			.sort({ _id: sortOrder })
 			.limit(boundPageSize(pageSize, this))
-			.toArray()
-			.then(entities => Promise.resolve(entities));
+			.toArray();
 	}
 
 	// endregion
@@ -182,37 +194,38 @@ export default class CatapultDb {
 		if (0 === aggregateIds.length)
 			return Promise.resolve([]);
 
-		const collection = this.database.collection(collectionName);
-		return collection.find({ 'meta.aggregateId': { $in: aggregateIds } })
-			.toArray()
-			.then(this.sanitizer.copyAndDeleteIds);
+		return this.queryDocumentsAndCopyIds(collectionName, { 'meta.aggregateId': { $in: aggregateIds } });
 	}
 
 	queryTransactions(conditions, id, pageSize, options) {
+		// don't expose private meta.addresses field
+		const optionsWithProjection = Object.assign({ projection: { 'meta.addresses': 0 } }, options);
+
 		// filter out dependent documents
 		const collectionName = (options || {}).collectionName || 'transactions';
 		const transactionConditions = { $and: [{ 'meta.aggregateId': { $exists: false } }, conditions] };
-		return this.queryPagedDocuments(collectionName, transactionConditions, id, pageSize, options)
+
+		return this.queryPagedDocuments(collectionName, transactionConditions, id, pageSize, optionsWithProjection)
 			.then(this.sanitizer.copyAndDeleteIds)
 			.then(transactions => {
 				const aggregateIds = [];
 				const aggregateIdToTransactionMap = {};
-				for (const document of transactions) {
-					if (aggregateEntityType === document.transaction.type) {
+				transactions
+					.filter(isAggregateType)
+					.forEach(document => {
 						const aggregateId = document.meta.id;
 						aggregateIds.push(aggregateId);
 						aggregateIdToTransactionMap[aggregateId.toString()] = document.transaction;
-					}
-				}
+					});
 
 				return this.queryDependentDocuments(collectionName, aggregateIds).then(dependentDocuments => {
-					for (const document of dependentDocuments) {
-						const transaction = aggregateIdToTransactionMap[document.meta.aggregateId];
+					dependentDocuments.forEach(dependentDocument => {
+						const transaction = aggregateIdToTransactionMap[dependentDocument.meta.aggregateId];
 						if (!transaction.transactions)
 							transaction.transactions = [];
 
-						transaction.transactions.push(document);
-					}
+						transaction.transactions.push(dependentDocument);
+					});
 
 					return transactions;
 				});
@@ -223,9 +236,42 @@ export default class CatapultDb {
 		return this.queryTransactions({ 'meta.height': createLong(height) }, id, pageSize, { sortOrder: 1 });
 	}
 
-	transactionById(id) {
-		return this.queryDocument('transactions', { _id: new ObjectId(id) })
-			.then(this.sanitizer.copyAndDeleteId);
+	transactionsByIdsImpl(collectionName, conditions) {
+		return this.queryDocumentsAndCopyIds(collectionName, conditions, { projection: { 'meta.addresses': 0 } })
+			.then(documents => Promise.all(documents.map(document => {
+				if (!document)
+					return document;
+
+				if (!isAggregateType(document))
+					return document;
+
+				return this.queryDependentDocuments(collectionName, [document.meta.id]).then(dependentDocuments => {
+					dependentDocuments.forEach(dependentDocument => {
+						if (!document.transaction.transactions)
+							document.transaction.transactions = [];
+
+						document.transaction.transactions.push(dependentDocument);
+					});
+
+					return document;
+				});
+			})));
+	}
+
+	transactionsByIds(ids) {
+		return this.transactionsByIdsImpl('transactions', { _id: { $in: ids.map(id => new ObjectId(id)) } });
+	}
+
+	transactionsByHashes(hashes) {
+		return this.transactionsByIdsImpl('transactions', { 'meta.hash': { $in: hashes.map(hash => Buffer.from(hash)) } });
+	}
+
+	transactionsByHashesUnconfirmed(hashes) {
+		return this.transactionsByIdsImpl('unconfirmedTransactions', { 'meta.hash': { $in: hashes.map(hash => Buffer.from(hash)) } });
+	}
+
+	transactionsByHashesPartial(hashes) {
+		return this.transactionsByIdsImpl('partialTransactions', { 'meta.hash': { $in: hashes.map(hash => Buffer.from(hash)) } });
 	}
 
 	/**
@@ -257,8 +303,7 @@ export default class CatapultDb {
 		return collection.aggregate([conditions, grouping])
 			.sort({ _id: -1 })
 			.toArray()
-			.then(this.sanitizer.deleteIds)
-			.then(entities => Promise.resolve(entities));
+			.then(this.sanitizer.deleteIds);
 	}
 
 	// region transaction retrieval for account
@@ -284,20 +329,21 @@ export default class CatapultDb {
 		return this.queryTransactions(conditions, id, pageSize, { collectionName: 'unconfirmedTransactions' });
 	}
 
+	accountTransactionsPartial(publicKey, id, pageSize) {
+		const conditions = createAccountTransactionsAllConditions(publicKey, this.networkId);
+		return this.queryTransactions(conditions, id, pageSize, { collectionName: 'partialTransactions' });
+	}
+
 	// endregion
 
 	// region account retrieval
 
-	accountGet(decodedAddress) {
-		const decoded = Buffer.from(decodedAddress);
-		const bufferAddress = new Binary(decoded, 0);
-		const accountCollection = this.database.collection('accounts');
-		return accountCollection.findOne({ 'account.address': bufferAddress }, { _id: 0 })
-			.then(accountWithMetaData => {
-				if (null === accountWithMetaData)
-					return undefined;
-
-				const account = accountWithMetaData.account;
+	accountsByIds(ids) {
+		// id will either have address property or publicKey property set; in the case of publicKey, convert it to address
+		const buffers = ids.map(id => Buffer.from((id.publicKey ? address.publicKeyToAddress(id.publicKey, this.networkId) : id.address)));
+		return this.queryDocuments('accounts', { 'account.address': { $in: buffers } })
+			.then(entities => entities.map(accountWithMetadata => {
+				const { account } = accountWithMetadata;
 				if (0 < account.importances.length) {
 					const importanceSnapshot = account.importances.pop();
 					account.importance = importanceSnapshot.value;
@@ -308,14 +354,25 @@ export default class CatapultDb {
 				}
 
 				delete account.importances;
-				return accountWithMetaData;
-			});
+				return accountWithMetadata;
+			}));
 	}
 
-	accountGetFromPublicKey(publicKey) {
-		const decodedAddress = address.publicKeyToAddress(publicKey, this.networkId);
-		return this.accountGet(decodedAddress);
+	// endregion
+
+	// region failed transaction
+
+	/**
+	 * Retrieves transaction results for the given hashes.
+	 * @param {Array.<Uint8Array>} hashes The transaction hashes.
+	 * @returns {Promise.<Array>} The promise that resolves to the array of hash / validation result pairs.
+	 */
+	transactionsByHashesFailed(hashes) {
+		const buffers = hashes.map(hash => Buffer.from(hash));
+		return this.queryDocuments('transactionStatuses', { hash: { $in: buffers } });
 	}
 
 	// endregion
 }
+
+module.exports = CatapultDb;

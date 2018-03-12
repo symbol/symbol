@@ -9,7 +9,7 @@
  * @interface
  * @extends {module:modelBinary/ModelCodec}
  */
-export default {
+module.exports = {
 	/**
 	 * Determines whether or not an entity type is supported.
 	 * @instance

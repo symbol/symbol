@@ -1,45 +1,41 @@
-import catapult from 'catapult-sdk';
-import MongoDb from 'mongodb';
-import CatapultDb from '../../../src/db/CatapultDb';
-import test from '../../testUtils';
-import testDbOptions from './testDbOptions';
+const catapult = require('catapult-sdk');
+const MongoDb = require('mongodb');
+const CatapultDb = require('../../../src/db/CatapultDb');
+const test = require('../../testUtils');
+const testDbOptions = require('./testDbOptions');
 
-const address = catapult.model.address;
+const { address } = catapult.model;
 
-const Binary = MongoDb.Binary;
-const Long = MongoDb.Long;
-const ObjectId = MongoDb.ObjectID;
+const { Binary, Long, ObjectId } = MongoDb;
 
 const Default_Height = 34567;
 const Key_Size = 32;
 
-function createDbCollection(db, collectionName) {
+const createDbCollection = (db, collectionName) =>
 	// note: db.database.collection() will always return a collection even if it doesn't exist in the database
-	return db.database.collection(collectionName).drop()
+	db.database.collection(collectionName)
+		.drop()
 		.catch(() => Promise.resolve());
-}
 
-function createObjectId(id) {
-	return new ObjectId(`${'00'.repeat(12)}${id.toString(16)}`.slice(-24));
-}
+const createObjectId = id => new ObjectId(`${'00'.repeat(12)}${id.toString(16)}`.slice(-24));
 
-function createMosaics(count) {
+const createMosaics = count => {
 	const mosaics = [];
 	for (let i = 0; i < count; ++i)
 		mosaics.push({ id: Long.fromNumber(i), amount: Long.fromNumber(i * i) });
 
 	return mosaics;
-}
+};
 
-function createImportances(count) {
+const createImportances = count => {
 	const importances = [];
 	for (let i = 1; i <= count; ++i)
 		importances.push({ value: Long.fromNumber(i), height: Long.fromNumber(i * i) });
 
 	return importances;
-}
+};
 
-function createAccount(publicKey, savePublicKey, mosaics, importances) {
+const createAccount = (publicKey, savePublicKey, mosaics, importances) => {
 	const decoded = Buffer.from(address.publicKeyToAddress(publicKey, testDbOptions.networkId));
 	const account = {
 		address: new Binary(decoded),
@@ -57,32 +53,34 @@ function createAccount(publicKey, savePublicKey, mosaics, importances) {
 	}
 
 	return { meta: {}, account };
-}
+};
 
-function createAccounts(publicKey, options) {
+const createAccounts = (publicKey, options) => {
 	options.numAccounts = undefined === options.numAccounts ? 10 : options.numAccounts;
 	options.numImportances = undefined === options.numImportances ? 3 : options.numImportances;
 	const accounts = [];
 
 	// note: the first account in the array is not random since it is used in tests
 	accounts.push(createAccount(
-			publicKey,
-			options.savePublicKey,
-			createMosaics(options.numMosaics),
-			createImportances(options.numImportances)));
+		publicKey,
+		options.savePublicKey,
+		createMosaics(options.numMosaics),
+		createImportances(options.numImportances)
+	));
 
 	for (let i = 0; i < options.numAccounts; ++i) {
 		accounts.push(createAccount(
-				test.random.publicKey(),
-				0 === i % 2,
-				createMosaics(options.numMosaics),
-				createImportances(options.numImportances)));
+			test.random.publicKey(),
+			0 === i % 2 || options.saveRandomPublicKey,
+			createMosaics(options.numMosaics),
+			createImportances(options.numImportances)
+		));
 	}
 
 	return accounts;
-}
+};
 
-function createDbBlock(height) {
+const createDbBlock = height => {
 	// meta data
 	const meta = {
 		hash: new Binary(test.random.hash()),
@@ -105,13 +103,14 @@ function createDbBlock(height) {
 	};
 
 	return { meta, block };
-}
+};
 
-function createDbTransaction(id, signer, recipient, options) {
+const createDbTransaction = (id, signer, recipient, options) => {
 	// meta data
 	const meta = {
 		hash: new Binary(test.random.hash()),
-		height: Long.fromNumber((options || {}).height || Default_Height)
+		height: Long.fromNumber((options || {}).height || Default_Height),
+		addresses: []
 	};
 
 	// transaction data
@@ -131,9 +130,9 @@ function createDbTransaction(id, signer, recipient, options) {
 		transaction.mosaics.push({ id: Long.fromNumber(j), amount: Long.fromNumber(j * j) });
 
 	return { _id: id, meta, transaction };
-}
+};
 
-function createDbTransactions(numRounds, signer, recipient) {
+const createDbTransactions = (numRounds, signer, recipient) => {
 	// Each round consists of
 	// - 1 random transaction
 	// - 1 transaction with signer
@@ -147,9 +146,9 @@ function createDbTransactions(numRounds, signer, recipient) {
 	let id = 0;
 	const transactions = [];
 
-	function push(txSigner, txRecipient) {
+	const push = (txSigner, txRecipient) => {
 		transactions.push(createDbTransaction(createObjectId(++id), txSigner, txRecipient));
-	}
+	};
 
 	for (let i = 0; i < numRounds; ++i) {
 		push(test.random.publicKey(), test.random.address());
@@ -165,18 +164,16 @@ function createDbTransactions(numRounds, signer, recipient) {
 	}
 
 	return transactions;
-}
+};
 
-function createChainInfo(height, scorelow, scoreHigh) {
-	return {
-		height: Long.fromNumber(height),
-		scoreLow: Long.fromNumber(scorelow),
-		scoreHigh: Long.fromNumber(scoreHigh)
-	};
-}
+const createChainInfo = (height, scorelow, scoreHigh) => ({
+	height: Long.fromNumber(height),
+	scoreLow: Long.fromNumber(scorelow),
+	scoreHigh: Long.fromNumber(scoreHigh)
+});
 
 const collectionUtils = {
-	names: ['blocks', 'transactions', 'unconfirmedTransactions', 'accounts', 'chainInfo'],
+	names: ['blocks', 'transactions', 'unconfirmedTransactions', 'partialTransactions', 'transactionStatuses', 'accounts', 'chainInfo'],
 	findInEntities: (dbEntities, collectionName) => {
 		if ('blocks' !== collectionName)
 			return dbEntities[collectionName];
@@ -185,43 +182,40 @@ const collectionUtils = {
 	}
 };
 
-function populateCollection(db, collectionName, seed) {
-	return createDbCollection(db, collectionName)
-		.then(() => {
-			if (seed) {
-				const insertionFunction = Array.isArray(seed) ? 'insertMany' : 'insertOne';
-				return db.database.collection(collectionName)[insertionFunction](seed);
-			}
+const populateCollection = (db, collectionName, seed) => createDbCollection(db, collectionName).then(() => {
+	if (seed) {
+		const insertionFunction = Array.isArray(seed) ? 'insertMany' : 'insertOne';
+		return db.database.collection(collectionName)[insertionFunction](seed);
+	}
 
-			return Promise.resolve();
-		});
-}
+	return Promise.resolve();
+});
 
-function populateDatabase(db, dbEntities) {
+const populateDatabase = (db, dbEntities) => {
 	const promises = [];
-	for (const collectionName of collectionUtils.names) {
+	collectionUtils.names.forEach(collectionName => {
 		const seed = collectionUtils.findInEntities(dbEntities, collectionName);
 		const createCollectionPromise = populateCollection(db, collectionName, seed);
 		promises.push(createCollectionPromise);
-	}
+	});
 
 	return Promise.all(promises);
-}
+};
 
-function sanitizeDbEntities(collectionName, seed) {
+const sanitizeDbEntities = (collectionName, seed) => {
 	if (Array.isArray(seed)) {
-		for (const item of seed) {
+		seed.forEach(item => {
 			if (!['accounts', 'blocks'].includes(collectionName) && item.meta)
 				item.meta.id = item._id;
 
 			delete item._id;
-		}
+		});
 	} else if (seed) {
 		delete seed._id;
 	}
-}
+};
 
-function runDbTest(dbEntities, collectionName, createDbFacade, issueDbCommand, assertDbCommandResult) {
+const runDbTest = (dbEntities, collectionName, createDbFacade, issueDbCommand, assertDbCommandResult) => {
 	// Arrange:
 	const db = new CatapultDb({ networkId: testDbOptions.networkId });
 	const dbFacade = createDbFacade(db);
@@ -233,7 +227,7 @@ function runDbTest(dbEntities, collectionName, createDbFacade, issueDbCommand, a
 		.then(() => issueDbCommand(dbFacade))
 		.then(assertDbCommandResult)
 		.then(() => db.close());
-}
+};
 
 const dbTestUtils = {
 	collection: collectionUtils,
@@ -253,4 +247,4 @@ const dbTestUtils = {
 };
 Object.assign(dbTestUtils, test);
 
-export default dbTestUtils;
+module.exports = dbTestUtils;

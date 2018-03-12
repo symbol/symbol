@@ -1,17 +1,17 @@
-import MongoDb from 'mongodb';
-import NamespaceDb from '../../../../src/plugins/db/NamespaceDb';
-import test from '../../../testUtils';
-import dbTestUtils from '../../../db/utils/dbTestUtils';
+const MongoDb = require('mongodb');
+const NamespaceDb = require('../../../../src/plugins/db/NamespaceDb');
+const test = require('../../../testUtils');
+const dbTestUtils = require('../../../db/utils/dbTestUtils');
 
-const Binary = MongoDb.Binary;
-const Long = MongoDb.Long;
+const { Binary, Long } = MongoDb;
 
 const Namespace_Types = { root: 0, child: 1 };
 
-function createNamespace(id, owner, namespaceType, parentIdOrDuration, path, lifetime, active) {
+const createNamespace = (id, owner, namespaceType, parentIdOrDuration, path, lifetime, active) => {
 	// namespace data
 	const namespace = {
-		owner: new Binary(owner),
+		owner: new Binary(owner.publicKey),
+		ownerAddress: new Binary(owner.address),
 		startHeight: Long.fromNumber(lifetime.start),
 		endHeight: Long.fromNumber(lifetime.end),
 		depth: path.length,
@@ -32,17 +32,17 @@ function createNamespace(id, owner, namespaceType, parentIdOrDuration, path, lif
 		namespace.parentId = Long.fromNumber(parentIdOrDuration);
 
 	return { _id: dbTestUtils.db.createObjectId(id), meta: { active }, namespace };
-}
+};
 
-function createNamespaces(numRounds, owner) {
+const createNamespaces = (numRounds, owner, startdId = 0) => {
 	// the depth is determined by id % 3:
 	// 0: root
 	// 1: child of depth 1
 	// 2: child of depth 2
-	let id = 0;
+	let id = startdId;
 	const namespaces = [];
 
-	function push(namespaceOwner, i, active) {
+	const push = (namespaceOwner, i, active) => {
 		const namespaceType = 0 === i % 3 ? Namespace_Types.root : Namespace_Types.child;
 		const lifetime = { start: 10 * i, end: 10 * (i + 1) };
 		// use a 12300 base for namespace id, to distinguish from id inside the tests
@@ -53,7 +53,7 @@ function createNamespaces(numRounds, owner) {
 			path.unshift(--nsId);
 
 		namespaces.push(createNamespace(id++, namespaceOwner, namespaceType, id, path, lifetime, active));
-	}
+	};
 
 	for (let i = 0; i < numRounds; ++i)
 		push(owner, i, true);
@@ -62,7 +62,7 @@ function createNamespaces(numRounds, owner) {
 		push(owner, i, false);
 
 	return namespaces;
-}
+};
 
 const namespaceDbTestUtils = {
 	db: {
@@ -74,4 +74,4 @@ const namespaceDbTestUtils = {
 };
 Object.assign(namespaceDbTestUtils, test);
 
-export default namespaceDbTestUtils;
+module.exports = namespaceDbTestUtils;

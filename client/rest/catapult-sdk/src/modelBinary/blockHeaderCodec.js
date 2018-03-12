@@ -1,9 +1,9 @@
 /** @module modelBinary/blockHeaderCodec */
-import sizes from './sizes';
+const sizes = require('./sizes');
 
 const constants = { sizes };
 
-export default {
+module.exports = {
 	/**
 	 * Parses a block header.
 	 * @param {object} parser The parser.

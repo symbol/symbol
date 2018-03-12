@@ -1,107 +1,156 @@
-import { expect } from 'chai';
-import catapult from 'catapult-sdk';
-import namespaceRoutes from '../../../src/plugins/routes/namespaceRoutes';
-import test from '../../routes/utils/routeTestUtils';
+const { expect } = require('chai');
+const catapult = require('catapult-sdk');
+const namespaceRoutes = require('../../../src/plugins/routes/namespaceRoutes');
+const test = require('../../routes/utils/routeTestUtils');
 
-const convert = catapult.utils.convert;
+const { convert } = catapult.utils;
+const { address } = catapult.model;
 
 describe('namespace routes', () => {
-	const factory = {
-		createNamespaceRouteInfo: (routeName, dbApiName) => ({
-			routes: namespaceRoutes,
-			routeName,
-			createDb: (queriedIdentifiers, namespace) => ({
-				[dbApiName]: id => {
-					queriedIdentifiers.push(id);
-					return Promise.resolve(namespace);
-				}
-			})
-		}),
-		createNamespacePagingRouteInfo: (routeName, createDb) => ({
-			routes: namespaceRoutes,
-			routeName,
-			createDb
-		})
-	};
-
 	describe('get by id', () => {
-		const namespaceRouteInfo = factory.createNamespaceRouteInfo('/namespace/id/:id', 'namespaceById');
-		const Valid_Namespace_Id = '1234567890ABCDEF';
-
-		it('returns namespace if found', () =>
-			// Assert:
-			test.route.document.assertReturnsEntityIfFound(namespaceRouteInfo, {
-				params: { id: Valid_Namespace_Id },
-				paramsIdentifier: [0x90ABCDEF, 0x12345678],
-				dbEntity: { id: 8 },
-				type: 'namespaceDescriptor'
-			}));
-
-		it('returns 404 if namespace is not found', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorIfNotFound(namespaceRouteInfo, {
-				params: { id: Valid_Namespace_Id },
-				paramsIdentifier: [0x90ABCDEF, 0x12345678],
-				printableParamsIdentifier: Valid_Namespace_Id,
-				dbEntity: undefined
-			}));
-
-		it('returns 409 if namespace id is invalid', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorForInvalidParams(namespaceRouteInfo, {
-				params: { id: '12345' }, // odd number of chars
-				error: 'id has an invalid format: hex string has unexpected size \'5\''
-			}));
+		const namespaceId = '1234567890ABCDEF';
+		test.route.document.addGetDocumentRouteTests(namespaceRoutes.register, {
+			route: '/namespace/:namespaceId',
+			inputs: {
+				valid: { object: { namespaceId }, parsed: [[0x90ABCDEF, 0x12345678]], printable: namespaceId },
+				invalid: {
+					object: { namespaceId: '12345' },
+					error: 'namespaceId has an invalid format'
+				}
+			},
+			dbApiName: 'namespaceById',
+			type: 'namespaceDescriptor'
+		});
 	});
 
 	describe('get by owner', () => {
-		const Valid_Public_Key = '75D8BB873DA8F5CCA741435DE76A46AFC2840803EBF080E931195B048D77F88C';
-		const pagingTestsFactory = test.setup.createPagingTestsFactory(
-			factory.createNamespacePagingRouteInfo(
-				'/account/key/:publicKey/namespaces',
-				(queriedIdentifiers, entities) => ({
-					namespacesByOwner: (publicKey, pageId, pageSize) => {
-						queriedIdentifiers.push({ publicKey, pageId, pageSize });
-						return Promise.resolve(entities);
+		const factory = {
+			createNamespacePagingRouteInfo: (routeName, routeCaptureMethod) => ({
+				routes: namespaceRoutes,
+				routeName,
+				createDb: (keyGroups, documents) => ({
+					namespacesByOwners: (type, accountIds, pageId, pageSize) => {
+						keyGroups.push({
+							type,
+							accountIds,
+							pageId,
+							pageSize
+						});
+						return Promise.resolve(documents);
 					}
-				})),
-			{ publicKey: Valid_Public_Key },
-			{ publicKey: convert.hexToUint8(Valid_Public_Key) },
-			'namespaceDescriptor');
+				}),
+				routeCaptureMethod
+			})
+		};
 
-		test.assert.addPagingTests(pagingTestsFactory);
+		const { addresses, publicKeys } = test.sets;
 
-		pagingTestsFactory.addFailureTest(
-			'key is invalid',
-			{ publicKey: '12345' },
-			'publicKey has an invalid format: hex string has unexpected size \'5\'');
+		describe('get by account', () => {
+			const addGetTests = traits => {
+				const pagingTestsFactory = test.setup.createPagingTestsFactory(
+					factory.createNamespacePagingRouteInfo('/account/:accountId/namespaces', 'get'),
+					traits.valid.params,
+					traits.valid.expected,
+					'namespaceDescriptor'
+				);
+
+				pagingTestsFactory.addDefault();
+				pagingTestsFactory.addNonPagingParamFailureTest('accountId', traits.invalid.accountId);
+			};
+
+			describe('by address', () => addGetTests({
+				valid: {
+					params: { accountId: addresses.valid[0] },
+					expected: { type: 'address', accountIds: [address.stringToAddress(addresses.valid[0])] }
+				},
+				invalid: {
+					accountId: addresses.invalid,
+					error: 'illegal base32 character 1'
+				}
+			}));
+
+			describe('by publicKey', () => addGetTests({
+				valid: {
+					params: { accountId: publicKeys.valid[0] },
+					expected: { type: 'publicKey', accountIds: [convert.hexToUint8(publicKeys.valid[0])] }
+				},
+				invalid: {
+					accountId: publicKeys.invalid,
+					error: 'unrecognized hex char \'1G\''
+				}
+			}));
+		});
+
+		describe('POST', () => {
+			const addPostTests = traits => {
+				const pagingTestsFactory = test.setup.createPagingTestsFactory(
+					factory.createNamespacePagingRouteInfo('/account/namespaces', 'post'),
+					traits.valid.params,
+					traits.valid.expected,
+					'namespaceDescriptor'
+				);
+
+				pagingTestsFactory.addDefault();
+				traits.invalid.forEach(invalid => pagingTestsFactory.addFailureTest(invalid.name, invalid.params, invalid.error));
+			};
+
+			describe('by address', () => addPostTests({
+				valid: {
+					params: { addresses: addresses.valid },
+					expected: { type: 'address', accountIds: addresses.valid.map(addr => address.stringToAddress(addr)) }
+				},
+				invalid: [
+					{
+						name: 'element in array is invalid (address)',
+						params: { addresses: [addresses.valid[0], addresses.invalid, addresses.valid[1]] },
+						error: 'element in array addresses has an invalid format'
+					},
+					{
+						name: 'element in array is invalid (accountId)',
+						params: { addresses: [addresses.valid[0], '12345', addresses.valid[1]] },
+						error: 'element in array addresses has an invalid format'
+					}
+				]
+			}));
+
+			describe('by publicKey', () => addPostTests({
+				valid: {
+					params: { publicKeys: publicKeys.valid },
+					expected: { type: 'publicKey', accountIds: publicKeys.valid.map(publicKey => convert.hexToUint8(publicKey)) }
+				},
+				invalid: [
+					{
+						name: 'element in array is invalid (publicKey)',
+						params: { publicKeys: [publicKeys.valid[0], publicKeys.invalid, publicKeys.valid[1]] },
+						error: 'element in array publicKeys has an invalid format'
+					},
+					{
+						name: 'element in array is invalid (accountId)',
+						params: { publicKeys: [publicKeys.valid[0], '12345', publicKeys.valid[1]] },
+						error: 'element in array publicKeys has an invalid format'
+					}
+				]
+			}));
+		});
 	});
 
 	describe('get namespace names by ids', () => {
-		// notice that for deep equal to return true for functions, they must have exactly the same source,
-		// so this cannot be defined within createParentId
-		function isZero() {
-			return 0 === this.high_ && 0 === this.low_;
-		}
+		const createParentId = parentId => ({ high_: 0, low_: parentId });
 
-		function createParentId(parentId) {
-			return { high_: 0, low_: parentId, isZero };
-		}
-
-		function createNamespace(parentId, namespaceId) {
-			return {
-				parentId: createParentId(parentId),
-				namespaceId: [0, namespaceId]
-			};
-		}
+		const createNamespace = (parentId, namespaceId) => ({
+			// 1. in db, parentId is only stored for child namespaces
+			// 2. db returns null instead of undefined when a document property is not present
+			parentId: undefined === parentId ? null : createParentId(parentId),
+			namespaceId: [0, namespaceId]
+		});
 
 		const Valid_Hex_String_Namespace_Ids = ['1234567890ABCDEF', 'ABCDEF0123456789'];
 		const Valid_Uint64_Namespace_Ids = [[0x90ABCDEF, 0x12345678], [0x23456789, 0xABCDEF01]];
 
-		function runTest(options) {
+		const runTest = options => {
 			// Arrange:
 			const dbParamTuples = [];
-			const db = (function () {
+			const db = (() => {
 				let level = 0;
 				return {
 					catapultDb: {
@@ -116,77 +165,76 @@ describe('namespace routes', () => {
 			// Act:
 			return test.route.executeSingle(
 				namespaceRoutes.register,
-				'/names/namespace/ids',
+				'/namespace/names',
 				'post',
-				{ ids: Valid_Hex_String_Namespace_Ids },
+				{ namespaceIds: Valid_Hex_String_Namespace_Ids },
 				db,
+				undefined,
 				response => {
 					// Assert: parameters passed to db function are correct
 					let level = 0;
 					expect(dbParamTuples.length).to.equal(options.expectedNumDbQueries);
-					for (const dbParamTuple of dbParamTuples) {
+					dbParamTuples.forEach(dbParamTuple => {
 						expect(dbParamTuple.ids).to.deep.equal(options.queryIdsGroupedByLevel[level++]);
 						expect(dbParamTuple.transactionType).to.deep.equal(catapult.model.EntityType.registerNamespace);
 						expect(dbParamTuple.fieldsDescriptor).to.deep.equal({ id: 'namespaceId', name: 'name', parentId: 'parentId' });
-					}
+					});
 
 					// check response
 					let expectedPayload = [];
-					for (const dbEntities of options.dbEntitiesGroupedByLevel)
+					options.dbEntitiesGroupedByLevel.forEach(dbEntities => {
 						expectedPayload = expectedPayload.concat(dbEntities);
+					});
 
 					expect(response).to.deep.equal({ payload: expectedPayload, type: 'namespaceNameTuple' });
-				});
-		}
+				}
+			);
+		};
 
-		it('returns empty array if no names are found', () =>
-			runTest({
-				queryIdsGroupedByLevel: [
-					Valid_Uint64_Namespace_Ids
-				],
-				dbEntitiesGroupedByLevel: [
-					[]
-				],
-				expectedNumDbQueries: 1
-			}));
+		it('returns empty array if no names are found', () => runTest({
+			queryIdsGroupedByLevel: [
+				Valid_Uint64_Namespace_Ids
+			],
+			dbEntitiesGroupedByLevel: [
+				[]
+			],
+			expectedNumDbQueries: 1
+		}));
 
-		it('returns namespace names if found', () =>
-			runTest({
-				queryIdsGroupedByLevel: [
-					Valid_Uint64_Namespace_Ids
-				],
-				dbEntitiesGroupedByLevel: [
-					[createNamespace(0, 9), createNamespace(0, 5), createNamespace(0, 7)]
-				],
-				expectedNumDbQueries: 1
-			}));
+		it('returns namespace names if found', () => runTest({
+			queryIdsGroupedByLevel: [
+				Valid_Uint64_Namespace_Ids
+			],
+			dbEntitiesGroupedByLevel: [
+				[createNamespace(undefined, 9), createNamespace(undefined, 5), createNamespace(undefined, 7)]
+			],
+			expectedNumDbQueries: 1
+		}));
 
-		it('returns level1 (one ancestor) namespace names if found', () =>
-			runTest({
-				queryIdsGroupedByLevel: [
-					Valid_Uint64_Namespace_Ids,
-					[createParentId(12), createParentId(16)]
-				],
-				dbEntitiesGroupedByLevel: [
-					[createNamespace(0, 9), createNamespace(12, 5), createNamespace(16, 7)],
-					[createNamespace(0, 12), createNamespace(0, 16)]
-				],
-				expectedNumDbQueries: 2
-			}));
+		it('returns level1 (one ancestor) namespace names if found', () => runTest({
+			queryIdsGroupedByLevel: [
+				Valid_Uint64_Namespace_Ids,
+				[createParentId(12), createParentId(0), createParentId(16)]
+			],
+			dbEntitiesGroupedByLevel: [
+				[createNamespace(undefined, 9), createNamespace(12, 5), createNamespace(0, 3), createNamespace(16, 7)],
+				[createNamespace(undefined, 12), createNamespace(undefined, 0), createNamespace(undefined, 16)]
+			],
+			expectedNumDbQueries: 2
+		}));
 
-		it('returns level2 (two ancestor) namespace names if found', () =>
-			runTest({
-				queryIdsGroupedByLevel: [
-					Valid_Uint64_Namespace_Ids,
-					[createParentId(17), createParentId(12), createParentId(16)],
-					[createParentId(25), createParentId(25)]
-				],
-				dbEntitiesGroupedByLevel: [
-					[createNamespace(17, 9), createNamespace(12, 5), createNamespace(16, 7)],
-					[createNamespace(0, 12), createNamespace(25, 16), createNamespace(25, 17)],
-					[createNamespace(0, 25), createNamespace(0, 25)]
-				],
-				expectedNumDbQueries: 3
-			}));
+		it('returns level2 (two ancestor) namespace names if found', () => runTest({
+			queryIdsGroupedByLevel: [
+				Valid_Uint64_Namespace_Ids,
+				[createParentId(17), createParentId(12), createParentId(16)],
+				[createParentId(25), createParentId(25)]
+			],
+			dbEntitiesGroupedByLevel: [
+				[createNamespace(17, 9), createNamespace(12, 5), createNamespace(16, 7)],
+				[createNamespace(undefined, 12), createNamespace(25, 16), createNamespace(25, 17)],
+				[createNamespace(undefined, 25), createNamespace(undefined, 25)]
+			],
+			expectedNumDbQueries: 3
+		}));
 	});
 });

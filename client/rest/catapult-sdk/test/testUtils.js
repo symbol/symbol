@@ -1,9 +1,9 @@
-import crypto from 'crypto';
-import { createKeyPairFromPrivateKeyString } from '../src/crypto/keyPair';
-import sizes from '../src/modelBinary/sizes';
-import convert from '../src/utils/convert';
+const crypto = require('crypto');
+const { createKeyPairFromPrivateKeyString } = require('../src/crypto/keyPair');
+const sizes = require('../src/modelBinary/sizes');
+const convert = require('../src/utils/convert');
 
-export default {
+module.exports = {
 	constants: { sizes },
 
 	random: {

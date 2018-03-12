@@ -1,6 +1,6 @@
-import { expect } from 'chai';
-import base32 from '../../src/utils/base32';
-import convert from '../../src/utils/convert';
+const { expect } = require('chai');
+const base32 = require('../../src/utils/base32');
+const convert = require('../../src/utils/convert');
 
 describe('base32', () => {
 	const Test_Vectors = [
@@ -22,7 +22,7 @@ describe('base32', () => {
 
 		it('can convert test vectors', () => {
 			// Arrange:
-			for (const sample of Test_Vectors) {
+			Test_Vectors.forEach(sample => {
 				const input = convert.hexToUint8(sample.decoded);
 
 				// Act:
@@ -30,7 +30,7 @@ describe('base32', () => {
 
 				// Assert:
 				expect(encoded, `input ${sample.decoded}`).to.equal(sample.encoded);
-			}
+			});
 		});
 
 		it('accepts all byte values', () => {
@@ -80,13 +80,13 @@ describe('base32', () => {
 
 		it('can convert test vectors', () => {
 			// Arrange:
-			for (const sample of Test_Vectors) {
+			Test_Vectors.forEach(sample => {
 				// Act:
 				const decoded = base32.decode(sample.encoded);
 
 				// Assert:
 				expect(convert.uint8ToHex(decoded), `input ${sample.encoded}`).to.equal(sample.decoded);
-			}
+			});
 		});
 
 		it('accepts all valid characters', () => {
@@ -116,8 +116,9 @@ describe('base32', () => {
 			];
 
 			// Act + Assert:
-			for (const input of illegalInputs)
+			illegalInputs.forEach(input => {
 				expect(() => { base32.decode(input); }, `input ${input}`).to.throw('illegal base32 character');
+			});
 		});
 	});
 
@@ -125,27 +126,27 @@ describe('base32', () => {
 		it('decode -> encode', () => {
 			// Arrange: inputs
 			const inputs = ['BDS73DQ5NC33MKYI3K6GXLJ53C2HJ35A', '46FNYP7T4DD3SWAO6C4NX62FJI5CBA26'];
-			for (const input of inputs) {
+			inputs.forEach(input => {
 				// Act:
 				const decoded = base32.decode(input);
 				const result = base32.encode(decoded);
 
 				// Assert:
 				expect(result, `input ${input}`).to.equal(input);
-			}
+			});
 		});
 
 		it('encode -> decode', () => {
 			// Arrange: inputs
 			const inputs = ['8A4E7DF5B61CC0F97ED572A95F6ACA', '2D96E4ABB65F0AD3C29FEA48C132CE'];
-			for (const input of inputs) {
+			inputs.forEach(input => {
 				// Act:
 				const encoded = base32.encode(convert.hexToUint8(input));
 				const result = base32.decode(encoded);
 
 				// Assert:
 				expect(convert.uint8ToHex(result), `input ${input}`).to.equal(input);
-			}
+			});
 		});
 	});
 });

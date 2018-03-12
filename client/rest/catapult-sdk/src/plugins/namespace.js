@@ -1,33 +1,28 @@
 /** @module plugins/namespace */
-import EntityType from '../model/EntityType';
-import ModelType from '../model/ModelType';
+const EntityType = require('../model/EntityType');
+const ModelType = require('../model/ModelType');
+const uint64 = require('../utils/uint64');
 
-function isNamespaceTypeRoot(namespaceType) {
-	return 0 === namespaceType;
-}
+const isNamespaceTypeRoot = namespaceType => 0 === namespaceType;
 
-function parseString(parser, size) {
-	return parser.buffer(size).toString('ascii');
-}
+const parseString = (parser, size) => parser.buffer(size).toString('ascii');
 
-function writeString(serializer, str) {
-	serializer.writeBuffer(Buffer.from(str, 'ascii'));
-}
+const writeString = (serializer, str) => { serializer.writeBuffer(Buffer.from(str, 'ascii')); };
 
 /**
  * Creates a namespace plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-export default {
+module.exports = {
 	registerSchema: builder => {
-		builder.addTransactionSupport('registerNamespace', {
+		builder.addTransactionSupport(EntityType.registerNamespace, {
 			namespaceId: ModelType.uint64,
 			parentId: ModelType.uint64,
 			duration: ModelType.uint64,
 			name: ModelType.string
 		});
 
-		builder.addTransactionSupport('mosaicDefinition', {
+		builder.addTransactionSupport(EntityType.mosaicDefinition, {
 			mosaicId: ModelType.uint64,
 			parentId: ModelType.uint64,
 			name: ModelType.string,
@@ -37,7 +32,7 @@ export default {
 			value: ModelType.uint64
 		});
 
-		builder.addTransactionSupport('mosaicSupplyChange', {
+		builder.addTransactionSupport(EntityType.mosaicSupplyChange, {
 			mosaicId: ModelType.uint64,
 			delta: ModelType.uint64
 		});
@@ -67,6 +62,7 @@ export default {
 
 			parentId: ModelType.uint64,
 			owner: ModelType.binary,
+			ownerAddress: ModelType.binary,
 
 			startHeight: ModelType.uint64,
 			endHeight: ModelType.uint64
@@ -93,7 +89,7 @@ export default {
 				transaction.namespaceId = parser.uint64();
 
 				const namespaceNameSize = parser.uint8();
-				transaction.namespaceName = parseString(parser, namespaceNameSize);
+				transaction.name = parseString(parser, namespaceNameSize);
 				return transaction;
 			},
 
@@ -102,11 +98,12 @@ export default {
 				serializer.writeUint64(isNamespaceTypeRoot(transaction.namespaceType) ? transaction.duration : transaction.parentId);
 				serializer.writeUint64(transaction.namespaceId);
 
-				serializer.writeUint8(transaction.namespaceName.length);
-				writeString(serializer, transaction.namespaceName);
+				serializer.writeUint8(transaction.name.length);
+				writeString(serializer, transaction.name);
 			}
 		});
 
+		const numRequiredProperties = 2; // flags and divisibility
 		codecBuilder.addTransactionSupport(EntityType.mosaicDefinition, {
 			deserialize: parser => {
 				const transaction = {};
@@ -116,13 +113,13 @@ export default {
 				const mosaicNameSize = parser.uint8();
 				const propertiesCount = parser.uint8();
 
-				transaction.flags = parser.uint8();
-				transaction.divisibility = parser.uint8();
+				transaction.properties = [];
+				for (let i = 0; i < numRequiredProperties; ++i)
+					transaction.properties.push({ key: i, value: uint64.fromUint(parser.uint8()) });
 
-				transaction.mosaicName = parseString(parser, mosaicNameSize);
+				transaction.name = parseString(parser, mosaicNameSize);
 
 				if (0 < propertiesCount) {
-					transaction.properties = [];
 					for (let i = 0; i < propertiesCount; ++i) {
 						const key = parser.uint8();
 						const value = parser.uint64();
@@ -137,16 +134,30 @@ export default {
 				serializer.writeUint64(transaction.parentId);
 				serializer.writeUint64(transaction.mosaicId);
 
-				serializer.writeUint8(transaction.mosaicName.length);
-				const propertiesCount = undefined === transaction.properties ? 0 : transaction.properties.length;
+				serializer.writeUint8(transaction.name.length);
+
+				const propertiesCount = transaction.properties.length - numRequiredProperties;
+				if (0 > propertiesCount)
+					throw Error('all required properties must be specified in bag');
+
 				serializer.writeUint8(propertiesCount);
 
-				serializer.writeUint8(transaction.flags);
-				serializer.writeUint8(transaction.divisibility);
-
-				writeString(serializer, transaction.mosaicName);
-				for (let i = 0; i < propertiesCount; ++i) {
+				// notice that required property values are uint8 size
+				for (let i = 0; i < numRequiredProperties; ++i) {
 					const property = transaction.properties[i];
+					if (i !== property.key)
+						throw Error(`unexpected property ${property.key} at position ${i} in bag`);
+
+					const value = uint64.compact(property.value);
+					if ('number' !== typeof value || 0xFF < value)
+						throw Error(`property ${property.key} value is too large`);
+
+					serializer.writeUint8(value);
+				}
+
+				writeString(serializer, transaction.name);
+				for (let i = 0; i < propertiesCount; ++i) {
+					const property = transaction.properties[numRequiredProperties + i];
 					serializer.writeUint8(property.key);
 					serializer.writeUint64(property.value);
 				}

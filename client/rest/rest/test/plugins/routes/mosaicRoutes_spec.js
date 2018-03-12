@@ -1,116 +1,63 @@
-import { expect } from 'chai';
-import catapult from 'catapult-sdk';
-import mosaicRoutes from '../../../src/plugins/routes/mosaicRoutes';
-import test from '../../routes/utils/routeTestUtils';
+const { expect } = require('chai');
+const catapult = require('catapult-sdk');
+const mosaicRoutes = require('../../../src/plugins/routes/mosaicRoutes');
+const test = require('../../routes/utils/routeTestUtils');
 
-const uint64 = catapult.utils.uint64;
+const { uint64 } = catapult.utils;
 
 describe('mosaic routes', () => {
-	const factory = {
-		createMosaicRouteInfo: (routeName, dbApiName, routeCaptureMethod) => ({
-			routes: mosaicRoutes,
-			routeName,
-			routeCaptureMethod: routeCaptureMethod || 'get',
-			createDb: (queriedIdentifiers, mosaic) => ({
-				[dbApiName]: id => {
-					queriedIdentifiers.push(id);
-					return Promise.resolve(mosaic);
+	describe('by id', () => {
+		const mosaicIds = ['1234567890ABCDEF', 'ABCDEF0123456789'];
+		const uint64MosaicIds = [[0x90ABCDEF, 0x12345678], [0x23456789, 0xABCDEF01]];
+		const errorMessage = 'has an invalid format';
+		test.route.document.addGetPostDocumentRouteTests(mosaicRoutes.register, {
+			routes: { singular: '/mosaic/:mosaicId', plural: '/mosaic' },
+			inputs: {
+				valid: { object: { mosaicId: mosaicIds[0] }, parsed: [uint64MosaicIds[0]], printable: mosaicIds[0] },
+				validMultiple: { object: { mosaicIds }, parsed: uint64MosaicIds },
+				invalid: { object: { mosaicId: '12345' }, error: `mosaicId ${errorMessage}` },
+				invalidMultiple: {
+					object: { mosaicIds: [mosaicIds[0], '12345', mosaicIds[1]] },
+					error: `element in array mosaicIds ${errorMessage}`
 				}
-			})
-		}),
-		createMosaicPagingRouteInfo: (routeName, createDb) => ({
-			routes: mosaicRoutes,
-			routeName,
-			createDb
-		})
-	};
-
-	describe('get by id', () => {
-		const mosaicRouteInfo = factory.createMosaicRouteInfo('/mosaic/id/:id', 'mosaicById');
-		const Valid_Mosaic_Id = '1234567890ABCDEF';
-
-		it('returns mosaic if found', () =>
-			// Assert:
-			test.route.document.assertReturnsEntityIfFound(mosaicRouteInfo, {
-				params: { id: Valid_Mosaic_Id },
-				paramsIdentifier: [0x90ABCDEF, 0x12345678],
-				dbEntity: { id: 8 },
-				type: 'mosaicDescriptor'
-			}));
-
-		it('returns 404 if mosaic is not found', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorIfNotFound(mosaicRouteInfo, {
-				params: { id: Valid_Mosaic_Id },
-				paramsIdentifier: [0x90ABCDEF, 0x12345678],
-				printableParamsIdentifier: Valid_Mosaic_Id,
-				dbEntity: undefined
-			}));
-
-		it('returns 409 if mosaic id is invalid', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorForInvalidParams(mosaicRouteInfo, {
-				params: { id: '12345' }, // odd number of chars
-				error: 'id has an invalid format: hex string has unexpected size \'5\''
-			}));
-	});
-
-	describe('get by ids', () => {
-		const mosaicRouteInfo = factory.createMosaicRouteInfo('/mosaics/ids', 'mosaicsByIds', 'post');
-		const Valid_Mosaic_Ids = ['1234567890ABCDEF', 'ABCDEF0123456789'];
-
-		it('returns mosaics if found', () =>
-			// Assert:
-			test.route.document.assertReturnsEntityIfFound(mosaicRouteInfo, {
-				params: { ids: Valid_Mosaic_Ids },
-				paramsIdentifier: [[0x90ABCDEF, 0x12345678], [0x23456789, 0xABCDEF01]],
-				dbEntity: [1, 2, 3, 4],
-				type: 'mosaicDescriptor'
-			}));
-
-		it('returns 409 if one of mosaic ids is invalid', () =>
-			// Assert:
-			test.route.document.assertReturnsErrorForInvalidParams(mosaicRouteInfo, {
-				params: { ids: [Valid_Mosaic_Ids[0], '12345', Valid_Mosaic_Ids[1]] },
-				error: 'element in array ids has an invalid format: hex string has unexpected size \'5\''
-			}));
+			},
+			dbApiName: 'mosaicsByIds',
+			type: 'mosaicDescriptor'
+		});
 	});
 
 	describe('get by namespace', () => {
 		const Valid_Namespace_Id = '1234567890ABCDEF';
 		const pagingTestsFactory = test.setup.createPagingTestsFactory(
-			factory.createMosaicPagingRouteInfo(
-				'/namespace/:namespaceId/mosaics',
-				(queriedIdentifiers, entities) => ({
+			{
+				routes: mosaicRoutes,
+				routeName: '/namespace/:namespaceId/mosaics',
+				createDb: (queriedIdentifiers, entities) => ({
 					mosaicsByNamespaceId: (namespaceId, pageId, pageSize) => {
 						queriedIdentifiers.push({ namespaceId, pageId, pageSize });
 						return Promise.resolve(entities);
 					}
-				})),
+				})
+			},
 			{ namespaceId: Valid_Namespace_Id },
 			{ namespaceId: uint64.fromHex(Valid_Namespace_Id) },
-			'mosaicDescriptor');
+			'mosaicDescriptor'
+		);
 
-		test.assert.addPagingTests(pagingTestsFactory);
-
-		pagingTestsFactory.addFailureTest(
-			'namespace id is invalid',
-			{ namespaceId: '12345' },
-			'namespaceId has an invalid format: hex string has unexpected size \'5\'');
+		pagingTestsFactory.addDefault();
+		pagingTestsFactory.addNonPagingParamFailureTest('namespaceId', '12345');
 	});
 
 	describe('get mosaic names by ids', () => {
-		function createMosaic(parentId, mosaicId) {
-			return {
-				parentId: [0, parentId],
-				mosaicId: [0, mosaicId]
-			};
-		}
+		const createMosaic = (parentId, mosaicId) => ({
+			parentId: [0, parentId],
+			mosaicId: [0, mosaicId]
+		});
 
 		const Valid_Hex_String_Mosaic_Ids = ['1234567890ABCDEF', 'ABCDEF0123456789'];
 		const Valid_Uint64_Mosaic_Ids = [[0x90ABCDEF, 0x12345678], [0x23456789, 0xABCDEF01]];
 
-		function runTest(options) {
+		const runTest = options => {
 			// Arrange:
 			const dbParamTuples = [];
 			const db = {
@@ -125,10 +72,11 @@ describe('mosaic routes', () => {
 			// Act:
 			return test.route.executeSingle(
 				mosaicRoutes.register,
-				'/names/mosaic/ids',
+				'/mosaic/names',
 				'post',
-				{ ids: Valid_Hex_String_Mosaic_Ids },
+				{ mosaicIds: Valid_Hex_String_Mosaic_Ids },
 				db,
+				undefined,
 				response => {
 					// Assert: parameters passed to db function are correct
 					expect(dbParamTuples.length).to.equal(1);
@@ -138,8 +86,9 @@ describe('mosaic routes', () => {
 
 					// check response
 					expect(response).to.deep.equal({ payload: options.dbEntities, type: 'mosaicNameTuple' });
-				});
-		}
+				}
+			);
+		};
 
 		it('returns empty array if no names are found', () =>
 			runTest({

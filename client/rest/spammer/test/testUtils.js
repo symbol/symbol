@@ -1,6 +1,6 @@
-import crypto from 'crypto';
+const crypto = require('crypto');
 
-export default {
+module.exports = {
 	random: {
 		bytes: size => crypto.randomBytes(size)
 	},

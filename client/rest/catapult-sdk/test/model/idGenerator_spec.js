@@ -1,6 +1,6 @@
-import { expect } from 'chai';
-import { sha3_256 } from 'js-sha3';
-import idGenerator from '../../src/model/idGenerator';
+const { expect } = require('chai');
+const { sha3_256 } = require('js-sha3');
+const idGenerator = require('../../src/model/idGenerator');
 
 const constants = {
 	nem_id: [0x375FFA4B, 0x84B3552D],
@@ -9,44 +9,48 @@ const constants = {
 };
 
 describe('id generator', () => {
-	function generateId(parentId, name) {
+	const generateId = (parentId, name) => {
 		const hash = sha3_256.create();
 		hash.update(Uint32Array.from(parentId).buffer);
 		hash.update(name);
 		const result = new Uint32Array(hash.arrayBuffer());
 		return [result[0], result[1]];
-	}
+	};
 
-	function addBasicTests(generator) {
+	const addBasicTests = generator => {
 		it('produces different results for different names', () => {
 			// Assert:
-			for (const name of ['bloodyrookie.alice', 'nem.mex', 'bloodyrookie.xem', 'bloody_rookie.xem'])
+			['bloodyrookie.alice', 'nem.mex', 'bloodyrookie.xem', 'bloody_rookie.xem'].forEach(name => {
 				expect(generator(name), `nem.xem vs ${name}`).to.not.equal(generator('nem.xem'));
+			});
 		});
 
 		it('rejects names with uppercase characters', () => {
 			// Assert:
-			for (const name of ['NEM.xem', 'NEM.XEM', 'nem.XEM', 'nEm.XeM', 'NeM.xEm'])
+			['NEM.xem', 'NEM.XEM', 'nem.XEM', 'nEm.XeM', 'NeM.xEm'].forEach(name => {
 				expect(() => generator(name), `name ${name}`).to.throw('invalid part name');
+			});
 		});
 
 		it('rejects improper qualified names', () => {
 			// Assert:
-			for (const name of ['.', '..', '...', '.a', 'b.', 'a..b', '.a.b', 'b.a.'])
+			['.', '..', '...', '.a', 'b.', 'a..b', '.a.b', 'b.a.'].forEach(name => {
 				expect(() => generator(name), `name ${name}`).to.throw('empty part');
+			});
 		});
 
 		it('rejects improper part names', () => {
 			// Assert:
-			for (const name of ['alpha.bet@.zeta', 'a!pha.beta.zeta', 'alpha.beta.ze^a'])
+			['alpha.bet@.zeta', 'a!pha.beta.zeta', 'alpha.beta.ze^a'].forEach(name => {
 				expect(() => generator(name), `name ${name}`).to.throw('invalid part name');
+			});
 		});
 
 		it('rejects empty string', () => {
 			// Assert:
 			expect(() => generator(''), 'empty string').to.throw('having zero length');
 		});
-	}
+	};
 
 	describe('generate mosaic id', () => {
 		it('generates correct well known id', () => {
@@ -56,9 +60,7 @@ describe('id generator', () => {
 
 		it('supports multi level mosaics', () => {
 			// Arrange:
-			const expected = generateId(
-				generateId(generateId(generateId(constants.namespace_base_id, 'foo'), 'bar'), 'baz'),
-				'tokens');
+			const expected = ['foo', 'bar', 'baz', 'tokens'].reduce(generateId, constants.namespace_base_id);
 
 			// Assert:
 			expect(idGenerator.generateMosaicId('foo.bar.baz:tokens')).to.deep.equal(expected);
@@ -66,26 +68,30 @@ describe('id generator', () => {
 
 		it('rejects namespace only names', () => {
 			// Assert:
-			for (const name of ['bloodyrookie.alice', 'nem.mex', 'bloodyrookie.xem', 'bloody_rookie.xem'])
+			['bloodyrookie.alice', 'nem.mex', 'bloodyrookie.xem', 'bloody_rookie.xem'].forEach(name => {
 				expect(() => idGenerator.generateMosaicId(name), `name ${name}`).to.throw('missing mosaic');
+			});
 		});
 
 		it('rejects mosaic only names', () => {
 			// Assert:
-			for (const name of ['nem', 'xem', 'alpha'])
+			['nem', 'xem', 'alpha'].forEach(name => {
 				expect(() => idGenerator.generateMosaicId(name), `name ${name}`).to.throw('missing mosaic');
+			});
 		});
 
 		it('rejects names with too many parts', () => {
 			// Assert:
-			for (const name of ['a.b.c.d:e', 'a.b.c.d.e:f'])
+			['a.b.c.d:e', 'a.b.c.d.e:f'].forEach(name => {
 				expect(() => idGenerator.generateMosaicId(name), `name ${name}`).to.throw('too many parts');
+			});
 		});
 
 		it('rejects improper mosaic qualified names', () => {
 			// Assert:
-			for (const name of ['a:b:c', 'a::b'])
+			['a:b:c', 'a::b'].forEach(name => {
 				expect(() => idGenerator.generateMosaicId(name), `name ${name}`).to.throw('invalid part name');
+			});
 		});
 
 		addBasicTests(namespaceName => {
@@ -132,8 +138,9 @@ describe('id generator', () => {
 
 		it('rejects names with too many parts', () => {
 			// Assert:
-			for (const name of ['a.b.c.d', 'a.b.c.d.e'])
+			['a.b.c.d', 'a.b.c.d.e'].forEach(name => {
 				expect(() => idGenerator.generateNamespacePath(name), `name ${name}`).to.throw('too many parts');
+			});
 		});
 
 		addBasicTests(idGenerator.generateNamespacePath);

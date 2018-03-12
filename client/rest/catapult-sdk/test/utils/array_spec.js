@@ -1,6 +1,6 @@
-import { expect } from 'chai';
-import array from '../../src/utils/array';
-import convert from '../../src/utils/convert';
+const { expect } = require('chai');
+const array = require('../../src/utils/array');
+const convert = require('../../src/utils/convert');
 
 describe('array', () => {
 	describe('uint8View', () => {
@@ -94,7 +94,7 @@ describe('array', () => {
 			expect(isZero).to.equal(true);
 		});
 
-		function assertIsNonZero(length, nonZeroOffset) {
+		const assertIsNonZero = (length, nonZeroOffset) => {
 			// Arrange:
 			const src = new Uint16Array(length);
 			src[nonZeroOffset] = 2;
@@ -104,7 +104,7 @@ describe('array', () => {
 
 			// Assert:
 			expect(isZero, `nonzero offset ${nonZeroOffset}`).to.equal(false);
-		}
+		};
 
 		it('returns false if typed array is non zero', () => {
 			// Assert:
@@ -141,7 +141,7 @@ describe('array', () => {
 			expect(isEqual2).to.equal(false);
 		});
 
-		function assertNotEqual(lhs, unequalOffset) {
+		const assertNotEqual = (lhs, unequalOffset) => {
 			// Arrange:
 			const rhs = new Uint8Array(lhs.length);
 			array.copy(rhs, lhs);
@@ -152,7 +152,7 @@ describe('array', () => {
 
 			// Assert:
 			expect(isEqual, `unequal offset ${unequalOffset}`).to.equal(false);
-		}
+		};
 
 		it('returns false if typed arrays are not equal', () => {
 			// Arrange:

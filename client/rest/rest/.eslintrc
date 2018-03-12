@@ -27,7 +27,7 @@ rules:
   - consistent
   max-len:
   - error
-  - code: 150
+  - code: 140
 
   no-tabs:
   - off
@@ -60,9 +60,17 @@ rules:
   func-names:
   - error
   - never
+  func-style:
+  - error
+  - expression
   wrap-iife:
   - error
   - inside
+
+  prefer-destructuring:
+  - error
+  - object: true
+    array: false
 
   valid-jsdoc:
   - error

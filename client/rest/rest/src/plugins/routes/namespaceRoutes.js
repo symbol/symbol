@@ -1,59 +1,72 @@
-import catapult from 'catapult-sdk';
-import routeUtils from '../../routes/routeUtils';
+const AccountType = require('../AccountType');
+const catapult = require('catapult-sdk');
+const routeUtils = require('../../routes/routeUtils');
 
-const uint64 = catapult.utils.uint64;
-const convert = catapult.utils.convert;
+const { uint64 } = catapult.utils;
 
-export default {
+module.exports = {
 	register: (server, db) => {
-		function sendNamespaceOrNotFound(id, res, next) {
-			return routeUtils.sendEntityOrNotFound(id, 'namespaceDescriptor', res, next);
-		}
+		const namespaceSender = routeUtils.createSender('namespaceDescriptor');
 
-		function sendNamespaces(id, res, next) {
-			return routeUtils.sendEntities(id, 'namespaceDescriptor', res, next);
-		}
-
-		server.get('/namespace/id/:id', (req, res, next) => {
-			const id = routeUtils.parseArgument(req.params, 'id', uint64.fromHex);
-			return db.namespaceById(id)
-				.then(sendNamespaceOrNotFound(req.params.id, res, next));
+		server.get('/namespace/:namespaceId', (req, res, next) => {
+			const namespaceId = routeUtils.parseArgument(req.params, 'namespaceId', uint64.fromHex);
+			return db.namespaceById(namespaceId)
+				.then(namespaceSender.sendOne(req.params.namespaceId, res, next));
 		});
 
-		server.get('/account/key/:publicKey/namespaces', (req, res, next) => {
-			const publicKey = routeUtils.parseArgument(req.params, 'publicKey', convert.hexToUint8);
+		server.get('/account/:accountId/namespaces', (req, res, next) => {
+			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
 			const pagingOptions = routeUtils.parsePagingArguments(req.params);
-			return db.namespacesByOwner(publicKey, pagingOptions.id, pagingOptions.pageSize)
-				.then(sendNamespaces('publicKey', res, next));
+
+			return db.namespacesByOwners(type, [accountId], pagingOptions.id, pagingOptions.pageSize)
+				.then(namespaceSender.sendArray('accountId', res, next));
 		});
 
-		function collectNames(namespaceNameTuples, ids) {
-			const type = catapult.model.EntityType.registerNamespace;
-			return db.catapultDb.findNamesByIds(ids, type, { id: 'namespaceId', name: 'name', parentId: 'parentId' })
-				.then(tuples => {
-					for (const nameTuple of tuples)
-						namespaceNameTuples.push(nameTuple);
+		server.post('/account/namespaces', (req, res, next) => {
+			const idOptions = Array.isArray(req.params.publicKeys)
+				? { keyName: 'publicKeys', parserName: 'publicKey', type: AccountType.publicKey }
+				: { keyName: 'addresses', parserName: 'address', type: AccountType.address };
 
-					return tuples
-						.filter(nameTuple => !nameTuple.parentId.isZero())
+			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
+			const pagingOptions = routeUtils.parsePagingArguments(req.params);
+			return db.namespacesByOwners(idOptions.type, accountIds, pagingOptions.id, pagingOptions.pageSize)
+				.then(namespaceSender.sendArray(idOptions.keyName, res, next));
+		});
+
+		const collectNames = (namespaceNameTuples, namespaceIds) => {
+			const type = catapult.model.EntityType.registerNamespace;
+			return db.catapultDb.findNamesByIds(namespaceIds, type, { id: 'namespaceId', name: 'name', parentId: 'parentId' })
+				.then(nameTuples => {
+					nameTuples.forEach(nameTuple => {
+						// db returns null instead of undefined when parentId is not present
+						if (null === nameTuple.parentId)
+							delete nameTuple.parentId;
+
+						namespaceNameTuples.push(nameTuple);
+					});
+
+					// process all parent namespaces next
+					return nameTuples
+						.filter(nameTuple => undefined !== nameTuple.parentId)
 						.map(nameTuple => nameTuple.parentId);
 				});
-		}
+		};
 
-		server.post('/names/namespace/ids', (req, res, next) => {
-			const ids = routeUtils.parseArgumentAsArray(req.params, 'ids', uint64.fromHex);
-			return new Promise(resolve => {
+		server.post('/namespace/names', (req, res, next) => {
+			const namespaceIds = routeUtils.parseArgumentAsArray(req.params, 'namespaceIds', uint64.fromHex);
+			const nameTuplesFuture = new Promise(resolve => {
 				const namespaceNameTuples = [];
-				function chain(nextIds) {
+				const chain = nextIds => {
 					if (0 === nextIds.length)
 						resolve(namespaceNameTuples);
 					else
 						collectNames(namespaceNameTuples, nextIds).then(chain);
-				}
+				};
 
-				collectNames(namespaceNameTuples, ids).then(chain);
-			})
-			.then(routeUtils.sendEntities('ids', 'namespaceNameTuple', res, next));
+				collectNames(namespaceNameTuples, namespaceIds).then(chain);
+			});
+
+			return nameTuplesFuture.then(routeUtils.createSender('namespaceNameTuple').sendArray('namespaceIds', res, next));
 		});
 	}
 };

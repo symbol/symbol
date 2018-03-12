@@ -4,7 +4,7 @@
  * Basic schema property types.
  * @enum {numeric}
  */
-export default {
+module.exports = {
 	/** The default schema property type. */
 	none: 0,
 

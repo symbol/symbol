@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import networkTime from '../../src/utils/networkTime';
+const { expect } = require('chai');
+const networkTime = require('../../src/utils/networkTime');
 
 describe('network time', () => {
 	it('is positive', () => {

@@ -1,8 +1,8 @@
-import embeddedEntityCodec from '../../src/modelBinary/embeddedEntityCodec';
-import test from '../binaryTestUtils';
+const embeddedEntityCodec = require('../../src/modelBinary/embeddedEntityCodec');
+const test = require('../binaryTestUtils');
 
 describe('embedded entity codec', () => {
-	function generateEmbeddedEntity() {
+	const generateEmbeddedEntity = () => {
 		const Signer_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signer));
 
 		return {
@@ -16,7 +16,7 @@ describe('embedded entity codec', () => {
 				type: 0x451C
 			}
 		};
-	}
+	};
 
 	test.binary.test.addAll(embeddedEntityCodec, 36, generateEmbeddedEntity);
 });

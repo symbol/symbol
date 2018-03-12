@@ -1,11 +1,17 @@
-import catapult from 'catapult-sdk';
-import errors from '../server/errors';
+const catapult = require('catapult-sdk');
+const errors = require('../server/errors');
 
-const convert = catapult.utils.convert;
+const { address } = catapult.model;
+const { convert } = catapult.utils;
+const packetHeader = catapult.packet.header;
+const constants = {
+	sizes: {
+		hexPublicKey: 64,
+		addressEncoded: 40
+	}
+};
 
-function isObjectId(str) {
-	return 24 === str.length && convert.isHexString(str);
-}
+const isObjectId = str => 24 === str.length && convert.isHexString(str);
 
 const namedParserMap = {
 	objectId: str => {
@@ -20,10 +26,30 @@ const namedParserMap = {
 			throw Error('must be non-negative number');
 
 		return result;
+	},
+	address: str => {
+		if (constants.sizes.addressEncoded === str.length)
+			return address.stringToAddress(str);
+
+		throw Error(`invalid length of address '${str.length}'`);
+	},
+	publicKey: str => {
+		if (constants.sizes.hexPublicKey === str.length)
+			return convert.hexToUint8(str);
+
+		throw Error(`invalid length of publicKey '${str.length}'`);
+	},
+	accountId: str => {
+		if (constants.sizes.hexPublicKey === str.length)
+			return ['publicKey', convert.hexToUint8(str)];
+		else if (constants.sizes.addressEncoded === str.length)
+			return ['address', address.stringToAddress(str)];
+
+		throw Error(`invalid length of account id '${str.length}'`);
 	}
 };
 
-export default {
+const routeUtils = {
 	/**
 	 * Parses an argument and throws an invalid argument error if it is invalid.
 	 * @param {object} args The container containing the argument to parse.
@@ -35,7 +61,7 @@ export default {
 		try {
 			return ('string' === typeof parser ? namedParserMap[parser] : parser)(args[key]);
 		} catch (err) {
-			throw errors.createInvalidArgumentError(`${key} has an invalid format: ${err.message}`);
+			throw errors.createInvalidArgumentError(`${key} has an invalid format`, err);
 		}
 	},
 
@@ -54,7 +80,7 @@ export default {
 		try {
 			return args[key].map(realParser);
 		} catch (err) {
-			throw errors.createInvalidArgumentError(`element in array ${key} has an invalid format: ${err.message}`);
+			throw errors.createInvalidArgumentError(`element in array ${key} has an invalid format`, err);
 		}
 	},
 
@@ -70,54 +96,142 @@ export default {
 			pageSize: { tryParse: convert.tryParseUint, type: 'unsigned integer' }
 		};
 
-		for (const key of Object.keys(parsedOptions)) {
-			if (args[key]) {
-				const parser = parsers[key];
-				parsedOptions[key] = parser.tryParse(args[key]);
-				if (!parsedOptions[key])
-					throw errors.createInvalidArgumentError(`${key} is not a valid ${parser.type}`);
-			}
-		}
+		Object.keys(parsedOptions).filter(key => args[key]).forEach(key => {
+			const parser = parsers[key];
+			parsedOptions[key] = parser.tryParse(args[key]);
+			if (!parsedOptions[key])
+				throw errors.createInvalidArgumentError(`${key} is not a valid ${parser.type}`);
+		});
 
 		return parsedOptions;
 	},
 
 	/**
-	 * Creates an entity handler that forwards an entity.
-	 * @param {object} id The entity identifier.
-	 * @param {module:routes/routeResultTypes} type The entity type.
-	 * @param {object} res The restify response object.
-	 * @param {Function} next The restify next callback handler.
-	 * @returns {Function} Entity handler.
+	 * Generates valid page sizes from page size config.
+	 * @param {object} config The page size config.
+	 * @returns {object} The valid limits.
 	 */
-	sendEntities(id, type, res, next) {
-		return entity => {
-			if (!Array.isArray(entity))
-				res.send(errors.createInternalError(`error retrieving data for id: '${id}'`));
-			else
-				res.send({ payload: entity, type });
+	generateValidPageSizes: config => {
+		const pageSizes = [];
+		const start = config.min + (0 === config.min % config.step ? 0 : config.step - (config.min % config.step));
+		for (let pageSize = start; config.max >= pageSize; pageSize += config.step)
+			pageSizes.push(pageSize);
 
-			next();
-		};
+		if (0 === pageSizes.length)
+			throw Error('page size configuration does not specify any valid page sizes');
+
+		return pageSizes;
 	},
 
 	/**
-	 * Creates an entity handler that either forwards an entity corresponding to an identifier
-	 * or sends a not found error if no such entity exists.
-	 * @param {object} id The entity identifier.
-	 * @param {module:routes/routeResultTypes} type The entity type.
-	 * @param {object} res The restify response object.
-	 * @param {Function} next The restify next callback handler.
-	 * @returns {Function} An appropriate entity handler.
-	 **/
-	sendEntityOrNotFound(id, type, res, next) {
-		return entity => {
-			if (!entity)
-				res.send(errors.createNotFoundError(id));
-			else
-				res.send({ payload: entity, type });
+	 * Creates a sender for forwarding one or more objects of a given type.
+	 * @param {module:routes/routeResultTypes} type The object type.
+	 * @returns {object} The sender.
+	 */
+	createSender: type => ({
+		/**
+		 * Creates an array handler that forwards an array.
+		 * @param {object} id The array identifier.
+		 * @param {object} res The restify response object.
+		 * @param {Function} next The restify next callback handler.
+		 * @returns {Function} An appropriate array handler.
+		 */
+		sendArray(id, res, next) {
+			return array => {
+				if (!Array.isArray(array))
+					res.send(errors.createInternalError(`error retrieving data for id: '${id}'`));
+				else
+					res.send({ payload: array, type });
 
-			next();
+				next();
+			};
+		},
+
+		/**
+		 * Creates an object handler that either forwards an object corresponding to an identifier
+		 * or sends a not found error if no such object exists.
+		 * @param {object} id The object identifier.
+		 * @param {object} res The restify response object.
+		 * @param {Function} next The restify next callback handler.
+		 * @returns {Function} An appropriate object handler.
+		 */
+		sendOne(id, res, next) {
+			const sendOneObject = object => {
+				if (!object)
+					res.send(errors.createNotFoundError(id));
+				else
+					res.send({ payload: object, type });
+			};
+
+			return object => {
+				if (Array.isArray(object)) {
+					if (2 <= object.length)
+						res.send(errors.createInternalError(`error retrieving data for id: '${id}' (length ${object.length})`));
+					else
+						sendOneObject(object.length && object[0]);
+				} else {
+					sendOneObject(object);
+				}
+
+				next();
+			};
+		}
+	}),
+
+	/**
+	 * Adds GET and POST routes for looking up documents of a single type.
+	 * @param {object} server The server on which to register the routes.
+	 * @param {object} sender The sender to use for sending the results.
+	 * @param {object} routeInfo Information about the routes.
+	 * @param {Function} documentRetriever Lookup function for retrieving the documents.
+	 * @param {Function|string} parser The parser to use or the name of a named parser.
+	 */
+	addGetPostDocumentRoutes: (server, sender, routeInfo, documentRetriever, parser) => {
+		const routes = {
+			get: `${routeInfo.base}/:${routeInfo.singular}`,
+			post: `${routeInfo.base}`
 		};
+		if (routeInfo.postfixes) {
+			routes.get += `/${routeInfo.postfixes.singular}`;
+			routes.post += `/${routeInfo.postfixes.plural}`;
+		}
+
+		server.get(routes.get, (req, res, next) => {
+			const key = routeUtils.parseArgument(req.params, routeInfo.singular, parser);
+			return documentRetriever([key]).then(sender.sendOne(req.params[routeInfo.singular], res, next));
+		});
+
+		server.post(routes.post, (req, res, next) => {
+			const keys = routeUtils.parseArgumentAsArray(req.params, routeInfo.plural, parser);
+			return documentRetriever(keys).then(sender.sendArray(req.params[routeInfo.plural], res, next));
+		});
+	},
+
+	/**
+	 * Adds PUT route for sending a packet to an api server.
+ 	 * @param {object} server The server on which to register the routes.
+ 	 * @param {object} connections The api server connection pool.
+	 * @param {object} routeInfo Information about the route.
+	 * @param {Function} parser The parser to use to parse the route parameters into a packet payload.
+	 */
+	addPutPacketRoute: (server, connections, routeInfo, parser) => {
+		const createPacketFromBuffer = (data, packetType) => {
+			const length = packetHeader.size + data.length;
+			const header = packetHeader.createBuffer(packetType, length);
+			const buffers = [header, Buffer.from(data)];
+			return Buffer.concat(buffers, length);
+		};
+
+		server.put(routeInfo.routeName, (req, res, next) => {
+			const packetBuffer = createPacketFromBuffer(parser(req.params), routeInfo.packetType);
+			return connections.lease()
+				.then(connection => connection.send(packetBuffer))
+				.then(() => {
+					res.send(202, { message: `packet ${routeInfo.packetType} was pushed to the network via ${routeInfo.routeName}` });
+					next();
+				});
+		});
 	}
 };
+
+module.exports = routeUtils;

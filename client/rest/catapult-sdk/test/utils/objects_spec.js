@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import objects from '../../src/utils/objects';
+const { expect } = require('chai');
+const objects = require('../../src/utils/objects');
 
 describe('objects', () => {
 	const propertyTypeDescriptors = [
@@ -11,7 +11,7 @@ describe('objects', () => {
 	];
 
 	describe('deepAssign', () => {
-		function addSimpleTest(name, target, source) {
+		const addSimpleTest = (name, target, source) => {
 			it(name, () => {
 				// Act:
 				const result = objects.deepAssign({ foo: target }, { foo: source });
@@ -19,11 +19,11 @@ describe('objects', () => {
 				// Assert:
 				expect(result).to.deep.equal({ foo: source });
 			});
-		}
+		};
 
 		addSimpleTest('pod can replace pod of same type', 9, 4);
 
-		function addLastPropertyTest(description, value) {
+		const addLastPropertyTest = (description, value) => {
 			it(`last object property takes precedence (${description})`, () => {
 				// Act:
 				const result = objects.deepAssign({ name: 'alpha' }, { name: 'beta' }, { name: value });
@@ -31,18 +31,18 @@ describe('objects', () => {
 				// Assert: the value from the last object passed to deepAssign is used
 				expect(result).to.deep.equal({ name: value });
 			});
-		}
+		};
 
 		addLastPropertyTest('non-null', 'gamma');
 		addLastPropertyTest('null', null);
 		addLastPropertyTest('undefined', undefined);
 
 		// add tests for all descriptor combinations ensuring that any property type can replace any other property type
-		for (const descriptor1 of propertyTypeDescriptors) {
+		propertyTypeDescriptors.forEach(descriptor1 => {
 			it(`${descriptor1.name} can replace other types`, () => {
 				// Arrange:
 				let numTests = 0;
-				for (const descriptor2 of propertyTypeDescriptors) {
+				propertyTypeDescriptors.forEach(descriptor2 => {
 					if (descriptor1 !== descriptor2) {
 						// Act:
 						const result = objects.deepAssign({ foo: descriptor2.value }, { foo: descriptor1.value });
@@ -51,12 +51,12 @@ describe('objects', () => {
 						expect(result).to.deep.equal({ foo: descriptor1.value });
 						++numTests;
 					}
-				}
+				});
 
 				// Sanity: one iteration for each different type descriptor
 				expect(numTests).to.equal(4);
 			});
-		}
+		});
 
 		it('unique properties are merged', () => {
 			// Act:
@@ -121,24 +121,20 @@ describe('objects', () => {
 	});
 
 	describe('check schema against template', () => {
-		function createUnknownPropertyMessage(propertyName) {
-			return `unknown '${propertyName}' key in config`;
-		}
+		const createUnknownPropertyMessage = propertyName => `unknown '${propertyName}' key in config`;
 
-		function createMistypedPropertyMessage(propertyName) {
-			return `override '${propertyName}' property has wrong type`;
-		}
+		const createMistypedPropertyMessage = propertyName => `override '${propertyName}' property has wrong type`;
 
 		it('does not allow undefined property to be replaced', () => {
 			// Arrange:
 			let numTests = 0;
-			for (const descriptor of propertyTypeDescriptors) {
+			propertyTypeDescriptors.forEach(descriptor => {
 				// Act + Assert:
 				const message = `${descriptor.name} cannot replace undefined`;
 				expect(() => objects.checkSchemaAgainstTemplate({ foo: undefined }, { foo: descriptor.value }), message)
 					.to.throw(createUnknownPropertyMessage('foo'));
 				++numTests;
-			}
+			});
 
 			// Sanity:
 			expect(numTests).to.equal(5);
@@ -147,28 +143,26 @@ describe('objects', () => {
 		it('does not allow property to be replaced by different type', () => {
 			// Arrange:
 			let numTests = 0;
-			for (const descriptor1 of propertyTypeDescriptors) {
-				for (const descriptor2 of propertyTypeDescriptors) {
-					if (undefined !== descriptor1.value && descriptor1 !== descriptor2) {
-						// Act + Assert:
-						const message = `${descriptor2.name} cannot replace ${descriptor1.name}`;
-						expect(() => objects.checkSchemaAgainstTemplate({ foo: descriptor1.value }, { foo: descriptor2.value }), message)
-							.to.throw(createMistypedPropertyMessage('foo'));
-						++numTests;
-					}
+			propertyTypeDescriptors.forEach(descriptor1 => propertyTypeDescriptors.forEach(descriptor2 => {
+				if (undefined !== descriptor1.value && descriptor1 !== descriptor2) {
+					// Act + Assert:
+					const message = `${descriptor2.name} cannot replace ${descriptor1.name}`;
+					expect(() => objects.checkSchemaAgainstTemplate({ foo: descriptor1.value }, { foo: descriptor2.value }), message)
+						.to.throw(createMistypedPropertyMessage('foo'));
+					++numTests;
 				}
-			}
+			}));
 
 			// Sanity:
 			expect(numTests).to.equal(16);
 		});
 
-		function addCompatibleTest(name, target, source) {
+		const addCompatibleTest = (name, target, source) => {
 			it(name, () => {
 				// Act + Assert:
 				expect(() => objects.checkSchemaAgainstTemplate({ foo: target }, { foo: source })).to.not.throw();
 			});
-		}
+		};
 
 		addCompatibleTest('allows null to be replaced by null', null, null);
 		addCompatibleTest('allows numeric to be replaced by numeric', 8, 7);

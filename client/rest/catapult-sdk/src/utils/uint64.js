@@ -1,6 +1,8 @@
 /** @module utils/uint64 */
 
-import convert from './convert';
+const convert = require('./convert');
+
+const readUint32At = (bytes, i) => (bytes[i] + (bytes[i + 1] << 8) + (bytes[i + 2] << 16) + (bytes[i + 3] << 24)) >>> 0;
 
 /**
  * An exact uint64 representation composed of two 32bit values.
@@ -9,7 +11,7 @@ import convert from './convert';
  * @property {numeric} 1 The high 32bit value.
  */
 
-export default {
+module.exports = {
 	/**
 	 * Tries to compact a uint64 into a simple numeric.
 	 * @param {module:utils/uint64~uint64} uint64 A uint64 value.
@@ -26,6 +28,43 @@ export default {
 
 		// multiply because javascript bit operations operate on 32bit values
 		return (high * 0x100000000) + low;
+	},
+
+	/**
+	 * Converts a numeric unsigned integer into a uint64.
+	 * @param {Numeric} number The unsigned integer.
+	 * @returns {module:utils/uint64~uint64} The uint64 representation of the input.
+	 */
+	fromUint: number => {
+		const value = [(number & 0xFFFFFFFF) >>> 0, (number / 0x100000000) >>> 0];
+		if (0x00200000 <= value[1] || 0 > number || 0 !== (number % 1))
+			throw Error(`number cannot be converted to uint '${number}'`);
+
+		return value;
+	},
+
+	/**
+	 * Converts a (64bit) uint8 array into a uint64.
+	 * @param {Uint8Array} uint8Array A uint8 array.
+	 * @returns {module:utils/uint64~uint64} The uint64 representation of the input.
+	 */
+	fromBytes: uint8Array => {
+		if (8 !== uint8Array.length)
+			throw Error(`byte array has unexpected size '${uint8Array.length}'`);
+
+		return [readUint32At(uint8Array, 0), readUint32At(uint8Array, 4)];
+	},
+
+	/**
+	 * Converts a (32bit) uint8 array into a uint64.
+	 * @param {Uint8Array} uint8Array A uint8 array.
+	 * @returns {module:utils/uint64~uint64} The uint64 representation of the input.
+	 */
+	fromBytes32: uint8Array => {
+		if (4 !== uint8Array.length)
+			throw Error(`byte array has unexpected size '${uint8Array.length}'`);
+
+		return [readUint32At(uint8Array, 0), 0];
 	},
 
 	/**

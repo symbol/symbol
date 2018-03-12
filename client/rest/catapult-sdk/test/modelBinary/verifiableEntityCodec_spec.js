@@ -1,8 +1,8 @@
-import verifiableEntityCodec from '../../src/modelBinary/verifiableEntityCodec';
-import test from '../binaryTestUtils';
+const verifiableEntityCodec = require('../../src/modelBinary/verifiableEntityCodec');
+const test = require('../binaryTestUtils');
 
 describe('verifiable entity codec', () => {
-	function generateVerifiableEntity() {
+	const generateVerifiableEntity = () => {
 		const Signature_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signature));
 		const Signer_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signer));
 
@@ -19,7 +19,7 @@ describe('verifiable entity codec', () => {
 				type: 0x451C
 			}
 		};
-	}
+	};
 
 	test.binary.test.addAll(verifiableEntityCodec, 100, generateVerifiableEntity);
 });

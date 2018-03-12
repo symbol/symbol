@@ -1,7 +1,7 @@
 /** @module auth/auth */
-import PacketParser from '../parser/PacketParser';
-import verifyPeer from './verifyPeer';
-import VerifyResult from './VerifyResult';
+const PacketParser = require('../parser/PacketParser');
+const verifyPeer = require('./verifyPeer');
+const VerifyResult = require('./VerifyResult');
 
 /**
  * An error that indicates a failed verification handshake.
@@ -18,7 +18,7 @@ class VerifyError extends Error {
 	}
 }
 
-export default {
+module.exports = {
 	/**
 	 * Starts an authentication handshake with a catapult server.
 	 * @param {net.Socket} serverSocket A socket connection to the catapult server.
@@ -30,7 +30,7 @@ export default {
 	 * {@link module:parser/PacketParser} on success or rejected with a
 	 * {@link module:auth/auth~VerifyError} on failure.
 	 */
-	createAuthPromise: (serverSocket, clientKeyPair, serverPublicKey, logger = function () {}) =>
+	createAuthPromise: (serverSocket, clientKeyPair, serverPublicKey, logger = () => {}) =>
 		new Promise((resolve, reject) => {
 			// create a verifier
 			const verifier = verifyPeer.createServerVerifier(serverSocket, clientKeyPair, serverPublicKey);

@@ -1,12 +1,11 @@
-import MongoDb from 'mongodb';
-import NamespaceDb from '../../../../src/plugins/db/NamespaceDb';
-import test from '../../../testUtils';
-import dbTestUtils from '../../../db/utils/dbTestUtils';
+const MongoDb = require('mongodb');
+const NamespaceDb = require('../../../../src/plugins/db/NamespaceDb');
+const test = require('../../../testUtils');
+const dbTestUtils = require('../../../db/utils/dbTestUtils');
 
-const Binary = MongoDb.Binary;
-const Long = MongoDb.Long;
+const { Binary, Long } = MongoDb;
 
-function createMosaic(id, mosaicId, owner, parentId, active) {
+const createMosaic = (id, mosaicId, owner, parentId, active) => {
 	// mosaic data
 	const mosaic = {
 		owner: new Binary(owner),
@@ -15,9 +14,9 @@ function createMosaic(id, mosaicId, owner, parentId, active) {
 	};
 
 	return { _id: dbTestUtils.db.createObjectId(id), mosaic, meta: { active } };
-}
+};
 
-function createMosaics(owner, numNamespaces, numMosaicsPerNamespace) {
+const createMosaics = (owner, numNamespaces, numMosaicsPerNamespace) => {
 	// mosaic ids start at 10000, namespace ids start at 20000 in order to differentiate from db _id
 	// there is only 1 inactive mosaic per namespace and it has the same id as smallest active mosaic in each namespace
 	const mosaics = [];
@@ -36,7 +35,7 @@ function createMosaics(owner, numNamespaces, numMosaicsPerNamespace) {
 	}
 
 	return mosaics;
-}
+};
 
 const mosaicDbTestUtils = {
 	db: {
@@ -48,4 +47,4 @@ const mosaicDbTestUtils = {
 };
 Object.assign(mosaicDbTestUtils, test);
 
-export default mosaicDbTestUtils;
+module.exports = mosaicDbTestUtils;

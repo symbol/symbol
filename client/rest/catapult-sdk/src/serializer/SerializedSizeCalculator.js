@@ -3,7 +3,7 @@
 /**
  * Calculates serialized size using builder pattern.
  */
-export default class SerializedSizeCalculator {
+class SerializedSizeCalculator {
 	/**
 	 * Creates a serialized size calculator.
 	 */
@@ -55,3 +55,5 @@ export default class SerializedSizeCalculator {
 		this.totalSize += buffer.length;
 	}
 }
+
+module.exports = SerializedSizeCalculator;

@@ -2,13 +2,13 @@
 env:
   mocha: true
 rules:
+  import/no-extraneous-dependencies:
+  - error
+  - devDependencies: true
+
   no-underscore-dangle:
   - error
   - allow:
     - _id # mongodb identifier
     - high_ # MongoDb.Timestamp
     - low_ # MongoDb.Timestamp
-
-  import/no-extraneous-dependencies:
-  - error
-  - devDependencies: true

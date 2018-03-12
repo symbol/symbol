@@ -1,10 +1,10 @@
-import errors from '../server/errors';
+const errors = require('../server/errors');
 
 /**
  * A catapult connection for interacting with api nodes.
  * @class CatapultConnection
  */
-export default {
+module.exports = {
 	/**
 	 * Wraps a catapult connection around a socket connection.
 	 * @param {net.Socket} connection The socket connection to wrap.
@@ -18,9 +18,9 @@ export default {
 		 */
 		send: payload =>
 			new Promise((resolve, reject) => {
-				function rejectOnClose() {
+				const rejectOnClose = () => {
 					reject(errors.createServiceUnavailableError('connection failed'));
-				}
+				};
 
 				connection.once('close', rejectOnClose);
 

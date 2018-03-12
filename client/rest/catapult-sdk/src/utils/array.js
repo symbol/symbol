@@ -1,6 +1,6 @@
 /** @module utils/array */
 
-export default {
+module.exports = {
 	/**
 	 * Creates a Uint8Array view on top of input.
 	 * @param {ArrayBuffer|Uint8Array} input The input array.
@@ -49,7 +49,7 @@ export default {
 			if (lhs.length !== rhs.length)
 				return false;
 
-			length = lhs.length;
+			({ length } = lhs);
 		}
 
 		if (length > lhs.length || length > rhs.length)

@@ -1,9 +1,9 @@
-import { expect } from 'chai';
-import transfer from '../../src/plugins/transfer';
-import EntityType from '../../src/model/EntityType';
-import ModelSchemaBuilder from '../../src/model/ModelSchemaBuilder';
-import ModelType from '../../src/model/ModelType';
-import test from '../binaryTestUtils';
+const { expect } = require('chai');
+const transfer = require('../../src/plugins/transfer');
+const EntityType = require('../../src/model/EntityType');
+const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
+const ModelType = require('../../src/model/ModelType');
+const test = require('../binaryTestUtils');
 
 const constants = {
 	sizes: {
@@ -40,14 +40,14 @@ describe('transfer plugin', () => {
 	});
 
 	describe('register codecs', () => {
-		function getCodecs() {
+		const getCodecs = () => {
 			const codecs = {};
 			transfer.registerCodecs({
 				addTransactionSupport: (type, codec) => { codecs[type] = codec; }
 			});
 
 			return codecs;
-		}
+		};
 
 		it('adds transfer codec', () => {
 			// Act:
@@ -58,7 +58,7 @@ describe('transfer plugin', () => {
 			expect(codecs).to.contain.all.keys([EntityType.transfer.toString()]);
 		});
 
-		function generateTransaction() {
+		const generateTransaction = () => {
 			const Recipient_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.addressDecoded));
 
 			return {
@@ -71,9 +71,9 @@ describe('transfer plugin', () => {
 					recipient: Recipient_Buffer
 				}
 			};
-		}
+		};
 
-		function addMessage(generator) {
+		const addMessage = generator => {
 			const Message_Buffer = Buffer.from([
 				0x99, 0xF2, 0x26, 0x6C, 0x06, 0xBE, 0xE0, 0xE1, 0xC7, 0x39, 0x57, 0xFE, 0x0F, 0x39, 0x7E, 0x7A,
 				0xE3, 0x15, 0xEA, 0x51, 0x6B, 0xA7, 0x12, 0xEF, 0x82, 0x7C, 0xE6, 0x2B, 0xD9, 0x5E, 0x01, 0xEC,
@@ -96,9 +96,21 @@ describe('transfer plugin', () => {
 				data.object.message = { type: 0x90, payload: Buffer.from(Message_Buffer) };
 				return data;
 			};
-		}
+		};
 
-		function addMosaics(generator) {
+		const addMessageWithTypeOnly = generator => () => {
+			const data = generator();
+			data.buffer = Buffer.concat([
+				data.buffer,
+				Buffer.of(0x90) // message type
+			]);
+			data.buffer.writeUInt16LE(1, constants.sizes.transfer - 3);
+
+			data.object.message = { type: 0x90, payload: [] };
+			return data;
+		};
+
+		const addMosaics = generator => {
 			const Mosaics_Buffer = Buffer.from([
 				0xED, 0x3E, 0x8A, 0xAD, 0xEC, 0xAD, 0xDA, 0x3F, 0x33, 0x05, 0x49, 0x3C, 0x6C, 0x97, 0xAE, 0x94,
 				0xA3, 0x00, 0xEA, 0xFE, 0xDA, 0xBD, 0x5C, 0xFA, 0x0D, 0x4B, 0x94, 0x1D, 0x15, 0xBB, 0x51, 0xB1,
@@ -124,11 +136,9 @@ describe('transfer plugin', () => {
 				];
 				return data;
 			};
-		}
+		};
 
-		function getCodec() {
-			return getCodecs()[EntityType.transfer];
-		}
+		const getCodec = () => getCodecs()[EntityType.transfer];
 
 		describe('supports transfer', () => {
 			describe('with neither message nor mosaics', () => {
@@ -139,6 +149,10 @@ describe('transfer plugin', () => {
 				test.binary.test.addAll(getCodec(), constants.sizes.transfer + constants.sizes.message, addMessage(generateTransaction));
 			});
 
+			describe('with message composed of only type', () => {
+				test.binary.test.addAll(getCodec(), constants.sizes.transfer + 1, addMessageWithTypeOnly(generateTransaction));
+			});
+
 			describe('with mosaics', () => {
 				test.binary.test.addAll(getCodec(), constants.sizes.transfer + constants.sizes.mosaics, addMosaics(generateTransaction));
 			});
@@ -147,7 +161,8 @@ describe('transfer plugin', () => {
 				test.binary.test.addAll(
 					getCodec(),
 					constants.sizes.transfer + constants.sizes.message + constants.sizes.mosaics,
-					addMosaics(addMessage(generateTransaction)));
+					addMosaics(addMessage(generateTransaction))
+				);
 			});
 		});
 	});

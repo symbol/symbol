@@ -1,8 +1,8 @@
 /** @module modelBinary/ModelCodecBuilder */
-import blockHeaderCodec from './blockHeaderCodec';
-import transactionCodec from './transactionCodec';
-import verifiableEntityCodec from './verifiableEntityCodec';
-import SerializedSizeCalculator from '../serializer/SerializedSizeCalculator';
+const blockHeaderCodec = require('./blockHeaderCodec');
+const transactionCodec = require('./transactionCodec');
+const verifiableEntityCodec = require('./verifiableEntityCodec');
+const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
 
 const constants = {
 	sizes: {
@@ -11,11 +11,9 @@ const constants = {
 	}
 };
 
-function isBlockType(entityType) {
-	return 0 !== (0x8000 & entityType);
-}
+const isBlockType = entityType => 0 !== (0x8000 & entityType);
 
-function findCodecs(entityType, codecs) {
+const findCodecs = (entityType, codecs) => {
 	if (isBlockType(entityType))
 		return [verifiableEntityCodec, blockHeaderCodec];
 
@@ -24,15 +22,13 @@ function findCodecs(entityType, codecs) {
 		throw Error(`no codec registered for '${entityType}'`);
 
 	return [verifiableEntityCodec, transactionCodec, codec];
-}
+};
 
-function createThrowawayConsumingCodec(size) {
-	return {
-		deserialize: parser => { parser.buffer(size); }
-	};
-}
+const createThrowawayConsumingCodec = size => ({
+	deserialize: parser => { parser.buffer(size); }
+});
 
-function deserializeTransactions(parser, size, txCodecs) {
+const deserializeTransactions = (parser, size, txCodecs) => {
 	const transactions = [];
 	let remainingBytes = size;
 	while (0 < remainingBytes) {
@@ -50,19 +46,20 @@ function deserializeTransactions(parser, size, txCodecs) {
 		else
 			codecs.push(createThrowawayConsumingCodec(transactionSize - constants.sizes.transactionHeader));
 
-		for (const codec of codecs)
+		codecs.forEach(codec => {
 			Object.assign(entity, codec.deserialize(parser, transactionSize, txCodecs));
+		});
 
 		transactions.push(entity);
 	}
 
 	return transactions;
-}
+};
 
 /**
  * Builder for creating an aggregate model codec.
  */
-export default class ModelCodecBuilder {
+class ModelCodecBuilder {
 	/**
 	 * Creates a model codec builder.
 	 */
@@ -93,18 +90,20 @@ export default class ModelCodecBuilder {
 				return isBlockType(type) || undefined !== txCodecs[type];
 			},
 
-			deserialize: parser => {
+			deserialize: (parser, options) => {
 				// get codecs for the current entity (and ignore the verifiableEntity codec)
 				const size = parser.uint32();
 				const entity = verifiableEntityCodec.deserialize(parser);
 				const codecs = findCodecs(entity.type, txCodecs);
 				codecs.shift();
 
-				for (const codec of codecs)
+				codecs.forEach(codec => {
 					Object.assign(entity, codec.deserialize(parser, size, txCodecs));
+				});
 
 				// if it's a block with transactions, also deserialize them
-				if (isBlockType(entity.type) && constants.sizes.blockHeader !== size) {
+				const shouldParseBlockTransactions = !(options && options.skipBlockTransactions);
+				if (shouldParseBlockTransactions && isBlockType(entity.type) && constants.sizes.blockHeader !== size) {
 					const extraSize = size - constants.sizes.blockHeader;
 					if (0 > extraSize)
 						throw Error('block must contain complete block header');
@@ -119,13 +118,17 @@ export default class ModelCodecBuilder {
 				const codecs = findCodecs(entity.type, txCodecs);
 
 				const sizeCalculator = new SerializedSizeCalculator();
-				for (const codec of codecs)
+				codecs.forEach(codec => {
 					codec.serialize(entity, sizeCalculator, txCodecs);
+				});
 
 				serializer.writeUint32(sizeCalculator.size() + 4); // include size of size field itself
-				for (const codec of codecs)
+				codecs.forEach(codec => {
 					codec.serialize(entity, serializer, txCodecs);
+				});
 			}
 		};
 	}
 }
+
+module.exports = ModelCodecBuilder;

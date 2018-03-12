@@ -1,5 +1,6 @@
-import { expect } from 'chai';
-import uint64 from '../../src/utils/uint64';
+const { expect } = require('chai');
+const convert = require('../../src/utils/convert');
+const uint64 = require('../../src/utils/uint64');
 
 describe('uint64', () => {
 	describe('compact', () => {
@@ -50,6 +51,41 @@ describe('uint64', () => {
 		});
 	});
 
+	describe('fromUint', () => {
+		const failureTestCases = [
+			{ number: 0x0020000000000000, description: 'min unsafe integer' },
+			{ number: 0x01000D00F0000000, description: 'greater than min unsafe integer' },
+			{ number: -1, description: 'negative' },
+			{ number: 1234.56, description: 'floating point' }
+		];
+
+		failureTestCases.forEach(testCase => {
+			it(`cannot parse number that is ${testCase.description}`, () => {
+				// Assert:
+				expect(() => uint64.fromUint(testCase.number)).to.throw(`number cannot be converted to uint '${testCase.number}'`);
+			});
+		});
+
+		const successTestCases = [
+			{ number: 0, uint64: [0, 0], description: '0' },
+			{ number: 0xA1B2, uint64: [0xA1B2, 0], description: '(0, 8)' },
+			{ number: 0x12345678, uint64: [0x12345678, 0], description: '8' },
+			{ number: 0xABCD12345678, uint64: [0x12345678, 0xABCD], description: '(8, 16)' },
+			{ number: 0x0014567890ABCDEF, uint64: [0x90ABCDEF, 0x00145678], description: '14' },
+			{ number: Number.MAX_SAFE_INTEGER, uint64: [0xFFFFFFFF, 0x001FFFFF], description: '14 (max value)' }
+		];
+
+		successTestCases.forEach(testCase => {
+			it(`can parse numeric with ${testCase.description} significant digits`, () => {
+				// Act:
+				const value = uint64.fromUint(testCase.number);
+
+				// Assert:
+				expect(value).to.deep.equal(testCase.uint64);
+			});
+		});
+	});
+
 	const hexTestCases = [
 		{ str: '0000000000000000', value: [0, 0], description: '0' },
 		{ str: '000000000000A1B2', value: [0xA1B2, 0], description: '(0, 8)' },
@@ -59,8 +95,65 @@ describe('uint64', () => {
 		{ str: 'FFFFFFFFFFFFFFFF', value: [0xFFFFFFFF, 0xFFFFFFFF], description: '16 (max value)' }
 	];
 
+	describe('fromBytes', () => {
+		hexTestCases.forEach(testCase => {
+			it(`can parse byte array with ${testCase.description} significant digits`, () => {
+				// Arrange: prepare little-endian bytes
+				const bytes = convert.hexToUint8(testCase.str).reverse();
+
+				// Act:
+				const value = uint64.fromBytes(bytes);
+
+				// Assert:
+				expect(value).to.deep.equal(testCase.value);
+			});
+		});
+
+		it('cannot parse byte array with invalid size into uint64', () => {
+			// Arrange:
+			const errorMessage = 'byte array has unexpected size';
+
+			// Assert:
+			[0, 3, 4, 5, 7, 9].forEach(size => {
+				expect(() => { uint64.fromBytes(new Uint8Array(size)); }, `size ${size}`).to.throw(errorMessage);
+			});
+		});
+	});
+
+	describe('fromBytes32', () => {
+		const fromBytes32TestCases = [
+			{ str: '00000000', value: [0, 0], description: '0' },
+			{ str: '0000A1B2', value: [0xA1B2, 0], description: '(0, 8)' },
+			{ str: '12345678', value: [0x12345678, 0], description: '8' },
+			{ str: 'FFFFFFFF', value: [0xFFFFFFFF, 0], description: '8 (max value)' }
+		];
+
+		fromBytes32TestCases.forEach(testCase => {
+			it(`can parse byte array with ${testCase.description} significant digits`, () => {
+				// Arrange: prepare little-endian bytes
+				const bytes = convert.hexToUint8(testCase.str).reverse();
+
+				// Act:
+				const value = uint64.fromBytes32(bytes);
+
+				// Assert:
+				expect(value).to.deep.equal(testCase.value);
+			});
+		});
+
+		it('cannot parse byte array with invalid size into uint64', () => {
+			// Arrange:
+			const errorMessage = 'byte array has unexpected size';
+
+			// Assert:
+			[0, 3, 5, 7, 8, 9].forEach(size => {
+				expect(() => { uint64.fromBytes32(new Uint8Array(size)); }, `size ${size}`).to.throw(errorMessage);
+			});
+		});
+	});
+
 	describe('fromHex', () => {
-		for (const testCase of hexTestCases) {
+		hexTestCases.forEach(testCase => {
 			it(`can parse hex string with ${testCase.description} significant digits`, () => {
 				// Act:
 				const value = uint64.fromHex(testCase.str);
@@ -68,7 +161,7 @@ describe('uint64', () => {
 				// Assert:
 				expect(value).to.deep.equal(testCase.value);
 			});
-		}
+		});
 
 		it('cannot parse hex string with invalid characters into uint64', () => {
 			// Assert:
@@ -76,16 +169,19 @@ describe('uint64', () => {
 		});
 
 		it('cannot parse hex string with invalid size into uint64', () => {
+			// Arrange:
+			const errorMessage = 'hex string has unexpected size';
+
 			// Assert:
-			expect(() => { uint64.fromHex(''); }).to.throw('hex string has unexpected size'); // empty string
-			expect(() => { uint64.fromHex('1'); }).to.throw('hex string has unexpected size'); // odd number of chars
-			expect(() => { uint64.fromHex('ABCDEF12'); }).to.throw('hex string has unexpected size'); // too short
-			expect(() => { uint64.fromHex('1234567890ABCDEF12'); }).to.throw('hex string has unexpected size'); // too long
+			expect(() => { uint64.fromHex(''); }).to.throw(errorMessage); // empty string
+			expect(() => { uint64.fromHex('1'); }).to.throw(errorMessage); // odd number of chars
+			expect(() => { uint64.fromHex('ABCDEF12'); }).to.throw(errorMessage); // too short
+			expect(() => { uint64.fromHex('1234567890ABCDEF12'); }).to.throw(errorMessage); // too long
 		});
 	});
 
 	describe('toHex', () => {
-		for (const testCase of hexTestCases) {
+		hexTestCases.forEach(testCase => {
 			it(`can format hex string with ${testCase.description} significant digits`, () => {
 				// Act:
 				const str = uint64.toHex(testCase.value);
@@ -93,7 +189,7 @@ describe('uint64', () => {
 				// Assert:
 				expect(str).to.equal(testCase.str);
 			});
-		}
+		});
 	});
 
 	describe('isZero', () => {
@@ -104,7 +200,7 @@ describe('uint64', () => {
 			{ description: 'low and high are nonzero', value: [74, 12], isZero: false }
 		];
 
-		for (const testCase of zeroTestCases) {
+		zeroTestCases.forEach(testCase => {
 			it(`returns ${testCase.isZero} when ${testCase.description}`, () => {
 				// Act:
 				const isZero = uint64.isZero(testCase.value);
@@ -112,6 +208,6 @@ describe('uint64', () => {
 				// Assert:
 				expect(isZero).to.equal(testCase.isZero);
 			});
-		}
+		});
 	});
 });

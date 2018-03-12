@@ -1,18 +1,12 @@
-import { expect } from 'chai';
-import namespace from '../../src/plugins/namespace';
-import NamespaceDb from '../../src/plugins/db/NamespaceDb';
-import test from '../routes/utils/routeTestUtils';
+const namespace = require('../../src/plugins/namespace');
+const NamespaceDb = require('../../src/plugins/db/NamespaceDb');
+const pluginTest = require('./utils/pluginTestUtils');
+const test = require('../routes/utils/routeTestUtils');
 
 describe('namespace plugin', () => {
-	describe('create db', () => {
-		it('returns namespace db', () => {
-			// Act:
-			const db = namespace.createDb();
-
-			// Assert:
-			expect(db).to.be.instanceOf(NamespaceDb);
-		});
-	});
+	pluginTest.assertThat.pluginCreatesDb(namespace, NamespaceDb);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(namespace);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(namespace);
 
 	describe('register routes', () => {
 		it('registers namespace / mosaic GET routes', () => {
@@ -25,10 +19,10 @@ describe('namespace plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/mosaic/id/:id',
-				'/namespace/:namespaceId/mosaics',
-				'/namespace/id/:id',
-				'/account/key/:publicKey/namespaces'
+				'/account/:accountId/namespaces',
+				'/mosaic/:mosaicId',
+				'/namespace/:namespaceId',
+				'/namespace/:namespaceId/mosaics'
 			]);
 		});
 
@@ -42,9 +36,10 @@ describe('namespace plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/mosaics/ids',
-				'/names/mosaic/ids',
-				'/names/namespace/ids'
+				'/account/namespaces',
+				'/mosaic',
+				'/mosaic/names',
+				'/namespace/names'
 			]);
 		});
 	});

@@ -1,21 +1,23 @@
-import { expect } from 'chai';
-import formatters from '../../src/server/formatters';
+const { expect } = require('chai');
+const formatters = require('../../src/server/formatters');
 
 describe('formatters', () => {
-	function createFormatters() {
+	const createFormatters = name => {
 		const formatUint64 = uint64 => (uint64 ? [uint64[0], uint64[1] * 2] : undefined);
 		return formatters.create({
-			chainInfo: {
-				format: chainInfo => ({
-					height: formatUint64(chainInfo.height),
-					scoreLow: formatUint64(chainInfo.scoreLow),
-					scoreHigh: formatUint64(chainInfo.scoreHigh)
-				})
+			[name]: {
+				chainInfo: {
+					format: chainInfo => ({
+						height: formatUint64(chainInfo.height),
+						scoreLow: formatUint64(chainInfo.scoreLow),
+						scoreHigh: formatUint64(chainInfo.scoreHigh)
+					})
+				}
 			}
 		});
-	}
+	};
 
-	function addBasicObjectFormattingTests(assertJsonFormat) {
+	const addBasicObjectFormattingTests = assertJsonFormat => {
 		// region non-error
 
 		it('can format null object', () => {
@@ -116,7 +118,7 @@ describe('formatters', () => {
 		});
 
 		// endregion
-	}
+	};
 
 	describe('json', () => {
 		addBasicObjectFormattingTests((object, expectedJson, expectedStatusCode) => {
@@ -130,13 +132,8 @@ describe('formatters', () => {
 				}
 			};
 
-			const cbParams = [];
-			const cb = (arg1, data) => {
-				cbParams.push({ arg1, data });
-			};
-
 			// Act:
-			createFormatters().json(req, res, object, cb);
+			const result = createFormatters('json').json(req, res, object);
 
 			// Assert:
 			expect(res.statusCode).to.equal(expectedStatusCode);
@@ -147,9 +144,7 @@ describe('formatters', () => {
 				value: expectedJson.length
 			});
 
-			expect(cbParams.length).to.equal(1);
-			expect(cbParams[0].arg1).to.equal(null);
-			expect(cbParams[0].data).to.equal(expectedJson);
+			expect(result).to.equal(expectedJson);
 		});
 	});
 
@@ -157,7 +152,7 @@ describe('formatters', () => {
 		// note that formatters.ws ignores the status code
 		addBasicObjectFormattingTests((object, expectedJson) => {
 			// Act:
-			const result = createFormatters().ws(object);
+			const result = createFormatters('ws').ws(object);
 
 			// Assert:
 			expect(result).to.equal(expectedJson);
@@ -174,7 +169,7 @@ describe('formatters', () => {
 			};
 
 			// Act:
-			const result = createFormatters().ws(object);
+			const result = createFormatters('ws').ws(object);
 
 			// Assert:
 			expect(result).to.equal(object.payload);

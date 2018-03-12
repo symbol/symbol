@@ -1,0 +1,24 @@
+{
+  "name": "catapult-api-tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "build": "echo \"build is not supported\"",
+    "test:jenkins": "echo \"test is not supported\"",
+    "lint": "eslint websocket",
+    "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit websocket || exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^4.18.2",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0"
+  },
+  "dependencies": {
+  }
+}

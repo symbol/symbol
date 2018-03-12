@@ -1,56 +1,139 @@
-import { expect } from 'chai';
-import routeSystem from '../../src/plugins/routeSystem';
-import test from '../routes/utils/routeTestUtils';
+const { expect } = require('chai');
+const routeSystem = require('../../src/plugins/routeSystem');
+const test = require('../routes/utils/routeTestUtils');
 
 describe('route system', () => {
+	const servicesTemplate = { config: { websocket: {} }, connections: {} };
+	const configureTrailingParameters = [{ put: () => {} }, {}, servicesTemplate];
+
 	it('cannot register unknown extension', () => {
 		// Act:
-		expect(() => routeSystem.configure(['transfer', 'foo', 'namespace'])).to.throw('plugin \'foo\' not supported');
+		expect(() => routeSystem.configure(['transfer', 'foo', 'namespace'], {}, {}, servicesTemplate))
+			.to.throw('plugin \'foo\' not supported');
 	});
 
-	it('has support for all plugins', () => {
+	it('has support for all extensions', () => {
 		// Act:
 		const supportedPluginNames = routeSystem.supportedPluginNames();
 
 		// Assert:
-		expect(supportedPluginNames).to.deep.equal(['aggregate', 'multisig', 'namespace', 'transfer']);
+		expect(supportedPluginNames).to.deep.equal(['aggregate', 'lock', 'multisig', 'namespace', 'transfer']);
 	});
 
-	it('does not register default routes', () => {
-		// Arrange:
-		const routes = [];
-		const server = test.setup.createCapturingMockServer('get', routes);
+	describe('routes', () => {
+		it('does not register default routes', () => {
+			// Arrange:
+			const routes = [];
+			const server = test.setup.createCapturingMockServer('get', routes);
 
-		// Act:
-		routeSystem.configure([], server);
+			// Act:
+			routeSystem.configure([], server, {}, servicesTemplate);
 
-		// Assert:
-		expect(routes.length).to.equal(0);
+			// Assert:
+			expect(routes.length).to.equal(0);
+		});
+
+		it('can register single extension', () => {
+			// Arrange:
+			const routes = [];
+			const server = test.setup.createCapturingMockServer('get', routes);
+			const db = { namespaceById: () => Promise.resolve({}) };
+
+			// Act:
+			routeSystem.configure(['namespace'], server, db, servicesTemplate);
+
+			// Assert:
+			expect(routes).to.include('/namespace/:namespaceId');
+		});
+
+		it('can register multiple extensions', () => {
+			// Arrange:
+			const routes = [];
+			const server = test.setup.createCapturingMockServer('get', routes);
+			const db = { namespaceById: () => Promise.resolve({}) };
+
+			// Act:
+			routeSystem.configure(['namespace', 'transfer'], server, db, servicesTemplate);
+
+			// Assert:
+			expect(routes).to.include('/namespace/:namespaceId');
+		});
+
+		it('can register single extension with service dependencies', () => {
+			// Arrange:
+			const routes = [];
+			const server = test.setup.createCapturingMockServer('put', routes);
+
+			// Act: pass down required services too
+			routeSystem.configure(['aggregate'], server, {}, servicesTemplate);
+
+			// Assert:
+			expect(routes).to.include('/transaction/partial');
+		});
 	});
 
-	it('can register single extension', () => {
-		// Arrange:
-		const routes = [];
-		const server = test.setup.createCapturingMockServer('get', routes);
-		const db = { namespaceById: () => Promise.resolve({}) };
+	describe('transaction states', () => {
+		it('can register single extension without custom transaction states', () => {
+			// Act:
+			const { transactionStates } = routeSystem.configure(['transfer'], ...configureTrailingParameters);
 
-		// Act:
-		routeSystem.configure(['namespace'], server, db);
+			// Assert:
+			expect(transactionStates.length).to.equal(0);
+		});
 
-		// Assert:
-		expect(routes).to.include('/namespace/id/:id');
+		it('can register single extension with custom transaction states', () => {
+			// Act:
+			const { transactionStates } = routeSystem.configure(['aggregate'], ...configureTrailingParameters);
+
+			// Assert:
+			expect(transactionStates.length).to.equal(1);
+		});
 	});
 
-	it('can register multiple extensions', () => {
-		// Arrange:
-		const routes = [];
-		const server = test.setup.createCapturingMockServer('get', routes);
-		const db = { namespaceById: () => Promise.resolve({}) };
+	describe('message channels', () => {
+		it('can register single extension without custom message channels', () => {
+			// Act:
+			const { messageChannelDescriptors } = routeSystem.configure(['transfer'], ...configureTrailingParameters);
 
-		// Act:
-		routeSystem.configure(['namespace', 'transfer'], server, db);
+			// Assert:
+			expect(Object.keys(messageChannelDescriptors)).to.deep.equal([
+				'block', 'confirmedAdded', 'unconfirmedAdded', 'unconfirmedRemoved', 'status'
+			]);
+		});
 
-		// Assert:
-		expect(routes).to.include('/namespace/id/:id');
+		it('can register single extension with custom message channels', () => {
+			// Act:
+			const { messageChannelDescriptors } = routeSystem.configure(['aggregate'], ...configureTrailingParameters);
+
+			// Assert:
+			expect(Object.keys(messageChannelDescriptors)).to.deep.equal([
+				'block', 'confirmedAdded', 'unconfirmedAdded', 'unconfirmedRemoved', 'status',
+				'partialAdded', 'partialRemoved', 'cosignature'
+			]);
+		});
+
+		// following two tests are used to ensure configuration is passed down correctly to extension message channels
+		it('extension filter rejects marker without topic param', () => {
+			// Arrange:
+			const { messageChannelDescriptors } = routeSystem.configure(['aggregate'], ...configureTrailingParameters);
+			const { filter } = messageChannelDescriptors.partialAdded;
+
+			// Act:
+			expect(() => filter('')).to.throw('address param missing from address subscription');
+		});
+
+		it('extension filter accepts marker without topic param with allowOptionalAddress', () => {
+			// Arrange:
+			const services = { config: { websocket: { allowOptionalAddress: true } }, connections: {} };
+			const { messageChannelDescriptors } = routeSystem.configure(['aggregate'], { put: () => {} }, {}, services);
+			const { filter } = messageChannelDescriptors.partialAdded;
+
+			// Act:
+			const topic = filter('');
+
+			// Assert:
+			expect(topic.length).to.equal(1);
+			expect(topic[0]).to.equal(0x70);
+		});
 	});
 });

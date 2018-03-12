@@ -1,10 +1,10 @@
-import { expect } from 'chai';
-import schemaFormatter from '../../src/utils/schemaFormatter';
-import SchemaType from '../../src/utils/SchemaType';
+const { expect } = require('chai');
+const schemaFormatter = require('../../src/utils/schemaFormatter');
+const SchemaType = require('../../src/utils/SchemaType');
 
 describe('schema formatter', () => {
 	describe('basic triggering', () => {
-		function assertFormattingRuleIsTriggered(propertyType, propertySchema) {
+		const assertFormattingRuleIsTriggered = (propertyType, propertySchema) => {
 			// Arrange: set up a formatting rule for the foo property type
 			const sample = { foo: [1, 2] };
 			const schema = { foo: propertySchema };
@@ -15,7 +15,7 @@ describe('schema formatter', () => {
 
 			// Assert:
 			expect(format).to.deep.equal({ foo: 1 });
-		}
+		};
 
 		it('can format property with custom type (number) in schema with matching formatting rule', () => {
 			// Assert:
@@ -47,7 +47,7 @@ describe('schema formatter', () => {
 	});
 
 	describe('basic not triggering', () => {
-		function assertFormattingRuleIsNotTriggered(propertyType, propertySchema) {
+		const assertFormattingRuleIsNotTriggered = (propertyType, propertySchema) => {
 			// Arrange: set up a formatting rule for the foo property type
 			const sample = { foo: [1, 2] };
 			const schema = { foo: propertySchema };
@@ -58,7 +58,7 @@ describe('schema formatter', () => {
 
 			// Assert:
 			expect(format).to.deep.equal({});
-		}
+		};
 
 		it('ignores property with custom type (number) in schema without matching formatting rule', () => {
 			// Assert:
@@ -129,7 +129,7 @@ describe('schema formatter', () => {
 		});
 
 		describe('array', () => {
-			function assertCanFormatArray(originalArray, formattedArray, schemaName, schemaDictionary) {
+			const assertCanFormatArray = (originalArray, formattedArray, schemaName, schemaDictionary) => {
 				// Arrange:
 				const sample = { subarray: originalArray };
 				const schema = { subarray: { type: SchemaType.array, schemaName } };
@@ -140,7 +140,7 @@ describe('schema formatter', () => {
 
 				// Assert:
 				expect(format).to.deep.equal({ subarray: formattedArray });
-			}
+			};
 
 			it('can format empty sub array', () => {
 				// Assert:
@@ -153,7 +153,8 @@ describe('schema formatter', () => {
 					[{ l: 'alpha' }, { l: 'beta' }, { l: 'gamma' }],
 					[{ l: 'a' }, { l: 'b' }, { l: 'g' }],
 					'abc',
-					{ abc: { l: 7 } });
+					{ abc: { l: 7 } }
+				);
 			});
 
 			it('can format non-empty sub array of values', () => {
@@ -162,12 +163,13 @@ describe('schema formatter', () => {
 					['alpha', 'beta', 'gamma'],
 					['a', 'b', 'g'],
 					7,
-					7);
+					7
+				);
 			});
 		});
 
 		describe('dictionary', () => {
-			function assertCanFormatDictionary(originalDictionary, formattedDictionary, schemaName, schemaDictionary) {
+			const assertCanFormatDictionary = (originalDictionary, formattedDictionary, schemaName, schemaDictionary) => {
 				// Arrange:
 				const sample = { subdictionary: originalDictionary };
 				const schema = { subdictionary: { type: SchemaType.dictionary, schemaName } };
@@ -178,7 +180,7 @@ describe('schema formatter', () => {
 
 				// Assert:
 				expect(format).to.deep.equal({ subdictionary: formattedDictionary });
-			}
+			};
 
 			it('can format empty dictionary', () => {
 				// Assert:
@@ -191,7 +193,8 @@ describe('schema formatter', () => {
 					{ x: { l: 'alpha' }, y: { l: 'beta' }, z: { l: 'gamma' } },
 					{ x: { l: 'a' }, y: { l: 'b' }, z: { l: 'g' } },
 					'abc',
-					{ abc: { l: 7 } });
+					{ abc: { l: 7 } }
+				);
 			});
 
 			it('can format non-empty dictionary of values', () => {
@@ -200,7 +203,8 @@ describe('schema formatter', () => {
 					{ x: 'alpha', y: 'beta', z: 'gamma' },
 					{ x: 'a', y: 'b', z: 'g' },
 					7,
-					7);
+					7
+				);
 			});
 		});
 
@@ -212,10 +216,12 @@ describe('schema formatter', () => {
 				type1: { value: 12345 },
 				type2: { value: 54321 }
 			};
-			const schema = { transaction: {
-				type: SchemaType.object,
-				schemaName: entity => (1 === entity.type ? 'type1' : 'type2')
-			} };
+			const schema = {
+				transaction: {
+					type: SchemaType.object,
+					schemaName: entity => (1 === entity.type ? 'type1' : 'type2')
+				}
+			};
 			const formattingRules = {
 				12345: value => value + 10,
 				54321: value => value + 100

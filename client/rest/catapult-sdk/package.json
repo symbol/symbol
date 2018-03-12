@@ -1,14 +1,14 @@
 {
   "name": "catapult-sdk",
-  "version": "0.2.0",
+  "version": "0.6.0",
   "description": "Catapult SDK core",
   "main": "_build/index.js",
   "scripts": {
-    "clean": "rimraf _build && mkdir _build",
-    "build": "cross-env BABEL_ENV=production babel src -d _build --source-maps",
+    "clean": "rimraf _build && mkdir _build && rimraf _build_browser && mkdir _build_browser",
+    "build": "ncp src/ _build && cross-env BABEL_ENV=production babel src -d _build_browser --source-maps",
     "rebuild": "npm run clean && npm run build",
-    "test": "mocha --compilers js:babel-core/register -- recursive",
-    "test:jenkins": "cross-env JUNIT_REPORT_PATH=test-results.xml mocha --reporter mocha-jenkins-reporter --compilers js:babel-core/register -- recursive || exit 0",
+    "test": "mocha --full-trace --recursive",
+    "test:jenkins": "cross-env JUNIT_REPORT_PATH=test-results.xml mocha --reporter mocha-jenkins-reporter --forbid-only --full-trace --recursive test || exit 0",
     "lint": "eslint src test",
     "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit src test || exit 0"
   },
@@ -16,24 +16,25 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^6.6.5",
-    "babel-core": "^6.7.2",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
     "babel-plugin-transform-inline-environment-variables": "^6.8.0",
-    "babel-preset-es2015": "^6.6.0",
-    "chai": "^3.5.0",
-    "cross-env": "^3.1.2",
-    "eslint": "^3.7.1",
-    "eslint-config-airbnb": "^12.0.0",
-    "eslint-plugin-import": "^1.16.0",
-    "eslint-plugin-jsx-a11y": "^2.2.3",
-    "eslint-plugin-react": "^6.4.0",
-    "mocha": "^2.4.5",
-    "mocha-jenkins-reporter": "^0.3.1",
-    "rimraf": "^2.5.4"
+    "babel-preset-env": "^1.6.1",
+    "chai": "^4.1.2",
+    "cross-env": "^5.1.3",
+    "eslint": "^4.18.2",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0",
+    "mocha": "^5.0.1",
+    "mocha-jenkins-reporter": "^0.3.10",
+    "ncp": "^2.0.0",
+    "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "js-sha3": "^0.5.1",
+    "js-sha3": "^0.7.0",
     "ripemd160": "^2.0.1",
-    "tweetnacl": "^0.14.3"
+    "tweetnacl": "^1.0.0"
   }
 }

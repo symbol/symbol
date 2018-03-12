@@ -1,6 +1,6 @@
-import charMapping from './charMapping';
+const charMapping = require('./charMapping');
 
-const Char_To_Nibble_Map = (function () {
+const Char_To_Nibble_Map = (() => {
 	const builder = charMapping.createBuilder();
 	builder.addRange('0', '9', 0);
 	builder.addRange('a', 'f', 10);
@@ -8,7 +8,7 @@ const Char_To_Nibble_Map = (function () {
 	return builder.map;
 })();
 
-const Char_To_Digit_Map = (function () {
+const Char_To_Digit_Map = (() => {
 	const builder = charMapping.createBuilder();
 	builder.addRange('0', '9', 0);
 	return builder.map;
@@ -16,13 +16,13 @@ const Char_To_Digit_Map = (function () {
 
 const Nibble_To_Char_Map = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
 
-function tryParseByte(char1, char2) {
+const tryParseByte = (char1, char2) => {
 	const nibble1 = Char_To_Nibble_Map[char1];
 	const nibble2 = Char_To_Nibble_Map[char2];
 	return undefined === nibble1 || undefined === nibble2
 		? undefined
 		: (nibble1 << 4) | nibble2;
-}
+};
 
 /** @exports utils/convert */
 const convert = {
@@ -80,10 +80,10 @@ const convert = {
 	 */
 	uint8ToHex: input => {
 		let s = '';
-		for (const byte of input) {
+		input.forEach(byte => {
 			s += Nibble_To_Char_Map[byte >> 4];
 			s += Nibble_To_Char_Map[byte & 0x0F];
-		}
+		});
 
 		return s;
 	},
@@ -98,7 +98,8 @@ const convert = {
 			return 0;
 
 		let value = 0;
-		for (const char of str) {
+		for (let i = 0; i < str.length; ++i) {
+			const char = str[i];
 			const digit = Char_To_Digit_Map[char];
 			if (undefined === digit || (0 === value && 0 === digit))
 				return undefined;
@@ -125,7 +126,29 @@ const convert = {
 	 * @param {Uint32Array} input A uint32 array.
 	 * @returns {Uint8Array} A uint8 array created from the input.
 	 */
-	uint32ToUint8: input => new Uint8Array(input.buffer)
+	uint32ToUint8: input => new Uint8Array(input.buffer),
+
+	/** Converts an unsigned byte to a signed byte with the same binary representation.
+	 * @param {Numeric} input An unsigned byte.
+	 * @returns {Numeric} A signed byte with the same binary representation as the input.
+	 */
+	uint8ToInt8: input => {
+		if (0xFF < input)
+			throw Error(`input '${input}' is out of range`);
+
+		return input << 24 >> 24;
+	},
+
+	/** Converts a signed byte to an unsigned byte with the same binary representation.
+	 * @param {Numeric} input A signed byte.
+	 * @returns {Numeric} An unsigned byte with the same binary representation as the input.
+	 */
+	int8ToUint8: input => {
+		if (127 < input || -128 > input)
+			throw Error(`input '${input}' is out of range`);
+
+		return input & 0xFF;
+	}
 };
 
-export default convert;
+module.exports = convert;

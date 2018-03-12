@@ -1,8 +1,8 @@
-import blockHeaderCodec from '../../src/modelBinary/blockHeaderCodec';
-import test from '../binaryTestUtils';
+const blockHeaderCodec = require('../../src/modelBinary/blockHeaderCodec');
+const test = require('../binaryTestUtils');
 
 describe('block header codec', () => {
-	function generateBlockHeader() {
+	const generateBlockHeader = () => {
 		const Previous_Block_Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash));
 		const Block_Transactions_Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash));
 
@@ -22,7 +22,7 @@ describe('block header codec', () => {
 				blockTransactionsHash: Block_Transactions_Hash_Buffer
 			}
 		};
-	}
+	};
 
 	test.binary.test.addAll(blockHeaderCodec, 88, generateBlockHeader);
 });

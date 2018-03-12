@@ -1,8 +1,8 @@
-import { expect } from 'chai';
-import catapultConnection from '../../src/connection/catapultConnection';
+const { expect } = require('chai');
+const catapultConnection = require('../../src/connection/catapultConnection');
 
 describe('catapult connection', () => {
-	function createTestContext() {
+	const createTestContext = () => {
 		const context = {
 			onCalls: {},
 			onceCalls: {},
@@ -21,10 +21,10 @@ describe('catapult connection', () => {
 			}
 		};
 		return context;
-	}
+	};
 
 	describe('send', () => {
-		function assertSend(testName, assertCallback) {
+		const assertSend = (testName, assertCallback) => {
 			it(testName, () => {
 				// Arrange:
 				const payload = { test: 12345 };
@@ -42,7 +42,7 @@ describe('catapult connection', () => {
 
 				return assertCallback(context, promise);
 			});
-		}
+		};
 
 		assertSend('sending the data resolves the promise', (context, promise) => {
 			// Act:

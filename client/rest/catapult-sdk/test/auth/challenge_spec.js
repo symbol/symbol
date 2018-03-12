@@ -1,16 +1,15 @@
-import { expect } from 'chai';
-import { verify } from '../../src/crypto/keyPair';
-import PacketType from '../../src/packet/PacketType';
-import handler from '../../src/auth/challenge';
-import test from './utils/authUtils';
+const { expect } = require('chai');
+const { verify } = require('../../src/crypto/keyPair');
+const PacketType = require('../../src/packet/PacketType');
+const handler = require('../../src/auth/challenge');
+const test = require('./utils/authUtils');
 
 describe('challenge', () => {
 	// region verify server challenges
 
 	describe('generate server challenge response', () => {
-		function createServerChallengeResponse(request, keyPair) {
-			return test.packets.parseServerChallengeResponse(handler.generateServerChallengeResponse(request, keyPair));
-		}
+		const createServerChallengeResponse = (request, keyPair) =>
+			test.packets.parseServerChallengeResponse(handler.generateServerChallengeResponse(request, keyPair));
 
 		it('creates appropriate response', () => {
 			// Arrange:
@@ -53,12 +52,12 @@ describe('challenge', () => {
 	});
 
 	describe('verify client challenge response', () => {
-		function createClientChallengeRequest(keyPair) {
+		const createClientChallengeRequest = keyPair => {
 			const serverRequest = test.packets.generateServerChallengeRequest();
 			return test.packets.parseServerChallengeResponse(handler.generateServerChallengeResponse(serverRequest, keyPair));
-		}
+		};
 
-		function assertClientChallengeResponseVerification(mutateResponse, expectedIsVerified) {
+		const assertClientChallengeResponseVerification = (mutateResponse, expectedIsVerified) => {
 			// Arrange:
 			const keyPair = test.random.keyPair();
 			const request = createClientChallengeRequest(keyPair);
@@ -70,8 +69,7 @@ describe('challenge', () => {
 
 			// Assert:
 			expect(isVerified).to.equal(expectedIsVerified);
-		}
-
+		};
 
 		it('returns true for good response', () => {
 			// Assert:
@@ -89,9 +87,7 @@ describe('challenge', () => {
 	// region verify client challenges
 
 	describe('generate server challenge request', () => {
-		function createServerChallengeRequest() {
-			return test.packets.parseServerChallengeRequest(handler.generateServerChallengeRequest());
-		}
+		const createServerChallengeRequest = () => test.packets.parseServerChallengeRequest(handler.generateServerChallengeRequest());
 
 		it('creates appropriate request', () => {
 			// Act:
@@ -120,7 +116,7 @@ describe('challenge', () => {
 	});
 
 	describe('verify server challenge response', () => {
-		function assertServerChallengeResponseVerification(mutateResponse, expectedIsVerified) {
+		const assertServerChallengeResponseVerification = (mutateResponse, expectedIsVerified) => {
 			// Arrange:
 			const challenge = test.random.challenge();
 			const keyPair = test.random.keyPair();
@@ -132,7 +128,7 @@ describe('challenge', () => {
 
 			// Assert:
 			expect(isVerified).to.equal(expectedIsVerified);
-		}
+		};
 
 		it('returns true for good response', () => {
 			// Assert:

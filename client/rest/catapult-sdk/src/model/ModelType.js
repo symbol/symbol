@@ -1,4 +1,4 @@
-import SchemaType from '../utils/SchemaType';
+const SchemaType = require('../utils/SchemaType');
 
 /**
  * Catapult model extended schema property types.
@@ -17,10 +17,13 @@ const ModelType = {
 	objectId: SchemaType.max + 3,
 
 	/** Schema property type indicating a string value. */
-	string: SchemaType.max + 4
+	string: SchemaType.max + 4,
+
+	/** Schema property type indicating a status code. */
+	statusCode: SchemaType.max + 5
 };
 
 Object.assign(ModelType, SchemaType);
-ModelType.max = ModelType.string;
+ModelType.max = ModelType.statusCode;
 
-export default ModelType;
+module.exports = ModelType;

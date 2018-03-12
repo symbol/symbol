@@ -4,7 +4,7 @@
  * Possible results of a verification handshake with a peer.
  * @enum {numeric}
  */
-export default {
+module.exports = {
 	/** The peer was verified. */
 	success: 0,
 

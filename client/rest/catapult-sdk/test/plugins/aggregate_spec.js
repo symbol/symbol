@@ -1,16 +1,17 @@
-import { expect } from 'chai';
-import aggregate from '../../src/plugins/aggregate';
-import EntityType from '../../src/model/EntityType';
-import ModelSchemaBuilder from '../../src/model/ModelSchemaBuilder';
-import ModelType from '../../src/model/ModelType';
-import BinaryParser from '../../src/parser/BinaryParser';
-import BinarySerializer from '../../src/serializer/BinarySerializer';
-import test from '../binaryTestUtils';
+const { expect } = require('chai');
+const aggregate = require('../../src/plugins/aggregate');
+const EntityType = require('../../src/model/EntityType');
+const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
+const ModelType = require('../../src/model/ModelType');
+const BinaryParser = require('../../src/parser/BinaryParser');
+const BinarySerializer = require('../../src/serializer/BinarySerializer');
+const test = require('../binaryTestUtils');
 
 const constants = {
 	knownTxType: 0x0022,
 	sizes: {
-		aggregate: 4,
+		aggregate: 120 + 4, // includes transaction header
+		transaction: 120,
 		embedded: 40 + 8,
 		cosignature: 96
 	}
@@ -18,7 +19,7 @@ const constants = {
 
 describe('aggregate plugin', () => {
 	describe('register schema', () => {
-		it('adds aggregate system schema', () => {
+		const assertAddsSchema = schemaName => {
 			// Arrange:
 			const builder = new ModelSchemaBuilder();
 			const numDefaultKeys = Object.keys(builder.build()).length;
@@ -28,41 +29,45 @@ describe('aggregate plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 2);
-			expect(modelSchema).to.contain.all.keys(['aggregate', 'aggregate.cosignature']);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 3);
+			expect(modelSchema).to.contain.all.keys(['aggregateComplete', 'aggregateBonded', 'aggregate.cosignature']);
 
 			// - aggregate
-			expect(Object.keys(modelSchema.aggregate).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.aggregate).to.contain.all.keys(['transactions', 'cosignatures']);
+			expect(Object.keys(modelSchema[schemaName]).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema[schemaName]).to.contain.all.keys(['transactions', 'cosignatures']);
 
 			// - cosignature
 			expect(modelSchema['aggregate.cosignature']).to.deep.equal({
 				signer: ModelType.binary,
-				signature: ModelType.binary
+				signature: ModelType.binary,
+				parentHash: ModelType.binary
 			});
-		});
+		};
+
+		it('adds aggregateComplete system schema', () => assertAddsSchema('aggregateComplete'));
+		it('adds aggregateBonded system schema', () => assertAddsSchema('aggregateBonded'));
 	});
 
 	describe('register codecs', () => {
-		function getCodecs() {
+		const getCodecs = () => {
 			const codecs = {};
 			aggregate.registerCodecs({
 				addTransactionSupport: (type, codec) => { codecs[type] = codec; }
 			});
 
 			return codecs;
-		}
+		};
 
 		it('adds aggregate codec', () => {
 			// Act:
 			const codecs = getCodecs();
 
 			// Assert: codec was registered
-			expect(Object.keys(codecs).length).to.equal(1);
-			expect(codecs).to.contain.all.keys([EntityType.aggregate.toString()]);
+			expect(Object.keys(codecs).length).to.equal(2);
+			expect(codecs).to.contain.all.keys([EntityType.aggregateComplete.toString(), EntityType.aggregateBonded.toString()]);
 		});
 
-		function getSubTxCodecs() {
+		const getSubTxCodecs = () => {
 			const txCodecs = [];
 			// notice that this codec (unlike the one in ModelCodecBuilder_spec assumes that it is embedded)
 			txCodecs[constants.knownTxType] = {
@@ -89,21 +94,19 @@ describe('aggregate plugin', () => {
 			};
 
 			return txCodecs;
-		}
+		};
 
-		function generateAggregate() {
-			return {
-				buffer: Buffer.concat([
-					Buffer.of(0x00, 0x00, 0x00, 0x00) // payload size
-				]),
+		const generateAggregate = () => ({
+			buffer: Buffer.concat([
+				Buffer.of(0x00, 0x00, 0x00, 0x00) // payload size
+			]),
 
-				// notice that payloadSize, like size, should not be in returned object
-				object: {
-				}
-			};
-		}
+			// notice that payloadSize, like size, should not be in returned object
+			object: {
+			}
+		});
 
-		function generateTransaction(options) {
+		const generateTransaction = options => {
 			const type = (options || {}).type || constants.knownTxType;
 			const extraSize = (options || {}).extraSize || 0;
 
@@ -126,33 +129,27 @@ describe('aggregate plugin', () => {
 					beta: 0x50E83000 | extraSize
 				}
 			};
-		}
+		};
 
-		function getCodec() {
-			return getCodecs()[EntityType.aggregate];
-		}
+		const addTransaction = (generator, options) => () => {
+			const data = generator();
+			const txData = generateTransaction(options);
+			data.buffer = Buffer.concat([
+				data.buffer,
+				txData.buffer
+			]);
 
-		function addTransaction(generator, options) {
-			return () => {
-				const data = generator();
-				const txData = generateTransaction(options);
-				data.buffer = Buffer.concat([
-					data.buffer,
-					txData.buffer
-				]);
+			const payloadSize = data.buffer.readUInt32LE(0) + constants.sizes.embedded + ((options || {}).extraSize || 0);
+			data.buffer.writeUInt32LE(payloadSize, 0);
 
-				const payloadSize = data.buffer.readUInt32LE(0) + constants.sizes.embedded + ((options || {}).extraSize || 0);
-				data.buffer.writeUInt32LE(payloadSize, 0);
+			if (!data.object.transactions)
+				data.object.transactions = [];
 
-				if (!data.object.transactions)
-					data.object.transactions = [];
+			data.object.transactions.push({ transaction: txData.object });
+			return data;
+		};
 
-				data.object.transactions.push(txData.object);
-				return data;
-			};
-		}
-
-		function addCosignature(generator) {
+		const addCosignature = generator => {
 			const Signer_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signer));
 			const Signature_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signature));
 
@@ -173,156 +170,174 @@ describe('aggregate plugin', () => {
 				});
 				return data;
 			};
-		}
+		};
 
-		describe('supports aggregate', () => {
-			describe('with neither transactions nor cosignatures', () => {
-				test.binary.test.addAll(getCodec(), constants.sizes.aggregate, generateAggregate, getSubTxCodecs());
-			});
+		const addAggregateTests = (aggregateName, getCodec) => {
+			describe(`supports ${aggregateName} aggregate`, () => {
+				const addAll = (size, dataGenerator) => {
+					// notice that the transaction header is preprocessed before deserialize is called on the codec
+					test.binary.test.addAll(getCodec(), size, dataGenerator, getSubTxCodecs(), constants.sizes.transaction);
+				};
 
-			describe('with single transaction', () => {
-				test.binary.test.addAll(
-					getCodec(),
-					constants.sizes.aggregate + constants.sizes.embedded,
-					addTransaction(generateAggregate),
-					getSubTxCodecs());
-			});
-
-			describe('with multiple transactions', () => {
-				// use extraSize to emulate transactions of varying sizes within a single aggregate
-				test.binary.test.addAll(
-					getCodec(),
-					constants.sizes.aggregate + (3 * constants.sizes.embedded) + 7,
-					addTransaction(addTransaction(addTransaction(generateAggregate, { extraSize: 1 }), { extraSize: 4 }), { extraSize: 2 }),
-					getSubTxCodecs());
-			});
-
-			describe('with cosignatures', () => {
-				test.binary.test.addAll(
-					getCodec(),
-					constants.sizes.aggregate + (2 * constants.sizes.cosignature),
-					addCosignature(addCosignature(generateAggregate)),
-					getSubTxCodecs());
-			});
-
-			describe('with multiple transactions and cosignatures', () => {
-				test.binary.test.addAll(
-					getCodec(),
-					constants.sizes.aggregate + (3 * constants.sizes.embedded) + (2 * constants.sizes.cosignature),
-					addCosignature(addCosignature(addTransaction(addTransaction(addTransaction(generateAggregate))))),
-					getSubTxCodecs());
-			});
-		});
-
-		describe('rejects aggregate', () => {
-			describe('during deserialization if it', () => {
-				it('is embedded', () => {
-					// Arrange:
-					const codec = getCodec();
-					const parser = new BinaryParser();
-					parser.push(generateAggregate().buffer);
-
-					// Act: calling deserialize without tx codecs emulates an embedded call
-					expect(() => { codec.deserialize(parser); }).to.throw('aggregate transaction is not embeddable');
+				describe('with neither transactions nor cosignatures', () => {
+					addAll(constants.sizes.aggregate, generateAggregate);
 				});
 
-				function assertDeserializationError(buffer, size, errorText, message) {
-					// Arrange:
-					const codec = getCodec();
-					const parser = new BinaryParser();
-					parser.push(buffer);
-
-					// Act:
-					expect(() => { codec.deserialize(parser, size, getSubTxCodecs()); }, message).to.throw(errorText);
-				}
-
-				it('has sub transaction of unknown type', () => {
-					// Assert:
-					assertDeserializationError(
-						addTransaction(generateAggregate, { type: 0x0001 })().buffer,
+				describe('with single transaction', () => {
+					addAll(
 						constants.sizes.aggregate + constants.sizes.embedded,
-						'error unsupported transaction type (1) in aggregate');
+						addTransaction(generateAggregate)
+					);
 				});
 
-				it('has partial cosignatures', () => {
-					// Arrange:
-					for (const delta of [-1, 1]) {
-						// Assert:
-						assertDeserializationError(
-							addCosignature(addTransaction(generateAggregate))().buffer,
-							constants.sizes.aggregate + constants.sizes.embedded + constants.sizes.cosignature + delta,
-							'aggregate cannot have partial cosignatures',
-							`delta ${delta}`);
-					}
+				describe('with multiple transactions', () => {
+					// use extraSize to emulate transactions of varying sizes within a single aggregate
+					addAll(
+						constants.sizes.aggregate + (3 * constants.sizes.embedded) + 7,
+						addTransaction(
+							addTransaction(
+								addTransaction(generateAggregate, { extraSize: 1 }),
+								{ extraSize: 4 }
+							),
+							{ extraSize: 2 }
+						)
+					);
 				});
 
-				it('fails if payload size is too large', () => {
-					// Arrange:
-					for (const delta of [1, constants.sizes.aggregate, constants.sizes.aggregate + 1, constants.sizes.embedded]) {
-						// - increase reported payload size
-						const data = addTransaction(addTransaction(addTransaction(generateAggregate)))();
-						data.buffer.writeUInt32LE(data.buffer.readUInt32LE() + delta);
-
-						// Assert:
-						assertDeserializationError(
-							data.buffer,
-							constants.sizes.aggregate + (3 * constants.sizes.embedded),
-							'aggregate must contain complete payload',
-							`delta ${delta}`);
-					}
+				describe('with cosignatures', () => {
+					addAll(
+						constants.sizes.aggregate + (2 * constants.sizes.cosignature),
+						addCosignature(addCosignature(generateAggregate))
+					);
 				});
 
-				it('fails if aggregate size is too small', () => {
-					// Arrange:
-					for (const size of [0, 1, constants.sizes.aggregate - 1]) {
-						// Assert:
-						assertDeserializationError(
-							addCosignature(addTransaction(generateAggregate))().buffer,
-							size,
-							'aggregate must contain complete aggregate header',
-							`size ${size}`);
-					}
-				});
-
-				it('fails if sub transaction size is too small', () => {
-					// Arrange:
-					for (const size of [0, 1, constants.sizes.embedded - 8 - 1]) {
-						// - modify second transaction size
-						const data = addTransaction(addTransaction(addTransaction(generateAggregate)))();
-						data.buffer.writeUInt32LE(size, constants.sizes.aggregate + constants.sizes.embedded);
-
-						// Assert:
-						assertDeserializationError(
-							data.buffer,
-							constants.sizes.aggregate + (3 * constants.sizes.embedded),
-							'sub transaction must contain complete transaction header',
-							`size ${size}`);
-					}
+				describe('with multiple transactions and cosignatures', () => {
+					addAll(
+						constants.sizes.aggregate + (3 * constants.sizes.embedded) + (2 * constants.sizes.cosignature),
+						addCosignature(addCosignature(addTransaction(addTransaction(addTransaction(generateAggregate)))))
+					);
 				});
 			});
 
-			describe('during serialization if it', () => {
-				it('is embedded', () => {
-					// Arrange:
-					const codec = getCodec();
-					const object = generateAggregate().object;
-					const serializer = new BinarySerializer(constants.sizes.aggregate);
+			describe(`rejects ${aggregateName} aggregate`, () => {
+				describe('during deserialization if it', () => {
+					it('is embedded', () => {
+						// Arrange:
+						const codec = getCodec();
+						const parser = new BinaryParser();
+						parser.push(generateAggregate().buffer);
 
-					// Act: calling serialize without tx codecs emulates an embedded call
-					expect(() => { codec.serialize(object, serializer); }).to.throw('aggregate transaction is not embeddable');
+						// Act: calling deserialize without tx codecs emulates an embedded call
+						expect(() => { codec.deserialize(parser); }).to.throw('aggregate transaction is not embeddable');
+					});
+
+					const assertDeserializationError = (buffer, size, errorText, message) => {
+						// Arrange:
+						const codec = getCodec();
+						const parser = new BinaryParser();
+						parser.push(buffer);
+
+						// Act:
+						expect(() => { codec.deserialize(parser, size, getSubTxCodecs()); }, message).to.throw(errorText);
+					};
+
+					it('has sub transaction of unknown type', () => {
+						// Assert:
+						assertDeserializationError(
+							addTransaction(generateAggregate, { type: 0x0001 })().buffer,
+							constants.sizes.aggregate + constants.sizes.embedded,
+							'error unsupported transaction type (1) in aggregate'
+						);
+					});
+
+					it('has partial cosignatures', () => {
+						// Arrange:
+						[-1, 1].forEach(delta => {
+							// Assert:
+							assertDeserializationError(
+								addCosignature(addTransaction(generateAggregate))().buffer,
+								constants.sizes.aggregate + constants.sizes.embedded + constants.sizes.cosignature + delta,
+								'aggregate cannot have partial cosignatures',
+								`delta ${delta}`
+							);
+						});
+					});
+
+					it('fails if payload size is too large', () => {
+						// Arrange:
+						[1, constants.sizes.aggregate, constants.sizes.aggregate + 1, constants.sizes.embedded].forEach(delta => {
+							// - increase reported payload size
+							const data = addTransaction(addTransaction(addTransaction(generateAggregate)))();
+							data.buffer.writeUInt32LE(data.buffer.readUInt32LE() + delta);
+
+							// Assert:
+							assertDeserializationError(
+								data.buffer,
+								constants.sizes.aggregate + (3 * constants.sizes.embedded),
+								'aggregate must contain complete payload',
+								`delta ${delta}`
+							);
+						});
+					});
+
+					it('fails if aggregate size is too small', () => {
+						// Arrange:
+						[0, 1, constants.sizes.aggregate - 1].forEach(size => {
+							// Assert:
+							assertDeserializationError(
+								addCosignature(addTransaction(generateAggregate))().buffer,
+								size,
+								'aggregate must contain complete aggregate header',
+								`size ${size}`
+							);
+						});
+					});
+
+					it('fails if sub transaction size is too small', () => {
+						// Arrange:
+						[0, 1, constants.sizes.embedded - 8 - 1].forEach(size => {
+							// - modify second transaction size (notice that data.buffer does not include aggregate transaction header)
+							const data = addTransaction(addTransaction(addTransaction(generateAggregate)))();
+							const offset = constants.sizes.aggregate - constants.sizes.transaction + constants.sizes.embedded;
+							data.buffer.writeUInt32LE(size, offset);
+
+							// Assert:
+							assertDeserializationError(
+								data.buffer,
+								constants.sizes.aggregate + (3 * constants.sizes.embedded),
+								'sub transaction must contain complete transaction header',
+								`size ${size}`
+							);
+						});
+					});
 				});
 
-				it('has sub transaction of unknown type', () => {
-					// Arrange:
-					const codec = getCodec();
-					const object = addTransaction(generateAggregate, { type: 0x0001 })().object;
-					const serializer = new BinarySerializer(constants.sizes.aggregate);
+				describe('during serialization if it', () => {
+					it('is embedded', () => {
+						// Arrange:
+						const codec = getCodec();
+						const { object } = generateAggregate();
+						const serializer = new BinarySerializer(constants.sizes.aggregate);
 
-					// Act:
-					expect(() => { codec.serialize(object, serializer, getSubTxCodecs()); })
-						.to.throw('error unsupported transaction type (1) in aggregate');
+						// Act: calling serialize without tx codecs emulates an embedded call
+						expect(() => { codec.serialize(object, serializer); }).to.throw('aggregate transaction is not embeddable');
+					});
+
+					it('has sub transaction of unknown type', () => {
+						// Arrange:
+						const codec = getCodec();
+						const { object } = addTransaction(generateAggregate, { type: 0x0001 })();
+						const serializer = new BinarySerializer(constants.sizes.aggregate);
+
+						// Act:
+						expect(() => { codec.serialize(object, serializer, getSubTxCodecs()); })
+							.to.throw('error unsupported transaction type (1) in aggregate');
+					});
 				});
 			});
-		});
+		};
+
+		addAggregateTests('complete', () => getCodecs()[EntityType.aggregateComplete]);
+		addAggregateTests('bonded', () => getCodecs()[EntityType.aggregateBonded]);
 	});
 });
