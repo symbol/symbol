@@ -166,6 +166,36 @@ describe('formatters', () => {
 
 			expect(result).to.equal(expectedJson);
 		});
+
+		describe('override formatter per-object', () => {
+			addBasicObjectFormattingTests((object, expectedJson, expectedStatusCode) => {
+				// Arrange:
+				const req = {};
+
+				const resHeaders = [];
+				const res = {
+					setHeader: (key, value) => {
+						resHeaders.push({ key, value });
+					}
+				};
+
+				if (object) object.formatter = 'anotherFormatter';
+
+				// Act:
+				const result = createFormatters('anotherFormatter').json(req, res, object);
+
+				// Assert:
+				expect(res.statusCode).to.equal(expectedStatusCode);
+
+				expect(resHeaders.length).to.equal(1);
+				expect(resHeaders[0]).to.deep.equal({
+					key: 'Content-Length',
+					value: expectedJson.length
+				});
+
+				expect(result).to.equal(expectedJson);
+			});
+		});
 	});
 
 	describe('ws', () => {

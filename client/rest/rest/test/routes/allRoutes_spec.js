@@ -25,7 +25,8 @@ describe('all routes', () => {
 	const registerAll = server => {
 		const config = {
 			pageSize: { min: 10, max: 100, step: 25 },
-			transactionStates: []
+			transactionStates: [],
+			apiNode: { timeout: 1000 }
 		};
 		allRoutes.register(server, {}, { config });
 	};
@@ -56,6 +57,8 @@ describe('all routes', () => {
 			'/chain/score',
 
 			'/network',
+			'/node/info',
+			'/node/time',
 
 			'/transaction/:transactionId',
 			'/transaction/:hash/status',
