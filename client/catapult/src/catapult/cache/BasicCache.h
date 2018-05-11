@@ -1,20 +1,30 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
+#include "CacheConfiguration.h"
+#include "CacheConstants.h"
 #include "SynchronizedCache.h"
 #include "catapult/utils/Casting.h"
 
 namespace catapult { namespace cache {
-
-	/// Cache ids for well-known caches.
-	enum class CacheId : uint32_t {
-		AccountState,
-		BlockDifficulty,
-		Hash,
-		Namespace,
-		Mosaic,
-		Multisig,
-		HashLockInfo,
-		SecretLockInfo
-	};
 
 	/// Basic cache implementation that supports multiple views and committing.
 	/// \note Typically, TSubViewArgs will expand to zero or one types.
@@ -26,8 +36,10 @@ namespace catapult { namespace cache {
 		using CacheReadOnlyType = typename CacheViewType::ReadOnlyView;
 
 	public:
-		/// Creates an empty cache with arguments (\a subViewArgs).
-		BasicCache(TSubViewArgs&&... subViewArgs) : m_subViewArgs(std::forward<TSubViewArgs>(subViewArgs)...)
+		/// Creates an empty cache with \a config and arguments (\a subViewArgs).
+		BasicCache(const CacheConfiguration& config, TSubViewArgs&&... subViewArgs)
+				: m_set(config)
+				, m_subViewArgs(std::forward<TSubViewArgs>(subViewArgs)...)
 		{}
 
 	public:
@@ -59,27 +71,26 @@ namespace catapult { namespace cache {
 		}
 
 	private:
-		// use presence of OrderedSet::Is_Ordered property to determine BaseSet container ordering
-		enum class ContainerOrderingType { Ordered, Unordered };
-		using OrderedContainerType = std::integral_constant<ContainerOrderingType, ContainerOrderingType::Ordered>;
-		using UnorderedContainerType = std::integral_constant<ContainerOrderingType, ContainerOrderingType::Unordered>;
+		template<typename T>
+		struct ContainerOrderedFlag : public T
+		{};
 
 		template<typename TContainer, typename = void>
 		struct ContainerPolicy
-				: UnorderedContainerType
+				: ContainerOrderedFlag<std::false_type>
 		{};
 
 		template<typename TContainer>
-		struct ContainerPolicy<TContainer, typename utils::traits::enable_if_type<decltype(TContainer::Is_Ordered)>::type>
-				: OrderedContainerType
+		struct ContainerPolicy<TContainer, typename utils::traits::enable_if_type<decltype(TContainer::IsOrderedSet::value)>::type>
+				: ContainerOrderedFlag<typename TContainer::IsOrderedSet>
 		{};
 
 	private:
-		static void Commit(TBaseSet& m_set, const CacheDeltaType&, UnorderedContainerType) {
+		static void Commit(TBaseSet& m_set, const CacheDeltaType&, ContainerOrderedFlag<std::false_type>) {
 			m_set.commit();
 		}
 
-		static void Commit(TBaseSet& m_set, const CacheDeltaType& delta, OrderedContainerType) {
+		static void Commit(TBaseSet& m_set, const CacheDeltaType& delta, ContainerOrderedFlag<std::true_type>) {
 			m_set.commit(delta.pruningBoundary());
 		}
 
@@ -87,9 +98,4 @@ namespace catapult { namespace cache {
 		TBaseSet m_set;
 		std::tuple<TSubViewArgs...> m_subViewArgs;
 	};
-
-	/// Defines cache constants for a cache with \a NAME.
-#define DEFINE_CACHE_CONSTANTS(NAME) \
-	static constexpr size_t Id = utils::to_underlying_type(CacheId::NAME); \
-	static constexpr auto Name = #NAME "Cache";
 }}

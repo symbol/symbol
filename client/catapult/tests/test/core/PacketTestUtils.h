@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/ionet/IoTypes.h"
 #include "catapult/ionet/Packet.h"
@@ -14,7 +34,7 @@ namespace catapult { namespace test {
 	EXPECT_EQ(SEND_BUFFER_SIZE, RECEIVED_BUFFER.size()); \
 	EXPECT_EQ(test::ToHexString(&SEND_BUFFER[SEND_BUFFER_OFFSET], SEND_BUFFER_SIZE), test::ToHexString(RECEIVED_BUFFER));
 
-	/// The default packet type used in tests. This type is guaranteed to not conflict any with known packet types.
+	/// Default packet type used in tests. This type is guaranteed to not conflict any with known packet types.
 	constexpr ionet::PacketType Default_Packet_Type = ionet::PacketType::Undefined;
 
 	/// Writes a packet header in \a buffer at \a offset for a packet with \a size and a default type.
@@ -39,6 +59,9 @@ namespace catapult { namespace test {
 
 	/// Copies \a buffer into a dynamically allocated Packet.
 	std::unique_ptr<ionet::Packet> BufferToPacket(const ionet::ByteBuffer& buffer);
+
+	/// Copies \a buffer into a dynamically allocated PacketPayload.
+	ionet::PacketPayload BufferToPacketPayload(const ionet::ByteBuffer& buffer);
 
 	/// Generates a packet with a random payload of \a payloadSize bytes and type \a packetType.
 	std::shared_ptr<ionet::Packet> CreateRandomPacket(uint32_t payloadSize, ionet::PacketType packetType);

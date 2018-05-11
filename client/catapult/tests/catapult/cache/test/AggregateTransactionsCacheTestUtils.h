@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "tests/test/cache/UnsupportedTransactionsChangeSubscribers.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
@@ -115,6 +135,22 @@ namespace catapult { namespace test {
 		using TestContext = typename TTraits::template TestContextType<TModifier>;
 
 	private:
+		// region mock cache modifiers
+
+		class MockSizeCacheModifier : public UnsupportedCacheModifierType {
+		public:
+			explicit MockSizeCacheModifier(size_t size) : m_size(size)
+			{}
+
+		public:
+			size_t size() const override {
+				return m_size;
+			}
+
+		private:
+			size_t m_size;
+		};
+
 		template<bool AddResult>
 		class MockAddCacheModifier : public UnsupportedCacheModifierType {
 		public:
@@ -166,14 +202,32 @@ namespace catapult { namespace test {
 
 			TransactionInfoType remove(const Hash256& hash) override {
 				// allow all removes to proceed
-				return TTraits::Copy(m_hashTransactionInfoMap.find(hash)->second);
+				auto iter = m_hashTransactionInfoMap.find(hash);
+				return m_hashTransactionInfoMap.cend() == iter ? TransactionInfoType() : TTraits::Copy(iter->second);
 			}
 
 		private:
 			const HashTransactionInfoMap& m_hashTransactionInfoMap;
 		};
 
+		// endregion
+
+		// region aggregate transaction cache - size
+
 	public:
+		static void AssertSizeDelegatesToCache() {
+			// Arrange:
+			TestContext<MockSizeCacheModifier> context(14);
+
+			// Act:
+			auto size = context.aggregate().modifier().size();
+
+			// Assert:
+			EXPECT_EQ(14u, size);
+		}
+
+		// endregion
+
 		// region aggregate transaction cache - add
 
 	private:
@@ -468,6 +522,14 @@ namespace catapult { namespace test {
 
 		// region aggregate transaction cache - exceptions
 
+	private:
+		class FlushOnlyChangeSubscriberType : public TTraits::CacheTraitsType::UnsupportedChangeSubscriberType {
+		public:
+			void flush() override {
+				// do nothing
+			}
+		};
+
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wused-but-marked-unused"
@@ -475,19 +537,20 @@ namespace catapult { namespace test {
 #endif
 
 	private:
-		template<typename TAction>
+		// custom subscriber with some unimplemented methods is expected
+		template<typename TSubscriber = FlushOnlyChangeSubscriberType, typename TAction>
 		static void RunExceptionTest(TAction action) {
 			// Arrange:
 			using CacheTraits = typename TTraits::CacheTraitsType;
-			auto map = typename MockAddRemoveCacheModifier::HashTransactionInfoMap();
-			typename CacheTraits::template MockCacheType<MockAddRemoveCacheModifier> cache(map);
-			auto pSubscriber = std::make_unique<typename CacheTraits::UnsupportedChangeSubscriberType>();
-			auto pAggregate = CacheTraits::CreateAggregateCache(cache, std::move(pSubscriber));
+
+			AddRemoveInfos addRemoveInfos(4, 3);
+			typename CacheTraits::template MockCacheType<MockAddRemoveCacheModifier> cache(addRemoveInfos.RemovedInfosMap);
+			auto pAggregate = CacheTraits::CreateAggregateCache(cache, std::make_unique<TSubscriber>());
 
 			// Act:
 			ASSERT_DEATH({
 				auto modifier = pAggregate->modifier();
-				action(modifier);
+				action(modifier, addRemoveInfos);
 			}, "");
 		}
 
@@ -495,7 +558,7 @@ namespace catapult { namespace test {
 		/// Asserts that an add exception crashes the process.
 		static void AssertAddExceptionTerminatesProcess() {
 			// Assert:
-			RunExceptionTest([](auto& modifier) {
+			RunExceptionTest<FlushOnlyChangeSubscriberType>([](auto& modifier, const auto&) {
 				modifier.add(test::CreateRandomTransactionInfo());
 			});
 		}
@@ -503,15 +566,15 @@ namespace catapult { namespace test {
 		/// Asserts that a remove exception crashes the process.
 		static void AssertRemoveExceptionTerminatesProcess() {
 			// Assert:
-			RunExceptionTest([](auto& modifier) {
-				modifier.remove(test::GenerateRandomData<Hash256_Size>());
+			RunExceptionTest<FlushOnlyChangeSubscriberType>([](auto& modifier, const auto& addRemoveInfos) {
+				modifier.remove(addRemoveInfos.RemovedInfosMap.cbegin()->first);
 			});
 		}
 
 		/// Asserts that a flush exception crashes the process.
 		static void AssertFlushExceptionTerminatesProcess() {
 			// Assert:
-			RunExceptionTest([](auto&) {
+			RunExceptionTest<typename TTraits::CacheTraitsType::UnsupportedChangeSubscriberType>([](const auto&, const auto&) {
 				// do nothing, flush will still be called
 			});
 		}
@@ -527,6 +590,8 @@ namespace catapult { namespace test {
 	TEST(TEST_CLASS, TEST_NAME) { test::BasicAggregateTransactionsCacheTests<TRAITS_NAME>::Assert##TEST_NAME(); }
 
 #define DEFINE_AGGREGATE_TRANSACTIONS_CACHE_TESTS(TEST_CLASS, TRAITS_NAME) \
+	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, SizeDelegatesToCache) \
+	\
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, AddDelegatesToCacheAndSubscriberAfterSuccessfulCacheAdd) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, SingleNotifificationForRedundantAdds) \
 	MAKE_AGGREGATE_TRANSACTIONS_CACHE_TEST(TEST_CLASS, TRAITS_NAME, AddDelegatesToOnlyCacheAfterFailedCacheAdd) \

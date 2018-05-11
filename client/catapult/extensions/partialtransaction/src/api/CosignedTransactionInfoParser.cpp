@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "CosignedTransactionInfoParser.h"
 #include "catapult/ionet/PacketReader.h"
 
@@ -7,7 +27,7 @@ namespace catapult { namespace api {
 		using CosignedTransactionInfos = std::vector<model::CosignedTransactionInfo>;
 		using TransactionPredicate = predicate<const model::Transaction&>;
 
-#define LOG_PARSE_ERROR(DESC) CATAPULT_LOG(warning) << "unable to parse '" << DESC << "'"
+#define CATAPULT_LOG_PARSE_ERROR(DESC) CATAPULT_LOG(warning) << "unable to parse '" << DESC << "'"
 
 		bool ReadCosignedTransactionInfo(
 				ionet::PacketReader& reader,
@@ -15,7 +35,7 @@ namespace catapult { namespace api {
 				model::CosignedTransactionInfo& transactionInfo) {
 			const auto* pTag = reader.readFixed<uint16_t>();
 			if (!pTag) {
-				LOG_PARSE_ERROR("tag");
+				CATAPULT_LOG_PARSE_ERROR("tag");
 				return false;
 			}
 
@@ -23,7 +43,7 @@ namespace catapult { namespace api {
 			if (*pTag & 0x8000) {
 				const auto* pTransaction = reader.readVariable<model::Transaction>();
 				if (!pTransaction || !isValid(*pTransaction)) {
-					LOG_PARSE_ERROR("transaction") << " (failed validation = " << !!pTransaction << ")";
+					CATAPULT_LOG_PARSE_ERROR("transaction") << " (failed validation = " << !!pTransaction << ")";
 					return false;
 				}
 
@@ -36,7 +56,7 @@ namespace catapult { namespace api {
 			} else {
 				const auto* pHash = reader.readFixed<Hash256>();
 				if (!pHash) {
-					LOG_PARSE_ERROR("hash");
+					CATAPULT_LOG_PARSE_ERROR("hash");
 					return false;
 				}
 
@@ -48,7 +68,7 @@ namespace catapult { namespace api {
 			for (uint16_t i = 0; i < numCosignatures; ++i) {
 				const auto* pCosignature = reader.readFixed<model::Cosignature>();
 				if (!pCosignature) {
-					LOG_PARSE_ERROR("cosignature") << " at " << i;
+					CATAPULT_LOG_PARSE_ERROR("cosignature") << " at " << i;
 					return false;
 				}
 
@@ -58,7 +78,7 @@ namespace catapult { namespace api {
 			return true;
 		}
 
-#undef LOG_PARSE_ERROR
+#undef CATAPULT_LOG_PARSE_ERROR
 	}
 
 	CosignedTransactionInfos ExtractCosignedTransactionInfosFromPacket(const ionet::Packet& packet, const TransactionPredicate& isValid) {

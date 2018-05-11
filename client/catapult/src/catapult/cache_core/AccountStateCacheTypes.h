@@ -1,4 +1,25 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
+#include "catapult/cache/CacheDatabaseMixin.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/deltaset/BaseSetDelta.h"
 #include "catapult/model/NetworkInfo.h"
@@ -21,6 +42,9 @@ namespace catapult { namespace cache {
 
 	/// Describes an account state cache.
 	struct AccountStateCacheDescriptor {
+	public:
+		static constexpr auto Name = "AccountStateCache:Address";
+
 	public:
 		// key value types
 		using KeyType = Address;
@@ -98,6 +122,9 @@ namespace catapult { namespace cache {
 		/// \note This allows use of mixins.
 		template<typename TSets>
 		class ComposedLookupAdapter {
+		public:
+			static constexpr auto Name = TSets::Name;
+
 		private:
 			using SetOneType = typename TSets::SetOneType;
 			using SetTwoType = typename TSets::SetTwoType;
@@ -137,11 +164,15 @@ namespace catapult { namespace cache {
 	public:
 		// workaround for VS truncation
 		struct ComposableBaseSets {
+			static constexpr auto Name = "AccountStateCache:Key";
+
 			using SetOneType = const KeyLookupMapTypes::BaseSetType;
 			using SetTwoType = const PrimaryTypes::BaseSetType;
 		};
 
 		struct ComposableBaseSetDeltas {
+			static constexpr auto Name = "AccountStateCache:Key";
+
 			using SetOneType = const KeyLookupMapTypes::BaseSetDeltaType;
 			using SetTwoType = PrimaryTypes::BaseSetDeltaType;
 		};
@@ -149,22 +180,29 @@ namespace catapult { namespace cache {
 	public:
 		// in order to compose account state cache from multiple sets, define an aggregate set type
 
-		struct BaseSetDeltaPointerType {
+		struct BaseSetDeltaPointers {
 			PrimaryTypes::BaseSetDeltaPointerType pPrimary;
 			KeyLookupMapTypes::BaseSetDeltaPointerType pKeyLookupMap;
 		};
 
-		struct BaseSetType {
+		struct BaseSets : public CacheDatabaseMixin {
+		public:
+			explicit BaseSets(const CacheConfiguration& config)
+					: CacheDatabaseMixin(config, { "default", "key_lookup" })
+					, Primary(GetContainerMode(config), database(), 0)
+					, KeyLookupMap(GetContainerMode(config), database(), 1)
+			{}
+
 		public:
 			PrimaryTypes::BaseSetType Primary;
 			KeyLookupMapTypes::BaseSetType KeyLookupMap;
 
 		public:
-			BaseSetDeltaPointerType rebase() {
+			BaseSetDeltaPointers rebase() {
 				return { Primary.rebase(), KeyLookupMap.rebase() };
 			}
 
-			BaseSetDeltaPointerType rebaseDetached() const {
+			BaseSetDeltaPointers rebaseDetached() const {
 				return { Primary.rebaseDetached(), KeyLookupMap.rebaseDetached() };
 			}
 

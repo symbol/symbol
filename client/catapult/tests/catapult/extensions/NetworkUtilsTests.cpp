@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/extensions/NetworkUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
@@ -22,6 +42,8 @@ namespace catapult { namespace extensions {
 			nodeConfig.IncomingConnections.MaxConnections = 17;
 			nodeConfig.IncomingConnections.BacklogSize = 83;
 			nodeConfig.ShouldAllowAddressReuse = true;
+			nodeConfig.OutgoingSecurityMode = static_cast<ionet::ConnectionSecurityMode>(8);
+			nodeConfig.IncomingSecurityModes = static_cast<ionet::ConnectionSecurityMode>(21);
 
 			return config::LocalNodeConfiguration(
 					std::move(blockChainConfig),
@@ -46,6 +68,9 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(utils::FileSize::FromBytes(512), settings.SocketWorkingBufferSize);
 		EXPECT_EQ(987u, settings.SocketWorkingBufferSensitivity);
 		EXPECT_EQ(utils::FileSize::FromKilobytes(12), settings.MaxPacketDataSize);
+
+		EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(8), settings.OutgoingSecurityMode);
+		EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(21), settings.IncomingSecurityModes);
 	}
 
 	TEST(TEST_CLASS, CanUpdateAsyncTcpServerSettingsFromLocalNodeConfiguration) {
@@ -72,11 +97,11 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, GetMaxIncomingConnectionsPerIdentityReturnsCorrectValueBasedOnRoles) {
 		// Act + Assert:
-		EXPECT_EQ(0u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::None));
-		EXPECT_EQ(1u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Peer));
-		EXPECT_EQ(1u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Api));
-		EXPECT_EQ(2u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Peer | ionet::NodeRoles::Api));
-		EXPECT_EQ(2u, GetMaxIncomingConnectionsPerIdentity(static_cast<ionet::NodeRoles>(0xFFFFFFFF)));
+		EXPECT_EQ(1u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::None));
+		EXPECT_EQ(2u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Peer));
+		EXPECT_EQ(2u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Api));
+		EXPECT_EQ(3u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Peer | ionet::NodeRoles::Api));
+		EXPECT_EQ(3u, GetMaxIncomingConnectionsPerIdentity(static_cast<ionet::NodeRoles>(0xFFFFFFFF)));
 	}
 
 	// endregion

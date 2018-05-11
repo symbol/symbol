@@ -1,0 +1,199 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
+#pragma once
+#include "NodeTestUtils.h"
+#include "SocketTestUtils.h"
+#include "catapult/ionet/PacketSocket.h"
+#include "catapult/net/ConnectionSettings.h"
+#include "catapult/net/NodeRequestResult.h"
+#include "catapult/net/VerifyPeer.h"
+#include "catapult/utils/TimeSpan.h"
+#include "tests/test/core/AddressTestUtils.h"
+#include "tests/test/core/ThreadPoolTestUtils.h"
+
+namespace catapult { namespace test {
+
+	// region RequestorTestContext
+
+	/// A test context around a brief server requestor.
+	template<typename TRequestor>
+	struct BriefServerRequestorTestContext {
+	public:
+		/// Creates a test context with the specified \a timeout around a requestor initialized with \a requestorParam.
+		template<typename TRequestorParam>
+		BriefServerRequestorTestContext(const utils::TimeSpan& timeout, const TRequestorParam& requestorParam)
+				: ClientKeyPair(GenerateKeyPair())
+				, pPool(CreateStartedIoServiceThreadPool())
+				, ServerKeyPair(GenerateKeyPair())
+				, ServerPublicKey(ServerKeyPair.publicKey())
+				, pRequestor(std::make_shared<TRequestor>(pPool, ClientKeyPair, CreateSettingsWithTimeout(timeout), requestorParam))
+		{}
+
+	public:
+		crypto::KeyPair ClientKeyPair;
+		std::shared_ptr<thread::IoServiceThreadPool> pPool;
+
+		crypto::KeyPair ServerKeyPair;
+		Key ServerPublicKey;
+
+		std::shared_ptr<TRequestor> pRequestor;
+
+	public:
+		void waitForActiveConnections(uint32_t numConnections) const {
+			WAIT_FOR_VALUE_EXPR(numConnections, pRequestor->numActiveConnections());
+		}
+
+	private:
+		static net::ConnectionSettings CreateSettingsWithTimeout(const utils::TimeSpan& timeout) {
+			auto settings = net::ConnectionSettings();
+			settings.Timeout = timeout;
+			return settings;
+		}
+	};
+
+	// endregion
+
+	/// A policy for calling request on the requestor.
+	struct BriefServerRequestorMemberBeginRequestPolicy {
+		template<typename TRequestor, typename TCallback = typename TRequestor::CallbackType>
+		static void BeginRequest(TRequestor& requestor, const ionet::Node& requestNode, const TCallback& callback) {
+			requestor.beginRequest(requestNode, callback);
+		}
+	};
+
+	/// Runs a brief server requestor connected test using \a context with the specified response packet (\a pResponsePacket).
+	/// \a action is called with the result of beginRequest.
+	template<typename TBeginRequestPolicy, typename TTestContext, typename TAction>
+	void RunBriefServerRequestorConnectedTest(
+			const TTestContext& context,
+			const std::shared_ptr<ionet::Packet>& pResponsePacket,
+			TAction action) {
+		using ResponseType = typename decltype(context.pRequestor)::element_type::ResponseType;
+
+		// Arrange: create a server for connecting
+		TcpAcceptor acceptor(context.pPool->service());
+
+		std::shared_ptr<ionet::PacketSocket> pServerSocket;
+		SpawnPacketServerWork(acceptor, [&context, &pServerSocket, pResponsePacket](const auto& pSocket) {
+			pServerSocket = pSocket;
+			net::VerifyClient(pSocket, context.ServerKeyPair, ionet::ConnectionSecurityMode::None, [pResponsePacket, pSocket](
+					auto,
+					const auto&) {
+				// - write the packet if specified
+				if (pResponsePacket)
+					pSocket->write(ionet::PacketPayload(pResponsePacket), [](auto) {});
+			});
+		});
+
+		// Act: initiate a request
+		std::atomic<size_t> numCallbacks(0);
+		std::vector<std::pair<net::NodeRequestResult, ResponseType>> resultPairs;
+		auto requestNode = CreateLocalHostNode(context.ServerPublicKey);
+		TBeginRequestPolicy::BeginRequest(*context.pRequestor, requestNode, [&numCallbacks, &resultPairs](
+				auto result,
+				const auto& response) {
+			resultPairs.emplace_back(result, response);
+			++numCallbacks;
+		});
+		WAIT_FOR_ONE(numCallbacks);
+
+		// Assert:
+		ASSERT_EQ(1u, resultPairs.size());
+		action(*context.pRequestor, resultPairs[0].first, resultPairs[0].second);
+
+		// - no connections remain
+		context.waitForActiveConnections(0);
+		EXPECT_EQ(0u, context.pRequestor->numActiveConnections());
+	}
+
+	/// Runs a brief server requestor connected test using \a context with the specified response packet (\a pResponsePacket).
+	/// \a action is called with the result of beginRequest.
+	template<typename TTestContext, typename TAction>
+	void RunBriefServerRequestorConnectedTest(
+			const TTestContext& context,
+			const std::shared_ptr<ionet::Packet>& pResponsePacket,
+			TAction action) {
+		RunBriefServerRequestorConnectedTest<BriefServerRequestorMemberBeginRequestPolicy>(context, pResponsePacket, action);
+	}
+
+	/// Asserts that the specified brief server \a requestor indicates a single failed request.
+	template<typename TRequestor>
+	void AssertBriefServerRequestorFailedConnection(const TRequestor& requestor) {
+		// Assert:
+		EXPECT_EQ(1u, requestor.numTotalRequests());
+		EXPECT_EQ(0u, requestor.numSuccessfulRequests());
+	}
+
+	// region RemotePullServer
+
+	/// A remote pull server.
+	class RemotePullServer {
+	public:
+		/// Creates a remote pull server.
+		RemotePullServer()
+				: m_pPool(test::CreateStartedIoServiceThreadPool(1))
+				, m_acceptor(m_pPool->service())
+		{}
+
+	public:
+		/// Returns \c true if the server is connected.
+		bool hasConnection() const {
+			return !!m_pServerSocket;
+		}
+
+	protected:
+		void prepareValidResponse(const crypto::KeyPair& partnerKeyPair, const std::shared_ptr<ionet::Packet>& pResponsePacket) {
+			std::shared_ptr<ionet::PacketSocket> pServerSocket;
+			test::SpawnPacketServerWork(
+					m_acceptor,
+					[&partnerKeyPair, pResponsePacket, &pServerSocket = m_pServerSocket](const auto& pSocket) {
+				pServerSocket = pSocket;
+				net::VerifyClient(pSocket, partnerKeyPair, ionet::ConnectionSecurityMode::None, [pResponsePacket, pSocket](
+						auto,
+						const auto&) {
+					// - write the packet
+					pSocket->write(ionet::PacketPayload(pResponsePacket), [](auto) {});
+				});
+			});
+		}
+
+	public:
+		/// Spawns server work but does not respond to any request.
+		void prepareNoResponse() {
+			test::SpawnPacketServerWork(m_acceptor, [&pServerSocket = m_pServerSocket](const auto& pSocket) {
+				pServerSocket = pSocket;
+			});
+		}
+
+		/// Closes the socket.
+		void close() {
+			m_pServerSocket->close();
+		}
+
+	private:
+		std::unique_ptr<thread::IoServiceThreadPool> m_pPool;
+		test::TcpAcceptor m_acceptor;
+
+		std::shared_ptr<ionet::PacketSocket> m_pServerSocket;
+	};
+
+	// endregion
+}}

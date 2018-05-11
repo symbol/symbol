@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/model/ContiguousEntityContainer.h"
 #include "tests/test/nodeps/IteratorTestTraits.h"
 #include "tests/TestHarness.h"
@@ -56,10 +76,10 @@ namespace catapult { namespace model {
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits, typename TContainerTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Throw_Mutable, test::BeginEndTraits, EntityContainerThrowBasedTraits); \
-	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Throw_Const, test::CBeginCEndTraits, EntityContainerThrowBasedTraits); \
-	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Suppress_Mutable, test::BeginEndTraits, EntityContainerSuppressBasedTraits); \
-	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Suppress_Const, test::CBeginCEndTraits, EntityContainerSuppressBasedTraits); \
+	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Throw_Mutable, test::BeginEndTraits, EntityContainerThrowBasedTraits) \
+	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Throw_Const, test::CBeginCEndTraits, EntityContainerThrowBasedTraits) \
+	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Suppress_Mutable, test::BeginEndTraits, EntityContainerSuppressBasedTraits) \
+	TRAITS_BASED_TEST_ENTRY(TEST_NAME, Suppress_Const, test::CBeginCEndTraits, EntityContainerSuppressBasedTraits) \
 	template<typename TTraits, typename TContainerTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 // if TContainerTraits::ThrowsOnError is set, then expect an exception; otherwise, do not

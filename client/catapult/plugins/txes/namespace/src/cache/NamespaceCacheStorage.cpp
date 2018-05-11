@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NamespaceCacheStorage.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/Stream.h"
@@ -24,8 +44,8 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	void NamespaceCacheStorage::Save(const ValueType& value, io::OutputStream& output) {
-		const auto& history = value.second;
+	void NamespaceCacheStorage::Save(const StorageType& element, io::OutputStream& output) {
+		const auto& history = element.second;
 		if (0 == history.historyDepth())
 			CATAPULT_THROW_RUNTIME_ERROR_1("cannot save empty namespace history", history.id());
 
@@ -50,6 +70,22 @@ namespace catapult { namespace cache {
 	}
 
 	namespace {
+		struct Header {
+			catapult::NamespaceId Id;
+			uint64_t HistoryDepth;
+		};
+
+		Header ReadHeader(io::InputStream& input) {
+			Header header;
+			header.Id = io::Read<NamespaceId>(input);
+			header.HistoryDepth = io::Read64(input);
+
+			if (0 == header.HistoryDepth)
+				CATAPULT_THROW_RUNTIME_ERROR_1("namespace history in storage is empty", header.Id);
+
+			return header;
+		}
+
 		state::Namespace::Path LoadPath(io::InputStream& input, NamespaceId rootId) {
 			state::Namespace::Path path;
 			path.push_back(rootId);
@@ -65,39 +101,65 @@ namespace catapult { namespace cache {
 			return path;
 		}
 
-		void LoadChildren(io::InputStream& input, NamespaceCacheDelta& cacheDelta, NamespaceId rootId, size_t numChildren) {
+		using NamespacePathsGroupedByDepth = std::map<size_t, std::vector<state::Namespace::Path>>;
+
+		NamespacePathsGroupedByDepth LoadChildren(io::InputStream& input, NamespaceId rootId, size_t numChildren) {
 			// load all paths and sort them by size
-			std::map<size_t, std::vector<state::Namespace::Path>> paths;
+			NamespacePathsGroupedByDepth groupedPaths;
 			for (auto i = 0u; i < numChildren; ++i) {
 				auto path = LoadPath(input, rootId);
-				paths[path.size()].push_back(path);
+				groupedPaths[path.size()].push_back(path);
 			}
 
+			return groupedPaths;
+		}
+
+		void LoadChildren(io::InputStream& input, NamespaceId rootId, size_t numChildren, NamespaceCacheDelta& cacheDelta) {
 			// load all paths with smaller sizes before larger sizes
-			for (const auto& pair : paths) {
+			auto groupedPaths = LoadChildren(input, rootId, numChildren);
+			for (const auto& pair : groupedPaths) {
 				for (const auto& path : pair.second)
 					cacheDelta.insert(state::Namespace(path));
 			}
 		}
 	}
 
-	void NamespaceCacheStorage::Load(io::InputStream& input, DestinationType& cacheDelta) {
-		// - read header
-		auto id = io::Read<NamespaceId>(input);
-		auto historyDepth = io::Read64(input);
+	state::RootNamespaceHistory NamespaceCacheStorage::Load(io::InputStream& input) {
+		auto header = ReadHeader(input);
+		state::RootNamespaceHistory history(header.Id);
 
-		if (0 == historyDepth)
-			CATAPULT_THROW_RUNTIME_ERROR_1("namespace history in storage is empty", id);
-
-		for (auto i = 0u; i < historyDepth; ++i) {
+		for (auto i = 0u; i < header.HistoryDepth; ++i) {
 			Key owner;
 			input.read(owner);
 			auto lifetimeStart = io::Read<Height>(input);
 			auto lifetimeEnd = io::Read<Height>(input);
-			cacheDelta.insert(state::RootNamespace(id, owner, state::NamespaceLifetime(lifetimeStart, lifetimeEnd)));
+			history.push_back(owner, state::NamespaceLifetime(lifetimeStart, lifetimeEnd));
 
 			auto numChildren = io::Read64(input);
-			LoadChildren(input, cacheDelta, id, numChildren);
+			auto groupedPaths = LoadChildren(input, header.Id, numChildren);
+
+			auto& currentRoot = history.back();
+			for (const auto& pair : groupedPaths) {
+				for (const auto& path : pair.second)
+					currentRoot.add(state::Namespace(path));
+			}
+		}
+
+		return history;
+	}
+
+	void NamespaceCacheStorage::LoadInto(io::InputStream& input, DestinationType& cacheDelta) {
+		auto header = ReadHeader(input);
+
+		for (auto i = 0u; i < header.HistoryDepth; ++i) {
+			Key owner;
+			input.read(owner);
+			auto lifetimeStart = io::Read<Height>(input);
+			auto lifetimeEnd = io::Read<Height>(input);
+			cacheDelta.insert(state::RootNamespace(header.Id, owner, state::NamespaceLifetime(lifetimeStart, lifetimeEnd)));
+
+			auto numChildren = io::Read64(input);
+			LoadChildren(input, header.Id, numChildren, cacheDelta);
 		}
 	}
 }}

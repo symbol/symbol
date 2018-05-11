@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "tests/TestHarness.h"
 
@@ -19,6 +39,20 @@ namespace catapult { namespace test {
 		}
 	}
 
+	/// Asserts correctness of the less than operator for different values \a lhs and \a rhs .
+	template<typename TValue>
+	void AssertLessThanOperatorForDifferentValues(const TValue& lhs, const TValue& rhs) {
+		EXPECT_TRUE(lhs < rhs);
+		EXPECT_FALSE(rhs < lhs);
+	}
+
+	/// Asserts correctness of the less than operator for equal values \a lhs and \a rhs .
+	template<typename TValue>
+	void AssertLessThanOperatorForEqualValues(const TValue& lhs, const TValue& rhs) {
+		EXPECT_FALSE(lhs < rhs);
+		EXPECT_FALSE(rhs < lhs);
+	}
+
 #define MAKE_COMPARISON_TEST(TEST_CLASS, TEST_NAME, INCREASING_VALUES, OPERATOR) \
 	TEST(TEST_CLASS, TEST_NAME) { \
 		test::AssertOperatorBehaviorForIncreasingValues( \
@@ -33,9 +67,13 @@ namespace catapult { namespace test {
 	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorGreaterThanReturnsTrueOnlyForLargerValues, INCREASING_VALUES, >) \
 	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorGreaterThanOrEqualReturnsTrueOnlyForLargerOrEqualValues, INCREASING_VALUES, >=)
 
-/// Adds all comparison and equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
-#define DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES) \
+/// Adds all equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
+#define DEFINE_EQUALITY_TESTS(TEST_CLASS, INCREASING_VALUES) \
 	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues, INCREASING_VALUES, ==) \
 	MAKE_COMPARISON_TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues, INCREASING_VALUES, !=) \
+
+/// Adds all comparison and equality tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.
+#define DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES) \
+	DEFINE_EQUALITY_TESTS(TEST_CLASS, INCREASING_VALUES) \
 	DEFINE_COMPARISON_TESTS(TEST_CLASS, INCREASING_VALUES)
 }}

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "mongo/src/MongoBulkWriter.h"
 #include "mongo/src/MongoTransactionPlugin.h"
 #include "mongo/src/mappers/AccountStateMapper.h"
@@ -97,7 +117,7 @@ namespace catapult { namespace mongo {
 				uint32_t index,
 				const MongoTransactionRegistry& registry) {
 			std::vector<bsoncxx::document::value> documents;
-			for (auto i = 1u; i <= 3u; ++i)
+			for (auto i = 1u; i <= 3; ++i)
 				documents.push_back(CreateDocument(transactionElement, height, index, registry));
 
 			return documents;
@@ -175,7 +195,7 @@ namespace catapult { namespace mongo {
 		};
 
 		// Sanity:
-		test::AssertCollectionSize(Transactions_Collection_Name, 0u);
+		test::AssertCollectionSize(Transactions_Collection_Name, 0);
 
 		// Act:
 		utils::StackLogger stopwatch("InsertOneToOnePerformance", utils::LogLevel::Warning);
@@ -199,7 +219,7 @@ namespace catapult { namespace mongo {
 		};
 
 		// Sanity:
-		test::AssertCollectionSize(Transactions_Collection_Name, 0u);
+		test::AssertCollectionSize(Transactions_Collection_Name, 0);
 
 		// Act:
 		utils::StackLogger stopwatch("InsertOneToManyPerformance", utils::LogLevel::Warning);
@@ -267,7 +287,7 @@ namespace catapult { namespace mongo {
 
 		// Assert:
 		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-		test::AssertCollectionSize(Accounts_Collection_Name, 0u);
+		test::AssertCollectionSize(Accounts_Collection_Name, 0);
 		AssertResult(0, 0, 0, Num_Entities, 0, aggregate);
 	}
 
@@ -291,7 +311,7 @@ namespace catapult { namespace mongo {
 
 		// Assert:
 		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-		test::AssertCollectionSize(Accounts_Collection_Name, 0u);
+		test::AssertCollectionSize(Accounts_Collection_Name, 0);
 		AssertResult(0, 0, 0, Num_Entities, 0, aggregate);
 	}
 
@@ -592,7 +612,7 @@ namespace catapult { namespace mongo {
 				test::CreateFilter).get();
 
 		// Sanity:
-		test::AssertCollectionSize(Accounts_Collection_Name, 1u);
+		test::AssertCollectionSize(Accounts_Collection_Name, 1);
 
 		// - note that the statement will not throw since we are only calling get() on the future that holds the bulk write futures
 		auto results = context.bulkWriter().bulkInsert<AccountStates>(

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/disruptor/ConsumerDispatcher.h"
 #include "catapult/model/RangeTypes.h"
 #include "tests/test/core/BlockTestUtils.h"
@@ -176,32 +196,35 @@ namespace catapult { namespace disruptor {
 		// Arrange:
 		test::AutoSetFlag isExecutingBlockedElementCallback;
 		test::AutoSetFlag isElementCallbackUnblocked;
-		auto ranges = test::PrepareRanges(6);
+		auto pIsExecuting = isExecutingBlockedElementCallback.state();
+		auto pIsUnblocked = isElementCallbackUnblocked.state();
 
+		auto ranges = test::PrepareRanges(6);
 		ConsumerDispatcher dispatcher(Test_Dispatcher_Options, { CreateNoOpConsumer() });
 
 		// Act: block the third element
-		for (auto i = 0u; i < 6u; ++i) {
+		for (auto i = 0u; i < 6; ++i) {
+			auto input = ConsumerInput(std::move(ranges[i]));
 			if (2 != i) {
-				dispatcher.processElement(ConsumerInput(std::move(ranges[i])));
+				dispatcher.processElement(std::move(input));
 				continue;
 			}
 
-			dispatcher.processElement(ConsumerInput(std::move(ranges[i])), [&](auto, const auto&) {
-				isExecutingBlockedElementCallback.set();
-				isElementCallbackUnblocked.wait();
+			dispatcher.processElement(std::move(input), [pIsExecuting, pIsUnblocked](auto, const auto&) {
+				pIsExecuting->set();
+				pIsUnblocked->wait();
 			});
 		}
 
 		// - wait until the blocked element callback is called
-		isExecutingBlockedElementCallback.wait();
+		isExecutingBlockedElementCallback.state()->wait();
 
 		// Assert: all elements should be added and four should be active
 		EXPECT_EQ(6u, dispatcher.numAddedElements());
 		EXPECT_EQ(4u, dispatcher.numActiveElements());
 
 		// Act: allow all elements to complete
-		isElementCallbackUnblocked.set();
+		isElementCallbackUnblocked.state()->set();
 		WAIT_FOR_ZERO_EXPR(dispatcher.numActiveElements());
 
 		// Assert: no elements should be active
@@ -247,7 +270,7 @@ namespace catapult { namespace disruptor {
 		std::vector<DisruptorElementId> expectedIds{ 1, 2, 3, 4, 5, 6 };
 
 		// Act: push single element
-		for (auto i = 0u; i < 6u; ++i) {
+		for (auto i = 0u; i < 6; ++i) {
 			if (0 == i % 2)
 				ids.push_back(dispatcher.processElement(ConsumerInput(std::move(ranges[i]))));
 			else
@@ -539,8 +562,8 @@ namespace catapult { namespace disruptor {
 					CATAPULT_LOG(info) << "consumer is processing element " << counter;
 					return ConsumerResult::Continue();
 				},
-				[&continueFlag](const auto&) {
-					continueFlag.wait();
+				[pContinueFlag = continueFlag.state()](const auto&) {
+					pContinueFlag->wait();
 					return ConsumerResult::Continue();
 				}
 			});
@@ -598,7 +621,7 @@ namespace catapult { namespace disruptor {
 			EXPECT_EQ(Disruptor_Size - 1, dispatcher.numAddedElements());
 
 			// Act: drain the dispatcher
-			continueFlag.set();
+			continueFlag.state()->set();
 			WAIT_FOR_ZERO_EXPR(dispatcher.numActiveElements());
 
 			// - add another range
@@ -615,10 +638,10 @@ namespace catapult { namespace disruptor {
 				std::vector<size_t>& counters,
 				std::atomic<size_t>& totalCounter,
 				size_t offset,
-				const test::AutoSetFlag& continueFlag) {
+				const std::shared_ptr<test::AutoSetFlag::State>& pContinueFlag) {
 			std::vector<DisruptorConsumer> consumers(counters.size());
 			for (auto i = 0u; i < counters.size(); ++i) {
-				auto consumer = [&counters, &totalCounter, &continueFlag, i, offset](const auto&) {
+				auto consumer = [&counters, &totalCounter, offset, pContinueFlag, i](const auto&) {
 					CATAPULT_LOG(info) << "consumer " << i << " is processing element " << (counters[i] + 1);
 					++counters[i];
 					++totalCounter;
@@ -626,7 +649,7 @@ namespace catapult { namespace disruptor {
 						return ConsumerResult::Continue();
 
 					CATAPULT_LOG(info) << "consumer " << i << " reached blocking position";
-					while (!continueFlag.isSet())
+					while (!pContinueFlag->isSet())
 						test::Sleep(5);
 
 					return ConsumerResult::Continue();
@@ -639,12 +662,12 @@ namespace catapult { namespace disruptor {
 
 		void AssertDeathIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions(size_t offset) {
 			// Arrange:
-			std::atomic<size_t> totalCounter(0);
 			constexpr auto Disruptor_Size = 4u;
 			std::vector<size_t> counters(Disruptor_Size);
+			std::atomic<size_t> totalCounter(0);
 			std::unique_ptr<ConsumerDispatcher> pDispatcher;
 			test::AutoSetFlag continueFlag;
-			auto consumers = CreateConsumers(counters, totalCounter, offset, continueFlag);
+			auto consumers = CreateConsumers(counters, totalCounter, offset, continueFlag.state());
 			pDispatcher = std::make_unique<ConsumerDispatcher>(
 					ConsumerDispatcherOptions{ "ConsumerDispatcherTests", Disruptor_Size },
 					consumers);

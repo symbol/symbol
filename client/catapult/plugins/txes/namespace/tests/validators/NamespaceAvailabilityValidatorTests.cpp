@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/validators/Validators.h"
 #include "src/cache/NamespaceCache.h"
 #include "src/model/NamespaceConstants.h"
@@ -157,7 +177,8 @@ namespace catapult { namespace validators {
 		// Arrange: namespace is deactivated at height 20 and grace period is 25, so it is available starting at 45
 		for (auto height : { Height(15), Height(20), Height(44) }) {
 			// Act: try to change the owner of a root that has not yet exceeded its grace period
-			auto notification = model::RootNamespaceNotification(Key(), NamespaceId(25), Default_Duration);
+			auto signer = test::GenerateRandomData<Key_Size>();
+			auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), Default_Duration);
 			RunRootTest(Failure_Namespace_Owner_Conflict, notification, height, SeedCacheWithRoot25);
 		}
 	}

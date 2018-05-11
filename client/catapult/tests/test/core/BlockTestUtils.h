@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "TransactionTestUtils.h"
 #include "catapult/crypto/KeyPair.h"
@@ -9,7 +29,7 @@
 
 namespace catapult { namespace test {
 
-	/// The hash string of the deterministic block.
+	/// Hash string of the deterministic block.
 #ifdef SIGNATURE_SCHEME_NIS1
 	constexpr auto Deterministic_Block_Hash_String = "E0FE82A8A8A3A4D795C1342B60D2931650524F679163CA2E4175A0A71305FA03";
 #else
@@ -39,6 +59,9 @@ namespace catapult { namespace test {
 
 	/// Generates a block with \a numTransactions transactions at \a height.
 	std::unique_ptr<model::Block> GenerateBlockWithTransactionsAtHeight(size_t numTransactions, Height height);
+
+	/// Generates a block with transactions at \a height.
+	std::unique_ptr<model::Block> GenerateBlockWithTransactionsAtHeight(Height height);
 
 	/// Generates a block with \a numTransactions transactions at \a height and \a timestamp.
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height, Timestamp timestamp);

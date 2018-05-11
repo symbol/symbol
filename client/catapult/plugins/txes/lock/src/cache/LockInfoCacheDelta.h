@@ -1,26 +1,38 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "src/model/LockInfo.h"
-#include "catapult/cache/CacheMixins.h"
+#include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/IdentifierGroupCacheUtils.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 #include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/deltaset/DeltaElementsMixin.h"
 
 namespace catapult { namespace cache {
 
 	/// Mixins used by the lock info cache delta.
 	template<typename TDescriptor, typename TCacheTypes>
-	struct LockInfoCacheDeltaMixins {
-		using Size = SizeMixin<typename TCacheTypes::PrimaryTypes::BaseSetDeltaType>;
-		using Contains = ContainsMixin<typename TCacheTypes::PrimaryTypes::BaseSetDeltaType, TDescriptor>;
-		using ConstAccessor = ConstAccessorMixin<typename TCacheTypes::PrimaryTypes::BaseSetDeltaType, TDescriptor>;
-		using MutableAccessor = MutableAccessorMixin<typename TCacheTypes::PrimaryTypes::BaseSetDeltaType, TDescriptor>;
-		using ActivePredicate = ActivePredicateMixin<typename TCacheTypes::PrimaryTypes::BaseSetDeltaType, TDescriptor>;
-		using BasicInsertRemove = BasicInsertRemoveMixin<typename TCacheTypes::PrimaryTypes::BaseSetDeltaType, TDescriptor>;
+	struct LockInfoCacheDeltaMixins : public BasicCacheMixins<typename TCacheTypes::PrimaryTypes::BaseSetDeltaType, TDescriptor> {
 		using Pruning = HeightBasedPruningMixin<
 			typename TCacheTypes::PrimaryTypes::BaseSetDeltaType,
 			typename TCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
-		using DeltaElements = deltaset::DeltaElementsMixin<typename TCacheTypes::PrimaryTypes::BaseSetDeltaType>;
 	};
 
 	/// Basic delta on top of the lock info cache.
@@ -39,8 +51,8 @@ namespace catapult { namespace cache {
 		using ReadOnlyView = typename TCacheTypes::CacheReadOnlyType;
 
 	public:
-		/// Creates a delta based on the specified \a lockInfoSets.
-		explicit BasicLockInfoCacheDelta(const typename TCacheTypes::BaseSetDeltaPointerType& lockInfoSets)
+		/// Creates a delta around \a lockInfoSets.
+		explicit BasicLockInfoCacheDelta(const typename TCacheTypes::BaseSetDeltaPointers& lockInfoSets)
 				: LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::Size(*lockInfoSets.pPrimary)
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::Contains(*lockInfoSets.pPrimary)
 				, LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::ConstAccessor(*lockInfoSets.pPrimary)
@@ -70,7 +82,7 @@ namespace catapult { namespace cache {
 		/// Collects all unused lock infos that expired at \a height.
 		std::vector<const typename TDescriptor::ValueType*> collectUnusedExpiredLocks(Height height) {
 			std::vector<const typename TDescriptor::ValueType*> values;
-			ForEachIdentifierWithGroup(utils::as_const(*m_pDelta), *m_pHeightGroupingDelta, height, [this, &values](const auto& lockInfo) {
+			ForEachIdentifierWithGroup(utils::as_const(*m_pDelta), *m_pHeightGroupingDelta, height, [&values](const auto& lockInfo) {
 				if (model::LockStatus::Unused == lockInfo.Status)
 					values.push_back(&lockInfo);
 			});
@@ -87,8 +99,8 @@ namespace catapult { namespace cache {
 	template<typename TDescriptor, typename TCacheTypes>
 	class LockInfoCacheDelta : public ReadOnlyViewSupplier<BasicLockInfoCacheDelta<TDescriptor, TCacheTypes>> {
 	public:
-		/// Creates a delta based on the specified \a lockInfoSets.
-		explicit LockInfoCacheDelta(const typename TCacheTypes::BaseSetDeltaPointerType& lockInfoSets)
+		/// Creates a delta around \a lockInfoSets.
+		explicit LockInfoCacheDelta(const typename TCacheTypes::BaseSetDeltaPointers& lockInfoSets)
 				: ReadOnlyViewSupplier<BasicLockInfoCacheDelta<TDescriptor, TCacheTypes>>(lockInfoSets)
 		{}
 	};

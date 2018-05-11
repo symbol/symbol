@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/ConfigurationUtils.h"
@@ -83,7 +103,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.MaxTransactionLifetime);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.MaxBlockFutureTime);
 
-				EXPECT_EQ(Amount(0), config.TotalChainBalance);
+				EXPECT_EQ(utils::XemUnit(), config.TotalChainBalance);
 				EXPECT_EQ(Amount(0), config.MinHarvesterBalance);
 
 				EXPECT_EQ(0u, config.BlockPruneInterval);
@@ -108,7 +128,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(30), config.MaxTransactionLifetime);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(21), config.MaxBlockFutureTime);
 
-				EXPECT_EQ(Amount(88'000'000'000), config.TotalChainBalance);
+				EXPECT_EQ(utils::XemUnit(Amount(88'000'000'000)), config.TotalChainBalance);
 				EXPECT_EQ(Amount(4'000'000'000), config.MinHarvesterBalance);
 
 				EXPECT_EQ(432u, config.BlockPruneInterval);
@@ -229,6 +249,15 @@ namespace catapult { namespace model {
 		EXPECT_EQ(utils::TimeSpan::FromHours(1), CalculateRollbackVariabilityBufferDuration(config));
 		EXPECT_EQ(TimeSpanFromMillis(15'000 * 20 + One_Hour_Ms), CalculateTransactionCacheDuration(config));
 		EXPECT_EQ(65u, CalculateDifficultyHistorySize(config));
+	}
+
+	TEST(TEST_CLASS, TotalImportanceIsDerivedFromTotalChainBalance) {
+		// Act:
+		auto config = BlockChainConfiguration::Uninitialized();
+		config.TotalChainBalance = utils::XemUnit(utils::XemAmount(1234));
+
+		// Assert:
+		EXPECT_EQ(Importance(1234), GetTotalImportance(config));
 	}
 
 	// endregion

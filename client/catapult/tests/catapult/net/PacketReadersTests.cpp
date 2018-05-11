@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/net/PacketReaders.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/PacketSocket.h"
@@ -95,7 +115,8 @@ namespace catapult { namespace net {
 				bool isServerVerified = false;
 				test::SpawnPacketClientWork(context.Service, [&, i](const auto& pSocket) {
 					state.ClientSockets.push_back(pSocket);
-					VerifyServer(pSocket, context.ServerKeyPair.publicKey(), context.ClientKeyPairs[i], [&](auto result, const auto&) {
+					auto serverPeerInfo = VerifiedPeerInfo{ context.ServerKeyPair.publicKey(), ionet::ConnectionSecurityMode::None };
+					VerifyServer(pSocket, serverPeerInfo, context.ClientKeyPairs[i], [&](auto result, const auto&) {
 						isServerVerified = VerifyResult::Success == result;
 						++numCallbacks;
 					});
@@ -357,7 +378,7 @@ namespace catapult { namespace net {
 			sendBuffer[Tag_Index] = tag;
 
 			CATAPULT_LOG(debug) << "writing packet " << tag;
-			io.write(test::BufferToPacket(sendBuffer), [](auto) {});
+			io.write(test::BufferToPacketPayload(sendBuffer), [](auto) {});
 			return sendBuffer;
 		}
 
@@ -440,7 +461,7 @@ namespace catapult { namespace net {
 
 		// Act: trigger the operation that should close the socket and wait for the connections to drop
 		// (send a packet without a corresponding handler)
-		state.ClientSockets[0]->write(test::BufferToPacket(test::GenerateRandomPacketBuffer(62)), [](auto) {});
+		state.ClientSockets[0]->write(test::BufferToPacketPayload(test::GenerateRandomPacketBuffer(62)), [](auto) {});
 		context.waitForReaders(0);
 
 		// Assert: the connection is closed
@@ -467,7 +488,7 @@ namespace catapult { namespace net {
 
 		// Act: trigger the operation that should close the socket and wait for the connections to drop
 		// (send a packet without a corresponding handler)
-		state.ClientSockets[0]->write(test::BufferToPacket(test::GenerateRandomPacketBuffer(62)), [](auto) {});
+		state.ClientSockets[0]->write(test::BufferToPacketPayload(test::GenerateRandomPacketBuffer(62)), [](auto) {});
 		context.waitForReaders(2);
 
 		// Assert: three readers (shared identity) were destroyed
@@ -480,6 +501,35 @@ namespace catapult { namespace net {
 		state.ServerSockets[4].reset();
 		context.waitForConnections(2);
 		EXPECT_NUM_ACTIVE_READERS(2u, *context.pReaders);
+	}
+
+	TEST(TEST_CLASS, CloseDoesNotTriggerAnyDisconnectionsOfSocketsWithSameIdentity) {
+		// Act: establish five connections, three of which have the same identity
+		PacketReadersTestContext context(5, 3);
+		context.ClientKeyPairs[2] = test::CopyKeyPair(context.ClientKeyPairs[0]);
+		context.ClientKeyPairs[4] = test::CopyKeyPair(context.ClientKeyPairs[0]);
+
+		auto state = SetupMultiConnectionTest(context);
+		auto& readers = *context.pReaders;
+
+		// Sanity:
+		EXPECT_NUM_ACTIVE_READERS_AND_IDENTITIES(5u, 3u, readers);
+
+		// Act: close one of the sockets
+		state.ClientSockets[2]->close();
+		context.waitForReaders(4);
+
+		// Assert: one reader (closed one) was destroyed
+		utils::KeySet expectedIdentities{
+			context.ClientKeyPairs[0].publicKey(), context.ClientKeyPairs[1].publicKey(), context.ClientKeyPairs[3].publicKey()
+		};
+		EXPECT_EQ(4u, readers.numActiveReaders());
+		EXPECT_EQ(expectedIdentities, readers.identities());
+
+		// Sanity: closing the corresponding server socket removes the pending connection too
+		state.ServerSockets[2].reset();
+		context.waitForConnections(4);
+		EXPECT_NUM_ACTIVE_READERS_AND_IDENTITIES(4u, 3u, *context.pReaders);
 	}
 
 	// endregion

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "PacketReaders.h"
 #include "ChainedSocketReader.h"
 #include "ClientConnector.h"
@@ -20,7 +40,7 @@ namespace catapult { namespace net {
 
 		class ReaderContainer {
 		private:
-			using ChainedSocketReaderFactory = std::function<std::shared_ptr<ChainedSocketReader> (const PacketSocketPointer&)>;
+			using ChainedSocketReaderFactory = std::function<std::shared_ptr<ChainedSocketReader> (const PacketSocketPointer&, uint32_t)>;
 
 		public:
 			explicit ReaderContainer(uint32_t maxConnectionsPerIdentity) : m_maxConnectionsPerIdentity(maxConnectionsPerIdentity)
@@ -64,7 +84,7 @@ namespace catapult { namespace net {
 				}
 
 				// the reader takes ownership of the socket
-				auto pReader = readerFactory(pSocket);
+				auto pReader = readerFactory(pSocket, insertedReaderIter->first.second);
 				pReader->start();
 				insertedReaderIter->second.pReader = pReader;
 				return true;
@@ -75,9 +95,14 @@ namespace catapult { namespace net {
 
 				bool anyClosed = false;
 				for (auto i = 0u; i < m_maxConnectionsPerIdentity; ++i)
-					anyClosed = close(identityKey, i) || anyClosed;
+					anyClosed = closeSingle(identityKey, i) || anyClosed;
 
 				return anyClosed;
+			}
+
+			bool close(const Key& identityKey, uint32_t id) {
+				utils::SpinLockGuard guard(m_lock);
+				return closeSingle(identityKey, id);
 			}
 
 			void clear() {
@@ -97,7 +122,7 @@ namespace catapult { namespace net {
 				pReader->stop();
 			}
 
-			bool close(const Key& identityKey, uint32_t id) {
+			bool closeSingle(const Key& identityKey, uint32_t id) {
 				auto iter = m_readers.find(std::make_pair(identityKey, id));
 				if (m_readers.end() == iter)
 					return false;
@@ -152,20 +177,23 @@ namespace catapult { namespace net {
 
 		public:
 			void accept(const ionet::AcceptedPacketSocketInfo& socketInfo, const AcceptCallback& callback) override {
-				auto acceptCallback = [pThis = shared_from_this(), socketInfo, callback](auto result, const auto& identityKey) {
+				m_pClientConnector->accept(socketInfo.socket(), [pThis = shared_from_this(), host = socketInfo.host(), callback](
+						auto result,
+						const auto& pVerifiedSocket,
+						const auto& identityKey) {
+					ionet::AcceptedPacketSocketInfo verifiedSocketInfo(host, pVerifiedSocket);
 					if (PeerConnectResult::Accepted == result) {
-						if (!pThis->addReader(identityKey, socketInfo)) {
+						if (!pThis->addReader(identityKey, verifiedSocketInfo)) {
 							result = PeerConnectResult::Already_Connected;
 						} else {
 							CATAPULT_LOG(debug)
-									<< "accepted connection from '" << socketInfo.host()
+									<< "accepted connection from '" << verifiedSocketInfo.host()
 									<< "' as " << utils::HexFormat(identityKey);
 						}
 					}
 
 					return callback(result);
-				};
-				m_pClientConnector->accept(socketInfo.socket(), acceptCallback);
+				});
 			}
 
 			bool closeOne(const Key& identityKey) override {
@@ -181,15 +209,23 @@ namespace catapult { namespace net {
 		private:
 			bool addReader(const Key& identityKey, const ionet::AcceptedPacketSocketInfo& socketInfo) {
 				auto identity = ionet::ReaderIdentity{ identityKey, socketInfo.host() };
-				return m_readers.insert(identityKey, socketInfo.socket(), [this, &identity](const auto& pSocket) {
-					return this->createReader(pSocket, identity);
+				return m_readers.insert(identityKey, socketInfo.socket(), [this, &identity](const auto& pSocket, auto id) {
+					return this->createReader(pSocket, identity, id);
 				});
 			}
 
-			std::shared_ptr<ChainedSocketReader> createReader(const PacketSocketPointer& pSocket, const ionet::ReaderIdentity& identity) {
+			std::shared_ptr<ChainedSocketReader> createReader(
+					const PacketSocketPointer& pSocket,
+					const ionet::ReaderIdentity& identity,
+					uint32_t id) {
 				const auto& identityKey = identity.PublicKey;
-				return CreateChainedSocketReader(pSocket, m_handlers, identity, [pThis = shared_from_this(), identityKey](auto) {
-					pThis->m_readers.close(identityKey);
+				return CreateChainedSocketReader(pSocket, m_handlers, identity, [pThis = shared_from_this(), identityKey, id](auto code) {
+					// if the socket is closed cleanly, just remove the closed socket
+					// if the socket errored, remove all sockets with the same identity
+					if (ionet::SocketOperationCode::Closed == code)
+						pThis->m_readers.close(identityKey, id);
+					else
+						pThis->m_readers.close(identityKey);
 				});
 			}
 

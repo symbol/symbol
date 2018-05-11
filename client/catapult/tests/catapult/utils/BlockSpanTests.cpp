@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/BlockSpan.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Equality.h"
@@ -47,9 +67,9 @@ namespace catapult { namespace utils {
 		auto blockSpan = BlockSpan::FromHours(120);
 
 		// Assert:
-		EXPECT_EQ(BlockDuration(14'400u), blockSpan.blocks(TimeSpan::FromSeconds(30)));
-		EXPECT_EQ(BlockDuration(7'200u), blockSpan.blocks(TimeSpan::FromMinutes(1)));
-		EXPECT_EQ(BlockDuration(2'400u), blockSpan.blocks(TimeSpan::FromMinutes(3)));
+		EXPECT_EQ(BlockDuration(14'400), blockSpan.blocks(TimeSpan::FromSeconds(30)));
+		EXPECT_EQ(BlockDuration(7'200), blockSpan.blocks(TimeSpan::FromMinutes(1)));
+		EXPECT_EQ(BlockDuration(2'400), blockSpan.blocks(TimeSpan::FromMinutes(3)));
 	}
 
 	TEST(TEST_CLASS, BlocksAreTruncatedWhenConverted) {
@@ -57,9 +77,9 @@ namespace catapult { namespace utils {
 		auto blockSpan = BlockSpan::FromHours(119);
 
 		// Assert:
-		EXPECT_EQ(BlockDuration(32'953u), blockSpan.blocks(TimeSpan::FromSeconds(13)));
-		EXPECT_EQ(BlockDuration(7'140u), blockSpan.blocks(TimeSpan::FromMinutes(1)));
-		EXPECT_EQ(BlockDuration(649u), blockSpan.blocks(TimeSpan::FromMinutes(11)));
+		EXPECT_EQ(BlockDuration(32'953), blockSpan.blocks(TimeSpan::FromSeconds(13)));
+		EXPECT_EQ(BlockDuration(7'140), blockSpan.blocks(TimeSpan::FromMinutes(1)));
+		EXPECT_EQ(BlockDuration(649), blockSpan.blocks(TimeSpan::FromMinutes(11)));
 	}
 
 	namespace {

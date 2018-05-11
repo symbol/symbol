@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "filechain/src/FileBlockChainStorage.h"
 #include "plugins/services/hashcache/src/cache/HashCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
@@ -70,6 +90,12 @@ namespace catapult { namespace filechain {
 
 			void save() const {
 				m_pBlockChainStorage->saveToStorage(m_localNodeState.cref());
+			}
+
+		public:
+			void enableCacheDatabaseStorage(bool enable) {
+				const_cast<bool&>(m_pPluginManager->storageConfig().PreferCacheDatabase) = enable;
+				const_cast<bool&>(m_localNodeState.ref().Config.Node.ShouldUseCacheDatabaseStorage) = enable;
 			}
 
 		private:
@@ -183,7 +209,7 @@ namespace catapult { namespace filechain {
 					const auto& sender = nemesisKeyPairs[senderIndex];
 
 					std::uniform_int_distribution<Amount::ValueType> amountDistribution(1000, 10 * 1000);
-					Amount amount(amountDistribution(rnd) * 1'000'000u);
+					Amount amount(amountDistribution(rnd) * 1'000'000);
 					auto pTransaction = test::CreateUnsignedTransferTransaction(sender.publicKey(), recipientAddress, amount);
 					pTransaction->Fee = Amount(0);
 					transactions.push_back(std::move(pTransaction));
@@ -226,9 +252,8 @@ namespace catapult { namespace filechain {
 
 			EXPECT_EQ(Height(1), accountState.AddressHeight) << message;
 
-			if (Amount(0) != amountSpent) {
+			if (Amount(0) != amountSpent)
 				EXPECT_LT(Height(0), accountState.PublicKeyHeight) << message;
-			}
 
 			EXPECT_EQ(Nemesis_Recipient_Amount - amountSpent, accountState.Balances.get(Xem_Id)) << message;
 		}
@@ -372,6 +397,16 @@ namespace catapult { namespace filechain {
 
 			return sum;
 		}
+
+		void AssertBlockDifficultyCacheRange(
+				const cache::BlockDifficultyCacheView& view,
+				Height expectedStartHeight,
+				Height expectedEndHeight) {
+			auto pIterableView = view.tryMakeIterableView();
+			ASSERT_TRUE(!!pIterableView);
+			EXPECT_EQ(expectedStartHeight, pIterableView->begin()->BlockHeight);
+			EXPECT_EQ(expectedEndHeight, std::prev(pIterableView->end())->BlockHeight);
+		}
 	}
 
 	TEST(TEST_CLASS, ProperTransientCacheStateAfterLoadingMultipleBlocks_AllBlocksContributeToTransientState) {
@@ -398,8 +433,7 @@ namespace catapult { namespace filechain {
 
 		const auto& blockDifficultyCache = cacheView.sub<cache::BlockDifficultyCache>();
 		EXPECT_EQ(transactionCounts.size() + 1, blockDifficultyCache.size());
-		EXPECT_EQ(Height(1), blockDifficultyCache.begin()->BlockHeight);
-		EXPECT_EQ(Height(1 + transactionCounts.size()), std::prev(blockDifficultyCache.end())->BlockHeight);
+		AssertBlockDifficultyCacheRange(blockDifficultyCache, Height(1), Height(1 + transactionCounts.size()));
 	}
 
 	namespace {
@@ -429,8 +463,10 @@ namespace catapult { namespace filechain {
 
 			const auto& blockDifficultyCache = cacheView.sub<cache::BlockDifficultyCache>();
 			EXPECT_EQ(numExpectedSignificantBlocks, blockDifficultyCache.size());
-			EXPECT_EQ(Height(2 + startAllObserversIndex), blockDifficultyCache.begin()->BlockHeight);
-			EXPECT_EQ(Height(1 + transactionCounts.size()), std::prev(blockDifficultyCache.end())->BlockHeight);
+			AssertBlockDifficultyCacheRange(
+					blockDifficultyCache,
+					Height(2 + startAllObserversIndex),
+					Height(1 + transactionCounts.size()));
 		}
 	}
 
@@ -448,108 +484,149 @@ namespace catapult { namespace filechain {
 
 	// region saveToStorage
 
-	TEST(TEST_CLASS, CanSaveAndReloadCacheStateToAndFromDisk) {
-		// Arrange:
-		test::TempDirectoryGuard tempDataDirectory;
-		std::vector<Amount> amountsSpent;
-		std::vector<Amount> amountsCollected;
-		std::vector<Address> newAccounts;
+	namespace {
+		void AssertCanSaveAndReloadCacheStateToAndFromDisk(bool useCacheDatabaseStorage) {
+			// Arrange:
+			test::TempDirectoryGuard tempDataDirectory;
+			std::vector<Amount> amountsSpent;
+			std::vector<Amount> amountsCollected;
+			std::vector<Address> newAccounts;
 
-		uint32_t maxDifficultyBlocks = Num_Recipient_Accounts / 4;
-		auto storageChainHeight = Height(Num_Recipient_Accounts + 1);
-		{
-			// - generate random state
-			auto timeSpacing = utils::TimeSpan::FromMinutes(2);
+			uint32_t maxDifficultyBlocks = Num_Recipient_Accounts / 4;
+			auto storageChainHeight = Height(Num_Recipient_Accounts + 1);
+			{
+				// - generate random state
+				auto timeSpacing = utils::TimeSpan::FromMinutes(2);
+				TestContext context(maxDifficultyBlocks, tempDataDirectory.name());
+				context.enableCacheDatabaseStorage(useCacheDatabaseStorage);
+				newAccounts = PrepareRandomBlocks(context.storageModifier(), amountsSpent, amountsCollected, timeSpacing).Recipients;
+				context.load();
+
+				// Act: save to disk
+				context.save();
+			}
+
+			// Act: reload the state from the saved cache state
 			TestContext context(maxDifficultyBlocks, tempDataDirectory.name());
-			newAccounts = PrepareRandomBlocks(context.storageModifier(), amountsSpent, amountsCollected, timeSpacing).Recipients;
+			context.enableCacheDatabaseStorage(useCacheDatabaseStorage);
 			context.load();
 
-			// Act: save to disk
-			context.save();
+			// Assert: check the heights (notice that storage is empty because it was not reseeded in the second test context)
+			EXPECT_EQ(storageChainHeight, context.cacheView().height());
+			EXPECT_EQ(Height(1), context.storageView().chainHeight());
+
+			// - spot check the new accounts by checking secondary recipients
+			auto cacheView = context.cacheView();
+			const auto& accountStateCacheView = cacheView.sub<cache::AccountStateCache>();
+			auto i = 0u;
+			for (const auto& address : newAccounts) {
+				AssertSecondaryRecipient(accountStateCacheView, address, i, amountsCollected[i]);
+				++i;
+			}
+
+			// - spot check the block difficulty cache
+			const auto& blockDifficultyCache = cacheView.sub<cache::BlockDifficultyCache>();
+			EXPECT_EQ(maxDifficultyBlocks, blockDifficultyCache.size());
+			AssertBlockDifficultyCacheRange(
+					blockDifficultyCache,
+					storageChainHeight - Height(maxDifficultyBlocks) + Height(1),
+					storageChainHeight);
 		}
+	}
 
-		// Act: reload the state from the saved cache state
-		TestContext context(maxDifficultyBlocks, tempDataDirectory.name());
-		context.load();
+	TEST(TEST_CLASS, CanSaveAndReloadCacheStateToAndFromDisk) {
+		// Assert:
+		AssertCanSaveAndReloadCacheStateToAndFromDisk(false);
+	}
 
-		// Assert: check the heights (notice that storage is empty because it was not reseeded in the second test context)
-		EXPECT_EQ(storageChainHeight, context.cacheView().height());
-		EXPECT_EQ(Height(1), context.storageView().chainHeight());
+	TEST(TEST_CLASS, CanSaveAndReloadCacheStateToAndFromDiskWhenCacheDatabaseStorageIsEnabled) {
+		// Assert:
+		AssertCanSaveAndReloadCacheStateToAndFromDisk(true);
+	}
 
-		// - spot check the new accounts by checking secondary recipients
-		auto cacheView = context.cacheView();
-		const auto& accountStateCacheView = cacheView.sub<cache::AccountStateCache>();
-		auto i = 0u;
-		for (const auto& address : newAccounts) {
-			AssertSecondaryRecipient(accountStateCacheView, address, i, amountsCollected[i]);
-			++i;
+	namespace {
+		template<typename TAction>
+		void RunReloadWithInconsistentCacheAndStorageHeightTest(bool useCacheDatabaseStorage, TAction action) {
+			// Arrange:
+			test::TempDirectoryGuard tempDataDirectory;
+			std::vector<Amount> amountsSpent;
+			std::vector<Amount> amountsCollected;
+			std::vector<Address> newAccounts;
+
+			uint32_t maxDifficultyBlocks = Num_Recipient_Accounts / 4;
+			auto savedCacheStateHeight = Height(Num_Recipient_Accounts / 2);
+			auto storageChainHeight = Height(Num_Recipient_Accounts + 1);
+
+			// - force a prune at the last block and create a context for (re)loading
+			auto config = CreateBlockChainConfiguration(maxDifficultyBlocks, tempDataDirectory.name());
+			config.BlockPruneInterval = static_cast<uint32_t>(storageChainHeight.unwrap());
+			TestContext context(config, tempDataDirectory.name());
+			context.enableCacheDatabaseStorage(useCacheDatabaseStorage);
+			{
+				// - generate random state
+				auto timeSpacing = utils::TimeSpan::FromMinutes(2);
+				TestContext seedContext(config, tempDataDirectory.name());
+				seedContext.enableCacheDatabaseStorage(useCacheDatabaseStorage);
+				newAccounts = PrepareRandomBlocks(seedContext.storageModifier(), amountsSpent, amountsCollected, timeSpacing).Recipients;
+
+				// - drop half the blocks
+				seedContext.storageModifier().dropBlocksAfter(savedCacheStateHeight);
+				seedContext.load();
+
+				// Sanity:
+				EXPECT_EQ(savedCacheStateHeight, seedContext.cacheView().height());
+
+				// Act: save to disk
+				seedContext.save();
+
+				// - reset the storage height and copy all blocks into the second context (used to reload the state)
+				seedContext.storageModifier().dropBlocksAfter(storageChainHeight);
+				for (auto height = Height(2); height <= storageChainHeight; height = height + Height(1))
+					context.storageModifier().saveBlock(*seedContext.storageView().loadBlockElement(height));
+			}
+
+			action(context, maxDifficultyBlocks, amountsCollected, newAccounts);
 		}
-
-		// - spot check the block difficulty cache
-		const auto& blockDifficultyCache = cacheView.sub<cache::BlockDifficultyCache>();
-		EXPECT_EQ(maxDifficultyBlocks, blockDifficultyCache.size());
-		EXPECT_EQ(storageChainHeight - Height(maxDifficultyBlocks) + Height(1), blockDifficultyCache.begin()->BlockHeight);
-		EXPECT_EQ(storageChainHeight, std::prev(blockDifficultyCache.end())->BlockHeight);
 	}
 
 	TEST(TEST_CLASS, CanSaveAndReloadPartialCacheStateToAndFromDiskAndLoadRemainingStateFromAdditionalStorageBlocks) {
 		// Arrange:
-		test::TempDirectoryGuard tempDataDirectory;
-		std::vector<Amount> amountsSpent;
-		std::vector<Amount> amountsCollected;
-		std::vector<Address> newAccounts;
+		RunReloadWithInconsistentCacheAndStorageHeightTest(false, [](
+				auto& context,
+				auto maxDifficultyBlocks,
+				const auto& amountsCollected,
+				const auto& newAccounts) {
+			auto storageChainHeight = Height(Num_Recipient_Accounts + 1);
 
-		uint32_t maxDifficultyBlocks = Num_Recipient_Accounts / 4;
-		auto savedCacheStateHeight = Height(Num_Recipient_Accounts / 2);
-		auto storageChainHeight = Height(Num_Recipient_Accounts + 1);
+			// Act: reload the state from the saved cache state and storage
+			context.load();
 
-		// - force a prune at the last block and create a context for (re)loading
-		auto config = CreateBlockChainConfiguration(maxDifficultyBlocks, tempDataDirectory.name());
-		config.BlockPruneInterval = static_cast<uint32_t>(storageChainHeight.unwrap());
-		TestContext context(config, tempDataDirectory.name());
-		{
-			// - generate random state
-			auto timeSpacing = utils::TimeSpan::FromMinutes(2);
-			TestContext seedContext(config, tempDataDirectory.name());
-			newAccounts = PrepareRandomBlocks(seedContext.storageModifier(), amountsSpent, amountsCollected, timeSpacing).Recipients;
+			// Assert: check the heights
+			EXPECT_EQ(storageChainHeight, context.cacheView().height());
+			EXPECT_EQ(storageChainHeight, context.storageView().chainHeight());
 
-			// - drop half the blocks
-			seedContext.storageModifier().dropBlocksAfter(savedCacheStateHeight);
-			seedContext.load();
+			// - spot check the new accounts by checking secondary recipients
+			auto cacheView = context.cacheView();
+			const auto& accountStateCacheView = cacheView.template sub<cache::AccountStateCache>();
+			auto i = 0u;
+			for (const auto& address : newAccounts) {
+				AssertSecondaryRecipient(accountStateCacheView, address, i, amountsCollected[i]);
+				++i;
+			}
 
-			// Sanity:
-			EXPECT_EQ(savedCacheStateHeight, seedContext.cacheView().height());
+			// - spot check the block difficulty cache (notice that pruning leaves an extra entry in the cache)
+			const auto& blockDifficultyCache = cacheView.template sub<cache::BlockDifficultyCache>();
+			EXPECT_EQ(maxDifficultyBlocks + 1, blockDifficultyCache.size());
+			AssertBlockDifficultyCacheRange(blockDifficultyCache, storageChainHeight - Height(maxDifficultyBlocks), storageChainHeight);
+		});
+	}
 
-			// Act: save to disk
-			seedContext.save();
-
-			// - reset the storage height and copy all blocks into the second context (used to reload the state)
-			seedContext.storageModifier().dropBlocksAfter(storageChainHeight);
-			for (auto height = Height(2); height <= storageChainHeight; height = height + Height(1))
-				context.storageModifier().saveBlock(*seedContext.storageView().loadBlockElement(height));
-		}
-
-		// Act: reload the state from the saved cache state and storage
-		context.load();
-
-		// Assert: check the heights
-		EXPECT_EQ(storageChainHeight, context.cacheView().height());
-		EXPECT_EQ(storageChainHeight, context.storageView().chainHeight());
-
-		// - spot check the new accounts by checking secondary recipients
-		auto cacheView = context.cacheView();
-		const auto& accountStateCacheView = cacheView.sub<cache::AccountStateCache>();
-		auto i = 0u;
-		for (const auto& address : newAccounts) {
-			AssertSecondaryRecipient(accountStateCacheView, address, i, amountsCollected[i]);
-			++i;
-		}
-
-		// - spot check the block difficulty cache (notice that pruning leaves an extra entry in the cache)
-		const auto& blockDifficultyCache = cacheView.sub<cache::BlockDifficultyCache>();
-		EXPECT_EQ(maxDifficultyBlocks + 1, blockDifficultyCache.size());
-		EXPECT_EQ(storageChainHeight - Height(maxDifficultyBlocks), blockDifficultyCache.begin()->BlockHeight);
-		EXPECT_EQ(storageChainHeight, std::prev(blockDifficultyCache.end())->BlockHeight);
+	TEST(TEST_CLASS, CannotLoadRemainingStateFromAdditionalStorageBlocksWhenCacheDatabaseStorageIsEnabled) {
+		// Arrange:
+		RunReloadWithInconsistentCacheAndStorageHeightTest(true, [](auto& context, auto, const auto&, const auto&) {
+			// Act + Assert: reload the state from the saved cache state and storage (it should fail because of inconsistent heights)
+			EXPECT_THROW(context.load(), catapult_runtime_error);
+		});
 	}
 
 	TEST(TEST_CLASS, CannotLoadCorruptedCacheStateFromDisk) {

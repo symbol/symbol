@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/cache/MemoryUtCache.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
@@ -18,6 +38,8 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, CanCreateServiceState) {
 		// Arrange:
 		auto config = test::CreateUninitializedLocalNodeConfiguration();
+		const_cast<utils::FileSize&>(config.Node.MaxPacketDataSize) = utils::FileSize::FromKilobytes(1234);
+
 		ionet::NodeContainer nodes;
 		auto catapultCache = cache::CatapultCache({});
 		state::CatapultState catapultState;
@@ -36,7 +58,7 @@ namespace catapult { namespace extensions {
 		mocks::MockNodeSubscriber nodeSubscriber;
 
 		std::vector<utils::DiagnosticCounter> counters;
-		plugins::PluginManager pluginManager(config.BlockChain);
+		plugins::PluginManager pluginManager(config.BlockChain, plugins::StorageConfiguration());
 		thread::MultiServicePool pool("test", 1);
 
 		// Act:
@@ -80,7 +102,10 @@ namespace catapult { namespace extensions {
 
 		// - check empty
 		EXPECT_TRUE(state.tasks().empty());
+
 		EXPECT_EQ(0u, state.packetHandlers().size());
+		EXPECT_EQ(1234u * 1024, state.packetHandlers().maxPacketDataSize()); // should be initialized from config
+
 		EXPECT_TRUE(state.hooks().chainSyncedPredicate()); // just check that hooks is valid and default predicate can be called
 		EXPECT_TRUE(state.packetIoPickers().pickMatching(utils::TimeSpan::FromSeconds(1), ionet::NodeRoles::None).empty());
 	}

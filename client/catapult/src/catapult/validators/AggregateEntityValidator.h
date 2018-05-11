@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "ValidatorTypes.h"
 #include "catapult/model/VerifiableEntity.h"
@@ -38,6 +58,16 @@ namespace catapult { namespace validators {
 			ValidationFunctions m_validationFunctions;
 		};
 
+#ifdef __clang__
+#pragma clang diagnostic push
+
+#if __has_warning("-Wunused-lambda-capture")
+// clang generates this warning when curry() is called without arguments
+#pragma clang diagnostic ignored "-Wunused-lambda-capture"
+#endif
+
+#endif
+
 		/// Prepares the invocation of sub validators by currying \a args to invocations made on the returned forwarder.
 		template<typename... TCurryArgs>
 		DispatchForwarder curry(TCurryArgs&&... args) const {
@@ -52,6 +82,10 @@ namespace catapult { namespace validators {
 
 			return DispatchForwarder(std::move(validationFunctions));
 		}
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 		/// Gets the names of all sub validators.
 		std::vector<std::string> names() const {

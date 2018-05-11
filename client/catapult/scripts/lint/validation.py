@@ -226,8 +226,22 @@ class PragmaOnceValidator(SimpleValidator):
         self.gotPragmaOnce = None if path.endswith('.h') else True
         self.emptyLineNumber = 0
         self.reportEmptyLineError = None if path.endswith('.h') else False
+        self.insideComment = 0
 
     def check(self, lineNumber, line):
+        # detect header notice and skip
+        if line.startswith('/**'):
+            self.insideComment = 1
+
+        if 1 == self.insideComment:
+            if '**/' in line:
+                self.insideComment = 2
+            return
+        # used to skip empty line after closing comment
+        elif 2 == self.insideComment:
+            self.insideComment = 3
+            return
+
         if line.startswith('#include'):
             # we don't want empty line between pragma and include
             if self.reportEmptyLineError is None:
@@ -271,8 +285,9 @@ class TypoChecker(SimpleValidator):
             re.compile(r'lockchain'): 'BlockChain not Blockchain',
             re.compile(r'_EQ\(nullptr,'): 'use _FALSE(!!ptr) instead',
             re.compile(r'_NE\(nullptr,'): 'use _TRUE(!!ptr) instead',
+            re.compile(r'[!=]= nullptr|nullptr [!=]='): 'don\'t compare against nullptr directly',
             re.compile(r'{ +}'): 'don\'t leave space between braces `{}`',
-            re.compile(r'///.*(triggered by |validator implementation).* notification[^s]'): 'notification*S* DUMBASS',
+            re.compile(r'///.*(triggered by |validator implementation).* notification[^s]'): 'use plural notification*S*',
             re.compile(r'document{}'): 'use document()',
             re.compile(r'txElement'): 'use transactionElement',
             re.compile(r'txInfo'): 'use transactionInfo',
@@ -290,7 +305,7 @@ class TypoChecker(SimpleValidator):
             re.compile(r'#define TEST_CLASS TEST_CLASS'): 'invalid define',
             # note this will miss more complicated expressions like if (!foobar().size())
             re.compile(r'\(!\w+\.size\(\)\)'): 'use .empty() rather than `!.size()`',
-            re.compile(r'auto[*]* it ='): 'use `iter` not it',
+            re.compile(r' it( =|;)'): 'use `iter` not it',
             re.compile(r'auto& iter ='): 'seems like invalid use of iterator',
             re.compile(r'->\s+.*[^&]\s+\{'): 'don\'t specify lambda return types for non-reference results',
             re.compile(r'\s(?P<first>.+) \(?\\a (?P=first)\)'): 'simplify documentation: foo (\\a foo) => \\a foo',
@@ -311,7 +326,14 @@ class TypoChecker(SimpleValidator):
             re.compile(r'#include "test/'): 'do not use local test includes, use fully qualified path',
             re.compile(r'[^,] ,'): 'do not have space before comma',
             re.compile(r'Noop'): 'use NoOp* instead of Noop',
-            re.compile(r'#define .*MAKE_.*TESTS'): 'use DEFINE_ for group of tests'
+            re.compile(r'#define .*MAKE_.*TESTS'): 'use DEFINE_ for group of tests',
+            re.compile(r'hutdowns'): 'use shuts down instead of shutdowns',
+            re.compile(r'[cC]ataputl'): 'catapult not cataputl',
+            re.compile(r'(\(auto&,|, auto&[,)])'): 'use `const auto&` for non-referred lambda arguments',
+            re.compile(r'\du\)'): 'no need for explicit unsigned qualifier',
+            re.compile(r';;$'): 'no double semicolons',
+            re.compile(r'[a-zA-Z]>[^&\n]*= {'): 'prefer container initialization to container assign',
+            re.compile(r'(/\*+|///) The '): 'documentation should not start with \'The\''
         }
 
     def check(self, lineNumber, line):
@@ -671,6 +693,71 @@ class RegionValidator(SimpleValidator):
         name = err.path
         return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
+class MacroSemicolonValidator(SimpleValidator):
+    """Validator for ensuring that macros don't have trailing semicolons."""
+
+    SUITE_NAME = 'MacroSemicolonChecker'
+    NAME = 'macroSemicolonChecker'
+
+    def __init__(self, errorReporter):
+        super().__init__(errorReporter)
+        self.macroCall = re.compile(r'^\s+[A-Z_]+\([^\)]*\);')
+
+        # exclude special macros that should have semicolons some or most of the time
+        self.skip = [
+            re.compile(r'EXPECT_|ASSERT_'), # test asserts
+            re.compile(r'CATAPULT_'), # catapult macros (LOG, THROW)
+            re.compile(r'WAIT_FOR'), # wait for macros
+            re.compile(r'LOAD_([A-Z]+_)*PROPERTY'), # property loading macros
+            re.compile(r'DEFINE_[A-Z]+_NOTIFICATION'), # notification definition macros
+            re.compile(r'DEFINE_([A-Z]+_)+RESULT'), # result definition macros
+            re.compile(r'DEFINE_(ENTITY|TRANSACTION|NOTIFICATION)_TYPE'), # entity and notification type definition macros
+            re.compile(r'DECLARE_MONGO_CACHE_STORAGE'), # macros that can be used for function declarations
+            re.compile(r'DEFINE_MOCK_(FLUSH|INFOS)_CAPTURE'), # macros used for mock class definitions
+        ]
+
+    def check(self, lineNumber, line):
+        strippedLine = stripCommentsAndStrings(line)
+
+        if not re.match(self.macroCall, strippedLine):
+            return
+
+        for pattern in self.skip:
+            if re.search(pattern, strippedLine):
+                return
+
+        self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'macro should not have trailing semicolon'))
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
+class EnumValueBlankLineValidator(SimpleValidator):
+    """Validator for ensuring that ENUM_VALUE entries are followed by blank lines."""
+
+    SUITE_NAME = 'EnumValueBlankLineChecker'
+    NAME = 'enumValueBlankLineChecker'
+
+    def __init__(self, errorReporter):
+        super().__init__(errorReporter)
+        self.patternEnumValue = re.compile(r'\s*ENUM_VALUE\(.*\) \\')
+        self.patternBlankLine = re.compile(r'\s*\\')
+        self.previousLine = ''
+
+    def check(self, lineNumber, line):
+        strippedLine = line.strip('\n\r')
+
+        if re.match(self.patternEnumValue, self.previousLine) and not re.match(self.patternBlankLine, strippedLine):
+            self.errorReporter(self.NAME, Line(self.path, self.previousLine, lineNumber - 1, 'enum value is missing following blank line'))
+
+        self.previousLine = strippedLine
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
 
 def createValidators(errorReporter):
     validators = [
@@ -688,6 +775,8 @@ def createValidators(errorReporter):
         ReturnOnNewLineValidator,
         MultiConditionChecker,
         UtilsSubdirValidator,
-        RegionValidator
+        RegionValidator,
+        MacroSemicolonValidator,
+        EnumValueBlankLineValidator
     ]
     return list(map(lambda validator: validator(errorReporter), validators))

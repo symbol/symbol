@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/cache/MultisigCache.h"
 #include "tests/test/MultisigTestUtils.h"
 #include "tests/test/cache/CacheBasicTests.h"
@@ -12,7 +32,12 @@ namespace catapult { namespace cache {
 
 	namespace {
 		struct MultisigCacheMixinTraits {
-			using CacheType = MultisigCache;
+			class CacheType : public MultisigCache {
+			public:
+				CacheType() : MultisigCache(CacheConfiguration())
+				{}
+			};
+
 			using IdType = Key;
 			using ValueType = state::MultisigEntry;
 
@@ -41,21 +66,21 @@ namespace catapult { namespace cache {
 		};
 	}
 
-	DEFINE_CACHE_CONTAINS_TESTS(MultisigCacheMixinTraits, ViewAccessor, _View);
-	DEFINE_CACHE_CONTAINS_TESTS(MultisigCacheMixinTraits, DeltaAccessor, _Delta);
+	DEFINE_CACHE_CONTAINS_TESTS(MultisigCacheMixinTraits, ViewAccessor, _View)
+	DEFINE_CACHE_CONTAINS_TESTS(MultisigCacheMixinTraits, DeltaAccessor, _Delta)
 
-	DEFINE_CACHE_ITERATION_TESTS(MultisigCacheMixinTraits, ViewAccessor, _View);
+	DEFINE_CACHE_ITERATION_TESTS(MultisigCacheMixinTraits, ViewAccessor, _View)
 
-	DEFINE_CACHE_ACCESSOR_TESTS(MultisigCacheMixinTraits, ViewAccessor, MutableAccessor, _ViewMutable);
-	DEFINE_CACHE_ACCESSOR_TESTS(MultisigCacheMixinTraits, ViewAccessor, ConstAccessor, _ViewConst);
-	DEFINE_CACHE_ACCESSOR_TESTS(MultisigCacheMixinTraits, DeltaAccessor, MutableAccessor, _DeltaMutable);
-	DEFINE_CACHE_ACCESSOR_TESTS(MultisigCacheMixinTraits, DeltaAccessor, ConstAccessor, _DeltaConst);
+	DEFINE_CACHE_ACCESSOR_TESTS(MultisigCacheMixinTraits, ViewAccessor, MutableAccessor, _ViewMutable)
+	DEFINE_CACHE_ACCESSOR_TESTS(MultisigCacheMixinTraits, ViewAccessor, ConstAccessor, _ViewConst)
+	DEFINE_CACHE_ACCESSOR_TESTS(MultisigCacheMixinTraits, DeltaAccessor, MutableAccessor, _DeltaMutable)
+	DEFINE_CACHE_ACCESSOR_TESTS(MultisigCacheMixinTraits, DeltaAccessor, ConstAccessor, _DeltaConst)
 
-	DEFINE_CACHE_MUTATION_TESTS(MultisigCacheMixinTraits, DeltaAccessor, _Delta);
+	DEFINE_CACHE_MUTATION_TESTS(MultisigCacheMixinTraits, DeltaAccessor, _Delta)
 
-	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MultisigCacheMixinTraits, MultisigEntryModificationPolicy, _Delta);
+	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MultisigCacheMixinTraits, MultisigEntryModificationPolicy, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(MultisigCacheMixinTraits,);
+	DEFINE_CACHE_BASIC_TESTS(MultisigCacheMixinTraits,)
 
 	// endregion
 
@@ -63,7 +88,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, LinksCanBeAddedLater) {
 		// Arrange:
-		MultisigCache cache;
+		MultisigCacheMixinTraits::CacheType cache;
 		auto keys = test::GenerateKeys(3);
 
 		// - insert single account key

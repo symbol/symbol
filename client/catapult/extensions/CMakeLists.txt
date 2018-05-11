@@ -21,6 +21,9 @@ endfunction()
 function(catapult_define_extension_test EXTENSION_NAME)
 	catapult_test_executable_target(tests.catapult.${EXTENSION_NAME} local ${ARGN})
 	set_property(TARGET tests.catapult.${EXTENSION_NAME} PROPERTY FOLDER "extensions")
+
+	# need to promote custom test compiler flags to parent scope
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction()
 
 add_subdirectory(addressextraction)
@@ -36,6 +39,7 @@ add_subdirectory(packetserver)
 add_subdirectory(partialtransaction)
 add_subdirectory(sync)
 add_subdirectory(syncsource)
+add_subdirectory(timesync)
 add_subdirectory(transactionsink)
 add_subdirectory(unbondedpruning)
 add_subdirectory(zeromq)

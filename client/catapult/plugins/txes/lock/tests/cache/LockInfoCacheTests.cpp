@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/cache/HashLockInfoCache.h"
 #include "src/cache/SecretLockInfoCache.h"
 #include "tests/test/LockInfoCacheTestUtils.h"
@@ -39,7 +59,12 @@ namespace catapult { namespace cache {
 
 		template<typename TLockInfoTraits>
 		struct DeltaElementsMixinTraits {
-			using CacheType = typename TLockInfoTraits::CacheType;
+			class CacheType : public TLockInfoTraits::CacheType {
+			public:
+				CacheType() : TLockInfoTraits::CacheType(CacheConfiguration())
+				{}
+			};
+
 			using IdType = typename TLockInfoTraits::KeyType;
 			using ValueType = typename TLockInfoTraits::ValueType;
 
@@ -70,27 +95,27 @@ namespace catapult { namespace cache {
 	}
 
 #define DEFINE_LOCK_INFO_CACHE_TESTS(TRAITS, MODIFICATION_TRAITS, SUFFIX) \
-	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, ViewAccessor, _View##SUFFIX); \
-	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX); \
+	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, ViewAccessor, _View##SUFFIX) \
+	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX) \
 	\
-	DEFINE_CACHE_ITERATION_TESTS(TRAITS, ViewAccessor, _View##SUFFIX); \
+	DEFINE_CACHE_ITERATION_TESTS(TRAITS, ViewAccessor, _View##SUFFIX) \
 	\
-	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, MutableAccessor, _ViewMutable##SUFFIX); \
-	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, ConstAccessor, _ViewConst##SUFFIX); \
-	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, MutableAccessor, _DeltaMutable##SUFFIX); \
-	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, ConstAccessor, _DeltaConst##SUFFIX); \
+	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, MutableAccessor, _ViewMutable##SUFFIX) \
+	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, ConstAccessor, _ViewConst##SUFFIX) \
+	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, MutableAccessor, _DeltaMutable##SUFFIX) \
+	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, ConstAccessor, _DeltaConst##SUFFIX) \
 	\
-	DEFINE_CACHE_MUTATION_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX); \
+	DEFINE_CACHE_MUTATION_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX) \
 	\
-	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(TRAITS, MODIFICATION_TRAITS, _Delta##SUFFIX); \
+	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(TRAITS, MODIFICATION_TRAITS, _Delta##SUFFIX) \
 	\
-	DEFINE_ACTIVE_PREDICATE_TESTS(TRAITS, ViewAccessor, _View##SUFFIX); \
-	DEFINE_ACTIVE_PREDICATE_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX); \
+	DEFINE_ACTIVE_PREDICATE_TESTS(TRAITS, ViewAccessor, _View##SUFFIX) \
+	DEFINE_ACTIVE_PREDICATE_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX) \
 	\
 	DEFINE_CACHE_BASIC_TESTS(TRAITS, SUFFIX)
 
-	DEFINE_LOCK_INFO_CACHE_TESTS(DeltaElementsMixinTraits<HashTraits>, DeltaMarkUsedModificationPolicy<HashTraits>, _Hash);
-	DEFINE_LOCK_INFO_CACHE_TESTS(DeltaElementsMixinTraits<SecretTraits>, DeltaMarkUsedModificationPolicy<SecretTraits>, _Secret);
+	DEFINE_LOCK_INFO_CACHE_TESTS(DeltaElementsMixinTraits<HashTraits>, DeltaMarkUsedModificationPolicy<HashTraits>, _Hash)
+	DEFINE_LOCK_INFO_CACHE_TESTS(DeltaElementsMixinTraits<SecretTraits>, DeltaMarkUsedModificationPolicy<SecretTraits>, _Secret)
 
 	// endregion
 
@@ -98,8 +123,8 @@ namespace catapult { namespace cache {
 
 	// region prune
 
-	DEFINE_CACHE_PRUNE_TESTS(DeltaElementsMixinTraits<HashTraits>, _Hash);
-	DEFINE_CACHE_PRUNE_TESTS(DeltaElementsMixinTraits<SecretTraits>, _Secret);
+	DEFINE_CACHE_PRUNE_TESTS(DeltaElementsMixinTraits<HashTraits>, _Hash)
+	DEFINE_CACHE_PRUNE_TESTS(DeltaElementsMixinTraits<SecretTraits>, _Secret)
 
 	// endregion
 
@@ -134,7 +159,7 @@ namespace catapult { namespace cache {
 
 	DELTA_LOCK_TYPE_BASED_TEST(CollectUnusedExpiredLocksReturnsEmptyVectorIfNoLockExpired) {
 		// Arrange:
-		typename TLockInfoTraits::CacheType cache;
+		typename DeltaElementsMixinTraits<TLockInfoTraits>::CacheType cache;
 		auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
 		PopulateCache<TLockInfoTraits>(cache, lockInfos);
 
@@ -151,7 +176,7 @@ namespace catapult { namespace cache {
 
 	DELTA_LOCK_TYPE_BASED_TEST(CollectUnusedExpiredLocksReturnsEmptyVectorIfOnlyUsedLocksExpired) {
 		// Arrange:
-		typename TLockInfoTraits::CacheType cache;
+		typename DeltaElementsMixinTraits<TLockInfoTraits>::CacheType cache;
 		auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
 		PopulateCache<TLockInfoTraits>(cache, lockInfos);
 
@@ -198,7 +223,7 @@ namespace catapult { namespace cache {
 
 	DELTA_LOCK_TYPE_BASED_TEST(CollectUnusedExpiredLocksReturnsUnusedExpiredLocks_SingleLock) {
 		// Arrange:
-		typename TLockInfoTraits::CacheType cache;
+		typename DeltaElementsMixinTraits<TLockInfoTraits>::CacheType cache;
 		auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
 		PopulateCache<TLockInfoTraits>(cache, lockInfos);
 
@@ -216,7 +241,7 @@ namespace catapult { namespace cache {
 
 	DELTA_LOCK_TYPE_BASED_TEST(CollectUnusedExpiredLocksReturnsUnusedExpiredLocks_MultipleLocks) {
 		// Arrange:
-		typename TLockInfoTraits::CacheType cache;
+		typename DeltaElementsMixinTraits<TLockInfoTraits>::CacheType cache;
 		auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
 		PopulateCache<TLockInfoTraits>(cache, lockInfos);
 		{
@@ -248,7 +273,7 @@ namespace catapult { namespace cache {
 
 	DELTA_LOCK_TYPE_BASED_TEST(CollectUnusedExpiredLocksReturnsOnlyUnusedExpiredLocks_MultipleLocks) {
 		// Arrange:
-		typename TLockInfoTraits::CacheType cache;
+		typename DeltaElementsMixinTraits<TLockInfoTraits>::CacheType cache;
 		auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
 		PopulateCache<TLockInfoTraits>(cache, lockInfos);
 		{

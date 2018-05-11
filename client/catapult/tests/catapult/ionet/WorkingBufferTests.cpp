@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/ionet/WorkingBuffer.h"
 #include "tests/TestHarness.h"
 
@@ -76,7 +96,7 @@ namespace catapult { namespace ionet {
 
 		// Act:
 		std::vector<uint8_t> allData;
-		for (auto i = 0u; i < 5u; ++i) {
+		for (auto i = 0u; i < 5; ++i) {
 			auto data = AppendRandomData<100>(buffer);
 			allData.insert(allData.end(), data.cbegin(), data.cend());
 		}
@@ -191,7 +211,7 @@ namespace catapult { namespace ionet {
 
 		// Act: keep appending to the working buffer without committing
 		std::vector<uint8_t> allData;
-		for (auto i = 0u; i < 10u; ++i) {
+		for (auto i = 0u; i < 10; ++i) {
 			auto data = AppendRandomData<Default_Capacity / 4>(buffer);
 			allData.insert(allData.end(), data.cbegin(), data.cend());
 		}
@@ -218,7 +238,7 @@ namespace catapult { namespace ionet {
 		std::vector<uint8_t> allData;
 		std::vector<size_t> capacities;
 		std::vector<size_t> capacityChangeIndexes;
-		for (auto i = 0u; i < 12u; ++i) {
+		for (auto i = 0u; i < 12; ++i) {
 			auto data = AppendRandomData<10>(buffer);
 			allData.insert(allData.end(), data.cbegin(), data.cend());
 
@@ -261,7 +281,7 @@ namespace catapult { namespace ionet {
 
 		// Act: append small data
 		std::vector<uint8_t> allData;
-		for (auto i = 0u; i < 12u; ++i) {
+		for (auto i = 0u; i < 12; ++i) {
 			auto data = AppendRandomData<10>(buffer);
 			allData.insert(allData.end(), data.cbegin(), data.cend());
 		}

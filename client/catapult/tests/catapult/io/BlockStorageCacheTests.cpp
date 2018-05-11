@@ -1,4 +1,25 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/io/BlockStorageCache.h"
+#include "tests/catapult/io/test/BlockStorageTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBasedStorage.h"
 #include "tests/test/nodeps/LockTestUtils.h"
@@ -72,19 +93,8 @@ namespace catapult { namespace io {
 			}
 		};
 	}
-}}
 
-#define STORAGE_TESTS_CLASS_NAME TEST_CLASS
-#define STORAGE_TESTS_TRAITS_NAME MemoryBasedTraits
-
-#include "BlockStorageTests.h"
-
-#undef STORAGE_TESTS_TRAITS_NAME
-#undef STORAGE_TESTS_CLASS_NAME
-
-namespace catapult { namespace io {
-
-#define TEST_CLASS BlockStorageCacheTests
+	DEFINE_BLOCK_STORAGE_TESTS(MemoryBasedTraits)
 
 	// note that these aren't really pure delegation tests because they call a member on the cache
 	// and compare its behavior with that of the same call on the underlying storage

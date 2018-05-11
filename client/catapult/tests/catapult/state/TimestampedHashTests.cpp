@@ -1,5 +1,26 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/state/TimestampedHash.h"
 #include "catapult/utils/HexParser.h"
+#include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
 
@@ -12,16 +33,6 @@ namespace catapult { namespace state {
 			TimestampedHash::HashType partialHash;
 			std::memcpy(partialHash.data(), hash.data(), partialHash.size());
 			return partialHash;
-		}
-
-		void AssertLessThanOperatorForDifferentValues(const TimestampedHash& lhs, const TimestampedHash& rhs) {
-			EXPECT_TRUE(lhs < rhs);
-			EXPECT_FALSE(rhs < lhs);
-		}
-
-		void AssertLessThanOperatorForEqualValues(const TimestampedHash& lhs, const TimestampedHash& rhs) {
-			EXPECT_FALSE(lhs < rhs);
-			EXPECT_FALSE(rhs < lhs);
 		}
 	}
 
@@ -70,10 +81,10 @@ namespace catapult { namespace state {
 		auto data5 = TimestampedHash(Timestamp(234), hash2);
 
 		// Assert:
-		AssertLessThanOperatorForEqualValues(data1, data2);
-		AssertLessThanOperatorForDifferentValues(data1, data3);
-		AssertLessThanOperatorForDifferentValues(data1, data4);
-		AssertLessThanOperatorForDifferentValues(data1, data5);
+		test::AssertLessThanOperatorForEqualValues(data1, data2);
+		test::AssertLessThanOperatorForDifferentValues(data1, data3);
+		test::AssertLessThanOperatorForDifferentValues(data1, data4);
+		test::AssertLessThanOperatorForDifferentValues(data1, data5);
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueIfAndOnlyIfTimestampAndHashAreEqual) {

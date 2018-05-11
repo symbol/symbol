@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "ImportanceCalculator.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
@@ -11,8 +31,6 @@
 namespace catapult { namespace observers {
 
 	namespace {
-		constexpr uint64_t Microxem_Per_Xem = 1'000'000;
-
 		class PosImportanceCalculator final : public ImportanceCalculator {
 		public:
 			explicit PosImportanceCalculator(const model::BlockChainConfiguration& config) : m_totalChainBalance(config.TotalChainBalance)
@@ -37,10 +55,10 @@ namespace catapult { namespace observers {
 
 				// 3. update accounts
 				for (auto* pAccountState : highValueAccounts) {
-					boost::multiprecision::uint128_t importance = m_totalChainBalance.unwrap();
+					boost::multiprecision::uint128_t importance = m_totalChainBalance.microxem().unwrap();
 					importance *= pAccountState->Balances.get(Xem_Id).unwrap();
 					importance /= activeXem.unwrap();
-					importance /= Microxem_Per_Xem;
+					importance /= utils::XemUnit(utils::XemAmount(1)).microxem().unwrap();
 					pAccountState->ImportanceInfo.set(Importance(static_cast<Importance::ValueType>(importance)), importanceHeight);
 				}
 
@@ -48,7 +66,7 @@ namespace catapult { namespace observers {
 			}
 
 		private:
-			const Amount m_totalChainBalance;
+			const utils::XemUnit m_totalChainBalance;
 		};
 	}
 

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/net/Challenge.h"
 #include "catapult/crypto/Signer.h"
 #include "tests/test/core/AddressTestUtils.h"
@@ -52,25 +72,33 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, GenerateServerChallengeResponseCreatesAppropriateResponse) {
 		// Arrange:
+		constexpr auto Challenge_Size = std::tuple_size<Challenge>::value;
 		auto pRequest = GenerateServerChallengeRequest();
 		auto keyPair = test::GenerateKeyPair();
 
 		// Act:
-		auto pResponse = GenerateServerChallengeResponse(*pRequest, keyPair);
+		auto pResponse = GenerateServerChallengeResponse(*pRequest, keyPair, ionet::ConnectionSecurityMode::Signed);
+
+		// - construct expected signed data
+		auto signedData = std::vector<uint8_t>(Challenge_Size + 1);
+		std::memcpy(signedData.data(), pRequest->Challenge.data(), Challenge_Size);
+		signedData[Challenge_Size] = utils::to_underlying_type(ionet::ConnectionSecurityMode::Signed);
 
 		// Assert:
 		EXPECT_EQ(sizeof(ServerChallengeResponse), pResponse->Size);
 		EXPECT_EQ(ionet::PacketType::Server_Challenge, pResponse->Type);
 		EXPECT_NE(Challenge{}, pResponse->Challenge); // challenge is non-zero
 		EXPECT_NE(pRequest->Challenge, pResponse->Challenge); // challenge is not the same as the request challenge
-		EXPECT_TRUE(crypto::Verify(pResponse->PublicKey, pRequest->Challenge, pResponse->Signature));
+		EXPECT_TRUE(crypto::Verify(pResponse->PublicKey, signedData, pResponse->Signature));
 		EXPECT_EQ(keyPair.publicKey(), pResponse->PublicKey);
 	}
 
 	TEST(TEST_CLASS, GenerateServerChallengeResponseCreatesRandomChallenge) {
 		// Assert:
 		AssertRandomChallengeGenerator([]() {
-			return GenerateServerChallengeResponse(ServerChallengeRequest(), test::GenerateKeyPair())->Challenge;
+			auto securityMode = ionet::ConnectionSecurityMode::None;
+			auto pResponse = GenerateServerChallengeResponse(ServerChallengeRequest(), test::GenerateKeyPair(), securityMode);
+			return pResponse->Challenge;
 		});
 	}
 
@@ -82,7 +110,7 @@ namespace catapult { namespace net {
 		// Arrange:
 		auto pRequest = GenerateServerChallengeRequest();
 		auto keyPair = test::GenerateKeyPair();
-		auto pResponse = GenerateServerChallengeResponse(*pRequest, keyPair);
+		auto pResponse = GenerateServerChallengeResponse(*pRequest, keyPair, ionet::ConnectionSecurityMode::None);
 
 		// Act:
 		auto isVerified = VerifyServerChallengeResponse(*pResponse, pRequest->Challenge);
@@ -91,12 +119,26 @@ namespace catapult { namespace net {
 		EXPECT_TRUE(isVerified);
 	}
 
-	TEST(TEST_CLASS, VerifyServerChallengeResponseReturnsFalseForBadResponse) {
+	TEST(TEST_CLASS, VerifyServerChallengeResponseReturnsFalseForBadResponseWithCorruptSignature) {
 		// Arrange: invalidate the signature
 		auto pRequest = GenerateServerChallengeRequest();
 		auto keyPair = test::GenerateKeyPair();
-		auto pResponse = GenerateServerChallengeResponse(*pRequest, keyPair);
+		auto pResponse = GenerateServerChallengeResponse(*pRequest, keyPair, ionet::ConnectionSecurityMode::None);
 		pResponse->Signature[0] ^= 0xFF;
+
+		// Act:
+		auto isVerified = VerifyServerChallengeResponse(*pResponse, pRequest->Challenge);
+
+		// Assert:
+		EXPECT_FALSE(isVerified);
+	}
+
+	TEST(TEST_CLASS, VerifyServerChallengeResponseReturnsFalseForBadResponseWithCorruptSecurityMode) {
+		// Arrange: change the security mode
+		auto pRequest = GenerateServerChallengeRequest();
+		auto keyPair = test::GenerateKeyPair();
+		auto pResponse = GenerateServerChallengeResponse(*pRequest, keyPair, ionet::ConnectionSecurityMode::None);
+		pResponse->SecurityMode = ionet::ConnectionSecurityMode::Signed;
 
 		// Act:
 		auto isVerified = VerifyServerChallengeResponse(*pResponse, pRequest->Challenge);
@@ -111,7 +153,8 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, GenerateClientChallengeResponseCreatesAppropriateResponse) {
 		// Arrange:
-		auto pRequest = GenerateServerChallengeResponse(*GenerateServerChallengeRequest(), test::GenerateKeyPair());
+		auto pServerRequest = GenerateServerChallengeRequest();
+		auto pRequest = GenerateServerChallengeResponse(*pServerRequest, test::GenerateKeyPair(), ionet::ConnectionSecurityMode::None);
 		auto keyPair = test::GenerateKeyPair();
 
 		// Act:
@@ -130,7 +173,8 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, VerifyClientChallengeResponseReturnsTrueForGoodResponse) {
 		// Arrange:
 		auto keyPair = test::GenerateKeyPair();
-		auto pRequest = GenerateServerChallengeResponse(*GenerateServerChallengeRequest(), keyPair);
+		auto pServerRequest = GenerateServerChallengeRequest();
+		auto pRequest = GenerateServerChallengeResponse(*pServerRequest, keyPair, ionet::ConnectionSecurityMode::None);
 		auto pResponse = GenerateClientChallengeResponse(*pRequest, keyPair);
 
 		// Act:
@@ -143,7 +187,8 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, VerifyClientChallengeResponseReturnsFalseForBadResponse) {
 		// Arrange: invalidate the signature
 		auto keyPair = test::GenerateKeyPair();
-		auto pRequest = GenerateServerChallengeResponse(*GenerateServerChallengeRequest(), keyPair);
+		auto pServerRequest = GenerateServerChallengeRequest();
+		auto pRequest = GenerateServerChallengeResponse(*pServerRequest, keyPair, ionet::ConnectionSecurityMode::None);
 		auto pResponse = GenerateClientChallengeResponse(*pRequest, keyPair);
 		pResponse->Signature[0] ^= 0xFF;
 

@@ -1,9 +1,28 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "AccountStateCacheTypes.h"
 #include "ReadOnlyAccountStateCache.h"
-#include "catapult/cache/CacheMixins.h"
+#include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
-#include "catapult/deltaset/DeltaElementsMixin.h"
 #include "catapult/model/ContainerTypes.h"
 
 namespace catapult { namespace model { struct AccountInfo; } }
@@ -12,24 +31,24 @@ namespace catapult { namespace cache {
 
 	/// Mixins used by the account state cache delta.
 	struct AccountStateCacheDeltaMixins {
+	public:
 		using KeyLookupAdapter = AccountStateCacheTypes::ComposedLookupAdapter<AccountStateCacheTypes::ComposableBaseSetDeltas>;
 
-		using Size = SizeMixin<AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType>;
-		using ContainsAddress = ContainsMixin<AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType, AccountStateCacheDescriptor>;
+	private:
+		using AddressMixins = BasicCacheMixins<AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType, AccountStateCacheDescriptor>;
+		using KeyMixins = BasicCacheMixins<KeyLookupAdapter, KeyLookupAdapter>;
+
+	public:
+		using Size = AddressMixins::Size;
+		using ContainsAddress = AddressMixins::Contains;
 		using ContainsKey = ContainsMixin<
 			AccountStateCacheTypes::KeyLookupMapTypes::BaseSetDeltaType,
 			AccountStateCacheTypes::KeyLookupMapTypesDescriptor>;
-		using ConstAccessorAddress = ConstAccessorMixin<
-			AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType,
-			AccountStateCacheDescriptor,
-			AccountStateCacheTypes::ConstValueAdapter>;
-		using ConstAccessorKey = ConstAccessorMixin<KeyLookupAdapter, KeyLookupAdapter, AccountStateCacheTypes::ConstValueAdapter>;
-		using MutableAccessorAddress = MutableAccessorMixin<
-			AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType,
-			AccountStateCacheDescriptor,
-			AccountStateCacheTypes::MutableValueAdapter>;
-		using MutableAccessorKey = MutableAccessorMixin<KeyLookupAdapter, KeyLookupAdapter, AccountStateCacheTypes::MutableValueAdapter>;
-		using DeltaElements = deltaset::DeltaElementsMixin<AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType>;
+		using ConstAccessorAddress = AddressMixins::ConstAccessorWithAdapter<AccountStateCacheTypes::ConstValueAdapter>;
+		using ConstAccessorKey = KeyMixins::ConstAccessorWithAdapter<AccountStateCacheTypes::ConstValueAdapter>;
+		using MutableAccessorAddress = AddressMixins::MutableAccessorWithAdapter<AccountStateCacheTypes::MutableValueAdapter>;
+		using MutableAccessorKey = KeyMixins::MutableAccessorWithAdapter<AccountStateCacheTypes::MutableValueAdapter>;
+		using DeltaElements = AddressMixins::DeltaElements;
 
 		// no mutable key accessor because address-to-key pairs are immutable
 	};
@@ -51,13 +70,13 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a delta around \a accountStateSets, \a options and \a highValueAddresses.
 		BasicAccountStateCacheDelta(
-				const AccountStateCacheTypes::BaseSetDeltaPointerType& accountStateSets,
+				const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
 				const AccountStateCacheTypes::Options& options,
 				const model::AddressSet& highValueAddresses);
 
 	private:
 		BasicAccountStateCacheDelta(
-				const AccountStateCacheTypes::BaseSetDeltaPointerType& accountStateSets,
+				const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
 				const AccountStateCacheTypes::Options& options,
 				const model::AddressSet& highValueAddresses,
 				std::unique_ptr<AccountStateCacheDeltaMixins::KeyLookupAdapter>&& pKeyLookupAdapter);
@@ -153,7 +172,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a delta around \a accountStateSets, \a options and \a highValueAddresses.
 		AccountStateCacheDelta(
-				const AccountStateCacheTypes::BaseSetDeltaPointerType& accountStateSets,
+				const AccountStateCacheTypes::BaseSetDeltaPointers& accountStateSets,
 				const AccountStateCacheTypes::Options& options,
 				const model::AddressSet& highValueAddresses)
 				: ReadOnlyViewSupplier(accountStateSets, options, highValueAddresses)

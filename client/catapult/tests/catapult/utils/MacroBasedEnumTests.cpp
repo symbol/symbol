@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 #include "tests/TestHarness.h"
 
@@ -11,12 +31,18 @@ namespace catapult { namespace utils {
 // declare and define a GreekLetters enumeration composed of some greek letters with an implicit backing type
 #define GREEK_LETTERS_LIST \
 	ENUM_VALUE(Alpha) \
+	\
 	ENUM_VALUE(Beta) \
+	\
 	ENUM_VALUE(Gamma) \
+	\
 	ENUM_VALUE(Delta) \
+	\
 	ENUM_VALUE(Epslion) \
+	\
 	ENUM_VALUE(Zeta) \
-	ENUM_VALUE(Eta) \
+	\
+	ENUM_VALUE(Eta)
 
 #define ENUM_VALUE(LABEL) LABEL,
 		enum class GreekLetters {
@@ -108,9 +134,12 @@ namespace catapult { namespace utils {
 // declare and define a VersionParts enumeration composed of version parts
 #define VERSION_PARTS_LIST \
 	ENUM_VALUE(Major) \
+	\
 	ENUM_VALUE(Minor) \
+	\
 	ENUM_VALUE(Build) \
-	ENUM_VALUE(Revision) \
+	\
+	ENUM_VALUE(Revision)
 
 #define ENUM_VALUE(LABEL) LABEL,
 		enum class VersionParts {
@@ -139,12 +168,18 @@ namespace catapult { namespace utils {
 // declare and define a GreekLettersExplicit enumeration composed of some greek letters with explicit values
 #define GREEK_LETTERS_LIST_EXPLICIT \
 	ENUM_VALUE(Alpha, 10) \
+	\
 	ENUM_VALUE(Beta, 4) \
+	\
 	ENUM_VALUE(Gamma, 7) \
+	\
 	ENUM_VALUE(Delta, 18) \
+	\
 	ENUM_VALUE(Epslion, 9) \
+	\
 	ENUM_VALUE(Zeta, 2) \
-	ENUM_VALUE(Eta, 5) \
+	\
+	ENUM_VALUE(Eta, 5)
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
 		enum class GreekLettersExplicit {

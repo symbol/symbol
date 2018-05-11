@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/plugins.h"
 #include "catapult/types.h"
@@ -7,18 +27,18 @@ namespace catapult { namespace model { class TransactionPlugin; } }
 
 namespace catapult { namespace plugins {
 
-	/// The mosaic rental fee configuration.
+	/// Mosaic rental fee configuration.
 	struct MosaicRentalFeeConfiguration {
-		/// The public key of the rental fee sink account.
+		/// Public key of the rental fee sink account.
 		Key SinkPublicKey;
 
-		/// The address of the rental fee sink account.
+		/// Address of the rental fee sink account.
 		Address SinkAddress;
 
-		/// The mosaic rental fee.
+		/// Mosaic rental fee.
 		Amount Fee;
 
-		/// The public key of the (exempt from fees) nemesis account.
+		/// Public key of the (exempt from fees) nemesis account.
 		Key NemesisPublicKey;
 	};
 

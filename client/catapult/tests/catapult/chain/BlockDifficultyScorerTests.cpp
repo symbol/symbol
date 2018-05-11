@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/utils/Logging.h"
 #include "tests/TestHarness.h"
@@ -8,7 +28,7 @@ namespace catapult { namespace chain {
 #define TEST_CLASS BlockDifficultyScorerTests
 
 	namespace {
-		using DifficultySet = cache::BlockDifficultyCacheTypes::BaseSetType::SetType;
+		using DifficultySet = cache::BlockDifficultyCacheTypes::PrimaryTypes::BaseSetType::SetType::MemorySetType;
 
 		constexpr Difficulty Base_Difficulty = Difficulty(100'000'000'000'000);
 
@@ -55,7 +75,7 @@ namespace catapult { namespace chain {
 		Difficulty GetBlockDifficultyWithConstantTimeSpacing(uint32_t targetSpacing, uint32_t actualSpacing) {
 			// Arrange:
 			DifficultySet set;
-			for (auto i = 0u; i < 10u; ++i)
+			for (auto i = 0u; i < 10; ++i)
 				set.emplace(Height(100 + i), Timestamp(12345 + i * actualSpacing), Base_Difficulty);
 
 			auto config = CreateConfiguration();
@@ -103,7 +123,7 @@ namespace catapult { namespace chain {
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromMilliseconds(targetSpacing);
 
 			auto previousDifficulty = Base_Difficulty;
-			for (auto i = 2u; i < 62u; ++i) {
+			for (auto i = 2u; i < 62; ++i) {
 				// Act: calculate the difficulty using current information
 				auto difficulty = CalculateDifficulty(ToRange(set), config);
 
@@ -145,7 +165,7 @@ namespace catapult { namespace chain {
 
 			// Act + Assert
 			auto previousDifficulty = Base_Difficulty;
-			for (auto i = 2u; i < 102u; ++i) {
+			for (auto i = 2u; i < 102; ++i) {
 				// Act: calculate the difficulty using current information
 				auto difficulty = CalculateDifficulty(ToRange(set), config);
 				auto difficultyDiff = static_cast<int64_t>((difficulty - previousDifficulty).unwrap());
@@ -153,7 +173,7 @@ namespace catapult { namespace chain {
 
 				if (IsClamped(difficulty)) {
 					CATAPULT_LOG(debug) << "difficulty is clamped after " << i << " samples";
-					EXPECT_GT(i, 40u) << "breaking after " << i << " samples";
+					EXPECT_LE(40u, i) << "breaking after " << i << " samples";
 					return;
 				}
 
@@ -191,7 +211,7 @@ namespace catapult { namespace chain {
 		auto config = CreateConfiguration();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
 
-		for (auto i = 2u; i < 102u; ++i) {
+		for (auto i = 2u; i < 102; ++i) {
 			// Act: calculate the difficulty using current information
 			auto difficulty = CalculateDifficulty(ToRange(set), config);
 
@@ -214,7 +234,7 @@ namespace catapult { namespace chain {
 		auto config = CreateConfiguration();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
 
-		for (auto i = 2u; i < 102u; ++i) {
+		for (auto i = 2u; i < 102; ++i) {
 			// Act: calculate the difficulty using current information
 			auto difficulty = CalculateDifficulty(ToRange(set), config);
 

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "sync/src/SchedulerService.h"
 #include "sync/src/TasksConfiguration.h"
 #include "catapult/thread/Scheduler.h"
@@ -32,10 +52,11 @@ namespace catapult { namespace sync {
 			});
 		}
 
-		TaskConfiguration CreateTaskConfiguration(uint32_t startDelayMs, uint32_t repeatDelayMs) {
-			auto config = TaskConfiguration::Uninitialized();
-			config.StartDelay = utils::TimeSpan::FromMilliseconds(startDelayMs);
-			config.RepeatDelay = utils::TimeSpan::FromMilliseconds(repeatDelayMs);
+		TasksConfiguration::TaskConfiguration CreateUniformTaskConfiguration(uint32_t startDelayMs, uint32_t repeatDelayMs) {
+			auto config = TasksConfiguration::TaskConfiguration();
+			config.TaskType = TasksConfiguration::TaskType::Uniform;
+			config.Uniform.StartDelay = utils::TimeSpan::FromMilliseconds(startDelayMs);
+			config.Uniform.RepeatDelay = utils::TimeSpan::FromMilliseconds(repeatDelayMs);
 			return config;
 		}
 	}
@@ -65,10 +86,10 @@ namespace catapult { namespace sync {
 
 		// - add tasks with corresponding config entries
 		auto config = TasksConfiguration::Uninitialized();
-		for (auto i = 0u; i < 3u; ++i) {
+		for (auto i = 0u; i < 3; ++i) {
 			auto task = CreateTask(i);
 			context.testState().state().tasks().push_back(task);
-			config.Tasks.emplace(task.Name, CreateTaskConfiguration(1, 1));
+			config.Tasks.emplace(task.Name, CreateUniformTaskConfiguration(1, 1));
 		}
 
 		// Act:
@@ -136,7 +157,7 @@ namespace catapult { namespace sync {
 			context.testState().state().tasks().push_back(CreateContinuousTaskWithCounter("gamma", counter));
 
 			auto config = TasksConfiguration::Uninitialized();
-			config.Tasks.emplace("gamma", CreateTaskConfiguration(2 * timeUnit, 20 * timeUnit));
+			config.Tasks.emplace("gamma", CreateUniformTaskConfiguration(2 * timeUnit, 20 * timeUnit));
 
 			// Act:
 			context.boot(config);
@@ -157,7 +178,7 @@ namespace catapult { namespace sync {
 		});
 	}
 
-	TEST(TEST_CLASS, SchedulerRespectsRepeatDelayFromConfiguration) {
+	TEST(TEST_CLASS, SchedulerRespectsUniformDelayFromConfiguration) {
 		// Assert: non-deterministic because delay is impacted by scheduling
 		test::RunNonDeterministicTest("SchedulerService", [](auto i) {
 			// Arrange:
@@ -169,13 +190,50 @@ namespace catapult { namespace sync {
 			context.testState().state().tasks().push_back(CreateContinuousTaskWithCounter("gamma", counter));
 
 			auto config = TasksConfiguration::Uninitialized();
-			config.Tasks.emplace("gamma", CreateTaskConfiguration(timeUnit, 2 * timeUnit));
+			config.Tasks.emplace("gamma", CreateUniformTaskConfiguration(timeUnit, 2 * timeUnit));
 
 			// Act:
 			context.boot(config);
 
 			// Assert: after sleeping 6x, the timer should have fired at 1, 3, 5
 			test::Sleep(6 * timeUnit);
+			if (!EXPECT_EQ_RETRY(3u, counter))
+				return false;
+
+			EXPECT_EQ(1u, context.counter(Counter_Name));
+			return true;
+		});
+	}
+
+	TEST(TEST_CLASS, SchedulerRespectsDeceleratingDelayFromConfiguration) {
+		// Assert: non-deterministic because delay is impacted by scheduling
+		test::RunNonDeterministicTest("SchedulerService", [](auto i) {
+			// Arrange:
+			TestContext context;
+
+			// - add a single task with a config
+			auto timeUnit = test::GetTimeUnitForIteration(i);
+			std::atomic<uint32_t> counter(0);
+			context.testState().state().tasks().push_back(CreateContinuousTaskWithCounter("gamma", counter));
+
+			// - configure the delays to be: 1 (start), 2, 3.6, 5.2
+			auto config = TasksConfiguration::Uninitialized();
+			{
+				auto taskConfig = TasksConfiguration::TaskConfiguration();
+				taskConfig.TaskType = TasksConfiguration::TaskType::Decelerating;
+				taskConfig.Decelerating.StartDelay = utils::TimeSpan::FromMilliseconds(1 * timeUnit);
+				taskConfig.Decelerating.MinDelay = utils::TimeSpan::FromMilliseconds(2 * timeUnit);
+				taskConfig.Decelerating.MaxDelay = utils::TimeSpan::FromMilliseconds(10 * timeUnit);
+				taskConfig.Decelerating.NumPhaseOneRounds = 1;
+				taskConfig.Decelerating.NumTransitionRounds = 5;
+				config.Tasks.emplace("gamma", taskConfig);
+			}
+
+			// Act:
+			context.boot(config);
+
+			// Assert: after sleeping 10x, the timer should have fired at 1, 3, 6.6
+			test::Sleep(10 * timeUnit);
 			if (!EXPECT_EQ_RETRY(3u, counter))
 				return false;
 

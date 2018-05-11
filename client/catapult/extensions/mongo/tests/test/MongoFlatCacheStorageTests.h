@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "MongoCacheStorageTestUtils.h"
 
@@ -126,7 +146,7 @@ namespace catapult { namespace test {
 
 			// Act:
 			std::vector<ElementType> elements;
-			for (auto i = 0u; i < 100u; ++i) {
+			for (auto i = 0u; i < 100; ++i) {
 				elements.push_back(TTraits::GenerateRandomElement(i));
 				TTraits::Add(delta, elements.back());
 			}
@@ -147,7 +167,7 @@ namespace catapult { namespace test {
 
 			// - seed 100 elements
 			std::vector<ElementType> elements;
-			for (auto i = 0u; i < 100u; ++i) {
+			for (auto i = 0u; i < 100; ++i) {
 				elements.push_back(TTraits::GenerateRandomElement(i));
 				TTraits::Add(delta, elements.back());
 			}
@@ -213,7 +233,7 @@ namespace catapult { namespace test {
 			{
 				auto cache1 = TTraits::CreateCache();
 				auto delta1 = cache1.createDelta();
-				for (auto i = 0u; i < 100u; ++i)
+				for (auto i = 0u; i < 100; ++i)
 					TTraits::Add(delta1, TTraits::GenerateRandomElement(i));
 
 				storage.get().saveDelta(delta1);
@@ -237,7 +257,8 @@ namespace catapult { namespace test {
 			std::vector<ElementType> contents;
 			const auto& subCache = cache.sub<CacheType>();
 			auto view = subCache.createView();
-			for (const auto& pair : *view)
+			auto pIterableView = view->tryMakeIterableView();
+			for (const auto& pair : *pIterableView)
 				contents.push_back(pair.second);
 
 			return contents;

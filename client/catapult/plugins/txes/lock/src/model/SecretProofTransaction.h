@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "LockEntityType.h"
 #include "LockTypes.h"
@@ -14,39 +34,25 @@ namespace catapult { namespace model {
 		using TransactionType = SecretProofTransactionBody<THeader>;
 
 	public:
-		/// Transaction format version.
-		static constexpr uint8_t Current_Version = 1;
-
-		/// Transaction type.
-		static constexpr EntityType Entity_Type = Entity_Type_Secret_Proof;
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Secret_Proof, 1)
 
 	public:
-		/// The hash algorithm.
+		/// Hash algorithm.
 		LockHashAlgorithm HashAlgorithm;
 
-		/// The secret.
+		/// Secret.
 		Hash512 Secret;
 
-		/// The proof size in bytes.
+		/// Proof size in bytes.
 		uint16_t ProofSize;
 
 		// followed by proof data if ProofSize != 0
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Proof, uint8_t)
 
 	private:
 		template<typename T>
 		static auto* ProofPtrT(T& transaction) {
 			return transaction.ProofSize ? THeader::PayloadStart(transaction) : nullptr;
-		}
-
-	public:
-		/// Returns a const pointer to the proof contained in this transaction.
-		const uint8_t* ProofPtr() const {
-			return ProofPtrT(*this);
-		}
-
-		/// Returns a pointer to the proof contained in this transaction.
-		uint8_t* ProofPtr() {
-			return ProofPtrT(*this);
 		}
 
 	public:

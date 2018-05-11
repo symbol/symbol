@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-message("--- locating mongo dependencies --- ")
+message("--- locating mongo dependencies ---")
 find_package(LIBMONGOCXX REQUIRED)
 find_package(LIBBSONCXX REQUIRED)
 
@@ -39,6 +39,10 @@ function(catapult_int_test_executable_target TARGET_NAME)
 	catapult_target(${TARGET_NAME})
 
 	set_property(TEST ${TARGET_NAME} PROPERTY LABELS Database)
+
+	# customize and export compiler options for gtest
+	catapult_set_test_compiler_options()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction()
 
 add_subdirectory(plugins)

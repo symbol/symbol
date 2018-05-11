@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "hashcache/src/HashCacheService.h"
 #include "plugins/services/hashcache/src/cache/HashCacheStorage.h"
 #include "tests/test/cache/CacheTestUtils.h"
@@ -45,13 +65,13 @@ namespace catapult { namespace hashcache {
 			auto delta = cache.createDelta();
 			auto& hashCacheDelta = delta.template sub<cache::HashCache>();
 
-			for (auto i = 0u; i < 5u; ++i)
+			for (auto i = 0u; i < 5; ++i)
 				hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
 
 			auto hash = test::GenerateRandomData<Hash256_Size>();
 			hashCacheDelta.insert(state::TimestampedHash(Timestamp(5), hash));
 
-			for (auto i = 6u; i < 10u; ++i)
+			for (auto i = 6u; i < 10; ++i)
 				hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
 
 			cache.commit(Height());

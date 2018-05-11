@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/BitwiseEnum.h"
 #include "tests/test/nodeps/Comparison.h"
 #include "tests/test/nodeps/Equality.h"
@@ -20,7 +40,7 @@ namespace catapult { namespace utils {
 		MAKE_BITWISE_ENUM(TestEnum)
 	}
 
-	// region or operator
+	// region or (equals) operator
 
 	TEST(TEST_CLASS, CanOrBitwiseFlags) {
 		// Act + Assert:
@@ -87,6 +107,37 @@ namespace catapult { namespace utils {
 		EXPECT_FALSE(HasFlag(TestEnum::Beta, flags));
 		EXPECT_TRUE(HasFlag(TestEnum::Gamma, flags));
 		EXPECT_FALSE(HasFlag(TestEnum::Delta, flags));
+	}
+
+	// endregion
+
+	// region has single flag
+
+	TEST(TEST_CLASS, HasSingleFlagReturnsFalseWhenNoBitsAreSet) {
+		// Act + Assert:
+		EXPECT_FALSE(HasSingleFlag(TestEnum::None));
+	}
+
+	TEST(TEST_CLASS, HasSingleFlagReturnsTrueWhenSingleBitIsSet) {
+		// Act + Assert:
+		for (auto flag : { TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta })
+			EXPECT_TRUE(HasSingleFlag(flag)) << "flag " << utils::to_underlying_type(flag);
+	}
+
+	TEST(TEST_CLASS, HasSingleFlagReturnsFalseWhenMultipleBitsAreSet) {
+		// Act + Assert:
+		for (auto flag1 : { TestEnum::Alpha, TestEnum::Beta }) {
+			for (auto flag2 : { TestEnum::Gamma, TestEnum::Delta }) {
+				EXPECT_FALSE(HasSingleFlag(flag1 | flag2))
+						<< "flag1 " << utils::to_underlying_type(flag1)
+						<< ", flag2 " << utils::to_underlying_type(flag2);
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, HasSingleFlagReturnsFalseWhenAllBitsAreSet) {
+		// Act + Assert:
+		EXPECT_FALSE(HasSingleFlag(TestEnum::All));
 	}
 
 	// endregion

@@ -1,5 +1,26 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "MapperTestUtils.h"
 #include "mongo/src/MongoTransactionMetadata.h"
+#include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/model/Block.h"
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/Cosignature.h"
@@ -23,6 +44,18 @@ namespace catapult { namespace test {
 
 			EXPECT_EQ(entity.Version, dbEntity["version"].get_int32().value);
 			EXPECT_EQ(utils::to_underlying_type(entity.Type), dbEntity["type"].get_int32().value);
+		}
+
+		void AssertEqualMerkleTree(const std::vector<Hash256>& merkleTree, const bsoncxx::document::view& dbMerkleTree) {
+			ASSERT_EQ(merkleTree.size(), std::distance(dbMerkleTree.cbegin(), dbMerkleTree.cend()));
+
+			auto i = 0u;
+			for (const auto& dbHash : dbMerkleTree) {
+				Hash256 hash;
+				mongo::mappers::DbBinaryToModelArray(hash, dbHash.get_binary());
+				EXPECT_EQ(merkleTree[i], hash);
+				++i;
+			}
 		}
 	}
 
@@ -75,12 +108,16 @@ namespace catapult { namespace test {
 			const Hash256& generationHash,
 			Amount totalFee,
 			int32_t numTransactions,
+			const std::vector<Hash256>& merkleTree,
 			const bsoncxx::document::view& dbBlockMetadata) {
-		EXPECT_EQ(4u, GetFieldCount(dbBlockMetadata));
+		EXPECT_EQ(5u, GetFieldCount(dbBlockMetadata));
 		EXPECT_EQ(hash, GetHashValue(dbBlockMetadata, "hash"));
 		EXPECT_EQ(generationHash, GetHashValue(dbBlockMetadata, "generationHash"));
 		EXPECT_EQ(totalFee.unwrap(), GetUint64(dbBlockMetadata, "totalFee"));
 		EXPECT_EQ(numTransactions, dbBlockMetadata["numTransactions"].get_int32().value);
+
+		auto dbMerkleTree = dbBlockMetadata["merkleTree"].get_array().value;
+		AssertEqualMerkleTree(merkleTree, dbMerkleTree);
 	}
 
 	void AssertEqualAccountState(const state::AccountState& accountState, const bsoncxx::document::view& dbAccount) {

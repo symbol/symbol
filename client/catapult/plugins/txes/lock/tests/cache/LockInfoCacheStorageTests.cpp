@@ -1,9 +1,29 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/cache/LockInfoCacheStorage.h"
 #include "src/cache/HashLockInfoCacheTypes.h"
 #include "src/cache/SecretLockInfoCacheTypes.h"
 #include "catapult/utils/HexFormatter.h"
 #include "tests/test/LockInfoCacheTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -29,6 +49,8 @@ namespace catapult { namespace cache {
 			ASSERT_EQ(sizeof(typename TLockInfoTraits::PackedValueType) * packedValues.size(), buffer.size());
 			EXPECT_TRUE(0 == std::memcmp(packedValues.data(), buffer.data(), buffer.size()));
 		}
+
+		// region PackedLockInfo
 
 #pragma pack(push, 1)
 
@@ -78,6 +100,8 @@ namespace catapult { namespace cache {
 
 #pragma pack(pop)
 
+		// endregion
+
 		struct HashTraits : public test::BasicHashLockInfoTestTraits {
 			using PackedValueType = PackedHashLockInfo;
 			using StorageType = test::HashLockInfoCacheFactory::LockInfoCacheStorage;
@@ -95,33 +119,6 @@ namespace catapult { namespace cache {
 				return Secret_Lock_Info_Size;
 			}
 		};
-
-		template<typename TLockInfoTraits>
-		class TestContext {
-		public:
-			explicit TestContext(size_t numLocks)
-					: m_stream("", m_buffer)
-					, m_lockInfos(test::CreateLockInfos<TLockInfoTraits>(numLocks))
-			{}
-
-		public:
-			auto& buffer() {
-				return m_buffer;
-			}
-
-			auto& outputStream() {
-				return m_stream;
-			}
-
-			const auto& lockInfos() const {
-				return m_lockInfos;
-			}
-
-		private:
-			std::vector<uint8_t> m_buffer;
-			mocks::MockMemoryStream m_stream;
-			std::vector<typename TLockInfoTraits::ValueType> m_lockInfos;
-		};
 	}
 
 #define LOCK_TYPE_BASED_TEST(TEST_NAME) \
@@ -136,14 +133,16 @@ namespace catapult { namespace cache {
 		template<typename TTraits>
 		void AssertCanSaveLockInfos(size_t numLockInfos) {
 			// Arrange:
-			TestContext<TTraits> context(numLockInfos);
+			std::vector<uint8_t> buffer;
+			mocks::MockMemoryStream outputStream("", buffer);
+			auto lockInfos = test::CreateLockInfos<TTraits>(numLockInfos);
 
 			// Act:
-			for (const auto& lockInfo : context.lockInfos())
-				TTraits::StorageType::Save(MakePair<TTraits>(lockInfo), context.outputStream());
+			for (const auto& lockInfo : lockInfos)
+				TTraits::StorageType::Save(MakePair<TTraits>(lockInfo), outputStream);
 
 			// Assert:
-			AssertBuffer<TTraits>(context.lockInfos(), context.buffer());
+			AssertBuffer<TTraits>(lockInfos, buffer);
 		}
 	}
 
@@ -178,43 +177,53 @@ namespace catapult { namespace cache {
 		}
 
 		template<typename TLockInfoTraits>
-		void AssertCanLoadLockInfo(size_t numLockInfos) {
-			// Arrange:
-			TestContext<TLockInfoTraits> context(numLockInfos);
-			auto buffer = CreateBuffer<TLockInfoTraits>(context.lockInfos());
-			mocks::MockMemoryStream inputStream("", buffer);
+		struct LockInfoCacheStorageTraits {
+			using KeyType = typename TLockInfoTraits::KeyType;
+			using ValueType = typename TLockInfoTraits::ValueType;
 
-			// Act:
-			typename TLockInfoTraits::CacheType cache;
-			auto delta = cache.createDelta();
-			for (auto i = 0u; i < context.lockInfos().size(); ++i)
-				TLockInfoTraits::StorageType::Load(inputStream, *delta);
+			using StorageType = typename TLockInfoTraits::StorageType;
+			class CacheType : public TLockInfoTraits::CacheType {
+			public:
+				CacheType() : TLockInfoTraits::CacheType(CacheConfiguration())
+				{}
+			};
+		};
 
-			cache.commit();
+		template<typename TLockInfoTraits>
+		using LookupCacheStorageTests = test::LookupCacheStorageTests<LockInfoCacheStorageTraits<TLockInfoTraits>>;
 
-			// Assert: whole buffer has been read
-			EXPECT_EQ(buffer.size(), inputStream.position());
+		template<typename TLockInfoTraits>
+		struct LoadTraits {
+			static constexpr auto RunLoadValueTest = LookupCacheStorageTests<TLockInfoTraits>::RunLoadValueViaLoadTest;
+		};
 
-			// Assert:
-			auto view = cache.createView();
-			for (const auto& lockInfo : context.lockInfos()) {
-				const auto& key = TLockInfoTraits::ToKey(lockInfo);
-				ASSERT_TRUE(view->contains(key));
-
-				const auto& lockInfoFromCache = view->get(key);
-				TLockInfoTraits::AssertEqual(lockInfo, lockInfoFromCache);
-			}
-		}
+		template<typename TLockInfoTraits>
+		struct LoadIntoTraits {
+			static constexpr auto RunLoadValueTest = LookupCacheStorageTests<TLockInfoTraits>::RunLoadValueViaLoadIntoTest;
+		};
 	}
 
-	LOCK_TYPE_BASED_TEST(CanLoadSingleLockInfo) {
-		// Assert:
-		AssertCanLoadLockInfo<TLockInfoTraits>(1);
-	}
+#define LOAD_TEST_ENTRY(TEST_NAME, POSTFIX, TRAITS) \
+	TEST(TEST_CLASS, TEST_NAME##_Load##POSTFIX) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TRAITS, LoadTraits<TRAITS>>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_LoadInto##POSTFIX) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TRAITS, LoadIntoTraits<TRAITS>>(); }
 
-	LOCK_TYPE_BASED_TEST(CanLoadMultipleLockInfos) {
+#define LOAD_TEST(TEST_NAME) \
+	template<typename TLockInfoTraits, typename TLoadTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	LOAD_TEST_ENTRY(TEST_NAME, _Hash, HashTraits) \
+	LOAD_TEST_ENTRY(TEST_NAME, _Secret, SecretTraits) \
+	template<typename TLockInfoTraits, typename TLoadTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	LOAD_TEST(CanLoadSingleLockInfo) {
+		// Arrange:
+		auto originalLockInfo = test::CreateLockInfos<TLockInfoTraits>(1)[0];
+		auto buffer = CreateBuffer<TLockInfoTraits>({ originalLockInfo });
+
+		// Act:
+		typename TLockInfoTraits::ValueType result;
+		TLoadTraits::RunLoadValueTest(TLockInfoTraits::ToKey(originalLockInfo), buffer, result);
+
 		// Assert:
-		AssertCanLoadLockInfo<TLockInfoTraits>(10);
+		TLockInfoTraits::AssertEqual(originalLockInfo, result);
 	}
 
 	// endregion

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/types.h"
 
@@ -6,13 +26,17 @@ namespace catapult { namespace model {
 #define NETWORK_IDENTIFIER_LIST \
 	/* A default (zero) identifier that does not identify any known network. */ \
 	ENUM_VALUE(Zero, 0) \
-	/* The mijin network identifier. */ \
+	\
+	/* Mijin network identifier. */ \
 	ENUM_VALUE(Mijin, 0x60) \
-	/* The mijin test network identifier. */ \
+	\
+	/* Mijin test network identifier. */ \
 	ENUM_VALUE(Mijin_Test, 0x90) \
-	/* The public main network identifier. */ \
+	\
+	/* Public main network identifier. */ \
 	ENUM_VALUE(Public, 0x68) \
-	/* The public test network identifier. */ \
+	\
+	/* Public test network identifier. */ \
 	ENUM_VALUE(Public_Test, 0x98)
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
@@ -41,13 +65,13 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The network identifier.
+		/// Network identifier.
 		NetworkIdentifier Identifier;
 
-		/// The nemesis public key.
+		/// Nemesis public key.
 		Key PublicKey;
 
-		/// The nemesis generation hash.
+		/// Nemesis generation hash.
 		Hash256 GenerationHash;
 	};
 

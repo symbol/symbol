@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "sync/src/DispatcherService.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
 #include "catapult/cache_core/AccountStateCache.h"
@@ -432,7 +452,7 @@ namespace catapult { namespace sync {
 			const auto& stateChangeSubscriber = context.testState().stateChangeSubscriber();
 			EXPECT_EQ(1u, stateChangeSubscriber.numScoreChanges());
 			EXPECT_EQ(1u, stateChangeSubscriber.numStateChanges());
-			EXPECT_EQ(model::ChainScore(99'999'999'999'940u), stateChangeSubscriber.lastChainScore());
+			EXPECT_EQ(model::ChainScore(99'999'999'999'940), stateChangeSubscriber.lastChainScore());
 		});
 	}
 
@@ -606,6 +626,51 @@ namespace catapult { namespace sync {
 			// Assert: the subscriber was flushed
 			EXPECT_EQ(1u, subscriber.numFlushes());
 		});
+	}
+
+	// endregion
+
+	// region spam filtering
+
+	namespace {
+		void AssertTransactionSpamThrottleBehavior(bool enableFiltering, uint32_t maxCacheSize, uint32_t expectedCacheSize) {
+			// Arrange:
+			TestContext context;
+
+			// - configure spam filter
+			const auto& config = context.testState().config();
+			auto& nodeConfig = const_cast<config::NodeConfiguration&>(config.Node);
+			nodeConfig.ShouldEnableTransactionSpamThrottling = enableFiltering;
+			nodeConfig.TransactionSpamThrottlingMaxBoostFee = Amount(10'000'000);
+			nodeConfig.UnconfirmedTransactionsCacheMaxSize = maxCacheSize;
+			const_cast<uint32_t&>(config.BlockChain.MaxTransactionsPerBlock) = maxCacheSize / 2;
+
+			// - boot the service
+			context.boot();
+			auto factory = context.testState().state().hooks().transactionRangeConsumerFactory()(disruptor::InputSource::Local);
+
+			// Act: try to fill the ut cache with transactions
+			factory(test::CreateTransactionEntityRange(maxCacheSize));
+			context.testState().state().tasks()[0].Callback(); // forward all batched transactions to the dispatcher
+
+			// - wait for the transactions to flow through the consumers
+			WAIT_FOR_ONE_EXPR(context.counter(Transaction_Elements_Counter_Name));
+			WAIT_FOR_VALUE_EXPR(expectedCacheSize, context.testState().state().utCache().view().size());
+
+			// Assert:
+			EXPECT_EQ(expectedCacheSize, context.testState().state().utCache().view().size());
+			EXPECT_EQ(maxCacheSize - expectedCacheSize, context.numTransactionStatuses());
+		}
+	}
+
+	TEST(TEST_CLASS, CanDisableSpamThrottling) {
+		// Assert: the entire cache should be filled
+		AssertTransactionSpamThrottleBehavior(false, 50, 50);
+	}
+
+	TEST(TEST_CLASS, CanEnableSpamThrottling) {
+		// Assert: the entire cache should not be filled because unimportant accounts are used
+		AssertTransactionSpamThrottleBehavior(true, 50, 40);
 	}
 
 	// endregion

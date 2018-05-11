@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "Namespace.h"
 #include "catapult/utils/Hashers.h"
@@ -12,52 +32,29 @@ namespace catapult { namespace state {
 
 	public:
 		/// Creates a root namespace around \a id, \a owner and \a liftime.
-		explicit RootNamespace(NamespaceId id, const Key& owner, const NamespaceLifetime& lifetime)
-				: RootNamespace(id, owner, lifetime, std::make_shared<Children>())
-		{}
+		RootNamespace(NamespaceId id, const Key& owner, const NamespaceLifetime& lifetime);
 
 		/// Creates a root namespace around \a id, \a owner, \a liftime and \a pChildren.
-		explicit RootNamespace(
-				NamespaceId id,
-				const Key& owner,
-				const NamespaceLifetime& lifetime,
-				const std::shared_ptr<Children>& pChildren)
-				: m_id(id)
-				, m_owner(owner)
-				, m_lifetime(lifetime)
-				, m_pChildren(pChildren)
-		{}
+		RootNamespace(NamespaceId id, const Key& owner, const NamespaceLifetime& lifetime, const std::shared_ptr<Children>& pChildren);
 
 	public:
 		/// Gets the namespace id.
-		NamespaceId id() const {
-			return m_id;
-		}
+		NamespaceId id() const;
 
 		/// Gets a const reference to the children.
-		const Children& children() const {
-			return *m_pChildren;
-		}
+		const Children& children() const;
 
 		/// Gets a const reference to the owner of this namespace.
-		const Key& owner() const {
-			return m_owner;
-		}
+		const Key& owner() const;
 
 		/// Gets a const reference to the lifetime of this namespace.
-		const NamespaceLifetime& lifetime() const {
-			return m_lifetime;
-		}
+		const NamespaceLifetime& lifetime() const;
 
 		/// Returns \c true if this root namespace has no children.
-		bool empty() const {
-			return m_pChildren->empty();
-		}
+		bool empty() const;
 
 		/// Gets the number of child namespaces.
-		size_t size() const {
-			return m_pChildren->size();
-		}
+		size_t size() const;
 
 	public:
 		/// Gets a child namespace specified by its namespace \a id.
@@ -76,16 +73,12 @@ namespace catapult { namespace state {
 		bool operator==(const RootNamespace& rhs) const;
 
 		/// Returns \c true if this root namespace is not equal to \a rhs.
-		bool operator!=(const RootNamespace& rhs) const {
-			return !(*this == rhs);
-		}
+		bool operator!=(const RootNamespace& rhs) const;
 
 	public:
 		/// Creates a new root namespace with \a lifetime.
 		/// \note The method shares the children of this root namespace with the new root namespace.
-		RootNamespace renew(const NamespaceLifetime& newLifetime) const {
-			return RootNamespace(m_id, m_owner, newLifetime, m_pChildren);
-		}
+		RootNamespace renew(const NamespaceLifetime& newLifetime) const;
 
 	private:
 		NamespaceId m_id;

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/state/CompactMosaicUnorderedMap.h"
 #include "catapult/utils/Casting.h"
 #include "tests/test/nodeps/IteratorTestTraits.h"
@@ -242,7 +262,7 @@ namespace catapult { namespace state {
 		InsertMany(map, 10);
 
 		// Act:
-		for (auto i = 1u; i <= 10u; i += 2)
+		for (auto i = 1u; i <= 10; i += 2)
 			map.erase(GetMosaicId(i));
 
 		// Assert:
@@ -261,7 +281,7 @@ namespace catapult { namespace state {
 		InsertMany(map, 10);
 
 		// Act:
-		for (auto i = 2u; i <= 10u; i += 2)
+		for (auto i = 2u; i <= 10; i += 2)
 			map.erase(GetMosaicId(i));
 
 		// Assert:
@@ -280,7 +300,7 @@ namespace catapult { namespace state {
 		InsertMany(map, 10);
 
 		// Act:
-		for (auto i = 1u; i <= 10u; ++i)
+		for (auto i = 1u; i <= 10; ++i)
 			map.erase(GetMosaicId(i));
 
 		// Assert:
@@ -293,7 +313,7 @@ namespace catapult { namespace state {
 		InsertMany(map, 10);
 
 		// Act:
-		for (auto i = 10u; i >= 1u; --i)
+		for (auto i = 10u; i >= 1; --i)
 			map.erase(GetMosaicId(i));
 
 		// Assert:
@@ -328,10 +348,10 @@ namespace catapult { namespace state {
 		InsertMany(map, 10);
 
 		// Act:
-		for (auto i = 1u; i <= 10u; i += 2)
+		for (auto i = 1u; i <= 10; i += 2)
 			map.erase(GetMosaicId(i));
 
-		for (auto i = 1u; i <= 3u; ++i)
+		for (auto i = 1u; i <= 3; ++i)
 			map.insert(std::make_pair(MosaicId(1000 + i), Amount(10 - i)));
 
 		// Assert:
@@ -353,10 +373,10 @@ namespace catapult { namespace state {
 		InsertMany(map, 10);
 
 		// Act:
-		for (auto i = 2u; i <= 10u; i += 2)
+		for (auto i = 2u; i <= 10; i += 2)
 			map.erase(GetMosaicId(i));
 
-		for (auto i = 1u; i <= 3u; ++i)
+		for (auto i = 1u; i <= 3; ++i)
 			map.insert(std::make_pair(MosaicId(1000 + i), Amount(10 - i)));
 
 		// Assert:
@@ -378,10 +398,10 @@ namespace catapult { namespace state {
 		InsertMany(map, 10);
 
 		// Act:
-		for (auto i = 1u; i <= 10u; ++i)
+		for (auto i = 1u; i <= 10; ++i)
 			map.erase(GetMosaicId(i));
 
-		for (auto i = 1u; i <= 3u; ++i)
+		for (auto i = 1u; i <= 3; ++i)
 			map.insert(std::make_pair(MosaicId(1000 + i), Amount(10 - i)));
 
 		// Assert:
@@ -489,10 +509,10 @@ namespace catapult { namespace state {
 		InsertMany(map, 10);
 
 		// Act:
-		for (auto i = 1u; i <= 10u; ++i)
+		for (auto i = 1u; i <= 10; ++i)
 			map.find(GetMosaicId(i))->second = Amount();
 
-		for (auto i = 1u; i <= 10u; ++i)
+		for (auto i = 1u; i <= 10; ++i)
 			map.erase(GetMosaicId(i));
 
 		// Assert:
@@ -505,10 +525,10 @@ namespace catapult { namespace state {
 		InsertMany(map, 10);
 
 		// Act:
-		for (auto i = 10u; i >= 1u; --i)
+		for (auto i = 10u; i >= 1; --i)
 			map.find(GetMosaicId(i))->second = Amount();
 
-		for (auto i = 10u; i >= 1u; --i)
+		for (auto i = 10u; i >= 1; --i)
 			map.erase(GetMosaicId(i));
 
 		// Assert:

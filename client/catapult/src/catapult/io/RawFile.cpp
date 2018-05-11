@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "RawFile.h"
 #include "catapult/exceptions.h"
 #include <memory>
@@ -158,10 +178,11 @@ namespace catapult { namespace io {
 	}
 
 // note that this macro can only be used within RawFile member functions
-#define THROW_RAW_FILE_ERROR(MESSAGE) { \
-	CATAPULT_LOG(error) << MESSAGE << " " << m_pathname << (!m_fd.isValid() ? " (invalid)" : ""); \
-	CATAPULT_THROW_FILE_IO_ERROR(MESSAGE); \
-}
+#define CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(MESSAGE) \
+	do { \
+		CATAPULT_LOG(error) << MESSAGE << " " << m_pathname << (!m_fd.isValid() ? " (invalid)" : ""); \
+		CATAPULT_THROW_FILE_IO_ERROR(MESSAGE); \
+	} while (false)
 
 	RawFile::RawFile(const std::string& pathname, OpenMode mode, LockMode lockMode)
 			: m_pathname(pathname)
@@ -169,10 +190,10 @@ namespace catapult { namespace io {
 			, m_fileSize(0)
 			, m_position(0) {
 		if (!nemOpen(m_fd.rawRef(), m_pathname.c_str(), mode, lockMode))
-			THROW_RAW_FILE_ERROR(Error_Open);
+			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Open);
 
 		if (!nemFileSize(m_fd.raw(), m_fileSize))
-			THROW_RAW_FILE_ERROR(Error_Size);
+			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Size);
 	}
 
 	RawFile::FileDescriptorHolder::FileDescriptorHolder(int fd) : m_fd(fd)
@@ -206,7 +227,7 @@ namespace catapult { namespace io {
 
 	void RawFile::write(const RawBuffer& dataBuffer) {
 		if (dataBuffer.Size != nemWrite(m_fd.raw(), dataBuffer))
-			THROW_RAW_FILE_ERROR(Error_Write);
+			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Write);
 
 		m_position += dataBuffer.Size;
 		m_fileSize = std::max(m_fileSize, m_position);
@@ -214,7 +235,7 @@ namespace catapult { namespace io {
 
 	void RawFile::read(const MutableRawBuffer& dataBuffer) {
 		if (dataBuffer.Size != nemRead(m_fd.raw(), dataBuffer))
-			THROW_RAW_FILE_ERROR(Error_Read);
+			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Read);
 
 		m_position += dataBuffer.Size;
 	}
@@ -223,10 +244,10 @@ namespace catapult { namespace io {
 		// Although low-level api allows seek outside the file, we won't allow
 		// it. If we'll need it we'll add resize() and/or truncate() methods.
 		if (position > size())
-			THROW_RAW_FILE_ERROR(Error_Seek);
+			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Seek);
 
 		if (!nemSeekSet(m_fd.raw(), static_cast<int64_t>(position)))
-			THROW_RAW_FILE_ERROR(Error_Seek);
+			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Seek);
 
 		m_position = position;
 	}

@@ -1,29 +1,36 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NodeRoles.h"
-#include "catapult/utils/Casting.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
 
 namespace catapult { namespace ionet {
 
-	const std::array<std::pair<const char*, NodeRoles>, 2> String_To_Node_Role_Pairs{{
-		{ "Peer", NodeRoles::Peer },
-		{ "Api", NodeRoles::Api }
-	}};
+	namespace {
+		const std::array<std::pair<const char*, NodeRoles>, 2> String_To_Node_Role_Pairs{{
+			{ "Peer", NodeRoles::Peer },
+			{ "Api", NodeRoles::Api }
+		}};
+	}
 
 	bool TryParseValue(const std::string& str, NodeRoles& roles) {
-		std::unordered_set<std::string> roleParts;
-		if (!utils::TryParseValue(str, roleParts))
-			return false;
-
-		uint32_t rawRoles = 0u;
-		for (const auto& rolePart : roleParts) {
-			NodeRoles role;
-			if (!utils::TryParseEnumValue(String_To_Node_Role_Pairs, rolePart, role))
-				return false;
-
-			rawRoles |= utils::to_underlying_type(role);
-		}
-
-		roles = static_cast<NodeRoles>(rawRoles);
-		return true;
+		return utils::TryParseBitwiseEnumValue(String_To_Node_Role_Pairs, str, roles);
 	}
 }}

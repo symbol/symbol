@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "PacketPayloadTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -13,6 +33,17 @@ namespace catapult { namespace test {
 		const auto& buffer = buffers[0];
 		EXPECT_EQ(packet.Data(), buffer.pData);
 		EXPECT_EQ(packet.Size - sizeof(ionet::PacketHeader), buffer.Size);
+	}
+
+	void AssertPacketPayloadUnset(const ionet::PacketPayload& payload) {
+		// Assert: the payload is unset
+		EXPECT_TRUE(payload.unset());
+
+		const auto& header = payload.header();
+		EXPECT_EQ(0u, header.Size);
+		EXPECT_EQ(ionet::PacketType::Undefined, header.Type);
+
+		EXPECT_TRUE(payload.buffers().empty());
 	}
 
 	void AssertPacketHeader(const ionet::PacketPayload& payload, size_t expectedSize, ionet::PacketType expectedType) {

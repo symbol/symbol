@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/ionet/IoTypes.h"
 #include "catapult/ionet/Node.h"
@@ -16,24 +36,29 @@ namespace catapult { namespace ionet {
 	// region write
 
 	namespace {
-		std::shared_ptr<Packet> CreateSmallWritePayload() {
-			return test::BufferToPacket(test::GenerateRandomPacketBuffer(50));
+		PacketPayload CreateSmallWritePayload() {
+			return test::BufferToPacketPayload(test::GenerateRandomPacketBuffer(50));
 		}
 
-		std::shared_ptr<Packet> CreateLargeWritePayload() {
-			return test::BufferToPacket(test::GenerateRandomPacketBuffer(1024 * 1024));
+		PacketPayload CreateLargeWritePayload() {
+			return test::BufferToPacketPayload(test::GenerateRandomPacketBuffer(1024 * 1024));
 		}
 
-		void AssertWriteSuccess(const PacketPayload& payload, const ByteBuffer& expectedPayload) {
-			// Arrange: set up payloads
-			const size_t Buffer_Size = payload.header().Size;
-			ByteBuffer receiveBuffer(Buffer_Size);
+		void AssertWriteSuccess(const PacketPayload& payload, const ByteBuffer& expectedPayload, uint32_t maxPacketDataSize = 0) {
+			// Arrange:
+			auto options = test::CreatePacketSocketOptions();
+			if (0 != maxPacketDataSize)
+				options.MaxPacketDataSize = maxPacketDataSize;
+
+			// - set up payloads
+			auto bufferSize = payload.header().Size;
+			ByteBuffer receiveBuffer(bufferSize);
 			SocketOperationCode writeCode;
 
 			// Act: "server" - writes a payload to the socket
 			//      "client" - reads a payload from the socket
 			auto pPool = test::CreateStartedIoServiceThreadPool();
-			test::SpawnPacketServerWork(pPool->service(), [&payload, &writeCode](const auto& pServerSocket) {
+			test::SpawnPacketServerWork(pPool->service(), options, [&payload, &writeCode](const auto& pServerSocket) {
 				pServerSocket->write(payload, [&writeCode](auto code) {
 					writeCode = code;
 				});
@@ -43,14 +68,36 @@ namespace catapult { namespace ionet {
 
 			// Assert: the write succeeded and all data was read from the socket
 			EXPECT_EQ(SocketOperationCode::Success, writeCode);
-			EXPECT_EQUAL_BUFFERS(expectedPayload, 0, Buffer_Size, receiveBuffer);
+			EXPECT_EQUAL_BUFFERS(expectedPayload, 0, bufferSize, receiveBuffer);
+		}
+
+		void AssertWriteFailure(const PacketPayload& payload, uint32_t maxPacketDataSize) {
+			// Arrange:
+			auto options = test::CreatePacketSocketOptions();
+			options.MaxPacketDataSize = maxPacketDataSize;
+
+			SocketOperationCode writeCode;
+
+			// Act: "server" - writes a payload to the socket
+			//      "client" - accepts a connection
+			auto pPool = test::CreateStartedIoServiceThreadPool();
+			test::SpawnPacketServerWork(pPool->service(), options, [&payload, &writeCode](const auto& pServerSocket) {
+				pServerSocket->write(payload, [&writeCode](auto code) {
+					writeCode = code;
+				});
+			});
+			test::AddClientConnectionTask(pPool->service());
+			pPool->join();
+
+			// Assert: the write failed due to malformed data
+			EXPECT_EQ(SocketOperationCode::Malformed_Data, writeCode);
 		}
 	}
 
 	TEST(TEST_CLASS, WriteSucceedsWhenSocketWriteSucceeds_ZeroBufferPayload) {
 		// Arrange: set up payloads
 		auto packetBytes = test::GenerateRandomPacketBuffer(sizeof(Packet));
-		auto payload = PacketPayload(test::BufferToPacket(packetBytes));
+		auto payload = test::BufferToPacketPayload(packetBytes);
 
 		// Sanity:
 		EXPECT_EQ(sizeof(Packet), payload.header().Size);
@@ -63,7 +110,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, WriteSucceedsWhenSocketWriteSucceeds_SingleBufferPayload) {
 		// Arrange: set up payloads
 		auto packetBytes = test::GenerateRandomPacketBuffer(50);
-		auto payload = PacketPayload(test::BufferToPacket(packetBytes));
+		auto payload = test::BufferToPacketPayload(packetBytes);
 
 		// Sanity:
 		EXPECT_EQ(50u, payload.header().Size);
@@ -75,19 +122,19 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, WriteFailsWhenSocketWriteFails) {
 		// Arrange: set up payloads
-		auto pPayload = CreateSmallWritePayload();
-		const size_t Buffer_Size = pPayload->Size;
-		ByteBuffer receiveBuffer(Buffer_Size);
+		auto payload = CreateSmallWritePayload();
+		auto bufferSize = payload.header().Size;
+		ByteBuffer receiveBuffer(bufferSize);
 		SocketOperationCode writeCode;
 
 		// Act: "server" - closes the socket and then writes a payload to the (closed) socket
 		//      "client" - reads a payload from the socket
 		auto pPool = test::CreateStartedIoServiceThreadPool();
-		test::SpawnPacketServerWork(pPool->service(), [&pPayload, &writeCode](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(pPool->service(), [&payload, &writeCode](const auto& pServerSocket) {
 			pServerSocket->close();
 			CATAPULT_LOG(debug) << "closed server socket";
 
-			pServerSocket->write(pPayload, [&writeCode](auto code) {
+			pServerSocket->write(payload, [&writeCode](auto code) {
 				writeCode = code;
 			});
 		});
@@ -96,7 +143,7 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		EXPECT_EQ(SocketOperationCode::Write_Error, writeCode);
-		EXPECT_EQ(test::ToHexString(ByteBuffer(Buffer_Size)), test::ToHexString(receiveBuffer));
+		EXPECT_EQ(test::ToHexString(ByteBuffer(bufferSize)), test::ToHexString(receiveBuffer));
 	}
 
 	TEST(TEST_CLASS, WriteFailsWhenClientSocketCloses) {
@@ -129,6 +176,32 @@ namespace catapult { namespace ionet {
 		test::AssertWriteCanWriteMultipleConsecutivePayloads([](const auto& pSocket) { return pSocket; });
 	}
 
+	TEST(TEST_CLASS, WriteFailsWhenPacketPayloadIsUnset) {
+		// Arrange:
+		auto payload = PacketPayload();
+
+		// Assert:
+		AssertWriteFailure(payload, 1'000);
+	}
+
+	TEST(TEST_CLASS, WriteFailsWhenPacketPayloadExceedsMaxPacketDataSize) {
+		// Arrange:
+		auto packetBytes = test::GenerateRandomPacketBuffer(150);
+		auto payload = test::BufferToPacketPayload(packetBytes);
+
+		// Assert:
+		AssertWriteFailure(payload, 150 - sizeof(PacketHeader) - 1);
+	}
+
+	TEST(TEST_CLASS, WriteSucceedsWhenPacketPayloadIsExactlyMaxPacketDataSize) {
+		// Arrange:
+		auto packetBytes = test::GenerateRandomPacketBuffer(150);
+		auto payload = test::BufferToPacketPayload(packetBytes);
+
+		// Assert:
+		AssertWriteSuccess(payload, packetBytes, 150 - sizeof(PacketHeader));
+	}
+
 	// endregion
 
 	// region read[Multiple]
@@ -154,7 +227,7 @@ namespace catapult { namespace ionet {
 				const Packet* pPacket) {
 			++result.NumHandlerCalls;
 			result.Code = code;
-			result.IsPacketValid = nullptr != pPacket;
+			result.IsPacketValid = !!pPacket;
 			if (result.IsPacketValid)
 				result.ReceivedBuffer = test::CopyPacketToBuffer(*pPacket);
 
@@ -204,7 +277,7 @@ namespace catapult { namespace ionet {
 		const auto& receivedBuffer = result.ReceivedBuffer;
 
 		// Assert:
-		AssertSendBuffersResult(result, SocketOperationCode::Success, 18u);
+		AssertSendBuffersResult(result, SocketOperationCode::Success, 18);
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 82u, receivedBuffer);
 	}
 
@@ -218,7 +291,7 @@ namespace catapult { namespace ionet {
 		const auto& receivedBuffer = result.ReceivedBuffer;
 
 		// Assert:
-		AssertSendBuffersResult(result, SocketOperationCode::Success, 25u);
+		AssertSendBuffersResult(result, SocketOperationCode::Success, 25);
 		EXPECT_EQ(125u, receivedBuffer.size());
 		EXPECT_EQ(test::ToHexString(sendBuffers[0]), test::ToHexString(&receivedBuffer[0], 50));
 		EXPECT_EQ(test::ToHexString(sendBuffers[1]), test::ToHexString(&receivedBuffer[50], 50));
@@ -235,7 +308,7 @@ namespace catapult { namespace ionet {
 		const auto& receivedBuffer = result.ReceivedBuffer;
 
 		// Assert: only the first buffer was returned
-		AssertSendBuffersResult(result, SocketOperationCode::Success, 80u);
+		AssertSendBuffersResult(result, SocketOperationCode::Success, 80);
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 20u, receivedBuffer);
 	}
 
@@ -261,7 +334,7 @@ namespace catapult { namespace ionet {
 
 		// Assert: the server should get a read error when attempting to read from the socket
 		//         (since nothing was read, the working buffer should be empty)
-		AssertSendBuffersResult(result, SocketOperationCode::Read_Error, 0u);
+		AssertSendBuffersResult(result, SocketOperationCode::Read_Error, 0);
 	}
 
 	TEST(TEST_CLASS, ReadFailsWhenClientSocketCloses) {
@@ -299,7 +372,7 @@ namespace catapult { namespace ionet {
 
 		// Assert: the malformed data should not have been processed so nothing should have been removed from the
 		//         working buffer
-		AssertSendBuffersResult(result, SocketOperationCode::Malformed_Data, 100u);
+		AssertSendBuffersResult(result, SocketOperationCode::Malformed_Data, 100);
 		EXPECT_TRUE(receivedBuffer.empty());
 	}
 
@@ -335,10 +408,10 @@ namespace catapult { namespace ionet {
 		const auto& receivedBuffer = results[0].ReceivedBuffer;
 
 		// Assert:
-		AssertSendBuffersResult(results[0], SocketOperationCode::Success, 18u);
+		AssertSendBuffersResult(results[0], SocketOperationCode::Success, 18);
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 82u, receivedBuffer);
 
-		AssertSendBuffersResult(results[1], SocketOperationCode::Insufficient_Data, 18u);
+		AssertSendBuffersResult(results[1], SocketOperationCode::Insufficient_Data, 18);
 		EXPECT_TRUE(results[1].ReceivedBuffer.empty());
 	}
 
@@ -354,13 +427,13 @@ namespace catapult { namespace ionet {
 		const auto& receivedBuffer = results[0].ReceivedBuffer;
 
 		// Assert:
-		AssertSendBuffersResult(results[0], SocketOperationCode::Success, 25u);
+		AssertSendBuffersResult(results[0], SocketOperationCode::Success, 25);
 		EXPECT_EQ(125u, receivedBuffer.size());
 		EXPECT_EQ(test::ToHexString(sendBuffers[0]), test::ToHexString(&receivedBuffer[0], 50));
 		EXPECT_EQ(test::ToHexString(sendBuffers[1]), test::ToHexString(&receivedBuffer[50], 50));
 		EXPECT_EQ(test::ToHexString(&sendBuffers[2][0], 25), test::ToHexString(&receivedBuffer[100], 25));
 
-		AssertSendBuffersResult(results[1], SocketOperationCode::Insufficient_Data, 25u);
+		AssertSendBuffersResult(results[1], SocketOperationCode::Insufficient_Data, 25);
 		EXPECT_TRUE(results[1].ReceivedBuffer.empty());
 	}
 
@@ -375,15 +448,15 @@ namespace catapult { namespace ionet {
 		// Assert: note that num unprocessed bytes is not updated to intermediate values because the entire
 		//         readMultiple callback is happening on the socket strand, which prevents stats from being updated
 		ASSERT_EQ(4u, results.size());
-		AssertSendBuffersResult(results[0], SocketOperationCode::Success, 13u);
-		AssertSendBuffersResult(results[1], SocketOperationCode::Success, 13u);
-		AssertSendBuffersResult(results[2], SocketOperationCode::Success, 13u);
+		AssertSendBuffersResult(results[0], SocketOperationCode::Success, 13);
+		AssertSendBuffersResult(results[1], SocketOperationCode::Success, 13);
+		AssertSendBuffersResult(results[2], SocketOperationCode::Success, 13);
 
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 20u, results[0].ReceivedBuffer);
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 20, 17u, results[1].ReceivedBuffer);
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 37, 50u, results[2].ReceivedBuffer);
 
-		AssertSendBuffersResult(results[3], SocketOperationCode::Insufficient_Data, 13u);
+		AssertSendBuffersResult(results[3], SocketOperationCode::Insufficient_Data, 13);
 		EXPECT_TRUE(results[3].ReceivedBuffer.empty());
 	}
 
@@ -399,8 +472,8 @@ namespace catapult { namespace ionet {
 		// Assert: only the packet(s) before the malformed one was consumed
 		//         (the 80 unconsumed bytes are the remainder in the buffer after consuming the first packet)
 		EXPECT_EQ(2u, results.size());
-		AssertSendBuffersResult(results[0], SocketOperationCode::Success, 80u);
-		AssertSendBuffersResult(results[1], SocketOperationCode::Malformed_Data, 80u);
+		AssertSendBuffersResult(results[0], SocketOperationCode::Success, 80);
+		AssertSendBuffersResult(results[1], SocketOperationCode::Malformed_Data, 80);
 
 		EXPECT_EQUAL_BUFFERS(sendBuffers[0], 0, 20u, results[0].ReceivedBuffer);
 		EXPECT_TRUE(results[1].ReceivedBuffer.empty());
@@ -463,8 +536,8 @@ namespace catapult { namespace ionet {
 		AssertSendBuffersResult(results1[1], SocketOperationCode::Insufficient_Data, Half_Size_Unit);
 
 		ASSERT_EQ(2u, results2.size());
-		AssertSendBuffersResult(results2[0], SocketOperationCode::Success, 0u);
-		AssertSendBuffersResult(results2[1], SocketOperationCode::Insufficient_Data, 0u);
+		AssertSendBuffersResult(results2[0], SocketOperationCode::Success, 0);
+		AssertSendBuffersResult(results2[1], SocketOperationCode::Insufficient_Data, 0);
 
 		const auto& receivedBuffer1 = results1[0].ReceivedBuffer;
 		ASSERT_EQ(Size_Unit * 5 / 2, receivedBuffer1.size());
@@ -528,7 +601,7 @@ namespace catapult { namespace ionet {
 		test::SpawnPacketServerWork(pPool->service(), [&result](const auto& pServerSocket) {
 			pServerSocket->read([&result](auto code, const auto* pPacket) {
 				result.Code = code;
-				result.IsPacketValid = nullptr != pPacket;
+				result.IsPacketValid = !!pPacket;
 				if (result.IsPacketValid)
 					result.ReceivedBuffer = test::CopyPacketToBuffer(*pPacket);
 			});
@@ -564,12 +637,12 @@ namespace catapult { namespace ionet {
 					breadcrumbs.push_back("open? " + std::to_string(stats.IsOpen));
 				};
 
-				for (auto i = 0u; i < 4u; ++i)
+				for (auto i = 0u; i < 4; ++i)
 					pSocket->stats(addStatsBreadcrumb);
 
 				pSocket->close();
 
-				for (auto i = 0u; i < 4u; ++i)
+				for (auto i = 0u; i < 4; ++i)
 					pSocket->stats(addStatsBreadcrumb);
 			});
 		});
@@ -705,31 +778,49 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(1u, numConfigureSocketCalls);
 	}
 
-	TEST(TEST_CLASS, AcceptHonorsOptions) {
-		// Arrange:
-		constexpr auto Buffer_Size = 150u;
-		auto sendBuffer = test::GenerateRandomPacketBuffer(Buffer_Size);
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->service());
+	namespace {
+		template<typename TAction>
+		void RunAcceptHonorsOptionsTest(uint32_t bufferSize, uint32_t adjustmentSize, TAction action) {
+			// Arrange:
+			auto sendBuffer = test::GenerateRandomPacketBuffer(bufferSize);
+			auto pPool = test::CreateStartedIoServiceThreadPool();
+			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->service());
 
-		// Act: "server" - accepts a connection and reads a buffer
-		//      "client" - connects to the server and writes a buffer
-		SendBuffersResult result;
-		auto options = test::CreatePacketSocketOptions();
-		options.MaxPacketDataSize = Buffer_Size - sizeof(PacketHeader) - 1;
-		pPool->service().post([&acceptor = *pAcceptor, &options, &result]() {
-			Accept(acceptor, options, [&result](const auto& acceptedSocketInfo) {
-				auto pServerSocket = acceptedSocketInfo.socket();
-				pServerSocket->read([pServerSocket, &result](auto code, const auto* pPacket) {
-					FillResult(result, pServerSocket, code, pPacket);
+			// Act: "server" - accepts a connection and reads a buffer
+			//      "client" - connects to the server and writes a buffer
+			SendBuffersResult result;
+			auto options = test::CreatePacketSocketOptions();
+			options.MaxPacketDataSize = bufferSize - sizeof(PacketHeader) - adjustmentSize;
+			pPool->service().post([&acceptor = *pAcceptor, &options, &result]() {
+				Accept(acceptor, options, [&result](const auto& acceptedSocketInfo) {
+					auto pServerSocket = acceptedSocketInfo.socket();
+					pServerSocket->read([pServerSocket, &result](auto code, const auto* pPacket) {
+						FillResult(result, pServerSocket, code, pPacket);
+					});
 				});
 			});
-		});
-		test::AddClientWriteBuffersTask(pPool->service(), { sendBuffer });
-		pPool->join();
+			test::AddClientWriteBuffersTask(pPool->service(), { sendBuffer });
+			pPool->join();
 
-		// Assert: the packet should be flagged as malformed because it is too large
-		AssertSendBuffersResult(result, SocketOperationCode::Malformed_Data, Buffer_Size);
+			// Assert:
+			action(result);
+		}
+	}
+
+	TEST(TEST_CLASS, AcceptHonorsOptions_MaxPacketDataSize) {
+		// Act:
+		RunAcceptHonorsOptionsTest(150, 0, [](const auto& result) {
+			// Assert: the packet should be allowed (this test is just checking a limit, so doesn't need to check buffers)
+			AssertSendBuffersResult(result, SocketOperationCode::Success, 0);
+		});
+	}
+
+	TEST(TEST_CLASS, AcceptHonorsOptions_MaxPacketDataSizeExceeded) {
+		// Act:
+		RunAcceptHonorsOptionsTest(150, 1, [](const auto& result) {
+			// Assert: the packet should be flagged as malformed because it is too large
+			AssertSendBuffersResult(result, SocketOperationCode::Malformed_Data, 150);
+		});
 	}
 
 	// endregion
@@ -746,7 +837,7 @@ namespace catapult { namespace ionet {
 			auto options = test::CreatePacketSocketOptions();
 			return ionet::Connect(service, options, endpoint, [&result](auto connectResult, const auto& pSocket) {
 				result.Result = connectResult;
-				result.IsSocketValid = nullptr != pSocket;
+				result.IsSocketValid = !!pSocket;
 			});
 		}
 
@@ -861,39 +952,57 @@ namespace catapult { namespace ionet {
 		test::RunNonDeterministicTest("Cancellation", RunCancellationTestIteration);
 	}
 
-	TEST(TEST_CLASS, ConnectHonorsOptions) {
-		// Arrange:
-		constexpr auto Buffer_Size = 150u;
-		auto sendBuffer = test::GenerateRandomPacketBuffer(Buffer_Size);
-		auto pPool = test::CreateStartedIoServiceThreadPool();
+	namespace {
+		template<typename TAction>
+		void RunConnectHonorsOptionsTest(uint32_t bufferSize, uint32_t adjustmentSize, TAction action) {
+			// Arrange:
+			auto sendBuffer = test::GenerateRandomPacketBuffer(bufferSize);
+			auto pPool = test::CreateStartedIoServiceThreadPool();
 
-		// Act: "server" - accepts a connection and writes a buffer
-		//      "client" - connects to the server and reads a buffer
-		SendBuffersResult result;
-		test::SpawnPacketServerWork(pPool->service(), [&sendBuffer](const auto& pServerSocket) {
-			pServerSocket->write(test::BufferToPacket(sendBuffer), [](auto code) {
-				CATAPULT_LOG(debug) << "write completed with code " << code;
+			// Act: "server" - accepts a connection and writes a buffer
+			//      "client" - connects to the server and reads a buffer
+			SendBuffersResult result;
+			test::SpawnPacketServerWork(pPool->service(), [&sendBuffer](const auto& pServerSocket) {
+				pServerSocket->write(test::BufferToPacketPayload(sendBuffer), [](auto code) {
+					CATAPULT_LOG(debug) << "write completed with code " << code;
+				});
 			});
-		});
 
-		auto endpoint = test::CreateLocalHostNodeEndpoint();
-		auto options = test::CreatePacketSocketOptions();
-		options.MaxPacketDataSize = Buffer_Size - sizeof(PacketHeader) - 1;
-		ionet::Connect(pPool->service(), options, endpoint, [&result](auto, const auto& pClientSocket) {
-			pClientSocket->read([pClientSocket, &result](auto code, const auto* pPacket) {
-				CATAPULT_LOG(debug) << "read completed with code " << code;
-				FillResult(result, pClientSocket, code, pPacket);
+			auto endpoint = test::CreateLocalHostNodeEndpoint();
+			auto options = test::CreatePacketSocketOptions();
+			options.MaxPacketDataSize = bufferSize - sizeof(PacketHeader) - adjustmentSize;
+			ionet::Connect(pPool->service(), options, endpoint, [&result](auto, const auto& pClientSocket) {
+				pClientSocket->read([pClientSocket, &result](auto code, const auto* pPacket) {
+					CATAPULT_LOG(debug) << "read completed with code " << code;
+					FillResult(result, pClientSocket, code, pPacket);
+				});
 			});
-		});
-		pPool->join();
+			pPool->join();
 
-		// Assert: the packet should be flagged as malformed because it is too large
-		//         do not use AssertSendBuffersResult beacause the number of unprocessed bytes is non-deterministic
-		//         either the packet header or the entire packet will have been read (the header data marks the packet as malformed)
-		EXPECT_EQ(SocketOperationCode::Malformed_Data, result.Code);
-		EXPECT_LE(sizeof(PacketHeader), result.NumUnprocessedBytes);
-		EXPECT_EQ(1u, result.NumHandlerCalls);
-		EXPECT_FALSE(result.IsPacketValid);
+			// Assert:
+			action(result);
+		}
+	}
+
+	TEST(TEST_CLASS, ConnectHonorsOptions_MaxPacketDataSize) {
+		// Act:
+		RunConnectHonorsOptionsTest(150, 0, [](const auto& result) {
+			// Assert: the packet should be allowed (this test is just checking a limit, so doesn't need to check buffers)
+			AssertSendBuffersResult(result, SocketOperationCode::Success, 0);
+		});
+	}
+
+	TEST(TEST_CLASS, ConnectHonorsOptions_MaxPacketDataSizeExceeded) {
+		// Act:
+		RunConnectHonorsOptionsTest(150, 1, [](const auto& result) {
+			// Assert: the packet should be flagged as malformed because it is too large
+			//         do not use AssertSendBuffersResult beacause the number of unprocessed bytes is non-deterministic
+			//         either the packet header or the entire packet will have been read (the header data marks the packet as malformed)
+			EXPECT_EQ(SocketOperationCode::Malformed_Data, result.Code);
+			EXPECT_LE(sizeof(PacketHeader), result.NumUnprocessedBytes);
+			EXPECT_EQ(1u, result.NumHandlerCalls);
+			EXPECT_FALSE(result.IsPacketValid);
+		});
 	}
 
 	// endregion

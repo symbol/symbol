@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/ionet/ConnectResult.h"
 #include "catapult/ionet/PacketSocket.h"
@@ -12,10 +32,10 @@
 
 namespace catapult { namespace test {
 
-	/// The local node port.
+	/// Local node port.
 	constexpr unsigned short Local_Node_Port = Local_Host_Port;
 
-	/// The local node api port.
+	/// Local node api port.
 	constexpr unsigned short Local_Node_Api_Port = Local_Node_Port + 1;
 
 	/// Possible node flags.
@@ -36,34 +56,34 @@ namespace catapult { namespace test {
 		Simulated_Api = 16
 	};
 
-	MAKE_BITWISE_ENUM(NodeFlag);
+	MAKE_BITWISE_ENUM(NodeFlag)
 
 	// region counter -> stats adapter
 
 	/// Basic statistics about a local node.
 	struct BasicLocalNodeStats {
-		/// The number of active packet readers.
+		/// Number of active packet readers.
 		uint64_t NumActiveReaders;
 
-		/// The number of active packet writers.
+		/// Number of active packet writers.
 		uint64_t NumActiveWriters;
 
-		/// The number of scheduled tasks.
+		/// Number of scheduled tasks.
 		uint64_t NumScheduledTasks;
 
-		/// The number of block elements added to the disruptor.
+		/// Number of block elements added to the disruptor.
 		uint64_t NumAddedBlockElements;
 
-		/// The number of transaction elements added to the disruptor.
+		/// Number of transaction elements added to the disruptor.
 		uint64_t NumAddedTransactionElements;
 	};
 
 	/// Statistics about a local p2p node.
 	struct PeerLocalNodeStats : public BasicLocalNodeStats {
-		/// The number of active broadcast packet writers.
+		/// Number of active broadcast packet writers.
 		uint64_t NumActiveBroadcastWriters;
 
-		/// The number of unlocked accounts.
+		/// Number of unlocked accounts.
 		uint64_t NumUnlockedAccounts;
 	};
 
@@ -203,10 +223,10 @@ namespace catapult { namespace test {
 
 	/// Represents an external connection.
 	struct ExternalConnection {
-		/// The connection thread pool.
+		/// Connection thread pool.
 		std::unique_ptr<thread::IoServiceThreadPool> pPool;
 
-		/// The connection io.
+		/// Connection io.
 		std::shared_ptr<ionet::PacketIo> pIo;
 	};
 

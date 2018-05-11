@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NamespaceMapperTestUtils.h"
 #include "src/mappers/MosaicDescriptor.h"
 #include "src/mappers/NamespaceDescriptor.h"
@@ -69,15 +89,9 @@ namespace catapult { namespace test {
 		auto isRoot = 1 == depth;
 		EXPECT_EQ(isRoot ? Root_Type : Child_Type, GetUint32(dbNamespace, "type"));
 		EXPECT_EQ(depth, GetUint32(dbNamespace, "depth"));
-		EXPECT_EQ(descriptor.Path[0], NamespaceId(GetUint64(dbNamespace, "level0")));
 
-		if (1 < depth) {
-			EXPECT_EQ(descriptor.Path[1], NamespaceId(GetUint64(dbNamespace, "level1")));
-		}
-
-		if (2 < depth) {
-			EXPECT_EQ(descriptor.Path[2], NamespaceId(GetUint64(dbNamespace, "level2")));
-		}
+		for (auto level = 0u; level < depth; ++level)
+			EXPECT_EQ(descriptor.Path[level], NamespaceId(GetUint64(dbNamespace, "level" + std::to_string(level)))) << "level " << level;
 
 		EXPECT_EQ(isRoot ? Namespace_Base_Id : descriptor.Path[depth - 2], NamespaceId(GetUint64(dbNamespace, "parentId")));
 		EXPECT_EQ(descriptor.OwnerAddress, GetAddressValue(dbNamespace, "ownerAddress"));

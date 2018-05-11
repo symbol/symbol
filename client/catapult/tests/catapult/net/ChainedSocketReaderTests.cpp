@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/net/ChainedSocketReader.h"
 #include "catapult/ionet/BufferedPacketIo.h"
 #include "catapult/ionet/PacketSocket.h"
@@ -35,7 +55,7 @@ namespace catapult { namespace net {
 			{}
 
 		public:
-			/// The number of reads to confirm.
+			/// Number of reads to confirm.
 			size_t NumReadsToConfirm;
 
 			/// Hook that is passed every packet as it is read.
@@ -105,7 +125,7 @@ namespace catapult { namespace net {
 
 				// Arrange: set up a packet handler that copies the received packet bytes into receivedBuffers
 				test::RegisterDefaultHandler(handlers, [&](const auto& packet, const auto&) {
-					CATAPULT_LOG(debug) << "server received data " << packet.Size;
+					CATAPULT_LOG(debug) << "server received data: " << packet;
 					receivedBuffers.push_back(test::CopyPacketToBuffer(packet));
 
 					// if this handler is called, the reader must still be valid, so locking the weak_ptr is safe
@@ -124,7 +144,7 @@ namespace catapult { namespace net {
 			});
 
 			// - wait for the test to complete (indicated by the destruction of the reader)
-			WAIT_FOR_EXPR(nullptr == pReader.lock());
+			WAIT_FOR_EXPR(!pReader.lock());
 			pPool->join();
 
 			return std::make_pair(receivedBuffers, completionCode);

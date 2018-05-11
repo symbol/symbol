@@ -1,50 +1,48 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/cache/HashCacheStorage.h"
-#include "tests/test/core/mocks/MockMemoryStream.h"
+#include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
 
-#define TEST_CLASS HashCacheStorageTests
-
 	namespace {
-		using ValueType = state::TimestampedHash;
-		constexpr auto Value_Size = sizeof(Timestamp) + sizeof(ValueType::HashType);
+		struct HashCacheStorageTraits{
+			using ValueType = state::TimestampedHash;
+			static constexpr auto Value_Size = sizeof(Timestamp) + sizeof(ValueType::HashType);
+
+			using StorageType = HashCacheStorage;
+			class CacheType : public HashCache {
+			public:
+				CacheType() : HashCache(CacheConfiguration(), utils::TimeSpan::FromHours(32))
+				{}
+			};
+
+			static auto CreateRandomValue() {
+				ValueType originalValue;
+				test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&originalValue), Value_Size });
+				return originalValue;
+			}
+		};
 	}
 
-	TEST(TEST_CLASS, CanSaveValue) {
-		// Arrange:
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream("", buffer);
-
-		// - create a random value
-		ValueType originalValue;
-		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&originalValue), Value_Size });
-
-		// Act:
-		HashCacheStorage::Save(originalValue, stream);
-
-		// Assert:
-		ASSERT_EQ(Value_Size, buffer.size());
-		const auto& savedValue = reinterpret_cast<const ValueType&>(*buffer.data());
-		EXPECT_EQ(originalValue, savedValue);
-
-		EXPECT_EQ(0u, stream.numFlushes());
-	}
-
-	TEST(TEST_CLASS, CanLoadValue) {
-		// Arrange:
-		HashCache cache(utils::TimeSpan::FromHours(32));
-		auto delta = cache.createDelta();
-
-		std::vector<uint8_t> buffer(Value_Size);
-		test::FillWithRandomData(buffer);
-		mocks::MockMemoryStream stream("", buffer);
-
-		// Act:
-		HashCacheStorage::Load(stream, *delta);
-
-		// Assert:
-		EXPECT_EQ(1u, delta->size());
-		EXPECT_TRUE(delta->contains(reinterpret_cast<const ValueType&>(*buffer.data())));
-	}
+	DEFINE_CONTAINS_ONLY_CACHE_STORAGE_TESTS(HashCacheStorageTests, HashCacheStorageTraits)
 }}

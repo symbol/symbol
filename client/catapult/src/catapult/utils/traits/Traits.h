@@ -1,11 +1,31 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/utils/ClampedBaseValue.h"
 #include <type_traits>
 
 namespace catapult { namespace utils { namespace traits {
 
-	/// If T is an std scalar type or a catapult scalar type, this struct will provide the member constant
-	/// value equal to \c true. For any other type, value is \c false.
+	/// If T is a standard scalar type or a catapult scalar type, this struct will provide the member constant value equal to \c true.
+	/// For any other type, value is \c false.
 	template<typename T>
 	struct is_scalar : std::is_scalar<T>
 	{};
@@ -26,8 +46,9 @@ namespace catapult { namespace utils { namespace traits {
 	struct is_scalar<const X> : is_scalar<typename std::remove_const<X>::type>
 	{};
 
-	/// If T is a std pod type or a catapult scalar type and is not a pointer type, this struct will provide the member constant
-	/// value equal to \c true. For any other type, value is \c false.
+	/// If T is a standard pod type or a catapult scalar type and is not a pointer type, this struct will provide the member constant
+	/// value equal to \c true.
+	/// For any other type, value is \c false.
 	template<typename T>
 	struct is_pod : std::integral_constant<bool, std::is_pod<T>::value && !std::is_pointer<T>::value>
 	{};

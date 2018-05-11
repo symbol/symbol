@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NetworkTestUtils.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/PacketWriters.h"
@@ -26,7 +46,8 @@ namespace catapult { namespace test {
 			if (!pIo)
 				return;
 
-			net::VerifyServer(pIo, serverPublicKey, clientKeyPair, [&isConnected](auto verifyResult, const auto&) {
+			auto serverPeerInfo = net::VerifiedPeerInfo{ serverPublicKey, ionet::ConnectionSecurityMode::None };
+			net::VerifyServer(pIo, serverPeerInfo, clientKeyPair, [&isConnected](auto verifyResult, const auto&) {
 				CATAPULT_LOG(debug) << "node verified with result " << verifyResult;
 				if (net::VerifyResult::Success == verifyResult)
 					isConnected = true;
@@ -63,7 +84,7 @@ namespace catapult { namespace test {
 			io.close();
 		});
 
-		io.read([&io, &buffer, pTimedCallback](auto code, const auto* pPacket) {
+		io.read([&buffer, pTimedCallback](auto code, const auto* pPacket) {
 			// mark the operation completed and process the result
 			pTimedCallback->callback(true);
 			CATAPULT_LOG(debug) << "read completed with: " << code;

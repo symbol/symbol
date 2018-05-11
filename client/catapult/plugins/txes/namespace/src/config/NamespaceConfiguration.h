@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/utils/BlockSpan.h"
 #include <unordered_set>
@@ -9,49 +29,49 @@ namespace catapult { namespace config {
 	/// Namespace plugin configuration settings.
 	struct NamespaceConfiguration {
 	public:
-		/// The maximum namespace and mosaic name size.
+		/// Maximum namespace and mosaic name size.
 		uint8_t MaxNameSize;
 
-		/// The maximum namespace duration.
+		/// Maximum namespace duration.
 		utils::BlockSpan MaxNamespaceDuration;
 
-		/// The grace period during which time only the previous owner can renew an expired namespace.
+		/// Grace period during which time only the previous owner can renew an expired namespace.
 		utils::BlockSpan NamespaceGracePeriodDuration;
 
 		/// Reserved root namespaces that cannot be claimed.
 		std::unordered_set<std::string> ReservedRootNamespaceNames;
 
-		/// The public key of the namespace rental fee sink account.
+		/// Public key of the namespace rental fee sink account.
 		Key NamespaceRentalFeeSinkPublicKey;
 
-		/// The root namespace rental fee per block.
+		/// Root namespace rental fee per block.
 		Amount RootNamespaceRentalFeePerBlock;
 
-		/// The child namespace rental fee.
+		/// Child namespace rental fee.
 		Amount ChildNamespaceRentalFee;
 
-		/// The maximum number of children for a root namespace.
+		/// Maximum number of children for a root namespace.
 		uint16_t MaxChildNamespaces;
 
-		/// The maximum number of mosaics that an account can own.
+		/// Maximum number of mosaics that an account can own.
 		uint16_t MaxMosaicsPerAccount;
 
-		/// The maximum mosaic duration.
+		/// Maximum mosaic duration.
 		utils::BlockSpan MaxMosaicDuration;
 
 		/// Flag indicating whether an update of an existing mosaic levy is allowed or not.
 		bool IsMosaicLevyUpdateAllowed;
 
-		/// The maximum mosaic divisibility.
+		/// Maximum mosaic divisibility.
 		uint8_t MaxMosaicDivisibility;
 
-		/// The maximum total divisible mosaic units (total-supply * 10 ^ divisibility).
+		/// Maximum total divisible mosaic units (total-supply * 10 ^ divisibility).
 		Amount MaxMosaicDivisibleUnits;
 
-		/// The public key of the mosaic rental fee sink account.
+		/// Public key of the mosaic rental fee sink account.
 		Key MosaicRentalFeeSinkPublicKey;
 
-		/// The mosaic rental fee.
+		/// Mosaic rental fee.
 		Amount MosaicRentalFee;
 
 	private:

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "SchedulerService.h"
 #include "TasksConfiguration.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -41,8 +61,20 @@ namespace catapult { namespace sync {
 					CATAPULT_THROW_INVALID_ARGUMENT_1("unable to schedule task without config entry", unscheduledTask.Name);
 
 				auto scheduledTask = unscheduledTask;
-				scheduledTask.StartDelay = iter->second.StartDelay;
-				scheduledTask.RepeatDelay = iter->second.RepeatDelay;
+				if (TasksConfiguration::TaskType::Uniform == iter->second.TaskType) {
+					const auto& taskConfig = iter->second.Uniform;
+					scheduledTask.StartDelay = taskConfig.StartDelay;
+					scheduledTask.NextDelay = thread::CreateUniformDelayGenerator(taskConfig.RepeatDelay);
+				} else {
+					const auto& taskConfig = iter->second.Decelerating;
+					scheduledTask.StartDelay = taskConfig.StartDelay;
+					scheduledTask.NextDelay = thread::CreateIncreasingDelayGenerator(
+							taskConfig.MinDelay,
+							taskConfig.NumPhaseOneRounds,
+							taskConfig.MaxDelay,
+							taskConfig.NumTransitionRounds);
+				}
+
 				return scheduledTask;
 			}
 

@@ -1,7 +1,28 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "CacheStorageAdapter.h"
 #include "SubCachePlugin.h"
 #include <memory>
+#include <sstream>
 
 namespace catapult { namespace cache {
 
@@ -10,8 +31,16 @@ namespace catapult { namespace cache {
 	class SubCachePluginAdapter : public SubCachePlugin {
 	public:
 		/// Creates an adapter around \a pCache.
-		explicit SubCachePluginAdapter(std::unique_ptr<TCache>&& pCache) : m_pCache(std::move(pCache))
-		{}
+		explicit SubCachePluginAdapter(std::unique_ptr<TCache>&& pCache) : m_pCache(std::move(pCache)) {
+			std::ostringstream out;
+			out << TCache::Name << " (id = " << TCache::Id << ")";
+			m_name = out.str();
+		}
+
+	public:
+		const std::string& name() const override {
+			return m_name;
+		}
 
 	public:
 		std::unique_ptr<const SubCacheView> createView() const override {
@@ -37,8 +66,15 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-		std::unique_ptr<CacheStorage> createStorage(const cache::CatapultCache& catapultCache) override {
-			return std::make_unique<CacheStorageAdapter<TCache, TStorageTraits>>(*m_pCache, catapultCache);
+		std::unique_ptr<CacheStorage> createStorage() override {
+			return IsCacheStorageSupported(*m_pCache)
+					? std::make_unique<CacheStorageAdapter<TCache, TStorageTraits>>(*m_pCache)
+					: nullptr;
+		}
+
+	private:
+		bool IsCacheStorageSupported(const TCache& cache) {
+			return !!cache.createView()->tryMakeIterableView();
 		}
 
 	private:
@@ -84,5 +120,6 @@ namespace catapult { namespace cache {
 
 	private:
 		std::unique_ptr<TCache> m_pCache;
+		std::string m_name;
 	};
 }}

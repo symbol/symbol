@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/model/Notifications.h"
 #include "catapult/model/Transaction.h"
@@ -41,7 +61,7 @@ namespace catapult { namespace mocks {
 	/// Notifies the arrival of a hash.
 	struct HashNotification : public model::Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Mock_Hash_Notification;
 
 	public:
@@ -52,7 +72,7 @@ namespace catapult { namespace mocks {
 		{}
 
 	public:
-		/// The hash.
+		/// Hash.
 		const Hash256& Hash;
 	};
 
@@ -76,15 +96,15 @@ namespace catapult { namespace mocks {
 	public:
 		/// Binary layout for a variable data header.
 		struct VariableDataHeader {
-			/// The size of the data.
+			/// Size of the data.
 			uint16_t Size;
 		};
 
 	public:
-		/// The transaction recipient.
+		/// Transaction recipient.
 		Key Recipient;
 
-		/// The header for variable data.
+		/// Variable data header.
 		VariableDataHeader Data;
 
 		// followed by data if Data.Size != 0

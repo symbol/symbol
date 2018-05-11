@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/cache/CatapultCache.h"
 #include "tests/test/cache/SimpleCache.h"
@@ -12,14 +32,48 @@ namespace catapult { namespace plugins {
 
 	// region basic
 
-	TEST(TEST_CLASS, CanCreateManager) {
+	TEST(TEST_CLASS, CanCreateDefaultStorageConfiguration) {
 		// Act:
+		StorageConfiguration config;
+
+		// Assert:
+		EXPECT_FALSE(config.PreferCacheDatabase);
+		EXPECT_TRUE(config.CacheDatabaseDirectory.empty());
+	}
+
+	TEST(TEST_CLASS, CanCreateManager) {
+		// Arrange:
 		auto config = model::BlockChainConfiguration::Uninitialized();
 		config.BlockPruneInterval = 15;
-		PluginManager manager(config);
 
-		// Assert: compare BlockPruneInterval as a sentinel value because the manager copies the config
+		auto storageConfig = StorageConfiguration();
+		storageConfig.CacheDatabaseDirectory = "abc";
+
+		// Act:
+		PluginManager manager(config, storageConfig);
+
+		// Assert: compare BlockPruneInterval and CacheDatabaseDirectory as sentinel values because the manager copies the configs
 		EXPECT_EQ(15u, manager.config().BlockPruneInterval);
+		EXPECT_EQ("abc", manager.storageConfig().CacheDatabaseDirectory);
+	}
+
+	TEST(TEST_CLASS, CanCreateCacheConfiguration) {
+		// Arrange:
+		auto storageConfig = StorageConfiguration();
+		storageConfig.PreferCacheDatabase = true;
+		storageConfig.CacheDatabaseDirectory = "abc";
+
+		// Act:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), storageConfig);
+
+		// Assert: cache configuration is constructed appropriately
+		auto cacheConfig1 = manager.cacheConfig("foo");
+		EXPECT_TRUE(cacheConfig1.ShouldUseCacheDatabase);
+		EXPECT_EQ("abc/foo", cacheConfig1.CacheDatabaseDirectory);
+
+		auto cacheConfig2 = manager.cacheConfig("bar");
+		EXPECT_TRUE(cacheConfig2.ShouldUseCacheDatabase);
+		EXPECT_EQ("abc/bar", cacheConfig2.CacheDatabaseDirectory);
 	}
 
 	// endregion
@@ -28,7 +82,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanRegisterCustomTransactions) {
 		// Arrange:
-		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 
 		// Act:
 		for (auto i : { 7, 9, 4 })
@@ -56,7 +110,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanRegisterCustomCaches) {
 		// Arrange:
-		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 
 		// Act:
 		AddSubCacheWithId<7>(manager);
@@ -77,7 +131,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanRegisterCustomDiagnosticHandlers) {
 		// Arrange:
-		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 
 		// Act:
 		manager.addDiagnosticHandlerHook([](auto& handlers, const auto&) {
@@ -112,7 +166,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanRegisterCustomDiagnosticCounters) {
 		// Arrange:
-		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 
 		// Act:
 		manager.addDiagnosticCounterHook([](auto& counters, const auto&) {
@@ -172,7 +226,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanRegisterStatelessValidators) {
 		// Arrange:
-		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 		manager.addStatelessValidatorHook([](auto& builder) {
 			builder.add(CreateNamedStatelessValidator("alpha"));
 			builder.add(CreateNamedStatelessValidator("beta"));
@@ -201,7 +255,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanCreateStatelessValidatorWithNoSuppressedFailureFiltering) {
 		// Arrange:
-		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 		manager.addStatelessValidatorHook([](auto& builder) {
 			builder.add(CreateNamedStatelessValidator("alpha"));
 		});
@@ -215,7 +269,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanCreateStatelessValidatorWithCustomSuppressedFailureFiltering) {
 		// Arrange:
-		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 		manager.addStatelessValidatorHook([](auto& builder) {
 			builder.add(CreateNamedStatelessValidator("alpha"));
 		});
@@ -233,7 +287,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanRegisterStatefulValidators) {
 		// Arrange:
-		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 		manager.addStatefulValidatorHook([](auto& builder) {
 			builder.add(CreateNamedStatefulValidator("alpha"));
 			builder.add(CreateNamedStatefulValidator("beta"));
@@ -264,7 +318,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanCreateStatefulValidatorWithNoSuppressedFailureFiltering) {
 		// Arrange:
-		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 		manager.addStatefulValidatorHook([](auto& builder) {
 			builder.add(CreateNamedStatefulValidator("alpha"));
 		});
@@ -278,7 +332,7 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanCreateStatefulValidatorWithCustomSuppressedFailureFiltering) {
 		// Arrange:
-		PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 		manager.addStatefulValidatorHook([](auto& builder) {
 			builder.add(CreateNamedStatefulValidator("alpha"));
 		});
@@ -320,7 +374,7 @@ namespace catapult { namespace plugins {
 		template<typename TAction>
 		void RunObserverTest(TAction action) {
 			// Arrange:
-			PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+			PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 			manager.addObserverHook([](auto& builder) {
 				builder.add(CreateNamedObserver("alpha"));
 				builder.add(CreateNamedObserver("beta"));
@@ -372,7 +426,7 @@ namespace catapult { namespace plugins {
 		template<typename TPublisherFactory>
 		void AssertCanCreateNotificationPublisher(size_t expectedNumNotifications, TPublisherFactory publisherFactory) {
 			// Arrange:
-			PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+			PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 			manager.addTransactionSupport(mocks::CreateMockTransactionPlugin());
 
 			auto pTransaction = mocks::CreateMockTransaction(0);

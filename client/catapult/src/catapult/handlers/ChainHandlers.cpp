@@ -1,8 +1,29 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "ChainHandlers.h"
 #include "HandlerUtils.h"
 #include "catapult/api/ChainPackets.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/ionet/PacketEntityUtils.h"
+#include "catapult/ionet/PacketPayloadFactory.h"
 #include "catapult/model/Block.h"
 #include "catapult/model/BlockUtils.h"
 
@@ -46,14 +67,14 @@ namespace catapult { namespace handlers {
 				ionet::ServerPacketHandlerContext& context,
 				bool allowZeroHeight) {
 			const auto* pRequest = ionet::CoercePacket<TRequest>(&packet);
-			if (nullptr == pRequest)
+			if (!pRequest)
 				return HeightRequestInfo<TRequest>();
 
 			HeightRequestInfo<TRequest> info;
 			info.ChainHeight = storage.chainHeight();
 			CATAPULT_LOG(trace) << "local height = " << info.ChainHeight << ", request height = " << pRequest->Height;
 			if (info.ChainHeight < pRequest->Height || (!allowZeroHeight && Height(0) == pRequest->Height)) {
-				context.response(CreateResponsePacket<TRequest>(0));
+				context.response(ionet::PacketPayload(CreateResponsePacket<TRequest>(0)));
 				return HeightRequestInfo<TRequest>();
 			}
 
@@ -66,14 +87,14 @@ namespace catapult { namespace handlers {
 				using RequestType = api::PullBlockRequest;
 				auto storageView = storage.view();
 				auto info = ProcessHeightRequest<RequestType>(storageView, packet, context, true);
-				if (nullptr == info.pRequest)
+				if (!info.pRequest)
 					return;
 
 				auto height = info.pRequest->Height;
 				height = Height(0) == height ? info.ChainHeight : height;
 				auto pBlock = storageView.loadBlock(height);
 
-				auto payload = ionet::PacketPayload::FromEntity(RequestType::Packet_Type, std::move(pBlock));
+				auto payload = ionet::PacketPayloadFactory::FromEntity(RequestType::Packet_Type, std::move(pBlock));
 				context.response(std::move(payload));
 			};
 		}
@@ -96,7 +117,7 @@ namespace catapult { namespace handlers {
 				auto scoreArray = chainScoreSupplier().toArray();
 				pResponsePacket->ScoreHigh = scoreArray[0];
 				pResponsePacket->ScoreLow = scoreArray[1];
-				context.response(pResponsePacket);
+				context.response(ionet::PacketPayload(pResponsePacket));
 			};
 		}
 	}
@@ -114,11 +135,11 @@ namespace catapult { namespace handlers {
 				using RequestType = api::BlockHashesRequest;
 				auto storageView = storage.view();
 				auto info = ProcessHeightRequest<RequestType>(storageView, packet, context, false);
-				if (nullptr == info.pRequest)
+				if (!info.pRequest)
 					return;
 
 				auto hashes = storageView.loadHashesFrom(info.pRequest->Height, maxHashes);
-				auto payload = ionet::PacketPayload::FromFixedSizeRange(RequestType::Packet_Type, std::move(hashes));
+				auto payload = ionet::PacketPayloadFactory::FromFixedSizeRange(RequestType::Packet_Type, std::move(hashes));
 				context.response(std::move(payload));
 			};
 		}
@@ -145,7 +166,7 @@ namespace catapult { namespace handlers {
 				using RequestType = api::PullBlocksRequest;
 				auto storageView = storage.view();
 				auto info = ProcessHeightRequest<RequestType>(storageView, packet, context, false);
-				if (nullptr == info.pRequest)
+				if (!info.pRequest)
 					return;
 
 				auto numBlocks = ClampNumBlocks(info, config);
@@ -163,7 +184,7 @@ namespace catapult { namespace handlers {
 					blocks.push_back(std::move(pBlock));
 				}
 
-				auto payload = ionet::PacketPayload::FromEntities(RequestType::Packet_Type, blocks);
+				auto payload = ionet::PacketPayloadFactory::FromEntities(RequestType::Packet_Type, blocks);
 				context.response(std::move(payload));
 			};
 		}

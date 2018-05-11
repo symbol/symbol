@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/config/ValidateConfiguration.h"
 #include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/utils/ConfigurationBag.h"
@@ -78,13 +98,13 @@ namespace catapult { namespace config {
 
 	TEST(TEST_CLASS, ImportanceGroupingIsValidatedAgainstMaxRollbackBlocks) {
 		// Arrange:
-		auto assertNoThrow = [](auto importanceGrouping, auto maxRollbackBlocks) {
+		auto assertNoThrow = [](uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
 			auto blockChainConfig = CreateImportanceGroupingConfiguration(importanceGrouping, maxRollbackBlocks);
 			EXPECT_NO_THROW(CreateAndValidateLocalNodeConfiguration(std::move(blockChainConfig)))
 					<< "IG " << importanceGrouping << ", MRB " << maxRollbackBlocks;
 		};
 
-		auto assertThrow = [](auto importanceGrouping, auto maxRollbackBlocks) {
+		auto assertThrow = [](uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
 			auto blockChainConfig = CreateImportanceGroupingConfiguration(importanceGrouping, maxRollbackBlocks);
 			EXPECT_THROW(CreateAndValidateLocalNodeConfiguration(std::move(blockChainConfig)), utils::property_malformed_error)
 					<< "IG " << importanceGrouping << ", MRB " << maxRollbackBlocks;
@@ -92,13 +112,13 @@ namespace catapult { namespace config {
 
 		// Act + Assert:
 		// - no exceptions
-		assertNoThrow(181u, 360u); // 2 * IG > MRB
-		assertNoThrow(400u, 360u); // IG > MRB
+		assertNoThrow(181, 360); // 2 * IG > MRB
+		assertNoThrow(400, 360); // IG > MRB
 
 		// - exceptions
-		assertThrow(0u, 360u); // 0 IG
-		assertThrow(180u, 360u); // 2 * IG == MRB
-		assertThrow(179u, 360u); // 2 * IG < MRB
+		assertThrow(0, 360); // 0 IG
+		assertThrow(180, 360); // 2 * IG == MRB
+		assertThrow(179, 360); // 2 * IG < MRB
 	}
 
 	// endregion

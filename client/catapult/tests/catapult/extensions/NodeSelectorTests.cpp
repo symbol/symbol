@@ -1,6 +1,27 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/extensions/NodeSelector.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "tests/test/net/NodeTestUtils.h"
+#include "tests/test/other/NodeSelectorTestUtils.h"
 #include "tests/TestHarness.h"
 #include <random>
 
@@ -106,6 +127,175 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(1'230u, CalculateWeightFromAttempts(123, 877));
 		EXPECT_EQ(1u, CalculateWeightFromAttempts(100, 9'999'900)); // 1 (> 100 / 10'000'000 * 10'000) is the weight lower bound
 	}
+
+	// endregion
+
+	// region SelectCandidatesBasedOnWeight
+
+	TEST(TEST_CLASS, ReturnsNoCandidatesWhenContainerIsEmpty_SelectCandidatesBasedOnWeight) {
+		// Arrange:
+		WeightedCandidates candidates;
+
+		// Act:
+		auto nodes = SelectCandidatesBasedOnWeight(candidates, 1234, 5);
+
+		// Assert:
+		EXPECT_TRUE(nodes.empty());
+	}
+
+	namespace {
+		ionet::NodeSet CreateNamedNodes(const std::vector<Key>& keys) {
+			ionet::NodeSet nodes;
+			for (auto i = 0u; i < keys.size(); ++i)
+				nodes.emplace(test::CreateNamedNode(keys[i], "Node" + std::to_string(i + 1)));
+
+			return nodes;
+		}
+
+		void AssertReturnsAllCandidates(size_t numCandidates, size_t maxCandidates) {
+			// Arrange:
+			auto keys = test::GenerateRandomDataVector<Key>(numCandidates);
+			auto expectedNodes = CreateNamedNodes(keys);
+			WeightedCandidates candidates;
+			for (const auto& node : expectedNodes)
+				candidates.push_back(WeightedCandidate(node, 100));
+
+			// Act:
+			auto nodes = SelectCandidatesBasedOnWeight(candidates, numCandidates * 100u, maxCandidates);
+
+			// Assert:
+			EXPECT_EQ(numCandidates, nodes.size());
+			EXPECT_EQ(expectedNodes, nodes);
+		}
+	}
+
+	TEST(TEST_CLASS, ReturnsAllCandidatesWhenContainerSizeIsLessThanMaxCandidates_SelectCandidatesBasedOnWeight) {
+		// Assert:
+		AssertReturnsAllCandidates(1, 5);
+		AssertReturnsAllCandidates(2, 5);
+		AssertReturnsAllCandidates(4, 5);
+	}
+
+	TEST(TEST_CLASS, ReturnsAllCandidatesWhenContainerSizeIsEqualToMaxCandidates_SelectCandidatesBasedOnWeight) {
+		// Assert:
+		AssertReturnsAllCandidates(1, 1);
+		AssertReturnsAllCandidates(5, 5);
+		AssertReturnsAllCandidates(10, 10);
+	}
+
+	TEST(TEST_CLASS, ReturnsMaxCandidatesWhenContainerSizeIsGreaterThanMaxCandidates_SelectCandidatesBasedOnWeight) {
+		// Arrange:
+		auto keys = test::GenerateRandomDataVector<Key>(5);
+		auto allNodes = CreateNamedNodes(keys);
+
+		WeightedCandidates candidates;
+		for (const auto& node : allNodes)
+			candidates.push_back(WeightedCandidate(node, 100));
+
+		// Act:
+		auto nodes = SelectCandidatesBasedOnWeight(candidates, 500u, 3);
+		auto allKeys = test::ExtractNodeIdentities(allNodes);
+
+		// Assert:
+		EXPECT_EQ(3u, nodes.size());
+		for (const auto& node : nodes)
+			EXPECT_TRUE(allKeys.cend() != allKeys.find(node.identityKey()));
+	}
+
+	// endregion
+
+	// region probability test
+
+	namespace {
+		struct SelectCandidatesBasedOnWeightTraits {
+		public:
+			using KeyStatistics = std::unordered_map<Key, uint32_t, utils::ArrayHasher<Key>>;
+			static constexpr auto Description() { return "select candidates and weight correlation"; }
+
+			static KeyStatistics CreateStatistics(
+					const std::vector<ionet::Node>& nodes,
+					const std::vector<uint64_t>& rawWeights,
+					uint64_t numIterations) {
+				KeyStatistics keyStatistics;
+				for (auto i = 0u; i < numIterations; ++i) {
+					auto index = 0u;
+					uint64_t cumulativeWeight = 0u;
+					WeightedCandidates candidates;
+					for (const auto& node : nodes) {
+						cumulativeWeight += rawWeights[index];
+						candidates.push_back(WeightedCandidate(node, rawWeights[index++]));
+					}
+
+					auto selectedNodes = SelectCandidatesBasedOnWeight(candidates, cumulativeWeight, 1);
+					if (1u != selectedNodes.size())
+						CATAPULT_THROW_RUNTIME_ERROR_1("unexpected number of nodes were selected", selectedNodes.size());
+
+					++keyStatistics[selectedNodes.cbegin()->identityKey()];
+				}
+
+				return keyStatistics;
+			}
+		};
+
+		struct SelectNodesTraits {
+		public:
+			using KeyStatistics = std::unordered_map<Key, uint32_t, utils::ArrayHasher<Key>>;
+			static constexpr auto Description() { return "select nodes and weight correlation"; }
+
+			static KeyStatistics CreateStatistics(
+					const std::vector<ionet::Node>& nodes,
+					const std::vector<uint64_t>& rawWeights,
+					uint64_t numIterations) {
+				KeyStatistics keyStatistics;
+				ionet::NodeContainer container;
+				SeedNodeContainer(container, nodes, CreateConnectionStates(rawWeights));
+				NodeSelectionConfiguration config{ Default_Service_Id, ionet::NodeRoles::None, 1, 1234 };
+				for (auto i = 0u; i < numIterations; ++i) {
+					auto nodeSelectionResult = SelectNodes(container, config);
+					const auto& selectedNodes = nodeSelectionResult.AddCandidates;
+					if (1u != selectedNodes.size())
+						CATAPULT_THROW_RUNTIME_ERROR_1("unexpected number of nodes were selected", selectedNodes.size());
+
+					++keyStatistics[selectedNodes.cbegin()->identityKey()];
+				}
+
+				return keyStatistics;
+			}
+
+		private:
+			static void SeedNodeContainer(
+					ionet::NodeContainer& container,
+					const std::vector<ionet::Node>& nodes,
+					const std::vector<ionet::ConnectionState>& connectionState) {
+				auto modifier = container.modifier();
+				for (auto i = 0u; i < nodes.size(); ++i) {
+					modifier.add(nodes[i], ionet::NodeSource::Dynamic);
+					modifier.provisionConnectionState(Default_Service_Id, nodes[i].identityKey()) = connectionState[i];
+				}
+			}
+
+			static std::vector<ionet::ConnectionState> CreateConnectionStates(const std::vector<uint64_t>& rawWeights) {
+				// weights have to be in the range from 1 to 10'000
+				// NumFailures is deliberately set to 1'000 to make weight calculation easy to follow
+				auto maxWeight = *std::max_element(rawWeights.cbegin(), rawWeights.cend());
+				std::vector<ionet::ConnectionState> connectionStates;
+				for (auto rawWeight : rawWeights) {
+					auto scaledRawWeight = static_cast<uint32_t>(rawWeight * 10'000ull / maxWeight);
+					ionet::ConnectionState connectionState;
+					connectionState.Age = 0;
+					connectionState.NumAttempts = 10'000;
+					connectionState.NumSuccesses = scaledRawWeight;
+					connectionState.NumFailures = 1'000;
+					connectionStates.push_back(connectionState);
+				}
+
+				return connectionStates;
+			}
+		};
+	}
+
+	DEFINE_NODE_SELECTOR_PROBABILITY_TESTS(SelectCandidatesBasedOnWeight)
+	DEFINE_NODE_SELECTOR_PROBABILITY_TESTS(SelectNodes)
 
 	// endregion
 
@@ -316,7 +506,7 @@ namespace catapult { namespace extensions {
 
 			// Act: run a lot of selections
 			std::pair<uint32_t, uint32_t> counts(0, 0);
-			for (auto i = 0u; i < 1000u; ++i) {
+			for (auto i = 0u; i < 1000; ++i) {
 				auto result = SelectNodes(container, CreateConfiguration(1, 8));
 				if (1 != result.AddCandidates.size())
 					CATAPULT_THROW_RUNTIME_ERROR("unexpected number of candidate nodes returned");

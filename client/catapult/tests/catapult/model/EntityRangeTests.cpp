@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/model/EntityRange.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/IteratorTestTraits.h"
@@ -453,7 +473,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanMergeMultipleEmptyEntityRanges) {
 		// Arrange
 		std::vector<EntityRange<uint32_t>> ranges;
-		for (auto i = 0u; i < 10u; ++i)
+		for (auto i = 0u; i < 10; ++i)
 			ranges.push_back(EntityRange<uint32_t>());
 
 		// Act:
@@ -515,7 +535,7 @@ namespace catapult { namespace model {
 		// Arrange
 		std::vector<EntityRange<uint32_t>> ranges;
 		ranges.push_back(TTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 }));
-		for (auto i = 0u; i < 5u; ++i)
+		for (auto i = 0u; i < 5; ++i)
 			ranges.push_back(EntityRange<uint32_t>());
 
 		ranges.push_back(TTraits::CreateRange(Single_Entity_Buffer, { 0 }));
@@ -549,7 +569,7 @@ namespace catapult { namespace model {
 		void RunHeterogeneousMergeRangesTest(TFunc func) {
 			// Arrange: merge all types of ranges (single-buffer, single-entity, multi-buffer)
 			std::vector<std::unique_ptr<Block>> blocks;
-			for (auto i = 0u; i < 6u; ++i)
+			for (auto i = 0u; i < 6; ++i)
 				blocks.push_back(test::GenerateEmptyRandomBlock());
 
 			std::vector<BlockRange> ranges;

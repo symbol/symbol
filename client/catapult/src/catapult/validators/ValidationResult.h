@@ -20,7 +20,7 @@ namespace catapult { namespace validators {
 	enum class ResultFlags : uint8_t {
 		/// No special result flags are set.
 		None,
-		/// The result is verbose and should be suppressed from most logs.
+		/// Result is verbose and should be suppressed from most logs.
 		Verbose = 1
 	};
 

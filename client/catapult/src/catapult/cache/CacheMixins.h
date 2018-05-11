@@ -1,6 +1,27 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "IdentifierGroupCacheUtils.h"
 #include "catapult/deltaset/BaseSetDelta.h"
+#include "catapult/deltaset/BaseSetIterationView.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/IdentifierGroup.h"
@@ -49,75 +70,42 @@ namespace catapult { namespace cache {
 	};
 
 	/// A mixin for adding iteration support to a cache.
-	template<typename TSet, typename TCacheDescriptor>
-	class BasicIterationMixin {
-	private:
-		using KeyType = typename TCacheDescriptor::KeyType;
-		using ValueType = typename TCacheDescriptor::ValueType;
-
-	protected:
-		/// Creates a mixin around \a set.
-		explicit BasicIterationMixin(const TSet& set) : m_set(set)
-		{}
-
+	template<typename TSet>
+	class IterationMixin {
 	public:
-		/// Returns a const iterator to the first element of the underlying set.
-		auto begin() const {
-			return m_set.begin();
-		}
+		/// An iterable view of the cache.
+		struct IterableView {
+		public:
+			/// Creates a view around \a set.
+			explicit IterableView(const TSet& set) : m_set(set)
+			{}
 
-		/// Returns a const iterator to the element following the last element of the underlying set.
-		auto end() const {
-			return m_set.end();
-		}
+		public:
+			/// Returns a const iterator to the first element of the underlying set.
+			auto begin() const {
+				return MakeIterableView(m_set).begin();
+			}
 
-	private:
-		const TSet& m_set;
-	};
+			/// Returns a const iterator to the element following the last element of the underlying set.
+			auto end() const {
+				return MakeIterableView(m_set).end();
+			}
 
-	/// A mixin for adding iteration support to a map-based cache.
-	template<typename TSet, typename TCacheDescriptor>
-	class MapIterationMixin : public BasicIterationMixin<TSet, TCacheDescriptor> {
-	private:
-		using KeyType = typename TCacheDescriptor::KeyType;
-		using ValueType = typename TCacheDescriptor::ValueType;
+		private:
+			const TSet& m_set;
+		};
 
 	public:
 		/// Creates a mixin around \a set.
-		explicit MapIterationMixin(const TSet& set)
-				: BasicIterationMixin<TSet, TCacheDescriptor>(set)
-				, m_set(set)
+		explicit IterationMixin(const TSet& set) : m_set(set)
 		{}
 
 	public:
-		/// Calls \a consumer for all elements in the cache.
-		void forEach(const consumer<const KeyType&, const ValueType&>& consumer) const {
-			for (auto iter = this->begin(); this->end() != iter; ++iter)
-				consumer(iter->first, iter->second);
-		}
-
-	private:
-		const TSet& m_set;
-	};
-
-	/// A mixin for adding iteration support to a set-based cache.
-	template<typename TSet, typename TCacheDescriptor>
-	class SetIterationMixin : public BasicIterationMixin<TSet, TCacheDescriptor> {
-	private:
-		using ValueType = typename TCacheDescriptor::ValueType;
-
-	public:
-		/// Creates a mixin around \a set.
-		explicit SetIterationMixin(const TSet& set)
-				: BasicIterationMixin<TSet, TCacheDescriptor>(set)
-				, m_set(set)
-		{}
-
-	public:
-		/// Calls \a consumer for all elements in the cache.
-		void forEach(const consumer<const ValueType&>& consumer) const {
-			for (auto iter = this->begin(); this->end() != iter; ++iter)
-				consumer(*iter);
+		/// Creates an iterable view of the cache.
+		/// \note \c nullptr will be returned if the cache does not support iteration.
+		auto tryMakeIterableView() const {
+			// use argument dependent lookup to resolve IsBaseSetIterable
+			return IsBaseSetIterable(m_set) ? std::make_unique<IterableView>(m_set) : nullptr;
 		}
 
 	private:
@@ -125,16 +113,18 @@ namespace catapult { namespace cache {
 	};
 
 	namespace detail {
-		template<typename T>
+		template<typename TCacheDescriptor, typename T>
 		[[noreturn]]
-		void ThrowInvalidKeyError(const char* message, const T& key) {
-			CATAPULT_THROW_INVALID_ARGUMENT_1(("value with key is " + std::string(message)).c_str(), key);
+		void ThrowInvalidKeyError(const char* keyState, const T& key) {
+			std::ostringstream out;
+			out << "value with key '" << key << "' is " << keyState << " in cache (" << TCacheDescriptor::Name << ")";
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 		}
 
-		template<size_t N>
+		template<typename TCacheDescriptor, size_t N>
 		[[noreturn]]
-		void ThrowInvalidKeyError(const char* message, const std::array<uint8_t, N>& key) {
-			ThrowInvalidKeyError(message, utils::HexFormat(key));
+		void ThrowInvalidKeyError(const char* keyState, const std::array<uint8_t, N>& key) {
+			ThrowInvalidKeyError<TCacheDescriptor>(keyState, utils::HexFormat(key));
 		}
 
 		template<typename TValue>
@@ -168,7 +158,7 @@ namespace catapult { namespace cache {
 		const ValueType& get(const KeyType& key) const {
 			const auto* pValue = tryGet(key);
 			if (!pValue)
-				detail::ThrowInvalidKeyError("not in cache", key);
+				detail::ThrowInvalidKeyError<TCacheDescriptor>("not", key);
 
 			return *pValue;
 		}
@@ -205,7 +195,7 @@ namespace catapult { namespace cache {
 		ValueType& get(const KeyType& key) {
 			auto* pValue = tryGet(key);
 			if (!pValue)
-				detail::ThrowInvalidKeyError("not in cache", key);
+				detail::ThrowInvalidKeyError<TCacheDescriptor>("not", key);
 
 			return *pValue;
 		}
@@ -262,7 +252,7 @@ namespace catapult { namespace cache {
 				return;
 
 			CATAPULT_LOG(error) << "insert failed with " << utils::to_underlying_type(result);
-			detail::ThrowInvalidKeyError("already in cache", TCacheDescriptor::GetKeyFromValue(value));
+			detail::ThrowInvalidKeyError<TCacheDescriptor>("already", TCacheDescriptor::GetKeyFromValue(value));
 		}
 
 		/// Removes the value identified by \a key from the cache.
@@ -272,7 +262,7 @@ namespace catapult { namespace cache {
 				return;
 
 			CATAPULT_LOG(error) << "remove failed with " << utils::to_underlying_type(result);
-			detail::ThrowInvalidKeyError("not in cache", key);
+			detail::ThrowInvalidKeyError<TCacheDescriptor>("not", key);
 		}
 
 	private:

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "CoreSystem.h"
 #include "handlers/CoreDiagnosticHandlers.h"
 #include "observers/Observers.h"
@@ -18,11 +38,14 @@ namespace catapult { namespace plugins {
 		void AddAccountStateCache(PluginManager& manager, const model::BlockChainConfiguration& config) {
 			using namespace catapult::cache;
 
-			auto accountStateCacheOptions = CreateAccountStateCacheOptions(config);
-			manager.addCacheSupport<AccountStateCacheStorage>(std::make_unique<AccountStateCache>(accountStateCacheOptions));
+			auto cacheConfig = manager.cacheConfig(AccountStateCache::Name);
+			auto cacheOptions = CreateAccountStateCacheOptions(config);
+			manager.addCacheSupport<AccountStateCacheStorage>(std::make_unique<AccountStateCache>(cacheConfig, cacheOptions));
 
 			manager.addDiagnosticHandlerHook([](auto& handlers, const CatapultCache& cache) {
-				handlers::RegisterAccountInfosHandler(handlers, handlers::CreateAccountInfosSupplier(cache.sub<AccountStateCache>()));
+				handlers::RegisterAccountInfosHandler(
+						handlers,
+						handlers::CreateAccountInfosProducerFactory(cache.sub<AccountStateCache>()));
 			});
 
 			manager.addDiagnosticCounterHook([](auto& counters, const CatapultCache& cache) {
@@ -68,7 +91,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateBalanceTransferValidator());
 		});
 
-		manager.addObserverHook([&config](auto& builder) {
+		manager.addObserverHook([](auto& builder) {
 			builder
 				.add(observers::CreateAccountAddressObserver())
 				.add(observers::CreateAccountPublicKeyObserver())

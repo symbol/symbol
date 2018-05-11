@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "MosaicEntityType.h"
 #include "MosaicProperties.h"
@@ -15,33 +35,31 @@ namespace catapult { namespace model {
 		using TransactionType = MosaicDefinitionTransactionBody<THeader>;
 
 	public:
-		/// Transaction format version.
-		static constexpr uint8_t Current_Version = 2;
-
-		/// Transaction type.
-		static constexpr EntityType Entity_Type = Entity_Type_Mosaic_Definition;
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Definition, 2)
 
 	public:
-		/// The id of a parent namespace.
+		/// Id of the parent namespace.
 		NamespaceId ParentId;
 
-		/// The id of the mosaic.
+		/// Id of the mosaic.
 		/// \note This must match the generated id.
 		catapult::MosaicId MosaicId;
 
-		/// The size of a mosaic name.
+		/// Size of the mosaic name.
 		uint8_t MosaicNameSize;
 
 		/// Properties header.
 		MosaicPropertiesHeader PropertiesHeader;
 
 		// followed by mosaic name
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Name, uint8_t)
 
 		// followed by optional properties
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Properties, MosaicProperty)
 
 	private:
 		template<typename T>
-		static auto NamePtrT(T& transaction) {
+		static auto* NamePtrT(T& transaction) {
 			return transaction.MosaicNameSize ? THeader::PayloadStart(transaction) : nullptr;
 		}
 
@@ -51,27 +69,6 @@ namespace catapult { namespace model {
 			return transaction.PropertiesHeader.Count && pPayloadStart
 					? pPayloadStart + transaction.MosaicNameSize
 					: nullptr;
-		}
-
-	public:
-		/// Returns a const pointer to the mosaic name.
-		const uint8_t* NamePtr() const {
-			return NamePtrT(*this);
-		}
-
-		/// Returns a pointer to the mosaic name.
-		uint8_t* NamePtr() {
-			return NamePtrT(*this);
-		}
-
-		/// Returns a const pointer to optional properties.
-		const MosaicProperty* PropertiesPtr() const {
-			return reinterpret_cast<const MosaicProperty*>(PropertiesPtrT(*this));
-		}
-
-		/// Returns a pointer to optional properties.
-		MosaicProperty* PropertiesPtr() {
-			return reinterpret_cast<MosaicProperty*>(PropertiesPtrT(*this));
 		}
 
 	public:

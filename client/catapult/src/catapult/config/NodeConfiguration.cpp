@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NodeConfiguration.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
@@ -19,6 +39,10 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(ApiPort);
 		LOAD_NODE_PROPERTY(ShouldAllowAddressReuse);
 		LOAD_NODE_PROPERTY(ShouldUseSingleThreadPool);
+		LOAD_NODE_PROPERTY(ShouldUseCacheDatabaseStorage);
+
+		LOAD_NODE_PROPERTY(ShouldEnableTransactionSpamThrottling);
+		LOAD_NODE_PROPERTY(TransactionSpamThrottlingMaxBoostFee);
 
 		LOAD_NODE_PROPERTY(MaxBlocksPerSyncAttempt);
 		LOAD_NODE_PROPERTY(MaxChainBytesPerSyncAttempt);
@@ -46,6 +70,9 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(ShouldAbortWhenDispatcherIsFull);
 		LOAD_NODE_PROPERTY(ShouldAuditDispatcherInputs);
 		LOAD_NODE_PROPERTY(ShouldPrecomputeTransactionAddresses);
+
+		LOAD_NODE_PROPERTY(OutgoingSecurityMode);
+		LOAD_NODE_PROPERTY(IncomingSecurityModes);
 
 #undef LOAD_NODE_PROPERTY
 
@@ -76,7 +103,7 @@ namespace catapult { namespace config {
 		auto extensionsPair = utils::ExtractSectionAsUnorderedSet(bag, "extensions");
 		config.Extensions = extensionsPair.first;
 
-		utils::VerifyBagSizeLte(bag, 24 + 4 + 2 + 3 + extensionsPair.second);
+		utils::VerifyBagSizeLte(bag, 29 + 4 + 2 + 3 + extensionsPair.second);
 		return config;
 	}
 

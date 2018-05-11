@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/state/AccountStateAdapter.h"
 #include "catapult/utils/Casting.h"
@@ -146,7 +166,7 @@ namespace catapult { namespace cache {
 		template<typename TTraits>
 		struct CacheProxy : public AccountStateCache {
 		public:
-			CacheProxy() : AccountStateCache(Default_Cache_Options)
+			CacheProxy() : AccountStateCache(CacheConfiguration(), Default_Cache_Options)
 			{}
 
 		public:
@@ -191,22 +211,22 @@ namespace catapult { namespace cache {
 	}
 
 #define DEFINE_ACCOUNT_STATE_CACHE_TESTS(TRAITS, SUFFIX) \
-	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, ViewAccessor, _View##SUFFIX); \
-	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX); \
+	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, ViewAccessor, _View##SUFFIX) \
+	DEFINE_CACHE_CONTAINS_TESTS(TRAITS, DeltaAccessor, _Delta##SUFFIX) \
 	\
-	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, MutableAccessor, _ViewMutable##SUFFIX); \
-	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, ConstAccessor, _ViewConst##SUFFIX); \
-	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, MutableAccessor, _DeltaMutable##SUFFIX); \
-	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, ConstAccessor, _DeltaConst##SUFFIX); \
+	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, MutableAccessor, _ViewMutable##SUFFIX) \
+	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, ViewAccessor, ConstAccessor, _ViewConst##SUFFIX) \
+	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, MutableAccessor, _DeltaMutable##SUFFIX) \
+	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, ConstAccessor, _DeltaConst##SUFFIX) \
 	\
-	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(TRAITS, _Delta##SUFFIX);
+	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(TRAITS, _Delta##SUFFIX)
 
-	DEFINE_ACCOUNT_STATE_CACHE_TESTS(AccountStateMixinTraits<AddressTraits>, _Address);
+	DEFINE_ACCOUNT_STATE_CACHE_TESTS(AccountStateMixinTraits<AddressTraits>, _Address)
 
 	// only address-based iteration is supported
-	DEFINE_CACHE_ITERATION_TESTS(AccountStateMixinTraits<AddressTraits>, ViewAccessor, _View_Address);
+	DEFINE_CACHE_ITERATION_TESTS(AccountStateMixinTraits<AddressTraits>, ViewAccessor, _View_Address)
 
-	DEFINE_ACCOUNT_STATE_CACHE_TESTS(AccountStateMixinTraits<PublicKeyTraits>, _PublicKey);
+	DEFINE_ACCOUNT_STATE_CACHE_TESTS(AccountStateMixinTraits<PublicKeyTraits>, _PublicKey)
 
 	// only one set of basic tests are needed
 	DEFINE_CACHE_BASIC_TESTS(AccountStateMixinTraits<AddressTraits>,)
@@ -267,7 +287,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CacheExposesNetworkIdentifier) {
 		// Arrange:
 		auto networkIdentifier = static_cast<model::NetworkIdentifier>(17);
-		AccountStateCache cache({ networkIdentifier, 234, Amount() });
+		AccountStateCache cache(CacheConfiguration(), { networkIdentifier, 234, Amount() });
 
 		// Act + Assert:
 		EXPECT_EQ(networkIdentifier, cache.networkIdentifier());
@@ -276,7 +296,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CacheWrappersExposeNetworkIdentifier) {
 		// Arrange:
 		auto networkIdentifier = static_cast<model::NetworkIdentifier>(18);
-		AccountStateCache cache({ networkIdentifier, 543, Amount() });
+		AccountStateCache cache(CacheConfiguration(), { networkIdentifier, 543, Amount() });
 
 		// Act + Assert:
 		EXPECT_EQ(networkIdentifier, cache.createView()->networkIdentifier());
@@ -286,7 +306,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CacheExposesImportanceGrouping) {
 		// Arrange:
-		AccountStateCache cache({ static_cast<model::NetworkIdentifier>(17), 234, Amount() });
+		AccountStateCache cache(CacheConfiguration(), { static_cast<model::NetworkIdentifier>(17), 234, Amount() });
 
 		// Act + Assert:
 		EXPECT_EQ(234u, cache.importanceGrouping());
@@ -294,7 +314,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CacheWrappersExposeImportanceGrouping) {
 		// Arrange:
-		AccountStateCache cache({ static_cast<model::NetworkIdentifier>(18), 543, Amount() });
+		AccountStateCache cache(CacheConfiguration(), { static_cast<model::NetworkIdentifier>(18), 543, Amount() });
 
 		// Act + Assert:
 		EXPECT_EQ(543u, cache.createView()->importanceGrouping());
@@ -308,7 +328,7 @@ namespace catapult { namespace cache {
 
 	ID_BASED_TEST(TryGetReturnsSameStateAsAdd) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		auto accountId = TTraits::GenerateAccountId();
 		const auto& addedAccount = delta->addAccount(accountId, TTraits::DefaultHeight());
@@ -332,7 +352,7 @@ namespace catapult { namespace cache {
 		auto publicKey = GenerateRandomPublicKey();
 		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
 
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		delta->addAccount(address, Height());
 		cache.commit();
@@ -352,7 +372,7 @@ namespace catapult { namespace cache {
 		auto publicKey = GenerateRandomPublicKey();
 		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
 
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		delta->addAccount(address, Height());
 		cache.commit();
@@ -371,7 +391,7 @@ namespace catapult { namespace cache {
 
 	ID_BASED_TEST(AddAccountChangesSizeOfCache) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		DefaultFillCache(cache, 10);
 		auto delta = cache.createDelta();
 		auto accountId = TTraits::GenerateAccountId();
@@ -386,7 +406,7 @@ namespace catapult { namespace cache {
 
 	ID_BASED_TEST(SubsequentAddAccountsReturnExistingAccount) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		auto accountId = TTraits::GenerateAccountId();
 		const auto& addedAccount = delta->addAccount(accountId, TTraits::DefaultHeight());
@@ -406,7 +426,7 @@ namespace catapult { namespace cache {
 
 	ID_BASED_TEST(Remove_RemovesExistingAccountIfHeightMatches) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto accountId = AddRandomAccount<TTraits>(cache);
 		auto delta = cache.createDelta();
 
@@ -424,7 +444,7 @@ namespace catapult { namespace cache {
 
 	ID_BASED_TEST(Remove_DoesNotRemovesExistingAccountIfHeightDoesNotMatch) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		auto accountId = TTraits::GenerateAccountId();
 		const auto& expectedAccount = delta->addAccount(accountId, TTraits::DefaultHeight());
@@ -443,7 +463,7 @@ namespace catapult { namespace cache {
 
 	ID_BASED_TEST(Remove_CanBeCalledOnNonExistingAccount) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		DefaultFillCache(cache, 10);
 		auto delta = cache.createDelta();
 		auto accountId = TTraits::GenerateAccountId();
@@ -461,7 +481,7 @@ namespace catapult { namespace cache {
 
 	ID_BASED_TEST(Remove_QueuesRemovalButDoesNotRemoveImmediately) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		auto accountId = TTraits::GenerateAccountId();
 		const auto& expectedAccount = delta->addAccount(accountId, TTraits::DefaultHeight());
@@ -479,7 +499,7 @@ namespace catapult { namespace cache {
 
 	ID_BASED_TEST(CommitRemovals_DoesNothingIfNoRemovalsHaveBeenQueued) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		delta->addAccount(TTraits::GenerateAccountId(), TTraits::DefaultHeight());
 
@@ -492,16 +512,16 @@ namespace catapult { namespace cache {
 
 	ID_BASED_TEST(CommitRemovals_CanCommitQueuedRemovalsOfMultipleAccounts) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 
 		// Act: add 5 (0..4) accounts and queue removals of two (1, 3)
-		for (auto i = 0u; i < 5u; ++i) {
+		for (auto i = 0u; i < 5; ++i) {
 			auto accountId = TTraits::GenerateAccountId();
 			auto height = TTraits::DefaultHeight() + Height(i);
 			delta->addAccount(accountId, height);
 
-			if (1u == i % 2u)
+			if (1u == i % 2)
 				delta->queueRemove(accountId, height);
 		}
 
@@ -538,7 +558,7 @@ namespace catapult { namespace cache {
 			auto publicKey = GenerateRandomPublicKey();
 			auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
 
-			AccountStateCache cache(Default_Cache_Options);
+			AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 			auto delta = cache.createDelta();
 			AddAccountToCacheDelta<AddressTraits>(*delta, address, Amount(1234));
 			AddAccountToCacheDelta<PublicKeyTraits>(*delta, publicKey, Amount());
@@ -560,7 +580,7 @@ namespace catapult { namespace cache {
 			auto publicKey = GenerateRandomPublicKey();
 			auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
 
-			AccountStateCache cache(Default_Cache_Options);
+			AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 			auto delta = cache.createDelta();
 			AddAccountToCacheDelta<AddressTraits>(*delta, address, Amount(1234));
 			AddAccountToCacheDelta<PublicKeyTraits>(*delta, publicKey, Amount());
@@ -601,7 +621,7 @@ namespace catapult { namespace cache {
 		auto publicKey = GenerateRandomPublicKey();
 		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
 
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		AddAccountToCacheDelta<AddressTraits>(*delta, address, Amount(1234));
 		AddAccountToCacheDelta<PublicKeyTraits>(*delta, publicKey, Amount());
@@ -713,7 +733,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanAccessAllAccountsThroughFindByAddress) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 
 		// Assert:
@@ -724,7 +744,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanAccessAllAccountsThroughFindConstByAddress) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 
 		// Assert:
@@ -735,7 +755,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanAccessAllAccountsThroughFindByPublicKey) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 
 		// Assert:
@@ -746,7 +766,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanAccessAllAccountsThroughFindConstByPublicKey) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 
 		// Assert:
@@ -788,7 +808,7 @@ namespace catapult { namespace cache {
 		auto info = CreateInconsistentAccountInfo();
 		info.PublicKeyHeight = Height(0);
 
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 
 		// Act:
@@ -809,7 +829,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CanAddAccountViaAccountInfoWithPublicKey) {
 		// Arrange: note that public key height is not 0
 		auto info = CreateInconsistentAccountInfo();
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 
 		// Act:
@@ -835,7 +855,7 @@ namespace catapult { namespace cache {
 			auto info = CreateRandomAccountInfoWithKey();
 			info.Importances[0] = Importance(777);
 
-			AccountStateCache cache(Default_Cache_Options);
+			AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 			auto delta = cache.createDelta();
 
 			// Act: add the info using add and set importance to 123
@@ -895,9 +915,9 @@ namespace catapult { namespace cache {
 		template<typename TAction>
 		void RunHighValueAddressesTest(const std::vector<Amount>& balances, TAction action) {
 			// Arrange: set min balance to 1M
-			auto config = Default_Cache_Options;
-			config.MinHighValueAccountBalance = Amount(1'000'000);
-			AccountStateCache cache(config);
+			auto options = Default_Cache_Options;
+			options.MinHighValueAccountBalance = Amount(1'000'000);
+			AccountStateCache cache(CacheConfiguration(), options);
 
 			// - prepare delta with requested accounts
 			auto delta = cache.createDelta();
@@ -1007,9 +1027,9 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, HighValueAddressesReturnsAllAccountsMeetingCriteriaAfterDeltaChangesAreThrownAway) {
 		// Arrange: set min balance to 1M
-		auto config = Default_Cache_Options;
-		config.MinHighValueAccountBalance = Amount(1'000'000);
-		AccountStateCache cache(config);
+		auto options = Default_Cache_Options;
+		options.MinHighValueAccountBalance = Amount(1'000'000);
+		AccountStateCache cache(CacheConfiguration(), options);
 
 		// - prepare delta with requested accounts
 		std::vector<Address> addresses;
@@ -1045,6 +1065,28 @@ namespace catapult { namespace cache {
 			// Assert: only original accounts with highValue addresses are returned
 			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), highValueAddresses);
 		}
+	}
+
+	TEST(TEST_CLASS, CacheViewExposesHighValueAddressesSize) {
+		// Arrange:
+		auto options = Default_Cache_Options;
+		options.MinHighValueAccountBalance = Amount(1'000'000);
+		AccountStateCache cache(CacheConfiguration(), options);
+		{
+			auto delta = cache.createDelta();
+			auto& addedAccount1 = delta->addAccount(test::GenerateRandomData<Address_Decoded_Size>(), Height());
+			addedAccount1.Balances.credit(Xem_Id, Amount(1'000'000));
+			auto& addedAccount2 = delta->addAccount(test::GenerateRandomData<Address_Decoded_Size>(), Height());
+			addedAccount2.Balances.credit(Xem_Id, Amount(500'000));
+
+			// Sanity:
+			EXPECT_EQ(1u, delta->highValueAddresses().size());
+
+			cache.commit();
+		}
+
+		// Act + Assert:
+		EXPECT_EQ(1u, cache.createView()->highValueAddressesSize());
 	}
 
 	// endregion

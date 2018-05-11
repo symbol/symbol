@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/utils/Logging.h"
 #include "catapult/exceptions.h"
@@ -54,18 +74,22 @@ namespace catapult { namespace test {
 
 /// Waits for the specified atomic value or function (\a SUPPLIER) to return the desired value (\a DESIRED).
 #define WAIT_FOR_VALUE(DESIRED, SUPPLIER) \
-	if (!test::detail::TryWaitFor(test::detail::MakeFunction(SUPPLIER), DESIRED)) { \
-		auto func = test::detail::MakeFunction(SUPPLIER); \
-		EXPECT_EQ(DESIRED, func()) << "timeout " << test::detail::Default_Wait_Timeout; \
-		CATAPULT_THROW_RUNTIME_ERROR_2("WAIT_FOR_VALUE timed out waiting (desired, actual)", DESIRED, func()); \
-	}
+	do { \
+		if (!test::detail::TryWaitFor(test::detail::MakeFunction(SUPPLIER), DESIRED)) { \
+			auto func = test::detail::MakeFunction(SUPPLIER); \
+			EXPECT_EQ(DESIRED, func()) << "timeout " << test::detail::Default_Wait_Timeout; \
+			CATAPULT_THROW_RUNTIME_ERROR_2("WAIT_FOR_VALUE timed out waiting (desired, actual)", DESIRED, func()); \
+		} \
+	} while(false)
 
 /// Waits for the specified \a EXPRESSION to return the desired value (\a DESIRED).
 #define WAIT_FOR_VALUE_EXPR(DESIRED, EXPRESSION) \
-	if (!test::detail::TryWaitFor([&]() { return EXPRESSION; }, DESIRED)) { \
-		EXPECT_EQ(DESIRED, EXPRESSION) << "timeout " << test::detail::Default_Wait_Timeout; \
-		CATAPULT_THROW_RUNTIME_ERROR_2("WAIT_FOR_VALUE_EXPR timed out waiting (desired, actual)", DESIRED, EXPRESSION); \
-	}
+	do { \
+		if (!test::detail::TryWaitFor([&]() { return EXPRESSION; }, DESIRED)) { \
+			EXPECT_EQ(DESIRED, EXPRESSION) << "timeout " << test::detail::Default_Wait_Timeout; \
+			CATAPULT_THROW_RUNTIME_ERROR_2("WAIT_FOR_VALUE_EXPR timed out waiting (desired, actual)", DESIRED, EXPRESSION); \
+		} \
+	} while(false)
 
 /// Waits for the specified atomic value or function (\a SUPPLIER) to change to \c true.
 #define WAIT_FOR(SUPPLIER) WAIT_FOR_VALUE(true, SUPPLIER)
@@ -101,7 +125,7 @@ namespace catapult { namespace test {
 		}
 	}
 
-	/// The time (in milliseconds) at which a deterministic operation was run.
+	/// Elapsed time (in milliseconds) at which a deterministic operation was run.
 	using DeterministicTimeSpan = std::chrono::duration<uint64_t, std::milli>;
 
 	/// Runs a deterministic \a operation.

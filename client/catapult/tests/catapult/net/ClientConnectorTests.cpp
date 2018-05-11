@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/net/ClientConnector.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/PacketSocket.h"
@@ -12,10 +32,6 @@ namespace catapult { namespace net {
 #define TEST_CLASS ClientConnectorTests
 
 	namespace {
-		auto CreateDefaultClientConnector() {
-			return CreateClientConnector(test::CreateStartedIoServiceThreadPool(), test::GenerateKeyPair(), ConnectionSettings());
-		}
-
 		struct ConnectorTestContext {
 		public:
 			explicit ConnectorTestContext(const ConnectionSettings& settings = ConnectionSettings())
@@ -39,63 +55,81 @@ namespace catapult { namespace net {
 			boost::asio::io_service& Service;
 			std::shared_ptr<ClientConnector> pConnector;
 		};
+
+		struct AcceptCallbackParams {
+		public:
+			AcceptCallbackParams() : NumCallbacks(0)
+			{}
+
+		public:
+			PeerConnectResult Result;
+			std::shared_ptr<ionet::PacketSocket> pClientSocket;
+			Key ClientKey;
+			std::atomic<size_t> NumCallbacks;
+		};
+
+		void AcceptAndCapture(
+				ClientConnector& connector,
+				const std::shared_ptr<ionet::PacketSocket>& pSocket,
+				AcceptCallbackParams& capture) {
+			connector.accept(pSocket, [&capture](auto acceptResult, const auto& pVerifiedSocket, const auto& key) {
+				capture.Result = acceptResult;
+				capture.pClientSocket = pVerifiedSocket;
+				capture.ClientKey = key;
+				++capture.NumCallbacks;
+			});
+		}
+
+		void AssertFailed(PeerConnectResult expectedResult, const AcceptCallbackParams& capture) {
+			EXPECT_EQ(expectedResult, capture.Result);
+			EXPECT_FALSE(!!capture.pClientSocket);
+			EXPECT_EQ(Key(), capture.ClientKey);
+		}
 	}
 
 	TEST(TEST_CLASS, InitiallyNoConnectionsAreActive) {
 		// Act:
-		auto pConnector = CreateDefaultClientConnector();
+		ConnectorTestContext context;
 
 		// Assert:
-		EXPECT_EQ(0u, pConnector->numActiveConnections());
+		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
 	TEST(TEST_CLASS, AcceptFailsOnAcceptError) {
 		// Arrange:
-		auto pConnector = CreateDefaultClientConnector();
+		ConnectorTestContext context;
 
 		// Act: on an accept error, the server will pass nullptr
-		PeerConnectResult result;
-		Key clientKey;
-		pConnector->accept(nullptr, [&](auto acceptResult, const auto& key) {
-			result = acceptResult;
-			clientKey = key;
-		});
+		AcceptCallbackParams capture;
+		AcceptAndCapture(*context.pConnector, nullptr, capture);
 
 		// Assert:
-		EXPECT_EQ(PeerConnectResult::Socket_Error, result);
-		EXPECT_EQ(Key(), clientKey);
-		EXPECT_EQ(0u, pConnector->numActiveConnections());
+		AssertFailed(PeerConnectResult::Socket_Error, capture);
+		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
 	TEST(TEST_CLASS, AcceptFailsOnVerifyError) {
 		// Arrange:
 		ConnectorTestContext context;
-		std::atomic<size_t> numCallbacks(0);
 
 		// Act: start a server and client verify operation
-		PeerConnectResult result;
-		Key clientKey;
+		AcceptCallbackParams capture;
 		test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) {
-			context.pConnector->accept(pSocket, [&](auto acceptResult, const auto& key) {
-				result = acceptResult;
-				clientKey = key;
-				++numCallbacks;
-			});
+			AcceptAndCapture(*context.pConnector, pSocket, capture);
 		});
 
 		test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
 			// - trigger a verify error by closing the socket without responding
 			pSocket->close();
-			++numCallbacks;
+			++capture.NumCallbacks;
 		});
 
 		// - wait for both callbacks to complete and the connection to close
-		WAIT_FOR_VALUE(2u, numCallbacks);
+		WAIT_FOR_VALUE(2u, capture.NumCallbacks);
 		WAIT_FOR_ZERO_EXPR(context.pConnector->numActiveConnections());
 
 		// Assert: the verification should have failed and all connections should have been destroyed
-		EXPECT_EQ(PeerConnectResult::Verify_Error, result);
-		EXPECT_EQ(Key(), clientKey);
+		AssertFailed(PeerConnectResult::Verify_Error, capture);
 		EXPECT_EQ(0u, context.pConnector->numActiveConnections());
 	}
 
@@ -115,7 +149,7 @@ namespace catapult { namespace net {
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					context.pConnector->accept(pSocket, [&](auto result, const auto& key) {
+					context.pConnector->accept(pSocket, [&](auto result, const auto&, const auto& key) {
 						state.Results.push_back(result);
 						state.ClientKeys.push_back(key);
 						++numCallbacks;
@@ -124,7 +158,8 @@ namespace catapult { namespace net {
 
 				test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
 					state.ClientSockets.push_back(pSocket);
-					VerifyServer(pSocket, context.ServerKeyPair.publicKey(), context.ClientKeyPair, [&](auto, const auto&) {
+					auto serverPeerInfo = VerifiedPeerInfo{ context.ServerKeyPair.publicKey(), ionet::ConnectionSecurityMode::None };
+					VerifyServer(pSocket, serverPeerInfo, context.ClientKeyPair, [&](auto, const auto&) {
 						++numCallbacks;
 					});
 				});
@@ -203,7 +238,7 @@ namespace catapult { namespace net {
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
 			test::SpawnPacketServerWork(context.Service, [&, pResult](const auto& pSocket) {
 				pServerSocket = pSocket;
-				context.pConnector->accept(pSocket, [&, pResult](auto acceptResult, const auto&) {
+				context.pConnector->accept(pSocket, [&, pResult](auto acceptResult, const auto&, const auto&) {
 					// note that this is not expected to get called until shutdown because the client doesn't read
 					// or write any data
 					*pResult = acceptResult;
@@ -250,6 +285,8 @@ namespace catapult { namespace net {
 		});
 	}
 
+	// region timeout
+
 	namespace {
 		bool RunTimeoutTestIteration(const ConnectorTestContext& context) {
 			bool isSocketAccepted = false;
@@ -292,4 +329,124 @@ namespace catapult { namespace net {
 		ConnectorTestContext context(settings);
 		RunTimeoutTest(context);
 	}
+
+	// endregion
+
+	// region security mode
+
+	namespace {
+		struct SecurityModeTestState {
+			PeerConnectResult AcceptResult;
+			std::shared_ptr<ionet::PacketSocket> pServerSocket;
+			std::shared_ptr<ionet::PacketSocket> pAcceptedServerSocket;
+			std::shared_ptr<ionet::PacketSocket> pClientSocket;
+		};
+
+		template<typename TAction>
+		void RunSecurityModeTest(const ConnectionSettings& settings, bool shouldExpectError, TAction action) {
+			// Arrange:
+			ConnectorTestContext context(settings);
+			test::TcpAcceptor acceptor(context.Service);
+			auto pNumCallbacks = std::make_shared<std::atomic<size_t>>(0);
+
+			// - make a single connection with custom settings
+			SecurityModeTestState state;
+			test::SpawnPacketServerWork(acceptor, [&, pNumCallbacks](const auto& pSocket) {
+				state.pServerSocket = pSocket;
+				context.pConnector->accept(pSocket, [&, pNumCallbacks](auto result, const auto& pVerifiedSocket, const auto&) {
+					state.AcceptResult = result;
+					state.pAcceptedServerSocket = pVerifiedSocket;
+					++*pNumCallbacks;
+				});
+			});
+
+			test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
+				state.pClientSocket = pSocket;
+
+				auto serverPeerInfo = VerifiedPeerInfo{ context.ServerKeyPair.publicKey(), settings.OutgoingSecurityMode };
+				VerifyServer(pSocket, serverPeerInfo, context.ClientKeyPair, [&, pNumCallbacks](auto, const auto&) {
+					++*pNumCallbacks;
+				});
+			});
+
+			// - wait for the connection to be established
+			WAIT_FOR_VALUE(shouldExpectError ? 1u : 2u, *pNumCallbacks);
+
+			// Act: + Assert:
+			action(state);
+		}
+
+		void AssertWrittenPacketType(
+				const SecurityModeTestState& state,
+				ionet::PacketType expectedPacketType,
+				ionet::PacketType packetType) {
+			// Arrange: write a regular packet
+			auto pPacket = test::CreateRandomPacket(100, packetType);
+
+			std::atomic_bool isPacketRead(false);
+			ionet::PacketType readPacketType;
+			state.pAcceptedServerSocket->write(ionet::PacketPayload(pPacket), [&](auto) { // sign-decorating write
+				state.pClientSocket->read([&](auto, const auto* pReadPacket) { // raw read
+					readPacketType = pReadPacket ? pReadPacket->Type : ionet::PacketType::Undefined;
+					isPacketRead = true;
+				});
+			});
+
+			// - wait for the read to occur
+			WAIT_FOR(isPacketRead);
+
+			// Assert:
+			EXPECT_EQ(expectedPacketType, readPacketType);
+		}
+	}
+
+	TEST(TEST_CLASS, SecurityModeNoneDoesNotWriteSecurePackets) {
+		// Arrange:
+		ConnectionSettings settings;
+		settings.OutgoingSecurityMode = ionet::ConnectionSecurityMode::None;
+		settings.IncomingSecurityModes = ionet::ConnectionSecurityMode::None;
+
+		// Act:
+		RunSecurityModeTest(settings, false, [](const auto& state) {
+			// Assert:
+			EXPECT_EQ(PeerConnectResult::Accepted, state.AcceptResult);
+			EXPECT_EQ(state.pServerSocket, state.pAcceptedServerSocket);
+
+			AssertWrittenPacketType(state, ionet::PacketType::Chain_Info, ionet::PacketType::Chain_Info);
+		});
+	}
+
+	TEST(TEST_CLASS, SecurityModeSignedWritesSecurePackets) {
+		// Arrange:
+		ConnectionSettings settings;
+		settings.OutgoingSecurityMode = ionet::ConnectionSecurityMode::Signed;
+		settings.IncomingSecurityModes = ionet::ConnectionSecurityMode::Signed;
+
+		// Act:
+		RunSecurityModeTest(settings, false, [](const auto& state) {
+			// Assert:
+			EXPECT_EQ(PeerConnectResult::Accepted, state.AcceptResult);
+			EXPECT_NE(state.pServerSocket, state.pAcceptedServerSocket);
+
+			AssertWrittenPacketType(state, ionet::PacketType::Secure_Signed, ionet::PacketType::Chain_Info);
+		});
+	}
+
+	TEST(TEST_CLASS, UnsupportedSecurityModeIsRejected) {
+		// Arrange:
+		ConnectionSettings settings;
+		settings.OutgoingSecurityMode = ionet::ConnectionSecurityMode::None;
+		settings.IncomingSecurityModes = ionet::ConnectionSecurityMode::Signed;
+
+		// Act:
+		RunSecurityModeTest(settings, true, [](const auto& state) {
+			// Assert:
+			EXPECT_EQ(PeerConnectResult::Verify_Error, state.AcceptResult);
+
+			EXPECT_TRUE(!!state.pServerSocket);
+			EXPECT_FALSE(!!state.pAcceptedServerSocket);
+		});
+	}
+
+	// endregion
 }}

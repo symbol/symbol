@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/exceptions.h"
 #include "tests/TestHarness.h"
 #include <boost/exception/diagnostic_information.hpp>
@@ -257,9 +277,9 @@ namespace catapult {
 
 	// region macro tests
 
-#define ASSERT_THROW_MACRO_0(THROW, TRAITS) \
+#define ASSERT_THROW_MACRO_0(CATAPULT_THROW, TRAITS) \
 	try { \
-		THROW(#TRAITS); \
+		CATAPULT_THROW(#TRAITS); \
 	} catch (const TRAITS::ExceptionType& ex) { \
 		ExpectedDiagnostics<TRAITS> expected; \
 		expected.What = #TRAITS; \
@@ -275,9 +295,9 @@ namespace catapult {
 		ASSERT_THROW_MACRO_0(CATAPULT_THROW_FILE_IO_ERROR, FileIoErrorTraits);
 	}
 
-#define ASSERT_THROW_MACRO_1(THROW, TRAITS) \
+#define ASSERT_THROW_MACRO_1(CATAPULT_THROW, TRAITS) \
 	try { \
-		THROW(#TRAITS, 12); \
+		CATAPULT_THROW(#TRAITS, 12); \
 	} catch (const TRAITS::ExceptionType& ex) { \
 		ExpectedDiagnostics<TRAITS> expected; \
 		expected.What = #TRAITS; \
@@ -292,9 +312,9 @@ namespace catapult {
 		ASSERT_THROW_MACRO_1(CATAPULT_THROW_INVALID_ARGUMENT_1, InvalidArgumentTraits);
 	}
 
-#define ASSERT_THROW_MACRO_2(THROW, TRAITS) \
+#define ASSERT_THROW_MACRO_2(CATAPULT_THROW, TRAITS) \
 	try { \
-		THROW(#TRAITS, 12, 27); \
+		CATAPULT_THROW(#TRAITS, 12, 27); \
 	} catch (const TRAITS::ExceptionType& ex) { \
 		ExpectedDiagnostics<TRAITS> expected; \
 		expected.What = #TRAITS; \
@@ -387,14 +407,14 @@ namespace catapult {
 
 	TAG_TRAITS_BASED_TEST(ConvertToValueSupports) {
 		EXPECT_EQ(123, exception_detail::ConvertToValue(typename TTraits::template Type<int>(123)));
-		EXPECT_EQ(8u, exception_detail::ConvertToValue(typename TTraits::template Type<unsigned int>(8u)));
+		EXPECT_EQ(8u, exception_detail::ConvertToValue(typename TTraits::template Type<unsigned int>(8)));
 		EXPECT_EQ('h', exception_detail::ConvertToValue(typename TTraits::template Type<char>('h')));
 	}
 
 	TAG_TRAITS_BASED_TEST(CanMakeErrorInfoFrom) {
 		using MakeCustomTestTag1 = exception_detail::Make<CustomTestTag1>;
 		EXPECT_EQ(123, MakeCustomTestTag1::From(typename TTraits::template Type<int>(123)).value());
-		EXPECT_EQ(8u, MakeCustomTestTag1::From(typename TTraits::template Type<unsigned int>(8u)).value());
+		EXPECT_EQ(8u, MakeCustomTestTag1::From(typename TTraits::template Type<unsigned int>(8)).value());
 		EXPECT_EQ('h', MakeCustomTestTag1::From(typename TTraits::template Type<char>('h')).value());
 	}
 

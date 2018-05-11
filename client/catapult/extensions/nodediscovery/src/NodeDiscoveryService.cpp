@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NodeDiscoveryService.h"
 #include "BatchPeersRequestor.h"
 #include "NodePingRequestor.h"
@@ -9,6 +29,7 @@
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/ionet/NetworkNode.h"
 #include "catapult/ionet/NodeContainer.h"
+#include "catapult/ionet/PacketPayloadFactory.h"
 #include "catapult/subscribers/NodeSubscriber.h"
 
 namespace catapult { namespace nodediscovery {
@@ -21,7 +42,7 @@ namespace catapult { namespace nodediscovery {
 				const extensions::PacketPayloadSink& packetPayloadSink,
 				const ConstNetworkNodePointer& pLocalNetworkNode) {
 			return thread::CreateNamedTask("node discovery ping task", [packetPayloadSink, pLocalNetworkNode]() {
-				packetPayloadSink(ionet::PacketPayload::FromEntity(ionet::PacketType::Node_Discovery_Push_Ping, pLocalNetworkNode));
+				packetPayloadSink(ionet::PacketPayloadFactory::FromEntity(ionet::PacketType::Node_Discovery_Push_Ping, pLocalNetworkNode));
 				return thread::make_ready_future(thread::TaskResult::Continue);
 			});
 		}
@@ -61,10 +82,10 @@ namespace catapult { namespace nodediscovery {
 					return requestor.numActiveConnections();
 				});
 				locator.registerServiceCounter<NodePingRequestor>(Service_Name, "TOTAL PINGS", [](const auto& requestor) {
-					return requestor.numTotalPingRequests();
+					return requestor.numTotalRequests();
 				});
 				locator.registerServiceCounter<NodePingRequestor>(Service_Name, "SUCCESS PINGS", [](const auto& requestor) {
-					return requestor.numSuccessfulPingRequests();
+					return requestor.numSuccessfulRequests();
 				});
 			}
 
@@ -89,9 +110,12 @@ namespace catapult { namespace nodediscovery {
 				auto& nodeContainer = state.nodes();
 				auto& pingRequestor = *pNodePingRequestor;
 				handlers::RegisterNodeDiscoveryPushPingHandler(state.packetHandlers(), networkIdentifier, pushNodeConsumer);
-				handlers::RegisterNodeDiscoveryPullPingHandler(state.packetHandlers(), *m_pLocalNetworkNode);
+				handlers::RegisterNodeDiscoveryPullPingHandler(state.packetHandlers(), m_pLocalNetworkNode);
 
-				PeersProcessor peersProcessor(nodeContainer, pingRequestor, networkIdentifier, pushNodeConsumer);
+				auto pingRequestInitiator = [&pingRequestor](const auto& node, const auto& callback) {
+					return pingRequestor.beginRequest(node, callback);
+				};
+				PeersProcessor peersProcessor(nodeContainer, pingRequestInitiator, networkIdentifier, pushNodeConsumer);
 				auto pushPeersHandler = [peersProcessor](const auto& candidateNodes) {
 					peersProcessor.process(candidateNodes);
 				};

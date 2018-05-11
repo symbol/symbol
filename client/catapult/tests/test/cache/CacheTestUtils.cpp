@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "CacheTestUtils.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache/SubCachePluginAdapter.h"
@@ -9,7 +29,9 @@
 namespace catapult { namespace test {
 
 	namespace {
-		const Key Sentinel_Cache_Public_Key = GenerateRandomData<Key_Size>();
+		Key GetSentinelCachePublicKey() {
+			return { { 0xFF, 0xFF, 0xFF, 0xFF } };
+		}
 	}
 
 	// region CoreSystemCacheFactory
@@ -25,15 +47,14 @@ namespace catapult { namespace test {
 			std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches) {
 		using namespace cache;
 
-		auto accountStateCacheOptions = AccountStateCacheTypes::Options{
+		subCaches[AccountStateCache::Id] = MakeSubCachePlugin<AccountStateCache, AccountStateCacheStorage>(AccountStateCacheTypes::Options{
 			config.Network.Identifier,
 			config.ImportanceGrouping,
 			config.MinHarvesterBalance
-		};
-		subCaches[AccountStateCache::Id] = MakeSubCachePlugin<AccountStateCache, AccountStateCacheStorage>(accountStateCacheOptions);
+		});
 
-		auto difficultyHistorySize = CalculateDifficultyHistorySize(config);
-		subCaches[BlockDifficultyCache::Id] = MakeSubCachePlugin<BlockDifficultyCache, BlockDifficultyCacheStorage>(difficultyHistorySize);
+		subCaches[BlockDifficultyCache::Id] = MakeConfigurationFreeSubCachePlugin<BlockDifficultyCache, BlockDifficultyCacheStorage>(
+				CalculateDifficultyHistorySize(config));
 	}
 
 	// endregion
@@ -49,7 +70,7 @@ namespace catapult { namespace test {
 	cache::CatapultCache CreateCatapultCacheWithMarkerAccount() {
 		auto cache = CreateEmptyCatapultCache();
 		auto delta = cache.createDelta();
-		delta.sub<cache::AccountStateCache>().addAccount(Sentinel_Cache_Public_Key, Height(1));
+		delta.sub<cache::AccountStateCache>().addAccount(GetSentinelCachePublicKey(), Height(1));
 		cache.commit(Height());
 		return cache;
 	}
@@ -58,7 +79,7 @@ namespace catapult { namespace test {
 		template<typename TCache>
 		bool IsMarkedCacheT(TCache& cache) {
 			const auto& accountStateCache = cache.template sub<cache::AccountStateCache>();
-			return 1u == accountStateCache.size() && accountStateCache.contains(Sentinel_Cache_Public_Key);
+			return 1u == accountStateCache.size() && accountStateCache.contains(GetSentinelCachePublicKey());
 		}
 	}
 

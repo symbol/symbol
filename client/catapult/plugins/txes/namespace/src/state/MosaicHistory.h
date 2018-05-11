@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "MosaicEntry.h"
 #include "src/model/NamespaceConstants.h"
@@ -11,29 +31,20 @@ namespace catapult { namespace state {
 	class MosaicHistory {
 	public:
 		/// Creates a mosaic history around \a namespaceId and \a id.
-		MosaicHistory(NamespaceId namespaceId, MosaicId id) : m_namespaceId(namespaceId), m_id(id)
-		{}
+		MosaicHistory(NamespaceId namespaceId, MosaicId id);
 
 	public:
 		/// Gets a value indicating whether or not the history is empty.
-		bool empty() const {
-			return m_history.empty();
-		}
+		bool empty() const;
 
 		/// Gets the namespace id of the mosaic history.
-		NamespaceId namespaceId() const {
-			return m_namespaceId;
-		}
+		NamespaceId namespaceId() const;
 
 		/// Gets the id of the mosaic history.
-		MosaicId id() const {
-			return m_id;
-		}
+		MosaicId id() const;
 
 		/// Gets the mosaic history size.
-		size_t historyDepth() const {
-			return m_history.size();
-		}
+		size_t historyDepth() const;
 
 	public:
 		/// Adds a new mosaic entry composed of \a definition and \a supply at the end of the history.
@@ -43,34 +54,24 @@ namespace catapult { namespace state {
 		void pop_back();
 
 		/// Gets a const reference to the most recent mosaic entry.
-		const MosaicEntry& back() const {
-			return m_history.back();
-		}
+		const MosaicEntry& back() const;
 
 		/// Gets a reference to the most recent mosaic entry.
-		MosaicEntry& back() {
-			return m_history.back();
-		}
+		MosaicEntry& back();
 
 		/// Prunes all mosaic entries that are not active at \a height.
-		void prune(Height height);
+		size_t prune(Height height);
 
 	public:
 		/// Returns a const iterator to the first entry.
-		auto begin() const {
-			return m_history.cbegin();
-		}
+		std::list<MosaicEntry>::const_iterator begin() const;
 
 		/// Returns a const iterator to the element following the last entry.
-		auto end() const {
-			return m_history.cend();
-		}
+		std::list<MosaicEntry>::const_iterator end() const;
 
 	public:
 		/// Returns \c true if history is active at \a height.
-		bool isActive(Height height) const {
-			return !empty() && back().definition().isActive(height);
-		}
+		bool isActive(Height height) const;
 
 	private:
 		NamespaceId m_namespaceId;

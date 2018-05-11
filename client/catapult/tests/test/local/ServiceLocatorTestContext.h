@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "LocalTestUtils.h"
 #include "catapult/cache/MemoryUtCache.h"
@@ -20,17 +40,21 @@ namespace catapult { namespace test {
 	/// Wrapper around ServiceState.
 	class ServiceTestState {
 	public:
-		/// Creates the test state configured according to the supplied \a flags.
+		/// Creates the test state.
 		ServiceTestState() : ServiceTestState(cache::CatapultCache({}))
 		{}
 
-		/// Creates the test state around \a cache configured according to the supplied \a flags.
-		explicit ServiceTestState(cache::CatapultCache&& cache)
+		/// Creates the test state around \a cache.
+		explicit ServiceTestState(cache::CatapultCache&& cache) : ServiceTestState(std::move(cache), &utils::NetworkTime)
+		{}
+
+		/// Creates the test state around \a cache and \a timeSupplier.
+		explicit ServiceTestState(cache::CatapultCache&& cache, const supplier<Timestamp>& timeSupplier)
 				: m_config(LoadLocalNodeConfiguration(""))
 				, m_catapultCache(std::move(cache))
 				, m_storage(std::make_unique<mocks::MockMemoryBasedStorage>())
 				, m_pUtCache(CreateUtCacheProxy())
-				, m_pluginManager(m_config.BlockChain)
+				, m_pluginManager(m_config.BlockChain, plugins::StorageConfiguration())
 				, m_pool("service locator test context", 2)
 				, m_state(
 						m_config,
@@ -40,7 +64,7 @@ namespace catapult { namespace test {
 						m_storage,
 						m_score,
 						*m_pUtCache,
-						&utils::NetworkTime,
+						timeSupplier,
 						m_transactionStatusSubscriber,
 						m_stateChangeSubscriber,
 						m_nodeSubscriber,
@@ -118,9 +142,14 @@ namespace catapult { namespace test {
 
 		/// Creates the test context around \a cache.
 		explicit ServiceLocatorTestContext(cache::CatapultCache&& cache)
+				: ServiceLocatorTestContext(std::move(cache), &utils::NetworkTime)
+		{}
+
+		/// Creates the test context around \a cache and \a timeSupplier.
+		explicit ServiceLocatorTestContext(cache::CatapultCache&& cache, const supplier<Timestamp>& timeSupplier)
 				: m_keyPair(GenerateKeyPair())
 				, m_locator(m_keyPair)
-				, m_testState(std::move(cache))
+				, m_testState(std::move(cache), timeSupplier)
 		{}
 
 	public:

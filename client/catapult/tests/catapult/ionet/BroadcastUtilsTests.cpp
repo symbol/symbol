@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/ionet/BroadcastUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
@@ -119,18 +139,20 @@ namespace catapult { namespace ionet {
 	namespace {
 		void AssertPayloadBuffer(const PacketPayload& payload, const std::vector<model::DetachedCosignature>& cosignatures) {
 			// Assert:
-			test::AssertPacketHeader(
-					payload,
-					sizeof(PacketHeader) + cosignatures.size() * sizeof(model::DetachedCosignature),
-					PacketType::Push_Detached_Cosignatures);
-			ASSERT_EQ(cosignatures.size(), payload.buffers().size());
+			auto cosignatureSize = sizeof(model::DetachedCosignature);
+			auto expectedPayloadSize = cosignatures.size() * cosignatureSize;
+			test::AssertPacketHeader(payload, sizeof(PacketHeader) + expectedPayloadSize, PacketType::Push_Detached_Cosignatures);
 
-			// - each buffer has correct size and contains the correct data
-			for (auto i = 0u; i < payload.buffers().size(); ++i) {
-				const auto& buffer = payload.buffers()[i];
-				ASSERT_EQ(sizeof(model::DetachedCosignature), buffer.Size);
-				EXPECT_TRUE(0 == std::memcmp(cosignatures.data() + i, buffer.pData, buffer.Size));
-			}
+			// - a single buffer is present composed of all cosignatures
+			ASSERT_EQ(1u, payload.buffers().size());
+
+			const auto& buffer = payload.buffers()[0];
+			ASSERT_EQ(expectedPayloadSize, buffer.Size);
+
+			// - all cosignatures are present in the buffer
+			const auto* pCosignature = reinterpret_cast<const model::DetachedCosignature*>(buffer.pData);
+			for (auto i = 0u; i < cosignatures.size(); ++i, ++pCosignature)
+				EXPECT_TRUE(0 == std::memcmp(cosignatures.data() + i, pCosignature, cosignatureSize)) << "cosignature at " << i;
 		}
 	}
 

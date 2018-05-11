@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "VerifyPeer.h"
 #include "Challenge.h"
 #include "catapult/ionet/PacketSocket.h"
@@ -12,22 +32,30 @@ namespace catapult { namespace net {
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 
+	// VerifyClient: the server (verifies client connections)
+	// VerifyServer: the client (verifies server connections)
+	// SERVER -> ServerChallengeRequest  -> CLIENT
+	// SERVER <- ServerChallengeResponse <- CLIENT
+	// SERVER -> ClientChallengeResponse -> CLIENT
+
 	namespace {
 		class VerifyClientHandler : public std::enable_shared_from_this<VerifyClientHandler> {
 		public:
 			VerifyClientHandler(
 					const std::shared_ptr<ionet::PacketIo>& pIo,
 					const crypto::KeyPair& keyPair,
+					ionet::ConnectionSecurityMode allowedSecurityModes,
 					const VerifyCallback& callback)
 					: m_pIo(pIo)
 					, m_keyPair(keyPair)
+					, m_allowedSecurityModes(allowedSecurityModes)
 					, m_callback(callback)
 			{}
 
 		public:
 			void start() {
 				m_pRequest = GenerateServerChallengeRequest();
-				m_pIo->write(m_pRequest, [pThis = shared_from_this()](auto code) {
+				m_pIo->write(ionet::PacketPayload(m_pRequest), [pThis = shared_from_this()](auto code) {
 					pThis->handleServerChallengeRequestWrite(code);
 				});
 			}
@@ -47,46 +75,54 @@ namespace catapult { namespace net {
 					return invokeCallback(VerifyResult::Io_Error_ServerChallengeResponse);
 
 				const auto* pResponse = ionet::CoercePacket<ServerChallengeResponse>(pPacket);
-				if (nullptr == pResponse)
+				if (!pResponse)
 					return invokeCallback(VerifyResult::Malformed_Data);
 
-				if (!VerifyServerChallengeResponse(*pResponse, m_pRequest->Challenge))
-					return invokeCallback(VerifyResult::Failure_Challenge);
+				auto clientPeerInfo = VerifiedPeerInfo{ pResponse->PublicKey, pResponse->SecurityMode };
+				if (!HasSingleFlag(pResponse->SecurityMode) || !HasFlag(pResponse->SecurityMode, m_allowedSecurityModes))
+					return invokeCallback(VerifyResult::Failure_Unsupported_Connection, clientPeerInfo);
 
-				const auto& clientPublicKey = pResponse->PublicKey;
+				if (!VerifyServerChallengeResponse(*pResponse, m_pRequest->Challenge))
+					return invokeCallback(VerifyResult::Failure_Challenge, clientPeerInfo);
+
 				auto pServerResponse = GenerateClientChallengeResponse(*pResponse, m_keyPair);
-				m_pIo->write(pServerResponse, [pThis = shared_from_this(), clientPublicKey](auto writeCode) {
-					pThis->handleClientChallengeReponseWrite(writeCode, clientPublicKey);
+				m_pIo->write(ionet::PacketPayload(pServerResponse), [pThis = shared_from_this(), clientPeerInfo](auto writeCode) {
+					pThis->handleClientChallengeReponseWrite(writeCode, clientPeerInfo);
 				});
 			}
 
-			void handleClientChallengeReponseWrite(ionet::SocketOperationCode code, const Key& clientPublicKey) const {
+			void handleClientChallengeReponseWrite(ionet::SocketOperationCode code, const VerifiedPeerInfo& clientPeerInfo) const {
 				if (ionet::SocketOperationCode::Success != code)
-					return invokeCallback(VerifyResult::Io_Error_ClientChallengeResponse, clientPublicKey);
+					return invokeCallback(VerifyResult::Io_Error_ClientChallengeResponse, clientPeerInfo);
 
-				invokeCallback(VerifyResult::Success, clientPublicKey);
+				invokeCallback(VerifyResult::Success, clientPeerInfo);
 			}
 
 		private:
 			void invokeCallback(VerifyResult result) const {
-				invokeCallback(result, Key());
+				invokeCallback(result, VerifiedPeerInfo());
 			}
 
-			void invokeCallback(VerifyResult result, const Key& clientPublicKey) const {
-				CATAPULT_LOG(debug) << "VerifyClient completed with " << result;
-				m_callback(result, clientPublicKey);
+			void invokeCallback(VerifyResult result, const VerifiedPeerInfo& clientPeerInfo) const {
+				CATAPULT_LOG(debug) << "VerifyClient completed with " << result << " (" << clientPeerInfo.SecurityMode << ")";
+				m_callback(result, clientPeerInfo);
 			}
 
 		private:
 			std::shared_ptr<ionet::PacketIo> m_pIo;
 			const crypto::KeyPair& m_keyPair;
+			ionet::ConnectionSecurityMode m_allowedSecurityModes;
 			VerifyCallback m_callback;
 			std::shared_ptr<ServerChallengeRequest> m_pRequest;
 		};
 	}
 
-	void VerifyClient(const std::shared_ptr<ionet::PacketIo>& pClientIo, const crypto::KeyPair& keyPair, const VerifyCallback& callback) {
-		auto pHandler = std::make_shared<VerifyClientHandler>(pClientIo, keyPair, callback);
+	void VerifyClient(
+			const std::shared_ptr<ionet::PacketIo>& pClientIo,
+			const crypto::KeyPair& keyPair,
+			ionet::ConnectionSecurityMode allowedSecurityModes,
+			const VerifyCallback& callback) {
+		auto pHandler = std::make_shared<VerifyClientHandler>(pClientIo, keyPair, allowedSecurityModes, callback);
 		pHandler->start();
 	}
 
@@ -95,11 +131,11 @@ namespace catapult { namespace net {
 		public:
 			VerifyServerHandler(
 					const std::shared_ptr<ionet::PacketIo>& pIo,
-					const Key& serverPublicKey,
+					const VerifiedPeerInfo& serverPeerInfo,
 					const crypto::KeyPair& keyPair,
 					const VerifyCallback& callback)
 					: m_pIo(pIo)
-					, m_serverPublicKey(serverPublicKey)
+					, m_serverPeerInfo(serverPeerInfo)
 					, m_keyPair(keyPair)
 					, m_callback(callback)
 			{}
@@ -117,11 +153,11 @@ namespace catapult { namespace net {
 					return invokeCallback(VerifyResult::Io_Error_ServerChallengeRequest);
 
 				const auto* pRequest = ionet::CoercePacket<ServerChallengeRequest>(pPacket);
-				if (nullptr == pRequest)
+				if (!pRequest)
 					return invokeCallback(VerifyResult::Malformed_Data);
 
-				m_pRequest = GenerateServerChallengeResponse(*pRequest, m_keyPair);
-				m_pIo->write(m_pRequest, [pThis = shared_from_this()](auto writeCode) {
+				m_pRequest = GenerateServerChallengeResponse(*pRequest, m_keyPair, m_serverPeerInfo.SecurityMode);
+				m_pIo->write(ionet::PacketPayload(m_pRequest), [pThis = shared_from_this()](auto writeCode) {
 					pThis->handleServerChallengeResponseWrite(writeCode);
 				});
 			}
@@ -140,34 +176,34 @@ namespace catapult { namespace net {
 					return invokeCallback(VerifyResult::Io_Error_ClientChallengeResponse);
 
 				const auto* pResponse = ionet::CoercePacket<ClientChallengeResponse>(pPacket);
-				if (nullptr == pResponse)
+				if (!pResponse)
 					return invokeCallback(VerifyResult::Malformed_Data);
 
-				auto isVerified = VerifyClientChallengeResponse(*pResponse, m_serverPublicKey, m_pRequest->Challenge);
+				auto isVerified = VerifyClientChallengeResponse(*pResponse, m_serverPeerInfo.PublicKey, m_pRequest->Challenge);
 				invokeCallback(isVerified ? VerifyResult::Success: VerifyResult::Failure_Challenge);
 			}
 
 		private:
 			void invokeCallback(VerifyResult result) const {
 				CATAPULT_LOG(debug) << "VerifyServer completed with " << result;
-				m_callback(result, m_serverPublicKey);
+				m_callback(result, m_serverPeerInfo);
 			}
 
 		private:
 			std::shared_ptr<ionet::PacketIo> m_pIo;
-			Key m_serverPublicKey;
+			VerifiedPeerInfo m_serverPeerInfo;
 			const crypto::KeyPair& m_keyPair;
 			VerifyCallback m_callback;
-			std::shared_ptr<ClientChallengeRequest> m_pRequest;
+			std::shared_ptr<ServerChallengeResponse> m_pRequest;
 		};
 	}
 
 	void VerifyServer(
 			const std::shared_ptr<ionet::PacketIo>& pServerIo,
-			const Key& serverPublicKey,
+			const VerifiedPeerInfo& serverPeerInfo,
 			const crypto::KeyPair& keyPair,
 			const VerifyCallback& callback) {
-		auto pHandler = std::make_shared<VerifyServerHandler>(pServerIo, serverPublicKey, keyPair, callback);
+		auto pHandler = std::make_shared<VerifyServerHandler>(pServerIo, serverPeerInfo, keyPair, callback);
 		pHandler->start();
 	}
 }}

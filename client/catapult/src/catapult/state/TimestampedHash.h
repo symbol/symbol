@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/model/EntityRange.h"
 #include "catapult/constants.h"
@@ -10,7 +30,7 @@ namespace catapult { namespace state {
 	/// Represents a hash with attached timestamp.
 	struct TimestampedHash {
 	public:
-		/// The hash type.
+		/// Hash type.
 		using HashType = std::array<uint8_t, Cached_Hash_Size>;
 
 	public:
@@ -28,10 +48,10 @@ namespace catapult { namespace state {
 		}
 
 	public:
-		/// The timestamp.
+		/// Timestamp.
 		Timestamp Time;
 
-		/// The hash.
+		/// Hash.
 		/// \note This might be a partial hash.
 		HashType Hash;
 

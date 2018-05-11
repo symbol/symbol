@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "EntityType.h"
 #include "NetworkInfo.h"
@@ -16,10 +36,10 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The notification type.
+		/// Notification type.
 		NotificationType Type;
 
-		/// The notification size.
+		/// Notification size.
 		size_t Size;
 	};
 
@@ -28,7 +48,7 @@ namespace catapult { namespace model {
 	/// Notification of use of an account address.
 	struct AccountAddressNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Register_Account_Address_Notification;
 
 	public:
@@ -39,14 +59,14 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The address.
+		/// Address.
 		const catapult::Address& Address;
 	};
 
 	/// Notification of use of an account public key.
 	struct AccountPublicKeyNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Register_Account_Public_Key_Notification;
 
 	public:
@@ -57,7 +77,7 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The public key.
+		/// Public key.
 		const Key& PublicKey;
 	};
 
@@ -78,20 +98,20 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The sender.
+		/// Sender.
 		const Key& Sender;
 
-		/// The mosaic id.
+		/// Mosaic id.
 		catapult::MosaicId MosaicId;
 
-		/// The amount.
+		/// Amount.
 		catapult::Amount Amount;
 	};
 
 	/// Notifies a balance transfer from sender to recipient.
 	struct BalanceTransferNotification : public BasicBalanceNotification<BalanceTransferNotification> {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Balance_Transfer_Notification;
 
 	public:
@@ -106,14 +126,14 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The recipient.
+		/// Recipient.
 		const Address& Recipient;
 	};
 
 	/// Notifies a balance reservation by sender.
 	struct BalanceReserveNotification : public BasicBalanceNotification<BalanceReserveNotification> {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Balance_Reserve_Notification;
 
 	public:
@@ -127,7 +147,7 @@ namespace catapult { namespace model {
 	/// Notifies the arrival of an entity.
 	struct EntityNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Entity_Notification;
 
 	public:
@@ -138,7 +158,7 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The network identifier.
+		/// Network identifier.
 		model::NetworkIdentifier NetworkIdentifier;
 	};
 
@@ -149,7 +169,7 @@ namespace catapult { namespace model {
 	/// Notifies the arrival of a block.
 	struct BlockNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Block_Notification;
 
 	public:
@@ -163,19 +183,19 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The block signer.
+		/// Block signer.
 		const Key& Signer;
 
-		/// The block timestamp.
+		/// Block timestamp.
 		catapult::Timestamp Timestamp;
 
-		/// The block difficulty.
+		/// Block difficulty.
 		catapult::Difficulty Difficulty;
 
-		/// The total block fee.
+		/// Total block fee.
 		Amount TotalFee;
 
-		/// The number of block transactions.
+		/// Number of block transactions.
 		uint32_t NumTransactions;
 	};
 
@@ -186,7 +206,7 @@ namespace catapult { namespace model {
 	/// Notifies the arrival of a transaction.
 	struct TransactionNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Transaction_Notification;
 
 	public:
@@ -200,16 +220,16 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The transaction signer.
+		/// Transaction signer.
 		const Key& Signer;
 
-		/// The transaction hash.
+		/// Transaction hash.
 		const Hash256& TransactionHash;
 
-		/// The transaction type.
+		/// Transaction type.
 		EntityType TransactionType;
 
-		/// The transaction deadline.
+		/// Transaction deadline.
 		Timestamp Deadline;
 	};
 
@@ -220,7 +240,7 @@ namespace catapult { namespace model {
 	/// Notifies the presence of a signature.
 	struct SignatureNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Core_Signature_Notification;
 
 	public:
@@ -233,13 +253,13 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The signer.
+		/// Signer.
 		const Key& Signer;
 
-		/// The signature.
+		/// Signature.
 		const catapult::Signature& Signature;
 
-		/// The signed data.
+		/// Signed data.
 		RawBuffer Data;
 	};
 

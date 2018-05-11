@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "MemoryHashCacheSystem.h"
 #include "src/cache/HashCacheStorage.h"
 #include "src/handlers/HashCacheDiagnosticHandlers.h"
@@ -11,12 +31,14 @@ namespace catapult { namespace plugins {
 	void RegisterMemoryHashCacheSystem(PluginManager& manager) {
 		const auto& config = manager.config();
 
-		manager.addCacheSupport<cache::HashCacheStorage>(std::make_unique<cache::HashCache>(CalculateTransactionCacheDuration(config)));
+		manager.addCacheSupport<cache::HashCacheStorage>(std::make_unique<cache::HashCache>(
+				manager.cacheConfig(cache::HashCache::Name),
+				CalculateTransactionCacheDuration(config)));
 
 		manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
 			handlers::RegisterConfirmTimestampedHashesHandler(
 					handlers,
-					handlers::CreateConfirmedTimestampedHashesFilter(cache.sub<cache::HashCache>()));
+					handlers::CreateConfirmedTimestampedHashesProducerFactory(cache.sub<cache::HashCache>()));
 		});
 
 		manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {

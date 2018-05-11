@@ -1,5 +1,26 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "mongo/src/mappers/BlockMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
+#include "catapult/crypto/MerkleHashBuilder.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/TestHarness.h"
@@ -16,6 +37,16 @@ namespace catapult { namespace mongo { namespace mappers {
 			auto blockElement = model::BlockElement(block);
 			blockElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
 			blockElement.GenerationHash = test::GenerateRandomData<Hash256_Size>();
+			crypto::MerkleHashBuilder builder;
+			auto& transactionElements = blockElement.Transactions;
+			for (const auto& transaction: block.Transactions()) {
+				transactionElements.push_back(model::TransactionElement(transaction));
+				transactionElements.back().MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+				builder.update(transactionElements.back().MerkleComponentHash);
+			}
+
+			std::vector<Hash256> merkleTree;
+			builder.final(merkleTree);
 
 			// Act:
 			auto dbBlock = ToDbModel(blockElement);
@@ -25,7 +56,13 @@ namespace catapult { namespace mongo { namespace mappers {
 			EXPECT_EQ(2u, test::GetFieldCount(view));
 
 			auto metaView = view["meta"].get_document().view();
-			test::AssertEqualBlockMetadata(blockElement.EntityHash, blockElement.GenerationHash, totalFee, numTransactions, metaView);
+			test::AssertEqualBlockMetadata(
+					blockElement.EntityHash,
+					blockElement.GenerationHash,
+					totalFee,
+					numTransactions,
+					merkleTree,
+					metaView);
 
 			auto blockView = view["block"].get_document().view();
 			test::AssertEqualBlockData(block, blockView);

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NetworkUtils.h"
 
 namespace catapult { namespace extensions {
@@ -9,6 +29,9 @@ namespace catapult { namespace extensions {
 		settings.SocketWorkingBufferSize = config.Node.SocketWorkingBufferSize;
 		settings.SocketWorkingBufferSensitivity = config.Node.SocketWorkingBufferSensitivity;
 		settings.MaxPacketDataSize = config.Node.MaxPacketDataSize;
+
+		settings.OutgoingSecurityMode = config.Node.OutgoingSecurityMode;
+		settings.IncomingSecurityModes = config.Node.IncomingSecurityModes;
 		return settings;
 	}
 
@@ -22,8 +45,10 @@ namespace catapult { namespace extensions {
 	}
 
 	uint32_t GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles roles) {
+		// always allow an additional connection per identity in order to not reject ephemeral connections from partners
+		auto count = 1u;
+
 		// only count roles that require (separate) incoming connections, not all set roles
-		auto count = 0u;
 		for (auto role : { ionet::NodeRoles::Peer, ionet::NodeRoles::Api })
 			count += HasFlag(role, roles) ? 1 : 0;
 

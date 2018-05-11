@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NamespacePlugin.h"
 #include "MosaicDefinitionTransactionPlugin.h"
 #include "MosaicSupplyChangeTransactionPlugin.h"
@@ -42,7 +62,8 @@ namespace catapult { namespace plugins {
 			manager.addTransactionSupport(CreateMosaicDefinitionTransactionPlugin(rentalFeeConfig));
 			manager.addTransactionSupport(CreateMosaicSupplyChangeTransactionPlugin());
 
-			manager.addCacheSupport<cache::MosaicCacheStorage>(std::make_unique<cache::MosaicCache>());
+			manager.addCacheSupport<cache::MosaicCacheStorage>(
+					std::make_unique<cache::MosaicCache>(manager.cacheConfig(cache::MosaicCache::Name)));
 
 			manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
 				counters.emplace_back(utils::DiagnosticCounterId("MOSAIC C"), [&cache]() { return GetMosaicView(cache)->size(); });
@@ -104,13 +125,16 @@ namespace catapult { namespace plugins {
 			auto rentalFeeConfig = ToNamespaceRentalFeeConfiguration(manager.config().Network, config);
 			manager.addTransactionSupport(CreateRegisterNamespaceTransactionPlugin(rentalFeeConfig));
 
-			manager.addCacheSupport<cache::NamespaceCacheStorage>(std::make_unique<cache::NamespaceCache>());
+			manager.addCacheSupport<cache::NamespaceCacheStorage>(
+					std::make_unique<cache::NamespaceCache>(manager.cacheConfig(cache::NamespaceCache::Name)));
 
 			manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
 				handlers::RegisterNamespaceInfosHandler(
 						handlers,
-						handlers::CreateNamespaceInfosSupplier(cache.sub<cache::NamespaceCache>()));
-				handlers::RegisterMosaicInfosHandler(handlers, handlers::CreateMosaicInfosSupplier(cache.sub<cache::MosaicCache>()));
+						handlers::CreateNamespaceInfosProducerFactory(cache.sub<cache::NamespaceCache>()));
+				handlers::RegisterMosaicInfosHandler(
+						handlers,
+						handlers::CreateMosaicInfosProducerFactory(cache.sub<cache::MosaicCache>()));
 			});
 
 			manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
@@ -138,16 +162,13 @@ namespace catapult { namespace plugins {
 					.add(validators::CreateRootNamespaceMaxChildrenValidator(maxChildNamespaces));
 			});
 
-			auto pruneInterval = manager.config().BlockPruneInterval;
-			manager.addObserverHook([constraints, pruneInterval](auto& builder) {
+			manager.addObserverHook([constraints](auto& builder) {
+				auto gracePeriod = constraints.TotalGracePeriodDuration;
 				builder
 					.add(observers::CreateRegisterNamespaceMosaicPruningObserver(constraints))
 					.add(observers::CreateRootNamespaceObserver())
 					.add(observers::CreateChildNamespaceObserver())
-					.add(observers::CreateCacheBlockPruningObserver<cache::NamespaceCache>(
-							"Namespace",
-							pruneInterval,
-							constraints.TotalGracePeriodDuration));
+					.add(observers::CreateCacheBlockPruningObserver<cache::NamespaceCache>("Namespace", 1, gracePeriod));
 			});
 		}
 

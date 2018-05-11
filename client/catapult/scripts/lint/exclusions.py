@@ -3,12 +3,12 @@ import re
 # those files won't be checked at all
 SKIP_FILES = (
     # macro-based enums
-    re.compile('src.catapult.utils.MacroBasedEnum.h'),
+    re.compile(r'src.catapult.utils.MacroBasedEnum.h'),
 
     # inline includes
-    re.compile('src.catapult.model.EntityType.cpp'),
-    re.compile('src.catapult.validators.ValidationResult.cpp'),
-    re.compile('tools.statusgen.main.cpp')
+    re.compile(r'src.catapult.model.EntityType.cpp'),
+    re.compile(r'src.catapult.validators.ValidationResult.cpp'),
+    re.compile(r'tools.statusgen.main.cpp')
 )
 
 NAMESPACES_FALSEPOSITIVES = (
@@ -25,15 +25,19 @@ NAMESPACES_FALSEPOSITIVES = (
     re.compile(r'src.catapult.constants.h'),
     re.compile(r'src.catapult.plugins.h'),
     re.compile(r'src.catapult.preprocessor.h'),
+    re.compile(r'src.catapult.cache_db.RocksInclude.h'),
     re.compile(r'src.catapult.crypto.KeccakHash.h'),
     re.compile(r'src.catapult.utils.BitwiseEnum.h'),
     re.compile(r'src.catapult.utils.ExceptionLogging.h'),
     re.compile(r'src.catapult.utils.MacroBasedEnumIncludes.h'),
+    re.compile(r'src.catapult.version.version_inc.h'),
+    re.compile(r'src.catapult.version.nix.what_version.cpp'),
+
     re.compile(r'extensions.mongo.src.mappers.MapperInclude.h'),
     re.compile(r'extensions.mongo.src.CacheStorageInclude.h'),
     re.compile(r'plugins.txes.namespace.src.model.NamespaceConstants.h'),
-    re.compile(r'tools.spammer.Generators.h'),
     re.compile(r'tests.test.nodeps.Stress.h'),
+    re.compile(r'internal.tools.*Generators.h'),
 
     # cache aliases (only headers without 'real' types)
     re.compile(r'plugins.services.hashcache.src.cache.HashCacheTypes.h'),
@@ -65,7 +69,7 @@ LONGLINES_FALSEPOSITIVES = (
 )
 
 SPECIAL_INCLUDES = (
-    # src
+    # src (these include double quotes because they have to match what is after `#include `)
     re.compile(r'"catapult/utils/MacroBasedEnum\.h"'),
     re.compile(r'"ReentrancyCheckReaderNotificationPolicy.h"'),
 
@@ -82,9 +86,6 @@ SPECIAL_INCLUDES = (
     re.compile(r'<sys/time.h>'),
     re.compile(r'<unistd.h>'),
     re.compile(r'<windows.h>'),
-
-    # tests
-    re.compile(r'"BlockStorageTests.h"'),
 )
 
 CORE_FIRSTINCLUDES = {
@@ -98,8 +99,10 @@ CORE_FIRSTINCLUDES = {
     'src/catapult/consumers/NewTransactionsConsumer.cpp': 'TransactionConsumers.h',
     'src/catapult/consumers/StatelessValidationConsumer.cpp': 'BlockConsumers.h',
 
-    'src/catapult/ionet/IoEnums.cpp' : 'ConnectResult.h',
+    'src/catapult/ionet/IoEnums.cpp' : 'ConnectionSecurityMode.h',
+    'src/catapult/net/NetEnums.cpp' : 'NodeRequestResult.h',
     'src/catapult/server/main.cpp' : 'ServerMain.h',
+    'src/catapult/version/nix/what_version.cpp' : 'catapult/version/version.h',
 
     # tests
     'tests/test/nodeps/TestMain.cpp': 'catapult/utils/Logging.h',
@@ -114,19 +117,21 @@ CORE_FIRSTINCLUDES = {
     'tests/catapult/consumers/StatelessValidationConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
 
     'tests/catapult/crypto/Sha3Tests.cpp': 'catapult/crypto/Hashes.h',
-    'tests/catapult/deltaset/OrderedTests.cpp': 'tests/catapult/deltaset/test/BaseSetTestsInclude.h',
-    'tests/catapult/deltaset/ReverseOrderedTests.cpp': 'tests/catapult/deltaset/test/BaseSetTestsInclude.h',
-    'tests/catapult/deltaset/UnorderedMapTests.cpp': 'tests/catapult/deltaset/test/BaseSetTestsInclude.h',
-    'tests/catapult/deltaset/UnorderedTests.cpp': 'tests/catapult/deltaset/test/BaseSetTestsInclude.h',
+    'tests/catapult/deltaset/MapVirtualizedTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
+    'tests/catapult/deltaset/OrderedTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
+    'tests/catapult/deltaset/ReverseOrderedTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
+    'tests/catapult/deltaset/SetVirtualizedTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
+    'tests/catapult/deltaset/UnorderedMapTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
+    'tests/catapult/deltaset/UnorderedTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
     'tests/catapult/io/MemoryBasedStorageTests.cpp': 'tests/test/core/mocks/MockMemoryBasedStorage.h',
     'tests/catapult/io/MemoryStreamTests.cpp': 'tests/test/core/mocks/MockMemoryStream.h',
-    'tests/catapult/ionet/PacketPayloadBuilderTests.cpp': 'catapult/ionet/PacketPayload.h',
     'tests/catapult/thread/FutureSharedStateTests.cpp': 'catapult/thread/detail/FutureSharedState.h',
     'tests/catapult/utils/CatapultExceptionTests.cpp': 'catapult/exceptions.h',
     'tests/catapult/utils/CatapultTypesTests.cpp': 'catapult/types.h',
     'tests/catapult/utils/CountOfTests.cpp': 'catapult/types.h',
     'tests/catapult/utils/MacroBasedEnumTests.cpp': 'catapult/utils/MacroBasedEnumIncludes.h',
     'tests/catapult/utils/TraitsTests.cpp': 'catapult/utils/traits/Traits.h',
+    'tests/catapult/utils/StlTraitsTests.cpp': 'catapult/utils/traits/StlTraits.h',
 
     # clang workaround
     'tests/catapult/utils/StackLoggerTests.cpp': '<string>',
@@ -146,8 +151,7 @@ PLUGINS_FIRSTINCLUDES = {
 
 TOOLS_FIRSTINCLUDES = {
     'tools/health/main.cpp': 'ApiNodeHealthUtils.h',
-    'tools/nemgen/main.cpp': 'NemesisConfiguration.h',
-    'tools/spammer/main.cpp': 'Generators.h'
+    'tools/nemgen/main.cpp': 'NemesisConfiguration.h'
 }
 
 EXTENSION_FIRSTINCLUDES = {

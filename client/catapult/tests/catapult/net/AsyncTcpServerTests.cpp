@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/net/AsyncTcpServer.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/thread/IoServiceThreadPool.h"
@@ -16,7 +36,6 @@ namespace catapult { namespace net {
 
 	namespace {
 		const uint32_t Num_Default_Threads = test::GetNumDefaultPoolThreads();
-		const auto& Local_Host = test::Local_Host;
 		const uint32_t Default_Max_Active_Connections = 2 * Num_Default_Threads + 1;
 
 		class PoolServerPair {
@@ -155,9 +174,9 @@ namespace catapult { namespace net {
 				}
 
 			public:
-				void connect(const ConnectionHandler& connectionHandler) {
-					m_socket.async_connect(Local_Host, [pThis = shared_from_this(), connectionHandler](const auto& ec) {
-						pThis->handleConnect(ec, connectionHandler);
+				void connect(const ConnectionHandler& handler) {
+					m_socket.async_connect(test::CreateLocalHostEndpoint(), [pThis = shared_from_this(), handler](const auto& ec) {
+						pThis->handleConnect(ec, handler);
 					});
 				}
 
@@ -230,7 +249,7 @@ namespace catapult { namespace net {
 			testSettings.AllowAddressReuse = allowAddressReuse;
 
 			auto pPool = test::CreateStartedIoServiceThreadPool();
-			return PoolServerPair(std::move(pPool), Local_Host, testSettings);
+			return PoolServerPair(std::move(pPool), test::CreateLocalHostEndpoint(), testSettings);
 		}
 
 		constexpr int Wait_Duration_Millis = 5;
@@ -361,7 +380,7 @@ namespace catapult { namespace net {
 		boost::system::error_code connectEc;
 		boost::asio::io_service service;
 		ionet::socket socket(service);
-		socket.async_connect(Local_Host, [&connectEc](const auto& ec) {
+		socket.async_connect(test::CreateLocalHostEndpoint(), [&connectEc](const auto& ec) {
 			connectEc = ec;
 		});
 		service.run();

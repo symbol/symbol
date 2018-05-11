@@ -1,57 +1,35 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/ionet/NodeRoles.h"
+#include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace ionet {
 
 #define TEST_CLASS NodeRolesTests
 
-	TEST(TEST_CLASS, CanParseEmptyString) {
-		// Act:
-		NodeRoles roles;
-		auto isParsed = TryParseValue("", roles);
-
+	TEST(TEST_CLASS, CanParseValidNodeRoles) {
 		// Assert:
-		EXPECT_TRUE(isParsed);
-		EXPECT_EQ(NodeRoles::None, roles);
-	}
-
-	TEST(TEST_CLASS, CanParseSingleValue) {
-		// Act:
-		NodeRoles roles;
-		auto isParsed = TryParseValue("Peer", roles);
-
-		// Assert:
-		EXPECT_TRUE(isParsed);
-		EXPECT_EQ(NodeRoles::Peer, roles);
-	}
-
-	TEST(TEST_CLASS, CanParseMultipleValues) {
-		// Act:
-		NodeRoles roles;
-		auto isParsed = TryParseValue("Peer,Api", roles);
-
-		// Assert:
-		EXPECT_TRUE(isParsed);
-		EXPECT_EQ(static_cast<NodeRoles>(3), roles);
-	}
-
-	TEST(TEST_CLASS, CannotParseMalformedSet) {
-		// Act:
-		auto roles = NodeRoles::None;
-		auto isParsed = TryParseValue("Peer,,Api", roles);
-
-		// Assert:
-		EXPECT_FALSE(isParsed);
-		EXPECT_EQ(NodeRoles::None, roles);
-	}
-
-	TEST(TEST_CLASS, CannotParseSetWithUnknownRole) {
-		// Act:
-		auto roles = NodeRoles::None;
-		auto isParsed = TryParseValue("Peer,Api2,Api", roles);
-
-		// Assert:
-		EXPECT_FALSE(isParsed);
-		EXPECT_EQ(NodeRoles::None, roles);
+		test::AssertParse("Peer", NodeRoles::Peer, TryParseValue);
+		test::AssertParse("Api", NodeRoles::Api, TryParseValue);
+		test::AssertParse("Peer,Api", NodeRoles::Peer | NodeRoles::Api, TryParseValue);
 	}
 }}

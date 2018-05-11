@@ -1,4 +1,25 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "packetserver/src/NetworkPacketReadersService.h"
+#include "catapult/handlers/BasicProducer.h"
 #include "catapult/handlers/HandlerFactory.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/NetworkTestUtils.h"
@@ -80,20 +101,26 @@ namespace catapult { namespace packetserver {
 	namespace {
 		struct SquaresTraits {
 			using RequestStructureType = uint64_t;
-			using SupplierResultsType = std::vector<uint64_t>;
 
 			static constexpr auto Packet_Type = static_cast<ionet::PacketType>(25);
+			static constexpr auto Should_Append_As_Values = true;
 
-			static auto ToPayload(const SupplierResultsType& results) {
-				auto payloadSize = utils::checked_cast<size_t, uint32_t>(results.size() * sizeof(uint64_t));
-				auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
-				pPacket->Type = Packet_Type;
-				std::memcpy(pPacket->Data(), results.data(), payloadSize);
-				return pPacket;
-			}
+			class Producer : public handlers::BasicProducer<model::EntityRange<uint64_t>> {
+			public:
+				using BasicProducer<model::EntityRange<uint64_t>>::BasicProducer;
+
+			public:
+				auto operator()() {
+					return next([](auto value) {
+						// 1. square the value
+						// 2. return a shared_ptr because a pointer is expected to be returned
+						return std::make_shared<uint64_t>(value * value);
+					});
+				}
+			};
 		};
 
-		std::shared_ptr<ionet::Packet> GenerateSquaresPacket() {
+		std::shared_ptr<ionet::Packet> GenerateSquaresRequestPacket() {
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(3 * sizeof(uint64_t));
 			pPacket->Type = SquaresTraits::Packet_Type;
 
@@ -111,14 +138,9 @@ namespace catapult { namespace packetserver {
 		auto& packetHandlers = context.testState().state().packetHandlers();
 
 		// - register a single handler
-		using HandlerFactory = handlers::BatchHandlerFactory<SquaresTraits>;
-		packetHandlers.registerHandler(HandlerFactory::Packet_Type, HandlerFactory::Create([](const auto& range) {
-			std::vector<uint64_t> squares;
-			for (const auto& value : range)
-				squares.push_back(value * value);
-
-			return squares;
-		}));
+		handlers::BatchHandlerFactory<SquaresTraits>::RegisterOne(packetHandlers, [](const auto& values) {
+			return SquaresTraits::Producer(values);
+		});
 
 		context.boot();
 
@@ -131,8 +153,8 @@ namespace catapult { namespace packetserver {
 
 		// Act: send a simple squares request
 		ionet::ByteBuffer packetBuffer;
-		auto pRequestPacket = GenerateSquaresPacket();
-		pIo->write(pRequestPacket, [&service = pPool->service(), &io = *pIo, &packetBuffer](auto) {
+		auto pRequestPacket = GenerateSquaresRequestPacket();
+		pIo->write(ionet::PacketPayload(pRequestPacket), [&service = pPool->service(), &io = *pIo, &packetBuffer](auto) {
 			test::AsyncReadIntoBuffer(service, io, packetBuffer);
 		});
 

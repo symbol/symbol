@@ -1,5 +1,26 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache/IdentifierGroupCacheUtils.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
+#include "catapult/utils/Hashers.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -26,8 +47,18 @@ namespace catapult { namespace cache {
 			}
 		};
 
+		template<typename TBaseSet>
+		class BaseSetTypeWrapper : public TBaseSet {
+		public:
+			BaseSetTypeWrapper() : TBaseSet(deltaset::ConditionalContainerMode::Memory, m_database, 0)
+			{}
+
+		private:
+			CacheDatabase m_database;
+		};
+
 		using HeightGroupedTypes = MutableUnorderedMapAdapter<TestHeightGroupedCacheDescriptor, utils::BaseValueHasher<Height>>;
-		using HeightGroupedBaseSetType = HeightGroupedTypes::BaseSetType;
+		using HeightGroupedBaseSetType = BaseSetTypeWrapper<HeightGroupedTypes::BaseSetType>;
 
 		// fake cache that indexes strings by size
 		struct TestCacheDescriptor {
@@ -40,7 +71,7 @@ namespace catapult { namespace cache {
 		};
 
 		using BasicTypes = MutableUnorderedMapAdapter<TestCacheDescriptor>;
-		using BaseSetType = BasicTypes::BaseSetType;
+		using BaseSetType = BaseSetTypeWrapper<BasicTypes::BaseSetType>;
 	}
 
 	// region AddIdentifierWithGroup

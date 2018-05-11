@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/model/ImportanceHeight.h"
 #include "catapult/constants.h"
@@ -22,10 +42,10 @@ namespace catapult { namespace state {
 			{}
 
 		public:
-			/// The importance.
+			/// Account importance.
 			catapult::Importance Importance;
 
-			/// The importance height.
+			/// Importance height.
 			model::ImportanceHeight Height;
 		};
 
@@ -33,7 +53,7 @@ namespace catapult { namespace state {
 		using SnapshotArray = std::array<ImportanceSnapshot, Importance_History_Size>;
 
 	public:
-		/// The importance const iterator.
+		/// Importance const iterator.
 		/// \note Iterator will always return three snapshots to mimic std::array behavior.
 		/// \note Custom iterator is needed in order to support iteration when std::array member is \c nullptr (memory optimization).
 		class const_iterator {

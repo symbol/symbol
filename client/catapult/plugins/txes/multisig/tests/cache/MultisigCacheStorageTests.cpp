@@ -1,8 +1,28 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/cache/MultisigCacheStorage.h"
 #include "catapult/utils/HexFormatter.h"
 #include "tests/test/MultisigTestUtils.h"
+#include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -199,46 +219,64 @@ namespace catapult { namespace cache {
 			return buffer;
 		}
 
+		struct MultisigCacheStorageTraits {
+			using KeyType = Key;
+			using ValueType = state::MultisigEntry;
+
+			using StorageType = MultisigCacheStorage;
+			class CacheType : public MultisigCache {
+			public:
+				CacheType() : MultisigCache(CacheConfiguration())
+				{}
+			};
+		};
+
+		using LookupCacheStorageTests = test::LookupCacheStorageTests<MultisigCacheStorageTraits>;
+
+		struct LoadTraits {
+			static constexpr auto RunLoadValueTest = LookupCacheStorageTests::RunLoadValueViaLoadTest;
+		};
+
+		struct LoadIntoTraits {
+			static constexpr auto RunLoadValueTest = LookupCacheStorageTests::RunLoadValueViaLoadIntoTest;
+		};
+
+		template<typename TTraits>
 		void AssertCanLoadSingleEntry(size_t numCosignatories, size_t numMultisigAccounts) {
 			// Arrange:
 			TestContext context;
-			auto entry = context.createEntry(0, numCosignatories, numMultisigAccounts);
-			auto buffer = CreateBuffer(entry);
-			mocks::MockMemoryStream inputStream("", buffer);
+			auto originalEntry = context.createEntry(0, numCosignatories, numMultisigAccounts);
+			auto buffer = CreateBuffer(originalEntry);
 
 			// Act:
-			MultisigCache cache;
-			auto delta = cache.createDelta();
-			MultisigCacheStorage::Load(inputStream, *delta);
-			cache.commit();
-
-			// Assert: whole buffer has been read
-			EXPECT_EQ(buffer.size(), inputStream.position());
+			state::MultisigEntry result(test::GenerateRandomData<Key_Size>());
+			TTraits::RunLoadValueTest(originalEntry.key(), buffer, result);
 
 			// Assert:
-			auto view = cache.createView();
-			auto iter = std::find_if(view->begin(), view->end(), [&entry](const auto& pair) {
-				return entry.key() == pair.second.key();
-			});
-			ASSERT_NE(view->end(), iter);
-			AssertEqual(entry, iter->second);
+			AssertEqual(originalEntry, result);
 		}
 	}
 
-	TEST(TEST_CLASS, CanLoadSingleEntryWithNeitherCosignatoriesNorMultisigAccounts) {
-		AssertCanLoadSingleEntry(0, 0);
+#define LOAD_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Load) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LoadTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_LoadInto) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LoadIntoTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	LOAD_TEST(CanLoadSingleEntryWithNeitherCosignatoriesNorMultisigAccounts) {
+		AssertCanLoadSingleEntry<TTraits>(0, 0);
 	}
 
-	TEST(TEST_CLASS, CanLoadSingleEntryWithCosignatoriesButWithoutMultisigAccounts) {
-		AssertCanLoadSingleEntry(5, 0);
+	LOAD_TEST(CanLoadSingleEntryWithCosignatoriesButWithoutMultisigAccounts) {
+		AssertCanLoadSingleEntry<TTraits>(5, 0);
 	}
 
-	TEST(TEST_CLASS, CanLoadSingleEntryWithoutCosignatoriesButWithMultisigAccounts) {
-		AssertCanLoadSingleEntry(0, 5);
+	LOAD_TEST(CanLoadSingleEntryWithoutCosignatoriesButWithMultisigAccounts) {
+		AssertCanLoadSingleEntry<TTraits>(0, 5);
 	}
 
-	TEST(TEST_CLASS, CanLoadSingleEntryWithCosignatoriesAndMultisigAccounts) {
-		AssertCanLoadSingleEntry(3, 4);
+	LOAD_TEST(CanLoadSingleEntryWithCosignatoriesAndMultisigAccounts) {
+		AssertCanLoadSingleEntry<TTraits>(3, 4);
 	}
 
 	// endregion

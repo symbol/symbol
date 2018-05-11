@@ -1,8 +1,29 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "ServerConnector.h"
 #include "VerifyPeer.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
+#include "catapult/ionet/SecurePacketSocketDecorator.h"
 #include "catapult/thread/IoServiceThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/Logging.h"
@@ -11,6 +32,8 @@
 namespace catapult { namespace net {
 
 	namespace {
+		using PacketSocketPointer = std::shared_ptr<ionet::PacketSocket>;
+
 		class DefaultServerConnector
 				: public ServerConnector
 				, public std::enable_shared_from_this<DefaultServerConnector> {
@@ -33,21 +56,17 @@ namespace catapult { namespace net {
 		public:
 			void connect(const ionet::Node& node, const ConnectCallback& callback) override {
 				auto& service = m_pPool->service();
-				auto pRequest = thread::MakeTimedCallback(
-						service,
-						callback,
-						PeerConnectResult::Timed_Out,
-						std::shared_ptr<ionet::PacketSocket>());
+				auto pRequest = thread::MakeTimedCallback(service, callback, PeerConnectResult::Timed_Out, PacketSocketPointer());
 				pRequest->setTimeout(m_settings.Timeout);
 				auto cancel = ionet::Connect(
 						service,
 						m_settings.toSocketOptions(),
 						node.endpoint(),
-						[pThis = shared_from_this(), node, pRequest](auto result, const auto& pSocket) {
+						[pThis = shared_from_this(), node, pRequest](auto result, const auto& pConnectedSocket) {
 							if (ionet::ConnectResult::Connected != result)
 								return pRequest->callback(PeerConnectResult::Socket_Error, nullptr);
 
-							pThis->verify(node.identityKey(), pSocket, pRequest);
+							pThis->verify(node.identityKey(), pConnectedSocket, pRequest);
 						});
 
 				pRequest->setTimeoutHandler([cancel]() {
@@ -58,26 +77,29 @@ namespace catapult { namespace net {
 
 		private:
 			template<typename TRequest>
-			void verify(
-					const Key& publicKey,
-					const std::shared_ptr<ionet::PacketSocket>& pSocket,
-					const std::shared_ptr<TRequest>& pRequest) {
-				m_sockets.insert(pSocket);
-				pRequest->setTimeoutHandler([pSocket]() {
-					pSocket->close();
+			void verify(const Key& publicKey, const PacketSocketPointer& pConnectedSocket, const std::shared_ptr<TRequest>& pRequest) {
+				m_sockets.insert(pConnectedSocket);
+				pRequest->setTimeoutHandler([pConnectedSocket]() {
+					pConnectedSocket->close();
 					CATAPULT_LOG(debug) << "verify failed due to timeout";
 				});
 
-				VerifyServer(pSocket, publicKey, m_keyPair, [pThis = shared_from_this(), pSocket, pRequest](
+				VerifiedPeerInfo serverPeerInfo{ publicKey, m_settings.OutgoingSecurityMode };
+				VerifyServer(pConnectedSocket, serverPeerInfo, m_keyPair, [pThis = shared_from_this(), pConnectedSocket, pRequest](
 						auto verifyResult,
-						const auto&) {
+						const auto& verifiedPeerInfo) {
 					if (VerifyResult::Success != verifyResult) {
 						CATAPULT_LOG(warning) << "VerifyServer failed with " << verifyResult;
 						return pRequest->callback(PeerConnectResult::Verify_Error, nullptr);
 					}
 
-					return pRequest->callback(PeerConnectResult::Accepted, pSocket);
+					auto pSecuredSocket = pThis->secure(pConnectedSocket, verifiedPeerInfo);
+					return pRequest->callback(PeerConnectResult::Accepted, pSecuredSocket);
 				});
+			}
+
+			PacketSocketPointer secure(const PacketSocketPointer& pSocket, const VerifiedPeerInfo& peerInfo) {
+				return Secure(pSocket, peerInfo.SecurityMode, m_keyPair, peerInfo.PublicKey, m_settings.MaxPacketDataSize);
 			}
 
 		public:

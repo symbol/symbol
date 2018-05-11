@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "TransferEntityType.h"
 #include "catapult/model/Mosaic.h"
@@ -14,24 +34,23 @@ namespace catapult { namespace model {
 		using TransactionType = TransferTransactionBody<THeader>;
 
 	public:
-		/// Transaction format version.
-		static constexpr uint8_t Current_Version = 3;
-
-		/// Transaction type.
-		static constexpr EntityType Entity_Type = Entity_Type_Transfer;
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Transfer, 3)
 
 	public:
-		/// The transaction recipient.
+		/// Transaction recipient.
 		Address Recipient;
 
-		/// The message size in bytes.
+		/// Message size in bytes.
 		uint16_t MessageSize;
 
-		/// The number of mosaics.
+		/// Number of mosaics.
 		uint8_t MosaicsCount;
 
 		// followed by message data if MessageSize != 0
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Message, uint8_t)
+
 		// followed by mosaics data if MosaicsCount != 0
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Mosaics, Mosaic)
 
 	private:
 		template<typename T>
@@ -43,27 +62,6 @@ namespace catapult { namespace model {
 		static auto* MosaicsPtrT(T& transaction) {
 			auto* pPayloadStart = THeader::PayloadStart(transaction);
 			return transaction.MosaicsCount && pPayloadStart ? pPayloadStart + transaction.MessageSize : nullptr;
-		}
-
-	public:
-		/// Returns a const pointer to the message contained in this transaction.
-		const uint8_t* MessagePtr() const {
-			return MessagePtrT(*this);
-		}
-
-		/// Returns a pointer to the message contained in this transaction.
-		uint8_t* MessagePtr() {
-			return MessagePtrT(*this);
-		}
-
-		/// Returns a const pointer to the first mosaic contained in this transaction.
-		const Mosaic* MosaicsPtr() const {
-			return reinterpret_cast<const Mosaic*>(MosaicsPtrT(*this));
-		}
-
-		/// Returns a pointer to the first mosaic contained in this transaction.
-		Mosaic* MosaicsPtr() {
-			return reinterpret_cast<Mosaic*>(MosaicsPtrT(*this));
 		}
 
 	public:

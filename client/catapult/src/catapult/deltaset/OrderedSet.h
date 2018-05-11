@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "BaseSet.h"
 #include "PruningBoundary.h"
@@ -6,18 +26,42 @@
 namespace catapult { namespace deltaset {
 
 	namespace detail {
+		// region DefaultComparator
+
+		// used to support comparing values and values pointed to by shared_ptr
+		// (this is required to support shared_ptr value types in OrderedSet)
+
+		template<typename T>
+		struct OrderedSetDefaultComparator {
+			bool operator()(const T& lhs, const T& rhs) const {
+				return lhs < rhs;
+			}
+		};
+
+		template<typename T>
+		struct OrderedSetDefaultComparator<std::shared_ptr<T>> {
+			bool operator()(const std::shared_ptr<T>& pLhs, const std::shared_ptr<T>& pRhs) const {
+				OrderedSetDefaultComparator<T> comparator;
+				return comparator(*pLhs, *pRhs);
+			}
+		};
+
+		// endregion
+
 		template<typename T>
 		using OrderedSetType = std::set<
-				typename std::remove_const<typename T::ElementType>::type,
-				DefaultComparator<typename T::ElementType>>;
+			typename std::remove_const<typename T::ElementType>::type,
+			OrderedSetDefaultComparator<typename T::ElementType>>;
 
-		/// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements
-		/// to remove.
+		/// Selects the prunable set from \a set.
+		template<typename TSet>
+		TSet& SelectPrunableSet(TSet& set) {
+			return set;
+		}
+
+		/// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements to remove.
 		template<typename TSet>
 		void PruneBaseSet(TSet& elements, const PruningBoundary<typename TSet::value_type>& pruningBoundary) {
-			if (!pruningBoundary.isSet())
-				return;
-
 			auto iter = elements.lower_bound(pruningBoundary.value());
 			elements.erase(elements.cbegin(), iter);
 		}
@@ -25,14 +69,15 @@ namespace catapult { namespace deltaset {
 		/// Policy for committing changes to an ordered set.
 		template<typename TSetTraits>
 		struct OrderedSetCommitPolicy {
-		private:
-			using SetType = typename TSetTraits::SetType;
-
-		public:
 			template<typename TPruningBoundary>
-			static void Update(SetType& elements, const DeltaElements<SetType>& deltas, const TPruningBoundary& pruningBoundary) {
-				UpdateBaseSet<TSetTraits>(elements, deltas);
-				PruneBaseSet(elements, pruningBoundary);
+			static void Update(
+					typename TSetTraits::SetType& elements,
+					const DeltaElements<typename TSetTraits::MemorySetType>& deltas,
+					const TPruningBoundary& pruningBoundary) {
+				UpdateSet<typename TSetTraits::KeyTraits>(elements, deltas);
+
+				if (pruningBoundary.isSet())
+					PruneBaseSet(SelectPrunableSet(elements), pruningBoundary);
 			}
 		};
 	}
@@ -42,10 +87,6 @@ namespace catapult { namespace deltaset {
 	class OrderedSet : public BaseSet<TElementTraits, TStorageTraits, detail::OrderedSetCommitPolicy<TStorageTraits>> {
 	private:
 		using BaseType = BaseSet<TElementTraits, TStorageTraits, detail::OrderedSetCommitPolicy<TStorageTraits>>;
-
-	public:
-		/// Indicates the set is ordered (used for capability detection in templates).
-		static constexpr auto Is_Ordered = true;
 
 	public:
 		using BaseType::BaseType;

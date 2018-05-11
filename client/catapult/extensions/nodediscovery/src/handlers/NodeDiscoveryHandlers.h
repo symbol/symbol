@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketHandlers.h"
@@ -23,8 +43,11 @@ namespace catapult { namespace handlers {
 			model::NetworkIdentifier networkIdentifier,
 			const NodeConsumer& nodeConsumer);
 
-	/// Registers a node discovery pull ping handler in \a handlers that responds with \a localNode.
-	void RegisterNodeDiscoveryPullPingHandler(ionet::ServerPacketHandlers& handlers, const ionet::NetworkNode& localNode);
+	/// Registers a node discovery pull ping handler in \a handlers that responds with \a pLocalNode.
+	/// \note shared_ptr is used to avoid copying into packet.
+	void RegisterNodeDiscoveryPullPingHandler(
+			ionet::ServerPacketHandlers& handlers,
+			const std::shared_ptr<const ionet::NetworkNode>& pLocalNode);
 
 	/// Registers a node discovery push peers handler in \a handlers that forwards received nodes to \a nodesConsumer.
 	void RegisterNodeDiscoveryPushPeersHandler(ionet::ServerPacketHandlers& handlers, const NodesConsumer& nodesConsumer);

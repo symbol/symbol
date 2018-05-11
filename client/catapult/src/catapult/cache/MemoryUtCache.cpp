@@ -1,4 +1,25 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "MemoryUtCache.h"
+#include "AccountCounters.h"
 #include "CacheSizeLogger.h"
 #include "catapult/model/EntityInfo.h"
 
@@ -96,16 +117,22 @@ namespace catapult { namespace cache {
 					size_t& idSequence,
 					TransactionDataContainer& transactionDataContainer,
 					IdLookup& idLookup,
+					AccountCounters& counters,
 					utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 					: m_maxCacheSize(maxCacheSize)
 					, m_idSequence(idSequence)
 					, m_transactionDataContainer(transactionDataContainer)
 					, m_idLookup(idLookup)
+					, m_counters(counters)
 					, m_readLock(std::move(readLock))
 					, m_writeLock(m_readLock.promoteToWriter())
 			{}
 
 		public:
+			size_t size() const override {
+				return m_transactionDataContainer.size();
+			}
+
 			bool add(const model::TransactionInfo& transactionInfo) override {
 				if (m_maxCacheSize <= m_transactionDataContainer.size())
 					return false;
@@ -115,6 +142,8 @@ namespace catapult { namespace cache {
 
 				m_idLookup.emplace(transactionInfo.EntityHash, ++m_idSequence);
 				m_transactionDataContainer.emplace(transactionInfo, m_idSequence);
+
+				m_counters.increment(transactionInfo.pEntity->Signer);
 
 				LogSizes("unconfirmed transactions", m_transactionDataContainer.size(), m_maxCacheSize);
 				return true;
@@ -128,9 +157,15 @@ namespace catapult { namespace cache {
 				auto dataIter = m_transactionDataContainer.find(TransactionData(iter->second));
 				auto erasedInfo = dataIter->copy();
 
+				m_counters.decrement(dataIter->pEntity->Signer);
+
 				m_transactionDataContainer.erase(dataIter);
 				m_idLookup.erase(iter);
 				return erasedInfo;
+			}
+
+			size_t count(const Key& key) const override {
+				return m_counters.count(key);
 			}
 
 			std::vector<model::TransactionInfo> removeAll() override {
@@ -146,6 +181,7 @@ namespace catapult { namespace cache {
 
 				m_transactionDataContainer.clear();
 				m_idLookup.clear();
+				m_counters.reset();
 				return transactionInfosCopy;
 			}
 
@@ -154,6 +190,7 @@ namespace catapult { namespace cache {
 			size_t& m_idSequence;
 			TransactionDataContainer& m_transactionDataContainer;
 			IdLookup& m_idLookup;
+			AccountCounters& m_counters;
 			utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 			utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
 		};
@@ -166,6 +203,7 @@ namespace catapult { namespace cache {
 	struct MemoryUtCache::Impl {
 		cache::TransactionDataContainer TransactionDataContainer;
 		std::unordered_map<Hash256, size_t, utils::ArrayHasher<Hash256>> IdLookup;
+		AccountCounters Counters;
 	};
 
 	MemoryUtCache::MemoryUtCache(const MemoryCacheOptions& options)
@@ -186,6 +224,7 @@ namespace catapult { namespace cache {
 				m_idSequence,
 				m_pImpl->TransactionDataContainer,
 				m_pImpl->IdLookup,
+				m_pImpl->Counters,
 				m_lock.acquireReader()));
 	}
 

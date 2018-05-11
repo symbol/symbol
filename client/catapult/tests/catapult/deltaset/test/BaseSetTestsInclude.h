@@ -1,15 +1,39 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "ContainerDeltaPair.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/deltaset/BaseSet.h"
 #include "catapult/deltaset/BaseSetDefaultTraits.h"
 #include "catapult/deltaset/BaseSetDelta.h"
+#include "catapult/deltaset/OrderedSet.h"
+#include "catapult/utils/traits/StlTraits.h"
 #include "tests/TestHarness.h"
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
 
 namespace catapult { namespace test {
+
+	// region TestElement
 
 	/// Test element used as the base of both immutable and mutable test elements.
 	struct TestElement {
@@ -77,7 +101,9 @@ namespace catapult { namespace test {
 		{}
 	};
 
-	// region Hasher
+	// endregion
+
+	// region composite classes used in BaseSet(Delta) definitions
 
 	/// Hashing function for TestElement.
 	template<typename T>
@@ -96,9 +122,21 @@ namespace catapult { namespace test {
 		}
 	};
 
-	// endregion
+	/// Checks two objects of the same type for equality.
+	template<typename T>
+	struct EqualityChecker {
+		bool operator()(const T& lhs, const T& rhs) const {
+			return lhs == rhs;
+		}
+	};
 
-	// region ReverseComparator
+	template<typename T>
+	struct EqualityChecker<std::shared_ptr<T>> {
+		bool operator()(const std::shared_ptr<T>& pLhs, const std::shared_ptr<T>& pRhs) const {
+			EqualityChecker<T> equalityChecker;
+			return equalityChecker(*pLhs, *pRhs);
+		}
+	};
 
 	/// Reverse comparator that reverses the natural sorting order of elements.
 	template<typename T>
@@ -118,7 +156,7 @@ namespace catapult { namespace test {
 
 	// endregion
 
-	// region IsMutable
+	// region IsMutable / IsMap
 
 	/// Returns \c true if \a TElement is mutable.
 	template<typename TElement>
@@ -134,6 +172,12 @@ namespace catapult { namespace test {
 	template<>
 	constexpr bool IsMutable<std::shared_ptr<MutableTestElement>>() {
 		return true;
+	}
+
+	/// Returns \c true if container is a map.
+	template<typename T>
+	bool IsMap(const T&) {
+		return utils::traits::is_map<T>::value;
 	}
 
 	// endregion
@@ -200,7 +244,7 @@ namespace catapult { namespace test {
 
 		template<typename TSet>
 		static void AssertContents(const TSet& set, const ElementVector& expectedElements) {
-			EXPECT_EQ(expectedElements.size(), set.size());
+			ASSERT_EQ(expectedElements.size(), set.size());
 			for (const auto& element : expectedElements) {
 				auto pElementFromSet = set.find(ToKey(element));
 				EXPECT_EQ(*BaseType::ToPointer(element), *pElementFromSet);
@@ -209,6 +253,10 @@ namespace catapult { namespace test {
 
 		static auto ToKey(const ElementType& element) {
 			return TBaseSetTraits::SetTraits::ToKey(element);
+		}
+
+		static auto ToStorage(const typename TBaseSetTraits::SetTraits::ValueType& value) {
+			return TBaseSetTraits::SetTraits::ToStorage(value);
 		}
 
 		static auto CreateKey(const std::string& name, unsigned int value) {
@@ -226,19 +274,23 @@ namespace catapult { namespace test {
 
 	// endregion
 
+	// region Base/Delta traits
+
 	/// Traits for creating base sets.
 	template<typename TBaseSetTraits>
 	struct BaseTraits : BatchElementFactory<TBaseSetTraits> {
+		static constexpr auto Commit = TBaseSetTraits::Commit;
 
-		static auto Create() {
-			return TBaseSetTraits::Create();
+		template<typename... TArgs>
+		static auto Create(TArgs&&... args) {
+			return TBaseSetTraits::Create(std::forward<TArgs>(args)...);
 		}
 
 		static auto CreateWithElements(size_t count) {
 			auto pBaseSet = Create();
 			auto pDelta = pBaseSet->rebase();
 			BatchElementFactory<TBaseSetTraits>::InsertElements(*pDelta, count);
-			TBaseSetTraits::Commit(*pBaseSet);
+			Commit(*pBaseSet);
 			return pBaseSet;
 		}
 	};
@@ -246,17 +298,17 @@ namespace catapult { namespace test {
 	/// Traits for creating deltas.
 	template<typename TBaseSetTraits>
 	struct DeltaTraits : BatchElementFactory<TBaseSetTraits> {
-
-		static auto Create() {
-			auto pBaseSet = CreateBase();
-			return test::ContainerDeltaPair<TBaseSetTraits>(pBaseSet, pBaseSet->rebase());
+		template<typename... TArgs>
+		static auto Create(TArgs&&... args) {
+			auto pBaseSet = TBaseSetTraits::Create(std::forward<TArgs>(args)...);
+			return ContainerDeltaPair<TBaseSetTraits>(pBaseSet, pBaseSet->rebase());
 		}
 
 		static auto CreateWithElements(size_t count) {
 			auto pBaseSet = CreateBase();
 			auto pDelta = pBaseSet->rebase();
 			BatchElementFactory<TBaseSetTraits>::InsertElements(*pDelta, count);
-			return test::ContainerDeltaPair<TBaseSetTraits>(pBaseSet, pDelta);
+			return ContainerDeltaPair<TBaseSetTraits>(pBaseSet, pDelta);
 		}
 
 		static auto CreateBase() {
@@ -264,15 +316,9 @@ namespace catapult { namespace test {
 		}
 	};
 
-	template<typename TElement>
-	using OrderedSetTraits = deltaset::SetStorageTraits<std::set<TElement, deltaset::DefaultComparator<TElement>>>;
+	// endregion
 
-	template<typename TElement>
-	using UnorderedSetTraits =
-		deltaset::SetStorageTraits<std::unordered_set<TElement, Hasher<TElement>, deltaset::EqualityChecker<TElement>>>;
-
-	template<typename TElement>
-	using ReverseOrderedSetTraits = deltaset::SetStorageTraits<std::set<TElement, ReverseComparator<TElement>>>;
+	// region type declarations for common set types
 
 	struct MapKeyHasher {
 		size_t operator()(const std::pair<std::string, unsigned int>& pair) const {
@@ -285,15 +331,30 @@ namespace catapult { namespace test {
 	template<typename T>
 	struct TestElementToKeyConverter {
 		static auto ToKey(const T& element) {
-			const auto& elementRef = deltaset::detail::DerefHelper<T>::Deref(element);
-			return std::make_pair(elementRef.Name, elementRef.Value);
+			return std::make_pair(element.Name, element.Value);
 		}
 	};
 
 	template<typename T>
+	struct TestElementToKeyConverter<std::shared_ptr<T>> {
+		static auto ToKey(const std::shared_ptr<T>& pElement) {
+			return std::make_pair(pElement->Name, pElement->Value);
+		}
+	};
+
+	template<typename TElement>
+	using OrderedSetTraits = deltaset::SetStorageTraits<std::set<TElement, deltaset::detail::OrderedSetDefaultComparator<TElement>>>;
+
+	template<typename TElement>
+	using UnorderedSetTraits = deltaset::SetStorageTraits<std::unordered_set<TElement, Hasher<TElement>, EqualityChecker<TElement>>>;
+
+	template<typename TElement>
+	using ReverseOrderedSetTraits = deltaset::SetStorageTraits<std::set<TElement, ReverseComparator<TElement>>>;
+
+	template<typename TElement>
 	using UnorderedMapSetTraits = deltaset::MapStorageTraits<
-			std::unordered_map<std::pair<std::string, unsigned int>, T, MapKeyHasher>,
-			TestElementToKeyConverter<T>>;
+		std::unordered_map<std::pair<std::string, unsigned int>, TElement, MapKeyHasher>,
+		TestElementToKeyConverter<TElement>>;
 
 	template<typename TMutabilityTraits>
 	using SetElementType = typename std::remove_const<typename TMutabilityTraits::ElementType>::type;
@@ -305,8 +366,9 @@ namespace catapult { namespace test {
 		using ElementType = typename TElementTraits::ElementType;
 		using SetTraits = TSetTraits;
 
-		static auto Create() {
-			return std::make_shared<Type>();
+		template<typename... TArgs>
+		static auto Create(TArgs&&... args) {
+			return std::make_shared<Type>(std::forward<TArgs>(args)...);
 		}
 
 		static void Commit(Type& set) {
@@ -314,23 +376,140 @@ namespace catapult { namespace test {
 		}
 	};
 
-	template<typename TMutabilityTraits>
-	using OrderedTraits = BaseSetTraits<
-			TMutabilityTraits,
-			OrderedSetTraits<SetElementType<TMutabilityTraits>>>;
+	using MutableElementValueTraits = deltaset::MutableTypeTraits<MutableTestElement>;
+	using MutableElementPointerTraits = deltaset::MutableTypeTraits<std::shared_ptr<MutableTestElement>>;
+	using ImmutableElementValueTraits = deltaset::ImmutableTypeTraits<const ImmutableTestElement>;
+	using ImmutablePointerValueTraits = deltaset::ImmutableTypeTraits<std::shared_ptr<const ImmutableTestElement>>;
 
-	template<typename TMutabilityTraits>
-	using UnorderedTraits = BaseSetTraits<
-			TMutabilityTraits,
-			UnorderedSetTraits<SetElementType<TMutabilityTraits>>>;
+	// endregion
 
-	template<typename TMutabilityTraits>
-	using ReverseOrderedTraits = BaseSetTraits<
-			TMutabilityTraits,
-			ReverseOrderedSetTraits<SetElementType<TMutabilityTraits>>>;
+	// region other utils
 
-	template<typename TMutabilityTraits>
-	using UnorderedMapTraits = BaseSetTraits<
-			TMutabilityTraits,
-			UnorderedMapSetTraits<SetElementType<TMutabilityTraits>>>;
+	/// Dereferences pointer \a pElement.
+	template<typename T>
+	T Unwrap(T* pElement) {
+		return *pElement;
+	}
+
+	template<typename T>
+	T Unwrap(const std::shared_ptr<T>& pElement) {
+		return *pElement;
+	}
+
+	/// Returns \c true if container allows native value modification.
+	template<typename T>
+	bool AllowsNativeValueModification(const T&) {
+		return IsMap(typename T::SetType());
+	}
+
+	// endregion
+
+	// region asserts
+
+	/// Asserts that the iterator exposed by \a set points to a const element.
+	template<typename TBaseSet>
+	void AssertConstIterator(const TBaseSet& set) {
+		auto iterableSet = MakeIterableView(set);
+		auto iter = iterableSet.begin();
+
+		// Assert: the unwrapped set iterator element pointer points to a const element
+		EXPECT_TRUE(std::is_const<decltype(Unwrap(iter.operator->()))>());
+	}
+
+	/// Asserts that the delta sizes in \a deltaWrapper have the expected values
+	/// (\a expectedOriginal, \a expectedAdded, \a expectedRemoved, \a expectedCopied).
+	template<typename TDeltaWrapper>
+	void AssertDeltaSizes(
+			TDeltaWrapper& deltaWrapper,
+			size_t expectedOriginal,
+			size_t expectedAdded,
+			size_t expectedRemoved,
+			size_t expectedCopied) {
+		// Act:
+		auto deltas = deltaWrapper->deltas();
+
+		// Assert:
+		CATAPULT_LOG(debug)
+				<< "size: " << deltaWrapper.originalSize()
+				<< " (O " << deltaWrapper.originalSize()
+				<< ", A " << deltas.Added.size()
+				<< ", R " << deltas.Removed.size()
+				<< ", C " << deltas.Copied.size() << ")";
+		EXPECT_EQ(expectedOriginal, deltaWrapper.originalSize());
+		EXPECT_EQ(expectedAdded, deltas.Added.size());
+		EXPECT_EQ(expectedRemoved, deltas.Removed.size());
+		EXPECT_EQ(expectedCopied, deltas.Copied.size());
+	}
+
+	/// Asserts that the delta sizes in \a delta and the original size in \a set have the expected values
+	/// (\a expectedOriginal, \a expectedAdded, \a expectedRemoved, \a expectedCopied).
+	template<typename TSet, typename TDelta>
+	void AssertDeltaSizes(
+			const TSet& set,
+			const TDelta& delta,
+			size_t expectedOriginal,
+			size_t expectedAdded,
+			size_t expectedRemoved,
+			size_t expectedCopied) {
+		// Act:
+		auto deltas = delta.deltas();
+
+		// Assert:
+		CATAPULT_LOG(debug)
+				<< "size: " << set.size()
+				<< " (O " << set.size()
+				<< ", A " << deltas.Added.size()
+				<< ", R " << deltas.Removed.size()
+				<< ", C " << deltas.Copied.size() << ")";
+		EXPECT_EQ(expectedOriginal, set.size());
+		EXPECT_EQ(expectedAdded, deltas.Added.size());
+		EXPECT_EQ(expectedRemoved, deltas.Removed.size());
+		EXPECT_EQ(expectedCopied, deltas.Copied.size());
+	}
+
+	/// Utilities when testing base set deltas.
+	template<typename TTraits>
+	struct BaseSetDeltaTestUtils {
+		/// Sets the dummy value of the element with \a value in \a set to \a dummy.
+		static void SetDummyValue(const decltype(*TTraits::Create())& set, unsigned int value, size_t dummy) {
+			// Act: find the matching element and update its dummy value
+			auto pOriginalElement = set.find(TTraits::CreateKey("TestElement", value));
+			pOriginalElement->Dummy = dummy;
+		}
+
+		/// Creates a set with all types of elements for batch find tests.
+		static auto CreateSetForBatchFindTests() {
+			auto pDelta = TTraits::CreateWithElements(4);
+			pDelta.commit();
+			pDelta->emplace("TestElement", static_cast<unsigned int>(7));
+			pDelta->emplace("TestElement", static_cast<unsigned int>(5));
+			pDelta->emplace("TestElement", static_cast<unsigned int>(4));
+			pDelta->remove(TTraits::CreateKey("TestElement", 1));
+			pDelta->remove(TTraits::CreateKey("TestElement", 4));
+			SetDummyValue(*pDelta, 2, 42);
+			SetDummyValue(*pDelta, 5, 42);
+			return pDelta;
+		}
+
+		/// Creates a set containing the expected elements in the base set delta created by CreateSetForBatchFindTests.
+		static std::set<TestElement> CreateExpectedElementsForBatchFindTests() {
+			// Assert:
+			// + 0 -> original unmodified
+			// - 1 -> original removed
+			// + 2 -> original copied
+			// + 3 -> original unmodified
+			// - 4 -> inserted removed
+			// + 5 -> inserted copied
+			// + 7 -> inserted unmodified
+			return {
+				TestElement("TestElement", 0),
+				TestElement("TestElement", 2),
+				TestElement("TestElement", 3),
+				TestElement("TestElement", 5),
+				TestElement("TestElement", 7)
+			};
+		}
+	};
+
+	// endregion
 }}

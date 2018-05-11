@@ -1,5 +1,26 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "BasicBatchHandlerTests.h"
+#include "catapult/handlers/BasicProducer.h"
 #include "tests/test/core/EntityTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -67,7 +88,7 @@ namespace catapult { namespace test {
 			typename TTraits::ResponseState responseState;
 			auto expectedResponse = TTraits::CreateResponse(numResponseEntities, responseState);
 			RequestRange requestStructureRange;
-			TTraits::Register_Handler_Func(handlers, [&](const auto& requestStructures) {
+			TTraits::RegisterHandler(handlers, [&](const auto& requestStructures) {
 				++counter;
 				requestStructureRange = RequestRange::CopyRange(requestStructures);
 				return expectedResponse;
@@ -89,6 +110,30 @@ namespace catapult { namespace test {
 			TTraits::AssertExpectedResponse(context.response(), expectedResponse);
 		}
 	};
+
+	/// Adapts a batch handler supplier \a action to a producer.
+	template<typename TResponse, typename TAction>
+	static auto BatchHandlerSupplierActionToProducer(TAction action) {
+		class Producer : public handlers::BasicProducer<TResponse> {
+		public:
+			using handlers::BasicProducer<TResponse>::BasicProducer;
+
+		public:
+			auto operator()() {
+				return this->next([](const typename TResponse::value_type& pValue) {
+					return pValue;
+				});
+			}
+		};
+
+		return [action](const auto& inputs) {
+			auto pResponseValues = std::make_shared<TResponse>(action(inputs)); // used by producer by reference
+			auto producer = Producer(*pResponseValues);
+			return [pResponseValues, producer]() mutable {
+				return producer();
+			};
+		};
+	}
 
 #define MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, TEST_NAME) \
 	TEST(TEST_CLASS, HANDLER_NAME##_##TEST_NAME) { test::BatchHandlerTests<HANDLER_NAME##Traits>::Assert##TEST_NAME(); }

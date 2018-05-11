@@ -1,25 +1,50 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "BlockDifficultyCacheTypes.h"
-#include "catapult/cache/CacheMixins.h"
+#include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlySimpleCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 #include "catapult/deltaset/BaseSetDelta.h"
 
 namespace catapult { namespace cache {
 
+	/// Mixins used by the block difficulty cache delta.
+	using BlockDifficultyCacheDeltaMixins = BasicCacheMixins<
+		BlockDifficultyCacheTypes::PrimaryTypes::BaseSetDeltaType,
+		BlockDifficultyCacheDescriptor>;
+
 	/// Basic delta on top of the block difficulty cache.
 	class BasicBlockDifficultyCacheDelta
 			: public utils::MoveOnly
-			, public SizeMixin<BlockDifficultyCacheTypes::BaseSetDeltaType>
-			, public ContainsMixin<BlockDifficultyCacheTypes::BaseSetDeltaType, BlockDifficultyCacheDescriptor> {
+			, public BlockDifficultyCacheDeltaMixins::Size
+			, public BlockDifficultyCacheDeltaMixins::Contains {
 	public:
 		using ReadOnlyView = BlockDifficultyCacheTypes::CacheReadOnlyType;
 		using ValueType = BlockDifficultyCacheDescriptor::ValueType;
 
 	public:
-		/// Creates a delta based on the block difficulty set (\a pBlockDifficultyInfos) and \a options.
+		/// Creates a delta around \a difficultyInfoSets and \a options.
 		explicit BasicBlockDifficultyCacheDelta(
-				const BlockDifficultyCacheTypes::BaseSetDeltaPointerType& pBlockDifficultyInfos,
+				const BlockDifficultyCacheTypes::BaseSetDeltaPointers& difficultyInfoSets,
 				const BlockDifficultyCacheTypes::Options& options);
 
 	public:
@@ -50,7 +75,7 @@ namespace catapult { namespace cache {
 		Height nextHeight() const;
 
 	private:
-		BlockDifficultyCacheTypes::BaseSetDeltaPointerType m_pOrderedDelta;
+		BlockDifficultyCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pOrderedDelta;
 		uint64_t m_difficultyHistorySize;
 		Height m_startHeight;
 		deltaset::PruningBoundary<ValueType> m_pruningBoundary;
@@ -59,11 +84,11 @@ namespace catapult { namespace cache {
 	/// Delta on top of the block difficulty cache.
 	class BlockDifficultyCacheDelta : public ReadOnlyViewSupplier<BasicBlockDifficultyCacheDelta> {
 	public:
-		/// Creates a delta based on the block difficulty set (\a pBlockDifficultyInfos) and \a options.
+		/// Creates a delta around \a difficultyInfoSets and \a options.
 		explicit BlockDifficultyCacheDelta(
-				const BlockDifficultyCacheTypes::BaseSetDeltaPointerType& pBlockDifficultyInfos,
+				const BlockDifficultyCacheTypes::BaseSetDeltaPointers& difficultyInfoSets,
 				const BlockDifficultyCacheTypes::Options& options)
-				: ReadOnlyViewSupplier(pBlockDifficultyInfos, options)
+				: ReadOnlyViewSupplier(difficultyInfoSets, options)
 		{}
 	};
 }}

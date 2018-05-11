@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "FileBlockChainStorage.h"
 #include "LocalNodeStateStorage.h"
 #include "MultiBlockLoader.h"
@@ -25,7 +45,7 @@ namespace catapult { namespace filechain {
 				try {
 					isStateLoaded = LoadState(stateRef.Config.User.DataDirectory, stateRef.Cache, supplementalData);
 				} catch (...) {
-					CATAPULT_LOG(error) << "error when loading state, remove state directory and start again";
+					CATAPULT_LOG(error) << "error when loading state, remove state directories and start again";
 					throw;
 				}
 
@@ -79,6 +99,9 @@ namespace catapult { namespace filechain {
 					const extensions::LocalNodeStateRef& stateRef,
 					const plugins::PluginManager& pluginManager,
 					Height startHeight) {
+				if (stateRef.Config.Node.ShouldUseCacheDatabaseStorage)
+					CATAPULT_THROW_RUNTIME_ERROR("cannot load partial block chain from storage when cache database is enabled");
+
 				// disable load optimizations (loading from the saved state is optimization enough) in order to prevent
 				// discontinuities in block analysis (e.g. difficulty cache expects consecutive blocks)
 				auto pObserver = extensions::CreateEntityObserver(pluginManager);

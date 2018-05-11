@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "RootNamespace.h"
 #include "catapult/utils/Functional.h"
@@ -11,8 +31,7 @@ namespace catapult { namespace state {
 	class RootNamespaceHistory {
 	public:
 		/// Creates a root namespace history around \a id.
-		explicit RootNamespaceHistory(NamespaceId id) : m_id(id)
-		{}
+		explicit RootNamespaceHistory(NamespaceId id);
 
 		/// Copy constructor.
 		/// \note this constructor is needed to ensure that the copy is sharing children among consecutive roots with same owners.
@@ -26,30 +45,23 @@ namespace catapult { namespace state {
 
 	public:
 		/// Gets a value indicating whether or not the history is empty.
-		bool empty() const {
-			return m_rootHistory.empty();
-		}
+		bool empty() const;
 
 		/// Gets the id of the root namespace history.
-		NamespaceId id() const {
-			return m_id;
-		}
+		NamespaceId id() const;
 
 		/// Gets the root namespace history size.
-		size_t historyDepth() const {
-			return m_rootHistory.size();
-		}
+		size_t historyDepth() const;
+
+		/// Gets the number of root namespaces with the same owner starting at the active history.
+		size_t activeOwnerHistoryDepth() const;
 
 		/// Gets the number of children of the most recent root namespace.
-		size_t numActiveRootChildren() const {
-			return m_rootHistory.empty() ? 0 : back().size();
-		}
+		size_t numActiveRootChildren() const;
 
 		/// Gets the number of all children.
 		/// \note Children are counted more than one time if they are in more than one root namespace.
-		size_t numAllHistoricalChildren() const {
-			return utils::Sum(m_rootHistory, [](const auto& rootNamespace) { return rootNamespace.size(); });
-		}
+		size_t numAllHistoricalChildren() const;
 
 	public:
 		/// Adds a new root namespace around \a owner and \a lifetime at the end of the history.
@@ -59,28 +71,20 @@ namespace catapult { namespace state {
 		void pop_back();
 
 		/// Gets a const reference to the most recent root namespace.
-		const RootNamespace& back() const {
-			return m_rootHistory.back();
-		}
+		const RootNamespace& back() const;
 
 		/// Gets a reference to the most recent root namespace.
-		RootNamespace& back() {
-			return m_rootHistory.back();
-		}
+		RootNamespace& back();
 
 		/// Prunes all root namespaces that are not active at \a height.
 		std::set<NamespaceId> prune(Height height);
 
 	public:
 		/// Returns a const iterator to the first root namespace.
-		auto begin() const {
-			return m_rootHistory.cbegin();
-		}
+		std::list<RootNamespace>::const_iterator begin() const;
 
 		/// Returns a const iterator to the element following the last root namespace.
-		auto end() const {
-			return m_rootHistory.cend();
-		}
+		std::list<RootNamespace>::const_iterator end() const;
 
 	private:
 		NamespaceId m_id;

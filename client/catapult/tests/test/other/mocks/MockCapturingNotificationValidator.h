@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "MockNotificationValidator.h"
 #include "catapult/validators/ValidatorContext.h"
@@ -23,10 +43,10 @@ namespace catapult { namespace mocks {
 		/// \c true if a transaction notification was captured.
 		bool IsSet;
 
-		/// The transaction hash.
+		/// Transaction hash.
 		Hash256 TransactionHash;
 
-		/// The transaction deadline.
+		/// Transaction deadline.
 		Timestamp Deadline;
 	};
 
@@ -40,10 +60,10 @@ namespace catapult { namespace mocks {
 		{}
 
 	public:
-		/// The notification.
+		/// Reference to the notification.
 		const model::Notification& Notification;
 
-		/// The transaction notification information (if applicable).
+		/// Transaction notification information (if applicable).
 		CapturedTransactionNotificationInfo TransactionNotificationInfo;
 	};
 
@@ -78,19 +98,19 @@ namespace catapult { namespace mocks {
 		{}
 
 	public:
-		/// The notification.
+		/// Reference to the notification.
 		const model::Notification& Notification;
 
-		/// The transaction notification information (if applicable).
+		/// Transaction notification information (if applicable).
 		CapturedTransactionNotificationInfo TransactionNotificationInfo;
 
-		/// The validation height.
+		/// Validation height.
 		const catapult::Height Height;
 
-		/// The validation block time.
+		/// Validation block time.
 		const Timestamp BlockTime;
 
-		/// The validation network.
+		/// Validation network.
 		const model::NetworkIdentifier NetworkIdentifier;
 
 		/// \c true if the validation cache is marked.

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/model/Elements.h"
 #include <functional>
@@ -8,19 +28,19 @@ namespace catapult { namespace disruptor {
 	/// Position within disruptor components.
 	using PositionType = uint64_t;
 
-	/// The id of a disruptor element.
+	/// Id of a disruptor element.
 	using DisruptorElementId = uint64_t;
 
 	/// Optional code that can provide additional consumer completion information.
 	using CompletionCode = uint32_t;
 
-	/// The completion status.
+	/// Completion status.
 	enum class CompletionStatus : uint8_t {
-		/// The processing of the entity was aborted by a consumer.
+		/// Processing of the entity was aborted by a consumer.
 		Aborted,
-		/// The processing of the entity is ongoing.
+		/// Processing of the entity is ongoing.
 		Normal,
-		/// The processing of the entity was completed and the entity was consumed.
+		/// Processing of the entity was completed and the entity was consumed.
 		Consumed
 	};
 
@@ -38,7 +58,7 @@ namespace catapult { namespace disruptor {
 		{}
 
 	public:
-		/// The completion status.
+		/// Completion status.
 		disruptor::CompletionStatus CompletionStatus;
 
 		/// Optional code that can provide additional consumer completion information.
@@ -74,7 +94,7 @@ namespace catapult { namespace disruptor {
 		{}
 
 	public:
-		/// The position of the final consumer processing the entity.
+		/// Position of the final consumer processing the entity.
 		PositionType FinalConsumerPosition;
 	};
 

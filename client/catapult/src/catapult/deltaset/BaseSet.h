@@ -1,54 +1,39 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
+#include "BaseSetCommitPolicy.h"
 #include "BaseSetDefaultTraits.h"
-#include "DeltaElements.h"
-#include "catapult/exceptions.h"
 #include <memory>
 
-namespace catapult { namespace deltaset {
+namespace catapult {
+	namespace deltaset {
+		template<typename TElementTraits, typename TSetTraits>
+		class BaseSetDelta;
 
-	namespace detail {
-
-		/// Updates \a element in \a elements.
 		template<typename TSetTraits>
-		void UpdateElement(typename TSetTraits::SetType& elements, const typename TSetTraits::SetType::value_type& element) {
-			auto iter = elements.find(TSetTraits::ToKey(element));
-			if (elements.cend() != iter) {
-				iter = elements.erase(iter);
-				elements.insert(iter, element);
-				return;
-			}
-
-			CATAPULT_THROW_INVALID_ARGUMENT("element not found, cannot update");
-		}
-
-		/// Applies all changes in \a deltas to \a elements.
-		template<typename TSetTraits>
-		void UpdateBaseSet(typename TSetTraits::SetType& elements, const DeltaElements<typename TSetTraits::SetType>& deltas) {
-			if (!deltas.Added.empty())
-				elements.insert(deltas.Added.cbegin(), deltas.Added.cend());
-
-			for (auto element : deltas.Copied)
-				UpdateElement<TSetTraits>(elements, element);
-
-			for (auto element : deltas.Removed)
-				elements.erase(TSetTraits::ToKey(element));
-		}
-
-		/// Policy for committing changes to a base set.
-		template<typename TSetTraits>
-		struct BaseSetCommitPolicy {
-		private:
-			using SetType = typename TSetTraits::SetType;
-
-		public:
-			static void Update(SetType& elements, const DeltaElements<SetType>& deltas) {
-				UpdateBaseSet<TSetTraits>(elements, deltas);
-			}
-		};
+		class BaseSetIterationView;
 	}
+}
 
-	template<typename TElementTraits, typename TSetTraits>
-	class BaseSetDelta;
+namespace catapult { namespace deltaset {
 
 	/// A base set.
 	/// \tparam TElementTraits Traits describing the type of element.
@@ -61,15 +46,22 @@ namespace catapult { namespace deltaset {
 	template<
 			typename TElementTraits,
 			typename TSetTraits,
-			typename TCommitPolicy = detail::BaseSetCommitPolicy<TSetTraits>
+			typename TCommitPolicy = BaseSetCommitPolicy<TSetTraits>
 	>
 	class BaseSet : public utils::MoveOnly {
 	public:
 		using ElementType = typename TElementTraits::ElementType;
 		using SetType = typename TSetTraits::SetType;
 		using KeyType = typename TSetTraits::KeyType;
-		using FindTraits = detail::FindTraits<ElementType, TSetTraits::AllowsNativeValueModification>;
+		using FindTraits = FindTraitsT<ElementType, TSetTraits::AllowsNativeValueModification>;
 		using DeltaType = BaseSetDelta<TElementTraits, TSetTraits>;
+
+	public:
+		/// Creates a base set.
+		/// \a args are forwarded to the underlying container.
+		template<typename... TArgs>
+		explicit BaseSet(TArgs&&... args) : m_elements(std::forward<TArgs>(args)...)
+		{}
 
 	public:
 		/// Gets a value indicating whether or not the set is empty.
@@ -89,18 +81,13 @@ namespace catapult { namespace deltaset {
 			return m_elements.cend() != iter ? FindTraits::ToResult(TSetTraits::ToValue(*iter)) : nullptr;
 		}
 
-		/// Returns an iterator that points to the element with \a key if it is contained in this set,
-		/// or cend() otherwise.
-		auto findIterator(const KeyType& key) const {
-			return m_elements.find(key);
-		}
-
 		/// Searches for \a key in this set.
 		/// Returns \c true if it is found or \c false if it is not found.
 		bool contains(const KeyType& key) const {
 			return m_elements.cend() != m_elements.find(key);
 		}
 
+	public:
 		/// Returns a delta based on the same original elements as this set.
 		std::shared_ptr<DeltaType> rebase() {
 			if (m_pWeakDelta.lock())
@@ -117,7 +104,9 @@ namespace catapult { namespace deltaset {
 			return std::make_shared<DeltaType>(m_elements);
 		}
 
+	public:
 		/// Commits all changes in the rebased cache.
+		/// \a args are forwarded to the commit policy.
 		template<typename... TArgs>
 		void commit(TArgs&&... args) {
 			auto pDelta = m_pWeakDelta.lock();
@@ -129,19 +118,15 @@ namespace catapult { namespace deltaset {
 			pDelta->reset();
 		}
 
-	public:
-		/// Returns a const iterator to the first element of the underlying set.
-		auto begin() const {
-			return m_elements.cbegin();
-		}
-
-		/// Returns a const iterator to the element following the last element of the underlying set.
-		auto end() const {
-			return m_elements.cend();
-		}
-
 	private:
 		SetType m_elements;
 		std::weak_ptr<DeltaType> m_pWeakDelta;
+
+	private:
+		template<typename TElementTraits2, typename TSetTraits2, typename TCommitPolicy2>
+		friend bool IsBaseSetIterable(const BaseSet<TElementTraits2, TSetTraits2, TCommitPolicy2>& set);
+
+		template<typename TElementTraits2, typename TSetTraits2, typename TCommitPolicy2>
+		friend BaseSetIterationView<TSetTraits2> MakeIterableView(const BaseSet<TElementTraits2, TSetTraits2, TCommitPolicy2>& set);
 	};
 }}

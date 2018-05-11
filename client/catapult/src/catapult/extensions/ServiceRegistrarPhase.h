@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 
 namespace catapult { namespace extensions {
@@ -5,11 +25,11 @@ namespace catapult { namespace extensions {
 	/// Ordered enumeration of service registrar phases.
 	/// \note Service registrars are invoked in order of their phase from Initial to Terminal.
 	enum class ServiceRegistrarPhase {
-		/// The first phase (no dependencies) that registers executable modules.
+		/// First phase (no dependencies) that registers executable modules.
 		/// \note This allows services that load modules to be unloaded last.
 		Initial_With_Modules,
 
-		/// The first phase (no dependencies).
+		/// First phase (no dependencies).
 		Initial,
 
 		/// Requires transaction event handlers to be registered.

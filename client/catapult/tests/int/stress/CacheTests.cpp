@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "plugins/services/hashcache/src/cache/HashCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
@@ -41,7 +61,7 @@ namespace catapult { namespace cache {
 		void RunMultithreadedReadWriteTest(size_t numReaders) {
 			// Arrange:
 			// - note that there can only ever be a single writer at a time since only one copy can be outstanding at once
-			AccountStateCache cache(Default_Cache_Options);
+			AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 			std::vector<Amount> sums(numReaders);
 
 			// Act: set up reader thread(s) that sum up all account balances
@@ -105,7 +125,7 @@ namespace catapult { namespace cache {
 
 	NO_STRESS_TEST(TEST_CLASS, CanAddManyAccounts) {
 		// Arrange:
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		{
 			auto delta = cache.createDelta();
 
@@ -238,7 +258,7 @@ namespace catapult { namespace cache {
 		constexpr size_t Initial_Count = 100'000;
 		constexpr size_t Num_Operations = 100'000;
 #endif
-		cache::HashCache cache(utils::TimeSpan::FromHours(1));
+		cache::HashCache cache(CacheConfiguration(), utils::TimeSpan::FromHours(1));
 
 		auto samples = CreateSamples(Num_Operations, test::Random);
 		PopulateCache(cache, Initial_Count, test::Random);
@@ -326,7 +346,7 @@ namespace catapult { namespace cache {
 	NO_STRESS_TEST(TEST_CLASS, AccountStateCachePerformance) {
 		// Arrange:
 		constexpr size_t Num_Operations = 100'000;
-		AccountStateCache cache(Default_Cache_Options);
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 
 		auto addresses = CreateAddresses(Num_Operations, test::Random);
 		auto keys = CreateKeys(Num_Operations, test::Random);

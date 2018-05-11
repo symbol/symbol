@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include <iosfwd>
 #include <stdint.h>
@@ -5,17 +25,17 @@
 namespace catapult { namespace chain {
 
 #define NODE_INTERACTION_RESULT_LIST \
-	/* There was no experience. */ \
+	/* No experience. */ \
 	ENUM_VALUE(None) \
 	\
-	/* The experience was neutral. */ \
+	/* Experience was neutral. */ \
 	ENUM_VALUE(Neutral) \
 	\
-	/* The experience was good. */ \
+	/* Experience was good. */ \
 	ENUM_VALUE(Success) \
 	\
-	/* The experience was bad. */ \
-	ENUM_VALUE(Failure) \
+	/* Experience was bad. */ \
+	ENUM_VALUE(Failure)
 
 #define ENUM_VALUE(LABEL) LABEL,
 	/// Possible node interaction results.

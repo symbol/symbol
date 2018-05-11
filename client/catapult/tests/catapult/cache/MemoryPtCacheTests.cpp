@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache/MemoryPtCache.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/model/Cosignature.h"
@@ -30,6 +50,12 @@ namespace catapult { namespace cache {
 				modifier.add(transactionInfo.EntityHash, cosignature.Signer, cosignature.Signature);
 		}
 
+		void AssertCacheSize(MemoryPtCache& cache, size_t expectedSize) {
+			// Assert: check both view and modifier sizes
+			EXPECT_EQ(cache.view().size(), expectedSize);
+			EXPECT_EQ(cache.modifier().size(), expectedSize);
+		}
+
 		auto PrepareCache(const std::vector<Hash256>& hashes, const MemoryCacheOptions& options = Default_Options) {
 			auto pCache = std::make_unique<MemoryPtCache>(options);
 
@@ -45,7 +71,7 @@ namespace catapult { namespace cache {
 			}
 
 			// Sanity:
-			EXPECT_EQ(hashes.size(), pCache->view().size());
+			AssertCacheSize(*pCache, hashes.size());
 			return pCache;
 		}
 
@@ -98,7 +124,42 @@ namespace catapult { namespace cache {
 		MemoryPtCache cache(Default_Options);
 
 		// Assert:
-		EXPECT_EQ(0u, cache.view().size());
+		AssertCacheSize(cache, 0);
+	}
+
+	// endregion
+
+	// region size
+
+	TEST(TEST_CLASS, ModifierSizeIsDynamic) {
+		// Arrange:
+		MemoryPtCache cache(Default_Options);
+
+		// Act: modify cache and check sizes
+		{
+			auto modifier = cache.modifier();
+
+			// Sanity:
+			EXPECT_EQ(0u, modifier.size());
+
+			// Act: add five
+			auto originalTransactionInfos = test::CreateTransactionInfos(5);
+			for (const auto& transactionInfo : originalTransactionInfos)
+				EXPECT_TRUE(modifier.add(transactionInfo));
+
+			// Sanity:
+			EXPECT_EQ(5u, modifier.size());
+
+			// Act: remove two
+			modifier.remove(originalTransactionInfos[1].EntityHash);
+			modifier.remove(originalTransactionInfos[4].EntityHash);
+
+			// Assert:
+			EXPECT_EQ(3u, modifier.size());
+		}
+
+		// Sanity:
+		AssertCacheSize(cache, 3);
 	}
 
 	// endregion
@@ -114,9 +175,9 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(cache.modifier().add(originalInfo));
 
 		// Assert:
-		auto view = cache.view();
-		ASSERT_EQ(1u, view.size());
+		AssertCacheSize(cache, 1);
 
+		auto view = cache.view();
 		auto transactionInfoFromCache = cache.view().find(originalInfo.EntityHash);
 		AssertTransactionWithCosignatures(*originalInfo.pEntity, {}, transactionInfoFromCache);
 	}
@@ -131,9 +192,9 @@ namespace catapult { namespace cache {
 			EXPECT_TRUE(cache.modifier().add(transactionInfo));
 
 		// Assert:
-		auto view = cache.view();
-		ASSERT_EQ(5u, view.size());
+		AssertCacheSize(cache, 5);
 
+		auto view = cache.view();
 		for (const auto& transactionInfo : originalTransactionInfos) {
 			auto transactionInfoFromCache = cache.view().find(transactionInfo.EntityHash);
 			AssertTransactionWithCosignatures(*transactionInfo.pEntity, {}, transactionInfoFromCache);
@@ -147,15 +208,15 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(cache.modifier().add(originalTransactionInfo));
 
 		// Sanity:
-		EXPECT_EQ(1u, cache.view().size());
+		AssertCacheSize(cache, 1);
 
 		// Act:
 		EXPECT_FALSE(cache.modifier().add(originalTransactionInfo));
 
 		// Assert:
-		auto view = cache.view();
-		ASSERT_EQ(1u, view.size());
+		AssertCacheSize(cache, 1);
 
+		auto view = cache.view();
 		auto transactionInfoFromCache = cache.view().find(originalTransactionInfo.EntityHash);
 		AssertTransactionWithCosignatures(*originalTransactionInfo.pEntity, {}, transactionInfoFromCache);
 	}
@@ -177,7 +238,7 @@ namespace catapult { namespace cache {
 		AddAll(cache, originalInfos);
 
 		// Sanity:
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 
 		// Act:
 		auto cosignature = GenerateRandomCosignature();
@@ -199,12 +260,12 @@ namespace catapult { namespace cache {
 		AddAll(cache, originalInfos);
 
 		// Sanity:
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 
 		// Act: add 20 cosignatures
 		std::vector<model::Cosignature> cosignatures;
 		std::vector<model::Cosignature> transactionsFromAdd;
-		for (auto i = 0u; i < 20u; ++i) {
+		for (auto i = 0u; i < 20; ++i) {
 			auto cosignature = GenerateRandomCosignature();
 			auto transactionInfoFromAdd = cache.modifier().add(originalInfos[3].EntityHash, cosignature.Signer, cosignature.Signature);
 			cosignatures.push_back(cosignature);
@@ -230,7 +291,7 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(!!cache.modifier().add(originalInfos[3].EntityHash, cosignature.Signer, cosignature.Signature));
 
 		// Sanity:
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 
 		// Act: add another cosignature with the same signer
 		auto cosignature2 = GenerateRandomCosignature();
@@ -248,7 +309,7 @@ namespace catapult { namespace cache {
 		AddAll(cache, test::CreateTransactionInfos(5));
 
 		// Sanity:
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 
 		// Act + Assert: no transaction in the cache should match the random hash
 		auto cosignature = GenerateRandomCosignature();
@@ -271,7 +332,7 @@ namespace catapult { namespace cache {
 			removedInfos.push_back(cache.modifier().remove(transactionInfos[i].EntityHash));
 
 		// Assert:
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 
 		// - only odd infos should remain
 		for (auto i = 1u; i < transactionInfos.size(); i += 2)
@@ -290,15 +351,15 @@ namespace catapult { namespace cache {
 		auto pCache = PrepareCache(hashes);
 
 		// Sanity:
-		EXPECT_EQ(5u, pCache->view().size());
+		AssertCacheSize(*pCache, 5);
 
 		// Act:
 		std::vector<model::DetachedTransactionInfo> removedInfos;
-		for (auto i = 0u; i < 10u; ++i)
+		for (auto i = 0u; i < 10; ++i)
 			removedInfos.push_back(pCache->modifier().remove(test::GenerateRandomData<Hash256_Size>()));
 
 		// Assert:
-		EXPECT_EQ(5u, pCache->view().size());
+		AssertCacheSize(*pCache, 5);
 
 		// - all hashes should remain
 		for (auto i = 0u; i < hashes.size(); ++i)
@@ -321,7 +382,7 @@ namespace catapult { namespace cache {
 		pCache->modifier().remove(hashes[7]);
 
 		// Sanity:
-		EXPECT_EQ(9u, pCache->view().size());
+		AssertCacheSize(*pCache, 9);
 		EXPECT_FALSE(!!pCache->view().find(hashes[7]));
 
 		// Act:
@@ -330,7 +391,7 @@ namespace catapult { namespace cache {
 		pCache->modifier().add(std::move(newInfo));
 
 		// Assert:
-		EXPECT_EQ(10u, pCache->view().size());
+		AssertCacheSize(*pCache, 10);
 		EXPECT_TRUE(!!pCache->view().find(hashes[7]));
 	}
 
@@ -346,7 +407,7 @@ namespace catapult { namespace cache {
 		cache.modifier().prune(Timestamp(50));
 
 		// Assert:
-		EXPECT_EQ(0u, cache.view().size());
+		AssertCacheSize(cache, 0);
 	}
 
 	TEST(TEST_CLASS, PruneIsNoOpIfNoPartialTransactionAreEligibleForPruning_Timestamp) {
@@ -358,8 +419,9 @@ namespace catapult { namespace cache {
 		pCache->modifier().prune(Timestamp(9));
 
 		// Assert: size has not changed
+		AssertCacheSize(*pCache, 10);
+
 		auto view = pCache->view();
-		EXPECT_EQ(10u, view.size());
 		for (auto i = 0u; i < hashes.size(); ++i)
 			EXPECT_TRUE(!!view.find(hashes[i])) << "hash at " << i;
 	}
@@ -373,11 +435,11 @@ namespace catapult { namespace cache {
 		pCache->modifier().prune(Timestamp(70));
 
 		// Assert: 7/10 transactions have been pruned
-		auto view = pCache->view();
-		EXPECT_EQ(3u, view.size());
+		AssertCacheSize(*pCache, 3);
 
 		auto i = 0u;
-		for (; i < hashes.size() - 3u; ++i)
+		auto view = pCache->view();
+		for (; i < hashes.size() - 3; ++i)
 			EXPECT_FALSE(!!view.find(hashes[i])) << "hash at " << i;
 
 		for (; i < hashes.size(); ++i)
@@ -393,7 +455,7 @@ namespace catapult { namespace cache {
 		pCache->modifier().prune(Timestamp(150));
 
 		// Assert: all transactions have been pruned
-		EXPECT_EQ(0u, pCache->view().size());
+		AssertCacheSize(*pCache, 0);
 	}
 
 	// endregion
@@ -408,7 +470,7 @@ namespace catapult { namespace cache {
 		cache.modifier().prune([](const auto&) { return true; });
 
 		// Assert:
-		EXPECT_EQ(0u, cache.view().size());
+		AssertCacheSize(cache, 0);
 	}
 
 	TEST(TEST_CLASS, PruneIsNoOpIfNoPartialTransactionAreEligibleForPruning_Predicate) {
@@ -420,8 +482,9 @@ namespace catapult { namespace cache {
 		pCache->modifier().prune([](const auto&) { return false; });
 
 		// Assert: size has not changed
+		AssertCacheSize(*pCache, 10);
+
 		auto view = pCache->view();
-		EXPECT_EQ(10u, view.size());
 		for (auto i = 0u; i < hashes.size(); ++i)
 			EXPECT_TRUE(!!view.find(hashes[i])) << "hash at " << i;
 	}
@@ -438,9 +501,9 @@ namespace catapult { namespace cache {
 		});
 
 		// Assert: 5/10 transactions have been pruned
-		auto view = pCache->view();
-		EXPECT_EQ(5u, view.size());
+		AssertCacheSize(*pCache, 5);
 
+		auto view = pCache->view();
 		for (auto i = 0u; i < hashes.size(); ++i) {
 			if (1 == i % 2)
 				EXPECT_FALSE(!!view.find(hashes[i])) << "hash at " << i;
@@ -458,7 +521,7 @@ namespace catapult { namespace cache {
 		pCache->modifier().prune([](const auto&) { return true; });
 
 		// Assert: all transactions have been pruned
-		EXPECT_EQ(0u, pCache->view().size());
+		AssertCacheSize(*pCache, 0);
 	}
 
 	// endregion
@@ -478,7 +541,7 @@ namespace catapult { namespace cache {
 				cache.modifier().remove(originalInfos[i].EntityHash);
 
 			// Sanity:
-			EXPECT_EQ(5u, cache.view().size());
+			AssertCacheSize(cache, 5);
 
 			// Act + Assert:
 			action(cache, originalInfos);
@@ -677,7 +740,7 @@ namespace catapult { namespace cache {
 		};
 	}
 
-	DEFINE_BASIC_UNKNOWN_TRANSACTIONS_TESTS(MemoryPtCacheTests, MemoryPtCacheUnknownTransactionsTraits);
+	DEFINE_BASIC_UNKNOWN_TRANSACTIONS_TESTS(MemoryPtCacheTests, MemoryPtCacheUnknownTransactionsTraits)
 
 	// endregion
 
@@ -866,7 +929,7 @@ namespace catapult { namespace cache {
 
 		// Assert: the new info was added
 		EXPECT_TRUE(isAdded);
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 		EXPECT_TRUE(!!cache.view().find(transactionInfo.EntityHash));
 	}
 
@@ -881,7 +944,7 @@ namespace catapult { namespace cache {
 
 		// Assert: the new info was not added
 		EXPECT_FALSE(isAdded);
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 		EXPECT_FALSE(!!cache.view().find(transactionInfo.EntityHash));
 	}
 
@@ -905,7 +968,7 @@ namespace catapult { namespace cache {
 
 		// Assert: the new info was added
 		EXPECT_TRUE(isAdded);
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 		EXPECT_TRUE(!!cache.view().find(transactionInfo.EntityHash));
 	}
 

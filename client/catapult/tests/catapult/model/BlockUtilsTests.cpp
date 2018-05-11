@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/model/BlockUtils.h"
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/crypto/Hashes.h"
@@ -251,7 +271,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanVerifyBlockWithAlteredTransaction) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(3);
-		auto iter = pBlock->Transactions().begin();
+		auto transactions = pBlock->Transactions();
+		auto iter = transactions.begin();
 		++iter;
 		iter->Deadline = iter->Deadline + Timestamp(1);
 

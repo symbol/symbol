@@ -1,7 +1,29 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "mongo/src/MongoBlockStorage.h"
 #include "mongo/src/MongoBulkWriter.h"
 #include "mongo/src/MongoChainInfoUtils.h"
 #include "mongo/src/MongoTransactionMetadata.h"
+#include "catapult/crypto/MerkleHashBuilder.h"
+#include "catapult/model/EntityHasher.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTestUtils.h"
 #include "mongo/tests/test/mocks/MockTransactionMapper.h"
@@ -60,6 +82,8 @@ namespace catapult { namespace mongo {
 			for (const auto& transaction : entity.Transactions())
 				totalFee = totalFee + transaction.Fee;
 
+			auto merkleTree = model::CalculateMerkleTree(expectedElement.Transactions);
+
 			auto filter = document() << "block.height" << static_cast<int64_t>(entity.Height.unwrap()) << finalize;
 			auto result = database["blocks"].find_one(filter.view()).get();
 			auto view = result.view();
@@ -71,6 +95,7 @@ namespace catapult { namespace mongo {
 					expectedElement.GenerationHash,
 					totalFee,
 					static_cast<int32_t>(expectedElement.Transactions.size()),
+					merkleTree,
 					metaView);
 
 			// block data

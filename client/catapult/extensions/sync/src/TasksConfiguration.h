@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/utils/TimeSpan.h"
 #include <boost/filesystem/path.hpp>
@@ -7,29 +27,97 @@ namespace catapult { namespace utils { class ConfigurationBag; } }
 
 namespace catapult { namespace sync {
 
-	/// Task configuration settings.
-	struct TaskConfiguration {
+	// region UniformTaskConfiguration
+
+	/// Uniform task configuration settings.
+	struct UniformTaskConfiguration {
 	public:
-		/// The delay until the first execution of the task.
+		/// Delay until the first execution of the task.
 		utils::TimeSpan StartDelay;
 
-		/// The delay until the next execution of the task.
+		/// Delay until subsequent executions of the task.
 		utils::TimeSpan RepeatDelay;
 
 	private:
-		TaskConfiguration() = default;
+		UniformTaskConfiguration() = default;
 
 	public:
 		/// Creates an uninitialized task configuration.
-		static TaskConfiguration Uninitialized();
+		static UniformTaskConfiguration Uninitialized();
 
 	public:
 		/// Loads a task configuration from \a bag.
-		static TaskConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+		static UniformTaskConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
+
+	// endregion
+
+	// region DeceleratingTaskConfiguration
+
+	/// Decelerating task configuration settings.
+	struct DeceleratingTaskConfiguration {
+	public:
+		/// Delay until the first execution of the task.
+		utils::TimeSpan StartDelay;
+
+		/// Minimum delay between task executions.
+		utils::TimeSpan MinDelay;
+
+		/// Maximum delay between task executions.
+		utils::TimeSpan MaxDelay;
+
+		/// Number of rounds before deceleration starts.
+		uint32_t NumPhaseOneRounds;
+
+		/// Number of transition rounds from minimum to maximum delay.
+		uint32_t NumTransitionRounds;
+
+	private:
+		DeceleratingTaskConfiguration() = default;
+
+	public:
+		/// Creates an uninitialized task configuration.
+		static DeceleratingTaskConfiguration Uninitialized();
+
+	public:
+		/// Loads a task configuration from \a bag.
+		static DeceleratingTaskConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
+	};
+
+	// endregion
 
 	/// Tasks configuration settings.
 	struct TasksConfiguration {
+	public:
+		/// Supported task types.
+		enum class TaskType {
+			/// A task that is scheduled with constant intervals.
+			Uniform,
+
+			/// A task that is scheduled with increasing intervals.
+			Decelerating
+		};
+
+		/// Task configuration that is a union of all supported task configurations.
+		struct TaskConfiguration {
+		public:
+			/// Type of task.
+			TasksConfiguration::TaskType TaskType;
+
+			union {
+				/// Configuration when task type is uniform.
+				UniformTaskConfiguration Uniform;
+
+				/// Configuration when task type is decelerating.
+				DeceleratingTaskConfiguration Decelerating;
+			};
+
+		public:
+			/// Creates an empty task configuration.
+			TaskConfiguration() : Uniform(UniformTaskConfiguration::Uninitialized())
+			{}
+		};
+
 	public:
 		/// A map of task names to task configurations.
 		std::unordered_map<std::string, TaskConfiguration> Tasks;

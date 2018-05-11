@@ -49,9 +49,17 @@ if(MSVC)
 
 	# explicitly disable linking against static boost libs
 	add_definitions(-DBOOST_ALL_NO_LIB)
+
+	# min/max macros are useless
+	add_definitions(-DNOMINMAX)
+	add_definitions(-DWIN32_LEAN_AND_MEAN)
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-	# basically equivalent to MSVC W4
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-invalid-offsetof -Wno-maybe-uninitialized -Werror")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+
+	if("${CMAKE_BUILD_TYPE}" MATCHES "Release")
+		# - Wno-maybe-uninitialized: false positives where gcc isn't sure if an uninitialized variable is used or not
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized")
+	endif()
 
 	# add memset_s
 	add_definitions(-D_STDC_WANT_LIB_EXT1_=1)
@@ -60,7 +68,11 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-	# basically equivalent to MSVC W4
+	# - Wno-c++98-compat*: catapult is not compatible with C++98
+	# - Wno-disabled-macro-expansion: expansion of recursive macro is required for boost logging macros
+	# - Wno-padded: allow compiler to automatically pad data types for alignment
+	# - Wno-switch-enum: do not require enum switch statements to list every value (this setting is also incompatible with GCC warnings)
+	# - Wno-weak-vtables: vtables are emitted in all translsation units for virtual classes with no out-of-line virtual method definitions
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 		-std=c++11 -stdlib=libc++ \
 		-Weverything \
@@ -68,9 +80,6 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 		-Wno-c++98-compat \
 		-Wno-c++98-compat-pedantic \
 		-Wno-disabled-macro-expansion \
-		-Wno-global-constructors \
-		-Wno-invalid-offsetof \
-		-Wno-newline-eof \
 		-Wno-padded \
 		-Wno-switch-enum \
 		-Wno-weak-vtables")
@@ -90,8 +99,8 @@ if(("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MAT
 	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 	set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-	# use rpath for executables (executable rpath will be used for loading indirect libs, this is needed because boost libs
-	#   do not set runpath)
+	# use rpath for executables
+	# (executable rpath will be used for loading indirect libs, this is needed because boost libs do not set runpath)
 	# use newer runpath for shared libs
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--enable-new-dtags")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
@@ -105,13 +114,74 @@ if(USE_SANITATION)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
-### find and set gtest includes
+### define gtest helper functions
+
+# find and set gtest includes
 function(catapult_add_gtest_dependencies)
 	find_package(GTest REQUIRED)
 	include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
 endfunction()
 
-### define helper functions
+# sets additional compiler options for test projects in order to quiet GTEST warnings while allowing source warning checks to be stricter
+function(catapult_set_test_compiler_options)
+	# some gtest workarounds for gcc + clang
+	if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+		# - Wno-dangling-else: workaround for GTEST ambiguous else blocker not working https://github.com/google/googletest/issues/1119
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+			-Wno-dangling-else"
+			PARENT_SCOPE)
+	elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+		# - Wno-global-constructors: required for GTEST test definition macros
+		# - Wno-zero-as-null-pointer-constant: workaround for GTEST NULL/nullptr mismatch https://github.com/google/googletest/issues/1323
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+			-Wno-global-constructors \
+			-Wno-zero-as-null-pointer-constant"
+			PARENT_SCOPE)
+	endif()
+endfunction()
+
+### define version helpers
+
+# set CATAPULT_VERSION_DESCRIPTION to a reasonable value
+if(NOT CATAPULT_BUILD_DEVELOPMENT)
+	# extract version information from git
+	execute_process(
+		COMMAND git rev-parse --abbrev-ref HEAD
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		OUTPUT_VARIABLE GIT_BRANCH
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+	execute_process(
+		COMMAND git log -1 --format=%h
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		OUTPUT_VARIABLE GIT_COMMIT_HASH
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	if(CATAPULT_BUILD_RELEASE)
+		set(CATAPULT_VERSION_DESCRIPTION "(public)")
+	else()
+		set(CATAPULT_VERSION_DESCRIPTION "${GIT_COMMIT_HASH} [${GIT_BRANCH}]")
+	endif()
+endif()
+
+if(MSVC)
+	function(set_win_version_definitions WIN_TARGET_NAME WIN_FILETYPE)
+		add_definitions(-DCATAPULT_VERSION_DESCRIPTION="${CATAPULT_VERSION_DESCRIPTION}")
+		add_definitions(-DWIN_TARGET_NAME=${WIN_TARGET_NAME})
+		add_definitions(-DWIN_FILETYPE=${WIN_FILETYPE})
+
+		if(CATAPULT_BUILD_RELEASE)
+			add_definitions(-DCATAPULT_BUILD_RELEASE=1)
+		endif()
+	endfunction()
+
+	# embed the version rc file
+	set(VERSION_RESOURCES ${CMAKE_SOURCE_DIR}/src/catapult/version/win/win_version.rc)
+else()
+	# since strings are not referenced, in order for the linker to include them, they must be forcibly linked via an object file
+	set(VERSION_RESOURCES $<TARGET_OBJECTS:catapult.version.nix>)
+endif()
+
+### define target helper functions
 
 # used to define a catapult target (library, executable) and automatically enables PCH for clang
 function(catapult_target TARGET_NAME)
@@ -149,6 +219,7 @@ function(catapult_target TARGET_NAME)
 	endif()
 endfunction()
 
+# finds all files comprising a target
 function(catapult_find_all_target_files TARGET_TYPE TARGET_NAME)
 	if (CMAKE_VERBOSE_MAKEFILE)
 		message("processing ${TARGET_TYPE} '${TARGET_NAME}'")
@@ -207,7 +278,11 @@ function(catapult_shared_library TARGET_NAME)
 
 	add_definitions(-DDLL_EXPORTS)
 
-	add_library(${TARGET_NAME} SHARED ${${TARGET_NAME}_FILES})
+	if(MSVC)
+		set_win_version_definitions(${TARGET_NAME} VFT_DLL)
+	endif()
+
+	add_library(${TARGET_NAME} SHARED ${${TARGET_NAME}_FILES} ${VERSION_RESOURCES})
 endfunction()
 
 # combines catapult_shared_library and catapult_target
@@ -220,13 +295,18 @@ endfunction()
 function(catapult_executable TARGET_NAME)
 	catapult_find_all_target_files("exe" ${TARGET_NAME} ${ARGN})
 
-	add_executable(${TARGET_NAME} ${${TARGET_NAME}_FILES})
+	if(MSVC)
+		set_win_version_definitions(${TARGET_NAME} VFT_APP)
+	endif()
+
+	add_executable(${TARGET_NAME} ${${TARGET_NAME}_FILES} ${VERSION_RESOURCES})
 
 	if(WIN32 AND MINGW)
 		target_link_libraries(${TARGET_NAME} wsock32 ws2_32)
 	endif()
 endfunction()
 
+# used to define a catapult header only target, creating an appropriate source group in order to allow VS to create an appropriate folder
 function(catapult_header_only_target TARGET_NAME)
 	if(MSVC)
 		catapult_find_all_target_files("hdr" ${TARGET_NAME} ${ARGN})
@@ -267,6 +347,14 @@ endfunction()
 function(catapult_test_executable_target TARGET_NAME TEST_DEPENDENCY_NAME)
 	catapult_test_executable(${TARGET_NAME} ${ARGN})
 
+	# inline instead of calling catapult_add_gtest_dependencies in order to apply gtest dependencies to correct scope
+	find_package(GTest REQUIRED)
+	include_directories(SYSTEM ${GTEST_INCLUDE_DIR})
+
+	# customize and export compiler options for gtest
+	catapult_set_test_compiler_options()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
+
 	# test libraries are in the form test.xyz, so add xyz as a dependency (the library under test)
 	string(FIND ${TARGET_NAME} "." TEST_END_INDEX)
 	MATH(EXPR TEST_END_INDEX "${TEST_END_INDEX}+1")
@@ -280,6 +368,10 @@ endfunction()
 # catapult_target and adding some library dependencies
 function(catapult_test_executable_target_header_only TARGET_NAME TEST_DEPENDENCY_NAME)
 	catapult_test_executable(${TARGET_NAME} ${ARGN})
+
+	# customize and export compiler options for gtest
+	catapult_set_test_compiler_options()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 
 	target_link_libraries(${TARGET_NAME} tests.catapult.test.${TEST_DEPENDENCY_NAME})
 	catapult_target(${TARGET_NAME})

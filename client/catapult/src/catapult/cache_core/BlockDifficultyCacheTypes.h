@@ -1,5 +1,26 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/cache/CacheDescriptorAdapters.h"
+#include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/state/BlockDifficultyInfo.h"
 
 namespace catapult {
@@ -38,7 +59,8 @@ namespace catapult { namespace cache {
 
 	/// Block difficulty cache types.
 	/// \note Mutable because time and difficulty can change for same height.
-	struct BlockDifficultyCacheTypes : public MutableOrderedSetAdapter<BlockDifficultyCacheDescriptor> {
+	struct BlockDifficultyCacheTypes
+			: public SingleSetCacheTypesAdapter<MutableOrderedSetAdapter<BlockDifficultyCacheDescriptor>, std::true_type> {
 		using CacheReadOnlyType = ReadOnlySimpleCache<
 			BasicBlockDifficultyCacheView,
 			BasicBlockDifficultyCacheDelta,
@@ -54,7 +76,7 @@ namespace catapult { namespace cache {
 	/// A range of block difficulty infos.
 	class DifficultyInfoRange {
 	private:
-		using IteratorType = BlockDifficultyCacheTypes::BaseSetType::SetType::const_iterator;
+		using IteratorType = BlockDifficultyCacheTypes::PrimaryTypes::BaseSetType::SetType::MemorySetType::const_iterator;
 
 	public:
 		/// Creates a range around two iterators \a begin and \a end.

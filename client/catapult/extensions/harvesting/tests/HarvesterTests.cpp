@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "harvesting/src/Harvester.h"
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/chain/BlockScorer.h"
@@ -228,7 +248,7 @@ namespace catapult { namespace harvesting {
 
 			// Act: harvester should succeed at earliest possible time
 			auto pBlock2 = pHarvester->harvest(context.LastBlockElement, timestamp);
-			if (nullptr == pBlock2 || bestKey != pBlock2->Signer)
+			if (!pBlock2 || bestKey != pBlock2->Signer)
 				return false;
 
 			// Assert:
@@ -327,7 +347,7 @@ namespace catapult { namespace harvesting {
 
 			// Act:
 			auto pBlock = pHarvester->harvest(context.LastBlockElement, timestamp);
-			if (nullptr == pBlock || bestKey != pBlock->Signer)
+			if (!pBlock || bestKey != pBlock->Signer)
 				return false;
 
 			// Assert:

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache/SynchronizedCache.h"
 #include "catapult/thread/Future.h"
 #include "tests/test/cache/SimpleCache.h"
@@ -211,7 +231,7 @@ namespace catapult { namespace cache {
 		std::vector<decltype(cache.createDetachedDelta())> deltas;
 
 		// Act:
-		for (auto i = 0u; i < 10u; ++i) {
+		for (auto i = 0u; i < 10; ++i) {
 			auto lockableDelta = cache.createDetachedDelta();
 			lockableDelta.lock()->increment();
 			deltas.push_back(std::move(lockableDelta));
@@ -230,7 +250,7 @@ namespace catapult { namespace cache {
 		auto lockableDelta = cache.createDetachedDelta();
 
 		// Act:
-		for (auto i = 0u; i < 10u; ++i) {
+		for (auto i = 0u; i < 10; ++i) {
 			auto delta = lockableDelta.lock();
 			delta->increment();
 		}
@@ -421,12 +441,12 @@ namespace catapult { namespace cache {
 			}
 
 			void waitForWaiter() {
-				WAIT_FOR_ONE_EXPR(m_flag.numWaiters());
+				WAIT_FOR_ONE_EXPR(m_flag.state()->numWaiters());
 			}
 
 		public:
 			void reset() {
-				m_flag.set();
+				m_flag.state()->set();
 			}
 
 			test::SimpleCache& cache() {

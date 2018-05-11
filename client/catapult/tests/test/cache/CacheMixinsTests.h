@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "tests/TestHarness.h"
 
@@ -36,11 +56,11 @@ namespace catapult { namespace test {
 
 	/// Possible cache ordering modes.
 	enum class CacheOrderingMode {
-		/// The cache is unordered.
+		/// Cache is unordered.
 		Unordered,
-		/// The cache is ordered but has no insert / remove constraints.
+		/// Cache is ordered but has no insert / remove constraints.
 		Ordered,
-		/// The cache is strictly ordered and expects inserts and removes of consecutive elements.
+		/// Cache is strictly ordered and expects inserts and removes of consecutive elements.
 		Strictly_Ordered
 	};
 
@@ -165,21 +185,6 @@ namespace catapult { namespace test {
 			AssertIterationWithIterators({ Id_1, Id_2, Id_3, Id_4, Id_5 });
 		}
 
-		static void AssertCanIterateZeroElementsUsingForEach() {
-			// Assert:
-			AssertIterationWithForEach({});
-		}
-
-		static void AssertCanIterateSingleElementUsingForEach() {
-			// Assert:
-			AssertIterationWithForEach({ Id_1 });
-		}
-
-		static void AssertCanIterateMultipleElementsUsingForEach() {
-			// Assert:
-			AssertIterationWithForEach({ Id_1, Id_2, Id_3, Id_4, Id_5 });
-		}
-
 	private:
 		// needs to be a vector so AssertIteration can properly check sorting
 		using IdPairsContainer = std::vector<std::pair<uint8_t, uint8_t>>;
@@ -232,38 +237,13 @@ namespace catapult { namespace test {
 				// Act: iterate over all values and extract the id pairs (to check that keys and values are matched)
 				//      in order to unify map and set processing, pairs are extracted from both
 				IdPairsContainer idPairs;
-				for (const auto& valueOrPair : view)
+				auto pIterableView = view.tryMakeIterableView();
+				for (const auto& valueOrPair : *pIterableView)
 					idPairs.push_back(GetIdPair(valueOrPair));
 
 				return idPairs;
 			});
 		}
-
-		static void AssertIterationWithForEach(std::initializer_list<uint8_t> ids) {
-			AssertIteration(ids, [](const auto& view) {
-				// Act: iterate over all values and extract the id pairs (to check that keys and values are matched)
-				//      in order to unify map and set processing, pairs are extracted from both
-				IdPairsContainer idPairs;
-				CollectForEach(view, idPairs, ContainerPolicy<IdType, ValueType>());
-				return idPairs;
-			});
-		}
-
-	private:
-		// assume a set if IdType and ValueType are the same
-		enum class UnderlyingContainerType { Set, Map };
-		using SetContainerType = std::integral_constant<UnderlyingContainerType, UnderlyingContainerType::Set>;
-		using MapContainerType = std::integral_constant<UnderlyingContainerType, UnderlyingContainerType::Map>;
-
-		template<typename TKey, typename TValue, typename = void>
-		struct ContainerPolicy
-				: MapContainerType
-		{};
-
-		template<typename TKey, typename TValue>
-		struct ContainerPolicy<TKey, TValue, typename std::enable_if<std::is_same<TKey, TValue>::value>::type>
-				: SetContainerType
-		{};
 
 	private:
 		static constexpr bool ShouldCheckSorting() {
@@ -278,20 +258,6 @@ namespace catapult { namespace test {
 			auto id = TTraits::GetRawId(TTraits::GetId(value));
 			return std::make_pair(id, id);
 		}
-
-		template<typename TView>
-		static void CollectForEach(const TView& view, IdPairsContainer& idPairs, MapContainerType) {
-			view.forEach([&idPairs](const auto& key, const auto& value) {
-				idPairs.push_back(GetIdPair({ key, value }));
-			});
-		}
-
-		template<typename TView>
-		static void CollectForEach(const TView& view, IdPairsContainer& idPairs, SetContainerType) {
-			view.forEach([&idPairs](const auto& value) {
-				idPairs.push_back(GetIdPair(value));
-			});
-		}
 	};
 
 #define MAKE_CACHE_ITERATION_TEST(CACHE_TRAITS, VIEW_TRAITS, ORDERING, SUFFIX, TEST_NAME) \
@@ -302,10 +268,7 @@ namespace catapult { namespace test {
 #define DEFINE_CACHE_ITERATION_TESTS_ORDERING(CACHE_TRAITS, VIEW_TRAITS, ORDERING, SUFFIX) \
 	MAKE_CACHE_ITERATION_TEST(CACHE_TRAITS, VIEW_TRAITS, ORDERING, SUFFIX, CanIterateZeroElementsUsingIterators) \
 	MAKE_CACHE_ITERATION_TEST(CACHE_TRAITS, VIEW_TRAITS, ORDERING, SUFFIX, CanIterateSingleElementUsingIterators) \
-	MAKE_CACHE_ITERATION_TEST(CACHE_TRAITS, VIEW_TRAITS, ORDERING, SUFFIX, CanIterateMultipleElementsUsingIterators) \
-	MAKE_CACHE_ITERATION_TEST(CACHE_TRAITS, VIEW_TRAITS, ORDERING, SUFFIX, CanIterateZeroElementsUsingForEach) \
-	MAKE_CACHE_ITERATION_TEST(CACHE_TRAITS, VIEW_TRAITS, ORDERING, SUFFIX, CanIterateSingleElementUsingForEach) \
-	MAKE_CACHE_ITERATION_TEST(CACHE_TRAITS, VIEW_TRAITS, ORDERING, SUFFIX, CanIterateMultipleElementsUsingForEach)
+	MAKE_CACHE_ITERATION_TEST(CACHE_TRAITS, VIEW_TRAITS, ORDERING, SUFFIX, CanIterateMultipleElementsUsingIterators)
 
 #define DEFINE_CACHE_ITERATION_TESTS(CACHE_TRAITS, VIEW_TRAITS, SUFFIX) \
 	DEFINE_CACHE_ITERATION_TESTS_ORDERING(CACHE_TRAITS, VIEW_TRAITS, Unordered, SUFFIX)

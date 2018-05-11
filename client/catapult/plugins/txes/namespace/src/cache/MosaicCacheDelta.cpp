@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "MosaicCacheDelta.h"
 #include "catapult/cache/IdentifierGroupCacheUtils.h"
 #include "catapult/utils/Casting.h"
@@ -21,14 +41,14 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	BasicMosaicCacheDelta::BasicMosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointerType& mosaicSets)
+	BasicMosaicCacheDelta::BasicMosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets, size_t deepSize)
 			: MosaicCacheDeltaMixins::Size(*mosaicSets.pPrimary)
 			, MosaicCacheDeltaMixins::Contains(*mosaicSets.pPrimary)
 			, MosaicCacheDeltaMixins::ConstAccessor(*mosaicSets.pPrimary)
 			, MosaicCacheDeltaMixins::MutableAccessor(*mosaicSets.pPrimary)
 			, MosaicCacheDeltaMixins::ActivePredicate(*mosaicSets.pPrimary)
 			, MosaicCacheDeltaMixins::DeltaElements(*mosaicSets.pPrimary)
-			, MosaicCacheDeltaMixins::MosaicDeepSize(*mosaicSets.pPrimary)
+			, MosaicCacheDeltaMixins::MosaicDeepSize(deepSize)
 			, m_pHistoryById(mosaicSets.pPrimary)
 			, m_pMosaicIdsByNamespaceId(mosaicSets.pNamespaceGrouping)
 			, m_pMosaicIdsByExpiryHeight(mosaicSets.pHeightGrouping)
@@ -42,6 +62,7 @@ namespace catapult { namespace cache {
 				CATAPULT_THROW_RUNTIME_ERROR_1("owning namespace of mosaic does not match", entry.mosaicId());
 
 			pHistory->push_back(entry.definition(), entry.supply());
+			incrementDeepSize();
 
 			UpdateExpiryMap(*m_pMosaicIdsByExpiryHeight, entry);
 			return;
@@ -51,6 +72,7 @@ namespace catapult { namespace cache {
 		state::MosaicHistory history(entry.namespaceId(), entry.mosaicId());
 		history.push_back(entry.definition(), entry.supply());
 		m_pHistoryById->insert(std::move(history));
+		incrementDeepSize();
 
 		// update secondary maps
 		AddIdentifierWithGroup(*m_pMosaicIdsByNamespaceId, entry.namespaceId(), entry.mosaicId());
@@ -63,11 +85,19 @@ namespace catapult { namespace cache {
 			CATAPULT_THROW_INVALID_ARGUMENT_1("no mosaic exists", id);
 
 		pHistory->pop_back();
+		decrementDeepSize();
 		removeIfEmpty(*pHistory);
 	}
 
 	void BasicMosaicCacheDelta::remove(NamespaceId id) {
+		// need to calculate the total history depth removed because it is not derivable from number of identifiers removed
+		size_t numRemoved = 0;
+		ForEachIdentifierWithGroup(*m_pHistoryById, *m_pMosaicIdsByNamespaceId, id, [&numRemoved](const auto& history) {
+			numRemoved += history.historyDepth();
+		});
+
 		RemoveAllIdentifiersWithGroup(*m_pHistoryById, *m_pMosaicIdsByNamespaceId, id);
+		decrementDeepSize(numRemoved);
 	}
 
 	void BasicMosaicCacheDelta::prune(Height height) {
@@ -82,7 +112,8 @@ namespace catapult { namespace cache {
 		// 4) at height x m_pHistoryById->find(mosaic Id) is called but cannot find the history
 		ForEachIdentifierWithGroup(*m_pHistoryById, *m_pMosaicIdsByExpiryHeight, height, [this, height](auto& history) {
 			// prune and conditionally remove history
-			history.prune(height);
+			auto numErasedHistories = history.prune(height);
+			decrementDeepSize(numErasedHistories);
 			this->removeIfEmpty(history);
 		});
 

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache/SubCachePluginAdapter.h"
 #include "catapult/cache/CatapultCache.h"
 #include "tests/test/cache/CacheBasicTests.h"
@@ -10,10 +30,13 @@ namespace catapult { namespace cache {
 #define TEST_CLASS SubCachePluginAdapterTests
 
 	namespace {
-		using SimpleCachePluginAdapter = SubCachePluginAdapter<test::SimpleCache, test::SimpleCacheStorageTraits>;
+		using SimpleCache = test::SimpleCacheT<3>;
+		using SimpleCachePluginAdapter = SubCachePluginAdapter<SimpleCache, test::SimpleCacheStorageTraits>;
 
-		std::unique_ptr<test::SimpleCache> CreateSimpleCacheWithValue(size_t value) {
-			auto pCache = std::make_unique<test::SimpleCache>();
+		std::unique_ptr<SimpleCache> CreateSimpleCacheWithValue(
+				size_t value,
+				test::SimpleCacheViewMode mode = test::SimpleCacheViewMode::Iterable) {
+			auto pCache = std::make_unique<SimpleCache>(mode);
 			auto delta = pCache->createDelta();
 			for (auto i = 0u; i < value; ++i)
 				delta->increment();
@@ -61,18 +84,29 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	// region constructor
+	// region constructor / name
 
 	TEST(TEST_CLASS, CanAccessRawCachePointer) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
 
 		// Act:
-		const auto* pCache = static_cast<const test::SimpleCache*>(adapter.get());
+		const auto* pCache = static_cast<const SimpleCache*>(adapter.get());
 
 		// Assert:
 		ASSERT_TRUE(!!pCache);
 		EXPECT_EQ(5u, pCache->createView()->id());
+	}
+
+	TEST(TEST_CLASS, CanAccessCacheName) {
+		// Arrange:
+		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
+
+		// Act:
+		auto name = adapter.name();
+
+		// Assert:
+		EXPECT_EQ("SimpleCache (id = 3)", name);
 	}
 
 	// endregion
@@ -189,11 +223,33 @@ namespace catapult { namespace cache {
 
 	// region createStorage
 
+	TEST(TEST_CLASS, CanAccessStorageWhenCacheSupportsIteration) {
+		// Arrange:
+		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(0, test::SimpleCacheViewMode::Iterable));
+
+		// Act:
+		auto pCacheStorage = adapter.createStorage();
+
+		// Assert:
+		ASSERT_TRUE(!!pCacheStorage);
+	}
+
+	TEST(TEST_CLASS, CannotAccessStorageWhenCacheDoesNotSupportIteration) {
+		// Arrange:
+		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(0, test::SimpleCacheViewMode::Non_Iterable));
+
+		// Act:
+		auto pCacheStorage = adapter.createStorage();
+
+		// Assert:
+		ASSERT_FALSE(!!pCacheStorage);
+	}
+
 	TEST(TEST_CLASS, CanSerializeCacheToStorage) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
-		auto catapultCache = cache::CatapultCache({});
-		auto pCacheStorage = adapter.createStorage(catapultCache);
+		auto pCacheStorage = adapter.createStorage();
+		ASSERT_TRUE(!!pCacheStorage);
 
 		std::vector<uint8_t> buffer;
 		mocks::MockMemoryStream stream("", buffer);
@@ -207,21 +263,21 @@ namespace catapult { namespace cache {
 		const auto* pData64 = reinterpret_cast<const uint64_t*>(buffer.data());
 		EXPECT_EQ(5u, pData64[0]); // size;
 
-		for (auto i = 1u; i <= 5u; ++i)
+		for (auto i = 1u; i <= 5; ++i)
 			EXPECT_EQ(i ^ 0xFFFFFFFF'FFFFFFFF, pData64[i]) << "value at " << i;
 	}
 
 	TEST(TEST_CLASS, CanDeserializeCacheFromStorage) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(0));
-		auto catapultCache = cache::CatapultCache({});
-		auto pCacheStorage = adapter.createStorage(catapultCache);
+		auto pCacheStorage = adapter.createStorage();
+		ASSERT_TRUE(!!pCacheStorage);
 
 		// - prepare the input
 		std::vector<uint8_t> buffer(4 * sizeof(uint64_t));
 		auto* pData64 = reinterpret_cast<uint64_t*>(buffer.data());
 		pData64[0] = 3; // size
-		for (auto i = 1u; i <= 3u; ++i)
+		for (auto i = 1u; i <= 3; ++i)
 			pData64[i] = i ^ 0xFFFFFFFF'FFFFFFFF;
 
 		mocks::MockMemoryStream stream("", buffer);

@@ -1,23 +1,43 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include <iosfwd>
 
 namespace catapult { namespace net {
 
 #define PEER_CONNECT_RESULT_LIST \
-	/* The underlying socket operation failed. */ \
+	/* Underlying socket operation failed. */ \
 	ENUM_VALUE(Socket_Error) \
 	\
-	/* The peer failed verification. */ \
+	/* Peer failed verification. */ \
 	ENUM_VALUE(Verify_Error) \
 	\
-	/* The verification timed out. */ \
+	/* Verification timed out. */ \
 	ENUM_VALUE(Timed_Out) \
 	\
-	/* The peer was accepted. */ \
+	/* Peer was accepted. */ \
 	ENUM_VALUE(Accepted) \
 	\
-	/* The peer is already connected. */ \
-	ENUM_VALUE(Already_Connected) \
+	/* Peer is already connected. */ \
+	ENUM_VALUE(Already_Connected)
 
 #define ENUM_VALUE(LABEL) LABEL,
 	/// Enumeration of possible peer connection results.

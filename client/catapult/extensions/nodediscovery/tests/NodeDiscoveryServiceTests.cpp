@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "nodediscovery/src/NodeDiscoveryService.h"
 #include "catapult/ionet/NetworkNode.h"
 #include "catapult/ionet/PacketSocket.h"
@@ -9,6 +29,7 @@
 #include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/test/net/BriefServerRequestorTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
@@ -149,47 +170,12 @@ namespace catapult { namespace nodediscovery {
 			return pPacket;
 		}
 
-		class PullPingServer {
-		public:
-			PullPingServer()
-					: m_pPool(test::CreateStartedIoServiceThreadPool(1))
-					, m_acceptor(m_pPool->service())
-			{}
-
-		public:
-			bool hasConnection() const {
-				return !!m_pServerSocket;
-			}
-
+		class PullPingServer : public test::RemotePullServer {
 		public:
 			void prepareValidResponse(const crypto::KeyPair& partnerKeyPair, const std::string& name) {
-				std::shared_ptr<ionet::PacketSocket> pServerSocket;
-				test::SpawnPacketServerWork(m_acceptor, [&partnerKeyPair, name, &pServerSocket = m_pServerSocket](const auto& pSocket) {
-					pServerSocket = pSocket;
-					auto pResponsePacket = CreateNodePullPingPacket(partnerKeyPair.publicKey(), "127.0.0.1", name);
-					net::VerifyClient(pSocket, partnerKeyPair, [pResponsePacket, pSocket](auto, const auto&) {
-						// - write the packet
-						pSocket->write(pResponsePacket, [](auto) {});
-					});
-				});
+				auto pResponsePacket = CreateNodePullPingPacket(partnerKeyPair.publicKey(), "127.0.0.1", name);
+				test::RemotePullServer::prepareValidResponse(partnerKeyPair, pResponsePacket);
 			}
-
-			void prepareNoResponse() {
-				test::SpawnPacketServerWork(m_acceptor, [&pServerSocket = m_pServerSocket](const auto& pSocket) {
-					pServerSocket = pSocket;
-				});
-			}
-
-		public:
-			void close() {
-				m_pServerSocket->close();
-			}
-
-		private:
-			std::unique_ptr<thread::IoServiceThreadPool> m_pPool;
-			test::TcpAcceptor m_acceptor;
-
-			std::shared_ptr<ionet::PacketSocket> m_pServerSocket;
 		};
 	}
 

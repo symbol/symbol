@@ -1,8 +1,27 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NamespaceDiagnosticHandlers.h"
 #include "src/model/MosaicInfo.h"
 #include "src/model/NamespaceInfo.h"
 #include "catapult/handlers/HandlerFactory.h"
-#include "catapult/utils/Casting.h"
 
 namespace catapult { namespace handlers {
 
@@ -11,26 +30,14 @@ namespace catapult { namespace handlers {
 	namespace {
 		struct MosaicInfosTraits {
 			using RequestStructureType = MosaicId;
-			using SupplierResultsType = std::vector<std::shared_ptr<const model::MosaicInfo>>;
 
 			static constexpr auto Packet_Type = ionet::PacketType::Mosaic_Infos;
-
-			static auto ToPayload(const SupplierResultsType& results) {
-				auto payloadSize = utils::checked_cast<size_t, uint32_t>(results.size() * sizeof(model::MosaicInfo));
-				auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
-				pPacket->Type = Packet_Type;
-				model::MosaicInfo* pData = reinterpret_cast<model::MosaicInfo*>(pPacket->Data());
-				for (const auto& pMosaicInfo : results)
-					std::memcpy(pData++, pMosaicInfo.get(), sizeof(model::MosaicInfo));
-
-				return pPacket;
-			}
+			static constexpr auto Should_Append_As_Values = true;
 		};
 	}
 
-	void RegisterMosaicInfosHandler(ionet::ServerPacketHandlers& handlers, const MosaicInfosSupplier& mosaicInfosSupplier) {
-		using HandlerFactory = BatchHandlerFactory<MosaicInfosTraits>;
-		handlers.registerHandler(HandlerFactory::Packet_Type, HandlerFactory::Create(mosaicInfosSupplier));
+	void RegisterMosaicInfosHandler(ionet::ServerPacketHandlers& handlers, const MosaicInfosProducerFactory& mosaicInfosProducerFactory) {
+		BatchHandlerFactory<MosaicInfosTraits>::RegisterOne(handlers, mosaicInfosProducerFactory);
 	}
 
 	// endregion
@@ -40,19 +47,15 @@ namespace catapult { namespace handlers {
 	namespace {
 		struct NamespaceInfosTraits {
 			using RequestStructureType = NamespaceId;
-			using SupplierResultsType = std::vector<std::shared_ptr<const model::NamespaceInfo>>;
 
 			static constexpr auto Packet_Type = ionet::PacketType::Namespace_Infos;
-
-			static auto ToPayload(const SupplierResultsType& results) {
-				return ionet::PacketPayload::FromEntities(Packet_Type, results);
-			}
 		};
 	}
 
-	void RegisterNamespaceInfosHandler(ionet::ServerPacketHandlers& handlers, const NamespaceInfosSupplier& namespaceInfosSupplier) {
-		using HandlerFactory = BatchHandlerFactory<NamespaceInfosTraits>;
-		handlers.registerHandler(HandlerFactory::Packet_Type, HandlerFactory::Create(namespaceInfosSupplier));
+	void RegisterNamespaceInfosHandler(
+			ionet::ServerPacketHandlers& handlers,
+			const NamespaceInfosProducerFactory& namespaceInfosProducerFactory) {
+		BatchHandlerFactory<NamespaceInfosTraits>::RegisterOne(handlers, namespaceInfosProducerFactory);
 	}
 
 	// endregion

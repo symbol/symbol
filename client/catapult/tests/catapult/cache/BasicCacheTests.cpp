@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache/BasicCache.h"
 #include "catapult/deltaset/BaseSet.h"
 #include "catapult/deltaset/BaseSetDelta.h"
@@ -12,9 +32,28 @@ namespace catapult { namespace cache {
 	namespace {
 		// define a base set for (int, string); since no conversions happen TElementToKeyConverter can be void
 		using MapStorageTraits = deltaset::MapStorageTraits<std::unordered_map<int, std::string>, void>;
-		using BaseSetType = deltaset::BaseSet<deltaset::MutableTypeTraits<std::string>, MapStorageTraits>;
+		class BaseSetType : public deltaset::BaseSet<deltaset::MutableTypeTraits<std::string>, MapStorageTraits> {
+		public:
+			explicit BaseSetType(const CacheConfiguration&)
+			{}
+		};
 
-		using OrderedSetType = deltaset::OrderedSet<deltaset::MutableTypeTraits<std::string>>;
+		class BaseSetTypeUnorderedExplicit : public BaseSetType {
+		public:
+			using IsOrderedSet = std::false_type;
+
+		public:
+			using BaseSetType::BaseSetType;
+		};
+
+		class OrderedSetType : public deltaset::OrderedSet<deltaset::MutableTypeTraits<std::string>> {
+		public:
+			using IsOrderedSet = std::true_type;
+
+		public:
+			explicit OrderedSetType(const CacheConfiguration&)
+			{}
+		};
 
 		// create a cache descriptor around BaseSetType with view and delta types that simply capture parameters
 		// provide two constructors for each sub view so it can be used with and without options
@@ -52,7 +91,7 @@ namespace catapult { namespace cache {
 				{}
 
 			public:
-				// required by TestCacheOrdered
+				// required by TestCacheOrderedExplicit
 				auto pruningBoundary() const {
 					return deltaset::PruningBoundary<std::string>();
 				}
@@ -66,14 +105,16 @@ namespace catapult { namespace cache {
 		// define the test caches using BasicCache
 		using TestCache = BasicCache<TestCacheDescriptor<BaseSetType>, BaseSetType>;
 		using TestCacheWithOptions = BasicCache<TestCacheDescriptor<BaseSetType>, BaseSetType, int>;
-		using TestCacheOrdered = BasicCache<TestCacheDescriptor<OrderedSetType>, OrderedSetType>;
+
+		using TestCacheOrderedExplicit = BasicCache<TestCacheDescriptor<OrderedSetType>, OrderedSetType>;
+		using TestCacheUnorderedExplicit = BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit>;
 	}
 
 	// region sub views - no options
 
 	TEST(TEST_CLASS, CanCreateViews) {
 		// Arrange:
-		TestCache cache;
+		TestCache cache(CacheConfiguration{});
 
 		// Act:
 		auto view1 = cache.createView();
@@ -85,7 +126,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateDelta) {
 		// Arrange:
-		TestCache cache;
+		TestCache cache(CacheConfiguration{});
 
 		// Act:
 		auto delta = cache.createDelta();
@@ -96,7 +137,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateDetachedDeltas) {
 		// Arrange:
-		TestCache cache;
+		TestCache cache(CacheConfiguration{});
 
 		// Act:
 		auto delta1 = cache.createDetachedDelta();
@@ -114,7 +155,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateViews_WithOptions) {
 		// Arrange:
-		TestCacheWithOptions cache(17);
+		TestCacheWithOptions cache(CacheConfiguration(), 17);
 
 		// Act:
 		auto view1 = cache.createView();
@@ -129,7 +170,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateDelta_WithOptions) {
 		// Arrange:
-		TestCacheWithOptions cache(17);
+		TestCacheWithOptions cache(CacheConfiguration(), 17);
 
 		// Act:
 		auto delta = cache.createDelta();
@@ -142,7 +183,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateDetachedDeltas_WithOptions) {
 		// Arrange:
-		TestCacheWithOptions cache(17);
+		TestCacheWithOptions cache(CacheConfiguration(), 17);
 
 		// Act:
 		auto delta1 = cache.createDetachedDelta();
@@ -164,12 +205,13 @@ namespace catapult { namespace cache {
 #define COMMIT_TEST(TEST_NAME) \
 	template<typename TCache> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCache>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Ordered) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCacheOrdered>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_OrderedExplicit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCacheOrderedExplicit>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_UnorderedExplicit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCacheUnorderedExplicit>(); } \
 	template<typename TCache> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	COMMIT_TEST(CanCommitDelta) {
 		// Arrange:
-		TCache cache;
+		TCache cache(CacheConfiguration{});
 
 		// Act:
 		auto delta = cache.createDelta();
@@ -180,7 +222,7 @@ namespace catapult { namespace cache {
 
 	COMMIT_TEST(CannotCommitDetachedDelta) {
 		// Arrange:
-		TCache cache;
+		TCache cache(CacheConfiguration{});
 
 		// Act:
 		auto delta = cache.createDetachedDelta();

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "ConfigurationValueParsers.h"
 #include "catapult/exceptions.h"
@@ -25,10 +45,10 @@ namespace catapult { namespace utils {
 		constexpr ConfigurationKey(const char* section, const char* name) : Section(section), Name(name)
 		{}
 
-		/// The section containing the key.
+		/// Section containing the key.
 		const char* Section;
 
-		/// The key name.
+		/// Key name.
 		const char* Name;
 	};
 
@@ -39,7 +59,7 @@ namespace catapult { namespace utils {
 		template<typename TValue>
 		using KeyValueMap = std::unordered_map<std::string, TValue>;
 
-		/// The type of container that a bag is created around.
+		/// Underlying container that a configuration bag is created around.
 		using ValuesContainer = std::unordered_map<std::string, KeyValueMap<std::string>>;
 
 	public:
@@ -72,7 +92,7 @@ namespace catapult { namespace utils {
 
 		/// Returns \c true if the property identified by \a key is contained in this bag.
 		bool contains(const ConfigurationKey& key) const {
-			return nullptr != lookup(key);
+			return !!lookup(key);
 		}
 
 		/// Gets the names of all sections in this bag.
@@ -89,7 +109,7 @@ namespace catapult { namespace utils {
 		template<typename T>
 		bool tryGet(const ConfigurationKey& key, T& value) const {
 			auto pUnparsedValue = lookup(key);
-			if (nullptr == pUnparsedValue)
+			if (!pUnparsedValue)
 				return false;
 
 			if (!TryParseValue(*pUnparsedValue, value)) {

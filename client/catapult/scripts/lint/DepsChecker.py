@@ -1,4 +1,5 @@
 from collections import defaultdict
+import os
 import re
 
 class Rule: # pylint: disable=too-few-public-methods
@@ -21,7 +22,9 @@ class DepsChecker:
         self.createRules()
 
     def readConfig(self):
-        with open(self.configPath, 'r') as fin:
+        ownDir = os.path.dirname(os.path.realpath(__file__))
+        configPath = os.path.join(ownDir, self.configPath)
+        with open(configPath, 'r') as fin:
             self.parse(fin)
 
     def parse(self, fin):

@@ -1,5 +1,24 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "nodediscovery/src/PeersProcessor.h"
-#include "nodediscovery/src/NodePingRequestor.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/utils/ArraySet.h"
 #include "tests/test/net/NodeTestUtils.h"
@@ -12,9 +31,12 @@ namespace catapult { namespace nodediscovery {
 	namespace {
 		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 
-		// region MockNodePingRequestor
+		// region MockNodePingRequestInitiator
 
-		class MockNodePingRequestor : public NodePingRequestor {
+		class MockNodePingRequestInitiator {
+		private:
+			using OperationCallback = consumer<net::NodeRequestResult, const ionet::Node&>;
+
 		public:
 			utils::KeySet pingedIdentities() const {
 				return m_pingedIdentities;
@@ -25,31 +47,21 @@ namespace catapult { namespace nodediscovery {
 			}
 
 		public:
-			void requestPing(const ionet::Node& node, const PingCallback& callback) override {
+			void operator()(const ionet::Node& node, const OperationCallback& callback) {
 				m_pingedIdentities.insert(node.identityKey());
 
 				auto iter = m_pingResponses.find(node.identityKey());
 				if (m_pingResponses.cend() == iter)
-					callback(NodePingResult::Failure_Timeout, ionet::Node());
+					callback(net::NodeRequestResult::Failure_Timeout, ionet::Node());
 				else
-					callback(NodePingResult::Success, iter->second);
+					callback(net::NodeRequestResult::Success, iter->second);
 			}
 
 		public:
-			size_t numActiveConnections() const override {
-				CATAPULT_THROW_RUNTIME_ERROR("numActiveConnections - not supported in mock");
-			}
-
-			size_t numTotalPingRequests() const override {
-				CATAPULT_THROW_RUNTIME_ERROR("numTotalPingRequests - not supported in mock");
-			}
-
-			size_t numSuccessfulPingRequests() const override {
-				CATAPULT_THROW_RUNTIME_ERROR("numSuccessfulPingRequests - not supported in mock");
-			}
-
-			void shutdown() override {
-				CATAPULT_THROW_RUNTIME_ERROR("shutdown - not supported in mock");
+			consumer<const ionet::Node&, const OperationCallback&> ref() {
+				return [this](const auto& node, const auto& callback) {
+					return (*this)(node, callback);
+				};
 			}
 
 		private:
@@ -67,12 +79,12 @@ namespace catapult { namespace nodediscovery {
 
 		struct TestContext {
 		public:
-			TestContext() : Processor(NodeContainer, PingRequestor, Network_Identifier, CaptureNode(ResponseNodes))
+			TestContext() : Processor(NodeContainer, PingRequestInitiator.ref(), Network_Identifier, CaptureNode(ResponseNodes))
 			{}
 
 		public:
 			ionet::NodeContainer NodeContainer;
-			MockNodePingRequestor PingRequestor;
+			MockNodePingRequestInitiator PingRequestInitiator;
 			std::vector<ionet::Node> ResponseNodes;
 			PeersProcessor Processor;
 		};
@@ -99,7 +111,7 @@ namespace catapult { namespace nodediscovery {
 		context.Processor.process(ionet::NodeSet());
 
 		// Assert: no pings and no responses
-		EXPECT_TRUE(context.PingRequestor.pingedIdentities().empty());
+		EXPECT_TRUE(context.PingRequestInitiator.pingedIdentities().empty());
 		EXPECT_TRUE(context.ResponseNodes.empty());
 	}
 
@@ -117,7 +129,7 @@ namespace catapult { namespace nodediscovery {
 		context.Processor.process(ionet::NodeSet(nodes.cbegin(), nodes.cend()));
 
 		// Assert: no pings and no responses
-		EXPECT_TRUE(context.PingRequestor.pingedIdentities().empty());
+		EXPECT_TRUE(context.PingRequestInitiator.pingedIdentities().empty());
 		EXPECT_TRUE(context.ResponseNodes.empty());
 	}
 
@@ -132,7 +144,7 @@ namespace catapult { namespace nodediscovery {
 		context.Processor.process(ionet::NodeSet(nodes.cbegin(), nodes.cend()));
 
 		// Assert: ping attempts but no successful responses
-		EXPECT_EQ(utils::KeySet({ keys[0], keys[1], keys[2] }), context.PingRequestor.pingedIdentities());
+		EXPECT_EQ(utils::KeySet({ keys[0], keys[1], keys[2] }), context.PingRequestInitiator.pingedIdentities());
 		EXPECT_TRUE(context.ResponseNodes.empty());
 	}
 
@@ -144,13 +156,13 @@ namespace catapult { namespace nodediscovery {
 		auto candidateNode = test::CreateNamedNode(key, "candidate");
 
 		// - configure the ping response node to have a different key
-		context.PingRequestor.setResponseNode(key, test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "response"));
+		context.PingRequestInitiator.setResponseNode(key, test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "response"));
 
 		// Act: process candidate node
 		context.Processor.process(ionet::NodeSet{ candidateNode });
 
 		// Assert: ping attempt but no successful response
-		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestor.pingedIdentities());
+		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestInitiator.pingedIdentities());
 		EXPECT_TRUE(context.ResponseNodes.empty());
 	}
 
@@ -162,13 +174,13 @@ namespace catapult { namespace nodediscovery {
 		auto candidateNode = test::CreateNamedNode(key, "candidate");
 
 		// - configure the ping response node to have a different network (processor is configured with Mijin_Test)
-		context.PingRequestor.setResponseNode(key, ionet::Node(key, candidateNode.endpoint(), ionet::NodeMetadata()));
+		context.PingRequestInitiator.setResponseNode(key, ionet::Node(key, candidateNode.endpoint(), ionet::NodeMetadata()));
 
 		// Act: process candidate node
 		context.Processor.process(ionet::NodeSet{ candidateNode });
 
 		// Assert: ping attempt but no successful response
-		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestor.pingedIdentities());
+		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestInitiator.pingedIdentities());
 		EXPECT_TRUE(context.ResponseNodes.empty());
 	}
 
@@ -180,13 +192,13 @@ namespace catapult { namespace nodediscovery {
 		auto candidateNode = ionet::Node(key, { "alice.com", 987 }, CreateNamedMetadata("candidate"));
 
 		// - create a different (but compatible response node)
-		context.PingRequestor.setResponseNode(key, ionet::Node(key, { "bob.com", 123 }, CreateNamedMetadata("bobby")));
+		context.PingRequestInitiator.setResponseNode(key, ionet::Node(key, { "bob.com", 123 }, CreateNamedMetadata("bobby")));
 
 		// Act: process candidate node
 		context.Processor.process(ionet::NodeSet{ candidateNode });
 
 		// Assert: ping attempt and successful response
-		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestor.pingedIdentities());
+		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestInitiator.pingedIdentities());
 		ASSERT_EQ(1u, context.ResponseNodes.size());
 
 		const auto& responseNode = context.ResponseNodes[0];
@@ -204,13 +216,13 @@ namespace catapult { namespace nodediscovery {
 		auto candidateNode = ionet::Node(key, { "alice.com", 987 }, CreateNamedMetadata("candidate"));
 
 		// - create a different (but compatible response node)
-		context.PingRequestor.setResponseNode(key, ionet::Node(key, { "", 123 }, CreateNamedMetadata("bobby")));
+		context.PingRequestInitiator.setResponseNode(key, ionet::Node(key, { "", 123 }, CreateNamedMetadata("bobby")));
 
 		// Act: process candidate node
 		context.Processor.process(ionet::NodeSet{ candidateNode });
 
 		// Assert: ping attempt and successful response
-		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestor.pingedIdentities());
+		EXPECT_EQ(utils::KeySet({ key }), context.PingRequestInitiator.pingedIdentities());
 		ASSERT_EQ(1u, context.ResponseNodes.size());
 
 		const auto& responseNode = context.ResponseNodes[0];
@@ -231,15 +243,15 @@ namespace catapult { namespace nodediscovery {
 		context.NodeContainer.modifier().add(nodes[4], ionet::NodeSource::Dynamic);
 
 		// - mark 3/5 nodes as successful (2/3 unknown and 1/2 known)
-		context.PingRequestor.setResponseNode(keys[0], nodes[0]);
-		context.PingRequestor.setResponseNode(keys[2], nodes[2]);
-		context.PingRequestor.setResponseNode(keys[3], nodes[3]);
+		context.PingRequestInitiator.setResponseNode(keys[0], nodes[0]);
+		context.PingRequestInitiator.setResponseNode(keys[2], nodes[2]);
+		context.PingRequestInitiator.setResponseNode(keys[3], nodes[3]);
 
 		// Act:
 		context.Processor.process(ionet::NodeSet(nodes.cbegin(), nodes.cend()));
 
 		// Assert: three pings (2/5 in node container were filtered out)
-		EXPECT_EQ(utils::KeySet({ keys[0], keys[1], keys[3] }), context.PingRequestor.pingedIdentities());
+		EXPECT_EQ(utils::KeySet({ keys[0], keys[1], keys[3] }), context.PingRequestInitiator.pingedIdentities());
 
 		// - two successful nodes (only 2/3 new nodes are configured to ping successfully)
 		ASSERT_EQ(2u, context.ResponseNodes.size());

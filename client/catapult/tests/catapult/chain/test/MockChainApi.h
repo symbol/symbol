@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/api/RemoteChainApi.h"
 #include "catapult/utils/TimeSpan.h"
@@ -103,7 +123,7 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Returns the configured hashes from \a height and throws if the error entry point is set to Hashes_From.
-		/// The \a height parameter is captured.
+		/// \note The \a height parameter is captured.
 		thread::future<model::HashRange> hashesFrom(Height height) const override {
 			m_hashesFromRequests.push_back(height);
 			if (shouldRaiseException(EntryPoint::Hashes_From))
@@ -121,7 +141,7 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Returns the configured block at \a height and throws if the error entry point is set to Block_At.
-		/// The \a height parameter is captured.
+		/// \note The \a height parameter is captured.
 		thread::future<std::shared_ptr<const model::Block>> blockAt(Height height) const override {
 			m_blockAtRequests.push_back(height);
 			if (Height(0) != height && shouldRaiseException(EntryPoint::Block_At))
@@ -132,7 +152,7 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Returns a range of the configured blocks and throws if the error entry point is set to Blocks_From.
-		/// The \a height and the blocks-from-options (\a options) parameters are captured.
+		/// \note The \a height and the blocks-from-options (\a options) parameters are captured.
 		thread::future<model::BlockRange> blocksFrom (Height height, const api::BlocksFromOptions& options) const override {
 			m_blocksFromRequests.push_back(std::make_pair(height, options));
 			if (shouldRaiseException(EntryPoint::Blocks_From))

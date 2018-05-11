@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/IntegerMath.h"
 #include "tests/test/nodeps/Random.h"
 #include "tests/TestHarness.h"
@@ -6,6 +26,106 @@
 namespace catapult { namespace utils {
 
 #define TEST_CLASS IntegerMathTests
+
+	// region CheckedAdd
+
+	namespace {
+		template<typename T>
+		struct CheckedAddExample {
+			T Value;
+			T Delta;
+			T ExpectedValue;
+		};
+
+		template<typename T>
+		void AssertCheckedAddCanAdd(const std::vector<CheckedAddExample<T>>& examples) {
+			// Arrange:
+			for (const auto& example : examples) {
+				auto value = example.Value;
+
+				// Act:
+				auto isAddSuccess = CheckedAdd(value, example.Delta);
+
+				// Assert:
+				EXPECT_TRUE(isAddSuccess) << utils::HexFormat(example.Value);
+				EXPECT_EQ(example.ExpectedValue, value) << utils::HexFormat(example.Value);
+			}
+		}
+
+		template<typename T>
+		void AssertCheckedAddCannotAdd(const std::vector<CheckedAddExample<T>>& examples) {
+			// Arrange:
+			for (const auto& example : examples) {
+				auto value = example.Value;
+
+				// Act:
+				auto isAddSuccess = CheckedAdd(value, example.Delta);
+
+				// Assert:
+				EXPECT_FALSE(isAddSuccess) << utils::HexFormat(example.Value);
+				EXPECT_EQ(example.Value, value) << utils::HexFormat(example.Value);
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, CheckedAddCanAddValuesBelowMax) {
+		// Assert:
+		AssertCheckedAddCanAdd<uint32_t>({
+			{ 0xFFFF'FFFE, 0x0000'0000, 0xFFFF'FFFE },
+			{ 0xFFFF'FFFD, 0x0000'0001, 0xFFFF'FFFE },
+			{ 0x0000'0000, 0xFFFF'FFFE, 0xFFFF'FFFE },
+			{ 0xABCD'9876, 0x0000'1230, 0xABCD'AAA6 },
+			{ 0xFFFF'0000, 0x0000'FFFE, 0xFFFF'FFFE }
+		});
+
+		AssertCheckedAddCanAdd<uint16_t>({
+			{ 0xFFFE, 0x0000, 0xFFFE },
+			{ 0xFFFD, 0x0001, 0xFFFE },
+			{ 0x0000, 0xFFFE, 0xFFFE },
+			{ 0xABCD, 0x1111, 0xBCDE },
+			{ 0xFF00, 0x00FE, 0xFFFE }
+		});
+	}
+
+	TEST(TEST_CLASS, CheckedAddCanAddValuesUpToMax) {
+		// Assert:
+		AssertCheckedAddCanAdd<uint32_t>({
+			{ 0xFFFF'FFFF, 0x0000'0000, 0xFFFF'FFFF },
+			{ 0xFFFF'FFFE, 0x0000'0001, 0xFFFF'FFFF },
+			{ 0x0000'0000, 0xFFFF'FFFF, 0xFFFF'FFFF },
+			{ 0xABCD'9876, 0x5432'6789, 0xFFFF'FFFF },
+			{ 0xFFFF'0000, 0x0000'FFFF, 0xFFFF'FFFF }
+		});
+
+		AssertCheckedAddCanAdd<uint16_t>({
+			{ 0xFFFF, 0x0000, 0xFFFF },
+			{ 0xFFFE, 0x0001, 0xFFFF },
+			{ 0x0000, 0xFFFF, 0xFFFF },
+			{ 0xABCD, 0x5432, 0xFFFF },
+			{ 0xFF00, 0x00FF, 0xFFFF }
+		});
+	}
+
+	TEST(TEST_CLASS, CheckedAddCannotAddValuesAboveMax) {
+		// Arrange: third value is ignored
+		AssertCheckedAddCannotAdd<uint32_t>({
+			{ 0xFFFF'FFFF, 0x0000'0001, 0 },
+			{ 0x0000'0001, 0xFFFF'FFFF, 0 },
+			{ 0xABCD'9876, 0x5432'678A, 0 },
+			{ 0xFFFF'0001, 0x0000'FFFF, 0 },
+			{ 0xFFFF'FFFE, 0xFFFF'FFFE, 0 }
+		});
+
+		AssertCheckedAddCannotAdd<uint16_t>({
+			{ 0xFFFF, 0x0001, 0 },
+			{ 0x0001, 0xFFFF, 0 },
+			{ 0xABCD, 0x5433, 0 },
+			{ 0xFF01, 0x00FF, 0 },
+			{ 0xFFFE, 0xFFFE, 0 }
+		});
+	}
+
+	// endregion
 
 	// region GetNumBits
 
@@ -94,7 +214,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, Log2TimesPowerOfTwoCanIterateMoreThanThirtyOneTimesWithCorrectResult) {
 		// Act:
-		auto result = Log2TimesPowerOfTwo(0xF7F6F5F4, 54u);
+		auto result = Log2TimesPowerOfTwo(0xF7F6F5F4, 54);
 
 		// Assert:
 		EXPECT_EQ(0x07FD0E2FCCDB25E2u, result);

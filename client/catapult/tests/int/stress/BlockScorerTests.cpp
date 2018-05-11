@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/model/Block.h"
@@ -52,7 +72,7 @@ namespace catapult { namespace chain {
 		ImportanceGroups CreateDoublingImportances() {
 			uint64_t importance = 10'000'000;
 			ImportanceGroups groups;
-			for (auto i = 0u; i < 7u; ++i) {
+			for (auto i = 0u; i < 7; ++i) {
 				groups.push_back(std::make_unique<ImportanceGroup>(importance));
 				importance *= 2;
 			}
@@ -120,7 +140,7 @@ namespace catapult { namespace chain {
 
 			// - if no blocks hit, use a random generation hash for the next iteration
 			//   (in a real scenario, this would result in a lowered difficulty)
-			if (nullptr == pBestGroup)
+			if (!pBestGroup)
 				return test::GenerateRandomData<Hash256_Size>();
 
 			// - increment the hit count for the best group and use its generation hash for the next iteration

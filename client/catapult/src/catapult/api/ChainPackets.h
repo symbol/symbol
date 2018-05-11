@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/ionet/Packet.h"
 #include "catapult/types.h"
@@ -10,13 +30,13 @@ namespace catapult { namespace api {
 	struct ChainInfoResponse : public ionet::Packet {
 		static constexpr ionet::PacketType Packet_Type = ionet::PacketType::Chain_Info;
 
-		/// The chain height.
+		/// Chain height.
 		catapult::Height Height;
 
-		/// The high part of the score.
+		/// High part of the score.
 		uint64_t ScoreHigh;
 
-		/// The low part of the score.
+		/// Low part of the score.
 		uint64_t ScoreLow;
 	};
 
@@ -25,7 +45,7 @@ namespace catapult { namespace api {
 	struct HeightPacket : public ionet::Packet {
 		static constexpr ionet::PacketType Packet_Type = PacketType;
 
-		/// The requested block height.
+		/// Requested block height.
 		catapult::Height Height;
 	};
 
@@ -37,10 +57,10 @@ namespace catapult { namespace api {
 
 	/// A pull blocks request.
 	struct PullBlocksRequest : public HeightPacket<ionet::PacketType::Pull_Blocks> {
-		/// The requested number of blocks.
+		/// Requested number of blocks.
 		uint32_t NumBlocks;
 
-		/// The requested response size (in bytes).
+		/// Requested response size (in bytes).
 		uint32_t NumResponseBytes;
 	};
 

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "harvesting/src/UnlockedAccounts.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/KeyPairTestUtils.h"
@@ -156,7 +176,7 @@ namespace catapult { namespace harvesting {
 		const auto& accounts = context.Accounts;
 
 		std::set<Key> expectedPublicKeys;
-		for (auto i = 0u; i < 4u; ++i) {
+		for (auto i = 0u; i < 4; ++i) {
 			auto keyPair = test::GenerateKeyPair();
 			expectedPublicKeys.insert(keyPair.publicKey());
 			AddAccount(context, std::move(keyPair));
@@ -179,7 +199,7 @@ namespace catapult { namespace harvesting {
 		auto& accounts = context.Accounts;
 
 		std::set<Key> expectedPublicKeys;
-		for (auto i = 0u; i < 4u; ++i) {
+		for (auto i = 0u; i < 4; ++i) {
 			auto keyPair = test::GenerateKeyPair();
 			expectedPublicKeys.insert(keyPair.publicKey());
 			AddAccount(context, std::move(keyPair));
@@ -217,7 +237,7 @@ namespace catapult { namespace harvesting {
 		const auto& accounts = context.Accounts;
 
 		// Act:
-		for (auto i = 0u; i < 8u; ++i)
+		for (auto i = 0u; i < 8; ++i)
 			AddRandomAccount(context);
 
 		// Assert:
@@ -229,7 +249,7 @@ namespace catapult { namespace harvesting {
 		TestContext context(8);
 		const auto& accounts = context.Accounts;
 
-		for (auto i = 0u; i < 8u; ++i)
+		for (auto i = 0u; i < 8; ++i)
 			AddRandomAccount(context);
 
 		// Act:
@@ -247,9 +267,9 @@ namespace catapult { namespace harvesting {
 		auto& accounts = context.Accounts;
 
 		// Act:
-		for (auto i = 0u; i < 4u; ++i) AddRandomAccount(context);
+		for (auto i = 0u; i < 4; ++i) AddRandomAccount(context);
 		AddAccount(context, std::move(keyPairWrapper.KeyPair));
-		for (auto i = 0u; i < 3u; ++i) AddRandomAccount(context);
+		for (auto i = 0u; i < 3; ++i) AddRandomAccount(context);
 
 		// Sanity:
 		auto result = AddRandomAccount(context);
@@ -270,7 +290,7 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		TestContext context(8);
 		auto& accounts = context.Accounts;
-		for (auto i = 0u; i < 3u; ++i)
+		for (auto i = 0u; i < 3; ++i)
 			AddRandomAccount(context);
 
 		// Sanity:
@@ -287,7 +307,7 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		TestContext context(8);
 		auto& accounts = context.Accounts;
-		for (auto i = 0u; i < 3u; ++i)
+		for (auto i = 0u; i < 3; ++i)
 			AddRandomAccount(context);
 
 		// Sanity:
@@ -304,7 +324,7 @@ namespace catapult { namespace harvesting {
 		// Arrange:
 		TestContext context(8);
 		auto& accounts = context.Accounts;
-		for (auto i = 0u; i < 5u; ++i)
+		for (auto i = 0u; i < 5; ++i)
 			AddRandomAccount(context);
 
 		// Sanity:

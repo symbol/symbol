@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/Logging.h"
 #include "catapult/utils/StackLogger.h"
 #include "tests/catapult/utils/test/LoggingTestUtils.h"
@@ -63,12 +83,12 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<trace> (utils::LoggingTests.cpp@14) alice trace message",
-			"<info> (utils::LoggingTests.cpp@15) foo info",
-			"<debug> (utils::LoggingTests.cpp@16) bob debug message",
-			"<warning> (utils::LoggingTests.cpp@17) bar warning",
-			"<fatal> (utils::LoggingTests.cpp@18) fatal termination",
-			"<error> (utils::LoggingTests.cpp@19) baz error"
+			"<trace> (utils::LoggingTests.cpp@34) alice trace message",
+			"<info> (utils::LoggingTests.cpp@35) foo info",
+			"<debug> (utils::LoggingTests.cpp@36) bob debug message",
+			"<warning> (utils::LoggingTests.cpp@37) bar warning",
+			"<fatal> (utils::LoggingTests.cpp@38) fatal termination",
+			"<error> (utils::LoggingTests.cpp@39) baz error"
 		});
 	}
 
@@ -89,12 +109,12 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<trace> (utils::LoggingTests.cpp@23) alice trace message",
-			"<info> (utils::LoggingTests.cpp@24) foo info",
-			"<debug> (utils::LoggingTests.cpp@25) bob debug message",
-			"<warning> (utils::LoggingTests.cpp@26) bar warning",
-			"<fatal> (utils::LoggingTests.cpp@27) fatal termination",
-			"<error> (utils::LoggingTests.cpp@28) baz error"
+			"<trace> (utils::LoggingTests.cpp@43) alice trace message",
+			"<info> (utils::LoggingTests.cpp@44) foo info",
+			"<debug> (utils::LoggingTests.cpp@45) bob debug message",
+			"<warning> (utils::LoggingTests.cpp@46) bar warning",
+			"<fatal> (utils::LoggingTests.cpp@47) fatal termination",
+			"<error> (utils::LoggingTests.cpp@48) baz error"
 		});
 	}
 
@@ -116,12 +136,12 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<trace> (foo::LoggingTests.cpp@38) alice trace message",
-			"<info> (foo::LoggingTests.cpp@39) foo info",
-			"<error> (foo::LoggingTests.cpp@40) baz error",
-			"<trace> (bar::LoggingTests.cpp@38) alice trace message",
-			"<info> (bar::LoggingTests.cpp@39) foo info",
-			"<error> (bar::LoggingTests.cpp@40) baz error"
+			"<trace> (foo::LoggingTests.cpp@58) alice trace message",
+			"<info> (foo::LoggingTests.cpp@59) foo info",
+			"<error> (foo::LoggingTests.cpp@60) baz error",
+			"<trace> (bar::LoggingTests.cpp@58) alice trace message",
+			"<info> (bar::LoggingTests.cpp@59) foo info",
+			"<error> (bar::LoggingTests.cpp@60) baz error"
 		});
 	}
 
@@ -142,10 +162,10 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<info> (utils::LoggingTests.cpp@15) foo info",
-			"<warning> (utils::LoggingTests.cpp@17) bar warning",
-			"<fatal> (utils::LoggingTests.cpp@18) fatal termination",
-			"<error> (utils::LoggingTests.cpp@19) baz error"
+			"<info> (utils::LoggingTests.cpp@35) foo info",
+			"<warning> (utils::LoggingTests.cpp@37) bar warning",
+			"<fatal> (utils::LoggingTests.cpp@38) fatal termination",
+			"<error> (utils::LoggingTests.cpp@39) baz error"
 		});
 	}
 
@@ -170,9 +190,9 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<error> (foo::LoggingTests.cpp@40) baz error",
-			"<info> (bar::LoggingTests.cpp@39) foo info",
-			"<error> (bar::LoggingTests.cpp@40) baz error"
+			"<error> (foo::LoggingTests.cpp@60) baz error",
+			"<info> (bar::LoggingTests.cpp@59) foo info",
+			"<error> (bar::LoggingTests.cpp@60) baz error"
 		});
 	}
 
@@ -197,11 +217,11 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<trace> (foo::LoggingTests.cpp@38) alice trace message",
-			"<info> (foo::LoggingTests.cpp@39) foo info",
-			"<error> (foo::LoggingTests.cpp@40) baz error",
-			"<info> (bar::LoggingTests.cpp@39) foo info",
-			"<error> (bar::LoggingTests.cpp@40) baz error"
+			"<trace> (foo::LoggingTests.cpp@58) alice trace message",
+			"<info> (foo::LoggingTests.cpp@59) foo info",
+			"<error> (foo::LoggingTests.cpp@60) baz error",
+			"<info> (bar::LoggingTests.cpp@59) foo info",
+			"<error> (bar::LoggingTests.cpp@60) baz error"
 		});
 	}
 
@@ -228,9 +248,9 @@ namespace catapult { namespace utils {
 		test::AssertTimestampsAreIncreasing(records);
 		test::AssertNumUniqueThreadIds(records, 1);
 		test::AssertMessages(records, {
-			"<trace> (bar::LoggingTests.cpp@38) alice trace message",
-			"<info> (bar::LoggingTests.cpp@39) foo info",
-			"<error> (bar::LoggingTests.cpp@40) baz error"
+			"<trace> (bar::LoggingTests.cpp@58) alice trace message",
+			"<info> (bar::LoggingTests.cpp@59) foo info",
+			"<error> (bar::LoggingTests.cpp@60) baz error"
 		});
 	}
 
@@ -276,8 +296,8 @@ namespace catapult { namespace utils {
 			const auto& subcomponent = pair.second.back().Subcomponent;
 			test::AssertTimestampsAreIncreasing(pair.second);
 			AssertMessages(pair.second, {
-				"<info> (" + subcomponent + "::LoggingTests.cpp@39) foo info",
-				"<error> (" + subcomponent + "::LoggingTests.cpp@40) baz error"
+				"<info> (" + subcomponent + "::LoggingTests.cpp@59) foo info",
+				"<error> (" + subcomponent + "::LoggingTests.cpp@60) baz error"
 			});
 			subcomponents.insert(subcomponent);
 		}
@@ -316,10 +336,10 @@ namespace catapult { namespace utils {
 			test::AssertTimestampsAreIncreasing(primaryRecords);
 			test::AssertNumUniqueThreadIds(primaryRecords, 1);
 			test::AssertMessages(primaryRecords, {
-				"<info> (foo::LoggingTests.cpp@39) foo info",
-				"<error> (foo::LoggingTests.cpp@40) baz error",
-				"<info> (bar::LoggingTests.cpp@39) foo info",
-				"<error> (bar::LoggingTests.cpp@40) baz error"
+				"<info> (foo::LoggingTests.cpp@59) foo info",
+				"<error> (foo::LoggingTests.cpp@60) baz error",
+				"<info> (bar::LoggingTests.cpp@59) foo info",
+				"<error> (bar::LoggingTests.cpp@60) baz error"
 			});
 		}
 
@@ -330,9 +350,9 @@ namespace catapult { namespace utils {
 			test::AssertTimestampsAreIncreasing(secondaryRecords);
 			test::AssertNumUniqueThreadIds(secondaryRecords, 1);
 			test::AssertMessages(secondaryRecords, {
-				"<trace> (foo::LoggingTests.cpp@38) alice trace message",
-				"<info> (foo::LoggingTests.cpp@39) foo info",
-				"<error> (foo::LoggingTests.cpp@40) baz error",
+				"<trace> (foo::LoggingTests.cpp@58) alice trace message",
+				"<info> (foo::LoggingTests.cpp@59) foo info",
+				"<error> (foo::LoggingTests.cpp@60) baz error",
 			});
 		}
 	}

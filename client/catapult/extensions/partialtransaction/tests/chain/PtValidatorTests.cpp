@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "partialtransaction/src/chain/PtValidator.h"
 #include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
 #include "plugins/txes/aggregate/src/validators/Results.h"
@@ -67,7 +87,7 @@ namespace catapult { namespace chain {
 		public:
 			explicit TestContext(const ValidatorResultOptions& options)
 					: m_cache(test::CreateEmptyCatapultCache())
-					, m_pluginManager(model::BlockChainConfiguration::Uninitialized()) {
+					, m_pluginManager(model::BlockChainConfiguration::Uninitialized(), plugins::StorageConfiguration()) {
 				// Arrange: register mock support (for validatePartial)
 				auto pluginOptionFlags = mocks::PluginOptionFlags::Publish_Custom_Notifications;
 				m_pluginManager.addTransactionSupport(mocks::CreateMockTransactionPlugin(pluginOptionFlags));
@@ -142,7 +162,7 @@ namespace catapult { namespace chain {
 				++numMatches;
 			}
 
-			EXPECT_GT(numMatches, 0u) << description;
+			EXPECT_LE(0u, numMatches) << description;
 		}
 
 		template<typename TNotificationTypesConsumer>

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/state/MosaicHistory.h"
 #include "src/state/MosaicEntry.h"
 #include "tests/test/MosaicTestUtils.h"
@@ -182,11 +202,14 @@ namespace catapult { namespace state {
 		auto history = CreateHistoryWithSupplies(definition, { 567, 678, 789 });
 
 		// Act:
-		history.prune(Height(321));
-		history.prune(Height(10000));
-		history.prune(Height(10000000));
+		size_t numErasedHistories = 0;
+		numErasedHistories += history.prune(Height(321));
+		numErasedHistories += history.prune(Height(10000));
+		numErasedHistories += history.prune(Height(10000000));
 
 		// Assert:
+		EXPECT_EQ(0u, numErasedHistories);
+
 		EXPECT_EQ(Default_Namespace_Id, history.namespaceId());
 		EXPECT_EQ(Default_Mosaic_Id, history.id());
 		EXPECT_FALSE(history.empty());
@@ -209,9 +232,11 @@ namespace catapult { namespace state {
 		history.push_back(definition3, Amount(345));
 
 		// Act: first two entries should be pruned
-		history.prune(Height(300));
+		auto numErasedHistories = history.prune(Height(300));
 
 		// Assert:
+		EXPECT_EQ(2u, numErasedHistories);
+
 		EXPECT_EQ(Default_Namespace_Id, history.namespaceId());
 		EXPECT_EQ(Default_Mosaic_Id, history.id());
 		EXPECT_FALSE(history.empty());
@@ -239,9 +264,11 @@ namespace catapult { namespace state {
 		history.push_back(definition4, Amount(456));
 
 		// Act: first three entries should be pruned
-		history.prune(Height(300));
+		auto numErasedHistories = history.prune(Height(300));
 
 		// Assert:
+		EXPECT_EQ(3u, numErasedHistories);
+
 		EXPECT_EQ(Default_Namespace_Id, history.namespaceId());
 		EXPECT_EQ(Default_Mosaic_Id, history.id());
 		EXPECT_FALSE(history.empty());
@@ -266,9 +293,11 @@ namespace catapult { namespace state {
 		history.push_back(definition3, Amount(345));
 
 		// Act: all entries should be pruned
-		history.prune(Height(400));
+		auto numErasedHistories = history.prune(Height(400));
 
 		// Assert:
+		EXPECT_EQ(3u, numErasedHistories);
+
 		EXPECT_EQ(Default_Namespace_Id, history.namespaceId());
 		EXPECT_EQ(Default_Mosaic_Id, history.id());
 		EXPECT_TRUE(history.empty());
@@ -284,9 +313,11 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(history.empty());
 
 		// Act:
-		history.prune(Height(234));
+		auto numErasedHistories = history.prune(Height(234));
 
 		// Assert:
+		EXPECT_EQ(0u, numErasedHistories);
+
 		EXPECT_TRUE(history.empty());
 	}
 

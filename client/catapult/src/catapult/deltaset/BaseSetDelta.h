@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "BaseSetDefaultTraits.h"
 #include "DeltaElements.h"
@@ -34,23 +54,28 @@ namespace catapult { namespace deltaset {
 		Removed
 	};
 
-	/// A delta on top of a base set.
+	template<typename TSetTraits>
+	class BaseSetDeltaIterationView;
+
+	/// A delta on top of a base set that offers methods to insert/remove/update elements.
 	/// \tparam TElementTraits Traits describing the type of element.
 	/// \tparam TSetTraits Traits describing the underlying set.
 	///
-	/// The delta offers methods to insert/remove/update elements.
 	/// \note This class is not thread safe.
 	template<typename TElementTraits, typename TSetTraits>
 	class BaseSetDelta : public utils::NonCopyable {
 	public:
 		using ElementType = typename TElementTraits::ElementType;
+
 		using SetType = typename TSetTraits::SetType;
+		using MemorySetType = typename TSetTraits::MemorySetType;
+
 		using KeyType = typename TSetTraits::KeyType;
-		using FindTraits = detail::FindTraits<ElementType, TSetTraits::AllowsNativeValueModification>;
+		using FindTraits = FindTraitsT<ElementType, TSetTraits::AllowsNativeValueModification>;
 		using SetTraits = TSetTraits;
 
 	public:
-		/// Creates a delta on top of \a originalElements.
+		/// Creates a delta around \a originalElements.
 		explicit BaseSetDelta(const SetType& originalElements) : m_originalElements(originalElements)
 		{}
 
@@ -90,7 +115,7 @@ namespace catapult { namespace deltaset {
 				return nullptr;
 
 			auto pOriginal = set.find(key, typename TElementTraits::MutabilityTag());
-			if (nullptr != pOriginal)
+			if (pOriginal)
 				return pOriginal;
 
 			auto addedIter = set.m_addedElements.find(key);
@@ -103,7 +128,7 @@ namespace catapult { namespace deltaset {
 				return ToResult(*copiedIter);
 
 			auto pOriginal = find(key, ImmutableTypeTag());
-			if (nullptr == pOriginal)
+			if (!pOriginal)
 				return nullptr;
 
 			auto copy = TElementTraits::Copy(pOriginal);
@@ -131,9 +156,30 @@ namespace catapult { namespace deltaset {
 		}
 
 	private:
-		static constexpr bool contains(const SetType& set, const KeyType& key) {
+		template<typename TSet> // SetType or MemorySetType
+		static constexpr bool contains(const TSet& set, const KeyType& key) {
 			return set.cend() != set.find(key);
 		}
+
+	private:
+		// used to support creating values and values pointed to by shared_ptr
+		// (this is required to support shared_ptr value types in BaseSet)
+
+		template<typename T>
+		struct ElementCreator {
+			template<typename... TArgs>
+			static T Create(TArgs&&... args) {
+				return T(std::forward<TArgs>(args)...);
+			}
+		};
+
+		template<typename T>
+		struct ElementCreator<std::shared_ptr<T>> {
+			template<typename... TArgs>
+			static std::shared_ptr<T> Create(TArgs&&... args) {
+				return std::make_shared<T>(std::forward<TArgs>(args)...);
+			}
+		};
 
 	public:
 		/// Inserts \a element into this set.
@@ -145,7 +191,7 @@ namespace catapult { namespace deltaset {
 		/// Creates an element around the passed arguments (\a args) and inserts the element into this set.
 		template<typename... TArgs>
 		InsertResult emplace(TArgs&&... args) {
-			auto element = detail::ElementCreator<ElementType>::Create(std::forward<TArgs>(args)...);
+			auto element = ElementCreator<ElementType>::Create(std::forward<TArgs>(args)...);
 			return insert(element);
 		}
 
@@ -236,142 +282,9 @@ namespace catapult { namespace deltaset {
 		}
 
 	public:
-		/// The actual iterator
-		class iterator {
-		public:
-			using difference_type = std::ptrdiff_t;
-			using value_type = const typename TSetTraits::StorageType;
-			using pointer = value_type*;
-			using reference = value_type&;
-			using iterator_category = std::forward_iterator_tag;
-
-		public:
-			/// Creates an iterator around the original \a elements and \a deltas at \a position.
-			iterator(const SetType& elements, const DeltaElements<SetType>& deltas, size_t position)
-					: m_elements(elements)
-					, m_deltas(deltas)
-					, m_position(position)
-					, m_size(m_elements.size() + m_deltas.Added.size() - m_deltas.Removed.size())
-					, m_stage(IterationStage::Copied)
-					, m_iter(m_deltas.Copied.cbegin()) {
-				if (m_position == m_size)
-					m_iter = m_deltas.Added.cend();
-				else
-					moveToValidElement();
-			}
-
-		public:
-			/// Returns \c true if this iterator and \a rhs are equal.
-			bool operator==(const iterator& rhs) const {
-				return &m_elements == &rhs.m_elements && m_position == rhs.m_position;
-			}
-
-			/// Returns \c true if this iterator and \a rhs are not equal.
-			bool operator!=(const iterator& rhs) const {
-				return !(*this == rhs);
-			}
-
-		public:
-			/// Advances the iterator to the next position.
-			iterator& operator++() {
-				if (m_position == m_size)
-					CATAPULT_THROW_OUT_OF_RANGE("cannot advance iterator beyond end");
-
-				++m_position;
-				++m_iter;
-				moveToValidElement();
-				return *this;
-			}
-
-			/// Advances the iterator to the next position.
-			iterator operator++(int) {
-				auto copy = *this;
-				++*this;
-				return copy;
-			}
-
-		private:
-			void moveToValidElement() {
-				if (IterationStage::Copied == m_stage) {
-					if (handleCopiedStage())
-						return;
-
-					// all copied elements have been iterated, so advance to the next stage
-					m_stage = IterationStage::Original;
-					m_iter = m_elements.cbegin();
-				}
-
-				if (IterationStage::Original == m_stage) {
-					if (handleOriginalStage())
-						return;
-
-					// all original elements have been iterated, so advance to the next stage
-					m_stage = IterationStage::Added;
-					m_iter = m_deltas.Added.cbegin();
-				}
-
-				// last stage, nothing left to do
-			}
-
-			bool handleOriginalStage() {
-				// advance to the first original element that has neither been removed nor copied
-				for (; m_elements.end() != m_iter; ++m_iter) {
-					const auto& key = TSetTraits::ToKey(*m_iter);
-					if (!contains(m_deltas.Removed, key) && !contains(m_deltas.Copied, key))
-						return true;
-				}
-
-				return false;
-			}
-
-			bool handleCopiedStage() {
-				return m_deltas.Copied.end() != m_iter;
-			}
-
-			static CPP14_CONSTEXPR bool contains(const SetType& set, const KeyType& key) {
-				return set.cend() != set.find(key);
-			}
-
-		public:
-			/// Returns a pointer to the current element.
-			value_type* operator->() const {
-				if (m_position == m_size)
-					CATAPULT_THROW_OUT_OF_RANGE("cannot dereference at end");
-
-				return &*m_iter;
-			}
-
-			/// Returns a reference to the current element.
-			value_type& operator*() const {
-				return *(this->operator->());
-			}
-
-		private:
-			enum class IterationStage { Copied, Original, Added };
-
-		private:
-			const SetType& m_elements;
-			DeltaElements<SetType> m_deltas;
-			size_t m_position;
-			size_t m_size;
-			IterationStage m_stage;
-			typename SetType::const_iterator m_iter;
-		};
-
-		/// Returns a const iterator to the first element of the underlying set.
-		auto begin() const {
-			return iterator(m_originalElements, deltas(), 0);
-		}
-
-		/// Returns a const iterator to the element following the last element of the underlying set.
-		auto end() const {
-			return iterator(m_originalElements, deltas(), size());
-		}
-
-	public:
 		/// Gets const references to the pending modifications.
-		DeltaElements<SetType> deltas() const {
-			return DeltaElements<SetType>(m_addedElements, m_removedElements, m_copiedElements);
+		DeltaElements<MemorySetType> deltas() const {
+			return DeltaElements<MemorySetType>(m_addedElements, m_removedElements, m_copiedElements);
 		}
 
 		/// Resets all pending modifications.
@@ -383,8 +296,12 @@ namespace catapult { namespace deltaset {
 
 	private:
 		const SetType& m_originalElements;
-		SetType m_addedElements;
-		SetType m_removedElements;
-		SetType m_copiedElements;
+		MemorySetType m_addedElements;
+		MemorySetType m_removedElements;
+		MemorySetType m_copiedElements;
+
+	private:
+		template<typename TElementTraits2, typename TSetTraits2>
+		friend BaseSetDeltaIterationView<TSetTraits2> MakeIterableView(const BaseSetDelta<TElementTraits2, TSetTraits2>& set);
 	};
 }}

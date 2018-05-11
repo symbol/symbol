@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "SocketTestUtils.h"
 #include "ClientSocket.h"
 #include "NodeTestUtils.h"
@@ -11,7 +31,9 @@
 
 namespace catapult { namespace test {
 
-	const boost::asio::ip::tcp::endpoint Local_Host = CreateLocalHostEndpoint(Local_Host_Port);
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint() {
+		return CreateLocalHostEndpoint(Local_Host_Port);
+	}
 
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port) {
 		return boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), port);
@@ -46,7 +68,7 @@ namespace catapult { namespace test {
 				: m_acceptorStrand(service)
 				, m_timer(service)
 				, m_isClosed(false)
-				, m_pAcceptor(CreateLocalHostAcceptor(service, m_acceptorStrand, m_isClosed)) {
+				, m_pAcceptor(CreateLocalHostAcceptor(service)) {
 			// setup the timer
 			m_timer.expires_from_now(std::chrono::seconds(2 * test::detail::Default_Wait_Timeout));
 			m_timer.async_wait([this](const auto& ec) {
@@ -54,18 +76,20 @@ namespace catapult { namespace test {
 					return;
 
 				EXPECT_EQ(boost::asio::error::operation_aborted, ec) << "TcpAcceptor timer fired, forcing close of acceptor";
-				this->postClose();
+				this->closeAcceptor();
 			});
 		}
 
 		~Impl() {
+			// cancel the timer
 			m_timer.cancel();
-			m_pAcceptor.reset();
+
+			// forcibly close the acceptor (if not already closed)
+			closeAcceptor();
 
 			// wait for the acceptor to close, this ensures that:
 			// 1. the acceptor's lifetime is tied to the owning Impl
-			// 2. the acceptor is completely shut down when the Impl is destroyed
-			//    [either explicitly as a stack object or implicitly as captured by a threadpool lambda]
+			// 2. the acceptor is completely closed when the Impl is destroyed
 			WAIT_FOR(m_isClosed);
 		}
 
@@ -79,32 +103,28 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		void postClose() {
-			m_acceptorStrand.post([pAcceptor = m_pAcceptor, &isClosed = m_isClosed]() {
-				Close(*pAcceptor, isClosed);
+		void closeAcceptor() {
+			CATAPULT_LOG(debug) << "dispatching close of socket acceptor";
+			m_acceptorStrand.dispatch([&acceptor = *m_pAcceptor, &isClosed = m_isClosed]() {
+				Close(acceptor, isClosed);
 			});
 		}
 
 	private:
-		static std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateLocalHostAcceptor(
-				boost::asio::io_service& service,
-				boost::asio::strand& strand,
-				std::atomic_bool& isClosed) {
+		static std::unique_ptr<boost::asio::ip::tcp::acceptor> CreateLocalHostAcceptor(boost::asio::io_service& service) {
 			if (Has_Outstanding_Acceptor)
 				CATAPULT_THROW_INVALID_ARGUMENT("detected creation of multiple localhost acceptors - probably a bug");
 
 			Has_Outstanding_Acceptor = true;
-			auto pAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(service);
-			BindAcceptor(*pAcceptor, Local_Host);
+			auto pAcceptor = std::make_unique<boost::asio::ip::tcp::acceptor>(service);
+			BindAcceptor(*pAcceptor, CreateLocalHostEndpoint());
 			pAcceptor->listen();
-
-			return std::shared_ptr<boost::asio::ip::tcp::acceptor>(pAcceptor.get(), [&strand, &isClosed, pAcceptor](const auto*) {
-				CATAPULT_LOG(debug) << "closing socket acceptor";
-				strand.post([&isClosed, pAcceptor]() { Close(*pAcceptor, isClosed); });
-			});
+			return pAcceptor;
 		}
 
 		static void Close(boost::asio::ip::tcp::acceptor& acceptor, std::atomic_bool& isClosed) {
+			CATAPULT_LOG(debug) << "closing socket acceptor";
+
 			acceptor.close();
 			Has_Outstanding_Acceptor = false;
 			isClosed = true;
@@ -118,7 +138,7 @@ namespace catapult { namespace test {
 		boost::asio::strand m_acceptorStrand;
 		boost::asio::steady_timer m_timer;
 		std::atomic_bool m_isClosed;
-		std::shared_ptr<boost::asio::ip::tcp::acceptor> m_pAcceptor;
+		std::unique_ptr<boost::asio::ip::tcp::acceptor> m_pAcceptor;
 
 	private:
 		// use a global to detect (and fail) tests that create multiple acceptors (not foolproof but should detect egregious misuse)
@@ -144,29 +164,43 @@ namespace catapult { namespace test {
 
 	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateImplicitlyClosedLocalHostAcceptor(boost::asio::io_service& service) {
 		auto pAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(service);
-		BindAcceptor(*pAcceptor, Local_Host);
+		BindAcceptor(*pAcceptor, CreateLocalHostEndpoint());
 		pAcceptor->listen();
 		return pAcceptor;
 	}
 
 	void SpawnPacketServerWork(boost::asio::io_service& service, const PacketSocketWork& serverWork) {
+		SpawnPacketServerWork(service, CreatePacketSocketOptions(), serverWork);
+	}
+
+	void SpawnPacketServerWork(
+			boost::asio::io_service& service,
+			const ionet::PacketSocketOptions& options,
+			const PacketSocketWork& serverWork) {
 		// Arrange: start listening immediately
 		//          this will prevent a race condition where the client work (async_connect) is dispatched before
 		//          the server work has set up a listener (listen), resulting in an unwanted connection refused error
-		CATAPULT_LOG(debug) << "starting server listening on " << Local_Host;
+		CATAPULT_LOG(debug) << "starting server listening on " << CreateLocalHostEndpoint();
 		auto pAcceptor = std::make_shared<TcpAcceptor>(service);
 
 		// - post the work to the threadpool and extend the acceptor lifetime
-		SpawnPacketServerWork(*pAcceptor, [serverWork, pAcceptor](const auto& pSocket) {
+		SpawnPacketServerWork(*pAcceptor, options, [serverWork, pAcceptor](const auto& pSocket) {
 			serverWork(pSocket);
 		});
 	}
 
 	void SpawnPacketServerWork(const TcpAcceptor& acceptor, const PacketSocketWork& serverWork) {
+		SpawnPacketServerWork(acceptor, CreatePacketSocketOptions(), serverWork);
+	}
+
+	void SpawnPacketServerWork(
+			const TcpAcceptor& acceptor,
+			const ionet::PacketSocketOptions& options,
+			const PacketSocketWork& serverWork) {
 		// Arrange: post the work to the threadpool
-		acceptor.strand().post([serverWork, &acceptor]() {
+		acceptor.strand().post([options, serverWork, &acceptor]() {
 			// - accept a connection
-			ionet::Accept(acceptor.get(), CreatePacketSocketOptions(), [serverWork](const auto& socketInfo) {
+			ionet::Accept(acceptor.get(), options, [serverWork](const auto& socketInfo) {
 				CATAPULT_LOG(debug) << "server socket accepted: " << socketInfo.socket().get();
 
 				// Act: perform the server work
@@ -233,10 +267,10 @@ namespace catapult { namespace test {
 		auto pPool = CreateStartedIoServiceThreadPool();
 		SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
 			auto pIo = transform(pServerSocket);
-			pIo->write(payload1.pPacket, [pIo, &payload1, &payload2](auto writeCode1) {
+			pIo->write(ionet::PacketPayload(payload1.pPacket), [pIo, &payload1, &payload2](auto writeCode1) {
 				payload1.Code = writeCode1;
 
-				pIo->write(payload2.pPacket, [&payload2](auto writeCode2) {
+				pIo->write(ionet::PacketPayload(payload2.pPacket), [&payload2](auto writeCode2) {
 					payload2.Code = writeCode2;
 				});
 			});
@@ -264,10 +298,10 @@ namespace catapult { namespace test {
 		auto pPool = CreateStartedIoServiceThreadPool();
 		SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
 			auto pIo = transform(pServerSocket);
-			pIo->write(payload1.pPacket, [&payload1](auto writeCode) {
+			pIo->write(ionet::PacketPayload(payload1.pPacket), [&payload1](auto writeCode) {
 				payload1.Code = writeCode;
 			});
-			pIo->write(payload2.pPacket, [&payload2](auto writeCode) {
+			pIo->write(ionet::PacketPayload(payload2.pPacket), [&payload2](auto writeCode) {
 				payload2.Code = writeCode;
 			});
 		});

@@ -1,7 +1,29 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NodeDiscoveryHandlers.h"
 #include "nodediscovery/src/NodePingUtils.h"
+#include "catapult/handlers/BasicProducer.h"
+#include "catapult/handlers/HandlerFactory.h"
 #include "catapult/ionet/NetworkNode.h"
-#include "catapult/ionet/PacketEntityUtils.h"
+#include "catapult/ionet/PacketPayloadFactory.h"
 #include "catapult/utils/HexFormatter.h"
 
 namespace catapult { namespace handlers {
@@ -34,15 +56,14 @@ namespace catapult { namespace handlers {
 		});
 	}
 
-	void RegisterNodeDiscoveryPullPingHandler(ionet::ServerPacketHandlers& handlers, const ionet::NetworkNode& localNode) {
-		handlers.registerHandler(ionet::PacketType::Node_Discovery_Pull_Ping, [&localNode](const auto& packet, auto& context) {
+	void RegisterNodeDiscoveryPullPingHandler(
+			ionet::ServerPacketHandlers& handlers,
+			const std::shared_ptr<const ionet::NetworkNode>& pLocalNode) {
+		handlers.registerHandler(ionet::PacketType::Node_Discovery_Pull_Ping, [pLocalNode](const auto& packet, auto& context) {
 			if (!IsPacketValid(packet, ionet::PacketType::Node_Discovery_Pull_Ping))
 				return;
 
-			auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(localNode.Size);
-			pResponsePacket->Type = ionet::PacketType::Node_Discovery_Pull_Ping;
-			memcpy(pResponsePacket->Data(), &localNode, localNode.Size);
-			context.response(pResponsePacket);
+			context.response(ionet::PacketPayloadFactory::FromEntity(ionet::PacketType::Node_Discovery_Pull_Ping, pLocalNode));
 		});
 	}
 
@@ -58,17 +79,31 @@ namespace catapult { namespace handlers {
 		});
 	}
 
+	namespace {
+		struct NodeDiscoveryPullPeersTraits {
+			static constexpr auto Packet_Type = ionet::PacketType::Node_Discovery_Pull_Peers;
+
+			class Producer : BasicProducer<ionet::NodeSet> {
+			public:
+				explicit Producer(const ionet::NodeSet& nodes) : BasicProducer<ionet::NodeSet>(nodes)
+				{}
+
+				auto operator()() {
+					return next([](const auto& node) {
+						return utils::UniqueToShared(ionet::PackNode(node));
+					});
+				}
+			};
+		};
+	}
+
 	void RegisterNodeDiscoveryPullPeersHandler(ionet::ServerPacketHandlers& handlers, const NodesSupplier& nodesSupplier) {
-		handlers.registerHandler(ionet::PacketType::Node_Discovery_Pull_Peers, [nodesSupplier](const auto& packet, auto& context) {
-			if (!IsPacketValid(packet, ionet::PacketType::Node_Discovery_Pull_Peers))
-				return;
-
-			// send a response packet even if there are no active nodes in order to acknowledge the request
-			std::vector<std::shared_ptr<ionet::NetworkNode>> networkNodes;
-			for (const auto& node : nodesSupplier())
-				networkNodes.emplace_back(ionet::PackNode(node));
-
-			context.response(ionet::PacketPayload::FromEntities(ionet::PacketType::Node_Discovery_Pull_Peers, networkNodes));
+		handlers::BatchHandlerFactory<NodeDiscoveryPullPeersTraits>::RegisterZero(handlers, [nodesSupplier]() {
+			auto pNodes = std::make_unique<ionet::NodeSet>(nodesSupplier()); // used by producer by reference
+			auto producer = NodeDiscoveryPullPeersTraits::Producer(*pNodes);
+			return [pNodes = std::move(pNodes), producer]() mutable {
+				return producer();
+			};
 		});
 	}
 }}

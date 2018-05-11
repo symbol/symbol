@@ -1,69 +1,82 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include <memory>
 
 namespace catapult { namespace deltaset {
 
-	// region DefaultComparator
+	// region key + storage traits
 
-	/// Compares two objects of the same type.
-	template<typename T>
-	struct DefaultComparator {
-		bool operator()(const T& lhs, const T& rhs) const {
-			return lhs < rhs;
-		}
-	};
+	// KeyType => the data key
+	// ValueType => the data value (this is assumed to be convertible to KeyType)
+	// StorageType => the underlying storage (e.g. pair) composed of both key and value
 
-	template<typename T>
-	struct DefaultComparator<std::shared_ptr<T>> {
-		bool operator()(const std::shared_ptr<T>& pLhs, const std::shared_ptr<T>& pRhs) const {
-			DefaultComparator<T> comparator;
-			return comparator(*pLhs, *pRhs);
-		}
-	};
-
-	// endregion
-
-	// region EqualityChecker
-
-	/// Checks two objects of the same type for equality.
-	template<typename T>
-	struct EqualityChecker {
-		bool operator()(const T& lhs, const T& rhs) const {
-			return lhs == rhs;
-		}
-	};
-
-	template<typename T>
-	struct EqualityChecker<std::shared_ptr<T>> {
-		bool operator()(const std::shared_ptr<T>& pLhs, const std::shared_ptr<T>& pRhs) const {
-			EqualityChecker<T> equalityChecker;
-			return equalityChecker(*pLhs, *pRhs);
-		}
-	};
-
-	// endregion
-
-	// region storage traits
-
-	/// Base set compatible traits for stl set types.
+	/// Key-related traits for stl set types.
 	template<typename TSet>
-	struct SetStorageTraits {
-		using SetType = TSet;
+	struct SetKeyTraits {
 		using KeyType = typename TSet::value_type;
 		using ValueType = typename TSet::value_type;
 		using StorageType = typename TSet::value_type;
 
+		/// Converts a storage type (\a element) to a key.
+		static constexpr const KeyType& ToKey(const StorageType& element) {
+			return element;
+		}
+	};
+
+	/// Key-related traits for stl map types.
+	template<typename TMap>
+	struct MapKeyTraits {
+		using KeyType = typename TMap::key_type;
+		using ValueType = typename TMap::mapped_type;
+		using StorageType = typename TMap::value_type;
+
+		/// Converts a storage type (\a element) to a key.
+		static constexpr const KeyType& ToKey(const StorageType& element) {
+			return element.first;
+		}
+	};
+
+	/// Base set compatible traits for stl set types.
+	template<typename TSet, typename TMemorySetType = TSet>
+	struct SetStorageTraits {
+		using SetType = TSet;
+		using MemorySetType = TMemorySetType;
+
+		using KeyTraits = SetKeyTraits<MemorySetType>;
+		using KeyType = typename KeyTraits::KeyType;
+		using ValueType = typename KeyTraits::ValueType;
+		using StorageType = typename KeyTraits::StorageType;
+
 		/// Set values cannot be modified because they are hashed in native container.
 		static constexpr bool AllowsNativeValueModification = false;
 
-		/// Converts a value type (\a element) to a key.
-		static constexpr const KeyType& ToKey(const ValueType& element) {
-			return element;
+		/// Converts a storage type (\a element) to a key.
+		static constexpr const KeyType& ToKey(const StorageType& element) {
+			return KeyTraits::ToKey(element);
 		}
 
-		/// Converts a value type (\a element) to a storage type.
-		static constexpr const StorageType& ToStorage(const ValueType& element) {
-			return element;
+		/// Converts a value type (\a value) to a storage type.
+		static constexpr const StorageType& ToStorage(const ValueType& value) {
+			return value;
 		}
 
 		/// Converts a storage type (\a element) to a value type.
@@ -72,50 +85,33 @@ namespace catapult { namespace deltaset {
 		}
 	};
 
-	namespace detail {
-		template<typename TElement>
-		struct DerefHelper {
-			using const_pointer_type = const TElement*;
-
-			static const TElement& Deref(const TElement& element) {
-				return element;
-			}
-		};
-
-		template<typename T>
-		struct DerefHelper<std::shared_ptr<T>> {
-			using const_pointer_type = const T*;
-
-			static const T& Deref(const std::shared_ptr<T>& element) {
-				return *element;
-			}
-		};
-	}
-
 	/// Base set compatible traits for stl map types.
-	template<typename TMap, typename TElementToKeyConverter>
+	template<typename TMap, typename TElementToKeyConverter, typename TMemoryMapType = TMap>
 	struct MapStorageTraits {
 		using SetType = TMap;
-		using KeyType = typename TMap::key_type;
-		using ValueType = typename TMap::mapped_type;
-		using StorageType = typename TMap::value_type;
+		using MemorySetType = TMemoryMapType;
+
+		using KeyTraits = MapKeyTraits<MemorySetType>;
+		using KeyType = typename KeyTraits::KeyType;
+		using ValueType = typename KeyTraits::ValueType;
+		using StorageType = typename KeyTraits::StorageType;
 
 		/// Map values can be modified because they are not hashed in native container.
 		static constexpr bool AllowsNativeValueModification = true;
 
-		/// Converts a value type (\a element) to a key.
-		static constexpr KeyType ToKey(const ValueType& element) {
-			return TElementToKeyConverter::ToKey(element);
-		}
-
 		/// Converts a storage type (\a element) to a key.
 		static constexpr const KeyType& ToKey(const StorageType& element) {
-			return element.first;
+			return KeyTraits::ToKey(element);
 		}
 
-		/// Converts a value type (\a element) to a storage type.
-		static constexpr StorageType ToStorage(const ValueType& element) {
-			return std::make_pair(ToKey(element), element);
+		/// Converts a value type (\a value) to a key.
+		static constexpr KeyType ToKey(const ValueType& value) {
+			return TElementToKeyConverter::ToKey(value);
+		}
+
+		/// Converts a value type (\a value) to a storage type.
+		static constexpr StorageType ToStorage(const ValueType& value) {
+			return std::make_pair(ToKey(value), value);
 		}
 
 		/// Converts a storage type (\a element) to a value type.
@@ -131,12 +127,15 @@ namespace catapult { namespace deltaset {
 
 	// endregion
 
-	// region MutableTypeTag / MutableTypeTraits
+	// region mutability traits
 
-	/// Tag that indicates a type is mutable.
-	struct MutableTypeTag {};
+	// mutability tagging allows BaseSet to optimize for immutable values that can never be modified
+	// in contrast, mutable values have copy-on-write semantics
 
 	namespace detail {
+		// used to support (deep) copying of values and values pointed to by shared_ptr
+		// (this is required to support shared_ptr mutable value types in BaseSet)
+
 		template<typename T>
 		struct ElementDeepCopy {
 			static constexpr T Copy(const T* pElement) {
@@ -152,16 +151,15 @@ namespace catapult { namespace deltaset {
 		};
 	}
 
+	/// Tag that indicates a type is mutable.
+	struct MutableTypeTag {};
+
 	/// Traits used for describing a mutable type.
 	template<typename TElement>
 	struct MutableTypeTraits : public detail::ElementDeepCopy<TElement> {
 		using ElementType = TElement;
 		using MutabilityTag = MutableTypeTag;
 	};
-
-	// endregion
-
-	// region ImmutableTypeTag / ImmutableTypeTraits
 
 	/// Tag that indicates a type is immutable.
 	struct ImmutableTypeTag {};
@@ -181,33 +179,36 @@ namespace catapult { namespace deltaset {
 
 	// endregion
 
+	// region find traits
+
+	// used to find values and values pointed to by shared_ptr
+	// this also ensures that values stored in stl set-based containers are always exposed as const (because they are not modifiable)
+	// (this is required to support shared_ptr value types in BaseSet)
+
+	/// Traits for customizing the behavior of find depending on element type.
+	template<typename T, bool AllowsNativeValueModification>
+	struct FindTraitsT {
+		using ConstResultType = const T*;
+		using ResultType = const T*;
+
+		static constexpr ResultType ToResult(const T& value) {
+			return &value;
+		}
+	};
+
+	template<typename T>
+	struct FindTraitsT<T, true> {
+		using ConstResultType = const T*;
+		using ResultType = T*;
+
+		// this needs to be a template in order to allow T to be const (immutable)
+		template<typename TValue>
+		static constexpr auto ToResult(TValue& value) {
+			return &value;
+		}
+	};
+
 	namespace detail {
-
-		// region FindTraits
-
-		/// Traits for customizing the behavior of find depending on element type.
-		template<typename T, bool AllowsNativeValueModification>
-		struct FindTraits {
-			using ConstResultType = const T*;
-			using ResultType = const T*;
-
-			static constexpr ResultType ToResult(const T& value) {
-				return &value;
-			}
-		};
-
-		template<typename T>
-		struct FindTraits<T, true> {
-			using ConstResultType = const T*;
-			using ResultType = T*;
-
-			// this needs to be a template in order to allow T to be const (immutable)
-			template<typename TValue>
-			static constexpr auto ToResult(TValue& value) {
-				return &value;
-			}
-		};
-
 		// the object pointed to by shared_ptr can be modified in any type of container
 		template<typename T>
 		struct SharedPtrFindTraits {
@@ -218,36 +219,15 @@ namespace catapult { namespace deltaset {
 				return value;
 			}
 		};
-
-		template<typename T>
-		struct FindTraits<std::shared_ptr<T>, true> : public SharedPtrFindTraits<T>
-		{};
-
-		template<typename T>
-		struct FindTraits<std::shared_ptr<T>, false> : public SharedPtrFindTraits<T>
-		{};
-
-		// endregion
-
-		// region ElementCreator
-
-		/// Traits for creating an element from arguments.
-		template<typename T>
-		struct ElementCreator {
-			template<typename... TArgs>
-			static T Create(TArgs&&... args) {
-				return T(std::forward<TArgs>(args)...);
-			}
-		};
-
-		template<typename T>
-		struct ElementCreator<std::shared_ptr<T>> {
-			template<typename... TArgs>
-			static std::shared_ptr<T> Create(TArgs&&... args) {
-				return std::make_shared<T>(std::forward<TArgs>(args)...);
-			}
-		};
-
-		// endregion
 	}
+
+	template<typename T>
+	struct FindTraitsT<std::shared_ptr<T>, true> : public detail::SharedPtrFindTraits<T>
+	{};
+
+	template<typename T>
+	struct FindTraitsT<std::shared_ptr<T>, false> : public detail::SharedPtrFindTraits<T>
+	{};
+
+	// endregion
 }}

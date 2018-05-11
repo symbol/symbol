@@ -1,4 +1,25 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
+#include "catapult/cache/CacheConfiguration.h"
 #include "catapult/cache/ReadOnlySimpleCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 #include "catapult/cache/SynchronizedCache.h"
@@ -18,6 +39,14 @@ namespace catapult { namespace test {
 
 	using SimpleCacheReadOnlyType = cache::ReadOnlySimpleCache<BasicSimpleCacheView, BasicSimpleCacheDelta, size_t>;
 
+	/// Possible simple cache view modes.
+	enum class SimpleCacheViewMode {
+		/// View supports iteration.
+		Iterable,
+		/// View does not support iteration.
+		Non_Iterable
+	};
+
 	// region SimpleCacheView
 
 	/// Basic view on top of the simple cache.
@@ -29,8 +58,11 @@ namespace catapult { namespace test {
 		using ReadOnlyView = SimpleCacheReadOnlyType;
 
 	public:
-		/// Creates a view around \a id.
-		explicit BasicSimpleCacheView(const size_t& id) : m_id(id), m_ids(id) {
+		/// Creates a view around \a mode and \a id.
+		explicit BasicSimpleCacheView(SimpleCacheViewMode mode, const size_t& id)
+				: m_mode(mode)
+				, m_id(id)
+				, m_ids(id) {
 			std::iota(m_ids.begin(), m_ids.end(), 1);
 		}
 
@@ -77,7 +109,14 @@ namespace catapult { namespace test {
 			return m_ids.cend();
 		}
 
+	public:
+		/// Makes an iterable view of this cache.
+		const auto* tryMakeIterableView() const {
+			return SimpleCacheViewMode::Iterable == m_mode ? this : nullptr;
+		}
+
 	private:
+		SimpleCacheViewMode m_mode;
 		const size_t& m_id;
 		std::vector<size_t> m_ids;
 	};
@@ -86,7 +125,12 @@ namespace catapult { namespace test {
 	class SimpleCacheView : public cache::ReadOnlyViewSupplier<BasicSimpleCacheView> {
 	public:
 		/// Creates a view around \a id.
-		explicit SimpleCacheView(const size_t& id) : ReadOnlyViewSupplier(id)
+		/// \note This overload is needed for ReadOnlyViewSupplier tests.
+		explicit SimpleCacheView(const size_t& id) : ReadOnlyViewSupplier(SimpleCacheViewMode::Iterable, id)
+		{}
+
+		/// Creates a view around \a mode and \a id.
+		SimpleCacheView(SimpleCacheViewMode mode, const size_t& id) : ReadOnlyViewSupplier(mode, id)
 		{}
 	};
 
@@ -172,16 +216,19 @@ namespace catapult { namespace test {
 		using CacheReadOnlyType = SimpleCacheReadOnlyType;
 
 	public:
-		/// Creates a cache with an optional auto set flag (\a pFlag).
-		explicit BasicSimpleCache(const test::AutoSetFlag* pFlag)
-				: m_id(0)
-				, m_pFlag(pFlag)
+		/// Creates a cache with an optional auto set flag (\a pFlag) and view \a mode.
+		explicit BasicSimpleCache(
+				const std::shared_ptr<const test::AutoSetFlag::State>& pFlag = nullptr,
+				SimpleCacheViewMode mode = SimpleCacheViewMode::Iterable)
+				: m_pFlag(pFlag)
+				, m_mode(mode)
+				, m_id(0)
 		{}
 
 	public:
 		/// Returns a locked view based on this cache.
 		CacheViewType createView() const {
-			return CacheViewType(m_id);
+			return CacheViewType(m_mode, m_id);
 		}
 
 		/// Returns a locked cache delta based on this cache.
@@ -206,24 +253,29 @@ namespace catapult { namespace test {
 		}
 
 	private:
+		std::shared_ptr<const test::AutoSetFlag::State> m_pFlag;
+		SimpleCacheViewMode m_mode;
 		size_t m_id;
-		const test::AutoSetFlag* m_pFlag;
 	};
 
 	/// Synchronized cache composed of simple data.
 	class SimpleCache : public cache::SynchronizedCache<BasicSimpleCache> {
 	public:
-		/// The cache friendly name.
+		/// Cache friendly name.
 		static constexpr auto Name = "SimpleCache";
 
 	public:
-		/// Creates a cache.
-		SimpleCache() : SynchronizedCache(BasicSimpleCache(nullptr))
+		/// Creates a cache around \a config.
+		SimpleCache(const cache::CacheConfiguration& = cache::CacheConfiguration()) : SynchronizedCache(BasicSimpleCache())
+		{}
+
+		/// Creates a cache with \a mode.
+		explicit SimpleCache(SimpleCacheViewMode mode) : SynchronizedCache(BasicSimpleCache(nullptr, mode))
 		{}
 
 		/// Creates a cache with an auto set \a flag.
-		explicit SimpleCache(const test::AutoSetFlag& flag) : SynchronizedCache(BasicSimpleCache(&flag)) {
-			CATAPULT_LOG(debug) << "created SimpleCache with auto set flag (" << &flag << ") with state " << flag.isSet();
+		explicit SimpleCache(const test::AutoSetFlag& flag) : SynchronizedCache(BasicSimpleCache(flag.state())) {
+			CATAPULT_LOG(debug) << "created SimpleCache with auto set flag (" << &flag << ") with state " << flag.state()->isSet();
 		}
 	};
 
@@ -231,8 +283,11 @@ namespace catapult { namespace test {
 	template<size_t CacheId>
 	class SimpleCacheT : public SimpleCache {
 	public:
-		/// The unique cache identifier.
+		/// Unique cache identifier.
 		static constexpr size_t Id = CacheId;
+
+	public:
+		using SimpleCache::SimpleCache;
 	};
 
 	// endregion
@@ -251,7 +306,7 @@ namespace catapult { namespace test {
 		}
 
 		/// Loads a single value from \a input into \a cacheDelta.
-		static void Load(io::InputStream& input, DestinationType& cacheDelta) {
+		static void LoadInto(io::InputStream& input, DestinationType& cacheDelta) {
 			// Act: decode each value after reading (and ensure the expected values are read)
 			auto value = io::Read64(input) ^ 0xFFFFFFFF'FFFFFFFFull;
 			if (value - 1 != cacheDelta.id())

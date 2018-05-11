@@ -1,64 +1,69 @@
-#pragma once
-#include "catapult/ionet/Node.h"
-#include "catapult/functions.h"
-#include <memory>
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
 
-namespace catapult {
-	namespace crypto { class KeyPair; }
-	namespace net { struct ConnectionSettings; }
-	namespace thread { class IoServiceThreadPool; }
-}
+#pragma once
+#include "NodePingUtils.h"
+#include "nodediscovery/src/api/RemoteNodeApi.h"
+#include "catapult/net/BriefServerRequestor.h"
 
 namespace catapult { namespace nodediscovery {
 
-#define NODE_PING_RESULT_LIST \
-	/* The connection to the remote node failed. */ \
-	ENUM_VALUE(Failure_Connection) \
-	/* The interaction with the remote node failed. */ \
-	ENUM_VALUE(Failure_Interaction) \
-	/* The remote node is incompatible with the network. */ \
-	ENUM_VALUE(Failure_Incompatible) \
-	/* The interaction with the remote node timed out. */ \
-	ENUM_VALUE(Failure_Timeout) \
-	/* The ping operation succeeded. */ \
-	ENUM_VALUE(Success)
+	/// Node ping response compatibility checker.
+	class NodePingResponseCompatibilityChecker {
+	public:
+		/// Creates a checker around \a networkIdentifier.
+		explicit NodePingResponseCompatibilityChecker(model::NetworkIdentifier networkIdentifier)
+				: m_networkIdentifier(networkIdentifier)
+		{}
 
-#define ENUM_VALUE(LABEL) LABEL,
-	/// Enumeration of possible results of a ping operation.
-	enum class NodePingResult {
-		NODE_PING_RESULT_LIST
+	public:
+		/// Returns \a true if \a requestNode and \a responseNode are compatible nodes.
+		bool isResponseCompatible(const ionet::Node& requestNode, const ionet::Node& responseNode) const {
+			if (IsNodeCompatible(responseNode, m_networkIdentifier, requestNode.identityKey()))
+				return true;
+
+			CATAPULT_LOG(warning) << "rejecting incompatible partner node '" << responseNode << "'";
+			return false;
+		}
+
+	private:
+		model::NetworkIdentifier m_networkIdentifier;
 	};
-#undef ENUM_VALUE
 
-	/// Insertion operator for outputting \a value to \a out.
-	std::ostream& operator<<(std::ostream& out, NodePingResult value);
-
-	/// A service for requesting ping information from remote nodes.
-	class NodePingRequestor {
+	/// Node ping request policy.
+	class NodePingRequestPolicy {
 	public:
-		/// A callback that is passed the ping result and the remote node information on success.
-		using PingCallback = consumer<NodePingResult, const ionet::Node&>;
+		using ResponseType = ionet::Node;
 
 	public:
-		virtual ~NodePingRequestor() {}
+		static constexpr const char* FriendlyName() {
+			return "ping";
+		}
 
-	public:
-		/// Gets the number of active connections.
-		virtual size_t numActiveConnections() const = 0;
-
-		/// Gets the number of total ping requests.
-		virtual size_t numTotalPingRequests() const = 0;
-
-		/// Gets the number of successful ping requests.
-		virtual size_t numSuccessfulPingRequests() const = 0;
-
-	public:
-		/// Requests ping information from \a node and calls \a callback on completion.
-		virtual void requestPing(const ionet::Node& node, const PingCallback& callback) = 0;
-
-		/// Shutdowns all connections.
-		virtual void shutdown() = 0;
+		static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo) {
+			return api::CreateRemoteNodeApi(packetIo)->nodeInfo();
+		}
 	};
+
+	/// A brief server requestor for requesting node ping information.
+	using NodePingRequestor = net::BriefServerRequestor<NodePingRequestPolicy, NodePingResponseCompatibilityChecker>;
 
 	/// Creates a node ping requestor for a server with a key pair of \a keyPair and a network identified by \a networkIdentifier
 	/// using \a pPool and configured with \a settings.

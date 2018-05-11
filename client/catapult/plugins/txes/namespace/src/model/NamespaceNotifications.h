@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "src/model/NamespaceConstants.h"
 #include "src/model/NamespaceTypes.h"
@@ -29,7 +49,7 @@ namespace catapult { namespace model {
 	/// Notification of a namespace name.
 	struct NamespaceNameNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Namespace_Name_Notification;
 
 	public:
@@ -47,13 +67,13 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The id of the namespace.
+		/// Id of the namespace.
 		catapult::NamespaceId NamespaceId;
 
-		/// The id of the parent namespace.
+		/// Id of the parent namespace.
 		catapult::NamespaceId ParentId;
 
-		/// The size of the name.
+		/// Size of the name.
 		uint8_t NameSize;
 
 		/// Const pointer to the namespace name.
@@ -63,7 +83,7 @@ namespace catapult { namespace model {
 	/// Notification of a namespace registration.
 	struct NamespaceNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Namespace_Registration_Notification;
 
 	public:
@@ -74,14 +94,14 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The type of namespace being registered.
+		/// Type of the registered namespace.
 		model::NamespaceType NamespaceType;
 	};
 
 	/// Notification of a root namespace registration.
 	struct RootNamespaceNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Namespace_Root_Registration_Notification;
 
 	public:
@@ -94,20 +114,20 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The signer.
+		/// Signer.
 		const Key& Signer;
 
-		/// The id of the namespace.
+		/// Id of the namespace.
 		catapult::NamespaceId NamespaceId;
 
-		/// The number of blocks for which the namespace should be valid.
+		/// Number of blocks for which the namespace should be valid.
 		BlockDuration Duration;
 	};
 
 	/// Notification of a child namespace registration.
 	struct ChildNamespaceNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Namespace_Child_Registration_Notification;
 
 	public:
@@ -120,13 +140,13 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The signer.
+		/// Signer.
 		const Key& Signer;
 
-		/// The id of the namespace.
+		/// Id of the namespace.
 		catapult::NamespaceId NamespaceId;
 
-		/// The id of the parent namespace.
+		/// Id of the parent namespace.
 		catapult::NamespaceId ParentId;
 	};
 }}

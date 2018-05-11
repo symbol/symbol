@@ -1,5 +1,26 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/model/EntityHasher.h"
 #include "catapult/crypto/Hashes.h"
+#include "catapult/crypto/MerkleHashBuilder.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/core/mocks/MockTransactionPluginWithCustomBuffers.h"
@@ -231,6 +252,55 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_EQ(expectedMerkleComponentHash, merkleComponentHash);
 		EXPECT_NE(transactionHash, merkleComponentHash);
+	}
+
+	// endregion
+
+	// region CalculateMerkleTree (transaction element)
+
+	namespace {
+		auto CreateTransactionElements(const std::vector<std::shared_ptr<model::Transaction>>& transactions) {
+			std::vector<model::TransactionElement> transactionElements;
+			for (const auto& pTransaction : transactions) {
+				transactionElements.emplace_back(*pTransaction);
+				transactionElements.back().MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+			}
+
+			return transactionElements;
+		}
+
+		void AssertMerkleTree(size_t numTransactions) {
+			// Arrange:
+			auto transactions = test::GenerateRandomTransactions(numTransactions);
+			auto transactionElements = CreateTransactionElements(transactions);
+			crypto::MerkleHashBuilder builder;
+			for (const auto& transactionElement : transactionElements)
+				builder.update(transactionElement.MerkleComponentHash);
+
+			std::vector<Hash256> expectedMerkleTree;
+			builder.final(expectedMerkleTree);
+
+			// Act:
+			auto merkleTree = CalculateMerkleTree(transactionElements);
+
+			// Assert:
+			ASSERT_EQ(expectedMerkleTree.size(), merkleTree.size());
+
+			for (auto i = 0u; i < merkleTree.size(); ++i)
+				EXPECT_EQ(expectedMerkleTree[i], merkleTree[i]) << "at index " << i;
+		}
+	}
+
+	TEST(TEST_CLASS, CanCalculateMerkleTree_ZeroTransactionElements) {
+		AssertMerkleTree(0);
+	}
+
+	TEST(TEST_CLASS, CanCalculateMerkleTree_SingleTransactionElement) {
+		AssertMerkleTree(1);
+	}
+
+	TEST(TEST_CLASS, CanCalculateMerkleTree_MultipleTransactionElements) {
+		AssertMerkleTree(5);
 	}
 
 	// endregion

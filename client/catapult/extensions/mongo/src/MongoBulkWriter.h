@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/model/Elements.h"
 #include "catapult/state/AccountState.h"
@@ -59,24 +79,24 @@ namespace catapult { namespace mongo {
 		}
 
 	public:
-		/// The number of documents that were inserted.
+		/// Number of documents that were inserted.
 		int32_t NumInserted;
 
-		/// The number of documents that matched existing documents.
+		/// Number of documents that matched existing documents.
 		int32_t NumMatched;
 
-		/// The number of existing documents that were modified.
+		/// Number of existing documents that were modified.
 		int32_t NumModified;
 
-		/// The number of existing documents that were deleted.
+		/// Number of existing documents that were deleted.
 		int32_t NumDeleted;
 
-		/// The number of documents that were inserted because no document matched.
+		/// Number of documents that were inserted because no document matched.
 		int32_t NumUpserted;
 	};
 
 	/// Class for writing bulk data to the mongo database.
-	/// The bulk writer supports inserting, upserting and deleting documents.
+	/// \note The bulk writer supports inserting, upserting and deleting documents.
 	class MongoBulkWriter final : public std::enable_shared_from_this<MongoBulkWriter> {
 	private:
 		using AccountStates = std::unordered_set<std::shared_ptr<const state::AccountState>>;
@@ -104,7 +124,7 @@ namespace catapult { namespace mongo {
 
 	public:
 		/// Creates a mongo bulk writer connected to \a uri that will use database \a dbName for bulk writes.
-		/// The data is written concurrently using the specified thread pool (\a pPool).
+		/// \note Concurrent writes are performed using the specified thread pool (\a pPool).
 		static std::shared_ptr<MongoBulkWriter> Create(
 				const mongocxx::uri& uri,
 				const std::string& dbName,

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-message("--- locating zeromq dependencies --- ")
+message("--- locating zeromq dependencies ---")
 find_package(ZeroMQ REQUIRED)
 find_package(cppzmq REQUIRED)
 

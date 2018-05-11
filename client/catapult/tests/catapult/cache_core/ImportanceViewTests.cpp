@@ -1,7 +1,28 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NetworkInfo.h"
+#include "tests/test/cache/ImportanceViewTestUtils.h"
 #include "tests/TestHarness.h"
 
 using catapult::model::ImportanceHeight;
@@ -44,39 +65,12 @@ namespace catapult { namespace cache {
 			cache.commit();
 		}
 
-		class ImportanceViewWrapper {
-		public:
-			explicit ImportanceViewWrapper(const AccountStateCache& cache)
-					: m_cacheView(cache.createView())
-					, m_readOnlyCache(*m_cacheView)
-					, m_view(m_readOnlyCache)
-			{}
-
-		public:
-			const ImportanceView& operator*() {
-				return m_view;
-			}
-
-			const ImportanceView* operator->() {
-				return &m_view;
-			}
-
-		private:
-			LockedCacheView<AccountStateCacheView> m_cacheView;
-			ReadOnlyAccountStateCache m_readOnlyCache;
-			ImportanceView m_view;
-		};
-
-		ImportanceViewWrapper CreateImportanceView(const AccountStateCache& cache) {
-			return ImportanceViewWrapper(cache);
-		}
-
 		auto ConvertToImportanceHeight(Height height) {
 			return model::ConvertToImportanceHeight(height, Default_Cache_Options.ImportanceGrouping);
 		}
 
 		auto CreateAccountStateCache() {
-			return std::make_unique<AccountStateCache>(Default_Cache_Options);
+			return std::make_unique<AccountStateCache>(CacheConfiguration(), Default_Cache_Options);
 		}
 	}
 
@@ -107,7 +101,7 @@ namespace catapult { namespace cache {
 		auto height = Height(1000);
 		auto pCache = CreateAccountStateCache();
 		AddAccount<TTraits>(*pCache, key, Importance(1000), ConvertToImportanceHeight(height));
-		auto pView = CreateImportanceView(*pCache);
+		auto pView = test::CreateImportanceView(*pCache);
 
 		// Act + Assert: mismatched key
 		AssertCannotFindImportance(*pView, test::GenerateRandomData<Key_Size>(), height);
@@ -118,7 +112,7 @@ namespace catapult { namespace cache {
 		auto key = test::GenerateRandomData<Key_Size>();
 		auto pCache = CreateAccountStateCache();
 		AddAccount<TTraits>(*pCache, key, Importance(1000), ConvertToImportanceHeight(Height(10000)));
-		auto pView = CreateImportanceView(*pCache);
+		auto pView = test::CreateImportanceView(*pCache);
 
 		// Act + Assert: mismatched height
 		AssertCannotFindImportance(*pView, key, Height(3333));
@@ -132,7 +126,7 @@ namespace catapult { namespace cache {
 			auto height = Height(1000);
 			auto pCache = CreateAccountStateCache();
 			AddAccount<TTraits>(*pCache, key, accountImportance, ConvertToImportanceHeight(height));
-			auto pView = CreateImportanceView(*pCache);
+			auto pView = test::CreateImportanceView(*pCache);
 
 			// Act:
 			Importance importance;
@@ -161,7 +155,7 @@ namespace catapult { namespace cache {
 	namespace {
 		struct CanHarvestViaMemberTraits {
 			static bool CanHarvest(const AccountStateCache& cache, const Key& publicKey, Height height, Amount minBalance) {
-				auto pView = CreateImportanceView(cache);
+				auto pView = test::CreateImportanceView(cache);
 				return pView->canHarvest(publicKey, height, minBalance);
 			}
 		};

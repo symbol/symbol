@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "LocalTestUtils.h"
 #include "catapult/cache/MemoryUtCache.h"
 #include "catapult/chain/UtUpdater.h"
@@ -25,6 +45,8 @@ namespace catapult { namespace test {
 
 			config.ShortLivedCacheMaxSize = 10;
 
+			config.UnconfirmedTransactionsCacheMaxSize = 100;
+
 			config.ConnectTimeout = utils::TimeSpan::FromSeconds(10);
 
 			config.SocketWorkingBufferSize = utils::FileSize::FromKilobytes(4);
@@ -32,6 +54,9 @@ namespace catapult { namespace test {
 
 			config.BlockDisruptorSize = 4 * 1024;
 			config.TransactionDisruptorSize = 16 * 1024;
+
+			config.OutgoingSecurityMode = ionet::ConnectionSecurityMode::None;
+			config.IncomingSecurityModes = ionet::ConnectionSecurityMode::None;
 
 			config.Local.Host = "127.0.0.1";
 			config.Local.FriendlyName = "LOCAL";
@@ -134,7 +159,7 @@ namespace catapult { namespace test {
 
 	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManager(const model::BlockChainConfiguration& config) {
 		std::vector<plugins::PluginModule> modules;
-		auto pPluginManager = std::make_shared<plugins::PluginManager>(config);
+		auto pPluginManager = std::make_shared<plugins::PluginManager>(config, plugins::StorageConfiguration());
 		LoadPluginByName(*pPluginManager, modules, "", "catapult.coresystem");
 
 		for (const auto& pair : config.Plugins)

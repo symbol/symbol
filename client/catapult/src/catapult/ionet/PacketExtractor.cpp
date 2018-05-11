@@ -1,14 +1,28 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "PacketExtractor.h"
 #include "catapult/utils/Logging.h"
 #include <cstring>
 
 namespace catapult { namespace ionet {
-
-	namespace {
-		constexpr bool IsSizeValid(size_t packetSize, size_t maxPacketDataSize) {
-			return packetSize >= sizeof(PacketHeader) && (packetSize - sizeof(PacketHeader)) <= maxPacketDataSize;
-		}
-	}
 
 	PacketExtractor::PacketExtractor(ByteBuffer& data, size_t maxPacketDataSize)
 			: m_data(data)
@@ -19,22 +33,22 @@ namespace catapult { namespace ionet {
 	PacketExtractResult PacketExtractor::tryExtractNextPacket(const Packet*& pExtractedPacket) {
 		pExtractedPacket = nullptr;
 		auto remainingDataSize = m_data.size() - m_consumedBytes;
-		if (remainingDataSize < sizeof(uint32_t))
+		if (remainingDataSize < sizeof(PacketHeader))
 			return PacketExtractResult::Insufficient_Data;
 
-		const Packet* pPacket = reinterpret_cast<const Packet*>(&m_data[m_consumedBytes]);
-		if (!IsSizeValid(pPacket->Size, m_maxPacketDataSize)) {
+		const auto& packet = reinterpret_cast<const Packet&>(m_data[m_consumedBytes]);
+		if (!IsPacketDataSizeValid(packet, m_maxPacketDataSize)) {
 			CATAPULT_LOG(warning)
-					<< "unable to extract packet with size " << pPacket->Size
+					<< "unable to extract " << packet
 					<< " (" << m_data.size() << " bytes, " << remainingDataSize << " remaining, " << m_consumedBytes << " consumed)";
 			return PacketExtractResult::Packet_Error;
 		}
 
-		if (pPacket->Size > remainingDataSize)
+		if (packet.Size > remainingDataSize)
 			return PacketExtractResult::Insufficient_Data;
 
-		pExtractedPacket = pPacket;
-		m_consumedBytes += pPacket->Size;
+		pExtractedPacket = &packet;
+		m_consumedBytes += packet.Size;
 		return PacketExtractResult::Success;
 	}
 

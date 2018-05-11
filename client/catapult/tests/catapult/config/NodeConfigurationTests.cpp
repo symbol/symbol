@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/config/NodeConfiguration.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
@@ -17,6 +37,10 @@ namespace catapult { namespace config {
 							{ "apiPort", "8888" },
 							{ "shouldAllowAddressReuse", "true" },
 							{ "shouldUseSingleThreadPool", "true" },
+							{ "shouldUseCacheDatabaseStorage", "true" },
+
+							{ "shouldEnableTransactionSpamThrottling", "true" },
+							{ "transactionSpamThrottlingMaxBoostFee", "54'123" },
 
 							{ "maxBlocksPerSyncAttempt", "50" },
 							{ "maxChainBytesPerSyncAttempt", "2MB" },
@@ -44,6 +68,9 @@ namespace catapult { namespace config {
 							{ "shouldAbortWhenDispatcherIsFull", "true" },
 							{ "shouldAuditDispatcherInputs", "true" },
 							{ "shouldPrecomputeTransactionAddresses", "true" },
+
+							{ "outgoingSecurityMode", "Signed" },
+							{ "incomingSecurityModes", "None, Signed" }
 						}
 					},
 					{
@@ -91,6 +118,10 @@ namespace catapult { namespace config {
 				EXPECT_EQ(0u, config.ApiPort);
 				EXPECT_FALSE(config.ShouldAllowAddressReuse);
 				EXPECT_FALSE(config.ShouldUseSingleThreadPool);
+				EXPECT_FALSE(config.ShouldUseCacheDatabaseStorage);
+
+				EXPECT_FALSE(config.ShouldEnableTransactionSpamThrottling);
+				EXPECT_EQ(Amount(), config.TransactionSpamThrottlingMaxBoostFee);
 
 				EXPECT_EQ(0u, config.MaxBlocksPerSyncAttempt);
 				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.MaxChainBytesPerSyncAttempt);
@@ -119,6 +150,9 @@ namespace catapult { namespace config {
 				EXPECT_FALSE(config.ShouldAuditDispatcherInputs);
 				EXPECT_FALSE(config.ShouldPrecomputeTransactionAddresses);
 
+				EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(0), config.OutgoingSecurityMode);
+				EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(0), config.IncomingSecurityModes);
+
 				EXPECT_EQ("", config.Local.Host);
 				EXPECT_EQ("", config.Local.FriendlyName);
 				EXPECT_EQ(0u, config.Local.Version);
@@ -140,6 +174,10 @@ namespace catapult { namespace config {
 				EXPECT_EQ(8888u, config.ApiPort);
 				EXPECT_TRUE(config.ShouldAllowAddressReuse);
 				EXPECT_TRUE(config.ShouldUseSingleThreadPool);
+				EXPECT_TRUE(config.ShouldUseCacheDatabaseStorage);
+
+				EXPECT_TRUE(config.ShouldEnableTransactionSpamThrottling);
+				EXPECT_EQ(Amount(54'123), config.TransactionSpamThrottlingMaxBoostFee);
 
 				EXPECT_EQ(50u, config.MaxBlocksPerSyncAttempt);
 				EXPECT_EQ(utils::FileSize::FromMegabytes(2), config.MaxChainBytesPerSyncAttempt);
@@ -167,6 +205,9 @@ namespace catapult { namespace config {
 				EXPECT_TRUE(config.ShouldAbortWhenDispatcherIsFull);
 				EXPECT_TRUE(config.ShouldAuditDispatcherInputs);
 				EXPECT_TRUE(config.ShouldPrecomputeTransactionAddresses);
+
+				EXPECT_EQ(ionet::ConnectionSecurityMode::Signed, config.OutgoingSecurityMode);
+				EXPECT_EQ(ionet::ConnectionSecurityMode::None | ionet::ConnectionSecurityMode::Signed, config.IncomingSecurityModes);
 
 				EXPECT_EQ("alice.com", config.Local.Host);
 				EXPECT_EQ("a GREAT node", config.Local.FriendlyName);

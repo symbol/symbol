@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/ionet/IoTypes.h"
 #include "catapult/ionet/PacketSocketOptions.h"
@@ -18,8 +38,8 @@ namespace catapult {
 
 namespace catapult { namespace test {
 
-	/// The endpoint representing the local host.
-	extern const boost::asio::ip::tcp::endpoint Local_Host;
+	/// Creates a local host endpoint with a default port.
+	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint();
 
 	/// Creates a local host endpoint with the specified \a port.
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port);
@@ -58,8 +78,17 @@ namespace catapult { namespace test {
 	/// Spawns custom server work on \a service by passing an accepted socket to \a serverWork.
 	void SpawnPacketServerWork(boost::asio::io_service& service, const PacketSocketWork& serverWork);
 
+	/// Spawns custom server work on \a service by passing an accepted socket to \a serverWork with custom \a options.
+	void SpawnPacketServerWork(
+			boost::asio::io_service& service,
+			const ionet::PacketSocketOptions& options,
+			const PacketSocketWork& serverWork);
+
 	/// Spawns custom server work using \a acceptor by passing an accepted socket to \a serverWork.
 	void SpawnPacketServerWork(const TcpAcceptor& acceptor, const PacketSocketWork& serverWork);
+
+	/// Spawns custom server work using \a acceptor by passing an accepted socket to \a serverWork with custom \a options.
+	void SpawnPacketServerWork(const TcpAcceptor& acceptor, const ionet::PacketSocketOptions& options, const PacketSocketWork& serverWork);
 
 	/// Spawns custom client work on \a service by passing an accepted socket to \a clientWork.
 	void SpawnPacketClientWork(boost::asio::io_service& service, const PacketSocketWork& clientWork);

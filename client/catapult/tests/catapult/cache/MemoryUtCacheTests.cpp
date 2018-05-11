@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache/MemoryUtCache.h"
 #include "catapult/utils/ShortHash.h"
 #include "tests/catapult/cache/test/TransactionCacheTests.h"
@@ -57,6 +77,12 @@ namespace catapult { namespace cache {
 			test::AddAll(*pCache, transactionInfos);
 			return pCache;
 		}
+
+		void AssertCacheSize(MemoryUtCache& cache, size_t expectedSize) {
+			// Assert: check both view and modifier sizes
+			EXPECT_EQ(cache.view().size(), expectedSize);
+			EXPECT_EQ(cache.modifier().size(), expectedSize);
+		}
 	}
 
 	// region constructor
@@ -66,7 +92,42 @@ namespace catapult { namespace cache {
 		MemoryUtCache cache(Default_Options);
 
 		// Assert:
-		EXPECT_EQ(0u, cache.view().size());
+		AssertCacheSize(cache, 0);
+	}
+
+	// endregion
+
+	// region size
+
+	TEST(TEST_CLASS, ModifierSizeIsDynamic) {
+		// Arrange:
+		MemoryUtCache cache(Default_Options);
+
+		// Act: modify cache and check sizes
+		{
+			auto modifier = cache.modifier();
+
+			// Sanity:
+			EXPECT_EQ(0u, modifier.size());
+
+			// Act: add five
+			auto originalTransactionInfos = test::CreateTransactionInfos(5);
+			for (const auto& transactionInfo : originalTransactionInfos)
+				EXPECT_TRUE(modifier.add(transactionInfo));
+
+			// Sanity:
+			EXPECT_EQ(5u, modifier.size());
+
+			// Act: remove two
+			modifier.remove(originalTransactionInfos[1].EntityHash);
+			modifier.remove(originalTransactionInfos[4].EntityHash);
+
+			// Assert:
+			EXPECT_EQ(3u, modifier.size());
+		}
+
+		// Sanity:
+		AssertCacheSize(cache, 3);
 	}
 
 	// endregion
@@ -82,9 +143,9 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(cache.modifier().add(originalInfo));
 
 		// Assert:
-		auto view = cache.view();
-		EXPECT_EQ(1u, view.size());
+		AssertCacheSize(cache, 1);
 
+		auto view = cache.view();
 		auto transactionInfos = test::ExtractTransactionInfos(view, 1);
 		ASSERT_EQ(1u, transactionInfos.size());
 
@@ -101,9 +162,9 @@ namespace catapult { namespace cache {
 			EXPECT_TRUE(cache.modifier().add(transactionInfo));
 
 		// Assert:
-		auto view = cache.view();
-		EXPECT_EQ(5u, view.size());
+		AssertCacheSize(cache, 5);
 
+		auto view = cache.view();
 		auto transactionInfos = test::ExtractTransactionInfos(view, 5);
 		ASSERT_EQ(5u, transactionInfos.size());
 
@@ -119,15 +180,15 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(cache.modifier().add(originalTransactionInfo));
 
 		// Sanity:
-		EXPECT_EQ(1u, cache.view().size());
+		AssertCacheSize(cache, 1);
 
 		// Act:
 		EXPECT_FALSE(cache.modifier().add(originalTransactionInfo));
 
 		// Assert:
-		auto view = cache.view();
-		EXPECT_EQ(1u, view.size());
+		AssertCacheSize(cache, 1);
 
+		auto view = cache.view();
 		auto transactionInfos = test::ExtractTransactionInfos(view, 1);
 		ASSERT_EQ(1u, transactionInfos.size());
 
@@ -143,7 +204,7 @@ namespace catapult { namespace cache {
 		test::AddAll(cache, transactionInfos);
 
 		// Assert:
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 		test::AssertDeadlines(cache, { 1, 2, 3, 4, 5 });
 	}
 
@@ -162,7 +223,7 @@ namespace catapult { namespace cache {
 			removedTransactionInfos.push_back(pCache->modifier().remove(hash));
 
 		// Assert:
-		EXPECT_EQ(5u, pCache->view().size());
+		AssertCacheSize(*pCache, 5);
 		test::AssertDeadlines(*pCache, { 2, 4, 6, 8, 10 });
 
 		// - all removed infos should contain original transaction
@@ -180,16 +241,16 @@ namespace catapult { namespace cache {
 		auto pCache = PrepareCache(5);
 
 		// Sanity:
-		EXPECT_EQ(5u, pCache->view().size());
+		AssertCacheSize(*pCache, 5);
 		test::AssertDeadlines(*pCache, { 1, 2, 3, 4, 5 });
 
 		// Act:
 		std::vector<model::TransactionInfo> removedTransactionInfos;
-		for (auto i = 0u; i < 10u; ++i)
+		for (auto i = 0u; i < 10; ++i)
 			removedTransactionInfos.push_back(pCache->modifier().remove(test::GenerateRandomData<Hash256_Size>()));
 
 		// Assert:
-		EXPECT_EQ(5u, pCache->view().size());
+		AssertCacheSize(*pCache, 5);
 		test::AssertDeadlines(*pCache, { 1, 2, 3, 4, 5 });
 
 		// - all removed infos should be empty
@@ -209,7 +270,7 @@ namespace catapult { namespace cache {
 		pCache->modifier().remove(hashes[1]);
 
 		// Sanity:
-		EXPECT_EQ(4u, pCache->view().size());
+		AssertCacheSize(*pCache, 4);
 		test::AssertDeadlines(*pCache, { 1, 2, 4, 5 });
 
 		// Act:
@@ -218,7 +279,7 @@ namespace catapult { namespace cache {
 		pCache->modifier().add(std::move(newTransactionInfo));
 
 		// Assert:
-		EXPECT_EQ(5u, pCache->view().size());
+		AssertCacheSize(*pCache, 5);
 		test::AssertDeadlines(*pCache, { 1, 2, 4, 5, 103 });
 	}
 
@@ -229,7 +290,7 @@ namespace catapult { namespace cache {
 		test::RemoveAll(*pCache, hashes);
 
 		// Sanity:
-		EXPECT_EQ(5u, pCache->view().size());
+		AssertCacheSize(*pCache, 5);
 		test::AssertDeadlines(*pCache, { 2, 4, 6, 8, 10 });
 
 		// Act:
@@ -237,8 +298,119 @@ namespace catapult { namespace cache {
 		test::AddAll(*pCache, newTransactionInfos);
 
 		// Assert:
-		EXPECT_EQ(10u, pCache->view().size());
+		AssertCacheSize(*pCache, 10);
 		test::AssertDeadlines(*pCache, { 2, 4, 6, 8, 10, 1, 2, 3, 4, 5 });
+	}
+
+	// endregion
+
+	// region count
+
+	namespace {
+		struct CacheInitializationResult {
+			Key SameSigner;
+			std::vector<model::TransactionInfo> TransactionInfosWithSameSigner;
+			std::vector<model::TransactionInfo> TransactionInfos;
+		};
+
+		std::vector<model::TransactionInfo> CreateTransactionInfos(const Key& signer, size_t count) {
+			std::vector<model::TransactionInfo> transactionInfos;
+			for (auto i = 0u; i < count; ++i) {
+				auto transactionInfo = model::TransactionInfo(test::GenerateRandomTransaction(signer));
+				test::FillWithRandomData(transactionInfo.EntityHash);
+				transactionInfos.push_back(std::move(transactionInfo));
+			}
+
+			return transactionInfos;
+		}
+
+		CacheInitializationResult DefaultInitializeCache(MemoryUtCache& cache) {
+			CacheInitializationResult initializationResult;
+			initializationResult.SameSigner = test::GenerateRandomData<Key_Size>();
+			initializationResult.TransactionInfosWithSameSigner = CreateTransactionInfos(initializationResult.SameSigner, 5);
+			initializationResult.TransactionInfos = test::CreateTransactionInfos(8);
+			test::AddAll(cache, initializationResult.TransactionInfosWithSameSigner);
+			test::AddAll(cache, initializationResult.TransactionInfos);
+			return initializationResult;
+		}
+	}
+
+	TEST(TEST_CLASS, CountReturnsNumberOfTransactionsInCacheSignedByAccount) {
+		// Arrange:
+		MemoryUtCache cache(Default_Options);
+
+		// - add some transactions with same signer and some transactions with random signers
+		auto initializationResult = DefaultInitializeCache(cache);
+
+		// Act:
+		auto count = cache.modifier().count(initializationResult.SameSigner);
+
+		// Assert:
+		EXPECT_EQ(5u, count);
+	}
+
+	TEST(TEST_CLASS, AddUpdatesCounters) {
+		// Arrange:
+		MemoryUtCache cache(Default_Options);
+
+		// - add some transactions with same signer and some transactions with random signers
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto transactionInfosWithSameSigner = CreateTransactionInfos(key, 5);
+		auto transactionInfos = test::CreateTransactionInfos(8);
+
+		// Act:
+		test::AddAll(cache, transactionInfosWithSameSigner);
+		test::AddAll(cache, transactionInfos);
+
+		// Assert:
+		EXPECT_EQ(13u, cache.view().size());
+		auto modifier = cache.modifier();
+		EXPECT_EQ(5u, modifier.count(key));
+		for (const auto& transactionInfo : transactionInfos)
+			EXPECT_EQ(1u, modifier.count(transactionInfo.pEntity->Signer));
+	}
+
+	TEST(TEST_CLASS, RemoveUpdatesCounters) {
+		// Arrange:
+		MemoryUtCache cache(Default_Options);
+
+		// - add some transactions with same signer and some transactions with random signers
+		auto initializationResult = DefaultInitializeCache(cache);
+
+		// Sanity:
+		EXPECT_EQ(13u, cache.view().size());
+		EXPECT_EQ(5u, cache.modifier().count(initializationResult.SameSigner));
+
+		// Act: remove 2 transaction infos
+		cache.modifier().remove(initializationResult.TransactionInfosWithSameSigner[1].EntityHash);
+		cache.modifier().remove(initializationResult.TransactionInfosWithSameSigner[4].EntityHash);
+
+		// Assert:
+		EXPECT_EQ(11u, cache.view().size());
+		auto modifier = cache.modifier();
+		EXPECT_EQ(3u, modifier.count(initializationResult.SameSigner));
+		for (const auto& transactionInfo : initializationResult.TransactionInfos)
+			EXPECT_EQ(1u, modifier.count(transactionInfo.pEntity->Signer));
+	}
+
+	TEST(TEST_CLASS, RemoveAllUpdatesCounters) {
+		// Arrange:
+		MemoryUtCache cache(Default_Options);
+		auto initializationResult = DefaultInitializeCache(cache);
+		auto modifier = cache.modifier();
+
+		// Sanity:
+		EXPECT_EQ(5u, modifier.count(initializationResult.SameSigner));
+		for (const auto& transactionsInfo : initializationResult.TransactionInfos)
+			EXPECT_EQ(1u, modifier.count(transactionsInfo.pEntity->Signer));
+
+		// Act:
+		modifier.removeAll();
+
+		// Assert:
+		EXPECT_EQ(0u, modifier.count(initializationResult.SameSigner));
+		for (const auto& transactionsInfo : initializationResult.TransactionInfos)
+			EXPECT_EQ(0u, modifier.count(transactionsInfo.pEntity->Signer));
 	}
 
 	// endregion
@@ -252,14 +424,14 @@ namespace catapult { namespace cache {
 		test::AddAll(cache, transactionInfos);
 
 		// Sanity:
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 		test::AssertDeadlines(cache, { 1, 2, 3, 4, 5 });
 
 		// Act:
 		auto removedTransactionInfos = cache.modifier().removeAll();
 
 		// Assert: cache was cleared and all removed transactions were returned
-		EXPECT_EQ(0u, cache.view().size());
+		AssertCacheSize(cache, 0);
 		test::AssertContainsNone(cache, removedTransactionInfos);
 
 		AssertDeadlines(removedTransactionInfos, { 1, 2, 3, 4, 5 });
@@ -400,7 +572,7 @@ namespace catapult { namespace cache {
 		};
 	}
 
-	DEFINE_BASIC_UNKNOWN_TRANSACTIONS_TESTS(MemoryUtCacheTests, MemoryUtCacheUnknownTransactionsTraits);
+	DEFINE_BASIC_UNKNOWN_TRANSACTIONS_TESTS(MemoryUtCacheTests, MemoryUtCacheUnknownTransactionsTraits)
 
 	namespace {
 		void AssertMaxResponseSizeIsRespected(uint32_t numExpectedTransactions, uint32_t maxResponseSize) {
@@ -458,7 +630,7 @@ namespace catapult { namespace cache {
 
 		// Assert: the new info was added
 		EXPECT_TRUE(isAdded);
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 		test::AssertDeadlines(cache, { 1, 2, 3, 4, 1234 });
 	}
 
@@ -473,7 +645,7 @@ namespace catapult { namespace cache {
 
 		// Assert: the new info was not added
 		EXPECT_FALSE(isAdded);
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 		test::AssertDeadlines(cache, { 1, 2, 3, 4, 5 });
 	}
 
@@ -497,7 +669,7 @@ namespace catapult { namespace cache {
 
 		// Assert: the new info was added
 		EXPECT_TRUE(isAdded);
-		EXPECT_EQ(5u, cache.view().size());
+		AssertCacheSize(cache, 5);
 		test::AssertDeadlines(cache, { 1, 2, 4, 5, 1234 });
 	}
 

@@ -1,25 +1,48 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include <iosfwd>
 
 namespace catapult { namespace ionet {
 
 #define SOCKET_OPERATION_CODE_LIST \
-	/* The socket operation succeeded. */ \
+	/* Socket operation succeeded. */ \
 	ENUM_VALUE(Success) \
 	\
-	/* The socket was closed. */ \
+	/* Socket was closed. */ \
 	ENUM_VALUE(Closed) \
 	\
-	/* The socket produced a read error. */ \
+	/* Socket produced a read error. */ \
 	ENUM_VALUE(Read_Error) \
 	\
-	/* The socket produced a write error. */ \
+	/* Socket produced a write error. */ \
 	ENUM_VALUE(Write_Error) \
 	\
-	/* The socket produced malformed data. */ \
+	/* Socket produced malformed data. */ \
 	ENUM_VALUE(Malformed_Data) \
 	\
-	/* The socket operation completed due to insufficient data. */ \
+	/* Socket produced a security error. */ \
+	ENUM_VALUE(Security_Error) \
+	\
+	/* Socket operation completed due to insufficient data. */ \
 	ENUM_VALUE(Insufficient_Data)
 
 #define ENUM_VALUE(LABEL) LABEL,

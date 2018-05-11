@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "ModifyMultisigAccountTransaction.h"
 #include "catapult/model/Notifications.h"
@@ -25,7 +45,7 @@ namespace catapult { namespace model {
 	/// Notification of a multisig cosigners modification.
 	struct ModifyMultisigCosignersNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Multisig_Modify_Cosigners_Notification;
 
 	public:
@@ -41,10 +61,10 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The signer.
+		/// Signer.
 		const Key& Signer;
 
-		/// The number of modifications.
+		/// Number of modifications.
 		uint8_t ModificationsCount;
 
 		/// Const pointer to the first modification.
@@ -54,7 +74,7 @@ namespace catapult { namespace model {
 	/// Notification of a new cosigner.
 	struct ModifyMultisigNewCosignerNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Multisig_Modify_New_Cosigner_Notification;
 
 	public:
@@ -66,17 +86,17 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The multisig account key.
+		/// Multisig account key.
 		const Key& MultisigAccountKey;
 
-		/// The new cosignatory key.
+		/// New cosignatory key.
 		const Key& CosignatoryKey;
 	};
 
 	/// Notification of a multisig settings modification.
 	struct ModifyMultisigSettingsNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Multisig_Modify_Settings_Notification;
 
 	public:
@@ -89,13 +109,13 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The signer.
+		/// Signer.
 		const Key& Signer;
 
-		/// The relative change of cosigs needed to remove another cosig.
+		/// Relative change of cosigs needed to remove another cosig.
 		int8_t MinRemovalDelta;
 
-		/// The relative change of cosigs needed to approve a transaction.
+		/// Relative change of cosigs needed to approve a transaction.
 		int8_t MinApprovalDelta;
 	};
 }}

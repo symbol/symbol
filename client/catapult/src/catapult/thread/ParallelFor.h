@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "Future.h"
 #include <boost/asio.hpp>
@@ -96,7 +116,7 @@ namespace catapult { namespace thread {
 	/// A future is returned that is resolved when all items have been processed.
 	template<typename TItems, typename TWorkCallback>
 	thread::future<bool> ParallelFor(boost::asio::io_service& service, TItems& items, size_t numPartitions, TWorkCallback callback) {
-		return ParallelForPartition(service, items, numPartitions, [&items, callback](auto itBegin, auto itEnd, auto startIndex, auto) {
+		return ParallelForPartition(service, items, numPartitions, [callback](auto itBegin, auto itEnd, auto startIndex, auto) {
 			auto i = 0u;
 			std::all_of(itBegin, itEnd, [callback, startIndex, &i](auto& item) {
 				return callback(item, startIndex + i++);

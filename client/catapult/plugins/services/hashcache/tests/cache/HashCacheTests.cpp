@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/cache/HashCache.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
@@ -13,7 +33,7 @@ namespace catapult { namespace cache {
 		struct HashCacheMixinTraits {
 			class CacheType : public HashCache {
 			public:
-				CacheType() : HashCache(utils::TimeSpan::FromMinutes(10))
+				CacheType() : HashCache(CacheConfiguration(), utils::TimeSpan::FromMinutes(10))
 				{}
 			};
 
@@ -38,14 +58,14 @@ namespace catapult { namespace cache {
 		};
 	}
 
-	DEFINE_CACHE_CONTAINS_TESTS(HashCacheMixinTraits, ViewAccessor, _View);
-	DEFINE_CACHE_CONTAINS_TESTS(HashCacheMixinTraits, DeltaAccessor, _Delta);
+	DEFINE_CACHE_CONTAINS_TESTS(HashCacheMixinTraits, ViewAccessor, _View)
+	DEFINE_CACHE_CONTAINS_TESTS(HashCacheMixinTraits, DeltaAccessor, _Delta)
 
-	DEFINE_CACHE_ITERATION_TESTS_ORDERING(HashCacheMixinTraits, ViewAccessor, Ordered, _View);
+	DEFINE_CACHE_ITERATION_TESTS_ORDERING(HashCacheMixinTraits, ViewAccessor, Ordered, _View)
 
-	DEFINE_CACHE_MUTATION_TESTS(HashCacheMixinTraits, DeltaAccessor, _Delta);
+	DEFINE_CACHE_MUTATION_TESTS(HashCacheMixinTraits, DeltaAccessor, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(HashCacheMixinTraits,);
+	DEFINE_CACHE_BASIC_TESTS(HashCacheMixinTraits,)
 
 	// endregion
 
@@ -55,7 +75,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateHashCacheWithCustomRetentionTime) {
 		// Act:
-		HashCache cache(utils::TimeSpan::FromHours(123));
+		HashCache cache(CacheConfiguration(), utils::TimeSpan::FromHours(123));
 
 		// Assert:
 		EXPECT_EQ(utils::TimeSpan::FromHours(123), cache.createView()->retentionTime());
@@ -69,7 +89,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, PruningBoundaryIsInitiallyUnset) {
 		// Arrange:
-		HashCache cache(utils::TimeSpan::FromHours(123));
+		HashCache cache(CacheConfiguration(), utils::TimeSpan::FromHours(123));
 		auto delta = cache.createDelta();
 
 		// Assert:
@@ -78,7 +98,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, PruneUpdatesPruningBoundary) {
 		// Arrange:
-		HashCache cache(utils::TimeSpan::FromHours(32));
+		HashCache cache(CacheConfiguration(), utils::TimeSpan::FromHours(32));
 		auto delta = cache.createDelta();
 
 		// Act (40 hours):

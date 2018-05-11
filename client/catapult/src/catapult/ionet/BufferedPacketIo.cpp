@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "BufferedPacketIo.h"
 #include "PacketIo.h"
 #include "catapult/utils/Logging.h"
@@ -39,7 +59,7 @@ namespace catapult { namespace ionet {
 			PacketIo& m_io;
 		};
 
-		/// Simple queue implementation.
+		// simple queue implementation
 		template<typename TRequest, typename TCallback, typename TCallbackWrapper>
 		class RequestQueue {
 		public:
@@ -121,11 +141,11 @@ namespace catapult { namespace ionet {
 		using QueuedWriteOperation = QueuedOperation<WriteRequest, PacketIo::WriteCallback>;
 		using QueuedReadOperation = QueuedOperation<ReadRequest, PacketIo::ReadCallback>;
 
-		class DefaultBufferedPacketIo
+		class BufferedPacketIo
 				: public PacketIo
-				, public std::enable_shared_from_this<DefaultBufferedPacketIo> {
+				, public std::enable_shared_from_this<BufferedPacketIo> {
 		public:
-			DefaultBufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::strand& strand)
+			BufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::strand& strand)
 					: m_pIo(pIo)
 					, m_strand(strand)
 					, m_pWriteOperation(std::make_unique<QueuedWriteOperation>(m_strand))
@@ -156,6 +176,6 @@ namespace catapult { namespace ionet {
 	}
 
 	std::shared_ptr<PacketIo> CreateBufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::strand& strand) {
-		return std::make_shared<DefaultBufferedPacketIo>(pIo, strand);
+		return std::make_shared<BufferedPacketIo>(pIo, strand);
 	}
 }}

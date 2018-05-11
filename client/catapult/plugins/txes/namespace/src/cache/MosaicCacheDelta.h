@@ -1,28 +1,37 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "MosaicCacheMixins.h"
 #include "MosaicCacheTypes.h"
-#include "catapult/cache/CacheMixins.h"
+#include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 #include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/deltaset/DeltaElementsMixin.h"
 
 namespace catapult { namespace cache {
 
 	/// Mixins used by the mosaic cache delta.
-	struct MosaicCacheDeltaMixins {
-		using Size = SizeMixin<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType>;
-		using Contains = ContainsMixin<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicCacheDescriptor>;
-		using ConstAccessor = ConstAccessorMixin<
-			MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType,
-			MosaicCacheDescriptor,
-			MosaicCacheTypes::ConstValueAdapter>;
-		using MutableAccessor = MutableAccessorMixin<
-			MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType,
-			MosaicCacheDescriptor,
-			MosaicCacheTypes::MutableValueAdapter>;
-		using ActivePredicate = ActivePredicateMixin<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicCacheDescriptor>;
-		using DeltaElements = deltaset::DeltaElementsMixin<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType>;
+	struct MosaicCacheDeltaMixins : public BasicCacheMixins<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicCacheDescriptor> {
+		using ConstAccessor = ConstAccessorWithAdapter<MosaicCacheTypes::ConstValueAdapter>;
+		using MutableAccessor = MutableAccessorWithAdapter<MosaicCacheTypes::MutableValueAdapter>;
 
 		using MosaicDeepSize = MosaicDeepSizeMixin<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType>;
 	};
@@ -41,8 +50,8 @@ namespace catapult { namespace cache {
 		using ReadOnlyView = MosaicCacheTypes::CacheReadOnlyType;
 
 	public:
-		/// Creates a delta around \a mosaicSets.
-		explicit BasicMosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointerType& mosaicSets);
+		/// Creates a delta around \a mosaicSets and \a deepSize.
+		BasicMosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets, size_t deepSize);
 
 	public:
 		using MosaicCacheDeltaMixins::ConstAccessor::get;
@@ -76,9 +85,9 @@ namespace catapult { namespace cache {
 	/// Delta on top of the mosaic cache.
 	class MosaicCacheDelta : public ReadOnlyViewSupplier<BasicMosaicCacheDelta> {
 	public:
-		/// Creates a delta around \a mosaicSets.
-		explicit MosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointerType& mosaicSets)
-				: ReadOnlyViewSupplier(mosaicSets)
+		/// Creates a delta around \a mosaicSets and \a deepSize.
+		MosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets, size_t deepSize)
+				: ReadOnlyViewSupplier(mosaicSets, deepSize)
 		{}
 	};
 }}

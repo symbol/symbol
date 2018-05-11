@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/mappers/LockInfoMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
@@ -10,7 +30,9 @@ namespace catapult { namespace mongo { namespace plugins {
 #define TEST_CLASS LockInfoMapperTests
 
 	namespace {
-		constexpr auto Document_Name = "lock";
+		void AssertEqualLockMetadata(const bsoncxx::document::view& dbMetadata) {
+			EXPECT_EQ(0u, test::GetFieldCount(dbMetadata));
+		}
 	}
 
 	// region ToDbModel
@@ -29,12 +51,15 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		// Act:
 		auto document = ToDbModel(lockInfo, address);
-		auto documentView = document.view();
+		auto view = document.view();
 
 		// Assert:
-		EXPECT_EQ(1u, test::GetFieldCount(documentView));
+		EXPECT_EQ(2u, test::GetFieldCount(view));
 
-		auto lockInfoView = documentView[Document_Name].get_document().view();
+		auto metaView = view["meta"].get_document().view();
+		AssertEqualLockMetadata(metaView);
+
+		auto lockInfoView = view["lock"].get_document().view();
 		EXPECT_EQ(6u + TLockInfoTraits::Num_Additional_Fields, test::GetFieldCount(lockInfoView));
 		test::AssertEqualLockInfoData(lockInfo, address, lockInfoView);
 	}
@@ -56,9 +81,12 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		// Assert:
 		auto view = dbLockInfo.view();
-		EXPECT_EQ(1u, test::GetFieldCount(view));
+		EXPECT_EQ(2u, test::GetFieldCount(view));
 
-		auto lockInfoView = view[Document_Name].get_document().view();
+		auto metaView = view["meta"].get_document().view();
+		AssertEqualLockMetadata(metaView);
+
+		auto lockInfoView = view["lock"].get_document().view();
 		EXPECT_EQ(6u + TLockInfoTraits::Num_Additional_Fields, test::GetFieldCount(lockInfoView));
 		test::AssertEqualLockInfoData(lockInfo, address, lockInfoView);
 	}

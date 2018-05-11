@@ -7,6 +7,8 @@ from enum import Enum
 import io
 import os
 import re
+import shutil
+import time
 
 from xml.sax.saxutils import escape as xmlEscape
 
@@ -54,7 +56,8 @@ USER_SOURCE_DIRS = {
     'tests' : Rules.Default,
     'plugins' : Rules.Plugin,
     'extensions' : Rules.Extension,
-    'tools' : Rules.Tools
+    'tools' : Rules.Tools,
+    'internal/tools' : Rules.Tools
 }
 
 SOURCE_DIRS = dict((k, RULE_ID_TO_CLASS_MAP[v]) for k, v in USER_SOURCE_DIRS.items())
@@ -80,9 +83,13 @@ def checkExternalInclude(incA, incB):
         return False
     return None
 
+def isCppInclude(inc):
+    cppIncludes = ['<boost', '<mongocxx', '<bsoncxx', '<rocksdb']
+    return any(map(inc.startswith, cppIncludes))
+
 def checkCppInclude(incA, incB):
-    boostA = incA.startswith('<boost') or incA.startswith('<mongocxx') or incA.startswith('<bsoncxx')
-    boostB = incB.startswith('<boost') or incB.startswith('<mongocxx') or incB.startswith('<bsoncxx')
+    boostA = isCppInclude(incA)
+    boostB = isCppInclude(incB)
     if boostA and not boostB:
         return True
     elif not boostA and boostB:
@@ -174,8 +181,8 @@ class SortableInclude(HeaderParser.Include):
         if self.include[0] > other.include[0]:
             return False
         if self.include[0] == '<':
-            selfCHeader = self.include.endswith('.h>')
-            otherCHeader = other.include.endswith('.h>')
+            selfCHeader = self.include.endswith('.h>') and not isCppInclude(self.include)
+            otherCHeader = other.include.endswith('.h>') and not isCppInclude(other.include)
             if selfCHeader and not otherCHeader:
                 return False
             if (selfCHeader and otherCHeader) or not (selfCHeader or otherCHeader):
@@ -422,6 +429,7 @@ class Analyzer:
         self.simpleValidators = None
         self.presentExclusions = defaultdict(set)
         self.options = options
+        self.sourceDirs = []
 
     @staticmethod
     def getShortestNamespaceSet(cppHeader):
@@ -461,7 +469,6 @@ class Analyzer:
             fix = name.replace('/', '.')
             if re.search(fix, path):
                 self.presentExclusions[mapName].add(name)
-
 
     def validateMaps(self, path):
         self.validateSet('SKIP_FILES', path)
@@ -515,6 +522,15 @@ class Analyzer:
             reporter = XmlReporter(outputFile)
             self.printFormattingOut(reporter)
 
+    def shouldIgnoreMissingExclusion(self, missingExcl):
+        for sourceDir in self.sourceDirs:
+            # extract pattern from either regex or string
+            pattern = missingExcl.pattern if hasattr(missingExcl, 'pattern') else missingExcl
+            if pattern.startswith(sourceDir):
+                return False
+
+        return True
+
     def getExclusionErrors(self, reporter):
         exclusionErrors = []
         for exclusionName, exclusionMap in EXCLUSIONS.items():
@@ -525,14 +541,15 @@ class Analyzer:
                 if missingExcl in self.presentExclusions[exclusionName]:
                     continue
 
-                with io.StringIO() as output:
+                if self.shouldIgnoreMissingExclusion(missingExcl):
+                    continue
 
+                with io.StringIO() as output:
                     name = 'scripts/lint/exclusions.py'
                     msg = '{}: Exclusion from set: {}: >>{}<< was never hit'.format(name, exclusionName, missingExcl)
                     reporter.formatFailure(output, 'exclusions', name, msg)
                     exclusionErrors.append(output.getvalue())
         return exclusionErrors
-
 
     def printFormattingOut(self, reporter):
         exclusionErrors = self.getExclusionErrors(reporter)
@@ -548,6 +565,7 @@ class Analyzer:
         formats = {
             'consecutiveEmpty' : lambda err: '{}:{} Consecutive empty lines: {}'.format(err.path, err.lineno, err.line),
             'preprocessorOther' : lambda err: '{}:{} Preprocessor error, {}: {}'.format(err.path, err.lineno, err.kind, err.line),
+            'anonNamespace' : lambda err: '{}:{} Anonymous namespace inside header: {}'.format(err.path, err.lineno, err.line),
             'indentedPreprocessor': lambda err: '{}:{} Invalid indent, {}: {}'.format(err.path, err.lineno, err.kind, err.line),
             'emptyNearEnd': lambda err: '{}:{} Empty line near end of file: >>{}<<'.format(err.path, err.lineno, err.line),
             'firstInclude': lambda err: '{} Expected first include to be: >>{}<<'.format(err.path, err.include),
@@ -729,34 +747,7 @@ def checkDependencies(includes, depsChecker, args):
             if depsChecker.match(name, pathA, includeDir, include):
                 continue
 
-def setupOptions(analyzerOptions, args):
-    analyzerOptions.verbose = args.verbose
-    if args.text:
-        Parser.TEXT_OUTPUT = True
-        analyzerOptions.textOutput = True
-    if args.fixIndents:
-        analyzerOptions.fixIndents = True
-    if args.destDir:
-        Parser.DEST_DIR = args.destDir
-        analyzerOptions.destDir = args.destDir
-
-    if args.sub == 'deps':
-        analyzerOptions.depsFilter = True
-        if args.deps_srconly:
-            analyzerOptions.depsSrcOnly = True
-
-def switchWorkingDirectoryToRoot():
-    for sourceDir in SOURCE_DIRS:
-        if not os.path.exists(sourceDir):
-            os.chdir('../..')
-            if not os.path.exists(sourceDir):
-                raise IOError('could not find `{}` directory'.format(sourceDir))
-
-            break
-
-def main():
-    colorama.init()
-
+def parseArgs():
     parser = argparse.ArgumentParser(description='catapult lint checker')
     parser.add_argument('-t', '--text', help='output text output (instead of xml)', action='store_true')
     parser.add_argument('-f', '--fixIndents', help='try to fix preprocessor indents', action='store_true')
@@ -774,29 +765,74 @@ def main():
     deps.add_argument('-n', '--nonCatapult', help='show only `.* -> non-catapult` dependencies',
                       action='store_true', dest='deps_nonCatapult')
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+def setupOptions(analyzerOptions, args):
+    analyzerOptions.verbose = args.verbose
+    if args.text:
+        Parser.TEXT_OUTPUT = True
+        analyzerOptions.textOutput = True
+    if args.fixIndents:
+        analyzerOptions.fixIndents = True
+    if args.destDir:
+        Parser.DEST_DIR = args.destDir
+        analyzerOptions.destDir = args.destDir
+
+    if args.sub == 'deps':
+        analyzerOptions.depsFilter = True
+        if args.deps_srconly:
+            analyzerOptions.depsSrcOnly = True
+
+def findAccessibleSourceDirs():
+    sourceDirs = []
+    for sourceDir in SOURCE_DIRS:
+        if not os.path.exists(sourceDir):
+            print('x skipping directory', sourceDir)
+        else:
+            sourceDirs.append(sourceDir)
+
+    return sourceDirs
+
+def printSectionSeparator():
+    size = shutil.get_terminal_size()
+    print()
+    print('*' * size.columns)
+    print()
+
+def main():
+    colorama.init()
+
+    args = parseArgs()
     analyzerOptions = AnalyzerOptions()
     setupOptions(analyzerOptions, args)
 
     analyzer = Analyzer(analyzerOptions)
+    analyzer.sourceDirs = args.sourceDir if args.sourceDir else findAccessibleSourceDirs()
 
     depsChecker = None
     if args.depCheckDir:
         depsChecker = DepsChecker('deps.config', analyzer.dependencyViolations, args.verbose)
 
-    switchWorkingDirectoryToRoot()
-
     for sourceDir, ruleset in SOURCE_DIRS.items():
-        if args.sourceDir and sourceDir not in args.sourceDir:
+        if sourceDir not in analyzer.sourceDirs:
             continue
 
-        print('parsing directory', sourceDir)
+        startTime = time.perf_counter()
+        numFiles = 0
+        print('> parsing directory', sourceDir)
         for root, _, files in os.walk(sourceDir):
             for filename in files:
                 if not filename.endswith('.h') and not filename.endswith('.cpp'):
                     continue
 
                 analyzer.add(Entry(root, filename, ruleset))
+                numFiles = numFiles + 1
+
+        endTime = time.perf_counter()
+        elapsedSeconds = endTime - startTime
+        print('< elapsed {0:.3f}s {1} files ({2:.3f}ms / file)'.format(elapsedSeconds, numFiles, (elapsedSeconds * 1000) / numFiles))
+
+    printSectionSeparator()
 
     analyzer.printFormatting()
     analyzer.printNamespaces()

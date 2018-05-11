@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache/CacheStorage.h"
 #include "catapult/cache/CatapultCacheBuilder.h"
@@ -28,8 +48,8 @@ namespace catapult { namespace cache {
 		}
 
 		template<size_t CacheId>
-		void AddSubCacheWithId(CatapultCacheBuilder& builder) {
-			builder.add<test::SimpleCacheStorageTraits>(std::make_unique<test::SimpleCacheT<CacheId>>());
+		void AddSubCacheWithId(CatapultCacheBuilder& builder, test::SimpleCacheViewMode viewMode = test::SimpleCacheViewMode::Iterable) {
+			builder.add<test::SimpleCacheStorageTraits>(std::make_unique<test::SimpleCacheT<CacheId>>(viewMode));
 		}
 
 		CatapultCache CreateSimpleCatapultCache() {
@@ -242,7 +262,7 @@ namespace catapult { namespace cache {
 			auto cache = CreateSimpleCatapultCache();
 			{
 				auto delta = cache.createDelta();
-				for (auto i = 1u; i <= 9u; ++i)
+				for (auto i = 1u; i <= 9; ++i)
 					IncrementAllSubCaches(delta);
 
 				cache.commit(Height());
@@ -268,6 +288,54 @@ namespace catapult { namespace cache {
 		// Assert: the cache data was loaded successfully
 		auto view = cache.createView();
 		AssertSubCacheSizes(view, 9);
+	}
+
+	namespace {
+		CatapultCache CreateSimpleCatapultCacheWithSomeNonIterableSubCaches() {
+			CatapultCacheBuilder builder;
+			AddSubCacheWithId<2>(builder);
+			AddSubCacheWithId<4>(builder, test::SimpleCacheViewMode::Non_Iterable);
+			AddSubCacheWithId<6>(builder);
+			return builder.build();
+		}
+	}
+
+	TEST(TEST_CLASS, CanRoundTripCacheViaStoragesWhenSomeSubCachesDoNotSupportStorage) {
+		// Arrange: seed the cache with 9 items per subcache
+		std::vector<std::vector<uint8_t>> serializedSubCaches;
+		{
+			// - configure only 2/3 caches to support storage
+			auto cache = CreateSimpleCatapultCacheWithSomeNonIterableSubCaches();
+			{
+				auto delta = cache.createDelta();
+				for (auto i = 1u; i <= 9; ++i)
+					IncrementAllSubCaches(delta);
+
+				cache.commit(Height());
+			}
+
+			// Act: save all data
+			for (const auto& pStorage : const_cast<const CatapultCache&>(cache).storages()) {
+				std::vector<uint8_t> buffer;
+				mocks::MockMemoryStream stream("", buffer);
+				pStorage->saveAll(stream);
+				serializedSubCaches.push_back(buffer);
+			}
+		}
+
+		// - load all data
+		auto i = 0u;
+		auto cache = CreateSimpleCatapultCacheWithSomeNonIterableSubCaches();
+		for (const auto& pStorage : cache.storages()) {
+			mocks::MockMemoryStream stream("", serializedSubCaches[i++]);
+			pStorage->loadAll(stream, 5);
+		}
+
+		// Assert: the cache data was loaded successfully for all caches that support storage
+		auto view = cache.createView();
+		EXPECT_EQ(9u, view.template sub<test::SimpleCacheT<2>>().size());
+		EXPECT_EQ(0u, view.template sub<test::SimpleCacheT<4>>().size());
+		EXPECT_EQ(9u, view.template sub<test::SimpleCacheT<6>>().size());
 	}
 
 	// endregion

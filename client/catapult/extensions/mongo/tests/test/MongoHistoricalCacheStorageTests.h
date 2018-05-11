@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "MongoCacheStorageTestUtils.h"
 
@@ -156,7 +176,7 @@ namespace catapult { namespace test {
 
 			// Act:
 			std::vector<ElementType> elements;
-			for (auto i = 0u; i < 100u; ++i) {
+			for (auto i = 0u; i < 100; ++i) {
 				elements.push_back(TTraits::GenerateRandomElement(i, 0, true));
 				TTraits::Add(delta, elements.back());
 			}
@@ -177,7 +197,7 @@ namespace catapult { namespace test {
 
 			// Act: notice that indexes are 0-based
 			std::vector<ElementType> elements;
-			for (auto i = 0u; i < 100u; ++i) {
+			for (auto i = 0u; i < 100; ++i) {
 				elements.push_back(TTraits::GenerateRandomElement(123, i, false));
 				TTraits::Add(delta, elements.back());
 			}
@@ -202,7 +222,7 @@ namespace catapult { namespace test {
 
 			// - seed 100 elements
 			std::vector<ElementType> elements;
-			for (auto i = 0u; i < 100u; ++i) {
+			for (auto i = 0u; i < 100; ++i) {
 				elements.push_back(TTraits::GenerateRandomElement(i, 0, true));
 				TTraits::Add(delta, elements.back());
 			}
@@ -263,10 +283,10 @@ namespace catapult { namespace test {
 			// Act:
 			RunCustomLoadTest([](auto& delta) {
 				// Arrange: seed the database with 100 elements
-				for (auto i = 0u; i < 100u; ++i)
+				for (auto i = 0u; i < 100; ++i)
 					TTraits::Add(delta, TTraits::GenerateRandomElement(i, 0, true));
 
-				return std::make_pair(100u, 100u);
+				return std::make_pair(100u, 100);
 			});
 		}
 
@@ -275,12 +295,12 @@ namespace catapult { namespace test {
 			RunCustomLoadTest([](auto& delta) {
 				// Arrange: seed the database with 100 elements (notice that indexes are 0-based)
 				auto key = test::GenerateRandomData<Key_Size>();
-				for (auto i = 0u; i < 100u; ++i)
+				for (auto i = 0u; i < 100; ++i)
 					TTraits::Add(delta, TTraits::CreateElement(key, 123, i, false));
 
 				// - add active element
 				TTraits::Add(delta, TTraits::CreateElement(key, 123, 100, true));
-				return std::make_pair(101u, 101u);
+				return std::make_pair(101u, 101);
 			});
 		}
 
@@ -319,7 +339,8 @@ namespace catapult { namespace test {
 			std::vector<ElementType> contents;
 			const auto& subCache = cache.sub<CacheType>();
 			auto view = subCache.createView();
-			for (const auto& pair : *view) {
+			auto pIterableView = view->tryMakeIterableView();
+			for (const auto& pair : *pIterableView) {
 				auto historyIndex = 0u;
 				const auto& history = pair.second;
 				for (const auto& historicalRecord : history) {

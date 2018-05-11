@@ -1,45 +1,71 @@
-#include "tests/catapult/deltaset/test/BaseSetTestsInclude.h"
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
+#include "tests/catapult/deltaset/test/BaseSetDeltaTests.h"
+#include "tests/catapult/deltaset/test/BaseSetTests.h"
 
 namespace catapult { namespace deltaset {
 
 	namespace {
-		using UnorderedMutableTraits = test::UnorderedTraits<MutableTypeTraits<test::MutableTestElement>>;
-		using UnorderedMutablePointerTraits = test::UnorderedTraits<MutableTypeTraits<std::shared_ptr<test::MutableTestElement>>>;
-		using UnorderedImmutableTraits = test::UnorderedTraits<ImmutableTypeTraits<const test::ImmutableTestElement>>;
-		using UnorderedImmutablePointerTraits =
-			test::UnorderedTraits<ImmutableTypeTraits<std::shared_ptr<const test::ImmutableTestElement>>>;
+		template<typename TMutabilityTraits>
+		using UnorderedTraits = test::BaseSetTraits<TMutabilityTraits, test::UnorderedSetTraits<test::SetElementType<TMutabilityTraits>>>;
+
+		using UnorderedMutableTraits = UnorderedTraits<test::MutableElementValueTraits>;
+		using UnorderedMutablePointerTraits = UnorderedTraits<test::MutableElementPointerTraits>;
+		using UnorderedImmutableTraits = UnorderedTraits<test::ImmutableElementValueTraits>;
+		using UnorderedImmutablePointerTraits = UnorderedTraits<test::ImmutablePointerValueTraits>;
 	}
 
-#define REGISTER_DELTA_MUTABLE_TYPES(TEST_NAME) \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedMutableTraits>, DeltaUnorderedMutable); \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedMutablePointerTraits>, DeltaUnorderedMutablePointer); \
+// base (mutable)
+DEFINE_MUTABLE_BASE_SET_TESTS_FOR(UnorderedMutable);
+DEFINE_MUTABLE_BASE_SET_TESTS_FOR(UnorderedMutablePointer);
 
-#define REGISTER_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedImmutableTraits>, DeltaUnorderedImmutable); \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedImmutablePointerTraits>, DeltaUnorderedImmutablePointer); \
+// base (immutable)
+DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(UnorderedImmutable);
+DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(UnorderedImmutablePointer);
 
-#define REGISTER_NON_DELTA_MUTABLE_TYPES(TEST_NAME) \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::UnorderedMutableTraits>, BaseUnorderedMutable); \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::UnorderedMutablePointerTraits>, BaseUnorderedMutablePointer); \
+// delta (mutable)
+DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMutable);
+DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMutablePointer);
 
-#define REGISTER_NON_DELTA_IMMUTABLE_TYPES(TEST_NAME) \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::UnorderedImmutableTraits>, BaseUnorderedImmutable); \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::BaseTraits<deltaset::UnorderedImmutablePointerTraits>, BaseUnorderedImmutablePointer);
-}}
+// delta (immutable)
+DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedImmutable);
+DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedImmutablePointer);
 
-#include "tests/catapult/deltaset/test/BaseSetTestsImpl.h"
-
-namespace catapult { namespace deltaset {
 /* hasher tests only use unordered delta variants */
-#define REGISTER_HASHER_TYPES(TEST_NAME) \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedMutableTraits>, DeltaUnorderedMutable); \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedMutablePointerTraits>, DeltaUnorderedMutablePointer); \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedImmutableTraits>, DeltaUnorderedImmutable); \
-	MAKE_BASE_SET_TEST(TEST_NAME, test::DeltaTraits<deltaset::UnorderedImmutablePointerTraits>, DeltaUnorderedImmutablePointer); \
+#define TEST_CLASS UnorderedTests
 
-#define DEFINE_HASHER_TESTS(TEST_NAME) DEFINE_BASE_SET_TESTS(TEST_NAME, REGISTER_HASHER_TYPES)
+#define MAKE_UNORDERED_TEST(TEST_NAME, TYPE) \
+	TEST(DeltaUnordered##TYPE##Tests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::DeltaTraits<deltaset::Unordered##TYPE##Traits>>(); \
+	}
 
-	DEFINE_HASHER_TESTS(SuppliedHasherIsUsed) {
+#define UNORDERED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	MAKE_UNORDERED_TEST(TEST_NAME, Mutable) \
+	MAKE_UNORDERED_TEST(TEST_NAME, MutablePointer) \
+	MAKE_UNORDERED_TEST(TEST_NAME, Immutable) \
+	MAKE_UNORDERED_TEST(TEST_NAME, ImmutablePointer) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	UNORDERED_TEST(SuppliedHasherIsUsed) {
 		// Arrange:
 		auto pDelta = TTraits::Create();
 		auto element = TTraits::CreateElement("", 0);

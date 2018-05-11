@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/NonCopyable.h"
@@ -65,14 +85,14 @@ namespace catapult { namespace state {
 		};
 
 	private:
-		/// The base of mosaic iterators.
+		/// Base of mosaic iterators.
 		class basic_iterator {
 		public:
 			using difference_type = std::ptrdiff_t;
 			using iterator_category = std::forward_iterator_tag;
 
 		public:
-			/// The iterator stage.
+			/// Iterator stage.
 			enum class Stage { Start, Value, Array, Map, End };
 
 		public:
@@ -147,10 +167,10 @@ namespace catapult { namespace state {
 		};
 
 	public:
-		/// The mosaic const iterator.
+		/// Mosaic const iterator.
 		using const_iterator = basic_iterator_t<const Mosaic>;
 
-		/// The mosaic non-const iterator.
+		/// Mosaic non-const iterator.
 		using iterator = basic_iterator_t<Mosaic>;
 
 	public:

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "MosaicEntityType.h"
 #include "NamespaceConstants.h"
@@ -9,13 +29,13 @@ namespace catapult { namespace model {
 
 	/// Parameters for a rule.
 	struct RuleDefinition {
-		/// The lower bound.
+		/// Lower bound.
 		uint64_t LowerBound;
 
-		/// The upper bound.
+		/// Upper bound.
 		uint64_t UpperBound;
 
-		/// The percentile.
+		/// Percentile.
 		uint64_t Percentile;
 	};
 
@@ -29,19 +49,19 @@ namespace catapult { namespace model {
 		static constexpr EntityType Entity_Type = Entity_Type_Mosaic_Levy_Change;
 
 	public:
-		/// The id of the affected mosaic.
+		/// Id of the affected mosaic.
 		catapult::MosaicId MosaicId;
 
-		/// The id of the mosaic levy.
+		/// Id of the mosaic levy.
 		catapult::MosaicId LevyId;
 
-		/// The recipient of the levy.
+		/// Recipient of the levy.
 		Address Recipient;
 
-		/// The rule ids for the transfers between accounts.
+		/// Rule ids for the transfers between accounts.
 		std::array<uint8_t, Num_Mosaic_Levy_Rule_Ids> RuleIds;
 
-		/// The number of rule definitions in the attachment.
+		/// Number of rule definitions in the attachment.
 		uint8_t RuleDefinitionCount;
 
 		// followed by rule definitions

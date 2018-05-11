@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
@@ -36,7 +56,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(utils::TimeSpan::FromHours(24), config.MaxTransactionLifetime);
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(10), config.MaxBlockFutureTime);
 
-			EXPECT_EQ(Amount(8'999'999'998'000'000), config.TotalChainBalance);
+			EXPECT_EQ(utils::XemUnit(Amount(8'999'999'998'000'000)), config.TotalChainBalance);
 			EXPECT_EQ(Amount(1'000'000'000'000), config.MinHarvesterBalance);
 
 			EXPECT_EQ(360u, config.BlockPruneInterval);
@@ -51,6 +71,10 @@ namespace catapult { namespace config {
 			EXPECT_EQ(7901u, config.ApiPort);
 			EXPECT_FALSE(config.ShouldAllowAddressReuse);
 			EXPECT_FALSE(config.ShouldUseSingleThreadPool);
+			EXPECT_TRUE(config.ShouldUseCacheDatabaseStorage);
+
+			EXPECT_TRUE(config.ShouldEnableTransactionSpamThrottling);
+			EXPECT_EQ(Amount(10'000'000), config.TransactionSpamThrottlingMaxBoostFee);
 
 			EXPECT_EQ(400u, config.MaxBlocksPerSyncAttempt);
 			EXPECT_EQ(utils::FileSize::FromMegabytes(100), config.MaxChainBytesPerSyncAttempt);
@@ -79,6 +103,9 @@ namespace catapult { namespace config {
 			EXPECT_FALSE(config.ShouldAuditDispatcherInputs);
 			EXPECT_FALSE(config.ShouldPrecomputeTransactionAddresses);
 
+			EXPECT_EQ(ionet::ConnectionSecurityMode::None, config.OutgoingSecurityMode);
+			EXPECT_EQ(ionet::ConnectionSecurityMode::None, config.IncomingSecurityModes);
+
 			EXPECT_EQ("", config.Local.Host);
 			EXPECT_EQ("", config.Local.FriendlyName);
 			EXPECT_EQ(0u, config.Local.Version);
@@ -94,8 +121,8 @@ namespace catapult { namespace config {
 			auto expectedExtensions = std::unordered_set<std::string>{
 				"extension.eventsource", "extension.harvesting", "extension.syncsource",
 				"extension.diagnostics", "extension.filechain", "extension.hashcache", "extension.networkheight",
-				"extension.nodediscovery", "extension.packetserver", "extension.sync", "extension.transactionsink",
-				"extension.unbondedpruning"
+				"extension.nodediscovery", "extension.packetserver", "extension.sync", "extension.timesync",
+				"extension.transactionsink", "extension.unbondedpruning"
 			};
 			EXPECT_EQ(expectedExtensions, config.Extensions);
 		}

@@ -1,6 +1,27 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "src/state/MosaicEntry.h"
 #include "src/state/MosaicHistory.h"
+#include "catapult/cache/CacheDatabaseMixin.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/IdentifierGroup.h"
@@ -22,6 +43,9 @@ namespace catapult { namespace cache {
 
 	/// Describes a mosaic cache.
 	struct MosaicCacheDescriptor {
+	public:
+		static constexpr auto Name = "MosaicCache";
+
 	public:
 		// key value types
 		using KeyType = MosaicId;
@@ -101,24 +125,32 @@ namespace catapult { namespace cache {
 	public:
 		// in order to compose mosaic cache from multiple sets, define an aggregate set type
 
-		struct BaseSetDeltaPointerType {
+		struct BaseSetDeltaPointers {
 			PrimaryTypes::BaseSetDeltaPointerType pPrimary;
 			NamespaceGroupingTypes::BaseSetDeltaPointerType pNamespaceGrouping;
 			HeightGroupingTypes::BaseSetDeltaPointerType pHeightGrouping;
 		};
 
-		struct BaseSetType {
+		struct BaseSets : public CacheDatabaseMixin {
+		public:
+			explicit BaseSets(const CacheConfiguration& config)
+					: CacheDatabaseMixin(config, { "default", "namespace_grouping", "height_grouping" })
+					, Primary(GetContainerMode(config), database(), 0)
+					, NamespaceGrouping(GetContainerMode(config), database(), 1)
+					, HeightGrouping(GetContainerMode(config), database(), 2)
+			{}
+
 		public:
 			PrimaryTypes::BaseSetType Primary;
 			NamespaceGroupingTypes::BaseSetType NamespaceGrouping;
 			HeightGroupingTypes::BaseSetType HeightGrouping;
 
 		public:
-			BaseSetDeltaPointerType rebase() {
+			BaseSetDeltaPointers rebase() {
 				return { Primary.rebase(), NamespaceGrouping.rebase(), HeightGrouping.rebase() };
 			}
 
-			BaseSetDeltaPointerType rebaseDetached() const {
+			BaseSetDeltaPointers rebaseDetached() const {
 				return { Primary.rebaseDetached(), NamespaceGrouping.rebaseDetached(), HeightGrouping.rebaseDetached() };
 			}
 

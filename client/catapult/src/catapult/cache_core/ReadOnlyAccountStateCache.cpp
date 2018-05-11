@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "ReadOnlyAccountStateCache.h"
 #include "AccountStateCacheDelta.h"
 #include "AccountStateCacheView.h"
@@ -7,30 +27,30 @@ namespace catapult { namespace cache {
 	namespace {
 		template<typename TKey>
 		auto Contains(const TKey& key, const BasicAccountStateCacheView* pCache, const BasicAccountStateCacheDelta* pCacheDelta) {
-			return nullptr != pCache ? pCache->contains(key) : pCacheDelta->contains(key);
+			return pCache ? pCache->contains(key) : pCacheDelta->contains(key);
 		}
 
 		template<typename TKey>
 		auto& Get(const TKey& key, const BasicAccountStateCacheView* pCache, const BasicAccountStateCacheDelta* pCacheDelta) {
-			return nullptr != pCache ? pCache->get(key) : pCacheDelta->get(key);
+			return pCache ? pCache->get(key) : pCacheDelta->get(key);
 		}
 
 		template<typename TKey>
 		auto* TryGet(const TKey& key, const BasicAccountStateCacheView* pCache, const BasicAccountStateCacheDelta* pCacheDelta) {
-			return nullptr != pCache ? pCache->tryGet(key) : pCacheDelta->tryGet(key);
+			return pCache ? pCache->tryGet(key) : pCacheDelta->tryGet(key);
 		}
 	}
 
 	model::NetworkIdentifier ReadOnlyAccountStateCache::networkIdentifier() const {
-		return nullptr != m_pCache ? m_pCache->networkIdentifier() : m_pCacheDelta->networkIdentifier();
+		return m_pCache ? m_pCache->networkIdentifier() : m_pCacheDelta->networkIdentifier();
 	}
 
 	uint64_t ReadOnlyAccountStateCache::importanceGrouping() const {
-		return nullptr != m_pCache ? m_pCache->importanceGrouping() : m_pCacheDelta->importanceGrouping();
+		return m_pCache ? m_pCache->importanceGrouping() : m_pCacheDelta->importanceGrouping();
 	}
 
 	size_t ReadOnlyAccountStateCache::size() const {
-		return nullptr != m_pCache ? m_pCache->size() : m_pCacheDelta->size();
+		return m_pCache ? m_pCache->size() : m_pCacheDelta->size();
 	}
 
 	bool ReadOnlyAccountStateCache::contains(const Address& address) const {

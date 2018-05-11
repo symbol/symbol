@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "tools/ToolMain.h"
 #include "catapult/model/FacilityCode.h"
 #include "catapult/utils/HexFormatter.h"
@@ -47,7 +67,7 @@ namespace catapult { namespace tools { namespace statusgen {
 				#include "../../plugins/txes/multisig/src/validators/Results.h"
 				#include "../../plugins/txes/namespace/src/validators/Results.h"
 				#include "../../plugins/txes/transfer/src/validators/Results.h"
-				#include "../../src/catapult/consumers/BlockChainProcessorResults.h"
+				#include "../../src/catapult/chain/ChainResults.h"
 				#include "../../src/catapult/consumers/ConsumerResults.h"
 				#include "../../src/catapult/extensions/Results.h"
 

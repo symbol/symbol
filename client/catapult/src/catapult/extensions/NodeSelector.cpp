@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NodeSelector.h"
 #include "catapult/ionet/NodeContainer.h"
 #include <random>
@@ -22,8 +42,8 @@ namespace catapult { namespace extensions {
 
 		struct ServiceNodesInfo {
 			NodeScorePairs Actives; // node to age pairs
-			NodeScorePairs Candidates; // node to weight pairs
-			uint32_t TotalCandidateWeight = 0;
+			WeightedCandidates Candidates; // candidate nodes with weight
+			uint64_t TotalCandidateWeight = 0;
 		};
 
 		ServiceNodesInfo FindServiceNodes(
@@ -42,7 +62,7 @@ namespace catapult { namespace extensions {
 					nodesInfo.Actives.emplace_back(node, pConnectionState->Age);
 				} else {
 					nodesInfo.Candidates.emplace_back(node, CalculateWeight(*pConnectionState) * weightMultiplier);
-					nodesInfo.TotalCandidateWeight += nodesInfo.Candidates.back().second;
+					nodesInfo.TotalCandidateWeight += nodesInfo.Candidates.back().Weight;
 				}
 			});
 
@@ -67,48 +87,20 @@ namespace catapult { namespace extensions {
 			return removeCandidates;
 		}
 
-		size_t FindCandidateIndex(const NodeScorePairs& nodePairs, const std::vector<bool>& usedNodeFlags, uint32_t selectedWeight) {
-			auto cumulativeWeight = 0u;
+		size_t FindCandidateIndex(const WeightedCandidates& candidates, const std::vector<bool>& usedNodeFlags, uint64_t selectedWeight) {
+			uint64_t cumulativeWeight = 0;
 			auto lastUnusedNodeIndex = 0u;
-			for (auto i = 0u; i < nodePairs.size(); ++i) {
+			for (auto i = 0u; i < candidates.size(); ++i) {
 				if (usedNodeFlags[i])
 					continue;
 
 				lastUnusedNodeIndex = i;
-				cumulativeWeight += nodePairs[i].second;
+				cumulativeWeight += candidates[i].Weight;
 				if (cumulativeWeight >= selectedWeight)
 					return i;
 			}
 
 			return lastUnusedNodeIndex;
-		}
-
-		ionet::NodeSet FindAddCandidates(const NodeScorePairs& nodePairs, uint32_t totalCandidateWeight, size_t maxCandidates) {
-			ionet::NodeSet addCandidates;
-
-			// if the number of nodes does not exceed `maxCandidates`, select all
-			if (nodePairs.size() <= maxCandidates) {
-				for (const auto& pair : nodePairs)
-					addCandidates.emplace(pair.first);
-
-				return addCandidates;
-			}
-
-			std::mt19937 generator((std::random_device()()));
-			auto generatorRange = generator.max() - generator.min();
-			std::vector<bool> usedNodeFlags(nodePairs.size(), false);
-			for (auto i = 0u; i < maxCandidates; ++i) {
-				// cast value to uint64_t to prevent multiplcation overflow below
-				auto randomValue = static_cast<uint64_t>(generator());
-				auto randomWeight = static_cast<uint32_t>(randomValue * totalCandidateWeight / generatorRange);
-				auto selectedIndex = FindCandidateIndex(nodePairs, usedNodeFlags, randomWeight);
-
-				addCandidates.emplace(nodePairs[selectedIndex].first);
-				totalCandidateWeight -= nodePairs[selectedIndex].second;
-				usedNodeFlags[selectedIndex] = true;
-			}
-
-			return addCandidates;
 		}
 	}
 
@@ -124,6 +116,38 @@ namespace catapult { namespace extensions {
 		return std::max<uint32_t>({ 1, weight, 1'000 / connectionState.NumFailures });
 	}
 
+	ionet::NodeSet SelectCandidatesBasedOnWeight(
+			const WeightedCandidates& candidates,
+			uint64_t totalCandidateWeight,
+			size_t maxCandidates) {
+		ionet::NodeSet addCandidates;
+
+		// if the number of nodes does not exceed `maxCandidates`, select all
+		if (candidates.size() <= maxCandidates) {
+			for (const auto& candidate : candidates)
+				addCandidates.emplace(candidate.Node);
+
+			return addCandidates;
+		}
+
+		std::mt19937 generator((std::random_device()()));
+		auto generatorRange = generator.max() - generator.min();
+		std::vector<bool> usedNodeFlags(candidates.size(), false);
+		for (auto i = 0u; i < maxCandidates; ++i) {
+			// cast value to uint64_t to prevent multiplcation overflow below
+			auto randomValue = static_cast<uint64_t>(generator());
+			auto randomWeight = static_cast<uint32_t>(randomValue * totalCandidateWeight / generatorRange);
+			auto index = FindCandidateIndex(candidates, usedNodeFlags, randomWeight);
+			auto& candidate = candidates[index];
+
+			addCandidates.emplace(candidate.Node);
+			totalCandidateWeight -= candidate.Weight;
+			usedNodeFlags[index] = true;
+		}
+
+		return addCandidates;
+	}
+
 	NodeSelectionResult SelectNodes(const ionet::NodeContainer& nodes, const NodeSelectionConfiguration& config) {
 		// 1. find compatible (service and role) nodes
 		NodeSelectionResult result;
@@ -137,7 +161,7 @@ namespace catapult { namespace extensions {
 		// 3. find add candidates
 		if (numActiveNodes < config.MaxConnections) {
 			auto maxAddCandidates = config.MaxConnections - numActiveNodes;
-			result.AddCandidates = FindAddCandidates(nodesInfo.Candidates, nodesInfo.TotalCandidateWeight, maxAddCandidates);
+			result.AddCandidates = SelectCandidatesBasedOnWeight(nodesInfo.Candidates, nodesInfo.TotalCandidateWeight, maxAddCandidates);
 			numActiveNodes += result.AddCandidates.size();
 		}
 

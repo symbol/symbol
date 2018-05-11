@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "PathUtils.h"
 #include <boost/log/attributes/constant.hpp>
@@ -32,10 +52,10 @@ namespace catapult { namespace utils {
 		/// Level for logging fatal events.
 		Fatal = boost::log::trivial::fatal,
 
-		/// The minimum log level.
+		/// Minimum log level.
 		Min = Trace,
 
-		/// The maximum log level.
+		/// Maximum log level.
 		Max = Fatal,
 	};
 
@@ -107,10 +127,10 @@ namespace catapult { namespace utils {
 				, ColorMode(LogColorMode::None)
 		{}
 
-		/// The log sink type.
+		/// Log sink type.
 		LogSinkType SinkType;
 
-		/// The log color mode.
+		/// Log color mode.
 		LogColorMode ColorMode;
 	};
 
@@ -122,19 +142,19 @@ namespace catapult { namespace utils {
 				, FilePattern(filePattern)
 		{}
 
-		/// The log directory.
+		/// Log directory.
 		std::string Directory;
 
-		/// The log filename pattern.
+		/// Log filename pattern.
 		std::string FilePattern;
 
-		/// The file rotation size.
+		/// File rotation size.
 		uint64_t RotationSize = 25u * 1024 * 1024;
 
-		/// The maximum size of all log files.
+		/// Maximum size of all log files.
 		uint64_t MaxTotalSize = 100u * 25 * 1024 * 1024;
 
-		/// The minimum size of free disk space in order to create log files.
+		/// Minimum size of free disk space in order to create log files.
 		uint64_t MinFreeSpace = 100u * 1024 * 1024;
 	};
 
@@ -252,9 +272,9 @@ namespace catapult { namespace utils {
 
 		/// Custom keywords that are used in associative arguments.
 		namespace keywords {
-			BOOST_PARAMETER_KEYWORD(tag, line);
-			BOOST_PARAMETER_KEYWORD(tag, file);
-			BOOST_PARAMETER_KEYWORD(tag, subcomponent);
+			BOOST_PARAMETER_KEYWORD(tag, line)
+			BOOST_PARAMETER_KEYWORD(tag, file)
+			BOOST_PARAMETER_KEYWORD(tag, subcomponent)
 		}
 
 		/// Traits for attaching a line number to a log record.
@@ -278,7 +298,7 @@ namespace catapult { namespace utils {
 			static constexpr auto Name = "Subcomponent";
 		};
 
-		/// The catapult logger type.
+		/// Catapult logger type.
 		class catapult_logger :
 				public boost::log::sources::basic_composite_logger<
 						char,

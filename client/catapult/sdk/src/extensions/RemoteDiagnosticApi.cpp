@@ -1,9 +1,29 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "RemoteDiagnosticApi.h"
 #include "catapult/api/RemoteRequestDispatcher.h"
 #include "catapult/handlers/DiagnosticHandlers.h"
-#include "catapult/ionet/Packet.h"
 #include "catapult/ionet/PacketEntityUtils.h"
 #include "catapult/ionet/PacketIo.h"
+#include "catapult/ionet/PacketPayloadFactory.h"
 
 namespace catapult { namespace extensions {
 
@@ -17,7 +37,7 @@ namespace catapult { namespace extensions {
 			static constexpr auto FriendlyName() { return "account infos"; }
 
 			static auto CreateRequestPacketPayload(model::AddressRange&& addresses) {
-				return ionet::PacketPayload::FromFixedSizeRange(PacketType(), std::move(addresses));
+				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(addresses));
 			}
 
 		public:
@@ -34,7 +54,7 @@ namespace catapult { namespace extensions {
 			static constexpr auto FriendlyName() { return "confirm timestamped hashes"; }
 
 			static auto CreateRequestPacketPayload(state::TimestampedHashRange&& timestampedHashes) {
-				return ionet::PacketPayload::FromFixedSizeRange(PacketType(), std::move(timestampedHashes));
+				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(timestampedHashes));
 			}
 
 		public:
@@ -85,7 +105,7 @@ namespace catapult { namespace extensions {
 			static constexpr auto FriendlyName() { return "namespace infos"; }
 
 			static auto CreateRequestPacketPayload(model::EntityRange<NamespaceId>&& namespaceIds) {
-				return ionet::PacketPayload::FromFixedSizeRange(PacketType(), std::move(namespaceIds));
+				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(namespaceIds));
 			}
 
 		public:
@@ -102,7 +122,7 @@ namespace catapult { namespace extensions {
 			static constexpr auto FriendlyName() { return "mosaic infos"; }
 
 			static auto CreateRequestPacketPayload(model::EntityRange<MosaicId>&& mosaicIds) {
-				return ionet::PacketPayload::FromFixedSizeRange(PacketType(), std::move(mosaicIds));
+				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(mosaicIds));
 			}
 
 		public:

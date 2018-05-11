@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/traits/Traits.h"
 #include "catapult/types.h"
 #include "tests/TestHarness.h"
@@ -11,72 +31,72 @@ namespace catapult { namespace utils {
 
 	namespace {
 		template<typename T>
-		void AssertIsScalar() {
+		void AssertIsScalar(size_t lineNumber) {
 			// Assert: both const and non const variants
-			EXPECT_TRUE(traits::is_scalar<T>::value);
-			EXPECT_TRUE(traits::is_scalar<const T>::value);
+			EXPECT_TRUE(traits::is_scalar<T>::value) << lineNumber;
+			EXPECT_TRUE(traits::is_scalar<const T>::value) << lineNumber;
 		}
 
 		template<typename T>
-		void AssertIsNotScalar() {
+		void AssertIsNotScalar(size_t lineNumber) {
 			// Assert: both const and non const variants
-			EXPECT_FALSE(traits::is_scalar<T>::value);
-			EXPECT_FALSE(traits::is_scalar<const T>::value);
+			EXPECT_FALSE(traits::is_scalar<T>::value) << lineNumber;
+			EXPECT_FALSE(traits::is_scalar<const T>::value) << lineNumber;
 		}
 
 		template<typename T>
-		void AssertIsPod() {
+		void AssertIsPod(size_t lineNumber) {
 			// Assert: both const and non const variants
-			EXPECT_TRUE(traits::is_pod<T>::value);
-			EXPECT_TRUE(traits::is_pod<const T>::value);
+			EXPECT_TRUE(traits::is_pod<T>::value) << lineNumber;
+			EXPECT_TRUE(traits::is_pod<const T>::value) << lineNumber;
 		}
 
 		template<typename T>
-		void AssertIsNotPod() {
+		void AssertIsNotPod(size_t lineNumber) {
 			// Assert: both const and non const variants
-			EXPECT_FALSE(traits::is_pod<T>::value);
-			EXPECT_FALSE(traits::is_pod<const T>::value);
+			EXPECT_FALSE(traits::is_pod<T>::value) << lineNumber;
+			EXPECT_FALSE(traits::is_pod<const T>::value) << lineNumber;
 		}
 	}
 
 	TEST(TEST_CLASS, IsScalarReturnsTrueOnlyForIntegralAndIntegralLikeTypes) {
 		// Assert:
 		// - basic and pointer types
-		AssertIsScalar<int>();
-		AssertIsScalar<void*>();
-		AssertIsNotScalar<std::shared_ptr<int>>();
-		AssertIsNotScalar<std::unique_ptr<int>>();
+		AssertIsScalar<int>(__LINE__);
+		AssertIsScalar<void*>(__LINE__);
+		AssertIsNotScalar<std::shared_ptr<int>>(__LINE__);
+		AssertIsNotScalar<std::unique_ptr<int>>(__LINE__);
 
 		// - catapult scalars
-		AssertIsScalar<Height>(); // well known base value
-		AssertIsScalar<Difficulty>(); // well known clamped base value
-		AssertIsScalar<BaseValue<short, void>>(); // arbitrary base value
-		AssertIsScalar<ClampedBaseValue<int32_t, void>>(); // arbitrary clamped base value
-		AssertIsScalar<ImmutableValue<uint64_t>>(); // arbitrary immutable value
+		AssertIsScalar<Height>(__LINE__); // well known base value
+		AssertIsScalar<Difficulty>(__LINE__); // well known clamped base value
+		AssertIsScalar<BaseValue<short, void>>(__LINE__); // arbitrary base value
+		AssertIsScalar<ClampedBaseValue<int32_t, void>>(__LINE__); // arbitrary clamped base value
+		AssertIsScalar<ImmutableValue<uint64_t>>(__LINE__); // arbitrary immutable value
 
 		// - compound types
-		AssertIsNotScalar<std::vector<int>>();
-		AssertIsNotScalar<std::array<unsigned char, 1>>();
+		AssertIsNotScalar<std::vector<int>>(__LINE__);
+		AssertIsNotScalar<std::array<unsigned char, 1>>(__LINE__);
 	}
 
 	TEST(TEST_CLASS, IsPodReturnsTrueOnlyForIntegralAndIntegralLikeTypes) {
 		// Assert:
 		// - basic and pointer types
-		AssertIsPod<int>();
-		AssertIsNotPod<void*>();
-		AssertIsNotPod<std::shared_ptr<int>>();
-		AssertIsNotPod<std::unique_ptr<int>>();
+		AssertIsPod<int>(__LINE__);
+		AssertIsNotPod<void*>(__LINE__);
+		AssertIsNotPod<std::shared_ptr<int>>(__LINE__);
+		AssertIsNotPod<std::unique_ptr<int>>(__LINE__);
 
 		// - catapult scalars
-		AssertIsPod<Height>(); // well known base value
-		AssertIsPod<Difficulty>(); // well known clamped base value
-		AssertIsPod<BaseValue<short, void>>(); // arbitrary base value
-		AssertIsPod<ClampedBaseValue<int32_t, void>>(); // arbitrary clamped base value
-		AssertIsPod<ImmutableValue<uint64_t>>(); // arbitrary immutable value
+		AssertIsPod<Height>(__LINE__); // well known base value
+		AssertIsPod<Difficulty>(__LINE__); // well known clamped base value
+		AssertIsPod<BaseValue<short, void>>(__LINE__); // arbitrary base value
+		AssertIsPod<ClampedBaseValue<int32_t, void>>(__LINE__); // arbitrary clamped base value
+		AssertIsPod<ImmutableValue<uint64_t>>(__LINE__); // arbitrary immutable value
 
 		// - compound types
-		AssertIsNotPod<std::vector<int>>();
-		AssertIsPod<std::array<unsigned char, 1>>();
+		AssertIsNotPod<std::vector<int>>(__LINE__);
+		AssertIsPod<std::array<unsigned char, 1>>(__LINE__);
 	}
 
 	// endregion

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/model/EntityBody.h"
 #include "tests/TestHarness.h"
 
@@ -9,12 +29,12 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanMakeVersionFromNetworkIdentifierAndEntityVersion) {
 		// Assert:
-		EXPECT_EQ(0x0000u, MakeVersion(NetworkIdentifier::Zero, 0u)); // zero version
-		EXPECT_EQ(0x9002u, MakeVersion(NetworkIdentifier::Mijin_Test, 2u)); // non zero version
-		EXPECT_EQ(0x6802u, MakeVersion(NetworkIdentifier::Public, 2u)); // vary network
-		EXPECT_EQ(0x9054u, MakeVersion(NetworkIdentifier::Mijin_Test, 0x54u)); // vary version
+		EXPECT_EQ(0x0000u, MakeVersion(NetworkIdentifier::Zero, 0)); // zero version
+		EXPECT_EQ(0x9002u, MakeVersion(NetworkIdentifier::Mijin_Test, 2)); // non zero version
+		EXPECT_EQ(0x6802u, MakeVersion(NetworkIdentifier::Public, 2)); // vary network
+		EXPECT_EQ(0x9054u, MakeVersion(NetworkIdentifier::Mijin_Test, 0x54)); // vary version
 
-		EXPECT_EQ(0xFF54u, MakeVersion(static_cast<NetworkIdentifier>(0xFF), 0x54u)); // max network
+		EXPECT_EQ(0xFF54u, MakeVersion(static_cast<NetworkIdentifier>(0xFF), 0x54)); // max network
 		EXPECT_EQ(0x90FFu, MakeVersion(NetworkIdentifier::Mijin_Test, 0xFFu)); // max version
 	}
 

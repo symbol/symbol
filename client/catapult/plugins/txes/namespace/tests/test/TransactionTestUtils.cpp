@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "TransactionTestUtils.h"
 #include "sdk/src/builders/MosaicDefinitionBuilder.h"
 #include "sdk/src/builders/RegisterNamespaceBuilder.h"
@@ -30,11 +50,11 @@ namespace catapult { namespace test {
 	}
 
 	std::string GenerateValidName(size_t size) {
-		constexpr auto Valid_Alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+		static constexpr auto Valid_Alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
 		auto alphabetLength = strlen(Valid_Alphabet);
 
 		std::string name(size, '\0');
-		std::generate(name.begin(), name.end(), [&Valid_Alphabet, alphabetLength]() {
+		std::generate(name.begin(), name.end(), [alphabetLength]() {
 			return Valid_Alphabet[test::Random() % alphabetLength];
 		});
 		return name;

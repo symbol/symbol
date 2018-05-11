@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "AddressTestUtils.h"
 #include "catapult/model/Cosignature.h"
@@ -11,7 +31,7 @@ namespace catapult { namespace test {
 	using ConstTransactions = std::vector<std::shared_ptr<const model::Transaction>>;
 	using MutableTransactions = std::vector<std::shared_ptr<model::Transaction>>;
 
-	/// The hash string of the deterministic transaction.
+	/// Hash string of the deterministic transaction.
 #ifdef SIGNATURE_SCHEME_NIS1
 	constexpr auto Deterministic_Transaction_Hash_String = "0A1201A72AC8E0E89898DE9CBA8951E21CA407A58AD13ED294E3FA5C4AEB6A39";
 #else
@@ -20,6 +40,9 @@ namespace catapult { namespace test {
 
 	/// Generates a transaction with random data.
 	std::unique_ptr<model::Transaction> GenerateRandomTransaction();
+
+	/// Generates a transaction with random data around \a signer.
+	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const Key& signer);
 
 	/// Generates \a count transactions with random data.
 	MutableTransactions GenerateRandomTransactions(size_t count);

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "NamespaceConstants.h"
 #include "NamespaceEntityType.h"
@@ -15,11 +35,7 @@ namespace catapult { namespace model {
 		using TransactionType = RegisterNamespaceTransactionBody<THeader>;
 
 	public:
-		/// Transaction format version.
-		static constexpr uint8_t Current_Version = 2;
-
-		/// Transaction type.
-		static constexpr EntityType Entity_Type = Entity_Type_Register_Namespace;
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Register_Namespace, 2)
 
 	public:
 		/// Creates a register namespace transaction body.
@@ -27,43 +43,33 @@ namespace catapult { namespace model {
 		RegisterNamespaceTransactionBody() {}
 
 	public:
-		/// The type of namespace being registered.
+		/// Type of the registered namespace.
 		model::NamespaceType NamespaceType;
 
 		union {
-			/// The id of a parent namespace.
+			/// Id of the parent namespace.
 			/// \note This field is only valid when NamespaceType is Child.
 			NamespaceId ParentId;
 
-			/// The number of blocks for which a namespace should be valid.
+			/// Number of blocks for which the namespace should be valid.
 			/// \note This field is only valid when NamespaceType is Root.
 			BlockDuration Duration;
 		};
 
-		/// The id of the namespace.
+		/// Id of the namespace.
 		/// \note This must match the generated id.
 		catapult::NamespaceId NamespaceId;
 
-		/// The size of a namespace name.
+		/// Size of the namespace name.
 		uint8_t NamespaceNameSize;
 
 		// followed by namespace name
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Name, uint8_t)
 
 	private:
 		template<typename T>
-		static auto NamePtrT(T& transaction) {
+		static auto* NamePtrT(T& transaction) {
 			return transaction.NamespaceNameSize ? THeader::PayloadStart(transaction) : nullptr;
-		}
-
-	public:
-		/// Returns a const pointer to the namespace part name.
-		const uint8_t* NamePtr() const {
-			return NamePtrT(*this);
-		}
-
-		/// Returns a pointer to the namespace part name.
-		uint8_t* NamePtr() {
-			return NamePtrT(*this);
 		}
 
 	public:

@@ -1,8 +1,29 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/cache/NamespaceCache.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
+#include "tests/test/cache/CachePruneTests.h"
 #include "tests/test/cache/DeltaElementsMixinTests.h"
 #include "tests/TestHarness.h"
 
@@ -14,7 +35,12 @@ namespace catapult { namespace cache {
 
 	namespace {
 		struct NamespaceCacheMixinTraits {
-			using CacheType = NamespaceCache;
+			class CacheType : public NamespaceCache {
+			public:
+				CacheType() : NamespaceCache(CacheConfiguration())
+				{}
+			};
+
 			using IdType = NamespaceId;
 			using ValueType = state::RootNamespaceHistory;
 
@@ -34,17 +60,21 @@ namespace catapult { namespace cache {
 				// RootNamespaceHistory does not move correctly with Key()
 				return state::RootNamespace(MakeId(id), Key{ { 1 } }, test::CreateLifetime(234, 321));
 			}
+
+			static state::RootNamespace CreateWithIdAndExpiration(uint8_t id, Height height) {
+				return state::RootNamespace(MakeId(id), Key{ { 1 } }, test::CreateLifetime(0, height.unwrap()));
+			}
 		};
 	}
 
-	DEFINE_CACHE_CONTAINS_TESTS(NamespaceCacheMixinTraits, ViewAccessor, _View);
-	DEFINE_CACHE_CONTAINS_TESTS(NamespaceCacheMixinTraits, DeltaAccessor, _Delta);
+	DEFINE_CACHE_CONTAINS_TESTS(NamespaceCacheMixinTraits, ViewAccessor, _View)
+	DEFINE_CACHE_CONTAINS_TESTS(NamespaceCacheMixinTraits, DeltaAccessor, _Delta)
 
-	DEFINE_CACHE_ITERATION_TESTS(NamespaceCacheMixinTraits, ViewAccessor, _View);
+	DEFINE_CACHE_ITERATION_TESTS(NamespaceCacheMixinTraits, ViewAccessor, _View)
 
-	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(NamespaceCacheMixinTraits, _Delta);
+	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(NamespaceCacheMixinTraits, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(NamespaceCacheMixinTraits,);
+	DEFINE_CACHE_BASIC_TESTS(NamespaceCacheMixinTraits,)
 
 	// (accessors and predicates have custom tests because they're depedent on multiple caches)
 
@@ -80,7 +110,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, DeepSizeRespectsRootHistory) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		{
 			// - insert root with 2 children, then renew root
 			auto delta = cache.createDelta();
@@ -103,9 +133,41 @@ namespace catapult { namespace cache {
 		test::AssertCacheSizes(*view, 1, 3, 6);
 	}
 
+	TEST(TEST_CLASS, DeepSizeDoubleCountsNewChildrenAddedToSubsequentRoots) {
+		// Arrange:
+		NamespaceCacheMixinTraits::CacheType cache;
+		{
+			// - insert root with 1 child
+			auto delta = cache.createDelta();
+			auto owner = test::CreateRandomOwner();
+			state::RootNamespace root(NamespaceId(123), owner, test::CreateLifetime(234, 321));
+			delta->insert(root);
+			delta->insert(state::Namespace(test::CreatePath({ 123, 127 })));
+
+			// - renew root and add another child
+			state::RootNamespace renewedRoot(NamespaceId(123), owner, test::CreateLifetime(345, 456));
+			delta->insert(renewedRoot);
+			delta->insert(state::Namespace(test::CreatePath({ 123, 128 })));
+
+			// - renew root again and add another child
+			state::RootNamespace renewedRoot2(NamespaceId(123), owner, test::CreateLifetime(567, 789));
+			delta->insert(renewedRoot2);
+			delta->insert(state::Namespace(test::CreatePath({ 123, 129 })));
+
+			// Assert: 3 roots x 3 children
+			test::AssertCacheSizes(*delta, 1, 4, 12);
+
+			cache.commit();
+		}
+
+		// Assert: 3 roots x 3 children
+		auto view = cache.createView();
+		test::AssertCacheSizes(*view, 1, 4, 12);
+	}
+
 	TEST(TEST_CLASS, DeepSizeReturnsExpectedSizeForRootWithoutChildren) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		{
 			// - insert root
 			auto delta = cache.createDelta();
@@ -126,7 +188,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, DeepSizeReturnsExpectedSizeForRootWithChildren) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		{
 			// - insert root
 			auto delta = cache.createDelta();
@@ -156,7 +218,7 @@ namespace catapult { namespace cache {
 			template<typename TAction>
 			static void RunTest(TAction action) {
 				// Arrange:
-				NamespaceCache cache;
+				NamespaceCacheMixinTraits::CacheType cache;
 				auto owner = test::CreateRandomOwner();
 				{
 					auto delta = cache.createDelta();
@@ -174,7 +236,7 @@ namespace catapult { namespace cache {
 			template<typename TAction>
 			static void RunTest(TAction action) {
 				// Arrange:
-				NamespaceCache cache;
+				NamespaceCacheMixinTraits::CacheType cache;
 				auto owner = test::CreateRandomOwner();
 				auto delta = cache.createDelta();
 				PopulateCache(delta, owner);
@@ -242,7 +304,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, ContainsReturnsTrueForChildrenOfPreviousRootWithSameOwner) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		PrepareCacheForMultiLevelRootChildrenSameOwner(cache);
 
 		// Assert: all children are contained
@@ -253,7 +315,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, ContainsReturnsFalseForChildrenOfPreviousRootWithDifferentOwner) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		PrepareCacheForMultiLevelRootChildrenDifferentOwner(cache);
 
 		// Assert: only children from the most recent root are contained
@@ -265,7 +327,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, ContainsReturnsTrueForChildrenOfPoppedRootWithSameOwner) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		PrepareCacheForMultiLevelRootChildrenSameOwner(cache);
 
 		// Act:
@@ -283,7 +345,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, ContainsReturnsFalseForChildrenOfPoppedRootWithDifferentOwner) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		PrepareCacheForMultiLevelRootChildrenDifferentOwner(cache);
 
 		// Act:
@@ -375,7 +437,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanInsertRoot) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespace root(NamespaceId(123), owner, test::CreateLifetime(234, 321));
@@ -390,7 +452,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRenewRoot) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespace root1(NamespaceId(123), owner, test::CreateLifetime(234, 321));
 		state::RootNamespace root2(NamespaceId(123), owner, test::CreateLifetime(345, 456));
@@ -415,7 +477,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, RenewingRootUpdatesChildNamespacesWithNewRoot) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespace originalRoot(NamespaceId(123), owner, test::CreateLifetime(234, 321));
 		state::RootNamespace newRoot(NamespaceId(123), owner, test::CreateLifetime(345, 456));
@@ -446,7 +508,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanInsertSingleChildIfRootIsKnown) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespace root(NamespaceId(123), owner, test::CreateLifetime(234, 321));
@@ -462,7 +524,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanAbandonInsertSingleChildIfRootIsKnown) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		{
 			// - add and commit a root
 			auto delta = cache.createDelta();
@@ -484,7 +546,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanInsertMultipleChildrenIfParentsAreKnown) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespace root1(NamespaceId(123), owner, test::CreateLifetime(234, 321));
@@ -506,7 +568,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CannotInsertChildIfParentIsUnknown) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		state::RootNamespace root(NamespaceId(123), owner, test::CreateLifetime(234, 321));
@@ -524,7 +586,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CannotRemoveUnknownNamespace) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		PopulateCache(delta, owner);
@@ -537,7 +599,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRemoveChildNamespace) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		PopulateCache(delta, owner);
@@ -559,7 +621,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanAbandonRemoveChildNamespace) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		{
 			// - populate the cache
 			auto delta = cache.createDelta();
@@ -580,7 +642,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRemoveRootNamespaceWithoutChildren) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		PopulateCache(delta, owner);
@@ -601,7 +663,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRemoveRootNamespaceWithChildrenIfHistoryDepthIsNotOne) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		PopulateCache(delta, owner);
@@ -622,7 +684,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, RemovingRootNamespaceIfHistoryDepthIsNotOneUpdatesChildNamespacesWithOldRoot) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		PopulateCache(delta, owner);
@@ -651,7 +713,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRemoveRootNamespaceWithoutChildrenIfHistoryDepthIsNotOne) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		PopulateCache(delta, owner);
@@ -675,7 +737,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CannotRemoveRootNamespaceWithChildrenIfHistoryDepthIsOne) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		auto owner = test::CreateRandomOwner();
 		PopulateCache(delta, owner);
@@ -693,11 +755,12 @@ namespace catapult { namespace cache {
 
 	// region prune
 
+	DEFINE_CACHE_PRUNE_TESTS(NamespaceCacheMixinTraits,)
+
 	namespace {
 		void SetupCacheForPruneTests(NamespaceCache& cache, const Key& rootOwner) {
-			// 10 roots with id i and lifetime (10 * i, 10 * (i + 1)) for i = 0, ..., 9
-			// each root has 2 children
-			constexpr size_t Root_Count = 10;
+			// 5 roots with id i and lifetime (10 * i, 10 * (i + 1)) for i = 0 ... 4 (each root has 2 children)
+			constexpr size_t Root_Count = 5;
 
 			auto delta = cache.createDelta();
 			for (auto i = 0u; i < Root_Count; ++i) {
@@ -705,9 +768,6 @@ namespace catapult { namespace cache {
 				delta->insert(state::Namespace(test::CreatePath({ i, 10 + i })));
 				delta->insert(state::Namespace(test::CreatePath({ i, 20 + i })));
 			}
-
-			// Sanity:
-			test::AssertCacheSizes(*delta, 10, 30, 30);
 
 			cache.commit();
 		}
@@ -721,130 +781,77 @@ namespace catapult { namespace cache {
 		}
 
 		void RenewDifferentOwner(NamespaceCache& cache, const Key& diffOwner) {
-			// renew namespace with id 9 having a different owner and add a child to it
+			// renew namespace with id 4 having a different owner and add a child to it
 			// note that since it is a different owner, the previous two children of the namespace are 'hidden'
 			// and are not counted in activeSize()
 			auto delta = cache.createDelta();
-			delta->insert(state::RootNamespace(NamespaceId(9), diffOwner, test::CreateLifetime(120, 130)));
-			delta->insert(state::Namespace(test::CreatePath({ 9, 39 })));
+			delta->insert(state::RootNamespace(NamespaceId(4), diffOwner, test::CreateLifetime(120, 130)));
+			delta->insert(state::Namespace(test::CreatePath({ 4, 34 })));
 			cache.commit();
 		}
 	}
 
-	TEST(TEST_CLASS, CanPruneEmptyNamespaceCache) {
+	TEST(TEST_CLASS, PruneRemovesExpiredNamespacesWhenHistoryDepthIsOne) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
+		auto owner = test::CreateRandomOwner();
+		SetupCacheForPruneTests(cache, owner);
 		auto delta = cache.createDelta();
 
 		// Sanity:
-		test::AssertCacheSizes(*delta, 0, 0, 0);
+		test::AssertCacheSizes(*delta, 5, 15, 15);
 
-		// Act: prune on empty cache does not throw
-		delta->prune(Height(123));
-
-		// Assert:
-		test::AssertCacheSizes(*delta, 0, 0, 0);
-	}
-
-	TEST(TEST_CLASS, PruneIsNoOpIfNoNamespaceHasExpired) {
-		// Arrange:
-		NamespaceCache cache;
-		auto owner = test::CreateRandomOwner();
-		SetupCacheForPruneTests(cache, owner);
-		auto delta = cache.createDelta();
-
-		// Act: first namespace expires at height 10
-		for (auto i = 0u; 10u > i; ++i)
-			delta->prune(Height(i));
-
-		// Assert: size has not changed
-		test::AssertCacheSizes(*delta, 10, 30, 30);
-	}
-
-	TEST(TEST_CLASS, PruneRemovesExpiredNamespacesWhenHistoryDepthIsOne) {
-		// Arrange:
-		NamespaceCache cache;
-		auto owner = test::CreateRandomOwner();
-		SetupCacheForPruneTests(cache, owner);
-		auto delta = cache.createDelta();
-
-		// Act: prune roots with id 0 - 6 and the associated children
-		delta->prune(Height(70));
+		// Act: prune root with id 2 and the associated children
+		delta->prune(Height(30));
 		cache.commit();
 
 		// Assert:
-		test::AssertCacheSizes(*delta, 3, 9, 9);
-		test::AssertCacheContents(cache, { 7, 8, 9, 17, 27, 18, 28, 19, 29 });
+		test::AssertCacheSizes(*delta, 4, 12, 12);
+		test::AssertCacheContents(cache, { 0, 10, 20, 1, 11, 21, 3, 13, 23, 4, 14, 24 });
 	}
 
 	TEST(TEST_CLASS, PruneRemovesExpiredNamespacesWhenHistoryDepthIsNotOne) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto owner = test::CreateRandomOwner();
 		SetupCacheForPruneTests(cache, owner);
 		RenewSameOwner(cache);
 		auto delta = cache.createDelta();
 
-		// Act: prune roots with id 1 - 6 and the associated children
-		//      note that only the old root with id 0 is pruned, all its children are protected by the newer version
-		delta->prune(Height(70));
+		// Sanity:
+		test::AssertCacheSizes(*delta, 5, 16, 20);
+
+		// Act: prune root with id 0 (note that only the old root 0 is pruned, all children are protected by the newer version)
+		delta->prune(Height(10));
 		cache.commit();
 
 		// Assert:
-		test::AssertCacheSizes(*delta, 4, 13, 13);
-		test::AssertCacheContents(cache, { 0, 7, 8, 9, 10, 20, 30, 17, 27, 18, 28, 19, 29 });
+		test::AssertCacheSizes(*delta, 5, 16, 16);
+		test::AssertCacheContents(cache, { 0, 10, 20, 30, 1, 11, 21, 2, 12, 22, 3, 13, 23, 4, 14, 24 });
 	}
 
 	TEST(TEST_CLASS, PruneRemovesChildrenOfOldExpiredRootWithDifferentOwner) {
 		// Arrange:
-		NamespaceCache cache;
+		NamespaceCacheMixinTraits::CacheType cache;
 		auto owner = test::CreateRandomOwner();
 		auto diffOwner = test::CreateRandomOwner();
 		SetupCacheForPruneTests(cache, owner);
 		RenewDifferentOwner(cache, diffOwner);
 		auto delta = cache.createDelta();
 
-		// Act: at height 120 all namespaces have expired except the renewed namespace with id 9.
-		//      note that the old root with id 9 had two children (which get pruned) and the renewed root has one child (which stays)
-		delta->prune(Height(120));
+		// Sanity:
+		test::AssertCacheSizes(*delta, 5, 14, 17);
+
+		// Act: prune all roots at their original expiration heights
+		//      the old root with id 4 had two children (that get pruned) and the renewed root has one child (that stays)
+		for (auto height = Height(10); height <= Height(50); height = height + Height(10))
+			delta->prune(height);
+
 		cache.commit();
 
 		// Assert:
 		test::AssertCacheSizes(*delta, 1, 2, 2);
-		test::AssertCacheContents(cache, { 9, 39 });
-	}
-
-	TEST(TEST_CLASS, CanPruneAllNamespaces) {
-		// Arrange:
-		NamespaceCache cache;
-		auto owner = test::CreateRandomOwner();
-		SetupCacheForPruneTests(cache, owner);
-		auto delta = cache.createDelta();
-
-		// Act: prune all roots
-		delta->prune(Height(1000));
-
-		// Assert:
-		test::AssertCacheSizes(*delta, 0, 0, 0);
-	}
-
-	TEST(TEST_CLASS, PruneIsIdempotent) {
-		// Arrange:
-		NamespaceCache cache;
-		auto owner = test::CreateRandomOwner();
-		SetupCacheForPruneTests(cache, owner);
-		auto delta = cache.createDelta();
-
-		// Act: prune roots with id 0 - 4 and the associated children
-		//      note that only the old root with id 0 is pruned, all its children are protected by the newer version
-		for (auto i = 0u; 10 > i; ++i)
-			delta->prune(Height(50));
-
-		cache.commit();
-
-		// Assert:
-		test::AssertCacheSizes(*delta, 5, 15, 15);
-		test::AssertCacheContents(cache, { 5, 6, 7, 8, 9, 15, 25, 16, 26, 17, 27, 18, 28, 19, 29 });
+		test::AssertCacheContents(cache, { 4, 34 });
 	}
 
 	// endregion

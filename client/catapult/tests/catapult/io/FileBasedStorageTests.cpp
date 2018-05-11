@@ -1,4 +1,25 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/io/FileBasedStorage.h"
+#include "tests/catapult/io/test/BlockStorageTestUtils.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
@@ -27,17 +48,8 @@ namespace catapult { namespace io {
 			}
 		};
 	}
-}}
 
-#define STORAGE_TESTS_CLASS_NAME TEST_CLASS
-#define STORAGE_TESTS_TRAITS_NAME FileBasedTraits
-
-#include "BlockStorageTests.h"
-
-#undef STORAGE_TESTS_TRAITS_NAME
-#undef STORAGE_TESTS_CLASS_NAME
-
-namespace catapult { namespace io {
+	DEFINE_BLOCK_STORAGE_TESTS(FileBasedTraits)
 
 	// these tests do not make sense for memory-based storage because blocks stored in memory-based storage
 	// do not persist across instances
@@ -45,7 +57,7 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, CanReadSavedBlockAcrossDifferentStorageInstances) {
 		// Arrange:
 		TempDirectoryGuard tempDir;
-		auto pBlock = CreateRandomBlock(Height(2));
+		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(Height(2));
 		auto element = test::BlockToBlockElement(*pBlock, test::GenerateRandomData<Hash256_Size>());
 		{
 			auto pStorage = FileBasedTraits::PrepareStorage(tempDir.name());
@@ -63,8 +75,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, CanReadMultipleSavedBlocksAcrossDifferentStorageInstances) {
 		// Arrange:
 		TempDirectoryGuard tempDir;
-		auto pBlock1 = CreateRandomBlock(Height(2));
-		auto pBlock2 = CreateRandomBlock(Height(3));
+		auto pBlock1 = test::GenerateBlockWithTransactionsAtHeight(Height(2));
+		auto pBlock2 = test::GenerateBlockWithTransactionsAtHeight(Height(3));
 		auto element1 = test::BlockToBlockElement(*pBlock1, test::GenerateRandomData<Hash256_Size>());
 		auto element2 = test::BlockToBlockElement(*pBlock2, test::GenerateRandomData<Hash256_Size>());
 		{
@@ -120,7 +132,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, PruneBlocksBefore_CanPruneAtHeightBeforeChainHeight) {
 		// Arrange:
-		auto pStorage = PrepareStorageWithBlocks<FileBasedTraits>(10);
+		auto pStorage = test::PrepareStorageWithBlocks<FileBasedTraits>(10);
 
 		// Act: prune will remove 2-7
 		pStorage->pruneBlocksBefore(Height(8));
@@ -132,7 +144,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, PruneBlocksBefore_CanPruneAtHeightEqualToChainHeight) {
 		// Arrange:
-		auto pStorage = PrepareStorageWithBlocks<FileBasedTraits>(10);
+		auto pStorage = test::PrepareStorageWithBlocks<FileBasedTraits>(10);
 
 		// Act: prune will remove 2-9
 		pStorage->pruneBlocksBefore(Height(10));
@@ -144,7 +156,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, PruneBlocksBefore_ThrowsAtHeightAfterChainHeight) {
 		// Arrange:
-		auto pStorage = PrepareStorageWithBlocks<FileBasedTraits>(5);
+		auto pStorage = test::PrepareStorageWithBlocks<FileBasedTraits>(5);
 
 		// Act + Assert:
 		EXPECT_THROW(pStorage->pruneBlocksBefore(Height(10)), catapult_invalid_argument);
@@ -152,7 +164,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, PruneBlocksStopsOnFirstNonexistentFile) {
 		// Arrange:
-		auto pStorage = PrepareStorageWithBlocks<FileBasedTraits>(10);
+		auto pStorage = test::PrepareStorageWithBlocks<FileBasedTraits>(10);
 		DeleteBlockFile(pStorage.pTempDirectoryGuard->name(), 4);
 
 		// Act: prune will remove 5, 6, 7

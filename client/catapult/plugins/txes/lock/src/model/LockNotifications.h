@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "LockTypes.h"
 #include "catapult/model/Mosaic.h"
@@ -41,7 +61,7 @@ namespace catapult { namespace model {
 	/// Notification of a hash lock mosaic.
 	struct HashLockMosaicNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Lock_Mosaic_Notification;
 
 	public:
@@ -52,7 +72,7 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The mosaic.
+		/// Locked mosaic.
 		model::Mosaic Mosaic;
 	};
 
@@ -67,14 +87,14 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The duration.
+		/// Lock duration.
 		BlockDuration Duration;
 	};
 
 	/// Notification of a hash lock duration
 	struct HashLockDurationNotification : public BaseLockDurationNotification<HashLockDurationNotification> {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Lock_Hash_Duration_Notification;
 
 	public:
@@ -84,7 +104,7 @@ namespace catapult { namespace model {
 	/// Notification of a secret lock duration
 	struct SecretLockDurationNotification : public BaseLockDurationNotification<SecretLockDurationNotification> {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Lock_Secret_Duration_Notification;
 
 	public:
@@ -94,7 +114,7 @@ namespace catapult { namespace model {
 	/// Notification of a secret lock hash algorithm.
 	struct SecretLockHashAlgorithmNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Lock_Hash_Algorithm_Notification;
 
 	public:
@@ -105,7 +125,7 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The hash algorithm.
+		/// Hash algorithm.
 		LockHashAlgorithm HashAlgorithm;
 	};
 
@@ -122,20 +142,20 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The signer.
+		/// Signer.
 		const Key& Signer;
 
-		/// The mosaic and amount.
+		/// Locked mosaic.
 		const model::Mosaic& Mosaic;
 
-		/// The duration.
+		/// Lock duration.
 		BlockDuration Duration;
 	};
 
 	/// Notification of a hash lock.
 	struct HashLockNotification : public BaseLockNotification<HashLockNotification> {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Lock_Hash_Notification;
 
 	public:
@@ -146,14 +166,14 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The hash.
+		/// Hash.
 		const Hash256& Hash;
 	};
 
 	/// Notification of a secret lock.
 	struct SecretLockNotification : public BaseLockNotification<SecretLockNotification> {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Lock_Secret_Notification;
 
 	public:
@@ -172,20 +192,20 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The hash algorithm.
+		/// Hash algorithm.
 		LockHashAlgorithm HashAlgorithm;
 
-		/// The secret.
+		/// Secret.
 		const Hash512& Secret;
 
-		/// The recipient of the locked mosaic.
+		/// Recipient of the locked mosaic.
 		const Address& Recipient;
 	};
 
 	/// Notification of a secret and its proof.
 	struct ProofSecretNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Lock_Proof_Secret_Notification;
 
 	public:
@@ -198,20 +218,20 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The hash algorithm.
+		/// Hash algorithm.
 		LockHashAlgorithm HashAlgorithm;
 
-		/// The secret.
+		/// Secret.
 		const Hash512& Secret;
 
-		/// The proof.
+		/// Proof.
 		RawBuffer Proof;
 	};
 
 	/// Notification of a proof publication.
 	struct ProofPublicationNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Lock_Proof_Publication_Notification;
 
 	public:
@@ -224,13 +244,13 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The signer.
+		/// Signer.
 		const Key& Signer;
 
-		/// The hash algorithm.
+		/// Hash algorithm.
 		LockHashAlgorithm HashAlgorithm;
 
-		/// The secret.
+		/// Secret.
 		const Hash512& Secret;
 	};
 }}

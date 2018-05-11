@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/thread/IoServiceThreadPool.h"
 #include "catapult/ionet/IoTypes.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
@@ -138,7 +158,7 @@ namespace catapult { namespace thread {
 
 		// - post 100 work items on the pool
 		std::atomic<uint32_t> numHandlerCalls(0);
-		for (auto i = 0u; i < 100u; ++i)
+		for (auto i = 0u; i < 100; ++i)
 			pPool->service().post([&]() { ++numHandlerCalls; });
 
 		// Act: stop the pool
@@ -163,7 +183,7 @@ namespace catapult { namespace thread {
 
 			// - cause one work item to except
 			std::atomic<uint32_t> numHandlerCalls(0);
-			for (auto i = 0u; i < 10u; ++i) {
+			for (auto i = 0u; i < 10; ++i) {
 				pPool->service().post([&]() {
 					if (7u == ++numHandlerCalls)
 						CATAPULT_THROW_RUNTIME_ERROR("exception from thread pool thread");

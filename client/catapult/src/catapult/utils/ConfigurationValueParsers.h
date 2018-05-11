@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "Logging.h"
 #include "catapult/types.h"
@@ -13,21 +33,6 @@ namespace catapult {
 }
 
 namespace catapult { namespace utils {
-
-	/// Tries to parse \a str into an enum value (\a parsedValue) given a mapping of strings to values
-	/// (\a stringToValueMapping).
-	template<typename T, size_t N>
-	bool TryParseEnumValue(const std::array<std::pair<const char*, T>, N>& stringToValueMapping, const std::string& str, T& parsedValue) {
-		auto iter = std::find_if(stringToValueMapping.cbegin(), stringToValueMapping.cend(), [&str](const auto& pair) {
-			return pair.first == str;
-		});
-
-		if (stringToValueMapping.cend() == iter)
-			return false;
-
-		parsedValue = iter->second;
-		return true;
-	}
 
 	/// Tries to parse \a str into a log level (\a parsedValue).
 	bool TryParseValue(const std::string& str, LogLevel& parsedValue);
@@ -75,4 +80,41 @@ namespace catapult { namespace utils {
 	/// Tries to parse \a str into a set of strings (\a parsedValue).
 	/// \note \a str is expected to be comma separated
 	bool TryParseValue(const std::string& str, std::unordered_set<std::string>& parsedValue);
+
+	/// Tries to parse \a str into an enum value (\a parsedValue) given a mapping of strings to values (\a stringToValueMapping).
+	template<typename T, size_t N>
+	bool TryParseEnumValue(const std::array<std::pair<const char*, T>, N>& stringToValueMapping, const std::string& str, T& parsedValue) {
+		auto iter = std::find_if(stringToValueMapping.cbegin(), stringToValueMapping.cend(), [&str](const auto& pair) {
+			return pair.first == str;
+		});
+
+		if (stringToValueMapping.cend() == iter)
+			return false;
+
+		parsedValue = iter->second;
+		return true;
+	}
+
+	/// Tries to parse \a str into a bitwise enum value (\a parsedValue) given a mapping of strings to values (\a stringToValueMapping).
+	template<typename T, size_t N>
+	bool TryParseBitwiseEnumValue(
+			const std::array<std::pair<const char*, T>, N>& stringToValueMapping,
+			const std::string& str,
+			T& parsedValues) {
+		std::unordered_set<std::string> parts;
+		if (!TryParseValue(str, parts))
+			return false;
+
+		T values = static_cast<T>(0);
+		for (const auto& part : parts) {
+			T value;
+			if (!TryParseEnumValue(stringToValueMapping, part, value))
+				return false;
+
+			values |= value;
+		}
+
+		parsedValues = values;
+		return true;
+	}
 }}

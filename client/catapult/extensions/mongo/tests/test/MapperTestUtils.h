@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "mongo/src/mappers/MapperInclude.h"
 #include "catapult/utils/Casting.h"
@@ -111,13 +131,14 @@ namespace catapult { namespace test {
 	/// Verifies that model \a block is equal to db block (\a dbBlock).
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock);
 
-	/// Verifies that \a hash, \a generationHash, \a totalFee and \a numTransactions match
+	/// Verifies that \a hash, \a generationHash, \a totalFee, \a numTransactions and \a merkleTree match
 	/// block metadata (\a dbBlockMetadata) in db.
 	void AssertEqualBlockMetadata(
 			const Hash256& hash,
 			const Hash256& generationHash,
 			Amount totalFee,
 			int32_t numTransactions,
+			const std::vector<Hash256>& merkleTree,
 			const bsoncxx::document::view& dbBlockMetadata);
 
 	/// Verifies that db account (\a dbAccount) and model \a accountState are equivalent.

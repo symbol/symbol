@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/ionet/PacketHandlers.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/TestHarness.h"
@@ -60,6 +80,7 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		EXPECT_FALSE(context.hasResponse());
+
 		EXPECT_EQ(key, context.key());
 		EXPECT_EQ("alice.com", context.host());
 	}
@@ -80,34 +101,77 @@ namespace catapult { namespace ionet {
 		ServerPacketHandlerContext context(key, host);
 
 		// Act:
-		context.response(pPacket);
+		context.response(PacketPayload(pPacket));
 
 		// Assert:
 		EXPECT_TRUE(context.hasResponse());
 		test::AssertPacketPayload(*pPacket, context.response());
+
 		EXPECT_EQ(key, context.key());
 		EXPECT_EQ("alice.com", context.host());
 	}
 
-	TEST(TEST_CLASS, ServerPacketHandlerContextCannotHaveMultipleResponsesSet) {
+	TEST(TEST_CLASS, ServerPacketHandlerContextCannotChangeExplicitlySetResponse) {
 		// Arrange:
 		auto pPacket = CreateSharedPacket<Packet>(25);
 		auto context = CreateDefaultContext();
-		context.response(pPacket);
+		context.response(PacketPayload(pPacket));
 
 		// Act + Assert:
-		EXPECT_THROW(context.response(pPacket), catapult_runtime_error);
+		EXPECT_THROW(context.response(PacketPayload(pPacket)), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, ServerPacketHandlerContextHasResponseWhenExplicitlyUnset) {
+		// Arrange:
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto host = std::string("alice.com");
+		ServerPacketHandlerContext context(key, host);
+
+		// Act:
+		context.response(PacketPayload());
+
+		// Assert:
+		EXPECT_TRUE(context.hasResponse());
+		test::AssertPacketPayloadUnset(context.response());
+
+		EXPECT_EQ(key, context.key());
+		EXPECT_EQ("alice.com", context.host());
+	}
+
+	TEST(TEST_CLASS, ServerPacketHandlerContextCannotChangeExplicitlyUnsetResponse) {
+		// Arrange:
+		auto context = CreateDefaultContext();
+		context.response(PacketPayload());
+
+		// Act + Assert:
+		EXPECT_THROW(context.response(PacketPayload()), catapult_runtime_error);
 	}
 
 	// endregion
 
-	TEST(TEST_CLASS, HandlersAreInitiallyEmpty) {
+	// region constructor
+
+	TEST(TEST_CLASS, CanCreateHandlersWithDefaultOptions) {
 		// Act:
 		PacketHandlers handlers;
 
 		// Assert:
 		EXPECT_EQ(0u, handlers.size());
+		EXPECT_EQ(0xFFFF'FFFFu, handlers.maxPacketDataSize());
 	}
+
+	TEST(TEST_CLASS, CanCreateHandlersWithCustomOptions) {
+		// Act:
+		PacketHandlers handlers(45'987);
+
+		// Assert:
+		EXPECT_EQ(0u, handlers.size());
+		EXPECT_EQ(45'987u, handlers.maxPacketDataSize());
+	}
+
+	// endregion
+
+	// region registerHandler
 
 	TEST(TEST_CLASS, CanAddSingleHandler) {
 		// Act:
@@ -137,6 +201,8 @@ namespace catapult { namespace ionet {
 		// Act + Assert:
 		EXPECT_THROW(RegisterHandler(handlers, 1), catapult_runtime_error);
 	}
+
+	// endregion
 
 	// region canProcess
 
@@ -298,7 +364,7 @@ namespace catapult { namespace ionet {
 			handlers.registerHandler(static_cast<PacketType>(i), [i, &numCallbackCalls](const auto&, auto& context) {
 				auto pResponsePacket = CreateSharedPacket<Packet>();
 				pResponsePacket->Type = static_cast<PacketType>(0xFF ^ (1 << i));
-				context.response(pResponsePacket);
+				context.response(PacketPayload(pResponsePacket));
 				++numCallbackCalls;
 			});
 		}

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/cache/MosaicCacheStorage.h"
 #include "src/state/MosaicLevy.h"
 #include "tests/test/MosaicCacheTestUtils.h"
@@ -185,26 +205,48 @@ namespace catapult { namespace cache {
 			// - supply
 			EXPECT_EQ(supply, entry.supply()) << message;
 		}
+
+		struct LoadTraits {
+			static void AssertCannotLoad(io::InputStream& inputStream) {
+				// Assert:
+				EXPECT_THROW(MosaicCacheStorage::Load(inputStream), catapult_runtime_error);
+			}
+
+			static void AssertCanLoadWithDepthOne(io::InputStream& inputStream, const Key& owner);
+			static void AssertCanLoadWithDepthGreaterThanOne(io::InputStream& inputStream, const Key& owner1, const Key& owner2);
+		};
+
+		struct LoadIntoTraits {
+			static void AssertCannotLoad(io::InputStream& inputStream) {
+				// Assert:
+				MosaicCache cache(CacheConfiguration{});
+				auto delta = cache.createDelta();
+				EXPECT_THROW(MosaicCacheStorage::LoadInto(inputStream, *delta), catapult_runtime_error);
+			}
+
+			static void AssertCanLoadWithDepthOne(io::InputStream& inputStream, const Key& owner);
+			static void AssertCanLoadWithDepthGreaterThanOne(io::InputStream& inputStream, const Key& owner1, const Key& owner2);
+		};
 	}
 
-	TEST(TEST_CLASS, CannotLoadEmptyHistory) {
-		// Arrange:
-		MosaicCache cache;
-		auto delta = cache.createDelta();
+#define LOAD_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Load) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LoadTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_LoadInto) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LoadIntoTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
+	LOAD_TEST(CannotLoadEmptyHistory) {
+		// Arrange:
 		std::vector<uint8_t> buffer(sizeof(MosaicHistoryHeader));
 		reinterpret_cast<MosaicHistoryHeader&>(*buffer.data()) = { NamespaceId(987), MosaicId(123), 0 };
-		mocks::MockMemoryStream stream("", buffer);
+		mocks::MockMemoryStream inputStream("", buffer);
 
 		// Act + Assert:
-		EXPECT_THROW(MosaicCacheStorage::Load(stream, *delta), catapult_runtime_error);
+		TTraits::AssertCannotLoad(inputStream);
 	}
 
-	TEST(TEST_CLASS, CanLoadHistoryWithDepthOne) {
+	LOAD_TEST(CanLoadHistoryWithDepthOne) {
 		// Arrange:
-		MosaicCache cache;
-		auto delta = cache.createDelta();
-
 		auto owner = test::GenerateRandomData<Key_Size>();
 		std::vector<uint8_t> buffer(sizeof(MosaicHistoryHeader) + sizeof(MosaicEntryHeader));
 		reinterpret_cast<MosaicHistoryHeader&>(*buffer.data()) = { NamespaceId(987), MosaicId(123), 1 };
@@ -212,21 +254,39 @@ namespace catapult { namespace cache {
 		reinterpret_cast<MosaicEntryHeader&>(*(buffer.data() + offset)) = { Height(222), owner, { { 9, 8, 7 } }, Amount(786) };
 		mocks::MockMemoryStream stream("", buffer);
 
-		// Act:
-		MosaicCacheStorage::Load(stream, *delta);
-
-		// Assert:
-		test::AssertCacheSizes(*delta, 1, 1);
-
-		ASSERT_TRUE(delta->contains(MosaicId(123)));
-		AssertMosaicEntry(delta->get(MosaicId(123)), NamespaceId(987), Height(222), owner, { { 9, 8, 7 } }, Amount(786));
+		// Act + Assert:
+		TTraits::AssertCanLoadWithDepthOne(stream, owner);
 	}
 
-	TEST(TEST_CLASS, CanLoadHistoryWithDepthGreaterThanOne) {
-		// Arrange:
-		MosaicCache cache;
-		auto delta = cache.createDelta();
+	namespace {
+		void LoadTraits::AssertCanLoadWithDepthOne(io::InputStream& inputStream, const Key& owner) {
+			// Act:
+			auto history = MosaicCacheStorage::Load(inputStream);
 
+			// Assert:
+			ASSERT_EQ(1u, history.historyDepth());
+
+			AssertMosaicEntry(history.back(), NamespaceId(987), Height(222), owner, { { 9, 8, 7 } }, Amount(786));
+		}
+
+		void LoadIntoTraits::AssertCanLoadWithDepthOne(io::InputStream& inputStream, const Key& owner) {
+			// Act:
+			MosaicCache cache(CacheConfiguration{});
+			auto delta = cache.createDelta();
+			MosaicCacheStorage::LoadInto(inputStream, *delta);
+			cache.commit();
+
+			// Assert:
+			auto view = cache.createView();
+			test::AssertCacheSizes(*view, 1, 1);
+
+			ASSERT_TRUE(view->contains(MosaicId(123)));
+			AssertMosaicEntry(view->get(MosaicId(123)), NamespaceId(987), Height(222), owner, { { 9, 8, 7 } }, Amount(786));
+		}
+	}
+
+	LOAD_TEST(CanLoadHistoryWithDepthGreaterThanOne) {
+		// Arrange:
 		auto owner1 = test::GenerateRandomData<Key_Size>();
 		auto owner2 = test::GenerateRandomData<Key_Size>();
 		std::vector<uint8_t> buffer(sizeof(MosaicHistoryHeader) + 3 * sizeof(MosaicEntryHeader));
@@ -239,24 +299,53 @@ namespace catapult { namespace cache {
 		reinterpret_cast<MosaicEntryHeader&>(*(buffer.data() + offset)) = { Height(456), owner1, { { 1, 2, 4 } }, Amount(645) };
 		mocks::MockMemoryStream stream("", buffer);
 
-		// Act:
-		MosaicCacheStorage::Load(stream, *delta);
+		// Act + Assert:
+		TTraits::AssertCanLoadWithDepthGreaterThanOne(stream, owner1, owner2);
+	}
 
-		// Assert:
-		test::AssertCacheSizes(*delta, 1, 3);
+	namespace {
+		void LoadTraits::AssertCanLoadWithDepthGreaterThanOne(io::InputStream& inputStream, const Key& owner1, const Key& owner2) {
+			// Act:
+			auto history = MosaicCacheStorage::Load(inputStream);
 
-		ASSERT_TRUE(delta->contains(MosaicId(123)));
-		AssertMosaicEntry(delta->get(MosaicId(123)), NamespaceId(987), Height(456), owner1, { { 1, 2, 4 } }, Amount(645));
+			// Assert:
+			ASSERT_EQ(3u, history.historyDepth());
 
-		// - check history (one back)
-		delta->remove(MosaicId(123));
-		test::AssertCacheSizes(*delta, 1, 2);
-		AssertMosaicEntry(delta->get(MosaicId(123)), NamespaceId(987), Height(321), owner2, { { 2, 5, 7 } }, Amount(999));
+			AssertMosaicEntry(history.back(), NamespaceId(987), Height(456), owner1, { { 1, 2, 4 } }, Amount(645));
 
-		// - check history (two back)
-		delta->remove(MosaicId(123));
-		test::AssertCacheSizes(*delta, 1, 1);
-		AssertMosaicEntry(delta->get(MosaicId(123)), NamespaceId(987), Height(222), owner1, { { 9, 8, 7 } }, Amount(786));
+			// - check history (one back)
+			history.pop_back();
+			AssertMosaicEntry(history.back(), NamespaceId(987), Height(321), owner2, { { 2, 5, 7 } }, Amount(999));
+
+			// - check history (two back)
+			history.pop_back();
+			AssertMosaicEntry(history.back(), NamespaceId(987), Height(222), owner1, { { 9, 8, 7 } }, Amount(786));
+		}
+
+		void LoadIntoTraits::AssertCanLoadWithDepthGreaterThanOne(io::InputStream& inputStream, const Key& owner1, const Key& owner2) {
+			// Act:
+			MosaicCache cache(CacheConfiguration{});
+			auto delta = cache.createDelta();
+			MosaicCacheStorage::LoadInto(inputStream, *delta);
+			cache.commit();
+
+			// Assert:
+			auto view = cache.createView();
+			test::AssertCacheSizes(*view, 1, 3);
+
+			ASSERT_TRUE(view->contains(MosaicId(123)));
+			AssertMosaicEntry(view->get(MosaicId(123)), NamespaceId(987), Height(456), owner1, { { 1, 2, 4 } }, Amount(645));
+
+			// - check history (one back)
+			delta->remove(MosaicId(123));
+			test::AssertCacheSizes(*delta, 1, 2);
+			AssertMosaicEntry(delta->get(MosaicId(123)), NamespaceId(987), Height(321), owner2, { { 2, 5, 7 } }, Amount(999));
+
+			// - check history (two back)
+			delta->remove(MosaicId(123));
+			test::AssertCacheSizes(*delta, 1, 1);
+			AssertMosaicEntry(delta->get(MosaicId(123)), NamespaceId(987), Height(222), owner1, { { 9, 8, 7 } }, Amount(786));
+		}
 	}
 
 	// endregion

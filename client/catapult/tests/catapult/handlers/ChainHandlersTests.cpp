@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/handlers/ChainHandlers.h"
 #include "catapult/api/ChainPackets.h"
 #include "catapult/model/BlockUtils.h"
@@ -43,9 +63,8 @@ namespace catapult { namespace handlers {
 				action(counters);
 
 				// - if the callback was called, context should have been forwarded along with the range
-				if (!counters.empty()) {
+				if (!counters.empty())
 					EXPECT_EQ(sourcePublicKey, capturedSourcePublicKey);
-				}
 			}
 		}
 	}
@@ -72,7 +91,7 @@ namespace catapult { namespace handlers {
 	namespace {
 		// use variable-sized blocks in tests
 		constexpr uint32_t GetBlockSizeAtHeight(Height height) {
-			return static_cast<uint32_t>(sizeof(model::Block) + height.unwrap() * 100u);
+			return static_cast<uint32_t>(sizeof(model::Block) + height.unwrap() * 100);
 		}
 
 		uint32_t GetSumBlockSizesAtHeights(const std::vector<Height>& heights) {

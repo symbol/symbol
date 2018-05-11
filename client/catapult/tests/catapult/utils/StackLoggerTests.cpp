@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #ifdef __clang__
 // workaround for https://llvm.org/bugs/show_bug.cgi?id=25230
 #pragma GCC visibility push(default)
@@ -39,8 +59,8 @@ namespace catapult { namespace utils {
 		auto elapsedMillis2 = stackLogger.millis();
 
 		// Assert:
-		EXPECT_GT(elapsedMillis1, 0u);
-		EXPECT_GT(elapsedMillis2, elapsedMillis1);
+		EXPECT_LE(0u, elapsedMillis1);
+		EXPECT_LE(elapsedMillis1, elapsedMillis2);
 	}
 
 	namespace {
@@ -106,7 +126,7 @@ namespace catapult { namespace utils {
 			if (2u != records.size())
 				return true; // test will fail due to previous EXPECT_EQ
 
-			EXPECT_EQ("<warning> (utils::StackLogger.h@17) pushing scope 'test'", records[0].Message);
+			EXPECT_EQ("<warning> (utils::StackLogger.h@37) pushing scope 'test'", records[0].Message);
 
 			auto elapsedMillis = ParseElapsedMillis(records[1].Message);
 			if (!IsWithinSleepEpsilonRange(elapsedMillis)) {
@@ -115,7 +135,7 @@ namespace catapult { namespace utils {
 			}
 
 			auto elapsedMillisString = " (" + std::to_string(elapsedMillis) + "ms)";
-			EXPECT_EQ("<warning> (utils::StackLogger.h@27) popping scope 'test'" + elapsedMillisString, records[1].Message);
+			EXPECT_EQ("<warning> (utils::StackLogger.h@47) popping scope 'test'" + elapsedMillisString, records[1].Message);
 			return true;
 		});
 	}

@@ -186,6 +186,9 @@ class ExtensionRules:
             return sortedIncludes[0].include
         if fullPath in EXTENSION_FIRSTINCLUDES:
             return '"{}"'.format(EXTENSION_FIRSTINCLUDES[fullPath])
+        elif 'filters' in pathElements and 'timesync' in pathElements:
+            return '"SynchronizationFilters.h"'
+
         return '"{}.h"'.format(pathElements[-1][:-4])
 
     @staticmethod
@@ -195,6 +198,8 @@ class ExtensionRules:
             fullPath = '/'.join(pathElements)
             if fullPath in EXTENSION_FIRSTINCLUDES:
                 return '"{}"'.format(EXTENSION_FIRSTINCLUDES[fullPath])
+            elif 'filters' in pathElements and 'timesync' in pathElements:
+                return '"timesync/src/filters/SynchronizationFilters.h"'
 
             testsId = pathElements.index('tests')
             if 'int' in pathElements and pathElements.index('int') == testsId + 1:

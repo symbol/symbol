@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/HexFormatter.h"
 #include "tests/TestHarness.h"
 #include <array>
@@ -12,12 +32,14 @@ namespace catapult { namespace utils {
 			// Act:
 			std::ostringstream out;
 			out << HexFormat(value);
-			std::string actual = out.str();
+			auto actual = out.str();
 
 			// Assert:
 			EXPECT_EQ(expected, actual);
 		}
 	}
+
+	// region integral types
 
 	TEST(TEST_CLASS, CanFormatByteIntegralType) {
 		// Assert:
@@ -42,6 +64,10 @@ namespace catapult { namespace utils {
 		AssertHexString("24C8135787645623", 0x24C8135787645623);
 		AssertHexString("0024C81357876456", 0x0024C81357876456);
 	}
+
+	// endregion
+
+	// region base value types
 
 	TEST(TEST_CLASS, CanFormatByteBaseValueType) {
 		// Arrange:
@@ -77,6 +103,10 @@ namespace catapult { namespace utils {
 		AssertHexString("0808", TestValue(0x0808));
 	}
 
+	// endregion
+
+	// region enum types
+
 	TEST(TEST_CLASS, CanFormatByteEnumType) {
 		// Arrange:
 		enum class TestByteEnum : int8_t {};
@@ -94,6 +124,10 @@ namespace catapult { namespace utils {
 		AssertHexString("24C8135787645623", static_cast<TestLongEnum>(0x24C8135787645623));
 		AssertHexString("0024C81357876456", static_cast<TestLongEnum>(0x0024C81357876456));
 	}
+
+	// endregion
+
+	// region packed struct types
 
 	TEST(TEST_CLASS, CanFormatArbitraryStruct) {
 		// Arrange:
@@ -116,6 +150,34 @@ namespace catapult { namespace utils {
 		AssertHexString("4376783581B5A3", foo);
 	}
 
+	// endregion
+
+	// region integral types with explicit size
+
+	TEST(TEST_CLASS, CanFormatNibbleIntegralType) {
+		// Act:
+		std::ostringstream out;
+		out << IntegralHexFormatter<uint8_t, 0>(0x0C);
+		auto actual = out.str();
+
+		// Assert:
+		EXPECT_EQ("C", actual);
+	}
+
+	TEST(TEST_CLASS, CanFormatIntegralTypeWithExplicitSize) {
+		// Act:
+		std::ostringstream out;
+		out << IntegralHexFormatter<uint16_t, 3>(0xABCD);
+		auto actual = out.str();
+
+		// Assert:
+		EXPECT_EQ("00ABCD", actual);
+	}
+
+	// endregion
+
+	// region leakage
+
 	TEST(TEST_CLASS, IntegralFormattingChangesDoNotLeak) {
 		// Arrange:
 		std::ostringstream out;
@@ -124,11 +186,15 @@ namespace catapult { namespace utils {
 
 		// Act:
 		out << std::setw(4) << 121 << " " << HexFormat(0x1237B9) << " " << std::setw(4) << 625;
-		std::string actual = out.str();
+		auto actual = out.str();
 
 		// Assert:
 		EXPECT_EQ("~121 001237B9 ~625", actual);
 	}
+
+	// endregion
+
+	// region container types
 
 	namespace {
 		template<typename THexFormat>
@@ -136,7 +202,7 @@ namespace catapult { namespace utils {
 			// Act:
 			std::ostringstream out;
 			out << hexFormat;
-			std::string actual = out.str();
+			auto actual = out.str();
 
 			// Assert:
 			EXPECT_EQ(expected, actual);
@@ -229,9 +295,11 @@ namespace catapult { namespace utils {
 		// Act:
 		auto container = std::vector<short>{ 0x2468, 0x0024, 0x765A };
 		out << std::setw(4) << 121 << " " << TTraits::Format(container) << " " << std::setw(4) << 625;
-		std::string actual = out.str();
+		auto actual = out.str();
 
 		// Assert:
 		EXPECT_EQ("~121 24680024765A ~625", actual);
 	}
+
+	// endregion
 }}

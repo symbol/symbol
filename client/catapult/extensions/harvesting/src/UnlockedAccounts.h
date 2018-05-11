@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/crypto/KeyPair.h"
@@ -7,17 +27,17 @@
 namespace catapult { namespace harvesting {
 
 #define UNLOCKED_ACCOUNTS_ADD_RESULT_LIST \
-	/* The account was successfully unlocked (it might have already been unlocked). */ \
+	/* Account was successfully unlocked (it might have already been unlocked). */ \
 	ENUM_VALUE(Success) \
 	\
-	/* The account could not be unlocked because it is ineligible for harvesting. */ \
+	/* Account could not be unlocked because it is ineligible for harvesting. */ \
 	ENUM_VALUE(Failure_Harvesting_Ineligible) \
 	\
-	/* The account could not be unlocked because it is blocked from harvesting. */ \
+	/* Account could not be unlocked because it is blocked from harvesting. */ \
 	ENUM_VALUE(Failure_Harvesting_Blocked) \
 	\
-	/* The account could not be unlocked because limit on the server has been hit. */ \
-	ENUM_VALUE(Failure_Server_Limit) \
+	/* Account could not be unlocked because limit on the server has been hit. */ \
+	ENUM_VALUE(Failure_Server_Limit)
 
 #define ENUM_VALUE(LABEL) LABEL,
 	/// Possible results of an add (unlock) operation.

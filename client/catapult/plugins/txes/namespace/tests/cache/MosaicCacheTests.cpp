@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/cache/MosaicCache.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/MosaicTestUtils.h"
@@ -15,7 +35,12 @@ namespace catapult { namespace cache {
 
 	namespace {
 		struct MosaicCacheMixinTraits {
-			using CacheType = MosaicCache;
+			class CacheType : public MosaicCache {
+			public:
+				CacheType() : MosaicCache(CacheConfiguration())
+				{}
+			};
+
 			using IdType = MosaicId;
 			using ValueType = state::MosaicHistory;
 
@@ -51,22 +76,22 @@ namespace catapult { namespace cache {
 		};
 	}
 
-	DEFINE_CACHE_CONTAINS_TESTS(MosaicCacheMixinTraits, ViewAccessor, _View);
-	DEFINE_CACHE_CONTAINS_TESTS(MosaicCacheMixinTraits, DeltaAccessor, _Delta);
+	DEFINE_CACHE_CONTAINS_TESTS(MosaicCacheMixinTraits, ViewAccessor, _View)
+	DEFINE_CACHE_CONTAINS_TESTS(MosaicCacheMixinTraits, DeltaAccessor, _Delta)
 
-	DEFINE_CACHE_ITERATION_TESTS(MosaicCacheMixinTraits, ViewAccessor, _View);
+	DEFINE_CACHE_ITERATION_TESTS(MosaicCacheMixinTraits, ViewAccessor, _View)
 
-	DEFINE_CACHE_ACCESSOR_TESTS(MosaicCacheMixinTraits, ViewAccessor, MutableAccessor, _ViewMutable);
-	DEFINE_CACHE_ACCESSOR_TESTS(MosaicCacheMixinTraits, ViewAccessor, ConstAccessor, _ViewConst);
-	DEFINE_CACHE_ACCESSOR_TESTS(MosaicCacheMixinTraits, DeltaAccessor, MutableAccessor, _DeltaMutable);
-	DEFINE_CACHE_ACCESSOR_TESTS(MosaicCacheMixinTraits, DeltaAccessor, ConstAccessor, _DeltaConst);
+	DEFINE_CACHE_ACCESSOR_TESTS(MosaicCacheMixinTraits, ViewAccessor, MutableAccessor, _ViewMutable)
+	DEFINE_CACHE_ACCESSOR_TESTS(MosaicCacheMixinTraits, ViewAccessor, ConstAccessor, _ViewConst)
+	DEFINE_CACHE_ACCESSOR_TESTS(MosaicCacheMixinTraits, DeltaAccessor, MutableAccessor, _DeltaMutable)
+	DEFINE_CACHE_ACCESSOR_TESTS(MosaicCacheMixinTraits, DeltaAccessor, ConstAccessor, _DeltaConst)
 
-	DEFINE_ACTIVE_PREDICATE_TESTS(MosaicCacheMixinTraits, ViewAccessor, _View);
-	DEFINE_ACTIVE_PREDICATE_TESTS(MosaicCacheMixinTraits, DeltaAccessor, _Delta);
+	DEFINE_ACTIVE_PREDICATE_TESTS(MosaicCacheMixinTraits, ViewAccessor, _View)
+	DEFINE_ACTIVE_PREDICATE_TESTS(MosaicCacheMixinTraits, DeltaAccessor, _Delta)
 
-	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(MosaicCacheMixinTraits, _Delta);
+	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(MosaicCacheMixinTraits, _Delta)
 
-	DEFINE_CACHE_BASIC_TESTS(MosaicCacheMixinTraits,);
+	DEFINE_CACHE_BASIC_TESTS(MosaicCacheMixinTraits,)
 
 	// endregion
 
@@ -113,7 +138,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, DeepSizeRespectsMosaicHistory_SingleItem) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		{
 			// - insert three definitions for one mosaic
 			auto delta = cache.createDelta();
@@ -134,7 +159,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, DeepSizeRespectsMosaicHistory_MultipleItems) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		{
 			// - insert three definitions for one mosaic and two definitions for another
 			auto delta = cache.createDelta();
@@ -161,7 +186,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanInsertEntryWithoutExistingHistory) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 
 		// Act:
@@ -174,7 +199,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanInsertEntryWithExistingHistoryWithConsistentNamespace) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		{
 			auto delta = cache.createDelta();
 			delta->insert(CreateMosaicEntry(NamespaceId(111), MosaicId(234), Amount(7)));
@@ -199,7 +224,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CannotInsertEntryWithExistingHistoryWithInconsistentNamespace) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		delta->insert(CreateMosaicEntry(NamespaceId(111), MosaicId(234), Amount(7)));
 
@@ -209,7 +234,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanInsertMultipleHistories) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		{
 			auto delta = cache.createDelta();
 			delta->insert(test::CreateMosaicEntry(MosaicId(234), Amount(7)));
@@ -239,7 +264,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CannotRemoveUnknownMosaic) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		PopulateCache(delta);
 
@@ -251,7 +276,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRemoveKnownMosaicWithHistoryDepthOne) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		PopulateCache(delta);
 
@@ -269,7 +294,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRemoveMostRecentEntryFromKnownMosaicWithHistoryDepthGreaterThanOne) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		PopulateCache(delta);
 
@@ -293,7 +318,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRemoveNamespaceWithNoMosaicsWithNoEffect) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		PopulateCache(delta);
 
@@ -311,7 +336,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRemoveKnownNamespaceContainingNoMosaicsWithHistoryDepthGreaterThanOne) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		PopulateCache(delta);
 
@@ -329,7 +354,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRemoveKnownNamespaceContainingMosaicsWithHistoryDepthGreaterThanOne) {
 		// Arrange:
-		MosaicCache cache;
+		MosaicCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
 		PopulateCache(delta);
 
@@ -349,7 +374,7 @@ namespace catapult { namespace cache {
 
 	// region prune
 
-	DEFINE_CACHE_PRUNE_TESTS(MosaicCacheMixinTraits,);
+	DEFINE_CACHE_PRUNE_TESTS(MosaicCacheMixinTraits,)
 
 	TEST(TEST_CLASS, PruneRemovesExpiredMosaicsWhenHistoryDepthIsNotOneAndLatestExtendsDuration) {
 		// Arrange:

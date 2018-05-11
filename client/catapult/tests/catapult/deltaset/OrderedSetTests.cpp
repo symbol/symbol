@@ -1,14 +1,43 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/deltaset/OrderedSet.h"
-#include "catapult/exceptions.h"
-#include "tests/catapult/deltaset/test/BaseSetTestsInclude.h"
+#include "tests/catapult/deltaset/test/BaseSetDeltaTests.h"
+#include "tests/catapult/deltaset/test/BaseSetTests.h"
 
 namespace catapult { namespace deltaset {
 
+#define TEST_CLASS OrderedSetTests
+
 	namespace {
 		template<typename TSet>
+		using PruningBoundaryType = PruningBoundary<typename std::remove_const<typename TSet::ElementType>::type>;
+
+		template<typename TSet>
 		void CommitWithoutPruning(TSet& set) {
-			using BoundaryType = typename std::remove_const<typename TSet::ElementType>::type;
-			set.commit(PruningBoundary<BoundaryType>());
+			set.commit(PruningBoundaryType<TSet>());
+		}
+
+		template<typename TSet, typename TElement>
+		void CommitWithPruning(TSet& set, const TElement& element) {
+			set.commit(PruningBoundaryType<TSet>(element));
 		}
 
 		template<typename TElementTraits>
@@ -18,8 +47,9 @@ namespace catapult { namespace deltaset {
 			using ElementType = typename TElementTraits::ElementType;
 			using SetTraits = typename DeltaType::SetTraits;
 
-			static auto Create() {
-				return std::make_shared<OrderedSet<TElementTraits>>();
+			template<typename... TArgs>
+			static auto Create(TArgs&&... args) {
+				return std::make_shared<OrderedSet<TElementTraits>>(std::forward<TArgs>(args)...);
 			}
 
 			static void Commit(Type& set) {
@@ -30,245 +60,141 @@ namespace catapult { namespace deltaset {
 		template<typename TMutabilityTraits>
 		using OrderedSetTypeTraits = OrderedSetTraits<TMutabilityTraits>;
 
-		using MutableTraits = OrderedSetTypeTraits<MutableTypeTraits<test::MutableTestElement>>;
-		using MutablePointerTraits = OrderedSetTypeTraits<MutableTypeTraits<std::shared_ptr<test::MutableTestElement>>>;
-		using ImmutableTraits = OrderedSetTypeTraits<ImmutableTypeTraits<const test::ImmutableTestElement>>;
-		using ImmutablePointerTraits = OrderedSetTypeTraits<ImmutableTypeTraits<std::shared_ptr<const test::ImmutableTestElement>>>;
+		using OrderedSetMutableTraits = OrderedSetTypeTraits<MutableTypeTraits<test::MutableTestElement>>;
+		using OrderedSetMutablePointerTraits = OrderedSetTypeTraits<MutableTypeTraits<std::shared_ptr<test::MutableTestElement>>>;
+		using OrderedSetImmutableTraits = OrderedSetTypeTraits<ImmutableTypeTraits<const test::ImmutableTestElement>>;
+		using OrderedSetImmutablePointerTraits
+			= OrderedSetTypeTraits<ImmutableTypeTraits<std::shared_ptr<const test::ImmutableTestElement>>>;
 	}
 
-#define MAKE_ORDERED_SET_TEST(TEST_NAME, TRAITS_TYPE, TRAITS_NAME) \
-	TEST(OrderedSetTests, TEST_NAME##_##TRAITS_NAME) { TRAITS_TEST_NAME(OrderedSetTests, TEST_NAME)<TRAITS_TYPE>(); }
+// base (mutable)
+DEFINE_MUTABLE_BASE_SET_TESTS_FOR(OrderedSetMutable);
+DEFINE_MUTABLE_BASE_SET_TESTS_FOR(OrderedSetMutablePointer);
 
-#define REGISTER_DELTA_TESTS(TEST_NAME) \
-	MAKE_ORDERED_SET_TEST(TEST_NAME, test::DeltaTraits<MutablePointerTraits>, DeltaMutablePointer); \
-	MAKE_ORDERED_SET_TEST(TEST_NAME, test::DeltaTraits<ImmutablePointerTraits>, DeltaImmutablePointer); \
-	MAKE_ORDERED_SET_TEST(TEST_NAME, test::DeltaTraits<MutableTraits>, DeltaMutable); \
-	MAKE_ORDERED_SET_TEST(TEST_NAME, test::DeltaTraits<ImmutableTraits>, DeltaImmutable); \
+// base (immutable)
+DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable);
+DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutablePointer);
 
-#define REGISTER_NON_DELTA_TESTS(TEST_NAME) \
-	MAKE_ORDERED_SET_TEST(TEST_NAME, test::BaseTraits<MutablePointerTraits>, BaseMutablePointer); \
-	MAKE_ORDERED_SET_TEST(TEST_NAME, test::BaseTraits<ImmutablePointerTraits>, BaseImmutablePointer); \
-	MAKE_ORDERED_SET_TEST(TEST_NAME, test::BaseTraits<MutableTraits>, BaseMutable); \
-	MAKE_ORDERED_SET_TEST(TEST_NAME, test::BaseTraits<ImmutableTraits>, BaseImmutable); \
-
-#define REGISTER_ALL_TESTS(TEST_NAME) \
-	REGISTER_DELTA_TESTS(TEST_NAME) \
-	REGISTER_NON_DELTA_TESTS(TEST_NAME) \
-
-#define DEFINE_ORDERED_SET_TESTS(TEST_NAME, TYPES) \
-	template<typename TTraits> void TRAITS_TEST_NAME(OrderedSetTests, TEST_NAME)(); \
-	TYPES(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(OrderedSetTests, TEST_NAME)()
-
-#define DEFINE_NON_DELTA_TESTS(TEST_NAME) DEFINE_ORDERED_SET_TESTS(TEST_NAME, REGISTER_NON_DELTA_TESTS)
-#define DEFINE_DELTA_AND_NON_DELTA_TESTS(TEST_NAME) DEFINE_ORDERED_SET_TESTS(TEST_NAME, REGISTER_ALL_TESTS)
-
-	// region ctor
-
-	DEFINE_DELTA_AND_NON_DELTA_TESTS(CanCreateOrderedSet) {
-		// Act:
-		auto pSet = TTraits::Create();
-
-		// Assert:
-		TTraits::AssertContents(*pSet, typename TTraits::ElementVector());
+#define MAKE_ORDERED_SET_TEST(TEST_NAME, TYPE) \
+	TEST(BaseOrderedSet##TYPE##Tests, TEST_NAME) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::BaseTraits<deltaset::OrderedSet##TYPE##Traits>>(); \
 	}
 
-	// endregion
-
-	// region rebase
-
-	DEFINE_NON_DELTA_TESTS(RebaseCreatesOrderedSetAroundSuppliedElements) {
-		// Arrange:
-		auto pSet = TTraits::CreateWithElements(3);
-		auto expectedElements = TTraits::CreateElements(3);
-
-		// Act:
-		auto pDelta = pSet->rebase();
-
-		// Assert:
-		TTraits::AssertContents(*pDelta, expectedElements);
-	}
-
-	DEFINE_NON_DELTA_TESTS(RebaseAllowsOnlyOneAttachedDeltaAtATime) {
-		// Arrange:
-		auto pSet = TTraits::CreateWithElements(3);
-		auto expectedElements = TTraits::CreateElements(3);
-		{
-			auto pDelta = pSet->rebase();
-
-			// Act + Assert:
-			EXPECT_THROW(pSet->rebase(), catapult_runtime_error);
-		}
-
-		// Act: delta went out of scope, another delta is allowed
-		auto pDelta = pSet->rebase();
-		TTraits::AssertContents(*pDelta, expectedElements);
-	}
-
-	DEFINE_NON_DELTA_TESTS(RebaseDetachedCreatesOrderedSetAroundSuppliedElements) {
-		// Arrange:
-		auto pSet = TTraits::CreateWithElements(3);
-		auto expectedElements = TTraits::CreateElements(3);
-
-		// Act:
-		auto pDetachedDelta = pSet->rebaseDetached();
-
-		// Assert:
-		TTraits::AssertContents(*pDetachedDelta, expectedElements);
-	}
-
-	DEFINE_NON_DELTA_TESTS(RebaseDetachedAllowsManyDeltas) {
-		// Arrange:
-		auto pSet = TTraits::CreateWithElements(3);
-		auto expectedElements = TTraits::CreateElements(3);
-		std::vector<decltype(pSet->rebaseDetached())> deltas;
-
-		// Act:
-		for (auto i = 0u; i < 10; ++i)
-			deltas.push_back(pSet->rebaseDetached());
-
-		// Assert:
-		for (const auto& pDelta : deltas)
-			TTraits::AssertContents(*pDelta, expectedElements);
-	}
-
-	// endregion
+#define ORDERED_SET_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	MAKE_ORDERED_SET_TEST(TEST_NAME, Mutable) \
+	MAKE_ORDERED_SET_TEST(TEST_NAME, MutablePointer) \
+	MAKE_ORDERED_SET_TEST(TEST_NAME, Immutable) \
+	MAKE_ORDERED_SET_TEST(TEST_NAME, ImmutablePointer) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region commit
 
-	DEFINE_NON_DELTA_TESTS(CommitWithUnsetPruningBoundaryCommitsToOriginalElementsWithoutPruning) {
+	ORDERED_SET_TEST(CommitWithUnsetPruningBoundaryCommitsToOriginalElementsWithoutPruning) {
 		// Arrange:
 		auto pSet = TTraits::CreateWithElements(3);
 		auto pDelta = pSet->rebase();
-		pDelta->emplace("MyTestElement", 123u);
+		pDelta->emplace("MyTestElement", static_cast<unsigned int>(123));
 		pDelta->remove(TTraits::CreateElement("TestElement", 0));
 		pDelta->remove(TTraits::CreateElement("TestElement", 2));
-		auto expectedElements = typename TTraits::ElementVector{
+
+		// Act:
+		CommitWithoutPruning(*pSet);
+
+		// Assert:
+		TTraits::AssertContents(*pSet, {
 			TTraits::CreateElement("TestElement", 1),
 			TTraits::CreateElement("MyTestElement", 123),
-		};
-
-		// Act:
-		CommitWithoutPruning(*pSet);
-
-		// Assert:
-		TTraits::AssertContents(*pSet, expectedElements);
+		});
 	}
 
-	DEFINE_NON_DELTA_TESTS(CommitPrunesElementsPreviousToPruningBoundary) {
+	ORDERED_SET_TEST(CommitPrunesElementsPreviousToPruningBoundary) {
 		// Arrange:
 		auto pSet = TTraits::CreateWithElements(5);
 		auto pDelta = pSet->rebase();
-		auto expectedElements = typename TTraits::ElementVector{
-			TTraits::CreateElement("TestElement", 3),
-			TTraits::CreateElement("TestElement", 4),
-		};
-		auto pruningBoundary = TTraits::CreateElement("TestElement", 3);
+
+		auto pruningBoundaryElement = TTraits::CreateElement("TestElement", 3);
 
 		// Act:
-		pSet->commit(pruningBoundary);
+		CommitWithPruning(*pSet, pruningBoundaryElement);
 
 		// Assert:
-		TTraits::AssertContents(*pSet, expectedElements);
+		TTraits::AssertContents(*pSet, {
+			TTraits::CreateElement("TestElement", 3),
+			TTraits::CreateElement("TestElement", 4),
+		});
 	}
 
-	DEFINE_NON_DELTA_TESTS(CommitIsNullOperationIfPruningBoundaryIsEqualToFirstSetElement) {
+	ORDERED_SET_TEST(CommitIsNullOperationIfPruningBoundaryIsEqualToFirstSetElement) {
 		// Arrange:
 		auto pSet = TTraits::CreateWithElements(5);
 		auto pDelta = pSet->rebase();
 		pDelta->remove(TTraits::CreateElement("TestElement", 0));
 		pDelta->remove(TTraits::CreateElement("TestElement", 1));
 		CommitWithoutPruning(*pSet);
-		auto pruningBoundary = TTraits::CreateElement("TestElement", 2);
-		auto expectedElements = typename TTraits::ElementVector{
+
+		auto pruningBoundaryElement = TTraits::CreateElement("TestElement", 2);
+
+		// Sanity:
+		auto firstElement = *MakeIterableView(*pSet).begin();
+		EXPECT_EQ(*TTraits::ToPointer(firstElement), *TTraits::ToPointer(pruningBoundaryElement));
+
+		// Act:
+		CommitWithPruning(*pSet, pruningBoundaryElement);
+
+		// Assert:
+		TTraits::AssertContents(*pSet, {
 			TTraits::CreateElement("TestElement", 2),
 			TTraits::CreateElement("TestElement", 3),
 			TTraits::CreateElement("TestElement", 4),
-		};
-
-		// Sanity check:
-		auto firstElement = *pSet->begin();
-		EXPECT_EQ(*TTraits::ToPointer(firstElement), *TTraits::ToPointer(pruningBoundary));
-
-		// Act:
-		pSet->commit(pruningBoundary);
-
-		// Assert:
-		TTraits::AssertContents(*pSet, expectedElements);
+		});
 	}
 
-	DEFINE_NON_DELTA_TESTS(CommitIsNullOperationIfPruningBoundaryIsSmallerThanFirstSetElement) {
+	ORDERED_SET_TEST(CommitIsNullOperationIfPruningBoundaryIsSmallerThanFirstSetElement) {
 		// Arrange:
 		auto pSet = TTraits::CreateWithElements(5);
 		auto pDelta = pSet->rebase();
 		pDelta->remove(TTraits::CreateElement("TestElement", 0));
 		pDelta->remove(TTraits::CreateElement("TestElement", 1));
 		CommitWithoutPruning(*pSet);
-		auto pruningBoundary = TTraits::CreateElement("TestElement", 1);
-		auto expectedElements = typename TTraits::ElementVector{
+
+		auto pruningBoundaryElement = TTraits::CreateElement("TestElement", 1);
+
+		// Sanity:
+		auto firstElement = *MakeIterableView(*pSet).begin();
+		EXPECT_TRUE(*TTraits::ToPointer(pruningBoundaryElement) < *TTraits::ToPointer(firstElement));
+
+		// Act:
+		CommitWithPruning(*pSet, pruningBoundaryElement);
+
+		// Assert:
+		TTraits::AssertContents(*pSet, {
 			TTraits::CreateElement("TestElement", 2),
 			TTraits::CreateElement("TestElement", 3),
 			TTraits::CreateElement("TestElement", 4),
-		};
-
-		// Sanity check:
-		auto firstElement = *pSet->begin();
-		EXPECT_TRUE(*TTraits::ToPointer(pruningBoundary) < *TTraits::ToPointer(firstElement));
-
-		// Act:
-		pSet->commit(pruningBoundary);
-
-		// Assert:
-		TTraits::AssertContents(*pSet, expectedElements);
+		});
 	}
 
-	DEFINE_NON_DELTA_TESTS(CommitPruningBoundaryDoesNotNeedToBeInSet) {
+	ORDERED_SET_TEST(CommitPruningBoundaryDoesNotNeedToBeInSet) {
 		// Arrange:
 		auto pSet = TTraits::CreateWithElements(5);
 		auto pDelta = pSet->rebase();
-		auto pruningBoundary = TTraits::CreateElement("TestElement", 2);
-		pDelta->remove(pruningBoundary);
+
+		auto pruningBoundaryElement = TTraits::CreateElement("TestElement", 2);
+		pDelta->remove(pruningBoundaryElement);
 		CommitWithoutPruning(*pSet);
-		auto expectedElements = typename TTraits::ElementVector{
-			TTraits::CreateElement("TestElement", 3),
-			TTraits::CreateElement("TestElement", 4),
-		};
 
-		// Sanity check:
-		EXPECT_FALSE(!!pSet->find(pruningBoundary));
+		// Sanity:
+		EXPECT_FALSE(!!pSet->find(pruningBoundaryElement));
 
 		// Act:
-		pSet->commit(pruningBoundary);
+		CommitWithPruning(*pSet, pruningBoundaryElement);
 
 		// Assert:
-		TTraits::AssertContents(*pSet, expectedElements);
-	}
-
-	DEFINE_NON_DELTA_TESTS(CommitIsIdempotent) {
-		// Arrange:
-		auto pSet = TTraits::CreateWithElements(5);
-		auto pDelta = pSet->rebase();
-		auto pruningBoundary = TTraits::CreateElement("TestElement", 3);
-		auto expectedElements = typename TTraits::ElementVector{
+		TTraits::AssertContents(*pSet, {
 			TTraits::CreateElement("TestElement", 3),
 			TTraits::CreateElement("TestElement", 4),
-		};
-
-		// Act:
-		for (auto i = 0u; i < 10u; ++i)
-			pSet->commit(pruningBoundary);
-
-		// Assert:
-		TTraits::AssertContents(*pSet, expectedElements);
-	}
-
-	DEFINE_NON_DELTA_TESTS(CommitThrowsIfOnlyDetachedDeltasAreOutstanding) {
-		// Arrange:
-		auto pSet = TTraits::Create();
-		auto pDetachedDelta = pSet->rebaseDetached();
-
-		// Act + Assert:
-		EXPECT_THROW(CommitWithoutPruning(*pSet), catapult_runtime_error);
+		});
 	}
 
 	// endregion

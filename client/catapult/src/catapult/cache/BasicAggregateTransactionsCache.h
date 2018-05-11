@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/model/TransactionChangeTracker.h"
 #include "catapult/utils/ExceptionLogging.h"
@@ -25,7 +45,7 @@ namespace catapult { namespace cache {
 		{}
 
 		/// Destroys the modifier and notifies subscribers of changes.
-		~BasicAggregateTransactionsCacheModifier() noexcept(false) {
+		~BasicAggregateTransactionsCacheModifier() noexcept(false) override {
 			try {
 				flush();
 			} catch (...) {
@@ -38,6 +58,10 @@ namespace catapult { namespace cache {
 		}
 
 	public:
+		size_t size() const override {
+			return m_modifier.size();
+		}
+
 		bool add(const TransactionInfoType& transactionInfo) override {
 			if (!m_modifier.add(transactionInfo))
 				return false;
@@ -55,14 +79,22 @@ namespace catapult { namespace cache {
 		}
 
 	protected:
+		/// Gets the modifier.
 		CacheModifierProxyType& modifier() {
 			return m_modifier;
 		}
 
+		/// Gets the (const) modifier.
+		const CacheModifierProxyType& modifier() const {
+			return m_modifier;
+		}
+
+		/// Gets the subscriber.
 		ChangeSubscriberType& subscriber() {
 			return m_subscriber;
 		}
 
+		/// Removes \a transactionInfo from the cache.
 		void remove(const TransactionInfoType& transactionInfo) {
 			m_transactionChangeTracker.remove(TChangeSubscriberTraits::ToTransactionInfo(transactionInfo));
 		}

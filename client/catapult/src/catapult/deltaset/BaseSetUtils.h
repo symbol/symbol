@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include <algorithm>
 
@@ -13,7 +33,7 @@ namespace catapult { namespace deltaset {
 	}
 
 	/// Inserts all \a elements into the container (\a pContainer).
-	/// The algorithm relies on the data used for comparing elements being immutable.
+	/// \note The algorithm relies on the data used for comparing elements being immutable.
 	template<typename TContainer, typename TElements>
 	void InsertAll(TContainer& container, const TElements& elements) {
 		for (const auto& pElement : elements)

@@ -1,8 +1,28 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
+#include "StreamFormatGuard.h"
 #include "traits/Traits.h"
 #include "catapult/preprocessor.h"
 #include <array>
-#include <iomanip>
 #include <iostream>
 #include <vector>
 
@@ -11,20 +31,16 @@ namespace catapult { namespace utils {
 	/// RAII class that configures a stream to print out integral hex numbers.
 	/// \note stream width is not sticky so it doesn't need to be saved / restored even though it is modified.
 	template<size_t N>
-	class IntegralHexFormatterGuard {
+	class IntegralHexFormatterGuard : public StreamFormatGuard {
 	public:
-		explicit IntegralHexFormatterGuard(std::ostream& out) :
-				m_out(out),
-				m_flags(m_out.flags(std::ios::hex | std::ios::uppercase)),
-				m_fill(m_out.fill('0'))
+		/// Creates a formatter guard around \a out.
+		explicit IntegralHexFormatterGuard(std::ostream& out)
+				: StreamFormatGuard(out, std::ios::hex | std::ios::uppercase, '0')
+				, m_out(out)
 		{}
 
-		~IntegralHexFormatterGuard() {
-			m_out.flags(m_flags);
-			m_out.fill(m_fill);
-		}
-
 	public:
+		/// Outputs \a value to the underlying stream.
 		template<typename T>
 		void output(T value) {
 			Output(m_out, value);
@@ -32,21 +48,24 @@ namespace catapult { namespace utils {
 
 	private:
 		template<typename T>
+		static void OutputValue(std::ostream& out, T value, int size) {
+			out << std::setw(2 * size) << +value;
+		}
+
+		template<typename T>
 		static typename std::enable_if<std::is_integral<T>::value>::type Output(std::ostream& out, T value) {
-			out << std::setw(2 * sizeof(T)) << +value;
+			OutputValue(out, value, N);
 		}
 
 		template<typename T>
 		static typename std::enable_if<!std::is_integral<T>::value>::type Output(std::ostream& out, T value) {
 			auto pData = reinterpret_cast<const uint8_t*>(&value);
 			for (auto i = 0u; i < sizeof(T); ++i)
-				Output(out, pData[sizeof(T) - 1 - i]);
+				OutputValue(out, pData[sizeof(T) - 1 - i], 1);
 		}
 
 	private:
 		std::ostream& m_out;
-		std::ios_base::fmtflags m_flags;
-		char m_fill;
 	};
 
 	/// Formatter for printing an integral hex number to a stream.
@@ -57,7 +76,7 @@ namespace catapult { namespace utils {
 		{}
 
 	public:
-		friend std::ostream& operator<<(std::ostream& out, const IntegralHexFormatter<T>& formatter) {
+		friend std::ostream& operator<<(std::ostream& out, const IntegralHexFormatter& formatter) {
 			IntegralHexFormatterGuard<N> guard(out);
 			guard.output(formatter.m_value);
 			return out;

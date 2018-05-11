@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/disruptor/Disruptor.h"
 #include "catapult/thread/IoServiceThreadPool.h"
 #include "tests/test/core/BlockTestUtils.h"
@@ -48,9 +68,9 @@ namespace catapult { namespace disruptor {
 		Disruptor disruptor(16);
 
 		// Act:
-		for (auto i = 0u; i < 20u; ++i) {
+		for (auto i = 0u; i < 20; ++i) {
 			auto pBlock = test::GenerateEmptyRandomBlock();
-			pBlock->Height = Height(i + 1u);
+			pBlock->Height = Height(i + 1);
 			PushBlock(disruptor, std::move(pBlock));
 		}
 
@@ -61,7 +81,7 @@ namespace catapult { namespace disruptor {
 
 		// probably not the best test, as it actually tests the underlying circular buffer...
 		std::vector<Height::ValueType> collectedHeights;
-		for (auto i = 0u; i < 16u; ++i)
+		for (auto i = 0u; i < 16; ++i)
 			collectedHeights.push_back(disruptor.elementAt(i).input().blocks()[0].Block.Height.unwrap());
 
 		std::vector<Height::ValueType> expectedHeights{ 17, 18, 19, 20, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
@@ -166,13 +186,13 @@ namespace catapult { namespace disruptor {
 		PrepareDisruptor(disruptor);
 
 		// Act:
-		for (auto i = 0u; i < 16u; i += 2u)
+		for (auto i = 0u; i < 16; i += 2)
 			disruptor.markSkipped(i, 0);
 
 		// Assert:
 		EXPECT_EQ(16u, disruptor.size());
 		EXPECT_EQ(20u, disruptor.added());
-		for (auto i = 0u; i < 16u; ++i) {
+		for (auto i = 0u; i < 16; ++i) {
 			if (i % 2)
 				EXPECT_FALSE(disruptor.isSkipped(i));
 			else

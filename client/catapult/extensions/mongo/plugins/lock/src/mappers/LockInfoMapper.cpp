@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "LockInfoMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/lock/src/model/LockInfo.h"
@@ -10,6 +30,12 @@ namespace catapult { namespace mongo { namespace plugins {
 	// region ToDbModel
 
 	namespace {
+		void StreamLockMetadata(bson_stream::document& builder) {
+			builder << "meta"
+					<< bson_stream::open_document
+					<< bson_stream::close_document;
+		}
+
 		void StreamLockInfo(bson_stream::document& builder, const model::LockInfo& lockInfo, const Address& accountAddress) {
 			builder
 					<< "account" << ToBinary(lockInfo.Account)
@@ -22,7 +48,11 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	bsoncxx::document::value ToDbModel(const model::HashLockInfo& hashLockInfo, const Address& accountAddress) {
+		// hash lock metadata
 		bson_stream::document builder;
+		StreamLockMetadata(builder);
+
+		// hash lock data
 		auto doc = builder << "lock" << bson_stream::open_document;
 		StreamLockInfo(builder, hashLockInfo, accountAddress);
 		builder << "hash" << ToBinary(hashLockInfo.Hash);
@@ -32,7 +62,11 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	bsoncxx::document::value ToDbModel(const model::SecretLockInfo& secretLockInfo, const Address& accountAddress) {
+		// secret lock metadata
 		bson_stream::document builder;
+		StreamLockMetadata(builder);
+
+		// secret lock data
 		auto doc = builder << "lock" << bson_stream::open_document;
 		StreamLockInfo(builder, secretLockInfo, accountAddress);
 		builder

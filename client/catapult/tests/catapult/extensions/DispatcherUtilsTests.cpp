@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/extensions/DispatcherUtils.h"
 #include "catapult/config/NodeConfiguration.h"
 #include "catapult/disruptor/ConsumerDispatcher.h"
@@ -24,9 +44,9 @@ namespace catapult { namespace extensions {
 		auto options = CreateHashCheckOptions(utils::TimeSpan::FromMinutes(89), nodeConfig);
 
 		// Assert:
-		EXPECT_EQ(options.CacheDuration, 89 * 60 * 1000u);
-		EXPECT_EQ(options.PruneInterval, 13 * 60 * 1000u);
-		EXPECT_EQ(options.MaxCacheSize, 213455u);
+		EXPECT_EQ(89u * 60 * 1000, options.CacheDuration);
+		EXPECT_EQ(13u * 60 * 1000, options.PruneInterval);
+		EXPECT_EQ(213455u, options.MaxCacheSize);
 	}
 
 	TEST(TEST_CLASS, CanWrapTransactionStatusSubscriberInSink) {
@@ -38,7 +58,7 @@ namespace catapult { namespace extensions {
 		SubscriberToSink(subscriber)(
 				*transactionInfo.pEntity,
 				transactionInfo.EntityHash,
-				static_cast<validators::ValidationResult>(97531u));
+				static_cast<validators::ValidationResult>(97531));
 
 		// Assert:
 		ASSERT_EQ(1u, subscriber.params().size());
@@ -62,16 +82,22 @@ namespace catapult { namespace extensions {
 		// Arrange: create a dispatcher with three elements and block the second element
 		test::AutoSetFlag isExecutingBlockedElementCallback;
 		test::AutoSetFlag isElementCallbackUnblocked;
+		auto pIsExecuting = isExecutingBlockedElementCallback.state();
+		auto pIsUnblocked = isElementCallbackUnblocked.state();
+
 		auto pDispatcher = CreateDispatcher();
-		pDispatcher->processElement(disruptor::ConsumerInput(test::CreateTransactionEntityRange(1)));
-		pDispatcher->processElement(disruptor::ConsumerInput(test::CreateTransactionEntityRange(1)), [&](auto, const auto&) {
-			isExecutingBlockedElementCallback.set();
-			isElementCallbackUnblocked.wait();
+		auto input1 = disruptor::ConsumerInput(test::CreateTransactionEntityRange(1));
+		auto input2 = disruptor::ConsumerInput(test::CreateTransactionEntityRange(1));
+		auto input3 = disruptor::ConsumerInput(test::CreateTransactionEntityRange(1));
+		pDispatcher->processElement(std::move(input1));
+		pDispatcher->processElement(std::move(input2), [pIsExecuting, pIsUnblocked](auto, const auto&) {
+			pIsExecuting->set();
+			pIsUnblocked->wait();
 		});
-		pDispatcher->processElement(disruptor::ConsumerInput(test::CreateTransactionEntityRange(1)));
+		pDispatcher->processElement(std::move(input3));
 
 		// - wait until the blocked element callback is called
-		isExecutingBlockedElementCallback.wait();
+		isExecutingBlockedElementCallback.state()->wait();
 
 		// - create a locator and register the service
 		auto keyPair = test::GenerateKeyPair();
@@ -90,7 +116,7 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(2u, counters.at("XYZ ELEM ACT"));
 
 		// Cleanup:
-		isElementCallbackUnblocked.set();
+		isElementCallbackUnblocked.state()->set();
 	}
 
 	TEST(TEST_CLASS, CanCreateBatchTransactionTask) {

@@ -1,7 +1,28 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache/CacheMixins.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/deltaset/BaseSet.h"
 #include "catapult/deltaset/BaseSetDelta.h"
+#include "catapult/utils/Hashers.h"
 #include "tests/TestHarness.h"
 #include <unordered_map>
 
@@ -12,6 +33,8 @@ namespace catapult { namespace cache {
 	namespace {
 		// fake cache that indexes strings by size
 		struct TestCacheDescriptor {
+			static constexpr auto Name = "TestCache";
+
 			using KeyType = int;
 			using ValueType = std::string;
 
@@ -20,8 +43,18 @@ namespace catapult { namespace cache {
 			}
 		};
 
+		template<typename TBaseSet>
+		class BaseSetTypeWrapper : public TBaseSet {
+		public:
+			BaseSetTypeWrapper() : TBaseSet(deltaset::ConditionalContainerMode::Memory, m_database, 0)
+			{}
+
+		private:
+			CacheDatabase m_database;
+		};
+
 		using BasicTypes = MutableUnorderedMapAdapter<TestCacheDescriptor>;
-		using BaseSetType = BasicTypes::BaseSetType;
+		using BaseSetType = BaseSetTypeWrapper<BasicTypes::BaseSetType>;
 
 		auto SeedThreeDelta(BaseSetType& set) {
 			auto pDelta = set.rebase();
@@ -109,6 +142,7 @@ namespace catapult { namespace cache {
 		};
 
 		using OrderedSetBasicTypes = MutableOrderedSetAdapter<TestSetCacheDescriptor>;
+		using OrderedBaseSetType = BaseSetTypeWrapper<OrderedSetBasicTypes::BaseSetType>;
 
 		void Commit(BaseSetType& set) {
 			set.commit();
@@ -142,20 +176,9 @@ namespace catapult { namespace cache {
 				AssertIteration(values, [](const auto& mixin) {
 					// Act:
 					std::unordered_map<int, std::string> contents;
-					for (const auto& pair : mixin)
+					auto pIterableView = mixin.tryMakeIterableView();
+					for (const auto& pair : *pIterableView)
 						contents.insert(pair);
-
-					return contents;
-				});
-			}
-
-			static void AssertIterationWithForEach(const std::vector<std::string>& values) {
-				AssertIteration(values, [](const auto& mixin) {
-					// Act:
-					std::unordered_map<int, std::string> contents;
-					mixin.forEach([&contents](const auto& key, const auto& value) {
-						contents.emplace(key, value);
-					});
 
 					return contents;
 				});
@@ -166,7 +189,7 @@ namespace catapult { namespace cache {
 			static void AssertIteration(const std::vector<std::string>& values, TCacheContentsAccessor cacheContentsAccessor) {
 				// Arrange:
 				RunIterationTest<BaseSetType>(values, [&values, cacheContentsAccessor](const auto& set) {
-					auto mixin = MapIterationMixin<BaseSetType, TestCacheDescriptor>(set);
+					auto mixin = IterationMixin<BaseSetType>(set);
 
 					// Act: iterate over the cache and extract its contents
 					auto contents = cacheContentsAccessor(mixin);
@@ -197,20 +220,9 @@ namespace catapult { namespace cache {
 				AssertIteration(values, [](const auto& mixin) {
 					// Act:
 					std::set<std::string> contents;
-					for (const auto& value : mixin)
+					auto pIterableView = mixin.tryMakeIterableView();
+					for (const auto& value : *pIterableView)
 						contents.insert(value);
-
-					return contents;
-				});
-			}
-
-			static void AssertIterationWithForEach(const std::vector<std::string>& values) {
-				AssertIteration(values, [](const auto& mixin) {
-					// Act:
-					std::set<std::string> contents;
-					mixin.forEach([&contents](const auto& value) {
-						contents.insert(value);
-					});
 
 					return contents;
 				});
@@ -220,8 +232,8 @@ namespace catapult { namespace cache {
 			template<typename TCacheContentsAccessor>
 			static void AssertIteration(const std::vector<std::string>& values, TCacheContentsAccessor cacheContentsAccessor) {
 				// Arrange:
-				RunIterationTest<OrderedSetBasicTypes::BaseSetType>(values, [&values, cacheContentsAccessor](const auto& set) {
-					auto mixin = SetIterationMixin<OrderedSetBasicTypes::BaseSetType, TestSetCacheDescriptor>(set);
+				RunIterationTest<OrderedBaseSetType>(values, [&values, cacheContentsAccessor](const auto& set) {
+					auto mixin = IterationMixin<OrderedBaseSetType>(set);
 
 					// Act: iterate over the cache and extract its contents
 					auto contents = cacheContentsAccessor(mixin);
@@ -248,40 +260,50 @@ namespace catapult { namespace cache {
 			static constexpr auto AssertIteration = MapIterationTests::AssertIterationWithIterators;
 		};
 
-		struct MapIterationForEach {
-			static constexpr auto AssertIteration = MapIterationTests::AssertIterationWithForEach;
-		};
-
 		struct SetIterationIterators {
 			static constexpr auto AssertIteration = SetIterationTests::AssertIterationWithIterators;
-		};
-
-		struct SetIterationForEach {
-			static constexpr auto AssertIteration = SetIterationTests::AssertIterationWithForEach;
 		};
 	}
 
 #define ITERATION_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Map_Iterators) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MapIterationIterators>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Map_ForEach) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MapIterationForEach>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Set_Iterators) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SetIterationIterators>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Set_ForEach) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SetIterationForEach>(); } \
+	TEST(TEST_CLASS, IterationMixin_##TEST_NAME##_Map_Iterators) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MapIterationIterators>(); } \
+	TEST(TEST_CLASS, IterationMixin_##TEST_NAME##_Set_Iterators) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<SetIterationIterators>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	ITERATION_TRAITS_BASED_TEST(IterationMixin_CanIterate_ZeroElements) {
+	ITERATION_TRAITS_BASED_TEST(CanIterate_ZeroElements) {
 		// Assert:
 		TTraits::AssertIteration({});
 	}
 
-	ITERATION_TRAITS_BASED_TEST(IterationMixin_CanIterate_SingleElement) {
+	ITERATION_TRAITS_BASED_TEST(CanIterate_SingleElement) {
 		// Assert:
 		TTraits::AssertIteration({ "a" });
 	}
 
-	ITERATION_TRAITS_BASED_TEST(IterationMixin_CanIterate_MultipleElements) {
+	ITERATION_TRAITS_BASED_TEST(CanIterate_MultipleElements) {
 		// Assert:
 		TTraits::AssertIteration({ "a", "ccc", "fffff" });
+	}
+
+	namespace {
+		struct NonSetType {};
+
+		bool IsBaseSetIterable(const NonSetType&) {
+			return false;
+		}
+	}
+
+	TEST(TEST_CLASS, IterationMixin_CannotIterateWhenIterationIsNotSupported) {
+		// Arrange: use a fake type that doesn't support iteration
+		NonSetType set;
+		auto mixin = IterationMixin<NonSetType>(set);
+
+		// Act:
+		auto pIterableView = mixin.tryMakeIterableView();
+
+		// Assert:
+		EXPECT_FALSE(!!pIterableView);
 	}
 
 	// endregion
@@ -454,18 +476,19 @@ namespace catapult { namespace cache {
 		};
 
 		using ConditionallyActiveTypes = MutableUnorderedMapAdapter<TestConditionallyActiveCacheDescriptor>;
+		using ConditionallyActiveBaseSet = BaseSetTypeWrapper<ConditionallyActiveTypes::BaseSetType>;
 
 		template<typename TAction>
 		void RunActivePredicateMixinTest(TAction action) {
 			// Arrange:
-			ConditionallyActiveTypes::BaseSetType set;
+			ConditionallyActiveBaseSet set;
 			{
 				auto pDelta = set.rebase();
 				pDelta->insert({ 123, Height(456) });
 				set.commit();
 			}
 
-			auto mixin = ActivePredicateMixin<ConditionallyActiveTypes::BaseSetType, TestConditionallyActiveCacheDescriptor>(set);
+			auto mixin = ActivePredicateMixin<ConditionallyActiveBaseSet, TestConditionallyActiveCacheDescriptor>(set);
 
 			// Act + Assert:
 			action(mixin);
@@ -633,7 +656,7 @@ namespace catapult { namespace cache {
 		};
 
 		using HeightGroupedTypes = MutableUnorderedMapAdapter<TestHeightGroupedCacheDescriptor, utils::BaseValueHasher<Height>>;
-		using HeightGroupedBaseSetType = HeightGroupedTypes::BaseSetType;
+		using HeightGroupedBaseSetType = BaseSetTypeWrapper<HeightGroupedTypes::BaseSetType>;
 
 		template<typename TAction>
 		void RunHeightBasedPruningMixinTest(TAction action) {

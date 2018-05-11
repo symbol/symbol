@@ -1,5 +1,26 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/BaseValue.h"
 #include "catapult/types.h"
+#include "tests/test/nodeps/Comparison.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {
@@ -15,6 +36,8 @@ namespace catapult { namespace utils {
 		struct SameSizeValue_tag {};
 		using SameSizeValue = BaseValue<uint64_t, SameSizeValue_tag>;
 	}
+
+	// region constructor
 
 	TEST(TEST_CLASS, DefaultValueIsZeroInitialized) {
 		// Arrange:
@@ -37,8 +60,12 @@ namespace catapult { namespace utils {
 		constexpr TestValue Const_Data(123);
 
 		// Assert:
-		EXPECT_EQ(TestValue(123u), Const_Data);
+		EXPECT_EQ(TestValue(123), Const_Data);
 	}
+
+	// endregion
+
+	// region copy + assign
 
 	TEST(TEST_CLASS, CanCopyAssign) {
 		// Arrange:
@@ -69,7 +96,7 @@ namespace catapult { namespace utils {
 		TestValue data(123);
 		TestValue newData(642);
 
-		// Act
+		// Act:
 		const auto& assignResult = (newData = std::move(data));
 
 		// Assert:
@@ -86,6 +113,10 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123u, newData.unwrap());
 	}
 
+	// endregion
+
+	// region unwrap
+
 	TEST(TEST_CLASS, CanUnwrapAndRetrieveRawValue) {
 		// Arrange:
 		TestValue data(123);
@@ -97,72 +128,31 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(123u, rawValue);
 	}
 
+	// endregion
+
 	// region comparison operators
 
-	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
-		// Arrange:
-		TestValue data1(123);
-		TestValue data2(123);
-		TestValue data3(642);
-
-		EXPECT_TRUE(data1 == data2);
-		EXPECT_FALSE(data1 == data3);
-		EXPECT_FALSE(data3 == data1);
+	namespace {
+		std::vector<TestValue> GenerateIncreasingValues() {
+			return { TestValue(123), TestValue(642), TestValue(989) };
+		}
 	}
 
-	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
+	DEFINE_EQUALITY_AND_COMPARISON_TESTS(TEST_CLASS, GenerateIncreasingValues())
+
+	// endregion
+
+	// region to string
+
+	TEST(TEST_CLASS, CanOutputBaseValue) {
 		// Arrange:
 		TestValue data1(123);
-		TestValue data2(123);
-		TestValue data3(642);
 
-		EXPECT_FALSE(data1 != data2);
-		EXPECT_TRUE(data1 != data3);
-		EXPECT_TRUE(data3 != data1);
-	}
+		// Act:
+		auto str = test::ToString(data1);
 
-	TEST(TEST_CLASS, OperatorLessThanReturnsTrueOnlyForSmallerValues) {
-		// Arrange:
-		TestValue data1(123);
-		TestValue data2(123);
-		TestValue data3(642);
-
-		EXPECT_FALSE(data1 < data2);
-		EXPECT_TRUE(data1 < data3);
-		EXPECT_FALSE(data3 < data1);
-	}
-
-	TEST(TEST_CLASS, OperatorLessThanOrEqualReturnsTrueOnlyForSmallerOrEqualValues) {
-		// Arrange:
-		TestValue data1(123);
-		TestValue data2(123);
-		TestValue data3(642);
-
-		EXPECT_TRUE(data1 <= data2);
-		EXPECT_TRUE(data1 <= data3);
-		EXPECT_FALSE(data3 <= data1);
-	}
-
-	TEST(TEST_CLASS, OperatorGreaterThanReturnsTrueOnlyForGreaterValues) {
-		// Arrange:
-		TestValue data1(123);
-		TestValue data2(123);
-		TestValue data3(642);
-
-		EXPECT_FALSE(data1 > data2);
-		EXPECT_FALSE(data1 > data3);
-		EXPECT_TRUE(data3 > data1);
-	}
-
-	TEST(TEST_CLASS, OperatorGreaterThanOrEqualReturnsTrueOnlyForGreaterOrEqualValues) {
-		// Arrange:
-		TestValue data1(123);
-		TestValue data2(123);
-		TestValue data3(642);
-
-		EXPECT_TRUE(data1 >= data2);
-		EXPECT_FALSE(data1 >= data3);
-		EXPECT_TRUE(data3 >= data1);
+		// Assert:
+		EXPECT_EQ("123", str);
 	}
 
 	// endregion
@@ -198,6 +188,8 @@ namespace catapult { namespace utils {
 	}
 
 	// endregion
+
+	// region type convertibility
 
 	TEST(TEST_CLASS, CanAssignAliasedType) {
 		// Assert:
@@ -256,4 +248,6 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, CatapultTypesTests) {
 		AssertCannotConvertTypes<Set<Timestamp, Amount, Height, Difficulty>>();
 	}
+
+	// endregion
 }}

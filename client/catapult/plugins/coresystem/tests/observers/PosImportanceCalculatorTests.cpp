@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "src/observers/ImportanceCalculator.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/Address.h"
@@ -12,11 +32,10 @@ namespace catapult { namespace observers {
 	namespace {
 		constexpr model::ImportanceHeight Recalculation_Height(360);
 		constexpr uint8_t Num_Account_States = 10;
-		constexpr uint64_t Microxem_Per_Xem = 1'000'000;
 
 		model::BlockChainConfiguration CreateConfiguration() {
 			auto config = model::BlockChainConfiguration::Uninitialized();
-			config.TotalChainBalance = Amount(9'000'000'000'000'000);
+			config.TotalChainBalance = utils::XemAmount(9'000'000'000);
 			config.MinHarvesterBalance = Amount(1'000'000'000'000);
 			return config;
 		}
@@ -24,7 +43,7 @@ namespace catapult { namespace observers {
 		struct CacheHolder {
 		public:
 			explicit CacheHolder(Amount minBalance)
-					: Cache({ model::NetworkIdentifier::Mijin_Test, 123, minBalance })
+					: Cache(cache::CacheConfiguration(), { model::NetworkIdentifier::Mijin_Test, 123, minBalance })
 					, Delta(Cache.createDelta())
 			{}
 
@@ -59,8 +78,8 @@ namespace catapult { namespace observers {
 					++maxExpectedDeviation;
 			}
 
-			// deviation should be maximal 1 for each account due to rounding
-			auto deviation = config.TotalChainBalance.unwrap() / Microxem_Per_Xem - sum;
+			// Assert: deviation should be maximal 1 for each account due to rounding
+			auto deviation = config.TotalChainBalance.xem().unwrap() - sum;
 			EXPECT_GE(maxExpectedDeviation, deviation);
 		}
 
@@ -178,7 +197,7 @@ namespace catapult { namespace observers {
 		auto pCalculator1 = CreateImportanceCalculator(config);
 
 		auto customConfig = CreateConfiguration();
-		customConfig.TotalChainBalance = Amount(2 * config.TotalChainBalance.unwrap());
+		customConfig.TotalChainBalance = utils::XemAmount(2 * config.TotalChainBalance.xem().unwrap());
 		auto pCalculator2 = CreateImportanceCalculator(customConfig);
 
 		// Act:

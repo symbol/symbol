@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "mongo/src/mappers/AccountStateMapper.h"
 #include "catapult/model/Mosaic.h"
 #include "catapult/state/AccountState.h"
@@ -13,8 +33,8 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		void AssertEqualAccountStateMetadata() {
-			// nothing to compare
+		void AssertEqualAccountStateMetadata(const bsoncxx::document::view& dbMetadata) {
+			EXPECT_EQ(0u, test::GetFieldCount(dbMetadata));
 		}
 
 		auto CreateAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics) {
@@ -44,7 +64,9 @@ namespace catapult { namespace mongo { namespace mappers {
 			// Assert:
 			auto view = dbAccount.view();
 			EXPECT_EQ(2u, test::GetFieldCount(view));
-			AssertEqualAccountStateMetadata();
+
+			auto metaView = view["meta"].get_document().view();
+			AssertEqualAccountStateMetadata(metaView);
 
 			auto account = view["account"].get_document().view();
 			EXPECT_EQ(6u, test::GetFieldCount(account));

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "PacketSocket.h"
 #include "BufferedPacketIo.h"
 #include "Node.h"
@@ -53,10 +73,17 @@ namespace catapult { namespace ionet {
 					: m_socket(service)
 					, m_wrapper(wrapper)
 					, m_buffer(options)
+					, m_maxPacketDataSize(options.MaxPacketDataSize)
 			{}
 
 		public:
 			void write(const PacketPayload& payload, const PacketSocket::WriteCallback& callback) {
+				if (!IsPacketDataSizeValid(payload.header(), m_maxPacketDataSize)) {
+					CATAPULT_LOG(warning) << "bypassing write of malformed " << payload.header();
+					callback(SocketOperationCode::Malformed_Data);
+					return;
+				}
+
 				auto pContext = std::make_shared<WriteContext>(payload, callback);
 				boost::asio::async_write(m_socket, pContext->headerBuffer(), m_wrapper.wrap([this, pContext](const auto& ec, auto) {
 					this->writeNext(ec, pContext);
@@ -211,6 +238,7 @@ namespace catapult { namespace ionet {
 			socket m_socket;
 			TSocketCallbackWrapper& m_wrapper;
 			WorkingBuffer m_buffer;
+			size_t m_maxPacketDataSize;
 		};
 
 		/// Implements PacketSocket using an explicit strand and ensures deterministic shutdown by using
@@ -228,7 +256,7 @@ namespace catapult { namespace ionet {
 					, m_socket(service, options, *this)
 			{}
 
-			~StrandedPacketSocket() {
+			~StrandedPacketSocket() override {
 				// all async operations posted on the strand must be completed by now because all operations
 				// posted on the strand have been initiated by this object and captured this as a shared_ptr
 				// (executing the destructor means they all must have been destroyed)

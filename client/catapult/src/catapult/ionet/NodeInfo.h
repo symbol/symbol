@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/utils/Hashers.h"
 #include "catapult/types.h"
@@ -13,11 +33,11 @@ namespace catapult { namespace ionet {
 	/* Loaded from a local peers file. */ \
 	ENUM_VALUE(Static) \
 	\
-	/* The local node. */ \
+	/* Local node. */ \
 	ENUM_VALUE(Local)
 
 #define ENUM_VALUE(LABEL) LABEL,
-	/// The source of a node.
+	/// Source of a node.
 	/// \note Higher value sources correspond to higher levels of trust.
 	enum class NodeSource : uint32_t {
 		NODE_SOURCE_LIST
@@ -42,17 +62,17 @@ namespace catapult { namespace ionet {
 		{}
 
 	public:
-		/// The current connection age.
+		/// Current connection age.
 		/// \c 0 if the connection is not active.
 		uint32_t Age;
 
-		/// The number of connection attempts.
+		/// Number of connection attempts.
 		uint32_t NumAttempts;
 
-		/// The number of successful connections.
+		/// Number of successful connections.
 		uint32_t NumSuccesses;
 
-		/// The number of failed connections.
+		/// Number of failed connections.
 		uint32_t NumFailures;
 	};
 

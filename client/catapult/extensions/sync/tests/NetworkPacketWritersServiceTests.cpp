@@ -1,5 +1,26 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "sync/src/NetworkPacketWritersService.h"
 #include "catapult/api/ChainPackets.h"
+#include "catapult/ionet/PacketPayloadFactory.h"
 #include "catapult/net/VerifyPeer.h"
 #include "tests/test/local/PacketWritersServiceTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"
@@ -36,8 +57,8 @@ namespace catapult { namespace sync {
 		// Arrange: create a (tcp) server
 		auto pPool = test::CreateStartedIoServiceThreadPool();
 		auto serverKeyPair = test::GenerateKeyPair();
-		test::SpawnPacketServerWork(pPool->service(), [&service = pPool->service(), &serverKeyPair](const auto& pServer) {
-			net::VerifyClient(pServer, serverKeyPair, [&service](auto, const auto&) {});
+		test::SpawnPacketServerWork(pPool->service(), [&serverKeyPair](const auto& pServer) {
+			net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [](auto, const auto&) {});
 		});
 
 		// Act: create and boot the service
@@ -64,7 +85,9 @@ namespace catapult { namespace sync {
 		auto serverKeyPair = test::GenerateKeyPair();
 		test::SpawnPacketServerWork(pPool->service(), [&service = pPool->service(), &packetBuffer, &serverKeyPair](const auto& pServer) {
 			// - verify the client
-			net::VerifyClient(pServer, serverKeyPair, [&service, &packetBuffer, pServer](auto, const auto&) {
+			net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [&service, &packetBuffer, pServer](
+					auto,
+					const auto&) {
 				// - read the packet and copy it into packetBuffer
 				test::AsyncReadIntoBuffer(service, *pServer, packetBuffer);
 			});
@@ -83,7 +106,7 @@ namespace catapult { namespace sync {
 
 		// Act: broadcast a (transaction) payload to the server
 		auto pTransaction = std::shared_ptr<const model::Transaction>(test::GenerateRandomTransaction());
-		sink(ionet::PacketPayload::FromEntity(ionet::PacketType::Undefined, pTransaction));
+		sink(ionet::PacketPayloadFactory::FromEntity(ionet::PacketType::Undefined, pTransaction));
 
 		// - wait for the test to complete
 		pPool->join();
@@ -118,7 +141,7 @@ namespace catapult { namespace sync {
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
 					serverSockets.push_back(pSocket);
-					net::VerifyClient(pSocket, peerKeyPair, [&](auto, const auto&) {
+					net::VerifyClient(pSocket, peerKeyPair, ionet::ConnectionSecurityMode::None, [&numCallbacks](auto, const auto&) {
 						++numCallbacks;
 					});
 				});
@@ -152,8 +175,8 @@ namespace catapult { namespace sync {
 			auto i = 1u;
 			for (const auto& pSocket : serverSockets) {
 				auto pPacket = ionet::CreateSharedPacket<api::ChainInfoResponse>();
-				pPacket->Height = Height(i + (0 == i % 2 ? 100u : 0u));
-				pSocket->write(pPacket, [](auto) {});
+				pPacket->Height = Height(i + (0 == i % 2 ? 100u : 0));
+				pSocket->write(ionet::PacketPayload(pPacket), [](auto) {});
 				++i;
 			}
 

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/cache/AggregateUtCache.h"
 #include "tests/catapult/cache/test/AggregateTransactionsCacheTestUtils.h"
 #include "tests/test/cache/UtTestUtils.h"
@@ -12,12 +32,20 @@ namespace catapult { namespace cache {
 
 		class UnsupportedUtCacheModifier : public UtCacheModifier {
 		public:
+			size_t size() const override {
+				CATAPULT_THROW_RUNTIME_ERROR("size - not supported in mock");
+			}
+
 			bool add(const model::TransactionInfo&) override {
 				CATAPULT_THROW_RUNTIME_ERROR("add - not supported in mock");
 			}
 
 			model::TransactionInfo remove(const Hash256&) override {
 				CATAPULT_THROW_RUNTIME_ERROR("remove - not supported in mock");
+			}
+
+			size_t count(const Key&) const override {
+				CATAPULT_THROW_RUNTIME_ERROR("count - not supported in mock");
 			}
 
 			std::vector<model::TransactionInfo> removeAll() override {
@@ -99,7 +127,48 @@ namespace catapult { namespace cache {
 
 	// region basic tests (add / remove / flush)
 
-	DEFINE_AGGREGATE_TRANSACTIONS_CACHE_TESTS(TEST_CLASS, BasicTestsUtTraits);
+	DEFINE_AGGREGATE_TRANSACTIONS_CACHE_TESTS(TEST_CLASS, BasicTestsUtTraits)
+
+	// endregion
+
+	// region count
+
+	namespace {
+		class MockCountUtCacheModifier : public UnsupportedUtCacheModifier {
+		public:
+			explicit MockCountUtCacheModifier(size_t& numCountCalls, std::vector<Key>& keys)
+					: m_numCountCalls(numCountCalls)
+					, m_keys(keys) {
+				m_numCountCalls = 0;
+			}
+
+		public:
+			size_t count(const Key& key) const override {
+				m_keys.push_back(key);
+				return ++m_numCountCalls;
+			}
+
+		private:
+			size_t& m_numCountCalls;
+			std::vector<Key>& m_keys;
+		};
+	}
+
+	TEST(TEST_CLASS, CountDelegatesToCache) {
+		// Arrange:
+		size_t numCountCalls;
+		std::vector<Key> keys;
+		auto key = test::GenerateRandomData<Key_Size>();
+		TestContext<MockCountUtCacheModifier> context(numCountCalls, keys);
+
+		// Act:
+		auto numReturnedCountCalls = context.aggregate().modifier().count(key);
+
+		// Assert: - check ut cache modifier was called as expected
+		EXPECT_EQ(1u, numReturnedCountCalls);
+		EXPECT_EQ(1u, numCountCalls);
+		EXPECT_EQ(std::vector<Key>({ key }), keys);
+	}
 
 	// endregion
 

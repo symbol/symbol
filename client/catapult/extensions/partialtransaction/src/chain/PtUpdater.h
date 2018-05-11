@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/chain/ChainFunctions.h"
 #include "catapult/thread/Future.h"
@@ -18,7 +38,7 @@ namespace catapult { namespace chain {
 
 	// region results
 
-	/// The result of a transaction update.
+	/// Result of a transaction update.
 	struct TransactionUpdateResult {
 		/// Possible update types.
 		enum class UpdateType {
@@ -32,15 +52,18 @@ namespace catapult { namespace chain {
 			Invalid
 		};
 
-		/// The type of update.
+		/// Type of the update.
 		UpdateType Type;
 
-		/// The number of cosignatures added.
+		/// Number of cosignatures added.
 		size_t NumCosignaturesAdded;
 	};
 
-	/// The result of a cosignature update.
+	/// Result of a cosignature update.
 	enum class CosignatureUpdateResult {
+		/// Error occurred during processing of cosignature.
+		Error,
+
 		/// Cosignature is ineligible.
 		Ineligible,
 

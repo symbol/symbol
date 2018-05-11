@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/utils/Logging.h"
 #include "catapult/types.h"
@@ -25,14 +45,14 @@ namespace catapult { namespace ionet {
 		if (0 == buffer.Size)
 			return ResultType();
 
-#define LOG_EXCEEDS_REMAINING_BYTES(SIZE, MESSAGE) \
-	CATAPULT_LOG(warning) << MESSAGE << " (" << SIZE << ") exceeds remaining bytes (" << remainingBytes << ")";
+#define CATAPULT_LOG_EXCEEDS_REMAINING_BYTES(SIZE, MESSAGE) \
+	CATAPULT_LOG(warning) << MESSAGE << " (" << SIZE << ") exceeds remaining bytes (" << remainingBytes << ")"
 
 		std::vector<size_t> offsets;
 		auto remainingBytes = buffer.Size;
 		while (0 != remainingBytes) {
 			if (sizeof(TEntity) > remainingBytes) {
-				LOG_EXCEEDS_REMAINING_BYTES(sizeof(TEntity), "entity header size");
+				CATAPULT_LOG_EXCEEDS_REMAINING_BYTES(sizeof(TEntity), "entity header size");
 				return ResultType();
 			}
 
@@ -42,7 +62,7 @@ namespace catapult { namespace ionet {
 				return ResultType();
 
 			if (entity.Size > remainingBytes) {
-				LOG_EXCEEDS_REMAINING_BYTES(entity.Size, "entity size");
+				CATAPULT_LOG_EXCEEDS_REMAINING_BYTES(entity.Size, "entity size");
 				return ResultType();
 			}
 
@@ -50,13 +70,13 @@ namespace catapult { namespace ionet {
 			remainingBytes -= entity.Size;
 		}
 
-#undef LOG_EXCEEDS_REMAINING_BYTES
+#undef CATAPULT_LOG_EXCEEDS_REMAINING_BYTES
 
 		return offsets;
 	}
 
-#define LOG_DATA_SIZE_ERROR(SIZE, MESSAGE) \
-	CATAPULT_LOG(warning) << "buffer data size (" << buffer.Size << ") " << MESSAGE << " (" << SIZE << ")";
+#define CATAPULT_LOG_DATA_SIZE_ERROR(SIZE, MESSAGE) \
+	CATAPULT_LOG(warning) << "buffer data size (" << buffer.Size << ") " << MESSAGE << " (" << SIZE << ")"
 
 	/// Determines if \a buffer contains a single entity with a validity check (\a isValid).
 	/// \note If the buffer is invalid and/or contains partial or multiple entities, \c false will be returned.
@@ -66,7 +86,7 @@ namespace catapult { namespace ionet {
 			return false;
 
 		if (buffer.Size < sizeof(TEntity)) {
-			LOG_DATA_SIZE_ERROR(sizeof(TEntity), "must be at least entity size");
+			CATAPULT_LOG_DATA_SIZE_ERROR(sizeof(TEntity), "must be at least entity size");
 			return false;
 		}
 
@@ -75,7 +95,7 @@ namespace catapult { namespace ionet {
 			return false;
 
 		if (entity.Size != buffer.Size) {
-			LOG_DATA_SIZE_ERROR(entity.Size, "is inconsistent with entity size");
+			CATAPULT_LOG_DATA_SIZE_ERROR(entity.Size, "is inconsistent with entity size");
 			return false;
 		}
 
@@ -91,12 +111,12 @@ namespace catapult { namespace ionet {
 
 		constexpr auto Structure_Size = sizeof(TStructure);
 		if (0 != buffer.Size % Structure_Size) {
-			LOG_DATA_SIZE_ERROR(Structure_Size, "contains fractional structures of size");
+			CATAPULT_LOG_DATA_SIZE_ERROR(Structure_Size, "contains fractional structures of size");
 			return 0;
 		}
 
 		return buffer.Size / Structure_Size;
 	}
 
-#undef LOG_DATA_SIZE_ERROR
+#undef CATAPULT_LOG_DATA_SIZE_ERROR
 }}

@@ -1,5 +1,26 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
 #include "catapult/ionet/NetworkNode.h"
+#include "catapult/utils/Functional.h"
 #include "nodediscovery/tests/test/NodeDiscoveryTestUtils.h"
 #include "tests/test/core/PacketPayloadTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
@@ -136,8 +157,8 @@ namespace catapult { namespace handlers {
 		void RunPullPingHandlerTest(uint32_t packetExtraSize, TAssert assertFunc) {
 			// Arrange:
 			ionet::ServerPacketHandlers handlers;
-			auto pNetworkNode = test::CreateNetworkNode("host", "alice");
-			RegisterNodeDiscoveryPullPingHandler(handlers, *pNetworkNode);
+			auto pNetworkNode = utils::UniqueToShared(test::CreateNetworkNode("host", "alice"));
+			RegisterNodeDiscoveryPullPingHandler(handlers, pNetworkNode);
 
 			// - create a valid request
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>();
@@ -324,16 +345,31 @@ namespace catapult { namespace handlers {
 		auto networkNodes = test::PackAllNodes(nodes);
 
 		// Act:
-		RunPullPeersHandlerTest(nodes, 0, [&networkNodes](const auto& context) {
-			// Assert: response with single node
-			auto payloadSize = networkNodes[0]->Size + networkNodes[1]->Size + networkNodes[2]->Size;
+		RunPullPeersHandlerTest(nodes, 0, [&networkNodes](const auto& context) mutable {
+			// Assert: response with three nodes
+			auto payloadSize = utils::Sum(networkNodes, [](const auto& pNetworkNode) { return pNetworkNode->Size; });
 			test::AssertPacketHeader(context, sizeof(ionet::Packet) + payloadSize, ionet::PacketType::Node_Discovery_Pull_Peers);
 
+			// - one buffer per node
 			const auto& buffers = context.response().buffers();
 			ASSERT_EQ(3u, buffers.size());
 
-			for (auto i = 0u; i < 3u; ++i)
-				EXPECT_TRUE(0 == memcmp(buffers[i].pData, networkNodes[i].get(), networkNodes[i]->Size)) << "buffer at " << i;
+			// - each node in the (unordered) response corresponds to an original node
+			for (auto i = 0u; i < 3; ++i) {
+				const auto& responseNetworkNode = reinterpret_cast<const ionet::NetworkNode&>(*buffers[i].pData);
+				auto networkNodeIter = std::find_if(networkNodes.cbegin(), networkNodes.cend(), [&responseNetworkNode](
+						const auto& pNetworkNode) {
+					return responseNetworkNode.IdentityKey == pNetworkNode->IdentityKey;
+				});
+
+				if (networkNodes.cend() != networkNodeIter) {
+					const auto& networkNode = **networkNodeIter;
+					EXPECT_TRUE(0 == memcmp(buffers[i].pData, &networkNode, networkNode.Size)) << "buffer at " << i;
+					networkNodes.erase(networkNodeIter);
+				}
+			}
+
+			EXPECT_TRUE(networkNodes.empty());
 		});
 	}
 

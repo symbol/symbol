@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "MosaicProperties.h"
 #include "MosaicTypes.h"
@@ -35,7 +55,7 @@ namespace catapult { namespace model {
 	/// Notification of a mosaic name.
 	struct MosaicNameNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Mosaic_Name_Notification;
 
 	public:
@@ -49,13 +69,13 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The id of the mosaic.
+		/// Id of the mosaic.
 		catapult::MosaicId MosaicId;
 
-		/// The id of the parent namespace.
+		/// Id of the parent namespace.
 		NamespaceId ParentId;
 
-		/// The size of the name.
+		/// Size of the name.
 		uint8_t NameSize;
 
 		/// Const pointer to the mosaic name.
@@ -66,7 +86,7 @@ namespace catapult { namespace model {
 	/// \note This is required due to potentially lossy conversion from raw properties to MosaicProperties.
 	struct MosaicPropertiesNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Mosaic_Properties_Notification;
 
 	public:
@@ -78,7 +98,7 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The mosaic properties header.
+		/// Mosaic properties header.
 		const MosaicPropertiesHeader& PropertiesHeader;
 
 		/// Const pointer to the optional properties.
@@ -88,7 +108,7 @@ namespace catapult { namespace model {
 	/// Notification of a mosaic definition.
 	struct MosaicDefinitionNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Mosaic_Definition_Notification;
 
 	public:
@@ -106,16 +126,16 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The signer.
+		/// Signer.
 		const Key& Signer;
 
-		/// The id of the parent namespace.
+		/// Id of the parent namespace.
 		NamespaceId ParentId;
 
-		/// The id of the mosaic.
+		/// Id of the mosaic.
 		catapult::MosaicId MosaicId;
 
-		/// The mosaic properties.
+		/// Mosaic properties.
 		MosaicProperties Properties;
 	};
 
@@ -126,7 +146,7 @@ namespace catapult { namespace model {
 	/// Notification of a mosaic change.
 	struct MosaicChangeNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Mosaic_Change_Notification;
 
 	public:
@@ -138,17 +158,17 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The signer.
+		/// Signer.
 		const Key& Signer;
 
-		/// The id of the affected mosaic.
+		/// Id of the affected mosaic.
 		catapult::MosaicId MosaicId;
 	};
 
 	/// Notification of a mosaic supply change.
 	struct MosaicSupplyChangeNotification : public Notification {
 	public:
-		/// The matching notification type.
+		/// Matching notification type.
 		static constexpr auto Notification_Type = Mosaic_Supply_Change_Notification;
 
 	public:
@@ -162,16 +182,16 @@ namespace catapult { namespace model {
 		{}
 
 	public:
-		/// The signer.
+		/// Signer.
 		const Key& Signer;
 
-		/// The id of the affected mosaic.
+		/// Id of the affected mosaic.
 		catapult::MosaicId MosaicId;
 
-		/// The supply change direction.
+		/// Supply change direction.
 		MosaicSupplyChangeDirection Direction;
 
-		/// The amount of the change.
+		/// Amount of the change.
 		Amount Delta;
 	};
 

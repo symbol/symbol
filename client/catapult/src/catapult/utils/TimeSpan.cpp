@@ -1,30 +1,28 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "TimeSpan.h"
 #include "IntegerMath.h"
-#include <iomanip>
-#include <iostream>
+#include "StreamFormatGuard.h"
 
 namespace catapult { namespace utils {
-
-	namespace {
-		class FormatterGuard {
-		public:
-			FormatterGuard(std::ostream& out) :
-				m_out(out),
-				m_flags(m_out.flags(std::ios::dec)),
-				m_fill(m_out.fill('0'))
-			{}
-
-			~FormatterGuard() {
-				m_out.flags(m_flags);
-				m_out.fill(m_fill);
-			}
-
-		private:
-			std::ostream& m_out;
-			std::ios_base::fmtflags m_flags;
-			char m_fill;
-		};
-	}
 
 	std::ostream& operator<<(std::ostream& out, const TimeSpan& timeSpan) {
 		// calculate components
@@ -35,7 +33,7 @@ namespace catapult { namespace utils {
 		auto hours = totalMillis;
 
 		// output as 00:00:00[.000]
-		FormatterGuard guard(out);
+		StreamFormatGuard guard(out, std::ios::dec, '0');
 		out << std::setw(2) << hours << ":" << std::setw(2) << minutes << ":" << std::setw(2) << seconds;
 
 		if (0 != millis)

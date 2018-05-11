@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "PacketWriters.h"
 #include "ClientConnector.h"
 #include "ServerConnector.h"
@@ -195,7 +215,7 @@ namespace catapult { namespace net {
 					, m_completionCallback(completionCallback)
 			{}
 
-			~ErrorHandlingPacketIo() {
+			~ErrorHandlingPacketIo() override {
 				m_completionCallback(true);
 			}
 
@@ -327,9 +347,9 @@ namespace catapult { namespace net {
 				if (!m_writers.prepareConnect(node))
 					return callback(PeerConnectResult::Already_Connected);
 
-				auto connectCallback = [pThis = shared_from_this(), node, callback](auto result, const auto& pSocket) {
+				m_pServerConnector->connect(node, [pThis = shared_from_this(), node, callback](auto result, const auto& pVerifiedSocket) {
 					// abort the connection if it failed or is redundant
-					if (PeerConnectResult::Accepted != result || !pThis->addWriter(node, pSocket)) {
+					if (PeerConnectResult::Accepted != result || !pThis->addWriter(node, pVerifiedSocket)) {
 						pThis->m_writers.abortConnect(node);
 
 						if (PeerConnectResult::Accepted == result)
@@ -337,20 +357,21 @@ namespace catapult { namespace net {
 					}
 
 					callback(result);
-				};
-				m_pServerConnector->connect(node, connectCallback);
+				});
 			}
 
-			void accept(const std::shared_ptr<ionet::PacketSocket>& pPacketSocket, const ConnectCallback& callback) override {
-				auto acceptCallback = [pThis = shared_from_this(), pPacketSocket, callback](auto result, const auto& remoteKey) {
+			void accept(const std::shared_ptr<ionet::PacketSocket>& pAcceptedSocket, const ConnectCallback& callback) override {
+				m_pClientConnector->accept(pAcceptedSocket, [pThis = shared_from_this(), callback](
+						auto result,
+						const auto& pVerifiedSocket,
+						const auto& remoteKey) {
 					if (PeerConnectResult::Accepted == result) {
-						if (!pThis->addWriter(remoteKey, pPacketSocket))
+						if (!pThis->addWriter(remoteKey, pVerifiedSocket))
 							result = PeerConnectResult::Already_Connected;
 					}
 
 					callback(result);
-				};
-				m_pClientConnector->accept(pPacketSocket, acceptCallback);
+				});
 			}
 
 		private:

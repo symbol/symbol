@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "mongo/src/storages/MongoAccountStateCacheStorage.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/cache_core/AccountStateCache.h"
@@ -62,12 +82,12 @@ namespace catapult { namespace mongo { namespace storages {
 
 			static void Mutate(cache::CatapultCacheDelta& delta, const ModelType& pAccountState) {
 				// update expected
-				pAccountState->Balances.credit(Xem_Id, Amount(12'345'000'000u));
+				pAccountState->Balances.credit(Xem_Id, Amount(12'345'000'000));
 
 				// update cache
 				auto& accountStateCacheDelta = delta.sub<cache::AccountStateCache>();
 				auto& accountStateFromCache = accountStateCacheDelta.get(pAccountState->PublicKey);
-				accountStateFromCache.Balances.credit(Xem_Id, Amount(12'345'000'000u));
+				accountStateFromCache.Balances.credit(Xem_Id, Amount(12'345'000'000));
 			}
 
 			static auto GetFindFilter(const ModelType& pAccountState) {
@@ -80,5 +100,5 @@ namespace catapult { namespace mongo { namespace storages {
 		};
 	}
 
-	DEFINE_FLAT_CACHE_STORAGE_TESTS(AccountStateCacheTraits,);
+	DEFINE_FLAT_CACHE_STORAGE_TESTS(AccountStateCacheTraits,)
 }}}

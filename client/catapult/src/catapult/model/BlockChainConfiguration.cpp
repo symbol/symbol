@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "BlockChainConfiguration.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
@@ -5,8 +25,6 @@
 namespace catapult { namespace model {
 
 	namespace {
-		const RawString Plugin_Section_Prefix("plugin:");
-
 		void CheckPluginName(const std::string& pluginName) {
 			if (std::any_of(pluginName.cbegin(), pluginName.cend(), [](auto ch) { return (ch < 'a' || ch > 'z') && '.' != ch; }))
 				CATAPULT_THROW_INVALID_ARGUMENT_1("plugin name contains unexpected character", pluginName);
@@ -53,11 +71,11 @@ namespace catapult { namespace model {
 			if ("network" == section || "chain" == section)
 				continue;
 
-			const auto& prefix = Plugin_Section_Prefix;
-			if (section.size() <= prefix.Size || 0 != memcmp(section.data(), prefix.pData, prefix.Size))
+			std::string prefix("plugin:");
+			if (section.size() <= prefix.size() || 0 != section.find(prefix))
 				CATAPULT_THROW_INVALID_ARGUMENT_1("configuration bag contains unexpected section", section);
 
-			auto pluginName = section.substr(prefix.Size);
+			auto pluginName = section.substr(prefix.size());
 			CheckPluginName(pluginName);
 			auto iter = config.Plugins.emplace(pluginName, utils::ExtractSectionAsBag(bag, section.c_str())).first;
 			numPluginProperties += iter->second.size();

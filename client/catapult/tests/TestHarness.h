@@ -1,9 +1,34 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #pragma once
 #include "catapult/utils/HexFormatter.h"
 #include "tests/test/nodeps/Conversions.h"
 #include "tests/test/nodeps/Random.h"
 #include "tests/test/nodeps/Stress.h" /* note that gtest.h is included by Stress.h */
 #include "tests/test/nodeps/Waits.h"
+
+// EXPECT_EQ is not used anywhere to compare different types of null pointers
+// so the following hack is used to circumvent clang complaints inside gtest
+#undef GTEST_IS_NULL_LITERAL_
+#define GTEST_IS_NULL_LITERAL_(x) false
 
 namespace std {
 
@@ -16,14 +41,14 @@ namespace std {
 
 namespace catapult { namespace test {
 
-/// The default local host port.
+		/// Default local host port used in tests.
 #ifdef STRESS
 		constexpr unsigned short Local_Host_Port = 3014;
 #else
 		constexpr unsigned short Local_Host_Port = 2014;
 #endif
 
-		/// The maximum number of times to retry a non-deterministic test.
+		/// Maximum number of times to retry a non-deterministic test.
 		constexpr uint32_t Max_Non_Deterministic_Test_Retries = 10;
 
 		/// Gets the number of default thread pool threads to use in tests.

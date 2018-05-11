@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/thread/Scheduler.h"
 #include "catapult/thread/IoServiceThreadPool.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
@@ -19,7 +39,7 @@ namespace catapult { namespace thread {
 		Task CreateContinuousTask(uint64_t startDelayMs = 10) {
 			return {
 				utils::TimeSpan::FromMilliseconds(startDelayMs),
-				utils::TimeSpan::FromMilliseconds(10),
+				CreateUniformDelayGenerator(utils::TimeSpan::FromMilliseconds(10)),
 				[]() { return make_ready_future(TaskResult::Continue); },
 				"continuous task"
 			};
@@ -28,7 +48,7 @@ namespace catapult { namespace thread {
 		Task CreateImmediateTask(const TaskCallback& callback) {
 			return {
 				utils::TimeSpan::FromMilliseconds(0),
-				utils::TimeSpan::FromMilliseconds(0),
+				CreateUniformDelayGenerator(utils::TimeSpan::FromMilliseconds(0)),
 				callback,
 				"immediate task"
 			};
@@ -208,12 +228,12 @@ namespace catapult { namespace thread {
 	// region shutdown
 
 	namespace {
-		void AssertCanShutdownScheduler(size_t numShutdowns) {
+		void AssertCanShutdownScheduler(size_t numShutdownCalls) {
 			// Arrange: set up a scheduler
 			auto pScheduler = CreateScheduler();
 
 			// Act: stop the scheduler
-			for (auto i = 0u; i < numShutdowns; ++i)
+			for (auto i = 0u; i < numShutdownCalls; ++i)
 				pScheduler->shutdown();
 
 			// Assert: all tasks have been stopped
@@ -391,7 +411,7 @@ namespace catapult { namespace thread {
 		auto pScheduler = CreateScheduler();
 
 		// Act: add multiple tasks
-		for (auto i = 0u; i < 101u; ++i)
+		for (auto i = 0u; i < 101; ++i)
 			pScheduler->addTask(CreateContinuousTask(1000));
 
 		WaitForScheduled(*pScheduler, 101);
@@ -433,12 +453,12 @@ namespace catapult { namespace thread {
 		template<typename TSleep>
 		Task CreateContinuousTaskWithCounterAndSleep(
 				uint32_t startDelayMs,
-				uint32_t refreshDelayMs,
+				uint32_t repeatDelayMs,
 				std::atomic<uint32_t>& counter,
 				TSleep sleep) {
 			return {
 				utils::TimeSpan::FromMilliseconds(startDelayMs),
-				utils::TimeSpan::FromMilliseconds(refreshDelayMs),
+				CreateUniformDelayGenerator(utils::TimeSpan::FromMilliseconds(repeatDelayMs)),
 				[&counter, sleep]() {
 					++counter;
 					return sleep();
@@ -449,10 +469,10 @@ namespace catapult { namespace thread {
 
 		Task CreateContinuousTaskWithCounter(
 				uint32_t startDelayMs,
-				uint32_t refreshDelayMs,
+				uint32_t repeatDelayMs,
 				uint32_t callbackDelayMs,
 				std::atomic<uint32_t>& counter) {
-			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, refreshDelayMs, counter, [callbackDelayMs]() {
+			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, repeatDelayMs, counter, [callbackDelayMs]() {
 				test::Sleep(callbackDelayMs);
 				return make_ready_future(TaskResult::Continue);
 			});
@@ -461,11 +481,11 @@ namespace catapult { namespace thread {
 		Task CreateContinuousAsyncTaskWithCounter(
 				boost::asio::io_service& service,
 				uint32_t startDelayMs,
-				uint32_t refreshDelayMs,
+				uint32_t repeatDelayMs,
 				uint32_t callbackDelayMs,
 				std::atomic<uint32_t>& counter) {
 			auto pTimer = std::make_shared<boost::asio::steady_timer>(service);
-			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, refreshDelayMs, counter, [callbackDelayMs, pTimer]() {
+			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, repeatDelayMs, counter, [callbackDelayMs, pTimer]() {
 				auto pPromise = std::make_shared<promise<TaskResult>>();
 				pTimer->expires_from_now(std::chrono::milliseconds(callbackDelayMs));
 				pTimer->async_wait([pPromise](const auto&) {
@@ -504,7 +524,7 @@ namespace catapult { namespace thread {
 		});
 	}
 
-	TEST(TEST_CLASS, RefreshDelayIsRespected) {
+	TEST(TEST_CLASS, RepeatDelayIsRespected) {
 		// Assert: non-deterministic because delay is impacted by scheduling
 		test::RunNonDeterministicTest("Scheduler", [](auto i) {
 			// Arrange: create a scheduler and add a single task to it
@@ -523,9 +543,37 @@ namespace catapult { namespace thread {
 		});
 	}
 
+	TEST(TEST_CLASS, NonConstantRepeatDelayIsRespected) {
+		// Assert: non-deterministic because delay is impacted by scheduling
+		test::RunNonDeterministicTest("Scheduler", [](auto i) {
+			// Arrange: create a scheduler and add a single task to it
+			auto timeUnit = test::GetTimeUnitForIteration(i);
+			auto pScheduler = CreateScheduler();
+			std::atomic<uint32_t> counter(0);
+
+			// - configure the delays to be: 1 (start), 4, 1, 2, 10
+			size_t delayCounter = 0;
+			auto task = CreateContinuousTaskWithCounter(timeUnit, 4 * timeUnit, 0, counter);
+			task.NextDelay = [delayCounter, timeUnit]() mutable {
+				std::vector<uint32_t> delays{ 4, 1, 2, 10 };
+				auto delay = delays[std::min(delayCounter++, delays.size() - 1)];
+				return utils::TimeSpan::FromMilliseconds(delay * timeUnit);
+			};
+			pScheduler->addTask(task);
+
+			// Assert: after sleeping 9x, the timer should have fired at 1, 5, 6, 8
+			test::Sleep(9 * timeUnit);
+			if (!EXPECT_EQ_RETRY(4u, counter))
+				return false;
+
+			EXPECT_EQ(1u, pScheduler->numScheduledTasks());
+			return true;
+		});
+	}
+
 	namespace {
 		template<typename TCreateTask>
-		void AssertRefreshDelayIsRelativeToCallbackTime(TCreateTask createTask) {
+		void AssertRepeatDelayIsRelativeToCallbackTime(TCreateTask createTask) {
 			// Assert: non-deterministic because delay is impacted by scheduling
 			test::RunNonDeterministicTest("Scheduler", [createTask](auto i) {
 				// Arrange: create a scheduler and add a single task to it
@@ -545,18 +593,18 @@ namespace catapult { namespace thread {
 		}
 	}
 
-	TEST(TEST_CLASS, RefreshDelayIsRelativeToCallbackTime_Blocking) {
+	TEST(TEST_CLASS, RepeatDelayIsRelativeToCallbackTime_Blocking) {
 		// Assert:
-		AssertRefreshDelayIsRelativeToCallbackTime(CreateContinuousTaskWithCounter);
+		AssertRepeatDelayIsRelativeToCallbackTime(CreateContinuousTaskWithCounter);
 	}
 
-	TEST(TEST_CLASS, RefreshDelayIsRelativeToCallbackTime_NonBlocking) {
+	TEST(TEST_CLASS, RepeatDelayIsRelativeToCallbackTime_NonBlocking) {
 		// Arrange: create pool here so that current thread joins the pool (in the pool destructor)
 		auto pPool = test::CreateStartedIoServiceThreadPool(1);
 
 		// Assert:
-		AssertRefreshDelayIsRelativeToCallbackTime([&pPool](auto startDelayMs, auto refreshDelayMs, auto callbackDelayMs, auto& counter) {
-			return CreateContinuousAsyncTaskWithCounter(pPool->service(), startDelayMs, refreshDelayMs, callbackDelayMs, counter);
+		AssertRepeatDelayIsRelativeToCallbackTime([&pPool](auto startDelayMs, auto repeatDelayMs, auto callbackDelayMs, auto& counter) {
+			return CreateContinuousAsyncTaskWithCounter(pPool->service(), startDelayMs, repeatDelayMs, callbackDelayMs, counter);
 		});
 	}
 

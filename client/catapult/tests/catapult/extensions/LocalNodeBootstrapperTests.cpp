@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/extensions/LocalNodeBootstrapper.h"
 #include "catapult/plugins/PluginExceptions.h"
 #include "tests/test/local/LocalTestUtils.h"
@@ -14,13 +34,19 @@ namespace catapult { namespace extensions {
 		// Arrange:
 		auto config = test::CreateUninitializedLocalNodeConfiguration();
 		const_cast<uint32_t&>(config.BlockChain.BlockPruneInterval) = 15;
+		const_cast<bool&>(config.Node.ShouldUseCacheDatabaseStorage) = true;
+		const_cast<std::string&>(config.User.DataDirectory) = "base_data_dir";
 
 		// Act:
 		LocalNodeBootstrapper bootstrapper(config, "resources path", "bootstrapper");
 
 		// Assert: compare BlockPruneInterval as a sentinel value because the bootstrapper copies the config
 		EXPECT_EQ(15u, bootstrapper.config().BlockChain.BlockPruneInterval);
-		EXPECT_EQ(15u, bootstrapper.pluginManager().config().BlockPruneInterval);
+
+		const auto& pluginManager = bootstrapper.pluginManager();
+		EXPECT_EQ(15u, pluginManager.config().BlockPruneInterval);
+		EXPECT_TRUE(pluginManager.storageConfig().PreferCacheDatabase);
+		EXPECT_EQ("base_data_dir/statedb", pluginManager.storageConfig().CacheDatabaseDirectory);
 
 		// - resources path should be correct
 		EXPECT_EQ("resources path", bootstrapper.resourcesPath());
@@ -158,7 +184,7 @@ namespace catapult { namespace extensions {
 		AddStaticNodesFromPath(bootstrapper, "../resources/peers-p2p.json");
 
 		// Assert:
-		EXPECT_EQ(4u, bootstrapper.staticNodes().size());
+		EXPECT_EQ(1u, bootstrapper.staticNodes().size());
 	}
 
 	// endregion

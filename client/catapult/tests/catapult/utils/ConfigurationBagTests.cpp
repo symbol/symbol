@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/TimeSpan.h"
 #include "tests/TestHarness.h"
@@ -151,9 +171,9 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, TryGetReturnsFalseIfEitherSectionOrNameDoesNotMatch) {
 		// Assert:
-		AssertTryGetFailure(Foo_Beta_Key, 17u); // different name
-		AssertTryGetFailure(Bar_Alpha_Key, 18u); // different section
-		AssertTryGetFailure(Bar_Beta_Key, 19u); // unrelated
+		AssertTryGetFailure(Foo_Beta_Key, static_cast<uint32_t>(17)); // different name
+		AssertTryGetFailure(Bar_Alpha_Key, static_cast<uint32_t>(18)); // different section
+		AssertTryGetFailure(Bar_Beta_Key, static_cast<uint32_t>(19)); // unrelated
 	}
 
 	TEST(TEST_CLASS, TryGetThrowsIfValueCannotBeParsed) {

@@ -30,6 +30,7 @@ PRINT_INFO = 0
 PRINT_DEBUG = 0
 PRINT_TRACE = 0
 
+ANON_NS_FAKENAME = '<anon>'
 TEXT_OUTPUT = False
 DEST_DIR = '.'
 
@@ -80,6 +81,7 @@ class NamespaceInfo: # pylint: disable=too-few-public-methods
         self.hadEnum = self.hadEnum or other.hadEnum
         self.hadUsing = self.hadUsing or other.hadUsing
         self.hadTest = self.hadTest or other.hadTest
+        self.hadConstant = self.hadConstant or other.hadConstant
         self.hadInclude = self.hadInclude or other.hadInclude
         # this is a hack for some catapult-specific macros usage
         self.hadDefineMacro = self.hadDefineMacro or other.hadDefineMacro
@@ -92,6 +94,7 @@ class NamespaceInfo: # pylint: disable=too-few-public-methods
                     self.hadFuncOrVar or
                     self.hadUsing or
                     self.hadTest or
+                    self.hadConstant or
                     self.hadInclude or
                     self.hadDefineMacro)
 
@@ -102,13 +105,14 @@ class NamespaceInfo: # pylint: disable=too-few-public-methods
         return hash(self.name)
 
     def __repr__(self):
-        return '{} (fwd:{}, class:{}, enum:{}, funcOrVar:{}, using:{}, inc:{}, def:{})'.format(
+        return '{} (fwd:{}, class:{}, enum:{}, funcOrVar:{}, using:{}, const:{} inc:{}, def:{})'.format(
             self.name or 'None',
             self.hadForward,
             self.hadClass,
             self.hadEnum,
             self.hadFuncOrVar,
             self.hadUsing,
+            self.hadConstant,
             self.hadInclude,
             self.hadDefineMacro)
 
@@ -246,6 +250,7 @@ class NamespacesParser:
 
     def _parseNormalEquals(self, tok):
         self._quitIfNoNamestack(tok)
+        self.nameStack.append(tok)
         self.mode = Mode.FindSemiColon
 
     def saveTokenOrBye(self, previousToken, token, tokenName):
@@ -256,7 +261,6 @@ class NamespacesParser:
             self.quit(token)
 
     def _operatorEquals(self, nextToken):
-        # operator==
         if nextToken.type == 'EQUALS':
             self.nameStack.append(nextToken)
             return NextTokenBehavior.Pick
@@ -285,14 +289,27 @@ class NamespacesParser:
         self.tok = nextToken
         return NextTokenBehavior.Skip
 
+    def _operatorLessThan(self, nextToken):
+        # operator <<
+        if nextToken.type == 'OPEN_BRACKET':
+            self.nameStack.append(nextToken)
+            return NextTokenBehavior.Pick
+
+        # operator<
+        self.tok = nextToken
+        return NextTokenBehavior.Skip
+
     def collectOperator(self):
         tok = lex.token()
         self.nameStack.append(tok)
         tok2 = lex.token()
-        # operator()
         behavior = NextTokenBehavior.Pick
+        # operator()
         if tok.type == 'OPEN_PAREN':
             self.saveTokenOrBye(tok, tok2, 'CLOSE_PAREN')
+        # operator[]
+        elif tok.type == 'OPEN_SQUARE_BRACKET':
+            self.saveTokenOrBye(tok, tok2, 'CLOSE_SQUARE_BRACKET')
         # operator==
         elif tok.type == 'EQUALS':
             behavior = self._operatorEquals(tok2)
@@ -313,9 +330,8 @@ class NamespacesParser:
                 self.quit(tok2)
             self.tok = tok2
             return
-        # operator<<
         elif tok.type == 'OPEN_BRACKET':
-            self.saveTokenOrBye(tok, tok2, 'OPEN_BRACKET')
+            behavior = self._operatorLessThan(tok2)
         else:
             self.quit(tok2)
 
@@ -324,6 +340,10 @@ class NamespacesParser:
 
     def addNamespace(self):
         name = '::'.join(map(lambda c: c.current, self.namespaceStack))
+        if ANON_NS_FAKENAME in name:
+            if self.path.endswith('.h'):
+                self.errorReporter('anonNamespace', Line(self.path, name, self.tok.lineno))
+
         current = self.namespaceStack.pop()
         current.name = name
         dummy = NamespaceInfo('')
@@ -423,7 +443,7 @@ class NamespacesParser:
             self.curNsPart = tok.value
         elif tok.type == 'OPEN_BRACE':
             if not self.curNsPart:
-                self.curNsPart = '<anon>'
+                self.curNsPart = ANON_NS_FAKENAME
             namespace = NamespaceInfo(self.curNsPart)
             self.namespaceStack.append(namespace)
             self.switchToNormal()
@@ -531,6 +551,21 @@ class NamespacesParser:
                 self.checkProperties()
                 self.closingBraceCallback()
 
+    def _checkFuncOrVar(self):
+        if has('OPEN_BRACE', self.nameStack) and has('CLOSE_BRACE', self.nameStack):
+            if self.namespaceStack:
+                self.namespaceStack[-1].hadFuncOrVar = True
+                info('HAD FUNC or VAR')
+            else:
+                functionName = ' '.join(map(lambda e: e.value, self.nameStack))
+                info('WARNING: Probably function at ROOT namespace found: ', self.path, functionName)
+        if has('OPEN_SQUARE_BRACKET', self.nameStack) and has('CLOSE_SQUARE_BRACKET', self.nameStack):
+            if self.namespaceStack:
+                self.namespaceStack[-1].hadFuncOrVar = True
+                info('HAD FUNC or VAR')
+            else:
+                warning('WARNING: Unknown case: ', self.path, ' '.join(map(lambda e: e.value, self.nameStack)))
+
     def checkProperties(self):
         if self.nameStack[0].value == 'using':
             if self.namespaceStack:
@@ -544,19 +579,12 @@ class NamespacesParser:
             # Ignore
             pass
         else:
-            if has('OPEN_BRACE', self.nameStack) and has('CLOSE_BRACE', self.nameStack):
-                if self.namespaceStack:
-                    self.namespaceStack[-1].hadFuncOrVar = True
-                    info('HAD FUNC or VAR')
-                else:
-                    functionName = ' '.join(map(lambda e: e.value, self.nameStack))
-                    info('WARNING: Probably function at ROOT namespace found: ', self.path, functionName)
-            if has('OPEN_SQUARE_BRACKET', self.nameStack) and has('CLOSE_SQUARE_BRACKET', self.nameStack):
-                if self.namespaceStack:
-                    self.namespaceStack[-1].hadFuncOrVar = True
-                    info('HAD FUNC or VAR')
-                else:
-                    warning('WARNING: Unknown case: ', self.path, ' '.join(map(lambda e: e.value, self.nameStack)))
+            self._checkFuncOrVar()
+
+            # if constexpr and has assignment
+            if self.nameStack[0].value == 'constexpr' and has('EQUALS', self.nameStack):
+                self.namespaceStack[-1].hadConstant = True
+                info('HAD Constant')
 
     def findSemiColon(self, tok):
         if self.currentColonBraceLevel == 0:

@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/WrappedWithOwnerDecorator.h"
 #include "tests/TestHarness.h"
 
@@ -37,8 +57,8 @@ namespace catapult { namespace utils {
 		});
 
 		// Act: invoke the lambda
-		decorator(3u);
-		decorator(2u);
+		decorator(static_cast<uint32_t>(3));
+		decorator(static_cast<uint32_t>(2));
 
 		// Assert: the function was called and decorator has kept the owner alive
 		EXPECT_EQ(35u, counter);
@@ -53,8 +73,8 @@ namespace catapult { namespace utils {
 		});
 
 		// Act: invoke the lambda
-		auto result1 = decorator(3u);
-		auto result2 = decorator(2u);
+		auto result1 = decorator(static_cast<uint32_t>(3));
+		auto result2 = decorator(static_cast<uint32_t>(2));
 
 		// Assert: the function was called and decorator has kept the owner alive
 		EXPECT_EQ(21u, result1);
@@ -76,7 +96,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(1u, decorator.owner().use_count());
 
 		// - invoke the lambda
-		decorator(3u);
+		decorator(static_cast<uint32_t>(3));
 
 		// Assert: the function was called and decorator has kept the owner alive
 		EXPECT_EQ(21u, counter);
@@ -124,7 +144,7 @@ namespace catapult { namespace utils {
 			EXPECT_EQ(1u, decorator.owner().use_count());
 
 			// - invoke the lambda
-			decorator(3u);
+			decorator(static_cast<uint32_t>(3));
 
 			// Sanity: the counter was not yet updated
 			EXPECT_EQ(0u, counter);

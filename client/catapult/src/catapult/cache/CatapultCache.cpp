@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "CatapultCache.h"
 #include "CacheHeight.h"
 #include "CatapultCacheDetachedDelta.h"
@@ -129,10 +149,11 @@ namespace catapult { namespace cache {
 		std::vector<std::unique_ptr<TResultView>> MapSubCaches(TSubCaches& subCaches, TMapper map, bool includeNulls = true) {
 			std::vector<std::unique_ptr<TResultView>> resultViews;
 			for (const auto& pSubCache : subCaches) {
-				if (!pSubCache && !includeNulls)
+				auto pSubCacheView = pSubCache ? map(pSubCache) : nullptr;
+				if (!pSubCacheView && !includeNulls)
 					continue;
 
-				resultViews.push_back(pSubCache ? map(pSubCache) : nullptr);
+				resultViews.push_back(std::move(pSubCacheView));
 			}
 
 			return resultViews;
@@ -189,14 +210,14 @@ namespace catapult { namespace cache {
 	std::vector<std::unique_ptr<const CacheStorage>> CatapultCache::storages() const {
 		return MapSubCaches<const CacheStorage>(
 				m_subCaches,
-				[this](const auto& pSubCache) { return pSubCache->createStorage(*this); },
+				[](const auto& pSubCache) { return pSubCache->createStorage(); },
 				false);
 	}
 
 	std::vector<std::unique_ptr<CacheStorage>> CatapultCache::storages() {
 		return MapSubCaches<CacheStorage>(
 				m_subCaches,
-				[this](const auto& pSubCache) { return pSubCache->createStorage(*this); },
+				[](const auto& pSubCache) { return pSubCache->createStorage(); },
 				false);
 	}
 

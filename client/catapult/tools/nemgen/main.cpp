@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "NemesisConfiguration.h"
 #include "TransactionRegistryFactory.h"
 #include "tools/ToolMain.h"
@@ -72,15 +92,16 @@ namespace catapult { namespace tools { namespace nemgen {
 				const auto& definition = mosaicEntry.definition();
 				const auto& properties = definition.properties();
 				OutputName(name, id);
-				CATAPULT_LOG(debug) << " - Namespace Id: " << utils::HexFormat(mosaicEntry.namespaceId());
-				CATAPULT_LOG(debug) << " - Owner: " << utils::HexFormat(definition.owner());
-				CATAPULT_LOG(debug) << " - Supply: " << mosaicEntry.supply();
-				CATAPULT_LOG(debug) << " - Divisibility: " << static_cast<uint32_t>(properties.divisibility());
-				CATAPULT_LOG(debug) << " - Duration: " << properties.duration() << " blocks (0 = eternal)";
-				CATAPULT_LOG(debug) << " - IsTransferable: " << properties.is(model::MosaicFlags::Transferable);
-				CATAPULT_LOG(debug) << " - IsSupplyMutable: " << properties.is(model::MosaicFlags::Supply_Mutable);
-				CATAPULT_LOG(debug) << " - IsLevyMutable: " << properties.is(model::MosaicFlags::Levy_Mutable);
-				CATAPULT_LOG(debug);
+				CATAPULT_LOG(debug)
+						<< " - Namespace Id: " << utils::HexFormat(mosaicEntry.namespaceId()) << std::endl
+						<< " - Owner: " << utils::HexFormat(definition.owner()) << std::endl
+						<< " - Supply: " << mosaicEntry.supply() << std::endl
+						<< " - Divisibility: " << static_cast<uint32_t>(properties.divisibility()) << std::endl
+						<< " - Duration: " << properties.duration() << " blocks (0 = eternal)" << std::endl
+						<< " - IsTransferable: " << properties.is(model::MosaicFlags::Transferable) << std::endl
+						<< " - IsSupplyMutable: " << properties.is(model::MosaicFlags::Supply_Mutable) << std::endl
+						<< " - IsLevyMutable: " << properties.is(model::MosaicFlags::Levy_Mutable) << std::endl
+						<< std::endl;
 
 				if (!mosaicIds.insert(id).second) {
 					CATAPULT_LOG(warning) << "mosaic " << name << " does not have a unique id";

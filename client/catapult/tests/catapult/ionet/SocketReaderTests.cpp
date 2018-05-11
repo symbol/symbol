@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/ionet/SocketReader.h"
 #include "catapult/ionet/BufferedPacketIo.h"
 #include "catapult/ionet/IoTypes.h"
@@ -127,7 +147,7 @@ namespace catapult { namespace ionet {
 			auto pResponsePacket = CreateSharedPacket<Packet>(numResponseBytes);
 			pResponsePacket->Size = sizeof(PacketHeader) + numResponseBytes;
 			std::memcpy(pResponsePacket.get() + 1, responseBytes.data(), responseBytes.size());
-			context.response(pResponsePacket);
+			context.response(PacketPayload(pResponsePacket));
 		}
 
 		void AssertSocketReadResult(
@@ -460,10 +480,11 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CannotStartSimultaneousReads) {
 		// Arrange: block the server handler until all reads have been attempted
 		test::AutoSetFlag allReadsAttempted;
+		auto pAllReadsAttempted = allReadsAttempted.state();
 		ReaderFactory factory;
 		ServerPacketHandlers handlers;
-		handlers.registerHandler(test::Default_Packet_Type, [&](const auto&, const auto&) {
-			allReadsAttempted.wait();
+		handlers.registerHandler(test::Default_Packet_Type, [pAllReadsAttempted](const auto&, const auto&) {
+			pAllReadsAttempted->wait();
 		});
 
 		auto sendBuffers = test::GenerateRandomPacketBuffers({ 100 });
@@ -471,14 +492,14 @@ namespace catapult { namespace ionet {
 		// Act: "server" - starts multiple reads
 		//      "client" - writes a buffer to the socket
 		std::unique_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(factory.service(), [&](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(factory.service(), [&, pAllReadsAttempted](const auto& pServerSocket) {
 			pReader = factory.createReader(pServerSocket, handlers);
 			pReader->read([](auto) {});
 
 			// Act + Assert: attempting additional reads will throw
 			EXPECT_THROW(pReader->read([](auto) {}), catapult_runtime_error);
 			EXPECT_THROW(pReader->read([](auto) {}), catapult_runtime_error);
-			allReadsAttempted.set();
+			pAllReadsAttempted->set();
 		});
 		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
 

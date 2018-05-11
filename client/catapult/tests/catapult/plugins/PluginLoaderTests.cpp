@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/plugins/PluginLoader.h"
 #include "catapult/plugins/PluginExceptions.h"
 #include "catapult/plugins/PluginManager.h"
@@ -20,7 +40,7 @@ namespace catapult { namespace plugins {
 			// Arrange: ensure module is destroyed after manager
 			for (const auto& name : pluginNames) {
 				PluginModules modules;
-				PluginManager manager(config);
+				PluginManager manager(config, StorageConfiguration());
 				CATAPULT_LOG(debug) << "loading plugin with name: " << name;
 
 				// Act:
@@ -52,7 +72,7 @@ namespace catapult { namespace plugins {
 		void AssertCannotLoadUnknownPlugin(const std::string& directory) {
 			// Arrange:
 			PluginModules modules;
-			PluginManager manager(model::BlockChainConfiguration::Uninitialized());
+			PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
 
 			// Act + Assert:
 			EXPECT_THROW(LoadPluginByName(manager, modules, directory, "catapult.plugins.awesome"), catapult_invalid_argument);
@@ -99,7 +119,7 @@ namespace catapult { namespace plugins {
 
 			// - create the manager
 			PluginModules modules;
-			PluginManager manager(config);
+			PluginManager manager(config, StorageConfiguration());
 
 			// Act:
 			LoadPluginByName(manager, modules, "", Known_Plugin_Name);

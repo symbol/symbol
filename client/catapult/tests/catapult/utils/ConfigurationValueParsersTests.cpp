@@ -1,3 +1,23 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 #include "catapult/utils/ConfigurationValueParsers.h"
 #include "catapult/utils/BlockSpan.h"
 #include "catapult/utils/FileSize.h"
@@ -26,7 +46,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	// region enums / bool
+	// region discrete enums
 
 	namespace {
 		template<typename T>
@@ -34,10 +54,11 @@ namespace catapult { namespace utils {
 			test::AssertEnumParseFailure(seed, initialValue, TryParseValueT<T>);
 		}
 
-		const std::array<std::pair<const char*, int>, 3> String_To_Square_Mapping{{
+		const std::array<std::pair<const char*, int>, 4> String_To_Square_Mapping{{
 			{ std::make_pair("one", 1) },
 			{ std::make_pair("two", 4) },
-			{ std::make_pair("three", 9) }
+			{ std::make_pair("three", 9) },
+			{ std::make_pair("four", 16) },
 		}};
 	}
 
@@ -53,6 +74,7 @@ namespace catapult { namespace utils {
 		assertSuccessfulParse("one", 1);
 		assertSuccessfulParse("two", 4);
 		assertSuccessfulParse("three", 9);
+		assertSuccessfulParse("four", 16);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidEnumValue) {
@@ -61,6 +83,49 @@ namespace catapult { namespace utils {
 			return TryParseEnumValue(String_To_Square_Mapping, str, parsedValue);
 		});
 	}
+
+	// endregion
+
+	// region bitwise enums
+
+	TEST(TEST_CLASS, CanParseEmptyStringAsBitwiseEnumValue) {
+		// Act + Assert:
+		test::AssertParse("", 0, [](const auto& str, auto& parsedValue) {
+			return TryParseBitwiseEnumValue(String_To_Square_Mapping, str, parsedValue);
+		});
+	}
+
+	TEST(TEST_CLASS, CanParseSingleValueAsBitwiseEnumValue) {
+		// Act + Assert:
+		test::AssertParse("three", 9, [](const auto& str, auto& parsedValue) {
+			return TryParseBitwiseEnumValue(String_To_Square_Mapping, str, parsedValue);
+		});
+	}
+
+	TEST(TEST_CLASS, CanParseMultipleValuesAsBitwiseEnumValue) {
+		// Act + Assert:
+		test::AssertParse("two,four", 20, [](const auto& str, auto& parsedValue) {
+			return TryParseBitwiseEnumValue(String_To_Square_Mapping, str, parsedValue);
+		});
+	}
+
+	TEST(TEST_CLASS, CannotParseMalformedSetAsBitwiseEnumValue) {
+		// Act + Assert:
+		test::AssertFailedParse("two,,four", 0, [](const auto& str, auto& parsedValue) {
+			return TryParseBitwiseEnumValue(String_To_Square_Mapping, str, parsedValue);
+		});
+	}
+
+	TEST(TEST_CLASS, CannotParseSetWithUnknownValueAsBitwiseEnumValue) {
+		// Act + Assert:
+		test::AssertFailedParse("two,five,four", 0, [](const auto& str, auto& parsedValue) {
+			return TryParseBitwiseEnumValue(String_To_Square_Mapping, str, parsedValue);
+		});
+	}
+
+	// endregion
+
+	// region log related enums
 
 	TEST(TEST_CLASS, CanParseValidLogLevel) {
 		// Assert:
@@ -105,6 +170,10 @@ namespace catapult { namespace utils {
 		AssertEnumParseFailure("Ansi", LogColorMode::None);
 	}
 
+	// endregion
+
+	// region bool
+
 	TEST(TEST_CLASS, CanParseValidBoolean) {
 		// Assert:
 		AssertSuccessfulParse("true", true);
@@ -124,18 +193,18 @@ namespace catapult { namespace utils {
 		template<typename TNumeric, typename TFactory>
 		void AssertUnsignedIntParseSuccess(TNumeric expectedMaxValue, const std::string& postfix, TFactory factory) {
 			using NumericLimits = std::numeric_limits<TNumeric>;
-			AssertSuccessfulParse(std::to_string(NumericLimits::min()) + postfix, factory(0u)); // min
-			AssertSuccessfulParse("1" + postfix, factory(1u)); // other values
-			AssertSuccessfulParse("1234" + postfix, factory(1234u));
-			AssertSuccessfulParse("8692" + postfix, factory(8692u));
-			AssertSuccessfulParse("8'692" + postfix, factory(8692u)); // with separators
-			AssertSuccessfulParse("8'6'9'2" + postfix, factory(8692u));
+			AssertSuccessfulParse(std::to_string(NumericLimits::min()) + postfix, factory(static_cast<TNumeric>(0))); // min
+			AssertSuccessfulParse("1" + postfix, factory(1)); // other values
+			AssertSuccessfulParse("1234" + postfix, factory(1234));
+			AssertSuccessfulParse("8692" + postfix, factory(8692));
+			AssertSuccessfulParse("8'692" + postfix, factory(8692)); // with separators
+			AssertSuccessfulParse("8'6'9'2" + postfix, factory(8692));
 			AssertSuccessfulParse(std::to_string(NumericLimits::max()) + postfix, factory(expectedMaxValue)); // max
 		}
 
 		template<typename T, typename TNumeric>
 		void AssertUnsignedIntParseSuccess(TNumeric expectedMaxValue) {
-			AssertUnsignedIntParseSuccess<TNumeric>(expectedMaxValue, "", [](auto raw) { return T(raw); });
+			AssertUnsignedIntParseSuccess<TNumeric>(expectedMaxValue, "", [](auto raw) { return T(static_cast<TNumeric>(raw)); });
 		}
 
 		template<typename T>
