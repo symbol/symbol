@@ -1,5 +1,7 @@
 # catapult-rest
 
+[![Build Status](https://api.travis-ci.org/nemtech/catapult-rest.svg?branch=master)](https://travis-ci.org/nemtech/catapult-rest)
+
 ## Requirements
 
 - NodeJS version 8 or 9

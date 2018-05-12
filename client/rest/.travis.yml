@@ -1,0 +1,28 @@
+language: node_js
+
+node_js:
+  - "8"
+  - "9"
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - libzmq3-dev
+
+services: mongodb
+
+env:
+  matrix:
+    - SUBPROJECT=catapult-sdk
+    - SUBPROJECT=monitor
+    - SUBPROJECT=rest
+    - SUBPROJECT=spammer
+
+cache: yarn
+
+before_script:
+  - sh yarn_setup.sh
+
+script: cd ${SUBPROJECT} && yarn test
