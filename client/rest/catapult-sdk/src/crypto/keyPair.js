@@ -1,7 +1,27 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /** @module crypto/keyPair */
 const sha3Hasher = require('./sha3Hasher');
 const nacl = require('../external/nacl_catapult');
-const array = require('../utils/array');
+const arrayUtils = require('../utils/arrayUtils');
 const convert = require('../utils/convert');
 
 const Key_Size = 32;
@@ -37,14 +57,14 @@ catapult.crypto = (() => {
 		const Is_Zero = 2;
 
 		const validateEncodedSPart = s => {
-			if (array.isZero(s))
+			if (arrayUtils.isZero(s))
 				return Is_Zero | Is_Reduced;
 
 			const copy = new Uint8Array(Signature_Size);
-			array.copy(copy, s, Half_Signature_Size);
+			arrayUtils.copy(copy, s, Half_Signature_Size);
 
 			nacl.catapult.reduce(copy);
-			return array.deepEqual(s, copy, Half_Signature_Size) ? Is_Reduced : 0;
+			return arrayUtils.deepEqual(s, copy, Half_Signature_Size) ? Is_Reduced : 0;
 		};
 
 		return {
@@ -101,7 +121,7 @@ catapult.crypto = (() => {
 
 			// muladd
 			const x = new Float64Array(Hash_Size);
-			array.copy(x, r, Half_Hash_Size);
+			arrayUtils.copy(x, r, Half_Hash_Size);
 
 			for (let i = 0; i < Half_Hash_Size; ++i) {
 				for (let j = 0; j < Half_Hash_Size; ++j)
@@ -119,7 +139,7 @@ catapult.crypto = (() => {
 				return false;
 
 			// reject weak (zero) public key
-			if (array.isZero(pk))
+			if (arrayUtils.isZero(pk))
 				return false;
 
 			const c = nacl.catapult;
@@ -185,7 +205,7 @@ catapult.crypto = (() => {
  * @property {Uint8Array} privateKey The private key.
  */
 
-module.exports = {
+const keyPairModule = {
 	/**
  	 * Creates a key pair from a private key string.
 	 * @param {string} privateKeyString A hex encoded private key string.
@@ -234,3 +254,5 @@ module.exports = {
 };
 
 // endregion
+
+module.exports = keyPairModule;

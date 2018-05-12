@@ -1,17 +1,39 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 const { expect } = require('chai');
 const lock = require('../../src/plugins/lock');
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const test = require('../binaryTestUtils');
+const sizes = require('../../src/modelBinary/sizes');
 
 const constants = {
 	sizes: {
 		hashLockSize: 24 + 32,
 		secretLockSize: 24 + 1 + 64 + 25,
-		secretProof: 1 + 64 + 2,
-		hash512: 64
+		secretProof: 1 + 64 + 2
 	}
 };
+
+Object.assign(constants.sizes, sizes);
 
 describe('lock plugin', () => {
 	describe('register schema', () => {
@@ -98,7 +120,7 @@ describe('lock plugin', () => {
 		});
 
 		describe('supports hash lock', () => {
-			const Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash));
+			const Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
 
 			const addHashLockProperties = generator => () => {
 				const data = generator();

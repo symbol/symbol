@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /** @module auth/verifyPeer */
 const EventEmitter = require('events');
 const challengeHandler = require('./challenge');
@@ -9,6 +29,7 @@ class AuthPacketHandler {
 		this.serverSocket = serverSocket;
 		this.clientKeyPair = clientKeyPair;
 		this.serverPublicKey = serverPublicKey;
+		this.securityMode = 1; // none (this is only mode currenty supported by upstream code)
 
 		this.serverChallenge = undefined;
 		this.hasRaisedVerifyEvent = false;
@@ -40,7 +61,7 @@ class AuthPacketHandler {
 	}
 
 	handleServerChallenge(packet) {
-		const response = challengeHandler.generateServerChallengeResponse(packet, this.clientKeyPair);
+		const response = challengeHandler.generateServerChallengeResponse(packet, this.clientKeyPair, this.securityMode);
 		this.serverChallenge = response.slice(8, 8 + 64);
 
 		this.log(`writing response of length: ${response.length}`);
@@ -86,7 +107,7 @@ class AuthPacketHandler {
  * @fires verify The verification result.
  */
 
-module.exports = {
+const verifyPeer = {
 	/**
 	 * Creates a server verifier for performing a verification handshake with a catapult server.
 	 * @param {net.Socket} serverSocket A socket connection to the catapult server.
@@ -122,3 +143,5 @@ module.exports = {
 		return verifier;
 	}
 };
+
+module.exports = verifyPeer;

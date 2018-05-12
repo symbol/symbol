@@ -1,6 +1,26 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 const { sha3_256 } = require('js-sha3');
 const Ripemd160 = require('ripemd160');
-const array = require('../utils/array');
+const arrayUtils = require('../utils/arrayUtils');
 const base32 = require('../utils/base32');
 const convert = require('../utils/convert');
 
@@ -56,11 +76,11 @@ const address = {
 		// step 3: add network identifier byte in front of (2)
 		const decodedAddress = new Uint8Array(constants.sizes.addressDecoded);
 		decodedAddress[0] = networkIdentifier;
-		array.copy(decodedAddress, ripemdHash, constants.sizes.ripemd160, 1);
+		arrayUtils.copy(decodedAddress, ripemdHash, constants.sizes.ripemd160, 1);
 
 		// step 4: concatenate (3) and the checksum of (3)
 		const hash = sha3_256.arrayBuffer(decodedAddress.subarray(0, constants.sizes.ripemd160 + 1));
-		array.copy(decodedAddress, array.uint8View(hash), constants.sizes.checksum, constants.sizes.ripemd160 + 1);
+		arrayUtils.copy(decodedAddress, arrayUtils.uint8View(hash), constants.sizes.checksum, constants.sizes.ripemd160 + 1);
 
 		return decodedAddress;
 	},
@@ -75,8 +95,8 @@ const address = {
 		const checksumBegin = constants.sizes.addressDecoded - constants.sizes.checksum;
 		hash.update(decoded.subarray(0, checksumBegin));
 		const checksum = new Uint8Array(constants.sizes.checksum);
-		array.copy(checksum, array.uint8View(hash.arrayBuffer()), constants.sizes.checksum);
-		return array.deepEqual(checksum, decoded.subarray(checksumBegin));
+		arrayUtils.copy(checksum, arrayUtils.uint8View(hash.arrayBuffer()), constants.sizes.checksum);
+		return arrayUtils.deepEqual(checksum, decoded.subarray(checksumBegin));
 	},
 
 	/**

@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 const { expect } = require('chai');
 const catapult = require('catapult-sdk');
 const routeUtils = require('../../src/routes/routeUtils');
@@ -60,7 +80,9 @@ describe('route utils', () => {
 			invalid: ['-1', 'bar', '11223344556677889900'].map(id => ({ id, error: 'must be non-negative number' }))
 		}));
 
-		const { addresses, publicKeys } = test.sets;
+		const {
+			addresses, publicKeys, hashes256, hashes512
+		} = test.sets;
 
 		describe('address', () => addParserTests({
 			parser: 'address',
@@ -114,6 +136,18 @@ describe('route utils', () => {
 				});
 			});
 		});
+
+		describe('hash256', () => addParserTests({
+			parser: 'hash256',
+			valid: hashes256.valid.map(hash => ({ id: hash, parsed: catapult.utils.convert.hexToUint8(hash) })),
+			invalid: hashes256.invalid.map(hash => ({ id: hash, error: `invalid length of hash256 '${hash.length}` }))
+		}));
+
+		describe('hash512', () => addParserTests({
+			parser: 'hash512',
+			valid: hashes512.valid.map(hash => ({ id: hash, parsed: catapult.utils.convert.hexToUint8(hash) })),
+			invalid: hashes512.invalid.map(hash => ({ id: hash, error: `invalid length of hash512 '${hash.length}` }))
+		}));
 	});
 
 	describe('parse argument array', () => {

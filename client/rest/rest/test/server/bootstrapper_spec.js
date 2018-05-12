@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 const { expect } = require('chai');
 const catapult = require('catapult-sdk');
 const hippie = require('hippie');
@@ -539,8 +559,8 @@ describe('server (bootstrapper)', () => {
 			Buffer.of(0x97, 0x87, 0x45, 0x0E, tag || 0xE1, 0x6C, 0xB6, 0x62), // height
 			Buffer.from(test.random.bytes(8)), // timestamp
 			Buffer.from(test.random.bytes(8)), // difficulty
-			Buffer.from(test.random.bytes(test.constants.sizes.hash)), // previous block hash
-			Buffer.from(test.random.bytes(test.constants.sizes.hash)) // block transactions hash
+			Buffer.from(test.random.bytes(test.constants.sizes.hash256)), // previous block hash
+			Buffer.from(test.random.bytes(test.constants.sizes.hash256)) // block transactions hash
 		]);
 
 		// notice that the formatter only returns height and signer

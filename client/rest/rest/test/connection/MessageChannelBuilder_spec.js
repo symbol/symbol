@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 const { expect } = require('chai');
 const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
 const test = require('../testUtils');
@@ -212,7 +232,7 @@ describe('message channel builder', () => {
 
 					// Act:
 					const buffer = Buffer.concat([
-						Buffer.alloc(test.constants.sizes.hash, 41), // hash
+						Buffer.alloc(test.constants.sizes.hash256, 41), // hash
 						Buffer.of(55, 0, 0, 0), // status
 						Buffer.of(66, 0, 0, 0, 0, 0, 0, 0) // deadline
 					]);
@@ -227,7 +247,7 @@ describe('message channel builder', () => {
 					expect(emitted[0]).to.deep.equal({
 						type: 'transactionStatus',
 						payload: {
-							hash: Buffer.alloc(test.constants.sizes.hash, 41),
+							hash: Buffer.alloc(test.constants.sizes.hash256, 41),
 							status: 55,
 							deadline: [66, 0]
 						}

@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /** @module utils/uint64 */
 
 const convert = require('./convert');
@@ -10,8 +30,7 @@ const readUint32At = (bytes, i) => (bytes[i] + (bytes[i + 1] << 8) + (bytes[i + 
  * @property {numeric} 0 The low 32bit value.
  * @property {numeric} 1 The high 32bit value.
  */
-
-module.exports = {
+const uint64Module = {
 	/**
 	 * Tries to compact a uint64 into a simple numeric.
 	 * @param {module:utils/uint64~uint64} uint64 A uint64 value.
@@ -103,3 +122,5 @@ module.exports = {
 	 */
 	isZero: uint64 => 0 === uint64[0] && 0 === uint64[1]
 };
+
+module.exports = uint64Module;

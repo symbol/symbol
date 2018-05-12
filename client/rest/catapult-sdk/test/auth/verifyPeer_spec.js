@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 const { expect } = require('chai');
 const { verify } = require('../../src/crypto/keyPair');
 const PacketType = require('../../src/packet/PacketType');
@@ -99,18 +119,22 @@ describe('verify peer', () => {
 
 				// - response
 				expect(context.state.writtenPayloads.length).to.equal(1);
+
 				const response = test.packets.parseServerChallengeResponse(context.state.writtenPayloads[0]);
-				expect(response.size).to.equal(168);
+				expect(response.size).to.equal(169);
 				expect(response.type).to.equal(PacketType.serverChallenge);
 
 				expect(response.challenge).to.not.deep.equal(new Uint8Array(64)); // challenge is non-zero
 				expect(response.challenge).to.not.deep.equal(request.challenge); // challenge is not the same as the request challenge
 
 				const { clientKeyPair } = context.config;
-				const isVerified = verify(clientKeyPair.publicKey, request.payload, response.signature);
-				expect(isVerified).to.equal(true);
-
 				expect(response.publicKey).to.deep.equal(Buffer.from(clientKeyPair.publicKey));
+				expect(response.securityMode).to.equal(1);
+
+				// - the challenge and security mode (none) are signed
+				const signedBuffer = Buffer.concat([request.payload, Buffer.of(1)], request.payload.length + 1);
+				const isVerified = verify(clientKeyPair.publicKey, signedBuffer, response.signature);
+				expect(isVerified).to.equal(true);
 			});
 
 			it('is rejected if not the first packet', () => {

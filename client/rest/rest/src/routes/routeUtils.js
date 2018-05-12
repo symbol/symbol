@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 const catapult = require('catapult-sdk');
 const errors = require('../server/errors');
 
@@ -7,7 +27,9 @@ const packetHeader = catapult.packet.header;
 const constants = {
 	sizes: {
 		hexPublicKey: 64,
-		addressEncoded: 40
+		addressEncoded: 40,
+		hash256: 32,
+		hash512: 64
 	}
 };
 
@@ -46,6 +68,18 @@ const namedParserMap = {
 			return ['address', address.stringToAddress(str)];
 
 		throw Error(`invalid length of account id '${str.length}'`);
+	},
+	hash256: str => {
+		if (2 * constants.sizes.hash256 === str.length)
+			return convert.hexToUint8(str);
+
+		throw Error(`invalid length of hash256 '${str.length}'`);
+	},
+	hash512: str => {
+		if (2 * constants.sizes.hash512 === str.length)
+			return convert.hexToUint8(str);
+
+		throw Error(`invalid length of hash512 '${str.length}'`);
 	}
 };
 

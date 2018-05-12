@@ -1,12 +1,29 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /** @module plugins/lock */
 const EntityType = require('../model/EntityType');
 const ModelType = require('../model/ModelType');
 const sizes = require('../modelBinary/sizes');
 
-const constants = { sizes: {} };
-Object.assign(constants.sizes, sizes, {
-	hash512: 64
-});
+const constants = { sizes };
 
 const commonLockInfoSchema = {
 	account: ModelType.binary,
@@ -39,7 +56,7 @@ const serializeLockData = (transaction, serializer) => {
  * Creates a lock plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-module.exports = {
+const lockPlugin = {
 	registerSchema: builder => {
 		builder.addSchema('hashLockInfo', {
 			lock: { type: ModelType.object, schemaName: 'hashLockInfo.lock' }
@@ -76,7 +93,7 @@ module.exports = {
 				const transaction = {};
 				parseLockData(parser, transaction);
 
-				transaction.hash = parser.buffer(constants.sizes.hash);
+				transaction.hash = parser.buffer(constants.sizes.hash256);
 				return transaction;
 			},
 
@@ -127,3 +144,5 @@ module.exports = {
 		});
 	}
 };
+
+module.exports = lockPlugin;

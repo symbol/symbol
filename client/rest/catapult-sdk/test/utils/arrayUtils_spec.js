@@ -1,5 +1,25 @@
+/*
+ * Copyright (c) 2016-present,
+ * Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+ *
+ * This file is part of Catapult.
+ *
+ * Catapult is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Catapult is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 const { expect } = require('chai');
-const array = require('../../src/utils/array');
+const arrayUtils = require('../../src/utils/arrayUtils');
 const convert = require('../../src/utils/convert');
 
 describe('array', () => {
@@ -9,7 +29,7 @@ describe('array', () => {
 			const src = convert.hexToUint8('0A12B5675069');
 
 			// Act:
-			const view = array.uint8View(src.buffer);
+			const view = arrayUtils.uint8View(src.buffer);
 
 			// Assert:
 			expect(convert.uint8ToHex(view)).to.equal('0A12B5675069');
@@ -20,7 +40,7 @@ describe('array', () => {
 			const src = convert.hexToUint8('0A12B5675069');
 
 			// Act:
-			const view = array.uint8View(src);
+			const view = arrayUtils.uint8View(src);
 
 			// Assert:
 			expect(convert.uint8ToHex(view)).to.equal('0A12B5675069');
@@ -31,7 +51,7 @@ describe('array', () => {
 			const src = new Uint16Array(10);
 
 			// Act:
-			expect(() => array.uint8View(src)).to.throw('unsupported type passed to uint8View');
+			expect(() => arrayUtils.uint8View(src)).to.throw('unsupported type passed to uint8View');
 		});
 	});
 
@@ -42,7 +62,7 @@ describe('array', () => {
 			const dest = new Uint8Array(src.length);
 
 			// Act:
-			array.copy(dest, src);
+			arrayUtils.copy(dest, src);
 
 			// Assert:
 			expect(convert.uint8ToHex(dest)).to.equal('0A12B5675069');
@@ -54,7 +74,7 @@ describe('array', () => {
 			const dest = new Uint8Array(src.length);
 
 			// Act:
-			array.copy(dest, src, 3);
+			arrayUtils.copy(dest, src, 3);
 
 			// Assert:
 			expect(convert.uint8ToHex(dest)).to.equal('0A12B5000000');
@@ -66,7 +86,7 @@ describe('array', () => {
 			const dest = new Uint8Array(4);
 
 			// Act:
-			array.copy(dest, src);
+			arrayUtils.copy(dest, src);
 
 			// Assert:
 			expect(convert.uint8ToHex(dest)).to.equal('0A12B567');
@@ -78,7 +98,7 @@ describe('array', () => {
 			const dest = new Uint8Array(src.length);
 
 			// Act:
-			array.copy(dest, src, 3, 2, 1);
+			arrayUtils.copy(dest, src, 3, 2, 1);
 
 			// Assert:
 			expect(convert.uint8ToHex(dest)).to.equal('000012B56700');
@@ -88,7 +108,7 @@ describe('array', () => {
 	describe('isZero', () => {
 		it('returns true if typed array is zero', () => {
 			// Act:
-			const isZero = array.isZero(new Uint16Array(10));
+			const isZero = arrayUtils.isZero(new Uint16Array(10));
 
 			// Assert:
 			expect(isZero).to.equal(true);
@@ -100,7 +120,7 @@ describe('array', () => {
 			src[nonZeroOffset] = 2;
 
 			// Act
-			const isZero = array.isZero(src);
+			const isZero = arrayUtils.isZero(src);
 
 			// Assert:
 			expect(isZero, `nonzero offset ${nonZeroOffset}`).to.equal(false);
@@ -121,7 +141,7 @@ describe('array', () => {
 			const rhs = convert.hexToUint8('0A12B5675069');
 
 			// Act:
-			const isEqual = array.deepEqual(lhs, rhs);
+			const isEqual = arrayUtils.deepEqual(lhs, rhs);
 
 			// Assert:
 			expect(isEqual).to.equal(true);
@@ -133,8 +153,8 @@ describe('array', () => {
 			const longer = convert.hexToUint8('0A12B567506983');
 
 			// Act:
-			const isEqual1 = array.deepEqual(shorter, longer);
-			const isEqual2 = array.deepEqual(longer, shorter);
+			const isEqual1 = arrayUtils.deepEqual(shorter, longer);
+			const isEqual2 = arrayUtils.deepEqual(longer, shorter);
 
 			// Assert:
 			expect(isEqual1).to.equal(false);
@@ -144,11 +164,11 @@ describe('array', () => {
 		const assertNotEqual = (lhs, unequalOffset) => {
 			// Arrange:
 			const rhs = new Uint8Array(lhs.length);
-			array.copy(rhs, lhs);
+			arrayUtils.copy(rhs, lhs);
 			rhs[unequalOffset] ^= 0xFF;
 
 			// Act
-			const isEqual = array.deepEqual(lhs, rhs);
+			const isEqual = arrayUtils.deepEqual(lhs, rhs);
 
 			// Assert:
 			expect(isEqual, `unequal offset ${unequalOffset}`).to.equal(false);
@@ -170,8 +190,8 @@ describe('array', () => {
 			const rhs = convert.hexToUint8('0A12C5675069');
 
 			// Act:
-			const isEqualSubset = array.deepEqual(lhs, rhs, 2);
-			const isEqualAll = array.deepEqual(lhs, rhs);
+			const isEqualSubset = arrayUtils.deepEqual(lhs, rhs, 2);
+			const isEqualAll = arrayUtils.deepEqual(lhs, rhs);
 
 			// Assert:
 			expect(isEqualSubset).to.equal(true);
@@ -184,8 +204,8 @@ describe('array', () => {
 			const longer = convert.hexToUint8('0A12B567506983');
 
 			// Act:
-			const isEqual1 = array.deepEqual(shorter, longer, 3);
-			const isEqual2 = array.deepEqual(longer, shorter, 3);
+			const isEqual1 = arrayUtils.deepEqual(shorter, longer, 3);
+			const isEqual2 = arrayUtils.deepEqual(longer, shorter, 3);
 
 			// Assert:
 			expect(isEqual1).to.equal(true);
@@ -198,8 +218,8 @@ describe('array', () => {
 			const longer = convert.hexToUint8('0A12B567506983');
 
 			// Act:
-			const isEqual1 = array.deepEqual(shorter, longer, 4);
-			const isEqual2 = array.deepEqual(longer, shorter, 4);
+			const isEqual1 = arrayUtils.deepEqual(shorter, longer, 4);
+			const isEqual2 = arrayUtils.deepEqual(longer, shorter, 4);
 
 			// Assert:
 			expect(isEqual1).to.equal(false);
