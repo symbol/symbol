@@ -63,12 +63,10 @@ const multisigPlugin = {
 				const numModifications = parser.uint8();
 				transaction.modifications = [];
 
-				if (0 < numModifications) {
-					while (transaction.modifications.length < numModifications) {
-						const type = parser.uint8();
-						const cosignatoryPublicKey = parser.buffer(constants.sizes.signer);
-						transaction.modifications.push({ type, cosignatoryPublicKey });
-					}
+				while (transaction.modifications.length < numModifications) {
+					const type = parser.uint8();
+					const cosignatoryPublicKey = parser.buffer(constants.sizes.signer);
+					transaction.modifications.push({ type, cosignatoryPublicKey });
 				}
 
 				return transaction;
@@ -78,15 +76,13 @@ const multisigPlugin = {
 				serializer.writeUint8(convert.int8ToUint8(transaction.minRemovalDelta));
 				serializer.writeUint8(convert.int8ToUint8(transaction.minApprovalDelta));
 
-				const numModifications = transaction.modifications ? transaction.modifications.length : 0;
+				const numModifications = transaction.modifications.length;
 				serializer.writeUint8(numModifications);
 
-				if (0 < numModifications) {
-					transaction.modifications.forEach(modification => {
-						serializer.writeUint8(modification.type);
-						serializer.writeBuffer(modification.cosignatoryPublicKey);
-					});
-				}
+				transaction.modifications.forEach(modification => {
+					serializer.writeUint8(modification.type);
+					serializer.writeBuffer(modification.cosignatoryPublicKey);
+				});
 			}
 		});
 	}

@@ -236,5 +236,14 @@ describe('model formatter builder', () => {
 			// Assert:
 			expect(subFormatterTypes).to.deep.equal({ id: 'uint64', amount: 'uint64' });
 		});
+
+		it('cannot add arbitrary formatter multiple times', () => {
+			// Arrange:
+			const builder = new ModelFormatterBuilder();
+			builder.addFormatter('mosaic');
+
+			// Act + Assert:
+			expect(() => { builder.addFormatter('mosaic'); }).to.throw('formatter already registered');
+		});
 	});
 });

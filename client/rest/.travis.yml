@@ -22,7 +22,6 @@ env:
 
 cache: yarn
 
-before_script:
-  - sh yarn_setup.sh
+before_script: sh yarn_setup.sh
 
-script: cd ${SUBPROJECT} && yarn test
+script: cd ${SUBPROJECT} && yarn run test:travis

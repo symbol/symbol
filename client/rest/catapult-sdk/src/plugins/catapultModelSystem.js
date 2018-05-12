@@ -55,7 +55,7 @@ const catapultModelSystem = {
 		const schemaBuilder = new ModelSchemaBuilder();
 		const codecBuilder = new ModelCodecBuilder();
 		const formatterBuilder = new ModelFormatterBuilder();
-		(pluginNames || []).forEach(pluginName => {
+		pluginNames.forEach(pluginName => {
 			if (!plugins[pluginName])
 				throw Error(`plugin '${pluginName}' not supported by model system`);
 

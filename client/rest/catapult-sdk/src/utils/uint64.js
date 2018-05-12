@@ -95,11 +95,7 @@ const uint64Module = {
 		if (16 !== input.length)
 			throw Error(`hex string has unexpected size '${input.length}'`);
 
-		let hexString = input;
-		if (16 > hexString.length)
-			hexString = '0'.repeat(16 - hexString.length) + hexString;
-
-		const uint8Array = convert.hexToUint8(hexString);
+		const uint8Array = convert.hexToUint8(input);
 		const view = new DataView(uint8Array.buffer);
 		return [view.getUint32(4), view.getUint32(0)];
 	},

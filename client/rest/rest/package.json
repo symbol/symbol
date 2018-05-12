@@ -10,7 +10,9 @@
     "start": "node _build/index.js",
     "start:debug": "node src/index.js",
     "test": "mocha --full-trace --recursive",
+    "test:coverage": "nyc yarn test && nyc report --reporter=text-lcov",
     "test:jenkins": "cross-env JUNIT_REPORT_PATH=test-results.xml mocha --reporter mocha-jenkins-reporter --mongoHost db --forbid-only --full-trace --recursive test || exit 0",
+    "test:travis": "nyc yarn test && nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint src test",
     "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit src test || exit 0"
   },
@@ -34,7 +36,9 @@
   },
   "dependencies": {
     "catapult-sdk": "link:../catapult-sdk",
+    "coveralls": "^3.0.1",
     "mongodb": "^3.0.3",
+    "nyc": "^11.8.0",
     "restify": "^6.3.4",
     "restify-errors": "^6.0.0",
     "winston": "^2.4.0",

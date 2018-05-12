@@ -8,7 +8,9 @@
     "build": "ncp src/ _build && cross-env BABEL_ENV=production babel src -d _build_browser --source-maps",
     "rebuild": "npm run clean && npm run build",
     "test": "mocha --full-trace --recursive",
+    "test:coverage": "nyc yarn test && nyc report --reporter=text-lcov",
     "test:jenkins": "cross-env JUNIT_REPORT_PATH=test-results.xml mocha --reporter mocha-jenkins-reporter --forbid-only --full-trace --recursive test || exit 0",
+    "test:travis": "nyc yarn test && nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint src test",
     "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit src test || exit 0"
   },
@@ -21,6 +23,7 @@
     "babel-plugin-transform-inline-environment-variables": "^6.8.0",
     "babel-preset-env": "^1.6.1",
     "chai": "^4.1.2",
+    "coveralls": "^3.0.1",
     "cross-env": "^5.1.3",
     "eslint": "^4.18.2",
     "eslint-config-airbnb": "^16.1.0",
@@ -30,11 +33,18 @@
     "mocha": "^5.0.1",
     "mocha-jenkins-reporter": "^0.3.10",
     "ncp": "^2.0.0",
+    "nyc": "^11.8.0",
     "rimraf": "^2.6.2"
   },
   "dependencies": {
     "js-sha3": "^0.7.0",
     "ripemd160": "^2.0.1",
     "tweetnacl": "^1.0.0"
+  },
+  "nyc": {
+    "exclude": [
+      "src/external/*.js",
+      "test/**/*"
+    ]
   }
 }

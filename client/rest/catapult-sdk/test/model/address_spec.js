@@ -75,6 +75,20 @@ describe('address', () => {
 			// Assert:
 			expect(encoded).to.equal(expected);
 		});
+
+		it('cannot create encoded address from invalid address', () => {
+			// Arrange:
+			const decodedHexStrings = [
+				'6823BB7C3C089D996585466380EDBDC19D4959184893E38C', // too short
+				'6823BB7C3C089D996585466380EDBDC19D4959184893E38CA678' // too long
+			];
+
+			// Act + Assert:
+			decodedHexStrings.forEach(decodedHex => {
+				expect(() => { address.addressToString(convert.hexToUint8(decodedHex)); }, decodedHex)
+					.to.throw(`${decodedHex} does not represent a valid decoded address`);
+			});
+		});
 	});
 
 	describe('publicKeyToAddress', () => {
@@ -190,11 +204,16 @@ describe('address', () => {
 		});
 
 		it('returns false for invalid encoded address', () => {
-			// Arrange: changed last char
-			const encoded = 'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFH';
+			// Arrange:
+			const encodedAddresses = [
+				'NAR3W7B4BCOZSZMFIZRYB3N5YGOUSWIYJCJ6HDFH', // changed last char
+				'NAR3W7B4BCOZSZMFIZRYx3N5YGOUSWIYJCJ6HDFG' // non-base32 char ('x')
+			];
 
 			// Assert:
-			expect(address.isValidEncodedAddress(encoded)).to.equal(false);
+			encodedAddresses.forEach(encoded => {
+				expect(address.isValidEncodedAddress(encoded), encoded).to.equal(false);
+			});
 		});
 
 		it('returns false for encoded address with wrong length', () => {
