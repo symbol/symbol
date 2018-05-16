@@ -1,6 +1,7 @@
 *~
 _build*/
 node_modules/
+__pycache__/
 catapult-*.log*
 npm-*.log*
 .idea
