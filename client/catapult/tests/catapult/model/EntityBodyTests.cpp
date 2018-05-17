@@ -35,7 +35,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(0x9054u, MakeVersion(NetworkIdentifier::Mijin_Test, 0x54)); // vary version
 
 		EXPECT_EQ(0xFF54u, MakeVersion(static_cast<NetworkIdentifier>(0xFF), 0x54)); // max network
-		EXPECT_EQ(0x90FFu, MakeVersion(NetworkIdentifier::Mijin_Test, 0xFFu)); // max version
+		EXPECT_EQ(0x90FFu, MakeVersion(NetworkIdentifier::Mijin_Test, 0xFF)); // max version
 	}
 
 	namespace {

@@ -35,9 +35,14 @@ namespace catapult { namespace harvesting {
 		std::shared_ptr<UnlockedAccounts> CreateUnlockedAccounts(const HarvestingConfiguration& config) {
 			auto pUnlockedAccounts = std::make_shared<UnlockedAccounts>(config.MaxUnlockedAccounts);
 			if (config.IsAutoHarvestingEnabled) {
-				// unlock boot account if it's eligible to harvest the next block
-				auto unlockResult = pUnlockedAccounts->modifier().add(crypto::KeyPair::FromString(config.HarvestKey));
-				CATAPULT_LOG(info) << "Unlocked boot key for harvesting with result " << unlockResult;
+				// unlock configured account if it's eligible to harvest the next block
+				auto keyPair = crypto::KeyPair::FromString(config.HarvestKey);
+				auto publicKey = keyPair.publicKey();
+
+				auto unlockResult = pUnlockedAccounts->modifier().add(std::move(keyPair));
+				CATAPULT_LOG(info)
+						<< "Unlocked harvesting account " << utils::HexFormat(publicKey)
+						<< " for harvesting with result " << unlockResult;
 			}
 
 			return pUnlockedAccounts;

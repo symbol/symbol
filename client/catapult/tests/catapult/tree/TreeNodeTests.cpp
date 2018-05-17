@@ -328,7 +328,7 @@ namespace catapult { namespace tree {
 
 	namespace {
 		auto GetCurrentTime() {
-			auto time = std::chrono::system_clock::now().time_since_epoch();
+			auto time = std::chrono::steady_clock::now().time_since_epoch();
 			return std::chrono::duration_cast<std::chrono::nanoseconds>(time);
 		}
 	}

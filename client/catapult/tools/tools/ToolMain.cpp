@@ -121,6 +121,7 @@ namespace catapult { namespace tools {
 			// 4. initialize logging
 			std::cout << tool.name() << " Initializing Logging..." << std::endl;
 			auto pLoggingGuard = catapult::tools::SetupLogging(LoadLoggingConfiguration(options.LoggingConfigurationPath));
+			std::cout << std::endl;
 
 			// 5. run the tool
 			return tool.run(options.ToolOptions);

@@ -224,6 +224,7 @@ class PragmaOnceValidator(SimpleValidator):
         super().reset(path)
         # only .h files need pragma once
         self.gotPragmaOnce = None if path.endswith('.h') else True
+        self.gotLicense = False
         self.emptyLineNumber = 0
         self.reportEmptyLineError = None if path.endswith('.h') else False
         self.insideComment = 0
@@ -232,6 +233,7 @@ class PragmaOnceValidator(SimpleValidator):
         # detect header notice and skip
         if line.startswith('/**'):
             self.insideComment = 1
+            self.gotLicense = True
 
         if 1 == self.insideComment:
             if '**/' in line:
@@ -264,6 +266,9 @@ class PragmaOnceValidator(SimpleValidator):
         return '{} {}'.format(name, err.kind)
 
     def finalize(self):
+        if not self.gotLicense:
+            self.errorReporter(self.NAME, Line(self.path, '', 0, 'Missing license info'))
+
         if not self.gotPragmaOnce:
             self.errorReporter(self.NAME, Line(self.path, '', 0, 'Missing `#pragma once`'))
 
@@ -330,9 +335,9 @@ class TypoChecker(SimpleValidator):
             re.compile(r'hutdowns'): 'use shuts down instead of shutdowns',
             re.compile(r'[cC]ataputl'): 'catapult not cataputl',
             re.compile(r'(\(auto&,|, auto&[,)])'): 'use `const auto&` for non-referred lambda arguments',
-            re.compile(r'\du\)'): 'no need for explicit unsigned qualifier',
+            re.compile(r'(\d|0x[0-9a-fA-F]+)u\)'): 'no need for explicit unsigned qualifier',
             re.compile(r';;$'): 'no double semicolons',
-            re.compile(r'[a-zA-Z]>[^&\n]*= {'): 'prefer container initialization to container assign',
+            re.compile(r'[a-zA-Z>\*]>[^&\n]*= {'): 'prefer container initialization to container assign',
             re.compile(r'(/\*+|///) The '): 'documentation should not start with \'The\''
         }
 

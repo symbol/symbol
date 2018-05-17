@@ -95,7 +95,7 @@ if(("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MAT
 
 	# $origin - to load plugins when running the server
 	# $origin/boost - same, use our boost libs
-	set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/boost${CMAKE_INSTALL_RPATH}")
+	set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/deps${CMAKE_INSTALL_RPATH}")
 	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 	set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -248,6 +248,13 @@ function(catapult_find_all_target_files TARGET_TYPE TARGET_NAME)
 	endforeach()
 
 	set(${TARGET_NAME}_FILES ${TARGET_FILES} PARENT_SCOPE)
+endfunction()
+
+# used to define a catapult object library
+function(catapult_object_library TARGET_NAME)
+	add_library(${TARGET_NAME} OBJECT ${ARGN})
+	set_property(TARGET ${TARGET_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 14)
 endfunction()
 
 # used to define a catapult library, creating an appropriate source group and adding a library

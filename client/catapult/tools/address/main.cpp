@@ -39,7 +39,7 @@ namespace catapult { namespace tools { namespace address {
 
 			void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional&) override {
 				optionsBuilder("generate,g",
-						OptionsValue<uint32_t>(m_numRandomKeys),
+						OptionsValue<uint32_t>(m_numRandomKeys)->default_value(10),
 						"number of random keys to generate");
 				optionsBuilder("secret,s",
 						OptionsValue<std::string>(m_secretKey),
@@ -59,10 +59,10 @@ namespace catapult { namespace tools { namespace address {
 					return 0;
 				}
 
-				std::cout << "--- generating " << m_numRandomKeys << " keys ---";
+				std::cout << "--- generating " << m_numRandomKeys << " keys ---" << std::endl;
 				for (auto i = 0u; i < m_numRandomKeys; ++i) {
-					std::cout << std::endl;
 					output(networkId, crypto::KeyPair::FromPrivate(crypto::PrivateKey::Generate(RandomByte)));
+					std::cout << std::endl;
 				}
 
 				return 0;

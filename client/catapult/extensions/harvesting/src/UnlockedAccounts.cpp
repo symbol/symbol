@@ -70,8 +70,11 @@ namespace catapult { namespace harvesting {
 
 	void UnlockedAccountsModifier::removeIf(const KeyPredicate& predicate) {
 		auto initialSize = m_keyPairs.size();
-		auto keyPairPredicate = [predicate](const crypto::KeyPair& keyPair) { return predicate(keyPair.publicKey()); };
-		m_keyPairs.erase(std::remove_if(m_keyPairs.begin(), m_keyPairs.end(), keyPairPredicate), m_keyPairs.end());
+		auto newKeyPairsEnd = std::remove_if(m_keyPairs.begin(), m_keyPairs.end(), [predicate](const auto& keyPair) {
+			return predicate(keyPair.publicKey());
+		});
+
+		m_keyPairs.erase(newKeyPairsEnd, m_keyPairs.end());
 		if (m_keyPairs.size() != initialSize)
 			CATAPULT_LOG(info) << "pruned " << (initialSize - m_keyPairs.size()) << " unlocked accounts";
 	}

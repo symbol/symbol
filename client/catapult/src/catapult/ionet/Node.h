@@ -71,7 +71,7 @@ namespace catapult { namespace ionet {
 		/// Friendly name (optional).
 		std::string Name;
 
-		/// version.
+		/// Version.
 		NodeVersion Version;
 
 		/// Role(s).

@@ -71,7 +71,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(7901u, config.ApiPort);
 			EXPECT_FALSE(config.ShouldAllowAddressReuse);
 			EXPECT_FALSE(config.ShouldUseSingleThreadPool);
-			EXPECT_TRUE(config.ShouldUseCacheDatabaseStorage);
+			EXPECT_FALSE(config.ShouldUseCacheDatabaseStorage);
 
 			EXPECT_TRUE(config.ShouldEnableTransactionSpamThrottling);
 			EXPECT_EQ(Amount(10'000'000), config.TransactionSpamThrottlingMaxBoostFee);

@@ -33,7 +33,7 @@ namespace catapult { namespace plugins {
 	}
 
 	void LoadPluginByName(PluginManager& manager, PluginModules& modules, const std::string& directory, const std::string& name) {
-		std::unordered_map<std::string, consumer<PluginManager&>> registrationFuncs = {
+		std::unordered_map<std::string, consumer<PluginManager&>> registrationFuncs{
 			{ "catapult.coresystem", RegisterCoreSystem },
 		};
 
