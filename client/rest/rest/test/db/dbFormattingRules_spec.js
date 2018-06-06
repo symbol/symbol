@@ -48,6 +48,17 @@ describe('db formatting rules', () => {
 		expect(result).to.equal('FEDCBA9876543210');
 	});
 
+	it('can format javascript buffer as binary type', () => {
+		// Arrange:
+		const object = Buffer.from('FEDCBA9876543210', 'hex');
+
+		// Act:
+		const result = formattingRules[ModelType.binary](object);
+
+		// Assert:
+		expect(result).to.equal('FEDCBA9876543210');
+	});
+
 	it('can format uint64 type', () => {
 		// Arrange:
 		const object = test.factory.createLong(1, 2);
