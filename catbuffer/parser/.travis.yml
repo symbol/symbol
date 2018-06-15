@@ -1,0 +1,10 @@
+language: python
+python:
+  - "3.6"
+
+install: pip install pycodestyle pylint
+
+script:
+  - pylint main.py parser test
+  - pycodestyle --config=.pycodestyle .
+  - python3 -m unittest discover -v
