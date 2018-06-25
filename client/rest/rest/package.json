@@ -35,7 +35,7 @@
     "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "catapult-sdk": "link:../catapult-sdk",
+    "catapult-sdk": "file:../catapult-sdk",
     "coveralls": "^3.0.1",
     "mongodb": "^3.0.3",
     "nyc": "^11.8.0",
@@ -43,6 +43,6 @@
     "restify-errors": "^6.0.0",
     "winston": "^2.4.0",
     "ws": "^4.1.0",
-    "zmq": "^2.15.3"
+    "zeromq": "^4.6.0"
   }
 }

@@ -20,7 +20,7 @@
 
 const { expect } = require('chai');
 const catapult = require('catapult-sdk');
-const zmq = require('zmq');
+const zmq = require('zeromq');
 const { createZmqConnectionService } = require('../../src/connection/zmqService');
 const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
 const test = require('../testUtils');

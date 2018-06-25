@@ -18,7 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const zmq = require('zmq');
+const zmq = require('zeromq');
 const zmqUtils = require('./zmqUtils');
 
 const createZmqSocket = (key, zmqConfig, logger) => {
