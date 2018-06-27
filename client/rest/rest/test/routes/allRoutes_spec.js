@@ -48,6 +48,7 @@ describe('all routes', () => {
 			// no custom account transactions routes are registered
 
 			'/block/:height',
+			'/block/:height/transaction/:hash/merkle',
 			'/block/:height/transactions',
 			'/blocks/:height/limit/:limit',
 

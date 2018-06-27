@@ -18,9 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { createKeyPairFromPrivateKeyString, sign, verify } = require('./crypto/keyPair');
-const sha3Hasher = require('./crypto/sha3Hasher');
 const auth = require('./auth/auth');
+const { createKeyPairFromPrivateKeyString, sign, verify } = require('./crypto/keyPair');
+const merkle = require('./crypto/merkleAuditProof');
+const sha3Hasher = require('./crypto/sha3Hasher');
 const address = require('./model/address');
 const EntityType = require('./model/EntityType');
 const idReducer = require('./model/idReducer');
@@ -54,9 +55,10 @@ const catapultSdk = {
 	},
 	crypto: {
 		createKeyPairFromPrivateKeyString,
+		merkle,
+		sha3Hasher,
 		sign,
-		verify,
-		sha3Hasher
+		verify
 	},
 	model: {
 		address,

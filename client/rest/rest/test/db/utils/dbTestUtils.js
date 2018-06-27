@@ -106,7 +106,8 @@ const createDbBlock = height => {
 		hash: new Binary(test.random.hash()),
 		generationHash: new Binary(test.random.hash()),
 		totalFee: Long.fromNumber(12345),
-		numTransactions: 5
+		numTransactions: 5,
+		merkleTree: [new Binary(test.random.hash()), new Binary(test.random.hash())]
 	};
 
 	// block header data

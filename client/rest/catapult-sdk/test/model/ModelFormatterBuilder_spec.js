@@ -48,6 +48,7 @@ describe('model formatter builder', () => {
 				'transactionWithMetadata',
 
 				'chainInfo',
+				'merkleProofInfo',
 				'storageInfo',
 				'transactionStatus'
 			]);

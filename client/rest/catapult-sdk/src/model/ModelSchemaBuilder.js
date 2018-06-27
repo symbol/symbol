@@ -58,6 +58,13 @@ class ModelSchemaBuilder {
 				meta: { type: ModelType.object, schemaName: 'blockHeaderMetadata' },
 				block: { type: ModelType.object, schemaName: 'blockHeader' }
 			},
+			merkleProofInfo: {
+				rootHash: ModelType.binary,
+				merklePath: { type: ModelType.array, schemaName: 'merkleProofInfoPathNode' }
+			},
+			merkleProofInfoPathNode: {
+				hash: ModelType.binary,
+			},
 
 			// endregion
 

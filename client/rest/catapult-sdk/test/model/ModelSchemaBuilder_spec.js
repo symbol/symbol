@@ -72,6 +72,8 @@ describe('model schema builder', () => {
 				'blockHeader',
 				'blockHeaderMetadata',
 				'blockHeaderWithMetadata',
+				'merkleProofInfo',
+				'merkleProofInfoPathNode',
 
 				'transaction',
 				'transactionMetadata',
@@ -152,6 +154,7 @@ describe('model schema builder', () => {
 
 			// Assert:
 			expect(matchingProperties).to.deep.equal([
+				'merkleProofInfo.merklePath',
 				'account.mosaics'
 			]);
 		});
@@ -175,6 +178,8 @@ describe('model schema builder', () => {
 				'blockHeader.signer',
 				'blockHeaderMetadata.hash',
 				'blockHeaderMetadata.generationHash',
+				'merkleProofInfo.rootHash',
+				'merkleProofInfoPathNode.hash',
 
 				'transaction.signature',
 				'transaction.signer',
