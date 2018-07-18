@@ -40,6 +40,42 @@ module.exports.createConnectionService = (config, connectionFactory, authPromise
 	const clientKeyPair = createKeyPairFromPrivateKeyString(config.clientPrivateKey);
 	const aliveConnections = {};
 
+	/**
+	 * Opens a new connection authenticated to catapult.
+	 * @param {boolean} isPersistent Determines whether the new connection should be pooled and kept open for reuse.
+	 * @returns {Promise} A promise bound to the creation of the connection.
+	 */
+	const openAuthenticatedConnection = isPersistent => new Promise((resolve, reject) => {
+		logger(`connecting to ${node.host}:${node.port}`);
+		const serverSocket = connectionFactory(node.port, node.host);
+		const apiNodePublicKey = convert.hexToUint8(node.publicKey);
+
+		serverSocket
+			.on('error', err => {
+				// capture error, otherwise net default handler will be called
+				// default error handler issues reject(), that would go through bootstraper and toRestError().
+				// the result might contain information about api node IP and port, because it might be different host,
+				// that information shouldn't be available to rest clients.
+				logger(`error raised by ${node.host}:${node.port} connection`, err);
+			})
+			.on('close', () => {
+				if (isPersistent)
+					delete aliveConnections[node];
+
+				reject(errors.createServiceUnavailableError('connection failed'));
+			});
+
+		return authPromiseFactory(serverSocket, clientKeyPair, apiNodePublicKey, logger)
+			.then(() => {
+				// wrap the socket in a catapult connection and save it
+				const serverConnection = catapultConnection.wrap(serverSocket);
+				if (isPersistent)
+					aliveConnections[node] = serverConnection;
+
+				resolve(serverConnection);
+			}, reject);
+	});
+
 	return {
 		/**
 		 * Leases an available connection.
@@ -50,32 +86,13 @@ module.exports.createConnectionService = (config, connectionFactory, authPromise
 			if (connection)
 				return Promise.resolve(connection);
 
-			return new Promise((resolve, reject) => {
-				logger(`connecting to ${node.host}:${node.port}`);
-				const serverSocket = connectionFactory(node.port, node.host);
-				const apiNodePublicKey = convert.hexToUint8(node.publicKey);
+			return openAuthenticatedConnection(true);
+		},
 
-				serverSocket
-					.on('error', err => {
-						// capture error, otherwise net default handler will be called
-						// default error handler issues reject(), that would go through bootstraper and toRestError().
-						// the result might contain information about api node IP and port, because it might be different host,
-						// that information shouldn't be available to rest clients.
-						logger(`error raised by ${node.host}:${node.port} connection`, err);
-					})
-					.on('close', () => {
-						delete aliveConnections[node];
-						reject(errors.createServiceUnavailableError('connection failed'));
-					});
-
-				return authPromiseFactory(serverSocket, clientKeyPair, apiNodePublicKey, logger)
-					.then(() => {
-						// wrap the socket in a catapult connection and save it
-						const serverConnection = catapultConnection.wrap(serverSocket);
-						aliveConnections[node] = serverConnection;
-						resolve(serverConnection);
-					}, reject);
-			});
-		}
+		/**
+		 * Creates a new connection that gets automatically closed after being used.
+		 * @returns {module:connection/catapultConnection~CatapultConnection} A connection.
+		 */
+		singleUse: () => openAuthenticatedConnection(false)
 	};
 };

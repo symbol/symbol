@@ -60,7 +60,9 @@ module.exports = {
 		 */
 		json: (req, res, body) => {
 			// implementation based on https://github.com/restify/node-restify/blob/4.x/lib/formatters/json.js
-			const view = formatBody(modelFormatters.json, body);
+			const formatter = (body && body.formatter !== undefined) ? modelFormatters[body.formatter] : modelFormatters.json;
+			if (body) delete body.formatter;
+			const view = formatBody(formatter, body);
 			if (view.statusCode)
 				res.statusCode = view.statusCode;
 

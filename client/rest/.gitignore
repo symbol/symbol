@@ -10,3 +10,5 @@ typings.json
 typings/
 jsconfig.json
 .nyc_output/
+
+rest/coverage

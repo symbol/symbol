@@ -23,6 +23,7 @@ const blockRoutes = require('./blockRoutes');
 const chainRoutes = require('./chainRoutes');
 const diagnosticRoutes = require('./diagnosticRoutes');
 const networkRoutes = require('./networkRoutes');
+const nodeRoutes = require('./nodeRoutes');
 const transactionRoutes = require('./transactionRoutes');
 const transactionStatusRoutes = require('./transactionStatusRoutes');
 const wsRoutes = require('./wsRoutes');
@@ -35,6 +36,7 @@ module.exports = {
 			chainRoutes,
 			diagnosticRoutes,
 			networkRoutes,
+			nodeRoutes,
 			transactionRoutes,
 			transactionStatusRoutes,
 			wsRoutes];

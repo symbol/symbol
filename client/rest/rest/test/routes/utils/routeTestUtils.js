@@ -172,13 +172,13 @@ const routeTestUtils = {
 	},
 
 	route: {
-		prepareExecuteRoute: (registerRoutes, routeName, routeCaptureMethod, params, db, config, assertRoute) => {
+		prepareExecuteRoute: (registerRoutes, routeName, routeCaptureMethod, params, db, services, assertRoute) => {
 			// Arrange: set up a mock server
 			const routes = {};
 			const server = routeTestUtils.setup.createMockServer(routeCaptureMethod || 'get', routes);
 
 			// - register the routes
-			registerRoutes(server, db, { config });
+			registerRoutes(server, db, services);
 
 			// - set up the route params
 			const routeContext = {
@@ -205,7 +205,7 @@ const routeTestUtils = {
 		},
 
 		executeSingle: (registerRoutes, routeName, routeCaptureMethod, params, db, config, assertResponse) =>
-			routeTestUtils.route.prepareExecuteRoute(registerRoutes, routeName, routeCaptureMethod, params, db, config, routeContext =>
+			routeTestUtils.route.prepareExecuteRoute(registerRoutes, routeName, routeCaptureMethod, params, db, { config }, routeContext =>
 				routeContext.routeInvoker().then(() => {
 					expect(routeContext.numNextCalls, 'next should be called once').to.equal(1);
 					expect(routeContext.responses.length, 'single response is expected').to.equal(1);
@@ -214,22 +214,38 @@ const routeTestUtils = {
 				})),
 
 		executeThrows: (registerRoutes, routeName, routeCaptureMethod, params, db, config, expectedMessage, expectedStatusCode) =>
-			routeTestUtils.route.prepareExecuteRoute(registerRoutes, routeName, routeCaptureMethod, params, db, config, routeContext => {
-				routeTestUtils.assert.invokerThrowsError(routeContext.routeInvoker, {
-					statusCode: expectedStatusCode,
-					message: expectedMessage
-				});
-			}),
+			routeTestUtils.route.prepareExecuteRoute(
+				registerRoutes,
+				routeName,
+				routeCaptureMethod,
+				params,
+				db,
+				{ config },
+				routeContext => {
+					routeTestUtils.assert.invokerThrowsError(routeContext.routeInvoker, {
+						statusCode: expectedStatusCode,
+						message: expectedMessage
+					});
+				}
+			),
 
 		executeRedirects: (registerRoutes, routeName, routeCaptureMethod, params, config, assertRedirect) => {
-			routeTestUtils.route.prepareExecuteRoute(registerRoutes, routeName, routeCaptureMethod, params, {}, config, routeContext => {
+			routeTestUtils.route.prepareExecuteRoute(
+				registerRoutes,
+				routeName,
+				routeCaptureMethod,
+				params,
+				{},
+				{ config },
+				routeContext => {
 				// redirects happen synchronously, so routeInvoker does not return a promise
-				routeContext.routeInvoker();
-				expect(routeContext.numNextCalls, 'next should be called once').to.equal(1);
-				expect(routeContext.responses.length, 'no responses are expected').to.equal(0);
-				expect(routeContext.redirects.length, 'single redirect is expected').to.equal(1);
-				assertRedirect(routeContext.redirects[0]);
-			});
+					routeContext.routeInvoker();
+					expect(routeContext.numNextCalls, 'next should be called once').to.equal(1);
+					expect(routeContext.responses.length, 'no responses are expected').to.equal(0);
+					expect(routeContext.redirects.length, 'single redirect is expected').to.equal(1);
+					assertRedirect(routeContext.redirects[0]);
+				}
+			);
 		},
 
 		document: {

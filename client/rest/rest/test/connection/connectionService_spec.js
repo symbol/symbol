@@ -56,7 +56,8 @@ describe('connection service', () => {
 						routeContext.onCalls[eventName] = eventHandler;
 						return mockSocket;
 					},
-					once: () => {},
+					once: () => {
+					},
 					write: () => {
 						++mockSocket.numWrites;
 					}
@@ -135,7 +136,9 @@ describe('connection service', () => {
 
 		// Act:
 		return connectionService.lease()
-			.then(() => { throw new Error('promise resolved'); })
+			.then(() => {
+				throw new Error('promise resolved');
+			})
 			.catch(err => {
 				// Assert:
 				assertData(context);
@@ -144,7 +147,7 @@ describe('connection service', () => {
 			});
 	});
 
-	const assertAfterFirstConnectionSucceeded = (name, followingActions) => {
+	const assertAfterFirstConnectionSucceeded = (name, method, followingActions) => {
 		it(`first connection succeeded, ${name}`, () => {
 			// Arrange:
 			const context = createTestContext();
@@ -155,7 +158,7 @@ describe('connection service', () => {
 			);
 
 			// Act:
-			return connectionService.lease().then(firstConnection => {
+			return connectionService[method]().then(firstConnection => {
 				assertData(context);
 
 				return followingActions(context, connectionService, firstConnection);
@@ -163,7 +166,7 @@ describe('connection service', () => {
 		});
 	};
 
-	assertAfterFirstConnectionSucceeded('connection is cached', (context, connectionService, firstConnection) =>
+	assertAfterFirstConnectionSucceeded('connection is cached using lease', 'lease', (context, connectionService, firstConnection) =>
 		// Act: connection succeeded, let's try to make another one, and check that they match:
 		connectionService.lease().then(secondConnection => {
 			// Assert: connection was created only once
@@ -171,33 +174,91 @@ describe('connection service', () => {
 			expect(secondConnection).to.equal(firstConnection);
 		}));
 
-	assertAfterFirstConnectionSucceeded('connection will be restored after close', (context, connectionService, firstConnection) => {
-		// Act: break the connection
-		context.onCalls.close();
+	assertAfterFirstConnectionSucceeded(
+		'connection will be restored after close using lease',
+		'lease',
+		(context, connectionService, firstConnection) => {
+			// Act: break the connection
+			context.onCalls.close();
 
-		return connectionService.lease().then(secondConnection => {
-			// Assert:
-			expect(context.numConnectionFactoryCalls).to.equal(2);
-			expect(secondConnection).to.not.equal(firstConnection);
+			return connectionService.lease().then(secondConnection => {
+				// Assert:
+				expect(context.numConnectionFactoryCalls).to.equal(2);
+				expect(secondConnection).to.not.equal(firstConnection);
 
-			// - the first connection sends to the first socket
-			firstConnection.send();
-			expect(context.mockSockets[0].numWrites).to.equal(1);
+				// - the first connection sends to the first socket
+				firstConnection.send();
+				expect(context.mockSockets[0].numWrites).to.equal(1);
 
-			// - the second connection sends to the second socket
-			secondConnection.send();
-			expect(context.mockSockets[1].numWrites).to.equal(1);
-		});
-	});
+				// - the second connection sends to the second socket
+				secondConnection.send();
+				expect(context.mockSockets[1].numWrites).to.equal(1);
+			});
+		}
+	);
 
-	assertAfterFirstConnectionSucceeded('error alone does not affect connection', (context, connectionService, firstConnection) => {
-		// Act: emit an error
-		context.onCalls.error(new Error());
+	assertAfterFirstConnectionSucceeded(
+		'error alone does not affect connection using lease',
+		'lease',
+		(context, connectionService, firstConnection) => {
+			// Act: emit an error
+			context.onCalls.error(new Error());
 
-		return connectionService.lease().then(secondConnection => {
-			// Assert: connection was created only once
-			expect(context.numConnectionFactoryCalls).to.equal(1);
-			expect(secondConnection).to.equal(firstConnection);
-		});
-	});
+			return connectionService.lease().then(secondConnection => {
+				// Assert: connection was created only once
+				expect(context.numConnectionFactoryCalls).to.equal(1);
+				expect(secondConnection).to.equal(firstConnection);
+			});
+		}
+	);
+
+	assertAfterFirstConnectionSucceeded(
+		'connection is not cached using singleUse',
+		'singleUse',
+		(context, connectionService, firstConnection) =>
+			// Act: connection succeeded, let's try to make another one, and check that they do not match:
+			connectionService.lease().then(secondConnection => {
+				// Assert: connection was created twice
+				expect(context.numConnectionFactoryCalls).to.equal(2);
+				expect(secondConnection).to.not.equal(firstConnection);
+			})
+	);
+
+	assertAfterFirstConnectionSucceeded(
+		'connection will be restored after close using singleUse',
+		'singleUse',
+		(context, connectionService, firstConnection) => {
+			// Act: break the connection
+			context.onCalls.close();
+
+			return connectionService.lease().then(secondConnection => {
+				// Assert:
+				expect(context.numConnectionFactoryCalls).to.equal(2);
+				expect(secondConnection).to.not.equal(firstConnection);
+
+				// - the first connection sends to the first socket
+				firstConnection.send();
+				expect(context.mockSockets[0].numWrites).to.equal(1);
+
+				// - the second connection sends to the second socket
+				secondConnection.send();
+				expect(context.mockSockets[1].numWrites).to.equal(1);
+			});
+		}
+	);
+
+	assertAfterFirstConnectionSucceeded(
+		'error alone does not affect connection using singleUse',
+		'singleUse',
+		(context, connectionService, firstConnection) => {
+			// Act: emit an error
+			context.onCalls.error(new Error());
+
+			return connectionService.lease().then(secondConnection => {
+				// Assert: connection was created twice
+				expect(context.numConnectionFactoryCalls).to.equal(2);
+				expect(secondConnection).to.not.equal(firstConnection);
+			});
+		}
+	);
 });

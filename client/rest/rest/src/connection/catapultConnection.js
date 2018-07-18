@@ -19,6 +19,11 @@
  */
 
 const errors = require('../server/errors');
+const catapult = require('catapult-sdk');
+
+const { PacketParser } = catapult.parser;
+
+const rejectOnClose = reject => () => reject(errors.createServiceUnavailableError('connection failed'));
 
 /**
  * A catapult connection for interacting with api nodes.
@@ -38,16 +43,49 @@ module.exports = {
 		 */
 		send: payload =>
 			new Promise((resolve, reject) => {
-				const rejectOnClose = () => {
-					reject(errors.createServiceUnavailableError('connection failed'));
-				};
-
-				connection.once('close', rejectOnClose);
-
+				const innerReject = rejectOnClose(reject);
+				connection.once('close', innerReject);
 				connection.write(payload, () => {
-					connection.removeListener('close', rejectOnClose);
+					connection.removeListener('close', innerReject);
 					resolve();
 				});
-			})
+			}),
+
+		/**
+		 * Sends a payload and waits for a response.
+		 * @param {Buffer} payload The payload to be sent through the connection.
+		 * @param {number} timeoutMs The timeout after which the promise is rejected because data is missing.
+		 * @returns {Promise} The promise that is resolved upon completion of the read operation.
+		 */
+		pushPull(payload, timeoutMs) {
+			const listen = () => new Promise((resolve, reject) => {
+				const innerReject = rejectOnClose(reject);
+				const packetParser = new PacketParser();
+				connection.once('close', innerReject);
+				connection.on('data', data => {
+					packetParser.push(data);
+				});
+
+				packetParser.onPacket(packet => {
+					connection.removeListener('close', innerReject);
+					connection.destroy();
+					resolve(packet);
+				});
+			});
+			const promise = this.send(payload)
+				.then(listen);
+
+			const timeout = new Promise((resolve, reject) => {
+				const id = setTimeout(() => {
+					clearTimeout(id);
+					connection.destroy();
+					rejectOnClose(reject)();
+				}, timeoutMs);
+			});
+			return Promise.race([
+				promise,
+				timeout
+			]);
+		}
 	})
 };

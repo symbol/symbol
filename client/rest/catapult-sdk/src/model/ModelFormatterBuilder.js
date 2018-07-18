@@ -40,6 +40,8 @@ class ModelFormatterBuilder {
 
 			'chainInfo',
 			'merkleProofInfo',
+			'nodeInfo',
+			'nodeTime',
 			'storageInfo',
 			'transactionStatus'
 		]);

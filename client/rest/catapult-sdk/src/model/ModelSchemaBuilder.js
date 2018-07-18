@@ -136,6 +136,20 @@ class ModelSchemaBuilder {
 				scoreHigh: ModelType.uint64
 			},
 
+			nodeInfo: {
+				friendlyName: ModelType.string,
+				host: ModelType.string,
+				publicKey: ModelType.binary
+			},
+
+			communicationTimestamps: {
+				receiveTimestamp: ModelType.uint64,
+				sendTimestamp: ModelType.uint64
+			},
+			nodeTime: {
+				communicationTimestamps: { type: ModelType.object, schemaName: 'communicationTimestamps' }
+			},
+
 			storageInfo: {
 			}
 

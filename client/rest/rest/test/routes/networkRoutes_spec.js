@@ -19,15 +19,16 @@
  */
 
 const { expect } = require('chai');
+
 const networkRoutes = require('../../src/routes/networkRoutes');
 const test = require('./utils/routeTestUtils');
 
 describe('network routes', () => {
 	describe('get', () => {
-		it('can retrieve network information', () => {
+		it('can retrieve network', () => {
 			// Act:
-			const config = { network: { name: 'foo', head: 'bar' } };
-			return test.route.prepareExecuteRoute(networkRoutes.register, '/network', 'get', {}, {}, config, routeContext => {
+			const services = { config: { network: { name: 'foo', head: 'bar' } } };
+			return test.route.prepareExecuteRoute(networkRoutes.register, '/network', 'get', {}, {}, services, routeContext => {
 				// - invoke route synchronously
 				routeContext.routeInvoker();
 
@@ -39,7 +40,7 @@ describe('network routes', () => {
 				// - no type information because formatting is completely bypassed
 				const response = routeContext.responses[0];
 				expect(response).to.deep.equal({ name: 'foo', head: 'bar' });
-				expect(response).to.equal(config.network);
+				expect(response).to.equal(services.config.network);
 			});
 		});
 	});
