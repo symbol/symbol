@@ -47,12 +47,14 @@ class ModelSchemaBuilder {
 				timestamp: ModelType.uint64,
 				difficulty: ModelType.uint64,
 				previousBlockHash: ModelType.binary,
-				blockTransactionsHash: ModelType.binary
+				blockTransactionsHash: ModelType.binary,
+				stateHash: ModelType.binary
 			},
 			blockHeaderMetadata: {
 				hash: ModelType.binary,
 				generationHash: ModelType.binary,
-				totalFee: ModelType.uint64
+				totalFee: ModelType.uint64,
+				subCacheMerkleRoots: { type: ModelType.array, schemaName: ModelType.binary }
 			},
 			blockHeaderWithMetadata: {
 				meta: { type: ModelType.object, schemaName: 'blockHeaderMetadata' },
@@ -63,7 +65,7 @@ class ModelSchemaBuilder {
 				merklePath: { type: ModelType.array, schemaName: 'merkleProofInfoPathNode' }
 			},
 			merkleProofInfoPathNode: {
-				hash: ModelType.binary,
+				hash: ModelType.binary
 			},
 
 			// endregion

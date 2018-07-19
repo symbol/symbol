@@ -159,6 +159,7 @@ describe('model schema builder', () => {
 
 			// Assert:
 			expect(matchingProperties).to.deep.equal([
+				'blockHeaderMetadata.subCacheMerkleRoots',
 				'merkleProofInfo.merklePath',
 				'account.mosaics'
 			]);
@@ -179,10 +180,12 @@ describe('model schema builder', () => {
 
 				'blockHeader.previousBlockHash',
 				'blockHeader.blockTransactionsHash',
+				'blockHeader.stateHash',
 				'blockHeader.signature',
 				'blockHeader.signer',
 				'blockHeaderMetadata.hash',
 				'blockHeaderMetadata.generationHash',
+				'blockHeaderMetadata.subCacheMerkleRoots.schemaName',
 				'merkleProofInfo.rootHash',
 				'merkleProofInfoPathNode.hash',
 
