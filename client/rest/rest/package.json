@@ -1,6 +1,6 @@
 {
   "name": "catapult-api-rest",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "",
   "main": "_build/index.js",
   "scripts": {
@@ -35,7 +35,7 @@
     "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "catapult-sdk": "file:../catapult-sdk",
+    "catapult-sdk": "link:../catapult-sdk",
     "coveralls": "^3.0.1",
     "mongodb": "^3.0.3",
     "nyc": "^11.8.0",
