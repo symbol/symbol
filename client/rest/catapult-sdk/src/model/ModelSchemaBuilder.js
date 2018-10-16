@@ -61,7 +61,6 @@ class ModelSchemaBuilder {
 				block: { type: ModelType.object, schemaName: 'blockHeader' }
 			},
 			merkleProofInfo: {
-				rootHash: ModelType.binary,
 				merklePath: { type: ModelType.array, schemaName: 'merkleProofInfoPathNode' }
 			},
 			merkleProofInfoPathNode: {

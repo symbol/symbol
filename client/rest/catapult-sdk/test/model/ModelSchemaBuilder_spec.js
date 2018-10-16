@@ -186,7 +186,6 @@ describe('model schema builder', () => {
 				'blockHeaderMetadata.hash',
 				'blockHeaderMetadata.generationHash',
 				'blockHeaderMetadata.subCacheMerkleRoots.schemaName',
-				'merkleProofInfo.rootHash',
 				'merkleProofInfoPathNode.hash',
 
 				'transaction.signature',
