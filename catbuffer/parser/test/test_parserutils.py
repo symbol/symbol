@@ -1,15 +1,14 @@
 # pylint: disable=invalid-name
 import unittest
-from parser.parserutils import \
+from test.constants import \
+    VALID_UINT_NAMES, INVALID_UINT_NAMES, VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES, \
+    UINT_TYPE_TUPLES, BUILTIN_TYPE_TUPLES
+from catparser.parserutils import \
     require_user_type_name, require_property_name, \
     is_uint, require_uint, \
     is_dec_or_hex, parse_dec_or_hex, \
     is_builtin, parse_builtin
-from parser.CatsParseException import CatsParseException
-from test.constants import \
-    VALID_UINT_NAMES, INVALID_UINT_NAMES, VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES, \
-    UINT_TYPE_TUPLES, BUILTIN_TYPE_TUPLES
-
+from catparser.CatsParseException import CatsParseException
 
 # region naming conventions
 

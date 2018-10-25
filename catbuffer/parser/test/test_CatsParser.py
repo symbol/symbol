@@ -1,7 +1,7 @@
 # pylint: disable=invalid-name
 # pylint: disable=too-many-public-methods
 import unittest
-from parser.CatsParser import CatsParser, CatsParseException
+from catparser.CatsParser import CatsParser, CatsParseException
 
 
 def parse_all(lines, imports=None):

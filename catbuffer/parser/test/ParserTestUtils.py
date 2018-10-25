@@ -1,4 +1,4 @@
-from parser.CatsParseException import CatsParseException
+from catparser.CatsParseException import CatsParseException
 
 
 class SingleLineParserTestUtils:

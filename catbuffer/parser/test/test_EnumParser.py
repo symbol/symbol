@@ -1,9 +1,9 @@
 # pylint: disable=invalid-name
 import unittest
-from parser.EnumParser import EnumParserFactory, EnumValueParserFactory
-from parser.CatsParseException import CatsParseException
 from test.constants import VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, UINT_TYPE_TUPLES, VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES
 from test.ParserTestUtils import MultiLineParserTestUtils, SingleLineParserTestUtils, ParserFactoryTestUtils
+from catparser.EnumParser import EnumParserFactory, EnumValueParserFactory
+from catparser.CatsParseException import CatsParseException
 
 
 class EnumParserFactoryTest(unittest.TestCase):

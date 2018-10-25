@@ -1,7 +1,7 @@
 # pylint: disable=invalid-name
 import unittest
-from parser.ImportParser import ImportResult, ImportParserFactory
 from test.ParserTestUtils import SingleLineParserTestUtils, ParserFactoryTestUtils
+from catparser.ImportParser import ImportResult, ImportParserFactory
 
 VALID_IMPORT_FILE_NAMES = ['A', 'aBzZzac09', 'aa bb.cats', 'foo.cats', 'foo bar', 'foo bar.cats', '$^$']
 

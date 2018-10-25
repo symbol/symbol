@@ -1,6 +1,6 @@
 # pylint: disable=invalid-name
 import unittest
-from parser.CommentParser import CommentParser
+from catparser.CommentParser import CommentParser
 
 
 class CommentParserTest(unittest.TestCase):

@@ -1,10 +1,10 @@
 # pylint: disable=invalid-name
 import unittest
-from parser.StructParser import StructParserFactory, StructConstParserFactory, StructInlineParserFactory, StructMemberParserFactory
-from parser.CatsParseException import CatsParseException
 from test.constants import \
     VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, BUILTIN_TYPE_TUPLES, VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES, VALID_UINT_NAMES
 from test.ParserTestUtils import MultiLineParserTestUtils, SingleLineParserTestUtils, ParserFactoryTestUtils
+from catparser.StructParser import StructParserFactory, StructConstParserFactory, StructInlineParserFactory, StructMemberParserFactory
+from catparser.CatsParseException import CatsParseException
 
 # region StructParserTest
 

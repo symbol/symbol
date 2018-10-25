@@ -2,7 +2,7 @@
 import argparse
 import os
 import pprint
-from parser.CatsParser import CatsParser
+from catparser.CatsParser import CatsParser
 
 
 class MultiFileParser:
