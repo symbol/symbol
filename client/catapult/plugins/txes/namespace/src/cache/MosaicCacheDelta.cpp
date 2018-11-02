@@ -46,7 +46,9 @@ namespace catapult { namespace cache {
 			, MosaicCacheDeltaMixins::Contains(*mosaicSets.pPrimary)
 			, MosaicCacheDeltaMixins::ConstAccessor(*mosaicSets.pPrimary)
 			, MosaicCacheDeltaMixins::MutableAccessor(*mosaicSets.pPrimary)
+			, MosaicCacheDeltaMixins::PatriciaTreeDelta(*mosaicSets.pPrimary, mosaicSets.pPatriciaTree)
 			, MosaicCacheDeltaMixins::ActivePredicate(*mosaicSets.pPrimary)
+			, MosaicCacheDeltaMixins::Touch(*mosaicSets.pPrimary, *mosaicSets.pHeightGrouping)
 			, MosaicCacheDeltaMixins::DeltaElements(*mosaicSets.pPrimary)
 			, MosaicCacheDeltaMixins::MosaicDeepSize(deepSize)
 			, m_pHistoryById(mosaicSets.pPrimary)
@@ -56,7 +58,8 @@ namespace catapult { namespace cache {
 
 	void BasicMosaicCacheDelta::insert(const state::MosaicEntry& entry) {
 		// if a history entry exists, append the data to the back
-		auto* pHistory = m_pHistoryById->find(entry.mosaicId());
+		auto historyIter = m_pHistoryById->find(entry.mosaicId());
+		auto* pHistory = historyIter.get();
 		if (pHistory) {
 			if (pHistory->back().namespaceId() != entry.namespaceId())
 				CATAPULT_THROW_RUNTIME_ERROR_1("owning namespace of mosaic does not match", entry.mosaicId());
@@ -80,7 +83,8 @@ namespace catapult { namespace cache {
 	}
 
 	void BasicMosaicCacheDelta::remove(MosaicId id) {
-		auto* pHistory = m_pHistoryById->find(id);
+		auto historyIter = m_pHistoryById->find(id);
+		auto* pHistory = historyIter.get();
 		if (!pHistory)
 			CATAPULT_THROW_INVALID_ARGUMENT_1("no mosaic exists", id);
 
@@ -124,7 +128,8 @@ namespace catapult { namespace cache {
 		if (!history.empty())
 			return;
 
-		auto* pNamespaceMosaics = m_pMosaicIdsByNamespaceId->find(history.namespaceId());
+		auto namespaceMosaicsIter = m_pMosaicIdsByNamespaceId->find(history.namespaceId());
+		auto* pNamespaceMosaics = namespaceMosaicsIter.get();
 		pNamespaceMosaics->remove(history.id());
 		if (pNamespaceMosaics->empty())
 			m_pMosaicIdsByNamespaceId->remove(pNamespaceMosaics->key());

@@ -46,7 +46,7 @@ namespace catapult { namespace chain {
 		{}
 
 	public:
-		/// Picks a random peer, wraps an api around it using \a apiFactory, and then passes the api to \a action.
+		/// Picks a random peer and wraps an api around it using \a apiFactory. Finally, passes the api to \a action.
 		template<typename TRemoteApiAction, typename TRemoteApiFactory>
 		thread::future<NodeInteractionResult> processSync(TRemoteApiAction action, TRemoteApiFactory apiFactory) const {
 			auto packetIoPair = m_packetIoPicker.pickOne(m_timeout);

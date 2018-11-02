@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "mongo/src/mappers/MapperInclude.h"
 #include "catapult/utils/Casting.h"
 #include "tests/test/nodeps/Conversions.h"
@@ -29,6 +30,7 @@ namespace catapult {
 	namespace mocks { struct MockTransaction; }
 	namespace model {
 		struct Block;
+		struct BlockElement;
 		struct Cosignature;
 		struct EmbeddedTransaction;
 		struct Transaction;
@@ -54,6 +56,24 @@ namespace catapult { namespace test {
 		std::array<uint8_t, N> value;
 		std::memcpy(value.data(), GetBinary(doc, name), value.size());
 		return value;
+	}
+
+	/// Returns value \a name from a document (\a doc) as an signed 8 bit value.
+	template<typename TDocument>
+	auto GetInt8(const TDocument& doc, const std::string& name) {
+		return utils::checked_cast<int32_t, int8_t>(doc[name].get_int32().value);
+	}
+
+	/// Returns value \a name from a document (\a doc) as an signed 32 bit value.
+	template<typename TDocument>
+	auto GetInt32(const TDocument& doc, const std::string& name) {
+		return doc[name].get_int32().value;
+	}
+
+	/// Returns value \a name from a document (\a doc) as an signed 64 bit value.
+	template<typename TDocument>
+	auto GetInt64(const TDocument& doc, const std::string& name) {
+		return doc[name].get_int64().value;
 	}
 
 	/// Returns value \a name from a document (\a doc) as an unsigned 8 bit value.
@@ -110,6 +130,12 @@ namespace catapult { namespace test {
 		return GetBinaryArray<Address_Decoded_Size>(doc, name);
 	}
 
+	/// Converts binary field \a name from a document (\a doc) to a (decoded) address.
+	template<typename TDocument>
+	UnresolvedAddress GetUnresolvedAddressValue(const TDocument& doc, const std::string& name) {
+		return extensions::CopyToUnresolvedAddress(GetAddressValue(doc, name));
+	}
+
 	// endregion
 
 	// region asserts
@@ -131,11 +157,10 @@ namespace catapult { namespace test {
 	/// Verifies that model \a block is equal to db block (\a dbBlock).
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock);
 
-	/// Verifies that \a hash, \a generationHash, \a totalFee, \a numTransactions and \a merkleTree match
+	/// Verifies that \a blockElement, \a totalFee, \a numTransactions and \a merkleTree match
 	/// block metadata (\a dbBlockMetadata) in db.
 	void AssertEqualBlockMetadata(
-			const Hash256& hash,
-			const Hash256& generationHash,
+			const model::BlockElement& blockElement,
 			Amount totalFee,
 			int32_t numTransactions,
 			const std::vector<Hash256>& merkleTree,

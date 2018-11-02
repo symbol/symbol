@@ -12,6 +12,5 @@ function(catapult_int_test_executable_target TARGET_NAME)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction()
 
-add_subdirectory(api)
-add_subdirectory(p2p)
+add_subdirectory(node)
 add_subdirectory(stress)

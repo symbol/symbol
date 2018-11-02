@@ -29,11 +29,16 @@
 
 namespace catapult {
 	namespace cache {
+		struct AccountStateBaseSetDeltaPointers;
+		struct AccountStateBaseSets;
 		class AccountStateCache;
 		class AccountStateCacheDelta;
 		class AccountStateCacheView;
+		class AccountStatePatriciaTree;
+		struct AccountStatePrimarySerializer;
 		class BasicAccountStateCacheDelta;
 		class BasicAccountStateCacheView;
+		struct KeyAddressPairSerializer;
 		class ReadOnlyAccountStateCache;
 	}
 }
@@ -48,17 +53,20 @@ namespace catapult { namespace cache {
 	public:
 		// key value types
 		using KeyType = Address;
-		using ValueType = std::shared_ptr<state::AccountState>;
+		using ValueType = state::AccountState;
 
 		// cache types
 		using CacheType = AccountStateCache;
 		using CacheDeltaType = AccountStateCacheDelta;
 		using CacheViewType = AccountStateCacheView;
 
+		using Serializer = AccountStatePrimarySerializer;
+		using PatriciaTree = AccountStatePatriciaTree;
+
 	public:
-		/// Gets the key corresponding to \a pAccountState.
-		static auto GetKeyFromValue(const ValueType& pAccountState) {
-			return pAccountState->Address;
+		/// Gets the key corresponding to \a accountState.
+		static auto GetKeyFromValue(const ValueType& accountState) {
+			return accountState.Address;
 		}
 	};
 
@@ -79,25 +87,6 @@ namespace catapult { namespace cache {
 			Amount MinHighValueAccountBalance;
 		};
 
-	// region value adapters
-
-	private:
-		// notice that ValueAdapter is still needed to map ValueType (shared_ptr<T>) to TAccountState via AdaptedValueType
-		template<typename TAccountState>
-		struct ValueAdapter {
-			using AdaptedValueType = TAccountState;
-
-			static TAccountState& Adapt(TAccountState& accountState) {
-				return accountState;
-			}
-		};
-
-	public:
-		using ConstValueAdapter = ValueAdapter<const state::AccountState>;
-		using MutableValueAdapter = ValueAdapter<state::AccountState>;
-
-	// endregion
-
 	// region secondary descriptors
 
 	public:
@@ -106,6 +95,7 @@ namespace catapult { namespace cache {
 		public:
 			using KeyType = Key;
 			using ValueType = std::pair<Key, Address>;
+			using Serializer = KeyAddressPairSerializer;
 
 		public:
 			static auto GetKeyFromValue(const ValueType& pair) {
@@ -140,14 +130,20 @@ namespace catapult { namespace cache {
 			{}
 
 		public:
-			auto find(const KeyType& key) const {
-				const auto* pPair = m_set1.find(key);
-				return pPair ? utils::as_const(m_set2).find(pPair->second) : nullptr;
+			using FindIterator = typename TSets::FindIterator;
+			using FindConstIterator = typename TSets::FindConstIterator;
+
+		public:
+			FindConstIterator find(const KeyType& key) const {
+				auto setOneIter = m_set1.find(key);
+				const auto* pPair = setOneIter.get();
+				return pPair ? utils::as_const(m_set2).find(pPair->second) : FindConstIterator();
 			}
 
-			auto find(const KeyType& key) {
-				const auto* pPair = m_set1.find(key);
-				return pPair ? m_set2.find(pPair->second) : nullptr;
+			FindIterator find(const KeyType& key) {
+				auto setOneIter = m_set1.find(key);
+				const auto* pPair = setOneIter.get();
+				return pPair ? m_set2.find(pPair->second) : FindIterator();
 			}
 
 		private:
@@ -168,6 +164,9 @@ namespace catapult { namespace cache {
 
 			using SetOneType = const KeyLookupMapTypes::BaseSetType;
 			using SetTwoType = const PrimaryTypes::BaseSetType;
+
+			using FindIterator = SetTwoType::FindConstIterator;
+			using FindConstIterator = SetTwoType::FindConstIterator;
 		};
 
 		struct ComposableBaseSetDeltas {
@@ -175,41 +174,13 @@ namespace catapult { namespace cache {
 
 			using SetOneType = const KeyLookupMapTypes::BaseSetDeltaType;
 			using SetTwoType = PrimaryTypes::BaseSetDeltaType;
+
+			using FindIterator = SetTwoType::FindIterator;
+			using FindConstIterator = SetTwoType::FindConstIterator;
 		};
 
 	public:
-		// in order to compose account state cache from multiple sets, define an aggregate set type
-
-		struct BaseSetDeltaPointers {
-			PrimaryTypes::BaseSetDeltaPointerType pPrimary;
-			KeyLookupMapTypes::BaseSetDeltaPointerType pKeyLookupMap;
-		};
-
-		struct BaseSets : public CacheDatabaseMixin {
-		public:
-			explicit BaseSets(const CacheConfiguration& config)
-					: CacheDatabaseMixin(config, { "default", "key_lookup" })
-					, Primary(GetContainerMode(config), database(), 0)
-					, KeyLookupMap(GetContainerMode(config), database(), 1)
-			{}
-
-		public:
-			PrimaryTypes::BaseSetType Primary;
-			KeyLookupMapTypes::BaseSetType KeyLookupMap;
-
-		public:
-			BaseSetDeltaPointers rebase() {
-				return { Primary.rebase(), KeyLookupMap.rebase() };
-			}
-
-			BaseSetDeltaPointers rebaseDetached() const {
-				return { Primary.rebaseDetached(), KeyLookupMap.rebaseDetached() };
-			}
-
-			void commit() {
-				Primary.commit();
-				KeyLookupMap.commit();
-			}
-		};
+		using BaseSetDeltaPointers = AccountStateBaseSetDeltaPointers;
+		using BaseSets = AccountStateBaseSets;
 	};
 }}

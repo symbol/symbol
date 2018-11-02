@@ -201,10 +201,11 @@ namespace catapult { namespace chain {
 			RunValidatePartialTest(validatorResultOptions, expectedResult.IsValid, [&expectedResult](const auto& notificationTypes) {
 				// Assert:
 				if (!expectedResult.IsShortCircuited) {
-					ASSERT_EQ(3u, notificationTypes.size());
+					ASSERT_EQ(4u, notificationTypes.size());
 					EXPECT_EQ(model::Core_Entity_Notification, notificationTypes[0]);
 					EXPECT_EQ(model::Core_Transaction_Notification, notificationTypes[1]);
-					EXPECT_EQ(model::Core_Signature_Notification, notificationTypes[2]);
+					EXPECT_EQ(model::Core_Balance_Debit_Notification, notificationTypes[2]);
+					EXPECT_EQ(model::Core_Signature_Notification, notificationTypes[3]);
 				} else {
 					ASSERT_EQ(1u, notificationTypes.size());
 					EXPECT_EQ(model::Core_Entity_Notification, notificationTypes[0]);
@@ -300,11 +301,12 @@ namespace catapult { namespace chain {
 		// Arrange:
 		RunInvalidStatelessValidatePartialTest(mocks::Mock_Validator_1_Notification, [](const auto& notificationTypes) {
 			// Assert:
-			ASSERT_EQ(4u, notificationTypes.size());
+			ASSERT_EQ(5u, notificationTypes.size());
 			EXPECT_EQ(model::Core_Entity_Notification, notificationTypes[0]);
 			EXPECT_EQ(model::Core_Transaction_Notification, notificationTypes[1]);
-			EXPECT_EQ(model::Core_Signature_Notification, notificationTypes[2]);
-			EXPECT_EQ(mocks::Mock_Validator_1_Notification, notificationTypes[3]);
+			EXPECT_EQ(model::Core_Balance_Debit_Notification, notificationTypes[2]);
+			EXPECT_EQ(model::Core_Signature_Notification, notificationTypes[3]);
+			EXPECT_EQ(mocks::Mock_Validator_1_Notification, notificationTypes[4]);
 		});
 	}
 

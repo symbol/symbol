@@ -30,7 +30,7 @@ namespace catapult { namespace builders {
 		}
 	}
 
-	TransferBuilder::TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer, const Address& recipient)
+	TransferBuilder::TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer, const UnresolvedAddress& recipient)
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_recipient(recipient)
 	{}
@@ -50,7 +50,7 @@ namespace catapult { namespace builders {
 		setMessage(RawStringToRawBuffer(message));
 	}
 
-	void TransferBuilder::addMosaic(MosaicId mosaicId, Amount amount) {
+	void TransferBuilder::addMosaic(UnresolvedMosaicId mosaicId, Amount amount) {
 		if (m_mosaicTransfers.cend() != m_mosaicTransfers.find(mosaicId))
 			CATAPULT_THROW_RUNTIME_ERROR_1("mosaic was already added", mosaicId);
 
@@ -59,7 +59,7 @@ namespace catapult { namespace builders {
 
 	void TransferBuilder::addMosaic(const RawString& mosaicName, Amount amount) {
 		auto mosaicId = extensions::GenerateMosaicId(mosaicName);
-		addMosaic(mosaicId, amount);
+		addMosaic(UnresolvedMosaicId(mosaicId.unwrap()), amount);
 	}
 
 	template<typename TransactionType>

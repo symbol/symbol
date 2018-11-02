@@ -36,7 +36,10 @@ namespace catapult { namespace test {
 	/// Adds configuration for all extensions required by simple partner nodes to \a config.
 	void AddSimplePartnerPluginExtensions(config::NodeConfiguration& config);
 
+	/// Enables state verification on \a config.
+	void EnableStateVerification(config::LocalNodeConfiguration& config);
+
 	/// Creates a test configuration for a local node with a storage in the specified directory (\a dataDirectory)
 	/// that includes configuration for all plugins required by the default nemesis block.
-	config::LocalNodeConfiguration LoadLocalNodeConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory);
+	config::LocalNodeConfiguration CreateLocalNodeConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory);
 }}

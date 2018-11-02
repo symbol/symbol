@@ -34,11 +34,12 @@ namespace catapult { namespace model {
 				+ sizeof(uint64_t) // timestamp
 				+ sizeof(uint64_t) // difficulty
 				+ Hash256_Size // previous block hash
-				+ Hash256_Size; // block transactions hash
+				+ Hash256_Size // block transactions hash
+				+ Hash256_Size; // state hash
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(Block));
-		EXPECT_EQ(104u + 88u, sizeof(Block));
+		EXPECT_EQ(104u + 120u, sizeof(Block));
 	}
 
 	// region test utils

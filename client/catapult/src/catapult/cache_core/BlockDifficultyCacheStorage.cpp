@@ -24,10 +24,10 @@
 
 namespace catapult { namespace cache {
 
-	void BlockDifficultyCacheStorage::Save(const StorageType& element, io::OutputStream& output) {
-		io::Write(output, element.BlockHeight);
-		io::Write(output, element.BlockTimestamp);
-		io::Write(output, element.BlockDifficulty);
+	void BlockDifficultyCacheStorage::Save(const ValueType& info, io::OutputStream& output) {
+		io::Write(output, info.BlockHeight);
+		io::Write(output, info.BlockTimestamp);
+		io::Write(output, info.BlockDifficulty);
 	}
 
 	state::BlockDifficultyInfo BlockDifficultyCacheStorage::Load(io::InputStream& input) {
@@ -38,7 +38,7 @@ namespace catapult { namespace cache {
 		return info;
 	}
 
-	void BlockDifficultyCacheStorage::LoadInto(io::InputStream& input, DestinationType& cacheDelta) {
-		cacheDelta.insert(Load(input));
+	void BlockDifficultyCacheStorage::LoadInto(const state::BlockDifficultyInfo& blockDifficultyInfo, DestinationType& cacheDelta) {
+		cacheDelta.insert(blockDifficultyInfo);
 	}
 }}

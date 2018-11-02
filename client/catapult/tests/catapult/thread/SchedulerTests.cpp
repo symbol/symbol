@@ -436,7 +436,7 @@ namespace catapult { namespace thread {
 		}));
 
 		// wait for the task to run to completion
-		WAIT_FOR_VALUE(5, numCallbacks);
+		WAIT_FOR_VALUE(5u, numCallbacks);
 		WaitForScheduled(*pScheduler, 0);
 
 		// Assert: the task should no longer be scheduled but the callback should have been called 5 times

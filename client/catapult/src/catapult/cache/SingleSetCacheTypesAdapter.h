@@ -20,6 +20,7 @@
 
 #pragma once
 #include "CacheDatabaseMixin.h"
+#include "CachePatriciaTree.h"
 #include "catapult/deltaset/ConditionalContainer.h"
 #include <type_traits>
 
@@ -43,10 +44,13 @@ namespace catapult { namespace cache {
 			/// Indicates the set is ordered (used for capability detection in templates).
 			using IsOrderedSet = IsOrderedFlag;
 
+		private:
+			static constexpr auto PruningMode = IsOrderedSet() ? FilterPruningMode::Enabled : FilterPruningMode::Disabled;
+
 		public:
 			/// Creates base sets around \a config.
 			explicit BaseSets(const CacheConfiguration& config)
-					: CacheDatabaseMixin(config, { "default" })
+					: CacheDatabaseMixin(config, { "default" }, PruningMode)
 					, Primary(GetContainerMode(config), database(), 0)
 			{}
 
@@ -70,6 +74,63 @@ namespace catapult { namespace cache {
 			template<typename... TArgs>
 			void commit(TArgs&&... args) {
 				Primary.commit(std::forward<TArgs>(args)...);
+				flush();
+			}
+		};
+	};
+
+	/// A cache types adapter for a cache composed of a single set and a patricia tree.
+	template<typename TPrimaryTypes, typename TPatriciaTree>
+	struct SingleSetAndPatriciaTreeCacheTypesAdapter : public CacheDatabaseMixin {
+	public:
+		/// Wrapper around single delta set and patricia tree.
+		struct BaseSetDeltaPointers {
+			typename TPrimaryTypes::BaseSetDeltaPointerType pPrimary;
+			std::shared_ptr<typename TPatriciaTree::DeltaType> pPatriciaTree;
+		};
+
+		/// Wrapper around single set and patricia tree.
+		template<typename TBaseSetDeltaPointers>
+		struct BaseSets : public CacheDatabaseMixin {
+		public:
+			/// Indicates the set is not ordered.
+			using IsOrderedSet = std::false_type;
+
+		public:
+			/// Creates base sets around \a config.
+			explicit BaseSets(const CacheConfiguration& config)
+					: CacheDatabaseMixin(config, { "default" })
+					, Primary(GetContainerMode(config), database(), 0)
+					, PatriciaTree(hasPatriciaTreeSupport(), database(), 1)
+			{}
+
+		public:
+			typename TPrimaryTypes::BaseSetType Primary;
+			CachePatriciaTree<TPatriciaTree> PatriciaTree;
+
+		public:
+			/// Returns a delta based on the same original elements as this set.
+			TBaseSetDeltaPointers rebase() {
+				TBaseSetDeltaPointers deltaPointers;
+				deltaPointers.pPrimary = Primary.rebase();
+				deltaPointers.pPatriciaTree = PatriciaTree.rebase();
+				return deltaPointers;
+			}
+
+			/// Returns a delta based on the same original elements as this set
+			/// but without the ability to commit any changes to the original set.
+			TBaseSetDeltaPointers rebaseDetached() const {
+				TBaseSetDeltaPointers deltaPointers;
+				deltaPointers.pPrimary = Primary.rebaseDetached();
+				deltaPointers.pPatriciaTree = PatriciaTree.rebaseDetached();
+				return deltaPointers;
+			}
+
+			/// Commits all changes in the rebased cache.
+			void commit() {
+				Primary.commit();
+				PatriciaTree.commit();
+				flush();
 			}
 		};
 	};

@@ -21,6 +21,7 @@
 #pragma once
 #include "CacheConfiguration.h"
 #include "catapult/cache_db/CacheDatabase.h"
+#include "catapult/cache_db/UpdateSet.h"
 #include "catapult/deltaset/BaseSet.h"
 #include "catapult/deltaset/ConditionalContainer.h"
 #include "catapult/deltaset/OrderedSet.h"
@@ -33,13 +34,29 @@ namespace catapult { namespace cache {
 		template<typename TElementTraits, typename TDescriptor, typename TValueHasher>
 		struct UnorderedMapAdapter {
 		private:
-			// TODO: this is a placeholder for a rdb column adapter
-			class StorageMapType : public std::map<typename TDescriptor::KeyType, typename TDescriptor::ValueType> {
+			struct DescriptorAdapter {
 			public:
-				StorageMapType(CacheDatabase&, size_t)
-				{}
+				using KeyType = typename TDescriptor::KeyType;
+				using ValueType = typename TDescriptor::ValueType;
+				using StorageType = std::pair<const KeyType, ValueType>;
+				using Serializer = typename TDescriptor::Serializer;
+
+				static constexpr auto GetKeyFromValue = TDescriptor::GetKeyFromValue;
+
+				static constexpr auto& ToKey(const StorageType& element) {
+					return element.first;
+				}
+
+				static constexpr auto& ToValue(const StorageType& element) {
+					return element.second;
+				}
+
+				static auto ToStorage(const ValueType& value) {
+					return StorageType(TDescriptor::GetKeyFromValue(value), value);
+				}
 			};
 
+			using StorageMapType = CacheContainerView<DescriptorAdapter>;
 			using MemoryMapType = std::unordered_map<typename TDescriptor::KeyType, typename TDescriptor::ValueType, TValueHasher>;
 
 			struct Converter {
@@ -87,13 +104,12 @@ namespace catapult { namespace cache {
 		TValueHasher>;
 
 	namespace detail {
-		/// Defines cache types for an ordered set based cache.
+		/// Defines cache types for an ordered, memory backed set based cache.
 		template<typename TElementTraits>
-		struct OrderedSetAdapter {
+		struct OrderedMemorySetAdapter {
 		private:
 			using ElementType = typename std::remove_const<typename TElementTraits::ElementType>::type;
 
-			// TODO: this is a placeholder for a rdb column adapter
 			class StorageSetType : public deltaset::detail::OrderedSetType<TElementTraits> {
 			public:
 				StorageSetType(CacheDatabase&, size_t)
@@ -127,11 +143,81 @@ namespace catapult { namespace cache {
 		};
 	}
 
+	/// Defines cache types for an ordered, mutable, memory backed set based cache.
+	template<typename TDescriptor>
+	using MutableOrderedMemorySetAdapter =
+			detail::OrderedMemorySetAdapter<deltaset::MutableTypeTraits<typename TDescriptor::ValueType>>;
+
+	/// Defines cache types for an ordered, immutable, memory backed set based cache.
+	template<typename TDescriptor>
+	using ImmutableOrderedMemorySetAdapter =
+			detail::OrderedMemorySetAdapter<deltaset::ImmutableTypeTraits<typename TDescriptor::ValueType>>;
+
+	namespace detail {
+		/// Defines cache types for an ordered set based cache.
+		template<typename TElementTraits, typename TDescriptor>
+		struct OrderedSetAdapter {
+		private:
+			struct DescriptorAdapter {
+			public:
+				using KeyType = typename TDescriptor::KeyType;
+				using ValueType = typename TDescriptor::ValueType;
+				using StorageType = typename TDescriptor::KeyType;
+				using Serializer = typename TDescriptor::Serializer;
+
+				static constexpr auto GetKeyFromValue = TDescriptor::GetKeyFromValue;
+
+				static constexpr auto& ToKey(const StorageType& element) {
+					return element;
+				}
+
+				static constexpr auto& ToValue(const StorageType& element) {
+					return element;
+				}
+
+				static constexpr auto& ToStorage(const ValueType& value) {
+					return value;
+				}
+			};
+
+			using ElementType = typename std::remove_const<typename TElementTraits::ElementType>::type;
+			using StorageSetType = CacheContainerView<DescriptorAdapter>;
+			using MemorySetType = std::set<ElementType>;
+
+			// workaround for VS truncation
+			using SetStorageTraits = deltaset::SetStorageTraits<
+				deltaset::ConditionalContainer<
+					deltaset::SetKeyTraits<MemorySetType>,
+					StorageSetType,
+					MemorySetType
+				>,
+				MemorySetType
+			>;
+
+			struct StorageTraits : public SetStorageTraits
+			{};
+
+		public:
+			/// Base set type.
+			using BaseSetType = deltaset::OrderedSet<TElementTraits, StorageTraits>;
+
+			/// Base set delta type.
+			using BaseSetDeltaType = typename BaseSetType::DeltaType;
+
+			/// Base set delta pointer type.
+			using BaseSetDeltaPointerType = std::shared_ptr<BaseSetDeltaType>;
+		};
+	}
+
 	/// Defines cache types for an ordered mutable set based cache.
 	template<typename TDescriptor>
-	using MutableOrderedSetAdapter = detail::OrderedSetAdapter<deltaset::MutableTypeTraits<typename TDescriptor::ValueType>>;
+	using MutableOrderedSetAdapter = detail::OrderedSetAdapter<
+			deltaset::MutableTypeTraits<typename TDescriptor::ValueType>,
+			TDescriptor>;
 
 	/// Defines cache types for an ordered immutable set based cache.
 	template<typename TDescriptor>
-	using ImmutableOrderedSetAdapter = detail::OrderedSetAdapter<deltaset::ImmutableTypeTraits<typename TDescriptor::ValueType>>;
+	using ImmutableOrderedSetAdapter = detail::OrderedSetAdapter<
+			deltaset::ImmutableTypeTraits<typename TDescriptor::ValueType>,
+			TDescriptor>;
 }}

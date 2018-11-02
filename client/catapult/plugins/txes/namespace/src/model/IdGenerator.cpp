@@ -25,15 +25,15 @@
 namespace catapult { namespace model {
 
 	namespace {
-		template<typename TId>
-		TId GenerateId(uint64_t parentId, const RawString& name) noexcept {
+		template<typename TIdentifier>
+		TIdentifier GenerateId(uint64_t parentId, const RawString& name) noexcept {
 			Hash256 result;
 			crypto::Sha3_256_Builder sha3;
 			sha3.update({
 				{ reinterpret_cast<const uint8_t*>(&parentId), sizeof(NamespaceId) },
 				{ reinterpret_cast<const uint8_t*>(name.pData), name.Size } });
 			sha3.final(result);
-			return reinterpret_cast<const TId&>(*result.data());
+			return reinterpret_cast<const TIdentifier&>(*result.data());
 		}
 	}
 

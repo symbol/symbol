@@ -21,6 +21,7 @@
 #include "AccountStateMapper.h"
 #include "MapperUtils.h"
 #include "catapult/state/AccountState.h"
+#include "catapult/utils/Casting.h"
 
 namespace catapult { namespace mongo { namespace mappers {
 
@@ -70,10 +71,6 @@ namespace catapult { namespace mongo { namespace mappers {
 			importancesArray << bson_stream::close_array;
 			return builder;
 		}
-
-		Key GetPublicKey(const state::AccountState& accountState) {
-			return Height(0) == accountState.PublicKeyHeight ? Key{} : accountState.PublicKey;
-		}
 	}
 
 	bsoncxx::document::value ToDbModel(const state::AccountState& accountState) {
@@ -85,8 +82,10 @@ namespace catapult { namespace mongo { namespace mappers {
 		builder << "account" << bson_stream::open_document
 				<< "address" << ToBinary(accountState.Address)
 				<< "addressHeight" << ToInt64(accountState.AddressHeight)
-				<< "publicKey" << ToBinary(GetPublicKey(accountState))
-				<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight);
+				<< "publicKey" << ToBinary(accountState.PublicKey)
+				<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight)
+				<< "accountType" << utils::to_underlying_type(accountState.AccountType)
+				<< "linkedAccountKey" << ToBinary(accountState.LinkedAccountKey);
 		StreamAccountImportances(builder, accountState.ImportanceInfo);
 		StreamAccountBalances(builder, accountState.Balances);
 		builder << bson_stream::close_document;
@@ -118,6 +117,9 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto& accountState = accountStateFactory(accountAddress, accountAddressHeight);
 		DbBinaryToModelArray(accountState.PublicKey, accountDocument["publicKey"].get_binary());
 		accountState.PublicKeyHeight = GetValue64<Height>(accountDocument["publicKeyHeight"]);
+
+		accountState.AccountType = static_cast<state::AccountType>(ToUint8(accountDocument["accountType"].get_int32()));
+		DbBinaryToModelArray(accountState.LinkedAccountKey, accountDocument["linkedAccountKey"].get_binary());
 
 		auto dbImportances = accountDocument["importances"].get_array().value;
 		for (const auto& importanceEntry : dbImportances)

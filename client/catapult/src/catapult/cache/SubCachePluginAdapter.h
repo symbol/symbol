@@ -42,6 +42,10 @@ namespace catapult { namespace cache {
 			return m_name;
 		}
 
+		size_t id() const override {
+			return TCache::Id;
+		}
+
 	public:
 		std::unique_ptr<const SubCacheView> createView() const override {
 			return std::make_unique<const SubCacheViewAdapter<decltype(m_pCache->createView())>>(m_pCache->createView());
@@ -66,6 +70,12 @@ namespace catapult { namespace cache {
 		}
 
 	public:
+		/// Gets a typed reference to the underlying cache.
+		TCache& cache() {
+			return *m_pCache;
+		}
+
+	public:
 		std::unique_ptr<CacheStorage> createStorage() override {
 			return IsCacheStorageSupported(*m_pCache)
 					? std::make_unique<CacheStorageAdapter<TCache, TStorageTraits>>(*m_pCache)
@@ -84,6 +94,19 @@ namespace catapult { namespace cache {
 			explicit SubCacheViewAdapter(TView&& view) : m_view(std::move(view))
 			{}
 
+		private:
+			auto merkleRootAccessor() const {
+				// need to dereference to get underlying view type from LockedCacheView
+				using UnderlyingViewType = typename std::remove_reference<decltype(*m_view)>::type;
+				return MerkleRootAccessor<UnderlyingViewType>();
+			}
+
+			auto merkleRootMutator() {
+				// need to dereference to get underlying view type from LockedCacheView
+				using UnderlyingViewType = typename std::remove_reference<decltype(*m_view)>::type;
+				return MerkleRootMutator<UnderlyingViewType>();
+			}
+
 		public:
 			const void* get() const override {
 				return &*m_view;
@@ -93,8 +116,88 @@ namespace catapult { namespace cache {
 				return &*m_view;
 			}
 
+			bool supportsMerkleRoot() const override {
+				return SupportsMerkleRoot(m_view, merkleRootAccessor());
+			}
+
+			bool tryGetMerkleRoot(Hash256& merkleRoot) const override {
+				return TryGetMerkleRoot(m_view, merkleRoot, merkleRootAccessor());
+			}
+
+			bool trySetMerkleRoot(const Hash256& merkleRoot) override {
+				return TrySetMerkleRoot(m_view, merkleRoot, merkleRootMutator());
+			}
+
+			void updateMerkleRoot(Height height) override {
+				UpdateMerkleRoot(m_view, height, merkleRootMutator());
+			}
+
 			const void* asReadOnly() const override {
 				return &m_view->asReadOnly();
+			}
+
+		private:
+			enum class MerkleRootType { Unsupported, Supported };
+			using UnsupportedMerkleRootFlag = std::integral_constant<MerkleRootType, MerkleRootType::Unsupported>;
+			using SupportedMerkleRootFlag = std::integral_constant<MerkleRootType, MerkleRootType::Supported>;
+
+			template<typename T, typename = void>
+			struct MerkleRootAccessor : UnsupportedMerkleRootFlag
+			{};
+
+			template<typename T>
+			struct MerkleRootAccessor<
+					T,
+					typename utils::traits::enable_if_type<decltype(reinterpret_cast<const T*>(0)->tryGetMerkleRoot())>::type>
+					: SupportedMerkleRootFlag
+			{};
+
+			template<typename T, typename = void>
+			struct MerkleRootMutator : UnsupportedMerkleRootFlag
+			{};
+
+			template<typename T>
+			struct MerkleRootMutator<
+					T,
+					typename utils::traits::enable_if_type<decltype(reinterpret_cast<T*>(0)->setMerkleRoot(Hash256()))>::type>
+					: SupportedMerkleRootFlag
+			{};
+
+			static bool SupportsMerkleRoot(const TView&, UnsupportedMerkleRootFlag) {
+				return false;
+			}
+
+			static bool SupportsMerkleRoot(const TView& view, SupportedMerkleRootFlag) {
+				return view->supportsMerkleRoot();
+			}
+
+			static bool TryGetMerkleRoot(const TView&, Hash256&, UnsupportedMerkleRootFlag) {
+				return false;
+			}
+
+			static bool TryGetMerkleRoot(const TView& view, Hash256& merkleRoot, SupportedMerkleRootFlag) {
+				auto result = view->tryGetMerkleRoot();
+				merkleRoot = result.first;
+				return result.second;
+			}
+
+			static bool TrySetMerkleRoot(TView&, const Hash256&, UnsupportedMerkleRootFlag) {
+				return false;
+			}
+
+			static bool TrySetMerkleRoot(TView& view, const Hash256& merkleRoot, SupportedMerkleRootFlag) {
+				if (!view->supportsMerkleRoot())
+					return false;
+
+				view->setMerkleRoot(merkleRoot);
+				return true;
+			}
+
+			static void UpdateMerkleRoot(TView&, Height, UnsupportedMerkleRootFlag) {
+			}
+
+			static void UpdateMerkleRoot(TView& view, Height height, SupportedMerkleRootFlag) {
+				view->updateMerkleRoot(height);
 			}
 
 		private:

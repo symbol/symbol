@@ -31,11 +31,11 @@
 namespace catapult { namespace validators {
 
 	DEFINE_COMMON_VALIDATOR_TESTS(BalanceTransfer,)
-	DEFINE_COMMON_VALIDATOR_TESTS(BalanceReserve,)
+	DEFINE_COMMON_VALIDATOR_TESTS(BalanceDebit,)
 
 #define TEST_CLASS BalanceValidatorTests // used to generate unique function names in macros
-#define TRANSFER_TEST_CLASS BalanceTransferValidatorTests
-#define RESERVE_TEST_CLASS BalanceReserveValidatorTests
+#define TRANSFER_TEST_CLASS TransferBalanceValidatorTests
+#define RESERVE_TEST_CLASS DebitBalanceValidatorTests
 
 	namespace {
 		// region traits
@@ -69,40 +69,31 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				const cache::CatapultCache& cache,
 				const model::BalanceTransferNotification& notification) {
-			// Arrange:
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(1), readOnlyCache);
-
 			// Act:
-			auto result = TTraits::Validate(notification, context);
+			auto result = TTraits::Validate(notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
 		}
 
 		struct TransferTraits {
-			static ValidationResult Validate(
-					const model::BalanceTransferNotification& notification,
-					const validators::ValidatorContext& context) {
+			static ValidationResult Validate(const model::BalanceTransferNotification& notification, const cache::CatapultCache& cache) {
 				auto pValidator = CreateBalanceTransferValidator();
-				return test::ValidateNotification(*pValidator, notification, context);
+				return test::ValidateNotification(*pValidator, notification, cache);
 			}
 		};
 
 		struct ReserveTraits {
-			static ValidationResult Validate(
-					const model::BalanceTransferNotification& notification,
-					const validators::ValidatorContext& context) {
-				auto pValidator = CreateBalanceReserveValidator();
+			static ValidationResult Validate(const model::BalanceTransferNotification& notification, const cache::CatapultCache& cache) {
+				auto pValidator = CreateBalanceDebitValidator();
 
 				// - map transfer notification to a reserve notification
-				auto reserveNotification = model::BalanceReserveNotification(
+				auto reserveNotification = model::BalanceDebitNotification(
 						notification.Sender,
 						notification.MosaicId,
 						notification.Amount);
 
-				return test::ValidateNotification(*pValidator, reserveNotification, context);
+				return test::ValidateNotification(*pValidator, reserveNotification, cache);
 			}
 		};
 

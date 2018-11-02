@@ -24,6 +24,7 @@
 namespace catapult {
 	namespace model {
 		class NotificationSubscriber;
+		class PublisherContext;
 		class TransactionRegistry;
 	}
 }
@@ -50,8 +51,9 @@ namespace catapult { namespace model {
 		virtual void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const = 0;
 	};
 
-	/// Creates a notification publisher around \a transactionRegistry for the specified \a mode.
+	/// Creates a notification publisher around \a transactionRegistry and \a publisherContext for the specified \a mode.
 	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
 			const TransactionRegistry& transactionRegistry,
+			const PublisherContext& publisherContext,
 			PublicationMode mode = PublicationMode::All);
 }}

@@ -23,7 +23,7 @@
 
 namespace catapult { namespace utils {
 
-#define TEST_CLASS ClampedValueTests
+#define TEST_CLASS ClampedBaseValueTests
 
 	namespace {
 		struct TestValueRange {

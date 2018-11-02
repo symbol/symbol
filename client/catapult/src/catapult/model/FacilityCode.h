@@ -29,14 +29,18 @@ namespace catapult { namespace model {
 		Aggregate = 0x41,
 		/// Core facility code.
 		Core = 0x43,
-		/// Lock facility code.
-		Lock = 0x4C,
+		/// Lock hash facility code.
+		LockHash = 0x48,
+		/// Lock secret facility code.
+		LockSecret = 0x52,
 		/// Mosaic facility code.
 		Mosaic = 0x4D,
 		/// Multisig facility code.
 		Multisig = 0x55,
 		/// Namespace facility code.
 		Namespace = 0x4E,
+		/// Property facility code.
+		Property = 0x50,
 		/// Transfer facility code.
 		Transfer = 0x54
 	};

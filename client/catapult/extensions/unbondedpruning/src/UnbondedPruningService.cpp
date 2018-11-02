@@ -21,16 +21,11 @@
 #include "UnbondedPruningService.h"
 #include "HashLockUtils.h"
 #include "catapult/extensions/ServiceState.h"
-#include "catapult/model/NotificationPublisher.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace unbondedpruning {
 
 	namespace {
-		std::shared_ptr<model::NotificationPublisher> CreateNotificationPublisher(extensions::ServiceState& state) {
-			return model::CreateNotificationPublisher(state.pluginManager().transactionRegistry(), model::PublicationMode::Custom);
-		}
-
 		class UnbondedPruningServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
 			extensions::ServiceRegistrarInfo info() const override {
@@ -45,7 +40,8 @@ namespace catapult { namespace unbondedpruning {
 
 			void registerServices(extensions::ServiceLocator&, extensions::ServiceState& state) override {
 				auto eventHandler = state.hooks().transactionEventHandler();
-				auto pNotificationPublisher = CreateNotificationPublisher(state);
+				auto pNotificationPublisher = utils::UniqueToShared(
+						state.pluginManager().createNotificationPublisher(model::PublicationMode::Custom));
 
 				state.hooks().addTransactionsChangeHandler([eventHandler, pNotificationPublisher](const auto& changeInfo) {
 					for (const auto& transactionInfo : changeInfo.RevertedTransactionInfos) {

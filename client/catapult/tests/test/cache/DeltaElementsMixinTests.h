@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "tests/TestHarness.h"
 #include <set>
 
 namespace catapult { namespace test {

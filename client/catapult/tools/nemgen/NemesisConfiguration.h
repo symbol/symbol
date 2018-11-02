@@ -64,6 +64,9 @@ namespace catapult { namespace tools { namespace nemgen {
 		/// Nemesis signer private key.
 		std::string NemesisSignerPrivateKey;
 
+		/// Cpp file header.
+		std::string CppFileHeader;
+
 		/// Cpp file path.
 		std::string CppFile;
 

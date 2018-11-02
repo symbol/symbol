@@ -122,4 +122,12 @@ namespace catapult { namespace state {
 	RootNamespace RootNamespace::renew(const NamespaceLifetime& newLifetime) const {
 		return RootNamespace(m_id, m_owner, newLifetime, m_pChildren);
 	}
+
+	RootNamespace::OrderedChildPaths RootNamespace::sortChildren() const {
+		RootNamespace::OrderedChildPaths orderedPaths;
+		for (const auto& child : children())
+			orderedPaths.insert(child.second);
+
+		return orderedPaths;
+	}
 }}

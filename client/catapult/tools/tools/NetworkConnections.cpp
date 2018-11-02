@@ -31,11 +31,12 @@ namespace catapult { namespace tools {
 
 	NetworkConnections::NetworkConnections(const std::vector<ionet::Node>& nodes)
 			: m_pPool(CreateStartedThreadPool(std::thread::hardware_concurrency()))
-			, m_clientKeyPair(GenerateRandomKeyPair())
-			, m_nodes(nodes) {
+			, m_pClientKeyPair(std::make_unique<crypto::KeyPair>(GenerateRandomKeyPair()))
+			, m_nodes(nodes)
+			, m_pSpinLock(std::make_unique<utils::SpinLock>()) {
 		net::ConnectionSettings settings;
 		settings.NetworkIdentifier = model::NetworkIdentifier::Mijin_Test;
-		m_pPacketWriters = net::CreatePacketWriters(m_pPool, m_clientKeyPair, settings);
+		m_pPacketWriters = net::CreatePacketWriters(m_pPool, *m_pClientKeyPair, settings);
 	}
 
 	NetworkConnections::~NetworkConnections() {
@@ -55,16 +56,38 @@ namespace catapult { namespace tools {
 	}
 
 	thread::future<bool> NetworkConnections::connectAll() {
-		std::vector<thread::future<bool>> futures;
-		futures.reserve(m_nodes.size());
+		utils::SpinLockGuard guard(*m_pSpinLock);
+		return connectAll(m_nodes);
+	}
 
-		for (const auto& node : m_nodes) {
+	thread::future<bool> NetworkConnections::connectDisconnected() {
+		utils::SpinLockGuard guard(*m_pSpinLock);
+		return connectAll({ m_disconnectedNodes.cbegin(), m_disconnectedNodes.cend() });
+	}
+
+	thread::future<bool> NetworkConnections::connectAll(const std::vector<ionet::Node>& nodes) {
+		if (nodes.empty())
+			return thread::make_ready_future(true);
+
+		std::vector<thread::future<bool>> futures;
+		futures.reserve(nodes.size());
+
+		for (const auto& node : nodes) {
+			CATAPULT_LOG(info) << "attempting to connect to node " << node;
 			auto pPromise = std::make_shared<thread::promise<bool>>();
 			futures.push_back(pPromise->get_future());
 
-			m_pPacketWriters->connect(node, [node, pPromise](auto connectResult) {
+			m_pPacketWriters->connect(node, [this, node, pPromise](const auto& connectResult) {
+				auto connectCode = connectResult.Code;
+				if (net::PeerConnectCode::Accepted == connectCode || net::PeerConnectCode::Already_Connected == connectCode) {
+					CATAPULT_LOG(warning) << "removing node " << node << " from set of disconnected nodes";
+					this->removeDisconnected(node);
+				} else {
+					this->addDisconnected(node);
+				}
+
+				CATAPULT_LOG(info) << "connection attempt to " << node << " completed with " << connectCode;
 				pPromise->set_value(true);
-				CATAPULT_LOG(info) << "connection attempt to " << node << " completed with " << connectResult;
 			});
 		}
 
@@ -81,6 +104,16 @@ namespace catapult { namespace tools {
 		}
 
 		return ionet::NodePacketIoPair();
+	}
+
+	void NetworkConnections::addDisconnected(const ionet::Node& node) {
+		utils::SpinLockGuard guard(*m_pSpinLock);
+		m_disconnectedNodes.emplace(node);
+	}
+
+	void NetworkConnections::removeDisconnected(const ionet::Node& node) {
+		utils::SpinLockGuard guard(*m_pSpinLock);
+		m_disconnectedNodes.erase(node);
 	}
 
 	void NetworkConnections::shutdown() {

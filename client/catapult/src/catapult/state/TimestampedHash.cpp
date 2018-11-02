@@ -23,6 +23,10 @@
 
 namespace catapult { namespace state {
 
+	RawBuffer SerializeKey(const TimestampedHash& timestampedHash) {
+		return { reinterpret_cast<const uint8_t*>(&timestampedHash), sizeof(timestampedHash) };
+	}
+
 	std::ostream& operator<<(std::ostream& out, const TimestampedHash& timestampedHash) {
 		out << utils::HexFormat(timestampedHash.Hash) << " @ " << timestampedHash.Time;
 		return out;

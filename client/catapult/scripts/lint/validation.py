@@ -1,7 +1,11 @@
+# pylint: disable=too-many-lines
+from hashlib import sha1
+from binascii import unhexlify
 import re
 
 from SimpleValidator import SimpleValidator, Line
 from forwardsValidation import ForwardsValidator
+
 
 def stripCommentsAndStrings(line):
     # drop inline comments, remove strings and comments
@@ -10,6 +14,7 @@ def stripCommentsAndStrings(line):
     temp = re.sub(r'"(.+?)"', 'dummy', temp)
     temp = re.sub(r"'(.+?)'", 'dummy', temp)
     return temp
+
 
 # pylint: disable=too-many-instance-attributes
 class WhitespaceLineValidator(SimpleValidator):
@@ -70,25 +75,35 @@ class WhitespaceLineValidator(SimpleValidator):
             errorMsg = 'Carriage returns present in file {} occurences'.format(self.carriageReturnCount)
             self.errorReporter(self.NAME, Line(self.path, '', 0, errorMsg))
 
+
 class TestClassMacroValidator(SimpleValidator):
     SUITE_NAME = 'TestClassMacro'
     NAME = 'testClassMacro'
 
     def __init__(self, errorReporter):
         super().__init__(errorReporter)
-        self.patternTestClass = re.compile(r'#define [A-Z_]*TEST_CLASS ')
+        self.patternTestClass = re.compile(r'#define [A-Z_]*TEST_CLASS (\s+)')
 
     # pylint: disable=attribute-defined-outside-init
     def reset(self, path):
         super().reset(path)
         self.lineTestClass = None
         self.matchLineNumber = 0
+        self.hasMismatchedTestClass = False
+
+        splitted = re.split(r'[/\\]', path)
+        self.filename = splitted[-1]
 
     def match(self, line, lineNumber):
         hasMatch = re.search(self.patternTestClass, line)
         if hasMatch:
             self.lineTestClass = line
             self.matchLineNumber = lineNumber
+
+            # some files have multiple test class macros, so just check that they end with the filename
+            if not (hasMatch.group(1) + '.cpp').endswith(self.filename):
+                self.hasMismatchedTestClass = True
+
         return hasMatch
 
     def check(self, lineNumber, line):
@@ -98,11 +113,16 @@ class TestClassMacroValidator(SimpleValidator):
 
         self.match(line, lineNumber)
 
+    def finalize(self):
+        if self.hasMismatchedTestClass:
+            self.errorReporter(self.NAME, Line(self.path, '', 0))
+
     @staticmethod
     def formatError(err):
         name = err.path
-        errMsg = '{}:{} TEST_CLASS should be followed by an empty line: >>{}<<'
+        errMsg = '{}:{} TEST_CLASS should be followed by an empty line and match file name: >>{}<<'
         return errMsg.format(name, err.lineno, err.line)
+
 
 class LineLengthValidator(SimpleValidator):
     SUITE_NAME = 'LongLines'
@@ -122,6 +142,7 @@ class LineLengthValidator(SimpleValidator):
         name = err.path
         return '{}:{} Line too long: >>{}<<'.format(name, err.lineno, err.line)
 
+
 class TemplateSpaceValidator(SimpleValidator):
     SUITE_NAME = 'Template'
     NAME = 'templateFollowedBySpace'
@@ -138,6 +159,7 @@ class TemplateSpaceValidator(SimpleValidator):
     def formatError(err):
         name = err.path
         return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
 
 class CatchWithoutClosingTryBrace(SimpleValidator):
     SUITE_NAME = 'Catch Formatting'
@@ -156,6 +178,7 @@ class CatchWithoutClosingTryBrace(SimpleValidator):
     def formatError(err):
         name = err.path
         return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
 
 class SingleLineValidator(SimpleValidator):
     SUITE_NAME = 'SingleLine'
@@ -188,7 +211,7 @@ class SingleLineValidator(SimpleValidator):
                     self.numOpen += 1
                 elif ')' == char:
                     self.numOpen -= 1
-                elif '[' == char or ']' == char:
+                elif char in '[]':
                     numBrackets += 1
                 elif '{' == char:
                     hadBrace = True
@@ -215,6 +238,7 @@ class SingleLineValidator(SimpleValidator):
         name = err.path
         return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
+
 class PragmaOnceValidator(SimpleValidator):
     SUITE_NAME = 'Pragmas'
     NAME = 'pragmaErrors'
@@ -239,8 +263,9 @@ class PragmaOnceValidator(SimpleValidator):
             if '**/' in line:
                 self.insideComment = 2
             return
+
         # used to skip empty line after closing comment
-        elif 2 == self.insideComment:
+        if 2 == self.insideComment:
             self.insideComment = 3
             return
 
@@ -338,7 +363,13 @@ class TypoChecker(SimpleValidator):
             re.compile(r'(\d|0x[0-9a-fA-F]+)u\)'): 'no need for explicit unsigned qualifier',
             re.compile(r';;$'): 'no double semicolons',
             re.compile(r'[a-zA-Z>\*]>[^&\n]*= {'): 'prefer container initialization to container assign',
-            re.compile(r'(/\*+|///) The '): 'documentation should not start with \'The\''
+            re.compile(r'(/\*+|///) The '): 'documentation should not start with \'The\'',
+            re.compile(r'::(En|Dis)able[^d]'): 'enum values should be named Enable*d/Disable*d',
+            re.compile(r', and'): 'rephrase to avoid \', and\'',
+            re.compile(r'// #include'): 'don\'t comment out includes!',
+            re.compile(r'TId>'): 'use TIdentifier instead of TId',
+            re.compile(r'const{'): 'add space between const and brace',
+            re.compile(r'CreatePropertyChecker'): 'avoid this pattern'
         }
 
     def check(self, lineNumber, line):
@@ -350,6 +381,7 @@ class TypoChecker(SimpleValidator):
     def formatError(err):
         name = err.path
         return '{}:{} TYPO {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
 
 class BasicFunctionAliasValidator(SimpleValidator):
     """Validates proper usage of templates: supplier<>, action<>, consumer<> and predicate<>"""
@@ -416,10 +448,10 @@ class SpaceBraceValidator(SimpleValidator):
             re.compile(r'^\s*//'),
 
             #####################
-            ## special exceptions
+            # special exceptions
 
-            # we have single occurance like this
-            re.compile(r'enum : '),
+            # we have single occurrence like this
+            re.compile(r'enum : (uint|size_t)'),
 
             # special for src/catapult/utils/Logging.h
             re.compile(r'custom_info_tagger<SubcomponentTraits>>>'),
@@ -433,19 +465,25 @@ class SpaceBraceValidator(SimpleValidator):
             return
 
         # skip if it matched return
-        if 'return' == result.group(1):
+        matched = result.group(1)
+        if 'return' == matched:
+            return
+
+        # skip if only closing angle bracket is used (MultisigCacheTypes)
+        if '>' in matched and '<' not in matched:
             return
 
         for pattern in self.skip:
             if re.search(pattern, line):
                 return
 
-        self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, result.group(1)))
+        self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, matched))
 
     @staticmethod
     def formatError(err):
         name = err.path
         return '{}:{} Space between type or variable >>{}<< and brace: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
 
 class ReturnOnNewLineValidator(SimpleValidator):
     """Validates that return is placed in a separate line"""
@@ -483,6 +521,7 @@ class ReturnOnNewLineValidator(SimpleValidator):
         name = err.path
         return '{}:{} `return` should be on newline >>{}<<'.format(name, err.lineno, err.line)
 
+
 class MultiConditionChecker(SimpleValidator):
     """Validator for more complicated cases, that require several conditions.
 
@@ -510,6 +549,10 @@ class MultiConditionChecker(SimpleValidator):
         self.patternCoerce = re.compile(r'\s+(.*)auto(.).*= (ionet::)?CoercePacket')
         self.patternDefineTests = re.compile(r'#define [A-Z_]*DEFINE_[A-Z_]*_TEST[^S]')
         self.patternDefineTestTraits = re.compile(r'#define [A-Z_]*DEFINE_[A-Z_]*_TEST_TRAITS[A-Z_]*')
+        self.patternFileSize = re.compile(r'FileSize&')
+        self.patternOperator = re.compile(r'operator')
+        self.patternTryParseValue = re.compile(r'TryParseValue')
+        self.patternFileSizeCast = re.compile(r'const_cast<utils::FileSize&>.* = ')
 
     def reset(self, path):
         super().reset(path)
@@ -581,6 +624,20 @@ class MultiConditionChecker(SimpleValidator):
     def checkDefineTests(self, line):
         return re.match(self.patternDefineTests, line) and not re.match(self.patternDefineTestTraits, line)
 
+    def checkFileSize(self, line):
+        if not re.search(self.patternFileSize, line):
+            return False
+
+        # ignore operator, TryParseValue
+        if re.search(self.patternOperator, line) or re.search(self.patternTryParseValue, line):
+            return False
+
+        # ignore cast
+        if re.search(self.patternFileSizeCast, line):
+            return False
+
+        return True
+
     def check(self, lineNumber, line):
         strippedLine = stripCommentsAndStrings(line)
         # note that these checks are exclusive
@@ -599,14 +656,18 @@ class MultiConditionChecker(SimpleValidator):
             self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'use const auto* .. = CoercePacket'))
         elif self.checkDefineTests(strippedLine):
             self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'use MAKE_ for singular TEST'))
+        elif self.checkFileSize(strippedLine):
+            self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'FileSize should be passed by value'))
 
     @staticmethod
     def formatError(err):
         name = err.path
         return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
+
 def rindex(lst, searched):
     return next(idx for idx, value in zip(range(len(lst)-1, -1, -1), reversed(lst)) if value == searched)
+
 
 class UtilsSubdirValidator(SimpleValidator):
     """Validates there is no `utils` subdir under tests"""
@@ -636,6 +697,40 @@ class UtilsSubdirValidator(SimpleValidator):
     def formatError(err):
         name = err.path
         return '{} utils subdirectory should be replaced with test >>{}<<'.format(name, err.line)
+
+
+class StressTestNameValidator(SimpleValidator):
+    """Validates that stress tests have approprate names"""
+
+    SUITE_NAME = 'StressTestName'
+    NAME = 'stressTestName'
+
+    # pylint: disable=attribute-defined-outside-init
+    def reset(self, path):
+        super().reset(path)
+        self.hasImproperName = False
+        splitted = re.split(r'[/\\]', path)
+        if 'tests' in splitted:
+            # skip validation of test util names
+            if 'stress' in splitted and 'test' not in splitted:
+                if not splitted[-1].endswith('IntegrityTests.cpp'):
+                    self.hasImproperName = True
+            else:
+                if splitted[-1].endswith('IntegrityTests.cpp'):
+                    self.hasImproperName = True
+
+    def check(self, lineNumber, line):
+        pass
+
+    def finalize(self):
+        if self.hasImproperName:
+            self.errorReporter(self.NAME, Line(self.path, '', 0))
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{} all stress tests and only stress tests should end with `IntegrityTests.cpp`>>{}<<'.format(name, err.line)
+
 
 class RegionValidator(SimpleValidator):
     """Validates nested regions and region typos"""
@@ -698,6 +793,7 @@ class RegionValidator(SimpleValidator):
         name = err.path
         return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
+
 class MacroSemicolonValidator(SimpleValidator):
     """Validator for ensuring that macros don't have trailing semicolons."""
 
@@ -710,15 +806,15 @@ class MacroSemicolonValidator(SimpleValidator):
 
         # exclude special macros that should have semicolons some or most of the time
         self.skip = [
-            re.compile(r'EXPECT_|ASSERT_'), # test asserts
-            re.compile(r'CATAPULT_'), # catapult macros (LOG, THROW)
-            re.compile(r'WAIT_FOR'), # wait for macros
-            re.compile(r'LOAD_([A-Z]+_)*PROPERTY'), # property loading macros
-            re.compile(r'DEFINE_[A-Z]+_NOTIFICATION'), # notification definition macros
-            re.compile(r'DEFINE_([A-Z]+_)+RESULT'), # result definition macros
-            re.compile(r'DEFINE_(ENTITY|TRANSACTION|NOTIFICATION)_TYPE'), # entity and notification type definition macros
-            re.compile(r'DECLARE_MONGO_CACHE_STORAGE'), # macros that can be used for function declarations
-            re.compile(r'DEFINE_MOCK_(FLUSH|INFOS)_CAPTURE'), # macros used for mock class definitions
+            re.compile(r'EXPECT_|ASSERT_'),  # test asserts
+            re.compile(r'CATAPULT_'),  # catapult macros (LOG, THROW)
+            re.compile(r'WAIT_FOR'),  # wait for macros
+            re.compile(r'LOAD_([A-Z]+_)*PROPERTY'),  # property loading macros
+            re.compile(r'DEFINE_[A-Z]+_NOTIFICATION'),  # notification definition macros
+            re.compile(r'DEFINE_([A-Z]+_)+RESULT'),  # result definition macros
+            re.compile(r'DEFINE_(ENTITY|TRANSACTION|NOTIFICATION)_TYPE'),  # entity and notification type definition macros
+            re.compile(r'DECLARE_MONGO_CACHE_STORAGE'),  # macros that can be used for function declarations
+            re.compile(r'DEFINE_MOCK_(FLUSH|INFOS)_CAPTURE'),  # macros used for mock class definitions
         ]
 
     def check(self, lineNumber, line):
@@ -737,6 +833,7 @@ class MacroSemicolonValidator(SimpleValidator):
     def formatError(err):
         name = err.path
         return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
 
 class EnumValueBlankLineValidator(SimpleValidator):
     """Validator for ensuring that ENUM_VALUE entries are followed by blank lines."""
@@ -764,6 +861,128 @@ class EnumValueBlankLineValidator(SimpleValidator):
         return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
+class ClosingBraceVerticalSpacingValidator(SimpleValidator):
+    """Validator for ensuring that closing braces are properly followed by whitespace."""
+
+    SUITE_NAME = 'ClosingBraceVerticalSpacingChecker'
+    NAME = 'closingBraceVerticalSpacingVChecker'
+
+    def __init__(self, errorReporter):
+        super().__init__(errorReporter)
+        self.patternClosingBrace = re.compile(r'^\s*}\s*$')
+        self.patternInbetweenClosingBrace = re.compile(r'^\s*}[}\)]*;?\s*$')
+        self.patternLineAfterClosingBrace = re.compile(r'^#|^\s*(}[}\)]*[;,]?|namespace .*|break;|} catch.*|])$')
+        self.recentLines = ['', '', '']
+
+    def check(self, lineNumber, line):
+        self.recentLines.append(line.strip('\n\r'))
+        self.recentLines.pop(0)
+
+        # check if line following brace is valid:
+        # 1. preprocessor directive
+        # 2. another closing brace (with optional closing symbols and/or semicolon and/or comma)
+        # 3. namespace statement within forward declarations
+        # 4. break statement within switch
+        # 5. catch statement
+        # 6. closing square bracket (inline JSON)
+        if re.match(self.patternClosingBrace, self.recentLines[1]):
+            if self.recentLines[2] and not re.match(self.patternLineAfterClosingBrace, self.recentLines[2]):
+                self.errorReporter(self.NAME, Line(self.path, self.recentLines[2], lineNumber, 'improper line following closing brace'))
+
+        # check if line between closing braces is valid:
+        # 1. blank
+        # 2. valid line following brace
+        if re.match(self.patternClosingBrace, self.recentLines[2]) and re.match(self.patternClosingBrace, self.recentLines[0]):
+            if not self.recentLines[1] or not re.match(self.patternLineAfterClosingBrace, self.recentLines[1]):
+                self.errorReporter(self.NAME, Line(self.path, self.recentLines[1], lineNumber - 1, 'improper line between closing braces'))
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
+
+class NamespaceOpeningBraceVerticalSpacingValidator(SimpleValidator):
+    """Validator for ensuring that opening namespaces are properly followed by whitespace or not."""
+
+    SUITE_NAME = 'NamespaceOpeningBraceVerticalSpacingChecker'
+    NAME = 'namespaceOpeningBraceVerticalSpacingChecker'
+
+    def __init__(self, errorReporter):
+        super().__init__(errorReporter)
+        self.patternNamespaceOpening = re.compile(r'^(\s*(inline )?namespace \w+ {)+$')
+        self.patternAnonNamespaceOpening = re.compile(r'^\s*namespace {')
+        self.patternForwardDeclaration = re.compile(r'^\s*(namespace \w+ { )?(class|struct) \w+;')
+        self.recentLines = ['', '', '']
+
+    def check(self, lineNumber, line):
+        self.recentLines.append(line.strip('\n\r'))
+        self.recentLines.pop(0)
+
+        isOuterNamespace = False
+        isInnerOrAnonNamespace = False
+        if re.match(self.patternNamespaceOpening, self.recentLines[1]):
+            if '\t' != self.recentLines[1][0]:
+                isOuterNamespace = True
+            else:
+                isInnerOrAnonNamespace = True
+        elif re.match(self.patternAnonNamespaceOpening, self.recentLines[1]):
+            isInnerOrAnonNamespace = True
+
+        # check line following outer namespace opening
+        followingLine = self.recentLines[2]
+        if isOuterNamespace and followingLine:
+            if not (re.match(self.patternNamespaceOpening, followingLine) or re.match(self.patternForwardDeclaration, followingLine)):
+                self.reportError(lineNumber, 'line following namespace opening must be blank or namespace opening or forward declaration')
+
+        # check line following inner or anon namespace opening
+        if isInnerOrAnonNamespace and not followingLine:
+            self.reportError(lineNumber, 'line following anon or inner namespace opening must not be blank')
+
+    def reportError(self, lineNumber, message):
+        self.errorReporter(self.NAME, Line(self.path, self.recentLines[1], lineNumber - 1, message))
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
+
+class CopyrightCommentValidator(SimpleValidator):
+    """Validator for ensuring copyright comment consistency."""
+
+    SUITE_NAME = 'CopyrightCommentChecker'
+    NAME = 'copyrightCommentChecker'
+
+    def __init__(self, errorReporter):
+        super().__init__(errorReporter)
+        self.expectedHash = unhexlify('6d244ea9972afcb6b17d695594958de6dc162f50')
+
+    # pylint: disable=attribute-defined-outside-init
+    def reset(self, path):
+        super().reset(path)
+        self.hasher = sha1()
+        self.lastLineNumber = 0
+
+    def check(self, lineNumber, line):
+        self.lastLineNumber = lineNumber
+        if lineNumber <= 20:
+            self.hasher.update(bytes(line, 'utf-8'))
+
+        if lineNumber == 20:
+            if self.expectedHash != self.hasher.digest():
+                self.errorReporter(self.NAME, Line(self.path, '', 1))
+
+    def finalize(self):
+        if 20 > self.lastLineNumber:
+            self.errorReporter(self.NAME, Line(self.path, '', 1))
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{}:{} invalid copyright comment'.format(name, err.lineno)
+
+
 def createValidators(errorReporter):
     validators = [
         WhitespaceLineValidator,
@@ -780,8 +999,12 @@ def createValidators(errorReporter):
         ReturnOnNewLineValidator,
         MultiConditionChecker,
         UtilsSubdirValidator,
+        StressTestNameValidator,
         RegionValidator,
         MacroSemicolonValidator,
-        EnumValueBlankLineValidator
+        EnumValueBlankLineValidator,
+        ClosingBraceVerticalSpacingValidator,
+        NamespaceOpeningBraceVerticalSpacingValidator,
+        CopyrightCommentValidator
     ]
     return list(map(lambda validator: validator(errorReporter), validators))

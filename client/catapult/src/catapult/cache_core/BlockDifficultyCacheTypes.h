@@ -60,7 +60,7 @@ namespace catapult { namespace cache {
 	/// Block difficulty cache types.
 	/// \note Mutable because time and difficulty can change for same height.
 	struct BlockDifficultyCacheTypes
-			: public SingleSetCacheTypesAdapter<MutableOrderedSetAdapter<BlockDifficultyCacheDescriptor>, std::true_type> {
+			: public SingleSetCacheTypesAdapter<MutableOrderedMemorySetAdapter<BlockDifficultyCacheDescriptor>, std::true_type> {
 		using CacheReadOnlyType = ReadOnlySimpleCache<
 			BasicBlockDifficultyCacheView,
 			BasicBlockDifficultyCacheDelta,

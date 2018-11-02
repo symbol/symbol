@@ -20,14 +20,18 @@
 
 #include "catapult/cache_db/UpdateSet.h"
 #include "catapult/deltaset/BaseSetCommitPolicy.h"
+#include "catapult/deltaset/PruningBoundary.h"
+#include "tests/catapult/cache_db/test/BasicMapDescriptor.h"
 #include "tests/catapult/cache_db/test/RdbTestUtils.h"
-#include "tests/catapult/deltaset/test/BaseSetTestsInclude.h"
-#include "tests/catapult/deltaset/test/DeltaElementsTestUtils.h"
-#include "tests/catapult/deltaset/test/UpdateSetTests.h"
+#include "tests/catapult/cache_db/test/StringKey.h"
+#include "tests/test/other/DeltaElementsTestUtils.h"
+#include "tests/test/other/UpdateSetTests.h"
 
 namespace catapult { namespace cache {
 
 #define TEST_CLASS UpdateSetTests
+
+	// region update set tests
 
 	namespace {
 		struct TestValue {
@@ -41,21 +45,12 @@ namespace catapult { namespace cache {
 			return static_cast<unsigned int>(std::stoul(str));
 		}
 
-		struct TestDescriptor {
+		struct TestDescriptor : public test::BasicMapDescriptor<test::StringKey, TestValue> {
 		public:
-			using KeyType = std::string;
-			using ValueType = TestValue;
-			using StorageType = std::pair<const KeyType, ValueType>;
-
 			struct Serializer {
 			public:
-				static RawBuffer SerializeKey(const KeyType& key) {
-					return { reinterpret_cast<const uint8_t*>(key.data()), key.size() };
-				}
-
-				static std::string SerializeValue(const StorageType& element) {
+				static std::string SerializeValue(const ValueType& value) {
 					std::ostringstream out;
-					const auto& value = element.second;
 					out << value.Data << "," << value.Marker << "," << value.KeyCopy;
 					return out.str();
 				}
@@ -71,14 +66,6 @@ namespace catapult { namespace cache {
 					return { keyCopy, stoui(intStr), std::stoul(markerStr) };
 				}
 			};
-
-			static const KeyType& GetKeyFromElement(const StorageType& element) {
-				return element.first;
-			}
-
-			static const KeyType& GetKeyFromValue(const ValueType& value) {
-				return value.KeyCopy;
-			}
 		};
 
 		struct Types {
@@ -107,13 +94,13 @@ namespace catapult { namespace cache {
 
 			public:
 				TestContext()
-						: Context({})
+						: Context(RocksDatabaseSettings("testdb", { "default" }, utils::FileSize(), FilterPruningMode::Disabled))
 						, Set(Context.database(), 0) {
 					// seed the set with a few elements
 					AddElement(Set, "aaa", 1);
 					AddElement(Set, "ccc", 3);
 					AddElement(Set, "ddd", 2);
-					Set.saveSize(3);
+					Set.setSize(3);
 				}
 			};
 
@@ -138,4 +125,106 @@ namespace catapult { namespace cache {
 	}
 
 	DEFINE_UPDATE_SET_TESTS(RdbStorageTraits)
+
+	// endregion
+
+	// region prune base set
+
+	namespace {
+		struct ColumnDescriptor {
+		public:
+			using KeyType = std::string;
+			using ValueType = int;
+			using StorageType = int;
+
+			struct Serializer {
+			public:
+				static uint64_t KeyToBoundary(const KeyType& key) {
+					return key.size();
+				}
+			};
+		};
+
+		enum class EntryPoint {
+			Size,
+			Prune,
+			SetSize
+		};
+
+		struct MockDb {
+		public:
+			MockDb(size_t size, size_t numPruned)
+					: Size(size)
+					, NumPruned(numPruned)
+			{}
+
+		public:
+			auto size() const {
+				CallsOrder.push_back(EntryPoint::Size);
+				return Size;
+			}
+
+			void setSize(size_t newSize) {
+				CallsOrder.push_back(EntryPoint::SetSize);
+				ParamSetSize = newSize;
+			}
+
+			auto prune(uint64_t pruningBoundary) {
+				CallsOrder.push_back(EntryPoint::Prune);
+				ParamPrune = pruningBoundary;
+				return NumPruned;
+			}
+
+		public:
+			const size_t Size;
+			const size_t NumPruned;
+			size_t ParamSetSize = 0;
+			uint64_t ParamPrune = 0;
+			mutable std::vector<EntryPoint> CallsOrder;
+		};
+
+		// pass-through into db
+		struct MockContainer {
+		public:
+			MockContainer(MockDb& db, size_t) : m_db(db)
+			{}
+
+		public:
+			auto size() const {
+				return m_db.size();
+			}
+
+			void setSize(size_t newSize) {
+				m_db.setSize(newSize);
+			}
+
+			size_t prune(uint64_t pruningBoundary) {
+				return m_db.prune(pruningBoundary);
+			}
+
+		private:
+			MockDb& m_db;
+		};
+	}
+
+	TEST(TEST_CLASS, PruneBaseSetForwardsToStorage) {
+		// Arrange:
+		constexpr size_t Initial_Size = 543;
+		constexpr size_t Num_Pruned = 123;
+		MockDb db(Initial_Size, Num_Pruned);
+		RdbTypedColumnContainer<ColumnDescriptor, MockContainer> container(db, 0);
+
+		// Act:
+		PruneBaseSet(container, deltaset::PruningBoundary<std::string>("hello world"));
+
+		// Assert:
+		// - order of calls
+		// - mock container prune() was called with param returned from KeyToBoundary
+		// - setSize was called with a proper difference
+		EXPECT_EQ(std::vector<EntryPoint>({ EntryPoint::Size, EntryPoint::Prune, EntryPoint::SetSize }), db.CallsOrder);
+		EXPECT_EQ(11u, db.ParamPrune);
+		EXPECT_EQ(Initial_Size - Num_Pruned, db.ParamSetSize);
+	}
+
+	// endregion
 }}

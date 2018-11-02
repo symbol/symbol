@@ -45,7 +45,8 @@ namespace catapult { namespace timesync {
 				model::ImportanceHeight importanceHeight) {
 			auto delta = cache.createDelta();
 			for (auto i = 0u; i < keys.size(); ++i) {
-				auto& accountState = delta->addAccount(keys[i], Height(100));
+				delta->addAccount(keys[i], Height(100));
+				auto& accountState = delta->find(keys[i]).get();
 				accountState.ImportanceInfo.set(importances[i], importanceHeight);
 			}
 

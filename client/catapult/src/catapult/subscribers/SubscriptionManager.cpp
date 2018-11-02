@@ -34,7 +34,7 @@ namespace catapult { namespace subscribers {
 
 	SubscriptionManager::SubscriptionManager(const config::LocalNodeConfiguration& config)
 			: m_config(config)
-			, m_pStorage(std::make_unique<io::FileBasedStorage>(m_config.User.DataDirectory)) {
+			, m_pStorage(std::make_unique<io::FileBlockStorage>(m_config.User.DataDirectory)) {
 		m_subscriberUsedFlags.fill(false);
 	}
 

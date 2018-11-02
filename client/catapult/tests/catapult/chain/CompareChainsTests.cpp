@@ -33,6 +33,34 @@ namespace catapult { namespace chain {
 
 #define TEST_CLASS CompareChainsTests
 
+	// region CalculateMaxHashesToAnalyze
+
+	namespace {
+		void AssertMaxHashesToAnalyze(uint32_t expected, uint32_t maxBlocksToAnalyze, uint32_t maxBlocksToRewrite) {
+			// Act:
+			auto result = CalculateMaxHashesToAnalyze({ maxBlocksToAnalyze, maxBlocksToRewrite });
+
+			// Assert:
+			EXPECT_EQ(expected, result);
+		}
+	}
+
+	TEST(TEST_CLASS, CalculateMaxHashesToAnalyzeReturnsMaxBlocksIfLargerThanRewriteLimitPlusTwo) {
+		AssertMaxHashesToAnalyze(20, 20, 10);
+		AssertMaxHashesToAnalyze(20, 20, 15);
+		AssertMaxHashesToAnalyze(20, 20, 18);
+	}
+
+	TEST(TEST_CLASS, CalculateMaxHashesToAnalyzeReturnsMaxRewriteLimitPlusTwoIfLargerThanMaxBlocks) {
+		AssertMaxHashesToAnalyze(21, 20, 19);
+		AssertMaxHashesToAnalyze(22, 20, 20);
+		AssertMaxHashesToAnalyze(32, 20, 30);
+	}
+
+	// endregion
+
+	// region chain info
+
 	namespace {
 		void AssertLocalChainExceptionPropagation(MockChainApi::EntryPoint entryPoint) {
 			// Arrange:
@@ -75,8 +103,6 @@ namespace catapult { namespace chain {
 			return numLocalHashes == differenceIndex;
 		}
 	}
-
-	// region chain info
 
 	TEST(TEST_CLASS, RemoteReportedLowerChainScoreIfRemoteChainScoreIsLessThanLocalChainScore) {
 		// Arrange:
@@ -154,11 +180,11 @@ namespace catapult { namespace chain {
 	// region hash
 
 	namespace {
-		void AssertRemoteReturnedTooManyHashes(uint32_t numHashes, uint32_t analyzeLimit, bool expected) {
+		void AssertRemoteReturnedTooManyHashes(uint32_t numHashes, uint32_t analyzeLimit, uint32_t rewriteLimit, bool expected) {
 			// Arrange:
 			MockChainApi local(ChainScore(10), Height(numHashes));
 			MockChainApi remote(ChainScore(11), Height(numHashes), numHashes);
-			CompareChainsOptions options{ analyzeLimit, 1000 };
+			CompareChainsOptions options{ analyzeLimit, rewriteLimit };
 
 			// Act:
 			auto result = CompareChains(local, remote, options).get();
@@ -175,12 +201,27 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, RemoteReturnedTooManyHashesIfItReturnedMoreThanMaxBlocksToAnalyze) {
 		// Assert:
-		AssertRemoteReturnedTooManyHashes(21, 20, true);
+		AssertRemoteReturnedTooManyHashes(21, 20, 10, true);
 	}
 
 	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesIfItReturnedExactlyMaxBlocksToAnalyze) {
 		// Assert:
-		AssertRemoteReturnedTooManyHashes(20, 20, false);
+		AssertRemoteReturnedTooManyHashes(20, 20, 10, false);
+	}
+
+	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesIfItReturnedLessThanRewriteLimit) {
+		// Assert:
+		AssertRemoteReturnedTooManyHashes(21, 20, 30, false);
+	}
+
+	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesIfItMatchesRewriteLimit) {
+		// Assert:
+		AssertRemoteReturnedTooManyHashes(32, 20, 30, false);
+	}
+
+	TEST(TEST_CLASS, RemoteReturnedTooManyHashesIfItReturnedMoreThanRewriteLimit) {
+		// Assert:
+		AssertRemoteReturnedTooManyHashes(33, 20, 30, true);
 	}
 
 	TEST(TEST_CLASS, RemoteIsForkedIfTheFirstLocalAndRemoteHashesDoNotMatch) {
@@ -285,6 +326,14 @@ namespace catapult { namespace chain {
 	// region rewrite limit
 
 	namespace {
+		void AssertParam(Height expectedHeight, uint32_t expectedNumHashes, const std::vector<std::pair<Height, uint32_t>>& requests) {
+			ASSERT_EQ(1u, requests.size());
+
+			const auto& params = requests[0];
+			EXPECT_EQ(expectedHeight, params.first);
+			EXPECT_EQ(expectedNumHashes, params.second);
+		}
+
 		void AssertRemoteIsNotSynced(uint32_t rewriteLimit, Height expectedHashesFromHeight, Height expectedCommonBlockHeight) {
 			// Arrange: Local { ..., A, B, C, D }, Remote { ..., A, B, C, E }
 			auto commonHashes = test::GenerateRandomHashes(20 - expectedHashesFromHeight.unwrap());
@@ -302,8 +351,9 @@ namespace catapult { namespace chain {
 			EXPECT_EQ(20u - expectedCommonBlockHeight.unwrap(), result.ForkDepth);
 			EXPECT_FALSE(AreChainsConsistent(localHashes.size(), result.CommonBlockHeight, expectedHashesFromHeight));
 
-			EXPECT_EQ(std::vector<Height>{ expectedHashesFromHeight }, local.hashesFromRequests());
-			EXPECT_EQ(std::vector<Height>{ expectedHashesFromHeight }, remote.hashesFromRequests());
+			auto expectedNumHashes = std::max(1000u, rewriteLimit + 2);
+			AssertParam(expectedHashesFromHeight, expectedNumHashes, local.hashesFromRequests());
+			AssertParam(expectedHashesFromHeight, expectedNumHashes, remote.hashesFromRequests());
 		}
 	}
 

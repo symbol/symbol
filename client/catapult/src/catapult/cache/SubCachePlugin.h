@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/types.h"
 #include <memory>
 #include <string>
 
@@ -43,6 +44,18 @@ namespace catapult { namespace cache {
 		/// Returns a pointer to the underlying view.
 		virtual void* get() = 0;
 
+		/// Returns \c true if cache supports merkle root.
+		virtual bool supportsMerkleRoot() const = 0;
+
+		/// Gets the cache merkle root (\a merkleRoot) if supported.
+		virtual bool tryGetMerkleRoot(Hash256& merkleRoot) const = 0;
+
+		/// Sets the cache merkle root (\a merkleRoot) if supported.
+		virtual bool trySetMerkleRoot(const Hash256& merkleRoot) = 0;
+
+		/// Recalculates the merkle root given the specified chain \a height if supported.
+		virtual void updateMerkleRoot(Height height) = 0;
+
 		/// Returns a read-only view of this view.
 		virtual const void* asReadOnly() const = 0;
 	};
@@ -66,6 +79,9 @@ namespace catapult { namespace cache {
 	public:
 		/// Gets the cache name.
 		virtual const std::string& name() const = 0;
+
+		/// Gets the cache id.
+		virtual size_t id() const = 0;
 
 	public:
 		/// Returns a locked cache view based on this cache.

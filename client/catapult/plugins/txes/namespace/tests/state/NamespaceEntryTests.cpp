@@ -26,13 +26,22 @@ namespace catapult { namespace state {
 
 #define TEST_CLASS NamespaceEntryTests
 
+	// region basic
+
+	TEST(TEST_CLASS, CanCreateUninitializedNamespaceEntry) {
+		// Act + Assert: no exceptions
+		NamespaceEntry();
+	}
+
+	// endregion
+
 	// region compatible
 
 	TEST(TEST_CLASS, CanCreateNamespaceEntryAroundRoot) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-		auto ns = state::Namespace(test::CreatePath({ 123 }));
+		auto ns = Namespace(test::CreatePath({ 123 }));
 
 		// Act:
 		auto entry = NamespaceEntry(ns, root);
@@ -47,7 +56,7 @@ namespace catapult { namespace state {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-		auto ns = state::Namespace(test::CreatePath({ 123, 234, 456 }));
+		auto ns = Namespace(test::CreatePath({ 123, 234, 456 }));
 
 		// Act:
 		auto entry = NamespaceEntry(ns, root);
@@ -66,7 +75,7 @@ namespace catapult { namespace state {
 		// Arrange: root.id() != ns.rootId()
 		auto owner = test::CreateRandomOwner();
 		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-		auto ns = state::Namespace(test::CreatePath({ 124 }));
+		auto ns = Namespace(test::CreatePath({ 124 }));
 
 		// Act + Assert:
 		EXPECT_THROW(NamespaceEntry(ns, root), catapult_invalid_argument);
@@ -76,7 +85,7 @@ namespace catapult { namespace state {
 		// Arrange: root.id() != ns.rootId()
 		auto owner = test::CreateRandomOwner();
 		auto root = RootNamespace(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-		auto ns = state::Namespace(test::CreatePath({ 124, 234, 456 }));
+		auto ns = Namespace(test::CreatePath({ 124, 234, 456 }));
 
 		// Act + Assert:
 		EXPECT_THROW(NamespaceEntry(ns, root), catapult_invalid_argument);

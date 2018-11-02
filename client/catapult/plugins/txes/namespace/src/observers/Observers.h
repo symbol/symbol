@@ -24,8 +24,6 @@
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
 
-namespace catapult { namespace model { struct NamespaceLifetimeConstraints; } }
-
 namespace catapult { namespace observers {
 
 	// region mosaic
@@ -51,9 +49,8 @@ namespace catapult { namespace observers {
 	DECLARE_OBSERVER(ChildNamespace, model::ChildNamespaceNotification)();
 
 	/// Observes changes triggered by root namespace notifications, including:
-	/// - pruning triggered by root namespace replacement given \a constraints
-	DECLARE_OBSERVER(RegisterNamespaceMosaicPruning, model::RootNamespaceNotification)(
-			const model::NamespaceLifetimeConstraints& constraints);
+	/// - pruning triggered by root namespace replacement given \a maxRollbackBlocks
+	DECLARE_OBSERVER(RegisterNamespaceMosaicPruning, model::RootNamespaceNotification)(BlockDuration maxRollbackBlocks);
 
 	// endregion
 }}

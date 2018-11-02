@@ -53,7 +53,10 @@ namespace catapult { namespace plugins {
 						: std::numeric_limits<uint64_t>::max();
 			}
 
-			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, NotificationSubscriber& sub) const override {
+			void publish(
+					const WeakEntityInfoT<Transaction>& transactionInfo,
+					const PublisherContext& publisherContext,
+					NotificationSubscriber& sub) const override {
 				const auto& aggregate = CastToDerivedType(transactionInfo.entity());
 
 				// publish aggregate notifications
@@ -82,7 +85,7 @@ namespace catapult { namespace plugins {
 					// - specific sub-transaction notifications
 					//   (calculateRealSize would have failed if plugin is unknown or not embeddable)
 					const auto& plugin = m_transactionRegistry.findPlugin(subTransaction.Type)->embeddedPlugin();
-					plugin.publish(subTransaction, sub);
+					plugin.publish(subTransaction, publisherContext, sub);
 				}
 
 				// publish all cosigner information

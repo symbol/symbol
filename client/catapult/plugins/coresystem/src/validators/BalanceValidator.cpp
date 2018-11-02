@@ -26,29 +26,37 @@
 namespace catapult { namespace validators {
 
 	using BalanceTransferNotification = model::BalanceTransferNotification;
-	using BalanceReserveNotification = model::BalanceReserveNotification;
+	using BalanceDebitNotification = model::BalanceDebitNotification;
 
 	namespace {
-		const state::AccountState* FindAccount(const cache::ReadOnlyAccountStateCache& cache, const Key& publicKey) {
-			auto pAccountState = cache.tryGet(publicKey);
+		bool FindAccountBalance(const cache::ReadOnlyAccountStateCache& cache, const Key& publicKey, MosaicId mosaicId, Amount& amount) {
+			auto accountStateKeyIter = cache.find(publicKey);
+			if (accountStateKeyIter.tryGet()) {
+				amount = accountStateKeyIter.get().Balances.get(mosaicId);
+				return true;
+			}
 
 			// if state could not be accessed by public key, try searching by address
-			if (!pAccountState)
-				pAccountState = cache.tryGet(model::PublicKeyToAddress(publicKey, cache.networkIdentifier()));
+			auto accountStateAddressIter = cache.find(model::PublicKeyToAddress(publicKey, cache.networkIdentifier()));
+			if (accountStateAddressIter.tryGet()) {
+				amount = accountStateAddressIter.get().Balances.get(mosaicId);
+				return true;
+			}
 
-			return pAccountState;
+			return false;
 		}
 
 		template<typename TNotification>
 		ValidationResult CheckBalance(const TNotification& notification, const ValidatorContext& context) {
 			const auto& cache = context.Cache.sub<cache::AccountStateCache>();
-			auto pAccountState = FindAccount(cache, notification.Sender);
-			return pAccountState && pAccountState->Balances.get(notification.MosaicId) >= notification.Amount
+
+			Amount amount;
+			return FindAccountBalance(cache, notification.Sender, notification.MosaicId, amount) && amount >= notification.Amount
 					? ValidationResult::Success
 					: Failure_Core_Insufficient_Balance;
 		}
 	}
 
 	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(BalanceTransfer, BalanceTransferNotification, CheckBalance<BalanceTransferNotification>)
-	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(BalanceReserve, BalanceReserveNotification, CheckBalance<BalanceReserveNotification>)
+	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(BalanceDebit, BalanceDebitNotification, CheckBalance<BalanceDebitNotification>)
 }}

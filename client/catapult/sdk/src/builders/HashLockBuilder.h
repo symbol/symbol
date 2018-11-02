@@ -20,7 +20,7 @@
 
 #pragma once
 #include "TransactionBuilder.h"
-#include "plugins/txes/lock/src/model/HashLockTransaction.h"
+#include "plugins/txes/lock_hash/src/model/HashLockTransaction.h"
 
 namespace catapult { namespace builders {
 
@@ -36,7 +36,7 @@ namespace catapult { namespace builders {
 
 	public:
 		/// Sets the mosaic with \a mosaicId and \a amount.
-		void setMosaic(MosaicId mosaicId, Amount amount);
+		void setMosaic(UnresolvedMosaicId mosaicId, Amount amount);
 
 		/// Sets the \a duration.
 		void setDuration(BlockDuration duration);
@@ -56,7 +56,7 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		model::Mosaic m_mosaic;
+		model::UnresolvedMosaic m_mosaic;
 		Amount m_amount;
 		BlockDuration m_duration;
 		Hash256 m_hash;

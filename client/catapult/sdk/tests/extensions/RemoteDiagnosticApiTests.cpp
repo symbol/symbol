@@ -21,75 +21,12 @@
 #include "src/extensions/RemoteDiagnosticApi.h"
 #include "catapult/handlers/DiagnosticHandlers.h"
 #include "catapult/ionet/Packet.h"
-#include "catapult/model/AccountInfo.h"
 #include "tests/test/other/RemoteApiTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {
 
 	namespace {
-
-		// region AccountInfosTraits
-
-		struct AccountInfosTraits {
-			using RequestParamType = model::AddressRange;
-			using ResponseType = model::AccountInfoRange;
-
-			static constexpr auto PacketType() { return ionet::PacketType::Account_Infos; }
-			static constexpr auto Request_Entity_Size = Address_Decoded_Size;
-			static constexpr auto Response_Entity_Size = sizeof(model::AccountInfo) + sizeof(model::Mosaic);
-
-			static auto CreateResponsePacket(uint32_t numAccountInfos) {
-				uint32_t payloadSize = numAccountInfos * Response_Entity_Size;
-				auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
-				test::FillWithRandomData({ pPacket->Data(), payloadSize });
-
-				auto pData = pPacket->Data();
-				for (auto i = 0u; i < numAccountInfos; ++i, pData += Response_Entity_Size) {
-					auto& accountInfo = reinterpret_cast<model::AccountInfo&>(*pData);
-					accountInfo.Size = Response_Entity_Size;
-					accountInfo.AddressHeight = Height(5 * i);
-					accountInfo.MosaicsCount = 1u;
-					auto pMosaic = accountInfo.MosaicsPtr();
-					pMosaic->MosaicId = Xem_Id;
-					pMosaic->Amount = Amount(123 * i);
-				}
-
-				return pPacket;
-			}
-
-			static std::vector<Address> RequestParamValues() {
-				return { { { 123 } }, { { 234 } }, { { 213 } } };
-			}
-
-			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
-				return api.accountInfos(std::move(param));
-			}
-
-			static void ValidateResponse(const ionet::Packet& response, const model::AccountInfoRange& accountInfos) {
-				ASSERT_EQ(3u, accountInfos.size());
-
-				auto pData = response.Data();
-				auto iter = accountInfos.cbegin();
-				for (auto i = 0u; i < accountInfos.size(); ++i) {
-					std::string message = "comparing account info at " + std::to_string(i);
-					const auto& expectedAccountInfo = reinterpret_cast<const model::AccountInfo&>(*pData);
-					const auto& actualAccountInfo = *iter;
-					ASSERT_EQ(expectedAccountInfo.Size, actualAccountInfo.Size) << message;
-					EXPECT_EQ(Height(5 * i), actualAccountInfo.AddressHeight) << message;
-
-					const auto& expectedMosaic = *expectedAccountInfo.MosaicsPtr();
-					const auto& actualMosaic = *actualAccountInfo.MosaicsPtr();
-					EXPECT_EQ(expectedMosaic.MosaicId, actualMosaic.MosaicId) << message;
-					EXPECT_EQ(expectedMosaic.Amount, actualMosaic.Amount) << message;
-					++iter;
-					pData += expectedAccountInfo.Size;
-				}
-			}
-		};
-
-		// endregion
-
 		// region ConfirmTimestampedHashesTraits
 
 		struct ConfirmTimestampedHashesTraits {
@@ -258,67 +195,100 @@ namespace catapult { namespace extensions {
 
 		// endregion
 
-		// region NamespaceInfosTraits
+		template<typename TIdentifier, ionet::PacketType Packet_Type>
+		struct InfosTraits {
+		public:
+			using RequestParamType = model::EntityRange<TIdentifier>;
+			using EntityType = model::CacheEntryInfo<TIdentifier>;
+			using ResponseType = model::EntityRange<EntityType>;
 
-		struct NamespaceInfosTraits {
-			using RequestParamType = model::EntityRange<NamespaceId>;
-			using ResponseType = model::EntityRange<model::NamespaceInfo>;
+			static constexpr auto PacketType() { return Packet_Type; }
+			static constexpr auto Response_Entity_Data_Size = 10u;
+			static constexpr auto Response_Entity_Size = sizeof(EntityType) + Response_Entity_Data_Size;
 
-			static constexpr auto PacketType() { return ionet::PacketType::Namespace_Infos; }
-			static constexpr auto Request_Entity_Size = sizeof(NamespaceId);
-			static constexpr auto Response_Entity_Size = sizeof(model::NamespaceInfo) + 3 * sizeof(NamespaceId);
-
-			static auto CreateResponsePacket(uint32_t numNamespaceInfos) {
-				uint32_t payloadSize = numNamespaceInfos * Response_Entity_Size;
+		public:
+			static auto CreateResponsePacket(uint32_t numInfos) {
+				uint32_t payloadSize = numInfos * Response_Entity_Size;
 				auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 				test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
 				auto pData = pPacket->Data();
-				for (auto i = 0u; i < numNamespaceInfos; ++i, pData += Response_Entity_Size) {
-					auto& namespaceInfo = reinterpret_cast<model::NamespaceInfo&>(*pData);
-					namespaceInfo.Size = Response_Entity_Size;
-					namespaceInfo.Id = NamespaceId(5 * i);
-					namespaceInfo.ChildCount = 3;
-					auto* pChildId = namespaceInfo.ChildrenPtr();
-					*pChildId++ = NamespaceId(5 * i + 1);
-					*pChildId++ = NamespaceId(5 * i + 2);
-					*pChildId = NamespaceId(5 * i + 3);
+				for (auto i = 0u; i < numInfos; ++i, pData += Response_Entity_Size) {
+					auto& info = reinterpret_cast<EntityType&>(*pData);
+					info.Size = Response_Entity_Size;
+					info.DataSize = Response_Entity_Data_Size;
+					info.Id = ToIdentifier(5 * i);
 				}
 
 				return pPacket;
 			}
 
-			static std::vector<NamespaceId> RequestParamValues() {
-				return { NamespaceId(123), NamespaceId(234), NamespaceId(213) };
+			static std::vector<TIdentifier> RequestParamValues() {
+				return { ToIdentifier(123), ToIdentifier(234), ToIdentifier(213) };
 			}
+
+			static void ValidateResponse(const ionet::Packet& response, const model::EntityRange<EntityType>& infos) {
+				ASSERT_EQ(3u, infos.size());
+
+				auto pData = response.Data();
+				auto iter = infos.cbegin();
+				for (auto i = 0u; i < infos.size(); ++i) {
+					std::string message = "comparing info at " + std::to_string(i);
+					const auto& expectedInfo = reinterpret_cast<const EntityType&>(*pData);
+					const auto& actualInfo = *iter;
+					ASSERT_EQ(expectedInfo.Size, actualInfo.Size) << message;
+					ASSERT_EQ(expectedInfo.DataSize, actualInfo.DataSize) << message;
+
+					EXPECT_EQ(expectedInfo.Id, actualInfo.Id) << message;
+					EXPECT_TRUE(0 == std::memcmp(expectedInfo.DataPtr(), actualInfo.DataPtr(), actualInfo.DataSize)) << message;
+
+					++iter;
+					pData += expectedInfo.Size;
+				}
+			}
+
+		private:
+			template<typename X = std::enable_if_t<utils::traits::is_pod<TIdentifier>::value>>
+			static TIdentifier ToIdentifier(uint32_t value) {
+				return TIdentifier(value);
+			}
+
+			static TIdentifier ToIdentifier(uint32_t value) {
+				return TIdentifier{ { static_cast<uint8_t>(value) } };
+			}
+		};
+
+		// region AccountInfosTraits
+
+		struct AccountInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Infos> {
+			static constexpr auto Request_Entity_Size = Address_Decoded_Size;
+
+			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
+				return api.accountInfos(std::move(param));
+			}
+		};
+
+		// endregion
+
+		// region AccountPropertiesInfosTraits
+
+		struct AccountPropertiesInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Properties_Infos> {
+			static constexpr auto Request_Entity_Size = Address_Decoded_Size;
+
+			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
+				return api.accountPropertiesInfos(std::move(param));
+			}
+		};
+
+		// endregion
+
+		// region NamespaceInfosTraits
+
+		struct NamespaceInfosTraits : public InfosTraits<NamespaceId, ionet::PacketType::Namespace_Infos> {
+			static constexpr auto Request_Entity_Size = sizeof(NamespaceId);
 
 			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
 				return api.namespaceInfos(std::move(param));
-			}
-
-			static void ValidateResponse(const ionet::Packet& response, const model::EntityRange<model::NamespaceInfo>& namespaceInfos) {
-				ASSERT_EQ(3u, namespaceInfos.size());
-
-				auto pData = response.Data();
-				auto iter = namespaceInfos.cbegin();
-				for (auto i = 0u; i < namespaceInfos.size(); ++i) {
-					std::string message = "comparing namespace info at " + std::to_string(i);
-					const auto& expectedNamespaceInfo = reinterpret_cast<const model::NamespaceInfo&>(*pData);
-					const auto& actualNamespaceInfo = *iter;
-					ASSERT_EQ(expectedNamespaceInfo.Size, actualNamespaceInfo.Size) << message;
-					EXPECT_EQ(NamespaceId(5 * i), actualNamespaceInfo.Id) << message;
-
-					const auto* pExpectedChildId = expectedNamespaceInfo.ChildrenPtr();
-					const auto* pActualChildId = actualNamespaceInfo.ChildrenPtr();
-					for (auto j = 0; j < 3; ++j) {
-						EXPECT_EQ(*pExpectedChildId, *pActualChildId) << message << " child at " << j;
-						++pExpectedChildId;
-						++pActualChildId;
-					}
-
-					++iter;
-					pData += expectedNamespaceInfo.Size;
-				}
 			}
 		};
 
@@ -326,45 +296,11 @@ namespace catapult { namespace extensions {
 
 		// region MosaicInfosTraits
 
-		struct MosaicInfosTraits {
-			using RequestParamType = model::EntityRange<MosaicId>;
-			using ResponseType = model::EntityRange<model::MosaicInfo>;
-
-			static constexpr auto PacketType() { return ionet::PacketType::Mosaic_Infos; }
+		struct MosaicInfosTraits : public InfosTraits<MosaicId, ionet::PacketType::Mosaic_Infos> {
 			static constexpr auto Request_Entity_Size = sizeof(MosaicId);
-			static constexpr auto Response_Entity_Size = sizeof(model::MosaicInfo);
-
-			static auto CreateResponsePacket(uint32_t numMosaicInfos) {
-				uint32_t payloadSize = numMosaicInfos * Response_Entity_Size;
-				auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
-				test::FillWithRandomData({ pPacket->Data(), payloadSize });
-
-				auto pData = pPacket->Data();
-				for (auto i = 0u; i < numMosaicInfos; ++i, pData += Response_Entity_Size) {
-					auto& mosaicInfo = reinterpret_cast<model::MosaicInfo&>(*pData);
-					mosaicInfo.Id = MosaicId(5 * i);
-				}
-
-				return pPacket;
-			}
-
-			static std::vector<MosaicId> RequestParamValues() {
-				return { MosaicId(123), MosaicId(234), MosaicId(213) };
-			}
 
 			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
 				return api.mosaicInfos(std::move(param));
-			}
-
-			static void ValidateResponse(const ionet::Packet&, const model::EntityRange<model::MosaicInfo>& mosaicInfos) {
-				ASSERT_EQ(3u, mosaicInfos.size());
-
-				auto iter = mosaicInfos.cbegin();
-				for (auto i = 0u; i < mosaicInfos.size(); ++i) {
-					const auto& actualMosaicInfo = *iter;
-					EXPECT_EQ(MosaicId(5 * i), actualMosaicInfo.Id) << "comparing mosaic info at " << i;
-					++iter;
-				}
 			}
 		};
 
@@ -424,16 +360,18 @@ namespace catapult { namespace extensions {
 		// endregion
 	}
 
-	using DiagnosticAccountInfosTraits = DiagnosticApiTraits<AccountInfosTraits>;
 	using DiagnosticConfirmTimestampedHashesTraits = DiagnosticApiTraits<ConfirmTimestampedHashesTraits>;
-	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticAccountInfos)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(RemoteDiagnosticApi, DiagnosticConfirmTimestampedHashes)
 
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticCounters)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, ActiveNodeInfos)
 
+	using DiagnosticAccountInfosTraits = DiagnosticApiTraits<AccountInfosTraits>;
+	using DiagnosticAccountPropertiesInfosTraits = DiagnosticApiTraits<AccountPropertiesInfosTraits>;
 	using DiagnosticNamespaceInfosTraits = DiagnosticApiTraits<NamespaceInfosTraits>;
 	using DiagnosticMosaicInfosTraits = DiagnosticApiTraits<MosaicInfosTraits>;
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticAccountInfos)
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticAccountPropertiesInfos)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticNamespaceInfos)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticMosaicInfos)
 }}

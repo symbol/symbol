@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/types.h"
 #include <array>
 #include <sstream>
 #include <string>
@@ -30,6 +31,12 @@ namespace catapult { namespace test {
 	template<typename T>
 	const void* AsVoidPointer(T* pVoid) {
 		return reinterpret_cast<const void*>(const_cast<const T*>(pVoid));
+	}
+
+	/// Converts an arbitrary pointer (\a pData) to a const byte pointer.
+	template<typename T>
+	const uint8_t* AsBytePointer(const T* pData) {
+		return reinterpret_cast<const uint8_t*>(pData);
 	}
 
 	/// Converts a binary buffer pointed to by \a pData with size \a dataSize to a hex string.

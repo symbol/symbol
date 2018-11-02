@@ -29,7 +29,8 @@ namespace catapult { namespace validators {
 		template<typename TKey>
 		ValidationResult CheckAccount(uint16_t maxMosaics, MosaicId mosaicId, const TKey& key, const ValidatorContext& context) {
 			const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-			const auto& balances = accountStateCache.get(key).Balances;
+			auto accountStateIter = accountStateCache.find(key);
+			const auto& balances = accountStateIter.get().Balances;
 			if (balances.get(mosaicId) != Amount())
 				return ValidationResult::Success;
 

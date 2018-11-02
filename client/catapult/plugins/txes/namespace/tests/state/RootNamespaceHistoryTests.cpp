@@ -544,4 +544,81 @@ namespace catapult { namespace state {
 	}
 
 	// endregion
+
+	// region isActiveAndUnlocked
+
+	TEST(TEST_CLASS, IsActiveAndUnlockedReturnsFalseWhenHistoryIsEmpty) {
+		// Arrange:
+		RootNamespaceHistory history(NamespaceId(123));
+
+		// Sanity:
+		EXPECT_TRUE(history.empty());
+
+		// Act + Assert:
+		EXPECT_FALSE(history.isActiveAndUnlocked(Height(250)));
+	}
+
+	TEST(TEST_CLASS, IsActiveAndUnlockedReturnsCorrectValueWhenHistoryIsNotEmpty) {
+		// Arrange:
+		// - root1 expires at height 173
+		// - root2 expires at height 273
+		auto owner = test::GenerateRandomData<Key_Size>();
+		RootNamespaceHistory history(NamespaceId(123));
+		history.push_back(owner, test::CreateLifetime(123, 173, 50));
+		history.push_back(owner, test::CreateLifetime(173, 273, 50));
+
+		// Act + Assert:
+		EXPECT_FALSE(history.isActiveAndUnlocked(Height(50)));
+		EXPECT_FALSE(history.isActiveAndUnlocked(Height(122)));
+		EXPECT_FALSE(history.isActiveAndUnlocked(Height(123))); // isActive only checks latest lifetime
+		EXPECT_FALSE(history.isActiveAndUnlocked(Height(172))); // isActive only checks latest lifetime
+
+		EXPECT_TRUE(history.isActiveAndUnlocked(Height(173)));
+		EXPECT_TRUE(history.isActiveAndUnlocked(Height(250)));
+		EXPECT_TRUE(history.isActiveAndUnlocked(Height(272)));
+
+		EXPECT_FALSE(history.isActiveAndUnlocked(Height(273)));
+		EXPECT_FALSE(history.isActiveAndUnlocked(Height(350)));
+	}
+
+	// endregion
+
+	// region isActive
+
+	TEST(TEST_CLASS, IsActiveReturnsFalseWhenHistoryIsEmpty) {
+		// Arrange:
+		RootNamespaceHistory history(NamespaceId(123));
+
+		// Sanity:
+		EXPECT_TRUE(history.empty());
+
+		// Act + Assert:
+		EXPECT_FALSE(history.isActive(Height(250)));
+	}
+
+	TEST(TEST_CLASS, IsActiveReturnsCorrectValueWhenHistoryIsNotEmpty) {
+		// Arrange:
+		// - root1 expires at height 173
+		// - root2 expires at height 273
+		auto owner = test::GenerateRandomData<Key_Size>();
+		RootNamespaceHistory history(NamespaceId(123));
+		history.push_back(owner, test::CreateLifetime(123, 173, 50));
+		history.push_back(owner, test::CreateLifetime(173, 273, 50));
+
+		// Act + Assert:
+		EXPECT_FALSE(history.isActive(Height(50)));
+		EXPECT_FALSE(history.isActive(Height(122)));
+		EXPECT_FALSE(history.isActive(Height(123))); // isActive only checks latest lifetime
+		EXPECT_FALSE(history.isActive(Height(172))); // isActive only checks latest lifetime
+
+		EXPECT_TRUE(history.isActive(Height(173)));
+		EXPECT_TRUE(history.isActive(Height(250)));
+		EXPECT_TRUE(history.isActive(Height(272)));
+		EXPECT_TRUE(history.isActive(Height(322)));
+
+		EXPECT_FALSE(history.isActive(Height(323)));
+		EXPECT_FALSE(history.isActive(Height(350)));
+	}
+
+	// endregion
 }}

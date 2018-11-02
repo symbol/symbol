@@ -38,8 +38,11 @@ namespace catapult { namespace observers {
 		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
 		auto& cache = context.Cache.sub<cache::MosaicCache>();
 
-		auto& accountState = accountStateCache.get(notification.Signer);
-		auto& entry = cache.get(notification.MosaicId);
+		auto accountStateIter = accountStateCache.find(notification.Signer);
+		auto& accountState = accountStateIter.get();
+
+		auto mosaicIter = cache.find(notification.MosaicId);
+		auto& entry = mosaicIter.get();
 		if (ShouldIncrease(context.Mode, notification.Direction)) {
 			accountState.Balances.credit(notification.MosaicId, notification.Delta);
 			entry.increaseSupply(notification.Delta);

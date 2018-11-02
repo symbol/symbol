@@ -35,7 +35,10 @@ namespace catapult { namespace mocks {
 			CATAPULT_THROW_RUNTIME_ERROR("calculateRealSize - not implemented in mock");
 		}
 
-		void publish(const model::WeakEntityInfoT<model::Transaction>&, model::NotificationSubscriber&) const override {
+		void publish(
+				const model::WeakEntityInfoT<model::Transaction>&,
+				const model::PublisherContext&,
+				model::NotificationSubscriber&) const override {
 			CATAPULT_THROW_RUNTIME_ERROR("publish - not implemented in mock");
 		}
 

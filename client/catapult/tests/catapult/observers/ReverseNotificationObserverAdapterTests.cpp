@@ -45,7 +45,7 @@ namespace catapult { namespace observers {
 			const auto& observer = *pObserver;
 
 			auto registry = mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Publish_Custom_Notifications);
-			auto pPublisher = model::CreateNotificationPublisher(registry);
+			auto pPublisher = model::CreateNotificationPublisher(registry, model::PublisherContext());
 			ReverseNotificationObserverAdapter adapter(std::move(pObserver), std::move(pPublisher));
 
 			// Act + Assert:
@@ -72,9 +72,10 @@ namespace catapult { namespace observers {
 
 			// Assert: the mock transaction plugin sends one additional public key notification and 6 custom notifications
 			//         (notice that only 4/6 are raised on observer channel)
-			ASSERT_EQ(2u + 5, observer.notificationTypes().size());
-			EXPECT_EQ(model::Core_Register_Account_Public_Key_Notification, observer.notificationTypes()[6]);
-			EXPECT_EQ(model::Core_Transaction_Notification, observer.notificationTypes()[5]);
+			ASSERT_EQ(3u + 5, observer.notificationTypes().size());
+			EXPECT_EQ(model::Core_Register_Account_Public_Key_Notification, observer.notificationTypes()[7]);
+			EXPECT_EQ(model::Core_Transaction_Notification, observer.notificationTypes()[6]);
+			EXPECT_EQ(model::Core_Balance_Debit_Notification, observer.notificationTypes()[5]);
 
 			// - mock transaction notifications
 			EXPECT_EQ(model::Core_Register_Account_Public_Key_Notification, observer.notificationTypes()[4]);
@@ -100,7 +101,7 @@ namespace catapult { namespace observers {
 			ObserveEntity(adapter, *pTransaction, context);
 
 			// Assert: the context was forwarded to the notification observer
-			ASSERT_EQ(2u + 5, observer.contextPointers().size());
+			ASSERT_EQ(3u + 5, observer.contextPointers().size());
 			for (auto i = 0u; i < observer.contextPointers().size(); ++i)
 				EXPECT_EQ(&context.observerContext(), observer.contextPointers()[i]) << "context at " << i;
 		});

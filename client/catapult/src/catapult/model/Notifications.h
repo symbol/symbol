@@ -19,10 +19,13 @@
 **/
 
 #pragma once
+#include "ContainerTypes.h"
 #include "EntityType.h"
 #include "NetworkInfo.h"
 #include "NotificationType.h"
+#include "catapult/utils/ArraySet.h"
 #include "catapult/types.h"
+#include <vector>
 
 namespace catapult { namespace model {
 
@@ -60,7 +63,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Address.
-		const catapult::Address& Address;
+		catapult::Address Address;
 	};
 
 	/// Notification of use of an account public key.
@@ -127,17 +130,17 @@ namespace catapult { namespace model {
 
 	public:
 		/// Recipient.
-		const Address& Recipient;
+		Address Recipient;
 	};
 
-	/// Notifies a balance reservation by sender.
-	struct BalanceReserveNotification : public BasicBalanceNotification<BalanceReserveNotification> {
+	/// Notifies a balance debit by sender.
+	struct BalanceDebitNotification : public BasicBalanceNotification<BalanceDebitNotification> {
 	public:
 		/// Matching notification type.
-		static constexpr auto Notification_Type = Core_Balance_Reserve_Notification;
+		static constexpr auto Notification_Type = Core_Balance_Debit_Notification;
 
 	public:
-		using BasicBalanceNotification<BalanceReserveNotification>::BasicBalanceNotification;
+		using BasicBalanceNotification<BalanceDebitNotification>::BasicBalanceNotification;
 	};
 
 	// endregion
@@ -261,6 +264,45 @@ namespace catapult { namespace model {
 
 		/// Signed data.
 		RawBuffer Data;
+	};
+
+	// endregion
+
+	// region address interaction
+
+	/// Notifies that a source address interacts with participant addresses.
+	/// \note This notification cannot be used by an observer.
+	struct AddressInteractionNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Core_Address_Interaction_Notification;
+
+	public:
+		/// Creates a notification around \a source and \a participantsByAddress.
+		explicit AddressInteractionNotification(const Key& source, const model::AddressSet& participantsByAddress)
+			: AddressInteractionNotification(source, participantsByAddress, {})
+		{}
+
+		/// Creates a notification around \a source, \a participantsByAddress and \a participantsByKey.
+		explicit AddressInteractionNotification(
+				const Key& source,
+				const model::AddressSet& participantsByAddress,
+				const utils::KeySet& participantsByKey)
+				: Notification(Notification_Type, sizeof(AddressInteractionNotification))
+				, Source(source)
+				, ParticipantsByAddress(participantsByAddress)
+				, ParticipantsByKey(participantsByKey)
+		{}
+
+	public:
+		/// Source.
+		Key Source;
+
+		/// Participants given by address.
+		model::AddressSet ParticipantsByAddress;
+
+		/// Participants given by public key.
+		utils::KeySet ParticipantsByKey;
 	};
 
 	// endregion

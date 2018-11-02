@@ -40,13 +40,9 @@ namespace catapult { namespace test {
 		constexpr size_t Default_Wait_Timeout = 5;
 
 		/// Waits for the specified function (\a func) to return the desired value (\a desired)
-		/// with a configurable timeout (\a timeoutSeconds) using \a wait.
+		/// with a configurable timeout (\a timeoutSeconds).
 		template<typename TFunc>
-		bool TryWaitFor(
-				TFunc func,
-				decltype(func()) desired,
-				size_t timeoutSeconds = Default_Wait_Timeout,
-				const consumer<uint32_t>& wait = Sleep) {
+		bool TryWaitFor(TFunc func, decltype(func()) desired, size_t timeoutSeconds) {
 			auto begin = std::chrono::high_resolution_clock::now();
 
 			while (desired != func()) {
@@ -55,7 +51,7 @@ namespace catapult { namespace test {
 				if (static_cast<size_t>(elapsedSeconds) > timeoutSeconds)
 					return false;
 
-				wait(1);
+				Sleep(1);
 			}
 
 			return true;
@@ -72,24 +68,30 @@ namespace catapult { namespace test {
 		}
 	}
 
-/// Waits for the specified atomic value or function (\a SUPPLIER) to return the desired value (\a DESIRED).
-#define WAIT_FOR_VALUE(DESIRED, SUPPLIER) \
+/// Waits for the specified atomic value or function (\a SUPPLIER) to return the desired value (\a DESIRED) for \a TIMEOUT_SECONDS seconds.
+#define WAIT_FOR_VALUE_SECONDS(DESIRED, SUPPLIER, TIMEOUT_SECONDS) \
 	do { \
-		if (!test::detail::TryWaitFor(test::detail::MakeFunction(SUPPLIER), DESIRED)) { \
+		if (!test::detail::TryWaitFor(test::detail::MakeFunction(SUPPLIER), DESIRED, TIMEOUT_SECONDS)) { \
 			auto func = test::detail::MakeFunction(SUPPLIER); \
-			EXPECT_EQ(DESIRED, func()) << "timeout " << test::detail::Default_Wait_Timeout; \
+			EXPECT_EQ(DESIRED, func()) << "timeout " << TIMEOUT_SECONDS; \
 			CATAPULT_THROW_RUNTIME_ERROR_2("WAIT_FOR_VALUE timed out waiting (desired, actual)", DESIRED, func()); \
 		} \
 	} while(false)
 
-/// Waits for the specified \a EXPRESSION to return the desired value (\a DESIRED).
-#define WAIT_FOR_VALUE_EXPR(DESIRED, EXPRESSION) \
+/// Waits for the specified \a EXPRESSION to return the desired value (\a DESIRED) for \a TIMEOUT_SECONDS seconds.
+#define WAIT_FOR_VALUE_EXPR_SECONDS(DESIRED, EXPRESSION, TIMEOUT_SECONDS) \
 	do { \
-		if (!test::detail::TryWaitFor([&]() { return EXPRESSION; }, DESIRED)) { \
-			EXPECT_EQ(DESIRED, EXPRESSION) << "timeout " << test::detail::Default_Wait_Timeout; \
+		if (!test::detail::TryWaitFor([&]() { return EXPRESSION; }, DESIRED, TIMEOUT_SECONDS)) { \
+			EXPECT_EQ(DESIRED, EXPRESSION) << "timeout " << TIMEOUT_SECONDS; \
 			CATAPULT_THROW_RUNTIME_ERROR_2("WAIT_FOR_VALUE_EXPR timed out waiting (desired, actual)", DESIRED, EXPRESSION); \
 		} \
 	} while(false)
+
+/// Waits for the specified atomic value or function (\a SUPPLIER) to return the desired value (\a DESIRED).
+#define WAIT_FOR_VALUE(DESIRED, SUPPLIER) WAIT_FOR_VALUE_SECONDS(DESIRED, SUPPLIER, test::detail::Default_Wait_Timeout)
+
+/// Waits for the specified \a EXPRESSION to return the desired value (\a DESIRED).
+#define WAIT_FOR_VALUE_EXPR(DESIRED, EXPRESSION) WAIT_FOR_VALUE_EXPR_SECONDS(DESIRED, EXPRESSION, test::detail::Default_Wait_Timeout)
 
 /// Waits for the specified atomic value or function (\a SUPPLIER) to change to \c true.
 #define WAIT_FOR(SUPPLIER) WAIT_FOR_VALUE(true, SUPPLIER)
@@ -142,6 +144,9 @@ namespace catapult { namespace test {
 	/// Runs a non deterministic \a test with \a description for \a numRetries attempts.
 	/// \note The 1-based iteration number is passed to the test function.
 	void RunNonDeterministicTest(const char* description, size_t numRetries, const predicate<size_t>& test);
+
+	/// Gets the current time in nanoseconds.
+	std::chrono::nanoseconds GetCurrentTimeNanoseconds();
 
 	/// Gets the time unit for iteration \a i.
 	/// \note Time units increase linearly with iteration.

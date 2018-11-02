@@ -121,7 +121,7 @@ namespace catapult { namespace mongo {
 			auto dbDoc = optionalValue.get();
 			auto dbTransaction = dbDoc.view()["transaction"];
 			auto dbCosignatures = dbTransaction["cosignatures"].get_array().value;
-			ASSERT_EQ(cosignatures.size(), std::distance(dbCosignatures.cbegin(), dbCosignatures.cend()));
+			ASSERT_EQ(cosignatures.size(), test::GetFieldCount(dbCosignatures));
 
 			test::AssertEqualCosignatures(cosignatures, dbCosignatures);
 		}

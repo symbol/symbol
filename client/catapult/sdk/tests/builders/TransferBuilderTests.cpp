@@ -19,6 +19,7 @@
 **/
 
 #include "src/builders/TransferBuilder.h"
+#include "src/extensions/ConversionExtensions.h"
 #include "src/extensions/IdGenerator.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/constants.h"
@@ -38,7 +39,7 @@ namespace catapult { namespace builders {
 			TransferBuilder builder(
 					static_cast<model::NetworkIdentifier>(0x62),
 					test::GenerateRandomData<Key_Size>(),
-					test::GenerateRandomData<Address_Decoded_Size>());
+					extensions::CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>()));
 
 			// Act:
 			buildTransfer(builder);
@@ -52,7 +53,7 @@ namespace catapult { namespace builders {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
-			auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
+			auto recipient = extensions::CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>());
 
 			// Act:
 			TransferBuilder builder(networkId, signer, recipient);
@@ -186,8 +187,8 @@ namespace catapult { namespace builders {
 
 	namespace {
 		template<typename TTransaction>
-		std::map<MosaicId, Amount> ExtractMosaicsMap(const TTransaction& transfer) {
-			std::map<MosaicId, Amount> mosaics;
+		std::map<UnresolvedMosaicId, Amount> ExtractMosaicsMap(const TTransaction& transfer) {
+			std::map<UnresolvedMosaicId, Amount> mosaics;
 			auto pMosaic = transfer.MosaicsPtr();
 			for (auto i = 0u; i < transfer.MosaicsCount; ++i) {
 				mosaics.emplace(pMosaic->MosaicId, pMosaic->Amount);
@@ -198,15 +199,15 @@ namespace catapult { namespace builders {
 		}
 
 		struct MosaicIdTraits {
-			static std::map<MosaicId, Amount> GenerateMosaics(size_t count) {
-				std::map<MosaicId, Amount> mosaics;
+			static std::map<UnresolvedMosaicId, Amount> GenerateMosaics(size_t count) {
+				std::map<UnresolvedMosaicId, Amount> mosaics;
 				for (auto i = 0u; i < count; ++i)
-					mosaics.emplace(test::GenerateRandomValue<MosaicId>(), test::GenerateRandomValue<Amount>());
+					mosaics.emplace(test::GenerateRandomValue<UnresolvedMosaicId>(), test::GenerateRandomValue<Amount>());
 
 				return mosaics;
 			}
 
-			static const std::map<MosaicId, Amount>& ToMosaicsMap(const std::map<MosaicId, Amount>& mosaics) {
+			static const std::map<UnresolvedMosaicId, Amount>& ToMosaicsMap(const std::map<UnresolvedMosaicId, Amount>& mosaics) {
 				return mosaics;
 			}
 		};
@@ -222,10 +223,12 @@ namespace catapult { namespace builders {
 				return mosaics;
 			}
 
-			static std::map<MosaicId, Amount> ToMosaicsMap(const std::map<std::string, Amount>& namedMosaics) {
-				std::map<MosaicId, Amount> mosaics;
-				for (const auto& namedMosaic : namedMosaics)
-					mosaics.emplace(extensions::GenerateMosaicId(namedMosaic.first), namedMosaic.second);
+			static std::map<UnresolvedMosaicId, Amount> ToMosaicsMap(const std::map<std::string, Amount>& namedMosaics) {
+				std::map<UnresolvedMosaicId, Amount> mosaics;
+				for (const auto& namedMosaic : namedMosaics) {
+					auto mosaicId = extensions::GenerateMosaicId(namedMosaic.first);
+					mosaics.emplace(UnresolvedMosaicId(mosaicId.unwrap()), namedMosaic.second);
+				}
 
 				return mosaics;
 			}
@@ -238,7 +241,7 @@ namespace catapult { namespace builders {
 
 			// Act:
 			AssertCanBuildTransfer<TTraits>(
-					mosaics.size() * sizeof(model::Mosaic),
+					mosaics.size() * sizeof(model::UnresolvedMosaic),
 					[&mosaics](auto& builder) {
 						for (const auto& mosaic : mosaics)
 							builder.addMosaic(mosaic.first, mosaic.second);
@@ -297,7 +300,7 @@ namespace catapult { namespace builders {
 		// Arrange:
 		RunBuilderTest([](auto& builder) {
 			// Act:
-			builder.addMosaic(Xem_Id, Amount(123));
+			builder.addMosaic(Unresolved_Xem_Id, Amount(123));
 
 			// Act + Assert:
 			EXPECT_THROW(builder.addMosaic("nem:xem", Amount(234)), catapult_runtime_error);
@@ -307,22 +310,22 @@ namespace catapult { namespace builders {
 	TRAITS_BASED_TEST(MultipleMosaicsAreSortedByMosaicId) {
 		// Arrange:
 		AssertCanBuildTransfer<TTraits>(
-				4 * sizeof(model::Mosaic),
+				4 * sizeof(model::UnresolvedMosaic),
 				[](auto& builder) {
 					// Act: add mosaics out of order
-					builder.addMosaic(MosaicId(12), Amount(4'321));
-					builder.addMosaic(MosaicId(99), Amount(7'321));
-					builder.addMosaic(MosaicId(75), Amount(1'321));
-					builder.addMosaic(MosaicId(23), Amount(3'321));
+					builder.addMosaic(UnresolvedMosaicId(12), Amount(4'321));
+					builder.addMosaic(UnresolvedMosaicId(99), Amount(7'321));
+					builder.addMosaic(UnresolvedMosaicId(75), Amount(1'321));
+					builder.addMosaic(UnresolvedMosaicId(23), Amount(3'321));
 				},
 				[](const auto& transfer) {
 					// Assert: four mosaics are present and they are sorted by id
 					auto pMosaics = transfer.MosaicsPtr();
 					ASSERT_EQ(4u, transfer.MosaicsCount);
-					EXPECT_EQ(MosaicId(12), pMosaics[0].MosaicId);
-					EXPECT_EQ(MosaicId(23), pMosaics[1].MosaicId);
-					EXPECT_EQ(MosaicId(75), pMosaics[2].MosaicId);
-					EXPECT_EQ(MosaicId(99), pMosaics[3].MosaicId);
+					EXPECT_EQ(UnresolvedMosaicId(12), pMosaics[0].MosaicId);
+					EXPECT_EQ(UnresolvedMosaicId(23), pMosaics[1].MosaicId);
+					EXPECT_EQ(UnresolvedMosaicId(75), pMosaics[2].MosaicId);
+					EXPECT_EQ(UnresolvedMosaicId(99), pMosaics[3].MosaicId);
 				});
 	}
 
@@ -336,9 +339,9 @@ namespace catapult { namespace builders {
 
 		// Act:
 		AssertCanBuildTransfer<TTraits>(
-				message.size() + 2 * sizeof(model::Mosaic),
+				message.size() + 2 * sizeof(model::UnresolvedMosaic),
 				[&message](auto& builder) {
-					builder.addMosaic(MosaicId(0), Amount(4'321));
+					builder.addMosaic(UnresolvedMosaicId(0), Amount(4'321));
 					builder.setStringMessage(message);
 					builder.addMosaic("nem:xem", Amount(1'000'000));
 				},
@@ -348,9 +351,9 @@ namespace catapult { namespace builders {
 					EXPECT_TRUE(0 == std::memcmp(message.data(), transfer.MessagePtr(), message.size()));
 
 					// - two mosaics are present
-					auto expectedMosaicsMap = std::map<MosaicId, Amount>{{
-						{ Xem_Id, Amount(1'000'000) },
-						{ MosaicId(0), Amount(4'321) }
+					auto expectedMosaicsMap = std::map<UnresolvedMosaicId, Amount>{{
+						{ Unresolved_Xem_Id, Amount(1'000'000) },
+						{ UnresolvedMosaicId(0), Amount(4'321) }
 					}};
 					EXPECT_EQ(2u, transfer.MosaicsCount);
 					EXPECT_EQ(expectedMosaicsMap, ExtractMosaicsMap(transfer));

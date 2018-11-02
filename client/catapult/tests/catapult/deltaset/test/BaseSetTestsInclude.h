@@ -26,6 +26,7 @@
 #include "catapult/deltaset/BaseSetDelta.h"
 #include "catapult/deltaset/OrderedSet.h"
 #include "catapult/utils/traits/StlTraits.h"
+#include "tests/test/other/TestElement.h"
 #include "tests/TestHarness.h"
 #include <set>
 #include <unordered_map>
@@ -33,126 +34,21 @@
 
 namespace catapult { namespace test {
 
-	// region TestElement
+	// region type declarations for common set types
 
-	/// Test element used as the base of both immutable and mutable test elements.
-	struct TestElement {
-	public:
-		TestElement() : TestElement("TestElement", 0)
-		{}
+	template<typename TElement>
+	using OrderedSetTraits = deltaset::SetStorageTraits<std::set<TElement, deltaset::detail::OrderedSetDefaultComparator<TElement>>>;
 
-		explicit TestElement(const std::string& name) : TestElement(name, 0)
-		{}
+	template<typename TElement>
+	using UnorderedSetTraits = deltaset::SetStorageTraits<std::unordered_set<TElement, Hasher<TElement>, EqualityChecker<TElement>>>;
 
-		explicit TestElement(unsigned int value) : TestElement("TestElement", value)
-		{}
+	template<typename TElement>
+	using ReverseOrderedSetTraits = deltaset::SetStorageTraits<std::set<TElement, ReverseComparator<TElement>>>;
 
-		explicit TestElement(const std::string& name, unsigned int value)
-				: Name(name)
-				, Value(value)
-				, Hash(calculateHash())
-				, Dummy(0)
-				, HasherCallCount(0)
-		{}
-
-	public:
-		bool operator<(const TestElement& rhs) const {
-			return Name < rhs.Name || (Name == rhs.Name && Value < rhs.Value);
-		}
-
-		bool operator==(const TestElement& rhs) const {
-			return Name == rhs.Name && Value == rhs.Value;
-		}
-
-	public:
-		friend std::ostream& operator<<(std::ostream& out, const TestElement& element) {
-			out << "TestElement(" << element.Name << ", " << element.Value << ")" << std::endl;
-			return out;
-		}
-
-	public:
-		size_t calculateHash() {
-			auto raw = Name + std::to_string(Value);
-			auto checksum = 0u;
-			for (auto ch : raw)
-				checksum += static_cast<size_t>(ch);
-
-			return checksum;
-		}
-
-	public:
-		std::string Name;
-		unsigned int Value;
-		size_t Hash;
-		mutable size_t Dummy;
-		mutable size_t HasherCallCount;
-	};
-
-	/// Immutable test element (deltas should not copy on write).
-	struct ImmutableTestElement : public TestElement {
-		using TestElement::TestElement;
-	};
-
-	/// Mutable test element (deltas should copy on write).
-	struct MutableTestElement : public TestElement {
-		using TestElement::TestElement;
-
-		void mutate()
-		{}
-	};
-
-	// endregion
-
-	// region composite classes used in BaseSet(Delta) definitions
-
-	/// Hashing function for TestElement.
-	template<typename T>
-	struct Hasher {
-		size_t operator()(const T& element) const {
-			++element.HasherCallCount;
-			return element.Hash;
-		}
-	};
-
-	template<typename T>
-	struct Hasher<std::shared_ptr<T>> {
-		size_t operator()(const std::shared_ptr<T>& pElement) const {
-			Hasher<T> hasher;
-			return hasher(*pElement);
-		}
-	};
-
-	/// Checks two objects of the same type for equality.
-	template<typename T>
-	struct EqualityChecker {
-		bool operator()(const T& lhs, const T& rhs) const {
-			return lhs == rhs;
-		}
-	};
-
-	template<typename T>
-	struct EqualityChecker<std::shared_ptr<T>> {
-		bool operator()(const std::shared_ptr<T>& pLhs, const std::shared_ptr<T>& pRhs) const {
-			EqualityChecker<T> equalityChecker;
-			return equalityChecker(*pLhs, *pRhs);
-		}
-	};
-
-	/// Reverse comparator that reverses the natural sorting order of elements.
-	template<typename T>
-	struct ReverseComparator {
-		bool operator()(const T& lhs, const T& rhs) const {
-			return rhs < lhs;
-		}
-	};
-
-	template<typename T>
-	struct ReverseComparator<std::shared_ptr<T>> {
-		bool operator()(const std::shared_ptr<T>& pLhs, const std::shared_ptr<T>& pRhs) const {
-			ReverseComparator<T> comparator;
-			return comparator(*pLhs, *pRhs);
-		}
-	};
+	template<typename TElement>
+	using UnorderedMapSetTraits = deltaset::MapStorageTraits<
+		std::unordered_map<std::pair<std::string, unsigned int>, TElement, MapKeyHasher>,
+		TestElementToKeyConverter<TElement>>;
 
 	// endregion
 
@@ -246,7 +142,7 @@ namespace catapult { namespace test {
 		static void AssertContents(const TSet& set, const ElementVector& expectedElements) {
 			ASSERT_EQ(expectedElements.size(), set.size());
 			for (const auto& element : expectedElements) {
-				auto pElementFromSet = set.find(ToKey(element));
+				auto pElementFromSet = set.find(ToKey(element)).get();
 				EXPECT_EQ(*BaseType::ToPointer(element), *pElementFromSet);
 			}
 		}
@@ -279,6 +175,8 @@ namespace catapult { namespace test {
 	/// Traits for creating base sets.
 	template<typename TBaseSetTraits>
 	struct BaseTraits : BatchElementFactory<TBaseSetTraits> {
+		using BaseSetTraits = TBaseSetTraits;
+
 		static constexpr auto Commit = TBaseSetTraits::Commit;
 
 		template<typename... TArgs>
@@ -320,45 +218,6 @@ namespace catapult { namespace test {
 
 	// region type declarations for common set types
 
-	struct MapKeyHasher {
-		size_t operator()(const std::pair<std::string, unsigned int>& pair) const {
-			std::hash<std::string> stringHasher;
-			std::hash<unsigned int> intHasher;
-			return stringHasher(pair.first) ^ intHasher(pair.second);
-		}
-	};
-
-	template<typename T>
-	struct TestElementToKeyConverter {
-		static auto ToKey(const T& element) {
-			return std::make_pair(element.Name, element.Value);
-		}
-	};
-
-	template<typename T>
-	struct TestElementToKeyConverter<std::shared_ptr<T>> {
-		static auto ToKey(const std::shared_ptr<T>& pElement) {
-			return std::make_pair(pElement->Name, pElement->Value);
-		}
-	};
-
-	template<typename TElement>
-	using OrderedSetTraits = deltaset::SetStorageTraits<std::set<TElement, deltaset::detail::OrderedSetDefaultComparator<TElement>>>;
-
-	template<typename TElement>
-	using UnorderedSetTraits = deltaset::SetStorageTraits<std::unordered_set<TElement, Hasher<TElement>, EqualityChecker<TElement>>>;
-
-	template<typename TElement>
-	using ReverseOrderedSetTraits = deltaset::SetStorageTraits<std::set<TElement, ReverseComparator<TElement>>>;
-
-	template<typename TElement>
-	using UnorderedMapSetTraits = deltaset::MapStorageTraits<
-		std::unordered_map<std::pair<std::string, unsigned int>, TElement, MapKeyHasher>,
-		TestElementToKeyConverter<TElement>>;
-
-	template<typename TMutabilityTraits>
-	using SetElementType = typename std::remove_const<typename TMutabilityTraits::ElementType>::type;
-
 	template<typename TElementTraits, typename TSetTraits>
 	struct BaseSetTraits {
 		using Type = deltaset::BaseSet<TElementTraits, TSetTraits>;
@@ -375,11 +234,6 @@ namespace catapult { namespace test {
 			set.commit();
 		}
 	};
-
-	using MutableElementValueTraits = deltaset::MutableTypeTraits<MutableTestElement>;
-	using MutableElementPointerTraits = deltaset::MutableTypeTraits<std::shared_ptr<MutableTestElement>>;
-	using ImmutableElementValueTraits = deltaset::ImmutableTypeTraits<const ImmutableTestElement>;
-	using ImmutablePointerValueTraits = deltaset::ImmutableTypeTraits<std::shared_ptr<const ImmutableTestElement>>;
 
 	// endregion
 
@@ -473,7 +327,7 @@ namespace catapult { namespace test {
 		/// Sets the dummy value of the element with \a value in \a set to \a dummy.
 		static void SetDummyValue(const decltype(*TTraits::Create())& set, unsigned int value, size_t dummy) {
 			// Act: find the matching element and update its dummy value
-			auto pOriginalElement = set.find(TTraits::CreateKey("TestElement", value));
+			auto pOriginalElement = set.find(TTraits::CreateKey("TestElement", value)).get();
 			pOriginalElement->Dummy = dummy;
 		}
 

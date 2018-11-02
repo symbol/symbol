@@ -32,6 +32,8 @@ namespace catapult { namespace eventsource {
 
 	namespace {
 		constexpr auto Service_Name = "api.writers";
+		constexpr auto Service_Id = ionet::ServiceIdentifier(0x41504957);
+
 		using BlockSink = extensions::NewBlockSink;
 		using TransactionsSink = extensions::SharedNewTransactionsSink;
 
@@ -39,9 +41,7 @@ namespace catapult { namespace eventsource {
 			const auto& connectionsConfig = state.config().Node.IncomingConnections;
 			auto& nodes = state.nodes();
 
-			auto serviceId = ionet::ServiceIdentifier(0x41504957);
-			auto selector = extensions::CreateRemoveOnlyNodeSelector(serviceId, connectionsConfig, nodes);
-			auto task = extensions::CreateAgePeersTask(nodes, connectionContainer, serviceId, selector);
+			auto task = extensions::CreateAgePeersTask(nodes, connectionContainer, Service_Id, connectionsConfig);
 			task.Name += " for service Api Writers";
 			return task;
 		}
@@ -63,7 +63,8 @@ namespace catapult { namespace eventsource {
 				auto connectionSettings = extensions::GetConnectionSettings(config);
 				auto pServiceGroup = state.pool().pushServiceGroup("api");
 				auto pWriters = pServiceGroup->pushService(net::CreatePacketWriters, locator.keyPair(), connectionSettings);
-				extensions::BootServer(*pServiceGroup, config.Node.ApiPort, config, [&acceptor = *pWriters](
+				auto& acceptor = *pWriters;
+				extensions::BootServer(*pServiceGroup, config.Node.ApiPort, Service_Id, config, state.nodeSubscriber(), [&acceptor](
 						const auto& socketInfo,
 						const auto& callback) {
 					acceptor.accept(socketInfo.socket(), callback);

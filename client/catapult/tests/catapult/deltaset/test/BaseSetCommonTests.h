@@ -120,7 +120,7 @@ namespace catapult { namespace test {
 			auto element = TTraits::CreateElement("TestElement", 2);
 
 			// Act:
-			auto pFoundElement = pSet->find(TTraits::ToKey(element));
+			auto pFoundElement = pSet->find(TTraits::ToKey(element)).get();
 
 			// Assert:
 			EXPECT_EQ(3u, pSet->size());
@@ -134,8 +134,8 @@ namespace catapult { namespace test {
 			auto element = TTraits::CreateElement("TestElement", 2);
 
 			// Act:
-			auto pFoundElement1 = pSet->find(TTraits::ToKey(element));
-			auto pFoundElement2 = pSet->find(TTraits::ToKey(element));
+			auto pFoundElement1 = pSet->find(TTraits::ToKey(element)).get();
+			auto pFoundElement2 = pSet->find(TTraits::ToKey(element)).get();
 
 			// Assert:
 			EXPECT_EQ(3u, pSet->size());
@@ -153,8 +153,8 @@ namespace catapult { namespace test {
 			auto element2 = TTraits::CreateElement("BadElement", 2);
 
 			// Act:
-			auto pFoundElement1 = pSet->find(TTraits::ToKey(element1));
-			auto pFoundElement2 = pSet->find(TTraits::ToKey(element2));
+			auto pFoundElement1 = pSet->find(TTraits::ToKey(element1)).get();
+			auto pFoundElement2 = pSet->find(TTraits::ToKey(element2)).get();
 
 			// Assert:
 			EXPECT_EQ(3u, pSet->size());

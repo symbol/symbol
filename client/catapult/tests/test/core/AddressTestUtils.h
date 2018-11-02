@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/PrivateKey.h"
 #include "catapult/model/Address.h"
@@ -39,7 +40,7 @@ namespace catapult { namespace test {
 	}
 
 	/// Generates a random address for a given network id (\a networkIdentifier).
-	inline Address GenerateRandomAddress(const model::NetworkIdentifier networkIdentifier) {
+	inline Address GenerateRandomAddress(model::NetworkIdentifier networkIdentifier) {
 		auto publicKey = GenerateRandomData<Key_Size>();
 		return model::PublicKeyToAddress(publicKey, networkIdentifier);
 	}
@@ -47,6 +48,11 @@ namespace catapult { namespace test {
 	/// Generates a random address.
 	inline Address GenerateRandomAddress() {
 		return GenerateRandomAddress(model::NetworkIdentifier::Mijin_Test);
+	}
+
+	/// Generates a random (unresolved) address.
+	inline UnresolvedAddress GenerateRandomUnresolvedAddress() {
+		return extensions::CopyToUnresolvedAddress(GenerateRandomAddress());
 	}
 
 	/// Generates a random set of \a count addresses.

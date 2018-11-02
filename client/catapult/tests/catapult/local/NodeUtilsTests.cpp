@@ -28,6 +28,8 @@ namespace catapult { namespace local {
 
 #define TEST_CLASS NodeUtilsTests
 
+	// region SeedNodeContainer
+
 	namespace {
 		auto CreateLocalNodeConfiguration(const std::string& bootKey, const std::string& host, const std::string& name) {
 			auto nodeConfig = config::NodeConfiguration::Uninitialized();
@@ -150,4 +152,177 @@ namespace catapult { namespace local {
 		EXPECT_THROW(SeedWithLengths(nodes, hexPrivateKey, peerKey, 255, 255, 256, 255), catapult_invalid_argument);
 		EXPECT_THROW(SeedWithLengths(nodes, hexPrivateKey, peerKey, 255, 255, 255, 256), catapult_invalid_argument);
 	}
+
+	// endregion
+
+	// region CreateNodeContainerSubscriberAdapter
+
+	TEST(TEST_CLASS, NodeContainerSubscriberAdapter_NotifyNodeAddsDynamicNode) {
+		// Arrange: create a container and register a connection state
+		ionet::NodeContainer nodes;
+		nodes.modifier().addConnectionStates(ionet::ServiceIdentifier(1), ionet::NodeRoles::Peer);
+
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto node = test::CreateNamedNode(key, "alice", ionet::NodeRoles::Peer);
+
+		// Act: notify the node
+		auto pSubscriber = CreateNodeContainerSubscriberAdapter(nodes);
+		pSubscriber->notifyNode(node);
+
+		// Assert: node was added
+		auto nodesView = nodes.view();
+		EXPECT_EQ(1u, nodesView.size());
+		auto expectedContents = test::BasicNodeDataContainer{ { key, "alice", ionet::NodeSource::Dynamic } };
+		EXPECT_EQ(expectedContents, test::CollectAll(nodesView));
+
+		// - node has expected (auto registered) connection state
+		const auto& nodeInfo = nodesView.getNodeInfo(key);
+		EXPECT_EQ(1u, nodeInfo.numConnectionStates());
+
+		const auto* pConnectionState = nodeInfo.getConnectionState(ionet::ServiceIdentifier(1));
+		ASSERT_TRUE(!!pConnectionState);
+		EXPECT_EQ(0u, pConnectionState->Age);
+	}
+
+	TEST(TEST_CLASS, NodeContainerSubscriberAdapter_NotifyIncomingNodeAddsDynamicIncomingNode) {
+		// Arrange: create a container and register a connection state
+		ionet::NodeContainer nodes;
+		nodes.modifier().addConnectionStates(ionet::ServiceIdentifier(1), ionet::NodeRoles::Peer);
+
+		auto key = test::GenerateRandomData<Key_Size>();
+
+		// Act: notify the node
+		auto pSubscriber = CreateNodeContainerSubscriberAdapter(nodes);
+		pSubscriber->notifyIncomingNode(key, ionet::ServiceIdentifier(2));
+
+		// Assert: node was added
+		auto nodesView = nodes.view();
+		EXPECT_EQ(1u, nodesView.size());
+		auto expectedContents = test::BasicNodeDataContainer{ { key, "", ionet::NodeSource::Dynamic_Incoming } };
+		EXPECT_EQ(expectedContents, test::CollectAll(nodesView));
+
+		// - node has expected (incoming) connection state
+		const auto& nodeInfo = nodesView.getNodeInfo(key);
+		EXPECT_EQ(1u, nodeInfo.numConnectionStates());
+
+		const auto* pConnectionState = nodeInfo.getConnectionState(ionet::ServiceIdentifier(2));
+		ASSERT_TRUE(!!pConnectionState);
+		EXPECT_EQ(1u, pConnectionState->Age);
+	}
+
+	TEST(TEST_CLASS, NodeContainerSubscriberAdapter_NotifyNodeCanBeFollowedByNotifyIncomingNode) {
+		// Arrange: create a container and register a connection state
+		ionet::NodeContainer nodes;
+		nodes.modifier().addConnectionStates(ionet::ServiceIdentifier(1), ionet::NodeRoles::Peer);
+
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto node = test::CreateNamedNode(key, "alice", ionet::NodeRoles::Peer);
+
+		// Act: notify the node
+		auto pSubscriber = CreateNodeContainerSubscriberAdapter(nodes);
+		pSubscriber->notifyNode(node);
+		pSubscriber->notifyIncomingNode(key, ionet::ServiceIdentifier(2));
+
+		// Assert: node was added
+		auto nodesView = nodes.view();
+		EXPECT_EQ(1u, nodesView.size());
+		auto expectedContents = test::BasicNodeDataContainer{ { key, "alice", ionet::NodeSource::Dynamic } };
+		EXPECT_EQ(expectedContents, test::CollectAll(nodesView));
+
+		// - node has expected connection states
+		const auto& nodeInfo = nodesView.getNodeInfo(key);
+		EXPECT_EQ(2u, nodeInfo.numConnectionStates());
+
+		const auto* pConnectionState1 = nodeInfo.getConnectionState(ionet::ServiceIdentifier(1));
+		ASSERT_TRUE(!!pConnectionState1);
+		EXPECT_EQ(0u, pConnectionState1->Age);
+
+		const auto* pConnectionState2 = nodeInfo.getConnectionState(ionet::ServiceIdentifier(2));
+		ASSERT_TRUE(!!pConnectionState2);
+		EXPECT_EQ(1u, pConnectionState2->Age);
+	}
+
+	TEST(TEST_CLASS, NodeContainerSubscriberAdapter_NotifyIncomingNodeCanBeFollowedByNotifyNode) {
+		// Arrange: create a container and register a connection state
+		ionet::NodeContainer nodes;
+		nodes.modifier().addConnectionStates(ionet::ServiceIdentifier(1), ionet::NodeRoles::Peer);
+
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto node = test::CreateNamedNode(key, "alice", ionet::NodeRoles::Peer);
+
+		// Act: notify the node
+		auto pSubscriber = CreateNodeContainerSubscriberAdapter(nodes);
+		pSubscriber->notifyIncomingNode(key, ionet::ServiceIdentifier(2));
+		pSubscriber->notifyNode(node);
+
+		// Assert: node was added
+		auto nodesView = nodes.view();
+		EXPECT_EQ(1u, nodesView.size());
+		auto expectedContents = test::BasicNodeDataContainer{ { key, "alice", ionet::NodeSource::Dynamic } };
+		EXPECT_EQ(expectedContents, test::CollectAll(nodesView));
+
+		// - node has expected connection states
+		const auto& nodeInfo = nodesView.getNodeInfo(key);
+		EXPECT_EQ(2u, nodeInfo.numConnectionStates());
+
+		const auto* pConnectionState1 = nodeInfo.getConnectionState(ionet::ServiceIdentifier(1));
+		ASSERT_TRUE(!!pConnectionState1);
+		EXPECT_EQ(0u, pConnectionState1->Age);
+
+		const auto* pConnectionState2 = nodeInfo.getConnectionState(ionet::ServiceIdentifier(2));
+		ASSERT_TRUE(!!pConnectionState2);
+		EXPECT_EQ(1u, pConnectionState2->Age);
+	}
+
+	namespace {
+		std::unique_ptr<ionet::NodeContainer> CreateFullNodeContainer() {
+			// Arrange: fill the node container with static nodes that are ineligible for pruning
+			auto pNodes = std::make_unique<ionet::NodeContainer>(3);
+			auto modifier = pNodes->modifier();
+			for (auto i = 0u; i < 3u; ++i) {
+				auto key = test::GenerateRandomData<Key_Size>();
+				auto node = test::CreateNamedNode(key, "alice" + std::to_string(i), ionet::NodeRoles::Peer);
+				modifier.add(node, ionet::NodeSource::Static);
+			}
+
+			return pNodes;
+		}
+	}
+
+	TEST(TEST_CLASS, NodeContainerSubscriberAdapter_NotifyNodeDoesNotAddNodeWhenContainerIsFull) {
+		// Arrange: create a full container and register a connection state
+		auto pNodes = CreateFullNodeContainer();
+		pNodes->modifier().addConnectionStates(ionet::ServiceIdentifier(1), ionet::NodeRoles::Peer);
+
+		auto key = test::GenerateRandomData<Key_Size>();
+		auto node = test::CreateNamedNode(key, "alice", ionet::NodeRoles::Peer);
+
+		// Act: notify the node
+		auto pSubscriber = CreateNodeContainerSubscriberAdapter(*pNodes);
+		pSubscriber->notifyNode(node);
+
+		// Assert: node was not added
+		auto nodesView = pNodes->view();
+		EXPECT_EQ(3u, nodesView.size());
+		EXPECT_FALSE(nodesView.contains(key));
+	}
+
+	TEST(TEST_CLASS, NodeContainerSubscriberAdapter_NotifyIncomingNodeDoesNotAddNodeWhenContainerIsFull) {
+		// Arrange: create a full container and register a connection state
+		auto pNodes = CreateFullNodeContainer();
+		pNodes->modifier().addConnectionStates(ionet::ServiceIdentifier(1), ionet::NodeRoles::Peer);
+
+		auto key = test::GenerateRandomData<Key_Size>();
+
+		// Act: notify the node
+		auto pSubscriber = CreateNodeContainerSubscriberAdapter(*pNodes);
+		pSubscriber->notifyIncomingNode(key, ionet::ServiceIdentifier(2));
+
+		// Assert: node was not added
+		auto nodesView = pNodes->view();
+		EXPECT_EQ(3u, nodesView.size());
+		EXPECT_FALSE(nodesView.contains(key));
+	}
+
+	// endregion
 }}

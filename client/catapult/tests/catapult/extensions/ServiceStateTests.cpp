@@ -24,7 +24,7 @@
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/thread/MultiServicePool.h"
-#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
@@ -43,7 +43,7 @@ namespace catapult { namespace extensions {
 		ionet::NodeContainer nodes;
 		auto catapultCache = cache::CatapultCache({});
 		state::CatapultState catapultState;
-		io::BlockStorageCache storage(std::make_unique<mocks::MockMemoryBasedStorage>());
+		io::BlockStorageCache storage(std::make_unique<mocks::MockMemoryBlockStorage>());
 		LocalNodeChainScore score;
 		auto pUtCache = test::CreateUtCacheProxy();
 

@@ -34,12 +34,12 @@ namespace catapult { namespace state {
 
 	public:
 		/// Gets cosignatory account keys.
-		const utils::KeySet& cosignatories() const {
+		const utils::SortedKeySet& cosignatories() const {
 			return m_cosignatories;
 		}
 
 		/// Gets cosignatory account keys.
-		utils::KeySet& cosignatories() {
+		utils::SortedKeySet& cosignatories() {
 			return m_cosignatories;
 		}
 
@@ -69,7 +69,7 @@ namespace catapult { namespace state {
 		}
 
 	private:
-		utils::KeySet m_cosignatories;
+		utils::SortedKeySet m_cosignatories;
 		uint8_t m_minApproval;
 		uint8_t m_minRemoval;
 	};
@@ -78,17 +78,17 @@ namespace catapult { namespace state {
 	class MultisigCosignatoryOfMixin {
 	public:
 		/// Gets multisig account keys.
-		const utils::KeySet& multisigAccounts() const {
+		const utils::SortedKeySet& multisigAccounts() const {
 			return m_multisigAccounts;
 		}
 
 		/// Gets multisig account keys.
-		utils::KeySet& multisigAccounts() {
+		utils::SortedKeySet& multisigAccounts() {
 			return m_multisigAccounts;
 		}
 
 	private:
-		utils::KeySet m_multisigAccounts;
+		utils::SortedKeySet m_multisigAccounts;
 	};
 
 	/// Multisig entry.

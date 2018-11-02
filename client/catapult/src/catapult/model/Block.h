@@ -51,6 +51,9 @@ namespace catapult { namespace model {
 
 		/// Aggregate hash of a block's transactions.
 		Hash256 BlockTransactionsHash;
+
+		/// Hash of the global chain state at this block.
+		Hash256 StateHash;
 	};
 
 	/// Binary layout for a block.

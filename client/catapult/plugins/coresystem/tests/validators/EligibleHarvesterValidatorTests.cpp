@@ -54,7 +54,9 @@ namespace catapult { namespace validators {
 				model::ImportanceHeight importanceHeight,
 				Amount balance) {
 			auto delta = cache.createDelta();
-			auto& accountState = delta.sub<cache::AccountStateCache>().addAccount(publicKey, Height(100));
+			auto& accountStateCache = delta.sub<cache::AccountStateCache>();
+			accountStateCache.addAccount(publicKey, Height(100));
+			auto& accountState = accountStateCache.find(publicKey).get();
 			accountState.ImportanceInfo.set(importance, importanceHeight);
 			accountState.Balances.credit(Xem_Id, balance);
 			cache.commit(Height());
@@ -68,16 +70,13 @@ namespace catapult { namespace validators {
 		auto height = Height(1000);
 		AddAccount(cache, key, Importance(1000), ConvertToImportanceHeight(height), Amount(9999));
 
-		auto cacheView = cache.createView();
-		auto readOnlyCache = cacheView.toReadOnly();
 		auto pValidator = CreateEligibleHarvesterValidator(Amount(1234));
-		auto context = test::CreateValidatorContext(height, readOnlyCache);
 
 		auto signer = test::GenerateRandomData<Key_Size>();
 		auto notification = test::CreateBlockNotification(signer);
 
 		// Act:
-		auto result = test::ValidateNotification(*pValidator, notification, context);
+		auto result = test::ValidateNotification(*pValidator, notification, cache, height);
 
 		// Assert:
 		EXPECT_EQ(Failure_Core_Block_Harvester_Ineligible, result);
@@ -96,15 +95,11 @@ namespace catapult { namespace validators {
 			auto initialBalance = Amount(static_cast<Amount::ValueType>(1234 + minBalanceDelta));
 			AddAccount(cache, key, importance, importanceHeight, initialBalance);
 
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
 			auto pValidator = CreateEligibleHarvesterValidator(Amount(1234));
-			auto context = test::CreateValidatorContext(blockHeight, readOnlyCache);
-
 			auto notification = test::CreateBlockNotification(key);
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache, blockHeight);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);

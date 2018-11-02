@@ -20,8 +20,8 @@
 
 #pragma once
 #include "TransactionBuilder.h"
-#include "plugins/txes/lock/src/model/LockTypes.h"
-#include "plugins/txes/lock/src/model/SecretProofTransaction.h"
+#include "plugins/txes/lock_secret/src/model/LockHashAlgorithm.h"
+#include "plugins/txes/lock_secret/src/model/SecretProofTransaction.h"
 #include <vector>
 
 namespace catapult { namespace builders {

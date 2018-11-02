@@ -19,6 +19,7 @@
 **/
 
 #include "HarvestingService.h"
+#include "BlockStateHashCalculator.h"
 #include "HarvestingConfiguration.h"
 #include "ScheduledHarvesterTask.h"
 #include "UnlockedAccounts.h"
@@ -73,13 +74,16 @@ namespace catapult { namespace harvesting {
 		thread::Task CreateHarvestingTask(extensions::ServiceState& state, UnlockedAccounts& unlockedAccounts) {
 			const auto& cache = state.cache();
 			const auto& blockChainConfig = state.config().BlockChain;
+
+			Harvester::Suppliers harvesterSuppliers{
+				[&cache, &blockChainConfig, &pluginManager = state.pluginManager()](const auto& block) {
+					return CalculateBlockStateHash(block, cache, blockChainConfig, pluginManager);
+				},
+				CreateTransactionsInfoSupplier(state.utCache())
+			};
 			auto pHarvesterTask = std::make_shared<ScheduledHarvesterTask>(
 					CreateHarvesterTaskOptions(state),
-					std::make_unique<Harvester>(
-							cache,
-							blockChainConfig,
-							unlockedAccounts,
-							CreateTransactionsInfoSupplier(state.utCache())));
+					std::make_unique<Harvester>(cache, blockChainConfig, unlockedAccounts, harvesterSuppliers));
 
 			auto minHarvesterBalance = blockChainConfig.MinHarvesterBalance;
 			return thread::CreateNamedTask("harvesting task", [&cache, &unlockedAccounts, pHarvesterTask, minHarvesterBalance]() {

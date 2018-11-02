@@ -25,8 +25,17 @@
 #pragma warning(disable : 4100) /* unreferenced formal parameter */
 #endif
 
+#include <rocksdb/compaction_filter.h>
 #include <rocksdb/db.h>
+#include <rocksdb/write_batch.h>
 
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
+
+namespace catapult { namespace cache {
+
+	/// Maximum length of special keys that should not be pruned.
+	/// \note Value should be <= sizeof(uint64_t)
+	constexpr size_t Special_Key_Max_Length = 8;
+}}

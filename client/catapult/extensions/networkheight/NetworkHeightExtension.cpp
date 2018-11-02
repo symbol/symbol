@@ -18,6 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/NetworkHeightConfiguration.h"
 #include "src/NetworkHeightService.h"
 #include "catapult/extensions/LocalNodeBootstrapper.h"
 
@@ -26,7 +27,8 @@ namespace catapult { namespace networkheight {
 	namespace {
 		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
 			// register service(s)
-			bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkHeightServiceRegistrar());
+			auto config = NetworkHeightConfiguration::LoadFromPath(bootstrapper.resourcesPath());
+			bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkHeightServiceRegistrar(config));
 		}
 	}
 }}

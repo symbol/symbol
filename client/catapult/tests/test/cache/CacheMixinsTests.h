@@ -20,13 +20,13 @@
 
 #pragma once
 #include "tests/TestHarness.h"
+#include <unordered_set>
 
 namespace catapult { namespace test {
 
 	// region test utils
 
 	namespace detail {
-
 		/// Accessor for extracting a view from a cache.
 		struct ViewAccessor {
 			template<typename TCache>
@@ -295,7 +295,7 @@ namespace catapult { namespace test {
 		};
 	}
 
-	// Test suite for cache accessor mixins.
+	/// Test suite for cache accessor mixins.
 	template<typename TTraits, typename TViewAccessor, typename TAccessor>
 	class CacheAccessorMixinTests {
 	private:
@@ -309,8 +309,8 @@ namespace catapult { namespace test {
 			auto view = TViewAccessor::CreateView(cache);
 
 			// Act + Assert:
-			EXPECT_THROW(TAccessor::Get(*view).get(TTraits::MakeId(0)), catapult_invalid_argument);
-			EXPECT_THROW(TAccessor::Get(*view).get(TTraits::MakeId(36)), catapult_invalid_argument);
+			EXPECT_THROW(TAccessor::Get(*view).find(TTraits::MakeId(0)).get(), catapult_invalid_argument);
+			EXPECT_THROW(TAccessor::Get(*view).find(TTraits::MakeId(36)).get(), catapult_invalid_argument);
 		}
 
 		static void AssertGetReturnsValuesForKeysInCache() {
@@ -320,8 +320,8 @@ namespace catapult { namespace test {
 			auto view = TViewAccessor::CreateView(cache);
 
 			// Act:
-			const auto& value1 = TAccessor::Get(*view).get(TTraits::MakeId(9));
-			const auto& value2 = TAccessor::Get(*view).get(TTraits::MakeId(25));
+			const auto& value1 = TAccessor::Get(*view).find(TTraits::MakeId(9)).get();
+			const auto& value2 = TAccessor::Get(*view).find(TTraits::MakeId(25)).get();
 
 			// Act + Assert:
 			EXPECT_EQ(TTraits::MakeId(9), TTraits::GetId(value1));
@@ -335,8 +335,8 @@ namespace catapult { namespace test {
 			auto view = TViewAccessor::CreateView(cache);
 
 			// Act:
-			const auto* pValue1 = TAccessor::Get(*view).tryGet(TTraits::MakeId(0));
-			const auto* pValue2 = TAccessor::Get(*view).tryGet(TTraits::MakeId(36));
+			const auto* pValue1 = TAccessor::Get(*view).find(TTraits::MakeId(0)).tryGet();
+			const auto* pValue2 = TAccessor::Get(*view).find(TTraits::MakeId(36)).tryGet();
 
 			// Assert:
 			EXPECT_FALSE(!!pValue1);
@@ -350,8 +350,8 @@ namespace catapult { namespace test {
 			auto view = TViewAccessor::CreateView(cache);
 
 			// Act:
-			const auto* pValue1 = TAccessor::Get(*view).tryGet(TTraits::MakeId(9));
-			const auto* pValue2 = TAccessor::Get(*view).tryGet(TTraits::MakeId(25));
+			const auto* pValue1 = TAccessor::Get(*view).find(TTraits::MakeId(9)).tryGet();
+			const auto* pValue2 = TAccessor::Get(*view).find(TTraits::MakeId(25)).tryGet();
 
 			// Assert:
 			ASSERT_TRUE(!!pValue1);
@@ -442,7 +442,7 @@ namespace catapult { namespace test {
 
 	// region CacheBasicInsertRemoveMixinTests
 
-	// Test suite for basic insert/remove mixin.
+	/// Test suite for basic insert/remove mixin.
 	template<typename TTraits, typename TViewAccessor>
 	class CacheBasicInsertRemoveMixinTests {
 	private:
@@ -534,4 +534,74 @@ namespace catapult { namespace test {
 	MAKE_CACHE_MUTATION_TEST(CACHE_TRAITS, VIEW_TRAITS, SUFFIX, CannotRemoveNonExistentValueFromCache)
 
 	// endregion
+
+	// region CacheHeightBasedTouchMixinTests
+
+	/// Test suite for height based touch mixin.
+	template<typename TTraits>
+	class CacheHeightBasedTouchMixinTests {
+	private:
+		using CacheType = typename TTraits::CacheType;
+
+	public:
+		static void AssertNothingIsTouchedWhenNoValuesAtHeight() {
+			// Arrange:
+			CacheType cache;
+			SeedCache(cache);
+			auto delta = cache.createDelta();
+
+			// Act: touch at a height without any identifiers
+			delta->touch(Height(150));
+
+			// Assert: no touched elements
+			EXPECT_TRUE(delta->modifiedElements().empty());
+			EXPECT_EQ(std::unordered_set<uint8_t>(), GetModifiedIds(*delta));
+		}
+
+		static void AssertAllValuesAtHeightAreTouched() {
+			// Arrange:
+			CacheType cache;
+			SeedCache(cache);
+			auto delta = cache.createDelta();
+
+			// Act: touch at a height with known identifiers
+			delta->touch(Height(200));
+
+			// Assert: two touched elements
+			EXPECT_EQ(2u, delta->modifiedElements().size());
+			EXPECT_EQ(std::unordered_set<uint8_t>({ 22, 44 }), GetModifiedIds(*delta));
+		}
+
+	private:
+		static void SeedCache(CacheType& cache) {
+			auto delta = cache.createDelta();
+			delta->insert(TTraits::CreateWithIdAndExpiration(11, Height(100)));
+			delta->insert(TTraits::CreateWithIdAndExpiration(22, Height(200)));
+			delta->insert(TTraits::CreateWithIdAndExpiration(33, Height(100)));
+			delta->insert(TTraits::CreateWithIdAndExpiration(44, Height(200)));
+			delta->insert(TTraits::CreateWithIdAndExpiration(55, Height(400)));
+			cache.commit();
+		}
+
+		static std::unordered_set<uint8_t> GetModifiedIds(const typename CacheType::CacheDeltaType& delta) {
+			std::unordered_set<uint8_t> modifiedIds;
+			for (const auto* pElement : delta.modifiedElements())
+				modifiedIds.insert(TTraits::GetRawId(TTraits::GetId(*pElement)));
+
+			return modifiedIds;
+		}
+	};
+
+#define MAKE_CACHE_TOUCH_TEST(CACHE_TRAITS, SUFFIX, TEST_NAME) \
+	TEST(TEST_CLASS, TEST_NAME##SUFFIX) { \
+		test::CacheHeightBasedTouchMixinTests<CACHE_TRAITS>::Assert##TEST_NAME(); \
+	}
+
+#define DEFINE_CACHE_TOUCH_TESTS(CACHE_TRAITS, SUFFIX) \
+	MAKE_CACHE_TOUCH_TEST(CACHE_TRAITS, SUFFIX, NothingIsTouchedWhenNoValuesAtHeight) \
+	MAKE_CACHE_TOUCH_TEST(CACHE_TRAITS, SUFFIX, AllValuesAtHeightAreTouched) \
+
+	// endregion
+
+	// HeightBasedPruningMixin is tested via pruning tests in DEFINE_CACHE_PRUNE_TESTS (CachePruneTests.h)
 }}

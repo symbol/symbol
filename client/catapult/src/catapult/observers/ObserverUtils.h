@@ -29,7 +29,7 @@ namespace catapult { namespace observers {
 		return NotifyMode::Commit == context.Mode && 0 == context.Height.unwrap() % pruneInterval;
 	}
 
-	/// Creates a block-based cache pruning obsever with \a name that runs every \a interval blocks
+	/// Creates a block-based cache pruning observer with \a name that runs every \a interval blocks
 	/// with the specified grace period (\a gracePeriod).
 	template<typename TCache>
 	NotificationObserverPointerT<model::BlockNotification> CreateCacheBlockPruningObserver(
@@ -50,7 +50,7 @@ namespace catapult { namespace observers {
 		});
 	}
 
-	/// Creates a time-based cache pruning obsever with \a name that runs every \a interval blocks.
+	/// Creates a time-based cache pruning observer with \a name that runs every \a interval blocks.
 	template<typename TCache>
 	NotificationObserverPointerT<model::BlockNotification> CreateCacheTimePruningObserver(const std::string& name, size_t interval) {
 		using ObserverType = FunctionalNotificationObserverT<model::BlockNotification>;
@@ -60,6 +60,16 @@ namespace catapult { namespace observers {
 
 			auto& cache = context.Cache.template sub<TCache>();
 			cache.prune(notification.Timestamp);
+		});
+	}
+
+	/// Creates a block-based cache touch observer with \a name that touches the cache at every block height.
+	template<typename TCache>
+	NotificationObserverPointerT<model::BlockNotification> CreateCacheBlockTouchObserver(const std::string& name) {
+		using ObserverType = FunctionalNotificationObserverT<model::BlockNotification>;
+		return std::make_unique<ObserverType>(name + "TouchObserver", [](const auto&, const auto& context) {
+			auto& cache = context.Cache.template sub<TCache>();
+			cache.touch(context.Height);
 		});
 	}
 }}

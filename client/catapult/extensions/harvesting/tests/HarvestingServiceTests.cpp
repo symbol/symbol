@@ -21,9 +21,11 @@
 #include "harvesting/src/HarvestingService.h"
 #include "harvesting/src/HarvestingConfiguration.h"
 #include "harvesting/src/UnlockedAccounts.h"
+#include "catapult/cache_core/BlockDifficultyCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace harvesting {
@@ -59,10 +61,19 @@ namespace catapult { namespace harvesting {
 				setHooks();
 			}
 
-			explicit TestContext(cache::CatapultCache&& cache)
-					: BaseType(std::move(cache))
+			explicit TestContext(cache::CatapultCache&& cache, const supplier<Timestamp>& timeSupplier = &utils::NetworkTime)
+					: BaseType(std::move(cache), timeSupplier)
 					, m_config(CreateHarvestingConfiguration(false)) {
 				setHooks();
+			}
+
+		public:
+			Key harvesterKey() const {
+				return crypto::KeyPair::FromString(m_config.HarvestKey).publicKey();
+			}
+
+			const auto& capturedStateHashes() const {
+				return m_capturedStateHashes;
 			}
 
 		public:
@@ -70,8 +81,10 @@ namespace catapult { namespace harvesting {
 				const_cast<model::BlockChainConfiguration&>(testState().state().config().BlockChain).MinHarvesterBalance = balance;
 			}
 
-			Key harvesterKey() const {
-				return crypto::KeyPair::FromString(m_config.HarvestKey).publicKey();
+			void enableVerifiableState() {
+				auto& config = testState().state().config();
+				const_cast<bool&>(config.Node.ShouldUseCacheDatabaseStorage) = true;
+				const_cast<bool&>(config.BlockChain.ShouldEnableVerifiableState) = true;
 			}
 
 		public:
@@ -82,13 +95,20 @@ namespace catapult { namespace harvesting {
 		private:
 			void setHooks() {
 				// set up hooks
-				testState().state().hooks().setCompletionAwareBlockRangeConsumerFactory([](auto) {
-					return [](auto&&, auto) { return disruptor::DisruptorElementId(); };
+				auto& capturedStateHashes = m_capturedStateHashes;
+				testState().state().hooks().setCompletionAwareBlockRangeConsumerFactory([&capturedStateHashes](auto) {
+					return [&capturedStateHashes](auto&& blockRange, auto) {
+						for (const auto& block : blockRange)
+							capturedStateHashes.push_back(block.StateHash);
+
+						return disruptor::DisruptorElementId();
+					};
 				});
 			}
 
 		private:
 			HarvestingConfiguration m_config;
+			std::vector<Hash256> m_capturedStateHashes;
 		};
 
 		std::shared_ptr<UnlockedAccounts> GetUnlockedAccounts(const extensions::ServiceLocator& locator) {
@@ -139,7 +159,7 @@ namespace catapult { namespace harvesting {
 
 	// endregion
 
-	// region harvesting task
+	// region harvesting task - utils + basic
 
 	namespace {
 		template<typename TAction>
@@ -153,11 +173,6 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	TEST(TEST_CLASS, HarvestingTaskIsScheduled) {
-		// Assert:
-		test::AssertRegisteredTask(TestContext(), 1, Task_Name);
-	}
-
 	namespace {
 		constexpr Amount Account_Balance(1000);
 		constexpr auto Importance_Grouping = 234u;
@@ -166,30 +181,54 @@ namespace catapult { namespace harvesting {
 			return model::ConvertToImportanceHeight(height, Importance_Grouping);
 		}
 
-		auto CreateCacheWithAccount(Height height, const Key& publicKey, model::ImportanceHeight importanceHeight) {
+		auto CreateCacheWithAccount(
+				const cache::CacheConfiguration& cacheConfig,
+				Height height,
+				const Key& publicKey,
+				Amount balance,
+				model::ImportanceHeight importanceHeight) {
 			// Arrange:
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.ImportanceGrouping = Importance_Grouping;
-			auto cache = test::CreateEmptyCatapultCache(config);
+			auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
 			auto delta = cache.createDelta();
 
 			// - add an account
-			auto& accountState = delta.sub<cache::AccountStateCache>().addAccount(publicKey, Height(100));
+			auto& accountStateCache = delta.sub<cache::AccountStateCache>();
+			accountStateCache.addAccount(publicKey, Height(100));
+			auto& accountState = accountStateCache.find(publicKey).get();
 			accountState.ImportanceInfo.set(Importance(123), importanceHeight);
-			accountState.Balances.credit(Xem_Id, Account_Balance);
+			accountState.Balances.credit(Xem_Id, balance);
+
+			// - add a block difficulty info
+			auto& blockDifficultyCache = delta.sub<cache::BlockDifficultyCache>();
+			blockDifficultyCache.insert(state::BlockDifficultyInfo(Height(1)));
 
 			// - commit changes
 			cache.commit(height);
 			return cache;
 		}
+
+		auto CreateCacheWithAccount(Height height, const Key& publicKey, Amount balance, model::ImportanceHeight importanceHeight) {
+			return CreateCacheWithAccount(cache::CacheConfiguration(), height, publicKey, balance, importanceHeight);
+		}
 	}
+
+	TEST(TEST_CLASS, HarvestingTaskIsScheduled) {
+		// Assert:
+		test::AssertRegisteredTask(TestContext(), 1, Task_Name);
+	}
+
+	// endregion
+
+	// region harvesting task - pruning
 
 	TEST(TEST_CLASS, HarvestingTaskDoesNotPruneEligibleAccount) {
 		// Arrange: eligible because next height and importance height match
 		auto height = Height(2 * Importance_Grouping - 1);
 		auto importanceHeight = model::ImportanceHeight(Importance_Grouping);
 		auto keyPair = test::GenerateKeyPair();
-		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), importanceHeight));
+		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), Account_Balance, importanceHeight));
 		context.setMinHarvesterBalance(Account_Balance);
 
 		// Sanity:
@@ -212,7 +251,7 @@ namespace catapult { namespace harvesting {
 		auto height = Height(2 * Importance_Grouping);
 		auto importanceHeight = model::ImportanceHeight(Importance_Grouping);
 		auto keyPair = test::GenerateKeyPair();
-		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), importanceHeight));
+		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), Account_Balance, importanceHeight));
 		context.setMinHarvesterBalance(Account_Balance);
 
 		// Sanity:
@@ -235,7 +274,7 @@ namespace catapult { namespace harvesting {
 		auto height = Height(2 * Importance_Grouping - 1);
 		auto importanceHeight = model::ImportanceHeight(Importance_Grouping);
 		auto keyPair = test::GenerateKeyPair();
-		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), importanceHeight));
+		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), Account_Balance, importanceHeight));
 		context.setMinHarvesterBalance(Account_Balance + Amount(1));
 
 		// Sanity:
@@ -251,6 +290,62 @@ namespace catapult { namespace harvesting {
 			EXPECT_EQ(thread::TaskResult::Continue, result);
 			EXPECT_EQ(0u, unlockedAccounts.view().size());
 		});
+	}
+
+	// endregion
+
+	// region harvesting task - state hash
+
+	namespace {
+		void RunHarvestingStateHashTest(bool enableVerifiableState, Hash256& harvestedStateHash) {
+			// Arrange: use a huge amount and a max timestamp to force a hit
+			test::TempDirectoryGuard dbDirGuard("testdb");
+			auto keyPair = test::GenerateKeyPair();
+			auto balance = Amount(1'000'000'000'000);
+			auto cacheConfig = enableVerifiableState
+					? cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled)
+					: cache::CacheConfiguration();
+			TestContext context(
+					CreateCacheWithAccount(cacheConfig, Height(1), keyPair.publicKey(), balance, model::ImportanceHeight(1)),
+					[]() { return Timestamp(std::numeric_limits<int64_t>::max()); });
+			if (enableVerifiableState)
+				context.enableVerifiableState();
+
+			RunTaskTest(context, Task_Name, [keyPair = std::move(keyPair), &context, &harvestedStateHash](
+					auto& unlockedAccounts,
+					const auto& task) mutable {
+				unlockedAccounts.modifier().add(std::move(keyPair));
+
+				// Act:
+				auto result = task.Callback().get();
+
+				// Assert: one block should have been harvested
+				ASSERT_EQ(1u, context.capturedStateHashes().size());
+				harvestedStateHash = context.capturedStateHashes()[0];
+
+				// Sanity:
+				EXPECT_EQ(thread::TaskResult::Continue, result);
+				EXPECT_EQ(1u, unlockedAccounts.view().size());
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, HarvestingTaskGeneratesZeroStateHashWhenVerifiableStateIsDisabled) {
+		// Act:
+		Hash256 harvestedStateHash;
+		RunHarvestingStateHashTest(false, harvestedStateHash);
+
+		// Assert:
+		EXPECT_EQ(Hash256(), harvestedStateHash);
+	}
+
+	TEST(TEST_CLASS, HarvestingTaskGeneratesNonZeroStateHashWhenVerifiableStateIsEnabled) {
+		// Act:
+		Hash256 harvestedStateHash;
+		RunHarvestingStateHashTest(true, harvestedStateHash);
+
+		// Assert:
+		EXPECT_NE(Hash256(), harvestedStateHash);
 	}
 
 	// endregion

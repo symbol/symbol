@@ -106,8 +106,8 @@ namespace catapult { namespace net {
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&, i](const auto& pSocket) {
 					state.ServerSockets.push_back(pSocket);
-					context.pReaders->accept(ionet::AcceptedPacketSocketInfo(std::to_string(i), pSocket), [&](auto result) {
-						state.Results.push_back(result);
+					context.pReaders->accept(ionet::AcceptedPacketSocketInfo(std::to_string(i), pSocket), [&](const auto& connectResult) {
+						state.Results.push_back(connectResult);
 						++numCallbacks;
 					});
 				});
@@ -164,10 +164,10 @@ namespace catapult { namespace net {
 
 		// Act: on an accept error, the server will pass nullptr
 		PeerConnectResult result;
-		pReaders->accept(ionet::AcceptedPacketSocketInfo(), [&result](auto acceptResult) { result = acceptResult; });
+		pReaders->accept(ionet::AcceptedPacketSocketInfo(), [&result](const auto& acceptResult) { result = acceptResult; });
 
 		// Assert:
-		EXPECT_EQ(PeerConnectResult::Socket_Error, result);
+		EXPECT_EQ(PeerConnectCode::Socket_Error, result.Code);
 		EXPECT_NUM_ACTIVE_READERS(0u, *pReaders);
 	}
 
@@ -179,7 +179,7 @@ namespace catapult { namespace net {
 		// Act: start a server and client verify operation
 		PeerConnectResult result;
 		test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) {
-			context.pReaders->accept(ionet::AcceptedPacketSocketInfo("", pSocket), [&](auto acceptResult) {
+			context.pReaders->accept(ionet::AcceptedPacketSocketInfo("", pSocket), [&](const auto& acceptResult) {
 				result = acceptResult;
 				++numCallbacks;
 			});
@@ -196,7 +196,7 @@ namespace catapult { namespace net {
 		WAIT_FOR_ZERO_EXPR(context.pReaders->numActiveConnections());
 
 		// Assert: the verification should have failed and all connections should have been destroyed
-		EXPECT_EQ(PeerConnectResult::Verify_Error, result);
+		EXPECT_EQ(PeerConnectCode::Verify_Error, result.Code);
 		EXPECT_NUM_ACTIVE_READERS(0u, *context.pReaders);
 	}
 
@@ -205,7 +205,7 @@ namespace catapult { namespace net {
 	// region accepted reader
 
 	namespace {
-		using ResultServerClientHandler = consumer<PeerConnectResult, ionet::PacketSocket&, ionet::PacketSocket&>;
+		using ResultServerClientHandler = consumer<const PeerConnectResult&, ionet::PacketSocket&, ionet::PacketSocket&>;
 
 		void RunConnectedSocketTest(const PacketReadersTestContext& context, const ResultServerClientHandler& handler) {
 			// Act: establish a single connection
@@ -219,9 +219,10 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, AcceptSucceedsOnVerifySuccess) {
 		// Act:
 		PacketReadersTestContext context;
-		RunConnectedSocketTest(context, [&](auto result, const auto&, const auto&) {
+		RunConnectedSocketTest(context, [&](const auto& connectResult, const auto&, const auto&) {
 			// Assert: the verification should have succeeded and the connection should be active
-			EXPECT_EQ(PeerConnectResult::Accepted, result);
+			EXPECT_EQ(PeerConnectCode::Accepted, connectResult.Code);
+			EXPECT_EQ(context.ClientKeyPairs[0].publicKey(), connectResult.IdentityKey);
 			EXPECT_NUM_ACTIVE_READERS(1u, *context.pReaders);
 			EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pReaders->identities());
 		});
@@ -247,9 +248,13 @@ namespace catapult { namespace net {
 		auto state = SetupMultiConnectionTest(context);
 
 		// Assert: all connections are active
+		auto i = 0u;
 		EXPECT_EQ(Num_Connections, state.Results.size());
-		for (auto result : state.Results)
-			EXPECT_EQ(PeerConnectResult::Accepted, result);
+		for (const auto& result : state.Results) {
+			EXPECT_EQ(PeerConnectCode::Accepted, result.Code);
+			EXPECT_EQ(context.ClientKeyPairs[i].publicKey(), result.IdentityKey);
+			++i;
+		}
 
 		EXPECT_NUM_ACTIVE_READERS(Num_Connections, *context.pReaders);
 		EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pReaders->identities());
@@ -265,9 +270,9 @@ namespace catapult { namespace net {
 
 		// Assert: all connections succeeded but only a single one is active
 		EXPECT_EQ(Num_Connections, state.Results.size());
-		EXPECT_EQ(PeerConnectResult::Accepted, state.Results[0]);
+		EXPECT_EQ(PeerConnectCode::Accepted, state.Results[0].Code);
 		for (auto i = 1u; i < state.Results.size(); ++i)
-			EXPECT_EQ(PeerConnectResult::Already_Connected, state.Results[i]) << "result at " << i;
+			EXPECT_EQ(PeerConnectCode::Already_Connected, state.Results[i].Code) << "result at " << i;
 
 		EXPECT_EQ(Num_Connections, context.pReaders->numActiveConnections());
 		EXPECT_EQ(1u, context.pReaders->numActiveReaders());
@@ -289,11 +294,11 @@ namespace catapult { namespace net {
 
 		// Assert: all connections succeeded but three are active
 		EXPECT_EQ(Num_Connections, state.Results.size());
-		EXPECT_EQ(PeerConnectResult::Accepted, state.Results[0]);
-		EXPECT_EQ(PeerConnectResult::Accepted, state.Results[1]);
-		EXPECT_EQ(PeerConnectResult::Accepted, state.Results[2]);
+		EXPECT_EQ(PeerConnectCode::Accepted, state.Results[0].Code);
+		EXPECT_EQ(PeerConnectCode::Accepted, state.Results[1].Code);
+		EXPECT_EQ(PeerConnectCode::Accepted, state.Results[2].Code);
 		for (auto i = 3u; i < state.Results.size(); ++i)
-			EXPECT_EQ(PeerConnectResult::Already_Connected, state.Results[i]) << "result at " << i;
+			EXPECT_EQ(PeerConnectCode::Already_Connected, state.Results[i].Code) << "result at " << i;
 
 		EXPECT_EQ(Num_Connections, context.pReaders->numActiveConnections());
 		EXPECT_EQ(3u, context.pReaders->numActiveReaders());
@@ -315,11 +320,11 @@ namespace catapult { namespace net {
 
 			// Act: start a server verify operation that the client does not respond to
 			//      (use a result shared_ptr so that the accept callback is valid even after this function returns)
-			auto pResult = std::make_shared<PeerConnectResult>(static_cast<PeerConnectResult>(-1));
+			auto pResult = std::make_shared<PeerConnectResult>(static_cast<PeerConnectCode>(-1));
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
 			test::SpawnPacketServerWork(context.Service, [&, pResult](const auto& pSocket) {
 				pServerSocket = pSocket;
-				context.pReaders->accept(ionet::AcceptedPacketSocketInfo("", pSocket), [&, pResult](auto acceptResult) {
+				context.pReaders->accept(ionet::AcceptedPacketSocketInfo("", pSocket), [&, pResult](const auto& acceptResult) {
 					// note that this is not expected to get called until shutdown because the client doesn't read
 					// or write any data
 					*pResult = acceptResult;
@@ -337,7 +342,7 @@ namespace catapult { namespace net {
 			WAIT_FOR_VALUE(2u, numCallbacks);
 
 			// Assert: the server accept callback was neved called
-			EXPECT_EQ(static_cast<PeerConnectResult>(-1), *pResult);
+			EXPECT_EQ(static_cast<PeerConnectCode>(-1), pResult->Code);
 
 			// - call the test handler
 			handler(*pResult, *pServerSocket, *pClientSocket);

@@ -19,24 +19,31 @@
 **/
 
 #pragma once
+#include "src/cache/NamespaceCache.h"
 #include "src/cache/NamespaceCacheStorage.h"
+#include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
 namespace catapult { namespace test {
 
 	/// Cache factory for creating a catapult cache composed of only the namespace cache.
 	struct NamespaceCacheFactory {
-		/// Creates an empty catapult cache.
-		static cache::CatapultCache Create() {
+		/// Creates an empty catapult cache around \a gracePeriodDuration.
+		static cache::CatapultCache Create(BlockDuration gracePeriodDuration = BlockDuration(10)) {
 			auto cacheId = cache::NamespaceCache::Id;
 			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
-			subCaches[cacheId] = MakeSubCachePlugin<cache::NamespaceCache, cache::NamespaceCacheStorage>();
+
+			auto options = cache::NamespaceCacheTypes::Options{ gracePeriodDuration };
+			subCaches[cacheId] = MakeSubCachePlugin<cache::NamespaceCache, cache::NamespaceCacheStorage>(options);
 			return cache::CatapultCache(std::move(subCaches));
 		}
 
 		/// Creates an empty catapult cache around \a config.
-		static cache::CatapultCache Create(const model::BlockChainConfiguration&) {
-			return Create();
+		static cache::CatapultCache Create(const model::BlockChainConfiguration& config) {
+			auto configIter = config.Plugins.find("namespace::ex");
+			return config.Plugins.cend() != configIter
+					? Create(BlockDuration(configIter->second.get<uint64_t>({ "", "gracePeriodDuration" })))
+					: Create();
 		}
 	};
 

@@ -21,6 +21,7 @@
 #pragma once
 #include "catapult/cache_db/RocksDatabase.h"
 #include "catapult/functions.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include <string>
 #include <vector>
 
@@ -35,21 +36,41 @@ namespace catapult { namespace test {
 	/// Seed callback that fills db with data.
 	using DbSeeder = consumer<rocksdb::DB&, const ColumnHandles&>;
 
+	/// Converts even \a key used in even db seeder to db value.
+	std::string EvenKeyToValue(size_t key);
+
+	/// Creates seeder that creates \a numKeys with even keys.
+	DbSeeder CreateEvenDbSeeder(size_t numKeys);
+
 	/// Db initialization helper that destroys and seeds db.
 	class DbInitializer {
 	public:
 		/// Creates db in \a dbDir with \a columns and seeds using \a seeder.
 		DbInitializer(const std::string& dbDir, const ColumnNames& columns, const DbSeeder& seeder);
 
+		/// Creates db with \a compactionFilter in \a dbDir with \a columns and seeds using \a seeder.
+		DbInitializer(
+				const std::string& dbDir,
+				const ColumnNames& columns,
+				const DbSeeder& seeder,
+				const rocksdb::CompactionFilter* compactionFilter);
+
 	private:
-		bool SeedDb(const std::string& dbDir, const std::vector<std::string>& columns, const DbSeeder& seeder);
+		bool seedDb(
+				const std::string& dbDir,
+				const std::vector<std::string>& columns,
+				const DbSeeder& seeder,
+				const rocksdb::CompactionFilter* compactionFilter);
+
+	private:
+		test::TempDirectoryGuard m_dbDirGuard;
 	};
 
 	/// Db test context.
 	class RdbTestContext : public DbInitializer {
 	public:
-		/// Creates context with \a columns and seeds using \a seeder.
-		explicit RdbTestContext(const ColumnNames& columns, const DbSeeder& seeder = DbSeeder());
+		/// Creates context around \a settings with optional \a seeder.
+		explicit RdbTestContext(const cache::RocksDatabaseSettings& settings, const DbSeeder& seeder = DbSeeder());
 
 	public:
 		/// Returns reference to database.

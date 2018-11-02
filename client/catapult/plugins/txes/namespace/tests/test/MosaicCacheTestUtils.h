@@ -19,8 +19,11 @@
 **/
 
 #pragma once
+#include "src/cache/MosaicCache.h"
 #include "src/cache/MosaicCacheStorage.h"
+#include "src/cache/NamespaceCache.h"
 #include "src/cache/NamespaceCacheStorage.h"
+#include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 
 namespace catapult { namespace test {
@@ -28,10 +31,12 @@ namespace catapult { namespace test {
 	/// Cache factory for creating a catapult cache containing at least the mosaic cache.
 	struct MosaicCacheFactory {
 	private:
-		static auto CreateSubCachesWithMosaicCache() {
+		static auto CreateSubCachesWithMosaicCache(BlockDuration gracePeriodDuration = BlockDuration(10)) {
 			auto cacheId = cache::MosaicCache::Id;
 			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
-			subCaches[cache::NamespaceCache::Id] = MakeSubCachePlugin<cache::NamespaceCache, cache::NamespaceCacheStorage>();
+
+			auto options = cache::NamespaceCacheTypes::Options{ gracePeriodDuration };
+			subCaches[cache::NamespaceCache::Id] = MakeSubCachePlugin<cache::NamespaceCache, cache::NamespaceCacheStorage>(options);
 			subCaches[cacheId] = MakeSubCachePlugin<cache::MosaicCache, cache::MosaicCacheStorage>();
 			return subCaches;
 		}
@@ -44,7 +49,11 @@ namespace catapult { namespace test {
 
 		/// Creates an empty catapult cache around \a config.
 		static cache::CatapultCache Create(const model::BlockChainConfiguration& config) {
-			auto subCaches = CreateSubCachesWithMosaicCache();
+			auto configIter = config.Plugins.find("namespace::ex");
+			auto subCaches = config.Plugins.cend() != configIter
+					? CreateSubCachesWithMosaicCache(BlockDuration(configIter->second.get<uint64_t>({ "", "gracePeriodDuration" })))
+					: CreateSubCachesWithMosaicCache();
+
 			CoreSystemCacheFactory::CreateSubCaches(config, subCaches);
 			return cache::CatapultCache(std::move(subCaches));
 		}

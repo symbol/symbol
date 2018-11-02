@@ -19,20 +19,17 @@
 **/
 
 #pragma once
-#include "MosaicCache.h"
+#include "MosaicCacheTypes.h"
+#include "src/state/MosaicHistorySerializer.h"
 #include "catapult/cache/CacheStorageInclude.h"
 
 namespace catapult { namespace cache {
 
 	/// Policy for saving and loading mosaic cache data.
-	struct MosaicCacheStorage : public MapCacheStorageFromDescriptor<MosaicCacheDescriptor> {
-		/// Saves \a element to \a output.
-		static void Save(const StorageType& element, io::OutputStream& output);
-
-		/// Loads a single value from \a input.
-		static state::MosaicHistory Load(io::InputStream& input);
-
-		/// Loads a single value from \a input into \a cacheDelta.
-		static void LoadInto(io::InputStream& input, DestinationType& cacheDelta);
+	struct MosaicCacheStorage
+			: public CacheStorageFromDescriptor<MosaicCacheDescriptor>
+			, public state::MosaicHistorySerializer {
+		/// Loads \a history into \a cacheDelta.
+		static void LoadInto(const ValueType& history, DestinationType& cacheDelta);
 	};
 }}

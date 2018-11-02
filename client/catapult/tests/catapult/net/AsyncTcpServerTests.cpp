@@ -533,7 +533,7 @@ namespace catapult { namespace net {
 		server.settings().MaxActiveConnections = 5;
 		server.init();
 
-		// Act: queue eight connects to the server on a single thread, unblock them, and let them finish
+		// Act: queue eight connects to the server on a single thread, unblock them, let them finish
 		ClientService clientService(8, 1);
 		server.waitForAccepts(5);
 		CATAPULT_LOG(debug) << "Five threads entered callback, unblocking";
@@ -541,7 +541,7 @@ namespace catapult { namespace net {
 		server.waitForAccepts(8);
 		WAIT_FOR_ZERO_EXPR(server.asyncServer().numCurrentConnections());
 
-		// Assert: all eight connections should have completed, and the server should have one pending accept
+		// Assert: all eight connections should have completed with one pending accept remaining
 		EXPECT_EQ(8u, server.asyncServer().numLifetimeConnections());
 		EXPECT_EQ(0u, server.asyncServer().numCurrentConnections());
 		EXPECT_EQ(1u, server.asyncServer().numPendingAccepts());
@@ -588,7 +588,7 @@ namespace catapult { namespace net {
 			constexpr uint32_t Listener_Queue_Slack = 4;
 
 			BlockingAcceptServer server;
-			server.settings().MaxPendingConnections = static_cast<int>(Max_Test_Connections);
+			server.settings().MaxPendingConnections = static_cast<uint16_t>(Max_Test_Connections);
 			server.init();
 
 			// Act: queue connects to the server
@@ -647,7 +647,7 @@ namespace catapult { namespace net {
 		ClientService clientService(4, 1);
 
 		// - wait for the server to get four accepts
-		WAIT_FOR_VALUE(4, numAcceptCallbacks);
+		WAIT_FOR_VALUE(4u, numAcceptCallbacks);
 		pServer.stopAll();
 
 		// Assert: the server should have configured 5 sockets (one per request + one pending accept)

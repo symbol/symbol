@@ -20,7 +20,7 @@
 
 #pragma once
 #include "NodeRequestResult.h"
-#include "PeerConnectResult.h"
+#include "PeerConnectCode.h"
 #include "ServerConnector.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
@@ -87,10 +87,10 @@ namespace catapult { namespace net {
 			}
 
 		public:
-			void complete(PeerConnectResult connectResult) {
+			void complete(PeerConnectCode connectCode) {
 				CATAPULT_LOG(debug)
 						<< TRequestPolicy::FriendlyName() << " request connection to '" << m_requestNode
-						<< "' failed: " << connectResult;
+						<< "' failed: " << connectCode;
 				complete(NodeRequestResult::Failure_Connection);
 			}
 
@@ -171,11 +171,11 @@ namespace catapult { namespace net {
 			};
 
 			auto pRequest = std::make_shared<NodeRequest>(node, m_pPool, m_responseCompatibilityChecker, wrappedCallback);
-			m_pConnector->connect(node, [pRequest, requestTimeout = m_requestTimeout](auto connectResult, const auto& pSocket) {
+			m_pConnector->connect(node, [pRequest, requestTimeout = m_requestTimeout](auto connectCode, const auto& pSocket) {
 				pRequest->setTimeout(requestTimeout, pSocket);
 
-				if (PeerConnectResult::Accepted != connectResult)
-					return pRequest->complete(connectResult);
+				if (PeerConnectCode::Accepted != connectCode)
+					return pRequest->complete(connectCode);
 
 				TRequestPolicy::CreateFuture(*pSocket).then([pSocket, pRequest](auto&& responseFuture) {
 					pRequest->complete(std::move(responseFuture));

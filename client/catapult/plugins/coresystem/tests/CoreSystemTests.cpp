@@ -47,11 +47,11 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return { ionet::PacketType::Account_Infos };
+				return { ionet::PacketType::Account_Infos, ionet::PacketType::Account_State_Path };
 			}
 
 			static std::vector<std::string> GetDiagnosticCounterNames() {
-				return { "ACNTST C", "BLKDIF C" };
+				return { "ACNTST C", "ACNTST C HVA", "BLKDIF C" };
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
@@ -63,7 +63,7 @@ namespace catapult { namespace plugins {
 					"DeadlineValidator",
 					"NemesisSinkValidator",
 					"EligibleHarvesterValidator",
-					"BalanceReserveValidator",
+					"BalanceDebitValidator",
 					"BalanceTransferValidator"
 				};
 			}
@@ -72,7 +72,8 @@ namespace catapult { namespace plugins {
 				return {
 					"AccountAddressObserver",
 					"AccountPublicKeyObserver",
-					"BalanceObserver",
+					"BalanceDebitObserver",
+					"BalanceTransferObserver",
 					"HarvestFeeObserver",
 					"RecalculateImportancesObserver",
 					"BlockDifficultyObserver",
@@ -84,7 +85,8 @@ namespace catapult { namespace plugins {
 				return {
 					"AccountAddressObserver",
 					"AccountPublicKeyObserver",
-					"BalanceObserver",
+					"BalanceDebitObserver",
+					"BalanceTransferObserver",
 					"HarvestFeeObserver"
 				};
 			}

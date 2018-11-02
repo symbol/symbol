@@ -21,7 +21,7 @@
 #include "ToolTransactionUtils.h"
 #include "catapult/builders/TransferBuilder.h"
 #include "catapult/crypto/KeyPair.h"
-#include "catapult/extensions/TransactionExtensions.h"
+#include "catapult/extensions/ConversionExtensions.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/EntityHasher.h"
 #include "catapult/utils/ArraySet.h"
@@ -47,9 +47,9 @@ namespace catapult { namespace tools {
 		std::unique_ptr<model::TransferTransaction> CreateUnsignedTransferTransaction(
 				model::NetworkIdentifier networkId,
 				const Key& signerPublicKey,
-				const Address& recipient,
+				const UnresolvedAddress& recipient,
 				uint64_t transactionId,
-				std::initializer_list<model::Mosaic> mosaics) {
+				std::initializer_list<model::UnresolvedMosaic> mosaics) {
 			builders::TransferBuilder builder(networkId, signerPublicKey, recipient);
 			SetDeadlineAndFee(builder, Amount(0));
 
@@ -70,8 +70,8 @@ namespace catapult { namespace tools {
 			const crypto::KeyPair& signer,
 			const Key& recipientPublicKey,
 			uint64_t transactionId,
-			std::initializer_list<model::Mosaic> mosaics) {
-		auto recipient = model::PublicKeyToAddress(recipientPublicKey, networkId);
+			std::initializer_list<model::UnresolvedMosaic> mosaics) {
+		auto recipient = extensions::CopyToUnresolvedAddress(model::PublicKeyToAddress(recipientPublicKey, networkId));
 		auto pTransaction = CreateUnsignedTransferTransaction(networkId, signer.publicKey(), recipient, transactionId, mosaics);
 		extensions::SignTransaction(signer, *pTransaction);
 		return std::move(pTransaction);

@@ -30,13 +30,14 @@ namespace catapult { namespace test {
 		template<typename TCache, typename TKey>
 		void AssertBalancesT(const TCache& cache, const TKey& key, const BalanceTransfers& expectedBalances) {
 			// Assert:
-			const auto* pAccountState = cache.tryGet(key);
-			ASSERT_TRUE(!!pAccountState) << utils::HexFormat(key);
+			auto accountStateIter = cache.find(key);
+			ASSERT_TRUE(!!accountStateIter.tryGet()) << utils::HexFormat(key);
 
-			EXPECT_EQ(expectedBalances.size(), pAccountState->Balances.size());
+			const auto& accountState = accountStateIter.get();
+			EXPECT_EQ(expectedBalances.size(), accountState.Balances.size());
 			for (const auto& expectedBalance : expectedBalances) {
 				CATAPULT_LOG(debug) << expectedBalance.MosaicId << " " << expectedBalance.Amount;
-				EXPECT_EQ(expectedBalance.Amount, pAccountState->Balances.get(expectedBalance.MosaicId))
+				EXPECT_EQ(expectedBalance.Amount, accountState.Balances.get(expectedBalance.MosaicId))
 						<< "mosaic " << expectedBalance.MosaicId;
 			}
 		}

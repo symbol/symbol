@@ -7,11 +7,21 @@ from exclusions import \
     PLUGINS_FIRSTINCLUDES, \
     TOOLS_FIRSTINCLUDES
 
+
 class Rules(Enum):
     Default = 1
     Plugin = 2
     Extension = 3
     Tools = 4
+
+
+def getMajorComponentName(component):
+    separatorIndex = component.find('_')
+    if -1 == separatorIndex:
+        return component
+
+    return component[0:separatorIndex]
+
 
 class DefaultRules:
     @staticmethod
@@ -35,7 +45,8 @@ class DefaultRules:
         pathUnified = ':'.join(splittedPath)
         if nsUnified == 'catapult:test:':
             return DefaultRules.checkCatapultTest(pathUnified, splittedPath)
-        elif nsUnified == 'catapult:mocks:':
+
+        if nsUnified == 'catapult:mocks:':
             nsUnified = ':mocks:'
             if re.search(r':Mock', pathUnified):
                 return True
@@ -57,7 +68,7 @@ class DefaultRules:
     @staticmethod
     def firstTestIncludeCheck(sortedIncludes, pathElements):
         fullPath = '/'.join(pathElements)
-        if 'int' in pathElements:
+        if 'int' in pathElements and 'test' not in pathElements:
             return sortedIncludes[0].include
 
         if pathElements[0] != 'tests':
@@ -73,6 +84,26 @@ class DefaultRules:
             includeDir = '/'.join(pathElements[1:-1])
             return '"{}/{}.h"'.format(includeDir, pathElements[-1][:-9])
         return '"{}.h"'.format(pathElements[-1][:-4])
+
+    @staticmethod
+    def validateCrossIncludes(sortedIncludes, pathElements):
+        if pathElements[1] != 'catapult':
+            return []
+
+        component = pathElements[2]
+        invalid = []
+        for elem in sortedIncludes:
+            includePathElements = elem.include[1:-1].split('/')
+            if len(includePathElements) <= 2:
+                continue
+
+            if includePathElements[1] != 'catapult':
+                continue
+
+            if includePathElements[2] != component:
+                invalid.append(elem)
+        return invalid
+
 
 class PluginRules:
     @staticmethod
@@ -91,7 +122,7 @@ class PluginRules:
 
         nextPart = pathElements[elementId + 1]
         if 'test' == nextPart and 'mocks' in pathElements:
-            nextPart = 'mocks' # use mocks as appropriate
+            nextPart = 'mocks'  # use mocks as appropriate
 
         if '.' not in nextPart:
             expectedUnified = 'catapult:' + nextPart + ':'
@@ -110,10 +141,13 @@ class PluginRules:
         fullPath = '/'.join(pathElements)
         if fullPath in PLUGINS_FIRSTINCLUDES:
             return '"{}"'.format(PLUGINS_FIRSTINCLUDES[fullPath])
-        elif 'validators' in pathElements:
+
+        if 'validators' in pathElements:
             return '"Validators.h"'
-        elif 'observers' in pathElements:
+
+        if 'observers' in pathElements:
             return '"Observers.h"'
+
         return '"{}.h"'.format(pathElements[-1][:-4])
 
     @staticmethod
@@ -123,22 +157,52 @@ class PluginRules:
             fullPath = '/'.join(pathElements)
             if fullPath in PLUGINS_FIRSTINCLUDES:
                 return '"{}"'.format(PLUGINS_FIRSTINCLUDES[fullPath])
-            elif 'validators' in pathElements:
+
+            if 'validators' in pathElements:
                 return '"src/validators/Validators.h"'
-            elif 'observers' in pathElements:
+
+            if 'observers' in pathElements:
                 return '"src/observers/Observers.h"'
 
             testsId = pathElements.index('tests')
             if 'int' in pathElements and pathElements.index('int') == testsId + 1:
                 testsId += 1
 
-            includeDir = '/'.join(pathElements[testsId + 1 : -1])
+            includeDir = '/'.join(pathElements[testsId + 1: -1])
             includeFilePath = '/'.join(filter(None, [includeDir, pathElements[-1][:-9]]))
             return '"src/{}.h"'.format(includeFilePath)
-        elif 'test' in pathElements:
+
+        if 'test' in pathElements:
             return '"{}.h"'.format(pathElements[-1][:-4])
 
         return '<could not figure out first include>'
+
+    @staticmethod
+    def validateCrossIncludes(sortedIncludes, pathElements):
+        component = pathElements[2]
+
+        invalid = []
+        for elem in sortedIncludes:
+            includePathElements = elem.include[1:-1].split('/')
+            if len(includePathElements) <= 2:
+                continue
+
+            if includePathElements[0] != 'plugins':
+                continue
+
+            # allow cross inclusion of src like:
+            # "plugins/txes/aggregate/src/model/AggregateEntityType.h"
+            if 'tests' not in includePathElements:
+                continue
+
+            # allow lock_hash to include lock_shared tests
+            includeMajorComponent = getMajorComponentName(includePathElements[2])
+            fileMajorComponent = getMajorComponentName(component)
+            if includeMajorComponent != fileMajorComponent:
+                invalid.append(elem)
+
+        return invalid
+
 
 class ExtensionRules:
     @staticmethod
@@ -184,9 +248,11 @@ class ExtensionRules:
         fullPath = '/'.join(pathElements)
         if pathElements[-1].endswith('Extension.cpp'):
             return sortedIncludes[0].include
+
         if fullPath in EXTENSION_FIRSTINCLUDES:
             return '"{}"'.format(EXTENSION_FIRSTINCLUDES[fullPath])
-        elif 'filters' in pathElements and 'timesync' in pathElements:
+
+        if 'filters' in pathElements and 'timesync' in pathElements:
             return '"SynchronizationFilters.h"'
 
         return '"{}.h"'.format(pathElements[-1][:-4])
@@ -198,24 +264,62 @@ class ExtensionRules:
             fullPath = '/'.join(pathElements)
             if fullPath in EXTENSION_FIRSTINCLUDES:
                 return '"{}"'.format(EXTENSION_FIRSTINCLUDES[fullPath])
-            elif 'filters' in pathElements and 'timesync' in pathElements:
+
+            if 'filters' in pathElements and 'timesync' in pathElements:
                 return '"timesync/src/filters/SynchronizationFilters.h"'
 
             testsId = pathElements.index('tests')
             if 'int' in pathElements and pathElements.index('int') == testsId + 1:
                 testsId += 1
 
-            includeDir = '/'.join(pathElements[testsId + 1 : -1])
+            includeDir = '/'.join(pathElements[testsId + 1: -1])
             includeFilePath = '/'.join(filter(None, [includeDir, pathElements[-1][:-9]]))
-            if 'plugins' in pathElements: # subplugins should be relative to the subplugin root
+            if 'plugins' in pathElements:  # subplugins should be relative to the subplugin root
                 return '"src/{}.h"'.format(includeFilePath)
 
             # non-plugins should be relative to the extension root
             return '"{}/src/{}.h"'.format(pathElements[1], includeFilePath)
-        elif 'test' in pathElements:
+
+        if 'test' in pathElements:
             return '"{}.h"'.format(pathElements[-1][:-4])
 
         return '<could not figure out first include>'
+
+    @staticmethod
+    def validateCrossIncludes(sortedIncludes, pathElements):
+        component = pathElements[1]
+
+        invalid = []
+        for elem in sortedIncludes:
+            includePathElements = elem.include[1:-1].split('/')
+            if includePathElements[0] in ['tests', 'catapult']:
+                continue
+
+            # allow any non test like elements
+            if 'tests' not in includePathElements:
+                continue
+
+            # for mongo allow plugins inclusion inside extensions
+            # extensions/mongo/plugins/<name> -> plugins/txes/<name>
+            mongoSubComponent = getMajorComponentName(pathElements[3])
+            includeComponent = getMajorComponentName(includePathElements[2])
+            if (component == 'mongo' and pathElements[2] == 'plugins'
+                    and includePathElements[0] == 'plugins' and includePathElements[1] == 'txes'):
+                if mongoSubComponent == includeComponent:
+                    continue
+
+            if includePathElements[0] == component:
+                if includePathElements[0] != 'mongo':
+                    continue
+
+                # for mongo report if it's not `mongo/tests`
+                if includePathElements[1] == 'tests':
+                    continue
+
+            if mongoSubComponent != includeComponent:
+                invalid.append(elem)
+
+        return invalid
 
 
 class ToolsRules:
@@ -250,6 +354,7 @@ class ToolsRules:
         del sortedIncludes
         del pathElements
         raise 'firstTestIncludeCheck called for a tool'
+
 
 RULE_ID_TO_CLASS_MAP = {
     Rules.Default: DefaultRules,

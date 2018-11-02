@@ -21,6 +21,7 @@
 #pragma once
 #include "Hashers.h"
 #include "catapult/types.h"
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -61,6 +62,9 @@ namespace catapult { namespace utils {
 
 	/// A key set.
 	using KeySet = ArraySet<Key>;
+
+	/// A sorted key set.
+	using SortedKeySet = std::set<Key>;
 
 	/// A hash pointer set.
 	using HashPointerSet = ArrayPointerSet<Hash256>;

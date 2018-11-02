@@ -2,13 +2,15 @@ from collections import defaultdict
 import os
 import re
 
-class Rule: # pylint: disable=too-few-public-methods
+
+class Rule:  # pylint: disable=too-few-public-methods
     def __init__(self, src, dest):
         self.src = src
         self.dest = dest
 
     def __repr__(self):
         return "Rule({}, {})".format(self.src, self.dest)
+
 
 class DepsChecker:
     def __init__(self, configPath, errors, verbose=False):

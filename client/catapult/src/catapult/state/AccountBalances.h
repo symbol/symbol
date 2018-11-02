@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "CompactMosaicUnorderedMap.h"
+#include "CompactMosaicMap.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/exceptions.h"
 #include "catapult/types.h"
@@ -73,6 +73,6 @@ namespace catapult { namespace state {
 		AccountBalances& debit(MosaicId mosaicId, Amount amount);
 
 	private:
-		CompactMosaicUnorderedMap m_balances;
+		CompactMosaicMap m_balances;
 	};
 }}

@@ -99,6 +99,7 @@ namespace catapult { namespace io {
 		{
 			RawFile r(guard.name(), OpenMode::Read_Write);
 		}
+
 		RawFile r(guard.name(), OpenMode::Read_Only);
 		auto data = test::GenerateRandomVector(Default_Bytes_Written);
 
@@ -210,6 +211,7 @@ namespace catapult { namespace io {
 			RawFile file(guard.name(), OpenMode::Read_Append);
 			file.write(partialData);
 		}
+
 		RawFile r(guard.name(), OpenMode::Read_Only);
 
 		// Act:
@@ -235,6 +237,7 @@ namespace catapult { namespace io {
 			file.seek(50);
 			file.write(partialData);
 		}
+
 		RawFile r(guard.name(), OpenMode::Read_Only);
 
 		// Act:
@@ -261,6 +264,7 @@ namespace catapult { namespace io {
 			file.seek(100);
 			file.write(partialData);
 		}
+
 		RawFile r(guard.name(), OpenMode::Read_Only);
 
 		// Act:
@@ -285,6 +289,7 @@ namespace catapult { namespace io {
 			file.seek(file.size());
 			file.write(finalData);
 		}
+
 		RawFile r(guard.name(), OpenMode::Read_Only);
 
 		// Act:
@@ -336,6 +341,7 @@ namespace catapult { namespace io {
 		{
 			RawFile r(guard.name(), OpenMode::Read_Write);
 		}
+
 		RawFile r(guard.name(), OpenMode::Read_Only);
 
 		// Act + Assert:

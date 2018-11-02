@@ -43,13 +43,8 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto pValidator = CreateModifyMultisigInvalidSettingsValidator();
 
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
-
 			// Act:
-			return test::ValidateNotification(*pValidator, notification, context);
+			return test::ValidateNotification(*pValidator, notification, cache);
 		}
 	}
 
@@ -123,7 +118,7 @@ namespace catapult { namespace validators {
 				auto& multisigDelta = delta.sub<cache::MultisigCache>();
 				const auto& multisigAccountKey = keys[0];
 				multisigDelta.insert(state::MultisigEntry(multisigAccountKey));
-				auto& entry = multisigDelta.get(multisigAccountKey);
+				auto& entry = multisigDelta.find(multisigAccountKey).get();
 				entry.setMinRemoval(removal.Current);
 				entry.setMinApproval(approval.Current);
 				auto& cosignatories = entry.cosignatories();

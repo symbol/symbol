@@ -50,6 +50,8 @@ namespace catapult { namespace model {
 					{
 						"chain",
 						{
+							{ "shouldEnableVerifiableState", "true" },
+
 							{ "blockGenerationTargetTime", "10m" },
 							{ "blockTimeSmoothingFactor", "765" },
 
@@ -93,6 +95,8 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Key{}, config.Network.PublicKey);
 				EXPECT_EQ(Hash256{}, config.Network.GenerationHash);
 
+				EXPECT_FALSE(config.ShouldEnableVerifiableState);
+
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.BlockGenerationTargetTime);
 				EXPECT_EQ(0u, config.BlockTimeSmoothingFactor);
 
@@ -117,6 +121,8 @@ namespace catapult { namespace model {
 				EXPECT_EQ(NetworkIdentifier::Public_Test, config.Network.Identifier);
 				EXPECT_EQ(crypto::ParseKey(Nemesis_Public_Key), config.Network.PublicKey);
 				EXPECT_EQ(crypto::ParseKey(Nemesis_Generation_Hash), config.Network.GenerationHash);
+
+				EXPECT_TRUE(config.ShouldEnableVerifiableState);
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(10), config.BlockGenerationTargetTime);
 				EXPECT_EQ(765u, config.BlockTimeSmoothingFactor);
@@ -153,7 +159,9 @@ namespace catapult { namespace model {
 		// Arrange: set an unknown network in the container
 		using Traits = BlockChainConfigurationTraits;
 		auto container = Traits::CreateProperties();
-		container["network"]["identifier"] = "foonet";
+		auto& networkProperties = container["network"];
+		auto hasIdentifierKey = [](const auto& pair) { return "identifier" == pair.first; };
+		std::find_if(networkProperties.begin(), networkProperties.end(), hasIdentifierKey)->second = "foonet";
 
 		// Act + Assert:
 		EXPECT_THROW(Traits::ConfigurationType::LoadFromBag(std::move(container)), utils::property_malformed_error);

@@ -19,6 +19,8 @@
 **/
 
 #pragma once
+#include "catapult/exceptions.h"
+#include "catapult/functions.h"
 #include "catapult/types.h"
 
 namespace catapult {
@@ -41,16 +43,54 @@ namespace catapult { namespace cache {
 		size_t size() const;
 
 		/// Sets size of the column to \a newSize.
-		void saveSize(size_t newSize);
+		void setSize(size_t newSize);
 
+		/// Returns \c false if property value of a column (\a propertyName) is not found,
+		/// otherwise returns \c true and sets \a value to retrieved property value.
+		template<typename TValue>
+		bool prop(const std::string& propertyName, TValue& value) const {
+			bool result = false;
+			load(propertyName, [&result, &value](const char* buffer) {
+				if (!buffer)
+					return;
+
+				result = true;
+				value = reinterpret_cast<const TValue&>(*buffer);
+			});
+
+			return result;
+		}
+
+		/// Sets property value of a column (\a propertyName) to \a value.
+		template<typename TValue>
+		void setProp(const std::string& propertyName, const TValue& value) {
+			std::string strValue(sizeof(TValue), 0);
+			reinterpret_cast<TValue&>(strValue[0]) = value;
+			save(propertyName, strValue);
+		}
+
+		/// Returns underlying database.
+		RocksDatabase& database() {
+			return m_database;
+		}
+
+	protected:
 		/// Finds element with \a key, storing result in \a iterator.
-		void find(const RawBuffer& key, RdbDataIterator& iterator);
+		void find(const RawBuffer& key, RdbDataIterator& iterator) const;
 
 		/// Inserts element with \a key and \a value.
 		void insert(const RawBuffer& key, const std::string& value);
 
 		/// Removes element with \a key.
 		void remove(const RawBuffer& key);
+
+		/// Prunes elements below \a pruningBoundary. Returns number of pruned elements.
+		size_t prune(uint64_t pruningBoundary);
+
+	private:
+		void load(const std::string& propertyName, const consumer<const char*>& sink) const;
+
+		void save(const std::string& propertyName, const std::string& strValue);
 
 	private:
 		RocksDatabase& m_database;

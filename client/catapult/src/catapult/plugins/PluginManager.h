@@ -41,6 +41,9 @@ namespace catapult { namespace plugins {
 
 		/// Base directory to use for storing cache database.
 		std::string CacheDatabaseDirectory;
+
+		/// Maximum cache database write batch size.
+		utils::FileSize MaxCacheDatabaseWriteBatchSize;
 	};
 
 	/// A manager for registering plugins.
@@ -55,6 +58,17 @@ namespace catapult { namespace plugins {
 		using StatelessValidatorPointer = std::unique_ptr<const validators::stateless::AggregateNotificationValidator>;
 		using StatefulValidatorPointer = std::unique_ptr<const validators::stateful::AggregateNotificationValidator>;
 		using ObserverPointer = observers::AggregateNotificationObserverPointerT<model::Notification>;
+
+		template<typename TUnresolved, typename TResolved>
+		using Resolver = predicate<const TUnresolved&, TResolved&>;
+		using MosaicResolver = Resolver<UnresolvedMosaicId, MosaicId>;
+		using AddressResolver = Resolver<UnresolvedAddress, Address>;
+
+		template<typename TUnresolved, typename TResolved>
+		using AggregateResolver = std::function<TResolved (const TUnresolved&)>;
+		using AggregateMosaicResolver = AggregateResolver<UnresolvedMosaicId, MosaicId>;
+		using AggregateAddressResolver = AggregateResolver<UnresolvedAddress, Address>;
+
 		using PublisherPointer = std::unique_ptr<model::NotificationPublisher>;
 
 	public:
@@ -92,6 +106,9 @@ namespace catapult { namespace plugins {
 		void addCacheSupport(std::unique_ptr<TCache>&& pSubCache) {
 			m_cacheBuilder.add<TStorageTraits>(std::move(pSubCache));
 		}
+
+		/// Adds support for a subcache registered by \a pSubCachePlugin.
+		void addCacheSupport(std::unique_ptr<cache::SubCachePlugin>&& pSubCachePlugin);
 
 		/// Creates a catapult cache.
 		cache::CatapultCache createCache();
@@ -152,6 +169,22 @@ namespace catapult { namespace plugins {
 
 		// endregion
 
+		// region resolvers
+
+		/// Adds a mosaic \a resolver.
+		void addMosaicResolver(const MosaicResolver& resolver);
+
+		/// Adds an address \a resolver.
+		void addAddressResolver(const AddressResolver& resolver);
+
+		/// Creates a mosaic resolver.
+		AggregateMosaicResolver createMosaicResolver() const;
+
+		/// Creates an address resolver.
+		AggregateAddressResolver createAddressResolver() const;
+
+		// endregion
+
 		// region publisher
 
 		/// Creates a notification publisher for the specified \a mode.
@@ -171,6 +204,9 @@ namespace catapult { namespace plugins {
 		std::vector<StatefulValidatorHook> m_statefulValidatorHooks;
 		std::vector<ObserverHook> m_observerHooks;
 		std::vector<ObserverHook> m_transientObserverHooks;
+
+		std::vector<MosaicResolver> m_mosaicResolvers;
+		std::vector<AddressResolver> m_addressResolvers;
 	};
 }}
 

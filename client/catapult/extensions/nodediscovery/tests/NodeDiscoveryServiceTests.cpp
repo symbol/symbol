@@ -90,7 +90,7 @@ namespace catapult { namespace nodediscovery {
 		void AssertNoPushNodeConsumerCalls(TestContext& context) {
 			// Assert: subscriber wasn't called
 			const auto& subscriber = context.testState().nodeSubscriber();
-			EXPECT_EQ(0u, subscriber.params().size());
+			EXPECT_EQ(0u, subscriber.nodeParams().params().size());
 
 			// - nodes weren't modified
 			auto& nodes = context.testState().state().nodes();
@@ -194,18 +194,12 @@ namespace catapult { namespace nodediscovery {
 
 		// Assert:
 		const auto& subscriber = context.testState().nodeSubscriber();
-		ASSERT_EQ(1u, subscriber.params().size());
+		ASSERT_EQ(1u, subscriber.nodeParams().params().size());
 
-		const auto& subscriberNode = subscriber.params()[0].NodeCopy;
+		const auto& subscriberNode = subscriber.nodeParams().params()[0].NodeCopy;
 		EXPECT_EQ(identityKey, subscriberNode.identityKey());
 		EXPECT_EQ("alice.com", subscriberNode.endpoint().Host);
 		EXPECT_EQ(ionet::NodeVersion(1234), subscriberNode.metadata().Version);
-
-		const auto& containerView = context.testState().state().nodes().view();
-		EXPECT_EQ(1u, containerView.size());
-
-		auto expectedContents = test::BasicNodeDataContainer{ { identityKey, "the GREAT", ionet::NodeSource::Dynamic } };
-		EXPECT_EQ(expectedContents, test::CollectAll(containerView));
 
 		// - check counters (should not be affected)
 		EXPECT_EQ(0u, context.counter(Total_Counter_Name));
@@ -238,19 +232,12 @@ namespace catapult { namespace nodediscovery {
 
 		// Assert: subscriber was called with response node (the name is the differentiator)
 		const auto& subscriber = context.testState().nodeSubscriber();
-		ASSERT_EQ(1u, subscriber.params().size());
+		ASSERT_EQ(1u, subscriber.nodeParams().params().size());
 
-		const auto& subscriberNode = subscriber.params()[0].NodeCopy;
+		const auto& subscriberNode = subscriber.nodeParams().params()[0].NodeCopy;
 		EXPECT_EQ(partnerKeyPair.publicKey(), subscriberNode.identityKey());
 		EXPECT_EQ("127.0.0.1", subscriberNode.endpoint().Host);
 		EXPECT_EQ("the Legend", subscriberNode.metadata().Name);
-
-		// - response node was added to node container
-		const auto& containerView = context.testState().state().nodes().view();
-		EXPECT_EQ(1u, containerView.size());
-
-		auto expectedContents = test::BasicNodeDataContainer{ { partnerKeyPair.publicKey(), "the Legend", ionet::NodeSource::Dynamic } };
-		EXPECT_EQ(expectedContents, test::CollectAll(containerView));
 
 		// - success counter was incremented
 		EXPECT_EQ(1u, context.counter(Total_Counter_Name));
@@ -282,7 +269,7 @@ namespace catapult { namespace nodediscovery {
 
 		// Assert: subscriber wasn't called
 		const auto& subscriber = context.testState().nodeSubscriber();
-		EXPECT_EQ(0u, subscriber.params().size());
+		EXPECT_EQ(0u, subscriber.nodeParams().params().size());
 
 		// - nodes weren't modified
 		EXPECT_EQ(1u, nodes.view().size());
@@ -434,18 +421,11 @@ namespace catapult { namespace nodediscovery {
 
 			// Assert: subscriber was called and the name from the response node (the Legend) was used
 			const auto& subscriber = context.testState().nodeSubscriber();
-			ASSERT_EQ(1u, subscriber.params().size());
+			ASSERT_EQ(1u, subscriber.nodeParams().params().size());
 
-			const auto& subscriberNode = subscriber.params()[0].NodeCopy;
+			const auto& subscriberNode = subscriber.nodeParams().params()[0].NodeCopy;
 			EXPECT_EQ(partnerKey, subscriberNode.identityKey());
 			EXPECT_EQ("the Legend", subscriberNode.metadata().Name);
-
-			// - node was added to node container
-			const auto& containerView = context.testState().state().nodes().view();
-			EXPECT_EQ(1u, containerView.size());
-
-			auto expectedContents = test::BasicNodeDataContainer{ { partnerKey, "the Legend", ionet::NodeSource::Dynamic } };
-			EXPECT_EQ(expectedContents, test::CollectAll(containerView));
 		});
 	}
 

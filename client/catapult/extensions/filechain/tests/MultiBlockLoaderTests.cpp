@@ -19,12 +19,21 @@
 **/
 
 #include "filechain/src/MultiBlockLoader.h"
+#include "catapult/extensions/LocalNodeChainScore.h"
+#include "catapult/extensions/NemesisBlockLoader.h"
+#include "catapult/extensions/PluginUtils.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
+#include "filechain/tests/test/FilechainTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
+#include "tests/test/local/BlockStateHash.h"
 #include "tests/test/local/LocalNodeTestState.h"
+#include "tests/test/local/LocalTestUtils.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/mocks/MockEntityObserver.h"
 #include "tests/TestHarness.h"
+#include <random>
 
 namespace catapult { namespace filechain {
 
@@ -219,6 +228,117 @@ namespace catapult { namespace filechain {
 		EXPECT_EQ(4u, observer.blockHeights().size());
 		EXPECT_EQ(expectedHeights, observer.blockHeights());
 		EXPECT_EQ(expectedHeights, factoryHeights);
+	}
+
+	// endregion
+
+	// region LoadBlockChain - state enabled
+
+	namespace {
+		std::vector<Address> GenerateDeterministicAddresses(size_t count) {
+			std::vector<Address> addresses;
+			for (auto i = 0u; i < count; ++i)
+				addresses.push_back(Address{ { static_cast<uint8_t>(1 + i) } });
+
+			return addresses;
+		}
+
+		auto CreateBlocks(size_t maxHeight) {
+			// each block has at most 20 txes
+			const auto numRecipientAccounts = (maxHeight - 1) * 20;
+
+			std::mt19937_64 rnd(0x11223344'55667788ull);
+			auto nemesisKeyPairs = test::GetNemesisKeyPairs();
+			auto recipients = GenerateDeterministicAddresses(numRecipientAccounts);
+
+			size_t recipientIndex = 0;
+			std::vector<std::unique_ptr<model::Block>> blocks;
+			for (auto height = 2u; height <= maxHeight; ++height)
+				blocks.push_back(test::CreateBlock(nemesisKeyPairs, recipients[recipientIndex++], rnd, height).pBlock);
+
+			return blocks;
+		}
+
+		void ExecuteNemesis(const extensions::LocalNodeStateRef& stateRef, plugins::PluginManager& pluginManager) {
+			auto pPublisher = pluginManager.createNotificationPublisher();
+			auto pObserver = extensions::CreateEntityObserver(pluginManager);
+			auto cacheDelta = stateRef.Cache.createDelta();
+			extensions::NemesisBlockLoader loader(cacheDelta, pluginManager.transactionRegistry(), *pPublisher, *pObserver);
+
+			loader.executeAndCommit(stateRef, extensions::StateHashVerification::Disabled);
+		}
+
+		template<typename TAction>
+		void ExecuteWithStorage(io::BlockStorageCache& storage, TAction action) {
+			// Arrange:
+			test::TempDirectoryGuard tempDataDirectory("../temp.dir");
+			auto config = test::CreateStateHashEnabledLocalNodeConfiguration(tempDataDirectory.name());
+			auto pPluginManager = test::CreatePluginManager(config);
+			auto pObserver = extensions::CreateEntityObserver(*pPluginManager);
+
+			// blockChain config copy
+			auto blockChainConfig = pPluginManager->config();
+			auto cache = pPluginManager->createCache();
+			state::CatapultState state;
+			extensions::LocalNodeChainScore score;
+			auto localNodeConfig = test::CreateLocalNodeConfiguration(std::move(blockChainConfig), tempDataDirectory.name());
+
+			extensions::LocalNodeStateRef stateRef(localNodeConfig, state, cache, storage, score);
+			ExecuteNemesis(stateRef, *pPluginManager);
+
+			// Act:
+			std::vector<Height> factoryHeights;
+			LoadBlockChain(MakeObserverFactory(*pObserver, factoryHeights), stateRef, Height(2));
+
+			action(stateRef.Cache, *pPluginManager);
+		}
+
+		void RunLoadBlockChainTest(io::BlockStorageCache& storage, size_t maxHeight) {
+			// Arrange: create one additional block to simplify test, blocks[0].height = 2
+			auto blocks = CreateBlocks(maxHeight + 1);
+
+			// - calculate expected state hash after loading first two blocks (1, 2)
+			Hash256 expectedHash;
+			ExecuteWithStorage(storage, [&expectedHash, &block = *blocks[0] ](auto& cache, const auto& pluginManager) {
+				auto cacheDetachedDelta = cache.createDetachableDelta().detach();
+				auto pCacheDelta = cacheDetachedDelta.lock();
+
+				expectedHash = test::CalculateBlockStateHash(block, *pCacheDelta, pluginManager);
+			});
+
+			// Act:
+			// - add single block to the storage
+			// - compare current state hash with expected hash
+			// - calculate next expected hash by using current cache state and next block
+			for (auto height = 2u; height <= maxHeight; ++height) {
+				const auto& block = *blocks[height - 2];
+				storage.modifier().saveBlock(test::BlockToBlockElement(block));
+
+				// - load whole chain and verify hash
+				const auto& nextBlock = *blocks[height - 1];
+				ExecuteWithStorage(storage, [&expectedHash, &nextBlock](auto& cache, const auto& pluginManager) {
+					// Assert:
+					// - retrieve state hash calculated when loading chain
+					auto hashInfo = cache.createView().calculateStateHash();
+
+					EXPECT_EQ(expectedHash, hashInfo.StateHash);
+
+					// - calculate next expected hash
+					auto cacheDetachedDelta = cache.createDetachableDelta().detach();
+					auto pCacheDelta = cacheDetachedDelta.lock();
+
+					expectedHash = test::CalculateBlockStateHash(nextBlock, *pCacheDelta, pluginManager);
+				});
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, LoadBlockChainLoadsMultipleBlocks_StateHashEnabled) {
+		// Arrange:
+		io::BlockStorageCache storage(std::make_unique<mocks::MockMemoryBlockStorage>());
+
+		// Act + Assert:
+		RunLoadBlockChainTest(storage, 7);
 	}
 
 	// endregion

@@ -74,7 +74,7 @@ DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMapImmutablePointer);
 		pSet->commit();
 
 		// Act: mutate can be called
-		auto pDeltaElement = pDelta->find(TTraits::ToKey(element));
+		auto pDeltaElement = pDelta->find(TTraits::ToKey(element)).get();
 		pDeltaElement->mutate();
 
 		// Assert:

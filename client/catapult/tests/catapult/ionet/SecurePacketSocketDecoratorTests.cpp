@@ -130,7 +130,7 @@ namespace catapult { namespace ionet {
 			{}
 
 		private:
-			TestContext(ConnectionSecurityMode securityMode, const utils::FileSize& maxPacketDataSize)
+			TestContext(ConnectionSecurityMode securityMode, utils::FileSize maxPacketDataSize)
 					: pMockPacketSocket(std::make_shared<MockPacketSocket>())
 					, KeyPair(test::GenerateKeyPair())
 					, RemoteKey(KeyPair.publicKey()) // use same public key so secure packets can be signed and verified

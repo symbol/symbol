@@ -24,9 +24,9 @@
 
 namespace catapult { namespace cache {
 
-	void HashCacheStorage::Save(const StorageType& element, io::OutputStream& output) {
-		io::Write(output, element.Time);
-		io::Write(output, element.Hash);
+	void HashCacheStorage::Save(const ValueType& timestampedHash, io::OutputStream& output) {
+		io::Write(output, timestampedHash.Time);
+		io::Write(output, timestampedHash.Hash);
 	}
 
 	state::TimestampedHash HashCacheStorage::Load(io::InputStream& input) {
@@ -36,7 +36,7 @@ namespace catapult { namespace cache {
 		return timestampedHash;
 	}
 
-	void HashCacheStorage::LoadInto(io::InputStream& input, DestinationType& cacheDelta) {
-		cacheDelta.insert(Load(input));
+	void HashCacheStorage::LoadInto(const ValueType& timestampedHash, DestinationType& cacheDelta) {
+		cacheDelta.insert(timestampedHash);
 	}
 }}

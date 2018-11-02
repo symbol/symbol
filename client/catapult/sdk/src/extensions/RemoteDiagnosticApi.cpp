@@ -30,23 +30,6 @@ namespace catapult { namespace extensions {
 	namespace {
 		// region traits
 
-		struct AccountInfosTraits {
-		public:
-			using ResultType = model::AccountInfoRange;
-			static constexpr auto PacketType() { return ionet::PacketType::Account_Infos; }
-			static constexpr auto FriendlyName() { return "account infos"; }
-
-			static auto CreateRequestPacketPayload(model::AddressRange&& addresses) {
-				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(addresses));
-			}
-
-		public:
-			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractEntitiesFromPacket<model::AccountInfo>(packet, ionet::IsSizeValid<model::AccountInfo>);
-				return !result.empty();
-			}
-		};
-
 		struct ConfirmTimestampedHashesTraits {
 		public:
 			using ResultType = state::TimestampedHashRange;
@@ -98,38 +81,43 @@ namespace catapult { namespace extensions {
 			}
 		};
 
-		struct NamespaceInfosTraits {
+		template<typename TIdentifier, ionet::PacketType Packet_Type>
+		struct InfosTraits {
 		public:
-			using ResultType = model::EntityRange<model::NamespaceInfo>;
-			static constexpr auto PacketType() { return ionet::PacketType::Namespace_Infos; }
-			static constexpr auto FriendlyName() { return "namespace infos"; }
+			using ResultType = model::EntityRange<model::CacheEntryInfo<TIdentifier>>;
+			static constexpr ionet::PacketType PacketType() { return Packet_Type; }
 
-			static auto CreateRequestPacketPayload(model::EntityRange<NamespaceId>&& namespaceIds) {
-				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(namespaceIds));
+			static auto CreateRequestPacketPayload(model::EntityRange<TIdentifier>&& ids) {
+				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(ids));
 			}
 
 		public:
 			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractEntitiesFromPacket<model::NamespaceInfo>(packet, ionet::IsSizeValid<model::NamespaceInfo>);
+				result = ionet::ExtractEntitiesFromPacket<model::CacheEntryInfo<TIdentifier>>(
+						packet,
+						ionet::IsSizeValid<model::CacheEntryInfo<TIdentifier>>);
 				return !result.empty();
 			}
 		};
 
-		struct MosaicInfosTraits {
+		struct AccountInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Infos> {
 		public:
-			using ResultType = model::EntityRange<model::MosaicInfo>;
-			static constexpr auto PacketType() { return ionet::PacketType::Mosaic_Infos; }
+			static constexpr auto FriendlyName() { return "account infos"; }
+		};
+
+		struct AccountPropertiesInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Properties_Infos> {
+		public:
+			static constexpr auto FriendlyName() { return "account properties infos"; }
+		};
+
+		struct NamespaceInfosTraits : public InfosTraits<NamespaceId, ionet::PacketType::Namespace_Infos> {
+		public:
+			static constexpr auto FriendlyName() { return "namespace infos"; }
+		};
+
+		struct MosaicInfosTraits : public InfosTraits<MosaicId, ionet::PacketType::Mosaic_Infos> {
+		public:
 			static constexpr auto FriendlyName() { return "mosaic infos"; }
-
-			static auto CreateRequestPacketPayload(model::EntityRange<MosaicId>&& mosaicIds) {
-				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(mosaicIds));
-			}
-
-		public:
-			bool tryParseResult(const ionet::Packet& packet, ResultType& result) const {
-				result = ionet::ExtractFixedSizeStructuresFromPacket<model::MosaicInfo>(packet);
-				return !result.empty();
-			}
 		};
 
 		// endregion
@@ -144,10 +132,6 @@ namespace catapult { namespace extensions {
 			{}
 
 		public:
-			FutureType<AccountInfosTraits> accountInfos(model::AddressRange&& addresses) const override {
-				return m_impl.dispatch(AccountInfosTraits(), std::move(addresses));
-			}
-
 			FutureType<ConfirmTimestampedHashesTraits> confirmTimestampedHashes(
 					state::TimestampedHashRange&& timestampedHashes) const override {
 				return m_impl.dispatch(ConfirmTimestampedHashesTraits(), std::move(timestampedHashes));
@@ -159,6 +143,14 @@ namespace catapult { namespace extensions {
 
 			FutureType<ActiveNodeInfosTraits> activeNodeInfos() const override {
 				return m_impl.dispatch(ActiveNodeInfosTraits());
+			}
+
+			FutureType<AccountInfosTraits> accountInfos(model::AddressRange&& addresses) const override {
+				return m_impl.dispatch(AccountInfosTraits(), std::move(addresses));
+			}
+
+			FutureType<AccountPropertiesInfosTraits> accountPropertiesInfos(model::AddressRange&& addresses) const override {
+				return m_impl.dispatch(AccountPropertiesInfosTraits(), std::move(addresses));
 			}
 
 			FutureType<NamespaceInfosTraits> namespaceInfos(model::EntityRange<NamespaceId>&& namespaceIds) const override {

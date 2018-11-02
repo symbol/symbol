@@ -33,11 +33,12 @@ namespace catapult { namespace validators {
 				const ValidatorContext& context) {
 			// notice that MosaicChangeAllowedValidator is required to run first, so both mosaic and owning account must exist
 			const auto& cache = context.Cache.sub<cache::MosaicCache>();
-			const auto& entry = cache.get(notification.MosaicId);
+			auto mosaicIter = cache.find(notification.MosaicId);
+			const auto& entry = mosaicIter.get();
 
 			const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-			const auto& accountState = accountStateCache.get(notification.Signer);
-			auto ownerAmount = accountState.Balances.get(notification.MosaicId);
+			auto accountStateIter = accountStateCache.find(notification.Signer);
+			auto ownerAmount = accountStateIter.get().Balances.get(notification.MosaicId);
 
 			// only allow an "immutable" supply to change if the owner owns full supply
 			const auto& properties = entry.definition().properties();

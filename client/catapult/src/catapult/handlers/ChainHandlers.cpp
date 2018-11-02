@@ -20,6 +20,7 @@
 
 #include "ChainHandlers.h"
 #include "HandlerUtils.h"
+#include "HeightRequestProcessor.h"
 #include "catapult/api/ChainPackets.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/ionet/PacketEntityUtils.h"
@@ -37,62 +38,15 @@ namespace catapult { namespace handlers {
 	}
 
 	namespace {
-		template<typename TPacket>
-		auto CreateResponsePacket(uint32_t payloadSize) {
-			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
-			pPacket->Type = TPacket::Packet_Type;
-			return pPacket;
-		}
-
-		template<typename TRequest>
-		struct HeightRequestInfo {
-		public:
-			constexpr HeightRequestInfo() : pRequest(nullptr)
-			{}
-
-		public:
-			Height ChainHeight;
-			const TRequest* pRequest;
-
-		public:
-			uint32_t numAvailableBlocks() const {
-				return static_cast<uint32_t>((ChainHeight - pRequest->Height).unwrap() + 1);
-			}
-		};
-
-		template<typename TRequest>
-		HeightRequestInfo<TRequest> ProcessHeightRequest(
-				const io::BlockStorageView& storage,
-				const ionet::Packet& packet,
-				ionet::ServerPacketHandlerContext& context,
-				bool allowZeroHeight) {
-			const auto* pRequest = ionet::CoercePacket<TRequest>(&packet);
-			if (!pRequest)
-				return HeightRequestInfo<TRequest>();
-
-			HeightRequestInfo<TRequest> info;
-			info.ChainHeight = storage.chainHeight();
-			CATAPULT_LOG(trace) << "local height = " << info.ChainHeight << ", request height = " << pRequest->Height;
-			if (info.ChainHeight < pRequest->Height || (!allowZeroHeight && Height(0) == pRequest->Height)) {
-				context.response(ionet::PacketPayload(CreateResponsePacket<TRequest>(0)));
-				return HeightRequestInfo<TRequest>();
-			}
-
-			info.pRequest = pRequest;
-			return info;
-		}
-
 		auto CreatePullBlockHandler(const io::BlockStorageCache& storage) {
 			return [&storage](const auto& packet, auto& context) {
 				using RequestType = api::PullBlockRequest;
 				auto storageView = storage.view();
-				auto info = ProcessHeightRequest<RequestType>(storageView, packet, context, true);
+				auto info = HeightRequestProcessor<RequestType>::Process(storageView, packet, context, true);
 				if (!info.pRequest)
 					return;
 
-				auto height = info.pRequest->Height;
-				height = Height(0) == height ? info.ChainHeight : height;
-				auto pBlock = storageView.loadBlock(height);
+				auto pBlock = storageView.loadBlock(info.NormalizedRequestHeight);
 
 				auto payload = ionet::PacketPayloadFactory::FromEntity(RequestType::Packet_Type, std::move(pBlock));
 				context.response(std::move(payload));
@@ -130,16 +84,22 @@ namespace catapult { namespace handlers {
 	}
 
 	namespace {
+		uint32_t ClampNumHashes(const HeightRequestInfo<api::BlockHashesRequest>& info, uint32_t maxHashes) {
+			auto numHashes = std::min(maxHashes, info.pRequest->NumHashes);
+			return std::min(numHashes, info.numAvailableBlocks());
+		}
+
 		auto CreateBlockHashesHandler(const io::BlockStorageCache& storage, uint32_t maxHashes) {
 			return [&storage, maxHashes](const auto& packet, auto& context) {
 				using RequestType = api::BlockHashesRequest;
 				auto storageView = storage.view();
-				auto info = ProcessHeightRequest<RequestType>(storageView, packet, context, false);
+				auto info = HeightRequestProcessor<RequestType>::Process(storageView, packet, context, false);
 				if (!info.pRequest)
 					return;
 
-				auto hashes = storageView.loadHashesFrom(info.pRequest->Height, maxHashes);
-				auto payload = ionet::PacketPayloadFactory::FromFixedSizeRange(RequestType::Packet_Type, std::move(hashes));
+				auto numHashes = ClampNumHashes(info, maxHashes);
+				auto hashRange = storageView.loadHashesFrom(info.pRequest->Height, numHashes);
+				auto payload = ionet::PacketPayloadFactory::FromFixedSizeRange(RequestType::Packet_Type, std::move(hashRange));
 				context.response(std::move(payload));
 			};
 		}
@@ -165,7 +125,7 @@ namespace catapult { namespace handlers {
 			return [&storage, config](const auto& packet, auto& context) {
 				using RequestType = api::PullBlocksRequest;
 				auto storageView = storage.view();
-				auto info = ProcessHeightRequest<RequestType>(storageView, packet, context, false);
+				auto info = HeightRequestProcessor<RequestType>::Process(storageView, packet, context, false);
 				if (!info.pRequest)
 					return;
 

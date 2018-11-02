@@ -30,9 +30,15 @@ namespace catapult {
 	namespace cache {
 		class BasicMosaicCacheDelta;
 		class BasicMosaicCacheView;
+		struct MosaicBaseSetDeltaPointers;
+		struct MosaicBaseSets;
 		class MosaicCache;
 		class MosaicCacheDelta;
 		class MosaicCacheView;
+		struct MosaicHeightGroupingSerializer;
+		struct MosaicHistoryPrimarySerializer;
+		class MosaicPatriciaTree;
+		struct NamespaceGroupingSerializer;
 
 		template<typename TCache, typename TCacheDelta, typename TKey, typename TGetResult>
 		class ReadOnlyArtifactCache;
@@ -56,6 +62,9 @@ namespace catapult { namespace cache {
 		using CacheDeltaType = MosaicCacheDelta;
 		using CacheViewType = MosaicCacheView;
 
+		using Serializer = MosaicHistoryPrimarySerializer;
+		using PatriciaTree = MosaicPatriciaTree;
+
 	public:
 		/// Gets the key corresponding to \a history.
 		static auto GetKeyFromValue(const ValueType& history) {
@@ -66,11 +75,7 @@ namespace catapult { namespace cache {
 	/// Mosaic cache types.
 	struct MosaicCacheTypes {
 	public:
-		using CacheReadOnlyType = ReadOnlyArtifactCache<
-			BasicMosaicCacheView,
-			BasicMosaicCacheDelta,
-			MosaicId,
-			const state::MosaicEntry&>;
+		using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMosaicCacheView, BasicMosaicCacheDelta, MosaicId, state::MosaicEntry>;
 
 	// region value adapters
 
@@ -92,11 +97,12 @@ namespace catapult { namespace cache {
 
 	// region secondary descriptors
 
-	private:
+	public:
 		struct NamespaceGroupingTypesDescriptor {
 		public:
 			using KeyType = NamespaceId;
 			using ValueType = utils::IdentifierGroup<MosaicId, NamespaceId, utils::BaseValueHasher<MosaicId>>;
+			using Serializer = NamespaceGroupingSerializer;
 
 		public:
 			static auto GetKeyFromValue(const ValueType& namespaceMosaics) {
@@ -108,6 +114,7 @@ namespace catapult { namespace cache {
 		public:
 			using KeyType = Height;
 			using ValueType = utils::IdentifierGroup<MosaicId, Height, utils::BaseValueHasher<MosaicId>>;
+			using Serializer = MosaicHeightGroupingSerializer;
 
 		public:
 			static auto GetKeyFromValue(const ValueType& heightMosaics) {
@@ -123,42 +130,7 @@ namespace catapult { namespace cache {
 		using HeightGroupingTypes = MutableUnorderedMapAdapter<HeightGroupingTypesDescriptor, utils::BaseValueHasher<Height>>;
 
 	public:
-		// in order to compose mosaic cache from multiple sets, define an aggregate set type
-
-		struct BaseSetDeltaPointers {
-			PrimaryTypes::BaseSetDeltaPointerType pPrimary;
-			NamespaceGroupingTypes::BaseSetDeltaPointerType pNamespaceGrouping;
-			HeightGroupingTypes::BaseSetDeltaPointerType pHeightGrouping;
-		};
-
-		struct BaseSets : public CacheDatabaseMixin {
-		public:
-			explicit BaseSets(const CacheConfiguration& config)
-					: CacheDatabaseMixin(config, { "default", "namespace_grouping", "height_grouping" })
-					, Primary(GetContainerMode(config), database(), 0)
-					, NamespaceGrouping(GetContainerMode(config), database(), 1)
-					, HeightGrouping(GetContainerMode(config), database(), 2)
-			{}
-
-		public:
-			PrimaryTypes::BaseSetType Primary;
-			NamespaceGroupingTypes::BaseSetType NamespaceGrouping;
-			HeightGroupingTypes::BaseSetType HeightGrouping;
-
-		public:
-			BaseSetDeltaPointers rebase() {
-				return { Primary.rebase(), NamespaceGrouping.rebase(), HeightGrouping.rebase() };
-			}
-
-			BaseSetDeltaPointers rebaseDetached() const {
-				return { Primary.rebaseDetached(), NamespaceGrouping.rebaseDetached(), HeightGrouping.rebaseDetached() };
-			}
-
-			void commit() {
-				Primary.commit();
-				NamespaceGrouping.commit();
-				HeightGrouping.commit();
-			}
-		};
+		using BaseSetDeltaPointers = MosaicBaseSetDeltaPointers;
+		using BaseSets = MosaicBaseSets;
 	};
 }}

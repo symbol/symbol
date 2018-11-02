@@ -42,7 +42,8 @@ namespace catapult { namespace cache {
 				return 0;
 
 			size_t numLevels = 0;
-			const auto& multisigEntry = multisigCache.get(publicKey);
+			auto multisigIter = multisigCache.find(publicKey);
+			const auto& multisigEntry = multisigIter.get();
 			for (const auto& linkedKey : TTraits::GetKeySet(multisigEntry)) {
 				keySet.insert(linkedKey);
 				numLevels = std::max(numLevels, FindAll<TTraits>(multisigCache, linkedKey, keySet) + 1);

@@ -19,15 +19,19 @@
 **/
 
 #pragma once
+#include "catapult/plugins/PluginManager.h"
 #include "catapult/validators/ValidatorTypes.h"
 #include <memory>
 
 namespace catapult {
+	namespace config { class LocalNodeConfiguration; }
 	namespace observers { class EntityObserver; }
-	namespace plugins { class PluginManager; }
 }
 
 namespace catapult { namespace extensions {
+
+	/// Creates plugin storage configuration from \a config.
+	plugins::StorageConfiguration CreateStorageConfiguration(const config::LocalNodeConfiguration& config);
 
 	/// Creates an entity stateless validator using \a pluginManager.
 	std::unique_ptr<const validators::stateless::AggregateEntityValidator> CreateStatelessValidator(const plugins::PluginManager& manager);

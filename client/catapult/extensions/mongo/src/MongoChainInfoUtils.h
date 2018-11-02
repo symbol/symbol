@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 
 namespace catapult { namespace mongo {

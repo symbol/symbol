@@ -90,13 +90,8 @@ namespace catapult { namespace mongo {
 
 			// block metadata
 			auto metaView = view["meta"].get_document().view();
-			test::AssertEqualBlockMetadata(
-					expectedElement.EntityHash,
-					expectedElement.GenerationHash,
-					totalFee,
-					static_cast<int32_t>(expectedElement.Transactions.size()),
-					merkleTree,
-					metaView);
+			auto numTransactions = static_cast<int32_t>(expectedElement.Transactions.size());
+			test::AssertEqualBlockMetadata(expectedElement, totalFee, numTransactions, merkleTree, metaView);
 
 			// block data
 			auto blockView = view["block"].get_document().view();
@@ -162,7 +157,7 @@ namespace catapult { namespace mongo {
 			auto database = connection[test::DatabaseName()];
 			auto filter = document() << finalize;
 			EXPECT_EQ(1u, database["blocks"].count(filter.view()));
-			EXPECT_EQ(numExpectedTransactions, database["transactions"].count(filter.view()));
+			EXPECT_EQ(numExpectedTransactions, static_cast<size_t>(database["transactions"].count(filter.view())));
 		}
 	}
 

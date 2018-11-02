@@ -345,32 +345,34 @@ namespace catapult { namespace net {
 		public:
 			void connect(const ionet::Node& node, const ConnectCallback& callback) override {
 				if (!m_writers.prepareConnect(node))
-					return callback(PeerConnectResult::Already_Connected);
+					return callback(PeerConnectCode::Already_Connected);
 
-				m_pServerConnector->connect(node, [pThis = shared_from_this(), node, callback](auto result, const auto& pVerifiedSocket) {
+				m_pServerConnector->connect(node, [pThis = shared_from_this(), node, callback](
+						auto connectCode,
+						const auto& pVerifiedSocket) {
 					// abort the connection if it failed or is redundant
-					if (PeerConnectResult::Accepted != result || !pThis->addWriter(node, pVerifiedSocket)) {
+					if (PeerConnectCode::Accepted != connectCode || !pThis->addWriter(node, pVerifiedSocket)) {
 						pThis->m_writers.abortConnect(node);
 
-						if (PeerConnectResult::Accepted == result)
-							result = PeerConnectResult::Already_Connected;
+						if (PeerConnectCode::Accepted == connectCode)
+							connectCode = PeerConnectCode::Already_Connected;
 					}
 
-					callback(result);
+					callback({ connectCode, node.identityKey() });
 				});
 			}
 
 			void accept(const std::shared_ptr<ionet::PacketSocket>& pAcceptedSocket, const ConnectCallback& callback) override {
 				m_pClientConnector->accept(pAcceptedSocket, [pThis = shared_from_this(), callback](
-						auto result,
+						auto connectCode,
 						const auto& pVerifiedSocket,
 						const auto& remoteKey) {
-					if (PeerConnectResult::Accepted == result) {
+					if (PeerConnectCode::Accepted == connectCode) {
 						if (!pThis->addWriter(remoteKey, pVerifiedSocket))
-							result = PeerConnectResult::Already_Connected;
+							connectCode = PeerConnectCode::Already_Connected;
 					}
 
-					callback(result);
+					callback({ connectCode, remoteKey });
 				});
 			}
 

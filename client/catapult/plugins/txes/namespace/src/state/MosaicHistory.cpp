@@ -61,15 +61,11 @@ namespace catapult { namespace state {
 	}
 
 	size_t MosaicHistory::prune(Height height) {
-		auto expiredPredicate = [height](const auto& entry) {
-			return entry.definition().isExpired(height);
-		};
-
 		// reverse iterate through the list
 		// from the first expired entry downward, remove all entries
 		auto numErasedHistories = m_history.size();
 		for (auto iter = m_history.rbegin(); m_history.rend() != iter;) {
-			if (expiredPredicate(*iter)) {
+			if (iter->definition().isExpired(height)) {
 				m_history.erase(m_history.begin(), ++std::next(iter).base());
 				break;
 			}

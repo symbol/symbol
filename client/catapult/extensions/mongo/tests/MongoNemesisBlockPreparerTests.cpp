@@ -22,7 +22,7 @@
 #include "mongo/src/ExternalCacheStorage.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "tests/test/core/mocks/MockBlockStorage.h"
-#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
 #include "tests/test/nemesis/NemesisTestUtils.h"
@@ -86,7 +86,7 @@ namespace catapult { namespace mongo {
 		// region TestContext
 
 		model::BlockChainConfiguration CreateBlockChainConfiguration() {
-			return test::LoadLocalNodeConfigurationWithNemesisPluginExtensions("").BlockChain;
+			return test::CreateLocalNodeConfigurationWithNemesisPluginExtensions("").BlockChain;
 		}
 
 		class TestContext {
@@ -95,7 +95,7 @@ namespace catapult { namespace mongo {
 			{}
 
 			explicit TestContext(Height externalStorageHeight)
-					: m_pPluginManager(test::CreateDefaultPluginManager(CreateBlockChainConfiguration()))
+					: m_pPluginManager(test::CreatePluginManager(CreateBlockChainConfiguration()))
 					, m_cache(m_pPluginManager->createCache())
 					, m_mongoStorage(externalStorageHeight)
 			{}
@@ -132,7 +132,7 @@ namespace catapult { namespace mongo {
 		private:
 			std::shared_ptr<plugins::PluginManager> m_pPluginManager;
 			cache::CatapultCache m_cache;
-			mocks::MockMemoryBasedStorage m_sourceStorage;
+			mocks::MockMemoryBlockStorage m_sourceStorage;
 
 			mocks::MockSavingBlockStorage m_mongoStorage;
 			MockExternalAccountStateCacheStorage m_externalCacheStorage;

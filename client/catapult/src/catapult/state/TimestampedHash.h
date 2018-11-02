@@ -74,6 +74,9 @@ namespace catapult { namespace state {
 
 #pragma pack(pop)
 
+	/// Wraps \a timestampedHash in raw buffer.
+	RawBuffer SerializeKey(const TimestampedHash& timestampedHash);
+
 	/// Insertion operator for outputting \a timestampedHash to \a out.
 	std::ostream& operator<<(std::ostream& out, const TimestampedHash& timestampedHash);
 

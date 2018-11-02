@@ -231,7 +231,7 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// region size (section) / getAll
+	// region size (section) / getAll(Ordered)
 
 	namespace {
 		auto LoadMultiSectionBag() {
@@ -264,45 +264,75 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(0u, bag.size("baz"));
 	}
 
-	TEST(TEST_CLASS, GetAllRetrievesAllPropertiesForKnownSection) {
+	namespace {
+		struct GetAllUnorderedTraits {
+			template<typename T>
+			using KeyValueMapType = ConfigurationBag::UnorderedKeyValueMap<T>;
+
+			template<typename T>
+			static constexpr auto GetAll(const ConfigurationBag& bag, const char* section) {
+				return bag.getAll<T>(section);
+			}
+		};
+
+		struct GetAllOrderedTraits {
+			template<typename T>
+			using KeyValueMapType = ConfigurationBag::OrderedKeyValueMap<T>;
+
+			template<typename T>
+			static constexpr auto GetAll(const ConfigurationBag& bag, const char* section) {
+				return bag.getAllOrdered<T>(section);
+			}
+		};
+	}
+
+#define GET_ALL_TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Unordered) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetAllUnorderedTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Ordered) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GetAllOrderedTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	GET_ALL_TRAITS_BASED_TEST(GetAllRetrievesAllPropertiesForKnownSection) {
 		// Arrange:
 		auto bag = LoadMultiSectionBag();
 
 		// Act:
-		auto fooProperties = bag.getAll<std::string>("foo");
-		auto barProperties = bag.getAll<std::string>("bar");
+		auto fooProperties = TTraits::template GetAll<std::string>(bag, "foo");
+		auto barProperties = TTraits::template GetAll<std::string>(bag, "bar");
 
 		// Act + Assert:
-		ConfigurationBag::KeyValueMap<std::string> expectedFooProperties{ { "alpha", "123" } };
-		ConfigurationBag::KeyValueMap<std::string> expectedBarProperties{ { "alpha", "7" }, { "beta", "99" } };
+		using KeyValueMap = typename TTraits::template KeyValueMapType<std::string>;
+		KeyValueMap expectedFooProperties{ { "alpha", "123" } };
+		KeyValueMap expectedBarProperties{ { "alpha", "7" }, { "beta", "99" } };
 		EXPECT_EQ(expectedFooProperties, fooProperties);
 		EXPECT_EQ(expectedBarProperties, barProperties);
 	}
 
-	TEST(TEST_CLASS, GetAllReturnsEmptyPropertiesForUnknownSection) {
+	GET_ALL_TRAITS_BASED_TEST(GetAllReturnsEmptyPropertiesForUnknownSection) {
 		// Act:
 		auto bag = LoadMultiSectionBag();
 
 		// Act:
-		auto properties = bag.getAll<std::string>("baz");
+		auto properties = TTraits::template GetAll<std::string>(bag, "baz");
 
 		// Assert:
 		EXPECT_TRUE(properties.empty());
 	}
 
-	TEST(TEST_CLASS, GetAllCanParseValuesIntoStronglyTypedValues) {
+	GET_ALL_TRAITS_BASED_TEST(GetAllCanParseValuesIntoStronglyTypedValues) {
 		// Arrange:
 		auto bag = LoadMultiSectionBag();
 
 		// Act:
-		auto properties = bag.getAll<uint32_t>("bar");
+		auto properties = TTraits::template GetAll<uint32_t>(bag, "bar");
 
 		// Act + Assert:
-		ConfigurationBag::KeyValueMap<uint32_t> expectedProperties{ { "alpha", 7 }, { "beta", 99 } };
+		using KeyValueMap = typename TTraits::template KeyValueMapType<uint32_t>;
+		KeyValueMap expectedProperties{ { "alpha", 7 }, { "beta", 99 } };
 		EXPECT_EQ(expectedProperties, properties);
 	}
 
-	TEST(TEST_CLASS, GetAllThrowsIfAnyValueCannotBeParsed) {
+	GET_ALL_TRAITS_BASED_TEST(GetAllThrowsIfAnyValueCannotBeParsed) {
 		// Arrange:
 		auto bag = LoadFromString(R"(
 			[bar]
@@ -312,7 +342,7 @@ namespace catapult { namespace utils {
 		)");
 
 		// Act + Assert:
-		EXPECT_THROW(bag.getAll<uint32_t>("bar"), property_malformed_error);
+		EXPECT_THROW(TTraits::template GetAll<uint32_t>(bag, "bar"), property_malformed_error);
 	}
 
 	// endregion

@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		void AssertMosaicProperties(const model::MosaicProperties& properties, const bsoncxx::document::view& dbProperties) {
-			ASSERT_EQ(properties.size(), std::distance(dbProperties.cbegin(), dbProperties.cend()));
+			ASSERT_EQ(properties.size(), test::GetFieldCount(dbProperties));
 			auto dbIter = dbProperties.cbegin();
 			for (const auto& property : properties) {
 				EXPECT_EQ(property.Value, static_cast<uint64_t>(dbIter->get_int64().value));

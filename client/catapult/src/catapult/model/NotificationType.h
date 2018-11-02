@@ -103,8 +103,11 @@ namespace catapult { namespace model {
 	/// Signature was received.
 	DEFINE_CORE_NOTIFICATION(Signature, 0x0007, Validator);
 
-	/// Account is required to have minimum balance.
-	DEFINE_CORE_NOTIFICATION(Balance_Reserve, 0x0008, Validator);
+	/// Mosaic was debited from account.
+	DEFINE_CORE_NOTIFICATION(Balance_Debit, 0x0008, All);
+
+	/// Source address interacts with destination addresses.
+	DEFINE_CORE_NOTIFICATION(Address_Interaction, 0x0009, Validator);
 
 #undef DEFINE_CORE_NOTIFICATION
 

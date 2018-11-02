@@ -21,6 +21,7 @@
 #pragma once
 #include "utils/ClampedBaseValue.h"
 #include "utils/RawBuffer.h"
+#include "utils/UnresolvedAddress.h"
 #include <array>
 
 namespace catapult {
@@ -30,15 +31,17 @@ namespace catapult {
 	constexpr size_t Hash256_Size = 32;
 	constexpr size_t Hash160_Size = 20;
 	constexpr size_t Key_Size = 32;
-	constexpr size_t Address_Decoded_Size = 25;
-	constexpr size_t Address_Encoded_Size = 40;
+	constexpr size_t Address_Decoded_Size = utils::Address_Decoded_Size;
+	constexpr size_t Address_Encoded_Size = utils::Address_Encoded_Size;
 
 	using Signature = std::array<uint8_t, Signature_Size>;
 	using Key = std::array<uint8_t, Key_Size>;
 	using Hash512 = std::array<uint8_t, Hash512_Size>;
 	using Hash256 = std::array<uint8_t, Hash256_Size>;
 	using Hash160 = std::array<uint8_t, Hash160_Size>;
-	using Address = std::array<uint8_t, Address_Decoded_Size>;
+
+	using Address = utils::Address;
+	using UnresolvedAddress = utils::UnresolvedAddress;
 
 	struct Timestamp_tag {};
 	using Timestamp = utils::BaseValue<uint64_t, Timestamp_tag>;
@@ -48,6 +51,9 @@ namespace catapult {
 
 	struct MosaicId_tag {};
 	using MosaicId = utils::BaseValue<uint64_t, MosaicId_tag>;
+
+	struct UnresolvedMosaicId_tag {};
+	using UnresolvedMosaicId = utils::BaseValue<uint64_t, UnresolvedMosaicId_tag>;
 
 	struct Height_tag {};
 	using Height = utils::BaseValue<uint64_t, Height_tag>;

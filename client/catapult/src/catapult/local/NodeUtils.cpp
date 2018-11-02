@@ -24,6 +24,8 @@
 
 namespace catapult { namespace local {
 
+	// region SeedNodeContainer
+
 	namespace {
 		void CheckString(const std::string& str, const char* name) {
 			if (str.size() <= std::numeric_limits<uint8_t>::max())
@@ -48,4 +50,40 @@ namespace catapult { namespace local {
 
 		ValidateAndAddNode(modifier, config::ToLocalNode(bootstrapper.config()), ionet::NodeSource::Local);
 	}
+
+	// endregion
+
+	// region CreateNodeContainerSubscriberAdapter
+
+	namespace {
+		class NodeContainerSubscriberAdapter : public subscribers::NodeSubscriber {
+		public:
+			explicit NodeContainerSubscriberAdapter(ionet::NodeContainer& nodes) : m_nodes(nodes)
+			{}
+
+		public:
+			void notifyNode(const ionet::Node& node) {
+				m_nodes.modifier().add(node, ionet::NodeSource::Dynamic);
+			}
+
+			void notifyIncomingNode(const Key& identityKey, ionet::ServiceIdentifier serviceId) {
+				ionet::Node node(identityKey, ionet::NodeEndpoint(), ionet::NodeMetadata());
+
+				auto modifier = m_nodes.modifier();
+				if (modifier.add(node, ionet::NodeSource::Dynamic_Incoming))
+					++modifier.provisionConnectionState(serviceId, identityKey).Age;
+				else
+					CATAPULT_LOG(warning) << "could not add incoming node (" << utils::HexFormat(identityKey) << ") to node container";
+			}
+
+		private:
+			ionet::NodeContainer& m_nodes;
+		};
+	}
+
+	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(ionet::NodeContainer& nodes) {
+		return std::make_unique<NodeContainerSubscriberAdapter>(nodes);
+	}
+
+	// endregion
 }}

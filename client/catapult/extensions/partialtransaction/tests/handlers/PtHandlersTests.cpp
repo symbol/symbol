@@ -124,7 +124,7 @@ namespace catapult { namespace handlers {
 						m_transactionInfos.push_back(CreateRandomTransactionInfo(i));
 				}
 
-				const auto& response() const{
+				const auto& response() const {
 					return m_transactionInfos;
 				}
 

@@ -96,7 +96,7 @@ namespace catapult { namespace mongo {
 			auto collection = database[Collection_Name];
 
 			// Assert: check collection size
-			EXPECT_EQ(expectedTransactionStatuses.size(), collection.count({}));
+			EXPECT_EQ(expectedTransactionStatuses.size(), static_cast<size_t>(collection.count({})));
 
 			auto txCursor = collection.find({});
 			for (const auto& view : txCursor) {
@@ -108,7 +108,7 @@ namespace catapult { namespace mongo {
 				const auto& status = expectedIter->second;
 				EXPECT_EQ(status.Hash, dbHash);
 				EXPECT_EQ(status.Status, test::GetUint32(view, "status"));
-				EXPECT_EQ(status.Deadline.unwrap(), test::GetUint64(view, "deadline"));
+				EXPECT_EQ(status.Deadline, Timestamp(test::GetUint64(view, "deadline")));
 			}
 		}
 	}

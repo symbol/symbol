@@ -54,7 +54,12 @@ namespace catapult { namespace extensions {
 			nodes.forEach([serviceId, requiredRole, &nodesInfo](const auto& node, const auto& nodeInfo) {
 				auto weightMultiplier = GetWeightMultipler(nodeInfo.source());
 				const auto* pConnectionState = nodeInfo.getConnectionState(serviceId);
-				if (!pConnectionState || 0 == weightMultiplier || !HasFlag(requiredRole, node.metadata().Roles))
+				if (!pConnectionState)
+					return;
+
+				// decrease weight of banned nodes (this blocks banned dynamic nodes while allowing reconnects to banned static nodes)
+				weightMultiplier -= 0 == pConnectionState->BanAge ? 0 : 1;
+				if (0 == weightMultiplier || !HasFlag(requiredRole, node.metadata().Roles))
 					return;
 
 				// if the node is associated with the current service, mark it as either active or candidate
@@ -70,12 +75,15 @@ namespace catapult { namespace extensions {
 		}
 
 		utils::KeySet FindRemoveCandidates(const NodeScorePairs& nodePairs, uint32_t maxConnections, uint32_t maxConnectionAge) {
+			// never remove the last connection
 			utils::KeySet removeCandidates;
+			if (nodePairs.size() <= 1)
+				return removeCandidates;
 
-			// 1. if fewer than `maxConnections` active connections, no nodes are removed
-			// 2. if removal takes place, leave `maxConnections - 1` connections (this prevents all connections from being closed at once)
-			// 3. only remove nodes with sufficient age
-			auto maxNodesToRemove = nodePairs.size() >= maxConnections ? nodePairs.size() - maxConnections + 1 : 0;
+			// 1. only remove nodes with sufficient age
+			// 2. always remove all connections above `maxConnections`
+			// 3. always remove at least one connection to force reconnection of zombies
+			auto maxNodesToRemove = (nodePairs.size() >= maxConnections ? nodePairs.size() - maxConnections : 0) + 1;
 			for (const auto& pair : nodePairs) {
 				if (removeCandidates.size() == maxNodesToRemove)
 					break;
@@ -165,10 +173,6 @@ namespace catapult { namespace extensions {
 			numActiveNodes += result.AddCandidates.size();
 		}
 
-		// 4. preserve max connections if possible (removal assumes that at least one inactive node can be activated)
-		if (!result.RemoveCandidates.empty() && numActiveNodes < config.MaxConnections)
-			result.RemoveCandidates.erase(result.RemoveCandidates.begin());
-
 		return result;
 	}
 
@@ -179,9 +183,8 @@ namespace catapult { namespace extensions {
 
 		// 2. find removal candidates
 		// a. allow at most 1/4 of active nodes to be disconnected
-		// b. add one to adjust for FindRemoveCandidates behavior of assuming that at least one inactive node can be activated
-		// c. always retain at least one connection
-		auto adjustedMaxConnections = std::max<uint32_t>(1, config.MaxConnections * 3 / 4) + 1;
+		// b. always retain at least one connection
+		auto adjustedMaxConnections = std::max<uint32_t>(1, config.MaxConnections * 3 / 4);
 		return FindRemoveCandidates(nodesInfo.Actives, adjustedMaxConnections, config.MaxConnectionAge);
 	}
 }}

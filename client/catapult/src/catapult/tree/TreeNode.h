@@ -24,6 +24,8 @@
 #include <bitset>
 #include <memory>
 
+namespace catapult { namespace tree { class TreeNode; } }
+
 namespace catapult { namespace tree {
 
 	// region LeafTreeNode
@@ -57,6 +59,10 @@ namespace catapult { namespace tree {
 	/// Represents a branch tree node.
 	class BranchTreeNode {
 	public:
+		/// Maximum number of branch links.
+		static constexpr size_t Max_Links = 16;
+
+	public:
 		/// Creates a branch node with \a path.
 		explicit BranchTreeNode(const TreeNodePath& path);
 
@@ -73,6 +79,9 @@ namespace catapult { namespace tree {
 		/// Gets the branch link at \a index.
 		const Hash256& link(size_t index) const;
 
+		/// Gets a copy of the linked node at \a index or \c nullptr if no linked node is present.
+		std::unique_ptr<const TreeNode> linkedNode(size_t index) const;
+
 		/// Gets the index of the highest set link.
 		uint8_t highestLinkIndex() const;
 
@@ -86,13 +95,23 @@ namespace catapult { namespace tree {
 		/// Sets the branch \a link at \a index.
 		void setLink(const Hash256& link, size_t index);
 
+		/// Sets the branch link at \a index to \a node.
+		void setLink(const TreeNode& node, size_t index);
+
 		/// Clears the branch link at \a index.
 		void clearLink(size_t index);
 
+		/// Compacts all links by replacing node links with hash links.
+		void compactLinks();
+
+	private:
+		void setLink(size_t index);
+
 	private:
 		TreeNodePath m_path;
-		std::array<Hash256, 16> m_links;
-		std::bitset<16> m_linkSet;
+		std::array<Hash256, BranchTreeNode::Max_Links> m_links;
+		std::array<std::shared_ptr<const TreeNode>, BranchTreeNode::Max_Links> m_linkedNodes; // shared_ptr to allow copying
+		std::bitset<BranchTreeNode::Max_Links> m_linkSet;
 		mutable Hash256 m_hash;
 		mutable bool m_isDirty;
 	};

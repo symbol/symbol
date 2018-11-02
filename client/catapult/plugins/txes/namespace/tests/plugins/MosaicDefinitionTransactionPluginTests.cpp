@@ -74,7 +74,7 @@ namespace catapult { namespace plugins {
 		test::FillWithRandomData(transaction.Signer);
 
 		// Act:
-		pPlugin->publish(transaction, sub);
+		test::PublishTransaction(*pPlugin, transaction, sub);
 
 		// Assert:
 		EXPECT_EQ(5u, sub.numNotifications());
@@ -101,7 +101,7 @@ namespace catapult { namespace plugins {
 				transaction.Signer = config.NemesisPublicKey;
 
 			// Act:
-			pPlugin->publish(transaction, sub);
+			test::PublishTransaction(*pPlugin, transaction, sub);
 
 			// Assert:
 			assertTransfers(sub, transaction.Signer, config.SinkAddress);
@@ -159,9 +159,9 @@ namespace catapult { namespace plugins {
 		pTransaction->PropertiesPtr()[0] = { MosaicPropertyId::Duration, 5 };
 
 		// Act:
-		pPlugin->publish(*pTransaction, mosaicNameSub);
-		pPlugin->publish(*pTransaction, mosaicPropertiesSub);
-		pPlugin->publish(*pTransaction, mosaicDefinitionSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, mosaicNameSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, mosaicPropertiesSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, mosaicDefinitionSub);
 
 		// Assert:
 		ASSERT_EQ(1u, mosaicNameSub.numMatchingNotifications());
@@ -198,9 +198,9 @@ namespace catapult { namespace plugins {
 		pTransaction->PropertiesHeader.Divisibility = 7;
 
 		// Act:
-		pPlugin->publish(*pTransaction, mosaicNameSub);
-		pPlugin->publish(*pTransaction, mosaicPropertiesSub);
-		pPlugin->publish(*pTransaction, mosaicDefinitionSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, mosaicNameSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, mosaicPropertiesSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, mosaicDefinitionSub);
 
 		// Assert:
 		ASSERT_EQ(1u, mosaicNameSub.numMatchingNotifications());
@@ -231,7 +231,7 @@ namespace catapult { namespace plugins {
 		auto pTransaction = CreateTransactionWithPropertiesAndName<TTraits>(1, 0);
 
 		// Act:
-		pPlugin->publish(*pTransaction, mosaicNameSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, mosaicNameSub);
 
 		// Assert:
 		ASSERT_EQ(1u, mosaicNameSub.numMatchingNotifications());

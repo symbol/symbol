@@ -40,8 +40,7 @@ namespace catapult { namespace partialtransaction {
 			auto& nodes = state.nodes();
 
 			auto serviceId = ionet::ServiceIdentifier(0x50415254);
-			auto selector = extensions::CreateNodeSelector(serviceId, ionet::NodeRoles::Api, connectionsConfig, nodes);
-			auto task = extensions::CreateConnectPeersTask(nodes, packetWriters, serviceId, selector);
+			auto task = extensions::CreateConnectPeersTask(nodes, packetWriters, serviceId, ionet::NodeRoles::Api, connectionsConfig);
 			task.Name += " for service Pt";
 			return task;
 		}

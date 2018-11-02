@@ -52,16 +52,15 @@ namespace catapult { namespace harvesting {
 			}
 		};
 
-		auto CreateBlock(
+		std::unique_ptr<model::Block> CreateUnsignedBlock(
 				const NextBlockContext& context,
 				model::NetworkIdentifier networkIdentifier,
 				const crypto::KeyPair& keyPair,
-				const TransactionsInfo& info) {
-			auto pBlock = model::CreateBlock(context.ParentContext, networkIdentifier, keyPair.publicKey(), info.Transactions);
+				const TransactionsInfo& transactionsInfo) {
+			auto pBlock = model::CreateBlock(context.ParentContext, networkIdentifier, keyPair.publicKey(), transactionsInfo.Transactions);
 			pBlock->Difficulty = context.Difficulty;
 			pBlock->Timestamp = context.Timestamp;
-			pBlock->BlockTransactionsHash = info.TransactionsHash;
-			SignBlockHeader(keyPair, *pBlock);
+			pBlock->BlockTransactionsHash = transactionsInfo.TransactionsHash;
 			return pBlock;
 		}
 	}
@@ -70,11 +69,11 @@ namespace catapult { namespace harvesting {
 			const cache::CatapultCache& cache,
 			const model::BlockChainConfiguration& config,
 			const UnlockedAccounts& unlockedAccounts,
-			const TransactionsInfoSupplier& transactionsInfoSupplier)
+			const Suppliers& suppliers)
 			: m_cache(cache)
 			, m_config(config)
 			, m_unlockedAccounts(unlockedAccounts)
-			, m_transactionsInfoSupplier(transactionsInfoSupplier)
+			, m_suppliers(suppliers)
 	{}
 
 	std::unique_ptr<model::Block> Harvester::harvest(const model::BlockElement& lastBlockElement, Timestamp timestamp) {
@@ -112,7 +111,14 @@ namespace catapult { namespace harvesting {
 		if (!pHarvesterKeyPair)
 			return nullptr;
 
-		auto transactionsInfo = m_transactionsInfoSupplier(m_config.MaxTransactionsPerBlock);
-		return CreateBlock(context, m_config.Network.Identifier, *pHarvesterKeyPair, transactionsInfo);
+		auto transactionsInfo = m_suppliers.SupplyTransactions(m_config.MaxTransactionsPerBlock);
+		auto pBlock = CreateUnsignedBlock(context, m_config.Network.Identifier, *pHarvesterKeyPair, transactionsInfo);
+		auto stateHashResult = m_suppliers.CalculateStateHash(*pBlock);
+		if (!stateHashResult.second)
+			return nullptr;
+
+		pBlock->StateHash = stateHashResult.first;
+		SignBlockHeader(*pHarvesterKeyPair, *pBlock);
+		return pBlock;
 	}
 }}

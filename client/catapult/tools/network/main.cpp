@@ -138,9 +138,11 @@ namespace catapult { namespace tools { namespace network {
 			out
 				<< "{ "
 				<< "age: " << connectionState.Age
+				<< ", ban-age: " << connectionState.BanAge
 				<< ", attempts: " << connectionState.NumAttempts
 				<< ", successes: " << connectionState.NumSuccesses
 				<< ", failures: " << connectionState.NumFailures
+				<< ", c-failures: " << connectionState.NumConsecutiveFailures
 				<< " }";
 			return out.str();
 		}

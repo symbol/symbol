@@ -25,7 +25,7 @@
 
 namespace catapult { namespace handlers {
 
-#define TEST_CLASS CosignatureHandlersTests
+#define TEST_CLASS CosignatureHandlerTests
 
 	namespace {
 		struct PushCosignaturesTraits {

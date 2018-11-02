@@ -230,7 +230,7 @@ namespace catapult { namespace chain {
 					const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer)
 					: m_pLocalChainApi(pLocalChainApi)
 					, m_compareChainOptions(config.MaxBlocksPerSyncAttempt, config.MaxRollbackBlocks)
-					, m_blocksFromOptions(config.MaxRollbackBlocks, config.MaxChainBytesPerSyncAttempt)
+					, m_blocksFromOptions(config.MaxBlocksPerSyncAttempt, config.MaxChainBytesPerSyncAttempt)
 					, m_pUnprocessedElements(std::make_shared<UnprocessedElements>(
 							blockRangeConsumer,
 							3 * config.MaxChainBytesPerSyncAttempt))

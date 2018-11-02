@@ -42,17 +42,22 @@ namespace catapult { namespace utils {
 
 	ConfigurationBag ExtractSectionAsBag(const ConfigurationBag& bag, const char* section) {
 		ConfigurationBag::ValuesContainer values;
-		values.emplace("", bag.getAll<std::string>(section));
+		values.emplace("", bag.getAllOrdered<std::string>(section));
 		return ConfigurationBag(std::move(values));
 	}
 
 	std::pair<std::unordered_set<std::string>, size_t> ExtractSectionAsUnorderedSet(const ConfigurationBag& bag, const char* section) {
-		auto keyValuePairs = bag.getAll<bool>(section);
+		auto pair = ExtractSectionAsOrderedVector(bag, section);
+		return std::make_pair(std::unordered_set<std::string>(pair.first.cbegin(), pair.first.cend()), pair.second);
+	}
 
-		std::unordered_set<std::string> enabledKeys;
+	std::pair<std::vector<std::string>, size_t> ExtractSectionAsOrderedVector(const ConfigurationBag& bag, const char* section) {
+		auto keyValuePairs = bag.getAllOrdered<bool>(section);
+
+		std::vector<std::string> enabledKeys;
 		for (const auto& pair : keyValuePairs) {
 			if (pair.second)
-				enabledKeys.emplace(pair.first);
+				enabledKeys.emplace_back(pair.first);
 		}
 
 		return std::make_pair(std::move(enabledKeys), keyValuePairs.size());

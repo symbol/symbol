@@ -19,10 +19,15 @@
 **/
 
 #pragma once
-#include "AccountInfosProducerFactory.h"
-#include "catapult/ionet/PacketHandlers.h"
+#include "catapult/handlers/HandlerTypes.h"
+#include "catapult/model/CacheEntryInfo.h"
+
+namespace catapult { namespace ionet { class ServerPacketHandlers; } }
 
 namespace catapult { namespace handlers {
+
+	/// Alias for creating an account info producer given a range of addresses.
+	using AccountInfosProducerFactory = SharedPointerProducerFactory<Address, model::CacheEntryInfo<Address>>;
 
 	/// Registers an account infos handler in \a handlers that responds with account infos
 	/// returned by a producer from \a accountInfosProducerFactory.

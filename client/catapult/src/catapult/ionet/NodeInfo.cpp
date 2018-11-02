@@ -90,4 +90,21 @@ namespace catapult { namespace ionet {
 
 		pConnectionState->Age = 0;
 	}
+
+	void NodeInfo::updateBan(ServiceIdentifier serviceId, uint32_t maxConnectionBanAge, uint32_t numConsecutiveFailuresBeforeBanning) {
+		auto* pConnectionState = FindByIdentifier(m_connectionStates.begin(), m_connectionStates.end(), serviceId);
+		if (!pConnectionState)
+			return;
+
+		if (pConnectionState->BanAge == maxConnectionBanAge)
+			pConnectionState->NumConsecutiveFailures = 0;
+
+		// increase the ban age if currently banned; otherwise, clear the ban
+		// clearing needs to be done separately from above in case a banned node is selected and connected
+		// (which will reduce NumConsecutiveFailures but not BanAge)
+		if (pConnectionState->NumConsecutiveFailures >= numConsecutiveFailuresBeforeBanning)
+			++pConnectionState->BanAge;
+		else
+			pConnectionState->BanAge = 0;
+	}
 }}

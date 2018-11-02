@@ -20,6 +20,7 @@
 
 #include "networkheight/src/NetworkHeightService.h"
 #include "networkheight/src/NetworkChainHeight.h"
+#include "networkheight/src/NetworkHeightConfiguration.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
@@ -34,7 +35,11 @@ namespace catapult { namespace networkheight {
 		constexpr auto Task_Name = "network chain height detection";
 
 		struct NetworkHeightServiceTraits {
-			static constexpr auto CreateRegistrar = CreateNetworkHeightServiceRegistrar;
+			static auto CreateRegistrar() {
+				auto networkHeightConfig = NetworkHeightConfiguration::Uninitialized();
+				networkHeightConfig.MaxNodes = 4;
+				return CreateNetworkHeightServiceRegistrar(networkHeightConfig);
+			}
 		};
 
 		class TestContext : public test::ServiceLocatorTestContext<NetworkHeightServiceTraits> {
@@ -42,12 +47,16 @@ namespace catapult { namespace networkheight {
 			TestContext() : TestContext(std::vector<Height>{})
 			{}
 
-			explicit TestContext(std::vector<Height>&& heights) {
+			explicit TestContext(std::vector<Height>&& heights) : NumPeers(0) {
 				// set up hooks
-				testState().state().hooks().setRemoteChainHeightsRetriever([heights = std::move(heights)](const auto&) mutable {
+				testState().state().hooks().setRemoteChainHeightsRetriever([this, heights = std::move(heights)](auto numPeers) mutable {
+					NumPeers = numPeers;
 					return thread::make_ready_future(std::move(heights));
 				});
 			}
+
+		public:
+			size_t NumPeers;
 		};
 
 		std::shared_ptr<NetworkChainHeight> GetNetworkChainHeight(const extensions::ServiceLocator& locator) {
@@ -73,6 +82,22 @@ namespace catapult { namespace networkheight {
 		auto pNetworkChainHeight = GetNetworkChainHeight(context.locator());
 		ASSERT_TRUE(!!pNetworkChainHeight);
 		EXPECT_EQ(0u, pNetworkChainHeight->load());
+	}
+
+	// endregion
+
+	// region network height config
+
+	TEST(TEST_CLASS, NetworkHeightServiceRespectsMaxNodes) {
+		// Arrange:
+		TestContext context({ Height(1), Height(2), Height(3), Height(4) });
+		test::RunTaskTest(context, 1, Task_Name, [&context](const auto& task) mutable {
+			// Act:
+			task.Callback().get();
+
+			// Assert:
+			EXPECT_EQ(4u, context.NumPeers);
+		});
 	}
 
 	// endregion
@@ -145,6 +170,20 @@ namespace catapult { namespace networkheight {
 				action(*pNetworkChainHeight, task);
 			});
 		}
+
+		void AssertMedian(std::vector<Height>&& heights, uint64_t expectedMedian) {
+			// Arrange:
+			TestContext context(std::move(heights));
+			RunTaskTest(context, Task_Name, [expectedMedian](auto& networkChainHeight, const auto& task) {
+				networkChainHeight = 0;
+
+				// Act:
+				task.Callback().get();
+
+				// Assert:
+				EXPECT_EQ(expectedMedian, networkChainHeight);
+			});
+		}
 	}
 
 	TEST(TEST_CLASS, NetworkChainHeightDetectionTaskIsScheduled) {
@@ -152,33 +191,47 @@ namespace catapult { namespace networkheight {
 		test::AssertRegisteredTask(TestContext(), 1, Task_Name);
 	}
 
-	TEST(TEST_CLASS, NetworkChainHeightDetectionUpdatesChainHeightIfMaxRetrievedHeightIsLarger) {
-		// Arrange:
+	TEST(TEST_CLASS, MedianIsCalculatedAsExpected) {
+		// Assert: odd number of elements
+		AssertMedian(std::vector<Height>{ Height(1) }, 1);
+		AssertMedian(std::vector<Height>{ Height(4) }, 4);
+		AssertMedian(std::vector<Height>{ Height(9), Height(4), Height(16), }, 9);
+		AssertMedian(std::vector<Height>{ Height(17), Height(9), Height(18), Height(4), Height(16), }, 16);
+
+		// - even number of elements
+		AssertMedian(std::vector<Height>{ Height(2), Height(2) }, 2);
+		AssertMedian(std::vector<Height>{ Height(5), Height(1) }, 3);
+		AssertMedian(std::vector<Height>{ Height(1), Height(17), Height(7), Height(5) }, 6);
+		AssertMedian(std::vector<Height>{ Height(11), Height(5), Height(13), Height(21), Height(1), Height(4) }, 8);
+	}
+
+	TEST(TEST_CLASS, NetworkChainHeightDetectionUpdatesChainHeightIfMedianOfRetrievedHeightsIsLarger) {
+		// Arrange: median is 33
 		TestContext context({ Height(12), Height(57), Height(35), Height(31) });
 		RunTaskTest(context, Task_Name, [](auto& networkChainHeight, const auto& task) {
-			networkChainHeight = 41;
+			networkChainHeight = 32;
 
 			// Act:
 			auto result = task.Callback().get();
 
 			// Assert:
 			EXPECT_EQ(thread::TaskResult::Continue, result);
-			EXPECT_EQ(57u, networkChainHeight);
+			EXPECT_EQ(33u, networkChainHeight);
 		});
 	}
 
-	TEST(TEST_CLASS, NetworkChainHeightDetectionDoesNotUpdateChainHeightIfMaxRetrievedHeightIsSmaller) {
+	TEST(TEST_CLASS, NetworkChainHeightDetectionDoesNotUpdateChainHeightIfMedianOfRetrievedHeightsIsSmaller) {
 		// Arrange:
 		TestContext context({ Height(12), Height(57), Height(35), Height(31) });
 		RunTaskTest(context, Task_Name, [](auto& networkChainHeight, const auto& task) {
-			networkChainHeight = 58;
+			networkChainHeight = 34;
 
 			// Act:
 			auto result = task.Callback().get();
 
 			// Assert:
 			EXPECT_EQ(thread::TaskResult::Continue, result);
-			EXPECT_EQ(58u, networkChainHeight);
+			EXPECT_EQ(34u, networkChainHeight);
 		});
 	}
 

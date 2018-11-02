@@ -20,6 +20,7 @@
 
 #pragma once
 #include "utils/BaseValue.h"
+#include "utils/HexFormatter.h"
 #include "utils/Logging.h"
 #include "utils/NonCopyable.h"
 #include <boost/exception/exception.hpp>
@@ -95,23 +96,33 @@ namespace catapult {
 	struct ErrorParam2 {};
 
 	namespace exception_detail {
-		/// Converts \a value to a raw value.
+		/// Converts \a value into a value that can be stored in a catapult exception.
 		/// \note pointer types are not supported.
 		template<typename T, typename X = typename std::enable_if<!std::is_pointer<T>::value>::type>
 		constexpr T ConvertToValue(const T& value) {
 			return value;
 		}
 
-		/// Converts \a value to a raw value.
+		/// Converts \a value into a value that can be stored in a catapult exception.
 		template<typename TValue, typename TTag>
 		constexpr TValue ConvertToValue(const utils::BaseValue<TValue, TTag>& value) {
 			return value.unwrap();
 		}
 
-		/// Converts \a value to a raw value.
+		/// Converts \a value into a value that can be stored in a catapult exception.
 		template<typename T>
 		constexpr T ConvertToValue(const std::atomic<T>& value) {
 			return value;
+		}
+
+		/// Converts \a value into a value that can be stored in a catapult exception.
+		template<typename TInputIterator>
+		std::string ConvertToValue(const utils::ContainerHexFormatter<TInputIterator>& value) {
+			// ContainerHexFormatter only holds iterators to data, which may not be valid at catch site
+			// since an exception is being thrown, perf doesn't matter, so stringify proactively
+			std::ostringstream out;
+			out << value;
+			return out.str();
 		}
 
 		/// Helper class for creating boost::error_info.

@@ -24,7 +24,10 @@
 #include "catapult/utils/HexFormatter.h"
 #include "tests/TestHarness.h"
 
-namespace catapult { namespace cache { class CatapultCacheDelta; } }
+namespace catapult {
+	namespace cache { class CatapultCacheDelta; }
+	namespace state { class MultisigEntry; }
+}
 
 namespace catapult { namespace test {
 
@@ -65,4 +68,7 @@ namespace catapult { namespace test {
 			const std::vector<Key>& cosignatoryKeys,
 			uint8_t minApproval = 0,
 			uint8_t minRemoval = 0);
+
+	/// Asserts that multisig entry \a actual is equal to \a expected.
+	void AssertEqual(const state::MultisigEntry& expected, const state::MultisigEntry& actual);
 }}

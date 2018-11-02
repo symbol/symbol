@@ -22,6 +22,7 @@
 #include "Block.h"
 #include "NotificationSubscriber.h"
 #include "TransactionPlugin.h"
+#include "catapult/constants.h"
 
 namespace catapult { namespace model {
 
@@ -69,6 +70,7 @@ namespace catapult { namespace model {
 
 			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
 				sub.notify(TransactionNotification(transaction.Signer, hash, transaction.Type, transaction.Deadline));
+				sub.notify(BalanceDebitNotification(transaction.Signer, Xem_Id, transaction.Fee));
 
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
 				sub.notify(SignatureNotification(transaction.Signer, transaction.Signature, plugin.dataBuffer(transaction)));
@@ -80,8 +82,9 @@ namespace catapult { namespace model {
 
 		class CustomNotificationPublisher : public NotificationPublisher {
 		public:
-			explicit CustomNotificationPublisher(const TransactionRegistry& transactionRegistry)
+			CustomNotificationPublisher(const TransactionRegistry& transactionRegistry, const PublisherContext& publisherContext)
 					: m_transactionRegistry(transactionRegistry)
+					, m_publisherContext(publisherContext)
 			{}
 
 		public:
@@ -94,18 +97,19 @@ namespace catapult { namespace model {
 
 			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
-				plugin.publish(WeakEntityInfoT<model::Transaction>(transaction, hash), sub);
+				plugin.publish(WeakEntityInfoT<model::Transaction>(transaction, hash), m_publisherContext, sub);
 			}
 
 		private:
 			const TransactionRegistry& m_transactionRegistry;
+			PublisherContext m_publisherContext;
 		};
 
 		class AllNotificationPublisher : public NotificationPublisher {
 		public:
-			explicit AllNotificationPublisher(const TransactionRegistry& transactionRegistry)
+			AllNotificationPublisher(const TransactionRegistry& transactionRegistry, const PublisherContext& publisherContext)
 					: m_basicPublisher(transactionRegistry)
-					, m_customPublisher(transactionRegistry)
+					, m_customPublisher(transactionRegistry, publisherContext)
 			{}
 
 		public:
@@ -122,16 +126,17 @@ namespace catapult { namespace model {
 
 	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
 			const TransactionRegistry& transactionRegistry,
+			const PublisherContext& publisherContext,
 			PublicationMode mode) {
 		switch (mode) {
 		case PublicationMode::Basic:
 			return std::make_unique<BasicNotificationPublisher>(transactionRegistry);
 
 		case PublicationMode::Custom:
-			return std::make_unique<CustomNotificationPublisher>(transactionRegistry);
+			return std::make_unique<CustomNotificationPublisher>(transactionRegistry, publisherContext);
 
 		default:
-			return std::make_unique<AllNotificationPublisher>(transactionRegistry);
+			return std::make_unique<AllNotificationPublisher>(transactionRegistry, publisherContext);
 		}
 	}
 }}

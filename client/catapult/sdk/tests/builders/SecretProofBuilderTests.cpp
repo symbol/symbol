@@ -29,11 +29,31 @@ namespace catapult { namespace builders {
 		using RegularTraits = test::RegularTransactionTraits<model::SecretProofTransaction>;
 		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedSecretProofTransaction>;
 
-		template<typename TTraits, typename TValidationFunction>
+		struct TransactionProperties {
+		public:
+			TransactionProperties()
+					: HashAlgorithm(model::LockHashAlgorithm::Op_Sha3)
+					, Secret()
+			{}
+
+		public:
+			model::LockHashAlgorithm HashAlgorithm;
+			Hash512 Secret;
+			RawBuffer Proof;
+		};
+
+		template<typename TTransaction>
+		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
+			EXPECT_EQ(expectedProperties.HashAlgorithm, transaction.HashAlgorithm);
+			EXPECT_EQ(expectedProperties.Secret, transaction.Secret);
+			EXPECT_TRUE(0 == std::memcmp(expectedProperties.Proof.pData, transaction.ProofPtr(), expectedProperties.Proof.Size));
+		}
+
+		template<typename TTraits>
 		void AssertCanBuildTransaction(
 				size_t additionalSize,
-				const consumer<SecretProofBuilder&>& buildTransaction,
-				const TValidationFunction& validateTransaction) {
+				const TransactionProperties& expectedProperties,
+				const consumer<SecretProofBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
@@ -49,15 +69,7 @@ namespace catapult { namespace builders {
 			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Secret_Proof, pTransaction->Type);
 
-			validateTransaction(*pTransaction);
-		}
-
-		auto CreatePropertyChecker(model::LockHashAlgorithm hashAlgorithm, const Hash512& secret, const RawBuffer& proof) {
-			return [hashAlgorithm, &secret, &proof](const auto& transaction) {
-				EXPECT_EQ(hashAlgorithm, transaction.HashAlgorithm);
-				EXPECT_EQ(secret, transaction.Secret);
-				EXPECT_TRUE(0 == std::memcmp(proof.pData, transaction.ProofPtr(), proof.Size));
-			};
+			AssertTransactionProperties(expectedProperties, *pTransaction);
 		}
 	}
 
@@ -71,10 +83,7 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanCreateTransactionWithDefaultValues) {
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				0u,
-				[](const auto&) {},
-				CreatePropertyChecker(model::LockHashAlgorithm::Op_Sha3, Hash512(), RawBuffer()));
+		AssertCanBuildTransaction<TTraits>(0, TransactionProperties(), [](const auto&) {});
 	}
 
 	// endregion
@@ -82,39 +91,38 @@ namespace catapult { namespace builders {
 	// region additional transaction fields
 
 	TRAITS_BASED_TEST(CanSetHashAlgorithm) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.HashAlgorithm = model::LockHashAlgorithm::Op_Hash_160;
+
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				0u,
-				[](auto& builder) {
-					builder.setHashAlgorithm(model::LockHashAlgorithm::Op_Hash_160);
-				},
-				CreatePropertyChecker(model::LockHashAlgorithm::Op_Hash_160, Hash512(), RawBuffer()));
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [](auto& builder) {
+			builder.setHashAlgorithm(model::LockHashAlgorithm::Op_Hash_160);
+		});
 	}
 
 	TRAITS_BASED_TEST(CanSetSecret) {
 		// Arrange:
-		auto secret = test::GenerateRandomData<Hash512_Size>();
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Secret = test::GenerateRandomData<Hash512_Size>();
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				0u,
-				[&secret](auto& builder) {
-					builder.setSecret(secret);
-				},
-				CreatePropertyChecker(model::LockHashAlgorithm::Op_Sha3, secret, RawBuffer()));
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [&secret = expectedProperties.Secret](auto& builder) {
+			builder.setSecret(secret);
+		});
 	}
 
 	TRAITS_BASED_TEST(CanSetProof) {
 		// Arrange:
 		auto proof = test::GenerateRandomData<20>();
 
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Proof = proof;
+
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				proof.size(),
-				[&proof](auto& builder) {
-					builder.setProof(proof);
-				},
-				CreatePropertyChecker(model::LockHashAlgorithm::Op_Sha3, Hash512(), proof));
+		AssertCanBuildTransaction<TTraits>(20, expectedProperties, [&proof](auto& builder) {
+			builder.setProof(proof);
+		});
 	}
 
 	// endregion

@@ -69,20 +69,14 @@ namespace catapult { namespace validators {
 				size_t multisigAccountIndex,
 				size_t cosignatoryKeyIndex) {
 			// Arrange:
-			// - setup cache
 			auto keys = test::GenerateKeys(Num_Network_Accounts);
 			auto cache = CreateCacheMultisigNetwork(keys);
-
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
 
 			model::ModifyMultisigNewCosignerNotification notification(keys[multisigAccountIndex], keys[cosignatoryKeyIndex]);
 			auto pValidator = CreateModifyMultisigLoopAndLevelValidator(static_cast<uint8_t>(maxMultisigDepth));
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result)

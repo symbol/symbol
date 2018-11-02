@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 		template<typename TTransaction, typename TDerivedTransaction, typename TPlugin>
 		class BasicTransactionPluginT : public TPlugin {
 		private:
-			using PublishFunc = consumer<const TDerivedTransaction&, NotificationSubscriber&>;
+			using PublishFunc = consumer<const TDerivedTransaction&, const PublisherContext&, NotificationSubscriber&>;
 
 		public:
 			explicit BasicTransactionPluginT(const PublishFunc& publishFunc) : m_publishFunc(publishFunc)
@@ -60,8 +60,11 @@ namespace catapult { namespace model {
 			}
 
 		protected:
-			void publishImpl(const TTransaction& transaction, NotificationSubscriber& sub) const {
-				m_publishFunc(static_cast<const TDerivedTransaction&>(transaction), sub);
+			void publishImpl(
+					const TTransaction& transaction,
+					const PublisherContext& publisherContext,
+					NotificationSubscriber& sub) const {
+				m_publishFunc(static_cast<const TDerivedTransaction&>(transaction), publisherContext, sub);
 			}
 
 		private:
@@ -80,8 +83,11 @@ namespace catapult { namespace model {
 			{}
 
 		public:
-			void publish(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) const override {
-				BaseType::publishImpl(transaction, sub);
+			void publish(
+					const EmbeddedTransaction& transaction,
+					const PublisherContext& publisherContext,
+					NotificationSubscriber& sub) const override {
+				BaseType::publishImpl(transaction, publisherContext, sub);
 			}
 		};
 
@@ -98,8 +104,11 @@ namespace catapult { namespace model {
 			{}
 
 		public:
-			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, NotificationSubscriber& sub) const override {
-				BaseType::publishImpl(transactionInfo.entity(), sub);
+			void publish(
+					const WeakEntityInfoT<Transaction>& transactionInfo,
+					const PublisherContext& publisherContext,
+					NotificationSubscriber& sub) const override {
+				BaseType::publishImpl(transactionInfo.entity(), publisherContext, sub);
 			}
 
 			RawBuffer dataBuffer(const Transaction& transaction) const override {
@@ -130,5 +139,13 @@ namespace catapult { namespace model {
 		return TransactionPluginFactory::Create<NAME##Transaction, Embedded##NAME##Transaction>( \
 				PUBLISH<NAME##Transaction>, \
 				PUBLISH<Embedded##NAME##Transaction>); \
+	}
+
+/// Defines a transaction plugin factory for \a NAME transaction using \a PUBLISH accepting \a CONFIG_TYPE configuration.
+#define DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(NAME, PUBLISH, CONFIG_TYPE) \
+	std::unique_ptr<TransactionPlugin> Create##NAME##TransactionPlugin(const CONFIG_TYPE& config) { \
+		return TransactionPluginFactory::Create<NAME##Transaction, Embedded##NAME##Transaction>( \
+				PUBLISH<NAME##Transaction>(config), \
+				PUBLISH<Embedded##NAME##Transaction>(config)); \
 	}
 }}

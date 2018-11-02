@@ -49,7 +49,7 @@ namespace catapult { namespace test {
 
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const ConstTransactions& transactions) {
 		model::PreviousBlockContext context;
-		auto pBlock = CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
+		auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
 		SignBlock(signer, *pBlock);
 		return pBlock;
 	}
@@ -60,7 +60,7 @@ namespace catapult { namespace test {
 
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions) {
 		auto transactions = GenerateRandomTransactions(numTransactions);
-		return GenerateRandomBlockWithTransactions(test::MakeConst(transactions));
+		return GenerateRandomBlockWithTransactions(MakeConst(transactions));
 	}
 
 	std::unique_ptr<model::Block> GenerateBlockWithTransactionsAtHeight(size_t numTransactions, size_t height) {
@@ -75,7 +75,7 @@ namespace catapult { namespace test {
 
 	std::unique_ptr<model::Block> GenerateBlockWithTransactionsAtHeight(Height height) {
 		auto pBlock = GenerateBlockWithTransactionsAtHeight(5, height);
-		test::FillWithRandomData(pBlock->PreviousBlockHash);
+		FillWithRandomData(pBlock->PreviousBlockHash);
 		return pBlock;
 	}
 
@@ -86,10 +86,19 @@ namespace catapult { namespace test {
 	}
 
 	std::unique_ptr<model::Block> GenerateVerifiableBlockAtHeight(Height height) {
-		model::PreviousBlockContext context;
 		auto signer = GenerateKeyPair();
-		auto pBlock = CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
+
+		model::PreviousBlockContext context;
+		auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
+		auto difficultyAdjustment = (Difficulty::Max() - Difficulty::Min()).unwrap() * RandomByte() / std::numeric_limits<uint8_t>::max();
+
 		pBlock->Height = height;
+		pBlock->Timestamp = GenerateRandomValue<Timestamp>();
+		pBlock->Difficulty = Difficulty::Min() + Difficulty::Unclamped(difficultyAdjustment);
+		FillWithRandomData(pBlock->PreviousBlockHash);
+		FillWithRandomData(pBlock->BlockTransactionsHash);
+		FillWithRandomData(pBlock->StateHash);
+
 		SignBlock(signer, *pBlock);
 		return pBlock;
 	}
@@ -104,12 +113,13 @@ namespace catapult { namespace test {
 		auto keyPair = crypto::KeyPair::FromString("A41BE076B942D915EA3330B135D35C5A959A2DCC50BBB393C6407984D4A3B564");
 		ConstTransactions transactions;
 		transactions.push_back(GenerateDeterministicTransaction());
-		auto pBlock = test::GenerateBlockWithTransactions(keyPair, transactions);
+		auto pBlock = GenerateBlockWithTransactions(keyPair, transactions);
 		pBlock->Difficulty = Difficulty(123'456'789'123'456);
 		pBlock->Height = Height(12345);
 		pBlock->Signer = keyPair.publicKey();
 		pBlock->Timestamp = Timestamp(54321);
 		pBlock->PreviousBlockHash = { { static_cast<uint8_t>(123) } };
+		pBlock->StateHash = { { static_cast<uint8_t>(242), static_cast<uint8_t>(111) } };
 		SignBlock(keyPair, *pBlock);
 		return pBlock;
 	}
@@ -152,9 +162,11 @@ namespace catapult { namespace test {
 		blockElement.EntityHash = hash;
 		for (auto& transactionElement : blockElement.Transactions) {
 			transactionElement.OptionalExtractedAddresses = std::make_shared<model::AddressSet>();
-			transactionElement.OptionalExtractedAddresses->emplace(test::GenerateRandomData<Address_Decoded_Size>());
+			transactionElement.OptionalExtractedAddresses->emplace(GenerateRandomData<Address_Decoded_Size>());
 		}
 
+		// add random data to ensure it is roundtripped correctly
+		blockElement.SubCacheMerkleRoots = GenerateRandomDataVector<Hash256>(3);
 		return blockElement;
 	}
 
@@ -184,6 +196,7 @@ namespace catapult { namespace test {
 		EXPECT_EQ(expectedBlockElement.Block, blockElement.Block);
 		EXPECT_EQ(expectedBlockElement.EntityHash, blockElement.EntityHash);
 		EXPECT_EQ(expectedBlockElement.GenerationHash, blockElement.GenerationHash);
+		EXPECT_EQ(expectedBlockElement.SubCacheMerkleRoots, blockElement.SubCacheMerkleRoots);
 		AssertTransactionHashes(expectedBlockElement.Transactions, blockElement.Transactions);
 	}
 

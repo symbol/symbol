@@ -62,9 +62,9 @@ namespace catapult { namespace state {
 
 		// Act:
 		RootNamespace root(id, owner, test::CreateLifetime(234, 321));
-		root.add(state::Namespace(test::CreatePath({ 123, 124 })));
-		root.add(state::Namespace(test::CreatePath({ 123, 125 })));
-		root.add(state::Namespace(test::CreatePath({ 123, 124, 126 })));
+		root.add(Namespace(test::CreatePath({ 123, 124 })));
+		root.add(Namespace(test::CreatePath({ 123, 125 })));
+		root.add(Namespace(test::CreatePath({ 123, 124, 126 })));
 
 		// Assert:
 		EXPECT_EQ(id, root.id());
@@ -357,6 +357,47 @@ namespace catapult { namespace state {
 		EXPECT_EQ(owner, renewedRoot.owner());
 		EXPECT_EQ(4u, root.size());
 		EXPECT_EQ(&root.children(), &renewedRoot.children());
+	}
+
+	// endregion
+
+	// region sortChildren
+
+	namespace {
+		void SeedWithOutOfOrderChildren(RootNamespace& root) {
+			std::vector<std::vector<NamespaceId::ValueType>> paths{
+				{ 123, 753 },
+				{ 123, 753, 129 },
+				{ 123, 753, 127 },
+				{ 123, 124 },
+				{ 123, 124, 122 },
+				{ 123, 124, 121 }
+			};
+
+			for (const auto& rawPath : paths)
+				root.add(Namespace(test::CreatePath(rawPath)));
+		}
+	}
+
+	TEST(TEST_CLASS, CanSortChildren) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto root = CreateDefaultRoot(owner, 123);
+		SeedWithOutOfOrderChildren(root);
+
+		// Sanity: child with path size 3 is first in map
+		const auto& children = root.children();
+		EXPECT_EQ(3u, children.cbegin()->second.size());
+
+		// Act:
+		auto sortedChildren = root.sortChildren();
+
+		// Assert:
+		Namespace::Path path;
+		for (const auto& childPath : sortedChildren) {
+			EXPECT_TRUE(std::lexicographical_compare(path.cbegin(), path.cend(), childPath.cbegin(), childPath.cend()));
+			path = childPath;
+		}
 	}
 
 	// endregion

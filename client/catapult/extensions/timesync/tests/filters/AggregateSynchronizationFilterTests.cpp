@@ -164,6 +164,7 @@ namespace catapult { namespace timesync { namespace filters {
 				return 0 == sample.timeOffsetToRemote();
 			});
 		}
+
 		AggregateSynchronizationFilter aggregateFilter(filters);
 		auto samples = CreateSamplesWithIncreasingOffsets(5);
 

@@ -26,12 +26,20 @@ namespace catapult { namespace cache {
 
 #define TEST_CLASS ReadOnlyViewSupplierTests
 
-	using SimpleReadOnlyViewSupplier = ReadOnlyViewSupplier<test::SimpleCacheView>;
+	namespace {
+		using SimpleReadOnlyViewSupplier = ReadOnlyViewSupplier<test::SimpleCacheView>;
+
+		test::SimpleCacheState CreateState(size_t id) {
+			test::SimpleCacheState state;
+			state.Id = id;
+			return state;
+		}
+	}
 
 	TEST(TEST_CLASS, CanCreateViewSupplier) {
 		// Act:
-		size_t id = 8;
-		SimpleReadOnlyViewSupplier supplier(id);
+		auto state = CreateState(8);
+		SimpleReadOnlyViewSupplier supplier(test::SimpleCacheViewMode::Iterable, state);
 
 		// Assert:
 		EXPECT_EQ(8u, supplier.id());
@@ -39,8 +47,8 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateReadOnlyView) {
 		// Arrange:
-		size_t id = 7;
-		SimpleReadOnlyViewSupplier supplier(id);
+		auto state = CreateState(7);
+		SimpleReadOnlyViewSupplier supplier(test::SimpleCacheViewMode::Iterable, state);
 
 		// Act:
 		const auto& readOnlyView = supplier.asReadOnly();
@@ -51,8 +59,8 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanMoveConstructSupplier) {
 		// Arrange:
-		size_t id = 6;
-		SimpleReadOnlyViewSupplier supplier1(id);
+		auto state = CreateState(6);
+		SimpleReadOnlyViewSupplier supplier1(test::SimpleCacheViewMode::Iterable, state);
 		const auto& readOnlyView1 = supplier1.asReadOnly();
 
 		// Act:
@@ -67,8 +75,8 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, ReadOnlyViewIsReused) {
 		// Arrange:
-		size_t id = 5;
-		SimpleReadOnlyViewSupplier supplier(id);
+		auto state = CreateState(5);
+		SimpleReadOnlyViewSupplier supplier(test::SimpleCacheViewMode::Iterable, state);
 
 		// Act:
 		const auto& readOnlyView1 = supplier.asReadOnly();

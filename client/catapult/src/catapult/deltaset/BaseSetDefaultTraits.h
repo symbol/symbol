@@ -79,6 +79,12 @@ namespace catapult { namespace deltaset {
 			return value;
 		}
 
+		/// Converts \a key to a storage type.
+		template<typename TIterator>
+		static const StorageType& ToStorage(const KeyType& key, TIterator&&) {
+			return key;
+		}
+
 		/// Converts a storage type (\a element) to a value type.
 		static constexpr const ValueType& ToValue(const StorageType& element) {
 			return element;
@@ -112,6 +118,12 @@ namespace catapult { namespace deltaset {
 		/// Converts a value type (\a value) to a storage type.
 		static constexpr StorageType ToStorage(const ValueType& value) {
 			return std::make_pair(ToKey(value), value);
+		}
+
+		/// Converts \a iter to a storage type.
+		template<typename TIterator>
+		static const StorageType& ToStorage(const KeyType&, TIterator&& iter) {
+			return *iter;
 		}
 
 		/// Converts a storage type (\a element) to a value type.

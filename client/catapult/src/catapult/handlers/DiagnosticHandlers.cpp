@@ -87,12 +87,8 @@ namespace catapult { namespace handlers {
 
 						auto* pConnectionState = pNodeInfo->ConnectionStatesPtr();
 						for (const auto& serviceId : serviceIds) {
-							const auto& connectionState = *nodeInfo.getConnectionState(serviceId);
 							pConnectionState->ServiceId = serviceId;
-							pConnectionState->Age = connectionState.Age;
-							pConnectionState->NumAttempts = connectionState.NumAttempts;
-							pConnectionState->NumSuccesses = connectionState.NumSuccesses;
-							pConnectionState->NumFailures = connectionState.NumFailures;
+							pConnectionState->Update(*nodeInfo.getConnectionState(serviceId));
 							++pConnectionState;
 						}
 

@@ -20,7 +20,7 @@
 
 #pragma once
 #include "plugins/txes/namespace/src/model/NamespaceConstants.h"
-#include "catapult/utils/Array.h"
+#include "catapult/utils/CheckedArray.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace extensions {
@@ -29,7 +29,7 @@ namespace catapult { namespace extensions {
 	MosaicId GenerateMosaicId(const RawString& name);
 
 	/// A namespace path.
-	using NamespacePath = utils::Array<NamespaceId, Namespace_Max_Depth>;
+	using NamespacePath = utils::CheckedArray<NamespaceId, Namespace_Max_Depth>;
 
 	/// Parses a unified namespace \a name into a path.
 	NamespacePath GenerateNamespacePath(const RawString& name);

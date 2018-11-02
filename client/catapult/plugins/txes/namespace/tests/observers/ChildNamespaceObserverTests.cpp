@@ -88,7 +88,7 @@ namespace catapult { namespace observers {
 					EXPECT_TRUE(namespaceCacheDelta.contains(NamespaceId(36)));
 
 					ASSERT_TRUE(namespaceCacheDelta.contains(NamespaceId(37)));
-					EXPECT_EQ(NamespaceId(25), namespaceCacheDelta.get(NamespaceId(37)).ns().parentId());
+					EXPECT_EQ(NamespaceId(25), namespaceCacheDelta.find(NamespaceId(37)).get().ns().parentId());
 				});
 	}
 
@@ -109,7 +109,7 @@ namespace catapult { namespace observers {
 					EXPECT_TRUE(namespaceCacheDelta.contains(NamespaceId(36)));
 
 					ASSERT_TRUE(namespaceCacheDelta.contains(NamespaceId(49)));
-					EXPECT_EQ(NamespaceId(36), namespaceCacheDelta.get(NamespaceId(49)).ns().parentId());
+					EXPECT_EQ(NamespaceId(36), namespaceCacheDelta.find(NamespaceId(49)).get().ns().parentId());
 				});
 	}
 

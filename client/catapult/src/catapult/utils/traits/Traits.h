@@ -79,8 +79,7 @@ namespace catapult { namespace utils { namespace traits {
 	/// Hides a template specialization if \a X is a base of or same as \a Y (after stripping \a Y of references).
 	/// \note This can be used to allow copy construction when a perfectly forwarding constructor is used.
 	template<typename X, typename Y>
-	using disable_if_same_or_derived =
-			typename std::enable_if<!is_base_of_ignore_reference<X, Y>::value>::type;
+	using disable_if_same_or_derived = typename std::enable_if<!is_base_of_ignore_reference<X, Y>::value>::type;
 
 	/// Type-based SFINAE helper that exposes a `type` alias that evaluates to either (1) the desired subtype alias if present
 	/// or (2) void if the desired subtype alias is not present.

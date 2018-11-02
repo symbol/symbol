@@ -66,7 +66,7 @@ namespace catapult { namespace timesync {
 			return TimeOffset(0);
 		}
 
-		auto highValueAddressesSize = accountStateCacheView.highValueAddressesSize();
+		auto highValueAddressesSize = accountStateCacheView.highValueAddresses().size();
 		auto viewPercentage = static_cast<double>(samples.size()) / highValueAddressesSize;
 		auto importancePercentage = static_cast<double>(cumulativeImportance) / m_totalChainBalance;
 		auto scaling = importancePercentage > viewPercentage ? 1.0 / importancePercentage : 1.0 / viewPercentage;

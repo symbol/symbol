@@ -21,6 +21,7 @@
 #pragma once
 #include "CacheConfiguration.h"
 #include "catapult/cache_db/CacheDatabase.h"
+#include "catapult/cache_db/UpdateSet.h"
 #include "catapult/deltaset/ConditionalContainer.h"
 
 namespace catapult { namespace cache {
@@ -28,14 +29,28 @@ namespace catapult { namespace cache {
 	/// Mixin that owns a cache database.
 	class CacheDatabaseMixin {
 	protected:
-		/// Creates a mixin around \a config and \a columnFamilyNames.
-		CacheDatabaseMixin(const CacheConfiguration& config, const std::vector<std::string>& columnFamilyNames)
+		/// Creates a mixin around \a config and \a columnFamilyNames with optional \a pruningMode.
+		CacheDatabaseMixin(
+				const CacheConfiguration& config,
+				const std::vector<std::string>& columnFamilyNames,
+				FilterPruningMode pruningMode = FilterPruningMode::Disabled)
 				: m_pDatabase(config.ShouldUseCacheDatabase
-						? std::make_unique<CacheDatabase>(config.CacheDatabaseDirectory, columnFamilyNames)
+						? std::make_unique<CacheDatabase>(CacheDatabaseSettings(
+								config.CacheDatabaseDirectory,
+								GetAdjustedColumnFamilyNames(config, columnFamilyNames),
+								config.MaxCacheDatabaseWriteBatchSize,
+								pruningMode))
 						: std::make_unique<CacheDatabase>())
+				, m_containerMode(GetContainerMode(config))
+				, m_hasPatriciaTreeSupport(config.ShouldStorePatriciaTrees)
 		{}
 
 	protected:
+		/// Returns \c true if patricia tree support is enabled.
+		bool hasPatriciaTreeSupport() const {
+			return m_hasPatriciaTreeSupport;
+		}
+
 		/// Gets the database.
 		CacheDatabase& database() {
 			return *m_pDatabase;
@@ -49,7 +64,26 @@ namespace catapult { namespace cache {
 					: deltaset::ConditionalContainerMode::Memory;
 		}
 
+		/// Flushes the database.
+		void flush() {
+			if (deltaset::ConditionalContainerMode::Storage == m_containerMode)
+				database().flush();
+		}
+
+	private:
+		static std::vector<std::string> GetAdjustedColumnFamilyNames(
+				const CacheConfiguration& config,
+				const std::vector<std::string>& columnFamilyNames) {
+			auto adjustedColumnFamilyNames = columnFamilyNames;
+			if (config.ShouldStorePatriciaTrees)
+				adjustedColumnFamilyNames.push_back("patricia_tree");
+
+			return adjustedColumnFamilyNames;
+		}
+
 	private:
 		std::unique_ptr<CacheDatabase> m_pDatabase;
+		const deltaset::ConditionalContainerMode m_containerMode;
+		const bool m_hasPatriciaTreeSupport;
 	};
 }}

@@ -1,3 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
 
-catapult_test_executable_target(tests.catapult.plugins.aggregate cache config model plugins validators)
+set(TARGET_NAME tests.catapult.plugins.aggregate)
+
+catapult_tx_plugin_tests(${TARGET_NAME})

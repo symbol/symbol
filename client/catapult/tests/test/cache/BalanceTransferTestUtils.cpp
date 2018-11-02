@@ -30,7 +30,9 @@ namespace catapult { namespace test {
 		template<typename TKey>
 		void SetCacheBalancesT(cache::CatapultCacheDelta& cache, const TKey& key, const BalanceTransfers& transfers) {
 			auto& accountStateCache = cache.sub<cache::AccountStateCache>();
-			auto& accountState = accountStateCache.addAccount(key, Height(123));
+			accountStateCache.addAccount(key, Height(123));
+			auto accountStateIter = accountStateCache.find(key);
+			auto& accountState = accountStateIter.get();
 			for (const auto& transfer : transfers)
 				accountState.Balances.credit(transfer.MosaicId, transfer.Amount);
 		}

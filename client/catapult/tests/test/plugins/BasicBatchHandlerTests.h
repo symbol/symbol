@@ -25,8 +25,44 @@
 
 namespace catapult { namespace test {
 
-	/// A container of basic batch handler tests.
+	/// Traits for a handler that accepts a function.
 	template<typename TTraits>
+	struct FunctionalHandlerTraits {
+		struct HandlerContext {
+		public:
+			HandlerContext() : m_counter(0)
+			{}
+
+		public:
+			void incrementCounter() {
+				++m_counter;
+			}
+
+		public:
+			void assertRejected() const {
+				// Assert: when rejected, function should not be called
+				EXPECT_EQ(0u, m_counter);
+			}
+
+			void assertAccepted() const {
+				// Assert: when accepted, function should be called once
+				EXPECT_EQ(1u, m_counter);
+			}
+
+		private:
+			size_t m_counter;
+		};
+
+		static void RegisterHandler(ionet::ServerPacketHandlers& handlers, HandlerContext& context) {
+			TTraits::RegisterHandler(handlers, [&context](const auto&) {
+				context.incrementCounter();
+				return typename TTraits::ResponseType();
+			});
+		}
+	};
+
+	/// A container of basic batch handler tests.
+	template<typename TTraits, typename THandlerTraits = FunctionalHandlerTraits<TTraits>>
 	struct BasicBatchHandlerTests {
 	public:
 		/// Asserts that a packet with a reported size less than a packet header is rejected.
@@ -52,26 +88,31 @@ namespace catapult { namespace test {
 			AssertPacketIsRejected(TTraits::Valid_Request_Payload_Size + TTraits::Valid_Request_Payload_Size / 2, TTraits::Packet_Type);
 		}
 
-	private:
-		static void RegisterHandler(ionet::ServerPacketHandlers& handlers, size_t& counter) {
-			TTraits::RegisterHandler(handlers, [&](const auto&) {
-				++counter;
-				return typename TTraits::ResponseType();
-			});
+		/// Asserts that a packet with a too small payload size is rejected.
+		static void AssertPacketWithTooSmallPayloadIsRejected() {
+			// Assert: payload size is too small
+			AssertPacketIsRejected(TTraits::Valid_Request_Payload_Size / 2, TTraits::Packet_Type);
 		}
 
+		/// Asserts that a packet with no payload is rejected.
+		static void AssertPacketWithNoPayloadIsRejected() {
+			// Assert: no payload
+			AssertPacketIsRejected(0, TTraits::Packet_Type);
+		}
+
+	private:
 		static void AssertPacketIsRejected(const ionet::Packet& packet, bool expectedCanProcessPacketType = true) {
 			// Arrange:
-			size_t counter = 0;
 			ionet::ServerPacketHandlers handlers;
-			RegisterHandler(handlers, counter);
+			typename THandlerTraits::HandlerContext handlerContext;
+			THandlerTraits::RegisterHandler(handlers, handlerContext);
 
 			// Act:
 			ionet::ServerPacketHandlerContext context({}, "");
 			EXPECT_EQ(expectedCanProcessPacketType, handlers.process(packet, context));
 
 			// Assert:
-			EXPECT_EQ(0u, counter);
+			handlerContext.assertRejected();
 			test::AssertNoResponse(context);
 		}
 
@@ -86,9 +127,9 @@ namespace catapult { namespace test {
 
 		static void AssertValidPacketWithElementsIsAccepted(uint32_t numElements) {
 			// Arrange:
-			size_t counter = 0;
 			ionet::ServerPacketHandlers handlers;
-			RegisterHandler(handlers, counter);
+			typename THandlerTraits::HandlerContext handlerContext;
+			THandlerTraits::RegisterHandler(handlers, handlerContext);
 
 			auto pPacket = test::CreateRandomPacket(numElements * TTraits::Valid_Request_Payload_Size, TTraits::Packet_Type);
 
@@ -97,7 +138,7 @@ namespace catapult { namespace test {
 			EXPECT_TRUE(handlers.process(*pPacket, context));
 
 			// Assert:
-			EXPECT_EQ(1u, counter);
+			handlerContext.assertAccepted();
 			ASSERT_TRUE(context.hasResponse());
 			test::AssertPacketHeader(context, sizeof(ionet::PacketHeader), TTraits::Packet_Type);
 			EXPECT_TRUE(context.response().buffers().empty());

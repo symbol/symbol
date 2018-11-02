@@ -52,16 +52,11 @@ namespace catapult { namespace validators {
 				cache.commit(Height());
 			}
 
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
-
 			model::ModifyMultisigNewCosignerNotification notification(multisigAccountKey, cosignatoryKey);
 			auto pValidator = CreateModifyMultisigMaxCosignedAccountsValidator(maxCosignedAccountsPerAccount);
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result)

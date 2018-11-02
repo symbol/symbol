@@ -36,13 +36,14 @@ namespace catapult { namespace validators {
 		if (!cache.contains(notification.ParentId))
 			return Failure_Namespace_Parent_Unknown;
 
-		const auto& parentEntry = cache.get(notification.ParentId);
+		auto namespaceIter = cache.find(notification.ParentId);
+		const auto& parentEntry = namespaceIter.get();
 		const auto& parentPath = parentEntry.ns().path();
 		if (parentPath.size() == parentPath.capacity())
 			return Failure_Namespace_Too_Deep;
 
 		const auto& root = parentEntry.root();
-		if (!root.lifetime().isActive(height))
+		if (!root.lifetime().isActiveAndUnlocked(height))
 			return Failure_Namespace_Expired;
 
 		if (root.owner() != notification.Signer)

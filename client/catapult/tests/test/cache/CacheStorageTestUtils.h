@@ -66,7 +66,7 @@ namespace catapult { namespace test {
 				// Act:
 				typename TTraits::CacheType cache;
 				auto delta = cache.createDelta();
-				TTraits::StorageType::LoadInto(inputStream, *delta);
+				TTraits::StorageType::LoadInto(TTraits::StorageType::Load(inputStream), *delta);
 				cache.commit();
 
 				// Assert:
@@ -111,62 +111,6 @@ namespace catapult { namespace test {
 	MAKE_CONTAINS_ONLY_CACHE_STORAGE_TEST(TEST_CLASS, TRAITS, CanSaveValue) \
 	MAKE_CONTAINS_ONLY_CACHE_STORAGE_TEST(TEST_CLASS, TRAITS, CanLoadValueViaLoad) \
 	MAKE_CONTAINS_ONLY_CACHE_STORAGE_TEST(TEST_CLASS, TRAITS, CanLoadValueViaLoadInto)
-
-	// endregion
-
-	// region LookupCacheStorageTests
-
-	/// Tests for cache storages for caches that support lookup operations.
-	template<typename TTraits>
-	class LookupCacheStorageTests {
-	private:
-		using KeyType = typename TTraits::KeyType;
-		using ValueType = typename TTraits::ValueType;
-
-	private:
-		struct LoadTraits {
-			static void Load(io::InputStream& inputStream, const KeyType&, ValueType& result) {
-				result = TTraits::StorageType::Load(inputStream);
-			}
-		};
-
-		struct LoadIntoTraits {
-			static void Load(io::InputStream& inputStream, const KeyType& expectedKey, ValueType& result) {
-				// Act:
-				typename TTraits::CacheType cache;
-				auto delta = cache.createDelta();
-				TTraits::StorageType::LoadInto(inputStream, *delta);
-				cache.commit();
-
-				// Assert:
-				auto view = cache.createView();
-				EXPECT_EQ(1u, view->size());
-				ASSERT_TRUE(view->contains(expectedKey));
-				result = view->get(expectedKey);
-			}
-		};
-
-		template<typename TLoadTraits>
-		static void RunLoadValueTest(const KeyType& key, std::vector<uint8_t>& buffer, ValueType& result) {
-			// Arrange:
-			mocks::MockMemoryStream inputStream("", buffer);
-
-			// Act:
-			TLoadTraits::Load(inputStream, key, result);
-
-			// Assert: whole buffer has been read
-			EXPECT_EQ(buffer.size(), inputStream.position());
-		}
-
-	public:
-		static void RunLoadValueViaLoadTest(const KeyType& key, std::vector<uint8_t>& buffer, ValueType& result) {
-			RunLoadValueTest<LoadTraits>(key, buffer, result);
-		}
-
-		static void RunLoadValueViaLoadIntoTest(const KeyType& key, std::vector<uint8_t>& buffer, ValueType& result) {
-			RunLoadValueTest<LoadIntoTraits>(key, buffer, result);
-		}
-	};
 
 	// endregion
 }}

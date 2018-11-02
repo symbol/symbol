@@ -47,9 +47,8 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, ConfigFileRequiresKnownPeers) {
 		// Arrange:
 		std::stringstream stream;
-		stream << R"(
-			{}
-		)";
+		stream << R"({
+		})";
 
 		// Act + Assert:
 		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
@@ -58,9 +57,9 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, PeersEntryMustBeArray) {
 		// Arrange:
 		std::stringstream stream;
-		stream << R"(
-			{"knownPeers":false}
-		)";
+		stream << R"({
+			"knownPeers":false
+		})";
 
 		// Act + Assert:
 		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
@@ -69,11 +68,11 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, PeersEntriesMustBeValid) {
 		// Arrange:
 		std::stringstream stream;
-		stream << R"(
-			{"knownPeers":[
+		stream << R"({
+			"knownPeers":[
 				{}
-			]}
-		)";
+			]
+		})";
 
 		// Act + Assert:
 		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
@@ -82,15 +81,15 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, AllRequiredLeafPropertiesMustBePresent) {
 		// Arrange: missing endpoint.port
 		std::stringstream stream;
-		stream << R"(
-			{"knownPeers":[
+		stream << R"({
+			"knownPeers":[
 				{
 					"publicKey":"1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
 					"endpoint":{ "host":"bob.nem.ninja" },
 					"metadata":{ "name":"bob" }
 				}
-			]}
-		)";
+			]
+		})";
 
 		// Act + Assert:
 		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
@@ -99,14 +98,14 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, AllRequiredPropertiesMustBePresent) {
 		// Arrange: missing endpoint
 		std::stringstream stream;
-		stream << R"(
-			{"knownPeers":[
+		stream << R"({
+			"knownPeers":[
 				{
 					"publicKey":"1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
 					"metadata":{ "name":"bob" }
 				}
-			]}
-		)";
+			]
+		})";
 
 		// Act + Assert:
 		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
@@ -115,15 +114,15 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, NodeRolesMustBeValid) {
 		// Arrange:
 		std::stringstream stream;
-		stream << R"(
-			{"knownPeers":[
+		stream << R"({
+			"knownPeers":[
 				{
 					"publicKey":"1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
 					"endpoint":{ "host":"bob.nem.ninja", "port":12345 },
 					"metadata":{ "name":"bob", "roles":"Omega" }
 				}
-			]}
-		)";
+			]
+		})";
 
 		// Act + Assert:
 		EXPECT_THROW(LoadPeersFromStream(stream, Network_Identifier), catapult_runtime_error);
@@ -134,9 +133,9 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, CanParseMinimalConfiguration) {
 		// Arrange:
 		std::stringstream stream;
-		stream << R"(
-			{"knownPeers":[]}
-		)";
+		stream << R"({
+			"knownPeers":[]
+		})";
 
 		// Act:
 		auto nodes = LoadPeersFromStream(stream, Network_Identifier);
@@ -148,15 +147,15 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, CanParseKnownPeers) {
 		// Arrange:
 		std::stringstream stream;
-		stream << R"(
-			{"knownPeers":[
+		stream << R"({
+			"knownPeers":[
 				{
 					"publicKey":"1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
 					"endpoint":{ "host":"bob.nem.ninja", "port":12345 },
 					"metadata":{ "name":"bob", "roles":"Api" }
 				}
-			]}
-		)";
+			]
+		})";
 
 		// Act:
 		auto nodes = LoadPeersFromStream(stream, Network_Identifier);
@@ -169,21 +168,21 @@ namespace catapult { namespace config {
 		EXPECT_EQ(expectedKey, node.identityKey());
 		AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
 		AssertMetadata(node.metadata(), "bob", ionet::NodeRoles::Api);
-		EXPECT_EQ("bob @ bob.nem.ninja", test::ToString(node));
+		EXPECT_EQ("bob @ bob.nem.ninja:12345", test::ToString(node));
 	}
 
 	TEST(TEST_CLASS, CanParseKnownPeersWithoutNames) {
 		// Arrange:
 		std::stringstream stream;
-		stream << R"(
-			{"knownPeers":[
+		stream << R"({
+			"knownPeers":[
 				{
 					"publicKey":"1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751",
 					"endpoint":{ "host":"bob.nem.ninja", "port":12345 },
 					"metadata":{ "roles":"Peer" }
 				}
-			]}
-		)";
+			]
+		})";
 
 		// Act:
 		auto nodes = LoadPeersFromStream(stream, Network_Identifier);
@@ -202,14 +201,14 @@ namespace catapult { namespace config {
 #else
 		auto expectedAddress = "EWX7YGZ5D524BZVRCPJL3M34MV23QJKFRPLA5UKO";
 #endif
-		EXPECT_EQ(std::string(expectedAddress) + " @ bob.nem.ninja", test::ToString(node));
+		EXPECT_EQ(std::string(expectedAddress) + " @ bob.nem.ninja:12345", test::ToString(node));
 	}
 
 	TEST(TEST_CLASS, CanParseMultipleKnownPeers) {
 		// Arrange:
 		std::stringstream stream;
-		stream << R"(
-			{"knownPeers":[
+		stream << R"({
+			"knownPeers":[
 				{
 					"publicKey":"1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
 					"endpoint":{ "host":"bob.nem.ninja", "port":12345 },
@@ -220,8 +219,8 @@ namespace catapult { namespace config {
 					"endpoint":{ "host":"123.456.789.1011", "port":5432 },
 					"metadata":{ "name":"foobar", "roles":"Api" }
 				}
-			]}
-		)";
+			]
+		})";
 
 		// Act:
 		auto nodes = LoadPeersFromStream(stream, Network_Identifier);
@@ -236,7 +235,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(expectedKey, node.identityKey());
 			AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
 			AssertMetadata(node.metadata(), "bob", ionet::NodeRoles::Peer);
-			EXPECT_EQ("bob @ bob.nem.ninja", test::ToString(node));
+			EXPECT_EQ("bob @ bob.nem.ninja:12345", test::ToString(node));
 		}
 
 		{
@@ -246,7 +245,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(expectedKey, node.identityKey());
 			AssertEndpoint(node.endpoint(), "123.456.789.1011", 5432);
 			AssertMetadata(node.metadata(), "foobar", ionet::NodeRoles::Api);
-			EXPECT_EQ("foobar @ 123.456.789.1011", test::ToString(node));
+			EXPECT_EQ("foobar @ 123.456.789.1011:5432", test::ToString(node));
 		}
 	}
 

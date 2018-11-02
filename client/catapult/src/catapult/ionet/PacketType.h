@@ -19,10 +19,13 @@
 **/
 
 #pragma once
+#include "catapult/model/FacilityCode.h"
 #include <iosfwd>
 #include <stdint.h>
 
 namespace catapult { namespace ionet {
+
+#define FACILITY_BASED_CODE(BASE_VALUE, FACILITY_CODE) (BASE_VALUE + static_cast<uint8_t>(model::FacilityCode::FACILITY_CODE))
 
 #define PACKET_TYPE_LIST \
 	/* An undefined packet type. */ \
@@ -60,6 +63,9 @@ namespace catapult { namespace ionet {
 	/* A secure packet with a signature. */ \
 	ENUM_VALUE(Secure_Signed, 11) \
 	\
+	/* Sub cache merkle roots have been requested. */ \
+	ENUM_VALUE(Sub_Cache_Merkle_Roots, 12) \
+	\
 	/* api only packets have types [500, 600) */ \
 	\
 	/* Partial aggregate transactions have been pushed by an api-node. */ \
@@ -90,25 +96,60 @@ namespace catapult { namespace ionet {
 	/* Network time information has been requested by a peer. */ \
 	ENUM_VALUE(Time_Sync_Network_Time, 700) \
 	\
-	/* diagnostic packets have types [1000, 2000) */ \
+	/* state path packets have types [800, 1100) */ \
+	\
+	/* Account state path has been requested by a client. */ \
+	ENUM_VALUE(Account_State_Path, FACILITY_BASED_CODE(800, Core)) \
+	\
+	/* Account properties state path has been requested by a client. */ \
+	ENUM_VALUE(Account_Properties_State_Path, FACILITY_BASED_CODE(800, Property)) \
+	\
+	/* Namespace state path has been requested by a client. */ \
+	ENUM_VALUE(Namespace_State_Path, FACILITY_BASED_CODE(800, Namespace)) \
+	\
+	/* Mosaic state path has been requested by a client. */ \
+	ENUM_VALUE(Mosaic_State_Path, FACILITY_BASED_CODE(800, Mosaic)) \
+	\
+	/* Hash lock state path has been requested by a client. */ \
+	ENUM_VALUE(Hash_Lock_State_Path, FACILITY_BASED_CODE(800, LockHash)) \
+	\
+	/* Secret lock state path has been requested by a client. */ \
+	ENUM_VALUE(Secret_Lock_State_Path, FACILITY_BASED_CODE(800, LockSecret)) \
+	\
+	/* Multisig state path has been requested by a client. */ \
+	ENUM_VALUE(Multisig_State_Path, FACILITY_BASED_CODE(800, Multisig)) \
+	\
+	/* diagnostic packets have types [1100, 2000) */ \
 	\
 	/* Request for the current diagnostic counter values. */ \
-	ENUM_VALUE(Diagnostic_Counters, 1000) \
-	\
-	/* Account infos have been requested by a client. */ \
-	ENUM_VALUE(Account_Infos, 1001) \
+	ENUM_VALUE(Diagnostic_Counters, 1100) \
 	\
 	/* Request from a client to confirm timestamped hashes. */ \
-	ENUM_VALUE(Confirm_Timestamped_Hashes, 1002) \
-	\
-	/* Namespace infos have been requested by a client. */ \
-	ENUM_VALUE(Namespace_Infos, 1003) \
-	\
-	/* Mosaic infos have been requested by a client. */ \
-	ENUM_VALUE(Mosaic_Infos, 1004) \
+	ENUM_VALUE(Confirm_Timestamped_Hashes, 1101) \
 	\
 	/* Node infos for active nodes have been requested. */ \
-	ENUM_VALUE(Active_Node_Infos, 1005)
+	ENUM_VALUE(Active_Node_Infos, 1102) \
+	\
+	/* Account infos have been requested by a client. */ \
+	ENUM_VALUE(Account_Infos, FACILITY_BASED_CODE(1200, Core)) \
+	\
+	/* Account properties infos have been requested by a client. */ \
+	ENUM_VALUE(Account_Properties_Infos, FACILITY_BASED_CODE(1200, Property)) \
+	\
+	/* Namespace infos have been requested by a client. */ \
+	ENUM_VALUE(Namespace_Infos, FACILITY_BASED_CODE(1200, Namespace)) \
+	\
+	/* Mosaic infos have been requested by a client. */ \
+	ENUM_VALUE(Mosaic_Infos, FACILITY_BASED_CODE(1200, Mosaic)) \
+	\
+	/* Hash lock infos have been requested by a client. */ \
+	ENUM_VALUE(Hash_Lock_Infos, FACILITY_BASED_CODE(1200, LockHash)) \
+	\
+	/* Secret lock infos have been requested by a client. */ \
+	ENUM_VALUE(Secret_Lock_Infos, FACILITY_BASED_CODE(1200, LockSecret)) \
+	\
+	/* Multisig infos have been requested by a client. */ \
+	ENUM_VALUE(Multisig_Infos, FACILITY_BASED_CODE(1200, Multisig))
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
 	/// An enumeration of known packet types.

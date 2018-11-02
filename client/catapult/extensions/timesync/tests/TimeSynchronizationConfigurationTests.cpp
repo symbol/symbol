@@ -24,6 +24,8 @@
 
 namespace catapult { namespace timesync {
 
+#define TEST_CLASS TimeSynchronizationConfigurationTests
+
 	namespace {
 		struct TimeSynchronizationConfigurationTraits {
 			using ConfigurationType = TimeSynchronizationConfiguration;

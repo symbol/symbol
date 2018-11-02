@@ -103,7 +103,8 @@ namespace catapult { namespace harvesting {
 			auto keyPair = KeyPair::FromPrivate(test::GenerateRandomPrivateKey());
 			auto delta = cache.createDelta();
 			auto& accountStateCache = delta.sub<cache::AccountStateCache>();
-			auto& accountState = accountStateCache.addAccount(keyPair.publicKey(), Height(1));
+			accountStateCache.addAccount(keyPair.publicKey(), Height(1));
+			auto& accountState = accountStateCache.find(keyPair.publicKey()).get();
 			accountState.ImportanceInfo.set(Importance(1'000'000'000), model::ImportanceHeight(1));
 			accountState.Balances.credit(Xem_Id, Amount(1'000'000'000'000'000));
 			cache.commit(Height());
@@ -129,11 +130,11 @@ namespace catapult { namespace harvesting {
 		};
 
 		auto CreateHarvester(HarvesterContext& context) {
-			return std::make_unique<Harvester>(
-					context.Cache,
-					context.Config,
-					context.Accounts,
-					[](size_t) { return TransactionsInfo(); });
+			Harvester::Suppliers harvesterSuppliers{
+				[](const auto&) { return std::make_pair(Hash256(), true); },
+				[](auto) { return TransactionsInfo(); }
+			};
+			return std::make_unique<Harvester>(context.Cache, context.Config, context.Accounts, harvesterSuppliers);
 		}
 	}
 

@@ -24,7 +24,7 @@
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/state/CatapultState.h"
 #include "tests/test/cache/CacheTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 
 namespace catapult { namespace test {
 
@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 		explicit Impl(config::LocalNodeConfiguration&& config, cache::CatapultCache&& cache)
 				: m_config(std::move(config))
 				, m_cache(std::move(cache))
-				, m_storage(std::make_unique<mocks::MockMemoryBasedStorage>())
+				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>())
 		{}
 
 	public:
@@ -69,7 +69,7 @@ namespace catapult { namespace test {
 			const std::string& userDataDirectory,
 			cache::CatapultCache&& cache)
 			: m_pImpl(std::make_unique<Impl>(
-					LoadLocalNodeConfiguration(model::BlockChainConfiguration(config), userDataDirectory),
+					CreateLocalNodeConfiguration(model::BlockChainConfiguration(config), userDataDirectory),
 					std::move(cache)))
 	{}
 

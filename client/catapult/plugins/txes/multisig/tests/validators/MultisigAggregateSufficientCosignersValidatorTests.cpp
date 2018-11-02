@@ -37,21 +37,15 @@ namespace catapult { namespace validators {
 				const Key& signer,
 				const model::EmbeddedTransaction& subTransaction,
 				const std::vector<Key>& cosigners) {
-			// Arrange:
-			// - setup cosignatures
+			// Arrange: setup cosignatures
 			auto cosignatures = test::GenerateCosignaturesFromCosigners(cosigners);
-
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
 
 			using Notification = model::AggregateEmbeddedTransactionNotification;
 			Notification notification(signer, subTransaction, cosignatures.size(), cosignatures.data());
 			auto pValidator = CreateMultisigAggregateSufficientCosignersValidator();
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);

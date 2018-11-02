@@ -31,7 +31,8 @@ namespace catapult { namespace validators {
 		if (!multisigCache.contains(notification.Signer))
 			return ValidationResult::Success;
 
-		return multisigCache.get(notification.Signer).cosignatories().empty()
+		auto multisigIter = multisigCache.find(notification.Signer);
+		return multisigIter.get().cosignatories().empty()
 				? ValidationResult::Success
 				: Failure_Multisig_Operation_Not_Permitted_By_Account;
 	});

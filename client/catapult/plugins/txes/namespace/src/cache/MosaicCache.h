@@ -20,6 +20,7 @@
 
 #pragma once
 #include "MosaicCacheDelta.h"
+#include "MosaicCacheStorage.h"
 #include "MosaicCacheView.h"
 #include "catapult/cache/BasicCache.h"
 
@@ -43,6 +44,11 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
+		/// Initializes the cache with \a deepSize.
+		void init(size_t deepSize) {
+			*m_pDeepSize = deepSize;
+		}
+
 		/// Commits all pending changes to the underlying storage.
 		/// \note This hides MosaicBasicCache::commit.
 		void commit(const CacheDeltaType& delta) {
@@ -56,13 +62,13 @@ namespace catapult { namespace cache {
 	};
 
 	/// Synchronized cache composed of mosaic information.
-	class MosaicCache : public SynchronizedCache<BasicMosaicCache> {
+	class MosaicCache : public SynchronizedCacheWithInit<BasicMosaicCache> {
 	public:
 		DEFINE_CACHE_CONSTANTS(Mosaic)
 
 	public:
 		/// Creates a cache around \a config.
-		explicit MosaicCache(const CacheConfiguration& config) : SynchronizedCache<BasicMosaicCache>(BasicMosaicCache(config))
+		explicit MosaicCache(const CacheConfiguration& config) : SynchronizedCacheWithInit<BasicMosaicCache>(BasicMosaicCache(config))
 		{}
 	};
 }}

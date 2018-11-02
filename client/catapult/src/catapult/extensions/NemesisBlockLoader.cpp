@@ -90,47 +90,57 @@ namespace catapult { namespace extensions {
 
 		void PrepareNemesisAccount(const Key& nemesisPublicKey, const BalanceTransfers& transfers, cache::CatapultCacheDelta& cacheDelta) {
 			auto& accountStateCache = cacheDelta.sub<cache::AccountStateCache>();
-			auto& nemesisState = accountStateCache.addAccount(nemesisPublicKey, Height(1));
+			accountStateCache.addAccount(nemesisPublicKey, Height(1));
+
+			auto nemesisStateIter = accountStateCache.find(nemesisPublicKey);
+			auto& nemesisState = nemesisStateIter.get();
 			for (const auto& transfer : transfers)
 				nemesisState.Balances.credit(transfer.first, transfer.second);
 		}
 	}
 
 	NemesisBlockLoader::NemesisBlockLoader(
+			cache::CatapultCacheDelta& cacheDelta,
 			const model::TransactionRegistry& transactionRegistry,
 			const model::NotificationPublisher& publisher,
 			const observers::EntityObserver& observer)
-			: m_transactionRegistry(transactionRegistry)
+			: m_cacheDelta(cacheDelta)
+			, m_transactionRegistry(transactionRegistry)
 			, m_publisher(publisher)
 			, m_observer(observer)
 	{}
 
-	void NemesisBlockLoader::executeAndCommit(const LocalNodeStateRef& stateRef) const {
+	void NemesisBlockLoader::execute(const LocalNodeStateRef& stateRef, StateHashVerification stateHashVerification) const {
 		// 1. load the nemesis block
 		auto storageView = stateRef.Storage.view();
 		auto pNemesisBlockElement = storageView.loadBlockElement(Height(1));
 
 		// 2. execute the nemesis block
-		auto cacheDelta = stateRef.Cache.createDelta();
-		execute(stateRef.Config.BlockChain, *pNemesisBlockElement, cacheDelta, stateRef.State, Verbosity::On);
-
-		// 3. commit changes
-		stateRef.Cache.commit(pNemesisBlockElement->Block.Height);
+		execute(stateRef.Config.BlockChain,
+				*pNemesisBlockElement,
+				stateRef.State,
+				stateHashVerification,
+				Verbosity::On);
 	}
 
-	void NemesisBlockLoader::execute(
-			const model::BlockChainConfiguration& config,
-			const model::BlockElement& nemesisBlockElement,
-			cache::CatapultCacheDelta& cacheDelta) const {
+	void NemesisBlockLoader::executeAndCommit(const LocalNodeStateRef& stateRef, StateHashVerification stateHashVerification) const {
+		// 1. execute the nemesis block
+		execute(stateRef, stateHashVerification);
+
+		// 2. commit changes
+		stateRef.Cache.commit(Height(1));
+	}
+
+	void NemesisBlockLoader::execute(const model::BlockChainConfiguration& config, const model::BlockElement& nemesisBlockElement) const {
 		auto catapultState = state::CatapultState();
-		execute(config, nemesisBlockElement, cacheDelta, catapultState, Verbosity::Off);
+		execute(config, nemesisBlockElement, catapultState, StateHashVerification::Enabled, Verbosity::Off);
 	}
 
 	void NemesisBlockLoader::execute(
 			const model::BlockChainConfiguration& config,
 			const model::BlockElement& nemesisBlockElement,
-			cache::CatapultCacheDelta& cacheDelta,
 			state::CatapultState& catapultState,
+			StateHashVerification stateHashVerification,
 			Verbosity verbosity) const {
 		// 1. check the nemesis block
 		if (Verbosity::On == verbosity)
@@ -147,10 +157,16 @@ namespace catapult { namespace extensions {
 		CheckOutflows(outflows, config.TotalChainBalance.microxem());
 
 		// 3. prepare the nemesis account
-		PrepareNemesisAccount(nemesisBlock.Signer, outflows, cacheDelta);
+		PrepareNemesisAccount(nemesisBlock.Signer, outflows, m_cacheDelta);
 
 		// 4. execute the block
-		auto observerState = observers::ObserverState(cacheDelta, catapultState);
+		auto observerState = observers::ObserverState(m_cacheDelta, catapultState);
 		chain::ExecuteBlock(nemesisBlockElement, m_observer, observerState);
+
+		// 5. check the state hash
+		// important: do not remove calculateStateHash call because it has important side-effect of populating the patricia tree delta
+		auto cacheStateHash = m_cacheDelta.calculateStateHash(Height(1)).StateHash;
+		if (StateHashVerification::Enabled == stateHashVerification && nemesisBlockElement.Block.StateHash != cacheStateHash)
+			CATAPULT_THROW_RUNTIME_ERROR_1("nemesis block state hash does not match cache state hash", utils::HexFormat(cacheStateHash));
 	}
 }}

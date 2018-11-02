@@ -56,14 +56,14 @@ namespace catapult { namespace net {
 
 			void accept(const PacketSocketPointer& pAcceptedSocket, const AcceptCallback& callback) override {
 				if (!pAcceptedSocket)
-					return callback(PeerConnectResult::Socket_Error, nullptr, Empty_Key);
+					return callback(PeerConnectCode::Socket_Error, nullptr, Empty_Key);
 
 				m_sockets.insert(pAcceptedSocket);
 
 				auto pRequest = thread::MakeTimedCallback(
 						m_pPool->service(),
 						callback,
-						PeerConnectResult::Timed_Out,
+						PeerConnectCode::Timed_Out,
 						PacketSocketPointer(),
 						Empty_Key);
 				pRequest->setTimeout(m_settings.Timeout);
@@ -75,11 +75,11 @@ namespace catapult { namespace net {
 						const auto& verifiedPeerInfo) {
 					if (VerifyResult::Success != verifyResult) {
 						CATAPULT_LOG(warning) << "VerifyClient failed with " << verifyResult;
-						return pRequest->callback(PeerConnectResult::Verify_Error, nullptr, Empty_Key);
+						return pRequest->callback(PeerConnectCode::Verify_Error, nullptr, Empty_Key);
 					}
 
 					auto pSecuredSocket = pThis->secure(pAcceptedSocket, verifiedPeerInfo);
-					return pRequest->callback(PeerConnectResult::Accepted, pSecuredSocket, verifiedPeerInfo.PublicKey);
+					return pRequest->callback(PeerConnectCode::Accepted, pSecuredSocket, verifiedPeerInfo.PublicKey);
 				});
 			}
 

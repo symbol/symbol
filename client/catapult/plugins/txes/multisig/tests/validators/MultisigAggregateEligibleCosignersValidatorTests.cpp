@@ -37,8 +37,7 @@ namespace catapult { namespace validators {
 				const Key& signer,
 				const std::vector<Key>& embeddedSigners,
 				const std::vector<Key>& cosigners) {
-			// Arrange:
-			// - setup transactions
+			// Arrange: setup transactions
 			std::vector<uint8_t> txBuffer(sizeof(model::EmbeddedTransaction) * embeddedSigners.size());
 			auto* pTransactions = reinterpret_cast<model::EmbeddedTransaction*>(txBuffer.data());
 			for (auto i = 0u; i < embeddedSigners.size(); ++i) {
@@ -51,17 +50,12 @@ namespace catapult { namespace validators {
 			// - setup cosignatures
 			auto cosignatures = test::GenerateCosignaturesFromCosigners(cosigners);
 
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
-
 			using Notification = model::AggregateCosignaturesNotification;
 			Notification notification(signer, embeddedSigners.size(), pTransactions, cosignatures.size(), cosignatures.data());
 			auto pValidator = CreateMultisigAggregateEligibleCosignersValidator();
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
@@ -262,21 +256,15 @@ namespace catapult { namespace validators {
 				const Key& signer,
 				const model::EmbeddedTransaction& transaction,
 				const std::vector<Key>& cosigners) {
-			// Arrange:
-			// - setup cosignatures
+			// Arrange: setup cosignatures
 			auto cosignatures = test::GenerateCosignaturesFromCosigners(cosigners);
-
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
 
 			using Notification = model::AggregateCosignaturesNotification;
 			Notification notification(signer, 1, &transaction, cosignatures.size(), cosignatures.data());
 			auto pValidator = CreateMultisigAggregateEligibleCosignersValidator();
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);

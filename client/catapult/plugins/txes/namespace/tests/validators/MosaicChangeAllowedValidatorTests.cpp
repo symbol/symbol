@@ -65,11 +65,8 @@ namespace catapult { namespace validators {
 			SeedCacheWithRoot25TreeSigner(delta.sub<cache::NamespaceCache>(), artifactOwner);
 			cache.commit(Height());
 
-			auto readOnlyCache = delta.toReadOnly();
-			auto context = test::CreateValidatorContext(height, readOnlyCache);
-
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache, height);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "height " << height << ", id " << affectedMosaicId;

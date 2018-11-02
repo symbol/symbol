@@ -60,11 +60,11 @@ namespace catapult { namespace observers {
 
 			// Assert:
 			const auto& mosaicCacheDelta = context.cache().sub<cache::MosaicCache>();
-			EXPECT_EQ(finalSupply, mosaicCacheDelta.get(Default_Mosaic_Id).supply());
+			EXPECT_EQ(finalSupply, mosaicCacheDelta.find(Default_Mosaic_Id).get().supply());
 
 			const auto& accountStateCacheDelta = context.cache().sub<cache::AccountStateCache>();
-			auto signerAddress = accountStateCacheDelta.get(signer).Address;
-			EXPECT_EQ(finalOwnerSupply, accountStateCacheDelta.get(signerAddress).Balances.get(Default_Mosaic_Id));
+			auto signerAddress = accountStateCacheDelta.find(signer).get().Address;
+			EXPECT_EQ(finalOwnerSupply, accountStateCacheDelta.find(signerAddress).get().Balances.get(Default_Mosaic_Id));
 		}
 
 		void AssertSupplyIncrease(model::MosaicSupplyChangeDirection direction, NotifyMode mode) {

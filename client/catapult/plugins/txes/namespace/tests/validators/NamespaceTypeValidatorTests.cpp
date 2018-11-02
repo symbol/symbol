@@ -19,7 +19,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "tests/test/plugins/ValidatorTestUtils.h"
+#include "tests/test/plugins/DiscreteIntegerValidatorTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace validators {
@@ -28,33 +28,26 @@ namespace catapult { namespace validators {
 
 	DEFINE_COMMON_VALIDATOR_TESTS(NamespaceType,)
 
-	// region namespace type
-
 	namespace {
-		void AssertNamespaceTypeResult(ValidationResult expectedResult, model::NamespaceType namespaceType) {
-			// Arrange:
-			auto pValidator = CreateNamespaceTypeValidator();
-			auto notification = model::NamespaceNotification(namespaceType);
+		struct NamespaceTypeTraits {
+			using EnumType = model::NamespaceType;
 
-			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification);
+			static constexpr auto Failure_Result = Failure_Namespace_Invalid_Namespace_Type;
+			static constexpr auto CreateValidator = CreateNamespaceTypeValidator;
 
-			// Assert:
-			EXPECT_EQ(expectedResult, result) << "namespaceType " << static_cast<uint16_t>(namespaceType);
-		}
+			static std::vector<uint8_t> ValidValues() {
+				return { 0x00, 0x01 };
+			}
+
+			static std::vector<uint8_t> InvalidValues() {
+				return { 0x02, 0xFF };
+			}
+
+			static auto CreateNotification(EnumType value) {
+				return model::NamespaceNotification(value);
+			}
+		};
 	}
 
-	TEST(TEST_CLASS, SuccessWhenValidatingValidNamespaceType) {
-		// Assert:
-		for (auto namespaceType : { 0x00, 0x01 })
-			AssertNamespaceTypeResult(ValidationResult::Success, static_cast<model::NamespaceType>(namespaceType));
-	}
-
-	TEST(TEST_CLASS, FailureWhenValidatingInvalidNamespaceType) {
-		// Assert:
-		for (auto namespaceType : { 0x02, 0xFF })
-			AssertNamespaceTypeResult(Failure_Namespace_Invalid_Namespace_Type, static_cast<model::NamespaceType>(namespaceType));
-	}
-
-	// endregion
+	DEFINE_DISCRETE_INTEGER_VALIDATOR_TESTS(TEST_CLASS, NamespaceTypeTraits)
 }}

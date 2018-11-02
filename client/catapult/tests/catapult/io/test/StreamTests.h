@@ -79,6 +79,7 @@ namespace catapult { namespace test {
 			TWritePolicy::Write(*pOutput, expected);
 			pOutput->flush();
 		}
+
 		ByteBuffer result(Roundtrip_Buffer_Size);
 		{
 			auto pInput = context.inputStream();
@@ -99,6 +100,7 @@ namespace catapult { namespace test {
 			pOutput->write(expected);
 			pOutput->flush();
 		}
+
 		ByteBuffer result(expected.size() + 1);
 
 		// Act + Assert:

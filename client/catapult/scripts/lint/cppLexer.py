@@ -1,6 +1,6 @@
-import ply.lex as lex #pylint: disable=unused-import
+import ply.lex as lex  # pylint: disable=unused-import,useless-import-alias
 
-tokens = [ # pylint: disable=invalid-name
+tokens = [  # pylint: disable=invalid-name
     'NUMBER',
     'FLOAT_NUMBER',
     'TEMPLATE_NAME',
@@ -36,7 +36,8 @@ tokens = [ # pylint: disable=invalid-name
     'SQUOTE',
 ]
 
-t_ignore = ' \t\r.?@\f' # pylint: disable=invalid-name
+
+t_ignore = ' \t\r.?@\f'  # pylint: disable=invalid-name
 t_NUMBER = r'[0-9][0-9XxA-Fa-f]*'
 t_FLOAT_NUMBER = r'[-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?'
 t_NAME = r'[A-Za-z_~][A-Za-z0-9_]*'
@@ -56,12 +57,13 @@ t_PIPE = r'\|'
 t_PERCENT = r'%'
 t_CARET = r'\^'
 t_EXCLAMATION = r'!'
-#gimre: regex to handle multiline #defines
-t_PRECOMP_MACRO = r'\#(.*?\\\n|.*)*'
+t_PRECOMP_MACRO = r'\#(.*?\\\n|.*)*'  # gimre: regex to handle multiline #defines
+
 
 def t_COMMENT_SINGLELINE(tok):
     r'\/\/.*\n'
     tok.lexer.lineno += len([a for a in tok.value if a == '\n'])
+
 
 t_ASTERISK = r'\*'
 t_MINUS = r'\-'
@@ -73,13 +75,16 @@ t_CHAR_LITERAL = r"'.'"
 t_SQUOTE = r'\''
 t_STRING_LITERAL = r'"([^"\\]|\\.)*"'
 
+
 def t_COMMENT_MULTILINE(tok):
     r'/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/'
     tok.lexer.lineno += len([a for a in tok.value if a == '\n'])
 
+
 def t_NEWLINE(tok):
     r'\n+'
     tok.lexer.lineno += len(tok.value)
+
 
 def t_error(err):
     print(('Lex error: ', err))

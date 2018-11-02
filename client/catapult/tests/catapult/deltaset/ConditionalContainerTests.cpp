@@ -19,8 +19,11 @@
 **/
 
 #include "catapult/deltaset/ConditionalContainer.h"
-#include "tests/catapult/deltaset/test/DeltaElementsTestUtils.h"
+#include "catapult/deltaset/OrderedSet.h"
+#include "catapult/utils/ContainerHelpers.h"
+#include "tests/test/other/DeltaElementsTestUtils.h"
 #include "tests/TestHarness.h"
+#include <unordered_set>
 
 namespace catapult { namespace deltaset {
 
@@ -114,6 +117,28 @@ namespace catapult { namespace deltaset {
 		constexpr auto StorageMode = ConditionalContainerMode::Storage;
 		constexpr auto MemoryMode = ConditionalContainerMode::Memory;
 	}
+}}
+
+namespace catapult { namespace test {
+
+	using StorageSetType = deltaset::SetTraits::Types::StorageSetType;
+	using MemorySetType = deltaset::SetTraits::Types::MemorySetType;
+
+	void PruneBaseSet(StorageSetType& elements, const deltaset::PruningBoundary<StorageSetType::value_type>& pruningBoundary);
+	void PruneBaseSet(StorageSetType& elements, const deltaset::PruningBoundary<StorageSetType::value_type>& pruningBoundary) {
+		deltaset::PruneBaseSet(elements, pruningBoundary);
+	}
+
+	// need custom PruneBaseSet for unordered_set, which does not support lower_bound
+	void PruneBaseSet(MemorySetType& elements, const deltaset::PruningBoundary<MemorySetType::value_type>& pruningBoundary);
+	void PruneBaseSet(MemorySetType& elements, const deltaset::PruningBoundary<MemorySetType::value_type>& pruningBoundary) {
+		utils::map_erase_if(elements, [pruningBoundary](const auto& element) {
+			return element < pruningBoundary.value();
+		});
+	}
+}}
+
+namespace catapult { namespace deltaset {
 
 	// region traits based tests
 
@@ -135,6 +160,15 @@ namespace catapult { namespace deltaset {
 		// Assert:
 		EXPECT_TRUE(container.empty());
 		EXPECT_EQ(0u, container.size());
+	}
+
+	TRAITS_BASED_TEST(CanDefaultConstructContainerIterators) {
+		// Act:
+		using ContainerType = decltype(TTraits::CreateContainer(Mode));
+		typename ContainerType::iterator iter;
+		typename ContainerType::const_iterator citer;
+
+		// Assert: no exceptions
 	}
 
 	TRAITS_BASED_TEST(CanInsertElements) {
@@ -236,6 +270,62 @@ namespace catapult { namespace deltaset {
 
 	// endregion
 
+	// region set traits based pruning test
+
+#define TRAITS_BASED_SET_TEST(TEST_NAME) \
+	template<ConditionalContainerMode Mode, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_StorageSet) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StorageMode, SetTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_MemorySet) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MemoryMode, SetTraits>(); } \
+	template<ConditionalContainerMode Mode, typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	namespace {
+		template<ConditionalContainerMode Mode, typename TTraits>
+		auto CreateContainerSeededForPruningTest() {
+			auto container = TTraits::CreateContainer(Mode);
+
+			typename TTraits::DeltaElementsWrapper wrapper;
+			TTraits::AddElement(wrapper.Added, "alpha", 5);
+			TTraits::AddElement(wrapper.Added, "zeta", 100);
+			TTraits::AddElement(wrapper.Added, "beta", 6);
+			TTraits::AddElement(wrapper.Added, "gamma", 7);
+			container.update(wrapper.deltas());
+
+			return container;
+		}
+	}
+
+	TRAITS_BASED_SET_TEST(CanPruneElements) {
+		// Arrange:
+		auto container = CreateContainerSeededForPruningTest<Mode, TTraits>();
+
+		// Act:
+		container.prune(TTraits::MakeKey("gamma", 7));
+
+		// Assert:
+		EXPECT_FALSE(container.empty());
+		EXPECT_EQ(2u, container.size());
+
+		EXPECT_TRUE(TTraits::Contains(container, "gamma", 7));
+		EXPECT_TRUE(TTraits::Contains(container, "zeta", 100));
+	}
+
+	TRAITS_BASED_SET_TEST(CanPruneElementsViaFreeFunction) {
+		// Arrange:
+		auto container = CreateContainerSeededForPruningTest<Mode, TTraits>();
+
+		// Act:
+		PruneBaseSet(container, TTraits::MakeKey("gamma", 7));
+
+		// Assert:
+		EXPECT_FALSE(container.empty());
+		EXPECT_EQ(2u, container.size());
+
+		EXPECT_TRUE(TTraits::Contains(container, "gamma", 7));
+		EXPECT_TRUE(TTraits::Contains(container, "zeta", 100));
+	}
+
+	// endregion
+
 	// region constructor arguments
 
 	TEST(TEST_CLASS, ConstructorArgumentsAreForwardedToUnderlyingStorageContainer) {
@@ -274,25 +364,22 @@ namespace catapult { namespace deltaset {
 
 	// region iterable
 
-	TEST(TEST_CLASS, StorageBasedCacheIsNeitherIterableNorPrunable) {
+	TEST(TEST_CLASS, StorageBasedCacheIsNotIterable) {
 		// Act:
 		MapTraits::DiffUnderlying::ContainerType container(ConditionalContainerMode::Storage);
 
 		// Assert:
 		EXPECT_FALSE(IsSetIterable(container));
 		EXPECT_THROW(SelectIterableSet(container), catapult_invalid_argument);
-		EXPECT_THROW(SelectPrunableSet(container), catapult_invalid_argument);
 	}
 
-	TEST(TEST_CLASS, MemoryBasedCacheIsBothIterableAndPrunable) {
+	TEST(TEST_CLASS, MemoryBasedCacheIsIterable) {
 		// Act:
 		MapTraits::DiffUnderlying::ContainerType container(ConditionalContainerMode::Memory);
 
 		// Assert:
 		EXPECT_TRUE(IsSetIterable(container));
 		EXPECT_NO_THROW(SelectIterableSet(container));
-		EXPECT_NO_THROW(SelectPrunableSet(container));
-		EXPECT_EQ(&SelectIterableSet(container), &SelectPrunableSet(container));
 	}
 
 	// endregion

@@ -40,23 +40,29 @@ namespace catapult { namespace cache {
 	}
 
 	BasicNamespaceCacheDelta::BasicNamespaceCacheDelta(
-			const NamespaceCacheTypes::BaseSetDeltaPointers& namespaceSets,
-			const NamespaceSizes& namespaceSizes)
+				const NamespaceCacheTypes::BaseSetDeltaPointers& namespaceSets,
+				const NamespaceCacheTypes::Options& options,
+				const NamespaceSizes& namespaceSizes)
 			: NamespaceCacheDeltaMixins::Size(*namespaceSets.pPrimary)
 			, NamespaceCacheDeltaMixins::Contains(*namespaceSets.pFlatMap)
+			, NamespaceCacheDeltaMixins::PatriciaTreeDelta(*namespaceSets.pPrimary, namespaceSets.pPatriciaTree)
+			, NamespaceCacheDeltaMixins::Touch(*namespaceSets.pPrimary, *namespaceSets.pHeightGrouping)
 			, NamespaceCacheDeltaMixins::DeltaElements(*namespaceSets.pPrimary)
 			, NamespaceCacheDeltaMixins::NamespaceDeepSize(namespaceSizes)
 			, NamespaceCacheDeltaMixins::NamespaceLookup(*namespaceSets.pPrimary, *namespaceSets.pFlatMap)
 			, m_pHistoryById(namespaceSets.pPrimary)
 			, m_pNamespaceById(namespaceSets.pFlatMap)
 			, m_pRootNamespaceIdsByExpiryHeight(namespaceSets.pHeightGrouping)
+			, m_gracePeriodDuration(options.GracePeriodDuration)
 	{}
 
 	void BasicNamespaceCacheDelta::insert(const state::RootNamespace& ns) {
 		// register the namespace for expiration at the end of its lifetime (if its lifetime changes later, it will not be pruned)
-		AddIdentifierWithGroup(*m_pRootNamespaceIdsByExpiryHeight, ns.lifetime().End, ns.id());
+		auto nsLifetimeWithGracePeriod = state::NamespaceLifetime(ns.lifetime().Start, ns.lifetime().End, m_gracePeriodDuration);
+		AddIdentifierWithGroup(*m_pRootNamespaceIdsByExpiryHeight, nsLifetimeWithGracePeriod.GracePeriodEnd, ns.id());
 
-		auto* pHistory = m_pHistoryById->find(ns.id());
+		auto historyIter = m_pHistoryById->find(ns.id());
+		auto* pHistory = historyIter.get();
 		if (pHistory) {
 			// if the owner changed, remove all of the current root's children
 			const auto& activeChildren = pHistory->back().children();
@@ -67,13 +73,13 @@ namespace catapult { namespace cache {
 				incrementDeepSize(activeChildren.size());
 			}
 
-			pHistory->push_back(ns.owner(), ns.lifetime());
+			pHistory->push_back(ns.owner(), nsLifetimeWithGracePeriod);
 			incrementDeepSize();
 			return;
 		}
 
 		state::RootNamespaceHistory history(ns.id());
-		history.push_back(ns.owner(), ns.lifetime());
+		history.push_back(ns.owner(), nsLifetimeWithGracePeriod);
 		m_pHistoryById->insert(std::move(history));
 		incrementActiveSize();
 		incrementDeepSize();
@@ -84,7 +90,8 @@ namespace catapult { namespace cache {
 	}
 
 	void BasicNamespaceCacheDelta::insert(const state::Namespace& ns) {
-		auto* pHistory = m_pHistoryById->find(ns.rootId());
+		auto historyIter = m_pHistoryById->find(ns.rootId());
+		auto* pHistory = historyIter.get();
 		if (!pHistory)
 			CATAPULT_THROW_INVALID_ARGUMENT_1("no root namespace exists for namespace", ns.id());
 
@@ -96,7 +103,8 @@ namespace catapult { namespace cache {
 	}
 
 	void BasicNamespaceCacheDelta::remove(NamespaceId id) {
-		const auto* pNamespace = m_pNamespaceById->find(id);
+		auto namespaceIter = m_pNamespaceById->find(id);
+		const auto* pNamespace = namespaceIter.get();
 		if (!pNamespace)
 			CATAPULT_THROW_INVALID_ARGUMENT_1("no namespace exists", id);
 
@@ -107,7 +115,8 @@ namespace catapult { namespace cache {
 	}
 
 	void BasicNamespaceCacheDelta::removeRoot(NamespaceId id) {
-		auto* pHistory = m_pHistoryById->find(id);
+		auto historyIter = m_pHistoryById->find(id);
+		auto* pHistory = historyIter.get();
 		if (1 == pHistory->historyDepth() && !pHistory->back().empty())
 			CATAPULT_THROW_RUNTIME_ERROR_1("cannot remove non-empty root namespace", id);
 
@@ -140,7 +149,8 @@ namespace catapult { namespace cache {
 	}
 
 	void BasicNamespaceCacheDelta::removeChild(const state::Namespace& ns) {
-		auto* pHistory = m_pHistoryById->find(ns.rootId());
+		auto historyIter = m_pHistoryById->find(ns.rootId());
+		auto* pHistory = historyIter.get();
 		pHistory->back().remove(ns.id());
 		m_pNamespaceById->remove(ns.id());
 

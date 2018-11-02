@@ -28,8 +28,9 @@ namespace catapult { namespace ionet {
 
 	/// Connection state unique to a node and connection identifier.
 	struct PackedConnectionState {
+	public:
 		/// Connection identifier.
-		ionet::ServiceIdentifier ServiceId;
+		ServiceIdentifier ServiceId;
 
 		/// Current connection age.
 		/// \c 0 if the connection is not active.
@@ -43,6 +44,24 @@ namespace catapult { namespace ionet {
 
 		/// Number of failed connections.
 		uint32_t NumFailures;
+
+		/// Number of consecutive failed connections.
+		uint32_t NumConsecutiveFailures;
+
+		/// Current ban age.
+		/// \c 0 if the connection is not banned.
+		uint32_t BanAge;
+
+	public:
+		/// Updates values with corresponding values from \a from \a connectionState.
+		void Update(const ConnectionState& connectionState) {
+			Age = connectionState.Age;
+			NumAttempts = connectionState.NumAttempts;
+			NumSuccesses = connectionState.NumSuccesses;
+			NumFailures = connectionState.NumFailures;
+			NumConsecutiveFailures = connectionState.NumConsecutiveFailures;
+			BanAge = connectionState.BanAge;
+		}
 	};
 
 	/// Information about a node and its interactions.

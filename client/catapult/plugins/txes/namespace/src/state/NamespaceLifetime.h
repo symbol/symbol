@@ -27,23 +27,34 @@ namespace catapult { namespace state {
 	/// Lifetime of a namespace.
 	struct NamespaceLifetime {
 	public:
-		/// Creates a lifetime composed of a \a start height and an \a end height.
-		explicit NamespaceLifetime(Height start, Height end)
+		/// Creates a lifetime with \a start height and \a end height.
+		NamespaceLifetime(Height start, Height end) : NamespaceLifetime(start, end, BlockDuration(0))
+		{}
+
+		/// Creates a lifetime with \a start height, \a end height and a grace period (\a gracePeriodDuration).
+		NamespaceLifetime(Height start, Height end, BlockDuration gracePeriodDuration)
 				: Start(start)
-				, End(end) {
+				, End(end)
+				, GracePeriodEnd(end.unwrap() + gracePeriodDuration.unwrap()) {
 			if (start >= end)
 				CATAPULT_THROW_INVALID_ARGUMENT("namespace lifetime must be positive");
 		}
 
 	public:
-		bool isActive(Height height) const {
+		/// Returns \c true if history is active at \a height (excluding grace period).
+		bool isActiveAndUnlocked(Height height) const {
 			return height >= Start && height < End;
+		}
+
+		/// Returns \c true if history is active at \a height (including grace period).
+		bool isActiveOrGracePeriod(Height height) const {
+			return height >= Start && height < GracePeriodEnd;
 		}
 
 	public:
 		/// Returns \c true if this NamespaceLifetime is equal to \a rhs.
 		bool operator==(const NamespaceLifetime& rhs) const {
-			return Start == rhs.Start && End == rhs.End;
+			return Start == rhs.Start && End == rhs.End && GracePeriodEnd == rhs.GracePeriodEnd;
 		}
 
 		/// Returns \c true if this NamespaceLifetime is not equal to \a rhs.
@@ -55,7 +66,10 @@ namespace catapult { namespace state {
 		/// Start height.
 		Height Start;
 
-		/// End height.
+		/// End height excluding grace period.
 		Height End;
+
+		/// End height including grace period.
+		Height GracePeriodEnd;
 	};
 }}

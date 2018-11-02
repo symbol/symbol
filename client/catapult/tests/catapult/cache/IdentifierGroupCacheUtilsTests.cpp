@@ -21,6 +21,7 @@
 #include "catapult/cache/IdentifierGroupCacheUtils.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
 #include "catapult/utils/Hashers.h"
+#include "tests/catapult/cache/test/UnsupportedSerializer.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -29,7 +30,15 @@ namespace catapult { namespace cache {
 
 	namespace {
 		// int grouped by Height
-		using TestIdentifierGroup = utils::IdentifierGroup<int, Height, std::hash<int>>;
+		class TestIdentifierGroup : public utils::IdentifierGroup<int, Height, std::hash<int>> {
+		public:
+#ifdef _MSC_VER
+			TestIdentifierGroup() : TestIdentifierGroup(Height())
+			{}
+#endif
+
+			using utils::IdentifierGroup<int, Height, std::hash<int>>::IdentifierGroup;
+		};
 
 		TestIdentifierGroup AddValues(TestIdentifierGroup&& group, std::initializer_list<int> values) {
 			for (auto value : values)
@@ -41,6 +50,8 @@ namespace catapult { namespace cache {
 		struct TestHeightGroupedCacheDescriptor {
 			using KeyType = Height;
 			using ValueType = TestIdentifierGroup;
+
+			using Serializer = test::UnsupportedSerializer<KeyType, ValueType>;
 
 			static KeyType GetKeyFromValue(const ValueType& value) {
 				return value.key();
@@ -64,6 +75,7 @@ namespace catapult { namespace cache {
 		struct TestCacheDescriptor {
 			using KeyType = int;
 			using ValueType = std::string;
+			using Serializer = test::UnsupportedSerializer<KeyType, ValueType>;
 
 			static KeyType GetKeyFromValue(const ValueType& value) {
 				return static_cast<int>(value.size());
@@ -90,7 +102,7 @@ namespace catapult { namespace cache {
 		AddIdentifierWithGroup(*pGroupedDelta, Height(5), 17);
 
 		// Assert:
-		const auto* pGroup = pGroupedDelta->find(Height(5));
+		const auto* pGroup = pGroupedDelta->find(Height(5)).get();
 		ASSERT_TRUE(!!pGroup);
 		EXPECT_EQ(TestIdentifierGroup::Identifiers({ 17 }), pGroup->identifiers());
 	}
@@ -106,7 +118,7 @@ namespace catapult { namespace cache {
 		AddIdentifierWithGroup(*pGroupedDelta, Height(3), 7);
 
 		// Assert:
-		const auto* pGroup = pGroupedDelta->find(Height(3));
+		const auto* pGroup = pGroupedDelta->find(Height(3)).get();
 		ASSERT_TRUE(!!pGroup);
 		EXPECT_EQ(TestIdentifierGroup::Identifiers({ 1, 4, 7, 9 }), pGroup->identifiers());
 	}
@@ -122,7 +134,7 @@ namespace catapult { namespace cache {
 		AddIdentifierWithGroup(*pGroupedDelta, Height(3), 4);
 
 		// Assert:
-		const auto* pGroup = pGroupedDelta->find(Height(3));
+		const auto* pGroup = pGroupedDelta->find(Height(3)).get();
 		ASSERT_TRUE(!!pGroup);
 		EXPECT_EQ(TestIdentifierGroup::Identifiers({ 1, 4, 9 }), pGroup->identifiers());
 	}

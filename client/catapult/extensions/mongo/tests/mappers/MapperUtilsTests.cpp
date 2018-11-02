@@ -49,6 +49,18 @@ namespace catapult { namespace mongo { namespace mappers {
 		EXPECT_EQ(10u, bsonBinary.size);
 	}
 
+	TEST(TEST_CLASS, CanConvertUnresolvedAddressToBinary) {
+		// Arrange:
+		auto unresolvedAddress = extensions::CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>());
+
+		// Act
+		auto bsonBinary = ToBinary(unresolvedAddress);
+
+		// Assert:
+		EXPECT_EQ(reinterpret_cast<const uint8_t*>(unresolvedAddress.data()), bsonBinary.bytes);
+		EXPECT_EQ(Address_Decoded_Size, bsonBinary.size);
+	}
+
 	namespace {
 		template<size_t N>
 		void AssertCanConvertArrayToBinary() {
@@ -114,7 +126,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto result = TTraits::ToInt(customValue);
 
 		// Assert:
-		EXPECT_EQ(customValue.unwrap(), result);
+		EXPECT_EQ(customValue.unwrap(), static_cast<typename TTraits::Custom::ValueType>(result));
 	}
 
 	TRAIT_BASED_TO_INT_TEST(CanConvertBaseValueInUnsignedRange) {
@@ -344,27 +356,40 @@ namespace catapult { namespace mongo { namespace mappers {
 		test::AssertEqualVerifiableEntityData(entity, view);
 	}
 
+	namespace {
+		template<typename TMosaicId>
+		void AssertCanStreamMosaic() {
+			// Arrange:
+			auto id = test::GenerateRandomValue<TMosaicId>();
+			auto amount = test::GenerateRandomValue<Amount>();
+
+			// Act: serialize to mongo
+			bson_stream::document builder;
+			auto mosaicsArray = builder << "arr" << bson_stream::open_array;
+			StreamMosaic(mosaicsArray, id, amount);
+			mosaicsArray << bson_stream::close_array;
+			auto view = builder.view();
+
+			// Assert:
+			EXPECT_EQ(1u, test::GetFieldCount(view));
+
+			auto dbArray = view["arr"].get_array().value;
+			ASSERT_EQ(1u, test::GetFieldCount(dbArray));
+
+			auto dbMosaic = dbArray.cbegin()->get_document().view();
+			EXPECT_EQ(id, TMosaicId(test::GetUint64(dbMosaic, "id")));
+			EXPECT_EQ(amount, Amount(test::GetUint64(dbMosaic, "amount")));
+		}
+	}
+
 	TEST(TEST_CLASS, CanStreamMosaic) {
-		// Arrange:
-		auto id = test::GenerateRandomValue<MosaicId>();
-		auto amount = test::GenerateRandomValue<Amount>();
-
-		// Act: serialize to mongo
-		bson_stream::document builder;
-		auto mosaicsArray = builder << "arr" << bson_stream::open_array;
-		StreamMosaic(mosaicsArray, id, amount);
-		mosaicsArray << bson_stream::close_array;
-		auto view = builder.view();
-
 		// Assert:
-		EXPECT_EQ(1u, test::GetFieldCount(view));
+		AssertCanStreamMosaic<MosaicId>();
+	}
 
-		auto dbArray = view["arr"].get_array().value;
-		ASSERT_EQ(1u, std::distance(dbArray.cbegin(), dbArray.cend()));
-
-		auto dbMosaic = dbArray.cbegin()->get_document().view();
-		EXPECT_EQ(id.unwrap(), test::GetUint64(dbMosaic, "id"));
-		EXPECT_EQ(amount.unwrap(), test::GetUint64(dbMosaic, "amount"));
+	TEST(TEST_CLASS, CanStreamUnresolvedMosaic) {
+		// Assert:
+		AssertCanStreamMosaic<UnresolvedMosaicId>();
 	}
 
 	// endregion

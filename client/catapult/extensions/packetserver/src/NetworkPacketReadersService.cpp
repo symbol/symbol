@@ -30,14 +30,13 @@ namespace catapult { namespace packetserver {
 
 	namespace {
 		constexpr auto Service_Name = "readers";
+		constexpr auto Service_Id = ionet::ServiceIdentifier(0x52454144);
 
 		thread::Task CreateAgePeersTask(extensions::ServiceState& state, net::ConnectionContainer& connectionContainer) {
 			const auto& connectionsConfig = state.config().Node.IncomingConnections;
 			auto& nodes = state.nodes();
 
-			auto serviceId = ionet::ServiceIdentifier(0x52454144);
-			auto selector = extensions::CreateRemoveOnlyNodeSelector(serviceId, connectionsConfig, nodes);
-			auto task = extensions::CreateAgePeersTask(nodes, connectionContainer, serviceId, selector);
+			auto task = extensions::CreateAgePeersTask(nodes, connectionContainer, Service_Id, connectionsConfig);
 			task.Name += " for service Readers";
 			return task;
 		}
@@ -63,7 +62,8 @@ namespace catapult { namespace packetserver {
 						locator.keyPair(),
 						extensions::GetConnectionSettings(config),
 						extensions::GetMaxIncomingConnectionsPerIdentity(config.Node.Local.Roles));
-				extensions::BootServer(*pServiceGroup, config.Node.Port, config, [&acceptor = *pReaders](
+				auto& acceptor = *pReaders;
+				extensions::BootServer(*pServiceGroup, config.Node.Port, Service_Id, config, state.nodeSubscriber(), [&acceptor](
 						const auto& socketInfo,
 						const auto& callback) {
 					acceptor.accept(socketInfo, callback);

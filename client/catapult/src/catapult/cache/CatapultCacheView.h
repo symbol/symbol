@@ -19,10 +19,9 @@
 **/
 
 #pragma once
+#include "StateHashInfo.h"
 #include "SubCachePlugin.h"
-#include "catapult/types.h"
 #include <memory>
-#include <vector>
 
 namespace catapult {
 	namespace cache {
@@ -55,6 +54,9 @@ namespace catapult { namespace cache {
 		}
 
 	public:
+		/// Calculates the cache state hash.
+		StateHashInfo calculateStateHash() const;
+
 		/// Gets the cache height associated with the read lock.
 		Height height() const;
 

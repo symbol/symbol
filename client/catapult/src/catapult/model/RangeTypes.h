@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include "AccountInfo.h"
 #include "Block.h"
 #include "EntityRange.h"
 #include "catapult/utils/ShortHash.h"
@@ -40,7 +39,4 @@ namespace catapult { namespace model {
 
 	/// An entity range composed of addresses.
 	using AddressRange = EntityRange<Address>;
-
-	/// An entity range composed of account infos.
-	using AccountInfoRange = EntityRange<AccountInfo>;
 }}

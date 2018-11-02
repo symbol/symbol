@@ -38,12 +38,7 @@ namespace catapult { namespace validators {
 		public:
 			ValidationResult validate(uint8_t notificationId) {
 				auto cache = test::CreateEmptyCatapultCache();
-				auto cacheView = cache.createView();
-				auto context = test::CreateValidatorContext(Height(123), cacheView.toReadOnly());
-				return test::ValidateNotification<model::Notification>(
-						*pDemuxValidator,
-						test::TaggedNotification(notificationId),
-						context);
+				return test::ValidateNotification<model::Notification>(*pDemuxValidator, test::TaggedNotification(notificationId), cache);
 			}
 		};
 
@@ -219,8 +214,6 @@ namespace catapult { namespace validators {
 			stateful::DemuxValidatorBuilder builder;
 
 			auto cache = test::CreateEmptyCatapultCache();
-			auto cacheView = cache.createView();
-			auto context = test::CreateValidatorContext(Height(123), cacheView.toReadOnly());
 
 			builder
 				.add(CreateBreadcrumbValidator<model::AccountPublicKeyNotification>(breadcrumbs, "alpha"))
@@ -231,7 +224,7 @@ namespace catapult { namespace validators {
 			// Act:
 			auto notification = model::AccountPublicKeyNotification(Key());
 			prepareNotification(notification);
-			auto result = test::ValidateNotification<model::Notification>(*pValidator, notification, context);
+			auto result = test::ValidateNotification<model::Notification>(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(ValidationResult::Success, result);

@@ -20,7 +20,7 @@
 
 #include "catapult/api/LocalChainApi.h"
 #include "catapult/model/EntityHasher.h"
-#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace api {
@@ -28,8 +28,8 @@ namespace catapult { namespace api {
 #define TEST_CLASS LocalChainApiTests
 
 	namespace {
-		std::unique_ptr<ChainApi> CreateLocalChainApi(const io::BlockStorageCache& storage, uint32_t maxHashes) {
-			return api::CreateLocalChainApi(storage, []() { return model::ChainScore(1); }, maxHashes);
+		std::unique_ptr<ChainApi> CreateLocalChainApi(const io::BlockStorageCache& storage) {
+			return api::CreateLocalChainApi(storage, []() { return model::ChainScore(1); });
 		}
 	}
 
@@ -37,14 +37,14 @@ namespace catapult { namespace api {
 
 	TEST(TEST_CLASS, CanRetrieveChainInfo) {
 		// Arrange:
-		auto numSupplierCalls = 0;
+		auto numSupplierCalls = 0u;
 		auto chainScoreSupplier = [&numSupplierCalls]() {
 			++numSupplierCalls;
 			return model::ChainScore(12345);
 		};
 
-		auto pStorage = mocks::CreateMemoryBasedStorageCache(12);
-		auto pApi = api::CreateLocalChainApi(*pStorage, chainScoreSupplier, 5);
+		auto pStorage = mocks::CreateMemoryBlockStorageCache(12);
+		auto pApi = api::CreateLocalChainApi(*pStorage, chainScoreSupplier);
 
 		// Act:
 		auto info = pApi->chainInfo().get();
@@ -62,15 +62,16 @@ namespace catapult { namespace api {
 	namespace {
 		struct HashesFromTraits {
 			static auto Invoke(ChainApi& api, Height height) {
-				return api.hashesFrom(height);
+				// tests only check height, so number of hashes is not important
+				return api.hashesFrom(height, 1);
 			}
 		};
 
 		template<typename TTraits>
 		void AssertApiErrorForHeight(uint32_t numBlocks, Height requestHeight) {
 			// Arrange:
-			auto pStorage = mocks::CreateMemoryBasedStorageCache(numBlocks);
-			auto pApi = CreateLocalChainApi(*pStorage, 5);
+			auto pStorage = mocks::CreateMemoryBlockStorageCache(numBlocks);
+			auto pApi = CreateLocalChainApi(*pStorage);
 
 			// Act + Assert:
 			auto future = TTraits::Invoke(*pApi, requestHeight);
@@ -105,11 +106,11 @@ namespace catapult { namespace api {
 				Height requestHeight,
 				const std::vector<Height>& expectedHeights) {
 			// Arrange:
-			auto pStorage = mocks::CreateMemoryBasedStorageCache(numBlocks);
-			auto pApi = CreateLocalChainApi(*pStorage, maxHashes);
+			auto pStorage = mocks::CreateMemoryBlockStorageCache(numBlocks);
+			auto pApi = CreateLocalChainApi(*pStorage);
 
 			// Act:
-			auto hashes = pApi->hashesFrom(requestHeight).get();
+			auto hashes = pApi->hashesFrom(requestHeight, maxHashes).get();
 
 			// Assert:
 			ASSERT_EQ(expectedHeights.size(), hashes.size());

@@ -61,12 +61,12 @@ namespace catapult { namespace mongo {
 			auto database = connection[test::DatabaseName()];
 
 			auto cursor = database["chainInfo"].find({});
-			ASSERT_EQ(1u, std::distance(cursor.begin(), cursor.end()));
+			ASSERT_EQ(1, std::distance(cursor.begin(), cursor.end()));
 
 			auto matchedDocument = database["chainInfo"].find_one({}).get();
 
-			auto scoreLow = static_cast<uint64_t>(matchedDocument.view()["scoreLow"].get_int64().value);
-			auto scoreHigh = static_cast<uint64_t>(matchedDocument.view()["scoreHigh"].get_int64().value);
+			auto scoreLow = test::GetUint64(matchedDocument.view(), "scoreLow");
+			auto scoreHigh = test::GetUint64(matchedDocument.view(), "scoreHigh");
 			EXPECT_EQ(expectedScore, model::ChainScore(scoreHigh, scoreLow));
 		}
 	}

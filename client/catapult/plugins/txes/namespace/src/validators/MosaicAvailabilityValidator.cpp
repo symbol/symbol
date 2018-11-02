@@ -35,7 +35,8 @@ namespace catapult { namespace validators {
 			return ValidationResult::Success;
 
 		// - disallow conflicting parent namespace
-		const auto& entry = cache.get(notification.MosaicId);
+		auto mosaicIter = cache.find(notification.MosaicId);
+		const auto& entry = mosaicIter.get();
 		if (entry.namespaceId() != notification.ParentId)
 			return Failure_Mosaic_Parent_Id_Conflict;
 
@@ -45,8 +46,8 @@ namespace catapult { namespace validators {
 
 		// - only allow a modification if signer contains full balance
 		const auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
-		auto pAccountState = accountStateCache.tryGet(notification.Signer);
-		return !pAccountState || entry.supply() != pAccountState->Balances.get(notification.MosaicId)
+		auto accountStateIter = accountStateCache.find(notification.Signer);
+		return !accountStateIter.tryGet() || entry.supply() != accountStateIter.get().Balances.get(notification.MosaicId)
 				? Failure_Mosaic_Modification_Disallowed
 				: ValidationResult::Success;
 	});

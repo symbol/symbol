@@ -60,13 +60,8 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto pValidator = CreateMosaicAvailabilityValidator();
 
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(height, readOnlyCache);
-
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache, height);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "height " << height << ", id " << notification.MosaicId;

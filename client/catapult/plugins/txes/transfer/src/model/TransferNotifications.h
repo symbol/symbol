@@ -65,7 +65,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a mosaicsCount and \a pMosaics.
-		explicit TransferMosaicsNotification(uint8_t mosaicsCount, const Mosaic* pMosaics)
+		explicit TransferMosaicsNotification(uint8_t mosaicsCount, const UnresolvedMosaic* pMosaics)
 				: Notification(Notification_Type, sizeof(TransferMosaicsNotification))
 				, MosaicsCount(mosaicsCount)
 				, MosaicsPtr(pMosaics)
@@ -76,6 +76,6 @@ namespace catapult { namespace model {
 		uint8_t MosaicsCount;
 
 		/// Const pointer to the first mosaic.
-		const Mosaic* MosaicsPtr;
+		const UnresolvedMosaic* MosaicsPtr;
 	};
 }}

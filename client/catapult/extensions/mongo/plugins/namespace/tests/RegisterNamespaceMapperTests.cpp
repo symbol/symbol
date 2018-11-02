@@ -54,7 +54,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				const bsoncxx::document::view& dbTransaction) {
 			// Assert:
 			EXPECT_EQ(namespaceType, static_cast<model::NamespaceType>(test::GetUint32(dbTransaction, "namespaceType")));
-			EXPECT_EQ(id.unwrap(), test::GetUint64(dbTransaction, "namespaceId"));
+			EXPECT_EQ(id, NamespaceId(test::GetUint64(dbTransaction, "namespaceId")));
 
 			auto dbName = dbTransaction["name"].get_binary();
 			EXPECT_EQ(namespaceName.size(), dbName.size);
@@ -99,7 +99,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		// Assert:
 		EXPECT_EQ(4u, test::GetFieldCount(view));
 		AssertSharedRegisterNamespaceData(pTransaction->NamespaceType, namespaceId, namespaceName, view);
-		EXPECT_EQ(pTransaction->Duration.unwrap(), test::GetUint64(view, "duration"));
+		EXPECT_EQ(pTransaction->Duration, BlockDuration(test::GetUint64(view, "duration")));
 	}
 
 	PLUGIN_TEST(CanMapChildRegisterNamespaceTransactionWithName) {
@@ -118,7 +118,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		// Assert:
 		EXPECT_EQ(4u, test::GetFieldCount(view));
 		AssertSharedRegisterNamespaceData(pTransaction->NamespaceType, namespaceId, namespaceName, view);
-		EXPECT_EQ(pTransaction->ParentId.unwrap(), test::GetUint64(view, "parentId"));
+		EXPECT_EQ(pTransaction->ParentId, NamespaceId(test::GetUint64(view, "parentId")));
 	}
 
 	// endregion

@@ -28,6 +28,8 @@ namespace catapult { namespace cache {
 	template<typename TKeyTraits, typename TDescriptor, typename TContainer, typename TMemorySet>
 	void UpdateSet(RdbTypedColumnContainer<TDescriptor, TContainer>& elements, const deltaset::DeltaElements<TMemorySet>& deltas) {
 		auto size = elements.size();
+		if (!deltas.HasChanges())
+			return;
 
 		for (const auto& added : deltas.Added)
 			elements.insert(added);
@@ -40,6 +42,14 @@ namespace catapult { namespace cache {
 
 		size += deltas.Added.size();
 		size -= deltas.Removed.size();
-		elements.saveSize(size);
+		elements.setSize(size);
+	}
+
+	/// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements to remove.
+	template<typename TDescriptor, typename TContainer, typename TPruningBoundary>
+	void PruneBaseSet(RdbTypedColumnContainer<TDescriptor, TContainer>& elements, const TPruningBoundary& pruningBoundary) {
+		auto size = elements.size();
+		size -= elements.prune(pruningBoundary.value());
+		elements.setSize(size);
 	}
 }}

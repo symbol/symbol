@@ -25,14 +25,14 @@
 namespace catapult { namespace cache {
 
 	/// Policy for saving and loading block difficulty cache data.
-	struct BlockDifficultyCacheStorage : public SetCacheStorageFromDescriptor<BlockDifficultyCacheDescriptor> {
-		/// Saves \a element to \a output.
-		static void Save(const StorageType& element, io::OutputStream& output);
+	struct BlockDifficultyCacheStorage : public CacheStorageFromDescriptor<BlockDifficultyCacheDescriptor> {
+		/// Saves \a info to \a output.
+		static void Save(const ValueType& info, io::OutputStream& output);
 
 		/// Loads a single value from \a input.
 		static state::BlockDifficultyInfo Load(io::InputStream& input);
 
-		/// Loads a single value from \a input into \a cacheDelta.
-		static void LoadInto(io::InputStream& input, DestinationType& cacheDelta);
+		/// Loads \a blockDifficultyInfo into \a cacheDelta.
+		static void LoadInto(const state::BlockDifficultyInfo& blockDifficultyInfo, DestinationType& cacheDelta);
 	};
 }}

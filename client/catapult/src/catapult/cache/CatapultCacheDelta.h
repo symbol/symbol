@@ -19,9 +19,9 @@
 **/
 
 #pragma once
+#include "StateHashInfo.h"
 #include "SubCachePlugin.h"
 #include <memory>
-#include <vector>
 
 namespace catapult { namespace cache { class ReadOnlyCatapultCache; } }
 
@@ -53,6 +53,13 @@ namespace catapult { namespace cache {
 		typename TCache::CacheDeltaType& sub() {
 			return *static_cast<typename TCache::CacheDeltaType*>(m_subViews[TCache::Id]->get());
 		}
+
+	public:
+		/// Calculates the cache state hash given \a height.
+		StateHashInfo calculateStateHash(Height height) const;
+
+		/// Sets the merkle roots for all subcaches (\a subCacheMerkleRoots).
+		void setSubCacheMerkleRoots(const std::vector<Hash256>& subCacheMerkleRoots);
 
 	public:
 		/// Creates a read-only view of this delta.

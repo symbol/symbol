@@ -19,20 +19,17 @@
 **/
 
 #pragma once
-#include "NamespaceCache.h"
+#include "NamespaceCacheTypes.h"
+#include "src/state/RootNamespaceHistorySerializer.h"
 #include "catapult/cache/CacheStorageInclude.h"
 
 namespace catapult { namespace cache {
 
 	/// Policy for saving and loading namespace cache data.
-	struct NamespaceCacheStorage : public MapCacheStorageFromDescriptor<NamespaceCacheDescriptor> {
-		/// Saves \a element to \a output.
-		static void Save(const StorageType& element, io::OutputStream& output);
-
-		/// Loads a single value from \a input.
-		static state::RootNamespaceHistory Load(io::InputStream& input);
-
-		/// Loads a single value from \a input into \a cacheDelta.
-		static void LoadInto(io::InputStream& input, DestinationType& cacheDelta);
+	struct NamespaceCacheStorage
+			: public CacheStorageFromDescriptor<NamespaceCacheDescriptor>
+			, public state::RootNamespaceHistorySerializer {
+		/// Loads \a history into \a cacheDelta.
+		static void LoadInto(const ValueType& history, DestinationType& cacheDelta);
 	};
 }}

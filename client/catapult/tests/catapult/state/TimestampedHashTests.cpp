@@ -117,6 +117,22 @@ namespace catapult { namespace state {
 
 	// endregion
 
+	// region serialize key
+
+	TEST(TEST_CLASS, CanSerializeTimestampedHash) {
+		// Arrange:
+		auto key = TimestampedHash(test::GenerateRandomValue<Timestamp>(), test::GenerateRandomData<Cached_Hash_Size>());
+
+		// Act:
+		auto result = SerializeKey(key);
+
+		// Assert:
+		ASSERT_EQ(sizeof(TimestampedHash), result.Size);
+		EXPECT_EQ(test::AsBytePointer(&key), result.pData);
+	}
+
+	// endregion
+
 	// region insertion operator
 
 	TEST(TEST_CLASS, CanOutputToStream) {

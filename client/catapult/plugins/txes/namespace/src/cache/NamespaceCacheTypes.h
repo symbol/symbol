@@ -32,9 +32,15 @@ namespace catapult {
 	namespace cache {
 		class BasicNamespaceCacheDelta;
 		class BasicNamespaceCacheView;
+		struct NamespaceBaseSetDeltaPointers;
+		struct NamespaceBaseSets;
 		class NamespaceCache;
 		class NamespaceCacheDelta;
 		class NamespaceCacheView;
+		struct NamespaceFlatMapTypesSerializer;
+		struct NamespaceHeightGroupingSerializer;
+		class NamespacePatriciaTree;
+		struct NamespaceRootHistoryPrimarySerializer;
 
 		template<typename TCache, typename TCacheDelta, typename TKey, typename TGetResult>
 		class ReadOnlyArtifactCache;
@@ -55,6 +61,9 @@ namespace catapult { namespace cache {
 		using CacheDeltaType = NamespaceCacheDelta;
 		using CacheViewType = NamespaceCacheView;
 
+		using Serializer = NamespaceRootHistoryPrimarySerializer;
+		using PatriciaTree = NamespacePatriciaTree;
+
 	public:
 		/// Gets the key corresponding to \a history.
 		static auto GetKeyFromValue(const ValueType& history) {
@@ -71,6 +80,12 @@ namespace catapult { namespace cache {
 			NamespaceId,
 			state::NamespaceEntry>;
 
+		/// Custom sub view options.
+		struct Options {
+			/// Namespace grace period duration.
+			BlockDuration GracePeriodDuration;
+		};
+
 	// region secondary descriptors
 
 	private:
@@ -78,6 +93,7 @@ namespace catapult { namespace cache {
 		public:
 			using KeyType = NamespaceId;
 			using ValueType = state::Namespace;
+			using Serializer = NamespaceFlatMapTypesSerializer;
 
 		public:
 			static auto GetKeyFromValue(const ValueType& ns) {
@@ -85,10 +101,12 @@ namespace catapult { namespace cache {
 			}
 		};
 
+	public:
 		struct HeightGroupingTypesDescriptor {
 		public:
 			using KeyType = Height;
 			using ValueType = utils::IdentifierGroup<NamespaceId, Height, utils::BaseValueHasher<NamespaceId>>;
+			using Serializer = NamespaceHeightGroupingSerializer;
 
 		public:
 			static auto GetKeyFromValue(const ValueType& heightNamespaces) {
@@ -104,42 +122,7 @@ namespace catapult { namespace cache {
 		using HeightGroupingTypes = MutableUnorderedMapAdapter<HeightGroupingTypesDescriptor, utils::BaseValueHasher<Height>>;
 
 	public:
-		// in order to compose namespace cache from multiple sets, define an aggregate set type
-
-		struct BaseSetDeltaPointers {
-			PrimaryTypes::BaseSetDeltaPointerType pPrimary;
-			FlatMapTypes::BaseSetDeltaPointerType pFlatMap;
-			HeightGroupingTypes::BaseSetDeltaPointerType pHeightGrouping;
-		};
-
-		struct BaseSets : public CacheDatabaseMixin {
-		public:
-			explicit BaseSets(const CacheConfiguration& config)
-					: CacheDatabaseMixin(config, { "default", "flat_map", "height_grouping" })
-					, Primary(GetContainerMode(config), database(), 0)
-					, FlatMap(GetContainerMode(config), database(), 1)
-					, HeightGrouping(GetContainerMode(config), database(), 2)
-			{}
-
-		public:
-			PrimaryTypes::BaseSetType Primary;
-			FlatMapTypes::BaseSetType FlatMap;
-			HeightGroupingTypes::BaseSetType HeightGrouping;
-
-		public:
-			BaseSetDeltaPointers rebase() {
-				return { Primary.rebase(), FlatMap.rebase(), HeightGrouping.rebase() };
-			}
-
-			BaseSetDeltaPointers rebaseDetached() const {
-				return { Primary.rebaseDetached(), FlatMap.rebaseDetached(), HeightGrouping.rebaseDetached() };
-			}
-
-			void commit() {
-				Primary.commit();
-				FlatMap.commit();
-				HeightGrouping.commit();
-			}
-		};
+		using BaseSetDeltaPointers = NamespaceBaseSetDeltaPointers;
+		using BaseSets = NamespaceBaseSets;
 	};
 }}

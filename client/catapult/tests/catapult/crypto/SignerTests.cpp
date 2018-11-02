@@ -368,6 +368,7 @@ namespace catapult { namespace crypto {
 			}, result));
 			EXPECT_EQ(properSignature, result);
 		}
+
 		{
 			Signature result;
 			auto partSize = payload.size() / 3;
@@ -378,6 +379,7 @@ namespace catapult { namespace crypto {
 			}, result));
 			EXPECT_EQ(properSignature, result);
 		}
+
 		{
 			Signature result;
 			auto partSize = payload.size() / 4;

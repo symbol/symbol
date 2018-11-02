@@ -35,7 +35,7 @@ namespace catapult { namespace mocks {
 		utils::KeySet identities() const override {
 			utils::KeySet identities;
 			for (const auto& node : m_nodes) {
-				if (net::PeerConnectResult::Accepted == getResult(node.identityKey()))
+				if (net::PeerConnectCode::Accepted == getResult(node.identityKey()).Code)
 					identities.insert(node.identityKey());
 			}
 
@@ -70,9 +70,9 @@ namespace catapult { namespace mocks {
 		}
 
 	public:
-		/// Sets the connect result for the node with \a identityKey to \a connectResult.
-		void setConnectResult(const Key& identityKey, net::PeerConnectResult connectResult) {
-			m_nodeResultMap.emplace(identityKey, connectResult);
+		/// Sets the connect code for the node with \a identityKey to \a connectCode.
+		void setConnectCode(const Key& identityKey, net::PeerConnectCode connectCode) {
+			m_nodeConnectCodeMap.emplace(identityKey, connectCode);
 		}
 
 		/// Immediately marks \a node as connected.
@@ -111,14 +111,14 @@ namespace catapult { namespace mocks {
 
 	private:
 		net::PeerConnectResult getResult(const Key& identityKey) const {
-			auto resultIter = m_nodeResultMap.find(identityKey);
-			return m_nodeResultMap.cend() == resultIter ? net::PeerConnectResult::Accepted : resultIter->second;
+			auto resultIter = m_nodeConnectCodeMap.find(identityKey);
+			return { m_nodeConnectCodeMap.cend() == resultIter ? net::PeerConnectCode::Accepted : resultIter->second, identityKey };
 		}
 
 	private:
 		std::vector<ionet::Node> m_nodes;
 		utils::KeySet m_closedNodeIdentities;
-		std::unordered_map<Key, net::PeerConnectResult, utils::ArrayHasher<Key>> m_nodeResultMap;
+		std::unordered_map<Key, net::PeerConnectCode, utils::ArrayHasher<Key>> m_nodeConnectCodeMap;
 	};
 
 	/// Mock packet writers that has a pickOne implementation.

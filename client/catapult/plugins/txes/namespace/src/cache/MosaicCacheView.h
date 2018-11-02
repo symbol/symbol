@@ -19,8 +19,9 @@
 **/
 
 #pragma once
+#include "MosaicBaseSets.h"
 #include "MosaicCacheMixins.h"
-#include "MosaicCacheTypes.h"
+#include "MosaicCacheSerializers.h"
 #include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
@@ -28,7 +29,7 @@
 namespace catapult { namespace cache {
 
 	/// Mixins used by the mosaic cache view.
-	struct MosaicCacheViewMixins : public BasicCacheMixins<MosaicCacheTypes::PrimaryTypes::BaseSetType, MosaicCacheDescriptor> {
+	struct MosaicCacheViewMixins : public PatriciaTreeCacheMixins<MosaicCacheTypes::PrimaryTypes::BaseSetType, MosaicCacheDescriptor> {
 		using ConstAccessor = ConstAccessorWithAdapter<MosaicCacheTypes::ConstValueAdapter>;
 
 		using MosaicDeepSize = MosaicDeepSizeMixin<MosaicCacheTypes::PrimaryTypes::BaseSetType>;
@@ -41,6 +42,7 @@ namespace catapult { namespace cache {
 			, public MosaicCacheViewMixins::Contains
 			, public MosaicCacheViewMixins::Iteration
 			, public MosaicCacheViewMixins::ConstAccessor
+			, public MosaicCacheDeltaMixins::PatriciaTreeView
 			, public MosaicCacheViewMixins::ActivePredicate
 			, public MosaicCacheViewMixins::MosaicDeepSize {
 	public:
@@ -53,6 +55,7 @@ namespace catapult { namespace cache {
 				, MosaicCacheViewMixins::Contains(mosaicSets.Primary)
 				, MosaicCacheViewMixins::Iteration(mosaicSets.Primary)
 				, MosaicCacheViewMixins::ConstAccessor(mosaicSets.Primary)
+				, MosaicCacheViewMixins::PatriciaTreeView(mosaicSets.PatriciaTree.get())
 				, MosaicCacheViewMixins::ActivePredicate(mosaicSets.Primary)
 				, MosaicCacheViewMixins::MosaicDeepSize(deepSize)
 		{}

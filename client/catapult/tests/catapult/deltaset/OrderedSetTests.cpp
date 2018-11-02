@@ -185,7 +185,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutablePointer);
 		CommitWithoutPruning(*pSet);
 
 		// Sanity:
-		EXPECT_FALSE(!!pSet->find(pruningBoundaryElement));
+		EXPECT_FALSE(!!pSet->find(pruningBoundaryElement).get());
 
 		// Act:
 		CommitWithPruning(*pSet, pruningBoundaryElement);

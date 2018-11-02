@@ -28,11 +28,35 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS RootNamespaceObserverTests
 
-	using ObserverTestContext = test::ObserverTestContextT<test::NamespaceCacheFactory>;
-
 	DEFINE_COMMON_OBSERVER_TESTS(RootNamespace,)
 
 	namespace {
+		constexpr auto Grace_Period_Duration = 7u;
+
+		class ObserverTestContext : public test::ObserverTestContextT<test::NamespaceCacheFactory> {
+		public:
+			explicit ObserverTestContext(observers::NotifyMode mode) : ObserverTestContext(mode, Height(444))
+			{}
+
+			ObserverTestContext(observers::NotifyMode mode, Height height)
+					: test::ObserverTestContextT<test::NamespaceCacheFactory>(mode, height, CreateConfiguration())
+			{}
+
+		private:
+			static model::BlockChainConfiguration CreateConfiguration() {
+				auto config = model::BlockChainConfiguration::Uninitialized();
+				config.Plugins.emplace("namespace::ex", utils::ConfigurationBag({
+					{
+						"",
+						{
+							{ "gracePeriodDuration", "7" }
+						}
+					}
+				}));
+				return config;
+			}
+		};
+
 		model::RootNamespaceNotification CreateRootNotification(const Key& signer, NamespaceId id) {
 			return model::RootNamespaceNotification(signer, id, BlockDuration());
 		}
@@ -86,7 +110,8 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(1u, namespaceCacheDelta.activeSize());
 			ASSERT_TRUE(namespaceCacheDelta.contains(NamespaceId(25)));
 
-			const auto& entry = namespaceCacheDelta.get(NamespaceId(25));
+			auto namespaceIter = namespaceCacheDelta.find(NamespaceId(25));
+			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
 			EXPECT_EQ(signer, entry.root().owner());
@@ -141,7 +166,8 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(4u, namespaceCacheDelta.deepSize());
 			ASSERT_TRUE(namespaceCacheDelta.contains(NamespaceId(25)));
 
-			const auto& entry = namespaceCacheDelta.get(NamespaceId(25));
+			auto namespaceIter = namespaceCacheDelta.find(NamespaceId(25));
+			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
 			EXPECT_EQ(signer, entry.root().owner());
@@ -153,7 +179,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_RootRenewalSameOwnerActive) {
 		// Arrange:
-		for (auto height : { Height(75), Height(122) }) {
+		for (auto height : { Height(75), Height(122), Height(122 + Grace_Period_Duration) }) {
 			// - create a root namespace with a finite duration
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = CreateRootNotification(signer, NamespaceId(25));
@@ -173,7 +199,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_RootRenewalSameOwnerInactive) {
 		// Arrange:
-		for (auto height : { Height(123), Height(250) }) {
+		for (auto height : { Height(123 + Grace_Period_Duration), Height(250) }) {
 			// - create a root namespace with a finite duration
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = CreateRootNotification(signer, NamespaceId(25));
@@ -202,7 +228,8 @@ namespace catapult { namespace observers {
 			EXPECT_EQ(3u, namespaceCacheDelta.deepSize());
 			ASSERT_TRUE(namespaceCacheDelta.contains(NamespaceId(25)));
 
-			const auto& entry = namespaceCacheDelta.get(NamespaceId(25));
+			auto namespaceIter = namespaceCacheDelta.find(NamespaceId(25));
+			const auto& entry = namespaceIter.get();
 			EXPECT_EQ(Namespace_Base_Id, entry.ns().parentId());
 
 			EXPECT_EQ(signer, entry.root().owner());
@@ -214,7 +241,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_RootRenewalChangeOwnerActive) {
 		// Arrange:
-		for (auto height : { Height(75), Height(122) }) {
+		for (auto height : { Height(75), Height(122), Height(122 + Grace_Period_Duration) }) {
 			// - create a root namespace with a finite duration
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = CreateRootNotification(signer, NamespaceId(25));
@@ -234,7 +261,7 @@ namespace catapult { namespace observers {
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_RootRenewalChangeOwnerInactive) {
 		// Arrange:
-		for (auto height : { Height(123), Height(250) }) {
+		for (auto height : { Height(123 + Grace_Period_Duration), Height(250) }) {
 			// - create a root namespace with a finite duration
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = CreateRootNotification(signer, NamespaceId(25));

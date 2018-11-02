@@ -45,12 +45,13 @@ namespace catapult { namespace test {
 		else
 			CATAPULT_LOG(debug) << "creating directory " << m_directoryPath;
 
-		boost::filesystem::create_directory(m_directoryPath);
+		boost::filesystem::create_directories(m_directoryPath);
 	}
 
 	TempDirectoryGuard::~TempDirectoryGuard() {
 		auto numRemovedFiles = boost::filesystem::remove_all(m_directoryPath);
-		CATAPULT_LOG(debug) << "deleted directory " << m_directoryPath << " and removed " << numRemovedFiles
+		CATAPULT_LOG(debug)
+				<< "deleted directory " << m_directoryPath << " and removed " << numRemovedFiles
 				<< " files (exists? " << exists() << ")";
 	}
 

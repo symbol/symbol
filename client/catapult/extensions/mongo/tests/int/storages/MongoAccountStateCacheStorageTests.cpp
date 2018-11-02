@@ -38,7 +38,7 @@ namespace catapult { namespace mongo { namespace storages {
 	namespace {
 		struct AccountStateCacheTraits {
 			using CacheType = cache::AccountStateCache;
-			using ModelType = std::shared_ptr<state::AccountState>;
+			using ModelType = state::AccountState;
 
 			static constexpr auto Collection_Name = "accounts";
 			static constexpr auto Network_Id = static_cast<model::NetworkIdentifier>(0x5A);
@@ -54,48 +54,49 @@ namespace catapult { namespace mongo { namespace storages {
 				auto height = Height(id);
 				auto publicKey = test::GenerateRandomData<Key_Size>();
 				auto address = model::PublicKeyToAddress(publicKey, model::NetworkIdentifier::Mijin_Test);
-				auto pState = std::make_shared<state::AccountState>(address, Height(1234567) + height);
-				pState->PublicKey = publicKey;
-				pState->PublicKeyHeight = Height(1234567) + height;
+				auto accountState = state::AccountState(address, Height(1234567) + height);
+				accountState.PublicKey = publicKey;
+				accountState.PublicKeyHeight = Height(1234567) + height;
 				auto randomAmount = Amount((test::Random() % 1'000'000 + 1'000) * 1'000'000);
 				auto randomImportance = Importance(test::Random() % 1'000'000'000 + 1'000'000'000);
 				auto randomImportanceHeight = test::GenerateRandomValue<model::ImportanceHeight>();
-				pState->Balances.credit(Xem_Id, randomAmount);
-				pState->ImportanceInfo.set(randomImportance, randomImportanceHeight);
-				return pState;
+				accountState.Balances.credit(Xem_Id, randomAmount);
+				accountState.ImportanceInfo.set(randomImportance, randomImportanceHeight);
+				return accountState;
 			}
 
-			static void Add(cache::CatapultCacheDelta& delta, const ModelType& pAccountState) {
+			static void Add(cache::CatapultCacheDelta& delta, const ModelType& accountState) {
 				auto& accountStateCacheDelta = delta.sub<cache::AccountStateCache>();
-				auto& accountState = accountStateCacheDelta.addAccount(pAccountState->PublicKey, pAccountState->PublicKeyHeight);
-				accountState.Balances.credit(Xem_Id, pAccountState->Balances.get(Xem_Id));
+				accountStateCacheDelta.addAccount(accountState.PublicKey, accountState.PublicKeyHeight);
+				auto& accountStateFromCache = accountStateCacheDelta.find(accountState.PublicKey).get();
+				accountStateFromCache.Balances.credit(Xem_Id, accountState.Balances.get(Xem_Id));
 
-				auto height = pAccountState->ImportanceInfo.height();
-				accountState.ImportanceInfo.set(pAccountState->ImportanceInfo.get(height), height);
+				auto height = accountState.ImportanceInfo.height();
+				accountStateFromCache.ImportanceInfo.set(accountState.ImportanceInfo.get(height), height);
 			}
 
-			static void Remove(cache::CatapultCacheDelta& delta, const ModelType& pAccountState) {
+			static void Remove(cache::CatapultCacheDelta& delta, const ModelType& accountState) {
 				auto& accountStateCacheDelta = delta.sub<cache::AccountStateCache>();
-				accountStateCacheDelta.queueRemove(pAccountState->PublicKey, pAccountState->PublicKeyHeight);
+				accountStateCacheDelta.queueRemove(accountState.PublicKey, accountState.PublicKeyHeight);
 				accountStateCacheDelta.commitRemovals();
 			}
 
-			static void Mutate(cache::CatapultCacheDelta& delta, const ModelType& pAccountState) {
+			static void Mutate(cache::CatapultCacheDelta& delta, ModelType& accountState) {
 				// update expected
-				pAccountState->Balances.credit(Xem_Id, Amount(12'345'000'000));
+				accountState.Balances.credit(Xem_Id, Amount(12'345'000'000));
 
 				// update cache
 				auto& accountStateCacheDelta = delta.sub<cache::AccountStateCache>();
-				auto& accountStateFromCache = accountStateCacheDelta.get(pAccountState->PublicKey);
+				auto& accountStateFromCache = accountStateCacheDelta.find(accountState.PublicKey).get();
 				accountStateFromCache.Balances.credit(Xem_Id, Amount(12'345'000'000));
 			}
 
-			static auto GetFindFilter(const ModelType& pAccountState) {
-				return document() << "account.address" << mappers::ToBinary(pAccountState->Address) << finalize;
+			static auto GetFindFilter(const ModelType& accountState) {
+				return document() << "account.address" << mappers::ToBinary(accountState.Address) << finalize;
 			}
 
-			static void AssertEqual(const ModelType& pAccountState, const bsoncxx::document::view& view) {
-				test::AssertEqualAccountState(*pAccountState, view["account"].get_document().view());
+			static void AssertEqual(const ModelType& accountState, const bsoncxx::document::view& view) {
+				test::AssertEqualAccountState(accountState, view["account"].get_document().view());
 			}
 		};
 	}

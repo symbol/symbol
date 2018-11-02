@@ -104,6 +104,7 @@ namespace catapult { namespace io {
 				::close(fd);
 				fd = Invalid_Descriptor;
 			}
+
 			return fd;
 		}
 

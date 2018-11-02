@@ -22,8 +22,12 @@
 #include "handlers/CoreDiagnosticHandlers.h"
 #include "observers/Observers.h"
 #include "validators/Validators.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheStorage.h"
+#include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
 #include "catapult/cache_core/BlockDifficultyCacheStorage.h"
+#include "catapult/handlers/CacheEntryInfosProducerFactory.h"
+#include "catapult/handlers/StatePathHandlerFactory.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/observers/ObserverUtils.h"
 #include "catapult/plugins/PluginManager.h"
@@ -40,17 +44,23 @@ namespace catapult { namespace plugins {
 
 			auto cacheConfig = manager.cacheConfig(AccountStateCache::Name);
 			auto cacheOptions = CreateAccountStateCacheOptions(config);
-			manager.addCacheSupport<AccountStateCacheStorage>(std::make_unique<AccountStateCache>(cacheConfig, cacheOptions));
+			manager.addCacheSupport(std::make_unique<AccountStateCacheSubCachePlugin>(cacheConfig, cacheOptions));
 
 			manager.addDiagnosticHandlerHook([](auto& handlers, const CatapultCache& cache) {
 				handlers::RegisterAccountInfosHandler(
 						handlers,
-						handlers::CreateAccountInfosProducerFactory(cache.sub<AccountStateCache>()));
+						handlers::CacheEntryInfosProducerFactory<AccountStateCacheDescriptor>::Create(cache.sub<AccountStateCache>()));
+
+				using PacketType = handlers::StatePathRequestPacket<ionet::PacketType::Account_State_Path, Address>;
+				handlers::RegisterStatePathHandler<PacketType>(handlers, cache.sub<AccountStateCache>());
 			});
 
 			manager.addDiagnosticCounterHook([](auto& counters, const CatapultCache& cache) {
 				counters.emplace_back(utils::DiagnosticCounterId("ACNTST C"), [&cache]() {
 					return cache.sub<AccountStateCache>().createView()->size();
+				});
+				counters.emplace_back(utils::DiagnosticCounterId("ACNTST C HVA"), [&cache]() {
+					return cache.sub<AccountStateCache>().createView()->highValueAddresses().size();
 				});
 			});
 		}
@@ -87,7 +97,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateDeadlineValidator(config.MaxTransactionLifetime))
 				.add(validators::CreateNemesisSinkValidator())
 				.add(validators::CreateEligibleHarvesterValidator(config.MinHarvesterBalance))
-				.add(validators::CreateBalanceReserveValidator())
+				.add(validators::CreateBalanceDebitValidator())
 				.add(validators::CreateBalanceTransferValidator());
 		});
 
@@ -95,7 +105,8 @@ namespace catapult { namespace plugins {
 			builder
 				.add(observers::CreateAccountAddressObserver())
 				.add(observers::CreateAccountPublicKeyObserver())
-				.add(observers::CreateBalanceObserver())
+				.add(observers::CreateBalanceDebitObserver())
+				.add(observers::CreateBalanceTransferObserver())
 				.add(observers::CreateHarvestFeeObserver());
 		});
 

@@ -37,9 +37,9 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		auto CreateTransferTransactionBuilder(
 				const Key& signer,
-				const Address& recipient,
+				const UnresolvedAddress& recipient,
 				const std::vector<uint8_t>& message,
-				std::initializer_list<model::Mosaic> mosaics) {
+				std::initializer_list<model::UnresolvedMosaic> mosaics) {
 			builders::TransferBuilder builder(model::NetworkIdentifier::Mijin_Test, signer, recipient);
 			if (!message.empty())
 				builder.setMessage(message);
@@ -52,14 +52,14 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		template<typename TTransaction>
 		void AssertEqualNonInheritedTransferData(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
-			EXPECT_EQ(transaction.Recipient, test::GetAddressValue(dbTransaction, "recipient"));
+			EXPECT_EQ(transaction.Recipient, test::GetUnresolvedAddressValue(dbTransaction, "recipient"));
 
 			if (0 < transaction.MessageSize) {
 				const auto* pMessage = transaction.MessagePtr();
 				const auto& dbMessage = dbTransaction["message"];
 				size_t payloadSize = transaction.MessageSize - 1;
 
-				EXPECT_EQ(static_cast<int8_t>(pMessage[0]), static_cast<int8_t>(dbMessage["type"].get_int32().value));
+				EXPECT_EQ(static_cast<int8_t>(pMessage[0]), test::GetInt8(dbMessage, "type"));
 				EXPECT_EQ(
 						test::ToHexString(pMessage + 1, payloadSize),
 						test::ToHexString(test::GetBinary(dbMessage, "payload"), payloadSize));
@@ -68,22 +68,22 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			auto dbMosaics = dbTransaction["mosaics"].get_array().value;
-			ASSERT_EQ(transaction.MosaicsCount, std::distance(dbMosaics.cbegin(), dbMosaics.cend()));
+			ASSERT_EQ(transaction.MosaicsCount, test::GetFieldCount(dbMosaics));
 			const auto* pMosaic = transaction.MosaicsPtr();
 			auto iter = dbMosaics.cbegin();
 			for (auto i = 0u; i < transaction.MosaicsCount; ++i) {
-				EXPECT_EQ(pMosaic->MosaicId.unwrap(), test::GetUint64(iter->get_document().view(), "id"));
-				EXPECT_EQ(pMosaic->Amount.unwrap(), test::GetUint64(iter->get_document().view(), "amount"));
+				EXPECT_EQ(pMosaic->MosaicId, UnresolvedMosaicId(test::GetUint64(iter->get_document().view(), "id")));
+				EXPECT_EQ(pMosaic->Amount, Amount(test::GetUint64(iter->get_document().view(), "amount")));
 				++pMosaic;
 				++iter;
 			}
 		}
 
 		template<typename TTraits>
-		void AssertCanMapTransferTransaction(const std::vector<uint8_t>& message, std::initializer_list<model::Mosaic> mosaics) {
+		void AssertCanMapTransferTransaction(const std::vector<uint8_t>& message, std::initializer_list<model::UnresolvedMosaic> mosaics) {
 			// Arrange:
 			auto signer = test::GenerateRandomData<Key_Size>();
-			auto recipient = test::GenerateRandomAddress();
+			auto recipient = test::GenerateRandomUnresolvedAddress();
 			auto pTransaction = TTraits::Adapt(CreateTransferTransactionBuilder(signer, recipient, message, mosaics));
 			auto pPlugin = TTraits::CreatePlugin();
 
@@ -119,28 +119,28 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	PLUGIN_TEST(CanMapTransferTransactionWithoutMessageButWithSingleMosaic) {
 		// Assert:
-		AssertCanMapTransferTransaction<TTraits>({}, { { Xem_Id, Amount(234) } });
+		AssertCanMapTransferTransaction<TTraits>({}, { { Unresolved_Xem_Id, Amount(234) } });
 	}
 
 	PLUGIN_TEST(CanMapTransferTransactionWithoutMessageButWithMultipleMosaics) {
 		// Assert:
 		AssertCanMapTransferTransaction<TTraits>(
 				{},
-				{ { Xem_Id, Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
+				{ { Unresolved_Xem_Id, Amount(234) }, { UnresolvedMosaicId(1357), Amount(345) }, { UnresolvedMosaicId(31), Amount(45) } });
 	}
 
 	PLUGIN_TEST(CanMapTransferTransactionWithMessageAndSingleMosaic) {
 		// Assert:
 		AssertCanMapTransferTransaction<TTraits>(
 				{ 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64 },
-				{ { Xem_Id, Amount(234) } });
+				{ { Unresolved_Xem_Id, Amount(234) } });
 	}
 
 	PLUGIN_TEST(CanMapTransferTransactionWithMessageAndMultipleMosaics) {
 		// Assert:
 		AssertCanMapTransferTransaction<TTraits>(
 				{ 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64 },
-				{ { Xem_Id, Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
+				{ { Unresolved_Xem_Id, Amount(234) }, { UnresolvedMosaicId(1357), Amount(345) }, { UnresolvedMosaicId(31), Amount(45) } });
 	}
 
 	// endregion

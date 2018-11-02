@@ -19,10 +19,13 @@
 **/
 
 #include "catapult/plugins/PluginManager.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/cache/CatapultCache.h"
+#include "catapult/model/Address.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -62,18 +65,21 @@ namespace catapult { namespace plugins {
 		auto storageConfig = StorageConfiguration();
 		storageConfig.PreferCacheDatabase = true;
 		storageConfig.CacheDatabaseDirectory = "abc";
+		storageConfig.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromKilobytes(23);
+
+		auto assertCacheConfiguration = [](const auto& cacheConfig, const auto& expectedDirectory) {
+			EXPECT_TRUE(cacheConfig.ShouldUseCacheDatabase);
+			EXPECT_EQ(expectedDirectory, cacheConfig.CacheDatabaseDirectory);
+			EXPECT_EQ(utils::FileSize::FromKilobytes(23), cacheConfig.MaxCacheDatabaseWriteBatchSize);
+			EXPECT_FALSE(cacheConfig.ShouldStorePatriciaTrees);
+		};
 
 		// Act:
 		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), storageConfig);
 
 		// Assert: cache configuration is constructed appropriately
-		auto cacheConfig1 = manager.cacheConfig("foo");
-		EXPECT_TRUE(cacheConfig1.ShouldUseCacheDatabase);
-		EXPECT_EQ("abc/foo", cacheConfig1.CacheDatabaseDirectory);
-
-		auto cacheConfig2 = manager.cacheConfig("bar");
-		EXPECT_TRUE(cacheConfig2.ShouldUseCacheDatabase);
-		EXPECT_EQ("abc/bar", cacheConfig2.CacheDatabaseDirectory);
+		assertCacheConfiguration(manager.cacheConfig("foo"), "abc/foo");
+		assertCacheConfiguration(manager.cacheConfig("bar"), "abc/bar");
 	}
 
 	// endregion
@@ -106,6 +112,19 @@ namespace catapult { namespace plugins {
 		void AddSubCacheWithId(PluginManager& manager) {
 			manager.addCacheSupport<test::SimpleCacheStorageTraits>(std::make_unique<test::SimpleCacheT<CacheId>>());
 		}
+
+		template<size_t CacheId>
+		class CustomSubCachePluginAdapter
+				: public cache::SubCachePluginAdapter<test::SimpleCacheT<CacheId>, test::SimpleCacheStorageTraits> {
+		public:
+			using cache::SubCachePluginAdapter<test::SimpleCacheT<CacheId>, test::SimpleCacheStorageTraits>::SubCachePluginAdapter;
+		};
+
+		template<size_t CacheId>
+		void AddSubCachePluginWithId(PluginManager& manager) {
+			auto pSubCache = std::make_unique<test::SimpleCacheT<CacheId>>();
+			manager.addCacheSupport(std::make_unique<CustomSubCachePluginAdapter<CacheId>>(std::move(pSubCache)));
+		}
 	}
 
 	TEST(TEST_CLASS, CanRegisterCustomCaches) {
@@ -116,6 +135,23 @@ namespace catapult { namespace plugins {
 		AddSubCacheWithId<7>(manager);
 		AddSubCacheWithId<9>(manager);
 		AddSubCacheWithId<4>(manager);
+		auto cache = manager.createCache();
+
+		// Assert:
+		EXPECT_EQ(3u, cache.storages().size());
+		EXPECT_EQ(0u, cache.sub<test::SimpleCacheT<7>>().createView()->size());
+		EXPECT_EQ(0u, cache.sub<test::SimpleCacheT<9>>().createView()->size());
+		EXPECT_EQ(0u, cache.sub<test::SimpleCacheT<4>>().createView()->size());
+	}
+
+	TEST(TEST_CLASS, CanRegisterCustomCachePlugins) {
+		// Arrange:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
+
+		// Act:
+		AddSubCachePluginWithId<7>(manager);
+		AddSubCachePluginWithId<9>(manager);
+		AddSubCachePluginWithId<4>(manager);
 		auto cache = manager.createCache();
 
 		// Assert:
@@ -420,6 +456,113 @@ namespace catapult { namespace plugins {
 
 	// endregion
 
+	// region resolvers
+
+	namespace {
+		struct MosaicResolverTraits {
+			static auto CreateUnresolved(uint8_t value) {
+				return UnresolvedMosaicId(value);
+			}
+
+			static auto CreateResolved(uint8_t value) {
+				return MosaicId(value);
+			}
+
+			static auto CreateResolver(const PluginManager& manager) {
+				return manager.createMosaicResolver();
+			}
+
+			static void AddResolver(PluginManager& manager, uint8_t increment, bool result) {
+				manager.addMosaicResolver([increment, result](const auto& unresolved, auto& resolved) {
+					resolved = MosaicId(unresolved.unwrap() + increment);
+					return result;
+				});
+			}
+		};
+
+		struct AddressResolverTraits {
+			static auto CreateUnresolved(uint8_t value) {
+				return UnresolvedAddress{ { { value } } };
+			}
+
+			static auto CreateResolved(uint8_t value) {
+				return Address{ { value } };
+			}
+
+			static auto CreateResolver(const PluginManager& manager) {
+				return manager.createAddressResolver();
+			}
+
+			static void AddResolver(PluginManager& manager, uint8_t increment, bool result) {
+				manager.addAddressResolver([increment, result](const auto& unresolved, auto& resolved) {
+					resolved = Address{ { static_cast<uint8_t>(unresolved[0].Byte + increment) } };
+					return result;
+				});
+			}
+		};
+	}
+
+#define RESOLVER_TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicResolverTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressResolverTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	RESOLVER_TRAITS_BASED_TEST(CanCreateDefaultResolver) {
+		// Arrange:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
+
+		// Act:
+		auto resolver = TTraits::CreateResolver(manager);
+		auto result = resolver(TTraits::CreateUnresolved(123));
+
+		// Assert:
+		EXPECT_EQ(TTraits::CreateResolved(123), result);
+	}
+
+	RESOLVER_TRAITS_BASED_TEST(CanCreateCustomResolverAroundMatchingResolver) {
+		// Arrange:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
+		TTraits::AddResolver(manager, 1, true);
+
+		// Act:
+		auto resolver = TTraits::CreateResolver(manager);
+		auto result = resolver(TTraits::CreateUnresolved(123));
+
+		// Assert:
+		EXPECT_EQ(TTraits::CreateResolved(124), result);
+	}
+
+	RESOLVER_TRAITS_BASED_TEST(CanCreateCustomResolverAroundNonMatchingResolver) {
+		// Arrange:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
+		TTraits::AddResolver(manager, 1, false);
+
+		// Act:
+		auto resolver = TTraits::CreateResolver(manager);
+		auto result = resolver(TTraits::CreateUnresolved(123));
+
+		// Assert:
+		EXPECT_EQ(TTraits::CreateResolved(123), result);
+	}
+
+	RESOLVER_TRAITS_BASED_TEST(CanCreateCustomResolverThatOnlyExecutesFirstMatchingResolver) {
+		// Arrange:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
+		TTraits::AddResolver(manager, 1, false);
+		TTraits::AddResolver(manager, 2, true); // second one should match
+		TTraits::AddResolver(manager, 3, true);
+
+		// Act:
+		auto resolver = TTraits::CreateResolver(manager);
+		auto result = resolver(TTraits::CreateUnresolved(123));
+
+		// Assert:
+		EXPECT_EQ(TTraits::CreateResolved(125), result);
+	}
+
+	// endregion
+
 	// region notification publisher
 
 	namespace {
@@ -442,17 +585,47 @@ namespace catapult { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanCreateDefaultNotificationPublisher) {
-		// Assert: 4 basic and 1 custom notifications should be raised
-		AssertCanCreateNotificationPublisher(5u, [](const auto& manager) {
+		// Assert: 5 basic and 1 custom notifications should be raised
+		AssertCanCreateNotificationPublisher(6u, [](const auto& manager) {
 			return manager.createNotificationPublisher();
 		});
 	}
 
 	TEST(TEST_CLASS, CanCreateCustomNotificationPublisher) {
-		// Assert: 4 basic notifications should be raised
-		AssertCanCreateNotificationPublisher(4u, [](const auto& manager) {
+		// Assert: 5 basic notifications should be raised
+		AssertCanCreateNotificationPublisher(5u, [](const auto& manager) {
 			return manager.createNotificationPublisher(model::PublicationMode::Basic);
 		});
+	}
+
+	TEST(TEST_CLASS, CanCreateCustomNotificationPublisherWithCustomResolvers) {
+		// Arrange:
+		PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
+		manager.addTransactionSupport(mocks::CreateMockTransactionPlugin(mocks::PluginOptionFlags::Publish_Transfers));
+		manager.addMosaicResolver([](const auto& unresolved, auto& resolved) {
+			resolved = MosaicId(unresolved.unwrap() + 1);
+			return true;
+		});
+		manager.addAddressResolver([](const auto& unresolved, auto& resolved) {
+			resolved = test::CopyAndXorArray(extensions::CopyToAddress(unresolved));
+			return true;
+		});
+
+		auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
+			{ MosaicId(123), Amount(1111) }
+		});
+		auto recipientAddress = model::PublicKeyToAddress(pTransaction->Recipient, model::NetworkIdentifier::Mijin_Test);
+		mocks::MockTypedNotificationSubscriber<model::BalanceTransferNotification> subscriber;
+
+		// Act: create a publisher and publish a transaction
+		auto pPublisher = manager.createNotificationPublisher(model::PublicationMode::Custom);
+		pPublisher->publish(*pTransaction, subscriber);
+
+		// Assert: all expected notifications were raised
+		ASSERT_EQ(1u, subscriber.numMatchingNotifications());
+		const auto& notification = subscriber.matchingNotifications()[0];
+		EXPECT_EQ(MosaicId(124), notification.MosaicId);
+		EXPECT_EQ(test::CopyAndXorArray(recipientAddress), notification.Recipient);
 	}
 
 	// endregion

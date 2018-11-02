@@ -186,6 +186,7 @@ namespace catapult { namespace chain {
 					test::GenerateVerifiableBlockAtHeight(Default_Height));
 			context.pChainApi->setNumBlocksPerBlocksFromRequest({ 2 });
 			context.Config.MaxRollbackBlocks = 9;
+			context.Config.MaxBlocksPerSyncAttempt = 5;
 			context.Config.MaxChainBytesPerSyncAttempt = 23;
 			return context;
 		}
@@ -195,8 +196,8 @@ namespace catapult { namespace chain {
 			ASSERT_EQ(1u, chainApi.blocksFromRequests().size());
 			const auto& params = chainApi.blocksFromRequests()[0];
 			EXPECT_EQ(Default_Height, params.first); // localHeight - maxRollback + firstDifferenceIndex
-			EXPECT_EQ(9, params.second.NumBlocks); // maxRollback
-			EXPECT_EQ(23, params.second.NumBytes);
+			EXPECT_EQ(5u, params.second.NumBlocks); // maxBlocksPerSyncAttempt
+			EXPECT_EQ(23u, params.second.NumBytes);
 		}
 
 		void AssertDefaultMultiplePullRequest(const mocks::MockChainApi& chainApi, const std::vector<Height>& expectedRequestHeights) {
@@ -206,8 +207,8 @@ namespace catapult { namespace chain {
 			auto i = 0u;
 			for (const auto& params : chainApi.blocksFromRequests()) {
 				EXPECT_EQ(expectedRequestHeights[i], params.first) << "height of request " << i;
-				EXPECT_EQ(9, params.second.NumBlocks) << "NumBlocks of request " << i; // maxRollback
-				EXPECT_EQ(23, params.second.NumBytes) << "NumBytes of request " << i;
+				EXPECT_EQ(5u, params.second.NumBlocks) << "NumBlocks of request " << i; // maxBlocksPerSyncAttempt
+				EXPECT_EQ(23u, params.second.NumBytes) << "NumBytes of request " << i;
 				++i;
 			}
 		}

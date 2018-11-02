@@ -93,4 +93,8 @@ namespace catapult { namespace test {
 	void FillWithRandomData(const MutableRawBuffer& dataBuffer) {
 		std::generate_n(dataBuffer.pData, dataBuffer.Size, RandomByte);
 	}
+
+	void FillWithRandomData(UnresolvedAddress& unresolvedAddress) {
+		FillWithRandomData({ reinterpret_cast<uint8_t*>(unresolvedAddress.data()), unresolvedAddress.size() });
+	}
 }}

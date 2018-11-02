@@ -21,7 +21,9 @@
 #pragma once
 #include "NetworkConnections.h"
 #include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/model/CacheEntryInfo.h"
 #include "catapult/model/RangeTypes.h"
+#include "catapult/state/AccountState.h"
 #include "catapult/state/TimestampedHash.h"
 
 namespace catapult { namespace model { struct DetachedCosignature; } }
@@ -54,8 +56,8 @@ namespace catapult { namespace tools {
 		/// Given a range of \a hashes gets the confirmed timestamped hashes.
 		thread::future<state::TimestampedHashRange> confirmTimestampedHashes(state::TimestampedHashRange&& hashes) const;
 
-		/// Given a range of \a addresses gets the corresponding account infos.
-		thread::future<model::AccountInfoRange> accountInfos(model::AddressRange&& addresses) const;
+		/// Given a range of \a addresses gets the corresponding account states.
+		thread::future<std::vector<state::AccountState>> accountStates(model::AddressRange&& addresses) const;
 
 		/// Waits for the network to produce \a numBlocks blocks.
 		bool waitForBlocks(size_t numBlocks);

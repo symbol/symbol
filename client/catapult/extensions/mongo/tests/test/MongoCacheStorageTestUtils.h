@@ -57,10 +57,10 @@ namespace catapult { namespace test {
 			return delta.template sub<CacheType>();
 		}
 
-		static int64_t GetCollectionSize() {
+		static size_t GetCollectionSize() {
 			auto connection = CreateDbConnection();
 			auto collection = connection[DatabaseName()][TTraits::Collection_Name];
-			return collection.count({});
+			return static_cast<size_t>(collection.count({}));
 		}
 
 		static void AssertDbContents(const std::vector<ElementType>& elements, size_t numHiddenElements = 0) {

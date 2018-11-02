@@ -35,6 +35,13 @@
 namespace catapult { namespace local {
 
 	namespace {
+		std::unique_ptr<subscribers::NodeSubscriber> CreateNodeSubscriber(
+				subscribers::SubscriptionManager& subscriptionManager,
+				ionet::NodeContainer& nodes) {
+			subscriptionManager.addNodeSubscriber(CreateNodeContainerSubscriberAdapter(nodes));
+			return subscriptionManager.createNodeSubscriber();
+		}
+
 		class BasicLocalNode final : public BootedLocalNode {
 		public:
 			BasicLocalNode(std::unique_ptr<extensions::LocalNodeBootstrapper>&& pBootstrapper, const crypto::KeyPair& keyPair)
@@ -42,12 +49,13 @@ namespace catapult { namespace local {
 					, m_serviceLocator(keyPair)
 					, m_pBlockChainStorage(m_pBootstrapper->extensionManager().createBlockChainStorage())
 					, m_config(m_pBootstrapper->config())
+					, m_nodes(m_config.Node.MaxTrackedNodes)
 					, m_catapultCache({}) // note that subcaches are added in boot
 					, m_storage(m_pBootstrapper->subscriptionManager().createBlockStorage())
 					, m_pUtCache(m_pBootstrapper->subscriptionManager().createUtCache(GetUtCacheOptions(m_config.Node)))
 					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
 					, m_pStateChangeSubscriber(m_pBootstrapper->subscriptionManager().createStateChangeSubscriber())
-					, m_pNodeSubscriber(m_pBootstrapper->subscriptionManager().createNodeSubscriber())
+					, m_pNodeSubscriber(CreateNodeSubscriber(m_pBootstrapper->subscriptionManager(), m_nodes))
 					, m_pluginManager(m_pBootstrapper->pluginManager())
 					, m_isBooted(false) {
 				SeedNodeContainer(m_nodes, *m_pBootstrapper);

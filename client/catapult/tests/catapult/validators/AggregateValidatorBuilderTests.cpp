@@ -42,9 +42,7 @@ namespace catapult { namespace validators {
 		public:
 			ValidationResult validate(uint8_t notificationId) {
 				auto cache = test::CreateEmptyCatapultCache();
-				auto cacheView = cache.createView();
-				auto context = test::CreateValidatorContext(Height(123), cacheView.toReadOnly());
-				return test::ValidateNotification(*pAggregateValidator, test::TaggedNotification(notificationId), context);
+				return test::ValidateNotification(*pAggregateValidator, test::TaggedNotification(notificationId), cache);
 			}
 		};
 

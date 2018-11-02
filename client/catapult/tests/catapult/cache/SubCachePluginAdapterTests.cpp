@@ -30,19 +30,36 @@ namespace catapult { namespace cache {
 #define TEST_CLASS SubCachePluginAdapterTests
 
 	namespace {
-		using SimpleCache = test::SimpleCacheT<3>;
-		using SimpleCachePluginAdapter = SubCachePluginAdapter<SimpleCache, test::SimpleCacheStorageTraits>;
+		template<typename TViewExtension, typename TDeltaExtension>
+		using SimpleCacheT = test::SimpleCacheT<3, TViewExtension, TDeltaExtension>;
 
-		std::unique_ptr<SimpleCache> CreateSimpleCacheWithValue(
+		template<typename TViewExtension, typename TDeltaExtension>
+		using SimpleCachePluginAdapterT = SubCachePluginAdapter<
+			SimpleCacheT<TViewExtension, TDeltaExtension>,
+			test::SimpleCacheExtensionStorageTraits<TViewExtension, TDeltaExtension>>;
+
+		using SimpleCache = SimpleCacheT<test::SimpleCacheDefaultViewExtension, test::SimpleCacheDefaultDeltaExtension>;
+		using SimpleCachePluginAdapter = SimpleCachePluginAdapterT<
+			test::SimpleCacheDefaultViewExtension,
+			test::SimpleCacheDefaultDeltaExtension>;
+
+		template<typename TViewExtension, typename TDeltaExtension>
+		std::unique_ptr<SimpleCacheT<TViewExtension, TDeltaExtension>> CreateSimpleCacheWithValueT(
 				size_t value,
-				test::SimpleCacheViewMode mode = test::SimpleCacheViewMode::Iterable) {
-			auto pCache = std::make_unique<SimpleCache>(mode);
+				test::SimpleCacheViewMode mode) {
+			auto pCache = std::make_unique<SimpleCacheT<TViewExtension, TDeltaExtension>>(mode);
 			auto delta = pCache->createDelta();
 			for (auto i = 0u; i < value; ++i)
 				delta->increment();
 
 			pCache->commit();
 			return pCache;
+		}
+
+		std::unique_ptr<SimpleCache> CreateSimpleCacheWithValue(
+				size_t value,
+				test::SimpleCacheViewMode mode = test::SimpleCacheViewMode::Iterable) {
+			return CreateSimpleCacheWithValueT<test::SimpleCacheDefaultViewExtension, test::SimpleCacheDefaultDeltaExtension>(value, mode);
 		}
 
 		template<typename TRawView>
@@ -52,7 +69,10 @@ namespace catapult { namespace cache {
 			EXPECT_EQ(expectedValue, static_cast<const TRawView*>(view.get())->id());
 
 			// - read only view is correct
-			const auto* pReadOnlyView = static_cast<const test::SimpleCacheReadOnlyType*>(view.asReadOnly());
+			using ReadOnlyViewType = test::SimpleCacheReadOnlyType<
+				test::SimpleCacheDefaultViewExtension,
+				test::SimpleCacheDefaultDeltaExtension>;
+			const auto* pReadOnlyView = static_cast<const ReadOnlyViewType*>(view.asReadOnly());
 			ASSERT_TRUE(!!pReadOnlyView);
 			EXPECT_EQ(expectedValue, pReadOnlyView->size());
 		}
@@ -84,7 +104,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	// region constructor / name
+	// region constructor / simple properties
 
 	TEST(TEST_CLASS, CanAccessRawCachePointer) {
 		// Arrange:
@@ -98,6 +118,14 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(5u, pCache->createView()->id());
 	}
 
+	TEST(TEST_CLASS, CanAccessTypedCacheReference) {
+		// Arrange:
+		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
+
+		// Act + Assert:
+		EXPECT_EQ(adapter.get(), &adapter.cache());
+	}
+
 	TEST(TEST_CLASS, CanAccessCacheName) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
@@ -107,6 +135,17 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		EXPECT_EQ("SimpleCache (id = 3)", name);
+	}
+
+	TEST(TEST_CLASS, CanAccessCacheId) {
+		// Arrange:
+		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
+
+		// Act:
+		auto id = adapter.id();
+
+		// Assert:
+		EXPECT_EQ(3u, id);
 	}
 
 	// endregion
@@ -133,6 +172,241 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		AssertView<test::SimpleCacheDelta>(pDelta, 5);
+	}
+
+	// endregion
+
+	// region merkleRoot utils
+
+	namespace {
+		template<typename TAction>
+		void RunTestForMerkleRootSupportedButDisabled(TAction action) {
+			// Arrange:
+			auto pCache = CreateSimpleCacheWithValue(5);
+
+			SimpleCachePluginAdapter adapter(std::move(pCache));
+			auto pView = adapter.createDelta();
+
+			// Act + Assert:
+			action(*pView);
+		}
+
+		template<typename TAction>
+		void RunTestForMerkleRootSupportedAndEnabled(TAction action) {
+			// Arrange:
+			auto pCache = CreateSimpleCacheWithValue(5, test::SimpleCacheViewMode::Merkle_Root);
+			auto expectedMerkleRoot = pCache->createView()->tryGetMerkleRoot().first;
+
+			SimpleCachePluginAdapter adapter(std::move(pCache));
+			auto pView = adapter.createDelta();
+
+			// Act + Assert:
+			action(*pView, expectedMerkleRoot);
+		}
+
+		template<typename TAction>
+		void RunTestForMerkleRootSupportedAndEnabledView(TAction action) {
+			// Arrange:
+			auto pCache = CreateSimpleCacheWithValue(5, test::SimpleCacheViewMode::Merkle_Root);
+			auto expectedMerkleRoot = pCache->createView()->tryGetMerkleRoot().first;
+
+			SimpleCachePluginAdapter adapter(std::move(pCache));
+			auto pView = adapter.createView();
+
+			// Act + Assert:
+			action(*pView, expectedMerkleRoot);
+		}
+
+		template<typename TAction>
+		void RunTestForMerkleRootNotSupported(TAction action) {
+			// Arrange:
+			using CacheViewExtension = test::SimpleCacheDisabledMerkleRootViewExtension;
+			auto pCache = CreateSimpleCacheWithValueT<CacheViewExtension, CacheViewExtension>(5, test::SimpleCacheViewMode::Merkle_Root);
+
+			SimpleCachePluginAdapterT<CacheViewExtension, CacheViewExtension> adapter(std::move(pCache));
+			auto pView = adapter.createDelta();
+
+			// Act + Assert:
+			action(*pView);
+		}
+	}
+
+	// endregion
+
+	// region merkleRoot - supportsMerkleRoot
+
+	TEST(TEST_CLASS, SupportsMerkleRootReturnsFalseWhenMerkleRootIsSupportedButDisabled) {
+		// Arrange:
+		RunTestForMerkleRootSupportedButDisabled([](const auto& view) {
+			// Act + Assert:
+			EXPECT_FALSE(view.supportsMerkleRoot());
+		});
+	}
+
+	TEST(TEST_CLASS, SupportsMerkleRootReturnsTrueWhenMerkleRootIsSupportedAndEnabled) {
+		// Arrange:
+		RunTestForMerkleRootSupportedAndEnabled([](const auto& view, const auto&) {
+			// Act + Assert:
+			EXPECT_TRUE(view.supportsMerkleRoot());
+		});
+	}
+
+	TEST(TEST_CLASS, SupportsMerkleRootReturnsFalseWhenMerkleRootIsNotSupported) {
+		// Arrange:
+		RunTestForMerkleRootNotSupported([](const auto& view) {
+			// Act + Assert:
+			EXPECT_FALSE(view.supportsMerkleRoot());
+		});
+	}
+
+	// endregion
+
+	// region merkleRoot - tryGetMerkleRoot
+
+	TEST(TEST_CLASS, CannotAccessMerkleRootWhenSupportedButDisabled) {
+		// Arrange:
+		RunTestForMerkleRootSupportedButDisabled([](const auto& view) {
+			// Act:
+			Hash256 merkleRoot;
+			auto result = view.tryGetMerkleRoot(merkleRoot);
+
+			// Assert:
+			EXPECT_FALSE(result);
+		});
+	}
+
+	TEST(TEST_CLASS, CanAccessMerkleRootWhenSupportedAndEnabled) {
+		// Arrange:
+		RunTestForMerkleRootSupportedAndEnabled([](const auto& view, const auto& expectedMerkleRoot) {
+			// Act:
+			Hash256 merkleRoot;
+			auto result = view.tryGetMerkleRoot(merkleRoot);
+
+			// Assert:
+			EXPECT_TRUE(result);
+			EXPECT_EQ(expectedMerkleRoot, merkleRoot);
+		});
+	}
+
+	TEST(TEST_CLASS, CannotAccessMerkleRootWhenUnsupported) {
+		// Arrange:
+		RunTestForMerkleRootNotSupported([](const auto& view) {
+			// Act:
+			Hash256 merkleRoot;
+			auto result = view.tryGetMerkleRoot(merkleRoot);
+
+			// Assert:
+			EXPECT_FALSE(result);
+		});
+	}
+
+	// endregion
+
+	// region merkleRoot - trySetMerkleRoot
+
+	TEST(TEST_CLASS, CannotSetMerkleRootWhenSupportedButDisabled) {
+		// Arrange:
+		RunTestForMerkleRootSupportedButDisabled([](auto& view) {
+			// Act:
+			auto result = view.trySetMerkleRoot(Hash256());
+
+			// Assert:
+			EXPECT_FALSE(result);
+		});
+	}
+
+	TEST(TEST_CLASS, CanSetMerkleRootWhenSupportedAndEnabledAndDelta) {
+		// Arrange:
+		RunTestForMerkleRootSupportedAndEnabled([](auto& view, const auto&) {
+			// Act:
+			auto result = view.trySetMerkleRoot(Hash256());
+
+			// Assert:
+			EXPECT_TRUE(result);
+
+			Hash256 merkleRoot;
+			EXPECT_TRUE(view.tryGetMerkleRoot(merkleRoot));
+			EXPECT_EQ(Hash256(), merkleRoot);
+		});
+	}
+
+	TEST(TEST_CLASS, CannotSetMerkleRootWhenSupportedAndEnabledButView) {
+		// Arrange:
+		RunTestForMerkleRootSupportedAndEnabledView([](auto& view, const auto&) {
+			// Act: even if const is improperly casted away, operation should fail on const view
+			auto result = const_cast<SubCacheView&>(view).trySetMerkleRoot(Hash256());
+
+			// Assert:
+			EXPECT_FALSE(result);
+		});
+	}
+
+	TEST(TEST_CLASS, CannotSetMerkleRootWhenUnsupported) {
+		// Arrange:
+		RunTestForMerkleRootNotSupported([](auto& view) {
+			// Act:
+			auto result = view.trySetMerkleRoot(Hash256());
+
+			// Assert:
+			EXPECT_FALSE(result);
+		});
+	}
+
+	// endregion
+
+	// region merkleRoot - updateMerkleRoot
+
+	TEST(TEST_CLASS, CannotUpdateMerkleRootWhenSupportedButDisabled) {
+		// Arrange:
+		RunTestForMerkleRootSupportedButDisabled([](auto& view) {
+			// Act:
+			view.updateMerkleRoot(Height(3));
+
+			// Assert:
+			Hash256 merkleRoot;
+			EXPECT_FALSE(view.tryGetMerkleRoot(merkleRoot));
+		});
+	}
+
+	TEST(TEST_CLASS, CanUpdateMerkleRootWhenSupportedAndEnabledAndDelta) {
+		// Arrange:
+		RunTestForMerkleRootSupportedAndEnabled([](auto& view, const auto& expectedMerkleRoot) {
+			auto expectedUpdatedMerkleRoot = expectedMerkleRoot;
+			expectedUpdatedMerkleRoot[0] = 3;
+
+			// Act:
+			view.updateMerkleRoot(Height(3));
+
+			// Assert:
+			Hash256 merkleRoot;
+			EXPECT_TRUE(view.tryGetMerkleRoot(merkleRoot));
+			EXPECT_EQ(expectedUpdatedMerkleRoot, merkleRoot);
+		});
+	}
+
+	TEST(TEST_CLASS, CannotUpdateMerkleRootWhenSupportedAndEnabledButView) {
+		// Arrange:
+		RunTestForMerkleRootSupportedAndEnabledView([](auto& view, const auto& expectedMerkleRoot) {
+			// Act: even if const is improperly casted away, operation should fail on const view
+			const_cast<SubCacheView&>(view).updateMerkleRoot(Height(3));
+
+			// Assert:
+			Hash256 merkleRoot;
+			EXPECT_TRUE(view.tryGetMerkleRoot(merkleRoot));
+			EXPECT_EQ(expectedMerkleRoot, merkleRoot);
+		});
+	}
+
+	TEST(TEST_CLASS, CannotUpdateMerkleRootWhenUnsupported) {
+		// Arrange:
+		RunTestForMerkleRootNotSupported([](auto& view) {
+			// Act:
+			view.updateMerkleRoot(Height(3));
+
+			// Assert:
+			Hash256 merkleRoot;
+			EXPECT_FALSE(view.tryGetMerkleRoot(merkleRoot));
+		});
 	}
 
 	// endregion
@@ -236,7 +510,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CannotAccessStorageWhenCacheDoesNotSupportIteration) {
 		// Arrange:
-		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(0, test::SimpleCacheViewMode::Non_Iterable));
+		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(0, test::SimpleCacheViewMode::Basic));
 
 		// Act:
 		auto pCacheStorage = adapter.createStorage();

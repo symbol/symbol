@@ -316,12 +316,12 @@ namespace catapult { namespace model {
 		auto transactionInfos = ExtractTransactionInfos(pElement);
 
 		// Assert: the element reference count was extended for each transaction
-		EXPECT_EQ(Num_Transactions + 1, pElement.use_count());
+		EXPECT_EQ(Num_Transactions + 1, static_cast<size_t>(pElement.use_count()));
 
 		// Act / Assert: release each transaction and verify the decrease in the element reference count
 		for (auto i = 0u; i < Num_Transactions; ++i) {
 			transactionInfos[i] = TransactionInfo();
-			EXPECT_EQ(Num_Transactions - i, pElement.use_count());
+			EXPECT_EQ(Num_Transactions - i, static_cast<size_t>(pElement.use_count()));
 		}
 
 		// Assert: pElement is the only remaining reference

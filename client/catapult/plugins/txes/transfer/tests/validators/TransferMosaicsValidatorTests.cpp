@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 	namespace {
 		constexpr auto Success_Result = ValidationResult::Success;
 
-		void AssertValidationResult(ValidationResult expectedResult, const std::vector<model::Mosaic>& mosaics) {
+		void AssertValidationResult(ValidationResult expectedResult, const std::vector<model::UnresolvedMosaic>& mosaics) {
 			// Arrange:
 			model::TransferMosaicsNotification notification(static_cast<uint8_t>(mosaics.size()), mosaics.data());
 			auto pValidator = CreateTransferMosaicsValidator();
@@ -51,14 +51,14 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithOneMosaic) {
 		// Assert:
-		AssertValidationResult(Success_Result, { { MosaicId(71), Amount(5) } });
+		AssertValidationResult(Success_Result, { { UnresolvedMosaicId(71), Amount(5) } });
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMultipleOrderedMosaics) {
 		// Assert:
 		AssertValidationResult(
 				Success_Result,
-				{ { MosaicId(71), Amount(5) }, { MosaicId(182), Amount(4) }, { MosaicId(200), Amount(1) } });
+				{ { UnresolvedMosaicId(71), Amount(5) }, { UnresolvedMosaicId(182), Amount(4) }, { UnresolvedMosaicId(200), Amount(1) } });
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMultipleOutOfOrderMosaics) {
@@ -66,12 +66,12 @@ namespace catapult { namespace validators {
 		// - first and second are out of order
 		AssertValidationResult(
 				Failure_Transfer_Out_Of_Order_Mosaics,
-				{ { MosaicId(200), Amount(5) }, { MosaicId(71), Amount(1) }, { MosaicId(182), Amount(4) }, });
+				{ { UnresolvedMosaicId(200), Amount(5) }, { UnresolvedMosaicId(71), Amount(1) }, { UnresolvedMosaicId(182), Amount(4) } });
 
 		// - second and third are out of order
 		AssertValidationResult(
 				Failure_Transfer_Out_Of_Order_Mosaics,
-				{ { MosaicId(71), Amount(5) }, { MosaicId(200), Amount(1) }, { MosaicId(182), Amount(4) }, });
+				{ { UnresolvedMosaicId(71), Amount(5) }, { UnresolvedMosaicId(200), Amount(1) }, { UnresolvedMosaicId(182), Amount(4) } });
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMultipleTransfersOfSameMosaic) {
@@ -79,10 +79,10 @@ namespace catapult { namespace validators {
 		AssertValidationResult(
 				Failure_Transfer_Out_Of_Order_Mosaics,
 				{
-					{ MosaicId(71), Amount(5) },
-					{ MosaicId(182), Amount(4) },
-					{ MosaicId(182), Amount(4) },
-					{ MosaicId(200), Amount(1) }
+					{ UnresolvedMosaicId(71), Amount(5) },
+					{ UnresolvedMosaicId(182), Amount(4) },
+					{ UnresolvedMosaicId(182), Amount(4) },
+					{ UnresolvedMosaicId(200), Amount(1) }
 				});
 	}
 }}

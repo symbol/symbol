@@ -60,9 +60,8 @@ namespace catapult { namespace nodediscovery {
 		}
 
 		handlers::NodeConsumer CreatePushNodeConsumer(extensions::ServiceState& state) {
-			return [&nodeContainer = state.nodes(), &nodeSubscriber = state.nodeSubscriber()](const auto& node) {
+			return [&nodeSubscriber = state.nodeSubscriber()](const auto& node) {
 				nodeSubscriber.notifyNode(node);
-				nodeContainer.modifier().add(node, ionet::NodeSource::Dynamic);
 			};
 		}
 

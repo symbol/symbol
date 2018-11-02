@@ -30,22 +30,150 @@
 
 namespace catapult {
 	namespace test {
-		class BasicSimpleCacheDelta;
-		class BasicSimpleCacheView;
+		template<typename TViewExtension, typename TDeltaExtension>
+		class BasicSimpleCacheDeltaExtension;
+
+		template<typename TViewExtension, typename TDeltaExtension>
+		class BasicSimpleCacheViewExtension;
 	}
 }
 
 namespace catapult { namespace test {
 
-	using SimpleCacheReadOnlyType = cache::ReadOnlySimpleCache<BasicSimpleCacheView, BasicSimpleCacheDelta, size_t>;
+	template<typename TViewExtension, typename TDeltaExtension>
+	using SimpleCacheReadOnlyType = cache::ReadOnlySimpleCache<
+		BasicSimpleCacheViewExtension<TViewExtension, TDeltaExtension>,
+		BasicSimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>,
+		size_t>;
 
 	/// Possible simple cache view modes.
 	enum class SimpleCacheViewMode {
 		/// View supports iteration.
 		Iterable,
-		/// View does not support iteration.
-		Non_Iterable
+		/// View supports merkle roots.
+		Merkle_Root,
+		/// View only supports minimum functionality.
+		Basic
 	};
+
+	/// Find iterator returned by simple cache views.
+	/// \note Template on a tag so that view and delta return different iterator types to better emulate real caches.
+	template<size_t Tag>
+	class SimpleCacheFindIterator {
+	public:
+		/// Creates an uninitialized iterator.
+		SimpleCacheFindIterator() = default;
+
+		/// Creates an iterator around \a value and \a isValid.
+		SimpleCacheFindIterator(size_t value, bool isValid)
+				: m_value(value)
+				, m_isValid(isValid)
+		{}
+
+	public:
+		/// Gets a value.
+		/// \throws catapult_out_of_range if this iterator does not point to a valid value.
+		const size_t& get() const {
+			if (!m_isValid)
+				CATAPULT_THROW_OUT_OF_RANGE("invalid id supplied to get");
+
+			return m_value;
+		}
+
+	private:
+		size_t m_value;
+		bool m_isValid;
+	};
+
+	/// Simple cache state that is passed down from cache to views.
+	struct SimpleCacheState {
+	public:
+		/// Creates default state.
+		SimpleCacheState()
+				: Id(0)
+				, MerkleRoot(GenerateRandomData<Hash256_Size>())
+		{}
+
+	public:
+		/// Current cache identifier / value.
+		size_t Id;
+
+		/// Cache merkle root.
+		Hash256 MerkleRoot;
+	};
+
+	// region view extensions
+
+	/// A view extension that does not support merkle roots.
+	class SimpleCacheDisabledMerkleRootViewExtension {
+	public:
+		/// Creates a view extension.
+		explicit SimpleCacheDisabledMerkleRootViewExtension(SimpleCacheViewMode, const SimpleCacheState&)
+		{}
+	};
+
+	/// A view extension that represents a default cache that supports merkle roots.
+	class SimpleCacheDefaultViewExtension {
+	public:
+		/// Creates a view extension around \a mode and \a state.
+		explicit SimpleCacheDefaultViewExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
+				: SimpleCacheDefaultViewExtension(mode, state.MerkleRoot)
+		{}
+
+		/// Creates a view extension around \a mode and \a merkleRoot.
+		explicit SimpleCacheDefaultViewExtension(SimpleCacheViewMode mode, const Hash256& merkleRoot)
+				: m_mode(mode)
+				, m_merkleRoot(merkleRoot)
+		{}
+
+	public:
+		/// Returns \c true if merkle root is supported.
+		bool supportsMerkleRoot() const {
+			return SimpleCacheViewMode::Merkle_Root == m_mode;
+		}
+
+		/// Tries to get the merkle root if supported.
+		std::pair<Hash256, bool> tryGetMerkleRoot() const {
+			return std::make_pair(m_merkleRoot, supportsMerkleRoot());
+		}
+
+	private:
+		SimpleCacheViewMode m_mode;
+		const Hash256& m_merkleRoot;
+	};
+
+	/// A delta extension that represents a default cache that supports merkle roots.
+	class SimpleCacheDefaultDeltaExtension : public SimpleCacheDefaultViewExtension {
+	public:
+		/// Creates a delta extension around \a mode and \a state.
+		explicit SimpleCacheDefaultDeltaExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
+				: SimpleCacheDefaultDeltaExtension(mode, std::make_unique<Hash256>(state.MerkleRoot))
+		{}
+
+	private:
+		explicit SimpleCacheDefaultDeltaExtension(SimpleCacheViewMode mode, std::unique_ptr<Hash256>&& pMerkleRoot)
+				: SimpleCacheDefaultViewExtension(mode, *pMerkleRoot)
+				, m_pMerkleRoot(std::move(pMerkleRoot))
+		{}
+
+	public:
+		/// Recalculates the merkle root given the specified chain \a height if supported.
+		void updateMerkleRoot(Height height) {
+			// change the first byte
+			(*m_pMerkleRoot)[0] = static_cast<uint8_t>(height.unwrap());
+		}
+
+		/// Sets the merkle root (\a merkleRoot) if supported.
+		/// \note There must not be any pending changes.
+		void setMerkleRoot(const Hash256& merkleRoot) {
+			*m_pMerkleRoot = merkleRoot;
+		}
+
+	private:
+		std::unique_ptr<Hash256> m_pMerkleRoot;
+	};
+
+	// endregion
 
 	// region SimpleCacheView
 
@@ -53,16 +181,22 @@ namespace catapult { namespace test {
 	/// \note size and contains are provided for compatibility with ReadOnlySimpleCache.
 	/// \note get and isActive are provided for compatibility with ReadOnlyArtifactCache.
 	/// \note cbegin and cend are provided for compatibility with CacheStorageAdapter.
-	class BasicSimpleCacheView : public utils::MoveOnly {
+	template<typename TViewExtension, typename TDeltaExtension>
+	class BasicSimpleCacheViewExtension
+			: public TViewExtension
+			, public utils::MoveOnly {
 	public:
-		using ReadOnlyView = SimpleCacheReadOnlyType;
+		using ReadOnlyView = SimpleCacheReadOnlyType<TViewExtension, TDeltaExtension>;
+
+		using const_iterator = SimpleCacheFindIterator<0>;
 
 	public:
-		/// Creates a view around \a mode and \a id.
-		explicit BasicSimpleCacheView(SimpleCacheViewMode mode, const size_t& id)
-				: m_mode(mode)
-				, m_id(id)
-				, m_ids(id) {
+		/// Creates a view around \a mode and \a state.
+		explicit BasicSimpleCacheViewExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
+				: TViewExtension(mode, state)
+				, m_mode(mode)
+				, m_id(state.Id)
+				, m_ids(m_id) {
 			std::iota(m_ids.begin(), m_ids.end(), 1);
 		}
 
@@ -84,13 +218,15 @@ namespace catapult { namespace test {
 		}
 
 	public:
+		/// Finds the cache value identified by \a id.
+		const_iterator find(size_t id) const {
+			return const_iterator(id * id, contains(id));
+		}
+
 		/// Gets an entry specified by its \a id.
 		/// \note The method will throw if the id is unknown.
 		size_t get(size_t id) const {
-			if (!contains(id))
-				CATAPULT_THROW_OUT_OF_RANGE("invalid id supplied to get");
-
-			return id * id;
+			return find(id).get();
 		}
 
 		/// Gets a value indicating whether or not an artifact with \a id is active at \a height.
@@ -122,17 +258,17 @@ namespace catapult { namespace test {
 	};
 
 	/// View on top of the simple cache.
-	class SimpleCacheView : public cache::ReadOnlyViewSupplier<BasicSimpleCacheView> {
+	template<typename TViewExtension, typename TDeltaExtension>
+	class SimpleCacheViewExtension : public cache::ReadOnlyViewSupplier<BasicSimpleCacheViewExtension<TViewExtension, TDeltaExtension>> {
 	public:
-		/// Creates a view around \a id.
-		/// \note This overload is needed for ReadOnlyViewSupplier tests.
-		explicit SimpleCacheView(const size_t& id) : ReadOnlyViewSupplier(SimpleCacheViewMode::Iterable, id)
-		{}
-
-		/// Creates a view around \a mode and \a id.
-		SimpleCacheView(SimpleCacheViewMode mode, const size_t& id) : ReadOnlyViewSupplier(mode, id)
+		/// Creates a view around \a mode and \a state.
+		SimpleCacheViewExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
+				: cache::ReadOnlyViewSupplier<BasicSimpleCacheViewExtension<TViewExtension, TDeltaExtension>>(mode, state)
 		{}
 	};
+
+	using BasicSimpleCacheView = BasicSimpleCacheViewExtension<SimpleCacheDefaultViewExtension, SimpleCacheDefaultDeltaExtension>;
+	using SimpleCacheView = SimpleCacheViewExtension<SimpleCacheDefaultViewExtension, SimpleCacheDefaultDeltaExtension>;
 
 	// endregion
 
@@ -141,13 +277,20 @@ namespace catapult { namespace test {
 	/// Basic delta on top of the simple cache.
 	/// \note size and contains are provided for compatibility with ReadOnlySimpleCache.
 	/// \note get and isActive are provided for compatibility with ReadOnlyArtifactCache.
-	class BasicSimpleCacheDelta : public utils::MoveOnly {
+	template<typename TViewExtension, typename TDeltaExtension>
+	class BasicSimpleCacheDeltaExtension
+			: public TDeltaExtension
+			, public utils::MoveOnly {
 	public:
-		using ReadOnlyView = SimpleCacheReadOnlyType;
+		using ReadOnlyView = SimpleCacheReadOnlyType<TViewExtension, TDeltaExtension>;
+
+		using const_iterator = SimpleCacheFindIterator<1>;
 
 	public:
-		/// Creates a delta around \a id.
-		explicit BasicSimpleCacheDelta(size_t id) : m_id(id)
+		/// Creates a view around \a mode and \a state.
+		explicit BasicSimpleCacheDeltaExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
+				: TDeltaExtension(mode, state)
+				, m_id(state.Id)
 		{}
 
 	public:
@@ -162,13 +305,15 @@ namespace catapult { namespace test {
 		}
 
 	public:
+		/// Finds the cache value identified by \a id.
+		const_iterator find(size_t id) const {
+			return const_iterator(id * id, contains(id));
+		}
+
 		/// Gets an entry specified by its \a id.
 		/// \note The method will throw if the id is unknown.
 		size_t get(size_t id) const {
-			if (!contains(id))
-				CATAPULT_THROW_OUT_OF_RANGE("invalid id supplied to get");
-
-			return id * id;
+			return find(id).get();
 		}
 
 		/// Gets a value indicating whether or not an artifact with \a id is active at \a height.
@@ -197,49 +342,54 @@ namespace catapult { namespace test {
 	};
 
 	/// Delta on top of the simple cache.
-	class SimpleCacheDelta : public cache::ReadOnlyViewSupplier<BasicSimpleCacheDelta> {
+	template<typename TViewExtension, typename TDeltaExtension>
+	class SimpleCacheDeltaExtension : public cache::ReadOnlyViewSupplier<BasicSimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>> {
 	public:
-		/// Creates a delta around \a id.
-		explicit SimpleCacheDelta(size_t id) : ReadOnlyViewSupplier(id)
+		/// Creates a delta around \a mode and \a state.
+		SimpleCacheDeltaExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
+				: cache::ReadOnlyViewSupplier<BasicSimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>>(mode, state)
 		{}
 	};
+
+	using BasicSimpleCacheDelta = BasicSimpleCacheDeltaExtension<SimpleCacheDefaultViewExtension, SimpleCacheDefaultDeltaExtension>;
+	using SimpleCacheDelta = SimpleCacheDeltaExtension<SimpleCacheDefaultViewExtension, SimpleCacheDefaultDeltaExtension>;
 
 	// endregion
 
 	// region SimpleCache
 
 	/// Cache composed of simple data.
-	class BasicSimpleCache : public utils::MoveOnly {
+	template<typename TViewExtension, typename TDeltaExtension>
+	class BasicSimpleCacheExtension : public utils::MoveOnly {
 	public:
-		using CacheViewType = SimpleCacheView;
-		using CacheDeltaType = SimpleCacheDelta;
-		using CacheReadOnlyType = SimpleCacheReadOnlyType;
+		using CacheViewType = SimpleCacheViewExtension<TViewExtension, TDeltaExtension>;
+		using CacheDeltaType = SimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>;
+		using CacheReadOnlyType = SimpleCacheReadOnlyType<TViewExtension, TDeltaExtension>;
 
 	public:
 		/// Creates a cache with an optional auto set flag (\a pFlag) and view \a mode.
-		explicit BasicSimpleCache(
-				const std::shared_ptr<const test::AutoSetFlag::State>& pFlag = nullptr,
+		explicit BasicSimpleCacheExtension(
+				const std::shared_ptr<const AutoSetFlag::State>& pFlag = nullptr,
 				SimpleCacheViewMode mode = SimpleCacheViewMode::Iterable)
 				: m_pFlag(pFlag)
 				, m_mode(mode)
-				, m_id(0)
 		{}
 
 	public:
 		/// Returns a locked view based on this cache.
 		CacheViewType createView() const {
-			return CacheViewType(m_mode, m_id);
+			return CacheViewType(m_mode, m_state);
 		}
 
 		/// Returns a locked cache delta based on this cache.
 		CacheDeltaType createDelta() {
-			return CacheDeltaType(m_id);
+			return CacheDeltaType(m_mode, m_state);
 		}
 
 		/// Returns a lockable cache delta based on this cache but without the ability
 		/// to commit any changes to the original cache.
 		CacheDeltaType createDetachedDelta() const {
-			return CacheDeltaType(m_id);
+			return CacheDeltaType(m_mode, m_state);
 		}
 
 		/// Commits all pending changes in \a delta to the underlying storage.
@@ -249,45 +399,59 @@ namespace catapult { namespace test {
 				m_pFlag->wait();
 			}
 
-			m_id = delta.id();
+			m_state.Id = delta.id();
 		}
 
 	private:
-		std::shared_ptr<const test::AutoSetFlag::State> m_pFlag;
+		std::shared_ptr<const AutoSetFlag::State> m_pFlag;
 		SimpleCacheViewMode m_mode;
-		size_t m_id;
+		SimpleCacheState m_state;
 	};
 
 	/// Synchronized cache composed of simple data.
-	class SimpleCache : public cache::SynchronizedCache<BasicSimpleCache> {
+	template<typename TViewExtension, typename TDeltaExtension>
+	class SimpleCacheExtension : public cache::SynchronizedCache<BasicSimpleCacheExtension<TViewExtension, TDeltaExtension>> {
+	private:
+		using BaseType = cache::SynchronizedCache<BasicSimpleCacheExtension<TViewExtension, TDeltaExtension>>;
+
 	public:
 		/// Cache friendly name.
 		static constexpr auto Name = "SimpleCache";
 
 	public:
 		/// Creates a cache around \a config.
-		SimpleCache(const cache::CacheConfiguration& = cache::CacheConfiguration()) : SynchronizedCache(BasicSimpleCache())
+		explicit SimpleCacheExtension(const cache::CacheConfiguration& = cache::CacheConfiguration())
+				: BaseType(BasicSimpleCacheExtension<TViewExtension, TDeltaExtension>())
 		{}
 
 		/// Creates a cache with \a mode.
-		explicit SimpleCache(SimpleCacheViewMode mode) : SynchronizedCache(BasicSimpleCache(nullptr, mode))
+		explicit SimpleCacheExtension(SimpleCacheViewMode mode)
+				: BaseType(BasicSimpleCacheExtension<TViewExtension, TDeltaExtension>(nullptr, mode))
 		{}
 
 		/// Creates a cache with an auto set \a flag.
-		explicit SimpleCache(const test::AutoSetFlag& flag) : SynchronizedCache(BasicSimpleCache(flag.state())) {
+		explicit SimpleCacheExtension(const AutoSetFlag& flag)
+				: BaseType(BasicSimpleCacheExtension<TViewExtension, TDeltaExtension>(flag.state())) {
 			CATAPULT_LOG(debug) << "created SimpleCache with auto set flag (" << &flag << ") with state " << flag.state()->isSet();
 		}
 	};
 
+	using BasicSimpleCache = BasicSimpleCacheExtension<SimpleCacheDefaultViewExtension, SimpleCacheDefaultDeltaExtension>;
+	using SimpleCache = SimpleCacheExtension<SimpleCacheDefaultViewExtension, SimpleCacheDefaultDeltaExtension>;
+
 	/// Synchronized cache composed of simple data with a specific id.
-	template<size_t CacheId>
-	class SimpleCacheT : public SimpleCache {
+	template<
+		size_t CacheId,
+		typename TViewExtension = SimpleCacheDefaultViewExtension,
+		typename TDeltaExtension = SimpleCacheDefaultDeltaExtension
+	>
+	class SimpleCacheT : public SimpleCacheExtension<TViewExtension, TDeltaExtension> {
 	public:
 		/// Unique cache identifier.
 		static constexpr size_t Id = CacheId;
 
 	public:
-		using SimpleCache::SimpleCache;
+		using SimpleCacheExtension<TViewExtension, TDeltaExtension>::SimpleCacheExtension;
 	};
 
 	// endregion
@@ -295,9 +459,10 @@ namespace catapult { namespace test {
 	// region SimpleCacheStorageTraits
 
 	/// Policy for saving and loading simple cache data.
-	struct SimpleCacheStorageTraits {
-		using SourceType = SimpleCacheView;
-		using DestinationType = SimpleCacheDelta;
+	template<typename TViewExtension, typename TDeltaExtension>
+	struct SimpleCacheExtensionStorageTraits {
+		using SourceType = SimpleCacheViewExtension<TViewExtension, TDeltaExtension>;
+		using DestinationType = SimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>;
 
 		/// Saves \a value to \a output.
 		static void Save(size_t value, io::OutputStream& output) {
@@ -305,16 +470,23 @@ namespace catapult { namespace test {
 			io::Write64(output, value ^ 0xFFFFFFFF'FFFFFFFFull);
 		}
 
-		/// Loads a single value from \a input into \a cacheDelta.
-		static void LoadInto(io::InputStream& input, DestinationType& cacheDelta) {
-			// Act: decode each value after reading (and ensure the expected values are read)
-			auto value = io::Read64(input) ^ 0xFFFFFFFF'FFFFFFFFull;
+		/// Loads a single value from \a input.
+		static uint64_t Load(io::InputStream& input) {
+			// Act: decode each value after reading
+			return io::Read64(input) ^ 0xFFFFFFFF'FFFFFFFFull;
+		}
+
+		/// Loads \a value into \a cacheDelta.
+		static void LoadInto(uint64_t value, DestinationType& cacheDelta) {
+			// Assert: the expected values are read
 			if (value - 1 != cacheDelta.id())
 				CATAPULT_THROW_RUNTIME_ERROR_2("read value was unexpected (value, id)", value, cacheDelta.id());
 
 			cacheDelta.increment();
 		}
 	};
+
+	using SimpleCacheStorageTraits = SimpleCacheExtensionStorageTraits<SimpleCacheDefaultViewExtension, SimpleCacheDefaultDeltaExtension>;
 
 	// endregion
 }}

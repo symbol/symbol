@@ -19,21 +19,22 @@
 **/
 
 #pragma once
-#include "Options.h"
+#include "CommandParser.h"
 
 namespace catapult { namespace tools {
 
 	/// Interface for the tools.
-	class Tool {
+	class Tool : public CommandParser {
 	public:
-		virtual ~Tool() {}
+		/// Tool should return true if command line parser should allow unregistered options.
+		virtual inline bool allowUnregisteredOptions() const {
+			return false;
+		}
 
-	public:
-		/// Returns name of the tool.
-		virtual std::string name() const = 0;
-
-		/// Prepare named (\a optionsBuilder) and \a positional options of the tool.
-		virtual void prepareOptions(OptionsBuilder& optionsBuilder, OptionsPositional& positional) = 0;
+		/// Tool should return sub command parser.
+		virtual inline CommandParser* subCommandParser(const Options&) const {
+			return nullptr;
+		}
 
 		/// Run the tool passing \a options collected from the command line.
 		virtual int run(const Options& options) = 0;

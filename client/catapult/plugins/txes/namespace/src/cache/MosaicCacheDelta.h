@@ -19,8 +19,9 @@
 **/
 
 #pragma once
+#include "MosaicBaseSets.h"
 #include "MosaicCacheMixins.h"
-#include "MosaicCacheTypes.h"
+#include "MosaicCacheSerializers.h"
 #include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
@@ -29,9 +30,13 @@
 namespace catapult { namespace cache {
 
 	/// Mixins used by the mosaic cache delta.
-	struct MosaicCacheDeltaMixins : public BasicCacheMixins<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicCacheDescriptor> {
+	struct MosaicCacheDeltaMixins
+			: public PatriciaTreeCacheMixins<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType, MosaicCacheDescriptor> {
 		using ConstAccessor = ConstAccessorWithAdapter<MosaicCacheTypes::ConstValueAdapter>;
 		using MutableAccessor = MutableAccessorWithAdapter<MosaicCacheTypes::MutableValueAdapter>;
+		using Touch = HeightBasedTouchMixin<
+			typename MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType,
+			typename MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
 
 		using MosaicDeepSize = MosaicDeepSizeMixin<MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType>;
 	};
@@ -43,7 +48,9 @@ namespace catapult { namespace cache {
 			, public MosaicCacheDeltaMixins::Contains
 			, public MosaicCacheDeltaMixins::ConstAccessor
 			, public MosaicCacheDeltaMixins::MutableAccessor
+			, public MosaicCacheDeltaMixins::PatriciaTreeDelta
 			, public MosaicCacheDeltaMixins::ActivePredicate
+			, public MosaicCacheDeltaMixins::Touch
 			, public MosaicCacheDeltaMixins::DeltaElements
 			, public MosaicCacheDeltaMixins::MosaicDeepSize {
 	public:
@@ -54,11 +61,8 @@ namespace catapult { namespace cache {
 		BasicMosaicCacheDelta(const MosaicCacheTypes::BaseSetDeltaPointers& mosaicSets, size_t deepSize);
 
 	public:
-		using MosaicCacheDeltaMixins::ConstAccessor::get;
-		using MosaicCacheDeltaMixins::MutableAccessor::get;
-
-		using MosaicCacheDeltaMixins::ConstAccessor::tryGet;
-		using MosaicCacheDeltaMixins::MutableAccessor::tryGet;
+		using MosaicCacheDeltaMixins::ConstAccessor::find;
+		using MosaicCacheDeltaMixins::MutableAccessor::find;
 
 	public:
 		/// Inserts the mosaic \a entry into the cache.

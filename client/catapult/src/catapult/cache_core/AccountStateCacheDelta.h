@@ -19,13 +19,12 @@
 **/
 
 #pragma once
-#include "AccountStateCacheTypes.h"
+#include "AccountStateBaseSets.h"
+#include "AccountStateCacheSerializers.h"
 #include "ReadOnlyAccountStateCache.h"
 #include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 #include "catapult/model/ContainerTypes.h"
-
-namespace catapult { namespace model { struct AccountInfo; } }
 
 namespace catapult { namespace cache {
 
@@ -35,7 +34,7 @@ namespace catapult { namespace cache {
 		using KeyLookupAdapter = AccountStateCacheTypes::ComposedLookupAdapter<AccountStateCacheTypes::ComposableBaseSetDeltas>;
 
 	private:
-		using AddressMixins = BasicCacheMixins<AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType, AccountStateCacheDescriptor>;
+		using AddressMixins = PatriciaTreeCacheMixins<AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType, AccountStateCacheDescriptor>;
 		using KeyMixins = BasicCacheMixins<KeyLookupAdapter, KeyLookupAdapter>;
 
 	public:
@@ -44,10 +43,11 @@ namespace catapult { namespace cache {
 		using ContainsKey = ContainsMixin<
 			AccountStateCacheTypes::KeyLookupMapTypes::BaseSetDeltaType,
 			AccountStateCacheTypes::KeyLookupMapTypesDescriptor>;
-		using ConstAccessorAddress = AddressMixins::ConstAccessorWithAdapter<AccountStateCacheTypes::ConstValueAdapter>;
-		using ConstAccessorKey = KeyMixins::ConstAccessorWithAdapter<AccountStateCacheTypes::ConstValueAdapter>;
-		using MutableAccessorAddress = AddressMixins::MutableAccessorWithAdapter<AccountStateCacheTypes::MutableValueAdapter>;
-		using MutableAccessorKey = KeyMixins::MutableAccessorWithAdapter<AccountStateCacheTypes::MutableValueAdapter>;
+		using ConstAccessorAddress = AddressMixins::ConstAccessor;
+		using ConstAccessorKey = KeyMixins::ConstAccessor;
+		using MutableAccessorAddress = AddressMixins::MutableAccessor;
+		using MutableAccessorKey = KeyMixins::MutableAccessor;
+		using PatriciaTreeDelta = AddressMixins::PatriciaTreeDelta;
 		using DeltaElements = AddressMixins::DeltaElements;
 
 		// no mutable key accessor because address-to-key pairs are immutable
@@ -63,6 +63,7 @@ namespace catapult { namespace cache {
 			, public AccountStateCacheDeltaMixins::ConstAccessorKey
 			, public AccountStateCacheDeltaMixins::MutableAccessorAddress
 			, public AccountStateCacheDeltaMixins::MutableAccessorKey
+			, public AccountStateCacheDeltaMixins::PatriciaTreeDelta
 			, public AccountStateCacheDeltaMixins::DeltaElements {
 	public:
 		using ReadOnlyView = ReadOnlyAccountStateCache;
@@ -85,15 +86,10 @@ namespace catapult { namespace cache {
 		using AccountStateCacheDeltaMixins::ContainsAddress::contains;
 		using AccountStateCacheDeltaMixins::ContainsKey::contains;
 
-		using AccountStateCacheDeltaMixins::ConstAccessorAddress::get;
-		using AccountStateCacheDeltaMixins::ConstAccessorKey::get;
-		using AccountStateCacheDeltaMixins::MutableAccessorAddress::get;
-		using AccountStateCacheDeltaMixins::MutableAccessorKey::get;
-
-		using AccountStateCacheDeltaMixins::ConstAccessorAddress::tryGet;
-		using AccountStateCacheDeltaMixins::ConstAccessorKey::tryGet;
-		using AccountStateCacheDeltaMixins::MutableAccessorAddress::tryGet;
-		using AccountStateCacheDeltaMixins::MutableAccessorKey::tryGet;
+		using AccountStateCacheDeltaMixins::ConstAccessorAddress::find;
+		using AccountStateCacheDeltaMixins::ConstAccessorKey::find;
+		using AccountStateCacheDeltaMixins::MutableAccessorAddress::find;
+		using AccountStateCacheDeltaMixins::MutableAccessorKey::find;
 
 	public:
 		/// Gets the network identifier.
@@ -104,17 +100,14 @@ namespace catapult { namespace cache {
 
 	public:
 		/// If not present, adds an account to the cache at given height (\a addressHeight) using \a address.
-		/// Returns an account state.
-		state::AccountState& addAccount(const Address& address, Height addressHeight);
+		void addAccount(const Address& address, Height addressHeight);
 
 		/// If not present, adds an account to the cache using \a publicKey.
 		/// If public key has not been known earlier, its height is set to \a publicKeyHeight.
-		/// Returns an account state.
-		state::AccountState& addAccount(const Key& publicKey, Height publicKeyHeight);
+		void addAccount(const Key& publicKey, Height publicKeyHeight);
 
-		/// If not present, adds an account to the cache using information in \a accountInfo.
-		/// Returns an account state.
-		state::AccountState& addAccount(const model::AccountInfo& accountInfo);
+		/// If not present, adds an account to the cache using information in \a accountState.
+		void addAccount(const state::AccountState& accountState);
 
 	public:
 		/// If \a height matches the height at which account was added, queues removal of account's \a address

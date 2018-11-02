@@ -38,7 +38,7 @@ namespace catapult { namespace test {
 			{ "maxNameSize", "64" },
 
 			{ "maxNamespaceDuration", "365d" },
-			{ "namespaceGracePeriodDuration", "30d" },
+			{ "namespaceGracePeriodDuration", "1h" },
 			{ "reservedRootNamespaceNames", "xem" },
 
 			{ "namespaceRentalFeeSinkPublicKey", Namespace_Rental_Fee_Sink_Public_Key },
@@ -62,7 +62,7 @@ namespace catapult { namespace test {
 	namespace {
 		void AddPluginExtensions(config::NodeConfiguration& config, const std::unordered_set<std::string>& extensionNames) {
 			for (const auto& extensionName : extensionNames)
-				config.Extensions.emplace("extension." + extensionName);
+				config.Extensions.emplace_back("extension." + extensionName);
 		}
 
 		void AddCommonPluginExtensions(config::NodeConfiguration& config) {
@@ -83,7 +83,12 @@ namespace catapult { namespace test {
 		AddPluginExtensions(config, { "filechain", "packetserver", "sync", "syncsource" });
 	}
 
-	config::LocalNodeConfiguration LoadLocalNodeConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory) {
-		return LoadLocalNodeConfiguration(CreateBlockChainConfiguration(), dataDirectory);
+	void EnableStateVerification(config::LocalNodeConfiguration& config) {
+		const_cast<config::NodeConfiguration&>(config.Node).ShouldUseCacheDatabaseStorage = true;
+		const_cast<model::BlockChainConfiguration&>(config.BlockChain).ShouldEnableVerifiableState = true;
+	}
+
+	config::LocalNodeConfiguration CreateLocalNodeConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory) {
+		return CreateLocalNodeConfiguration(CreateBlockChainConfiguration(), dataDirectory);
 	}
 }}

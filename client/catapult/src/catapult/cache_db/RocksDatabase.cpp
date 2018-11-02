@@ -20,11 +20,16 @@
 
 #include "RocksDatabase.h"
 #include "RocksInclude.h"
-#include "catapult/exceptions.h"
+#include "RocksPruningFilter.h"
 #include "catapult/utils/HexFormatter.h"
+#include "catapult/utils/PathUtils.h"
+#include "catapult/utils/StackLogger.h"
+#include "catapult/exceptions.h"
 #include <boost/filesystem.hpp>
 
 namespace catapult { namespace cache {
+
+	// region RdbDataIterator
 
 	struct RdbDataIterator::Impl {
 		rocksdb::PinnableSlice Result;
@@ -40,7 +45,9 @@ namespace catapult { namespace cache {
 
 	RdbDataIterator::~RdbDataIterator() = default;
 
-	RdbDataIterator::RdbDataIterator(const RdbDataIterator&) = default;
+	RdbDataIterator::RdbDataIterator(RdbDataIterator&&) = default;
+
+	RdbDataIterator& RdbDataIterator::operator=(RdbDataIterator&&) = default;
 
 	RdbDataIterator RdbDataIterator::End() {
 		return RdbDataIterator(StorageStrategy::Do_Not_Allocate);
@@ -66,24 +73,59 @@ namespace catapult { namespace cache {
 		return { reinterpret_cast<const uint8_t*>(storage().data()), storage().size() };
 	}
 
-	RocksDatabase::RocksDatabase(const std::string& dbDir, const std::vector<std::string>& columnFamilyNames) : m_dbDir(dbDir) {
+	// endregion
+
+	// region RocksDatabaseSettings
+
+	RocksDatabaseSettings::RocksDatabaseSettings() : PruningMode(FilterPruningMode::Disabled)
+	{}
+
+	RocksDatabaseSettings::RocksDatabaseSettings(
+			const std::string& databaseDirectory,
+			const std::vector<std::string>& columnFamilyNames,
+			utils::FileSize maxDatabaseWriteBatchSize,
+			FilterPruningMode pruningMode)
+			: DatabaseDirectory(databaseDirectory)
+			, ColumnFamilyNames(columnFamilyNames)
+			, MaxDatabaseWriteBatchSize(maxDatabaseWriteBatchSize)
+			, PruningMode(pruningMode)
+	{}
+
+	// endregion
+
+	RocksDatabase::RocksDatabase() = default;
+
+	RocksDatabase::RocksDatabase(const RocksDatabaseSettings& settings)
+			: m_settings(settings)
+			, m_pruningFilter(m_settings.PruningMode)
+			, m_pWriteBatch(std::make_unique<rocksdb::WriteBatch>()) {
+		if (settings.ColumnFamilyNames.empty())
+			CATAPULT_THROW_INVALID_ARGUMENT("missing column family names")
+
+		if (0 != settings.MaxDatabaseWriteBatchSize.bytes() && settings.MaxDatabaseWriteBatchSize < utils::FileSize::FromKilobytes(100))
+			CATAPULT_THROW_INVALID_ARGUMENT("too small setting of DatabaseWriteBatchSize")
+
 		boost::system::error_code ec;
-		boost::filesystem::create_directories(dbDir, ec);
+		boost::filesystem::create_directories(m_settings.DatabaseDirectory, ec);
+
+		m_pruningFilter.setPruningBoundary(0);
 
 		rocksdb::DB* pDb;
 		rocksdb::Options dbOptions;
 		dbOptions.create_if_missing = true;
 		dbOptions.create_missing_column_families = true;
 
-		std::vector<rocksdb::ColumnFamilyDescriptor> columnFamilies;
-		columnFamilies.push_back(rocksdb::ColumnFamilyDescriptor("default", rocksdb::ColumnFamilyOptions()));
-		for (const auto& columnFamilyName : columnFamilyNames)
-			columnFamilies.push_back(rocksdb::ColumnFamilyDescriptor(columnFamilyName, rocksdb::ColumnFamilyOptions()));
+		rocksdb::ColumnFamilyOptions defaultColumnOptions;
+		defaultColumnOptions.compaction_filter = m_pruningFilter.compactionFilter();
 
-		auto status = rocksdb::DB::Open(dbOptions, m_dbDir, columnFamilies, &m_handles, &pDb);
+		std::vector<rocksdb::ColumnFamilyDescriptor> columnFamilies;
+		for (const auto& columnFamilyName : settings.ColumnFamilyNames)
+			columnFamilies.push_back(rocksdb::ColumnFamilyDescriptor(columnFamilyName, defaultColumnOptions));
+
+		auto status = rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
 		m_pDb.reset(pDb);
 		if (!status.ok())
-			CATAPULT_THROW_RUNTIME_ERROR_2("couldn't open database", dbDir, status.ToString());
+			CATAPULT_THROW_RUNTIME_ERROR_2("couldn't open database", m_settings.DatabaseDirectory, status.ToString());
 	}
 
 	RocksDatabase::~RocksDatabase() {
@@ -91,14 +133,28 @@ namespace catapult { namespace cache {
 			m_pDb->DestroyColumnFamilyHandle(pHandle);
 	}
 
+	const std::vector<std::string>& RocksDatabase::columnFamilyNames() const {
+		return m_settings.ColumnFamilyNames;
+	}
+
+	bool RocksDatabase::canPrune() const {
+		return FilterPruningMode::Enabled == m_settings.PruningMode;
+	}
+
 	namespace {
 		[[noreturn]]
-		void ThrowError(const char* message, size_t columnId, const rocksdb::Slice& key) {
-			CATAPULT_THROW_RUNTIME_ERROR_2(message, columnId, utils::HexFormat(key.data(), key.data() + key.size()));
+		void ThrowError(const std::string& message, const std::string& columnName, const rocksdb::Slice& key) {
+			CATAPULT_THROW_RUNTIME_ERROR_2(message.c_str(), columnName, utils::HexFormat(key.data(), key.data() + key.size()));
 		}
 	}
 
+#define CATAPULT_THROW_DB_KEY_ERROR(message) \
+	ThrowError(std::string(message) + " " + status.ToString() + " (column, key)", m_settings.ColumnFamilyNames[columnId], key)
+
 	void RocksDatabase::get(size_t columnId, const rocksdb::Slice& key, RdbDataIterator& result) {
+		if (!m_pDb)
+			CATAPULT_THROW_INVALID_ARGUMENT("RocksDatabase has not been initialized");
+
 		auto status = m_pDb->Get(rocksdb::ReadOptions(), m_handles[columnId], key, &result.storage());
 		result.setFound(status.ok());
 
@@ -106,22 +162,62 @@ namespace catapult { namespace cache {
 			return;
 
 		if (!status.IsNotFound())
-			ThrowError("could not retrieve value (column, key)", columnId, key);
+			CATAPULT_THROW_DB_KEY_ERROR("could not retrieve value");
 	}
 
 	void RocksDatabase::put(size_t columnId, const rocksdb::Slice& key, const std::string& value) {
-		auto status = m_pDb->Put(rocksdb::WriteOptions(), m_handles[columnId], key, value);
+		if (!m_pDb)
+			CATAPULT_THROW_INVALID_ARGUMENT("RocksDatabase has not been initialized");
 
+		auto status = m_pWriteBatch->Put(m_handles[columnId], key, value);
 		if (!status.ok())
-			ThrowError("could not store value in db (column, key)", columnId, key);
+			CATAPULT_THROW_DB_KEY_ERROR("could not add put operation to batch");
+
+		saveIfBatchFull();
 	}
 
 	void RocksDatabase::del(size_t columnId, const rocksdb::Slice& key) {
+		if (!m_pDb)
+			CATAPULT_THROW_INVALID_ARGUMENT("RocksDatabase has not been initialized");
+
 		// note: using SingleDelete can result in undefined result if value has ever been overwritten
 		// that can't be guaranteed, so Delete is used instead
-		auto status = m_pDb->Delete(rocksdb::WriteOptions(), m_handles[columnId], key);
-
+		auto status = m_pWriteBatch->Delete(m_handles[columnId], key);
 		if (!status.ok())
-			ThrowError("could not remove value from db (column, key)", columnId, key);
+			CATAPULT_THROW_DB_KEY_ERROR("could not add delete operation to batch");
+
+		saveIfBatchFull();
+	}
+
+	size_t RocksDatabase::prune(size_t columnId, uint64_t boundary) {
+		if (!m_pruningFilter.compactionFilter())
+			return 0;
+
+		m_pruningFilter.setPruningBoundary(boundary);
+		m_pDb->CompactRange({}, m_handles[columnId], nullptr, nullptr);
+		return m_pruningFilter.numRemoved();
+	}
+
+	void RocksDatabase::flush() {
+		if (0 == m_pWriteBatch->GetDataSize())
+			return;
+
+		rocksdb::WriteOptions writeOptions;
+		writeOptions.sync = true;
+
+		auto directory = m_settings.DatabaseDirectory + "/";
+		utils::SlowOperationLogger logger(utils::ExtractDirectoryName(directory.c_str()).pData, utils::LogLevel::Warning);
+		auto status = m_pDb->Write(writeOptions, m_pWriteBatch.get());
+		if (!status.ok())
+			CATAPULT_THROW_RUNTIME_ERROR_1("could not store batch in db", status.ToString());
+
+		m_pWriteBatch->Clear();
+	}
+
+	void RocksDatabase::saveIfBatchFull() {
+		if (m_pWriteBatch->GetDataSize() < m_settings.MaxDatabaseWriteBatchSize.bytes())
+			return;
+
+		flush();
 	}
 }}

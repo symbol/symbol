@@ -36,7 +36,9 @@ namespace catapult { namespace observers {
 		};
 
 		auto& AddRandomAccount(cache::AccountStateCacheDelta& delta) {
-			return delta.addAccount(test::GenerateRandomData<Key_Size>(), Height(1));
+			auto key = test::GenerateRandomData<Key_Size>();
+			delta.addAccount(key, Height(1));
+			return delta.find(key).get();
 		}
 
 		void AssertImportance(const state::AccountImportance& accountImportance, Importance importance, model::ImportanceHeight height) {

@@ -34,6 +34,21 @@ namespace catapult {
 
 namespace catapult { namespace extensions {
 
+	// region NodeAger
+
+	// A node ager.
+	using NodeAger = consumer<const utils::KeySet&>;
+
+	/// Creates and prepares a node ager that ages all \a serviceId connections in \a nodes given \a config.
+	NodeAger CreateNodeAger(
+			ionet::ServiceIdentifier serviceId,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
+			ionet::NodeContainer& nodes);
+
+	// endregion
+
+	// region NodeSelector / ConnectPeersTask
+
 	/// A node selector.
 	using NodeSelector = supplier<NodeSelectionResult>;
 
@@ -46,14 +61,29 @@ namespace catapult { namespace extensions {
 			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
 			ionet::NodeContainer& nodes);
 
-	/// Creates a task for the service identified by \a serviceId that connects to \a nodes using \a packetWriters and \a selector.
+	/// Creates a task for the service identified by \a serviceId that connects to \a nodes with the specified role (\a requiredRole)
+	/// using \a packetWriters and \a config.
+	thread::Task CreateConnectPeersTask(
+			ionet::NodeContainer& nodes,
+			net::PacketWriters& packetWriters,
+			ionet::ServiceIdentifier serviceId,
+			ionet::NodeRoles requiredRole,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config);
+
+	/// Creates a task for the service identified by \a serviceId that connects to \a nodes using \a packetWriters,
+	/// \a config and \a selector.
 	/// \note \a selector returns add candidates (subset of compatible nodes in \a nodes)
 	///        and remove candidates (subset of active connections in \a packetWriters).
 	thread::Task CreateConnectPeersTask(
 			ionet::NodeContainer& nodes,
 			net::PacketWriters& packetWriters,
 			ionet::ServiceIdentifier serviceId,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
 			const NodeSelector& selector);
+
+	// endregion
+
+	// region RemoveOnlyNodeSelector / AgePeersTask
 
 	/// A remove-only node selector.
 	using RemoveOnlyNodeSelector = supplier<utils::KeySet>;
@@ -65,11 +95,22 @@ namespace catapult { namespace extensions {
 			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
 			ionet::NodeContainer& nodes);
 
-	/// Creates a task for the service identified by \a serviceId that ages \a nodes using \a connectionContainer and \a selector.
+	/// Creates a task for the service identified by \a serviceId that ages \a nodes using \a connectionContainer and \a config.
+	thread::Task CreateAgePeersTask(
+			ionet::NodeContainer& nodes,
+			net::ConnectionContainer& connectionContainer,
+			ionet::ServiceIdentifier serviceId,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config);
+
+	/// Creates a task for the service identified by \a serviceId that ages \a nodes using \a connectionContainer,
+	/// \a config and \a selector.
 	/// \note \a selector returns remove candidates (subset of active connections in \a connectionContainer).
 	thread::Task CreateAgePeersTask(
 			ionet::NodeContainer& nodes,
 			net::ConnectionContainer& connectionContainer,
 			ionet::ServiceIdentifier serviceId,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
 			const RemoveOnlyNodeSelector& selector);
+
+	// endregion
 }}

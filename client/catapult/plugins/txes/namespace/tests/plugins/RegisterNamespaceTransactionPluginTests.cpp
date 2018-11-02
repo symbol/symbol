@@ -86,7 +86,7 @@ namespace catapult { namespace plugins {
 		test::FillWithRandomData(transaction.Signer);
 
 		// Act:
-		pPlugin->publish(transaction, sub);
+		test::PublishTransaction(*pPlugin, transaction, sub);
 
 		// Assert:
 		EXPECT_EQ(5u, sub.numNotifications());
@@ -114,7 +114,7 @@ namespace catapult { namespace plugins {
 				transaction.Signer = config.NemesisPublicKey;
 
 			// Act:
-			pPlugin->publish(transaction, sub);
+			test::PublishTransaction(*pPlugin, transaction, sub);
 
 			// Assert:
 			assertTransfers(sub, transaction.Signer, config.SinkAddress);
@@ -229,10 +229,10 @@ namespace catapult { namespace plugins {
 		pTransaction->Duration = BlockDuration(123);
 
 		// Act:
-		pPlugin->publish(*pTransaction, nsNameSub);
-		pPlugin->publish(*pTransaction, nsSub);
-		pPlugin->publish(*pTransaction, nsRootSub);
-		pPlugin->publish(*pTransaction, nsChildSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, nsNameSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, nsSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, nsRootSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, nsChildSub);
 
 		// Assert:
 		ASSERT_EQ(1u, nsNameSub.numMatchingNotifications());
@@ -269,10 +269,10 @@ namespace catapult { namespace plugins {
 			pTransaction->ParentId = NamespaceId(123);
 
 			// Act:
-			pPlugin->publish(*pTransaction, nsNameSub);
-			pPlugin->publish(*pTransaction, nsSub);
-			pPlugin->publish(*pTransaction, nsRootSub);
-			pPlugin->publish(*pTransaction, nsChildSub);
+			test::PublishTransaction(*pPlugin, *pTransaction, nsNameSub);
+			test::PublishTransaction(*pPlugin, *pTransaction, nsSub);
+			test::PublishTransaction(*pPlugin, *pTransaction, nsRootSub);
+			test::PublishTransaction(*pPlugin, *pTransaction, nsChildSub);
 
 			// Assert:
 			ASSERT_EQ(1u, nsNameSub.numMatchingNotifications());
@@ -312,7 +312,7 @@ namespace catapult { namespace plugins {
 		auto pTransaction = CreateTransactionWithName<TTraits>(0);
 
 		// Act:
-		pPlugin->publish(*pTransaction, nsNameSub);
+		test::PublishTransaction(*pPlugin, *pTransaction, nsNameSub);
 
 		// Assert:
 		ASSERT_EQ(1u, nsNameSub.numMatchingNotifications());

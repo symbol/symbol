@@ -31,9 +31,13 @@ namespace catapult { namespace model {
 		constexpr auto Mock_Transaction_Type = static_cast<model::EntityType>(0x4FFF);
 
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+		void Publish(const TTransaction& transaction, const PublisherContext& publisherContext, NotificationSubscriber& sub) {
 			// raise a notification dependent on the transaction data
 			sub.notify(test::CreateBlockNotification(transaction.Signer));
+
+			// trigger some resolvers
+			publisherContext.resolve(UnresolvedMosaicId(123));
+			publisherContext.resolve(UnresolvedAddress{ { { 124 } } });
 		}
 
 		struct RegularTraits {
@@ -126,14 +130,42 @@ namespace catapult { namespace model {
 
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction.Signer);
+		PublisherContext publisherContext;
 		mocks::MockTypedNotificationSubscriber<model::BlockNotification> sub;
 
 		// Act:
-		pPlugin->publish(transaction, sub);
+		pPlugin->publish(transaction, publisherContext, sub);
 
 		// Assert:
 		EXPECT_EQ(1u, sub.numNotifications());
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
 		EXPECT_EQ(transaction.Signer, sub.matchingNotifications()[0].Signer);
+	}
+
+	PLUGIN_TEST(CanPublishNotificationsWithResolvedFields) {
+		// Arrange:
+		auto pPlugin = TTraits::CreatePlugin();
+		std::vector<UnresolvedMosaicId> unresolvedMosaicIds;
+		std::vector<UnresolvedAddress> unresolvedAddresses;
+
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction.Signer);
+		PublisherContext publisherContext(
+				[&unresolvedMosaicIds](auto mosaicId) {
+					unresolvedMosaicIds.push_back(mosaicId);
+					return MosaicId(); // result unused
+				},
+				[&unresolvedAddresses](const auto& address) {
+					unresolvedAddresses.push_back(address);
+					return Address(); // result unused
+				});
+		mocks::MockTypedNotificationSubscriber<model::BlockNotification> sub;
+
+		// Act:
+		pPlugin->publish(transaction, publisherContext, sub);
+
+		// Assert: passed in resolvers were used
+		EXPECT_EQ(std::vector<UnresolvedMosaicId>{ UnresolvedMosaicId(123) }, unresolvedMosaicIds);
+		EXPECT_EQ(std::vector<UnresolvedAddress>{ UnresolvedAddress{ { { 124 } } } }, unresolvedAddresses);
 	}
 }}

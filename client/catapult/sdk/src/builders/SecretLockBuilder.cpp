@@ -29,8 +29,8 @@ namespace catapult { namespace builders {
 			, m_recipient()
 	{}
 
-	void SecretLockBuilder::setMosaic(MosaicId mosaicId, Amount amount) {
-		m_mosaic = model::Mosaic{ mosaicId, amount };
+	void SecretLockBuilder::setMosaic(UnresolvedMosaicId mosaicId, Amount amount) {
+		m_mosaic = { mosaicId, amount };
 	}
 
 	void SecretLockBuilder::setDuration(BlockDuration duration) {
@@ -45,7 +45,7 @@ namespace catapult { namespace builders {
 		m_secret = secret;
 	}
 
-	void SecretLockBuilder::setRecipient(const Address& recipient) {
+	void SecretLockBuilder::setRecipient(const UnresolvedAddress& recipient) {
 		m_recipient = recipient;
 	}
 

@@ -335,7 +335,7 @@ namespace catapult { namespace test {
 				if (1 > dummyValue || dummyValue > 2)
 					continue;
 
-				auto pElementCopy = pDelta->find(TTraits::CreateKey(pCurrentElement->Name, pCurrentElement->Value));
+				auto pElementCopy = pDelta->find(TTraits::CreateKey(pCurrentElement->Name, pCurrentElement->Value)).get();
 				pElementCopy->Dummy = dummyValue + 40;
 			}
 

@@ -62,7 +62,7 @@ namespace catapult { namespace validators {
 			auto cache = test::CreateEmptyCatapultCache();
 			auto cacheView = cache.createView();
 			auto context = test::CreateValidatorContext(Height(123), cacheView.toReadOnly());
-			validator.curry(std::cref(context)).dispatch([&entity](const auto&, const auto& validationFunctions) {
+			auto dispatcher = [&entity](const auto&, const auto& validationFunctions) {
 				Hash256 hash;
 				auto entityInfo = model::WeakEntityInfoT<model::VerifiableEntity>(entity, hash);
 
@@ -75,7 +75,8 @@ namespace catapult { namespace validators {
 					EXPECT_EQ(ValidationResult::Success, result) << "validation function at " << i;
 					++i;
 				}
-			}, {});
+			};
+			validator.curry(std::cref(context)).dispatch(dispatcher, {});
 		}
 
 		void Validate(const stateful::AggregateEntityValidator& validator) {

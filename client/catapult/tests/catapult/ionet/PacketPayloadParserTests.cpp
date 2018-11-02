@@ -220,7 +220,7 @@ namespace catapult { namespace ionet {
 		test::SetBlockAt(buffer, 0);
 
 		// Act: extract and return false from the isValid predicate even though the buffer has a valid size
-		auto numValidCalls = 0;
+		auto numValidCalls = 0u;
 		auto extractResult = TTraits::Extract(buffer, [&numValidCalls](const auto&) {
 			++numValidCalls;
 			return false;

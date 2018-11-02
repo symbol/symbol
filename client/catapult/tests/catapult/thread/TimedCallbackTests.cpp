@@ -338,7 +338,7 @@ namespace catapult { namespace thread {
 			const auto& result = TTraits::Trigger(context);
 
 			// Assert: both callbacks have been destroyed and the only remaining reference is the local pObject
-			EXPECT_EQ(1u, pObject.use_count());
+			EXPECT_EQ(1, pObject.use_count());
 
 			// - the timed callback was triggered as expected
 			return TTraits::TryAssertTrigger(result);
@@ -366,7 +366,7 @@ namespace catapult { namespace thread {
 
 			// - create a timeout handler that captures pObject
 			action timeoutHandler = [pObject]() {};
-			EXPECT_EQ(2u, pObject.use_count()); // sanity
+			EXPECT_EQ(2, pObject.use_count()); // sanity
 
 			// - change the timeout handler (with one that captures the object)
 			context.timedCallback().setTimeoutHandler(timeoutHandler);
@@ -376,7 +376,7 @@ namespace catapult { namespace thread {
 			const auto& result = context.wait();
 
 			// Assert: all three callbacks have been destroyed and the only remaining reference is the local pObject
-			EXPECT_EQ(1u, pObject.use_count());
+			EXPECT_EQ(1, pObject.use_count());
 
 			// - the timed callback was triggered as expected
 			return TTraits::TryAssertTrigger(result);

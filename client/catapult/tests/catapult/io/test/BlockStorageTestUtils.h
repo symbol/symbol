@@ -23,7 +23,7 @@
 #include "catapult/utils/HexFormatter.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include <numeric>
 
@@ -133,7 +133,7 @@ namespace catapult { namespace test {
 			constexpr auto Source_Directory = "../seed/mijin-test";
 #endif
 
-			const auto* pNemesisBlock = reinterpret_cast<const model::Block*>(&mocks::MemoryBasedStorage_NemesisBlockData);
+			const auto* pNemesisBlock = reinterpret_cast<const model::Block*>(&mocks::MemoryBlockStorage_NemesisBlockData);
 			auto nemesisBlockElement = BlockToBlockElement(*pNemesisBlock);
 			nemesisBlockElement.GenerationHash = GetNemesisGenerationHash();
 
@@ -168,6 +168,22 @@ namespace catapult { namespace test {
 			EXPECT_EQ(Height(12), pStorage->chainHeight());
 		}
 
+		static void AssertCanLoadNewlySavedBlock() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithBlocks<TTraits>(10);
+
+			auto pBlock = GenerateBlockWithTransactionsAtHeight(Height(11));
+			auto expectedBlockElement = CreateBlockElementForSaveTests(*pBlock);
+
+			// Act: save and load a block
+			pStorage->saveBlock(expectedBlockElement);
+			auto pBlockElement = pStorage->loadBlockElement(Height(11));
+
+			// Assert:
+			EXPECT_EQ(Height(11), pStorage->chainHeight());
+			AssertEqual(expectedBlockElement, *pBlockElement);
+		}
+
 		static void AssertCanOverwriteBlockWithSameData() {
 			// Arrange:
 			auto pStorage = PrepareStorageWithBlocks<TTraits>(10);
@@ -195,7 +211,7 @@ namespace catapult { namespace test {
 
 			auto expectedBlockElement = CreateBlockElementForSaveTests(*pBlock);
 
-			// Act: drop, modify the block, and save it
+			// Act: drop, modify the block, save it
 			pStorage->dropBlocksAfter(Height(10));
 			pBlock->Timestamp = pBlock->Timestamp + Timestamp(1);
 
@@ -442,6 +458,7 @@ namespace catapult { namespace test {
 #define DEFINE_BLOCK_STORAGE_TESTS(TRAITS_NAME) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, StorageSeedInitiallyContainsNemesisBlock) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, SavingBlockWithHeightHigherThanChainHeightAltersChainHeight) \
+	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanLoadNewlySavedBlock) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanOverwriteBlockWithSameData) \
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanOverwriteBlockWithDifferentData) \
 	\

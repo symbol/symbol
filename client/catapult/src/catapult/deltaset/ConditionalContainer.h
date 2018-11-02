@@ -25,6 +25,20 @@
 
 namespace catapult { namespace deltaset {
 
+	namespace detail {
+		// need to expose hashed or sorted container traits as hint to key storage in BaseSetDelta secondary containers
+		template<typename T, typename = void>
+		struct StlContainerTraits {
+			using key_compare = typename T::key_compare;
+		};
+
+		template<typename T>
+		struct StlContainerTraits<T, typename utils::traits::enable_if_type<typename T::hasher>::type> {
+			using hasher = typename T::hasher;
+			using key_equal = typename T::key_equal;
+		};
+	}
+
 	/// Possible conditional container modes.
 	enum class ConditionalContainerMode {
 		/// Delegate to storage.
@@ -35,7 +49,7 @@ namespace catapult { namespace deltaset {
 
 	/// A conditional container that delegates to either a storage or a memory backed container.
 	template<typename TKeyTraits, typename TStorageSet, typename TMemorySet>
-	class ConditionalContainer {
+	class ConditionalContainer : public detail::StlContainerTraits<TMemorySet> {
 	public:
 		using StorageSetType = TStorageSet;
 		using MemorySetType = TMemorySet;
@@ -51,15 +65,18 @@ namespace catapult { namespace deltaset {
 		/// A const iterator.
 		class ConditionalIterator {
 		public:
+			/// Creates an uninitialized iterator.
+			ConditionalIterator() = default;
+
 			/// Creates a conditional iterator around \a iter for a storage container.
-			explicit ConditionalIterator(typename StorageSetType::const_iterator iter, StorageFlag)
-					: m_storageIter(iter)
+			explicit ConditionalIterator(typename StorageSetType::const_iterator&& iter, StorageFlag)
+					: m_storageIter(std::move(iter))
 					, m_mode(ConditionalContainerMode::Storage)
 			{}
 
 			/// Creates a conditional iterator around \a iter for a memory container.
-			explicit ConditionalIterator(typename MemorySetType::const_iterator iter, MemoryFlag)
-					: m_memoryIter(iter)
+			explicit ConditionalIterator(typename MemorySetType::const_iterator&& iter, MemoryFlag)
+					: m_memoryIter(std::move(iter))
 					, m_mode(ConditionalContainerMode::Memory)
 			{}
 
@@ -90,6 +107,10 @@ namespace catapult { namespace deltaset {
 			typename MemorySetType::const_iterator m_memoryIter;
 			ConditionalContainerMode m_mode;
 		};
+
+	public:
+		using const_iterator = ConditionalIterator;
+		using iterator = ConditionalIterator;
 
 	public:
 		/// Creates a memory conditional container with \a mode.
@@ -141,6 +162,15 @@ namespace catapult { namespace deltaset {
 				UpdateSet<TKeyTraits>(*m_pContainer2, deltas);
 		}
 
+		/// Optionally prunes underlying container using \a pruningBoundary.
+		template<typename TPruningBoundary>
+		void prune(const TPruningBoundary& pruningBoundary) {
+			if (m_pContainer1)
+				PruneBaseSet(*m_pContainer1, pruningBoundary);
+			else
+				PruneBaseSet(*m_pContainer2, pruningBoundary);
+		}
+
 	private:
 		std::unique_ptr<StorageSetType> m_pContainer1;
 		std::unique_ptr<MemorySetType> m_pContainer2;
@@ -151,12 +181,7 @@ namespace catapult { namespace deltaset {
 
 		template<typename TKeyTraits2, typename TStorageSet2, typename TMemorySet2>
 		friend const TMemorySet2& SelectIterableSet(const ConditionalContainer<TKeyTraits2, TStorageSet2, TMemorySet2>& set);
-
-		template<typename TKeyTraits2, typename TStorageSet2, typename TMemorySet2>
-		friend TMemorySet2& SelectPrunableSet(ConditionalContainer<TKeyTraits2, TStorageSet2, TMemorySet2>& set);
 	};
-
-	// region specializations
 
 	/// Returns \c true if \a set is iterable.
 	/// \note Specialization for ConditionalContainer.
@@ -176,17 +201,6 @@ namespace catapult { namespace deltaset {
 		return *set.m_pContainer2;
 	}
 
-	/// Selects the prunable set from \a set.
-	/// \throws catapult_invalid_argument if the set is not memory-based.
-	/// \note Specialization for ConditionalContainer.
-	template<typename TKeyTraits, typename TStorageSet, typename TMemorySet>
-	TMemorySet& SelectPrunableSet(ConditionalContainer<TKeyTraits, TStorageSet, TMemorySet>& set) {
-		if (!IsSetIterable(set))
-			CATAPULT_THROW_INVALID_ARGUMENT("ConditionalContainer is only prunable when it is memory-based");
-
-		return *set.m_pContainer2;
-	}
-
 	/// Applies all changes in \a deltas to \a container.
 	/// \note Specialization for ConditionalContainer.
 	template<typename TKeyTraits, typename TStorageSet, typename TMemorySet>
@@ -194,5 +208,10 @@ namespace catapult { namespace deltaset {
 		container.update(deltas);
 	}
 
-	// endregion
+	/// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements to remove.
+	/// \note Specialization for ConditionalContainer.
+	template<typename TKeyTraits, typename TStorageSet, typename TMemorySet, typename TPruningBoundary>
+	void PruneBaseSet(ConditionalContainer<TKeyTraits, TStorageSet, TMemorySet>& container, const TPruningBoundary& pruningBoundary) {
+		container.prune(pruningBoundary);
+	}
 }}

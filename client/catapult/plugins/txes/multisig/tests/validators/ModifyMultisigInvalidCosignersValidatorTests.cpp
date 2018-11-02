@@ -47,13 +47,8 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto pValidator = CreateModifyMultisigInvalidCosignersValidator();
 
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(height, readOnlyCache);
-
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache, height);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
@@ -113,7 +108,7 @@ namespace catapult { namespace validators {
 				auto& multisigDelta = delta.sub<cache::MultisigCache>();
 				const auto& multisigAccountKey = keys[0];
 				multisigDelta.insert(state::MultisigEntry(multisigAccountKey));
-				auto& cosignatories = multisigDelta.get(multisigAccountKey).cosignatories();
+				auto& cosignatories = multisigDelta.find(multisigAccountKey).get().cosignatories();
 				for (auto i = 0u; i < settings.size(); ++i)
 					if (CosignerType::Existing == settings[i].Type)
 						cosignatories.insert(keys[1 + i]);

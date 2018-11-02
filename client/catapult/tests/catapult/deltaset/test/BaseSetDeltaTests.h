@@ -73,13 +73,17 @@ namespace catapult { namespace test {
 			pDelta->insert(element);
 			pSet->commit();
 
+			pDelta->incrementGenerationId();
+
 			// Act:
-			auto pBaseElement = pSet->find(TTraits::ToKey(element));
-			auto pDeltaElement = pDelta->find(TTraits::ToKey(element));
+			auto pBaseElement = pSet->find(TTraits::ToKey(element)).get();
+			auto pDeltaElement = pDelta->find(TTraits::ToKey(element)).get();
 
 			// Assert:
 			EXPECT_NE(pBaseElement, pDeltaElement);
 			AssertDeltaSizes(*pSet, *pDelta, 1, 0, 0, 1);
+
+			EXPECT_EQ(2u, pDelta->generationId(TTraits::ToKey(element)));
 		}
 
 		static void AssertImmutableBaseSetDeltaFindReturnsOriginalElement() {
@@ -91,13 +95,17 @@ namespace catapult { namespace test {
 			pDelta->insert(element);
 			pSet->commit();
 
+			pDelta->incrementGenerationId();
+
 			// Act:
-			auto pBaseElement = pSet->find(TTraits::ToKey(element));
-			auto pDeltaElement = pDelta->find(TTraits::ToKey(element));
+			auto pBaseElement = pSet->find(TTraits::ToKey(element)).get();
+			auto pDeltaElement = pDelta->find(TTraits::ToKey(element)).get();
 
 			// Assert:
 			EXPECT_EQ(pBaseElement, pDeltaElement);
 			AssertDeltaSizes(*pSet, *pDelta, 1, 0, 0, 0);
+
+			EXPECT_EQ(0u, pDelta->generationId(TTraits::ToKey(element)));
 		}
 
 	private:
@@ -122,10 +130,12 @@ namespace catapult { namespace test {
 			pDelta->insert(element);
 			pSet->commit();
 
+			pDelta->incrementGenerationId();
+
 			// Act:
-			auto pElement1 = pDelta->find(TTraits::ToKey(element));
+			auto pElement1 = pDelta->find(TTraits::ToKey(element)).get();
 			pElement1->Dummy = 345;
-			auto pElement2 = pDelta->find(TTraits::ToKey(element));
+			auto pElement2 = pDelta->find(TTraits::ToKey(element)).get();
 
 			// Assert:
 			EXPECT_EQ(345u, pElement2->Dummy);
@@ -134,14 +144,16 @@ namespace catapult { namespace test {
 			// - if the delta contains raw elements, they should be const in sets (due to the underlying set storage
 			//   since sets contain const elements to prevent changing keys) but mutable in maps
 			// - Dummy being changed above is mutable
-			if (IsWrapped(pDelta->find(TTraits::ToKey(element))) || AllowsNativeValueModification(*pSet))
-				EXPECT_FALSE(std::is_const<decltype(Unwrap(pDelta->find(TTraits::ToKey(element))))>());
+			if (IsWrapped(pDelta->find(TTraits::ToKey(element)).get()) || AllowsNativeValueModification(*pSet))
+				EXPECT_FALSE(std::is_const<decltype(Unwrap(pDelta->find(TTraits::ToKey(element)).get()))>());
 			else
-				EXPECT_TRUE(std::is_const<decltype(Unwrap(pDelta->find(TTraits::ToKey(element))))>());
+				EXPECT_TRUE(std::is_const<decltype(Unwrap(pDelta->find(TTraits::ToKey(element)).get()))>());
 
 			// Sanity: the original (base) set always returns const elements
-			EXPECT_TRUE(std::is_const<decltype(Unwrap(pSet->find(TTraits::ToKey(element))))>());
+			EXPECT_TRUE(std::is_const<decltype(Unwrap(pSet->find(TTraits::ToKey(element)).get()))>());
 			AssertDeltaSizes(*pSet, *pDelta, 1, 0, 0, 1);
+
+			EXPECT_EQ(2u, pDelta->generationId(TTraits::ToKey(element)));
 		}
 
 		static void AssertImmutableBaseSetDeltaFindReturnsConstCopy() {
@@ -153,12 +165,74 @@ namespace catapult { namespace test {
 			pDelta->insert(element);
 			pSet->commit();
 
+			pDelta->incrementGenerationId();
+
 			// Assert:
-			EXPECT_TRUE(std::is_const<decltype(Unwrap(pDelta->find(TTraits::ToKey(element))))>());
+			EXPECT_TRUE(std::is_const<decltype(Unwrap(pDelta->find(TTraits::ToKey(element)).get()))>());
 
 			// Sanity: the original (base) set always returns const elements
-			EXPECT_TRUE(std::is_const<decltype(Unwrap(pSet->find(TTraits::ToKey(element))))>());
+			EXPECT_TRUE(std::is_const<decltype(Unwrap(pSet->find(TTraits::ToKey(element)).get()))>());
 			AssertDeltaSizes(*pSet, *pDelta, 1, 0, 0, 0);
+
+			EXPECT_EQ(0u, pDelta->generationId(TTraits::ToKey(element)));
+		}
+
+	public:
+		static void AssertMutableBaseSetDeltaFindAlwaysUpdatesGenerationForOriginalElement() {
+			// Arrange:
+			auto pSet = TTraits::CreateBase();
+			auto pDelta = pSet->rebase();
+
+			auto element = TTraits::CreateElement("TestElement", 4);
+			auto key = TTraits::ToKey(element);
+			pDelta->insert(element);
+			pSet->commit();
+
+			// - first access
+			pDelta->incrementGenerationId();
+			pDelta->find(key);
+
+			// Sanity:
+			EXPECT_EQ(2u, pDelta->generationId(key));
+
+			// Act: subsequent accesses
+			for (auto i = 0u; i < 3; ++i) {
+				pDelta->incrementGenerationId();
+				pDelta->find(key);
+			}
+
+			// Assert:
+			AssertDeltaSizes(*pSet, *pDelta, 1, 0, 0, 1);
+
+			EXPECT_EQ(2u + 3u, pDelta->generationId(key));
+		}
+
+		static void AssertMutableBaseSetDeltaFindAlwaysUpdatesGenerationForAddedElement() {
+			// Arrange:
+			auto pSet = TTraits::CreateBase();
+			auto pDelta = pSet->rebase();
+
+			auto element = TTraits::CreateElement("TestElement", 4);
+			auto key = TTraits::ToKey(element);
+			pDelta->insert(element);
+
+			// - first access
+			pDelta->incrementGenerationId();
+			pDelta->find(key);
+
+			// Sanity:
+			EXPECT_EQ(2u, pDelta->generationId(key));
+
+			// Act: subsequent accesses
+			for (auto i = 0u; i < 3; ++i) {
+				pDelta->incrementGenerationId();
+				pDelta->find(key);
+			}
+
+			// Assert:
+			AssertDeltaSizes(*pSet, *pDelta, 0, 1, 0, 0);
+
+			EXPECT_EQ(2u + 3u, pDelta->generationId(key));
 		}
 
 	private:
@@ -177,13 +251,17 @@ namespace catapult { namespace test {
 			pDelta->insert(element);
 			pSet->commit();
 
+			pDelta->incrementGenerationId();
+
 			// Act:
-			auto pBaseElement = pSet->find(TTraits::ToKey(element));
-			auto pDeltaElement = MakeConst(pDelta)->find(TTraits::ToKey(element));
+			auto pBaseElement = pSet->find(TTraits::ToKey(element)).get();
+			auto pDeltaElement = MakeConst(pDelta)->find(TTraits::ToKey(element)).get();
 
 			// Assert:
 			EXPECT_EQ(pBaseElement, pDeltaElement);
 			AssertDeltaSizes(*pSet, *pDelta, 1, 0, 0, 0);
+
+			EXPECT_EQ(0u, pDelta->generationId(TTraits::ToKey(element)));
 		}
 
 		static void AssertBaseSetDeltaFindConstReturnsConstCopy() {
@@ -196,7 +274,7 @@ namespace catapult { namespace test {
 			pSet->commit();
 
 			// Assert:
-			EXPECT_TRUE(std::is_const<decltype(Unwrap(MakeConst(pDelta)->find(TTraits::ToKey(element))))>());
+			EXPECT_TRUE(std::is_const<decltype(Unwrap(MakeConst(pDelta)->find(TTraits::ToKey(element)).get()))>());
 			AssertDeltaSizes(*pSet, *pDelta, 1, 0, 0, 0);
 		}
 
@@ -207,10 +285,10 @@ namespace catapult { namespace test {
 			auto expectedElements = CreateExpectedElementsForBatchFindTests();
 
 			for (const auto& element : expectedElements)
-				EXPECT_TRUE(!!set.find(TTraits::CreateKey(element.Name, element.Value))) << element;
+				EXPECT_TRUE(!!set.find(TTraits::CreateKey(element.Name, element.Value)).get()) << element;
 
 			for (auto value : { 1u, 4u, 6u, 8u, 9u })
-				EXPECT_FALSE(!!set.find(TTraits::CreateKey("TestElement", value))) << value;
+				EXPECT_FALSE(!!set.find(TTraits::CreateKey("TestElement", value)).get()) << value;
 
 			// Sanity:
 			EXPECT_EQ(expectedElements.size(), set.size());
@@ -252,11 +330,14 @@ namespace catapult { namespace test {
 			auto element = TTraits::CreateElement("MyTestElement", 321);
 			auto expectedElements = typename TTraits::ElementVector{ element };
 
+			pDelta->incrementGenerationId();
+
 			// Act:
 			auto result = pDelta->insert(element);
 
 			// Assert:
 			EXPECT_EQ(deltaset::InsertResult::Inserted, result);
+			EXPECT_EQ(2u, pDelta->generationId(TTraits::ToKey(element)));
 
 			TTraits::AssertContents(*pDelta, expectedElements);
 			AssertDeltaSizes(pDelta, 0, 1, 0, 0);
@@ -270,6 +351,8 @@ namespace catapult { namespace test {
 				TTraits::CreateElement("AnotherTestElement", 123)
 			};
 
+			pDelta->incrementGenerationId();
+
 			// Act:
 			auto result1 = pDelta->emplace("MyTestElement");
 			auto result2 = pDelta->emplace("AnotherTestElement", static_cast<unsigned int>(123));
@@ -277,13 +360,15 @@ namespace catapult { namespace test {
 			// Assert:
 			EXPECT_EQ(deltaset::InsertResult::Inserted, result1);
 			EXPECT_EQ(deltaset::InsertResult::Inserted, result2);
+			EXPECT_EQ(2u, pDelta->generationId(TTraits::ToKey(expectedElements[0])));
+			EXPECT_EQ(2u, pDelta->generationId(TTraits::ToKey(expectedElements[1])));
 
 			TTraits::AssertContents(*pDelta, expectedElements);
 			AssertDeltaSizes(pDelta, 0, 2, 0, 0);
 		}
 
 	private:
-		static void AssertCopyInsertNewElement(uint32_t expectedValue) {
+		static void AssertCopyInsertNewElement(uint32_t expectedValue, uint32_t expectedGenerationId) {
 			// Arrange:
 			auto pDelta = TTraits::Create();
 			auto element = TTraits::CreateElement("TestElement", 4);
@@ -293,6 +378,8 @@ namespace catapult { namespace test {
 			// Sanity:
 			EXPECT_EQ(deltaset::InsertResult::Inserted, initialResult);
 
+			pDelta->incrementGenerationId();
+
 			// Act:
 			auto identicalElement = TTraits::CreateElement("TestElement", 4);
 			std::vector<deltaset::InsertResult> results;
@@ -301,10 +388,11 @@ namespace catapult { namespace test {
 				results.push_back(pDelta->insert(identicalElement));
 			}
 
-			auto pCurrent = pDelta->find(TTraits::ToKey(element));
+			auto pCurrent = pDelta->find(TTraits::ToKey(element)).get();
 
 			// Assert:
 			EXPECT_EQ(std::vector<deltaset::InsertResult>(results.size(), GetUpdatedResult()), results);
+			EXPECT_EQ(expectedGenerationId, pDelta->generationId(TTraits::ToKey(element)));
 
 			EXPECT_EQ(expectedValue, pCurrent->Dummy);
 			AssertDeltaSizes(pDelta, 0, 1, 0, 0);
@@ -313,39 +401,56 @@ namespace catapult { namespace test {
 	public:
 		static void AssertMutableBaseSetDeltaInsertUpdatesKnownElement() {
 			// Assert:
-			AssertCopyInsertNewElement(9);
+			AssertCopyInsertNewElement(9, 2);
 		}
 
 		static void AssertImmutableBaseSetDeltaInsertDoesNotUpdateKnownElement() {
 			// Assert:
-			AssertCopyInsertNewElement(123);
+			AssertCopyInsertNewElement(123, 1); // reinsert of same immutable element is noop
 		}
 
-		static void AssertBaseSetDeltaSupportsReinsertingExistingElement() {
+	private:
+		static void AssertReinsertExistingElement(uint32_t expectedGenerationId) {
 			// Arrange:
 			auto pDelta = TTraits::CreateWithElements(3);
 			pDelta.commit();
 
-			// Act: find the matching element, update its dummy value, and reinsert it
-			auto pOriginalElement = pDelta->find(TTraits::CreateKey("TestElement", 1));
+			// - find the matching element
+			auto pOriginalElement = pDelta->find(TTraits::CreateKey("TestElement", 1)).get();
+
+			pDelta->incrementGenerationId();
+
+			// Act: update its dummy value and reinsert it
 			pOriginalElement->Dummy = 777;
 			auto result = pDelta->insert(TTraits::ToSetElement(pOriginalElement));
 
 			// - get the updated element
-			auto pUpdatedElement = pDelta->find(TTraits::CreateKey("TestElement", 1));
+			auto pUpdatedElement = pDelta->find(TTraits::CreateKey("TestElement", 1)).get();
 
 			// Assert: it has been reinserted with the updated dummy value
 			EXPECT_EQ(GetUpdatedResult(), result);
+			EXPECT_EQ(expectedGenerationId, pDelta->generationId(TTraits::CreateKey("TestElement", 1)));
 
 			EXPECT_EQ(777u, pUpdatedElement->Dummy);
 			AssertDeltaSizes(pDelta, 3, 0, 0, TTraits::IsElementMutable() ? 1 : 0);
 		}
 
+	public:
+		static void AssertMutableBaseSetDeltaSupportsReinsertingExistingElement() {
+			// Assert:
+			AssertReinsertExistingElement(2);
+		}
+
+		static void AssertImmutableBaseSetDeltaSupportsReinsertingExistingElement() {
+			// Assert:
+			AssertReinsertExistingElement(0); // reinsert of same immutable element is noop
+		}
+
 	private:
-		static void AssertCopyInsertOriginalElement(uint32_t expectedValue) {
+		static void AssertCopyInsertOriginalElement(uint32_t expectedValue, uint32_t expectedGenerationId) {
 			// Arrange:
 			auto pDelta = TTraits::CreateWithElements(3);
-			auto pOriginalElement = pDelta->find(TTraits::CreateKey("TestElement", 2));
+			auto pOriginalElement = pDelta->find(TTraits::CreateKey("TestElement", 2)).get();
 			pOriginalElement->Dummy = 123;
 			auto initialResult = pDelta->insert(TTraits::ToSetElement(pOriginalElement));
 			pDelta.commit(); // the 3 elements are now original elements
@@ -354,10 +459,12 @@ namespace catapult { namespace test {
 			EXPECT_EQ(GetUpdatedResult(), initialResult);
 
 			// Arrange: find will insert a copy of the original element into the set of copies
-			pDelta->find(TTraits::CreateKey("TestElement", 2));
+			pDelta->find(TTraits::CreateKey("TestElement", 2)).get();
 
 			// - element is a clone of the above copied original element, but not the same object instance
 			auto element = TTraits::CreateElement("TestElement", 2);
+
+			pDelta->incrementGenerationId();
 
 			// Act:
 			std::vector<deltaset::InsertResult> results;
@@ -366,10 +473,11 @@ namespace catapult { namespace test {
 				results.push_back(pDelta->insert(element));
 			}
 
-			auto pCurrent = pDelta->find(TTraits::CreateKey("TestElement", 2));
+			auto pCurrent = pDelta->find(TTraits::CreateKey("TestElement", 2)).get();
 
 			// Assert:
 			EXPECT_EQ(std::vector<deltaset::InsertResult>(results.size(), GetUpdatedResult()), results);
+			EXPECT_EQ(expectedGenerationId, pDelta->generationId(TTraits::ToKey(element)));
 
 			EXPECT_EQ(expectedValue, pCurrent->Dummy);
 			AssertDeltaSizes(pDelta, 3, 0, 0, TTraits::IsElementMutable() ? 1 : 0);
@@ -378,19 +486,19 @@ namespace catapult { namespace test {
 	public:
 		static void AssertMutableBaseSetDeltaInsertUpdatesCopiedOriginalElement() {
 			// Assert:
-			AssertCopyInsertOriginalElement(9);
+			AssertCopyInsertOriginalElement(9, 2);
 		}
 
 		static void AssertImmutableBaseSetDeltaInsertDoesNotUpdateCopiedOriginalElement() {
 			// Assert:
-			AssertCopyInsertOriginalElement(123);
+			AssertCopyInsertOriginalElement(123, 0); // immutable will always revert to original element
 		}
 
 	private:
-		static void AssertCopyInsertOriginalElementAfterRemoval(uint32_t expectedValue) {
+		static void AssertCopyInsertOriginalElementAfterRemoval(uint32_t expectedValue, uint32_t expectedGenerationId) {
 			// Arrange:
 			auto pDelta = TTraits::CreateWithElements(3);
-			auto pOriginalElement = pDelta->find(TTraits::CreateKey("TestElement", 2));
+			auto pOriginalElement = pDelta->find(TTraits::CreateKey("TestElement", 2)).get();
 			pOriginalElement->Dummy = 123;
 			pDelta->insert(TTraits::ToSetElement(pOriginalElement));
 			pDelta.commit(); // the 3 elements are now original elements
@@ -403,17 +511,20 @@ namespace catapult { namespace test {
 			// - remove the copy
 			pDelta->remove(TTraits::ToKey(element));
 
+			pDelta->incrementGenerationId();
+
 			// - reinsert the copy
 			auto element2 = TTraits::CreateElement("TestElement", 2);
 			TTraits::ToPointer(element2)->Dummy = 9;
 			auto result2 = pDelta->insert(element2);
 
 			// Act: get the current element
-			auto pCurrent = pDelta->find(TTraits::CreateKey("TestElement", 2));
+			auto pCurrent = pDelta->find(TTraits::CreateKey("TestElement", 2)).get();
 
 			// Assert:
 			EXPECT_EQ(GetUpdatedResult(), result1);
 			EXPECT_EQ(deltaset::InsertResult::Unremoved, result2);
+			EXPECT_EQ(expectedGenerationId, pDelta->generationId(TTraits::ToKey(element)));
 
 			EXPECT_EQ(expectedValue, pCurrent->Dummy);
 			AssertDeltaSizes(pDelta, 3, 0, 0, TTraits::IsElementMutable() ? 1 : 0);
@@ -422,18 +533,21 @@ namespace catapult { namespace test {
 	public:
 		static void AssertMutableBaseSetDeltaInsertUpdatesCopiedOriginalElementAfterRemoval() {
 			// Assert:
-			AssertCopyInsertOriginalElementAfterRemoval(9);
+			AssertCopyInsertOriginalElementAfterRemoval(9, 2);
 		}
 
 		static void AssertImmutableBaseSetDeltaInsertDoesNotUpdateCopiedOriginalElementAfterRemoval() {
 			// Assert:
-			AssertCopyInsertOriginalElementAfterRemoval(123);
+			AssertCopyInsertOriginalElementAfterRemoval(123, 0); // immutable will always revert to original element
 		}
 
-		static void AssertInsertOfSameAlreadyInsertedElementIsNullOperation() {
+	private:
+		static void AssertInsertOfSameAlreadyInsertedElementIsNullOperation(uint32_t expectedGenerationId) {
 			// Arrange:
 			auto pDelta = TTraits::CreateWithElements(3);
 			auto expectedElements = TTraits::CreateElements(3);
+
+			pDelta->incrementGenerationId();
 
 			// Act:
 			std::vector<deltaset::InsertResult> results;
@@ -442,13 +556,26 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(std::vector<deltaset::InsertResult>(results.size(), GetUpdatedResult()), results);
+			EXPECT_EQ(expectedGenerationId, pDelta->generationId(TTraits::CreateKey("TestElement", 1)));
 
 			EXPECT_EQ(3u, pDelta->size());
 			TTraits::AssertContents(*pDelta, expectedElements);
 			AssertDeltaSizes(pDelta, 0, 3, 0, 0);
 		}
 
-		static void AssertCanInsertRemovedElement() {
+	public:
+		static void AssertMutableBaseSetInsertOfSameAlreadyInsertedElementIsNullOperation() {
+			// Assert:
+			AssertInsertOfSameAlreadyInsertedElementIsNullOperation(2);
+		}
+
+		static void AssertImmutableBaseSetInsertOfSameAlreadyInsertedElementIsNullOperation() {
+			// Assert:
+			AssertInsertOfSameAlreadyInsertedElementIsNullOperation(1); // immutable will always revert to original element
+		}
+
+	private:
+		static void AssertCanInsertRemovedElement(uint32_t expectedGenerationId) {
 			// Arrange:
 			auto pDelta = TTraits::CreateWithElements(3);
 			pDelta.commit();
@@ -458,17 +585,31 @@ namespace catapult { namespace test {
 			// Sanity:
 			EXPECT_EQ(deltaset::RemoveResult::Removed, removeResult);
 			EXPECT_EQ(2u, pDelta->size());
-			EXPECT_FALSE(!!pDelta->find(TTraits::CreateKey("TestElement", 1)));
+			EXPECT_FALSE(!!pDelta->find(TTraits::CreateKey("TestElement", 1)).get());
+
+			pDelta->incrementGenerationId();
 
 			// Act:
 			auto result = pDelta->emplace("TestElement", static_cast<unsigned int>(1));
 
 			// Assert:
 			EXPECT_EQ(deltaset::InsertResult::Unremoved, result);
+			EXPECT_EQ(expectedGenerationId, pDelta->generationId(TTraits::CreateKey("TestElement", 1)));
 
 			EXPECT_EQ(3u, pDelta->size());
 			TTraits::AssertContents(*pDelta, expectedElements);
 			AssertDeltaSizes(pDelta, 3, 0, 0, TTraits::IsElementMutable() ? 1 : 0);
+		}
+
+	public:
+		static void AssertMutableBaseSetCanInsertRemovedElement() {
+			// Assert:
+			AssertCanInsertRemovedElement(2);
+		}
+
+		static void AssertImmutableBaseSetCanInsertRemovedElement() {
+			// Assert:
+			AssertCanInsertRemovedElement(0); // immutable will always revert to original element
 		}
 
 		// endregion
@@ -485,11 +626,14 @@ namespace catapult { namespace test {
 				TTraits::CreateElement("TestElement", 2)
 			};
 
+			pDelta->incrementGenerationId();
+
 			// Act:
 			auto result = pDelta->remove(TTraits::ToKey(element));
 
 			// Assert:
 			EXPECT_EQ(deltaset::RemoveResult::Removed, result);
+			EXPECT_EQ(2u, pDelta->generationId(TTraits::ToKey(element)));
 
 			TTraits::AssertContents(*pDelta, expectedElements);
 			AssertDeltaSizes(pDelta, 3, 0, 1, 0);
@@ -504,6 +648,8 @@ namespace catapult { namespace test {
 				TTraits::CreateElement("TestElement", 2)
 			};
 
+			pDelta->incrementGenerationId();
+
 			// Act:
 			auto result1 = pDelta->remove(TTraits::CreateKey("TestElement", 1));
 			auto result2 = pDelta->remove(TTraits::CreateKey("TestElement", 3));
@@ -513,6 +659,9 @@ namespace catapult { namespace test {
 			EXPECT_EQ(deltaset::RemoveResult::Removed, result1);
 			EXPECT_EQ(deltaset::RemoveResult::Removed, result2);
 			EXPECT_EQ(deltaset::RemoveResult::Removed, result3);
+			EXPECT_EQ(2u, pDelta->generationId(TTraits::CreateKey("TestElement", 1)));
+			EXPECT_EQ(2u, pDelta->generationId(TTraits::CreateKey("TestElement", 3)));
+			EXPECT_EQ(2u, pDelta->generationId(TTraits::CreateKey("TestElement", 4)));
 
 			TTraits::AssertContents(*pDelta, expectedElements);
 			AssertDeltaSizes(pDelta, 5, 0, 3, 0);
@@ -528,13 +677,16 @@ namespace catapult { namespace test {
 			// Sanity:
 			EXPECT_EQ(insertResult, deltaset::InsertResult::Inserted);
 			EXPECT_EQ(4u, pDelta->size());
-			EXPECT_TRUE(!!pDelta->find(TTraits::CreateKey("MyTestElement", 234)));
+			EXPECT_TRUE(!!pDelta->find(TTraits::CreateKey("MyTestElement", 234)).get());
+
+			pDelta->incrementGenerationId();
 
 			// Act:
 			auto result = pDelta->remove(TTraits::CreateKey("MyTestElement", 234));
 
 			// Assert:
 			EXPECT_EQ(deltaset::RemoveResult::Uninserted, result);
+			EXPECT_EQ(0u, pDelta->generationId(TTraits::CreateKey("MyTestElement", 234)));
 
 			TTraits::AssertContents(*pDelta, expectedElements);
 			AssertDeltaSizes(pDelta, 3, 0, 0, 0);
@@ -544,11 +696,13 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pDelta = TTraits::CreateWithElements(3);
 			pDelta.commit();
-			auto pElement = pDelta->find(TTraits::CreateKey("TestElement", 1));
+			auto pElement = pDelta->find(TTraits::CreateKey("TestElement", 1)).get();
 			auto expectedElements = typename TTraits::ElementVector{
 				TTraits::CreateElement("TestElement", 0),
 				TTraits::CreateElement("TestElement", 2)
 			};
+
+			pDelta->incrementGenerationId();
 
 			// Act:
 			pElement->Dummy = 456;
@@ -557,6 +711,7 @@ namespace catapult { namespace test {
 			// Assert:
 			using deltaset::RemoveResult;
 			EXPECT_EQ(TTraits::IsElementMutable() ? RemoveResult::Unmodified_And_Removed : RemoveResult::Removed, result);
+			EXPECT_EQ(2u, pDelta->generationId(TTraits::CreateKey("TestElement", 1)));
 
 			TTraits::AssertContents(*pDelta, expectedElements);
 			AssertDeltaSizes(pDelta, 3, 0, 1, 0);
@@ -569,11 +724,14 @@ namespace catapult { namespace test {
 			auto element = TTraits::CreateElement("TestElement", 4);
 			auto expectedElements = TTraits::CreateElements(3);
 
+			pDelta->incrementGenerationId();
+
 			// Act:
 			auto result = pDelta->remove(TTraits::ToKey(element));
 
 			// Assert:
 			EXPECT_EQ(deltaset::RemoveResult::None, result);
+			EXPECT_EQ(0u, pDelta->generationId(TTraits::ToKey(element)));
 
 			TTraits::AssertContents(*pDelta, expectedElements);
 			AssertDeltaSizes(pDelta, 3, 0, 0, 0);
@@ -592,7 +750,9 @@ namespace catapult { namespace test {
 			// Sanity:
 			EXPECT_EQ(deltaset::RemoveResult::Removed, initialResult);
 			EXPECT_EQ(2u, pDelta->size());
-			EXPECT_FALSE(!!pDelta->find(TTraits::CreateKey("TestElement", 1)));
+			EXPECT_FALSE(!!pDelta->find(TTraits::CreateKey("TestElement", 1)).get());
+
+			pDelta->incrementGenerationId();
 
 			// Act:
 			std::vector<deltaset::RemoveResult> results;
@@ -601,6 +761,7 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(std::vector<deltaset::RemoveResult>(results.size(), deltaset::RemoveResult::Redundant), results);
+			EXPECT_EQ(1u, pDelta->generationId(TTraits::CreateKey("TestElement", 1))); // first remove happens before incrementGenerationId
 
 			TTraits::AssertContents(*pDelta, expectedElements);
 			AssertDeltaSizes(pDelta, 3, 0, 1, 0);
@@ -625,6 +786,100 @@ namespace catapult { namespace test {
 		}
 
 		// endregion
+
+		// region generationId / incrementGenerationId
+
+		static void AssertGenerationIdIsInitiallyOne() {
+			// Act:
+			auto pDelta = TTraits::Create();
+
+			// Assert:
+			EXPECT_EQ(1u, pDelta->generationId());
+		}
+
+		static void AssertCanIncrementGenerationId() {
+			// Arrange:
+			auto pDelta = TTraits::Create();
+
+			// Act:
+			pDelta->incrementGenerationId();
+			pDelta->incrementGenerationId();
+			pDelta->incrementGenerationId();
+
+			// Assert:
+			EXPECT_EQ(4u, pDelta->generationId());
+		}
+
+		static void AssertResetSetsGenerationIdToOne() {
+			// Arrange:
+			auto pDelta = TTraits::Create();
+
+			pDelta->incrementGenerationId();
+			pDelta->incrementGenerationId();
+
+			// Sanity:
+			EXPECT_EQ(3u, pDelta->generationId());
+
+			// Act:
+			pDelta->reset();
+
+			// Assert:
+			EXPECT_EQ(1u, pDelta->generationId());
+		}
+
+		static void AssertOriginalElementHasGenerationIdZero() {
+			// Act:
+			auto pDelta = TTraits::CreateWithElements(3);
+			pDelta.commit();
+
+			// Assert:
+			EXPECT_EQ(0u, pDelta->generationId(TTraits::CreateKey("TestElement", 2)));
+		}
+
+		static void AssertModifiedElementHasGenerationIdWhenChanged() {
+			// Arrange:
+			auto pDelta = TTraits::CreateWithElements(3);
+			pDelta.commit();
+
+			// Act:
+			pDelta->insert(TTraits::CreateElement("MyTestElement", 234));
+			pDelta->incrementGenerationId();
+			pDelta->incrementGenerationId();
+			pDelta->insert(TTraits::CreateElement("MyTestElement2", 555));
+
+			// Assert:
+			EXPECT_EQ(1u, pDelta->generationId(TTraits::CreateKey("MyTestElement", 234)));
+			EXPECT_EQ(3u, pDelta->generationId(TTraits::CreateKey("MyTestElement2", 555)));
+		}
+
+	private:
+		static void AssertMultipleModifiedElementHasGenerationId(uint32_t generationId) {
+			// Arrange:
+			auto pDelta = TTraits::CreateWithElements(3);
+			pDelta.commit();
+
+			// Act:
+			pDelta->insert(TTraits::CreateElement("MyTestElement", 234));
+			pDelta->incrementGenerationId();
+			pDelta->incrementGenerationId();
+			pDelta->insert(TTraits::CreateElement("MyTestElement", 234));
+
+			// Assert:
+			EXPECT_EQ(generationId, pDelta->generationId(TTraits::CreateKey("MyTestElement", 234)));
+		}
+
+	public:
+		static void AssertMutableBaseSetModifiedElementHasLastChangeGenerationId() {
+			// Assert:
+			AssertMultipleModifiedElementHasGenerationId(3);
+		}
+
+		static void AssertImmutableBaseSetModifiedElementHasFirstChangeGenerationId() {
+			// Assert:
+			AssertMultipleModifiedElementHasGenerationId(1);
+		}
+
+		// endregion
 	};
 
 #define MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, TEST_NAME) \
@@ -644,9 +899,6 @@ namespace catapult { namespace test {
 	\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanInsertElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanInsertWithSuppliedParameters) \
-	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, BaseSetDeltaSupportsReinsertingExistingElement) \
-	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, InsertOfSameAlreadyInsertedElementIsNullOperation) \
-	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanInsertRemovedElement) \
 	\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanRemoveExistingElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanSubsequentlyRemoveExistingElements) \
@@ -656,16 +908,29 @@ namespace catapult { namespace test {
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, RemoveOfAlreadyRemovedElementIsNullOperation) \
 	\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, BaseSetDeltaResetClearsAllPendingChanges) \
+	\
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, GenerationIdIsInitiallyOne) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, CanIncrementGenerationId) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ResetSetsGenerationIdToOne) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, OriginalElementHasGenerationIdZero) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ModifiedElementHasGenerationIdWhenChanged)
 
 #define DEFINE_MUTABLE_BASE_SET_DELTA_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_BASE_SET_DELTA_TESTS(TEST_CLASS, TRAITS) \
 	\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaFindReturnsCopyForAnOriginalElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaFindReturnsNonConstCopy) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaFindAlwaysUpdatesGenerationForOriginalElement) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaFindAlwaysUpdatesGenerationForAddedElement) \
 	\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaInsertUpdatesKnownElement) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaSupportsReinsertingExistingElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaInsertUpdatesCopiedOriginalElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetDeltaInsertUpdatesCopiedOriginalElementAfterRemoval) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetInsertOfSameAlreadyInsertedElementIsNullOperation) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetCanInsertRemovedElement) \
+	\
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, MutableBaseSetModifiedElementHasLastChangeGenerationId) \
 
 #define DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_BASE_SET_DELTA_TESTS(TEST_CLASS, TRAITS) \
@@ -674,8 +939,13 @@ namespace catapult { namespace test {
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaFindReturnsConstCopy) \
 	\
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaInsertDoesNotUpdateKnownElement) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaSupportsReinsertingExistingElement) \
 	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaInsertDoesNotUpdateCopiedOriginalElement) \
-	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaInsertDoesNotUpdateCopiedOriginalElementAfterRemoval)
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetDeltaInsertDoesNotUpdateCopiedOriginalElementAfterRemoval) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetInsertOfSameAlreadyInsertedElementIsNullOperation) \
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetCanInsertRemovedElement) \
+	\
+	MAKE_BASE_SET_DELTA_TEST(TEST_CLASS, TRAITS, ImmutableBaseSetModifiedElementHasFirstChangeGenerationId) \
 
 #define DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(NAME) \
 	DEFINE_MUTABLE_BASE_SET_DELTA_TESTS(Delta##NAME##Tests, test::DeltaTraits<deltaset::NAME##Traits>)

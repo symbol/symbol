@@ -48,7 +48,8 @@ namespace catapult { namespace observers {
 				// 2. calculate sum
 				Amount activeXem;
 				for (const auto& address : highValueAddresses) {
-					auto& accountState = cache.get(address);
+					auto accountStateIter = cache.find(address);
+					auto& accountState = accountStateIter.get();
 					highValueAccounts.push_back(&accountState);
 					activeXem = activeXem + accountState.Balances.get(Xem_Id);
 				}

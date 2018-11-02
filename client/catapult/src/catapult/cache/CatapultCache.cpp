@@ -23,8 +23,10 @@
 #include "CatapultCacheDetachedDelta.h"
 #include "ReadOnlyCatapultCache.h"
 #include "SubCachePluginAdapter.h"
+#include "catapult/crypto/Hashes.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/NetworkInfo.h"
+#include "catapult/utils/StackLogger.h"
 
 namespace catapult { namespace cache {
 
@@ -43,6 +45,47 @@ namespace catapult { namespace cache {
 
 			return readOnlyViews;
 		}
+
+		template<typename TSubCacheViews, typename TUpdateMerkleRoot>
+		std::vector<Hash256> CollectSubCacheMerkleRoots(TSubCacheViews& subViews, TUpdateMerkleRoot updateMerkleRoot) {
+			std::vector<Hash256> merkleRoots;
+			for (const auto& pSubView : subViews) {
+				Hash256 merkleRoot;
+				if (!pSubView)
+					continue;
+
+				updateMerkleRoot(*pSubView);
+				if (pSubView->tryGetMerkleRoot(merkleRoot))
+					merkleRoots.push_back(merkleRoot);
+			}
+
+			return merkleRoots;
+		}
+
+		Hash256 CalculateStateHash(const std::vector<Hash256>& subCacheMerkleRoots) {
+			Hash256 stateHash;
+			if (subCacheMerkleRoots.empty()) {
+				stateHash = Hash256();
+			} else {
+				RawBuffer subCacheMerkleRootsBuffer{
+					reinterpret_cast<const uint8_t*>(subCacheMerkleRoots.data()),
+					subCacheMerkleRoots.size() * Hash256_Size
+				};
+				crypto::Sha3_256(subCacheMerkleRootsBuffer, stateHash);
+			}
+
+			return stateHash;
+		}
+
+		template<typename TSubCacheViews, typename TUpdateMerkleRoot>
+		StateHashInfo CalculateStateHashInfo(const TSubCacheViews& subViews, TUpdateMerkleRoot updateMerkleRoot) {
+			utils::SlowOperationLogger logger("CalculateStateHashInfo", utils::LogLevel::Warning);
+
+			StateHashInfo stateHashInfo;
+			stateHashInfo.SubCacheMerkleRoots = CollectSubCacheMerkleRoots(subViews, updateMerkleRoot);
+			stateHashInfo.StateHash = CalculateStateHash(stateHashInfo.SubCacheMerkleRoots);
+			return stateHashInfo;
+		}
 	}
 
 	// region CatapultCacheView
@@ -57,6 +100,10 @@ namespace catapult { namespace cache {
 	CatapultCacheView::CatapultCacheView(CatapultCacheView&&) = default;
 
 	CatapultCacheView& CatapultCacheView::operator=(CatapultCacheView&&) = default;
+
+	StateHashInfo CatapultCacheView::calculateStateHash() const {
+		return CalculateStateHashInfo(m_subViews, [](const auto&) {});
+	}
 
 	Height CatapultCacheView::height() const {
 		return m_pCacheHeight->get();
@@ -79,6 +126,31 @@ namespace catapult { namespace cache {
 	CatapultCacheDelta::CatapultCacheDelta(CatapultCacheDelta&&) = default;
 
 	CatapultCacheDelta& CatapultCacheDelta::operator=(CatapultCacheDelta&&) = default;
+
+	StateHashInfo CatapultCacheDelta::calculateStateHash(Height height) const {
+		return CalculateStateHashInfo(m_subViews, [height](auto& subView) { subView.updateMerkleRoot(height); });
+	}
+
+	void CatapultCacheDelta::setSubCacheMerkleRoots(const std::vector<Hash256>& subCacheMerkleRoots) {
+		auto merkleRootIndex = 0u;
+		for (const auto& pSubView : m_subViews) {
+			if (!pSubView || !pSubView->supportsMerkleRoot())
+				continue;
+
+			if (merkleRootIndex == subCacheMerkleRoots.size())
+				CATAPULT_THROW_INVALID_ARGUMENT_1("too few sub cache merkle roots were passed", subCacheMerkleRoots.size());
+
+			// this will always succeed because supportsMerkleRoot was checked above
+			pSubView->trySetMerkleRoot(subCacheMerkleRoots[merkleRootIndex++]);
+		}
+
+		if (merkleRootIndex != subCacheMerkleRoots.size()) {
+			CATAPULT_THROW_INVALID_ARGUMENT_2(
+					"wrong number of sub cache merkle roots were passed (expected, actual)",
+					merkleRootIndex,
+					subCacheMerkleRoots.size());
+		}
+	}
 
 	ReadOnlyCatapultCache CatapultCacheDelta::toReadOnly() const {
 		return ReadOnlyCatapultCache(ExtractReadOnlyViews(m_subViews));

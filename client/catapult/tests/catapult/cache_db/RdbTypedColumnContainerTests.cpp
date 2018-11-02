@@ -19,6 +19,8 @@
 **/
 
 #include "catapult/cache_db/RdbTypedColumnContainer.h"
+#include "tests/catapult/cache_db/test/BasicMapDescriptor.h"
+#include "tests/catapult/cache_db/test/StringKey.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 #include "tests/TestHarness.h"
 
@@ -34,45 +36,23 @@ namespace catapult { namespace cache {
 			double FloatingPoint;
 		};
 
-		template<typename TData>
-		auto MutatePointer(const TData* data) {
-			return 0x7FFFFFFF'FFFFFFFFull + reinterpret_cast<const uint8_t*>(data);
-		}
-
-		size_t MutateSize(size_t size) {
-			return 123456 + size;
-		}
-
-		struct ColumnDescriptor {
+		struct ColumnDescriptor : public test::BasicMapDescriptor<test::StringKey, DummyValue> {
 		public:
-			using KeyType = std::string;
-			using ValueType = DummyValue;
-			using StorageType = std::pair<KeyType, ValueType>;
-
-			static const KeyType& GetKeyFromElement(const StorageType& element) {
-				return element.first;
-			}
-
-			static const KeyType& GetKeyFromValue(const ValueType& value) {
-				return value.KeyCopy;
-			}
-
 			struct Serializer {
 			public:
-				static RawBuffer SerializeKey(const KeyType& key) {
-					// mutate the pointer and size to verify that serialized data is forwarded to container
-					return { MutatePointer(key.data()), MutateSize(key.size()) };
-				}
 
-				static std::string SerializeValue(const StorageType& element) {
+				static std::string SerializeValue(const ValueType& value) {
 					std::ostringstream out;
-					const auto& value = element.second;
 					out << value.Integer << " " << std::fixed << std::setprecision(2) << value.FloatingPoint;
 					return out.str();
 				}
 
 				static ValueType DeserializeValue(const RawBuffer&) {
 					return { "world", 54321, 2.718281 };
+				}
+
+				static uint64_t KeyToBoundary(const KeyType& key) {
+					return key.size();
 				}
 			};
 		};
@@ -101,9 +81,18 @@ namespace catapult { namespace cache {
 			RdbDataIterator* pIterator;
 		};
 
+		struct PruneParamsType {
+		public:
+			explicit PruneParamsType(uint64_t boundary) : Boundary(boundary)
+			{}
+
+		public:
+			uint64_t Boundary;
+		};
+
 		struct RemoveParamsType {
 		public:
-			RemoveParamsType(const RawBuffer& key) : Key(key)
+			explicit RemoveParamsType(const RawBuffer& key) : Key(key)
 			{}
 
 		public:
@@ -120,9 +109,14 @@ namespace catapult { namespace cache {
 				return Size;
 			}
 
-			void find(const RawBuffer& key, RdbDataIterator& iterator) {
+			void find(const RawBuffer& key, RdbDataIterator& iterator) const {
 				FindParams.push(key, iterator);
 				iterator.setFound(IsKeyFound);
+			}
+
+			auto prune(uint64_t pruningBoundary) {
+				PruneParams.push(pruningBoundary);
+				return NumPruned;
 			}
 
 		private:
@@ -130,10 +124,11 @@ namespace catapult { namespace cache {
 
 		public:
 			size_t Size = 0;
-			size_t SavedSize = 0;
+			size_t NumPruned = 0;
 
 			test::ParamsCapture<InsertParamsType> InsertParams;
-			test::ParamsCapture<FindParamsType> FindParams;
+			mutable test::ParamsCapture<FindParamsType> FindParams;
+			test::ParamsCapture<PruneParamsType> PruneParams;
 			test::ParamsCapture<RemoveParamsType> RemoveParams;
 		};
 
@@ -148,23 +143,20 @@ namespace catapult { namespace cache {
 				return m_db.size();
 			}
 
-			void saveSize(size_t newSize) {
-				m_db.SavedSize = newSize;
-			}
-
-			bool insert(const RawBuffer& key, const std::string& value) {
+			void insert(const RawBuffer& key, const std::string& value) {
 				m_db.InsertParams.push(key, value);
-				return true;
 			}
 
-			bool find(const RawBuffer& key, RdbDataIterator& iterator) {
+			void find(const RawBuffer& key, RdbDataIterator& iterator) const {
 				m_db.find(key, iterator);
-				return true;
 			}
 
-			bool remove(const RawBuffer& key) {
+			size_t prune(uint64_t pruningBoundary) {
+				return m_db.prune(pruningBoundary);
+			}
+
+			void remove(const RawBuffer& key) {
 				m_db.RemoveParams.push(key);
-				return true;
 			}
 
 		private:
@@ -178,22 +170,7 @@ namespace catapult { namespace cache {
 
 	// region adapter tests
 
-	TEST(TEST_CLASS, SizeForwardsToContainer) {
-		// Arrange:
-		MockDb db;
-		auto container = CreateContainer(db);
-		db.Size = 12345u;
-
-		// Act:
-		auto size = container.size();
-		auto isEmpty = container.empty();
-
-		// Assert:
-		EXPECT_EQ(12345u, size);
-		EXPECT_FALSE(isEmpty);
-	}
-
-	TEST(TEST_CLASS, EmptyForwardsToContainer) {
+	TEST(TEST_CLASS, EmptyReturnsTrueIfContainerSizeIsZero) {
 		// Arrange:
 		MockDb db;
 		auto container = CreateContainer(db);
@@ -208,16 +185,19 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(isEmpty);
 	}
 
-	TEST(TEST_CLASS, SaveSizeForwardsToContainer) {
+	TEST(TEST_CLASS, EmptyReturnsFalseIfContainerSizeIsNonZero) {
 		// Arrange:
 		MockDb db;
 		auto container = CreateContainer(db);
+		db.Size = 12345u;
 
 		// Act:
-		container.saveSize(87654321);
+		auto size = container.size();
+		auto isEmpty = container.empty();
 
 		// Assert:
-		EXPECT_EQ(87654321u, db.SavedSize);
+		EXPECT_EQ(12345u, size);
+		EXPECT_FALSE(isEmpty);
 	}
 
 	TEST(TEST_CLASS, InsertSerializesKeyAndValueAndForwardsToContainer) {
@@ -226,15 +206,15 @@ namespace catapult { namespace cache {
 		auto container = CreateContainer(db);
 
 		// Act:
-		auto keyValue = std::make_pair<std::string, DummyValue>("hello", { "hello", 456, 3.1415 });
+		auto keyValue = ColumnDescriptor::StorageType("hello", { "hello", 456, 3.1415 });
 		container.insert(keyValue);
 
 		// Assert:
 		ASSERT_EQ(1u, db.InsertParams.params().size());
 		const auto& params = db.InsertParams.params()[0];
 		const auto& key = keyValue.first;
-		EXPECT_EQ(MutatePointer(key.data()), params.Key.pData);
-		EXPECT_EQ(MutateSize(key.size()), params.Key.Size);
+		EXPECT_EQ(test::AsBytePointer(key.data()), params.Key.pData);
+		EXPECT_EQ(key.size(), params.Key.Size);
 		EXPECT_EQ("456 3.14", params.Value);
 	}
 
@@ -244,15 +224,32 @@ namespace catapult { namespace cache {
 		auto container = CreateContainer(db);
 
 		// Act:
-		std::string key = "hello";
+		test::StringKey key("hello");
 		auto iter = container.find(key);
 
 		// Assert:
 		ASSERT_EQ(1u, db.FindParams.params().size());
 		const auto& params = db.FindParams.params()[0];
-		EXPECT_EQ(MutatePointer(key.data()), params.Key.pData);
-		EXPECT_EQ(MutateSize(key.size()), params.Key.Size);
+		EXPECT_EQ(test::AsBytePointer(key.data()), params.Key.pData);
+		EXPECT_EQ(key.size(), params.Key.Size);
 		EXPECT_EQ(&iter.dbIterator(), params.pIterator);
+	}
+
+	TEST(TEST_CLASS, PruneExtractsBoundaryFromKeyAndForwardsToContainer) {
+		// Arrange:
+		MockDb db;
+		auto container = CreateContainer(db);
+		db.NumPruned = 12345;
+
+		// Act:
+		std::string key = "hello";
+		auto numPruned = container.prune(key);
+
+		// Assert:
+		EXPECT_EQ(12345u, numPruned);
+		ASSERT_EQ(1u, db.PruneParams.params().size());
+		const auto& params = db.PruneParams.params()[0];
+		EXPECT_EQ(key.size(), params.Boundary);
 	}
 
 	TEST(TEST_CLASS, RemoveSerializesKeyAndForwardsToContainer) {
@@ -261,14 +258,14 @@ namespace catapult { namespace cache {
 		auto container = CreateContainer(db);
 
 		// Act:
-		std::string key = "hello";
+		test::StringKey key("hello");
 		container.remove(key);
 
 		// Assert:
 		ASSERT_EQ(1u, db.RemoveParams.params().size());
 		const auto& params = db.RemoveParams.params()[0];
-		EXPECT_EQ(MutatePointer(key.data()), params.Key.pData);
-		EXPECT_EQ(MutateSize(key.size()), params.Key.Size);
+		EXPECT_EQ(test::AsBytePointer(key.data()), params.Key.pData);
+		EXPECT_EQ(key.size(), params.Key.Size);
 	}
 
 	TEST(TEST_CLASS, CendReturnsUnitializedIterator) {
@@ -326,7 +323,7 @@ namespace catapult { namespace cache {
 		// Assert: dereferenced value contains dummy data set by deserializer
 		ASSERT_NE(container.cend(), iter);
 		const auto& keyValuePair = *iter;
-		EXPECT_EQ("world", keyValuePair.first);
+		EXPECT_EQ("world", keyValuePair.first.str());
 		EXPECT_EQ("world", keyValuePair.second.KeyCopy);
 		EXPECT_EQ(54321, keyValuePair.second.Integer);
 		EXPECT_EQ(2.718281, keyValuePair.second.FloatingPoint);

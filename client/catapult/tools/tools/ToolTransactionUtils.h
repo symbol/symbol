@@ -20,11 +20,10 @@
 
 #pragma once
 #include "catapult/builders/TransactionBuilder.h"
+#include "catapult/extensions/TransactionExtensions.h"
 #include "catapult/model/Mosaic.h"
 #include "catapult/state/TimestampedHash.h"
 #include <vector>
-
-namespace catapult { namespace model { struct Transaction; } }
 
 namespace catapult { namespace tools {
 
@@ -41,7 +40,16 @@ namespace catapult { namespace tools {
 			const crypto::KeyPair& signer,
 			const Key& recipientPublicKey,
 			uint64_t transactionId,
-			std::initializer_list<model::Mosaic> mosaics);
+			std::initializer_list<model::UnresolvedMosaic> mosaics);
+
+	/// Creates a transaction using \a builder, prepares it for sending and signs it with \a owner.
+	template<typename TBuilder>
+	std::unique_ptr<typename TBuilder::Transaction> CreateSignedTransaction(const crypto::KeyPair& owner, TBuilder& builder) {
+		SetDeadlineAndFee(builder, Amount(0));
+		auto pTransaction = builder.build();
+		extensions::SignTransaction(owner, *pTransaction);
+		return pTransaction;
+	}
 
 	/// A vector of transaction shared pointers.
 	using Transactions = std::vector<std::shared_ptr<const model::Transaction>>;

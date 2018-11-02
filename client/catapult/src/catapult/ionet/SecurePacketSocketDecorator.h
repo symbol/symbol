@@ -37,5 +37,5 @@ namespace catapult { namespace ionet {
 			ConnectionSecurityMode securityMode,
 			const crypto::KeyPair& sourceKeyPair,
 			const Key& remoteKey,
-			const utils::FileSize& maxPacketDataSize);
+			utils::FileSize maxPacketDataSize);
 }}

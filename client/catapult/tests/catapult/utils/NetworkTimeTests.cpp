@@ -37,7 +37,7 @@ namespace catapult { namespace utils {
 		});
 
 		// Assert:
-		EXPECT_EQ(static_cast<uint64_t>(duration.count() - Epoch_Time.count()), networkTime.unwrap());
+		EXPECT_EQ(Timestamp(static_cast<uint64_t>(duration.count() - Epoch_Time.count())), networkTime);
 	}
 
 	TEST(TEST_CLASS, ToNetworkTimeReturnsExpectedTimestamp) {

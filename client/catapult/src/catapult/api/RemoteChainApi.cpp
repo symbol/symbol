@@ -57,9 +57,10 @@ namespace catapult { namespace api {
 			static constexpr auto PacketType() { return ionet::PacketType::Block_Hashes; }
 			static constexpr auto FriendlyName() { return "hashes from"; }
 
-			static auto CreateRequestPacketPayload(Height height) {
+			static auto CreateRequestPacketPayload(Height height, uint32_t maxHashes) {
 				auto pPacket = ionet::CreateSharedPacket<BlockHashesRequest>();
 				pPacket->Height = height;
+				pPacket->NumHashes = maxHashes;
 				return ionet::PacketPayload(pPacket);
 			}
 
@@ -132,8 +133,8 @@ namespace catapult { namespace api {
 				return m_impl.dispatch(ChainInfoTraits());
 			}
 
-			FutureType<HashesFromTraits> hashesFrom(Height height) const override {
-				return m_impl.dispatch(HashesFromTraits(), height);
+			FutureType<HashesFromTraits> hashesFrom(Height height, uint32_t maxHashes) const override {
+				return m_impl.dispatch(HashesFromTraits(), height, maxHashes);
 			}
 
 			FutureType<BlockAtTraits> blockLast() const override {

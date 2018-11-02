@@ -26,7 +26,7 @@ namespace catapult { namespace test {
 
 	void RandomFillAccountData(uint64_t seed, state::AccountState& state, size_t numMosaics) {
 		for (auto i = 0u; i < numMosaics; ++i)
-			state.Balances.credit(MosaicId(10 + i), Amount(seed * 1000 + i + 1));
+			state.Balances.credit(MosaicId(10 + i + ((0 == i % 2) ? 100 : 0)), Amount(seed * 1000 + i + 1));
 
 		for (auto i = 0u; i < 3; ++i) {
 			auto importance = Importance(seed * (777 + i));
@@ -35,27 +35,30 @@ namespace catapult { namespace test {
 		}
 	}
 
-	void AssertEqual(const state::AccountState& expected, const state::AccountState& actual) {
+	void AssertEqual(const state::AccountState& expected, const state::AccountState& actual, const std::string& message) {
 		// Assert:
-		EXPECT_EQ(expected.Address, actual.Address);
-		EXPECT_EQ(expected.AddressHeight, actual.AddressHeight);
-		EXPECT_EQ(expected.PublicKey, actual.PublicKey);
-		EXPECT_EQ(expected.PublicKeyHeight, actual.PublicKeyHeight);
+		EXPECT_EQ(expected.Address, actual.Address) << message;
+		EXPECT_EQ(expected.AddressHeight, actual.AddressHeight) << message;
+		EXPECT_EQ(expected.PublicKey, actual.PublicKey) << message;
+		EXPECT_EQ(expected.PublicKeyHeight, actual.PublicKeyHeight) << message;
+
+		EXPECT_EQ(expected.AccountType, actual.AccountType) << message;
+		EXPECT_EQ(expected.LinkedAccountKey, actual.LinkedAccountKey) << message;
 
 		auto expectedIter = expected.ImportanceInfo.begin();
 		auto actualIter = actual.ImportanceInfo.begin();
 		for (auto i = 0u; i < Importance_History_Size; ++i, ++expectedIter, ++actualIter) {
-			const auto message = "importance at " + std::to_string(i);
-			EXPECT_EQ(expectedIter->Importance, actualIter->Importance) << message;
-			EXPECT_EQ(expectedIter->Height, actualIter->Height) << message;
+			const auto importanceMessage = message + ": importance at " + std::to_string(i);
+			EXPECT_EQ(expectedIter->Importance, actualIter->Importance) << importanceMessage;
+			EXPECT_EQ(expectedIter->Height, actualIter->Height) << importanceMessage;
 		}
 
-		EXPECT_EQ(expected.ImportanceInfo.end(), expectedIter);
-		EXPECT_EQ(actual.ImportanceInfo.end(), actualIter);
+		EXPECT_EQ(expected.ImportanceInfo.end(), expectedIter) << message;
+		EXPECT_EQ(actual.ImportanceInfo.end(), actualIter) << message;
 
-		EXPECT_EQ(expected.Balances.size(), actual.Balances.size());
+		EXPECT_EQ(expected.Balances.size(), actual.Balances.size()) << message;
 		for (const auto& pair : expected.Balances)
-			EXPECT_EQ(pair.second, actual.Balances.get(pair.first)) << "for mosaic " << pair.first;
+			EXPECT_EQ(pair.second, actual.Balances.get(pair.first)) << message << ": for mosaic " << pair.first;
 	}
 
 	std::shared_ptr<state::AccountState> CreateAccountStateWithoutPublicKey(uint64_t height) {

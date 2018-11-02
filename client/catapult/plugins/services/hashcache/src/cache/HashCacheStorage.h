@@ -25,14 +25,14 @@
 namespace catapult { namespace cache {
 
 	/// Policy for saving and loading hash cache data.
-	struct HashCacheStorage : public SetCacheStorageFromDescriptor<HashCacheDescriptor> {
-		/// Saves \a element to \a output.
-		static void Save(const StorageType& element, io::OutputStream& output);
+	struct HashCacheStorage : public CacheStorageFromDescriptor<HashCacheDescriptor> {
+		/// Saves \a timestampedHash to \a output.
+		static void Save(const ValueType& timestampedHash, io::OutputStream& output);
 
 		/// Loads a single value from \a input.
 		static state::TimestampedHash Load(io::InputStream& input);
 
-		/// Loads a single value from \a input into \a cacheDelta.
-		static void LoadInto(io::InputStream& input, DestinationType& cacheDelta);
+		/// Loads \a timestampedHash into \a cacheDelta.
+		static void LoadInto(const ValueType& timestampedHash, DestinationType& cacheDelta);
 	};
 }}

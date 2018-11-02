@@ -101,14 +101,15 @@ namespace catapult { namespace model {
 				const TContainer& transactions) {
 			auto size = sizeof(Block) + CalculateTotalSize(transactions);
 			auto pBlock = utils::MakeUniqueWithSize<Block>(size);
+			std::memset(pBlock.get(), 0, sizeof(Block));
 
 			auto& block = *pBlock;
 			block.Size = static_cast<uint32_t>(size);
+
+			block.Signer = signerPublicKey;
 			block.Version = MakeVersion(networkIdentifier, 3);
 			block.Type = Entity_Type_Block;
-			block.Signer = signerPublicKey;
-			block.Signature = Signature{}; // zero the signature
-			block.Timestamp = Timestamp();
+
 			block.Height = context.BlockHeight + Height(1);
 			block.Difficulty = Difficulty();
 			block.PreviousBlockHash = context.BlockHash;

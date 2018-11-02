@@ -175,6 +175,12 @@ namespace catapult { namespace tools { namespace nemgen {
 
 #undef LOAD_NEMESIS_PROPERTY
 
+#define LOAD_CPP_PROPERTY(NAME) LOAD_PROPERTY("cpp", NAME)
+
+		LOAD_CPP_PROPERTY(CppFileHeader);
+
+#undef LOAD_CPP_PROPERTY
+
 #define LOAD_OUTPUT_PROPERTY(NAME) LOAD_PROPERTY("output", NAME)
 
 		LOAD_OUTPUT_PROPERTY(CppFile);
@@ -191,7 +197,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		// load mosaics information
 		auto numMosaicProperties = LoadMosaics(bag, config, owner);
 
-		utils::VerifyBagSizeLte(bag, 5 + numNamespaceProperties + numMosaicProperties);
+		utils::VerifyBagSizeLte(bag, 6 + numNamespaceProperties + numMosaicProperties);
 		return config;
 	}
 }}}

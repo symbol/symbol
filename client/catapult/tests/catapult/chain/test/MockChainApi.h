@@ -90,8 +90,8 @@ namespace catapult { namespace mocks {
 			return m_blockAtRequests;
 		}
 
-		/// Returns the vector of heights that were passed to the hashes-from requests.
-		const std::vector<Height>& hashesFromRequests() const {
+		/// Returns the vector of height/maxHashes pairs that were passed to the hashes-from requests.
+		const std::vector<std::pair<Height, uint32_t>>& hashesFromRequests() const {
 			return m_hashesFromRequests;
 		}
 
@@ -123,9 +123,9 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Returns the configured hashes from \a height and throws if the error entry point is set to Hashes_From.
-		/// \note The \a height parameter is captured.
-		thread::future<model::HashRange> hashesFrom(Height height) const override {
-			m_hashesFromRequests.push_back(height);
+		/// \note The \a height and the \a maxHashes parameters are captured.
+		thread::future<model::HashRange> hashesFrom(Height height, uint32_t maxHashes) const override {
+			m_hashesFromRequests.emplace_back(height, maxHashes);
 			if (shouldRaiseException(EntryPoint::Hashes_From))
 				return CreateFutureException<model::HashRange>("hashes from error has been set");
 
@@ -215,7 +215,7 @@ namespace catapult { namespace mocks {
 		std::map<Height, std::shared_ptr<model::Block>> m_blocks;
 
 		mutable std::vector<Height> m_blockAtRequests;
-		mutable std::vector<Height> m_hashesFromRequests;
+		mutable std::vector<std::pair<Height, uint32_t>> m_hashesFromRequests;
 		mutable std::vector<std::pair<Height, const api::BlocksFromOptions>> m_blocksFromRequests;
 		mutable std::list<uint32_t> m_numBlocksPerBlocksFromRequest;
 

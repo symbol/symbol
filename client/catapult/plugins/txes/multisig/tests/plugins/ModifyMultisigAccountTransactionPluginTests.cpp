@@ -21,10 +21,12 @@
 #include "src/plugins/ModifyMultisigAccountTransactionPlugin.h"
 #include "src/model/ModifyMultisigAccountTransaction.h"
 #include "src/model/MultisigNotifications.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
+#include <random>
 
 using namespace catapult::model;
 
@@ -77,7 +79,7 @@ namespace catapult { namespace plugins {
 			auto pPlugin = TTraits::CreatePlugin();
 
 			// Act:
-			pPlugin->publish(transaction, sub);
+			test::PublishTransaction(*pPlugin, transaction, sub);
 
 			// Assert:
 			ASSERT_EQ(numExpectedNotifications, sub.numNotifications());
@@ -120,7 +122,7 @@ namespace catapult { namespace plugins {
 		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomData<Key_Size>() };
 
 		// Assert:
-		AssertNumNotifications<TTraits>(4, *pTransaction, [](const auto& sub) {
+		AssertNumNotifications<TTraits>(5, *pTransaction, [](const auto& sub) {
 			// - multisig modify new cosigner notifications must be the first raised notifications
 			EXPECT_EQ(Multisig_Modify_New_Cosigner_Notification, sub.notificationTypes()[0]);
 			EXPECT_EQ(Multisig_Modify_New_Cosigner_Notification, sub.notificationTypes()[1]);
@@ -143,7 +145,7 @@ namespace catapult { namespace plugins {
 		transaction.MinApprovalDelta = 4;
 
 		// Act:
-		pPlugin->publish(transaction, sub);
+		test::PublishTransaction(*pPlugin, transaction, sub);
 
 		// Assert:
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
@@ -169,7 +171,7 @@ namespace catapult { namespace plugins {
 		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomData<Key_Size>() };
 
 		// Act:
-		pPlugin->publish(*pTransaction, sub);
+		test::PublishTransaction(*pPlugin, *pTransaction, sub);
 
 		// Assert:
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
@@ -188,7 +190,7 @@ namespace catapult { namespace plugins {
 		transaction.ModificationsCount = 0;
 
 		// Act:
-		pPlugin->publish(transaction, sub);
+		test::PublishTransaction(*pPlugin, transaction, sub);
 
 		// Assert:
 		ASSERT_EQ(1u, sub.numNotifications());
@@ -211,7 +213,7 @@ namespace catapult { namespace plugins {
 		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomData<Key_Size>() };
 
 		// Act:
-		pPlugin->publish(*pTransaction, sub);
+		test::PublishTransaction(*pPlugin, *pTransaction, sub);
 
 		// Assert:
 		ASSERT_EQ(2u, sub.numMatchingNotifications());
@@ -235,10 +237,77 @@ namespace catapult { namespace plugins {
 		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomData<Key_Size>() };
 
 		// Act:
-		pPlugin->publish(*pTransaction, sub);
+		test::PublishTransaction(*pPlugin, *pTransaction, sub);
 
 		// Assert:
 		ASSERT_EQ(0u, sub.numMatchingNotifications());
+	}
+
+	// endregion
+
+	// region address interaction
+
+	namespace {
+		utils::KeySet ExtractAddedModificationKeys(const model::CosignatoryModification* pModifications, size_t modificationsCount) {
+			utils::KeySet keys;
+			for (auto i = 0u; i < modificationsCount; ++i) {
+				if (CosignatoryModificationType::Add == pModifications[i].ModificationType)
+					keys.insert(pModifications[i].CosignatoryPublicKey);
+			}
+
+			return keys;
+		}
+
+		std::vector<CosignatoryModificationType> GenerateRandomModificationTypeSequence(size_t numAdds, size_t numDels) {
+			std::vector<CosignatoryModificationType> modificationTypes;
+			for (auto i = 0u; i < numAdds + numDels; ++i)
+				modificationTypes.push_back(i < numAdds ? CosignatoryModificationType::Add : CosignatoryModificationType::Del);
+
+			std::mt19937 generator((std::random_device()()));
+			std::shuffle(modificationTypes.begin(), modificationTypes.end(), generator);
+			return modificationTypes;
+		}
+
+		template<typename TTraits>
+		void AssertAddressInteractionNotifications(size_t numAddModifications, size_t numDelModifications) {
+			// Arrange:
+			mocks::MockTypedNotificationSubscriber<AddressInteractionNotification> sub;
+			auto pPlugin = TTraits::CreatePlugin();
+
+			auto numModifications = static_cast<uint8_t>(numAddModifications + numDelModifications);
+			auto pTransaction = CreateTransactionWithModifications<TTraits>(numModifications);
+			test::FillWithRandomData(pTransaction->Signer);
+			auto modificationTypes = GenerateRandomModificationTypeSequence(numAddModifications, numDelModifications);
+			auto* pModification = pTransaction->ModificationsPtr();
+			for (auto modificationType : modificationTypes)
+				*pModification++ = { modificationType, test::GenerateRandomData<Key_Size>() };
+
+			// Act:
+			test::PublishTransaction(*pPlugin, *pTransaction, sub);
+
+			// Assert:
+			ASSERT_EQ(0 < numAddModifications ? 1u : 0u, sub.numMatchingNotifications());
+			if (0 < numAddModifications) {
+				pModification = pTransaction->ModificationsPtr();
+				auto addedKeys = ExtractAddedModificationKeys(pModification, numAddModifications + numDelModifications);
+				const auto& notification = sub.matchingNotifications()[0];
+				EXPECT_EQ(pTransaction->Signer, notification.Source);
+				EXPECT_EQ(model::AddressSet{}, notification.ParticipantsByAddress);
+				EXPECT_EQ(addedKeys, notification.ParticipantsByKey);
+			}
+		}
+	}
+
+	PLUGIN_TEST(NoAddressInteractionNotificationWhenNoAddModificationsArePresent) {
+		// Assert:
+		AssertAddressInteractionNotifications<TTraits>(0, 0);
+		AssertAddressInteractionNotifications<TTraits>(0, 3);
+	}
+
+	PLUGIN_TEST(CanPublishAddressInteractionNotificationWhenAddModificationsArePresent) {
+		// Assert:
+		AssertAddressInteractionNotifications<TTraits>(4, 0);
+		AssertAddressInteractionNotifications<TTraits>(4, 3);
 	}
 
 	// endregion

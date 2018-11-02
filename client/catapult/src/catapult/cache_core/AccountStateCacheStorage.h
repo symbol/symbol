@@ -19,23 +19,18 @@
 **/
 
 #pragma once
-#include "AccountStateCache.h"
+#include "AccountStateCacheTypes.h"
 #include "catapult/cache/CacheStorageInclude.h"
+#include "catapult/state/AccountStateSerializer.h"
 #include <vector>
 
 namespace catapult { namespace cache {
 
 	/// Policy for saving and loading account state cache data.
-	struct AccountStateCacheStorage : public MapCacheStorageFromDescriptor<AccountStateCacheDescriptor> {
-		using LoadStateType = std::vector<uint8_t>;
-
-		/// Saves \a element to \a output.
-		static void Save(const StorageType& element, io::OutputStream& output);
-
-		/// Loads a single value from \a input.
-		static std::unique_ptr<model::AccountInfo> Load(io::InputStream& input);
-
-		/// Loads a single value from \a input into \a cacheDelta using \a state.
-		static void LoadInto(io::InputStream& input, DestinationType& cacheDelta, LoadStateType& state);
+	struct AccountStateCacheStorage
+			: public CacheStorageFromDescriptor<AccountStateCacheDescriptor>
+			, public state::AccountStateSerializer {
+		/// Loads \a accountState into \a cacheDelta.
+		static void LoadInto(const ValueType& accountState, DestinationType& cacheDelta);
 	};
 }}

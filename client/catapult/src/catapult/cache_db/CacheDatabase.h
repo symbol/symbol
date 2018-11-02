@@ -19,17 +19,18 @@
 **/
 
 #pragma once
-#include <string>
-#include <vector>
+#include "RdbTypedColumnContainer.h"
+#include "RocksDatabase.h"
 
 namespace catapult { namespace cache {
 
-	// TODO: this is a placeholder/alias for RocksDatabase
-	class CacheDatabase {
-	public:
-		CacheDatabase() = default;
+	/// RocksDb-backed cache database.
+	using CacheDatabase = RocksDatabase;
 
-		CacheDatabase(const std::string&, const std::vector<std::string>&)
-		{}
-	};
+	/// RocksDb-backed cache database settings.
+	using CacheDatabaseSettings = RocksDatabaseSettings;
+
+	/// RocksDb-backed cache database container view.
+	template<typename TDescriptor>
+	using CacheContainerView = RdbTypedColumnContainer<TDescriptor>;
 }}

@@ -19,12 +19,33 @@
 **/
 
 #include "RdbTestUtils.h"
-#include "catapult/cache_db/RocksInclude.h"
+#include "SliceTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
 
-	bool DbInitializer::SeedDb(const std::string& dbDir, const std::vector<std::string>& columns, const DbSeeder& seeder) {
+	namespace {
+		void PutValue(rocksdb::DB& db, rocksdb::ColumnFamilyHandle* column, size_t key) {
+			db.Put(rocksdb::WriteOptions(), column, test::ToSlice(key), EvenKeyToValue(key));
+		}
+	}
+
+	std::string EvenKeyToValue(size_t key) {
+		return std::to_string(123400 + key);
+	}
+
+	DbSeeder CreateEvenDbSeeder(size_t numKeys) {
+		return [numKeys] (auto& db, const auto& columns) {
+			for (auto i = 0u; i < numKeys; ++i)
+				PutValue(db, columns[0], i * 2);
+		};
+	}
+
+	bool DbInitializer::seedDb(
+			const std::string& dbDir,
+			const std::vector<std::string>& columns,
+			const DbSeeder& seeder,
+			const rocksdb::CompactionFilter* compactionFilter) {
 		if (!seeder)
 			return false;
 
@@ -33,10 +54,12 @@ namespace catapult { namespace test {
 		dbOptions.create_if_missing = true;
 		dbOptions.create_missing_column_families = true;
 
+		rocksdb::ColumnFamilyOptions defaultColumnOptions;
+		defaultColumnOptions.compaction_filter = compactionFilter;
+
 		std::vector<rocksdb::ColumnFamilyDescriptor> columnFamilies;
-		columnFamilies.push_back(rocksdb::ColumnFamilyDescriptor("default", rocksdb::ColumnFamilyOptions()));
 		for (const auto& name : columns)
-			columnFamilies.push_back(rocksdb::ColumnFamilyDescriptor(name, rocksdb::ColumnFamilyOptions()));
+			columnFamilies.push_back(rocksdb::ColumnFamilyDescriptor(name, defaultColumnOptions));
 
 		std::vector<rocksdb::ColumnFamilyHandle*> handles;
 		auto status = rocksdb::DB::Open(dbOptions, dbDir, columnFamilies, &handles, &pDb);
@@ -52,14 +75,22 @@ namespace catapult { namespace test {
 		return true;
 	}
 
-	DbInitializer::DbInitializer(const std::string& dbDir, const ColumnNames& columns, const DbSeeder& seeder) {
-		rocksdb::DestroyDB(dbDir, {});
-		SeedDb(dbDir, columns, seeder);
+	DbInitializer::DbInitializer(const std::string& dbDir, const ColumnNames& columns, const DbSeeder& seeder)
+			: DbInitializer(dbDir, columns, seeder, nullptr)
+	{}
+
+	DbInitializer::DbInitializer(
+			const std::string& dbDir,
+			const ColumnNames& columns,
+			const DbSeeder& seeder,
+			const rocksdb::CompactionFilter* compactionFilter)
+			: m_dbDirGuard(dbDir) {
+		seedDb(dbDir, columns, seeder, compactionFilter);
 	}
 
-	RdbTestContext::RdbTestContext(const ColumnNames& columns, const DbSeeder& seeder)
-			: DbInitializer("testdb", columns, seeder)
-			, m_database("testdb", columns)
+	RdbTestContext::RdbTestContext(const cache::RocksDatabaseSettings& settings, const DbSeeder& seeder)
+			: DbInitializer(settings.DatabaseDirectory, settings.ColumnFamilyNames, seeder)
+			, m_database(settings)
 	{}
 
 	cache::RocksDatabase& RdbTestContext::database() {
@@ -69,6 +100,6 @@ namespace catapult { namespace test {
 	void AssertIteratorValue(const std::string& value, const cache::RdbDataIterator& iter) {
 		ASSERT_NE(cache::RdbDataIterator::End(), iter);
 		EXPECT_EQ(value.size(), iter.storage().size());
-		EXPECT_EQ(value, iter.storage().data());
+		EXPECT_EQ(value, std::string(iter.storage().data(), iter.storage().size()));
 	}
 }}

@@ -65,7 +65,7 @@ namespace catapult { namespace test {
 			if (!multisigCache.contains(key))
 				multisigCache.insert(state::MultisigEntry(key));
 
-			return multisigCache.get(key);
+			return multisigCache.find(key).get();
 		}
 	}
 
@@ -88,5 +88,22 @@ namespace catapult { namespace test {
 			auto& cosignatoryEntry = GetOrCreateEntry(multisigCache, cosignatoryKey);
 			cosignatoryEntry.multisigAccounts().insert(multisigKey);
 		}
+	}
+
+	namespace {
+		void AssertEqual(const utils::SortedKeySet& expectedAccountKeys, const utils::SortedKeySet& accountKeys) {
+			ASSERT_EQ(expectedAccountKeys.size(), accountKeys.size());
+			EXPECT_EQ(expectedAccountKeys, accountKeys);
+		}
+	}
+
+	void AssertEqual(const state::MultisigEntry& expectedEntry, const state::MultisigEntry& entry) {
+		EXPECT_EQ(expectedEntry.minApproval(), entry.minApproval());
+		EXPECT_EQ(expectedEntry.minRemoval(), entry.minRemoval());
+
+		EXPECT_EQ(expectedEntry.key(), entry.key());
+
+		AssertEqual(expectedEntry.cosignatories(), entry.cosignatories());
+		AssertEqual(expectedEntry.multisigAccounts(), entry.multisigAccounts());
 	}
 }}

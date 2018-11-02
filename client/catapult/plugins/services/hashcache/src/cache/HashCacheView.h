@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "HashCacheSerializers.h"
 #include "HashCacheTypes.h"
 #include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlySimpleCache.h"

@@ -43,15 +43,15 @@ namespace catapult { namespace validators {
 
 		struct TryGetTraits {
 			static validators::ValidationResult TryGet(const ActiveMosaicView& view, MosaicId id, Height height) {
-				const state::MosaicEntry* pEntry;
-				return view.tryGet(id, height, &pEntry);
+				ActiveMosaicView::FindIterator mosaicIter;
+				return view.tryGet(id, height, mosaicIter);
 			}
 		};
 
 		struct TryGetWithOwnerTraits {
 			static validators::ValidationResult TryGet(const ActiveMosaicView& view, MosaicId id, Height height) {
-				const state::MosaicEntry* pEntry;
-				return view.tryGet(id, height, Key(), &pEntry);
+				ActiveMosaicView::FindIterator mosaicIter;
+				return view.tryGet(id, height, Key(), mosaicIter);
 			}
 		};
 	}
@@ -154,12 +154,12 @@ namespace catapult { namespace validators {
 		// Arrange:
 		RunTestWithActiveMosaic(test::GenerateRandomData<Key_Size>(), [](const auto& view) {
 			// Act: namespace expires at 123
-			const state::MosaicEntry* pEntry;
-			auto result = view.tryGet(MosaicId(123), Height(100), &pEntry);
+			ActiveMosaicView::FindIterator mosaicIter;
+			auto result = view.tryGet(MosaicId(123), Height(100), mosaicIter);
 
 			// Assert:
 			EXPECT_EQ(ValidationResult::Success, result);
-			EXPECT_EQ(MosaicId(123), pEntry->mosaicId());
+			EXPECT_EQ(MosaicId(123), mosaicIter.get().mosaicId());
 		});
 	}
 
@@ -167,8 +167,8 @@ namespace catapult { namespace validators {
 		// Arrange:
 		RunTestWithActiveMosaic(test::GenerateRandomData<Key_Size>(), [](const auto& view) {
 			// Act: namespace expires at 123
-			const state::MosaicEntry* pEntry;
-			auto result = view.tryGet(MosaicId(123), Height(100), test::GenerateRandomData<Key_Size>(), &pEntry);
+			ActiveMosaicView::FindIterator mosaicIter;
+			auto result = view.tryGet(MosaicId(123), Height(100), test::GenerateRandomData<Key_Size>(), mosaicIter);
 
 			// Assert:
 			EXPECT_EQ(Failure_Mosaic_Owner_Conflict, result);
@@ -180,12 +180,12 @@ namespace catapult { namespace validators {
 		const auto& owner = test::GenerateRandomData<Key_Size>();
 		RunTestWithActiveMosaic(owner, [&owner](const auto& view) {
 			// Act: namespace expires at 123
-			const state::MosaicEntry* pEntry;
-			auto result = view.tryGet(MosaicId(123), Height(100), owner, &pEntry);
+			ActiveMosaicView::FindIterator mosaicIter;
+			auto result = view.tryGet(MosaicId(123), Height(100), owner, mosaicIter);
 
 			// Assert:
 			EXPECT_EQ(ValidationResult::Success, result);
-			EXPECT_EQ(MosaicId(123), pEntry->mosaicId());
+			EXPECT_EQ(MosaicId(123), mosaicIter.get().mosaicId());
 		});
 	}
 

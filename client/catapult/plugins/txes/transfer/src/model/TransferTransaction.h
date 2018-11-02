@@ -38,7 +38,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Transaction recipient.
-		Address Recipient;
+		UnresolvedAddress Recipient;
 
 		/// Message size in bytes.
 		uint16_t MessageSize;
@@ -50,7 +50,7 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Message, uint8_t)
 
 		// followed by mosaics data if MosaicsCount != 0
-		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Mosaics, Mosaic)
+		DEFINE_TRANSACTION_VARIABLE_DATA_ACCESSORS(Mosaics, UnresolvedMosaic)
 
 	private:
 		template<typename T>
@@ -67,7 +67,7 @@ namespace catapult { namespace model {
 	public:
 		// Calculates the real size of transfer \a transaction.
 		static constexpr uint64_t CalculateRealSize(const TransactionType& transaction) noexcept {
-			return sizeof(TransactionType) + transaction.MessageSize + transaction.MosaicsCount * sizeof(Mosaic);
+			return sizeof(TransactionType) + transaction.MessageSize + transaction.MosaicsCount * sizeof(UnresolvedMosaic);
 		}
 	};
 

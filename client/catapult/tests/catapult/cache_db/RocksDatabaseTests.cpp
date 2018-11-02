@@ -19,10 +19,10 @@
 **/
 
 #include "catapult/cache_db/RocksDatabase.h"
-#include "catapult/cache_db/RocksInclude.h"
 #include "catapult/io/FileLock.h"
 #include "catapult/io/RawFile.h"
 #include "tests/catapult/cache_db/test/RdbTestUtils.h"
+#include "tests/catapult/cache_db/test/SliceTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
@@ -30,22 +30,105 @@ namespace catapult { namespace cache {
 
 #define TEST_CLASS RocksDatabaseTests
 
+	namespace {
+		auto CreateSettings(
+				const std::vector<std::string>& columnNames,
+				size_t numKilobytes = 0,
+				FilterPruningMode pruningMode = FilterPruningMode::Disabled) {
+			return RocksDatabaseSettings("testdb", columnNames, utils::FileSize::FromKilobytes(numKilobytes), pruningMode);
+		}
+
+		auto DefaultSettings() {
+			return CreateSettings({ "default" });
+		}
+
+		auto PruningSettings() {
+			return CreateSettings({ "default" }, 0, FilterPruningMode::Enabled);
+		}
+
+		auto BatchSettings() {
+			return CreateSettings({ "default" }, 100);
+		}
+
+		auto MultiColumnSettings() {
+			return CreateSettings({ "default", "beta", "gamma" });
+		}
+	}
+
+	// region constructor
+
+	TEST(TEST_CLASS, RdbThrowsIfNoColumnsAreGiven) {
+		// Act + Assert:
+		EXPECT_THROW(RocksDatabase(CreateSettings({})), catapult_invalid_argument);
+	}
+
 	TEST(TEST_CLASS, RdbThrowsIfDbCannotBeOpened) {
 		// Arrange: create a lock file with a name that will be used by Open
-		{
-			rocksdb::DestroyDB("testdb", {});
-			test::TempDirectoryGuard dirGuard("testdb");
-		}
 		io::FileLock lock("testdb");
 		lock.lock();
 
 		// Act + Assert:
-		EXPECT_THROW(RocksDatabase("testdb", {}), catapult_runtime_error);
+		EXPECT_THROW(RocksDatabase(CreateSettings({ "default" })), catapult_runtime_error);
 	}
+
+	TEST(TEST_CLASS, RdbThrowsIfBatchSizeIsTooSmall) {
+		// Act + Assert:
+		test::TempDirectoryGuard dbDirGuard("testdb");
+		EXPECT_THROW(RocksDatabase(CreateSettings({ "default" }, 99)), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, CanOpenDatabaseWithValidBatchSize) {
+		// Arrange:
+		test::TempDirectoryGuard dbDirGuard("testdb");
+
+		// Act:
+		RocksDatabase database(CreateSettings({ "default", "foo" }, 100));
+
+		// Assert:
+		EXPECT_EQ((std::vector<std::string>{ "default", "foo" }), database.columnFamilyNames());
+		EXPECT_FALSE(database.canPrune());
+	}
+
+	TEST(TEST_CLASS, CanOpenDatabaseWithZeroBatchSize) {
+		// Arrange:
+		test::TempDirectoryGuard dbDirGuard("testdb");
+
+		// Act:
+		RocksDatabase database(CreateSettings({ "default", "foo" }, 0));
+
+		// Assert:
+		EXPECT_EQ((std::vector<std::string>{ "default", "foo" }), database.columnFamilyNames());
+		EXPECT_FALSE(database.canPrune());
+	}
+
+	TEST(TEST_CLASS, CanOpenDatabaseWithPruningEnabled) {
+		// Arrange:
+		test::TempDirectoryGuard dbDirGuard("testdb");
+
+		// Act:
+		RocksDatabase database(CreateSettings({ "default", "foo" }, 100, FilterPruningMode::Enabled));
+
+		// Assert:
+		EXPECT_EQ((std::vector<std::string>{ "default", "foo" }), database.columnFamilyNames());
+		EXPECT_TRUE(database.canPrune());
+	}
+
+	TEST(TEST_CLASS, CanCreatePlaceholderDatabase) {
+		// Act:
+		RocksDatabase database;
+
+		// Assert:
+		EXPECT_TRUE(database.columnFamilyNames().empty());
+		EXPECT_FALSE(database.canPrune());
+	}
+
+	// endregion
+
+	// region single value
 
 	TEST(TEST_CLASS, ReadingNonExistentKeyReturnsSentinelValue) {
 		// Arrange:
-		test::RdbTestContext context({});
+		test::RdbTestContext context(DefaultSettings());
 		auto& database = context.database();
 
 		// Act:
@@ -56,11 +139,9 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(RdbDataIterator::End(), iter);
 	}
 
-	// region single value
-
 	TEST(TEST_CLASS, CanReadFromDb_DefaultColumn) {
 		// Arrange:
-		test::RdbTestContext context({}, [](auto& db, const auto& columns) {
+		test::RdbTestContext context(DefaultSettings(), [](auto& db, const auto& columns) {
 			db.Put(rocksdb::WriteOptions(), columns[0], "hello", "amazing");
 		});
 		auto& database = context.database();
@@ -75,7 +156,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanWriteToDb_DefaultColumn) {
 		// Arrange:
-		test::RdbTestContext context({});
+		test::RdbTestContext context(DefaultSettings());
 		auto& database = context.database();
 
 		// Act:
@@ -89,7 +170,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanDeleteFromDb_DefaultColumn_NonExistingKey) {
 		// Arrange:
-		test::RdbTestContext context({});
+		test::RdbTestContext context(DefaultSettings());
 		auto& database = context.database();
 
 		// Act: exception is not thrown
@@ -106,7 +187,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanDeleteFromDb_DefaultColumn) {
 		// Arrange:
-		test::RdbTestContext context({});
+		test::RdbTestContext context(DefaultSettings());
 		auto& database = context.database();
 		database.put(0, "hello", "amazing");
 		database.put(0, "world", "awesome");
@@ -119,7 +200,7 @@ namespace catapult { namespace cache {
 		// Act:
 		database.del(0, "hello");
 
-		// Assert: 'hello' is removed
+		// Assert: 'hello' is deleted
 		database.get(0, "hello", iter);
 		EXPECT_EQ(RdbDataIterator::End(), iter);
 
@@ -129,13 +210,46 @@ namespace catapult { namespace cache {
 
 	// endregion
 
+	// region default db ctor
+
+	TEST(TEST_CLASS, DefaultCreatedRdbDoesNotAllowGet) {
+		// Arrange:
+		RocksDatabase database;
+
+		// Act + Assert:
+		RdbDataIterator iter;
+		EXPECT_THROW(database.get(0, "hello", iter), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, DefaultCreatedRdbDoesNotAllowPut) {
+		// Arrange:
+		RocksDatabase database;
+
+		// Act + Assert:
+		EXPECT_THROW(database.put(0, "hello", "amazing"), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, DefaultCreatedRdbDoesNotAllowDelete) {
+		// Arrange:
+		RocksDatabase database;
+
+		// Act + Assert:
+		EXPECT_THROW(database.del(0, "hello"), catapult_invalid_argument);
+	}
+
+	// endregion
+
 	namespace {
-		auto GetHelloKeyFromColumns(RocksDatabase& database, size_t numColumns) {
+		auto GetKeyFromColumns(RocksDatabase& database, const std::string& name, size_t numColumns) {
 			std::vector<RdbDataIterator> iters(numColumns);
 			for (auto i = 0u; i < numColumns; ++i)
-				database.get(i, "hello", iters[i]);
+				database.get(i, name, iters[i]);
 
 			return iters;
+		}
+
+		auto GetHelloKeyFromColumns(RocksDatabase& database, size_t numColumns) {
+			return GetKeyFromColumns(database, "hello", numColumns);
 		}
 	}
 
@@ -143,7 +257,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanReadFromDb_DifferentColumns) {
 		// Arrange:
-		test::RdbTestContext context({ "beta", "gamma" }, [](auto& db, const auto& columns) {
+		test::RdbTestContext context(MultiColumnSettings(), [](auto& db, const auto& columns) {
 			db.Put(rocksdb::WriteOptions(), columns[0], "hello", "amazing");
 			db.Put(rocksdb::WriteOptions(), columns[1], "hello", "awesome");
 			db.Put(rocksdb::WriteOptions(), columns[2], "hello", "incredible");
@@ -161,7 +275,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanWriteToDb_DifferentColumns) {
 		// Arrange:
-		test::RdbTestContext context({ "beta", "gamma" });
+		test::RdbTestContext context(MultiColumnSettings(), [](const auto&, const auto&) {});
 		auto& database = context.database();
 
 		// Act:
@@ -179,7 +293,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanDeleteFromDb_DifferentColumns) {
 		// Arrange:
-		test::RdbTestContext context({ "beta", "gamma" }, [](auto& db, const auto& columns) {
+		test::RdbTestContext context(MultiColumnSettings(), [](auto& db, const auto& columns) {
 			db.Put(rocksdb::WriteOptions(), columns[0], "hello", "amazing");
 			db.Put(rocksdb::WriteOptions(), columns[0], "world", "fractured");
 			db.Put(rocksdb::WriteOptions(), columns[1], "hello", "awesome");
@@ -191,7 +305,7 @@ namespace catapult { namespace cache {
 		for (auto i = 0u; i < 3; ++i)
 			database.del(i, "hello");
 
-		// Assert: 'hello' keys are removed
+		// Assert: 'hello' keys are deleted
 		auto iters = GetHelloKeyFromColumns(database, 3);
 		for (const auto& iter : iters)
 			EXPECT_EQ(RdbDataIterator::End(), iter);
@@ -206,7 +320,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanReadFromDb_MultipleValues) {
 		// Arrange:
-		test::RdbTestContext context({}, [](auto& db, const auto& columns) {
+		test::RdbTestContext context(DefaultSettings(), [](auto& db, const auto& columns) {
 			db.Put(rocksdb::WriteOptions(), columns[0], "hello", "amazing");
 			db.Put(rocksdb::WriteOptions(), columns[0], "world", "awesome");
 		});
@@ -225,7 +339,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanWriteToDb_MultipleValues) {
 		// Arrange:
-		test::RdbTestContext context({});
+		test::RdbTestContext context(DefaultSettings());
 		auto& database = context.database();
 
 		// Act:
@@ -244,7 +358,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanDeleteFromDb_MultipleValues) {
 		// Arrange:
-		test::RdbTestContext context({});
+		test::RdbTestContext context(DefaultSettings());
 		auto& database = context.database();
 		database.put(0, "hello", "amazing");
 		database.put(0, "world", "awesome");
@@ -259,7 +373,7 @@ namespace catapult { namespace cache {
 		database.get(0, "hello", iters[0]);
 		database.get(0, "world", iters[1]);
 
-		// Assert: 'hello' and 'world' are removed
+		// Assert: 'hello' and 'world' are deleted
 		EXPECT_EQ(RdbDataIterator::End(), iters[0]);
 		EXPECT_EQ(RdbDataIterator::End(), iters[1]);
 
@@ -281,7 +395,7 @@ namespace catapult { namespace cache {
 			return KeyState::Existent == keyState ? "hello" : "nonexistent";
 		}
 
-		void AssertIteratorValue(KeyState keyState, const std::string& value, RdbDataIterator& iter) {
+		void AssertIteratorValue(KeyState keyState, const std::string& value, const RdbDataIterator& iter) {
 			if (KeyState::Existent == keyState)
 				test::AssertIteratorValue(value, iter);
 			else
@@ -290,7 +404,7 @@ namespace catapult { namespace cache {
 
 		void AssertCanReuseIteratorWhenReadingFromDb(KeyState first, KeyState second) {
 			// Arrange:
-			test::RdbTestContext context({ "beta", "gamma" }, [](auto& db, const auto& columns) {
+			test::RdbTestContext context(MultiColumnSettings(), [](auto& db, const auto& columns) {
 				db.Put(rocksdb::WriteOptions(), columns[0], "hello", "amazing");
 				db.Put(rocksdb::WriteOptions(), columns[1], "hello", "awesome");
 				db.Put(rocksdb::WriteOptions(), columns[2], "hello", "incredible");
@@ -326,6 +440,254 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanReuseIteratorWhenReadingFromDb_NonexistentAndNonexistent) {
 		AssertCanReuseIteratorWhenReadingFromDb(KeyState::Nonexistent, KeyState::Nonexistent);
+	}
+
+	// endregion
+
+	// region pruning
+
+	namespace {
+		void AssertNoKey(cache::RocksDatabase& database, uint64_t value) {
+			RdbDataIterator iter;
+			database.get(0, test::ToSlice(value), iter);
+
+			EXPECT_EQ(RdbDataIterator::End(), iter);
+		}
+
+		void AssertHasValidKey(cache::RocksDatabase& database, uint64_t key) {
+			RdbDataIterator iter;
+			database.get(0, test::ToSlice(key), iter);
+
+			auto strValue = test::EvenKeyToValue(key);
+			test::AssertIteratorValue(strValue, iter);
+		}
+
+		template<typename TAssertion>
+		void RunPruneTest(TAssertion assertion) {
+			// Arrange: create 120 even keys (0 - 238)
+			auto evenSeeder = test::CreateEvenDbSeeder(120);
+			test::RdbTestContext context(PruningSettings(), evenSeeder);
+
+			// Act: prune all keys < 200
+			auto numPruned = context.database().prune(0, 200);
+
+			// Assert:
+			EXPECT_EQ(100u, numPruned);
+			assertion(context.database());
+		}
+	}
+
+	TEST(TEST_CLASS, PruneRemovesAllValuesBelowBoundary) {
+		RunPruneTest([](auto& database) {
+			// Assert:
+			for (auto i = 0u; i < 200; i += 2)
+				AssertNoKey(database, i);
+		});
+	}
+
+	TEST(TEST_CLASS, PruneDoesNotRemoveValuesAboveBoundary) {
+		RunPruneTest([](auto& database) {
+			// Assert:
+			for (auto i = 200u; i < 240; i += 2)
+				AssertHasValidKey(database, i);
+		});
+	}
+
+	// endregion
+
+	// region batch processing
+
+	namespace {
+		enum class Flush {
+			No,
+			Yes
+		};
+
+		template<typename TAction>
+		void RunBasicBatchTest(const test::DbSeeder& seeder, Flush enableFlush, KeyState keyState, TAction action) {
+			// Arrange:
+			test::RdbTestContext context(BatchSettings(), seeder);
+			auto& database = context.database();
+
+			// Act:
+			action(database);
+			if (Flush::Yes == enableFlush)
+				database.flush();
+
+			// Assert: validate element presence depending on keyState
+			RdbDataIterator iter;
+			database.get(0, "hello", iter);
+			AssertIteratorValue(keyState, "amazing", iter);
+		}
+
+		void RunPutTest(Flush enableFlush, KeyState keyState) {
+			RunBasicBatchTest(test::DbSeeder(), enableFlush, keyState, [](auto& database) {
+				database.put(0, "hello", "amazing");
+			});
+		}
+
+		void RunDelTest(Flush enableFlush, KeyState keyState) {
+			auto seeder = [](auto& db, const auto& columns) {
+				db.Put(rocksdb::WriteOptions(), columns[0], "hello", "amazing");
+			};
+			RunBasicBatchTest(seeder, enableFlush, keyState, [](auto& database) {
+				database.del(0, "hello");
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, SinglePutDoesNotTriggerBatchedWrite) {
+		// Assert:
+		RunPutTest(Flush::No, KeyState::Nonexistent);
+	}
+
+	TEST(TEST_CLASS, FinalizeBatchCommitsBatchedPuts) {
+		// Assert:
+		RunPutTest(Flush::Yes, KeyState::Existent);
+	}
+
+	TEST(TEST_CLASS, SingleDelDoesNotTriggerBatchedWrite) {
+		// Assert:
+		RunDelTest(Flush::No, KeyState::Existent);
+	}
+
+	TEST(TEST_CLASS, FinalizeBatchCommitsBatchedDels) {
+		// Assert:
+		RunDelTest(Flush::Yes, KeyState::Nonexistent);
+	}
+
+	namespace {
+		bool IsIteratorEnd(const RdbDataIterator& iter) {
+			return RdbDataIterator::End() == iter;
+		}
+
+		bool IsNotIteratorEnd(const RdbDataIterator& iter) {
+			return !IsIteratorEnd(iter);
+		}
+
+		auto Negate(KeyState state) {
+			return state == KeyState::Existent ? KeyState::Nonexistent : KeyState::Existent;
+		}
+
+		template<size_t Num_Elements>
+		auto VerifyIters(const std::array<RdbDataIterator, Num_Elements>& iters, KeyState firstGroupState, size_t valueAdjustment = 0) {
+			auto condition = firstGroupState == KeyState::Existent ? IsIteratorEnd : IsNotIteratorEnd;
+			auto pivotIndex = static_cast<size_t>(std::distance(iters.cbegin(), std::find_if(iters.cbegin(), iters.cend(), condition)));
+
+			// Sanity: pivot index is somewhere between
+			EXPECT_LT(0u, pivotIndex);
+			EXPECT_GT(Num_Elements - 1, pivotIndex);
+
+			// Assert: verify iterator values
+			for (auto i = 0u; i < Num_Elements; ++i) {
+				auto value = test::EvenKeyToValue(valueAdjustment + i * 2);
+				auto expectedState = !condition(iters[i]) ? firstGroupState : Negate(firstGroupState);
+				AssertIteratorValue(expectedState, value, iters[i]);
+			}
+
+			return pivotIndex;
+		}
+
+		void PutTriggersBatchedWrite(const std::vector<std::string>& columnNames) {
+			// Arrange:
+			auto numColumns = columnNames.size();
+			auto settings = CreateSettings(columnNames, 100);
+			test::RdbTestContext context(settings);
+			auto& database = context.database();
+
+			// Act: entry size is ~17 bytes
+			//      at least 100k / 17 entries are needed to trigger write, use bit bigger number
+			constexpr auto Num_Elements = 8'000u;
+			for (auto i = 0u; i < Num_Elements; ++i)
+				database.put(0 % numColumns, test::ToSlice(i * 2), test::EvenKeyToValue(i * 2));
+
+			// Assert:
+			std::array<RdbDataIterator, Num_Elements> iters;
+			for (auto i = 0u; i < Num_Elements; ++i)
+				database.get(0 % numColumns, test::ToSlice(i * 2), iters[i]);
+
+			// - verify that not all entries have been saved
+			// * [0, pivotElementIndex) - elements should be added to db
+			// * [pivotElementIndex, Num_Elements) - should not be in db
+			auto pivotElementIndex = VerifyIters(iters, KeyState::Existent);
+
+			// - at least 6k puts were required to trigger write (this value will be used in mixed test)
+			EXPECT_LT(6000u, pivotElementIndex);
+		}
+	}
+
+	TEST(TEST_CLASS, PutTriggersBatchedWrite) {
+		PutTriggersBatchedWrite({ "default" });
+	}
+
+	TEST(TEST_CLASS, PutTriggersBatchedWrite_MultipleColumns) {
+		PutTriggersBatchedWrite({ "default", "beta", "gamma" });
+	}
+
+	TEST(TEST_CLASS, DelTriggersBatchedWrite) {
+		// Arrange:  for some magic when using even seeder entry size is ~10 bytes (I'd expect at least 8 + 6 = 12),
+		//           at least 100k / 10 entries, are needed, use bit bigger number to leave some undeleted keys
+		constexpr auto Num_Elements = 12'000;
+		auto evenSeeder = test::CreateEvenDbSeeder(Num_Elements);
+		test::RdbTestContext context(BatchSettings(), evenSeeder);
+		auto& database = context.database();
+
+		// Act:
+		for (auto i = 0u; i < Num_Elements; ++i)
+			database.del(0, test::ToSlice(i * 2));
+
+		// Assert:
+		std::array<RdbDataIterator, Num_Elements> iters;
+		for (auto i = 0u; i < Num_Elements; ++i)
+			database.get(0, test::ToSlice(i * 2), iters[i]);
+
+		// - verify that not all entries have been deleted
+		// * [0, pivotElementIndex) - elements should be deleted from db
+		// * [pivotElementIndex, Num_Elements) - elements should be left in db
+		auto pivotElementIndex = VerifyIters(iters, KeyState::Nonexistent);
+		EXPECT_LT(10000u, pivotElementIndex);
+	}
+
+	TEST(TEST_CLASS, MixedPutDelTriggersBatchedWrite) {
+		// Arrange:
+		constexpr auto Num_Elements = 12'000;
+		auto evenSeeder = test::CreateEvenDbSeeder(Num_Elements);
+		test::RdbTestContext context(BatchSettings(), evenSeeder);
+		auto& database = context.database();
+
+		// Act: add some new data and remove some data from db,
+		//      make sure keys don't conflict to make assertions simpler
+		constexpr auto Num_Operations = 6000;
+		for (auto i = 0u; i < Num_Operations; ++i) {
+			database.put(0, test::ToSlice(50'000 + i * 2), test::EvenKeyToValue(50'000 + i * 2));
+			database.del(0, test::ToSlice(i * 2));
+		}
+
+		// Assert:
+		std::array<RdbDataIterator, Num_Operations> putIters;
+		for (auto i = 0u; i < Num_Operations; ++i)
+			database.get(0, test::ToSlice(50'000 + i * 2), putIters[i]);
+
+		std::array<RdbDataIterator, Num_Operations> delIters;
+		for (auto i = 0u; i < Num_Operations; ++i)
+			database.get(0, test::ToSlice(i * 2), delIters[i]);
+
+		// - verify that not all entries have been saved
+		// * [0, putPivotIndex) - elements should be added to db
+		// * [putPivotIndex, Num_Operations) - elements should not be in db
+		auto putPivotIndex = VerifyIters(putIters, KeyState::Existent, 50'000);
+
+		// - there were interleaving puts and dels, so much less operations were needed to trigger write
+		//   (compare with PutTriggersBatchedWrite)
+		EXPECT_GT(5000u, putPivotIndex);
+
+		// - verify that not all entries have been deleted
+		// * [0, delPivotIndex) - elements should be deleted from db
+		// * [delPivotIndex, Num_Operations) - should be left in db
+		auto delPivotIndex = VerifyIters(delIters, KeyState::Nonexistent);
+
+		// - puts and dels are interleaving, so same condition should be fulfilled for dels as well
+		EXPECT_GT(5000u, delPivotIndex);
 	}
 
 	// endregion

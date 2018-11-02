@@ -20,28 +20,41 @@
 
 #pragma once
 #include "NamespaceCacheDelta.h"
+#include "NamespaceCacheStorage.h"
 #include "NamespaceCacheView.h"
 #include "catapult/cache/BasicCache.h"
 
 namespace catapult { namespace cache {
 
-	using NamespaceBasicCache = BasicCache<NamespaceCacheDescriptor, NamespaceCacheTypes::BaseSets, const NamespaceSizes&>;
+	using NamespaceBasicCache = BasicCache<
+		NamespaceCacheDescriptor,
+		NamespaceCacheTypes::BaseSets,
+		NamespaceCacheTypes::Options,
+		const NamespaceSizes&>;
 
 	/// Cache composed of namespace information.
 	class BasicNamespaceCache : public NamespaceBasicCache {
 	public:
-		/// Creates a cache around \a config.
-		explicit BasicNamespaceCache(const CacheConfiguration& config)
-				: BasicNamespaceCache(config, std::make_unique<NamespaceSizes>())
+		/// Creates a cache around \a config and \a options.
+		explicit BasicNamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
+				: BasicNamespaceCache(config, options, std::make_unique<NamespaceSizes>())
 		{}
 
 	private:
-		BasicNamespaceCache(const CacheConfiguration& config, std::unique_ptr<NamespaceSizes>&& pSizes)
-				: NamespaceBasicCache(config, *pSizes)
+		BasicNamespaceCache(
+				const CacheConfiguration& config,
+				const NamespaceCacheTypes::Options& options,
+				std::unique_ptr<NamespaceSizes>&& pSizes)
+				: NamespaceBasicCache(config, NamespaceCacheTypes::Options(options), *pSizes)
 				, m_pSizes(std::move(pSizes))
 		{}
 
 	public:
+		/// Initializes the cache with \a activeSize and \a deepSize.
+		void init(size_t activeSize, size_t deepSize) {
+			*m_pSizes = { activeSize, deepSize };
+		}
+
 		/// Commits all pending changes to the underlying storage.
 		/// \note This hides NamespaceBasicCache::commit.
 		void commit(const CacheDeltaType& delta) {
@@ -55,13 +68,14 @@ namespace catapult { namespace cache {
 	};
 
 	/// Synchronized cache composed of namespace information.
-	class NamespaceCache : public SynchronizedCache<BasicNamespaceCache> {
+	class NamespaceCache : public SynchronizedCacheWithInit<BasicNamespaceCache> {
 	public:
 		DEFINE_CACHE_CONSTANTS(Namespace)
 
 	public:
-		/// Creates a cache around \a config.
-		explicit NamespaceCache(const CacheConfiguration& config) : SynchronizedCache<BasicNamespaceCache>(BasicNamespaceCache(config))
+		/// Creates a cache around \a config and options.
+		explicit NamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
+				: SynchronizedCacheWithInit<BasicNamespaceCache>(BasicNamespaceCache(config, options))
 		{}
 	};
 }}

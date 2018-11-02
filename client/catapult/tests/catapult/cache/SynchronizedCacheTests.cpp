@@ -487,7 +487,7 @@ namespace catapult { namespace cache {
 		template<typename TBlockedOperationFunc>
 		void AssertCommitBlocksOperation(TBlockedOperationFunc blockedOperationFunc) {
 			// Arrange: create the cache and start a (long) commit operation
-			int flag = 0;
+			auto flag = 0u;
 			CommitLockGuard commitLockGuard;
 			auto& cache = commitLockGuard.cache();
 
@@ -532,16 +532,16 @@ namespace catapult { namespace cache {
 			test::Pause();
 
 			// Sanity: the flag should have only been updated by [A]
-			EXPECT_EQ(1, flag);
+			EXPECT_EQ(1u, flag);
 
 			// Act: release the first (commit) lock
 			commitLockGuard.reset(); // signals [B (releases lock), C (acquires lock)]
 
 			// - wait for the flag value to change
-			WAIT_FOR_VALUE_EXPR(2, flag); // waits for [C]
+			WAIT_FOR_VALUE_EXPR(2u, flag); // waits for [C]
 
 			// Assert: [C] acquired the (second) lock
-			EXPECT_EQ(2, flag);
+			EXPECT_EQ(2u, flag);
 		}
 	}
 
@@ -572,6 +572,73 @@ namespace catapult { namespace cache {
 			// Assert:
 			EXPECT_TRUE(lockableDelta.lock());
 		});
+	}
+
+	// endregion
+
+	// region SynchronizedCacheWithInit
+
+	namespace {
+		class BasicSimpleCacheWithInit : public test::BasicSimpleCache {
+		public:
+			explicit BasicSimpleCacheWithInit(std::string& initString) : m_initString(initString)
+			{}
+
+		public:
+			void init(const std::string& initString) {
+				m_initString = initString;
+			}
+
+		private:
+			std::string& m_initString;
+		};
+
+		class SimpleCacheWithInit : public SynchronizedCacheWithInit<BasicSimpleCacheWithInit> {
+		public:
+			SimpleCacheWithInit() : SynchronizedCacheWithInit(BasicSimpleCacheWithInit(m_initString))
+			{}
+
+		public:
+			const std::string& initString() const {
+				return m_initString;
+			}
+
+		private:
+			std::string m_initString;
+		};
+	}
+
+	TEST(TEST_CLASS, SynchronizedCacheWithInit_InitDelegatesToWrappedCache) {
+		// Arrange:
+		SimpleCacheWithInit cache;
+
+		// Act:
+		cache.init("init value");
+
+		// Assert:
+		EXPECT_EQ(cache.initString(), "init value");
+	}
+
+	TEST(TEST_CLASS, SynchronizedCacheWithInit_CannotCallInitMoreThanOnce) {
+		// Arrange:
+		SimpleCacheWithInit cache;
+		cache.init("init value");
+
+		// Act + Assert:
+		EXPECT_THROW(cache.init("init value"), catapult_runtime_error);
+		EXPECT_THROW(cache.init("init value 2"), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, SynchronizedCacheWithInit_InitIsOptional) {
+		// Arrange:
+		SimpleCacheWithInit cache;
+
+		// Act + Assert: no exception
+		auto delta = cache.createDelta();
+		auto view = cache.createView();
+
+		// -  init wasn't called
+		EXPECT_TRUE(cache.initString().empty());
 	}
 
 	// endregion

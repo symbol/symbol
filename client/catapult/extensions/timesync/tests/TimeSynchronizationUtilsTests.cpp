@@ -183,7 +183,7 @@ namespace catapult { namespace timesync {
 		auto task = CreateTimeSyncTask(context);
 
 		// Sanity:
-		EXPECT_EQ(0u, context.pTimeSyncState->nodeAge().unwrap());
+		EXPECT_EQ(NodeAge(0), context.pTimeSyncState->nodeAge());
 
 		// Act:
 		for (auto i = 0u; i < 5; ++i) {
@@ -194,7 +194,7 @@ namespace catapult { namespace timesync {
 		}
 
 		// Assert:
-		EXPECT_EQ(5u, context.pTimeSyncState->nodeAge().unwrap());
+		EXPECT_EQ(NodeAge(5), context.pTimeSyncState->nodeAge());
 	}
 
 	// endregion
@@ -255,9 +255,9 @@ namespace catapult { namespace timesync {
 			cache.commit(Height(1));
 
 			// Sanity:
-			EXPECT_EQ(0u, context.pTimeSyncState->offset().unwrap());
+			EXPECT_EQ(TimeOffset(0), context.pTimeSyncState->offset());
 			EXPECT_EQ(TimeOffsetDirection::Positive, context.pTimeSyncState->offsetDirection());
-			EXPECT_EQ(0u, context.pTimeSyncState->nodeAge().unwrap());
+			EXPECT_EQ(NodeAge(0), context.pTimeSyncState->nodeAge());
 
 			// Act:
 			auto task = CreateTimeSyncTask(context);
@@ -272,8 +272,8 @@ namespace catapult { namespace timesync {
 	TEST(TEST_CLASS, TaskProcessesSamples_Single) {
 		// Assert:
 		AssertStateChange({ 250 }, { Importance(1'000'000) }, [](const auto& timeSyncState) {
-			EXPECT_EQ(250u, timeSyncState.offset().unwrap());
-			EXPECT_EQ(1u, timeSyncState.nodeAge().unwrap());
+			EXPECT_EQ(TimeOffset(250), timeSyncState.offset());
+			EXPECT_EQ(NodeAge(1), timeSyncState.nodeAge());
 		});
 	}
 
@@ -284,8 +284,8 @@ namespace catapult { namespace timesync {
 
 		// Assert:
 		AssertStateChange(remoteOffsets, importances, [](const auto& timeSyncState) {
-			EXPECT_EQ(150u, timeSyncState.offset().unwrap());
-			EXPECT_EQ(1u, timeSyncState.nodeAge().unwrap());
+			EXPECT_EQ(TimeOffset(150), timeSyncState.offset());
+			EXPECT_EQ(NodeAge(1), timeSyncState.nodeAge());
 		});
 	}
 

@@ -19,52 +19,11 @@
 **/
 
 #include "AccountStateCacheStorage.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
-#include "catapult/state/AccountStateAdapter.h"
-#include "catapult/utils/MemoryUtils.h"
-#include <vector>
+#include "AccountStateCacheDelta.h"
 
 namespace catapult { namespace cache {
 
-	namespace {
-		uint32_t ReadAccountInfoSize(io::InputStream& input) {
-			auto accountInfoSize = io::Read32(input);
-			if (accountInfoSize > model::AccountInfo_Max_Size)
-				CATAPULT_THROW_RUNTIME_ERROR_1("account in state file has enormous size", accountInfoSize);
-
-			return accountInfoSize;
-		}
-
-		void ReadAccountInfo(io::InputStream& input, uint32_t accountInfoSize, model::AccountInfo& accountInfo) {
-			constexpr auto Header_Size = sizeof(accountInfoSize); // the Size field was already read
-
-			accountInfo.Size = accountInfoSize;
-
-			auto* pAccountInfoBytes = reinterpret_cast<uint8_t*>(&accountInfo);
-			input.read({ pAccountInfoBytes + Header_Size, accountInfoSize - Header_Size });
-		}
-	}
-
-	void AccountStateCacheStorage::Save(const StorageType& element, io::OutputStream& output) {
-		const auto& pAccountState = element.second;
-		auto pAccountInfo = state::ToAccountInfo(*pAccountState);
-		output.write({ reinterpret_cast<const uint8_t*>(pAccountInfo.get()), pAccountInfo->Size });
-	}
-
-	std::unique_ptr<model::AccountInfo> AccountStateCacheStorage::Load(io::InputStream& input) {
-		auto accountInfoSize = ReadAccountInfoSize(input);
-		auto pAccountInfo = utils::MakeUniqueWithSize<model::AccountInfo>(accountInfoSize);
-		ReadAccountInfo(input, accountInfoSize, *pAccountInfo);
-		return pAccountInfo;
-	}
-
-	void AccountStateCacheStorage::LoadInto(io::InputStream& input, DestinationType& cacheDelta, LoadStateType& state) {
-		auto accountInfoSize = ReadAccountInfoSize(input);
-		state.resize(accountInfoSize);
-
-		auto& accountInfo = reinterpret_cast<model::AccountInfo&>(*state.data());
-		ReadAccountInfo(input, accountInfoSize, accountInfo);
-		cacheDelta.addAccount(accountInfo);
+	void AccountStateCacheStorage::LoadInto(const ValueType& accountState, DestinationType& cacheDelta) {
+		cacheDelta.addAccount(accountState);
 	}
 }}

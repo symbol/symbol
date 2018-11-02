@@ -45,6 +45,9 @@ namespace catapult { namespace chain {
 		uint32_t MaxBlocksToRewrite;
 	};
 
+	/// Returns max number of hashes to analyze.
+	uint32_t CalculateMaxHashesToAnalyze(const CompareChainsOptions& options);
+
 	/// Result of a chain comparison operation.
 	struct CompareChainsResult {
 		/// End state of the chain comparison operation.

@@ -135,6 +135,50 @@ namespace catapult { namespace cache {
 				return value;
 			}
 		};
+
+		/// An iterator that is returned by cache find functions.
+		template<typename TCacheDescriptor, typename TValueAdapter, typename TBaseSetIterator, typename TValue>
+		class CacheFindIterator {
+		private:
+			using KeyType = typename TCacheDescriptor::KeyType;
+
+		public:
+			/// Creates an uninitialized iterator.
+			CacheFindIterator() = default;
+
+			/// Creates an iterator around a set iterator (\a iter) for the specified \a key.
+			CacheFindIterator(TBaseSetIterator&& iter, const KeyType& key)
+					: m_iter(std::move(iter))
+					, m_key(key)
+			{}
+
+		public:
+			/// Gets a const value.
+			/// \throws catapult_invalid_argument if this iterator does not point to a value.
+			TValue& get() const {
+				auto* pValue = tryGet();
+				if (!pValue)
+					detail::ThrowInvalidKeyError<TCacheDescriptor>("not", m_key);
+
+				return *pValue;
+			}
+
+			/// Tries to get a const value.
+			TValue* tryGet() const {
+				auto pValue = m_iter.get(); // can be raw or shared_ptr
+				return pValue ? &TValueAdapter::Adapt(*pValue) : nullptr;
+			}
+
+			/// Tries to get a const (unadapted) value.
+			const auto* tryGetUnadapted() const {
+				auto pValue = m_iter.get(); // can be raw or shared_ptr
+				return &*pValue;
+			}
+
+		private:
+			TBaseSetIterator m_iter;
+			KeyType m_key;
+		};
 	}
 
 	/// A mixin for adding const access support to a cache.
@@ -146,6 +190,11 @@ namespace catapult { namespace cache {
 	private:
 		using KeyType = typename TCacheDescriptor::KeyType;
 		using ValueType = typename TValueAdapter::AdaptedValueType;
+		using SetIteratorType = typename TSet::FindConstIterator;
+
+	public:
+		/// Find (const) iterator.
+		using const_iterator = detail::CacheFindIterator<TCacheDescriptor, TValueAdapter, SetIteratorType, const ValueType>;
 
 	public:
 		/// Creates a mixin around \a set.
@@ -153,20 +202,10 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Gets a const value specified by identifier \a key.
-		/// \throws catapult_invalid_argument if the requested value is not found.
-		const ValueType& get(const KeyType& key) const {
-			const auto* pValue = tryGet(key);
-			if (!pValue)
-				detail::ThrowInvalidKeyError<TCacheDescriptor>("not", key);
-
-			return *pValue;
-		}
-
-		/// Tries to get a const value specified by identifier \a key.
-		const ValueType* tryGet(const KeyType& key) const {
-			auto pValue = m_set.find(key); // can be raw or shared_ptr
-			return pValue ? &TValueAdapter::Adapt(*pValue) : nullptr;
+		/// Finds the cache value identified by \a key.
+		const_iterator find(const KeyType& key) const {
+			auto setIter = m_set.find(key);
+			return const_iterator(std::move(setIter), key);
 		}
 
 	private:
@@ -183,6 +222,11 @@ namespace catapult { namespace cache {
 	private:
 		using KeyType = typename TCacheDescriptor::KeyType;
 		using ValueType = typename TValueAdapter::AdaptedValueType;
+		using SetIteratorType = typename TSet::FindIterator;
+
+	public:
+		/// Find (mutable) iterator.
+		using iterator = detail::CacheFindIterator<TCacheDescriptor, TValueAdapter, SetIteratorType, ValueType>;
 
 	public:
 		/// Creates a mixin around \a set.
@@ -190,20 +234,10 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Gets a value specified by identifier \a key.
-		/// \throws catapult_invalid_argument if the requested value is not found.
-		ValueType& get(const KeyType& key) {
-			auto* pValue = tryGet(key);
-			if (!pValue)
-				detail::ThrowInvalidKeyError<TCacheDescriptor>("not", key);
-
-			return *pValue;
-		}
-
-		/// Tries to get a value specified by identifier \a key.
-		ValueType* tryGet(const KeyType& key) {
-			auto pValue = m_set.find(key); // can be raw or shared_ptr
-			return pValue ? &TValueAdapter::Adapt(*pValue) : nullptr;
+		/// Finds the cache value identified by \a key.
+		iterator find(const KeyType& key) {
+			auto setIter = m_set.find(key);
+			return iterator(std::move(setIter), key);
 		}
 
 	private:
@@ -224,7 +258,8 @@ namespace catapult { namespace cache {
 	public:
 		/// Returns \c true if the value specified by identifier \a key is active at \a height.
 		bool isActive(const KeyType& key, Height height) const {
-			const auto* pValue = m_set.find(key);
+			auto iter = m_set.find(key);
+			const auto* pValue = iter.get();
 			return pValue && pValue->isActive(height);
 		}
 
@@ -267,6 +302,27 @@ namespace catapult { namespace cache {
 
 	private:
 		TSet& m_set;
+	};
+
+	/// A mixin for height-based touching.
+	template<typename TSet, typename THeightGroupedSet>
+	class HeightBasedTouchMixin {
+	public:
+		/// Creates a mixin around \a set and \a heightGroupedSet.
+		HeightBasedTouchMixin(TSet& set, THeightGroupedSet& heightGroupedSet)
+				: m_set(set)
+				, m_heightGroupedSet(heightGroupedSet)
+		{}
+
+	public:
+		/// Touches the cache at \a height.
+		void touch(Height height) {
+			ForEachIdentifierWithGroup(m_set, m_heightGroupedSet, height, [](const auto&) {});
+		}
+
+	private:
+		TSet& m_set;
+		THeightGroupedSet& m_heightGroupedSet;
 	};
 
 	/// A mixin for height-based pruning.

@@ -20,11 +20,14 @@
 
 #pragma once
 #include "BaseSetDefaultTraits.h"
+#include "BaseSetFindIterator.h"
 #include "DeltaElements.h"
 #include "catapult/utils/NonCopyable.h"
 #include "catapult/exceptions.h"
 #include "catapult/preprocessor.h"
 #include <memory>
+#include <type_traits>
+#include <unordered_map>
 
 namespace catapult { namespace deltaset {
 
@@ -66,6 +69,7 @@ namespace catapult { namespace deltaset {
 	class BaseSetDelta : public utils::NonCopyable {
 	public:
 		using ElementType = typename TElementTraits::ElementType;
+		using ElementMutabilityTag = typename TElementTraits::MutabilityTag;
 
 		using SetType = typename TSetTraits::SetType;
 		using MemorySetType = typename TSetTraits::MemorySetType;
@@ -74,9 +78,18 @@ namespace catapult { namespace deltaset {
 		using FindTraits = FindTraitsT<ElementType, TSetTraits::AllowsNativeValueModification>;
 		using SetTraits = TSetTraits;
 
+		using FindIterator = typename std::conditional<
+			std::is_same<ElementMutabilityTag, ImmutableTypeTag>::value,
+			BaseSetDeltaFindConstIterator<FindTraits, TSetTraits>,
+			BaseSetDeltaFindIterator<FindTraits, TSetTraits>
+		>::type;
+		using FindConstIterator = BaseSetDeltaFindConstIterator<FindTraits, TSetTraits>;
+
 	public:
 		/// Creates a delta around \a originalElements.
-		explicit BaseSetDelta(const SetType& originalElements) : m_originalElements(originalElements)
+		explicit BaseSetDelta(const SetType& originalElements)
+				: m_originalElements(originalElements)
+				, m_generationId(1)
 		{}
 
 	public:
@@ -93,59 +106,66 @@ namespace catapult { namespace deltaset {
 	public:
 		/// Searches for \a key in this set.
 		/// Returns a pointer to the matching element if it is found or \c nullptr if it is not found.
-		typename FindTraits::ConstResultType find(const KeyType& key) const {
-			return find<decltype(*this), typename FindTraits::ConstResultType>(*this, key);
+		FindConstIterator find(const KeyType& key) const {
+			return find<FindConstIterator>(*this, key);
 		}
 
 		/// Searches for \a key in this set.
 		/// Returns a pointer to the matching element if it is found or \c nullptr if it is not found.
-		typename FindTraits::ResultType find(const KeyType& key) {
-			return find<decltype(*this), typename FindTraits::ResultType>(*this, key);
+		FindIterator find(const KeyType& key) {
+			auto iter = find<FindIterator>(*this, key);
+			if (!!iter.get())
+				markFoundElement(key, ElementMutabilityTag());
+
+			return iter;
 		}
 
 	private:
-		template<typename TStorageType>
-		static constexpr auto ToResult(TStorageType& storage) {
-			return FindTraits::ToResult(TSetTraits::ToValue(storage));
-		}
-
-		template<typename TBaseSetDelta, typename TResult>
-		static TResult find(TBaseSetDelta& set, const KeyType& key) {
+		template<typename TResultIterator, typename TBaseSetDelta>
+		static TResultIterator find(TBaseSetDelta& set, const KeyType& key) {
 			if (contains(set.m_removedElements, key))
-				return nullptr;
+				return TResultIterator();
 
-			auto pOriginal = set.find(key, typename TElementTraits::MutabilityTag());
-			if (pOriginal)
-				return pOriginal;
+			auto originalIter = set.find(key, ElementMutabilityTag());
+			if (originalIter.get())
+				return originalIter;
 
 			auto addedIter = set.m_addedElements.find(key);
-			return set.m_addedElements.cend() != addedIter ? ToResult(*addedIter) : nullptr;
+			return set.m_addedElements.cend() != addedIter ? TResultIterator(std::move(addedIter)) : TResultIterator();
 		}
 
-		typename FindTraits::ResultType find(const KeyType& key, MutableTypeTag) {
+		FindIterator find(const KeyType& key, MutableTypeTag) {
 			auto copiedIter = m_copiedElements.find(key);
 			if (m_copiedElements.cend() != copiedIter)
-				return ToResult(*copiedIter);
+				return FindIterator(std::move(copiedIter));
 
-			auto pOriginal = find(key, ImmutableTypeTag());
-			if (!pOriginal)
-				return nullptr;
+			auto originalIter = find(key, ImmutableTypeTag());
+			if (!originalIter.get())
+				return FindIterator();
 
-			auto copy = TElementTraits::Copy(pOriginal);
+			auto copy = TElementTraits::Copy(originalIter.get());
 			auto result = m_copiedElements.insert(SetTraits::ToStorage(copy));
-			return ToResult(*result.first);
+			return FindIterator(std::move(result.first));
 		}
 
-		typename FindTraits::ConstResultType find(const KeyType& key, MutableTypeTag) const {
+		FindConstIterator find(const KeyType& key, MutableTypeTag) const {
 			auto copiedIter = m_copiedElements.find(key);
 			return m_copiedElements.cend() != copiedIter
-					? ToResult(*copiedIter)
+					? FindConstIterator(std::move(copiedIter))
 					: find(key, ImmutableTypeTag());
 		}
 
-		typename FindTraits::ConstResultType find(const KeyType& key, ImmutableTypeTag) const {
+		FindConstIterator find(const KeyType& key, ImmutableTypeTag) const {
 			auto originalIter = m_originalElements.find(key);
-			return m_originalElements.cend() != originalIter ? ToResult(*originalIter) : nullptr;
+			return m_originalElements.cend() != originalIter ? FindConstIterator(std::move(originalIter)) : FindConstIterator();
+		}
+
+		void markFoundElement(const KeyType& key, MutableTypeTag) {
+			markKey(key);
+		}
+
+		void markFoundElement(const KeyType&, ImmutableTypeTag) {
+			// find can never modify an immutable element
 		}
 
 	public:
@@ -185,7 +205,7 @@ namespace catapult { namespace deltaset {
 		/// Inserts \a element into this set.
 		/// \note The algorithm relies on the data used for comparing elements being immutable.
 		InsertResult insert(const ElementType& element) {
-			return insert(element, typename TElementTraits::MutabilityTag());
+			return insert(element, ElementMutabilityTag());
 		}
 
 		/// Creates an element around the passed arguments (\a args) and inserts the element into this set.
@@ -202,6 +222,7 @@ namespace catapult { namespace deltaset {
 			if (m_removedElements.cend() != removedIter) {
 				// since the element is in the set of removed elements, it must be an original element
 				// and cannot be in the set of added elements
+				markKey(key);
 				m_removedElements.erase(removedIter);
 
 				// since the element is mutable, it could have been modified, so add it to the copied elements
@@ -222,6 +243,7 @@ namespace catapult { namespace deltaset {
 
 			// copy the storage before erasing in case element is sourced from the same container being updated
 			auto storage = TSetTraits::ToStorage(element);
+			markKey(key);
 			pTargetElements->erase(key);
 			pTargetElements->insert(std::move(storage));
 			return insertResult;
@@ -233,6 +255,7 @@ namespace catapult { namespace deltaset {
 			if (m_removedElements.cend() != removedIter) {
 				// since the element is in the set of removed elements, it must be an original element
 				// and cannot be in the set of added elements
+				clearKey(key);
 				m_removedElements.erase(removedIter);
 				return InsertResult::Unremoved;
 			}
@@ -240,6 +263,7 @@ namespace catapult { namespace deltaset {
 			if (contains(m_originalElements, key) || contains(m_addedElements, key))
 				return InsertResult::Redundant;
 
+			markKey(key);
 			m_addedElements.insert(TSetTraits::ToStorage(element));
 			return InsertResult::Inserted;
 		}
@@ -250,13 +274,14 @@ namespace catapult { namespace deltaset {
 			if (contains(m_removedElements, key))
 				return RemoveResult::Redundant;
 
-			return remove(key, typename TElementTraits::MutabilityTag());
+			return remove(key, ElementMutabilityTag());
 		}
 
 	private:
 		RemoveResult remove(const KeyType& key, MutableTypeTag) {
 			auto copiedIter = m_copiedElements.find(key);
 			if (m_copiedElements.cend() != copiedIter) {
+				markKey(key);
 				m_removedElements.insert(*copiedIter);
 				m_copiedElements.erase(copiedIter);
 				return RemoveResult::Unmodified_And_Removed;
@@ -268,13 +293,15 @@ namespace catapult { namespace deltaset {
 		RemoveResult remove(const KeyType& key, ImmutableTypeTag) {
 			auto addedIter = m_addedElements.find(key);
 			if (m_addedElements.cend() != addedIter) {
+				clearKey(key);
 				m_addedElements.erase(addedIter);
 				return RemoveResult::Uninserted;
 			}
 
 			auto originalIter = m_originalElements.find(key);
 			if (m_originalElements.cend() != originalIter) {
-				m_removedElements.insert(*originalIter);
+				markKey(key);
+				m_removedElements.insert(TSetTraits::ToStorage(key, std::move(originalIter)));
 				return RemoveResult::Removed;
 			}
 
@@ -292,13 +319,59 @@ namespace catapult { namespace deltaset {
 			m_addedElements.clear();
 			m_removedElements.clear();
 			m_copiedElements.clear();
+
+			m_generationId = 1;
+			m_keyGenerationIdMap.clear();
 		}
+
+	public:
+		/// Gets the current generation id.
+		uint32_t generationId() const {
+			return m_generationId;
+		}
+
+		/// Gets the generation id associated with \a key.
+		uint32_t generationId(const KeyType& key) const {
+			auto iter = m_keyGenerationIdMap.find(key);
+			return m_keyGenerationIdMap.cend() == iter ? 0 : iter->second;
+		}
+
+		/// Increments the generation id.
+		void incrementGenerationId() {
+			++m_generationId;
+		}
+
+	private:
+		void markKey(const KeyType& key) {
+			// latest generation id should always be stored
+			m_keyGenerationIdMap[key] = m_generationId;
+		}
+
+		void clearKey(const KeyType& key) {
+			m_keyGenerationIdMap.erase(key);
+		}
+
+	private:
+		// for sorted containers, use map because no hasher is specified
+		template<typename T, typename = void>
+		struct KeyGenerationIdMap {
+			using type = std::map<KeyType, uint32_t, typename T::key_compare>;
+		};
+
+		// for hashed containers, use unordered_map because hasher is specified
+		template<typename T>
+		struct KeyGenerationIdMap<T, typename utils::traits::enable_if_type<typename T::hasher>::type> {
+			using type = std::unordered_map<KeyType, uint32_t, typename T::hasher, typename T::key_equal>;
+		};
 
 	private:
 		const SetType& m_originalElements;
 		MemorySetType m_addedElements;
 		MemorySetType m_removedElements;
 		MemorySetType m_copiedElements;
+
+		uint32_t m_generationId;
+		typename KeyGenerationIdMap<SetType>::type m_keyGenerationIdMap;
 
 	private:
 		template<typename TElementTraits2, typename TSetTraits2>

@@ -91,7 +91,7 @@ namespace catapult { namespace tree {
 		return m_path;
 	}
 
-	size_t BranchTreeNode::numLinks() const{
+	size_t BranchTreeNode::numLinks() const {
 		return m_linkSet.count();
 	}
 
@@ -100,7 +100,13 @@ namespace catapult { namespace tree {
 	}
 
 	const Hash256& BranchTreeNode::link(size_t index) const {
-		return m_links[index];
+		const auto& pLinkedNode = m_linkedNodes[index];
+		return pLinkedNode ? pLinkedNode->hash() : m_links[index];
+	}
+
+	std::unique_ptr<const TreeNode> BranchTreeNode::linkedNode(size_t index) const {
+		const auto& pLinkedNode = m_linkedNodes[index];
+		return pLinkedNode ? std::make_unique<TreeNode>(pLinkedNode->copy()) : nullptr;
 	}
 
 	uint8_t BranchTreeNode::highestLinkIndex() const {
@@ -111,7 +117,9 @@ namespace catapult { namespace tree {
 		if (m_isDirty) {
 			crypto::Sha3_256_Builder builder;
 			builder.update(EncodeKey(m_path, false));
-			builder.update({ m_links[0].data(), m_links.size() * sizeof(Hash256) });
+			for (auto i = 0u; i < Max_Links; ++i)
+				builder.update({ link(i).data(), sizeof(Hash256) });
+
 			builder.final(m_hash);
 			m_isDirty = false;
 		}
@@ -126,13 +134,35 @@ namespace catapult { namespace tree {
 
 	void BranchTreeNode::setLink(const Hash256& link, size_t index) {
 		m_links[index] = link;
-		m_linkSet.set(index);
-		m_isDirty = true;
+		m_linkedNodes[index].reset();
+		setLink(index);
+	}
+
+	void BranchTreeNode::setLink(const TreeNode& node, size_t index) {
+		// m_links does not need to be explicitly cleared because m_linkedNodes takes precedence
+		m_linkedNodes[index] = std::make_shared<const TreeNode>(node.copy());
+		setLink(index);
 	}
 
 	void BranchTreeNode::clearLink(size_t index) {
 		setLink(Hash256(), index);
 		m_linkSet.reset(index);
+	}
+
+	void BranchTreeNode::compactLinks() {
+		for (auto i = 0u; i < Max_Links; ++i) {
+			auto& pLinkedNode = m_linkedNodes[i];
+			if (!pLinkedNode)
+				continue;
+
+			m_links[i] = pLinkedNode->hash();
+			pLinkedNode.reset();
+		}
+	}
+
+	void BranchTreeNode::setLink(size_t index) {
+		m_linkSet.set(index);
+		m_isDirty = true;
 	}
 
 	// endregion

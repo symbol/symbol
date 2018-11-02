@@ -32,8 +32,11 @@ namespace catapult {
 
 	/// XEM mosaic id.
 #ifdef SIGNATURE_SCHEME_NIS1
-	constexpr MosaicId Xem_Id = MosaicId(0x493B6D561C49F4B8ULL);
+	constexpr auto Xem_Id = MosaicId(0x493B6D561C49F4B8ULL);
 #else
-	constexpr MosaicId Xem_Id = MosaicId(0xD525AD41D95FCF29ULL);
+	constexpr auto Xem_Id = MosaicId(0xD525AD41D95FCF29ULL);
 #endif
+
+	/// Unresolved XEM mosaic id.
+	constexpr auto Unresolved_Xem_Id = UnresolvedMosaicId(Xem_Id.unwrap());
 }

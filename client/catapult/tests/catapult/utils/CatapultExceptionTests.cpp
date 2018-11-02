@@ -81,8 +81,7 @@ namespace catapult {
 			// Arrange:
 			std::vector<std::string> expectedDiagLines{
 				"Throw in function " + expected.FunctionName,
-				"Dynamic exception type: " CLASSPREFIX "boost::exception_detail::clone_impl<"
-					+ std::string(TTraits::Exception_Fqn) + " >",
+				"Dynamic exception type: " CLASSPREFIX "boost::exception_detail::clone_impl<" + std::string(TTraits::Exception_Fqn) + " >",
 				"std::exception::what: " + expected.What
 			};
 
@@ -111,28 +110,24 @@ namespace catapult {
 	namespace {
 		struct RuntimeErrorTraits {
 			using ExceptionType = catapult_runtime_error;
-			static constexpr auto Exception_Fqn =
-					CLASSPREFIX "catapult::catapult_error<" CLASSPREFIX "std::runtime_error>";
+			static constexpr auto Exception_Fqn = CLASSPREFIX "catapult::catapult_error<" CLASSPREFIX "std::runtime_error>";
 		};
 
 		struct InvalidArgumentTraits {
 			using ExceptionType = catapult_invalid_argument;
-			static constexpr auto Exception_Fqn =
-					CLASSPREFIX "catapult::catapult_error<" CLASSPREFIX "std::invalid_argument>";
+			static constexpr auto Exception_Fqn = CLASSPREFIX "catapult::catapult_error<" CLASSPREFIX "std::invalid_argument>";
 		};
 
 		struct OutOfRangeTraits {
 			using ExceptionType = catapult_out_of_range;
-			static constexpr auto Exception_Fqn =
-					CLASSPREFIX "catapult::catapult_error<" CLASSPREFIX "std::out_of_range>";
+			static constexpr auto Exception_Fqn = CLASSPREFIX "catapult::catapult_error<" CLASSPREFIX "std::out_of_range>";
 		};
 
 		struct FileIoErrorTraits {
 			using ExceptionType = catapult_file_io_error;
 			using BaseExceptionType = catapult_runtime_error;
 			static constexpr auto Exception_Fqn =
-					CLASSPREFIX "catapult::catapult_error<" CLASSPREFIX "catapult::catapult_error<"
-					CLASSPREFIX "std::runtime_error> >";
+				CLASSPREFIX "catapult::catapult_error<" CLASSPREFIX "catapult::catapult_error<" CLASSPREFIX "std::runtime_error> >";
 		};
 	}
 
@@ -196,7 +191,7 @@ namespace catapult {
 		}
 	}
 
-	EXCEPTION_TRAITS_BASED_TEST(CanThrowExceptionWithCustomMessageAndCustomInformation) {
+	EXCEPTION_TRAITS_BASED_TEST(CanThrowExceptionWithCustomMessageAndCustomPodPayloads) {
 		try {
 			// Act:
 			CATAPULT_THROW_EXCEPTION(CreateExceptionWithCustomMessageAndInfo<typename TTraits::ExceptionType>());
@@ -231,6 +226,41 @@ namespace catapult {
 		} catch (const typename TTraits::ExceptionType& ex) {
 			// Assert:
 			auto expected = CreateExpectedDiagnosticsForExceptionWithCustomMessageAndInfo<TTraits>();
+			expected.FunctionName = BOOST_CURRENT_FUNCTION;
+			AssertExceptionInformation(ex, expected);
+		}
+	}
+
+	// endregion
+
+	// region basic exception copy by value tests
+
+	EXCEPTION_TRAITS_BASED_TEST(CanThrowExceptionWithCustomMessageAndCustomStringPayload) {
+		try {
+			// Act:
+			auto customInfo = exception_detail::Make<ErrorParam1>::From(std::string("string info"));
+			CATAPULT_THROW_EXCEPTION(typename TTraits::ExceptionType("custom error message") << customInfo);
+		} catch (const typename TTraits::ExceptionType& ex) {
+			// Assert:
+			ExpectedDiagnostics<TTraits> expected;
+			expected.What = "custom error message";
+			expected.TagPairs.push_back(std::make_pair("catapult::ErrorParam1", "string info"));
+			expected.FunctionName = BOOST_CURRENT_FUNCTION;
+			AssertExceptionInformation(ex, expected);
+		}
+	}
+
+	EXCEPTION_TRAITS_BASED_TEST(CanThrowExceptionWithCustomMessageAndCustomHexFormattedPayload) {
+		try {
+			// Act:
+			std::vector<uint8_t> buffer{ 0x68, 0x65, 0x6C, 0x6C, 0x6F };
+			auto customInfo = exception_detail::Make<ErrorParam1>::From(utils::HexFormat(buffer));
+			CATAPULT_THROW_EXCEPTION(typename TTraits::ExceptionType("custom error message") << customInfo);
+		} catch (const typename TTraits::ExceptionType& ex) {
+			// Assert:
+			ExpectedDiagnostics<TTraits> expected;
+			expected.What = "custom error message";
+			expected.TagPairs.push_back(std::make_pair("catapult::ErrorParam1", "68656C6C6F"));
 			expected.FunctionName = BOOST_CURRENT_FUNCTION;
 			AssertExceptionInformation(ex, expected);
 		}
@@ -361,7 +391,7 @@ namespace catapult {
 				// Act: throw an exception
 				CATAPULT_THROW_EXCEPTION(catapult_runtime_error("original") << custom_info1(12));
 			} catch (const catapult_runtime_error& ex) {
-				// - make a copy, add additional info, and rethrow
+				// - make a copy, add additional info, rethrow
 				catapult_file_io_error ex2(ex);
 				ex2 << custom_info2(45);
 				CATAPULT_THROW_EXCEPTION(ex2);
@@ -406,16 +436,51 @@ namespace catapult {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TAG_TRAITS_BASED_TEST(ConvertToValueSupports) {
+		// Act + Assert:
 		EXPECT_EQ(123, exception_detail::ConvertToValue(typename TTraits::template Type<int>(123)));
 		EXPECT_EQ(8u, exception_detail::ConvertToValue(typename TTraits::template Type<unsigned int>(8)));
 		EXPECT_EQ('h', exception_detail::ConvertToValue(typename TTraits::template Type<char>('h')));
 	}
 
 	TAG_TRAITS_BASED_TEST(CanMakeErrorInfoFrom) {
+		// Arrange:
 		using MakeCustomTestTag1 = exception_detail::Make<CustomTestTag1>;
+
+		// Act + Assert:
 		EXPECT_EQ(123, MakeCustomTestTag1::From(typename TTraits::template Type<int>(123)).value());
 		EXPECT_EQ(8u, MakeCustomTestTag1::From(typename TTraits::template Type<unsigned int>(8)).value());
 		EXPECT_EQ('h', MakeCustomTestTag1::From(typename TTraits::template Type<char>('h')).value());
+	}
+
+	TEST(TEST_CLASS, CanMakeErrorInfoFrom_String) {
+		// Arrange:
+		using MakeCustomTestTag1 = exception_detail::Make<CustomTestTag1>;
+		using ErrorInfoType = decltype(MakeCustomTestTag1::From(std::string()));
+
+		// Act: force payload to go out of scope
+		std::unique_ptr<ErrorInfoType> pErrorInfo;
+		{
+			pErrorInfo = std::make_unique<ErrorInfoType>(MakeCustomTestTag1::From(std::string("a string")));
+		}
+
+		// Assert: error info has valid string even though original data has been destroyed
+		EXPECT_EQ("a string", pErrorInfo->value());
+	}
+
+	TEST(TEST_CLASS, CanMakeErrorInfoFrom_HexContainer) {
+		// Arrange:
+		using MakeCustomTestTag1 = exception_detail::Make<CustomTestTag1>;
+		using ErrorInfoType = decltype(MakeCustomTestTag1::From(std::string()));
+
+		// Act: force payload to go out of scope
+		std::unique_ptr<ErrorInfoType> pErrorInfo;
+		{
+			std::vector<uint8_t> buffer{ 0xA4, 0xB5, 0x8C, 0x9A, 0xED };
+			pErrorInfo = std::make_unique<ErrorInfoType>(MakeCustomTestTag1::From(utils::HexFormat(buffer)));
+		}
+
+		// Assert: error info has valid string even though original data has been destroyed
+		EXPECT_EQ("A4B58C9AED", pErrorInfo->value());
 	}
 
 	// endregion

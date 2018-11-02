@@ -31,7 +31,8 @@ namespace catapult { namespace validators {
 				const auto& notification,
 				const ValidatorContext& context) {
 			const auto& cache = context.Cache.sub<cache::NamespaceCache>();
-			const auto& parentEntry = cache.get(notification.ParentId);
+			auto namespaceIter = cache.find(notification.ParentId);
+			const auto& parentEntry = namespaceIter.get();
 			return maxChildren <= parentEntry.root().size() ? Failure_Namespace_Max_Children_Exceeded : ValidationResult::Success;
 		}));
 	}

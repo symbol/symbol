@@ -29,6 +29,8 @@ namespace catapult { namespace extensions {
 
 #define TEST_CLASS NodeSelectorTests
 
+	// region test utils
+
 	namespace {
 		constexpr auto Default_Service_Id = ionet::ServiceIdentifier(7);
 
@@ -70,6 +72,12 @@ namespace catapult { namespace extensions {
 				modifier.provisionConnectionState(Default_Service_Id, node.identityKey()).Age = age;
 		}
 
+		void SetBanAge(ionet::NodeContainer& container, const std::vector<ionet::Node>& nodes, uint32_t age) {
+			auto modifier = container.modifier();
+			for (const auto& node : nodes)
+				modifier.provisionConnectionState(Default_Service_Id, node.identityKey()).BanAge = age;
+		}
+
 		NodeSelectionConfiguration CreateConfiguration(uint32_t maxConnections, uint32_t maxConnectionAge) {
 			return { Default_Service_Id, ionet::NodeRoles::Peer, maxConnections, maxConnectionAge };
 		}
@@ -92,6 +100,8 @@ namespace catapult { namespace extensions {
 			AssertSubset(test::ExtractNodeIdentities(set), subset);
 		}
 	}
+
+	// endregion
 
 	// region CalculateWeight
 
@@ -204,7 +214,7 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region probability test
+	// region SelectCandidatesBasedOnWeight + SelectNodes: probability test
 
 	namespace {
 		struct SelectCandidatesBasedOnWeightTraits {
@@ -299,7 +309,7 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region SelectNodes: no candidates in container
+	// region SelectNodes: no matching candidates in container
 
 	TEST(TEST_CLASS, NoAddCandidatesWhenContainerIsEmpty) {
 		// Arrange:
@@ -386,6 +396,33 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, NoRemoveCandidatesWhenContainerHasOnlyLocalMatchingServiceNodes) {
 		// Assert: this is a contrived example because nodes with Local source should never be active
 		AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyLocalMatchingServiceNodes(10, 8);
+	}
+
+	namespace {
+		void AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes(uint32_t age, uint32_t maxAge) {
+			// Arrange: seed the container with banned nodes
+			ionet::NodeContainer container;
+			auto nodes = SeedNodes(container, 10, ionet::NodeSource::Dynamic);
+			SetAge(container, nodes, age);
+			SetBanAge(container, nodes, 1);
+
+			// Act:
+			auto result = SelectNodes(container, { Default_Service_Id, ionet::NodeRoles::Peer, 5, maxAge });
+
+			// Assert:
+			EXPECT_TRUE(result.AddCandidates.empty());
+			EXPECT_TRUE(result.RemoveCandidates.empty());
+		}
+	}
+
+	TEST(TEST_CLASS, NoAddCandidatesWhenContainerHasOnlyBannedDynamicNodes) {
+		// Assert:
+		AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes(0, 8);
+	}
+
+	TEST(TEST_CLASS, NoRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes) {
+		// Assert:
+		AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes(10, 8);
 	}
 
 	// endregion
@@ -572,7 +609,7 @@ namespace catapult { namespace extensions {
 
 		// Assert:
 		RunNonDeterministicPairwiseSelectionTest(nodeInfos, [](const auto& counts) {
-			return counts.first > counts.second && counts.first < 5 * counts.second;
+			return counts.second < counts.first && counts.first < 5 * counts.second;
 		});
 	}
 
@@ -587,6 +624,38 @@ namespace catapult { namespace extensions {
 		// Assert:
 		RunNonDeterministicPairwiseSelectionTest(nodeInfos, [](const auto& counts) {
 			return counts.first < counts.second;
+		});
+	}
+
+	TEST(TEST_CLASS, BannedStaticNodeHasLowerPriorityThanNonBannedStaticNode) {
+		// Arrange:
+		auto connectionState1 = ionet::ConnectionState();
+		connectionState1.BanAge = 0;
+		auto connectionState2 = ionet::ConnectionState();
+		connectionState2.BanAge = 1;
+		NodeInfos nodeInfos(connectionState1, connectionState2);
+		nodeInfos.Source1 = ionet::NodeSource::Static;
+		nodeInfos.Source2 = ionet::NodeSource::Static;
+
+		// Assert:
+		RunNonDeterministicPairwiseSelectionTest(nodeInfos, [](const auto& counts) {
+			return counts.second < counts.first && counts.first < 5 * counts.second;
+		});
+	}
+
+	TEST(TEST_CLASS, BannedDynamicNodeHasLowerPriorityThanNonBannedDynamicNode) {
+		// Arrange:
+		auto connectionState1 = ionet::ConnectionState();
+		connectionState1.BanAge = 0;
+		auto connectionState2 = ionet::ConnectionState();
+		connectionState2.BanAge = 1;
+		NodeInfos nodeInfos(connectionState1, connectionState2);
+		nodeInfos.Source1 = ionet::NodeSource::Dynamic;
+		nodeInfos.Source2 = ionet::NodeSource::Dynamic;
+
+		// Assert:
+		RunNonDeterministicPairwiseSelectionTest(nodeInfos, [](const auto& counts) {
+			return 0 == counts.second;
 		});
 	}
 
@@ -639,19 +708,24 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	TEST(TEST_CLASS, NoRemoveCandidatesWhenLessThanMaxConnectionsAreActiveAndNodesHaveMaxAge) {
-		// Assert: resulting active nodes (4 - 0) should be less than num connections (5)
-		AssertRemovalsButNoAdds(5, 4, 0);
+	TEST(TEST_CLASS, NoRemoveCandidatesWhenSingleConnectionIsActiveAndNodesHaveMaxAge) {
+		// Assert: last connection should never be removed
+		AssertRemovalsButNoAdds(5, 1, 0);
 	}
 
-	TEST(TEST_CLASS, NoRemoveCandidatesWhenMaxConnectionsAreActiveAndNodesHaveMaxAgeAndNoConnectionsAreInactive) {
-		// Assert: resulting active nodes (5 - 0) should equal num connections (5)
-		AssertRemovalsButNoAdds(5, 5, 0);
+	TEST(TEST_CLASS, SingleRemoveCandidateWhenLessThanMaxConnectionsAreActiveAndNodesHaveMaxAge) {
+		// Assert: single aged connection should be closed
+		AssertRemovalsButNoAdds(5, 4, 1);
+	}
+
+	TEST(TEST_CLASS, SingleRemoveCandidateWhenMaxConnectionsAreActiveAndNodesHaveMaxAgeAndNoConnectionsAreInactive) {
+		// Assert: single aged connection should be closed
+		AssertRemovalsButNoAdds(5, 5, 1);
 	}
 
 	TEST(TEST_CLASS, MultipleRemoveCandidatesWhenGreaterThanMaxConnectionsAreActiveAndNoConnectionsAreInactive) {
-		// Assert: resulting active nodes (8 - 3) should equal num connections (5)
-		AssertRemovalsButNoAdds(5, 8, 3);
+		// Assert: one more than additional aged connections over max should be closed
+		AssertRemovalsButNoAdds(5, 7, 3);
 	}
 
 	namespace {
@@ -687,7 +761,7 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region SelectNodesForRemoval
+	// region SelectNodesForRemoval: no matching candidates in container
 
 	namespace {
 		NodeAgingConfiguration CreateAgingConfiguration(uint32_t maxConnections, uint32_t maxConnectionAge) {
@@ -730,6 +804,20 @@ namespace catapult { namespace extensions {
 		EXPECT_TRUE(removeCandidates.empty());
 	}
 
+	TEST(TEST_CLASS, ForRemoval_NoCandidatesWhenContainerHasOnlyBannedDynamicNodes) {
+		// Arrange: seed the container with banned nodes
+		ionet::NodeContainer container;
+		auto nodes = SeedNodes(container, 10, ionet::NodeSource::Dynamic);
+		SetAge(container, nodes, 10);
+		SetBanAge(container, nodes, 1);
+
+		// Act:
+		auto removeCandidates = SelectNodesForRemoval(container, CreateAgingConfiguration(5, 8));
+
+		// Assert:
+		EXPECT_TRUE(removeCandidates.empty());
+	}
+
 	namespace {
 		void AssertRemoveOnlyNoRemovals(uint32_t maxConnections, uint32_t numActiveNodes, uint32_t numInactiveNodes) {
 			// Arrange: seed inactive nodes and active nodes with age 7 (max age is 8)
@@ -755,6 +843,10 @@ namespace catapult { namespace extensions {
 		AssertRemoveOnlyNoRemovals(5, 8, 2);
 	}
 
+	// endregion
+
+	// region SelectNodesForRemoval: removals
+
 	namespace {
 		void AssertRemoveOnlyRemovals(uint32_t maxConnections, uint32_t numActiveNodes, uint32_t numExpectedRemoveCandidates) {
 			// Arrange: seed only active nodes that all have at least max age
@@ -773,28 +865,33 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	TEST(TEST_CLASS, ForRemoval_NoRemoveCandidatesWhenLessThanMinimumConnectionsAreActive) {
-		// Assert: resulting active nodes (2 - 0) should be less than min connections (5 * 3 / 4 == 3)
-		AssertRemoveOnlyRemovals(5, 2, 0);
+	TEST(TEST_CLASS, ForRemoval_NoRemoveCandidatesWhenSingleConnectionIsActiveAndNodesHaveMaxAge) {
+		// Assert: last connection should never be removed
+		AssertRemoveOnlyRemovals(5, 1, 0);
 	}
 
-	TEST(TEST_CLASS, ForRemoval_NoRemoveCandidatesWhenMinimumConnectionsAreActive) {
-		// Assert: resulting active nodes (3 - 0) should equal min connections (5 * 3 / 4 == 3)
-		AssertRemoveOnlyRemovals(5, 3, 0);
+	TEST(TEST_CLASS, ForRemoval_SingleRemoveCandidatesWhenLessThanMinimumConnectionsAreActive) {
+		// Assert: single aged connection should be closed - min connections (5 * 3 / 4 == 3)
+		AssertRemoveOnlyRemovals(5, 2, 1);
+	}
+
+	TEST(TEST_CLASS, ForRemoval_SingleRemoveCandidatesWhenMinimumConnectionsAreActive) {
+		// Assert: single aged connection should be closed - min connections (5 * 3 / 4 == 3)
+		AssertRemoveOnlyRemovals(5, 3, 1);
 	}
 
 	TEST(TEST_CLASS, ForRemoval_MultipleRemoveCandidatesWhenMaxConnectionsAreActive) {
-		// Assert: resulting active nodes (5 - 2) should equal min connections (5 * 3 / 4 == 3)
-		AssertRemoveOnlyRemovals(5, 5, 2);
+		// Assert: one more than additional aged connections over max should be closed - min connections (5 * 3 / 4 == 3)
+		AssertRemoveOnlyRemovals(5, 5, 3);
 	}
 
 	TEST(TEST_CLASS, ForRemoval_MultipleRemoveCandidatesWhenGreaterThanMaxConnectionsAreActive) {
-		// Assert: resulting active nodes (8 - 5) should equal min connections (5 * 3 / 4 == 3)
-		AssertRemoveOnlyRemovals(5, 8, 5);
+		// Assert: one more than additional aged connections over max should be closed - min connections (5 * 3 / 4 == 3)
+		AssertRemoveOnlyRemovals(5, 8, 6);
 	}
 
 	TEST(TEST_CLASS, ForRemoval_NoRemoveCandidatesWhenMaxConnectionsIsOne) {
-		// Assert: resulting active nodes (1 - 0) should equal min connections (1)
+		// Assert: last connection should never be removed
 		AssertRemoveOnlyRemovals(1, 1, 0);
 	}
 

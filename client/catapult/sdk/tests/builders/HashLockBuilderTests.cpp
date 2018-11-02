@@ -29,10 +29,29 @@ namespace catapult { namespace builders {
 		using RegularTraits = test::RegularTransactionTraits<model::HashLockTransaction>;
 		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedHashLockTransaction>;
 
-		template<typename TTraits, typename TValidationFunction>
+		struct TransactionProperties {
+		public:
+			TransactionProperties() : Hash()
+			{}
+
+		public:
+			model::UnresolvedMosaic Mosaic;
+			BlockDuration Duration;
+			Hash256 Hash;
+		};
+
+		template<typename TTransaction>
+		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
+			EXPECT_EQ(expectedProperties.Mosaic.MosaicId, transaction.Mosaic.MosaicId);
+			EXPECT_EQ(expectedProperties.Mosaic.Amount, transaction.Mosaic.Amount);
+			EXPECT_EQ(expectedProperties.Duration, transaction.Duration);
+			EXPECT_EQ(expectedProperties.Hash, transaction.Hash);
+		}
+
+		template<typename TTraits>
 		void AssertCanBuildTransaction(
-				const consumer<HashLockBuilder&>& buildTransaction,
-				const TValidationFunction& validateTransaction) {
+				const TransactionProperties& expectedProperties,
+				const consumer<HashLockBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
@@ -48,16 +67,7 @@ namespace catapult { namespace builders {
 			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Hash_Lock, pTransaction->Type);
 
-			validateTransaction(*pTransaction);
-		}
-
-		auto CreatePropertyChecker(const model::Mosaic& mosaic, BlockDuration duration, const Hash256& hash) {
-			return [&mosaic, duration, &hash](const auto& transaction) {
-				EXPECT_EQ(mosaic.MosaicId, transaction.Mosaic.MosaicId);
-				EXPECT_EQ(mosaic.Amount, transaction.Mosaic.Amount);
-				EXPECT_EQ(duration, transaction.Duration);
-				EXPECT_EQ(hash, transaction.Hash);
-			};
+			AssertTransactionProperties(expectedProperties, *pTransaction);
 		}
 	}
 
@@ -71,9 +81,7 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanCreateTransactionWithDefaultValues) {
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				[](const auto&) {},
-				CreatePropertyChecker(model::Mosaic(), BlockDuration(0), Hash256()));
+		AssertCanBuildTransaction<TTraits>(TransactionProperties(), [](const auto&) {});
 	}
 
 	// endregion
@@ -82,35 +90,35 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanSetMosaic) {
 		// Arrange:
-		model::Mosaic mosaic{ MosaicId(123), Amount(234) };
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Mosaic = { UnresolvedMosaicId(123), Amount(234) };
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				[&mosaic](auto& builder) {
-					builder.setMosaic(mosaic.MosaicId, mosaic.Amount);
-				},
-				CreatePropertyChecker(mosaic, BlockDuration(0), Hash256()));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+			builder.setMosaic(UnresolvedMosaicId(123), Amount(234));
+		});
 	}
 
 	TRAITS_BASED_TEST(CanSetBlockDuration) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Duration = BlockDuration(123);
+
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				[](auto& builder) {
-					builder.setDuration(BlockDuration(123));
-				},
-				CreatePropertyChecker(model::Mosaic(), BlockDuration(123), Hash256()));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+			builder.setDuration(BlockDuration(123));
+		});
 	}
 
 	TRAITS_BASED_TEST(CanSetHash) {
 		// Arrange:
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto expectedProperties = TransactionProperties();
+		test::FillWithRandomData(expectedProperties.Hash);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				[&hash](auto& builder) {
-					builder.setHash(hash);
-				},
-				CreatePropertyChecker(model::Mosaic(), BlockDuration(0), hash));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [&hash = expectedProperties.Hash](auto& builder) {
+			builder.setHash(hash);
+		});
 	}
 
 	// endregion

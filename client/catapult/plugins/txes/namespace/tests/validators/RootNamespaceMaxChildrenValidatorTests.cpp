@@ -49,22 +49,17 @@ namespace catapult { namespace validators {
 
 				cache.commit(Height());
 			}
+
 			return cache;
 		}
 
 		void RunTest(ValidationResult expectedResult, const model::ChildNamespaceNotification& notification, uint16_t maxChildren) {
-			// Arrange: seed the cache
+			// Arrange:
 			auto cache = CreateAndSeedCache();
-
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
-
 			auto pValidator = CreateRootNamespaceMaxChildrenValidator(maxChildren);
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "maxChildren " << maxChildren;

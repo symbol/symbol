@@ -57,14 +57,22 @@ namespace catapult { namespace cache {
 		};
 
 		struct AccountStateCacheByAddressTraits {
-			static auto CreateElement(uint8_t tag) {
-				return Address({ { static_cast<uint8_t>(tag * tag) } });
+			static Address CreateKey(uint8_t tag) {
+				return { { static_cast<uint8_t>(tag * tag) } };
+			}
+
+			static Address GetKey(const state::AccountState& accountState) {
+				return accountState.Address;
 			}
 		};
 
 		struct AccountStateCacheByKeyTraits {
-			static auto CreateElement(uint8_t tag) {
-				return Key({ { static_cast<uint8_t>(tag * tag) } });
+			static Key CreateKey(uint8_t tag) {
+				return { { static_cast<uint8_t>(tag * tag) } };
+			}
+
+			static Key GetKey(const state::AccountState& accountState) {
+				return accountState.PublicKey;
 			}
 		};
 	}
@@ -80,9 +88,9 @@ namespace catapult { namespace cache {
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		{
 			auto cacheDelta = cache.createDelta();
-			cacheDelta->addAccount(TTraits::CreateElement(1), Height(123)); // committed
+			cacheDelta->addAccount(TTraits::CreateKey(1), Height(123)); // committed
 			cache.commit();
-			cacheDelta->addAccount(TTraits::CreateElement(2), Height(123)); // uncommitted
+			cacheDelta->addAccount(TTraits::CreateKey(2), Height(123)); // uncommitted
 		}
 
 		// Act:
@@ -91,38 +99,37 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		EXPECT_EQ(1u, readOnlyCache.size());
-		EXPECT_TRUE(readOnlyCache.contains(TTraits::CreateElement(1)));
-		EXPECT_FALSE(readOnlyCache.contains(TTraits::CreateElement(2)));
-		EXPECT_FALSE(readOnlyCache.contains(TTraits::CreateElement(3)));
+		EXPECT_TRUE(readOnlyCache.contains(TTraits::CreateKey(1)));
+		EXPECT_FALSE(readOnlyCache.contains(TTraits::CreateKey(2)));
+		EXPECT_FALSE(readOnlyCache.contains(TTraits::CreateKey(3)));
 	}
 
 	ACCOUNT_KEY_BASED_TEST(ReadOnlyDeltaContainsBothCommittedAndUncommittedElements) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto cacheDelta = cache.createDelta();
-		cacheDelta->addAccount(TTraits::CreateElement(1), Height(123)); // committed
+		cacheDelta->addAccount(TTraits::CreateKey(1), Height(123)); // committed
 		cache.commit();
-		cacheDelta->addAccount(TTraits::CreateElement(2), Height(123)); // uncommitted
+		cacheDelta->addAccount(TTraits::CreateKey(2), Height(123)); // uncommitted
 
 		// Act:
 		ReadOnlyAccountStateCache readOnlyCache(*cacheDelta);
 
 		// Assert:
 		EXPECT_EQ(2u, readOnlyCache.size());
-		EXPECT_TRUE(readOnlyCache.contains(TTraits::CreateElement(1)));
-		EXPECT_TRUE(readOnlyCache.contains(TTraits::CreateElement(2)));
-		EXPECT_FALSE(readOnlyCache.contains(TTraits::CreateElement(3)));
+		EXPECT_TRUE(readOnlyCache.contains(TTraits::CreateKey(1)));
+		EXPECT_TRUE(readOnlyCache.contains(TTraits::CreateKey(2)));
+		EXPECT_FALSE(readOnlyCache.contains(TTraits::CreateKey(3)));
 	}
 
 	ACCOUNT_KEY_BASED_TEST(ReadOnlyViewOnlyCanAccessCommittedElementsViaGet) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
-		const state::AccountState* pAccount1;
 		{
 			auto cacheDelta = cache.createDelta();
-			pAccount1 = &cacheDelta->addAccount(TTraits::CreateElement(1), Height(123)); // committed;
+			cacheDelta->addAccount(TTraits::CreateKey(1), Height(123)); // committed;
 			cache.commit();
-			cacheDelta->addAccount(TTraits::CreateElement(2), Height(123)); // uncommitted
+			cacheDelta->addAccount(TTraits::CreateKey(2), Height(123)); // uncommitted
 		}
 
 		// Act:
@@ -131,38 +138,37 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		EXPECT_EQ(1u, readOnlyCache.size());
-		EXPECT_EQ(pAccount1, &readOnlyCache.get(TTraits::CreateElement(1)));
-		EXPECT_THROW(readOnlyCache.get(TTraits::CreateElement(2)), catapult_invalid_argument);
-		EXPECT_THROW(readOnlyCache.get(TTraits::CreateElement(3)), catapult_invalid_argument);
+		EXPECT_EQ(TTraits::CreateKey(1), TTraits::GetKey(readOnlyCache.find(TTraits::CreateKey(1)).get()));
+		EXPECT_THROW(readOnlyCache.find(TTraits::CreateKey(2)).get(), catapult_invalid_argument);
+		EXPECT_THROW(readOnlyCache.find(TTraits::CreateKey(3)).get(), catapult_invalid_argument);
 	}
 
 	ACCOUNT_KEY_BASED_TEST(ReadOnlyDeltaCanAccessBothCommittedAndUncommittedElementsViaGet) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto cacheDelta = cache.createDelta();
-		const auto& account1 = cacheDelta->addAccount(TTraits::CreateElement(1), Height(123)); // committed
+		cacheDelta->addAccount(TTraits::CreateKey(1), Height(123)); // committed
 		cache.commit();
-		const auto& account2 = cacheDelta->addAccount(TTraits::CreateElement(2), Height(123)); // uncommitted
+		cacheDelta->addAccount(TTraits::CreateKey(2), Height(123)); // uncommitted
 
 		// Act:
 		ReadOnlyAccountStateCache readOnlyCache(*cacheDelta);
 
 		// Assert:
 		EXPECT_EQ(2u, readOnlyCache.size());
-		EXPECT_EQ(&account1, &readOnlyCache.get(TTraits::CreateElement(1)));
-		EXPECT_EQ(&account2, &readOnlyCache.get(TTraits::CreateElement(2)));
-		EXPECT_THROW(readOnlyCache.get(TTraits::CreateElement(3)), catapult_invalid_argument);
+		EXPECT_EQ(TTraits::CreateKey(1), TTraits::GetKey(readOnlyCache.find(TTraits::CreateKey(1)).get()));
+		EXPECT_EQ(TTraits::CreateKey(2), TTraits::GetKey(readOnlyCache.find(TTraits::CreateKey(2)).get()));
+		EXPECT_THROW(readOnlyCache.find(TTraits::CreateKey(3)).get(), catapult_invalid_argument);
 	}
 
 	ACCOUNT_KEY_BASED_TEST(ReadOnlyViewOnlyCanAccessCommittedElementsViaTryGet) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
-		const state::AccountState* pAccount1;
 		{
 			auto cacheDelta = cache.createDelta();
-			pAccount1 = &cacheDelta->addAccount(TTraits::CreateElement(1), Height(123)); // committed;
+			cacheDelta->addAccount(TTraits::CreateKey(1), Height(123)); // committed;
 			cache.commit();
-			cacheDelta->addAccount(TTraits::CreateElement(2), Height(123)); // uncommitted
+			cacheDelta->addAccount(TTraits::CreateKey(2), Height(123)); // uncommitted
 		}
 
 		// Act:
@@ -171,26 +177,26 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		EXPECT_EQ(1u, readOnlyCache.size());
-		EXPECT_EQ(pAccount1, readOnlyCache.tryGet(TTraits::CreateElement(1)));
-		EXPECT_FALSE(!!readOnlyCache.tryGet(TTraits::CreateElement(2)));
-		EXPECT_FALSE(!!readOnlyCache.tryGet(TTraits::CreateElement(3)));
+		EXPECT_EQ(TTraits::CreateKey(1), TTraits::GetKey(*readOnlyCache.find(TTraits::CreateKey(1)).tryGet()));
+		EXPECT_FALSE(!!readOnlyCache.find(TTraits::CreateKey(2)).tryGet());
+		EXPECT_FALSE(!!readOnlyCache.find(TTraits::CreateKey(3)).tryGet());
 	}
 
 	ACCOUNT_KEY_BASED_TEST(ReadOnlyDeltaCanAccessBothCommittedAndUncommittedElementsViaTryGet) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto cacheDelta = cache.createDelta();
-		const auto& account1 = cacheDelta->addAccount(TTraits::CreateElement(1), Height(123)); // committed
+		cacheDelta->addAccount(TTraits::CreateKey(1), Height(123)); // committed
 		cache.commit();
-		const auto& account2 = cacheDelta->addAccount(TTraits::CreateElement(2), Height(123)); // uncommitted
+		cacheDelta->addAccount(TTraits::CreateKey(2), Height(123)); // uncommitted
 
 		// Act:
 		ReadOnlyAccountStateCache readOnlyCache(*cacheDelta);
 
 		// Assert:
 		EXPECT_EQ(2u, readOnlyCache.size());
-		EXPECT_EQ(&account1, readOnlyCache.tryGet(TTraits::CreateElement(1)));
-		EXPECT_EQ(&account2, readOnlyCache.tryGet(TTraits::CreateElement(2)));
-		EXPECT_FALSE(!!readOnlyCache.tryGet(TTraits::CreateElement(3)));
+		EXPECT_EQ(TTraits::CreateKey(1), TTraits::GetKey(*readOnlyCache.find(TTraits::CreateKey(1)).tryGet()));
+		EXPECT_EQ(TTraits::CreateKey(2), TTraits::GetKey(*readOnlyCache.find(TTraits::CreateKey(2)).tryGet()));
+		EXPECT_FALSE(!!readOnlyCache.find(TTraits::CreateKey(3)).tryGet());
 	}
 }}

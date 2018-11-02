@@ -20,6 +20,7 @@
 
 #pragma once
 #include "CacheMixins.h"
+#include "PatriciaTreeCacheMixins.h"
 #include "catapult/deltaset/DeltaElementsMixin.h"
 
 namespace catapult { namespace cache {
@@ -44,5 +45,12 @@ namespace catapult { namespace cache {
 		using BasicInsertRemove = BasicInsertRemoveMixin<TSet, TCacheDescriptor>;
 
 		using DeltaElements = deltaset::DeltaElementsMixin<TSet>;
+	};
+
+	/// Grouping of all basic and patricia tree cache mixins for a single set.
+	template<typename TSet, typename TCacheDescriptor>
+	struct PatriciaTreeCacheMixins : public BasicCacheMixins<TSet, TCacheDescriptor> {
+		using PatriciaTreeView = PatriciaTreeMixin<typename TCacheDescriptor::PatriciaTree>;
+		using PatriciaTreeDelta = PatriciaTreeDeltaMixin<TSet, typename TCacheDescriptor::PatriciaTree::DeltaType>;
 	};
 }}

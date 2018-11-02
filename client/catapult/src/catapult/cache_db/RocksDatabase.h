@@ -19,6 +19,8 @@
 **/
 
 #pragma once
+#include "RocksPruningFilter.h"
+#include "catapult/utils/FileSize.h"
 #include "catapult/types.h"
 #include <memory>
 #include <string>
@@ -29,6 +31,7 @@ namespace rocksdb {
 	class DB;
 	class PinnableSlice;
 	class Slice;
+	class WriteBatch;
 }
 
 namespace catapult { namespace cache {
@@ -47,8 +50,12 @@ namespace catapult { namespace cache {
 		/// Destroys an iterator.
 		~RdbDataIterator();
 
-		/// Copy constructor.
-		RdbDataIterator(const RdbDataIterator&);
+	public:
+		/// Move constructor.
+		RdbDataIterator(RdbDataIterator&&);
+
+		/// Move assignment operator.
+		RdbDataIterator& operator=(RdbDataIterator&&);
 
 	public:
 		/// Iterator representing no match.
@@ -77,14 +84,52 @@ namespace catapult { namespace cache {
 		bool m_isFound;
 	};
 
+	/// RocksDb settings.
+	struct RocksDatabaseSettings {
+	public:
+		/// Creates default database settings.
+		RocksDatabaseSettings();
+
+		/// Creates database settings around \a databaseDirectory, column names (\a columnFamilyNames),
+		/// maximum size of saved batch (\a maxDatabaseWriteBatchSize) and \a pruningMode.
+		RocksDatabaseSettings(
+				const std::string& databaseDirectory,
+				const std::vector<std::string>& columnFamilyNames,
+				utils::FileSize maxDatabaseWriteBatchSize,
+				FilterPruningMode pruningMode);
+
+	public:
+		/// Database directory.
+		const std::string DatabaseDirectory;
+
+		/// Names of database columns.
+		const std::vector<std::string> ColumnFamilyNames;
+
+		/// Maximum size of database write batch.
+		const utils::FileSize MaxDatabaseWriteBatchSize;
+
+		/// Database pruning mode.
+		const FilterPruningMode PruningMode;
+	};
+
 	/// RocksDb-backed database.
 	class RocksDatabase {
 	public:
-		/// Creates database in \a dbDir with 'default' column and additional columns (\a columnFamilyNames).
-		RocksDatabase(const std::string& dbDir, const std::vector<std::string>& columnFamilyNames);
+		/// Creates an empty database.
+		RocksDatabase();
+
+		/// Creates database around \a settings.
+		explicit RocksDatabase(const RocksDatabaseSettings& settings);
 
 		/// Destroys database.
 		~RocksDatabase();
+
+	public:
+		/// Gets the database column family names.
+		const std::vector<std::string>& columnFamilyNames() const;
+
+		/// Returns \c true if pruning is enabled.
+		bool canPrune() const;
 
 	public:
 		/// Gets \a key from \a columnId returning data in \a result.
@@ -96,9 +141,21 @@ namespace catapult { namespace cache {
 		/// Deletes \a key from \a columnId.
 		void del(size_t columnId, const rocksdb::Slice& key);
 
+		/// Prunes elements from \a columnId below \a boundary. Returns number of pruned elements.
+		size_t prune(size_t columnId, uint64_t boundary);
+
+		/// Finalize batched operations.
+		void flush();
+
 	private:
-		std::string m_dbDir;
-		std::shared_ptr<rocksdb::DB> m_pDb;
+		void saveIfBatchFull();
+
+	private:
+		const RocksDatabaseSettings m_settings;
+		RocksPruningFilter m_pruningFilter;
+		std::unique_ptr<rocksdb::WriteBatch> m_pWriteBatch;
+
+		std::unique_ptr<rocksdb::DB> m_pDb;
 		std::vector<rocksdb::ColumnFamilyHandle*> m_handles;
 	};
 }}

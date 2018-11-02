@@ -43,21 +43,20 @@ namespace catapult { namespace sync {
 			return test::CreateEmptyCatapultCache(blockChainConfiguration);
 		}
 
-		const state::AccountState& AddAccount(cache::AccountStateCacheDelta& delta, Importance importance) {
-			auto& accountState = delta.addAccount(test::GenerateRandomData<Key_Size>(), Height(1));
+		Key AddAccount(cache::AccountStateCacheDelta& delta, Importance importance) {
+			auto publicKey = test::GenerateRandomData<Key_Size>();
+			delta.addAccount(publicKey, Height(1));
+			auto& accountState = delta.find(publicKey).get();
 			accountState.ImportanceInfo.set(importance, model::ImportanceHeight(1));
-			return accountState;
+			return publicKey;
 		}
 
-		std::vector<const state::AccountState*> SeedAccountStateCache(
-				cache::AccountStateCacheDelta& delta,
-				size_t count,
-				Importance importance) {
-			std::vector<const state::AccountState*> accountStates;
+		std::vector<Key> SeedAccountStateCache(cache::AccountStateCacheDelta& delta, size_t count, Importance importance) {
+			std::vector<Key> publicKeys;
 			for (auto i = 0u; i < count; ++i)
-				accountStates.push_back(&AddAccount(delta, importance));
+				publicKeys.push_back(AddAccount(delta, importance));
 
-			return accountStates;
+			return publicKeys;
 		}
 
 		model::TransactionInfo CreateTransactionInfo(const Key& signer, Amount fee = Amount()) {
@@ -88,9 +87,9 @@ namespace catapult { namespace sync {
 				return { source, m_height, m_readOnlyCatapultCache, m_transactionsCacheModifier };
 			}
 
-			void addTransactions(const std::vector<const state::AccountState*>& accountStates) {
-				for (const auto* pAccountState : accountStates)
-					m_transactionsCacheModifier.add(CreateTransactionInfo(pAccountState->PublicKey));
+			void addTransactions(const std::vector<Key>& publicKeys) {
+				for (const auto& publicKey : publicKeys)
+					m_transactionsCacheModifier.add(CreateTransactionInfo(publicKey));
 			}
 
 		private:
@@ -170,18 +169,18 @@ namespace catapult { namespace sync {
 		void AssertThrottling(const ThrottleTestSettings& settings, bool expectedResult) {
 			// Arrange: prepare account state cache
 			auto catapultCache = CreateCatapultCacheWithImportanceGrouping(100);
-			std::vector<const state::AccountState*> accountStates;
-			const state::AccountState* pAccountState;
+			std::vector<Key> publicKeys;
+			Key signerPublicKey;
 			{
 				auto delta = catapultCache.createDelta();
 				auto& accountStateCacheDelta = delta.sub<cache::AccountStateCache>();
-				accountStates = SeedAccountStateCache(accountStateCacheDelta, settings.CacheSize, settings.DefaultImportance);
-				pAccountState = &AddAccount(accountStateCacheDelta, settings.SignerImportance);
+				publicKeys = SeedAccountStateCache(accountStateCacheDelta, settings.CacheSize, settings.DefaultImportance);
+				signerPublicKey = AddAccount(accountStateCacheDelta, settings.SignerImportance);
 				catapultCache.commit(Height(1));
 			}
 
 			TestContext context(std::move(catapultCache), Height(1));
-			context.addTransactions(accountStates);
+			context.addTransactions(publicKeys);
 
 			// Sanity:
 			EXPECT_EQ(settings.CacheSize, context.transactionsCacheModifier().size());
@@ -192,7 +191,7 @@ namespace catapult { namespace sync {
 				return TransactionBondPolicy::Bonded == bondPolicy;
 			};
 			auto throttleContext = context.throttleContext(settings.Source);
-			auto transactionInfo = CreateTransactionInfo(pAccountState->PublicKey, settings.Fee);
+			auto transactionInfo = CreateTransactionInfo(signerPublicKey, settings.Fee);
 			auto filter = CreateTransactionSpamThrottle(settings.ThrottleConfig, isBonded);
 
 			// Act:
@@ -278,11 +277,11 @@ namespace catapult { namespace sync {
 			// Arrange:
 			auto config = settings.ThrottleConfig;
 			auto catapultCache = CreateCatapultCacheWithImportanceGrouping(100);
-			std::vector<const state::AccountState*> accountStates;
+			std::vector<Key> publicKeys;
 			{
 				auto delta = catapultCache.createDelta();
 				auto& accountStateCacheDelta = delta.sub<cache::AccountStateCache>();
-				accountStates = SeedAccountStateCache(accountStateCacheDelta, config.MaxCacheSize, settings.SignerImportance);
+				publicKeys = SeedAccountStateCache(accountStateCacheDelta, config.MaxCacheSize, settings.SignerImportance);
 				catapultCache.commit(Height(1));
 			}
 
@@ -296,7 +295,7 @@ namespace catapult { namespace sync {
 			bool isFiltered = false;
 			auto index = 0u;
 			while (!isFiltered && config.MaxCacheSize > context.transactionsCacheModifier().size()) {
-				auto transactionInfo = CreateTransactionInfo(accountStates[index]->PublicKey, settings.Fee);
+				auto transactionInfo = CreateTransactionInfo(publicKeys[index], settings.Fee);
 				auto filter = CreateTransactionSpamThrottle(config, [](const auto&) { return false; });
 
 				// Act:

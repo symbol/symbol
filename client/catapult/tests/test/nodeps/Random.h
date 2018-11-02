@@ -63,6 +63,9 @@ namespace catapult { namespace test {
 	/// Fills a buffer \a dataBuffer with random data.
 	void FillWithRandomData(const MutableRawBuffer& dataBuffer);
 
+	/// Fills \a unresolvedAddress with random data.
+	void FillWithRandomData(UnresolvedAddress& unresolvedAddress);
+
 	/// Generates random vector of \a count elements.
 	template<typename T>
 	std::vector<T> GenerateRandomDataVector(size_t count) {

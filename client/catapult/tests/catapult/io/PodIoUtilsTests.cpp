@@ -51,6 +51,18 @@ namespace catapult { namespace io {
 			}
 		};
 
+		struct Traits16 {
+			static constexpr uint16_t Value = 0x1234ul;
+
+			static void Write(mocks::MockMemoryStream& stream) {
+				io::Write16(stream, Value);
+			}
+
+			static auto Read(mocks::MockMemoryStream& stream) {
+				return io::Read16(stream);
+			}
+		};
+
 		struct Traits8 {
 			static constexpr uint8_t Value = 0x12u;
 
@@ -88,6 +100,7 @@ namespace catapult { namespace io {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_64) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits64>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_32) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits32>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_16) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits16>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_8) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Traits8>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
@@ -132,7 +145,6 @@ namespace catapult { namespace io {
 			WriteTraits::template Write(stream, source);
 			return TReadTraits::template Read<T>(stream);
 		}
-
 	}
 
 #define ROUNDTRIP_TEST(TEST_NAME) \

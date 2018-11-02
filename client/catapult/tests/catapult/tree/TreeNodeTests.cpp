@@ -83,7 +83,7 @@ namespace catapult { namespace tree {
 
 	// endregion
 
-	// region BranchTreeNode
+	// region BranchTreeNode - helpers
 
 	namespace {
 		void AddEmptyHashes(crypto::Sha3_256_Builder& builder, size_t count) {
@@ -100,15 +100,27 @@ namespace catapult { namespace tree {
 			return hash;
 		}
 
-		void AssertLink(const BranchTreeNode& node, size_t index, const Hash256& expectedLink) {
-			EXPECT_TRUE(node.hasLink(index)) << "link at " << index;
-			EXPECT_EQ(expectedLink, node.link(index)) << "link at " << index;
+		void AssertHashLink(const BranchTreeNode& node, size_t index, const Hash256& expectedLink) {
+			auto message = "link at " + std::to_string(index);
+			EXPECT_TRUE(node.hasLink(index)) << message;
+			EXPECT_EQ(expectedLink, node.link(index)) << message;
+			EXPECT_FALSE(!!node.linkedNode(index)) << message;
+		}
+
+		void AssertNodeLink(const BranchTreeNode& node, size_t index, const Hash256& expectedLink) {
+			auto message = "link at " + std::to_string(index);
+			EXPECT_TRUE(node.hasLink(index)) << message;
+			EXPECT_EQ(expectedLink, node.link(index)) << message;
+			ASSERT_TRUE(!!node.linkedNode(index)) << message;
+			EXPECT_EQ(expectedLink, node.linkedNode(index)->hash()) << message;
 		}
 
 		void AssertEmptyLinks(const BranchTreeNode& node, size_t start, size_t end) {
 			for (auto i = start; i <= end; ++i) {
-				EXPECT_FALSE(node.hasLink(i)) << "link at " << i;
-				EXPECT_EQ(Hash256(), node.link(i)) << "link at " << i;
+				auto message = "link at " + std::to_string(i);
+				EXPECT_FALSE(node.hasLink(i)) << message;
+				EXPECT_EQ(Hash256(), node.link(i)) << message;
+				EXPECT_FALSE(!!node.linkedNode(i)) << message;
 			}
 		}
 
@@ -117,6 +129,10 @@ namespace catapult { namespace tree {
 			AssertEmptyLinks(node, 0, 15);
 		}
 	}
+
+	// endregion
+
+	// region BranchTreeNode - constructor
 
 	TEST(TEST_CLASS, CanCreateBranchTreeNodeWithEmptyPath) {
 		// Act:
@@ -157,6 +173,10 @@ namespace catapult { namespace tree {
 		EXPECT_EQ(expectedHash, node.hash());
 	}
 
+	// endregion
+
+	// region BranchTreeNode - setPath
+
 	TEST(TEST_CLASS, CanChangeBranchTreeNodePath) {
 		// Arrange:
 		auto path = TreeNodePath(0x64'6F'67'00);
@@ -187,15 +207,56 @@ namespace catapult { namespace tree {
 		EXPECT_NE(hash1, hash2);
 	}
 
+	// endregion
+
+	// region BranchTreeNode - links
+
+	namespace {
+		struct HashLinkTraits {
+			static constexpr auto AssertLink = AssertHashLink;
+
+			static std::vector<Hash256> GenerateLinks(size_t count) {
+				return test::GenerateRandomDataVector<Hash256>(count);
+			}
+
+			static const Hash256& GetHash(const Hash256& hash) {
+				return hash;
+			}
+		};
+
+		struct NodeLinkTraits {
+			static constexpr auto AssertLink = AssertNodeLink;
+
+			static std::vector<TreeNode> GenerateLinks(size_t count) {
+				std::vector<TreeNode> nodes;
+				for (auto i = 0u; i < count; ++i)
+					nodes.emplace_back(LeafTreeNode(TreeNodePath(i), test::GenerateRandomData<Hash256_Size>()));
+
+				return nodes;
+			}
+
+			static const Hash256& GetHash(const TreeNode& node) {
+				return node.hash();
+			}
+		};
+	}
+
+#define BRANCH_LINK_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_HashLink) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HashLinkTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_NodeLink) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeLinkTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
 	namespace {
 		// these helpers assume two links at indexes 6 and 11
+		template<typename TTraits>
 		void AssertTwoLinks(const BranchTreeNode& node, const Hash256& link1, const Hash256& link2) {
 			// Assert:
 			EXPECT_EQ(2u, node.numLinks());
 			AssertEmptyLinks(node, 0, 5);
-			AssertLink(node, 6, link1);
+			TTraits::AssertLink(node, 6, link1);
 			AssertEmptyLinks(node, 7, 10);
-			AssertLink(node, 11, link2);
+			TTraits::AssertLink(node, 11, link2);
 			AssertEmptyLinks(node, 12, 15);
 		}
 
@@ -213,10 +274,10 @@ namespace catapult { namespace tree {
 		}
 	}
 
-	TEST(TEST_CLASS, CanSetBranchTreeNodeLinks) {
+	BRANCH_LINK_TEST(CanSetBranchTreeNodeLinks) {
 		// Arrange:
 		auto path = TreeNodePath(0x64'6F'67'00);
-		auto links = test::GenerateRandomDataVector<Hash256>(2);
+		auto links = TTraits::GenerateLinks(2);
 		auto node = BranchTreeNode(path);
 
 		// Act:
@@ -225,15 +286,15 @@ namespace catapult { namespace tree {
 
 		// Assert:
 		EXPECT_EQ(path, node.path());
-		AssertTwoLinks(node, links[0], links[1]);
+		AssertTwoLinks<TTraits>(node, TTraits::GetHash(links[0]), TTraits::GetHash(links[1]));
 
-		auto expectedHash = CalculateTwoLinkHash({ 0x00, 0x64, 0x6F, 0x67, 0x00 }, links[0], links[1]);
+		auto expectedHash = CalculateTwoLinkHash({ 0x00, 0x64, 0x6F, 0x67, 0x00 }, TTraits::GetHash(links[0]), TTraits::GetHash(links[1]));
 		EXPECT_EQ(expectedHash, node.hash());
 	}
 
-	TEST(TEST_CLASS, BranchTreeNodeSetLinkTriggersHashRecalculation) {
+	BRANCH_LINK_TEST(BranchTreeNodeSetLinkTriggersHashRecalculation) {
 		// Arrange:
-		auto links = test::GenerateRandomDataVector<Hash256>(2);
+		auto links = TTraits::GenerateLinks(2);
 		auto node = BranchTreeNode(TreeNodePath(0x64'6F'67'00));
 		node.setLink(links[0], 6);
 		auto hash1 = node.hash();
@@ -246,10 +307,10 @@ namespace catapult { namespace tree {
 		EXPECT_NE(hash1, hash2);
 	}
 
-	TEST(TEST_CLASS, CanClearBranchTreeNodeLinks) {
+	BRANCH_LINK_TEST(CanClearBranchTreeNodeLinks) {
 		// Arrange:
 		auto path = TreeNodePath(0x64'6F'67'00);
-		auto links = test::GenerateRandomDataVector<Hash256>(4);
+		auto links = TTraits::GenerateLinks(4);
 		auto node = BranchTreeNode(path);
 		node.setLink(links[0], 6);
 		node.setLink(links[1], 8);
@@ -262,15 +323,15 @@ namespace catapult { namespace tree {
 
 		// Assert:
 		EXPECT_EQ(path, node.path());
-		AssertTwoLinks(node, links[0], links[2]);
+		AssertTwoLinks<TTraits>(node, TTraits::GetHash(links[0]), TTraits::GetHash(links[2]));
 
-		auto expectedHash = CalculateTwoLinkHash({ 0x00, 0x64, 0x6F, 0x67, 0x00 }, links[0], links[2]);
+		auto expectedHash = CalculateTwoLinkHash({ 0x00, 0x64, 0x6F, 0x67, 0x00 }, TTraits::GetHash(links[0]), TTraits::GetHash(links[2]));
 		EXPECT_EQ(expectedHash, node.hash());
 	}
 
-	TEST(TEST_CLASS, BranchTreeNodeClearLinkTriggersHashRecalculation) {
+	BRANCH_LINK_TEST(BranchTreeNodeClearLinkTriggersHashRecalculation) {
 		// Arrange:
-		auto links = test::GenerateRandomDataVector<Hash256>(3);
+		auto links = TTraits::GenerateLinks(3);
 		auto node = BranchTreeNode(TreeNodePath(0x64'6F'67'00));
 		node.setLink(links[0], 6);
 		node.setLink(links[1], 10);
@@ -284,6 +345,51 @@ namespace catapult { namespace tree {
 		// Assert:
 		EXPECT_NE(hash1, hash2);
 	}
+
+	BRANCH_LINK_TEST(BranchTreeNodeSetLinkCanChangeExistingLinks) {
+		// Arrange:
+		auto path = TreeNodePath(0x64'6F'67'00);
+		auto links = TTraits::GenerateLinks(2);
+		auto node = BranchTreeNode(path);
+
+		// - set a hash and node link
+		node.setLink(HashLinkTraits::GenerateLinks(1)[0], 6);
+		node.setLink(NodeLinkTraits::GenerateLinks(1)[0], 11);
+
+		// Act: reset the links
+		node.setLink(links[0], 6);
+		node.setLink(links[1], 11);
+
+		// Assert:
+		EXPECT_EQ(path, node.path());
+		AssertTwoLinks<TTraits>(node, TTraits::GetHash(links[0]), TTraits::GetHash(links[1]));
+
+		auto expectedHash = CalculateTwoLinkHash({ 0x00, 0x64, 0x6F, 0x67, 0x00 }, TTraits::GetHash(links[0]), TTraits::GetHash(links[1]));
+		EXPECT_EQ(expectedHash, node.hash());
+	}
+
+	BRANCH_LINK_TEST(BranchTreeNodeCompactLinksReplacesLinksWithHashLinks) {
+		// Arrange:
+		auto path = TreeNodePath(0x64'6F'67'00);
+		auto links = TTraits::GenerateLinks(2);
+		auto node = BranchTreeNode(path);
+
+		// Act:
+		node.setLink(links[0], 6);
+		node.setLink(links[1], 11);
+		node.compactLinks();
+
+		// Assert: all links have been converted to hash links
+		EXPECT_EQ(path, node.path());
+		AssertTwoLinks<HashLinkTraits>(node, TTraits::GetHash(links[0]), TTraits::GetHash(links[1]));
+
+		auto expectedHash = CalculateTwoLinkHash({ 0x00, 0x64, 0x6F, 0x67, 0x00 }, TTraits::GetHash(links[0]), TTraits::GetHash(links[1]));
+		EXPECT_EQ(expectedHash, node.hash());
+	}
+
+	// endregion
+
+	// region BranchTreeNode - highestLinkIndex
 
 	namespace {
 		BranchTreeNode CreateBranchTreeNodeWithLinks(std::initializer_list<size_t> linkIndexes) {
@@ -326,12 +432,9 @@ namespace catapult { namespace tree {
 		AssertHighestLinkIndex(15, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
 	}
 
-	namespace {
-		auto GetCurrentTime() {
-			auto time = std::chrono::steady_clock::now().time_since_epoch();
-			return std::chrono::duration_cast<std::chrono::nanoseconds>(time);
-		}
-	}
+	// endregion
+
+	// region BranchTreeNode - hash optimization
 
 	TEST(TEST_CLASS, BranchTreeNodeDoesNotRecalculateHashWhenNotDirty) {
 		// Arrange: non-deterministic because test is dependent on elapsed time
@@ -344,11 +447,11 @@ namespace catapult { namespace tree {
 			node.setLink(links[2], 12);
 
 			// Act:
-			auto time1 = GetCurrentTime();
+			auto time1 = test::GetCurrentTimeNanoseconds();
 			auto hash1 = node.hash();
-			auto time2 = GetCurrentTime();
+			auto time2 = test::GetCurrentTimeNanoseconds();
 			auto hash2 = node.hash();
-			auto time3 = GetCurrentTime();
+			auto time3 = test::GetCurrentTimeNanoseconds();
 
 			// Assert:
 			EXPECT_EQ(hash1, hash2);

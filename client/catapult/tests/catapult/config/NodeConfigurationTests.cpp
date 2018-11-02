@@ -70,7 +70,10 @@ namespace catapult { namespace config {
 							{ "shouldPrecomputeTransactionAddresses", "true" },
 
 							{ "outgoingSecurityMode", "Signed" },
-							{ "incomingSecurityModes", "None, Signed" }
+							{ "incomingSecurityModes", "None, Signed" },
+
+							{ "maxCacheDatabaseWriteBatchSize", "17KB" },
+							{ "maxTrackedNodes", "222" }
 						}
 					},
 					{
@@ -86,7 +89,9 @@ namespace catapult { namespace config {
 						"outgoing_connections",
 						{
 							{ "maxConnections", "3" },
-							{ "maxConnectionAge", "5" }
+							{ "maxConnectionAge", "5" },
+							{ "maxConnectionBanAge", "7" },
+							{ "numConsecutiveFailuresBeforeBanning", "9" }
 						}
 					},
 					{
@@ -94,6 +99,8 @@ namespace catapult { namespace config {
 						{
 							{ "maxConnections", "8" },
 							{ "maxConnectionAge", "13" },
+							{ "maxConnectionBanAge", "16" },
+							{ "numConsecutiveFailuresBeforeBanning", "19" },
 							{ "backlogSize", "21" }
 						}
 					},
@@ -153,6 +160,9 @@ namespace catapult { namespace config {
 				EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(0), config.OutgoingSecurityMode);
 				EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(0), config.IncomingSecurityModes);
 
+				EXPECT_EQ(utils::FileSize::FromMegabytes(0), config.MaxCacheDatabaseWriteBatchSize);
+				EXPECT_EQ(0u, config.MaxTrackedNodes);
+
 				EXPECT_EQ("", config.Local.Host);
 				EXPECT_EQ("", config.Local.FriendlyName);
 				EXPECT_EQ(0u, config.Local.Version);
@@ -160,9 +170,13 @@ namespace catapult { namespace config {
 
 				EXPECT_EQ(0u, config.OutgoingConnections.MaxConnections);
 				EXPECT_EQ(0u, config.OutgoingConnections.MaxConnectionAge);
+				EXPECT_EQ(0u, config.OutgoingConnections.MaxConnectionBanAge);
+				EXPECT_EQ(0u, config.OutgoingConnections.NumConsecutiveFailuresBeforeBanning);
 
 				EXPECT_EQ(0u, config.IncomingConnections.MaxConnections);
 				EXPECT_EQ(0u, config.IncomingConnections.MaxConnectionAge);
+				EXPECT_EQ(0u, config.IncomingConnections.MaxConnectionBanAge);
+				EXPECT_EQ(0u, config.IncomingConnections.NumConsecutiveFailuresBeforeBanning);
 				EXPECT_EQ(0u, config.IncomingConnections.BacklogSize);
 
 				EXPECT_TRUE(config.Extensions.empty());
@@ -209,6 +223,9 @@ namespace catapult { namespace config {
 				EXPECT_EQ(ionet::ConnectionSecurityMode::Signed, config.OutgoingSecurityMode);
 				EXPECT_EQ(ionet::ConnectionSecurityMode::None | ionet::ConnectionSecurityMode::Signed, config.IncomingSecurityModes);
 
+				EXPECT_EQ(utils::FileSize::FromKilobytes(17), config.MaxCacheDatabaseWriteBatchSize);
+				EXPECT_EQ(222u, config.MaxTrackedNodes);
+
 				EXPECT_EQ("alice.com", config.Local.Host);
 				EXPECT_EQ("a GREAT node", config.Local.FriendlyName);
 				EXPECT_EQ(41u, config.Local.Version);
@@ -216,12 +233,16 @@ namespace catapult { namespace config {
 
 				EXPECT_EQ(3u, config.OutgoingConnections.MaxConnections);
 				EXPECT_EQ(5u, config.OutgoingConnections.MaxConnectionAge);
+				EXPECT_EQ(7u, config.OutgoingConnections.MaxConnectionBanAge);
+				EXPECT_EQ(9u, config.OutgoingConnections.NumConsecutiveFailuresBeforeBanning);
 
 				EXPECT_EQ(8u, config.IncomingConnections.MaxConnections);
 				EXPECT_EQ(13u, config.IncomingConnections.MaxConnectionAge);
+				EXPECT_EQ(16u, config.IncomingConnections.MaxConnectionBanAge);
+				EXPECT_EQ(19u, config.IncomingConnections.NumConsecutiveFailuresBeforeBanning);
 				EXPECT_EQ(21u, config.IncomingConnections.BacklogSize);
 
-				EXPECT_EQ(std::unordered_set<std::string>({ "Alpha", "gamma" }), config.Extensions);
+				EXPECT_EQ(std::vector<std::string>({ "Alpha", "gamma" }), config.Extensions);
 			}
 		};
 	}

@@ -51,14 +51,16 @@ namespace catapult { namespace observers {
 			void seedDelta(const std::vector<Amount::ValueType>& amounts, model::ImportanceHeight height) {
 				uint8_t i = 0;
 				for (auto amount : amounts) {
-					auto& accountState = Delta->addAccount(Key{ { ++i } }, Height(height.unwrap()));
+					auto key = Key{ { ++i } };
+					Delta->addAccount(key, Height(height.unwrap()));
+					auto& accountState = Delta->find(key).get();
 					accountState.Balances.credit(Xem_Id, Amount(amount));
 				}
 			}
 
 		public:
 			const state::AccountState& get(const Key& publicKey) {
-				return Delta->get(publicKey);
+				return Delta->find(publicKey).get();
 			}
 
 		public:
@@ -72,7 +74,7 @@ namespace catapult { namespace observers {
 			size_t maxExpectedDeviation = 0;
 			auto config = CreateConfiguration();
 			for (uint8_t i = 1; i <= Num_Account_States; ++i) {
-				const auto& accountState = cache.get(Key{ { i } });
+				const auto& accountState = cache.find(Key{ { i } }).get();
 				sum += accountState.ImportanceInfo.current().unwrap();
 				if (config.MinHarvesterBalance <= accountState.Balances.get(Xem_Id))
 					++maxExpectedDeviation;
@@ -101,8 +103,8 @@ namespace catapult { namespace observers {
 			const auto& accountState2 = holder.get(Key{ { 2 } });
 
 			// Assert:
-			EXPECT_EQ(hasNonZeroImportance, 0u < accountState1.ImportanceInfo.current().unwrap());
-			EXPECT_LT(0u, accountState2.ImportanceInfo.current().unwrap());
+			EXPECT_EQ(hasNonZeroImportance, Importance() < accountState1.ImportanceInfo.current());
+			EXPECT_LT(Importance(), accountState2.ImportanceInfo.current());
 		}
 	}
 
@@ -134,9 +136,9 @@ namespace catapult { namespace observers {
 		for (uint8_t i = 1; i <= Num_Account_States; ++i) {
 			// deviation should be maximal i * i due to rounding
 			const auto& accountState = holder.get(Key{ { i } });
-			EXPECT_EQ(referenceAmount * i * i, accountState.Balances.get(Xem_Id).unwrap());
-			EXPECT_GE((referenceImportance + 1) * i * i, accountState.ImportanceInfo.current().unwrap());
-			EXPECT_LE(referenceImportance * i * i, accountState.ImportanceInfo.current().unwrap());
+			EXPECT_EQ(Amount(referenceAmount * i * i), accountState.Balances.get(Xem_Id));
+			EXPECT_GE(Importance((referenceImportance + 1) * i * i), accountState.ImportanceInfo.current());
+			EXPECT_LE(Importance(referenceImportance * i * i), accountState.ImportanceInfo.current());
 			EXPECT_EQ(Recalculation_Height, accountState.ImportanceInfo.height());
 		}
 	}
@@ -178,9 +180,9 @@ namespace catapult { namespace observers {
 		for (uint8_t i = 1; i <= Num_Account_States; ++i) {
 			const auto& accountState = holder.get(Key{ { i } });
 			if (i < 5)
-				EXPECT_EQ(0u, accountState.ImportanceInfo.current().unwrap());
+				EXPECT_EQ(Importance(), accountState.ImportanceInfo.current());
 			else
-				EXPECT_LT(0u, accountState.ImportanceInfo.current().unwrap());
+				EXPECT_LT(Importance(), accountState.ImportanceInfo.current());
 		}
 	}
 

@@ -51,9 +51,9 @@ namespace catapult { namespace tools {
 			return std::shared_ptr<ionet::PacketIo>(pBufferedIo.get(), [pBufferedIo, pPool](const auto*) {});
 		}
 
-		auto MakePeerConnectException(const ionet::Node& node, net::PeerConnectResult connectResult) {
+		auto MakePeerConnectException(const ionet::Node& node, net::PeerConnectCode connectCode) {
 			std::ostringstream out;
-			out << "connecting to " << node << " failed with " << connectResult;
+			out << "connecting to " << node << " failed with " << connectCode;
 			return std::make_exception_ptr(catapult_runtime_error(out.str().c_str()));
 		}
 	}
@@ -67,10 +67,10 @@ namespace catapult { namespace tools {
 		auto pConnector = net::CreateServerConnector(pPool, clientKeyPair, net::ConnectionSettings());
 		pConnector->connect(node, [node, pPool, pPromise](auto connectResult, const auto& pPacketSocket) {
 			switch (connectResult) {
-			case net::PeerConnectResult::Accepted:
+			case net::PeerConnectCode::Accepted:
 				return pPromise->set_value(CreateBufferedPacketIo(pPacketSocket, pPool));
 
-			case net::PeerConnectResult::Verify_Error:
+			case net::PeerConnectCode::Verify_Error:
 				CATAPULT_LOG(fatal)
 						<< "verification problem - client expected following public key from the server: "
 						<< crypto::FormatKey(node.identityKey());

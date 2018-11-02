@@ -70,5 +70,9 @@ namespace catapult { namespace test {
 		void notifyNode(const ionet::Node&) override {
 			CATAPULT_THROW_RUNTIME_ERROR("notifyNode - not supported in mock");
 		}
+
+		void notifyIncomingNode(const Key&, ionet::ServiceIdentifier) override {
+			CATAPULT_THROW_RUNTIME_ERROR("notifyIncomingNode - not supported in mock");
+		}
 	};
 }}

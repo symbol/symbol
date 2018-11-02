@@ -19,12 +19,37 @@
 **/
 
 #include "catapult/extensions/PluginUtils.h"
+#include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/validators/AggregateEntityValidator.h"
 #include "tests/test/local/LocalTestUtils.h"
 
 namespace catapult { namespace extensions {
 
 #define TEST_CLASS PluginUtilsTests
+
+	TEST(TEST_CLASS, CanCreateStorageConfiguration) {
+		// Arrange:
+		auto nodeConfig = config::NodeConfiguration::Uninitialized();
+		nodeConfig.ShouldUseCacheDatabaseStorage = true;
+		nodeConfig.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromKilobytes(123);
+
+		auto userConfig = config::UserConfiguration::Uninitialized();
+		userConfig.DataDirectory = "foo_bar";
+
+		auto config = config::LocalNodeConfiguration(
+				model::BlockChainConfiguration::Uninitialized(),
+				std::move(nodeConfig),
+				config::LoggingConfiguration::Uninitialized(),
+				std::move(userConfig));
+
+		// Act:
+		auto storageConfig = CreateStorageConfiguration(config);
+
+		// Assert:
+		EXPECT_TRUE(storageConfig.PreferCacheDatabase);
+		EXPECT_EQ("foo_bar/statedb", storageConfig.CacheDatabaseDirectory);
+		EXPECT_EQ(utils::FileSize::FromKilobytes(123), storageConfig.MaxCacheDatabaseWriteBatchSize);
+	}
 
 	TEST(TEST_CLASS, CanCreateStatelessValidator) {
 		// Arrange:

@@ -21,16 +21,19 @@
 #pragma once
 #include "src/state/MultisigEntry.h"
 #include "catapult/cache/CacheDescriptorAdapters.h"
-#include "catapult/cache/SingleSetCacheTypesAdapter.h"
 #include "catapult/utils/Hashers.h"
 
 namespace catapult {
 	namespace cache {
 		class BasicMultisigCacheDelta;
 		class BasicMultisigCacheView;
+		struct MultisigBaseSetDeltaPointers;
+		struct MultisigBaseSets;
 		class MultisigCache;
 		class MultisigCacheDelta;
 		class MultisigCacheView;
+		struct MultisigEntryPrimarySerializer;
+		class MultisigPatriciaTree;
 
 		template<typename TCache, typename TCacheDelta, typename TKey, typename TGetResult>
 		class ReadOnlyArtifactCache;
@@ -54,6 +57,9 @@ namespace catapult { namespace cache {
 		using CacheDeltaType = MultisigCacheDelta;
 		using CacheViewType = MultisigCacheView;
 
+		using Serializer = MultisigEntryPrimarySerializer;
+		using PatriciaTree = MultisigPatriciaTree;
+
 	public:
 		/// Gets the key corresponding to \a entry.
 		static const auto& GetKeyFromValue(const ValueType& entry) {
@@ -62,13 +68,12 @@ namespace catapult { namespace cache {
 	};
 
 	/// Multisig cache types.
-	struct MultisigCacheTypes
-			: public SingleSetCacheTypesAdapter<MutableUnorderedMapAdapter<MultisigCacheDescriptor, utils::ArrayHasher<Key>>> {
-	public:
-		using CacheReadOnlyType = ReadOnlyArtifactCache<
-			BasicMultisigCacheView,
-			BasicMultisigCacheDelta,
-			const Key&,
-			const state::MultisigEntry&>;
+	struct MultisigCacheTypes {
+		using PrimaryTypes = MutableUnorderedMapAdapter<MultisigCacheDescriptor, utils::ArrayHasher<Key>>;
+
+		using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMultisigCacheView, BasicMultisigCacheDelta, const Key&, state::MultisigEntry>;
+
+		using BaseSetDeltaPointers = MultisigBaseSetDeltaPointers;
+		using BaseSets = MultisigBaseSets;
 	};
 }}

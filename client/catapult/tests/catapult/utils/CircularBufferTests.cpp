@@ -137,7 +137,7 @@ namespace catapult { namespace utils {
 			auto& value = ++buffer[index];
 
 			// Assert:
-			EXPECT_EQ(4u, value);
+			EXPECT_EQ(4, value);
 			EXPECT_FALSE(std::is_const<typename std::remove_reference<decltype(value)>::type>());
 
 			std::vector<int> expectedValues{ 5, 7, 4, 2 };
@@ -153,7 +153,7 @@ namespace catapult { namespace utils {
 			auto& value = const_cast<const CircularBuffer<int>&>(buffer)[index];
 
 			// Assert:
-			EXPECT_EQ(3u, value);
+			EXPECT_EQ(3, value);
 			EXPECT_TRUE(std::is_const<typename std::remove_reference<decltype(value)>::type>());
 
 			std::vector<int> expectedValues{ 5, 7, 3, 2 };

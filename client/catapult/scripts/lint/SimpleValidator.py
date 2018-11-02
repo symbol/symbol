@@ -1,9 +1,10 @@
-class Line: # pylint: disable=too-few-public-methods
+class Line:  # pylint: disable=too-few-public-methods
     def __init__(self, path, line, lineno, kind=''):
         self.path = path
         self.line = line
         self.lineno = lineno
         self.kind = kind
+
 
 class SimpleValidator:
     def __init__(self, errorReporter):

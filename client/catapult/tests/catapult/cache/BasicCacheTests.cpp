@@ -32,18 +32,13 @@ namespace catapult { namespace cache {
 	namespace {
 		// define a base set for (int, string); since no conversions happen TElementToKeyConverter can be void
 		using MapStorageTraits = deltaset::MapStorageTraits<std::unordered_map<int, std::string>, void>;
-		class BaseSetType : public deltaset::BaseSet<deltaset::MutableTypeTraits<std::string>, MapStorageTraits> {
-		public:
-			explicit BaseSetType(const CacheConfiguration&)
-			{}
-		};
-
-		class BaseSetTypeUnorderedExplicit : public BaseSetType {
+		class BaseSetTypeUnorderedExplicit : public deltaset::BaseSet<deltaset::MutableTypeTraits<std::string>, MapStorageTraits> {
 		public:
 			using IsOrderedSet = std::false_type;
 
 		public:
-			using BaseSetType::BaseSetType;
+			explicit BaseSetTypeUnorderedExplicit(const CacheConfiguration&)
+			{}
 		};
 
 		class OrderedSetType : public deltaset::OrderedSet<deltaset::MutableTypeTraits<std::string>> {
@@ -103,11 +98,10 @@ namespace catapult { namespace cache {
 		};
 
 		// define the test caches using BasicCache
-		using TestCache = BasicCache<TestCacheDescriptor<BaseSetType>, BaseSetType>;
-		using TestCacheWithOptions = BasicCache<TestCacheDescriptor<BaseSetType>, BaseSetType, int>;
+		using TestCache = BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit>;
+		using TestCacheWithOptions = BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit, int>;
 
 		using TestCacheOrderedExplicit = BasicCache<TestCacheDescriptor<OrderedSetType>, OrderedSetType>;
-		using TestCacheUnorderedExplicit = BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit>;
 	}
 
 	// region sub views - no options
@@ -206,7 +200,6 @@ namespace catapult { namespace cache {
 	template<typename TCache> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCache>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_OrderedExplicit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCacheOrderedExplicit>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_UnorderedExplicit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TestCacheUnorderedExplicit>(); } \
 	template<typename TCache> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	COMMIT_TEST(CanCommitDelta) {

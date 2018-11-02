@@ -29,9 +29,13 @@ namespace catapult { namespace test {
 		return Alpha == rhs.Alpha && Beta == rhs.Beta && Gamma == rhs.Gamma;
 	}
 
-	void CacheSerializationTestEntryLoaderTraits::LoadInto(io::InputStream& input, DestinationType& destination) {
+	CacheSerializationTestEntry CacheSerializationTestEntryLoaderTraits::Load(io::InputStream& input) {
 		CacheSerializationTestEntry entry;
 		input.read({ reinterpret_cast<uint8_t*>(&entry), sizeof(CacheSerializationTestEntry) });
+		return entry;
+	}
+
+	void CacheSerializationTestEntryLoaderTraits::LoadInto(const CacheSerializationTestEntry& entry, DestinationType& destination) {
 		destination.push_back(entry);
 	}
 

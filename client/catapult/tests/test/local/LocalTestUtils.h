@@ -56,11 +56,11 @@ namespace catapult { namespace test {
 	model::BlockChainConfiguration CreateLocalNodeBlockChainConfiguration();
 
 	/// Creates a test configuration for a local node with a storage in the specified directory (\a dataDirectory).
-	config::LocalNodeConfiguration LoadLocalNodeConfiguration(const std::string& dataDirectory);
+	config::LocalNodeConfiguration CreateLocalNodeConfiguration(const std::string& dataDirectory);
 
 	/// Creates a test configuration for a local node according to the supplied configuration (\a config)
 	/// with a storage in the specified directory (\a dataDirectory).
-	config::LocalNodeConfiguration LoadLocalNodeConfiguration(model::BlockChainConfiguration&& config, const std::string& dataDirectory);
+	config::LocalNodeConfiguration CreateLocalNodeConfiguration(model::BlockChainConfiguration&& config, const std::string& dataDirectory);
 
 	/// Creates a prototypical local node configuration that is safe to use in local node tests.
 	config::LocalNodeConfiguration CreatePrototypicalLocalNodeConfiguration();
@@ -77,6 +77,10 @@ namespace catapult { namespace test {
 	/// Creates a default plugin manager.
 	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManager();
 
-	/// Creates a default plugin manager around \a config.
-	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManager(const model::BlockChainConfiguration& config);
+	/// Creates a plugin manager around \a config.
+	std::shared_ptr<plugins::PluginManager> CreatePluginManager(const model::BlockChainConfiguration& config);
+
+	/// Creates a plugin manager around \a config.
+	/// \note This overload is the only overload that allows state verification.
+	std::shared_ptr<plugins::PluginManager> CreatePluginManager(const config::LocalNodeConfiguration& config);
 }}

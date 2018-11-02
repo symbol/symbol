@@ -30,10 +30,9 @@ namespace catapult { namespace api {
 
 		class LocalChainApi : public ChainApi {
 		public:
-			LocalChainApi(const io::BlockStorageCache& storage, const model::ChainScoreSupplier& chainScoreSupplier, uint32_t maxHashes)
+			LocalChainApi(const io::BlockStorageCache& storage, const model::ChainScoreSupplier& chainScoreSupplier)
 					: m_storage(storage)
 					, m_chainScoreSupplier(chainScoreSupplier)
-					, m_maxHashes(maxHashes)
 			{}
 
 		public:
@@ -44,8 +43,8 @@ namespace catapult { namespace api {
 				return thread::make_ready_future(std::move(info));
 			}
 
-			thread::future<model::HashRange> hashesFrom(Height height) const override {
-				auto hashes = m_storage.view().loadHashesFrom(height, m_maxHashes);
+			thread::future<model::HashRange> hashesFrom(Height height, uint32_t maxHashes) const override {
+				auto hashes = m_storage.view().loadHashesFrom(height, maxHashes);
 				if (hashes.empty()) {
 					auto exception = CreateHeightException("unable to get hashes from height", height);
 					return thread::make_exceptional_future<model::HashRange>(exception);
@@ -57,14 +56,12 @@ namespace catapult { namespace api {
 		private:
 			const io::BlockStorageCache& m_storage;
 			model::ChainScoreSupplier m_chainScoreSupplier;
-			uint32_t m_maxHashes;
 		};
 	}
 
 	std::unique_ptr<ChainApi> CreateLocalChainApi(
 			const io::BlockStorageCache& storage,
-			const model::ChainScoreSupplier& chainScoreSupplier,
-			uint32_t maxHashes) {
-		return std::make_unique<LocalChainApi>(storage, chainScoreSupplier, maxHashes);
+			const model::ChainScoreSupplier& chainScoreSupplier) {
+		return std::make_unique<LocalChainApi>(storage, chainScoreSupplier);
 	}
 }}

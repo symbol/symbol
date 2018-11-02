@@ -4,33 +4,33 @@ message("--- locating mongo dependencies ---")
 find_package(LIBMONGOCXX REQUIRED)
 find_package(LIBBSONCXX REQUIRED)
 
-if(MSVC)
+message("mongocxx  ver: ${LIBMONGOCXX_PACKAGE_VERSION}")
+
+if(LIBMONGOCXX_PACKAGE_VERSION LESS 3.3)
 	find_library(MONGOCXX_LIB ${LIBMONGOCXX_LIBRARIES} ${LIBMONGOCXX_LIBRARY_DIRS})
 	find_library(BSONCXX_LIB ${LIBBSONCXX_LIBRARIES} ${LIBBSONCXX_LIBRARY_DIRS})
+	set(LIBMONGOCXX_LIBRARIES ${MONGOCXX_LIB} ${BSONCXX_LIB})
+endif()
 
-	find_library(MONGOC_LIB mongoc-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
-	find_library(BSONC_LIB bson-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
+find_library(MONGOC_LIB mongoc-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
+find_library(BSONC_LIB bson-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
 
+if(MSVC)
 	set(MONGO_ADDITIONAL_LIBS bcrypt crypt32 secur32 ws2_32)
 else()
-	find_library(MONGOCXX_LIB ${LIBMONGOCXX_LIBRARIES} ${LIBMONGOCXX_LIBRARY_DIRS})
-	find_library(BSONCXX_LIB ${LIBBSONCXX_LIBRARIES} ${LIBBSONCXX_LIBRARY_DIRS})
-
-	find_library(MONGOC_LIB mongoc-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
-	find_library(BSONC_LIB bson-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
 	set(MONGO_ADDITIONAL_LIBS)
 endif()
 
-message("  mongo c    lib: ${MONGOC_LIB}")
-message("   bson c    lib: ${BSONC_LIB}")
-message("  mongo cxx dirs: ${MONGOCXX_LIB} ${LIBMONGOCXX_INCLUDE_DIRS} ${LIBMONGOCXX_LIBRARY_DIRS} ${LIBMONGOCXX_LIBRARIES}")
-message("   bson cxx dirs: ${BSONCXX_LIB} ${LIBBSONCXX_INCLUDE_DIRS} ${LIBBSONCXX_LIBRARY_DIRS} ${LIBBSONCXX_LIBRARIES}")
+message("mongocxx libs: ${LIBMONGOCXX_LIBRARIES}")
+message("mongocxx  inc: ${LIBMONGOCXX_INCLUDE_DIRS}")
+message("mongoc    lib: ${MONGOC_LIB}")
+message("bsonc     lib: ${BSONC_LIB}")
 
 ### find and set mongo includes and libraries
 function(catapult_add_mongo_dependencies TARGET_NAME)
 	add_definitions(-DBSONCXX_STATIC -DMONGOCXX_STATIC)
 	include_directories(SYSTEM ${LIBMONGOCXX_INCLUDE_DIRS} ${LIBBSONCXX_INCLUDE_DIRS})
-	target_link_libraries(${TARGET_NAME} ${MONGOCXX_LIB} ${BSONCXX_LIB} ${MONGOC_LIB} ${BSONC_LIB} ${MONGO_ADDITIONAL_LIBS})
+	target_link_libraries(${TARGET_NAME} ${LIBMONGOCXX_LIBRARIES} ${MONGOC_LIB} ${BSONC_LIB} ${MONGO_ADDITIONAL_LIBS})
 endfunction()
 
 # used to define a catapult mongo int test executable by combining catapult_test_executable and catapult_target

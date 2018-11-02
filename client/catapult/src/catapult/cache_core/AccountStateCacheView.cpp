@@ -48,6 +48,7 @@ namespace catapult { namespace cache {
 			, AccountStateCacheViewMixins::Iteration(accountStateSets.Primary)
 			, AccountStateCacheViewMixins::ConstAccessorAddress(accountStateSets.Primary)
 			, AccountStateCacheViewMixins::ConstAccessorKey(*pKeyLookupAdapter)
+			, AccountStateCacheViewMixins::PatriciaTreeView(accountStateSets.PatriciaTree.get())
 			, m_networkIdentifier(options.NetworkIdentifier)
 			, m_importanceGrouping(options.ImportanceGrouping)
 			, m_highValueAddresses(highValueAddresses)
@@ -62,7 +63,7 @@ namespace catapult { namespace cache {
 		return m_importanceGrouping;
 	}
 
-	size_t BasicAccountStateCacheView::highValueAddressesSize() const {
-		return m_highValueAddresses.size();
+	const model::AddressSet& BasicAccountStateCacheView::highValueAddresses() const {
+		return m_highValueAddresses;
 	}
 }}

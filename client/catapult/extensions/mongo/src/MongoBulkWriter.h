@@ -30,6 +30,7 @@
 #include <boost/asio/io_service.hpp>
 #include <bsoncxx/json.hpp>
 #include <mongocxx/client.hpp>
+#include <mongocxx/config/version.hpp>
 #ifndef _MSC_VER
 #pragma GCC visibility push(default)
 #endif
@@ -99,6 +100,44 @@ namespace catapult { namespace mongo {
 	/// \note The bulk writer supports inserting, upserting and deleting documents.
 	class MongoBulkWriter final : public std::enable_shared_from_this<MongoBulkWriter> {
 	private:
+		struct BulkWriteParams {
+		public:
+			explicit BulkWriteParams(MongoBulkWriter& mongoBulkWriter, const std::string& collectionName)
+					: pConnection(mongoBulkWriter.m_connectionPool.acquire())
+					, Database(pConnection->database(mongoBulkWriter.m_dbName))
+					, Collection(Database[collectionName])
+					, Bulk(BulkTraits::CreateBulk(Collection))
+		{}
+
+		public:
+			mongocxx::pool::entry pConnection;
+			mongocxx::database Database;
+			mongocxx::collection Collection;
+			mongocxx::bulk_write Bulk;
+		};
+
+#if defined(MONGOCXX_VERSION_MAJOR) && defined(MONGOCXX_VERSION_MINOR) && (MONGOCXX_VERSION_MAJOR <= 3) && (MONGOCXX_VERSION_MINOR <= 2)
+		struct BulkTraits {
+			static auto BulkWrite(BulkWriteParams& bulkWriteParams) {
+				return bulkWriteParams.Collection.bulk_write(bulkWriteParams.Bulk);
+			}
+
+			static mongocxx::bulk_write CreateBulk(mongocxx::collection&) {
+				return mongocxx::bulk_write();
+			}
+		};
+#else
+		struct BulkTraits {
+			static auto BulkWrite(BulkWriteParams& bulkWriteParams) {
+				return bulkWriteParams.Bulk.execute();
+			}
+
+			static mongocxx::bulk_write CreateBulk(mongocxx::collection& collection) {
+				return mongocxx::bulk_write(collection.create_bulk_write());
+			}
+		};
+#endif
+
 		using AccountStates = std::unordered_set<std::shared_ptr<const state::AccountState>>;
 		using BulkWriteResultFuture = thread::future<std::vector<thread::future<BulkWriteResult>>>;
 
@@ -202,25 +241,19 @@ namespace catapult { namespace mongo {
 		}
 
 	private:
-		thread::future<BulkWriteResult> handleBulkOperation(
-				const std::string& collectionName,
-				const std::shared_ptr<mongocxx::bulk_write>& pBulk) {
+		thread::future<BulkWriteResult> handleBulkOperation(const std::shared_ptr<BulkWriteParams>& pBulkWriteParams) {
 			auto pPromise = std::make_shared<thread::promise<BulkWriteResult>>();
-			m_service.post([pThis = shared_from_this(), collectionName, pBulk, pPromise]() {
-				pThis->bulkWrite(collectionName, *pBulk, *pPromise);
+			m_service.post([pThis = shared_from_this(), pBulkWriteParams, pPromise]() {
+				pThis->bulkWrite(*pBulkWriteParams, *pPromise);
 			});
 
 			return pPromise->get_future();
 		}
 
-		void bulkWrite(const std::string& collectionName, mongocxx::bulk_write& bulk, thread::promise<BulkWriteResult>& promise) {
+		void bulkWrite(BulkWriteParams& bulkWriteParams, thread::promise<BulkWriteResult>& promise) {
 			try {
-				auto pConnection = m_connectionPool.acquire();
-				auto database = pConnection->database(m_dbName);
-				auto collection = database[collectionName];
-
 				// if something goes wrong mongo will throw, else a result is always available
-				auto result = collection.bulk_write(bulk).get();
+				auto result = BulkTraits::BulkWrite(bulkWriteParams).get();
 				promise.set_value(BulkWriteResult(result));
 			} catch (const mongocxx::bulk_write_exception& e) {
 				std::ostringstream stream;
@@ -273,12 +306,13 @@ namespace catapult { namespace mongo {
 									auto itEnd,
 									auto startIndex,
 									auto batchIndex) {
-								auto pBulk = std::make_shared<mongocxx::bulk_write>();
+								auto pBulkWriteParams = std::make_shared<BulkWriteParams>(*pThis, collectionName);
+
 								auto index = static_cast<uint32_t>(startIndex);
 								for (auto iter = itBegin; itEnd != iter; ++iter, ++index)
-									appendOperation(*pBulk, *iter, index);
+									appendOperation(pBulkWriteParams->Bulk, *iter, index);
 
-								pContext->setFutureAt(batchIndex, pThis->handleBulkOperation(collectionName, pBulk));
+								pContext->setFutureAt(batchIndex, pThis->handleBulkOperation(pBulkWriteParams));
 							}),
 					[pContext](const auto&) {
 						return pContext->aggregateFuture();

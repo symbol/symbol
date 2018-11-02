@@ -37,7 +37,13 @@ namespace catapult { namespace state {
 		// Assert:
 		EXPECT_EQ(address, state.Address);
 		EXPECT_EQ(height, state.AddressHeight);
+
+		EXPECT_EQ(Key(), state.PublicKey);
 		EXPECT_EQ(Height(0), state.PublicKeyHeight);
+
+		EXPECT_EQ(AccountType::Unlinked, state.AccountType);
+		EXPECT_EQ(Key(), state.LinkedAccountKey);
+
 		EXPECT_EQ(0u, state.Balances.size());
 
 		for (const auto& pair : state.ImportanceInfo) {

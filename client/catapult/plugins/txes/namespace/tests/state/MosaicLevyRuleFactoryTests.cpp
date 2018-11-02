@@ -19,7 +19,6 @@
 **/
 
 #include "src/state/MosaicLevyRuleFactory.h"
-#include "catapult/model/AccountInfo.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {
@@ -60,7 +59,7 @@ namespace catapult { namespace state {
 			for (auto amount : amounts) {
 				auto mosaic = rule(model::Mosaic{ Default_Mosaic_Id, Amount(amount) });
 				EXPECT_EQ(Default_Mosaic_Id, mosaic.MosaicId) << "MosaicId at " << i;
-				EXPECT_EQ(expectedAmounts[i], mosaic.Amount.unwrap()) << "Amount at " << i;
+				EXPECT_EQ(Amount(expectedAmounts[i]), mosaic.Amount) << "Amount at " << i;
 				++i;
 			}
 		}

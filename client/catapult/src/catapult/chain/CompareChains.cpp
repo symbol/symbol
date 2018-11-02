@@ -26,6 +26,15 @@
 
 namespace catapult { namespace chain {
 
+	// in order for node to sync properly:
+	// a) local must request at least maxHashesToAnalyze
+	// b) remote must return at least maxHashesToAnalyze
+	// where maxHashesToAnalyze must be at least `rewrite-limit + 2`
+	// (one common hash, rewrite-limit hopefully equal hashes and at least one additional hash)
+	uint32_t CalculateMaxHashesToAnalyze(const CompareChainsOptions& options) {
+		return std::max(options.MaxBlocksToAnalyze, options.MaxBlocksToRewrite + 2);
+	}
+
 	namespace {
 		constexpr auto Num_Comparison_Functions = 2;
 		constexpr auto Incomplete_Chain_Comparison_Code = static_cast<ChainComparisonCode>(-1);
@@ -115,7 +124,8 @@ namespace catapult { namespace chain {
 				auto startingHeight = Height(localHeight > m_options.MaxBlocksToRewrite
 						? localHeight - m_options.MaxBlocksToRewrite
 						: 1);
-				return thread::when_all(m_local.hashesFrom(startingHeight), m_remote.hashesFrom(startingHeight))
+				auto maxHashes = CalculateMaxHashesToAnalyze(m_options);
+				return thread::when_all(m_local.hashesFrom(startingHeight, maxHashes), m_remote.hashesFrom(startingHeight, maxHashes))
 					.then([pThis = shared_from_this(), startingHeight](auto&& aggregateFuture) {
 						auto hashesFuture = aggregateFuture.get();
 						const auto& localHashes = hashesFuture[0].get();
@@ -128,11 +138,8 @@ namespace catapult { namespace chain {
 					Height startingHeight,
 					const model::HashRange& localHashes,
 					const model::HashRange& remoteHashes) {
-				// in order for this node to sync properly, the remote must return at least
-				// rewrite-limit + 1 <= MaxBlocksToAnalyze hashes
-				// larger MaxBlocksToAnalyze values can allow faster syncing by allowing the remote note to
-				// return more hashes in one request
-				if (remoteHashes.size() > m_options.MaxBlocksToAnalyze)
+				auto maxHashesToAnalyze = CalculateMaxHashesToAnalyze(m_options);
+				if (remoteHashes.size() > maxHashesToAnalyze)
 					return ChainComparisonCode::Remote_Returned_Too_Many_Hashes;
 
 				// at least the first compared block should be the same; if not, the remote is a liar or on a fork

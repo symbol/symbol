@@ -27,8 +27,19 @@ namespace catapult { namespace ionet {
 
 #define TEST_CLASS NodeContainerTests
 
+	// region test utils
+
 	namespace {
 		using BasicNodeDataContainer = test::BasicNodeDataContainer;
+
+		bool AddUnchecked(
+				NodeContainer& container,
+				const Key& identityKey,
+				const std::string& nodeName,
+				NodeSource nodeSource,
+				NodeRoles roles = NodeRoles::None) {
+			return container.modifier().add(test::CreateNamedNode(identityKey, nodeName, roles), nodeSource);
+		}
 
 		void Add(
 				NodeContainer& container,
@@ -36,7 +47,11 @@ namespace catapult { namespace ionet {
 				const std::string& nodeName,
 				NodeSource nodeSource,
 				NodeRoles roles = NodeRoles::None) {
-			container.modifier().add(test::CreateNamedNode(identityKey, nodeName, roles), nodeSource);
+			// Act:
+			auto addResult = AddUnchecked(container, identityKey, nodeName, nodeSource, roles);
+
+			// Sanity:
+			EXPECT_TRUE(addResult) << "add failed for: " << nodeName;
 		}
 
 		auto SeedThreeNodes(NodeContainer& container) {
@@ -65,6 +80,8 @@ namespace catapult { namespace ionet {
 			EXPECT_TRUE(pairs.empty());
 		}
 	}
+
+	// endregion
 
 	// region constructor
 
@@ -207,6 +224,153 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(1u, view.size());
 
 		auto expectedContents = BasicNodeDataContainer{ { key, "bob2", NodeSource::Static } };
+		EXPECT_EQ(expectedContents, test::CollectAll(view));
+	}
+
+	// endregion
+
+	// region add - pruning
+
+	TEST(TEST_CLASS, AddWhenFullRemovesOldestCandidateNode) {
+		// Arrange:
+		NodeContainer container(3);
+		auto keys = test::GenerateRandomDataVector<Key>(4);
+
+		// Act:
+		Add(container, keys[0], "bob", NodeSource::Dynamic);
+		Add(container, keys[1], "alice", NodeSource::Dynamic);
+		Add(container, keys[2], "charlie", NodeSource::Dynamic);
+		Add(container, keys[3], "doris", NodeSource::Dynamic);
+
+		// Assert: bob is pruned because it is oldest node and candidate for pruning
+		const auto& view = container.view();
+		EXPECT_EQ(3u, view.size());
+
+		auto expectedContents = BasicNodeDataContainer{
+			{ keys[1], "alice", NodeSource::Dynamic },
+			{ keys[2], "charlie", NodeSource::Dynamic },
+			{ keys[3], "doris", NodeSource::Dynamic },
+		};
+		EXPECT_EQ(expectedContents, test::CollectAll(view));
+	}
+
+	TEST(TEST_CLASS, PromotionWhenFullDoesNotRemoveAnyNode) {
+		// Arrange:
+		NodeContainer container(3);
+		auto keys = test::GenerateRandomDataVector<Key>(3);
+
+		// Act:
+		Add(container, keys[0], "bob", NodeSource::Dynamic);
+		Add(container, keys[1], "alice", NodeSource::Dynamic);
+		Add(container, keys[2], "charlie", NodeSource::Dynamic);
+		Add(container, keys[1], "alice", NodeSource::Static);
+
+		// Assert: no node is pruned because last add merely updates existing node
+		const auto& view = container.view();
+		EXPECT_EQ(3u, view.size());
+
+		auto expectedContents = BasicNodeDataContainer{
+			{ keys[0], "bob", NodeSource::Dynamic },
+			{ keys[1], "alice", NodeSource::Static },
+			{ keys[2], "charlie", NodeSource::Dynamic }
+		};
+		EXPECT_EQ(expectedContents, test::CollectAll(view));
+	}
+
+	TEST(TEST_CLASS, AddPruningPreservesNonDynamicNodes) {
+		// Arrange:
+		NodeContainer container(3);
+		auto keys = test::GenerateRandomDataVector<Key>(4);
+
+		// Act:
+		Add(container, keys[0], "bob", NodeSource::Static);
+		Add(container, keys[1], "alice", NodeSource::Local);
+		Add(container, keys[2], "charlie", NodeSource::Dynamic);
+		Add(container, keys[3], "doris", NodeSource::Dynamic);
+
+		// Assert: charlie is pruned because it is the oldest dynamic node (static and local nodes are never pruned)
+		const auto& view = container.view();
+		EXPECT_EQ(3u, view.size());
+
+		auto expectedContents = BasicNodeDataContainer{
+			{ keys[0], "bob", NodeSource::Static },
+			{ keys[1], "alice", NodeSource::Local },
+			{ keys[3], "doris", NodeSource::Dynamic }
+		};
+		EXPECT_EQ(expectedContents, test::CollectAll(view));
+	}
+
+	TEST(TEST_CLASS, AddPruningPrunesNodesWithWorstSourceFirst) {
+		// Arrange:
+		NodeContainer container(3);
+		auto keys = test::GenerateRandomDataVector<Key>(4);
+
+		// Act:
+		Add(container, keys[0], "bob", NodeSource::Dynamic);
+		Add(container, keys[1], "alice", NodeSource::Dynamic_Incoming);
+		Add(container, keys[2], "charlie", NodeSource::Dynamic_Incoming);
+		Add(container, keys[3], "doris", NodeSource::Dynamic);
+
+		// Assert: alice is pruned because it is the oldest node with the worst source
+		const auto& view = container.view();
+		EXPECT_EQ(3u, view.size());
+
+		auto expectedContents = BasicNodeDataContainer{
+			{ keys[0], "bob", NodeSource::Dynamic },
+			{ keys[2], "charlie", NodeSource::Dynamic_Incoming },
+			{ keys[3], "doris", NodeSource::Dynamic }
+		};
+		EXPECT_EQ(expectedContents, test::CollectAll(view));
+	}
+
+	TEST(TEST_CLASS, AddPruningPreservesNodesWithActiveConnections) {
+		// Arrange:
+		NodeContainer container(3);
+		auto keys = test::GenerateRandomDataVector<Key>(4);
+
+		// Act:
+		Add(container, keys[0], "bob", NodeSource::Dynamic);
+		container.modifier().provisionConnectionState(ServiceIdentifier(123), keys[0]).Age = 1;
+		Add(container, keys[1], "alice", NodeSource::Dynamic);
+		container.modifier().provisionConnectionState(ServiceIdentifier(123), keys[1]).Age = 1;
+		Add(container, keys[2], "charlie", NodeSource::Dynamic);
+		container.modifier().provisionConnectionState(ServiceIdentifier(123), keys[2]).Age = 0;
+		Add(container, keys[3], "doris", NodeSource::Dynamic);
+
+		// Assert: charlie is pruned because it is the oldest inactive node
+		const auto& view = container.view();
+		EXPECT_EQ(3u, view.size());
+
+		auto expectedContents = BasicNodeDataContainer{
+			{ keys[0], "bob", NodeSource::Dynamic },
+			{ keys[1], "alice", NodeSource::Dynamic },
+			{ keys[3], "doris", NodeSource::Dynamic }
+		};
+		EXPECT_EQ(expectedContents, test::CollectAll(view));
+	}
+
+	TEST(TEST_CLASS, AddHasNoEffectWhenThereAreNoPruneCandidates) {
+		// Arrange:
+		NodeContainer container(3);
+		auto keys = test::GenerateRandomDataVector<Key>(4);
+
+		// Act:
+		Add(container, keys[0], "bob", NodeSource::Static);
+		Add(container, keys[1], "alice", NodeSource::Static);
+		Add(container, keys[2], "charlie", NodeSource::Static);
+		auto addResult = AddUnchecked(container, keys[3], "doris", NodeSource::Static);
+
+		// Assert: doris is not added because none of the nodes are prunable
+		EXPECT_FALSE(addResult);
+
+		const auto& view = container.view();
+		EXPECT_EQ(3u, view.size());
+
+		auto expectedContents = BasicNodeDataContainer{
+			{ keys[0], "bob", NodeSource::Static },
+			{ keys[1], "alice", NodeSource::Static },
+			{ keys[2], "charlie", NodeSource::Static }
+		};
 		EXPECT_EQ(expectedContents, test::CollectAll(view));
 	}
 
@@ -516,6 +680,67 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(2u, nodeInfo1.numConnectionStates());
 		EXPECT_EQ(1u, nodeInfo2.numConnectionStates());
 		EXPECT_EQ(2u, nodeInfo3.numConnectionStates());
+	}
+
+	// endregion
+
+	// region ageConnectionBans
+
+	TEST(TEST_CLASS, AgeConnectionBansAgesMatchingConnections) {
+		// Arrange:
+		NodeContainer container;
+		auto keys = SeedThreeNodes(container);
+		{
+			auto modifier = container.modifier();
+			modifier.provisionConnectionState(ServiceIdentifier(123), keys[0]).NumConsecutiveFailures = 3;
+			modifier.provisionConnectionState(ServiceIdentifier(123), keys[0]).BanAge = 11;
+			modifier.provisionConnectionState(ServiceIdentifier(123), keys[1]).NumConsecutiveFailures = 4;
+			modifier.provisionConnectionState(ServiceIdentifier(123), keys[1]).BanAge = 100;
+			modifier.provisionConnectionState(ServiceIdentifier(123), keys[2]).NumConsecutiveFailures = 3;
+
+			// Act:
+			modifier.ageConnectionBans(ServiceIdentifier(123), 100, 3);
+		}
+
+		// Assert: all nodes are aged
+		auto view = container.view();
+		EXPECT_EQ(12u, view.getNodeInfo(keys[0]).getConnectionState(ServiceIdentifier(123))->BanAge);
+		EXPECT_EQ(0u, view.getNodeInfo(keys[1]).getConnectionState(ServiceIdentifier(123))->BanAge);
+		EXPECT_EQ(1u, view.getNodeInfo(keys[2]).getConnectionState(ServiceIdentifier(123))->BanAge);
+	}
+
+	TEST(TEST_CLASS, AgeConnectionBansOnlyAffectsConnectionStatesWithMatchingIdentifiers) {
+		// Arrange:
+		NodeContainer container;
+		auto keys = SeedThreeNodes(container);
+		{
+			auto modifier = container.modifier();
+			modifier.provisionConnectionState(ServiceIdentifier(124), keys[0]).NumConsecutiveFailures = 3;
+			modifier.provisionConnectionState(ServiceIdentifier(124), keys[2]).NumConsecutiveFailures = 4;
+
+			modifier.provisionConnectionState(ServiceIdentifier(123), keys[0]).NumConsecutiveFailures = 3;
+			modifier.provisionConnectionState(ServiceIdentifier(123), keys[1]).NumConsecutiveFailures = 4;
+			modifier.provisionConnectionState(ServiceIdentifier(123), keys[2]).NumConsecutiveFailures = 3;
+
+			// Act:
+			modifier.ageConnectionBans(ServiceIdentifier(124), 100, 3);
+		}
+
+		// Assert:
+		auto view = container.view();
+		const auto& nodeInfo1 = view.getNodeInfo(keys[0]);
+		const auto& nodeInfo2 = view.getNodeInfo(keys[1]);
+		const auto& nodeInfo3 = view.getNodeInfo(keys[2]);
+
+		// - id(124) ban ages were incremented
+		EXPECT_EQ(1u, nodeInfo1.getConnectionState(ServiceIdentifier(124))->BanAge);
+		EXPECT_FALSE(!!nodeInfo2.getConnectionState(ServiceIdentifier(124)));
+		EXPECT_EQ(1u, nodeInfo3.getConnectionState(ServiceIdentifier(124))->BanAge);
+
+		// - no id(123) ban ages were not changed
+		EXPECT_EQ(0u, nodeInfo1.getConnectionState(ServiceIdentifier(123))->BanAge);
+		EXPECT_EQ(0u, nodeInfo2.getConnectionState(ServiceIdentifier(123))->BanAge);
+		EXPECT_EQ(0u, nodeInfo3.getConnectionState(ServiceIdentifier(123))->BanAge);
 	}
 
 	// endregion

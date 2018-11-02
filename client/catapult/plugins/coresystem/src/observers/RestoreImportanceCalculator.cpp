@@ -29,10 +29,13 @@ namespace catapult { namespace observers {
 			void recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache) const override {
 				auto highValueAddresses = cache.highValueAddresses();
 				for (const auto& address : highValueAddresses) {
-					auto& accountState = cache.get(address);
+					auto accountStateIter = cache.find(address);
+					auto& accountState = accountStateIter.get();
 					if (importanceHeight < accountState.ImportanceInfo.height())
 						accountState.ImportanceInfo.pop();
 				}
+
+				CATAPULT_LOG(debug) << "restored importances at height " << importanceHeight;
 			}
 		};
 	}

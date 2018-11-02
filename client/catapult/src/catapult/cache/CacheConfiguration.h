@@ -19,21 +19,38 @@
 **/
 
 #pragma once
+#include "catapult/utils/FileSize.h"
 #include <string>
 
 namespace catapult { namespace cache {
+
+	/// Possible patricia tree storage modes.
+	enum class PatriciaTreeStorageMode {
+		/// Patricia tree storage should be disabled.
+		Disabled,
+		/// Patricia tree storage should be enabled.
+		Enabled
+	};
 
 	/// Cache configuration.
 	struct CacheConfiguration {
 	public:
 		/// Creates a default cache configuration.
-		CacheConfiguration() : ShouldUseCacheDatabase(false)
+		CacheConfiguration()
+				: ShouldUseCacheDatabase(false)
+				, ShouldStorePatriciaTrees(false)
 		{}
 
-		/// Creates a cache configuration around \a databaseDirectory.
-		explicit CacheConfiguration(const std::string& databaseDirectory)
+		/// Creates a cache configuration around \a databaseDirectory, \a maxCacheDatabaseWriteBatchSize
+		/// and specified patricia tree storage \a mode.
+		explicit CacheConfiguration(
+				const std::string& databaseDirectory,
+				utils::FileSize maxCacheDatabaseWriteBatchSize,
+				PatriciaTreeStorageMode mode)
 				: ShouldUseCacheDatabase(true)
 				, CacheDatabaseDirectory(databaseDirectory)
+				, MaxCacheDatabaseWriteBatchSize(maxCacheDatabaseWriteBatchSize)
+				, ShouldStorePatriciaTrees(PatriciaTreeStorageMode::Enabled == mode)
 		{}
 
 	public:
@@ -42,5 +59,11 @@ namespace catapult { namespace cache {
 
 		/// Base directory to use for storing cache database.
 		std::string CacheDatabaseDirectory;
+
+		/// Maximum size of database write batch.
+		utils::FileSize MaxCacheDatabaseWriteBatchSize;
+
+		/// \c true if patricia trees should be stored, \c false otherwise.
+		bool ShouldStorePatriciaTrees;
 	};
 }}

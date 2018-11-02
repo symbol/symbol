@@ -29,7 +29,7 @@ namespace catapult { namespace chain {
 	/// A notification subscriber that processes notifications.
 	class ProcessingNotificationSubscriber : public model::NotificationSubscriber {
 	public:
-		/// Creates a subscriber around \a validator, \a validatorContext, \a observer, and \a observerContext.
+		/// Creates a subscriber around \a validator, \a validatorContext, \a observer and \a observerContext.
 		ProcessingNotificationSubscriber(
 				const validators::stateful::NotificationValidator& validator,
 				const validators::ValidatorContext& validatorContext,

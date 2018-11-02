@@ -4,8 +4,9 @@ set(TARGET_NAME catapult.sdk)
 
 catapult_library_target(${TARGET_NAME} builders extensions parsers)
 target_link_libraries(${TARGET_NAME} catapult.model)
-target_link_libraries(${TARGET_NAME} catapult.plugins.namespace.sdk) # for IdGenerator
 target_link_libraries(${TARGET_NAME} catapult.plugins.aggregate)
+target_link_libraries(${TARGET_NAME} catapult.plugins.namespace.sdk) # for IdGenerator
+target_link_libraries(${TARGET_NAME} catapult.plugins.property.sdk)
 
 find_program(PYTHON_EXECUTABLE python3 python)
 

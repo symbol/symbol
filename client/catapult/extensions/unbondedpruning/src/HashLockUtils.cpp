@@ -19,7 +19,7 @@
 **/
 
 #include "HashLockUtils.h"
-#include "plugins/txes/lock/src/model/LockNotifications.h"
+#include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/NotificationSubscriber.h"
 
@@ -29,7 +29,7 @@ namespace catapult { namespace unbondedpruning {
 		class DependentTransactionCollector : public model::NotificationSubscriber {
 		public:
 			void notify(const model::Notification& notification) override {
-				if (model::Lock_Hash_Notification == notification.Type)
+				if (model::LockHash_Hash_Notification == notification.Type)
 					m_hashes.insert(static_cast<const model::HashLockNotification&>(notification).Hash);
 			}
 

@@ -42,7 +42,7 @@ namespace catapult { namespace mongo { namespace plugins {
 					<< bson_stream::close_document;
 		}
 
-		void StreamMosaics(bson_stream::document& builder, const model::Mosaic* pMosaic, size_t numMosaics) {
+		void StreamMosaics(bson_stream::document& builder, const model::UnresolvedMosaic* pMosaic, size_t numMosaics) {
 			auto mosaicsArray = builder << "mosaics" << bson_stream::open_array;
 			for (auto i = 0u; i < numMosaics; ++i) {
 				StreamMosaic(mosaicsArray, pMosaic->MosaicId, pMosaic->Amount);

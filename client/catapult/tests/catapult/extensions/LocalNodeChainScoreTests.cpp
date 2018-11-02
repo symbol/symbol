@@ -43,8 +43,8 @@ namespace catapult { namespace extensions {
 		auto scoreArray = score.get().toArray();
 
 		// Assert:
-		EXPECT_EQ(0x8FDE42679C23D678, scoreArray[0]);
-		EXPECT_EQ(0x7A6B3481023543B6, scoreArray[1]);
+		EXPECT_EQ(0x8FDE42679C23D678u, scoreArray[0]);
+		EXPECT_EQ(0x7A6B3481023543B6u, scoreArray[1]);
 	}
 
 	// endregion
@@ -61,8 +61,8 @@ namespace catapult { namespace extensions {
 
 		// Assert:
 		EXPECT_EQ(&score, &result);
-		EXPECT_EQ(0x9FDE'426A'8C23'D688, scoreArray[0]);
-		EXPECT_EQ(0x7C6B'3981'0265'43BB, scoreArray[1]);
+		EXPECT_EQ(0x9FDE'426A'8C23'D688u, scoreArray[0]);
+		EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
 	}
 
 	// endregion

@@ -172,12 +172,12 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pBaseSet = TTraits::CreateWithElements(3);
 			auto pDelta = pBaseSet->rebase();
-			auto pElement = pDelta->find(TTraits::CreateKey("TestElement", 1));
+			auto pElement = pDelta->find(TTraits::CreateKey("TestElement", 1)).get();
 
 			// Act:
 			pElement->Dummy = 123;
 			TTraits::Commit(*pBaseSet);
-			auto pElementAfterCommit = pBaseSet->find(TTraits::CreateKey("TestElement", 1));
+			auto pElementAfterCommit = pBaseSet->find(TTraits::CreateKey("TestElement", 1)).get();
 
 			// Assert:
 			EXPECT_EQ(123u, pElementAfterCommit->Dummy);

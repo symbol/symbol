@@ -19,6 +19,8 @@
 **/
 
 #pragma once
+#include <bsoncxx/builder/stream/array.hpp>
+#include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/pool.hpp>
 #include <string>

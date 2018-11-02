@@ -29,7 +29,7 @@ namespace catapult { namespace config {
 	namespace {
 		struct LoggingConfigurationTraits {
 			using ConfigurationType = LoggingConfiguration;
-			using ComponentLevelsMap = utils::ConfigurationBag::KeyValueMap<utils::LogLevel>;
+			using ComponentLevelsMap = utils::ConfigurationBag::UnorderedKeyValueMap<utils::LogLevel>;
 
 			static utils::ConfigurationBag::ValuesContainer CreateProperties() {
 				return {

@@ -26,12 +26,20 @@ namespace catapult { namespace observers {
 	using Notification = model::ModifyMultisigCosignersNotification;
 
 	namespace {
+		auto GetMultisigEntry(cache::MultisigCacheDelta& multisigCache, const Key& key) {
+			if (!multisigCache.contains(key))
+				multisigCache.insert(state::MultisigEntry(key));
+
+			return multisigCache.find(key);
+		}
+
 		class MultisigAccountFacade {
 		public:
 			explicit MultisigAccountFacade(cache::MultisigCacheDelta& multisigCache, const Key& multisigAccountKey)
 					: m_multisigCache(multisigCache)
 					, m_multisigAccountKey(multisigAccountKey)
-					, m_multisigEntry(getMultisigEntry(m_multisigAccountKey))
+					, m_multisigIter(GetMultisigEntry(m_multisigCache, m_multisigAccountKey))
+					, m_multisigEntry(m_multisigIter.get())
 			{}
 
 			~MultisigAccountFacade() {
@@ -40,27 +48,22 @@ namespace catapult { namespace observers {
 
 		public:
 			void addCosignatory(const Key& cosignatoryKey) {
-				getMultisigEntry(cosignatoryKey).multisigAccounts().insert(m_multisigAccountKey);
+				auto multisigIter = GetMultisigEntry(m_multisigCache, cosignatoryKey);
+				multisigIter.get().multisigAccounts().insert(m_multisigAccountKey);
 				m_multisigEntry.cosignatories().insert(cosignatoryKey);
 			}
 
 			void removeCosignatory(const Key& cosignatoryKey) {
 				m_multisigEntry.cosignatories().erase(cosignatoryKey);
 
-				auto& cosignatoryEntry = m_multisigCache.get(cosignatoryKey);
+				auto multisigIter = m_multisigCache.find(cosignatoryKey);
+				auto& cosignatoryEntry = multisigIter.get();
 				cosignatoryEntry.multisigAccounts().erase(m_multisigAccountKey);
 
 				removeIfEmpty(cosignatoryEntry, cosignatoryKey);
 			}
 
 		private:
-			state::MultisigEntry& getMultisigEntry(const Key& key) {
-				if (!m_multisigCache.contains(key))
-					m_multisigCache.insert(state::MultisigEntry(key));
-
-				return m_multisigCache.get(key);
-			}
-
 			void removeIfEmpty(const state::MultisigEntry& entry, const Key& key) {
 				if (entry.cosignatories().empty() && entry.multisigAccounts().empty())
 					m_multisigCache.remove(key);
@@ -69,6 +72,7 @@ namespace catapult { namespace observers {
 		private:
 			cache::MultisigCacheDelta& m_multisigCache;
 			const Key& m_multisigAccountKey;
+			cache::MultisigCacheDelta::iterator m_multisigIter;
 			state::MultisigEntry& m_multisigEntry;
 		};
 	}

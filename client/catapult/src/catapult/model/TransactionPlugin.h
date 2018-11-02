@@ -19,9 +19,9 @@
 **/
 
 #pragma once
+#include "PublisherContext.h"
 #include "TransactionRegistry.h"
 #include "WeakEntityInfo.h"
-#include "catapult/types.h"
 
 namespace catapult {
 	namespace model {
@@ -50,15 +50,21 @@ namespace catapult { namespace model {
 	/// An embedded transaction plugin.
 	class EmbeddedTransactionPlugin : public TransactionPluginT<EmbeddedTransaction> {
 	public:
-		/// Sends all notifications from \a transaction to \a sub.
-		virtual void publish(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) const = 0;
+		/// Sends all notifications from \a transaction to \a sub given \a publisherContext.
+		virtual void publish(
+				const EmbeddedTransaction& transaction,
+				const PublisherContext& publisherContext,
+				NotificationSubscriber& sub) const = 0;
 	};
 
 	/// A transaction plugin.
 	class TransactionPlugin : public TransactionPluginT<Transaction> {
 	public:
-		/// Sends all notifications from \a transactionInfo to \a sub.
-		virtual void publish(const WeakEntityInfoT<Transaction>& transactionInfo, NotificationSubscriber& sub) const = 0;
+		/// Sends all notifications from \a transactionInfo to \a sub given \a publisherContext.
+		virtual void publish(
+				const WeakEntityInfoT<Transaction>& transactionInfo,
+				const PublisherContext& publisherContext,
+				NotificationSubscriber& sub) const = 0;
 
 		/// Extracts the primary data buffer from \a transaction that is used for signing and basic hashing.
 		virtual RawBuffer dataBuffer(const Transaction& transaction) const = 0;

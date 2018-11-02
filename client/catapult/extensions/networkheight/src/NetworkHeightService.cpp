@@ -20,6 +20,7 @@
 
 #include "NetworkHeightService.h"
 #include "NetworkChainHeight.h"
+#include "NetworkHeightConfiguration.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/io/BlockStorageCache.h"
@@ -29,20 +30,25 @@ namespace catapult { namespace networkheight {
 	namespace {
 		thread::Task CreateChainHeightDetectionTask(
 				const extensions::RemoteChainHeightsRetriever& remoteChainHeightsRetriever,
+				uint8_t maxNodes,
 				NetworkChainHeight& networkChainHeight) {
-			static constexpr size_t Num_Peers = 3;
-			return thread::CreateNamedTask("network chain height detection", [remoteChainHeightsRetriever, &networkChainHeight]() {
+			const auto& retriever = remoteChainHeightsRetriever;
+			return thread::CreateNamedTask("network chain height detection", [retriever, maxNodes, &networkChainHeight]() {
 				CATAPULT_LOG(trace) << "starting chain height task";
-				return remoteChainHeightsRetriever(Num_Peers).then([&networkChainHeight](auto&& heightsFuture) {
+				return retriever(maxNodes).then([&networkChainHeight](auto&& heightsFuture) {
 					auto heights = heightsFuture.get();
 					if (heights.empty())
 						return thread::TaskResult::Continue;
 
-					auto maxHeight = (*std::max_element(heights.cbegin(), heights.cend())).unwrap();
+					std::sort(heights.begin(), heights.end());
+					auto size = heights.size();
+					auto medianHeight = 1 == size % 2
+							? heights[size / 2].unwrap()
+							: (heights[size / 2 - 1] + heights[size / 2]).unwrap() / 2;
 					auto currentHeight = networkChainHeight.load();
-					if (currentHeight < maxHeight) {
-						networkChainHeight = maxHeight;
-						CATAPULT_LOG(debug) << "network chain height increased from " << currentHeight << " to " << maxHeight;
+					if (currentHeight < medianHeight) {
+						networkChainHeight = medianHeight;
+						CATAPULT_LOG(debug) << "network chain height increased from " << currentHeight << " to " << medianHeight;
 					}
 
 					return thread::TaskResult::Continue;
@@ -51,6 +57,11 @@ namespace catapult { namespace networkheight {
 		}
 
 		class NetworkHeightServiceRegistrar : public extensions::ServiceRegistrar {
+		public:
+			explicit NetworkHeightServiceRegistrar(const NetworkHeightConfiguration& networkHeightConfig)
+					: m_networkHeightConfig(networkHeightConfig)
+			{}
+
 		public:
 			extensions::ServiceRegistrarInfo info() const override {
 				return { "NetworkHeight", extensions::ServiceRegistrarPhase::Post_Remote_Peers };
@@ -73,12 +84,18 @@ namespace catapult { namespace networkheight {
 				});
 
 				// add tasks
-				state.tasks().push_back(CreateChainHeightDetectionTask(state.hooks().remoteChainHeightsRetriever(), *pNetworkChainHeight));
+				state.tasks().push_back(CreateChainHeightDetectionTask(
+						state.hooks().remoteChainHeightsRetriever(),
+						m_networkHeightConfig.MaxNodes,
+						*pNetworkChainHeight));
 			}
+
+		private:
+			NetworkHeightConfiguration m_networkHeightConfig;
 		};
 	}
 
-	DECLARE_SERVICE_REGISTRAR(NetworkHeight)() {
-		return std::make_unique<NetworkHeightServiceRegistrar>();
+	DECLARE_SERVICE_REGISTRAR(NetworkHeight)(const NetworkHeightConfiguration& networkHeightConfig) {
+		return std::make_unique<NetworkHeightServiceRegistrar>(networkHeightConfig);
 	}
 }}

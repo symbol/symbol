@@ -51,6 +51,7 @@ namespace catapult { namespace io {
 
 			pBlockElement->EntityHash = originalBlockElement.EntityHash;
 			pBlockElement->GenerationHash = originalBlockElement.GenerationHash;
+			pBlockElement->SubCacheMerkleRoots = originalBlockElement.SubCacheMerkleRoots;
 
 			auto i = 0u;
 			for (const auto& transaction : pBlockElement->Block.Transactions()) {

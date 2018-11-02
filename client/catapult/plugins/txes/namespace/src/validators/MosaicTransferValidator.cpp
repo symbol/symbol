@@ -37,8 +37,8 @@ namespace catapult { namespace validators {
 
 			// the owner must exist if the mosaic lookup succeeded
 			const auto& accountStateCache = cache.sub<cache::AccountStateCache>();
-			const auto& ownerAccountState = accountStateCache.get(owner);
-			return ownerAccountState.Address == notification.Recipient;
+			auto ownerAccountStateIter = accountStateCache.find(owner);
+			return ownerAccountStateIter.get().Address == notification.Recipient;
 		}
 	}
 
@@ -48,18 +48,19 @@ namespace catapult { namespace validators {
 			return ValidationResult::Success;
 
 		// 1. check that the mosaic exists
-		const state::MosaicEntry* pEntry;
+		ActiveMosaicView::FindIterator mosaicIter;
 		ActiveMosaicView activeMosaicView(context.Cache);
-		auto result = activeMosaicView.tryGet(notification.MosaicId, context.Height, &pEntry);
+		auto result = activeMosaicView.tryGet(notification.MosaicId, context.Height, mosaicIter);
 		if (!IsValidationResultSuccess(result))
 			return result;
 
 		// 2. if it's transferable there's nothing else to check
-		if (pEntry->definition().properties().is(model::MosaicFlags::Transferable))
+		const auto& entry = mosaicIter.get();
+		if (entry.definition().properties().is(model::MosaicFlags::Transferable))
 			return ValidationResult::Success;
 
 		// 3. if it's NOT transferable then owner must be either sender or recipient
-		if (!IsMosaicOwnerParticipant(context.Cache, pEntry->definition().owner(), notification))
+		if (!IsMosaicOwnerParticipant(context.Cache, entry.definition().owner(), notification))
 			return Failure_Mosaic_Non_Transferable;
 
 		return ValidationResult::Success;

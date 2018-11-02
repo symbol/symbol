@@ -36,7 +36,8 @@ namespace catapult { namespace observers {
 		if (!multisigCache.contains(notification.Signer))
 			return;
 
-		auto& multisigEntry = multisigCache.get(notification.Signer);
+		auto multisigIter = multisigCache.find(notification.Signer);
+		auto& multisigEntry = multisigIter.get();
 
 		int8_t direction = NotifyMode::Commit == context.Mode ? 1 : -1;
 		multisigEntry.setMinApproval(AddDelta(multisigEntry.minApproval(), direction * notification.MinApprovalDelta));

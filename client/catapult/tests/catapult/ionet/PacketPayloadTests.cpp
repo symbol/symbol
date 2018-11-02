@@ -53,7 +53,7 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		EXPECT_TRUE(payload.unset());
-		EXPECT_EQ(0, payload.header().Size);
+		EXPECT_EQ(0u, payload.header().Size);
 		EXPECT_EQ(PacketType::Undefined, payload.header().Type);
 		EXPECT_TRUE(payload.buffers().empty());
 	}

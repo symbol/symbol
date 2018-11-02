@@ -70,6 +70,7 @@ namespace catapult { namespace crypto {
 		}
 #endif
 	}
+
 	Sha3_256_Builder::Sha3_256_Builder() {
 		static_assert(sizeof(Keccak_HashInstance) <= sizeof(m_hashContext), "Provided m_hashContext is too small to fit Keccak instance.");
 		Keccak_HashInitialize_SHA3_256(CastToKeccakHashInstance(m_hashContext));

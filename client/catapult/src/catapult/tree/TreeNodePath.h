@@ -48,9 +48,9 @@ namespace catapult { namespace tree {
 		/// Creates a path from \a key.
 		template<typename TKey, typename X = typename std::enable_if<!utils::traits::is_scalar<TKey>::value>::type>
 		explicit TreeNodePath(const TKey& key)
-				: m_size(2 * sizeof(TKey))
+				: m_size(2 * key.size())
 				, m_adjustment(0) {
-			m_path.resize(sizeof(TKey));
+			m_path.resize(key.size());
 			std::copy(key.cbegin(), key.cend(), m_path.begin());
 		}
 

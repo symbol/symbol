@@ -44,7 +44,8 @@ namespace catapult { namespace validators {
 			return ValidationResult::Success;
 		}
 
-		const auto& multisigEntry = multisigCache.get(notification.Signer);
+		auto multisigIter = multisigCache.find(notification.Signer);
+		const auto& multisigEntry = multisigIter.get();
 		int newMinRemoval = multisigEntry.minRemoval() + notification.MinRemovalDelta;
 		int newMinApproval = multisigEntry.minApproval() + notification.MinApprovalDelta;
 		if (1 > newMinRemoval || 1 > newMinApproval)

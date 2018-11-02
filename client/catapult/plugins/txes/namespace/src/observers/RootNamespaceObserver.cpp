@@ -26,7 +26,7 @@ namespace catapult { namespace observers {
 
 	namespace {
 		bool IsRenewal(const state::RootNamespace& root, const model::RootNamespaceNotification& notification, Height height) {
-			return root.lifetime().isActive(height) && root.owner() == notification.Signer;
+			return root.lifetime().isActiveOrGracePeriod(height) && root.owner() == notification.Signer;
 		}
 	}
 
@@ -44,7 +44,8 @@ namespace catapult { namespace observers {
 		auto lifetime = state::NamespaceLifetime(context.Height, lifetimeEnd);
 		if (cache.contains(notification.NamespaceId)) {
 			// if a renewal, duration should add onto current expiry
-			const auto& rootEntry = cache.get(notification.NamespaceId);
+			auto namespaceIter = cache.find(notification.NamespaceId);
+			const auto& rootEntry = namespaceIter.get();
 			if (IsRenewal(rootEntry.root(), notification, context.Height)) {
 				lifetime = rootEntry.root().lifetime();
 				lifetime.End = lifetime.End + Height(notification.Duration.unwrap());

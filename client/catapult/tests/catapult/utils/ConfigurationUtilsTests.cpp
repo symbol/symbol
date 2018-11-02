@@ -92,7 +92,7 @@ namespace catapult { namespace utils {
 		LoadIniProperty(bag, "foo", "bar", value);
 
 		// Assert:
-		EXPECT_EQ(1234, value);
+		EXPECT_EQ(1234u, value);
 	}
 
 	// endregion
@@ -167,48 +167,69 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// region ExtractSectionAsUnorderedSet
+	// region ExtractSectionAsUnorderedSet / ExtractSectionAsOrderedVector
 
-	TEST(TEST_CLASS, ExtractSectionAsUnorderedSetCanExtractKnownSectionAsUnorderedSet) {
+	namespace {
+		struct UnorderedSetTraits {
+			using ContainerType = std::unordered_set<std::string>;
+
+			static constexpr auto ExtractSectionAsContainer = ExtractSectionAsUnorderedSet;
+		};
+
+		struct OrderedVectorTraits {
+			using ContainerType = std::vector<std::string>;
+
+			static constexpr auto ExtractSectionAsContainer = ExtractSectionAsOrderedVector;
+		};
+	}
+
+#define CONTAINER_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_UnorderedSet) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UnorderedSetTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_OrderedVector) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OrderedVectorTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	CONTAINER_BASED_TEST(ExtractSectionAsContainerCanExtractKnownSectionAsNonEmptyContainer) {
 		// Arrange:
+		using ContainerType = typename TTraits::ContainerType;
 		auto bag = ConfigurationBag({
-			{ "none", { { "alpha", "false" }, { "beta", "false" }, { "gamma", "false" } } },
-			{ "some", { { "alpha", "true" }, { "beta", "false" }, { "gamma", "true" } } },
-			{ "all", { { "alpha", "true" }, { "beta", "true" }, { "gamma", "true" } } }
+			{ "none", { { "zeta", "false" }, { "beta", "false" }, { "gamma", "false" } } },
+			{ "some", { { "zeta", "true" }, { "beta", "false" }, { "gamma", "true" } } },
+			{ "all", { { "zeta", "true" }, { "beta", "true" }, { "gamma", "true" } } }
 		});
 
 		// Act:
-		auto noneResultPair = ExtractSectionAsUnorderedSet(bag, "none");
-		auto someResultPair = ExtractSectionAsUnorderedSet(bag, "some");
-		auto allResultPair = ExtractSectionAsUnorderedSet(bag, "all");
+		auto noneResultPair = TTraits::ExtractSectionAsContainer(bag, "none");
+		auto someResultPair = TTraits::ExtractSectionAsContainer(bag, "some");
+		auto allResultPair = TTraits::ExtractSectionAsContainer(bag, "all");
 
 		// Assert:
 		EXPECT_TRUE(noneResultPair.first.empty());
 		EXPECT_EQ(3u, noneResultPair.second);
 
-		EXPECT_EQ(std::unordered_set<std::string>({ "alpha", "gamma" }), someResultPair.first);
+		EXPECT_EQ(ContainerType({ "zeta", "gamma" }), someResultPair.first);
 		EXPECT_EQ(3u, someResultPair.second);
 
-		EXPECT_EQ(std::unordered_set<std::string>({ "alpha", "beta", "gamma" }), allResultPair.first);
+		EXPECT_EQ(ContainerType({ "zeta", "beta", "gamma" }), allResultPair.first);
 		EXPECT_EQ(3u, allResultPair.second);
 	}
 
-	TEST(TEST_CLASS, ExtractSectionAsUnorderedSetFailsIfAnyValueIsNotBoolean) {
+	CONTAINER_BASED_TEST(ExtractSectionAsContainerFailsIfAnyValueIsNotBoolean) {
 		// Arrange:
 		auto bag = ConfigurationBag({
-			{ "foo", { { "alpha", "true" }, { "beta", "1" }, { "gamma", "true" } } }
+			{ "foo", { { "zeta", "true" }, { "beta", "1" }, { "gamma", "true" } } }
 		});
 
 		// Act + Assert:
-		EXPECT_THROW(ExtractSectionAsUnorderedSet(bag, "foo"), property_malformed_error);
+		EXPECT_THROW(TTraits::ExtractSectionAsContainer(bag, "foo"), property_malformed_error);
 	}
 
-	TEST(TEST_CLASS, ExtractSectionAsUnorderedSetCanExtractUnknownSectionAsEmptyUnorderedSet) {
+	CONTAINER_BASED_TEST(ExtractSectionAsContainerCanExtractUnknownSectionAsEmptyContainer) {
 		// Arrange:
 		auto bag = ConfigurationBag({});
 
 		// Act:
-		auto resultPair = ExtractSectionAsUnorderedSet(bag, "foo");
+		auto resultPair = TTraits::ExtractSectionAsContainer(bag, "foo");
 
 		// Assert:
 		EXPECT_TRUE(resultPair.first.empty());

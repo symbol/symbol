@@ -37,6 +37,8 @@ namespace catapult { namespace mongo { namespace mappers {
 			auto blockElement = model::BlockElement(block);
 			blockElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
 			blockElement.GenerationHash = test::GenerateRandomData<Hash256_Size>();
+			blockElement.SubCacheMerkleRoots = test::GenerateRandomDataVector<Hash256>(3);
+
 			crypto::MerkleHashBuilder builder;
 			auto& transactionElements = blockElement.Transactions;
 			for (const auto& transaction: block.Transactions()) {
@@ -56,13 +58,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			EXPECT_EQ(2u, test::GetFieldCount(view));
 
 			auto metaView = view["meta"].get_document().view();
-			test::AssertEqualBlockMetadata(
-					blockElement.EntityHash,
-					blockElement.GenerationHash,
-					totalFee,
-					numTransactions,
-					merkleTree,
-					metaView);
+			test::AssertEqualBlockMetadata(blockElement, totalFee, numTransactions, merkleTree, metaView);
 
 			auto blockView = view["block"].get_document().view();
 			test::AssertEqualBlockData(block, blockView);

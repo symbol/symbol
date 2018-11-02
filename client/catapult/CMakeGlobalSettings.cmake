@@ -318,10 +318,15 @@ function(catapult_header_only_target TARGET_NAME)
 	if(MSVC)
 		catapult_find_all_target_files("hdr" ${TARGET_NAME} ${ARGN})
 
-		# unfortunately add_library INTERFACE doesn't seem to work
-		# http://stackoverflow.com/questions/5957134/how-to-setup-cmake-to-generate-header-only-projects
-		add_library(${TARGET_NAME} STATIC ${${TARGET_NAME}_FILES})
-		set_target_properties(${TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+		if (CMAKE_VERBOSE_MAKEFILE)
+			foreach(arg ${ARGN})
+				message("adding subdirectory '${arg}'")
+			endforeach()
+		endif()
+
+		# https://stackoverflow.com/questions/39887352/how-to-create-a-cmake-header-only-library-that-depends-on-external-header-files
+		# target_sources doesn't work with interface libraries, but we can use custom_target (with empty action)
+		add_custom_target(${TARGET_NAME} SOURCES ${${TARGET_NAME}_FILES})
 	endif()
 endfunction()
 

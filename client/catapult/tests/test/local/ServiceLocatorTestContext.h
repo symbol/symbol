@@ -30,7 +30,7 @@
 #include "catapult/utils/NetworkTime.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/SchedulerTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
 #include "tests/test/other/mocks/MockTransactionStatusSubscriber.h"
@@ -50,9 +50,9 @@ namespace catapult { namespace test {
 
 		/// Creates the test state around \a cache and \a timeSupplier.
 		explicit ServiceTestState(cache::CatapultCache&& cache, const supplier<Timestamp>& timeSupplier)
-				: m_config(LoadLocalNodeConfiguration(""))
+				: m_config(CreateLocalNodeConfiguration(""))
 				, m_catapultCache(std::move(cache))
-				, m_storage(std::make_unique<mocks::MockMemoryBasedStorage>())
+				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>())
 				, m_pUtCache(CreateUtCacheProxy())
 				, m_pluginManager(m_config.BlockChain, plugins::StorageConfiguration())
 				, m_pool("service locator test context", 2)

@@ -30,98 +30,49 @@ namespace catapult { namespace disruptor {
 	class ConsumerInput {
 	public:
 		/// Creates a default consumer input.
-		ConsumerInput() : m_source(InputSource::Unknown)
-		{}
+		ConsumerInput();
 
 		/// Creates a consumer input around a block \a range with an optional input source (\a inputSource).
-		explicit ConsumerInput(model::AnnotatedBlockRange&& range, InputSource source = InputSource::Unknown)
-				: m_blockRange(std::move(range.Range))
-				, m_source(source)
-				, m_sourcePublicKey(range.SourcePublicKey) {
-			m_blockElements.reserve(m_blockRange.size());
-			for (const auto& block : m_blockRange)
-				m_blockElements.push_back(model::BlockElement(block));
-		}
+		explicit ConsumerInput(model::AnnotatedBlockRange&& range, InputSource source = InputSource::Unknown);
 
 		/// Creates a consumer input around a transaction \a range with an optional input source (\a inputSource).
-		explicit ConsumerInput(model::AnnotatedTransactionRange&& range, InputSource source = InputSource::Unknown)
-				: m_transactionRange(std::move(range.Range))
-				, m_source(source)
-				, m_sourcePublicKey(range.SourcePublicKey) {
-			m_transactionElements.reserve(m_transactionRange.size());
-			for (const auto& transaction : m_transactionRange)
-				m_transactionElements.push_back(FreeTransactionElement(transaction));
-		}
+		explicit ConsumerInput(model::AnnotatedTransactionRange&& range, InputSource source = InputSource::Unknown);
 
 	public:
 		/// Returns \c true if this input is empty and has no elements.
-		bool empty() const {
-			return m_blockRange.empty() && m_transactionRange.empty();
-		}
+		bool empty() const;
 
 		/// Returns \c true if this input is non-empty and has blocks.
-		bool hasBlocks() const {
-			return !m_blockRange.empty();
-		}
+		bool hasBlocks() const;
 
 		/// Returns \c true if this input is non-empty and has transactions.
-		bool hasTransactions() const {
-			return !m_transactionRange.empty();
-		}
+		bool hasTransactions() const;
 
 	public:
 		/// Returns the block elements associated with this input.
-		BlockElements& blocks() {
-			if (m_blockElements.empty())
-				CATAPULT_THROW_RUNTIME_ERROR("input has no blocks set");
-
-			return m_blockElements;
-		}
+		BlockElements& blocks();
 
 		/// Returns the const block elements associated with this input.
-		const BlockElements& blocks() const {
-			return const_cast<ConsumerInput*>(this)->blocks();
-		}
+		const BlockElements& blocks() const;
 
 		/// Returns the (free) transaction elements associated with this input.
-		TransactionElements& transactions() {
-			if (m_transactionElements.empty())
-				CATAPULT_THROW_RUNTIME_ERROR("input has no transactions set");
-
-			return m_transactionElements;
-		}
+		TransactionElements& transactions();
 
 		/// Returns the const (free) transaction elements associated with this input.
-		const TransactionElements& transactions() const {
-			return const_cast<ConsumerInput*>(this)->transactions();
-		}
+		const TransactionElements& transactions() const;
 
 		/// Gets the source of this input.
-		InputSource source() const {
-			return m_source;
-		}
+		InputSource source() const;
 
 		/// Gets the (optional) source public key.
-		const Key& sourcePublicKey() const {
-			return m_sourcePublicKey;
-		}
+		const Key& sourcePublicKey() const;
 
 	public:
 		/// Detaches the block range associated with this input.
-		model::BlockRange detachBlockRange() {
-			if (m_blockRange.empty())
-				CATAPULT_THROW_RUNTIME_ERROR("input has no blocks set");
-
-			return std::move(m_blockRange);
-		}
+		model::BlockRange detachBlockRange();
 
 		/// Detaches the transaction range associated with this input.
-		model::TransactionRange detachTransactionRange() {
-			if (m_transactionRange.empty())
-				CATAPULT_THROW_RUNTIME_ERROR("input has no transactions set");
-
-			return std::move(m_transactionRange);
-		}
+		model::TransactionRange detachTransactionRange();
 
 	public:
 		/// Insertion operator for outputting \a input to \a out.
@@ -138,5 +89,9 @@ namespace catapult { namespace disruptor {
 
 		InputSource m_source;
 		Key m_sourcePublicKey;
+
+		// used by formatting
+		Height m_startHeight;
+		Height m_endHeight;
 	};
 }}

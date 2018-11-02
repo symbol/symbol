@@ -25,7 +25,7 @@
 
 namespace catapult { namespace mongo {
 
-#define TEST_CLASS CoreSystemTests
+#define TEST_CLASS CoreMongoTests
 
 	TEST(TEST_CLASS, AppropriateStoragesAreRegistered) {
 		// Arrange:

@@ -25,28 +25,29 @@
 
 namespace catapult { namespace extensions {
 
-	// region CreateNodeSelector / CreateConnectPeersTask
+	// region CreateNodeAger
 
-	NodeSelector CreateNodeSelector(
+	NodeAger CreateNodeAger(
 			ionet::ServiceIdentifier serviceId,
-			ionet::NodeRoles requiredRole,
 			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
 			ionet::NodeContainer& nodes) {
-		// 1. provision all existing nodes with a supported role
-		nodes.modifier().addConnectionStates(serviceId, requiredRole);
-
-		// 2. create a selector around the nodes and configuration
-		extensions::NodeSelectionConfiguration selectionConfig{ serviceId, requiredRole, config.MaxConnections, config.MaxConnectionAge };
-		return [&nodes, selectionConfig]() {
-			return SelectNodes(nodes, selectionConfig);
+		return [&nodes, serviceId, config](const auto& identities) {
+			// age all connections
+			auto modifier = nodes.modifier();
+			modifier.ageConnections(serviceId, identities);
+			modifier.ageConnectionBans(serviceId, config.MaxConnectionBanAge, config.NumConsecutiveFailuresBeforeBanning);
 		};
 	}
 
+	// endregion
+
+	// region CreateNodeSelector / CreateConnectPeersTask
+
 	namespace {
 		CPP14_CONSTEXPR
-		utils::LogLevel MapToLogLevel(net::PeerConnectResult connectResult) {
-			switch (connectResult) {
-			case net::PeerConnectResult::Accepted:
+		utils::LogLevel MapToLogLevel(net::PeerConnectCode connectCode) {
+			switch (connectCode) {
+			case net::PeerConnectCode::Accepted:
 				return utils::LogLevel::Info;
 
 			default:
@@ -56,7 +57,7 @@ namespace catapult { namespace extensions {
 
 		class AddCandidateProcessor {
 		private:
-			using ConnectResult = std::pair<Key, net::PeerConnectResult>;
+			using ConnectResult = std::pair<Key, net::PeerConnectCode>;
 			using ConnectResultsFuture = thread::future<std::vector<thread::future<ConnectResult>>>;
 
 		public:
@@ -93,10 +94,10 @@ namespace catapult { namespace extensions {
 					auto pPromise = std::make_shared<thread::promise<ConnectResult>>();
 					futures[i++] = pPromise->get_future();
 
-					m_state.PacketWriters.connect(node, [node, pPromise](auto connectResult) {
-						CATAPULT_LOG_LEVEL(MapToLogLevel(connectResult))
-								<< "connection attempt to " << node << " completed with " << connectResult;
-						pPromise->set_value(std::make_pair(node.identityKey(), connectResult));
+					m_state.PacketWriters.connect(node, [node, pPromise](const auto& connectResult) {
+						CATAPULT_LOG_LEVEL(MapToLogLevel(connectResult.Code))
+								<< "connection attempt to " << node << " completed with " << connectResult.Code;
+						pPromise->set_value(std::make_pair(node.identityKey(), connectResult.Code));
 					});
 				}
 
@@ -110,10 +111,13 @@ namespace catapult { namespace extensions {
 					auto connectResult = resultFuture.get();
 					auto& connectionState = modifier.provisionConnectionState(state.ServiceId, connectResult.first);
 					++connectionState.NumAttempts;
-					if (net::PeerConnectResult::Accepted == connectResult.second)
+					if (net::PeerConnectCode::Accepted == connectResult.second) {
 						++connectionState.NumSuccesses;
-					else
+						connectionState.NumConsecutiveFailures = 0;
+					} else {
 						++connectionState.NumFailures;
+						++connectionState.NumConsecutiveFailures;
+					}
 				}
 
 				if (0 == state.PacketWriters.numActiveWriters())
@@ -125,14 +129,41 @@ namespace catapult { namespace extensions {
 		};
 	}
 
+	NodeSelector CreateNodeSelector(
+			ionet::ServiceIdentifier serviceId,
+			ionet::NodeRoles requiredRole,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
+			ionet::NodeContainer& nodes) {
+		// 1. provision all existing nodes with a supported role
+		nodes.modifier().addConnectionStates(serviceId, requiredRole);
+
+		// 2. create a selector around the nodes and configuration
+		extensions::NodeSelectionConfiguration selectionConfig{ serviceId, requiredRole, config.MaxConnections, config.MaxConnectionAge };
+		return [&nodes, selectionConfig]() {
+			return SelectNodes(nodes, selectionConfig);
+		};
+	}
+
 	thread::Task CreateConnectPeersTask(
 			ionet::NodeContainer& nodes,
 			net::PacketWriters& packetWriters,
 			ionet::ServiceIdentifier serviceId,
+			ionet::NodeRoles requiredRole,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config) {
+		auto selector = CreateNodeSelector(serviceId, requiredRole, config, nodes);
+		return CreateConnectPeersTask(nodes, packetWriters, serviceId, config, selector);
+	}
+
+	thread::Task CreateConnectPeersTask(
+			ionet::NodeContainer& nodes,
+			net::PacketWriters& packetWriters,
+			ionet::ServiceIdentifier serviceId,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
 			const NodeSelector& selector) {
-		return thread::CreateNamedTask("connect peers task", [serviceId, selector, &nodes, &packetWriters]() {
+		auto ager = CreateNodeAger(serviceId, config, nodes);
+		return thread::CreateNamedTask("connect peers task", [serviceId, ager, selector, &nodes, &packetWriters]() {
 			// 1. age all connections
-			nodes.modifier().ageConnections(serviceId, packetWriters.identities());
+			ager(packetWriters.identities());
 
 			// 2. select add and remove candidates
 			auto result = selector();
@@ -166,10 +197,21 @@ namespace catapult { namespace extensions {
 			ionet::NodeContainer& nodes,
 			net::ConnectionContainer& connectionContainer,
 			ionet::ServiceIdentifier serviceId,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config) {
+		auto selector = CreateRemoveOnlyNodeSelector(serviceId, config, nodes);
+		return CreateAgePeersTask(nodes, connectionContainer, serviceId, config, selector);
+	}
+
+	thread::Task CreateAgePeersTask(
+			ionet::NodeContainer& nodes,
+			net::ConnectionContainer& connectionContainer,
+			ionet::ServiceIdentifier serviceId,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
 			const RemoveOnlyNodeSelector& selector) {
-		return thread::CreateNamedTask("age peers task", [serviceId, selector, &nodes, &connectionContainer]() {
+		auto ager = CreateNodeAger(serviceId, config, nodes);
+		return thread::CreateNamedTask("age peers task", [serviceId, ager, selector, &connectionContainer]() {
 			// 1. age all connections
-			nodes.modifier().ageConnections(serviceId, connectionContainer.identities());
+			ager(connectionContainer.identities());
 
 			// 2. select remove candidates
 			auto removeCandidates = selector();

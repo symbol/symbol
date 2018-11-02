@@ -26,7 +26,7 @@ namespace catapult { namespace tree {
 	/// Represents a compact patricia tree.
 	template<typename TEncoder, typename TDataSource>
 	class PatriciaTree {
-	private:
+	public:
 		using KeyType = typename TEncoder::KeyType;
 		using ValueType = typename TEncoder::ValueType;
 
@@ -49,7 +49,6 @@ namespace catapult { namespace tree {
 			auto keyPath = TreeNodePath(TEncoder::EncodeKey(key));
 			auto encodedValue = TEncoder::EncodeValue(value);
 			m_rootNode = set(m_rootNode, { keyPath, encodedValue});
-			save(m_rootNode);
 		}
 
 	private:
@@ -66,6 +65,7 @@ namespace catapult { namespace tree {
 
 			if (node.isLeaf()) {
 				const auto& leafNode = node.asLeafNode();
+
 				// if leaf node already points to desired location, just change value
 				if (leafNode.path() == newPair.Path)
 					return TreeNode(createLeaf(newPair));
@@ -90,15 +90,12 @@ namespace catapult { namespace tree {
 
 			// create and save the two component nodes
 			auto node1 = LeafTreeNode(leafPath.subpath(differenceIndex + 1), leafNode.value());
-			save(node1);
-
 			auto node2 = LeafTreeNode(newPair.Path.subpath(differenceIndex + 1), newPair.Value);
-			save(node2);
 
 			// create the branch node with two links
 			auto branchNode = BranchTreeNode(sharedPath);
-			branchNode.setLink(node1.hash(), leafPath.nibbleAt(differenceIndex));
-			branchNode.setLink(node2.hash(), newPair.Path.nibbleAt(differenceIndex));
+			setLink(branchNode, node1, leafPath.nibbleAt(differenceIndex));
+			setLink(branchNode, node2, newPair.Path.nibbleAt(differenceIndex));
 			return branchNode;
 		}
 
@@ -126,32 +123,29 @@ namespace catapult { namespace tree {
 
 			// if the branch path is completely consumed, find the connecting node in the database
 			// if it is not completely consumed, a branch is being split
-			TreeNode emptyNode;
-			const auto* pNextNode = isBranchPathConsumed ? m_dataSource.get(branchNode.link(newPair.Path.nibbleAt(0))) : nullptr;
+			auto pNextNode = isBranchPathConsumed ? getLinkedNode(branchNode, newPair.Path.nibbleAt(0)) : nullptr;
 			if (!pNextNode)
-				pNextNode = &emptyNode;
+				pNextNode = std::make_unique<TreeNode>();
 
 			// attach the new node to the existing node (if there is no existing node, it will be set as a leaf)
 			auto updatedNextNode = set(*pNextNode, { newPair.Path.subpath(differenceIndex + 1), newPair.Value });
-			save(updatedNextNode);
 
 			// if the new node is a link, set it directly in the existing branch node
 			if (isBranchPathConsumed) {
-				branchNode.setLink(updatedNextNode.hash(), newPair.Path.nibbleAt(0));
+				setLink(branchNode, updatedNextNode, newPair.Path.nibbleAt(0));
 				return branchNode;
 			}
 
 			// otherwise, create a new branch node at the shared path
 			auto newBranchNode = BranchTreeNode(branchPath.subpath(0, differenceIndex));
-			newBranchNode.setLink(updatedNextNode.hash(), newPair.Path.nibbleAt(differenceIndex));
+			setLink(newBranchNode, updatedNextNode, newPair.Path.nibbleAt(differenceIndex));
 
 			// truncate the path of the original branch node so that it is connected to the new branch node
 			auto branchLinkIndex = branchPath.nibbleAt(differenceIndex);
 			branchNode.setPath(branchPath.subpath(differenceIndex + 1));
-			save(branchNode);
 
 			// link the new and old branch nodes
-			newBranchNode.setLink(branchNode.hash(), branchLinkIndex);
+			setLink(newBranchNode, branchNode, branchLinkIndex);
 			return newBranchNode;
 		}
 
@@ -187,7 +181,7 @@ namespace catapult { namespace tree {
 			// look up the branch connecting with `keyPath`, if it is not found (or not found recursively), no node in the tree can match
 			const auto& branchNode = node.asBranchNode();
 			auto nodeLinkIndex = keyPath.nibbleAt(differenceIndex);
-			const auto* pNextNode = m_dataSource.get(branchNode.link(nodeLinkIndex));
+			auto pNextNode = getLinkedNode(branchNode, nodeLinkIndex);
 
 			TreeNode updatedNextNode;
 			if (!pNextNode || !unset(*pNextNode, keyPath.subpath(differenceIndex + 1), updatedNextNode, canMerge))
@@ -197,9 +191,8 @@ namespace catapult { namespace tree {
 			// subsequently, just update branch links in parent branches
 			updatedNode = canMerge
 					? unsetBranchLink(BranchTreeNode(branchNode), nodeLinkIndex)
-					: updateBranchLink(BranchTreeNode(branchNode), nodeLinkIndex, updatedNextNode.hash());
+					: updateBranchLink(BranchTreeNode(branchNode), nodeLinkIndex, updatedNextNode);
 
-			save(updatedNode);
 			canMerge = false;
 			return true;
 		}
@@ -212,15 +205,15 @@ namespace catapult { namespace tree {
 
 			// merge the branch if it only has a single link (if the tree state is valid, the referenced node must exist)
 			auto lastLinkIndex = branchNode.highestLinkIndex();
-			auto referencedNode = m_dataSource.get(branchNode.link(lastLinkIndex))->copy();
+			auto referencedNode = getLinkedNode(branchNode, lastLinkIndex)->copy();
 
 			auto mergedPath = TreeNodePath::Join(branchNode.path(), lastLinkIndex, referencedNode.path());
 			referencedNode.setPath(mergedPath);
 			return std::move(referencedNode);
 		}
 
-		TreeNode updateBranchLink(BranchTreeNode&& branchNode, size_t linkIndex, const Hash256& link) {
-			branchNode.setLink(link, linkIndex);
+		TreeNode updateBranchLink(BranchTreeNode&& branchNode, size_t linkIndex, const TreeNode& linkedNode) {
+			setLink(branchNode, linkedNode, linkIndex);
 			return TreeNode(branchNode);
 		}
 
@@ -229,44 +222,121 @@ namespace catapult { namespace tree {
 		// region lookup
 
 	public:
-		/// Finds the value associated with \a key in the tree or \c nullptr if no value is set.
-		const Hash256* lookup(const KeyType& key) const {
+		/// Tries to find the value associated with \a key in the tree and stores proof of existence or not in \a nodePath.
+		std::pair<Hash256, bool> lookup(const KeyType& key, std::vector<TreeNode>& nodePath) const {
 			auto keyPath = TreeNodePath(TEncoder::EncodeKey(key));
-			return lookup(m_rootNode, keyPath);
+			return lookup(m_rootNode, keyPath, nodePath);
 		}
 
 	private:
-		const Hash256* lookup(const TreeNode& node, const TreeNodePath& keyPath) const {
+		std::pair<Hash256, bool> lookup(const TreeNode& node, const TreeNodePath& keyPath, std::vector<TreeNode>& nodePath) const {
 			// if the node is empty, there is nothing to do
 			if (node.empty())
-				return nullptr;
+				return LookupNotFoundResult();
 
-			// if the node fully matches, it must be a leaf
+			nodePath.push_back(node.copy());
 			auto differenceIndex = FindFirstDifferenceIndex(node.path(), keyPath);
-			if (differenceIndex == keyPath.size())
-				return &node.asLeafNode().value();
-
-			// if the node is not a branch, no node in the tree can completely match `keyPath`
-			if (!node.isBranch())
-				return nullptr;
+			if (!node.isBranch()) // if the node is a leaf, it must fully match `keyPath` to be in the tree
+				return differenceIndex == keyPath.size() ? std::make_pair(node.asLeafNode().value(), true) : LookupNotFoundResult();
 
 			// look up the branch connecting with `keyPath`, if it is not found (or not found recursively), no node in the tree can match
 			const auto& branchNode = node.asBranchNode();
 			auto nodeLinkIndex = keyPath.nibbleAt(differenceIndex);
-			const auto* pNextNode = m_dataSource.get(branchNode.link(nodeLinkIndex));
+			auto pNextNode = getLinkedNode(branchNode, nodeLinkIndex);
 			if (!pNextNode)
-				return nullptr;
+				return LookupNotFoundResult();
 
-			return lookup(*pNextNode, keyPath.subpath(differenceIndex + 1));
+			return lookup(*pNextNode, keyPath.subpath(differenceIndex + 1), nodePath);
+		}
+
+		static std::pair<Hash256, bool> LookupNotFoundResult() {
+			return std::make_pair(Hash256(), false);
+		}
+
+		// endregion
+
+		// region tryLoad + setRoot + clear
+
+	public:
+		/// Loads the node with hash \a rootHash and sets it as the root node.
+		bool tryLoad(const Hash256& rootHash) {
+			auto pRootNode = m_dataSource.get(rootHash);
+			if (pRootNode)
+				m_rootNode = pRootNode->copy();
+
+			return !!pRootNode;
+		}
+
+		/// Sets the root to \a rootNode.
+		void setRoot(const TreeNode& rootNode) {
+			m_rootNode = rootNode.copy();
+		}
+
+		/// Clears the tree.
+		void clear() {
+			m_rootNode = TreeNode();
+		}
+
+		// endregion
+
+		// region saveAll
+
+	public:
+		/// Saves all tree nodes to the underlying data source.
+		void saveAll() {
+			if (!m_rootNode.empty())
+				saveAll(m_rootNode);
+		}
+
+	private:
+		void save(const TreeNode& node) {
+			if (node.isLeaf())
+				m_dataSource.set(node.asLeafNode());
+			else
+				m_dataSource.set(node.asBranchNode());
+		}
+
+		void saveAll(const TreeNode& node) {
+			if (!node.isBranch()) {
+				save(node);
+				return;
+			}
+
+			// if the node is a branch, save and prune all its links
+			auto branchNode = BranchTreeNode(node.asBranchNode());
+			for (auto i = 0u; i < BranchTreeNode::Max_Links; ++i) {
+				auto pLinkedNode = branchNode.linkedNode(i);
+				if (!pLinkedNode)
+					continue;
+
+				saveAll(*pLinkedNode);
+			}
+
+			branchNode.compactLinks();
+			m_dataSource.set(branchNode);
 		}
 
 		// endregion
 
 	private:
-		template<typename TNode>
-		void save(TNode& node) {
-			m_dataSource.set(node);
+		// region links
+
+		std::unique_ptr<const TreeNode> getLinkedNode(const BranchTreeNode& branchNode, size_t index) const {
+			// copy from memory, if available; otherwise, copy from data source
+			auto pLinkedNode = branchNode.linkedNode(index);
+			return pLinkedNode ? std::move(pLinkedNode) : m_dataSource.get(branchNode.link(index));
 		}
+
+		void setLink(BranchTreeNode& branchNode, const TreeNode& node, size_t index) {
+			branchNode.setLink(node, index);
+		}
+
+		template<typename TNode>
+		void setLink(BranchTreeNode& branchNode, const TNode& node, size_t index) {
+			branchNode.setLink(TreeNode(node), index);
+		}
+
+		// endregion
 
 	private:
 		TDataSource& m_dataSource;

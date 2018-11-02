@@ -96,7 +96,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			EXPECT_EQ(1u, test::GetFieldCount(view));
 
 			auto dbCosignatures = view["cosignatures"].get_array().value;
-			ASSERT_EQ(numCosignatures, std::distance(dbCosignatures.cbegin(), dbCosignatures.cend()));
+			ASSERT_EQ(numCosignatures, test::GetFieldCount(dbCosignatures));
 
 			test::AssertEqualCosignatures(cosignatures, dbCosignatures);
 		}

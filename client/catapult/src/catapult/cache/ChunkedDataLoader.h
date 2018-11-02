@@ -28,18 +28,9 @@ namespace catapult { namespace cache {
 	/// Loads data from an input stream in chunks.
 	template<typename TStorageTraits>
 	class ChunkedDataLoader {
-	private:
-		using LoaderFunc = consumer<io::InputStream&, typename TStorageTraits::DestinationType&>;
-
-		enum class LoaderType { Basic, Stateful, CacheDependent };
-		using BasicLoaderFlag = std::integral_constant<LoaderType, LoaderType::Basic>;
-		using StatefulLoaderFlag = std::integral_constant<LoaderType, LoaderType::Stateful>;
-
 	public:
 		/// Creates a chunked loader around \a input.
-		explicit ChunkedDataLoader(io::InputStream& input)
-				: m_input(input)
-				, m_loader(CreateLoader(LoadStateAccessor<TStorageTraits>())) {
+		explicit ChunkedDataLoader(io::InputStream& input) : m_input(input) {
 			m_numRemainingEntries = io::Read64(input);
 		}
 
@@ -54,32 +45,11 @@ namespace catapult { namespace cache {
 			numRequestedEntries = std::min(numRequestedEntries, m_numRemainingEntries);
 			m_numRemainingEntries -= numRequestedEntries;
 			while (numRequestedEntries--)
-				m_loader(m_input, destination);
-		}
-
-	private:
-		template<typename T, typename = void>
-		struct LoadStateAccessor : BasicLoaderFlag
-		{};
-
-		template<typename T>
-		struct LoadStateAccessor<T, typename utils::traits::enable_if_type<typename T::LoadStateType>::type> : StatefulLoaderFlag
-		{};
-
-	private:
-		static LoaderFunc CreateLoader(BasicLoaderFlag) {
-			return TStorageTraits::LoadInto;
-		}
-
-		static LoaderFunc CreateLoader(StatefulLoaderFlag) {
-			return [state = typename TStorageTraits::LoadStateType()](auto& input, auto& destination) mutable {
-				return TStorageTraits::LoadInto(input, destination, state);
-			};
+				TStorageTraits::LoadInto(TStorageTraits::Load(m_input), destination);
 		}
 
 	private:
 		io::InputStream& m_input;
 		uint64_t m_numRemainingEntries;
-		LoaderFunc m_loader;
 	};
 }}

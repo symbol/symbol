@@ -153,7 +153,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, ReaderIsNotAutoStarted) {
 		// Arrange:
-		std::atomic<int> numReads(0);
+		std::atomic<uint32_t> numReads(0);
 		auto clientIdentity = CreateDefaultClientIdentity();
 		ionet::ServerPacketHandlers handlers;
 		test::RegisterDefaultHandler(handlers, [&numReads](const auto&, const auto&) {

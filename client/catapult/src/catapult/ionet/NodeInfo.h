@@ -27,6 +27,9 @@
 namespace catapult { namespace ionet {
 
 #define NODE_SOURCE_LIST \
+	/* Incoming connection from another node. */ \
+	ENUM_VALUE(Dynamic_Incoming) \
+	\
 	/* Forwarded from a peer node. */ \
 	ENUM_VALUE(Dynamic) \
 	\
@@ -59,6 +62,8 @@ namespace catapult { namespace ionet {
 				, NumAttempts(0)
 				, NumSuccesses(0)
 				, NumFailures(0)
+				, NumConsecutiveFailures(0)
+				, BanAge(0)
 		{}
 
 	public:
@@ -74,6 +79,13 @@ namespace catapult { namespace ionet {
 
 		/// Number of failed connections.
 		uint32_t NumFailures;
+
+		/// Number of consecutive failed connections.
+		uint32_t NumConsecutiveFailures;
+
+		/// Current ban age.
+		/// \c 0 if the connection is not banned.
+		uint32_t BanAge;
 	};
 
 	/// Information about a node and its interactions.
@@ -111,6 +123,10 @@ namespace catapult { namespace ionet {
 
 		/// Clears the age of the connection for the service identified by \a serviceId.
 		void clearAge(ServiceIdentifier serviceId);
+
+		/// Updates the connection ban (if applicable) for the service identified by \a serviceId given
+		/// \a maxConnectionBanAge and \a numConsecutiveFailuresBeforeBanning.
+		void updateBan(ServiceIdentifier serviceId, uint32_t maxConnectionBanAge, uint32_t numConsecutiveFailuresBeforeBanning);
 
 	private:
 		NodeSource m_source;

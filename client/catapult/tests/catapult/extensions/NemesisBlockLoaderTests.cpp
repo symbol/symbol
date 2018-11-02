@@ -23,12 +23,14 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
+#include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BalanceTransfers.h"
 #include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
+#include "tests/test/nodeps/Filesystem.h"
 
 namespace catapult { namespace extensions {
 
@@ -49,18 +51,14 @@ namespace catapult { namespace extensions {
 			return CreateBlock(model::PreviousBlockContext(), Network_Identifier, nemesisPublicKey, transactions);
 		}
 
-		enum class NemesisBlockModification {
-			None,
-			Public_Key,
-			Generation_Hash
-		};
+		enum class NemesisBlockModification { None, Public_Key, Generation_Hash };
 
 		void SetNemesisBlock(
 				io::BlockStorageCache& storage,
 				const model::Block& block,
 				const model::NetworkInfo& network,
 				NemesisBlockModification modification) {
-			// note that this trick only works for MockMemoryBasedStorage, which allows the nemesis block to be dropped
+			// note that this trick only works for MockMemoryBlockStorage, which allows the nemesis block to be dropped
 			auto pNemesisBlockElement = storage.view().loadBlockElement(Height(1));
 			auto storageModifier = storage.modifier();
 			storageModifier.dropBlocksAfter(Height(0));
@@ -103,8 +101,8 @@ namespace catapult { namespace extensions {
 			builder
 				.add(observers::CreateAccountAddressObserver())
 				.add(observers::CreateAccountPublicKeyObserver())
-				.add(observers::CreateBalanceObserver());
-			auto pPublisher = model::CreateNotificationPublisher(transactionRegistry);
+				.add(observers::CreateBalanceTransferObserver());
+			auto pPublisher = model::CreateNotificationPublisher(transactionRegistry, model::PublisherContext());
 			return std::make_unique<observers::NotificationObserverAdapter>(builder.build(), std::move(pPublisher));
 		}
 
@@ -119,6 +117,7 @@ namespace catapult { namespace extensions {
 		void RunLoadNemesisBlockTest(
 				const model::Block& nemesisBlock,
 				Amount totalChainBalance,
+				StateHashVerification stateHashVerification,
 				TAssertAccountStateCache assertAccountStateCache) {
 			// Arrange: create the state
 			auto config = CreateDefaultConfiguration(nemesisBlock, totalChainBalance);
@@ -127,47 +126,97 @@ namespace catapult { namespace extensions {
 
 			// - create the publisher, observer and loader
 			auto transactionRegistry = CreateTransactionRegistry();
-			auto pPublisher = model::CreateNotificationPublisher(transactionRegistry);
+			auto pPublisher = model::CreateNotificationPublisher(transactionRegistry, model::PublisherContext());
 			auto pObserver = CreateObserver(transactionRegistry);
-			NemesisBlockLoader loader(transactionRegistry, *pPublisher, *pObserver);
+			auto cacheDelta = state.ref().Cache.createDelta();
+			NemesisBlockLoader loader(cacheDelta, transactionRegistry, *pPublisher, *pObserver);
 
-			// Act + Assert:
-			TTraits::ExecuteAndAssert(loader, state.ref(), assertAccountStateCache);
+			// Act:
+			TTraits::Execute(loader, state.ref(), stateHashVerification);
+
+			// Assert:
+			TTraits::Assert(cacheDelta, state.ref(), assertAccountStateCache);
 		}
 
-		template<typename TTraits>
+		template<typename TTraits, typename TAssertAccountStateCache>
+		void RunLoadNemesisBlockTest(
+				const model::Block& nemesisBlock,
+				Amount totalChainBalance,
+				TAssertAccountStateCache assertAccountStateCache) {
+			RunLoadNemesisBlockTest<TTraits>(nemesisBlock, totalChainBalance, StateHashVerification::Enabled, assertAccountStateCache);
+		}
+
+		template<typename TTraits, typename TException = catapult_invalid_argument>
 		void AssertLoadNemesisBlockFailure(
 				const model::Block& nemesisBlock,
 				Amount totalChainBalance,
-				NemesisBlockModification modification = NemesisBlockModification::None) {
+				NemesisBlockModification modification = NemesisBlockModification::None,
+				bool enableVerifiableState = false) {
 			// Arrange: create the state
 			auto config = CreateDefaultConfiguration(nemesisBlock, totalChainBalance);
-			test::LocalNodeTestState state(config);
+			auto cacheConfig = cache::CacheConfiguration();
+			test::TempDirectoryGuard dbDirGuard("testdb");
+			if (enableVerifiableState)
+				cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+
+			auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
+			test::LocalNodeTestState state(config, "", std::move(cache));
 			SetNemesisBlock(state.ref().Storage, nemesisBlock, config.Network, modification);
 
 			// - create the publisher, observer and loader
 			auto transactionRegistry = CreateTransactionRegistry();
-			auto pPublisher = model::CreateNotificationPublisher(transactionRegistry);
+			auto pPublisher = model::CreateNotificationPublisher(transactionRegistry, model::PublisherContext());
 			auto pObserver = CreateObserver(transactionRegistry);
-			NemesisBlockLoader loader(transactionRegistry, *pPublisher, *pObserver);
+			auto cacheDelta = state.ref().Cache.createDelta();
+			NemesisBlockLoader loader(cacheDelta, transactionRegistry, *pPublisher, *pObserver);
 
 			// Act + Assert:
-			EXPECT_THROW(TTraits::Execute(loader, state.ref()), catapult_invalid_argument);
+			EXPECT_THROW(TTraits::Execute(loader, state.ref(), StateHashVerification::Enabled), TException);
+
+			// Sanity:
+			auto cacheStateHash = state.cref().Cache.createView().calculateStateHash().StateHash;
+			if (enableVerifiableState)
+				EXPECT_NE(Hash256(), cacheStateHash);
+			else
+				EXPECT_EQ(Hash256(), cacheStateHash);
 		}
 
-		struct ExecuteAndCommitTraits {
-			static void Execute(const NemesisBlockLoader& loader, const LocalNodeStateRef& stateRef) {
-				loader.executeAndCommit(stateRef);
+		struct ExecuteTraits {
+			static void Execute(
+					const NemesisBlockLoader& loader,
+					const LocalNodeStateRef& stateRef,
+					StateHashVerification stateHashVerification) {
+				loader.execute(stateRef, stateHashVerification);
 			}
 
 			template<typename TAssertAccountStateCache>
-			static void ExecuteAndAssert(
-					const NemesisBlockLoader& loader,
+			static void Assert(
+					cache::CatapultCacheDelta& cacheDelta,
 					const LocalNodeStateRef& stateRef,
 					TAssertAccountStateCache assertAccountStateCache) {
-				// Act:
-				loader.executeAndCommit(stateRef);
+				// Assert: changes should only be present in the delta
+				const auto& accountStateCache = cacheDelta.sub<cache::AccountStateCache>();
+				assertAccountStateCache(accountStateCache);
 
+				// Sanity: the view is not modified
+				const auto& cacheView = stateRef.Cache.createView();
+				EXPECT_EQ(0u, cacheView.sub<cache::AccountStateCache>().size());
+			}
+		};
+
+		struct ExecuteAndCommitTraits {
+			static void Execute(
+					const NemesisBlockLoader& loader,
+					const LocalNodeStateRef& stateRef,
+					StateHashVerification stateHashVerification) {
+				loader.executeAndCommit(stateRef, stateHashVerification);
+			}
+
+			template<typename TAssertAccountStateCache>
+			static void Assert(
+					cache::CatapultCacheDelta&,
+					const LocalNodeStateRef& stateRef,
+					TAssertAccountStateCache assertAccountStateCache) {
 				// Assert: changes should be committed to the underlying cache, so check the view
 				const auto& cacheView = stateRef.Cache.createView();
 				const auto& accountStateCache = cacheView.sub<cache::AccountStateCache>();
@@ -175,22 +224,17 @@ namespace catapult { namespace extensions {
 			}
 		};
 
-		struct ExecuteTraits {
-			static void Execute(const NemesisBlockLoader& loader, const LocalNodeStateRef& stateRef) {
+		struct ExecuteDefaultStateTraits {
+			static void Execute(const NemesisBlockLoader& loader, const LocalNodeStateRef& stateRef, StateHashVerification) {
 				auto pNemesisBlockElement = stateRef.Storage.view().loadBlockElement(Height(1));
-				auto cacheDelta = stateRef.Cache.createDelta();
-				loader.execute(stateRef.Config.BlockChain, *pNemesisBlockElement, cacheDelta);
+				loader.execute(stateRef.Config.BlockChain, *pNemesisBlockElement);
 			}
 
 			template<typename TAssertAccountStateCache>
-			static void ExecuteAndAssert(
-					const NemesisBlockLoader& loader,
+			static void Assert(
+					cache::CatapultCacheDelta& cacheDelta,
 					const LocalNodeStateRef& stateRef,
 					TAssertAccountStateCache assertAccountStateCache) {
-				auto pNemesisBlockElement = stateRef.Storage.view().loadBlockElement(Height(1));
-				auto cacheDelta = stateRef.Cache.createDelta();
-				loader.execute(stateRef.Config.BlockChain, *pNemesisBlockElement, cacheDelta);
-
 				// Assert: changes should only be present in the delta
 				const auto& accountStateCache = cacheDelta.sub<cache::AccountStateCache>();
 				assertAccountStateCache(accountStateCache);
@@ -203,6 +247,13 @@ namespace catapult { namespace extensions {
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ExecuteAndCommit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteAndCommitTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Execute) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_ExecuteDefaultState) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteDefaultStateTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+#define TRAITS_BASED_DISABLED_VERIFICATION_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_ExecuteAndCommit) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteAndCommitTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Execute) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ExecuteTraits>(); } \
@@ -221,6 +272,26 @@ namespace catapult { namespace extensions {
 			test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});
 			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 0), { { Xem_Id, Amount(1234) } });
 		});
+	}
+
+	TRAITS_BASED_DISABLED_VERIFICATION_TEST(CanLoadNemesisBlockContainingWrongStateHash_VerifiableStateDisabled) {
+		// Arrange: create a valid nemesis block with a single (xem) transaction
+		auto pNemesisBlock = CreateNemesisBlock({ { { Xem_Id, Amount(1234) } } });
+
+		// - use the wrong state hash
+		pNemesisBlock->StateHash = test::GenerateRandomData<Hash256_Size>();
+
+		// Act:
+		RunLoadNemesisBlockTest<TTraits>(
+				*pNemesisBlock,
+				Amount(1234),
+				StateHashVerification::Disabled,
+				[&nemesisBlock = *pNemesisBlock](const auto& accountStateCache) {
+					// Assert:
+					EXPECT_EQ(2u, accountStateCache.size());
+					test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});
+					test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 0), { { Xem_Id, Amount(1234) } });
+				});
 	}
 
 	TRAITS_BASED_TEST(CanLoadValidNemesisBlock_MultipleXemTransfers) {
@@ -270,6 +341,54 @@ namespace catapult { namespace extensions {
 		});
 	}
 
+	TRAITS_BASED_TEST(CanLoadValidNemesisBlock_VerifiableStateEnabled) {
+		// Arrange: create a valid nemesis block with a single (xem) transaction
+		auto pNemesisBlock = CreateNemesisBlock({ { { Xem_Id, Amount(1234) } } });
+
+		// - create the state (with verifiable state enabled)
+		test::TempDirectoryGuard dbDirGuard("testdb");
+		auto config = CreateDefaultConfiguration(*pNemesisBlock, Amount(1234));
+		auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
+		auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
+		{
+			// - calculate the expected state hash after block execution
+			auto cacheDelta = cache.createDelta();
+			auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+
+			auto recipient = GetTransactionRecipient(*pNemesisBlock, 0);
+			accountStateCacheDelta.addAccount(pNemesisBlock->Signer, Height(1));
+			accountStateCacheDelta.addAccount(recipient, Height(1));
+			accountStateCacheDelta.find(recipient).get().Balances.credit(Xem_Id, Amount(1234));
+
+			pNemesisBlock->StateHash = cacheDelta.calculateStateHash(Height(1)).StateHash;
+
+			// Sanity:
+			EXPECT_NE(Hash256(), pNemesisBlock->StateHash);
+		}
+
+		test::LocalNodeTestState state(config, "", std::move(cache));
+
+		SetNemesisBlock(state.ref().Storage, *pNemesisBlock, config.Network, NemesisBlockModification::None);
+
+		// - create the publisher, observer and loader
+		auto transactionRegistry = CreateTransactionRegistry();
+		auto pPublisher = model::CreateNotificationPublisher(transactionRegistry, model::PublisherContext());
+		auto pObserver = CreateObserver(transactionRegistry);
+		auto cacheDelta = state.ref().Cache.createDelta();
+		NemesisBlockLoader loader(cacheDelta, transactionRegistry, *pPublisher, *pObserver);
+
+		// Act:
+		TTraits::Execute(loader, state.ref(), StateHashVerification::Enabled);
+
+		// Assert:
+		TTraits::Assert(cacheDelta, state.ref(), [&nemesisBlock = *pNemesisBlock](const auto& accountStateCache) {
+			// Assert:
+			EXPECT_EQ(2u, accountStateCache.size());
+			test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});
+			test::AssertBalances(accountStateCache, GetTransactionRecipient(nemesisBlock, 0), { { Xem_Id, Amount(1234) } });
+		});
+	}
+
 	// endregion
 
 	// region account states
@@ -282,7 +401,7 @@ namespace catapult { namespace extensions {
 		RunLoadNemesisBlockTest<TTraits>(*pNemesisBlock, Amount(1234), [&nemesisBlock = *pNemesisBlock](const auto& accountStateCache) {
 			const auto& publicKey = nemesisBlock.Signer;
 			auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
-			const auto& accountState = accountStateCache.get(address);
+			const auto& accountState = accountStateCache.find(address).get();
 
 			// Assert:
 			EXPECT_EQ(Height(1), accountState.AddressHeight);
@@ -300,7 +419,7 @@ namespace catapult { namespace extensions {
 		RunLoadNemesisBlockTest<TTraits>(*pNemesisBlock, Amount(1234), [&nemesisBlock = *pNemesisBlock](const auto& accountStateCache) {
 			const auto& publicKey = GetTransactionRecipient(nemesisBlock, 0);
 			auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
-			const auto& accountState = accountStateCache.get(address);
+			const auto& accountState = accountStateCache.find(address).get();
 
 			// Assert:
 			EXPECT_EQ(Height(1), accountState.AddressHeight);
@@ -371,6 +490,30 @@ namespace catapult { namespace extensions {
 
 		// Act:
 		AssertLoadNemesisBlockFailure<TTraits>(*pNemesisBlock, Amount(1234));
+	}
+
+	TRAITS_BASED_TEST(CannotLoadNemesisBlockContainingWrongStateHash_VerifiableStateDisabled) {
+		// Arrange: create a valid nemesis block with a single (xem) transaction
+		auto pNemesisBlock = CreateNemesisBlock({ { { Xem_Id, Amount(1234) } } });
+
+		// - use the wrong state hash
+		pNemesisBlock->StateHash = test::GenerateRandomData<Hash256_Size>();
+
+		// Act:
+		auto modification = NemesisBlockModification::None;
+		AssertLoadNemesisBlockFailure<TTraits, catapult_runtime_error>(*pNemesisBlock, Amount(1234), modification, false);
+	}
+
+	TRAITS_BASED_TEST(CannotLoadNemesisBlockContainingWrongStateHash_VerifiableStateEnabled) {
+		// Arrange: create a valid nemesis block with a single (xem) transaction
+		auto pNemesisBlock = CreateNemesisBlock({ { { Xem_Id, Amount(1234) } } });
+
+		// - use the wrong state hash
+		pNemesisBlock->StateHash = Hash256();
+
+		// Act:
+		auto modification = NemesisBlockModification::None;
+		AssertLoadNemesisBlockFailure<TTraits, catapult_runtime_error>(*pNemesisBlock, Amount(1234), modification, true);
 	}
 
 	// endregion

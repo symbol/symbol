@@ -41,6 +41,17 @@ namespace catapult { namespace consumers {
 			return chain::IsChainLink(parentBlockInfo.entity(), parentBlockInfo.hash(), elements[0].Block);
 		}
 
+		void LogCacheStateHashInformation(Height height, const cache::StateHashInfo& stateHashInfo) {
+			std::ostringstream formattedSubCacheMerkleRoots;
+			for (const auto& subCacheMerkleRoot : stateHashInfo.SubCacheMerkleRoots)
+				formattedSubCacheMerkleRoots << std::endl << " + " << utils::HexFormat(subCacheMerkleRoot);
+
+			CATAPULT_LOG(debug)
+					<< "cache state hash (" << stateHashInfo.SubCacheMerkleRoots.size() << " components) at height " << height
+					<< std::endl << utils::HexFormat(stateHashInfo.StateHash)
+					<< formattedSubCacheMerkleRoots.str();
+		}
+
 		class DefaultBlockChainProcessor {
 		public:
 			DefaultBlockChainProcessor(
@@ -66,6 +77,10 @@ namespace catapult { namespace consumers {
 
 				const auto* pParent = &parentBlockInfo.entity();
 				const auto* pParentGenerationHash = &parentBlockInfo.generationHash();
+
+				// initial cache state will be either last cache state or unwound cache state
+				LogCacheStateHashInformation(pParent->Height, state.Cache.calculateStateHash(pParent->Height));
+
 				for (auto& element : elements) {
 					const auto& block = element.Block;
 					element.GenerationHash = model::CalculateGenerationHash(*pParentGenerationHash, block.Signer);
@@ -79,6 +94,19 @@ namespace catapult { namespace consumers {
 						CATAPULT_LOG(warning) << "batch processing of block " << block.Height << " failed with " << result;
 						return result;
 					}
+
+					auto cacheStateHashInfo = state.Cache.calculateStateHash(block.Height);
+					LogCacheStateHashInformation(block.Height, cacheStateHashInfo);
+
+					if (block.StateHash != cacheStateHashInfo.StateHash) {
+						CATAPULT_LOG(warning)
+								<< "block state hash (" << utils::HexFormat(block.StateHash) << ") does not match "
+								<< "cache state hash (" << utils::HexFormat(cacheStateHashInfo.StateHash) << ") "
+								<< "at height " << block.Height;
+						return chain::Failure_Chain_Block_Inconsistent_State_Hash;
+					}
+
+					element.SubCacheMerkleRoots = cacheStateHashInfo.SubCacheMerkleRoots;
 
 					pParent = &block;
 					pParentGenerationHash = &element.GenerationHash;

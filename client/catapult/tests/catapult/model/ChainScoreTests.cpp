@@ -45,7 +45,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(0u, scoreArray[0]);
-		EXPECT_EQ(0x7A6B3481023543B6, scoreArray[1]);
+		EXPECT_EQ(0x7A6B3481023543B6u, scoreArray[1]);
 	}
 
 	TEST(TEST_CLASS, CanCreateChainScoreFrom128BitValue) {
@@ -54,8 +54,8 @@ namespace catapult { namespace model {
 		auto scoreArray = score.toArray();
 
 		// Assert:
-		EXPECT_EQ(0x8FDE42679C23D678, scoreArray[0]);
-		EXPECT_EQ(0x7A6B3481023543B6, scoreArray[1]);
+		EXPECT_EQ(0x8FDE42679C23D678u, scoreArray[0]);
+		EXPECT_EQ(0x7A6B3481023543B6u, scoreArray[1]);
 	}
 
 	TEST(TEST_CLASS, CanCopyConstructChainScore) {
@@ -65,8 +65,8 @@ namespace catapult { namespace model {
 		auto scoreArray = scoreCopy.toArray();
 
 		// Assert:
-		EXPECT_EQ(0x8FDE42679C23D678, scoreArray[0]);
-		EXPECT_EQ(0x7A6B3481023543B6, scoreArray[1]);
+		EXPECT_EQ(0x8FDE42679C23D678u, scoreArray[0]);
+		EXPECT_EQ(0x7A6B3481023543B6u, scoreArray[1]);
 	}
 
 	TEST(TEST_CLASS, CanAssignChainScore) {
@@ -78,8 +78,8 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(&scoreCopy, &result);
-		EXPECT_EQ(0x8FDE42679C23D678, scoreArray[0]);
-		EXPECT_EQ(0x7A6B3481023543B6, scoreArray[1]);
+		EXPECT_EQ(0x8FDE42679C23D678u, scoreArray[0]);
+		EXPECT_EQ(0x7A6B3481023543B6u, scoreArray[1]);
 	}
 
 	// endregion
@@ -114,8 +114,8 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(&score, &result);
-		EXPECT_EQ(0x9FDE'426A'8C23'D688, scoreArray[0]);
-		EXPECT_EQ(0x7C6B'3981'0265'43BB, scoreArray[1]);
+		EXPECT_EQ(0x9FDE'426A'8C23'D688u, scoreArray[0]);
+		EXPECT_EQ(0x7C6B'3981'0265'43BBu, scoreArray[1]);
 	}
 
 	TEST(TEST_CLASS, CanSubtractFromChainScore) {
@@ -128,8 +128,8 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(&score, &result);
-		EXPECT_EQ(0x7FDE'4264'AC23'D668, scoreArray[0]);
-		EXPECT_EQ(0x786B'2F81'0205'43B1, scoreArray[1]);
+		EXPECT_EQ(0x7FDE'4264'AC23'D668u, scoreArray[0]);
+		EXPECT_EQ(0x786B'2F81'0205'43B1u, scoreArray[1]);
 	}
 
 	// endregion

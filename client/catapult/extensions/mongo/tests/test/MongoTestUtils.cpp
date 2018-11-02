@@ -109,11 +109,18 @@ namespace catapult { namespace test {
 		return registry;
 	}
 
+	namespace {
+		auto Count(mongocxx::collection& collection, bsoncxx::document::view filter) {
+			return static_cast<size_t>(collection.count(filter));
+		}
+	}
+
 	void AssertCollectionSize(const std::string& collectionName, uint64_t expectedSize) {
 		auto connection = CreateDbConnection();
 		auto database = connection[DatabaseName()];
 		auto filter = document() << finalize;
-		EXPECT_EQ(expectedSize, database[collectionName].count(filter.view())) << "for collection " << collectionName;
+		auto collection = database[collectionName];
+		EXPECT_EQ(expectedSize, Count(collection, filter.view())) << "for collection " << collectionName;
 	}
 
 	// region mapped mock transaction asserts
@@ -123,12 +130,13 @@ namespace catapult { namespace test {
 		mongocxx::options::find options;
 		options.sort(document() << "dd_counter" << 1 << finalize);
 		auto filter = document() << "aggregate_signer" << mongo::mappers::ToBinary(transactionSigner) << finalize;
-		ASSERT_EQ(expectedNumDependentDocuments, collection.count(filter.view()));
+		ASSERT_EQ(expectedNumDependentDocuments, Count(collection, filter.view()));
 
 		auto cursor = collection.find(filter.view(), options);
 		auto iter = cursor.begin();
 		for (auto i = 0u; i < expectedNumDependentDocuments; ++i) {
-			EXPECT_EQ(i, (*iter)["dd_counter"].get_int32().value) << "dependent document at " << i;
+			// 'dd_counter' is save as an int so retrieve as an int
+			EXPECT_EQ(static_cast<int32_t>(i), test::GetInt32(*iter, "dd_counter")) << "dependent document at " << i;
 			++iter;
 		}
 	}
@@ -151,8 +159,8 @@ namespace catapult { namespace test {
 		options.sort(document() << "transaction.deadline" << 1 << finalize);
 
 		// Assert: check collection size
-		EXPECT_EQ(expectedTransactionInfos.size(), collection.count(txFilter.view()));
-		EXPECT_EQ((1 + expectedNumDependentDocuments) * expectedTransactionInfos.size(), collection.count(document() << finalize));
+		EXPECT_EQ(expectedTransactionInfos.size(), Count(collection, txFilter.view()));
+		EXPECT_EQ((1 + expectedNumDependentDocuments) * expectedTransactionInfos.size(), Count(collection, document() << finalize));
 
 		auto txCursor = collection.find(txFilter.view(), options);
 		auto iter = txCursor.begin();

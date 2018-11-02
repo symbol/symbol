@@ -36,7 +36,7 @@ namespace catapult { namespace validators {
 		utils::KeyPointerSet addedAccounts;
 		utils::KeyPointerSet removedAccounts;
 
-		auto pModifications = notification.ModificationsPtr;
+		const auto* pModifications = notification.ModificationsPtr;
 		for (auto i = 0u; i < notification.ModificationsCount; ++i) {
 			if (!IsValidModificationType(pModifications[i].ModificationType))
 				return Failure_Multisig_Modify_Unsupported_Modification_Type;

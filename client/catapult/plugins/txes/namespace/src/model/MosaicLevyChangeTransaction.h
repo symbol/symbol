@@ -56,7 +56,7 @@ namespace catapult { namespace model {
 		catapult::MosaicId LevyId;
 
 		/// Recipient of the levy.
-		Address Recipient;
+		UnresolvedAddress Recipient;
 
 		/// Rule ids for the transfers between accounts.
 		std::array<uint8_t, Num_Mosaic_Levy_Rule_Ids> RuleIds;

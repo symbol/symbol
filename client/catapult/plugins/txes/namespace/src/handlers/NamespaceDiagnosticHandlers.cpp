@@ -19,8 +19,6 @@
 **/
 
 #include "NamespaceDiagnosticHandlers.h"
-#include "src/model/MosaicInfo.h"
-#include "src/model/NamespaceInfo.h"
 #include "catapult/handlers/HandlerFactory.h"
 
 namespace catapult { namespace handlers {
@@ -32,7 +30,6 @@ namespace catapult { namespace handlers {
 			using RequestStructureType = MosaicId;
 
 			static constexpr auto Packet_Type = ionet::PacketType::Mosaic_Infos;
-			static constexpr auto Should_Append_As_Values = true;
 		};
 	}
 

@@ -66,7 +66,7 @@ namespace catapult { namespace observers {
 			// - create multisig entry in cache
 			{
 				multisigCacheDelta.insert(state::MultisigEntry(signer));
-				auto& entry = multisigCacheDelta.get(signer);
+				auto& entry = multisigCacheDelta.find(signer).get();
 				entry.setMinRemoval(initialSettings.Removal);
 				entry.setMinApproval(initialSettings.Approval);
 			}
@@ -75,7 +75,7 @@ namespace catapult { namespace observers {
 			test::ObserveNotification(*pObserver, notification, context);
 
 			// Assert: check the cache
-			const auto& entry = multisigCacheDelta.get(signer);
+			const auto& entry = multisigCacheDelta.find(signer).get();
 			EXPECT_EQ(expectedSettings.Removal, entry.minRemoval()) << "initial: " << static_cast<int>(initialSettings.Removal);
 			EXPECT_EQ(expectedSettings.Approval, entry.minApproval()) << "initial: " << static_cast<int>(initialSettings.Approval);
 		}

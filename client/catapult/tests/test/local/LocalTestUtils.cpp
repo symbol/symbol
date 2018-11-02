@@ -22,6 +22,7 @@
 #include "catapult/cache/MemoryUtCache.h"
 #include "catapult/chain/UtUpdater.h"
 #include "catapult/crypto/KeyUtils.h"
+#include "catapult/extensions/PluginUtils.h"
 #include "catapult/plugins/PluginLoader.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
@@ -33,6 +34,13 @@ namespace catapult { namespace test {
 		constexpr unsigned short Local_Node_Port = Local_Host_Port;
 		constexpr unsigned short Local_Node_Api_Port = Local_Node_Port + 1;
 		constexpr const char* Local_Node_Private_Key = "4A236D9F894CF0C4FC8C042DB5DB41CCF35118B7B220163E5B4BC1872C1CD618";
+
+		void SetConnectionsSubConfiguration(config::NodeConfiguration::ConnectionsSubConfiguration& config) {
+			config.MaxConnections = 25;
+			config.MaxConnectionAge = 10;
+			config.MaxConnectionBanAge = 100;
+			config.NumConsecutiveFailuresBeforeBanning = 100;
+		}
 
 		config::NodeConfiguration CreateNodeConfiguration() {
 			auto config = config::NodeConfiguration::Uninitialized();
@@ -48,6 +56,7 @@ namespace catapult { namespace test {
 			config.UnconfirmedTransactionsCacheMaxSize = 100;
 
 			config.ConnectTimeout = utils::TimeSpan::FromSeconds(10);
+			config.SyncTimeout = utils::TimeSpan::FromSeconds(10);
 
 			config.SocketWorkingBufferSize = utils::FileSize::FromKilobytes(4);
 			config.MaxPacketDataSize = utils::FileSize::FromMegabytes(100);
@@ -58,15 +67,16 @@ namespace catapult { namespace test {
 			config.OutgoingSecurityMode = ionet::ConnectionSecurityMode::None;
 			config.IncomingSecurityModes = ionet::ConnectionSecurityMode::None;
 
+			config.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromMegabytes(5);
+			config.MaxTrackedNodes = 5'000;
+
 			config.Local.Host = "127.0.0.1";
 			config.Local.FriendlyName = "LOCAL";
 			config.Local.Roles = ionet::NodeRoles::Peer;
 
-			config.OutgoingConnections.MaxConnections = 25;
-			config.OutgoingConnections.MaxConnectionAge = 10;
+			SetConnectionsSubConfiguration(config.OutgoingConnections);
 
-			config.IncomingConnections.MaxConnections = 25;
-			config.IncomingConnections.MaxConnectionAge = 10;
+			SetConnectionsSubConfiguration(config.IncomingConnections);
 			config.IncomingConnections.BacklogSize = 100;
 			return config;
 		}
@@ -86,7 +96,7 @@ namespace catapult { namespace test {
 		auto config = model::BlockChainConfiguration::Uninitialized();
 		SetNetwork(config.Network);
 
-		config.BlockGenerationTargetTime = utils::TimeSpan::FromMilliseconds(1'000);
+		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(20);
 		config.BlockTimeSmoothingFactor = 0;
 		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(1);
 
@@ -101,11 +111,11 @@ namespace catapult { namespace test {
 		return config;
 	}
 
-	config::LocalNodeConfiguration LoadLocalNodeConfiguration(const std::string& dataDirectory) {
-		return LoadLocalNodeConfiguration(CreateLocalNodeBlockChainConfiguration(), dataDirectory);
+	config::LocalNodeConfiguration CreateLocalNodeConfiguration(const std::string& dataDirectory) {
+		return CreateLocalNodeConfiguration(CreateLocalNodeBlockChainConfiguration(), dataDirectory);
 	}
 
-	config::LocalNodeConfiguration LoadLocalNodeConfiguration(
+	config::LocalNodeConfiguration CreateLocalNodeConfiguration(
 			model::BlockChainConfiguration&& blockChainConfiguration,
 			const std::string& dataDirectory) {
 		auto userConfig = config::UserConfiguration::Uninitialized();
@@ -120,7 +130,7 @@ namespace catapult { namespace test {
 	}
 
 	config::LocalNodeConfiguration CreatePrototypicalLocalNodeConfiguration() {
-		return LoadLocalNodeConfiguration(""); // create the configuration without a valid data directory
+		return CreateLocalNodeConfiguration(""); // create the configuration without a valid data directory
 	}
 
 	config::LocalNodeConfiguration CreateUninitializedLocalNodeConfiguration() {
@@ -154,23 +164,35 @@ namespace catapult { namespace test {
 		config.MaxDifficultyBlocks = 123;
 		config.TotalChainBalance = Amount(15'000'000);
 		config.BlockPruneInterval = 360;
-		return CreateDefaultPluginManager(config);
+		return CreatePluginManager(config);
 	}
 
-	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManager(const model::BlockChainConfiguration& config) {
-		std::vector<plugins::PluginModule> modules;
-		auto pPluginManager = std::make_shared<plugins::PluginManager>(config, plugins::StorageConfiguration());
-		LoadPluginByName(*pPluginManager, modules, "", "catapult.coresystem");
+	namespace {
+		std::shared_ptr<plugins::PluginManager> CreatePluginManager(
+				const model::BlockChainConfiguration& config,
+				const plugins::StorageConfiguration& storageConfig) {
+			std::vector<plugins::PluginModule> modules;
+			auto pPluginManager = std::make_shared<plugins::PluginManager>(config, storageConfig);
+			LoadPluginByName(*pPluginManager, modules, "", "catapult.coresystem");
 
-		for (const auto& pair : config.Plugins)
-			LoadPluginByName(*pPluginManager, modules, "", pair.first);
+			for (const auto& pair : config.Plugins)
+				LoadPluginByName(*pPluginManager, modules, "", pair.first);
 
-		return std::shared_ptr<plugins::PluginManager>(
-				pPluginManager.get(),
-				[pPluginManager, modules = std::move(modules)](const auto*) mutable {
-					// destroy the modules after the plugin manager
-					pPluginManager.reset();
-					modules.clear();
-				});
+			return std::shared_ptr<plugins::PluginManager>(
+					pPluginManager.get(),
+					[pPluginManager, modules = std::move(modules)](const auto*) mutable {
+						// destroy the modules after the plugin manager
+						pPluginManager.reset();
+						modules.clear();
+					});
+		}
+	}
+
+	std::shared_ptr<plugins::PluginManager> CreatePluginManager(const model::BlockChainConfiguration& config) {
+		return CreatePluginManager(config, plugins::StorageConfiguration());
+	}
+
+	std::shared_ptr<plugins::PluginManager> CreatePluginManager(const config::LocalNodeConfiguration& config) {
+		return CreatePluginManager(config.BlockChain, extensions::CreateStorageConfiguration(config));
 	}
 }}

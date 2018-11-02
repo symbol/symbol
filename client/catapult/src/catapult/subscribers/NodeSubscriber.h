@@ -19,6 +19,8 @@
 **/
 
 #pragma once
+#include "catapult/ionet/NodeInfo.h"
+#include "catapult/types.h"
 
 namespace catapult { namespace ionet { class Node; } }
 
@@ -32,5 +34,8 @@ namespace catapult { namespace subscribers {
 	public:
 		/// Indicates a new \a node was found.
 		virtual void notifyNode(const ionet::Node& node) = 0;
+
+		/// Indicates a new incoming connection for node with \a identityKey connected to \a serviceId.
+		virtual void notifyIncomingNode(const Key& identityKey, ionet::ServiceIdentifier serviceId) = 0;
 	};
 }}

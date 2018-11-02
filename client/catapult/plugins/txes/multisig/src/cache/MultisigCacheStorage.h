@@ -19,20 +19,17 @@
 **/
 
 #pragma once
-#include "MultisigCache.h"
+#include "MultisigCacheTypes.h"
+#include "src/state/MultisigEntrySerializer.h"
 #include "catapult/cache/CacheStorageInclude.h"
 
 namespace catapult { namespace cache {
 
 	/// Policy for saving and loading multisig cache data.
-	struct MultisigCacheStorage : public MapCacheStorageFromDescriptor<MultisigCacheDescriptor> {
-		/// Saves \a element to \a output.
-		static void Save(const StorageType& element, io::OutputStream& output);
-
-		/// Loads a single value from \a input.
-		static state::MultisigEntry Load(io::InputStream& input);
-
-		/// Loads a single value from \a input into \a cacheDelta.
-		static void LoadInto(io::InputStream& input, DestinationType& cacheDelta);
+	struct MultisigCacheStorage
+			: public CacheStorageFromDescriptor<MultisigCacheDescriptor>
+			, public state::MultisigEntrySerializer {
+		/// Loads \a entry into \a cacheDelta.
+		static void LoadInto(const ValueType& entry, DestinationType& cacheDelta);
 	};
 }}

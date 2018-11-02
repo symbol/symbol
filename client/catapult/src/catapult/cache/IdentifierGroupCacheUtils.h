@@ -30,19 +30,22 @@ namespace catapult { namespace cache {
 		if (!groupedSet.contains(key))
 			groupedSet.insert(typename TGroupedSet::ElementType(key));
 
-		auto* pGroup = groupedSet.find(key);
+		auto groupIter = groupedSet.find(key);
+		auto* pGroup = groupIter.get();
 		pGroup->add(identifier);
 	}
 
 	/// Calls \a action for each value in \a set with grouping \a key according to \a groupedSet.
 	template<typename TSet, typename TGroupedSet, typename TGroupingKey, typename TAction>
 	void ForEachIdentifierWithGroup(TSet& set, const TGroupedSet& groupedSet, const TGroupingKey& key, TAction action) {
-		auto* pGroup = groupedSet.find(key);
+		auto groupIter = groupedSet.find(key);
+		auto* pGroup = groupIter.get();
 		if (!pGroup)
 			return;
 
 		for (const auto& identifier : pGroup->identifiers()) {
-			auto* pValue = set.find(identifier);
+			auto valueIter = set.find(identifier);
+			auto* pValue = valueIter.get();
 			if (pValue)
 				action(*pValue);
 		}
@@ -51,7 +54,8 @@ namespace catapult { namespace cache {
 	/// Removes all values in \a set with grouping \a key according to \a groupedSet.
 	template<typename TSet, typename TGroupedSet, typename TGroupingKey>
 	void RemoveAllIdentifiersWithGroup(TSet& set, TGroupedSet& groupedSet, const TGroupingKey& key) {
-		auto* pGroup = groupedSet.find(key);
+		auto groupIter = groupedSet.find(key);
+		auto* pGroup = groupIter.get();
 		if (!pGroup)
 			return;
 

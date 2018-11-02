@@ -53,7 +53,10 @@ namespace catapult { namespace api {
 	using PullBlockRequest = HeightPacket<ionet::PacketType::Pull_Block>;
 
 	/// A block hashes request.
-	using BlockHashesRequest = HeightPacket<ionet::PacketType::Block_Hashes>;
+	struct BlockHashesRequest : public HeightPacket<ionet::PacketType::Block_Hashes> {
+		/// Requested number of hashes.
+		uint32_t NumHashes;
+	};
 
 	/// A pull blocks request.
 	struct PullBlocksRequest : public HeightPacket<ionet::PacketType::Pull_Blocks> {

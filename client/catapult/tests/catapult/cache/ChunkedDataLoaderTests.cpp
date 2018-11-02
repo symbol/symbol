@@ -157,48 +157,4 @@ namespace catapult { namespace cache {
 	}
 
 	// endregion
-
-	// region stateful loader
-
-	namespace {
-		struct TestEntryStatefulLoaderTraits {
-			using DestinationType = std::vector<size_t>;
-			using LoadStateType = size_t;
-
-			static void LoadInto(io::InputStream& input, DestinationType& destination, size_t& state) {
-				// Act: add a value derived from both the input and the state
-				TestEntry entry;
-				input.read({ reinterpret_cast<uint8_t*>(&entry), sizeof(TestEntry) });
-				destination.push_back(entry.Beta * ++state);
-			}
-		};
-	}
-
-	TEST(TEST_CLASS, StatefulLoaderPersistsLoadStateAcrossAllLoads) {
-		// Arrange:
-		constexpr auto Num_Entries = 7u;
-		auto seed = GenerateRandomEntries(Num_Entries);
-		auto buffer = CopyEntriesToStreamBuffer(seed);
-		mocks::MockMemoryStream stream("", buffer);
-		ChunkedDataLoader<TestEntryStatefulLoaderTraits> loader(stream);
-
-		// Act: load all values
-		std::vector<size_t> loadedValues;
-		for (auto count : { 2u, 3u, 2u }) {
-			// Sanity:
-			EXPECT_TRUE(loader.hasNext());
-
-			// Act:
-			loader.next(count, loadedValues);
-		}
-
-		EXPECT_FALSE(loader.hasNext());
-
-		// Assert:
-		ASSERT_EQ(Num_Entries, loadedValues.size());
-		for (auto i = 0u; i < Num_Entries; ++i)
-			EXPECT_EQ(seed[i].Beta * (i + 1), loadedValues[i]) << "entry at " << i;
-	}
-
-	// endregion
 }}

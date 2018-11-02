@@ -28,8 +28,8 @@ namespace catapult { namespace test {
 	// region multisig entry related
 
 	namespace {
-		void AssertKeySet(const utils::KeySet& keySet, const bsoncxx::document::view& dbKeySet) {
-			ASSERT_EQ(keySet.size(), std::distance(dbKeySet.cbegin(), dbKeySet.cend()));
+		void AssertKeySet(const utils::SortedKeySet& keySet, const bsoncxx::document::view& dbKeySet) {
+			ASSERT_EQ(keySet.size(), test::GetFieldCount(dbKeySet));
 
 			for (auto dbIter = dbKeySet.cbegin(); dbKeySet.cend() != dbIter; ++dbIter) {
 				Key key;

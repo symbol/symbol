@@ -19,8 +19,9 @@
 **/
 
 #pragma once
+#include "NamespaceBaseSets.h"
 #include "NamespaceCacheMixins.h"
-#include "NamespaceCacheTypes.h"
+#include "NamespaceCacheSerializers.h"
 #include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
@@ -30,12 +31,16 @@ namespace catapult { namespace cache {
 	/// Mixins used by the namespace delta view.
 	struct NamespaceCacheDeltaMixins {
 	private:
-		using PrimaryMixins = BasicCacheMixins<NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaType, NamespaceCacheDescriptor>;
+		using PrimaryMixins = PatriciaTreeCacheMixins<NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaType, NamespaceCacheDescriptor>;
 		using FlatMapMixins = BasicCacheMixins<NamespaceCacheTypes::FlatMapTypes::BaseSetDeltaType, NamespaceCacheDescriptor>;
 
 	public:
 		using Size = PrimaryMixins::Size;
 		using Contains = FlatMapMixins::Contains;
+		using PatriciaTreeDelta = PrimaryMixins::PatriciaTreeDelta;
+		using Touch = HeightBasedTouchMixin<
+			typename NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaType,
+			typename NamespaceCacheTypes::HeightGroupingTypes::BaseSetDeltaType>;
 		using DeltaElements = PrimaryMixins::DeltaElements;
 
 		using NamespaceDeepSize = NamespaceDeepSizeMixin<NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaType>;
@@ -49,6 +54,8 @@ namespace catapult { namespace cache {
 			: public utils::MoveOnly
 			, public NamespaceCacheDeltaMixins::Size
 			, public NamespaceCacheDeltaMixins::Contains
+			, public NamespaceCacheDeltaMixins::PatriciaTreeDelta
+			, public NamespaceCacheDeltaMixins::Touch
 			, public NamespaceCacheDeltaMixins::DeltaElements
 			, public NamespaceCacheDeltaMixins::NamespaceDeepSize
 			, public NamespaceCacheDeltaMixins::NamespaceLookup {
@@ -56,8 +63,11 @@ namespace catapult { namespace cache {
 		using ReadOnlyView = NamespaceCacheTypes::CacheReadOnlyType;
 
 	public:
-		/// Creates a delta around \a namespaceSets and \a namespaceSizes.
-		BasicNamespaceCacheDelta(const NamespaceCacheTypes::BaseSetDeltaPointers& namespaceSets, const NamespaceSizes& namespaceSizes);
+		/// Creates a delta around \a namespaceSets, \a options and \a namespaceSizes.
+		BasicNamespaceCacheDelta(
+				const NamespaceCacheTypes::BaseSetDeltaPointers& namespaceSets,
+				const NamespaceCacheTypes::Options& options,
+				const NamespaceSizes& namespaceSizes);
 
 	public:
 		/// Inserts the root namespace \a ns into the cache.
@@ -80,14 +90,18 @@ namespace catapult { namespace cache {
 		NamespaceCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pHistoryById;
 		NamespaceCacheTypes::NamespaceCacheTypes::FlatMapTypes::BaseSetDeltaPointerType m_pNamespaceById;
 		NamespaceCacheTypes::HeightGroupingTypes::BaseSetDeltaPointerType m_pRootNamespaceIdsByExpiryHeight;
+		BlockDuration m_gracePeriodDuration;
 	};
 
 	/// Delta on top of the namespace cache.
 	class NamespaceCacheDelta : public ReadOnlyViewSupplier<BasicNamespaceCacheDelta> {
 	public:
-		/// Creates a delta around \a namespaceSets and \a namespaceSizes.
-		NamespaceCacheDelta(const NamespaceCacheTypes::BaseSetDeltaPointers& namespaceSets, const NamespaceSizes& namespaceSizes)
-				: ReadOnlyViewSupplier(namespaceSets, namespaceSizes)
+		/// Creates a delta around \a namespaceSets, \a options and \a namespaceSizes.
+		NamespaceCacheDelta(
+				const NamespaceCacheTypes::BaseSetDeltaPointers& namespaceSets,
+				const NamespaceCacheTypes::Options& options,
+				const NamespaceSizes& namespaceSizes)
+				: ReadOnlyViewSupplier(namespaceSets, options, namespaceSizes)
 		{}
 	};
 }}

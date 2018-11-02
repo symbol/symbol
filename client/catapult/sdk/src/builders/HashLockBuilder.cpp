@@ -27,8 +27,8 @@ namespace catapult { namespace builders {
 			, m_hash()
 	{}
 
-	void HashLockBuilder::setMosaic(MosaicId mosaicId, Amount amount) {
-		m_mosaic = model::Mosaic{ mosaicId, amount };
+	void HashLockBuilder::setMosaic(UnresolvedMosaicId mosaicId, Amount amount) {
+		m_mosaic = { mosaicId, amount };
 	}
 
 	void HashLockBuilder::setDuration(BlockDuration duration) {

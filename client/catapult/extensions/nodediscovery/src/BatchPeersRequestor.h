@@ -31,7 +31,7 @@ namespace catapult { namespace nodediscovery {
 		using NodesConsumer = consumer<const ionet::NodeSet&>;
 
 	public:
-		/// Creates a requestor around \a packetIoPickers, which is used to find partners, and forwards found nodes to \a nodesConsumer.
+		/// Creates a requestor around \a packetIoPickers, which is used to find partners. Forwards found nodes to \a nodesConsumer.
 		explicit BatchPeersRequestor(const net::PacketIoPickerContainer& packetIoPickers, const NodesConsumer& nodesConsumer);
 
 	public:

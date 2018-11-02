@@ -221,6 +221,7 @@ namespace catapult { namespace utils {
 #endif
 
 namespace catapult { namespace utils {
+
 #ifdef ENABLE_CATAPULT_DIAGNOSTICS
 	using DefaultReaderNotificationPolicy = ReentrancyCheckReaderNotificationPolicy;
 #else

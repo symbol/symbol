@@ -46,7 +46,7 @@ namespace catapult { namespace net {
 		ionet::PacketSocketOptions PacketSocketOptions;
 
 		// The maximum number of pending connections (backlog size).
-		int MaxPendingConnections = 100;
+		uint16_t MaxPendingConnections = 100;
 
 		// The maximum number of active connections.
 		uint32_t MaxActiveConnections = 25;

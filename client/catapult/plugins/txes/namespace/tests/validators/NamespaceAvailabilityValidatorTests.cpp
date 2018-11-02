@@ -32,24 +32,24 @@ namespace catapult { namespace validators {
 #define ROOT_TEST_CLASS RootNamespaceAvailabilityValidatorTests
 #define CHILD_TEST_CLASS ChildNamespaceAvailabilityValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(RootNamespaceAvailability, model::NamespaceLifetimeConstraints(BlockDuration(), BlockDuration(), 0))
+	DEFINE_COMMON_VALIDATOR_TESTS(RootNamespaceAvailability, BlockDuration())
 	DEFINE_COMMON_VALIDATOR_TESTS(ChildNamespaceAvailability,)
 
 	namespace {
 		constexpr BlockDuration Max_Duration(105);
 		constexpr BlockDuration Default_Duration(10);
-		constexpr BlockDuration Grace_Period_Duration(20);
-		constexpr uint32_t Max_Rollback_Blocks(5);
+		constexpr BlockDuration Grace_Period_Duration(25);
 
 		template<typename TSeedCacheFunc>
 		auto CreateAndSeedCache(TSeedCacheFunc seedCache) {
-			auto cache = test::NamespaceCacheFactory::Create();
+			auto cache = test::NamespaceCacheFactory::Create(Grace_Period_Duration);
 			{
 				auto cacheDelta = cache.createDelta();
 				auto& namespaceCacheDelta = cacheDelta.sub<cache::NamespaceCache>();
 				seedCache(namespaceCacheDelta);
 				cache.commit(Height());
 			}
+
 			return cache;
 		}
 
@@ -59,19 +59,13 @@ namespace catapult { namespace validators {
 				const model::RootNamespaceNotification& notification,
 				Height height,
 				TSeedCacheFunc seedCache) {
-			// Arrange: seed the cache
+			// Arrange:
 			auto cache = CreateAndSeedCache(seedCache);
-
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(height, readOnlyCache);
-
-			model::NamespaceLifetimeConstraints constraints(Max_Duration, Grace_Period_Duration, Max_Rollback_Blocks);
-			auto pValidator = CreateRootNamespaceAvailabilityValidator(constraints);
+			model::NamespaceLifetimeConstraints constraints(Max_Duration, Grace_Period_Duration);
+			auto pValidator = CreateRootNamespaceAvailabilityValidator(constraints.MaxNamespaceDuration);
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache, height);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "height " << height << ", duration " << notification.Duration;
@@ -83,18 +77,12 @@ namespace catapult { namespace validators {
 				const model::ChildNamespaceNotification& notification,
 				Height height,
 				TSeedCacheFunc seedCache) {
-			// Arrange: seed the cache
+			// Arrange:
 			auto cache = CreateAndSeedCache(seedCache);
-
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(height, readOnlyCache);
-
 			auto pValidator = CreateChildNamespaceAvailabilityValidator();
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache, height);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "height " << height;
@@ -241,14 +229,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(ROOT_TEST_CLASS, CannotRenewRootNamespaceWithDurationTooLarge) {
-		// Arrange: max duration is 120 [Max_Duration(105) + Grace_Period_Duration(20) + height(15) - lifetime.End(20)]
-		for (auto duration : { BlockDuration(121), BlockDuration(200) })
+		// Arrange: max duration is 125 [Max_Duration(105) + Grace_Period_Duration(25) + height(15) - lifetime.End(20)]
+		for (auto duration : { BlockDuration(126), BlockDuration(200) })
 			AssertCannotChangeDuration(Height(15), test::CreateLifetime(10, 20), duration);
 	}
 
 	TEST(ROOT_TEST_CLASS, CanRenewRootNamespaceWithAcceptableDurations) {
-		// Arrange: max duration is 120 [Max_Duration(105) + Grace_Period_Duration(20) + height(15) - lifetime.End(20)]
-		for (auto duration : { BlockDuration(20), BlockDuration(75), BlockDuration(120) }) {
+		// Arrange: max duration is 125 [Max_Duration(105) + Grace_Period_Duration(25) + height(15) - lifetime.End(20)]
+		for (auto duration : { BlockDuration(20), BlockDuration(75), BlockDuration(125) }) {
 			// Act: try to renew a root
 			auto signer = test::GenerateRandomData<Key_Size>();
 			auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), duration);

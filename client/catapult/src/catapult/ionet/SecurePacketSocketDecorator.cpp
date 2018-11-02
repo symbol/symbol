@@ -87,7 +87,7 @@ namespace catapult { namespace ionet {
 			ConnectionSecurityMode securityMode,
 			const crypto::KeyPair& sourceKeyPair,
 			const Key& remoteKey,
-			const utils::FileSize& maxPacketDataSize) {
+			utils::FileSize maxPacketDataSize) {
 		return HasFlag(ConnectionSecurityMode::Signed, securityMode)
 				? std::make_shared<SecureSignedPacketSocket>(pSocket, sourceKeyPair, remoteKey, maxPacketDataSize.bytes32())
 				: pSocket;

@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "MultisigCacheTypes.h"
+#include "MultisigBaseSets.h"
 #include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
@@ -28,7 +28,7 @@
 namespace catapult { namespace cache {
 
 	/// Mixins used by the multisig cache delta.
-	using MultisigCacheDeltaMixins = BasicCacheMixins<MultisigCacheTypes::PrimaryTypes::BaseSetDeltaType, MultisigCacheDescriptor>;
+	using MultisigCacheDeltaMixins = PatriciaTreeCacheMixins<MultisigCacheTypes::PrimaryTypes::BaseSetDeltaType, MultisigCacheDescriptor>;
 
 	/// Basic delta on top of the multisig cache.
 	class BasicMultisigCacheDelta
@@ -37,6 +37,7 @@ namespace catapult { namespace cache {
 			, public MultisigCacheDeltaMixins::Contains
 			, public MultisigCacheDeltaMixins::ConstAccessor
 			, public MultisigCacheDeltaMixins::MutableAccessor
+			, public MultisigCacheDeltaMixins::PatriciaTreeDelta
 			, public MultisigCacheDeltaMixins::BasicInsertRemove
 			, public MultisigCacheDeltaMixins::DeltaElements {
 	public:
@@ -49,17 +50,15 @@ namespace catapult { namespace cache {
 				, MultisigCacheDeltaMixins::Contains(*multisigSets.pPrimary)
 				, MultisigCacheDeltaMixins::ConstAccessor(*multisigSets.pPrimary)
 				, MultisigCacheDeltaMixins::MutableAccessor(*multisigSets.pPrimary)
+				, MultisigCacheDeltaMixins::PatriciaTreeDelta(*multisigSets.pPrimary, multisigSets.pPatriciaTree)
 				, MultisigCacheDeltaMixins::BasicInsertRemove(*multisigSets.pPrimary)
 				, MultisigCacheDeltaMixins::DeltaElements(*multisigSets.pPrimary)
 				, m_pMultisigEntries(multisigSets.pPrimary)
 		{}
 
 	public:
-		using MultisigCacheDeltaMixins::ConstAccessor::get;
-		using MultisigCacheDeltaMixins::MutableAccessor::get;
-
-		using MultisigCacheDeltaMixins::ConstAccessor::tryGet;
-		using MultisigCacheDeltaMixins::MutableAccessor::tryGet;
+		using MultisigCacheDeltaMixins::ConstAccessor::find;
+		using MultisigCacheDeltaMixins::MutableAccessor::find;
 
 	private:
 		MultisigCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pMultisigEntries;

@@ -20,6 +20,7 @@
 
 #include "ApiSender.h"
 #include "ToolConfigurationUtils.h"
+#include "ToolConversionUtils.h"
 #include "ToolNetworkUtils.h"
 #include "Waits.h"
 #include "catapult/extensions/RemoteDiagnosticApi.h"
@@ -82,11 +83,11 @@ namespace catapult { namespace tools {
 			.then([pPacketIo](auto&& future) { return future.get(); });
 	}
 
-	thread::future<model::AccountInfoRange> ApiSender::accountInfos(model::AddressRange&& addresses) const {
+	thread::future<std::vector<state::AccountState>> ApiSender::accountStates(model::AddressRange&& addresses) const {
 		auto pPacketIo = m_p2pConnections.pickOne().io();
 		auto pDiagnosticApi = extensions::CreateRemoteDiagnosticApi(*pPacketIo);
 		return pDiagnosticApi->accountInfos(std::move(addresses))
-			.then([pPacketIo](auto&& future) { return future.get(); });
+			.then([pPacketIo](auto&& future) { return ParseAccountStates(future.get()); });
 	}
 
 	bool ApiSender::waitForBlocks(size_t numBlocks) {

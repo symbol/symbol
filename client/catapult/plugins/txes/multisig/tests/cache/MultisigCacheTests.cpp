@@ -60,7 +60,8 @@ namespace catapult { namespace cache {
 
 		struct MultisigEntryModificationPolicy {
 			static void Modify(MultisigCacheDelta& delta, const state::MultisigEntry& entry) {
-				auto& entryFromCache = delta.get(entry.key());
+				auto multisigIter = delta.find(entry.key());
+				auto& entryFromCache = multisigIter.get();
 				entryFromCache.cosignatories().insert(test::GenerateRandomData<Key_Size>());
 			}
 		};
@@ -105,7 +106,8 @@ namespace catapult { namespace cache {
 		// Act: add links
 		{
 			auto delta = cache.createDelta();
-			auto& entry = delta->get(keys[0]);
+			auto multisigIter = delta->find(keys[0]);
+			auto& entry = multisigIter.get();
 			entry.cosignatories().insert(keys[1]);
 			entry.multisigAccounts().insert(keys[2]);
 			cache.commit();
@@ -113,9 +115,10 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		auto view = cache.createView();
-		const auto& entry = view->get(keys[0]);
-		EXPECT_EQ(utils::KeySet({ keys[1] }), entry.cosignatories());
-		EXPECT_EQ(utils::KeySet({ keys[2] }), entry.multisigAccounts());
+		auto multisigIter = view->find(keys[0]);
+		const auto& entry = multisigIter.get();
+		EXPECT_EQ(utils::SortedKeySet({ keys[1] }), entry.cosignatories());
+		EXPECT_EQ(utils::SortedKeySet({ keys[2] }), entry.multisigAccounts());
 	}
 
 	// endregion

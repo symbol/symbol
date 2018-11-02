@@ -4,7 +4,7 @@ set(PLUGIN_BASE_NAME catapult.plugins.hashcache)
 
 # create a cache lib
 catapult_library_target(${PLUGIN_BASE_NAME}.cache cache)
-target_link_libraries(${PLUGIN_BASE_NAME}.cache catapult.cache)
+target_link_libraries(${PLUGIN_BASE_NAME}.cache catapult.cache catapult.state)
 
 # create a deps lib
 catapult_library_target(${PLUGIN_BASE_NAME}.deps handlers observers validators)

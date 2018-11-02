@@ -23,6 +23,7 @@
 #include "catapult/net/AsyncTcpServer.h"
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/net/PeerConnectResult.h"
+#include "catapult/subscribers/NodeSubscriber.h"
 #include "catapult/thread/MultiServicePool.h"
 
 namespace catapult { namespace extensions {
@@ -37,16 +38,21 @@ namespace catapult { namespace extensions {
 	uint32_t GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles roles);
 
 	/// Boots a tcp server with \a serviceGroup on localhost \a port with connection \a config and \a acceptor.
+	/// Incoming connections are assumed to be associated with \a serviceId and are added to \a nodeSubscriber.
 	template<typename TAcceptor>
 	std::shared_ptr<net::AsyncTcpServer> BootServer(
 			thread::MultiServicePool::ServiceGroup& serviceGroup,
 			unsigned short port,
+			ionet::ServiceIdentifier serviceId,
 			const config::LocalNodeConfiguration& config,
+			subscribers::NodeSubscriber& nodeSubscriber,
 			TAcceptor acceptor) {
 		auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port);
-		auto settings = net::AsyncTcpServerSettings([acceptor, port](const auto& socketInfo) {
-			acceptor(socketInfo, [port](auto result) {
-				CATAPULT_LOG(info) << "accept result to local node port " << port << ": " << result;
+		auto settings = net::AsyncTcpServerSettings([acceptor, port, serviceId, &nodeSubscriber](const auto& socketInfo) {
+			acceptor(socketInfo, [port, serviceId, &nodeSubscriber](const auto& connectResult) {
+				CATAPULT_LOG(info) << "accept result to local node port " << port << ": " << connectResult.Code;
+				if (net::PeerConnectCode::Accepted == connectResult.Code)
+					nodeSubscriber.notifyIncomingNode(connectResult.IdentityKey, serviceId);
 			});
 		});
 

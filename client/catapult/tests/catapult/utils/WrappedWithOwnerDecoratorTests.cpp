@@ -62,7 +62,7 @@ namespace catapult { namespace utils {
 
 		// Assert: the function was called and decorator has kept the owner alive
 		EXPECT_EQ(35u, counter);
-		EXPECT_EQ(2u, decorator.owner().use_count());
+		EXPECT_EQ(2, decorator.owner().use_count());
 	}
 
 	DECORATOR_BASED_TEST(DecoratorForwardsResultsFromCallabale) {
@@ -79,7 +79,7 @@ namespace catapult { namespace utils {
 		// Assert: the function was called and decorator has kept the owner alive
 		EXPECT_EQ(21u, result1);
 		EXPECT_EQ(14u, result2);
-		EXPECT_EQ(2u, decorator.owner().use_count());
+		EXPECT_EQ(2, decorator.owner().use_count());
 	}
 
 	DECORATOR_BASED_TEST(DecoratorExtendsLifetime) {
@@ -91,9 +91,9 @@ namespace catapult { namespace utils {
 		});
 
 		// Act: reset the local owner pointer
-		EXPECT_EQ(2u, decorator.owner().use_count());
+		EXPECT_EQ(2, decorator.owner().use_count());
 		pOwner.reset();
-		EXPECT_EQ(1u, decorator.owner().use_count());
+		EXPECT_EQ(1, decorator.owner().use_count());
 
 		// - invoke the lambda
 		decorator(static_cast<uint32_t>(3));
@@ -141,7 +141,7 @@ namespace catapult { namespace utils {
 
 			// Act: make the decorator hold the last reference to the owner
 			pOwner.reset();
-			EXPECT_EQ(1u, decorator.owner().use_count());
+			EXPECT_EQ(1, decorator.owner().use_count());
 
 			// - invoke the lambda
 			decorator(static_cast<uint32_t>(3));
@@ -164,12 +164,12 @@ namespace catapult { namespace utils {
 		}));
 
 		// Sanity: local, captured owner in lambda, captured owner in decorator
-		EXPECT_EQ(3u, pOwner.use_count());
+		EXPECT_EQ(3, pOwner.use_count());
 
 		// Act: reset the decorator:
 		decorator.reset();
 
 		// Assert: only the local reference remains
-		EXPECT_EQ(1u, pOwner.use_count());
+		EXPECT_EQ(1, pOwner.use_count());
 	}
 }}

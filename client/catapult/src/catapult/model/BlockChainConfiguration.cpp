@@ -48,6 +48,8 @@ namespace catapult { namespace model {
 
 #define LOAD_CHAIN_PROPERTY(NAME) utils::LoadIniProperty(bag, "chain", #NAME, config.NAME)
 
+		LOAD_CHAIN_PROPERTY(ShouldEnableVerifiableState);
+
 		LOAD_CHAIN_PROPERTY(BlockGenerationTargetTime);
 		LOAD_CHAIN_PROPERTY(BlockTimeSmoothingFactor);
 
@@ -81,7 +83,7 @@ namespace catapult { namespace model {
 			numPluginProperties += iter->second.size();
 		}
 
-		utils::VerifyBagSizeLte(bag, 14 + numPluginProperties);
+		utils::VerifyBagSizeLte(bag, 15 + numPluginProperties);
 		return config;
 	}
 }}

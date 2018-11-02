@@ -22,6 +22,7 @@
 #include "catapult/cache/CacheStorage.h"
 #include "catapult/cache/CatapultCacheBuilder.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "catapult/crypto/Hashes.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
@@ -79,6 +80,151 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		AssertSubCacheSizes(delta, 0);
+	}
+
+	// endregion
+
+	// region state hash
+
+	namespace {
+		struct ViewTraits {
+			static auto CreateView(const CatapultCache& cache) {
+				return cache.createView();
+			}
+
+			template<typename TView>
+			static Hash256 GetMerkleRoot(const TView& view) {
+				return view.tryGetMerkleRoot().first;
+			}
+
+			static auto CalculateStateHash(const CatapultCacheView& view) {
+				return view.calculateStateHash();
+			}
+		};
+
+		struct DeltaTraits {
+			static auto CreateView(CatapultCache& cache) {
+				return cache.createDelta();
+			}
+
+			template<typename TView>
+			static Hash256 GetMerkleRoot(const TView& view) {
+				auto merkleRoot = view.tryGetMerkleRoot().first;
+				merkleRoot[0] = 123; // SimpleCache updateMerkleRoot changes the first byte of the merkle root
+				return merkleRoot;
+			}
+
+			static auto CalculateStateHash(const CatapultCacheDelta& view) {
+				return view.calculateStateHash(Height(123));
+			}
+		};
+	}
+
+#define VIEW_DELTA_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_View) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ViewTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Delta) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeltaTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	VIEW_DELTA_TEST(StateHashIsZeroWhenStateCalculationIsDisabled) {
+		// Arrange:
+		auto cache = CreateSimpleCatapultCache();
+		auto view = TTraits::CreateView(cache);
+
+		// Act + Assert:
+		EXPECT_EQ(Hash256{}, TTraits::CalculateStateHash(view).StateHash);
+	}
+
+	VIEW_DELTA_TEST(SubCacheMerkleRootsAreEmptyWhenStateCalculationIsDisabled) {
+		// Arrange:
+		auto cache = CreateSimpleCatapultCache();
+		auto view = TTraits::CreateView(cache);
+
+		// Act + Assert:
+		EXPECT_TRUE(TTraits::CalculateStateHash(view).SubCacheMerkleRoots.empty());
+	}
+
+	namespace {
+		CatapultCache CreateSimpleCatapultCacheForStateHashTests() {
+			// Arrange: two of the four sub caches support merkle roots
+			CatapultCacheBuilder builder;
+			AddSubCacheWithId<6>(builder, test::SimpleCacheViewMode::Merkle_Root);
+			AddSubCacheWithId<8>(builder);
+			AddSubCacheWithId<2>(builder, test::SimpleCacheViewMode::Merkle_Root);
+			AddSubCacheWithId<4>(builder);
+			return builder.build();
+		}
+	}
+
+	VIEW_DELTA_TEST(StateHashIsNonZeroWhenStateCalculationIsEnabled) {
+		// Arrange:
+		auto cache = CreateSimpleCatapultCacheForStateHashTests();
+		auto view = TTraits::CreateView(cache);
+
+		Hash256 expectedStateHash;
+		crypto::Sha3_256_Builder stateHashBuilder;
+		stateHashBuilder.update(TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<2>>()));
+		stateHashBuilder.update(TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<6>>()));
+		stateHashBuilder.final(expectedStateHash);
+
+		// Act + Assert:
+		EXPECT_EQ(expectedStateHash, TTraits::CalculateStateHash(view).StateHash);
+	}
+
+	VIEW_DELTA_TEST(SubCacheMerkleRootsAreNotEmptyWhenStateCalculationIsEnabled) {
+		// Arrange:
+		auto cache = CreateSimpleCatapultCacheForStateHashTests();
+		auto view = TTraits::CreateView(cache);
+
+		std::vector<Hash256> expectedSubCacheMerkleRoots{
+			TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<2>>()),
+			TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<6>>())
+		};
+
+		// Act + Assert:
+		EXPECT_EQ(expectedSubCacheMerkleRoots, TTraits::CalculateStateHash(view).SubCacheMerkleRoots);
+	}
+
+	namespace {
+		void AssertCannotSetWrongNumberOfSubCacheMerkleRoots(uint32_t numHashes) {
+			// Arrange:
+			auto cache = CreateSimpleCatapultCacheForStateHashTests();
+			auto view = cache.createDelta();
+			auto hashes = test::GenerateRandomDataVector<Hash256>(numHashes);
+
+			// Act + Assert:
+			EXPECT_THROW(view.setSubCacheMerkleRoots(hashes), catapult_invalid_argument);
+		}
+	}
+
+	TEST(TEST_CLASS, CannotSetTooFewSubCacheMerkleRoots) {
+		// Assert:
+		AssertCannotSetWrongNumberOfSubCacheMerkleRoots(1);
+	}
+
+	TEST(TEST_CLASS, CannotSetTooManySubCacheMerkleHashes) {
+		// Assert:
+		AssertCannotSetWrongNumberOfSubCacheMerkleRoots(3);
+	}
+
+	TEST(TEST_CLASS, CanSetExactNumberSubCacheMerkleHashes) {
+		// Arrange:
+		auto cache = CreateSimpleCatapultCacheForStateHashTests();
+		auto view = cache.createDelta();
+		auto hashes = test::GenerateRandomDataVector<Hash256>(2);
+
+		// Act:
+		view.setSubCacheMerkleRoots(hashes);
+
+		// Assert:
+		const auto& subCacheMerkleRoots = view.calculateStateHash(Height(123)).SubCacheMerkleRoots;
+		EXPECT_EQ(2u, subCacheMerkleRoots.size());
+
+		// - adjust expected hashes because SimpleCache updateMerkleRoot changes the first byte of the merkle root
+		for (auto& hash : hashes)
+			hash[0] = 123u;
+
+		EXPECT_EQ(hashes, subCacheMerkleRoots);
 	}
 
 	// endregion
@@ -294,7 +440,7 @@ namespace catapult { namespace cache {
 		CatapultCache CreateSimpleCatapultCacheWithSomeNonIterableSubCaches() {
 			CatapultCacheBuilder builder;
 			AddSubCacheWithId<2>(builder);
-			AddSubCacheWithId<4>(builder, test::SimpleCacheViewMode::Non_Iterable);
+			AddSubCacheWithId<4>(builder, test::SimpleCacheViewMode::Basic);
 			AddSubCacheWithId<6>(builder);
 			return builder.build();
 		}

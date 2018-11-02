@@ -72,6 +72,23 @@ namespace catapult { namespace tools {
 			std::string LoggingConfigurationPath;
 		};
 
+		void ParseSubOptions(ParsedOptions& options, CommandParser& parser, const std::vector<std::string>& args) {
+			namespace po = boost::program_options;
+
+			// set length to 1000 and let terminal handle wrapping
+			po::options_description descriptor(parser.name() + " options", 1000, 1000 - 20);
+			auto optionsBuilder = descriptor.add_options();
+
+			// add tool-specific options
+			OptionsPositional positional;
+			parser.prepareOptions(optionsBuilder, positional);
+
+			po::store(po::command_line_parser(args).options(descriptor).run(), options.ToolOptions);
+
+			if (options.IsHelpRequest)
+				std::cout << descriptor << std::endl;
+		}
+
 		void ParseOptions(ParsedOptions& options, Tool& tool, int argc, const char** argv) {
 			namespace po = boost::program_options;
 
@@ -85,18 +102,46 @@ namespace catapult { namespace tools {
 						OptionsValue<std::string>(options.LoggingConfigurationPath),
 						"the path to the logging configuration file");
 
-			// add tool-specific options
+			// 1. add tool-specific options
 			OptionsPositional positional;
 			tool.prepareOptions(optionsBuilder, positional);
 
-			// parse all options and handle help requests
-			po::store(po::command_line_parser(argc, argv).options(descriptor).positional(positional).run(), options.ToolOptions);
+			// 2. parse all options
+			auto parser = po::command_line_parser(argc, argv).options(descriptor).positional(positional);
+			if (tool.allowUnregisteredOptions())
+				parser.allow_unregistered();
+
+			auto parsed = parser.run();
+			po::store(parsed, options.ToolOptions);
+
+			// 3. mark if help was requested and print general help
 			options.IsHelpRequest = !!options.ToolOptions.count("help");
-			if (options.IsHelpRequest) {
+			if (options.IsHelpRequest)
 				std::cout << descriptor << std::endl;
-				return;
+
+			// 4. parse sub-command options
+			auto* pSubParser = tool.subCommandParser(options.ToolOptions);
+			if (pSubParser) {
+				auto args = po::collect_unrecognized(parsed.options, po::include_positional);
+				// - if command was passed as positional argument, erase it from list of args passed to sub-command parser
+				if (positional.max_total_count() > 0) {
+					const auto& positionalName = positional.name_for_position(0);
+					for (const auto& option : parsed.options) {
+						if (positionalName != option.string_key)
+							continue;
+
+						if (option.position_key != -1)
+							args.erase(args.begin());
+					}
+				}
+
+				ParseSubOptions(options, *pSubParser, args);
 			}
 
+			if (options.IsHelpRequest)
+				return;
+
+			// 5. run notifications
 			po::notify(options.ToolOptions);
 		}
 	}

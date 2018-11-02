@@ -58,7 +58,7 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return {};
+				return { ionet::PacketType::Multisig_Infos, ionet::PacketType::Multisig_State_Path };
 			}
 
 			static std::vector<std::string> GetDiagnosticCounterNames() {

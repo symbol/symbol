@@ -40,6 +40,9 @@ namespace catapult { namespace test {
 		std::shared_ptr<void> SetupLogging() {
 			utils::BasicLoggerOptions options;
 			options.SinkType = utils::LogSinkType::Sync;
+#ifndef _MSC_VER
+			options.ColorMode = utils::LogColorMode::Ansi;
+#endif
 
 			auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
 			pBootstrapper->addConsoleLogger(options, utils::LogFilter(utils::LogLevel::Debug));

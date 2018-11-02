@@ -32,14 +32,16 @@ namespace catapult { namespace ionet {
 		}
 
 		std::string GetPrintableName(const Key& identityKey, const NodeEndpoint& endpoint, const NodeMetadata& metadata) {
-			auto printableName = metadata.Name.empty()
-					? model::AddressToString(model::PublicKeyToAddress(identityKey, metadata.NetworkIdentifier))
-					: metadata.Name;
+			std::ostringstream printableName;
+			if (metadata.Name.empty())
+				printableName << model::AddressToString(model::PublicKeyToAddress(identityKey, metadata.NetworkIdentifier));
+			else
+				printableName << metadata.Name;
 
 			if (!endpoint.Host.empty())
-				printableName += " @ " + endpoint.Host;
+				printableName << " @ " + endpoint.Host << ":" << endpoint.Port;
 
-			return printableName;
+			return printableName.str();
 		}
 	}
 

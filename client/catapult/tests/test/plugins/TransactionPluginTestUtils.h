@@ -36,9 +36,15 @@ namespace catapult { namespace test {
 				[pPlugin = std::shared_ptr<TTransactionPlugin>(std::move(pPlugin))](auto*) {});
 	}
 
-/// Defines traits for transaction plugin based tests for \a NAME transaction.
-#define DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(NAME) \
-	struct RegularTraits { \
+	/// Publishes \a transaction notifications to \a sub using \a plugin.
+	template<typename TTransactionPlugin, typename TTransaction>
+	void PublishTransaction(const TTransactionPlugin& plugin, const TTransaction& transaction, model::NotificationSubscriber& sub) {
+		plugin.publish(transaction, model::PublisherContext(), sub);
+	}
+
+/// Defines traits for transaction plugin based tests for \a NAME transaction using traits prefixed by \a TRAITS_PREFIX.
+#define DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(NAME, TRAITS_PREFIX) \
+	struct TRAITS_PREFIX##RegularTraits { \
 		using TransactionType = model::NAME##Transaction; \
 		\
 		static auto CreatePlugin() { \
@@ -46,13 +52,16 @@ namespace catapult { namespace test {
 		} \
 	}; \
 	\
-	struct EmbeddedTraits { \
+	struct TRAITS_PREFIX##EmbeddedTraits { \
 		using TransactionType = model::Embedded##NAME##Transaction; \
 		\
 		static auto CreatePlugin() { \
-			return test::ExtractEmbeddedPlugin(RegularTraits::CreatePlugin()); \
+			return test::ExtractEmbeddedPlugin(TRAITS_PREFIX##RegularTraits::CreatePlugin()); \
 		} \
 	};
+
+/// Defines traits for transaction plugin based tests for \a NAME transaction.
+#define DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(NAME) DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(NAME,)
 
 /// Defines traits for transaction plugin based tests for \a NAME transaction requiring configuration of type \a CONFIG_TYPE.
 #define TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(NAME, CONFIG_TYPE) \
@@ -72,12 +81,20 @@ namespace catapult { namespace test {
 		} \
 	};
 
+/// Defines a test named \a TEST_NAME for both transaction and embedded transaction plugins using traits prefixed by \a TRAITS_PREFIX
+/// and test name postfixed by \a TEST_POSTFIX.
+#define PLUGIN_TEST_WITH_PREFIXED_TRAITS(TEST_NAME, TRAITS_PREFIX, TEST_POSTFIX) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##TEST_POSTFIX)(); \
+	TEST(TEST_CLASS, TransactionPlugin_##TEST_NAME##TEST_POSTFIX) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##TEST_POSTFIX)<TRAITS_PREFIX##RegularTraits>(); \
+	} \
+	TEST(TEST_CLASS, EmbeddedTransactionPlugin_##TEST_NAME##TEST_POSTFIX) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##TEST_POSTFIX)<TRAITS_PREFIX##EmbeddedTraits>(); \
+	} \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME##TEST_POSTFIX)()
+
 /// Defines a test named \a TEST_NAME for both transaction and embedded transaction plugins.
-#define PLUGIN_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TransactionPlugin_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, EmbeddedTransactionPlugin_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+#define PLUGIN_TEST(TEST_NAME) PLUGIN_TEST_WITH_PREFIXED_TRAITS(TEST_NAME, ,)
 
 	/// Asserts that a transaction plugin supports embeddings of \a type.
 	template<typename TTraits, typename... TArgs>
@@ -100,17 +117,24 @@ namespace catapult { namespace test {
 		EXPECT_EQ(type, pPlugin->type());
 	}
 
+/// Defines common tests for a transaction plugin with \a TYPE in \a TEST_CLASS using traits prefixed by \a TRAITS_PREFIX
+/// and test name postfixed by \a TEST_POSTFIX.
+/// \note \a TYPE is first __VA_ARGS__ parameter.
+/// \note These tests should be supported by ALL embeddable transaction plugins.
+#define DEFINE_COMMON_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, ...) \
+	TEST(TEST_CLASS, CanCreateTransactionPluginWithEmbeddingSupport##TEST_POSTFIX) { \
+		test::AssertCanCreateTransactionPluginWithEmbeddingSupport<TRAITS_PREFIX##RegularTraits>(__VA_ARGS__); \
+	} \
+	\
+	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanCreatePlugin, TRAITS_PREFIX, TEST_POSTFIX) { \
+		test::AssertCanCreatePlugin<TTraits>(__VA_ARGS__); \
+	}
+
 /// Defines common tests for a transaction plugin with \a TYPE in \a TEST_CLASS.
 /// \note \a TYPE is first __VA_ARGS__ parameter.
 /// \note These tests should be supported by ALL embeddable transaction plugins.
 #define DEFINE_COMMON_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, ...) \
-	TEST(TEST_CLASS, CanCreateTransactionPluginWithEmbeddingSupport) { \
-		test::AssertCanCreateTransactionPluginWithEmbeddingSupport<RegularTraits>(__VA_ARGS__); \
-	} \
-	\
-	PLUGIN_TEST(CanCreatePlugin) { \
-		test::AssertCanCreatePlugin<TTraits>(__VA_ARGS__); \
-	}
+	DEFINE_COMMON_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, , , __VA_ARGS__)
 
 	/// Asserts that a primary data buffer can be extracted from a transaction plugin.
 	template<typename TTraits, typename... TArgs>
@@ -145,16 +169,22 @@ namespace catapult { namespace test {
 		EXPECT_TRUE(buffers.empty());
 	}
 
+/// Defines basic tests for a transaction plugin with \a TYPE in \a TEST_CLASS using traits prefixed by \a TRAITS_PREFIX
+/// and test name postfixed by \a TEST_POSTFIX.
+/// \note \a TYPE is first __VA_ARGS__ parameter.
+#define DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, ...) \
+	DEFINE_COMMON_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, __VA_ARGS__) \
+	\
+	TEST(TEST_CLASS, CanExtractPrimaryDataBuffer##TEST_POSTFIX) { \
+		test::AssertCanExtractPrimaryDataBuffer<TRAITS_PREFIX##RegularTraits>(__VA_ARGS__); \
+	} \
+	\
+	TEST(TEST_CLASS, MerkleSupplementaryBuffersAreEmpty##TEST_POSTFIX) { \
+		test::AssertMerkleSupplementaryBuffersAreEmpty<TRAITS_PREFIX##RegularTraits>(__VA_ARGS__); \
+	}
+
 /// Defines basic tests for a transaction plugin with \a TYPE in \a TEST_CLASS.
 /// \note \a TYPE is first __VA_ARGS__ parameter.
 #define DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, ...) \
-	DEFINE_COMMON_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, __VA_ARGS__) \
-	\
-	TEST(TEST_CLASS, CanExtractPrimaryDataBuffer) { \
-		test::AssertCanExtractPrimaryDataBuffer<RegularTraits>(__VA_ARGS__); \
-	} \
-	\
-	TEST(TEST_CLASS, MerkleSupplementaryBuffersAreEmpty) { \
-		test::AssertMerkleSupplementaryBuffersAreEmpty<RegularTraits>(__VA_ARGS__); \
-	}
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, , , __VA_ARGS__)
 }}

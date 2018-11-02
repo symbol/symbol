@@ -20,10 +20,9 @@
 
 #pragma once
 #include "MosaicLevy.h"
+#include "catapult/model/Mosaic.h"
 #include <functional>
 #include <vector>
-
-namespace catapult { namespace model { struct Mosaic; } }
 
 namespace catapult { namespace state {
 

@@ -80,12 +80,8 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto pValidator = CreateMosaicTransferValidator();
 
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(100), readOnlyCache);
-
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache, Height(100));
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
@@ -163,14 +159,13 @@ namespace catapult { namespace validators {
 
 			// - notice that BalanceTransferNotification holds references to sender + recipient
 			Key sender;
-			Address recipient;
-			auto notification = model::BalanceTransferNotification(sender, recipient, Valid_Mosaic_Id, Amount(123));
+			auto notification = model::BalanceTransferNotification(sender, Address(), Valid_Mosaic_Id, Amount(123));
 
 			if (notificationFlags & Owner_Is_Sender)
 				sender = owner;
 
 			if (notificationFlags & Owner_Is_Recipient)
-				recipient = cache.createView().sub<cache::AccountStateCache>().get(owner).Address;
+				notification.Recipient = cache.createView().sub<cache::AccountStateCache>().find(owner).get().Address;
 
 			// Assert:
 			AssertValidationResult(expectedResult, cache, notification);

@@ -27,29 +27,29 @@
 namespace catapult { namespace mongo { namespace mappers {
 
 	namespace {
-		void StreamMerkleTree(bson_stream::document& builder, const std::vector<Hash256>& merkleTree) {
-			auto merkleTreeArray = builder << "merkleTree" << bson_stream::open_array;
-			for (const auto& hash : merkleTree)
-				merkleTreeArray << ToBinary(hash);
+		void StreamHashArray(bson_stream::document& builder, const std::string& name, const std::vector<Hash256>& hashes) {
+			auto hashArray = builder << name << bson_stream::open_array;
+			for (const auto& hash : hashes)
+				hashArray << ToBinary(hash);
 
-			merkleTreeArray << bson_stream::close_array;
+			hashArray << bson_stream::close_array;
 		}
 
 		auto& StreamBlockMetadata(
 				bson_stream::document& builder,
-				const Hash256& hash,
-				const Hash256& generationHash,
+				const model::BlockElement& blockElement,
 				const std::vector<Hash256>& merkleTree,
 				Amount totalFee,
 				int32_t numTransactions) {
 			builder << "meta"
 					<< bson_stream::open_document
-						<< "hash" << ToBinary(hash)
-						<< "generationHash" << ToBinary(generationHash)
+						<< "hash" << ToBinary(blockElement.EntityHash)
+						<< "generationHash" << ToBinary(blockElement.GenerationHash)
 						<< "totalFee" << ToInt64(totalFee)
 						<< "numTransactions" << numTransactions;
 
-			StreamMerkleTree(builder, merkleTree);
+			StreamHashArray(builder, "subCacheMerkleRoots", blockElement.SubCacheMerkleRoots);
+			StreamHashArray(builder, "merkleTree", merkleTree);
 
 			builder << bson_stream::close_document;
 			return builder;
@@ -69,7 +69,7 @@ namespace catapult { namespace mongo { namespace mappers {
 
 		// block metadata
 		bson_stream::document builder;
-		StreamBlockMetadata(builder, blockElement.EntityHash, blockElement.GenerationHash, merkleTree, totalFee, numTransactions);
+		StreamBlockMetadata(builder, blockElement, merkleTree, totalFee, numTransactions);
 
 		// block data
 		builder << "block" << bson_stream::open_document;
@@ -78,7 +78,8 @@ namespace catapult { namespace mongo { namespace mappers {
 				<< "timestamp" << ToInt64(block.Timestamp)
 				<< "difficulty" << ToInt64(block.Difficulty)
 				<< "previousBlockHash" << ToBinary(block.PreviousBlockHash)
-				<< "blockTransactionsHash" << ToBinary(block.BlockTransactionsHash);
+				<< "blockTransactionsHash" << ToBinary(block.BlockTransactionsHash)
+				<< "stateHash" << ToBinary(block.StateHash);
 		builder << bson_stream::close_document;
 		return builder << bson_stream::finalize;
 	}

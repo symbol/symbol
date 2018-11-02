@@ -41,7 +41,7 @@ namespace catapult { namespace net {
 	/// Manages a collection of connections that receive data from external nodes.
 	class PacketReaders : public ConnectionContainer {
 	public:
-		using AcceptCallback = consumer<PeerConnectResult>;
+		using AcceptCallback = consumer<const PeerConnectResult&>;
 
 	public:
 		/// Gets the number of active readers.

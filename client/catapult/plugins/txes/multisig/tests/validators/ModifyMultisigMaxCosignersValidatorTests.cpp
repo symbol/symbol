@@ -56,11 +56,6 @@ namespace catapult { namespace validators {
 				cache.commit(Height());
 			}
 
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
-
 			std::vector<model::CosignatoryModification> modifications;
 			for (auto modificationType : modificationTypes)
 				modifications.push_back({ modificationType, test::GenerateRandomData<Key_Size>() });
@@ -72,7 +67,7 @@ namespace catapult { namespace validators {
 			auto pValidator = CreateModifyMultisigMaxCosignersValidator(maxCosignersPerAccount);
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			auto change = utils::Sum(modificationTypes, [](const auto& modificationType) { return Add == modificationType ? 1 : -1; });

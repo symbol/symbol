@@ -81,7 +81,7 @@ namespace catapult { namespace filechain {
 			static constexpr auto Log_Interval_Millis = 2'000;
 
 		public:
-			explicit AnalyzeProgressLogger(const utils::StackLogger& stopwatch) : m_stopwatch(stopwatch), m_numLogs(0)
+			explicit AnalyzeProgressLogger(const utils::StackTimer& stopwatch) : m_stopwatch(stopwatch), m_numLogs(0)
 			{}
 
 		public:
@@ -95,7 +95,7 @@ namespace catapult { namespace filechain {
 			}
 
 		private:
-			const utils::StackLogger& m_stopwatch;
+			const utils::StackTimer& m_stopwatch;
 			size_t m_numLogs;
 		};
 	}
@@ -122,29 +122,36 @@ namespace catapult { namespace filechain {
 			auto pParentBlockElement = storage.loadBlockElement(height - Height(1));
 
 			model::ChainScore score;
+			Hash256 stateHash;
 			auto chainHeight = storage.chainHeight();
 			while (chainHeight >= height) {
 				auto pBlockElement = storage.loadBlockElement(height);
 				score += model::ChainScore(chain::CalculateScore(pParentBlockElement->Block, pBlockElement->Block));
 
-				execute(*pBlockElement);
+				stateHash = execute(*pBlockElement);
 				notifyProgress(height, chainHeight);
 
 				pParentBlockElement = std::move(pBlockElement);
 				height = height + Height(1);
 			}
 
+			CATAPULT_LOG(info) << "cache state hash at height " << chainHeight << " : " << utils::HexFormat(stateHash);
 			return score;
 		}
 
 	private:
-		void execute(const model::BlockElement& blockElement) const {
+		Hash256 execute(const model::BlockElement& blockElement) const {
 			auto cacheDelta = m_stateRef.Cache.createDelta();
 			auto observerState = observers::ObserverState(cacheDelta, m_stateRef.State);
 
 			const auto& block = blockElement.Block;
 			chain::ExecuteBlock(blockElement, m_observerFactory(block), observerState);
+
+			// populate patricia tree delta
+			auto stateHash = cacheDelta.calculateStateHash(block.Height).StateHash;
+
 			m_stateRef.Cache.commit(block.Height);
+			return stateHash;
 		}
 
 	private:
@@ -159,7 +166,8 @@ namespace catapult { namespace filechain {
 			Height startHeight) {
 		BlockChainLoader loader(observerFactory, stateRef, startHeight);
 
-		utils::StackLogger stopwatch("load block chain", utils::LogLevel::Warning);
+		utils::StackLogger logger("load block chain", utils::LogLevel::Warning);
+		utils::StackTimer stopwatch;
 		return loader.loadAll(AnalyzeProgressLogger(stopwatch));
 	}
 

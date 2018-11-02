@@ -564,7 +564,7 @@ namespace catapult { namespace ionet {
 
 		auto buffer = payload.buffers()[0];
 		EXPECT_EQ(4u, buffer.Size);
-		EXPECT_EQ(0x03981204, reinterpret_cast<const uint32_t&>(*buffer.pData));
+		EXPECT_EQ(0x03981204u, reinterpret_cast<const uint32_t&>(*buffer.pData));
 	}
 
 	// endregion
@@ -629,7 +629,7 @@ namespace catapult { namespace ionet {
 
 		const auto& buffers = payload.buffers();
 		EXPECT_EQ(4u, buffers[0].Size);
-		EXPECT_EQ(0x03981204, reinterpret_cast<const uint32_t&>(*buffers[0].pData));
+		EXPECT_EQ(0x03981204u, reinterpret_cast<const uint32_t&>(*buffers[0].pData));
 
 		EXPECT_EQ(test::AsVoidPointer(pEntity.get()), buffers[1].pData);
 		EXPECT_EQ(124u, buffers[1].Size);
@@ -639,13 +639,13 @@ namespace catapult { namespace ionet {
 		EXPECT_TRUE(0 == std::memcmp(valuesData.data(), buffers[2].pData, buffers[2].Size));
 
 		EXPECT_EQ(4u, buffers[3].Size);
-		EXPECT_EQ(0x11111111, reinterpret_cast<const uint32_t&>(*buffers[3].pData));
+		EXPECT_EQ(0x11111111u, reinterpret_cast<const uint32_t&>(*buffers[3].pData));
 
 		EXPECT_EQ(8u, buffers[4].Size);
 		EXPECT_TRUE(0 == std::memcmp(rangeData.data(), buffers[4].pData, buffers[4].Size));
 
 		EXPECT_EQ(4u, buffers[5].Size);
-		EXPECT_EQ(0x00003322, reinterpret_cast<const uint32_t&>(*buffers[5].pData));
+		EXPECT_EQ(0x00003322u, reinterpret_cast<const uint32_t&>(*buffers[5].pData));
 	}
 
 	// endregion

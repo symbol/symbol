@@ -46,11 +46,13 @@ namespace catapult { namespace config {
 			EXPECT_EQ(crypto::ParseKey("B4F12E7C9F6946091E2CB8B6D3A12B50D17CCBBF646386EA27CE2946A7423DCF"), config.Network.PublicKey);
 			EXPECT_EQ(crypto::ParseKey("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6"), config.Network.GenerationHash);
 
+			EXPECT_TRUE(config.ShouldEnableVerifiableState);
+
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(15), config.BlockGenerationTargetTime);
 			EXPECT_EQ(3000u, config.BlockTimeSmoothingFactor);
 
-			EXPECT_EQ(359u, config.ImportanceGrouping);
-			EXPECT_EQ(360u, config.MaxRollbackBlocks);
+			EXPECT_EQ(39u, config.ImportanceGrouping);
+			EXPECT_EQ(40u, config.MaxRollbackBlocks);
 			EXPECT_EQ(60u, config.MaxDifficultyBlocks);
 
 			EXPECT_EQ(utils::TimeSpan::FromHours(24), config.MaxTransactionLifetime);
@@ -71,7 +73,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(7901u, config.ApiPort);
 			EXPECT_FALSE(config.ShouldAllowAddressReuse);
 			EXPECT_FALSE(config.ShouldUseSingleThreadPool);
-			EXPECT_FALSE(config.ShouldUseCacheDatabaseStorage);
+			EXPECT_TRUE(config.ShouldUseCacheDatabaseStorage);
 
 			EXPECT_TRUE(config.ShouldEnableTransactionSpamThrottling);
 			EXPECT_EQ(Amount(10'000'000), config.TransactionSpamThrottlingMaxBoostFee);
@@ -106,6 +108,9 @@ namespace catapult { namespace config {
 			EXPECT_EQ(ionet::ConnectionSecurityMode::None, config.OutgoingSecurityMode);
 			EXPECT_EQ(ionet::ConnectionSecurityMode::None, config.IncomingSecurityModes);
 
+			EXPECT_EQ(utils::FileSize::FromMegabytes(5), config.MaxCacheDatabaseWriteBatchSize);
+			EXPECT_EQ(5'000u, config.MaxTrackedNodes);
+
 			EXPECT_EQ("", config.Local.Host);
 			EXPECT_EQ("", config.Local.FriendlyName);
 			EXPECT_EQ(0u, config.Local.Version);
@@ -113,12 +118,16 @@ namespace catapult { namespace config {
 
 			EXPECT_EQ(10u, config.OutgoingConnections.MaxConnections);
 			EXPECT_EQ(5u, config.OutgoingConnections.MaxConnectionAge);
+			EXPECT_EQ(20u, config.OutgoingConnections.MaxConnectionBanAge);
+			EXPECT_EQ(3u, config.OutgoingConnections.NumConsecutiveFailuresBeforeBanning);
 
 			EXPECT_EQ(512u, config.IncomingConnections.MaxConnections);
 			EXPECT_EQ(10u, config.IncomingConnections.MaxConnectionAge);
+			EXPECT_EQ(20u, config.IncomingConnections.MaxConnectionBanAge);
+			EXPECT_EQ(3u, config.IncomingConnections.NumConsecutiveFailuresBeforeBanning);
 			EXPECT_EQ(512u, config.IncomingConnections.BacklogSize);
 
-			auto expectedExtensions = std::unordered_set<std::string>{
+			auto expectedExtensions = std::vector<std::string>{
 				"extension.eventsource", "extension.harvesting", "extension.syncsource",
 				"extension.diagnostics", "extension.filechain", "extension.hashcache", "extension.networkheight",
 				"extension.nodediscovery", "extension.packetserver", "extension.sync", "extension.timesync",

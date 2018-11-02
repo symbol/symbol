@@ -32,14 +32,29 @@ namespace catapult { namespace cache {
 		// Assert:
 		EXPECT_FALSE(config.ShouldUseCacheDatabase);
 		EXPECT_TRUE(config.CacheDatabaseDirectory.empty());
+		EXPECT_EQ(utils::FileSize(), config.MaxCacheDatabaseWriteBatchSize);
+		EXPECT_FALSE(config.ShouldStorePatriciaTrees);
 	}
 
-	TEST(TEST_CLASS, CanCreateConfigurationWithPath) {
+	TEST(TEST_CLASS, CanCreateConfigurationWithPathButNotPatriciaTreeStorage) {
 		// Act:
-		CacheConfiguration config("xyz");
+		CacheConfiguration config("xyz", utils::FileSize::FromMegabytes(4), PatriciaTreeStorageMode::Disabled);
 
 		// Assert:
 		EXPECT_TRUE(config.ShouldUseCacheDatabase);
 		EXPECT_EQ("xyz", config.CacheDatabaseDirectory);
+		EXPECT_EQ(utils::FileSize::FromMegabytes(4), config.MaxCacheDatabaseWriteBatchSize);
+		EXPECT_FALSE(config.ShouldStorePatriciaTrees);
+	}
+
+	TEST(TEST_CLASS, CanCreateConfigurationWithPathAndPatriciaTreeStorage) {
+		// Act:
+		CacheConfiguration config("xyz", utils::FileSize::FromMegabytes(4), PatriciaTreeStorageMode::Enabled);
+
+		// Assert:
+		EXPECT_TRUE(config.ShouldUseCacheDatabase);
+		EXPECT_EQ("xyz", config.CacheDatabaseDirectory);
+		EXPECT_EQ(utils::FileSize::FromMegabytes(4), config.MaxCacheDatabaseWriteBatchSize);
+		EXPECT_TRUE(config.ShouldStorePatriciaTrees);
 	}
 }}

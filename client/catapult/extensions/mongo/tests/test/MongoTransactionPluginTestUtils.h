@@ -25,9 +25,10 @@
 
 namespace catapult { namespace test {
 
-/// Defines traits for mongo transaction plugin based tests for \a NAME transaction without adaptation support.
-#define DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NAME) \
-	struct RegularTraits { \
+/// Defines traits for mongo transaction plugin based tests for \a NAME transaction without adaptation support
+/// using traits prefixed by \a TRAITS_PREFIX.
+#define DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT_WITH_PREFIXED_TRAITS(NAME, TRAITS_PREFIX) \
+	struct TRAITS_PREFIX##RegularTraits { \
 		using TransactionType = model::NAME##Transaction; \
 		\
 		static auto CreatePlugin() { \
@@ -35,13 +36,17 @@ namespace catapult { namespace test {
 		} \
 	}; \
 	\
-	struct EmbeddedTraits { \
+	struct TRAITS_PREFIX##EmbeddedTraits { \
 		using TransactionType = model::Embedded##NAME##Transaction; \
 		\
 		static auto CreatePlugin() { \
-			return test::ExtractEmbeddedPlugin(RegularTraits::CreatePlugin()); \
+			return test::ExtractEmbeddedPlugin(TRAITS_PREFIX##RegularTraits::CreatePlugin()); \
 		} \
 	};
+
+/// Defines traits for mongo transaction plugin based tests for \a NAME transaction without adaptation support.
+#define DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(NAME) \
+	DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT_WITH_PREFIXED_TRAITS(NAME,)
 
 /// Defines traits for mongo transaction plugin based tests for \a NAME transaction.
 #define DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS(NAME) \
@@ -88,11 +93,16 @@ namespace catapult { namespace test {
 		EXPECT_TRUE(documents.empty());
 	}
 
+/// Defines basic tests for a mongo transaction plugin with \a TYPE in \a TEST_CLASS using traits prefixed by \a TRAITS_PREFIX
+/// and test name postfixed by \a TEST_POSTFIX.
+#define DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, TYPE) \
+	DEFINE_COMMON_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, TRAITS_PREFIX, TEST_POSTFIX, TYPE) \
+	\
+	TEST(TEST_CLASS, DependentDocumentsAreNotSupported##TEST_POSTFIX) { \
+		test::AssertDependentDocumentsAreNotSupported<TRAITS_PREFIX##RegularTraits>(); \
+	}
+
 /// Defines basic tests for a mongo transaction plugin with \a TYPE in \a TEST_CLASS.
 #define DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TYPE) \
-	DEFINE_COMMON_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, TYPE) \
-	\
-	TEST(TEST_CLASS, DependentDocumentsAreNotSupported) { \
-		test::AssertDependentDocumentsAreNotSupported<RegularTraits>(); \
-	}
+	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, , , TYPE)
 }}

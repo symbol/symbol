@@ -74,6 +74,9 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(OutgoingSecurityMode);
 		LOAD_NODE_PROPERTY(IncomingSecurityModes);
 
+		LOAD_NODE_PROPERTY(MaxCacheDatabaseWriteBatchSize);
+		LOAD_NODE_PROPERTY(MaxTrackedNodes);
+
 #undef LOAD_NODE_PROPERTY
 
 #define LOAD_LOCALNODE_PROPERTY(NAME) utils::LoadIniProperty(bag, "localnode", #NAME, config.Local.NAME)
@@ -89,6 +92,8 @@ namespace catapult { namespace config {
 
 		LOAD_OUT_CONNECTIONS_PROPERTY(MaxConnections);
 		LOAD_OUT_CONNECTIONS_PROPERTY(MaxConnectionAge);
+		LOAD_OUT_CONNECTIONS_PROPERTY(MaxConnectionBanAge);
+		LOAD_OUT_CONNECTIONS_PROPERTY(NumConsecutiveFailuresBeforeBanning);
 
 #undef LOAD_OUT_CONNECTIONS_PROPERTY
 
@@ -97,13 +102,15 @@ namespace catapult { namespace config {
 		LOAD_IN_CONNECTIONS_PROPERTY(MaxConnections);
 		LOAD_IN_CONNECTIONS_PROPERTY(MaxConnectionAge);
 		LOAD_IN_CONNECTIONS_PROPERTY(BacklogSize);
+		LOAD_IN_CONNECTIONS_PROPERTY(MaxConnectionBanAge);
+		LOAD_IN_CONNECTIONS_PROPERTY(NumConsecutiveFailuresBeforeBanning);
 
 #undef LOAD_IN_CONNECTIONS_PROPERTY
 
-		auto extensionsPair = utils::ExtractSectionAsUnorderedSet(bag, "extensions");
+		auto extensionsPair = utils::ExtractSectionAsOrderedVector(bag, "extensions");
 		config.Extensions = extensionsPair.first;
 
-		utils::VerifyBagSizeLte(bag, 29 + 4 + 2 + 3 + extensionsPair.second);
+		utils::VerifyBagSizeLte(bag, 31 + 4 + 4 + 5 + extensionsPair.second);
 		return config;
 	}
 

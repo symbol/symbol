@@ -31,8 +31,8 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(MaxMosaicsBalanceTransfer, 123)
 	DEFINE_COMMON_VALIDATOR_TESTS(MaxMosaicsSupplyChange, 123)
 
-#define BALANCE_TRANSFER_TEST_CLASS MaxMosaicsBalanceTransferValidatorTests
-#define SUPPLY_CHANGE_TEST_CLASS MaxMosaicsSupplyChangeValidatorTests
+#define BALANCE_TRANSFER_TEST_CLASS BalanceTransferMaxMosaicsValidatorTests
+#define SUPPLY_CHANGE_TEST_CLASS SupplyChangeMaxMosaicsValidatorTests
 
 	namespace {
 		template<typename TKey>
@@ -41,31 +41,28 @@ namespace catapult { namespace validators {
 			{
 				auto cacheDelta = cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
-				auto& accountState = accountStateCacheDelta.addAccount(key, Height());
+				accountStateCacheDelta.addAccount(key, Height());
+				auto& accountState = accountStateCacheDelta.find(key).get();
 				for (auto i = 0u; i < 5; ++i)
 					accountState.Balances.credit(MosaicId(i + 1), Amount(1));
 
 				cache.commit(Height());
 			}
+
 			return cache;
 		}
 
 		void RunBalanceTransferTest(ValidationResult expectedResult, uint16_t maxMosaics, MosaicId mosaicId, Amount amount) {
-			// Arrange: seed the cache
+			// Arrange:
 			auto owner = test::GenerateRandomData<Key_Size>();
 			auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
 			auto cache = CreateAndSeedCache(recipient);
-
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
 
 			auto pValidator = CreateMaxMosaicsBalanceTransferValidator(maxMosaics);
 			auto notification = model::BalanceTransferNotification(owner, recipient, mosaicId, amount);
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "maxMosaics " << maxMosaics << ", mosaicId " << mosaicId << ", amount " << amount;
@@ -102,20 +99,15 @@ namespace catapult { namespace validators {
 				uint16_t maxMosaics,
 				MosaicId mosaicId,
 				model::MosaicSupplyChangeDirection direction) {
-			// Arrange: seed the cache
+			// Arrange:
 			auto owner = test::GenerateRandomData<Key_Size>();
 			auto cache = CreateAndSeedCache(owner);
-
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
 
 			auto pValidator = CreateMaxMosaicsSupplyChangeValidator(maxMosaics);
 			auto notification = model::MosaicSupplyChangeNotification(owner, mosaicId, direction, Amount(100));
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result)

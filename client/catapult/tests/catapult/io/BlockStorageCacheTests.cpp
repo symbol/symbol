@@ -21,7 +21,7 @@
 #include "catapult/io/BlockStorageCache.h"
 #include "tests/catapult/io/test/BlockStorageTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -72,12 +72,12 @@ namespace catapult { namespace io {
 			}
 		};
 
-		struct MemoryBasedTraits {
+		struct MemoryTraits {
 			using Guard = MemoryBasedGuard;
 			using StorageType = BlockStorageCacheToBlockStorageAdapter;
 
 			static std::unique_ptr<StorageType> OpenStorage(const std::string&) {
-				return std::make_unique<StorageType>(std::make_unique<mocks::MockMemoryBasedStorage>());
+				return std::make_unique<StorageType>(std::make_unique<mocks::MockMemoryBlockStorage>());
 			}
 
 			static std::unique_ptr<StorageType> PrepareStorage(const std::string& destination, Height height = Height()) {
@@ -94,7 +94,7 @@ namespace catapult { namespace io {
 		};
 	}
 
-	DEFINE_BLOCK_STORAGE_TESTS(MemoryBasedTraits)
+	DEFINE_BLOCK_STORAGE_TESTS(MemoryTraits)
 
 	// note that these aren't really pure delegation tests because they call a member on the cache
 	// and compare its behavior with that of the same call on the underlying storage
@@ -107,7 +107,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, ChainHeightDelegatesToStorage) {
 		// Arrange:
-		BlockStorageCache cache(mocks::CreateMemoryBasedStorage(Delegation_Chain_Size));
+		BlockStorageCache cache(mocks::CreateMemoryBlockStorage(Delegation_Chain_Size));
 
 		// Act:
 		auto height = cache.view().chainHeight();
@@ -122,7 +122,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, LoadBlockDelegatesToStorage) {
 		// Arrange:
-		auto pStorage = mocks::CreateMemoryBasedStorage(Delegation_Chain_Size);
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
 		BlockStorageCache cache(std::move(pStorage));
 
@@ -139,7 +139,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, LoadBlockElementDelegatesToStorage) {
 		// Arrange:
-		auto pStorage = mocks::CreateMemoryBasedStorage(Delegation_Chain_Size);
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
 		BlockStorageCache cache(std::move(pStorage));
 
@@ -161,7 +161,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, LoadHashesFromDelegatesToStorage_SingleHash) {
 		// Arrange:
-		auto pStorage = mocks::CreateMemoryBasedStorage(Delegation_Chain_Size);
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
 		BlockStorageCache cache(std::move(pStorage));
 
@@ -180,7 +180,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, LoadHashesFromDelegatesToStorage_AllHashes) {
 		// Arrange:
-		auto pStorage = mocks::CreateMemoryBasedStorage(Delegation_Chain_Size);
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
 		BlockStorageCache cache(std::move(pStorage));
 
@@ -208,7 +208,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, SaveBlockDelegatesToStorage) {
 		// Arrange:
-		auto pStorage = mocks::CreateMemoryBasedStorage(Delegation_Chain_Size);
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
 		BlockStorageCache cache(std::move(pStorage));
 		Height newBlockHeight(Delegation_Chain_Size + 1);
@@ -234,7 +234,7 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, SaveBlocksDelegatesToStorage) {
 		// Arrange:
 		constexpr size_t Num_Block_Elements = 5;
-		auto pStorage = mocks::CreateMemoryBasedStorage(Delegation_Chain_Size);
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
 		BlockStorageCache cache(std::move(pStorage));
 		std::vector<std::unique_ptr<model::Block>> blocks;
@@ -268,7 +268,7 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, SaveBlocksOutOfOrderThrows) {
 		// Arrange:
 		constexpr size_t Num_Block_Elements = 3;
-		auto pStorage = mocks::CreateMemoryBasedStorage(Delegation_Chain_Size);
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		BlockStorageCache cache(std::move(pStorage));
 		std::vector<std::unique_ptr<model::Block>> blocks;
 		std::vector<model::BlockElement> blockElements;
@@ -287,7 +287,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, SaveBlocksWithNoElementsIsNoOp) {
 		// Arrange:
-		auto pStorage = mocks::CreateMemoryBasedStorage(Delegation_Chain_Size);
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
 		BlockStorageCache cache(std::move(pStorage));
 
@@ -306,7 +306,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, DropBlocksAfterDelegatesToStorage) {
 		// Arrange:
-		auto pStorage = mocks::CreateMemoryBasedStorage(Delegation_Chain_Size);
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
 		BlockStorageCache cache(std::move(pStorage));
 
@@ -326,7 +326,7 @@ namespace catapult { namespace io {
 
 	namespace {
 		auto CreateLockProvider() {
-			return std::make_unique<BlockStorageCache>(mocks::CreateMemoryBasedStorage(7));
+			return std::make_unique<BlockStorageCache>(mocks::CreateMemoryBlockStorage(7));
 		}
 	}
 

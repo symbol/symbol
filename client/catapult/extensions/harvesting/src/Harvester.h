@@ -31,13 +31,23 @@ namespace catapult { namespace harvesting {
 	/// A class that creates new blocks.
 	class Harvester {
 	public:
+		/// Suppliers used to customize block generation.
+		struct Suppliers {
+			/// Calculates a state hash for a block.
+			std::function<std::pair<Hash256, bool> (const model::Block&)> CalculateStateHash;
+
+			/// Supplies transaction infos for a block.
+			TransactionsInfoSupplier SupplyTransactions;
+		};
+
+	public:
 		/// Creates a harvester around a catapult \a cache, a block chain \a config, an unlocked accounts set (\a unlockedAccounts)
-		/// and a transactions info supplier (\a transactionsInfoSupplier).
+		/// and \a suppliers used to customize block generation.
 		explicit Harvester(
 				const cache::CatapultCache& cache,
 				const model::BlockChainConfiguration& config,
 				const UnlockedAccounts& unlockedAccounts,
-				const TransactionsInfoSupplier& transactionsInfoSupplier);
+				const Suppliers& suppliers);
 
 	public:
 		/// Creates the best block (if any) harvested by any unlocked account.
@@ -48,6 +58,6 @@ namespace catapult { namespace harvesting {
 		const cache::CatapultCache& m_cache;
 		const model::BlockChainConfiguration m_config;
 		const UnlockedAccounts& m_unlockedAccounts;
-		TransactionsInfoSupplier m_transactionsInfoSupplier;
+		Suppliers m_suppliers;
 	};
 }}

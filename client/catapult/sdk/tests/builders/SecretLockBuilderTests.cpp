@@ -29,10 +29,36 @@ namespace catapult { namespace builders {
 		using RegularTraits = test::RegularTransactionTraits<model::SecretLockTransaction>;
 		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedSecretLockTransaction>;
 
-		template<typename TTraits, typename TValidationFunction>
+		struct TransactionProperties {
+		public:
+			TransactionProperties()
+					: HashAlgorithm(model::LockHashAlgorithm::Op_Sha3)
+					, Secret()
+					, Recipient()
+			{}
+
+		public:
+			model::UnresolvedMosaic Mosaic;
+			BlockDuration Duration;
+			model::LockHashAlgorithm HashAlgorithm;
+			Hash512 Secret;
+			UnresolvedAddress Recipient;
+		};
+
+		template<typename TTransaction>
+		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
+			EXPECT_EQ(expectedProperties.Mosaic.MosaicId, transaction.Mosaic.MosaicId);
+			EXPECT_EQ(expectedProperties.Mosaic.Amount, transaction.Mosaic.Amount);
+			EXPECT_EQ(expectedProperties.Duration, transaction.Duration);
+			EXPECT_EQ(expectedProperties.HashAlgorithm, transaction.HashAlgorithm);
+			EXPECT_EQ(expectedProperties.Secret, transaction.Secret);
+			EXPECT_EQ(expectedProperties.Recipient, transaction.Recipient);
+		}
+
+		template<typename TTraits>
 		void AssertCanBuildTransaction(
-				const consumer<SecretLockBuilder&>& buildTransaction,
-				const TValidationFunction& validateTransaction) {
+				const TransactionProperties& expectedProperties,
+				const consumer<SecretLockBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
@@ -48,23 +74,7 @@ namespace catapult { namespace builders {
 			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Secret_Lock, pTransaction->Type);
 
-			validateTransaction(*pTransaction);
-		}
-
-		auto CreatePropertyChecker(
-				const model::Mosaic& mosaic,
-				BlockDuration duration,
-				model::LockHashAlgorithm hashAlgorithm,
-				const Hash512& secret,
-				const Address& recipient) {
-			return [&mosaic, duration, hashAlgorithm, &secret, &recipient](const auto& transaction) {
-				EXPECT_EQ(mosaic.MosaicId, transaction.Mosaic.MosaicId);
-				EXPECT_EQ(mosaic.Amount, transaction.Mosaic.Amount);
-				EXPECT_EQ(duration, transaction.Duration);
-				EXPECT_EQ(hashAlgorithm, transaction.HashAlgorithm);
-				EXPECT_EQ(secret, transaction.Secret);
-				EXPECT_EQ(recipient, transaction.Recipient);
-			};
+			AssertTransactionProperties(expectedProperties, *pTransaction);
 		}
 	}
 
@@ -78,9 +88,7 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanCreateTransactionWithDefaultValues) {
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				[](const auto&) {},
-				CreatePropertyChecker(model::Mosaic(), BlockDuration(), model::LockHashAlgorithm::Op_Sha3, Hash512(), Address()));
+		AssertCanBuildTransaction<TTraits>(TransactionProperties(), [](const auto&) {});
 	}
 
 	// endregion
@@ -89,56 +97,57 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanSetMosaic) {
 		// Arrange:
-		model::Mosaic mosaic{ MosaicId(123), Amount(234) };
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Mosaic = { UnresolvedMosaicId(123), Amount(234) };
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				[&mosaic](auto& builder) {
-					builder.setMosaic(mosaic.MosaicId, mosaic.Amount);
-				},
-				CreatePropertyChecker(mosaic, BlockDuration(), model::LockHashAlgorithm::Op_Sha3, Hash512(), Address()));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+			builder.setMosaic(UnresolvedMosaicId(123), Amount(234));
+		});
 	}
 
 	TRAITS_BASED_TEST(CanSetBlockDuration) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Duration = BlockDuration(123);
+
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				[](auto& builder) {
-					builder.setDuration(BlockDuration(123));
-				},
-				CreatePropertyChecker(model::Mosaic(), BlockDuration(123), model::LockHashAlgorithm::Op_Sha3, Hash512(), Address()));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+			builder.setDuration(BlockDuration(123));
+		});
 	}
 
 	TRAITS_BASED_TEST(CanSetHashAlgorithm) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.HashAlgorithm = model::LockHashAlgorithm::Op_Hash_160;
+
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				[](auto& builder) {
-					builder.setHashAlgorithm(model::LockHashAlgorithm::Op_Hash_160);
-				},
-				CreatePropertyChecker(model::Mosaic(), BlockDuration(), model::LockHashAlgorithm::Op_Hash_160, Hash512(), Address()));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+			builder.setHashAlgorithm(model::LockHashAlgorithm::Op_Hash_160);
+		});
 	}
 
 	TRAITS_BASED_TEST(CanSetSecret) {
 		// Arrange:
-		auto secret = test::GenerateRandomData<Hash512_Size>();
+		auto expectedProperties = TransactionProperties();
+		test::FillWithRandomData(expectedProperties.Secret);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				[&secret](auto& builder) {
-					builder.setSecret(secret);
-				},
-				CreatePropertyChecker(model::Mosaic(), BlockDuration(), model::LockHashAlgorithm::Op_Sha3, secret, Address()));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [&secret = expectedProperties.Secret](auto& builder) {
+			builder.setSecret(secret);
+		});
 	}
 
 	TRAITS_BASED_TEST(CanSetRecipient) {
 		// Arrange:
-		auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
+		auto expectedProperties = TransactionProperties();
+		test::FillWithRandomData(expectedProperties.Recipient);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				[&recipient](auto& builder) {
-					builder.setRecipient(recipient);
-				},
-				CreatePropertyChecker(model::Mosaic(), BlockDuration(), model::LockHashAlgorithm::Op_Sha3, Hash512(), recipient));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [&recipient = expectedProperties.Recipient](auto& builder) {
+			builder.setRecipient(recipient);
+		});
 	}
 
 	// endregion

@@ -49,13 +49,10 @@ namespace catapult { namespace validators {
 				const state::TimestampedHash& timestampedHash) {
 			// Arrange:
 			auto pValidator = CreateUniqueTransactionHashValidator();
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(1), readOnlyCache);
 			auto notification = model::TransactionNotification(Key(), timestampedHash.Hash, model::EntityType(), timestampedHash.Time);
 
 			// Act:
-			auto result = pValidator->validate(notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);

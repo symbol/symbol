@@ -36,7 +36,8 @@ namespace catapult { namespace observers {
 		auto& cache = context.Cache.sub<cache::MosaicCache>();
 
 		// always zero the owner's balance when a mosaic definition changes (in case of rollback, it will be fixed below)
-		auto& ownerState = accountStateCache.get(notification.Signer);
+		auto ownerStateIter = accountStateCache.find(notification.Signer);
+		auto& ownerState = ownerStateIter.get();
 		ZeroBalance(ownerState, notification.MosaicId);
 
 		if (NotifyMode::Rollback == context.Mode) {
@@ -45,7 +46,8 @@ namespace catapult { namespace observers {
 			// mosaic is not completely removed from the cache if it initially had a history depth greater than one
 			if (cache.contains(notification.MosaicId)) {
 				// set the owner's balance to the full supply
-				const auto& mosaicEntry = cache.get(notification.MosaicId);
+				auto mosaicIter = cache.find(notification.MosaicId);
+				const auto& mosaicEntry = mosaicIter.get();
 				ownerState.Balances.credit(notification.MosaicId, mosaicEntry.supply());
 			}
 

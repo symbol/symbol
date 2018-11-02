@@ -29,7 +29,7 @@ namespace catapult { namespace mongo { namespace plugins {
 	// region ToDbModel
 
 	namespace {
-		void StreamPublicKeys(bson_stream::document& builder, const std::string& keySetName, const utils::KeySet& keys) {
+		void StreamPublicKeys(bson_stream::document& builder, const std::string& keySetName, const utils::SortedKeySet& keys) {
 			auto keyArray = builder << keySetName << bson_stream::open_array;
 			for (const auto& key : keys)
 				keyArray << ToBinary(key);
@@ -59,7 +59,7 @@ namespace catapult { namespace mongo { namespace plugins {
 	// region ToModel
 
 	namespace {
-		void ReadKeySet(utils::KeySet& keySet, const bsoncxx::array::view& dbKeys) {
+		void ReadKeySet(utils::SortedKeySet& keySet, const bsoncxx::array::view& dbKeys) {
 			for (const auto& dbKey : dbKeys) {
 				Key key;
 				DbBinaryToModelArray(key, dbKey.get_binary());

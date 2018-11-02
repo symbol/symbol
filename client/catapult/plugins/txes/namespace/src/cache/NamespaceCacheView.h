@@ -20,6 +20,7 @@
 
 #pragma once
 #include "NamespaceCacheMixins.h"
+#include "NamespaceCacheSerializers.h"
 #include "NamespaceCacheTypes.h"
 #include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
@@ -30,13 +31,14 @@ namespace catapult { namespace cache {
 	/// Mixins used by the namespace cache view.
 	struct NamespaceCacheViewMixins {
 	private:
-		using PrimaryMixins = BasicCacheMixins<NamespaceCacheTypes::PrimaryTypes::BaseSetType, NamespaceCacheDescriptor>;
+		using PrimaryMixins = PatriciaTreeCacheMixins<NamespaceCacheTypes::PrimaryTypes::BaseSetType, NamespaceCacheDescriptor>;
 		using FlatMapMixins = BasicCacheMixins<NamespaceCacheTypes::FlatMapTypes::BaseSetType, NamespaceCacheDescriptor>;
 
 	public:
 		using Size = PrimaryMixins::Size;
 		using Contains = FlatMapMixins::Contains;
 		using Iteration = PrimaryMixins::Iteration;
+		using PatriciaTreeView = PrimaryMixins::PatriciaTreeView;
 
 		using NamespaceDeepSize = NamespaceDeepSizeMixin<NamespaceCacheTypes::PrimaryTypes::BaseSetType>;
 		using NamespaceLookup = NamespaceLookupMixin<
@@ -50,17 +52,22 @@ namespace catapult { namespace cache {
 			, public NamespaceCacheViewMixins::Size
 			, public NamespaceCacheViewMixins::Contains
 			, public NamespaceCacheViewMixins::Iteration
+			, public NamespaceCacheViewMixins::PatriciaTreeView
 			, public NamespaceCacheViewMixins::NamespaceDeepSize
 			, public NamespaceCacheViewMixins::NamespaceLookup {
 	public:
 		using ReadOnlyView = NamespaceCacheTypes::CacheReadOnlyType;
 
 	public:
-		/// Creates a view around \a namespaceSets and \a namespaceSizes.
-		BasicNamespaceCacheView(const NamespaceCacheTypes::BaseSets& namespaceSets, const NamespaceSizes& namespaceSizes)
+		/// Creates a view around \a namespaceSets, \a options and \a namespaceSizes.
+		BasicNamespaceCacheView(
+				const NamespaceCacheTypes::BaseSets& namespaceSets,
+				const NamespaceCacheTypes::Options&,
+				const NamespaceSizes& namespaceSizes)
 				: NamespaceCacheViewMixins::Size(namespaceSets.Primary)
 				, NamespaceCacheViewMixins::Contains(namespaceSets.FlatMap)
 				, NamespaceCacheViewMixins::Iteration(namespaceSets.Primary)
+				, NamespaceCacheViewMixins::PatriciaTreeView(namespaceSets.PatriciaTree.get())
 				, NamespaceCacheViewMixins::NamespaceDeepSize(namespaceSizes)
 				, NamespaceCacheViewMixins::NamespaceLookup(namespaceSets.Primary, namespaceSets.FlatMap)
 		{}
@@ -69,9 +76,12 @@ namespace catapult { namespace cache {
 	/// View on top of the namespace cache.
 	class NamespaceCacheView : public ReadOnlyViewSupplier<BasicNamespaceCacheView> {
 	public:
-		/// Creates a view around \a namespaceSets and \a namespaceSizes.
-		NamespaceCacheView(const NamespaceCacheTypes::BaseSets& namespaceSets, const NamespaceSizes& namespaceSizes)
-				: ReadOnlyViewSupplier(namespaceSets, namespaceSizes)
+		/// Creates a view around \a namespaceSets, \a options and \a namespaceSizes.
+		NamespaceCacheView(
+				const NamespaceCacheTypes::BaseSets& namespaceSets,
+				const NamespaceCacheTypes::Options& options,
+				const NamespaceSizes& namespaceSizes)
+				: ReadOnlyViewSupplier(namespaceSets, options, namespaceSizes)
 		{}
 	};
 }}

@@ -27,7 +27,7 @@
 #include "catapult/cache/PtChangeSubscriber.h"
 #include "catapult/cache/UtChangeSubscriber.h"
 #include "catapult/io/BlockChangeSubscriber.h"
-#include "catapult/io/FileBasedStorage.h"
+#include "catapult/io/FileBlockStorage.h"
 #include "catapult/utils/Casting.h"
 
 namespace catapult { namespace config { class LocalNodeConfiguration; } }
@@ -92,7 +92,7 @@ namespace catapult { namespace subscribers {
 
 	private:
 		const config::LocalNodeConfiguration& m_config;
-		std::unique_ptr<io::FileBasedStorage> m_pStorage;
+		std::unique_ptr<io::FileBlockStorage> m_pStorage;
 		std::array<bool, utils::to_underlying_type(SubscriberType::Count)> m_subscriberUsedFlags;
 
 		std::vector<std::unique_ptr<io::BlockChangeSubscriber>> m_blockChangeSubscribers;

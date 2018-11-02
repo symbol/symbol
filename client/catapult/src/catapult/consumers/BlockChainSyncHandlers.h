@@ -49,6 +49,14 @@ namespace catapult { namespace consumers {
 		const std::vector<model::TransactionInfo>& RevertedTransactionInfos;
 	};
 
+	/// Type of block passed to undo block handler.
+	enum class UndoBlockType {
+		/// Rolled back block.
+		Rollback,
+		/// New common block.
+		Common
+	};
+
 	/// Handlers used by the block chain sync consumer.
 	struct BlockChainSyncHandlers {
 	public:
@@ -56,7 +64,8 @@ namespace catapult { namespace consumers {
 		using DifficultyCheckerFunc = predicate<const std::vector<const model::Block*>&, const cache::CatapultCache&>;
 
 		/// Prototype for undoing a block.
-		using UndoBlockFunc = consumer<const model::BlockElement&, const observers::ObserverState&>;
+		/// \note This is called with all rolled back blocks and the (new) common block.
+		using UndoBlockFunc = consumer<const model::BlockElement&, const observers::ObserverState&, UndoBlockType>;
 
 		/// Prototype for state change notification.
 		using StateChangeFunc = consumer<const StateChangeInfo&>;

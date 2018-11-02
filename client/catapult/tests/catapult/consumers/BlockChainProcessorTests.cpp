@@ -180,6 +180,8 @@ namespace catapult { namespace consumers {
 			return entityInfos;
 		}
 
+		// region ProcessorTestContext
+
 		struct ProcessorTestContext {
 		public:
 			ProcessorTestContext() : BlockHitPredicateFactory(BlockHitPredicate) {
@@ -275,7 +277,22 @@ namespace catapult { namespace consumers {
 				EXPECT_EQ(0u, BatchEntityProcessor.params().size());
 			}
 		};
+
+		// endregion
+
+		void ClearStateHashes(BlockElements& elements) {
+			for (auto& blockElement : elements)
+				const_cast<model::Block&>(blockElement.Block).StateHash = Hash256();
+		}
+
+		void PrepareChain(Height height, model::Block& parentBlock, BlockElements& elements) {
+			parentBlock.Height = height;
+			test::LinkBlocks(parentBlock, const_cast<model::Block&>(elements[0].Block));
+			ClearStateHashes(elements);
+		}
 	}
+
+	// region empty
 
 	TEST(TEST_CLASS, EmptyInputResultsInNeutralResult) {
 		// Arrange:
@@ -291,13 +308,16 @@ namespace catapult { namespace consumers {
 		context.assertNoHandlerCalls();
 	}
 
+	// endregion
+
+	// region unlinked
+
 	namespace {
 		void AssertUnlinkedChain(const consumer<model::Block&>& unlink) {
 			ProcessorTestContext context;
 			auto pParentBlock = test::GenerateEmptyRandomBlock();
-			pParentBlock->Height = Height(11);
 			auto elements = test::CreateBlockElements(1);
-			test::LinkBlocks(*pParentBlock, const_cast<model::Block&>(elements[0].Block));
+			PrepareChain(Height(11), *pParentBlock, elements);
 			unlink(const_cast<model::Block&>(elements[0].Block));
 
 			// Act:
@@ -319,12 +339,15 @@ namespace catapult { namespace consumers {
 		AssertUnlinkedChain([](auto& block) { ++block.PreviousBlockHash[0]; });
 	}
 
+	// endregion
+
+	// region valid
+
 	namespace {
 		void AssertCanProcessValidElements(BlockElements& elements, size_t numExpectedBlocks) {
 			ProcessorTestContext context;
 			auto pParentBlock = test::GenerateEmptyRandomBlock();
-			pParentBlock->Height = Height(11);
-			test::LinkBlocks(*pParentBlock, const_cast<model::Block&>(elements[0].Block));
+			PrepareChain(Height(11), *pParentBlock, elements);
 
 			// Act:
 			auto result = context.Process(*pParentBlock, elements);
@@ -374,15 +397,18 @@ namespace catapult { namespace consumers {
 		AssertCanProcessValidElements(elements, 3);
 	}
 
+	// endregion
+
+	// region invalid
+
 	TEST(TEST_CLASS, ExecuteShortCircutsOnUnhitBlock) {
 		// Arrange: cause the second hit check to return false
 		ProcessorTestContext context;
 		context.BlockHitPredicate.setFailure(2);
 
 		auto pParentBlock = test::GenerateEmptyRandomBlock();
-		pParentBlock->Height = Height(11);
 		auto elements = test::CreateBlockElements(3);
-		test::LinkBlocks(*pParentBlock, const_cast<model::Block&>(elements[0].Block));
+		PrepareChain(Height(11), *pParentBlock, elements);
 
 		// Act:
 		auto result = context.Process(*pParentBlock, elements);
@@ -404,9 +430,8 @@ namespace catapult { namespace consumers {
 			context.BatchEntityProcessor.setResult(processorResult, 2);
 
 			auto pParentBlock = test::GenerateEmptyRandomBlock();
-			pParentBlock->Height = Height(11);
 			auto elements = test::CreateBlockElements(3);
-			test::LinkBlocks(*pParentBlock, const_cast<model::Block&>(elements[0].Block));
+			PrepareChain(Height(11), *pParentBlock, elements);
 
 			// Act:
 			auto result = context.Process(*pParentBlock, elements);
@@ -432,6 +457,31 @@ namespace catapult { namespace consumers {
 		AssertShortCircutsOnProcessorResult(ValidationResult::Failure);
 	}
 
+	TEST(TEST_CLASS, ExecuteShortCircutsOnInconsistentStateHash) {
+		// Arrange:
+		ProcessorTestContext context;
+		auto pParentBlock = test::GenerateEmptyRandomBlock();
+		auto elements = test::CreateBlockElements(3);
+		PrepareChain(Height(11), *pParentBlock, elements);
+
+		// - invalidate the second block state hash
+		const_cast<model::Block&>(elements[1].Block).StateHash = test::GenerateRandomData<Hash256_Size>();
+
+		// Act:
+		auto result = context.Process(*pParentBlock, elements);
+
+		// Assert:
+		// - block hit predicate returned true
+		// - processor returned success
+		EXPECT_EQ(chain::Failure_Chain_Block_Inconsistent_State_Hash, result);
+		EXPECT_EQ(2u, context.BlockHitPredicate.params().size());
+		EXPECT_EQ(2u, context.BatchEntityProcessor.params().size());
+		context.assertBlockHitPredicateCalls(*pParentBlock, elements);
+		context.assertBatchEntityProcessorCalls(elements);
+	}
+
+	// endregion
+
 	// region generation hashes update
 
 	namespace {
@@ -439,8 +489,7 @@ namespace catapult { namespace consumers {
 			// Arrange:
 			ProcessorTestContext context;
 			auto pParentBlock = test::GenerateEmptyRandomBlock();
-			pParentBlock->Height = Height(11);
-			test::LinkBlocks(*pParentBlock, const_cast<model::Block&>(elements[0].Block));
+			PrepareChain(Height(11), *pParentBlock, elements);
 
 			// - clear all generation hashes
 			for (auto& blockElement : elements)
@@ -460,8 +509,9 @@ namespace catapult { namespace consumers {
 			auto previousGenerationHash = parentBlockElement.GenerationHash;
 			for (const auto& blockElement : elements) {
 				auto expectedGenerationHash = model::CalculateGenerationHash(previousGenerationHash, blockElement.Block.Signer);
-				EXPECT_EQ(expectedGenerationHash, blockElement.GenerationHash) << "generation hash at " << i++;
+				EXPECT_EQ(expectedGenerationHash, blockElement.GenerationHash) << "generation hash at " << i;
 				previousGenerationHash = expectedGenerationHash;
+				++i;
 			}
 		}
 	}
@@ -480,6 +530,55 @@ namespace catapult { namespace consumers {
 
 		// Assert:
 		AssertGenerationHashesAreUpdatedCorrectly(elements, 3);
+	}
+
+	// endregion
+
+	// region sub cache merkle roots update
+
+	namespace {
+		void AssertSubCacheMerkleRootsAreUpdatedCorrectly(BlockElements& elements, size_t numExpectedBlocks) {
+			// Arrange:
+			ProcessorTestContext context;
+			auto pParentBlock = test::GenerateEmptyRandomBlock();
+			PrepareChain(Height(11), *pParentBlock, elements);
+
+			// - set all sub cache merkle roots
+			for (auto& blockElement : elements)
+				blockElement.SubCacheMerkleRoots = test::GenerateRandomDataVector<Hash256>(3);
+
+			// Act:
+			auto parentBlockElement = test::BlockToBlockElement(*pParentBlock);
+			test::FillWithRandomData(parentBlockElement.GenerationHash);
+			auto result = context.Process(parentBlockElement, elements);
+
+			// Sanity:
+			EXPECT_EQ(ValidationResult::Success, result);
+			EXPECT_EQ(numExpectedBlocks, elements.size());
+
+			// Assert: sub cache merkle roots were set (cleared)
+			auto i = 0u;
+			for (const auto& blockElement : elements) {
+				EXPECT_TRUE(blockElement.SubCacheMerkleRoots.empty()) << "sub cache merkle roots at " << i;
+				++i;
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, SetsSubCacheMerkleRootsInSingleBlockInput) {
+		// Arrange:
+		auto elements = test::CreateBlockElements(1);
+
+		// Assert:
+		AssertSubCacheMerkleRootsAreUpdatedCorrectly(elements, 1);
+	}
+
+	TEST(TEST_CLASS, SetsSubCacheMerkleRootsInMultiBlockInput) {
+		// Arrange:
+		auto elements = test::CreateBlockElements(3);
+
+		// Assert:
+		AssertSubCacheMerkleRootsAreUpdatedCorrectly(elements, 3);
 	}
 
 	// endregion

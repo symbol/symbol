@@ -21,6 +21,7 @@
 #pragma once
 #include "catapult/exceptions.h"
 #include "catapult/types.h"
+#include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 #include <type_traits>
 
@@ -48,6 +49,9 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	/// Converts raw array (\a pData) of \a size elements into bson binary type.
 	bsoncxx::v_noabi::types::b_binary ToBinary(const uint8_t* pData, size_t size);
+
+	/// Converts \a unresolvedAddress into bson binary type.
+	bsoncxx::v_noabi::types::b_binary ToBinary(const UnresolvedAddress& unresolvedAddress);
 
 	/// Converts \a array into bson binary type.
 	template<size_t N>
@@ -121,6 +125,9 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	/// Streams a mosaic composed of \a id and \a amount to \a context.
 	bson_stream::array_context& StreamMosaic(bson_stream::array_context& context, MosaicId id, Amount amount);
+
+	/// Streams a mosaic composed of \a id and \a amount to \a context.
+	bson_stream::array_context& StreamMosaic(bson_stream::array_context& context, UnresolvedMosaicId id, Amount amount);
 
 	// endregion
 }}}

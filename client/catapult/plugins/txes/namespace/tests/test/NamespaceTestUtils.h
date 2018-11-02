@@ -42,6 +42,9 @@ namespace catapult { namespace test {
 	/// Creates a namespace lifetime around \a start and \a end.
 	state::NamespaceLifetime CreateLifetime(Height::ValueType start, Height::ValueType end);
 
+	/// Creates a namespace lifetime around \a start, \a end and \a gracePeriodDuration.
+	state::NamespaceLifetime CreateLifetime(Height::ValueType start, Height::ValueType end, BlockDuration::ValueType gracePeriodDuration);
+
 	/// Adds all \a children to \a root in the specified order (\a orderedIds).
 	void AddAll(state::RootNamespace& root, const ChildNamespaces& children, std::initializer_list<NamespaceId::ValueType> orderedIds);
 

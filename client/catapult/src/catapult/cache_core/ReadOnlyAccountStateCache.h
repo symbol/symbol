@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/model/NetworkInfo.h"
 #include "catapult/state/AccountState.h"
 
@@ -32,19 +33,22 @@ namespace catapult {
 namespace catapult { namespace cache {
 
 	/// A read-only overlay on top of an account cache.
-	class ReadOnlyAccountStateCache {
+	class ReadOnlyAccountStateCache
+			: public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, const Address&, state::AccountState>
+			, public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, const Key&, state::AccountState> {
+	private:
+		template<typename TKey, typename TValue>
+		using ReadOnlySubCache = ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, const TKey&, TValue>;
+
+		using AddressBasedCache = ReadOnlySubCache<Address, state::AccountState>;
+		using KeyBasedCache = ReadOnlySubCache<Key, state::AccountState>;
+
 	public:
 		/// Creates a read-only overlay on top of \a cache.
-		explicit ReadOnlyAccountStateCache(const BasicAccountStateCacheView& cache)
-				: m_pCache(&cache)
-				, m_pCacheDelta(nullptr)
-		{}
+		explicit ReadOnlyAccountStateCache(const BasicAccountStateCacheView& cache);
 
 		/// Creates a read-only overlay on top of \a cache.
-		explicit ReadOnlyAccountStateCache(const BasicAccountStateCacheDelta& cache)
-				: m_pCache(nullptr)
-				, m_pCacheDelta(&cache)
-		{}
+		explicit ReadOnlyAccountStateCache(const BasicAccountStateCacheDelta& cache);
 
 	public:
 		/// Gets the network identifier.
@@ -54,28 +58,12 @@ namespace catapult { namespace cache {
 		uint64_t importanceGrouping() const;
 
 	public:
-		/// Returns the number of elements in the cache.
-		size_t size() const;
+		using AddressBasedCache::size;
+		using AddressBasedCache::contains;
+		using AddressBasedCache::find;
 
-		/// Searches for the given \a address in the cache.
-		/// Returns \c true if it is found or \c false otherwise.
-		bool contains(const Address& address) const;
-
-		/// Searches for the given \a publicKey in the cache.
-		/// Returns \c true if it is found or \c false otherwise.
-		bool contains(const Key& publicKey) const;
-
-		/// Returns account state for an account identified by \a address.
-		const state::AccountState& get(const Address& address) const;
-
-		/// Returns account state for an account identified by \a publicKey.
-		const state::AccountState& get(const Key& publicKey) const;
-
-		/// Returns account state for an account identified by \a address or \c nullptr if the account was not found.
-		const state::AccountState* tryGet(const Address& address) const;
-
-		/// Returns account state for an account identified by \a publicKey or \c nullptr if the account was not found.
-		const state::AccountState* tryGet(const Key& publicKey) const;
+		using KeyBasedCache::contains;
+		using KeyBasedCache::find;
 
 	private:
 		const BasicAccountStateCacheView* m_pCache;

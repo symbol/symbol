@@ -30,7 +30,8 @@ namespace catapult { namespace test {
 			const Key& publicKey,
 			Importance importance,
 			model::ImportanceHeight importanceHeight) {
-		auto& accountState = delta.addAccount(publicKey, Height(100));
+		delta.addAccount(publicKey, Height(100));
+		auto& accountState = delta.find(publicKey).get();
 		accountState.ImportanceInfo.set(importance, importanceHeight);
 		accountState.Balances.credit(Xem_Id, Amount(1000));
 	}

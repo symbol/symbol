@@ -302,7 +302,7 @@ namespace catapult { namespace ionet {
 		const auto& packet = test::SetPushBlockPacketInBuffer(buffer);
 
 		// Act: extract and return false from the isValid predicate even though the packet has a valid size
-		auto numValidCalls = 0;
+		auto numValidCalls = 0u;
 		auto extractResult = TTraits::Extract(packet, [&numValidCalls](const auto&) {
 			++numValidCalls;
 			return false;

@@ -19,33 +19,34 @@
 **/
 
 #pragma once
-#include <iosfwd>
+#include "PeerConnectCode.h"
+#include "catapult/types.h"
 
 namespace catapult { namespace net {
 
-#define PEER_CONNECT_RESULT_LIST \
-	/* Underlying socket operation failed. */ \
-	ENUM_VALUE(Socket_Error) \
-	\
-	/* Peer failed verification. */ \
-	ENUM_VALUE(Verify_Error) \
-	\
-	/* Verification timed out. */ \
-	ENUM_VALUE(Timed_Out) \
-	\
-	/* Peer was accepted. */ \
-	ENUM_VALUE(Accepted) \
-	\
-	/* Peer is already connected. */ \
-	ENUM_VALUE(Already_Connected)
+	/// Peer connection result.
+	struct PeerConnectResult {
+	public:
+		/// Creates a default result.
+		PeerConnectResult() : PeerConnectResult(static_cast<PeerConnectCode>(-1))
+		{}
 
-#define ENUM_VALUE(LABEL) LABEL,
-	/// Enumeration of possible peer connection results.
-	enum class PeerConnectResult {
-		PEER_CONNECT_RESULT_LIST
+		/// Creates a result around \a code.
+		PeerConnectResult(PeerConnectCode code) : PeerConnectResult(code, Key())
+		{}
+
+		/// Creates a result around \a code and \a identityKey.
+		PeerConnectResult(PeerConnectCode code, const Key& identityKey)
+				: Code(code)
+				, IdentityKey(PeerConnectCode::Accepted == code ? identityKey : Key())
+		{}
+
+	public:
+		/// Connection result code.
+		PeerConnectCode Code;
+
+		/// Connection identity.
+		/// \note This is only valid if Code is PeerConnectCode::Accepted.
+		Key IdentityKey;
 	};
-#undef ENUM_VALUE
-
-	/// Insertion operator for outputting \a value to \a out.
-	std::ostream& operator<<(std::ostream& out, PeerConnectResult value);
 }}

@@ -45,7 +45,7 @@ namespace catapult { namespace api {
 		/// Gets information about the chain.
 		virtual thread::future<ChainInfo> chainInfo() const = 0;
 
-		/// Gets the hashes starting at \a height.
-		virtual thread::future<model::HashRange> hashesFrom(Height height) const = 0;
+		/// Gets at most \a maxHashes hashes starting at \a height.
+		virtual thread::future<model::HashRange> hashesFrom(Height height, uint32_t maxHashes) const = 0;
 	};
 }}

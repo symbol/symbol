@@ -19,12 +19,30 @@
 **/
 
 #pragma once
+#include "catapult/cache/CatapultCache.h"
 #include "catapult/validators/NotificationValidator.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace test {
 
-	// region FunctionalValidator
+	// region CreateValidatorContext
+
+	/// Creates a validator context around a \a height, \a network and \a cache.
+	constexpr validators::ValidatorContext CreateValidatorContext(
+			Height height,
+			const model::NetworkInfo& network,
+			const cache::ReadOnlyCatapultCache& cache) {
+		return validators::ValidatorContext(height, Timestamp(0), network, cache);
+	}
+
+	/// Creates a validator context around a \a height and \a cache.
+	constexpr validators::ValidatorContext CreateValidatorContext(Height height, const cache::ReadOnlyCatapultCache& cache) {
+		return CreateValidatorContext(height, model::NetworkInfo(), cache);
+	}
+
+	// endregion
+
+	// region ValidateNotification
 
 	/// Validates \a notification with \a validator.
 	template<typename TNotification>
@@ -43,20 +61,20 @@ namespace catapult { namespace test {
 		return validator.validate(notification, context);
 	}
 
+	/// Validates \a notification with \a validator using \a cache at \a height.
+	template<typename TNotification>
+	validators::ValidationResult ValidateNotification(
+			const validators::stateful::NotificationValidatorT<TNotification>& validator,
+			const TNotification& notification,
+			const cache::CatapultCache& cache,
+			Height height = Height(1)) {
+		auto cacheView = cache.createView();
+		auto readOnlyCache = cacheView.toReadOnly();
+		auto context = CreateValidatorContext(height, readOnlyCache);
+		return validator.validate(notification, context);
+	}
+
 	// endregion
-
-	/// Creates a validator context around a \a height, \a network and \a cache.
-	constexpr validators::ValidatorContext CreateValidatorContext(
-			Height height,
-			const model::NetworkInfo& network,
-			const cache::ReadOnlyCatapultCache& cache) {
-		return validators::ValidatorContext(height, Timestamp(0), network, cache);
-	}
-
-	/// Creates a validator context around a \a height and \a cache.
-	constexpr validators::ValidatorContext CreateValidatorContext(Height height, const cache::ReadOnlyCatapultCache& cache) {
-		return CreateValidatorContext(height, model::NetworkInfo(), cache);
-	}
 
 /// Defines common validator tests for a validator with \a NAME.
 #define DEFINE_COMMON_VALIDATOR_TESTS(NAME, ...) \

@@ -7,6 +7,7 @@ import shutil
 
 from validation import Line
 
+
 class PpType(Enum):
     Include = 1
     Define = 2
@@ -16,6 +17,7 @@ class PpType(Enum):
     Endif = 6
     Pragma = 7
     Error = 8
+
 
 class Preproc:
     def __init__(self, line, lineno, word):
@@ -38,8 +40,10 @@ class Preproc:
             self.type = matchToType[word]
         else:
             raise RuntimeError('unknown preprocessor directive' + line)
+
     def __str__(self):
         return '{}'.format(self.line)
+
 
 class Include:
     def __init__(self, line, lineno, include, rest):
@@ -52,15 +56,18 @@ class Include:
     def __str__(self):
         return '#include {}{}'.format(self.include, self.rest)
 
+
 class MultilineMacro(Enum):
     PpLine = 1
     Continuation = 2
+
 
 class IndentFix:
     def __init__(self, mmtype, lineno, line):
         self.type = mmtype
         self.lineno = lineno
         self.line = line
+
 
 def fixTabs(line, count):
     if count == 0:
@@ -72,6 +79,7 @@ def fixTabs(line, count):
     else:
         line = '\t'*count + line
     return line
+
 
 class HeaderParser:
     patternInclude = re.compile(r'\s*#\s*include[ \t]*(["<][^">]*[">])(.*)')

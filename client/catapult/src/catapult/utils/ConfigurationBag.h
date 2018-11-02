@@ -24,6 +24,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace catapult { namespace utils {
 
@@ -55,12 +56,16 @@ namespace catapult { namespace utils {
 	/// A simple bag of properties.
 	class ConfigurationBag {
 	public:
-		/// A strongly typed key to value map.
+		/// A strongly typed ordered key to value map.
 		template<typename TValue>
-		using KeyValueMap = std::unordered_map<std::string, TValue>;
+		using OrderedKeyValueMap = std::vector<std::pair<std::string, TValue>>;
+
+		/// A strongly typed unordered key to value map.
+		template<typename TValue>
+		using UnorderedKeyValueMap = std::unordered_map<std::string, TValue>;
 
 		/// Underlying container that a configuration bag is created around.
-		using ValuesContainer = std::unordered_map<std::string, KeyValueMap<std::string>>;
+		using ValuesContainer = std::unordered_map<std::string, OrderedKeyValueMap<std::string>>;
 
 	public:
 		/// Creates a new configuration bag around \a values.
@@ -134,15 +139,27 @@ namespace catapult { namespace utils {
 
 		/// Gets all \a section properties from this bag.
 		template<typename T>
-		KeyValueMap<T> getAll(const char* section) const {
-			KeyValueMap<T> values;
+		UnorderedKeyValueMap<T> getAll(const char* section) const {
+			auto values = getAllOrdered<T>(section);
+
+			UnorderedKeyValueMap<T> unorderedValues;
+			for (const auto& value : values)
+				unorderedValues.emplace(value);
+
+			return unorderedValues;
+		}
+
+		/// Gets all \a section properties from this bag preserving source order.
+		template<typename T>
+		OrderedKeyValueMap<T> getAllOrdered(const char* section) const {
+			OrderedKeyValueMap<T> values;
 
 			auto sectionIter = m_values.find(section);
 			if (m_values.cend() == sectionIter)
 				return values;
 
 			for (const auto& pair : sectionIter->second)
-				values.emplace(pair.first, get<T>(ConfigurationKey(section, pair.first.c_str())));
+				values.emplace_back(pair.first, get<T>(ConfigurationKey(section, pair.first.c_str())));
 
 			return values;
 		}
@@ -154,7 +171,10 @@ namespace catapult { namespace utils {
 				return nullptr;
 
 			const auto& sectionValues = sectionIter->second;
-			auto itemIter = sectionValues.find(key.Name);
+			auto itemIter = std::find_if(sectionValues.cbegin(), sectionValues.cend(), [&name = key.Name](const auto& pair) {
+				return name == pair.first;
+			});
+
 			if (sectionValues.cend() == itemIter)
 				return nullptr;
 

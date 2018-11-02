@@ -45,8 +45,8 @@ namespace catapult { namespace cache {
 			io::Write64(output, view->size());
 
 			auto pIterableView = view->tryMakeIterableView();
-			for (const auto& value : *pIterableView)
-				TStorageTraits::Save(value, output);
+			for (const auto& element : *pIterableView)
+				SaveValue(element, output);
 
 			output.flush();
 		}
@@ -59,6 +59,19 @@ namespace catapult { namespace cache {
 				loader.next(batchSize, *delta);
 				m_cache.commit();
 			}
+		}
+
+	private:
+		// assume pair indicates maps and only forward value to save
+
+		template<typename T>
+		static void SaveValue(const T& value, io::OutputStream& output) {
+			TStorageTraits::Save(value, output);
+		}
+
+		template<typename T1, typename T2>
+		static void SaveValue(const std::pair<T1, T2>& pair, io::OutputStream& output) {
+			TStorageTraits::Save(pair.second, output);
 		}
 
 	private:

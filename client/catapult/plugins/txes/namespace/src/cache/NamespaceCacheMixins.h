@@ -84,6 +84,56 @@ namespace catapult { namespace cache {
 	template<typename TPrimarySet, typename TFlatMap>
 	class NamespaceLookupMixin {
 	public:
+		/// An iterator that is returned by namespace cache find functions.
+		class const_iterator {
+		public:
+			/// Creates an uninitialized iterator.
+			const_iterator() : m_isValid(false)
+			{}
+
+			/// Creates an uninitialized iterator around \a id.
+			explicit const_iterator(NamespaceId id)
+					: m_isValid(false)
+					, m_id(id)
+			{}
+
+			/// Creates an iterator around a namespace iterator (\a namespaceIter) and a root iterator (\a rootIter).
+			const_iterator(typename TFlatMap::FindConstIterator&& namespaceIter, typename TPrimarySet::FindConstIterator&& rootIter)
+					: m_isValid(true)
+					, m_namespaceIter(std::move(namespaceIter))
+					, m_rootIter(std::move(rootIter))
+					, m_entry(*m_namespaceIter.get(), m_rootIter.get()->back())
+			{}
+
+		public:
+			/// Gets a const value.
+			/// \throws catapult_invalid_argument if this iterator does not point to a value.
+			const state::NamespaceEntry& get() const {
+				if (!m_isValid)
+					CATAPULT_THROW_INVALID_ARGUMENT_1("unknown namespace", m_id);
+
+				return *tryGet();
+			}
+
+			/// Tries to get a const value.
+			const state::NamespaceEntry* tryGet() const {
+				return m_isValid ? &m_entry : nullptr;
+			}
+
+			/// Tries to get a const (unadapted) value.
+			const state::RootNamespaceHistory* tryGetUnadapted() const {
+				return m_rootIter.get();
+			}
+
+		private:
+			bool m_isValid;
+			NamespaceId m_id;
+			typename TFlatMap::FindConstIterator m_namespaceIter;
+			typename TPrimarySet::FindConstIterator m_rootIter;
+			state::NamespaceEntry m_entry;
+		};
+
+	public:
 		/// Creates a mixin around (history by id) \a set and \a flatMap.
 		explicit NamespaceLookupMixin(const TPrimarySet& set, const TFlatMap& flatMap)
 				: m_set(set)
@@ -93,33 +143,25 @@ namespace catapult { namespace cache {
 	public:
 		/// Returns \c true if the value specified by identifier \a id is active at \a height.
 		bool isActive(NamespaceId id, Height height) const {
-			return m_flatMap.contains(id) && getHistory(id).back().lifetime().isActive(height);
+			auto namespaceIter = m_flatMap.find(id);
+			if (!namespaceIter.get())
+				return false;
+
+			auto historyIter = m_set.find(namespaceIter.get()->rootId());
+			if (!historyIter.get())
+				CATAPULT_THROW_RUNTIME_ERROR_1("no history for root namespace found", namespaceIter.get()->rootId());
+
+			return historyIter.get()->isActiveAndUnlocked(height);
 		}
 
-		/// Gets a value specified by identifier \a id.
-		/// \throws catapult_invalid_argument if the requested value is not found.
-		state::NamespaceEntry get(NamespaceId id) const {
-			const auto& ns = getNamespace(id);
-			const auto& root = m_set.find(ns.rootId())->back();
-			return state::NamespaceEntry(ns, root);
-		}
+		/// Finds the cache value identified by \a id.
+		const_iterator find(NamespaceId id) const {
+			auto namespaceIter = m_flatMap.find(id);
+			if (!namespaceIter.get())
+				return const_iterator(id);
 
-	private:
-		const state::Namespace& getNamespace(NamespaceId id) const {
-			const auto* pNamespace = m_flatMap.find(id);
-			if (!pNamespace)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("unknown namespace", id);
-
-			return *pNamespace;
-		}
-
-		const state::RootNamespaceHistory& getHistory(NamespaceId id) const {
-			const auto& ns = getNamespace(id);
-			const auto* pHistory = m_set.find(ns.rootId());
-			if (!pHistory)
-				CATAPULT_THROW_RUNTIME_ERROR_1("no history for root namespace found", ns.rootId());
-
-			return *pHistory;
+			auto rootIter = m_set.find(namespaceIter.get()->rootId());
+			return const_iterator(std::move(namespaceIter), std::move(rootIter));
 		}
 
 	private:

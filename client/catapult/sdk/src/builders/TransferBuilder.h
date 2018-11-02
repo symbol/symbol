@@ -34,7 +34,7 @@ namespace catapult { namespace builders {
 
 		/// Creates a transfer builder for building a transfer transaction from \a signer to \a recipient for the network specified by
 		/// \a networkIdentifier.
-		TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer, const Address& recipient);
+		TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer, const UnresolvedAddress& recipient);
 
 	public:
 		/// Sets the transfer message to \a message.
@@ -45,7 +45,7 @@ namespace catapult { namespace builders {
 
 	public:
 		/// Adds a transfer of \a mosaicId with \a amount.
-		void addMosaic(MosaicId mosaicId, Amount amount);
+		void addMosaic(UnresolvedMosaicId mosaicId, Amount amount);
 
 		/// Adds a transfer of \a mosaicName with \a amount.
 		void addMosaic(const RawString& mosaicName, Amount amount);
@@ -62,8 +62,8 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		const Address& m_recipient;
+		UnresolvedAddress m_recipient;
 		std::vector<uint8_t> m_message;
-		std::map<MosaicId, Amount> m_mosaicTransfers;
+		std::map<UnresolvedMosaicId, Amount> m_mosaicTransfers;
 	};
 }}

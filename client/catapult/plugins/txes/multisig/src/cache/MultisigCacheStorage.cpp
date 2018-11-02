@@ -19,57 +19,11 @@
 **/
 
 #include "MultisigCacheStorage.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
-#include "catapult/utils/HexFormatter.h"
+#include "MultisigCacheDelta.h"
 
 namespace catapult { namespace cache {
 
-	namespace {
-		void SaveKeySet(io::OutputStream& output, const utils::KeySet& keySet) {
-			io::Write64(output, keySet.size());
-			for (const auto& key : keySet)
-				io::Write(output, key);
-		}
-	}
-
-	void MultisigCacheStorage::Save(const StorageType& element, io::OutputStream& output) {
-		const auto& entry = element.second;
-		io::Write8(output, entry.minApproval());
-		io::Write8(output, entry.minRemoval());
-		io::Write(output, entry.key());
-
-		SaveKeySet(output, entry.cosignatories());
-		SaveKeySet(output, entry.multisigAccounts());
-	}
-
-	namespace {
-		void LoadKeySet(io::InputStream& input, utils::KeySet& keySet) {
-			auto numKeys = io::Read64(input);
-			while (numKeys--) {
-				Key key;
-				input.read(key);
-				keySet.insert(key);
-			}
-		}
-	}
-
-	state::MultisigEntry MultisigCacheStorage::Load(io::InputStream& input) {
-		auto minApproval = io::Read8(input);
-		auto minRemoval = io::Read8(input);
-		Key key;
-		input.read(key);
-
-		auto entry = state::MultisigEntry(key);
-		entry.setMinApproval(minApproval);
-		entry.setMinRemoval(minRemoval);
-
-		LoadKeySet(input, entry.cosignatories());
-		LoadKeySet(input, entry.multisigAccounts());
-		return entry;
-	}
-
-	void MultisigCacheStorage::LoadInto(io::InputStream& input, DestinationType& cacheDelta) {
-		cacheDelta.insert(Load(input));
+	void MultisigCacheStorage::LoadInto(const ValueType& entry, DestinationType& cacheDelta) {
+		cacheDelta.insert(entry);
 	}
 }}

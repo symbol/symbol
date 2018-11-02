@@ -83,6 +83,11 @@ namespace catapult { namespace test {
 		CATAPULT_THROW_RUNTIME_ERROR_1(message.c_str(), numRetries);
 	}
 
+	std::chrono::nanoseconds GetCurrentTimeNanoseconds() {
+		auto time = std::chrono::steady_clock::now().time_since_epoch();
+		return std::chrono::duration_cast<std::chrono::nanoseconds>(time);
+	}
+
 	uint32_t GetTimeUnitForIteration(size_t i) {
 		return static_cast<uint32_t>(i * 5);
 	}

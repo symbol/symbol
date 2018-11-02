@@ -2,14 +2,17 @@ import re
 from enum import Enum
 
 from colorPrint import colorPrint, Fore
-from cppLexer import * #pylint: disable=wildcard-import,unused-wildcard-import
+from cppLexer import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from SimpleValidator import SimpleValidator, Line
 from exclusions import SKIP_FORWARDS, FILTER_NAMESPACES
 
 PRINT_INFO = False
+
+
 def info(*args):
     if PRINT_INFO:
         colorPrint(Fore.GREEN, *args)
+
 
 class SimpleNsTokenizer:
     def __init__(self):
@@ -39,6 +42,7 @@ class SimpleNsTokenizer:
         ret = self.find()
         return (ret[0], ret[1])
 
+
 class Mode(Enum):
     Normal = 1
     CollectNsName = 2
@@ -49,12 +53,14 @@ class Mode(Enum):
     CollectNamespaceKeyword = 7
     CollectEnum = 8
 
+
 class NamespaceType(Enum):
     Normal = 1
     Inline = 2
 
+
 def createDict():
-    return {'namespaces':{}, 'forwards':{}}
+    return {'namespaces': {}, 'forwards': {}}
 
 
 # pylint: disable=too-many-instance-attributes
@@ -143,7 +149,7 @@ class ForwardsValidator(SimpleValidator):
             self.typeType = self.tok
         elif self.tok == 'template':
             self.mode = Mode.SkipTillEol
-            self.preTypeLines.append(self.line[self.tokPos : ])
+            self.preTypeLines.append(self.line[self.tokPos:])
         elif self.tok == 'extern':
             # we assume it's a single line extern and simply ignore the content
             self.mode = Mode.SkipTillEol
@@ -151,7 +157,7 @@ class ForwardsValidator(SimpleValidator):
             self.mode = Mode.SkipTillEol
         elif self.tok.startswith('//'):
             self.mode = Mode.SkipTillEol
-            self.preTypeLines.append(self.line[self.tokPos : ])
+            self.preTypeLines.append(self.line[self.tokPos:])
         elif self.tok == '}':
             self.namespaceStack.pop()
         elif self.tok == '\n':

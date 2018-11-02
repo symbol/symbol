@@ -160,7 +160,7 @@ namespace catapult { namespace extensions {
 			EXPECT_EQ(1u, locator.numServices());
 
 			// Sanity: locator owned and temporary
-			EXPECT_EQ(2u, pLocatedService.use_count());
+			EXPECT_EQ(2, pLocatedService.use_count());
 		});
 	}
 
@@ -176,7 +176,7 @@ namespace catapult { namespace extensions {
 			EXPECT_EQ(1u, locator.numServices());
 
 			// Sanity: locator does not extend lifetime of service that failed registration
-			EXPECT_EQ(1u, pService2.use_count());
+			EXPECT_EQ(1, pService2.use_count());
 		});
 	}
 
@@ -192,7 +192,7 @@ namespace catapult { namespace extensions {
 			EXPECT_EQ(1u, locator.numServices());
 
 			// Sanity: locator continues to extend the lifetime of the original rooted service
-			EXPECT_EQ(2u, pService1.use_count());
+			EXPECT_EQ(2, pService1.use_count());
 		});
 	}
 

@@ -131,10 +131,10 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, GetNumBitsReturnsCorrectNumberOfBits) {
 		// Assert:
-		EXPECT_EQ(8u, GetNumBits<int8_t>());
+		EXPECT_EQ(8, GetNumBits<int8_t>());
 		EXPECT_EQ(8u, GetNumBits<uint8_t>());
 
-		EXPECT_EQ(32u, GetNumBits<int32_t>());
+		EXPECT_EQ(32, GetNumBits<int32_t>());
 		EXPECT_EQ(32u, GetNumBits<uint32_t>());
 	}
 

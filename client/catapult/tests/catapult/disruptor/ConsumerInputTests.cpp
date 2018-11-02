@@ -205,7 +205,12 @@ namespace catapult { namespace disruptor {
 	TEST(TEST_CLASS, CanOutputBlockConsumerInputWithDetachedRange) {
 		// Arrange:
 		auto input = PrepareBlockConsumerInputForOutputTests(Height(12345));
-		auto range = input.detachBlockRange();
+		{
+			auto range = input.detachBlockRange();
+		}
+
+		// Sanity:
+		EXPECT_TRUE(input.empty());
 
 		// Act:
 		auto str = test::ToString(input);
@@ -240,7 +245,12 @@ namespace catapult { namespace disruptor {
 	TEST(TEST_CLASS, CanOutputTransactionConsumerInputWithDetachedRange) {
 		// Arrange:
 		auto input = PrepareTransactionConsumerInputForOutputTests();
-		input.detachTransactionRange();
+		{
+			auto range = input.detachTransactionRange();
+		}
+
+		// Sanity:
+		EXPECT_TRUE(input.empty());
 
 		// Act:
 		auto str = test::ToString(input);

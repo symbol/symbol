@@ -48,8 +48,8 @@ namespace catapult { namespace observers {
 			if (!cache.contains(cosignatoryAccountKey))
 				cache.insert(state::MultisigEntry(cosignatoryAccountKey));
 
-			cache.get(cosignatoryAccountKey).multisigAccounts().insert(multisigAccountKey);
-			cache.get(multisigAccountKey).cosignatories().insert(cosignatoryAccountKey);
+			cache.find(cosignatoryAccountKey).get().multisigAccounts().insert(multisigAccountKey);
+			cache.find(multisigAccountKey).get().cosignatories().insert(cosignatoryAccountKey);
 		}
 
 		class MultisigCacheFacade {
@@ -77,7 +77,7 @@ namespace catapult { namespace observers {
 				ASSERT_TRUE(m_multisigCache.contains(accountKey))
 						<< "cache is missing account " << utils::HexFormat(accountKey);
 
-				auto& multisigEntry = m_multisigCache.get(accountKey);
+				auto& multisigEntry = m_multisigCache.find(accountKey).get();
 				assertAccountsInSet(cosignatoryKeys, multisigEntry.cosignatories());
 			}
 
@@ -85,7 +85,7 @@ namespace catapult { namespace observers {
 				// Assert:
 				ASSERT_TRUE(m_multisigCache.contains(accountKey)) << "cache is missing account " << utils::HexFormat(accountKey);
 
-				auto& multisigEntry = m_multisigCache.get(accountKey);
+				auto& multisigEntry = m_multisigCache.find(accountKey).get();
 				assertAccountsInSet(multisigAccountKeys, multisigEntry.multisigAccounts());
 			}
 
@@ -95,7 +95,7 @@ namespace catapult { namespace observers {
 						<< "cache should not have account " << utils::HexFormat(accountKey);
 			}
 
-			void assertAccountsInSet(const std::vector<Key>& expectedKeys, const utils::KeySet& keys) const {
+			void assertAccountsInSet(const std::vector<Key>& expectedKeys, const utils::SortedKeySet& keys) const {
 				// Assert:
 				for (const auto& key : expectedKeys)
 					EXPECT_TRUE(m_multisigCache.contains(key)) << "cache is missing account " << utils::HexFormat(key);

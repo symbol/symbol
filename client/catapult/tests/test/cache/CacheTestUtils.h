@@ -38,6 +38,12 @@ namespace catapult { namespace test {
 		static void CreateSubCaches(
 				const model::BlockChainConfiguration& config,
 				std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
+
+		/// Adds all core subcaches initialized with \a config and \a cacheConfig to \a subCaches.
+		static void CreateSubCaches(
+				const model::BlockChainConfiguration& config,
+				const cache::CacheConfiguration& cacheConfig,
+				std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
 	};
 
 	/// Creates a subcache plugin given \a args for a plugin that doesn't require configuration.
@@ -47,10 +53,18 @@ namespace catapult { namespace test {
 		return std::make_unique<cache::SubCachePluginAdapter<TCache, TStorageTraits>>(std::move(pCache));
 	}
 
+	/// Creates a subcache plugin around \a cacheConfig given \a args.
+	template<typename TCache, typename TStorageTraits, typename... TArgs>
+	std::unique_ptr<cache::SubCachePlugin> MakeSubCachePluginWithCacheConfiguration(
+			const cache::CacheConfiguration& cacheConfig,
+			TArgs&&... args) {
+		return MakeConfigurationFreeSubCachePlugin<TCache, TStorageTraits>(cacheConfig, std::forward<TArgs>(args)...);
+	}
+
 	/// Creates a subcache plugin given \a args.
 	template<typename TCache, typename TStorageTraits, typename... TArgs>
 	std::unique_ptr<cache::SubCachePlugin> MakeSubCachePlugin(TArgs&&... args) {
-		return MakeConfigurationFreeSubCachePlugin<TCache, TStorageTraits>(cache::CacheConfiguration(), std::forward<TArgs>(args)...);
+		return MakeSubCachePluginWithCacheConfiguration<TCache, TStorageTraits>(cache::CacheConfiguration(), std::forward<TArgs>(args)...);
 	}
 
 	/// Creates an empty catapult cache.
@@ -58,6 +72,11 @@ namespace catapult { namespace test {
 
 	/// Creates an empty catapult cache around \a config.
 	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockChainConfiguration& config);
+
+	/// Creates an empty catapult cache around \a config and \a cacheConfig.
+	cache::CatapultCache CreateEmptyCatapultCache(
+			const model::BlockChainConfiguration& config,
+			const cache::CacheConfiguration& cacheConfig);
 
 	/// Creates an empty catapult cache around \a config.
 	template<typename TCacheFactory>

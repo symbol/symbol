@@ -45,11 +45,17 @@ namespace catapult { namespace filechain {
 		void PopulateAccountStateCache(cache::AccountStateCacheDelta& cacheDelta) {
 			for (auto i = 2u; i < Account_Cache_Size + 2; ++i) {
 				auto publicKey = test::GenerateRandomData<Key_Size>();
-				auto& accountState = 0 == i % 2
-						? cacheDelta.addAccount(publicKey, Height(i / 2))
-						: cacheDelta.addAccount(model::PublicKeyToAddress(publicKey, Default_Network_Id), Height(i / 2));
+				state::AccountState* pAccountState;
+				if (0 == i % 2) {
+					cacheDelta.addAccount(publicKey, Height(i / 2));
+					pAccountState = &cacheDelta.find(publicKey).get();
+				} else {
+					auto address = model::PublicKeyToAddress(publicKey, Default_Network_Id);
+					cacheDelta.addAccount(address, Height(i / 2));
+					pAccountState = &cacheDelta.find(address).get();
+				}
 
-				test::RandomFillAccountData(i, accountState);
+				test::RandomFillAccountData(i, *pAccountState);
 			}
 		}
 

@@ -168,7 +168,7 @@ namespace catapult { namespace ionet {
 		Node node({ test::GenerateRandomData<Key_Size>(), { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
 
 		// Assert:
-		AssertOutputOperator(node, "alice @ bob.com");
+		AssertOutputOperator(node, "alice @ bob.com:1234");
 	}
 
 	TEST(TEST_CLASS, CanOutputNodeWithUnprintableNameCharacters) {
@@ -177,7 +177,7 @@ namespace catapult { namespace ionet {
 		Node node({ test::GenerateRandomData<Key_Size>(), { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, name) });
 
 		// Assert:
-		AssertOutputOperator(node, "al??ce? @ bob.com");
+		AssertOutputOperator(node, "al??ce? @ bob.com:1234");
 	}
 
 	TEST(TEST_CLASS, CanOutputNodeWithUnprintableHostCharacters) {
@@ -186,7 +186,7 @@ namespace catapult { namespace ionet {
 		Node node({ test::GenerateRandomData<Key_Size>(), { host, 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
 
 		// Assert:
-		AssertOutputOperator(node, "alice @ bo??b.co?m");
+		AssertOutputOperator(node, "alice @ bo??b.co?m:1234");
 	}
 
 	TEST(TEST_CLASS, CanOutputNodeWithoutName) {
@@ -203,11 +203,11 @@ namespace catapult { namespace ionet {
 		auto key = crypto::ParseKey("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 		AssertOutputOperator(
 				{ key, { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Mijin) },
-				std::string(expectedMijinAddress) + " @ bob.com");
+				std::string(expectedMijinAddress) + " @ bob.com:1234");
 
 		AssertOutputOperator(
 				{ key, { "bob.com", 1234 }, NodeMetadata(static_cast<model::NetworkIdentifier>(0x25)) },
-				std::string(expectedTwentyFiveAddress) + " @ bob.com");
+				std::string(expectedTwentyFiveAddress) + " @ bob.com:1234");
 	}
 
 	TEST(TEST_CLASS, CanOutputNodeWithoutHost) {

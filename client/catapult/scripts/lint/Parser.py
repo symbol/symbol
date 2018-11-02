@@ -5,10 +5,11 @@ import traceback
 from xml.sax.saxutils import escape as xmlEscape
 
 from colorPrint import warning, colorPrint, Fore, Style
-from cppLexer import * #pylint: disable=wildcard-import,unused-wildcard-import
+from cppLexer import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from validation import Line
 
 lex.lex()
+
 
 class Mode(Enum):
     Normal = 1
@@ -22,9 +23,11 @@ class Mode(Enum):
     FindClosingBrace = 9
     Operator = 10
 
+
 class NextTokenBehavior(Enum):
     Skip = 1
     Pick = 2
+
 
 PRINT_INFO = 0
 PRINT_DEBUG = 0
@@ -34,17 +37,21 @@ ANON_NS_FAKENAME = '<anon>'
 TEXT_OUTPUT = False
 DEST_DIR = '.'
 
+
 def info(*args):
     if 1 == PRINT_INFO:
         colorPrint(Fore.GREEN, *args)
+
 
 def debug(*args):
     if 1 == PRINT_DEBUG:
         colorPrint(Fore.GREEN, *args)
 
+
 def trace_print(*args):
     if 1 == PRINT_TRACE:
         print(*args)
+
 
 def has(tokenName, stack):
     for token in stack:
@@ -52,13 +59,15 @@ def has(tokenName, stack):
             return True
     return False
 
-class TemplateError: # pylint: disable=too-few-public-methods
+
+class TemplateError:  # pylint: disable=too-few-public-methods
     def __init__(self, name, line):
         self.name = name
         self.line = line
 
+
 # pylint: disable=too-many-instance-attributes
-class NamespaceInfo: # pylint: disable=too-few-public-methods
+class NamespaceInfo:  # pylint: disable=too-few-public-methods
     def __init__(self, current):
         self.properties = defaultdict(bool)
         self.current = current
@@ -115,6 +124,7 @@ class NamespaceInfo: # pylint: disable=too-few-public-methods
             self.hadConstant,
             self.hadInclude,
             self.hadDefineMacro)
+
 
 # pylint: disable=too-many-instance-attributes
 class NamespacesParser:
@@ -206,7 +216,7 @@ class NamespacesParser:
             self.quit(tok)
 
     def _parseNormalOpenBracket(self, tok):
-        self.insideTemplateCallback = lambda tok: self.nameStack.append(tok) # pylint: disable=unnecessary-lambda
+        self.insideTemplateCallback = lambda tok: self.nameStack.append(tok)  # pylint: disable=unnecessary-lambda
         self.templateContent = []
         self.collectTemplate(tok)
         self.mode = Mode.CollectTemplate
@@ -364,7 +374,6 @@ class NamespacesParser:
         self.templateErrors.append(dummy)
 
     def clearNameStack(self):
-        #print(self.nameStack)
         self.nameStack = []
         self.closingBraceCallback = None
 

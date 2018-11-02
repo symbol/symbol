@@ -41,6 +41,7 @@ EXCLUSIONS = {
     'EXTENSION_FIRSTINCLUDES': EXTENSION_FIRSTINCLUDES
 }
 
+
 class AnalyzerOptions():
     def __init__(self):
         self.textOutput = False
@@ -50,17 +51,20 @@ class AnalyzerOptions():
         self.depsFilter = False
         self.depsSrcOnly = False
 
+
 USER_SOURCE_DIRS = {
-    'src' : Rules.Default,
-    'sdk' : Rules.Plugin,
-    'tests' : Rules.Default,
-    'plugins' : Rules.Plugin,
-    'extensions' : Rules.Extension,
-    'tools' : Rules.Tools,
-    'internal/tools' : Rules.Tools
+    'src': Rules.Default,
+    'sdk': Rules.Plugin,
+    'tests': Rules.Default,
+    'plugins': Rules.Plugin,
+    'extensions': Rules.Extension,
+    'tools': Rules.Tools,
+    'internal/tools': Rules.Tools
 }
 
+
 SOURCE_DIRS = dict((k, RULE_ID_TO_CLASS_MAP[v]) for k, v in USER_SOURCE_DIRS.items())
+
 
 def isSpecialInclude(includePath):
     for filtered in SPECIAL_INCLUDES:
@@ -68,36 +72,48 @@ def isSpecialInclude(includePath):
             return True
     return False
 
+
 class CheckResult(Enum):
     Success = 1
     Multiple = 2
     Invalid = 3
     Empty = 4
 
+
 def checkExternalInclude(incA, incB):
     extA = incA.startswith('<ref10') or incA.startswith('<ripemd160') or incA.startswith('<sha3')
     extB = incB.startswith('<ref10') or incB.startswith('<ripemd160') or incB.startswith('<sha3')
+
     if extA and not extB:
         return True
-    elif not extA and extB:
+
+    if not extA and extB:
         return False
+
     return None
+
 
 def isCppInclude(inc):
     cppIncludes = ['<boost', '<mongocxx', '<bsoncxx', '<rocksdb']
     return any(map(inc.startswith, cppIncludes))
 
+
 def checkCppInclude(incA, incB):
     boostA = isCppInclude(incA)
     boostB = isCppInclude(incB)
+
     if boostA and not boostB:
         return True
-    elif not boostA and boostB:
+
+    if not boostA and boostB:
         return False
 
     return None
 
+
 INCLUDE_PRIORITIES = {'"src': 100, '"mongo': 125, '"zeromq': 125, '"plugins': 150, '"catapult': 200, '"tests': 500}
+
+
 def checkLocalInclude(pathA, pathB):
     partA = pathA[0]
     partB = pathB[0]
@@ -114,6 +130,7 @@ def checkLocalInclude(pathA, pathB):
 
     return valA < valB
 
+
 def checkIncludeDepth(pathA, pathB):
     # single element goes to the top
     if len(pathA) == 1 and len(pathB) > 1:
@@ -126,10 +143,11 @@ def checkIncludeDepth(pathA, pathB):
     if len(pathA) == 2 and len(pathB) > 2:
         return False
 
-    if len(pathA) > 2 and len(pathA) == 2:
+    if len(pathA) > 2 and len(pathB) == 2:
         return True
 
     return None
+
 
 class SortableInclude(HeaderParser.Include):
     def __init__(self, inc, ruleset):
@@ -178,8 +196,10 @@ class SortableInclude(HeaderParser.Include):
     def __lt__(self, other):
         if self.include[0] < other.include[0]:
             return True
+
         if self.include[0] > other.include[0]:
             return False
+
         if self.include[0] == '<':
             selfCHeader = self.include.endswith('.h>') and not isCppInclude(self.include)
             otherCHeader = other.include.endswith('.h>') and not isCppInclude(other.include)
@@ -188,8 +208,9 @@ class SortableInclude(HeaderParser.Include):
             if (selfCHeader and otherCHeader) or not (selfCHeader or otherCHeader):
                 return self.comparePaths(other)
             return True
-        else:
-            return self.comparePaths(other)
+
+        return self.comparePaths(other)
+
 
 class FirstIncludeError:
     def __init__(self, path, include, actual):
@@ -197,10 +218,12 @@ class FirstIncludeError:
         self.include = include
         self.actual = actual
 
+
 class IncludesError:
     def __init__(self, path, includes):
         self.path = path
         self.includes = includes
+
 
 class Entry:
     def __init__(self, path, filename, ruleset):
@@ -259,10 +282,14 @@ class Entry:
             return
 
         elem.include = temp
-        #if '/' not in temp: elem.include = temp
         temp = re.sub(self.includeFixOwnPath, '', elem.line)
         elem.line = temp
-        #if '/' not in temp: elem.line = temp
+
+    def checkCrossIncludes(self, errorReporter, sortedIncludes, pathElements):
+        if 'tests' in pathElements:
+            crossIncludes = self.ruleset.validateCrossIncludes(sortedIncludes, pathElements)
+            if crossIncludes:
+                errorReporter('crossIncludes', IncludesError(self.fullPath(), crossIncludes))
 
     def checkIncludes(self, errorReporter, preprocessor):
         sortedIncludes = []
@@ -280,10 +307,7 @@ class Entry:
 
         fullPath = self.fullPath()
         pathElements = re.split(r'[/\\]', fullPath)
-        #print('----- %s sorting %d includes' %(fullPath, len(sortedIncludes)))
-        #print(' presort', list(map(str, sortedIncludes)))
         sortedIncludes.sort()
-        #print('  sorted', list(map(str, sortedIncludes)))
 
         # move "own" header to first position (i.e. RemoteChainApi.cpp including RemoteChainApi.h)
         if fullPath.endswith('.cpp'):
@@ -305,12 +329,14 @@ class Entry:
             if ownHeader != originalIncludes[0].include:
                 errorReporter('firstInclude', FirstIncludeError(fullPath, ownHeader, originalIncludes[0].include))
 
+            self.checkCrossIncludes(errorReporter, sortedIncludes, pathElements)
+
         if originalIncludes != sortedIncludes:
             print('I got includes mismatch')
             print('original', list(map(str, originalIncludes)))
             print('     new', list(map(str, sortedIncludes)))
             errorReporter('includesOrder', IncludesError(fullPath, sortedIncludes))
-        return None
+
 
 def namespaceFilter(namespace):
     for filtered in FILTER_NAMESPACES:
@@ -325,10 +351,12 @@ def namespaceFilter(namespace):
 
     return True
 
+
 def filterNonProjectIncludes(includes):
     projectIncludes = filter(lambda include: include[0] == '"', includes)
     projectIncludes = list(map(lambda name: name.strip('"'), projectIncludes))
     return projectIncludes
+
 
 class ErrorDataCollector:
     def __init__(self, description):
@@ -336,6 +364,7 @@ class ErrorDataCollector:
 
     def __call__(self, groupName, value):
         self.description[groupName].append(value)
+
 
 class FilteredReporter:
     def __init__(self, description):
@@ -357,6 +386,7 @@ class FilteredReporter:
         if not skip:
             self.xml(groupName, err)
 
+
 class ConReporter:
     def __init__(self):
         self.totalFailures = 0
@@ -369,7 +399,7 @@ class ConReporter:
     def header(self, testsCount, failuresCount):
         pass
 
-    def suite(self, suiteName, overallCount, errors): # pylint: disable=no-self-use
+    def suite(self, suiteName, overallCount, errors):  # pylint: disable=no-self-use
         print('===== {} ===== (tests: {}, failures: {})'.format(suiteName, overallCount, len(errors)))
         self.totalFailures += len(errors)
         for err in errors:
@@ -379,6 +409,7 @@ class ConReporter:
     def footer(self):
         print('>>> SUMMARY ({}, {} violations)'.format('SUCCESS' if 0 == self.totalFailures else 'FAILURE', self.totalFailures))
         print('')
+
 
 class XmlReporter:
     def __init__(self, f):
@@ -406,19 +437,25 @@ class XmlReporter:
     def footer(self):
         self.fout.write('</testsuites>\n')
 
+
 class AutoContainer:
     def __init__(self):
         self.data = {}
+
     def __getitem__(self, key):
         if key not in self.data:
             self.data[key] = []
         return self.data[key]
+
     def __len__(self):
         return len(self.data)
+
     def __iter__(self):
         return self.data.__iter__()
+
     def items(self):
         return self.data.items()
+
 
 class Analyzer:
     def __init__(self, options):
@@ -563,12 +600,13 @@ class Analyzer:
                     formatted[validator.NAME].append(output.getvalue())
 
         formats = {
-            'consecutiveEmpty' : lambda err: '{}:{} Consecutive empty lines: {}'.format(err.path, err.lineno, err.line),
-            'preprocessorOther' : lambda err: '{}:{} Preprocessor error, {}: {}'.format(err.path, err.lineno, err.kind, err.line),
-            'anonNamespace' : lambda err: '{}:{} Anonymous namespace inside header: {}'.format(err.path, err.lineno, err.line),
+            'consecutiveEmpty': lambda err: '{}:{} Consecutive empty lines: {}'.format(err.path, err.lineno, err.line),
+            'preprocessorOther': lambda err: '{}:{} Preprocessor error, {}: {}'.format(err.path, err.lineno, err.kind, err.line),
+            'anonNamespace': lambda err: '{}:{} Anonymous namespace inside header: {}'.format(err.path, err.lineno, err.line),
             'indentedPreprocessor': lambda err: '{}:{} Invalid indent, {}: {}'.format(err.path, err.lineno, err.kind, err.line),
             'emptyNearEnd': lambda err: '{}:{} Empty line near end of file: >>{}<<'.format(err.path, err.lineno, err.line),
             'firstInclude': lambda err: '{} Expected first include to be: >>{}<<'.format(err.path, err.include),
+            'crossIncludes': lambda err: '{} Cross component includes: >>\n{}\n<<'.format(err.path, '\n'.join(map(str, err.includes))),
             'includesOrder':
                 lambda err: '{} Includes needs fixing, proper order: >>\n{}\n<<'.format(err.path, '\n'.join(map(str, err.includes)))
         }
@@ -577,7 +615,6 @@ class Analyzer:
                 with io.StringIO() as output:
                     reporter.formatFailure(output, errorCategory, err.path, errorFormatter(err))
                     formatted[errorCategory].append(output.getvalue())
-
 
         failuresCount = 0
         for validator in self.simpleValidators:
@@ -678,6 +715,7 @@ class Analyzer:
                 reporter = XmlReporter(outputFile)
                 self.printTemplateErrorsOut(reporter)
 
+
 class DepsConsole:
     def __init__(self, args):
         self.args = args
@@ -717,6 +755,7 @@ class DepsConsole:
 
         self.depsPrint(deps)
 
+
 def depsCheckDir(args, path):
     if not args.depCheckDir:
         return False
@@ -726,6 +765,7 @@ def depsCheckDir(args, path):
             return 'tests' not in path
 
     return False
+
 
 def checkDependencies(includes, depsChecker, args):
     for name, entry in sorted(includes.items()):
@@ -747,6 +787,7 @@ def checkDependencies(includes, depsChecker, args):
             if depsChecker.match(name, pathA, includeDir, include):
                 continue
 
+
 def parseArgs():
     parser = argparse.ArgumentParser(description='catapult lint checker')
     parser.add_argument('-t', '--text', help='output text output (instead of xml)', action='store_true')
@@ -767,6 +808,7 @@ def parseArgs():
 
     return parser.parse_args()
 
+
 def setupOptions(analyzerOptions, args):
     analyzerOptions.verbose = args.verbose
     if args.text:
@@ -783,6 +825,7 @@ def setupOptions(analyzerOptions, args):
         if args.deps_srconly:
             analyzerOptions.depsSrcOnly = True
 
+
 def findAccessibleSourceDirs():
     sourceDirs = []
     for sourceDir in SOURCE_DIRS:
@@ -793,11 +836,13 @@ def findAccessibleSourceDirs():
 
     return sourceDirs
 
+
 def printSectionSeparator():
     size = shutil.get_terminal_size()
     print()
     print('*' * size.columns)
     print()
+
 
 def main():
     colorama.init()
@@ -846,6 +891,7 @@ def main():
     if args.sub == 'deps':
         deps = DepsConsole(args)
         deps.check(analyzer.includes)
+
 
 if __name__ == '__main__':
     main()

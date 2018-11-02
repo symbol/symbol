@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(TARGET_NAME catapult.mongo.plugins.aggregate)
+set(PLUGIN_BASE_NAME catapult.mongo.plugins.aggregate)
 
-catapult_shared_library_target(${TARGET_NAME})
-catapult_add_mongo_dependencies(${TARGET_NAME})
-target_link_libraries(${TARGET_NAME} ${PLUGIN_CATAPULT_LIBS} catapult.plugins.aggregate)
+catapult_mongo_plugin_src_no_deps(${PLUGIN_BASE_NAME})
+target_link_libraries(${PLUGIN_BASE_NAME} catapult.plugins.aggregate)

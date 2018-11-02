@@ -36,6 +36,9 @@ namespace catapult { namespace model {
 		/// Block chain network.
 		model::NetworkInfo Network;
 
+		/// \c true if block chain should calculate state hashes so that state is fully verifiable at each block.
+		bool ShouldEnableVerifiableState;
+
 		/// Targeted time between blocks.
 		utils::TimeSpan BlockGenerationTargetTime;
 

@@ -48,9 +48,31 @@ namespace catapult { namespace subscribers {
 		auto i = 0u;
 		for (const auto* pSubscriber : context.subscribers()) {
 			auto message = "subscriber at " + std::to_string(i++);
-			const auto& capturedParams = pSubscriber->params();
+			const auto& capturedParams = pSubscriber->nodeParams().params();
 			ASSERT_EQ(1u, capturedParams.size()) << message;
 			EXPECT_EQ(&node, &capturedParams[0].Node) << message;
+		}
+	}
+
+	TEST(TEST_CLASS, NotifyIncomingNodeForwardsToAllSubscribers) {
+		// Arrange:
+		TestContext<mocks::MockNodeSubscriber> context;
+		auto key = test::GenerateRandomData<Key_Size>();
+
+		// Sanity:
+		EXPECT_EQ(3u, context.subscribers().size());
+
+		// Act:
+		context.aggregate().notifyIncomingNode(key, ionet::ServiceIdentifier(212));
+
+		// Assert:
+		auto i = 0u;
+		for (const auto* pSubscriber : context.subscribers()) {
+			auto message = "subscriber at " + std::to_string(i++);
+			const auto& capturedParams = pSubscriber->incomingNodeParams().params();
+			ASSERT_EQ(1u, capturedParams.size()) << message;
+			EXPECT_EQ(key, capturedParams[0].IdentityKey) << message;
+			EXPECT_EQ(ionet::ServiceIdentifier(212), capturedParams[0].ServiceId) << message;
 		}
 	}
 }}

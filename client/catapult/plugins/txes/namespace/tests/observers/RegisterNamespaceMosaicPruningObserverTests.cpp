@@ -21,7 +21,6 @@
 #include "src/observers/Observers.h"
 #include "src/cache/MosaicCache.h"
 #include "src/cache/NamespaceCache.h"
-#include "src/model/NamespaceLifetimeConstraints.h"
 #include "tests/test/MosaicCacheTestUtils.h"
 #include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
@@ -33,12 +32,31 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS RegisterNamespaceMosaicPruningObserverTests
 
-	using ObserverTestContext = test::ObserverTestContextT<test::MosaicCacheFactory>;
-
-	DEFINE_COMMON_OBSERVER_TESTS(RegisterNamespaceMosaicPruning, model::NamespaceLifetimeConstraints(BlockDuration(), BlockDuration(), 31))
+	DEFINE_COMMON_OBSERVER_TESTS(RegisterNamespaceMosaicPruning, BlockDuration(5))
 
 	namespace {
-		const model::NamespaceLifetimeConstraints Default_Constraints(BlockDuration(), BlockDuration(21), 10);
+		constexpr auto Max_Rollback_Blocks = 15u;
+
+		class ObserverTestContext : public test::ObserverTestContextT<test::MosaicCacheFactory> {
+		public:
+			ObserverTestContext(observers::NotifyMode mode, Height height)
+					: test::ObserverTestContextT<test::MosaicCacheFactory>(mode, height, CreateConfiguration())
+			{}
+
+		private:
+			static model::BlockChainConfiguration CreateConfiguration() {
+				auto config = model::BlockChainConfiguration::Uninitialized();
+				config.Plugins.emplace("namespace::ex", utils::ConfigurationBag({
+					{
+						"",
+						{
+							{ "gracePeriodDuration", "31" }
+						}
+					}
+				}));
+				return config;
+			}
+		};
 
 		auto SeedCacheWithRoot25TreeSigner(const Key& signer) {
 			return [&signer](auto& namespaceCacheDelta) {
@@ -71,7 +89,7 @@ namespace catapult { namespace observers {
 				TSeedCacheFunc seedCache,
 				TCheckCacheFunc checkCache) {
 			// Arrange:
-			auto pObserver = CreateRegisterNamespaceMosaicPruningObserver(Default_Constraints);
+			auto pObserver = CreateRegisterNamespaceMosaicPruningObserver(BlockDuration(Max_Rollback_Blocks));
 
 			// - seed the cache
 			seedCache(context.cache(), owner);
@@ -118,13 +136,30 @@ namespace catapult { namespace observers {
 				});
 	}
 
-	TEST(TEST_CLASS, ObserverDoesNothingWhenRegisteringRootWithinGracePeriod) {
+	TEST(TEST_CLASS, ObserverDoesNothingWhenHeightIsLessThanMaxRollbackBlocks) {
+		// Arrange:
+		auto owner = test::GenerateRandomData<Key_Size>();
+		auto notification = CreateNotification(owner, NamespaceId(25));
+
+		// Act:
+		RunTest(
+				notification,
+				owner,
+				ObserverTestContext(NotifyMode::Commit, Height(Max_Rollback_Blocks - 1)),
+				SeedCache,
+				[](auto& mosaicCacheDelta) {
+					// Assert: the mosaics were not removed
+					test::AssertCacheContents(mosaicCacheDelta, { 26, 37 });
+				});
+	}
+
+	TEST(TEST_CLASS, ObserverDoesNothingWhenRegisteringRootWithinGracePeriodOrMaxRollbackBlocks) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto notification = CreateNotification(owner, NamespaceId(25));
 
 		// Act: root expires at height 123, grace period duration is 31
-		for (auto height : { 87u, 122u, 123u, 135u, 153u })
+		for (auto height : { 87u, 122u, 123u, 135u, 153u, 153u + Max_Rollback_Blocks })
 			RunTest(
 					notification,
 					owner,
@@ -140,21 +175,23 @@ namespace catapult { namespace observers {
 
 	// region pruning
 
-	TEST(TEST_CLASS, ObserverPrunesMosaicsWhenRegisteringRootOutsideGracePeriod) {
+	TEST(TEST_CLASS, ObserverPrunesMosaicsWhenRegisteringRootOutsideGracePeriodAndMaxRollbackBlocks) {
 		// Arrange:
 		auto owner = test::GenerateRandomData<Key_Size>();
 		auto notification = CreateNotification(owner, NamespaceId(25));
 
 		// Act: root expires at height 123, grace period duration is 31
-		RunTest(
-				notification,
-				owner,
-				ObserverTestContext(NotifyMode::Commit, Height(200)),
-				SeedCache,
-				[](auto& mosaicCacheDelta) {
-					// Assert: the mosaics owned by the expired namespace were removed
-					test::AssertCacheContents(mosaicCacheDelta, {});
-				});
+		for (auto height : { 154u + Max_Rollback_Blocks, 200u }) {
+			RunTest(
+					notification,
+					owner,
+					ObserverTestContext(NotifyMode::Commit, Height(height)),
+					SeedCache,
+					[](auto& mosaicCacheDelta) {
+						// Assert: the mosaics owned by the expired namespace were removed
+						test::AssertCacheContents(mosaicCacheDelta, {});
+					});
+		}
 	}
 
 	TEST(TEST_CLASS, ObserverPrunesMosaicsWhenRegisteringRootWithDifferentOwner) {

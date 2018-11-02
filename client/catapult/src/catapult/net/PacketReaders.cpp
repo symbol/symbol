@@ -178,13 +178,13 @@ namespace catapult { namespace net {
 		public:
 			void accept(const ionet::AcceptedPacketSocketInfo& socketInfo, const AcceptCallback& callback) override {
 				m_pClientConnector->accept(socketInfo.socket(), [pThis = shared_from_this(), host = socketInfo.host(), callback](
-						auto result,
+						auto connectCode,
 						const auto& pVerifiedSocket,
 						const auto& identityKey) {
 					ionet::AcceptedPacketSocketInfo verifiedSocketInfo(host, pVerifiedSocket);
-					if (PeerConnectResult::Accepted == result) {
+					if (PeerConnectCode::Accepted == connectCode) {
 						if (!pThis->addReader(identityKey, verifiedSocketInfo)) {
-							result = PeerConnectResult::Already_Connected;
+							connectCode = PeerConnectCode::Already_Connected;
 						} else {
 							CATAPULT_LOG(debug)
 									<< "accepted connection from '" << verifiedSocketInfo.host()
@@ -192,7 +192,7 @@ namespace catapult { namespace net {
 						}
 					}
 
-					return callback(result);
+					return callback({ connectCode, identityKey });
 				});
 			}
 

@@ -19,7 +19,6 @@
 **/
 
 #include "MosaicLevyRuleFactory.h"
-#include "catapult/model/AccountInfo.h"
 #include "catapult/utils/Casting.h"
 
 namespace catapult { namespace state {

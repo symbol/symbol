@@ -20,43 +20,54 @@
 
 #pragma once
 #include "Logging.h"
-#include <chrono>
+#include "StackTimer.h"
+#include "TimeSpan.h"
 
 namespace catapult { namespace utils {
 
 	/// Simple RAII class that logs scope messages.
 	class StackLogger {
-	private:
-		using Clock = std::chrono::steady_clock;
-
 	public:
 		/// Constructs a logger with a \a message and log \a level.
-		explicit StackLogger(const char* message, LogLevel level)
+		StackLogger(const char* message, LogLevel level)
 				: m_message(message)
 				, m_level(level) {
 			CATAPULT_LOG_LEVEL(m_level) << "pushing scope '" << m_message << "'";
-
-			// start timer after logging
-			m_start = Clock::now();
 		}
 
 		/// Destructor.
 		~StackLogger() {
-			// stop timer before logging
-			auto elapsedMillis = millis();
+			auto elapsedMillis = m_timer.millis();
 			CATAPULT_LOG_LEVEL(m_level) << "popping scope '" << m_message << "' (" << elapsedMillis << "ms)";
-		}
-
-	public:
-		/// Gets the number of elapsed milliseconds since this logger was created.
-		uint64_t millis() const {
-			auto elapsedDuration = Clock::now() - m_start;
-			return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(elapsedDuration).count());
 		}
 
 	private:
 		const char* m_message;
 		LogLevel m_level;
-		Clock::time_point m_start;
+		StackTimer m_timer;
+	};
+
+	/// Simple RAII class that logs slow operation messages.
+	class SlowOperationLogger {
+	public:
+		/// Constructs a logger with a \a message and log \a level for messages longer than \a threshold.
+		SlowOperationLogger(const char* message, LogLevel level, const TimeSpan& threshold = TimeSpan::FromSeconds(1))
+				: m_message(message)
+				, m_level(level)
+				, m_threshold(threshold)
+		{}
+
+		/// Destructor.
+		~SlowOperationLogger() {
+			auto elapsedMillis = m_timer.millis();
+			if (TimeSpan::FromMilliseconds(elapsedMillis) > m_threshold)
+				CATAPULT_LOG_LEVEL(m_level) << "slow operation detected: '" << m_message << "' (" << elapsedMillis << "ms)";
+		}
+
+	private:
+		const char* m_message;
+		LogLevel m_level;
+		TimeSpan m_threshold;
+		StackTimer m_timer;
 	};
 }}

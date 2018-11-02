@@ -38,28 +38,31 @@ namespace catapult { namespace mongo { namespace mappers {
 		}
 
 		auto CreateAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics) {
-			state::AccountState state(test::GenerateRandomAddress(), Height(123));
+			state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
 			if (Height(0) != publicKeyHeight) {
-				state.PublicKeyHeight = publicKeyHeight;
-				state.PublicKey = test::GenerateRandomData<Key_Size>();
+				accountState.PublicKeyHeight = publicKeyHeight;
+				test::FillWithRandomData(accountState.PublicKey);
 			}
+
+			accountState.AccountType = static_cast<state::AccountType>(34);
+			test::FillWithRandomData(accountState.LinkedAccountKey);
 
 			auto numImportances = 1u + test::Random() % 3;
 			for (auto i = 0u; i < numImportances; ++i)
-				state.ImportanceInfo.set(Importance(234 + i * 100), model::ImportanceHeight(345 + i * 10));
+				accountState.ImportanceInfo.set(Importance(234 + i * 100), model::ImportanceHeight(345 + i * 10));
 
 			for (const auto& mosaic : mosaics)
-				state.Balances.credit(mosaic.MosaicId, mosaic.Amount);
+				accountState.Balances.credit(mosaic.MosaicId, mosaic.Amount);
 
-			return state;
+			return accountState;
 		}
 
 		void AssertCanMapAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics) {
 			// Arrange:
-			auto state = CreateAccountState(publicKeyHeight, mosaics);
+			auto accountState = CreateAccountState(publicKeyHeight, mosaics);
 
 			// Act:
-			auto dbAccount = ToDbModel(state);
+			auto dbAccount = ToDbModel(accountState);
 
 			// Assert:
 			auto view = dbAccount.view();
@@ -69,8 +72,8 @@ namespace catapult { namespace mongo { namespace mappers {
 			AssertEqualAccountStateMetadata(metaView);
 
 			auto account = view["account"].get_document().view();
-			EXPECT_EQ(6u, test::GetFieldCount(account));
-			test::AssertEqualAccountState(state, account);
+			EXPECT_EQ(8u, test::GetFieldCount(account));
+			test::AssertEqualAccountState(accountState, account);
 		}
 	}
 
@@ -111,8 +114,8 @@ namespace catapult { namespace mongo { namespace mappers {
 	namespace {
 		void AssertCanMapDbAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics) {
 			// Arrange:
-			auto state = CreateAccountState(publicKeyHeight, mosaics);
-			auto dbAccount = ToDbModel(state);
+			auto accountState = CreateAccountState(publicKeyHeight, mosaics);
+			auto dbAccount = ToDbModel(accountState);
 
 			// Act:
 			state::AccountState newAccountState(Address(), Height(0));
@@ -162,8 +165,8 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	TEST(TEST_CLASS, CanMapDbAccountStateWithImportanceNotSet) {
 		// Arrange:
-		state::AccountState state(test::GenerateRandomAddress(), Height(123));
-		auto dbAccount = ToDbModel(state);
+		state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
+		auto dbAccount = ToDbModel(accountState);
 
 		// Sanity:
 		EXPECT_TRUE(dbAccount.view()["account"]["importances"].get_array().value.empty());

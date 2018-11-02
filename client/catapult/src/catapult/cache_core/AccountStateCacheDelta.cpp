@@ -20,7 +20,6 @@
 
 #include "AccountStateCacheDelta.h"
 #include "catapult/model/Address.h"
-#include "catapult/state/AccountStateAdapter.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/functions.h"
@@ -52,6 +51,7 @@ namespace catapult { namespace cache {
 			, AccountStateCacheDeltaMixins::ConstAccessorKey(*pKeyLookupAdapter)
 			, AccountStateCacheDeltaMixins::MutableAccessorAddress(*accountStateSets.pPrimary)
 			, AccountStateCacheDeltaMixins::MutableAccessorKey(*pKeyLookupAdapter)
+			, AccountStateCacheDeltaMixins::PatriciaTreeDelta(*accountStateSets.pPrimary, accountStateSets.pPatriciaTree)
 			, AccountStateCacheDeltaMixins::DeltaElements(*accountStateSets.pPrimary)
 			, m_pStateByAddress(accountStateSets.pPrimary)
 			, m_pKeyToAddress(accountStateSets.pKeyLookupMap)
@@ -69,7 +69,8 @@ namespace catapult { namespace cache {
 	}
 
 	Address BasicAccountStateCacheDelta::getAddress(const Key& publicKey) {
-		const auto* pPair = m_pKeyToAddress->find(publicKey);
+		auto keyToAddressIter = m_pKeyToAddress->find(publicKey);
+		const auto* pPair = keyToAddressIter.get();
 		if (pPair)
 			return pPair->second;
 
@@ -78,68 +79,75 @@ namespace catapult { namespace cache {
 		return address;
 	}
 
-	state::AccountState& BasicAccountStateCacheDelta::addAccount(const Address& address, Height height) {
-		auto* pCurrentState = this->tryGet(address);
-		if (pCurrentState)
-			return *pCurrentState;
+	void BasicAccountStateCacheDelta::addAccount(const Address& address, Height height) {
+		if (contains(address))
+			return;
 
-		auto pAccountState = std::make_shared<state::AccountState>(address, height);
-		m_pStateByAddress->insert(pAccountState);
-		return *pAccountState;
+		m_pStateByAddress->emplace(address, height);
 	}
 
-	state::AccountState& BasicAccountStateCacheDelta::addAccount(const Key& publicKey, Height height) {
+	void BasicAccountStateCacheDelta::addAccount(const Key& publicKey, Height height) {
 		auto address = getAddress(publicKey);
-		auto& accountState = addAccount(address, height);
-		if (Height(0) == accountState.PublicKeyHeight) {
-			accountState.PublicKey = publicKey;
-			accountState.PublicKeyHeight = height;
-		}
+		addAccount(address, height);
 
-		return accountState;
+		// optimize common case where public key is already known by not marking account as dirty in that case
+		auto accountStateIterConst = const_cast<const BasicAccountStateCacheDelta*>(this)->find(address);
+		auto& accountStateConst = accountStateIterConst.get();
+		if (Height(0) != accountStateConst.PublicKeyHeight)
+			return;
+
+		auto accountStateIter = this->find(address);
+		auto& accountState = accountStateIter.get();
+		accountState.PublicKey = publicKey;
+		accountState.PublicKeyHeight = height;
 	}
 
-	state::AccountState& BasicAccountStateCacheDelta::addAccount(const model::AccountInfo& accountInfo) {
-		auto* pCurrentState = this->tryGet(accountInfo.Address);
-		if (pCurrentState)
-			return *pCurrentState;
+	void BasicAccountStateCacheDelta::addAccount(const state::AccountState& accountState) {
+		if (contains(accountState.Address))
+			return;
 
-		auto pAccountState = std::make_shared<state::AccountState>(state::ToAccountState(accountInfo));
-		if (Height(0) != pAccountState->PublicKeyHeight)
-			m_pKeyToAddress->emplace(pAccountState->PublicKey, pAccountState->Address);
+		if (Height(0) != accountState.PublicKeyHeight)
+			m_pKeyToAddress->emplace(accountState.PublicKey, accountState.Address);
 
-		m_pStateByAddress->insert(pAccountState);
-		return *pAccountState;
+		m_pStateByAddress->insert(accountState);
 	}
 
 	void BasicAccountStateCacheDelta::remove(const Address& address, Height height) {
-		const auto* pAccountState = this->tryGet(address);
-		if (!pAccountState || height != pAccountState->AddressHeight)
+		auto accountStateIter = this->find(address);
+		if (!accountStateIter.tryGet())
+			return;
+
+		const auto& accountState = accountStateIter.get();
+		if (height != accountState.AddressHeight)
 			return;
 
 		// note: we can only remove the entry from m_pKeyToAddress if the account state's public key is valid
-		if (Height(0) != pAccountState->PublicKeyHeight)
-			m_pKeyToAddress->remove(pAccountState->PublicKey);
+		if (Height(0) != accountState.PublicKeyHeight)
+			m_pKeyToAddress->remove(accountState.PublicKey);
 
 		m_pStateByAddress->remove(address);
 	}
 
 	void BasicAccountStateCacheDelta::remove(const Key& publicKey, Height height) {
-		auto* pAccountState = this->tryGet(publicKey);
-		if (!pAccountState || height != pAccountState->PublicKeyHeight)
+		auto accountStateIter = this->find(publicKey);
+		if (!accountStateIter.tryGet())
 			return;
 
-		m_pKeyToAddress->remove(pAccountState->PublicKey);
+		auto& accountState = accountStateIter.get();
+		if (height != accountState.PublicKeyHeight)
+			return;
+
+		m_pKeyToAddress->remove(accountState.PublicKey);
 
 		// if same height, remove address entry too
-		if (pAccountState->PublicKeyHeight == pAccountState->AddressHeight) {
-			m_pStateByAddress->remove(pAccountState->Address);
+		if (accountState.PublicKeyHeight == accountState.AddressHeight) {
+			m_pStateByAddress->remove(accountState.Address);
 			return;
 		}
 
 		// safe, as the account is still in m_pStateByAddress
-		pAccountState->PublicKeyHeight = Height(0);
-		pAccountState->PublicKey = Key{};
+		accountState.PublicKeyHeight = Height(0);
+		accountState.PublicKey = Key{};
 	}
 
 	void BasicAccountStateCacheDelta::queueRemove(const Address& address, Height height) {
@@ -166,7 +174,7 @@ namespace catapult { namespace cache {
 
 		void UpdateAddresses(model::AddressSet& addresses, const DeltasSet& source, const predicate<const state::AccountState&>& include) {
 			for (const auto& pair : source) {
-				const auto& accountState = *pair.second;
+				const auto& accountState = pair.second;
 				if (include(accountState))
 					addresses.insert(accountState.Address);
 				else

@@ -323,7 +323,7 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region IsActive
+	// region isActive
 
 	TEST(TEST_CLASS, IsActiveReturnsFalseWhenHistoryIsEmpty) {
 		// Arrange:

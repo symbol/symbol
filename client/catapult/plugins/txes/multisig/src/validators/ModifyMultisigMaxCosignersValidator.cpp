@@ -33,7 +33,8 @@ namespace catapult { namespace validators {
 			size_t numCosignatories = 0u;
 			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
 			if (multisigCache.contains(notification.Signer)) {
-				const auto& multisigAccountEntry = multisigCache.get(notification.Signer);
+				auto multisigIter = multisigCache.find(notification.Signer);
+				const auto& multisigAccountEntry = multisigIter.get();
 				numCosignatories = multisigAccountEntry.cosignatories().size();
 			}
 

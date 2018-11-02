@@ -22,6 +22,8 @@
 
 namespace catapult { namespace builders {
 
+	using Modification = model::CosignatoryModification;
+
 	ModifyMultisigAccountBuilder::ModifyMultisigAccountBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
 			, m_minRemovalDelta(0)
@@ -37,13 +39,13 @@ namespace catapult { namespace builders {
 	}
 
 	void ModifyMultisigAccountBuilder::addCosignatoryModification(model::CosignatoryModificationType type, const Key& key) {
-		m_modifications.push_back(model::CosignatoryModification{ type, key });
+		m_modifications.push_back(Modification{ type, key });
 	}
 
 	template<typename TransactionType>
 	std::unique_ptr<TransactionType> ModifyMultisigAccountBuilder::buildImpl() const {
 		// 1. allocate, zero (header), set model::Transaction fields
-		auto size = sizeof(TransactionType) + m_modifications.size() * sizeof(model::CosignatoryModification);
+		auto size = sizeof(TransactionType) + m_modifications.size() * sizeof(Modification);
 		auto pTransaction = createTransaction<TransactionType>(size);
 
 		// 2. set transaction fields
@@ -54,13 +56,8 @@ namespace catapult { namespace builders {
 		pTransaction->ModificationsCount = utils::checked_cast<size_t, uint8_t>(m_modifications.size());
 
 		// 4. set modifications
-		if (!m_modifications.empty()) {
-			auto* pModification = pTransaction->ModificationsPtr();
-			for (const auto& modification : m_modifications) {
-				*pModification = modification;
-				++pModification;
-			}
-		}
+		if (!m_modifications.empty())
+			std::memcpy(pTransaction->ModificationsPtr(), m_modifications.data(), m_modifications.size() * sizeof(Modification));
 
 		return pTransaction;
 	}

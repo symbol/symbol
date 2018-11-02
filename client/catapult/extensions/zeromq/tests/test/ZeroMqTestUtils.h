@@ -122,7 +122,7 @@ namespace catapult { namespace test {
 				: m_registry(mocks::CreateDefaultTransactionRegistry())
 				, m_pZeroMqEntityPublisher(std::make_shared<zeromq::ZeroMqEntityPublisher>(
 						static_cast<unsigned short>(Default_Port), // cast needed to workaround linker error
-						model::CreateNotificationPublisher(m_registry)))
+						model::CreateNotificationPublisher(m_registry, model::PublisherContext())))
 				, m_zmqSocket(m_zmqContext, ZMQ_SUB) {
 			m_zmqSocket.setsockopt(ZMQ_RCVTIMEO, 10);
 			m_zmqSocket.connect("tcp://localhost:" + std::to_string(Default_Port));
@@ -210,7 +210,7 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a message queue context using the supplied subscriber creator (\a subscriberCreator).
 		explicit MqContextT(const SubscriberCreator& subscriberCreator)
-				: m_pNotificationPublisher(model::CreateNotificationPublisher(registry()))
+				: m_pNotificationPublisher(model::CreateNotificationPublisher(registry(), model::PublisherContext()))
 				, m_pZeroMqSubscriber(subscriberCreator(publisher()))
 		{}
 

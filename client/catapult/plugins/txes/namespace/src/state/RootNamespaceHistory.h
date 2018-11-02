@@ -86,6 +86,14 @@ namespace catapult { namespace state {
 		/// Returns a const iterator to the element following the last root namespace.
 		std::list<RootNamespace>::const_iterator end() const;
 
+	public:
+		/// Returns \c true if history is active at \a height (excluding grace period).
+		bool isActiveAndUnlocked(Height height) const;
+
+		/// Returns \c true if history is active at \a height (including grace period).
+		/// \note This needs to be called isActive in order for it to dictate state lifetime.
+		bool isActive(Height height) const;
+
 	private:
 		NamespaceId m_id;
 		std::list<RootNamespace> m_rootHistory;

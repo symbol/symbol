@@ -30,6 +30,18 @@ namespace catapult { namespace builders {
 	namespace {
 		constexpr auto Additional_Data_Size = 123;
 
+		struct TransactionProperties {
+		public:
+			Amount Fee;
+			Timestamp Deadline;
+		};
+
+		template<typename TTransaction>
+		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
+			EXPECT_EQ(expectedProperties.Fee, transaction.Fee);
+			EXPECT_EQ(expectedProperties.Deadline, transaction.Deadline);
+		}
+
 		class MockBuilder : public TransactionBuilder {
 		public:
 			MockBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
@@ -50,9 +62,7 @@ namespace catapult { namespace builders {
 			}
 		};
 
-		void AssertCanBuildTransaction(
-				const consumer<MockBuilder&>& buildTransaction,
-				const consumer<const model::Transaction&>& validateTransaction) {
+		void AssertCanBuildTransaction(const TransactionProperties& expectedProperties, const consumer<MockBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
@@ -69,18 +79,11 @@ namespace catapult { namespace builders {
 			EXPECT_EQ(0x62FF, pTransaction->Version);
 			EXPECT_EQ(static_cast<model::EntityType>(mocks::MockTransaction::Entity_Type), pTransaction->Type);
 
-			validateTransaction(*pTransaction);
+			AssertTransactionProperties(expectedProperties, *pTransaction);
 
 			std::vector<uint8_t> expected(Additional_Data_Size);
 			std::iota(expected.begin(), expected.end(), static_cast<uint8_t>(0));
 			EXPECT_TRUE(0 == std::memcmp(expected.data(), pTransaction->DataPtr(), expected.size()));
-		}
-
-		auto CreatePropertyChecker(Amount fee, Timestamp deadline) {
-			return [fee, deadline](const auto& transaction) {
-				EXPECT_EQ(fee, transaction.Fee);
-				EXPECT_EQ(deadline, transaction.Deadline);
-			};
 		}
 	}
 
@@ -88,9 +91,7 @@ namespace catapult { namespace builders {
 
 	TEST(TEST_CLASS, CanCreateTransaction) {
 		// Assert:
-		AssertCanBuildTransaction(
-				[](const auto&) {},
-				CreatePropertyChecker(Amount(0), Timestamp(0)));
+		AssertCanBuildTransaction(TransactionProperties(), [](const auto&) {});
 	}
 
 	// endregion
@@ -98,31 +99,38 @@ namespace catapult { namespace builders {
 	// region settings
 
 	TEST(TEST_CLASS, CanSetFee) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Fee = Amount(12345);
+
 		// Assert:
-		AssertCanBuildTransaction(
-				[](auto& builder) {
-					builder.setFee(Amount(12345));
-				},
-				CreatePropertyChecker(Amount(12345), Timestamp(0)));
+		AssertCanBuildTransaction(expectedProperties, [](auto& builder) {
+			builder.setFee(Amount(12345));
+		});
 	}
 
 	TEST(TEST_CLASS, CanSetDeadline) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Deadline = Timestamp(54321);
+
 		// Assert:
-		AssertCanBuildTransaction(
-				[](auto& builder) {
-					builder.setDeadline(Timestamp(54321));
-				},
-				CreatePropertyChecker(Amount(0), Timestamp(54321)));
+		AssertCanBuildTransaction(expectedProperties, [](auto& builder) {
+			builder.setDeadline(Timestamp(54321));
+		});
 	}
 
 	TEST(TEST_CLASS, CanSetFeeAndDeadline) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Fee = Amount(12345);
+		expectedProperties.Deadline = Timestamp(54321);
+
 		// Assert:
-		AssertCanBuildTransaction(
-				[](auto& builder) {
-					builder.setFee(Amount(12345));
-					builder.setDeadline(Timestamp(54321));
-				},
-				CreatePropertyChecker(Amount(12345), Timestamp(54321)));
+		AssertCanBuildTransaction(expectedProperties, [](auto& builder) {
+			builder.setFee(Amount(12345));
+			builder.setDeadline(Timestamp(54321));
+		});
 	}
 
 	// endregion

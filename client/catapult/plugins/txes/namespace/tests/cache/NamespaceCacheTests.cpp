@@ -34,10 +34,12 @@ namespace catapult { namespace cache {
 	// region mixin traits based tests
 
 	namespace {
+		constexpr auto Grace_Period_Duration = 7u;
+
 		struct NamespaceCacheMixinTraits {
 			class CacheType : public NamespaceCache {
 			public:
-				CacheType() : NamespaceCache(CacheConfiguration())
+				CacheType() : NamespaceCache(CacheConfiguration(), NamespaceCacheTypes::Options{ BlockDuration(Grace_Period_Duration) })
 				{}
 			};
 
@@ -62,7 +64,7 @@ namespace catapult { namespace cache {
 			}
 
 			static state::RootNamespace CreateWithIdAndExpiration(uint8_t id, Height height) {
-				return state::RootNamespace(MakeId(id), Key{ { 1 } }, test::CreateLifetime(0, height.unwrap()));
+				return state::RootNamespace(MakeId(id), Key{ { 1 } }, test::CreateLifetime(0, height.unwrap() - Grace_Period_Duration));
 			}
 		};
 	}
@@ -71,6 +73,8 @@ namespace catapult { namespace cache {
 	DEFINE_CACHE_CONTAINS_TESTS(NamespaceCacheMixinTraits, DeltaAccessor, _Delta)
 
 	DEFINE_CACHE_ITERATION_TESTS(NamespaceCacheMixinTraits, ViewAccessor, _View)
+
+	DEFINE_CACHE_TOUCH_TESTS(NamespaceCacheMixinTraits, _Delta)
 
 	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(NamespaceCacheMixinTraits, _Delta)
 
@@ -98,11 +102,11 @@ namespace catapult { namespace cache {
 
 		void PopulateCache(LockedCacheDelta<NamespaceCacheDelta>& delta, const Key& rootOwner) {
 			AddRoots(delta, rootOwner, { 1, 3, 5, 7, 9 });
-			AddChildren(delta, delta->get(NamespaceId(1)).root(), { 2, 4, 6, 8 });
-			AddChildren(delta, delta->get(NamespaceId(3)).root(), { 10 });
+			AddChildren(delta, delta->find(NamespaceId(1)).get().root(), { 2, 4, 6, 8 });
+			AddChildren(delta, delta->find(NamespaceId(3)).get().root(), { 10 });
 
 			// root with id 1 is renewed
-			delta->insert(delta->get(NamespaceId(1)).root().renew(test::CreateLifetime(345, 456)));
+			delta->insert(delta->find(NamespaceId(1)).get().root().renew(test::CreateLifetime(345, 456)));
 		}
 	}
 
@@ -364,12 +368,12 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region get
+	// region get / tryGet
 
 	DELTA_VIEW_BASED_TEST(GetReturnsKnownRootNamespace) {
 		// Act:
 		TTraits::RunTest([](const auto& view) {
-			auto entry = view->get(NamespaceId(3));
+			auto entry = view->find(NamespaceId(3)).get();
 
 			// Assert:
 			EXPECT_EQ(test::CreatePath({ 3 }), entry.ns().path());
@@ -380,7 +384,7 @@ namespace catapult { namespace cache {
 	DELTA_VIEW_BASED_TEST(GetReturnsKnownChildNamespace) {
 		// Act:
 		TTraits::RunTest([](const auto& view) {
-			auto entry = view->get(NamespaceId(2));
+			auto entry = view->find(NamespaceId(2)).get();
 
 			// Assert:
 			EXPECT_EQ(test::CreatePath({ 1, 2 }), entry.ns().path());
@@ -391,8 +395,88 @@ namespace catapult { namespace cache {
 	DELTA_VIEW_BASED_TEST(GetThrowsIfNamespaceIsUnknown) {
 		// Act:
 		TTraits::RunTest([](const auto& view) {
+			auto namespaceIter = view->find(NamespaceId(123));
+
 			// Assert:
-			EXPECT_THROW(view->get(NamespaceId(123)), catapult_invalid_argument);
+			EXPECT_THROW(namespaceIter.get(), catapult_invalid_argument);
+		});
+	}
+
+	DELTA_VIEW_BASED_TEST(TryGetReturnsKnownRootNamespace) {
+		// Act:
+		TTraits::RunTest([](const auto& view) {
+			auto namespaceIter = view->find(NamespaceId(3));
+			const auto* pEntry = namespaceIter.tryGet();
+
+			// Assert:
+			ASSERT_TRUE(!!pEntry);
+
+			EXPECT_EQ(test::CreatePath({ 3 }), pEntry->ns().path());
+			EXPECT_EQ(NamespaceId(3), pEntry->root().id());
+		});
+	}
+
+	DELTA_VIEW_BASED_TEST(TryGetReturnsKnownChildNamespace) {
+		// Act:
+		TTraits::RunTest([](const auto& view) {
+			auto namespaceIter = view->find(NamespaceId(2));
+			const auto* pEntry = namespaceIter.tryGet();
+
+			// Assert:
+			ASSERT_TRUE(!!pEntry);
+
+			EXPECT_EQ(test::CreatePath({ 1, 2 }), pEntry->ns().path());
+			EXPECT_EQ(NamespaceId(1), pEntry->root().id());
+		});
+	}
+
+	DELTA_VIEW_BASED_TEST(TryGetReturnsNullptrIfNamespaceIsUnknown) {
+		// Act:
+		TTraits::RunTest([](const auto& view) {
+			auto namespaceIter = view->find(NamespaceId(123));
+			const auto* pEntry = namespaceIter.tryGet();
+
+			// Assert:
+			EXPECT_FALSE(!!pEntry);
+		});
+	}
+
+	DELTA_VIEW_BASED_TEST(TryGetUnadaptedReturnsKnownRootNamespace) {
+		// Act:
+		TTraits::RunTest([](const auto& view) {
+			auto namespaceIter = view->find(NamespaceId(3));
+			const auto* pHistory = namespaceIter.tryGetUnadapted();
+
+			// Assert:
+			ASSERT_TRUE(!!pHistory);
+
+			EXPECT_EQ(1u, pHistory->historyDepth());
+			EXPECT_EQ(NamespaceId(3), pHistory->id());
+		});
+	}
+
+	DELTA_VIEW_BASED_TEST(TryGetUnadaptedReturnsKnownChildNamespace) {
+		// Act:
+		TTraits::RunTest([](const auto& view) {
+			auto namespaceIter = view->find(NamespaceId(2));
+			const auto* pHistory = namespaceIter.tryGetUnadapted();
+
+			// Assert:
+			ASSERT_TRUE(!!pHistory);
+
+			EXPECT_EQ(2u, pHistory->historyDepth());
+			EXPECT_EQ(NamespaceId(1), pHistory->id()); // root id
+		});
+	}
+
+	DELTA_VIEW_BASED_TEST(TryGetUnadaptedReturnsNullptrIfNamespaceIsUnknown) {
+		// Act:
+		TTraits::RunTest([](const auto& view) {
+			auto namespaceIter = view->find(NamespaceId(123));
+			const auto* pHistory = namespaceIter.tryGetUnadapted();
+
+			// Assert:
+			EXPECT_FALSE(!!pHistory);
 		});
 	}
 
@@ -435,6 +519,15 @@ namespace catapult { namespace cache {
 
 	// region insert
 
+	namespace {
+		void AssertLifetime(const state::NamespaceLifetime& lifetime, uint64_t expectedStart, uint64_t expectedEnd) {
+			// Assert:
+			EXPECT_EQ(Height(expectedStart), lifetime.Start);
+			EXPECT_EQ(Height(expectedEnd), lifetime.End);
+			EXPECT_EQ(Height(expectedEnd + Grace_Period_Duration), lifetime.GracePeriodEnd);
+		}
+	}
+
 	TEST(TEST_CLASS, CanInsertRoot) {
 		// Arrange:
 		NamespaceCacheMixinTraits::CacheType cache;
@@ -448,6 +541,8 @@ namespace catapult { namespace cache {
 		// Assert:
 		test::AssertCacheSizes(*delta, 1, 1, 1);
 		EXPECT_TRUE(delta->contains(NamespaceId(123)));
+
+		AssertLifetime(delta->find(NamespaceId(123)).get().root().lifetime(), 234, 321);
 	}
 
 	TEST(TEST_CLASS, CanRenewRoot) {
@@ -472,7 +567,9 @@ namespace catapult { namespace cache {
 		auto view = cache.createView();
 		test::AssertCacheSizes(*view, 1, 1, 3);
 		ASSERT_TRUE(view->contains(NamespaceId(123)));
-		EXPECT_EQ(root3, view->get(NamespaceId(123)).root());
+		EXPECT_EQ(root3, view->find(NamespaceId(123)).get().root());
+
+		AssertLifetime(view->find(NamespaceId(123)).get().root().lifetime(), 456, 567);
 	}
 
 	TEST(TEST_CLASS, RenewingRootUpdatesChildNamespacesWithNewRoot) {
@@ -489,9 +586,9 @@ namespace catapult { namespace cache {
 
 		// Sanity:
 		test::AssertCacheSizes(*delta, 1, 3, 3);
-		EXPECT_EQ(originalRoot, delta->get(NamespaceId(123)).root());
-		EXPECT_EQ(originalRoot, delta->get(NamespaceId(124)).root());
-		EXPECT_EQ(originalRoot, delta->get(NamespaceId(125)).root());
+		EXPECT_EQ(originalRoot, delta->find(NamespaceId(123)).get().root());
+		EXPECT_EQ(originalRoot, delta->find(NamespaceId(124)).get().root());
+		EXPECT_EQ(originalRoot, delta->find(NamespaceId(125)).get().root());
 
 		// Act: renew root
 		delta->insert(newRoot);
@@ -501,9 +598,11 @@ namespace catapult { namespace cache {
 		ASSERT_TRUE(delta->contains(NamespaceId(123)));
 		ASSERT_TRUE(delta->contains(NamespaceId(124)));
 		ASSERT_TRUE(delta->contains(NamespaceId(125)));
-		EXPECT_EQ(newRoot, delta->get(NamespaceId(123)).root());
-		EXPECT_EQ(newRoot, delta->get(NamespaceId(124)).root());
-		EXPECT_EQ(newRoot, delta->get(NamespaceId(125)).root());
+		EXPECT_EQ(newRoot, delta->find(NamespaceId(123)).get().root());
+		EXPECT_EQ(newRoot, delta->find(NamespaceId(124)).get().root());
+		EXPECT_EQ(newRoot, delta->find(NamespaceId(125)).get().root());
+
+		AssertLifetime(delta->find(NamespaceId(123)).get().root().lifetime(), 345, 456);
 	}
 
 	TEST(TEST_CLASS, CanInsertSingleChildIfRootIsKnown) {
@@ -520,6 +619,9 @@ namespace catapult { namespace cache {
 		// Assert:
 		test::AssertCacheSizes(*delta, 1, 2, 2);
 		EXPECT_TRUE(delta->contains(NamespaceId(127)));
+
+		// Sanity: child should not affect namespace
+		AssertLifetime(delta->find(NamespaceId(123)).get().root().lifetime(), 234, 321);
 	}
 
 	TEST(TEST_CLASS, CanAbandonInsertSingleChildIfRootIsKnown) {
@@ -607,8 +709,8 @@ namespace catapult { namespace cache {
 		// Sanity:
 		test::AssertCacheSizes(*delta, 5, 10, 15);
 		EXPECT_TRUE(delta->contains(NamespaceId(2)));
-		EXPECT_FALSE(delta->get(NamespaceId(2)).ns().isRoot());
-		EXPECT_EQ(4u, delta->get(NamespaceId(2)).root().size());
+		EXPECT_FALSE(delta->find(NamespaceId(2)).get().ns().isRoot());
+		EXPECT_EQ(4u, delta->find(NamespaceId(2)).get().root().size());
 
 		// Act:
 		delta->remove(NamespaceId(2));
@@ -616,7 +718,7 @@ namespace catapult { namespace cache {
 		// Assert:
 		test::AssertCacheSizes(*delta, 5, 9, 13); // note that child is removed from all (two) roots in history
 		EXPECT_FALSE(delta->contains(NamespaceId(2)));
-		EXPECT_EQ(3u, delta->get(NamespaceId(1)).root().size());
+		EXPECT_EQ(3u, delta->find(NamespaceId(1)).get().root().size());
 	}
 
 	TEST(TEST_CLASS, CanAbandonRemoveChildNamespace) {
@@ -637,7 +739,7 @@ namespace catapult { namespace cache {
 		auto view = cache.createView();
 		test::AssertCacheSizes(*view, 5, 10, 15);
 		EXPECT_TRUE(view->contains(NamespaceId(2)));
-		EXPECT_EQ(4u, view->get(NamespaceId(1)).root().size());
+		EXPECT_EQ(4u, view->find(NamespaceId(1)).get().root().size());
 	}
 
 	TEST(TEST_CLASS, CanRemoveRootNamespaceWithoutChildren) {
@@ -650,8 +752,8 @@ namespace catapult { namespace cache {
 		// Sanity:
 		test::AssertCacheSizes(*delta, 5, 10, 15);
 		ASSERT_TRUE(delta->contains(NamespaceId(5)));
-		EXPECT_TRUE(delta->get(NamespaceId(5)).ns().isRoot());
-		EXPECT_TRUE(delta->get(NamespaceId(5)).root().empty());
+		EXPECT_TRUE(delta->find(NamespaceId(5)).get().ns().isRoot());
+		EXPECT_TRUE(delta->find(NamespaceId(5)).get().root().empty());
 
 		// Act: root with id 5 has no children and therefore can be removed
 		delta->remove(NamespaceId(5));
@@ -671,7 +773,7 @@ namespace catapult { namespace cache {
 		// Sanity:
 		test::AssertCacheSizes(*delta, 5, 10, 15);
 		ASSERT_TRUE(delta->contains(NamespaceId(1)));
-		EXPECT_EQ(4u, delta->get(NamespaceId(1)).root().size());
+		EXPECT_EQ(4u, delta->find(NamespaceId(1)).get().root().size());
 
 		// Act: root with id 1 has four children, the namespace that we remove has inherited the children via renewal
 		delta->remove(NamespaceId(1));
@@ -679,7 +781,7 @@ namespace catapult { namespace cache {
 		// Assert: the old root with id 1 is still present and has all four children
 		test::AssertCacheSizes(*delta, 5, 10, 10);
 		ASSERT_TRUE(delta->contains(NamespaceId(1)));
-		EXPECT_EQ(4u, delta->get(NamespaceId(1)).root().size());
+		EXPECT_EQ(4u, delta->find(NamespaceId(1)).get().root().size());
 	}
 
 	TEST(TEST_CLASS, RemovingRootNamespaceIfHistoryDepthIsNotOneUpdatesChildNamespacesWithOldRoot) {
@@ -692,11 +794,11 @@ namespace catapult { namespace cache {
 		// Sanity:
 		test::AssertCacheSizes(*delta, 5, 10, 15);
 		ASSERT_TRUE(delta->contains(NamespaceId(1)));
-		EXPECT_EQ(4u, delta->get(NamespaceId(1)).root().size());
+		EXPECT_EQ(4u, delta->find(NamespaceId(1)).get().root().size());
 
 		// - all children should have the most recent root as member
-		for (const auto& pair : delta->get(NamespaceId(1)).root().children())
-			EXPECT_EQ(Height(345), delta->get(pair.first).root().lifetime().Start);
+		for (const auto& pair : delta->find(NamespaceId(1)).get().root().children())
+			EXPECT_EQ(Height(345), delta->find(pair.first).get().root().lifetime().Start);
 
 		// Act:
 		delta->remove(NamespaceId(1));
@@ -704,11 +806,11 @@ namespace catapult { namespace cache {
 		// Assert: the old root with id 1 is still present and has all four children
 		test::AssertCacheSizes(*delta, 5, 10, 10);
 		ASSERT_TRUE(delta->contains(NamespaceId(1)));
-		EXPECT_EQ(4u, delta->get(NamespaceId(1)).root().size());
+		EXPECT_EQ(4u, delta->find(NamespaceId(1)).get().root().size());
 
 		// - all children should have the old root as member
-		for (const auto& pair : delta->get(NamespaceId(1)).root().children())
-			EXPECT_EQ(Height(234), delta->get(pair.first).root().lifetime().Start);
+		for (const auto& pair : delta->find(NamespaceId(1)).get().root().children())
+			EXPECT_EQ(Height(234), delta->find(pair.first).get().root().lifetime().Start);
 	}
 
 	TEST(TEST_CLASS, CanRemoveRootNamespaceWithoutChildrenIfHistoryDepthIsNotOne) {
@@ -719,12 +821,12 @@ namespace catapult { namespace cache {
 		PopulateCache(delta, owner);
 
 		// - renew root with id 5
-		delta->insert(delta->get(NamespaceId(5)).root().renew(test::CreateLifetime(567, 678)));
+		delta->insert(delta->find(NamespaceId(5)).get().root().renew(test::CreateLifetime(567, 678)));
 
 		// Sanity:
 		test::AssertCacheSizes(*delta, 5, 10, 16);
 		ASSERT_TRUE(delta->contains(NamespaceId(5)));
-		EXPECT_TRUE(delta->get(NamespaceId(5)).root().empty());
+		EXPECT_TRUE(delta->find(NamespaceId(5)).get().root().empty());
 
 		// Act: namespace with id 5 has no children
 		delta->remove(NamespaceId(5));
@@ -732,7 +834,7 @@ namespace catapult { namespace cache {
 		// Assert:
 		test::AssertCacheSizes(*delta, 5, 10, 15);
 		ASSERT_TRUE(delta->contains(NamespaceId(5)));
-		EXPECT_TRUE(delta->get(NamespaceId(5)).root().empty());
+		EXPECT_TRUE(delta->find(NamespaceId(5)).get().root().empty());
 	}
 
 	TEST(TEST_CLASS, CannotRemoveRootNamespaceWithChildrenIfHistoryDepthIsOne) {
@@ -745,7 +847,7 @@ namespace catapult { namespace cache {
 		// Sanity:
 		test::AssertCacheSizes(*delta, 5, 10, 15);
 		ASSERT_TRUE(delta->contains(NamespaceId(3)));
-		EXPECT_FALSE(delta->get(NamespaceId(3)).root().empty());
+		EXPECT_FALSE(delta->find(NamespaceId(3)).get().root().empty());
 
 		// Act + Assert: namespace with id 3 has 1 child
 		EXPECT_THROW(delta->remove(NamespaceId(3)), catapult_runtime_error);
@@ -775,7 +877,7 @@ namespace catapult { namespace cache {
 		void RenewSameOwner(NamespaceCache& cache) {
 			// renew namespace with id 0 and add a child to it
 			auto delta = cache.createDelta();
-			delta->insert(delta->get(NamespaceId(0)).root().renew(test::CreateLifetime(100, 110)));
+			delta->insert(delta->find(NamespaceId(0)).get().root().renew(test::CreateLifetime(100, 110)));
 			delta->insert(state::Namespace(test::CreatePath({ 0, 30 })));
 			cache.commit();
 		}
@@ -802,7 +904,7 @@ namespace catapult { namespace cache {
 		test::AssertCacheSizes(*delta, 5, 15, 15);
 
 		// Act: prune root with id 2 and the associated children
-		delta->prune(Height(30));
+		delta->prune(Height(30 + Grace_Period_Duration));
 		cache.commit();
 
 		// Assert:
@@ -822,7 +924,7 @@ namespace catapult { namespace cache {
 		test::AssertCacheSizes(*delta, 5, 16, 20);
 
 		// Act: prune root with id 0 (note that only the old root 0 is pruned, all children are protected by the newer version)
-		delta->prune(Height(10));
+		delta->prune(Height(10 + Grace_Period_Duration));
 		cache.commit();
 
 		// Assert:
@@ -845,13 +947,31 @@ namespace catapult { namespace cache {
 		// Act: prune all roots at their original expiration heights
 		//      the old root with id 4 had two children (that get pruned) and the renewed root has one child (that stays)
 		for (auto height = Height(10); height <= Height(50); height = height + Height(10))
-			delta->prune(height);
+			delta->prune(Height(height.unwrap() + Grace_Period_Duration));
 
 		cache.commit();
 
 		// Assert:
 		test::AssertCacheSizes(*delta, 1, 2, 2);
 		test::AssertCacheContents(cache, { 4, 34 });
+	}
+
+	// endregion
+
+	// region cache init
+
+	TEST(TEST_CLASS, CanSpecifyInitialValuesViaInit) {
+		// Arrange:
+		auto config = CacheConfiguration();
+		NamespaceCache cache(config, NamespaceCacheTypes::Options());
+
+		// Act:
+		cache.init(static_cast<size_t>(12), static_cast<size_t>(7));
+
+		// Assert:
+		auto view = cache.createView();
+		EXPECT_EQ(12u, view->activeSize());
+		EXPECT_EQ(7u, view->deepSize());
 	}
 
 	// endregion

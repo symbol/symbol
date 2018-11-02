@@ -146,6 +146,7 @@ namespace catapult { namespace utils {
 		{
 			auto writeLock = readLock.promoteToWriter();
 		}
+
 		auto writeLock = readLock.promoteToWriter();
 
 		// Assert:
@@ -358,7 +359,7 @@ namespace catapult { namespace utils {
 			});
 
 			// - block until both the reader and writer threads are pending
-			WAIT_FOR_VALUE(2, state.NumWaitingThreads);
+			WAIT_FOR_VALUE(2u, state.NumWaitingThreads);
 
 			// - wait a bit in case the state changes due to a bug
 			test::Pause();
@@ -389,7 +390,7 @@ namespace catapult { namespace utils {
 			// - spawn a thread that will acquire a writer lock after multiple readers (including itself) are active
 			testGuard.Threads.create_thread([&] {
 				auto writerThreadReadLock = state.acquireReader();
-				WAIT_FOR_VALUE(2, state.NumReaderThreads);
+				WAIT_FOR_VALUE(2u, state.NumReaderThreads);
 				state.doWriterWork(std::move(writerThreadReadLock));
 			});
 
@@ -400,7 +401,7 @@ namespace catapult { namespace utils {
 			});
 
 			// - block until both the reader and writer threads have acquired a reader lock
-			WAIT_FOR_VALUE(2, state.NumReaderThreads);
+			WAIT_FOR_VALUE(2u, state.NumReaderThreads);
 
 			// - wait a bit in case the state changes due to a bug
 			test::Pause();

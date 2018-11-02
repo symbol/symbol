@@ -19,11 +19,14 @@
 **/
 
 #include "src/plugins/AggregateTransactionPlugin.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "src/model/AggregateNotifications.h"
 #include "src/model/AggregateTransaction.h"
+#include "catapult/model/Address.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -36,7 +39,7 @@ namespace catapult { namespace plugins {
 	// region AggregateTransactionWrapper
 
 	namespace {
-		constexpr auto Entity_Type = static_cast<model::EntityType>(9876);
+		constexpr auto Entity_Type = static_cast<EntityType>(9876);
 
 		struct AggregateTransactionWrapper {
 			std::unique_ptr<AggregateTransaction> pTransaction;
@@ -155,7 +158,7 @@ namespace catapult { namespace plugins {
 		auto wrapper = CreateAggregateTransaction(0, 0);
 
 		// Act:
-		pPlugin->publish(*wrapper.pTransaction, sub);
+		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
 
 		// Assert:
 		// - 1 AggregateCosignaturesNotification
@@ -173,7 +176,7 @@ namespace catapult { namespace plugins {
 		auto wrapper = CreateAggregateTransaction(2, 3);
 
 		// Act:
-		pPlugin->publish(*wrapper.pTransaction, sub);
+		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
 
 		// Assert:
 		// - 1 AggregateCosignaturesNotification
@@ -217,7 +220,7 @@ namespace catapult { namespace plugins {
 		auto wrapper = CreateAggregateTransaction(2, 3);
 
 		// Act:
-		pPlugin->publish(*wrapper.pTransaction, sub);
+		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
 
 		// Assert: 2 sub signer and 2 sub recipient notifications are raised
 		EXPECT_EQ(0u, sub.numAddresses());
@@ -231,13 +234,13 @@ namespace catapult { namespace plugins {
 
 	TEST(TEST_CLASS, CanRaiseEntityNotificationsFromAggregate) {
 		// Arrange:
-		mocks::MockTypedNotificationSubscriber<model::EntityNotification> sub;
+		mocks::MockTypedNotificationSubscriber<EntityNotification> sub;
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
 		auto wrapper = CreateAggregateTransaction(2, 3);
 
 		// Act:
-		pPlugin->publish(*wrapper.pTransaction, sub);
+		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
 
 		// Assert: one notification is raised for each embedded transaction
 		ASSERT_EQ(2u, sub.numMatchingNotifications());
@@ -245,7 +248,7 @@ namespace catapult { namespace plugins {
 			auto message = "transaction at " + std::to_string(i);
 			const auto& notification = sub.matchingNotifications()[i];
 
-			EXPECT_EQ(static_cast<model::NetworkIdentifier>(100 + i), notification.NetworkIdentifier);
+			EXPECT_EQ(static_cast<NetworkIdentifier>(100 + i), notification.NetworkIdentifier);
 		}
 	}
 
@@ -262,7 +265,7 @@ namespace catapult { namespace plugins {
 			auto wrapper = CreateAggregateTransaction(numTransactions, numCosignatures);
 
 			// Act:
-			pPlugin->publish(*wrapper.pTransaction, sub);
+			test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
 
 			// Assert: the plugin raises an embedded transaction notification for each transaction
 			ASSERT_EQ(numTransactions, sub.numMatchingNotifications());
@@ -288,6 +291,58 @@ namespace catapult { namespace plugins {
 		AssertCanRaiseEmbeddedTransactionNotifications(2, 3);
 	}
 
+	namespace {
+		AggregateTransactionWrapper CreateAggregateTransactionWithSingleMosaicTransfer(const Mosaic& mosaic) {
+			using TransactionType = AggregateTransaction;
+			uint32_t entitySize = sizeof(TransactionType) + sizeof(mocks::EmbeddedMockTransaction) + sizeof(Mosaic);
+
+			AggregateTransactionWrapper wrapper;
+			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
+			pTransaction->Size = entitySize;
+			pTransaction->PayloadSize = sizeof(mocks::EmbeddedMockTransaction) + sizeof(Mosaic);
+			test::FillWithRandomData(pTransaction->Signer);
+			test::FillWithRandomData(pTransaction->Signature);
+
+			auto* pSubTransaction = static_cast<mocks::EmbeddedMockTransaction*>(pTransaction->TransactionsPtr());
+			pSubTransaction->Size = sizeof(mocks::EmbeddedMockTransaction) + sizeof(Mosaic);
+			pSubTransaction->Data.Size = sizeof(Mosaic);
+			reinterpret_cast<Mosaic&>(*pSubTransaction->DataPtr()) = mosaic;
+			pSubTransaction->Type = mocks::EmbeddedMockTransaction::Entity_Type;
+			pSubTransaction->Version = 100;
+			test::FillWithRandomData(pSubTransaction->Signer);
+			test::FillWithRandomData(pSubTransaction->Recipient);
+
+			wrapper.SubTransactions.push_back(pSubTransaction);
+			wrapper.SubTransactionSigners.push_back(pSubTransaction->Signer);
+			wrapper.SubTransactionRecipients.push_back(pSubTransaction->Recipient);
+			wrapper.pTransaction = std::move(pTransaction);
+			return wrapper;
+		}
+	}
+
+	TEST(TEST_CLASS, CanRaiseEmbeddedTransactionNotificationsFromAggregateWithCustomResolvers) {
+		// Arrange:
+		mocks::MockTypedNotificationSubscriber<BalanceTransferNotification> sub;
+		auto registry = TransactionRegistry();
+		registry.registerPlugin(mocks::CreateMockTransactionPlugin(mocks::PluginOptionFlags::Publish_Transfers));
+		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
+		auto wrapper = CreateAggregateTransactionWithSingleMosaicTransfer({ MosaicId(123), Amount(111) });
+		auto recipientAddress = PublicKeyToAddress(wrapper.SubTransactionRecipients[0], NetworkIdentifier::Mijin_Test);
+
+		auto publisherContext = PublisherContext(
+				[](auto mosaicId) { return MosaicId(mosaicId.unwrap() + 1); },
+				[](const auto& address) { return test::CopyAndXorArray(extensions::CopyToAddress(address)); });
+
+		// Act:
+		pPlugin->publish(*wrapper.pTransaction, publisherContext, sub);
+
+		// Assert: the plugin raises a balance transfer notification from the embedded transaction
+		ASSERT_EQ(1u, sub.numMatchingNotifications());
+		const auto& notification = sub.matchingNotifications()[0];
+		EXPECT_EQ(MosaicId(124), notification.MosaicId);
+		EXPECT_EQ(test::CopyAndXorArray(recipientAddress), notification.Recipient);
+	}
+
 	// endregion
 
 	// region publish - signature
@@ -303,7 +358,7 @@ namespace catapult { namespace plugins {
 			auto aggregateDataHash = test::GenerateRandomData<Hash256_Size>();
 
 			// Act:
-			pPlugin->publish(WeakEntityInfoT<Transaction>(*wrapper.pTransaction, aggregateDataHash), sub);
+			test::PublishTransaction(*pPlugin, WeakEntityInfoT<Transaction>(*wrapper.pTransaction, aggregateDataHash), sub);
 
 			// Assert: the plugin only raises signature notifications for explicit cosigners
 			//         (the signature notification for the signer is raised as part of normal processing)
@@ -345,7 +400,7 @@ namespace catapult { namespace plugins {
 		auto wrapper = CreateAggregateTransaction(0, 0);
 
 		// Act:
-		pPlugin->publish(*wrapper.pTransaction, sub);
+		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
 
 		// Assert:
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
@@ -365,7 +420,7 @@ namespace catapult { namespace plugins {
 		auto wrapper = CreateAggregateTransaction(2, 3);
 
 		// Act:
-		pPlugin->publish(*wrapper.pTransaction, sub);
+		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
 
 		// Assert:
 		ASSERT_EQ(1u, sub.numMatchingNotifications());

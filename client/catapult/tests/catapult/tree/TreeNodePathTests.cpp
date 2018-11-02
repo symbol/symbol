@@ -66,6 +66,14 @@ namespace catapult { namespace tree {
 		AssertPath(path, 8, { 1, 2, 0xC, 0, 5, 4, 3, 7 });
 	}
 
+	TEST(TEST_CLASS, CanCreatePathAroundVectorKey) {
+		// Act:
+		TreeNodePath path(std::vector<uint8_t>{ { 0x12, 0xC0, 0x54, 0x37 } });
+
+		// Assert:
+		AssertPath(path, 8, { 1, 2, 0xC, 0, 5, 4, 3, 7 });
+	}
+
 	// endregion
 
 	// region equality

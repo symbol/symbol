@@ -52,11 +52,11 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		template<typename TTransaction>
 		void AssertEqualNonInheritedTransferData(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
-			EXPECT_EQ(transaction.MinRemovalDelta, test::GetUint32(dbTransaction, "minRemovalDelta"));
-			EXPECT_EQ(transaction.MinApprovalDelta, test::GetUint32(dbTransaction, "minApprovalDelta"));
+			EXPECT_EQ(transaction.MinRemovalDelta, test::GetInt32(dbTransaction, "minRemovalDelta"));
+			EXPECT_EQ(transaction.MinApprovalDelta, test::GetInt32(dbTransaction, "minApprovalDelta"));
 
 			auto dbModifications = dbTransaction["modifications"].get_array().value;
-			ASSERT_EQ(transaction.ModificationsCount, std::distance(dbModifications.cbegin(), dbModifications.cend()));
+			ASSERT_EQ(transaction.ModificationsCount, test::GetFieldCount(dbModifications));
 			const auto* pModification = transaction.ModificationsPtr();
 			auto iter = dbModifications.cbegin();
 			for (auto i = 0u; i < transaction.ModificationsCount; ++i) {

@@ -1,16 +1,20 @@
 cmake_minimum_required(VERSION 3.2)
 
 message("--- locating zeromq dependencies ---")
-find_package(ZeroMQ REQUIRED)
+# ZeroMQ does not support CMake for now, pkg-config fallback will be done by cppzmqConfig.cmake
 find_package(cppzmq REQUIRED)
 
-message("  zeromq dirs: ${ZeroMQ_INCLUDE_DIR}")
-message("   cppmq dirs: ${cppzmq_INCLUDE_DIR}")
+# ZeroMQ_LIBRARY might not always be set, but project should link anyway
+if(ZeroMQ_LIBRARY)
+	message("zeromq    lib: ${ZeroMQ_LIBRARY}")
+endif()
+
+message("cppzmq    inc: ${cppzmq_INCLUDE_DIR}")
 
 ### find and set zeromq includes and libraries
 function(catapult_add_zeromq_dependencies TARGET_NAME)
-	include_directories(SYSTEM ${ZeroMQ_INCLUDE_DIR})
-	target_link_libraries(${TARGET_NAME} libzmq)
+	# libzmq will be included by cppzmq
+	target_link_libraries(${TARGET_NAME} cppzmq)
 endfunction()
 
 catapult_define_extension(zeromq)

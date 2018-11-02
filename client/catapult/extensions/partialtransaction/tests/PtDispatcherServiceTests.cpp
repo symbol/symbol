@@ -116,7 +116,7 @@ namespace catapult { namespace partialtransaction {
 				// register mock packet writers
 				locator().registerService(Service_Name, m_pWriters);
 
-				// pt updater supports only aggregate transactions, and tests check that txes are forwarded to pt updater
+				// pt updater supports only aggregate transactions and tests check that txes are forwarded to pt updater
 				// Custom_Buffers is needed to make sure cosignatures won't be included in hash calculation
 				auto& pluginManager = testState().pluginManager();
 				constexpr auto Not_Embeddable = utils::to_underlying_type(mocks::PluginOptionFlags::Not_Embeddable);

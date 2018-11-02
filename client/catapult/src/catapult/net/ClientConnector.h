@@ -20,7 +20,7 @@
 
 #pragma once
 #include "ConnectionSettings.h"
-#include "PeerConnectResult.h"
+#include "PeerConnectCode.h"
 #include "catapult/functions.h"
 #include <memory>
 
@@ -36,7 +36,7 @@ namespace catapult { namespace net {
 	class ClientConnector {
 	public:
 		/// A callback that is passed the accept result as well as the client socket and public key (on success).
-		using AcceptCallback = consumer<PeerConnectResult, const std::shared_ptr<ionet::PacketSocket>&, const Key&>;
+		using AcceptCallback = consumer<PeerConnectCode, const std::shared_ptr<ionet::PacketSocket>&, const Key&>;
 
 	public:
 		virtual ~ClientConnector() {}

@@ -27,6 +27,7 @@
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/utils/Casting.h"
+#include "catapult/utils/StackLogger.h"
 
 namespace catapult { namespace consumers {
 
@@ -113,7 +114,7 @@ namespace catapult { namespace consumers {
 
 		class BlockChainSyncConsumer {
 		public:
-			explicit BlockChainSyncConsumer(
+			BlockChainSyncConsumer(
 					cache::CatapultCache& cache,
 					state::CatapultState& state,
 					io::BlockStorageCache& storage,
@@ -222,10 +223,12 @@ namespace catapult { namespace consumers {
 						result.addBlockTransactionInfos(pChildBlockElement);
 					}
 
-					if (height == commonBlockHeight)
+					if (height == commonBlockHeight) {
+						m_handlers.UndoBlock(*pParentBlockElement, observerState, UndoBlockType::Common);
 						break;
+					}
 
-					m_handlers.UndoBlock(*pParentBlockElement, observerState);
+					m_handlers.UndoBlock(*pParentBlockElement, observerState, UndoBlockType::Rollback);
 					pChildBlockElement = std::move(pParentBlockElement);
 					height = height - Height(1);
 				}
@@ -244,9 +247,10 @@ namespace catapult { namespace consumers {
 			}
 
 			void commitAll(const BlockElements& elements, SyncState& syncState) const {
-				auto newHeight = elements.back().Block.Height;
+				utils::SlowOperationLogger logger("BlockChainSyncConsumer::commitAll", utils::LogLevel::Warning);
 
 				// 1. save the peer chain into storage
+				auto newHeight = elements.back().Block.Height;
 				commitToStorage(syncState.commonBlockHeight(), elements);
 
 				// 2. indicate a state change

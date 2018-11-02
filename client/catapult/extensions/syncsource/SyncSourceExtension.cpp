@@ -19,6 +19,7 @@
 **/
 
 #include "src/SyncSourceService.h"
+#include "src/VerifiableStateService.h"
 #include "catapult/extensions/LocalNodeBootstrapper.h"
 
 namespace catapult { namespace syncsource {
@@ -26,7 +27,11 @@ namespace catapult { namespace syncsource {
 	namespace {
 		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
 			// register service(s)
-			bootstrapper.extensionManager().addServiceRegistrar(CreateSyncSourceServiceRegistrar());
+			auto& extensionManager = bootstrapper.extensionManager();
+			extensionManager.addServiceRegistrar(CreateSyncSourceServiceRegistrar());
+
+			if (bootstrapper.config().BlockChain.ShouldEnableVerifiableState)
+				extensionManager.addServiceRegistrar(CreateVerifiableStateServiceRegistrar());
 		}
 	}
 }}

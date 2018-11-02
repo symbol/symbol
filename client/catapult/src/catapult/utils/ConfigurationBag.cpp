@@ -34,7 +34,7 @@ namespace catapult { namespace utils {
 		for (const auto& section : properties) {
 			ValuesContainer::value_type::second_type sectionValues;
 			for (const auto& item : section.second)
-				sectionValues.emplace(item.first, item.second.get_value<std::string>());
+				sectionValues.emplace_back(item.first, item.second.get_value<std::string>());
 
 			values.emplace(section.first, std::move(sectionValues));
 		}

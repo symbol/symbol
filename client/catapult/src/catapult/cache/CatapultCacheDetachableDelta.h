@@ -40,7 +40,7 @@ namespace catapult { namespace cache {
 		~CatapultCacheDetachableDelta();
 
 	public:
-		// Move assignment operator
+		/// Move constructor.
 		CatapultCacheDetachableDelta(CatapultCacheDetachableDelta&&);
 
 	public:

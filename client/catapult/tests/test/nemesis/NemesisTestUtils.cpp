@@ -50,7 +50,8 @@ namespace catapult { namespace test {
 		void AssertNemesisAccount(const cache::AccountStateCacheView& view) {
 			auto nemesisKeyPair = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
 			auto address = model::PublicKeyToAddress(nemesisKeyPair.publicKey(), Network_Identifier);
-			const auto& accountState = view.get(address);
+			auto accountStateIter = view.find(address);
+			const auto& accountState = accountStateIter.get();
 
 			// Assert:
 			EXPECT_EQ(Height(1), accountState.AddressHeight);
@@ -67,7 +68,8 @@ namespace catapult { namespace test {
 		void AssertRentalFeeAccount(const cache::AccountStateCacheView& view, const Key& publicKey) {
 			auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
 			auto message = model::AddressToString(address);
-			const auto& accountState = view.get(address);
+			auto accountStateIter = view.find(address);
+			const auto& accountState = accountStateIter.get();
 
 			// Assert:
 			EXPECT_EQ(Height(1), accountState.AddressHeight) << message;
@@ -83,7 +85,8 @@ namespace catapult { namespace test {
 
 		void AssertRecipientAccount(const cache::AccountStateCacheView& view, const Address& address) {
 			auto message = model::AddressToString(address);
-			const auto& accountState = view.get(address);
+			auto accountStateIter = view.find(address);
+			const auto& accountState = accountStateIter.get();
 
 			// Assert:
 			EXPECT_EQ(Height(1), accountState.AddressHeight) << message;
@@ -125,7 +128,7 @@ namespace catapult { namespace test {
 
 			// - check for known mosaics
 			ASSERT_TRUE(view.contains(Xem_Id));
-			EXPECT_EQ(Amount(8'999'999'998'000'000), view.get(Xem_Id).supply());
+			EXPECT_EQ(Amount(8'999'999'998'000'000), view.find(Xem_Id).get().supply());
 		}
 	}
 

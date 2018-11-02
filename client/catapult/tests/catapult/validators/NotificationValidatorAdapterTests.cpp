@@ -85,7 +85,7 @@ namespace catapult { namespace validators {
 			const auto& validator = *pValidator;
 
 			auto registry = mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Publish_Custom_Notifications);
-			auto pPublisher = model::CreateNotificationPublisher(registry);
+			auto pPublisher = model::CreateNotificationPublisher(registry, model::PublisherContext());
 			NotificationValidatorAdapter adapter(std::move(pValidator), std::move(pPublisher));
 
 			// Act + Assert:
@@ -110,16 +110,17 @@ namespace catapult { namespace validators {
 
 			// Assert: the mock transaction plugin sends additional public key notification and 6 custom notifications
 			//         (notice that only 4/6 are raised on validator channel)
-			ASSERT_EQ(3u + 4u, validator.notificationTypes().size());
+			ASSERT_EQ(4u + 4u, validator.notificationTypes().size());
 			EXPECT_EQ(model::Core_Entity_Notification, validator.notificationTypes()[0]);
 			EXPECT_EQ(model::Core_Transaction_Notification, validator.notificationTypes()[1]);
-			EXPECT_EQ(model::Core_Signature_Notification, validator.notificationTypes()[2]);
+			EXPECT_EQ(model::Core_Balance_Debit_Notification, validator.notificationTypes()[2]);
+			EXPECT_EQ(model::Core_Signature_Notification, validator.notificationTypes()[3]);
 
 			// - mock transaction notifications
-			EXPECT_EQ(mocks::Mock_Validator_1_Notification, validator.notificationTypes()[3]);
-			EXPECT_EQ(mocks::Mock_All_1_Notification, validator.notificationTypes()[4]);
-			EXPECT_EQ(mocks::Mock_Validator_2_Notification, validator.notificationTypes()[5]);
-			EXPECT_EQ(mocks::Mock_All_2_Notification, validator.notificationTypes()[6]);
+			EXPECT_EQ(mocks::Mock_Validator_1_Notification, validator.notificationTypes()[4]);
+			EXPECT_EQ(mocks::Mock_All_1_Notification, validator.notificationTypes()[5]);
+			EXPECT_EQ(mocks::Mock_Validator_2_Notification, validator.notificationTypes()[6]);
+			EXPECT_EQ(mocks::Mock_All_2_Notification, validator.notificationTypes()[7]);
 
 			// - spot check the signer keys as a proxy for verifying data integrity
 			ASSERT_EQ(1u, validator.signerKeys().size());
@@ -143,13 +144,13 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, DelegatesWhenTypeMatches_Success) {
-		// Assert: all five notifications should be processed
-		AssertMockTransactionValidation(ValidationResult::Success, 7);
+		// Assert: all notifications should be processed
+		AssertMockTransactionValidation(ValidationResult::Success, 8);
 	}
 
 	TEST(TEST_CLASS, DelegatesWhenTypeMatches_Neutral) {
-		// Assert: all five notifications should be processed
-		AssertMockTransactionValidation(ValidationResult::Neutral, 7);
+		// Assert: all notifications should be processed
+		AssertMockTransactionValidation(ValidationResult::Neutral, 8);
 	}
 
 	TEST(TEST_CLASS, DelegatesWhenTypeMatches_Failure) {

@@ -34,6 +34,12 @@ namespace catapult { namespace deltaset {
 		{}
 
 	public:
+		/// Returns \c true if there are any pending changes.
+		bool HasChanges() const {
+			return !(Added.empty() && Copied.empty() && Removed.empty());
+		}
+
+	public:
 		/// Added elements.
 		const TSet& Added;
 

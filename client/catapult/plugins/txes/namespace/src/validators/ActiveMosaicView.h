@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "src/cache/MosaicCache.h"
 #include "catapult/validators/ValidationResult.h"
 #include "catapult/types.h"
 
@@ -33,15 +34,21 @@ namespace catapult { namespace validators {
 	class ActiveMosaicView {
 	public:
 		/// Creates a view around \a cache.
-		explicit ActiveMosaicView(const cache::ReadOnlyCatapultCache& cache) : m_cache(cache)
-		{}
+		explicit ActiveMosaicView(const cache::ReadOnlyCatapultCache& cache);
 
 	public:
-		/// Tries to get an entry (\a pEntry) for an active mosaic with \a id at \a height.
-		validators::ValidationResult tryGet(MosaicId id, Height height, const state::MosaicEntry** pEntry) const;
+		/// Iterator type returned by tryGet.
+		using FindIterator = cache::MosaicCacheTypes::CacheReadOnlyType::ReadOnlyFindIterator<
+			cache::MosaicCacheView::const_iterator,
+			cache::MosaicCacheDelta::const_iterator
+		>;
 
-		/// Tries to get an entry (\a pEntry) for an active mosaic with \a id at \a height given its purported \a owner.
-		validators::ValidationResult tryGet(MosaicId id, Height height, const Key& owner, const state::MosaicEntry** pEntry) const;
+	public:
+		/// Tries to get an entry iterator (\a iter) for an active mosaic with \a id at \a height.
+		validators::ValidationResult tryGet(MosaicId id, Height height, FindIterator& iter) const;
+
+		/// Tries to get an entry iterator (\a iter) for an active mosaic with \a id at \a height given its purported \a owner.
+		validators::ValidationResult tryGet(MosaicId id, Height height, const Key& owner, FindIterator& iter) const;
 
 	private:
 		const cache::ReadOnlyCatapultCache& m_cache;

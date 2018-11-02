@@ -40,7 +40,7 @@ namespace catapult { namespace net {
 	/// Manages a collection of connections that send data to external nodes.
 	class PacketWriters : public ConnectionContainer, public PacketIoPicker {
 	public:
-		using ConnectCallback = consumer<PeerConnectResult>;
+		using ConnectCallback = consumer<const PeerConnectResult&>;
 
 	public:
 		/// Gets the number of active writers.

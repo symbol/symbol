@@ -56,7 +56,7 @@ namespace catapult { namespace net {
 		public:
 			void connect(const ionet::Node& node, const ConnectCallback& callback) override {
 				auto& service = m_pPool->service();
-				auto pRequest = thread::MakeTimedCallback(service, callback, PeerConnectResult::Timed_Out, PacketSocketPointer());
+				auto pRequest = thread::MakeTimedCallback(service, callback, PeerConnectCode::Timed_Out, PacketSocketPointer());
 				pRequest->setTimeout(m_settings.Timeout);
 				auto cancel = ionet::Connect(
 						service,
@@ -64,7 +64,7 @@ namespace catapult { namespace net {
 						node.endpoint(),
 						[pThis = shared_from_this(), node, pRequest](auto result, const auto& pConnectedSocket) {
 							if (ionet::ConnectResult::Connected != result)
-								return pRequest->callback(PeerConnectResult::Socket_Error, nullptr);
+								return pRequest->callback(PeerConnectCode::Socket_Error, nullptr);
 
 							pThis->verify(node.identityKey(), pConnectedSocket, pRequest);
 						});
@@ -90,11 +90,11 @@ namespace catapult { namespace net {
 						const auto& verifiedPeerInfo) {
 					if (VerifyResult::Success != verifyResult) {
 						CATAPULT_LOG(warning) << "VerifyServer failed with " << verifyResult;
-						return pRequest->callback(PeerConnectResult::Verify_Error, nullptr);
+						return pRequest->callback(PeerConnectCode::Verify_Error, nullptr);
 					}
 
 					auto pSecuredSocket = pThis->secure(pConnectedSocket, verifiedPeerInfo);
-					return pRequest->callback(PeerConnectResult::Accepted, pSecuredSocket);
+					return pRequest->callback(PeerConnectCode::Accepted, pSecuredSocket);
 				});
 			}
 

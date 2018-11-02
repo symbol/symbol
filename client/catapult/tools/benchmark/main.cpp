@@ -97,7 +97,8 @@ namespace catapult { namespace tools { namespace benchmark {
 					thread::IoServiceThreadPool& pool,
 					std::vector<BenchmarkEntry>& entries,
 					TAction action) const {
-				utils::StackLogger stopwatch(testName, utils::LogLevel::Info);
+				utils::StackLogger logger(testName, utils::LogLevel::Info);
+				utils::StackTimer stopwatch;
 				thread::ParallelFor(pool.service(), entries, m_numPartitions, [action](auto& entry, auto) {
 					action(entry);
 					return true;

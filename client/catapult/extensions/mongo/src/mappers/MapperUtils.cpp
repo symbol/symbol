@@ -30,6 +30,10 @@ namespace catapult { namespace mongo { namespace mappers {
 		return { bsoncxx::binary_sub_type::k_binary, utils::checked_cast<size_t, uint32_t>(size), pData };
 	}
 
+	bsoncxx::types::b_binary ToBinary(const UnresolvedAddress& unresolvedAddress) {
+		return ToBinary(reinterpret_cast<const uint8_t*>(unresolvedAddress.data()), unresolvedAddress.size());
+	}
+
 	// endregion
 
 	// region conversions from db type
@@ -82,13 +86,24 @@ namespace catapult { namespace mongo { namespace mappers {
 		return StreamBasicEntity(builder, entity);
 	}
 
+	namespace {
+		template<typename TMosaicId>
+		bson_stream::array_context& StreamMosaicT(bson_stream::array_context& context, TMosaicId id, Amount amount) {
+			context
+					<< bson_stream::open_document
+						<< "id" << ToInt64(id)
+						<< "amount" << ToInt64(amount)
+					<< bson_stream::close_document;
+			return context;
+		}
+	}
+
 	bson_stream::array_context& StreamMosaic(bson_stream::array_context& context, MosaicId id, Amount amount) {
-		context
-				<< bson_stream::open_document
-					<< "id" << ToInt64(id)
-					<< "amount" << ToInt64(amount)
-				<< bson_stream::close_document;
-		return context;
+		return StreamMosaicT(context, id, amount);
+	}
+
+	bson_stream::array_context& StreamMosaic(bson_stream::array_context& context, UnresolvedMosaicId id, Amount amount) {
+		return StreamMosaicT(context, id, amount);
 	}
 
 	// endregion

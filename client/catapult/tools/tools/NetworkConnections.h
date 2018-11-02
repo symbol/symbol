@@ -22,6 +22,7 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/NodePacketIoPair.h"
 #include "catapult/thread/Future.h"
+#include "catapult/utils/SpinLock.h"
 
 namespace catapult {
 	namespace net { class PacketWriters; }
@@ -57,17 +58,29 @@ namespace catapult { namespace tools {
 		/// Establishes connections to all peers in the network.
 		thread::future<bool> connectAll();
 
+		/// Establishes connections to all disconnected peers in the network.
+		thread::future<bool> connectDisconnected();
+
 		/// Picks one network connection.
 		ionet::NodePacketIoPair pickOne() const;
 
+		/// Adds \a node to the set of disconnected nodes.
+		void addDisconnected(const ionet::Node& node);
+
 	private:
+		void removeDisconnected(const ionet::Node& node);
+
+		thread::future<bool> connectAll(const std::vector<ionet::Node>& nodes);
+
 		void shutdown();
 
 	private:
 		std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
-		crypto::KeyPair m_clientKeyPair;
+		std::unique_ptr<crypto::KeyPair> m_pClientKeyPair;
 		const std::vector<ionet::Node> m_nodes;
+		ionet::NodeSet m_disconnectedNodes;
 		std::shared_ptr<net::PacketWriters> m_pPacketWriters;
+		std::unique_ptr<utils::SpinLock> m_pSpinLock;
 	};
 
 	/// Gets the current network height using \a connections.

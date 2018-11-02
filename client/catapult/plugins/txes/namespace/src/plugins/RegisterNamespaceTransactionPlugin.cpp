@@ -53,7 +53,7 @@ namespace catapult { namespace plugins {
 
 		template<typename TTransaction>
 		auto CreatePublisher(const NamespaceRentalFeeConfiguration& config) {
-			return [config](const TTransaction& transaction, NotificationSubscriber& sub) {
+			return [config](const TTransaction& transaction, const PublisherContext&, NotificationSubscriber& sub) {
 				// 1. sink account notification
 				sub.notify(AccountPublicKeyNotification(config.SinkPublicKey));
 
@@ -81,9 +81,5 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	std::unique_ptr<TransactionPlugin> CreateRegisterNamespaceTransactionPlugin(const NamespaceRentalFeeConfiguration& config) {
-		return TransactionPluginFactory::Create<RegisterNamespaceTransaction, EmbeddedRegisterNamespaceTransaction>(
-				CreatePublisher<RegisterNamespaceTransaction>(config),
-				CreatePublisher<EmbeddedRegisterNamespaceTransaction>(config));
-	}
+	DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(RegisterNamespace, CreatePublisher, NamespaceRentalFeeConfiguration)
 }}

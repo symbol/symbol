@@ -20,17 +20,27 @@
 
 #include "catapult/handlers/ChainHandlers.h"
 #include "catapult/api/ChainPackets.h"
-#include "catapult/model/BlockUtils.h"
-#include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/core/PacketPayloadTestUtils.h"
+#include "catapult/utils/FileSize.h"
+#include "tests/catapult/handlers/test/HeightRequestHandlerTests.h"
 #include "tests/test/core/PacketTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryBasedStorage.h"
-#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace handlers {
 
 #define TEST_CLASS ChainHandlersTests
+
+	namespace {
+		constexpr auto GetBlockSizeAtHeight = test::VariableSizedBlockChain::GetBlockSizeAtHeight;
+		constexpr auto CreateStorage = test::VariableSizedBlockChain::CreateStorage;
+
+		uint32_t GetSumBlockSizesAtHeights(const std::vector<Height>& heights) {
+			uint32_t size = 0;
+			for (auto height : heights)
+				size += GetBlockSizeAtHeight(height);
+
+			return size;
+		}
+	}
 
 	// region PushBlockHandler
 
@@ -88,39 +98,9 @@ namespace catapult { namespace handlers {
 
 	// endregion
 
+	// region PullBlockHandler
+
 	namespace {
-		// use variable-sized blocks in tests
-		constexpr uint32_t GetBlockSizeAtHeight(Height height) {
-			return static_cast<uint32_t>(sizeof(model::Block) + height.unwrap() * 100);
-		}
-
-		uint32_t GetSumBlockSizesAtHeights(const std::vector<Height>& heights) {
-			uint32_t size = 0;
-			for (auto height : heights)
-				size += GetBlockSizeAtHeight(height);
-
-			return size;
-		}
-
-		std::unique_ptr<io::BlockStorageCache> CreateStorage(size_t numBlocks) {
-			auto pStorage = std::make_unique<io::BlockStorageCache>(std::make_unique<mocks::MockMemoryBasedStorage>());
-
-			// storage already contains nemesis block (height 1)
-			auto storageModifier = pStorage->modifier();
-			for (auto i = 2u; i <= numBlocks; ++i) {
-				auto size = GetBlockSizeAtHeight(Height(i));
-				std::vector<uint8_t> buffer(size);
-				auto pBlock = reinterpret_cast<model::Block*>(buffer.data());
-				pBlock->Size = size;
-				pBlock->Height = Height(i);
-				pBlock->Difficulty = Difficulty::Min() + Difficulty::Unclamped(1000 + i);
-				reinterpret_cast<model::Transaction*>(pBlock + 1)->Size = size - sizeof(model::Block);
-				storageModifier.saveBlock(test::BlockToBlockElement(*pBlock, test::GenerateRandomData<Hash256_Size>()));
-			}
-
-			return pStorage;
-		}
-
 		struct PullBlockHandlerTraits {
 			static ionet::PacketType ResponsePacketType() {
 				return ionet::PacketType::Pull_Block;
@@ -134,95 +114,9 @@ namespace catapult { namespace handlers {
 				RegisterPullBlockHandler(handlers, storage);
 			}
 		};
-
-		struct BlockHashesHandlerTraits {
-			static ionet::PacketType ResponsePacketType() {
-				return ionet::PacketType::Block_Hashes;
-			}
-
-			static auto CreateRequestPacket() {
-				return ionet::CreateSharedPacket<api::BlockHashesRequest>();
-			}
-
-			static void Register(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage) {
-				RegisterBlockHashesHandler(handlers, storage, 10);
-			}
-		};
-
-		struct PullBlocksHandlerTraits {
-			static ionet::PacketType ResponsePacketType() {
-				return ionet::PacketType::Pull_Blocks;
-			}
-
-			static auto CreateRequestPacket() {
-				auto pRequest = ionet::CreateSharedPacket<api::PullBlocksRequest>();
-				pRequest->NumBlocks = 100;
-				pRequest->NumResponseBytes = 10 * 1024 * 1024;
-				return pRequest;
-			}
-
-			static void Register(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage) {
-				PullBlocksHandlerConfiguration config;
-				config.MaxBlocks = 100;
-				config.MaxResponseBytes = 10 * 1024 * 1024;
-				RegisterPullBlocksHandler(handlers, storage, config);
-			}
-		};
-
-		template<typename TTraits>
-		void AssertWritesEmptyResponse(size_t numBlocks, Height requestHeight) {
-			// Arrange:
-			ionet::ServerPacketHandlers handlers;
-			auto pStorage = CreateStorage(numBlocks);
-			TTraits::Register(handlers, *pStorage);
-
-			auto pPacket = TTraits::CreateRequestPacket();
-			pPacket->Height = requestHeight;
-
-			// Act:
-			ionet::ServerPacketHandlerContext context({}, "");
-			EXPECT_TRUE(handlers.process(*pPacket, context));
-
-			// Assert: only a payload header is written
-			test::AssertPacketHeader(context, sizeof(ionet::PacketHeader), TTraits::ResponsePacketType());
-			EXPECT_TRUE(context.response().buffers().empty());
-		}
 	}
 
-// register error handling tests for handlers that require a height
-#define HEIGHT_REQUEST_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, PullBlockHandler_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PullBlockHandlerTraits>(); } \
-	TEST(TEST_CLASS, BlockHashesHandler_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockHashesHandlerTraits>(); } \
-	TEST(TEST_CLASS, PullBlocksHandler_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PullBlocksHandlerTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-
-	HEIGHT_REQUEST_TEST(DoesNotRespondToMalformedRequest) {
-		// Arrange:
-		ionet::ServerPacketHandlers handlers;
-		auto pStorage = CreateStorage(12);
-		TTraits::Register(handlers, *pStorage);
-
-		// - create a malformed request
-		auto pPacket = TTraits::CreateRequestPacket();
-		pPacket->Height = Height(7);
-		++pPacket->Size;
-
-		// Act:
-		ionet::ServerPacketHandlerContext context({}, "");
-		EXPECT_TRUE(handlers.process(*pPacket, context));
-
-		// Assert: no response was written because the request was malformed
-		test::AssertNoResponse(context);
-	}
-
-	HEIGHT_REQUEST_TEST(WritesEmptyResponseIfRequestHeightIsLargerThanLocalHeight) {
-		// Assert:
-		AssertWritesEmptyResponse<TTraits>(12, Height(13));
-		AssertWritesEmptyResponse<TTraits>(12, Height(100));
-	}
-
-	// region PullBlockHandler
+	DEFINE_HEIGHT_REQUEST_HANDLER_ALLOW_ZERO_HEIGHT_TESTS(PullBlockHandlerTraits, PullBlockHandler)
 
 	namespace {
 		void AssertCanRetrieveBlock(size_t numBlocks, Height requestHeight, Height expectedHeight) {
@@ -310,32 +204,42 @@ namespace catapult { namespace handlers {
 
 		const auto* pResponse = reinterpret_cast<const uint64_t*>(test::GetSingleBufferData(context));
 		EXPECT_EQ(12u, pResponse[0]); // height
-		EXPECT_EQ(0x7890ABCDEF012345, pResponse[1]); // score high
-		EXPECT_EQ(0x7711BBCC00DD99AA, pResponse[2]); // score low
+		EXPECT_EQ(0x7890ABCDEF012345u, pResponse[1]); // score high
+		EXPECT_EQ(0x7711BBCC00DD99AAu, pResponse[2]); // score low
 	}
 
 	// endregion
 
 	// region BlockHashesHandler
 
-	TEST(TEST_CLASS, BlockHashesHandler_WritesEmptyResponseIfRequestHeightIsZero) {
-		// Assert:
-		AssertWritesEmptyResponse<BlockHashesHandlerTraits>(12, Height(0));
+	namespace {
+		struct BlockHashesHandlerTraits {
+			static ionet::PacketType ResponsePacketType() {
+				return ionet::PacketType::Block_Hashes;
+			}
+
+			static auto CreateRequestPacket() {
+				return ionet::CreateSharedPacket<api::BlockHashesRequest>();
+			}
+
+			static void Register(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage) {
+				RegisterBlockHashesHandler(handlers, storage, 10);
+			}
+		};
 	}
 
+	DEFINE_HEIGHT_REQUEST_HANDLER_TESTS(BlockHashesHandlerTraits, BlockHashesHandler)
+
 	namespace {
-		void AssertCanRetrieveHashes(
-				size_t numBlocks,
-				uint32_t maxHashes,
-				Height requestHeight,
-				const std::vector<Height>& expectedHeights) {
-			// Arrange:
+		void AssertCanRetrieveHashes(uint32_t maxRequestedHashes, Height requestHeight, const std::vector<Height>& expectedHeights) {
+			// Arrange: 12 blocks, on remote side allow at most 7 hashes
 			ionet::ServerPacketHandlers handlers;
-			auto pStorage = CreateStorage(numBlocks);
-			RegisterBlockHashesHandler(handlers, *pStorage, maxHashes);
+			auto pStorage = CreateStorage(12);
+			RegisterBlockHashesHandler(handlers, *pStorage, 7);
 
 			auto pPacket = ionet::CreateSharedPacket<api::BlockHashesRequest>();
 			pPacket->Height = requestHeight;
+			pPacket->NumHashes = maxRequestedHashes;
 
 			// Act:
 			ionet::ServerPacketHandlerContext context({}, "");
@@ -361,39 +265,64 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	TEST(TEST_CLASS, BlockHashesHandler_WritesAtMostMaxHashes) {
+	TEST(TEST_CLASS, BlockHashesHandler_WritesAtMostMaxHashesOnRemote) {
 		// Assert:
-		AssertCanRetrieveHashes(12, 5, Height(3), { Height(3), Height(4), Height(5), Height(6), Height(7) });
+		AssertCanRetrieveHashes(100, Height(3), { Height(3), Height(4), Height(5), Height(6), Height(7), Height(8), Height(9) });
+	}
+
+	TEST(TEST_CLASS, BlockHashesHandler_WritesAtMostMaxRequestedHashes) {
+		// Assert:
+		AssertCanRetrieveHashes(5, Height(3), { Height(3), Height(4), Height(5), Height(6), Height(7) });
 	}
 
 	TEST(TEST_CLASS, BlockHashesHandler_WritesAreBoundedByLastBlock) {
 		// Assert:
-		AssertCanRetrieveHashes(12, 10, Height(10), { Height(10), Height(11), Height(12) });
+		AssertCanRetrieveHashes(5, Height(10), { Height(10), Height(11), Height(12) });
 	}
 
 	TEST(TEST_CLASS, BlockHashesHandler_CanRetrieveLastBlockHash) {
 		// Assert:
-		AssertCanRetrieveHashes(12, 5, Height(12), { Height(12) });
+		AssertCanRetrieveHashes(5, Height(12), { Height(12) });
 	}
 
 	// endregion
 
-	// region BlocksHandler
-
-	TEST(TEST_CLASS, PullBlocksHandler_WritesEmptyResponseIfRequestHeightIsZero) {
-		// Assert:
-		AssertWritesEmptyResponse<PullBlocksHandlerTraits>(12, Height(0));
-	}
+	// region PullBlocksHandler
 
 	namespace {
+		struct PullBlocksHandlerTraits {
+			static ionet::PacketType ResponsePacketType() {
+				return ionet::PacketType::Pull_Blocks;
+			}
+
+			static auto CreateRequestPacket() {
+				auto pRequest = ionet::CreateSharedPacket<api::PullBlocksRequest>();
+				pRequest->NumBlocks = 100;
+				pRequest->NumResponseBytes = 10 * 1024 * 1024;
+				return pRequest;
+			}
+
+			static void Register(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage) {
+				PullBlocksHandlerConfiguration config;
+				config.MaxBlocks = 100;
+				config.MaxResponseBytes = 10 * 1024 * 1024;
+				RegisterPullBlocksHandler(handlers, storage, config);
+			}
+		};
+	}
+
+	DEFINE_HEIGHT_REQUEST_HANDLER_TESTS(PullBlocksHandlerTraits, PullBlocksHandler)
+
+	namespace {
+		constexpr auto Ten_Megabytes = static_cast<uint32_t>(utils::FileSize::FromMegabytes(10).bytes());
+
 		void AssertCanRetrieveBlocks(
-				size_t numBlocks,
 				const api::PullBlocksRequest& request,
 				const PullBlocksHandlerConfiguration& config,
 				const std::vector<Height>& expectedHeights) {
 			// Arrange:
 			ionet::ServerPacketHandlers handlers;
-			auto pStorage = CreateStorage(numBlocks);
+			auto pStorage = CreateStorage(12);
 			RegisterPullBlocksHandler(handlers, *pStorage, config);
 
 			// Act:
@@ -421,65 +350,89 @@ namespace catapult { namespace handlers {
 		}
 
 		void AssertCanRetrieveBlocks(
-				size_t numBlocks,
+				uint32_t numRequestBlocks,
 				uint32_t maxBlocks,
+				uint32_t numRequestResponseBytes,
 				uint32_t maxResponseBytes,
 				Height requestHeight,
 				const std::vector<Height>& expectedHeights) {
 			// Arrange: set request NumXyz == config MaxXyz
-			auto pRequest = ionet::CreateSharedPacket<api::PullBlocksRequest>();
+			auto pRequest = PullBlocksHandlerTraits::CreateRequestPacket();
 			pRequest->Height = requestHeight;
-			pRequest->NumBlocks = maxBlocks;
-			pRequest->NumResponseBytes = maxResponseBytes;
+			pRequest->NumBlocks = numRequestBlocks;
+			pRequest->NumResponseBytes = numRequestResponseBytes;
 
 			PullBlocksHandlerConfiguration config;
 			config.MaxBlocks = maxBlocks;
 			config.MaxResponseBytes = maxResponseBytes;
 
 			// Assert:
-			AssertCanRetrieveBlocks(numBlocks, *pRequest, config, expectedHeights);
+			AssertCanRetrieveBlocks(*pRequest, config, expectedHeights);
+		}
+
+		void AssertCanRetrieveBlocks(
+				uint32_t maxBlocks,
+				uint32_t maxResponseBytes,
+				Height requestHeight,
+				const std::vector<Height>& expectedHeights) {
+			AssertCanRetrieveBlocks(maxBlocks, maxBlocks, maxResponseBytes, maxResponseBytes, requestHeight, expectedHeights);
+		}
+
+		void AssertWritesAtMostMaxBytes(const consumer<uint32_t, const std::vector<Height>&>& assertFunc) {
+			// Arrange: calculate the sum of the sizes of blocks 3-5
+			auto responseBytes = GetSumBlockSizesAtHeights({ Height(3), Height(4), Height(5) });
+			auto adjustResponseBytes = [responseBytes](int32_t delta) { return responseBytes + static_cast<uint32_t>(delta); };
+
+			// Assert: only blocks that fully fit within the requested size are returned
+			assertFunc(adjustResponseBytes(-1), { Height(3), Height(4) });
+			assertFunc(adjustResponseBytes(0), { Height(3), Height(4), Height(5) });
+			assertFunc(adjustResponseBytes(1), { Height(3), Height(4), Height(5) });
 		}
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_WritesAtMostMaxBlocks) {
 		// Assert:
 		std::vector<Height> expectedBlockHeights{ Height(3), Height(4), Height(5), Height(6), Height(7) };
-		AssertCanRetrieveBlocks(12, 5, 10 * 1024 * 1024, Height(3), expectedBlockHeights);
+		AssertCanRetrieveBlocks(10, 5, Ten_Megabytes, Ten_Megabytes, Height(3), expectedBlockHeights);
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_WritesAtMostMaxResponseBytes) {
-		// Arrange:
-		auto assertFunc = [](int32_t delta, const std::vector<Height>& expectedBlockHeights) {
-			// - calculate the sum of the sizes of blocks 3-5
-			auto responseBytes = GetSumBlockSizesAtHeights({ Height(3), Height(4), Height(5) });
-			responseBytes += static_cast<uint32_t>(delta);
-			AssertCanRetrieveBlocks(12, 5, responseBytes, Height(3), expectedBlockHeights);
-		};
+		// Assert:
+		AssertWritesAtMostMaxBytes([](auto responseBytes, const auto& expectedBlockHeights) {
+			AssertCanRetrieveBlocks(5, 5, Ten_Megabytes, responseBytes, Height(3), expectedBlockHeights);
+		});
+	}
 
-		// Assert: only blocks that fully fit within the requested size are returned
-		assertFunc(-1, { Height(3), Height(4) });
-		assertFunc(0, { Height(3), Height(4), Height(5) });
-		assertFunc(1, { Height(3), Height(4), Height(5) });
+	TEST(TEST_CLASS, PullBlocksHandler_RespectsRequestNumBlocks) {
+		// Assert:
+		std::vector<Height> expectedBlockHeights{ Height(3), Height(4), Height(5) };
+		AssertCanRetrieveBlocks(3, 5, Ten_Megabytes, Ten_Megabytes, Height(3), expectedBlockHeights);
+	}
+
+	TEST(TEST_CLASS, PullBlocksHandler_RespectsRequestMaxResponseBytes) {
+		// Assert:
+		AssertWritesAtMostMaxBytes([](auto responseBytes, const auto& expectedBlockHeights) {
+			AssertCanRetrieveBlocks(5, 5, responseBytes, Ten_Megabytes, Height(3), expectedBlockHeights);
+		});
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_WritesAtLeastOneBlock) {
 		// Assert: even with num/max response bytes set to 0, the first block should be returned
-		AssertCanRetrieveBlocks(12, 5, 0, Height(3), { Height(3) });
+		AssertCanRetrieveBlocks(5, 0, Height(3), { Height(3) });
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_WritesAreBoundedByLastBlock) {
 		// Assert:
-		AssertCanRetrieveBlocks(12, 10, 10 * 1024 * 1024, Height(10), { Height(10), Height(11), Height(12) });
+		AssertCanRetrieveBlocks(10, Ten_Megabytes, Height(10), { Height(10), Height(11), Height(12) });
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_CanRetrieveLastBlock) {
 		// Assert:
-		AssertCanRetrieveBlocks(12, 5, 10 * 1024 * 1024, Height(12), { Height(12) });
+		AssertCanRetrieveBlocks(5, Ten_Megabytes, Height(12), { Height(12) });
 	}
 
 	namespace {
 		void AssertCanRetrieveBlocksWithNumBlocksClamping(
-				size_t numBlocks,
 				uint32_t numRequestBlocks,
 				uint32_t maxBlocks,
 				Height requestHeight,
@@ -488,20 +441,20 @@ namespace catapult { namespace handlers {
 			auto pRequest = ionet::CreateSharedPacket<api::PullBlocksRequest>();
 			pRequest->Height = requestHeight;
 			pRequest->NumBlocks = numRequestBlocks;
-			pRequest->NumResponseBytes = 100 * 1024 * 1024;
+			pRequest->NumResponseBytes = 10 * Ten_Megabytes;
 
 			PullBlocksHandlerConfiguration config;
 			config.MaxBlocks = maxBlocks;
-			config.MaxResponseBytes = 100 * 1024 * 1024;
+			config.MaxResponseBytes = 10 * Ten_Megabytes;
 
 			// Assert:
-			AssertCanRetrieveBlocks(numBlocks, *pRequest, config, expectedHeights);
+			AssertCanRetrieveBlocks(*pRequest, config, expectedHeights);
 		}
 
 		TEST(TEST_CLASS, PullBlocksHandler_NumBlocksIsClampedByMaxBlocks) {
 			// Arrange: chain-size == 12, request-height == 2, max == 7
 			auto assertFunc = [](auto numRequestBlocks, const auto& expectedBlockHeights) {
-				AssertCanRetrieveBlocksWithNumBlocksClamping(12, numRequestBlocks, 7, Height(2), expectedBlockHeights);
+				AssertCanRetrieveBlocksWithNumBlocksClamping(numRequestBlocks, 7, Height(2), expectedBlockHeights);
 			};
 
 			// Assert:
@@ -517,7 +470,6 @@ namespace catapult { namespace handlers {
 		}
 
 		void AssertCanRetrieveBlocksWithNumResponseBytesClamping(
-				size_t numBlocks,
 				uint32_t numRequestResponseBytes,
 				uint32_t maxResponseBytes,
 				Height requestHeight,
@@ -533,7 +485,7 @@ namespace catapult { namespace handlers {
 			config.MaxResponseBytes = maxResponseBytes;
 
 			// Assert:
-			AssertCanRetrieveBlocks(numBlocks, *pRequest, config, expectedHeights);
+			AssertCanRetrieveBlocks(*pRequest, config, expectedHeights);
 		}
 
 		TEST(TEST_CLASS, PullBlocksHandler_NumResponseBytesIsClampedByMaxResponseBytes) {
@@ -541,12 +493,7 @@ namespace catapult { namespace handlers {
 			std::vector<Height> heights{ Height(2), Height(3), Height(4), Height(5), Height(6), Height(7), Height(8) };
 			auto maxBytes = GetSumBlockSizesAtHeights(heights);
 			auto assertFunc = [maxBytes](auto numRequestResponseBytes, const auto& expectedBlockHeights) {
-				AssertCanRetrieveBlocksWithNumResponseBytesClamping(
-						12,
-						numRequestResponseBytes,
-						maxBytes,
-						Height(2),
-						expectedBlockHeights);
+				AssertCanRetrieveBlocksWithNumResponseBytesClamping(numRequestResponseBytes, maxBytes, Height(2), expectedBlockHeights);
 			};
 
 			// Assert:

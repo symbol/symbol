@@ -21,6 +21,7 @@
 #include "catapult/extensions/NetworkUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
+#include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {
@@ -111,7 +112,10 @@ namespace catapult { namespace extensions {
 	namespace {
 		class MockAcceptor {
 		public:
-			MockAcceptor() : m_numAccepts(0)
+			MockAcceptor(net::PeerConnectCode connectCode, const Key& identityKey)
+					: m_connectCode(connectCode)
+					, m_identityKey(identityKey)
+					, m_numAccepts(0)
 			{}
 
 		public:
@@ -120,17 +124,22 @@ namespace catapult { namespace extensions {
 			}
 
 		public:
-			void accept(const ionet::AcceptedPacketSocketInfo&, const consumer<net::PeerConnectResult>&) {
+			void accept(const ionet::AcceptedPacketSocketInfo&, const consumer<net::PeerConnectResult>& consumer) {
 				++m_numAccepts;
+				consumer({ m_connectCode, m_identityKey });
 			}
 
 		private:
+			net::PeerConnectCode m_connectCode;
+			Key m_identityKey;
 			std::atomic<size_t> m_numAccepts;
 		};
 
 		struct BootServerContext {
 		public:
-			BootServerContext() : m_pool("network utils", 1)
+			BootServerContext(net::PeerConnectCode connectCode, const Key& identityKey)
+					: m_acceptor(connectCode, identityKey)
+					, m_pool("network utils", 1)
 			{}
 
 		public:
@@ -138,11 +147,18 @@ namespace catapult { namespace extensions {
 				return m_acceptor.numAccepts();
 			}
 
+			const auto& nodeSubscriber() const {
+				return m_nodeSubscriber;
+			}
+
 		public:
 			auto boot() {
 				// Act:
+				auto& serviceGroup = *m_pool.pushServiceGroup("server");
 				auto config = CreateLocalNodeConfiguration();
-				return BootServer(*m_pool.pushServiceGroup("server"), test::Local_Host_Port, config, [&acceptor = m_acceptor](
+				auto serviceId = ionet::ServiceIdentifier(123);
+				auto& acceptor = m_acceptor;
+				return BootServer(serviceGroup, test::Local_Host_Port, serviceId, config, m_nodeSubscriber, [&acceptor](
 						const auto& socketInfo,
 						const auto& callback) {
 					acceptor.accept(socketInfo, callback);
@@ -152,12 +168,14 @@ namespace catapult { namespace extensions {
 		private:
 			MockAcceptor m_acceptor;
 			thread::MultiServicePool m_pool;
+			mocks::MockNodeSubscriber m_nodeSubscriber;
 		};
 	}
 
 	TEST(TEST_CLASS, CanBootServer) {
 		// Arrange:
-		BootServerContext context;
+		auto key = test::GenerateRandomData<Key_Size>();
+		BootServerContext context(net::PeerConnectCode::Accepted, key);
 
 		// Act:
 		auto pServer = context.boot();
@@ -165,11 +183,15 @@ namespace catapult { namespace extensions {
 		// Assert:
 		EXPECT_EQ(0u, pServer->numLifetimeConnections());
 		EXPECT_EQ(0u, context.numAccepts());
+
+		const auto& params = context.nodeSubscriber().incomingNodeParams().params();
+		EXPECT_EQ(0u, params.size());
 	}
 
-	TEST(TEST_CLASS, CanConnectToBootedServer) {
+	TEST(TEST_CLASS, CanConnectToBootedServer_AcceptFails) {
 		// Arrange: boot the server
-		BootServerContext context;
+		auto key = test::GenerateRandomData<Key_Size>();
+		BootServerContext context(net::PeerConnectCode::Socket_Error, key);
 		auto pServer = context.boot();
 
 		// Act: connect to the server
@@ -180,6 +202,30 @@ namespace catapult { namespace extensions {
 		// Assert:
 		EXPECT_EQ(1u, pServer->numLifetimeConnections());
 		EXPECT_EQ(1u, context.numAccepts());
+
+		const auto& params = context.nodeSubscriber().incomingNodeParams().params();
+		EXPECT_EQ(0u, params.size());
+	}
+
+	TEST(TEST_CLASS, CanConnectToBootedServer_AcceptSucceeds) {
+		// Arrange: boot the server
+		auto key = test::GenerateRandomData<Key_Size>();
+		BootServerContext context(net::PeerConnectCode::Accepted, key);
+		auto pServer = context.boot();
+
+		// Act: connect to the server
+		auto pClientThreadPool = test::CreateStartedIoServiceThreadPool(1);
+		test::CreateClientSocket(pClientThreadPool->service())->connect().get();
+		WAIT_FOR_ONE_EXPR(context.numAccepts());
+
+		// Assert:
+		EXPECT_EQ(1u, pServer->numLifetimeConnections());
+		EXPECT_EQ(1u, context.numAccepts());
+
+		const auto& params = context.nodeSubscriber().incomingNodeParams().params();
+		ASSERT_EQ(1u, params.size());
+		EXPECT_EQ(key, params[0].IdentityKey);
+		EXPECT_EQ(ionet::ServiceIdentifier(123), params[0].ServiceId); // from BootServerContext::boot
 	}
 
 	// endregion

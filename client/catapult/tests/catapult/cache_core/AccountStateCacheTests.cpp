@@ -19,11 +19,11 @@
 **/
 
 #include "catapult/cache_core/AccountStateCache.h"
-#include "catapult/state/AccountStateAdapter.h"
 #include "catapult/utils/Casting.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
 #include "tests/test/cache/DeltaElementsMixinTests.h"
+#include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -54,18 +54,12 @@ namespace catapult { namespace cache {
 			}
 
 			template<typename TCache>
-			static auto* TryGet(TCache& cache, const Address& address) {
-				return cache.tryGet(address);
+			static auto Find(TCache& cache, const Address& address) {
+				return cache.find(address);
 			}
 
 			static Type ToKey(const state::AccountState& accountState) {
 				return accountState.Address;
-			}
-
-			static void AssertFoundAccount(const Type& address, const state::AccountState& foundAccount) {
-				EXPECT_EQ(AddressTraits::DefaultHeight(), foundAccount.AddressHeight);
-				EXPECT_EQ(address, foundAccount.Address);
-				EXPECT_EQ(Height(0), foundAccount.PublicKeyHeight);
 			}
 		};
 
@@ -81,20 +75,12 @@ namespace catapult { namespace cache {
 			}
 
 			template<typename TCache>
-			static auto* TryGet(TCache& cache, const Key& publicKey) {
-				return cache.tryGet(publicKey);
+			static auto Find(TCache& cache, const Key& publicKey) {
+				return cache.find(publicKey);
 			}
 
 			static Type ToKey(const state::AccountState& accountState) {
 				return accountState.PublicKey;
-			}
-
-			static void AssertFoundAccount(const Type& publicKey, const state::AccountState& foundAccount) {
-				auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
-				EXPECT_EQ(PublicKeyTraits::DefaultHeight(), foundAccount.AddressHeight);
-				EXPECT_EQ(address, foundAccount.Address);
-				EXPECT_EQ(PublicKeyTraits::DefaultHeight(), foundAccount.PublicKeyHeight);
-				EXPECT_EQ(publicKey, foundAccount.PublicKey);
 			}
 		};
 	}
@@ -126,16 +112,16 @@ namespace catapult { namespace cache {
 				return m_delta->contains(accountId);
 			}
 
-			auto get(const IdType& accountId) const {
-				return m_delta->get(accountId);
+			auto find(const IdType& accountId) {
+				return m_delta->find(accountId);
 			}
 
-			auto tryGet(const IdType& accountId) const {
-				return m_delta->tryGet(accountId);
+			auto find(const IdType& accountId) const {
+				return m_delta->find(accountId);
 			}
 
-			void insert(const std::shared_ptr<state::AccountState>& pAccountState) {
-				m_delta->addAccount(TTraits::ToKey(*pAccountState), Height(7));
+			void insert(const state::AccountState& accountState) {
+				m_delta->addAccount(TTraits::ToKey(accountState), Height(7));
 			}
 
 			void remove(const IdType& address) {
@@ -177,9 +163,10 @@ namespace catapult { namespace cache {
 
 		template<typename TTraits>
 		struct AccountStateMixinTraits {
-			using CacheType = CacheProxy<TTraits>;
-			using IdType = typename TTraits::Type;
-			using ValueType = std::shared_ptr<state::AccountState>;
+			using IdTraits = TTraits;
+			using CacheType = CacheProxy<IdTraits>;
+			using IdType = typename IdTraits::Type;
+			using ValueType = state::AccountState;
 
 			static uint8_t GetRawId(const IdType& id) {
 				return id[0];
@@ -190,22 +177,27 @@ namespace catapult { namespace cache {
 			}
 
 			static IdType GetId(const state::AccountState& accountState) {
-				return TTraits::ToKey(accountState);
-			}
-
-			static IdType GetId(const std::shared_ptr<state::AccountState>& pAccountState) {
-				return TTraits::ToKey(*pAccountState);
+				return IdTraits::ToKey(accountState);
 			}
 
 			static IdType MakeId(uint8_t id) {
-				return IdType{ { id } };
+				return { { id } };
 			}
 
 			static ValueType CreateWithId(uint8_t id) {
 				// store same id in both Address and PublicKey so these traits work for both
-				auto pAccountState = std::make_shared<state::AccountState>(Address{ { id } }, Height());
-				pAccountState->PublicKey = { { id } };
-				return pAccountState;
+				auto accountState = state::AccountState({ { id } }, Height());
+				accountState.PublicKey = { { id } };
+				return accountState;
+			}
+		};
+
+		// custom modification policy is needed because double insert can be noop (e.g. double address insert)
+		template<typename TTraits>
+		struct AccountStateModificationPolicy {
+			static void Modify(DeltaProxy<TTraits>& delta, const state::AccountState& accountState) {
+				auto& accountStateFromCache = delta.find(TTraits::ToKey(accountState)).get();
+				accountStateFromCache.Balances.credit(Xem_Id, Amount(1));
 			}
 		};
 	}
@@ -219,7 +211,7 @@ namespace catapult { namespace cache {
 	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, MutableAccessor, _DeltaMutable##SUFFIX) \
 	DEFINE_CACHE_ACCESSOR_TESTS(TRAITS, DeltaAccessor, ConstAccessor, _DeltaConst##SUFFIX) \
 	\
-	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(TRAITS, _Delta##SUFFIX)
+	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(TRAITS, AccountStateModificationPolicy<TRAITS::IdTraits>, _Delta##SUFFIX)
 
 	DEFINE_ACCOUNT_STATE_CACHE_TESTS(AccountStateMixinTraits<AddressTraits>, _Address)
 
@@ -234,6 +226,8 @@ namespace catapult { namespace cache {
 	// endregion
 
 	// *** custom tests ***
+
+	// region test utils
 
 	namespace {
 		Key GenerateRandomPublicKey() {
@@ -266,10 +260,31 @@ namespace catapult { namespace cache {
 		}
 
 		template<typename TKeyTraits>
-		state::AccountState* AddAccountToCacheDelta(AccountStateCacheDelta& delta, const typename TKeyTraits::Type& key, Amount balance) {
-			auto& accountState = delta.addAccount(key, TKeyTraits::DefaultHeight());
-			accountState.Balances.credit(Xem_Id, balance);
-			return &accountState;
+		void AddAccountToCacheDelta(AccountStateCacheDelta& delta, const typename TKeyTraits::Type& key, Amount balance) {
+			delta.addAccount(key, TKeyTraits::DefaultHeight());
+			delta.find(key).get().Balances.credit(Xem_Id, balance);
+		}
+
+		state::AccountState CreateAccountStateWithRandomAddressAndPublicKey() {
+			auto publicKey = GenerateRandomPublicKey();
+			auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+
+			auto accountState = state::AccountState(address, Height(123));
+			accountState.PublicKeyHeight = Height(124);
+			accountState.PublicKey = publicKey;
+			return accountState;
+		}
+
+		state::AccountState CreateAccountStateWithRandomAddress() {
+			auto accountState = CreateAccountStateWithRandomAddressAndPublicKey();
+			accountState.PublicKeyHeight = Height(0);
+			return accountState;
+		}
+
+		auto CreateAccountStateWithMismatchedAddressAndPublicKey() {
+			auto accountState = CreateAccountStateWithRandomAddressAndPublicKey();
+			accountState.PublicKey = GenerateRandomPublicKey();
+			return accountState;
 		}
 	}
 
@@ -278,9 +293,8 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_PublicKey) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PublicKeyTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-}}
 
-namespace catapult { namespace cache {
+	// endregion
 
 	// region network identifier / importance grouping
 
@@ -326,28 +340,7 @@ namespace catapult { namespace cache {
 
 	// region tryGet (custom tests due to multiple views into the cache)
 
-	ID_BASED_TEST(TryGetReturnsSameStateAsAdd) {
-		// Arrange:
-		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
-		auto delta = cache.createDelta();
-		auto accountId = TTraits::GenerateAccountId();
-		const auto& addedAccount = delta->addAccount(accountId, TTraits::DefaultHeight());
-		cache.commit();
-
-		auto view = cache.createView();
-
-		// Act:
-		const auto* pFoundAccount = TTraits::TryGet(*view, accountId);
-
-		// Assert:
-		EXPECT_EQ(1u, view->size());
-		EXPECT_EQ(&addedAccount, pFoundAccount);
-		EXPECT_EQ(Amount(0), GetBalance(*pFoundAccount));
-
-		TTraits::AssertFoundAccount(accountId, *pFoundAccount);
-	}
-
-	TEST(TEST_CLASS, TryGetByKeyReturnsNullptrForUnknownPublicKeyButKnownAddress_View) {
+	TEST(TEST_CLASS, FindByKeyReturnsEmptyIteratorForUnknownPublicKeyButKnownAddress_View) {
 		// Arrange:
 		auto publicKey = GenerateRandomPublicKey();
 		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
@@ -360,14 +353,14 @@ namespace catapult { namespace cache {
 		auto view = cache.createView();
 
 		// Act:
-		const auto* pAccountState = PublicKeyTraits::TryGet(*view, publicKey);
+		auto accountStateIter = PublicKeyTraits::Find(*view, publicKey);
 
 		// Assert:
 		EXPECT_EQ(1u, view->size());
-		EXPECT_FALSE(!!pAccountState);
+		EXPECT_FALSE(!!accountStateIter.tryGet());
 	}
 
-	TEST(TEST_CLASS, TryGetByKeyConstReturnsNullptrForUnknownPublicKeyButKnownAddress_Delta) {
+	TEST(TEST_CLASS, FindByKeyConstReturnsEmptyIteratorForUnknownPublicKeyButKnownAddress_Delta) {
 		// Arrange:
 		auto publicKey = GenerateRandomPublicKey();
 		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
@@ -378,11 +371,11 @@ namespace catapult { namespace cache {
 		cache.commit();
 
 		// Act:
-		const auto* pAccountState = PublicKeyTraits::TryGet(utils::as_const(*delta), publicKey);
+		auto accountStateIter = PublicKeyTraits::Find(utils::as_const(*delta), publicKey);
 
 		// Assert:
 		EXPECT_EQ(1u, delta->size());
-		EXPECT_FALSE(!!pAccountState);
+		EXPECT_FALSE(!!accountStateIter.tryGet());
 	}
 
 	// endregion
@@ -401,23 +394,213 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		EXPECT_EQ(11u, delta->size());
-		EXPECT_TRUE(!!delta->tryGet(accountId));
+		EXPECT_TRUE(!!delta->find(accountId).tryGet());
 	}
 
-	ID_BASED_TEST(SubsequentAddAccountsReturnExistingAccount) {
+	ID_BASED_TEST(SubsequentAddAccountHasNoEffect) {
 		// Arrange:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		auto accountId = TTraits::GenerateAccountId();
-		const auto& addedAccount = delta->addAccount(accountId, TTraits::DefaultHeight());
+		delta->addAccount(accountId, TTraits::DefaultHeight());
+		const auto& originalAddedAccountState = delta->find(accountId).get();
 
 		// Act + Assert:
 		for (auto i = 0u; i < 10; ++i) {
-			EXPECT_EQ(&addedAccount, &delta->addAccount(accountId, Height(1235u + i)));
+			delta->addAccount(accountId, Height(1235u + i));
+			const auto& addedAccountState = delta->find(accountId).get();
 
-			// The height is not supposed to change after multiple adds
-			EXPECT_EQ(TTraits::DefaultHeight(), addedAccount.AddressHeight);
+			// - only first added account should change the state (and subsequent adds do not change height)
+			EXPECT_EQ(&originalAddedAccountState, &addedAccountState);
+			EXPECT_EQ(TTraits::DefaultHeight(), addedAccountState.AddressHeight);
 		}
+	}
+
+	TEST(TEST_CLASS, SubsequentAddAddressDoesNotMarkAccountAsDirty) {
+		// Arrange:
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+		auto delta = cache.createDelta();
+		auto address = AddressTraits::GenerateAccountId();
+		delta->addAccount(address, Height(1230));
+		cache.commit();
+
+		// Act:
+		delta->addAccount(address, Height(1235));
+		const auto& addedAccountState = const_cast<const decltype(delta)&>(delta)->find(address).get();
+
+		// Sanity:
+		EXPECT_EQ(Height(1230), addedAccountState.AddressHeight);
+		EXPECT_EQ(Height(0), addedAccountState.PublicKeyHeight);
+
+		// Assert:
+		EXPECT_TRUE(!!delta->addedElements().empty());
+		EXPECT_TRUE(!!delta->modifiedElements().empty());
+		EXPECT_TRUE(!!delta->removedElements().empty());
+	}
+
+	TEST(TEST_CLASS, SubsequentAddPublicKeyDoesNotMarkAccountWithPublicKeyAsDirty) {
+		// Arrange:
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+		auto delta = cache.createDelta();
+		auto publicKey = GenerateRandomPublicKey();
+		delta->addAccount(publicKey, Height(1230));
+		cache.commit();
+
+		// Act:
+		delta->addAccount(publicKey, Height(1235));
+		const auto& addedAccountState = const_cast<const decltype(delta)&>(delta)->find(publicKey).get();
+
+		// Sanity:
+		EXPECT_EQ(Height(1230), addedAccountState.AddressHeight);
+		EXPECT_EQ(Height(1230), addedAccountState.PublicKeyHeight);
+
+		// Assert:
+		EXPECT_TRUE(!!delta->addedElements().empty());
+		EXPECT_TRUE(!!delta->modifiedElements().empty());
+		EXPECT_TRUE(!!delta->removedElements().empty());
+	}
+
+	TEST(TEST_CLASS, SubsequentAddPublicKeyDoesMarkAccountWithoutPublicKeyAsDirty) {
+		// Arrange:
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+		auto delta = cache.createDelta();
+		auto publicKey = GenerateRandomPublicKey();
+		auto address = model::PublicKeyToAddress(publicKey, Network_Identifier);
+		delta->addAccount(address, Height(1230));
+		cache.commit();
+
+		// Act:
+		delta->addAccount(publicKey, Height(1235));
+		const auto& addedAccountState = const_cast<const decltype(delta)&>(delta)->find(address).get();
+
+		// Sanity:
+		EXPECT_EQ(Height(1230), addedAccountState.AddressHeight);
+		EXPECT_EQ(Height(1235), addedAccountState.PublicKeyHeight);
+
+		// Assert:
+		EXPECT_TRUE(!!delta->addedElements().empty());
+		EXPECT_FALSE(!!delta->modifiedElements().empty());
+		EXPECT_TRUE(!!delta->removedElements().empty());
+	}
+
+	TEST(TEST_CLASS, SubsequentAddAccountStateDoesNotMarkAccountAsDirty) {
+		// Arrange:
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+		auto delta = cache.createDelta();
+		auto address = AddressTraits::GenerateAccountId();
+		delta->addAccount(address, Height(1230));
+		cache.commit();
+
+		// Act:
+		auto accountState = CreateAccountStateWithMismatchedAddressAndPublicKey();
+		accountState.Address = address;
+		delta->addAccount(accountState);
+		const auto& addedAccountState = const_cast<const decltype(delta)&>(delta)->find(address).get();
+
+		// Sanity:
+		EXPECT_EQ(Height(1230), addedAccountState.AddressHeight);
+		EXPECT_EQ(Height(0), addedAccountState.PublicKeyHeight);
+
+		// Assert:
+		EXPECT_TRUE(!!delta->addedElements().empty());
+		EXPECT_TRUE(!!delta->modifiedElements().empty());
+		EXPECT_TRUE(!!delta->removedElements().empty());
+	}
+
+	// endregion
+
+	// region addAccount (AccountState)
+
+	TEST(TEST_CLASS, CanAddAccountViaAccountStateWithoutPublicKey) {
+		// Arrange: note that public key height is 0
+		auto accountState = CreateAccountStateWithMismatchedAddressAndPublicKey();
+		accountState.PublicKeyHeight = Height(0);
+
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+		auto delta = cache.createDelta();
+
+		// Act:
+		delta->addAccount(accountState);
+		const auto* pAccountStateFromAddress = AddressTraits::Find(*delta, accountState.Address).tryGet();
+		const auto* pAccountStateFromKey = PublicKeyTraits::Find(*delta, accountState.PublicKey).tryGet();
+
+		// Assert:
+		// - accountState properties should have been copied into the cache
+		// - state is only accessible by address because public key height is 0
+		ASSERT_TRUE(!!pAccountStateFromAddress);
+		EXPECT_FALSE(!!pAccountStateFromKey);
+
+		test::AssertEqual(accountState, *pAccountStateFromAddress, "pAccountStateFromAddress");
+	}
+
+	TEST(TEST_CLASS, CanAddAccountViaAccountStateWithPublicKey) {
+		// Arrange: note that public key height is not 0
+		auto accountState = CreateAccountStateWithMismatchedAddressAndPublicKey();
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+		auto delta = cache.createDelta();
+
+		// Act:
+		delta->addAccount(accountState);
+		const auto* pAccountStateFromAddress = AddressTraits::Find(*delta, accountState.Address).tryGet();
+		const auto* pAccountStateFromKey = PublicKeyTraits::Find(*delta, accountState.PublicKey).tryGet();
+
+		// Assert:
+		// - accountState properties should have been copied into the cache
+		// - state is accessible by address and public key (note that state mapping, if present, is trusted)
+		ASSERT_TRUE(!!pAccountStateFromAddress);
+		ASSERT_TRUE(!!pAccountStateFromKey);
+
+		test::AssertEqual(accountState, *pAccountStateFromAddress, "pAccountStateFromAddress");
+		test::AssertEqual(accountState, *pAccountStateFromKey, "pAccountStateFromKey");
+	}
+
+	namespace {
+		template<typename TAdd>
+		void AssertAddAccountViaStateDoesNotOverrideKnownAccounts(TAdd add) {
+			// Arrange:
+			auto accountState = CreateAccountStateWithRandomAddressAndPublicKey();
+			accountState.ImportanceInfo.set(Importance(777), model::ImportanceHeight(1));
+
+			AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+			auto delta = cache.createDelta();
+
+			// Act: add the state using add and set importance to 123
+			add(*delta, accountState);
+			auto& addedAccountState = delta->find(accountState.Address).get();
+			addedAccountState.ImportanceInfo.set(Importance(123), model::ImportanceHeight(2));
+
+			// - add the state again (with importance 777)
+			delta->addAccount(accountState);
+
+			// - get the state from the cache
+			const auto* pAccountState = delta->find(accountState.Address).tryGet();
+
+			// Assert: the second add had no effect (the importance is still 123)
+			ASSERT_TRUE(!!pAccountState);
+			EXPECT_EQ(&addedAccountState, pAccountState);
+			EXPECT_EQ(Importance(123), pAccountState->ImportanceInfo.current());
+		}
+	}
+
+	TEST(TEST_CLASS, AddAccountViaStateDoesNotOverrideKnownAccounts_Address) {
+		// Assert:
+		AssertAddAccountViaStateDoesNotOverrideKnownAccounts([](auto& delta, const auto& accountState) {
+			delta.addAccount(accountState.Address, accountState.AddressHeight);
+		});
+	}
+
+	TEST(TEST_CLASS, AddAccountViaStateDoesNotOverrideKnownAccounts_PublicKey) {
+		// Assert:
+		AssertAddAccountViaStateDoesNotOverrideKnownAccounts([](auto& delta, const auto& accountState) {
+			delta.addAccount(accountState.PublicKey, accountState.PublicKeyHeight);
+		});
+	}
+
+	TEST(TEST_CLASS, AddAccountViaStateDoesNotOverrideKnownAccounts_AccountState) {
+		// Assert:
+		AssertAddAccountViaStateDoesNotOverrideKnownAccounts([](auto& delta, const auto& accountState) {
+			delta.addAccount(accountState);
+		});
 	}
 
 	// endregion
@@ -439,7 +622,7 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		EXPECT_EQ(0u, delta->size());
-		EXPECT_FALSE(!!utils::as_const(delta)->tryGet(accountId));
+		EXPECT_FALSE(!!utils::as_const(delta)->find(accountId).tryGet());
 	}
 
 	ID_BASED_TEST(Remove_DoesNotRemovesExistingAccountIfHeightDoesNotMatch) {
@@ -447,7 +630,8 @@ namespace catapult { namespace cache {
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		auto accountId = TTraits::GenerateAccountId();
-		const auto& expectedAccount = delta->addAccount(accountId, TTraits::DefaultHeight());
+		delta->addAccount(accountId, TTraits::DefaultHeight());
+		const auto& expectedAccount = delta->find(accountId).get();
 
 		// Sanity:
 		EXPECT_EQ(1u, delta->size());
@@ -458,7 +642,7 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		EXPECT_EQ(1u, delta->size());
-		EXPECT_EQ(&expectedAccount, TTraits::TryGet(*delta, accountId));
+		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountId).tryGet());
 	}
 
 	ID_BASED_TEST(Remove_CanBeCalledOnNonExistingAccount) {
@@ -484,7 +668,8 @@ namespace catapult { namespace cache {
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 		auto delta = cache.createDelta();
 		auto accountId = TTraits::GenerateAccountId();
-		const auto& expectedAccount = delta->addAccount(accountId, TTraits::DefaultHeight());
+		delta->addAccount(accountId, TTraits::DefaultHeight());
+		const auto& expectedAccount = delta->find(accountId).get();
 
 		// Sanity:
 		EXPECT_EQ(1u, delta->size());
@@ -494,7 +679,7 @@ namespace catapult { namespace cache {
 
 		// Assert: the account was not removed yet
 		EXPECT_EQ(1u, delta->size());
-		EXPECT_EQ(&expectedAccount, TTraits::TryGet(*delta, accountId));
+		EXPECT_EQ(&expectedAccount, TTraits::Find(*delta, accountId).tryGet());
 	}
 
 	ID_BASED_TEST(CommitRemovals_DoesNothingIfNoRemovalsHaveBeenQueued) {
@@ -550,7 +735,7 @@ namespace catapult { namespace cache {
 			EXPECT_EQ(Height(321), accountState.AddressHeight);
 			EXPECT_EQ(expectedHeight, accountState.PublicKeyHeight);
 			EXPECT_EQ(Amount(1234), GetBalance(accountState));
-			EXPECT_EQ(delta.get(address).PublicKey, accountState.PublicKey);
+			EXPECT_EQ(delta.find(address).get().PublicKey, accountState.PublicKey);
 		}
 
 		void AssertRemoveByKeyAtHeight(Height removalHeight) {
@@ -566,7 +751,7 @@ namespace catapult { namespace cache {
 			// Act:
 			delta->queueRemove(publicKey, removalHeight);
 			delta->commitRemovals();
-			const auto* pAccountState = PublicKeyTraits::TryGet(utils::as_const(*delta), publicKey);
+			const auto* pAccountState = PublicKeyTraits::Find(utils::as_const(*delta), publicKey).tryGet();
 
 			// Assert:
 			if (PublicKeyTraits::DefaultHeight() != removalHeight)
@@ -588,7 +773,7 @@ namespace catapult { namespace cache {
 			// Act:
 			delta->queueRemove(address, removalHeight);
 			delta->commitRemovals();
-			const auto* pAccountState = AddressTraits::TryGet(utils::as_const(*delta), address);
+			const auto* pAccountState = AddressTraits::Find(utils::as_const(*delta), address).tryGet();
 
 			if (AddressTraits::DefaultHeight() == removalHeight) {
 				EXPECT_EQ(0u, delta->size());
@@ -635,29 +820,10 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		EXPECT_EQ(0u, delta->size());
-		EXPECT_FALSE(!!utils::as_const(delta)->tryGet(address));
+		EXPECT_FALSE(!!utils::as_const(delta)->find(address).tryGet());
 	}
 
 	namespace {
-		model::AccountInfo CreateRandomAccountInfoWithKey() {
-			model::AccountInfo info;
-			info.Size = sizeof(model::AccountInfo);
-			info.MosaicsCount = 0;
-
-			info.PublicKeyHeight = Height(124);
-			info.PublicKey = GenerateRandomPublicKey();
-
-			info.AddressHeight = Height(123);
-			info.Address = model::PublicKeyToAddress(info.PublicKey, Network_Identifier);
-			return info;
-		}
-
-		model::AccountInfo CreateRandomAccountInfoWithoutKey() {
-			auto info = CreateRandomAccountInfoWithKey();
-			info.PublicKeyHeight = Height(0);
-			return info;
-		}
-
 		template<typename TCache, typename TCacheQualifier>
 		void AssertCanAccessAllAccountsThroughFindByAddress(TCache& cache, TCacheQualifier qualifier) {
 			// Arrange:
@@ -668,30 +834,30 @@ namespace catapult { namespace cache {
 			auto key5 = GenerateRandomPublicKey();
 			auto address5 = model::PublicKeyToAddress(key5, Network_Identifier);
 
-			auto info6 = CreateRandomAccountInfoWithKey();
-			auto info7 = CreateRandomAccountInfoWithoutKey();
-			auto info8 = CreateRandomAccountInfoWithKey();
-			auto info9 = CreateRandomAccountInfoWithoutKey();
+			auto accountState6 = CreateAccountStateWithRandomAddressAndPublicKey();
+			auto accountState7 = CreateAccountStateWithRandomAddress();
+			auto accountState8 = CreateAccountStateWithRandomAddressAndPublicKey();
+			auto accountState9 = CreateAccountStateWithRandomAddress();
 
 			cache.addAccount(address1, Height(100));
 			cache.addAccount(address3, Height(100));
 			cache.addAccount(key5, Height(100));
 
-			cache.addAccount(info6);
-			cache.addAccount(info7);
+			cache.addAccount(accountState6);
+			cache.addAccount(accountState7);
 
 			// Act + Assert:
 			auto& qualifiedCache = *qualifier(cache);
-			EXPECT_TRUE(!!qualifiedCache.tryGet(address1));
+			EXPECT_TRUE(!!qualifiedCache.find(address1).tryGet());
 			EXPECT_FALSE(qualifiedCache.contains(address2));
-			EXPECT_TRUE(!!qualifiedCache.tryGet(address3));
+			EXPECT_TRUE(!!qualifiedCache.find(address3).tryGet());
 			EXPECT_FALSE(qualifiedCache.contains(address4));
-			EXPECT_TRUE(!!qualifiedCache.tryGet(address5)); // added by key but accessible via address
+			EXPECT_TRUE(!!qualifiedCache.find(address5).tryGet()); // added by key but accessible via address
 
-			EXPECT_TRUE(!!qualifiedCache.tryGet(info6.Address));
-			EXPECT_TRUE(!!qualifiedCache.tryGet(info7.Address));
-			EXPECT_FALSE(qualifiedCache.contains(info8.Address));
-			EXPECT_FALSE(qualifiedCache.contains(info9.Address));
+			EXPECT_TRUE(!!qualifiedCache.find(accountState6.Address).tryGet());
+			EXPECT_TRUE(!!qualifiedCache.find(accountState7.Address).tryGet());
+			EXPECT_FALSE(qualifiedCache.contains(accountState8.Address));
+			EXPECT_FALSE(qualifiedCache.contains(accountState9.Address));
 		}
 
 		template<typename TCache, typename TCacheQualifier>
@@ -704,30 +870,30 @@ namespace catapult { namespace cache {
 			auto key5 = GenerateRandomPublicKey();
 			auto address5 = model::PublicKeyToAddress(key5, Network_Identifier);
 
-			auto info6 = CreateRandomAccountInfoWithKey();
-			auto info7 = CreateRandomAccountInfoWithoutKey();
-			auto info8 = CreateRandomAccountInfoWithKey();
-			auto info9 = CreateRandomAccountInfoWithoutKey();
+			auto accountState6 = CreateAccountStateWithRandomAddressAndPublicKey();
+			auto accountState7 = CreateAccountStateWithRandomAddress();
+			auto accountState8 = CreateAccountStateWithRandomAddressAndPublicKey();
+			auto accountState9 = CreateAccountStateWithRandomAddress();
 
 			cache.addAccount(key1, Height(100));
 			cache.addAccount(key3, Height(100));
 			cache.addAccount(address5, Height(100));
 
-			cache.addAccount(info6);
-			cache.addAccount(info7);
+			cache.addAccount(accountState6);
+			cache.addAccount(accountState7);
 
 			// Act + Assert:
 			auto& qualifiedCache = *qualifier(cache);
-			EXPECT_TRUE(!!qualifiedCache.tryGet(key1));
+			EXPECT_TRUE(!!qualifiedCache.find(key1).tryGet());
 			EXPECT_FALSE(qualifiedCache.contains(key2));
-			EXPECT_TRUE(!!qualifiedCache.tryGet(key3));
+			EXPECT_TRUE(!!qualifiedCache.find(key3).tryGet());
 			EXPECT_FALSE(qualifiedCache.contains(key4));
 			EXPECT_FALSE(qualifiedCache.contains(key5)); // only added via address
 
-			EXPECT_TRUE(!!qualifiedCache.tryGet(info6.PublicKey));
-			EXPECT_FALSE(qualifiedCache.contains(info7.PublicKey)); // only added via address
-			EXPECT_FALSE(qualifiedCache.contains(info8.PublicKey));
-			EXPECT_FALSE(qualifiedCache.contains(info9.PublicKey));
+			EXPECT_TRUE(!!qualifiedCache.find(accountState6.PublicKey).tryGet());
+			EXPECT_FALSE(qualifiedCache.contains(accountState7.PublicKey)); // only added via address
+			EXPECT_FALSE(qualifiedCache.contains(accountState8.PublicKey));
+			EXPECT_FALSE(qualifiedCache.contains(accountState9.PublicKey));
 		}
 	}
 
@@ -777,135 +943,14 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region addAccount (AccountInfo)
-
-	namespace {
-		// inconsistent because the address and public key are not related
-		auto CreateInconsistentAccountInfo() {
-			model::AccountInfo info;
-			info.Size = sizeof(model::AccountInfo);
-			info.Address = test::GenerateRandomAddress();
-			info.PublicKey = GenerateRandomPublicKey();
-			info.PublicKeyHeight = Height(123);
-			info.Importances[0] = Importance(421);
-			info.ImportanceHeights[0] = model::ImportanceHeight(1);
-			info.MosaicsCount = 0;
-			return info;
-		}
-
-		void AssertEqual(const model::AccountInfo& expected, const state::AccountState& actual, const char* message) {
-			// Assert:
-			EXPECT_EQ(expected.Address, actual.Address) << message;
-			EXPECT_EQ(expected.PublicKey, actual.PublicKey) << message;
-			EXPECT_EQ(expected.PublicKeyHeight, actual.PublicKeyHeight) << message;
-			EXPECT_EQ(expected.Importances[0], actual.ImportanceInfo.current()) << message;
-			EXPECT_EQ(0u, actual.Balances.size()) << message;
-		}
-	}
-
-	TEST(TEST_CLASS, CanAddAccountViaAccountInfoWithoutPublicKey) {
-		// Arrange: note that public key height is 0
-		auto info = CreateInconsistentAccountInfo();
-		info.PublicKeyHeight = Height(0);
-
-		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
-		auto delta = cache.createDelta();
-
-		// Act:
-		const auto& accountState = delta->addAccount(info);
-		const auto* pAccountStateFromAddress = AddressTraits::TryGet(*delta, info.Address);
-		const auto* pAccountStateFromKey = PublicKeyTraits::TryGet(*delta, info.PublicKey);
-
-		// Assert:
-		// - info properties should have been copied into the state
-		// - state is only accessible by address because public key height is 0
-		ASSERT_TRUE(!!pAccountStateFromAddress);
-		EXPECT_FALSE(!!pAccountStateFromKey);
-
-		AssertEqual(info, accountState, "accountState");
-		AssertEqual(info, *pAccountStateFromAddress, "pAccountStateFromAddress");
-	}
-
-	TEST(TEST_CLASS, CanAddAccountViaAccountInfoWithPublicKey) {
-		// Arrange: note that public key height is not 0
-		auto info = CreateInconsistentAccountInfo();
-		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
-		auto delta = cache.createDelta();
-
-		// Act:
-		const auto& accountState = delta->addAccount(info);
-		const auto* pAccountStateFromAddress = AddressTraits::TryGet(*delta, info.Address);
-		const auto* pAccountStateFromKey = PublicKeyTraits::TryGet(*delta, info.PublicKey);
-
-		// Assert:
-		// - info properties should have been copied into the state
-		// - state is accessible by address and public key (note that info mapping, if present, is trusted)
-		ASSERT_TRUE(!!pAccountStateFromAddress);
-		ASSERT_TRUE(!!pAccountStateFromKey);
-
-		AssertEqual(info, accountState, "accountState");
-		AssertEqual(info, *pAccountStateFromAddress, "pAccountStateFromAddress");
-		AssertEqual(info, *pAccountStateFromKey, "pAccountStateFromKey");
-	}
-
-	namespace {
-		template<typename TAdd>
-		void AssertAddAccountViaInfoDoesNotOverrideKnownAccounts(TAdd add) {
-			// Arrange: create an info
-			auto info = CreateRandomAccountInfoWithKey();
-			info.Importances[0] = Importance(777);
-
-			AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
-			auto delta = cache.createDelta();
-
-			// Act: add the info using add and set importance to 123
-			auto& addState1 = add(*delta, info);
-			addState1.ImportanceInfo.set(Importance(123), model::ImportanceHeight(1));
-
-			// - add the info again (with importance 777)
-			const auto& addState2 = delta->addAccount(info);
-
-			// - get the info from the cache
-			const auto* pAccountState = delta->tryGet(info.Address);
-
-			// Assert: the second add had no effect (the importance is still 123)
-			ASSERT_TRUE(!!pAccountState);
-			EXPECT_EQ(&addState1, pAccountState);
-			EXPECT_EQ(&addState2, pAccountState);
-			EXPECT_EQ(Importance(123), pAccountState->ImportanceInfo.current());
-		}
-	}
-
-	TEST(TEST_CLASS, AddAccountViaInfoDoesNotOverrideKnownAccounts_Address) {
-		// Assert:
-		AssertAddAccountViaInfoDoesNotOverrideKnownAccounts([](auto& delta, const auto& info) -> state::AccountState& {
-			return delta.addAccount(info.Address, info.AddressHeight);
-		});
-	}
-
-	TEST(TEST_CLASS, AddAccountViaInfoDoesNotOverrideKnownAccounts_PublicKey) {
-		// Assert:
-		AssertAddAccountViaInfoDoesNotOverrideKnownAccounts([](auto& delta, const auto& info) -> state::AccountState& {
-			return delta.addAccount(info.PublicKey, info.PublicKeyHeight);
-		});
-	}
-
-	TEST(TEST_CLASS, AddAccountViaInfoDoesNotOverrideKnownAccounts_Info) {
-		// Assert:
-		AssertAddAccountViaInfoDoesNotOverrideKnownAccounts([](auto& delta, const auto& info) -> state::AccountState& {
-			return delta.addAccount(info);
-		});
-	}
-
-	// endregion
-
 	// region highValueAddresses
 
 	namespace {
 		std::vector<Address> AddAccountsWithBalances(AccountStateCacheDelta& delta, const std::vector<Amount>& balances) {
 			auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
 			for (auto i = 0u; i < balances.size(); ++i) {
-				auto& accountState = delta.addAccount(addresses[i], Height(1));
+				delta.addAccount(addresses[i], Height(1));
+				auto& accountState = delta.find(addresses[i]).get();
 				accountState.Balances.credit(Xem_Id, balances[i]);
 			}
 
@@ -925,103 +970,91 @@ namespace catapult { namespace cache {
 			cache.commit();
 
 			// Act: run the test
-			action(addresses, delta);
+			action(addresses, delta, cache.createView());
 		}
 	}
 
 	TEST(TEST_CLASS, HighValueAddressesReturnsEmptySetWhenNoAccountsMeetCriteria) {
 		// Arrange: add 0/3 with sufficient balance
 		auto balances = std::vector<Amount>{ Amount(999'999), Amount(1'000), Amount(1) };
-		RunHighValueAddressesTest(balances, [](const auto&, const auto& delta) {
-			// Act:
-			auto highValueAddresses = delta->highValueAddresses();
-
-			// Assert:
-			EXPECT_TRUE(highValueAddresses.empty());
+		RunHighValueAddressesTest(balances, [](const auto&, const auto& delta, const auto& view) {
+			// Act + Assert:
+			EXPECT_TRUE(delta->highValueAddresses().empty());
+			EXPECT_TRUE(view->highValueAddresses().empty());
 		});
 	}
 
 	TEST(TEST_CLASS, HighValueAddressesReturnsOriginalAccountsMeetingCriteria) {
 		// Arrange: add 2/3 accounts with sufficient balance
 		auto balances = std::vector<Amount>{ Amount(1'100'000), Amount(900'000), Amount(1'000'000) };
-		RunHighValueAddressesTest(balances, [](const auto& addresses, const auto& delta) {
-			// Act:
-			auto highValueAddresses = delta->highValueAddresses();
-
-			// Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses);
+		RunHighValueAddressesTest(balances, [](const auto& addresses, const auto& delta, const auto& view) {
+			// Act + Assert:
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), delta->highValueAddresses());
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), view->highValueAddresses());
 		});
 	}
 
 	TEST(TEST_CLASS, HighValueAddressesReturnsAddedAccountsMeetingCriteria) {
 		// Arrange:
-		RunHighValueAddressesTest({}, [](const auto&, auto& delta) {
+		RunHighValueAddressesTest({}, [](const auto&, auto& delta, const auto& view) {
 			// - add 2/3 accounts with sufficient balance (uncommitted)
 			auto balances = std::vector<Amount>{ Amount(1'100'000), Amount(900'000), Amount(1'000'000) };
 			auto addresses = AddAccountsWithBalances(*delta, balances);
 
-			// Act:
-			auto highValueAddresses = delta->highValueAddresses();
-
-			// Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses);
+			// Act + Assert:
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), delta->highValueAddresses());
+			EXPECT_TRUE(view->highValueAddresses().empty());
 		});
 	}
 
 	TEST(TEST_CLASS, HighValueAddressesReturnsModifiedAccountsMeetingCriteria) {
 		// Arrange: add 1/3 accounts with sufficient balance
 		auto balances = std::vector<Amount>{ Amount(1'100'000 - 1), Amount(900'000 - 1), Amount(1'000'000 - 1) };
-		RunHighValueAddressesTest(balances, [](const auto& addresses, auto& delta) {
+		RunHighValueAddressesTest(balances, [](const auto& addresses, auto& delta, const auto& view) {
 			// - increment balances of all accounts (this will make 2/3 have sufficient balance)
 			for (const auto& address : addresses)
-				delta->get(address).Balances.credit(Xem_Id, Amount(1));
+				delta->find(address).get().Balances.credit(Xem_Id, Amount(1));
 
-			// Act:
-			auto highValueAddresses = delta->highValueAddresses();
-
-			// Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses);
+			// Act + Assert:
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), delta->highValueAddresses());
+			EXPECT_EQ(model::AddressSet({ addresses[0] }), view->highValueAddresses());
 		});
 	}
 
 	TEST(TEST_CLASS, HighValueAddressesDoesNotReturnRemovedAccountsMeetingCriteria) {
 		// Arrange: add 2/3 accounts with sufficient balance
 		auto balances = std::vector<Amount>{ Amount(1'100'000), Amount(900'000), Amount(1'000'000) };
-		RunHighValueAddressesTest(balances, [](const auto& addresses, auto& delta) {
+		RunHighValueAddressesTest(balances, [](const auto& addresses, auto& delta, const auto& view) {
 			// - remove high value accounts
 			delta->queueRemove(addresses[0], Height(1));
 			delta->queueRemove(addresses[2], Height(1));
 			delta->commitRemovals();
 
-			// Act:
-			auto highValueAddresses = delta->highValueAddresses();
-
-			// Assert:
-			EXPECT_TRUE(highValueAddresses.empty());
+			// Act + Assert:
+			EXPECT_TRUE(delta->highValueAddresses().empty());
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), view->highValueAddresses());
 		});
 	}
 
 	TEST(TEST_CLASS, HighValueAddressesReturnsAllAccountsMeetingCriteria) {
 		// Arrange: add 3/5 accounts with sufficient balance [3 match]
 		auto balances = std::vector<Amount>{ Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000), Amount(1'200'000) };
-		RunHighValueAddressesTest(balances, [](const auto& addresses, auto& delta) {
+		RunHighValueAddressesTest(balances, [](const auto& addresses, auto& delta, const auto& view) {
 			// - add 2/3 accounts with sufficient balance (uncommitted) [5 match]
 			auto uncommittedAddresses = AddAccountsWithBalances(*delta, { Amount(1'100'000), Amount(900'000), Amount(1'000'000) });
 
 			// - modify two [5 match]
-			delta->get(addresses[1]).Balances.credit(Xem_Id, Amount(100'000));
-			delta->get(addresses[4]).Balances.debit(Xem_Id, Amount(200'001));
+			delta->find(addresses[1]).get().Balances.credit(Xem_Id, Amount(100'000));
+			delta->find(addresses[4]).get().Balances.debit(Xem_Id, Amount(200'001));
 
 			// - delete two [3 match]
 			delta->queueRemove(addresses[2], Height(1));
 			delta->queueRemove(uncommittedAddresses[0], Height(1));
 			delta->commitRemovals();
 
-			// Act:
-			auto highValueAddresses = delta->highValueAddresses();
-
-			// Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[1], uncommittedAddresses[2] }), highValueAddresses);
+			// Act + Assert:
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[1], uncommittedAddresses[2] }), delta->highValueAddresses());
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), view->highValueAddresses());
 		});
 	}
 
@@ -1046,8 +1079,8 @@ namespace catapult { namespace cache {
 			auto uncommittedAddresses = AddAccountsWithBalances(*delta, { Amount(1'100'000), Amount(900'000), Amount(1'000'000) });
 
 			// - modify two [5 match]
-			delta->get(addresses[1]).Balances.credit(Xem_Id, Amount(100'000));
-			delta->get(addresses[4]).Balances.debit(Xem_Id, Amount(200'001));
+			delta->find(addresses[1]).get().Balances.credit(Xem_Id, Amount(100'000));
+			delta->find(addresses[4]).get().Balances.debit(Xem_Id, Amount(200'001));
 
 			// - delete two [3 match]
 			delta->queueRemove(addresses[2], Height(1));
@@ -1058,35 +1091,30 @@ namespace catapult { namespace cache {
 		// - create a new delta and get addresses from it
 		{
 			auto delta = cache.createDelta();
-
-			// Act:
-			auto highValueAddresses = delta->highValueAddresses();
+			auto view = cache.createView();
 
 			// Assert: only original accounts with highValue addresses are returned
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), highValueAddresses);
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), delta->highValueAddresses());
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), view->highValueAddresses());
 		}
 	}
 
-	TEST(TEST_CLASS, CacheViewExposesHighValueAddressesSize) {
+	// endregion
+
+	// region cache init
+
+	TEST(TEST_CLASS, CanSpecifyInitialValuesViaInit) {
 		// Arrange:
-		auto options = Default_Cache_Options;
-		options.MinHighValueAccountBalance = Amount(1'000'000);
-		AccountStateCache cache(CacheConfiguration(), options);
-		{
-			auto delta = cache.createDelta();
-			auto& addedAccount1 = delta->addAccount(test::GenerateRandomData<Address_Decoded_Size>(), Height());
-			addedAccount1.Balances.credit(Xem_Id, Amount(1'000'000));
-			auto& addedAccount2 = delta->addAccount(test::GenerateRandomData<Address_Decoded_Size>(), Height());
-			addedAccount2.Balances.credit(Xem_Id, Amount(500'000));
+		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
+		auto addresses = test::GenerateRandomDataVector<Address>(3);
+		auto addressSet = model::AddressSet(addresses.cbegin(), addresses.cend());
 
-			// Sanity:
-			EXPECT_EQ(1u, delta->highValueAddresses().size());
+		// Act:
+		cache.init(model::AddressSet(addressSet));
 
-			cache.commit();
-		}
-
-		// Act + Assert:
-		EXPECT_EQ(1u, cache.createView()->highValueAddressesSize());
+		// Assert:
+		auto view = cache.createView();
+		EXPECT_EQ(addressSet, view->highValueAddresses());
 	}
 
 	// endregion

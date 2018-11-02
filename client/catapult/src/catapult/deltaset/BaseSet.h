@@ -21,6 +21,7 @@
 #pragma once
 #include "BaseSetCommitPolicy.h"
 #include "BaseSetDefaultTraits.h"
+#include "BaseSetFindIterator.h"
 #include <memory>
 
 namespace catapult {
@@ -56,6 +57,8 @@ namespace catapult { namespace deltaset {
 		using FindTraits = FindTraitsT<ElementType, TSetTraits::AllowsNativeValueModification>;
 		using DeltaType = BaseSetDelta<TElementTraits, TSetTraits>;
 
+		using FindConstIterator = BaseSetFindIterator<FindTraits, TSetTraits>;
+
 	public:
 		/// Creates a base set.
 		/// \a args are forwarded to the underlying container.
@@ -76,9 +79,9 @@ namespace catapult { namespace deltaset {
 
 		/// Searches for \a key in this set.
 		/// Returns a pointer to the matching element if it is found or \c nullptr if it is not found.
-		typename FindTraits::ConstResultType find(const KeyType& key) const {
+		FindConstIterator find(const KeyType& key) const {
 			auto iter = m_elements.find(key);
-			return m_elements.cend() != iter ? FindTraits::ToResult(TSetTraits::ToValue(*iter)) : nullptr;
+			return m_elements.cend() != iter ? FindConstIterator(std::move(iter)) : FindConstIterator();
 		}
 
 		/// Searches for \a key in this set.

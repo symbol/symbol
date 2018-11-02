@@ -21,6 +21,7 @@
 #include "CacheTestUtils.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache/SubCachePluginAdapter.h"
+#include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheStorage.h"
 #include "catapult/cache_core/BlockDifficultyCacheStorage.h"
 #include "catapult/model/BlockChainConfiguration.h"
@@ -45,13 +46,18 @@ namespace catapult { namespace test {
 	void CoreSystemCacheFactory::CreateSubCaches(
 			const model::BlockChainConfiguration& config,
 			std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches) {
+		CreateSubCaches(config, cache::CacheConfiguration(), subCaches);
+	}
+
+	void CoreSystemCacheFactory::CreateSubCaches(
+			const model::BlockChainConfiguration& config,
+			const cache::CacheConfiguration& cacheConfig,
+			std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches) {
 		using namespace cache;
 
-		subCaches[AccountStateCache::Id] = MakeSubCachePlugin<AccountStateCache, AccountStateCacheStorage>(AccountStateCacheTypes::Options{
-			config.Network.Identifier,
-			config.ImportanceGrouping,
-			config.MinHarvesterBalance
-		});
+		subCaches[AccountStateCache::Id] = MakeSubCachePluginWithCacheConfiguration<AccountStateCache, AccountStateCacheStorage>(
+				cacheConfig,
+				AccountStateCacheTypes::Options{ config.Network.Identifier, config.ImportanceGrouping, config.MinHarvesterBalance });
 
 		subCaches[BlockDifficultyCache::Id] = MakeConfigurationFreeSubCachePlugin<BlockDifficultyCache, BlockDifficultyCacheStorage>(
 				CalculateDifficultyHistorySize(config));
@@ -65,6 +71,14 @@ namespace catapult { namespace test {
 
 	cache::CatapultCache CreateEmptyCatapultCache(const model::BlockChainConfiguration& config) {
 		return CreateEmptyCatapultCache<CoreSystemCacheFactory>(config);
+	}
+
+	cache::CatapultCache CreateEmptyCatapultCache(
+			const model::BlockChainConfiguration& config,
+			const cache::CacheConfiguration& cacheConfig) {
+		std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(2);
+		CoreSystemCacheFactory::CreateSubCaches(config, cacheConfig, subCaches);
+		return cache::CatapultCache(std::move(subCaches));
 	}
 
 	cache::CatapultCache CreateCatapultCacheWithMarkerAccount() {

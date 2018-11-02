@@ -59,8 +59,12 @@ namespace catapult { namespace mongo {
 		// 3. execute the nemesis block
 		auto pEntityObserver = extensions::CreateEntityObserver(m_pluginManager);
 		auto pNemesisBlockElement = m_sourceStorage.loadBlockElement(Height(1));
-		extensions::NemesisBlockLoader loader(m_pluginManager.transactionRegistry(), *pNotificationPublisher, *pEntityObserver);
-		loader.execute(m_config, *pNemesisBlockElement, *pCacheDelta);
+		extensions::NemesisBlockLoader loader(
+				*pCacheDelta,
+				m_pluginManager.transactionRegistry(),
+				*pNotificationPublisher,
+				*pEntityObserver);
+		loader.execute(m_config, *pNemesisBlockElement);
 
 		// 4. save the cache state externally (into mongo)
 		m_externalCacheStorage.saveDelta(*pCacheDelta);

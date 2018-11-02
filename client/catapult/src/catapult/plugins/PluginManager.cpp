@@ -39,9 +39,13 @@ namespace catapult { namespace plugins {
 	}
 
 	cache::CacheConfiguration PluginManager::cacheConfig(const std::string& name) const {
-		return m_storageConfig.PreferCacheDatabase
-				? cache::CacheConfiguration((boost::filesystem::path(m_storageConfig.CacheDatabaseDirectory) / name).generic_string())
-				: cache::CacheConfiguration();
+		if (!m_storageConfig.PreferCacheDatabase)
+			return cache::CacheConfiguration();
+
+		return cache::CacheConfiguration(
+				(boost::filesystem::path(m_storageConfig.CacheDatabaseDirectory) / name).generic_string(),
+				m_storageConfig.MaxCacheDatabaseWriteBatchSize,
+				m_config.ShouldEnableVerifiableState ? cache::PatriciaTreeStorageMode::Enabled : cache::PatriciaTreeStorageMode::Disabled);
 	}
 
 	// endregion
@@ -59,6 +63,10 @@ namespace catapult { namespace plugins {
 	// endregion
 
 	// region cache
+
+	void PluginManager::addCacheSupport(std::unique_ptr<cache::SubCachePlugin>&& pSubCachePlugin) {
+		m_cacheBuilder.add(std::move(pSubCachePlugin));
+	}
 
 	cache::CatapultCache PluginManager::createCache() {
 		return m_cacheBuilder.build();
@@ -154,10 +162,46 @@ namespace catapult { namespace plugins {
 
 	// endregion
 
+	// region resolvers
+
+	void PluginManager::addMosaicResolver(const MosaicResolver& resolver) {
+		m_mosaicResolvers.push_back(resolver);
+	}
+
+	void PluginManager::addAddressResolver(const AddressResolver& resolver) {
+		m_addressResolvers.push_back(resolver);
+	}
+
+	namespace {
+		template<typename TResolved, typename TResolvers>
+		auto BuildResolver(const TResolvers& resolvers) {
+			return [resolvers](const auto& unresolved) {
+				TResolved resolved;
+				for (const auto& resolver : resolvers) {
+					if (resolver(unresolved, resolved))
+						return resolved;
+				}
+
+				return model::PublisherContext().resolve(unresolved);
+			};
+		}
+	}
+
+	PluginManager::AggregateMosaicResolver PluginManager::createMosaicResolver() const {
+		return BuildResolver<MosaicId>(m_mosaicResolvers);
+	}
+
+	PluginManager::AggregateAddressResolver PluginManager::createAddressResolver() const {
+		return BuildResolver<Address>(m_addressResolvers);
+	}
+
+	// endregion
+
 	// region publisher
 
 	PluginManager::PublisherPointer PluginManager::createNotificationPublisher(model::PublicationMode mode) const {
-		return model::CreateNotificationPublisher(m_transactionRegistry, mode);
+		model::PublisherContext publisherContext(createMosaicResolver(), createAddressResolver());
+		return model::CreateNotificationPublisher(m_transactionRegistry, publisherContext, mode);
 	}
 
 	// endregion

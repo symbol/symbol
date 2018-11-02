@@ -42,8 +42,7 @@ namespace catapult { namespace sync {
 			auto& nodes = state.nodes();
 
 			auto serviceId = ionet::ServiceIdentifier(0x53594E43);
-			auto selector = extensions::CreateNodeSelector(serviceId, ionet::NodeRoles::Peer, connectionsConfig, nodes);
-			auto task = extensions::CreateConnectPeersTask(nodes, packetWriters, serviceId, selector);
+			auto task = extensions::CreateConnectPeersTask(nodes, packetWriters, serviceId, ionet::NodeRoles::Peer, connectionsConfig);
 			task.Name += " for service Sync";
 			return task;
 		}
@@ -61,8 +60,7 @@ namespace catapult { namespace sync {
 			auto chainSynchronizer = chain::CreateChainSynchronizer(
 					api::CreateLocalChainApi(
 							state.storage(),
-							[&score = state.score()]() { return score.get(); },
-							config.Node.MaxBlocksPerSyncAttempt),
+							[&score = state.score()]() { return score.get(); }),
 					CreateChainSynchronizerConfiguration(config),
 					state.hooks().completionAwareBlockRangeConsumerFactory()(Sync_Source));
 

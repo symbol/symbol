@@ -40,7 +40,8 @@ namespace catapult { namespace validators {
 			return ValidationResult::Success;
 		}
 
-		const auto& multisigEntry = multisigCache.get(notification.Signer);
+		auto multisigIter = multisigCache.find(notification.Signer);
+		const auto& multisigEntry = multisigIter.get();
 		for (auto i = 0u; i < notification.ModificationsCount; ++i) {
 			auto isCosignatory = multisigEntry.hasCosignatory(pModifications[i].CosignatoryPublicKey);
 			auto isEnablingCosignatory = model::CosignatoryModificationType::Add == pModifications[i].ModificationType;

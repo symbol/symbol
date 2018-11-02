@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "KeySerializers.h"
 #include "RdbColumnContainer.h"
 #include "RocksDatabase.h"
 #include "catapult/exceptions.h"
@@ -28,7 +29,7 @@ namespace catapult { namespace cache {
 
 	/// Typed container adapter that wraps column.
 	template<typename TDescriptor, typename TContainer = RdbColumnContainer>
-	class RdbTypedColumnContainer {
+	class RdbTypedColumnContainer : public TContainer {
 	public:
 		using KeyType = typename TDescriptor::KeyType;
 		using ValueType = typename TDescriptor::ValueType;
@@ -61,7 +62,7 @@ namespace catapult { namespace cache {
 
 				if (!m_pStorage) {
 					auto value = TDescriptor::Serializer::DeserializeValue(m_iterator.buffer());
-					m_pStorage = std::make_unique<StorageType>(TDescriptor::GetKeyFromValue(value), value);
+					m_pStorage = std::make_unique<StorageType>(TDescriptor::ToStorage(value));
 				}
 
 				return *m_pStorage;
@@ -78,10 +79,19 @@ namespace catapult { namespace cache {
 				return m_iterator;
 			}
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4702) /* "unreachable code" triggered by IdentifierGroupCacheUtilsTests.cpp and CacheMixinsTests.cpp */
+#endif
+
 			/// Returns reference to underlying db iterator.
 			RdbDataIterator& dbIterator() {
 				return m_iterator;
 			}
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 		private:
 			RdbDataIterator m_iterator;
@@ -91,49 +101,52 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a container around \a database and \a columnId.
 		template<typename TDatabase = RocksDatabase>
-		RdbTypedColumnContainer(TDatabase& database, size_t columnId) : m_container(database, columnId)
+		RdbTypedColumnContainer(TDatabase& database, size_t columnId) : TContainer(database, columnId)
 		{}
 
 	public:
-		/// Returns size of the container.
-		size_t size() const {
-			return m_container.size();
-		}
-
 		/// Returns \c true if container is empty.
 		bool empty() const {
-			return 0 == m_container.size();
+			return 0 == TContainer::size();
 		}
 
-		/// Sets the container size to \a newSize.
-		void saveSize(size_t newSize) {
-			m_container.saveSize(newSize);
-		}
-
+	public:
 		/// Inserts \a element into container.
 		void insert(const StorageType& element) {
-			using Serializer = typename TDescriptor::Serializer;
-			m_container.insert(Serializer::SerializeKey(TDescriptor::GetKeyFromElement(element)), Serializer::SerializeValue(element));
+			TContainer::insert(
+					SerializeKey(TDescriptor::ToKey(element)),
+					TDescriptor::Serializer::SerializeValue(TDescriptor::ToValue(element)));
 		}
 
 		/// Finds element with \a key. Returns cend() if \a key has not been found.
-		const_iterator find(const KeyType& key) {
+		const_iterator find(const KeyType& key) const {
 			const_iterator iter;
-			m_container.find(TDescriptor::Serializer::SerializeKey(key), iter.dbIterator());
+			TContainer::find(SerializeKey(key), iter.dbIterator());
 			return iter;
 		}
 
+		/// Prunes elements with keys smaller than \a key. Returns number of pruned elements.
+		size_t prune(const KeyType& key) {
+			return TContainer::prune(TDescriptor::Serializer::KeyToBoundary(key));
+		}
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4702) /* "unreachable code" triggered by IdentifierGroupCacheUtilsTests.cpp and CacheMixinsTests.cpp */
+#endif
+
 		/// Removes element with \a key.
 		void remove(const KeyType& key) {
-			m_container.remove(TDescriptor::Serializer::SerializeKey(key));
+			TContainer::remove(SerializeKey(key));
 		}
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 		/// Returns iterator that represents non-existing element.
-		const_iterator cend() {
+		const_iterator cend() const {
 			return const_iterator();
 		}
-
-	private:
-		TContainer m_container;
 	};
 }}

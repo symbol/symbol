@@ -109,6 +109,6 @@ namespace catapult { namespace mongo {
 		// Assert:
 		auto view = dbTransaction.view();
 		EXPECT_EQ(1u, test::GetFieldCount(view));
-		EXPECT_EQ(0x57, test::GetUint32(view, "signer0"));
+		EXPECT_EQ(0x57u, test::GetUint32(view, "signer0"));
 	}
 }}

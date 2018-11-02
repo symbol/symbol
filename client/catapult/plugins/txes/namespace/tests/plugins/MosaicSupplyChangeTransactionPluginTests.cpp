@@ -61,7 +61,7 @@ namespace catapult { namespace plugins {
 		typename TTraits::TransactionType transaction;
 
 		// Act:
-		pPlugin->publish(transaction, sub);
+		test::PublishTransaction(*pPlugin, transaction, sub);
 
 		// Assert:
 		EXPECT_EQ(2u, sub.numNotifications());
@@ -77,7 +77,7 @@ namespace catapult { namespace plugins {
 		transaction.MosaicId = test::GenerateRandomValue<MosaicId>();
 
 		// Act:
-		pPlugin->publish(transaction, sub);
+		test::PublishTransaction(*pPlugin, transaction, sub);
 
 		// Assert:
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
@@ -98,7 +98,7 @@ namespace catapult { namespace plugins {
 		transaction.Delta = Amount(787);
 
 		// Act:
-		pPlugin->publish(transaction, sub);
+		test::PublishTransaction(*pPlugin, transaction, sub);
 
 		// Assert:
 		ASSERT_EQ(1u, sub.numMatchingNotifications());

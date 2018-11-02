@@ -19,7 +19,7 @@
 **/
 
 #include "unbondedpruning/src/HashLockUtils.h"
-#include "plugins/txes/lock/src/model/LockNotifications.h"
+#include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
@@ -48,9 +48,7 @@ namespace catapult { namespace unbondedpruning {
 				for (const auto& hash : m_dependentHashes)
 					sub.notify(model::HashLockNotification(Key(), model::Mosaic(), BlockDuration(), hash));
 
-				// if there are no dependent hashes, raise a different notification that should be ignored
-				if (m_dependentHashes.empty())
-					sub.notify(model::SecretLockHashAlgorithmNotification(model::LockHashAlgorithm::Op_Sha3));
+				// if there are no dependent hashes, don't raise any notifications
 			}
 
 		private:

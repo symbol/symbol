@@ -33,16 +33,11 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertValidationResult(ValidationResult expectedResult, const cache::CatapultCache& cache, const Key& signer) {
 			// Arrange:
-			// - create the validator context
-			auto cacheView = cache.createView();
-			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = test::CreateValidatorContext(Height(), readOnlyCache);
-
 			model::TransactionNotification notification(signer, Hash256(), model::EntityType(), Timestamp());
 			auto pValidator = CreateMultisigPermittedOperationValidator();
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, context);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result);

@@ -19,20 +19,12 @@
 **/
 
 #include "LocalNodeBootstrapper.h"
+#include "PluginUtils.h"
 #include "catapult/plugins/PluginExceptions.h"
 #include "catapult/utils/Logging.h"
 #include <boost/exception_ptr.hpp>
 
 namespace catapult { namespace extensions {
-
-	namespace {
-		plugins::StorageConfiguration CreateStorageConfiguration(const config::LocalNodeConfiguration& config) {
-			plugins::StorageConfiguration storageConfig;
-			storageConfig.PreferCacheDatabase = config.Node.ShouldUseCacheDatabaseStorage;
-			storageConfig.CacheDatabaseDirectory = (boost::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
-			return storageConfig;
-		}
-	}
 
 	LocalNodeBootstrapper::LocalNodeBootstrapper(
 			const config::LocalNodeConfiguration& config,

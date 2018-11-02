@@ -34,66 +34,18 @@ namespace catapult { namespace utils {
 
 #define TEST_CLASS StackLoggerTests
 
-	TEST(TEST_CLASS, ElapsedMillisIsInitiallyZero) {
-		// Arrange:
-		uint64_t elapsedMillis;
-		test::RunDeterministicOperation([&elapsedMillis]() {
-			StackLogger stackLogger("trace", LogLevel::Trace);
-
-			// Act:
-			elapsedMillis = stackLogger.millis();
-		});
-
-		// Assert:
-		EXPECT_EQ(0u, elapsedMillis);
-	}
-
-	TEST(TEST_CLASS, ElapsedMillisIncreasesOverTime) {
-		// Arrange:
-		StackLogger stackLogger("trace", LogLevel::Trace);
-
-		// Act:
-		test::Sleep(5);
-		auto elapsedMillis1 = stackLogger.millis();
-		test::Sleep(10);
-		auto elapsedMillis2 = stackLogger.millis();
-
-		// Assert:
-		EXPECT_LE(0u, elapsedMillis1);
-		EXPECT_LE(elapsedMillis1, elapsedMillis2);
-	}
+	// region StackLogger
 
 	namespace {
 		constexpr auto Sleep_Millis = 5u;
 		constexpr auto Epsilon_Millis = 1u;
 
-		constexpr auto IsWithinSleepEpsilonRange(uint64_t millis) {
-			return Sleep_Millis - Epsilon_Millis <= millis && millis <= Sleep_Millis + Epsilon_Millis;
+		bool IsWithinSleepEpsilonRange(uint64_t millis, uint64_t multiplier = 1) {
+			auto expectedMillis = Sleep_Millis * multiplier;
+			auto epsilonMillis = Epsilon_Millis * multiplier;
+			return expectedMillis - epsilonMillis <= millis && millis <= expectedMillis + epsilonMillis;
 		}
-	}
 
-	TEST(TEST_CLASS, ElapsedMillisCanBeAccessedAtPointInTime) {
-		// Arrange: non-deterministic due to sleep
-		test::RunNonDeterministicTest("specific elapsed time", []() {
-			StackLogger stackLogger("trace", LogLevel::Trace);
-
-			// - wait
-			test::Sleep(Sleep_Millis);
-
-			// Act:
-			auto elapsedMillis = stackLogger.millis();
-			if (!IsWithinSleepEpsilonRange(elapsedMillis)) {
-				CATAPULT_LOG(debug) << "elapsedMillis (" << elapsedMillis << ") outside of expected range";
-				return false;
-			}
-
-			// Assert:
-			EXPECT_TRUE(IsWithinSleepEpsilonRange(elapsedMillis)) << "elapsedMillis: " << elapsedMillis;
-			return true;
-		});
-	}
-
-	namespace {
 		size_t ParseElapsedMillis(const std::string& message) {
 			auto timeEndIndex = message.find("ms");
 			auto timeStartIndex = message.rfind("(", timeEndIndex);
@@ -101,7 +53,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(TEST_CLASS, CanLogStackMessages) {
+	TEST(TEST_CLASS, StackLoggerCanLogStackMessages) {
 		// Arrange: non-deterministic due to sleep
 		test::RunNonDeterministicTest("log stack messages", []() {
 			test::TempFileGuard logFileGuard(test::Test_Log_Filename);
@@ -126,7 +78,7 @@ namespace catapult { namespace utils {
 			if (2u != records.size())
 				return true; // test will fail due to previous EXPECT_EQ
 
-			EXPECT_EQ("<warning> (utils::StackLogger.h@37) pushing scope 'test'", records[0].Message);
+			EXPECT_EQ("<warning> (utils::StackLogger.h@35) pushing scope 'test'", records[0].Message);
 
 			auto elapsedMillis = ParseElapsedMillis(records[1].Message);
 			if (!IsWithinSleepEpsilonRange(elapsedMillis)) {
@@ -135,8 +87,83 @@ namespace catapult { namespace utils {
 			}
 
 			auto elapsedMillisString = " (" + std::to_string(elapsedMillis) + "ms)";
-			EXPECT_EQ("<warning> (utils::StackLogger.h@47) popping scope 'test'" + elapsedMillisString, records[1].Message);
+			EXPECT_EQ("<warning> (utils::StackLogger.h@41) popping scope 'test'" + elapsedMillisString, records[1].Message);
 			return true;
 		});
 	}
+
+	// endregion
+
+	// region SlowOperationLogger
+
+	TEST(TEST_CLASS, SlowOperationLoggerDoesNotLogWhenThresholdIsNotExceeded) {
+		// Arrange: non-deterministic due to sleep
+		test::RunNonDeterministicTest("log stack messages", []() {
+			test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+
+			{
+				// Arrange: add a file logger
+				LoggingBootstrapper bootstrapper;
+				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Min));
+
+				// Act: no messages should be logged because threshold is greater than wait
+				{
+					auto threshold = utils::TimeSpan::FromMilliseconds(10 * Sleep_Millis);
+					SlowOperationLogger slowOperationLogger("test", LogLevel::Warning, threshold);
+
+					// - wait
+					test::Sleep(Sleep_Millis);
+				}
+			}
+
+			// Assert:
+			auto records = test::ParseLogLines(logFileGuard.name());
+			if (!records.empty()) // can be 0 or 1
+				return false;
+
+			EXPECT_TRUE(records.empty());
+			return true;
+		});
+	}
+
+	TEST(TEST_CLASS, SlowOperationLoggerLogsWhenThresholdIsExceeded) {
+		// Arrange: non-deterministic due to sleep
+		test::RunNonDeterministicTest("log stack messages", []() {
+			test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+
+			{
+				// Arrange: add a file logger
+				LoggingBootstrapper bootstrapper;
+				bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Min));
+
+				// Act: messages should be logged because threshold is less than wait
+				{
+					auto threshold = utils::TimeSpan::FromMilliseconds(Sleep_Millis);
+					SlowOperationLogger slowOperationLogger("test", LogLevel::Warning, threshold);
+
+					// - wait
+					test::Sleep(10 * Sleep_Millis);
+				}
+			}
+
+			// Assert:
+			auto records = test::ParseLogLines(logFileGuard.name());
+			if (1u != records.size()) // can be 0 or 1
+				return false;
+
+			EXPECT_EQ(1u, records.size());
+
+			auto elapsedMillis = ParseElapsedMillis(records[0].Message);
+			if (!IsWithinSleepEpsilonRange(elapsedMillis, 10)) {
+				CATAPULT_LOG(debug) << "elapsedMillis (" << elapsedMillis << ") outside of expected range";
+				return false;
+			}
+
+			auto elapsedMillisString = " (" + std::to_string(elapsedMillis) + "ms)";
+			EXPECT_EQ("<warning> (utils::StackLogger.h@64) slow operation detected: 'test'" + elapsedMillisString, records[0].Message);
+			return true;
+		});
+	}
+
+	// endregion
 }}

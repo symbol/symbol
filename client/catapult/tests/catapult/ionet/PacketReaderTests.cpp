@@ -112,9 +112,9 @@ namespace catapult { namespace ionet {
 		auto value3 = *reader.readFixed<uint32_t>();
 
 		// Assert:
-		EXPECT_EQ(0x98562712, value1);
-		EXPECT_EQ(0xAB7528BC, value2);
-		EXPECT_EQ(0x00012352, value3);
+		EXPECT_EQ(0x98562712u, value1);
+		EXPECT_EQ(0xAB7528BCu, value2);
+		EXPECT_EQ(0x00012352u, value3);
 		AssertAllDataConsumed(reader);
 	}
 
@@ -226,7 +226,7 @@ namespace catapult { namespace ionet {
 		const auto& entity2 = *reader.readVariable<model::VerifiableEntity>();
 
 		// Assert:
-		EXPECT_EQ(0x00012234, value1);
+		EXPECT_EQ(0x00012234u, value1);
 		EXPECT_EQ(12u, entity1.Size);
 		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*(pPacket->Data() + 4)), entity1);
 		EXPECT_EQ(0x77FF, value2);

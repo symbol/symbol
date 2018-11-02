@@ -23,7 +23,7 @@
 #include "catapult/ionet/NodeRoles.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
-#include <unordered_set>
+#include <vector>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
 
@@ -120,8 +120,15 @@ namespace catapult { namespace config {
 		/// Accepted security modes of incoming connections initiated by other nodes.
 		ionet::ConnectionSecurityMode IncomingSecurityModes;
 
+		/// Maximum cache database write batch size.
+		utils::FileSize MaxCacheDatabaseWriteBatchSize;
+
+		/// Maximum number of nodes to track in memory.
+		uint32_t MaxTrackedNodes;
+
 		/// Named extensions to enable.
-		std::unordered_set<std::string> Extensions;
+		/// \note Extensions need to registered in deterministic order so that cross extension dependencies can be wired up properly.
+		std::vector<std::string> Extensions;
 
 	public:
 		/// Local node configuration.
@@ -151,6 +158,12 @@ namespace catapult { namespace config {
 
 			/// Maximum connection age.
 			uint16_t MaxConnectionAge;
+
+			/// Maximum connection ban age.
+			uint16_t MaxConnectionBanAge;
+
+			/// Number of consecutive connection failures before a connection is banned.
+			uint16_t NumConsecutiveFailuresBeforeBanning;
 		};
 
 		/// Incoming connections configuration.

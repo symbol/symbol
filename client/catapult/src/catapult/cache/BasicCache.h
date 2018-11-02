@@ -61,7 +61,7 @@ namespace catapult { namespace cache {
 
 		/// Commits all pending changes from \a delta to the underlying storage.
 		void commit(const CacheDeltaType& delta) {
-			Commit(m_set, delta, ContainerPolicy<TBaseSet>());
+			Commit(m_set, delta, typename TBaseSet::IsOrderedSet());
 		}
 
 	private:
@@ -71,26 +71,11 @@ namespace catapult { namespace cache {
 		}
 
 	private:
-		template<typename T>
-		struct ContainerOrderedFlag : public T
-		{};
-
-		template<typename TContainer, typename = void>
-		struct ContainerPolicy
-				: ContainerOrderedFlag<std::false_type>
-		{};
-
-		template<typename TContainer>
-		struct ContainerPolicy<TContainer, typename utils::traits::enable_if_type<decltype(TContainer::IsOrderedSet::value)>::type>
-				: ContainerOrderedFlag<typename TContainer::IsOrderedSet>
-		{};
-
-	private:
-		static void Commit(TBaseSet& m_set, const CacheDeltaType&, ContainerOrderedFlag<std::false_type>) {
+		static void Commit(TBaseSet& m_set, const CacheDeltaType&, std::false_type) {
 			m_set.commit();
 		}
 
-		static void Commit(TBaseSet& m_set, const CacheDeltaType& delta, ContainerOrderedFlag<std::true_type>) {
+		static void Commit(TBaseSet& m_set, const CacheDeltaType& delta, std::true_type) {
 			m_set.commit(delta.pruningBoundary());
 		}
 

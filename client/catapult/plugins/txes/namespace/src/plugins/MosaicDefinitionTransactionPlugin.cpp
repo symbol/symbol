@@ -32,7 +32,7 @@ namespace catapult { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		auto CreatePublisher(const MosaicRentalFeeConfiguration& config) {
-			return [config](const TTransaction& transaction, NotificationSubscriber& sub) {
+			return [config](const TTransaction& transaction, const PublisherContext&, NotificationSubscriber& sub) {
 				// 1. sink account notification
 				sub.notify(AccountPublicKeyNotification(config.SinkPublicKey));
 
@@ -57,9 +57,5 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	std::unique_ptr<TransactionPlugin> CreateMosaicDefinitionTransactionPlugin(const MosaicRentalFeeConfiguration& config) {
-		return TransactionPluginFactory::Create<MosaicDefinitionTransaction, EmbeddedMosaicDefinitionTransaction>(
-				CreatePublisher<MosaicDefinitionTransaction>(config),
-				CreatePublisher<EmbeddedMosaicDefinitionTransaction>(config));
-	}
+	DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(MosaicDefinition, CreatePublisher, MosaicRentalFeeConfiguration)
 }}

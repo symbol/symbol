@@ -19,7 +19,7 @@
 **/
 
 #include "NodeRequestResult.h"
-#include "PeerConnectResult.h"
+#include "PeerConnectCode.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 
 namespace catapult { namespace net {
@@ -30,8 +30,8 @@ namespace catapult { namespace net {
 #undef ENUM_LIST
 #undef DEFINE_ENUM
 
-#define DEFINE_ENUM PeerConnectResult
-#define ENUM_LIST PEER_CONNECT_RESULT_LIST
+#define DEFINE_ENUM PeerConnectCode
+#define ENUM_LIST PEER_CONNECT_CODE_LIST
 #include "catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM

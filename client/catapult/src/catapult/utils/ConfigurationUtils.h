@@ -21,6 +21,7 @@
 #pragma once
 #include "ConfigurationBag.h"
 #include <unordered_set>
+#include <vector>
 
 namespace catapult { namespace utils {
 
@@ -43,4 +44,8 @@ namespace catapult { namespace utils {
 	/// Extracts all \a section properties from \a bag into an unordered set.
 	/// \note All section properties are expected to be boolean and only ones with \c true values will be included.
 	std::pair<std::unordered_set<std::string>, size_t> ExtractSectionAsUnorderedSet(const ConfigurationBag& bag, const char* section);
+
+	/// Extracts all \a section properties from \a bag into an ordered vector.
+	/// \note All section properties are expected to be boolean and only ones with \c true values will be included.
+	std::pair<std::vector<std::string>, size_t> ExtractSectionAsOrderedVector(const ConfigurationBag& bag, const char* section);
 }}

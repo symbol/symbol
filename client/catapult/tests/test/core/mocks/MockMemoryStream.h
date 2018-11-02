@@ -19,13 +19,13 @@
 **/
 
 #pragma once
-#include "catapult/io/Stream.h"
+#include "catapult/io/BufferInputStreamAdapter.h"
 #include <vector>
 
 namespace catapult { namespace mocks {
 
 	/// Memory-based implementation of input and output stream.
-	class MockMemoryStream final : public io::InputStream, public io::OutputStream {
+	class MockMemoryStream final : public io::BufferInputStreamAdapter<std::vector<uint8_t>>, public io::OutputStream {
 	public:
 		/// Creates a memory stream with \a name and \a buffer.
 		MockMemoryStream(const std::string& name, std::vector<uint8_t>& buffer);
@@ -33,21 +33,15 @@ namespace catapult { namespace mocks {
 	public:
 		void write(const RawBuffer& buffer) override;
 
-		void read(const MutableRawBuffer& buffer) override;
-
 		void flush() override;
 
 	public:
 		/// Returns number of times flush was invoked.
 		size_t numFlushes() const;
 
-		/// Returns read position.
-		size_t position() const;
-
 	private:
 		std::string m_name;
 		std::vector<uint8_t>& m_buffer;
-		mutable size_t m_readPosition;
 		size_t m_flushCount;
 	};
 }}

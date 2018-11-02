@@ -89,7 +89,8 @@ namespace catapult { namespace validators {
 					return m_cosigners.cend() != m_cosigners.find(&publicKey);
 
 				// if the account is a cosignatory only, treat it as non-multisig
-				const auto& multisigEntry = m_multisigCache.get(publicKey);
+				auto multisigIter = m_multisigCache.find(publicKey);
+				const auto& multisigEntry = multisigIter.get();
 				if (multisigEntry.cosignatories().empty())
 					return m_cosigners.cend() != m_cosigners.find(&publicKey);
 

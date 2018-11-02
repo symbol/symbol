@@ -19,6 +19,8 @@
 **/
 
 #pragma once
+#include "catapult/subscribers/NodeSubscriber.h"
+#include <memory>
 
 namespace catapult {
 	namespace extensions { class LocalNodeBootstrapper; }
@@ -29,4 +31,7 @@ namespace catapult { namespace local {
 
 	/// Seeds \a nodes with node information from \a bootstrapper.
 	void SeedNodeContainer(ionet::NodeContainer& nodes, const extensions::LocalNodeBootstrapper& bootstrapper);
+
+	/// Adapts \a nodes to a node subscriber.
+	std::unique_ptr<subscribers::NodeSubscriber> CreateNodeContainerSubscriberAdapter(ionet::NodeContainer& nodes);
 }}

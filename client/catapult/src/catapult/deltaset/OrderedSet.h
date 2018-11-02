@@ -25,6 +25,13 @@
 
 namespace catapult { namespace deltaset {
 
+	/// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements to remove.
+	template<typename TSet, typename X = decltype((*reinterpret_cast<TSet*>(0)).lower_bound(typename TSet::value_type()))>
+	void PruneBaseSet(TSet& elements, const PruningBoundary<typename TSet::value_type>& pruningBoundary) {
+		auto iter = elements.lower_bound(pruningBoundary.value());
+		elements.erase(elements.cbegin(), iter);
+	}
+
 	namespace detail {
 		// region DefaultComparator
 
@@ -53,19 +60,6 @@ namespace catapult { namespace deltaset {
 			typename std::remove_const<typename T::ElementType>::type,
 			OrderedSetDefaultComparator<typename T::ElementType>>;
 
-		/// Selects the prunable set from \a set.
-		template<typename TSet>
-		TSet& SelectPrunableSet(TSet& set) {
-			return set;
-		}
-
-		/// Optionally prunes \a elements using \a pruningBoundary, which indicates the upper bound of elements to remove.
-		template<typename TSet>
-		void PruneBaseSet(TSet& elements, const PruningBoundary<typename TSet::value_type>& pruningBoundary) {
-			auto iter = elements.lower_bound(pruningBoundary.value());
-			elements.erase(elements.cbegin(), iter);
-		}
-
 		/// Policy for committing changes to an ordered set.
 		template<typename TSetTraits>
 		struct OrderedSetCommitPolicy {
@@ -77,7 +71,7 @@ namespace catapult { namespace deltaset {
 				UpdateSet<typename TSetTraits::KeyTraits>(elements, deltas);
 
 				if (pruningBoundary.isSet())
-					PruneBaseSet(SelectPrunableSet(elements), pruningBoundary);
+					PruneBaseSet(elements, pruningBoundary);
 			}
 		};
 	}

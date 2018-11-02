@@ -19,9 +19,11 @@
 **/
 
 #include "catapult/model/NotificationPublisher.h"
+#include "catapult/constants.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/nodeps/NumericTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
@@ -39,7 +41,7 @@ namespace catapult { namespace model {
 			mocks::MockNotificationSubscriber sub;
 
 			auto registry = mocks::CreateDefaultTransactionRegistry(Plugin_Option_Flags);
-			auto pPub = CreateNotificationPublisher(registry, mode);
+			auto pPub = CreateNotificationPublisher(registry, PublisherContext(), mode);
 
 			// Act:
 			auto hash = test::GenerateRandomData<Key_Size>();
@@ -60,7 +62,7 @@ namespace catapult { namespace model {
 			mocks::MockTypedNotificationSubscriber<TNotification> sub;
 
 			auto registry = mocks::CreateDefaultTransactionRegistry(Plugin_Option_Flags);
-			auto pPub = CreateNotificationPublisher(registry);
+			auto pPub = CreateNotificationPublisher(registry, PublisherContext());
 
 			// Act:
 			pPub->publish(model::WeakEntityInfo(entity, hash), sub);
@@ -249,22 +251,38 @@ namespace catapult { namespace model {
 		});
 	}
 
+	TEST(TEST_CLASS, CanRaiseTransactionFeeNotifications) {
+		// Arrange:
+		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto pTransaction = mocks::CreateMockTransaction(12);
+		test::FillWithRandomData(pTransaction->Signer);
+		pTransaction->Fee = Amount(765);
+
+		// Act:
+		PublishOne<BalanceDebitNotification>(*pTransaction, hash, [&signer = pTransaction->Signer](const auto& notification) {
+			// Assert:
+			EXPECT_EQ(signer, notification.Sender);
+			EXPECT_EQ(Xem_Id, notification.MosaicId);
+			EXPECT_EQ(Amount(765), notification.Amount);
+		});
+	}
+
 	TEST(TEST_CLASS, CanRaiseCustomTransactionNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransaction(12);
 
 		// Act:
 		PublishAll(*pTransaction, [&transaction = *pTransaction](const auto& sub) {
-			// Assert: 4 raised by NotificationPublisher, 8 raised by MockTransaction::publish (first is AccountPublicKeyNotification)
-			ASSERT_EQ(4u + 1 + 7, sub.numNotifications());
+			// Assert: 5 raised by NotificationPublisher, 8 raised by MockTransaction::publish (first is AccountPublicKeyNotification)
+			ASSERT_EQ(5u + 1 + 7, sub.numNotifications());
 
-			EXPECT_EQ(mocks::Mock_Observer_1_Notification, sub.notificationTypes()[5]);
-			EXPECT_EQ(mocks::Mock_Validator_1_Notification, sub.notificationTypes()[6]);
-			EXPECT_EQ(mocks::Mock_All_1_Notification, sub.notificationTypes()[7]);
-			EXPECT_EQ(mocks::Mock_Observer_2_Notification, sub.notificationTypes()[8]);
-			EXPECT_EQ(mocks::Mock_Validator_2_Notification, sub.notificationTypes()[9]);
-			EXPECT_EQ(mocks::Mock_All_2_Notification, sub.notificationTypes()[10]);
-			EXPECT_EQ(mocks::Mock_Hash_Notification, sub.notificationTypes()[11]);
+			EXPECT_EQ(mocks::Mock_Observer_1_Notification, sub.notificationTypes()[6]);
+			EXPECT_EQ(mocks::Mock_Validator_1_Notification, sub.notificationTypes()[7]);
+			EXPECT_EQ(mocks::Mock_All_1_Notification, sub.notificationTypes()[8]);
+			EXPECT_EQ(mocks::Mock_Observer_2_Notification, sub.notificationTypes()[9]);
+			EXPECT_EQ(mocks::Mock_Validator_2_Notification, sub.notificationTypes()[10]);
+			EXPECT_EQ(mocks::Mock_All_2_Notification, sub.notificationTypes()[11]);
+			EXPECT_EQ(mocks::Mock_Hash_Notification, sub.notificationTypes()[12]);
 		});
 	}
 
@@ -286,12 +304,13 @@ namespace catapult { namespace model {
 
 		// Act:
 		PublishAll(*pTransaction, PublicationMode::Basic, [&transaction = *pTransaction](const auto& sub) {
-			// Assert: 4 raised by NotificationPublisher, none raised by MockTransaction::publish
-			ASSERT_EQ(4u, sub.numNotifications());
+			// Assert: 5 raised by NotificationPublisher, none raised by MockTransaction::publish
+			ASSERT_EQ(5u, sub.numNotifications());
 			EXPECT_EQ(Core_Register_Account_Public_Key_Notification, sub.notificationTypes()[0]);
 			EXPECT_EQ(Core_Entity_Notification, sub.notificationTypes()[1]);
 			EXPECT_EQ(Core_Transaction_Notification, sub.notificationTypes()[2]);
-			EXPECT_EQ(Core_Signature_Notification, sub.notificationTypes()[3]);
+			EXPECT_EQ(Core_Balance_Debit_Notification, sub.notificationTypes()[3]);
+			EXPECT_EQ(Core_Signature_Notification, sub.notificationTypes()[4]);
 		});
 	}
 
@@ -357,6 +376,36 @@ namespace catapult { namespace model {
 			// Assert: all notifications were suppressed (other entities do not have custom notifications)
 			ASSERT_EQ(0u, sub.numNotifications());
 		});
+	}
+
+	namespace {
+		PublisherContext CreateCustomPublisherContext() {
+			return PublisherContext(
+					[](auto mosaicId) { return MosaicId(mosaicId.unwrap() + 10); },
+					[](const auto& address) { return test::CopyAndXorArray(extensions::CopyToAddress(address)); });
+		}
+	}
+
+	TEST(TEST_CLASS, CanRaiseResolvedNotifications) {
+		// Arrange:
+		mocks::MockTypedNotificationSubscriber<BalanceTransferNotification> sub;
+
+		auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
+			{ MosaicId(123), Amount(1111) }
+		});
+		auto recipientAddress = model::PublicKeyToAddress(pTransaction->Recipient, model::NetworkIdentifier::Mijin_Test);
+
+		auto registry = mocks::CreateDefaultTransactionRegistry(mocks::PluginOptionFlags::Publish_Transfers);
+		auto pPub = CreateNotificationPublisher(registry, CreateCustomPublisherContext());
+
+		// Act:
+		pPub->publish(model::WeakEntityInfo(*pTransaction, Hash256()), sub);
+
+		// Assert:
+		ASSERT_EQ(1u, sub.numMatchingNotifications());
+		const auto& notification = sub.matchingNotifications()[0];
+		EXPECT_EQ(MosaicId(133), notification.MosaicId);
+		EXPECT_EQ(test::CopyAndXorArray(recipientAddress), notification.Recipient);
 	}
 
 	// endregion

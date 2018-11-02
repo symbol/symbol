@@ -19,7 +19,8 @@
 **/
 
 #pragma once
-#include "MultisigCacheTypes.h"
+#include "MultisigBaseSets.h"
+#include "MultisigCacheSerializers.h"
 #include "catapult/cache/CacheMixinAliases.h"
 #include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
@@ -27,7 +28,7 @@
 namespace catapult { namespace cache {
 
 	/// Mixins used by the multisig cache view.
-	using MultisigCacheViewMixins = BasicCacheMixins<MultisigCacheTypes::PrimaryTypes::BaseSetType, MultisigCacheDescriptor>;
+	using MultisigCacheViewMixins = PatriciaTreeCacheMixins<MultisigCacheTypes::PrimaryTypes::BaseSetType, MultisigCacheDescriptor>;
 
 	/// Basic view on top of the multisig cache.
 	class BasicMultisigCacheView
@@ -35,7 +36,8 @@ namespace catapult { namespace cache {
 			, public MultisigCacheViewMixins::Size
 			, public MultisigCacheViewMixins::Contains
 			, public MultisigCacheViewMixins::Iteration
-			, public MultisigCacheViewMixins::ConstAccessor {
+			, public MultisigCacheViewMixins::ConstAccessor
+			, public MultisigCacheViewMixins::PatriciaTreeView {
 	public:
 		using ReadOnlyView = MultisigCacheTypes::CacheReadOnlyType;
 
@@ -46,6 +48,7 @@ namespace catapult { namespace cache {
 				, MultisigCacheViewMixins::Contains(multisigSets.Primary)
 				, MultisigCacheViewMixins::Iteration(multisigSets.Primary)
 				, MultisigCacheViewMixins::ConstAccessor(multisigSets.Primary)
+				, MultisigCacheViewMixins::PatriciaTreeView(multisigSets.PatriciaTree.get())
 		{}
 	};
 

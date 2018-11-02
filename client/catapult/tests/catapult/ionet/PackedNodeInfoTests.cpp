@@ -28,13 +28,15 @@ namespace catapult { namespace ionet {
 
 #define TEST_CLASS PackedNodeInfoTests
 
+	// region sizes
+
 	TEST(TEST_CLASS, PackedConnectionStateHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(ServiceIdentifier) + 4 * sizeof(uint32_t);
+		auto expectedSize = sizeof(ServiceIdentifier) + 6 * sizeof(uint32_t);
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(PackedConnectionState));
-		EXPECT_EQ(20u, sizeof(PackedConnectionState));
+		EXPECT_EQ(28u, sizeof(PackedConnectionState));
 	}
 
 	TEST(TEST_CLASS, PackedNodeInfoHasExpectedSize) {
@@ -49,6 +51,8 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(expectedSize, sizeof(PackedNodeInfo));
 		EXPECT_EQ(41u, sizeof(PackedNodeInfo));
 	}
+
+	// endregion
 
 	// region CalculateRealSize
 
@@ -101,6 +105,35 @@ namespace catapult { namespace ionet {
 	}
 
 	DEFINE_ATTACHMENT_POINTER_TESTS(TEST_CLASS, PackedNodeInfoTraits) // ConnectionStatesPtr
+
+	// endregion
+
+	// region Update
+
+	TEST(TEST_CLASS, CanCopyConnectionStateValuesIntoPackedConnectionState) {
+		// Arrange:
+		auto connectionState = ConnectionState();
+		connectionState.Age = 1;
+		connectionState.NumAttempts = 4;
+		connectionState.NumSuccesses = 3;
+		connectionState.NumFailures = 8;
+		connectionState.NumConsecutiveFailures = 5;
+		connectionState.BanAge = 9;
+
+		// Act:
+		auto packedConnectionState = PackedConnectionState();
+		packedConnectionState.ServiceId = ServiceIdentifier(123);
+		packedConnectionState.Update(connectionState);
+
+		// Assert:
+		EXPECT_EQ(ServiceIdentifier(123), packedConnectionState.ServiceId);
+		EXPECT_EQ(1u, packedConnectionState.Age);
+		EXPECT_EQ(4u, packedConnectionState.NumAttempts);
+		EXPECT_EQ(3u, packedConnectionState.NumSuccesses);
+		EXPECT_EQ(8u, packedConnectionState.NumFailures);
+		EXPECT_EQ(5u, packedConnectionState.NumConsecutiveFailures);
+		EXPECT_EQ(9u, packedConnectionState.BanAge);
+	}
 
 	// endregion
 }}

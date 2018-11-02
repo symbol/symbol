@@ -117,7 +117,7 @@ namespace catapult { namespace parsers {
 		auto pPacket = CreatePacketWithHashesAndEntities(2, 1);
 
 		// Act:
-		auto numValidCalls = 0;
+		auto numValidCalls = 0u;
 		std::vector<model::TransactionElement> elements;
 		auto result = TryParseTransactionElements(*pPacket, [&numValidCalls](const auto&) {
 			++numValidCalls;

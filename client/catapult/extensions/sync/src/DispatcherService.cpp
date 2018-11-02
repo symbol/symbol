@@ -27,7 +27,6 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockDifficultyCache.h"
 #include "catapult/cache_core/ImportanceView.h"
-#include "catapult/chain/BlockExecutor.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/chain/ChainUtils.h"
 #include "catapult/chain/UtUpdater.h"
@@ -36,6 +35,7 @@
 #include "catapult/consumers/BlockConsumers.h"
 #include "catapult/consumers/ReclaimMemoryInspector.h"
 #include "catapult/consumers/TransactionConsumers.h"
+#include "catapult/consumers/UndoBlock.h"
 #include "catapult/disruptor/BatchRangeDispatcher.h"
 #include "catapult/extensions/DispatcherUtils.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
@@ -101,25 +101,16 @@ namespace catapult { namespace sync {
 
 		// region block
 
-		BlockChainSyncHandlers::UndoBlockFunc CreateSyncUndoBlockHandler(
-				const std::shared_ptr<const observers::EntityObserver>& pUndoObserver) {
-			return [pUndoObserver](const auto& blockElement, const auto& state) {
-				CATAPULT_LOG(debug) << "rolling back block at height " << blockElement.Block.Height;
-				chain::RollbackBlock(blockElement, *pUndoObserver, state);
-			};
-		}
-
 		BlockChainProcessor CreateSyncProcessor(
 				const model::BlockChainConfiguration& blockChainConfig,
 				const chain::ExecutionConfiguration& executionConfig) {
-			return CreateBlockChainProcessor(
-					[&blockChainConfig](const cache::ReadOnlyCatapultCache& cache) {
-						cache::ImportanceView view(cache.sub<cache::AccountStateCache>());
-						return chain::BlockHitPredicate(blockChainConfig, [view](const auto& publicKey, auto height) {
-							return view.getAccountImportanceOrDefault(publicKey, height);
-						});
-					},
-					chain::CreateBatchEntityProcessor(executionConfig));
+			BlockHitPredicateFactory blockHitPredicateFactory = [&blockChainConfig](const cache::ReadOnlyCatapultCache& cache) {
+				cache::ImportanceView view(cache.sub<cache::AccountStateCache>());
+				return chain::BlockHitPredicate(blockChainConfig, [view](const auto& publicKey, auto height) {
+					return view.getAccountImportanceOrDefault(publicKey, height);
+				});
+			};
+			return CreateBlockChainProcessor(blockHitPredicateFactory, chain::CreateBatchEntityProcessor(executionConfig));
 		}
 
 		BlockChainSyncHandlers CreateBlockChainSyncHandlers(extensions::ServiceState& state, RollbackInfo& rollbackInfo) {
@@ -133,10 +124,13 @@ namespace catapult { namespace sync {
 				return blocks.size() == result;
 			};
 
-			auto undoBlockHandler = CreateSyncUndoBlockHandler(extensions::CreateUndoEntityObserver(pluginManager));
-			syncHandlers.UndoBlock = [&rollbackInfo, undoBlockHandler](const auto& blockElement, const auto& observerState) {
+			auto pUndoObserver = utils::UniqueToShared(extensions::CreateUndoEntityObserver(pluginManager));
+			syncHandlers.UndoBlock = [&rollbackInfo, pUndoObserver](
+					const auto& blockElement,
+					const auto& observerState,
+					auto undoBlockType) {
 				rollbackInfo.increment();
-				undoBlockHandler(blockElement, observerState);
+				UndoBlock(blockElement, *pUndoObserver, observerState, undoBlockType);
 			};
 			syncHandlers.Processor = CreateSyncProcessor(blockChainConfig, CreateExecutionConfiguration(pluginManager));
 

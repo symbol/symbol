@@ -33,8 +33,16 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a cache around \a config with the specified retention time (\a retentionTime).
 		explicit BasicHashCache(const CacheConfiguration& config, const utils::TimeSpan& retentionTime)
-				: HashBasicCache(config, HashCacheTypes::Options{ retentionTime })
+				// hash cache should always be excluded from state hash calculation
+				: HashBasicCache(DisablePatriciaTreeStorage(config), HashCacheTypes::Options{ retentionTime })
 		{}
+
+	private:
+		static CacheConfiguration DisablePatriciaTreeStorage(const CacheConfiguration& config) {
+			auto configCopy = config;
+			configCopy.ShouldStorePatriciaTrees = false;
+			return configCopy;
+		}
 	};
 
 	/// Synchronized cache composed of timestamped hashes of (transaction) elements.

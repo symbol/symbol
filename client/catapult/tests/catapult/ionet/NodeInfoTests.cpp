@@ -191,7 +191,7 @@ namespace catapult { namespace ionet {
 
 	// region clearAge
 
-	TEST(TEST_CLASS, ClearAgeClearsAgeOfKnownServiceIdentifier) {
+	TEST(TEST_CLASS, ClearAgeOnlyUpdatesKnownServiceIdentifier) {
 		// Arrange:
 		NodeInfo nodeInfo(NodeSource::Static);
 		nodeInfo.provisionConnectionState(ServiceIdentifier(123)).Age = 12;
@@ -225,6 +225,94 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(12u, nodeInfo.getConnectionState(ServiceIdentifier(123))->Age);
 		EXPECT_EQ(87u, nodeInfo.getConnectionState(ServiceIdentifier(322))->Age);
 		EXPECT_EQ(56u, nodeInfo.getConnectionState(ServiceIdentifier(224))->Age);
+	}
+
+	// endregion
+
+	// region updateBan
+
+	namespace {
+		void SetBanAge(ConnectionState& connectionState, uint32_t banAge, uint32_t numConsecutiveFailures = 4) {
+			connectionState.BanAge = banAge;
+			connectionState.NumConsecutiveFailures = numConsecutiveFailures;
+		}
+	}
+
+	TEST(TEST_CLASS, UpdateBanOnlyUpdatesKnownServiceIdentifier) {
+		// Arrange:
+		NodeInfo nodeInfo(NodeSource::Static);
+		SetBanAge(nodeInfo.provisionConnectionState(ServiceIdentifier(123)), 12);
+		SetBanAge(nodeInfo.provisionConnectionState(ServiceIdentifier(322)), 87);
+		SetBanAge(nodeInfo.provisionConnectionState(ServiceIdentifier(224)), 56);
+
+		// Act:
+		nodeInfo.updateBan(ServiceIdentifier(322), 100, 4);
+
+		// Assert:
+		EXPECT_EQ(3u, nodeInfo.numConnectionStates());
+		EXPECT_EQ(ToServiceIdentifiers({ 123, 224, 322 }), nodeInfo.services());
+		EXPECT_EQ(12u, nodeInfo.getConnectionState(ServiceIdentifier(123))->BanAge);
+		EXPECT_EQ(88u, nodeInfo.getConnectionState(ServiceIdentifier(322))->BanAge);
+		EXPECT_EQ(56u, nodeInfo.getConnectionState(ServiceIdentifier(224))->BanAge);
+	}
+
+	TEST(TEST_CLASS, UpdateBanIgnoresUnknownServiceIdentifier) {
+		// Arrange:
+		NodeInfo nodeInfo(NodeSource::Static);
+		SetBanAge(nodeInfo.provisionConnectionState(ServiceIdentifier(123)), 12);
+		SetBanAge(nodeInfo.provisionConnectionState(ServiceIdentifier(322)), 87);
+		SetBanAge(nodeInfo.provisionConnectionState(ServiceIdentifier(224)), 56);
+
+		// Act:
+		nodeInfo.updateBan(ServiceIdentifier(222), 100, 4);
+
+		// Assert:
+		EXPECT_EQ(3u, nodeInfo.numConnectionStates());
+		EXPECT_EQ(ToServiceIdentifiers({ 123, 224, 322 }), nodeInfo.services());
+		EXPECT_EQ(12u, nodeInfo.getConnectionState(ServiceIdentifier(123))->BanAge);
+		EXPECT_EQ(87u, nodeInfo.getConnectionState(ServiceIdentifier(322))->BanAge);
+		EXPECT_EQ(56u, nodeInfo.getConnectionState(ServiceIdentifier(224))->BanAge);
+	}
+
+	namespace {
+		void AssertUpdateBan(
+				uint32_t banAge,
+				uint32_t numConsecutiveFailures,
+				uint32_t expectedBanAge,
+				uint32_t expectedNumConsecutiveFailures) {
+			// Arrange:
+			NodeInfo nodeInfo(NodeSource::Static);
+			SetBanAge(nodeInfo.provisionConnectionState(ServiceIdentifier(322)), banAge, numConsecutiveFailures);
+
+			// Act:
+			nodeInfo.updateBan(ServiceIdentifier(322), 100, 4);
+
+			// Assert:
+			EXPECT_EQ(1u, nodeInfo.numConnectionStates());
+			EXPECT_EQ(ToServiceIdentifiers({ 322 }), nodeInfo.services());
+			EXPECT_EQ(expectedBanAge, nodeInfo.getConnectionState(ServiceIdentifier(322))->BanAge);
+			EXPECT_EQ(expectedNumConsecutiveFailures, nodeInfo.getConnectionState(ServiceIdentifier(322))->NumConsecutiveFailures);
+		}
+	}
+
+	TEST(TEST_CLASS, UpdateBanIncrementsBanAgeOfKnownServiceIdentifierWithExactConsecutiveFailures) {
+		// Assert:
+		AssertUpdateBan(87, 4, 88, 4);
+	}
+
+	TEST(TEST_CLASS, UpdateBanIncrementsBanAgeOfKnownServiceIdentifierWithTooManyConsecutiveFailures) {
+		// Assert:
+		AssertUpdateBan(87, 5, 88, 5);
+	}
+
+	TEST(TEST_CLASS, UpdateBanClearsBanOfKnownServiceIdentifierWithTooFewConsecutiveFailures) {
+		// Assert:
+		AssertUpdateBan(87, 3, 0, 3);
+	}
+
+	TEST(TEST_CLASS, UpdateBanClearsBanOfKnownServiceIdentifierWithMaximumBanAge) {
+		// Assert:
+		AssertUpdateBan(100, 5, 0, 0);
 	}
 
 	// endregion

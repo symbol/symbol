@@ -39,6 +39,10 @@ namespace catapult { namespace test {
 		return state::NamespaceLifetime(Height(start), Height(end));
 	}
 
+	state::NamespaceLifetime CreateLifetime(Height::ValueType start, Height::ValueType end, BlockDuration::ValueType gracePeriodDuration) {
+		return state::NamespaceLifetime(Height(start), Height(end), BlockDuration(gracePeriodDuration));
+	}
+
 	void AddAll(state::RootNamespace& root, const ChildNamespaces& children, std::initializer_list<NamespaceId::ValueType> orderedIds) {
 		for (auto childId : orderedIds)
 			root.add(state::Namespace(children.at(NamespaceId(childId))));

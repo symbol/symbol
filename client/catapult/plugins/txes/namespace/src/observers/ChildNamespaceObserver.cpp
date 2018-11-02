@@ -32,7 +32,8 @@ namespace catapult { namespace observers {
 		}
 
 		// make copy of parent path and append child id
-		const auto& parentEntry = cache.get(notification.ParentId);
+		auto namespaceIter = cache.find(notification.ParentId);
+		const auto& parentEntry = namespaceIter.get();
 		auto childPath = parentEntry.ns().path();
 		childPath.push_back(notification.NamespaceId);
 		cache.insert(state::Namespace(childPath));

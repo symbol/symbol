@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/state/AccountBalances.h"
+#include "catapult/constants.h"
 #include "tests/test/core/TransactionTestUtils.h"
 
 namespace catapult { namespace state {
@@ -79,8 +80,8 @@ namespace catapult { namespace state {
 		AccountBalances balancesMoved(std::move(balances));
 
 		// Assert: the original values are moved into the copy (move does not clear first mosaic)
-		EXPECT_EQ(Amount(777), balances.get(Test_Mosaic_Id));
-		EXPECT_EQ(Amount(0), balances.get(Xem_Id));
+		EXPECT_EQ(Amount(0), balances.get(Test_Mosaic_Id));
+		EXPECT_EQ(Amount(1000), balances.get(Xem_Id));
 
 		EXPECT_EQ(Amount(777), balancesMoved.get(Test_Mosaic_Id));
 		EXPECT_EQ(Amount(1000), balancesMoved.get(Xem_Id));
@@ -114,8 +115,8 @@ namespace catapult { namespace state {
 
 		// Assert: the original values are moved into the copy (move does not clear first mosaic)
 		EXPECT_EQ(&balancesMoved, &assignResult);
-		EXPECT_EQ(Amount(777), balances.get(Test_Mosaic_Id));
-		EXPECT_EQ(Amount(0), balances.get(Xem_Id));
+		EXPECT_EQ(Amount(0), balances.get(Test_Mosaic_Id));
+		EXPECT_EQ(Amount(1000), balances.get(Xem_Id));
 
 		EXPECT_EQ(Amount(777), balancesMoved.get(Test_Mosaic_Id));
 		EXPECT_EQ(Amount(1000), balancesMoved.get(Xem_Id));

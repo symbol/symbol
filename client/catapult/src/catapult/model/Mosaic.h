@@ -26,13 +26,17 @@ namespace catapult { namespace model {
 #pragma pack(push, 1)
 
 	/// Binary layout for a mosaic.
-	struct Mosaic {
+	template<typename TMosaicId>
+	struct MosaicT {
 		/// Mosaic id.
-		catapult::MosaicId MosaicId;
+		TMosaicId MosaicId;
 
 		/// Mosaic amount.
 		catapult::Amount Amount;
 	};
+
+	using Mosaic = MosaicT<MosaicId>;
+	using UnresolvedMosaic = MosaicT<UnresolvedMosaicId>;
 
 #pragma pack(pop)
 }}

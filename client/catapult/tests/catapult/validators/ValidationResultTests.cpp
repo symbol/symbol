@@ -174,7 +174,8 @@ namespace catapult { namespace validators {
 		EXPECT_EQ("Failure_Core_Insufficient_Balance", test::ToString(ValidationResult(0x80430005)));
 		EXPECT_EQ("Failure_Extension_Partial_Transaction_Cache_Prune", test::ToString(ValidationResult(0x80450101)));
 		EXPECT_EQ("Failure_Hash_Exists", test::ToString(ValidationResult(0x81480007)));
-		EXPECT_EQ("Failure_Lock_Invalid_Mosaic_Id", test::ToString(ValidationResult(0x804C0002)));
+		EXPECT_EQ("Failure_LockHash_Invalid_Mosaic_Amount", test::ToString(ValidationResult(0x80480002)));
+		EXPECT_EQ("Failure_LockSecret_Invalid_Hash_Algorithm", test::ToString(ValidationResult(0x80520001)));
 		EXPECT_EQ("Failure_Mosaic_Invalid_Name", test::ToString(ValidationResult(0x804D0002)));
 		EXPECT_EQ("Failure_Multisig_Modify_Redundant_Modifications", test::ToString(ValidationResult(0x80550003)));
 		EXPECT_EQ("Failure_Namespace_Invalid_Name", test::ToString(ValidationResult(0x804E0002)));

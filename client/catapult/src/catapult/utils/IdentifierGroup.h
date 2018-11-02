@@ -30,6 +30,9 @@ namespace catapult { namespace utils {
 		/// Unordered set of identifiers.
 		using Identifiers = std::unordered_set<TIdentifier, TIdentifierHasher>;
 
+		/// Type of grouping key.
+		using GroupingKeyType = TGroupingKey;
+
 	public:
 		/// Creates a group around a given \a key.
 		explicit IdentifierGroup(const TGroupingKey& key) : m_key(key)

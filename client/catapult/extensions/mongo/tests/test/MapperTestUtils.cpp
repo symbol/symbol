@@ -42,18 +42,18 @@ namespace catapult { namespace test {
 		void AssertEqualEntityData(const TEntity& entity, const bsoncxx::document::view& dbEntity) {
 			EXPECT_EQ(entity.Signer, GetKeyValue(dbEntity, "signer"));
 
-			EXPECT_EQ(entity.Version, dbEntity["version"].get_int32().value);
-			EXPECT_EQ(utils::to_underlying_type(entity.Type), dbEntity["type"].get_int32().value);
+			EXPECT_EQ(entity.Version, GetInt32(dbEntity, "version"));
+			EXPECT_EQ(utils::to_underlying_type(entity.Type), GetInt32(dbEntity, "type"));
 		}
 
-		void AssertEqualMerkleTree(const std::vector<Hash256>& merkleTree, const bsoncxx::document::view& dbMerkleTree) {
-			ASSERT_EQ(merkleTree.size(), std::distance(dbMerkleTree.cbegin(), dbMerkleTree.cend()));
+		void AssertEqualHashArray(const std::vector<Hash256>& hashes, const bsoncxx::document::view& dbHashes) {
+			ASSERT_EQ(hashes.size(), GetFieldCount(dbHashes));
 
 			auto i = 0u;
-			for (const auto& dbHash : dbMerkleTree) {
+			for (const auto& dbHash : dbHashes) {
 				Hash256 hash;
 				mongo::mappers::DbBinaryToModelArray(hash, dbHash.get_binary());
-				EXPECT_EQ(merkleTree[i], hash);
+				EXPECT_EQ(hashes[i], hash);
 				++i;
 			}
 		}
@@ -70,8 +70,8 @@ namespace catapult { namespace test {
 
 	void AssertEqualTransactionData(const model::Transaction& transaction, const bsoncxx::document::view& dbTransaction) {
 		AssertEqualVerifiableEntityData(transaction, dbTransaction);
-		EXPECT_EQ(transaction.Fee.unwrap(), GetUint64(dbTransaction, "fee"));
-		EXPECT_EQ(transaction.Deadline.unwrap(), GetUint64(dbTransaction, "deadline"));
+		EXPECT_EQ(transaction.Fee, Amount(GetUint64(dbTransaction, "fee")));
+		EXPECT_EQ(transaction.Deadline, Timestamp(GetUint64(dbTransaction, "deadline")));
 	}
 
 	void AssertEqualTransactionMetadata(
@@ -93,38 +93,42 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock) {
-		// - 4 fields from VerifiableEntity, 5 fields from Block
-		EXPECT_EQ(9u, GetFieldCount(dbBlock));
+		// - 4 fields from VerifiableEntity, 6 fields from Block
+		EXPECT_EQ(10u, GetFieldCount(dbBlock));
 		AssertEqualVerifiableEntityData(block, dbBlock);
-		EXPECT_EQ(block.Height.unwrap(), GetUint64(dbBlock, "height"));
-		EXPECT_EQ(block.Timestamp.unwrap(), GetUint64(dbBlock, "timestamp"));
-		EXPECT_EQ(block.Difficulty.unwrap(), GetUint64(dbBlock, "difficulty"));
+
+		EXPECT_EQ(block.Height, Height(GetUint64(dbBlock, "height")));
+		EXPECT_EQ(block.Timestamp, Timestamp(GetUint64(dbBlock, "timestamp")));
+		EXPECT_EQ(block.Difficulty, Difficulty(GetUint64(dbBlock, "difficulty")));
 		EXPECT_EQ(block.PreviousBlockHash, GetHashValue(dbBlock, "previousBlockHash"));
 		EXPECT_EQ(block.BlockTransactionsHash, GetHashValue(dbBlock, "blockTransactionsHash"));
+		EXPECT_EQ(block.StateHash, GetHashValue(dbBlock, "stateHash"));
 	}
 
 	void AssertEqualBlockMetadata(
-			const Hash256& hash,
-			const Hash256& generationHash,
+			const model::BlockElement& blockElement,
 			Amount totalFee,
 			int32_t numTransactions,
 			const std::vector<Hash256>& merkleTree,
 			const bsoncxx::document::view& dbBlockMetadata) {
-		EXPECT_EQ(5u, GetFieldCount(dbBlockMetadata));
-		EXPECT_EQ(hash, GetHashValue(dbBlockMetadata, "hash"));
-		EXPECT_EQ(generationHash, GetHashValue(dbBlockMetadata, "generationHash"));
-		EXPECT_EQ(totalFee.unwrap(), GetUint64(dbBlockMetadata, "totalFee"));
-		EXPECT_EQ(numTransactions, dbBlockMetadata["numTransactions"].get_int32().value);
+		EXPECT_EQ(6u, GetFieldCount(dbBlockMetadata));
+		EXPECT_EQ(blockElement.EntityHash, GetHashValue(dbBlockMetadata, "hash"));
+		EXPECT_EQ(blockElement.GenerationHash, GetHashValue(dbBlockMetadata, "generationHash"));
+		EXPECT_EQ(totalFee, Amount(GetUint64(dbBlockMetadata, "totalFee")));
+		EXPECT_EQ(numTransactions, GetInt32(dbBlockMetadata, "numTransactions"));
 
-		auto dbMerkleTree = dbBlockMetadata["merkleTree"].get_array().value;
-		AssertEqualMerkleTree(merkleTree, dbMerkleTree);
+		AssertEqualHashArray(blockElement.SubCacheMerkleRoots, dbBlockMetadata["subCacheMerkleRoots"].get_array().value);
+		AssertEqualHashArray(merkleTree, dbBlockMetadata["merkleTree"].get_array().value);
 	}
 
 	void AssertEqualAccountState(const state::AccountState& accountState, const bsoncxx::document::view& dbAccount) {
 		EXPECT_EQ(accountState.Address, GetAddressValue(dbAccount, "address"));
-		EXPECT_EQ(accountState.AddressHeight.unwrap(), GetUint64(dbAccount, "addressHeight"));
-		EXPECT_EQ(Height(0) != accountState.PublicKeyHeight ? accountState.PublicKey : Key{}, GetKeyValue(dbAccount, "publicKey"));
-		EXPECT_EQ(accountState.PublicKeyHeight.unwrap(), GetUint64(dbAccount, "publicKeyHeight"));
+		EXPECT_EQ(accountState.AddressHeight, Height(GetUint64(dbAccount, "addressHeight")));
+		EXPECT_EQ(accountState.PublicKey, GetKeyValue(dbAccount, "publicKey"));
+		EXPECT_EQ(accountState.PublicKeyHeight, Height(GetUint64(dbAccount, "publicKeyHeight")));
+
+		EXPECT_EQ(accountState.AccountType, static_cast<state::AccountType>(GetInt32(dbAccount, "accountType")));
+		EXPECT_EQ(accountState.LinkedAccountKey, GetKeyValue(dbAccount, "linkedAccountKey"));
 
 		auto dbImportances = dbAccount["importances"].get_array().value;
 		const auto& accountImportances = accountState.ImportanceInfo;
@@ -134,21 +138,21 @@ namespace catapult { namespace test {
 			auto importanceHeight = GetUint64(importanceDocument.view(), "height");
 
 			auto importance = accountImportances.get(model::ImportanceHeight(importanceHeight));
-			EXPECT_EQ(importance.unwrap(), GetUint64(importanceDocument.view(), "value"));
+			EXPECT_EQ(importance, Importance(GetUint64(importanceDocument.view(), "value")));
 			++numImportances;
 		}
 
 		auto expectedNumImportances = std::count_if(accountImportances.begin(), accountImportances.end(), [](const auto& importanceInfo){
 			return model::ImportanceHeight(0) != importanceInfo.Height;
 		});
-		EXPECT_EQ(expectedNumImportances, numImportances);
+		EXPECT_EQ(static_cast<size_t>(expectedNumImportances), numImportances);
 
 		auto dbMosaics = dbAccount["mosaics"].get_array().value;
 		size_t numMosaics = 0;
 		for (const auto& mosaicElement : dbMosaics) {
 			auto mosaicDocument = mosaicElement.get_document();
 			auto id = MosaicId(GetUint64(mosaicDocument.view(), "id"));
-			EXPECT_EQ(accountState.Balances.get(id).unwrap(), GetUint64(mosaicDocument.view(), "amount"));
+			EXPECT_EQ(accountState.Balances.get(id), Amount(GetUint64(mosaicDocument.view(), "amount")));
 			++numMosaics;
 		}
 

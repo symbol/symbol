@@ -34,5 +34,9 @@ namespace catapult { namespace subscribers {
 		void notifyNode(const ionet::Node& node) override {
 			this->forEach([&node](auto& subscriber) { subscriber.notifyNode(node); });
 		}
+
+		void notifyIncomingNode(const Key& identityKey, ionet::ServiceIdentifier serviceId) override {
+			this->forEach([&identityKey, serviceId](auto& subscriber) { subscriber.notifyIncomingNode(identityKey, serviceId); });
+		}
 	};
 }}

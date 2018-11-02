@@ -30,6 +30,7 @@ namespace catapult {
 		class BasicHashCacheView;
 		class HashCache;
 		class HashCacheDelta;
+		struct HashCachePrimarySerializer;
 		class HashCacheView;
 
 		template<typename TCache, typename TCacheDelta, typename TKey>
@@ -48,6 +49,7 @@ namespace catapult { namespace cache {
 		// key value types
 		using KeyType = state::TimestampedHash;
 		using ValueType = state::TimestampedHash;
+		using Serializer = HashCachePrimarySerializer;
 
 		// cache types
 		using CacheType = HashCache;

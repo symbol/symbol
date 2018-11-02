@@ -51,7 +51,9 @@ namespace catapult { namespace test {
 	struct CacheSerializationTestEntryLoaderTraits {
 		using DestinationType = std::vector<CacheSerializationTestEntry>;
 
-		static void LoadInto(io::InputStream& input, DestinationType& destination);
+		static CacheSerializationTestEntry Load(io::InputStream& input);
+
+		static void LoadInto(const CacheSerializationTestEntry& entry, DestinationType& destination);
 	};
 
 	/// Generates \a count random cache serialization test entries.

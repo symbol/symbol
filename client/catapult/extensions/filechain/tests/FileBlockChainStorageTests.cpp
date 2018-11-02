@@ -24,11 +24,12 @@
 #include "catapult/cache_core/BlockDifficultyCache.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/io/BlockStorageCache.h"
+#include "filechain/tests/test/FilechainTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/local/EntityFactory.h"
+#include "tests/test/local/BlockStateHash.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
-#include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
+#include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nemesis/NemesisTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/MijinConstants.h"
@@ -43,23 +44,19 @@ namespace catapult { namespace filechain {
 		// region TestContext
 
 		model::BlockChainConfiguration CreateBlockChainConfiguration(uint32_t maxDifficultyBlocks, const std::string& dataDirectory) {
-			auto config = test::LoadLocalNodeConfigurationWithNemesisPluginExtensions(dataDirectory).BlockChain;
-			config.Plugins.emplace("catapult.plugins.hashcache", utils::ConfigurationBag({{ "", { {} } }}));
-
-			if (maxDifficultyBlocks > 0)
-				config.MaxDifficultyBlocks = maxDifficultyBlocks;
-
-			// set the number of rollback blocks to zero to avoid unnecessarily influencing height-dominant tests
-			config.MaxRollbackBlocks = 0;
-			return config;
+			return test::CreateFileChainLocalNodeConfiguration(maxDifficultyBlocks, dataDirectory).BlockChain;
 		}
 
 		class TestContext {
 		public:
-			explicit TestContext(const model::BlockChainConfiguration& config, const std::string& dataDirectory)
-					: m_pPluginManager(test::CreateDefaultPluginManager(config))
+			explicit TestContext(const std::shared_ptr<plugins::PluginManager>& pPluginManager, const std::string& dataDirectory)
+					: m_pPluginManager(pPluginManager)
 					, m_localNodeState(m_pPluginManager->config(), dataDirectory, m_pPluginManager->createCache())
 					, m_pBlockChainStorage(CreateFileBlockChainStorage())
+			{}
+
+			explicit TestContext(const model::BlockChainConfiguration& config, const std::string& dataDirectory)
+					: TestContext(test::CreatePluginManager(config), dataDirectory)
 			{}
 
 			explicit TestContext(uint32_t maxDifficultyBlocks = 0, const std::string& dataDirectory = "")
@@ -81,6 +78,10 @@ namespace catapult { namespace filechain {
 
 			auto score() const {
 				return m_localNodeState.cref().Score.get();
+			}
+
+			auto lastRecalculationHeight() const {
+				return m_localNodeState.cref().State.LastRecalculationHeight;
 			}
 
 		public:
@@ -147,6 +148,17 @@ namespace catapult { namespace filechain {
 		EXPECT_EQ(model::ChainScore(), context.score());
 	}
 
+	TEST(TEST_CLASS, ProperRecalculationHeightAfterLoadingNemesisBlock) {
+		// Arrange:
+		TestContext context;
+
+		// Act:
+		context.load();
+
+		// Assert:
+		EXPECT_EQ(model::ImportanceHeight(1), context.lastRecalculationHeight());
+	}
+
 	// endregion
 
 	namespace {
@@ -174,14 +186,6 @@ namespace catapult { namespace filechain {
 			return addresses;
 		}
 
-		std::vector<crypto::KeyPair> GetNemesisKeyPairs() {
-			std::vector<crypto::KeyPair> nemesisKeyPairs;
-			for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys)
-				nemesisKeyPairs.push_back(crypto::KeyPair::FromString(pRecipientPrivateKeyString));
-
-			return nemesisKeyPairs;
-		}
-
 		RandomChainAttributes PrepareRandomBlocks(
 				io::BlockStorageModifier&& storage,
 				std::vector<Amount>& amountsSpent,
@@ -196,33 +200,19 @@ namespace catapult { namespace filechain {
 			auto recipientIndex = 0u;
 			auto height = 2u;
 			std::mt19937_64 rnd;
-			auto nemesisKeyPairs = GetNemesisKeyPairs();
+			auto nemesisKeyPairs = test::GetNemesisKeyPairs();
 			for (const auto& recipientAddress : attributes.Recipients) {
-				std::uniform_int_distribution<size_t> numTransactionsDistribution(5, 20);
-				auto numTransactions = numTransactionsDistribution(rnd);
-				attributes.TransactionCounts.push_back(numTransactions);
+				auto blockWithAttributes = test::CreateBlock(nemesisKeyPairs, recipientAddress, rnd, height, timeSpacing);
 
-				test::ConstTransactions transactions;
-				std::uniform_int_distribution<size_t> accountIndexDistribution(0, Num_Nemesis_Accounts - 1);
-				for (auto i = 0u; i < numTransactions; ++i) {
-					auto senderIndex = accountIndexDistribution(rnd);
-					const auto& sender = nemesisKeyPairs[senderIndex];
-
-					std::uniform_int_distribution<Amount::ValueType> amountDistribution(1000, 10 * 1000);
-					Amount amount(amountDistribution(rnd) * 1'000'000);
-					auto pTransaction = test::CreateUnsignedTransferTransaction(sender.publicKey(), recipientAddress, amount);
-					pTransaction->Fee = Amount(0);
-					transactions.push_back(std::move(pTransaction));
+				attributes.TransactionCounts.push_back(blockWithAttributes.SenderIds.size());
+				for (auto i = 0u; i < blockWithAttributes.SenderIds.size(); ++i) {
+					auto senderIndex = blockWithAttributes.SenderIds[i];
+					auto amount = blockWithAttributes.Amounts[i];
 					amountsSpent[senderIndex] = amountsSpent[senderIndex] + amount;
 					amountsCollected[recipientIndex] = amountsCollected[recipientIndex] + amount;
 				}
 
-				auto harvesterIndex = accountIndexDistribution(rnd);
-				auto pBlock = test::GenerateBlockWithTransactions(nemesisKeyPairs[harvesterIndex], transactions);
-				pBlock->Height = Height(height);
-				pBlock->Difficulty = Difficulty(Difficulty().unwrap() + height);
-				pBlock->Timestamp = Timestamp(height * timeSpacing.millis());
-				storage.saveBlock(test::BlockToBlockElement(*pBlock));
+				storage.saveBlock(test::BlockToBlockElement(*blockWithAttributes.pBlock));
 				++height;
 				++recipientIndex;
 			}
@@ -240,7 +230,8 @@ namespace catapult { namespace filechain {
 			auto nemesisKeyPair = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
 			auto address = model::PublicKeyToAddress(nemesisKeyPair.publicKey(), Network_Identifier);
 
-			const auto& nemesisAccountState = view.get(address);
+			auto nemesisAccountStateIter = view.find(address);
+			const auto& nemesisAccountState = nemesisAccountStateIter.get();
 			EXPECT_EQ(Height(1), nemesisAccountState.AddressHeight);
 			EXPECT_EQ(Height(1), nemesisAccountState.PublicKeyHeight);
 			EXPECT_EQ(0u, nemesisAccountState.Balances.size());
@@ -248,7 +239,8 @@ namespace catapult { namespace filechain {
 
 		void AssertNemesisRecipient(const cache::AccountStateCacheView& view, const Address& address, Amount amountSpent) {
 			auto message = model::AddressToString(address);
-			const auto& accountState = view.get(address);
+			auto accountStateIter = view.find(address);
+			const auto& accountState = accountStateIter.get();
 
 			EXPECT_EQ(Height(1), accountState.AddressHeight) << message;
 
@@ -260,7 +252,8 @@ namespace catapult { namespace filechain {
 
 		void AssertSecondaryRecipient(const cache::AccountStateCacheView& view, const Address& address, size_t i, Amount amountReceived) {
 			auto message = model::AddressToString(address) + " " + std::to_string(i);
-			const auto& accountState = view.get(address);
+			auto accountStateIter = view.find(address);
+			const auto& accountState = accountStateIter.get();
 
 			EXPECT_EQ(Height(i + 2), accountState.AddressHeight) << message;
 			EXPECT_EQ(Height(0), accountState.PublicKeyHeight) << message;
@@ -273,9 +266,27 @@ namespace catapult { namespace filechain {
 	// region multi block loading - ProperAccountCacheState
 
 	namespace {
-		void AssertProperAccountCacheStateAfterLoadingMultipleBlocks(const utils::TimeSpan& timeSpacing) {
-			// Arrange:
-			TestContext context;
+		void SetNemesisStateHash(TestContext& context, const config::LocalNodeConfiguration& config) {
+			auto pNemesisBlockElement = context.storageView().loadBlockElement(Height(1));
+
+			auto pModifiedBlock = test::CopyBlock(pNemesisBlockElement->Block);
+			auto modifiedNemesisBlockElement = test::BlockToBlockElement(*pModifiedBlock);
+			modifiedNemesisBlockElement.GenerationHash = pNemesisBlockElement->GenerationHash;
+
+			auto nemesisStateHash = test::CalculateNemesisStateHash(modifiedNemesisBlockElement, config);
+			auto modifier = context.storageModifier();
+			modifier.dropBlocksAfter(Height(0));
+
+			// add state hash to nemesis block and resign it
+			pModifiedBlock->StateHash = nemesisStateHash;
+			test::SignBlock(crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key), *pModifiedBlock);
+
+			modifier.saveBlock(modifiedNemesisBlockElement);
+		}
+
+		void AssertProperAccountCacheStateAfterLoadingMultipleBlocksUsingContext(
+				TestContext& context,
+				const utils::TimeSpan& timeSpacing) {
 			std::vector<Amount> amountsSpent; // amounts spent by nemesis accounts to send to other newAccounts
 			std::vector<Amount> amountsCollected;
 			auto newAccounts = PrepareRandomBlocks(context.storageModifier(), amountsSpent, amountsCollected, timeSpacing).Recipients;
@@ -306,16 +317,57 @@ namespace catapult { namespace filechain {
 				++i;
 			}
 		}
+
+		void FixNemesisBlockStateHash(TestContext& context) {
+			// there are two plugin managers:
+			// - one created in test context
+			// - second created one via test::CalculateNemesisStateHash
+			// separate config is needed so that rdb will be created in separate dir
+			test::TempDirectoryGuard tempDataDirectory("../temp2.dir");
+			auto nemesisConfig = test::CreateStateHashEnabledLocalNodeConfiguration(tempDataDirectory.name());
+			SetNemesisStateHash(context, nemesisConfig);
+		}
+
+		struct AccountStateTraits_StateHashEnabled {
+		public:
+			static void AssertProperAccountCacheStateAfterLoadingMultipleBlocks(const utils::TimeSpan& timeSpacing) {
+				// Arrange:
+				test::TempDirectoryGuard tempDataDirectory;
+				auto config = test::CreateStateHashEnabledLocalNodeConfiguration(tempDataDirectory.name());
+				TestContext context(test::CreatePluginManager(config), tempDataDirectory.name());
+				FixNemesisBlockStateHash(context);
+
+				// Assert:
+				AssertProperAccountCacheStateAfterLoadingMultipleBlocksUsingContext(context, timeSpacing);
+			}
+		};
+
+		struct AccountStateTraits {
+		public:
+			static void AssertProperAccountCacheStateAfterLoadingMultipleBlocks(const utils::TimeSpan& timeSpacing) {
+				// Arrange:
+				TestContext context;
+
+				// Assert:
+				AssertProperAccountCacheStateAfterLoadingMultipleBlocksUsingContext(context, timeSpacing);
+			}
+		};
 	}
 
-	TEST(TEST_CLASS, ProperAccountCacheStateAfterLoadingMultipleBlocks_AllBlocksContributeToTransientState) {
+#define ACCOUNT_CACHE_STATE_TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_StateHashEnabled) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountStateTraits_StateHashEnabled>(); } \
+	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountStateTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	ACCOUNT_CACHE_STATE_TRAITS_BASED_TEST(ProperAccountCacheStateAfterLoadingMultipleBlocks_AllBlocksContributeToTransientState) {
 		// Assert:
-		AssertProperAccountCacheStateAfterLoadingMultipleBlocks(utils::TimeSpan::FromSeconds(1));
+		TTraits::AssertProperAccountCacheStateAfterLoadingMultipleBlocks(utils::TimeSpan::FromSeconds(1));
 	}
 
-	TEST(TEST_CLASS, ProperAccountCacheStateAfterLoadingMultipleBlocks_SomeBlocksContributeToTransientState) {
+	ACCOUNT_CACHE_STATE_TRAITS_BASED_TEST(ProperAccountCacheStateAfterLoadingMultipleBlocks_SomeBlocksContributeToTransientState) {
 		// Assert: account state is permanent and should not be short-circuited
-		AssertProperAccountCacheStateAfterLoadingMultipleBlocks(utils::TimeSpan::FromMinutes(1));
+		TTraits::AssertProperAccountCacheStateAfterLoadingMultipleBlocks(utils::TimeSpan::FromMinutes(1));
 	}
 
 	// endregion
@@ -323,9 +375,8 @@ namespace catapult { namespace filechain {
 	// region multi block loading - ProperCacheHeight
 
 	namespace {
-		void AssertProperCacheHeightAfterLoadingMultipleBlocks(const utils::TimeSpan& timeSpacing) {
+		void AssertProperCacheHeightAfterLoadingMultipleBlocksUsingContext(TestContext& context, const utils::TimeSpan& timeSpacing) {
 			// Arrange:
-			TestContext context;
 			PrepareRandomBlocks(context.storageModifier(), timeSpacing);
 
 			// Act:
@@ -335,16 +386,47 @@ namespace catapult { namespace filechain {
 			auto cacheView = context.cacheView();
 			EXPECT_EQ(Height(Num_Recipient_Accounts + 1), cacheView.height());
 		}
+
+		struct CacheHeightTraits_StateHashEnabled {
+		public:
+			static void AssertProperCacheHeightAfterLoadingMultipleBlocks(const utils::TimeSpan& timeSpacing) {
+				// Arrange:
+				test::TempDirectoryGuard tempDataDirectory;
+				auto config = test::CreateStateHashEnabledLocalNodeConfiguration(tempDataDirectory.name());
+				TestContext context(test::CreatePluginManager(config), tempDataDirectory.name());
+				FixNemesisBlockStateHash(context);
+
+				// Assert:
+				AssertProperCacheHeightAfterLoadingMultipleBlocksUsingContext(context, timeSpacing);
+			}
+		};
+
+		struct CacheHeightTraits {
+		public:
+			static void AssertProperCacheHeightAfterLoadingMultipleBlocks(const utils::TimeSpan& timeSpacing) {
+				// Arrange:
+				TestContext context;
+
+				// Assert:
+				AssertProperCacheHeightAfterLoadingMultipleBlocksUsingContext(context, timeSpacing);
+			}
+		};
 	}
 
-	TEST(TEST_CLASS, ProperCacheHeightAfterLoadingMultipleBlocks_AllBlocksContributeToTransientState) {
+#define CACHE_HEIGHT_TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_StateHashEnabled) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CacheHeightTraits_StateHashEnabled>(); } \
+	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CacheHeightTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	CACHE_HEIGHT_TRAITS_BASED_TEST(ProperCacheHeightAfterLoadingMultipleBlocks_AllBlocksContributeToTransientState) {
 		// Assert:
-		AssertProperCacheHeightAfterLoadingMultipleBlocks(utils::TimeSpan::FromSeconds(1));
+		TTraits::AssertProperCacheHeightAfterLoadingMultipleBlocks(utils::TimeSpan::FromSeconds(1));
 	}
 
-	TEST(TEST_CLASS, ProperCacheHeightAfterLoadingMultipleBlocks_SomeBlocksContributeToTransientState) {
+	CACHE_HEIGHT_TRAITS_BASED_TEST(ProperCacheHeightAfterLoadingMultipleBlocks_SomeBlocksContributeToTransientState) {
 		// Assert: cache height is permanent and should not be short-circuited
-		AssertProperCacheHeightAfterLoadingMultipleBlocks(utils::TimeSpan::FromMinutes(1));
+		TTraits::AssertProperCacheHeightAfterLoadingMultipleBlocks(utils::TimeSpan::FromMinutes(1));
 	}
 
 	// endregion

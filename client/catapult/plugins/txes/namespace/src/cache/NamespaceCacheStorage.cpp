@@ -19,147 +19,38 @@
 **/
 
 #include "NamespaceCacheStorage.h"
-#include "catapult/io/PodIoUtils.h"
-#include "catapult/io/Stream.h"
-#include <map>
-#include <vector>
+#include "NamespaceCacheDelta.h"
 
 namespace catapult { namespace cache {
 
 	namespace {
-		void SaveChildren(io::OutputStream& output, const state::RootNamespace::Children& children) {
-			io::Write64(output, children.size());
-			for (const auto& child : children) {
-				const auto& path = child.second;
-
-				// don't write the first part of the path (the root id) because it is redundant
-				auto i = 1u;
-				for (; i < path.size(); ++i)
-					io::Write(output, path[i]);
-
-				// pad the storage so that all children have a fixed size in the storage
-				for (; i < path.capacity(); ++i)
-					io::Write(output, NamespaceId());
+		struct PathsComparator {
+		public:
+			bool operator()(const state::Namespace::Path& lhs, const state::Namespace::Path& rhs) const {
+				return std::lexicographical_compare(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
 			}
-		}
-	}
-
-	void NamespaceCacheStorage::Save(const StorageType& element, io::OutputStream& output) {
-		const auto& history = element.second;
-		if (0 == history.historyDepth())
-			CATAPULT_THROW_RUNTIME_ERROR_1("cannot save empty namespace history", history.id());
-
-		io::Write(output, history.id());
-		io::Write64(output, history.historyDepth());
-
-		const Key *pLastOwner = nullptr;
-		for (const auto& root : history) {
-			io::Write(output, root.owner());
-			io::Write(output, root.lifetime().Start);
-			io::Write(output, root.lifetime().End);
-
-			if (pLastOwner && *pLastOwner == root.owner()) {
-				// shared owner, don't rewrite children
-				io::Write64(output, 0);
-				continue;
-			}
-
-			pLastOwner = &root.owner();
-			SaveChildren(output, root.children());
-		}
-	}
-
-	namespace {
-		struct Header {
-			catapult::NamespaceId Id;
-			uint64_t HistoryDepth;
 		};
 
-		Header ReadHeader(io::InputStream& input) {
-			Header header;
-			header.Id = io::Read<NamespaceId>(input);
-			header.HistoryDepth = io::Read64(input);
+		using SortedNamespaceByPathMap = std::map<state::Namespace::Path, NamespaceId, PathsComparator>;
 
-			if (0 == header.HistoryDepth)
-				CATAPULT_THROW_RUNTIME_ERROR_1("namespace history in storage is empty", header.Id);
+		SortedNamespaceByPathMap SortChildren(const state::RootNamespace::Children& children) {
+			SortedNamespaceByPathMap sortedMap;
+			for (const auto& child : children)
+				sortedMap.emplace(child.second, child.first);
 
-			return header;
-		}
-
-		state::Namespace::Path LoadPath(io::InputStream& input, NamespaceId rootId) {
-			state::Namespace::Path path;
-			path.push_back(rootId);
-			for (auto i = 0u; i < path.capacity() - 1; ++i) {
-				NamespaceId idPart;
-				io::Read(input, idPart);
-				if (NamespaceId() == idPart)
-					continue;
-
-				path.push_back(idPart);
-			}
-
-			return path;
-		}
-
-		using NamespacePathsGroupedByDepth = std::map<size_t, std::vector<state::Namespace::Path>>;
-
-		NamespacePathsGroupedByDepth LoadChildren(io::InputStream& input, NamespaceId rootId, size_t numChildren) {
-			// load all paths and sort them by size
-			NamespacePathsGroupedByDepth groupedPaths;
-			for (auto i = 0u; i < numChildren; ++i) {
-				auto path = LoadPath(input, rootId);
-				groupedPaths[path.size()].push_back(path);
-			}
-
-			return groupedPaths;
-		}
-
-		void LoadChildren(io::InputStream& input, NamespaceId rootId, size_t numChildren, NamespaceCacheDelta& cacheDelta) {
-			// load all paths with smaller sizes before larger sizes
-			auto groupedPaths = LoadChildren(input, rootId, numChildren);
-			for (const auto& pair : groupedPaths) {
-				for (const auto& path : pair.second)
-					cacheDelta.insert(state::Namespace(path));
-			}
+			return sortedMap;
 		}
 	}
 
-	state::RootNamespaceHistory NamespaceCacheStorage::Load(io::InputStream& input) {
-		auto header = ReadHeader(input);
-		state::RootNamespaceHistory history(header.Id);
+	void NamespaceCacheStorage::LoadInto(const ValueType& history, DestinationType& cacheDelta) {
+		for (const auto& rootNamespace : history) {
+			cacheDelta.insert(rootNamespace);
 
-		for (auto i = 0u; i < header.HistoryDepth; ++i) {
-			Key owner;
-			input.read(owner);
-			auto lifetimeStart = io::Read<Height>(input);
-			auto lifetimeEnd = io::Read<Height>(input);
-			history.push_back(owner, state::NamespaceLifetime(lifetimeStart, lifetimeEnd));
-
-			auto numChildren = io::Read64(input);
-			auto groupedPaths = LoadChildren(input, header.Id, numChildren);
-
-			auto& currentRoot = history.back();
-			for (const auto& pair : groupedPaths) {
-				for (const auto& path : pair.second)
-					currentRoot.add(state::Namespace(path));
+			auto childrenMap = SortChildren(rootNamespace.children());
+			for (const auto& pair : childrenMap) {
+				if (!cacheDelta.contains(pair.second))
+					cacheDelta.insert(state::Namespace(pair.first));
 			}
-		}
-
-		return history;
-	}
-
-	void NamespaceCacheStorage::LoadInto(io::InputStream& input, DestinationType& cacheDelta) {
-		auto header = ReadHeader(input);
-
-		for (auto i = 0u; i < header.HistoryDepth; ++i) {
-			Key owner;
-			input.read(owner);
-			auto lifetimeStart = io::Read<Height>(input);
-			auto lifetimeEnd = io::Read<Height>(input);
-			cacheDelta.insert(state::RootNamespace(header.Id, owner, state::NamespaceLifetime(lifetimeStart, lifetimeEnd)));
-
-			auto numChildren = io::Read64(input);
-			LoadChildren(input, header.Id, numChildren, cacheDelta);
 		}
 	}
 }}

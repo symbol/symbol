@@ -19,11 +19,19 @@
 **/
 
 #pragma once
-#include "MosaicInfosProducerFactory.h"
-#include "NamespaceInfosProducerFactory.h"
-#include "catapult/ionet/PacketHandlers.h"
+#include "src/types.h"
+#include "catapult/handlers/HandlerTypes.h"
+#include "catapult/model/CacheEntryInfo.h"
+
+namespace catapult { namespace ionet { class ServerPacketHandlers; } }
 
 namespace catapult { namespace handlers {
+
+	/// Alias for a mosaic infos producer factory.
+	using MosaicInfosProducerFactory = SharedPointerProducerFactory<MosaicId, model::CacheEntryInfo<MosaicId>>;
+
+	/// Alias for a namespace infos producer factory.
+	using NamespaceInfosProducerFactory = SharedPointerProducerFactory<NamespaceId, model::CacheEntryInfo<NamespaceId>>;
 
 	/// Registers a mosaic infos handler in \a handlers that responds with mosaic infos
 	/// returned by a producer from \a mosaicInfosProducerFactory.

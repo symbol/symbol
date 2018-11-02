@@ -72,8 +72,8 @@ namespace catapult { namespace api {
 				EXPECT_EQ(Height(625), info.Height);
 
 				auto scoreArray = info.Score.toArray();
-				EXPECT_EQ(0x1234567812345678, scoreArray[0]);
-				EXPECT_EQ(0xABCDABCDABCDABCD, scoreArray[1]);
+				EXPECT_EQ(0x1234567812345678u, scoreArray[0]);
+				EXPECT_EQ(0xABCDABCDABCDABCDu, scoreArray[1]);
 			}
 		};
 
@@ -81,7 +81,7 @@ namespace catapult { namespace api {
 			static constexpr Height RequestHeight() { return Height(521); }
 
 			static auto Invoke(const ChainApi& api) {
-				return api.hashesFrom(RequestHeight());
+				return api.hashesFrom(RequestHeight(), 123);
 			}
 
 			static auto CreateValidResponsePacket(uint32_t payloadSize = 3u * sizeof(Hash256)) {
@@ -100,6 +100,7 @@ namespace catapult { namespace api {
 				const auto* pRequest = ionet::CoercePacket<BlockHashesRequest>(&packet);
 				ASSERT_TRUE(!!pRequest);
 				EXPECT_EQ(RequestHeight(), pRequest->Height);
+				EXPECT_EQ(123u, pRequest->NumHashes);
 			}
 
 			static void ValidateResponse(const ionet::Packet& response, const model::HashRange& hashes) {

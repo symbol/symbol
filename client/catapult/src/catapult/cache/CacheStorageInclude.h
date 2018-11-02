@@ -30,9 +30,9 @@ namespace catapult {
 
 namespace catapult { namespace cache {
 
-	/// Defines types for map-based cache storage given a cache descriptor.
+	/// Defines types for cache storage given a cache descriptor.
 	template<typename TDescriptor>
-	struct MapCacheStorageFromDescriptor {
+	struct CacheStorageFromDescriptor {
 		/// Cache view type.
 		using SourceType = typename TDescriptor::CacheViewType;
 
@@ -42,23 +42,7 @@ namespace catapult { namespace cache {
 		/// Cache key type.
 		using KeyType = typename TDescriptor::KeyType;
 
-		/// Cache storage type.
-		using StorageType = std::pair<typename TDescriptor::KeyType, typename TDescriptor::ValueType>;
-	};
-
-	/// Defines types for set-based cache storage given a cache descriptor.
-	template<typename TDescriptor>
-	struct SetCacheStorageFromDescriptor {
-		/// Cache view type.
-		using SourceType = typename TDescriptor::CacheViewType;
-
-		/// Cache delta type.
-		using DestinationType = typename TDescriptor::CacheDeltaType;
-
-		/// Cache key type.
-		using KeyType = typename TDescriptor::KeyType;
-
-		/// Cache storage type.
-		using StorageType = KeyType;
+		/// Cache value type.
+		using ValueType = typename TDescriptor::ValueType;
 	};
 }}

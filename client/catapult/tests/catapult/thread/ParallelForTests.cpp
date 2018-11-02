@@ -30,7 +30,7 @@ namespace catapult { namespace thread {
 #define TEST_CLASS ParallelForTests
 
 	namespace {
-		using ItemType = uint16_t;
+		using ItemType = uint32_t;
 
 		std::vector<ItemType> CreateIncrementingValues(size_t size) {
 			auto items = std::vector<ItemType>(size);
@@ -311,7 +311,7 @@ namespace catapult { namespace thread {
 		BasicTestContext<typename TTraits::ContainerType> context;
 
 		// Act: capture all values by their index
-		std::vector<uint16_t> capturedValues(context.NumItems, 0);
+		std::vector<uint32_t> capturedValues(context.NumItems, 0);
 		ParallelFor(context.pPool->service(), context.Items, context.NumThreads, [&capturedValues](auto value, auto index) {
 			// Sanity: fail if any index is too large
 			EXPECT_GT(capturedValues.size(), index) << "unexpected index " << index;

@@ -35,13 +35,6 @@ namespace catapult { namespace test {
 		using RequestStructureVector = std::vector<typename TTraits::RequestStructureType>;
 
 	public:
-		/// Asserts that a packet without a payload is rejected.
-		static void AssertPacketWithNoPayloadIsRejected() {
-			// Assert: no payload
-			BaseType::AssertPacketIsRejected(0, TTraits::Packet_Type);
-		}
-
-	public:
 		/// Asserts that a packet with a non-empty payload is accepted.
 		static void AssertValidPacketWithNonEmptyPayloadIsAccepted() {
 			// Assert:
@@ -142,9 +135,9 @@ namespace catapult { namespace test {
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, TooSmallPacketIsRejected) \
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, PacketWithWrongTypeIsRejected) \
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, PacketWithInvalidPayloadIsRejected) \
-	\
+	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, PacketWithTooSmallPayloadIsRejected) \
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, PacketWithNoPayloadIsRejected) \
-	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithNonEmptyPayloadIsAccepted) \
 	\
+	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithNonEmptyPayloadIsAccepted) \
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, ResponseIsSetIfPacketIsValid)
 }}

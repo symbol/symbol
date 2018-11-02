@@ -44,5 +44,8 @@ namespace catapult { namespace test {
 		EXPECT_EQ(0u, connectionState.NumAttempts);
 		EXPECT_EQ(0u, connectionState.NumSuccesses);
 		EXPECT_EQ(0u, connectionState.NumFailures);
+
+		EXPECT_EQ(0u, connectionState.NumConsecutiveFailures);
+		EXPECT_EQ(0u, connectionState.BanAge);
 	}
 }}

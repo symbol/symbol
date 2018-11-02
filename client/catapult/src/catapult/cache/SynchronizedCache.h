@@ -254,11 +254,46 @@ namespace catapult { namespace cache {
 			++m_commitCounter;
 		}
 
+	protected:
+		/// Gets a typed reference to the underlying cache.
+		TCache& cache() {
+			return m_cache;
+		}
+
 	private:
 		TCache m_cache;
 		size_t m_commitCounter;
 		std::weak_ptr<detail::CacheViewReadLockPair<CacheDeltaType>> m_pWeakDeltaPair;
 		mutable utils::SpinReaderWriterLock m_lock;
+	};
+
+	// endregion
+
+	// region SynchronizedCacheWithInit
+
+	/// Decorator that synchronizes access to a cache and allows custom cache initialization.
+	template<typename TCache>
+	class SynchronizedCacheWithInit : public SynchronizedCache<TCache> {
+	public:
+		/// Creates a synchronized decorator around \a cache.
+		explicit SynchronizedCacheWithInit(TCache&& cache)
+				: SynchronizedCache<TCache>(std::move(cache))
+				, m_isInitCalled(false)
+		{}
+
+	public:
+		/// Initializes the underlying cache with \a args.
+		template<typename... TArgs>
+		void init(TArgs&&... args) {
+			if (m_isInitCalled)
+				CATAPULT_THROW_RUNTIME_ERROR("init has already been called for cache");
+
+			this->cache().init(std::forward<TArgs>(args)...);
+			m_isInitCalled = true;
+		}
+
+	private:
+		bool m_isInitCalled;
 	};
 
 	// endregion

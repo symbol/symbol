@@ -118,7 +118,11 @@ namespace catapult { namespace test {
 
 				// - copy the properties and remove the desired key
 				auto propertiesCopy = TTraits::CreateProperties();
-				propertiesCopy[section].erase(name);
+				auto& sectionProperties = propertiesCopy[section];
+				auto hasNameKey = [&name](const auto& pair) { return name == pair.first; };
+				sectionProperties.erase(
+						std::remove_if(sectionProperties.begin(), sectionProperties.end(), hasNameKey),
+						sectionProperties.end());
 
 				// Act + Assert: the load failed
 				EXPECT_THROW(TTraits::ConfigurationType::LoadFromBag(std::move(propertiesCopy)), utils::property_not_found_error);
@@ -141,7 +145,7 @@ namespace catapult { namespace test {
 
 			// - copy the properties and add an unknown key to the desired section
 			auto propertiesCopy = TTraits::CreateProperties();
-			propertiesCopy[section].emplace("hidden", "abc");
+			propertiesCopy[section].emplace_back("hidden", "abc");
 
 			// Act + Assert: the load failed
 			EXPECT_THROW(TTraits::ConfigurationType::LoadFromBag(std::move(propertiesCopy)), catapult_invalid_argument);

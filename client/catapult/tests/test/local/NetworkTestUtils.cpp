@@ -40,8 +40,8 @@ namespace catapult { namespace test {
 		auto endpoint = CreateLocalHostNodeEndpoint(port);
 		auto clientKeyPair = GenerateKeyPair();
 		std::shared_ptr<ionet::PacketSocket> pIo;
-		ionet::Connect(service, options, endpoint, [&](auto connectResult, const auto& pConnectedSocket) {
-			CATAPULT_LOG(debug) << "node is connected with code " << connectResult;
+		ionet::Connect(service, options, endpoint, [&](auto connectCode, const auto& pConnectedSocket) {
+			CATAPULT_LOG(debug) << "node is connected with code " << connectCode;
 			pIo = pConnectedSocket;
 			if (!pIo)
 				return;
@@ -59,16 +59,16 @@ namespace catapult { namespace test {
 
 	void ConnectToLocalHost(net::PacketWriters& packetWriters, const Key& serverPublicKey) {
 		// Act: connect to the server
-		net::PeerConnectResult connectResult;
+		net::PeerConnectCode connectCode;
 		std::atomic<size_t> numConnects(0);
-		packetWriters.connect(CreateLocalHostNode(serverPublicKey), [&](auto result) {
-			connectResult = result;
+		packetWriters.connect(CreateLocalHostNode(serverPublicKey), [&](const auto& connectResult) {
+			connectCode = connectResult.Code;
 			++numConnects;
 		});
 		WAIT_FOR_ONE(numConnects);
 
 		// Assert: a single connection was accepted
-		EXPECT_EQ(net::PeerConnectResult::Accepted, connectResult);
+		EXPECT_EQ(net::PeerConnectCode::Accepted, connectCode);
 		EXPECT_EQ(1u, numConnects);
 	}
 

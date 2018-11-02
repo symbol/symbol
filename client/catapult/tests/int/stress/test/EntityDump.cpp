@@ -19,6 +19,7 @@
 **/
 
 #include "EntityDump.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "plugins/txes/transfer/src/model/TransferTransaction.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/model/Address.h"
@@ -37,7 +38,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		void EntityDump(const TransferTransaction& tx) {
-			CATAPULT_LOG(debug) << "  Recipient: " << AddressToString(tx.Recipient);
+			CATAPULT_LOG(debug) << "  Recipient: " << AddressToString(extensions::CopyToAddress(tx.Recipient));
 			CATAPULT_LOG(debug) << "    Message: " << "size:" << VALANDHEX(tx.MessageSize);
 			if (tx.MessageSize)
 				CATAPULT_LOG(debug) << "  Message D: " << HexFormat(tx.MessagePtr(), tx.MessagePtr() + tx.MessageSize);

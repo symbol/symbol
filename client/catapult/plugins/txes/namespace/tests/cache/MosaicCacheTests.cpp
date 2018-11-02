@@ -89,6 +89,8 @@ namespace catapult { namespace cache {
 	DEFINE_ACTIVE_PREDICATE_TESTS(MosaicCacheMixinTraits, ViewAccessor, _View)
 	DEFINE_ACTIVE_PREDICATE_TESTS(MosaicCacheMixinTraits, DeltaAccessor, _Delta)
 
+	DEFINE_CACHE_TOUCH_TESTS(MosaicCacheMixinTraits, _Delta)
+
 	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(MosaicCacheMixinTraits, _Delta)
 
 	DEFINE_CACHE_BASIC_TESTS(MosaicCacheMixinTraits,)
@@ -216,7 +218,8 @@ namespace catapult { namespace cache {
 		test::AssertCacheSizes(*view, 1, 3);
 		ASSERT_TRUE(view->contains(MosaicId(234)));
 
-		const auto& entry = view->get(MosaicId(234));
+		auto mosaicIter = view->find(MosaicId(234));
+		const auto& entry = mosaicIter.get();
 		EXPECT_EQ(NamespaceId(111), entry.namespaceId());
 		EXPECT_EQ(MosaicId(234), entry.mosaicId());
 		EXPECT_EQ(Amount(13), entry.supply());
@@ -252,10 +255,10 @@ namespace catapult { namespace cache {
 		auto view = cache.createView();
 		test::AssertCacheSizes(*view, 2, 5);
 		ASSERT_TRUE(view->contains(MosaicId(123)));
-		EXPECT_EQ(Amount(9), view->get(MosaicId(123)).supply());
+		EXPECT_EQ(Amount(9), view->find(MosaicId(123)).get().supply());
 
 		ASSERT_TRUE(view->contains(MosaicId(234)));
-		EXPECT_EQ(Amount(13), view->get(MosaicId(234)).supply());
+		EXPECT_EQ(Amount(13), view->find(MosaicId(234)).get().supply());
 	}
 
 	// endregion
@@ -301,7 +304,7 @@ namespace catapult { namespace cache {
 		// Sanity:
 		test::AssertCacheSizes(*delta, 9, 10);
 		ASSERT_TRUE(delta->contains(MosaicId(3)));
-		EXPECT_EQ(Amount(27), delta->get(MosaicId(3)).supply());
+		EXPECT_EQ(Amount(27), delta->find(MosaicId(3)).get().supply());
 
 		// Act:
 		delta->remove(MosaicId(3));
@@ -309,7 +312,7 @@ namespace catapult { namespace cache {
 		// Assert:
 		test::AssertCacheSizes(*delta, 9, 9);
 		ASSERT_TRUE(delta->contains(MosaicId(3)));
-		EXPECT_EQ(Amount(9), delta->get(MosaicId(3)).supply());
+		EXPECT_EQ(Amount(9), delta->find(MosaicId(3)).get().supply());
 	}
 
 	// endregion
@@ -410,6 +413,23 @@ namespace catapult { namespace cache {
 			test::AssertCacheSizes(delta, 2, 2);
 			test::AssertCacheContents(delta, { 8, 10 });
 		});
+	}
+
+	// endregion
+
+	// region cache init
+
+	TEST(TEST_CLASS, CanSpecifyInitialValuesViaInit) {
+		// Arrange:
+		auto config = CacheConfiguration();
+		MosaicCache cache(config);
+
+		// Act:
+		cache.init(static_cast<size_t>(12));
+
+		// Assert:
+		auto view = cache.createView();
+		EXPECT_EQ(12u, view->deepSize());
 	}
 
 	// endregion

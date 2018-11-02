@@ -89,8 +89,41 @@ namespace catapult { namespace filechain {
 						*pPermanentObserver);
 
 				auto pNemesisBlock = storageView.loadBlock(Height(1));
-				extensions::NemesisBlockLoader loader(pluginManager.transactionRegistry(), *pPublisher, observerFactory(*pNemesisBlock));
-				loader.executeAndCommit(stateRef);
+
+				// if verifiable state is enabled check it by executing only non-permanent observers on detached delta
+				if (stateRef.Config.BlockChain.ShouldEnableVerifiableState) {
+					auto detachedDelta = stateRef.Cache.createDetachableDelta().detach();
+					auto pCacheDelta = detachedDelta.lock();
+					auto& cacheDelta = *pCacheDelta;
+
+					extensions::NemesisBlockLoader loader(cacheDelta, pluginManager.transactionRegistry(), *pPublisher, *pObserver);
+
+					state::CatapultState temporaryState;
+					extensions::LocalNodeStateRef stateRefCopy(
+							stateRef.Config,
+							temporaryState,
+							stateRef.Cache,
+							stateRef.Storage,
+							stateRef.Score);
+
+					loader.execute(stateRefCopy, extensions::StateHashVerification::Enabled);
+				}
+
+				// if verifiable state is enabled do NOT check hash when committing.
+				{
+					auto cacheDelta = stateRef.Cache.createDelta();
+					extensions::NemesisBlockLoader loader(
+							cacheDelta,
+							pluginManager.transactionRegistry(),
+							*pPublisher,
+							observerFactory(*pNemesisBlock));
+
+					auto stateHashVerification = stateRef.Config.BlockChain.ShouldEnableVerifiableState
+							? extensions::StateHashVerification::Disabled
+							: extensions::StateHashVerification::Enabled;
+
+					loader.executeAndCommit(stateRef, stateHashVerification);
+				}
 
 				loadBlockChainFromStorage(observerFactory, stateRef, Height(2));
 			}

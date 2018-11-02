@@ -19,7 +19,7 @@
 **/
 
 #include "unbondedpruning/src/UnbondedPruningService.h"
-#include "plugins/txes/lock/src/model/LockNotifications.h"
+#include "plugins/txes/lock_hash/src/model/HashLockNotifications.h"
 #include "catapult/consumers/BlockChainSyncHandlers.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
@@ -64,7 +64,10 @@ namespace catapult { namespace unbondedpruning {
 			{}
 
 		public:
-			void publish(const model::WeakEntityInfoT<model::Transaction>&, model::NotificationSubscriber& sub) const override {
+			void publish(
+					const model::WeakEntityInfoT<model::Transaction>&,
+					const model::PublisherContext&,
+					model::NotificationSubscriber& sub) const override {
 				for (const auto& hash : m_dependentHashes)
 					sub.notify(model::HashLockNotification(Key(), model::Mosaic(), BlockDuration(), MutateHash(m_numPublishes, hash)));
 

@@ -20,6 +20,7 @@
 
 #pragma once
 #include "MultisigCacheDelta.h"
+#include "MultisigCacheStorage.h"
 #include "MultisigCacheView.h"
 #include "catapult/cache/BasicCache.h"
 
