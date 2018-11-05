@@ -1,0 +1,17 @@
+{
+	"_info" : "non-structural related metadata",
+
+	"TransferTransaction": {
+		"plugin": "transfer",
+		"namespaces": {
+			"Mosaic": "model",
+			"UnresolvedMosaic": "model"
+		}
+	},
+	"SecretLockTransaction": {
+		"plugin": "lock_secret"
+	},
+	"SecretProofTransaction": {
+		"plugin": "lock_proof"
+	}
+}

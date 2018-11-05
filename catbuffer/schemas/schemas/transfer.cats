@@ -3,7 +3,7 @@ import "transaction.cats"
 # binary layout for a transfer transaction
 struct TransferTransactionBody
 	# transaction recipient
-	recipient = Address
+	recipient = UnresolvedAddress
 	# size of attached message
 	messageSize = uint16
 	# number of attached mosaics
@@ -11,7 +11,7 @@ struct TransferTransactionBody
 	# transaction message
 	message = array(byte, messageSize)
 	# attached mosaics
-	mosaics = array(Mosaic, mosaicsCount)
+	mosaics = array(UnresolvedMosaic, mosaicsCount)
 
 # binary layout for a non-embedded transfer transaction
 struct TransferTransaction
