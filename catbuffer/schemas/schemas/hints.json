@@ -8,6 +8,12 @@
 			"UnresolvedMosaic": "model"
 		}
 	},
+	"AccountLinkTransaction": {
+		"plugin": "accountlink"
+	},
+	"HashLockTransaction": {
+		"plugin": "lock_hash"
+	},
 	"SecretLockTransaction": {
 		"plugin": "lock_secret"
 	},
