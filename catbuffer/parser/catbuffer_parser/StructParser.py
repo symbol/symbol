@@ -35,7 +35,8 @@ class StructParser(CompositeTypeParser):
         if not isinstance(property_name, str):
             return
 
-        if all(property_name != property_type_descriptor['name'] for property_type_descriptor in self.type_descriptor['layout']):
+        if all('name' not in property_type_descriptor or property_name != property_type_descriptor['name']
+               for property_type_descriptor in self.type_descriptor['layout']):
             raise CatsParseException('no definition for referenced property "{0}"'.format(property_name))
 
     def _require_unknown_property(self, descriptor_uid):

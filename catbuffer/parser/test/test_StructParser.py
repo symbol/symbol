@@ -88,6 +88,24 @@ class StructParserTest(unittest.TestCase):
         # Assert:
         self.assertEqual(('Car', {'type': 'struct', 'layout': [{'name': 'foo'}, {'name': 'bar', 'size': 'foo'}]}), result)
 
+    def test_can_append_array_with_valid_size_reference_and_inline(self):
+        # Arrange:
+        parser = StructParserFactory().create()
+
+        # Act:
+        parser.process_line('struct Car')
+        parser.append({'disposition': 'inline', 'type': 'Vehicle'})
+        parser.append({'name': 'foo'})
+        parser.append({'name': 'bar', 'size': 'foo'})
+        result = parser.commit()
+
+        # Assert:
+        self.assertEqual(('Car', {'type': 'struct', 'layout': [
+            {'disposition': 'inline', 'type': 'Vehicle'},
+            {'name': 'foo'},
+            {'name': 'bar', 'size': 'foo'}
+        ]}), result)
+
     def test_cannot_append_array_with_invalid_size_reference(self):
         # Arrange:
         parser = StructParserFactory().create()
