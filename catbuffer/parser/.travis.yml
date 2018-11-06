@@ -5,6 +5,6 @@ python:
 install: pip install pycodestyle pylint
 
 script:
-  - pylint main.py catparser test
+  - pylint main.py catparser generators test
   - pycodestyle --config=.pycodestyle .
   - python3 -m unittest discover -v
