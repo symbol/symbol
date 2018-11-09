@@ -67,6 +67,10 @@ class CatsParser(ScopeManager):
             if 'type' in parse_result:
                 self._require_known_type(parse_result['type'])
 
+                # sort key can only be present if type is present
+                if 'sort_key' in parse_result:
+                    self._require_field(parse_result['type'], parse_result['sort_key'])
+
             self.active_parser.append({**parse_result, **partial_descriptor})
         elif hasattr(parse_result, 'import_file'):
             self.import_resolver(parse_result.import_file)
@@ -86,6 +90,11 @@ class CatsParser(ScopeManager):
             raise CatsParseException('no definition for linked type "{0}"'.format(type_name))
 
         return type_name
+
+    def _require_field(self, type_name, field_name):
+        type_descriptor = self.wip_type_descriptors[type_name]
+        if not any(field_name == field['name'] for field in type_descriptor['layout']):
+            raise CatsParseException('"{0}" does not have field "{1}"'.format(type_name, field_name))
 
     def _set_type_descriptor(self, type_name, type_descriptor):
         if type_name in self.wip_type_descriptors:

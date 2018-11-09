@@ -180,6 +180,21 @@ class CatsParserSpec(unittest.TestCase):
             {'name': 'cars', 'type': 'Car', 'size': 'carCount', 'comments': ''}
         ]})
 
+    def test_can_parse_struct_sorted_array_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'struct Face',
+            '\teyeColor = uint8',
+            'struct Tracking',
+            '\tfaces = array(Face, 10, sort_key=eyeColor)'
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Tracking'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'faces', 'type': 'Face', 'size': 10, 'sort_key': 'eyeColor', 'comments': ''},
+        ]})
+
     def test_can_parse_struct_closed_by_other_type(self):
         # Act:
         type_descriptors = parse_all([
@@ -248,6 +263,14 @@ class CatsParserSpec(unittest.TestCase):
             'using MosaicId = uint16',
             'struct Foo',
             '\tids = array(MosaicId, numMosaics)',
+        ])
+
+    def test_cannot_parse_struct_with_unknown_sort_key(self):
+        # Act + Assert:
+        self._assert_parse_delayed_exception([
+            'using Face = uint16',
+            'struct Tracking',
+            '\tfaces = array(Face, 10, sort_key=eyeColor)'
         ])
 
     def test_cannot_parse_struct_with_unknown_inline_type(self):

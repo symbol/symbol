@@ -305,6 +305,12 @@ class StructMemberParserTest(unittest.TestCase):
                     'vehicles = array({0}, {1})'.format(type_name, numeric_str),
                     {'name': 'vehicles', 'type': type_name, 'size': 10})
 
+    def test_can_parse_array_with_sort_key(self):
+        # Act + Assert:
+        self._assert_parse(
+            'vehicles = array(Car, 10, sort_key=bar)',
+            {'name': 'vehicles', 'type': 'Car', 'size': 10, 'sort_key': 'bar'})
+
     def test_member_names_must_have_property_name_semantics(self):
         # Assert:
         SingleLineParserTestUtils(StructMemberParserFactory, self).assert_naming(

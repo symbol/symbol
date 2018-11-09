@@ -105,7 +105,7 @@ class StructMemberParser:
     """Parser for non-inline struct members"""
     def __init__(self, regex):
         self.regex = regex
-        self.array_type_regex = re.compile(r'^array\((\S+), (\S+)\)$')
+        self.array_type_regex = re.compile(r'^array\((\S+), (\S+)(, sort_key=(\S+))?\)$')
 
     def process_line(self, line):
         match = self.regex.match(line)
@@ -122,6 +122,10 @@ class StructMemberParser:
                 'type': array_type_match.group(1),
                 'size': array_size
             }
+
+            if array_type_match.group(3):
+                property_type_descriptor['sort_key'] = array_type_match.group(4)
+
         else:
             if is_builtin(linked_type_name):
                 property_type_descriptor = parse_builtin(linked_type_name)  # reduce builtins to byte
