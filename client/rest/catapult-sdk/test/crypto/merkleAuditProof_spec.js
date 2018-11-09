@@ -20,7 +20,7 @@
 
 const { expect } = require('chai');
 const {
-	indexOfLeafWithHash, buildAuditPath, NodePositionEnum, siblingOf, HashNotFoundError,
+	indexOfLeafWithHash, buildAuditPath, NodePosition, siblingOf, HashNotFoundError,
 	InvalidTree, evenify
 } = require('../../src/crypto/merkleAuditProof.js');
 const convert = require('../../src/utils/convert');
@@ -129,10 +129,10 @@ describe('siblingOf', () => {
 	});
 
 	it('should return valid values on different tree levels', () => {
-		expect(siblingOf(1)).to.deep.equal({ position: NodePositionEnum.left, index: 0 });
-		expect(siblingOf(2)).to.deep.equal({ position: NodePositionEnum.right, index: 3 });
-		expect(siblingOf(13)).to.deep.equal({ position: NodePositionEnum.left, index: 12 });
-		expect(siblingOf(14)).to.deep.equal({ position: NodePositionEnum.right, index: 15 });
+		expect(siblingOf(1)).to.deep.equal({ position: NodePosition.left, index: 0 });
+		expect(siblingOf(2)).to.deep.equal({ position: NodePosition.right, index: 3 });
+		expect(siblingOf(13)).to.deep.equal({ position: NodePosition.left, index: 12 });
+		expect(siblingOf(14)).to.deep.equal({ position: NodePosition.right, index: 15 });
 	});
 });
 
@@ -271,12 +271,12 @@ describe('buildAuditPath', () => {
 	});
 });
 
-describe('NodePositionEnum', () => {
+describe('NodePosition', () => {
 	it('should be 1 for Left value', () => {
-		expect(NodePositionEnum.left).to.equal(1);
+		expect(NodePosition.left).to.equal(1);
 	});
 
 	it('should be 2 for Right value', () => {
-		expect(NodePositionEnum.right).to.equal(2);
+		expect(NodePosition.right).to.equal(2);
 	});
 });

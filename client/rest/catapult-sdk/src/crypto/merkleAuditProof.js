@@ -20,7 +20,7 @@
 
 const arrayUtils = require('../utils/arrayUtils');
 
-const NodePositionEnum = Object.freeze({
+const NodePosition = Object.freeze({
 	left: 1,
 	right: 2
 });
@@ -43,12 +43,12 @@ const indexOfLeafWithHash = (hash, tree) => tree.nodes
 const siblingOf = nodeIndex => {
 	if (nodeIndex % 2) {
 		return {
-			position: NodePositionEnum.left,
+			position: NodePosition.left,
 			index: nodeIndex - 1
 		};
 	}
 	return {
-		position: NodePositionEnum.right,
+		position: NodePosition.right,
 		index: nodeIndex + 1
 	};
 };
@@ -90,7 +90,7 @@ module.exports = {
 	evenify,
 	indexOfLeafWithHash,
 	siblingOf,
-	NodePositionEnum,
+	NodePosition,
 	HashNotFoundError,
 	InvalidTree
 };
