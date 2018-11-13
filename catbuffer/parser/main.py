@@ -40,7 +40,7 @@ def _generate_output(generator_name, directory, schema):
         output_filename = os.path.join(output_path, generated_descriptor.filename)
         with open(output_filename, 'w', newline='\n') as output_file:
             for line in generated_descriptor.code:
-                output_file.write("%s\n" % line)
+                output_file.write('%s\n' % line)
 
 
 def generate():
