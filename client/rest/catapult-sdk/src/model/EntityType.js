@@ -49,10 +49,10 @@ const EntityType = {
 	aggregateBonded: 0x4241,
 
 	/** Hash lock transaction. */
-	hashLock: 0x414C,
+	hashLock: 0x4148,
 
 	/** Secret lock transaction. */
-	secretLock: 0x424C,
+	secretLock: 0x4152,
 
 	/** Secret proof transaction. */
 	secretProof: 0x434C,
@@ -61,10 +61,10 @@ const EntityType = {
 	accountPropertiesAddress: 0x4150,
 
 	/** Account properties mosaic modification transaction. */
-	accountPropertiesMosaic: 0x4151,
+	accountPropertiesMosaic: 0x4250,
 
 	/** Account properties entity type modification transaction. */
-	accountPropertiesEntityType: 0x4152
+	accountPropertiesEntityType: 0x4350
 };
 
 module.exports = EntityType;

@@ -33,12 +33,12 @@ describe('entity type enumeration', () => {
 			modifyMultisigAccount: 0x4155,
 			aggregateComplete: 0x4141,
 			aggregateBonded: 0x4241,
-			hashLock: 0x414C,
-			secretLock: 0x424C,
+			hashLock: 0x4148,
+			secretLock: 0x4152,
 			secretProof: 0x434C,
 			accountPropertiesAddress: 0x4150,
-			accountPropertiesMosaic: 0x4151,
-			accountPropertiesEntityType: 0x4152
+			accountPropertiesMosaic: 0x4250,
+			accountPropertiesEntityType: 0x4350
 		});
 	});
 
