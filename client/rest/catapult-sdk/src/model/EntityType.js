@@ -70,7 +70,10 @@ const EntityType = {
 	accountPropertiesMosaic: 0x4250,
 
 	/** Account properties entity type modification transaction. */
-	accountPropertiesEntityType: 0x4350
+	accountPropertiesEntityType: 0x4350,
+
+	/** Account link transaction. */
+	accountLink: 0x414C
 };
 
 module.exports = EntityType;

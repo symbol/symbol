@@ -19,6 +19,7 @@
  */
 
 /** @module plugins/catapultModelSystem */
+const accountLink = require('./accountLink');
 const accountProperties = require('./accountProperties');
 const aggregate = require('./aggregate');
 const lock = require('./lock');
@@ -30,7 +31,7 @@ const ModelSchemaBuilder = require('../model/ModelSchemaBuilder');
 const ModelCodecBuilder = require('../modelBinary/ModelCodecBuilder');
 
 const plugins = {
-	accountProperties, aggregate, lock, multisig, namespace, transfer
+	accountLink, accountProperties, aggregate, lock, multisig, namespace, transfer
 };
 
 /**

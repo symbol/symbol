@@ -43,7 +43,15 @@ describe('catapult model system', () => {
 			const supportedPluginNames = catapultModelSystem.supportedPluginNames();
 
 			// Assert:
-			expect(supportedPluginNames).to.deep.equal(['accountProperties', 'aggregate', 'lock', 'multisig', 'namespace', 'transfer']);
+			expect(supportedPluginNames).to.deep.equal([
+				'accountLink',
+				'accountProperties',
+				'aggregate',
+				'lock',
+				'multisig',
+				'namespace',
+				'transfer'
+			]);
 		});
 	});
 

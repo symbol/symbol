@@ -40,7 +40,8 @@ describe('entity type enumeration', () => {
 			secretProof: 0x434C,
 			accountPropertiesAddress: 0x4150,
 			accountPropertiesMosaic: 0x4250,
-			accountPropertiesEntityType: 0x4350
+			accountPropertiesEntityType: 0x4350,
+			accountLink: 0x414C
 		});
 	});
 
