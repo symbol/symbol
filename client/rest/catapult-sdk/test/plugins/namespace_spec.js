@@ -28,9 +28,9 @@ const test = require('../binaryTestUtils');
 
 const constants = {
 	sizes: {
-		name: 6,
+		namespaceName: 6,
 		registerNamespace: 18,
-		mosaicDefinition: 20,
+		mosaicDefinition: 15,
 		mosaicProperty: 9,
 		mosaicSupplyChange: 17
 	}
@@ -67,8 +67,8 @@ describe('namespace plugin', () => {
 			expect(modelSchema.registerNamespace).to.contain.all.keys(['namespaceId', 'parentId', 'duration', 'name']);
 
 			// - mosaic definition
-			expect(Object.keys(modelSchema.mosaicDefinition).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
-			expect(modelSchema.mosaicDefinition).to.contain.all.keys(['mosaicId', 'parentId', 'name', 'properties']);
+			expect(Object.keys(modelSchema.mosaicDefinition).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.mosaicDefinition).to.contain.all.keys(['mosaicId', 'properties']);
 
 			// - mosaic supply change
 			expect(Object.keys(modelSchema.mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
@@ -149,7 +149,7 @@ describe('namespace plugin', () => {
 			});
 
 			const addAll = namespaceType => {
-				const size = constants.sizes.registerNamespace + constants.sizes.name;
+				const size = constants.sizes.registerNamespace + constants.sizes.namespaceName;
 				test.binary.test.addAll(getCodec(EntityType.registerNamespace), size, () => generateTransaction(namespaceType));
 			};
 
@@ -165,17 +165,14 @@ describe('namespace plugin', () => {
 		describe('supports mosaic definition', () => {
 			const generateTransaction = () => ({
 				buffer: Buffer.concat([
-					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49), // parent Id
+					Buffer.of(0x06, 0xFF, 0xCA, 0xB8), // mosaic nonce
 					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // mosaic id
-					Buffer.of(0x06), // mosaic name size
-					Buffer.of(0x00, 0x11, 0xFF), // properties header
-					Buffer.of(0x6A, 0x61, 0x62, 0x6F, 0x33, 0x38) // mosaic name
+					Buffer.of(0x00, 0x11, 0xFF) // properties header
 				]),
 
 				object: {
-					parentId: [0x6E8ED0CA, 0x492F21FF],
+					nonce: 3100311302,
 					mosaicId: [0x066C26F2, 0x92B28340],
-					name: 'jabo38',
 					properties: [
 						{ key: 0x00, value: [0x11, 0] },
 						{ key: 0x01, value: [0xFF, 0] }
@@ -205,7 +202,7 @@ describe('namespace plugin', () => {
 			};
 
 			const addAll = (generator, extraSize) => {
-				const size = constants.sizes.mosaicDefinition + constants.sizes.name + extraSize;
+				const size = constants.sizes.mosaicDefinition + extraSize;
 				test.binary.test.addAll(getCodec(EntityType.mosaicDefinition), size, generator);
 			};
 
@@ -221,7 +218,7 @@ describe('namespace plugin', () => {
 				const runFailureTest = (properties, errorMessage) => {
 					// Arrange:
 					const codec = getCodec(EntityType.mosaicDefinition);
-					const serializer = new BinarySerializer(constants.sizes.mosaicDefinition + constants.sizes.name);
+					const serializer = new BinarySerializer(constants.sizes.mosaicDefinition);
 					const transaction = generateTransaction().object;
 					transaction.properties = properties;
 
