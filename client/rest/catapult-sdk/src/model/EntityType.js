@@ -30,6 +30,12 @@ const EntityType = {
 	/** Register namespace transaction. */
 	registerNamespace: 0x414E,
 
+	/** Alias address transaction. */
+	aliasAddress: 0x424E,
+
+	/** Alias mosaic transaction. */
+	aliasMosaic: 0x434E,
+
 	/** Mosaic definition transaction. */
 	mosaicDefinition: 0x414D,
 

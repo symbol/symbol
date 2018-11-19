@@ -21,7 +21,10 @@
 /** @module plugins/namespace */
 const EntityType = require('../model/EntityType');
 const ModelType = require('../model/ModelType');
+const sizes = require('../modelBinary/sizes');
 const uint64 = require('../utils/uint64');
+
+const constants = { sizes };
 
 const isNamespaceTypeRoot = namespaceType => 0 === namespaceType;
 
@@ -42,10 +45,16 @@ const namespacePlugin = {
 			name: ModelType.string
 		});
 
+		builder.addTransactionSupport(EntityType.aliasAddress, {
+			namespaceId: ModelType.uint64,
+			address: ModelType.binary
+		});
+
 		builder.addTransactionSupport(EntityType.mosaicDefinition, {
 			mosaicId: ModelType.uint64,
 			properties: { type: ModelType.array, schemaName: 'mosaicDefinition.mosaicProperty' }
 		});
+
 		builder.addSchema('mosaicDefinition.mosaicProperty', {
 			value: ModelType.uint64
 		});
@@ -53,6 +62,11 @@ const namespacePlugin = {
 		builder.addTransactionSupport(EntityType.mosaicSupplyChange, {
 			mosaicId: ModelType.uint64,
 			delta: ModelType.uint64
+		});
+
+		builder.addTransactionSupport(EntityType.aliasMosaic, {
+			namespaceId: ModelType.uint64,
+			mosaicId: ModelType.uint64
 		});
 
 		builder.addSchema('mosaicDescriptor', {
@@ -118,6 +132,20 @@ const namespacePlugin = {
 
 				serializer.writeUint8(transaction.name.length);
 				writeString(serializer, transaction.name);
+			}
+		});
+
+		codecBuilder.addTransactionSupport(EntityType.aliasAddress, {
+			deserialize: parser => ({
+				aliasAction: parser.uint8(),
+				namespaceId: parser.uint64(),
+				address: parser.buffer(constants.sizes.addressDecoded)
+			}),
+
+			serialize: (transaction, serializer) => {
+				serializer.writeUint8(transaction.aliasAction);
+				serializer.writeUint64(transaction.namespaceId);
+				serializer.writeBuffer(transaction.address);
 			}
 		});
 
@@ -191,6 +219,20 @@ const namespacePlugin = {
 				serializer.writeUint64(transaction.mosaicId);
 				serializer.writeUint8(transaction.direction);
 				serializer.writeUint64(transaction.delta);
+			}
+		});
+
+		codecBuilder.addTransactionSupport(EntityType.aliasMosaic, {
+			deserialize: parser => ({
+				aliasAction: parser.uint8(),
+				namespaceId: parser.uint64(),
+				mosaicId: parser.uint64()
+			}),
+
+			serialize: (transaction, serializer) => {
+				serializer.writeUint8(transaction.aliasAction);
+				serializer.writeUint64(transaction.namespaceId);
+				serializer.writeUint64(transaction.mosaicId);
 			}
 		});
 	}

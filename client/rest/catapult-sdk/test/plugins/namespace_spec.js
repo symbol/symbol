@@ -19,17 +19,19 @@
  */
 
 const { expect } = require('chai');
-const namespace = require('../../src/plugins/namespace');
+const test = require('../binaryTestUtils');
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const ModelType = require('../../src/model/ModelType');
+const namespace = require('../../src/plugins/namespace');
 const BinarySerializer = require('../../src/serializer/BinarySerializer');
-const test = require('../binaryTestUtils');
 
 const constants = {
 	sizes: {
+		aliasAddress: 34,
 		namespaceName: 6,
 		registerNamespace: 18,
+		aliasMosaic: 17,
 		mosaicDefinition: 15,
 		mosaicProperty: 9,
 		mosaicSupplyChange: 17
@@ -48,31 +50,48 @@ describe('namespace plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 10);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 12);
 			expect(modelSchema).to.contain.all.keys(
+				'aliasAddress',
+				'namespaceDescriptor',
+				'namespaceDescriptor.namespace',
+				'namespaceNameTuple',
 				'registerNamespace',
+				'aliasMosaic',
 				'mosaicDefinition',
-				'mosaicSupplyChange',
 				'mosaicDefinition.mosaicProperty',
 				'mosaicDescriptor',
 				'mosaicDescriptor.mosaic',
-				'namespaceDescriptor',
-				'namespaceDescriptor.namespace',
 				'mosaicNameTuple',
-				'namespaceNameTuple'
+				'mosaicSupplyChange'
 			);
+
+			// - alias address
+			expect(Object.keys(modelSchema.aliasAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.aliasAddress).to.contain.all.keys(['namespaceId', 'address']);
+
+			expect(Object.keys(modelSchema.namespaceDescriptor).length).to.equal(2);
+			expect(modelSchema.namespaceDescriptor).to.contain.all.keys(['meta', 'namespace']);
+
+			expect(Object.keys(modelSchema['namespaceDescriptor.namespace']).length).to.equal(8);
+			expect(modelSchema['namespaceDescriptor.namespace']).to.contain.all.keys([
+				'level0', 'level1', 'level2', 'parentId', 'owner', 'ownerAddress', 'startHeight', 'endHeight'
+			]);
+
+			expect(Object.keys(modelSchema.namespaceNameTuple).length).to.equal(3);
+			expect(modelSchema.namespaceNameTuple).to.contain.all.keys(['namespaceId', 'name', 'parentId']);
 
 			// - register namespace
 			expect(Object.keys(modelSchema.registerNamespace).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
 			expect(modelSchema.registerNamespace).to.contain.all.keys(['namespaceId', 'parentId', 'duration', 'name']);
 
+			// - alias mosaic
+			expect(Object.keys(modelSchema.aliasMosaic).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.aliasMosaic).to.contain.all.keys(['namespaceId', 'mosaicId']);
+
 			// - mosaic definition
 			expect(Object.keys(modelSchema.mosaicDefinition).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
 			expect(modelSchema.mosaicDefinition).to.contain.all.keys(['mosaicId', 'properties']);
-
-			// - mosaic supply change
-			expect(Object.keys(modelSchema.mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.mosaicSupplyChange).to.contain.all.keys(['mosaicId', 'delta']);
 
 			// - mosaic property
 			expect(modelSchema['mosaicDefinition.mosaicProperty']).to.deep.equal({
@@ -88,20 +107,13 @@ describe('namespace plugin', () => {
 				'namespaceId', 'mosaicId', 'supply', 'height', 'owner', 'properties'
 			]);
 
-			expect(Object.keys(modelSchema.namespaceDescriptor).length).to.equal(2);
-			expect(modelSchema.namespaceDescriptor).to.contain.all.keys(['meta', 'namespace']);
-
-			expect(Object.keys(modelSchema['namespaceDescriptor.namespace']).length).to.equal(8);
-			expect(modelSchema['namespaceDescriptor.namespace']).to.contain.all.keys([
-				'level0', 'level1', 'level2', 'parentId', 'owner', 'ownerAddress', 'startHeight', 'endHeight'
-			]);
-
 			// - name tuples
 			expect(Object.keys(modelSchema.mosaicNameTuple).length).to.equal(3);
 			expect(modelSchema.mosaicNameTuple).to.contain.all.keys(['mosaicId', 'name', 'parentId']);
 
-			expect(Object.keys(modelSchema.namespaceNameTuple).length).to.equal(3);
-			expect(modelSchema.namespaceNameTuple).to.contain.all.keys(['namespaceId', 'name', 'parentId']);
+			// - mosaic supply change
+			expect(Object.keys(modelSchema.mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
+			expect(modelSchema.mosaicSupplyChange).to.contain.all.keys(['mosaicId', 'delta']);
 		});
 	});
 
@@ -120,15 +132,35 @@ describe('namespace plugin', () => {
 			const codecs = getCodecs();
 
 			// Assert: codecs were registered
-			expect(Object.keys(codecs).length).to.equal(3);
+			expect(Object.keys(codecs).length).to.equal(5);
 			expect(codecs).to.contain.all.keys([
 				EntityType.registerNamespace.toString(),
+				EntityType.aliasAddress.toString(),
 				EntityType.mosaicDefinition.toString(),
-				EntityType.mosaicSupplyChange.toString()
+				EntityType.mosaicSupplyChange.toString(),
+				EntityType.aliasMosaic.toString()
 			]);
 		});
 
 		const getCodec = entityType => getCodecs()[entityType];
+
+		describe('supports alias address', () => {
+			const address = test.random.bytes(test.constants.sizes.addressDecoded);
+
+			test.binary.test.addAll(getCodec(EntityType.aliasAddress), constants.sizes.aliasAddress, () => ({
+				buffer: Buffer.concat([
+					Buffer.of(0xCA), // alias action
+					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
+					Buffer.from(address) // address
+				]),
+
+				object: {
+					aliasAction: 0xCA,
+					namespaceId: [0x066C26F2, 0x92B28340],
+					address
+				}
+			}));
+		});
 
 		describe('supports register namespace', () => {
 			const generateTransaction = namespaceType => ({
@@ -160,6 +192,22 @@ describe('namespace plugin', () => {
 			describe('with child type', () => {
 				addAll(0x01);
 			});
+		});
+
+		describe('supports alias mosaic', () => {
+			test.binary.test.addAll(getCodec(EntityType.aliasMosaic), constants.sizes.aliasMosaic, () => ({
+				buffer: Buffer.concat([
+					Buffer.of(0xCA), // alias action
+					Buffer.of(0xF2, 0x26, 0x6C, 0x06, 0x40, 0x83, 0xB2, 0x92), // namespace id
+					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49) // mosaic id
+				]),
+
+				object: {
+					aliasAction: 0xCA,
+					namespaceId: [0x066C26F2, 0x92B28340],
+					mosaicId: [0x6E8ED0CA, 0x492F21FF]
+				}
+			}));
 		});
 
 		describe('supports mosaic definition', () => {

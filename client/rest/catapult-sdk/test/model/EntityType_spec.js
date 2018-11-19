@@ -27,6 +27,8 @@ describe('entity type enumeration', () => {
 		expect(EntityType).to.deep.equal({
 			transfer: 0x4154,
 			registerNamespace: 0x414E,
+			aliasAddress: 0x424E,
+			aliasMosaic: 0x434E,
 			mosaicDefinition: 0x414D,
 			mosaicSupplyChange: 0x424D,
 			mosaicLevyChange: 0x434D,
