@@ -18,12 +18,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const catapult = require('catapult-sdk');
-const MongoDb = require('mongodb');
 const CatapultDb = require('../../src/db/CatapultDb');
+const MongoDb = require('mongodb');
 const test = require('./utils/dbTestUtils');
 const testDbOptions = require('./utils/testDbOptions');
+const { expect } = require('chai');
 
 const { address, EntityType } = catapult.model;
 

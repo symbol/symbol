@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const ModelType = require('../../src/model/ModelType');
+const { expect } = require('chai');
 
 describe('model type enumeration', () => {
 	it('exposes expected types', () => {

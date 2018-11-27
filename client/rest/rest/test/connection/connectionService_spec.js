@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const catapult = require('catapult-sdk');
 const { createConnectionService } = require('../../src/connection/connectionService');
+const { expect } = require('chai');
 
 const { convert } = catapult.utils;
 const { createKeyPairFromPrivateKeyString } = catapult.crypto;

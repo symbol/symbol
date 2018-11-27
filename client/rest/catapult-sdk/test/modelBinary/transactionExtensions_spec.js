@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
-const transactionExtensions = require('../../src/modelBinary/transactionExtensions');
 const sizes = require('../../src/modelBinary/sizes');
 const test = require('../testUtils');
+const transactionExtensions = require('../../src/modelBinary/transactionExtensions');
+const { expect } = require('chai');
 
 describe('transaction extensions', () => {
 	const createMockTransaction = (alpha, beta) => ({

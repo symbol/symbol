@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const catapult = require('catapult-sdk');
 const mosaicRoutes = require('../../../src/plugins/routes/mosaicRoutes');
 const test = require('../../routes/utils/routeTestUtils');
+const { expect } = require('chai');
 
 const { uint64 } = catapult.utils;
 

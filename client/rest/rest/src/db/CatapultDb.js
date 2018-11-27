@@ -21,8 +21,8 @@
 /** @module db/CatapultDb */
 
 const catapult = require('catapult-sdk');
-const MongoDb = require('mongodb');
 const connector = require('./connector');
+const MongoDb = require('mongodb');
 
 const { address, EntityType } = catapult.model;
 const { ObjectId } = MongoDb;

@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const idReducer = require('../../src/model/idReducer');
+const { expect } = require('chai');
 
 describe('id reducer', () => {
 	describe('id to name lookup', () => {

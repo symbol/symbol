@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
-const EventEmitter = require('events');
 const entityEmitterFactory = require('../../src/db/entityEmitterFactory');
+const EventEmitter = require('events');
+const { expect } = require('chai');
 
 describe('entity emitter factory', () => {
 	it('registers block listener', () => {

@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const SubscriptionManager = require('../../src/server/SubscriptionManager');
+const { expect } = require('chai');
 
 describe('subscription manager', () => {
 	const createSubscription = (channel, client) => ({ channel, client });

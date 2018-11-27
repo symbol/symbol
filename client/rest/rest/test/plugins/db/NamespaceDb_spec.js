@@ -19,8 +19,8 @@
  */
 
 const AccountType = require('../../../src/plugins/AccountType');
-const { expect } = require('chai');
 const test = require('./utils/namespaceDbTestUtils');
+const { expect } = require('chai');
 
 describe('namespace db', () => {
 	const createOwner = test.random.account;

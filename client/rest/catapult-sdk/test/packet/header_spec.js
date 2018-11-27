@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const packetHeader = require('../../src/packet/header');
+const { expect } = require('chai');
 
 describe('packet header', () => {
 	describe('constants', () => {

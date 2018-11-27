@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const convert = require('../../src/utils/convert');
 const uint64 = require('../../src/utils/uint64');
+const { expect } = require('chai');
 
 describe('uint64', () => {
 	describe('compact', () => {

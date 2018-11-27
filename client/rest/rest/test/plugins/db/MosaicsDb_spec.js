@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const test = require('./utils/mosaicDbTestUtils');
+const { expect } = require('chai');
 
 describe('mosaics db', () => {
 	const createMosaics = (numNamespaces, numMosaicsPerNamespace) => {

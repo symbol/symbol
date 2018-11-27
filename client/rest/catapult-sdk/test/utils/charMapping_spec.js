@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const charMapping = require('../../src/utils/charMapping');
+const { expect } = require('chai');
 
 describe('char mapping', () => {
 	describe('builder', () => {

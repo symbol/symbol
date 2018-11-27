@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const BinarySerializer = require('../../src/serializer/BinarySerializer');
+const { expect } = require('chai');
 
 describe('BinarySerializer', () => {
 	// region constructor

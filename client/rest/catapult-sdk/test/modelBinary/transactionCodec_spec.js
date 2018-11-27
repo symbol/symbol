@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const transactionCodec = require('../../src/modelBinary/transactionCodec');
 const test = require('../binaryTestUtils');
+const transactionCodec = require('../../src/modelBinary/transactionCodec');
 
 describe('transaction codec', () => {
 	const generateTransaction = () => ({

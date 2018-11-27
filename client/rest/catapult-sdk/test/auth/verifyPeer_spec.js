@@ -18,12 +18,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
-const { verify } = require('../../src/crypto/keyPair');
 const PacketType = require('../../src/packet/PacketType');
+const test = require('./utils/authUtils');
 const verifyPeer = require('../../src/auth/verifyPeer');
 const VerifyResult = require('../../src/auth/VerifyResult');
-const test = require('./utils/authUtils');
+const { expect } = require('chai');
+const { verify } = require('../../src/crypto/keyPair');
 
 describe('verify peer', () => {
 	describe('verify server', () => {

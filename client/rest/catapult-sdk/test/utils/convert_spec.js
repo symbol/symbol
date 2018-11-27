@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const convert = require('../../src/utils/convert');
+const { expect } = require('chai');
 
 describe('convert', () => {
 	describe('toByte', () => {

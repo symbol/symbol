@@ -19,9 +19,9 @@
  */
 
 const crypto = require('crypto');
-const { sign } = require('../../../src/crypto/keyPair');
 const PacketType = require('../../../src/packet/PacketType');
 const test = require('../../testUtils');
+const { sign } = require('../../../src/crypto/keyPair');
 
 const Challenge_Size = 64;
 

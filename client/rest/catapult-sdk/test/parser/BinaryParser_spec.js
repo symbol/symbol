@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const BinaryParser = require('../../src/parser/BinaryParser');
+const { expect } = require('chai');
 
 describe('BinaryParser', () => {
 	// region push

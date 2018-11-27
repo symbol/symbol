@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const dbTestUtils = require('../../../db/utils/dbTestUtils');
 const MongoDb = require('mongodb');
 const NamespaceDb = require('../../../../src/plugins/db/NamespaceDb');
 const test = require('../../../testUtils');
-const dbTestUtils = require('../../../db/utils/dbTestUtils');
 
 const { Binary, Long } = MongoDb;
 

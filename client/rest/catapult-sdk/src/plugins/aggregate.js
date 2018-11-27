@@ -19,11 +19,11 @@
  */
 
 /** @module plugins/aggregate */
+const embeddedEntityCodec = require('../modelBinary/embeddedEntityCodec');
 const EntityType = require('../model/EntityType');
 const ModelType = require('../model/ModelType');
-const embeddedEntityCodec = require('../modelBinary/embeddedEntityCodec');
-const sizes = require('../modelBinary/sizes');
 const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
+const sizes = require('../modelBinary/sizes');
 
 const constants = { sizes: {} };
 Object.assign(constants.sizes, sizes, {

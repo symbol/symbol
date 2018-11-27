@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const BinaryParser = require('../src/parser/BinaryParser');
 const BinarySerializer = require('../src/serializer/BinarySerializer');
 const test = require('./testUtils');
+const { expect } = require('chai');
 
 const binaryTestUtils = {
 	binary: {

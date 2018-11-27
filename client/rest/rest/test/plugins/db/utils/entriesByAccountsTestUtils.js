@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const test = require('../../../testUtils');
+const { expect } = require('chai');
 
 const createOwner = test.random.account;
 

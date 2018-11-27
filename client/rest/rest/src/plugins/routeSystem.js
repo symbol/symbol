@@ -21,9 +21,9 @@
 const aggregate = require('./aggregate');
 const empty = require('./empty');
 const lock = require('./lock');
+const MessageChannelBuilder = require('../connection/MessageChannelBuilder');
 const multisig = require('./multisig');
 const namespace = require('./namespace');
-const MessageChannelBuilder = require('../connection/MessageChannelBuilder');
 
 const plugins = {
 	aggregate, lock, multisig, namespace, transfer: empty

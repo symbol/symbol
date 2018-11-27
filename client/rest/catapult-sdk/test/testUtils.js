@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const crypto = require('crypto');
-const { createKeyPairFromPrivateKeyString } = require('../src/crypto/keyPair');
-const sizes = require('../src/modelBinary/sizes');
 const convert = require('../src/utils/convert');
+const crypto = require('crypto');
+const sizes = require('../src/modelBinary/sizes');
+const { createKeyPairFromPrivateKeyString } = require('../src/crypto/keyPair');
 
 module.exports = {
 	constants: { sizes },

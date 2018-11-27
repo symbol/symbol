@@ -20,8 +20,8 @@
 
 const AccountType = require('../AccountType');
 const catapult = require('catapult-sdk');
-const routeUtils = require('../../routes/routeUtils');
 const errors = require('../../server/errors');
+const routeUtils = require('../../routes/routeUtils');
 
 const { uint64 } = catapult.utils;
 

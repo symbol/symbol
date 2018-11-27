@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const websocketUtils = require('../../src/server/websocketUtils');
+const { expect } = require('chai');
 
 describe('websocketUtils', () => {
 	const createMockSender = (options = {}) => {

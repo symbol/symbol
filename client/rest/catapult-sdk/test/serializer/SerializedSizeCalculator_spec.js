@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const SerializedSizeCalculator = require('../../src/serializer/SerializedSizeCalculator');
+const { expect } = require('chai');
 
 describe('EntitySizeCalculator', () => {
 	const addTypeSerializerTests = (name, validData, expectedSize) => {

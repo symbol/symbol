@@ -18,11 +18,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const catapult = require('catapult-sdk');
 const spammerUtils = require('../../src/model/spammerUtils');
-const transactionFactory = require('../../src/model/transactionFactory');
 const test = require('../testUtils');
+const transactionFactory = require('../../src/model/transactionFactory');
+const { expect } = require('chai');
 
 const createKey = catapult.crypto.createKeyPairFromPrivateKeyString;
 const modelCodec = catapult.plugins.catapultModelSystem.configure(['transfer', 'aggregate'], {}).codec;

@@ -20,9 +20,9 @@
 
 const catapult = require('catapult-sdk');
 const dbFacade = require('./dbFacade');
+const errors = require('../server/errors');
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
-const errors = require('../server/errors');
 
 const { indexOfLeafWithHash, buildAuditPath } = catapult.crypto.merkle;
 

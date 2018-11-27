@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const challengeParser = require('../../src/auth/challengeParser');
+const { expect } = require('chai');
 
 describe('challenge parser', () => {
 	const Test_Buffer_64 = Buffer.of(

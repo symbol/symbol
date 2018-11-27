@@ -19,8 +19,8 @@
  */
 
 /** @module parser/PacketParser */
-const EventEmitter = require('events');
 const BinaryParser = require('./BinaryParser');
+const EventEmitter = require('events');
 
 const Packet_Header_Size = 8;
 

@@ -18,35 +18,35 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const auth = require('./auth/auth');
-const { createKeyPairFromPrivateKeyString, sign, verify } = require('./crypto/keyPair');
-const merkle = require('./crypto/merkleAuditProof');
-const sha3Hasher = require('./crypto/sha3Hasher');
 const address = require('./model/address');
-const EntityType = require('./model/EntityType');
-const idReducer = require('./model/idReducer');
-const ModelType = require('./model/ModelType');
-const networkInfo = require('./model/networkInfo');
-const status = require('./model/status');
-const serialize = require('./modelBinary/serialize');
-const sizes = require('./modelBinary/sizes');
-const transactionExtensions = require('./modelBinary/transactionExtensions');
-const packetHeader = require('./packet/header');
-const PacketType = require('./packet/PacketType');
-const BinaryParser = require('./parser/BinaryParser');
-const PacketParser = require('./parser/PacketParser');
-const catapultModelSystem = require('./plugins/catapultModelSystem');
-const BinarySerializer = require('./serializer/BinarySerializer');
-const SerializedSizeCalculator = require('./serializer/SerializedSizeCalculator');
 const arrayUtils = require('./utils/arrayUtils');
+const auth = require('./auth/auth');
 const base32 = require('./utils/base32');
+const BinaryParser = require('./parser/BinaryParser');
+const BinarySerializer = require('./serializer/BinarySerializer');
+const catapultModelSystem = require('./plugins/catapultModelSystem');
 const convert = require('./utils/convert');
+const EntityType = require('./model/EntityType');
 const formattingUtils = require('./utils/formattingUtils');
 const future = require('./utils/future');
+const idReducer = require('./model/idReducer');
+const merkle = require('./crypto/merkleAuditProof');
+const ModelType = require('./model/ModelType');
+const networkInfo = require('./model/networkInfo');
 const objects = require('./utils/objects');
+const packetHeader = require('./packet/header');
+const PacketParser = require('./parser/PacketParser');
+const PacketType = require('./packet/PacketType');
 const schemaFormatter = require('./utils/schemaFormatter');
 const SchemaType = require('./utils/SchemaType');
+const serialize = require('./modelBinary/serialize');
+const SerializedSizeCalculator = require('./serializer/SerializedSizeCalculator');
+const sha3Hasher = require('./crypto/sha3Hasher');
+const sizes = require('./modelBinary/sizes');
+const status = require('./model/status');
+const transactionExtensions = require('./modelBinary/transactionExtensions');
 const uint64 = require('./utils/uint64');
+const { createKeyPairFromPrivateKeyString, sign, verify } = require('./crypto/keyPair');
 
 const catapultSdk = {
 	auth,

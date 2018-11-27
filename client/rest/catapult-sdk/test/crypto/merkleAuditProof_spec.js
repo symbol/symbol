@@ -18,12 +18,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
+const convert = require('../../src/utils/convert');
 const {
 	indexOfLeafWithHash, buildAuditPath, NodePosition, siblingOf, HashNotFoundError,
 	InvalidTree, evenify
 } = require('../../src/crypto/merkleAuditProof.js');
-const convert = require('../../src/utils/convert');
+const { expect } = require('chai');
 
 const hexStringToBuffer = input => Buffer.from(convert.hexToUint8(input), 'hex');
 

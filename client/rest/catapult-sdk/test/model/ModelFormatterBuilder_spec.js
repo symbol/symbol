@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const ModelFormatterBuilder = require('../../src/model/ModelFormatterBuilder');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const ModelType = require('../../src/model/ModelType');
+const { expect } = require('chai');
 
 const modelSchema = new ModelSchemaBuilder().build();
 const formattingRules = {

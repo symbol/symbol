@@ -5,6 +5,9 @@ env:
 extends: airbnb
 parserOptions:
   sourceType: module
+plugins:
+  - sort-requires
+
 rules:
   indent:
   - error
@@ -97,3 +100,6 @@ rules:
   - error
   import/named:
   - error
+
+  sort-requires/sort-requires:
+  - 2

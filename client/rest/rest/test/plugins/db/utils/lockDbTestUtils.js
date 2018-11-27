@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MongoDb = require('mongodb');
-const LockDb = require('../../../../src/plugins/db/LockDb');
-const test = require('../../../testUtils');
 const dbTestUtils = require('../../../db/utils/dbTestUtils');
+const LockDb = require('../../../../src/plugins/db/LockDb');
+const MongoDb = require('mongodb');
+const test = require('../../../testUtils');
 
 const { Binary } = MongoDb;
 

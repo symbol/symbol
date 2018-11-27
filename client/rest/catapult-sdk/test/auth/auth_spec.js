@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const auth = require('../../src/auth/auth');
-const VerifyResult = require('../../src/auth/VerifyResult');
 const test = require('./utils/authUtils');
+const VerifyResult = require('../../src/auth/VerifyResult');
+const { expect } = require('chai');
 
 describe('create auth promise', () => {
 	const generateServerChallengeRequest = () => {

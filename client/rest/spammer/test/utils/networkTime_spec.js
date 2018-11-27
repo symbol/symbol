@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const networkTime = require('../../src/utils/networkTime');
+const { expect } = require('chai');
 
 describe('network time', () => {
 	it('is positive', () => {

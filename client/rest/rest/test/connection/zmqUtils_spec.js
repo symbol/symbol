@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
-const zmqUtils = require('../../src/connection/zmqUtils');
 const test = require('../testUtils');
+const zmqUtils = require('../../src/connection/zmqUtils');
+const { expect } = require('chai');
 
 describe('zmqUtils', () => {
 	const createMockZsocket = () => {

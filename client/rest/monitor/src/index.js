@@ -20,9 +20,9 @@
 
 const catapult = require('catapult-sdk');
 const fs = require('fs');
-const { createConnection } = require('net');
-const winston = require('winston');
 const modelFormatter = require('./model/modelFormatter');
+const winston = require('winston');
+const { createConnection } = require('net');
 
 const { createAuthPromise } = catapult.auth;
 const { createKeyPairFromPrivateKeyString } = catapult.crypto;

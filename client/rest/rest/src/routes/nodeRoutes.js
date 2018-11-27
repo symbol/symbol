@@ -19,9 +19,9 @@
  */
 
 const catapult = require('catapult-sdk');
-const routeResultTypes = require('./routeResultTypes');
 const nodeInfoCodec = require('../sockets/nodeInfoCodec');
 const nodeTimeCodec = require('../sockets/nodeTimeCodec');
+const routeResultTypes = require('./routeResultTypes');
 
 const packetHeader = catapult.packet.header;
 const { PacketType } = catapult.packet;

@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const arrayUtils = require('../../src/utils/arrayUtils');
 const convert = require('../../src/utils/convert');
+const { expect } = require('chai');
 
 describe('array', () => {
 	describe('uint8View', () => {

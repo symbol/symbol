@@ -19,9 +19,9 @@
  */
 
 const AccountType = require('../../../src/plugins/AccountType');
-const { expect } = require('chai');
 const test = require('./utils/lockDbTestUtils');
 const testUtils = require('../../testUtils');
+const { expect } = require('chai');
 
 describe('lock db', () => {
 	const createOwner = testUtils.random.account;

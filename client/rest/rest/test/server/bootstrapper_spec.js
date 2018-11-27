@@ -18,18 +18,18 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
+const bootstrapper = require('../../src/server/bootstrapper');
 const catapult = require('catapult-sdk');
-const hippie = require('hippie');
+const errors = require('../../src/server/errors');
 const EventEmitter = require('events');
+const formatters = require('../../src/server/formatters');
+const hippie = require('hippie');
+const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
+const test = require('../testUtils');
 const WebSocket = require('ws');
 const zmq = require('zeromq');
 const { createZmqConnectionService } = require('../../src/connection/zmqService');
-const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
-const formatters = require('../../src/server/formatters');
-const bootstrapper = require('../../src/server/bootstrapper');
-const errors = require('../../src/server/errors');
-const test = require('../testUtils');
+const { expect } = require('chai');
 
 const supportedHttpMethods = ['get', 'post', 'put'];
 

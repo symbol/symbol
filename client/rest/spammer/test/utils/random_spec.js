@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const random = require('../../src/utils/random');
+const { expect } = require('chai');
 
 describe('random', () => {
 	const bigNumbers = [0x0100000000, 0x0100000001, 0x123456789, Number.MAX_SAFE_INTEGER];

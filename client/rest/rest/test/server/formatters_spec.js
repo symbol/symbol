@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const formatters = require('../../src/server/formatters');
+const { expect } = require('chai');
 
 describe('formatters', () => {
 	const createFormatters = name => {

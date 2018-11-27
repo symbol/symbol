@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const networkInfo = require('../../src/model/networkInfo');
+const { expect } = require('chai');
 
 describe('network info', () => {
 	describe('networks', () => {

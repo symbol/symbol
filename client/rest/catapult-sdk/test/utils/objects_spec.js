@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const objects = require('../../src/utils/objects');
+const { expect } = require('chai');
 
 describe('objects', () => {
 	const propertyTypeDescriptors = [

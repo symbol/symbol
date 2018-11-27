@@ -19,8 +19,8 @@
  */
 
 const catapult = require('catapult-sdk');
-const { expect } = require('chai');
 const nodeTimeCodec = require('../../src/sockets/nodeTimeCodec');
+const { expect } = require('chai');
 
 const { BinaryParser } = catapult.parser;
 

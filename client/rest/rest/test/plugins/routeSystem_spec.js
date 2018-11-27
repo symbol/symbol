@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const routeSystem = require('../../src/plugins/routeSystem');
 const test = require('../routes/utils/routeTestUtils');
+const { expect } = require('chai');
 
 describe('route system', () => {
 	const servicesTemplate = { config: { websocket: {} }, connections: {} };

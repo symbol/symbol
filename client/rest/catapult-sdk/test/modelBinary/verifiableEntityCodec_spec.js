@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const verifiableEntityCodec = require('../../src/modelBinary/verifiableEntityCodec');
 const test = require('../binaryTestUtils');
+const verifiableEntityCodec = require('../../src/modelBinary/verifiableEntityCodec');
 
 describe('verifiable entity codec', () => {
 	const generateVerifiableEntity = () => {

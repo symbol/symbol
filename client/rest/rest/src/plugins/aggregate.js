@@ -19,8 +19,8 @@
  */
 
 /** @module plugins/aggregate */
-const catapult = require('catapult-sdk');
 const aggregateRoutes = require('./routes/aggregateRoutes');
+const catapult = require('catapult-sdk');
 
 const { BinaryParser } = catapult.parser;
 

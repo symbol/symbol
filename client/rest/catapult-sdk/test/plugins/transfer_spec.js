@@ -18,12 +18,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
-const transfer = require('../../src/plugins/transfer');
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const ModelType = require('../../src/model/ModelType');
 const test = require('../binaryTestUtils');
+const transfer = require('../../src/plugins/transfer');
+const { expect } = require('chai');
 
 const constants = {
 	sizes: {

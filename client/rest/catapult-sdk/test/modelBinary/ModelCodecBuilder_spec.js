@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
-const ModelCodecBuilder = require('../../src/modelBinary/ModelCodecBuilder');
 const BinaryParser = require('../../src/parser/BinaryParser');
+const ModelCodecBuilder = require('../../src/modelBinary/ModelCodecBuilder');
 const test = require('../binaryTestUtils');
+const { expect } = require('chai');
 
 const constants = {
 	knownTxType: 0x4123,

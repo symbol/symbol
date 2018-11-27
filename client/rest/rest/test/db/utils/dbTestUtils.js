@@ -19,8 +19,8 @@
  */
 
 const catapult = require('catapult-sdk');
-const MongoDb = require('mongodb');
 const CatapultDb = require('../../../src/db/CatapultDb');
+const MongoDb = require('mongodb');
 const test = require('../../testUtils');
 const testDbOptions = require('./testDbOptions');
 

@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const address = require('../../src/model/address');
 const convert = require('../../src/utils/convert');
 const test = require('../testUtils');
+const { expect } = require('chai');
 
 const Address_Decoded_Size = 25;
 const Network_Mijin_Identifier = 0x60;

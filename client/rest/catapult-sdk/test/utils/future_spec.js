@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const future = require('../../src/utils/future');
+const { expect } = require('chai');
 
 describe('future', () => {
 	describe('makeRetryable', () => {

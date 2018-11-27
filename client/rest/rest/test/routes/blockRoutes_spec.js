@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const catapult = require('catapult-sdk');
+const { expect } = require('chai');
 
 const { convert } = catapult.utils;
 const blockRoutes = require('../../src/routes/blockRoutes');

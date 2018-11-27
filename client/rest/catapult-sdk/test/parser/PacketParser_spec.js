@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const PacketParser = require('../../src/parser/PacketParser');
+const { expect } = require('chai');
 
 describe('PacketParser', () => {
 	const Test_Buffer_64 = Buffer.of(

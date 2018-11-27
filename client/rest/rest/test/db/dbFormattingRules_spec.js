@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const catapult = require('catapult-sdk');
 const formattingRules = require('../../src/db/dbFormattingRules');
 const test = require('../testUtils');
+const { expect } = require('chai');
 
 const { ModelType } = catapult.model;
 

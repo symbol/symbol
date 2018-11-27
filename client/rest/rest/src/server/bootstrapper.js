@@ -18,14 +18,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const errors = require('./errors');
 const restify = require('restify');
 const restifyErrors = require('restify-errors');
-const winston = require('winston');
-const WebSocket = require('ws');
-const errors = require('./errors');
 const SubscriptionManager = require('./SubscriptionManager');
+const WebSocket = require('ws');
 const websocketMessageHandler = require('./websocketMessageHandler');
 const websocketUtils = require('./websocketUtils');
+const winston = require('winston');
 
 const isPromise = object => object && object.catch;
 

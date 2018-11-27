@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const aggregate = require('../../src/plugins/aggregate');
 const pluginTest = require('./utils/pluginTestUtils');
 const test = require('../routes/utils/routeTestUtils');
+const { expect } = require('chai');
 
 describe('aggregate plugin', () => {
 	pluginTest.assertThat.pluginDoesNotCreateDb(aggregate);

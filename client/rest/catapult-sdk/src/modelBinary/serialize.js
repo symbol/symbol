@@ -20,8 +20,8 @@
 
 /** @module modelBinary/serialize */
 const BinarySerializer = require('../serializer/BinarySerializer');
-const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
 const convert = require('../utils/convert');
+const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
 
 const serializeToBuffer = (codec, entity) => {
 	const calculator = new SerializedSizeCalculator();

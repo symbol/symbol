@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const modelFormatter = require('../../src/model/modelFormatter');
+const { expect } = require('chai');
 
 describe('model formatter', () => {
 	describe('block', () => {

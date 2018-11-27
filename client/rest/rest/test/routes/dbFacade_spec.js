@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const dbFacade = require('../../src/routes/dbFacade');
+const { expect } = require('chai');
 
 describe('db facade', () => {
 	describe('run height dependent operation', () => {

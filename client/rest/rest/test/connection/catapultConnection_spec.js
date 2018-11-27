@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const catapultConnection = require('../../src/connection/catapultConnection');
+const { expect } = require('chai');
 
 describe('catapult connection', () => {
 	const createTestContext = () => {

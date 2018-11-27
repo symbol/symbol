@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const status = require('../../src/model/status');
+const { expect } = require('chai');
 
 describe('status', () => {
 	describe('toString', () => {

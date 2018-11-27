@@ -19,8 +19,8 @@
  */
 
 /** @module plugins/lock */
-const lockRoutes = require('./routes/lockRoutes');
 const LockDb = require('./db/LockDb');
+const lockRoutes = require('./routes/lockRoutes');
 
 /**
  * Creates a lock plugin.

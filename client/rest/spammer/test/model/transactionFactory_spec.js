@@ -18,11 +18,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const catapult = require('catapult-sdk');
-const transactionFactory = require('../../src/model/transactionFactory');
 const networkTime = require('../../src/utils/networkTime');
 const test = require('../testUtils');
+const transactionFactory = require('../../src/model/transactionFactory');
+const { expect } = require('chai');
 
 const Signature_Size = catapult.constants.sizes.signature;
 const Address_Decoded_Size = catapult.constants.sizes.addressDecoded;

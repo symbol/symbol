@@ -19,9 +19,9 @@
  */
 
 /** @module crypto/sha3Hasher */
-const { sha3_256, sha3_512 } = require('js-sha3');
 const arrayUtils = require('../utils/arrayUtils');
 const convert = require('../utils/convert');
+const { sha3_256, sha3_512 } = require('js-sha3');
 
 const getHasher = (length = 64) => ({ 32: sha3_256, 64: sha3_512 }[length]);
 

@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const websocketMessageHandler = require('../../src/server/websocketMessageHandler');
+const { expect } = require('chai');
 
 describe('websocketMessageHandler', () => {
 	// region invalid

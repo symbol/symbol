@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const parseArgs = require('minimist');
 const catapult = require('catapult-sdk');
+const parseArgs = require('minimist');
 
 module.exports = {
 	url: (() => {

@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const errors = require('../server/errors');
 const catapult = require('catapult-sdk');
+const errors = require('../server/errors');
 
 const { PacketParser } = catapult.parser;
 

@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const formattingUtils = require('../../src/utils/formattingUtils');
+const { expect } = require('chai');
 
 const createEntity = seed => ({ foo: seed, bar: seed + 1, bazz: seed + 2 });
 

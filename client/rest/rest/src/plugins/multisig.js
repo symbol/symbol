@@ -19,8 +19,8 @@
  */
 
 /** @module plugins/multisig */
-const multisigRoutes = require('./routes/multisigRoutes');
 const MultisigDb = require('./db/MultisigDb');
+const multisigRoutes = require('./routes/multisigRoutes');
 
 /**
  * Creates a multisig plugin.

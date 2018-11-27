@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
 const connector = require('../../src/db/connector');
 const testDbOptions = require('./utils/testDbOptions');
+const { expect } = require('chai');
 
 describe('connector', () => {
 	const connections = [];
