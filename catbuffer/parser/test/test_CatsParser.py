@@ -16,7 +16,7 @@ def parse_all(lines, imports=None):
     return parser.type_descriptors()
 
 
-class CatsParserSpec(unittest.TestCase):
+class CatsParserTests(unittest.TestCase):
     # region utils
 
     def _assert_parse_delayed_exception(self, lines):
@@ -160,6 +160,30 @@ class CatsParserSpec(unittest.TestCase):
             {'name': 'amount', 'type': 'Amount', 'comments': ''}
         ]})
 
+    def test_can_parse_struct_conditional_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'enum Shape : uint8',
+            '\tcircle = 4',
+            '\trectangle = 9',
+            'using Circ = uint16',
+            'using Perm = uint16',
+            'struct Enclosing',
+            '\tenclosingType = Shape',
+            '\t# u part 1',
+            '\tcircumference = Circ if enclosingType equals circle',
+            '\t# union part 2',
+            '\tperimiter = Perm if enclosingType equals rectangle',
+        ])
+
+        # Assert:
+        self.assertEqual(4, len(type_descriptors))
+        self.assertEqual(type_descriptors['Enclosing'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'enclosingType', 'type': 'Shape', 'comments': ''},
+            {'name': 'circumference', 'type': 'Circ', 'condition': 'enclosingType', 'condition_value': 'circle', 'comments': 'u part 1'},
+            {'name': 'perimiter', 'type': 'Perm', 'condition': 'enclosingType', 'condition_value': 'rectangle', 'comments': 'union part 2'}
+        ]})
+
     def test_can_parse_struct_array_types(self):
         # Act:
         type_descriptors = parse_all([
@@ -256,6 +280,27 @@ class CatsParserSpec(unittest.TestCase):
                 'struct Foo',
                 '\tid = {0}'.format(type_name),
             ])
+
+    def test_cannot_parse_struct_with_non_enum_condition_link(self):
+        # Act:
+        self._assert_parse_delayed_exception([
+            'using Shape = uint8',
+            'using Circ = uint16',
+            'struct Enclosing',
+            '\tenclosingType = Shape',
+            '\tcircumference = Circ if enclosingType equals 123'
+        ])
+
+    def test_cannot_parse_struct_with_unknown_condition_value(self):
+        # Act:
+        self._assert_parse_delayed_exception([
+            'enum Shape : uint8',
+            '\tcircle = 1',
+            'using Circ = uint16',
+            'struct Enclosing',
+            '\tenclosingType = Shape',
+            '\tcircumference = Circ if enclosingType equals hexagon'
+        ])
 
     def test_cannot_parse_struct_with_unknown_array_size(self):
         # Act + Assert:

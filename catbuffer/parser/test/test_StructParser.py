@@ -3,7 +3,9 @@ import unittest
 from test.constants import \
     VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, BUILTIN_TYPE_TUPLES, VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES, VALID_UINT_NAMES
 from test.ParserTestUtils import MultiLineParserTestUtils, SingleLineParserTestUtils, ParserFactoryTestUtils
-from catparser.StructParser import StructParserFactory, StructConstParserFactory, StructInlineParserFactory, StructMemberParserFactory
+from catparser.StructParser import \
+    StructParserFactory, StructConstParserFactory, StructInlineParserFactory, StructArrayMemberParserFactory, \
+    StructScalarMemberParserFactory
 from catparser.CatsParseException import CatsParseException
 
 # region StructParserTest
@@ -37,7 +39,7 @@ class StructParserTest(unittest.TestCase):
         parser = StructParserFactory().create()
 
         # Assert
-        self.assertEqual(3, len(parser.factories()))
+        self.assertEqual(4, len(parser.factories()))
 
     def test_can_parse_type_declaration(self):
         # Act + Assert:
@@ -49,7 +51,7 @@ class StructParserTest(unittest.TestCase):
         # Assert:
         MultiLineParserTestUtils(StructParserFactory, self).assert_naming('struct {0}', VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES)
 
-    def test_can_append_non_array(self):
+    def test_can_append_scalar(self):
         # Arrange:
         parser = StructParserFactory().create()
 
@@ -61,6 +63,35 @@ class StructParserTest(unittest.TestCase):
 
         # Assert:
         self.assertEqual(('Car', {'type': 'struct', 'layout': [{'name': 'foo'}, {'name': 'bar'}]}), result)
+
+    def test_can_append_scalar_conditional(self):
+        # Arrange:
+        parser = StructParserFactory().create()
+
+        # Act:
+        parser.process_line('struct Car')
+        parser.append({'name': 'foo'})
+        parser.append({'name': 'bar', 'condition': 'foo', 'condition_value': 'red'})
+        result = parser.commit()
+
+        # Assert:
+        self.assertEqual(('Car', {'type': 'struct', 'layout': [
+            {'name': 'foo'},
+            {'name': 'bar', 'condition': 'foo', 'condition_value': 'red'}
+        ]}), result)
+
+    def test_cannot_append_scalar_with_invalid_condition_reference(self):
+        for condition in ['baz', '10']:
+            # Arrange:
+            parser = StructParserFactory().create()
+
+            # Act:
+            parser.process_line('struct Car')
+            parser.append({'name': 'foo'})
+
+            # Assert:
+            with self.assertRaises(CatsParseException):
+                parser.append({'name': 'bar', 'condition': condition, 'condition_value': 'red'})
 
     def test_can_append_array_with_numeric_size(self):
         # Arrange:
@@ -255,40 +286,28 @@ class StructInlineParserTest(unittest.TestCase):
 
 # endregion
 
-# region StructMemberParser
+# region StructArrayMemberParser
 
 
-class StructMemberParserFactoryTest(unittest.TestCase):
+class StructArrayMemberParserFactoryTest(unittest.TestCase):
     def test_is_match_returns_true_for_positives(self):
         # Assert:
-        ParserFactoryTestUtils(StructMemberParserFactory, self).assert_positives([
-            'foo = bar', 'foo = BAR', 'fzaZa09 = d', '& = $$$', 'foo = fazFZA90', 'foo = array(bar, baz)'
+        ParserFactoryTestUtils(StructArrayMemberParserFactory, self).assert_positives([
+            'foo = array(bar, baz)', '$$$ = array(&, **)'
         ])
 
     def test_is_match_returns_false_for_negatives(self):
         # Assert:
-        ParserFactoryTestUtils(StructMemberParserFactory, self).assert_negatives([
-            ' foo = bar', 'foo = bar ', 'foo = ', '= bar'
+        ParserFactoryTestUtils(StructArrayMemberParserFactory, self).assert_negatives([
+            ' foo = array(bar, baz)', 'foo = array(bar, baz) ', 'foo = ', '= array(bar, baz)',
+            'foo = array(bar, baz', 'foo = array(bar, baz) if abc equals def'
         ])
 
 
-class StructMemberParserTest(unittest.TestCase):
+class StructArrayMemberParserTest(unittest.TestCase):
     def _assert_parse(self, line, expected_result):
         # Assert:
-        SingleLineParserTestUtils(StructMemberParserFactory, self).assert_parse(line, expected_result)
-
-    def test_can_parse_simple_custom_declaration(self):
-        # Act + Assert:
-        self._assert_parse(
-            'car = Vehicle_',
-            {'name': 'car', 'type': 'Vehicle_'})
-
-    def test_can_parse_simple_builtin_declaration(self):
-        for builtin_tuple in BUILTIN_TYPE_TUPLES:
-            # Act + Assert:
-            self._assert_parse(
-                'car = {0}'.format(builtin_tuple[0]),
-                {'name': 'car', 'type': 'byte', 'size': builtin_tuple[1]})
+        SingleLineParserTestUtils(StructArrayMemberParserFactory, self).assert_parse(line, expected_result)
 
     def test_can_parse_array_with_non_numeric_size(self):
         for type_name in ['byte', 'Car']:
@@ -313,7 +332,57 @@ class StructMemberParserTest(unittest.TestCase):
 
     def test_member_names_must_have_property_name_semantics(self):
         # Assert:
-        SingleLineParserTestUtils(StructMemberParserFactory, self).assert_naming(
+        SingleLineParserTestUtils(StructArrayMemberParserFactory, self).assert_naming(
+            '{0} = array(Car, 10)',
+            VALID_PROPERTY_NAMES,
+            INVALID_PROPERTY_NAMES)
+
+# endregion
+
+# region StructScalarMemberParser
+
+
+class StructScalarParserFactoryTest(unittest.TestCase):
+    def test_is_match_returns_true_for_positives(self):
+        # Assert:
+        ParserFactoryTestUtils(StructScalarMemberParserFactory, self).assert_positives([
+            'foo = bar', 'foo = BAR', 'fzaZa09 = d', '& = $$$', 'foo = fazFZA90', 'foo = bar if abc equals def'
+        ])
+
+    def test_is_match_returns_false_for_negatives(self):
+        # Assert:
+        ParserFactoryTestUtils(StructScalarMemberParserFactory, self).assert_negatives([
+            ' foo = bar', 'foo = bar ', 'foo = ', '= bar', 'foo = array(bar, baz)', 'foo = bar if abc equals', 'foo = bar abc equals def'
+        ])
+
+
+class StructScalarParserTest(unittest.TestCase):
+    def _assert_parse(self, line, expected_result):
+        # Assert:
+        SingleLineParserTestUtils(StructScalarMemberParserFactory, self).assert_parse(line, expected_result)
+
+    def test_can_parse_simple_custom_declaration(self):
+        # Act + Assert:
+        self._assert_parse(
+            'car = Vehicle_',
+            {'name': 'car', 'type': 'Vehicle_'})
+
+    def test_can_parse_simple_builtin_declaration(self):
+        for builtin_tuple in BUILTIN_TYPE_TUPLES:
+            # Act + Assert:
+            self._assert_parse(
+                'car = {0}'.format(builtin_tuple[0]),
+                {'name': 'car', 'type': 'byte', 'size': builtin_tuple[1]})
+
+    def test_can_parse_conditional_custom_declaration(self):
+        # Act + Assert:
+        self._assert_parse(
+            'roadGrade = RoadGrade_ if terrain equals road',
+            {'name': 'roadGrade', 'type': 'RoadGrade_', 'condition': 'terrain', 'condition_value': 'road'})
+
+    def test_member_names_must_have_property_name_semantics(self):
+        # Assert:
+        SingleLineParserTestUtils(StructScalarMemberParserFactory, self).assert_naming(
             '{0} = uint32',
             VALID_PROPERTY_NAMES,
             INVALID_PROPERTY_NAMES)

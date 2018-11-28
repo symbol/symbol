@@ -67,9 +67,23 @@ class CatsParser(ScopeManager):
             if 'type' in parse_result:
                 self._require_known_type(parse_result['type'])
 
-                # sort key can only be present if type is present
+                # perform extra validation on some property links for better error detection/messages
                 if 'sort_key' in parse_result:
-                    self._require_field(parse_result['type'], parse_result['sort_key'])
+                    # sort key processing will only occur if linked field type already exists
+                    self._require_type_with_field(parse_result['type'], parse_result['sort_key'])
+
+                if 'condition' in parse_result:
+                    # when condition is being post processed here, it is known that the linked condition field is part of
+                    # the struct and the linked condition type already exists
+
+                    # look up condition type descriptor by searching active parser descriptor layout
+                    condition_field_name = parse_result['condition']
+                    condition_type_descriptor = next(
+                        descriptor for descriptor in self.active_parser.type_descriptor['layout']
+                        if descriptor['name'] == condition_field_name
+                    )
+
+                    self._require_enum_type_with_value(condition_type_descriptor['type'], parse_result['condition_value'])
 
             self.active_parser.append({**parse_result, **partial_descriptor})
         elif hasattr(parse_result, 'import_file'):
@@ -91,10 +105,18 @@ class CatsParser(ScopeManager):
 
         return type_name
 
-    def _require_field(self, type_name, field_name):
+    def _require_type_with_field(self, type_name, field_name):
         type_descriptor = self.wip_type_descriptors[type_name]
         if not any(field_name == field['name'] for field in type_descriptor['layout']):
             raise CatsParseException('"{0}" does not have field "{1}"'.format(type_name, field_name))
+
+    def _require_enum_type_with_value(self, type_name, value_name):
+        enum_type_descriptor = self.wip_type_descriptors[type_name]
+        if 'values' not in enum_type_descriptor:
+            raise CatsParseException('linked type "{0}" must be an enum type'.format(type_name))
+
+        if not any(value_name == value['name'] for value in enum_type_descriptor['values']):
+            raise CatsParseException('linked enum type "{0}" does not contain value "{1}"'.format(type_name, value_name))
 
     def _set_type_descriptor(self, type_name, type_descriptor):
         if type_name in self.wip_type_descriptors:

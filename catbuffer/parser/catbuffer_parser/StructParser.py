@@ -1,10 +1,11 @@
 # pylint: disable=too-few-public-methods
-import re
 from .CatsParseException import CatsParseException
 from .CompositeTypeParser import CompositeTypeParser
 from .RegexParserFactory import RegexParserFactory
 from .parserutils import is_builtin, is_dec_or_hex, is_uint, parse_builtin, parse_dec_or_hex, require_property_name, require_user_type_name
 
+
+# region StructParser(Factory)
 
 class StructParser(CompositeTypeParser):
     """Parser for `struct` statements"""
@@ -12,7 +13,8 @@ class StructParser(CompositeTypeParser):
         super().__init__(regex, [
             StructConstParserFactory(),
             StructInlineParserFactory(),
-            StructMemberParserFactory()
+            StructArrayMemberParserFactory(),
+            StructScalarMemberParserFactory()
         ])
 
     def process_line(self, line):
@@ -24,15 +26,18 @@ class StructParser(CompositeTypeParser):
         if 'size' in property_type_descriptor:
             self._require_known_property(property_type_descriptor['size'])
 
+        if 'condition' in property_type_descriptor:
+            self._require_known_property(property_type_descriptor['condition'], False)
+
         descriptor_uid = self._get_descriptor_uid(property_type_descriptor)
         if descriptor_uid[0]:
             self._require_unknown_property(descriptor_uid)
 
         self.type_descriptor['layout'].append(property_type_descriptor)
 
-    def _require_known_property(self, property_name):
+    def _require_known_property(self, property_name, allow_numeric=True):
         # size can be a constant represented by a numeric type
-        if not isinstance(property_name, str):
+        if allow_numeric and not isinstance(property_name, str):
             return
 
         if all('name' not in property_type_descriptor or property_name != property_type_descriptor['name']
@@ -53,6 +58,10 @@ class StructParserFactory(RegexParserFactory):
     """Factory for creating struct parsers"""
     def __init__(self):
         super().__init__(r'struct (\S+)', StructParser)
+
+# endregion
+
+# region StructConstParser(Factory)
 
 
 class StructConstParser:
@@ -84,6 +93,10 @@ class StructConstParserFactory(RegexParserFactory):
         super().__init__(r'const (\S+) (\S+) = (\S+)', StructConstParser)
 
 
+# endregion
+
+# region StructInlineParser(Factory)
+
 class StructInlineParser:
     """Parser for inline struct members"""
     def __init__(self, regex):
@@ -100,43 +113,72 @@ class StructInlineParserFactory(RegexParserFactory):
     def __init__(self):
         super().__init__(r'inline (\S+)', StructInlineParser)
 
+# endregion
 
-class StructMemberParser:
-    """Parser for non-inline struct members"""
+# region StructArrayMemberParser(Factory)
+
+
+class StructArrayMemberParser:
+    """Parser for non-inline array struct members"""
     def __init__(self, regex):
         self.regex = regex
-        self.array_type_regex = re.compile(r'^array\((\S+), (\S+)(, sort_key=(\S+))?\)$')
 
     def process_line(self, line):
         match = self.regex.match(line)
-        linked_type_name = match.group(2)
-        array_type_match = self.array_type_regex.match(linked_type_name)
 
         # type is resolved to exist upstream, so its naming doesn't need to be checked here
-        if array_type_match:
-            array_size = array_type_match.group(2)
-            if is_dec_or_hex(array_size):
-                array_size = parse_dec_or_hex(array_size)
+        array_size = match.group(3)
+        if is_dec_or_hex(array_size):
+            array_size = parse_dec_or_hex(array_size)
 
-            property_type_descriptor = {
-                'type': array_type_match.group(1),
-                'size': array_size
-            }
+        property_type_descriptor = {
+            'type': match.group(2),
+            'size': array_size
+        }
 
-            if array_type_match.group(3):
-                property_type_descriptor['sort_key'] = array_type_match.group(4)
-
-        else:
-            if is_builtin(linked_type_name):
-                property_type_descriptor = parse_builtin(linked_type_name)  # reduce builtins to byte
-            else:
-                property_type_descriptor = {'type': linked_type_name}
+        if match.group(4):
+            property_type_descriptor['sort_key'] = match.group(5)
 
         property_type_descriptor['name'] = require_property_name(match.group(1))
         return property_type_descriptor
 
 
-class StructMemberParserFactory(RegexParserFactory):
+class StructArrayMemberParserFactory(RegexParserFactory):
     """Factory for creating struct member parsers"""
     def __init__(self):
-        super().__init__(r'(\S+) = ([\S,\(\) ]*\S)', StructMemberParser)
+        super().__init__(r'(\S+) = array\((\S+), (\S+)(, sort_key=(\S+))?\)', StructArrayMemberParser)
+
+# endregion
+
+# region StructScalarMemberParser(Factory)
+
+
+class StructScalarMemberParser:
+    """Parser for non-inline scalar struct members"""
+    def __init__(self, regex):
+        self.regex = regex
+
+    def process_line(self, line):
+        match = self.regex.match(line)
+        linked_type_name = match.group(2)
+
+        # type is resolved to exist upstream, so its naming doesn't need to be checked here
+        if is_builtin(linked_type_name):
+            property_type_descriptor = parse_builtin(linked_type_name)  # reduce builtins to byte
+        else:
+            property_type_descriptor = {'type': linked_type_name}
+
+        if match.group(3):
+            property_type_descriptor['condition'] = match.group(4)
+            property_type_descriptor['condition_value'] = match.group(5)
+
+        property_type_descriptor['name'] = require_property_name(match.group(1))
+        return property_type_descriptor
+
+
+class StructScalarMemberParserFactory(RegexParserFactory):
+    """Factory for creating struct member parsers"""
+    def __init__(self):
+        super().__init__(r'(\S+) = (\S+)( if (\S+) equals (\S+))?', StructScalarMemberParser)
+
+# endregion
