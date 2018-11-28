@@ -47,7 +47,7 @@ def generate():
     parser = argparse.ArgumentParser(description='CATS code generator')
     parser.add_argument('-i', '--input', help='the input CATS file', required=True)
     generators_list = list(AVAILABLE_GENERATORS.keys())
-    parser.add_argument('-d', '--dir', help='output directory', default='_generated')
+    parser.add_argument('-o', '--output', help='output directory', default='_generated')
     parser.add_argument('-g', '--generator', help='the generator to use to produce output files', choices=generators_list)
     args = parser.parse_args()
 
@@ -63,7 +63,7 @@ def generate():
 
     # generate and output code
     if args.generator:
-        _generate_output(args.generator, args.dir, type_descriptors)
+        _generate_output(args.generator, args.output, type_descriptors)
 
 
 generate()

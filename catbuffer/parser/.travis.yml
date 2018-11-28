@@ -2,7 +2,7 @@ language: python
 python:
   - "3.6"
 
-install: pip install pycodestyle pylint pylint-quotes
+install: pip install pycodestyle pylint pylint-quotes pyyaml
 
 script:
   - pylint --load-plugins pylint_quotes main.py catparser generators test
