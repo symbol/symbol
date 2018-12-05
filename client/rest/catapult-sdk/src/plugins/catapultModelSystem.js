@@ -26,12 +26,13 @@ const lock = require('./lock');
 const ModelCodecBuilder = require('../modelBinary/ModelCodecBuilder');
 const ModelFormatterBuilder = require('../model/ModelFormatterBuilder');
 const ModelSchemaBuilder = require('../model/ModelSchemaBuilder');
+const mosaic = require('./mosaic');
 const multisig = require('./multisig');
 const namespace = require('./namespace');
 const transfer = require('./transfer');
 
 const plugins = {
-	accountLink, accountProperties, aggregate, lock, multisig, namespace, transfer
+	accountLink, accountProperties, aggregate, lock, mosaic, multisig, namespace, transfer
 };
 
 /**

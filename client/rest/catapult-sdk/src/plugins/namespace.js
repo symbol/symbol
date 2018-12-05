@@ -22,7 +22,6 @@
 const EntityType = require('../model/EntityType');
 const ModelType = require('../model/ModelType');
 const sizes = require('../modelBinary/sizes');
-const uint64 = require('../utils/uint64');
 
 const constants = { sizes };
 
@@ -38,30 +37,9 @@ const writeString = (serializer, str) => { serializer.writeBuffer(Buffer.from(st
  */
 const namespacePlugin = {
 	registerSchema: builder => {
-		builder.addTransactionSupport(EntityType.registerNamespace, {
-			namespaceId: ModelType.uint64,
-			parentId: ModelType.uint64,
-			duration: ModelType.uint64,
-			name: ModelType.string
-		});
-
 		builder.addTransactionSupport(EntityType.aliasAddress, {
 			namespaceId: ModelType.uint64,
 			address: ModelType.binary
-		});
-
-		builder.addTransactionSupport(EntityType.mosaicDefinition, {
-			mosaicId: ModelType.uint64,
-			properties: { type: ModelType.array, schemaName: 'mosaicDefinition.mosaicProperty' }
-		});
-
-		builder.addSchema('mosaicDefinition.mosaicProperty', {
-			value: ModelType.uint64
-		});
-
-		builder.addTransactionSupport(EntityType.mosaicSupplyChange, {
-			mosaicId: ModelType.uint64,
-			delta: ModelType.uint64
 		});
 
 		builder.addTransactionSupport(EntityType.aliasMosaic, {
@@ -69,18 +47,11 @@ const namespacePlugin = {
 			mosaicId: ModelType.uint64
 		});
 
-		builder.addSchema('mosaicDescriptor', {
-			meta: { type: ModelType.object, schemaName: 'transactionMetadata' },
-			mosaic: { type: ModelType.object, schemaName: 'mosaicDescriptor.mosaic' }
-		});
-		builder.addSchema('mosaicDescriptor.mosaic', {
+		builder.addTransactionSupport(EntityType.registerNamespace, {
 			namespaceId: ModelType.uint64,
-			mosaicId: ModelType.uint64,
-			supply: ModelType.uint64,
-
-			height: ModelType.uint64,
-			owner: ModelType.binary,
-			properties: { type: ModelType.array, schemaName: ModelType.uint64 }
+			parentId: ModelType.uint64,
+			duration: ModelType.uint64,
+			name: ModelType.string
 		});
 
 		builder.addSchema('namespaceDescriptor', {
@@ -100,11 +71,6 @@ const namespacePlugin = {
 			endHeight: ModelType.uint64
 		});
 
-		builder.addSchema('mosaicNameTuple', {
-			mosaicId: ModelType.uint64,
-			name: ModelType.string,
-			parentId: ModelType.uint64
-		});
 		builder.addSchema('namespaceNameTuple', {
 			namespaceId: ModelType.uint64,
 			name: ModelType.string,
@@ -113,6 +79,34 @@ const namespacePlugin = {
 	},
 
 	registerCodecs: codecBuilder => {
+		codecBuilder.addTransactionSupport(EntityType.aliasAddress, {
+			deserialize: parser => ({
+				aliasAction: parser.uint8(),
+				namespaceId: parser.uint64(),
+				address: parser.buffer(constants.sizes.addressDecoded)
+			}),
+
+			serialize: (transaction, serializer) => {
+				serializer.writeUint8(transaction.aliasAction);
+				serializer.writeUint64(transaction.namespaceId);
+				serializer.writeBuffer(transaction.address);
+			}
+		});
+
+		codecBuilder.addTransactionSupport(EntityType.aliasMosaic, {
+			deserialize: parser => ({
+				aliasAction: parser.uint8(),
+				namespaceId: parser.uint64(),
+				mosaicId: parser.uint64()
+			}),
+
+			serialize: (transaction, serializer) => {
+				serializer.writeUint8(transaction.aliasAction);
+				serializer.writeUint64(transaction.namespaceId);
+				serializer.writeUint64(transaction.mosaicId);
+			}
+		});
+
 		codecBuilder.addTransactionSupport(EntityType.registerNamespace, {
 			deserialize: parser => {
 				const transaction = {};
@@ -132,107 +126,6 @@ const namespacePlugin = {
 
 				serializer.writeUint8(transaction.name.length);
 				writeString(serializer, transaction.name);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.aliasAddress, {
-			deserialize: parser => ({
-				aliasAction: parser.uint8(),
-				namespaceId: parser.uint64(),
-				address: parser.buffer(constants.sizes.addressDecoded)
-			}),
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint8(transaction.aliasAction);
-				serializer.writeUint64(transaction.namespaceId);
-				serializer.writeBuffer(transaction.address);
-			}
-		});
-
-		const numRequiredProperties = 2; // flags and divisibility
-		codecBuilder.addTransactionSupport(EntityType.mosaicDefinition, {
-			deserialize: parser => {
-				const transaction = {};
-
-				transaction.nonce = parser.uint32();
-
-				transaction.mosaicId = parser.uint64();
-
-				const propertiesCount = parser.uint8();
-
-				transaction.properties = [];
-				for (let i = 0; i < numRequiredProperties; ++i)
-					transaction.properties.push({ key: i, value: uint64.fromUint(parser.uint8()) });
-
-				if (0 < propertiesCount) {
-					for (let i = 0; i < propertiesCount; ++i) {
-						const key = parser.uint8();
-						const value = parser.uint64();
-						transaction.properties.push({ key, value });
-					}
-				}
-
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint32(transaction.nonce);
-				serializer.writeUint64(transaction.mosaicId);
-
-				const propertiesCount = transaction.properties.length - numRequiredProperties;
-				if (0 > propertiesCount)
-					throw Error('all required properties must be specified in bag');
-
-				serializer.writeUint8(propertiesCount);
-
-				// notice that required property values are uint8 size
-				for (let i = 0; i < numRequiredProperties; ++i) {
-					const property = transaction.properties[i];
-					if (i !== property.key)
-						throw Error(`unexpected property ${property.key} at position ${i} in bag`);
-
-					const value = uint64.compact(property.value);
-					if ('number' !== typeof value || 0xFF < value)
-						throw Error(`property ${property.key} value is too large`);
-
-					serializer.writeUint8(value);
-				}
-
-				for (let i = 0; i < propertiesCount; ++i) {
-					const property = transaction.properties[numRequiredProperties + i];
-					serializer.writeUint8(property.key);
-					serializer.writeUint64(property.value);
-				}
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.mosaicSupplyChange, {
-			deserialize: parser => {
-				const transaction = {};
-				transaction.mosaicId = parser.uint64();
-				transaction.direction = parser.uint8();
-				transaction.delta = parser.uint64();
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint64(transaction.mosaicId);
-				serializer.writeUint8(transaction.direction);
-				serializer.writeUint64(transaction.delta);
-			}
-		});
-
-		codecBuilder.addTransactionSupport(EntityType.aliasMosaic, {
-			deserialize: parser => ({
-				aliasAction: parser.uint8(),
-				namespaceId: parser.uint64(),
-				mosaicId: parser.uint64()
-			}),
-
-			serialize: (transaction, serializer) => {
-				serializer.writeUint8(transaction.aliasAction);
-				serializer.writeUint64(transaction.namespaceId);
-				serializer.writeUint64(transaction.mosaicId);
 			}
 		});
 	}

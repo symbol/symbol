@@ -19,7 +19,6 @@
  */
 
 /** @module plugins/namespace */
-const mosaicRoutes = require('./routes/mosaicRoutes');
 const NamespaceDb = require('./db/NamespaceDb');
 const namespaceRoutes = require('./routes/namespaceRoutes');
 
@@ -35,7 +34,6 @@ module.exports = {
 	registerMessageChannels: () => {},
 
 	registerRoutes: (...args) => {
-		mosaicRoutes.register(...args);
 		namespaceRoutes.register(...args);
 	}
 };

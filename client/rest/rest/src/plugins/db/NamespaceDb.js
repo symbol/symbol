@@ -80,42 +80,6 @@ class NamespaceDb {
 	}
 
 	// endregion
-
-	// region mosaic retrieval
-
-	/**
-	 * Retrieves mosaics.
-	 * @param {Array.<module:catapult.utils/uint64~uint64>} ids The mosaic ids.
-	 * @returns {Promise.<array>} The mosaics.
-	 */
-	mosaicsByIds(ids) {
-		const mosaicIds = ids.map(id => new Long(id[0], id[1]));
-		const conditions = createActiveConditions();
-		conditions.$and.push({ 'mosaic.mosaicId': { $in: mosaicIds } });
-		const collection = this.catapultDb.database.collection('mosaics');
-		return collection.find(conditions)
-			.sort({ _id: -1 })
-			.toArray()
-			.then(entities => Promise.resolve(this.catapultDb.sanitizer.copyAndDeleteIds(entities)));
-	}
-
-	/**
-	 * Retrieves mosaics under given namespace.
-	 * @param {module:catapult.utils/uint64~uint64} namespaceId The namespace id.
-	 * @param {string} id Paging id.
-	 * @param {int} pageSize Page size.
-	 * @param {object} options Additional options.
-	 * @returns {Promise.<array>} The mosaics.
-	 */
-	mosaicsByNamespaceId(namespaceId, id, pageSize, options) {
-		const namespaceIdLong = new Long(namespaceId[0], namespaceId[1]);
-		const conditions = createActiveConditions();
-		conditions.$and.push({ 'mosaic.namespaceId': namespaceIdLong });
-		return this.catapultDb.queryPagedDocuments('mosaics', conditions, id, pageSize, options)
-			.then(this.catapultDb.sanitizer.copyAndDeleteIds);
-	}
-
-	// endregion
 }
 
 module.exports = NamespaceDb;

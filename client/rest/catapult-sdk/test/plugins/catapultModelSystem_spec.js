@@ -48,6 +48,7 @@ describe('catapult model system', () => {
 				'accountProperties',
 				'aggregate',
 				'lock',
+				'mosaic',
 				'multisig',
 				'namespace',
 				'transfer'

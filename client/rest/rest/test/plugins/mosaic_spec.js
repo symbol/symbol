@@ -18,15 +18,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const namespace = require('../../src/plugins/namespace');
-const NamespaceDb = require('../../src/plugins/db/NamespaceDb');
+const mosaic = require('../../src/plugins/mosaic');
+const MosaicDb = require('../../src/plugins/db/MosaicDb');
 const pluginTest = require('./utils/pluginTestUtils');
 const test = require('../routes/utils/routeTestUtils');
 
-describe('namespace plugin', () => {
-	pluginTest.assertThat.pluginCreatesDb(namespace, NamespaceDb);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(namespace);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(namespace);
+describe('mosaic plugin', () => {
+	pluginTest.assertThat.pluginCreatesDb(mosaic, MosaicDb);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(mosaic);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(mosaic);
 
 	describe('register routes', () => {
 		it('registers GET routes', () => {
@@ -35,12 +35,11 @@ describe('namespace plugin', () => {
 			const server = test.setup.createCapturingMockServer('get', routes);
 
 			// Act:
-			namespace.registerRoutes(server, {});
+			mosaic.registerRoutes(server, {});
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/:accountId/namespaces',
-				'/namespace/:namespaceId'
+				'/mosaic/:mosaicId',
 			]);
 		});
 
@@ -50,12 +49,11 @@ describe('namespace plugin', () => {
 			const server = test.setup.createCapturingMockServer('post', routes);
 
 			// Act:
-			namespace.registerRoutes(server, {});
+			mosaic.registerRoutes(server, {});
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/namespaces',
-				'/namespace/names'
+				'/mosaic'
 			]);
 		});
 	});
