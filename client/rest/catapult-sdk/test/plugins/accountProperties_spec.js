@@ -23,13 +23,22 @@ const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const test = require('../binaryTestUtils');
 const { expect } = require('chai');
 
-const { accountPropertiesPlugin, PropertyType } = require('../../src/plugins/accountProperties');
+const accountPropertiesPlugin = require('../../src/plugins/accountProperties');
+
+const propertyTypeBlockOffset = 128;
+const PropertyType = Object.freeze({
+	addressAllow: 1,
+	addressBlock: 1 + propertyTypeBlockOffset,
+	mosaicAllow: 2,
+	mosaicBlock: 2 + propertyTypeBlockOffset,
+	entityTypeAllow: 4,
+	entityTypeBlock: 4 + propertyTypeBlockOffset
+});
 
 describe('account properties plugin', () => {
 	describe('property types enumeration', () => {
 		it('contains valid values', () => {
 			// Assert:
-			const propertyTypeBlockOffset = 128;
 			expect(PropertyType.addressAllow).to.equal(1);
 			expect(PropertyType.addressBlock).to.equal(1 + propertyTypeBlockOffset);
 			expect(PropertyType.mosaicAllow).to.equal(2);

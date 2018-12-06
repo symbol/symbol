@@ -38,6 +38,7 @@ describe('route system', () => {
 
 		// Assert:
 		expect(supportedPluginNames).to.deep.equal([
+			'accountProperties',
 			'aggregate',
 			'lock',
 			'mosaic',

@@ -25,15 +25,6 @@ const sizes = require('../modelBinary/sizes');
 
 const constants = { sizes };
 
-const propertyTypeBlockOffset = 128;
-const PropertyType = Object.freeze({
-	addressAllow: 1,
-	addressBlock: 1 + propertyTypeBlockOffset,
-	mosaicAllow: 2,
-	mosaicBlock: 2 + propertyTypeBlockOffset,
-	entityTypeAllow: 4,
-	entityTypeBlock: 4 + propertyTypeBlockOffset
-});
 
 const accountPropertiesCreateBaseCodec = valueCodec => ({
 	deserialize: parser => {
@@ -114,7 +105,4 @@ const accountPropertiesPlugin = {
 	}
 };
 
-module.exports = {
-	accountPropertiesPlugin,
-	PropertyType
-};
+module.exports = accountPropertiesPlugin;
