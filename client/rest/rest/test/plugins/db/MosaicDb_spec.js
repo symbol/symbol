@@ -21,7 +21,7 @@
 const test = require('./utils/mosaicDbTestUtils');
 const { expect } = require('chai');
 
-describe('mosaics db', () => {
+describe('mosaic db', () => {
 	const createMosaics = (numNamespaces, numMosaicsPerNamespace) => {
 		const owner = test.random.publicKey();
 		return test.db.createMosaics(owner, numNamespaces, numMosaicsPerNamespace);
