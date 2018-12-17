@@ -65,7 +65,7 @@ module.exports = {
 					}
 
 					const merkleTree = {
-						numberOfTransactions: block.meta.numTransactions,
+						count: block.meta.numTransactions,
 						nodes: block.meta.merkleTree.map(merkleHash => merkleHash.buffer)
 					};
 

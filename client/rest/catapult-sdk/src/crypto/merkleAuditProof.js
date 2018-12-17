@@ -31,13 +31,13 @@ class InvalidTree extends Error {}
 const evenify = number => (number % 2 ? number + 1 : number);
 
 /**
- * Returns the index of a transaction hash in a Merkle tree.
- * @param {Uint8Array} hash The transaction hash to look up in the tree.
- * @param {object} tree The Merkle tree object containing the number of transactions and the tree of hashes.
+ * Returns the index of a hash in a Merkle tree.
+ * @param {Uint8Array} hash The hash to look up in the tree.
+ * @param {object} tree The Merkle tree object containing the number of hashed elements and the tree of hashes.
  * @returns {array} The index of the first element in the tree matching the given hash, otherwise -1 is returned.
  */
 const indexOfLeafWithHash = (hash, tree) => tree.nodes
-	.slice(0, evenify(tree.numberOfTransactions))
+	.slice(0, evenify(tree.count))
 	.findIndex(element => arrayUtils.deepEqual(element, hash));
 
 const siblingOf = nodeIndex => {
@@ -54,17 +54,17 @@ const siblingOf = nodeIndex => {
 };
 
 /**
- * Given a Merkle tree and a transaction in it, returns the audit path required for a consistency check.
- * @param {Uint8Array} hash The transaction hash for which to build the audit path.
- * @param {object} tree The Merkle tree object containing the number of transactions and the tree of hashes.
+ * Given a Merkle tree and a hashed element in it, returns the audit path required for a consistency check.
+ * @param {Uint8Array} hash The element's hash for which to build the audit path.
+ * @param {object} tree The Merkle tree object containing the number of elements and the tree of hashes.
  * @returns {array} Array of objects containing the Merkle tree hash, and its relative position (left or right).
  */
 const buildAuditPath = (hash, tree) => {
-	if (0 === tree.numberOfTransactions)
+	if (0 === tree.count)
 		throw new InvalidTree();
 
 	let layerStart = 0;
-	let currentLayerCount = tree.numberOfTransactions;
+	let currentLayerCount = tree.count;
 	let layerSubindexOfHash = indexOfLeafWithHash(hash, tree);
 	if (-1 === layerSubindexOfHash)
 		throw new HashNotFoundError();

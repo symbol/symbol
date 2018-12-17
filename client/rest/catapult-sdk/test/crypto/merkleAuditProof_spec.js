@@ -28,7 +28,7 @@ const { expect } = require('chai');
 const hexStringToBuffer = input => Buffer.from(convert.hexToUint8(input), 'hex');
 
 const merkleTree = {
-	numberOfTransactions: 4,
+	count: 4,
 	nodes: [
 		hexStringToBuffer('8D25B2639A7D12FEAAAEF34358B215E97533F9FFDDA5B9FADFD8ECC229695263'),
 		hexStringToBuffer('8AB2F19A47C5B30CC389AE1580F0472B4D3AFEEA83CDF0F707D03ED76B15A00C'),
@@ -41,7 +41,7 @@ const merkleTree = {
 };
 
 const merkleTreeLong = {
-	numberOfTransactions: 6,
+	count: 6,
 	nodes: [
 		hexStringToBuffer('A983745F69959AF438C5B59501B7B6FCD4312DE1F5252A6E8B54D09E23266A7C'),
 		hexStringToBuffer('5A639C5865FFA3331C3315BE2797F490D7D9C12826AF08C3643929DCAC391E21'),
@@ -83,7 +83,7 @@ describe('indexOfLeafWithHash', () => {
 	it('should return -1 if hash not found in an empty tree', () => {
 		expect(indexOfLeafWithHash(
 			hexStringToBuffer('9ED4FE218563EE52D2AE18CAFD9CD12A403EAD9737EFC1B8AADD892A00000000'),
-			{ nodes: [], numberOfTransactions: 0 }
+			{ nodes: [], count: 0 }
 		)).to.equal(-1);
 	});
 
@@ -91,7 +91,7 @@ describe('indexOfLeafWithHash', () => {
 		const hash = hexStringToBuffer('9ED4FE218563EE52D2AE18CAFD9CD12A403EAD9737EFC1B8AADD892A00000000');
 		expect(indexOfLeafWithHash(
 			hash,
-			{ nodes: [hash], numberOfTransactions: 1 }
+			{ nodes: [hash], count: 1 }
 		)).to.equal(0);
 	});
 
@@ -106,7 +106,7 @@ describe('indexOfLeafWithHash', () => {
 	it('should return the index for a found duplicated node in the last leaf out of the number of transactions', () => {
 		// Arrange:
 		const merkleTree2 = {
-			numberOfTransactions: 3,
+			count: 3,
 			nodes: [
 				hexStringToBuffer('8D25B2639A7D12FEAAAEF34358B215E97533F9FFDDA5B9FADFD8ECC229695263'),
 				hexStringToBuffer('8AB2F19A47C5B30CC389AE1580F0472B4D3AFEEA83CDF0F707D03ED76B15A00C'),
@@ -138,7 +138,7 @@ describe('siblingOf', () => {
 
 describe('buildAuditPath', () => {
 	it('should return an empty audit proof trail for a single node tree', () => {
-		const trail = buildAuditPath(merkleTree.nodes[0], { nodes: [merkleTree.nodes[0]], numberOfTransactions: 1 });
+		const trail = buildAuditPath(merkleTree.nodes[0], { nodes: [merkleTree.nodes[0]], count: 1 });
 		expect(trail.length).to.equal(0);
 	});
 
@@ -150,7 +150,7 @@ describe('buildAuditPath', () => {
 	it('should throw if tree is empty', () => {
 		expect(() => buildAuditPath(
 			hexStringToBuffer('000903589FAE58D8DDB460F11F33A80A9B2CF09D4B50FCC615C5440337CEBE4F'),
-			{ nodes: [], numberOfTransactions: 0 }
+			{ nodes: [], count: 0 }
 		)).to.throw(InvalidTree);
 	});
 
@@ -168,7 +168,7 @@ describe('buildAuditPath', () => {
 	it('should return correctly if number of transactions is not even', () => {
 		// Arrange:
 		const merkleTree2 = {
-			numberOfTransactions: 3,
+			count: 3,
 			nodes: [
 				hexStringToBuffer('8D25B2639A7D12FEAAAEF34358B215E97533F9FFDDA5B9FADFD8ECC229695263'),
 				hexStringToBuffer('8AB2F19A47C5B30CC389AE1580F0472B4D3AFEEA83CDF0F707D03ED76B15A00C'),
