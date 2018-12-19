@@ -111,7 +111,7 @@ describe('catapult db', () => {
 			// Arrange:
 			return runDbTest(
 				{
-					block: test.db.createDbBlock(),
+					block: test.db.createDbBlock(Default_Height),
 					transactions: test.db.createDbTransactions(Rounds, test.random.publicKey(), test.random.address())
 				},
 				db => db.storageInfo(),

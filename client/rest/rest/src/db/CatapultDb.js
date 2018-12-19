@@ -124,11 +124,13 @@ class CatapultDb {
 
 	close() {
 		if (!this.database)
-			return;
+			return Promise.resolve();
 
-		this.client.close();
-		this.client = undefined;
-		this.database = undefined;
+		return new Promise(resolve => {
+			this.client.close(resolve);
+			this.client = undefined;
+			this.database = undefined;
+		});
 	}
 
 	// endregion
@@ -265,10 +267,7 @@ class CatapultDb {
 	transactionsByIdsImpl(collectionName, conditions) {
 		return this.queryDocumentsAndCopyIds(collectionName, conditions, { projection: { 'meta.addresses': 0 } })
 			.then(documents => Promise.all(documents.map(document => {
-				if (!document)
-					return document;
-
-				if (!isAggregateType(document))
+				if (!document || !isAggregateType(document))
 					return document;
 
 				return this.queryDependentDocuments(collectionName, [document.meta.id]).then(dependentDocuments => {

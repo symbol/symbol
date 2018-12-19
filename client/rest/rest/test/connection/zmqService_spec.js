@@ -198,7 +198,7 @@ describe('zmq service', () => {
 						zsocket.send(blockBuffers.block, zmq.ZMQ_SNDMORE);
 						zsocket.send(blockBuffers.entityHash, zmq.ZMQ_SNDMORE);
 						zsocket.send(blockBuffers.generationHash);
-					}, 0);
+					}, 100);
 				});
 			});
 		});
