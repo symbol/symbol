@@ -28,7 +28,7 @@ const { convert } = catapult.utils;
 
 module.exports = {
 	register: (server, db, services) => {
-		const transactionSender = routeUtils.createSender(routeResultTypes.transfer);
+		const transactionSender = routeUtils.createSender(routeResultTypes.transaction);
 
 		server.get('/account/:accountId', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');

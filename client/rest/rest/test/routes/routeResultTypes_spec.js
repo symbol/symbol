@@ -18,19 +18,22 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-module.exports = {
-	// with meta data
-	account: 'accountWithMetadata',
-	block: 'blockHeaderWithMetadata',
-	transaction: 'transactionWithMetadata',
+const routeResultTypes = require('../../src/routes/routeResultTypes');
+const { expect } = require('chai');
 
-	// other
-	chainInfo: 'chainInfo',
-	merkleProofInfo: 'merkleProofInfo',
-	transactionStatus: 'transactionStatus',
-	nodeInfo: 'nodeInfo',
-	nodeTime: 'nodeTime',
-
-	// diagnostic
-	storageInfo: 'storageInfo'
-};
+describe('routeResultTypes', () => {
+	it('has correct links to schema', () => {
+		expect(Object.keys(routeResultTypes).length).to.equal(9);
+		expect(routeResultTypes).to.deep.equal({
+			account: 'accountWithMetadata',
+			block: 'blockHeaderWithMetadata',
+			transaction: 'transactionWithMetadata',
+			chainInfo: 'chainInfo',
+			merkleProofInfo: 'merkleProofInfo',
+			transactionStatus: 'transactionStatus',
+			nodeInfo: 'nodeInfo',
+			nodeTime: 'nodeTime',
+			storageInfo: 'storageInfo'
+		});
+	});
+});

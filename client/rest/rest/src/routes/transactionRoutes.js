@@ -41,7 +41,7 @@ const parseObjectId = str => {
 
 module.exports = {
 	register: (server, db, services) => {
-		const sender = routeUtils.createSender(routeResultTypes.transfer);
+		const sender = routeUtils.createSender(routeResultTypes.transaction);
 
 		routeUtils.addPutPacketRoute(
 			server,

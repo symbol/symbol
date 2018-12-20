@@ -96,7 +96,7 @@ module.exports = {
 						return next();
 					}
 
-					return routeUtils.createSender(routeResultTypes.transfer).sendArray('height', res, next)(result.payload);
+					return routeUtils.createSender(routeResultTypes.transaction).sendArray('height', res, next)(result.payload);
 				});
 		});
 
