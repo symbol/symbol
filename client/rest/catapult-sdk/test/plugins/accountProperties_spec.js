@@ -70,28 +70,28 @@ describe('account properties plugin', () => {
 			]);
 
 			// - accountPropertiesAddress
-			expect(Object.keys(modelSchema.accountPropertiesAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.accountPropertiesAddress).to.contain.all.keys(['propertyType', 'modifications']);
+			expect(Object.keys(modelSchema.accountPropertiesAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
+			expect(modelSchema.accountPropertiesAddress).to.contain.all.keys(['modifications']);
 
 			// - accountPropertiesMosaic
-			expect(Object.keys(modelSchema.accountPropertiesMosaic).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.accountPropertiesMosaic).to.contain.all.keys(['propertyType', 'modifications']);
+			expect(Object.keys(modelSchema.accountPropertiesMosaic).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
+			expect(modelSchema.accountPropertiesMosaic).to.contain.all.keys(['modifications']);
 
 			// - accountPropertiesEntityType
-			expect(Object.keys(modelSchema.accountPropertiesEntityType).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
-			expect(modelSchema.accountPropertiesEntityType).to.contain.all.keys(['propertyType', 'modifications']);
+			expect(Object.keys(modelSchema.accountPropertiesEntityType).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
+			expect(modelSchema.accountPropertiesEntityType).to.contain.all.keys(['modifications']);
 
 			// - accountProperties.modificationType
-			expect(Object.keys(modelSchema['accountProperties.modificationType']).length).to.equal(2);
-			expect(modelSchema['accountProperties.modificationType']).to.contain.all.keys(['modificationType', 'value']);
+			expect(Object.keys(modelSchema['accountProperties.modificationType']).length).to.equal(1);
+			expect(modelSchema['accountProperties.modificationType']).to.contain.all.keys(['value']);
 
 			// - accountProperties.accountProperties
 			expect(Object.keys(modelSchema['accountProperties.accountProperties']).length).to.equal(2);
 			expect(modelSchema['accountProperties.accountProperties']).to.contain.all.keys(['address', 'properties']);
 
 			// - accountProperties.accountProperty
-			expect(Object.keys(modelSchema['accountProperties.accountProperty']).length).to.equal(2);
-			expect(modelSchema['accountProperties.accountProperty']).to.contain.all.keys(['propertyType', 'values']);
+			expect(Object.keys(modelSchema['accountProperties.accountProperty']).length).to.equal(1);
+			expect(modelSchema['accountProperties.accountProperty']).to.contain.all.keys(['values']);
 		});
 	});
 
