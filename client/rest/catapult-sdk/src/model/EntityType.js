@@ -61,7 +61,7 @@ const EntityType = {
 	secretLock: 0x4152,
 
 	/** Secret proof transaction. */
-	secretProof: 0x434C,
+	secretProof: 0x4252,
 
 	/** Account properties address modification transaction. */
 	accountPropertiesAddress: 0x4150,

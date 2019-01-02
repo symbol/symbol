@@ -37,7 +37,7 @@ describe('entity type enumeration', () => {
 			aggregateBonded: 0x4241,
 			hashLock: 0x4148,
 			secretLock: 0x4152,
-			secretProof: 0x434C,
+			secretProof: 0x4252,
 			accountPropertiesAddress: 0x4150,
 			accountPropertiesMosaic: 0x4250,
 			accountPropertiesEntityType: 0x4350,
