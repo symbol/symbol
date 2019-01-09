@@ -51,6 +51,7 @@ describe('catapult model system', () => {
 				'mosaic',
 				'multisig',
 				'namespace',
+				'receipts',
 				'transfer'
 			]);
 		});
