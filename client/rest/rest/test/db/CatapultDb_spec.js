@@ -701,7 +701,7 @@ describe('catapult db', () => {
 			partial: { dbFunctionName: 'accountTransactionsPartial', collectionName: 'partialTransactions' }
 		};
 
-		describe('can filter by', () => {
+		describe('can customize queries', () => {
 			// creates transactions for three accounts such that: A is sender, B is recipient, C is sender and recipient
 			// [0001] A -> B, [0002] A -> C, [0003] C -> B, [0004] C -> C
 			const createDirectionalTransactions = (key1, key2, key3) => {
@@ -728,51 +728,95 @@ describe('catapult db', () => {
 				return transactions;
 			};
 
-			const addTests = traits => {
-				const addDirectionalTest = (keySelector, expectedTransactionIndexes) => {
+			const addTests = (traits, ordering) => {
+				const addDirectionalTest = (keySelector, expectedTransactionIndexes, queryOrdering) => {
 					// Arrange:
 					const keys = [test.random.publicKey(), test.random.publicKey(), test.random.publicKey()];
 					const seedTransactions = createDirectionalTransactions(keys[0], keys[1], keys[2]);
 					return runDbTest(
 						{ [getCollectionName(traits)]: seedTransactions },
 						// Act: retrieve transactions for an account
-						db => db[traits.dbFunctionName](keySelector(keys)),
+						db => db[traits.dbFunctionName](keySelector(keys), undefined, undefined, queryOrdering),
 						transactions => {
-							// Assert: expected transactions are available
+							// Assert: expected transactions are ordered
 							assertEqualDocuments(expectedTransactionIndexes.map(index => seedTransactions[index]), transactions);
 						}
 					);
 				};
 
 				it('for account without transactions', () =>
-					addDirectionalTest(() => test.random.publicKey(), [])); // random
+					addDirectionalTest(() => test.random.publicKey(), [], ordering)); // random
 
 				it('for account with outgoing only transactions', () =>
-					addDirectionalTest(keys => keys[0], traits.directional.outgoing)); // A
+					addDirectionalTest(keys => keys[0], traits.directional.outgoing, ordering)); // A
 
 				it('for account with incoming only transactions', () =>
-					addDirectionalTest(keys => keys[1], traits.directional.incoming)); // B
+					addDirectionalTest(keys => keys[1], traits.directional.incoming, ordering)); // B
 
 				it('for account with incoming and outgoing transactions', () =>
-					addDirectionalTest(keys => keys[2], traits.directional.incomingAndOutgoing)); // C
+					addDirectionalTest(keys => keys[2], traits.directional.incomingAndOutgoing, ordering)); // C
 			};
 
-			describe('incoming', () => {
-				addTests(Object.assign({
-					directional: { outgoing: [], incoming: [2, 0], incomingAndOutgoing: [3, 1] }
-				}, dbTransactionTraits.incoming));
+			describe('filtering by', () => {
+				describe('incoming', () => {
+					addTests(Object.assign({
+						directional: { outgoing: [], incoming: [2, 0], incomingAndOutgoing: [3, 1] }
+					}, dbTransactionTraits.incoming));
+				});
+
+				describe('outgoing', () => {
+					addTests(Object.assign({
+						directional: { outgoing: [1, 0], incoming: [], incomingAndOutgoing: [3, 2] }
+					}, dbTransactionTraits.outgoing));
+				});
+
+				['all', 'unconfirmed', 'partial'].forEach(key => {
+					addTests(Object.assign({
+						directional: { outgoing: [1, 0], incoming: [2, 0], incomingAndOutgoing: [3, 2, 1] }
+					}, dbTransactionTraits[key]));
+				});
 			});
 
-			describe('outgoing', () => {
-				addTests(Object.assign({
-					directional: { outgoing: [1, 0], incoming: [], incomingAndOutgoing: [3, 2] }
-				}, dbTransactionTraits.outgoing));
-			});
+			describe('ordering by', () => {
+				describe('incoming (ascending)', () => {
+					addTests(Object.assign({
+						directional: { outgoing: [], incoming: [0, 2], incomingAndOutgoing: [1, 3] }
+					}, dbTransactionTraits.incoming), 1);
+				});
 
-			['all', 'unconfirmed', 'partial'].forEach(key => {
-				addTests(Object.assign({
-					directional: { outgoing: [1, 0], incoming: [2, 0], incomingAndOutgoing: [3, 2, 1] }
-				}, dbTransactionTraits[key]));
+				describe('outgoing (ascending)', () => {
+					addTests(Object.assign({
+						directional: { outgoing: [0, 1], incoming: [], incomingAndOutgoing: [2, 3] }
+					}, dbTransactionTraits.outgoing), 1);
+				});
+
+				describe('all, unconfirmed and partial (ascending)', () => {
+					['all', 'unconfirmed', 'partial'].forEach(key => {
+						addTests(Object.assign({
+							directional: { outgoing: [0, 1], incoming: [0, 2], incomingAndOutgoing: [1, 2, 3] }
+						}, dbTransactionTraits[key]), 1);
+					});
+				});
+
+				describe('incoming (descending)', () => {
+					addTests(Object.assign({
+						directional: { outgoing: [], incoming: [2, 0], incomingAndOutgoing: [3, 1] }
+					}, dbTransactionTraits.incoming), -1);
+				});
+
+				describe('outgoing (descending)', () => {
+					addTests(Object.assign({
+						directional: { outgoing: [1, 0], incoming: [], incomingAndOutgoing: [3, 2] }
+					}, dbTransactionTraits.outgoing), -1);
+				});
+
+				describe('all, unconfirmed and partial (descending)', () => {
+					['all', 'unconfirmed', 'partial'].forEach(key => {
+						addTests(Object.assign({
+							directional: { outgoing: [1, 0], incoming: [2, 0], incomingAndOutgoing: [3, 2, 1] }
+						}, dbTransactionTraits[key]), -1);
+					});
+				});
 			});
 		});
 

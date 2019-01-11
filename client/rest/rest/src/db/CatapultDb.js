@@ -333,30 +333,30 @@ class CatapultDb {
 
 	// region transaction retrieval for account
 
-	accountTransactionsAll(publicKey, id, pageSize) {
+	accountTransactionsAll(publicKey, id, pageSize, ordering) {
 		const conditions = createAccountTransactionsAllConditions(publicKey, this.networkId);
-		return this.queryTransactions(conditions, id, pageSize);
+		return this.queryTransactions(conditions, id, pageSize, { sortOrder: ordering });
 	}
 
-	accountTransactionsIncoming(publicKey, id, pageSize) {
+	accountTransactionsIncoming(publicKey, id, pageSize, ordering) {
 		const decoded = address.publicKeyToAddress(publicKey, this.networkId);
 		const bufferAddress = Buffer.from(decoded);
-		return this.queryTransactions({ 'transaction.recipient': bufferAddress }, id, pageSize);
+		return this.queryTransactions({ 'transaction.recipient': bufferAddress }, id, pageSize, { sortOrder: ordering });
 	}
 
-	accountTransactionsOutgoing(publicKey, id, pageSize) {
+	accountTransactionsOutgoing(publicKey, id, pageSize, ordering) {
 		const bufferPublicKey = Buffer.from(publicKey);
-		return this.queryTransactions({ 'transaction.signer': bufferPublicKey }, id, pageSize);
+		return this.queryTransactions({ 'transaction.signer': bufferPublicKey }, id, pageSize, { sortOrder: ordering });
 	}
 
-	accountTransactionsUnconfirmed(publicKey, id, pageSize) {
+	accountTransactionsUnconfirmed(publicKey, id, pageSize, ordering) {
 		const conditions = createAccountTransactionsAllConditions(publicKey, this.networkId);
-		return this.queryTransactions(conditions, id, pageSize, { collectionName: 'unconfirmedTransactions' });
+		return this.queryTransactions(conditions, id, pageSize, { collectionName: 'unconfirmedTransactions', sortOrder: ordering });
 	}
 
-	accountTransactionsPartial(publicKey, id, pageSize) {
+	accountTransactionsPartial(publicKey, id, pageSize, ordering) {
 		const conditions = createAccountTransactionsAllConditions(publicKey, this.networkId);
-		return this.queryTransactions(conditions, id, pageSize, { collectionName: 'partialTransactions' });
+		return this.queryTransactions(conditions, id, pageSize, { collectionName: 'partialTransactions', sortOrder: ordering });
 	}
 
 	// endregion

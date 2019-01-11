@@ -64,7 +64,8 @@ module.exports = {
 			server.get(`/account/:publicKey/transactions${state.routePostfix}`, (req, res, next) => {
 				const publicKey = routeUtils.parseArgument(req.params, 'publicKey', convert.hexToUint8);
 				const pagingOptions = routeUtils.parsePagingArguments(req.params);
-				return db[`accountTransactions${state.dbPostfix}`](publicKey, pagingOptions.id, pagingOptions.pageSize)
+				const ordering = routeUtils.parseArgument(req.params, 'ordering', input => ('id' === input ? 1 : -1));
+				return db[`accountTransactions${state.dbPostfix}`](publicKey, pagingOptions.id, pagingOptions.pageSize, ordering)
 					.then(transactionSender.sendArray('publicKey', res, next));
 			});
 		});
