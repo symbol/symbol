@@ -256,6 +256,28 @@ describe('schema formatter', () => {
 			expect(format2).to.deep.equal({ transaction: { value: 107 } });
 		});
 
+		it('can use conditional schema within arrays', () => {
+			// Arrange:
+			const sample = { subarray: [{ type: 1, value: 5 }, { type: 2, value: 7 }] };
+			const schemaDictionary = { type1: { value: 12345 }, type2: { value: 54321 } };
+			const schema = {
+				subarray: {
+					type: SchemaType.array,
+					schemaName: entity => (1 === entity.type ? 'type1' : 'type2')
+				}
+			};
+			const formattingRules = {
+				12345: value => value + 10,
+				54321: value => value + 100
+			};
+
+			// Act:
+			const format = schemaFormatter.format(sample, schema, schemaDictionary, formattingRules);
+
+			// Assert:
+			expect(format).to.deep.equal({ subarray: [{ value: 15 }, { value: 107 }] });
+		});
+
 		it('can mix multiple rules', () => {
 			// Arrange:
 			const sample = {

@@ -63,9 +63,7 @@ const schemaFormatter = {
 	 * @returns {object} The formatted entity.
 	 */
 	format: (entity, entitySchema, schemaDictionary, formattingRules) => {
-		// set object and array rules
 		formattingRules[SchemaType.object] = (value, format) => format(value);
-		formattingRules[SchemaType.array] = (array, format) => array.map(value => format(value));
 		formattingRules[SchemaType.dictionary] = (dictionary, format) => {
 			const result = {};
 			Object.keys(dictionary).forEach(key => {
@@ -77,16 +75,26 @@ const schemaFormatter = {
 
 		const result = {};
 		Object.keys(entity).forEach(key => {
+			const valueFormatter = schemaName => (
+				'number' === typeof schemaName // if numeric, interpret as a rule id and format child parts as values
+					? formattingRules[schemaName]
+					: value => schemaFormatter.format(value, schemaDictionary[schemaName], schemaDictionary, formattingRules));
+
 			const definition = getDefinition(entitySchema, key);
-			const rule = formattingRules[definition.type];
-			if (rule) {
-				const schemaName = getSchemaName(definition.schemaName, entity[key]);
-				result[definition.resultKey] = rule(
-					entity[key],
-					'number' === typeof schemaName // if schemaName is a number, interpret it as a rule id and format child parts as values
-						? formattingRules[schemaName]
-						: value => schemaFormatter.format(value, schemaDictionary[schemaName], schemaDictionary, formattingRules)
-				);
+			if (definition.type === SchemaType.array) {
+				result[definition.resultKey] = entity[key].map(arrayElementEntity => {
+					const schemaName = getSchemaName(definition.schemaName, arrayElementEntity);
+					return valueFormatter(schemaName)(arrayElementEntity);
+				});
+			} else {
+				const rule = formattingRules[definition.type];
+				if (rule) {
+					const schemaName = getSchemaName(definition.schemaName, entity[key]);
+					result[definition.resultKey] = rule(
+						entity[key],
+						valueFormatter(schemaName)
+					);
+				}
 			}
 		});
 
