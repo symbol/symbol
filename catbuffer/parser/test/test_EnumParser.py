@@ -1,9 +1,14 @@
 # pylint: disable=invalid-name
 import unittest
-from test.constants import VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, UINT_TYPE_TUPLES, VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES
+from test.constants import \
+    VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, PRIMITIVE_TYPE_TUPLES, VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES
 from test.ParserTestUtils import MultiLineParserTestUtils, SingleLineParserTestUtils, ParserFactoryTestUtils
 from catparser.EnumParser import EnumParserFactory, EnumValueParserFactory
 from catparser.CatsParseException import CatsParseException
+
+
+def primitive_enum_descriptor(size, is_signed):
+    return {'type': 'enum', 'signedness': 'signed' if is_signed else 'unsigned', 'size': size}
 
 
 class EnumParserFactoryTest(unittest.TestCase):
@@ -37,11 +42,11 @@ class EnumParserTest(unittest.TestCase):
         self.assertEqual(1, len(parser.factories()))
 
     def test_can_parse_type_declaration(self):
-        for uint_tuple in UINT_TYPE_TUPLES:
+        for primitive_tuple in PRIMITIVE_TYPE_TUPLES:
             # Act + Assert:
             self._assert_parse(
-                'enum Colors : {0}'.format(uint_tuple[0]),
-                ('Colors', {'type': 'enum', 'size': uint_tuple[1], 'values': []}))
+                'enum Colors : {0}'.format(primitive_tuple[0]),
+                ('Colors', {'type': 'enum', 'size': primitive_tuple[1], 'signedness': primitive_tuple[2], 'values': []}))
 
     def test_cannot_parse_enum_declaration_with_invalid_base(self):
         for base_type in ['uint7', 'uint9']:
@@ -66,7 +71,7 @@ class EnumParserTest(unittest.TestCase):
         result = parser.commit()
 
         # Assert:
-        self.assertEqual(('Colors', {'type': 'enum', 'size': 2, 'values': [{'name': 'foo'}, {'name': 'bar'}]}), result)
+        self.assertEqual(('Colors', {**primitive_enum_descriptor(2, False), 'values': [{'name': 'foo'}, {'name': 'bar'}]}), result)
 
     def test_cannot_append_multiple_properties_with_same_name(self):
         # Arrange:
@@ -86,14 +91,14 @@ class EnumParserTest(unittest.TestCase):
         parser = EnumParserFactory().create()
 
         # Act:
-        parser.process_line('enum Colors : uint16')
+        parser.process_line('enum Colors : int16')
         parser.append({'name': 'foo', 'value': 2})
         parser.append({'name': 'bar', 'value': 2})
         result = parser.commit()
 
         # Assert:
         self.assertEqual(
-            ('Colors', {'type': 'enum', 'size': 2, 'values': [{'name': 'foo', 'value': 2}, {'name': 'bar', 'value': 2}]}),
+            ('Colors', {**primitive_enum_descriptor(2, True), 'values': [{'name': 'foo', 'value': 2}, {'name': 'bar', 'value': 2}]}),
             result)
 
 

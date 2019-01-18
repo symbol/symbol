@@ -16,6 +16,20 @@ def parse_all(lines, imports=None):
     return parser.type_descriptors()
 
 
+def uint_descriptor(size, explicit_type=True):
+    descriptor = {'signedness': 'unsigned', 'size': size}
+    if explicit_type:
+        descriptor['type'] = 'byte'
+
+    return descriptor
+
+
+def int_descriptor(size, explicit_type=True):
+    descriptor = uint_descriptor(size, explicit_type)
+    descriptor['signedness'] = 'signed'
+    return descriptor
+
+
 class CatsParserTests(unittest.TestCase):
     # region utils
 
@@ -74,7 +88,7 @@ class CatsParserTests(unittest.TestCase):
 
         # Assert:
         self.assertEqual(1, len(type_descriptors))
-        self.assertEqual(type_descriptors['MosaicId'], {'type': 'byte', 'size': 8, 'comments': ''})
+        self.assertEqual(type_descriptors['MosaicId'], {**uint_descriptor(8), 'comments': ''})
 
     def test_previously_attached_comments_are_ignored(self):
         # Act:
@@ -87,8 +101,8 @@ class CatsParserTests(unittest.TestCase):
 
         # Assert:
         self.assertEqual(2, len(type_descriptors))
-        self.assertEqual(type_descriptors['Age'], {'type': 'byte', 'size': 8, 'comments': 'comment one'})
-        self.assertEqual(type_descriptors['Year'], {'type': 'byte', 'size': 2, 'comments': 'comment two'})
+        self.assertEqual(type_descriptors['Age'], {**uint_descriptor(8), 'comments': 'comment one'})
+        self.assertEqual(type_descriptors['Year'], {**uint_descriptor(2), 'comments': 'comment two'})
 
     # endregion
 
@@ -117,8 +131,8 @@ class CatsParserTests(unittest.TestCase):
 
         # Assert:
         self.assertEqual(2, len(type_descriptors))
-        self.assertEqual(type_descriptors['MosaicId'], {'type': 'byte', 'size': 8, 'comments': ''})
-        self.assertEqual(type_descriptors['Address'], {'type': 'byte', 'size': 25, 'comments': 'unique account identifier'})
+        self.assertEqual(type_descriptors['MosaicId'], {**uint_descriptor(8), 'comments': ''})
+        self.assertEqual(type_descriptors['Address'], {**uint_descriptor(25), 'comments': 'unique account identifier'})
 
     # endregion
 
@@ -137,8 +151,8 @@ class CatsParserTests(unittest.TestCase):
         # Assert:
         self.assertEqual(1, len(type_descriptors))
         self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': 'binary layout for a pair', 'layout': [
-            {'name': 'fooBar', 'type': 'byte', 'size': 8, 'comments': 'some field comment'},
-            {'name': 'baz', 'type': 'byte', 'size': 25, 'comments': ''}
+            {'name': 'fooBar', **uint_descriptor(8), 'comments': 'some field comment'},
+            {'name': 'baz', **uint_descriptor(25), 'comments': ''}
         ]})
 
     def test_can_parse_struct_custom_types(self):
@@ -199,7 +213,7 @@ class CatsParserTests(unittest.TestCase):
         # Assert:
         self.assertEqual(3, len(type_descriptors))
         self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'carCount', 'type': 'byte', 'size': 1, 'comments': ''},
+            {'name': 'carCount', **uint_descriptor(1), 'comments': ''},
             {'name': 'trucks', 'type': 'Truck', 'size': 10, 'comments': 'all trucks in the fleet'},
             {'name': 'cars', 'type': 'Car', 'size': 'carCount', 'comments': ''}
         ]})
@@ -232,8 +246,8 @@ class CatsParserTests(unittest.TestCase):
         # Assert:
         self.assertEqual(2, len(type_descriptors))
         self.assertEqual(type_descriptors['Mosaic'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'mosaicId', 'type': 'byte', 'size': 8, 'comments': ''},
-            {'name': 'amount', 'type': 'byte', 'size': 4, 'comments': ''}
+            {'name': 'mosaicId', **uint_descriptor(8), 'comments': ''},
+            {'name': 'amount', **uint_descriptor(4), 'comments': ''}
         ]})
 
     def test_can_parse_struct_with_inline_member(self):
@@ -250,9 +264,9 @@ class CatsParserTests(unittest.TestCase):
         # Assert:
         self.assertEqual(2, len(type_descriptors))
         self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'fooBar', 'type': 'byte', 'size': 8, 'comments': ''},
+            {'name': 'fooBar', **uint_descriptor(8), 'comments': ''},
             {'type': 'Placeholder', 'disposition': 'inline', 'comments': 'some placeholder comment'},
-            {'name': 'baz', 'type': 'byte', 'size': 4, 'comments': ''}
+            {'name': 'baz', **uint_descriptor(4), 'comments': ''}
         ]})
 
     def test_can_parse_struct_with_const_member(self):
@@ -261,16 +275,16 @@ class CatsParserTests(unittest.TestCase):
             'struct Pair',
             '\tfooBar = uint64',
             '# some const comment',
-            '\tconst uint8 tupleSize = 2',
+            '\tconst int8 tupleSize = 2',
             '\tbaz = uint32',
         ])
 
         # Assert:
         self.assertEqual(1, len(type_descriptors))
         self.assertEqual(type_descriptors['Pair'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'fooBar', 'type': 'byte', 'size': 8, 'comments': ''},
-            {'name': 'tupleSize', 'type': 'byte', 'size': 1, 'disposition': 'const', 'value': 2, 'comments': 'some const comment'},
-            {'name': 'baz', 'type': 'byte', 'size': 4, 'comments': ''}
+            {'name': 'fooBar', **uint_descriptor(8), 'comments': ''},
+            {'name': 'tupleSize', **int_descriptor(1), 'disposition': 'const', 'value': 2, 'comments': 'some const comment'},
+            {'name': 'baz', **uint_descriptor(4), 'comments': ''}
         ]})
 
     def test_cannot_parse_struct_with_unknown_member_type(self):
@@ -350,10 +364,12 @@ class CatsParserTests(unittest.TestCase):
 
         # Assert:
         self.assertEqual(1, len(type_descriptors))
-        self.assertEqual(type_descriptors['EntityType'], {'type': 'enum', 'size': 2, 'comments': 'enumeration of entity types', 'values': [
-            {'name': 'transfer', 'value': 7, 'comments': 'transfer transaction type'},
-            {'name': 'hashLock', 'value': 12, 'comments': ''}
-        ]})
+        self.assertEqual(type_descriptors['EntityType'], {
+            'type': 'enum', **uint_descriptor(2, False), 'comments': 'enumeration of entity types', 'values': [
+                {'name': 'transfer', 'value': 7, 'comments': 'transfer transaction type'},
+                {'name': 'hashLock', 'value': 12, 'comments': ''}
+            ]
+        })
 
     def test_can_parse_enum_closed_by_other_type(self):
         # Act:
@@ -367,7 +383,7 @@ class CatsParserTests(unittest.TestCase):
 
         # Assert:
         self.assertEqual(2, len(type_descriptors))
-        self.assertEqual(type_descriptors['EntityType'], {'type': 'enum', 'size': 2, 'comments': '', 'values': [
+        self.assertEqual(type_descriptors['EntityType'], {'type': 'enum', **uint_descriptor(2, False), 'comments': '', 'values': [
             {'name': 'transfer', 'value': 7, 'comments': ''},
             {'name': 'hashLock', 'value': 12, 'comments': ''}
         ]})
@@ -445,10 +461,10 @@ class CatsParserTests(unittest.TestCase):
 
         self.assertEqual(2, len(type_descriptors))
         self.assertEqual(type_descriptors['Bar'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'foo', 'type': 'byte', 'size': 1, 'comments': ''}
+            {'name': 'foo', **uint_descriptor(1), 'comments': ''}
         ]})
         self.assertEqual(type_descriptors['Baz'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'foo', 'type': 'byte', 'size': 2, 'comments': ''}
+            {'name': 'foo', **uint_descriptor(2), 'comments': ''}
         ]})
 
     def test_can_parse_schema_with_duplicate_enum_property_names_in_different_scopes(self):
@@ -457,15 +473,15 @@ class CatsParserTests(unittest.TestCase):
             'enum Bar : uint16',
             '\tfoo = 4',
             '',
-            'enum Baz : uint32',
+            'enum Baz : int32',
             '\tfoo = 9'
         ])
 
         self.assertEqual(2, len(type_descriptors))
-        self.assertEqual(type_descriptors['Bar'], {'type': 'enum', 'size': 2, 'comments': '', 'values': [
+        self.assertEqual(type_descriptors['Bar'], {'type': 'enum', **uint_descriptor(2, False), 'comments': '', 'values': [
             {'name': 'foo', 'value': 4, 'comments': ''}
         ]})
-        self.assertEqual(type_descriptors['Baz'], {'type': 'enum', 'size': 4, 'comments': '', 'values': [
+        self.assertEqual(type_descriptors['Baz'], {'type': 'enum', **int_descriptor(4, False), 'comments': '', 'values': [
             {'name': 'foo', 'value': 9, 'comments': ''}
         ]})
 

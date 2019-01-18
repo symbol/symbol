@@ -25,7 +25,7 @@ class AliasParserTest(unittest.TestCase):
             # Act + Assert:
             SingleLineParserTestUtils(AliasParserFactory, self).assert_parse(
                 'using Age = {0}'.format(builtin_tuple[0]),
-                ('Age', {'type': 'byte', 'size': builtin_tuple[1]}))
+                ('Age', {'type': 'byte', 'signedness': builtin_tuple[2], 'size': builtin_tuple[1]}))
 
     def test_alias_names_must_have_type_name_semantics(self):
         # Assert:

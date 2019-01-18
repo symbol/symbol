@@ -1,7 +1,7 @@
 # pylint: disable=invalid-name
 import unittest
 from test.constants import \
-    VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, BUILTIN_TYPE_TUPLES, VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES, VALID_UINT_NAMES
+    VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, BUILTIN_TYPE_TUPLES, VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES, VALID_PRIMITIVE_NAMES
 from test.ParserTestUtils import MultiLineParserTestUtils, SingleLineParserTestUtils, ParserFactoryTestUtils
 from catparser.StructParser import \
     StructParserFactory, StructConstParserFactory, StructInlineParserFactory, StructArrayMemberParserFactory, \
@@ -224,7 +224,7 @@ class StructConstParserTest(unittest.TestCase):
         for value in [32, 0x20]:
             self._assert_parse(
                 'const uint16 foo = {0}'.format(value),
-                {'name': 'foo', 'type': 'byte', 'size': 2, 'value': 32, 'disposition': 'const'})
+                {'name': 'foo', 'type': 'byte', 'signedness': 'unsigned', 'size': 2, 'value': 32, 'disposition': 'const'})
 
     def test_can_parse_custom_type_constant(self):
         # Act + Assert:
@@ -255,7 +255,7 @@ class StructConstParserTest(unittest.TestCase):
         # Assert:
         SingleLineParserTestUtils(StructConstParserFactory, self).assert_naming(
             'const {0} foo = 123',
-            VALID_USER_TYPE_NAMES + VALID_UINT_NAMES,
+            VALID_USER_TYPE_NAMES + VALID_PRIMITIVE_NAMES,
             INVALID_USER_TYPE_NAMES + ['binary_fixed(32)'])
 
 # endregion
@@ -372,7 +372,7 @@ class StructScalarParserTest(unittest.TestCase):
             # Act + Assert:
             self._assert_parse(
                 'car = {0}'.format(builtin_tuple[0]),
-                {'name': 'car', 'type': 'byte', 'size': builtin_tuple[1]})
+                {'name': 'car', 'type': 'byte', 'signedness': builtin_tuple[2], 'size': builtin_tuple[1]})
 
     def test_can_parse_conditional_custom_declaration(self):
         # Act + Assert:

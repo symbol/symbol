@@ -1,11 +1,13 @@
 # pylint: disable=invalid-name
 import unittest
 from test.constants import \
-    VALID_UINT_NAMES, INVALID_UINT_NAMES, VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES, \
-    UINT_TYPE_TUPLES, BUILTIN_TYPE_TUPLES
+    VALID_PRIMITIVE_NAMES, INVALID_PRIMITIVE_NAMES, \
+    VALID_USER_TYPE_NAMES, INVALID_USER_TYPE_NAMES, \
+    VALID_PROPERTY_NAMES, INVALID_PROPERTY_NAMES, \
+    INT_TYPE_TUPLES, UINT_TYPE_TUPLES, BUILTIN_TYPE_TUPLES
 from catparser.parserutils import \
     require_user_type_name, require_property_name, \
-    is_uint, require_uint, \
+    is_primitive, require_primitive, \
     is_dec_or_hex, parse_dec_or_hex, \
     is_builtin, parse_builtin
 from catparser.CatsParseException import CatsParseException
@@ -46,41 +48,41 @@ class RequirePropertyNameTest(unittest.TestCase):
 
 # endregion
 
-# region uint
+# region primitive
 
 
-class IsUintTest(unittest.TestCase):
+class IsPrimitiveTest(unittest.TestCase):
     def test_true_for_positives(self):
-        for string in VALID_UINT_NAMES:
+        for string in VALID_PRIMITIVE_NAMES:
             # Act:
-            result = is_uint(string)
+            result = is_primitive(string)
 
             # Assert:
             self.assertTrue(result)
 
     def test_false_for_negatives(self):
-        for string in INVALID_UINT_NAMES:
+        for string in INVALID_PRIMITIVE_NAMES:
             # Act:
-            result = is_uint(string)
+            result = is_primitive(string)
 
             # Assert:
             self.assertFalse(result)
 
 
-class RequireUintTest(unittest.TestCase):
+class RequirePrimitiveTest(unittest.TestCase):
     def test_nothrow_for_positives(self):
-        for string in VALID_UINT_NAMES:
+        for string in VALID_PRIMITIVE_NAMES:
             # Act:
-            result = require_uint(string)
+            result = require_primitive(string)
 
             # Assert:
             self.assertEqual(string, result)
 
     def test_throw_for_negatives(self):
-        for string in INVALID_UINT_NAMES:
+        for string in INVALID_PRIMITIVE_NAMES:
             # Act:
             with self.assertRaises(CatsParseException):
-                require_uint(string)
+                require_primitive(string)
 
 # endregion
 
@@ -167,19 +169,26 @@ class ParseBuiltinTest(unittest.TestCase):
         # Assert:
         self.assertEqual(expected_result, result)
 
+    def test_can_parse_int_builtin(self):
+        for int_tuple in INT_TYPE_TUPLES:
+            # Act + Assert:
+            self._assert_parse(
+                int_tuple[0],
+                {'type': 'byte', 'signedness': 'signed', 'size': int_tuple[1]})
+
     def test_can_parse_uint_builtin(self):
         for uint_tuple in UINT_TYPE_TUPLES:
             # Act + Assert:
             self._assert_parse(
                 uint_tuple[0],
-                {'type': 'byte', 'size': uint_tuple[1]})
+                {'type': 'byte', 'signedness': 'unsigned', 'size': uint_tuple[1]})
 
     def test_can_parse_binary_fixed_builtin(self):
         for size_tuple in [('32', 32), ('0x20', 32), ('25', 25)]:
             # Act + Assert:
             self._assert_parse(
                 'binary_fixed({0})'.format(size_tuple[0]),
-                {'type': 'byte', 'size': size_tuple[1]})
+                {'type': 'byte', 'signedness': 'unsigned', 'size': size_tuple[1]})
 
     def test_cannot_parse_invalid_builtin(self):
         # Arrange:

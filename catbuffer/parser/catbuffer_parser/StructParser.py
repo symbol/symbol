@@ -2,7 +2,9 @@
 from .CatsParseException import CatsParseException
 from .CompositeTypeParser import CompositeTypeParser
 from .RegexParserFactory import RegexParserFactory
-from .parserutils import is_builtin, is_dec_or_hex, is_uint, parse_builtin, parse_dec_or_hex, require_property_name, require_user_type_name
+from .parserutils import \
+    is_builtin, is_dec_or_hex, is_primitive, \
+    parse_builtin, parse_dec_or_hex, require_property_name, require_user_type_name
 
 
 # region StructParser(Factory)
@@ -79,7 +81,7 @@ class StructConstParser:
             'value': parse_dec_or_hex(match.group(3))
         }
 
-        if is_uint(type_name):
+        if is_primitive(type_name):
             const_descriptor = {**const_descriptor, **parse_builtin(type_name)}
         else:
             const_descriptor['type'] = require_user_type_name(type_name)
