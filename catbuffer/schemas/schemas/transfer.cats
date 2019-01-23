@@ -4,12 +4,16 @@ import "transaction.cats"
 struct TransferTransactionBody
 	# transaction recipient
 	recipient = UnresolvedAddress
+
 	# size of attached message
 	messageSize = uint16
+
 	# number of attached mosaics
 	mosaicsCount = uint8
+
 	# transaction message
 	message = array(byte, messageSize)
+
 	# attached mosaics
 	mosaics = array(UnresolvedMosaic, mosaicsCount, sort_key=mosaicId)
 

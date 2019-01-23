@@ -4,6 +4,7 @@ import "transaction.cats"
 enum AccountLinkAction : uint8
 	# link account
 	link = 0
+
 	# unlink account
 	unlink = 1
 
@@ -11,6 +12,7 @@ enum AccountLinkAction : uint8
 struct AccountLinkTransactionBody
 	# remote account key
 	remoteAccountKey = Key
+
 	# account link action
 	linkAction = AccountLinkAction
 

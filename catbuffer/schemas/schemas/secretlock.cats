@@ -5,12 +5,16 @@ import "lockhashtypes.cats"
 struct SecretLockTransactionBody
 	# transaction mosaic
 	mosaic = Mosaic
+
 	# number of blocks for which a lock should be valid
 	duration = BlockDuration
+
 	# hash alghoritm
 	hashAlgorithm = LockHashAlgorithm
+
 	# secret
 	secret = Hash512
+
 	# recipient of the locked mosaic
 	recipient = Address
 

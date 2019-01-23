@@ -19,7 +19,9 @@ struct VerifiableEntity
 struct EntityBody
 	# entity signer's public key
 	signer = Key
+
 	# entity version
 	version = uint16
+
 	# entity type
 	type = EntityType

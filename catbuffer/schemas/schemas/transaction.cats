@@ -8,6 +8,7 @@ struct Transaction
 
 	# transaction fee.
 	fee = Amount
+
 	# transaction deadline
 	deadline = Timestamp
 

@@ -5,10 +5,13 @@ import "lockhashtypes.cats"
 struct SecretProofTransactionBody
 	# hash algorithm
 	hashAlgorithm = LockHashAlgorithm
+
 	# secret
 	secret = Hash512
+
 	# proof size in bytes
 	proofSize = uint16
+
 	# proof data
 	proof = array(byte, proofSize)
 

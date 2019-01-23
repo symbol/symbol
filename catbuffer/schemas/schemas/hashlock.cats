@@ -4,8 +4,10 @@ import "transaction.cats"
 struct HashLockTransactionBody
 	# transaction mosaic
 	mosaic = Mosaic
+
 	# number of blocks for which a lock should be valid
 	duration = BlockDuration
+
 	# lock hash
 	hash = Hash256
 
