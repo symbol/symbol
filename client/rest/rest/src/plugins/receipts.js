@@ -18,20 +18,22 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/** @module plugins/receipts */
+const ReceiptsDb = require('./db/ReceiptsDb');
+const receiptsRoutes = require('./routes/receiptsRoutes');
+
+/**
+ * Creates a receipts plugin.
+ * @type {module:plugins/CatapultRestPlugin}
+ */
 module.exports = {
-	// with meta data
-	account: 'accountWithMetadata',
-	block: 'blockHeaderWithMetadata',
-	transaction: 'transactionWithMetadata',
+	createDb: db => new ReceiptsDb(db),
 
-	// other
-	chainInfo: 'chainInfo',
-	merkleProofInfo: 'merkleProofInfo',
-	receipts: 'receipts',
-	transactionStatus: 'transactionStatus',
-	nodeInfo: 'nodeInfo',
-	nodeTime: 'nodeTime',
+	registerTransactionStates: () => {},
 
-	// diagnostic
-	storageInfo: 'storageInfo'
+	registerMessageChannels: () => {},
+
+	registerRoutes: (...args) => {
+		receiptsRoutes.register(...args);
+	}
 };

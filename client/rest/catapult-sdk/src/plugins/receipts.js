@@ -21,12 +21,52 @@
 /** @module plugins/receipts */
 const ModelType = require('../model/ModelType');
 
+const ReceiptType = {
+	1: 'receipts.balanceTransfer',
+	2: 'receipts.balanceChange',
+	3: 'receipts.balanceChange',
+	4: 'receipts.artifactExpiry'
+};
+
+const getBasicReceiptType = type => ReceiptType[(type & 0xF000) >> 12];
+
 /**
  * Creates a receipts plugin.
  * @type {module:plugins/CatapultPlugin}
  */
 const receiptsPlugin = {
 	registerSchema: builder => {
+		builder.addSchema('receipts', {
+			transactionStatements: { type: ModelType.array, schemaName: 'receipts.transactionStatement' },
+			addressResolutionStatements: { type: ModelType.array, schemaName: 'receipts.addressResolutionStatement' },
+			mosaicResolutionStatements: { type: ModelType.array, schemaName: 'receipts.mosaicResolutionStatement' }
+		});
+
+		builder.addSchema('receipts.addressResolutionStatement', {
+			height: ModelType.uint64,
+			unresolved: ModelType.binary,
+			entries: { type: ModelType.array, schemaName: 'receipts.entry.address' }
+		});
+
+		builder.addSchema('receipts.mosaicResolutionStatement', {
+			height: ModelType.uint64,
+			unresolved: ModelType.uint64,
+			entries: { type: ModelType.array, schemaName: 'receipts.entry.mosaic' }
+		});
+
+		builder.addSchema('receipts.transactionStatement', {
+			height: ModelType.uint64,
+			receipts: { type: ModelType.array, schemaName: entity => getBasicReceiptType(entity.type) }
+		});
+
+		builder.addSchema('receipts.entry.address', {
+			resolved: ModelType.binary
+		});
+
+		builder.addSchema('receipts.entry.mosaic', {
+			resolved: ModelType.uint64
+		});
+
 		builder.addSchema('receipts.balanceChange', {
 			account: ModelType.binary,
 			mosaicId: ModelType.uint64,
