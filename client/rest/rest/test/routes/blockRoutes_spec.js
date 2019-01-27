@@ -151,7 +151,7 @@ describe('block routes', () => {
 		const db = test.setup.createCapturingDbWithExtensions(rd, [], {
 			meta: {
 				numTransactions: 4,
-				merkleTree
+				transactionMerkleTree: merkleTree
 			}
 		});
 

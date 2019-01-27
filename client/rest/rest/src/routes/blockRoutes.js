@@ -24,7 +24,7 @@ const errors = require('../server/errors');
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
 
-const { indexOfLeafWithHash, buildAuditPath } = catapult.crypto.merkle;
+const { buildAuditPath, indexOfLeafWithHash } = catapult.crypto.merkle;
 
 const parseHeight = params => routeUtils.parseArgument(params, 'height', 'uint');
 
@@ -66,7 +66,7 @@ module.exports = {
 
 					const merkleTree = {
 						count: block.meta.numTransactions,
-						nodes: block.meta.merkleTree.map(merkleHash => merkleHash.buffer)
+						nodes: block.meta.transactionMerkleTree.map(merkleHash => merkleHash.buffer)
 					};
 
 					if (0 > indexOfLeafWithHash(hash, merkleTree)) {
