@@ -27,7 +27,7 @@ struct ModifyMultisigAccountTransactionBody
 	# number of modifications
 	modificationsCount = uint8
 
-	# attached modifications
+	# attached cosignatory modifications
 	modifications = array(CosignatoryModification, modificationsCount)
 
 # binary layout for a non-embedded modify multisig account transaction

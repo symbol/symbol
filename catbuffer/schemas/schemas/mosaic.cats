@@ -47,7 +47,7 @@ struct MosaicDefinitionTransactionBody
 	divisibility = uint8
 
 	# optional properties
-	properties = array(MosaicProperty, propertiesCount)
+	properties = array(MosaicProperty, propertiesCount, sort_key=id)
 
 # binary layout for a non-embedded mosaic definition transaction
 struct MosaicDefinitionTransaction

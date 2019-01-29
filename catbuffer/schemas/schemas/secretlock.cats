@@ -3,8 +3,8 @@ import "lockhashtypes.cats"
 
 # binary layout for a secret lock transaction
 struct SecretLockTransactionBody
-	# transaction mosaic
-	mosaic = Mosaic
+	# lock mosaic
+	mosaic = UnresolvedMosaic
 
 	# number of blocks for which a lock should be valid
 	duration = BlockDuration
@@ -16,7 +16,7 @@ struct SecretLockTransactionBody
 	secret = Hash512
 
 	# recipient of the locked mosaic
-	recipient = Address
+	recipient = UnresolvedAddress
 
 # binary layout for a non-embedded secret lock transaction
 struct SecretLockTransaction

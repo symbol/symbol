@@ -3,7 +3,7 @@ import "transaction.cats"
 
 # binary layout for an alias address transaction
 struct AliasAddressTransactionBody
-	# alias transaction action
+	# alias action
 	aliasAction = AliasAction
 
 	# id of a namespace that will become an alias

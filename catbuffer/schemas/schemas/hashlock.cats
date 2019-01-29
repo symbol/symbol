@@ -2,8 +2,8 @@ import "transaction.cats"
 
 # binary layout for a hash lock transaction
 struct HashLockTransactionBody
-	# transaction mosaic
-	mosaic = Mosaic
+	# lock mosaic
+	mosaic = UnresolvedMosaic
 
 	# number of blocks for which a lock should be valid
 	duration = BlockDuration
