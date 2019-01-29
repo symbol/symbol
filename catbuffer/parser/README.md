@@ -13,7 +13,7 @@ A schema file defines the entity data structure. The library generates the leane
 Generate the code for a determined schema in one of the available languages. For example, run the following command to generate C++ code to serialize and deserialize a transfer transaction:
 
 ```
-python3 main.py -i schemas/transfer.cats -g cpp-builder
+python3 main.py -i schemas/transfer.cats -g cpp_builder
 ```
 The generator creates a new file under _generated/cpp folder. Repeat the process using a different input schema (-i) or generator (-g) as needed.
 

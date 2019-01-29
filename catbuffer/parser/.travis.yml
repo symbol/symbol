@@ -8,3 +8,4 @@ script:
   - pylint --load-plugins pylint_quotes main.py catparser generators test
   - pycodestyle --config=.pycodestyle .
   - python3 -m unittest discover -v
+  - bash ./scripts/generate_all.sh cpp_builder

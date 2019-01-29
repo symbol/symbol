@@ -31,11 +31,11 @@ class MultiFileParser:
         self.cats_parser.pop_scope()
 
 
-def _generate_output(generator_name, directory, schema):
+def _generate_output(generator_name, directory, schema, options):
     generator_class = AVAILABLE_GENERATORS[generator_name]
     output_path = os.path.join(directory, generator_name)
     os.makedirs(output_path, exist_ok=True)
-    generator = generator_class(schema)
+    generator = generator_class(schema, options)
     for generated_descriptor in generator:
         output_filename = os.path.join(output_path, generated_descriptor.filename)
         with open(output_filename, 'w', newline='\n') as output_file:
@@ -49,6 +49,7 @@ def generate():
     generators_list = list(AVAILABLE_GENERATORS.keys())
     parser.add_argument('-o', '--output', help='output directory', default='_generated')
     parser.add_argument('-g', '--generator', help='the generator to use to produce output files', choices=generators_list)
+    parser.add_argument('-c', '--copyright', help='file containing copyright data to use with output files', default='../HEADER.inc')
     args = parser.parse_args()
 
     file_parser = MultiFileParser()
@@ -63,7 +64,7 @@ def generate():
 
     # generate and output code
     if args.generator:
-        _generate_output(args.generator, args.output, type_descriptors)
+        _generate_output(args.generator, args.output, type_descriptors, {'copyright': args.copyright})
 
 
 generate()
