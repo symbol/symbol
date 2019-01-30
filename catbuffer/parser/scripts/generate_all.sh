@@ -15,10 +15,10 @@ function generate_all {
 	local inputs=(
 		"account_properties"
 		"accountlink"
-		"aliasaddress"
-		"aliasmosaic"
+		"addressalias"
 		"hashlock"
 		"mosaic"
+		"mosaicalias"
 		"mosaicsupply"
 		"multisig"
 		"namespace"
