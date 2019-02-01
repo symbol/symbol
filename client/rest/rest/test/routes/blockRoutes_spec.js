@@ -130,7 +130,7 @@ describe('block routes', () => {
 	describe('block with merkle tree', () => {
 		const rd = {
 			route: '/block/:height/transaction/:hash/merkle',
-			dbApiName: 'blockWithMerkleTreeAtHeight',
+			dbApiName: 'blockWithTransactionMerkleTreeAtHeight',
 			type: 'merkleProofInfo',
 			extendDb: addChainInfoToDb,
 			config: routeConfig
@@ -247,8 +247,8 @@ describe('block routes', () => {
 			// Act:
 			return test.route.executeSingle(blockRoutes.register, rd.route, 'get', urlParams, db, rd.config, response => {
 				// Assert:
-				expect(response.body.code).to.equal('ResourceNotFound');
-				expect(response.body.message).to.contain('no resource exists with id');
+				expect(response.body.code).to.equal('InvalidArgument');
+				expect(response.body.message).to.contain('not included in block height');
 				expect(response.body.message).to.contain(urlParams.hash);
 			});
 		});
@@ -256,7 +256,7 @@ describe('block routes', () => {
 		describe('block with merkle tree', () => {
 			const builder = test.route.document.prepareGetDocumentRouteTests(blockRoutes.register, {
 				route: '/block/:height/transaction/:hash/merkle',
-				dbApiName: 'blockWithMerkleTreeAtHeight',
+				dbApiName: 'blockWithTransactionMerkleTreeAtHeight',
 				type: 'merkleProofInfo',
 				extendDb: addChainInfoToDb,
 				config: routeConfig

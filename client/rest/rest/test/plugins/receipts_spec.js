@@ -39,7 +39,8 @@ describe('receipts plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/block/:height/receipts'
+				'/block/:height/receipts',
+				'/block/:height/receipt/:hash/merkle'
 			]);
 		});
 	});

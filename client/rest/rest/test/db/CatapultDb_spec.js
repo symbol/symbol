@@ -130,12 +130,14 @@ describe('catapult db', () => {
 			));
 	});
 
-	const stripPrivateBlockInformation = block => {
-		// block merkle tree is not exposed outside of the database class unless explicitly requested
+	const stripBlockFields = (block, fields) => {
+		// block merkle trees are not exposed outside of the database class unless explicitly requested
 		const modifiedBlock = Object.assign({}, block);
-		delete modifiedBlock.meta.merkleTree;
+		fields.forEach(field => delete modifiedBlock.meta[field]);
 		return modifiedBlock;
 	};
+
+	const stripExtraneousBlockInformation = block => stripBlockFields(block, ['transactionMerkleTree', 'statementMerkleTree']);
 
 	describe('block at height', () => {
 		it('undefined is returned for block at unknown height', () =>
@@ -156,7 +158,7 @@ describe('catapult db', () => {
 			return runDbTest(
 				{ block: seedBlock },
 				db => db.blockAtHeight(height),
-				block => expect(block).to.deep.equal(stripPrivateBlockInformation(seedBlock))
+				block => expect(block).to.deep.equal(stripExtraneousBlockInformation(seedBlock))
 			);
 		};
 
@@ -173,17 +175,17 @@ describe('catapult db', () => {
 			return runDbTest(
 				{ block: seedBlock, transactions: blockTransactions },
 				db => db.blockAtHeight(Long.fromNumber(Default_Height)),
-				block => expect(block).to.deep.equal(stripPrivateBlockInformation(seedBlock))
+				block => expect(block).to.deep.equal(stripExtraneousBlockInformation(seedBlock))
 			);
 		});
 	});
 
-	describe('block at height with merkle tree', () => {
+	describe('block at height with statement merkle tree', () => {
 		it('undefined is returned for block at unknown height', () =>
 			// Assert:
 			runDbTest(
 				{ block: test.db.createDbBlock(Default_Height) },
-				db => db.blockWithMerkleTreeAtHeight(Long.fromNumber(Default_Height + 1)),
+				db => db.blockWithStatementMerkleTreeAtHeight(Long.fromNumber(Default_Height + 1)),
 				block => expect(block).to.equal(undefined)
 			));
 
@@ -196,16 +198,17 @@ describe('catapult db', () => {
 			// Assert:
 			return runDbTest(
 				{ block: seedBlock },
-				db => db.blockWithMerkleTreeAtHeight(height),
-				block => expect(block).to.deep.equal(seedBlock)
+				db => db.blockWithStatementMerkleTreeAtHeight(height),
+				block => expect(block).to.deep.equal(stripBlockFields(seedBlock, ['transactionMerkleTree']))
 			);
 		};
 
-		it('can retrieve block with merkle tree at height (Number)', () => assertCanRetrieveSimpleBlock(Default_Height));
-		it('can retrieve block with merkle tree at height (uint64)', () => assertCanRetrieveSimpleBlock([Default_Height, 0]));
-		it('can retrieve block with merkle tree at height (Long)', () => assertCanRetrieveSimpleBlock(Long.fromNumber(Default_Height)));
+		it('can retrieve block with statement merkle tree at height (Number)', () => assertCanRetrieveSimpleBlock(Default_Height));
+		it('can retrieve block with statement merkle tree at height (uint64)', () => assertCanRetrieveSimpleBlock([Default_Height, 0]));
+		it('can retrieve block with statement merkle tree at height (Long)', () =>
+			assertCanRetrieveSimpleBlock(Long.fromNumber(Default_Height)));
 
-		it('can retrieve block with merkle tree at height', () => {
+		it('can retrieve block with statement merkle tree at height', () => {
 			// Arrange:
 			const seedBlock = test.db.createDbBlock(Default_Height);
 			const blockTransactions = test.db.createDbTransactions(2, test.random.publicKey(), test.random.address());
@@ -213,8 +216,50 @@ describe('catapult db', () => {
 			// Assert:
 			return runDbTest(
 				{ block: seedBlock, transactions: blockTransactions },
-				db => db.blockWithMerkleTreeAtHeight(Long.fromNumber(Default_Height)),
-				block => expect(block).to.deep.equal(seedBlock)
+				db => db.blockWithStatementMerkleTreeAtHeight(Long.fromNumber(Default_Height)),
+				block => expect(block).to.deep.equal(stripBlockFields(seedBlock, ['transactionMerkleTree']))
+			);
+		});
+	});
+
+	describe('block at height with transaction merkle tree', () => {
+		it('undefined is returned for block at unknown height', () =>
+			// Assert:
+			runDbTest(
+				{ block: test.db.createDbBlock(Default_Height) },
+				db => db.blockWithTransactionMerkleTreeAtHeight(Long.fromNumber(Default_Height + 1)),
+				block => expect(block).to.equal(undefined)
+			));
+
+		// use blockAtHeight tests as a proxy for testing support of different numeric types (Number, uint64, Long)
+
+		const assertCanRetrieveSimpleBlock = height => {
+			// Arrange:
+			const seedBlock = test.db.createDbBlock(Default_Height);
+
+			// Assert:
+			return runDbTest(
+				{ block: seedBlock },
+				db => db.blockWithTransactionMerkleTreeAtHeight(height),
+				block => expect(block).to.deep.equal(stripBlockFields(seedBlock, ['statementMerkleTree']))
+			);
+		};
+
+		it('can retrieve block with transaction merkle tree at height (Number)', () => assertCanRetrieveSimpleBlock(Default_Height));
+		it('can retrieve block with transaction merkle tree at height (uint64)', () => assertCanRetrieveSimpleBlock([Default_Height, 0]));
+		it('can retrieve block with transaction merkle tree at height (Long)', () =>
+			assertCanRetrieveSimpleBlock(Long.fromNumber(Default_Height)));
+
+		it('can retrieve block with transaction merkle tree at height', () => {
+			// Arrange:
+			const seedBlock = test.db.createDbBlock(Default_Height);
+			const blockTransactions = test.db.createDbTransactions(2, test.random.publicKey(), test.random.address());
+
+			// Assert:
+			return runDbTest(
+				{ block: seedBlock, transactions: blockTransactions },
+				db => db.blockWithTransactionMerkleTreeAtHeight(Long.fromNumber(Default_Height)),
+				block => expect(block).to.deep.equal(stripBlockFields(seedBlock, ['statementMerkleTree']))
 			);
 		});
 	});
@@ -251,7 +296,8 @@ describe('catapult db', () => {
 			const endElement = dbEntities.blocks.findIndex(entity => entity.block.height.toNumber() === startHeight) + 1;
 			const startElement = endElement - numBlocks;
 			expect(actualBlocks.length).to.equal(numBlocks);
-			expect(actualBlocks).to.deep.equal(dbEntities.blocks.slice(startElement, endElement).map(stripPrivateBlockInformation));
+			expect(actualBlocks).to.deep.equal(dbEntities.blocks.slice(startElement, endElement).map(block =>
+				stripExtraneousBlockInformation(block)));
 		};
 
 		it('returns at most available blocks', () => {

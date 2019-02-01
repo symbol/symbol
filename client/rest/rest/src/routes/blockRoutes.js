@@ -51,7 +51,7 @@ module.exports = {
 			const height = parseHeight(req.params);
 			const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
 
-			return dbFacade.runHeightDependentOperation(db, height, () => db.blockWithMerkleTreeAtHeight(height))
+			return dbFacade.runHeightDependentOperation(db, height, () => db.blockWithTransactionMerkleTreeAtHeight(height))
 				.then(result => {
 					if (!result.isRequestValid) {
 						res.send(errors.createNotFoundError(height));
@@ -70,7 +70,7 @@ module.exports = {
 					};
 
 					if (0 > indexOfLeafWithHash(hash, merkleTree)) {
-						res.send(errors.createNotFoundError(req.params.hash));
+						res.send(errors.createInvalidArgumentError(`hash '${req.params.hash}' not included in block height '${height}'`));
 						return next();
 					}
 
@@ -80,6 +80,7 @@ module.exports = {
 						payload: { merklePath },
 						type: routeResultTypes.merkleProofInfo
 					});
+
 					return next();
 				});
 		});

@@ -192,12 +192,20 @@ class CatapultDb {
 	}
 
 	blockAtHeight(height) {
-		return this.queryDocument('blocks', { 'block.height': createLong(height) }, { 'meta.merkleTree': 0 })
+		return this.queryDocument(
+			'blocks',
+			{ 'block.height': createLong(height) },
+			{ 'meta.transactionMerkleTree': 0, 'meta.statementMerkleTree': 0 }
+		).then(this.sanitizer.deleteId);
+	}
+
+	blockWithStatementMerkleTreeAtHeight(height) {
+		return this.queryDocument('blocks', { 'block.height': createLong(height) }, { 'meta.transactionMerkleTree': 0 })
 			.then(this.sanitizer.deleteId);
 	}
 
-	blockWithMerkleTreeAtHeight(height) {
-		return this.queryDocument('blocks', { 'block.height': createLong(height) })
+	blockWithTransactionMerkleTreeAtHeight(height) {
+		return this.queryDocument('blocks', { 'block.height': createLong(height) }, { 'meta.statementMerkleTree': 0 })
 			.then(this.sanitizer.deleteId);
 	}
 
@@ -210,7 +218,7 @@ class CatapultDb {
 			const options = buildBlocksFromOptions(createLong(height), createLong(numBlocks), chainInfo.height);
 
 			return blockCollection.find({ 'block.height': { $gte: options.startHeight, $lt: options.endHeight } })
-				.project({ 'meta.merkleTree': 0 })
+				.project({ 'meta.transactionMerkleTree': 0, 'meta.statementMerkleTree': 0 })
 				.sort({ 'block.height': -1 })
 				.toArray()
 				.then(this.sanitizer.deleteIds)
