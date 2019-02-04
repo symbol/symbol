@@ -1,4 +1,4 @@
-import "lock_secret/lockhashalgorithm.cats"
+import "lock_secret/lock_hash_algorithm.cats"
 import "transaction.cats"
 
 # binary layout for a secret proof transaction

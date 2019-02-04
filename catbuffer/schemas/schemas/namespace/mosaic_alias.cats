@@ -1,4 +1,4 @@
-import "namespace/namespacetypes.cats"
+import "namespace/namespace_types.cats"
 import "transaction.cats"
 
 # binary layout for an mosaic alias transaction

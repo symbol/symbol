@@ -1,4 +1,4 @@
-import "property/propertytypes.cats"
+import "property/property_types.cats"
 import "transaction.cats"
 
 # account properties mosaic modification
