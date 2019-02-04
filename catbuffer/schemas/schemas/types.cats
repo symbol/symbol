@@ -15,6 +15,7 @@ using Signature = binary_fixed(64)
 struct Mosaic
 	# mosaic identifier
 	mosaicId = MosaicId
+
 	# mosaic amount
 	amount = Amount
 
@@ -22,5 +23,6 @@ struct Mosaic
 struct UnresolvedMosaic
 	# mosaic identifier
 	mosaicId = UnresolvedMosaicId
+
 	# mosaic amount
 	amount = Amount

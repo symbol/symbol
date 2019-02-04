@@ -1,4 +1,4 @@
-import "namespacetypes.cats"
+import "namespace/namespacetypes.cats"
 import "transaction.cats"
 
 # binary layout for an address alias transaction

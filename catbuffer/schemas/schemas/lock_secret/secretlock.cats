@@ -1,5 +1,5 @@
+import "lock_secret/lockhashalgorithm.cats"
 import "transaction.cats"
-import "lockhashtypes.cats"
 
 # binary layout for a secret lock transaction
 struct SecretLockTransactionBody
