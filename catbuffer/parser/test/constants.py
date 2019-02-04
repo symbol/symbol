@@ -1,8 +1,8 @@
 VALID_USER_TYPE_NAMES = ['FooBar', 'Foo', 'FooBarBaz', 'Foo123', 'Foo123BAZ']
 INVALID_USER_TYPE_NAMES = ['fooBar', 'foo_bar', 'Foo_Bar', '_fooBar', 'm_fooBar', 'FOO_BAR']
 
-VALID_PROPERTY_NAMES = ['fooBar', 'foo', 'fooBarBaz', 'foo123', 'foo123BAZ']
-INVALID_PROPERTY_NAMES = ['FooBar', 'Foo_bar', 'foo_Bar', '_fooBar', 'm_fooBar', 'FOO_BAR']
+VALID_PROPERTY_NAMES = ['fooBar', 'foo', 'fooBarBaz', 'foo123', 'foo123BAZ', 'foo_Bar', 'm_fooBar']
+INVALID_PROPERTY_NAMES = ['FooBar', 'Foo_bar', '_fooBar', 'FOO_BAR']
 
 VALID_PRIMITIVE_NAMES = ['int8', 'int16', 'int32', 'int64', 'uint8', 'uint16', 'uint32', 'uint64']
 INVALID_PRIMITIVE_NAMES = ['sint8', 'vint32', ' uint8', 'uint16 ', 'uint 32', 'uint63', 'foo']

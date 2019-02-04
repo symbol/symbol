@@ -13,24 +13,26 @@ function generate_all {
 	local end_color="\033[0m"
 
 	local inputs=(
-		"account_properties"
-		"accountlink"
-		"addressalias"
-		"hashlock"
-		"mosaic"
-		"mosaicalias"
-		"mosaicsupply"
-		"multisig"
-		"namespace"
-		"secretlock"
-		"secretproof"
-		"transfer"
+		"accountlink/accountlink"
+		"lock_hash/hashlock"
+		"lock_secret/secretlock"
+		"lock_secret/secretproof"
+		"mosaic/mosaicdefinition"
+		"mosaic/mosaicsupplychange"
+		"multisig/modifymultisigaccount"
+		"namespace/addressalias"
+		"namespace/mosaicalias"
+		"namespace/registernamespace"
+		"property/addressproperty"
+		"property/mosaicproperty"
+		"property/transactiontypeproperty"
+		"transfer/transfer"
 	)
 
 	for input in ${inputs[*]}
 	do
 		echo "generating ${input}"
-		python3 main.py --input ./schemas/${input}.cats --output _generated --generator ${builder} --copyright $1
+		python3 main.py --schema ./schemas/${input}.cats --output _generated --generator ${builder} --copyright $1
 		if [ $? -ne 0 ]; then
 			echo "${start_error_color}ERROR: failed generating ${input}${end_color}"
 			exit 1

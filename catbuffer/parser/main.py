@@ -12,9 +12,11 @@ class MultiFileParser:
         self.cats_parser = CatsParser(self._process_import_file)
         self.dirname = None
 
-    def parse(self, filename):
-        self.dirname = os.path.dirname(filename)
-        self._process_file(filename)
+    def set_include_path(self, include_path):
+        self.dirname = include_path
+
+    def parse(self, schema_filename):
+        self._process_file(schema_filename)
 
     def _process_import_file(self, filename):
         filename = os.path.join(self.dirname, filename)
@@ -45,15 +47,18 @@ def _generate_output(generator_name, directory, schema, options):
 
 def generate():
     parser = argparse.ArgumentParser(description='CATS code generator')
-    parser.add_argument('-i', '--input', help='the input CATS file', required=True)
-    generators_list = list(AVAILABLE_GENERATORS.keys())
+    parser.add_argument('-s', '--schema', help='input CATS file', required=True)
     parser.add_argument('-o', '--output', help='output directory', default='_generated')
-    parser.add_argument('-g', '--generator', help='the generator to use to produce output files', choices=generators_list)
+    parser.add_argument('-i', '--include', help='schema root directory', default='./schemas')
+
+    generators_list = list(AVAILABLE_GENERATORS.keys())
+    parser.add_argument('-g', '--generator', help='generator to use to produce output files', choices=generators_list)
     parser.add_argument('-c', '--copyright', help='file containing copyright data to use with output files', default='../HEADER.inc')
     args = parser.parse_args()
 
     file_parser = MultiFileParser()
-    file_parser.parse(args.input)
+    file_parser.set_include_path(args.include)
+    file_parser.parse(args.schema)
 
     # console output the parsed schema
     printer = pprint.PrettyPrinter(width=140)

@@ -3,7 +3,7 @@ from .CatsParseException import CatsParseException
 
 REGEXES = {
     'user_type_name': re.compile(r'^[A-Z][a-zA-Z0-9]*$'),
-    'property_name': re.compile(r'^[a-z][a-zA-Z0-9]*$'),
+    'property_name': re.compile(r'^[a-z][a-zA-Z0-9_]*$'),
 
     'int_or_uint': re.compile(r'^(u)?int(8|16|32|64)$'),
     'binary_fixed_type': re.compile(r'^binary_fixed\((0x[0-9A-F]+|[0-9]+)\)$'),
