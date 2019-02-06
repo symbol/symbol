@@ -1,7 +1,7 @@
 # lock secret hash algorithm
 enum LockHashAlgorithm : uint8
-	# input is hashed using sha-3 512
-	sha3_512 = 0
+	# input is hashed using sha-3 256
+	sha3_256 = 0
 
 	# input is hashed using keccak 256
 	keccak_256 = 1

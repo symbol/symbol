@@ -13,7 +13,7 @@ struct SecretLockTransactionBody
 	hashAlgorithm = LockHashAlgorithm
 
 	# secret
-	secret = Hash512
+	secret = Hash256
 
 	# recipient of the locked mosaic
 	recipient = UnresolvedAddress

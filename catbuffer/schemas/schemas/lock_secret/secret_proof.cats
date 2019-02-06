@@ -7,7 +7,7 @@ struct SecretProofTransactionBody
 	hashAlgorithm = LockHashAlgorithm
 
 	# secret
-	secret = Hash512
+	secret = Hash256
 
 	# proof size in bytes
 	proofSize = uint16
