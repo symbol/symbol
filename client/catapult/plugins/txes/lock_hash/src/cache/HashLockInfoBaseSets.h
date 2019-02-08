@@ -31,8 +31,7 @@ namespace catapult { namespace cache {
 		using Serializer = HashLockInfoCacheDescriptor::Serializer;
 	};
 
-	struct HashLockInfoBaseSetDeltaPointers : public LockInfoBaseSetDeltaPointers<HashLockInfoCacheTypes, HashLockInfoCacheDescriptor> {
-	};
+	struct HashLockInfoBaseSetDeltaPointers : public LockInfoBaseSetDeltaPointers<HashLockInfoCacheTypes, HashLockInfoCacheDescriptor> {};
 
 	struct HashLockInfoBaseSets
 			: public LockInfoBaseSets<HashLockInfoCacheTypes, HashLockInfoCacheDescriptor, HashLockInfoBaseSetDeltaPointers> {

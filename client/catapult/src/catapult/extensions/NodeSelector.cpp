@@ -20,7 +20,6 @@
 
 #include "NodeSelector.h"
 #include "catapult/ionet/NodeContainer.h"
-#include <random>
 
 namespace catapult { namespace extensions {
 
@@ -49,9 +48,14 @@ namespace catapult { namespace extensions {
 		ServiceNodesInfo FindServiceNodes(
 				const ionet::NodeContainerView& nodes,
 				ionet::ServiceIdentifier serviceId,
-				ionet::NodeRoles requiredRole) {
+				ionet::NodeRoles requiredRole,
+				const ImportanceRetriever& importanceRetriever) {
 			ServiceNodesInfo nodesInfo;
-			nodes.forEach([serviceId, requiredRole, &nodesInfo](const auto& node, const auto& nodeInfo) {
+			auto timestamp = nodes.time();
+			WeightPolicyGenerator generator;
+			nodes.forEach([serviceId, requiredRole, importanceRetriever, &generator, timestamp, &nodesInfo](
+					const auto& node,
+					const auto& nodeInfo) {
 				auto weightMultiplier = GetWeightMultipler(nodeInfo.source());
 				const auto* pConnectionState = nodeInfo.getConnectionState(serviceId);
 				if (!pConnectionState)
@@ -66,7 +70,11 @@ namespace catapult { namespace extensions {
 				if (pConnectionState->Age > 0) {
 					nodesInfo.Actives.emplace_back(node, pConnectionState->Age);
 				} else {
-					nodesInfo.Candidates.emplace_back(node, CalculateWeight(*pConnectionState) * weightMultiplier);
+					auto interactions = nodeInfo.interactions(timestamp);
+					auto weight = CalculateWeight(interactions, generator(), [importanceRetriever, &publicKey = node.identityKey()]() {
+						return importanceRetriever(publicKey);
+					});
+					nodesInfo.Candidates.emplace_back(node, weight * weightMultiplier);
 					nodesInfo.TotalCandidateWeight += nodesInfo.Candidates.back().Weight;
 				}
 			});
@@ -112,16 +120,24 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	uint32_t CalculateWeight(const ionet::ConnectionState& connectionState) {
+	uint32_t CalculateWeight(
+			const ionet::NodeInteractions& interactions,
+			WeightPolicy weightPolicy,
+			const supplier<ImportanceDescriptor>& importanceSupplier) {
 		// return a weight in range of 1..10'000
-		if (0 == connectionState.NumAttempts)
-			return 5'000;
+		if (WeightPolicy::Importance == weightPolicy) {
+			// the weight of a supernode should be 10'000; a supernode has ~0.0333% importance
+			auto descriptor = importanceSupplier();
+			auto rawWeight = static_cast<uint32_t>(descriptor.Importance.unwrap() * 30'000'000 / descriptor.TotalChainImportance.unwrap());
+			return std::max<uint32_t>({ 500, std::min<uint32_t>({ 10'000, rawWeight }) });
+		} else {
+			auto numAttempts = interactions.NumSuccesses + interactions.NumFailures;
+			if (3 >= numAttempts)
+				return 5'000;
 
-		if (0 == connectionState.NumFailures)
-			return 10'000;
-
-		auto weight = connectionState.NumSuccesses * 10'000 / connectionState.NumAttempts;
-		return std::max<uint32_t>({ 1, weight, 1'000 / connectionState.NumFailures });
+			auto weight = interactions.NumSuccesses * 10'000 / (interactions.NumSuccesses + 9 * interactions.NumFailures);
+			return std::max<uint32_t>({ 500, weight });
+		}
 	}
 
 	ionet::NodeSet SelectCandidatesBasedOnWeight(
@@ -156,10 +172,13 @@ namespace catapult { namespace extensions {
 		return addCandidates;
 	}
 
-	NodeSelectionResult SelectNodes(const ionet::NodeContainer& nodes, const NodeSelectionConfiguration& config) {
+	NodeSelectionResult SelectNodes(
+			const ionet::NodeContainer& nodes,
+			const NodeSelectionConfiguration& config,
+			const ImportanceRetriever& importanceRetriever) {
 		// 1. find compatible (service and role) nodes
 		NodeSelectionResult result;
-		auto nodesInfo = FindServiceNodes(nodes.view(), config.ServiceId, config.RequiredRole);
+		auto nodesInfo = FindServiceNodes(nodes.view(), config.ServiceId, config.RequiredRole, importanceRetriever);
 
 		// 2. find removal candidates
 		auto numActiveNodes = nodesInfo.Actives.size();
@@ -176,10 +195,13 @@ namespace catapult { namespace extensions {
 		return result;
 	}
 
-	utils::KeySet SelectNodesForRemoval(const ionet::NodeContainer& nodes, const NodeAgingConfiguration& config) {
+	utils::KeySet SelectNodesForRemoval(
+			const ionet::NodeContainer& nodes,
+			const NodeAgingConfiguration& config,
+			const ImportanceRetriever& importanceRetriever) {
 		// 1. find compatible (service) nodes; always match all roles
 		NodeSelectionResult result;
-		auto nodesInfo = FindServiceNodes(nodes.view(), config.ServiceId, ionet::NodeRoles::None);
+		auto nodesInfo = FindServiceNodes(nodes.view(), config.ServiceId, ionet::NodeRoles::None, importanceRetriever);
 
 		// 2. find removal candidates
 		// a. allow at most 1/4 of active nodes to be disconnected

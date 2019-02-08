@@ -33,7 +33,7 @@ namespace catapult { namespace validators {
 		using NotificationType = TNotification;
 
 	public:
-		virtual ~NotificationValidatorT() {}
+		virtual ~NotificationValidatorT() = default;
 
 	public:
 		/// Gets the validator name.

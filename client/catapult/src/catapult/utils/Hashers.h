@@ -19,7 +19,8 @@
 **/
 
 #pragma once
-#include <stddef.h>
+#include <array>
+#include <cstring>
 
 namespace catapult { namespace utils {
 
@@ -28,9 +29,15 @@ namespace catapult { namespace utils {
 	/// \note Hash is composed of only sizeof(size_t) bytes starting at offset.
 	template<typename TArray, size_t Offset = 4>
 	struct ArrayHasher {
+	private:
+		static constexpr auto N = std::tuple_size<TArray>::value;
+
+	public:
 		/// Hashes \a arrayData.
-		size_t operator()(const TArray& arrayData) const {
-			return reinterpret_cast<const size_t&>(arrayData[Offset]);
+		size_t operator()(const std::array<uint8_t, N>& arrayData) const {
+			size_t hash;
+			std::memcpy(static_cast<void*>(&hash), &arrayData[Offset], sizeof(size_t));
+			return hash;
 		}
 	};
 

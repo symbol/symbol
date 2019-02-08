@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 
 	/// Hash string of the deterministic transaction.
 #ifdef SIGNATURE_SCHEME_NIS1
-	constexpr auto Deterministic_Transaction_Hash_String = "0A1201A72AC8E0E89898DE9CBA8951E21CA407A58AD13ED294E3FA5C4AEB6A39";
+	constexpr auto Deterministic_Transaction_Hash_String = "070D67A92D441EAAD25AB5C78F1F68628BE33EAA1DEBEDBE14D4FBE8F4DC326E";
 #else
 	constexpr auto Deterministic_Transaction_Hash_String = "8877DC5D8D21B6E007D640E703F47BD0C5E5D6D831E4F207539747F4E8D0426A";
 #endif
@@ -51,7 +51,7 @@ namespace catapult { namespace test {
 	ConstTransactions MakeConst(const MutableTransactions& transactions);
 
 	/// Generates a random transaction with size \a entitySize.
-	std::unique_ptr<model::Transaction> GenerateRandomTransaction(size_t entitySize);
+	std::unique_ptr<model::Transaction> GenerateRandomTransactionWithSize(size_t entitySize);
 
 	/// Generates a transaction with \a deadline.
 	std::unique_ptr<model::Transaction> GenerateTransactionWithDeadline(Timestamp deadline);

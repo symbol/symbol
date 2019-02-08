@@ -103,8 +103,8 @@ namespace catapult { namespace api {
 		};
 
 		struct RemoteNodeApiTraits {
-			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return CreateRemoteNodeApi(*pPacketIo);
+			static auto Create(ionet::PacketIo& packetIo) {
+				return CreateRemoteNodeApi(packetIo);
 			}
 		};
 	}

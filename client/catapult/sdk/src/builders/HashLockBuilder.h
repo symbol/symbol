@@ -30,18 +30,19 @@ namespace catapult { namespace builders {
 		using Transaction = model::HashLockTransaction;
 		using EmbeddedTransaction = model::EmbeddedHashLockTransaction;
 
+	public:
 		/// Creates a hash lock builder for building a hash lock transaction from \a signer
 		/// for the network specified by \a networkIdentifier.
 		HashLockBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the mosaic with \a mosaicId and \a amount.
-		void setMosaic(UnresolvedMosaicId mosaicId, Amount amount);
+		/// Sets the lock mosaic to \a mosaic.
+		void setMosaic(const model::UnresolvedMosaic& mosaic);
 
-		/// Sets the \a duration.
+		/// Sets the number of blocks for which a lock should be valid to \a duration.
 		void setDuration(BlockDuration duration);
 
-		// Sets the \a hash.
+		/// Sets the lock hash to \a hash.
 		void setHash(const Hash256& hash);
 
 	public:
@@ -57,7 +58,6 @@ namespace catapult { namespace builders {
 
 	private:
 		model::UnresolvedMosaic m_mosaic;
-		Amount m_amount;
 		BlockDuration m_duration;
 		Hash256 m_hash;
 	};

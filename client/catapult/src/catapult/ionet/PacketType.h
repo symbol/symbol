@@ -130,6 +130,9 @@ namespace catapult { namespace ionet {
 	/* Node infos for active nodes have been requested. */ \
 	ENUM_VALUE(Active_Node_Infos, 1102) \
 	\
+	/* Block statement has been requested by a client. */ \
+	ENUM_VALUE(Block_Statement, 1103) \
+	\
 	/* Account infos have been requested by a client. */ \
 	ENUM_VALUE(Account_Infos, FACILITY_BASED_CODE(1200, Core)) \
 	\

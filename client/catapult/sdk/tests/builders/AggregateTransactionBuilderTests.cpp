@@ -66,7 +66,7 @@ namespace catapult { namespace builders {
 				auto i = 0u;
 				for (const auto& embedded : transaction.Transactions()) {
 					ASSERT_EQ(m_pTransactions[i]->Size, embedded.Size) << "invalid size of transaction " << i;
-					EXPECT_TRUE(0 == std::memcmp(m_pTransactions[i].get(), &embedded, embedded.Size)) << "invalid transaction " << i;
+					EXPECT_EQ_MEMORY(m_pTransactions[i].get(), &embedded, embedded.Size) << "invalid transaction " << i;
 					++i;
 				}
 			}

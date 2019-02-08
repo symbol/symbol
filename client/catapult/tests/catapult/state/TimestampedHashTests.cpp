@@ -74,17 +74,16 @@ namespace catapult { namespace state {
 		// Arrange:
 		Hash256 hash1{ {} };
 		Hash256 hash2{ { 1 } }; // hash1 < hash2
-		auto data1 = TimestampedHash(Timestamp(123), hash1);
-		auto data2 = TimestampedHash(Timestamp(123), hash1);
-		auto data3 = TimestampedHash(Timestamp(234), hash1);
-		auto data4 = TimestampedHash(Timestamp(123), hash2);
-		auto data5 = TimestampedHash(Timestamp(234), hash2);
+		std::vector<TimestampedHash> timestampedHashes{
+			TimestampedHash(Timestamp(123), hash1),
+			TimestampedHash(Timestamp(123), hash2),
+			TimestampedHash(Timestamp(234), hash1),
+			TimestampedHash(Timestamp(234), hash2)
+		};
 
 		// Assert:
-		test::AssertLessThanOperatorForEqualValues(data1, data2);
-		test::AssertLessThanOperatorForDifferentValues(data1, data3);
-		test::AssertLessThanOperatorForDifferentValues(data1, data4);
-		test::AssertLessThanOperatorForDifferentValues(data1, data5);
+		test::AssertLessThanOperatorForEqualValues(TimestampedHash(Timestamp(123), hash1), TimestampedHash(Timestamp(123), hash1));
+		test::AssertOperatorBehaviorForIncreasingValues(timestampedHashes, std::less<>());
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueIfAndOnlyIfTimestampAndHashAreEqual) {

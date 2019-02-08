@@ -41,7 +41,8 @@ namespace catapult { namespace validators {
 			auto cache = test::CreateEmptyCatapultCache();
 			auto cacheView = cache.createView();
 			auto readOnlyCache = cacheView.toReadOnly();
-			auto context = ValidatorContext(Height(123), Block_Time, model::NetworkInfo(), readOnlyCache);
+			auto resolverContext = test::CreateResolverContextXor();
+			auto context = ValidatorContext(Height(123), Block_Time, model::NetworkInfo(), resolverContext, readOnlyCache);
 			auto pValidator = CreateDeadlineValidator(Max_Transaction_Lifetime);
 
 			model::TransactionNotification notification(Key(), Hash256(), model::EntityType(), deadline);

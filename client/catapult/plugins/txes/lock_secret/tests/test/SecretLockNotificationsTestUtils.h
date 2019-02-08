@@ -34,8 +34,7 @@ namespace catapult { namespace test {
 		}
 
 		/// Creates secret lock notification builder with \a lockHashAlgorithm.
-		explicit SecretLockNotificationBuilder(model::LockHashAlgorithm lockHashAlgorithm)
-				: SecretLockNotificationBuilder() {
+		explicit SecretLockNotificationBuilder(model::LockHashAlgorithm lockHashAlgorithm) : SecretLockNotificationBuilder() {
 			m_hashAlgorithm = lockHashAlgorithm;
 		}
 
@@ -45,17 +44,17 @@ namespace catapult { namespace test {
 		}
 
 		/// Sets notification hash to \a secret.
-		void setHash(const Hash512& secret) {
+		void setHash(const Hash256& secret) {
 			m_secret = secret;
 		}
 
 	private:
 		Key m_signer;
-		model::Mosaic m_mosaic;
+		model::UnresolvedMosaic m_mosaic;
 		BlockDuration m_duration;
 		model::LockHashAlgorithm m_hashAlgorithm;
-		Hash512 m_secret;
-		Address m_recipient;
+		Hash256 m_secret;
+		UnresolvedAddress m_recipient;
 	};
 
 	/// Proof notification builder.
@@ -69,7 +68,7 @@ namespace catapult { namespace test {
 		/// Creates a proof notification builder around \a notificationHeight.
 		explicit ProofNotificationBuilder(Height notificationHeight)
 				: m_notificationHeight(notificationHeight)
-				, m_algorithm(model::LockHashAlgorithm::Op_Sha3) {
+				, m_algorithm(model::LockHashAlgorithm::Op_Sha3_256) {
 				test::FillWithRandomData(m_signer);
 				test::FillWithRandomData(m_hash);
 		}
@@ -91,7 +90,7 @@ namespace catapult { namespace test {
 		}
 
 		/// Sets notification \a hash.
-		void setHash(const Hash512& hash) {
+		void setHash(const Hash256& hash) {
 			m_hash = hash;
 		}
 
@@ -109,6 +108,6 @@ namespace catapult { namespace test {
 		Height m_notificationHeight;
 		model::LockHashAlgorithm m_algorithm;
 		Key m_signer;
-		Hash512 m_hash;
+		Hash256 m_hash;
 	};
 }}

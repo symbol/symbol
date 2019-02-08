@@ -66,6 +66,12 @@ namespace catapult { namespace test {
 	/// Fills \a unresolvedAddress with random data.
 	void FillWithRandomData(UnresolvedAddress& unresolvedAddress);
 
+	/// Fills \a value with random data.
+	template<typename TValue, typename TTag, typename TBaseValue>
+	void FillWithRandomData(utils::BasicBaseValue<TValue, TTag, TBaseValue>& value) {
+		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&value), sizeof(TValue) });
+	}
+
 	/// Generates random vector of \a count elements.
 	template<typename T>
 	std::vector<T> GenerateRandomDataVector(size_t count) {

@@ -116,7 +116,8 @@ namespace catapult { namespace mongo {
 					extensions::ServiceRegistrarPhase::Initial_With_Modules));
 
 			// add a pre load handler for initializing (nemesis) storage
-			auto pMongoBlockStorage = CreateMongoBlockStorage(*pMongoContext, *pTransactionRegistry);
+			// (pPluginManager is kept alive by pTransactionRegistry)
+			auto pMongoBlockStorage = CreateMongoBlockStorage(*pMongoContext, *pTransactionRegistry, pPluginManager->receiptRegistry());
 			MongoNemesisBlockPreparer nemesisBlockPreparer(
 					*pMongoBlockStorage,
 					*pExternalCacheStorage,

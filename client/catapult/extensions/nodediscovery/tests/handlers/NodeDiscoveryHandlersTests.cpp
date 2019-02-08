@@ -189,7 +189,7 @@ namespace catapult { namespace handlers {
 			test::AssertPacketHeader(context, sizeof(ionet::Packet) + networkNode.Size, ionet::PacketType::Node_Discovery_Pull_Ping);
 
 			const auto* pResponse = test::GetSingleBufferData(context);
-			EXPECT_TRUE(0 == memcmp(pResponse, &networkNode, networkNode.Size));
+			EXPECT_EQ_MEMORY(pResponse, &networkNode, networkNode.Size);
 		});
 	}
 
@@ -331,7 +331,7 @@ namespace catapult { namespace handlers {
 			test::AssertPacketHeader(context, sizeof(ionet::Packet) + networkNodes[0]->Size, ionet::PacketType::Node_Discovery_Pull_Peers);
 
 			const auto* pResponse = test::GetSingleBufferData(context);
-			EXPECT_TRUE(0 == memcmp(pResponse, networkNodes[0].get(), networkNodes[0]->Size));
+			EXPECT_EQ_MEMORY(pResponse, networkNodes[0].get(), networkNodes[0]->Size);
 		});
 	}
 
@@ -364,7 +364,7 @@ namespace catapult { namespace handlers {
 
 				if (networkNodes.cend() != networkNodeIter) {
 					const auto& networkNode = **networkNodeIter;
-					EXPECT_TRUE(0 == memcmp(buffers[i].pData, &networkNode, networkNode.Size)) << "buffer at " << i;
+					EXPECT_EQ_MEMORY(buffers[i].pData, &networkNode, networkNode.Size) << "buffer at " << i;
 					networkNodes.erase(networkNodeIter);
 				}
 			}

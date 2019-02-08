@@ -20,7 +20,6 @@
 
 #include "catapult/state/CompactMosaicMap.h"
 #include "catapult/utils/Casting.h"
-#include "catapult/constants.h"
 #include "tests/test/nodeps/IteratorTestTraits.h"
 #include "tests/TestHarness.h"
 #include <unordered_map>
@@ -31,6 +30,8 @@ namespace catapult { namespace state {
 
 	namespace {
 		using MosaicMap = std::unordered_map<MosaicId, Amount, utils::BaseValueHasher<MosaicId>>;
+
+		// region utils
 
 		MosaicMap GetTenExpectedMosaics() {
 			return {
@@ -57,14 +58,23 @@ namespace catapult { namespace state {
 		}
 
 		template<typename TMap>
+		bool Contains(TMap& map, MosaicId mosaicId) {
+			return map.end() != map.find(mosaicId);
+		}
+
+		// endregion
+
+		// region asserts
+
+		template<typename TMap>
 		void AssertEmpty(TMap& map, const std::string& description) {
 			// Assert:
 			EXPECT_EQ(map.begin(), map.end()) << description;
 
 			// - find should return end for mosaics
-			EXPECT_EQ(map.end(), map.find(MosaicId(1))) << description;
-			EXPECT_EQ(map.end(), map.find(MosaicId(2))) << description;
-			EXPECT_EQ(map.end(), map.find(MosaicId(100))) << description;
+			EXPECT_FALSE(Contains(map, MosaicId(1))) << description;
+			EXPECT_FALSE(Contains(map, MosaicId(2))) << description;
+			EXPECT_FALSE(Contains(map, MosaicId(100))) << description;
 		}
 
 		void AssertEmpty(CompactMosaicMap& map) {
@@ -93,7 +103,11 @@ namespace catapult { namespace state {
 		}
 
 		template<typename TActual>
-		void AssertIteratedContents(const MosaicMap& expectedMosaics, TActual& actualMosaics, const std::string& description) {
+		void AssertIteratedContents(
+				MosaicId optimizedMosaicId,
+				const MosaicMap& expectedMosaics,
+				TActual& actualMosaics,
+				const std::string& description) {
 			// Assert:
 			EXPECT_NE(actualMosaics.begin(), actualMosaics.end()) << description;
 
@@ -103,12 +117,12 @@ namespace catapult { namespace state {
 			for (const auto& pair : actualMosaics) {
 				EXPECT_LT(lastMosaicId, pair.first) << "expected ordering at " << numIteratedMosaics;
 
-				// compact map uses a custom sort that treats Xem_Id as smallest value; all other mosaics are sorted normally
-				if (0 != numIteratedMosaics || Xem_Id != pair.first)
+				// compact map uses a custom sort that treats optimizedMosaicId as smallest value; all other mosaics are sorted normally
+				if (0 != numIteratedMosaics || optimizedMosaicId != pair.first)
 					lastMosaicId = pair.first;
 
 				if (0 != numIteratedMosaics)
-					EXPECT_NE(Xem_Id, pair.first) << "unexpected Xem_Id at " << numIteratedMosaics;
+					EXPECT_NE(optimizedMosaicId, pair.first) << "unexpected optimizedMosaicId at " << numIteratedMosaics;
 
 				iteratedMosaics.insert(pair);
 				++numIteratedMosaics;
@@ -118,7 +132,7 @@ namespace catapult { namespace state {
 			AssertContents(expectedMosaics, iteratedMosaics, description);
 		}
 
-		void AssertContents(CompactMosaicMap& map, const MosaicMap& expectedMosaics) {
+		void AssertContents(CompactMosaicMap& map, MosaicId optimizedMosaicId, const MosaicMap& expectedMosaics) {
 			// Assert:
 			EXPECT_FALSE(map.empty());
 
@@ -127,9 +141,15 @@ namespace catapult { namespace state {
 			AssertContents(expectedMosaics, map, "via find (non-const)");
 
 			// - check that all mosaics are accessible via iteration
-			AssertIteratedContents(expectedMosaics, utils::as_const(map), "via iteration (const)");
-			AssertIteratedContents(expectedMosaics, map, "via iteration (non-const)");
+			AssertIteratedContents(optimizedMosaicId, expectedMosaics, utils::as_const(map), "via iteration (const)");
+			AssertIteratedContents(optimizedMosaicId, expectedMosaics, map, "via iteration (non-const)");
 		}
+
+		void AssertContents(CompactMosaicMap& map, const MosaicMap& expectedMosaics) {
+			AssertContents(map, MosaicId(), expectedMosaics);
+		}
+
+		// endregion
 	}
 
 	// region constructor
@@ -169,23 +189,6 @@ namespace catapult { namespace state {
 		AssertContents(map, {
 			{ MosaicId(100), Amount(333) },
 			{ MosaicId(123), Amount(245) }
-		});
-	}
-
-	TEST(TEST_CLASS, CanInsertXemMosaic) {
-		// Arrange:
-		CompactMosaicMap map;
-
-		// Act:
-		map.insert(std::make_pair(MosaicId(100), Amount(333)));
-		map.insert(std::make_pair(Xem_Id, Amount(111)));
-		map.insert(std::make_pair(MosaicId(29), Amount(876)));
-
-		// Assert: Xem_Id should be treated as smallest value
-		AssertContents(map, {
-			{ Xem_Id, Amount(111) },
-			{ MosaicId(29), Amount(876) },
-			{ MosaicId(100), Amount(333) }
 		});
 	}
 
@@ -254,15 +257,19 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, CanInsertMosaicWithSmallerValue_Many) {
 		// Arrange:
 		CompactMosaicMap map;
+		map.optimize(MosaicId(2));
 		InsertMany(map, 10);
 
-		// Act: xem id is configured to be smallest value
-		map.insert(std::make_pair(Xem_Id, Amount(333)));
+		// Act:
+		map.insert(std::make_pair(MosaicId(2), Amount(333)));
 
 		// Assert:
 		auto expectedMosaics = GetTenExpectedMosaics();
-		expectedMosaics.emplace(Xem_Id, Amount(333));
-		AssertContents(map, expectedMosaics);
+		expectedMosaics.emplace(MosaicId(2), Amount(333));
+		AssertContents(map, MosaicId(2), expectedMosaics);
+
+		// Sanity:
+		EXPECT_EQ(MosaicId(2), map.begin()->first);
 	}
 
 	TEST(TEST_CLASS, CanInsertMosaicWithZeroBalance) {
@@ -291,6 +298,115 @@ namespace catapult { namespace state {
 
 		// Act:
 		EXPECT_THROW(map.insert(std::make_pair(MosaicId(123), Amount(245))), catapult_invalid_argument);
+	}
+
+	// endregion
+
+	// region insert + optimize
+
+	namespace {
+		MosaicMap GetSevenExpectedMosaicsForOptimizeTests() {
+			return {
+				{ MosaicId(29), Amount(876) },
+				{ MosaicId(85), Amount(111) },
+				{ MosaicId(100), Amount(333) },
+				{ MosaicId(101), Amount(10) },
+				{ MosaicId(102), Amount(20) },
+				{ MosaicId(104), Amount(40) },
+				{ MosaicId(303), Amount(30) }
+			};
+		}
+
+		void InsertSevenForOptimizeTests(CompactMosaicMap& map) {
+			map.insert(std::make_pair(MosaicId(100), Amount(333)));
+			map.insert(std::make_pair(MosaicId(29), Amount(876)));
+			map.insert(std::make_pair(MosaicId(85), Amount(111)));
+			map.insert(std::make_pair(MosaicId(104), Amount(40)));
+			map.insert(std::make_pair(MosaicId(303), Amount(30)));
+			map.insert(std::make_pair(MosaicId(102), Amount(20)));
+			map.insert(std::make_pair(MosaicId(101), Amount(10)));
+		}
+	}
+
+	TEST(TEST_CLASS, CanInsertOptimizedMosaic) {
+		// Arrange:
+		CompactMosaicMap map;
+		map.optimize(MosaicId(85));
+
+		// Act: insert after optimize
+		InsertSevenForOptimizeTests(map);
+
+		// Assert: optimized mosaic id should be treated as smallest value
+		AssertContents(map, MosaicId(85), GetSevenExpectedMosaicsForOptimizeTests());
+	}
+
+	namespace {
+		void AssertCanInsertAndThenOptimize(MosaicId optimizedMosaicId) {
+			// Arrange:
+			CompactMosaicMap map;
+			InsertSevenForOptimizeTests(map);
+
+			// Sanity:
+			EXPECT_EQ(MosaicId(29), map.begin()->first);
+
+			// Act: optimize after insert
+			map.optimize(optimizedMosaicId);
+
+			// Assert: optimized mosaic id should be treated as smallest value
+			AssertContents(map, optimizedMosaicId, GetSevenExpectedMosaicsForOptimizeTests());
+
+			// Sanity:
+			EXPECT_EQ(optimizedMosaicId, map.begin()->first);
+		}
+	}
+
+	TEST(TEST_CLASS, CanInsertAndThenOptimizeMosaicFromArray) {
+		// Assert:
+		AssertCanInsertAndThenOptimize(MosaicId(101));
+	}
+
+	TEST(TEST_CLASS, CanInsertAndThenOptimizeMosaicFromMap) {
+		// Assert:
+		AssertCanInsertAndThenOptimize(MosaicId(303));
+	}
+
+	TEST(TEST_CLASS, CanReoptimizeWithSameMosaic) {
+		// Arrange:
+		CompactMosaicMap map;
+
+		// Act: optimize, insert, optimize (note that optimize must be called with same id)
+		map.optimize(MosaicId(85));
+		map.optimize(MosaicId(85));
+		InsertSevenForOptimizeTests(map);
+		map.optimize(MosaicId(85));
+		map.optimize(MosaicId(85));
+
+		// Assert: optimized mosaic id should be treated as smallest value
+		AssertContents(map, MosaicId(85), GetSevenExpectedMosaicsForOptimizeTests());
+	}
+
+	TEST(TEST_CLASS, CanDeoptimizeWhenUnoptimized) {
+		// Arrange:
+		CompactMosaicMap map;
+
+		// Act: first optimize is noop
+		map.optimize(MosaicId(0));
+		map.optimize(MosaicId(85));
+		InsertSevenForOptimizeTests(map);
+
+		// Assert: optimized mosaic id should be treated as smallest value
+		AssertContents(map, MosaicId(85), GetSevenExpectedMosaicsForOptimizeTests());
+	}
+
+	TEST(TEST_CLASS, CannotReoptimizeOrDeoptimizeMosaic) {
+		// Arrange: optimize and insert
+		CompactMosaicMap map;
+		map.optimize(MosaicId(85));
+		InsertSevenForOptimizeTests(map);
+
+		// Act + Assert:
+		EXPECT_THROW(map.optimize(MosaicId(30)), catapult_invalid_argument); // reoptimize
+		EXPECT_THROW(map.optimize(MosaicId()), catapult_invalid_argument); // deoptimize
 	}
 
 	// endregion

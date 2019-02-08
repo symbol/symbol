@@ -26,20 +26,9 @@
 
 namespace catapult { namespace handlers {
 
-	/// State path request packet.
-	template<ionet::PacketType PacketType, typename TKey>
-	struct StatePathRequestPacket : public ionet::Packet {
-	public:
-		/// Packet type.
-		static constexpr ionet::PacketType Packet_Type = PacketType;
-
-		/// Key data.
-		TKey Key;
-	};
-
 	/// Registers a handler in \a handlers that responds with serialized state path produced by querying \a cache.
 	template<typename TPacket, typename TCache>
-	static void RegisterStatePathHandler(ionet::ServerPacketHandlers& handlers, const TCache& cache) {
+	void RegisterStatePathHandler(ionet::ServerPacketHandlers& handlers, const TCache& cache) {
 		handlers.registerHandler(TPacket::Packet_Type, [&cache](const auto& packet, auto& context) {
 			const auto* pRequest = ionet::CoercePacket<TPacket>(&packet);
 			if (!pRequest)

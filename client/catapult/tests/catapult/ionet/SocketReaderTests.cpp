@@ -146,7 +146,7 @@ namespace catapult { namespace ionet {
 			auto numResponseBytes = static_cast<uint32_t>(responseBytes.size());
 			auto pResponsePacket = CreateSharedPacket<Packet>(numResponseBytes);
 			pResponsePacket->Size = sizeof(PacketHeader) + numResponseBytes;
-			std::memcpy(pResponsePacket.get() + 1, responseBytes.data(), responseBytes.size());
+			std::memcpy(static_cast<void*>(pResponsePacket.get() + 1), responseBytes.data(), responseBytes.size());
 			context.response(PacketPayload(pResponsePacket));
 		}
 

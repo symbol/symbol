@@ -135,7 +135,7 @@ namespace catapult { namespace utils {
 			message << "input: " << input << " E(" << expected << ") != A("
 				<< actual.pData << ", " << actual.Size << ")";
 			ASSERT_EQ(expectedSize, actual.Size) << message.str();
-			EXPECT_TRUE(0 == strncmp(expected, actual.pData, expectedSize)) << message.str();
+			EXPECT_EQ_MEMORY(expected, actual.pData, expectedSize) << message.str();
 		}
 	}
 

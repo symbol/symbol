@@ -19,12 +19,18 @@
 **/
 
 #include "src/plugins/NamespacePlugin.h"
-#include "src/model/MosaicEntityType.h"
+#include "src/cache/NamespaceCache.h"
 #include "src/model/NamespaceEntityType.h"
+#include "catapult/cache/ReadOnlyCatapultCache.h"
+#include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace plugins {
+
+#define TEST_CLASS NamespacePluginTests
+
+	// region basic
 
 	namespace {
 		struct NamespacePluginTraits {
@@ -47,17 +53,7 @@ namespace catapult { namespace plugins {
 						{ "rootNamespaceRentalFeePerBlock", "0" },
 						{ "childNamespaceRentalFee", "0" },
 
-						{ "maxChildNamespaces", "0" },
-						{ "maxMosaicsPerAccount", "0" },
-
-						{ "maxMosaicDuration", "0h" },
-
-						{ "isMosaicLevyUpdateAllowed", "false" },
-						{ "maxMosaicDivisibility", "0" },
-						{ "maxMosaicDivisibleUnits", "0" },
-
-						{ "mosaicRentalFeeSinkPublicKey", "0000000000000000000000000000000000000000000000000000000000000000" },
-						{ "mosaicRentalFee", "0" }
+						{ "maxChildNamespaces", "0" }
 					}
 				}}));
 
@@ -72,26 +68,25 @@ namespace catapult { namespace plugins {
 			static std::vector<model::EntityType> GetTransactionTypes() {
 				return {
 					model::Entity_Type_Register_Namespace,
-					model::Entity_Type_Mosaic_Definition,
-					model::Entity_Type_Mosaic_Supply_Change
+					model::Entity_Type_Alias_Address,
+					model::Entity_Type_Alias_Mosaic
 				};
 			}
 
 			static std::vector<std::string> GetCacheNames() {
-				return { "NamespaceCache", "MosaicCache" };
+				return { "NamespaceCache" };
+			}
+
+			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
+				return { ionet::PacketType::Namespace_State_Path };
 			}
 
 			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return {
-					ionet::PacketType::Namespace_Infos,
-					ionet::PacketType::Namespace_State_Path,
-					ionet::PacketType::Mosaic_Infos,
-					ionet::PacketType::Mosaic_State_Path
-				};
+				return { ionet::PacketType::Namespace_Infos };
 			}
 
 			static std::vector<std::string> GetDiagnosticCounterNames() {
-				return { "NS C", "NS C AS", "NS C DS", "MOSAIC C", "MOSAIC C DS" };
+				return { "NS C", "NS C AS", "NS C DS" };
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
@@ -99,9 +94,7 @@ namespace catapult { namespace plugins {
 					"NamespaceTypeValidator",
 					"NamespaceNameValidator",
 					"RootNamespaceValidator",
-					"MosaicNameValidator",
-					"MosaicPropertiesValidator",
-					"MosaicSupplyChangeValidator"
+					"AliasActionValidator"
 				};
 			}
 
@@ -110,27 +103,22 @@ namespace catapult { namespace plugins {
 					"RootNamespaceAvailabilityValidator",
 					"ChildNamespaceAvailabilityValidator",
 					"RootNamespaceMaxChildrenValidator",
-					"MosaicChangeAllowedValidator",
-					"NamespaceMosaicConsistencyValidator",
-					"MosaicAvailabilityValidator",
-					"MosaicTransferValidator",
-					"MaxMosaicsBalanceTransferValidator",
-					"MaxMosaicsSupplyChangeValidator",
-					"MosaicSupplyChangeAllowedValidator"
+					"AliasAvailabilityValidator",
+					"UnlinkAliasedAddressConsistencyValidator",
+					"UnlinkAliasedMosaicIdConsistencyValidator",
+					"AddressAliasValidator"
 				};
 			}
 
 			static std::vector<std::string> GetObserverNames() {
 				return {
-					"RegisterNamespaceMosaicPruningObserver",
 					"RootNamespaceObserver",
 					"ChildNamespaceObserver",
+					"NamespaceRentalFeeObserver",
 					"NamespaceTouchObserver",
 					"NamespacePruningObserver",
-					"MosaicDefinitionObserver",
-					"MosaicSupplyChangeObserver",
-					"MosaicTouchObserver",
-					"MosaicPruningObserver"
+					"AliasedAddressObserver",
+					"AliasedMosaicIdObserver"
 				};
 			}
 
@@ -141,4 +129,134 @@ namespace catapult { namespace plugins {
 	}
 
 	DEFINE_PLUGIN_TESTS(NamespacePluginTests, NamespacePluginTraits)
+
+	// endregion
+
+	// region resolvers
+
+	namespace {
+		constexpr uint64_t Unresolved_Flag = 1ull << 63;
+		constexpr UnresolvedAddress Unresolved_Address_With_Alias = {
+			{ { 0x01 }, { 0x33 }, { 0x22 }, { 0x11 }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x80 } }
+		};
+		constexpr UnresolvedAddress Unresolved_Address_With_No_Alias = {
+			{ { 0x01 }, { 0xDF }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x80 } }
+		};
+		constexpr Address Resolved_Address_With_No_Alias = { { 0x01, 0xDF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 } };
+
+		template<typename TAction>
+		void RunResolverTest(TAction action) {
+			NamespacePluginTraits::RunTestAfterRegistration([action](auto& manager) {
+				// Arrange: create a cache with three namespaces and two aliases (one root and one child)
+				auto cache = manager.createCache();
+				auto cacheDelta = cache.createDelta();
+				auto readOnlyCache = cacheDelta.toReadOnly();
+				auto& namespaceCacheDelta = cacheDelta.template sub<cache::NamespaceCache>();
+
+				auto owner = test::GenerateRandomData<Key_Size>();
+				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(Unresolved_Flag | 123), owner, test::CreateLifetime(10, 20)));
+				namespaceCacheDelta.setAlias(NamespaceId(Unresolved_Flag | 123), state::NamespaceAlias(MosaicId(456)));
+
+				namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ Unresolved_Flag | 123, Unresolved_Flag | 0x112233 })));
+				namespaceCacheDelta.setAlias(NamespaceId(Unresolved_Flag | 0x112233), state::NamespaceAlias(Address{ { 25, 16 } }));
+
+				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(Unresolved_Flag | 223), owner, test::CreateLifetime(10, 20)));
+
+				auto resolverContext = manager.createResolverContext(readOnlyCache);
+
+				// Act:
+				action(resolverContext);
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, MosaicResolutionIsBypassedIfValueIsAlreadyResolved) {
+		// Act:
+		RunResolverTest([](const auto& resolverContext) {
+			// Act:
+			auto mosaicId = resolverContext.resolve(UnresolvedMosaicId(124));
+
+			// Assert:
+			EXPECT_EQ(MosaicId(124), mosaicId);
+		});
+	}
+
+	TEST(TEST_CLASS, MosaicResolutionIsBypassedWhenNoNamespaceExists) {
+		// Act:
+		RunResolverTest([](const auto& resolverContext) {
+			// Act:
+			auto mosaicId = resolverContext.resolve(UnresolvedMosaicId(Unresolved_Flag | 124));
+
+			// Assert:
+			EXPECT_EQ(MosaicId(Unresolved_Flag | 124), mosaicId);
+		});
+	}
+
+	TEST(TEST_CLASS, MosaicResolutionIsBypassedWhenNamespaceExistsWithWrongAliasType) {
+		// Act:
+		RunResolverTest([](const auto& resolverContext) {
+			// Act:
+			auto mosaicId = resolverContext.resolve(UnresolvedMosaicId(Unresolved_Flag | 223));
+
+			// Assert:
+			EXPECT_EQ(MosaicId(Unresolved_Flag | 223), mosaicId);
+		});
+	}
+
+	TEST(TEST_CLASS, MosaicResolutionOccursWhenNamespaceExistsWithCorrectAliasType) {
+		// Act:
+		RunResolverTest([](const auto& resolverContext) {
+			// Act:
+			auto mosaicId = resolverContext.resolve(UnresolvedMosaicId(Unresolved_Flag | 123));
+
+			// Assert:
+			EXPECT_EQ(MosaicId(456), mosaicId);
+		});
+	}
+
+	TEST(TEST_CLASS, AddressResolutionIsBypassedIfValueIsAlreadyResolved) {
+		// Act:
+		RunResolverTest([](const auto& resolverContext) {
+			// Act: unset bit 0 of first byte indicates a resolved address
+			auto mosaicId = resolverContext.resolve(UnresolvedAddress{ { { 0x44 }, { 0x38 }, { 0x22 }, { 0x11 } } });
+
+			// Assert:
+			EXPECT_EQ(Address({ { 0x44, 0x38, 0x22, 0x11 } }), mosaicId);
+		});
+	}
+
+	TEST(TEST_CLASS, AddressResolutionIsBypassedWhenNoNamespaceExists) {
+		// Act:
+		RunResolverTest([](const auto& resolverContext) {
+			// Act:
+			auto address = resolverContext.resolve(UnresolvedAddress{ { { 0x43 }, { 0x38 }, { 0x22 }, { 0x11 } } });
+
+			// Assert:
+			EXPECT_EQ(Address({ { 0x43, 0x38, 0x22, 0x11 } }), address);
+		});
+	}
+
+	TEST(TEST_CLASS, AddressResolutionIsBypassedWhenNamespaceExistsWithWrongAliasType) {
+		// Act:
+		RunResolverTest([](const auto& resolverContext) {
+			// Act:
+			auto address = resolverContext.resolve(Unresolved_Address_With_No_Alias);
+
+			// Assert:
+			EXPECT_EQ(Resolved_Address_With_No_Alias, address);
+		});
+	}
+
+	TEST(TEST_CLASS, AddressResolutionOccursWhenNamespaceExistsWithCorrectAliasType) {
+		// Act:
+		RunResolverTest([](const auto& resolverContext) {
+			// Act:
+			auto address = resolverContext.resolve(Unresolved_Address_With_Alias);
+
+			// Assert:
+			EXPECT_EQ(Address({ { 25, 16 } }), address);
+		});
+	}
+
+	// endregion
 }}

@@ -26,7 +26,7 @@
 namespace catapult { namespace plugins {
 
 	namespace {
-		struct TransferPluginTraits {
+		struct TransferPluginTraits : public test::EmptyPluginTraits {
 		public:
 			template<typename TAction>
 			static void RunTestAfterRegistration(TAction action) {
@@ -45,32 +45,8 @@ namespace catapult { namespace plugins {
 				return { model::Entity_Type_Transfer };
 			}
 
-			static std::vector<std::string> GetCacheNames() {
-				return {};
-			}
-
-			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return {};
-			}
-
-			static std::vector<std::string> GetDiagnosticCounterNames() {
-				return {};
-			}
-
 			static std::vector<std::string> GetStatelessValidatorNames() {
 				return { "TransferMessageValidator", "TransferMosaicsValidator" };
-			}
-
-			static std::vector<std::string> GetStatefulValidatorNames() {
-				return {};
-			}
-
-			static std::vector<std::string> GetObserverNames() {
-				return {};
-			}
-
-			static std::vector<std::string> GetPermanentObserverNames() {
-				return {};
 			}
 		};
 	}

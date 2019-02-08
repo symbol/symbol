@@ -75,7 +75,7 @@ namespace catapult { namespace net {
 			std::shared_ptr<ionet::Packet> createResponsePacket(Height height) const {
 				auto pPacket = ionet::CreateSharedPacket<api::ChainInfoResponse>();
 				pPacket->Height = height;
-				return pPacket;
+				return std::move(pPacket);
 			}
 		};
 

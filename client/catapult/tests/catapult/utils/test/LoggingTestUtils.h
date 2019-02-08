@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/utils/Logging.h"
+#include "tests/test/nodeps/Filesystem.h"
 #include <boost/date_time.hpp>
 #include <map>
 #include <string>
@@ -27,11 +28,29 @@
 
 namespace catapult { namespace test {
 
-	/// Name of the test log file.
-	constexpr auto Test_Log_Filename = "logs/CatapultLoggingTests0000.txt";
-
 	/// Creates options for a test file logger.
 	utils::FileLoggerOptions CreateTestFileLoggerOptions();
+
+	/// Creates options for a test file logger with log file \a prefix.
+	utils::FileLoggerOptions CreateTestFileLoggerOptions(const std::string& prefix);
+
+	/// Uses RAII to delete a test logs directory.
+	class TempLogsDirectoryGuard final {
+	public:
+		/// Guards a default test logs directory.
+		TempLogsDirectoryGuard();
+
+		/// Guards a test logs directory with log file \a prefix.
+		explicit TempLogsDirectoryGuard(const std::string& prefix);
+
+	public:
+		/// Gets the name of the log file with \a id.
+		std::string name(size_t id = 0);
+
+	private:
+		std::string m_prefix;
+		TempDirectoryGuard m_directoryGuard;
+	};
 
 	/// A parsed log record.
 	struct SimpleLogRecord {

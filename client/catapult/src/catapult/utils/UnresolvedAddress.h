@@ -20,6 +20,7 @@
 
 #pragma once
 #include <array>
+#include <cstring>
 #include <stdint.h>
 
 namespace catapult { namespace utils {
@@ -42,6 +43,12 @@ namespace catapult { namespace utils {
 		constexpr bool operator!=(const UnresolvedAddressByte& rhs) const {
 			return !(*this == rhs);
 		}
+
+	public:
+		/// Returns \c true if this byte is less than \a rhs.
+		constexpr bool operator<(const UnresolvedAddressByte& rhs) const {
+			return Byte < rhs.Byte;
+		}
 	};
 
 #pragma pack(pop)
@@ -54,4 +61,16 @@ namespace catapult { namespace utils {
 
 	/// Unresolved address.
 	using UnresolvedAddress = std::array<UnresolvedAddressByte, Address_Decoded_Size>;
+
+	/// Hasher object for an unresolved address.
+	/// \note Offset defaults to 4 because because addresses don't have a lot of entropy at the beginning.
+	/// \note Hash is composed of only sizeof(size_t) bytes starting at offset.
+	struct UnresolvedAddressHasher {
+		/// Hashes \a address.
+		size_t operator()(const UnresolvedAddress& address) const {
+			size_t hash;
+			std::memcpy(static_cast<void*>(&hash), &address[4].Byte, sizeof(size_t));
+			return hash;
+		}
+	};
 }}

@@ -41,10 +41,10 @@ namespace catapult { namespace timesync {
 
 	TimeSynchronizer::TimeSynchronizer(
 			const filters::AggregateSynchronizationFilter& filter,
-			uint64_t totalChainBalance,
+			Importance totalChainImportance,
 			int64_t warningThresholdMillis)
 			: m_filter(filter)
-			, m_totalChainBalance(totalChainBalance)
+			, m_totalChainImportance(totalChainImportance)
 			, m_warningThresholdMillis(warningThresholdMillis)
 	{}
 
@@ -68,7 +68,7 @@ namespace catapult { namespace timesync {
 
 		auto highValueAddressesSize = accountStateCacheView.highValueAddresses().size();
 		auto viewPercentage = static_cast<double>(samples.size()) / highValueAddressesSize;
-		auto importancePercentage = static_cast<double>(cumulativeImportance) / m_totalChainBalance;
+		auto importancePercentage = static_cast<double>(cumulativeImportance) / m_totalChainImportance.unwrap();
 		auto scaling = importancePercentage > viewPercentage ? 1.0 / importancePercentage : 1.0 / viewPercentage;
 		auto sum = sumScaledOffsets(importanceView, height, samples, scaling);
 		return TimeOffset(static_cast<int64_t>(GetCoupling(nodeAge) * sum));
@@ -88,15 +88,15 @@ namespace catapult { namespace timesync {
 			Height height,
 			const TimeSynchronizationSamples& samples,
 			double scaling) {
-		auto totalChainBalance = m_totalChainBalance;
+		auto totalChainImportance = m_totalChainImportance.unwrap();
 		auto warningThresholdMillis = m_warningThresholdMillis;
-		return utils::Sum(samples, [&importanceView, height, scaling, totalChainBalance, warningThresholdMillis](const auto& sample) {
+		return utils::Sum(samples, [&importanceView, height, scaling, totalChainImportance, warningThresholdMillis](const auto& sample) {
 			int64_t offset = sample.timeOffsetToRemote();
 			CATAPULT_LOG_LEVEL(MapToLogLevel(warningThresholdMillis, offset))
 					<< sample.node().metadata().Name << ": network time offset to local node is " << offset << "ms";
 
 			auto importance = importanceView.getAccountImportanceOrDefault(sample.node().identityKey(), height);
-			return scaling * offset * importance.unwrap() / totalChainBalance;
+			return scaling * offset * importance.unwrap() / totalChainImportance;
 		});
 	}
 }}

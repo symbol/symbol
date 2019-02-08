@@ -21,7 +21,7 @@
 #include "Validators.h"
 #include "AccountPropertyView.h"
 #include "src/cache/PropertyCache.h"
-#include "src/model/PropertyTransaction.h"
+#include "src/model/TransactionTypePropertyTransaction.h"
 #include "catapult/model/Address.h"
 #include "catapult/validators/ValidatorContext.h"
 

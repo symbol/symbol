@@ -33,6 +33,10 @@ namespace catapult { namespace mongo { namespace plugins {
 				return { model::Entity_Type_Modify_Multisig_Account };
 			}
 
+			static std::vector<model::ReceiptType> GetReceiptTypes() {
+				return {};
+			}
+
 			static std::string GetStorageName() {
 				return "{ MultisigCache }";
 			}

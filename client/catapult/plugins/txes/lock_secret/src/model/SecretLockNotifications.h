@@ -86,11 +86,11 @@ namespace catapult { namespace model {
 		/// Creates secret lock notification around \a signer, \a mosaic, \a duration, \a hashAlgorithm, \a secret and \a recipient.
 		SecretLockNotification(
 				const Key& signer,
-				const model::Mosaic& mosaic,
+				const UnresolvedMosaic& mosaic,
 				BlockDuration duration,
 				LockHashAlgorithm hashAlgorithm,
-				const Hash512& secret,
-				const Address& recipient)
+				const Hash256& secret,
+				const UnresolvedAddress& recipient)
 				: BaseLockNotification(signer, mosaic, duration)
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
@@ -102,10 +102,10 @@ namespace catapult { namespace model {
 		LockHashAlgorithm HashAlgorithm;
 
 		/// Secret.
-		const Hash512& Secret;
+		const Hash256& Secret;
 
 		/// Recipient of the locked mosaic.
-		Address Recipient;
+		UnresolvedAddress Recipient;
 	};
 
 	/// Notification of a secret and its proof.
@@ -116,7 +116,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates proof secret notification around \a hashAlgorithm, \a secret and \a proof.
-		ProofSecretNotification(LockHashAlgorithm hashAlgorithm, const Hash512& secret, const RawBuffer& proof)
+		ProofSecretNotification(LockHashAlgorithm hashAlgorithm, const Hash256& secret, const RawBuffer& proof)
 				: Notification(Notification_Type, sizeof(ProofSecretNotification))
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
@@ -128,7 +128,7 @@ namespace catapult { namespace model {
 		LockHashAlgorithm HashAlgorithm;
 
 		/// Secret.
-		const Hash512& Secret;
+		const Hash256& Secret;
 
 		/// Proof.
 		RawBuffer Proof;
@@ -142,7 +142,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates proof publication notification around \a signer, \a hashAlgorithm and \a secret.
-		ProofPublicationNotification(const Key& signer, LockHashAlgorithm hashAlgorithm, const Hash512& secret)
+		ProofPublicationNotification(const Key& signer, LockHashAlgorithm hashAlgorithm, const Hash256& secret)
 				: Notification(Notification_Type, sizeof(ProofPublicationNotification))
 				, Signer(signer)
 				, HashAlgorithm(hashAlgorithm)
@@ -157,6 +157,6 @@ namespace catapult { namespace model {
 		LockHashAlgorithm HashAlgorithm;
 
 		/// Secret.
-		const Hash512& Secret;
+		const Hash256& Secret;
 	};
 }}

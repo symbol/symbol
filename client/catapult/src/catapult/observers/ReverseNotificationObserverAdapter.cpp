@@ -37,7 +37,7 @@ namespace catapult { namespace observers {
 			}
 
 		public:
-			void notifyAll(const NotificationObserver& observer, const ObserverContext& context) const {
+			void notifyAll(const NotificationObserver& observer, ObserverContext& context) const {
 				for (auto iter = m_notificationBuffers.crbegin(); m_notificationBuffers.crend() != iter; ++iter) {
 					const auto* pNotification = reinterpret_cast<const model::Notification*>(iter->data());
 					observer.notify(*pNotification, context);
@@ -60,7 +60,7 @@ namespace catapult { namespace observers {
 		return m_pObserver->name();
 	}
 
-	void ReverseNotificationObserverAdapter::notify(const model::WeakEntityInfo& entityInfo, const ObserverContext& context) const {
+	void ReverseNotificationObserverAdapter::notify(const model::WeakEntityInfo& entityInfo, ObserverContext& context) const {
 		ObservingNotificationSubscriber sub;
 		m_pPublisher->publish(entityInfo, sub);
 		sub.notifyAll(*m_pObserver, context);

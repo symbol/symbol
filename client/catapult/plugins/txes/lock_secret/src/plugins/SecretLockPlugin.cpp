@@ -21,14 +21,13 @@
 #include "SecretLockPlugin.h"
 #include "src/cache/SecretLockInfoCache.h"
 #include "src/config/SecretLockConfiguration.h"
-#include "src/handlers/SecretLockDiagnosticHandlers.h"
+#include "src/model/SecretLockReceiptType.h"
 #include "src/observers/Observers.h"
 #include "src/plugins/SecretLockTransactionPlugin.h"
 #include "src/plugins/SecretProofTransactionPlugin.h"
 #include "src/validators/Validators.h"
-#include "catapult/handlers/CacheEntryInfosProducerFactory.h"
-#include "catapult/handlers/StatePathHandlerFactory.h"
 #include "catapult/observers/ObserverUtils.h"
+#include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
@@ -40,16 +39,8 @@ namespace catapult { namespace plugins {
 		manager.addCacheSupport<cache::SecretLockInfoCacheStorage>(
 				std::make_unique<cache::SecretLockInfoCache>(manager.cacheConfig(cache::SecretLockInfoCache::Name)));
 
-		manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
-			using SecretLockInfosProducerFactory = handlers::CacheEntryInfosProducerFactory<cache::SecretLockInfoCacheDescriptor>;
-
-			handlers::RegisterSecretLockInfosHandler(
-					handlers,
-					SecretLockInfosProducerFactory::Create(cache.sub<cache::SecretLockInfoCache>()));
-
-			using PacketType = handlers::StatePathRequestPacket<ionet::PacketType::Secret_Lock_State_Path, Hash512>;
-			handlers::RegisterStatePathHandler<PacketType>(handlers, cache.sub<cache::SecretLockInfoCache>());
-		});
+		using CacheHandlers = CacheHandlers<cache::SecretLockInfoCacheDescriptor>;
+		CacheHandlers::Register<model::FacilityCode::LockSecret>(manager);
 
 		manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
 			counters.emplace_back(utils::DiagnosticCounterId("SECRETLOCK C"), [&cache]() {
@@ -77,11 +68,12 @@ namespace catapult { namespace plugins {
 
 		auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
 		manager.addObserverHook([maxRollbackBlocks](auto& builder) {
+			auto expiryReceiptType = model::Receipt_Type_LockSecret_Expired;
 			builder
 				.add(observers::CreateSecretLockObserver())
 				.add(observers::CreateExpiredSecretLockInfoObserver())
 				.add(observers::CreateProofObserver())
-				.add(observers::CreateCacheBlockTouchObserver<cache::SecretLockInfoCache>("SecretLockInfo"))
+				.add(observers::CreateCacheBlockTouchObserver<cache::SecretLockInfoCache>("SecretLockInfo", expiryReceiptType))
 				.add(observers::CreateCacheBlockPruningObserver<cache::SecretLockInfoCache>("SecretLockInfo", 1, maxRollbackBlocks));
 		});
 	}

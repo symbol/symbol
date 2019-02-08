@@ -19,40 +19,16 @@
 **/
 
 #pragma once
-#include "catapult/io/BlockStorage.h"
+#include "sdk/src/extensions/MemoryBlockStorage.h"
 #include "catapult/io/BlockStorageCache.h"
-#include "catapult/model/Elements.h"
-#include <map>
 
 namespace catapult { namespace mocks {
 
-	extern const unsigned char MemoryBlockStorage_NemesisBlockData[];
-
 	/// A mock memory-based block storage that loads and saves blocks in memory.
-	class MockMemoryBlockStorage final : public io::BlockStorage {
-	private:
-		using Blocks = std::map<Height, std::shared_ptr<model::Block>>;
-		using BlockElements = std::map<Height, std::shared_ptr<model::BlockElement>>;
-
+	class MockMemoryBlockStorage final : public extensions::MemoryBlockStorage {
 	public:
 		/// Creates a mock memory-based block storage.
 		MockMemoryBlockStorage();
-
-	public:
-		Height chainHeight() const override;
-
-	public:
-		std::shared_ptr<const model::Block> loadBlock(Height height) const override;
-		std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override;
-		model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override;
-
-		void saveBlock(const model::BlockElement& blockElement) override;
-		void dropBlocksAfter(Height height) override;
-
-	private:
-		Blocks m_blocks;
-		BlockElements m_blockElements;
-		Height m_height;
 	};
 
 	/// Creates a memory based block storage composed of \a numBlocks.

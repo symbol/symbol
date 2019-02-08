@@ -12,7 +12,7 @@ def stripCommentsAndStrings(line):
     temp = re.sub(r'//.*', '', line)
     temp = re.sub(r'/\*(.+?)\*/', 'dummy', temp)
     temp = re.sub(r'"(.+?)"', 'dummy', temp)
-    temp = re.sub(r"'(.+?)'", 'dummy', temp)
+    temp = re.sub('\'(.+?)\'', 'dummy', temp)
     return temp
 
 
@@ -59,7 +59,7 @@ class WhitespaceLineValidator(SimpleValidator):
                 self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'Spaces in the middle'))
 
             gotComma = re.search(self.patternComma, temp)
-            if gotComma and gotComma.group(0) not in [",)"]:
+            if gotComma and gotComma.group(0) not in [',)']:
                 self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'Comma should be followed by a space'))
 
         if re.search(self.patternCarriageReturn, line):
@@ -347,6 +347,7 @@ class TypoChecker(SimpleValidator):
             re.compile(r'const char\* (m_)?p[A-Z]'): 'const chars should not have pointer naming convention',
             re.compile(r'\.string\(\)'): 'prefer usage of generic_string() instead',
             re.compile(r'EXPECT.*(!|0, )(std::)?memcmp'): 'prefer `EXPECT_TRUE(0 == std::memcmp`',
+            re.compile(r'(EXPECT|ASSERT)_.*end\(\),.*find\('): 'prefer EXPECT_CONTAINS',
             re.compile(r'.+Information [: a-zA-Z]*{'): 'use *Info, rather than Information',
             re.compile(r'.+Config [: a-zA-Z]*{'): 'use *Configuration, rather than Config',
             re.compile(r'utils::\w+Raw(Buffer|String)[^;]'): '*RawBuffer, *RawString types are included via types.h, drop utils::',
@@ -369,7 +370,12 @@ class TypoChecker(SimpleValidator):
             re.compile(r'// #include'): 'don\'t comment out includes!',
             re.compile(r'TId>'): 'use TIdentifier instead of TId',
             re.compile(r'const{'): 'add space between const and brace',
-            re.compile(r'CreatePropertyChecker'): 'avoid this pattern'
+            re.compile(r'CreatePropertyChecker|typename TValidationFunction|builderFactory'): 'avoid this pattern for builder tests',
+            re.compile(r', \)'): 'no space after comma',
+            re.compile(r'\b(EntityType|ReceiptType|ValidationResult)\((0[xX])?\d+\)'): 'use static_cast instead',
+            re.compile(r'~.*\(\)\s*{}'): 'use default instead',
+            re.compile(r'EXPECT_EQ\(.*(ransaction|lock|eceipt|uffer|ntity|acket)(s\[\w+\])?(\.|->)\w*Size\);'):
+                'looks like size comparison, use ASSERT instead'
         }
 
     def check(self, lineNumber, line):
@@ -553,6 +559,16 @@ class MultiConditionChecker(SimpleValidator):
         self.patternOperator = re.compile(r'operator')
         self.patternTryParseValue = re.compile(r'TryParseValue')
         self.patternFileSizeCast = re.compile(r'const_cast<utils::FileSize&>.* = ')
+        self.patternTestExpectedSize = re.compile(r'expected\w*Size =.')
+
+        # never allow memcmp in an assert
+        self.patternTestMemcmpAssert = re.compile('(ASSERT|EXPECT).*memcmp')
+
+        # disallow == and != in an assert unless (1) iterator check with `ASSERT_TRUE(c.end() != iter)` or (2) explicit operators
+        self.patternTestBoolAssert = re.compile(r'(ASSERT|EXPECT)_(TRUE|FALSE).*(==|!=)')
+        self.patternTestBoolAssertAllowed = re.compile(r'(ASSERT_TRUE.*end\(\) !=)|operator(==|!=)')
+
+        self.patternDeclareMacroNoParams = re.compile(r'DECLARE_(.+_)?(OBSERVER|VALIDATOR).*\(\)')
 
     def reset(self, path):
         super().reset(path)
@@ -638,26 +654,59 @@ class MultiConditionChecker(SimpleValidator):
 
         return True
 
+    def checkTestExpectedSize(self, line):
+        return re.search(self.patternTestExpectedSize, line) and ';' not in line
+
+    def checkTestAsserts(self, line):
+        # special file, skip it
+        if self.path.endswith('TestHarness.h'):
+            return False
+
+        # fail if memcmp is used in a test assert
+        if re.search(self.patternTestMemcmpAssert, line):
+            return True
+
+        # fail if == or != are used in a test assert
+        return re.search(self.patternTestBoolAssert, line) and not re.search(self.patternTestBoolAssertAllowed, line)
+
+    def checkDeclareMacroNoParams(self, line):
+        # rule only applies to cpp files
+        if not self.path.endswith('.cpp'):
+            return False
+
+        return re.search(self.patternDeclareMacroNoParams, line)
+
     def check(self, lineNumber, line):
         strippedLine = stripCommentsAndStrings(line)
         # note that these checks are exclusive
+        errorMessage = ''
         if self.checkTestLine(line):
-            self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'TEST should use TEST_CLASS'))
+            errorMessage = 'TEST should use TEST_CLASS'
         elif self.checkExplicitOperatorBool(strippedLine):
-            self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'Missing explicit before operator bool'))
+            errorMessage = 'Missing explicit before operator bool'
         elif self.checkValidationResult(strippedLine):
-            msg = 'ValidationResult should not be last argument or should be called `value`'
-            self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, msg))
+            errorMessage = 'ValidationResult should not be last argument or should be called `value`'
         elif self.checkExplicitCtor(strippedLine):
-            self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'missing explicit before ctor'))
+            errorMessage = 'missing explicit before ctor'
         elif self.checkEnumClass(strippedLine):
-            self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'use enum class instead of enum'))
+            errorMessage = 'use enum class instead of enum'
         elif self.checkCoerce(strippedLine):
-            self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'use const auto* .. = CoercePacket'))
+            errorMessage = 'use const auto* .. = CoercePacket'
         elif self.checkDefineTests(strippedLine):
-            self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'use MAKE_ for singular TEST'))
+            errorMessage = 'use MAKE_ for singular TEST'
         elif self.checkFileSize(strippedLine):
-            self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'FileSize should be passed by value'))
+            errorMessage = 'FileSize should be passed by value'
+        elif self.checkTestExpectedSize(strippedLine):
+            errorMessage = 'first size part should start on own line'
+        elif self.checkTestAsserts(strippedLine):
+            errorMessage = 'use a different EXPECT or ASSERT macro'
+        elif self.checkDeclareMacroNoParams(strippedLine):
+            errorMessage = 'use DEFINE macro'
+
+        if not errorMessage:
+            return
+
+        self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, errorMessage))
 
     @staticmethod
     def formatError(err):
@@ -810,9 +859,8 @@ class MacroSemicolonValidator(SimpleValidator):
             re.compile(r'CATAPULT_'),  # catapult macros (LOG, THROW)
             re.compile(r'WAIT_FOR'),  # wait for macros
             re.compile(r'LOAD_([A-Z]+_)*PROPERTY'),  # property loading macros
-            re.compile(r'DEFINE_[A-Z]+_NOTIFICATION'),  # notification definition macros
-            re.compile(r'DEFINE_([A-Z]+_)+RESULT'),  # result definition macros
-            re.compile(r'DEFINE_(ENTITY|TRANSACTION|NOTIFICATION)_TYPE'),  # entity and notification type definition macros
+            re.compile(r'DEFINE_([A-Z]+_)+(NOTIFICATION|RECEIPT|RESULT)'),  # definition macros
+            re.compile(r'DEFINE_(ENTITY|NOTIFICATION|RECEIPT|TRANSACTION)_TYPE'),  # type definition macros
             re.compile(r'DECLARE_MONGO_CACHE_STORAGE'),  # macros that can be used for function declarations
             re.compile(r'DEFINE_MOCK_(FLUSH|INFOS)_CAPTURE'),  # macros used for mock class definitions
         ]
@@ -871,7 +919,7 @@ class ClosingBraceVerticalSpacingValidator(SimpleValidator):
         super().__init__(errorReporter)
         self.patternClosingBrace = re.compile(r'^\s*}\s*$')
         self.patternInbetweenClosingBrace = re.compile(r'^\s*}[}\)]*;?\s*$')
-        self.patternLineAfterClosingBrace = re.compile(r'^#|^\s*(}[}\)]*[;,]?|namespace .*|break;|} catch.*|])$')
+        self.patternLineAfterClosingBrace = re.compile(r'^#|^\s*(}[}\)]*[;,]?|namespace .*|break;|} catch.*|} else.*|])$')
         self.recentLines = ['', '', '']
 
     def check(self, lineNumber, line):
@@ -912,7 +960,7 @@ class NamespaceOpeningBraceVerticalSpacingValidator(SimpleValidator):
         super().__init__(errorReporter)
         self.patternNamespaceOpening = re.compile(r'^(\s*(inline )?namespace \w+ {)+$')
         self.patternAnonNamespaceOpening = re.compile(r'^\s*namespace {')
-        self.patternForwardDeclaration = re.compile(r'^\s*(namespace \w+ { )?(class|struct) \w+;')
+        self.patternForwardDeclaration = re.compile(r'^\s*(namespace \w+ { )*(class|struct) \w+;')
         self.recentLines = ['', '', '']
 
     def check(self, lineNumber, line):
@@ -983,6 +1031,72 @@ class CopyrightCommentValidator(SimpleValidator):
         return '{}:{} invalid copyright comment'.format(name, err.lineno)
 
 
+class EmptyStatementValidator(SimpleValidator):
+    """Validator for ensuring empty statements are formatted correctly."""
+
+    # 1. for empty objects (detect trailing semicolon) with no continuations:
+    # class Bar {};
+    #
+    # 2. for empty destructors and while loops:
+    # virtual ~Bar() {}
+    # while (cond) {}
+    #
+    # 3. for other empty statments (detect no trailing semicolon):
+    # void Bar()
+    # {}
+
+    SUITE_NAME = 'EmptyStatementChecker'
+    NAME = 'emptyStatementChecker'
+
+    def __init__(self, errorReporter):
+        super().__init__(errorReporter)
+        self.isOpeningBraceUnclosed = False
+        self.previousStrippedLine = ''
+
+    def check(self, lineNumber, line):
+        strippedLine = line.strip('\n\r\t')  # also strip tabs
+
+        # `{}` must be on its own line expect in (2) cases
+        if strippedLine.endswith(r'{}') and strippedLine != r'{}':
+            if not any(strippedLine.startswith(prefix) for prefix in ['virtual ~', 'while ']):
+                self.reportError(lineNumber, line, 'empty statement body must be on new line')
+
+        # `{};` must never be on its own line unless preceeded by what looks like class continuation
+        if strippedLine.endswith(r'{};'):
+            if any(self.previousStrippedLine.startswith(prefix) or strippedLine.startswith(prefix) for prefix in [':', ',']):
+                if strippedLine != r'{};':
+                    self.reportError(lineNumber, line, 'empty statement body must be on new line ')
+            else:
+                if strippedLine == r'{};':
+                    self.reportError(lineNumber, line, 'empty statement body must be part of previous line ')
+
+        self.previousStrippedLine = strippedLine
+
+        # mark opening statements
+        if strippedLine.endswith(r'{'):
+            self.isOpeningBraceUnclosed = True
+            return
+
+        if not self.isOpeningBraceUnclosed:
+            return
+
+        # empty statements are never allowed to be multiline
+        self.isOpeningBraceUnclosed = False
+        if strippedLine == r'};':
+            self.reportError(lineNumber, line, 'empty statement body must be part of previous line')
+
+        if strippedLine == r'}':
+            self.reportError(lineNumber, line, 'empty statement body must be on new line')
+
+    def reportError(self, lineNumber, line, message):
+        self.errorReporter(self.NAME, Line(self.path, line, lineNumber, message))
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
+
 def createValidators(errorReporter):
     validators = [
         WhitespaceLineValidator,
@@ -1005,6 +1119,7 @@ def createValidators(errorReporter):
         EnumValueBlankLineValidator,
         ClosingBraceVerticalSpacingValidator,
         NamespaceOpeningBraceVerticalSpacingValidator,
-        CopyrightCommentValidator
+        CopyrightCommentValidator,
+        EmptyStatementValidator
     ]
     return list(map(lambda validator: validator(errorReporter), validators))

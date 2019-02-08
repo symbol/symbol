@@ -34,7 +34,7 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS TransferTransactionPluginTests
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(Transfer)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(Transfer, 3, 3)
 
 		template<typename TTraits>
 		auto CreateTransactionWithMosaics(uint8_t numMosaics, uint16_t messageSize = 0) {
@@ -85,7 +85,7 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ(1u, sub.numAddresses());
 		EXPECT_EQ(0u, sub.numKeys());
 
-		EXPECT_TRUE(sub.contains(extensions::CopyToAddress(transaction.Recipient)));
+		EXPECT_TRUE(sub.contains(transaction.Recipient));
 	}
 
 	PLUGIN_TEST(CanExtractAddressInteraction) {
@@ -96,17 +96,17 @@ namespace catapult { namespace plugins {
 		typename TTraits::TransactionType transaction{};
 		test::FillWithRandomData(transaction.Signer);
 		test::FillWithRandomData(transaction.Recipient);
+		transaction.Type = static_cast<model::EntityType>(0x0815);
 
 		// Act:
 		test::PublishTransaction(*pPlugin, transaction, sub);
 
 		// Assert:
-		EXPECT_EQ(2u, sub.numNotifications());
-
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
 		const auto& notification = sub.matchingNotifications()[0];
 		EXPECT_EQ(transaction.Signer, notification.Source);
-		EXPECT_EQ(model::AddressSet{ extensions::CopyToAddress(transaction.Recipient) }, notification.ParticipantsByAddress);
+		EXPECT_EQ(transaction.Type, notification.TransactionType);
+		EXPECT_EQ(model::UnresolvedAddressSet{ transaction.Recipient }, notification.ParticipantsByAddress);
 		EXPECT_EQ(utils::KeySet{}, notification.ParticipantsByKey);
 	}
 
@@ -143,7 +143,7 @@ namespace catapult { namespace plugins {
 		// Assert:
 		EXPECT_EQ(4u, sub.numNotifications());
 		EXPECT_EQ(1u, sub.numTransfers());
-		EXPECT_TRUE(sub.contains(pTransaction->Signer, extensions::CopyToAddress(pTransaction->Recipient), MosaicId(123), Amount(9876)));
+		EXPECT_TRUE(sub.contains(pTransaction->Signer, pTransaction->Recipient, UnresolvedMosaicId(123), Amount(9876)));
 
 		ASSERT_EQ(1u, mosaicsSub.numMatchingNotifications());
 		EXPECT_EQ(1u, mosaicsSub.matchingNotifications()[0].MosaicsCount);
@@ -169,9 +169,9 @@ namespace catapult { namespace plugins {
 		// Assert:
 		EXPECT_EQ(6u, sub.numNotifications());
 		EXPECT_EQ(3u, sub.numTransfers());
-		EXPECT_TRUE(sub.contains(pTransaction->Signer, extensions::CopyToAddress(pTransaction->Recipient), MosaicId(123), Amount(9876)));
-		EXPECT_TRUE(sub.contains(pTransaction->Signer, extensions::CopyToAddress(pTransaction->Recipient), MosaicId(777), Amount(444)));
-		EXPECT_TRUE(sub.contains(pTransaction->Signer, extensions::CopyToAddress(pTransaction->Recipient), MosaicId(625), Amount(25)));
+		EXPECT_TRUE(sub.contains(pTransaction->Signer, pTransaction->Recipient, UnresolvedMosaicId(123), Amount(9876)));
+		EXPECT_TRUE(sub.contains(pTransaction->Signer, pTransaction->Recipient, UnresolvedMosaicId(777), Amount(444)));
+		EXPECT_TRUE(sub.contains(pTransaction->Signer, pTransaction->Recipient, UnresolvedMosaicId(625), Amount(25)));
 
 		ASSERT_EQ(1u, mosaicsSub.numMatchingNotifications());
 		EXPECT_EQ(3u, mosaicsSub.matchingNotifications()[0].MosaicsCount);

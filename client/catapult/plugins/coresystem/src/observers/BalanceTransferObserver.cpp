@@ -33,14 +33,15 @@ namespace catapult { namespace observers {
 	DEFINE_OBSERVER(BalanceTransfer, model::BalanceTransferNotification, [](const auto& notification, const ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::AccountStateCache>();
 		auto senderIter = cache.find(notification.Sender);
-		auto recipientIter = cache.find(notification.Recipient);
+		auto recipientIter = cache.find(context.Resolvers.resolve(notification.Recipient));
 
 		auto& senderState = senderIter.get();
 		auto& recipientState = recipientIter.get();
 
+		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
 		if (NotifyMode::Commit == context.Mode)
-			Transfer(senderState, recipientState, notification.MosaicId, notification.Amount);
+			Transfer(senderState, recipientState, mosaicId, notification.Amount);
 		else
-			Transfer(recipientState, senderState, notification.MosaicId, notification.Amount);
+			Transfer(recipientState, senderState, mosaicId, notification.Amount);
 	});
 }}

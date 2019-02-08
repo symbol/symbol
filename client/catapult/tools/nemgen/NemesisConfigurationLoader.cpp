@@ -64,7 +64,6 @@ namespace catapult { namespace tools { namespace nemgen {
 				const auto& properties = definition.properties();
 				OutputName(name, id);
 				CATAPULT_LOG(debug)
-						<< " - Namespace Id: " << utils::HexFormat(mosaicEntry.namespaceId()) << std::endl
 						<< " - Owner: " << utils::HexFormat(definition.owner()) << std::endl
 						<< " - Supply: " << mosaicEntry.supply() << std::endl
 						<< " - Divisibility: " << static_cast<uint32_t>(properties.divisibility()) << std::endl
@@ -78,11 +77,6 @@ namespace catapult { namespace tools { namespace nemgen {
 					CATAPULT_LOG(warning) << "mosaic " << name << " does not have a unique id";
 					return false;
 				}
-			}
-
-			if (config.MosaicEntries.cend() == config.MosaicEntries.find("nem:xem")) {
-				CATAPULT_LOG(warning) << "nem:xem must be included in nemesis block";
-				return false;
 			}
 
 			return true;

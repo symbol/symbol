@@ -49,6 +49,12 @@ namespace catapult { namespace validators {
 	/// Validation failed because an address is invalid.
 	DEFINE_CORE_RESULT(Invalid_Address, 21);
 
+	/// Validation failed because entity version is invalid.
+	DEFINE_CORE_RESULT(Invalid_Version, 22);
+
+	/// Validation failed because a transaction fee is invalid.
+	DEFINE_CORE_RESULT(Invalid_Transaction_Fee, 23);
+
 	/// Validation failed because a block was harvested by an ineligible harvester.
 	DEFINE_CORE_RESULT(Block_Harvester_Ineligible, 105);
 

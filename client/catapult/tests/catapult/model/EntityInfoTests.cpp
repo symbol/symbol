@@ -210,10 +210,10 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto pTransaction = utils::UniqueToShared(test::GenerateRandomTransaction());
 		auto entityHash = test::GenerateRandomData<Hash256_Size>();
-		auto pExtractedAddress = std::make_shared<AddressSet>();
+		auto pExtractedAddresses = std::make_shared<UnresolvedAddressSet>();
 
 		DetachedTransactionInfo transactionInfo(pTransaction, entityHash);
-		transactionInfo.OptionalExtractedAddresses = pExtractedAddress;
+		transactionInfo.OptionalExtractedAddresses = pExtractedAddresses;
 
 		// Act:
 		auto transactionInfoCopy = transactionInfo.copy();
@@ -222,23 +222,23 @@ namespace catapult { namespace model {
 		// - original info is unmodified
 		EXPECT_EQ(pTransaction.get(), transactionInfo.pEntity.get());
 		EXPECT_EQ(entityHash, transactionInfo.EntityHash);
-		EXPECT_EQ(pExtractedAddress.get(), transactionInfo.OptionalExtractedAddresses.get());
+		EXPECT_EQ(pExtractedAddresses.get(), transactionInfo.OptionalExtractedAddresses.get());
 
 		// - copied info has correct values
 		EXPECT_EQ(pTransaction.get(), transactionInfoCopy.pEntity.get());
 		EXPECT_EQ(entityHash, transactionInfoCopy.EntityHash);
-		EXPECT_EQ(pExtractedAddress.get(), transactionInfoCopy.OptionalExtractedAddresses.get());
+		EXPECT_EQ(pExtractedAddresses.get(), transactionInfoCopy.OptionalExtractedAddresses.get());
 	}
 
 	TEST(TEST_CLASS, CanCopyTransactionInfo) {
 		// Arrange:
 		auto pTransaction = utils::UniqueToShared(test::GenerateRandomTransaction());
 		auto entityHash = test::GenerateRandomData<Hash256_Size>();
-		auto pExtractedAddress = std::make_shared<AddressSet>();
+		auto pExtractedAddresses = std::make_shared<UnresolvedAddressSet>();
 		auto merkleComponentHash = test::GenerateRandomData<Hash256_Size>();
 
 		TransactionInfo transactionInfo(pTransaction, entityHash);
-		transactionInfo.OptionalExtractedAddresses = pExtractedAddress;
+		transactionInfo.OptionalExtractedAddresses = pExtractedAddresses;
 		transactionInfo.MerkleComponentHash = merkleComponentHash;
 
 		// Act:
@@ -248,13 +248,13 @@ namespace catapult { namespace model {
 		// - original info is unmodified
 		EXPECT_EQ(pTransaction.get(), transactionInfo.pEntity.get());
 		EXPECT_EQ(entityHash, transactionInfo.EntityHash);
-		EXPECT_EQ(pExtractedAddress.get(), transactionInfo.OptionalExtractedAddresses.get());
+		EXPECT_EQ(pExtractedAddresses.get(), transactionInfo.OptionalExtractedAddresses.get());
 		EXPECT_EQ(merkleComponentHash, transactionInfo.MerkleComponentHash);
 
 		// - copied info has correct values
 		EXPECT_EQ(pTransaction.get(), transactionInfoCopy.pEntity.get());
 		EXPECT_EQ(entityHash, transactionInfoCopy.EntityHash);
-		EXPECT_EQ(pExtractedAddress.get(), transactionInfoCopy.OptionalExtractedAddresses.get());
+		EXPECT_EQ(pExtractedAddresses.get(), transactionInfoCopy.OptionalExtractedAddresses.get());
 		EXPECT_EQ(merkleComponentHash, transactionInfoCopy.MerkleComponentHash);
 	}
 

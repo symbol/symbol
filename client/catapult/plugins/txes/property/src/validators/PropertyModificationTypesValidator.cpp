@@ -34,16 +34,11 @@ namespace catapult { namespace validators {
 	}
 
 #define DEFINE_PROPERTY_MODIFICATION_TYPE_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE, PROPERTY_VALUE_TYPE) \
-	DECLARE_STATELESS_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE)() { \
-		using ValidatorType = stateless::FunctionalNotificationValidatorT<NOTIFICATION_TYPE>; \
-		return std::make_unique<ValidatorType>(#VALIDATOR_NAME "Validator", [](const auto& notification) { \
-			return AreAllPropertyModificationTypesValid<PROPERTY_VALUE_TYPE>( \
-					notification.ModificationsPtr, \
-					notification.ModificationsCount) \
+	DEFINE_STATELESS_VALIDATOR_WITH_TYPE(VALIDATOR_NAME, NOTIFICATION_TYPE, [](const auto& notification) { \
+		return AreAllPropertyModificationTypesValid<PROPERTY_VALUE_TYPE>(notification.ModificationsPtr, notification.ModificationsCount) \
 				? ValidationResult::Success \
 				: Failure_Property_Modification_Type_Invalid; \
-		}); \
-	}
+	});
 
 	DEFINE_PROPERTY_MODIFICATION_TYPE_VALIDATOR(
 			AddressPropertyModificationTypes,

@@ -35,7 +35,7 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS ModifyMultisigAccountTransactionPluginTests
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(ModifyMultisigAccount)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(ModifyMultisigAccount, 3, 3)
 
 		template<typename TTraits>
 		auto CreateTransactionWithModifications(uint8_t numModifications) {
@@ -277,6 +277,7 @@ namespace catapult { namespace plugins {
 			auto numModifications = static_cast<uint8_t>(numAddModifications + numDelModifications);
 			auto pTransaction = CreateTransactionWithModifications<TTraits>(numModifications);
 			test::FillWithRandomData(pTransaction->Signer);
+			pTransaction->Type = static_cast<model::EntityType>(0x0815);
 			auto modificationTypes = GenerateRandomModificationTypeSequence(numAddModifications, numDelModifications);
 			auto* pModification = pTransaction->ModificationsPtr();
 			for (auto modificationType : modificationTypes)
@@ -292,7 +293,8 @@ namespace catapult { namespace plugins {
 				auto addedKeys = ExtractAddedModificationKeys(pModification, numAddModifications + numDelModifications);
 				const auto& notification = sub.matchingNotifications()[0];
 				EXPECT_EQ(pTransaction->Signer, notification.Source);
-				EXPECT_EQ(model::AddressSet{}, notification.ParticipantsByAddress);
+				EXPECT_EQ(pTransaction->Type, notification.TransactionType);
+				EXPECT_EQ(model::UnresolvedAddressSet{}, notification.ParticipantsByAddress);
 				EXPECT_EQ(addedKeys, notification.ParticipantsByKey);
 			}
 		}

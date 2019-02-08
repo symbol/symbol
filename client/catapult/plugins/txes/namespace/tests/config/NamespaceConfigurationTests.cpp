@@ -27,7 +27,6 @@ namespace catapult { namespace config {
 
 	namespace {
 		constexpr auto Namespace_Rental_Fee_Sink_Public_Key = "75D8BB873DA8F5CCA741435DE76A46AAA2840803EBBBB0E931195B048D77F88C";
-		constexpr auto Mosaic_Rental_Fee_Sink_Public_Key = "F76B23F89550EF41E2FE4C6016D8829F1CB8E4ADAB1826EB4B735A25959886ED";
 
 		struct NamespaceConfigurationTraits {
 			using ConfigurationType = NamespaceConfiguration;
@@ -46,17 +45,7 @@ namespace catapult { namespace config {
 							{ "rootNamespaceRentalFeePerBlock", "78" },
 							{ "childNamespaceRentalFee", "11223322" },
 
-							{ "maxChildNamespaces", "1234" },
-							{ "maxMosaicsPerAccount", "4321" },
-
-							{ "maxMosaicDuration", "2340h" },
-
-							{ "isMosaicLevyUpdateAllowed", "true" },
-							{ "maxMosaicDivisibility", "7" },
-							{ "maxMosaicDivisibleUnits", "12349876" },
-
-							{ "mosaicRentalFeeSinkPublicKey", Mosaic_Rental_Fee_Sink_Public_Key },
-							{ "mosaicRentalFee", "773388" }
+							{ "maxChildNamespaces", "1234" }
 						}
 					}
 				};
@@ -78,16 +67,6 @@ namespace catapult { namespace config {
 				EXPECT_EQ(Amount(), config.ChildNamespaceRentalFee);
 
 				EXPECT_EQ(0u, config.MaxChildNamespaces);
-				EXPECT_EQ(0u, config.MaxMosaicsPerAccount);
-
-				EXPECT_EQ(utils::BlockSpan(), config.MaxMosaicDuration);
-
-				EXPECT_FALSE(config.IsMosaicLevyUpdateAllowed);
-				EXPECT_EQ(0u, config.MaxMosaicDivisibility);
-				EXPECT_EQ(Amount(), config.MaxMosaicDivisibleUnits);
-
-				EXPECT_EQ(Key(), config.MosaicRentalFeeSinkPublicKey);
-				EXPECT_EQ(Amount(), config.MosaicRentalFee);
 			}
 
 			static void AssertCustom(const NamespaceConfiguration& config) {
@@ -102,16 +81,6 @@ namespace catapult { namespace config {
 				EXPECT_EQ(Amount(11223322), config.ChildNamespaceRentalFee);
 
 				EXPECT_EQ(1234u, config.MaxChildNamespaces);
-				EXPECT_EQ(4321u, config.MaxMosaicsPerAccount);
-
-				EXPECT_EQ(utils::BlockSpan::FromHours(2340), config.MaxMosaicDuration);
-
-				EXPECT_TRUE(config.IsMosaicLevyUpdateAllowed);
-				EXPECT_EQ(7u, config.MaxMosaicDivisibility);
-				EXPECT_EQ(Amount(12349876), config.MaxMosaicDivisibleUnits);
-
-				EXPECT_EQ(crypto::ParseKey(Mosaic_Rental_Fee_Sink_Public_Key), config.MosaicRentalFeeSinkPublicKey);
-				EXPECT_EQ(Amount(773388), config.MosaicRentalFee);
 			}
 		};
 	}

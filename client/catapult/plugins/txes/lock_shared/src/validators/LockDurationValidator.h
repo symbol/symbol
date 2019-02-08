@@ -29,7 +29,9 @@ namespace catapult { namespace validators {
 	DECLARE_STATELESS_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE)(BlockDuration maxDuration) { \
 		using ValidatorType = stateless::FunctionalNotificationValidatorT<NOTIFICATION_TYPE>; \
 		return std::make_unique<ValidatorType>(#VALIDATOR_NAME "Validator", [maxDuration](const auto& notification) { \
-			return notification.Duration <= maxDuration ? ValidationResult::Success : FAILURE_RESULT; \
+			return BlockDuration(0) != notification.Duration && notification.Duration <= maxDuration \
+					? ValidationResult::Success \
+					: FAILURE_RESULT; \
 		}); \
 	}
 }}

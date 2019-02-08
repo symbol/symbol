@@ -42,22 +42,32 @@ namespace catapult { namespace handlers {
 			{}
 
 		public:
-			utils::ShortHashesSet ShortHashes;
 			bool IsValid;
+			BlockFeeMultiplier MinFeeMultiplier;
+			utils::ShortHashesSet ShortHashes;
 		};
 
 		auto ProcessPullTransactionsRequest(const ionet::Packet& packet) {
-			if (ionet::PacketType::Pull_Transactions != packet.Type)
+			// packet is guaranteed to have correct type because this function is only called for matching packets by ServerPacketHandlers
+			auto dataSize = ionet::CalculatePacketDataSize(packet);
+			if (dataSize < sizeof(BlockFeeMultiplier))
 				return PullTransactionsInfo();
 
-			auto range = ionet::ExtractFixedSizeStructuresFromPacket<utils::ShortHash>(packet);
-			if (range.empty() && sizeof(ionet::Packet) != packet.Size)
-				return PullTransactionsInfo();
-
+			// data is prepended with min fee multiplier
 			PullTransactionsInfo info;
-			info.ShortHashes.reserve(range.size());
-			for (const auto& shortHash : range)
-				info.ShortHashes.insert(shortHash);
+			info.MinFeeMultiplier = BlockFeeMultiplier(reinterpret_cast<const BlockFeeMultiplier::ValueType&>(*packet.Data()));
+			dataSize -= sizeof(BlockFeeMultiplier);
+
+			// followed by short hashes
+			const auto* pShortHashDataStart = packet.Data() + sizeof(BlockFeeMultiplier);
+			auto numShortHashes = ionet::CountFixedSizeStructures<utils::ShortHash>({ pShortHashDataStart, dataSize });
+			if (0 == numShortHashes && 0 != dataSize)
+				return PullTransactionsInfo();
+
+			const auto* pShortHash = reinterpret_cast<const utils::ShortHash*>(pShortHashDataStart);
+			info.ShortHashes.reserve(numShortHashes);
+			for (auto i = 0u; i < numShortHashes; ++i, ++pShortHash)
+				info.ShortHashes.insert(*pShortHash);
 
 			info.IsValid = true;
 			return info;
@@ -69,7 +79,7 @@ namespace catapult { namespace handlers {
 				if (!info.IsValid)
 					return;
 
-				auto transactions = utRetriever(info.ShortHashes);
+				auto transactions = utRetriever(info.MinFeeMultiplier, info.ShortHashes);
 				context.response(ionet::PacketPayloadFactory::FromEntities(ionet::PacketType::Pull_Transactions, transactions));
 			};
 		}

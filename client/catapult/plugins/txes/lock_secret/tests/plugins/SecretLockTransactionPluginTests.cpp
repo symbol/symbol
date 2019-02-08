@@ -34,7 +34,7 @@ namespace catapult { namespace plugins {
 	// region TransactionPlugin
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretLock)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretLock, 1, 1)
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Entity_Type_Secret_Lock)
@@ -70,7 +70,7 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ(1u, sub.numAddresses());
 		EXPECT_EQ(0u, sub.numKeys());
 
-		EXPECT_TRUE(sub.contains(extensions::CopyToAddress(pTransaction->Recipient)));
+		EXPECT_TRUE(sub.contains(pTransaction->Recipient));
 	}
 
 	PLUGIN_TEST(CanPublishAddressInteractionNotification) {
@@ -78,6 +78,7 @@ namespace catapult { namespace plugins {
 		mocks::MockTypedNotificationSubscriber<AddressInteractionNotification> sub;
 		auto pPlugin = TTraits::CreatePlugin();
 		auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
+		pTransaction->Type = static_cast<model::EntityType>(0x0815);
 		test::FillWithRandomData(pTransaction->Recipient);
 
 		// Act:
@@ -87,7 +88,8 @@ namespace catapult { namespace plugins {
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
 		const auto& notification = sub.matchingNotifications()[0];
 		EXPECT_EQ(pTransaction->Signer, notification.Source);
-		EXPECT_EQ(model::AddressSet{ extensions::CopyToAddress(pTransaction->Recipient) }, notification.ParticipantsByAddress);
+		EXPECT_EQ(pTransaction->Type, notification.TransactionType);
+		EXPECT_EQ(model::UnresolvedAddressSet{ pTransaction->Recipient }, notification.ParticipantsByAddress);
 		EXPECT_EQ(utils::KeySet{}, notification.ParticipantsByKey);
 	}
 
@@ -140,7 +142,7 @@ namespace catapult { namespace plugins {
 			test::AssertBaseLockNotification(notification, transaction);
 			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
 			EXPECT_EQ(transaction.Secret, notification.Secret);
-			EXPECT_EQ(extensions::CopyToAddress(transaction.Recipient), notification.Recipient);
+			EXPECT_EQ(transaction.Recipient, notification.Recipient);
 		}
 	}
 
@@ -176,7 +178,7 @@ namespace catapult { namespace plugins {
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
 		const auto& notification = sub.matchingNotifications()[0];
 		EXPECT_EQ(pTransaction->Signer, notification.Sender);
-		EXPECT_EQ(extensions::CastToMosaicId(pTransaction->Mosaic.MosaicId), notification.MosaicId);
+		EXPECT_EQ(pTransaction->Mosaic.MosaicId, notification.MosaicId);
 		EXPECT_EQ(pTransaction->Mosaic.Amount, notification.Amount);
 	}
 

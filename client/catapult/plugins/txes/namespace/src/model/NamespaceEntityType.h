@@ -29,6 +29,12 @@ namespace catapult { namespace model {
 	/// Register namespace transaction.
 	DEFINE_TRANSACTION_TYPE(Namespace, Register_Namespace, 0x1);
 
+	/// Address alias transaction.
+	DEFINE_TRANSACTION_TYPE(Namespace, Alias_Address, 0x2);
+
+	/// Mosaic alias transaction.
+	DEFINE_TRANSACTION_TYPE(Namespace, Alias_Mosaic, 0x3);
+
 #ifndef CUSTOM_ENTITY_TYPE_DEFINITION
 }}
 #endif

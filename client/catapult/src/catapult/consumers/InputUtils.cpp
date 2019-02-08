@@ -49,7 +49,7 @@ namespace catapult { namespace consumers {
 		auto index = 0u;
 		for (const auto& element : elements) {
 			++index;
-			if (element.Skip)
+			if (disruptor::ConsumerResultSeverity::Success != element.ResultSeverity)
 				continue;
 
 			entityInfos.emplace_back(element.Transaction, element.EntityHash);

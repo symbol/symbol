@@ -55,11 +55,10 @@ namespace catapult { namespace timesync {
 
 		auto CreateAccountStateCache() {
 			auto cacheConfig = cache::CacheConfiguration();
-			return std::make_unique<cache::AccountStateCache>(cacheConfig, cache::AccountStateCacheTypes::Options{
-				model::NetworkIdentifier::Mijin_Test,
-				234,
-				Amount(std::numeric_limits<Amount::ValueType>::max())
-			});
+			auto networkIdentifier = model::NetworkIdentifier::Mijin_Test;
+			auto maxAmount = Amount(std::numeric_limits<Amount::ValueType>::max());
+			cache::AccountStateCacheTypes::Options options{ networkIdentifier, 234, maxAmount, MosaicId(1111), MosaicId(2222) };
+			return std::make_unique<cache::AccountStateCache>(cacheConfig, options);
 		}
 
 		struct SeedNodeContainerOptions {
@@ -252,7 +251,7 @@ namespace catapult { namespace timesync {
 		EXPECT_EQ(nodeContainer.view().size(), capture.WeightedCandidates.size());
 		std::unordered_set<Key, utils::ArrayHasher<Key>> keySet(keys.cbegin(), keys.cend());
 		for (const auto& candidate : capture.WeightedCandidates)
-			EXPECT_TRUE(keySet.cend() != keySet.find(candidate.Node.identityKey()));
+			EXPECT_CONTAINS(keySet, candidate.Node.identityKey());
 
 		EXPECT_EQ(5000u, capture.TotalWeight);
 		EXPECT_EQ(3u, capture.MaxCandidates);

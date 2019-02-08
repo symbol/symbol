@@ -38,7 +38,7 @@ namespace catapult { namespace test {
 		};
 
 	public:
-		virtual ~ClientSocket() {}
+		virtual ~ClientSocket() = default;
 
 	public:
 		/// Connects to the (localhost) server with \a options.

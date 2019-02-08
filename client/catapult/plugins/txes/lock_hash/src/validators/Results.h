@@ -44,11 +44,8 @@ namespace catapult { namespace validators {
 	/// Validation failed because hash is inactive.
 	DEFINE_LOCKHASH_RESULT(Inactive_Hash, 5);
 
-	/// Validation failed because hash has already been used.
-	DEFINE_LOCKHASH_RESULT(Hash_Already_Used, 6);
-
 	/// Validation failed because duration is too long.
-	DEFINE_LOCKHASH_RESULT(Invalid_Duration, 7);
+	DEFINE_LOCKHASH_RESULT(Invalid_Duration, 6);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

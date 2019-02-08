@@ -79,7 +79,7 @@ namespace catapult { namespace test {
 
 		mocks::MockMemoryBlockStorage storage;
 		auto pExpectedBlock = storage.loadBlock(Height(1));
-		EXPECT_EQ(pExpectedBlock->Size, pBlock->Size);
+		ASSERT_EQ(pExpectedBlock->Size, pBlock->Size);
 		EXPECT_EQ(*pExpectedBlock, *pBlock);
 	}
 
@@ -97,7 +97,7 @@ namespace catapult { namespace test {
 
 		mocks::MockMemoryBlockStorage storage;
 		auto pExpectedBlock = storage.loadBlock(Height(1));
-		EXPECT_EQ(pExpectedBlock->Size, pBlock->Size);
+		ASSERT_EQ(pExpectedBlock->Size, pBlock->Size);
 		EXPECT_EQ(*pExpectedBlock, *pBlock);
 	}
 

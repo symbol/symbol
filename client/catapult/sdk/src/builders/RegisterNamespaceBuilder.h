@@ -21,8 +21,6 @@
 #pragma once
 #include "TransactionBuilder.h"
 #include "plugins/txes/namespace/src/model/RegisterNamespaceTransaction.h"
-#include "catapult/model/NetworkInfo.h"
-#include <vector>
 
 namespace catapult { namespace builders {
 
@@ -32,16 +30,20 @@ namespace catapult { namespace builders {
 		using Transaction = model::RegisterNamespaceTransaction;
 		using EmbeddedTransaction = model::EmbeddedRegisterNamespaceTransaction;
 
-		/// Creates a register namespace builder for building a namespace registration transaction for \a name
-		/// from \a signer for the network specified by \a networkIdentifier.
-		RegisterNamespaceBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer, const RawString& name);
+	public:
+		/// Creates a register namespace builder for building a register namespace transaction from \a signer
+		/// for the network specified by \a networkIdentifier.
+		RegisterNamespaceBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the namespace \a duration.
+		/// Sets the namespace duration to \a duration and namespaceType to `root`.
 		void setDuration(BlockDuration duration);
 
-		/// Sets the namespace parent id (\a parentId).
+		/// Sets the id of the parent namespace to \a parentId and namespaceType to `child`.
 		void setParentId(NamespaceId parentId);
+
+		/// Sets the namespace name to \a name.
+		void setName(const RawBuffer& name);
 
 	public:
 		/// Builds a new register namespace transaction.
@@ -55,9 +57,10 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		// properties
-		NamespaceId m_parentId;
-		std::string m_name;
+		model::NamespaceType m_namespaceType;
 		BlockDuration m_duration;
+		NamespaceId m_parentId;
+		NamespaceId m_namespaceId;
+		std::vector<uint8_t> m_name;
 	};
 }}

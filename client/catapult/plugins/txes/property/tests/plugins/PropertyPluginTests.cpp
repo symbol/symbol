@@ -59,8 +59,12 @@ namespace catapult { namespace plugins {
 				return { "PropertyCache" };
 			}
 
+			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
+				return { ionet::PacketType::Account_Properties_State_Path };
+			}
+
 			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return { ionet::PacketType::Account_Properties_Infos, ionet::PacketType::Account_Properties_State_Path };
+				return { ionet::PacketType::Account_Properties_Infos };
 			}
 
 			static std::vector<std::string> GetDiagnosticCounterNames() {

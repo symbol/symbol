@@ -39,7 +39,7 @@ namespace catapult { namespace ionet {
 		using ReadCallback = consumer<SocketOperationCode>;
 
 	public:
-		virtual ~SocketReader() {}
+		virtual ~SocketReader() = default;
 
 	public:
 		/// Reads and consumes one or more packets and calls \a callback on completion.

@@ -39,6 +39,6 @@ namespace catapult { namespace validators {
 		if (lockInfo.HashAlgorithm != notification.HashAlgorithm)
 			return Failure_LockSecret_Hash_Algorithm_Mismatch;
 
-		return state::LockStatus::Used == lockInfo.Status ? Failure_LockSecret_Secret_Already_Used : ValidationResult::Success;
+		return ValidationResult::Success;
 	})
 }}

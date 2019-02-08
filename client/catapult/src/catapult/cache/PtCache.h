@@ -68,6 +68,5 @@ namespace catapult { namespace cache {
 	};
 
 	/// An interface for caching partial transactions.
-	class PtCache : public BasicTransactionsCache<PtCacheModifierProxy>
-	{};
+	class PtCache : public BasicTransactionsCache<PtCacheModifierProxy> {};
 }}

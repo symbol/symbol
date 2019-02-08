@@ -65,7 +65,7 @@ namespace catapult { namespace consumers {
 
 		/// Prototype for undoing a block.
 		/// \note This is called with all rolled back blocks and the (new) common block.
-		using UndoBlockFunc = consumer<const model::BlockElement&, const observers::ObserverState&, UndoBlockType>;
+		using UndoBlockFunc = consumer<const model::BlockElement&, observers::ObserverState&, UndoBlockType>;
 
 		/// Prototype for state change notification.
 		using StateChangeFunc = consumer<const StateChangeInfo&>;

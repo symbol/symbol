@@ -38,7 +38,7 @@ namespace catapult { namespace extensions {
 		using future = thread::future<T>;
 
 	public:
-		virtual ~RemoteDiagnosticApi() {}
+		virtual ~RemoteDiagnosticApi() = default;
 
 	public:
 		/// Gets all timestamped hashes in \a timestampedHashes that are unconfirmed, i.e. not in the hash cache.

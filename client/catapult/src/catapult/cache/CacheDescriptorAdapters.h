@@ -74,8 +74,7 @@ namespace catapult { namespace cache {
 				MemoryMapType
 			>;
 
-			struct StorageTraits : public MapStorageTraits
-			{};
+			struct StorageTraits : public MapStorageTraits {};
 
 		public:
 			/// Base set type.
@@ -128,8 +127,7 @@ namespace catapult { namespace cache {
 				MemorySetType
 			>;
 
-			struct StorageTraits : public SetStorageTraits
-			{};
+			struct StorageTraits : public SetStorageTraits {};
 
 		public:
 			/// Base set type.
@@ -194,8 +192,7 @@ namespace catapult { namespace cache {
 				MemorySetType
 			>;
 
-			struct StorageTraits : public SetStorageTraits
-			{};
+			struct StorageTraits : public SetStorageTraits {};
 
 		public:
 			/// Base set type.

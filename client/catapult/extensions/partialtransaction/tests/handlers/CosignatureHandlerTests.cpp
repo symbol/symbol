@@ -36,8 +36,8 @@ namespace catapult { namespace handlers {
 				return 0u;
 			}
 
-			static void PreparePacket(ionet::ByteBuffer&, size_t) {
-			}
+			static void PreparePacket(ionet::ByteBuffer&, size_t)
+			{}
 
 			static auto CreateRegistry() {
 				// note that int is used as a placeholder transaction registy

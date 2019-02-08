@@ -29,7 +29,7 @@ namespace catapult { namespace thread {
 	/// Represents an io service thread pool that shares a single io service across multiple threads.
 	class IoServiceThreadPool {
 	public:
-		virtual ~IoServiceThreadPool() {}
+		virtual ~IoServiceThreadPool() = default;
 
 	public:
 		/// Gets the number of active worker threads.

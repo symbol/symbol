@@ -20,6 +20,7 @@
 
 #include "Observers.h"
 #include "src/cache/SecretLockInfoCache.h"
+#include "src/model/SecretLockReceiptType.h"
 #include "plugins/txes/lock_shared/src/observers/LockStatusAccountBalanceObserver.h"
 
 namespace catapult { namespace observers {
@@ -31,6 +32,7 @@ namespace catapult { namespace observers {
 		public:
 			using CacheType = cache::SecretLockInfoCache;
 			using Notification = observers::Notification;
+			static constexpr auto Receipt_Type = model::Receipt_Type_LockSecret_Completed;
 
 			static auto NotificationToKey(const Notification& notification) {
 				return notification.Secret;

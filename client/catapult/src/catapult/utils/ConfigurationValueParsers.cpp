@@ -78,7 +78,31 @@ namespace catapult { namespace utils {
 	// region int
 
 	namespace {
-		template<typename T>
+		struct DecimalTraits {
+			static constexpr uint8_t Base = 10;
+
+			static bool IsDigit(char ch) {
+				return ch >= '0' && ch <= '9';
+			}
+
+			static uint8_t GetByteValue(char ch) {
+				return static_cast<uint8_t>(ch - '0');
+			}
+		};
+
+		struct HexTraits {
+			static constexpr uint8_t Base = 16;
+
+			static bool IsDigit(char ch) {
+				return (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F');
+			}
+
+			static uint8_t GetByteValue(char ch) {
+				return static_cast<uint8_t>(ch <= '9' ? ch - '0' : ch - 'A' + 10);
+			}
+		};
+
+		template<typename TTraits, typename T>
 		bool TryParseUnsignedIntValue(const std::string& str, T& parsedValue) {
 			constexpr char Digit_Separator = '\'';
 			if (str.empty())
@@ -87,9 +111,9 @@ namespace catapult { namespace utils {
 			T result = 0;
 			bool isLastCharSeparator = true;
 			for (auto ch : str) {
-				// only support (decimal) digits and non-consecutive separators
+				// only support valid digits and non-consecutive separators
 				bool isCharSeparator = Digit_Separator == ch;
-				bool isDigit = ch >= '0' && ch <= '9';
+				bool isDigit = TTraits::IsDigit(ch);
 				bool isValidChar = isDigit || (isCharSeparator && !isLastCharSeparator);
 				if (!isValidChar)
 					return false;
@@ -99,11 +123,11 @@ namespace catapult { namespace utils {
 					continue;
 
 				// check for overflow
-				auto digit = static_cast<uint8_t>(ch - '0');
-				if (static_cast<T>(result * 10 + digit) < result)
+				auto digit = TTraits::GetByteValue(ch);
+				if (static_cast<T>(result * TTraits::Base + digit) < result)
 					return false;
 
-				result *= 10;
+				result *= TTraits::Base;
 				result += digit;
 			}
 
@@ -113,22 +137,35 @@ namespace catapult { namespace utils {
 			parsedValue = result;
 			return true;
 		}
+
+		template<typename T>
+		bool TryParseUnsignedIntDecimalValue(const std::string& str, T& parsedValue) {
+			return TryParseUnsignedIntValue<DecimalTraits>(str, parsedValue);
+		}
+
+		template<typename T>
+		bool TryParseUnsignedIntHexValue(const std::string& str, T& parsedValue) {
+			if (str.size() < 2 || 0 != std::memcmp("0x", str.data(), 2))
+				return false;
+
+			return TryParseUnsignedIntValue<HexTraits>(str.substr(2), parsedValue);
+		}
 	}
 
 	bool TryParseValue(const std::string& str, uint8_t& parsedValue) {
-		return TryParseUnsignedIntValue(str, parsedValue);
+		return TryParseUnsignedIntDecimalValue(str, parsedValue);
 	}
 
 	bool TryParseValue(const std::string& str, uint16_t& parsedValue) {
-		return TryParseUnsignedIntValue(str, parsedValue);
+		return TryParseUnsignedIntDecimalValue(str, parsedValue);
 	}
 
 	bool TryParseValue(const std::string& str, uint32_t& parsedValue) {
-		return TryParseUnsignedIntValue(str, parsedValue);
+		return TryParseUnsignedIntDecimalValue(str, parsedValue);
 	}
 
 	bool TryParseValue(const std::string& str, uint64_t& parsedValue) {
-		return TryParseUnsignedIntValue(str, parsedValue);
+		return TryParseUnsignedIntDecimalValue(str, parsedValue);
 	}
 
 	// endregion
@@ -137,9 +174,19 @@ namespace catapult { namespace utils {
 
 	namespace {
 		template<typename TNumeric, typename T, typename TFactory>
-		bool TryParseCustomType(TFactory factory, const std::string& str, T& parsedValue) {
+		bool TryParseCustomUnsignedIntDecimalValue(TFactory factory, const std::string& str, T& parsedValue) {
 			TNumeric raw;
 			if (!TryParseValue(str, raw))
+				return false;
+
+			parsedValue = factory(raw);
+			return true;
+		}
+
+		template<typename TNumeric, typename T, typename TFactory>
+		bool TryParseCustomUnsignedIntHexValue(TFactory factory, const std::string& str, T& parsedValue) {
+			TNumeric raw;
+			if (!TryParseUnsignedIntHexValue(str, raw))
 				return false;
 
 			parsedValue = factory(raw);
@@ -148,7 +195,20 @@ namespace catapult { namespace utils {
 	}
 
 	bool TryParseValue(const std::string& str, Amount& parsedValue) {
-		return TryParseCustomType<Amount::ValueType>([](auto raw) { return Amount(raw); }, str, parsedValue);
+		return TryParseCustomUnsignedIntDecimalValue<Amount::ValueType>([](auto raw) { return Amount(raw); }, str, parsedValue);
+	}
+
+	bool TryParseValue(const std::string& str, BlockFeeMultiplier& parsedValue) {
+		auto factory = [](auto raw) { return BlockFeeMultiplier(raw); };
+		return TryParseCustomUnsignedIntDecimalValue<BlockFeeMultiplier::ValueType>(factory, str, parsedValue);
+	}
+
+	bool TryParseValue(const std::string& str, Importance& parsedValue) {
+		return TryParseCustomUnsignedIntDecimalValue<Importance::ValueType>([](auto raw) { return Importance(raw); }, str, parsedValue);
+	}
+
+	bool TryParseValue(const std::string& str, MosaicId& parsedValue) {
+		return TryParseCustomUnsignedIntHexValue<MosaicId::ValueType>([](auto raw) { return MosaicId(raw); }, str, parsedValue);
 	}
 
 	bool TryParseValue(const std::string& str, TimeSpan& parsedValue) {
@@ -156,7 +216,7 @@ namespace catapult { namespace utils {
 			return false;
 
 		auto tryParse = [&str, &parsedValue](const auto& factory, uint8_t postfixSize) {
-			return TryParseCustomType<uint64_t>(factory, str.substr(0, str.size() - postfixSize), parsedValue);
+			return TryParseCustomUnsignedIntDecimalValue<uint64_t>(factory, str.substr(0, str.size() - postfixSize), parsedValue);
 		};
 
 		switch (str.back()) {
@@ -181,7 +241,7 @@ namespace catapult { namespace utils {
 			return false;
 
 		auto tryParse = [&str, &parsedValue](const auto& factory) {
-			return TryParseCustomType<uint64_t>(factory, str.substr(0, str.size() - 1), parsedValue);
+			return TryParseCustomUnsignedIntDecimalValue<uint64_t>(factory, str.substr(0, str.size() - 1), parsedValue);
 		};
 
 		switch (str[str.size() - 1]) {
@@ -200,7 +260,7 @@ namespace catapult { namespace utils {
 			return false;
 
 		auto tryParse = [&str, &parsedValue](const auto& factory, uint8_t postfixSize) {
-			return TryParseCustomType<uint64_t>(factory, str.substr(0, str.size() - postfixSize), parsedValue);
+			return TryParseCustomUnsignedIntDecimalValue<uint64_t>(factory, str.substr(0, str.size() - postfixSize), parsedValue);
 		};
 
 		switch (str[str.size() - 2]) {

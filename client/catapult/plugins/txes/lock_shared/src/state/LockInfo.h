@@ -66,7 +66,7 @@ namespace catapult { namespace state {
 	public:
 		/// Returns \c true if lock info is active at \a height.
 		constexpr bool isActive(catapult::Height height) const {
-			return height < Height;
+			return height < Height && LockStatus::Unused == Status;
 		}
 	};
 }}

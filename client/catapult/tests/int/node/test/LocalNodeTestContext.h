@@ -20,7 +20,7 @@
 
 #pragma once
 #include "ConfigurationTestUtils.h"
-#include "LocalNodeStateHashTestUtils.h"
+#include "LocalNodeNemesisHashTestUtils.h"
 #include "LocalNodeTestUtils.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/extensions/LocalNodeBootstrapper.h"
@@ -72,8 +72,8 @@ namespace catapult { namespace test {
 				, m_serverKeyPair(loadServerKeyPair())
 				, m_partnerServerKeyPair(LoadPartnerServerKeyPair())
 				, m_numPreLoadHandlerCalls(0)
-				, m_tempDir("../temp/lntc" + tempDirPostfix)
-				, m_partnerTempDir(m_tempDir.name() + "_partner") {
+				, m_tempDir("lntc" + tempDirPostfix)
+				, m_partnerTempDir("lntc_partner" + tempDirPostfix) {
 			initializeDataDirectory(m_tempDir.name());
 
 			if (HasFlag(NodeFlag::With_Partner, nodeFlag)) {
@@ -91,6 +91,9 @@ namespace catapult { namespace test {
 			PrepareStorage(directory);
 			PrepareConfiguration(directory, m_nodeFlag);
 
+			if (HasFlag(NodeFlag::Verify_Receipts, m_nodeFlag))
+				SetNemesisReceiptsHash(directory);
+
 			if (HasFlag(NodeFlag::Verify_State, m_nodeFlag)) {
 				auto config = CreateLocalNodeConfiguration(directory);
 				prepareLocalNodeConfiguration(config);
@@ -100,6 +103,11 @@ namespace catapult { namespace test {
 		}
 
 	public:
+		/// Gets the data directory.
+		std::string dataDirectory() const {
+			return m_tempDir.name();
+		}
+
 		/// Gets the resources directory.
 		std::string resourcesDirectory() const {
 			return m_tempDir.name() + "/resources";

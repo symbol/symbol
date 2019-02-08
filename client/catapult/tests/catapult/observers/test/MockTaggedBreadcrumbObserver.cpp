@@ -37,7 +37,7 @@ namespace catapult { namespace mocks {
 				return m_name;
 			}
 
-			void notify(const TTaggedNotification& notification, const observers::ObserverContext&) const override {
+			void notify(const TTaggedNotification& notification, observers::ObserverContext&) const override {
 				m_breadcrumbs.push_back(static_cast<uint16_t>(notification.Tag << 8 | m_tag));
 			}
 

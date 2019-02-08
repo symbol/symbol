@@ -56,4 +56,10 @@ namespace catapult { namespace test {
 			const crypto::KeyPair& signer,
 			const std::string& name,
 			BlockDuration duration);
+
+	/// Creates a signed root address alias transaction with \a signer, root namespace \a name and \a address.
+	std::unique_ptr<model::Transaction> CreateRootAddressAliasTransaction(
+			const crypto::KeyPair& signer,
+			const std::string& name,
+			const Address& address);
 }}

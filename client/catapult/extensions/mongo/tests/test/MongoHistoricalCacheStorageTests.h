@@ -312,7 +312,7 @@ namespace catapult { namespace test {
 			// Arrange:
 			CacheStorageWrapper storage;
 
-			// - seed the database with 100 elements
+			// - seed the database
 			std::pair<size_t, size_t> expectedCollectionSizes; // (cache-size, deep-size)
 			{
 				auto cache1 = TTraits::CreateCache();
@@ -332,6 +332,29 @@ namespace catapult { namespace test {
 			// Assert:
 			EXPECT_EQ(expectedCollectionSizes.first, elements.size());
 			AssertDbContents(elements, expectedCollectionSizes.second - expectedCollectionSizes.first);
+		}
+
+		/// Executes a custom loading test after initializing the database with \a seedCache by passing the seeded cache to \a assertCache.
+		/// \note This is required for deeply interrogating the cache when differences are not detected by element equals operator.
+		template<typename TSeedCache, typename TAssertCache>
+		static void RunCustomLoadTest(TSeedCache seedCache, TAssertCache assertCache) {
+			// Arrange:
+			CacheStorageWrapper storage;
+
+			// - seed the database
+			{
+				auto cache1 = TTraits::CreateCache();
+				auto delta1 = cache1.createDelta();
+				seedCache(delta1);
+				storage.get().saveDelta(delta1);
+			}
+
+			// Act: load into a second cache
+			auto cache2 = TTraits::CreateCache();
+			storage.get().loadAll(cache2, Height(1));
+
+			// Assert:
+			assertCache(cache2);
 		}
 
 	private:

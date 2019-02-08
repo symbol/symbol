@@ -32,12 +32,46 @@ namespace catapult {
 
 namespace catapult { namespace cache {
 
-	/// A subcache view.
+	// region SubCacheViewIdentifier
+
+	/// Sub cache view types.
+	enum class SubCacheViewType {
+		/// Cache view.
+		View,
+
+		/// Cache delta.
+		Delta,
+
+		/// Cache detached delta.
+		DetachedDelta
+	};
+
+	/// Sub cache view identifier.
+	struct SubCacheViewIdentifier {
+		/// Cache name.
+		/// \note std::array instead of std::string to guarantee string inlining in struct.
+		std::array<char, 16> CacheName;
+
+		/// Cache id.
+		size_t CacheId;
+
+		/// View type.
+		SubCacheViewType ViewType;
+	};
+
+	// endregion
+
+	// region SubCacheView / DetachedSubCacheView
+
+	/// Sub cache view.
 	class SubCacheView {
 	public:
-		virtual ~SubCacheView() {}
+		virtual ~SubCacheView() = default;
 
 	public:
+		/// Gets view identifier.
+		virtual const SubCacheViewIdentifier& id() const = 0;
+
 		/// Returns a const pointer to the underlying view.
 		virtual const void* get() const = 0;
 
@@ -60,10 +94,10 @@ namespace catapult { namespace cache {
 		virtual const void* asReadOnly() const = 0;
 	};
 
-	/// A detached subcache view.
+	/// Detached sub cache view.
 	class DetachedSubCacheView {
 	public:
-		virtual ~DetachedSubCacheView() {}
+		virtual ~DetachedSubCacheView() = default;
 
 	public:
 		/// Locks the cache delta.
@@ -71,10 +105,14 @@ namespace catapult { namespace cache {
 		virtual std::unique_ptr<SubCacheView> lock() = 0;
 	};
 
-	/// A subcache plugin that can be added to the main catapult cache.
+	// endregion
+
+	// region SubCachePlugin
+
+	/// Sub cache plugin that can be added to the main catapult cache.
 	class SubCachePlugin {
 	public:
-		virtual ~SubCachePlugin() {}
+		virtual ~SubCachePlugin() = default;
 
 	public:
 		/// Gets the cache name.
@@ -106,4 +144,6 @@ namespace catapult { namespace cache {
 		/// Returns a cache storage based on this cache.
 		virtual std::unique_ptr<CacheStorage> createStorage() = 0;
 	};
+
+	// endregion
 }}

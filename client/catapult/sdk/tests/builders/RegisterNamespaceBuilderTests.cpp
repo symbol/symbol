@@ -19,7 +19,8 @@
 **/
 
 #include "src/builders/RegisterNamespaceBuilder.h"
-#include "plugins/txes/namespace/src/model/IdGenerator.h"
+#include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
+#include "catapult/constants.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
@@ -30,21 +31,60 @@ namespace catapult { namespace builders {
 		using RegularTraits = test::RegularTransactionTraits<model::RegisterNamespaceTransaction>;
 		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedRegisterNamespaceTransaction>;
 
-		auto CreateBuilderWithName(const RawString& name, const Key& signer) {
-			return RegisterNamespaceBuilder(static_cast<model::NetworkIdentifier>(0x62), signer, name);
+		using TransactionType = model::RegisterNamespaceTransaction;
+		using TransactionPtr = std::unique_ptr<TransactionType>;
+
+		struct TransactionProperties {
+		public:
+			explicit TransactionProperties(BlockDuration duration)
+					: NamespaceType(model::NamespaceType::Root)
+					, Duration(duration)
+					, NamespaceName(test::GenerateRandomString(10))
+
+			{}
+
+			explicit TransactionProperties(NamespaceId parentId)
+					: NamespaceType(model::NamespaceType::Child)
+					, ParentId(parentId)
+					, NamespaceName(test::GenerateRandomString(10))
+			{}
+
+		public:
+			model::NamespaceType NamespaceType;
+			NamespaceId ParentId;
+			BlockDuration Duration;
+			std::string NamespaceName;
+		};
+
+		template<typename TTransaction>
+		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
+			EXPECT_EQ(expectedProperties.NamespaceType, transaction.NamespaceType);
+			if (model::NamespaceType::Root == expectedProperties.NamespaceType)
+				EXPECT_EQ(expectedProperties.Duration, transaction.Duration);
+			else
+				EXPECT_EQ(expectedProperties.ParentId, transaction.ParentId);
+
+			// - name matches
+			ASSERT_EQ(expectedProperties.NamespaceName.size(), transaction.NamespaceNameSize);
+			EXPECT_EQ_MEMORY(expectedProperties.NamespaceName.data(), transaction.NamePtr(), expectedProperties.NamespaceName.size());
+
+			// - id matches
+			auto expectedId = model::GenerateNamespaceId(expectedProperties.ParentId, expectedProperties.NamespaceName);
+			EXPECT_EQ(expectedId, transaction.NamespaceId);
 		}
 
-		template<typename TTraits, typename TValidationFunction>
+		template<typename TTraits>
 		void AssertCanBuildTransaction(
-				const std::string& namespaceName,
-				const consumer<RegisterNamespaceBuilder&>& buildTransaction,
-				const TValidationFunction& validateTransaction) {
+				const TransactionProperties& expectedProperties,
+				const consumer<RegisterNamespaceBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
+			const auto& namespaceName = expectedProperties.NamespaceName;
 
 			// Act:
-			RegisterNamespaceBuilder builder(networkId, signer, namespaceName);
+			auto builder = RegisterNamespaceBuilder(networkId, signer);
+			builder.setName({ reinterpret_cast<const uint8_t*>(namespaceName.data()), namespaceName.size() });
 			buildTransaction(builder);
 			auto pTransaction = TTraits::InvokeBuilder(builder);
 
@@ -54,36 +94,15 @@ namespace catapult { namespace builders {
 			EXPECT_EQ(0x6202, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Register_Namespace, pTransaction->Type);
 
-			validateTransaction(*pTransaction);
+			AssertTransactionProperties(expectedProperties, *pTransaction);
 		}
 
-		template<typename TTransaction>
-		void AssertNamespace(const TTransaction& transaction, NamespaceId parentId, const std::string& namespaceName) {
-			// Assert:
-			EXPECT_EQ(namespaceName.size(), transaction.NamespaceNameSize);
-			EXPECT_TRUE(0 == std::memcmp(namespaceName.data(), transaction.NamePtr(), namespaceName.size()));
+		void RunBuilderTest(const consumer<RegisterNamespaceBuilder&>& buildTransaction) {
+			// Arrange:
+			RegisterNamespaceBuilder builder(static_cast<model::NetworkIdentifier>(0x62), test::GenerateRandomData<Key_Size>());
 
-			// - id matches
-			auto expectedId = model::GenerateNamespaceId(parentId, namespaceName);
-			EXPECT_EQ(expectedId, transaction.NamespaceId);
-		}
-
-		auto CreateRootPropertyChecker(const std::string& namespaceName, BlockDuration namespaceDuration) {
-			return [&namespaceName, namespaceDuration](const auto& transaction) {
-				// Assert:
-				EXPECT_EQ(model::NamespaceType::Root, transaction.NamespaceType);
-				EXPECT_EQ(namespaceDuration, transaction.Duration);
-				AssertNamespace(transaction, Namespace_Base_Id, namespaceName);
-			};
-		}
-
-		auto CreateChildPropertyChecker(const std::string& namespaceName, NamespaceId parentId) {
-			return [&namespaceName, parentId](const auto& transaction) {
-				// Assert:
-				EXPECT_EQ(model::NamespaceType::Child, transaction.NamespaceType);
-				EXPECT_EQ(parentId, transaction.ParentId);
-				AssertNamespace(transaction, parentId, namespaceName);
-			};
+			// Act:
+			buildTransaction(builder);
 		}
 	}
 
@@ -97,13 +116,10 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanCreateTransaction) {
 		// Arrange:
-		auto namespaceName = test::GenerateRandomString(10);
+		auto expectedProperties = TransactionProperties(BlockDuration(0));
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				namespaceName,
-				[](const auto&) {},
-				CreateRootPropertyChecker(namespaceName, Eternal_Artifact_Duration));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](const auto&) {});
 	}
 
 	// endregion
@@ -111,18 +127,24 @@ namespace catapult { namespace builders {
 	// region name validation
 
 	TEST(TEST_CLASS, CannotSetEmptyName) {
-		// Act + Assert:
-		EXPECT_THROW(CreateBuilderWithName({}, test::GenerateRandomData<Key_Size>()), catapult_invalid_argument);
+		// Arrange:
+		RunBuilderTest([](auto& builder) {
+			auto name = std::string();
+
+			// Act + Assert:
+			EXPECT_THROW(builder.setName({ reinterpret_cast<const uint8_t*>(name.data()), name.size() }), catapult_invalid_argument);
+		});
 	}
 
-	TEST(TEST_CLASS, CannnotSetTooLongName) {
+	TEST(TEST_CLASS, CannotChangeName) {
 		// Arrange:
-		auto namespaceName = test::GenerateRandomString(1 << (sizeof(model::RegisterNamespaceTransaction::NamespaceNameSize) * 8));
-		auto signer = test::GenerateRandomData<Key_Size>();
-		auto builder = CreateBuilderWithName(namespaceName, signer);
+		RunBuilderTest([](auto& builder) {
+			auto name = std::string("abc");
+			builder.setName({ reinterpret_cast<const uint8_t*>(name.data()), name.size() });
 
-		// Act + Assert:
-		EXPECT_THROW(builder.build(), catapult_runtime_error);
+			// Act + Assert:
+			EXPECT_THROW(builder.setName({ reinterpret_cast<const uint8_t*>(name.data()), name.size() }), catapult_runtime_error);
+		});
 	}
 
 	// endregion
@@ -131,42 +153,33 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanSetDuration) {
 		// Arrange:
-		auto namespaceName = test::GenerateRandomString(10);
+		auto expectedProperties = TransactionProperties(BlockDuration(1234));
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				namespaceName,
-				[](auto& builder) {
-					builder.setDuration(BlockDuration(12345));
-				},
-				CreateRootPropertyChecker(namespaceName, BlockDuration(12345)));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+			builder.setDuration(BlockDuration(1234));
+		});
 	}
 
 	TRAITS_BASED_TEST(CanSetParentId) {
 		// Arrange:
-		auto namespaceName = test::GenerateRandomString(10);
+		auto expectedProperties = TransactionProperties(NamespaceId(1234));
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(
-				namespaceName,
-				[](auto& builder) {
-					builder.setParentId(NamespaceId(12345));
-				},
-				CreateChildPropertyChecker(namespaceName, NamespaceId(12345)));
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+			builder.setParentId(NamespaceId(1234));
+		});
 	}
 
-	TRAITS_BASED_TEST(ParentIdTakesPrecedenceOverDuration) {
+	TRAITS_BASED_TEST(LastOfParentIdAndDurationTakesPrecedence) {
 		// Arrange:
-		auto namespaceName = test::GenerateRandomString(10);
+		auto expectedProperties = TransactionProperties(NamespaceId(1234));
 
-		// Assert: since the parent id is set, the duration is ignored
-		AssertCanBuildTransaction<TTraits>(
-				namespaceName,
-				[](auto& builder) {
-					builder.setParentId(NamespaceId(12345));
-					builder.setDuration(BlockDuration(98765));
-				},
-				CreateChildPropertyChecker(namespaceName, NamespaceId(12345)));
+		// Assert: since the parent id is set last, the duration is ignored
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
+			builder.setDuration(BlockDuration(9876));
+			builder.setParentId(NamespaceId(1234));
+		});
 	}
 
 	// endregion

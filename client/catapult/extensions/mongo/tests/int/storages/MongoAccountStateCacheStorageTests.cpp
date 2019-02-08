@@ -36,6 +36,8 @@ namespace catapult { namespace mongo { namespace storages {
 #define TEST_CLASS MongoAccountStateCacheStorageTests
 
 	namespace {
+		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
+
 		struct AccountStateCacheTraits {
 			using CacheType = cache::AccountStateCache;
 			using ModelType = state::AccountState;
@@ -60,7 +62,7 @@ namespace catapult { namespace mongo { namespace storages {
 				auto randomAmount = Amount((test::Random() % 1'000'000 + 1'000) * 1'000'000);
 				auto randomImportance = Importance(test::Random() % 1'000'000'000 + 1'000'000'000);
 				auto randomImportanceHeight = test::GenerateRandomValue<model::ImportanceHeight>();
-				accountState.Balances.credit(Xem_Id, randomAmount);
+				accountState.Balances.credit(Currency_Mosaic_Id, randomAmount);
 				accountState.ImportanceInfo.set(randomImportance, randomImportanceHeight);
 				return accountState;
 			}
@@ -69,7 +71,7 @@ namespace catapult { namespace mongo { namespace storages {
 				auto& accountStateCacheDelta = delta.sub<cache::AccountStateCache>();
 				accountStateCacheDelta.addAccount(accountState.PublicKey, accountState.PublicKeyHeight);
 				auto& accountStateFromCache = accountStateCacheDelta.find(accountState.PublicKey).get();
-				accountStateFromCache.Balances.credit(Xem_Id, accountState.Balances.get(Xem_Id));
+				accountStateFromCache.Balances.credit(Currency_Mosaic_Id, accountState.Balances.get(Currency_Mosaic_Id));
 
 				auto height = accountState.ImportanceInfo.height();
 				accountStateFromCache.ImportanceInfo.set(accountState.ImportanceInfo.get(height), height);
@@ -83,12 +85,12 @@ namespace catapult { namespace mongo { namespace storages {
 
 			static void Mutate(cache::CatapultCacheDelta& delta, ModelType& accountState) {
 				// update expected
-				accountState.Balances.credit(Xem_Id, Amount(12'345'000'000));
+				accountState.Balances.credit(Currency_Mosaic_Id, Amount(12'345'000'000));
 
 				// update cache
 				auto& accountStateCacheDelta = delta.sub<cache::AccountStateCache>();
 				auto& accountStateFromCache = accountStateCacheDelta.find(accountState.PublicKey).get();
-				accountStateFromCache.Balances.credit(Xem_Id, Amount(12'345'000'000));
+				accountStateFromCache.Balances.credit(Currency_Mosaic_Id, Amount(12'345'000'000));
 			}
 
 			static auto GetFindFilter(const ModelType& accountState) {

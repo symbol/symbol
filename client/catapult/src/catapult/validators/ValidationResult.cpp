@@ -48,11 +48,14 @@ namespace catapult { namespace validators {
 			#include "plugins/coresystem/src/validators/Results.h"
 			#include "plugins/services/hashcache/src/validators/Results.h"
 			#include "plugins/services/signature/src/validators/Results.h"
+			#include "plugins/txes/accountlink/src/validators/Results.h"
 			#include "plugins/txes/aggregate/src/validators/Results.h"
 			#include "plugins/txes/lock_hash/src/validators/Results.h"
 			#include "plugins/txes/lock_secret/src/validators/Results.h"
+			#include "plugins/txes/mosaic/src/validators/Results.h"
 			#include "plugins/txes/multisig/src/validators/Results.h"
 			#include "plugins/txes/namespace/src/validators/Results.h"
+			#include "plugins/txes/property/src/validators/Results.h"
 			#include "plugins/txes/transfer/src/validators/Results.h"
 			#include "src/catapult/chain/ChainResults.h"
 			#include "src/catapult/consumers/ConsumerResults.h"
@@ -68,7 +71,7 @@ namespace catapult { namespace validators {
 		if (pStr)
 			out << pStr;
 		else
-			out << "ValidationResult(0x" << utils::HexFormat(utils::to_underlying_type(result)) << ")";
+			out << "ValidationResult<0x" << utils::HexFormat(utils::to_underlying_type(result)) << ">";
 
 		return out;
 	}

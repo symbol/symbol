@@ -27,7 +27,7 @@ namespace catapult { namespace test {
 	namespace {
 		void InsertRandomValues(state::AccountProperty& property, state::OperationType operationType, size_t count) {
 			constexpr auto Add = model::PropertyModificationType::Add;
-			for (auto i = 0u; i < count; ++i) {
+			while (property.values().size() < count) {
 				model::RawPropertyModification modification{ Add, test::GenerateRandomVector(property.propertyValueSize()) };
 				if (state::OperationType::Allow == operationType)
 					property.allow(modification);

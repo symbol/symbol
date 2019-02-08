@@ -25,6 +25,7 @@
 #include "tests/catapult/cache_db/test/SliceTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
+#include <boost/filesystem.hpp>
 
 namespace catapult { namespace cache {
 
@@ -35,7 +36,11 @@ namespace catapult { namespace cache {
 				const std::vector<std::string>& columnNames,
 				size_t numKilobytes = 0,
 				FilterPruningMode pruningMode = FilterPruningMode::Disabled) {
-			return RocksDatabaseSettings("testdb", columnNames, utils::FileSize::FromKilobytes(numKilobytes), pruningMode);
+			return RocksDatabaseSettings(
+					test::TempDirectoryGuard::DefaultName(),
+					columnNames,
+					utils::FileSize::FromKilobytes(numKilobytes),
+					pruningMode);
 		}
 
 		auto DefaultSettings() {
@@ -63,8 +68,12 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, RdbThrowsIfDbCannotBeOpened) {
-		// Arrange: create a lock file with a name that will be used by Open
-		io::FileLock lock("testdb");
+		// Arrange: use TempDirectoryGuard to create any intermediate directories (except for last one)
+		test::TempDirectoryGuard dbDirGuard;
+		boost::filesystem::remove(dbDirGuard.name());
+
+		// - create a lock file with a name that will be used by Open
+		io::FileLock lock(dbDirGuard.name());
 		lock.lock();
 
 		// Act + Assert:
@@ -73,13 +82,13 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, RdbThrowsIfBatchSizeIsTooSmall) {
 		// Act + Assert:
-		test::TempDirectoryGuard dbDirGuard("testdb");
+		test::TempDirectoryGuard dbDirGuard;
 		EXPECT_THROW(RocksDatabase(CreateSettings({ "default" }, 99)), catapult_invalid_argument);
 	}
 
 	TEST(TEST_CLASS, CanOpenDatabaseWithValidBatchSize) {
 		// Arrange:
-		test::TempDirectoryGuard dbDirGuard("testdb");
+		test::TempDirectoryGuard dbDirGuard;
 
 		// Act:
 		RocksDatabase database(CreateSettings({ "default", "foo" }, 100));
@@ -91,7 +100,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanOpenDatabaseWithZeroBatchSize) {
 		// Arrange:
-		test::TempDirectoryGuard dbDirGuard("testdb");
+		test::TempDirectoryGuard dbDirGuard;
 
 		// Act:
 		RocksDatabase database(CreateSettings({ "default", "foo" }, 0));
@@ -103,7 +112,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanOpenDatabaseWithPruningEnabled) {
 		// Arrange:
-		test::TempDirectoryGuard dbDirGuard("testdb");
+		test::TempDirectoryGuard dbDirGuard;
 
 		// Act:
 		RocksDatabase database(CreateSettings({ "default", "foo" }, 100, FilterPruningMode::Enabled));

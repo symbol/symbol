@@ -61,6 +61,15 @@ namespace catapult { namespace utils {
 	/// Tries to parse \a str into an Amount (\a parsedValue).
 	bool TryParseValue(const std::string& str, Amount& parsedValue);
 
+	/// Tries to parse \a str into a BlockFeeMultiplier (\a parsedValue).
+	bool TryParseValue(const std::string& str, BlockFeeMultiplier& parsedValue);
+
+	/// Tries to parse \a str into an Importance (\a parsedValue).
+	bool TryParseValue(const std::string& str, Importance& parsedValue);
+
+	/// Tries to parse \a str into a MosaicId (\a parsedValue).
+	bool TryParseValue(const std::string& str, MosaicId& parsedValue);
+
 	/// Tries to parse \a str into a TimeSpan (\a parsedValue).
 	bool TryParseValue(const std::string& str, TimeSpan& parsedValue);
 

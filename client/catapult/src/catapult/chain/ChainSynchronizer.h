@@ -21,6 +21,7 @@
 #pragma once
 #include "RemoteNodeSynchronizer.h"
 #include "catapult/disruptor/DisruptorTypes.h"
+#include "catapult/model/AnnotatedEntityRange.h"
 #include "catapult/model/RangeTypes.h"
 
 namespace catapult {
@@ -38,7 +39,7 @@ namespace catapult { namespace chain {
 
 	/// Function signature for delivering a block range to a consumer with an additional completion handler.
 	using CompletionAwareBlockRangeConsumerFunc = std::function<disruptor::DisruptorElementId (
-			model::BlockRange&&,
+			model::AnnotatedBlockRange&&,
 			const disruptor::ProcessingCompleteFunc&)>;
 
 	/// Configuration for customizing a chain synchronizer.

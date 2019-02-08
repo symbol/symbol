@@ -133,8 +133,8 @@ namespace catapult { namespace test {
 
 	// region ConsumerResult Assertions
 
-	/// Asserts that \a result is completed due to consumption.
-	void AssertConsumed(const disruptor::ConsumerResult& result);
+	/// Asserts that \a result is completed with \a validationResult.
+	void AssertConsumed(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult);
 
 	/// Asserts that \a result is aborted with \a validationResult.
 	void AssertAborted(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult);

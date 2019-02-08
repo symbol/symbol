@@ -48,8 +48,8 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				const Address& accountAddress,
 				const std::vector<MosaicId>& mosaicIds,
-				const Address& recipient,
-				MosaicId mosaicId) {
+				const UnresolvedAddress& recipient,
+				UnresolvedMosaicId mosaicId) {
 			// Arrange:
 			auto cache = test::PropertyCacheFactory::Create();
 			PopulateCache<TOperationTraits>(cache, accountAddress, mosaicIds);
@@ -76,8 +76,8 @@ namespace catapult { namespace validators {
 				Failure_Property_Mosaic_Transfer_Not_Allowed,
 				accountAddress,
 				test::GenerateRandomDataVector<MosaicId>(3),
-				accountAddress,
-				test::GenerateRandomValue<MosaicId>());
+				test::UnresolveXor(accountAddress),
+				test::GenerateRandomValue<UnresolvedMosaicId>());
 	}
 
 	TEST(TEST_CLASS, FailureWhenRecipientIsKnownAndMosaicIdIsContainedInValues_Block) {
@@ -90,8 +90,8 @@ namespace catapult { namespace validators {
 				Failure_Property_Mosaic_Transfer_Not_Allowed,
 				accountAddress,
 				values,
-				accountAddress,
-				values[1]);
+				test::UnresolveXor(accountAddress),
+				test::UnresolveXor(values[1]));
 	}
 
 	// endregion
@@ -113,8 +113,8 @@ namespace catapult { namespace validators {
 				ValidationResult::Success,
 				accountAddress,
 				test::GenerateRandomDataVector<MosaicId>(3),
-				test::GenerateRandomData<Address_Decoded_Size>(),
-				test::GenerateRandomValue<MosaicId>());
+				test::UnresolveXor(test::GenerateRandomData<Address_Decoded_Size>()),
+				test::GenerateRandomValue<UnresolvedMosaicId>());
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenRecipientIsKnownButPropertyHasNoValues) {
@@ -126,13 +126,13 @@ namespace catapult { namespace validators {
 				ValidationResult::Success,
 				accountAddress,
 				test::GenerateRandomDataVector<MosaicId>(0),
-				accountAddress,
-				test::GenerateRandomValue<MosaicId>());
+				test::UnresolveXor(accountAddress),
+				test::GenerateRandomValue<UnresolvedMosaicId>());
 	}
 
 	namespace {
 		template<typename TOperationTraits>
-		void AssertSuccess(const std::vector<MosaicId>& mosaicIds, MosaicId transferredMosaicId) {
+		void AssertSuccess(const std::vector<MosaicId>& mosaicIds, UnresolvedMosaicId transferredMosaicId) {
 			// Arrange:
 			auto accountAddress = test::GenerateRandomData<Address_Decoded_Size>();
 
@@ -141,7 +141,7 @@ namespace catapult { namespace validators {
 					ValidationResult::Success,
 					accountAddress,
 					mosaicIds,
-					accountAddress,
+					test::UnresolveXor(accountAddress),
 					transferredMosaicId);
 		}
 	}
@@ -151,12 +151,12 @@ namespace catapult { namespace validators {
 		auto mosaicIds = test::GenerateRandomDataVector<MosaicId>(3);
 
 		// Act:
-		AssertSuccess<test::AllowTraits>(mosaicIds, mosaicIds[1]);
+		AssertSuccess<test::AllowTraits>(mosaicIds, test::UnresolveXor(mosaicIds[1]));
 	}
 
 	TEST(TEST_CLASS, SuccessWhenAllConditionsAreMet_Block) {
 		// Act:
-		AssertSuccess<test::BlockTraits>(test::GenerateRandomDataVector<MosaicId>(3), test::GenerateRandomValue<MosaicId>());
+		AssertSuccess<test::BlockTraits>(test::GenerateRandomDataVector<MosaicId>(3), test::GenerateRandomValue<UnresolvedMosaicId>());
 	}
 
 	// endregion

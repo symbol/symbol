@@ -35,10 +35,14 @@ namespace catapult { namespace cache {
 	// region utils
 
 	namespace {
+		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
+
 		constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
 			model::NetworkIdentifier::Mijin_Test,
 			123,
-			Amount(std::numeric_limits<Amount::ValueType>::max())
+			Amount(std::numeric_limits<Amount::ValueType>::max()),
+			MosaicId(1111),
+			Harvesting_Mosaic_Id
 		};
 
 		struct AddressTraits {
@@ -93,7 +97,7 @@ namespace catapult { namespace cache {
 			auto accountStateIter = TTraits::AddAccount(*delta, publicKey, Height(100));
 			auto& accountState = accountStateIter.get();
 			accountState.ImportanceInfo.set(importance, importanceHeight);
-			accountState.Balances.credit(Xem_Id, balance);
+			accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
 			cache.commit();
 		}
 

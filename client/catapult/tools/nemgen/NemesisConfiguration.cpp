@@ -22,7 +22,8 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/extensions/IdGenerator.h"
-#include "catapult/model/IdGenerator.h"
+#include "catapult/model/MosaicIdGenerator.h"
+#include "catapult/model/NamespaceIdGenerator.h"
 #include "catapult/state/Namespace.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
@@ -36,15 +37,24 @@ namespace catapult { namespace tools { namespace nemgen {
 		constexpr size_t Num_Namespace_Properties = 1; // duration
 		constexpr size_t Num_Mosaic_Properties = 6; // divisibility, duration, supply, 3 flags
 
+		template<typename TContainer>
+		auto FindByKey(TContainer& pairContainer, const typename TContainer::value_type::first_type& key) {
+			return std::find_if(pairContainer.begin(), pairContainer.end(), [&key](const auto& pair) {
+				return key == pair.first;
+			});
+		}
+
 		void Merge(
 				AddressToMosaicSeedsMap& aggregateMap,
 				const std::string& mosaicName,
-				const std::unordered_map<std::string, uint64_t>& addressToAmountMap) {
+				const std::vector<std::pair<std::string, uint64_t>>& addressToAmountMap) {
 			for (const auto& addressAmountPair : addressToAmountMap) {
 				const auto& address = addressAmountPair.first;
-				auto iter = aggregateMap.find(address);
-				if (aggregateMap.cend() == iter)
-					iter = aggregateMap.emplace(address, std::vector<MosaicSeed>()).first;
+				auto iter = FindByKey(aggregateMap, address);
+				if (aggregateMap.end() == iter) {
+					aggregateMap.emplace_back(address, std::vector<MosaicSeed>());
+					iter = aggregateMap.end() - 1;
+				}
 
 				iter->second.push_back({ mosaicName, Amount(addressAmountPair.second) });
 			}
@@ -62,20 +72,17 @@ namespace catapult { namespace tools { namespace nemgen {
 			return state::RootNamespace(id, owner, state::NamespaceLifetime(Height(1), endHeight));
 		}
 
-		auto ToMosaicEntry(const std::string& name, const state::MosaicDefinition& definition, Amount supply) {
-			auto pos = name.find_last_of(':');
-			if (std::string::npos == pos)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("invalid mosaic name", name);
-
-			auto namespaceName = name.substr(0, pos);
-			auto mosaicName = name.substr(pos + 1, name.size() - pos - 1);
-			auto ns = state::Namespace(extensions::GenerateNamespacePath(namespaceName));
-			auto entry = state::MosaicEntry(ns.id(), model::GenerateMosaicId(ns.id(), mosaicName), definition);
+		auto ToMosaicEntry(const state::MosaicDefinition& definition, MosaicNonce mosaicNonce, Amount supply) {
+			auto entry = state::MosaicEntry(model::GenerateMosaicId(definition.owner(), mosaicNonce), definition);
 			entry.increaseSupply(supply);
 			return entry;
 		}
 
-		auto CreateMosaicEntry(const utils::ConfigurationBag& bag, const Key& owner, const std::string& mosaicName) {
+		auto CreateMosaicEntry(
+				const utils::ConfigurationBag& bag,
+				const Key& owner,
+				const std::string& mosaicName,
+				MosaicNonce mosaicNonce) {
 			const std::string section = Mosaic_Section_Prefix + mosaicName;
 			auto makeKey = [&section](const auto* name) {
 				return utils::ConfigurationKey(section.c_str(), name);
@@ -97,12 +104,12 @@ namespace catapult { namespace tools { namespace nemgen {
 				flags |= model::MosaicFlags::Levy_Mutable;
 
 			values[utils::to_underlying_type(model::MosaicPropertyId::Flags)] = utils::to_underlying_type(flags);
-			state::MosaicDefinition definition(Height(1), owner, model::MosaicProperties::FromValues(values));
-			return ToMosaicEntry(mosaicName, definition, supply);
+			state::MosaicDefinition definition(Height(1), owner, 1, model::MosaicProperties::FromValues(values));
+			return ToMosaicEntry(definition, mosaicNonce, supply);
 		}
 
 		size_t LoadNamespaces(const utils::ConfigurationBag& bag, NemesisConfiguration& config, const Key& owner) {
-			auto namespaces = bag.getAll<bool>("namespaces");
+			auto namespaces = bag.getAllOrdered<bool>("namespaces");
 			auto numNamespaceProperties = namespaces.size();
 			for (const auto& optionalNs : namespaces) {
 				const auto& namespaceName = optionalNs.first;
@@ -126,7 +133,7 @@ namespace catapult { namespace tools { namespace nemgen {
 				auto child = state::Namespace(extensions::GenerateNamespacePath(namespaceName));
 				auto rootIter = config.RootNamespaces.find(child.rootId());
 				if (config.RootNamespaces.cend() == rootIter)
-					CATAPULT_THROW_INVALID_ARGUMENT_1("root namespace not found", child.rootId());
+					CATAPULT_THROW_INVALID_ARGUMENT_1("root namespace not found", namespaceName);
 
 				// note that add will throw if the child is already known
 				rootIter->second.add(child);
@@ -137,24 +144,30 @@ namespace catapult { namespace tools { namespace nemgen {
 		}
 
 		size_t LoadMosaics(const utils::ConfigurationBag& bag, NemesisConfiguration& config, const Key& owner) {
-			auto mosaics = bag.getAll<bool>("mosaics");
+			auto mosaics = bag.getAllOrdered<bool>("mosaics");
 			auto numMosaicProperties = mosaics.size();
+
+			uint32_t mosaicNonce = 0;
 			for (const auto& optionalMosaic : mosaics) {
 				const auto& mosaicName = optionalMosaic.first;
 
 				// - mosaic entry
-				auto mosaicEntry = CreateMosaicEntry(bag, owner, mosaicName);
+				auto mosaicEntry = CreateMosaicEntry(bag, owner, mosaicName, MosaicNonce(mosaicNonce));
 				numMosaicProperties += Num_Mosaic_Properties;
+				++mosaicNonce;
 
 				// - initial distribution
 				const std::string section = Distribution_Section_Prefix + mosaicName;
-				auto addressToAmountMap = bag.getAll<uint64_t>(section.c_str());
+				auto addressToAmountMap = bag.getAllOrdered<uint64_t>(section.c_str());
 				numMosaicProperties += addressToAmountMap.size();
 				if (!optionalMosaic.second)
 					continue;
 
 				// - add information
-				config.MosaicEntries.emplace(mosaicName, mosaicEntry);
+				if (config.MosaicEntries.cend() != FindByKey(config.MosaicEntries, mosaicName))
+					CATAPULT_THROW_RUNTIME_ERROR_1("multiple entries for", mosaicName);
+
+				config.MosaicEntries.emplace_back(mosaicName, mosaicEntry);
 				Merge(config.NemesisAddressToMosaicSeeds, mosaicName, addressToAmountMap);
 			}
 

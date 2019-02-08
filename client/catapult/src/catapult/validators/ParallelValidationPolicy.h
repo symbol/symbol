@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 	/// A parallel validation policy that performs parallel validations on multiple threads.
 	class ParallelValidationPolicy {
 	public:
-		virtual ~ParallelValidationPolicy() {}
+		virtual ~ParallelValidationPolicy() = default;
 
 	public:
 		/// Validates all \a entityInfos using \a validationFunctions and short circuits on first failure.

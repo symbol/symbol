@@ -117,5 +117,5 @@ namespace catapult { namespace model {
 	};
 
 	/// Prototype for a function that returns a chain score.
-	using ChainScoreSupplier = supplier<model::ChainScore>;
+	using ChainScoreSupplier = supplier<ChainScore>;
 }}

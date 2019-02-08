@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/model/TransactionUtils.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/NotificationSubscriber.h"
@@ -47,13 +48,13 @@ namespace catapult { namespace model {
 				if (Mode::Address == m_mode) {
 					auto senderAddress = PublicKeyToAddress(transaction.Signer, Network_Identifier);
 					auto recipientAddress = PublicKeyToAddress(transaction.Recipient, Network_Identifier);
-					sub.notify(AccountAddressNotification(senderAddress));
-					sub.notify(AccountAddressNotification(recipientAddress));
+					sub.notify(AccountAddressNotification(extensions::CopyToUnresolvedAddress(senderAddress)));
+					sub.notify(AccountAddressNotification(extensions::CopyToUnresolvedAddress(recipientAddress)));
 				} else if (Mode::Public_Key == m_mode) {
 					sub.notify(AccountPublicKeyNotification(transaction.Signer));
 					sub.notify(AccountPublicKeyNotification(transaction.Recipient));
 				} else {
-					sub.notify(EntityNotification(transaction.Network()));
+					sub.notify(EntityNotification(transaction.Network(), 0, 0, transaction.EntityVersion()));
 				}
 			}
 
@@ -66,8 +67,8 @@ namespace catapult { namespace model {
 			auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
 					test::GenerateRandomData<Key_Size>(),
 					test::GenerateRandomData<Key_Size>());
-			auto senderAddress = PublicKeyToAddress(pTransaction->Signer, Network_Identifier);
-			auto recipientAddress = PublicKeyToAddress(pTransaction->Recipient, Network_Identifier);
+			auto senderAddress = extensions::CopyToUnresolvedAddress(PublicKeyToAddress(pTransaction->Signer, Network_Identifier));
+			auto recipientAddress = extensions::CopyToUnresolvedAddress(PublicKeyToAddress(pTransaction->Recipient, Network_Identifier));
 
 			MockNotificationPublisher notificationPublisher(mode);
 
@@ -76,8 +77,8 @@ namespace catapult { namespace model {
 
 			// Assert:
 			EXPECT_EQ(2u, addresses.size());
-			EXPECT_TRUE(addresses.cend() != addresses.find(senderAddress));
-			EXPECT_TRUE(addresses.cend() != addresses.find(recipientAddress));
+			EXPECT_CONTAINS(addresses, senderAddress);
+			EXPECT_CONTAINS(addresses, recipientAddress);
 		}
 	}
 

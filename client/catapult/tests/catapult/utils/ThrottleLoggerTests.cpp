@@ -148,7 +148,7 @@ namespace catapult { namespace utils {
 		// Arrange: non-deterministic due to sleep
 		test::RunNonDeterministicTest("log throttled messages", []() {
 			auto numBaseLogAttempts = ThrottledMessage::Num_Logs;
-			test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+			test::TempLogsDirectoryGuard logFileGuard;
 
 			{
 				// Arrange: add a file logger

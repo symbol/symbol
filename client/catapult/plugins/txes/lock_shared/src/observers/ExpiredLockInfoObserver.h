@@ -32,14 +32,14 @@ namespace catapult { namespace observers {
 		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
 		auto& lockInfoCache = context.Cache.template sub<TLockInfoCache>();
 
-		auto lockInfos = lockInfoCache.collectUnusedExpiredLocks(context.Height);
-		for (const auto* pLockInfo : lockInfos) {
-			auto accountStateIter = accountStateCache.find(ownerAccountIdSupplier(*pLockInfo));
+		lockInfoCache.processUnusedExpiredLocks(context.Height, [&context, &accountStateCache, ownerAccountIdSupplier](
+				const auto& lockInfo) {
+			auto accountStateIter = accountStateCache.find(ownerAccountIdSupplier(lockInfo));
 			auto& accountState = accountStateIter.get();
 			if (NotifyMode::Commit == context.Mode)
-				accountState.Balances.credit(pLockInfo->MosaicId, pLockInfo->Amount);
+				accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
 			else
-				accountState.Balances.debit(pLockInfo->MosaicId, pLockInfo->Amount);
-		}
+				accountState.Balances.debit(lockInfo.MosaicId, lockInfo.Amount);
+		});
 	}
 }}

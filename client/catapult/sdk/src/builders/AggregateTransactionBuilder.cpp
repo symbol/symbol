@@ -83,7 +83,7 @@ namespace catapult { namespace builders {
 		auto size = m_pAggregateTransaction->Size + static_cast<uint32_t>(cosignaturesSize);
 		auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(size);
 
-		std::memcpy(pTransaction.get(), m_pAggregateTransaction.get(), m_pAggregateTransaction->Size);
+		std::memcpy(static_cast<void*>(pTransaction.get()), m_pAggregateTransaction.get(), m_pAggregateTransaction->Size);
 		pTransaction->Size = size;
 		std::memcpy(pTransaction->CosignaturesPtr(), m_cosignatures.data(), cosignaturesSize);
 		return pTransaction;

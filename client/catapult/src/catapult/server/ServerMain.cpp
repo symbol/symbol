@@ -34,6 +34,8 @@
 namespace catapult { namespace server {
 
 	namespace {
+		// region initialization utils
+
 		config::LocalNodeConfiguration LoadConfiguration(int argc, const char** argv) {
 			auto resourcesPath = GetResourcesPath(argc, argv);
 			std::cout << "loading resources from " << resourcesPath << std::endl;
@@ -52,8 +54,24 @@ namespace catapult { namespace server {
 			auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
 			pBootstrapper->addConsoleLogger(config::GetConsoleLoggerOptions(config.Console), *CreateLogFilter(config.Console));
 			pBootstrapper->addFileLogger(config::GetFileLoggerOptions(config.File), *CreateLogFilter(config.File));
-			return pBootstrapper;
+			return std::move(pBootstrapper);
 		}
+
+		[[noreturn]]
+		void TerminateHandler() noexcept {
+			// 1. if termination is caused by an exception, log it
+			if (std::current_exception()) {
+				CATAPULT_LOG(fatal)
+						<< std::endl << "thread: " << thread::GetThreadName()
+						<< std::endl << UNHANDLED_EXCEPTION_MESSAGE("running local node");
+			}
+
+			// 2. flush the log and abort
+			utils::CatapultLogFlush();
+			std::abort();
+		}
+
+		// endregion
 
 		void Run(config::LocalNodeConfiguration&& config, const CreateLocalNodeFunc& createLocalNode) {
 			auto keyPair = crypto::KeyPair::FromString(config.User.BootKey);
@@ -72,37 +90,28 @@ namespace catapult { namespace server {
 	}
 
 	int ServerMain(int argc, const char** argv, const CreateLocalNodeFunc& createLocalNode) {
+		std::set_terminate(&TerminateHandler);
 		thread::SetThreadName("Server Main");
 		version::WriteVersionInformation(std::cout);
 
-		try {
-			// 1. load and validate the configuration
-			auto config = LoadConfiguration(argc, argv);
-			ValidateConfiguration(config);
+		// 1. load and validate the configuration
+		auto config = LoadConfiguration(argc, argv);
+		ValidateConfiguration(config);
 
-			// 2. initialize logging
-			auto pLoggingGuard = SetupLogging(config.Logging);
+		// 2. initialize logging
+		auto pLoggingGuard = SetupLogging(config.Logging);
 
-			// 3. check instance
-			boost::filesystem::path lockFilePath = config.User.DataDirectory;
-			lockFilePath /= "file.lock";
-			io::FileLock instanceLock(lockFilePath.generic_string());
-			if (!instanceLock.try_lock()) {
-				CATAPULT_LOG(fatal) << "could not acquire instance lock " << lockFilePath;
-				return -3;
-			}
-
-			// 4. run the server
-			try {
-				Run(std::move(config), createLocalNode);
-				return 0;
-			} catch (...) {
-				CATAPULT_LOG(fatal) << UNHANDLED_EXCEPTION_MESSAGE("running local node");
-				return -2;
-			}
-		} catch (...) {
-			std::cerr << UNHANDLED_EXCEPTION_MESSAGE("loading configuration");
-			return -1;
+		// 3. check instance
+		boost::filesystem::path lockFilePath = config.User.DataDirectory;
+		lockFilePath /= "file.lock";
+		io::FileLock instanceLock(lockFilePath.generic_string());
+		if (!instanceLock.try_lock()) {
+			CATAPULT_LOG(fatal) << "could not acquire instance lock " << lockFilePath;
+			return -3;
 		}
+
+		// 4. run the server
+		Run(std::move(config), createLocalNode);
+		return 0;
 	}
 }}

@@ -40,7 +40,7 @@ namespace catapult { namespace timesync {
 		ImportanceAwareNodeSelector CreateImportanceAwareNodeSelector(
 				const TimeSynchronizationConfiguration& timeSyncConfig,
 				const config::LocalNodeConfiguration& config) {
-			auto totalChainImportance = model::GetTotalImportance(config.BlockChain).unwrap();
+			auto totalChainImportance = config.BlockChain.TotalChainImportance.unwrap();
 			auto minImportance = Importance(static_cast<uint64_t>(Required_Minimum_Importance * totalChainImportance));
 			return ImportanceAwareNodeSelector(ionet::ServiceIdentifier(0x53594E43), timeSyncConfig.MaxNodes, minImportance);
 		}

@@ -551,11 +551,13 @@ namespace catapult { namespace test {
 			auto delta = cache.createDelta();
 
 			// Act: touch at a height without any identifiers
-			delta->touch(Height(150));
+			auto expiryIds = delta->touch(Height(150));
 
 			// Assert: no touched elements
 			EXPECT_TRUE(delta->modifiedElements().empty());
 			EXPECT_EQ(std::unordered_set<uint8_t>(), GetModifiedIds(*delta));
+
+			EXPECT_TRUE(expiryIds.empty());
 		}
 
 		static void AssertAllValuesAtHeightAreTouched() {
@@ -565,11 +567,15 @@ namespace catapult { namespace test {
 			auto delta = cache.createDelta();
 
 			// Act: touch at a height with known identifiers
-			delta->touch(Height(200));
+			auto expiryIds = delta->touch(Height(200));
 
 			// Assert: two touched elements
 			EXPECT_EQ(2u, delta->modifiedElements().size());
 			EXPECT_EQ(std::unordered_set<uint8_t>({ 22, 44 }), GetModifiedIds(*delta));
+
+			EXPECT_EQ(2u, expiryIds.size());
+			EXPECT_CONTAINS(expiryIds, TTraits::MakeId(22));
+			EXPECT_CONTAINS(expiryIds, TTraits::MakeId(44));
 		}
 
 	private:

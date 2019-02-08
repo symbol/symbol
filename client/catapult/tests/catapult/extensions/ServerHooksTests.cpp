@@ -229,6 +229,20 @@ namespace catapult { namespace extensions {
 		EXPECT_THROW(TTraits::Set(hooks, [](auto) { return TTraits::CreateResult(); }), catapult_invalid_argument);
 	}
 
+	TEST(TEST_CLASS, ConsumerFactoriesProduceConsumersThatAcceptAnnotatedRanges) {
+		// Assert: all consumer factories accept *annotated* ranges (notice that this is *compile* time check)
+		using T1 = decltype(BlockRangeConsumerFactoryTraits::CreateResult()(model::AnnotatedBlockRange()));
+		using T2 = decltype(CompletionAwareBlockRangeConsumerFactoryTraits::CreateResult()(
+				model::AnnotatedBlockRange(),
+				disruptor::ProcessingCompleteFunc()));
+		using T3 = decltype(TransactionRangeConsumerFactoryTraits::CreateResult()(model::AnnotatedTransactionRange()));
+
+		// - use types to get this to compile
+		EXPECT_TRUE((std::is_same<T1, void>::value));
+		EXPECT_TRUE((std::is_same<T2, disruptor::DisruptorElementId>::value));
+		EXPECT_TRUE((std::is_same<T3, void>::value));
+	}
+
 	// endregion
 
 	// region chainSyncedPredicate

@@ -47,7 +47,7 @@ namespace catapult { namespace model {
 			const TransactionRegistry& transactionRegistry);
 
 	/// Calculates the merkle tree from \a transactionElements.
-	std::vector<Hash256> CalculateMerkleTree(const std::vector<model::TransactionElement>& transactionElements);
+	std::vector<Hash256> CalculateMerkleTree(const std::vector<TransactionElement>& transactionElements);
 
 	/// Calculates the hashes for \a transactionElement in place using transaction information from \a transactionRegistry.
 	void UpdateHashes(const TransactionRegistry& transactionRegistry, TransactionElement& transactionElement);

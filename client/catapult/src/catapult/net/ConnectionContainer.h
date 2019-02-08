@@ -26,7 +26,7 @@ namespace catapult { namespace net {
 	/// Manages a collection of connections.
 	class ConnectionContainer {
 	public:
-		virtual ~ConnectionContainer() {}
+		virtual ~ConnectionContainer() = default;
 
 	public:
 		/// Gets the number of active connections (including pending connections).

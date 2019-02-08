@@ -65,7 +65,7 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Returns \c true if \a address was visited.
-		bool contains(const Address& address) const {
+		bool contains(const UnresolvedAddress& address) const {
 			return m_addresses.cend() != std::find(m_addresses.cbegin(), m_addresses.cend(), address);
 		}
 
@@ -87,7 +87,7 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Returns \c true if a transfer of \a amount units of \a mosaicId from \a sender to \a recipient was visited.
-		bool contains(const Key& sender, const Address& recipient, MosaicId mosaicId, Amount amount) const {
+		bool contains(const Key& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount) const {
 			auto targetTransfer = Transfer(sender, recipient, mosaicId, amount);
 			return std::any_of(m_transfers.cbegin(), m_transfers.cend(), [&targetTransfer](const auto& transfer) {
 				return targetTransfer.Sender == transfer.Sender
@@ -104,7 +104,7 @@ namespace catapult { namespace mocks {
 					: Transfer(notification.Sender, notification.Recipient, notification.MosaicId, notification.Amount)
 			{}
 
-			explicit Transfer(const Key& sender, const Address& recipient, MosaicId mosaicId, Amount amount)
+			explicit Transfer(const Key& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount)
 					: Sender(sender)
 					, Recipient(recipient)
 					, MosaicId(mosaicId)
@@ -113,14 +113,14 @@ namespace catapult { namespace mocks {
 
 		public:
 			Key Sender;
-			Address Recipient;
-			catapult::MosaicId MosaicId;
+			UnresolvedAddress Recipient;
+			UnresolvedMosaicId MosaicId;
 			catapult::Amount Amount;
 		};
 
 	private:
 		std::vector<model::NotificationType> m_notificationTypes;
-		std::vector<Address> m_addresses;
+		std::vector<UnresolvedAddress> m_addresses;
 		std::vector<Key> m_keys;
 		std::vector<Transfer> m_transfers;
 	};

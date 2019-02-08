@@ -19,6 +19,7 @@
 **/
 
 #include "src/validators/Validators.h"
+#include "src/model/LockHashUtils.h"
 #include "catapult/crypto/Hashes.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -32,7 +33,7 @@ namespace catapult { namespace validators {
 	namespace {
 		struct NotificationBuilder {
 		public:
-			NotificationBuilder(model::LockHashAlgorithm algorithm = model::LockHashAlgorithm::Op_Sha3)
+			NotificationBuilder(model::LockHashAlgorithm algorithm = model::LockHashAlgorithm::Op_Sha3_256)
 					: m_algorithm(algorithm) {
 				setProofSize(50);
 				test::FillWithRandomData(m_secret);
@@ -49,13 +50,13 @@ namespace catapult { namespace validators {
 			}
 
 			void setValidHash() {
-				crypto::Sha3_512(m_proof, m_secret);
+				m_secret = model::CalculateHash(m_algorithm, m_proof);
 			}
 
 		private:
 			model::LockHashAlgorithm m_algorithm;
 			std::vector<uint8_t> m_proof;
-			Hash512 m_secret;
+			Hash256 m_secret;
 		};
 
 		auto CreateDefaultProofSecretValidator() {
@@ -80,8 +81,8 @@ namespace catapult { namespace validators {
 		using model::LockHashAlgorithm;
 
 		// Assert:
-		for (auto unsupportedAlgorithm : { LockHashAlgorithm::Op_Hash_160, LockHashAlgorithm::Op_Hash_256, LockHashAlgorithm::Op_Keccak })
-			AssertFailureIfHashAlgorithmIsNotSupported(unsupportedAlgorithm);
+		auto unsupportedAlgorithm = static_cast<LockHashAlgorithm>(utils::to_underlying_type(LockHashAlgorithm::Op_Hash_256) + 1);
+		AssertFailureIfHashAlgorithmIsNotSupported(unsupportedAlgorithm);
 	}
 
 	TEST(TEST_CLASS, FailureIfSecretDoesNotMatchProof) {
@@ -95,16 +96,39 @@ namespace catapult { namespace validators {
 		EXPECT_EQ(Failure_LockSecret_Secret_Mismatch, result);
 	}
 
-	TEST(TEST_CLASS, SuccessIfSecretMatchesProof) {
-		NotificationBuilder notificationBuilder;
-		notificationBuilder.setValidHash();
-		auto pValidator = CreateDefaultProofSecretValidator();
+	namespace {
+		void AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm algorithm) {
+			// Arrange:
+			NotificationBuilder notificationBuilder(algorithm);
+			notificationBuilder.setValidHash();
+			auto pValidator = CreateDefaultProofSecretValidator();
 
-		// Act:
-		auto result = test::ValidateNotification(*pValidator, notificationBuilder.notification());
+			// Act:
+			auto result = test::ValidateNotification(*pValidator, notificationBuilder.notification());
 
+			// Assert:
+			EXPECT_EQ(ValidationResult::Success, result);
+		}
+	}
+
+	TEST(TEST_CLASS, SuccessIfSecretMatchesProof_Sha3) {
 		// Assert:
-		EXPECT_EQ(ValidationResult::Success, result);
+		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Sha3_256);
+	}
+
+	TEST(TEST_CLASS, SuccessIfSecretMatchesProof_Keccak) {
+		// Assert:
+		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Keccak_256);
+	}
+
+	TEST(TEST_CLASS, SuccessIfSecretMatchesProof_Bitcoin160) {
+		// Assert:
+		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_160);
+	}
+
+	TEST(TEST_CLASS, SuccessIfSecretMatchesProof_Sha256Double) {
+		// Assert:
+		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_256);
 	}
 
 	namespace {

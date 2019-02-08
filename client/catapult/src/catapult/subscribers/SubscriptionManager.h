@@ -42,7 +42,7 @@ namespace catapult { namespace subscribers {
 
 	public:
 		/// Gets the underlying file storage.
-		io::PrunableBlockStorage& fileStorage();
+		io::BlockStorage& fileStorage();
 
 	public:
 		/// Registers a block change subscriber (\a pSubscriber).

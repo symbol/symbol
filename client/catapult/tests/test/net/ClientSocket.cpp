@@ -49,7 +49,7 @@ namespace catapult { namespace test {
 
 		public:
 			thread::future<ClientSocket*> connect(ConnectOptions options) override {
-				return connect(test::Local_Host_Port, options);
+				return connect(GetLocalHostPort(), options);
 			}
 
 			thread::future<ClientSocket*> connect(unsigned short port, ConnectOptions options) override {
@@ -57,7 +57,7 @@ namespace catapult { namespace test {
 				auto future = pPromise->get_future();
 
 				// connect to the local host
-				auto endpoint = test::CreateLocalHostEndpoint(port);
+				auto endpoint = CreateLocalHostEndpoint(port);
 				CATAPULT_LOG(debug) << "attempting client socket connection to " << endpoint;
 				m_socket.async_connect(endpoint, [pThis = shared_from_this(), options, pPromise](const auto& ec) {
 					CATAPULT_LOG(debug) << "client socket connected " << ToMessage(ec);

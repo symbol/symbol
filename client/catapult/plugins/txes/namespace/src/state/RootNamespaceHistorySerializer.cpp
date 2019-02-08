@@ -20,6 +20,7 @@
 
 #include "RootNamespaceHistorySerializer.h"
 #include "catapult/io/PodIoUtils.h"
+#include "catapult/utils/Casting.h"
 #include <map>
 #include <vector>
 
@@ -40,27 +41,26 @@ namespace catapult { namespace state {
 			io::Write(output, history.id());
 		}
 
-		struct PathsComparator {
-		public:
-			bool operator()(const Namespace::Path& lhs, const Namespace::Path& rhs) const {
-				return std::lexicographical_compare(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
+		void SaveAlias(io::OutputStream& output, const NamespaceAlias& alias) {
+			io::Write8(output, utils::to_underlying_type(alias.type()));
+			switch (alias.type()) {
+			case AliasType::Mosaic:
+				io::Write(output, alias.mosaicId());
+				break;
+
+			case AliasType::Address:
+				io::Write(output, alias.address());
+				break;
+
+			default:
+				break;
 			}
-		};
-
-		using OrderedNamespacePaths = std::set<Namespace::Path, PathsComparator>;
-
-		auto SortChildren(const RootNamespace::Children& children) {
-			OrderedNamespacePaths groupedPaths;
-			for (const auto& child : children)
-				groupedPaths.insert(child.second);
-
-			return groupedPaths;
 		}
 
-		void SaveChildren(io::OutputStream& output, const RootNamespace::Children& children) {
-			io::Write64(output, children.size());
-			auto sortedPaths = SortChildren(children);
-			for (const auto& path : sortedPaths) {
+		void SaveChildren(io::OutputStream& output, const RootNamespace& root) {
+			auto sortedChildPaths = root.sortedChildPaths();
+			io::Write64(output, sortedChildPaths.size());
+			for (const auto& path : sortedChildPaths) {
 				// don't write the first part of the path (the root id) because it is redundant
 				auto i = 1u;
 				for (; i < path.size(); ++i)
@@ -69,6 +69,8 @@ namespace catapult { namespace state {
 				// pad the storage so that all children have a fixed size in the storage
 				for (; i < path.capacity(); ++i)
 					io::Write(output, NamespaceId());
+
+				SaveAlias(output, root.alias(path[path.size() - 1]));
 			}
 		}
 
@@ -76,11 +78,12 @@ namespace catapult { namespace state {
 			io::Write(output, root.owner());
 			io::Write(output, root.lifetime().Start);
 			io::Write(output, root.lifetime().End);
+			SaveAlias(output, root.alias(root.id()));
 
 			if (pLastOwner && *pLastOwner == root.owner())
 				io::Write64(output, 0); // shared owner, don't rewrite children
 			else
-				SaveChildren(output, root.children());
+				SaveChildren(output, root);
 
 			return root.owner();
 		}
@@ -126,14 +129,31 @@ namespace catapult { namespace state {
 			return path;
 		}
 
-		std::vector<Namespace::Path> LoadChildren(io::InputStream& input, NamespaceId rootId, size_t numChildren) {
-			std::vector<Namespace::Path> paths;
+		NamespaceAlias LoadAlias(io::InputStream& input) {
+			auto aliasType = AliasType(io::Read8(input));
+			switch (aliasType) {
+			case AliasType::Mosaic:
+				return NamespaceAlias(io::Read<MosaicId>(input));
+
+			case AliasType::Address:
+				return NamespaceAlias(io::Read<Address>(input));
+
+			default:
+				return NamespaceAlias();
+			}
+		}
+
+		using ChildDataPairs = std::vector<std::pair<Namespace::Path, NamespaceAlias>>;
+
+		ChildDataPairs LoadChildren(io::InputStream& input, NamespaceId rootId, size_t numChildren) {
+			ChildDataPairs childDataPairs;
 			for (auto i = 0u; i < numChildren; ++i) {
 				auto path = LoadPath(input, rootId);
-				paths.push_back(path);
+				auto alias = LoadAlias(input);
+				childDataPairs.emplace_back(path, alias);
 			}
 
-			return paths;
+			return childDataPairs;
 		}
 
 		void LoadRootNamespace(io::InputStream& input, RootNamespaceHistory& history) {
@@ -143,12 +163,18 @@ namespace catapult { namespace state {
 			auto lifetimeEnd = io::Read<Height>(input);
 			history.push_back(owner, NamespaceLifetime(lifetimeStart, lifetimeEnd));
 
+			auto alias = LoadAlias(input);
+			history.back().setAlias(history.id(), alias);
+
 			auto numChildren = io::Read64(input);
-			auto paths = LoadChildren(input, history.id(), numChildren);
+			auto childDataPairs = LoadChildren(input, history.id(), numChildren);
 
 			auto& currentRoot = history.back();
-			for (const auto& path : paths)
-				currentRoot.add(Namespace(path));
+			for (const auto& pair : childDataPairs) {
+				auto ns = Namespace(pair.first);
+				currentRoot.add(ns);
+				currentRoot.setAlias(ns.id(), pair.second);
+			}
 		}
 	}
 

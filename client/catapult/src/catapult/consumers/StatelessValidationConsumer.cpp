@@ -95,12 +95,14 @@ namespace catapult { namespace consumers {
 				// notice that ExtractEntityInfos ignores skipped elements, so finding the index in elements for a corresponding entityInfo
 				// requires an additional hop through entityInfoElementIndexes
 				auto& element = elements[entityInfoElementIndexes[i]];
-				element.Skip = true;
+				element.ResultSeverity = disruptor::ConsumerResultSeverity::Neutral;
 				++numSkippedElements;
 
 				// only forward failure (not neutral) results
-				if (IsValidationResultFailure(result))
+				if (IsValidationResultFailure(result)) {
+					element.ResultSeverity = disruptor::ConsumerResultSeverity::Failure;
 					failedTransactionSink(element.Transaction, element.EntityHash, result);
+				}
 			}
 
 			// only abort if all elements failed

@@ -19,6 +19,8 @@
 **/
 
 #pragma once
+#include "NemesisFundingState.h"
+#include "catapult/observers/ObserverTypes.h"
 #include "catapult/functions.h"
 
 namespace catapult {
@@ -28,9 +30,8 @@ namespace catapult {
 		struct BlockChainConfiguration;
 		struct BlockElement;
 		class NotificationPublisher;
-		class TransactionRegistry;
 	}
-	namespace observers { class EntityObserver; }
+	namespace plugins { class PluginManager; }
 	namespace state { struct CatapultState; }
 }
 
@@ -48,27 +49,26 @@ namespace catapult { namespace extensions {
 	/// Loads and executes a nemesis block.
 	class NemesisBlockLoader {
 	public:
-		/// Creates a loader around \a cacheDelta, \a transactionRegistry, \a publisher and \a observer.
+		/// Creates a loader around \a cacheDelta, \a pluginManager and \a pObserver.
 		NemesisBlockLoader(
 				cache::CatapultCacheDelta& cacheDelta,
-				const model::TransactionRegistry& transactionRegistry,
-				const model::NotificationPublisher& publisher,
-				const observers::EntityObserver& observer);
+				const plugins::PluginManager& pluginManager,
+				std::unique_ptr<const observers::NotificationObserver>&& pObserver);
 
 	public:
 		/// Loads the nemesis block from storage, updates state in \a stateRef and verifies state hash (\a stateHashVerification).
-		void execute(const LocalNodeStateRef& stateRef, StateHashVerification stateHashVerification) const;
+		void execute(const LocalNodeStateRef& stateRef, StateHashVerification stateHashVerification);
 
 		/// Loads the nemesis block from storage, updates state in \a stateRef optionally verifying state hash (\a stateHashVerification)
 		/// and commits all changes to cache.
 		void executeAndCommit(
 				const LocalNodeStateRef& stateRef,
-				StateHashVerification stateHashVerification = StateHashVerification::Enabled) const;
+				StateHashVerification stateHashVerification = StateHashVerification::Enabled);
 
 		/// Executes the nemesis block (\a nemesisBlockElement), applies all changes to cache delta and checks consistency
 		/// against \a config.
 		/// \note Execution uses a default catapult state.
-		void execute(const model::BlockChainConfiguration& config, const model::BlockElement& nemesisBlockElement) const;
+		void execute(const model::BlockChainConfiguration& config, const model::BlockElement& nemesisBlockElement);
 
 	private:
 		enum class Verbosity { Off, On };
@@ -78,12 +78,14 @@ namespace catapult { namespace extensions {
 				const model::BlockElement& nemesisBlockElement,
 				state::CatapultState& catapultState,
 				StateHashVerification stateHashVerification,
-				Verbosity verbosity) const;
+				Verbosity verbosity);
 
 	private:
 		cache::CatapultCacheDelta& m_cacheDelta;
-		const model::TransactionRegistry& m_transactionRegistry;
-		const model::NotificationPublisher& m_publisher;
-		const observers::EntityObserver& m_observer;
+		const plugins::PluginManager& m_pluginManager;
+		Key m_nemesisPublicKey;
+		NemesisFundingState m_nemesisFundingState;
+		std::unique_ptr<const observers::EntityObserver> m_pObserver;
+		std::unique_ptr<const model::NotificationPublisher> m_pPublisher;
 	};
 }}

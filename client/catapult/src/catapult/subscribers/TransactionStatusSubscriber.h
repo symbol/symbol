@@ -29,7 +29,7 @@ namespace catapult { namespace subscribers {
 	/// Transaction status subscriber.
 	class TransactionStatusSubscriber {
 	public:
-		virtual ~TransactionStatusSubscriber() {}
+		virtual ~TransactionStatusSubscriber() = default;
 
 	public:
 		/// Indicates \a transaction with \a hash completed with \a status.

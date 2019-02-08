@@ -34,6 +34,14 @@ namespace catapult { namespace cache {
 			return NamespaceCacheStorage::LoadInto(NamespaceCacheStorage::Load(inputStream), delta);
 		}
 
+		state::NamespaceAlias GetAlias(const NamespaceCacheView& view, NamespaceId id) {
+			return view.find(id).get().root().alias(id);
+		}
+
+		state::NamespaceAlias GetAlias(const NamespaceCacheDelta& delta, NamespaceId id) {
+			return delta.find(id).get().root().alias(id);
+		}
+
 		struct LoadTraits {
 			using NamespaceHistoryHeader = test::NamespaceHistoryHeader;
 
@@ -49,7 +57,10 @@ namespace catapult { namespace cache {
 				EXPECT_THROW(LoadInto(inputStream, *delta), TException);
 			}
 
-			static void AssertCanLoadHistoryWithDepthOneWithoutChildren(io::InputStream& inputStream, const Key& owner) {
+			static void AssertCanLoadHistoryWithDepthOneWithoutChildren(
+					io::InputStream& inputStream,
+					const Key& owner,
+					const state::NamespaceAlias& alias) {
 				// Act:
 				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
 				auto delta = cache.createDelta();
@@ -61,7 +72,7 @@ namespace catapult { namespace cache {
 				test::AssertCacheSizes(*view, 1, 1, 1);
 
 				ASSERT_TRUE(view->contains(NamespaceId(123)));
-				test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner, Height(222), Height(333), 0);
+				test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner, Height(222), Height(333), 0, alias);
 			}
 
 			static void AssertCannotLoadHistoryWithDepthOneOutOfOrderChildren(io::InputStream& inputStream) {
@@ -73,7 +84,10 @@ namespace catapult { namespace cache {
 				EXPECT_THROW(LoadInto(inputStream, *delta), catapult_invalid_argument);
 			}
 
-			static void AssertCanLoadHistoryWithDepthOneWithChildren(io::InputStream& inputStream, const Key& owner) {
+			static void AssertCanLoadHistoryWithDepthOneWithChildren(
+					io::InputStream& inputStream,
+					const Key& owner,
+					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
 				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
 				auto delta = cache.createDelta();
@@ -89,9 +103,18 @@ namespace catapult { namespace cache {
 				EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(124)).get().ns().parentId());
 				EXPECT_EQ(NamespaceId(124), view->find(NamespaceId(125)).get().ns().parentId());
 				EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(126)).get().ns().parentId());
+
+				// - check aliases
+				ASSERT_EQ(3u, aliases.size());
+				test::AssertEqualAlias(aliases[0], GetAlias(*view, NamespaceId(124)), "124");
+				test::AssertEqualAlias(aliases[1], GetAlias(*view, NamespaceId(125)), "125");
+				test::AssertEqualAlias(aliases[2], GetAlias(*view, NamespaceId(126)), "126");
 			}
 
-			static void AssertCanLoadHistoryWithDepthGreaterThanOneWithSameOwner(io::InputStream& inputStream, const Key& owner) {
+			static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(
+					io::InputStream& inputStream,
+					const Key& owner,
+					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
 				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
 				auto delta = cache.createDelta();
@@ -109,6 +132,13 @@ namespace catapult { namespace cache {
 				EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(126)).get().ns().parentId());
 				EXPECT_EQ(NamespaceId(126), view->find(NamespaceId(129)).get().ns().parentId());
 
+				// - check aliases
+				ASSERT_EQ(4u, aliases.size());
+				test::AssertEqualAlias(aliases[0], GetAlias(*view, NamespaceId(124)), "124");
+				test::AssertEqualAlias(aliases[1], GetAlias(*view, NamespaceId(125)), "125");
+				test::AssertEqualAlias(aliases[2], GetAlias(*view, NamespaceId(126)), "126");
+				test::AssertEqualAlias(aliases[3], GetAlias(*view, NamespaceId(129)), "129");
+
 				// - check history (one back)
 				delta->remove(NamespaceId(123));
 				test::AssertCacheSizes(*delta, 1, 5, 10);
@@ -120,11 +150,12 @@ namespace catapult { namespace cache {
 				test::AssertRootNamespace(delta->find(NamespaceId(123)).get().root(), owner, Height(11), Height(111), 4);
 			}
 
-			static void AssertCanLoadHistoryWithDepthGreaterThanOneWithDifferentOwner(
+			static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(
 					io::InputStream& inputStream,
 					const Key& owner1,
 					const Key& owner2,
-					const Key& owner3) {
+					const Key& owner3,
+					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
 				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
 				auto delta = cache.createDelta();
@@ -139,6 +170,10 @@ namespace catapult { namespace cache {
 				test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner3, Height(444), Height(555), 1);
 				EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(126)).get().ns().parentId());
 
+				// - check aliases
+				ASSERT_EQ(4u, aliases.size());
+				test::AssertEqualAlias(aliases[3], GetAlias(*view, NamespaceId(126)), "126 :: 0");
+
 				// - check history (one back)
 				delta->remove(NamespaceId(123));
 				test::AssertCacheSizes(*delta, 1, 4, 5);
@@ -146,6 +181,11 @@ namespace catapult { namespace cache {
 				EXPECT_EQ(NamespaceId(123), delta->find(NamespaceId(124)).get().ns().parentId());
 				EXPECT_EQ(NamespaceId(124), delta->find(NamespaceId(125)).get().ns().parentId());
 				EXPECT_EQ(NamespaceId(123), delta->find(NamespaceId(126)).get().ns().parentId());
+
+				// - check aliases
+				test::AssertEqualAlias(aliases[0], GetAlias(*delta, NamespaceId(124)), "124");
+				test::AssertEqualAlias(aliases[1], GetAlias(*delta, NamespaceId(125)), "125");
+				test::AssertEqualAlias(aliases[2], GetAlias(*delta, NamespaceId(126)), "126 :: 1");
 
 				// - check history (two back)
 				delta->remove(NamespaceId(123));

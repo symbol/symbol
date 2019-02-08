@@ -27,9 +27,10 @@ namespace catapult { namespace state {
 	template<typename TLockInfo>
 	class LockInfoTests {
 	public:
-		static void AssertIsActiveReturnsTrueIfHeightIsLessThanLockInfoHeight() {
+		static void AssertIsActiveReturnsTrueIfHeightIsLessThanUnusedLockInfoHeight() {
 			// Arrange:
 			TLockInfo lockInfo;
+			lockInfo.Status = LockStatus::Unused;
 			lockInfo.Height = Height(123);
 
 			// Act + Assert:
@@ -37,9 +38,32 @@ namespace catapult { namespace state {
 			EXPECT_TRUE(lockInfo.isActive(Height(1)));
 		}
 
-		static void AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToLockInfoHeight() {
+		static void AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToUnusedLockInfoHeight() {
+			// Assert:
+			AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus::Unused);
+		}
+
+		static void AssertIsActiveReturnsFalseIfHeightIsLessThanUsedLockInfoHeight() {
 			// Arrange:
 			TLockInfo lockInfo;
+			lockInfo.Status = LockStatus::Used;
+			lockInfo.Height = Height(123);
+
+			// Act + Assert:
+			EXPECT_FALSE(lockInfo.isActive(Height(122)));
+			EXPECT_FALSE(lockInfo.isActive(Height(1)));
+		}
+
+		static void AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToUsedLockInfoHeight() {
+			// Assert:
+			AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus::Used);
+		}
+
+	private:
+		static void AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus status) {
+			// Arrange:
+			TLockInfo lockInfo;
+			lockInfo.Status = status;
 			lockInfo.Height = Height(123);
 
 			// Act + Assert:
@@ -54,5 +78,7 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, TEST_NAME) { LockInfoTests<LOCK_INFO_TYPE>::Assert##TEST_NAME(); }
 
 #define DEFINE_LOCK_INFO_TESTS(LOCK_INFO_TYPE) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsTrueIfHeightIsLessThanLockInfoHeight) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToLockInfoHeight)
+	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsTrueIfHeightIsLessThanUnusedLockInfoHeight) \
+	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToUnusedLockInfoHeight) \
+	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseIfHeightIsLessThanUsedLockInfoHeight) \
+	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToUsedLockInfoHeight)

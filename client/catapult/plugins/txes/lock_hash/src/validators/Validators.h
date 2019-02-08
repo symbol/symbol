@@ -30,9 +30,11 @@ namespace catapult { namespace validators {
 	DECLARE_STATELESS_VALIDATOR(HashLockDuration, model::HashLockDurationNotification)(BlockDuration maxHashLockDuration);
 
 	/// A validator implementation that applies to hash lock mosaic notifications and validates that:
-	/// - mosaic id is nem.xem
+	/// - mosaic id is \a currencyMosaicId
 	/// - mosaic amount is equal to \a lockedFundsPerAggregate
-	DECLARE_STATELESS_VALIDATOR(HashLockMosaic, model::HashLockMosaicNotification)(Amount lockedFundsPerAggregate);
+	DECLARE_STATELESS_VALIDATOR(HashLockMosaic, model::HashLockMosaicNotification)(
+			UnresolvedMosaicId currencyMosaicId,
+			Amount lockedFundsPerAggregate);
 
 	/// A validator implementation that applies to hash lock notifications and validates that:
 	/// - attached hash is not present in hash lock info cache

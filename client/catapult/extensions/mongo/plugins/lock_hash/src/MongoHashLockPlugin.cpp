@@ -21,6 +21,8 @@
 #include "HashLockMapper.h"
 #include "storages/MongoHashLockInfoCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
+#include "mongo/src/MongoReceiptPluginFactory.h"
+#include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
@@ -32,4 +34,9 @@ void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 			manager.createDatabaseConnection(),
 			manager.mongoContext().bulkWriter(),
 			manager.chainConfig().Network.Identifier));
+
+	// receipt support
+	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockHash_Created));
+	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockHash_Completed));
+	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockHash_Expired));
 }

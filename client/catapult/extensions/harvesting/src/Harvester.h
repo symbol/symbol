@@ -19,12 +19,14 @@
 **/
 
 #pragma once
-#include "TransactionsInfo.h"
+#include "TransactionsInfoSupplier.h"
 #include "UnlockedAccounts.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/EntityInfo.h"
+
+namespace catapult { namespace harvesting { struct BlockExecutionHashes; } }
 
 namespace catapult { namespace harvesting {
 
@@ -33,8 +35,8 @@ namespace catapult { namespace harvesting {
 	public:
 		/// Suppliers used to customize block generation.
 		struct Suppliers {
-			/// Calculates a state hash for a block.
-			std::function<std::pair<Hash256, bool> (const model::Block&)> CalculateStateHash;
+			/// Calculates execution dependent hashes for a block composed of transactions with specified hashes.
+			std::function<BlockExecutionHashes (const model::Block&, const std::vector<Hash256>&)> CalculateBlockExecutionHashes;
 
 			/// Supplies transaction infos for a block.
 			TransactionsInfoSupplier SupplyTransactions;

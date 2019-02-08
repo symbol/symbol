@@ -19,6 +19,8 @@
 **/
 
 #pragma once
+#include "catapult/types.h"
+#include <cstring>
 
 namespace catapult { namespace test {
 
@@ -52,4 +54,24 @@ namespace catapult { namespace test {
 	// public keys
 	constexpr const char* Namespace_Rental_Fee_Sink_Public_Key = "3E82E1C1E4A75ADAA3CBA8C101C3CD31D9817A2EB966EB3B511FB2ED45B8E262";
 	constexpr const char* Mosaic_Rental_Fee_Sink_Public_Key = "53E140B5947F104CABC2D6FE8BAEDBC30EF9A0609C717D9613DE593EC2A266D3";
+
+	/// Gets the nemesis importance for \a publicKey.
+	CATAPULT_INLINE
+	Importance GetNemesisImportance(const Key& publicKey) {
+		auto index = 0u;
+		for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys) {
+			auto keyPair = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
+			if (keyPair.publicKey() == publicKey)
+				break;
+
+			++index;
+		}
+
+		// to simulate real harvesting mosaics, test nemesis block uses discrete importance seedings
+		// only first 11 accounts have any harvesting power, two special accounts have importance 4X, nine other 1X
+		if (index > 10)
+			return Importance(0);
+
+		return 4 == index || 10 == index ? Importance(4'000) : Importance(1'000);
+	}
 }}

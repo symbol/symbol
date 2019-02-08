@@ -27,7 +27,7 @@ namespace catapult { namespace observers {
 	namespace {
 		class ObservingNotificationSubscriber : public model::NotificationSubscriber {
 		public:
-			explicit ObservingNotificationSubscriber(const NotificationObserver& observer, const ObserverContext& context)
+			explicit ObservingNotificationSubscriber(const NotificationObserver& observer, ObserverContext& context)
 					: m_observer(observer)
 					, m_context(context)
 			{}
@@ -42,7 +42,7 @@ namespace catapult { namespace observers {
 
 		private:
 			const NotificationObserver& m_observer;
-			const ObserverContext& m_context;
+			ObserverContext& m_context;
 		};
 	}
 
@@ -57,7 +57,7 @@ namespace catapult { namespace observers {
 		return m_pObserver->name();
 	}
 
-	void NotificationObserverAdapter::notify(const model::WeakEntityInfo& entityInfo, const ObserverContext& context) const {
+	void NotificationObserverAdapter::notify(const model::WeakEntityInfo& entityInfo, ObserverContext& context) const {
 		ObservingNotificationSubscriber sub(*m_pObserver, context);
 		m_pPublisher->publish(entityInfo, sub);
 	}

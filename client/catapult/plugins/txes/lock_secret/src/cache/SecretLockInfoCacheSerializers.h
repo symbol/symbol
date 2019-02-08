@@ -27,10 +27,12 @@
 namespace catapult { namespace cache {
 
 	/// Primary serializer for secret lock info cache.
-	struct SecretLockInfoPrimarySerializer : public CacheSerializerAdapter<state::SecretLockInfoSerializer, SecretLockInfoCacheDescriptor>
+	struct SecretLockInfoPrimarySerializer
+			: public CacheSerializerAdapter<state::SecretLockInfoSerializer, SecretLockInfoCacheDescriptor>
 	{};
 
 	/// Serializer for secret lock info cache height grouped elements.
-	struct SecretLockHeightGroupingSerializer : public IdentifierGroupSerializer<SecretLockInfoCacheTypes::HeightGroupingTypesDescriptor>
+	struct SecretLockHeightGroupingSerializer
+			: public IdentifierGroupSerializer<SecretLockInfoCacheTypes::HeightGroupingTypesDescriptor>
 	{};
 }}

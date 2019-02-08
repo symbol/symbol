@@ -26,12 +26,13 @@
 #include "catapult/model/BlockChainConfiguration.h"
 #include "filechain/tests/test/FilechainTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/local/BlockStateHash.h"
 #include "tests/test/local/LocalNodeTestState.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
-#include "tests/test/other/mocks/MockEntityObserver.h"
+#include "tests/test/other/mocks/MockNotificationObserver.h"
 #include "tests/TestHarness.h"
 #include <random>
 
@@ -39,7 +40,7 @@ namespace catapult { namespace filechain {
 
 #define TEST_CLASS MultiBlockLoaderTests
 
-	// region CreateBlockDependentEntityObserverFactory
+	// region CreateBlockDependentNotificationObserverFactory
 
 	namespace {
 		enum class ObserverFactoryResult { Transient, Permanent, Unknown };
@@ -57,18 +58,18 @@ namespace catapult { namespace filechain {
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(2);
 			config.MaxRollbackBlocks = 22;
 
-			// - create observers
-			mocks::MockEntityObserver transientObserver;
-			mocks::MockEntityObserver permanentObserver;
-
 			// Act:
-			auto observerFactory = CreateBlockDependentEntityObserverFactory(lastBlock, config, transientObserver, permanentObserver);
-			const auto& observer = observerFactory(*pCurrentBlock);
+			auto observerFactory = CreateBlockDependentNotificationObserverFactory(
+					lastBlock,
+					config,
+					[]() { return std::make_unique<mocks::MockNotificationObserver>("transient"); },
+					[]() { return std::make_unique<mocks::MockNotificationObserver>("permanent"); });
+			auto pObserver = observerFactory(*pCurrentBlock);
 
 			// Assert:
-			return &transientObserver == &observer
+			return "transient" == pObserver->name()
 					? ObserverFactoryResult::Transient
-					: &permanentObserver == &observer ? ObserverFactoryResult::Permanent : ObserverFactoryResult::Unknown;
+					: "permanent" == pObserver->name() ? ObserverFactoryResult::Permanent : ObserverFactoryResult::Unknown;
 		}
 	}
 
@@ -131,37 +132,78 @@ namespace catapult { namespace filechain {
 	// region LoadBlockChain
 
 	namespace {
-		auto MakeObserverFactory(const observers::EntityObserver& observer, std::vector<Height>& heights) {
-			return [&observer, &heights](const auto& block) -> const observers::EntityObserver& {
-				heights.push_back(block.Height);
-				return observer;
-			};
+		void AddXorResolvers(plugins::PluginManager& pluginManager) {
+			pluginManager.addMosaicResolver([](const auto&, const auto& unresolved, auto& resolved) {
+				resolved = test::CreateResolverContextXor().resolve(unresolved);
+				return true;
+			});
+			pluginManager.addAddressResolver([](const auto&, const auto& unresolved, auto& resolved) {
+				resolved = test::CreateResolverContextXor().resolve(unresolved);
+				return true;
+			});
 		}
-	}
 
-	TEST(TEST_CLASS, LoadBlockChainLoadsZeroBlocksWhenStorageHeightIsOne) {
-		// Arrange:
-		mocks::MockEntityObserver observer;
-		std::vector<Height> factoryHeights;
-		test::LocalNodeTestState state;
+		class MockBlockHeightCapturingNotificationObserver : public mocks::MockNotificationObserver {
+		public:
+			explicit MockBlockHeightCapturingNotificationObserver(std::vector<Height>& blockHeights)
+					: MockNotificationObserverT("MockBlockHeightCapturingNotificationObserver")
+					, m_blockHeights(blockHeights)
+			{}
 
-		// Act:
-		auto score = LoadBlockChain(MakeObserverFactory(observer, factoryHeights), state.ref(), Height(2));
+		public:
+			void notify(const model::Notification& notification, observers::ObserverContext& context) const override {
+				MockNotificationObserverT::notify(notification, context);
 
-		// Assert:
-		EXPECT_EQ(model::ChainScore(), score);
-		EXPECT_EQ(0u, observer.blockHeights().size());
-		EXPECT_EQ(0u, factoryHeights.size());
-	}
-
-	namespace {
-		void SetStorageChainHeight(io::BlockStorageModifier&& storage, size_t height) {
-			for (auto i = 2u; i <= height; ++i) {
-				auto pBlock = test::GenerateBlockWithTransactions(0, Height(i), Timestamp(i * 3000));
-				pBlock->Difficulty = Difficulty(Difficulty().unwrap() + i);
-				storage.saveBlock(test::BlockToBlockElement(*pBlock));
+				// collect heights only when a block is processed
+				if (model::Core_Block_Notification == notification.Type)
+					m_blockHeights.push_back(context.Height);
 			}
-		}
+
+		private:
+			std::vector<Height>& m_blockHeights;
+		};
+
+		class LoadBlockChainTestContext {
+		public:
+			LoadBlockChainTestContext()
+					: m_pluginManager(model::BlockChainConfiguration::Uninitialized(), plugins::StorageConfiguration()) {
+				AddXorResolvers(m_pluginManager);
+			}
+
+		public:
+			const auto& observerBlockHeights() const {
+				return m_observerBlockHeights;
+			}
+
+			const auto& factoryHeights() const {
+				return m_factoryHeights;
+			}
+
+		public:
+			void setStorageChainHeight(Height chainHeight) {
+				auto storage = m_state.ref().Storage.modifier();
+				for (auto height = Height(2); height <= chainHeight; height = height + Height(1)) {
+					auto pBlock = test::GenerateBlockWithTransactions(0, height, Timestamp(height.unwrap() * 3000));
+					pBlock->Difficulty = Difficulty(Difficulty().unwrap() + height.unwrap());
+					storage.saveBlock(test::BlockToBlockElement(*pBlock));
+				}
+			}
+
+			model::ChainScore load(Height startHeight) {
+				auto observerFactory = [this](const auto& block) {
+					this->m_factoryHeights.push_back(block.Height);
+					return std::make_unique<MockBlockHeightCapturingNotificationObserver>(this->m_observerBlockHeights);
+				};
+
+				return LoadBlockChain(observerFactory, m_pluginManager, m_state.ref(), startHeight);
+			}
+
+		private:
+			std::vector<Height> m_factoryHeights;
+			std::vector<Height> m_observerBlockHeights;
+			test::LocalNodeTestState m_state;
+			plugins::PluginManager m_pluginManager;
+		};
 
 		constexpr uint64_t CalculateExpectedScore(size_t height) {
 			// - nemesis difficulty is 0 and nemesis time is 0
@@ -176,58 +218,65 @@ namespace catapult { namespace filechain {
 		}
 	}
 
-	TEST(TEST_CLASS, LoadBlockChainLoadsSingleBlockWhenStorageHeightIsTwo) {
+	TEST(TEST_CLASS, LoadBlockChainLoadsZeroBlocksWhenStorageHeightIsOne) {
 		// Arrange:
-		mocks::MockEntityObserver observer;
-		std::vector<Height> factoryHeights;
-		test::LocalNodeTestState state;
-		SetStorageChainHeight(state.ref().Storage.modifier(), 2);
+		LoadBlockChainTestContext context;
 
 		// Act:
-		auto score = LoadBlockChain(MakeObserverFactory(observer, factoryHeights), state.ref(), Height(2));
+		auto score = context.load(Height(2));
+
+		// Assert:
+		EXPECT_EQ(model::ChainScore(), score);
+		EXPECT_EQ(0u, context.observerBlockHeights().size());
+		EXPECT_EQ(0u, context.factoryHeights().size());
+	}
+
+	TEST(TEST_CLASS, LoadBlockChainLoadsSingleBlockWhenStorageHeightIsTwo) {
+		// Arrange:
+		LoadBlockChainTestContext context;
+		context.setStorageChainHeight(Height(2));
+
+		// Act:
+		auto score = context.load(Height(2));
 
 		// Assert:
 		auto expectedHeights = std::vector<Height>{ Height(2) };
 		EXPECT_EQ(model::ChainScore(CalculateExpectedScore(2)), score);
-		EXPECT_EQ(1u, observer.blockHeights().size());
-		EXPECT_EQ(expectedHeights, observer.blockHeights());
-		EXPECT_EQ(expectedHeights, factoryHeights);
+		EXPECT_EQ(1u, context.observerBlockHeights().size());
+		EXPECT_EQ(expectedHeights, context.observerBlockHeights());
+		EXPECT_EQ(expectedHeights, context.factoryHeights());
 	}
 
 	TEST(TEST_CLASS, LoadBlockChainLoadsMultipleBlocksWhenStorageHeightIsGreaterThanTwo) {
 		// Arrange:
-		mocks::MockEntityObserver observer;
-		std::vector<Height> factoryHeights;
-		test::LocalNodeTestState state;
-		SetStorageChainHeight(state.ref().Storage.modifier(), 7);
+		LoadBlockChainTestContext context;
+		context.setStorageChainHeight(Height(7));
 
 		// Act:
-		auto score = LoadBlockChain(MakeObserverFactory(observer, factoryHeights), state.ref(), Height(2));
+		auto score = context.load(Height(2));
 
 		// Assert:
 		auto expectedHeights = std::vector<Height>{ Height(2), Height(3), Height(4), Height(5), Height(6), Height(7) };
 		EXPECT_EQ(model::ChainScore(CalculateExpectedScore(7)), score);
-		EXPECT_EQ(6u, observer.blockHeights().size());
-		EXPECT_EQ(expectedHeights, observer.blockHeights());
-		EXPECT_EQ(expectedHeights, factoryHeights);
+		EXPECT_EQ(6u, context.observerBlockHeights().size());
+		EXPECT_EQ(expectedHeights, context.observerBlockHeights());
+		EXPECT_EQ(expectedHeights, context.factoryHeights());
 	}
 
 	TEST(TEST_CLASS, LoadBlockChainLoadsMultipleBlocksStartingAtArbitraryHeight) {
 		// Arrange: create a storage with 7 blocks
-		mocks::MockEntityObserver observer;
-		std::vector<Height> factoryHeights;
-		test::LocalNodeTestState state;
-		SetStorageChainHeight(state.ref().Storage.modifier(), 7);
+		LoadBlockChainTestContext context;
+		context.setStorageChainHeight(Height(7));
 
 		// Act: load blocks 4-7
-		auto score = LoadBlockChain(MakeObserverFactory(observer, factoryHeights), state.ref(), Height(4));
+		auto score = context.load(Height(4));
 
 		// Assert:
 		auto expectedHeights = std::vector<Height>{ Height(4), Height(5), Height(6), Height(7) };
 		EXPECT_EQ(model::ChainScore(CalculateExpectedScore(7) - CalculateExpectedScore(3)), score);
-		EXPECT_EQ(4u, observer.blockHeights().size());
-		EXPECT_EQ(expectedHeights, observer.blockHeights());
-		EXPECT_EQ(expectedHeights, factoryHeights);
+		EXPECT_EQ(4u, context.observerBlockHeights().size());
+		EXPECT_EQ(expectedHeights, context.observerBlockHeights());
+		EXPECT_EQ(expectedHeights, context.factoryHeights());
 	}
 
 	// endregion
@@ -259,11 +308,9 @@ namespace catapult { namespace filechain {
 			return blocks;
 		}
 
-		void ExecuteNemesis(const extensions::LocalNodeStateRef& stateRef, plugins::PluginManager& pluginManager) {
-			auto pPublisher = pluginManager.createNotificationPublisher();
-			auto pObserver = extensions::CreateEntityObserver(pluginManager);
+		void ExecuteNemesis(const extensions::LocalNodeStateRef& stateRef, const plugins::PluginManager& pluginManager) {
 			auto cacheDelta = stateRef.Cache.createDelta();
-			extensions::NemesisBlockLoader loader(cacheDelta, pluginManager.transactionRegistry(), *pPublisher, *pObserver);
+			extensions::NemesisBlockLoader loader(cacheDelta, pluginManager, pluginManager.createObserver());
 
 			loader.executeAndCommit(stateRef, extensions::StateHashVerification::Disabled);
 		}
@@ -271,24 +318,22 @@ namespace catapult { namespace filechain {
 		template<typename TAction>
 		void ExecuteWithStorage(io::BlockStorageCache& storage, TAction action) {
 			// Arrange:
-			test::TempDirectoryGuard tempDataDirectory("../temp.dir");
+			test::TempDirectoryGuard tempDataDirectory;
 			auto config = test::CreateStateHashEnabledLocalNodeConfiguration(tempDataDirectory.name());
 			auto pPluginManager = test::CreatePluginManager(config);
-			auto pObserver = extensions::CreateEntityObserver(*pPluginManager);
+			auto observerFactory = [&pluginManager = *pPluginManager](const auto&) { return pluginManager.createObserver(); };
 
-			// blockChain config copy
 			auto blockChainConfig = pPluginManager->config();
+			auto localNodeConfig = test::CreateLocalNodeConfiguration(std::move(blockChainConfig), tempDataDirectory.name());
+
 			auto cache = pPluginManager->createCache();
 			state::CatapultState state;
 			extensions::LocalNodeChainScore score;
-			auto localNodeConfig = test::CreateLocalNodeConfiguration(std::move(blockChainConfig), tempDataDirectory.name());
-
 			extensions::LocalNodeStateRef stateRef(localNodeConfig, state, cache, storage, score);
 			ExecuteNemesis(stateRef, *pPluginManager);
 
 			// Act:
-			std::vector<Height> factoryHeights;
-			LoadBlockChain(MakeObserverFactory(*pObserver, factoryHeights), stateRef, Height(2));
+			LoadBlockChain(observerFactory, *pPluginManager, stateRef, Height(2));
 
 			action(stateRef.Cache, *pPluginManager);
 		}

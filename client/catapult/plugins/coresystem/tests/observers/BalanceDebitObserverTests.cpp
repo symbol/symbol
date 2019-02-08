@@ -72,47 +72,49 @@ namespace catapult { namespace observers {
 	TEST(TEST_CLASS, CanTransfer##TEST_NAME##_Commit) { AssertCommitObservation<TEST_NAME##Traits>(); } \
 	TEST(TEST_CLASS, CanTransfer##TEST_NAME##_Rollback) { AssertRollbackObservation<TEST_NAME##Traits>(); }
 
-	// region xem
+	// region single mosaic
 
 	namespace {
-		struct XemTraits {
+		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
+
+		struct SingleMosaicTraits {
 			static auto CreateNotification(const Key& sender) {
-				return model::BalanceDebitNotification(sender, Xem_Id, Amount(234));
+				return model::BalanceDebitNotification(sender, test::UnresolveXor(Currency_Mosaic_Id), Amount(234));
 			}
 
 			static test::BalanceTransfers GetInitialSenderBalances() {
-				return { { Xem_Id, Amount(1000) } };
+				return { { Currency_Mosaic_Id, Amount(1000) } };
 			}
 
 			static test::BalanceTransfers GetFinalSenderBalances() {
-				return { { Xem_Id, Amount(1000 - 234) } };
+				return { { Currency_Mosaic_Id, Amount(1000 - 234) } };
 			}
 		};
 	}
 
-	DEFINE_BALANCE_OBSERVATION_TESTS(Xem)
+	DEFINE_BALANCE_OBSERVATION_TESTS(SingleMosaic)
 
 	// endregion
 
-	// region other mosaic
+	// region multiple mosaics
 
 	namespace {
-		struct OtherMosaicTraits {
+		struct MultipleMosaicTraits {
 			static auto CreateNotification(const Key& sender) {
-				return model::BalanceDebitNotification(sender, MosaicId(12), Amount(234));
+				return model::BalanceDebitNotification(sender, test::UnresolveXor(MosaicId(12)), Amount(234));
 			}
 
 			static test::BalanceTransfers GetInitialSenderBalances() {
-				return { { Xem_Id, Amount(1000) }, { MosaicId(12), Amount(1200) } };
+				return { { Currency_Mosaic_Id, Amount(1000) }, { MosaicId(12), Amount(1200) } };
 			}
 
 			static test::BalanceTransfers GetFinalSenderBalances() {
-				return { { Xem_Id, Amount(1000) }, { MosaicId(12), Amount(1200 - 234) } };
+				return { { Currency_Mosaic_Id, Amount(1000) }, { MosaicId(12), Amount(1200 - 234) } };
 			}
 		};
 	}
 
-	DEFINE_BALANCE_OBSERVATION_TESTS(OtherMosaic)
+	DEFINE_BALANCE_OBSERVATION_TESTS(MultipleMosaic)
 
 	// endregion
 }}

@@ -28,7 +28,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS ModifyMultisigSettingsObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(ModifyMultisigSettings, )
+	DEFINE_COMMON_OBSERVER_TESTS(ModifyMultisigSettings,)
 
 	namespace {
 		using ObserverTestContext = test::ObserverTestContextT<test::MultisigCacheFactory>;

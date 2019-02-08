@@ -19,9 +19,9 @@
 **/
 
 #include "BasicLocalNode.h"
-#include "ConfigurationUtils.h"
 #include "MemoryCounters.h"
 #include "NodeUtils.h"
+#include "catapult/extensions/ConfigurationUtils.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/LocalNodeStateRef.h"
 #include "catapult/extensions/ServiceLocator.h"
@@ -49,10 +49,10 @@ namespace catapult { namespace local {
 					, m_serviceLocator(keyPair)
 					, m_pBlockChainStorage(m_pBootstrapper->extensionManager().createBlockChainStorage())
 					, m_config(m_pBootstrapper->config())
-					, m_nodes(m_config.Node.MaxTrackedNodes)
+					, m_nodes(m_config.Node.MaxTrackedNodes, m_pBootstrapper->extensionManager().networkTimeSupplier())
 					, m_catapultCache({}) // note that subcaches are added in boot
 					, m_storage(m_pBootstrapper->subscriptionManager().createBlockStorage())
-					, m_pUtCache(m_pBootstrapper->subscriptionManager().createUtCache(GetUtCacheOptions(m_config.Node)))
+					, m_pUtCache(m_pBootstrapper->subscriptionManager().createUtCache(extensions::GetUtCacheOptions(m_config.Node)))
 					, m_pTransactionStatusSubscriber(m_pBootstrapper->subscriptionManager().createTransactionStatusSubscriber())
 					, m_pStateChangeSubscriber(m_pBootstrapper->subscriptionManager().createStateChangeSubscriber())
 					, m_pNodeSubscriber(CreateNodeSubscriber(m_pBootstrapper->subscriptionManager(), m_nodes))
@@ -120,6 +120,10 @@ namespace catapult { namespace local {
 
 			void registerCounters() {
 				AddMemoryCounters(m_counters);
+				m_counters.emplace_back(utils::DiagnosticCounterId("TOT CONF TXES"), [&state = m_catapultState]() {
+					return state.NumTotalTransactions;
+				});
+
 				m_pluginManager.addDiagnosticCounters(m_counters, m_catapultCache); // add cache counters
 				m_counters.emplace_back(utils::DiagnosticCounterId("UT CACHE"), [&source = *m_pUtCache]() {
 					return source.view().size();

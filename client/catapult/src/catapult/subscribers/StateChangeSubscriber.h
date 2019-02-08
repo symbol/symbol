@@ -30,7 +30,7 @@ namespace catapult { namespace subscribers {
 	/// State change subscriber.
 	class StateChangeSubscriber {
 	public:
-		virtual ~StateChangeSubscriber() {}
+		virtual ~StateChangeSubscriber() = default;
 
 	public:
 		/// Indicates chain score was changed to \a chainScore.

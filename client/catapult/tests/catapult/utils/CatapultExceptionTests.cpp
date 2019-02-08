@@ -102,7 +102,7 @@ namespace catapult {
 			// - check tag diagnostics
 			for (auto i = expectedDiagLines.size(); i < diagLines.size(); ++i) {
 				const auto& actualTagLine = diagLines[i];
-				EXPECT_TRUE(expectedTagLines.cend() != expectedTagLines.find(actualTagLine)) << actualTagLine;
+				EXPECT_CONTAINS(expectedTagLines, actualTagLine);
 			}
 		}
 	}

@@ -33,8 +33,8 @@ namespace catapult { namespace model {
 #define STR(SYMBOL) #SYMBOL
 
 #define DEFINE_ENTITY_TYPE(BASIC_TYPE, FACILITY, DESCRIPTION, CODE) \
-		DEFINE_CASE(MakeEntityType((model::BasicEntityType::BASIC_TYPE), (model::FacilityCode::FACILITY), CODE)): \
-			return STR(DESCRIPTION)
+	DEFINE_CASE(MakeEntityType((model::BasicEntityType::BASIC_TYPE), (model::FacilityCode::FACILITY), CODE)): \
+		return STR(DESCRIPTION)
 
 	namespace {
 		const char* ToString(EntityType entityType) {
@@ -44,10 +44,14 @@ namespace catapult { namespace model {
 			CASE_WELL_KNOWN_ENTITY_TYPE(Block);
 
 			// plugin entity types
+			#include "plugins/txes/accountlink/src/model/AccountLinkEntityType.h"
 			#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
+			#include "plugins/txes/lock_hash/src/model/HashLockEntityType.h"
+			#include "plugins/txes/lock_secret/src/model/SecretLockEntityType.h"
+			#include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
 			#include "plugins/txes/multisig/src/model/MultisigEntityType.h"
-			#include "plugins/txes/namespace/src/model/MosaicEntityType.h"
 			#include "plugins/txes/namespace/src/model/NamespaceEntityType.h"
+			#include "plugins/txes/property/src/model/PropertyEntityType.h"
 			#include "plugins/txes/transfer/src/model/TransferEntityType.h"
 			}
 
@@ -60,7 +64,7 @@ namespace catapult { namespace model {
 		if (pStr)
 			out << pStr;
 		else
-			out << "EntityType(0x" << utils::HexFormat(utils::to_underlying_type(entityType)) << ")";
+			out << "EntityType<0x" << utils::HexFormat(utils::to_underlying_type(entityType)) << ">";
 
 		return out;
 	}

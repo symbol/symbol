@@ -19,7 +19,7 @@
 **/
 
 #include "MongoNamespaceCacheStorage.h"
-#include "CacheStorageUtils.h"
+#include "MongoNamespaceCacheStorageUtils.h"
 #include "src/mappers/NamespaceDescriptorMapper.h"
 #include "mongo/src/storages/MongoCacheStorage.h"
 #include "plugins/txes/namespace/src/cache/NamespaceCache.h"
@@ -62,14 +62,17 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			static void Insert(CacheDeltaType& cache, const bsoncxx::document::view& document) {
 				auto descriptor = ToNamespaceDescriptor(document);
+
+				auto ns = state::Namespace(descriptor.Path);
 				if (descriptor.IsRoot()) {
 					cache.insert(*descriptor.pRoot);
 				} else {
 					// it might be an inherited child
-					auto ns = state::Namespace(descriptor.Path);
 					if (!cache.contains(ns.id()))
 						cache.insert(ns);
 				}
+
+				cache.setAlias(ns.id(), descriptor.Alias);
 			}
 		};
 	}

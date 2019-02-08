@@ -20,7 +20,6 @@
 
 #pragma once
 #include "catapult/model/TransactionChangeTracker.h"
-#include "catapult/utils/ExceptionLogging.h"
 #include <memory>
 
 namespace catapult { namespace cache {
@@ -46,15 +45,7 @@ namespace catapult { namespace cache {
 
 		/// Destroys the modifier and notifies subscribers of changes.
 		~BasicAggregateTransactionsCacheModifier() noexcept(false) override {
-			try {
-				flush();
-			} catch (...) {
-				// this will crash the process, but the alternative of flushing explicitly is not much better because it will also crash
-				// the process since the (non-recoverable) exception will bubble up to an unhandled exception handler
-				CATAPULT_LOG(fatal) << "error notifying subscribers of transaction changes: " << EXCEPTION_DIAGNOSTIC_MESSAGE();
-				utils::CatapultLogFlush();
-				throw;
-			}
+			flush();
 		}
 
 	public:

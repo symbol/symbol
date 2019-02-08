@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/chain/RemoteApiForwarder.h"
+#include "catapult/ionet/NodeInteractionResult.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
 #include "tests/TestHarness.h"
@@ -33,22 +34,24 @@ namespace catapult { namespace chain {
 		struct ProcessSyncParamsCapture {
 			size_t NumFactoryCalls = 0;
 			const ionet::PacketIo* pFactoryPacketIo = nullptr;
+			Key RemotePublicKey;
 			const model::TransactionRegistry* pFactoryTransactionRegistry = nullptr;
 
 			size_t NumActionCalls = 0;
 			int ActionApiId = 0;
 		};
 
-		thread::future<NodeInteractionResult> ProcessSyncAndCapture(RemoteApiForwarder& forwarder, ProcessSyncParamsCapture& capture) {
+		auto ProcessSyncAndCapture(RemoteApiForwarder& forwarder, ProcessSyncParamsCapture& capture) {
 			return forwarder.processSync(
 				[&capture](const auto& apiId) {
 					++capture.NumActionCalls;
 					capture.ActionApiId = apiId;
-					return thread::make_ready_future(NodeInteractionResult::Success);
+					return thread::make_ready_future(ionet::NodeInteractionResultCode::Success);
 				},
-				[&capture](const auto& packetIo, const auto& registry) {
+				[&capture](const auto& packetIo, const auto& remotePublicKey, const auto& registry) {
 					++capture.NumFactoryCalls;
 					capture.pFactoryPacketIo = &packetIo;
+					capture.RemotePublicKey = remotePublicKey;
 					capture.pFactoryTransactionRegistry = &registry;
 					return std::make_unique<int>(Default_Action_Api_Id);
 				});
@@ -58,6 +61,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, ActionIsSkippedWhenNoPeerIsAvailable) {
 		// Arrange: create an empty writers
 		mocks::PickOneAwareMockPacketWriters writers;
+		writers.setNodeIdentity(test::GenerateRandomData<Key_Size>());
 
 		// - create the forwarder
 		model::TransactionRegistry registry;
@@ -68,7 +72,8 @@ namespace catapult { namespace chain {
 		auto result = ProcessSyncAndCapture(forwarder, capture).get();
 
 		// Assert:
-		EXPECT_EQ(NodeInteractionResult::None, result);
+		EXPECT_EQ(Key(), result.IdentityKey);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::None, result.Code);
 
 		// - pick one was called
 		ASSERT_EQ(1u, writers.numPickOneCalls());
@@ -82,8 +87,10 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, ActionIsInvokedWhenPeerIsAvailable) {
 		// Arrange: create writers with a valid packet
 		auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
+		auto identityKey = test::GenerateRandomData<Key_Size>();
 		mocks::PickOneAwareMockPacketWriters writers;
 		writers.setPacketIo(pPacketIo);
+		writers.setNodeIdentity(identityKey);
 
 		// - create the forwarder
 		model::TransactionRegistry registry;
@@ -94,15 +101,17 @@ namespace catapult { namespace chain {
 		auto result = ProcessSyncAndCapture(forwarder, capture).get();
 
 		// Assert:
-		EXPECT_EQ(NodeInteractionResult::Success, result);
+		EXPECT_EQ(identityKey, result.IdentityKey);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::Success, result.Code);
 
 		// - pick one was called
 		ASSERT_EQ(1u, writers.numPickOneCalls());
 		EXPECT_EQ(utils::TimeSpan::FromSeconds(4), writers.pickOneDurations()[0]);
 
-		// - factory was called
+		// - factory was called (node identity should be propagated down)
 		EXPECT_EQ(1u, capture.NumFactoryCalls);
 		EXPECT_EQ(pPacketIo.get(), capture.pFactoryPacketIo);
+		EXPECT_EQ(identityKey, capture.RemotePublicKey);
 		EXPECT_EQ(&registry, capture.pFactoryTransactionRegistry);
 
 		// - action was called

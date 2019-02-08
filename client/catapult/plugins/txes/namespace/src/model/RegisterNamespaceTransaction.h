@@ -40,7 +40,8 @@ namespace catapult { namespace model {
 	public:
 		/// Creates a register namespace transaction body.
 		/// \note Explicit default constructor is needed because body contains a union.
-		RegisterNamespaceTransactionBody() {}
+		RegisterNamespaceTransactionBody()
+		{}
 
 	public:
 		/// Type of the registered namespace.

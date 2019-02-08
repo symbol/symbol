@@ -174,7 +174,8 @@ namespace catapult { namespace consumers {
 				// 4. unwind to the common block height and calculate the local chain score
 				syncState = SyncState(m_cache, m_state);
 				auto commonBlockHeight = peerStartHeight - Height(1);
-				auto unwindResult = unwindLocalChain(localChainHeight, commonBlockHeight, storageView, syncState.observerState());
+				auto observerState = syncState.observerState();
+				auto unwindResult = unwindLocalChain(localChainHeight, commonBlockHeight, storageView, observerState);
 				const auto& localScore = unwindResult.Score;
 
 				// 5. calculate the remote chain score
@@ -207,7 +208,7 @@ namespace catapult { namespace consumers {
 					Height localChainHeight,
 					Height commonBlockHeight,
 					const io::BlockStorageView& storage,
-					const observers::ObserverState& observerState) const {
+					observers::ObserverState& observerState) const {
 				UnwindResult result;
 				if (localChainHeight == commonBlockHeight)
 					return result;
@@ -237,7 +238,8 @@ namespace catapult { namespace consumers {
 			}
 
 			ConsumerResult process(BlockElements& elements, SyncState& syncState) const {
-				auto processResult = m_handlers.Processor(syncState.commonBlockInfo(), elements, syncState.observerState());
+				auto observerState = syncState.observerState();
+				auto processResult = m_handlers.Processor(syncState.commonBlockInfo(), elements, observerState);
 				if (!validators::IsValidationResultSuccess(processResult)) {
 					CATAPULT_LOG(warning) << "processing of peer chain failed with " << processResult;
 					return Abort(processResult);

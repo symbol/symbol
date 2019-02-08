@@ -19,97 +19,27 @@
 **/
 
 #include "MockMemoryBlockStorage.h"
-#ifndef SIGNATURE_SCHEME_NIS1
-#include "MockMemoryBlockStorage_data.h"
-#else
-#include "MockMemoryBlockStorage_data.nis1.h"
-#endif
-#include "catapult/model/BlockUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
-#include <memory.h>
 
 namespace catapult { namespace mocks {
 
-	MockMemoryBlockStorage::MockMemoryBlockStorage() {
-		const auto* pNemesisBlock = reinterpret_cast<const model::Block*>(&mocks::MemoryBlockStorage_NemesisBlockData);
-		auto nemesisBlockElement = test::BlockToBlockElement(*pNemesisBlock);
-		nemesisBlockElement.GenerationHash = test::GetNemesisGenerationHash();
-		saveBlock(nemesisBlockElement);
-	}
-
-	Height MockMemoryBlockStorage::chainHeight() const {
-		return m_height;
-	}
+	// region MockMemoryBlockStorage
 
 	namespace {
-		void CopyHashes(model::TransactionElement& destElement, const model::TransactionElement& srcElement) {
-			destElement.EntityHash = srcElement.EntityHash;
-			destElement.MerkleComponentHash = srcElement.MerkleComponentHash;
-		}
-
-		std::shared_ptr<model::BlockElement> Copy(const model::Block& block, const model::BlockElement& blockElement) {
-			auto pElement = std::make_shared<model::BlockElement>(block);
-			pElement->EntityHash = blockElement.EntityHash;
-			pElement->GenerationHash = blockElement.GenerationHash;
-			pElement->SubCacheMerkleRoots = blockElement.SubCacheMerkleRoots;
-
-			auto i = 0u;
-			for (const auto& transaction : block.Transactions()) {
-				pElement->Transactions.emplace_back(model::TransactionElement(transaction));
-				CopyHashes(pElement->Transactions.back(), blockElement.Transactions[i]);
-				++i;
-			}
-
-			return pElement;
+		model::BlockElement CreateNemesisBlockElement() {
+			auto nemesisBlockElement = test::BlockToBlockElement(test::GetNemesisBlock());
+			nemesisBlockElement.GenerationHash = test::GetNemesisGenerationHash();
+			return nemesisBlockElement;
 		}
 	}
 
-	void MockMemoryBlockStorage::saveBlock(const model::BlockElement& blockElement) {
-		auto height = blockElement.Block.Height;
-		if (height != m_height + Height(1))
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot save out of order block at height", height);
+	MockMemoryBlockStorage::MockMemoryBlockStorage() : MemoryBlockStorage(CreateNemesisBlockElement())
+	{}
 
-		m_blocks[height] = test::CopyBlock(blockElement.Block);
-		m_blockElements[height] = Copy(*m_blocks[height], blockElement);
-		m_height = std::max(m_height, height);
-	}
+	// endregion
 
-	std::shared_ptr<const model::Block> MockMemoryBlockStorage::loadBlock(Height height) const {
-		if (height > m_height)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot load block at height greater than chain height", height);
-
-		// reference elem, in case if it's not present, let the exception to be thrown
-		return m_blocks.find(height)->second;
-	}
-
-	std::shared_ptr<const model::BlockElement> MockMemoryBlockStorage::loadBlockElement(Height height) const {
-		if (height > m_height)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot load block at height greater than chain height", height);
-
-		// reference elem, in case if it's not present, let the exception to be thrown
-		return m_blockElements.find(height)->second;
-	}
-
-	model::HashRange MockMemoryBlockStorage::loadHashesFrom(Height height, size_t maxHashes) const {
-		auto currentHeight = chainHeight();
-		if (Height(0) == height || currentHeight < height)
-			return model::HashRange();
-
-		auto numAvailableHashes = static_cast<size_t>((currentHeight - height).unwrap() + 1);
-		auto numHashes = std::min(maxHashes, numAvailableHashes);
-
-		auto range = model::HashRange::PrepareFixed(numHashes);
-		auto rangeIter = range.begin();
-		for (auto i = 0u; i < numHashes; ++i)
-			*rangeIter++ = m_blockElements.find(height + Height(i))->second->EntityHash;
-
-		return range;
-	}
-
-	void MockMemoryBlockStorage::dropBlocksAfter(Height height) {
-		m_height = height;
-	}
+	// region factories
 
 	std::unique_ptr<io::BlockStorage> CreateMemoryBlockStorage(uint32_t numBlocks) {
 		auto pStorage = std::make_unique<MockMemoryBlockStorage>();
@@ -128,4 +58,6 @@ namespace catapult { namespace mocks {
 	std::unique_ptr<io::BlockStorageCache> CreateMemoryBlockStorageCache(uint32_t numBlocks) {
 		return std::make_unique<io::BlockStorageCache>(CreateMemoryBlockStorage(numBlocks));
 	}
+
+	// endregion
 }}

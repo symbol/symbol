@@ -33,14 +33,14 @@ namespace catapult { namespace sync {
 
 #define TEST_CLASS PredicateUtilsTests
 
-	// region ToUnknownTransactionPredicate
+	// region ToRequiresValidationPredicate
 
-	TEST(TEST_CLASS, ToUnknownTransactionPredicateDelegatesToKnownHashPredicateForTransactionType) {
+	TEST(TEST_CLASS, ToRequiresValidationPredicateDelegatesToKnownHashPredicateForTransactionType) {
 		// Arrange:
 		auto entityType = model::BasicEntityType::Transaction;
 		auto knownHash = test::GenerateRandomData<Hash256_Size>();
 		auto otherHash = test::GenerateRandomData<Hash256_Size>();
-		auto predicate = ToUnknownTransactionPredicate([&knownHash](auto timestamp, const auto& hash) {
+		auto predicate = ToRequiresValidationPredicate([&knownHash](auto timestamp, const auto& hash) {
 			return Timestamp(123) == timestamp && knownHash == hash;
 		});
 
@@ -51,20 +51,31 @@ namespace catapult { namespace sync {
 		EXPECT_TRUE(predicate(entityType, Timestamp(245), otherHash)); // diff timestamp + hash
 	}
 
-	TEST(TEST_CLASS, ToUnknownTransactionPredicateAlwaysReturnsFalseForNonTransactionType) {
-		// Arrange:
-		auto entityType = model::BasicEntityType::Block;
-		auto knownHash = test::GenerateRandomData<Hash256_Size>();
-		auto otherHash = test::GenerateRandomData<Hash256_Size>();
-		auto predicate = ToUnknownTransactionPredicate([&knownHash](auto timestamp, const auto& hash) {
-			return Timestamp(123) == timestamp && knownHash == hash;
-		});
+	namespace {
+		void AssertAlwaysRequiresValidation(model::BasicEntityType entityType) {
+			// Arrange:
+			auto knownHash = test::GenerateRandomData<Hash256_Size>();
+			auto otherHash = test::GenerateRandomData<Hash256_Size>();
+			auto predicate = ToRequiresValidationPredicate([&knownHash](auto timestamp, const auto& hash) {
+				return Timestamp(123) == timestamp && knownHash == hash;
+			});
 
-		// Act + Assert:
-		EXPECT_FALSE(predicate(entityType, Timestamp(123), knownHash)); // match
-		EXPECT_FALSE(predicate(entityType, Timestamp(245), knownHash)); // diff timestamp
-		EXPECT_FALSE(predicate(entityType, Timestamp(123), otherHash)); // diff hash
-		EXPECT_FALSE(predicate(entityType, Timestamp(245), otherHash)); // diff timestamp + hash
+			// Act + Assert:
+			EXPECT_TRUE(predicate(entityType, Timestamp(123), knownHash)); // match
+			EXPECT_TRUE(predicate(entityType, Timestamp(245), knownHash)); // diff timestamp
+			EXPECT_TRUE(predicate(entityType, Timestamp(123), otherHash)); // diff hash
+			EXPECT_TRUE(predicate(entityType, Timestamp(245), otherHash)); // diff timestamp + hash
+		}
+	}
+
+	TEST(TEST_CLASS, ToRequiresValidationPredicateAlwaysReturnsTrueForBlockType) {
+		// Assert:
+		AssertAlwaysRequiresValidation(model::BasicEntityType::Block);
+	}
+
+	TEST(TEST_CLASS, ToRequiresValidationPredicateAlwaysReturnsTrueForOtherType) {
+		// Assert:
+		AssertAlwaysRequiresValidation(static_cast<model::BasicEntityType>(88));
 	}
 
 	// endregion
@@ -88,7 +99,7 @@ namespace catapult { namespace sync {
 
 		config::LocalNodeConfiguration CreateLocalNodeConfigurationFromSettings(const ThrottleTestSettings& settings) {
 			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.TotalChainBalance = utils::XemUnit(utils::XemAmount(1'000'000'000));
+			blockChainConfig.TotalChainImportance = Importance(1'000'000'000);
 			blockChainConfig.MaxTransactionsPerBlock = settings.MaxBlockSize;
 			blockChainConfig.ImportanceGrouping = 1;
 
@@ -133,7 +144,7 @@ namespace catapult { namespace sync {
 
 			auto pTransaction = utils::UniqueToShared(test::GenerateRandomTransaction());
 			pTransaction->Type = transactionType;
-			pTransaction->Fee = Amount(2'000'000);
+			pTransaction->MaxFee = Amount(2'000'000);
 
 			// Sanity:
 			EXPECT_EQ(cacheSize, utCacheModifier.size());

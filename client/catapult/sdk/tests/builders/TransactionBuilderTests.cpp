@@ -32,13 +32,13 @@ namespace catapult { namespace builders {
 
 		struct TransactionProperties {
 		public:
-			Amount Fee;
+			Amount MaxFee;
 			Timestamp Deadline;
 		};
 
 		template<typename TTransaction>
 		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
-			EXPECT_EQ(expectedProperties.Fee, transaction.Fee);
+			EXPECT_EQ(expectedProperties.MaxFee, transaction.MaxFee);
 			EXPECT_EQ(expectedProperties.Deadline, transaction.Deadline);
 		}
 
@@ -73,6 +73,7 @@ namespace catapult { namespace builders {
 			auto pTransaction = builder.build();
 
 			// Assert:
+			EXPECT_EQ(signer, builder.signer());
 			ASSERT_EQ(sizeof(mocks::MockTransaction) + Additional_Data_Size, pTransaction->Size);
 			EXPECT_EQ(Signature{}, pTransaction->Signature);
 			EXPECT_EQ(signer, pTransaction->Signer);
@@ -83,7 +84,7 @@ namespace catapult { namespace builders {
 
 			std::vector<uint8_t> expected(Additional_Data_Size);
 			std::iota(expected.begin(), expected.end(), static_cast<uint8_t>(0));
-			EXPECT_TRUE(0 == std::memcmp(expected.data(), pTransaction->DataPtr(), expected.size()));
+			EXPECT_EQ_MEMORY(expected.data(), pTransaction->DataPtr(), expected.size());
 		}
 	}
 
@@ -98,14 +99,14 @@ namespace catapult { namespace builders {
 
 	// region settings
 
-	TEST(TEST_CLASS, CanSetFee) {
+	TEST(TEST_CLASS, CanSetMaxFee) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		expectedProperties.Fee = Amount(12345);
+		expectedProperties.MaxFee = Amount(12345);
 
 		// Assert:
 		AssertCanBuildTransaction(expectedProperties, [](auto& builder) {
-			builder.setFee(Amount(12345));
+			builder.setMaxFee(Amount(12345));
 		});
 	}
 
@@ -120,15 +121,15 @@ namespace catapult { namespace builders {
 		});
 	}
 
-	TEST(TEST_CLASS, CanSetFeeAndDeadline) {
+	TEST(TEST_CLASS, CanSetMaxFeeAndDeadline) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		expectedProperties.Fee = Amount(12345);
+		expectedProperties.MaxFee = Amount(12345);
 		expectedProperties.Deadline = Timestamp(54321);
 
 		// Assert:
 		AssertCanBuildTransaction(expectedProperties, [](auto& builder) {
-			builder.setFee(Amount(12345));
+			builder.setMaxFee(Amount(12345));
 			builder.setDeadline(Timestamp(54321));
 		});
 	}

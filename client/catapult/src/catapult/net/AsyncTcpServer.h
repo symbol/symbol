@@ -58,7 +58,7 @@ namespace catapult { namespace net {
 	/// An async TCP server.
 	class AsyncTcpServer {
 	public:
-		virtual ~AsyncTcpServer() {}
+		virtual ~AsyncTcpServer() = default;
 
 	public:
 		/// Number of asynchronously started (but not completed) socket accepts.

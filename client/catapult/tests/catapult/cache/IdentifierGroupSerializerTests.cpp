@@ -60,7 +60,7 @@ namespace catapult { namespace cache {
 			const auto* pIdentifier = reinterpret_cast<const IdentifierType*>(result.data() + sizeof(Timestamp) + sizeof(uint64_t));
 			const auto& expectedIdentifiers = originalGroup.identifiers();
 			for (auto i = 0u; i < originalGroup.size(); ++i, ++pIdentifier)
-				EXPECT_NE(expectedIdentifiers.cend(), expectedIdentifiers.find(*pIdentifier)) << "at " << i;
+				EXPECT_CONTAINS_MESSAGE(expectedIdentifiers, *pIdentifier, std::to_string(i));
 		}
 
 		template<typename TContainer>
@@ -116,7 +116,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(Timestamp(buffer[0]), value.key());
 		EXPECT_EQ(5u, value.size());
 		for (auto i = 2u; i < buffer.size(); ++i) {
-			EXPECT_NE(value.identifiers().cend(), value.identifiers().find(Height(buffer[i])));
+			EXPECT_CONTAINS(value.identifiers(), Height(buffer[i]));
 			value.remove(Height(buffer[i]));
 		}
 

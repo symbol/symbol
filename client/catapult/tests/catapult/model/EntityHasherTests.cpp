@@ -259,8 +259,8 @@ namespace catapult { namespace model {
 	// region CalculateMerkleTree (transaction element)
 
 	namespace {
-		auto CreateTransactionElements(const std::vector<std::shared_ptr<model::Transaction>>& transactions) {
-			std::vector<model::TransactionElement> transactionElements;
+		auto CreateTransactionElements(const std::vector<std::shared_ptr<Transaction>>& transactions) {
+			std::vector<TransactionElement> transactionElements;
 			for (const auto& pTransaction : transactions) {
 				transactionElements.emplace_back(*pTransaction);
 				transactionElements.back().MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();

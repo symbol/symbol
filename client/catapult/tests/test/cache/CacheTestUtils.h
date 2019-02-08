@@ -87,6 +87,12 @@ namespace catapult { namespace test {
 	/// Creates a catapult cache with a marker account.
 	cache::CatapultCache CreateCatapultCacheWithMarkerAccount();
 
+	/// Creates a catapult cache with a marker account and a specified \a height.
+	cache::CatapultCache CreateCatapultCacheWithMarkerAccount(Height height);
+
+	/// Adds a marker account to \a cache.
+	void AddMarkerAccount(cache::CatapultCache& cache);
+
 	/// Returns \c true if \a cache contains the marker account.
 	bool IsMarkedCache(const cache::ReadOnlyCatapultCache& cache);
 

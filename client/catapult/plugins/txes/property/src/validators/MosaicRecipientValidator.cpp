@@ -30,10 +30,11 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(MosaicRecipient, [](const auto& notification, const ValidatorContext& context) {
 		AccountPropertyView view(context.Cache);
-		if (!view.initialize(notification.Recipient))
+		if (!view.initialize(context.Resolvers.resolve(notification.Recipient)))
 			return ValidationResult::Success;
 
-		auto isTransferAllowed = view.isAllowed(model::PropertyType::MosaicId, notification.MosaicId);
+		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
+		auto isTransferAllowed = view.isAllowed(model::PropertyType::MosaicId, mosaicId);
 		return isTransferAllowed ? ValidationResult::Success : Failure_Property_Mosaic_Transfer_Not_Allowed;
 	});
 }}

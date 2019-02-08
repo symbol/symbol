@@ -52,6 +52,8 @@ namespace catapult { namespace config {
 		LOAD_NODE_PROPERTY(ShortLivedCachePruneInterval);
 		LOAD_NODE_PROPERTY(ShortLivedCacheMaxSize);
 
+		LOAD_NODE_PROPERTY(MinFeeMultiplier);
+		LOAD_NODE_PROPERTY(TransactionSelectionStrategy);
 		LOAD_NODE_PROPERTY(UnconfirmedTransactionsCacheMaxResponseSize);
 		LOAD_NODE_PROPERTY(UnconfirmedTransactionsCacheMaxSize);
 
@@ -110,7 +112,7 @@ namespace catapult { namespace config {
 		auto extensionsPair = utils::ExtractSectionAsOrderedVector(bag, "extensions");
 		config.Extensions = extensionsPair.first;
 
-		utils::VerifyBagSizeLte(bag, 31 + 4 + 4 + 5 + extensionsPair.second);
+		utils::VerifyBagSizeLte(bag, 33 + 4 + 4 + 5 + extensionsPair.second);
 		return config;
 	}
 

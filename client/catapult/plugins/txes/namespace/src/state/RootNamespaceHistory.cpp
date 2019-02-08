@@ -48,6 +48,7 @@ namespace catapult { namespace state {
 			}
 
 			m_rootHistory.emplace_back(root.id(), root.owner(), root.lifetime(), pChildren);
+			m_rootHistory.back().setAlias(root.id(), root.alias(root.id()));
 		}
 	}
 

@@ -147,7 +147,7 @@ namespace catapult { namespace ionet {
 		const auto& entity = *reader.readVariable<model::VerifiableEntity>();
 
 		// Assert:
-		EXPECT_EQ(76u, entity.Size);
+		ASSERT_EQ(76u, entity.Size);
 		EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*pPacket->Data()), entity);
 		AssertAllDataConsumed(reader);
 	}

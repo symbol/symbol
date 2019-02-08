@@ -9,7 +9,7 @@ class Rule:  # pylint: disable=too-few-public-methods
         self.dest = dest
 
     def __repr__(self):
-        return "Rule({}, {})".format(self.src, self.dest)
+        return 'Rule({}, {})'.format(self.src, self.dest)
 
 
 class DepsChecker:

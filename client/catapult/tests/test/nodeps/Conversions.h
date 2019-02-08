@@ -51,6 +51,9 @@ namespace catapult { namespace test {
 		return ToHexString(data.data(), data.size());
 	}
 
+	/// Converts a string \a str to a hex string.
+	std::string ToHexString(const std::string& str);
+
 	/// Converts a hex string (\a hexString) to a vector.
 	std::vector<uint8_t> ToVector(const std::string& hexString);
 

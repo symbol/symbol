@@ -361,7 +361,7 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region sortChildren
+	// region sortedChildPaths
 
 	namespace {
 		void SeedWithOutOfOrderChildren(RootNamespace& root) {
@@ -379,7 +379,7 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(TEST_CLASS, CanSortChildren) {
+	TEST(TEST_CLASS, CanSortChildPaths) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		auto root = CreateDefaultRoot(owner, 123);
@@ -387,17 +387,115 @@ namespace catapult { namespace state {
 
 		// Sanity: child with path size 3 is first in map
 		const auto& children = root.children();
-		EXPECT_EQ(3u, children.cbegin()->second.size());
+		EXPECT_EQ(3u, children.cbegin()->second.Path.size());
 
 		// Act:
-		auto sortedChildren = root.sortChildren();
+		auto sortedChildPaths = root.sortedChildPaths();
 
 		// Assert:
 		Namespace::Path path;
-		for (const auto& childPath : sortedChildren) {
+		for (const auto& childPath : sortedChildPaths) {
 			EXPECT_TRUE(std::lexicographical_compare(path.cbegin(), path.cend(), childPath.cbegin(), childPath.cend()));
 			path = childPath;
 		}
+	}
+
+	// endregion
+
+	// region alias (unset)
+
+	TEST(TEST_CLASS, RootAliasIsInitiallyUnset) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto root = CreateDefaultRootWithChildren(owner);
+
+		// Act:
+		const auto& alias = root.alias(NamespaceId(123));
+
+		// Assert:
+		EXPECT_EQ(AliasType::None, alias.type());
+	}
+
+	TEST(TEST_CLASS, ChildAliasIsInitiallyUnset) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto root = CreateDefaultRootWithChildren(owner);
+
+		// Act:
+		const auto& alias = root.alias(NamespaceId(125));
+
+		// Assert:
+		EXPECT_EQ(AliasType::None, alias.type());
+	}
+
+	TEST(TEST_CLASS, CannotGetAliasForUnknownNamespace) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto root = CreateDefaultRootWithChildren(owner);
+
+		// Act + Assert:
+		EXPECT_THROW(root.alias(NamespaceId(127)), catapult_invalid_argument);
+	}
+
+	// endregion
+
+	// region setAlias
+
+	namespace {
+		using NamespaceIdSet = std::unordered_set<NamespaceId, utils::BaseValueHasher<NamespaceId>>;
+
+		NamespaceIdSet GetChildNamespaceIdsWithAliases(const RootNamespace& root) {
+			NamespaceIdSet namespaceIds;
+			for (const auto& pair : root.children()) {
+				if (AliasType::None != pair.second.Alias.type())
+					namespaceIds.insert(pair.first);
+			}
+
+			return namespaceIds;
+		}
+	}
+
+	TEST(TEST_CLASS, CanSetRootAlias) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto root = CreateDefaultRootWithChildren(owner);
+
+		// Act:
+		root.setAlias(NamespaceId(123), NamespaceAlias(MosaicId(444)));
+		auto alias = root.alias(NamespaceId(123));
+
+		// Assert:
+		EXPECT_EQ(AliasType::Mosaic, alias.type());
+		EXPECT_EQ(MosaicId(444), alias.mosaicId());
+
+		// - no child namespace aliases
+		EXPECT_EQ(NamespaceIdSet(), GetChildNamespaceIdsWithAliases(root));
+	}
+
+	TEST(TEST_CLASS, CanSetChildAlias) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto root = CreateDefaultRootWithChildren(owner);
+
+		// Act:
+		root.setAlias(NamespaceId(125), NamespaceAlias(MosaicId(444)));
+		auto alias = root.alias(NamespaceId(125));
+
+		// Assert:
+		EXPECT_EQ(AliasType::Mosaic, alias.type());
+		EXPECT_EQ(MosaicId(444), alias.mosaicId());
+
+		// - aliases are accessible via children
+		EXPECT_EQ(NamespaceIdSet{ NamespaceId(125) }, GetChildNamespaceIdsWithAliases(root));
+	}
+
+	TEST(TEST_CLASS, CannotSetAliasForUnknownNamespace) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		auto root = CreateDefaultRootWithChildren(owner);
+
+		// Act + Assert:
+		EXPECT_THROW(root.setAlias(NamespaceId(127), NamespaceAlias(MosaicId(444))), catapult_invalid_argument);
 	}
 
 	// endregion

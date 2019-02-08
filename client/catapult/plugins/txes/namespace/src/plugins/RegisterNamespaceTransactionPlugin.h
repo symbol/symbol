@@ -32,8 +32,11 @@ namespace catapult { namespace plugins {
 		/// Public key of the rental fee sink account.
 		Key SinkPublicKey;
 
+		/// Currency mosaic id.
+		UnresolvedMosaicId CurrencyMosaicId;
+
 		/// Address of the rental fee sink account.
-		Address SinkAddress;
+		UnresolvedAddress SinkAddress;
 
 		/// Root namespace rental fee per block.
 		Amount RootFeePerBlock;

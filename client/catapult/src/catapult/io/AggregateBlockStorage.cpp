@@ -33,16 +33,10 @@ namespace catapult { namespace io {
 			{}
 
 		public:
+			// region LightBlockStorage
+
 			Height chainHeight() const override {
 				return m_pStorage->chainHeight();
-			}
-
-			std::shared_ptr<const model::Block> loadBlock(Height height) const override {
-				return m_pStorage->loadBlock(height);
-			}
-
-			std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override {
-				return m_pStorage->loadBlockElement(height);
 			}
 
 			model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override {
@@ -58,6 +52,24 @@ namespace catapult { namespace io {
 				m_pStorage->dropBlocksAfter(height);
 				m_pBlockChangeSubscriber->notifyDropBlocksAfter(height);
 			}
+
+			// endregion
+
+			// region BlockStorage
+
+			std::shared_ptr<const model::Block> loadBlock(Height height) const override {
+				return m_pStorage->loadBlock(height);
+			}
+
+			std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override {
+				return m_pStorage->loadBlockElement(height);
+			}
+
+			std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const override {
+				return m_pStorage->loadBlockStatementData(height);
+			}
+
+			// endregion
 
 		private:
 			std::unique_ptr<BlockStorage> m_pStorage;

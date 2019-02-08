@@ -19,6 +19,10 @@
 **/
 
 #include "PeersConnectionTasks.h"
+#include "catapult/cache/CatapultCache.h"
+#include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/cache_core/ImportanceView.h"
+#include "catapult/ionet/NodeInteractionResult.h"
 #include "catapult/net/PacketWriters.h"
 #include "catapult/thread/FutureUtils.h"
 #include "catapult/utils/Logging.h"
@@ -38,6 +42,42 @@ namespace catapult { namespace extensions {
 			modifier.ageConnectionBans(serviceId, config.MaxConnectionBanAge, config.NumConsecutiveFailuresBeforeBanning);
 		};
 	}
+
+	// endregion
+
+	// region SelectorSettings
+
+	SelectorSettings::SelectorSettings(
+			const cache::CatapultCache& cache,
+			Importance totalChainImportance,
+			ionet::NodeContainer& nodes,
+			ionet::ServiceIdentifier serviceId,
+			ionet::NodeRoles requiredRole,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config)
+			: Nodes(nodes)
+			, ServiceId(serviceId)
+			, RequiredRole(requiredRole)
+			, Config(config)
+			, ImportanceRetriever([totalChainImportance, &cache](const auto& publicKey) {
+				auto cacheView = cache.createView();
+				const auto& accountStateCache = cacheView.sub<cache::AccountStateCache>();
+				cache::ReadOnlyAccountStateCache readOnlyAccountStateCache(accountStateCache);
+				cache::ImportanceView importanceView(readOnlyAccountStateCache);
+				return ImportanceDescriptor{
+					importanceView.getAccountImportanceOrDefault(publicKey, cacheView.height()),
+					totalChainImportance
+				};
+			})
+	{}
+
+	SelectorSettings::SelectorSettings(
+			const cache::CatapultCache& cache,
+			Importance totalChainImportance,
+			ionet::NodeContainer& nodes,
+			ionet::ServiceIdentifier serviceId,
+			const config::NodeConfiguration::ConnectionsSubConfiguration& config)
+			: SelectorSettings(cache, totalChainImportance, nodes, serviceId, ionet::NodeRoles::None, config)
+	{}
 
 	// endregion
 
@@ -110,12 +150,11 @@ namespace catapult { namespace extensions {
 				for (auto& resultFuture : connectResultsFuture.get()) {
 					auto connectResult = resultFuture.get();
 					auto& connectionState = modifier.provisionConnectionState(state.ServiceId, connectResult.first);
-					++connectionState.NumAttempts;
 					if (net::PeerConnectCode::Accepted == connectResult.second) {
-						++connectionState.NumSuccesses;
+						modifier.incrementSuccesses(connectResult.first);
 						connectionState.NumConsecutiveFailures = 0;
 					} else {
-						++connectionState.NumFailures;
+						modifier.incrementFailures(connectResult.first);
 						++connectionState.NumConsecutiveFailures;
 					}
 				}
@@ -129,39 +168,34 @@ namespace catapult { namespace extensions {
 		};
 	}
 
-	NodeSelector CreateNodeSelector(
-			ionet::ServiceIdentifier serviceId,
-			ionet::NodeRoles requiredRole,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
-			ionet::NodeContainer& nodes) {
+	NodeSelector CreateNodeSelector(const SelectorSettings& settings) {
 		// 1. provision all existing nodes with a supported role
-		nodes.modifier().addConnectionStates(serviceId, requiredRole);
+		settings.Nodes.modifier().addConnectionStates(settings.ServiceId, settings.RequiredRole);
 
 		// 2. create a selector around the nodes and configuration
-		extensions::NodeSelectionConfiguration selectionConfig{ serviceId, requiredRole, config.MaxConnections, config.MaxConnectionAge };
-		return [&nodes, selectionConfig]() {
-			return SelectNodes(nodes, selectionConfig);
+		extensions::NodeSelectionConfiguration selectionConfig{
+			settings.ServiceId,
+			settings.RequiredRole,
+			settings.Config.MaxConnections,
+			settings.Config.MaxConnectionAge
+		};
+		return [&nodes = settings.Nodes, importanceRetriever = settings.ImportanceRetriever, selectionConfig]() {
+			return SelectNodes(nodes, selectionConfig, importanceRetriever);
 		};
 	}
 
-	thread::Task CreateConnectPeersTask(
-			ionet::NodeContainer& nodes,
-			net::PacketWriters& packetWriters,
-			ionet::ServiceIdentifier serviceId,
-			ionet::NodeRoles requiredRole,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config) {
-		auto selector = CreateNodeSelector(serviceId, requiredRole, config, nodes);
-		return CreateConnectPeersTask(nodes, packetWriters, serviceId, config, selector);
+	thread::Task CreateConnectPeersTask(const SelectorSettings& settings, net::PacketWriters& packetWriters) {
+		auto selector = CreateNodeSelector(settings);
+		return CreateConnectPeersTask(settings, packetWriters, selector);
 	}
 
 	thread::Task CreateConnectPeersTask(
-			ionet::NodeContainer& nodes,
+			const SelectorSettings& settings,
 			net::PacketWriters& packetWriters,
-			ionet::ServiceIdentifier serviceId,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
 			const NodeSelector& selector) {
-		auto ager = CreateNodeAger(serviceId, config, nodes);
-		return thread::CreateNamedTask("connect peers task", [serviceId, ager, selector, &nodes, &packetWriters]() {
+		auto serviceId = settings.ServiceId;
+		auto ager = CreateNodeAger(serviceId, settings.Config, settings.Nodes);
+		return thread::CreateNamedTask("connect peers task", [serviceId, ager, selector, &nodes = settings.Nodes, &packetWriters]() {
 			// 1. age all connections
 			ager(packetWriters.identities());
 
@@ -182,33 +216,29 @@ namespace catapult { namespace extensions {
 
 	// region CreateRemoveOnlyNodeSelector / CreateAgePeersTask
 
-	RemoveOnlyNodeSelector CreateRemoveOnlyNodeSelector(
-			ionet::ServiceIdentifier serviceId,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
-			ionet::NodeContainer& nodes) {
+	RemoveOnlyNodeSelector CreateRemoveOnlyNodeSelector(const SelectorSettings& settings) {
 		// create a selector around the nodes and configuration
-		extensions::NodeAgingConfiguration selectionConfig{ serviceId, config.MaxConnections, config.MaxConnectionAge };
-		return [&nodes, selectionConfig]() {
-			return SelectNodesForRemoval(nodes, selectionConfig);
+		extensions::NodeAgingConfiguration selectionConfig{
+			settings.ServiceId,
+			settings.Config.MaxConnections,
+			settings.Config.MaxConnectionAge
+		};
+		return [&nodes = settings.Nodes, importanceRetriever = settings.ImportanceRetriever, selectionConfig]() {
+			return SelectNodesForRemoval(nodes, selectionConfig, importanceRetriever);
 		};
 	}
 
-	thread::Task CreateAgePeersTask(
-			ionet::NodeContainer& nodes,
-			net::ConnectionContainer& connectionContainer,
-			ionet::ServiceIdentifier serviceId,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config) {
-		auto selector = CreateRemoveOnlyNodeSelector(serviceId, config, nodes);
-		return CreateAgePeersTask(nodes, connectionContainer, serviceId, config, selector);
+	thread::Task CreateAgePeersTask(const SelectorSettings& settings, net::ConnectionContainer& connectionContainer) {
+		auto selector = CreateRemoveOnlyNodeSelector(settings);
+		return CreateAgePeersTask(settings, connectionContainer, selector);
 	}
 
 	thread::Task CreateAgePeersTask(
-			ionet::NodeContainer& nodes,
+			const SelectorSettings& settings,
 			net::ConnectionContainer& connectionContainer,
-			ionet::ServiceIdentifier serviceId,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
 			const RemoveOnlyNodeSelector& selector) {
-		auto ager = CreateNodeAger(serviceId, config, nodes);
+		auto serviceId = settings.ServiceId;
+		auto ager = CreateNodeAger(serviceId, settings.Config, settings.Nodes);
 		return thread::CreateNamedTask("age peers task", [serviceId, ager, selector, &connectionContainer]() {
 			// 1. age all connections
 			ager(connectionContainer.identities());

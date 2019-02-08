@@ -187,11 +187,16 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// region int
+	// region int - utils
 
 	namespace {
+		template<typename TNumeric>
+		std::string ToUnsignedIntHexString(TNumeric value) {
+			return "0x" + test::ToString(utils::HexFormat(value));
+		}
+
 		template<typename TNumeric, typename TFactory>
-		void AssertUnsignedIntParseSuccess(TNumeric expectedMaxValue, const std::string& postfix, TFactory factory) {
+		void AssertUnsignedIntDecimalParseSuccess(TNumeric expectedMaxValue, const std::string& postfix, TFactory factory) {
 			using NumericLimits = std::numeric_limits<TNumeric>;
 			AssertSuccessfulParse(std::to_string(NumericLimits::min()) + postfix, factory(static_cast<TNumeric>(0))); // min
 			AssertSuccessfulParse("1" + postfix, factory(1)); // other values
@@ -202,88 +207,138 @@ namespace catapult { namespace utils {
 			AssertSuccessfulParse(std::to_string(NumericLimits::max()) + postfix, factory(expectedMaxValue)); // max
 		}
 
+		template<typename TNumeric, typename TFactory>
+		void AssertUnsignedIntHexParseSuccess(TNumeric expectedMaxValue, const std::string& postfix, TFactory factory) {
+			using NumericLimits = std::numeric_limits<TNumeric>;
+			AssertSuccessfulParse(ToUnsignedIntHexString(NumericLimits::min()) + postfix, factory(static_cast<TNumeric>(0))); // min
+			AssertSuccessfulParse("0x1" + postfix, factory(0x0001)); // other values
+			AssertSuccessfulParse("0x1234" + postfix, factory(0x1234));
+			AssertSuccessfulParse("0x8F9A" + postfix, factory(0x8F9A));
+			AssertSuccessfulParse("0x8'F9A" + postfix, factory(0x8F9A)); // with separators
+			AssertSuccessfulParse("0x8'F'9'A" + postfix, factory(0x8F9A));
+			AssertSuccessfulParse(ToUnsignedIntHexString(NumericLimits::max()) + postfix, factory(expectedMaxValue)); // max
+		}
+
 		template<typename T, typename TNumeric>
-		void AssertUnsignedIntParseSuccess(TNumeric expectedMaxValue) {
-			AssertUnsignedIntParseSuccess<TNumeric>(expectedMaxValue, "", [](auto raw) { return T(static_cast<TNumeric>(raw)); });
+		void AssertUnsignedIntDecimalParseSuccess(TNumeric expectedMaxValue) {
+			AssertUnsignedIntDecimalParseSuccess<TNumeric>(expectedMaxValue, "", [](auto raw) { return T(static_cast<TNumeric>(raw)); });
 		}
 
 		template<typename T>
-		void AssertUnsignedIntParseSuccess(T expectedMaxValue) {
-			AssertUnsignedIntParseSuccess<T, T>(expectedMaxValue);
+		void AssertUnsignedIntDecimalParseSuccess(T expectedMaxValue) {
+			AssertUnsignedIntDecimalParseSuccess<T, T>(expectedMaxValue);
+		}
+
+		template<typename T>
+		void AssertUnsignedIntDecimalParseFailureBasic(const T& initialValue, const std::string& prefix, const std::string& postfix) {
+			AssertFailedParse("", initialValue); // empty
+			AssertFailedParse(prefix, initialValue); // prefix only
+			AssertFailedParse(postfix, initialValue); // postfix only
+			AssertFailedParse(prefix + postfix, initialValue); // prefix and postfix only
+
+			AssertFailedParse(prefix + "'1234" + postfix, initialValue); // leading separator
+			AssertFailedParse(prefix + "1234'" + postfix, initialValue); // trailing separator
+			AssertFailedParse(prefix + "1''234" + postfix, initialValue); // consecutive separators
+			AssertFailedParse(" " + prefix + "1234" + postfix, initialValue); // leading space
+			AssertFailedParse(prefix + "1234" + postfix + " ", initialValue); // trailing space
+			AssertFailedParse("-" + prefix + "1" + postfix, initialValue); // too small
+
+			AssertFailedParse(prefix + "@#$" + postfix, initialValue); // non numeric
+			AssertFailedParse(prefix + "lmn" + postfix, initialValue);
+			AssertFailedParse(prefix + "10.25" + postfix, initialValue); // non integral
+			for (auto invalidDigit : { 'Z', 'a', '$', '=' })
+				AssertFailedParse(prefix + "10" + invalidDigit + "25" + postfix, initialValue); // invalid digit
 		}
 
 		template<typename T, typename TNumeric>
-		void AssertUnsignedIntParseFailure(const T& initialValue, const std::string& postfix) {
-			using NumericLimits = std::numeric_limits<TNumeric>;
-			AssertFailedParse("", initialValue); // empty
-			AssertFailedParse(postfix, initialValue); // postfix only
-			AssertFailedParse("'1234" + postfix, initialValue); // leading separator
-			AssertFailedParse("1234'" + postfix, initialValue); // trailing separator
-			AssertFailedParse("1''234" + postfix, initialValue); // consecutive separators
-			AssertFailedParse(" 1234" + postfix, initialValue); // leading space
-			AssertFailedParse("1234" + postfix + " ", initialValue); // trailing space
-			AssertFailedParse("-1" + postfix, initialValue); // too small
+		void AssertUnsignedIntDecimalParseFailure(const T& initialValue, const std::string& postfix) {
+			// basic
+			AssertUnsignedIntDecimalParseFailureBasic(initialValue, "", postfix);
 
 			// too large
+			using NumericLimits = std::numeric_limits<TNumeric>;
 			auto maxString = std::to_string(NumericLimits::max());
 			AssertFailedParse(maxString + "0" + postfix, initialValue); // 10x too large
 			++maxString.back();
 			AssertFailedParse(maxString + postfix, initialValue); // 1 too large
 
-			AssertFailedParse("10.25" + postfix, initialValue); // non integral
-			AssertFailedParse("10A25" + postfix, initialValue); // non decimal digit
-			AssertFailedParse("abc" + postfix, initialValue); // non numeric
+			// other invalid char
+			AssertFailedParse("0x10A25" + postfix, initialValue); // non integral
 		}
 
 		template<typename T, typename TNumeric>
-		void AssertUnsignedIntParseFailure() {
-			AssertUnsignedIntParseFailure<T, TNumeric>(T(177), "");
+		void AssertUnsignedIntHexParseFailure(const T& initialValue, const std::string& postfix) {
+			// basic
+			AssertUnsignedIntDecimalParseFailureBasic(initialValue, "0x", postfix);
+
+			// invalid prefix
+			AssertFailedParse("0", initialValue); // too short
+			AssertFailedParse("1234", initialValue); // missing prefix
+			AssertFailedParse("01234", initialValue); // invalid prefix
+			AssertFailedParse("0" "X1234", initialValue);
+			AssertFailedParse("2x1234", initialValue);
+
+			// too large
+			using NumericLimits = std::numeric_limits<TNumeric>;
+			auto maxString = ToUnsignedIntHexString(NumericLimits::max());
+			AssertFailedParse("0x" + maxString + "0" + postfix, initialValue); // 16x too large
+			maxString = "1" + std::string(maxString.size(), '0');
+			AssertFailedParse("0x" + maxString + postfix, initialValue); // 1 too large
+		}
+
+		template<typename T, typename TNumeric>
+		void AssertUnsignedIntDecimalParseFailure() {
+			AssertUnsignedIntDecimalParseFailure<T, TNumeric>(T(177), "");
 		}
 
 		template<typename T>
-		void AssertUnsignedIntParseFailure() {
-			AssertUnsignedIntParseFailure<T, T>();
+		void AssertUnsignedIntDecimalParseFailure() {
+			AssertUnsignedIntDecimalParseFailure<T, T>();
 		}
 	}
 
+	// endregion
+
+	// region int
+
 	TEST(TEST_CLASS, CanParseValidUInt8) {
 		// Assert:
-		AssertUnsignedIntParseSuccess(static_cast<uint8_t>(0xFF));
+		AssertUnsignedIntDecimalParseSuccess(static_cast<uint8_t>(0xFF));
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidUInt8) {
 		// Assert:
-		AssertUnsignedIntParseFailure<uint8_t>();
+		AssertUnsignedIntDecimalParseFailure<uint8_t>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidUInt16) {
 		// Assert:
-		AssertUnsignedIntParseSuccess(static_cast<uint16_t>(0xFFFF));
+		AssertUnsignedIntDecimalParseSuccess(static_cast<uint16_t>(0xFFFF));
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidUInt16) {
 		// Assert:
-		AssertUnsignedIntParseFailure<uint16_t>();
+		AssertUnsignedIntDecimalParseFailure<uint16_t>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidUInt32) {
 		// Assert:
-		AssertUnsignedIntParseSuccess(static_cast<uint32_t>(0xFFFF'FFFF));
+		AssertUnsignedIntDecimalParseSuccess(static_cast<uint32_t>(0xFFFF'FFFF));
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidUInt32) {
 		// Assert:
-		AssertUnsignedIntParseFailure<uint32_t>();
+		AssertUnsignedIntDecimalParseFailure<uint32_t>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidUInt64) {
 		// Assert:
-		AssertUnsignedIntParseSuccess(static_cast<uint64_t>(0xFFFF'FFFF'FFFF'FFFF));
+		AssertUnsignedIntDecimalParseSuccess(static_cast<uint64_t>(0xFFFF'FFFF'FFFF'FFFF));
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidUInt64) {
 		// Assert:
-		AssertUnsignedIntParseFailure<uint64_t>();
+		AssertUnsignedIntDecimalParseFailure<uint64_t>();
 	}
 
 	// endregion
@@ -292,27 +347,59 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanParseValidAmount) {
 		// Assert:
-		AssertUnsignedIntParseSuccess<Amount, Amount::ValueType>(0xFFFF'FFFF'FFFF'FFFF);
+		AssertUnsignedIntDecimalParseSuccess<Amount, Amount::ValueType>(0xFFFF'FFFF'FFFF'FFFF);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidAmount) {
 		// Assert:
-		AssertUnsignedIntParseFailure<Amount, Amount::ValueType>();
+		AssertUnsignedIntDecimalParseFailure<Amount, Amount::ValueType>();
+	}
+
+	TEST(TEST_CLASS, CanParseValidBlockFeeMultiplier) {
+		// Assert:
+		AssertUnsignedIntDecimalParseSuccess<BlockFeeMultiplier, BlockFeeMultiplier::ValueType>(0xFFFF'FFFF);
+	}
+
+	TEST(TEST_CLASS, CannotParseInvalidBlockFeeMultiplier) {
+		// Assert:
+		AssertUnsignedIntDecimalParseFailure<BlockFeeMultiplier, BlockFeeMultiplier::ValueType>();
+	}
+
+	TEST(TEST_CLASS, CanParseValidImportance) {
+		// Assert:
+		AssertUnsignedIntDecimalParseSuccess<Importance, Importance::ValueType>(0xFFFF'FFFF'FFFF'FFFF);
+	}
+
+	TEST(TEST_CLASS, CannotParseInvalidImportance) {
+		// Assert:
+		AssertUnsignedIntDecimalParseFailure<Importance, Importance::ValueType>();
+	}
+
+	TEST(TEST_CLASS, CanParseValidMosaicId) {
+		// Assert:
+		AssertUnsignedIntHexParseSuccess<MosaicId::ValueType>(0xFFFF'FFFF'FFFF'FFFF, "", [](auto value) {
+			return MosaicId(static_cast<MosaicId::ValueType>(value));
+		});
+	}
+
+	TEST(TEST_CLASS, CannotParseInvalidMosaicId) {
+		// Assert:
+		AssertUnsignedIntHexParseFailure<MosaicId, MosaicId::ValueType>(MosaicId(177), "");
 	}
 
 	TEST(TEST_CLASS, CanParseValidTimeSpan) {
 		// Assert:
 		auto maxValue = 0xFFFF'FFFF'FFFF'FFFF;
-		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "ms", TimeSpan::FromMilliseconds);
-		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "s", TimeSpan::FromSeconds);
-		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "m", TimeSpan::FromMinutes);
-		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "h", TimeSpan::FromHours);
+		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "ms", TimeSpan::FromMilliseconds);
+		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "s", TimeSpan::FromSeconds);
+		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "m", TimeSpan::FromMinutes);
+		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "h", TimeSpan::FromHours);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidTimeSpan) {
 		// Assert:
 		auto initialValue = TimeSpan::FromMinutes(8888);
-		AssertUnsignedIntParseFailure<TimeSpan, uint64_t>(initialValue, "m");
+		AssertUnsignedIntDecimalParseFailure<TimeSpan, uint64_t>(initialValue, "m");
 
 		AssertFailedParse("1234", initialValue); // no specifier
 		AssertFailedParse("12s34", initialValue); // non-terminating specifier
@@ -323,14 +410,14 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, CanParseValidBlockSpan) {
 		// Assert:
 		auto maxValue = 0xFFFF'FFFF'FFFF'FFFF;
-		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "h", BlockSpan::FromHours);
-		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "d", BlockSpan::FromDays);
+		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "h", BlockSpan::FromHours);
+		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "d", BlockSpan::FromDays);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidBlockSpan) {
 		// Assert:
 		auto initialValue = BlockSpan::FromHours(8888);
-		AssertUnsignedIntParseFailure<BlockSpan, uint64_t>(initialValue, "h");
+		AssertUnsignedIntDecimalParseFailure<BlockSpan, uint64_t>(initialValue, "h");
 
 		AssertFailedParse("1234", initialValue); // no specifier
 		AssertFailedParse("12h34", initialValue); // non-terminating specifier
@@ -341,15 +428,15 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, CanParseValidFileSize) {
 		// Assert:
 		auto maxValue = 0xFFFF'FFFF'FFFF'FFFF;
-		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "B", FileSize::FromBytes);
-		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "KB", FileSize::FromKilobytes);
-		AssertUnsignedIntParseSuccess<uint64_t>(maxValue, "MB", FileSize::FromMegabytes);
+		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "B", FileSize::FromBytes);
+		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "KB", FileSize::FromKilobytes);
+		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "MB", FileSize::FromMegabytes);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidFileSize) {
 		// Assert:
 		auto initialValue = FileSize::FromKilobytes(8888);
-		AssertUnsignedIntParseFailure<FileSize, uint64_t>(initialValue, "KB");
+		AssertUnsignedIntDecimalParseFailure<FileSize, uint64_t>(initialValue, "KB");
 
 		AssertFailedParse("1234", initialValue); // no specifier
 		AssertFailedParse("12KB34", initialValue); // non-terminating specifier

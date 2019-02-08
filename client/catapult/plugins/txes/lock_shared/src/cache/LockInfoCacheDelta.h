@@ -82,15 +82,12 @@ namespace catapult { namespace cache {
 			AddIdentifierWithGroup(*m_pHeightGroupingDelta, value.Height, TDescriptor::GetKeyFromValue(value));
 		}
 
-		/// Collects all unused lock infos that expired at \a height.
-		std::vector<const typename TDescriptor::ValueType*> collectUnusedExpiredLocks(Height height) {
-			std::vector<const typename TDescriptor::ValueType*> values;
-			ForEachIdentifierWithGroup(utils::as_const(*m_pDelta), *m_pHeightGroupingDelta, height, [&values](const auto& lockInfo) {
+		/// Processes all unused lock infos that expired at \a height by passing them to \a consumer
+		void processUnusedExpiredLocks(Height height, const consumer<const typename TDescriptor::ValueType>& consumer) const {
+			ForEachIdentifierWithGroup(utils::as_const(*m_pDelta), *m_pHeightGroupingDelta, height, [consumer](const auto& lockInfo) {
 				if (state::LockStatus::Unused == lockInfo.Status)
-					values.push_back(&lockInfo);
+					consumer(lockInfo);
 			});
-
-			return values;
 		}
 
 	private:

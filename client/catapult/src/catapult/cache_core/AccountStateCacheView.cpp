@@ -49,18 +49,21 @@ namespace catapult { namespace cache {
 			, AccountStateCacheViewMixins::ConstAccessorAddress(accountStateSets.Primary)
 			, AccountStateCacheViewMixins::ConstAccessorKey(*pKeyLookupAdapter)
 			, AccountStateCacheViewMixins::PatriciaTreeView(accountStateSets.PatriciaTree.get())
-			, m_networkIdentifier(options.NetworkIdentifier)
-			, m_importanceGrouping(options.ImportanceGrouping)
+			, m_options(options)
 			, m_highValueAddresses(highValueAddresses)
 			, m_pKeyLookupAdapter(std::move(pKeyLookupAdapter))
 	{}
 
 	model::NetworkIdentifier BasicAccountStateCacheView::networkIdentifier() const {
-		return m_networkIdentifier;
+		return m_options.NetworkIdentifier;
 	}
 
 	uint64_t BasicAccountStateCacheView::importanceGrouping() const {
-		return m_importanceGrouping;
+		return m_options.ImportanceGrouping;
+	}
+
+	MosaicId BasicAccountStateCacheView::harvestingMosaicId() const {
+		return m_options.HarvestingMosaicId;
 	}
 
 	const model::AddressSet& BasicAccountStateCacheView::highValueAddresses() const {

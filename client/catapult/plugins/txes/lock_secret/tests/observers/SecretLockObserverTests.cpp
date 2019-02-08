@@ -19,6 +19,7 @@
 **/
 
 #include "src/observers/Observers.h"
+#include "src/model/SecretLockReceiptType.h"
 #include "plugins/txes/lock_shared/tests/observers/LockObserverTests.h"
 #include "tests/test/SecretLockInfoCacheTestUtils.h"
 #include "tests/test/SecretLockNotificationsTestUtils.h"
@@ -36,6 +37,10 @@ namespace catapult { namespace observers {
 			using NotificationType = model::SecretLockNotification;
 			using NotificationBuilder = test::SecretLockNotificationBuilder;
 			using ObserverTestContext = test::ObserverTestContextT<test::SecretLockInfoCacheFactory>;
+
+			static constexpr auto DebitReceiptType() {
+				return model::Receipt_Type_LockSecret_Created;
+			}
 
 			static auto CreateObserver() {
 				return CreateSecretLockObserver();
@@ -55,7 +60,7 @@ namespace catapult { namespace observers {
 				// Assert:
 				EXPECT_EQ(notification.HashAlgorithm, lockInfo.HashAlgorithm);
 				EXPECT_EQ(notification.Secret, lockInfo.Secret);
-				EXPECT_EQ(notification.Recipient, lockInfo.Recipient);
+				EXPECT_EQ(notification.Recipient, test::UnresolveXor(lockInfo.Recipient));
 			}
 		};
 	}

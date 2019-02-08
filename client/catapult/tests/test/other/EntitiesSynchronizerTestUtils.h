@@ -75,14 +75,15 @@ namespace catapult { namespace test {
 		template<typename TResponseContainer, typename TResponseEntity>
 		static void AssertResponse(
 				const TResponseContainer& expectedResponse,
+				const Key& expectedSourcePublicKey,
 				const model::AnnotatedEntityRange<TResponseEntity>& actualResponse) {
-			// Assert: range contains expected contents and has anonymous source
+			// Assert: range contains expected contents and has expected source public key
 			test::AssertEqualRange(expectedResponse, actualResponse.Range, "response");
-			EXPECT_EQ(Key(), actualResponse.SourcePublicKey);
+			EXPECT_EQ(expectedSourcePublicKey, actualResponse.SourcePublicKey);
 		}
 
 		template<typename TResponseContainer>
-		static void AssertResponse(const TResponseContainer& expectedResponse, const TResponseContainer& actualResponse) {
+		static void AssertResponse(const TResponseContainer& expectedResponse, const Key&, const TResponseContainer& actualResponse) {
 			// Assert: response contains expected contents
 			TTraits::AssertCustomResponse(expectedResponse, actualResponse);
 		}
@@ -101,19 +102,20 @@ namespace catapult { namespace test {
 			auto remoteApiWrapper = TTraits::CreateRemoteApi(responseContainer);
 
 			// Act:
-			auto result = synchronizer(remoteApiWrapper.api()).get();
+			auto code = synchronizer(remoteApiWrapper.api()).get();
 
 			// Assert: check result and counters
-			EXPECT_EQ(chain::NodeInteractionResult::Success, result);
+			EXPECT_EQ(ionet::NodeInteractionResultCode::Success, code);
 			EXPECT_EQ(1u, context.RequestRangeSupplierCalls);
 			EXPECT_EQ(1u, context.ResponseContainerConsumerCalls);
 
 			// - check request range
 			ASSERT_EQ(1u, remoteApiWrapper.numCalls());
 			test::AssertEqualRange(requestRange, remoteApiWrapper.singleRequest(), "request");
+			remoteApiWrapper.checkAdditionalRequestParameters();
 
 			// - check response container
-			AssertResponse(responseContainer, context.ConsumerResponseContainer);
+			AssertResponse(responseContainer, remoteApiWrapper.api().remotePublicKey(), context.ConsumerResponseContainer);
 		}
 
 		/// Asserts a neutral interaction when no data is pulled.
@@ -128,16 +130,17 @@ namespace catapult { namespace test {
 			auto remoteApiWrapper = TTraits::CreateRemoteApi({});
 
 			// Act:
-			auto result = synchronizer(remoteApiWrapper.api()).get();
+			auto code = synchronizer(remoteApiWrapper.api()).get();
 
 			// Assert: check result and counters
-			EXPECT_EQ(chain::NodeInteractionResult::Neutral, result);
+			EXPECT_EQ(ionet::NodeInteractionResultCode::Neutral, code);
 			EXPECT_EQ(1u, context.RequestRangeSupplierCalls);
 			EXPECT_EQ(0u, context.ResponseContainerConsumerCalls);
 
 			// - check request range
 			ASSERT_EQ(1u, remoteApiWrapper.numCalls());
 			test::AssertEqualRange(requestRange, remoteApiWrapper.singleRequest(), "request");
+			remoteApiWrapper.checkAdditionalRequestParameters();
 
 			// - no response container
 		}
@@ -156,16 +159,17 @@ namespace catapult { namespace test {
 			remoteApiWrapper.setError();
 
 			// Act:
-			auto result = synchronizer(remoteApiWrapper.api()).get();
+			auto code = synchronizer(remoteApiWrapper.api()).get();
 
 			// Assert: check result and counters
-			EXPECT_EQ(chain::NodeInteractionResult::Failure, result);
+			EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, code);
 			EXPECT_EQ(1u, context.RequestRangeSupplierCalls);
 			EXPECT_EQ(0u, context.ResponseContainerConsumerCalls);
 
 			// - check request range
 			ASSERT_EQ(1u, remoteApiWrapper.numCalls());
 			test::AssertEqualRange(requestRange, remoteApiWrapper.singleRequest(), "request");
+			remoteApiWrapper.checkAdditionalRequestParameters();
 
 			// - no response container
 		}
@@ -182,25 +186,25 @@ namespace catapult { namespace test {
 			auto responseContainer = TTraits::CreateResponseContainer(5);
 			auto remoteApiWrapper = TTraits::CreateRemoteApi(responseContainer);
 
-			std::vector<chain::NodeInteractionResult> interactionResults;
+			std::vector<ionet::NodeInteractionResultCode> interactionResultCodes;
 
 			// Act: set an exception and sync
 			remoteApiWrapper.setError();
-			interactionResults.push_back(synchronizer(remoteApiWrapper.api()).get());
+			interactionResultCodes.push_back(synchronizer(remoteApiWrapper.api()).get());
 
 			// - clear the exception and sync
 			remoteApiWrapper.setError(false);
-			interactionResults.push_back(synchronizer(remoteApiWrapper.api()).get());
+			interactionResultCodes.push_back(synchronizer(remoteApiWrapper.api()).get());
 
 			// Assert: the first sync failed but the second succeeded
 			EXPECT_EQ(2u, context.RequestRangeSupplierCalls);
 			EXPECT_EQ(1u, context.ResponseContainerConsumerCalls);
 
-			std::vector<chain::NodeInteractionResult> expectedInteractionResults{
-				chain::NodeInteractionResult::Failure,
-				chain::NodeInteractionResult::Success
+			std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
+				ionet::NodeInteractionResultCode::Failure,
+				ionet::NodeInteractionResultCode::Success
 			};
-			EXPECT_EQ(expectedInteractionResults, interactionResults);
+			EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
 		}
 	};
 

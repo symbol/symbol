@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "NodeInteractionResult.h"
+#include "catapult/ionet/NodeInteractionResultCode.h"
 #include "catapult/thread/FutureUtils.h"
 #include <functional>
 
@@ -27,7 +27,7 @@ namespace catapult { namespace chain {
 
 	/// Function signature for synchronizing with a remote node.
 	template<typename TRemoteApi>
-	using RemoteNodeSynchronizer = std::function<thread::future<NodeInteractionResult> (const TRemoteApi&)>;
+	using RemoteNodeSynchronizer = std::function<thread::future<ionet::NodeInteractionResultCode> (const TRemoteApi&)>;
 
 	/// Creates a remote node synchronizer around \a pSynchronizer.
 	template<typename TSynchronizer>

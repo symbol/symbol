@@ -98,6 +98,9 @@ namespace catapult { namespace cache {
 		/// Gets the network importance grouping.
 		uint64_t importanceGrouping() const;
 
+		/// Gets the harvesting mosaic id.
+		MosaicId harvestingMosaicId() const;
+
 	public:
 		/// If not present, adds an account to the cache at given height (\a addressHeight) using \a address.
 		void addAccount(const Address& address, Height addressHeight);

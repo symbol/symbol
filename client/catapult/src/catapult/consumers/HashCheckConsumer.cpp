@@ -45,7 +45,7 @@ namespace catapult { namespace consumers {
 
 				return m_recentHashCache.add(elements[0].EntityHash)
 						? Continue()
-						: Abort(Failure_Consumer_Hash_In_Recency_Cache);
+						: Abort(Neutral_Consumer_Hash_In_Recency_Cache);
 			}
 
 		private:
@@ -79,7 +79,7 @@ namespace catapult { namespace consumers {
 						continue;
 
 					// already seen
-					element.Skip = true;
+					element.ResultSeverity = disruptor::ConsumerResultSeverity::Neutral;
 					++numSkippedElements;
 				}
 
@@ -87,7 +87,7 @@ namespace catapult { namespace consumers {
 					return Continue();
 
 				CATAPULT_LOG(trace) << "all " << numSkippedElements << " transaction(s) skipped in TransactionHashCheck";
-				return Abort(Failure_Consumer_Hash_In_Recency_Cache);
+				return Abort(Neutral_Consumer_Hash_In_Recency_Cache);
 			}
 
 		private:

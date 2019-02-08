@@ -85,6 +85,12 @@ namespace catapult { namespace cache {
 
 			/// Minimum high value account balance.
 			Amount MinHighValueAccountBalance;
+
+			/// Mosaic id used as primary chain currency.
+			MosaicId CurrencyMosaicId;
+
+			/// Mosaic id used to provide harvesting ability.
+			MosaicId HarvestingMosaicId;
 		};
 
 	// region secondary descriptors

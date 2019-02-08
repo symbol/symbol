@@ -19,6 +19,8 @@
 **/
 
 #pragma once
+#include "NodeInteractionResultCode.h"
+#include "NodeInteractionsContainer.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/types.h"
 #include <unordered_set>
@@ -59,9 +61,6 @@ namespace catapult { namespace ionet {
 		/// Creates zeroed state.
 		ConnectionState()
 				: Age(0)
-				, NumAttempts(0)
-				, NumSuccesses(0)
-				, NumFailures(0)
 				, NumConsecutiveFailures(0)
 				, BanAge(0)
 		{}
@@ -70,15 +69,6 @@ namespace catapult { namespace ionet {
 		/// Current connection age.
 		/// \c 0 if the connection is not active.
 		uint32_t Age;
-
-		/// Number of connection attempts.
-		uint32_t NumAttempts;
-
-		/// Number of successful connections.
-		uint32_t NumSuccesses;
-
-		/// Number of failed connections.
-		uint32_t NumFailures;
 
 		/// Number of consecutive failed connections.
 		uint32_t NumConsecutiveFailures;
@@ -102,6 +92,9 @@ namespace catapult { namespace ionet {
 		/// Gets the node source.
 		NodeSource source() const;
 
+		/// Gets the node interactions at \a timestamp.
+		NodeInteractions interactions(Timestamp timestamp) const;
+
 		/// Gets the number of connection states.
 		size_t numConnectionStates() const;
 
@@ -118,6 +111,12 @@ namespace catapult { namespace ionet {
 		/// Sets the node source to \a source.
 		void source(NodeSource source);
 
+		/// Increments the number of successful interactions at \a timestamp.
+		void incrementSuccesses(Timestamp timestamp);
+
+		/// Increments the number of failed interactions at \a timestamp.
+		void incrementFailures(Timestamp timestamp);
+
 		/// Gets connection state for the service identified by \a serviceId and creates zeroed state if no state exists.
 		ConnectionState& provisionConnectionState(ServiceIdentifier serviceId);
 
@@ -130,6 +129,7 @@ namespace catapult { namespace ionet {
 
 	private:
 		NodeSource m_source;
+		NodeInteractionsContainer m_interactions;
 		std::vector<std::pair<ServiceIdentifier, ConnectionState>> m_connectionStates;
 	};
 }}

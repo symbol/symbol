@@ -30,7 +30,7 @@ namespace catapult { namespace cache {
 
 		void AddAll(NamespaceByIdMap& namespaceById, const state::RootNamespace::Children& children) {
 			for (const auto& pair : children)
-				namespaceById.insert(state::Namespace(pair.second));
+				namespaceById.insert(state::Namespace(pair.second.Path));
 		}
 
 		void RemoveAll(NamespaceByIdMap& namespaceById, const state::RootNamespace::Children& children) {
@@ -102,6 +102,17 @@ namespace catapult { namespace cache {
 		m_pNamespaceById->insert(ns);
 	}
 
+	void BasicNamespaceCacheDelta::setAlias(NamespaceId id, const state::NamespaceAlias& alias) {
+		auto namespaceIter = m_pNamespaceById->find(id);
+		const auto* pNamespace = namespaceIter.get();
+		if (!pNamespace)
+			CATAPULT_THROW_INVALID_ARGUMENT_1("no namespace exists", id);
+
+		// if child is known, root must be present
+		auto historyIter = m_pHistoryById->find(pNamespace->rootId());
+		historyIter.get()->back().setAlias(id, alias);
+	}
+
 	void BasicNamespaceCacheDelta::remove(NamespaceId id) {
 		auto namespaceIter = m_pNamespaceById->find(id);
 		const auto* pNamespace = namespaceIter.get();
@@ -167,12 +178,18 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	void BasicNamespaceCacheDelta::prune(Height height) {
-		ForEachIdentifierWithGroup(*m_pHistoryById, *m_pRootNamespaceIdsByExpiryHeight, height, [this, height](auto& history) {
+	BasicNamespaceCacheDelta::CollectedIds BasicNamespaceCacheDelta::prune(Height height) {
+		BasicNamespaceCacheDelta::CollectedIds collectedIds;
+		ForEachIdentifierWithGroup(
+				*m_pHistoryById,
+				*m_pRootNamespaceIdsByExpiryHeight,
+				height,
+				[this, height, &collectedIds](auto& history) {
 			auto originalSizes = GetNamespaceSizes(history);
 			auto removedIds = history.prune(height);
 			auto newSizes = GetNamespaceSizes(history);
 
+			collectedIds.insert(removedIds.cbegin(), removedIds.cend());
 			for (auto removedId : removedIds)
 				m_pNamespaceById->remove(removedId);
 
@@ -182,5 +199,7 @@ namespace catapult { namespace cache {
 			decrementActiveSize(originalSizes.Active - newSizes.Active);
 			decrementDeepSize(originalSizes.Deep - newSizes.Deep);
 		});
+
+		return collectedIds;
 	}
 }}

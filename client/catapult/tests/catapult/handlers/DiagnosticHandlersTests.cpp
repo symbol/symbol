@@ -19,14 +19,17 @@
 **/
 
 #include "catapult/handlers/DiagnosticHandlers.h"
+#include "catapult/api/ChainPackets.h"
 #include "catapult/ionet/NodeContainer.h"
+#include "catapult/ionet/NodeInteractionResult.h"
 #include "catapult/ionet/PackedNodeInfo.h"
 #include "catapult/model/DiagnosticCounterValue.h"
 #include "catapult/utils/DiagnosticCounter.h"
-#include "tests/test/core/PacketPayloadTestUtils.h"
+#include "tests/catapult/handlers/test/HeightRequestHandlerTests.h"
+#include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
+#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/net/NodeTestUtils.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace handlers {
 
@@ -173,18 +176,9 @@ namespace catapult { namespace handlers {
 			assertHandlerContext(context);
 		}
 
-		ionet::ConnectionState CreateConnectionState(
-				uint32_t age,
-				uint32_t numAttempts,
-				uint32_t numSuccesses,
-				uint32_t numFailures,
-				uint32_t numConsecutiveFailures,
-				uint32_t banAge) {
+		ionet::ConnectionState CreateConnectionState(uint32_t age, uint32_t numConsecutiveFailures, uint32_t banAge) {
 			auto connectionState = ionet::ConnectionState();
 			connectionState.Age = age;
-			connectionState.NumAttempts = numAttempts;
-			connectionState.NumSuccesses = numSuccesses;
-			connectionState.NumFailures = numFailures;
 			connectionState.NumConsecutiveFailures = numConsecutiveFailures;
 			connectionState.BanAge = banAge;
 			return connectionState;
@@ -204,9 +198,6 @@ namespace catapult { namespace handlers {
 				const ionet::PackedNodeInfo& nodeInfo,
 				ionet::ServiceIdentifier serviceId,
 				uint32_t age,
-				uint32_t numAttempts,
-				uint32_t numSuccesses,
-				uint32_t numFailures,
 				uint32_t numConsecutiveFailures,
 				uint32_t banAge) {
 			// Arrange:
@@ -216,9 +207,6 @@ namespace catapult { namespace handlers {
 			// Assert:
 			EXPECT_EQ(serviceId, connectionState.ServiceId) << message;
 			EXPECT_EQ(age, connectionState.Age) << message;
-			EXPECT_EQ(numAttempts, connectionState.NumAttempts) << message;
-			EXPECT_EQ(numSuccesses, connectionState.NumSuccesses) << message;
-			EXPECT_EQ(numFailures, connectionState.NumFailures) << message;
 			EXPECT_EQ(numConsecutiveFailures, connectionState.NumConsecutiveFailures) << message;
 			EXPECT_EQ(banAge, connectionState.BanAge) << message;
 		}
@@ -261,9 +249,14 @@ namespace catapult { namespace handlers {
 			modifier.add(test::CreateNamedNode(keys[1], "b"), ionet::NodeSource::Dynamic);
 			modifier.add(test::CreateNamedNode(keys[2], "c"), ionet::NodeSource::Local);
 
+			// - add some node interaction results
+			modifier.incrementSuccesses(keys[1]);
+			modifier.incrementSuccesses(keys[1]);
+			modifier.incrementFailures(keys[1]);
+
 			// - provision two services (notice that only one is active but both should be serialized)
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), keys[1]) = CreateConnectionState(0, 2, 3, 4, 5, 6);
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(987), keys[1]) = CreateConnectionState(49, 64, 36, 25, 16, 9);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), keys[1]) = CreateConnectionState(0, 5, 6);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(987), keys[1]) = CreateConnectionState(49, 16, 9);
 		}
 
 		// Assert:
@@ -274,9 +267,11 @@ namespace catapult { namespace handlers {
 			const auto& nodeInfo = reinterpret_cast<const ionet::PackedNodeInfo&>(*context.response().buffers()[0].pData);
 			EXPECT_EQ(keys[1], nodeInfo.IdentityKey);
 			EXPECT_EQ(ionet::NodeSource::Dynamic, nodeInfo.Source);
+			EXPECT_EQ(2u, nodeInfo.Interactions.NumSuccesses);
+			EXPECT_EQ(1u, nodeInfo.Interactions.NumFailures);
 			ASSERT_EQ(2u, nodeInfo.ConnectionStatesCount);
-			AssertConnectionState(nodeInfo, ionet::ServiceIdentifier(123), 0, 2, 3, 4, 5, 6);
-			AssertConnectionState(nodeInfo, ionet::ServiceIdentifier(987), 49, 64, 36, 25, 16, 9);
+			AssertConnectionState(nodeInfo, ionet::ServiceIdentifier(123), 0, 5, 6);
+			AssertConnectionState(nodeInfo, ionet::ServiceIdentifier(987), 49, 16, 9);
 		});
 	}
 
@@ -303,15 +298,21 @@ namespace catapult { namespace handlers {
 			modifier.add(test::CreateNamedNode(keys[1], "b"), ionet::NodeSource::Dynamic);
 			modifier.add(test::CreateNamedNode(keys[2], "c"), ionet::NodeSource::Local);
 
+			// - add some node interaction results
+			modifier.incrementSuccesses(keys[0]);
+			modifier.incrementSuccesses(keys[1]);
+			modifier.incrementFailures(keys[1]);
+			modifier.incrementFailures(keys[2]);
+
 			// - provision six services
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), keys[0]) = CreateConnectionState(7, 6, 5, 4, 3, 2);
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(888), keys[0]) = CreateConnectionState(0, 5, 4, 3, 2, 1);
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(222), keys[0]) = CreateConnectionState(5, 4, 3, 2, 1, 0);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), keys[0]) = CreateConnectionState(7, 3, 2);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(888), keys[0]) = CreateConnectionState(0, 2, 1);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(222), keys[0]) = CreateConnectionState(5, 1, 0);
 
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), keys[1]) = CreateConnectionState(1, 2, 3, 4, 5, 6);
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(987), keys[1]) = CreateConnectionState(49, 64, 36, 25, 16, 9);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(123), keys[1]) = CreateConnectionState(1, 5, 6);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(987), keys[1]) = CreateConnectionState(49, 16, 9);
 
-			modifier.provisionConnectionState(ionet::ServiceIdentifier(111), keys[2]) = CreateConnectionState(9, 8, 7, 6, 5, 4);
+			modifier.provisionConnectionState(ionet::ServiceIdentifier(111), keys[2]) = CreateConnectionState(9, 5, 4);
 		}
 
 		// Assert:
@@ -329,24 +330,135 @@ namespace catapult { namespace handlers {
 			const auto& nodeInfo1 = FindByKey(nodeInfos, keys[0]);
 			EXPECT_EQ(keys[0], nodeInfo1.IdentityKey);
 			EXPECT_EQ(ionet::NodeSource::Static, nodeInfo1.Source);
+			EXPECT_EQ(1u, nodeInfo1.Interactions.NumSuccesses);
+			EXPECT_EQ(0u, nodeInfo1.Interactions.NumFailures);
 			ASSERT_EQ(3u, nodeInfo1.ConnectionStatesCount);
-			AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(123), 7, 6, 5, 4, 3, 2);
-			AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(888), 0, 5, 4, 3, 2, 1);
-			AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(222), 5, 4, 3, 2, 1, 0);
+			AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(123), 7, 3, 2);
+			AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(888), 0, 2, 1);
+			AssertConnectionState(nodeInfo1, ionet::ServiceIdentifier(222), 5, 1, 0);
 
 			const auto& nodeInfo2 = FindByKey(nodeInfos, keys[1]);
 			EXPECT_EQ(keys[1], nodeInfo2.IdentityKey);
 			EXPECT_EQ(ionet::NodeSource::Dynamic, nodeInfo2.Source);
+			EXPECT_EQ(1u, nodeInfo2.Interactions.NumSuccesses);
+			EXPECT_EQ(1u, nodeInfo2.Interactions.NumFailures);
 			ASSERT_EQ(2u, nodeInfo2.ConnectionStatesCount);
-			AssertConnectionState(nodeInfo2, ionet::ServiceIdentifier(123), 1, 2, 3, 4, 5, 6);
-			AssertConnectionState(nodeInfo2, ionet::ServiceIdentifier(987), 49, 64, 36, 25, 16, 9);
+			AssertConnectionState(nodeInfo2, ionet::ServiceIdentifier(123), 1, 5, 6);
+			AssertConnectionState(nodeInfo2, ionet::ServiceIdentifier(987), 49, 16, 9);
 
 			const auto& nodeInfo3 = FindByKey(nodeInfos, keys[2]);
 			EXPECT_EQ(keys[2], nodeInfo3.IdentityKey);
 			EXPECT_EQ(ionet::NodeSource::Local, nodeInfo3.Source);
+			EXPECT_EQ(0u, nodeInfo3.Interactions.NumSuccesses);
+			EXPECT_EQ(1u, nodeInfo3.Interactions.NumFailures);
 			ASSERT_EQ(1u, nodeInfo3.ConnectionStatesCount);
-			AssertConnectionState(nodeInfo3, ionet::ServiceIdentifier(111), 9, 8, 7, 6, 5, 4);
+			AssertConnectionState(nodeInfo3, ionet::ServiceIdentifier(111), 9, 5, 4);
 		});
+	}
+
+	// endregion
+
+	// region DiagnosticBlockStatementHandler
+
+	namespace {
+		using BlockStatementRequestPacket = api::HeightPacket<ionet::PacketType::Block_Statement>;
+
+		struct DiagnosticBlockStatementHandlerTraits {
+			static ionet::PacketType ResponsePacketType() {
+				return BlockStatementRequestPacket::Packet_Type;
+			}
+
+			static auto CreateRequestPacket() {
+				return ionet::CreateSharedPacket<BlockStatementRequestPacket>();
+			}
+
+			static void Register(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage) {
+				RegisterDiagnosticBlockStatementHandler(handlers, storage);
+			}
+		};
+
+		template<typename TAssertHandlerContext>
+		void AssertBlockStatementHandlerWritesStatementDataInResponseToValidRequest(
+				const io::BlockStorageCache& storage,
+				size_t blockStatementDataSize,
+				TAssertHandlerContext assertHandlerContext) {
+			// Arrange:
+			ionet::ServerPacketHandlers handlers;
+			RegisterDiagnosticBlockStatementHandler(handlers, storage);
+
+			// - create a valid request
+			auto pPacket = ionet::CreateSharedPacket<BlockStatementRequestPacket>();
+			pPacket->Height = Height(2);
+
+			// Act:
+			ionet::ServerPacketHandlerContext context({}, "");
+			EXPECT_TRUE(handlers.process(*pPacket, context));
+
+			// Assert: header is correct
+			auto expectedPacketSize = sizeof(ionet::PacketHeader) + blockStatementDataSize;
+			test::AssertPacketHeader(context, expectedPacketSize, ionet::PacketType::Block_Statement);
+
+			const auto& buffers = context.response().buffers();
+			ASSERT_EQ(1u, buffers.size());
+
+			// - block statement is written
+			assertHandlerContext(buffers);
+		}
+
+		auto BlockToBlockElement(const model::Block& block, const std::vector<size_t>& numStatements) {
+			auto blockElement = test::BlockToBlockElement(block, test::GenerateRandomData<Hash256_Size>());
+			test::FillWithRandomData(blockElement.GenerationHash);
+			blockElement.OptionalStatement = test::GenerateRandomStatements(numStatements);
+			return blockElement;
+		}
+
+		void AssertWritesBlockStatementDataInResponseToValidRequest(const std::vector<size_t>& numStatements) {
+			// Arrange:
+			auto pBlock = test::GenerateBlockWithTransactionsAtHeight(Height(2));
+			auto blockElement = BlockToBlockElement(*pBlock, numStatements);
+			io::BlockStorageCache storage(std::make_unique<mocks::MockMemoryBlockStorage>());
+			{
+				auto modifier = storage.modifier();
+				modifier.saveBlock(blockElement);
+			}
+
+			// Act + Assert:
+			auto expectedData = test::SerializeBlockStatement(*blockElement.OptionalStatement);
+			AssertBlockStatementHandlerWritesStatementDataInResponseToValidRequest(storage, expectedData.size(), [&expectedData](
+					const auto& buffers) {
+				const auto& blockStatementData = buffers[0];
+				ASSERT_EQ(expectedData.size(), blockStatementData.Size);
+				EXPECT_EQ_MEMORY(expectedData.data(), blockStatementData.pData, expectedData.size());
+			});
+		}
+	}
+
+	DEFINE_HEIGHT_REQUEST_HANDLER_TESTS(TEST_CLASS, DiagnosticBlockStatementHandler)
+
+	TEST(TEST_CLASS, DiagnosticBlockStatementHandler_NoResponseIfBlockStatementIsNotPresent) {
+		// Arrange:
+		auto pStorage = mocks::CreateMemoryBlockStorageCache(2);
+		ionet::ServerPacketHandlers handlers;
+		RegisterDiagnosticBlockStatementHandler(handlers, *pStorage);
+
+		// - create a valid request
+		auto pPacket = ionet::CreateSharedPacket<BlockStatementRequestPacket>();
+		pPacket->Height = Height(2);
+
+		// Act:
+		ionet::ServerPacketHandlerContext context({}, "");
+		EXPECT_TRUE(handlers.process(*pPacket, context));
+
+		// Assert:
+		EXPECT_FALSE(context.hasResponse());
+	}
+
+	TEST(TEST_CLASS, DiagnosticBlockStatementHandler_WritesBlockStatementDataInResponseToValidRequest_EmptyBlockStatement) {
+		AssertWritesBlockStatementDataInResponseToValidRequest({ 0, 0, 0 });
+	}
+
+	TEST(TEST_CLASS, DiagnosticBlockStatementHandler_WritesBlockStatementDataInResponseToValidRequest_NonEmptyBlockStatement) {
+		AssertWritesBlockStatementDataInResponseToValidRequest({ 6, 2, 5 });
 	}
 
 	// endregion

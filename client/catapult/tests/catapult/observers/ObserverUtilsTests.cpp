@@ -36,7 +36,7 @@ namespace catapult { namespace observers {
 			auto cache = test::CreateEmptyCatapultCache();
 			auto cacheDelta = cache.createDelta();
 			state::CatapultState state;
-			ObserverContext context(cacheDelta, state, height, mode);
+			ObserverContext context({ cacheDelta, state }, height, mode, model::ResolverContext());
 
 			// Act:
 			auto result = ShouldPrune(context, pruneInterval);
@@ -76,6 +76,31 @@ namespace catapult { namespace observers {
 
 	// endregion
 
+	// region ShouldLink
+
+	namespace {
+		enum class FooAction { Link, Unlink };
+
+		void AssertShouldLinkPredicate(FooAction action, NotifyMode notifyMode, bool expectedResult) {
+			// Act:
+			auto result = ShouldLink(action, notifyMode);
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "action " << utils::to_underlying_type(action) << ", notifyMode " << notifyMode;
+		}
+	}
+
+	TEST(TEST_CLASS, ShouldLinkReturnsCorrectValue) {
+		// Assert:
+		AssertShouldLinkPredicate(FooAction::Link, NotifyMode::Commit, true);
+		AssertShouldLinkPredicate(FooAction::Link, NotifyMode::Rollback, false);
+
+		AssertShouldLinkPredicate(FooAction::Unlink, NotifyMode::Commit, false);
+		AssertShouldLinkPredicate(FooAction::Unlink, NotifyMode::Rollback, true);
+	}
+
+	// endregion
+
 	namespace {
 		// region PrunableCache
 
@@ -100,8 +125,16 @@ namespace catapult { namespace observers {
 				m_pruneTimes.push_back(time);
 			}
 
-			void touch(Height height) {
+			std::vector<Timestamp> touch(Height height) {
 				m_touchHeights.push_back(height);
+
+				// emulate ids (Timestamp) grouped by height but return them in reverse order to test deterministic ordering
+				std::vector<Timestamp> timestamps;
+				for (auto i = 10u; i < height.unwrap(); i += 10)
+					timestamps.push_back(Timestamp(i));
+
+				std::reverse(timestamps.begin(), timestamps.end());
+				return timestamps;
 			}
 
 		private:
@@ -199,7 +232,7 @@ namespace catapult { namespace observers {
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
 			state::CatapultState state;
-			ObserverContext context(cacheDelta, state, height, mode);
+			ObserverContext context({ cacheDelta, state }, height, mode, model::ResolverContext());
 
 			// Act:
 			observer.notify(model::BlockNotification(Key(), Timestamp(), Difficulty()), context);
@@ -217,7 +250,7 @@ namespace catapult { namespace observers {
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
 			state::CatapultState state;
-			ObserverContext context(cacheDelta, state, height, mode);
+			ObserverContext context({ cacheDelta, state }, height, mode, model::ResolverContext());
 
 			// Act:
 			observer.notify(model::BlockNotification(Key(), Timestamp(), Difficulty()), context);
@@ -235,7 +268,7 @@ namespace catapult { namespace observers {
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
 			state::CatapultState state;
-			ObserverContext context(cacheDelta, state, height, mode);
+			ObserverContext context({ cacheDelta, state }, height, mode, model::ResolverContext());
 
 			// Act:
 			observer.notify(model::BlockNotification(Key(), timestamp, Difficulty()), context);
@@ -297,7 +330,7 @@ namespace catapult { namespace observers {
 		AssertNoPruning(*pObserver, mode, Height(7));
 	}
 
-	TEST(TEST_CLASS, CacheBlockPruningObserverTriggersPruningWhenHeightIsGreaterThanGracePeriod) {
+	TEST(TEST_CLASS, CacheBlockPruningObserverPrunesWhenHeightIsGreaterThanGracePeriod) {
 		// Arrange:
 		auto pObserver = CreateCacheBlockPruningObserver<PrunableCache>("Foo", 1, BlockDuration(7));
 
@@ -308,7 +341,7 @@ namespace catapult { namespace observers {
 		AssertBlockPruning(*pObserver, mode, Height(10), Height(3));
 	}
 
-	TEST(TEST_CLASS, CacheBlockPruningObserverTriggersPruningWhenHeightIsGreaterThanGracePeriodAndDivisibleByPruneInterval) {
+	TEST(TEST_CLASS, CacheBlockPruningObserverPrunesWhenHeightIsGreaterThanGracePeriodAndDivisibleByPruneInterval) {
 		// Arrange:
 		auto pObserver = CreateCacheBlockPruningObserver<PrunableCache>("Foo", 10, BlockDuration(7));
 
@@ -358,7 +391,7 @@ namespace catapult { namespace observers {
 		AssertNoPruning(*pObserver, mode, Height(29));
 	}
 
-	TEST(TEST_CLASS, CacheTimePruningObserverTriggersPruningWhenHeightIsDivisibleByPruneInterval) {
+	TEST(TEST_CLASS, CacheTimePruningObserverPrunesWhenHeightIsDivisibleByPruneInterval) {
 		// Arrange:
 		auto pObserver = CreateCacheTimePruningObserver<PrunableCache>("Foo", 10);
 
@@ -374,12 +407,19 @@ namespace catapult { namespace observers {
 	// region CacheBlockTouchObserver
 
 	namespace {
-		void AssertTouching(const PruningObserver& observer, NotifyMode mode, Height height) {
+		constexpr auto Receipt_Type_Marker = static_cast<model::ReceiptType>(0xA5A5);
+
+		void AssertTouching(
+				const PruningObserver& observer,
+				NotifyMode mode,
+				Height height,
+				const std::vector<Timestamp::ValueType>& expectedExpiryIds = {}) {
 			// Arrange:
 			auto cache = CreateSimpleCatapultCache();
 			auto cacheDelta = cache.createDelta();
 			state::CatapultState state;
-			ObserverContext context(cacheDelta, state, height, mode);
+			model::BlockStatementBuilder statementBuilder;
+			ObserverContext context({ cacheDelta, state, statementBuilder }, height, mode, model::ResolverContext());
 
 			// Act:
 			observer.notify(model::BlockNotification(Key(), Timestamp(), Difficulty()), context);
@@ -390,31 +430,53 @@ namespace catapult { namespace observers {
 			EXPECT_TRUE(subCache.pruneHeights().empty()) << message;
 			EXPECT_TRUE(subCache.pruneTimes().empty()) << message;
 			EXPECT_EQ(std::vector<Height>({ height }), subCache.touchHeights()) << message;
+
+			// - check receipts
+			auto pStatement = statementBuilder.build();
+			if (expectedExpiryIds.empty()) {
+				ASSERT_EQ(0u, pStatement->TransactionStatements.size());
+				return;
+			}
+
+			ASSERT_EQ(1u, pStatement->TransactionStatements.size());
+			const auto& receiptPair = *pStatement->TransactionStatements.find(model::ReceiptSource());
+			ASSERT_EQ(expectedExpiryIds.size(), receiptPair.second.size());
+
+			auto i = 0u;
+			using ExpiryReceiptType = model::ArtifactExpiryReceipt<Timestamp>;
+			for (auto id : expectedExpiryIds) {
+				const auto& receipt = static_cast<const ExpiryReceiptType&>(receiptPair.second.receiptAt(i));
+				ASSERT_EQ(sizeof(ExpiryReceiptType), receipt.Size) << i;
+				EXPECT_EQ(1u, receipt.Version) << i;
+				EXPECT_EQ(Receipt_Type_Marker, receipt.Type) << i;
+				EXPECT_EQ(Timestamp(id), receipt.ArtifactId) << i;
+				++i;
+			}
 		}
 	}
 
 	TEST(TEST_CLASS, CacheBlockTouchObserverIsCreatedWithCorrectName) {
 		// Act:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo");
+		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker);
 
 		// Assert:
 		EXPECT_EQ("FooTouchObserver", pObserver->name());
 	}
 
-	TEST(TEST_CLASS, CacheBlockTouchObserverTriggersTouching_Commit) {
+	TEST(TEST_CLASS, CacheBlockTouchObserverTouches_Commit) {
 		// Arrange:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo");
+		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker);
 
 		// Act + Assert:
 		auto mode = NotifyMode::Commit;
-		AssertTouching(*pObserver, mode, Height(1));
-		AssertTouching(*pObserver, mode, Height(11));
-		AssertTouching(*pObserver, mode, Height(50));
+		AssertTouching(*pObserver, mode, Height(1), {});
+		AssertTouching(*pObserver, mode, Height(11), { 10 });
+		AssertTouching(*pObserver, mode, Height(50), { 10, 20, 30, 40 });
 	}
 
-	TEST(TEST_CLASS, CacheBlockTouchObserverTriggersTouching_Rollback) {
+	TEST(TEST_CLASS, CacheBlockTouchObserverTouches_Rollback) {
 		// Arrange:
-		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo");
+		auto pObserver = CreateCacheBlockTouchObserver<PrunableCache>("Foo", Receipt_Type_Marker);
 
 		// Act + Assert:
 		auto mode = NotifyMode::Rollback;

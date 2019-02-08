@@ -22,10 +22,11 @@
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache/MemoryUtCache.h"
 #include "catapult/chain/ChainResults.h"
+#include "catapult/model/FeeUtils.h"
 #include "catapult/model/TransactionStatus.h"
-#include "tests/catapult/chain/test/MockExecutionConfiguration.h"
 #include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/other/MockExecutionConfiguration.h"
 #include "tests/TestHarness.h"
 
 using catapult::validators::ValidationResult;
@@ -51,10 +52,7 @@ namespace catapult { namespace chain {
 		}
 
 		auto CreateCacheWithDefaultHeight() {
-			auto cache = test::CreateCatapultCacheWithMarkerAccount();
-			auto delta = cache.createDelta();
-			cache.commit(Default_Height);
-			return cache;
+			return test::CreateCatapultCacheWithMarkerAccount(Default_Height);
 		}
 
 		// region functional helpers
@@ -115,12 +113,15 @@ namespace catapult { namespace chain {
 
 		class UpdaterTestContext {
 		public:
-			explicit UpdaterTestContext(ThrottleMode throttleMode = ThrottleMode::Off)
+			explicit UpdaterTestContext(
+					ThrottleMode throttleMode = ThrottleMode::Off,
+					BlockFeeMultiplier minFeeMultiplier = BlockFeeMultiplier())
 					: m_cache(CreateCacheWithDefaultHeight())
 					, m_transactionsCache(cache::MemoryCacheOptions(1024, 1000))
 					, m_updater(
 							m_transactionsCache,
 							m_cache,
+							minFeeMultiplier,
 							m_executionConfig.Config,
 							[]() { return Default_Time; },
 							[this](const auto& transaction, const auto& hash, auto result) {
@@ -202,48 +203,22 @@ namespace catapult { namespace chain {
 			void assertValidatorContexts(const std::vector<size_t>& expectedNumDifficultyInfos) const {
 				// Assert:
 				CATAPULT_LOG(debug) << "checking validator contexts passed to validator";
-				ASSERT_EQ(expectedNumDifficultyInfos.size(), m_executionConfig.pValidator->params().size());
-
-				size_t i = 0;
-				for (const auto& params : m_executionConfig.pValidator->params()) {
-					auto message = "validator at " + std::to_string(i);
-
-					// - context
-					EXPECT_EQ(Default_Height + Height(1), params.Context.Height) << message;
-					EXPECT_EQ(Default_Time, params.Context.BlockTime) << message;
-					EXPECT_EQ(test::Mock_Execution_Configuration_Network_Identifier, params.Context.Network.Identifier) << message;
-
-					// - cache contents + sequence (NumDifficultyInfos is incremented by each observer call)
-					EXPECT_TRUE(params.IsPassedMarkedCache) << message;
-					EXPECT_EQ(expectedNumDifficultyInfos[i], params.NumDifficultyInfos) << message;
-					++i;
-				}
+				test::MockExecutionConfiguration::AssertValidatorContexts(
+						*m_executionConfig.pValidator,
+						expectedNumDifficultyInfos,
+						Default_Height + Height(1),
+						Default_Time);
 			}
 
 			void assertObserverContexts(size_t numInitialCacheDifficultyInfos) const {
 				// Assert:
 				CATAPULT_LOG(debug) << "checking observer contexts passed to observer";
-
-				size_t i = 0;
-				for (const auto& params : m_executionConfig.pObserver->params()) {
-					auto message = "observer at " + std::to_string(i);
-
-					// - context
-					EXPECT_EQ(Default_Height + Height(1), params.Context.Height) << message;
-					if (isRollbackExecution(i))
-						EXPECT_EQ(observers::NotifyMode::Rollback, params.Context.Mode) << message;
-					else
-						EXPECT_EQ(observers::NotifyMode::Commit, params.Context.Mode) << message;
-
-					// - compare the copied state to the default state
-					//   (a dummy state is passed by the updater because only block observers modify it)
-					EXPECT_EQ(model::ImportanceHeight(0), params.StateCopy.LastRecalculationHeight) << message;
-
-					// - cache contents + sequence (NumDifficultyInfos is incremented by each observer call)
-					EXPECT_TRUE(params.IsPassedMarkedCache) << message;
-					EXPECT_EQ(numInitialCacheDifficultyInfos + i, params.NumDifficultyInfos) << message;
-					++i;
-				}
+				test::MockExecutionConfiguration::AssertObserverContexts(
+						*m_executionConfig.pObserver,
+						numInitialCacheDifficultyInfos,
+						Default_Height + Height(1),
+						model::ImportanceHeight(0), // a dummy state is passed by the updater because only block observers modify it
+						[this](auto i) { return this->isRollbackExecution(i); });
 			}
 
 			std::vector<size_t> getExpectedNumDifficultyInfos(size_t numInitialCacheDifficultyInfos) const {
@@ -544,6 +519,37 @@ namespace catapult { namespace chain {
 	NEW_TRANSACTIONS_TRAITS_BASED_TEST(CanApplyMultipleTransactionsToCache) {
 		// Assert:
 		AssertCanApplyNewTransactionsToCache<TTraits>(5);
+	}
+
+	// endregion
+
+	// region shared tests - min fee multiplier is applied to transactions
+
+	NEW_TRANSACTIONS_TRAITS_BASED_TEST(TransactionsWithInsufficientFeeMultiplesAreNotAddedToCache) {
+		// Arrange:
+		UpdaterTestContext context(ThrottleMode::Off, BlockFeeMultiplier(20));
+		auto transactionData = CreateTransactionData(10);
+
+		// - set fee multiples
+		auto i = 0u;
+		std::array<uint32_t, 10> feeMultiples{ 10, 20, 19, 30, 21, 40, 30, 10, 10, 20 };
+		for (auto& utInfo : transactionData.UtInfos) {
+			auto multiplier = BlockFeeMultiplier(feeMultiples[i++]);
+			const_cast<Amount&>(utInfo.pEntity->MaxFee) = model::CalculateTransactionFee(multiplier, *utInfo.pEntity);
+		}
+
+		// Sanity:
+		EXPECT_EQ(0u, context.transactionsCache().view().size());
+
+		// Act:
+		TTraits::Update(context.updater(), transactionData.UtInfos);
+
+		// Assert: only transactions with multiples of at least 20 were added
+		EXPECT_EQ(6u, context.transactionsCache().view().size());
+		test::AssertContainsAll(context.transactionsCache(), Select(transactionData.Hashes, { 1, 3, 4, 5, 6, 9 }));
+
+		context.assertContexts(TTraits::TransactionSource);
+		context.assertEntityInfos(Select(transactionData.EntityInfos, { 1, 3, 4, 5, 6, 9 }));
 	}
 
 	// endregion

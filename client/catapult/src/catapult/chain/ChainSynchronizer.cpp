@@ -29,7 +29,7 @@
 namespace catapult { namespace chain {
 
 	namespace {
-		using NodeInteractionFuture = thread::future<NodeInteractionResult>;
+		using NodeInteractionFuture = thread::future<ionet::NodeInteractionResultCode>;
 
 		struct ElementInfo {
 			disruptor::DisruptorElementId Id;
@@ -71,13 +71,13 @@ namespace catapult { namespace chain {
 				return m_elements.empty() ? Height(0) : m_elements.back().EndHeight;
 			}
 
-			bool add(model::BlockRange&& range) {
+			bool add(model::AnnotatedBlockRange&& range) {
 				utils::SpinLockGuard guard(m_spinLock);
 				if (m_dirty)
 					return false;
 
-				auto endHeight = (--range.cend())->Height;
-				auto bufferSize = range.totalSize();
+				auto endHeight = (--range.Range.cend())->Height;
+				auto bufferSize = range.Range.totalSize();
 
 				// need to use shared_from_this because dispatcher can finish processing a block after
 				// scheduler is stopped (and owning DefaultChainSynchronizer is destroyed)
@@ -129,17 +129,23 @@ namespace catapult { namespace chain {
 			bool m_dirty;
 		};
 
-		NodeInteractionResult ToNodeInteractionResult(ChainComparisonCode code) {
+		ionet::NodeInteractionResultCode ToNodeInteractionResultCode(ChainComparisonCode code) {
 			switch (code) {
 			case ChainComparisonCode::Remote_Reported_Equal_Chain_Score:
 			case ChainComparisonCode::Remote_Reported_Lower_Chain_Score:
-				return NodeInteractionResult::Neutral;
+				return ionet::NodeInteractionResultCode::Neutral;
 			default:
-				return NodeInteractionResult::Failure;
+				return ionet::NodeInteractionResultCode::Failure;
 			}
 		}
 
 		class RangeAggregator {
+		public:
+			explicit RangeAggregator(const Key& sourcePublicKey)
+					: m_numBlocks(0)
+					, m_sourcePublicKey(sourcePublicKey)
+			{}
+
 		public:
 			void add(model::BlockRange&& range) {
 				m_numBlocks += range.size();
@@ -147,7 +153,7 @@ namespace catapult { namespace chain {
 			}
 
 			auto merge() {
-				return model::BlockRange::MergeRanges(std::move(m_ranges));
+				return model::AnnotatedBlockRange(model::BlockRange::MergeRanges(std::move(m_ranges)), m_sourcePublicKey);
 			}
 
 			auto empty() {
@@ -160,6 +166,7 @@ namespace catapult { namespace chain {
 
 		private:
 			size_t m_numBlocks;
+			Key m_sourcePublicKey;
 			std::vector<model::BlockRange> m_ranges;
 		};
 
@@ -171,12 +178,12 @@ namespace catapult { namespace chain {
 
 		NodeInteractionFuture CompleteChainBlocksFrom(RangeAggregator& rangeAggregator, UnprocessedElements& unprocessedElements) {
 			if (rangeAggregator.empty())
-				return thread::make_ready_future(NodeInteractionResult::Neutral);
+				return thread::make_ready_future(ionet::NodeInteractionResultCode::Neutral);
 
 			auto mergedRange = rangeAggregator.merge();
 			auto addResult = unprocessedElements.add(std::move(mergedRange))
-					? NodeInteractionResult::Success
-					: NodeInteractionResult::Neutral;
+					? ionet::NodeInteractionResultCode::Success
+					: ionet::NodeInteractionResultCode::Neutral;
 			return thread::make_ready_future(std::move(addResult));
 		}
 
@@ -186,34 +193,33 @@ namespace catapult { namespace chain {
 				uint64_t forkDepth,
 				const std::shared_ptr<RangeAggregator>& pRangeAggregator,
 				UnprocessedElements& unprocessedElements) {
-			return thread::compose(
-					futureSupplier(height),
-					[futureSupplier, forkDepth, pRangeAggregator, &unprocessedElements](auto&& blocksFuture) {
-						try {
-							auto range = blocksFuture.get();
+			return thread::compose(futureSupplier(height), [futureSupplier, forkDepth, pRangeAggregator, &unprocessedElements](
+					auto&& blocksFuture) {
+				try {
+					auto range = blocksFuture.get();
 
-							// if the range is empty, stop processing
-							if (range.empty()) {
-								CATAPULT_LOG(info) << "peer returned 0 blocks";
-								return CompleteChainBlocksFrom(*pRangeAggregator, unprocessedElements);
-							}
+					// if the range is empty, stop processing
+					if (range.empty()) {
+						CATAPULT_LOG(info) << "peer returned 0 blocks";
+						return CompleteChainBlocksFrom(*pRangeAggregator, unprocessedElements);
+					}
 
-							// if the range is not empty, continue processing
-							auto endHeight = (--range.cend())->Height;
-							CATAPULT_LOG(info)
-									<< "peer returned " << range.size()
-									<< " blocks (heights " << range.cbegin()->Height << " - " << endHeight << ")";
+					// if the range is not empty, continue processing
+					auto endHeight = (--range.cend())->Height;
+					CATAPULT_LOG(info)
+							<< "peer returned " << range.size()
+							<< " blocks (heights " << range.cbegin()->Height << " - " << endHeight << ")";
 
-							pRangeAggregator->add(std::move(range));
-							if (forkDepth <= pRangeAggregator->numBlocks())
-								return CompleteChainBlocksFrom(*pRangeAggregator, unprocessedElements);
+					pRangeAggregator->add(std::move(range));
+					if (forkDepth <= pRangeAggregator->numBlocks())
+						return CompleteChainBlocksFrom(*pRangeAggregator, unprocessedElements);
 
-							auto nextHeight = endHeight + Height(1);
-							return ChainBlocksFrom(futureSupplier, nextHeight, forkDepth, pRangeAggregator, unprocessedElements);
-						} catch (const catapult_runtime_error& e) {
-							CATAPULT_LOG(warning) << "exception thrown while requesting blocks: " << e.what();
-							return thread::make_ready_future(NodeInteractionResult::Failure);
-						}
+					auto nextHeight = endHeight + Height(1);
+					return ChainBlocksFrom(futureSupplier, nextHeight, forkDepth, pRangeAggregator, unprocessedElements);
+				} catch (const catapult_runtime_error& e) {
+					CATAPULT_LOG(warning) << "exception thrown while requesting blocks: " << e.what();
+					return thread::make_ready_future(ionet::NodeInteractionResultCode::Failure);
+				}
 			});
 		}
 
@@ -239,25 +245,22 @@ namespace catapult { namespace chain {
 		public:
 			NodeInteractionFuture operator()(const RemoteApiType& remoteChainApi) {
 				if (!m_pUnprocessedElements->shouldStartSync())
-					return thread::make_ready_future(NodeInteractionResult::Neutral);
+					return thread::make_ready_future(ionet::NodeInteractionResultCode::Neutral);
 
-				auto syncFuture = thread::compose(
-						compareChains(remoteChainApi),
-						[this, &remoteChainApi](auto&& compareChainsFuture) {
-							try {
-								return this->syncWithPeer(remoteChainApi, compareChainsFuture.get());
-							} catch (const catapult_runtime_error& e) {
-								CATAPULT_LOG(warning) << "exception thrown while comparing chains: " << e.what();
-								return thread::make_ready_future(NodeInteractionResult::Failure);
-							}
-						});
-				return thread::compose(
-						std::move(syncFuture),
-						[&unprocessedElements = *m_pUnprocessedElements](auto&& nodeInteractionFuture) {
-							// mark the current sync as completed
-							unprocessedElements.clearPendingSync();
-							return std::move(nodeInteractionFuture);
-						});
+				auto syncFuture = thread::compose(compareChains(remoteChainApi), [this, &remoteChainApi](auto&& compareChainsFuture) {
+					try {
+						return this->syncWithPeer(remoteChainApi, compareChainsFuture.get());
+					} catch (const catapult_runtime_error& e) {
+						CATAPULT_LOG(warning) << "exception thrown while comparing chains: " << e.what();
+						return thread::make_ready_future(ionet::NodeInteractionResultCode::Failure);
+					}
+				});
+				return thread::compose(std::move(syncFuture), [&unprocessedElements = *m_pUnprocessedElements](
+						auto&& nodeInteractionFuture) {
+					// mark the current sync as completed
+					unprocessedElements.clearPendingSync();
+					return std::move(nodeInteractionFuture);
+				});
 			}
 
 		private:
@@ -280,11 +283,11 @@ namespace catapult { namespace chain {
 					break;
 
 				default:
-					auto result = ToNodeInteractionResult(compareResult.Code);
-					if (NodeInteractionResult::Failure == result)
+					auto code = ToNodeInteractionResultCode(compareResult.Code);
+					if (ionet::NodeInteractionResultCode::Failure == code)
 						CATAPULT_LOG(warning) << "node interaction failed: " << compareResult.Code;
 
-					return thread::make_ready_future(std::move(result));
+					return thread::make_ready_future(std::move(code));
 				}
 
 				CATAPULT_LOG(debug)
@@ -294,7 +297,7 @@ namespace catapult { namespace chain {
 						CreateFutureSupplier(remoteChainApi, m_blocksFromOptions),
 						compareResult.CommonBlockHeight + Height(1),
 						compareResult.ForkDepth,
-						std::make_shared<RangeAggregator>(),
+						std::make_shared<RangeAggregator>(remoteChainApi.remotePublicKey()),
 						*m_pUnprocessedElements);
 			}
 

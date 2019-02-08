@@ -34,7 +34,7 @@ namespace catapult { namespace ionet {
 		using WriteCallback = consumer<SocketOperationCode>;
 
 	public:
-		virtual ~PacketIo() {}
+		virtual ~PacketIo() = default;
 
 	public:
 		/// Reads and consumes the next packet and calls \a callback on completion.

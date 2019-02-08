@@ -95,7 +95,7 @@ namespace catapult { namespace builders {
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
-			builder.setMosaic(UnresolvedMosaicId(123), Amount(234));
+			builder.setMosaic({ UnresolvedMosaicId(123), Amount(234) });
 		});
 	}
 

@@ -83,7 +83,8 @@ namespace catapult { namespace transactionsink {
 			context.boot();
 
 			// Act:
-			ionet::ServerPacketHandlerContext handlerContext({}, "");
+			Key key{};
+			ionet::ServerPacketHandlerContext handlerContext(key, "");
 			const auto& handlers = context.testState().state().packetHandlers();
 			handlers.process(*test::GenerateRandomTransactionPacket(), handlerContext);
 

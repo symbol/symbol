@@ -19,6 +19,7 @@
 **/
 
 #include "ZeroMqTestUtils.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "zeromq/src/PublisherUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/Cosignature.h"
@@ -37,7 +38,7 @@ namespace catapult { namespace test {
 			ASSERT_EQ(expectedSize, messagePart.size());
 
 			const auto* pExpected = test::AsVoidPointer(pExpectedData);
-			EXPECT_TRUE(0 == std::memcmp(pExpected, messagePart.data(), messagePart.size()));
+			EXPECT_EQ_MEMORY(pExpected, messagePart.data(), messagePart.size());
 		}
 	}
 
@@ -45,18 +46,18 @@ namespace catapult { namespace test {
 		return static_cast<const mocks::MockTransaction&>(transaction);
 	}
 
-	model::AddressSet ToAddresses(const std::vector<Key>& keys) {
-		model::AddressSet addresses;
+	model::UnresolvedAddressSet ToAddresses(const std::vector<Key>& keys) {
+		model::UnresolvedAddressSet addresses;
 		for (const auto& key : keys)
-			addresses.insert(model::PublicKeyToAddress(key, Network_Identifier));
+			addresses.insert(extensions::CopyToUnresolvedAddress(model::PublicKeyToAddress(key, Network_Identifier)));
 
 		return addresses;
 	}
 
-	model::AddressSet ExtractAddresses(const mocks::MockTransaction& transaction) {
+	model::UnresolvedAddressSet ExtractAddresses(const mocks::MockTransaction& transaction) {
 		auto networkIdentifier = model::NetworkIdentifier(transaction.Network());
-		auto signerAddress = model::PublicKeyToAddress(transaction.Signer, networkIdentifier);
-		auto recipientAddress = model::PublicKeyToAddress(transaction.Recipient, networkIdentifier);
+		auto signerAddress = extensions::CopyToUnresolvedAddress(model::PublicKeyToAddress(transaction.Signer, networkIdentifier));
+		auto recipientAddress = extensions::CopyToUnresolvedAddress(model::PublicKeyToAddress(transaction.Recipient, networkIdentifier));
 		return { signerAddress, recipientAddress };
 	}
 
@@ -72,7 +73,7 @@ namespace catapult { namespace test {
 		return std::move(transactionInfos);
 	}
 
-	void SubscribeForAddresses(zmq::socket_t& socket, zeromq::TransactionMarker marker, const model::AddressSet& addresses) {
+	void SubscribeForAddresses(zmq::socket_t& socket, zeromq::TransactionMarker marker, const model::UnresolvedAddressSet& addresses) {
 		for (const auto& address : addresses) {
 			auto topic = zeromq::CreateTopic(marker, address);
 			socket.setsockopt(ZMQ_SUBSCRIBE, topic.data(), topic.size());
@@ -170,7 +171,7 @@ namespace catapult { namespace test {
 	void AssertMessages(
 			zmq::socket_t& zmqSocket,
 			zeromq::TransactionMarker marker,
-			const model::AddressSet& addresses,
+			const model::UnresolvedAddressSet& addresses,
 			const AssertMessage& assertMessage) {
 		zmq::multipart_t message;
 
@@ -180,7 +181,7 @@ namespace catapult { namespace test {
 			ZmqReceive(message, zmqSocket);
 
 			const auto* pAddressData = reinterpret_cast<const uint8_t*>(message[0].data()) + 1;
-			const auto& address = reinterpret_cast<const Address&>(*pAddressData);
+			const auto& address = reinterpret_cast<const UnresolvedAddress&>(*pAddressData);
 			EXPECT_EQ(1u, addressesCopy.erase(address)) << "address " << utils::HexFormat(address);
 
 			auto topic = CreateTopic(marker, address);

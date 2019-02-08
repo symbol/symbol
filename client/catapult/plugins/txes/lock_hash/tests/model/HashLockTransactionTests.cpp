@@ -35,7 +35,8 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertEntityHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize = baseSize // base
+			auto expectedSize =
+					baseSize // base
 					+ sizeof(Mosaic) // mosaic
 					+ sizeof(Height) // height
 					+ Hash256_Size; // hash

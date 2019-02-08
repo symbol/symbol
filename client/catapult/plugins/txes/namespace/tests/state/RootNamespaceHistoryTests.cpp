@@ -143,25 +143,56 @@ namespace catapult { namespace state {
 		EXPECT_EQ(std::vector<Height>(), GetLifetimeStartHeights(history));
 	}
 
+	namespace {
+		template<typename TTraits, typename TAliasGenerator, typename TAliasChecker>
+		void AssertCanConstructHistoryWithSingleOwnerWithoutChildren(TAliasGenerator aliasGenerator, TAliasChecker aliasChecker) {
+			// Arrange:
+			auto owner = test::CreateRandomOwner();
+			RootNamespaceHistory original(NamespaceId(123));
+			for (auto i = 0u; i < 3; ++i) {
+				original.push_back(owner, test::CreateLifetime(234 + i, 321 + i));
+				original.back().setAlias(NamespaceId(123), aliasGenerator(i));
+			}
+
+			// Act:
+			auto history = TTraits::Construct(std::move(original));
+
+			// Assert:
+			EXPECT_EQ(NamespaceId(123), history.id());
+			EXPECT_FALSE(history.empty());
+			EXPECT_EQ(3u, history.historyDepth());
+			EXPECT_EQ(3u, history.activeOwnerHistoryDepth());
+			EXPECT_EQ(0u, history.numActiveRootChildren());
+			EXPECT_EQ(0u, history.numAllHistoricalChildren());
+			EXPECT_EQ(std::vector<Key>({ owner, owner, owner }), GetOwners(history));
+			EXPECT_EQ(std::vector<Height>({ Height(234), Height(235), Height(236) }), GetLifetimeStartHeights(history));
+
+			// - check (root) aliases
+			auto i = 0u;
+			for (const auto& root : history) {
+				aliasChecker(root.alias(NamespaceId(123)), i, "root at " + std::to_string(i));
+				++i;
+			}
+		}
+	}
+
 	CONSTRUCTOR_TEST(CanConstructHistoryWithSingleOwner_WithoutChildren) {
-		// Arrange:
-		auto owner = test::CreateRandomOwner();
-		RootNamespaceHistory original(NamespaceId(123));
-		for (auto i = 0u; i < 3; ++i)
-			original.push_back(owner, test::CreateLifetime(234 + i, 321 + i));
-
-		// Act:
-		auto history = TTraits::Construct(std::move(original));
-
 		// Assert:
-		EXPECT_EQ(NamespaceId(123), history.id());
-		EXPECT_FALSE(history.empty());
-		EXPECT_EQ(3u, history.historyDepth());
-		EXPECT_EQ(3u, history.activeOwnerHistoryDepth());
-		EXPECT_EQ(0u, history.numActiveRootChildren());
-		EXPECT_EQ(0u, history.numAllHistoricalChildren());
-		EXPECT_EQ(std::vector<Key>({ owner, owner, owner }), GetOwners(history));
-		EXPECT_EQ(std::vector<Height>({ Height(234), Height(235), Height(236) }), GetLifetimeStartHeights(history));
+		AssertCanConstructHistoryWithSingleOwnerWithoutChildren<TTraits>(
+				[](auto) { return NamespaceAlias(); },
+				[](const auto& rootAlias, auto, const auto& message) {
+					EXPECT_EQ(AliasType::None, rootAlias.type()) << message;
+				});
+	}
+
+	CONSTRUCTOR_TEST(CanConstructHistoryWithSingleOwner_WithoutChildren_WithAlias) {
+		// Assert:
+		AssertCanConstructHistoryWithSingleOwnerWithoutChildren<TTraits>(
+				[](auto i) { return NamespaceAlias(MosaicId(999 + 2 * i)); },
+				[](const auto& rootAlias, auto i, const auto& message) {
+					ASSERT_EQ(AliasType::Mosaic, rootAlias.type()) << message;
+					EXPECT_EQ(MosaicId(999 + 2 * i), rootAlias.mosaicId()) << message;
+				});
 	}
 
 	CONSTRUCTOR_TEST(CanConstructHistoryWithSingleOwner_WithChildren) {

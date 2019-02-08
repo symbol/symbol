@@ -67,7 +67,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanWriteLogMessagesWithCatapultLogMacro) {
-		test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+		test::TempLogsDirectoryGuard logFileGuard;
 
 		{
 			// Arrange: add a file logger
@@ -93,7 +93,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanWriteLogMessagesWithCatapultLogLevelMacro) {
-		test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+		test::TempLogsDirectoryGuard logFileGuard;
 
 		{
 			// Arrange: add a file logger
@@ -119,7 +119,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanWriteLogMessagesWithCustomComponentTags) {
-		test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+		test::TempLogsDirectoryGuard logFileGuard;
 
 		{
 			// Arrange: add a file logger
@@ -146,7 +146,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanFilterMessagesBySettingGlobalLevel) {
-		test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+		test::TempLogsDirectoryGuard logFileGuard;
 
 		{
 			// Arrange: add a file logger and filter out some messages
@@ -170,7 +170,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanFilterMessagesBySettingComponentFilterLevelAboveGlobalLevel) {
-		test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+		test::TempLogsDirectoryGuard logFileGuard;
 
 		{
 			// Arrange: add a file logger and filter out some messages
@@ -197,7 +197,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanFilterMessagesBySettingComponentFilterLevelBelowGlobalLevel) {
-		test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+		test::TempLogsDirectoryGuard logFileGuard;
 
 		{
 			// Arrange: add a file logger and filter out some messages
@@ -226,7 +226,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanFilterMessagesFromRealComponents) {
-		test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+		test::TempLogsDirectoryGuard logFileGuard;
 
 		{
 			// Arrange: add a file logger and filter out some messages
@@ -256,7 +256,7 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanLogAndFilterMessagesFromMultipleThreads) {
 		// Arrange:
-		test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+		test::TempLogsDirectoryGuard logFileGuard;
 
 		{
 			// Arrange: construct the tag for each thread
@@ -311,8 +311,8 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanConfigureLoggersWithIndependentFilters) {
-		test::TempFileGuard logFileGuard(test::Test_Log_Filename);
-		test::TempFileGuard logSecondaryFileGuard("logs/CatapultLoggingTests_Secondary0000.txt");
+		test::TempLogsDirectoryGuard logFileGuard;
+		test::TempLogsDirectoryGuard logSecondaryFileGuard("CatapultLoggingTests_Secondary");
 
 		{
 			// Arrange: add two file loggers with different filters
@@ -322,7 +322,7 @@ namespace catapult { namespace utils {
 
 			LoggingBootstrapper bootstrapper;
 			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), LogFilter(LogLevel::Info));
-			bootstrapper.addFileLogger(FileLoggerOptions("logs", "CatapultLoggingTests_Secondary%4N.txt"), secondaryLogFilter);
+			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions("CatapultLoggingTests_Secondary"), secondaryLogFilter);
 
 			// Act: log messages with custom tags
 			LogMessagesWithSubcomponentTag("foo");

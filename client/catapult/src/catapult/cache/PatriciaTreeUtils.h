@@ -41,14 +41,13 @@ namespace catapult { namespace cache {
 			using SupportedIsActiveFlag = std::integral_constant<IsActiveType, IsActiveType::Supported>;
 
 			template<typename T, typename = void>
-			struct IsActiveAccessor : UnsupportedIsActiveFlag
-			{};
+			struct IsActiveAccessor : public UnsupportedIsActiveFlag {};
 
 			template<typename T>
 			struct IsActiveAccessor<
 					T,
 					typename utils::traits::enable_if_type<decltype(reinterpret_cast<const T*>(0)->isActive(Height()))>::type>
-					: SupportedIsActiveFlag
+					: public SupportedIsActiveFlag
 			{};
 
 		private:
@@ -75,24 +74,24 @@ namespace catapult { namespace cache {
 			return minGenerationId <= generationId && generationId <= maxGenerationId;
 		};
 
+		auto handleModification = [&tree, height](const auto& pair) {
+			if (detail::IsActiveAdapter::IsActive(pair.second, height))
+				tree.set(pair.first, pair.second);
+			else
+				tree.unset(pair.first);
+		};
+
 		auto deltas = set.deltas();
 		for (const auto& pair : deltas.Added) {
 			if (needsApplication(pair.first)) {
-				// when added, a value is always expected to be active
-				if (!detail::IsActiveAdapter::IsActive(pair.second, height))
-					CATAPULT_THROW_RUNTIME_ERROR("cannot add inactive value to tree");
-
-				tree.set(pair.first, pair.second);
+				// a value can be added and deactivated during the processing of a single chain part
+				handleModification(pair);
 			}
 		}
 
 		for (const auto& pair : deltas.Copied) {
-			if (needsApplication(pair.first)) {
-				if (detail::IsActiveAdapter::IsActive(pair.second, height))
-					tree.set(pair.first, pair.second);
-				else
-					tree.unset(pair.first);
-			}
+			if (needsApplication(pair.first))
+				handleModification(pair);
 		}
 
 		for (const auto& pair : deltas.Removed) {

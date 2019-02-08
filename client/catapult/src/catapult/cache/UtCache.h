@@ -53,6 +53,5 @@ namespace catapult { namespace cache {
 	};
 
 	/// An interface for caching unconfirmed transactions.
-	class UtCache : public BasicTransactionsCache<UtCacheModifierProxy>
-	{};
+	class UtCache : public BasicTransactionsCache<UtCacheModifierProxy> {};
 }}

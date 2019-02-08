@@ -29,7 +29,7 @@ namespace catapult { namespace chain {
 			Height,
 			Timestamp,
 			const model::WeakEntityInfos&,
-			const observers::ObserverState&)>;
+			observers::ObserverState&)>;
 
 	/// Creates a batch entity processor around \a config.
 	BatchEntityProcessor CreateBatchEntityProcessor(const ExecutionConfiguration& config);

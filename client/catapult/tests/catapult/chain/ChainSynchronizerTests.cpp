@@ -93,6 +93,7 @@ namespace catapult { namespace chain {
 			std::shared_ptr<MockPacketIo> pIo;
 			std::shared_ptr<MockChainApi> pChainApi;
 			size_t BlockRangeConsumerCalls;
+			std::vector<Key> BlockRangeSourcePublicKeys;
 			ChainSynchronizerConfiguration Config;
 			disruptor::ProcessingCompleteFunc ProcessingComplete;
 		};
@@ -103,11 +104,11 @@ namespace catapult { namespace chain {
 			auto pVerifiableBlock = test::GenerateVerifiableBlockAtHeight(Default_Height);
 			auto pLocal = std::make_shared<MockChainApi>(context.LocalScore, std::move(pVerifiableBlock), context.LocalHashes);
 
-			auto& blockConsumerCalls = context.BlockRangeConsumerCalls;
-			auto blockRangeConsumer = [mode, &blockConsumerCalls, &context](const auto&, const auto& processingComplete) {
-				++blockConsumerCalls;
+			auto blockRangeConsumer = [mode, &context](const auto& range, const auto& processingComplete) {
+				++context.BlockRangeConsumerCalls;
+				context.BlockRangeSourcePublicKeys.push_back(range.SourcePublicKey);
 				context.ProcessingComplete = processingComplete;
-				return ConsumerMode::Normal == mode ? blockConsumerCalls : 0;
+				return ConsumerMode::Normal == mode ? context.BlockRangeConsumerCalls : 0;
 			};
 
 			return CreateChainSynchronizer(pLocal, context.Config, blockRangeConsumer);
@@ -115,6 +116,14 @@ namespace catapult { namespace chain {
 
 		void AssertSync(const TestContext& context, size_t numBlockConsumerCalls) {
 			EXPECT_EQ(numBlockConsumerCalls, context.BlockRangeConsumerCalls);
+			EXPECT_EQ(numBlockConsumerCalls, context.BlockRangeSourcePublicKeys.size());
+
+			auto i = 0u;
+			for (const auto& key : context.BlockRangeSourcePublicKeys) {
+				EXPECT_NE(Key(), key) << "key at " << i;
+				EXPECT_EQ(context.pChainApi->remotePublicKey(), key) << "key at " << i;
+				++i;
+			}
 		}
 	}
 
@@ -127,10 +136,10 @@ namespace catapult { namespace chain {
 			auto synchronizer = CreateSynchronizer(context);
 
 			// Act:
-			auto result = synchronizer(*context.pChainApi).get();
+			auto code = synchronizer(*context.pChainApi).get();
 
 			// Assert:
-			EXPECT_EQ(NodeInteractionResult::Neutral, result);
+			EXPECT_EQ(ionet::NodeInteractionResultCode::Neutral, code);
 			EXPECT_EQ(0u, context.BlockRangeConsumerCalls);
 		}
 	}
@@ -151,10 +160,10 @@ namespace catapult { namespace chain {
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act:
-		auto result = synchronizer(*context.pChainApi).get();
+		auto code = synchronizer(*context.pChainApi).get();
 
 		// Assert:
-		EXPECT_EQ(NodeInteractionResult::Failure, result);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, code);
 		context.assertNoCalls();
 	}
 
@@ -165,10 +174,10 @@ namespace catapult { namespace chain {
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act:
-		auto result = synchronizer(*context.pChainApi).get();
+		auto code = synchronizer(*context.pChainApi).get();
 
 		// Assert:
-		EXPECT_EQ(NodeInteractionResult::Failure, result);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, code);
 		context.assertNoCalls();
 	}
 
@@ -220,10 +229,10 @@ namespace catapult { namespace chain {
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act:
-		auto result = synchronizer(*context.pChainApi).get();
+		auto code = synchronizer(*context.pChainApi).get();
 
 		// Assert:
-		EXPECT_EQ(NodeInteractionResult::Success, result);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::Success, code);
 		AssertSync(context, 1);
 		AssertDefaultSinglePullRequest(*context.pChainApi);
 	}
@@ -234,10 +243,10 @@ namespace catapult { namespace chain {
 		auto synchronizer = CreateSynchronizer(context, ConsumerMode::Full);
 
 		// Act:
-		auto result = synchronizer(*context.pChainApi).get();
+		auto code = synchronizer(*context.pChainApi).get();
 
 		// Assert: neutral because blocks could not be processed, so chain is unchanged
-		EXPECT_EQ(NodeInteractionResult::Neutral, result);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::Neutral, code);
 		AssertSync(context, 1);
 		AssertDefaultSinglePullRequest(*context.pChainApi);
 	}
@@ -251,10 +260,10 @@ namespace catapult { namespace chain {
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act:
-		auto result = synchronizer(*context.pChainApi).get();
+		auto code = synchronizer(*context.pChainApi).get();
 
 		// Assert:
-		EXPECT_EQ(NodeInteractionResult::Success, result);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::Success, code);
 		AssertSync(context, 1);
 		AssertDefaultMultiplePullRequest(*context.pChainApi, { Height(15), Height(17), Height(19) });
 	}
@@ -266,10 +275,10 @@ namespace catapult { namespace chain {
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act:
-		auto result = synchronizer(*context.pChainApi).get();
+		auto code = synchronizer(*context.pChainApi).get();
 
 		// Assert:
-		EXPECT_EQ(NodeInteractionResult::Neutral, result);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::Neutral, code);
 		context.assertNoCalls();
 		AssertDefaultSinglePullRequest(*context.pChainApi);
 	}
@@ -285,10 +294,10 @@ namespace catapult { namespace chain {
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act:
-		auto result = synchronizer(*context.pChainApi).get();
+		auto code = synchronizer(*context.pChainApi).get();
 
 		// Assert:
-		EXPECT_EQ(NodeInteractionResult::Success, result);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::Success, code);
 		AssertSync(context, 1);
 		AssertDefaultMultiplePullRequest(*context.pChainApi, { Height(13), Height(15), Height(17) });
 	}
@@ -300,10 +309,10 @@ namespace catapult { namespace chain {
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act:
-		auto result = synchronizer(*context.pChainApi).get();
+		auto code = synchronizer(*context.pChainApi).get();
 
 		// Assert:
-		EXPECT_EQ(NodeInteractionResult::Failure, result);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, code);
 		context.assertNoCalls();
 		AssertDefaultSinglePullRequest(*context.pChainApi);
 	}
@@ -366,19 +375,19 @@ namespace catapult { namespace chain {
 		// Arrange: by default the container max size is large enough to pass many sync rounds without being full
 		auto context = CreateTestContextForUnprocessedElementTests();
 		auto synchronizer = CreateSynchronizer(context);
-		std::vector<NodeInteractionResult> interactionResults;
+		std::vector<ionet::NodeInteractionResultCode> interactionResultCodes;
 
 		// Act:
 		for (auto i = 0u; i < 10; i++)
-			interactionResults.push_back(synchronizer(*context.pChainApi).get());
+			interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// Assert:
 		AssertSync(context, 10);
 
 		auto i = 0u;
 		ASSERT_EQ(10u, context.pChainApi->blocksFromRequests().size());
-		for (auto result : interactionResults) {
-			EXPECT_EQ(NodeInteractionResult::Success, result);
+		for (auto code : interactionResultCodes) {
+			EXPECT_EQ(ionet::NodeInteractionResultCode::Success, code);
 			AssertRequestHeight(context, i, Default_Height + Height(2 * i));
 			++i;
 		}
@@ -391,12 +400,12 @@ namespace catapult { namespace chain {
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act: second call is short circuited since the container is full
-		auto result1 = synchronizer(*context.pChainApi).get();
-		auto result2 = synchronizer(*context.pChainApi).get();
+		auto code1 = synchronizer(*context.pChainApi).get();
+		auto code2 = synchronizer(*context.pChainApi).get();
 
 		// Assert:
-		EXPECT_EQ(result1, NodeInteractionResult::Success);
-		EXPECT_EQ(result2, NodeInteractionResult::Neutral);
+		EXPECT_EQ(code1, ionet::NodeInteractionResultCode::Success);
+		EXPECT_EQ(code2, ionet::NodeInteractionResultCode::Neutral);
 		AssertSync(context, 1);
 
 		AssertRequestHeights(context, { Default_Height });
@@ -408,31 +417,31 @@ namespace catapult { namespace chain {
 		auto context = CreateTestContextForUnprocessedElementTests();
 		context.Config.MaxChainBytesPerSyncAttempt = sizeof(Block);
 		auto synchronizer = CreateSynchronizer(context);
-		std::vector<NodeInteractionResult> interactionResults;
+		std::vector<ionet::NodeInteractionResultCode> interactionResultCodes;
 
 		// - sucessful since container is not full
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// - neutral since container is full
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// - signal processing for first element has finished
 		context.ProcessingComplete(1, CreateContinueResult());
 
 		// Act: since an unprocessed element was removed, the container is no longer full
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// Assert:
-		std::vector<NodeInteractionResult> expectedInteractionResults{
-			NodeInteractionResult::Success,
-			NodeInteractionResult::Success,
-			NodeInteractionResult::Neutral,
-			NodeInteractionResult::Success
+		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
+			ionet::NodeInteractionResultCode::Success,
+			ionet::NodeInteractionResultCode::Success,
+			ionet::NodeInteractionResultCode::Neutral,
+			ionet::NodeInteractionResultCode::Success
 		};
 
 		AssertSync(context, 3);
-		EXPECT_EQ(expectedInteractionResults, interactionResults);
+		EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
 
 		AssertRequestHeights(context, { Default_Height, Default_Height + Height(2), Default_Height + Height(4) });
 	}
@@ -441,27 +450,27 @@ namespace catapult { namespace chain {
 		// Arrange:
 		auto context = CreateTestContextForUnprocessedElementTests();
 		auto synchronizer = CreateSynchronizer(context);
-		std::vector<NodeInteractionResult> interactionResults;
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
+		std::vector<ionet::NodeInteractionResultCode> interactionResultCodes;
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// - signal processing for first element has finished unsuccessfully making the container dirty
 		context.ProcessingComplete(1, CreateAbortResult());
 
 		// Act: neutral because container is dirty
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// Assert:
-		std::vector<NodeInteractionResult> expectedInteractionResults{
-			NodeInteractionResult::Success,
-			NodeInteractionResult::Success,
-			NodeInteractionResult::Neutral,
-			NodeInteractionResult::Neutral
+		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
+			ionet::NodeInteractionResultCode::Success,
+			ionet::NodeInteractionResultCode::Success,
+			ionet::NodeInteractionResultCode::Neutral,
+			ionet::NodeInteractionResultCode::Neutral
 		};
 
 		AssertSync(context, 2);
-		EXPECT_EQ(expectedInteractionResults, interactionResults);
+		EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
 
 		AssertRequestHeights(context, { Default_Height, Default_Height + Height(2) });
 	}
@@ -470,32 +479,32 @@ namespace catapult { namespace chain {
 		// Arrange:
 		auto context = CreateTestContextForUnprocessedElementTests();
 		auto synchronizer = CreateSynchronizer(context);
-		std::vector<NodeInteractionResult> interactionResults;
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
+		std::vector<ionet::NodeInteractionResultCode> interactionResultCodes;
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// - signal processing for first element has finished unsuccessfully making the container dirty
 		context.ProcessingComplete(1, CreateAbortResult());
 
 		// - neutral because container is dirty
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// - signal processing for second element has finished. The container is empty and thus clean again
 		context.ProcessingComplete(2, CreateAbortResult());
 
 		// Act: successful because container is clean
-		interactionResults.push_back(synchronizer(*context.pChainApi).get());
+		interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 		// Assert:
-		std::vector<NodeInteractionResult> expectedInteractionResults{
-			NodeInteractionResult::Success,
-			NodeInteractionResult::Success,
-			NodeInteractionResult::Neutral,
-			NodeInteractionResult::Success
+		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
+			ionet::NodeInteractionResultCode::Success,
+			ionet::NodeInteractionResultCode::Success,
+			ionet::NodeInteractionResultCode::Neutral,
+			ionet::NodeInteractionResultCode::Success
 		};
 
 		AssertSync(context, 3);
-		EXPECT_EQ(expectedInteractionResults, interactionResults);
+		EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
 
 		// - last request should be Default_Height because container is empty again
 		AssertRequestHeights(context, { Default_Height, Default_Height + Height(2), Default_Height });
@@ -507,10 +516,10 @@ namespace catapult { namespace chain {
 			// Arrange:
 			auto context = CreateTestContextForUnprocessedElementTests();
 			auto synchronizer = CreateSynchronizer(context);
-			std::vector<NodeInteractionResult> interactionResults;
+			std::vector<ionet::NodeInteractionResultCode> interactionResultCodes;
 
 			// Act: start an (immediate) request
-			interactionResults.push_back(synchronizer(*context.pChainApi).get());
+			interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 			// - start a delayed request
 			context.pChainApi->setDelay(utils::TimeSpan::FromMilliseconds(10 * i));
@@ -523,17 +532,17 @@ namespace catapult { namespace chain {
 			if (syncFuture.is_ready())
 				return false;
 
-			interactionResults.push_back(syncFuture.get());
+			interactionResultCodes.push_back(syncFuture.get());
 
 			// Assert:
-			std::vector<NodeInteractionResult> expectedInteractionResults{
-				NodeInteractionResult::Success,
-				NodeInteractionResult::Neutral
+			std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
+				ionet::NodeInteractionResultCode::Success,
+				ionet::NodeInteractionResultCode::Neutral
 			};
 
 			// - only one range was forwarded to the consumer because the second was rejected
 			AssertSync(context, 1);
-			EXPECT_EQ(expectedInteractionResults, interactionResults);
+			EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
 
 			AssertRequestHeights(context, { Default_Height, Default_Height + Height(2) });
 			return true;
@@ -544,7 +553,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		auto context = CreateTestContextForUnprocessedElementTests();
 		auto synchronizer = CreateSynchronizer(context);
-		std::vector<NodeInteractionResult> interactionResults;
+		std::vector<ionet::NodeInteractionResultCode> interactionResultCodes;
 
 		// Act: start two delayed requests
 		context.pChainApi->setDelay(utils::TimeSpan::FromMilliseconds(10));
@@ -552,18 +561,18 @@ namespace catapult { namespace chain {
 		auto syncFuture2 = synchronizer(*context.pChainApi);
 
 		// - wait for the delayed requests
-		interactionResults.push_back(syncFuture1.get());
-		interactionResults.push_back(syncFuture2.get());
+		interactionResultCodes.push_back(syncFuture1.get());
+		interactionResultCodes.push_back(syncFuture2.get());
 
 		// Assert: only one outstanding sync is allowed at a time
-		std::vector<NodeInteractionResult> expectedInteractionResults{
-			NodeInteractionResult::Success,
-			NodeInteractionResult::Neutral
+		std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
+			ionet::NodeInteractionResultCode::Success,
+			ionet::NodeInteractionResultCode::Neutral
 		};
 
 		// - only one range was forwarded to the consumer because the second was bypassed
 		AssertSync(context, 1);
-		EXPECT_EQ(expectedInteractionResults, interactionResults);
+		EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
 
 		// - only one request was made because the second was bypassed
 		AssertRequestHeights(context, { Default_Height });
@@ -573,7 +582,7 @@ namespace catapult { namespace chain {
 		// Arrange:
 		auto context = CreateTestContextForUnprocessedElementTests();
 		auto synchronizer = CreateSynchronizer(context);
-		auto resultFuture1 = synchronizer(*context.pChainApi);
+		auto future = synchronizer(*context.pChainApi);
 
 		// Act + Assert: signal processing has finished with unknown element id
 		EXPECT_THROW(context.ProcessingComplete(123, CreateContinueResult()), catapult_invalid_argument);
@@ -590,24 +599,24 @@ namespace catapult { namespace chain {
 			// Arrange:
 			auto context = CreateTestContextForUnprocessedElementTests();
 			auto synchronizer = CreateSynchronizer(context);
-			std::vector<NodeInteractionResult> interactionResults;
+			std::vector<ionet::NodeInteractionResultCode> interactionResultCodes;
 
 			// Act: set an exception and sync
 			context.pChainApi->setError(errorPoint);
-			interactionResults.push_back(synchronizer(*context.pChainApi).get());
+			interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 			// - clear the exception and sync
 			context.pChainApi->setError(MockChainApi::EntryPoint::None);
-			interactionResults.push_back(synchronizer(*context.pChainApi).get());
+			interactionResultCodes.push_back(synchronizer(*context.pChainApi).get());
 
 			// Assert: the first sync failed but the second succeeded
-			std::vector<NodeInteractionResult> expectedInteractionResults{
-				NodeInteractionResult::Failure,
-				NodeInteractionResult::Success
+			std::vector<ionet::NodeInteractionResultCode> expectedInteractionResultCodes{
+				ionet::NodeInteractionResultCode::Failure,
+				ionet::NodeInteractionResultCode::Success
 			};
 
 			AssertSync(context, 1);
-			EXPECT_EQ(expectedInteractionResults, interactionResults);
+			EXPECT_EQ(expectedInteractionResultCodes, interactionResultCodes);
 			AssertRequestHeights(context, expectedRequestHeights);
 		}
 	}
@@ -628,7 +637,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, SynchronizerFutureCanCompleteAfterSynchronizerIsDestroyed) {
 		// Arrange:
-		thread::future<NodeInteractionResult> future;
+		thread::future<ionet::NodeInteractionResultCode> future;
 		auto context = CreateDefaultTestContext(9, 10);
 		{
 			context.pChainApi->setDelay(utils::TimeSpan::FromMilliseconds(10));

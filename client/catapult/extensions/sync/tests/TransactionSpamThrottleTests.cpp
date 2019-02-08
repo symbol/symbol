@@ -61,7 +61,7 @@ namespace catapult { namespace sync {
 
 		model::TransactionInfo CreateTransactionInfo(const Key& signer, Amount fee = Amount()) {
 			auto pTransaction = test::GenerateRandomTransaction(signer);
-			pTransaction->Fee = fee;
+			pTransaction->MaxFee = fee;
 			auto transactionInfo = model::TransactionInfo(std::move(pTransaction));
 			test::FillWithRandomData(transactionInfo.EntityHash);
 			return transactionInfo;
@@ -250,19 +250,19 @@ namespace catapult { namespace sync {
 		AssertThrottling(CreateSettingsWithFee(Amount()), true);
 
 		// Act: high fee boosts the effective importance to 1% of total importance:
-		//      - total importance = 1'000'000, fee = 10 xem, so attemptedImportanceBoost = 10'000
+		//      - total importance = 1'000'000, fee = 10 currency, so attemptedImportanceBoost = 10'000
 		AssertThrottling(CreateSettingsWithFee(Amount(10'000'000)), false);
 	}
 
 	TEST(TEST_CLASS, MaxBoostFeeAffectsHowTransactionFeeIncreasesEffectiveImportance) {
-		// Act: the max boost fee is 10 xem, a low fee is not enough to get the transactions accepted
+		// Act: the max boost fee is 10 currency, a low fee is not enough to get the transactions accepted
 		//      - low fee boosts the effective importance by only 0.001% of total importance:
-		//      - total importance = 1'000'000, fee = 0.01 xem, max boost fee = 10 xem, so attemptedImportanceBoost = 10
+		//      - total importance = 1'000'000, fee = 0.01 currency, max boost fee = 10 currency, so attemptedImportanceBoost = 10
 		AssertThrottling(CreateSettingsWithFee(Amount(10'000), Amount(10'000'000)), true);
 
-		// Act: the max boost fee is 0.01 xem, even a low fee is enough to get the transactions accepted
+		// Act: the max boost fee is 0.01 currency, even a low fee is enough to get the transactions accepted
 		//      - even a low fee boosts the effective importance to 1% of total importance:
-		//      - total importance = 1'000'000, fee = 0.01 xem, max boost fee = 0.01 xem, so attemptedImportanceBoost = 10'000
+		//      - total importance = 1'000'000, fee = 0.01 currency, max boost fee = 0.01 currency, so attemptedImportanceBoost = 10'000
 		AssertThrottling(CreateSettingsWithFee(Amount(10'000), Amount(10'000)), false);
 	}
 

@@ -21,6 +21,7 @@
 #pragma once
 #include "catapult/deltaset/BaseSetDelta.h"
 #include "catapult/utils/IdentifierGroup.h"
+#include "catapult/types.h"
 
 namespace catapult { namespace cache {
 
@@ -39,7 +40,7 @@ namespace catapult { namespace cache {
 	template<typename TSet, typename TGroupedSet, typename TGroupingKey, typename TAction>
 	void ForEachIdentifierWithGroup(TSet& set, const TGroupedSet& groupedSet, const TGroupingKey& key, TAction action) {
 		auto groupIter = groupedSet.find(key);
-		auto* pGroup = groupIter.get();
+		const auto* pGroup = groupIter.get();
 		if (!pGroup)
 			return;
 
@@ -55,7 +56,7 @@ namespace catapult { namespace cache {
 	template<typename TSet, typename TGroupedSet, typename TGroupingKey>
 	void RemoveAllIdentifiersWithGroup(TSet& set, TGroupedSet& groupedSet, const TGroupingKey& key) {
 		auto groupIter = groupedSet.find(key);
-		auto* pGroup = groupIter.get();
+		const auto* pGroup = groupIter.get();
 		if (!pGroup)
 			return;
 
@@ -63,5 +64,24 @@ namespace catapult { namespace cache {
 			set.remove(identifier);
 
 		groupedSet.remove(key);
+	}
+
+	/// Finds identifiers of all values in \a set (with grouped view \a groupedSet) that are deactivating at \a height.
+	template<typename TSet, typename TGroupedSet, typename TIdentifiers = typename TGroupedSet::ElementType::Identifiers>
+	TIdentifiers FindDeactivatingIdentifiersAtHeight(const TSet& set, const TGroupedSet& groupedSet, Height height) {
+		auto groupIter = groupedSet.find(height);
+		const auto* pGroup = groupIter.get();
+		if (!pGroup)
+			return {};
+
+		TIdentifiers identifiers;
+		for (const auto& identifier : pGroup->identifiers()) {
+			auto valueIter = set.find(identifier);
+			auto* pValue = valueIter.get();
+			if (pValue && !pValue->isActive(height) && pValue->isActive(height - Height(1)))
+				identifiers.emplace(identifier);
+		}
+
+		return identifiers;
 	}
 }}

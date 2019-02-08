@@ -94,7 +94,7 @@ def checkExternalInclude(incA, incB):
 
 
 def isCppInclude(inc):
-    cppIncludes = ['<boost', '<mongocxx', '<bsoncxx', '<rocksdb']
+    cppIncludes = ['<boost', '<mongocxx', '<bsoncxx', '<rocksdb', '<benchmark']
     return any(map(inc.startswith, cppIncludes))
 
 

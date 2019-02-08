@@ -94,7 +94,11 @@ namespace catapult { namespace cache {
 
 			public:
 				TestContext()
-						: Context(RocksDatabaseSettings("testdb", { "default" }, utils::FileSize(), FilterPruningMode::Disabled))
+						: Context(RocksDatabaseSettings(
+								test::TempDirectoryGuard::DefaultName(),
+								{ "default" },
+								utils::FileSize(),
+								FilterPruningMode::Disabled))
 						, Set(Context.database(), 0) {
 					// seed the set with a few elements
 					AddElement(Set, "aaa", 1);

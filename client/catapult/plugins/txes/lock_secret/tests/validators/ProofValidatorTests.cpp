@@ -37,9 +37,9 @@ namespace catapult { namespace validators {
 			return test::ProofNotificationBuilder(Default_Height);
 		}
 
-		auto CreateDefaultLockInfo(const Hash512& hash) {
+		auto CreateDefaultLockInfo(const Hash256& hash) {
 			auto lockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo(Expiration_Height);
-			lockInfo.HashAlgorithm = model::LockHashAlgorithm::Op_Sha3;
+			lockInfo.HashAlgorithm = model::LockHashAlgorithm::Op_Sha3_256;
 			lockInfo.Secret = hash;
 			return lockInfo;
 		}
@@ -54,7 +54,7 @@ namespace catapult { namespace validators {
 		auto CreateDefaultSeededCache() {
 			auto cache = test::SecretLockInfoCacheFactory::Create();
 			for (auto i = 0u; i < 10; ++i)
-				AddToCache(cache, CreateDefaultLockInfo(test::GenerateRandomData<Hash512_Size>()));
+				AddToCache(cache, CreateDefaultLockInfo(test::GenerateRandomData<Hash256_Size>()));
 
 			return cache;
 		}
@@ -118,7 +118,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, FailureIfHashAlgorithmDoesNotMatch) {
 		// Arrange:
 		auto notificationBuilder = CreateNotificationBuilder();
-		notificationBuilder.setAlgorithm(model::LockHashAlgorithm::Op_Keccak);
+		notificationBuilder.setAlgorithm(model::LockHashAlgorithm::Op_Keccak_256);
 
 		// Assert:
 		AssertValidatorResult(Failure_LockSecret_Hash_Algorithm_Mismatch, notificationBuilder);
@@ -131,7 +131,7 @@ namespace catapult { namespace validators {
 		lockInfo.Status = state::LockStatus::Used;
 
 		// Assert:
-		AssertValidatorResult(Failure_LockSecret_Secret_Already_Used, lockInfo, notificationBuilder);
+		AssertValidatorResult(Failure_LockSecret_Inactive_Secret, lockInfo, notificationBuilder);
 	}
 
 	TEST(TEST_CLASS, SuccessIfValidSecretIsInCache) {

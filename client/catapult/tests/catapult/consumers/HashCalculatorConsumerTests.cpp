@@ -204,7 +204,7 @@ namespace catapult { namespace consumers {
 		auto input = CreateBlockConsumerInput(3, 4);
 		auto& blockElements = input.blocks();
 
-		const auto* pTransaction = reinterpret_cast<const mocks::MockTransaction*>(&blockElements[1].Block + 1) + 2;
+		const auto* pTransaction = static_cast<const mocks::MockTransaction*>(blockElements[1].Block.TransactionsPtr()) + 2;
 		const_cast<mocks::MockTransaction*>(pTransaction)->Size = 2 * sizeof(mocks::MockTransaction) + 1;
 
 		// Act + Assert: transaction iteration throws an exception
@@ -348,8 +348,8 @@ namespace catapult { namespace consumers {
 					return CreateTransactionConsumerInput(1);
 				}
 
-				static void UpdateWithExpectedMerkleHash(ConsumerInput&, const Hash256&) {
-				}
+				static void UpdateWithExpectedMerkleHash(ConsumerInput&, const Hash256&)
+				{}
 
 				static auto Consume(const model::TransactionRegistry& registry, ConsumerInput& input) {
 					return CreateTransactionHashCalculatorConsumer(registry)(input.transactions());

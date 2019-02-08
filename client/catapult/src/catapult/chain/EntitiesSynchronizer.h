@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "NodeInteractionResult.h"
+#include "catapult/ionet/NodeInteractionResultCode.h"
 #include "catapult/thread/FutureUtils.h"
 
 namespace catapult { namespace chain {
@@ -31,7 +31,7 @@ namespace catapult { namespace chain {
 		using RemoteApiType = typename TSynchronizerTraits::RemoteApiType;
 
 	private:
-		using NodeInteractionFuture = thread::future<NodeInteractionResult>;
+		using NodeInteractionFuture = thread::future<ionet::NodeInteractionResultCode>;
 
 	public:
 		/// Creates an entities synchronizer around \a traits.
@@ -41,21 +41,20 @@ namespace catapult { namespace chain {
 	public:
 		/// Pulls entities from a remote node using \a api.
 		NodeInteractionFuture operator()(const RemoteApiType& api) {
-			return m_traits.apiCall(api)
-				.then([&traits = m_traits](auto&& rangeFuture) {
-					try {
-						auto range = rangeFuture.get();
-						if (range.empty())
-							return NodeInteractionResult::Neutral;
+			return m_traits.apiCall(api).then([&traits = m_traits, sourcePublicKey = api.remotePublicKey()](auto&& rangeFuture) {
+				try {
+					auto range = rangeFuture.get();
+					if (range.empty())
+						return ionet::NodeInteractionResultCode::Neutral;
 
-						CATAPULT_LOG(debug) << "peer returned " << range.size() << " " << TSynchronizerTraits::Name;
-						traits.consume(std::move(range));
-						return NodeInteractionResult::Success;
-					} catch (const catapult_runtime_error& e) {
-						CATAPULT_LOG(warning) << "exception thrown while requesting " << TSynchronizerTraits::Name << ": " << e.what();
-						return NodeInteractionResult::Failure;
-					}
-				});
+					CATAPULT_LOG(debug) << "peer returned " << range.size() << " " << TSynchronizerTraits::Name;
+					traits.consume(std::move(range), sourcePublicKey);
+					return ionet::NodeInteractionResultCode::Success;
+				} catch (const catapult_runtime_error& e) {
+					CATAPULT_LOG(warning) << "exception thrown while requesting " << TSynchronizerTraits::Name << ": " << e.what();
+					return ionet::NodeInteractionResultCode::Failure;
+				}
+			});
 		}
 
 	private:

@@ -356,10 +356,21 @@ namespace catapult { namespace consumers {
 			return entityInfos;
 		}
 
-		void AssertSkipped(const TransactionElements& elements, const std::set<size_t>& skippedIndexes) {
+		void AssertSkipped(
+				const TransactionElements& elements,
+				const std::set<size_t>& skippedIndexes,
+				const std::vector<disruptor::ConsumerResultSeverity>& expectedNonSuccessSeverities) {
+			// Sanity:
+			ASSERT_EQ(skippedIndexes.size(), expectedNonSuccessSeverities.size());
+
 			auto index = 0u;
+			auto numUsedIndexes = 0u;
 			for (const auto& element : elements) {
-				EXPECT_EQ(skippedIndexes.cend() != skippedIndexes.find(index), element.Skip);
+				auto expectedResultCode = skippedIndexes.cend() != skippedIndexes.find(index)
+						? expectedNonSuccessSeverities[numUsedIndexes++]
+						: disruptor::ConsumerResultSeverity::Success;
+
+				EXPECT_EQ(expectedResultCode, element.ResultSeverity);
 				++index;
 			}
 		}
@@ -388,7 +399,7 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0 }), context.pPolicy->params());
-		AssertSkipped(elements, {});
+		AssertSkipped(elements, {}, {});
 		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
 	}
 
@@ -403,7 +414,7 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
-		AssertSkipped(elements, {});
+		AssertSkipped(elements, {}, {});
 		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
 	}
 
@@ -424,7 +435,7 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertAborted(result, ValidationResult::Neutral);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0 }), context.pPolicy->params());
-		AssertSkipped(elements, { 0 });
+		AssertSkipped(elements, { 0 }, { disruptor::ConsumerResultSeverity::Neutral });
 		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
 	}
 
@@ -443,7 +454,7 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
-		AssertSkipped(elements, { 1, 2 });
+		AssertSkipped(elements, { 1, 2 }, { disruptor::ConsumerResultSeverity::Neutral, disruptor::ConsumerResultSeverity::Neutral });
 		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
 	}
 
@@ -469,7 +480,7 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertAborted(result, ValidationResult::Failure);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0 }), context.pPolicy->params());
-		AssertSkipped(elements, { 0 });
+		AssertSkipped(elements, { 0 }, { disruptor::ConsumerResultSeverity::Failure });
 
 		ASSERT_EQ(1u, context.FailedTransactionStatuses.size());
 		EXPECT_EQ_STATUS(elements[0], ValidationResult::Failure, context.FailedTransactionStatuses[0]);
@@ -490,7 +501,7 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
-		AssertSkipped(elements, { 1, 2 });
+		AssertSkipped(elements, { 1, 2 }, { disruptor::ConsumerResultSeverity::Failure, disruptor::ConsumerResultSeverity::Failure });
 
 		ASSERT_EQ(2u, context.FailedTransactionStatuses.size());
 		EXPECT_EQ_STATUS(elements[1], ValidationResult::Failure, context.FailedTransactionStatuses[0]);
@@ -512,7 +523,12 @@ namespace catapult { namespace consumers {
 		// Assert: notice that the first failure result is used (basic ValidationResult aggregation)
 		test::AssertAborted(result, Failure_Result1);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 1, 2, 3 }), context.pPolicy->params());
-		AssertSkipped(elements, { 0, 1, 2, 3 });
+		AssertSkipped(elements, { 0, 1, 2, 3 }, {
+			disruptor::ConsumerResultSeverity::Neutral,
+			disruptor::ConsumerResultSeverity::Failure,
+			disruptor::ConsumerResultSeverity::Failure,
+			disruptor::ConsumerResultSeverity::Neutral
+		});
 
 		ASSERT_EQ(2u, context.FailedTransactionStatuses.size());
 		EXPECT_EQ_STATUS(elements[1], Failure_Result1, context.FailedTransactionStatuses[0]);
@@ -527,7 +543,7 @@ namespace catapult { namespace consumers {
 		// Arrange:
 		TransactionTestContext context;
 		auto elements = TransactionTraits::CreateMultipleEntityElements();
-		elements[1].Skip = true;
+		elements[1].ResultSeverity = disruptor::ConsumerResultSeverity::Neutral;
 
 		// Act:
 		auto result = context.Consumer(elements);
@@ -535,7 +551,7 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 2, 3 }), context.pPolicy->params());
-		AssertSkipped(elements, { 1 });
+		AssertSkipped(elements, { 1 }, { disruptor::ConsumerResultSeverity::Neutral });
 		EXPECT_TRUE(context.FailedTransactionStatuses.empty());
 	}
 
@@ -543,7 +559,7 @@ namespace catapult { namespace consumers {
 		// Arrange:
 		TransactionTestContext context;
 		auto elements = TransactionTraits::CreateMultipleEntityElements();
-		elements[1].Skip = true;
+		elements[1].ResultSeverity = disruptor::ConsumerResultSeverity::Neutral;
 		context.pPolicy->setResult({ ValidationResult::Success, ValidationResult::Failure, ValidationResult::Success });
 
 		// Act:
@@ -552,7 +568,7 @@ namespace catapult { namespace consumers {
 		// Assert:
 		test::AssertContinued(result);
 		TransactionTraits::AssertEntities(FilterEntityInfos(elements, { 0, 2, 3 }), context.pPolicy->params());
-		AssertSkipped(elements, { 1, 2 });
+		AssertSkipped(elements, { 1, 2 }, { disruptor::ConsumerResultSeverity::Neutral, disruptor::ConsumerResultSeverity::Failure });
 
 		// - notice that the 2nd result failure correctly mapped to the 3rd element
 		//   (results are only generated for elements that are not skipped initially)

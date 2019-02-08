@@ -22,6 +22,7 @@
 #include "Address.h"
 #include "NotificationPublisher.h"
 #include "NotificationSubscriber.h"
+#include "ResolverContext.h"
 #include "Transaction.h"
 
 namespace catapult { namespace model {
@@ -41,22 +42,26 @@ namespace catapult { namespace model {
 			}
 
 		public:
-			const AddressSet& addresses() const {
+			const UnresolvedAddressSet& addresses() const {
 				return m_addresses;
 			}
 
 		private:
-			Address toAddress(const Key& publicKey) const {
-				return PublicKeyToAddress(publicKey, m_networkIdentifier);
+			UnresolvedAddress toAddress(const Key& publicKey) const {
+				auto resolvedAddress = PublicKeyToAddress(publicKey, m_networkIdentifier);
+
+				UnresolvedAddress unresolvedAddress;
+				std::memcpy(unresolvedAddress.data(), resolvedAddress.data(), resolvedAddress.size());
+				return unresolvedAddress;
 			}
 
 		private:
 			NetworkIdentifier m_networkIdentifier;
-			model::AddressSet m_addresses;
+			UnresolvedAddressSet m_addresses;
 		};
 	}
 
-	model::AddressSet ExtractAddresses(const Transaction& transaction, const NotificationPublisher& notificationPublisher) {
+	UnresolvedAddressSet ExtractAddresses(const Transaction& transaction, const NotificationPublisher& notificationPublisher) {
 		WeakEntityInfo weakInfo(transaction);
 		AddressCollector sub(NetworkIdentifier(weakInfo.entity().Network()));
 		notificationPublisher.publish(weakInfo, sub);

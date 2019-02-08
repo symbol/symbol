@@ -25,5 +25,5 @@
 namespace catapult { namespace model {
 
 	/// Calculates \a hashAlgorithm hash of \a data.
-	Hash512 CalculateHash(model::LockHashAlgorithm hashAlgorithm, const RawBuffer& data);
+	Hash256 CalculateHash(LockHashAlgorithm hashAlgorithm, const RawBuffer& data);
 }}

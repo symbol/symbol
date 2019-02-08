@@ -32,7 +32,7 @@ namespace catapult { namespace crypto {
 #ifdef SIGNATURE_SCHEME_NIS1
 		Key reversedKey;
 		std::reverse_copy(privateKey.begin(), privateKey.end(), reversedKey.begin());
-		Sha3_512(reversedKey, hash);
+		Keccak_512(reversedKey, hash);
 		SecureZero(reversedKey.data(), Key_Size);
 #else
 		Sha3_512({ privateKey.data(), privateKey.size() }, hash);

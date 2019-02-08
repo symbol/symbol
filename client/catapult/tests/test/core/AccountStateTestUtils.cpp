@@ -56,6 +56,7 @@ namespace catapult { namespace test {
 		EXPECT_EQ(expected.ImportanceInfo.end(), expectedIter) << message;
 		EXPECT_EQ(actual.ImportanceInfo.end(), actualIter) << message;
 
+		EXPECT_EQ(expected.Balances.optimizedMosaicId(), actual.Balances.optimizedMosaicId()) << message;
 		EXPECT_EQ(expected.Balances.size(), actual.Balances.size()) << message;
 		for (const auto& pair : expected.Balances)
 			EXPECT_EQ(pair.second, actual.Balances.get(pair.first)) << message << ": for mosaic " << pair.first;
@@ -64,7 +65,7 @@ namespace catapult { namespace test {
 	std::shared_ptr<state::AccountState> CreateAccountStateWithoutPublicKey(uint64_t height) {
 		auto address = test::GenerateRandomAddress();
 		auto pState = std::make_shared<state::AccountState>(address, Height(height));
-		pState->Balances.credit(Xem_Id, Amount(1));
+		pState->Balances.credit(MosaicId(1111), Amount(1));
 		pState->ImportanceInfo.set(Importance(123456), model::ImportanceHeight(height));
 		return pState;
 	}

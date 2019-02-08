@@ -32,8 +32,8 @@ namespace catapult { namespace cache {
 	};
 
 	struct SecretLockInfoBaseSetDeltaPointers
-			: public LockInfoBaseSetDeltaPointers<SecretLockInfoCacheTypes, SecretLockInfoCacheDescriptor> {
-	};
+			: public LockInfoBaseSetDeltaPointers<SecretLockInfoCacheTypes, SecretLockInfoCacheDescriptor>
+	{};
 
 	struct SecretLockInfoBaseSets
 			: public LockInfoBaseSets<SecretLockInfoCacheTypes, SecretLockInfoCacheDescriptor, SecretLockInfoBaseSetDeltaPointers> {

@@ -20,7 +20,9 @@
 
 #include "BlockGenerator.h"
 #include "NemesisConfiguration.h"
+#include "NemesisExecutionHasher.h"
 #include "TransactionRegistryFactory.h"
+#include "catapult/builders/MosaicAliasBuilder.h"
 #include "catapult/builders/MosaicDefinitionBuilder.h"
 #include "catapult/builders/MosaicSupplyChangeBuilder.h"
 #include "catapult/builders/RegisterNamespaceBuilder.h"
@@ -29,17 +31,42 @@
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/extensions/BlockExtensions.h"
 #include "catapult/extensions/ConversionExtensions.h"
+#include "catapult/extensions/IdGenerator.h"
 #include "catapult/extensions/TransactionExtensions.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockUtils.h"
+#include "catapult/model/EntityHasher.h"
 #include "catapult/utils/HexParser.h"
 
 namespace catapult { namespace tools { namespace nemgen {
 
 	namespace {
-		auto ExtractMosaicName(const std::string& fqn) {
-			auto pos = fqn.find_last_of(':');
-			return fqn.substr(pos + 1);
+		std::string FixName(const std::string& mosaicName) {
+			auto name = mosaicName;
+			for (auto& ch : name) {
+				if (':' == ch)
+					ch = '.';
+			}
+
+			return name;
+		}
+
+		std::string GetChildName(const std::string& namespaceName) {
+			return namespaceName.substr(namespaceName.rfind('.') + 1);
+		}
+
+		model::MosaicFlags GetFlags(const model::MosaicProperties& properties) {
+			auto flags = model::MosaicFlags::None;
+			auto allFlags = std::initializer_list<model::MosaicFlags>{
+				model::MosaicFlags::Supply_Mutable, model::MosaicFlags::Transferable, model::MosaicFlags::Levy_Mutable
+			};
+
+			for (auto flag : allFlags) {
+				if (properties.is(flag))
+					flags |= flag;
+			}
+
+			return flags;
 		}
 
 		class NemesisTransactions {
@@ -51,45 +78,69 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		public:
 			void addRegisterNamespace(const std::string& namespaceName, BlockDuration duration) {
-				builders::RegisterNamespaceBuilder builder(m_networkIdentifier, m_signer.publicKey(), namespaceName);
+				builders::RegisterNamespaceBuilder builder(m_networkIdentifier, m_signer.publicKey());
+				builder.setName({ reinterpret_cast<const uint8_t*>(namespaceName.data()), namespaceName.size() });
 				builder.setDuration(duration);
 				signAndAdd(builder.build());
 			}
 
 			void addRegisterNamespace(const std::string& namespaceName, NamespaceId parentId) {
-				builders::RegisterNamespaceBuilder builder(m_networkIdentifier, m_signer.publicKey(), namespaceName);
+				builders::RegisterNamespaceBuilder builder(m_networkIdentifier, m_signer.publicKey());
+				builder.setName({ reinterpret_cast<const uint8_t*>(namespaceName.data()), namespaceName.size() });
 				builder.setParentId(parentId);
 				signAndAdd(builder.build());
 			}
 
-			void addMosaicDefinition(NamespaceId parentId, const std::string& mosaicName, const model::MosaicProperties& properties) {
-				builders::MosaicDefinitionBuilder builder(m_networkIdentifier, m_signer.publicKey(), parentId, mosaicName);
+			MosaicId addMosaicDefinition(MosaicNonce nonce, const model::MosaicProperties& properties) {
+				builders::MosaicDefinitionBuilder builder(m_networkIdentifier, m_signer.publicKey());
+				builder.setMosaicNonce(nonce);
+				builder.setFlags(GetFlags(properties));
 				builder.setDivisibility(properties.divisibility());
-				builder.setDuration(properties.duration());
-				if (properties.is(model::MosaicFlags::Transferable))
-					builder.setTransferable();
+				if (Eternal_Artifact_Duration != properties.duration())
+					builder.addProperty({ model::MosaicPropertyId::Duration, properties.duration().unwrap() });
 
-				if (properties.is(model::MosaicFlags::Supply_Mutable))
-					builder.setSupplyMutable();
-
-				if (properties.is(model::MosaicFlags::Levy_Mutable))
-					builder.setLevyMutable();
-
-				signAndAdd(builder.build());
+				auto pTransaction = builder.build();
+				auto id = pTransaction->MosaicId;
+				signAndAdd(std::move(pTransaction));
+				return id;
 			}
 
-			void addMosaicSupplyChange(MosaicId mosaicId, Amount delta) {
-				builders::MosaicSupplyChangeBuilder builder(m_networkIdentifier, m_signer.publicKey(), mosaicId);
+			UnresolvedMosaicId addMosaicAlias(const std::string& mosaicName, MosaicId mosaicId) {
+				auto namespaceName = FixName(mosaicName);
+				auto namespacePath = extensions::GenerateNamespacePath(namespaceName);
+				auto namespaceId = namespacePath[namespacePath.size() - 1];
+				builders::MosaicAliasBuilder builder(m_networkIdentifier, m_signer.publicKey());
+				builder.setNamespaceId(namespaceId);
+				builder.setMosaicId(mosaicId);
+				auto pTransaction = builder.build();
+				signAndAdd(std::move(pTransaction));
+
+				CATAPULT_LOG(debug)
+						<< "added alias from ns " << utils::HexFormat(namespaceId) << " (" << namespaceName
+						<< ") -> mosaic " << utils::HexFormat(mosaicId);
+				return UnresolvedMosaicId(namespaceId.unwrap());
+			}
+
+			void addMosaicSupplyChange(UnresolvedMosaicId mosaicId, Amount delta) {
+				builders::MosaicSupplyChangeBuilder builder(m_networkIdentifier, m_signer.publicKey());
+				builder.setMosaicId(mosaicId);
+				builder.setDirection(model::MosaicSupplyChangeDirection::Increase);
 				builder.setDelta(delta);
 				auto pTransaction = builder.build();
 				signAndAdd(std::move(pTransaction));
 			}
 
-			void addTransfer(const Address& recipientAddress, const std::vector<MosaicSeed>& seeds) {
+			void addTransfer(
+					const std::map<std::string, UnresolvedMosaicId>& mosaicNameToMosaicIdMap,
+					const Address& recipientAddress,
+					const std::vector<MosaicSeed>& seeds) {
 				auto recipientUnresolvedAddress = extensions::CopyToUnresolvedAddress(recipientAddress);
-				builders::TransferBuilder builder(m_networkIdentifier, m_signer.publicKey(), recipientUnresolvedAddress);
-				for (const auto& seed : seeds)
-					builder.addMosaic(seed.Name, seed.Amount);
+				builders::TransferBuilder builder(m_networkIdentifier, m_signer.publicKey());
+				builder.setRecipient(recipientUnresolvedAddress);
+				for (const auto& seed : seeds) {
+					auto mosaicId = mosaicNameToMosaicIdMap.at(seed.Name);
+					builder.addMosaic({ mosaicId, seed.Amount });
+				}
 
 				signAndAdd(builder.build());
 			}
@@ -115,7 +166,6 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config) {
 		auto signer = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey);
-
 		NemesisTransactions transactions(config.NetworkIdentifier, signer);
 
 		// - namespace creation
@@ -130,42 +180,62 @@ namespace catapult { namespace tools { namespace nemgen {
 
 			// - children
 			std::map<size_t, std::vector<state::Namespace::Path>> paths;
-			for (const auto& childPair : root.children())
-				paths[childPair.second.size()].push_back(childPair.second);
+			for (const auto& childPair : root.children()) {
+				const auto& path = childPair.second.Path;
+				paths[path.size()].push_back(path);
+			}
 
 			for (const auto& pair : paths) {
 				for (const auto& path : pair.second) {
 					const auto& child = state::Namespace(path);
-					const auto& childName = config.NamespaceNames.at(child.id());
-					transactions.addRegisterNamespace(childName, child.parentId());
+					auto subName = GetChildName(config.NamespaceNames.at(child.id()));
+					transactions.addRegisterNamespace(subName, child.parentId());
 				}
 			}
 		}
 
 		// - mosaic creation
+		MosaicNonce nonce;
+		std::map<std::string, UnresolvedMosaicId> nameToMosaicIdMap;
 		for (const auto& mosaicPair : config.MosaicEntries) {
-			const auto& mosaicName = mosaicPair.first;
 			const auto& mosaicEntry = mosaicPair.second;
 
 			// - definition
-			transactions.addMosaicDefinition(
-					mosaicEntry.namespaceId(),
-					ExtractMosaicName(mosaicName),
-					mosaicEntry.definition().properties());
+			auto mosaicId = transactions.addMosaicDefinition(nonce, mosaicEntry.definition().properties());
+			CATAPULT_LOG(debug) << "mapping " << mosaicPair.first << " to " << utils::HexFormat(mosaicId) << " (nonce " << nonce << ")";
+			nonce = nonce + MosaicNonce(1);
+
+			// - alias
+			auto unresolvedMosaicId = transactions.addMosaicAlias(mosaicPair.first, mosaicId);
+			nameToMosaicIdMap.emplace(mosaicPair.first, unresolvedMosaicId);
 
 			// - supply
-			transactions.addMosaicSupplyChange(mosaicEntry.mosaicId(), mosaicEntry.supply());
+			transactions.addMosaicSupplyChange(unresolvedMosaicId, mosaicEntry.supply());
 		}
 
 		// - mosaic distribution
-		for (const auto& addressMosaicSeedsPair : config.NemesisAddressToMosaicSeeds)
-			transactions.addTransfer(model::StringToAddress(addressMosaicSeedsPair.first), addressMosaicSeedsPair.second);
+		for (const auto& addressMosaicSeedsPair : config.NemesisAddressToMosaicSeeds) {
+			auto recipient = model::StringToAddress(addressMosaicSeedsPair.first);
+			transactions.addTransfer(nameToMosaicIdMap, recipient, addressMosaicSeedsPair.second);
+		}
 
 		model::PreviousBlockContext context;
 		auto pBlock = model::CreateBlock(context, config.NetworkIdentifier, signer.publicKey(), transactions.transactions());
 		pBlock->Type = model::Entity_Type_Nemesis_Block;
 		extensions::BlockExtensions().signFullBlock(signer, *pBlock);
 		return pBlock;
+	}
+
+	Hash256 UpdateNemesisBlock(
+			const NemesisConfiguration& config,
+			model::Block& block,
+			NemesisExecutionHashesDescriptor& executionHashesDescriptor) {
+		block.BlockReceiptsHash = executionHashesDescriptor.ReceiptsHash;
+		block.StateHash = executionHashesDescriptor.StateHash;
+
+		auto signer = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey);
+		extensions::BlockExtensions().signFullBlock(signer, block);
+		return model::CalculateHash(block);
 	}
 
 	namespace {
@@ -176,7 +246,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		}
 	}
 
-	model::BlockElement CreateNemesisBlockElement(const model::Block& block, const NemesisConfiguration& config) {
+	model::BlockElement CreateNemesisBlockElement(const NemesisConfiguration& config, const model::Block& block) {
 		auto registry = CreateTransactionRegistry();
 		auto generationHash = ParseHash(config.NemesisGenerationHash);
 		return extensions::BlockExtensions(registry).convertBlockToBlockElement(block, generationHash);

@@ -33,7 +33,6 @@ namespace catapult { namespace test {
 		delta.addAccount(publicKey, Height(100));
 		auto& accountState = delta.find(publicKey).get();
 		accountState.ImportanceInfo.set(importance, importanceHeight);
-		accountState.Balances.credit(Xem_Id, Amount(1000));
 	}
 
 	void AddNode(ionet::NodeContainer& container, const Key& identityKey, const std::string& nodeName) {

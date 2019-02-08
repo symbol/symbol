@@ -19,6 +19,7 @@
 **/
 
 #include "Accounts.h"
+#include "catapult/model/Address.h"
 #include "catapult/exceptions.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"

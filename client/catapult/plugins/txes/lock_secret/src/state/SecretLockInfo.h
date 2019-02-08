@@ -38,7 +38,7 @@ namespace catapult { namespace state {
 				catapult::Amount amount,
 				catapult::Height height,
 				model::LockHashAlgorithm hashAlgorithm,
-				const Hash512& secret,
+				const Hash256& secret,
 				const catapult::Address& recipient)
 				: LockInfo(account, mosaicId, amount, height)
 				, HashAlgorithm(hashAlgorithm)
@@ -51,7 +51,7 @@ namespace catapult { namespace state {
 		model::LockHashAlgorithm HashAlgorithm;
 
 		/// Secret.
-		Hash512 Secret;
+		Hash256 Secret;
 
 		/// Recipient of the locked mosaic.
 		catapult::Address Recipient;

@@ -27,12 +27,11 @@
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/test/nodeps/TestConstants.h"
 
 namespace catapult { namespace test {
 
 	namespace {
-		constexpr unsigned short Local_Node_Port = Local_Host_Port;
-		constexpr unsigned short Local_Node_Api_Port = Local_Node_Port + 1;
 		constexpr const char* Local_Node_Private_Key = "4A236D9F894CF0C4FC8C042DB5DB41CCF35118B7B220163E5B4BC1872C1CD618";
 
 		void SetConnectionsSubConfiguration(config::NodeConfiguration::ConnectionsSubConfiguration& config) {
@@ -44,8 +43,8 @@ namespace catapult { namespace test {
 
 		config::NodeConfiguration CreateNodeConfiguration() {
 			auto config = config::NodeConfiguration::Uninitialized();
-			config.Port = Local_Node_Port;
-			config.ApiPort = Local_Node_Api_Port;
+			config.Port = GetLocalHostPort();
+			config.ApiPort = GetLocalHostPort() + 1;
 			config.ShouldAllowAddressReuse = true;
 
 			config.MaxBlocksPerSyncAttempt = 4 * 100;
@@ -96,6 +95,9 @@ namespace catapult { namespace test {
 		auto config = model::BlockChainConfiguration::Uninitialized();
 		SetNetwork(config.Network);
 
+		config.CurrencyMosaicId = Default_Currency_Mosaic_Id;
+		config.HarvestingMosaicId = Default_Harvesting_Mosaic_Id;
+
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(20);
 		config.BlockTimeSmoothingFactor = 0;
 		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(1);
@@ -104,10 +106,11 @@ namespace catapult { namespace test {
 		config.MaxRollbackBlocks = 10;
 		config.MaxDifficultyBlocks = 60;
 
-		config.TotalChainBalance = Amount(8'999'999'998'000'000);
-		config.MinHarvesterBalance = Amount(1'000'000'000'000);
+		config.TotalChainImportance = Importance(17'000);
+		config.MinHarvesterBalance = Amount(500'000);
 
 		config.BlockPruneInterval = 360;
+		config.MaxTransactionsPerBlock = 200'000;
 		return config;
 	}
 
@@ -162,7 +165,7 @@ namespace catapult { namespace test {
 		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(1);
 		config.ImportanceGrouping = 123;
 		config.MaxDifficultyBlocks = 123;
-		config.TotalChainBalance = Amount(15'000'000);
+		config.TotalChainImportance = Importance(15);
 		config.BlockPruneInterval = 360;
 		return CreatePluginManager(config);
 	}

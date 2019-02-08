@@ -277,4 +277,43 @@ namespace catapult { namespace utils {
 	}
 
 	// endregion
+
+	// region IsPowerMultiple
+
+	TEST(TEST_CLASS, IsPowerMultipleReturnsFalseWhenMultipleIsLess) {
+		// Assert:
+		EXPECT_FALSE(IsPowerMultiple<uint64_t>(200, 199, 10));
+		EXPECT_FALSE(IsPowerMultiple<uint32_t>(200, 20, 10));
+		EXPECT_FALSE(IsPowerMultiple<uint16_t>(200, 2, 10));
+	}
+
+	TEST(TEST_CLASS, IsPowerMultipleReturnsFalseWhenMultipleIsNotMultiple) {
+		// Assert:
+		EXPECT_FALSE(IsPowerMultiple<uint64_t>(200, 201, 10));
+		EXPECT_FALSE(IsPowerMultiple<uint32_t>(200, 399, 10));
+		EXPECT_FALSE(IsPowerMultiple<uint16_t>(200, 650, 10));
+	}
+
+	TEST(TEST_CLASS, IsPowerMultipleReturnsFalseWhenMultipleIsNotPowerMultiple) {
+		// Assert:
+		EXPECT_FALSE(IsPowerMultiple<uint64_t>(200, 200 * 2, 10));
+		EXPECT_FALSE(IsPowerMultiple<uint32_t>(200, 200 * 20, 10));
+		EXPECT_FALSE(IsPowerMultiple<uint16_t>(200, 200 * 7, 10));
+	}
+
+	TEST(TEST_CLASS, IsPowerMultipleReturnsTrueWhenMultipleIsEqual) {
+		// Assert:
+		EXPECT_TRUE(IsPowerMultiple<uint64_t>(200, 200, 10));
+		EXPECT_TRUE(IsPowerMultiple<uint32_t>(300, 300, 20));
+		EXPECT_TRUE(IsPowerMultiple<uint16_t>(400, 400, 30));
+	}
+
+	TEST(TEST_CLASS, IsPowerMultipleReturnsTrueWhenMultipleIsPowerMultiple) {
+		// Assert:
+		EXPECT_TRUE(IsPowerMultiple<uint64_t>(200, 200 * 100, 10));
+		EXPECT_TRUE(IsPowerMultiple<uint32_t>(300, 300 * 20, 20));
+		EXPECT_TRUE(IsPowerMultiple<uint16_t>(400, 400 * 8, 2));
+	}
+
+	// endregion
 }}

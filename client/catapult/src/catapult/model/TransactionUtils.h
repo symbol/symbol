@@ -31,5 +31,5 @@ namespace catapult {
 namespace catapult { namespace model {
 
 	/// Extracts all addresses that are involved in \a transaction using \a notificationPublisher.
-	model::AddressSet ExtractAddresses(const Transaction& transaction, const NotificationPublisher& notificationPublisher);
+	UnresolvedAddressSet ExtractAddresses(const Transaction& transaction, const NotificationPublisher& notificationPublisher);
 }}

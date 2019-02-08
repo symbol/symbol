@@ -23,13 +23,26 @@
 #include "catapult/model/Elements.h"
 #include <memory>
 
-namespace catapult { namespace tools { namespace nemgen { struct NemesisConfiguration; } } }
+namespace catapult {
+	namespace tools {
+		namespace nemgen {
+			struct NemesisConfiguration;
+			struct NemesisExecutionHashesDescriptor;
+		}
+	}
+}
 
 namespace catapult { namespace tools { namespace nemgen {
 
 	/// Creates a nemesis block according to \a config.
 	std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config);
 
+	/// Updates nemesis \a block according to \a config with \a executionHashesDescriptor.
+	Hash256 UpdateNemesisBlock(
+			const NemesisConfiguration& config,
+			model::Block& block,
+			NemesisExecutionHashesDescriptor& executionHashesDescriptor);
+
 	/// Wraps a block element around \a block according to \a config.
-	model::BlockElement CreateNemesisBlockElement(const model::Block& block, const NemesisConfiguration& config);
+	model::BlockElement CreateNemesisBlockElement(const NemesisConfiguration& config, const model::Block& block);
 }}}

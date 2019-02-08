@@ -23,7 +23,6 @@
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
-#include "catapult/utils/XemUnit.h"
 #include "catapult/types.h"
 #include <unordered_map>
 #include <stdint.h>
@@ -34,10 +33,19 @@ namespace catapult { namespace model {
 	struct BlockChainConfiguration {
 	public:
 		/// Block chain network.
-		model::NetworkInfo Network;
+		NetworkInfo Network;
 
 		/// \c true if block chain should calculate state hashes so that state is fully verifiable at each block.
 		bool ShouldEnableVerifiableState;
+
+		/// \c true if block chain should calculate receipts so that state changes are fully verifiable at each block.
+		bool ShouldEnableVerifiableReceipts;
+
+		/// Mosaic id used as primary chain currency.
+		MosaicId CurrencyMosaicId;
+
+		/// Mosaic id used to provide harvesting ability.
+		MosaicId HarvestingMosaicId;
 
 		/// Targeted time between blocks.
 		utils::TimeSpan BlockGenerationTargetTime;
@@ -64,11 +72,10 @@ namespace catapult { namespace model {
 		/// Maximum future time of a block that can be accepted.
 		utils::TimeSpan MaxBlockFutureTime;
 
-		/// Total number of XEM base units available in the network.
-		/// \note This quantity is specified as micro XEM in the configuration file.
-		utils::XemUnit TotalChainBalance;
+		/// Total whole importance units available in the network.
+		Importance TotalChainImportance;
 
-		/// Minimum number of micro XEM needed for an account to be eligible for harvesting.
+		/// Minimum number of harvesting mosaic atomic units needed for an account to be eligible for harvesting.
 		Amount MinHarvesterBalance;
 
 		/// Number of blocks between cache pruning.
@@ -91,35 +98,20 @@ namespace catapult { namespace model {
 		static BlockChainConfiguration LoadFromBag(const utils::ConfigurationBag& bag);
 	};
 
+	/// Gets unresolved currency mosaic id from \a config.
+	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockChainConfiguration& config);
+
 	/// Calculates the duration of a full rollback for the block chain described by \a config.
-	constexpr utils::TimeSpan CalculateFullRollbackDuration(const BlockChainConfiguration& config) {
-		return utils::TimeSpan::FromMilliseconds(config.BlockGenerationTargetTime.millis() * config.MaxRollbackBlocks);
-	}
+	utils::TimeSpan CalculateFullRollbackDuration(const BlockChainConfiguration& config);
 
 	/// Calculates the duration of the rollback variability buffer for the block chain described by \a config.
-	constexpr utils::TimeSpan CalculateRollbackVariabilityBufferDuration(const BlockChainConfiguration& config) {
-		// use the greater of 25% of the rollback time or one hour as a buffer against block time variability
-		return utils::TimeSpan::FromHours(4).millis() > CalculateFullRollbackDuration(config).millis()
-				? utils::TimeSpan::FromHours(1)
-				: utils::TimeSpan::FromMilliseconds(CalculateFullRollbackDuration(config).millis() / 4);
-	}
+	utils::TimeSpan CalculateRollbackVariabilityBufferDuration(const BlockChainConfiguration& config);
 
 	/// Calculates the duration of time that expired transactions should be cached for the block chain described by \a config.
-	constexpr utils::TimeSpan CalculateTransactionCacheDuration(const BlockChainConfiguration& config) {
-		return utils::TimeSpan::FromMilliseconds(
-				CalculateFullRollbackDuration(config).millis()
-				+ CalculateRollbackVariabilityBufferDuration(config).millis());
-	}
+	utils::TimeSpan CalculateTransactionCacheDuration(const BlockChainConfiguration& config);
 
 	/// Calculates the number of historical difficulties to cache in memory for the block chain described by \a config.
-	constexpr uint64_t CalculateDifficultyHistorySize(const BlockChainConfiguration& config) {
-		return config.MaxRollbackBlocks + config.MaxDifficultyBlocks;
-	}
-
-	/// Gets the total importance for the block chain described by \a config.
-	constexpr Importance GetTotalImportance(const BlockChainConfiguration& config) {
-		return Importance(config.TotalChainBalance.xem().unwrap());
-	}
+	uint64_t CalculateDifficultyHistorySize(const BlockChainConfiguration& config);
 
 	/// Loads plugin configuration for plugin named \a pluginName from \a config.
 	template<typename T>

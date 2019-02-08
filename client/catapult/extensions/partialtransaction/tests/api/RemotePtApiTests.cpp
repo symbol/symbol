@@ -85,8 +85,8 @@ namespace catapult { namespace api {
 
 			static void ValidateRequest(const ionet::Packet& packet) {
 				EXPECT_EQ(ionet::PacketType::Pull_Partial_Transaction_Infos, packet.Type);
-				EXPECT_EQ(sizeof(ionet::Packet) + Request_Data_Size, packet.Size);
-				EXPECT_TRUE(0 == std::memcmp(packet.Data(), KnownHashesValues().data(), Request_Data_Size));
+				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Size, packet.Size);
+				EXPECT_EQ_MEMORY(packet.Data(), KnownHashesValues().data(), Request_Data_Size);
 			}
 
 			static void ValidateResponse(
@@ -120,11 +120,17 @@ namespace catapult { namespace api {
 		};
 
 		struct RemotePtApiTraits {
-			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return test::CreateLifetimeExtendedApi(CreateRemotePtApi, *pPacketIo, mocks::CreateDefaultTransactionRegistry());
+			static auto Create(ionet::PacketIo& packetIo, const Key& remotePublicKey) {
+				auto registry = mocks::CreateDefaultTransactionRegistry();
+				return test::CreateLifetimeExtendedApi(CreateRemotePtApi, packetIo, remotePublicKey, std::move(registry));
+			}
+
+			static auto Create(ionet::PacketIo& packetIo) {
+				return Create(packetIo, Key());
 			}
 		};
 	}
 
+	DEFINE_REMOTE_API_TESTS(RemotePtApi)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(RemotePtApi, TransactionInfos)
 }}

@@ -37,7 +37,7 @@ namespace catapult { namespace test {
 		// Assert:
 		EXPECT_EQ(expectedKeys.size(), keys.size());
 		for (const auto& key : expectedKeys)
-			EXPECT_TRUE(keys.cend() != keys.find(key)) << utils::HexFormat(key[0]);
+			EXPECT_CONTAINS(keys, key);
 	}
 
 	/// Asserts that all \a expectedKeys are contained within \a cache.

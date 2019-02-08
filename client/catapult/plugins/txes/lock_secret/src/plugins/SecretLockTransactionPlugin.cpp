@@ -30,21 +30,19 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublisherContext& publisherContext, NotificationSubscriber& sub) {
-			auto mosaic = model::Mosaic{ publisherContext.resolve(transaction.Mosaic.MosaicId), transaction.Mosaic.Amount };
-			auto recipient = publisherContext.resolve(transaction.Recipient);
-			sub.notify(AccountAddressNotification(recipient));
+		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
+			sub.notify(AccountAddressNotification(transaction.Recipient));
 			sub.notify(SecretLockDurationNotification(transaction.Duration));
 			sub.notify(SecretLockHashAlgorithmNotification(transaction.HashAlgorithm));
-			sub.notify(AddressInteractionNotification(transaction.Signer, { recipient }));
-			sub.notify(BalanceDebitNotification(transaction.Signer, mosaic.MosaicId, mosaic.Amount));
+			sub.notify(AddressInteractionNotification(transaction.Signer, transaction.Type, { transaction.Recipient }));
+			sub.notify(BalanceDebitNotification(transaction.Signer, transaction.Mosaic.MosaicId, transaction.Mosaic.Amount));
 			sub.notify(SecretLockNotification(
 					transaction.Signer,
-					mosaic,
+					transaction.Mosaic,
 					transaction.Duration,
 					transaction.HashAlgorithm,
 					transaction.Secret,
-					recipient));
+					transaction.Recipient));
 		}
 	}
 

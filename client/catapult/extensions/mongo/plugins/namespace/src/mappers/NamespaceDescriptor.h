@@ -26,14 +26,16 @@ namespace catapult { namespace mongo { namespace plugins {
 	/// A namespace descriptor.
 	struct NamespaceDescriptor {
 	public:
-		/// Creates a namespace descriptor around \a path, \a pRootNamespace, \a ownerAddress, \a index and \a isActive.
-		explicit NamespaceDescriptor(
+		/// Creates a namespace descriptor around \a path, \a alias, \a pRootNamespace, \a ownerAddress, \a index and \a isActive.
+		NamespaceDescriptor(
 				const state::Namespace::Path& path,
+				const state::NamespaceAlias& alias,
 				const std::shared_ptr<const state::RootNamespace>& pRootNamespace,
 				const Address& ownerAddress,
 				uint32_t index,
 				bool isActive)
 				: Path(path)
+				, Alias(alias)
 				, pRoot(pRootNamespace)
 				, OwnerAddress(ownerAddress)
 				, Index(index)
@@ -49,6 +51,9 @@ namespace catapult { namespace mongo { namespace plugins {
 	public:
 		/// Namespace path.
 		const state::Namespace::Path Path;
+
+		/// Namespace alias.
+		const state::NamespaceAlias Alias;
 
 		/// Associated root namespace.
 		const std::shared_ptr<const state::RootNamespace> pRoot;

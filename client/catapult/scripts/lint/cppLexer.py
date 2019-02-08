@@ -71,7 +71,7 @@ t_PLUS = r'\+'
 t_DIVIDE = r'/(?!/)'
 t_AMPERSTAND = r'&'
 t_EQUALS = r'='
-t_CHAR_LITERAL = r"'.'"
+t_CHAR_LITERAL = '\'.\''
 t_SQUOTE = r'\''
 t_STRING_LITERAL = r'"([^"\\]|\\.)*"'
 

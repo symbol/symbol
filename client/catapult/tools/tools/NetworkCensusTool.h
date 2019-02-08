@@ -76,11 +76,11 @@ namespace catapult { namespace tools {
 				for (auto& nodeInfoFuture : allFutures.get())
 					nodeInfos.push_back(nodeInfoFuture.get());
 
-				this->processNodeInfos(nodeInfos);
+				return this->processNodeInfos(nodeInfos);
 			});
 
-			finalFuture.get();
-			return 0;
+			auto result = utils::checked_cast<size_t, unsigned int>(finalFuture.get());
+			return std::min(static_cast<int>(result), 255);
 		}
 
 	private:
@@ -110,8 +110,8 @@ namespace catapult { namespace tools {
 				ionet::PacketIo& io,
 				TNodeInfo& nodeInfo) = 0;
 
-		/// Processes \a nodeInfos after all futures complete .
-		virtual void processNodeInfos(const std::vector<NodeInfoPointer>& nodeInfos) = 0;
+		/// Processes \a nodeInfos after all futures complete.
+		virtual size_t processNodeInfos(const std::vector<NodeInfoPointer>& nodeInfos) = 0;
 
 	private:
 		std::string m_censusName;

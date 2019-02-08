@@ -69,8 +69,7 @@ namespace boost { namespace asio {
 
 	// specialization that allows async_read_until to use BalancedBraceMatcher as a matcher
 	template<>
-	struct is_match_condition<catapult::tools::health::BalancedBraceMatcher> : public boost::true_type
-	{};
+	struct is_match_condition<catapult::tools::health::BalancedBraceMatcher> : public boost::true_type {};
 }}
 
 namespace catapult { namespace tools { namespace health {

@@ -37,7 +37,8 @@ namespace catapult { namespace mongo { namespace plugins {
 				const Key& signer,
 				model::NamespaceType namespaceType,
 				const std::string& namespaceName) {
-			builders::RegisterNamespaceBuilder builder(model::NetworkIdentifier::Mijin_Test, signer, namespaceName);
+			builders::RegisterNamespaceBuilder builder(model::NetworkIdentifier::Mijin_Test, signer);
+			builder.setName({ reinterpret_cast<const uint8_t*>(namespaceName.data()), namespaceName.size() });
 
 			if (model::NamespaceType::Root == namespaceType)
 				builder.setDuration(test::GenerateRandomValue<BlockDuration>());

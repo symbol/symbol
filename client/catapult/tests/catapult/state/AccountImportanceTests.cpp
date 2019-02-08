@@ -59,8 +59,8 @@ namespace catapult { namespace state {
 		}
 
 		struct WithNoImportancesTraits {
-			static void Prepare(AccountImportance&) {
-			}
+			static void Prepare(AccountImportance&)
+			{}
 
 			static void Assert(const AccountImportance& accountImportance) {
 				AssertCurrentImportance(accountImportance, Importance(0), model::ImportanceHeight(0));

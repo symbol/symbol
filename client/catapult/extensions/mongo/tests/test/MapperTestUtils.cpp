@@ -24,6 +24,7 @@
 #include "catapult/model/Block.h"
 #include "catapult/model/ContainerTypes.h"
 #include "catapult/model/Cosignature.h"
+#include "catapult/model/Receipt.h"
 #include "catapult/state/AccountState.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/TestHarness.h"
@@ -32,8 +33,8 @@
 namespace catapult { namespace test {
 
 	namespace {
-		Address ToAddress(const uint8_t* pByteArray) {
-			Address address;
+		UnresolvedAddress ToUnresolvedAddress(const uint8_t* pByteArray) {
+			UnresolvedAddress address;
 			std::memcpy(address.data(), pByteArray, Address_Decoded_Size);
 			return address;
 		}
@@ -70,7 +71,7 @@ namespace catapult { namespace test {
 
 	void AssertEqualTransactionData(const model::Transaction& transaction, const bsoncxx::document::view& dbTransaction) {
 		AssertEqualVerifiableEntityData(transaction, dbTransaction);
-		EXPECT_EQ(transaction.Fee, Amount(GetUint64(dbTransaction, "fee")));
+		EXPECT_EQ(transaction.MaxFee, Amount(GetUint64(dbTransaction, "maxFee")));
 		EXPECT_EQ(transaction.Deadline, Timestamp(GetUint64(dbTransaction, "deadline")));
 	}
 
@@ -80,10 +81,10 @@ namespace catapult { namespace test {
 		EXPECT_EQ(metadata.EntityHash, GetHashValue(dbTransactionMetadata, "hash"));
 		EXPECT_EQ(metadata.MerkleComponentHash, GetHashValue(dbTransactionMetadata, "merkleComponentHash"));
 		auto dbAddresses = dbTransactionMetadata["addresses"].get_array().value;
-		model::AddressSet addresses;
+		model::UnresolvedAddressSet addresses;
 		for (const auto& dbAddress : dbAddresses) {
 			ASSERT_EQ(Address_Decoded_Size, dbAddress.get_binary().size);
-			addresses.insert(ToAddress(dbAddress.get_binary().bytes));
+			addresses.insert(ToUnresolvedAddress(dbAddress.get_binary().bytes));
 		}
 
 		EXPECT_EQ(metadata.Addresses.size(), addresses.size());
@@ -93,32 +94,42 @@ namespace catapult { namespace test {
 	}
 
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock) {
-		// - 4 fields from VerifiableEntity, 6 fields from Block
-		EXPECT_EQ(10u, GetFieldCount(dbBlock));
+		// - 4 fields from VerifiableEntity, 9 fields from Block
+		EXPECT_EQ(13u, GetFieldCount(dbBlock));
 		AssertEqualVerifiableEntityData(block, dbBlock);
 
 		EXPECT_EQ(block.Height, Height(GetUint64(dbBlock, "height")));
 		EXPECT_EQ(block.Timestamp, Timestamp(GetUint64(dbBlock, "timestamp")));
 		EXPECT_EQ(block.Difficulty, Difficulty(GetUint64(dbBlock, "difficulty")));
+		EXPECT_EQ(block.FeeMultiplier, BlockFeeMultiplier(GetUint32(dbBlock, "feeMultiplier")));
 		EXPECT_EQ(block.PreviousBlockHash, GetHashValue(dbBlock, "previousBlockHash"));
 		EXPECT_EQ(block.BlockTransactionsHash, GetHashValue(dbBlock, "blockTransactionsHash"));
+		EXPECT_EQ(block.BlockReceiptsHash, GetHashValue(dbBlock, "blockReceiptsHash"));
 		EXPECT_EQ(block.StateHash, GetHashValue(dbBlock, "stateHash"));
+		EXPECT_EQ(block.BeneficiaryPublicKey, GetKeyValue(dbBlock, "beneficiaryPublicKey"));
 	}
 
 	void AssertEqualBlockMetadata(
 			const model::BlockElement& blockElement,
 			Amount totalFee,
 			int32_t numTransactions,
-			const std::vector<Hash256>& merkleTree,
+			int32_t numStatements,
+			const std::vector<Hash256>& transactionMerkleTree,
+			const std::vector<Hash256>& statementMerkleTree,
 			const bsoncxx::document::view& dbBlockMetadata) {
-		EXPECT_EQ(6u, GetFieldCount(dbBlockMetadata));
+		auto expectedFieldCount = statementMerkleTree.empty() ? 6u : 8u;
+		EXPECT_EQ(expectedFieldCount, GetFieldCount(dbBlockMetadata));
 		EXPECT_EQ(blockElement.EntityHash, GetHashValue(dbBlockMetadata, "hash"));
 		EXPECT_EQ(blockElement.GenerationHash, GetHashValue(dbBlockMetadata, "generationHash"));
 		EXPECT_EQ(totalFee, Amount(GetUint64(dbBlockMetadata, "totalFee")));
 		EXPECT_EQ(numTransactions, GetInt32(dbBlockMetadata, "numTransactions"));
 
 		AssertEqualHashArray(blockElement.SubCacheMerkleRoots, dbBlockMetadata["subCacheMerkleRoots"].get_array().value);
-		AssertEqualHashArray(merkleTree, dbBlockMetadata["merkleTree"].get_array().value);
+		AssertEqualHashArray(transactionMerkleTree, dbBlockMetadata["transactionMerkleTree"].get_array().value);
+		if (!statementMerkleTree.empty()) {
+			EXPECT_EQ(numStatements, GetInt32(dbBlockMetadata, "numStatements"));
+			AssertEqualHashArray(statementMerkleTree, dbBlockMetadata["statementMerkleTree"].get_array().value);
+		}
 	}
 
 	void AssertEqualAccountState(const state::AccountState& accountState, const bsoncxx::document::view& dbAccount) {
@@ -175,5 +186,10 @@ namespace catapult { namespace test {
 			EXPECT_EQ(expectedCosignature.Signature, GetSignatureValue(cosignatureView, "signature"));
 			++iter;
 		}
+	}
+
+	void AssertEqualReceiptData(const model::Receipt& receipt, const bsoncxx::document::view& dbReceipt) {
+		EXPECT_EQ(receipt.Version, GetInt32(dbReceipt, "version"));
+		EXPECT_EQ(utils::to_underlying_type(receipt.Type), GetInt32(dbReceipt, "type"));
 	}
 }}

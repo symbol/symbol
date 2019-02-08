@@ -27,7 +27,17 @@ namespace catapult { namespace model {
 	enum class NamespaceType : uint8_t {
 		/// A root namespace.
 		Root,
+
 		/// A child namespace.
 		Child
+	};
+
+	/// Alias transaction action.
+	enum class AliasAction : uint8_t {
+		/// Link alias.
+		Link,
+
+		/// Unlink alias.
+		Unlink
 	};
 }}

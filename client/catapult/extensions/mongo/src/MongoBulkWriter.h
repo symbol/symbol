@@ -106,7 +106,7 @@ namespace catapult { namespace mongo {
 					: pConnection(mongoBulkWriter.m_connectionPool.acquire())
 					, Database(pConnection->database(mongoBulkWriter.m_dbName))
 					, Collection(Database[collectionName])
-					, Bulk(BulkTraits::CreateBulk(Collection))
+					, Bulk(Collection.create_bulk_write())
 		{}
 
 		public:
@@ -115,28 +115,6 @@ namespace catapult { namespace mongo {
 			mongocxx::collection Collection;
 			mongocxx::bulk_write Bulk;
 		};
-
-#if defined(MONGOCXX_VERSION_MAJOR) && defined(MONGOCXX_VERSION_MINOR) && (MONGOCXX_VERSION_MAJOR <= 3) && (MONGOCXX_VERSION_MINOR <= 2)
-		struct BulkTraits {
-			static auto BulkWrite(BulkWriteParams& bulkWriteParams) {
-				return bulkWriteParams.Collection.bulk_write(bulkWriteParams.Bulk);
-			}
-
-			static mongocxx::bulk_write CreateBulk(mongocxx::collection&) {
-				return mongocxx::bulk_write();
-			}
-		};
-#else
-		struct BulkTraits {
-			static auto BulkWrite(BulkWriteParams& bulkWriteParams) {
-				return bulkWriteParams.Bulk.execute();
-			}
-
-			static mongocxx::bulk_write CreateBulk(mongocxx::collection& collection) {
-				return mongocxx::bulk_write(collection.create_bulk_write());
-			}
-		};
-#endif
 
 		using AccountStates = std::unordered_set<std::shared_ptr<const state::AccountState>>;
 		using BulkWriteResultFuture = thread::future<std::vector<thread::future<BulkWriteResult>>>;
@@ -253,7 +231,7 @@ namespace catapult { namespace mongo {
 		void bulkWrite(BulkWriteParams& bulkWriteParams, thread::promise<BulkWriteResult>& promise) {
 			try {
 				// if something goes wrong mongo will throw, else a result is always available
-				auto result = BulkTraits::BulkWrite(bulkWriteParams).get();
+				auto result = bulkWriteParams.Bulk.execute().get();
 				promise.set_value(BulkWriteResult(result));
 			} catch (const mongocxx::bulk_write_exception& e) {
 				std::ostringstream stream;

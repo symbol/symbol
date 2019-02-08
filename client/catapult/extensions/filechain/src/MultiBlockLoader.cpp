@@ -20,6 +20,7 @@
 
 #include "MultiBlockLoader.h"
 #include "catapult/cache/CatapultCache.h"
+#include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/extensions/LocalNodeStateRef.h"
@@ -27,11 +28,13 @@
 #include "catapult/model/Block.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/Elements.h"
+#include "catapult/observers/NotificationObserverAdapter.h"
+#include "catapult/plugins/PluginManager.h"
 #include "catapult/utils/StackLogger.h"
 
 namespace catapult { namespace filechain {
 
-	// region CreateBlockDependentEntityObserverFactory
+	// region CreateBlockDependentNotificationObserverFactory
 
 	namespace {
 		class SkipTransientStatePredicate {
@@ -60,14 +63,14 @@ namespace catapult { namespace filechain {
 		};
 	}
 
-	BlockDependentEntityObserverFactory CreateBlockDependentEntityObserverFactory(
+	BlockDependentNotificationObserverFactory CreateBlockDependentNotificationObserverFactory(
 			const model::Block& lastBlock,
 			const model::BlockChainConfiguration& config,
-			const observers::EntityObserver& transientObserver,
-			const observers::EntityObserver& permanentObserver) {
+			const NotificationObserverFactory& transientObserverFactory,
+			const NotificationObserverFactory& permanentObserverFactory) {
 		auto predicate = SkipTransientStatePredicate(lastBlock, config);
-		return [predicate, &transientObserver, &permanentObserver](const auto& block) -> const observers::EntityObserver& {
-			return predicate(block) ? permanentObserver : transientObserver;
+		return [predicate, transientObserverFactory, permanentObserverFactory](const auto& block) {
+			return predicate(block) ? permanentObserverFactory() : transientObserverFactory();
 		};
 	}
 
@@ -106,10 +109,12 @@ namespace catapult { namespace filechain {
 
 	public:
 		BlockChainLoader(
-				const BlockDependentEntityObserverFactory& observerFactory,
+				const BlockDependentNotificationObserverFactory& observerFactory,
+				const plugins::PluginManager& pluginManager,
 				const extensions::LocalNodeStateRef& stateRef,
 				Height startHeight)
 				: m_observerFactory(observerFactory)
+				, m_pluginManager(pluginManager)
 				, m_stateRef(stateRef)
 				, m_startHeight(startHeight)
 		{}
@@ -144,8 +149,12 @@ namespace catapult { namespace filechain {
 			auto cacheDelta = m_stateRef.Cache.createDelta();
 			auto observerState = observers::ObserverState(cacheDelta, m_stateRef.State);
 
+			auto readOnlyCache = cacheDelta.toReadOnly();
+			auto resolverContext = m_pluginManager.createResolverContext(readOnlyCache);
+
 			const auto& block = blockElement.Block;
-			chain::ExecuteBlock(blockElement, m_observerFactory(block), observerState);
+			observers::NotificationObserverAdapter observer(m_observerFactory(block), m_pluginManager.createNotificationPublisher());
+			chain::ExecuteBlock(blockElement, { observer, resolverContext, observerState });
 
 			// populate patricia tree delta
 			auto stateHash = cacheDelta.calculateStateHash(block.Height).StateHash;
@@ -155,16 +164,18 @@ namespace catapult { namespace filechain {
 		}
 
 	private:
-		const BlockDependentEntityObserverFactory& m_observerFactory;
+		BlockDependentNotificationObserverFactory m_observerFactory;
+		const plugins::PluginManager& m_pluginManager;
 		const extensions::LocalNodeStateRef& m_stateRef;
 		Height m_startHeight;
 	};
 
 	model::ChainScore LoadBlockChain(
-			const BlockDependentEntityObserverFactory& observerFactory,
+			const BlockDependentNotificationObserverFactory& observerFactory,
+			const plugins::PluginManager& pluginManager,
 			const extensions::LocalNodeStateRef& stateRef,
 			Height startHeight) {
-		BlockChainLoader loader(observerFactory, stateRef, startHeight);
+		BlockChainLoader loader(observerFactory, pluginManager, stateRef, startHeight);
 
 		utils::StackLogger logger("load block chain", utils::LogLevel::Warning);
 		utils::StackTimer stopwatch;

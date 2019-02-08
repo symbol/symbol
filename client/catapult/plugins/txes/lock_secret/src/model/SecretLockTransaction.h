@@ -39,7 +39,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Transaction mosaic.
-		model::UnresolvedMosaic Mosaic;
+		UnresolvedMosaic Mosaic;
 
 		/// Number of blocks for which a lock should be valid.
 		BlockDuration Duration;
@@ -48,7 +48,7 @@ namespace catapult { namespace model {
 		LockHashAlgorithm HashAlgorithm;
 
 		/// Secret.
-		Hash512 Secret;
+		Hash256 Secret;
 
 		/// Recipient of the locked mosaic.
 		UnresolvedAddress Recipient;

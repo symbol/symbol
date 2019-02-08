@@ -49,7 +49,7 @@ namespace catapult { namespace local {
 			mach_msg_type_number_t count = MACH_TASK_BASIC_INFO_COUNT;
 			return KERN_SUCCESS == task_info(mach_task_self(), MACH_TASK_BASIC_INFO, reinterpret_cast<task_info_t>(&info), &count)
 					? info
-					: mach_task_basic_info{};
+					: mach_task_basic_info();
 		}
 
 #define GET_MEMORY_VALUE(NAME) utils::FileSize::FromBytes(GetMemoryInfo().NAME).megabytes()

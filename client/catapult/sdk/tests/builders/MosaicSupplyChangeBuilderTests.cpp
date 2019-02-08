@@ -19,7 +19,6 @@
 **/
 
 #include "src/builders/MosaicSupplyChangeBuilder.h"
-#include "plugins/txes/namespace/src/model/IdGenerator.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
@@ -35,13 +34,13 @@ namespace catapult { namespace builders {
 
 		struct TransactionProperties {
 		public:
-			explicit TransactionProperties(catapult::MosaicId mosaicId)
+			explicit TransactionProperties(UnresolvedMosaicId mosaicId)
 					: MosaicId(mosaicId)
-					, Direction(model::MosaicSupplyChangeDirection::Increase)
+					, Direction(model::MosaicSupplyChangeDirection::Decrease)
 			{}
 
 		public:
-			catapult::MosaicId MosaicId;
+			UnresolvedMosaicId MosaicId;
 			model::MosaicSupplyChangeDirection Direction;
 			Amount Delta;
 		};
@@ -56,13 +55,14 @@ namespace catapult { namespace builders {
 		template<typename TTraits>
 		void AssertCanBuildTransaction(
 				const TransactionProperties& expectedProperties,
-				const std::function<MosaicSupplyChangeBuilder (model::NetworkIdentifier, const Key&)>& builderFactory) {
+				const consumer<MosaicSupplyChangeBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
 
 			// Act:
-			auto builder = builderFactory(networkId, signer);
+			auto builder = MosaicSupplyChangeBuilder(networkId, signer);
+			buildTransaction(builder);
 			auto pTransaction = TTraits::InvokeBuilder(builder);
 
 			// Assert:
@@ -85,27 +85,13 @@ namespace catapult { namespace builders {
 
 	TRAITS_BASED_TEST(CanCreateTransaction) {
 		// Arrange:
-		auto mosaicId = test::GenerateRandomValue<MosaicId>();
+		auto mosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
 
 		auto expectedProperties = TransactionProperties(mosaicId);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto networkId, const auto& signer) {
-			return MosaicSupplyChangeBuilder(networkId, signer, mosaicId);
-		});
-	}
-
-	TRAITS_BASED_TEST(CanCreateTransactionUsingNamespaceIdAndName) {
-		// Arrange:
-		auto namespaceId = test::GenerateRandomValue<NamespaceId>();
-		auto mosaicName = std::string();
-		auto mosaicId = model::GenerateMosaicId(namespaceId, mosaicName);
-
-		auto expectedProperties = TransactionProperties(mosaicId);
-
-		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [namespaceId, &mosaicName](auto networkId, const auto& signer) {
-			return MosaicSupplyChangeBuilder(networkId, signer, namespaceId, mosaicName);
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto& builder) {
+			builder.setMosaicId(mosaicId);
 		});
 	}
 
@@ -113,50 +99,47 @@ namespace catapult { namespace builders {
 
 	// region settings
 
-	TRAITS_BASED_TEST(CanSetDecrease) {
+	TRAITS_BASED_TEST(CanSetDirection) {
 		// Arrange:
-		auto mosaicId = test::GenerateRandomValue<MosaicId>();
+		auto mosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
 
 		auto expectedProperties = TransactionProperties(mosaicId);
-		expectedProperties.Direction = model::MosaicSupplyChangeDirection::Decrease;
+		expectedProperties.Direction = model::MosaicSupplyChangeDirection::Increase;
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto networkId, const auto& signer) {
-			auto builder = MosaicSupplyChangeBuilder(networkId, signer, mosaicId);
-			builder.setDecrease();
-			return builder;
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto& builder) {
+			builder.setMosaicId(mosaicId);
+			builder.setDirection(model::MosaicSupplyChangeDirection::Increase);
 		});
 	}
 
 	TRAITS_BASED_TEST(CanSetDelta) {
 		// Arrange:
-		auto mosaicId = test::GenerateRandomValue<MosaicId>();
+		auto mosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
 
 		auto expectedProperties = TransactionProperties(mosaicId);
 		expectedProperties.Delta = Amount(12345678);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto networkId, const auto& signer) {
-			auto builder = MosaicSupplyChangeBuilder(networkId, signer, mosaicId);
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto& builder) {
+			builder.setMosaicId(mosaicId);
 			builder.setDelta(Amount(12345678));
-			return builder;
 		});
 	}
 
-	TRAITS_BASED_TEST(CanSetDecreaseAndDelta) {
+	TRAITS_BASED_TEST(CanSetDirectonAndDelta) {
 		// Arrange:
-		auto mosaicId = test::GenerateRandomValue<MosaicId>();
+		auto mosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
 
 		auto expectedProperties = TransactionProperties(mosaicId);
-		expectedProperties.Direction = model::MosaicSupplyChangeDirection::Decrease;
+		expectedProperties.Direction = model::MosaicSupplyChangeDirection::Increase;
 		expectedProperties.Delta = Amount(12345678);
 
 		// Assert:
-		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto networkId, const auto& signer) {
-			auto builder = MosaicSupplyChangeBuilder(networkId, signer, mosaicId);
-			builder.setDecrease();
+		AssertCanBuildTransaction<TTraits>(expectedProperties, [mosaicId](auto& builder) {
+			builder.setMosaicId(mosaicId);
+			builder.setDirection(model::MosaicSupplyChangeDirection::Increase);
 			builder.setDelta(Amount(12345678));
-			return builder;
 		});
 	}
 

@@ -63,7 +63,7 @@ namespace catapult { namespace local {
 	/// Represents a booted local node.
 	class BootedLocalNode : public utils::NonCopyable {
 	public:
-		virtual ~BootedLocalNode() {}
+		virtual ~BootedLocalNode() = default;
 
 	public:
 		/// Gets the current cache.

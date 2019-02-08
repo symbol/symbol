@@ -125,8 +125,11 @@ namespace catapult { namespace consumers {
 		// Arrange:
 		ConsumerInput input(test::CreateTransactionEntityRange(5));
 		auto& elements = input.transactions();
-		for (auto& element : elements)
-			element.Skip = true;
+		auto i = 0u;
+		for (auto& element : elements) {
+			element.ResultSeverity = 0 == i % 2 ? disruptor::ConsumerResultSeverity::Failure : disruptor::ConsumerResultSeverity::Neutral;
+			++i;
+		}
 
 		// Act:
 		model::WeakEntityInfos entityInfos;
@@ -142,9 +145,9 @@ namespace catapult { namespace consumers {
 		// Arrange:
 		ConsumerInput input(test::CreateTransactionEntityRange(5));
 		auto& elements = input.transactions();
-		elements[0].Skip = true;
-		elements[2].Skip = true;
-		elements[3].Skip = true;
+		elements[0].ResultSeverity = disruptor::ConsumerResultSeverity::Failure;
+		elements[2].ResultSeverity = disruptor::ConsumerResultSeverity::Neutral;
+		elements[3].ResultSeverity = disruptor::ConsumerResultSeverity::Failure;
 
 		// Act:
 		model::WeakEntityInfos entityInfos;

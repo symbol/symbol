@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 
 	/// A validator implementation that applies to all account address notifications and validates that:
 	/// - the address is valid and targets the expected network (\a networkIdentifier)
-	DECLARE_STATELESS_VALIDATOR(Address, model::AccountAddressNotification)(model::NetworkIdentifier networkIdentifier);
+	DECLARE_STATEFUL_VALIDATOR(Address, model::AccountAddressNotification)(model::NetworkIdentifier networkIdentifier);
 
 	// endregion
 
@@ -42,6 +42,10 @@ namespace catapult { namespace validators {
 	/// A validator implementation that applies to all entity notifications and validates that:
 	/// - the entity targets the expected network (\a networkIdentifier)
 	DECLARE_STATELESS_VALIDATOR(Network, model::EntityNotification)(model::NetworkIdentifier networkIdentifier);
+
+	/// A validator implementation that applies to entity notifications and validates that:
+	/// - the entity version is within supported range.
+	DECLARE_STATELESS_VALIDATOR(EntityVersion, model::EntityNotification)();
 
 	// endregion
 
@@ -72,6 +76,11 @@ namespace catapult { namespace validators {
 	/// A validator implementation that applies to all balance debit notifications and validates that:
 	/// - the sending account has enough funds
 	DECLARE_STATEFUL_VALIDATOR(BalanceDebit, model::BalanceDebitNotification)();
+
+	/// A validator implementation that applies to all transaction fee notifications and validates that:
+	/// - fee is no greater than max fee
+	/// - max fee multiplier does not overflow 32-bit value
+	DECLARE_STATELESS_VALIDATOR(TransactionFee, model::TransactionFeeNotification)();
 
 	// endregion
 }}

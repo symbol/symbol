@@ -22,21 +22,24 @@
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/validators/NotificationValidator.h"
 #include "catapult/validators/ValidatorContext.h"
+#include "tests/test/core/ResolverTestUtils.h"
 
 namespace catapult { namespace test {
 
 	// region CreateValidatorContext
 
 	/// Creates a validator context around a \a height, \a network and \a cache.
-	constexpr validators::ValidatorContext CreateValidatorContext(
+	CATAPULT_INLINE
+	validators::ValidatorContext CreateValidatorContext(
 			Height height,
 			const model::NetworkInfo& network,
 			const cache::ReadOnlyCatapultCache& cache) {
-		return validators::ValidatorContext(height, Timestamp(0), network, cache);
+		return validators::ValidatorContext(height, Timestamp(0), network, CreateResolverContextXor(), cache);
 	}
 
 	/// Creates a validator context around a \a height and \a cache.
-	constexpr validators::ValidatorContext CreateValidatorContext(Height height, const cache::ReadOnlyCatapultCache& cache) {
+	CATAPULT_INLINE
+	validators::ValidatorContext CreateValidatorContext(Height height, const cache::ReadOnlyCatapultCache& cache) {
 		return CreateValidatorContext(height, model::NetworkInfo(), cache);
 	}
 

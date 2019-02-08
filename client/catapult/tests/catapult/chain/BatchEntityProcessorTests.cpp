@@ -19,8 +19,8 @@
 **/
 
 #include "catapult/chain/BatchEntityProcessor.h"
-#include "tests/catapult/chain/test/MockExecutionConfiguration.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/other/MockExecutionConfiguration.h"
 #include "tests/TestHarness.h"
 
 using namespace catapult::validators;
@@ -48,7 +48,8 @@ namespace catapult { namespace chain {
 			ValidationResult process(Height height, Timestamp timestamp, const model::WeakEntityInfos& entityInfos) {
 				auto cache = test::CreateCatapultCacheWithMarkerAccount();
 				auto delta = cache.createDelta();
-				return m_processor(height, timestamp, entityInfos, observers::ObserverState(delta, m_state));
+				auto observerState = observers::ObserverState(delta, m_state);
+				return m_processor(height, timestamp, entityInfos, observerState);
 			}
 
 		public:
@@ -69,10 +70,11 @@ namespace catapult { namespace chain {
 				size_t i = 0;
 				for (const auto& params : m_executionConfig.pValidator->params()) {
 					auto message = "validator at " + std::to_string(i);
-					// - context
+					// - context (use resolver call to implicitly test creation of ResolverContext)
 					EXPECT_EQ(height, params.Context.Height) << message;
 					EXPECT_EQ(timestamp, params.Context.BlockTime) << message;
 					EXPECT_EQ(test::Mock_Execution_Configuration_Network_Identifier, params.Context.Network.Identifier) << message;
+					EXPECT_EQ(MosaicId(22), params.Context.Resolvers.resolve(UnresolvedMosaicId(11))) << message;
 
 					// - cache contents + sequence (NumDifficultyInfos is incremented by each observer call)
 					EXPECT_TRUE(params.IsPassedMarkedCache) << message;
@@ -86,10 +88,11 @@ namespace catapult { namespace chain {
 				size_t i = 0;
 				for (const auto& params : m_executionConfig.pObserver->params()) {
 					auto message = "observer at " + std::to_string(i);
-					// - context
+					// - context (use resolver call to implicitly test creation of ResolverContext)
 					EXPECT_EQ(height, params.Context.Height) << message;
 					EXPECT_EQ(observers::NotifyMode::Commit, params.Context.Mode) << message;
 					EXPECT_EQ(&m_state, &params.Context.State) << message;
+					EXPECT_EQ(MosaicId(22), params.Context.Resolvers.resolve(UnresolvedMosaicId(11))) << message;
 
 					// - cache contents + sequence (NumDifficultyInfos is incremented by each observer call)
 					EXPECT_TRUE(params.IsPassedMarkedCache) << message;

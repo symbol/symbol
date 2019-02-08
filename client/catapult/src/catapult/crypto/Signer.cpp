@@ -71,6 +71,12 @@ namespace catapult { namespace crypto {
 			if (0 == (ValidateEncodedSPart(encodedS) & Is_Reduced))
 				CATAPULT_THROW_OUT_OF_RANGE("S part of signature invalid");
 		}
+
+#ifdef SIGNATURE_SCHEME_NIS1
+		using HashBuilder = Keccak_512_Builder;
+#else
+		using HashBuilder = Sha3_512_Builder;
+#endif
 	}
 
 	void Sign(const KeyPair& keyPair, const RawBuffer& dataBuffer, Signature& computedSignature) {
@@ -89,10 +95,10 @@ namespace catapult { namespace crypto {
 		// "EdDSA avoids these issues by generating r = H(h_b, ..., h_2b?1, M), so that
 		//  different messages will lead to different, hard-to-predict values of r."
 		Hash512 r;
-		Sha3_512_Builder sha3_r;
-		sha3_r.update({ privHash.data() + Hash512_Size / 2, Hash512_Size / 2 });
-		sha3_r.update(buffersList);
-		sha3_r.final(r);
+		HashBuilder hasher_r;
+		hasher_r.update({ privHash.data() + Hash512_Size / 2, Hash512_Size / 2 });
+		hasher_r.update(buffersList);
+		hasher_r.final(r);
 
 		// Reduce size of r since we are calculating mod group order anyway
 		sc_reduce(r.data());
@@ -104,10 +110,10 @@ namespace catapult { namespace crypto {
 
 		// h = H(encodedR || public || data)
 		Hash512 h;
-		Sha3_512_Builder sha3_h;
-		sha3_h.update({ { encodedR, Encoded_Size }, keyPair.publicKey() });
-		sha3_h.update(buffersList);
-		sha3_h.final(h);
+		HashBuilder hasher_h;
+		hasher_h.update({ { encodedR, Encoded_Size }, keyPair.publicKey() });
+		hasher_h.update(buffersList);
+		hasher_h.final(h);
 
 		// h = h mod group order
 		sc_reduce(h.data());
@@ -146,10 +152,10 @@ namespace catapult { namespace crypto {
 
 		// h = H(encodedR || public || data)
 		Hash512 h;
-		Sha3_512_Builder sha3_h;
-		sha3_h.update({ { encodedR, Encoded_Size }, publicKey });
-		sha3_h.update(buffersList);
-		sha3_h.final(h);
+		HashBuilder hasher_h;
+		hasher_h.update({ { encodedR, Encoded_Size }, publicKey });
+		hasher_h.update(buffersList);
+		hasher_h.final(h);
 
 		// h = h mod group order
 		sc_reduce(h.data());

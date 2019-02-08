@@ -20,6 +20,7 @@
 
 #include "MapperUtils.h"
 #include "catapult/model/EmbeddedTransaction.h"
+#include "catapult/model/Receipt.h"
 #include "catapult/model/VerifiableEntity.h"
 
 namespace catapult { namespace mongo { namespace mappers {
@@ -104,6 +105,14 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	bson_stream::array_context& StreamMosaic(bson_stream::array_context& context, UnresolvedMosaicId id, Amount amount) {
 		return StreamMosaicT(context, id, amount);
+	}
+
+	bson_stream::document& StreamReceipt(bson_stream::document& builder, const model::Receipt& receipt) {
+		builder
+				<< "version" << receipt.Version
+				<< "type" << utils::to_underlying_type(receipt.Type);
+
+		return builder;
 	}
 
 	// endregion

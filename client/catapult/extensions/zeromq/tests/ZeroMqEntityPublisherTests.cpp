@@ -19,6 +19,7 @@
 **/
 
 #include "zeromq/src/ZeroMqEntityPublisher.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "zeromq/src/PublisherUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/Cosignature.h"
@@ -81,13 +82,9 @@ namespace catapult { namespace zeromq {
 			}
 		};
 
-		std::shared_ptr<model::AddressSet> GenerateRandomExtractedAddresses() {
+		std::shared_ptr<model::UnresolvedAddressSet> GenerateRandomExtractedAddresses() {
 			// Arrange: generate three random addresses
-			return std::make_shared<model::AddressSet>(model::AddressSet{
-				test::GenerateRandomData<Address_Decoded_Size>(),
-				test::GenerateRandomData<Address_Decoded_Size>(),
-				test::GenerateRandomData<Address_Decoded_Size>()
-			});
+			return test::GenerateRandomUnresolvedAddressSetPointer(3);
 		}
 	}
 
@@ -227,11 +224,12 @@ namespace catapult { namespace zeromq {
 		EntityPublisherContext context;
 		auto pTransaction = mocks::CreateMockTransaction(0);
 		auto recipientAddress = model::PublicKeyToAddress(pTransaction->Recipient, model::NetworkIdentifier(pTransaction->Network()));
+		auto unresolvedRecipientAddress = extensions::CopyToUnresolvedAddress(recipientAddress);
 		auto transactionInfo = ToTransactionInfo(std::move(pTransaction));
 		Height height(123);
 
 		// - only subscribe to the recipient address (and not to other addresses like the sender)
-		context.subscribeAll(Marker, { recipientAddress });
+		context.subscribeAll(Marker, { unresolvedRecipientAddress });
 
 		// Act:
 		context.publishTransaction(Marker, transactionInfo, height);
@@ -241,7 +239,7 @@ namespace catapult { namespace zeromq {
 		test::ZmqReceive(message, context.zmqSocket());
 
 		// - only a single message is sent to the recipient address (because that is the only subscribed address)
-		auto topic = CreateTopic(Marker, recipientAddress);
+		auto topic = CreateTopic(Marker, unresolvedRecipientAddress);
 		test::AssertTransactionInfoMessage(message, topic, transactionInfo, height);
 
 		// - no other message is pending (e.g. to sender)
@@ -257,7 +255,7 @@ namespace catapult { namespace zeromq {
 		context.subscribeAll(Marker, addresses);
 
 		// - associate no addresses with the transaction
-		transactionInfo.OptionalExtractedAddresses = std::make_shared<model::AddressSet>();
+		transactionInfo.OptionalExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
 
 		// Act:
 		context.publishTransaction(Marker, transactionInfo, height);

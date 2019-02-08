@@ -28,6 +28,7 @@
 #include "Filesystem.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/exceptions.h"
+#include <boost/dll.hpp>
 #include <boost/filesystem.hpp>
 
 #ifdef CATAPULT_DOCKER_TESTS
@@ -39,20 +40,63 @@ namespace catapult { namespace test {
 
 	// region directory guard
 
-	TempDirectoryGuard::TempDirectoryGuard(const std::string& directoryName) : m_directoryPath(directoryName) {
-		if (exists())
-			CATAPULT_LOG(warning) << "creating directory " << m_directoryPath << " that already exists!";
-		else
-			CATAPULT_LOG(debug) << "creating directory " << m_directoryPath;
+	namespace {
+		constexpr auto Temp_Directory_Root = "../_temp";
 
-		boost::filesystem::create_directories(m_directoryPath);
+		boost::filesystem::path PathFromDirectoryName(const std::string& directoryName) {
+			if (std::string::npos != directoryName.find("/"))
+				CATAPULT_THROW_INVALID_ARGUMENT_1("TempDirectoryGuard only supports directory names", directoryName);
+
+			return boost::filesystem::path(TempDirectoryGuard::DefaultName()) / directoryName;
+		}
+
+		void DeleteDirectoryIfEmpty(const std::string& directoryName) {
+			if (!boost::filesystem::is_directory(directoryName))
+				return;
+
+			auto begin = boost::filesystem::directory_iterator(directoryName);
+			auto end = boost::filesystem::directory_iterator();
+			auto numFiles = std::distance(begin, end);
+			if (0 != numFiles)
+				return;
+
+			CATAPULT_LOG(debug) << "deleting empty directory " << directoryName;
+			boost::filesystem::remove_all(directoryName);
+		}
+
+		bool StartsWithTempDirectoryRoot(const std::string& directoryName) {
+			return directoryName == Temp_Directory_Root || 0 == directoryName.find(Temp_Directory_Root + std::string("/"));
+		}
 	}
+
+	TempDirectoryGuard::TempDirectoryGuard() : TempDirectoryGuard(DefaultName(), true)
+	{}
+
+	TempDirectoryGuard::TempDirectoryGuard(const std::string& directoryName)
+			: TempDirectoryGuard(PathFromDirectoryName(directoryName), true)
+	{}
 
 	TempDirectoryGuard::~TempDirectoryGuard() {
 		auto numRemovedFiles = boost::filesystem::remove_all(m_directoryPath);
 		CATAPULT_LOG(debug)
 				<< "deleted directory " << m_directoryPath << " and removed " << numRemovedFiles
 				<< " files (exists? " << exists() << ")";
+
+		// delete any empty parent directories too
+		DeleteDirectoryIfEmpty(TempDirectoryGuard::DefaultName());
+		DeleteDirectoryIfEmpty(Temp_Directory_Root);
+	}
+
+	TempDirectoryGuard::TempDirectoryGuard(const boost::filesystem::path& directoryPath, bool) : m_directoryPath(directoryPath) {
+		if (!StartsWithTempDirectoryRoot(directoryPath.generic_string()))
+			CATAPULT_THROW_INVALID_ARGUMENT_1("temp directory does not start with temp directory root", directoryPath.generic_string());
+
+		if (exists())
+			CATAPULT_LOG(warning) << "creating directory " << m_directoryPath << " that already exists!";
+		else
+			CATAPULT_LOG(debug) << "creating directory " << m_directoryPath;
+
+		boost::filesystem::create_directories(m_directoryPath);
 	}
 
 	std::string TempDirectoryGuard::name() const {
@@ -63,6 +107,10 @@ namespace catapult { namespace test {
 		return boost::filesystem::exists(m_directoryPath);
 	}
 
+	std::string TempDirectoryGuard::DefaultName() {
+		return (boost::filesystem::path(Temp_Directory_Root) / boost::dll::program_location().filename()).generic_string();
+	}
+
 	// endregion
 
 	// region file guard
@@ -70,12 +118,8 @@ namespace catapult { namespace test {
 	TempFileGuard::TempFileGuard(const std::string& name) : m_name(name)
 	{}
 
-	TempFileGuard::~TempFileGuard() {
-		remove(m_name.c_str());
-	}
-
-	const std::string& TempFileGuard::name() const {
-		return m_name;
+	std::string TempFileGuard::name() const {
+		return (boost::filesystem::path(m_directoryGuard.name()) / m_name).generic_string();
 	}
 
 	// endregion

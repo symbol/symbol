@@ -90,13 +90,15 @@ namespace catapult { namespace cache {
 		/// Gets the network importance grouping.
 		uint64_t importanceGrouping() const;
 
+		/// Gets the harvesting mosaic id.
+		MosaicId harvestingMosaicId() const;
+
 	public:
 		/// Gets all high value addresses.
 		const model::AddressSet& highValueAddresses() const;
 
 	private:
-		const model::NetworkIdentifier m_networkIdentifier;
-		const uint64_t m_importanceGrouping;
+		const AccountStateCacheTypes::Options& m_options;
 		const model::AddressSet& m_highValueAddresses;
 		std::unique_ptr<AccountStateCacheViewMixins::KeyLookupAdapter> m_pKeyLookupAdapter;
 	};

@@ -20,6 +20,7 @@
 
 #include "catapult/chain/ProcessingNotificationSubscriber.h"
 #include "tests/test/core/NotificationTestUtils.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/other/mocks/MockNotificationObserver.h"
 #include "tests/test/other/mocks/MockNotificationValidator.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
@@ -44,13 +45,15 @@ namespace catapult { namespace chain {
 		constexpr auto Notification_Type_All_2 = MakeTestNotificationType(model::NotificationChannel::All, 2);
 		constexpr auto Notification_Type_All_3 = MakeTestNotificationType(model::NotificationChannel::All, 3);
 
+		constexpr auto CreateResolverContext = test::CreateResolverContextWithCustomDoublingMosaicResolver;
+
 		class TestContext {
 		public:
 			explicit TestContext(observers::NotifyMode executeMode = observers::NotifyMode::Commit)
 					: m_cache({})
 					, m_cacheDelta(m_cache.createDelta())
 					, m_validatorContext(test::CreateValidatorContext(Height(123), m_cacheDelta.toReadOnly()))
-					, m_observerContext(m_cacheDelta, m_state, Height(123), executeMode)
+					, m_observerContext({ m_cacheDelta, m_state }, Height(123), executeMode, CreateResolverContext())
 					, m_sub(m_validator, m_validatorContext, m_observer, m_observerContext) {
 				CATAPULT_LOG(debug) << "preparing test context with execute mode " << executeMode;
 			}
@@ -100,6 +103,9 @@ namespace catapult { namespace chain {
 								? observers::NotifyMode::Rollback
 								: observers::NotifyMode::Commit;
 						EXPECT_EQ(expectedUndoMode, observerContext.Mode) << message;
+
+						// - appropriate resolvers were passed down
+						EXPECT_EQ(MosaicId(22), observerContext.Resolvers.resolve(UnresolvedMosaicId(11)));
 					}
 				}
 			}
@@ -419,8 +425,8 @@ namespace catapult { namespace chain {
 		auto hash = test::GenerateRandomData<Hash256_Size>();
 		auto notification1 = model::AccountPublicKeyNotification(signer);
 		auto notification2 = test::CreateNotification(Notification_Type_All);
-		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Mijin_Test);
-		auto notification4 = model::TransactionNotification(signer, hash, model::EntityType(22), Timestamp(11));
+		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Mijin_Test, 0, 0, 0);
+		auto notification4 = model::TransactionNotification(signer, hash, static_cast<model::EntityType>(22), Timestamp(11));
 
 		// - process notifications
 		context.sub().notify(notification1);

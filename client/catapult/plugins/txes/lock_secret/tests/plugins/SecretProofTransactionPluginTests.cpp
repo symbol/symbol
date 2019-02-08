@@ -34,7 +34,7 @@ namespace catapult { namespace plugins {
 	// region TransactionPlugin
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretProof)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretProof, 1, 1)
 
 		template<typename TTraits>
 		auto CreateSecretProofTransaction() {
@@ -116,7 +116,7 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
 		EXPECT_EQ(transaction.Secret, notification.Secret);
 		ASSERT_EQ(transaction.ProofSize, notification.Proof.Size);
-		EXPECT_TRUE(0 == std::memcmp(transaction.ProofPtr(), notification.Proof.pData, notification.Proof.Size));
+		EXPECT_EQ_MEMORY(transaction.ProofPtr(), notification.Proof.pData, notification.Proof.Size);
 	}
 
 	PLUGIN_TEST(CanSecretProofPublicationNotification) {

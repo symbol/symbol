@@ -33,7 +33,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, EntityHasExpectedSize){
 		// Arrange:
-		auto expectedSize = sizeof(Transaction) // base
+		auto expectedSize =
+				sizeof(Transaction) // base
 				+ sizeof(uint32_t); // payload size
 
 		// Assert:

@@ -25,6 +25,7 @@
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache/RelockableDetachedCatapultCache.h"
 #include "catapult/cache/UtCache.h"
+#include "catapult/model/FeeUtils.h"
 #include "catapult/utils/HexFormatter.h"
 
 namespace catapult { namespace chain {
@@ -46,13 +47,15 @@ namespace catapult { namespace chain {
 		Impl(
 				cache::UtCache& transactionsCache,
 				const cache::CatapultCache& confirmedCatapultCache,
-				const ExecutionConfiguration& config,
+				BlockFeeMultiplier minFeeMultiplier,
+				const ExecutionConfiguration& executionConfig,
 				const TimeSupplier& timeSupplier,
 				const FailedTransactionSink& failedTransactionSink,
 				const Throttle& throttle)
 				: m_transactionsCache(transactionsCache)
 				, m_detachedCatapultCache(confirmedCatapultCache)
-				, m_config(config)
+				, m_minFeeMultiplier(minFeeMultiplier)
+				, m_executionConfig(executionConfig)
 				, m_timeSupplier(timeSupplier)
 				, m_failedTransactionSink(failedTransactionSink)
 				, m_throttle(throttle)
@@ -81,12 +84,13 @@ namespace catapult { namespace chain {
 						<< "reverted " << utInfos.size() << " transactions";
 			}
 
-			// 1. lock the catapult cache and rebase the unconfirmed catapult cache
-			auto pUnconfirmedCatapultCache = m_detachedCatapultCache.rebaseAndLock();
-
-			// 2. lock and clear the UT cache
+			// 1. lock and clear the UT cache - UT cache must be locked before catapult cache to prevent race condition whereby
+			//    other update overload applies transactions to rebased cache before UT lock is held
 			auto modifier = m_transactionsCache.modifier();
 			auto originalTransactionInfos = modifier.removeAll();
+
+			// 2. lock the catapult cache and rebase the unconfirmed catapult cache
+			auto pUnconfirmedCatapultCache = m_detachedCatapultCache.rebaseAndLock();
 
 			// 3. add back reverted txes
 			auto applyState = ApplyState(modifier, *pUnconfirmedCatapultCache);
@@ -108,6 +112,9 @@ namespace catapult { namespace chain {
 				const std::vector<model::TransactionInfo>& utInfos,
 				TransactionSource transactionSource,
 				const predicate<const model::TransactionInfo&>& filter) {
+			using validators::ValidatorContext;
+			using observers::ObserverContext;
+
 			auto currentTime = m_timeSupplier();
 
 			auto readOnlyCache = applyState.UnconfirmedCatapultCache.toReadOnly();
@@ -115,18 +122,32 @@ namespace catapult { namespace chain {
 			// note that the validator and observer context height is one larger than the chain height
 			// since the validation and observation has to be for the *next* block
 			auto effectiveHeight = m_detachedCatapultCache.height() + Height(1);
-			auto validatorContext = validators::ValidatorContext(effectiveHeight, currentTime, m_config.Network, readOnlyCache);
+			const auto& network = m_executionConfig.Network;
+			auto resolverContext = m_executionConfig.ResolverContextFactory(readOnlyCache);
+			auto validatorContext = ValidatorContext(effectiveHeight, currentTime, network, resolverContext, readOnlyCache);
 
 			// note that the "real" state is currently only required by block observers, so a dummy state can be used
 			auto& cache = applyState.UnconfirmedCatapultCache;
 			state::CatapultState dummyState;
-			auto observerContext = observers::ObserverContext(cache, dummyState, effectiveHeight, observers::NotifyMode::Commit);
+			auto observerContext = ObserverContext({ cache, dummyState }, effectiveHeight, observers::NotifyMode::Commit, resolverContext);
 			for (const auto& utInfo : utInfos) {
 				const auto& entity = *utInfo.pEntity;
 				const auto& entityHash = utInfo.EntityHash;
 
 				if (!filter(utInfo))
 					continue;
+
+				auto minTransactionFee = model::CalculateTransactionFee(m_minFeeMultiplier, entity);
+				if (entity.MaxFee < minTransactionFee) {
+					// don't log reverted transactions that could have been included by harvester with lower min fee multiplier
+					if (TransactionSource::New == transactionSource) {
+						CATAPULT_LOG(info)
+								<< "dropping transaction " << utils::HexFormat(entityHash) << " with max fee " << entity.MaxFee
+								<< " because min fee is " << minTransactionFee;
+					}
+
+					continue;
+				}
 
 				if (throttle(utInfo, transactionSource, applyState, readOnlyCache)) {
 					CATAPULT_LOG(warning) << "dropping transaction " << utils::HexFormat(entityHash) << " due to throttle";
@@ -138,10 +159,12 @@ namespace catapult { namespace chain {
 					continue;
 
 				// notice that subscriber is created within loop because aggregate result needs to be reset each iteration
-				ProcessingNotificationSubscriber sub(*m_config.pValidator, validatorContext, *m_config.pObserver, observerContext);
+				const auto& validator = *m_executionConfig.pValidator;
+				const auto& observer = *m_executionConfig.pObserver;
+				ProcessingNotificationSubscriber sub(validator, validatorContext, observer, observerContext);
 				sub.enableUndo();
 				auto entityInfo = model::WeakEntityInfo(entity, entityHash);
-				m_config.pNotificationPublisher->publish(entityInfo, sub);
+				m_executionConfig.pNotificationPublisher->publish(entityInfo, sub);
 				if (!IsValidationResultSuccess(sub.result())) {
 					CATAPULT_LOG_LEVEL(validators::MapToLogLevel(sub.result()))
 							<< "dropping transaction " << utils::HexFormat(entityHash) << ": " << sub.result();
@@ -173,7 +196,8 @@ namespace catapult { namespace chain {
 	private:
 		cache::UtCache& m_transactionsCache;
 		cache::RelockableDetachedCatapultCache m_detachedCatapultCache;
-		ExecutionConfiguration m_config;
+		BlockFeeMultiplier m_minFeeMultiplier;
+		ExecutionConfiguration m_executionConfig;
 		TimeSupplier m_timeSupplier;
 		FailedTransactionSink m_failedTransactionSink;
 		UtUpdater::Throttle m_throttle;
@@ -182,14 +206,16 @@ namespace catapult { namespace chain {
 	UtUpdater::UtUpdater(
 			cache::UtCache& transactionsCache,
 			const cache::CatapultCache& confirmedCatapultCache,
-			const ExecutionConfiguration& config,
+			BlockFeeMultiplier minFeeMultiplier,
+			const ExecutionConfiguration& executionConfig,
 			const TimeSupplier& timeSupplier,
 			const FailedTransactionSink& failedTransactionSink,
 			const Throttle& throttle)
 			: m_pImpl(std::make_unique<Impl>(
 					transactionsCache,
 					confirmedCatapultCache,
-					config,
+					minFeeMultiplier,
+					executionConfig,
 					timeSupplier,
 					failedTransactionSink,
 					throttle))

@@ -28,7 +28,7 @@ namespace catapult { namespace observers {
 	/// Uses the observer \a context to determine notification direction and access caches.
 	/// Uses \a notification to determine the destination account.
 	template<typename TTraits>
-	void LockStatusAccountBalanceObserver(const typename TTraits::Notification& notification, const ObserverContext& context) {
+	void LockStatusAccountBalanceObserver(const typename TTraits::Notification& notification, ObserverContext& context) {
 		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
 		auto& cache = context.Cache.template sub<typename TTraits::CacheType>();
 		const auto& key = TTraits::NotificationToKey(notification);
@@ -38,12 +38,16 @@ namespace catapult { namespace observers {
 		auto accountStateIter = accountStateCache.find(TTraits::DestinationAccount(lockInfo));
 		auto& accountState = accountStateIter.get();
 
-		if (NotifyMode::Commit == context.Mode) {
-			lockInfo.Status = state::LockStatus::Used;
-			accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
-		} else {
+		if (NotifyMode::Rollback == context.Mode) {
 			lockInfo.Status = state::LockStatus::Unused;
 			accountState.Balances.debit(lockInfo.MosaicId, lockInfo.Amount);
+			return;
 		}
+
+		lockInfo.Status = state::LockStatus::Used;
+		accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount);
+
+		model::BalanceChangeReceipt receipt(TTraits::Receipt_Type, accountState.PublicKey, lockInfo.MosaicId, lockInfo.Amount);
+		context.StatementBuilder().addReceipt(receipt);
 	}
 }}

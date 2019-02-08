@@ -122,7 +122,7 @@ namespace catapult { namespace consumers {
 					catapult::Height height,
 					catapult::Timestamp timestamp,
 					const model::WeakEntityInfos& entityInfos,
-					const observers::ObserverState& state)
+					observers::ObserverState& state)
 					: Height(height)
 					, Timestamp(timestamp)
 					, EntityInfos(entityInfos)
@@ -140,6 +140,14 @@ namespace catapult { namespace consumers {
 			const size_t NumDifficultyInfos;
 		};
 
+		void AddHeightReceipt(model::BlockStatementBuilder& blockStatementBuilder, Height height) {
+			model::Receipt receipt{};
+			receipt.Size = sizeof(model::Receipt);
+			receipt.Type = static_cast<model::ReceiptType>(height.unwrap());
+
+			blockStatementBuilder.addReceipt(receipt);
+		}
+
 		class MockBatchEntityProcessor : public test::ParamsCapture<BatchEntityProcessorParams> {
 		public:
 			MockBatchEntityProcessor() : m_numCalls(0), m_trigger(0), m_result(ValidationResult::Success)
@@ -150,12 +158,16 @@ namespace catapult { namespace consumers {
 					Height height,
 					Timestamp timestamp,
 					const model::WeakEntityInfos& entityInfos,
-					const observers::ObserverState& state) const {
+					observers::ObserverState& state) const {
 				const_cast<MockBatchEntityProcessor*>(this)->push(height, timestamp, entityInfos, state);
 
 				// - add a block difficulty info to the cache as a marker
 				auto& blockDifficultyCache = state.Cache.sub<cache::BlockDifficultyCache>();
 				blockDifficultyCache.insert(state::BlockDifficultyInfo(Height(blockDifficultyCache.size() + 1)));
+
+				// - add a receipt as a marker
+				if (state.pBlockStatementBuilder)
+					AddHeightReceipt(*state.pBlockStatementBuilder, height);
 
 				return ++m_numCalls < m_trigger ? ValidationResult::Success : m_result;
 			}
@@ -184,14 +196,16 @@ namespace catapult { namespace consumers {
 
 		struct ProcessorTestContext {
 		public:
-			ProcessorTestContext() : BlockHitPredicateFactory(BlockHitPredicate) {
+			explicit ProcessorTestContext(ReceiptValidationMode receiptValidationMode = ReceiptValidationMode::Disabled)
+					: BlockHitPredicateFactory(BlockHitPredicate) {
 				Processor = CreateBlockChainProcessor(
 						[this](const auto& cache) {
 							return BlockHitPredicateFactory(cache);
 						},
-						[this](auto height, auto timestamp, const auto& entities, const auto& state) {
+						[this](auto height, auto timestamp, const auto& entities, auto& state) {
 							return BatchEntityProcessor(height, timestamp, entities, state);
-						});
+						},
+						receiptValidationMode);
 			}
 
 		public:
@@ -206,8 +220,9 @@ namespace catapult { namespace consumers {
 			ValidationResult Process(const model::BlockElement& parentBlockElement, BlockElements& elements) {
 				auto cache = test::CreateCatapultCacheWithMarkerAccount();
 				auto delta = cache.createDelta();
+				auto observerState = observers::ObserverState(delta, State);
 
-				return Processor(WeakBlockInfo(parentBlockElement), elements, observers::ObserverState(delta, State));
+				return Processor(WeakBlockInfo(parentBlockElement), elements, observerState);
 			}
 
 			ValidationResult Process(const model::Block& parentBlock, BlockElements& elements) {
@@ -285,14 +300,20 @@ namespace catapult { namespace consumers {
 				const_cast<model::Block&>(blockElement.Block).StateHash = Hash256();
 		}
 
+		void ClearReceiptsHashes(BlockElements& elements) {
+			for (auto& blockElement : elements)
+				const_cast<model::Block&>(blockElement.Block).BlockReceiptsHash = Hash256();
+		}
+
 		void PrepareChain(Height height, model::Block& parentBlock, BlockElements& elements) {
 			parentBlock.Height = height;
 			test::LinkBlocks(parentBlock, const_cast<model::Block&>(elements[0].Block));
 			ClearStateHashes(elements);
+			ClearReceiptsHashes(elements);
 		}
 	}
 
-	// region empty
+	// region neutral - empty
 
 	TEST(TEST_CLASS, EmptyInputResultsInNeutralResult) {
 		// Arrange:
@@ -310,7 +331,96 @@ namespace catapult { namespace consumers {
 
 	// endregion
 
-	// region unlinked
+	// region valid
+
+	namespace {
+		struct ReceiptValidationDisabledTraits {
+			static constexpr auto Mode = ReceiptValidationMode::Disabled;
+
+			static void PrepareReceiptsHashes(BlockElements&)
+			{}
+		};
+
+		struct ReceiptValidationEnabledTraits {
+			static constexpr auto Mode = ReceiptValidationMode::Enabled;
+
+			static Hash256 GetExpectedHash(Height height) {
+				model::BlockStatementBuilder blockStatementBuilder;
+				AddHeightReceipt(blockStatementBuilder, height);
+				return CalculateMerkleHash(*blockStatementBuilder.build());
+			}
+
+			static void PrepareReceiptsHashes(BlockElements& elements) {
+				// Arrange: one "height" receipt is added per block
+				for (auto& blockElement : elements)
+					const_cast<model::Block&>(blockElement.Block).BlockReceiptsHash = GetExpectedHash(blockElement.Block.Height);
+			}
+		};
+
+		template<typename TTraits>
+		void AssertCanProcessValidElements(BlockElements& elements, size_t numExpectedBlocks) {
+			ProcessorTestContext context(TTraits::Mode);
+			auto pParentBlock = test::GenerateEmptyRandomBlock();
+			PrepareChain(Height(11), *pParentBlock, elements);
+			TTraits::PrepareReceiptsHashes(elements);
+
+			// Act:
+			auto result = context.Process(*pParentBlock, elements);
+
+			// Assert:
+			EXPECT_EQ(ValidationResult::Success, result);
+			EXPECT_EQ(numExpectedBlocks, context.BlockHitPredicate.params().size());
+			EXPECT_EQ(numExpectedBlocks, context.BatchEntityProcessor.params().size());
+			context.assertBlockHitPredicateCalls(*pParentBlock, elements);
+			context.assertBatchEntityProcessorCalls(elements);
+		}
+	}
+
+#define RECEIPT_VALIDATION_MODE_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ReceiptDisabled) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReceiptValidationDisabledTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_ReceiptEnabled) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReceiptValidationEnabledTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	RECEIPT_VALIDATION_MODE_BASED_TEST(CanProcessSingleBlockWithoutTransactions) {
+		// Arrange:
+		auto elements = test::CreateBlockElements(1);
+
+		// Assert:
+		AssertCanProcessValidElements<TTraits>(elements, 1);
+	}
+
+	RECEIPT_VALIDATION_MODE_BASED_TEST(CanProcessSingleBlockWithTransactions) {
+		// Arrange:
+		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(3, 12);
+		auto elements = test::CreateBlockElements({ pBlock.get() });
+
+		// Assert:
+		AssertCanProcessValidElements<TTraits>(elements, 1);
+	}
+
+	RECEIPT_VALIDATION_MODE_BASED_TEST(CanProcessMultipleBlocksWithoutTransactionss) {
+		// Arrange:
+		auto elements = test::CreateBlockElements(3);
+
+		// Assert:
+		AssertCanProcessValidElements<TTraits>(elements, 3);
+	}
+
+	RECEIPT_VALIDATION_MODE_BASED_TEST(CanProcessMultipleBlocksWithTransactions) {
+		// Arrange:
+		auto pBlock1 = test::GenerateBlockWithTransactionsAtHeight(3, 12);
+		auto pBlock2 = test::GenerateBlockWithTransactionsAtHeight(2, 13);
+		auto pBlock3 = test::GenerateBlockWithTransactionsAtHeight(4, 14);
+		auto elements = test::CreateBlockElements({ pBlock1.get(), pBlock2.get(), pBlock3.get() });
+
+		// Assert:
+		AssertCanProcessValidElements<TTraits>(elements, 3);
+	}
+
+	// endregion
+
+	// region invalid - unlinked
 
 	namespace {
 		void AssertUnlinkedChain(const consumer<model::Block&>& unlink) {
@@ -341,65 +451,7 @@ namespace catapult { namespace consumers {
 
 	// endregion
 
-	// region valid
-
-	namespace {
-		void AssertCanProcessValidElements(BlockElements& elements, size_t numExpectedBlocks) {
-			ProcessorTestContext context;
-			auto pParentBlock = test::GenerateEmptyRandomBlock();
-			PrepareChain(Height(11), *pParentBlock, elements);
-
-			// Act:
-			auto result = context.Process(*pParentBlock, elements);
-
-			// Assert:
-			EXPECT_EQ(ValidationResult::Success, result);
-			EXPECT_EQ(numExpectedBlocks, context.BlockHitPredicate.params().size());
-			EXPECT_EQ(numExpectedBlocks, context.BatchEntityProcessor.params().size());
-			context.assertBlockHitPredicateCalls(*pParentBlock, elements);
-			context.assertBatchEntityProcessorCalls(elements);
-		}
-	}
-
-	TEST(TEST_CLASS, CanProcessSingleBlockWithoutTransactions) {
-		// Arrange:
-		auto elements = test::CreateBlockElements(1);
-
-		// Assert:
-		AssertCanProcessValidElements(elements, 1);
-	}
-
-	TEST(TEST_CLASS, CanProcessSingleBlockWithTransactions) {
-		// Arrange:
-		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(3, 12);
-		auto elements = test::CreateBlockElements({ pBlock.get() });
-
-		// Assert:
-		AssertCanProcessValidElements(elements, 1);
-	}
-
-	TEST(TEST_CLASS, CanProcessMultipleBlocksWithoutTransactionss) {
-		// Arrange:
-		auto elements = test::CreateBlockElements(3);
-
-		// Assert:
-		AssertCanProcessValidElements(elements, 3);
-	}
-
-	TEST(TEST_CLASS, CanProcessMultipleBlocksWithTransactions) {
-		// Arrange:
-		auto pBlock1 = test::GenerateBlockWithTransactionsAtHeight(3, 12);
-		auto pBlock2 = test::GenerateBlockWithTransactionsAtHeight(2, 13);
-		auto pBlock3 = test::GenerateBlockWithTransactionsAtHeight(4, 14);
-		auto elements = test::CreateBlockElements({ pBlock1.get(), pBlock2.get(), pBlock3.get() });
-
-		// Assert:
-		AssertCanProcessValidElements(elements, 3);
-	}
-
-	// endregion
-
-	// region invalid
+	// region invalid - unhit
 
 	TEST(TEST_CLASS, ExecuteShortCircutsOnUnhitBlock) {
 		// Arrange: cause the second hit check to return false
@@ -422,6 +474,10 @@ namespace catapult { namespace consumers {
 		context.assertBlockHitPredicateCalls(*pParentBlock, elements);
 		context.assertBatchEntityProcessorCalls(elements);
 	}
+
+	// endregion
+
+	// region invalid - processor
 
 	namespace {
 		void AssertShortCircutsOnProcessorResult(ValidationResult processorResult) {
@@ -457,6 +513,10 @@ namespace catapult { namespace consumers {
 		AssertShortCircutsOnProcessorResult(ValidationResult::Failure);
 	}
 
+	// endregion
+
+	// region invalid - state hash
+
 	TEST(TEST_CLASS, ExecuteShortCircutsOnInconsistentStateHash) {
 		// Arrange:
 		ProcessorTestContext context;
@@ -465,7 +525,7 @@ namespace catapult { namespace consumers {
 		PrepareChain(Height(11), *pParentBlock, elements);
 
 		// - invalidate the second block state hash
-		const_cast<model::Block&>(elements[1].Block).StateHash = test::GenerateRandomData<Hash256_Size>();
+		test::FillWithRandomData(const_cast<model::Block&>(elements[1].Block).StateHash);
 
 		// Act:
 		auto result = context.Process(*pParentBlock, elements);
@@ -482,13 +542,42 @@ namespace catapult { namespace consumers {
 
 	// endregion
 
-	// region generation hashes update
+	// region invalid - block receipts hash
+
+	TEST(TEST_CLASS, ExecuteShortCircutsOnInconsistentBlockReceiptsHash) {
+		// Arrange:
+		ProcessorTestContext context(ReceiptValidationMode::Enabled);
+		auto pParentBlock = test::GenerateEmptyRandomBlock();
+		auto elements = test::CreateBlockElements(3);
+		PrepareChain(Height(11), *pParentBlock, elements);
+		ReceiptValidationEnabledTraits::PrepareReceiptsHashes(elements);
+
+		// - invalidate the second block receipts hash
+		test::FillWithRandomData(const_cast<model::Block&>(elements[1].Block).BlockReceiptsHash);
+
+		// Act:
+		auto result = context.Process(*pParentBlock, elements);
+
+		// Assert:
+		// - block hit predicate returned true
+		// - processor returned success
+		EXPECT_EQ(chain::Failure_Chain_Block_Inconsistent_Receipts_Hash, result);
+		EXPECT_EQ(2u, context.BlockHitPredicate.params().size());
+		EXPECT_EQ(2u, context.BatchEntityProcessor.params().size());
+		context.assertBlockHitPredicateCalls(*pParentBlock, elements);
+		context.assertBatchEntityProcessorCalls(elements);
+	}
+
+	// endregion
+
+	// region update - generation hashes
 
 	namespace {
-		void AssertGenerationHashesAreUpdatedCorrectly(BlockElements& elements, size_t numExpectedBlocks) {
+		void AssertGenerationHashesAreUpdatedCorrectly(size_t numExpectedBlocks) {
 			// Arrange:
 			ProcessorTestContext context;
 			auto pParentBlock = test::GenerateEmptyRandomBlock();
+			auto elements = test::CreateBlockElements(numExpectedBlocks);
 			PrepareChain(Height(11), *pParentBlock, elements);
 
 			// - clear all generation hashes
@@ -517,30 +606,25 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, SetsGenerationHashesInSingleBlockInput) {
-		// Arrange:
-		auto elements = test::CreateBlockElements(1);
-
 		// Assert:
-		AssertGenerationHashesAreUpdatedCorrectly(elements, 1);
+		AssertGenerationHashesAreUpdatedCorrectly(1);
 	}
 
 	TEST(TEST_CLASS, SetsGenerationHashesInMultiBlockInput) {
-		// Arrange:
-		auto elements = test::CreateBlockElements(3);
-
 		// Assert:
-		AssertGenerationHashesAreUpdatedCorrectly(elements, 3);
+		AssertGenerationHashesAreUpdatedCorrectly(3);
 	}
 
 	// endregion
 
-	// region sub cache merkle roots update
+	// region update - sub cache merkle roots
 
 	namespace {
-		void AssertSubCacheMerkleRootsAreUpdatedCorrectly(BlockElements& elements, size_t numExpectedBlocks) {
+		void AssertSubCacheMerkleRootsAreUpdatedCorrectly(size_t numExpectedBlocks) {
 			// Arrange:
 			ProcessorTestContext context;
 			auto pParentBlock = test::GenerateEmptyRandomBlock();
+			auto elements = test::CreateBlockElements(numExpectedBlocks);
 			PrepareChain(Height(11), *pParentBlock, elements);
 
 			// - set all sub cache merkle roots
@@ -549,7 +633,6 @@ namespace catapult { namespace consumers {
 
 			// Act:
 			auto parentBlockElement = test::BlockToBlockElement(*pParentBlock);
-			test::FillWithRandomData(parentBlockElement.GenerationHash);
 			auto result = context.Process(parentBlockElement, elements);
 
 			// Sanity:
@@ -566,19 +649,93 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, SetsSubCacheMerkleRootsInSingleBlockInput) {
-		// Arrange:
-		auto elements = test::CreateBlockElements(1);
-
 		// Assert:
-		AssertSubCacheMerkleRootsAreUpdatedCorrectly(elements, 1);
+		AssertSubCacheMerkleRootsAreUpdatedCorrectly(1);
 	}
 
 	TEST(TEST_CLASS, SetsSubCacheMerkleRootsInMultiBlockInput) {
-		// Arrange:
-		auto elements = test::CreateBlockElements(3);
-
 		// Assert:
-		AssertSubCacheMerkleRootsAreUpdatedCorrectly(elements, 3);
+		AssertSubCacheMerkleRootsAreUpdatedCorrectly(3);
+	}
+
+	// endregion
+
+	// region update - block statements
+
+	namespace {
+		void AssertBlockStatementsAreNotSetWhenReceiptValidationIsDisabled(size_t numExpectedBlocks) {
+			// Arrange:
+			ProcessorTestContext context;
+			auto pParentBlock = test::GenerateEmptyRandomBlock();
+			auto elements = test::CreateBlockElements(numExpectedBlocks);
+			PrepareChain(Height(11), *pParentBlock, elements);
+
+			// Act:
+			auto parentBlockElement = test::BlockToBlockElement(*pParentBlock);
+			auto result = context.Process(parentBlockElement, elements);
+
+			// Sanity:
+			EXPECT_EQ(ValidationResult::Success, result);
+			EXPECT_EQ(numExpectedBlocks, elements.size());
+
+			// Assert: block statements were not set
+			auto i = 0u;
+			for (const auto& blockElement : elements) {
+				auto message = "block statement at " + std::to_string(i);
+				EXPECT_FALSE(!!blockElement.OptionalStatement) << message;
+				++i;
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, DoesNotSetBlockStatementsInSingleBlockInputWhenReceiptValidationIsDisabled) {
+		// Assert:
+		AssertBlockStatementsAreNotSetWhenReceiptValidationIsDisabled(1);
+	}
+
+	TEST(TEST_CLASS, DoesNotSetBlockStatementsInMultiBlockInputWhenReceiptValidationIsDisabled) {
+		// Assert:
+		AssertBlockStatementsAreNotSetWhenReceiptValidationIsDisabled(3);
+	}
+
+	namespace {
+		void AssertBlockStatementsAreUpdatedCorrectlyWhenReceiptValidationIsEnabled(size_t numExpectedBlocks) {
+			// Arrange:
+			ProcessorTestContext context(ReceiptValidationMode::Enabled);
+			auto pParentBlock = test::GenerateEmptyRandomBlock();
+			auto elements = test::CreateBlockElements(numExpectedBlocks);
+			PrepareChain(Height(11), *pParentBlock, elements);
+			ReceiptValidationEnabledTraits::PrepareReceiptsHashes(elements);
+
+			// Act:
+			auto parentBlockElement = test::BlockToBlockElement(*pParentBlock);
+			auto result = context.Process(parentBlockElement, elements);
+
+			// Sanity:
+			EXPECT_EQ(ValidationResult::Success, result);
+			EXPECT_EQ(numExpectedBlocks, elements.size());
+
+			// Assert: block statements were set
+			auto i = 0u;
+			for (const auto& blockElement : elements) {
+				auto message = "block statement at " + std::to_string(i);
+				ASSERT_TRUE(!!blockElement.OptionalStatement) << message;
+				auto expectedBlockStatementHash = ReceiptValidationEnabledTraits::GetExpectedHash(blockElement.Block.Height);
+				auto blockStatementHash = CalculateMerkleHash(*blockElement.OptionalStatement);
+				EXPECT_EQ(expectedBlockStatementHash, blockStatementHash) << message;
+				++i;
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, SetsBlockStatementsInSingleBlockInputWhenReceiptValidationIsEnabled) {
+		// Assert:
+		AssertBlockStatementsAreUpdatedCorrectlyWhenReceiptValidationIsEnabled(1);
+	}
+
+	TEST(TEST_CLASS, SetsBlockStatementsInMultiBlockInputWhenReceiptValidationIsEnabled) {
+		// Assert:
+		AssertBlockStatementsAreUpdatedCorrectlyWhenReceiptValidationIsEnabled(3);
 	}
 
 	// endregion

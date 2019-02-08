@@ -50,15 +50,7 @@ namespace catapult { namespace extensions {
 		return std::make_unique<validators::stateless::AggregateEntityValidator>(std::move(validators));
 	}
 
-	std::unique_ptr<const observers::EntityObserver> CreateEntityObserver(const plugins::PluginManager& manager) {
-		return MakeAdapter<observers::NotificationObserverAdapter>(manager, manager.createObserver());
-	}
-
 	std::unique_ptr<const observers::EntityObserver> CreateUndoEntityObserver(const plugins::PluginManager& manager) {
 		return MakeAdapter<observers::ReverseNotificationObserverAdapter>(manager, manager.createObserver());
-	}
-
-	std::unique_ptr<const observers::EntityObserver> CreatePermanentEntityObserver(const plugins::PluginManager& manager) {
-		return MakeAdapter<observers::NotificationObserverAdapter>(manager, manager.createPermanentObserver());
 	}
 }}

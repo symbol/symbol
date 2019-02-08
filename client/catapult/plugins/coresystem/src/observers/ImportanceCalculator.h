@@ -33,7 +33,7 @@ namespace catapult { namespace observers {
 	/// Base class for all importance calculators.
 	class ImportanceCalculator {
 	public:
-		virtual ~ImportanceCalculator() {}
+		virtual ~ImportanceCalculator() = default;
 
 	public:
 		/// Recalculates importances for all accounts in \a cache at \a importanceHeight that are eligible for

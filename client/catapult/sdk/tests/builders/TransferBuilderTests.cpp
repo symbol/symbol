@@ -22,7 +22,6 @@
 #include "src/extensions/ConversionExtensions.h"
 #include "src/extensions/IdGenerator.h"
 #include "catapult/crypto/Hashes.h"
-#include "catapult/constants.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include <map>
 
@@ -34,41 +33,67 @@ namespace catapult { namespace builders {
 		using RegularTraits = test::RegularTransactionTraits<model::TransferTransaction>;
 		using EmbeddedTraits = test::EmbeddedTransactionTraits<model::EmbeddedTransferTransaction>;
 
-		void RunBuilderTest(const consumer<TransferBuilder&>& buildTransfer) {
-			// Arrange:
-			TransferBuilder builder(
-					static_cast<model::NetworkIdentifier>(0x62),
-					test::GenerateRandomData<Key_Size>(),
-					extensions::CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>()));
+		using TransactionType = model::TransferTransaction;
+		using TransactionPtr = std::unique_ptr<TransactionType>;
 
-			// Act:
-			buildTransfer(builder);
+		struct TransactionProperties {
+		public:
+			TransactionProperties() : Recipient(extensions::CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>()))
+			{}
+
+		public:
+			UnresolvedAddress Recipient;
+			std::vector<uint8_t> Message;
+			std::vector<model::UnresolvedMosaic> Mosaics;
+		};
+
+		template<typename TTransaction>
+		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
+			EXPECT_EQ(expectedProperties.Recipient, transaction.Recipient);
+
+			ASSERT_EQ(expectedProperties.Message.size(), transaction.MessageSize);
+			EXPECT_EQ_MEMORY(expectedProperties.Message.data(), transaction.MessagePtr(), expectedProperties.Message.size());
+
+			// - note mosaic comparison preserves order
+			ASSERT_EQ(expectedProperties.Mosaics.size(), transaction.MosaicsCount);
+			const auto* pActualMosaic = transaction.MosaicsPtr();
+			for (auto i = 0u; i < transaction.MosaicsCount; ++i, ++pActualMosaic) {
+				EXPECT_EQ(expectedProperties.Mosaics[i].MosaicId, pActualMosaic->MosaicId) << "mosaic at " << i;
+				EXPECT_EQ(expectedProperties.Mosaics[i].Amount, pActualMosaic->Amount) << "mosaic at " << i;
+			}
 		}
 
-		template<typename TTraits, typename TValidationFunction>
+		template<typename TTraits>
 		void AssertCanBuildTransfer(
 				size_t additionalSize,
-				const consumer<TransferBuilder&>& buildTransaction,
-				const TValidationFunction& validateTransaction) {
+				const TransactionProperties& expectedProperties,
+				const consumer<TransferBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
 			auto signer = test::GenerateRandomData<Key_Size>();
-			auto recipient = extensions::CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>());
 
 			// Act:
-			TransferBuilder builder(networkId, signer, recipient);
+			TransferBuilder builder(networkId, signer);
+			builder.setRecipient(expectedProperties.Recipient);
 			buildTransaction(builder);
 			auto pTransaction = TTraits::InvokeBuilder(builder);
 
 			// Assert:
 			TTraits::CheckFields(additionalSize, *pTransaction);
-
 			EXPECT_EQ(signer, pTransaction->Signer);
 			EXPECT_EQ(0x6203, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Transfer, pTransaction->Type);
 
-			EXPECT_EQ(recipient, pTransaction->Recipient);
-			validateTransaction(*pTransaction);
+			AssertTransactionProperties(expectedProperties, *pTransaction);
+		}
+
+		void RunBuilderTest(const consumer<TransferBuilder&>& buildTransaction) {
+			// Arrange:
+			TransferBuilder builder(static_cast<model::NetworkIdentifier>(0x62), test::GenerateRandomData<Key_Size>());
+			builder.setRecipient(extensions::CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>()));
+
+			// Act:
+			buildTransaction(builder);
 		}
 	}
 
@@ -81,15 +106,8 @@ namespace catapult { namespace builders {
 	// region basic
 
 	TRAITS_BASED_TEST(CanCreateTransferWithoutMessageOrMosaics) {
-		// Act:
-		AssertCanBuildTransfer<TTraits>(
-				0,
-				[](const auto&) {},
-				[](const auto& transfer) {
-					// Assert: neither a message nor mosaics are present
-					EXPECT_EQ(0u, transfer.MessageSize);
-					EXPECT_EQ(0u, transfer.MosaicsCount);
-				});
+		// Assert:
+		AssertCanBuildTransfer<TTraits>(0, TransactionProperties(), [](const auto&) {});
 	}
 
 	// endregion
@@ -104,80 +122,43 @@ namespace catapult { namespace builders {
 				builder.setMessage(message);
 			}
 		};
-
-		struct StringMessageTraits {
-			static constexpr auto GenerateRandomMessage = test::GenerateRandomString;
-
-			static void SetMessage(TransferBuilder& builder, const std::string& message) {
-				builder.setStringMessage(message);
-			}
-		};
 	}
 
 #define TRAITS_BASED_MESSAGE_TEST(TEST_NAME) \
-	template<typename TTraits, typename TMessageTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular_Binary) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits, BinaryMessageTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Regular_String) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits, StringMessageTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded_Binary) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits, BinaryMessageTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded_String) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits, StringMessageTraits>(); } \
-	template<typename TTraits, typename TMessageTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular_Binary) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded_Binary) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_MESSAGE_TEST(CanCreateTransferWithMessage) {
 		// Arrange:
-		auto message = TMessageTraits::GenerateRandomMessage(212);
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Message = BinaryMessageTraits::GenerateRandomMessage(212);
 
 		// Act:
-		AssertCanBuildTransfer<TTraits>(
-				message.size(),
-				[&message](auto& builder) {
-					TMessageTraits::SetMessage(builder, message);
-				},
-				[&message](const auto& transfer) {
-					// Assert: a message is present
-					auto expectedMessageSize = message.size();
-					auto actualMessageSize = transfer.MessageSize;
-					EXPECT_EQ(expectedMessageSize, actualMessageSize);
-					EXPECT_TRUE(0 == std::memcmp(message.data(), transfer.MessagePtr(), message.size()));
-
-					// - no mosaics are present
-					EXPECT_EQ(0u, transfer.MosaicsCount);
-				});
-	}
-
-#define MESSAGE_ACCESSOR_TEST(TEST_NAME) \
-	template<typename TMessageTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Binary) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BinaryMessageTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_String) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StringMessageTraits>(); } \
-	template<typename TMessageTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-
-	MESSAGE_ACCESSOR_TEST(CannotSetEmptyMessage) {
-		// Arrange:
-		RunBuilderTest([](auto& builder) {
-			// Act + Assert:
-			EXPECT_THROW(TMessageTraits::SetMessage(builder, {}), catapult_invalid_argument);
+		auto additionalSize = expectedProperties.Message.size();
+		AssertCanBuildTransfer<TTraits>(additionalSize, expectedProperties, [&message = expectedProperties.Message](auto& builder) {
+			BinaryMessageTraits::SetMessage(builder, message);
 		});
 	}
 
-	MESSAGE_ACCESSOR_TEST(CannotSetMultipleMessages) {
+	TEST(TEST_CLASS, CannotSetEmptyMessage) {
 		// Arrange:
 		RunBuilderTest([](auto& builder) {
-			TMessageTraits::SetMessage(builder, TMessageTraits::GenerateRandomMessage(212));
-
 			// Act + Assert:
-			EXPECT_THROW(TMessageTraits::SetMessage(builder, TMessageTraits::GenerateRandomMessage(212)), catapult_runtime_error);
+			EXPECT_THROW(BinaryMessageTraits::SetMessage(builder, {}), catapult_invalid_argument);
 		});
 	}
 
-	TEST(TEST_CLASS, CannotSetMultipleMessages_DifferentTypes) {
+	TEST(TEST_CLASS, CannotSetMultipleMessages) {
 		// Arrange:
 		RunBuilderTest([](auto& builder) {
-			auto message1 = test::GenerateRandomVector(123);
-			auto message2 = test::GenerateRandomString(212);
-
-			builder.setMessage(message1);
+			BinaryMessageTraits::SetMessage(builder, BinaryMessageTraits::GenerateRandomMessage(212));
 
 			// Act + Assert:
-			EXPECT_THROW(builder.setStringMessage(message2), catapult_runtime_error);
+			EXPECT_THROW(
+					BinaryMessageTraits::SetMessage(builder, BinaryMessageTraits::GenerateRandomMessage(212)),
+					catapult_runtime_error);
 		});
 	}
 
@@ -186,178 +167,121 @@ namespace catapult { namespace builders {
 	// region mosaics
 
 	namespace {
-		template<typename TTransaction>
-		std::map<UnresolvedMosaicId, Amount> ExtractMosaicsMap(const TTransaction& transfer) {
-			std::map<UnresolvedMosaicId, Amount> mosaics;
-			auto pMosaic = transfer.MosaicsPtr();
-			for (auto i = 0u; i < transfer.MosaicsCount; ++i) {
-				mosaics.emplace(pMosaic->MosaicId, pMosaic->Amount);
-				++pMosaic;
-			}
+		struct MosaicIdTraits {
+			static std::vector<model::UnresolvedMosaic> GenerateMosaics(size_t count) {
+				std::vector<model::UnresolvedMosaic> mosaics;
+				for (auto i = 0u; i < count; ++i) {
+					auto mosaic = model::UnresolvedMosaic{
+						test::GenerateRandomValue<UnresolvedMosaicId>(),
+						test::GenerateRandomValue<Amount>()
+					};
+					mosaics.push_back(mosaic);
+				}
 
-			return mosaics;
+				std::sort(mosaics.begin(), mosaics.end(), [](const auto& lhs, const auto& rhs) {
+					return lhs.MosaicId < rhs.MosaicId;
+				});
+
+				return mosaics;
+			}
+		};
+
+		void AddMosaic(TransferBuilder& builder, UnresolvedMosaicId mosaicId, Amount amount) {
+			builder.addMosaic({ mosaicId, amount });
 		}
 
-		struct MosaicIdTraits {
-			static std::map<UnresolvedMosaicId, Amount> GenerateMosaics(size_t count) {
-				std::map<UnresolvedMosaicId, Amount> mosaics;
-				for (auto i = 0u; i < count; ++i)
-					mosaics.emplace(test::GenerateRandomValue<UnresolvedMosaicId>(), test::GenerateRandomValue<Amount>());
-
-				return mosaics;
-			}
-
-			static const std::map<UnresolvedMosaicId, Amount>& ToMosaicsMap(const std::map<UnresolvedMosaicId, Amount>& mosaics) {
-				return mosaics;
-			}
-		};
-
-		struct MosaicNameTraits {
-			static std::map<std::string, Amount> GenerateMosaics(size_t count) {
-				std::map<std::string, Amount> mosaics;
-				for (auto i = 0u; i < count; ++i) {
-					auto mosaicName = test::GenerateRandomHexString(4) + ":" + test::GenerateRandomHexString(i + 4);
-					mosaics.emplace(mosaicName, test::GenerateRandomValue<Amount>());
-				}
-
-				return mosaics;
-			}
-
-			static std::map<UnresolvedMosaicId, Amount> ToMosaicsMap(const std::map<std::string, Amount>& namedMosaics) {
-				std::map<UnresolvedMosaicId, Amount> mosaics;
-				for (const auto& namedMosaic : namedMosaics) {
-					auto mosaicId = extensions::GenerateMosaicId(namedMosaic.first);
-					mosaics.emplace(UnresolvedMosaicId(mosaicId.unwrap()), namedMosaic.second);
-				}
-
-				return mosaics;
-			}
-		};
-
-		template<typename TTraits, typename TMosaicTraits>
+		template<typename TTraits>
 		void AssertCanCreateTransferWithMosaics(size_t numMosaics) {
 			// Arrange:
-			auto mosaics = TMosaicTraits::GenerateMosaics(numMosaics);
+			auto expectedProperties = TransactionProperties();
+			expectedProperties.Mosaics = MosaicIdTraits::GenerateMosaics(numMosaics);
 
 			// Act:
-			AssertCanBuildTransfer<TTraits>(
-					mosaics.size() * sizeof(model::UnresolvedMosaic),
-					[&mosaics](auto& builder) {
-						for (const auto& mosaic : mosaics)
-							builder.addMosaic(mosaic.first, mosaic.second);
-					},
-					[numMosaics, &mosaics](const auto& transfer) {
-						// Assert: no message is present
-						EXPECT_EQ(0u, transfer.MessageSize);
-
-						// - mosaics are present
-						EXPECT_EQ(numMosaics, transfer.MosaicsCount);
-						const auto& expectedMosaics = TMosaicTraits::ToMosaicsMap(mosaics);
-						const auto& actualMosaics = ExtractMosaicsMap(transfer);
-						EXPECT_EQ(expectedMosaics, actualMosaics);
-					});
+			auto additionalSize = expectedProperties.Mosaics.size() * sizeof(model::UnresolvedMosaic);
+			AssertCanBuildTransfer<TTraits>(additionalSize, expectedProperties, [&mosaics = expectedProperties.Mosaics](auto& builder) {
+				for (const auto& mosaic : mosaics)
+					AddMosaic(builder, mosaic.MosaicId, mosaic.Amount);
+			});
 		}
 	}
 
 #define TRAITS_BASED_MOSAICS_TEST(TEST_NAME) \
-	template<typename TTraits, typename TMosaicTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular_Id) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits, MosaicIdTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Regular_Name) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits, MosaicNameTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded_Id) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits, MosaicIdTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded_Name) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits, MosaicNameTraits>(); } \
-	template<typename TTraits, typename TMosaicTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Regular_Id) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Embedded_Id) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_MOSAICS_TEST(CanCreateTransferWithSingleMosaic) {
 		// Assert:
-		AssertCanCreateTransferWithMosaics<TTraits, TMosaicTraits>(1);
+		AssertCanCreateTransferWithMosaics<TTraits>(1);
 	}
 
 	TRAITS_BASED_MOSAICS_TEST(CanCreateTransferWithMultipleMosaics) {
 		// Assert:
-		AssertCanCreateTransferWithMosaics<TTraits, TMosaicTraits>(3);
+		AssertCanCreateTransferWithMosaics<TTraits>(3);
 	}
 
-#define MOSAICS_ACCESSOR_TEST(TEST_NAME) \
-	template<typename TMosaicTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Id) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicIdTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Name) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicNameTraits>(); } \
-	template<typename TMosaicTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-
-	MOSAICS_ACCESSOR_TEST(CannotAddSameMosaicMultipleTimes) {
+	TRAITS_BASED_TEST(CannotAddSameMosaicMultipleTimes) {
 		// Arrange:
 		RunBuilderTest([](auto& builder) {
-			auto mosaic = *TMosaicTraits::GenerateMosaics(1).cbegin();
+			auto mosaicPair = *MosaicIdTraits::GenerateMosaics(1).cbegin();
 
 			// Act:
-			builder.addMosaic(mosaic.first, mosaic.second);
+			AddMosaic(builder, mosaicPair.MosaicId, mosaicPair.Amount);
 
 			// Act + Assert:
-			EXPECT_THROW(builder.addMosaic(mosaic.first, mosaic.second), catapult_runtime_error);
-		});
-	}
-
-	TEST(TEST_CLASS, CannotAddSameMosaicMultipleTimes_DifferentIdTypes) {
-		// Arrange:
-		RunBuilderTest([](auto& builder) {
-			// Act:
-			builder.addMosaic(Unresolved_Xem_Id, Amount(123));
-
-			// Act + Assert:
-			EXPECT_THROW(builder.addMosaic("nem:xem", Amount(234)), catapult_runtime_error);
+			EXPECT_THROW(AddMosaic(builder, mosaicPair.MosaicId, mosaicPair.Amount), catapult_runtime_error);
 		});
 	}
 
 	TRAITS_BASED_TEST(MultipleMosaicsAreSortedByMosaicId) {
 		// Arrange:
-		AssertCanBuildTransfer<TTraits>(
-				4 * sizeof(model::UnresolvedMosaic),
-				[](auto& builder) {
-					// Act: add mosaics out of order
-					builder.addMosaic(UnresolvedMosaicId(12), Amount(4'321));
-					builder.addMosaic(UnresolvedMosaicId(99), Amount(7'321));
-					builder.addMosaic(UnresolvedMosaicId(75), Amount(1'321));
-					builder.addMosaic(UnresolvedMosaicId(23), Amount(3'321));
-				},
-				[](const auto& transfer) {
-					// Assert: four mosaics are present and they are sorted by id
-					auto pMosaics = transfer.MosaicsPtr();
-					ASSERT_EQ(4u, transfer.MosaicsCount);
-					EXPECT_EQ(UnresolvedMosaicId(12), pMosaics[0].MosaicId);
-					EXPECT_EQ(UnresolvedMosaicId(23), pMosaics[1].MosaicId);
-					EXPECT_EQ(UnresolvedMosaicId(75), pMosaics[2].MosaicId);
-					EXPECT_EQ(UnresolvedMosaicId(99), pMosaics[3].MosaicId);
-				});
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Mosaics = {
+			{ UnresolvedMosaicId(12), Amount(4'321) },
+			{ UnresolvedMosaicId(23), Amount(3'321) },
+			{ UnresolvedMosaicId(75), Amount(1'321) },
+			{ UnresolvedMosaicId(99), Amount(7'321) }
+		};
+
+		auto additionalSize = 4 * sizeof(model::UnresolvedMosaic);
+		AssertCanBuildTransfer<TTraits>(additionalSize, expectedProperties, [](auto& builder) {
+			// Act: add mosaics out of order
+			AddMosaic(builder, UnresolvedMosaicId(12), Amount(4'321));
+			AddMosaic(builder, UnresolvedMosaicId(99), Amount(7'321));
+			AddMosaic(builder, UnresolvedMosaicId(75), Amount(1'321));
+			AddMosaic(builder, UnresolvedMosaicId(23), Amount(3'321));
+		});
 	}
 
 	// endregion
 
 	// region message and mosaics
 
+	namespace {
+		static void SetMessage(TransferBuilder& builder, const std::string& message) {
+			builder.setMessage({ reinterpret_cast<const uint8_t*>(message.data()), message.size() });
+		}
+	}
+
 	TRAITS_BASED_TEST(CanCreateTransferWithMessageAndMosaics) {
 		// Arrange:
 		auto message = std::string("this is a great transfer!");
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.Message.resize(message.size());
+		std::memcpy(&expectedProperties.Message[0], message.data(), message.size());
+		expectedProperties.Mosaics = {
+			{ UnresolvedMosaicId(0), Amount(4'321) },
+			{ UnresolvedMosaicId(1234), Amount(1'000'000) }
+		};
 
 		// Act:
-		AssertCanBuildTransfer<TTraits>(
-				message.size() + 2 * sizeof(model::UnresolvedMosaic),
-				[&message](auto& builder) {
-					builder.addMosaic(UnresolvedMosaicId(0), Amount(4'321));
-					builder.setStringMessage(message);
-					builder.addMosaic("nem:xem", Amount(1'000'000));
-				},
-				[&message](const auto& transfer) {
-					// Assert: a message is present
-					EXPECT_EQ(message.size(), transfer.MessageSize);
-					EXPECT_TRUE(0 == std::memcmp(message.data(), transfer.MessagePtr(), message.size()));
-
-					// - two mosaics are present
-					auto expectedMosaicsMap = std::map<UnresolvedMosaicId, Amount>{{
-						{ Unresolved_Xem_Id, Amount(1'000'000) },
-						{ UnresolvedMosaicId(0), Amount(4'321) }
-					}};
-					EXPECT_EQ(2u, transfer.MosaicsCount);
-					EXPECT_EQ(expectedMosaicsMap, ExtractMosaicsMap(transfer));
-				});
+		auto additionalSize = message.size() + 2 * sizeof(model::UnresolvedMosaic);
+		AssertCanBuildTransfer<TTraits>(additionalSize, expectedProperties, [&message](auto& builder) {
+			AddMosaic(builder, UnresolvedMosaicId(0), Amount(4'321));
+			SetMessage(builder, message);
+			AddMosaic(builder, UnresolvedMosaicId(1234), Amount(1'000'000));
+		});
 	}
 
 	// endregion

@@ -32,7 +32,7 @@ namespace catapult { namespace test {
 
 		const auto& buffer = buffers[0];
 		EXPECT_EQ(packet.Data(), buffer.pData);
-		EXPECT_EQ(packet.Size - sizeof(ionet::PacketHeader), buffer.Size);
+		ASSERT_EQ(packet.Size - sizeof(ionet::PacketHeader), buffer.Size);
 	}
 
 	void AssertPacketPayloadUnset(const ionet::PacketPayload& payload) {
@@ -87,7 +87,7 @@ namespace catapult { namespace test {
 		for (auto i = 0u; i < expectedBuffers.size(); ++i) {
 			auto message = "at index " + std::to_string(i);
 			ASSERT_EQ(expectedBuffers[i].Size, buffers[i].Size) << message;
-			EXPECT_TRUE(0 == std::memcmp(expectedBuffers[i].pData, buffers[i].pData, expectedBuffers[i].Size)) << message;
+			EXPECT_EQ_MEMORY(expectedBuffers[i].pData, buffers[i].pData, expectedBuffers[i].Size) << message;
 		}
 	}
 }}

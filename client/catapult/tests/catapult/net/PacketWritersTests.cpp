@@ -45,11 +45,11 @@ namespace catapult { namespace net {
 			return CreatePacketWriters(test::CreateStartedIoServiceThreadPool(), test::GenerateKeyPair(), ConnectionSettings());
 		}
 
-		void EmptyReadCallback(ionet::SocketOperationCode, const ionet::Packet*) {
-		}
+		void EmptyReadCallback(ionet::SocketOperationCode, const ionet::Packet*)
+		{}
 
-		void EmptyWriteCallback(ionet::SocketOperationCode) {
-		}
+		void EmptyWriteCallback(ionet::SocketOperationCode)
+		{}
 
 		struct PacketWritersTestContext {
 		public:

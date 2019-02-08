@@ -19,9 +19,7 @@
 **/
 
 #include "catapult/io/BlockStorageCache.h"
-#include "tests/catapult/io/test/BlockStorageTestUtils.h"
-#include "tests/test/core/BlockTestUtils.h"
-#include "tests/test/core/mocks/MockMemoryBlockStorage.h"
+#include "tests/test/core/BlockStorageTests.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -30,24 +28,17 @@ namespace catapult { namespace io {
 #define TEST_CLASS BlockStorageCacheTests
 
 	namespace {
+		// region BlockStorageCacheToBlockStorageAdapter
+
 		// wraps a BlockStorageCache in a BlockStorage so that it can be tested via the tests in ChainStorageTests.h
 		class BlockStorageCacheToBlockStorageAdapter : public BlockStorage {
 		public:
-			BlockStorageCacheToBlockStorageAdapter(std::unique_ptr<BlockStorage>&& pStorage)
-					: m_cache(std::move(pStorage))
+			explicit BlockStorageCacheToBlockStorageAdapter(std::unique_ptr<BlockStorage>&& pStorage) : m_cache(std::move(pStorage))
 			{}
 
-		public:
+		public: // LightBlockStorage
 			Height chainHeight() const override {
 				return m_cache.view().chainHeight();
-			}
-
-			std::shared_ptr<const model::Block> loadBlock(Height height) const override {
-				return m_cache.view().loadBlock(height);
-			}
-
-			std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override {
-				return m_cache.view().loadBlockElement(height);
 			}
 
 			model::HashRange loadHashesFrom(Height height, size_t maxHashes) const override {
@@ -62,18 +53,33 @@ namespace catapult { namespace io {
 				return m_cache.modifier().dropBlocksAfter(height);
 			}
 
+		public: // BlockStorage
+			std::shared_ptr<const model::Block> loadBlock(Height height) const override {
+				return m_cache.view().loadBlock(height);
+			}
+
+			std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override {
+				return m_cache.view().loadBlockElement(height);
+			}
+
+			std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const override {
+				return m_cache.view().loadBlockStatementData(height);
+			}
+
 		private:
 			BlockStorageCache m_cache;
 		};
 
-		struct MemoryBasedGuard {
-			std::string name() const {
-				return std::string();
-			}
-		};
+		// endregion
+
+		// region MemoryTraits
 
 		struct MemoryTraits {
-			using Guard = MemoryBasedGuard;
+			struct Guard {
+				std::string name() const {
+					return std::string();
+				}
+			};
 			using StorageType = BlockStorageCacheToBlockStorageAdapter;
 
 			static std::unique_ptr<StorageType> OpenStorage(const std::string&) {
@@ -92,6 +98,8 @@ namespace catapult { namespace io {
 				return pStorage;
 			}
 		};
+
+		// endregion
 	}
 
 	DEFINE_BLOCK_STORAGE_TESTS(MemoryTraits)
@@ -118,46 +126,7 @@ namespace catapult { namespace io {
 
 	// endregion
 
-	// region loadBlock
-
-	TEST(TEST_CLASS, LoadBlockDelegatesToStorage) {
-		// Arrange:
-		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
-		auto pStorageRaw = pStorage.get();
-		BlockStorageCache cache(std::move(pStorage));
-
-		for (auto i = 1u; i <= Delegation_Chain_Size; ++i) {
-			// Act:
-			Height height(i);
-			auto pCacheBlock = cache.view().loadBlock(height);
-			auto pStorageBlock = pStorageRaw->loadBlock(height);
-
-			// Assert:
-			EXPECT_EQ(*pStorageBlock, *pCacheBlock);
-		}
-	}
-
-	TEST(TEST_CLASS, LoadBlockElementDelegatesToStorage) {
-		// Arrange:
-		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
-		auto pStorageRaw = pStorage.get();
-		BlockStorageCache cache(std::move(pStorage));
-
-		for (auto i = 1u; i <= Delegation_Chain_Size; ++i) {
-			// Act:
-			Height height(i);
-
-			auto pCacheBlockElement = cache.view().loadBlockElement(height);
-			auto pStorageBlockElement = pStorageRaw->loadBlockElement(height);
-
-			// Assert:
-			test::AssertEqual(*pStorageBlockElement, *pCacheBlockElement);
-		}
-	}
-
-	// endregion
-
-	// region loadHashes
+	// region loadHashesFrom
 
 	TEST(TEST_CLASS, LoadHashesFromDelegatesToStorage_SingleHash) {
 		// Arrange:
@@ -199,6 +168,45 @@ namespace catapult { namespace io {
 			EXPECT_EQ(*storageIter, *cacheIter);
 			++storageIter;
 			++cacheIter;
+		}
+	}
+
+	// endregion
+
+	// region loadBlock(Element)
+
+	TEST(TEST_CLASS, LoadBlockDelegatesToStorage) {
+		// Arrange:
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
+		auto pStorageRaw = pStorage.get();
+		BlockStorageCache cache(std::move(pStorage));
+
+		for (auto i = 1u; i <= Delegation_Chain_Size; ++i) {
+			// Act:
+			Height height(i);
+			auto pCacheBlock = cache.view().loadBlock(height);
+			auto pStorageBlock = pStorageRaw->loadBlock(height);
+
+			// Assert:
+			EXPECT_EQ(*pStorageBlock, *pCacheBlock);
+		}
+	}
+
+	TEST(TEST_CLASS, LoadBlockElementDelegatesToStorage) {
+		// Arrange:
+		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
+		auto pStorageRaw = pStorage.get();
+		BlockStorageCache cache(std::move(pStorage));
+
+		for (auto i = 1u; i <= Delegation_Chain_Size; ++i) {
+			// Act:
+			Height height(i);
+
+			auto pCacheBlockElement = cache.view().loadBlockElement(height);
+			auto pStorageBlockElement = pStorageRaw->loadBlockElement(height);
+
+			// Assert:
+			test::AssertEqual(*pStorageBlockElement, *pCacheBlockElement);
 		}
 	}
 

@@ -20,6 +20,7 @@
 
 #pragma once
 #include "ChainApi.h"
+#include "RemoteApi.h"
 
 namespace catapult {
 	namespace ionet { class PacketIo; }
@@ -49,7 +50,12 @@ namespace catapult { namespace api {
 	};
 
 	/// An api for retrieving chain information from a remote node.
-	class RemoteChainApi : public ChainApi {
+	class RemoteChainApi : public RemoteApi, public ChainApi {
+	protected:
+		/// Creates a remote api for the node with specified public key (\a remotePublicKey).
+		explicit RemoteChainApi(const Key& remotePublicKey) : RemoteApi(remotePublicKey)
+		{}
+
 	public:
 		/// Gets the last block.
 		virtual thread::future<std::shared_ptr<const model::Block>> blockLast() const = 0;
@@ -65,7 +71,10 @@ namespace catapult { namespace api {
 	/// Creates a chain api for interacting with a remote node with the specified \a io.
 	std::unique_ptr<ChainApi> CreateRemoteChainApiWithoutRegistry(ionet::PacketIo& io);
 
-	/// Creates a chain api for interacting with a remote node with the specified \a io
+	/// Creates a chain api for interacting with a remote node with the specified \a io with public key (\a remotePublicKey)
 	/// and transaction \a registry composed of supported transactions.
-	std::unique_ptr<RemoteChainApi> CreateRemoteChainApi(ionet::PacketIo& io, const model::TransactionRegistry& registry);
+	std::unique_ptr<RemoteChainApi> CreateRemoteChainApi(
+			ionet::PacketIo& io,
+			const Key& remotePublicKey,
+			const model::TransactionRegistry& registry);
 }}

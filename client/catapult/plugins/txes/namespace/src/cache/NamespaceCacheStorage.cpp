@@ -24,14 +24,21 @@
 namespace catapult { namespace cache {
 
 	namespace {
+		using ChildNamespaceData = state::RootNamespace::ChildNamespaceData;
+
 		struct PathsComparator {
 		public:
+			bool operator()(const ChildNamespaceData& lhs, const ChildNamespaceData& rhs) const {
+				return operator()(lhs.Path, rhs.Path);
+			}
+
+		private:
 			bool operator()(const state::Namespace::Path& lhs, const state::Namespace::Path& rhs) const {
 				return std::lexicographical_compare(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
 			}
 		};
 
-		using SortedNamespaceByPathMap = std::map<state::Namespace::Path, NamespaceId, PathsComparator>;
+		using SortedNamespaceByPathMap = std::map<ChildNamespaceData, NamespaceId, PathsComparator>;
 
 		SortedNamespaceByPathMap SortChildren(const state::RootNamespace::Children& children) {
 			SortedNamespaceByPathMap sortedMap;
@@ -45,11 +52,14 @@ namespace catapult { namespace cache {
 	void NamespaceCacheStorage::LoadInto(const ValueType& history, DestinationType& cacheDelta) {
 		for (const auto& rootNamespace : history) {
 			cacheDelta.insert(rootNamespace);
+			cacheDelta.setAlias(rootNamespace.id(), rootNamespace.alias(rootNamespace.id()));
 
 			auto childrenMap = SortChildren(rootNamespace.children());
 			for (const auto& pair : childrenMap) {
-				if (!cacheDelta.contains(pair.second))
-					cacheDelta.insert(state::Namespace(pair.first));
+				if (!cacheDelta.contains(pair.second)) {
+					cacheDelta.insert(state::Namespace(pair.first.Path));
+					cacheDelta.setAlias(pair.second, pair.first.Alias);
+				}
 			}
 		}
 	}

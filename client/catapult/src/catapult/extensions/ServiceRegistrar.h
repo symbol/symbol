@@ -44,7 +44,7 @@ namespace catapult { namespace extensions {
 	/// A registrar for registering a service.
 	class ServiceRegistrar {
 	public:
-		virtual ~ServiceRegistrar() {}
+		virtual ~ServiceRegistrar() = default;
 
 	public:
 		/// Gets information about the registrar.

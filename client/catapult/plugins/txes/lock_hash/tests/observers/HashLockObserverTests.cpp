@@ -19,6 +19,7 @@
 **/
 
 #include "src/observers/Observers.h"
+#include "src/model/HashLockReceiptType.h"
 #include "plugins/txes/lock_shared/tests/observers/LockObserverTests.h"
 #include "tests/test/HashLockInfoCacheTestUtils.h"
 #include "tests/test/HashLockNotificationsTestUtils.h"
@@ -36,6 +37,10 @@ namespace catapult { namespace observers {
 			using NotificationType = model::HashLockNotification;
 			using NotificationBuilder = test::HashLockNotificationBuilder;
 			using ObserverTestContext = test::ObserverTestContextT<test::HashLockInfoCacheFactory>;
+
+			static constexpr auto DebitReceiptType() {
+				return model::Receipt_Type_LockHash_Created;
+			}
 
 			static auto CreateObserver() {
 				return CreateHashLockObserver();

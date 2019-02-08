@@ -20,6 +20,7 @@
 
 #include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "plugins/txes/lock_hash/src/model/HashLockEntityType.h"
+#include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {
@@ -31,6 +32,14 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			static std::vector<model::EntityType> GetTransactionTypes() {
 				return { model::Entity_Type_Hash_Lock };
+			}
+
+			static std::vector<model::ReceiptType> GetReceiptTypes() {
+				return {
+					model::Receipt_Type_LockHash_Created,
+					model::Receipt_Type_LockHash_Completed,
+					model::Receipt_Type_LockHash_Expired
+				};
 			}
 
 			static std::string GetStorageName() {

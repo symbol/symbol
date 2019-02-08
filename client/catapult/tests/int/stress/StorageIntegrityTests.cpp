@@ -34,12 +34,13 @@ namespace catapult { namespace io {
 #define TEST_CLASS StorageIntegrityTests
 
 	namespace {
-#ifdef STRESS
-		constexpr size_t Num_Iterations = 10'000;
-#else
-		constexpr size_t Num_Iterations = 500;
-#endif
-		constexpr Height Max_Height(Num_Iterations + 1);
+		size_t GetNumIterations() {
+			return test::GetStressIterationCount() ? 10'000 : 500;
+		}
+
+		Height GetMaxHeight() {
+			return Height(GetNumIterations() + 1);
+		}
 
 		void RunMultithreadedReadWriteTest(size_t numReaders) {
 			// Arrange:
@@ -57,7 +58,7 @@ namespace catapult { namespace io {
 				threads.create_thread([&, r] {
 					test::StressThreadLogger logger("reader thread " + std::to_string(r));
 
-					while (Max_Height != heights[r]) {
+					while (GetMaxHeight() != heights[r]) {
 						auto view = storage.view();
 						auto pBlock = view.loadBlock(view.chainHeight());
 						heights[r] = pBlock->Height;
@@ -69,8 +70,8 @@ namespace catapult { namespace io {
 			threads.create_thread([&] {
 				test::StressThreadLogger logger("writer thread");
 
-				for (auto i = 0u; i < Num_Iterations; ++i) {
-					logger.notifyIteration(i, Num_Iterations);
+				for (auto i = 0u; i < GetNumIterations(); ++i) {
+					logger.notifyIteration(i, GetNumIterations());
 
 					auto modifier = storage.modifier();
 					auto pNextBlock = test::GenerateVerifiableBlockAtHeight(Height(2 + i));
@@ -82,10 +83,10 @@ namespace catapult { namespace io {
 			threads.join_all();
 
 			// Assert: all readers were able to observe the last height
-			EXPECT_EQ(Max_Height, storage.view().chainHeight());
+			EXPECT_EQ(GetMaxHeight(), storage.view().chainHeight());
 
 			for (const auto& height : heights)
-				EXPECT_EQ(Max_Height, height);
+				EXPECT_EQ(GetMaxHeight(), height);
 		}
 	}
 

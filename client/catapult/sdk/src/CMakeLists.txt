@@ -3,10 +3,11 @@ cmake_minimum_required(VERSION 3.2)
 set(TARGET_NAME catapult.sdk)
 
 catapult_library_target(${TARGET_NAME} builders extensions parsers)
-target_link_libraries(${TARGET_NAME} catapult.model)
-target_link_libraries(${TARGET_NAME} catapult.plugins.aggregate)
-target_link_libraries(${TARGET_NAME} catapult.plugins.namespace.sdk) # for IdGenerator
-target_link_libraries(${TARGET_NAME} catapult.plugins.property.sdk)
+target_link_libraries(${TARGET_NAME} catapult.model
+	catapult.plugins.aggregate
+	catapult.plugins.mosaic.sdk
+	catapult.plugins.namespace.sdk
+	catapult.plugins.property.sdk)
 
 find_program(PYTHON_EXECUTABLE python3 python)
 

@@ -23,27 +23,28 @@
 
 namespace catapult { namespace test {
 
-	/// Asserts that \a op returns expected results for all combinations of values from a
-	/// \a container with increasing values.
-	template<typename TContainer, typename TOperator>
-	void AssertOperatorBehaviorForIncreasingValues(const TContainer& container, TOperator op) {
+	/// Asserts that \a op returns expected results for all combinations of values from a \a container
+	/// with increasing values using a custom \a formatter.
+	template<typename TContainer, typename TOperator, typename TFormatter>
+	void AssertOperatorBehaviorForIncreasingValues(const TContainer& container, TOperator op, TFormatter formatter) {
 		// Act:
 		auto containerSize = container.size();
 		for (auto i = 0u; i < containerSize; ++i) {
 			for (auto j = 0u; j < containerSize; ++j) {
 				// Assert:
 				EXPECT_EQ(op(i, j), op(container[i], container[j]))
-						<< "(" << container[i] << ", " << container[j] << ") @ "
+						<< "(" << formatter(container[i]) << ", " << formatter(container[j]) << ") @ "
 						<< "(" << i << ", " << j << ")";
 			}
 		}
 	}
 
-	/// Asserts correctness of the less than operator for different values \a lhs and \a rhs .
-	template<typename TValue>
-	void AssertLessThanOperatorForDifferentValues(const TValue& lhs, const TValue& rhs) {
-		EXPECT_TRUE(lhs < rhs);
-		EXPECT_FALSE(rhs < lhs);
+	/// Asserts that \a op returns expected results for all combinations of values from a \a container
+	/// with increasing values using a default formatter.
+	template<typename TContainer, typename TOperator>
+	void AssertOperatorBehaviorForIncreasingValues(const TContainer& container, TOperator op) {
+		// Assert:
+		AssertOperatorBehaviorForIncreasingValues(container, op, [](const auto& value) { return test::ToString(value); });
 	}
 
 	/// Asserts correctness of the less than operator for equal values \a lhs and \a rhs .
@@ -55,9 +56,9 @@ namespace catapult { namespace test {
 
 #define MAKE_COMPARISON_TEST(TEST_CLASS, TEST_NAME, INCREASING_VALUES, OPERATOR) \
 	TEST(TEST_CLASS, TEST_NAME) { \
-		test::AssertOperatorBehaviorForIncreasingValues( \
-				INCREASING_VALUES, \
-				[](const auto& lhs, const auto& rhs) { return lhs OPERATOR rhs; }); \
+		test::AssertOperatorBehaviorForIncreasingValues(INCREASING_VALUES, [](const auto& lhs, const auto& rhs) { \
+			return lhs OPERATOR rhs; \
+		}); \
 	}
 
 /// Adds all comparison tests to the specified test class (\a TEST_CLASS) given \a INCREASING_VALUES.

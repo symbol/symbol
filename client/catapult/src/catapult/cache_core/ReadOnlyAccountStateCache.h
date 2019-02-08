@@ -57,6 +57,9 @@ namespace catapult { namespace cache {
 		/// Gets the network importance grouping.
 		uint64_t importanceGrouping() const;
 
+		/// Gets the harvesting mosaic id.
+		MosaicId harvestingMosaicId() const;
+
 	public:
 		using AddressBasedCache::size;
 		using AddressBasedCache::contains;

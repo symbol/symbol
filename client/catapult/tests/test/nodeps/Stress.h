@@ -26,28 +26,32 @@
 
 namespace catapult { namespace test {
 
-// if STRESS is defined to an iteration number, every test will be repeated that number of times
-// for example, the following code will cause all tests to run 100 times
-// #define STRESS 100u
-#ifdef STRESS
+// redefine test macro to allow running tests with stress configuration
 #undef TEST
 
-#define TEST_FRIENDLY_NAME_(TEST_FIXTURE, TEST_NAME) #TEST_FIXTURE "::" #TEST_NAME
-#define TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME) TEST_FIXTURE##_##TEST_NAME##_Impl
+#define CATAPULT_TEST_FRIENDLY_NAME_(TEST_FIXTURE, TEST_NAME) #TEST_FIXTURE "::" #TEST_NAME
+#define CATAPULT_TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME) TEST_FIXTURE##_##TEST_NAME##_Impl
 
 #define TEST(TEST_FIXTURE, TEST_NAME) \
-	void TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)(); \
+	void CATAPULT_TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)(); \
 	\
 	GTEST_TEST(TEST_FIXTURE, TEST_NAME) { \
-		for (auto stressCounter = 1u; stressCounter <= STRESS; ++stressCounter) { \
-			const auto Test_Fqn = TEST_FRIENDLY_NAME_(TEST_FIXTURE, TEST_NAME); \
-			CATAPULT_LOG(debug) << "---- iter " << stressCounter << "/" << STRESS << " " << Test_Fqn << " ----"; \
+		/* if stress is disabled, just call test function */ \
+		if (!test::GetStressIterationCount()) { \
+			CATAPULT_TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)(); \
+			return; \
+		} \
+		\
+		/* if stress is enabled, call in loop with iteration counter */ \
+		for (auto stressCounter = 1u; stressCounter <= test::GetStressIterationCount(); ++stressCounter) { \
+			const auto Test_Fqn = CATAPULT_TEST_FRIENDLY_NAME_(TEST_FIXTURE, TEST_NAME); \
+			CATAPULT_LOG(debug) << "---- iter " << stressCounter << "/" << test::GetStressIterationCount() << " " << Test_Fqn << " ----"; \
 			\
 			try { \
-				TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)(); \
+				CATAPULT_TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)(); \
 			} catch (...) { \
 				/* flatten error information into std::runtime_error for better jenkins reporting */ \
-				std::stringstream exceptionMessage; \
+				std::ostringstream exceptionMessage; \
 				exceptionMessage \
 						<< "unhandled exception during " \
 						<< Test_Fqn << " iteration " << stressCounter << "!" \
@@ -56,14 +60,15 @@ namespace catapult { namespace test {
 				throw std::runtime_error(exceptionMessage.str().c_str()); \
 			} \
 			\
-			if (!::testing::Test::HasFailure()) continue; \
+			if (!::testing::Test::HasFailure()) \
+				continue; \
+			\
 			CATAPULT_LOG(error) << Test_Fqn << " failed on iteration " << stressCounter; \
 			return; \
 		} \
 	} \
 	\
-	void TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)()
-#endif
+	void CATAPULT_TEST_IMPL_NAME_(TEST_FIXTURE, TEST_NAME)()
 
 // NO_STRESS_TEST should be used by tests that shouldn't be stressed
 #define NO_STRESS_TEST(TEST_FIXTURE, TEST_NAME) GTEST_TEST(TEST_FIXTURE, TEST_NAME)

@@ -20,9 +20,11 @@
 
 #include "catapult/consumers/UndoBlock.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/chain/BlockExecutor.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/other/mocks/MockEntityObserver.h"
 #include "tests/TestHarness.h"
@@ -32,6 +34,8 @@ namespace catapult { namespace consumers {
 #define TEST_CLASS UndoBlockTests
 
 	namespace {
+		constexpr auto CreateResolverContext = test::CreateResolverContextWithCustomDoublingMosaicResolver;
+
 		std::vector<uint16_t> GetExpectedVersions(uint16_t numTransactions, uint16_t seed) {
 			std::vector<uint16_t> versions;
 			versions.push_back(seed); // block should be processed after all transactions, so it should be undone first
@@ -51,14 +55,18 @@ namespace catapult { namespace consumers {
 
 		void AssertContexts(
 				const std::vector<observers::ObserverContext>& contexts,
-				const observers::ObserverState& state,
+				observers::ObserverState& state,
 				Height height,
 				observers::NotifyMode mode) {
+			// Assert:
 			for (const auto& context : contexts) {
 				EXPECT_EQ(&state.Cache, &context.Cache);
 				EXPECT_EQ(&state.State, &context.State);
 				EXPECT_EQ(height, context.Height);
 				EXPECT_EQ(mode, context.Mode);
+
+				// - appropriate resolvers were passed down
+				EXPECT_EQ(MosaicId(22), context.Resolvers.resolve(UnresolvedMosaicId(11)));
 			}
 		}
 	}
@@ -87,9 +95,9 @@ namespace catapult { namespace consumers {
 
 	TEST(TEST_CLASS, RollbackBlockIsUndoneWhenStateHashIsDisabled) {
 		// Arrange:
-		RunStateHashDisabledTest([](const auto& blockElement, const auto& observer, const auto& state) {
+		RunStateHashDisabledTest([](const auto& blockElement, const auto& observer, auto& state) {
 			// Act:
-			UndoBlock(blockElement, observer, state, UndoBlockType::Rollback);
+			UndoBlock(blockElement, { observer, CreateResolverContext(), state }, UndoBlockType::Rollback);
 
 			// Assert:
 			EXPECT_EQ(8u, observer.versions().size());
@@ -102,9 +110,9 @@ namespace catapult { namespace consumers {
 
 	TEST(TEST_CLASS, CommonBlockIsIgnoredWhenStateHashIsDisabled) {
 		// Arrange:
-		RunStateHashDisabledTest([](const auto& blockElement, const auto& observer, const auto& state) {
+		RunStateHashDisabledTest([](const auto& blockElement, const auto& observer, auto& state) {
 			// Act:
-			UndoBlock(blockElement, observer, state, UndoBlockType::Common);
+			UndoBlock(blockElement, { observer, CreateResolverContext(), state }, UndoBlockType::Common);
 
 			// Assert:
 			EXPECT_TRUE(observer.versions().empty());
@@ -120,7 +128,7 @@ namespace catapult { namespace consumers {
 		template<typename TAction>
 		void RunStateHashEnabledTest(TAction action) {
 			// Arrange:
-			test::TempDirectoryGuard dbDirGuard("testdb");
+			test::TempDirectoryGuard dbDirGuard;
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			auto cacheConfig = cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
 			auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
@@ -153,9 +161,9 @@ namespace catapult { namespace consumers {
 
 	TEST(TEST_CLASS, RollbackBlockIsUndoneWhenStateHashIsEnabled) {
 		// Arrange:
-		RunStateHashEnabledTest([](const auto& blockElement, const auto& observer, const auto& state) {
+		RunStateHashEnabledTest([](const auto& blockElement, const auto& observer, auto& state) {
 			// Act:
-			UndoBlock(blockElement, observer, state, UndoBlockType::Rollback);
+			UndoBlock(blockElement, { observer, CreateResolverContext(), state }, UndoBlockType::Rollback);
 
 			// Assert:
 			EXPECT_EQ(8u, observer.versions().size());
@@ -171,9 +179,9 @@ namespace catapult { namespace consumers {
 
 	TEST(TEST_CLASS, CommonBlockUpdatesStateHashWhenStateHashIsEnabled) {
 		// Arrange:
-		RunStateHashEnabledTest([](const auto& blockElement, const auto& observer, const auto& state) {
+		RunStateHashEnabledTest([](const auto& blockElement, const auto& observer, auto& state) {
 			// Act:
-			UndoBlock(blockElement, observer, state, UndoBlockType::Common);
+			UndoBlock(blockElement, { observer, CreateResolverContext(), state }, UndoBlockType::Common);
 
 			// Assert:
 			EXPECT_TRUE(observer.versions().empty());

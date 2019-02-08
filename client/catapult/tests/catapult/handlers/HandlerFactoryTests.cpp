@@ -187,7 +187,7 @@ namespace catapult { namespace handlers {
 				ASSERT_EQ(sizeof(SimpleEntity), buffers[i].Size) << message;
 
 				const auto& entity = reinterpret_cast<const SimpleEntity&>(*buffers[i].pData);
-				EXPECT_EQ(sizeof(SimpleEntity), entity.Size);
+				ASSERT_EQ(sizeof(SimpleEntity), entity.Size);
 				EXPECT_EQ(12u, entity.Seed);
 				EXPECT_EQ(i, entity.Value);
 			}
@@ -206,7 +206,7 @@ namespace catapult { namespace handlers {
 
 			const auto* pSimpleEntity = reinterpret_cast<const SimpleEntity*>(buffers[0].pData);
 			for (auto i = 0u; i < 3; ++i, ++pSimpleEntity) {
-				EXPECT_EQ(sizeof(SimpleEntity), pSimpleEntity->Size);
+				ASSERT_EQ(sizeof(SimpleEntity), pSimpleEntity->Size);
 				EXPECT_EQ(12u, pSimpleEntity->Seed);
 				EXPECT_EQ(i, pSimpleEntity->Value);
 			}
@@ -331,7 +331,7 @@ namespace catapult { namespace handlers {
 				ASSERT_EQ(sizeof(SimpleEntity), buffers[i].Size) << message;
 
 				const auto& entity = reinterpret_cast<const SimpleEntity&>(*buffers[i].pData);
-				EXPECT_EQ(sizeof(SimpleEntity), entity.Size);
+				ASSERT_EQ(sizeof(SimpleEntity), entity.Size);
 				EXPECT_EQ(12u, entity.Seed);
 				EXPECT_EQ(i, entity.Value);
 			}
@@ -350,7 +350,7 @@ namespace catapult { namespace handlers {
 
 			const auto* pSimpleEntity = reinterpret_cast<const SimpleEntity*>(buffers[0].pData);
 			for (auto i = 0u; i < 3; ++i, ++pSimpleEntity) {
-				EXPECT_EQ(sizeof(SimpleEntity), pSimpleEntity->Size);
+				ASSERT_EQ(sizeof(SimpleEntity), pSimpleEntity->Size);
 				EXPECT_EQ(12u, pSimpleEntity->Seed);
 				EXPECT_EQ(i, pSimpleEntity->Value);
 			}

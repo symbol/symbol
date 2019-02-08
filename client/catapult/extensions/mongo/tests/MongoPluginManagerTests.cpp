@@ -22,6 +22,7 @@
 #include "mongo/src/MongoTransactionPlugin.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "mongo/tests/test/MongoTestUtils.h"
+#include "mongo/tests/test/mocks/MockReceiptMapper.h"
 #include "mongo/tests/test/mocks/MockTransactionMapper.h"
 #include "tests/test/local/mocks/MockExternalCacheStorage.h"
 #include "tests/TestHarness.h"
@@ -84,6 +85,27 @@ namespace catapult { namespace mongo {
 			for (auto i : { 7, 9, 4 }) {
 				auto entityType = static_cast<model::EntityType>(i);
 				EXPECT_TRUE(!!manager.transactionRegistry().findPlugin(entityType)) << "type " << i;
+			}
+		});
+	}
+
+	// endregion
+
+	// region receipt plugins
+
+	TEST(TEST_CLASS, CanRegisterCustomReceipts) {
+		// Arrange:
+		RunPluginManagerTest([](auto& manager) {
+			// Act:
+			for (auto i : { 7, 9, 4 })
+				manager.addReceiptSupport(mocks::CreateMockReceiptMongoPlugin(i));
+
+			// Assert:
+			EXPECT_EQ(3u, manager.receiptRegistry().size());
+
+			for (auto i : { 7, 9, 4 }) {
+				auto receiptType = static_cast<model::ReceiptType>(i);
+				EXPECT_TRUE(!!manager.receiptRegistry().findPlugin(receiptType)) << "type " << i;
 			}
 		});
 	}

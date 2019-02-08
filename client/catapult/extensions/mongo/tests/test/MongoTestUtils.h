@@ -100,7 +100,7 @@ namespace catapult { namespace test {
 	/// Creates a mongo transaction storage around \a pTransactionPlugin using \a dbInitializationType for initializing the database
 	/// and \a storageFactory to create the storage.
 	template<typename TStorage>
-	std::shared_ptr<TStorage> CreateStorage(
+	std::shared_ptr<TStorage> CreateMongoStorage(
 			std::unique_ptr<mongo::MongoTransactionPlugin>&& pTransactionPlugin,
 			DbInitializationType dbInitializationType,
 			const StorageFactory<TStorage>& storageFactory) {

@@ -30,7 +30,8 @@ namespace catapult { namespace partialtransaction {
 		auto pTransactionWithCosignatures = utils::MakeUniqueWithSize<model::AggregateTransaction>(size);
 
 		// copy transaction data
-		memcpy(pTransactionWithCosignatures.get(), &transactionInfo.transaction(), transactionInfo.transaction().Size);
+		auto transactionSize = transactionInfo.transaction().Size;
+		std::memcpy(static_cast<void*>(pTransactionWithCosignatures.get()), &transactionInfo.transaction(), transactionSize);
 		pTransactionWithCosignatures->Size = size;
 
 		// copy cosignatures

@@ -90,7 +90,7 @@ namespace catapult { namespace state {
 
 			EXPECT_EQ(expectedKeys.size(), keys.size());
 			for (const auto& expectedKey : expectedKeys)
-				EXPECT_NE(keys.cend(), keys.find(expectedKey)) << utils::HexFormat(expectedKey);
+				EXPECT_CONTAINS(keys, expectedKey);
 		}
 
 		void AssertEntryBuffer(const MultisigEntry& entry, const uint8_t* pData, size_t expectedSize) {

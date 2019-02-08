@@ -33,7 +33,9 @@ namespace catapult { namespace observers {
 	namespace {
 		class PosImportanceCalculator final : public ImportanceCalculator {
 		public:
-			explicit PosImportanceCalculator(const model::BlockChainConfiguration& config) : m_totalChainBalance(config.TotalChainBalance)
+			explicit PosImportanceCalculator(Importance totalChainImportance, MosaicId harvestingMosaicId)
+					: m_totalChainImportance(totalChainImportance)
+					, m_harvestingMosaicId(harvestingMosaicId)
 			{}
 
 		public:
@@ -46,20 +48,19 @@ namespace catapult { namespace observers {
 				highValueAccounts.reserve(highValueAddresses.size());
 
 				// 2. calculate sum
-				Amount activeXem;
+				Amount activeHarvestingMosaics;
 				for (const auto& address : highValueAddresses) {
 					auto accountStateIter = cache.find(address);
 					auto& accountState = accountStateIter.get();
 					highValueAccounts.push_back(&accountState);
-					activeXem = activeXem + accountState.Balances.get(Xem_Id);
+					activeHarvestingMosaics = activeHarvestingMosaics + accountState.Balances.get(m_harvestingMosaicId);
 				}
 
 				// 3. update accounts
 				for (auto* pAccountState : highValueAccounts) {
-					boost::multiprecision::uint128_t importance = m_totalChainBalance.microxem().unwrap();
-					importance *= pAccountState->Balances.get(Xem_Id).unwrap();
-					importance /= activeXem.unwrap();
-					importance /= utils::XemUnit(utils::XemAmount(1)).microxem().unwrap();
+					boost::multiprecision::uint128_t importance = m_totalChainImportance.unwrap();
+					importance *= pAccountState->Balances.get(m_harvestingMosaicId).unwrap();
+					importance /= activeHarvestingMosaics.unwrap();
 					pAccountState->ImportanceInfo.set(Importance(static_cast<Importance::ValueType>(importance)), importanceHeight);
 				}
 
@@ -67,11 +68,12 @@ namespace catapult { namespace observers {
 			}
 
 		private:
-			const utils::XemUnit m_totalChainBalance;
+			const Importance m_totalChainImportance;
+			const MosaicId m_harvestingMosaicId;
 		};
 	}
 
 	std::unique_ptr<ImportanceCalculator> CreateImportanceCalculator(const model::BlockChainConfiguration& config) {
-		return std::make_unique<PosImportanceCalculator>(config);
+		return std::make_unique<PosImportanceCalculator>(config.TotalChainImportance, config.HarvestingMosaicId);
 	}
 }}

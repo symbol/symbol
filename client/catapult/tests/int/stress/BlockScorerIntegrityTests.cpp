@@ -22,6 +22,7 @@
 #include "catapult/crypto/Hashes.h"
 #include "catapult/model/Block.h"
 #include "catapult/utils/Logging.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 #include <boost/thread.hpp>
 
@@ -30,26 +31,38 @@ namespace catapult { namespace chain {
 #define TEST_CLASS BlockScorerIntegrityTests
 
 	namespace {
-#ifdef STRESS
-		constexpr size_t Num_Iterations = 100'000;
-		constexpr size_t Min_Hits_For_Percentage_Deviation = 1;
-		constexpr size_t Max_Percentage_Deviation = 10;
-		constexpr size_t Max_Average_Deviation = 5;
-#else
-		// due to the small number of samples, the number of hits can vary significantly between successive levels
-		// (especially for low importances), so set a min hits threshold
-		constexpr size_t Num_Iterations = 25'000;
-		constexpr size_t Min_Hits_For_Percentage_Deviation = 1000;
-		constexpr size_t Max_Percentage_Deviation = 20;
-		constexpr size_t Max_Average_Deviation = 8;
-#endif
-
 		constexpr Timestamp Max_Time(1000 * 1000);
+
+		struct IntegrityTestParameters {
+		public:
+			IntegrityTestParameters() {
+				if (test::GetStressIterationCount()) {
+					NumIterations = 100'000;
+					MinHitsForPercentageDeviation = 1;
+					MaxPercentageDeviation = 10;
+					MaxAverageDeviation = 5;
+				} else {
+					// due to the small number of samples, the number of hits can vary significantly between successive levels
+					// (especially for low importances), so set a min hits threshold
+					NumIterations = 25'000;
+					MinHitsForPercentageDeviation = 1000;
+					MaxPercentageDeviation = 20;
+					MaxAverageDeviation = 8;
+				}
+			}
+
+		public:
+			size_t NumIterations;
+			size_t MinHitsForPercentageDeviation;
+			size_t MaxPercentageDeviation;
+			size_t MaxAverageDeviation;
+		};
 
 		model::BlockChainConfiguration CreateConfiguration() {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
 			config.BlockTimeSmoothingFactor = 0;
+			config.TotalChainImportance = test::Default_Total_Chain_Importance;
 			return config;
 		}
 
@@ -166,7 +179,7 @@ namespace catapult { namespace chain {
 				EXPECT_GT(currentHitCount, previousHitCount) << "current " << i;
 				if (0 == previousHitCount) {
 					CATAPULT_LOG(debug) << "no hits for iteration " << (i - 1);
-					return Max_Average_Deviation + 1;
+					return IntegrityTestParameters().MaxAverageDeviation + 1;
 				}
 
 				// - expected hit count for current is 2x previous because importance is 2x
@@ -176,7 +189,7 @@ namespace catapult { namespace chain {
 				auto percentageDeviation = absoluteDeviation * 100u / expectedHitCount;
 
 				// - allow a max percentage deviation between consecutive groups
-				auto hasSufficientHits = currentHitCount >= Min_Hits_For_Percentage_Deviation;
+				auto hasSufficientHits = currentHitCount >= IntegrityTestParameters().MinHitsForPercentageDeviation;
 				CATAPULT_LOG(debug)
 						<< previousGroup.Importance << " -> " << currentGroup.Importance
 						<< " deviation: " << percentageDeviation << "%"
@@ -186,12 +199,12 @@ namespace catapult { namespace chain {
 					continue;
 
 				// - if the deviation is too large, fail the iteration
-				if (Max_Percentage_Deviation <= percentageDeviation) {
-					CATAPULT_LOG(debug) << "Max_Percentage_Deviation <= percentageDeviation (" << percentageDeviation << ")";
-					return Max_Average_Deviation + 1;
+				if (IntegrityTestParameters().MaxPercentageDeviation <= percentageDeviation) {
+					CATAPULT_LOG(debug) << "MaxPercentageDeviation <= percentageDeviation (" << percentageDeviation << ")";
+					return IntegrityTestParameters().MaxAverageDeviation + 1;
 				}
 
-				EXPECT_GT(Max_Percentage_Deviation, percentageDeviation);
+				EXPECT_GT(IntegrityTestParameters().MaxPercentageDeviation, percentageDeviation);
 				cumulativePercentageDeviation += percentageDeviation;
 				++numGroupsWithSufficientHits;
 			}
@@ -215,7 +228,7 @@ namespace catapult { namespace chain {
 			});
 
 			// - calculate chain scores on all threads
-			const auto numIterationsPerThread = Num_Iterations / test::GetNumDefaultPoolThreads();
+			const auto numIterationsPerThread = IntegrityTestParameters().NumIterations / test::GetNumDefaultPoolThreads();
 			boost::thread_group threads;
 			for (auto i = 0u; i < test::GetNumDefaultPoolThreads(); ++i) {
 				threads.create_thread([&predicate, &importances, i, numIterationsPerThread] {
@@ -250,7 +263,7 @@ namespace catapult { namespace chain {
 			test::RunNonDeterministicTest("hit probability and importance correlation", [&config]() {
 				// Assert:
 				auto averageDeviation = CalculateLinearlyCorrelatedHitCountAndImportanceAverageDeviation(config);
-				return Max_Average_Deviation > averageDeviation;
+				return IntegrityTestParameters().MaxAverageDeviation > averageDeviation;
 			});
 		}
 	}

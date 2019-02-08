@@ -25,96 +25,553 @@ namespace catapult { namespace crypto {
 
 #define TEST_CLASS HashesTests
 
-	TEST(TEST_CLASS, EmptyStringHasExpectedRipemd160Hash) {
-		// Act:
-		auto data = test::ToVector("");
-		Hash160 hash;
-		Ripemd160(data, hash);
+	namespace {
+		// region traits
 
-		// Assert:
-		EXPECT_EQ("9C1185A5C5E9FC54612808977EE8F548B2258D31", test::ToHexString(hash));
-	}
+		struct Ripemd160_Traits {
+			using HashType = Hash160;
 
-	TEST(TEST_CLASS, NonEmptyStringHasExpectedRipemd160Hash) {
-		// Arrange:
-		std::string dataSet[] {
-			u8"The quick brown fox jumps over the lazy dog",
-			u8"Kitten Kaboodle",
-			u8"Lorem ipsum dolor sit amet",
-			u8"GimreJaguar0625BloodyRookie",
-			u8"The ripe taste of cheese improves with age",
+			static constexpr auto HashFunc = Ripemd160;
+
+			static std::string EmptyStringHash() {
+				return "9C1185A5C5E9FC54612808977EE8F548B2258D31";
+			}
+
+			// data taken from : https://homes.esat.kuleuven.be/~bosselae/ripemd160.html
+			static std::vector<std::string> SampleTestVectorsInput() {
+				return {
+					test::ToHexString("a"),
+					test::ToHexString("abc"),
+					test::ToHexString("message digest"),
+					test::ToHexString("abcdefghijklmnopqrstuvwxyz"),
+					test::ToHexString("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+					test::ToHexString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"),
+					test::ToHexString("12345678901234567890123456789012345678901234567890123456789012345678901234567890")
+				};
+			}
+
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return {
+					"0BDC9D2D256B3EE9DAAE347BE6F4DC835A467FFE",
+					"8EB208F7E05D987A9B044A8E98C6B087F15A0BFC",
+					"5D0689EF49D2FAE572B881B123A85FFA21595F36",
+					"F71C27109C692C1B56BBDCEB5B9D2865B3708DBC",
+					"12A053384A9C0C88E405A06C27DCF49ADA62EB2B",
+					"B0E20B6E3116640286ED3A87A5713079B21F5189",
+					"9B752E45573D4B39F4DBD3323CAB82BF63326BFB"
+				};
+			}
+
+			static std::string MillionTimesATestVector() {
+				return "52783243C1697BDBE16D37F97F68F08325DC1528";
+			}
+
+			static std::vector<std::string> CatapultNonEmptyStringTestVectors() {
+				return {
+					"37F332F68DB77BD9D7EDD4969571AD671CF9DD3B",
+					"114C70B78838555E6C3AB418F3052A949F73544A",
+					"7D0982BE59EBE828D02AA0D031AA6651644D60DA",
+					"5A4535208909435DECD5C7D6D818F67626A177E4",
+					"1B3ACB0409F7BA78A0BE07A2DE5454DCB0D48817"
+				};
+			}
 		};
-		std::string expectedHashes[] {
-			"37F332F68DB77BD9D7EDD4969571AD671CF9DD3B",
-			"114C70B78838555E6C3AB418F3052A949F73544A",
-			"7D0982BE59EBE828D02AA0D031AA6651644D60DA",
-			"5A4535208909435DECD5C7D6D818F67626A177E4",
-			"1B3ACB0409F7BA78A0BE07A2DE5454DCB0D48817",
+
+		struct Bitcoin160_Traits {
+			using HashType = Hash160;
+
+			static constexpr auto HashFunc = Bitcoin160;
+
+			static std::string EmptyStringHash() {
+				return "B472A266D0BD89C13706A4132CCFB16F7C3B9FCB";
+			}
+
+			// https://github.com/libbitcoin/libbitcoin-system/blob/master/test/chain/script.hpp
+			static std::vector<std::string> SampleTestVectorsInput() {
+				return {
+					test::ToHexString("a"),
+					test::ToHexString("abcdefghijklmnopqrstuvwxyz"),
+					// https://en.bitcoin.it/wiki/Transaction
+					"04D4FB35C2CDB822644F1057E9BD07E3D3B0A36702662327EF4EB799EB219856"
+						"D0FD884FCE43082B73424A3293837C5F94A478F7BC4EC4DA82BFB7E0B43FB218CC",
+					// http://learnmeabitcoin.com/glossary/public-key-hash160
+					"02B4632D08485FF1DF2DB55B9DAFD23347D1C47A457072A1E87BE26896549A8737",
+					// first bitcoin transaction address https://www.BLOCKCHAIN.com/btc/address/12cbQLTFMXRnSzktFkuoG3eHoMeFtpTu3S
+					"0411DB93E1DCDB8A016B49840F8C53BC1EB68A382E97B1482ECAD7B148A6909A"
+						"5CB2E0EADDFB84CCF9744464F82E160BFA9B8B64F9D4C03F999B8643F656B412A3"
+				};
+			}
+
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return {
+					"994355199E516FF76C4FA4AAB39337B9D84CF12B",
+					"C286A1AF0947F58D1AD787385B1C2C4A976F9E71",
+					"404371705FA9BD789A2FCD52D2C580B65D35549D",
+					"93CE48570B55C42C2AF816AEABA06CFEE1224FAE",
+					"11B366EDFC0A8B66FEEBAE5C2E25A7B6A5D1CF31"
+				};
+			}
+
+			static std::vector<std::string> CatapultNonEmptyStringTestVectors() {
+				return {
+					"0E3397B4ABC7A382B3EA2365883C3C7CA5F07600",
+					"5367F36F9B941E14EBE4B30783B8A32274481A62",
+					"17F200E445D54D96986F579662A85D7BF0A1E106",
+					"359327D26A3A91458E0F6FDD9BB9F4FF77B9299F",
+					"18638F1D82C80B35703A4B89227E3D567FA03BEA"
+				};
+			}
 		};
 
-		ASSERT_EQ(CountOf(dataSet), CountOf(expectedHashes));
-		for (auto i = 0u; i < CountOf(dataSet); ++i) {
+		struct Sha256Double_Traits {
+			using HashType = Hash256;
+
+			static constexpr auto HashFunc = Sha256Double;
+
+			static std::string EmptyStringHash() {
+				return "5DF6E0E2761359D30A8275058E299FCC0381534545F55CF43E41983F5D4C9456";
+			}
+
+			// data taken from : https://www.dlitz.net/crypto/shad256-test-vectors/
+			static std::vector<std::string> SampleTestVectorsInput() {
+				return {
+					"616263",
+					"DE188941A3375D3A8A061E67576E926D",
+					"DE188941A3375D3A8A061E67576E926DC71A7FA3F0CCEB97452B4D3227965F9E",
+					"DE188941A3375D3A8A061E67576E926DC71A7FA3F0CCEB97452B4D3227965F9EA8CC75076D9FB9C5417AA5CB30FC22198B34982DBB629E"
+				};
+			}
+
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return {
+					"4F8B42C22DD3729B519BA6F68D2DA7CC5B2D606D05DAED5AD5128CC03E6C6358",
+					"2182D3FE9882FD597D25DAF6A85E3A574E5A9861DBC75C13CE3F47FE98572246",
+					"14D881FE278E33F7165CB52B714140C96306A93ED02BCF4D1B6F650DE67A9E5F",
+					"3B4666A5643DE038930566A5930713E65D72888D3F51E20F9545329620485B03"
+				};
+			}
+
+			static std::string MillionTimesATestVector() {
+				return "80D1189477563E1B5206B2749F1AFE4807E5705E8BD77887A60187A712156688";
+			}
+
+			// those vectors were generated
+			// non authorative results: https://github.com/DeathAndTaxes/BitCrypto/blob/master/BitCrypto.Test/Sha256Tests.cs
+			static std::vector<std::string> CatapultNonEmptyStringTestVectors() {
+				return {
+					"6D37795021E544D82B41850EDF7AABAB9A0EBE274E54A519840C4666F35B3937",
+					"DB6F466A6C6B50BE9AE850C01693BA95BEDC4A8CF8028D2B52B8429F406F6F2F",
+					"A1DB794104F5A6532731E7A0F3FD39077932A3B978CC9E250F20259DA900DAD4",
+					"7FE281A3E3F5AF049328818B02B8BEC1F9BAE1B5C5D8D3DD3F0AACE75700604F",
+					"94A09FEA3A99ED4CFE79819BDEA443AF4B35C83E9E92AD21669B521C5375FA9C"
+				};
+			}
+		};
+
+		struct Keccak_Base {
+			// data taken from http://mumble.net/~campbell/hg/sha3/kat/ShortMsgKAT_SHA3-256.txt
+			static std::vector<std::string> SampleTestVectorsInput() {
+				return {
+					"CC",
+					"41FB",
+					"1F877C",
+					"C1ECFDFC",
+					"9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10",
+				};
+			}
+		};
+
+		struct Sha3_256_Traits : public Keccak_Base {
+			using HashBuilder = Sha3_256_Builder;
+			using HashType = HashBuilder::OutputType;
+
+			static constexpr auto HashFunc = crypto::Sha3_256;
+
+			static std::string EmptyStringHash() {
+				return "A7FFC6F8BF1ED76651C14756A061D662F580FF4DE43B49FA82D80A4B80F8434A";
+			}
+
+			// vectors taken from http://mumble.net/~campbell/hg/sha3/kat/ShortMsgKAT_SHA3-256.txt
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return {
+					"677035391CD3701293D385F037BA32796252BB7CE180B00B582DD9B20AAAD7F0",
+					"39F31B6E653DFCD9CAED2602FD87F61B6254F581312FB6EEEC4D7148FA2E72AA",
+					"BC22345E4BD3F792A341CF18AC0789F1C9C966712A501B19D1B6632CCD408EC5",
+					"C5859BE82560CC8789133F7C834A6EE628E351E504E601E8059A0667FF62C124",
+					"2F1A5F7159E34EA19CDDC70EBF9B81F1A66DB40615D7EAD3CC1F1B954D82A3AF",
+				};
+			}
+
+			// taken from https://www.di-mgt.com.au/sha_testvectors.html
+			static std::string MillionTimesATestVector() {
+				return "5C8875AE474A3634BA4FD55EC85BFFD661F32ACA75C6D699D0CDCB6C115891C1";
+			}
+		};
+
+		struct Sha3_512_Traits : public Keccak_Base {
+			using HashBuilder = Sha3_512_Builder;
+			using HashType = HashBuilder::OutputType;
+
+			static constexpr auto HashFunc = crypto::Sha3_512;
+
+			static std::string EmptyStringHash() {
+				return "A69F73CCA23A9AC5C8B567DC185A756E97C982164FE25859E0D1DCC1475C80A6"
+						"15B2123AF1F5F94C11E3E9402C3AC558F500199D95B6D3E301758586281DCD26";
+			}
+
+			// vectors taken from http://mumble.net/~campbell/hg/sha3/kat/ShortMsgKAT_SHA3-512.txt
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return {
+					"3939FCC8B57B63612542DA31A834E5DCC36E2EE0F652AC72E02624FA2E5ADEEC"
+					"C7DD6BB3580224B4D6138706FC6E80597B528051230B00621CC2B22999EAA205",
+					"AA092865A40694D91754DBC767B5202C546E226877147A95CB8B4C8F8709FE8C"
+					"D6905256B089DA37896EA5CA19D2CD9AB94C7192FC39F7CD4D598975A3013C69",
+					"CB20DCF54955F8091111688BECCEF48C1A2F0D0608C3A575163751F002DB30F4"
+					"0F2F671834B22D208591CFAF1F5ECFE43C49863A53B3225BDFD7C6591BA7658B",
+					"D4B4BDFEF56B821D36F4F70AB0D231B8D0C9134638FD54C46309D14FADA92A28"
+					"40186EED5415AD7CF3969BDFBF2DAF8CCA76ABFE549BE6578C6F4143617A4F1A",
+					"B087C90421AEBF87911647DE9D465CBDA166B672EC47CCD4054A7135A1EF885E"
+					"7903B52C3F2C3FE722B1C169297A91B82428956A02C631A2240F12162C7BC726",
+				};
+			}
+
+			// taken from https://www.di-mgt.com.au/sha_testvectors.html
+			static std::string MillionTimesATestVector() {
+				return "3C3A876DA14034AB60627C077BB98F7E120A2A5370212DFFB3385A18D4F38859"
+						"ED311D0A9D5141CE9CC5C66EE689B266A8AA18ACE8282A0E0DB596C90B0A7B87";
+			}
+		};
+
+		struct Keccak_256_Traits : public Keccak_Base {
+			using HashBuilder = Keccak_256_Builder;
+			using HashType = HashBuilder::OutputType;
+
+			static constexpr auto HashFunc = crypto::Keccak_256;
+
+			static std::string EmptyStringHash() {
+				return "C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470";
+			}
+
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return {
+					"EEAD6DBFC7340A56CAEDC044696A168870549A6A7F6F56961E84A54BD9970B8A",
+					"A8EACEDA4D47B3281A795AD9E1EA2122B407BAF9AABCB9E18B5717B7873537D2",
+					"627D7BC1491B2AB127282827B8DE2D276B13D7D70FB4C5957FDF20655BC7AC30",
+					"B149E766D7612EAF7D55F74E1A4FDD63709A8115B14F61FCD22AA4ABC8B8E122",
+					"24DD2EE02482144F539F810D2CAA8A7B75D0FA33657E47932122D273C3F6F6D1",
+				};
+			}
+
+			// vector was generated
+			// non authorative results: https://github.com/weidai11/cryptopp/blob/master/TestVectors/keccak.txt
+			static std::string MillionTimesATestVector() {
+				return "FADAE6B49F129BBB812BE8407B7B2894F34AECF6DBD1F9B0F0C7E9853098FC96";
+			}
+		};
+
+		struct Keccak_512_Traits : public Keccak_Base {
+			using HashBuilder = Keccak_512_Builder;
+			using HashType = HashBuilder::OutputType;
+
+			static constexpr auto HashFunc = crypto::Keccak_512;
+
+			static std::string EmptyStringHash() {
+				return "0EAB42DE4C3CEB9235FC91ACFFE746B29C29A8C366B7C60E4E67C466F36A4304"
+						"C00FA9CAF9D87976BA469BCBE06713B435F091EF2769FB160CDAB33D3670680E";
+			}
+
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return {
+					"8630C13CBD066EA74BBE7FE468FEC1DEE10EDC1254FB4C1B7C5FD69B646E4416"
+					"0B8CE01D05A0908CA790DFB080F4B513BC3B6225ECE7A810371441A5AC666EB9",
+					"551DA6236F8B96FCE9F97F1190E901324F0B45E06DBBB5CDB8355D6ED1DC34B3"
+					"F0EAE7DCB68622FF232FA3CECE0D4616CDEB3931F93803662A28DF1CD535B731",
+					"EB7F2A98E00AF37D964F7D8C44C1FB6E114D8EE21A7B976AE736539EFDC1E3FE"
+					"43BECEF5015171E6DA30168CAE99A82C53FA99042774EF982C01626A540F08C0",
+					"952D4C0A6F0EF5CE438C52E3EDD345EA00F91CF5DA8097C1168A16069E958FC0"
+					"5BAD90A0C5FB4DD9EC28E84B226B94A847D6BB89235692EF4C9712F0C7030FAE",
+					"1EAFEDCE7292BA73B80AE6151745F43AC95BFC9F31694D422473ABCA2E69D695"
+					"CB6544DB65506078CB20DBE0762F84AA6AFD14A60AB597955BE73F3F5C50F7A8",
+				};
+			}
+
+			// vector was generated
+			// non authorative results: https://github.com/weidai11/cryptopp/blob/master/TestVectors/keccak.txt
+			static std::string MillionTimesATestVector() {
+				return "5CF53F2E556BE5A624425EDE23D0E8B2C7814B4BA0E4E09CBBF3C2FAC7056F61"
+						"E048FC341262875EBC58A5183FEA651447124370C1EBF4D6C89BC9A7731063BB";
+			}
+		};
+
+		// endregion
+
+		// region single call hash function tests
+
+		template<typename TTraits>
+		void AssertEmptyStringHasExpectedHash() {
 			// Arrange:
-			auto hex = test::ToHexString(reinterpret_cast<const uint8_t*>(dataSet[i].c_str()), dataSet[i].size());
-			auto data = test::ToVector(hex);
+			auto data = test::ToVector("");
 
 			// Act:
-			Hash160 hash;
-			Ripemd160(data, hash);
+			typename TTraits::HashType hash;
+			TTraits::HashFunc(data, hash);
 
 			// Assert:
-			EXPECT_EQ(expectedHashes[i], test::ToHexString(hash));
+			EXPECT_EQ(TTraits::EmptyStringHash(), test::ToHexString(hash));
 		}
+
+		template<typename TTraits>
+		void AssertSampleTestVectors() {
+			// Arrange:
+			auto dataSet = TTraits::SampleTestVectorsInput();
+			auto expectedHashes = TTraits::SampleTestVectorsOutput();
+
+			// Sanity:
+			ASSERT_EQ(dataSet.size(), expectedHashes.size());
+
+			auto i = 0u;
+			for (const auto& dataHexStr : dataSet) {
+				auto data = test::ToVector(dataHexStr);
+
+				// Act:
+				typename TTraits::HashType hash;
+				TTraits::HashFunc(data, hash);
+
+				// Assert:
+				EXPECT_EQ(expectedHashes[i], test::ToHexString(hash));
+				++i;
+			}
+		}
+
+		template<typename TTraits>
+		void AssertMillionTimesAHasExpectedHash() {
+			// Arrange:
+			std::vector<uint8_t> data(1'000'000, 'a');
+			std::string expectedHash = TTraits::MillionTimesATestVector();
+
+			// Act:
+			typename TTraits::HashType hash;
+			TTraits::HashFunc(data, hash);
+
+			// Assert:
+			EXPECT_EQ(expectedHash, test::ToHexString(hash));
+		}
+
+		template<typename TTraits>
+		void AssertCatapultNonEmptyStringHasExpectedHash() {
+			// Arrange:
+			std::vector<std::string> dataSet{
+				u8"The quick brown fox jumps over the lazy dog",
+				u8"Kitten Kaboodle",
+				u8"Lorem ipsum dolor sit amet",
+				u8"GimreJaguar0625BloodyRookie",
+				u8"The ripe taste of cheese improves with age",
+			};
+			auto expectedHashes = TTraits::CatapultNonEmptyStringTestVectors();
+
+			// Sanity:
+			ASSERT_EQ(dataSet.size(), expectedHashes.size());
+
+			auto i = 0u;
+			for (const auto& dataStr : dataSet) {
+				// Arrange:
+				auto hex = test::ToHexString(reinterpret_cast<const uint8_t*>(dataStr.c_str()), dataStr.size());
+				auto data = test::ToVector(hex);
+
+				// Act:
+				typename TTraits::HashType hash;
+				TTraits::HashFunc(data, hash);
+
+				// Assert:
+				EXPECT_EQ(expectedHashes[i], test::ToHexString(hash));
+				++i;
+			}
+		}
+
+		// endregion
 	}
+
+#define MAKE_HASH_TEST(TRAITS_PREFIX, TEST_NAME) \
+	TEST(TEST_CLASS, TRAITS_PREFIX##_##TEST_NAME) { Assert##TEST_NAME<TRAITS_PREFIX##_Traits>(); }
+
+	// region Ripemd160
+
+	MAKE_HASH_TEST(Ripemd160, EmptyStringHasExpectedHash)
+	MAKE_HASH_TEST(Ripemd160, SampleTestVectors)
+	MAKE_HASH_TEST(Ripemd160, MillionTimesAHasExpectedHash)
+	MAKE_HASH_TEST(Ripemd160, CatapultNonEmptyStringHasExpectedHash)
+
+	// endregion
+
+	// region Bitcoin160
+
+	MAKE_HASH_TEST(Bitcoin160, EmptyStringHasExpectedHash)
+	MAKE_HASH_TEST(Bitcoin160, SampleTestVectors)
+	// MillionTimesAHasExpectedHash left out, couldn't find any resource on the network, that would confirm the value
+	MAKE_HASH_TEST(Bitcoin160, CatapultNonEmptyStringHasExpectedHash)
+
+	// endregion
+
+	// region Sha256Double
+
+	MAKE_HASH_TEST(Sha256Double, EmptyStringHasExpectedHash)
+	MAKE_HASH_TEST(Sha256Double, SampleTestVectors)
+	MAKE_HASH_TEST(Sha256Double, MillionTimesAHasExpectedHash)
+	MAKE_HASH_TEST(Sha256Double, CatapultNonEmptyStringHasExpectedHash)
+
+	// endregion
+
+	// region sha3 / keccak free function tests
+
+#define SHA3_TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, Sha3_256_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Sha3_256_Traits>(); } \
+	TEST(TEST_CLASS, Sha3_512_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Sha3_512_Traits>(); } \
+	TEST(TEST_CLASS, Keccak_256_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Keccak_256_Traits>(); } \
+	TEST(TEST_CLASS, Keccak_512_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Keccak_512_Traits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	SHA3_TRAITS_BASED_TEST(EmptyStringHasExpectedHash) {
+		AssertEmptyStringHasExpectedHash<TTraits>();
+	}
+
+	SHA3_TRAITS_BASED_TEST(SampleTestVectors) {
+		AssertSampleTestVectors<TTraits>();
+	}
+
+	SHA3_TRAITS_BASED_TEST(MillionTimesAHasExpectedHash) {
+		AssertMillionTimesAHasExpectedHash<TTraits>();
+	}
+
+	// CatapultNonEmptyStringHasExpectedHash are intentionally left out
+
+	// endregion
+
+	// region Sha3 builder - utils
 
 	namespace {
-		// data taken from : https://homes.esat.kuleuven.be/~bosselae/ripemd160.html
-		const char* Data_Set[] = {
-			"",
-			"a",
-			"abc",
-			"message digest",
-			"abcdefghijklmnopqrstuvwxyz",
-			"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
-			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
-			"12345678901234567890123456789012345678901234567890123456789012345678901234567890"
-		};
-	}
-
-	TEST(TEST_CLASS, SampleRipeMd160TestVectors) {
-		// Arrange:
-		std::string expectedHashes[] {
-			"9C1185A5C5E9FC54612808977EE8F548B2258D31",
-			"0BDC9D2D256B3EE9DAAE347BE6F4DC835A467FFE",
-			"8EB208F7E05D987A9B044A8E98C6B087F15A0BFC",
-			"5D0689EF49D2FAE572B881B123A85FFA21595F36",
-			"F71C27109C692C1B56BBDCEB5B9D2865B3708DBC",
-			"12A053384A9C0C88E405A06C27DCF49ADA62EB2B",
-			"B0E20B6E3116640286ED3A87A5713079B21F5189",
-			"9B752E45573D4B39F4DBD3323CAB82BF63326BFB"
+		// data taken from http://mumble.net/~campbell/hg/sha3/kat/ShortMsgKAT_SHA3-256.txt)
+		// same data is used for 512 variant
+		const char* Data_Sets_Long[] = {
+			"9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10",
+			"DE8F1B3FAA4B7040ED4563C3B8E598253178E87E4D0DF75E4FF2F2DEDD5A0BE046",
+			"62F154EC394D0BC757D045C798C8B87A00E0655D0481A7D2D9FB58D93AEDC676B5A0",
+			"F5961DFD2B1FFFFDA4FFBF30560C165BFEDAB8CE0BE525845DEB8DC61004B7DB38467205F5DCFB34A2ACFE96C0"
 		};
 
-		ASSERT_EQ(CountOf(Data_Set), CountOf(expectedHashes));
-		for (auto i = 0u; i < CountOf(Data_Set); ++i) {
-			// Act:
-			Hash160 hash;
-			Ripemd160({ reinterpret_cast<const uint8_t*>(Data_Set[i]), strlen(Data_Set[i]) }, hash);
+		template<typename THashBuilder, typename TCalculateHashSingle>
+		void AssertConcatenatedHashMatchesSingleCallVariant(TCalculateHashSingle calculateHashSingle) {
+			using OutputHashType = typename THashBuilder::OutputType;
+			// Arrange:
+			for (const auto& dataStr : Data_Sets_Long) {
+				OutputHashType expected;
+				auto data = test::ToVector(dataStr);
+				calculateHashSingle(data, expected);
 
-			// Assert:
-			EXPECT_EQ(expectedHashes[i], test::ToHexString(hash));
+				// Act:
+				auto splitInTwo = data.size() / 2;
+				OutputHashType result1;
+				{
+					THashBuilder hashBuilder;
+					hashBuilder.update({
+						{ data.data(), splitInTwo },
+						{ data.data() + splitInTwo, data.size() - splitInTwo } });
+					hashBuilder.final(result1);
+				}
+
+				auto splitInThree = data.size() / 3;
+				OutputHashType result2;
+				{
+					THashBuilder hashBuilder;
+					hashBuilder.update({
+						{ data.data(), splitInThree },
+						{ data.data() + splitInThree, splitInThree },
+						{ data.data() + 2 * splitInThree, data.size() - 2 * splitInThree } });
+					hashBuilder.final(result2);
+				}
+
+				auto splitInFour = data.size() / 4;
+				OutputHashType result3;
+				{
+					THashBuilder hashBuilder;
+					hashBuilder.update({
+						{ data.data(), splitInFour },
+						{ data.data() + splitInFour, splitInFour },
+						{ data.data() + 2 * splitInFour, splitInFour },
+						{ data.data() + 3 * splitInFour, data.size() - 3 * splitInFour } });
+					hashBuilder.final(result3);
+				}
+
+				// Assert:
+				EXPECT_EQ(expected, result1) << "two splits";
+				EXPECT_EQ(expected, result2) << "three splits";
+				EXPECT_EQ(expected, result3) << "four splits";
+			}
+		}
+
+		template<typename THashBuilder, typename TCalculateHashSingle>
+		void AssertBuilderBasedHashMatchesSingleCallVariant(TCalculateHashSingle calculateHashSingle) {
+			using OutputHashType = typename THashBuilder::OutputType;
+			// Arrange:
+			for (const auto& dataStr : Data_Sets_Long) {
+				OutputHashType expected;
+				auto data = test::ToVector(dataStr);
+				calculateHashSingle(data, expected);
+
+				// Act:
+				OutputHashType results[5];
+				for (auto i = 2u; i < 2 + CountOf(results); ++i) {
+					auto partSize = data.size() / i;
+					THashBuilder hashBuilder;
+					for (auto j = 0u; j < i - 1; ++j)
+						hashBuilder.update({ data.data() + partSize * j, partSize });
+
+					hashBuilder.update({ data.data() + partSize * (i - 1), data.size() - partSize * (i - 1) });
+					hashBuilder.final(results[i - 2]);
+				}
+
+				// Assert:
+				for (const auto& result : results)
+					EXPECT_EQ(expected, result);
+			}
 		}
 	}
 
-	TEST(TEST_CLASS, MillionTimesAHasExpectedRipemd160Hash) {
+	// endregion
+
+	// region Sha3 builder - tests
+
+	SHA3_TRAITS_BASED_TEST(ConcatenatedMatchesSingleCallVariant) {
+		AssertConcatenatedHashMatchesSingleCallVariant<typename TTraits::HashBuilder>(TTraits::HashFunc);
+	}
+
+	SHA3_TRAITS_BASED_TEST(BuilderBasedMatchesSingleCallVariant) {
+		AssertBuilderBasedHashMatchesSingleCallVariant<typename TTraits::HashBuilder>(TTraits::HashFunc);
+	}
+
+	SHA3_TRAITS_BASED_TEST(AlignedAndUnalignedBuildersProduceSameResults) {
 		// Arrange:
-		std::vector<uint8_t> data(1'000'000, 'a');
-		std::string expectedHash = "52783243C1697BDBE16D37F97F68F08325DC1528";
+		auto data = test::GenerateRandomVector(1 * 1024 * 1024);
+
+		typename TTraits::HashBuilder::OutputType alignedResult;
+		typename TTraits::HashBuilder::OutputType unalignedResult;
+		{
+			typename TTraits::HashBuilder hashBuilder;
+			hashBuilder.update(data);
+			hashBuilder.final(alignedResult);
+		}
 
 		// Act:
-		Hash160 hash;
-		Ripemd160(data, hash);
+		{
+			uint8_t buffer[512];
+			auto pHashBuilder = new (buffer + 3) typename TTraits::HashBuilder();
+			pHashBuilder->update(data);
+			pHashBuilder->final(unalignedResult);
+		}
 
 		// Assert:
-		EXPECT_EQ(expectedHash, test::ToHexString(hash));
+		EXPECT_EQ(alignedResult, unalignedResult);
 	}
+
+	// endregion
 }}

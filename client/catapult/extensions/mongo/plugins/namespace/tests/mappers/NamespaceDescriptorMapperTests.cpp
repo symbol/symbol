@@ -32,26 +32,51 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
 		using Path = state::Namespace::Path;
+
+		struct NoAliasTraits {
+			static auto CreateAlias() {
+				return state::NamespaceAlias();
+			}
+		};
+
+		struct MosaicAliasTraits {
+			static auto CreateAlias() {
+				return state::NamespaceAlias(test::GenerateRandomValue<MosaicId>());
+			}
+		};
+
+		struct AddressAliasTraits {
+			static auto CreateAlias() {
+				return state::NamespaceAlias(test::GenerateRandomData<Address_Decoded_Size>());
+			}
+		};
 	}
+
+#define ALIAS_TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NoAliasTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_MosaicAlias) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<MosaicAliasTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_AddressAlias) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressAliasTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region ToDbModel
 
 	namespace {
 		enum class NamespaceStatus { Active, Inactive };
 
-		NamespaceDescriptor CreateNamespaceDescriptor(uint8_t depth, NamespaceStatus status) {
+		NamespaceDescriptor CreateNamespaceDescriptor(uint8_t depth, NamespaceStatus status, const state::NamespaceAlias& alias) {
 			Path path;
 			for (auto i = 0u; i < depth; ++i)
 				path.push_back(test::GenerateRandomValue<NamespaceId>());
 
 			auto owner = test::GenerateRandomData<Key_Size>();
 			auto pRoot = std::make_shared<state::RootNamespace>(path[0], owner, state::NamespaceLifetime(Height(123), Height(234)));
-			return NamespaceDescriptor(path, pRoot, test::GenerateRandomAddress(), 321, NamespaceStatus::Active == status);
+			return NamespaceDescriptor(path, alias, pRoot, test::GenerateRandomAddress(), 321, NamespaceStatus::Active == status);
 		}
 
-		void AssertCanMapNamespaceDescriptor(uint8_t depth, NamespaceStatus status) {
+		void AssertCanMapNamespaceDescriptor(uint8_t depth, NamespaceStatus status, const state::NamespaceAlias& alias) {
 			// Arrange:
-			auto descriptor = CreateNamespaceDescriptor(depth, status);
+			auto descriptor = CreateNamespaceDescriptor(depth, status, alias);
 
 			// Act:
 			auto document = ToDbModel(descriptor);
@@ -65,27 +90,27 @@ namespace catapult { namespace mongo { namespace plugins {
 			test::AssertEqualNamespaceMetadata(descriptor, metaView);
 
 			auto namespaceView = documentView["namespace"].get_document().view();
-			EXPECT_EQ(7u + depth, test::GetFieldCount(namespaceView));
+			EXPECT_EQ(8u + depth, test::GetFieldCount(namespaceView));
 			test::AssertEqualNamespaceData(descriptor, namespaceView);
 		}
 	}
 
-	TEST(TEST_CLASS, CanMapNamespaceDescriptor_ModelToDbModel_Depth1) {
+	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth1) {
 		// Assert:
-		AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Inactive);
-		AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Active);
+		AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Inactive, TTraits::CreateAlias());
+		AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Active, TTraits::CreateAlias());
 	}
 
-	TEST(TEST_CLASS, CanMapNamespaceDescriptor_ModelToDbModel_Depth2) {
+	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth2) {
 		// Assert:
-		AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Inactive);
-		AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Active);
+		AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Inactive, TTraits::CreateAlias());
+		AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Active, TTraits::CreateAlias());
 	}
 
-	TEST(TEST_CLASS, CanMapNamespaceDescriptor_ModelToDbModel_Depth3) {
+	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth3) {
 		// Assert:
-		AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Inactive);
-		AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Active);
+		AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Inactive, TTraits::CreateAlias());
+		AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Active, TTraits::CreateAlias());
 	}
 
 	// endregion
@@ -93,14 +118,14 @@ namespace catapult { namespace mongo { namespace plugins {
 	// region ToNamespaceDescriptor
 
 	namespace {
-		bsoncxx::document::value CreateDbNamespaceDescriptor(uint8_t depth, NamespaceStatus status) {
-			auto descriptor = CreateNamespaceDescriptor(depth, status);
+		bsoncxx::document::value CreateDbNamespaceDescriptor(uint8_t depth, NamespaceStatus status, const state::NamespaceAlias& alias) {
+			auto descriptor = CreateNamespaceDescriptor(depth, status, alias);
 			return ToDbModel(descriptor);
 		}
 
-		void AssertCanMapDbNamespaceDescriptor(uint8_t depth, NamespaceStatus status) {
+		void AssertCanMapDbNamespaceDescriptor(uint8_t depth, NamespaceStatus status, const state::NamespaceAlias& alias) {
 			// Arrange:
-			auto dbDescriptor = CreateDbNamespaceDescriptor(depth, status);
+			auto dbDescriptor = CreateDbNamespaceDescriptor(depth, status, alias);
 
 			// Act:
 			auto descriptor = ToNamespaceDescriptor(dbDescriptor);
@@ -114,27 +139,27 @@ namespace catapult { namespace mongo { namespace plugins {
 			test::AssertEqualNamespaceMetadata(descriptor, metaView);
 
 			auto namespaceView = view["namespace"].get_document().view();
-			EXPECT_EQ(7u + depth, test::GetFieldCount(namespaceView));
+			EXPECT_EQ(8u + depth, test::GetFieldCount(namespaceView));
 			test::AssertEqualNamespaceData(descriptor, namespaceView);
 		}
 	}
 
-	TEST(TEST_CLASS, CanMapNamespaceDescriptor_DbModelToModel_Depth1) {
+	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_DbModelToModel_Depth1) {
 		// Assert:
-		AssertCanMapDbNamespaceDescriptor(1, NamespaceStatus::Inactive);
-		AssertCanMapDbNamespaceDescriptor(1, NamespaceStatus::Active);
+		AssertCanMapDbNamespaceDescriptor(1, NamespaceStatus::Inactive, TTraits::CreateAlias());
+		AssertCanMapDbNamespaceDescriptor(1, NamespaceStatus::Active, TTraits::CreateAlias());
 	}
 
-	TEST(TEST_CLASS, CanMapNamespaceDescriptor_DbModelToModel_Depth2) {
+	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_DbModelToModel_Depth2) {
 		// Assert:
-		AssertCanMapDbNamespaceDescriptor(2, NamespaceStatus::Inactive);
-		AssertCanMapDbNamespaceDescriptor(2, NamespaceStatus::Active);
+		AssertCanMapDbNamespaceDescriptor(2, NamespaceStatus::Inactive, TTraits::CreateAlias());
+		AssertCanMapDbNamespaceDescriptor(2, NamespaceStatus::Active, TTraits::CreateAlias());
 	}
 
-	TEST(TEST_CLASS, CanMapNamespaceDescriptor_DbModelToModel_Depth3) {
+	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_DbModelToModel_Depth3) {
 		// Assert:
-		AssertCanMapDbNamespaceDescriptor(3, NamespaceStatus::Inactive);
-		AssertCanMapDbNamespaceDescriptor(3, NamespaceStatus::Active);
+		AssertCanMapDbNamespaceDescriptor(3, NamespaceStatus::Inactive, TTraits::CreateAlias());
+		AssertCanMapDbNamespaceDescriptor(3, NamespaceStatus::Active, TTraits::CreateAlias());
 	}
 
 	// endregion

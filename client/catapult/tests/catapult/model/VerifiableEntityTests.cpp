@@ -30,7 +30,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, EntityHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(uint32_t) // size
+		auto expectedSize =
+				sizeof(uint32_t) // size
 				+ sizeof(Signature) // signature
 				+ sizeof(uint16_t) // version
 				+ sizeof(uint16_t) // entity type
@@ -119,12 +120,12 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingUnknownEntityType) {
 		// Assert:
-		AssertFailureForBlockWithEntityType(model::EntityType(1234));
+		AssertFailureForBlockWithEntityType(static_cast<EntityType>(1234));
 	}
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingIncompatibleEntityType) {
 		// Assert:
-		AssertFailureForBlockWithEntityType(model::Entity_Type_Nemesis_Block);
+		AssertFailureForBlockWithEntityType(Entity_Type_Nemesis_Block);
 	}
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingTransactionWithWrongSize) {

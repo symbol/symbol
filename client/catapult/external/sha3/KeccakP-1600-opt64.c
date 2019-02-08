@@ -1,16 +1,22 @@
 /*
-Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni,
-Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer, hereby
-denoted as "the implementer".
+Implementation by the Keccak Team, namely, Guido Bertoni, Joan Daemen,
+Michaël Peeters, Gilles Van Assche and Ronny Van Keer,
+hereby denoted as "the implementer".
 
-For more information, feedback or questions, please refer to our websites:
-http://keccak.noekeon.org/
-http://keyak.noekeon.org/
-http://ketje.noekeon.org/
+For more information, feedback or questions, please refer to our website:
+https://keccak.team/
 
 To the extent possible under law, the implementer has waived all copyright
 and related or neighboring rights to the source code in this file.
 http://creativecommons.org/publicdomain/zero/1.0/
+
+---
+
+This file implements Keccak-p[1600] in a SnP-compatible way.
+Please refer to SnP-documentation.h for more details.
+
+This implementation comes with KeccakP-1600-SnP.h in the same folder.
+Please refer to LowLevel.build for the exact list of other files it must be combined with.
 */
 
 #include <string.h>
@@ -155,13 +161,13 @@ void KeccakP1600_AddLanes(void *state, const unsigned char *data, unsigned int l
     }
 #else
     unsigned int i;
-    UINT8 *curData = data;
+    const UINT8 *curData = data;
     for(i=0; i<laneCount; i++, curData+=8) {
         UINT64 lane = (UINT64)curData[0]
-            | ((UINT64)curData[1] << 8)
+            | ((UINT64)curData[1] <<  8)
             | ((UINT64)curData[2] << 16)
             | ((UINT64)curData[3] << 24)
-            | ((UINT64)curData[4] <<32)
+            | ((UINT64)curData[4] << 32)
             | ((UINT64)curData[5] << 40)
             | ((UINT64)curData[6] << 48)
             | ((UINT64)curData[7] << 56);
@@ -205,7 +211,18 @@ void KeccakP1600_OverwriteBytesInLane(void *state, unsigned int lanePosition, co
         memcpy((unsigned char*)state+lanePosition*8+offset, data, length);
     }
 #else
-#error "Not yet implemented"
+    UINT64 lane = ((UINT64*)state)[lanePosition];
+    unsigned int i;
+    for(i=0; i<length; i++) {
+        lane &= ~((UINT64)0xFF << ((offset+i)*8));
+#ifdef KeccakP1600_useLaneComplementing
+        if ((lanePosition == 1) || (lanePosition == 2) || (lanePosition == 8) || (lanePosition == 12) || (lanePosition == 17) || (lanePosition == 20))
+            lane |= (UINT64)(data[i] ^ 0xFF) << ((offset+i)*8);
+        else
+#endif
+            lane |= (UINT64)data[i] << ((offset+i)*8);
+    }
+    ((UINT64*)state)[lanePosition] = lane;
 #endif
 }
 
@@ -226,7 +243,24 @@ void KeccakP1600_OverwriteLanes(void *state, const unsigned char *data, unsigned
     memcpy(state, data, laneCount*8);
 #endif
 #else
-#error "Not yet implemented"
+    unsigned int lanePosition;
+    const UINT8 *curData = data;
+    for(lanePosition=0; lanePosition<laneCount; lanePosition++, curData+=8) {
+        UINT64 lane = (UINT64)curData[0]
+            | ((UINT64)curData[1] <<  8)
+            | ((UINT64)curData[2] << 16)
+            | ((UINT64)curData[3] << 24)
+            | ((UINT64)curData[4] << 32)
+            | ((UINT64)curData[5] << 40)
+            | ((UINT64)curData[6] << 48)
+            | ((UINT64)curData[7] << 56);
+#ifdef KeccakP1600_useLaneComplementing
+        if ((lanePosition == 1) || (lanePosition == 2) || (lanePosition == 8) || (lanePosition == 12) || (lanePosition == 17) || (lanePosition == 20))
+            ((UINT64*)state)[lanePosition] = ~lane;
+        else
+#endif
+            ((UINT64*)state)[lanePosition] = lane;
+    }
 #endif
 }
 
@@ -261,7 +295,30 @@ void KeccakP1600_OverwriteWithZeroes(void *state, unsigned int byteCount)
     memset(state, 0, byteCount);
 #endif
 #else
-#error "Not yet implemented"
+    unsigned int i, j;
+    for(i=0; i<byteCount; i+=8) {
+        unsigned int lanePosition = i/8;
+        if (i+8 <= byteCount) {
+#ifdef KeccakP1600_useLaneComplementing
+            if ((lanePosition == 1) || (lanePosition == 2) || (lanePosition == 8) || (lanePosition == 12) || (lanePosition == 17) || (lanePosition == 20))
+                ((UINT64*)state)[lanePosition] = ~(UINT64)0;
+            else
+#endif
+                ((UINT64*)state)[lanePosition] = 0;
+        }
+        else {
+            UINT64 lane = ((UINT64*)state)[lanePosition];
+            for(j=0; j<byteCount%8; j++) {
+#ifdef KeccakP1600_useLaneComplementing
+                if ((lanePosition == 1) || (lanePosition == 2) || (lanePosition == 8) || (lanePosition == 12) || (lanePosition == 17) || (lanePosition == 20))
+                    lane |= (UINT64)0xFF << (j*8);
+                else
+#endif
+                    lane &= ~((UINT64)0xFF << (j*8));
+            }
+            ((UINT64*)state)[lanePosition] = lane;
+        }
+    }
 #endif
 }
 
@@ -337,7 +394,7 @@ void KeccakP1600_ExtractBytesInLane(const void *state, unsigned int lanePosition
 /* ---------------------------------------------------------------- */
 
 #if (PLATFORM_BYTE_ORDER != IS_LITTLE_ENDIAN)
-void fromWordToBytes(UINT8 *bytes, const UINT64 word)
+static void fromWordToBytes(UINT8 *bytes, const UINT64 word)
 {
     unsigned int i;
 
@@ -476,6 +533,29 @@ size_t KeccakF1600_FastLoop_Absorb(void *state, unsigned int laneCount, const un
     while(dataByteLen >= laneCount*8) {
         addInput(A, inDataAsLanes, laneCount)
         rounds24
+        inDataAsLanes += laneCount;
+        dataByteLen -= laneCount*8;
+    }
+    copyToState(stateAsLanes, A)
+    return originalDataByteLen - dataByteLen;
+}
+
+/* ---------------------------------------------------------------- */
+
+size_t KeccakP1600_12rounds_FastLoop_Absorb(void *state, unsigned int laneCount, const unsigned char *data, size_t dataByteLen)
+{
+    size_t originalDataByteLen = dataByteLen;
+    declareABCDE
+    #ifndef KeccakP1600_fullUnrolling
+    unsigned int i;
+    #endif
+    UINT64 *stateAsLanes = (UINT64*)state;
+    UINT64 *inDataAsLanes = (UINT64*)data;
+
+    copyFromState(A, stateAsLanes)
+    while(dataByteLen >= laneCount*8) {
+        addInput(A, inDataAsLanes, laneCount)
+        rounds12
         inDataAsLanes += laneCount;
         dataByteLen -= laneCount*8;
     }

@@ -20,31 +20,47 @@
 
 #include "NotificationPublisher.h"
 #include "Block.h"
+#include "BlockUtils.h"
+#include "FeeUtils.h"
 #include "NotificationSubscriber.h"
 #include "TransactionPlugin.h"
-#include "catapult/constants.h"
 
 namespace catapult { namespace model {
 
 	namespace {
+		void RequireKnown(EntityType entityType) {
+			if (BasicEntityType::Other == ToBasicEntityType(entityType))
+				CATAPULT_THROW_RUNTIME_ERROR_1("NotificationPublisher only supports Block and Transaction entities", entityType);
+		}
+
 		class BasicNotificationPublisher : public NotificationPublisher {
 		public:
-			explicit BasicNotificationPublisher(const TransactionRegistry& transactionRegistry)
+			BasicNotificationPublisher(const TransactionRegistry& transactionRegistry, UnresolvedMosaicId feeMosaicId)
 					: m_transactionRegistry(transactionRegistry)
+					, m_feeMosaicId(feeMosaicId)
 			{}
 
 		public:
 			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
-				const auto& entity = entityInfo.entity();
-				sub.notify(AccountPublicKeyNotification(entity.Signer));
-				sub.notify(EntityNotification(entity.Network()));
+				RequireKnown(entityInfo.type());
 
-				switch (ToBasicEntityType(entityInfo.type())) {
+				const auto& entity = entityInfo.entity();
+				auto basicEntityType = ToBasicEntityType(entityInfo.type());
+
+				// 1. publish source change notification
+				publishSourceChange(basicEntityType, sub);
+
+				// 2. publish common notifications
+				sub.notify(AccountPublicKeyNotification(entity.Signer));
+
+				// 3. publish entity specific notifications
+				const auto* pBlockHeader = entityInfo.isAssociatedBlockHeaderSet() ? &entityInfo.associatedBlockHeader() : nullptr;
+				switch (basicEntityType) {
 				case BasicEntityType::Block:
 					return publish(static_cast<const Block&>(entity), sub);
 
 				case BasicEntityType::Transaction:
-					return publish(static_cast<const Transaction&>(entity), entityInfo.hash(), sub);
+					return publish(static_cast<const Transaction&>(entity), entityInfo.hash(), pBlockHeader, sub);
 
 				default:
 					return;
@@ -52,13 +68,34 @@ namespace catapult { namespace model {
 			}
 
 		private:
-			void publish(const Block& block, NotificationSubscriber& sub) const {
-				// raise a block notification
-				BlockNotification blockNotification(block.Signer, block.Timestamp, block.Difficulty);
-				for (const auto& transaction : block.Transactions()) {
-					blockNotification.TotalFee = blockNotification.TotalFee + transaction.Fee;
-					++blockNotification.NumTransactions;
+			void publishSourceChange(BasicEntityType basicEntityType, NotificationSubscriber& sub) const {
+				using Notification = SourceChangeNotification;
+
+				switch (basicEntityType) {
+				case BasicEntityType::Block:
+					// set block source to zero (source ids are 1-based)
+					sub.notify(Notification(0, 0, Notification::SourceChangeType::Absolute));
+					break;
+
+				case BasicEntityType::Transaction:
+					// set transaction source (source ids are 1-based)
+					sub.notify(Notification(1, 0, Notification::SourceChangeType::Relative));
+					break;
+
+				default:
+					break;
 				}
+			}
+
+			void publish(const Block& block, NotificationSubscriber& sub) const {
+				// raise an entity notification
+				sub.notify(EntityNotification(block.Network(), Block::Current_Version, Block::Current_Version, block.EntityVersion()));
+
+				// raise a block notification
+				auto blockTransactionsInfo = CalculateBlockTransactionsInfo(block);
+				BlockNotification blockNotification(block.Signer, block.Timestamp, block.Difficulty);
+				blockNotification.NumTransactions = blockTransactionsInfo.Count;
+				blockNotification.TotalFee = blockTransactionsInfo.TotalFee;
 
 				sub.notify(blockNotification);
 
@@ -68,27 +105,46 @@ namespace catapult { namespace model {
 				sub.notify(SignatureNotification(block.Signer, block.Signature, blockData));
 			}
 
-			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
-				sub.notify(TransactionNotification(transaction.Signer, hash, transaction.Type, transaction.Deadline));
-				sub.notify(BalanceDebitNotification(transaction.Signer, Xem_Id, transaction.Fee));
-
+			void publish(
+					const Transaction& transaction,
+					const Hash256& hash,
+					const BlockHeader* pBlockHeader,
+					NotificationSubscriber& sub) const {
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
+				auto supportedVersions = plugin.supportedVersions();
+
+				// raise an entity notification
+				sub.notify(EntityNotification(
+						transaction.Network(),
+						supportedVersions.MinVersion,
+						supportedVersions.MaxVersion,
+						transaction.EntityVersion()));
+
+				// raise transaction notifications
+				auto fee = pBlockHeader ? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction) : transaction.MaxFee;
+				sub.notify(TransactionNotification(transaction.Signer, hash, transaction.Type, transaction.Deadline));
+				sub.notify(TransactionFeeNotification(transaction.Size, fee, transaction.MaxFee));
+				sub.notify(BalanceDebitNotification(transaction.Signer, m_feeMosaicId, fee));
+
+				// raise a signature notification
 				sub.notify(SignatureNotification(transaction.Signer, transaction.Signature, plugin.dataBuffer(transaction)));
 			}
 
 		private:
 			const TransactionRegistry& m_transactionRegistry;
+			UnresolvedMosaicId m_feeMosaicId;
 		};
 
 		class CustomNotificationPublisher : public NotificationPublisher {
 		public:
-			CustomNotificationPublisher(const TransactionRegistry& transactionRegistry, const PublisherContext& publisherContext)
+			explicit CustomNotificationPublisher(const TransactionRegistry& transactionRegistry)
 					: m_transactionRegistry(transactionRegistry)
-					, m_publisherContext(publisherContext)
 			{}
 
 		public:
 			void publish(const WeakEntityInfoT<VerifiableEntity>& entityInfo, NotificationSubscriber& sub) const override {
+				RequireKnown(entityInfo.type());
+
 				if (BasicEntityType::Transaction != ToBasicEntityType(entityInfo.type()))
 					return;
 
@@ -97,19 +153,18 @@ namespace catapult { namespace model {
 
 			void publish(const Transaction& transaction, const Hash256& hash, NotificationSubscriber& sub) const {
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
-				plugin.publish(WeakEntityInfoT<model::Transaction>(transaction, hash), m_publisherContext, sub);
+				plugin.publish(WeakEntityInfoT<Transaction>(transaction, hash), sub);
 			}
 
 		private:
 			const TransactionRegistry& m_transactionRegistry;
-			PublisherContext m_publisherContext;
 		};
 
 		class AllNotificationPublisher : public NotificationPublisher {
 		public:
-			AllNotificationPublisher(const TransactionRegistry& transactionRegistry, const PublisherContext& publisherContext)
-					: m_basicPublisher(transactionRegistry)
-					, m_customPublisher(transactionRegistry, publisherContext)
+			AllNotificationPublisher(const TransactionRegistry& transactionRegistry, UnresolvedMosaicId feeMosaicId)
+					: m_basicPublisher(transactionRegistry, feeMosaicId)
+					, m_customPublisher(transactionRegistry)
 			{}
 
 		public:
@@ -126,17 +181,17 @@ namespace catapult { namespace model {
 
 	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
 			const TransactionRegistry& transactionRegistry,
-			const PublisherContext& publisherContext,
+			UnresolvedMosaicId feeMosaicId,
 			PublicationMode mode) {
 		switch (mode) {
 		case PublicationMode::Basic:
-			return std::make_unique<BasicNotificationPublisher>(transactionRegistry);
+			return std::make_unique<BasicNotificationPublisher>(transactionRegistry, feeMosaicId);
 
 		case PublicationMode::Custom:
-			return std::make_unique<CustomNotificationPublisher>(transactionRegistry, publisherContext);
+			return std::make_unique<CustomNotificationPublisher>(transactionRegistry);
 
 		default:
-			return std::make_unique<AllNotificationPublisher>(transactionRegistry, publisherContext);
+			return std::make_unique<AllNotificationPublisher>(transactionRegistry, feeMosaicId);
 		}
 	}
 }}

@@ -123,8 +123,9 @@ namespace catapult { namespace api {
 			using FutureType = thread::future<typename TTraits::ResultType>;
 
 		public:
-			explicit DefaultRemoteChainApi(ionet::PacketIo& io, const model::TransactionRegistry* pRegistry)
-					: m_pRegistry(pRegistry)
+			DefaultRemoteChainApi(ionet::PacketIo& io, const Key& remotePublicKey, const model::TransactionRegistry* pRegistry)
+					: RemoteChainApi(remotePublicKey)
+					, m_pRegistry(pRegistry)
 					, m_impl(io)
 			{}
 
@@ -156,11 +157,14 @@ namespace catapult { namespace api {
 	}
 
 	std::unique_ptr<ChainApi> CreateRemoteChainApiWithoutRegistry(ionet::PacketIo& io) {
-		// since the returned interface is only chain-api, the registry is unused and can be null
-		return std::make_unique<DefaultRemoteChainApi>(io, nullptr);
+		// since the returned interface is only chain-api, the remote public key and the registry are unused
+		return std::make_unique<DefaultRemoteChainApi>(io, Key(), nullptr);
 	}
 
-	std::unique_ptr<RemoteChainApi> CreateRemoteChainApi(ionet::PacketIo& io, const model::TransactionRegistry& registry) {
-		return std::make_unique<DefaultRemoteChainApi>(io, &registry);
+	std::unique_ptr<RemoteChainApi> CreateRemoteChainApi(
+			ionet::PacketIo& io,
+			const Key& remotePublicKey,
+			const model::TransactionRegistry& registry) {
+		return std::make_unique<DefaultRemoteChainApi>(io, remotePublicKey, &registry);
 	}
 }}

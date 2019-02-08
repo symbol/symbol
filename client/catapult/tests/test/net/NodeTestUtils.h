@@ -25,22 +25,20 @@
 
 namespace catapult { namespace test {
 
+	/// Creates a node endpoint referencing the local host with the default port.
+	ionet::NodeEndpoint CreateLocalHostNodeEndpoint();
+
 	/// Creates a node endpoint referencing the local host with the specified \a port.
-	inline ionet::NodeEndpoint CreateLocalHostNodeEndpoint(unsigned short port = Local_Host_Port) {
-		return { "127.0.0.1", port };
-	}
+	ionet::NodeEndpoint CreateLocalHostNodeEndpoint(unsigned short port);
+
+	/// Creates a node referencing the local host with the default port and specified public key (\a publicKey).
+	ionet::Node CreateLocalHostNode(const Key& publicKey);
 
 	/// Creates a node referencing the local host with the specified \a port and public key (\a publicKey).
-	inline ionet::Node CreateLocalHostNode(const Key& publicKey, unsigned short port = Local_Host_Port) {
-		return { publicKey, CreateLocalHostNodeEndpoint(port), ionet::NodeMetadata() };
-	}
+	ionet::Node CreateLocalHostNode(const Key& publicKey, unsigned short port);
 
 	/// Creates a node with \a identityKey, \a name and \a roles.
-	inline ionet::Node CreateNamedNode(const Key& identityKey, const std::string& name, ionet::NodeRoles roles = ionet::NodeRoles::None) {
-		auto metadata = ionet::NodeMetadata(model::NetworkIdentifier::Zero, name);
-		metadata.Roles = roles;
-		return ionet::Node(identityKey, ionet::NodeEndpoint(), metadata);
-	}
+	ionet::Node CreateNamedNode(const Key& identityKey, const std::string& name, ionet::NodeRoles roles = ionet::NodeRoles::None);
 
 	/// Extracts all node identities from \a nodes.
 	template<typename TNodeContainer>
@@ -88,6 +86,17 @@ namespace catapult { namespace test {
 	/// Collects all basic node data information from \a view.
 	BasicNodeDataContainer CollectAll(const ionet::NodeContainerView& view);
 
+	/// Adds interactions (\a numSuccesses and \a numFailures) to the node identified by \a identityKey contained in \a modifier.
+	void AddNodeInteractions(ionet::NodeContainerModifier& modifier, const Key& identityKey, size_t numSuccesses, size_t numFailures);
+
 	/// Asserts that \a connectionState is zeroed.
 	void AssertZeroed(const ionet::ConnectionState& connectionState);
+
+	/// Asserts \a interactions has \a expectedNumSuccesses and \a expectedNumFailures;
+	/// \a message is used to output additional information.
+	void AssertNodeInteractions(
+			uint32_t expectedNumSuccesses,
+			uint32_t expectedNumFailures,
+			const ionet::NodeInteractions& interactions,
+			const std::string& message = "");
 }}

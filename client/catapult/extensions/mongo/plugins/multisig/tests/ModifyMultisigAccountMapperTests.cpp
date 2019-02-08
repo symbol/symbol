@@ -21,7 +21,6 @@
 #include "src/ModifyMultisigAccountMapper.h"
 #include "sdk/src/builders/ModifyMultisigAccountBuilder.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/constants.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
@@ -45,7 +44,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			builder.setMinRemovalDelta(minRemovalDelta);
 			builder.setMinApprovalDelta(minApprovalDelta);
 			for (const auto& modification : modifications)
-				builder.addCosignatoryModification(modification.ModificationType, modification.CosignatoryPublicKey);
+				builder.addModification(modification);
 
 			return builder;
 		}

@@ -38,6 +38,12 @@ namespace catapult { namespace chain {
 
 		enum class FailureMode { Default, Suppress };
 
+		model::BlockChainConfiguration CreateConfiguration() {
+			auto config = model::BlockChainConfiguration::Uninitialized();
+			config.Network.Identifier = Network_Identifier;
+			return config;
+		}
+
 		class TestContext {
 		private:
 			using StatelessValidatorPointer = std::unique_ptr<mocks::MockCapturingStatelessNotificationValidator>;
@@ -52,7 +58,8 @@ namespace catapult { namespace chain {
 					, m_statefulName(statefulName)
 					, m_statelessResult(ValidationResult::Success)
 					, m_statefulResult(ValidationResult::Success)
-					, m_cache(test::CreateCatapultCacheWithMarkerAccount()) {
+					, m_cache(test::CreateCatapultCacheWithMarkerAccount())
+					, m_pluginManager(CreateConfiguration(), plugins::StorageConfiguration()) {
 				// set custom cache height
 				auto cacheDelta = m_cache.createDelta();
 				m_cache.commit(Cache_Height);
@@ -69,19 +76,20 @@ namespace catapult { namespace chain {
 
 		public:
 			std::unique_ptr<const stateless::NotificationValidator> create(FailureMode failureMode = FailureMode::Default) {
-				auto config = model::BlockChainConfiguration::Uninitialized();
-				config.Network.Identifier = Network_Identifier;
-				plugins::PluginManager pluginManager(config, plugins::StorageConfiguration());
+				m_pluginManager.addMosaicResolver([](const auto& cache, const auto& unresolved, auto& resolved) {
+					resolved = MosaicId(unresolved.unwrap() * (test::IsMarkedCache(cache) ? 2 : 0));
+					return true;
+				});
 
-				pluginManager.addStatelessValidatorHook([this](auto& builder) {
+				m_pluginManager.addStatelessValidatorHook([this](auto& builder) {
 					builder.add(this->createStatelessValidator());
 				});
 
-				pluginManager.addStatefulValidatorHook([this](auto& builder) {
+				m_pluginManager.addStatefulValidatorHook([this](auto& builder) {
 					builder.add(this->createStatefulValidator());
 				});
 
-				return CreateJointValidator(m_cache, []() { return Default_Block_Time; }, pluginManager, [failureMode](auto) {
+				return CreateJointValidator(m_cache, []() { return Default_Block_Time; }, m_pluginManager, [failureMode](auto) {
 					return FailureMode::Suppress == failureMode;
 				});
 			}
@@ -136,6 +144,9 @@ namespace catapult { namespace chain {
 				EXPECT_EQ(Default_Block_Time, params.BlockTime);
 				EXPECT_EQ(Network_Identifier, params.NetworkIdentifier);
 				EXPECT_TRUE(params.IsMarkedCache);
+
+				// - check that context includes wired up resolvers
+				EXPECT_EQ(MosaicId(2), params.ResolvedMosaicIdOne);
 			}
 
 		private:
@@ -145,6 +156,7 @@ namespace catapult { namespace chain {
 			ValidationResult m_statefulResult;
 
 			cache::CatapultCache m_cache;
+			plugins::PluginManager m_pluginManager;
 
 			const StatelessValidatorPointer::element_type* m_pStatelessValidator; // only valid after create
 			const StatefulValidatorPointer::element_type* m_pStatefulValidator; // only valid after create

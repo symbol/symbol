@@ -39,7 +39,7 @@ namespace catapult { namespace observers {
 
 			auto sender = test::GenerateRandomData<Key_Size>();
 			auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
-			auto notification = TTraits::CreateNotification(sender, recipient);
+			auto notification = TTraits::CreateNotification(sender, test::UnresolveXor(recipient));
 
 			test::SetCacheBalances(context.cache(), sender, TTraits::GetInitialSenderBalances());
 			test::SetCacheBalances(context.cache(), recipient, TTraits::GetInitialRecipientBalances());
@@ -60,7 +60,7 @@ namespace catapult { namespace observers {
 
 			auto sender = test::GenerateRandomData<Key_Size>();
 			auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
-			auto notification = TTraits::CreateNotification(sender, recipient);
+			auto notification = TTraits::CreateNotification(sender, test::UnresolveXor(recipient));
 
 			test::SetCacheBalances(context.cache(), sender, TTraits::GetFinalSenderBalances());
 			test::SetCacheBalances(context.cache(), recipient, TTraits::GetFinalRecipientBalances());
@@ -78,63 +78,65 @@ namespace catapult { namespace observers {
 	TEST(TEST_CLASS, CanTransfer##TEST_NAME##_Commit) { AssertCommitObservation<TEST_NAME##Traits>(); } \
 	TEST(TEST_CLASS, CanTransfer##TEST_NAME##_Rollback) { AssertRollbackObservation<TEST_NAME##Traits>(); }
 
-	// region xem
+	// region single mosaic
 
 	namespace {
-		struct XemTraits {
-			static auto CreateNotification(const Key& sender, const Address& recipient) {
-				return model::BalanceTransferNotification(sender, recipient, Xem_Id, Amount(234));
+		constexpr auto Currency_Mosaic_Id = MosaicId(1234);
+
+		struct SingleMosaicTraits {
+			static auto CreateNotification(const Key& sender, const UnresolvedAddress& recipient) {
+				return model::BalanceTransferNotification(sender, recipient, test::UnresolveXor(Currency_Mosaic_Id), Amount(234));
 			}
 
 			static test::BalanceTransfers GetInitialSenderBalances() {
-				return { { Xem_Id, Amount(1000) } };
+				return { { Currency_Mosaic_Id, Amount(1000) } };
 			}
 
 			static test::BalanceTransfers GetFinalSenderBalances() {
-				return { { Xem_Id, Amount(1000 - 234) } };
+				return { { Currency_Mosaic_Id, Amount(1000 - 234) } };
 			}
 
 			static test::BalanceTransfers GetInitialRecipientBalances() {
-				return { { Xem_Id, Amount(750) } };
+				return { { Currency_Mosaic_Id, Amount(750) } };
 			}
 
 			static test::BalanceTransfers GetFinalRecipientBalances() {
-				return { { Xem_Id, Amount(750 + 234) } };
+				return { { Currency_Mosaic_Id, Amount(750 + 234) } };
 			}
 		};
 	}
 
-	DEFINE_BALANCE_OBSERVATION_TESTS(Xem)
+	DEFINE_BALANCE_OBSERVATION_TESTS(SingleMosaic)
 
 	// endregion
 
-	// region other mosaic
+	// region multiple mosaics
 
 	namespace {
-		struct OtherMosaicTraits {
-			static auto CreateNotification(const Key& sender, const Address& recipient) {
-				return model::BalanceTransferNotification(sender, recipient, MosaicId(12), Amount(234));
+		struct MultipleMosaicTraits {
+			static auto CreateNotification(const Key& sender, const UnresolvedAddress& recipient) {
+				return model::BalanceTransferNotification(sender, recipient, test::UnresolveXor(MosaicId(12)), Amount(234));
 			}
 
 			static test::BalanceTransfers GetInitialSenderBalances() {
-				return { { Xem_Id, Amount(1000) }, { MosaicId(12), Amount(1200) } };
+				return { { Currency_Mosaic_Id, Amount(1000) }, { MosaicId(12), Amount(1200) } };
 			}
 
 			static test::BalanceTransfers GetFinalSenderBalances() {
-				return { { Xem_Id, Amount(1000) }, { MosaicId(12), Amount(1200 - 234) } };
+				return { { Currency_Mosaic_Id, Amount(1000) }, { MosaicId(12), Amount(1200 - 234) } };
 			}
 
 			static test::BalanceTransfers GetInitialRecipientBalances() {
-				return { { Xem_Id, Amount(750) }, { MosaicId(12), Amount(500) } };
+				return { { Currency_Mosaic_Id, Amount(750) }, { MosaicId(12), Amount(500) } };
 			}
 
 			static test::BalanceTransfers GetFinalRecipientBalances() {
-				return { { Xem_Id, Amount(750) }, { MosaicId(12), Amount(500 + 234) } };
+				return { { Currency_Mosaic_Id, Amount(750) }, { MosaicId(12), Amount(500 + 234) } };
 			}
 		};
 	}
 
-	DEFINE_BALANCE_OBSERVATION_TESTS(OtherMosaic)
+	DEFINE_BALANCE_OBSERVATION_TESTS(MultipleMosaic)
 
 	// endregion
 }}

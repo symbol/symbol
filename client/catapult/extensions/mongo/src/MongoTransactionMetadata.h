@@ -59,7 +59,7 @@ namespace catapult { namespace mongo {
 		MongoTransactionMetadata(
 				const Hash256& entityHash,
 				const Hash256& merkleComponentHash,
-				const model::AddressSet& addresses,
+				const model::UnresolvedAddressSet& addresses,
 				Height height,
 				uint32_t index)
 				: EntityHash(entityHash)
@@ -82,7 +82,7 @@ namespace catapult { namespace mongo {
 		const Hash256& MerkleComponentHash;
 
 		/// Addresses involved in the transaction.
-		const model::AddressSet& Addresses;
+		const model::UnresolvedAddressSet& Addresses;
 
 		/// Height.
 		catapult::Height Height;

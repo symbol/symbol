@@ -234,12 +234,10 @@ namespace catapult { namespace deltaset {
 	}
 
 	template<typename T>
-	struct FindTraitsT<std::shared_ptr<T>, true> : public detail::SharedPtrFindTraits<T>
-	{};
+	struct FindTraitsT<std::shared_ptr<T>, true> : public detail::SharedPtrFindTraits<T> {};
 
 	template<typename T>
-	struct FindTraitsT<std::shared_ptr<T>, false> : public detail::SharedPtrFindTraits<T>
-	{};
+	struct FindTraitsT<std::shared_ptr<T>, false> : public detail::SharedPtrFindTraits<T> {};
 
 	// endregion
 }}

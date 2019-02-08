@@ -21,12 +21,13 @@
 #pragma once
 #include "BlockChainSyncHandlers.h"
 
+namespace catapult { namespace chain { struct BlockExecutionContext; } }
+
 namespace catapult { namespace consumers {
 
-	/// Undoes \a blockElement while updating \a state using \a observer for undo of specified type (\a undoBlockType).
+	/// Undoes \a blockElement using the specified execution context (\a executionContext) for undo of specified type (\a undoBlockType).
 	void UndoBlock(
 			const model::BlockElement& blockElement,
-			const observers::EntityObserver& observer,
-			const observers::ObserverState& state,
+			const chain::BlockExecutionContext& executionContext,
 			UndoBlockType undoBlockType);
 }}

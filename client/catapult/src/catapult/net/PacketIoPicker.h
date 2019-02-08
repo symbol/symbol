@@ -29,7 +29,7 @@ namespace catapult { namespace net {
 	/// An interface for picking packet io pairs.
 	class PacketIoPicker {
 	public:
-		virtual ~PacketIoPicker() {}
+		virtual ~PacketIoPicker() = default;
 
 	public:
 		/// Retrieves a packet io pair around an active connection or an empty pair if no connections are available.

@@ -88,7 +88,7 @@ namespace catapult { namespace packetserver {
 
 		// - connect to the server as a reader
 		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pIo = test::ConnectToLocalHost(pPool->service(), test::Local_Host_Port, context.publicKey());
+		auto pIo = test::ConnectToLocalHost(pPool->service(), test::GetLocalHostPort(), context.publicKey());
 
 		// Assert: a single connection was accepted
 		EXPECT_EQ(1u, context.counter(Counter_Name));
@@ -146,7 +146,7 @@ namespace catapult { namespace packetserver {
 
 		// - connect to the server as a reader
 		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pIo = test::ConnectToLocalHost(pPool->service(), test::Local_Host_Port, context.publicKey());
+		auto pIo = test::ConnectToLocalHost(pPool->service(), test::GetLocalHostPort(), context.publicKey());
 
 		// Sanity: a single connection was accepted
 		EXPECT_EQ(1u, context.counter(Counter_Name));
@@ -166,7 +166,7 @@ namespace catapult { namespace packetserver {
 		ASSERT_EQ(sizeof(ionet::PacketHeader) + 3 * sizeof(uint64_t), pResponsePacket->Size);
 		EXPECT_EQ(static_cast<ionet::PacketType>(SquaresTraits::Packet_Type), pResponsePacket->Type);
 
-		const auto* pData = reinterpret_cast<const uint64_t*>(pResponsePacket + 1);
+		const auto* pData = reinterpret_cast<const uint64_t*>(packetBuffer.data() + sizeof(ionet::PacketHeader));
 		EXPECT_EQ(9u, pData[0]);
 		EXPECT_EQ(64u, pData[1]);
 		EXPECT_EQ(25u, pData[2]);

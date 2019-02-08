@@ -62,6 +62,9 @@ namespace catapult { namespace state {
 			return m_balances.end();
 		}
 
+		/// Gets the optimized mosaic id.
+		MosaicId optimizedMosaicId() const;
+
 		/// Returns amount of funds of a given mosaic (\a mosaicId).
 		Amount get(MosaicId mosaicId) const;
 
@@ -72,7 +75,11 @@ namespace catapult { namespace state {
 		/// Subtracts \a amount funds from a given mosaic (\a mosaicId).
 		AccountBalances& debit(MosaicId mosaicId, Amount amount);
 
+		/// Optimizes access of the mosaic with \a id.
+		void optimize(MosaicId id);
+
 	private:
 		CompactMosaicMap m_balances;
+		MosaicId m_optimizedMosaicId;
 	};
 }}

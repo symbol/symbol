@@ -62,7 +62,7 @@ namespace catapult { namespace mongo {
 					size_t numTransactionInfos,
 					std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin,
 					test::DbInitializationType dbInitializationType = test::DbInitializationType::Reset)
-					: m_pStorage(test::CreateStorage<cache::UtChangeSubscriber>(
+					: m_pStorage(test::CreateMongoStorage<cache::UtChangeSubscriber>(
 							std::move(pTransactionPlugin),
 							dbInitializationType,
 							[](auto& context, const auto& registry) {

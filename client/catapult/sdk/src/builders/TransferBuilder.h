@@ -21,7 +21,6 @@
 #pragma once
 #include "TransactionBuilder.h"
 #include "plugins/txes/transfer/src/model/TransferTransaction.h"
-#include <map>
 #include <vector>
 
 namespace catapult { namespace builders {
@@ -32,23 +31,20 @@ namespace catapult { namespace builders {
 		using Transaction = model::TransferTransaction;
 		using EmbeddedTransaction = model::EmbeddedTransferTransaction;
 
-		/// Creates a transfer builder for building a transfer transaction from \a signer to \a recipient for the network specified by
-		/// \a networkIdentifier.
-		TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer, const UnresolvedAddress& recipient);
+	public:
+		/// Creates a transfer builder for building a transfer transaction from \a signer
+		/// for the network specified by \a networkIdentifier.
+		TransferBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the transfer message to \a message.
+		/// Sets the transaction recipient to \a recipient.
+		void setRecipient(const UnresolvedAddress& recipient);
+
+		/// Sets the transaction message to \a message.
 		void setMessage(const RawBuffer& message);
 
-		/// Sets the transfer message to \a message.
-		void setStringMessage(const RawString& message);
-
-	public:
-		/// Adds a transfer of \a mosaicId with \a amount.
-		void addMosaic(UnresolvedMosaicId mosaicId, Amount amount);
-
-		/// Adds a transfer of \a mosaicName with \a amount.
-		void addMosaic(const RawString& mosaicName, Amount amount);
+		/// Adds \a mosaic to attached mosaics.
+		void addMosaic(const model::UnresolvedMosaic& mosaic);
 
 	public:
 		/// Builds a new transfer transaction.
@@ -64,6 +60,6 @@ namespace catapult { namespace builders {
 	private:
 		UnresolvedAddress m_recipient;
 		std::vector<uint8_t> m_message;
-		std::map<UnresolvedMosaicId, Amount> m_mosaicTransfers;
+		std::vector<model::UnresolvedMosaic> m_mosaics;
 	};
 }}

@@ -20,14 +20,13 @@
 
 #include "CompactMosaicMap.h"
 #include "catapult/utils/Casting.h"
-#include "catapult/constants.h"
 
 namespace catapult { namespace state {
 
 	// region FirstLevelStorage
 
 	bool CompactMosaicMap::FirstLevelStorage::hasValue() const {
-		return MosaicId() != Value.first;
+		return MosaicId() != Value.ConstMosaic.first;
 	}
 
 	bool CompactMosaicMap::FirstLevelStorage::hasArray() const {
@@ -139,12 +138,12 @@ namespace catapult { namespace state {
 
 	void CompactMosaicMap::basic_iterator::setValueMosaic() {
 		m_stage = Stage::Value;
-		m_pCurrent = reinterpret_cast<Mosaic*>(&m_storage.Value); // pair<X, Y> => pair<const X, Y>
+		m_pCurrent = &m_storage.Value.ConstMosaic;
 	}
 
 	void CompactMosaicMap::basic_iterator::setArrayMosaic() {
 		m_stage = Stage::Array;
-		m_pCurrent = reinterpret_cast<Mosaic*>(&m_storage.array()[m_arrayIndex]);
+		m_pCurrent = &m_storage.array()[m_arrayIndex].ConstMosaic;
 	}
 
 	void CompactMosaicMap::basic_iterator::setMapMosaic() {
@@ -208,13 +207,13 @@ namespace catapult { namespace state {
 	}
 
 	namespace {
-		bool IsLessThan(MosaicId lhs, MosaicId rhs) {
-			// customize so that Xem_Id is smallest mosaic
+		bool IsLessThan(MosaicId optimizedMosaicId, MosaicId lhs, MosaicId rhs) {
+			// customize so that optimized mosaic id is smallest
 			if (lhs == rhs)
 				return false;
 
-			if (Xem_Id == lhs || Xem_Id == rhs)
-				return Xem_Id == lhs;
+			if (optimizedMosaicId == lhs || optimizedMosaicId == rhs)
+				return optimizedMosaicId == lhs;
 
 			return lhs < rhs;
 		}
@@ -228,7 +227,7 @@ namespace catapult { namespace state {
 			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot insert mosaic already in map", pair.first);
 
 		if (empty()) {
-			m_storage.Value = pair;
+			m_storage.Value.Mosaic = pair;
 			return;
 		}
 
@@ -236,15 +235,15 @@ namespace catapult { namespace state {
 		if (!m_storage.hasArray())
 			m_storage.pNextStorage = std::make_unique<SecondLevelStorage>();
 
-		if (IsLessThan(pair.first, m_storage.Value.first)) {
-			insertIntoArray(0, m_storage.Value);
-			m_storage.Value = pair;
+		if (IsLessThan(m_optimizedMosaicId, pair.first, m_storage.Value.ConstMosaic.first)) {
+			insertIntoArray(0, m_storage.Value.ConstMosaic);
+			m_storage.Value.Mosaic = pair;
 			return;
 		}
 
 		auto arrayIndex = 0u;
 		for (; arrayIndex < m_storage.arraySize(); ++arrayIndex) {
-			if (pair.first < m_storage.array()[arrayIndex].first)
+			if (pair.first < m_storage.array()[arrayIndex].ConstMosaic.first)
 				break;
 		}
 
@@ -265,10 +264,10 @@ namespace catapult { namespace state {
 		switch (location.Source) {
 		case MosaicSource::Value:
 			if (m_storage.hasArray()) {
-				m_storage.Value = m_storage.array()[0];
+				m_storage.Value.Mosaic = m_storage.array()[0].ConstMosaic;
 				eraseFromArray(0);
 			} else {
-				m_storage.Value = MutableMosaic();
+				m_storage.Value.Mosaic = MutableMosaic();
 			}
 			break;
 
@@ -284,18 +283,36 @@ namespace catapult { namespace state {
 		compact();
 	}
 
+	void CompactMosaicMap::optimize(MosaicId id) {
+		if (id == m_optimizedMosaicId)
+			return;
+
+		if (MosaicId() != m_optimizedMosaicId)
+			CATAPULT_THROW_INVALID_ARGUMENT_2("cannot reoptimize map", utils::HexFormat(m_optimizedMosaicId), utils::HexFormat(id));
+
+		m_optimizedMosaicId = id;
+		auto iter = find(m_optimizedMosaicId);
+		if (end() == iter)
+			return;
+
+		// map already contains mosaic that should be optimized, so reinsert it
+		Mosaic mosaicCopy = *iter;
+		erase(mosaicCopy.first);
+		insert(mosaicCopy);
+	}
+
 	bool CompactMosaicMap::find(MosaicId id, MosaicLocation& location) const {
 		if (empty())
 			return false;
 
-		if (id == m_storage.Value.first) {
+		if (id == m_storage.Value.ConstMosaic.first) {
 			location.Source = MosaicSource::Value;
 			return true;
 		}
 
 		if (m_storage.hasArray()) {
 			for (auto i = 0u; i < m_storage.arraySize(); ++i) {
-				if (id == m_storage.array()[i].first) {
+				if (id == m_storage.array()[i].ConstMosaic.first) {
 					location.Source = MosaicSource::Array;
 					location.ArrayIndex = i;
 					return true;
@@ -318,14 +335,14 @@ namespace catapult { namespace state {
 	void CompactMosaicMap::insertIntoArray(size_t index, const Mosaic& pair) {
 		// move the last array value into the map
 		if (Array_Size == m_storage.arraySize())
-			insertIntoMap(m_storage.array().back());
+			insertIntoMap(m_storage.array().back().ConstMosaic);
 		else
 			++m_storage.arraySize();
 
 		for (auto i = m_storage.arraySize(); i > index + 1; --i)
-			m_storage.array()[i - 1] = m_storage.array()[i - 2];
+			m_storage.array()[i - 1].Mosaic = m_storage.array()[i - 2].ConstMosaic;
 
-		m_storage.array()[index] = pair;
+		m_storage.array()[index].Mosaic = pair;
 	}
 
 	void CompactMosaicMap::insertIntoMap(const Mosaic& pair) {
@@ -337,7 +354,7 @@ namespace catapult { namespace state {
 
 	void CompactMosaicMap::eraseFromArray(size_t index) {
 		for (auto i = index; i < m_storage.arraySize() - 1u; ++i)
-			m_storage.array()[i] = m_storage.array()[i + 1];
+			m_storage.array()[i].Mosaic = m_storage.array()[i + 1].ConstMosaic;
 
 		--m_storage.arraySize();
 	}
@@ -349,7 +366,7 @@ namespace catapult { namespace state {
 		if (m_storage.hasMap()) {
 			// compact into array
 			while (m_storage.arraySize() < Array_Size && !m_storage.map().empty()) {
-				m_storage.array()[m_storage.arraySize()++] = *m_storage.map().cbegin();
+				m_storage.array()[m_storage.arraySize()++].Mosaic = *m_storage.map().cbegin();
 				m_storage.map().erase(m_storage.map().cbegin());
 			}
 

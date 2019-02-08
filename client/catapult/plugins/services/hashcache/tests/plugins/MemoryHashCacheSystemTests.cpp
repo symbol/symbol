@@ -25,7 +25,7 @@
 namespace catapult { namespace plugins {
 
 	namespace {
-		struct MemoryHashCacheSystemTraits {
+		struct MemoryHashCacheSystemTraits : public test::EmptyPluginTraits {
 		public:
 			template<typename TAction>
 			static void RunTestAfterRegistration(TAction action) {
@@ -38,10 +38,6 @@ namespace catapult { namespace plugins {
 			}
 
 		public:
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {};
-			}
-
 			static std::vector<std::string> GetCacheNames() {
 				return { "HashCache" };
 			}
@@ -54,20 +50,12 @@ namespace catapult { namespace plugins {
 				return { "HASH C" };
 			}
 
-			static std::vector<std::string> GetStatelessValidatorNames() {
-				return {};
-			}
-
 			static std::vector<std::string> GetStatefulValidatorNames() {
 				return { "UniqueTransactionHashValidator" };
 			}
 
 			static std::vector<std::string> GetObserverNames() {
 				return { "TransactionHashObserver", "TransactionHashPruningObserver" };
-			}
-
-			static std::vector<std::string> GetPermanentObserverNames() {
-				return {};
 			}
 		};
 	}

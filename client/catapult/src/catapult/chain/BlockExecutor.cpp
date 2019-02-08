@@ -26,45 +26,39 @@
 namespace catapult { namespace chain {
 
 	namespace {
-		constexpr observers::ObserverContext CreateObserverContext(
-				const observers::ObserverState& state,
-				const model::Block& block,
+		observers::ObserverContext CreateObserverContext(
+				const BlockExecutionContext& executionContext,
+				Height height,
 				observers::NotifyMode mode) {
-			return observers::ObserverContext(state, block.Height, mode);
+			return observers::ObserverContext(executionContext.State, height, mode, executionContext.Resolvers);
 		}
 
 		void ObserveAll(
 				const observers::EntityObserver& observer,
-				const observers::ObserverContext& context,
+				observers::ObserverContext& context,
 				const model::WeakEntityInfos& entityInfos) {
 			for (const auto& entityInfo : entityInfos)
 				observer.notify(entityInfo, context);
 		}
 	}
 
-	void ExecuteBlock(
-			const model::BlockElement& blockElement,
-			const observers::EntityObserver& observer,
-			const observers::ObserverState& state) {
+	void ExecuteBlock(const model::BlockElement& blockElement, const BlockExecutionContext& executionContext) {
 		model::WeakEntityInfos entityInfos;
 		model::ExtractEntityInfos(blockElement, entityInfos);
 
-		auto context = CreateObserverContext(state, blockElement.Block, observers::NotifyMode::Commit);
-		ObserveAll(observer, context, entityInfos);
+		auto context = CreateObserverContext(executionContext, blockElement.Block.Height, observers::NotifyMode::Commit);
+		ObserveAll(executionContext.Observer, context, entityInfos);
 	}
 
-	void RollbackBlock(
-			const model::BlockElement& blockElement,
-			const observers::EntityObserver& observer,
-			const observers::ObserverState& state) {
+	void RollbackBlock(const model::BlockElement& blockElement, const BlockExecutionContext& executionContext) {
 		model::WeakEntityInfos entityInfos;
 		model::ExtractEntityInfos(blockElement, entityInfos);
 		std::reverse(entityInfos.begin(), entityInfos.end());
 
-		auto context = CreateObserverContext(state, blockElement.Block, observers::NotifyMode::Rollback);
-		ObserveAll(observer, context, entityInfos);
+		auto context = CreateObserverContext(executionContext, blockElement.Block.Height, observers::NotifyMode::Rollback);
+		ObserveAll(executionContext.Observer, context, entityInfos);
 
 		// commit removals
-		state.Cache.sub<cache::AccountStateCache>().commitRemovals();
+		executionContext.State.Cache.sub<cache::AccountStateCache>().commitRemovals();
 	}
 }}

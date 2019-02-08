@@ -117,7 +117,7 @@ namespace catapult { namespace zeromq {
 		const model::Transaction& Transaction;
 		const Hash256& EntityHash;
 		const Hash256& MerkleComponentHash;
-		const model::AddressSet* OptionalAddresses;
+		const model::UnresolvedAddressSet* OptionalAddresses;
 	};
 
 	ZeroMqEntityPublisher::ZeroMqEntityPublisher(

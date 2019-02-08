@@ -36,7 +36,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, StructureInheritancePreservesLayout) {
 		// Assert: the derived fields should start where the base fields end
-		ASSERT_EQ(sizeof(VerifiableEntity), offsetof(Transaction, Fee));
+		ASSERT_EQ(sizeof(VerifiableEntity), offsetof(Transaction, MaxFee));
 	}
 
 #ifndef _MSC_VER
@@ -45,8 +45,9 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, EntityHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(VerifiableEntity) // base
-				+ sizeof(uint64_t) // fee
+		auto expectedSize =
+				sizeof(VerifiableEntity) // base
+				+ sizeof(uint64_t) // max fee
 				+ sizeof(uint64_t); // deadline
 
 		// Assert:

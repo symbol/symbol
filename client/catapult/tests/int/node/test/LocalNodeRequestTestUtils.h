@@ -42,7 +42,7 @@ namespace catapult { namespace test {
 	class ExternalSourceConnection {
 	public:
 		/// Creates an external source connection to default local node.
-		ExternalSourceConnection() : ExternalSourceConnection(CreateLocalHostNode(LoadServerKeyPair().publicKey(), Local_Host_Port))
+		ExternalSourceConnection() : ExternalSourceConnection(CreateLocalHostNode(LoadServerKeyPair().publicKey(), GetLocalHostPort()))
 		{}
 
 		/// Creates an external source connection to specified local \a node.
@@ -72,7 +72,7 @@ namespace catapult { namespace test {
 		/// Connects to the local node and calls \a onConnect on completion.
 		void apiCall(const consumer<const std::shared_ptr<api::RemoteChainApi>&>& onConnect) {
 			connect([onConnect](const auto& pPacketIo) {
-				auto pRemoteApi = CreateLifetimeExtendedApi(api::CreateRemoteChainApi, pPacketIo, CreateTransactionRegistry());
+				auto pRemoteApi = CreateLifetimeExtendedApi(api::CreateRemoteChainApi, pPacketIo, Key(), CreateTransactionRegistry());
 				onConnect(pRemoteApi);
 			});
 		}

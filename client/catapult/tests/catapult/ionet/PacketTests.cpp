@@ -48,7 +48,7 @@ namespace catapult { namespace ionet {
 		auto pPacket = CreateSharedPacket<Packet>();
 
 		// Assert:
-		EXPECT_EQ(8u, pPacket->Size);
+		ASSERT_EQ(8u, pPacket->Size);
 		EXPECT_EQ(PacketType::Undefined, pPacket->Type);
 	}
 
@@ -57,7 +57,7 @@ namespace catapult { namespace ionet {
 		auto pPacket = CreateSharedPacket<Packet>(1234);
 
 		// Assert:
-		EXPECT_EQ(1242u, pPacket->Size);
+		ASSERT_EQ(1242u, pPacket->Size);
 		EXPECT_EQ(PacketType::Undefined, pPacket->Type);
 	}
 
@@ -66,7 +66,7 @@ namespace catapult { namespace ionet {
 		auto pPacket = CreateSharedPacket<TestPacket>();
 
 		// Assert:
-		EXPECT_EQ(15u, pPacket->Size);
+		ASSERT_EQ(15u, pPacket->Size);
 		EXPECT_EQ(Test_Packet_Type, pPacket->Type);
 	}
 
@@ -75,7 +75,7 @@ namespace catapult { namespace ionet {
 		auto pPacket = CreateSharedPacket<TestPacket>(1234);
 
 		// Assert:
-		EXPECT_EQ(1249u, pPacket->Size);
+		ASSERT_EQ(1249u, pPacket->Size);
 		EXPECT_EQ(Test_Packet_Type, pPacket->Type);
 	}
 

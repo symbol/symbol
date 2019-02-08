@@ -27,6 +27,17 @@ namespace catapult { namespace test {
 		return test::GenerateRandomData<Key_Size>();
 	}
 
+	std::string GenerateValidName(size_t size) {
+		static constexpr auto Valid_Alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+		auto alphabetLength = strlen(Valid_Alphabet);
+
+		std::string name(size, '\0');
+		std::generate(name.begin(), name.end(), [alphabetLength]() {
+			return Valid_Alphabet[test::Random() % alphabetLength];
+		});
+		return name;
+	}
+
 	state::Namespace::Path CreatePath(const std::vector<NamespaceId::ValueType>& ids) {
 		state::Namespace::Path path;
 		for (auto id : ids)
@@ -45,7 +56,7 @@ namespace catapult { namespace test {
 
 	void AddAll(state::RootNamespace& root, const ChildNamespaces& children, std::initializer_list<NamespaceId::ValueType> orderedIds) {
 		for (auto childId : orderedIds)
-			root.add(state::Namespace(children.at(NamespaceId(childId))));
+			root.add(state::Namespace(children.at(NamespaceId(childId)).Path));
 	}
 
 	ChildNamespaces CreateChildren(const std::vector<state::Namespace::Path>& paths) {
@@ -63,8 +74,31 @@ namespace catapult { namespace test {
 		auto i = 0u;
 		for (const auto& pair : expectedChildren) {
 			ASSERT_EQ(1u, actualChildren.count(pair.first)) << "id of child " << i;
-			EXPECT_EQ(pair.second, actualChildren.at(pair.first)) << "path of child " << i;
+
+			const auto& actualData = actualChildren.at(pair.first);
+			EXPECT_EQ(pair.second.Path, actualData.Path) << "path of child " << i;
+			AssertEqualAlias(pair.second.Alias, actualData.Alias);
 			++i;
+		}
+	}
+
+	void AssertEqualAlias(
+			const state::NamespaceAlias& expectedAlias,
+			const state::NamespaceAlias& actualAlias,
+			const std::string& message) {
+		ASSERT_EQ(expectedAlias.type(), actualAlias.type()) << message;
+
+		switch (expectedAlias.type()) {
+		case state::AliasType::Mosaic:
+			EXPECT_EQ(expectedAlias.mosaicId(), actualAlias.mosaicId()) << message;
+			break;
+
+		case state::AliasType::Address:
+			EXPECT_EQ(expectedAlias.address(), actualAlias.address()) << message;
+			break;
+
+		default:
+			break;
 		}
 	}
 }}

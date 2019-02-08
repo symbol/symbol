@@ -19,6 +19,7 @@
 **/
 
 #include "NodeContainer.h"
+#include "NodeInteractionResult.h"
 #include "catapult/utils/HexFormatter.h"
 
 namespace catapult { namespace ionet { struct NodeData; } }
@@ -43,13 +44,15 @@ namespace catapult { namespace ionet {
 
 	struct NodeContainerData {
 	public:
-		explicit NodeContainerData(size_t maxNodes)
+		NodeContainerData(size_t maxNodes, const supplier<Timestamp>& timeSupplier)
 				: MaxNodes(maxNodes)
+				, TimeSupplier(timeSupplier)
 				, NextNodeId(1)
 		{}
 
 	public:
 		const size_t MaxNodes;
+		const supplier<Timestamp> TimeSupplier;
 		size_t NextNodeId;
 		std::unordered_map<Key, NodeData, utils::ArrayHasher<Key>> NodeDataContainer;
 		std::vector<std::pair<ServiceIdentifier, ionet::NodeRoles>> ServiceRolesMap;
@@ -66,6 +69,10 @@ namespace catapult { namespace ionet {
 
 	size_t NodeContainerView::size() const {
 		return m_data.NodeDataContainer.size();
+	}
+
+	Timestamp NodeContainerView::time() const {
+		return m_data.TimeSupplier();
 	}
 
 	bool NodeContainerView::contains(const Key& identityKey) const {
@@ -162,6 +169,16 @@ namespace catapult { namespace ionet {
 			pair.second.Info.updateBan(serviceId, maxConnectionBanAge, numConsecutiveFailuresBeforeBanning);
 	}
 
+	void NodeContainerModifier::incrementSuccesses(const Key& identityKey) {
+		auto timestamp = m_data.TimeSupplier();
+		incrementInteraction(identityKey, [timestamp](auto& info) { info.incrementSuccesses(timestamp); });
+	}
+
+	void NodeContainerModifier::incrementFailures(const Key& identityKey) {
+		auto timestamp = m_data.TimeSupplier();
+		incrementInteraction(identityKey, [timestamp](auto& info) { info.incrementFailures(timestamp); });
+	}
+
 	void NodeContainerModifier::autoProvisionConnectionStates(NodeData& data) {
 		for (const auto& pair : m_data.ServiceRolesMap)
 			ProvisionIfMatch(data, pair.first, pair.second);
@@ -201,14 +218,23 @@ namespace catapult { namespace ionet {
 		return false;
 	}
 
+	void NodeContainerModifier::incrementInteraction(const Key& identityKey, const consumer<NodeInfo&>& incrementer) {
+		auto iter = m_data.NodeDataContainer.find(identityKey);
+		if (m_data.NodeDataContainer.cend() == iter)
+			return;
+
+		incrementer(iter->second.Info);
+	}
+
 	// endregion
 
 	// region NodeContainer
 
-	NodeContainer::NodeContainer() : NodeContainer(std::numeric_limits<size_t>::max())
+	NodeContainer::NodeContainer() : NodeContainer(std::numeric_limits<size_t>::max(), []() { return Timestamp(0); })
 	{}
 
-	NodeContainer::NodeContainer(size_t maxNodes) : m_pImpl(std::make_unique<NodeContainerData>(maxNodes))
+	NodeContainer::NodeContainer(size_t maxNodes, const supplier<Timestamp>& timeSupplier)
+			: m_pImpl(std::make_unique<NodeContainerData>(maxNodes, timeSupplier))
 	{}
 
 	NodeContainer::~NodeContainer() = default;

@@ -30,12 +30,14 @@ namespace catapult { namespace observers {
 #define TEST_CLASS PosImportanceCalculatorTests
 
 	namespace {
+		constexpr MosaicId Harvesting_Mosaic_Id(9876);
 		constexpr model::ImportanceHeight Recalculation_Height(360);
 		constexpr uint8_t Num_Account_States = 10;
 
 		model::BlockChainConfiguration CreateConfiguration() {
 			auto config = model::BlockChainConfiguration::Uninitialized();
-			config.TotalChainBalance = utils::XemAmount(9'000'000'000);
+			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
+			config.TotalChainImportance = Importance(9'000);
 			config.MinHarvesterBalance = Amount(1'000'000'000'000);
 			return config;
 		}
@@ -43,7 +45,13 @@ namespace catapult { namespace observers {
 		struct CacheHolder {
 		public:
 			explicit CacheHolder(Amount minBalance)
-					: Cache(cache::CacheConfiguration(), { model::NetworkIdentifier::Mijin_Test, 123, minBalance })
+					: Cache(cache::CacheConfiguration(), {
+						model::NetworkIdentifier::Mijin_Test,
+						123,
+						minBalance,
+						MosaicId(1111),
+						Harvesting_Mosaic_Id
+					})
 					, Delta(Cache.createDelta())
 			{}
 
@@ -54,7 +62,7 @@ namespace catapult { namespace observers {
 					auto key = Key{ { ++i } };
 					Delta->addAccount(key, Height(height.unwrap()));
 					auto& accountState = Delta->find(key).get();
-					accountState.Balances.credit(Xem_Id, Amount(amount));
+					accountState.Balances.credit(Harvesting_Mosaic_Id, Amount(amount));
 				}
 			}
 
@@ -76,12 +84,12 @@ namespace catapult { namespace observers {
 			for (uint8_t i = 1; i <= Num_Account_States; ++i) {
 				const auto& accountState = cache.find(Key{ { i } }).get();
 				sum += accountState.ImportanceInfo.current().unwrap();
-				if (config.MinHarvesterBalance <= accountState.Balances.get(Xem_Id))
+				if (config.MinHarvesterBalance <= accountState.Balances.get(Harvesting_Mosaic_Id))
 					++maxExpectedDeviation;
 			}
 
 			// Assert: deviation should be maximal 1 for each account due to rounding
-			auto deviation = config.TotalChainBalance.xem().unwrap() - sum;
+			auto deviation = config.TotalChainImportance.unwrap() - sum;
 			EXPECT_GE(maxExpectedDeviation, deviation);
 		}
 
@@ -131,19 +139,19 @@ namespace catapult { namespace observers {
 
 		// Assert:
 		const auto& referenceAccountState = holder.get(Key{ { 1 } });
-		auto referenceAmount = referenceAccountState.Balances.get(Xem_Id).unwrap();
+		auto referenceAmount = referenceAccountState.Balances.get(Harvesting_Mosaic_Id).unwrap();
 		auto referenceImportance = referenceAccountState.ImportanceInfo.current().unwrap();
 		for (uint8_t i = 1; i <= Num_Account_States; ++i) {
 			// deviation should be maximal i * i due to rounding
 			const auto& accountState = holder.get(Key{ { i } });
-			EXPECT_EQ(Amount(referenceAmount * i * i), accountState.Balances.get(Xem_Id));
+			EXPECT_EQ(Amount(referenceAmount * i * i), accountState.Balances.get(Harvesting_Mosaic_Id));
 			EXPECT_GE(Importance((referenceImportance + 1) * i * i), accountState.ImportanceInfo.current());
 			EXPECT_LE(Importance(referenceImportance * i * i), accountState.ImportanceInfo.current());
 			EXPECT_EQ(Recalculation_Height, accountState.ImportanceInfo.height());
 		}
 	}
 
-	TEST(TEST_CLASS, AccountImportancesSumIsEqualToAllXem) {
+	TEST(TEST_CLASS, AccountImportancesSumIsEqualToTotalChainImportance) {
 		// Arrange:
 		auto config = CreateConfiguration();
 		std::vector<Amount::ValueType> amounts;
@@ -186,7 +194,7 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	TEST(TEST_CLASS, ImportanceIsProportionalToTheAvailableXem) {
+	TEST(TEST_CLASS, ImportanceIsProportionalToTheAvailableTotalChainImportance) {
 		// Arrange:
 		auto config = CreateConfiguration();
 
@@ -199,7 +207,7 @@ namespace catapult { namespace observers {
 		auto pCalculator1 = CreateImportanceCalculator(config);
 
 		auto customConfig = CreateConfiguration();
-		customConfig.TotalChainBalance = utils::XemAmount(2 * config.TotalChainBalance.xem().unwrap());
+		customConfig.TotalChainImportance = Importance(2 * config.TotalChainImportance.unwrap());
 		auto pCalculator2 = CreateImportanceCalculator(customConfig);
 
 		// Act:

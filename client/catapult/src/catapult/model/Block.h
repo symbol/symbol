@@ -46,19 +46,27 @@ namespace catapult { namespace model {
 		/// Difficulty of a block.
 		catapult::Difficulty Difficulty;
 
+		/// Fee multiplier applied to transactions contained in block.
+		BlockFeeMultiplier FeeMultiplier;
+
 		/// Hash of the previous block.
 		Hash256 PreviousBlockHash;
 
 		/// Aggregate hash of a block's transactions.
 		Hash256 BlockTransactionsHash;
 
+		/// Aggregate hash of a block's receipts.
+		Hash256 BlockReceiptsHash;
+
 		/// Hash of the global chain state at this block.
 		Hash256 StateHash;
+
+		/// Public key of optional beneficiary designated by harvester.
+		Key BeneficiaryPublicKey;
 	};
 
 	/// Binary layout for a block.
-	struct Block : public TransactionContainer<BlockHeader, Transaction> {
-	};
+	struct Block : public TransactionContainer<BlockHeader, Transaction> {};
 
 #pragma pack(pop)
 

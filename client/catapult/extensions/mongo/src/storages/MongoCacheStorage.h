@@ -64,14 +64,10 @@ namespace catapult { namespace mongo { namespace storages {
 
 		private:
 			template<typename T, typename = void>
-			struct LoaderTypeAccessor
-					: UnsortedLoaderFlag
-			{};
+			struct LoaderTypeAccessor : UnsortedLoaderFlag {};
 
 			template<typename T>
-			struct LoaderTypeAccessor<T, typename utils::traits::enable_if_type<decltype(T::LoadSortOrder())>::type>
-					: SortedLoaderFlag
-			{};
+			struct LoaderTypeAccessor<T, typename utils::traits::enable_if_type<decltype(T::LoadSortOrder())>::type> : SortedLoaderFlag {};
 
 		private:
 			static bool PrepareOrdering(boost::optional<bsoncxx::document::value>&, UnsortedLoaderFlag) {

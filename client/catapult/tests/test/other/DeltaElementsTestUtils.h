@@ -106,7 +106,7 @@ namespace catapult { namespace test {
 		template<typename TSet>
 		struct WrapperWithGenerationalSupport
 				: public Wrapper<TSet>
-				, public GenerationalChangeMixin<TSet> {
-		};
+				, public GenerationalChangeMixin<TSet>
+		{};
 	};
 }}

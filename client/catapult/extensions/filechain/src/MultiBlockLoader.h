@@ -29,26 +29,32 @@ namespace catapult {
 		struct Block;
 		struct BlockChainConfiguration;
 	}
+	namespace plugins { class PluginManager; }
 }
 
 namespace catapult { namespace filechain {
 
-	/// A block dependent entity observer factory.
-	using BlockDependentEntityObserverFactory = std::function<const observers::EntityObserver& (const model::Block&)>;
+	/// A notification observer factory.
+	using NotificationObserverFactory = supplier<std::unique_ptr<const observers::NotificationObserver>>;
 
-	/// Creates a block dependent entity observer factory that calculates an inflection point from \a lastBlock and \a config.
-	/// Prior to the inflection point, \a permanentObserver is returned.
-	/// At and after the inflection point, \a transientObserver is returned.
-	BlockDependentEntityObserverFactory CreateBlockDependentEntityObserverFactory(
+	/// A block dependent notification observer factory.
+	using BlockDependentNotificationObserverFactory =
+		std::function<std::unique_ptr<const observers::NotificationObserver> (const model::Block&)>;
+
+	/// Creates a block dependent notification observer factory that calculates an inflection point from \a lastBlock and \a config.
+	/// Prior to the inflection point, an observer created by \a permanentObserverFactory is returned.
+	/// At and after the inflection point, an observer created by \a transientObserverFactory is returned.
+	BlockDependentNotificationObserverFactory CreateBlockDependentNotificationObserverFactory(
 			const model::Block& lastBlock,
 			const model::BlockChainConfiguration& config,
-			const observers::EntityObserver& transientObserver,
-			const observers::EntityObserver& permanentObserver);
+			const NotificationObserverFactory& transientObserverFactory,
+			const NotificationObserverFactory& permanentObserverFactory);
 
-	/// Loads a block chain from storage using the supplied observer factory (\a observerFactory) and updating \a stateRef
-	/// starting with the block at \a startHeight.
+	/// Loads a block chain from storage using the supplied observer factory (\a observerFactory) and plugin manager (\a pluginManager)
+	/// and updating \a stateRef starting with the block at \a startHeight.
 	model::ChainScore LoadBlockChain(
-			const BlockDependentEntityObserverFactory& observerFactory,
+			const BlockDependentNotificationObserverFactory& observerFactory,
+			const plugins::PluginManager& pluginManager,
 			const extensions::LocalNodeStateRef& stateRef,
 			Height startHeight);
 }}

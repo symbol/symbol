@@ -20,8 +20,7 @@
 
 #pragma once
 #include "TransactionBuilder.h"
-#include "plugins/txes/namespace/src/model/MosaicSupplyChangeTransaction.h"
-#include "plugins/txes/namespace/src/model/NamespaceConstants.h"
+#include "plugins/txes/mosaic/src/model/MosaicSupplyChangeTransaction.h"
 
 namespace catapult { namespace builders {
 
@@ -31,23 +30,19 @@ namespace catapult { namespace builders {
 		using Transaction = model::MosaicSupplyChangeTransaction;
 		using EmbeddedTransaction = model::EmbeddedMosaicSupplyChangeTransaction;
 
-		/// Creates a mosaic supply change builder for building a mosaic supply change transaction for a mosaic (\a mosaicId)
-		/// from \a signer for the network specified by \a networkIdentifier.
-		MosaicSupplyChangeBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer, MosaicId mosaicId);
-
-		/// Creates a mosaic supply change builder for building a mosaic supply change transaction for a mosaic
-		/// inside namespace (\a parentId) with \a name from \a signer for the network specified by \a networkIdentifier.
-		MosaicSupplyChangeBuilder(
-				model::NetworkIdentifier networkIdentifier,
-				const Key& signer,
-				NamespaceId parentId,
-				const RawString& name);
+	public:
+		/// Creates a mosaic supply change builder for building a mosaic supply change transaction from \a signer
+		/// for the network specified by \a networkIdentifier.
+		MosaicSupplyChangeBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the supply change direction to decrease.
-		void setDecrease();
+		/// Sets the id of the affected mosaic to \a mosaicId.
+		void setMosaicId(UnresolvedMosaicId mosaicId);
 
-		/// Sets the supply \a delta.
+		/// Sets the supply change direction to \a direction.
+		void setDirection(model::MosaicSupplyChangeDirection direction);
+
+		/// Sets the amount of the change to \a delta.
 		void setDelta(Amount delta);
 
 	public:
@@ -62,8 +57,8 @@ namespace catapult { namespace builders {
 		std::unique_ptr<TTransaction> buildImpl() const;
 
 	private:
-		MosaicId m_mosaicId;
-		bool m_decrease;
+		UnresolvedMosaicId m_mosaicId;
+		model::MosaicSupplyChangeDirection m_direction;
 		Amount m_delta;
 	};
 }}

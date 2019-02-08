@@ -32,8 +32,8 @@ namespace catapult { namespace observers {
 			{}
 
 		public:
-			void visit(const Address& address) {
-				notify(address);
+			void visit(const UnresolvedAddress& address) {
+				notify(m_context.Resolvers.resolve(address));
 			}
 
 			void visit(const Key& publicKey) {

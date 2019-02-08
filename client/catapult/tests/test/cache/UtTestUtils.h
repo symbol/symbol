@@ -35,6 +35,9 @@ namespace catapult {
 
 namespace catapult { namespace test {
 
+	/// Creates a memory ut cache seeded with \a count transactions.
+	std::unique_ptr<cache::MemoryUtCache> CreateSeededMemoryUtCache(uint32_t count);
+
 	/// Adds all \a infos to \a cache.
 	void AddAll(cache::UtCache& cache, const std::vector<model::TransactionInfo>& infos);
 
@@ -58,6 +61,12 @@ namespace catapult { namespace test {
 
 	/// Asserts that \a cache contains none of the hashes in \a hashes.
 	void AssertContainsNone(const cache::MemoryUtCache& cache, const std::vector<Hash256>& hashes);
+
+	/// Asserts that \a cacheView contains all of the hashes in \a hashes.
+	void AssertContainsAll(const cache::MemoryUtCacheView& cacheView, const std::vector<Hash256>& hashes);
+
+	/// Asserts that \a cacheView contains none of the hashes in \a hashes.
+	void AssertContainsNone(const cache::MemoryUtCacheView& cacheView, const std::vector<Hash256>& hashes);
 
 	/// Asserts that \a cache contains all of the infos in \a infos.
 	void AssertContainsAll(const cache::MemoryUtCache& cache, const std::vector<model::TransactionInfo>& infos);

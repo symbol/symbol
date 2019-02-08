@@ -60,6 +60,10 @@ namespace catapult { namespace chain {
 					m_pTransactionApi->setError(entryPoint);
 				}
 
+				void checkAdditionalRequestParameters() {
+					// no additional request parameters
+				}
+
 			private:
 				std::unique_ptr<MockRemoteApi> m_pTransactionApi;
 			};

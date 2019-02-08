@@ -104,11 +104,9 @@ namespace catapult { namespace utils {
 	// region is_base_of_ignore_reference
 
 	namespace {
-		struct Base {
-		};
+		struct Base {};
 
-		struct Derived : Base {
-		};
+		struct Derived : Base {};
 
 #define EXPECT_IS_BASE_OF_IGNORE_REFERENCE_RESULT(EXPECTED, TLEFT, TRIGHT) \
 	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT>::value)); \

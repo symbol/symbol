@@ -26,7 +26,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS ExpiredSecretLockInfoObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(ExpiredSecretLockInfo, )
+	DEFINE_COMMON_OBSERVER_TESTS(ExpiredSecretLockInfo,)
 
 	namespace {
 		struct ExpiredSecretLockInfoTraits : public test::BasicSecretLockInfoTestTraits {
@@ -34,10 +34,6 @@ namespace catapult { namespace observers {
 			using ObserverTestContext = test::ObserverTestContextT<test::SecretLockInfoCacheFactory>;
 
 		public:
-			static MosaicId LockInfoMosaicId() {
-				return MosaicId(123);
-			}
-
 			static auto CreateObserver() {
 				return CreateExpiredSecretLockInfoObserver();
 			}

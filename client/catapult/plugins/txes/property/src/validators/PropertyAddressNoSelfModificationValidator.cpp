@@ -20,6 +20,7 @@
 
 #include "Validators.h"
 #include "catapult/model/Address.h"
+#include "catapult/model/ResolverContext.h"
 
 namespace catapult { namespace validators {
 
@@ -28,7 +29,7 @@ namespace catapult { namespace validators {
 	DECLARE_STATELESS_VALIDATOR(PropertyAddressNoSelfModification, Notification)(model::NetworkIdentifier networkIdentifier) {
 		return MAKE_STATELESS_VALIDATOR(PropertyAddressNoSelfModification, [networkIdentifier](const auto& notification) {
 			auto address = model::PublicKeyToAddress(notification.Key, networkIdentifier);
-			return address != notification.Modification.Value
+			return address != model::ResolverContext().resolve(notification.Modification.Value)
 					? ValidationResult::Success
 					: Failure_Property_Modification_Address_Invalid;
 		});

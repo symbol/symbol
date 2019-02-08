@@ -20,6 +20,7 @@
 
 #pragma once
 #include "partialtransaction/src/api/RemotePtApi.h"
+#include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace mocks {
 
@@ -35,7 +36,8 @@ namespace catapult { namespace mocks {
 	public:
 		/// Creates a partial transaction api around cosigned transaction infos (\a transactionInfos).
 		explicit MockPtApi(const partialtransaction::CosignedTransactionInfos& transactionInfos)
-				: m_transactionInfos(transactionInfos)
+				: api::RemotePtApi(test::GenerateRandomData<Key_Size>())
+				, m_transactionInfos(transactionInfos)
 				, m_errorEntryPoint(EntryPoint::None)
 		{}
 

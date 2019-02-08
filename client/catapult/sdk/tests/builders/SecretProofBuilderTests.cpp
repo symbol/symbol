@@ -32,13 +32,13 @@ namespace catapult { namespace builders {
 		struct TransactionProperties {
 		public:
 			TransactionProperties()
-					: HashAlgorithm(model::LockHashAlgorithm::Op_Sha3)
+					: HashAlgorithm(model::LockHashAlgorithm::Op_Sha3_256)
 					, Secret()
 			{}
 
 		public:
 			model::LockHashAlgorithm HashAlgorithm;
-			Hash512 Secret;
+			Hash256 Secret;
 			RawBuffer Proof;
 		};
 
@@ -46,7 +46,7 @@ namespace catapult { namespace builders {
 		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
 			EXPECT_EQ(expectedProperties.HashAlgorithm, transaction.HashAlgorithm);
 			EXPECT_EQ(expectedProperties.Secret, transaction.Secret);
-			EXPECT_TRUE(0 == std::memcmp(expectedProperties.Proof.pData, transaction.ProofPtr(), expectedProperties.Proof.Size));
+			EXPECT_EQ_MEMORY(expectedProperties.Proof.pData, transaction.ProofPtr(), expectedProperties.Proof.Size);
 		}
 
 		template<typename TTraits>
@@ -104,7 +104,7 @@ namespace catapult { namespace builders {
 	TRAITS_BASED_TEST(CanSetSecret) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		expectedProperties.Secret = test::GenerateRandomData<Hash512_Size>();
+		expectedProperties.Secret = test::GenerateRandomData<Hash256_Size>();
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [&secret = expectedProperties.Secret](auto& builder) {

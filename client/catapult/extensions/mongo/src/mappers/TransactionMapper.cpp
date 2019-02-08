@@ -26,7 +26,7 @@
 namespace catapult { namespace mongo { namespace mappers {
 
 	namespace {
-		void StreamAddresses(bson_stream::document& builder, const model::AddressSet& addresses) {
+		void StreamAddresses(bson_stream::document& builder, const model::UnresolvedAddressSet& addresses) {
 			auto addressesArray = builder << "addresses" << bson_stream::open_array;
 			for (const auto& address : addresses)
 				addressesArray << ToBinary(address);
@@ -54,7 +54,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			// transaction data
 			builder << "transaction" << bson_stream::open_document;
 			StreamVerifiableEntity(builder, transaction)
-					<< "fee" << ToInt64(transaction.Fee)
+					<< "maxFee" << ToInt64(transaction.MaxFee)
 					<< "deadline" << ToInt64(transaction.Deadline);
 
 			if (pPlugin) {

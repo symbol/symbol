@@ -27,8 +27,8 @@ namespace catapult { namespace config { class LocalNodeConfiguration; } }
 
 namespace catapult { namespace sync {
 
-	/// Converts a known hash predicate (\a knownHashPredicate) to an unknown transaction predicate.
-	model::MatchingEntityPredicate ToUnknownTransactionPredicate(const chain::KnownHashPredicate& knownHashPredicate);
+	/// Converts a known hash predicate (\a knownHashPredicate) to a requires validation predicate.
+	model::MatchingEntityPredicate ToRequiresValidationPredicate(const chain::KnownHashPredicate& knownHashPredicate);
 
 	/// Creates a ut updater throttle based on \a config.
 	chain::UtUpdater::Throttle CreateUtUpdaterThrottle(const config::LocalNodeConfiguration& config);

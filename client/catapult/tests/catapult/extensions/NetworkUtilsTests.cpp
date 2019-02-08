@@ -158,7 +158,7 @@ namespace catapult { namespace extensions {
 				auto config = CreateLocalNodeConfiguration();
 				auto serviceId = ionet::ServiceIdentifier(123);
 				auto& acceptor = m_acceptor;
-				return BootServer(serviceGroup, test::Local_Host_Port, serviceId, config, m_nodeSubscriber, [&acceptor](
+				return BootServer(serviceGroup, test::GetLocalHostPort(), serviceId, config, m_nodeSubscriber, [&acceptor](
 						const auto& socketInfo,
 						const auto& callback) {
 					acceptor.accept(socketInfo, callback);

@@ -19,8 +19,8 @@
 **/
 
 #include "mongo/tests/test/MongoPluginTestUtils.h"
-#include "plugins/txes/namespace/src/model/MosaicEntityType.h"
 #include "plugins/txes/namespace/src/model/NamespaceEntityType.h"
+#include "plugins/txes/namespace/src/model/NamespaceReceiptType.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {
@@ -32,14 +32,21 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			static std::vector<model::EntityType> GetTransactionTypes() {
 				return {
-					model::Entity_Type_Mosaic_Definition,
-					model::Entity_Type_Mosaic_Supply_Change,
+					model::Entity_Type_Alias_Address,
+					model::Entity_Type_Alias_Mosaic,
 					model::Entity_Type_Register_Namespace
 				};
 			}
 
+			static std::vector<model::ReceiptType> GetReceiptTypes() {
+				return {
+					model::Receipt_Type_Namespace_Expired,
+					model::Receipt_Type_Namespace_Rental_Fee
+				};
+			}
+
 			static std::string GetStorageName() {
-				return "{ NamespaceCache, MosaicCache }";
+				return "{ NamespaceCache }";
 			}
 		};
 	}

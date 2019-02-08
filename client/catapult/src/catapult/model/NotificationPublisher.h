@@ -24,7 +24,6 @@
 namespace catapult {
 	namespace model {
 		class NotificationSubscriber;
-		class PublisherContext;
 		class TransactionRegistry;
 	}
 }
@@ -44,16 +43,17 @@ namespace catapult { namespace model {
 	/// A notification publisher.
 	class NotificationPublisher {
 	public:
-		virtual ~NotificationPublisher() {}
+		virtual ~NotificationPublisher() = default;
 
 	public:
 		/// Sends all notifications from \a entityInfo to \a sub.
 		virtual void publish(const WeakEntityInfo& entityInfo, NotificationSubscriber& sub) const = 0;
 	};
 
-	/// Creates a notification publisher around \a transactionRegistry and \a publisherContext for the specified \a mode.
+	/// Creates a notification publisher around \a transactionRegistry for the specified \a mode given specified
+	/// fee mosaic id (\a feeMosaicId).
 	std::unique_ptr<NotificationPublisher> CreateNotificationPublisher(
 			const TransactionRegistry& transactionRegistry,
-			const PublisherContext& publisherContext,
+			UnresolvedMosaicId feeMosaicId,
 			PublicationMode mode = PublicationMode::All);
 }}

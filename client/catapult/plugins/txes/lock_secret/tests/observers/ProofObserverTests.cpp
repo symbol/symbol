@@ -19,6 +19,7 @@
 **/
 
 #include "src/observers/Observers.h"
+#include "src/model/SecretLockReceiptType.h"
 #include "plugins/txes/lock_shared/tests/observers/LockStatusAndBalanceObserverTests.h"
 #include "tests/test/SecretLockNotificationsTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
@@ -37,6 +38,10 @@ namespace catapult { namespace observers {
 			using BasicTraits = test::BasicSecretLockInfoTestTraits;
 			using NotificationBuilder = test::ProofNotificationBuilder;
 			using ObserverTestContext = observers::ObserverTestContext;
+
+			static constexpr auto ReceiptType() {
+				return model::Receipt_Type_LockSecret_Completed;
+			}
 
 			static auto CreateObserver() {
 				return CreateProofObserver();

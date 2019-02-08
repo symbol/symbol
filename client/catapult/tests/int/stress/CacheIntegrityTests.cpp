@@ -35,19 +35,23 @@ namespace catapult { namespace cache {
 #define TEST_CLASS CacheIntegrityTests
 
 	namespace {
+		constexpr auto Transferable_Mosaic_Id = MosaicId(1234);
+
 		constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
 			model::NetworkIdentifier::Mijin_Test,
 			359,
-			Amount(std::numeric_limits<Amount::ValueType>::max())
+			Amount(std::numeric_limits<Amount::ValueType>::max()),
+			MosaicId(1111),
+			MosaicId(2222)
 		};
 
-#ifdef STRESS
-		constexpr size_t Num_Iterations = 20'000;
-		constexpr size_t Num_Stress_Accounts = 20'000;
-#else
-		constexpr size_t Num_Iterations = 1'000;
-		constexpr size_t Num_Stress_Accounts = 1'000;
-#endif
+		size_t GetNumIterations() {
+			return test::GetStressIterationCount() ? 20'000 : 1'000;
+		}
+
+		size_t GetNumStressAccounts() {
+			return test::GetStressIterationCount() ? 20'000 : 1'000;
+		}
 
 		Key GetKeyFromId(size_t id) {
 			Key key{};
@@ -71,8 +75,8 @@ namespace catapult { namespace cache {
 				threads.create_thread([&, r] {
 					test::StressThreadLogger logger("reader thread " + std::to_string(r));
 
-					for (auto i = 0u; i < Num_Iterations; ++i) {
-						logger.notifyIteration(i, Num_Iterations);
+					for (auto i = 0u; i < GetNumIterations(); ++i) {
+						logger.notifyIteration(i, GetNumIterations());
 
 						while (true) {
 							auto key = GetKeyFromId(i);
@@ -81,7 +85,7 @@ namespace catapult { namespace cache {
 							if (!accountStateIter.tryGet())
 								continue;
 
-							sums[r] = sums[r] + accountStateIter.get().Balances.get(Xem_Id);
+							sums[r] = sums[r] + accountStateIter.get().Balances.get(Transferable_Mosaic_Id);
 							break;
 						}
 					}
@@ -93,14 +97,14 @@ namespace catapult { namespace cache {
 				test::StressThreadLogger logger("writer thread");
 
 				auto delta = cache.createDelta();
-				for (auto i = 0u; i < Num_Iterations; ++i) {
-					logger.notifyIteration(i, Num_Iterations);
+				for (auto i = 0u; i < GetNumIterations(); ++i) {
+					logger.notifyIteration(i, GetNumIterations());
 
 					auto key = GetKeyFromId(i);
 					delta->addAccount(key, Height(456));
 					auto accountStateIter = delta->find(key);
 					auto& accountState = accountStateIter.get();
-					accountState.Balances.credit(Xem_Id, Amount(i * 100'000));
+					accountState.Balances.credit(Transferable_Mosaic_Id, Amount(i * 100'000));
 					cache.commit();
 				}
 			});
@@ -109,10 +113,11 @@ namespace catapult { namespace cache {
 			threads.join_all();
 
 			// Assert: all accounts were added to the cache and the reader(s) calculated the correct sum
-			EXPECT_EQ(Num_Iterations, cache.createView()->size());
-			constexpr auto Expected_Sum = Amount(Num_Iterations * (Num_Iterations - 1) / 2u * 100'000);
+			EXPECT_EQ(GetNumIterations(), cache.createView()->size());
+
+			auto expectedSum = Amount(GetNumIterations() * (GetNumIterations() - 1) / 2u * 100'000);
 			for (const auto& sum : sums)
-				EXPECT_EQ(Expected_Sum, sum);
+				EXPECT_EQ(expectedSum, sum);
 		}
 	}
 
@@ -134,20 +139,20 @@ namespace catapult { namespace cache {
 
 			// Act:
 			test::StressThreadLogger logger("main thread");
-			for (auto i = 0u; i < Num_Stress_Accounts; ++i) {
-				logger.notifyIteration(i, Num_Stress_Accounts);
+			for (auto i = 0u; i < GetNumStressAccounts(); ++i) {
+				logger.notifyIteration(i, GetNumStressAccounts());
 
 				auto key = GetKeyFromId(i);
 				delta->addAccount(key, Height(456));
 				auto accountStateIter = delta->find(key);
 				auto& accountState = accountStateIter.get();
-				accountState.Balances.credit(Xem_Id, Amount(i * 100'000));
+				accountState.Balances.credit(Transferable_Mosaic_Id, Amount(i * 100'000));
 				cache.commit();
 			}
 		}
 
 		// Assert:
-		EXPECT_EQ(Num_Stress_Accounts, cache.createView()->size());
+		EXPECT_EQ(GetNumStressAccounts(), cache.createView()->size());
 	}
 
 	// region hash cache performance
@@ -256,39 +261,32 @@ namespace catapult { namespace cache {
 
 	NO_STRESS_TEST(TEST_CLASS, HashCachePerformance) {
 		// Arrange:
-#ifdef STRESS
-		constexpr size_t Initial_Count = 50'000'000; // how many entities the cache should initially contain
-		constexpr size_t Num_Operations = 20'000; // how many operation are done for the test
-#else
-		constexpr size_t Initial_Count = 100'000;
-		constexpr size_t Num_Operations = 100'000;
-#endif
+		// - initialCount: how many entities the cache should initially contain
+		// - numOperations: how many operations are done for the test
+		auto initialCount = test::GetStressIterationCount() ? 50'000'000u : 100'000u;
+		auto numOperations = test::GetStressIterationCount() ? 20'000u : 100'000u;
 		cache::HashCache cache(CacheConfiguration(), utils::TimeSpan::FromHours(1));
 
-		auto samples = CreateSamples(Num_Operations, test::Random);
-		PopulateCache(cache, Initial_Count, test::Random);
+		auto samples = CreateSamples(numOperations, test::Random);
+		PopulateCache(cache, initialCount, test::Random);
 
 		// Act:
-		auto value = InsertTest(samples, Num_Operations, cache);
-		value += ContainsTest(samples, Num_Operations, cache);
-		value += static_cast<uint64_t>(RemoveTest(samples, Num_Operations, cache));
-		value += ContainsTest(samples, Num_Operations, cache);
+		auto value = InsertTest(samples, numOperations, cache);
+		value += ContainsTest(samples, numOperations, cache);
+		value += static_cast<uint64_t>(RemoveTest(samples, numOperations, cache));
+		value += ContainsTest(samples, numOperations, cache);
 
 		// Assert: insert and remove tests cancel each other with regards to value,
 		//         first contains test adds 1 for each operation, second one leaves value unchanged
-		EXPECT_EQ(Num_Operations, value);
+		EXPECT_EQ(numOperations, value);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, HashCachePruneTest) {
 		// Arrange:
-#ifdef STRESS
-		constexpr size_t Multiplier = 10;
-#else
-		constexpr size_t Multiplier = 1;
-#endif
-		constexpr size_t Entries_Count = 100'000 * Multiplier;
-		constexpr size_t Prune_Count = 30'000 * Multiplier;
-		test::TempDirectoryGuard dbDirGuard("dbdir");
+		auto multipler = test::GetStressIterationCount() ? 10u : 1u;
+		auto entriesCount = 100'000 * multipler;
+		auto pruneCount = 30'000 * multipler;
+		test::TempDirectoryGuard dbDirGuard;
 		CacheConfiguration config(dbDirGuard.name(), utils::FileSize::FromMegabytes(5), PatriciaTreeStorageMode::Disabled);
 
 		// - set retention time to 0, to simplify test
@@ -296,34 +294,34 @@ namespace catapult { namespace cache {
 		{
 			auto delta = cache.createDelta();
 
-			Stopwatch stopwatch(Entries_Count, "rocks-based insert");
-			for (auto i = 0u; i < Entries_Count; ++i)
+			Stopwatch stopwatch(entriesCount, "rocks-based insert");
+			for (auto i = 0u; i < entriesCount; ++i)
 				delta->insert(state::TimestampedHash(Timestamp(1000 * i)));
 
 			cache.commit();
 		}
 
 		// Sanity:
-		EXPECT_EQ(Entries_Count, cache.createView()->size());
+		EXPECT_EQ(entriesCount, cache.createView()->size());
 
 		// Act: prune entries below specified value
 		{
 			auto delta = cache.createDelta();
 
-			Stopwatch stopwatch(Prune_Count, "rocks-based prune");
-			delta->prune(Timestamp(1000 * Prune_Count));
+			Stopwatch stopwatch(pruneCount, "rocks-based prune");
+			delta->prune(Timestamp(1000 * pruneCount));
 			cache.commit();
 		}
 
 		// Assert:
 		auto view = cache.createView();
-		EXPECT_EQ(Entries_Count - Prune_Count, view->size());
+		EXPECT_EQ(entriesCount - pruneCount, view->size());
 
-		Stopwatch stopwatch(Entries_Count, "rocks-based contains");
-		for (auto i = 0u; i < Prune_Count; ++i)
+		Stopwatch stopwatch(entriesCount, "rocks-based contains");
+		for (auto i = 0u; i < pruneCount; ++i)
 			EXPECT_FALSE(view->contains(state::TimestampedHash(Timestamp(1000 * i))));
 
-		for (auto i = Prune_Count; i < Entries_Count; ++i)
+		for (auto i = pruneCount; i < entriesCount; ++i)
 			EXPECT_TRUE(view->contains(state::TimestampedHash(Timestamp(1000 * i))));
 	}
 

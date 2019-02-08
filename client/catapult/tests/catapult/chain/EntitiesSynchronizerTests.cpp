@@ -34,10 +34,11 @@ namespace catapult { namespace chain {
 
 		// region api
 
-		class MockHashApi {
+		class MockHashApi : public api::RemoteApi {
 		public:
 			explicit MockHashApi(const model::HashRange& hashes)
-					: m_hashes(model::HashRange::CopyRange(hashes))
+					: RemoteApi(test::GenerateRandomData<Key_Size>())
+					, m_hashes(model::HashRange::CopyRange(hashes))
 					, m_hasError(false)
 			{}
 
@@ -91,8 +92,8 @@ namespace catapult { namespace chain {
 				return api.hashes(m_hashesSupplier());
 			}
 
-			void consume(model::HashRange&& range) const {
-				m_hashRangeConsumer(std::move(range));
+			void consume(model::HashRange&& range, const Key& sourcePublicKey) const {
+				m_hashRangeConsumer(model::AnnotatedEntityRange<Hash256>(std::move(range), sourcePublicKey));
 			}
 
 		private:
@@ -118,28 +119,32 @@ namespace catapult { namespace chain {
 		public:
 			class RemoteApiWrapper {
 			public:
-				explicit RemoteApiWrapper(const model::HashRange& hashRange) : m_hashApi(hashRange)
+				explicit RemoteApiWrapper(const model::HashRange& hashRange) : m_pHashApi(std::make_unique<MockHashApi>(hashRange))
 				{}
 
 			public:
 				const auto& api() const {
-					return m_hashApi;
+					return *m_pHashApi;
 				}
 
 				auto numCalls() const {
-					return m_hashApi.hashesRequests().size();
+					return m_pHashApi->hashesRequests().size();
 				}
 
 				const auto& singleRequest() const {
-					return m_hashApi.hashesRequests()[0];
+					return m_pHashApi->hashesRequests()[0];
 				}
 
 				void setError(bool setError = true) {
-					m_hashApi.setError(setError);
+					m_pHashApi->setError(setError);
+				}
+
+				void checkAdditionalRequestParameters() {
+					// no additional request parameters
 				}
 
 			private:
-				MockHashApi m_hashApi;
+				std::unique_ptr<MockHashApi> m_pHashApi;
 			};
 
 		public:

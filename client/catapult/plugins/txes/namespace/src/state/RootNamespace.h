@@ -20,6 +20,7 @@
 
 #pragma once
 #include "Namespace.h"
+#include "NamespaceAlias.h"
 #include "catapult/utils/Hashers.h"
 #include <set>
 #include <unordered_map>
@@ -37,7 +38,22 @@ namespace catapult { namespace state {
 		};
 
 	public:
-		using Children = std::unordered_map<NamespaceId, Namespace::Path, utils::BaseValueHasher<NamespaceId>>;
+		/// Child namespace information.
+		struct ChildNamespaceData {
+		public:
+			/// Creates data around \a path.
+			ChildNamespaceData(const Namespace::Path& path) : Path(path)
+			{}
+
+		public:
+			/// Child namespace path.
+			Namespace::Path Path;
+
+			/// Child namespace alias.
+			NamespaceAlias Alias;
+		};
+
+		using Children = std::unordered_map<NamespaceId, ChildNamespaceData, utils::BaseValueHasher<NamespaceId>>;
 		using OrderedChildPaths = std::set<Namespace::Path, PathsComparator>;
 
 	public:
@@ -71,12 +87,19 @@ namespace catapult { namespace state {
 		/// \note This method throws if the id is unknown.
 		Namespace child(NamespaceId id) const;
 
+		/// Gets a namespace alias for root or child namespace \a id.
+		const NamespaceAlias& alias(NamespaceId id) const;
+
+	public:
 		/// Adds the child namespace \a ns.
 		void add(const Namespace& ns);
 
 		/// Removes a child namespace specified by \a id.
 		/// \note This method throws if the id is unknown.
 		void remove(NamespaceId id);
+
+		/// Sets an \a alias for root or child namespace \a id.
+		void setAlias(NamespaceId id, const NamespaceAlias& alias);
 
 	public:
 		/// Returns \c true if this root namespace is equal to \a rhs.
@@ -90,11 +113,13 @@ namespace catapult { namespace state {
 		/// \note The method shares the children of this root namespace with the new root namespace.
 		RootNamespace renew(const NamespaceLifetime& newLifetime) const;
 
-		/// Creates an ordered set of child namespace paths. Ordering is done by path size.
-		OrderedChildPaths sortChildren() const;
+		/// Creates an ordered set of child namespace paths.
+		/// \note Child paths are ordered lexicographically.
+		OrderedChildPaths sortedChildPaths() const;
 
 	private:
 		NamespaceId m_id;
+		NamespaceAlias m_alias; // root namespace alias
 		Key m_owner;
 		NamespaceLifetime m_lifetime;
 		std::shared_ptr<Children> m_pChildren;

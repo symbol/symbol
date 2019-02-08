@@ -19,10 +19,33 @@
 **/
 
 #include "NodeTestUtils.h"
+#include "catapult/ionet/NodeInteractionResult.h"
 #include "catapult/utils/Casting.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
+
+	ionet::NodeEndpoint CreateLocalHostNodeEndpoint() {
+		return CreateLocalHostNodeEndpoint(GetLocalHostPort());
+	}
+
+	ionet::NodeEndpoint CreateLocalHostNodeEndpoint(unsigned short port) {
+		return { "127.0.0.1", port };
+	}
+
+	ionet::Node CreateLocalHostNode(const Key& publicKey) {
+		return CreateLocalHostNode(publicKey, GetLocalHostPort());
+	}
+
+	ionet::Node CreateLocalHostNode(const Key& publicKey, unsigned short port) {
+		return { publicKey, CreateLocalHostNodeEndpoint(port), ionet::NodeMetadata() };
+	}
+
+	ionet::Node CreateNamedNode(const Key& identityKey, const std::string& name, ionet::NodeRoles roles) {
+		auto metadata = ionet::NodeMetadata(model::NetworkIdentifier::Zero, name);
+		metadata.Roles = roles;
+		return ionet::Node(identityKey, ionet::NodeEndpoint(), metadata);
+	}
 
 	std::ostream& operator<<(std::ostream& out, const BasicNodeData& data) {
 		out << data.Name << " (source " << data.Source << ") " << utils::HexFormat(data.IdentityKey);
@@ -38,14 +61,28 @@ namespace catapult { namespace test {
 		return basicDataContainer;
 	}
 
+	void AddNodeInteractions(ionet::NodeContainerModifier& modifier, const Key& identityKey, size_t numSuccesses, size_t numFailures) {
+		for (auto i = 0u; i < numSuccesses; ++i)
+			modifier.incrementSuccesses(identityKey);
+
+		for (auto i = 0u; i < numFailures; ++i)
+			modifier.incrementFailures(identityKey);
+	}
+
 	void AssertZeroed(const ionet::ConnectionState& connectionState) {
 		// Assert:
 		EXPECT_EQ(0u, connectionState.Age);
-		EXPECT_EQ(0u, connectionState.NumAttempts);
-		EXPECT_EQ(0u, connectionState.NumSuccesses);
-		EXPECT_EQ(0u, connectionState.NumFailures);
-
 		EXPECT_EQ(0u, connectionState.NumConsecutiveFailures);
 		EXPECT_EQ(0u, connectionState.BanAge);
+	}
+
+	void AssertNodeInteractions(
+			uint32_t expectedNumSuccesses,
+			uint32_t expectedNumFailures,
+			const ionet::NodeInteractions& interactions,
+			const std::string& message) {
+		// Assert:
+		EXPECT_EQ(expectedNumSuccesses, interactions.NumSuccesses) << message;
+		EXPECT_EQ(expectedNumFailures, interactions.NumFailures) << message;
 	}
 }}

@@ -24,6 +24,8 @@
 
 namespace catapult { namespace model {
 
+	// region BlockChainConfiguration
+
 	namespace {
 		void CheckPluginName(const std::string& pluginName) {
 			if (std::any_of(pluginName.cbegin(), pluginName.cend(), [](auto ch) { return (ch < 'a' || ch > 'z') && '.' != ch; }))
@@ -49,6 +51,10 @@ namespace catapult { namespace model {
 #define LOAD_CHAIN_PROPERTY(NAME) utils::LoadIniProperty(bag, "chain", #NAME, config.NAME)
 
 		LOAD_CHAIN_PROPERTY(ShouldEnableVerifiableState);
+		LOAD_CHAIN_PROPERTY(ShouldEnableVerifiableReceipts);
+
+		LOAD_CHAIN_PROPERTY(CurrencyMosaicId);
+		LOAD_CHAIN_PROPERTY(HarvestingMosaicId);
 
 		LOAD_CHAIN_PROPERTY(BlockGenerationTargetTime);
 		LOAD_CHAIN_PROPERTY(BlockTimeSmoothingFactor);
@@ -60,7 +66,7 @@ namespace catapult { namespace model {
 		LOAD_CHAIN_PROPERTY(MaxTransactionLifetime);
 		LOAD_CHAIN_PROPERTY(MaxBlockFutureTime);
 
-		LOAD_CHAIN_PROPERTY(TotalChainBalance);
+		LOAD_CHAIN_PROPERTY(TotalChainImportance);
 		LOAD_CHAIN_PROPERTY(MinHarvesterBalance);
 
 		LOAD_CHAIN_PROPERTY(BlockPruneInterval);
@@ -83,7 +89,38 @@ namespace catapult { namespace model {
 			numPluginProperties += iter->second.size();
 		}
 
-		utils::VerifyBagSizeLte(bag, 15 + numPluginProperties);
+		utils::VerifyBagSizeLte(bag, 18 + numPluginProperties);
 		return config;
 	}
+
+	// endregion
+
+	// region utils
+
+	UnresolvedMosaicId GetUnresolvedCurrencyMosaicId(const BlockChainConfiguration& config) {
+		return UnresolvedMosaicId(config.CurrencyMosaicId.unwrap());
+	}
+
+	utils::TimeSpan CalculateFullRollbackDuration(const BlockChainConfiguration& config) {
+		return utils::TimeSpan::FromMilliseconds(config.BlockGenerationTargetTime.millis() * config.MaxRollbackBlocks);
+	}
+
+	utils::TimeSpan CalculateRollbackVariabilityBufferDuration(const BlockChainConfiguration& config) {
+		// use the greater of 25% of the rollback time or one hour as a buffer against block time variability
+		return utils::TimeSpan::FromHours(4).millis() > CalculateFullRollbackDuration(config).millis()
+				? utils::TimeSpan::FromHours(1)
+				: utils::TimeSpan::FromMilliseconds(CalculateFullRollbackDuration(config).millis() / 4);
+	}
+
+	utils::TimeSpan CalculateTransactionCacheDuration(const BlockChainConfiguration& config) {
+		return utils::TimeSpan::FromMilliseconds(
+				CalculateFullRollbackDuration(config).millis()
+				+ CalculateRollbackVariabilityBufferDuration(config).millis());
+	}
+
+	uint64_t CalculateDifficultyHistorySize(const BlockChainConfiguration& config) {
+		return config.MaxRollbackBlocks + config.MaxDifficultyBlocks;
+	}
+
+	// endregion
 }}

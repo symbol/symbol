@@ -21,17 +21,38 @@
 #pragma once
 #include "ObserverTestContext.h"
 #include "catapult/observers/NotificationObserver.h"
+#include "tests/test/core/ResolverTestUtils.h"
 
 namespace catapult { namespace test {
 
-	// region NotificationObserver
+	// region CreateObserverContext
+
+	/// Creates an observer context around \a state at \a height with specified \a mode.
+	CATAPULT_INLINE
+	observers::ObserverContext CreateObserverContext(observers::ObserverState& state, Height height, observers::NotifyMode mode) {
+		return observers::ObserverContext(state, height, mode, CreateResolverContextXor());
+	}
+
+	/// Creates an observer context around \a cache and \a state at \a height with specified \a mode.
+	CATAPULT_INLINE
+	observers::ObserverContext CreateObserverContext(
+			cache::CatapultCacheDelta& cache,
+			state::CatapultState& state,
+			Height height,
+			observers::NotifyMode mode) {
+		return observers::ObserverContext({ cache, state }, height, mode, CreateResolverContextXor());
+	}
+
+	// endregion
+
+	// region ObserveNotification
 
 	/// Observes \a notification with \a observer using \a context.
 	template<typename TNotification>
 	void ObserveNotification(
 			const observers::NotificationObserverT<TNotification>& observer,
 			const TNotification& notification,
-			const observers::ObserverContext& context) {
+			observers::ObserverContext& context) {
 		observer.notify(notification, context);
 	}
 
@@ -40,28 +61,11 @@ namespace catapult { namespace test {
 	void ObserveNotification(
 			const observers::NotificationObserverT<TNotification>& observer,
 			const TNotification& notification,
-			const ObserverTestContextT<TCacheFactory>& context) {
+			ObserverTestContextT<TCacheFactory>& context) {
 		ObserveNotification(observer, notification, context.observerContext());
 	}
 
 	// endregion
-
-	/// Creates an observer context around \a state at \a height with specified \a mode.
-	constexpr observers::ObserverContext CreateObserverContext(
-			const observers::ObserverState& state,
-			Height height,
-			observers::NotifyMode mode) {
-		return observers::ObserverContext(state, height, mode);
-	}
-
-	/// Creates an observer context around \a cache and \a state at \a height with specified \a mode.
-	constexpr observers::ObserverContext CreateObserverContext(
-			cache::CatapultCacheDelta& cache,
-			state::CatapultState& state,
-			Height height,
-			observers::NotifyMode mode) {
-		return observers::ObserverContext(cache, state, height, mode);
-	}
 
 /// Defines common observer tests for an observer with \a NAME.
 #define DEFINE_COMMON_OBSERVER_TESTS(NAME, ...) \

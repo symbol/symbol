@@ -63,13 +63,13 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(456u, result.CompletionCode);
 	}
 
-	TEST(TEST_CLASS, CanCreateCompleteConsumerResult) {
+	TEST(TEST_CLASS, CanCreateCompleteConsumerResultWithCustomCompletionCode) {
 		// Act:
-		auto result = ConsumerResult::Complete();
+		auto result = ConsumerResult::Complete(456);
 
 		// Assert:
 		EXPECT_EQ(CompletionStatus::Consumed, result.CompletionStatus);
-		EXPECT_EQ(0u, result.CompletionCode);
+		EXPECT_EQ(456u, result.CompletionCode);
 	}
 
 	// endregion

@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "NodeInteractionUtils.h"
 #include "ServiceState.h"
 #include "catapult/chain/RemoteApiForwarder.h"
 #include "catapult/chain/RemoteNodeSynchronizer.h"
@@ -38,9 +39,16 @@ namespace catapult { namespace extensions {
 			const extensions::ServiceState& state,
 			const std::string& taskName) {
 		auto syncTimeout = state.config().Node.SyncTimeout;
-		chain:: RemoteApiForwarder forwarder(packetIoPicker, state.pluginManager().transactionRegistry(), syncTimeout, taskName);
-		return [forwarder, synchronizer, remoteApiFactory]() {
-			return forwarder.processSync(synchronizer, remoteApiFactory).then([](auto&&) { return thread::TaskResult::Continue; });
+		chain::RemoteApiForwarder forwarder(packetIoPicker, state.pluginManager().transactionRegistry(), syncTimeout, taskName);
+
+		auto syncHandler = [&nodes = state.nodes()](auto&& future) {
+			auto result = future.get();
+			IncrementNodeInteraction(nodes, result);
+			return thread::TaskResult::Continue;
+		};
+
+		return [forwarder, syncHandler, synchronizer, remoteApiFactory]() {
+			return forwarder.processSync(synchronizer, remoteApiFactory).then(syncHandler);
 		};
 	}
 

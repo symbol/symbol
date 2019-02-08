@@ -146,7 +146,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			model::TransactionElement transactionElement(*pTransaction);
 			transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
 			transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
-			transactionElement.OptionalExtractedAddresses = std::make_shared<model::AddressSet>(test::GenerateRandomAddressSet(3));
+			transactionElement.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
 			auto metadata = MongoTransactionMetadata(transactionElement, Height(123), 234);
 
 			// Act:
@@ -190,7 +190,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		model::TransactionElement transactionElement(*pTransaction);
 		transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
 		transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
-		transactionElement.OptionalExtractedAddresses = std::make_shared<model::AddressSet>(test::GenerateRandomAddressSet(3));
+		transactionElement.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
 		auto metadata = MongoTransactionMetadata(transactionElement, Height(123), 234);
 
 		// Act:

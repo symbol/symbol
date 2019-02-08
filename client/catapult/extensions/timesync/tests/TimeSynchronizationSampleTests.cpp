@@ -122,18 +122,22 @@ namespace catapult { namespace timesync {
 		// Arrange:
 		auto node1 = test::CreateNamedNode({ { 1 } }, "alice");
 		auto node2 = test::CreateNamedNode({ { 2 } }, "bob");
-		auto sample1 = test::CreateSample(node1, 37, 43, 15, 13); // time offset -26
-		auto sample2 = test::CreateSample(node2, 37, 43, 15, 13); // time offset -26
-		auto sample3 = test::CreateSample(node1, 5, 17, 25, 23); // time offset 13
-		auto sample4 = test::CreateSample(node1, 8, 12, 45, 45); // time offset 35
-		auto sample5 = test::CreateSample(node1, 8, 12, 45, 45); // time offset 35
+		std::vector<TimeSynchronizationSample> samples{
+			test::CreateSample(node1, 37, 43, 15, 13), // time offset -26
+			test::CreateSample(node2, 37, 43, 15, 13), // time offset -26
+			test::CreateSample(node1, 5, 17, 25, 23), // time offset 13
+			test::CreateSample(node1, 8, 12, 45, 45) // time offset 35
+		};
 
 		// Assert:
-		test::AssertLessThanOperatorForEqualValues(sample4, sample5);
-		test::AssertLessThanOperatorForDifferentValues(sample1, sample2);
-		test::AssertLessThanOperatorForDifferentValues(sample2, sample3);
-		test::AssertLessThanOperatorForDifferentValues(sample2, sample4);
-		test::AssertLessThanOperatorForDifferentValues(sample3, sample4);
+		test::AssertLessThanOperatorForEqualValues(test::CreateSample(node1, 8, 12, 45, 45), test::CreateSample(node1, 8, 12, 45, 45));
+		test::AssertOperatorBehaviorForIncreasingValues(samples, std::less<>(), [](const auto& sample) {
+			std::ostringstream out;
+			out
+					<< "local (" << sample.localTimestamps().SendTimestamp << "," << sample.localTimestamps().ReceiveTimestamp << ")"
+					<< ", remote (" << sample.remoteTimestamps().SendTimestamp << "," << sample.remoteTimestamps().ReceiveTimestamp << ")";
+			return out.str();
+		});
 	}
 
 	// endregion

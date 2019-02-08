@@ -24,6 +24,7 @@
 #include "tools/ToolThreadUtils.h"
 #include "catapult/api/RemoteNodeApi.h"
 #include "catapult/extensions/RemoteDiagnosticApi.h"
+#include "catapult/utils/Functional.h"
 #include <algorithm>
 #include <cctype>
 
@@ -133,17 +134,22 @@ namespace catapult { namespace tools { namespace network {
 			return out.str();
 		}
 
+		std::string ToString(const ionet::PackedNodeInteractions& interactions) {
+			std::ostringstream out;
+			out
+					<< "successes: " << interactions.NumSuccesses
+					<< ", failures: " << interactions.NumFailures;
+			return out.str();
+		}
+
 		std::string ToString(const ionet::PackedConnectionState& connectionState) {
 			std::ostringstream out;
 			out
-				<< "{ "
-				<< "age: " << connectionState.Age
-				<< ", ban-age: " << connectionState.BanAge
-				<< ", attempts: " << connectionState.NumAttempts
-				<< ", successes: " << connectionState.NumSuccesses
-				<< ", failures: " << connectionState.NumFailures
-				<< ", c-failures: " << connectionState.NumConsecutiveFailures
-				<< " }";
+					<< "{ "
+					<< "age: " << connectionState.Age
+					<< ", ban-age: " << connectionState.BanAge
+					<< ", c-failures: " << connectionState.NumConsecutiveFailures
+					<< " }";
 			return out.str();
 		}
 
@@ -171,6 +177,9 @@ namespace catapult { namespace tools { namespace network {
 				const auto* pPartnerNodeInfo = TryFindPartnerNodeInfo(partnerNode.identityKey(), nodeInfo.PartnerNodeInfos);
 				if (!pPartnerNodeInfo)
 					continue;
+
+				// output interactions
+				builder.add("interactions", ToString(pPartnerNodeInfo->Interactions));
 
 				// output source and number of connections
 				builder.add(ToString(pPartnerNodeInfo->Source), static_cast<uint16_t>(pPartnerNodeInfo->ConnectionStatesCount));
@@ -326,8 +335,12 @@ namespace catapult { namespace tools { namespace network {
 				return infoFutures;
 			}
 
-			void processNodeInfos(const std::vector<NodeInfoPointer>& nodeInfos) override {
+			size_t processNodeInfos(const std::vector<NodeInfoPointer>& nodeInfos) override {
 				PrettyPrint(nodeInfos);
+
+				return utils::Sum(nodeInfos, [](const auto& pNodeInfo) {
+					return ionet::Node() == pNodeInfo->Remote ? 1u : 0;
+				});
 			}
 
 		private:

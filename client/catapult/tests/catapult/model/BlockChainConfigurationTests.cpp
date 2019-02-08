@@ -51,6 +51,10 @@ namespace catapult { namespace model {
 						"chain",
 						{
 							{ "shouldEnableVerifiableState", "true" },
+							{ "shouldEnableVerifiableReceipts", "true" },
+
+							{ "currencyMosaicId", "0x1234'AAAA" },
+							{ "harvestingMosaicId", "0x9876'BBBB" },
 
 							{ "blockGenerationTargetTime", "10m" },
 							{ "blockTimeSmoothingFactor", "765" },
@@ -62,7 +66,7 @@ namespace catapult { namespace model {
 							{ "maxTransactionLifetime", "30m" },
 							{ "maxBlockFutureTime", "21m" },
 
-							{ "totalChainBalance", "88'000'000'000" },
+							{ "totalChainImportance", "88'000'000'000" },
 							{ "minHarvesterBalance", "4'000'000'000" },
 
 							{ "blockPruneInterval", "432" },
@@ -96,6 +100,10 @@ namespace catapult { namespace model {
 				EXPECT_EQ(Hash256{}, config.Network.GenerationHash);
 
 				EXPECT_FALSE(config.ShouldEnableVerifiableState);
+				EXPECT_FALSE(config.ShouldEnableVerifiableReceipts);
+
+				EXPECT_EQ(MosaicId(), config.CurrencyMosaicId);
+				EXPECT_EQ(MosaicId(), config.HarvestingMosaicId);
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.BlockGenerationTargetTime);
 				EXPECT_EQ(0u, config.BlockTimeSmoothingFactor);
@@ -107,7 +115,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.MaxTransactionLifetime);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.MaxBlockFutureTime);
 
-				EXPECT_EQ(utils::XemUnit(), config.TotalChainBalance);
+				EXPECT_EQ(Importance(0), config.TotalChainImportance);
 				EXPECT_EQ(Amount(0), config.MinHarvesterBalance);
 
 				EXPECT_EQ(0u, config.BlockPruneInterval);
@@ -123,6 +131,10 @@ namespace catapult { namespace model {
 				EXPECT_EQ(crypto::ParseKey(Nemesis_Generation_Hash), config.Network.GenerationHash);
 
 				EXPECT_TRUE(config.ShouldEnableVerifiableState);
+				EXPECT_TRUE(config.ShouldEnableVerifiableReceipts);
+
+				EXPECT_EQ(MosaicId(0x1234'AAAA), config.CurrencyMosaicId);
+				EXPECT_EQ(MosaicId(0x9876'BBBB), config.HarvestingMosaicId);
 
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(10), config.BlockGenerationTargetTime);
 				EXPECT_EQ(765u, config.BlockTimeSmoothingFactor);
@@ -134,7 +146,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(30), config.MaxTransactionLifetime);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(21), config.MaxBlockFutureTime);
 
-				EXPECT_EQ(utils::XemUnit(Amount(88'000'000'000)), config.TotalChainBalance);
+				EXPECT_EQ(Importance(88'000'000'000), config.TotalChainImportance);
 				EXPECT_EQ(Amount(4'000'000'000), config.MinHarvesterBalance);
 
 				EXPECT_EQ(432u, config.BlockPruneInterval);
@@ -221,6 +233,15 @@ namespace catapult { namespace model {
 
 	// region calculated properties
 
+	TEST(TEST_CLASS, CanGetUnresolvedCurrencyMosaicId) {
+		// Arrange:
+		auto config = BlockChainConfiguration::Uninitialized();
+		config.CurrencyMosaicId = MosaicId(1234);
+
+		// Act + Assert:
+		EXPECT_EQ(UnresolvedMosaicId(1234), GetUnresolvedCurrencyMosaicId(config));
+	}
+
 	namespace {
 		const uint64_t One_Hour_Ms = []() { return utils::TimeSpan::FromHours(1).millis(); }();
 
@@ -230,14 +251,14 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanCalculateDependentSettingsFromCustomBlockChainConfiguration) {
-		// Act:
+		// Arrange:
 		auto config = BlockChainConfiguration::Uninitialized();
 		config.BlockGenerationTargetTime = TimeSpanFromMillis(30'001);
 		config.MaxTransactionLifetime = TimeSpanFromMillis(One_Hour_Ms - 1);
 		config.MaxRollbackBlocks = 600;
 		config.MaxDifficultyBlocks = 45;
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_EQ(TimeSpanFromMillis(30'001 * 600), CalculateFullRollbackDuration(config));
 		EXPECT_EQ(TimeSpanFromMillis(30'001 * 150), CalculateRollbackVariabilityBufferDuration(config));
 		EXPECT_EQ(TimeSpanFromMillis(30'001 * (600 + 150)), CalculateTransactionCacheDuration(config));
@@ -245,27 +266,18 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, TransactionCacheDurationIncludesBufferTimeOfAtLeastOneHour) {
-		// Act:
+		// Arrange:
 		auto config = BlockChainConfiguration::Uninitialized();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(15);
 		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(2);
 		config.MaxRollbackBlocks = 20;
 		config.MaxDifficultyBlocks = 45;
 
-		// Assert:
+		// Act + Assert:
 		EXPECT_EQ(TimeSpanFromMillis(15'000 * 20), CalculateFullRollbackDuration(config));
 		EXPECT_EQ(utils::TimeSpan::FromHours(1), CalculateRollbackVariabilityBufferDuration(config));
 		EXPECT_EQ(TimeSpanFromMillis(15'000 * 20 + One_Hour_Ms), CalculateTransactionCacheDuration(config));
 		EXPECT_EQ(65u, CalculateDifficultyHistorySize(config));
-	}
-
-	TEST(TEST_CLASS, TotalImportanceIsDerivedFromTotalChainBalance) {
-		// Act:
-		auto config = BlockChainConfiguration::Uninitialized();
-		config.TotalChainBalance = utils::XemUnit(utils::XemAmount(1234));
-
-		// Assert:
-		EXPECT_EQ(Importance(1234), GetTotalImportance(config));
 	}
 
 	// endregion

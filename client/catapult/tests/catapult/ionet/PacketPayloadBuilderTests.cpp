@@ -224,7 +224,7 @@ namespace catapult { namespace ionet {
 				ASSERT_EQ(1u, buffers.size());
 
 				auto buffer = buffers[0];
-				EXPECT_EQ(GetDataSize(range), buffer.Size);
+				ASSERT_EQ(GetDataSize(range), buffer.Size);
 
 				auto rangeIter = range.cbegin();
 				const auto* pValue = reinterpret_cast<const uint32_t*>(buffer.pData);
@@ -257,7 +257,7 @@ namespace catapult { namespace ionet {
 				ASSERT_EQ(1u, buffers.size());
 
 				auto buffer = buffers[0];
-				EXPECT_EQ(Hash256_Size, buffer.Size);
+				ASSERT_EQ(Hash256_Size, buffer.Size);
 				EXPECT_EQ(value, reinterpret_cast<const Hash256&>(*buffer.pData));
 			}
 
@@ -286,7 +286,7 @@ namespace catapult { namespace ionet {
 				ASSERT_EQ(1u, buffers.size());
 
 				auto buffer = buffers[0];
-				EXPECT_EQ(GetDataSize(values), buffer.Size);
+				ASSERT_EQ(GetDataSize(values), buffer.Size);
 
 				const auto* pHash = reinterpret_cast<const Hash256*>(buffer.pData);
 				for (auto i = 0u; i < values.size(); ++i, ++pHash)
@@ -541,8 +541,8 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(1u, payload.buffers().size());
 
 		auto buffer = payload.buffers()[0];
-		EXPECT_EQ(8u, buffer.Size);
-		EXPECT_TRUE(0 == std::memcmp(data.data() + 2u, buffer.pData, buffer.Size));
+		ASSERT_EQ(8u, buffer.Size);
+		EXPECT_EQ_MEMORY(data.data() + 2u, buffer.pData, buffer.Size);
 	}
 
 	// endregion
@@ -563,7 +563,7 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(1u, payload.buffers().size());
 
 		auto buffer = payload.buffers()[0];
-		EXPECT_EQ(4u, buffer.Size);
+		ASSERT_EQ(4u, buffer.Size);
 		EXPECT_EQ(0x03981204u, reinterpret_cast<const uint32_t&>(*buffer.pData));
 	}
 
@@ -628,23 +628,23 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(6u, payload.buffers().size());
 
 		const auto& buffers = payload.buffers();
-		EXPECT_EQ(4u, buffers[0].Size);
+		ASSERT_EQ(4u, buffers[0].Size);
 		EXPECT_EQ(0x03981204u, reinterpret_cast<const uint32_t&>(*buffers[0].pData));
 
 		EXPECT_EQ(test::AsVoidPointer(pEntity.get()), buffers[1].pData);
-		EXPECT_EQ(124u, buffers[1].Size);
+		ASSERT_EQ(124u, buffers[1].Size);
 		EXPECT_EQ(*pEntity, reinterpret_cast<const model::VerifiableEntity&>(*buffers[1].pData));
 
-		EXPECT_EQ(12u, buffers[2].Size);
-		EXPECT_TRUE(0 == std::memcmp(valuesData.data(), buffers[2].pData, buffers[2].Size));
+		ASSERT_EQ(12u, buffers[2].Size);
+		EXPECT_EQ_MEMORY(valuesData.data(), buffers[2].pData, buffers[2].Size);
 
-		EXPECT_EQ(4u, buffers[3].Size);
+		ASSERT_EQ(4u, buffers[3].Size);
 		EXPECT_EQ(0x11111111u, reinterpret_cast<const uint32_t&>(*buffers[3].pData));
 
-		EXPECT_EQ(8u, buffers[4].Size);
-		EXPECT_TRUE(0 == std::memcmp(rangeData.data(), buffers[4].pData, buffers[4].Size));
+		ASSERT_EQ(8u, buffers[4].Size);
+		EXPECT_EQ_MEMORY(rangeData.data(), buffers[4].pData, buffers[4].Size);
 
-		EXPECT_EQ(4u, buffers[5].Size);
+		ASSERT_EQ(4u, buffers[5].Size);
 		EXPECT_EQ(0x00003322u, reinterpret_cast<const uint32_t&>(*buffers[5].pData));
 	}
 

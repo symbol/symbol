@@ -30,13 +30,15 @@ namespace catapult { namespace cache {
 	// region AccountStateCacheSummaryCacheStorage - saveAll
 
 	namespace {
+		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
+
 		std::vector<Address> AddAccountsWithBalances(AccountStateCache& cache, const std::vector<Amount>& balances) {
 			auto delta = cache.createDelta();
 
 			auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
 			for (auto i = 0u; i < balances.size(); ++i) {
 				delta->addAccount(addresses[i], Height(1));
-				delta->find(addresses[i]).get().Balances.credit(Xem_Id, balances[i]);
+				delta->find(addresses[i]).get().Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 			}
 
 			cache.commit();
@@ -48,6 +50,7 @@ namespace catapult { namespace cache {
 			// Arrange:
 			AccountStateCacheTypes::Options options;
 			options.MinHighValueAccountBalance = minHighValueAccountBalance;
+			options.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			AccountStateCache cache(CacheConfiguration(), options);
 			AccountStateCacheSummaryCacheStorage storage(cache);
 

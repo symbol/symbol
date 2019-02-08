@@ -19,36 +19,29 @@
 **/
 
 #include "Random.h"
-#include <random>
 
 namespace catapult { namespace tools {
 
-	namespace {
-		class RandomGenerator {
-		public:
-			RandomGenerator() {
-				std::random_device rd;
-				auto seed = (static_cast<uint64_t>(rd()) << 32) | rd();
-				m_gen.seed(seed);
-			}
+	// region random generator
 
-		public:
-			static RandomGenerator& instance() {
-				static RandomGenerator generator;
-				return generator;
-			}
-
-			uint64_t operator()() {
-				return m_gen();
-			}
-
-		private:
-			std::mt19937_64 m_gen;
-		};
+	RandomGenerator::RandomGenerator() {
+		std::random_device rd;
+		auto seed = (static_cast<uint64_t>(rd()) << 32) | rd();
+		m_gen.seed(seed);
 	}
 
+	RandomGenerator::RandomGenerator(uint64_t seed) : m_gen(seed)
+	{}
+
+	uint64_t RandomGenerator::operator()() {
+		return m_gen();
+	}
+
+	// endregion
+
 	uint64_t Random() {
-		return RandomGenerator::instance()();
+		static RandomGenerator generator;
+		return generator();
 	}
 
 	uint8_t RandomByte() {

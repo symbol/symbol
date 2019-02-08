@@ -21,6 +21,7 @@
 #pragma once
 #include "catapult/ionet/ConnectionSecurityMode.h"
 #include "catapult/ionet/NodeRoles.h"
+#include "catapult/model/TransactionSelectionStrategy.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
 #include <vector>
@@ -70,6 +71,12 @@ namespace catapult { namespace config {
 
 		/// Maximum size of a short lived cache.
 		uint32_t ShortLivedCacheMaxSize;
+
+		/// Minimum fee multiplier of transactions to propagate and include in blocks.
+		BlockFeeMultiplier MinFeeMultiplier;
+
+		/// Transaction selection strategy used for syncing and harvesting unconfirmed transactions.
+		model::TransactionSelectionStrategy TransactionSelectionStrategy;
 
 		/// Maximum size of an unconfirmed transactions response.
 		utils::FileSize UnconfirmedTransactionsCacheMaxResponseSize;

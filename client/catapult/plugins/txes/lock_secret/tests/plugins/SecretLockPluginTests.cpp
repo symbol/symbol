@@ -58,8 +58,12 @@ namespace catapult { namespace plugins {
 				return { "SecretLockInfoCache" };
 			}
 
+			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
+				return { ionet::PacketType::Secret_Lock_State_Path };
+			}
+
 			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return { ionet::PacketType::Secret_Lock_Infos, ionet::PacketType::Secret_Lock_State_Path };
+				return { ionet::PacketType::Secret_Lock_Infos };
 			}
 
 			static std::vector<std::string> GetDiagnosticCounterNames() {

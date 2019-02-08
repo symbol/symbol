@@ -71,13 +71,6 @@ namespace catapult { namespace cache {
 			return hashes;
 		}
 
-		auto PrepareCache(size_t count, const MemoryCacheOptions& options = Default_Options) {
-			auto pCache = std::make_unique<MemoryUtCache>(options);
-			auto transactionInfos = test::CreateTransactionInfos(count);
-			test::AddAll(*pCache, transactionInfos);
-			return pCache;
-		}
-
 		void AssertCacheSize(MemoryUtCache& cache, size_t expectedSize) {
 			// Assert: check both view and modifier sizes
 			EXPECT_EQ(cache.view().size(), expectedSize);
@@ -214,7 +207,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanRemoveTransactionInfosByHash) {
 		// Arrange:
-		auto pCache = PrepareCache(10);
+		auto pCache = test::CreateSeededMemoryUtCache(10);
 		auto hashes = ExtractEverySecondHash(*pCache);
 
 		// Act:
@@ -238,7 +231,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, RemovingNonExistingTransactionInfosByHashHasNoEffect) {
 		// Arrange:
-		auto pCache = PrepareCache(5);
+		auto pCache = test::CreateSeededMemoryUtCache(5);
 
 		// Sanity:
 		AssertCacheSize(*pCache, 5);
@@ -265,7 +258,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanAddNewTransactionInfoWithSameHashAsRemovedTransactionInfo) {
 		// Arrange:
-		auto pCache = PrepareCache(5);
+		auto pCache = test::CreateSeededMemoryUtCache(5);
 		auto hashes = ExtractEverySecondHash(*pCache);
 		pCache->modifier().remove(hashes[1]);
 
@@ -285,7 +278,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, AddingNewTransactionInfosAfterRemovingAddsAtTheEnd) {
 		// Arrange:
-		auto pCache = PrepareCache(10);
+		auto pCache = test::CreateSeededMemoryUtCache(10);
 		auto hashes = ExtractEverySecondHash(*pCache);
 		test::RemoveAll(*pCache, hashes);
 
@@ -461,7 +454,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, ContainsReturnsFalseIfTransactionInfoIsNotContainedInCache) {
 		// Arrange:
-		auto pCache = PrepareCache(10);
+		auto pCache = test::CreateSeededMemoryUtCache(10);
 		auto hashes = ExtractEverySecondHash(*pCache);
 
 		// Sanity:
@@ -479,9 +472,9 @@ namespace catapult { namespace cache {
 	// region forEach
 
 	namespace {
-		void AssertForEachBehavior(size_t count, size_t numRequested, size_t expectedCount) {
+		void AssertForEachBehavior(uint32_t count, size_t numRequested, size_t expectedCount) {
 			// Arrange:
-			auto pCache = PrepareCache(count);
+			auto pCache = test::CreateSeededMemoryUtCache(count);
 
 			// Act:
 			std::vector<std::shared_ptr<const model::Transaction>> transactions;
@@ -552,6 +545,12 @@ namespace catapult { namespace cache {
 			using CacheType = MemoryUtCache;
 
 		public:
+			static UnknownTransactions GetUnknownTransactions(
+					const MemoryUtCacheView& view,
+					const utils::ShortHashesSet& knownShortHashes) {
+				return view.unknownTransactions(BlockFeeMultiplier(10), knownShortHashes);
+			}
+
 			static void AddAllToCache(cache::UtCache& cache, const std::vector<model::TransactionInfo>& transactionInfos) {
 				test::AddAll(cache, transactionInfos);
 			}
@@ -581,7 +580,7 @@ namespace catapult { namespace cache {
 			test::AddAll(cache, test::CreateTransactionInfos(5));
 
 			// Act:
-			auto transactions = cache.view().unknownTransactions({});
+			auto transactions = cache.view().unknownTransactions(BlockFeeMultiplier(10), {});
 
 			// Assert:
 			EXPECT_EQ(numExpectedTransactions, transactions.size());
@@ -607,6 +606,42 @@ namespace catapult { namespace cache {
 
 		AssertMaxResponseSizeIsRespected(3, 4 * transactionSize - 1);
 		AssertMaxResponseSizeIsRespected(4, 4 * transactionSize);
+	}
+
+	namespace {
+		void AssertFeeMultiplierIsRespected(BlockFeeMultiplier feeMultiplier, const std::vector<Timestamp::ValueType>& expectedDeadlines) {
+			// Arrange: determine transaction size from a generated transaction
+			auto transactionSize = test::CreateTransactionInfos(1)[0].pEntity->Size;
+
+			// - generate transactions with (deadline, fee multiples) { (1, 0x), (2, 20x), (3, 0x), (4, 60x) ... (10, 180x) }
+			auto i = 0u;
+			auto transactionInfos = test::CreateTransactionInfos(10);
+			for (auto& transactionInfo : transactionInfos) {
+				const_cast<Amount&>(transactionInfo.pEntity->MaxFee) = Amount(transactionSize * (0 == i % 2 ? 0 : i * 20));
+				++i;
+			}
+
+			MemoryUtCache cache(Default_Options);
+			test::AddAll(cache, transactionInfos);
+
+			// Act:
+			auto transactions = cache.view().unknownTransactions(feeMultiplier, {});
+
+			// Assert:
+			AssertDeadlines(transactions, expectedDeadlines);
+		}
+	}
+
+	TEST(TEST_CLASS, UnknownTransactionsFiltersTransactionsByFeeMultiplier) {
+		// Assert:
+		AssertFeeMultiplierIsRespected(BlockFeeMultiplier(59), { 4, 6, 8, 10 });
+		AssertFeeMultiplierIsRespected(BlockFeeMultiplier(60), { 4, 6, 8, 10 });
+		AssertFeeMultiplierIsRespected(BlockFeeMultiplier(61), { 6, 8, 10 });
+
+		AssertFeeMultiplierIsRespected(BlockFeeMultiplier(0), { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+		AssertFeeMultiplierIsRespected(BlockFeeMultiplier(1), { 2, 4, 6, 8, 10 });
+		AssertFeeMultiplierIsRespected(BlockFeeMultiplier(180), { 10 });
+		AssertFeeMultiplierIsRespected(BlockFeeMultiplier(181), {});
 	}
 
 	// endregion

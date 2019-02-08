@@ -75,7 +75,7 @@ namespace catapult { namespace model {
 		return merkleComponentHash;
 	}
 
-	std::vector<Hash256> CalculateMerkleTree(const std::vector<model::TransactionElement>& transactionElements) {
+	std::vector<Hash256> CalculateMerkleTree(const std::vector<TransactionElement>& transactionElements) {
 		crypto::MerkleHashBuilder builder;
 		for (const auto& transactionElement : transactionElements)
 			builder.update(transactionElement.MerkleComponentHash);

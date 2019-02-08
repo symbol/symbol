@@ -74,7 +74,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanInitializeBasicDatabase) {
 		// Arrange:
-		test::TempDirectoryGuard dbDirGuard("dbdir");
+		test::TempDirectoryGuard dbDirGuard;
 		CacheConfiguration config(dbDirGuard.name(), utils::FileSize(), PatriciaTreeStorageMode::Disabled);
 
 		// Act:
@@ -91,7 +91,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanInitializeDatabaseWithPruning) {
 		// Arrange:
-		test::TempDirectoryGuard dbDirGuard("dbdir");
+		test::TempDirectoryGuard dbDirGuard;
 		CacheConfiguration config(dbDirGuard.name(), utils::FileSize(), PatriciaTreeStorageMode::Disabled);
 
 		// Act:
@@ -108,7 +108,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanInitializeDatabaseWithPatriciaTreeSupport) {
 		// Arrange:
-		test::TempDirectoryGuard dbDirGuard("dbdir");
+		test::TempDirectoryGuard dbDirGuard;
 		CacheConfiguration config(dbDirGuard.name(), utils::FileSize(), PatriciaTreeStorageMode::Enabled);
 
 		// Act:
@@ -134,7 +134,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanFlushWhenCacheDatabaseIsEnabled) {
 		// Arrange: create mixin with non-zero batch-size
-		test::TempDirectoryGuard dbDirGuard("dbdir");
+		test::TempDirectoryGuard dbDirGuard;
 		CacheConfiguration config(dbDirGuard.name(), utils::FileSize::FromKilobytes(100), PatriciaTreeStorageMode::Disabled);
 		ConcreteCacheDatabaseMixin mixin(config, { "default", "foo", "bar" });
 

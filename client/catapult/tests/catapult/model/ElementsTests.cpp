@@ -28,6 +28,8 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS ElementsTests
 
+	// region test utils
+
 	namespace {
 		class MultiBlockInput {
 		public:
@@ -71,10 +73,12 @@ namespace catapult { namespace model {
 			EXPECT_EQ(expected.EntityHash, actual.hash()) << "block at " << id;
 		}
 
-		void AssertEqual(const TransactionElement& expected, const WeakEntityInfo& actual, const char* id) {
+		void AssertEqual(const BlockElement& expected, size_t transactionIndex, const WeakEntityInfo& actual, const char* id) {
 			// Assert:
-			EXPECT_EQ(expected.Transaction, actual.entity()) << "transaction at " << id;
-			EXPECT_EQ(expected.EntityHash, actual.hash()) << "transaction at " << id;
+			auto message = "transaction at " + std::string(id);
+			EXPECT_EQ(expected.Transactions[transactionIndex].Transaction, actual.entity()) << message;
+			EXPECT_EQ(expected.Transactions[transactionIndex].EntityHash, actual.hash()) << message;
+			EXPECT_EQ(expected.Block, actual.associatedBlockHeader()) << message;
 		}
 
 		void AssertTransactionsFromBlock(
@@ -87,7 +91,7 @@ namespace catapult { namespace model {
 
 			for (auto i = 0u; i < numExpected; ++i) {
 				auto tag = std::string(shortTag) + ", " + std::to_string(i);
-				AssertEqual(expected.Transactions[i], entityInfos[startIndex + i], tag.c_str());
+				AssertEqual(expected, i, entityInfos[startIndex + i], tag.c_str());
 			}
 		}
 
@@ -105,6 +109,8 @@ namespace catapult { namespace model {
 			EXPECT_EQ(element.EntityHash, actualParams[index].Hash) << "entity hash at " << index;
 		}
 	}
+
+	// endregion
 
 	// region ExtractMatchingEntityInfos
 
@@ -169,7 +175,7 @@ namespace catapult { namespace model {
 		AssertEqual(elements[1], entityInfos[1], "1");
 		AssertTransactionsFromBlock(elements[2], 3, entityInfos, 2, "block 2");
 		AssertEqual(elements[2], entityInfos[5], "2");
-		AssertEqual(elements[3].Transactions[0], entityInfos[6], "block 3, 0");
+		AssertEqual(elements[3], 0, entityInfos[6], "block 3, 0");
 		AssertEqual(elements[3], entityInfos[7], "3");
 	}
 
@@ -240,8 +246,9 @@ namespace catapult { namespace model {
 				auto transactionElement = TransactionElement(transaction);
 				transactionElement.EntityHash = { { static_cast<uint8_t>(i * 2) } };
 				transactionElement.MerkleComponentHash = { { static_cast<uint8_t>(i * 3) } };
-				transactionElement.OptionalExtractedAddresses = std::make_shared<AddressSet>();
-				transactionElement.OptionalExtractedAddresses->insert(Address{ { static_cast<uint8_t>(i * 4) } });
+				auto pAddresses = std::make_shared<UnresolvedAddressSet>();
+				pAddresses->emplace(UnresolvedAddress{ { { static_cast<uint8_t>(i * 4) } } });
+				transactionElement.OptionalExtractedAddresses = pAddresses;
 				pElement->Transactions.push_back(transactionElement);
 			}
 
@@ -250,19 +257,16 @@ namespace catapult { namespace model {
 
 		std::vector<TransactionInfo> ExtractTransactionInfos(const std::shared_ptr<const BlockElement>& pBlockElement) {
 			std::vector<TransactionInfo> transactionInfos;
-			model::ExtractTransactionInfos(transactionInfos, std::move(pBlockElement));
+			ExtractTransactionInfos(transactionInfos, std::move(pBlockElement));
 			return transactionInfos;
 		}
 
-		void AssertTransactionElement(
-				const model::Transaction& expectedTransaction,
-				const model::TransactionInfo& transactionInfo,
-				size_t id) {
+		void AssertTransactionElement(const Transaction& expectedTransaction, const TransactionInfo& transactionInfo, size_t id) {
 			EXPECT_EQ(expectedTransaction, *transactionInfo.pEntity) << "transaction at " << id;
 			EXPECT_EQ(2 * (id + 1), transactionInfo.EntityHash[0]) << "entity hash at " << id;
 			EXPECT_EQ(3 * (id + 1), transactionInfo.MerkleComponentHash[0]) << "merkle component hash at " << id;
 			ASSERT_EQ(1u, transactionInfo.OptionalExtractedAddresses->size()) << "extracted addresses at " << id;
-			ASSERT_EQ(4 * (id + 1), (*transactionInfo.OptionalExtractedAddresses->cbegin())[0]) << "extracted address 0 at " << id;
+			ASSERT_EQ(4 * (id + 1), (*transactionInfo.OptionalExtractedAddresses->cbegin())[0].Byte) << "extracted address 0 at " << id;
 		}
 	}
 
@@ -330,7 +334,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, ExtractTransactionInfosAppendsToDestinationVector) {
 		// Arrange: create blocks with transactions
-		using Blocks = std::vector<std::unique_ptr<model::Block>>;
+		using Blocks = std::vector<std::unique_ptr<Block>>;
 		constexpr auto Num_Transactions = 5u;
 		constexpr auto Num_Blocks = 3u;
 		Blocks blocks;
@@ -343,7 +347,7 @@ namespace catapult { namespace model {
 		// Act:
 		std::vector<TransactionInfo> transactionInfos;
 		for (const auto& pBlock : blocks)
-			model::ExtractTransactionInfos(transactionInfos, PrepareBlockElement(*pBlock));
+			ExtractTransactionInfos(transactionInfos, PrepareBlockElement(*pBlock));
 
 		// Assert:
 		size_t i = 0;
@@ -368,7 +372,7 @@ namespace catapult { namespace model {
 		auto transactionElement = TransactionElement(*pTransaction1);
 		transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
 		transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
-		transactionElement.OptionalExtractedAddresses = std::make_shared<AddressSet>();
+		transactionElement.OptionalExtractedAddresses = std::make_shared<UnresolvedAddressSet>();
 
 		auto pTransaction2 = utils::UniqueToShared(test::GenerateRandomTransaction());
 

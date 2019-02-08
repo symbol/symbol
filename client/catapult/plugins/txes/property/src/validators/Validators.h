@@ -56,7 +56,7 @@ namespace catapult { namespace validators {
 
 	/// A validator implementation that applies to address property value property modification notifications and validates that:
 	/// - property modification value for network with id \a networkIdentifier is valid
-	DECLARE_STATELESS_VALIDATOR(PropertyAddressNoSelfModification, model::ModifyAddressPropertyValueNotification)( \
+	DECLARE_STATELESS_VALIDATOR(PropertyAddressNoSelfModification, model::ModifyAddressPropertyValueNotification)(
 			model::NetworkIdentifier networkIdentifier);
 
 	/// A validator implementation that applies to address interaction notifications and validates that:

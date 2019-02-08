@@ -24,6 +24,7 @@
 #include "catapult/model/Block.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/other/mocks/MockEntityObserver.h"
 #include "tests/TestHarness.h"
 
@@ -32,6 +33,8 @@ namespace catapult { namespace chain {
 #define TEST_CLASS BlockExecutorTests
 
 	namespace {
+		constexpr auto CreateResolverContext = test::CreateResolverContextWithCustomDoublingMosaicResolver;
+
 		void FixHashes(model::BlockElement& blockElement) {
 			auto start = blockElement.Block.Signature[0];
 			blockElement.EntityHash = { { start } };
@@ -68,10 +71,10 @@ namespace catapult { namespace chain {
 			static void ProcessBlock(
 					const model::Block& block,
 					const observers::EntityObserver& observer,
-					const observers::ObserverState& state) {
+					observers::ObserverState& state) {
 				auto blockElement = test::BlockToBlockElement(block);
 				FixHashes(blockElement);
-				ExecuteBlock(blockElement, observer, state);
+				ExecuteBlock(blockElement, { observer, CreateResolverContext(), state });
 			}
 		};
 
@@ -93,10 +96,10 @@ namespace catapult { namespace chain {
 			static void ProcessBlock(
 					const model::Block& block,
 					const observers::EntityObserver& observer,
-					const observers::ObserverState& state) {
+					observers::ObserverState& state) {
 				auto blockElement = test::BlockToBlockElement(block);
 				FixHashes(blockElement);
-				RollbackBlock(blockElement, observer, state);
+				RollbackBlock(blockElement, { observer, CreateResolverContext(), state });
 			}
 		};
 
@@ -109,14 +112,18 @@ namespace catapult { namespace chain {
 
 		void AssertContexts(
 				const std::vector<observers::ObserverContext>& contexts,
-				const observers::ObserverState& state,
+				observers::ObserverState& state,
 				Height height,
 				observers::NotifyMode mode) {
+			// Assert:
 			for (const auto& context : contexts) {
 				EXPECT_EQ(&state.Cache, &context.Cache);
 				EXPECT_EQ(&state.State, &context.State);
 				EXPECT_EQ(height, context.Height);
 				EXPECT_EQ(mode, context.Mode);
+
+				// - appropriate resolvers were passed down
+				EXPECT_EQ(MosaicId(22), context.Resolvers.resolve(UnresolvedMosaicId(11)));
 			}
 		}
 	}
@@ -246,7 +253,7 @@ namespace catapult { namespace chain {
 			EXPECT_TRUE(accountStateCache.contains(address));
 
 			// Act: trigger a rollback
-			RollbackBlock(model::BlockElement(*pBlock), observer, state);
+			RollbackBlock(model::BlockElement(*pBlock), { observer, CreateResolverContext(), state });
 
 			// Assert: the account queued for removal should have been removed
 			EXPECT_EQ(2u, accountStateCache.size());

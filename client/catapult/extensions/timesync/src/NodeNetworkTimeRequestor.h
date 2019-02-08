@@ -20,7 +20,7 @@
 
 #pragma once
 #include "CommunicationTimestamps.h"
-#include "timesync/src/api/TimeSyncApi.h"
+#include "timesync/src/api/RemoteTimeSyncApi.h"
 #include "catapult/net/BriefServerRequestor.h"
 
 namespace catapult { namespace timesync {
@@ -36,7 +36,7 @@ namespace catapult { namespace timesync {
 		}
 
 		static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo) {
-			return api::CreateTimeSyncApi(packetIo)->networkTime();
+			return api::CreateRemoteTimeSyncApi(packetIo)->networkTime();
 		}
 	};
 

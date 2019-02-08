@@ -28,14 +28,19 @@ namespace catapult { namespace model {
 			ConditionalEntityInfosBuilder(WeakEntityInfos& entityInfos, const MatchingEntityPredicate& predicate)
 					: m_entityInfos(entityInfos)
 					, m_predicate(predicate)
+					, m_pActiveBlockHeader(nullptr)
 			{}
 
 		public:
+			void setActiveBlockHeader(const BlockHeader& blockHeader) {
+				m_pActiveBlockHeader = &blockHeader;
+			}
+
 			template<typename TElement>
 			void add(const TElement& element) {
 				const auto& entity = GetEntity(element);
 				if (m_predicate(ToBasicEntityType(entity.Type), GetTimestamp(element), element.EntityHash))
-					m_entityInfos.push_back(WeakEntityInfo(entity, element.EntityHash));
+					m_entityInfos.push_back(WeakEntityInfo(entity, element.EntityHash, *m_pActiveBlockHeader));
 			}
 
 		private:
@@ -62,9 +67,11 @@ namespace catapult { namespace model {
 		private:
 			WeakEntityInfos& m_entityInfos;
 			MatchingEntityPredicate m_predicate;
+			const BlockHeader* m_pActiveBlockHeader;
 		};
 
 		void AddBlockElement(ConditionalEntityInfosBuilder& builder, const BlockElement& element) {
+			builder.setActiveBlockHeader(element.Block);
 			for (const auto& transactionElement : element.Transactions)
 				builder.add(transactionElement);
 
@@ -97,10 +104,10 @@ namespace catapult { namespace model {
 		}
 	}
 
-	model::TransactionInfo MakeTransactionInfo(
+	TransactionInfo MakeTransactionInfo(
 			const std::shared_ptr<const Transaction>& pTransaction,
-			const model::TransactionElement& transactionElement) {
-		model::TransactionInfo transactionInfo(pTransaction, transactionElement.EntityHash);
+			const TransactionElement& transactionElement) {
+		TransactionInfo transactionInfo(pTransaction, transactionElement.EntityHash);
 		transactionInfo.MerkleComponentHash = transactionElement.MerkleComponentHash;
 		transactionInfo.OptionalExtractedAddresses = transactionElement.OptionalExtractedAddresses;
 		return transactionInfo;

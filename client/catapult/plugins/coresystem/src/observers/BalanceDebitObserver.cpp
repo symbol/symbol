@@ -28,9 +28,10 @@ namespace catapult { namespace observers {
 		auto senderIter = cache.find(notification.Sender);
 		auto& senderState = senderIter.get();
 
+		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
 		if (NotifyMode::Commit == context.Mode)
-			senderState.Balances.debit(notification.MosaicId, notification.Amount);
+			senderState.Balances.debit(mosaicId, notification.Amount);
 		else
-			senderState.Balances.credit(notification.MosaicId, notification.Amount);
+			senderState.Balances.credit(mosaicId, notification.Amount);
 	});
 }}

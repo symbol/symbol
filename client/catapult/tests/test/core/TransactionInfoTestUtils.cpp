@@ -25,22 +25,32 @@
 
 namespace catapult { namespace test {
 
+	// region create (single)
+
 	model::TransactionInfo CreateRandomTransactionInfo() {
-		auto transactionInfo = model::TransactionInfo(test::GenerateRandomTransaction());
-		test::FillWithRandomData(transactionInfo.EntityHash);
-		test::FillWithRandomData(transactionInfo.MerkleComponentHash);
-		transactionInfo.OptionalExtractedAddresses = std::make_shared<model::AddressSet>();
+		auto transactionInfo = model::TransactionInfo(GenerateRandomTransaction());
+		FillWithRandomData(transactionInfo.EntityHash);
+		FillWithRandomData(transactionInfo.MerkleComponentHash);
+		transactionInfo.OptionalExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
 		return transactionInfo;
 	}
 
 	model::TransactionInfo CreateTransactionInfoWithDeadline(size_t deadline) {
-		auto pTransaction = test::GenerateRandomTransaction();
+		auto pTransaction = GenerateRandomTransaction();
 		pTransaction->Deadline = Timestamp(deadline);
 		auto transactionInfo = model::TransactionInfo(std::move(pTransaction));
-		test::FillWithRandomData(transactionInfo.EntityHash);
-		test::FillWithRandomData(transactionInfo.MerkleComponentHash);
-		transactionInfo.OptionalExtractedAddresses = std::make_shared<model::AddressSet>();
+		FillWithRandomData(transactionInfo.EntityHash);
+		FillWithRandomData(transactionInfo.MerkleComponentHash);
+		transactionInfo.OptionalExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
 		return transactionInfo;
+	}
+
+	// endregion
+
+	// region create (multiple)
+
+	std::vector<model::TransactionInfo> CreateTransactionInfos(size_t count) {
+		return CreateTransactionInfos(count, [](auto i) { return Timestamp(i + 1); });
 	}
 
 	std::vector<model::TransactionInfo> CreateTransactionInfos(size_t count, const std::function<Timestamp (size_t)>& deadlineGenerator) {
@@ -51,9 +61,24 @@ namespace catapult { namespace test {
 		return transactionInfos;
 	}
 
-	std::vector<model::TransactionInfo> CreateTransactionInfos(size_t count) {
-		return CreateTransactionInfos(count, [](auto i) { return Timestamp(i + 1); });
+	std::vector<model::TransactionInfo> CreateTransactionInfosFromSizeMultiplierPairs(
+			const std::vector<std::pair<uint32_t, uint32_t>>& sizeMultiplierPairs) {
+		std::vector<model::TransactionInfo> transactionInfos;
+		for (const auto& pair: sizeMultiplierPairs) {
+			auto pTransaction = GenerateRandomTransactionWithSize(pair.first);
+			pTransaction->MaxFee = Amount(pair.first * pair.second / 10);
+			transactionInfos.push_back(model::TransactionInfo(std::move(pTransaction)));
+
+			// give each info a unique entity hash so that they can all be added to a UT cache
+			FillWithRandomData(transactionInfos.back().EntityHash);
+		}
+
+		return transactionInfos;
 	}
+
+	// endregion
+
+	// region copy
 
 	std::vector<model::TransactionInfo> CopyTransactionInfos(const std::vector<model::TransactionInfo>& transactionInfos) {
 		std::vector<model::TransactionInfo> copy;
@@ -71,6 +96,10 @@ namespace catapult { namespace test {
 		return copy;
 	}
 
+	// endregion
+
+	// region extract
+
 	std::vector<const model::VerifiableEntity*> ExtractEntities(const std::vector<model::TransactionInfo>& transactionInfos) {
 		std::vector<const model::VerifiableEntity*> entities;
 		for (const auto& transactionInfo : transactionInfos)
@@ -87,17 +116,21 @@ namespace catapult { namespace test {
 		return hashes;
 	}
 
+	// endregion
+
+	// region asserts
+
 	void AssertEqual(const model::DetachedTransactionInfo& lhs, const model::DetachedTransactionInfo& rhs, const std::string& message) {
 		EXPECT_EQ(*lhs.pEntity, *rhs.pEntity) << message;
-		EXPECT_EQ(test::ToString(lhs.EntityHash), test::ToString(rhs.EntityHash)) << message;
+		EXPECT_EQ(lhs.EntityHash, rhs.EntityHash) << message;
 		EXPECT_EQ(lhs.OptionalExtractedAddresses.get(), rhs.OptionalExtractedAddresses.get()) << message;
 	}
 
 	void AssertEqual(const model::TransactionInfo& lhs, const model::TransactionInfo& rhs, const std::string& message) {
 		EXPECT_EQ(*lhs.pEntity, *rhs.pEntity) << message;
-		EXPECT_EQ(test::ToString(lhs.EntityHash), test::ToString(rhs.EntityHash)) << message;
+		EXPECT_EQ(lhs.EntityHash, rhs.EntityHash) << message;
 		EXPECT_EQ(lhs.OptionalExtractedAddresses.get(), rhs.OptionalExtractedAddresses.get()) << message;
-		EXPECT_EQ(test::ToString(lhs.MerkleComponentHash), test::ToString(rhs.MerkleComponentHash)) << message;
+		EXPECT_EQ(lhs.MerkleComponentHash, rhs.MerkleComponentHash) << message;
 	}
 
 	namespace {
@@ -130,4 +163,6 @@ namespace catapult { namespace test {
 			++rhsIter;
 		}
 	}
+
+	// endregion
 }}

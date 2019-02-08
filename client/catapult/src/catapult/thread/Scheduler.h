@@ -29,7 +29,7 @@ namespace catapult { namespace thread {
 	/// A scheduler.
 	class Scheduler {
 	public:
-		virtual ~Scheduler() {}
+		virtual ~Scheduler() = default;
 
 	public:
 		/// Gets the number of tasks that are currently either scheduled or executing.

@@ -46,6 +46,9 @@ namespace catapult { namespace chain {
 					, m_network(pluginManager.config().Network)
 					, m_pStatelessValidator(pluginManager.createStatelessValidator(isSuppressedFailure))
 					, m_pStatefulValidator(pluginManager.createStatefulValidator(isSuppressedFailure))
+					, m_resolverContextFactory([&pluginManager](const auto& readOnlyCache) {
+						return pluginManager.createResolverContext(readOnlyCache);
+					})
 					, m_name(CreateJointValidatorName(m_pStatelessValidator->name(), m_pStatefulValidator->name()))
 			{}
 
@@ -72,7 +75,8 @@ namespace catapult { namespace chain {
 			ValidationResult validateStateful(const model::Notification& notification) const {
 				auto cacheView = m_cache.createView();
 				auto readOnlyCache = cacheView.toReadOnly();
-				auto validatorContext = ValidatorContext(cacheView.height(), m_timeSupplier(), m_network, readOnlyCache);
+				auto resolverContext = m_resolverContextFactory(readOnlyCache);
+				auto validatorContext = ValidatorContext(cacheView.height(), m_timeSupplier(), m_network, resolverContext, readOnlyCache);
 				return m_pStatefulValidator->validate(notification, validatorContext);
 			}
 
@@ -82,6 +86,7 @@ namespace catapult { namespace chain {
 			model::NetworkInfo m_network;
 			std::unique_ptr<const stateless::NotificationValidator> m_pStatelessValidator;
 			std::unique_ptr<const stateful::NotificationValidator> m_pStatefulValidator;
+			std::function<model::ResolverContext (const cache::ReadOnlyCatapultCache&)> m_resolverContextFactory;
 			std::string m_name;
 		};
 	}

@@ -37,6 +37,9 @@ namespace catapult { namespace chain {
 	/// Validation failed because a block was received that has an inconsistent state hash.
 	DEFINE_CHAIN_RESULT(Block_Inconsistent_State_Hash, 105);
 
+	/// Validation failed because a block was received that has an inconsistent receipts hash.
+	DEFINE_CHAIN_RESULT(Block_Inconsistent_Receipts_Hash, 106);
+
 	/// Validation failed because the unconfirmed cache is too full.
 	DEFINE_CHAIN_RESULT(Unconfirmed_Cache_Too_Full, 201);
 

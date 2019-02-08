@@ -42,8 +42,7 @@ namespace catapult { namespace cache {
 	using MultisigSingleSetCacheTypesAdapter =
 		SingleSetAndPatriciaTreeCacheTypesAdapter<MultisigCacheTypes::PrimaryTypes, MultisigPatriciaTree>;
 
-	struct MultisigBaseSetDeltaPointers : public MultisigSingleSetCacheTypesAdapter::BaseSetDeltaPointers {
-	};
+	struct MultisigBaseSetDeltaPointers : public MultisigSingleSetCacheTypesAdapter::BaseSetDeltaPointers {};
 
 	struct MultisigBaseSets : public MultisigSingleSetCacheTypesAdapter::BaseSets<MultisigBaseSetDeltaPointers> {
 		using MultisigSingleSetCacheTypesAdapter::BaseSets<MultisigBaseSetDeltaPointers>::BaseSets;

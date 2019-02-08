@@ -50,7 +50,7 @@ namespace catapult { namespace test {
 			// Arrange: prepare a read of the written data
 			mockIo.queueRead(ionet::SocketOperationCode::Success, [](const auto* pWrittenPacket) {
 				auto pWrittenPacketCopy = utils::MakeSharedWithSize<ionet::Packet>(pWrittenPacket->Size);
-				std::memcpy(pWrittenPacketCopy.get(), pWrittenPacket, pWrittenPacket->Size);
+				std::memcpy(static_cast<void*>(pWrittenPacketCopy.get()), pWrittenPacket, pWrittenPacket->Size);
 				return pWrittenPacketCopy;
 			});
 
@@ -72,8 +72,8 @@ namespace catapult { namespace test {
 			ASSERT_EQ(sizeof(ionet::PacketHeader) + 126 + 212, readPacket.Size);
 			EXPECT_EQ(ionet::PacketType::Push_Transactions, readPacket.Type);
 
-			EXPECT_TRUE(0 == std::memcmp(payload.buffers()[0].pData, readPacket.Data(), payload.buffers()[0].Size));
-			EXPECT_TRUE(0 == std::memcmp(payload.buffers()[1].pData, readPacket.Data() + 126, payload.buffers()[1].Size));
+			EXPECT_EQ_MEMORY(payload.buffers()[0].pData, readPacket.Data(), payload.buffers()[0].Size);
+			EXPECT_EQ_MEMORY(payload.buffers()[1].pData, readPacket.Data() + 126, payload.buffers()[1].Size);
 		}
 
 		struct BasicIoTraits {

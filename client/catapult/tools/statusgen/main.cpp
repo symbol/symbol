@@ -62,16 +62,18 @@ namespace catapult { namespace tools { namespace statusgen {
 				#include "../../plugins/coresystem/src/validators/Results.h"
 				#include "../../plugins/services/hashcache/src/validators/Results.h"
 				#include "../../plugins/services/signature/src/validators/Results.h"
+				#include "../../plugins/txes/accountlink/src/validators/Results.h"
 				#include "../../plugins/txes/aggregate/src/validators/Results.h"
 				#include "../../plugins/txes/lock_hash/src/validators/Results.h"
 				#include "../../plugins/txes/lock_secret/src/validators/Results.h"
+				#include "../../plugins/txes/mosaic/src/validators/Results.h"
 				#include "../../plugins/txes/multisig/src/validators/Results.h"
 				#include "../../plugins/txes/namespace/src/validators/Results.h"
+				#include "../../plugins/txes/property/src/validators/Results.h"
 				#include "../../plugins/txes/transfer/src/validators/Results.h"
 				#include "../../src/catapult/chain/ChainResults.h"
 				#include "../../src/catapult/consumers/ConsumerResults.h"
 				#include "../../src/catapult/extensions/Results.h"
-
 				return 0;
 			}
 		};

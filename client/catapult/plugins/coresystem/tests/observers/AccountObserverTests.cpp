@@ -37,7 +37,7 @@ namespace catapult { namespace observers {
 			}
 
 			static auto CreateNotification(const Address& key) {
-				return model::AccountAddressNotification(key);
+				return model::AccountAddressNotification(test::UnresolveXor(key));
 			}
 
 			static auto CreateObserver() {

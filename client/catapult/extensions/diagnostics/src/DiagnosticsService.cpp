@@ -45,6 +45,7 @@ namespace catapult { namespace diagnostics {
 			auto& handlers = state.packetHandlers();
 			handlers::RegisterDiagnosticCountersHandler(handlers, counters);
 			handlers::RegisterDiagnosticNodesHandler(handlers, state.nodes());
+			handlers::RegisterDiagnosticBlockStatementHandler(handlers, state.storage());
 			state.pluginManager().addDiagnosticHandlers(handlers, state.cache());
 		}
 

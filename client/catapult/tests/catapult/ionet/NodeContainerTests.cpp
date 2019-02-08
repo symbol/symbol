@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/ionet/NodeContainer.h"
+#include "catapult/ionet/NodeInteractionResult.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/nodeps/LockTestUtils.h"
 #include "tests/TestHarness.h"
@@ -91,6 +92,44 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		AssertEmpty(container);
+	}
+
+	// endregion
+
+	// region time
+
+	TEST(TEST_CLASS, DefaultContainerTimeIsAlwaysZero) {
+		// Arrange:
+		NodeContainer container;
+		const auto& view = container.view();
+
+		// Act:
+		auto time1 = view.time();
+		auto time2 = view.time();
+		auto time3 = view.time();
+
+		// Assert:
+		EXPECT_EQ(Timestamp(), time1);
+		EXPECT_EQ(Timestamp(), time2);
+		EXPECT_EQ(Timestamp(), time3);
+	}
+
+	TEST(TEST_CLASS, ContainerTimeDelegatesToTimeSupplier) {
+		// Arrange:
+		auto numCalls = 0u;
+		NodeContainer container(3, [&numCalls]() { return Timestamp(++numCalls * 2); });
+		const auto& view = container.view();
+
+		// Act:
+		auto time1 = view.time();
+		auto time2 = view.time();
+		auto time3 = view.time();
+
+		// Assert:
+		EXPECT_EQ(3u, numCalls);
+		EXPECT_EQ(Timestamp(2), time1);
+		EXPECT_EQ(Timestamp(4), time2);
+		EXPECT_EQ(Timestamp(6), time3);
 	}
 
 	// endregion
@@ -231,9 +270,15 @@ namespace catapult { namespace ionet {
 
 	// region add - pruning
 
+	namespace {
+		Timestamp ZeroTimeSupplier() {
+			return Timestamp(0);
+		}
+	}
+
 	TEST(TEST_CLASS, AddWhenFullRemovesOldestCandidateNode) {
 		// Arrange:
-		NodeContainer container(3);
+		NodeContainer container(3, ZeroTimeSupplier);
 		auto keys = test::GenerateRandomDataVector<Key>(4);
 
 		// Act:
@@ -256,7 +301,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, PromotionWhenFullDoesNotRemoveAnyNode) {
 		// Arrange:
-		NodeContainer container(3);
+		NodeContainer container(3, ZeroTimeSupplier);
 		auto keys = test::GenerateRandomDataVector<Key>(3);
 
 		// Act:
@@ -279,7 +324,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, AddPruningPreservesNonDynamicNodes) {
 		// Arrange:
-		NodeContainer container(3);
+		NodeContainer container(3, ZeroTimeSupplier);
 		auto keys = test::GenerateRandomDataVector<Key>(4);
 
 		// Act:
@@ -302,7 +347,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, AddPruningPrunesNodesWithWorstSourceFirst) {
 		// Arrange:
-		NodeContainer container(3);
+		NodeContainer container(3, ZeroTimeSupplier);
 		auto keys = test::GenerateRandomDataVector<Key>(4);
 
 		// Act:
@@ -325,7 +370,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, AddPruningPreservesNodesWithActiveConnections) {
 		// Arrange:
-		NodeContainer container(3);
+		NodeContainer container(3, ZeroTimeSupplier);
 		auto keys = test::GenerateRandomDataVector<Key>(4);
 
 		// Act:
@@ -351,7 +396,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, AddHasNoEffectWhenThereAreNoPruneCandidates) {
 		// Arrange:
-		NodeContainer container(3);
+		NodeContainer container(3, ZeroTimeSupplier);
 		auto keys = test::GenerateRandomDataVector<Key>(4);
 
 		// Act:
@@ -741,6 +786,67 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(0u, nodeInfo1.getConnectionState(ServiceIdentifier(123))->BanAge);
 		EXPECT_EQ(0u, nodeInfo2.getConnectionState(ServiceIdentifier(123))->BanAge);
 		EXPECT_EQ(0u, nodeInfo3.getConnectionState(ServiceIdentifier(123))->BanAge);
+	}
+
+	// endregion
+
+	// region incrementSuccesses / incrementFailures
+
+	TEST(TEST_CLASS, NoIncrementIfNodeIsNotFound) {
+		// Arrange:
+		auto identityKey = test::GenerateRandomData<Key_Size>();
+		NodeContainer container;
+
+		// Act:
+		{
+			auto modifier = container.modifier();
+			modifier.incrementSuccesses(identityKey);
+			modifier.incrementFailures(identityKey);
+		}
+
+		// Assert: no node was added to the container
+		EXPECT_FALSE(container.view().contains(identityKey));
+	}
+
+	namespace {
+		template<typename TIncrement>
+		void AssertCanAddInteraction(uint32_t successesPerIncrement, uint32_t failuresPerIncrement, TIncrement increment) {
+			// Arrange:
+			auto time1 = Timestamp();
+			auto time2 = Timestamp(NodeInteractionsContainer::BucketDuration().millis());
+			auto time3 = Timestamp(NodeInteractionsContainer::InteractionDuration().millis());
+
+			auto timestampIndex = 0u;
+			std::vector<Timestamp> timestamps{ time1, time2, time2, time3, time3, time3 };
+
+			auto identityKey = test::GenerateRandomData<Key_Size>();
+			NodeContainer container(3, [&timestampIndex, &timestamps]() { return timestamps[timestampIndex++]; });
+			Add(container, identityKey, "bob", NodeSource::Dynamic);
+
+			// Act:
+			{
+				auto modifier = container.modifier();
+				for (auto i = 0u; i < timestamps.size(); ++i)
+					increment(modifier, identityKey);
+			}
+
+			// Assert: if pruning did not occur, these would not all be the same
+			auto view = container.view();
+			const auto& nodeInfo = view.getNodeInfo(identityKey);
+			test::AssertNodeInteractions(5 * successesPerIncrement, 5 * failuresPerIncrement, nodeInfo.interactions(time1), "time 1");
+			test::AssertNodeInteractions(5 * successesPerIncrement, 5 * failuresPerIncrement, nodeInfo.interactions(time2), "time 2");
+			test::AssertNodeInteractions(5 * successesPerIncrement, 5 * failuresPerIncrement, nodeInfo.interactions(time3), "time 3");
+		}
+	}
+
+	TEST(TEST_CLASS, IncrementsSuccessesOnSuccess) {
+		// Assert:
+		AssertCanAddInteraction(1, 0, [](auto& modifier, const auto& identityKey) { modifier.incrementSuccesses(identityKey); });
+	}
+
+	TEST(TEST_CLASS, IncrementsFailuresOnFailure) {
+		// Assert:
+		AssertCanAddInteraction(0, 1, [](auto& modifier, const auto& identityKey) { modifier.incrementFailures(identityKey); });
 	}
 
 	// endregion

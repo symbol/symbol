@@ -27,44 +27,36 @@ namespace catapult { namespace tree {
 
 	using Serializer = PatriciaTreeSerializer;
 
-	// region serialization - value
-
-	TEST(TEST_CLASS, SerializeNodeFailsIfNodeIsEmpty) {
-		// Act + Assert:
-		EXPECT_THROW(Serializer::SerializeValue(TreeNode()), catapult_invalid_argument);
-	}
+	// region (PTSERIALIZER) traits
 
 	namespace {
-		struct OddPathTraits {
-		public:
+		template<size_t Size, size_t NibbleSize>
+		struct BasePathTraits {
 			constexpr static size_t PathSize() {
-				return 6;
+				return Size;
 			}
 
 			constexpr static size_t PathNibbleSize() {
-				return 11;
+				return NibbleSize;
 			}
+		};
 
-		public:
+		struct OddPathTraits : public BasePathTraits<6, 11> {
 			static auto CreatePath() {
 				auto path = TreeNodePath(test::GenerateRandomData<PathSize()>());
 				return path.subpath(1);
 			}
 		};
 
-		struct EvenPathTraits {
-		public:
-			constexpr static size_t PathSize() {
-				return 7;
-			}
-
-			constexpr static size_t PathNibbleSize() {
-				return 14;
-			}
-
-		public:
+		struct EvenPathTraits : public BasePathTraits<7, 14> {
 			static auto CreatePath() {
 				return TreeNodePath(test::GenerateRandomData<PathSize()>());
+			}
+		};
+
+		struct EmptyPathTraits : public BasePathTraits<0, 0> {
+			static auto CreatePath() {
+				return TreeNodePath();
 			}
 		};
 
@@ -119,7 +111,17 @@ namespace catapult { namespace tree {
 	template<typename TPathTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_OddPath) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OddPathTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_EvenPath) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EvenPathTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_EmptyPath) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmptyPathTraits>(); } \
 	template<typename TPathTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	// endregion
+
+	// region serialization - value
+
+	TEST(TEST_CLASS, SerializeNodeFailsIfNodeIsEmpty) {
+		// Act + Assert:
+		EXPECT_THROW(Serializer::SerializeValue(TreeNode()), catapult_invalid_argument);
+	}
 
 	PTSERIALIZER_TRAITS_BASED_TEST(CanSerializeLeaf) {
 		// Arrange:

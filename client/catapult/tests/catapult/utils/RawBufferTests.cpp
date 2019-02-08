@@ -85,7 +85,7 @@ namespace catapult { namespace utils {
 		typename TTraits::Type buffer;
 
 		// Assert:
-		EXPECT_EQ(0u, buffer.Size);
+		ASSERT_EQ(0u, buffer.Size);
 		EXPECT_FALSE(!!buffer.pData);
 	}
 
@@ -97,7 +97,7 @@ namespace catapult { namespace utils {
 		typename TTraits::Type buffer(data);
 
 		// Assert:
-		EXPECT_EQ(25u, buffer.Size);
+		ASSERT_EQ(25u, buffer.Size);
 		EXPECT_EQ(data.data(), buffer.pData);
 		EXPECT_EQ(TTraits::ToString(data.data(), data.size()), TTraits::ToString(buffer.pData, buffer.Size));
 	}
@@ -109,7 +109,7 @@ namespace catapult { namespace utils {
 		// Act:
 		[&data](const typename TTraits::Type& buffer) {
 			// Assert:
-			EXPECT_EQ(25u, buffer.Size);
+			ASSERT_EQ(25u, buffer.Size);
 			EXPECT_EQ(TTraits::ToString(data.data(), data.size()), TTraits::ToString(buffer.pData, buffer.Size));
 		}(decltype(data)(data)); // call the lambda with a (temporary) copy of data
 	}
@@ -122,7 +122,7 @@ namespace catapult { namespace utils {
 		typename TTraits::Type buffer(data.data() + 5, 6);
 
 		// Assert:
-		EXPECT_EQ(6u, buffer.Size);
+		ASSERT_EQ(6u, buffer.Size);
 		EXPECT_EQ(data.data() + 5, buffer.pData);
 		EXPECT_EQ(TTraits::ToString(data.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 	}
@@ -136,7 +136,7 @@ namespace catapult { namespace utils {
 		typename TTraits::Type buffer(originalBuffer);
 
 		// Assert:
-		EXPECT_EQ(6u, buffer.Size);
+		ASSERT_EQ(6u, buffer.Size);
 		EXPECT_EQ(data.data() + 5, buffer.pData);
 		EXPECT_EQ(TTraits::ToString(data.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 	}
@@ -151,7 +151,7 @@ namespace catapult { namespace utils {
 		buffer = originalBuffer;
 
 		// Assert:
-		EXPECT_EQ(6u, buffer.Size);
+		ASSERT_EQ(6u, buffer.Size);
 		EXPECT_EQ(data.data() + 5, buffer.pData);
 		EXPECT_EQ(TTraits::ToString(data.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 	}
@@ -202,7 +202,7 @@ namespace catapult { namespace utils {
 		buffer.pData[0] ^= 0xFF;
 
 		// Assert:
-		EXPECT_EQ(25u, buffer.Size);
+		ASSERT_EQ(25u, buffer.Size);
 		EXPECT_EQ(data.data(), buffer.pData);
 		EXPECT_EQ(TTraits::ToString(data.data(), data.size()), TTraits::ToString(buffer.pData, buffer.Size));
 		EXPECT_EQ(static_cast<decltype(originalByte)>(originalByte ^ 0xFF), data[0]);
@@ -218,7 +218,7 @@ namespace catapult { namespace utils {
 		buffer.pData[2] ^= 0xFF;
 
 		// Assert:
-		EXPECT_EQ(6u, buffer.Size);
+		ASSERT_EQ(6u, buffer.Size);
 		EXPECT_EQ(data.data() + 5, buffer.pData);
 		EXPECT_EQ(TTraits::ToString(data.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 		EXPECT_EQ(static_cast<decltype(originalByte)>(originalByte ^ 0xFF), data[7]);

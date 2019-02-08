@@ -67,18 +67,6 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(pPluginManager->createStatelessValidator()->name(), pEntityValidator->names()[0]);
 	}
 
-	TEST(TEST_CLASS, CanCreateEntityObserver) {
-		// Arrange:
-		auto pPluginManager = test::CreateDefaultPluginManager();
-
-		// Act:
-		auto pEntityObserver = CreateEntityObserver(*pPluginManager);
-
-		// Assert:
-		ASSERT_TRUE(!!pEntityObserver);
-		EXPECT_EQ(pPluginManager->createObserver()->name(), pEntityObserver->name());
-	}
-
 	TEST(TEST_CLASS, CanCreateUndoEntityObserver) {
 		// Arrange:
 		auto pPluginManager = test::CreateDefaultPluginManager();
@@ -89,17 +77,5 @@ namespace catapult { namespace extensions {
 		// Assert:
 		ASSERT_TRUE(!!pEntityObserver);
 		EXPECT_EQ(pPluginManager->createObserver()->name(), pEntityObserver->name());
-	}
-
-	TEST(TEST_CLASS, CanCreatePermanentEntityObserver) {
-		// Arrange:
-		auto pPluginManager = test::CreateDefaultPluginManager();
-
-		// Act:
-		auto pEntityObserver = CreatePermanentEntityObserver(*pPluginManager);
-
-		// Assert:
-		ASSERT_TRUE(!!pEntityObserver);
-		EXPECT_EQ(pPluginManager->createPermanentObserver()->name(), pEntityObserver->name());
 	}
 }}

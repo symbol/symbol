@@ -36,13 +36,17 @@ namespace catapult { namespace sync {
 
 	namespace {
 		constexpr auto Sync_Source = disruptor::InputSource::Remote_Pull;
+		constexpr auto Service_Id = ionet::ServiceIdentifier(0x53594E43);
 
 		thread::Task CreateConnectPeersTask(extensions::ServiceState& state, net::PacketWriters& packetWriters) {
-			const auto& connectionsConfig = state.config().Node.OutgoingConnections;
-			auto& nodes = state.nodes();
-
-			auto serviceId = ionet::ServiceIdentifier(0x53594E43);
-			auto task = extensions::CreateConnectPeersTask(nodes, packetWriters, serviceId, ionet::NodeRoles::Peer, connectionsConfig);
+			auto settings = extensions::SelectorSettings(
+					state.cache(),
+					state.config().BlockChain.TotalChainImportance,
+					state.nodes(),
+					Service_Id,
+					ionet::NodeRoles::Peer,
+					state.config().Node.OutgoingConnections);
+			auto task = extensions::CreateConnectPeersTask(settings, packetWriters);
 			task.Name += " for service Sync";
 			return task;
 		}
@@ -58,9 +62,9 @@ namespace catapult { namespace sync {
 		thread::Task CreateSynchronizerTask(const extensions::ServiceState& state, net::PacketWriters& packetWriters) {
 			const auto& config = state.config();
 			auto chainSynchronizer = chain::CreateChainSynchronizer(
-					api::CreateLocalChainApi(
-							state.storage(),
-							[&score = state.score()]() { return score.get(); }),
+					api::CreateLocalChainApi(state.storage(), [&score = state.score()]() {
+						return score.get();
+					}),
 					CreateChainSynchronizerConfiguration(config),
 					state.hooks().completionAwareBlockRangeConsumerFactory()(Sync_Source));
 
@@ -77,6 +81,7 @@ namespace catapult { namespace sync {
 
 		thread::Task CreatePullUtTask(const extensions::ServiceState& state, net::PacketWriters& packetWriters) {
 			auto utSynchronizer = chain::CreateUtSynchronizer(
+					state.config().Node.MinFeeMultiplier,
 					[&cache = state.utCache()]() { return cache.view().shortHashes(); },
 					state.hooks().transactionRangeConsumerFactory()(Sync_Source));
 

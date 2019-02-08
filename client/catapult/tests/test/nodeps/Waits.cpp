@@ -65,7 +65,7 @@ namespace catapult { namespace test {
 	}
 
 	void RunNonDeterministicTest(const char* description, const predicate<size_t>& test) {
-		RunNonDeterministicTest(description, Max_Non_Deterministic_Test_Retries, test);
+		RunNonDeterministicTest(description, GetMaxNonDeterministicTestRetries(), test);
 	}
 
 	void RunNonDeterministicTest(const char* description, size_t numRetries, const predicate<size_t>& test) {

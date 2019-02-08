@@ -38,7 +38,7 @@ namespace catapult { namespace subscribers {
 		m_subscriberUsedFlags.fill(false);
 	}
 
-	io::PrunableBlockStorage& SubscriptionManager::fileStorage() {
+	io::BlockStorage& SubscriptionManager::fileStorage() {
 		return *m_pStorage;
 	}
 
@@ -117,8 +117,8 @@ namespace catapult { namespace subscribers {
 						<< " (deadline " << transaction.Deadline << ")";
 			}
 
-			void flush() override {
-			}
+			void flush() override
+			{}
 		};
 
 		markUsed(SubscriberType::TransactionStatus);

@@ -101,7 +101,9 @@ namespace catapult { namespace test {
 			const std::vector<model::Cosignature>& expectedCosignatures,
 			size_t numCosignaturesToIgnore) {
 		// Assert: check basic properties
-		auto expectedSize = sizeof(model::AggregateTransaction) + originalTransaction.PayloadSize
+		auto expectedSize =
+				sizeof(model::AggregateTransaction)
+				+ originalTransaction.PayloadSize
 				+ static_cast<uint32_t>((expectedCosignatures.size() + numCosignaturesToIgnore) * sizeof(model::Cosignature));
 		ASSERT_EQ(expectedSize, stitchedTransaction.Size);
 		ASSERT_EQ(model::Entity_Type_Aggregate_Bonded, stitchedTransaction.Type);

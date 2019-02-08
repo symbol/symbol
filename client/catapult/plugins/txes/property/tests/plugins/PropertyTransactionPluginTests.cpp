@@ -19,8 +19,10 @@
 **/
 
 #include "src/plugins/PropertyTransactionPlugin.h"
+#include "src/model/AddressPropertyTransaction.h"
+#include "src/model/MosaicPropertyTransaction.h"
 #include "src/model/PropertyNotifications.h"
-#include "src/model/PropertyTransaction.h"
+#include "src/model/TransactionTypePropertyTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
@@ -31,9 +33,9 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS PropertyTransactionPluginTests
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(AddressProperty, AddressProperty)
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(MosaicProperty, MosaicProperty)
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(TransactionTypeProperty, TransactionTypeProperty)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(AddressProperty, 1, 1, AddressProperty)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(MosaicProperty, 1, 1, MosaicProperty)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(TransactionTypeProperty, 1, 1, TransactionTypeProperty)
 
 		template<typename TTransaction, typename TTransactionTraits>
 		struct AddressTraits : public TTransactionTraits {

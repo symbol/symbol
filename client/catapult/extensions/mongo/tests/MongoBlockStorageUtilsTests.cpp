@@ -19,7 +19,9 @@
 **/
 
 #include "mongo/src/MongoBlockStorageUtils.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/io/BlockStorage.h"
+#include "catapult/model/Address.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "tests/test/core/BlockTestUtils.h"
@@ -130,7 +132,7 @@ namespace catapult { namespace mongo {
 			ASSERT_EQ(1u, transactionElement.OptionalExtractedAddresses->size());
 
 			const auto& transaction = transactionElement.Transaction;
-			auto signerAddress = model::PublicKeyToAddress(transaction.Signer, transaction.Network());
+			auto signerAddress = extensions::CopyToUnresolvedAddress(model::PublicKeyToAddress(transaction.Signer, transaction.Network()));
 			EXPECT_EQ(signerAddress, *transactionElement.OptionalExtractedAddresses->cbegin());
 		}
 	}

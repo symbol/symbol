@@ -35,19 +35,61 @@ namespace catapult { namespace test {
 
 	/// Root namespace header.
 	struct RootNamespaceHeader {
+	public:
+		RootNamespaceHeader(const Key& owner, Height lifetimeStart, Height lifetimeEnd, uint64_t numChildren)
+				: Owner(owner)
+				, LifetimeStart(lifetimeStart)
+				, LifetimeEnd(lifetimeEnd)
+				, AliasType(state::AliasType::None)
+				, NumChildren(numChildren)
+		{}
+
+	public:
 		Key Owner;
 		Height LifetimeStart;
 		Height LifetimeEnd;
+		state::AliasType AliasType;
 		uint64_t NumChildren;
 	};
 
 	/// Namespace data.
 	struct NamespaceData {
+	public:
+		NamespaceData(NamespaceId part1, NamespaceId part2) : NamespaceData(part1, part2, state::AliasType::None)
+		{}
+
+		NamespaceData(NamespaceId part1, NamespaceId part2, state::AliasType aliasType)
+				: Part1(part1)
+				, Part2(part2)
+				, AliasType(aliasType)
+		{}
+
+	public:
 		NamespaceId Part1;
 		NamespaceId Part2;
+		state::AliasType AliasType;
 	};
 
 #pragma pack(pop)
+
+	/// Namespace data with alias payload.
+	struct NamespaceDataWithAliasPayload {
+	public:
+		NamespaceDataWithAliasPayload(NamespaceId part1, NamespaceId part2)
+				: NamespaceDataWithAliasPayload(part1, part2, state::NamespaceAlias())
+		{}
+
+		NamespaceDataWithAliasPayload(NamespaceId part1, NamespaceId part2, const state::NamespaceAlias& alias)
+				: Part1(part1)
+				, Part2(part2)
+				, Alias(alias)
+		{}
+
+	public:
+		NamespaceId Part1;
+		NamespaceId Part2;
+		state::NamespaceAlias Alias;
+	};
 
 	/// Asserts that \a root has expected property values (\a owner, \a lifetimeStart, \a lifetimeEnd, \a numChildren)
 	CATAPULT_INLINE
@@ -56,12 +98,16 @@ namespace catapult { namespace test {
 			const Key& owner,
 			Height lifetimeStart,
 			Height lifetimeEnd,
-			uint64_t numChildren) {
+			uint64_t numChildren,
+			const state::NamespaceAlias& alias = state::NamespaceAlias()) {
 		auto message = "root " + std::to_string(root.id().unwrap());
 		EXPECT_EQ(owner, root.owner()) << message;
 		EXPECT_EQ(lifetimeStart, root.lifetime().Start) << message;
 		EXPECT_EQ(lifetimeEnd, root.lifetime().End) << message;
 		EXPECT_EQ(numChildren, root.size()) << message;
+
+		auto rootAlias = root.alias(root.id());
+		test::AssertEqualAlias(alias, rootAlias);
 	}
 
 	/// Root namespace history load test suite.
@@ -71,11 +117,37 @@ namespace catapult { namespace test {
 		using NamespaceHistoryHeader = typename TTraits::NamespaceHistoryHeader;
 
 	private:
-		static void WriteNamespaceData(std::vector<uint8_t>& buffer, size_t offset, const std::vector<NamespaceData>& expected) {
-			for (auto i = 0u; i < expected.size(); ++i) {
-				auto& data = reinterpret_cast<NamespaceData&>(*(buffer.data() + offset + i * sizeof(NamespaceData)));
-				data = expected[i];
+		static size_t WriteNamespaceData(
+				std::vector<uint8_t>& buffer,
+				size_t offset,
+				const std::vector<NamespaceDataWithAliasPayload>& seeds) {
+			auto totalAliasDataSize = 0u;
+			auto* pData = buffer.data() + offset;
+			for (const auto& seed : seeds) {
+				reinterpret_cast<NamespaceData&>(*pData) = { seed.Part1, seed.Part2, seed.Alias.type() };
+				pData += sizeof(NamespaceData);
+
+				auto aliasDataSize = 0u;
+				switch (seed.Alias.type()) {
+				case state::AliasType::Mosaic:
+					reinterpret_cast<MosaicId&>(*pData) = seed.Alias.mosaicId();
+					aliasDataSize = sizeof(MosaicId);
+					break;
+
+				case state::AliasType::Address:
+					reinterpret_cast<Address&>(*pData) = seed.Alias.address();
+					aliasDataSize = Address_Decoded_Size;
+					break;
+
+				default:
+					break;
+				}
+
+				pData += aliasDataSize;
+				totalAliasDataSize += aliasDataSize;
 			}
+
+			return totalAliasDataSize;
 		}
 
 	public:
@@ -89,36 +161,103 @@ namespace catapult { namespace test {
 			TTraits::template AssertCannotLoad<catapult_runtime_error>(stream);
 		}
 
+	private:
+		static size_t WriteDepthOneWithoutChildrenHeaders(std::vector<uint8_t>& buffer, const Key& owner, state::AliasType aliasType) {
+			reinterpret_cast<NamespaceHistoryHeader&>(*buffer.data()) = TTraits::CreateHistoryHeader(NamespaceId(123), 1);
+			auto offset = sizeof(NamespaceHistoryHeader);
+
+			auto& rootHeader = reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset));
+			rootHeader = { owner, Height(222), Height(333), 0 };
+			rootHeader.AliasType = aliasType;
+			return offset;
+		}
+
+		template<typename T>
+		static void WriteAliasData(std::vector<uint8_t>& buffer, size_t offset, const T& data) {
+			offset += sizeof(RootNamespaceHeader) - sizeof(uint64_t);
+			reinterpret_cast<T&>(*(buffer.data() + offset)) = data;
+			offset += sizeof(T);
+			reinterpret_cast<uint64_t&>(*(buffer.data() + offset)) = 0; // no children
+		}
+
+	public:
 		static void AssertCanLoadHistoryWithDepthOneWithoutChildren() {
 			// Arrange:
 			auto owner = test::CreateRandomOwner();
 			std::vector<uint8_t> buffer(sizeof(NamespaceHistoryHeader) + sizeof(RootNamespaceHeader));
-			reinterpret_cast<NamespaceHistoryHeader&>(*buffer.data()) = TTraits::CreateHistoryHeader(NamespaceId(123), 1);
-			auto offset = sizeof(NamespaceHistoryHeader);
-			reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset)) = { owner, Height(222), Height(333), 0 };
+			WriteDepthOneWithoutChildrenHeaders(buffer, owner, state::AliasType::None);
 			mocks::MockMemoryStream stream("", buffer);
 
 			// Act:
-			TTraits::AssertCanLoadHistoryWithDepthOneWithoutChildren(stream, owner);
+			TTraits::AssertCanLoadHistoryWithDepthOneWithoutChildren(stream, owner, state::NamespaceAlias());
 		}
 
-		static void AssertCanLoadHistoryWithDepthOneWithChildren() {
+		static void AssertCanLoadHistoryWithDepthOneWithoutChildren_RootMosaicAlias() {
 			// Arrange:
 			auto owner = test::CreateRandomOwner();
-			std::vector<uint8_t> buffer(sizeof(NamespaceHistoryHeader) + sizeof(RootNamespaceHeader) + 3 * sizeof(NamespaceData));
+			std::vector<uint8_t> buffer(sizeof(NamespaceHistoryHeader) + sizeof(RootNamespaceHeader) + sizeof(MosaicId));
+			auto offset = WriteDepthOneWithoutChildrenHeaders(buffer, owner, state::AliasType::Mosaic);
+
+			WriteAliasData(buffer, offset, MosaicId(876));
+			mocks::MockMemoryStream stream("", buffer);
+
+			// Act:
+			TTraits::AssertCanLoadHistoryWithDepthOneWithoutChildren(stream, owner, state::NamespaceAlias(MosaicId(876)));
+		}
+
+		static void AssertCanLoadHistoryWithDepthOneWithoutChildren_RootAddressAlias() {
+			// Arrange:
+			auto owner = test::CreateRandomOwner();
+			std::vector<uint8_t> buffer(sizeof(NamespaceHistoryHeader) + sizeof(RootNamespaceHeader) + Address_Decoded_Size);
+			auto offset = WriteDepthOneWithoutChildrenHeaders(buffer, owner, state::AliasType::Address);
+
+			auto addressAlias = test::GenerateRandomData<Address_Decoded_Size>();
+			WriteAliasData(buffer, offset, addressAlias);
+			mocks::MockMemoryStream stream("", buffer);
+
+			// Act:
+			TTraits::AssertCanLoadHistoryWithDepthOneWithoutChildren(stream, owner, state::NamespaceAlias(addressAlias));
+		}
+
+	private:
+		static void AssertCanLoadHistoryWithDepthOneWithChildren(size_t aliasDataSize, const std::vector<state::NamespaceAlias>& aliases) {
+			// Arrange:
+			auto owner = test::CreateRandomOwner();
+			auto namespaceDataSize = sizeof(NamespaceHistoryHeader) + sizeof(RootNamespaceHeader) + 3 * sizeof(NamespaceData);
+			std::vector<uint8_t> buffer(namespaceDataSize + aliasDataSize);
 			reinterpret_cast<NamespaceHistoryHeader&>(*buffer.data()) = TTraits::CreateHistoryHeader(NamespaceId(123), 1);
 			auto offset = sizeof(NamespaceHistoryHeader);
 			reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset)) = { owner, Height(222), Height(333), 3 };
 			offset += sizeof(RootNamespaceHeader);
 			WriteNamespaceData(buffer, offset, {
-				{ NamespaceId(124), NamespaceId() },
-				{ NamespaceId(124), NamespaceId(125) },
-				{ NamespaceId(126), NamespaceId() }
+				{ NamespaceId(124), NamespaceId(), aliases[0] },
+				{ NamespaceId(124), NamespaceId(125), aliases[1] },
+				{ NamespaceId(126), NamespaceId(), aliases[2] }
 			});
 			mocks::MockMemoryStream stream("", buffer);
 
 			// Act + Assert:
-			TTraits::AssertCanLoadHistoryWithDepthOneWithChildren(stream, owner);
+			TTraits::AssertCanLoadHistoryWithDepthOneWithChildren(stream, owner, aliases);
+		}
+
+	public:
+		static void AssertCanLoadHistoryWithDepthOneWithChildren() {
+			// Assert:
+			AssertCanLoadHistoryWithDepthOneWithChildren(0, {
+				state::NamespaceAlias(),
+				state::NamespaceAlias(),
+				state::NamespaceAlias()
+			});
+		}
+
+		static void AssertCanLoadHistoryWithDepthOneWithChildren_WithAliases() {
+			// Assert:
+			auto aliasDataSize = 2 * sizeof(MosaicId) + Address_Decoded_Size;
+			AssertCanLoadHistoryWithDepthOneWithChildren(aliasDataSize, {
+				state::NamespaceAlias(MosaicId(555)),
+				state::NamespaceAlias(test::GenerateRandomData<Address_Decoded_Size>()),
+				state::NamespaceAlias(MosaicId(888))
+			});
 		}
 
 		static void AssertCannotLoadHistoryWithDepthOneWithOutOfOrderChildren() {
@@ -140,19 +279,23 @@ namespace catapult { namespace test {
 			TTraits::AssertCannotLoadHistoryWithDepthOneOutOfOrderChildren(stream);
 		}
 
-		static void AssertCanLoadHistoryWithDepthGreaterThanOneWithSameOwner() {
+	private:
+		static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(
+				size_t aliasDataSize,
+				const std::vector<state::NamespaceAlias>& aliases) {
 			// Arrange:
 			auto owner = test::CreateRandomOwner();
-			std::vector<uint8_t> buffer(sizeof(NamespaceHistoryHeader) + 3 * sizeof(RootNamespaceHeader) + 4 * sizeof(NamespaceData));
+			auto namespaceDataSize = sizeof(NamespaceHistoryHeader) + 3 * sizeof(RootNamespaceHeader) + 4 * sizeof(NamespaceData);
+			std::vector<uint8_t> buffer(namespaceDataSize + aliasDataSize);
 			reinterpret_cast<NamespaceHistoryHeader&>(*buffer.data()) = TTraits::CreateHistoryHeader(NamespaceId(123), 3);
 			auto offset = sizeof(NamespaceHistoryHeader);
 			reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset)) = { owner, Height(11), Height(111), 4 };
 			offset += sizeof(RootNamespaceHeader);
-			WriteNamespaceData(buffer, offset, {
-				{ NamespaceId(124), NamespaceId() },
-				{ NamespaceId(124), NamespaceId(125) },
-				{ NamespaceId(126), NamespaceId() },
-				{ NamespaceId(126), NamespaceId(129) }
+			offset += WriteNamespaceData(buffer, offset, {
+				{ NamespaceId(124), NamespaceId(), aliases[0] },
+				{ NamespaceId(124), NamespaceId(125), aliases[1] },
+				{ NamespaceId(126), NamespaceId(), aliases[2] },
+				{ NamespaceId(126), NamespaceId(129), aliases[3] }
 			});
 			offset += 4 * sizeof(NamespaceData);
 			reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset)) = { owner, Height(222), Height(333), 0 };
@@ -161,36 +304,84 @@ namespace catapult { namespace test {
 			mocks::MockMemoryStream stream("", buffer);
 
 			// Act + Assert:
-			TTraits::AssertCanLoadHistoryWithDepthGreaterThanOneWithSameOwner(stream, owner);
+			TTraits::AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(stream, owner, aliases);
 		}
 
-		static void AssertCanLoadHistoryWithDepthGreaterThanOneWithDifferentOwner() {
+	public:
+		static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner() {
+			// Assert:
+			AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(0, {
+				state::NamespaceAlias(),
+				state::NamespaceAlias(),
+				state::NamespaceAlias(),
+				state::NamespaceAlias()
+			});
+		}
+
+		static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner_WithAliases() {
+			// Assert:
+			auto aliasDataSize = 2 * sizeof(MosaicId) + 2 * Address_Decoded_Size;
+			AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(aliasDataSize, {
+				state::NamespaceAlias(MosaicId(555)),
+				state::NamespaceAlias(test::GenerateRandomData<Address_Decoded_Size>()),
+				state::NamespaceAlias(MosaicId(888)),
+				state::NamespaceAlias(test::GenerateRandomData<Address_Decoded_Size>()),
+			});
+		}
+
+	private:
+		static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(
+				size_t aliasDataSize,
+				const std::vector<state::NamespaceAlias>& aliases) {
 			// Arrange:
 			auto owner1 = test::CreateRandomOwner();
 			auto owner2 = test::CreateRandomOwner();
 			auto owner3 = test::CreateRandomOwner();
-			std::vector<uint8_t> buffer(sizeof(NamespaceHistoryHeader) + 3 * sizeof(RootNamespaceHeader) + 4 * sizeof(NamespaceData));
+			auto namespaceDataSize = sizeof(NamespaceHistoryHeader) + 3 * sizeof(RootNamespaceHeader) + 4 * sizeof(NamespaceData);
+			std::vector<uint8_t> buffer(namespaceDataSize + aliasDataSize);
 			reinterpret_cast<NamespaceHistoryHeader&>(*buffer.data()) = TTraits::CreateHistoryHeader(NamespaceId(123), 3);
 			auto offset = sizeof(NamespaceHistoryHeader);
 			reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset)) = { owner1, Height(11), Height(111), 0 };
 			offset += sizeof(RootNamespaceHeader);
 			reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset)) = { owner2, Height(222), Height(333), 3 };
 			offset += sizeof(RootNamespaceHeader);
-			WriteNamespaceData(buffer, offset, {
-				{ NamespaceId(124), NamespaceId() },
-				{ NamespaceId(124), NamespaceId(125) },
-				{ NamespaceId(126), NamespaceId() }
+			offset += WriteNamespaceData(buffer, offset, {
+				{ NamespaceId(124), NamespaceId(), aliases[0] },
+				{ NamespaceId(124), NamespaceId(125), aliases[1] },
+				{ NamespaceId(126), NamespaceId(), aliases[2] }
 			});
 			offset += 3 * sizeof(NamespaceData);
 			reinterpret_cast<RootNamespaceHeader&>(*(buffer.data() + offset)) = { owner3, Height(444), Height(555), 1 };
 			offset += sizeof(RootNamespaceHeader);
 			WriteNamespaceData(buffer, offset, {
-				{ NamespaceId(126), NamespaceId() }
+				{ NamespaceId(126), NamespaceId(), aliases[3] }
 			});
 			mocks::MockMemoryStream stream("", buffer);
 
 			// Act:
-			TTraits::AssertCanLoadHistoryWithDepthGreaterThanOneWithDifferentOwner(stream, owner1, owner2, owner3);
+			TTraits::AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(stream, owner1, owner2, owner3, aliases);
+		}
+
+	public:
+		static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner() {
+			// Assert:
+			AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(0, {
+				state::NamespaceAlias(),
+				state::NamespaceAlias(),
+				state::NamespaceAlias(),
+				state::NamespaceAlias()
+			});
+		}
+
+		static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner_WithAliases() {
+			// Assert:
+			auto aliasDataSize = 2 * sizeof(MosaicId) + 2 * Address_Decoded_Size;
+			AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(aliasDataSize, {
+				state::NamespaceAlias(MosaicId(555)),
+				state::NamespaceAlias(test::GenerateRandomData<Address_Decoded_Size>()),
+				state::NamespaceAlias(MosaicId(888)),
+				state::NamespaceAlias(test::GenerateRandomData<Address_Decoded_Size>()),
+			});
 		}
 
 	private:
@@ -204,7 +395,7 @@ namespace catapult { namespace test {
 			offset += sizeof(RootNamespaceHeader);
 			WriteNamespaceData(buffer, offset, {
 				{ NamespaceId(126), NamespaceId() },
-				badData
+				{ badData.Part1, badData.Part2 }
 			});
 			mocks::MockMemoryStream stream("", buffer);
 
@@ -231,9 +422,14 @@ namespace catapult { namespace test {
 #define DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_TESTS(TRAITS_NAME, POSTFIX) \
 	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CannotLoadEmptyHistory, POSTFIX) \
 	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthOneWithoutChildren, POSTFIX) \
+	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthOneWithoutChildren_RootMosaicAlias, POSTFIX) \
+	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthOneWithoutChildren_RootAddressAlias, POSTFIX) \
 	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthOneWithChildren, POSTFIX) \
+	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthOneWithChildren_WithAliases, POSTFIX) \
 	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CannotLoadHistoryWithDepthOneWithOutOfOrderChildren, POSTFIX) \
-	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthGreaterThanOneWithSameOwner, POSTFIX) \
-	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthGreaterThanOneWithDifferentOwner, POSTFIX) \
+	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthGreaterThanOneSameOwner, POSTFIX) \
+	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthGreaterThanOneSameOwner_WithAliases, POSTFIX) \
+	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthGreaterThanOneDifferentOwner, POSTFIX) \
+	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CanLoadHistoryWithDepthGreaterThanOneDifferentOwner_WithAliases, POSTFIX) \
 	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CannotLoadHistoryWithAnyChildMissingParent, POSTFIX) \
 	MAKE_ROOT_NAMESPACE_HISTORY_LOAD_TEST(TRAITS_NAME, CannotLoadHistoryWithRootChild, POSTFIX)

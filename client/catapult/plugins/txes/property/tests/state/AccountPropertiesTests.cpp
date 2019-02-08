@@ -64,24 +64,7 @@ namespace catapult { namespace state {
 
 		void AssertIsEmpty(const std::vector<size_t>& valueSizes, bool expectedResult) {
 			// Arrange:
-			auto address = test::GenerateRandomData<Address_Decoded_Size>();
-			AccountProperties properties(address);
-			auto i = 0u;
-			auto propertyTypes = test::CollectPropertyTypes();
-			for (auto propertyType : propertyTypes) {
-				auto& property = properties.property(propertyType);
-				for (auto j = 0u; j < valueSizes[i]; ++j)
-					property.allow({ model::PropertyModificationType::Add, test::GenerateRandomVector(property.propertyValueSize()) });
-
-				++i;
-			}
-
-			// Sanity:
-			i = 0;
-			for (const auto& pair : properties) {
-				EXPECT_EQ(valueSizes[i], pair.second.values().size());
-				++i;
-			}
+			auto properties = test::CreateAccountProperties(state::OperationType::Allow, valueSizes);
 
 			// Act + Assert:
 			EXPECT_EQ(expectedResult, properties.isEmpty());

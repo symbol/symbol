@@ -45,7 +45,7 @@ namespace catapult { namespace test {
 		/// Ids of senders
 		std::vector<size_t> SenderIds;
 
-		/// Amounts of xem in transactions.
+		/// Amounts of currency in transactions.
 		std::vector<Amount> Amounts;
 	};
 

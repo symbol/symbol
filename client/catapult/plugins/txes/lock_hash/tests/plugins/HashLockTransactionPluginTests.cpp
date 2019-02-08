@@ -34,7 +34,7 @@ namespace catapult { namespace plugins {
 	// region TransactionPlugin
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(HashLock)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(HashLock, 1, 1)
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Entity_Type_Hash_Lock)
@@ -108,7 +108,7 @@ namespace catapult { namespace plugins {
 		// Assert:
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
 		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(extensions::CastToMosaicId(pTransaction->Mosaic.MosaicId), notification.Mosaic.MosaicId);
+		EXPECT_EQ(pTransaction->Mosaic.MosaicId, notification.Mosaic.MosaicId);
 		EXPECT_EQ(pTransaction->Mosaic.Amount, notification.Mosaic.Amount);
 	}
 
@@ -156,7 +156,7 @@ namespace catapult { namespace plugins {
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
 		const auto& notification = sub.matchingNotifications()[0];
 		EXPECT_EQ(pTransaction->Signer, notification.Sender);
-		EXPECT_EQ(extensions::CastToMosaicId(pTransaction->Mosaic.MosaicId), notification.MosaicId);
+		EXPECT_EQ(pTransaction->Mosaic.MosaicId, notification.MosaicId);
 		EXPECT_EQ(pTransaction->Mosaic.Amount, notification.Amount);
 	}
 

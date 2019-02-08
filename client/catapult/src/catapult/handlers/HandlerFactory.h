@@ -77,14 +77,10 @@ namespace catapult { namespace handlers {
 		using ValuesAppendFlag = std::integral_constant<AppendType, AppendType::Values>;
 
 		template<typename T, typename = void>
-		struct AppendAccessor
-				: EntitiesAppendFlag
-		{};
+		struct AppendAccessor : EntitiesAppendFlag {};
 
 		template<typename T>
-		struct AppendAccessor<T, typename utils::traits::enable_if_type<decltype(T::Should_Append_As_Values)>::type>
-				: ValuesAppendFlag
-		{};
+		struct AppendAccessor<T, typename utils::traits::enable_if_type<decltype(T::Should_Append_As_Values)>::type> : ValuesAppendFlag {};
 
 	private:
 		template<typename TProducer>

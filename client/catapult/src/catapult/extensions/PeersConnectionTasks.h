@@ -26,6 +26,7 @@
 #include <vector>
 
 namespace catapult {
+	namespace cache { class CatapultCache; }
 	namespace net {
 		class ConnectionContainer;
 		class PacketWriters;
@@ -47,39 +48,64 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
+	// region SelectorSettings
+
+	/// Settings used to initialize a selector task.
+	struct SelectorSettings {
+	public:
+		/// Creates settings around \a cache, \a totalChainImportance, \a nodes, \a serviceId, \a requiredRole and \a config.
+		SelectorSettings(
+				const cache::CatapultCache& cache,
+				Importance totalChainImportance,
+				ionet::NodeContainer& nodes,
+				ionet::ServiceIdentifier serviceId,
+				ionet::NodeRoles requiredRole,
+				const config::NodeConfiguration::ConnectionsSubConfiguration& config);
+
+		/// Creates settings around \a cache, \a totalChainImportance, \a nodes, \a serviceId and \a config.
+		SelectorSettings(
+				const cache::CatapultCache& cache,
+				Importance totalChainImportance,
+				ionet::NodeContainer& nodes,
+				ionet::ServiceIdentifier serviceId,
+				const config::NodeConfiguration::ConnectionsSubConfiguration& config);
+
+	public:
+		/// Container of nodes from which to select.
+		ionet::NodeContainer& Nodes;
+
+		/// Service identifier for selection.
+		ionet::ServiceIdentifier ServiceId;
+
+		/// Required role for selection (if applicable).
+		ionet::NodeRoles RequiredRole;
+
+		/// Connections configuration.
+		config::NodeConfiguration::ConnectionsSubConfiguration Config;
+
+		/// Retrieves an account importance given a public key.
+		extensions::ImportanceRetriever ImportanceRetriever;
+	};
+
+	// endregion
+
 	// region NodeSelector / ConnectPeersTask
 
 	/// A node selector.
 	using NodeSelector = supplier<NodeSelectionResult>;
 
-	/// Creates and prepares a node selector given \a serviceId, \a requiredRole, \a config and \a nodes.
-	/// \note All nodes in \a nodes are provisioned for \a serviceId.
+	/// Creates and prepares a node selector given \a settings.
+	/// \note All nodes are provisioned for specified service id.
 	/// \note The selector is intended to be used in conjunction with CreateConnectPeersTask for managing outgoing connections.
-	NodeSelector CreateNodeSelector(
-			ionet::ServiceIdentifier serviceId,
-			ionet::NodeRoles requiredRole,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
-			ionet::NodeContainer& nodes);
+	NodeSelector CreateNodeSelector(const SelectorSettings& settings);
 
-	/// Creates a task for the service identified by \a serviceId that connects to \a nodes with the specified role (\a requiredRole)
-	/// using \a packetWriters and \a config.
-	thread::Task CreateConnectPeersTask(
-			ionet::NodeContainer& nodes,
-			net::PacketWriters& packetWriters,
-			ionet::ServiceIdentifier serviceId,
-			ionet::NodeRoles requiredRole,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config);
+	/// Creates a task for the specified service that connects to nodes with the specified role given \a settings and \a packetWriters.
+	thread::Task CreateConnectPeersTask(const SelectorSettings& settings, net::PacketWriters& packetWriters);
 
-	/// Creates a task for the service identified by \a serviceId that connects to \a nodes using \a packetWriters,
-	/// \a config and \a selector.
+	/// Creates a task for the specified service that connects to nodes given \a settings, \a packetWriters and \a selector.
 	/// \note \a selector returns add candidates (subset of compatible nodes in \a nodes)
 	///        and remove candidates (subset of active connections in \a packetWriters).
-	thread::Task CreateConnectPeersTask(
-			ionet::NodeContainer& nodes,
-			net::PacketWriters& packetWriters,
-			ionet::ServiceIdentifier serviceId,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
-			const NodeSelector& selector);
+	thread::Task CreateConnectPeersTask(const SelectorSettings& settings, net::PacketWriters& packetWriters, const NodeSelector& selector);
 
 	// endregion
 
@@ -88,28 +114,18 @@ namespace catapult { namespace extensions {
 	/// A remove-only node selector.
 	using RemoveOnlyNodeSelector = supplier<utils::KeySet>;
 
-	/// Creates and prepares a remove-only node selector given \a serviceId, \a config and \a nodes.
+	/// Creates and prepares a remove-only node selector given \a settings.
 	/// \note The selector is intended to be used in conjunction with CreateAgePeersTask for managing incoming connections.
-	RemoveOnlyNodeSelector CreateRemoveOnlyNodeSelector(
-			ionet::ServiceIdentifier serviceId,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
-			ionet::NodeContainer& nodes);
+	RemoveOnlyNodeSelector CreateRemoveOnlyNodeSelector(const SelectorSettings& settings);
 
-	/// Creates a task for the service identified by \a serviceId that ages \a nodes using \a connectionContainer and \a config.
-	thread::Task CreateAgePeersTask(
-			ionet::NodeContainer& nodes,
-			net::ConnectionContainer& connectionContainer,
-			ionet::ServiceIdentifier serviceId,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config);
+	/// Creates a task for the specified service that ages nodes given \a settings and \a connectionContainer.
+	thread::Task CreateAgePeersTask(const SelectorSettings& settings, net::ConnectionContainer& connectionContainer);
 
-	/// Creates a task for the service identified by \a serviceId that ages \a nodes using \a connectionContainer,
-	/// \a config and \a selector.
+	/// Creates a task for the specified service that connects to nodes given \a settings, \a connectionContainer and \a selector.
 	/// \note \a selector returns remove candidates (subset of active connections in \a connectionContainer).
 	thread::Task CreateAgePeersTask(
-			ionet::NodeContainer& nodes,
+			const SelectorSettings& settings,
 			net::ConnectionContainer& connectionContainer,
-			ionet::ServiceIdentifier serviceId,
-			const config::NodeConfiguration::ConnectionsSubConfiguration& config,
 			const RemoveOnlyNodeSelector& selector);
 
 	// endregion

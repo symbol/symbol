@@ -26,6 +26,7 @@
 namespace catapult { namespace cache {
 
 	/// Primary serializer for property cache.
-	struct AccountPropertiesPrimarySerializer : public CacheSerializerAdapter<state::AccountPropertiesSerializer, PropertyCacheDescriptor>
+	struct AccountPropertiesPrimarySerializer
+			: public CacheSerializerAdapter<state::AccountPropertiesSerializer, PropertyCacheDescriptor>
 	{};
 }}

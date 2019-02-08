@@ -102,14 +102,17 @@ namespace catapult { namespace observers {
 				TModificationFactory modificationFactory) {
 			// Arrange:
 			ObserverTestContext context(notifyMode);
-			auto values = test::GenerateRandomDataVector<typename TPropertyValueTraits::ValueType>(numInitialValues);
+			auto values = test::CreateRandomUniqueValues<TPropertyValueTraits>(numInitialValues);
 			auto key = test::GenerateRandomData<Key_Size>();
-
-			if (0 < numInitialValues)
-				test::PopulateCache<TPropertyValueTraits, TOperationTraits>(context.cache(), key, values);
+			test::PopulateCache<TPropertyValueTraits, TOperationTraits>(context.cache(), key, values);
 
 			auto modification = modificationFactory(values);
-			auto notification = test::CreateNotification<TPropertyValueTraits, TOperationTraits>(key, modification);
+			auto unresolvedModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>{
+				modification.ModificationType,
+				TPropertyValueTraits::Unresolve(modification.Value)
+			};
+
+			auto notification = test::CreateNotification<TPropertyValueTraits, TOperationTraits>(key, unresolvedModification);
 			auto pObserver = TPropertyValueTraits::CreateObserver();
 
 			// Act:
@@ -136,6 +139,7 @@ namespace catapult { namespace observers {
 			// Arrange:
 			ObserverTestContext context(notifyMode);
 			auto filteredAddress = test::GenerateRandomData<Address_Decoded_Size>();
+			auto unresolvedFilteredAddress = AddressPropertyTraits::Unresolve(filteredAddress);
 			auto key = test::GenerateRandomData<Key_Size>();
 			auto& propertyCacheDelta = context.cache().sub<cache::PropertyCache>();
 			auto accountAddress = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
@@ -146,7 +150,7 @@ namespace catapult { namespace observers {
 			TOperationTraits::Add(accountProperties.property(model::PropertyType::MosaicId), test::GenerateRandomVector(sizeof(MosaicId)));
 
 			auto modificationType = NotifyMode::Commit == notifyMode ? Del : Add;
-			auto modification = model::PropertyModification<Address>{ modificationType, filteredAddress };
+			auto modification = model::PropertyModification<UnresolvedAddress>{ modificationType, unresolvedFilteredAddress };
 			auto completeType = TOperationTraits::CompletePropertyType(model::PropertyType::Address);
 			model::ModifyAddressPropertyValueNotification notification{ key, completeType, modification };
 			auto pObserver = CreateAddressPropertyValueModificationObserver();
@@ -168,11 +172,9 @@ namespace catapult { namespace observers {
 		void AssertObserverAddsAccountProperties(NotifyMode notifyMode) {
 			// Act:
 			RunTest<TOperationTraits, TPropertyValueTraits>(1, notifyMode, 0, true, [notifyMode](const auto&) {
+				using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::ValueType>;
 				auto modificationType = NotifyMode::Commit == notifyMode ? Add : Del;
-				return model::PropertyModification<typename TPropertyValueTraits::ValueType>{
-					modificationType,
-					TPropertyValueTraits::RandomValue()
-				};
+				return PropertyModification{ modificationType, TPropertyValueTraits::RandomValue() };
 			});
 		}
 
@@ -180,20 +182,20 @@ namespace catapult { namespace observers {
 		void AssertObserverRemovesEmptyAccountProperties(NotifyMode notifyMode) {
 			// Act:
 			RunTest<TOperationTraits, TPropertyValueTraits>(0, notifyMode, 1, false, [notifyMode](const auto& values) {
+				using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::ValueType>;
 				auto modificationType = NotifyMode::Commit == notifyMode ? Del : Add;
-				return model::PropertyModification<typename TPropertyValueTraits::ValueType>({ modificationType, values[0] });
+				return PropertyModification{ modificationType, values[0] };
 			});
 		}
 
 		template<typename TOperationTraits, typename TPropertyValueTraits>
 		void AssertObserverInsertsModificationValueIntoProperties(NotifyMode notifyMode) {
 			// Act:
-			RunTest<TOperationTraits, TPropertyValueTraits>(Num_Default_Entries + 1, notifyMode, [notifyMode](const auto&) {
+			RunTest<TOperationTraits, TPropertyValueTraits>(Num_Default_Entries + 1, notifyMode, [notifyMode](const auto& values) {
+				using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::ValueType>;
 				auto modificationType = NotifyMode::Commit == notifyMode ? Add : Del;
-				return model::PropertyModification<typename TPropertyValueTraits::ValueType>{
-					modificationType,
-					TPropertyValueTraits::RandomValue()
-				};
+				auto transform = [](const auto& value) { return value; };
+				return PropertyModification{ modificationType, test::CreateDifferentValue<TPropertyValueTraits>(values, transform) };
 			});
 		}
 
@@ -201,8 +203,9 @@ namespace catapult { namespace observers {
 		void AssertObserverDeletesModificationValueFromProperties(NotifyMode notifyMode) {
 			// Act:
 			RunTest<TOperationTraits, TPropertyValueTraits>(Num_Default_Entries - 1, notifyMode, [notifyMode](const auto& values) {
+				using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::ValueType>;
 				auto modificationType = NotifyMode::Commit == notifyMode ? Del : Add;
-				return model::PropertyModification<typename TPropertyValueTraits::ValueType>{ modificationType, values[2] };
+				return PropertyModification{ modificationType, values[2] };
 			});
 		}
 	}

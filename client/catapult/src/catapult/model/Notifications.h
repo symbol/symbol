@@ -56,14 +56,14 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a address.
-		explicit AccountAddressNotification(const Address& address)
+		explicit AccountAddressNotification(const UnresolvedAddress& address)
 				: Notification(Notification_Type, sizeof(AccountAddressNotification))
 				, Address(address)
 		{}
 
 	public:
 		/// Address.
-		catapult::Address Address;
+		UnresolvedAddress Address;
 	};
 
 	/// Notification of use of an account public key.
@@ -93,7 +93,7 @@ namespace catapult { namespace model {
 	struct BasicBalanceNotification : public Notification {
 	public:
 		/// Creates a notification around \a sender, \a mosaicId and \a amount.
-		explicit BasicBalanceNotification(const Key& sender, MosaicId mosaicId, Amount amount)
+		explicit BasicBalanceNotification(const Key& sender, UnresolvedMosaicId mosaicId, Amount amount)
 				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
 				, Sender(sender)
 				, MosaicId(mosaicId)
@@ -105,7 +105,7 @@ namespace catapult { namespace model {
 		const Key& Sender;
 
 		/// Mosaic id.
-		catapult::MosaicId MosaicId;
+		UnresolvedMosaicId MosaicId;
 
 		/// Amount.
 		catapult::Amount Amount;
@@ -121,8 +121,8 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
 		explicit BalanceTransferNotification(
 				const Key& sender,
-				const Address& recipient,
-				catapult::MosaicId mosaicId,
+				const UnresolvedAddress& recipient,
+				UnresolvedMosaicId mosaicId,
 				catapult::Amount amount)
 				: BasicBalanceNotification(sender, mosaicId, amount)
 				, Recipient(recipient)
@@ -130,7 +130,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Recipient.
-		Address Recipient;
+		UnresolvedAddress Recipient;
 	};
 
 	/// Notifies a balance debit by sender.
@@ -154,15 +154,31 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Entity_Notification;
 
 	public:
-		/// Creates an entity notification around \a networkIdentifier.
-		explicit EntityNotification(model::NetworkIdentifier networkIdentifier)
+		/// Creates an entity notification around \a networkIdentifier, \a minVersion, \a maxVersion and \a entityVersion.
+		explicit EntityNotification(
+				model::NetworkIdentifier networkIdentifier,
+				uint8_t minVersion,
+				uint8_t maxVersion,
+				uint8_t entityVersion)
 				: Notification(Notification_Type, sizeof(EntityNotification))
 				, NetworkIdentifier(networkIdentifier)
+				, MinVersion(minVersion)
+				, MaxVersion(maxVersion)
+				, EntityVersion(entityVersion)
 		{}
 
 	public:
 		/// Network identifier.
 		model::NetworkIdentifier NetworkIdentifier;
+
+		/// Minimum supported version.
+		uint8_t MinVersion;
+
+		/// Maximum supported version.
+		uint8_t MaxVersion;
+
+		/// Entity version.
+		uint8_t EntityVersion;
 	};
 
 	// endregion
@@ -236,6 +252,32 @@ namespace catapult { namespace model {
 		Timestamp Deadline;
 	};
 
+	/// Notifies the arrival of a transaction fee.
+	struct TransactionFeeNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Core_Transaction_Fee_Notification;
+
+	public:
+		/// Creates a transaction fee notification around \a transactionSize, \a fee and \a maxFee.
+		explicit TransactionFeeNotification(uint32_t transactionSize, Amount fee, Amount maxFee)
+				: Notification(Notification_Type, sizeof(TransactionFeeNotification))
+				, TransactionSize(transactionSize)
+				, Fee(fee)
+				, MaxFee(maxFee)
+		{}
+
+	public:
+		/// Transaction size.
+		uint32_t TransactionSize;
+
+		/// Transaction fee.
+		Amount Fee;
+
+		// Maximum transaction fee.
+		Amount MaxFee;
+	};
+
 	// endregion
 
 	// region signature
@@ -278,18 +320,20 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Address_Interaction_Notification;
 
 	public:
-		/// Creates a notification around \a source and \a participantsByAddress.
-		explicit AddressInteractionNotification(const Key& source, const model::AddressSet& participantsByAddress)
-			: AddressInteractionNotification(source, participantsByAddress, {})
+		/// Creates a notification around \a source, \a transactionType and \a participantsByAddress.
+		AddressInteractionNotification(const Key& source, EntityType transactionType, const UnresolvedAddressSet& participantsByAddress)
+				: AddressInteractionNotification(source, transactionType, participantsByAddress, {})
 		{}
 
-		/// Creates a notification around \a source, \a participantsByAddress and \a participantsByKey.
-		explicit AddressInteractionNotification(
+		/// Creates a notification around \a source, \a transactionType, \a participantsByAddress and \a participantsByKey.
+		AddressInteractionNotification(
 				const Key& source,
-				const model::AddressSet& participantsByAddress,
+				EntityType transactionType,
+				const UnresolvedAddressSet& participantsByAddress,
 				const utils::KeySet& participantsByKey)
 				: Notification(Notification_Type, sizeof(AddressInteractionNotification))
 				, Source(source)
+				, TransactionType(transactionType)
 				, ParticipantsByAddress(participantsByAddress)
 				, ParticipantsByKey(participantsByKey)
 		{}
@@ -298,11 +342,93 @@ namespace catapult { namespace model {
 		/// Source.
 		Key Source;
 
+		/// Transaction type.
+		EntityType TransactionType;
+
 		/// Participants given by address.
-		model::AddressSet ParticipantsByAddress;
+		UnresolvedAddressSet ParticipantsByAddress;
 
 		/// Participants given by public key.
 		utils::KeySet ParticipantsByKey;
+	};
+
+	// endregion
+
+	// region mosaic required
+
+	/// Notification of a required mosaic.
+	struct MosaicRequiredNotification : public Notification {
+	public:
+		/// Mosaic types.
+		enum class MosaicType { Resolved, Unresolved };
+
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Core_Mosaic_Required_Notification;
+
+	public:
+		/// Creates a notification around \a signer and \a mosaicId.
+		explicit MosaicRequiredNotification(const Key& signer, MosaicId mosaicId)
+				: Notification(Notification_Type, sizeof(MosaicRequiredNotification))
+				, Signer(signer)
+				, MosaicId(mosaicId)
+				, ProvidedMosaicType(MosaicType::Resolved)
+		{}
+
+		/// Creates a notification around \a signer and \a mosaicId.
+		explicit MosaicRequiredNotification(const Key& signer, UnresolvedMosaicId mosaicId)
+				: Notification(Notification_Type, sizeof(MosaicRequiredNotification))
+				, Signer(signer)
+				, UnresolvedMosaicId(mosaicId)
+				, ProvidedMosaicType(MosaicType::Unresolved)
+		{}
+
+	public:
+		/// Signer.
+		const Key& Signer;
+
+		/// Mosaic id (resolved).
+		catapult::MosaicId MosaicId;
+
+		/// Mosaic id (unresolved).
+		catapult::UnresolvedMosaicId UnresolvedMosaicId;
+
+		/// Type of mosaic provided and attached to this notification.
+		MosaicType ProvidedMosaicType;
+	};
+
+	// endregion
+
+	// region source change
+
+	/// Notification of a source change.
+	struct SourceChangeNotification : public Notification {
+	public:
+		/// Source change types.
+		enum class SourceChangeType { Absolute, Relative };
+
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Core_Source_Change_Notification;
+
+	public:
+		/// Creates a notification around \a primaryId, \a secondaryId and \a changeType.
+		explicit SourceChangeNotification(uint32_t primaryId, uint32_t secondaryId, SourceChangeType changeType)
+				: Notification(Notification_Type, sizeof(SourceChangeNotification))
+				, PrimaryId(primaryId)
+				, SecondaryId(secondaryId)
+				, ChangeType(changeType)
+		{}
+
+	public:
+		/// Primary source (e.g. index within block).
+		uint32_t PrimaryId;
+
+		/// Secondary source (e.g. index within aggregate).
+		uint32_t SecondaryId;
+
+		/// Type of source change.
+		SourceChangeType ChangeType;
 	};
 
 	// endregion

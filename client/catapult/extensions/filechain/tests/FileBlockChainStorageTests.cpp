@@ -24,6 +24,7 @@
 #include "catapult/cache_core/BlockDifficultyCache.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/io/BlockStorageCache.h"
+#include "catapult/model/Address.h"
 #include "filechain/tests/test/FilechainTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/BlockStateHash.h"
@@ -33,6 +34,7 @@
 #include "tests/test/nemesis/NemesisTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 #include <random>
 
@@ -80,8 +82,8 @@ namespace catapult { namespace filechain {
 				return m_localNodeState.cref().Score.get();
 			}
 
-			auto lastRecalculationHeight() const {
-				return m_localNodeState.cref().State.LastRecalculationHeight;
+			const auto& state() const {
+				return m_localNodeState.cref().State;
 			}
 
 		public:
@@ -107,6 +109,19 @@ namespace catapult { namespace filechain {
 		};
 
 		// endregion
+
+		// Num_Nemesis_Transactions - nemesis block has:
+		// 1) Num_Nemesis_Namespaces register namespace transactions
+		// 2) for each mosaic - (a) mosaic definition transaction, (b) mosaic supply change transaction, (c) mosaic alias transaction
+		// 3) Num_Nemesis_Accounts transfer transactions
+
+		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+		constexpr auto Num_Nemesis_Accounts = CountOf(test::Mijin_Test_Private_Keys);
+		constexpr auto Num_Nemesis_Namespaces = 3;
+		constexpr auto Num_Nemesis_Mosaics = 2;
+		constexpr auto Num_Recipient_Accounts = 10 * Num_Nemesis_Accounts;
+		constexpr auto Num_Nemesis_Transactions = Num_Nemesis_Namespaces + 3 * Num_Nemesis_Mosaics + Num_Nemesis_Accounts;
+		constexpr Amount Nemesis_Recipient_Amount(409'090'909'000'000);
 	}
 
 	// region basic nemesis loading
@@ -156,19 +171,21 @@ namespace catapult { namespace filechain {
 		context.load();
 
 		// Assert:
-		EXPECT_EQ(model::ImportanceHeight(1), context.lastRecalculationHeight());
+		EXPECT_EQ(model::ImportanceHeight(1), context.state().LastRecalculationHeight);
+	}
+
+	TEST(TEST_CLASS, ProperNumTransactionsAfterLoadingNemesisBlock) {
+		// Arrange:
+		TestContext context;
+
+		// Act:
+		context.load();
+
+		// Assert:
+		EXPECT_EQ(Num_Nemesis_Transactions, context.state().NumTotalTransactions);
 	}
 
 	// endregion
-
-	namespace {
-		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
-		constexpr auto Num_Nemesis_Accounts = CountOf(test::Mijin_Test_Private_Keys);
-		constexpr auto Num_Nemesis_Namespaces = 1;
-		constexpr auto Num_Nemesis_Mosaics = 1;
-		constexpr auto Num_Recipient_Accounts = 10 * Num_Nemesis_Accounts;
-		constexpr Amount Nemesis_Recipient_Amount(409'090'909'000'000);
-	}
 
 	// region PrepareRandomBlocks
 
@@ -203,6 +220,7 @@ namespace catapult { namespace filechain {
 			auto nemesisKeyPairs = test::GetNemesisKeyPairs();
 			for (const auto& recipientAddress : attributes.Recipients) {
 				auto blockWithAttributes = test::CreateBlock(nemesisKeyPairs, recipientAddress, rnd, height, timeSpacing);
+				blockWithAttributes.pBlock->FeeMultiplier = BlockFeeMultiplier(0);
 
 				attributes.TransactionCounts.push_back(blockWithAttributes.SenderIds.size());
 				for (auto i = 0u; i < blockWithAttributes.SenderIds.size(); ++i) {
@@ -247,7 +265,7 @@ namespace catapult { namespace filechain {
 			if (Amount(0) != amountSpent)
 				EXPECT_LT(Height(0), accountState.PublicKeyHeight) << message;
 
-			EXPECT_EQ(Nemesis_Recipient_Amount - amountSpent, accountState.Balances.get(Xem_Id)) << message;
+			EXPECT_EQ(Nemesis_Recipient_Amount - amountSpent, accountState.Balances.get(test::Default_Currency_Mosaic_Id)) << message;
 		}
 
 		void AssertSecondaryRecipient(const cache::AccountStateCacheView& view, const Address& address, size_t i, Amount amountReceived) {
@@ -257,7 +275,7 @@ namespace catapult { namespace filechain {
 
 			EXPECT_EQ(Height(i + 2), accountState.AddressHeight) << message;
 			EXPECT_EQ(Height(0), accountState.PublicKeyHeight) << message;
-			EXPECT_EQ(amountReceived, accountState.Balances.get(Xem_Id)) << message;
+			EXPECT_EQ(amountReceived, accountState.Balances.get(test::Default_Currency_Mosaic_Id)) << message;
 		}
 	}
 
@@ -323,7 +341,7 @@ namespace catapult { namespace filechain {
 			// - one created in test context
 			// - second created one via test::CalculateNemesisStateHash
 			// separate config is needed so that rdb will be created in separate dir
-			test::TempDirectoryGuard tempDataDirectory("../temp2.dir");
+			test::TempDirectoryGuard tempDataDirectory("2");
 			auto nemesisConfig = test::CreateStateHashEnabledLocalNodeConfiguration(tempDataDirectory.name());
 			SetNemesisStateHash(context, nemesisConfig);
 		}
@@ -504,14 +522,9 @@ namespace catapult { namespace filechain {
 		context.load();
 
 		// Assert: all hashes and difficulties were cached
-		// - adjust comparisons for the nemesis block, which has
-		//   1) Num_Nemesis_Namespaces register namespace transactions
-		//   2) for each mosaic one mosaic definition transaction and one mosaic supply change transaction
-		//   3) Num_Nemesis_Accounts transfer transactions
+		// - adjust comparisons for the nemesis block transactions
 		auto cacheView = context.cacheView();
-		EXPECT_EQ(
-				numTotalTransferTransactions + Num_Nemesis_Accounts + Num_Nemesis_Namespaces + 2 * Num_Nemesis_Mosaics,
-				cacheView.sub<cache::HashCache>().size());
+		EXPECT_EQ(numTotalTransferTransactions + Num_Nemesis_Transactions, cacheView.sub<cache::HashCache>().size());
 
 		const auto& blockDifficultyCache = cacheView.sub<cache::BlockDifficultyCache>();
 		EXPECT_EQ(transactionCounts.size() + 1, blockDifficultyCache.size());

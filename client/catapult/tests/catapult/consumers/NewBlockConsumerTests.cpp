@@ -89,7 +89,7 @@ namespace catapult { namespace consumers {
 			auto result = context.Consumer(input);
 
 			// Assert: the consumer detached the input
-			test::AssertConsumed(result);
+			test::AssertConsumed(result, validators::ValidationResult::Success);
 			EXPECT_TRUE(input.empty());
 
 			// - the block was passed to the callback (backed by original memory)

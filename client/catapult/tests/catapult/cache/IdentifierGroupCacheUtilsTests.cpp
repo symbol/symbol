@@ -19,124 +19,121 @@
 **/
 
 #include "catapult/cache/IdentifierGroupCacheUtils.h"
-#include "catapult/cache/CacheDescriptorAdapters.h"
-#include "catapult/utils/Hashers.h"
-#include "tests/catapult/cache/test/UnsupportedSerializer.h"
+#include "tests/catapult/cache/test/TestCacheTypes.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
 
 #define TEST_CLASS IdentifierGroupCacheUtilsTests
 
-	namespace {
-		// int grouped by Height
-		class TestIdentifierGroup : public utils::IdentifierGroup<int, Height, std::hash<int>> {
-		public:
-#ifdef _MSC_VER
-			TestIdentifierGroup() : TestIdentifierGroup(Height())
-			{}
-#endif
+	// region test utils
 
-			using utils::IdentifierGroup<int, Height, std::hash<int>>::IdentifierGroup;
-		};
+	namespace {
+		using TestIdentifierGroup = test::TestCacheTypes::TestIdentifierGroup;
+		using TestCacheDescriptor = test::TestCacheTypes::TestActivityCacheDescriptor;
+
+		using HeightGroupedBaseSetType = test::TestCacheTypes::HeightGroupedBaseSetType;
+		using BaseSetType = test::TestCacheTypes::BaseActivitySetType;
 
 		TestIdentifierGroup AddValues(TestIdentifierGroup&& group, std::initializer_list<int> values) {
 			for (auto value : values)
 				group.add(value);
 
-			return group;
+			return std::move(group);
 		}
-
-		struct TestHeightGroupedCacheDescriptor {
-			using KeyType = Height;
-			using ValueType = TestIdentifierGroup;
-
-			using Serializer = test::UnsupportedSerializer<KeyType, ValueType>;
-
-			static KeyType GetKeyFromValue(const ValueType& value) {
-				return value.key();
-			}
-		};
-
-		template<typename TBaseSet>
-		class BaseSetTypeWrapper : public TBaseSet {
-		public:
-			BaseSetTypeWrapper() : TBaseSet(deltaset::ConditionalContainerMode::Memory, m_database, 0)
-			{}
-
-		private:
-			CacheDatabase m_database;
-		};
-
-		using HeightGroupedTypes = MutableUnorderedMapAdapter<TestHeightGroupedCacheDescriptor, utils::BaseValueHasher<Height>>;
-		using HeightGroupedBaseSetType = BaseSetTypeWrapper<HeightGroupedTypes::BaseSetType>;
-
-		// fake cache that indexes strings by size
-		struct TestCacheDescriptor {
-			using KeyType = int;
-			using ValueType = std::string;
-			using Serializer = test::UnsupportedSerializer<KeyType, ValueType>;
-
-			static KeyType GetKeyFromValue(const ValueType& value) {
-				return static_cast<int>(value.size());
-			}
-		};
-
-		using BasicTypes = MutableUnorderedMapAdapter<TestCacheDescriptor>;
-		using BaseSetType = BaseSetTypeWrapper<BasicTypes::BaseSetType>;
 	}
+
+	// endregion
 
 	// region AddIdentifierWithGroup
 
+	namespace {
+		template<typename TAction>
+		void RunAddIdentifierWithGroupTest(TAction action) {
+			// Arrange:
+			HeightGroupedBaseSetType groupedSet;
+			auto pGroupedDelta = groupedSet.rebase();
+			pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 1, 4, 9 }));
+			pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+
+			// Act + Assert:
+			action(*pGroupedDelta);
+		}
+	}
+
 	TEST(TEST_CLASS, AddIdentifierWithGroup_AddsIdentifierToNewGroup) {
 		// Arrange:
-		HeightGroupedBaseSetType groupedSet;
-		auto pGroupedDelta = groupedSet.rebase();
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 1, 4, 9 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+		RunAddIdentifierWithGroupTest([](auto& groupedDelta) {
+			// Sanity:
+			EXPECT_FALSE(groupedDelta.contains(Height(5)));
 
-		// Sanity:
-		EXPECT_FALSE(pGroupedDelta->contains(Height(5)));
+			// Act:
+			AddIdentifierWithGroup(groupedDelta, Height(5), 17);
 
-		// Act:
-		AddIdentifierWithGroup(*pGroupedDelta, Height(5), 17);
-
-		// Assert:
-		const auto* pGroup = pGroupedDelta->find(Height(5)).get();
-		ASSERT_TRUE(!!pGroup);
-		EXPECT_EQ(TestIdentifierGroup::Identifiers({ 17 }), pGroup->identifiers());
+			// Assert:
+			const auto* pGroup = groupedDelta.find(Height(5)).get();
+			ASSERT_TRUE(!!pGroup);
+			EXPECT_EQ(TestIdentifierGroup::Identifiers({ 17 }), pGroup->identifiers());
+		});
 	}
 
 	TEST(TEST_CLASS, AddIdentifierWithGroup_AddsIdentifierToExistingGroup) {
 		// Arrange:
-		HeightGroupedBaseSetType groupedSet;
-		auto pGroupedDelta = groupedSet.rebase();
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 1, 4, 9 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+		RunAddIdentifierWithGroupTest([](auto& groupedDelta) {
+			// Act:
+			AddIdentifierWithGroup(groupedDelta, Height(3), 7);
 
-		// Act:
-		AddIdentifierWithGroup(*pGroupedDelta, Height(3), 7);
-
-		// Assert:
-		const auto* pGroup = pGroupedDelta->find(Height(3)).get();
-		ASSERT_TRUE(!!pGroup);
-		EXPECT_EQ(TestIdentifierGroup::Identifiers({ 1, 4, 7, 9 }), pGroup->identifiers());
+			// Assert:
+			const auto* pGroup = groupedDelta.find(Height(3)).get();
+			ASSERT_TRUE(!!pGroup);
+			EXPECT_EQ(TestIdentifierGroup::Identifiers({ 1, 4, 7, 9 }), pGroup->identifiers());
+		});
 	}
 
 	TEST(TEST_CLASS, AddIdentifierWithGroup_HasNoEffectWhenAddingExistingIdentifierToExistingGroup) {
 		// Arrange:
-		HeightGroupedBaseSetType groupedSet;
-		auto pGroupedDelta = groupedSet.rebase();
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 1, 4, 9 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+		RunAddIdentifierWithGroupTest([](auto& groupedDelta) {
+			// Act:
+			AddIdentifierWithGroup(groupedDelta, Height(3), 4);
 
-		// Act:
-		AddIdentifierWithGroup(*pGroupedDelta, Height(3), 4);
+			// Assert:
+			const auto* pGroup = groupedDelta.find(Height(3)).get();
+			ASSERT_TRUE(!!pGroup);
+			EXPECT_EQ(TestIdentifierGroup::Identifiers({ 1, 4, 9 }), pGroup->identifiers());
+		});
+	}
 
-		// Assert:
-		const auto* pGroup = pGroupedDelta->find(Height(3)).get();
-		ASSERT_TRUE(!!pGroup);
-		EXPECT_EQ(TestIdentifierGroup::Identifiers({ 1, 4, 9 }), pGroup->identifiers());
+	// endregion
+
+	// region RunHeightGroupedTest
+
+	namespace {
+		template<typename TAction>
+		void RunHeightGroupedTest(Height deactivateHeight, TAction action) {
+			// Arrange:
+			BaseSetType set;
+			auto pDelta = set.rebase();
+			pDelta->insert(TestCacheDescriptor::ValueType("a", deactivateHeight));
+			pDelta->insert(TestCacheDescriptor::ValueType("xyz", deactivateHeight));
+			pDelta->insert(TestCacheDescriptor::ValueType("bbbb", deactivateHeight));
+			pDelta->insert(TestCacheDescriptor::ValueType(std::string(9, 'c'), deactivateHeight));
+			pDelta->insert(TestCacheDescriptor::ValueType(std::string(100, 'z'), deactivateHeight));
+
+			HeightGroupedBaseSetType groupedSet;
+			auto pGroupedDelta = groupedSet.rebase();
+			pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(1)), { 99, 98 }));
+			pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 100, 7, 4 }));
+			pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(6)), { 1, 3, 9 }));
+			pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+
+			// Act + Assert:
+			action(*pDelta, *pGroupedDelta);
+		}
+
+		template<typename TAction>
+		void RunHeightGroupedTest(TAction action) {
+			RunHeightGroupedTest(Height(std::numeric_limits<Height::ValueType>::max()), action);
+		}
 	}
 
 	// endregion
@@ -145,90 +142,60 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, ForEachIdentifierWithGroup_DoesNotCallActionWhenNoIdentifiersInGroup) {
 		// Arrange:
-		BaseSetType set;
-		auto pDelta = set.rebase();
-		pDelta->insert("a");
-		pDelta->insert(std::string(25, 'z'));
+		RunHeightGroupedTest([](const auto& delta, const auto& groupedDelta) {
+			// Sanity:
+			EXPECT_FALSE(groupedDelta.contains(Height(5)));
 
-		HeightGroupedBaseSetType groupedSet;
-		auto pGroupedDelta = groupedSet.rebase();
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(1)), { 100 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 1, 4, 9 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+			// Act:
+			auto numActionCalls = 0u;
+			ForEachIdentifierWithGroup(delta, groupedDelta, Height(5), [&numActionCalls](const auto&) {
+				++numActionCalls;
+			});
 
-		// Sanity:
-		EXPECT_FALSE(pGroupedDelta->contains(Height(5)));
-
-		// Act:
-		auto numActionCalls = 0u;
-		ForEachIdentifierWithGroup(*pDelta, *pGroupedDelta, Height(5), [&numActionCalls](const auto&) {
-			++numActionCalls;
+			// Assert:
+			EXPECT_EQ(0u, numActionCalls);
 		});
-
-		// Assert:
-		EXPECT_EQ(0u, numActionCalls);
 	}
 
 	TEST(TEST_CLASS, ForEachIdentifierWithGroup_CallsActionForAllValuesInGroup) {
 		// Arrange:
-		BaseSetType set;
-		auto pDelta = set.rebase();
-		pDelta->insert("a");
-		pDelta->insert("bbbb");
-		pDelta->insert(std::string(9, 'c'));
-		pDelta->insert(std::string(100, 'z'));
+		RunHeightGroupedTest([](const auto& delta, const auto& groupedDelta) {
+			// Act:
+			auto numActionCalls = 0u;
+			std::unordered_set<std::string> values;
+			ForEachIdentifierWithGroup(delta, groupedDelta, Height(6), [&numActionCalls, &values](const auto& value) {
+				++numActionCalls;
+				values.insert(value.str());
+			});
 
-		HeightGroupedBaseSetType groupedSet;
-		auto pGroupedDelta = groupedSet.rebase();
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(1)), { 100 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 1, 4, 9 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+			// Assert:
+			EXPECT_EQ(3u, numActionCalls);
 
-		// Act:
-		auto numActionCalls = 0u;
-		std::unordered_set<std::string> values;
-		ForEachIdentifierWithGroup(*pDelta, *pGroupedDelta, Height(3), [&numActionCalls, &values](const auto& str) {
-			++numActionCalls;
-			values.insert(str);
+			EXPECT_EQ(3u, values.size());
+			EXPECT_CONTAINS(values, "a");
+			EXPECT_CONTAINS(values, "xyz");
+			EXPECT_CONTAINS(values, std::string(9, 'c'));
 		});
-
-		// Assert:
-		EXPECT_EQ(3u, numActionCalls);
-
-		EXPECT_EQ(3u, values.size());
-		EXPECT_TRUE(values.cend() != values.find("a"));
-		EXPECT_TRUE(values.cend() != values.find("bbbb"));
-		EXPECT_TRUE(values.cend() != values.find(std::string(9, 'c')));
 	}
 
 	TEST(TEST_CLASS, ForEachIdentifierWithGroup_CallsActionForAllValuesInGroupAndIgnoresUnknownValues) {
 		// Arrange:
-		BaseSetType set;
-		auto pDelta = set.rebase();
-		pDelta->insert("a");
-		pDelta->insert(std::string(9, 'c'));
-		pDelta->insert(std::string(100, 'z'));
+		RunHeightGroupedTest([](const auto& delta, const auto& groupedDelta) {
+			// Act:
+			auto numActionCalls = 0u;
+			std::unordered_set<std::string> values;
+			ForEachIdentifierWithGroup(delta, groupedDelta, Height(3), [&numActionCalls, &values](const auto& value) {
+				++numActionCalls;
+				values.insert(value.str());
+			});
 
-		HeightGroupedBaseSetType groupedSet;
-		auto pGroupedDelta = groupedSet.rebase();
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(1)), { 100 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 1, 4, 9 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+			// Assert: value with id 7 is in group but not in underlying set
+			EXPECT_EQ(2u, numActionCalls);
 
-		// Act:
-		auto numActionCalls = 0u;
-		std::unordered_set<std::string> values;
-		ForEachIdentifierWithGroup(*pDelta, *pGroupedDelta, Height(3), [&numActionCalls, &values](const auto& str) {
-			++numActionCalls;
-			values.insert(str);
+			EXPECT_EQ(2u, values.size());
+			EXPECT_CONTAINS(values, "bbbb");
+			EXPECT_CONTAINS(values, std::string(100, 'z'));
 		});
-
-		// Assert: value with id 4 is in group but not in underlying set
-		EXPECT_EQ(2u, numActionCalls);
-
-		EXPECT_EQ(2u, values.size());
-		EXPECT_TRUE(values.cend() != values.find("a"));
-		EXPECT_TRUE(values.cend() != values.find(std::string(9, 'c')));
 	}
 
 	// endregion
@@ -237,81 +204,122 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, RemoveAllIdentifiersWithGroup_DoesNotRemoveAnythingWhenNoIdentifiersInGroup) {
 		// Arrange:
-		BaseSetType set;
-		auto pDelta = set.rebase();
-		pDelta->insert("a");
-		pDelta->insert(std::string(25, 'z'));
+		RunHeightGroupedTest([](auto& delta, auto& groupedDelta) {
+			// Sanity:
+			EXPECT_FALSE(groupedDelta.contains(Height(5)));
 
-		HeightGroupedBaseSetType groupedSet;
-		auto pGroupedDelta = groupedSet.rebase();
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(1)), { 100 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 1, 4, 9 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+			// Act:
+			RemoveAllIdentifiersWithGroup(delta, groupedDelta, Height(5));
 
-		// Sanity:
-		EXPECT_FALSE(pGroupedDelta->contains(Height(5)));
-
-		// Act:
-		RemoveAllIdentifiersWithGroup(*pDelta, *pGroupedDelta, Height(5));
-
-		// Assert: nothing was removed
-		EXPECT_EQ(2u, pDelta->size());
-		EXPECT_EQ(3u, pGroupedDelta->size());
+			// Assert: nothing was removed
+			EXPECT_EQ(5u, delta.size());
+			EXPECT_EQ(4u, groupedDelta.size());
+		});
 	}
 
 	TEST(TEST_CLASS, RemoveAllIdentifiersWithGroup_RemovesAllValuesInGroup) {
 		// Arrange:
-		BaseSetType set;
-		auto pDelta = set.rebase();
-		pDelta->insert("a");
-		pDelta->insert("bbbb");
-		pDelta->insert(std::string(9, 'c'));
-		pDelta->insert(std::string(100, 'z'));
+		RunHeightGroupedTest([](auto& delta, auto& groupedDelta) {
+			// Act:
+			RemoveAllIdentifiersWithGroup(delta, groupedDelta, Height(6));
 
-		HeightGroupedBaseSetType groupedSet;
-		auto pGroupedDelta = groupedSet.rebase();
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(1)), { 100 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 1, 4, 9 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+			// Assert:
+			EXPECT_EQ(2u, delta.size());
+			EXPECT_TRUE(delta.contains(4));
+			EXPECT_TRUE(delta.contains(100));
 
-		// Act:
-		RemoveAllIdentifiersWithGroup(*pDelta, *pGroupedDelta, Height(3));
-
-		// Assert:
-		EXPECT_EQ(1u, pDelta->size());
-		EXPECT_TRUE(pDelta->contains(100));
-
-		EXPECT_EQ(2u, pGroupedDelta->size());
-		EXPECT_TRUE(pGroupedDelta->contains(Height(1)));
-		EXPECT_TRUE(pGroupedDelta->contains(Height(7)));
+			EXPECT_EQ(3u, groupedDelta.size());
+			EXPECT_TRUE(groupedDelta.contains(Height(1)));
+			EXPECT_TRUE(groupedDelta.contains(Height(3)));
+			EXPECT_TRUE(groupedDelta.contains(Height(7)));
+		});
 	}
 
 	TEST(TEST_CLASS, RemoveAllIdentifiersWithGroup_RemovesAllValuesInGroupAndIgnoresUnknownValues) {
 		// Arrange:
-		BaseSetType set;
-		auto pDelta = set.rebase();
-		pDelta->insert("a");
-		pDelta->insert(std::string(9, 'c'));
-		pDelta->insert(std::string(100, 'z'));
+		RunHeightGroupedTest([](auto& delta, auto& groupedDelta) {
+			// Act:
+			RemoveAllIdentifiersWithGroup(delta, groupedDelta, Height(3));
 
-		HeightGroupedBaseSetType groupedSet;
-		auto pGroupedDelta = groupedSet.rebase();
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(1)), { 100 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(3)), { 1, 4, 9 }));
-		pGroupedDelta->insert(AddValues(TestIdentifierGroup(Height(7)), { 25, 26 }));
+			// Assert:
+			EXPECT_EQ(3u, delta.size());
+			EXPECT_TRUE(delta.contains(1));
+			EXPECT_TRUE(delta.contains(3));
+			EXPECT_TRUE(delta.contains(9));
 
-		// Act:
-		RemoveAllIdentifiersWithGroup(*pDelta, *pGroupedDelta, Height(3));
-
-		// Assert:
-		EXPECT_EQ(1u, pDelta->size());
-		EXPECT_TRUE(pDelta->contains(100));
-
-		EXPECT_EQ(2u, pGroupedDelta->size());
-		EXPECT_TRUE(pGroupedDelta->contains(Height(1)));
-		EXPECT_TRUE(pGroupedDelta->contains(Height(7)));
+			EXPECT_EQ(3u, groupedDelta.size());
+			EXPECT_TRUE(groupedDelta.contains(Height(1)));
+			EXPECT_TRUE(groupedDelta.contains(Height(6)));
+			EXPECT_TRUE(groupedDelta.contains(Height(7)));
+		});
 	}
 
 	// endregion
 
+	// region FindDeactivatingIdentifiersAtHeight
+
+	TEST(TEST_CLASS, FindDeactivatingIdentifiersAtHeight_ReturnsNothingWhenNoIdentifiersInGroup) {
+		// Arrange:
+		RunHeightGroupedTest([](auto& delta, auto& groupedDelta) {
+			// Sanity:
+			EXPECT_FALSE(groupedDelta.contains(Height(5)));
+
+			// Act:
+			auto identifiers = FindDeactivatingIdentifiersAtHeight(delta, groupedDelta, Height(5));
+
+			// Assert: nothing was found
+			EXPECT_TRUE(identifiers.empty());
+		});
+	}
+
+	TEST(TEST_CLASS, FindDeactivatingIdentifiersAtHeight_ReturnsAllValuesInGroupThatDeactivateAtHeight) {
+		// Arrange:
+		RunHeightGroupedTest(Height(6), [](auto& delta, auto& groupedDelta) {
+			// Act:
+			auto identifiers = FindDeactivatingIdentifiersAtHeight(delta, groupedDelta, Height(6));
+
+			// Assert:
+			EXPECT_EQ(3u, identifiers.size());
+			EXPECT_CONTAINS(identifiers, 1);
+			EXPECT_CONTAINS(identifiers, 3);
+			EXPECT_CONTAINS(identifiers, 9);
+		});
+	}
+
+	TEST(TEST_CLASS, FindDeactivatingIdentifiersAtHeight_ReturnsNothingWhenAllValuesInGroupStayActive) {
+		// Arrange:
+		RunHeightGroupedTest(Height(7), [](auto& delta, auto& groupedDelta) {
+			// Act:
+			auto identifiers = FindDeactivatingIdentifiersAtHeight(delta, groupedDelta, Height(6));
+
+			// Assert: even though there are identifiers at Height(6) because they are active at 5 + 6, none should be returned
+			EXPECT_TRUE(identifiers.empty());
+		});
+	}
+
+	TEST(TEST_CLASS, FindDeactivatingIdentifiersAtHeight_ReturnsNothingWhenAllValuesInGroupStayInactive) {
+		// Arrange:
+		RunHeightGroupedTest(Height(5), [](auto& delta, auto& groupedDelta) {
+			// Act:
+			auto identifiers = FindDeactivatingIdentifiersAtHeight(delta, groupedDelta, Height(6));
+
+			// Assert: even though there are identifiers at Height(6) because they are inactive at 5 + 6, none should be returned
+			EXPECT_TRUE(identifiers.empty());
+		});
+	}
+
+	TEST(TEST_CLASS, FindDeactivatingIdentifiersAtHeight_ReturnsAllValuesInGroupThatDeactivateAtHeightAndIgnoresUnknownValues) {
+		// Arrange:
+		RunHeightGroupedTest(Height(3), [](auto& delta, auto& groupedDelta) {
+			// Act:
+			auto identifiers = FindDeactivatingIdentifiersAtHeight(delta, groupedDelta, Height(3));
+
+			// Assert:
+			EXPECT_EQ(2u, identifiers.size());
+			EXPECT_CONTAINS(identifiers, 4);
+			EXPECT_CONTAINS(identifiers, 100);
+		});
+	}
+
+	// endregion
 }}

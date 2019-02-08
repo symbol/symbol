@@ -43,12 +43,21 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ(456u, result.CompletionCode);
 	}
 
-	TEST(TEST_CLASS, CanCreateCompleteConsumerResult) {
+	TEST(TEST_CLASS, CanCreateCompleteSuccessResult) {
 		// Act:
-		auto result = Complete();
+		auto result = CompleteSuccess();
 
 		// Assert:
 		EXPECT_EQ(disruptor::CompletionStatus::Consumed, result.CompletionStatus);
-		EXPECT_EQ(0u, result.CompletionCode);
+		EXPECT_EQ(utils::to_underlying_type(validators::ValidationResult::Success), result.CompletionCode);
+	}
+
+	TEST(TEST_CLASS, CanCreateCompleteNeutralResult) {
+		// Act:
+		auto result = CompleteNeutral();
+
+		// Assert:
+		EXPECT_EQ(disruptor::CompletionStatus::Consumed, result.CompletionStatus);
+		EXPECT_EQ(utils::to_underlying_type(validators::ValidationResult::Neutral), result.CompletionCode);
 	}
 }}

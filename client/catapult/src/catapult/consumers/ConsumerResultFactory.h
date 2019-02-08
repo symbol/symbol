@@ -35,8 +35,13 @@ namespace catapult { namespace consumers {
 		return disruptor::ConsumerResult::Abort(utils::to_underlying_type(validationResult));
 	}
 
-	/// Creates a completed consumer result.
-	constexpr disruptor::ConsumerResult Complete() {
-		return disruptor::ConsumerResult::Complete();
+	/// Creates a completed success consumer result.
+	constexpr disruptor::ConsumerResult CompleteSuccess() {
+		return disruptor::ConsumerResult::Complete(utils::to_underlying_type(validators::ValidationResult::Success));
+	}
+
+	/// Creates a completed neutral consumer result.
+	constexpr disruptor::ConsumerResult CompleteNeutral() {
+		return disruptor::ConsumerResult::Complete(utils::to_underlying_type(validators::ValidationResult::Neutral));
 	}
 }}

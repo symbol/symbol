@@ -26,11 +26,13 @@ namespace catapult {
 
 #define CPP14_CONSTEXPR __forceinline
 #define CATAPULT_INLINE __forceinline
+#define MAY_ALIAS
 
 #else
 
 #define CPP14_CONSTEXPR constexpr
 #define CATAPULT_INLINE inline
+#define MAY_ALIAS __attribute__((may_alias))
 
 #endif
 

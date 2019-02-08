@@ -26,7 +26,7 @@
 namespace catapult { namespace nodediscovery {
 
 	bool TryParseNodePacket(const ionet::Packet& packet, ionet::Node& node) {
-		auto dataSize = ionet::detail::CalculatePacketDataSize(packet);
+		auto dataSize = ionet::CalculatePacketDataSize(packet);
 		if (!ionet::ContainsSingleEntity<ionet::NetworkNode>({ packet.Data(), dataSize }, ionet::IsSizeValid<ionet::NetworkNode>)) {
 			CATAPULT_LOG(warning) << "node packet is malformed with size " << dataSize;
 			return false;

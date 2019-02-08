@@ -56,7 +56,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, StackLoggerCanLogStackMessages) {
 		// Arrange: non-deterministic due to sleep
 		test::RunNonDeterministicTest("log stack messages", []() {
-			test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+			test::TempLogsDirectoryGuard logFileGuard;
 
 			{
 				// Arrange: add a file logger
@@ -99,7 +99,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, SlowOperationLoggerDoesNotLogWhenThresholdIsNotExceeded) {
 		// Arrange: non-deterministic due to sleep
 		test::RunNonDeterministicTest("log stack messages", []() {
-			test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+			test::TempLogsDirectoryGuard logFileGuard;
 
 			{
 				// Arrange: add a file logger
@@ -129,7 +129,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, SlowOperationLoggerLogsWhenThresholdIsExceeded) {
 		// Arrange: non-deterministic due to sleep
 		test::RunNonDeterministicTest("log stack messages", []() {
-			test::TempFileGuard logFileGuard(test::Test_Log_Filename);
+			test::TempLogsDirectoryGuard logFileGuard;
 
 			{
 				// Arrange: add a file logger

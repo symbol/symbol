@@ -39,7 +39,7 @@ namespace catapult { namespace api {
 	/// An api for retrieving chain information from a node.
 	class ChainApi : public utils::NonCopyable {
 	public:
-		virtual ~ChainApi() {}
+		virtual ~ChainApi() = default;
 
 	public:
 		/// Gets information about the chain.

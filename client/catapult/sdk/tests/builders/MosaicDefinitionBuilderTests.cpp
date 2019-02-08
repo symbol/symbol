@@ -19,7 +19,8 @@
 **/
 
 #include "src/builders/MosaicDefinitionBuilder.h"
-#include "plugins/txes/namespace/src/model/IdGenerator.h"
+#include "plugins/txes/mosaic/src/model/MosaicIdGenerator.h"
+#include "catapult/constants.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"
 
 namespace catapult { namespace builders {
@@ -33,28 +34,21 @@ namespace catapult { namespace builders {
 		struct TransactionProperties {
 		public:
 			TransactionProperties()
-					: NamespaceId(test::GenerateRandomValue<catapult::NamespaceId>())
-					, MosaicName(test::GenerateRandomString(10))
-					, Flags(model::MosaicFlags::None)
+					: Flags(model::MosaicFlags::None)
 					, Divisibility(0)
 			{}
 
 		public:
-			catapult::NamespaceId NamespaceId;
-			std::string MosaicName;
 			model::MosaicFlags Flags;
 			uint8_t Divisibility;
+			catapult::MosaicNonce MosaicNonce;
 			std::vector<uint64_t> OptionalValues;
 		};
 
 		template<typename TTransaction>
-		void AssertMosaicDefinitionName(const TTransaction& transaction, NamespaceId parentId, const std::string& mosaicName) {
-			// Assert:
-			EXPECT_EQ(mosaicName.size(), transaction.MosaicNameSize);
-			EXPECT_TRUE(0 == std::memcmp(mosaicName.data(), transaction.NamePtr(), mosaicName.size()));
-
-			// - id matches
-			auto expectedMosaicId = model::GenerateMosaicId(parentId, mosaicName);
+		void AssertMosaicDefinitionName(const TTransaction& transaction, MosaicNonce nonce) {
+			// Assert: id matches
+			auto expectedMosaicId = model::GenerateMosaicId(transaction.Signer, nonce);
 			EXPECT_EQ(expectedMosaicId, transaction.MosaicId);
 		}
 
@@ -62,9 +56,11 @@ namespace catapult { namespace builders {
 		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
 			EXPECT_EQ(expectedProperties.Flags, transaction.PropertiesHeader.Flags);
 			EXPECT_EQ(expectedProperties.Divisibility, transaction.PropertiesHeader.Divisibility);
-			AssertMosaicDefinitionName(transaction, expectedProperties.NamespaceId, expectedProperties.MosaicName);
+			AssertMosaicDefinitionName(transaction, expectedProperties.MosaicNonce);
 
 			// - optional values
+			EXPECT_EQ(expectedProperties.OptionalValues.size(), transaction.PropertiesHeader.Count);
+
 			auto expectedPropertyId = model::First_Optional_Property;
 			for (auto optionalValue : expectedProperties.OptionalValues) {
 				const auto& property = *transaction.PropertiesPtr();
@@ -84,23 +80,17 @@ namespace catapult { namespace builders {
 			auto signer = test::GenerateRandomData<Key_Size>();
 
 			// Act:
-			MosaicDefinitionBuilder builder(networkId, signer, expectedProperties.NamespaceId, expectedProperties.MosaicName);
+			MosaicDefinitionBuilder builder(networkId, signer);
 			buildTransaction(builder);
 			auto pTransaction = TTraits::InvokeBuilder(builder);
 
 			// Assert:
-			TTraits::CheckFields(expectedProperties.MosaicName.size() + propertiesSize, *pTransaction);
+			TTraits::CheckFields(propertiesSize, *pTransaction);
 			EXPECT_EQ(signer, pTransaction->Signer);
-			EXPECT_EQ(0x6202, pTransaction->Version);
+			EXPECT_EQ(0x6203, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Mosaic_Definition, pTransaction->Type);
-			EXPECT_EQ(expectedProperties.NamespaceId, pTransaction->ParentId);
 
 			AssertTransactionProperties(expectedProperties, *pTransaction);
-		}
-
-		MosaicDefinitionBuilder CreateBuilderWithName(const RawString& name, const Key& signer) {
-			auto networkIdentifier = static_cast<model::NetworkIdentifier>(0x62);
-			return MosaicDefinitionBuilder(networkIdentifier, signer, test::GenerateRandomValue<NamespaceId>(), name);
 		}
 	}
 
@@ -115,25 +105,6 @@ namespace catapult { namespace builders {
 	TRAITS_BASED_TEST(CanCreateTransaction) {
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(0, TransactionProperties(), [](const auto&) {});
-	}
-
-	// endregion
-
-	// region name validation
-
-	TEST(TEST_CLASS, CannotSetEmptyName) {
-		// Act + Assert:
-		EXPECT_THROW(CreateBuilderWithName({}, test::GenerateRandomData<Key_Size>()), catapult_invalid_argument);
-	}
-
-	TEST(TEST_CLASS, CannnotSetTooLongName) {
-		// Arrange:
-		auto namespaceName = test::GenerateRandomString(1 << (sizeof(model::MosaicDefinitionTransaction::MosaicNameSize) * 8));
-		auto signer = test::GenerateRandomData<Key_Size>();
-		auto builder = CreateBuilderWithName(namespaceName, signer);
-
-		// Act + Assert:
-		EXPECT_THROW(builder.build(), catapult_runtime_error);
 	}
 
 	// endregion
@@ -155,21 +126,21 @@ namespace catapult { namespace builders {
 	TRAITS_BASED_TEST(CanSetFlags_SupplyMutable) {
 		// Assert:
 		AssertCanSetFlags<TTraits>(model::MosaicFlags::Supply_Mutable, [](auto& builder) {
-			builder.setSupplyMutable();
+			builder.setFlags(model::MosaicFlags::Supply_Mutable);
 		});
 	}
 
 	TRAITS_BASED_TEST(CanSetFlags_Transferable) {
 		// Assert:
 		AssertCanSetFlags<TTraits>(model::MosaicFlags::Transferable, [](auto& builder) {
-			builder.setTransferable();
+			builder.setFlags(model::MosaicFlags::Transferable);
 		});
 	}
 
 	TRAITS_BASED_TEST(CanSetFlags_LevyMutable) {
 		// Assert:
 		AssertCanSetFlags<TTraits>(model::MosaicFlags::Levy_Mutable, [](auto& builder) {
-			builder.setLevyMutable();
+			builder.setFlags(model::MosaicFlags::Levy_Mutable);
 		});
 	}
 
@@ -177,9 +148,7 @@ namespace catapult { namespace builders {
 		// Assert:
 		auto flags = model::MosaicFlags::Supply_Mutable | model::MosaicFlags::Transferable | model::MosaicFlags::Levy_Mutable;
 		AssertCanSetFlags<TTraits>(flags, [](auto& builder) {
-			builder.setSupplyMutable();
-			builder.setLevyMutable();
-			builder.setTransferable();
+			builder.setFlags(model::MosaicFlags::Supply_Mutable | model::MosaicFlags::Transferable | model::MosaicFlags::Levy_Mutable);
 		});
 	}
 
@@ -205,7 +174,22 @@ namespace catapult { namespace builders {
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(sizeof(model::MosaicProperty), expectedProperties, [](auto& builder) {
-			builder.setDuration(BlockDuration(12345678));
+			builder.addProperty({ model::MosaicPropertyId::Duration, 12345678 });
+		});
+	}
+
+	// endregion
+
+	// region nonce
+
+	TRAITS_BASED_TEST(CanSetNonce) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		expectedProperties.MosaicNonce = test::GenerateRandomValue<MosaicNonce>();
+
+		// Assert:
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [nonce = expectedProperties.MosaicNonce](auto& builder) {
+			builder.setMosaicNonce(nonce);
 		});
 	}
 

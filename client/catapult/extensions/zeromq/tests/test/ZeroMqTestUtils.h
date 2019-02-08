@@ -51,10 +51,10 @@ namespace catapult { namespace test {
 	const mocks::MockTransaction& ToMockTransaction(const model::Transaction& transaction);
 
 	/// Converts a given vector of \a keys to a set of addresses.
-	model::AddressSet ToAddresses(const std::vector<Key>& keys);
+	model::UnresolvedAddressSet ToAddresses(const std::vector<Key>& keys);
 
 	/// Extracts all addresses from a mock \a transaction.
-	model::AddressSet ExtractAddresses(const mocks::MockTransaction& transaction);
+	model::UnresolvedAddressSet ExtractAddresses(const mocks::MockTransaction& transaction);
 
 	/// Removes all extracted addresses from \a transactionInfo.
 	model::TransactionInfo RemoveExtractedAddresses(model::TransactionInfo&& transactionInfo);
@@ -63,7 +63,7 @@ namespace catapult { namespace test {
 	std::vector<model::TransactionInfo> RemoveExtractedAddresses(std::vector<model::TransactionInfo>&& transactionInfos);
 
 	/// Subscribes \a socket to topics created from \a marker and \a addresses.
-	void SubscribeForAddresses(zmq::socket_t& socket, zeromq::TransactionMarker marker, const model::AddressSet& addresses);
+	void SubscribeForAddresses(zmq::socket_t& socket, zeromq::TransactionMarker marker, const model::UnresolvedAddressSet& addresses);
 
 	/// Attempts to receive a \a message using \a socket.
 	void ZmqReceive(zmq::multipart_t& message, zmq::socket_t& socket);
@@ -108,7 +108,7 @@ namespace catapult { namespace test {
 	void AssertMessages(
 			zmq::socket_t& zmqSocket,
 			zeromq::TransactionMarker marker,
-			const model::AddressSet& addresses,
+			const model::UnresolvedAddressSet& addresses,
 			const AssertMessage& assertMessage);
 
 	/// Asserts that the socket (\a zmqSocket) has no messages pending.
@@ -121,11 +121,11 @@ namespace catapult { namespace test {
 		MqContext()
 				: m_registry(mocks::CreateDefaultTransactionRegistry())
 				, m_pZeroMqEntityPublisher(std::make_shared<zeromq::ZeroMqEntityPublisher>(
-						static_cast<unsigned short>(Default_Port), // cast needed to workaround linker error
-						model::CreateNotificationPublisher(m_registry, model::PublisherContext())))
+						GetDefaultLocalHostZmqPort(),
+						model::CreateNotificationPublisher(m_registry, UnresolvedMosaicId())))
 				, m_zmqSocket(m_zmqContext, ZMQ_SUB) {
 			m_zmqSocket.setsockopt(ZMQ_RCVTIMEO, 10);
-			m_zmqSocket.connect("tcp://localhost:" + std::to_string(Default_Port));
+			m_zmqSocket.connect("tcp://localhost:" + std::to_string(GetDefaultLocalHostZmqPort()));
 		}
 
 	public:
@@ -139,7 +139,7 @@ namespace catapult { namespace test {
 		}
 
 		/// Subscribes to all topics using \a marker and \a addresses.
-		void subscribeAll(zeromq::TransactionMarker marker, const model::AddressSet& addresses) {
+		void subscribeAll(zeromq::TransactionMarker marker, const model::UnresolvedAddressSet& addresses) {
 			SubscribeForAddresses(m_zmqSocket, marker, addresses);
 
 			// make an additional subscription and wait until messages can be received
@@ -194,7 +194,11 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		static constexpr unsigned short Default_Port = test::Local_Host_Port + 2;
+		static unsigned short GetDefaultLocalHostZmqPort() {
+			return GetLocalHostPort() + 2;
+		}
+
+	private:
 		model::TransactionRegistry m_registry;
 		std::shared_ptr<zeromq::ZeroMqEntityPublisher> m_pZeroMqEntityPublisher;
 		zmq::context_t m_zmqContext;
@@ -210,7 +214,7 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a message queue context using the supplied subscriber creator (\a subscriberCreator).
 		explicit MqContextT(const SubscriberCreator& subscriberCreator)
-				: m_pNotificationPublisher(model::CreateNotificationPublisher(registry(), model::PublisherContext()))
+				: m_pNotificationPublisher(model::CreateNotificationPublisher(registry(), UnresolvedMosaicId()))
 				, m_pZeroMqSubscriber(subscriberCreator(publisher()))
 		{}
 

@@ -48,12 +48,13 @@ namespace catapult { namespace plugins {
 				rentalFee = Amount(config.RootFeePerBlock.unwrap() * transaction.Duration.unwrap());
 			}
 
-			sub.notify(BalanceTransferNotification(transaction.Signer, config.SinkAddress, Xem_Id, rentalFee));
+			sub.notify(BalanceTransferNotification(transaction.Signer, config.SinkAddress, config.CurrencyMosaicId, rentalFee));
+			sub.notify(NamespaceRentalFeeNotification(transaction.Signer, config.SinkAddress, config.CurrencyMosaicId, rentalFee));
 		}
 
 		template<typename TTransaction>
 		auto CreatePublisher(const NamespaceRentalFeeConfiguration& config) {
-			return [config](const TTransaction& transaction, const PublisherContext&, NotificationSubscriber& sub) {
+			return [config](const TTransaction& transaction, NotificationSubscriber& sub) {
 				// 1. sink account notification
 				sub.notify(AccountPublicKeyNotification(config.SinkPublicKey));
 

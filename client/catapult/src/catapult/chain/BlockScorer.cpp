@@ -128,6 +128,8 @@ namespace catapult { namespace chain {
 		BlockTarget target = timeSpan.seconds();
 		target *= signerImportance.unwrap();
 		target *= GetMultiplier(timeSpan.seconds(), config);
+		target *= 8'999'999'998; // scale to original total chain importance
+		target /= config.TotalChainImportance.unwrap();
 		target /= difficulty.unwrap();
 		return target;
 	}

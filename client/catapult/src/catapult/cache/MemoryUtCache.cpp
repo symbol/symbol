@@ -22,6 +22,7 @@
 #include "AccountCounters.h"
 #include "CacheSizeLogger.h"
 #include "catapult/model/EntityInfo.h"
+#include "catapult/model/FeeUtils.h"
 
 namespace catapult { namespace cache {
 
@@ -83,10 +84,15 @@ namespace catapult { namespace cache {
 		return shortHashes;
 	}
 
-	MemoryUtCacheView::UnknownTransactions MemoryUtCacheView::unknownTransactions(const utils::ShortHashesSet& knownShortHashes) const {
+	MemoryUtCacheView::UnknownTransactions MemoryUtCacheView::unknownTransactions(
+			BlockFeeMultiplier minFeeMultiplier,
+			const utils::ShortHashesSet& knownShortHashes) const {
 		uint64_t totalSize = 0;
 		UnknownTransactions transactions;
 		for (const auto& data : m_transactionDataContainer) {
+			if (data.pEntity->MaxFee < model::CalculateTransactionFee(minFeeMultiplier, *data.pEntity))
+				continue;
+
 			auto shortHash = utils::ToShortHash(data.EntityHash);
 			auto iter = knownShortHashes.find(shortHash);
 			if (knownShortHashes.cend() == iter) {

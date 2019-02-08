@@ -39,7 +39,7 @@ namespace catapult { namespace observers {
 	public:
 		const std::string& name() const override;
 
-		void notify(const model::WeakEntityInfo& entityInfo, const ObserverContext& context) const override;
+		void notify(const model::WeakEntityInfo& entityInfo, ObserverContext& context) const override;
 
 	private:
 		NotificationObserverPointer m_pObserver;

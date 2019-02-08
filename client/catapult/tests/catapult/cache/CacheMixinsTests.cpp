@@ -19,11 +19,7 @@
 **/
 
 #include "catapult/cache/CacheMixins.h"
-#include "catapult/cache/CacheDescriptorAdapters.h"
-#include "catapult/deltaset/BaseSet.h"
-#include "catapult/deltaset/BaseSetDelta.h"
-#include "catapult/utils/Hashers.h"
-#include "tests/catapult/cache/test/UnsupportedSerializer.h"
+#include "tests/catapult/cache/test/TestCacheTypes.h"
 #include "tests/TestHarness.h"
 #include <unordered_map>
 
@@ -31,32 +27,16 @@ namespace catapult { namespace cache {
 
 #define TEST_CLASS CacheMixinsTests
 
+	// region test utils
+
 	namespace {
-		// fake cache that indexes strings by size
-		struct TestCacheDescriptor {
-			static constexpr auto Name = "TestCache";
+		using TestIdentifierGroup = test::TestCacheTypes::TestIdentifierGroup;
+		using TestCacheDescriptor = test::TestCacheTypes::TestCacheDescriptor;
+		using TestActivityCacheDescriptor = test::TestCacheTypes::TestActivityCacheDescriptor;
 
-			using KeyType = int;
-			using ValueType = std::string;
-			using Serializer = test::UnsupportedSerializer<KeyType, ValueType>;
-
-			static KeyType GetKeyFromValue(const ValueType& value) {
-				return static_cast<int>(value.size());
-			}
-		};
-
-		template<typename TBaseSet>
-		class BaseSetTypeWrapper : public TBaseSet {
-		public:
-			BaseSetTypeWrapper() : TBaseSet(deltaset::ConditionalContainerMode::Memory, m_database, 0)
-			{}
-
-		private:
-			CacheDatabase m_database;
-		};
-
-		using BasicTypes = MutableUnorderedMapAdapter<TestCacheDescriptor>;
-		using BaseSetType = BaseSetTypeWrapper<BasicTypes::BaseSetType>;
+		using HeightGroupedBaseSetType = test::TestCacheTypes::HeightGroupedBaseSetType;
+		using BaseSetType = test::TestCacheTypes::BaseSetType;
+		using BaseActivitySetType = test::TestCacheTypes::BaseActivitySetType;
 
 		auto SeedThreeDelta(BaseSetType& set) {
 			auto pDelta = set.rebase();
@@ -71,6 +51,8 @@ namespace catapult { namespace cache {
 			set.commit();
 		}
 	}
+
+	// endregion
 
 	// region SizeMixin
 
@@ -145,7 +127,7 @@ namespace catapult { namespace cache {
 		};
 
 		using OrderedSetBasicTypes = MutableOrderedMemorySetAdapter<TestSetCacheDescriptor>;
-		using OrderedBaseSetType = BaseSetTypeWrapper<OrderedSetBasicTypes::BaseSetType>;
+		using OrderedBaseSetType = test::TestCacheTypes::BaseSetTypeWrapper<OrderedSetBasicTypes::BaseSetType>;
 
 		void Commit(BaseSetType& set) {
 			set.commit();
@@ -524,7 +506,7 @@ namespace catapult { namespace cache {
 		};
 
 		using ConditionallyActiveTypes = MutableUnorderedMapAdapter<TestConditionallyActiveCacheDescriptor>;
-		using ConditionallyActiveBaseSet = BaseSetTypeWrapper<ConditionallyActiveTypes::BaseSetType>;
+		using ConditionallyActiveBaseSet = test::TestCacheTypes::BaseSetTypeWrapper<ConditionallyActiveTypes::BaseSetType>;
 
 		template<typename TAction>
 		void RunActivePredicateMixinTest(TAction action) {
@@ -691,38 +673,21 @@ namespace catapult { namespace cache {
 	// region HeightBasedTouchMixin
 
 	namespace {
-		// int grouped by Height
-		class TestIdentifierGroup : public utils::IdentifierGroup<int, Height, std::hash<int>> {
-		public:
-#ifdef _MSC_VER
-			TestIdentifierGroup() : TestIdentifierGroup(Height())
-			{}
-#endif
+		using TestHeightBasedTouchMixin = HeightBasedTouchMixin<BaseActivitySetType::DeltaType, HeightGroupedBaseSetType::DeltaType>;
 
-			using utils::IdentifierGroup<int, Height, std::hash<int>>::IdentifierGroup;
-		};
-
-		struct TestHeightGroupedCacheDescriptor {
-			using KeyType = Height;
-			using ValueType = TestIdentifierGroup;
-
-			using Serializer = test::UnsupportedSerializer<KeyType, ValueType>;
-
-			static KeyType GetKeyFromValue(const ValueType& value) {
-				return value.key();
-			}
-		};
-
-		using HeightGroupedTypes = MutableUnorderedMapAdapter<TestHeightGroupedCacheDescriptor, utils::BaseValueHasher<Height>>;
-		using HeightGroupedBaseSetType = BaseSetTypeWrapper<HeightGroupedTypes::BaseSetType>;
-
-		using TestHeightBasedTouchMixin = HeightBasedTouchMixin<BaseSetType::DeltaType, HeightGroupedBaseSetType::DeltaType>;
+		auto SeedThreeDelta(BaseActivitySetType& set, Height deactivateHeight) {
+			auto pDelta = set.rebase();
+			pDelta->insert(TestActivityCacheDescriptor::ValueType("a", deactivateHeight));
+			pDelta->insert(TestActivityCacheDescriptor::ValueType("ccc", deactivateHeight));
+			pDelta->insert(TestActivityCacheDescriptor::ValueType("fffff", deactivateHeight));
+			return pDelta;
+		}
 
 		template<typename TMixin, typename TAction>
-		void RunHeightBasedMixinTest(TAction action) {
+		void RunHeightBasedMixinTest(Height height, TAction action) {
 			// Arrange:
-			BaseSetType set;
-			auto pDelta = SeedThreeDelta(set);
+			BaseActivitySetType set;
+			auto pDelta = SeedThreeDelta(set, height);
 
 			HeightGroupedBaseSetType heightGroupedSet;
 			auto pHeightGroupedDelta = heightGroupedSet.rebase();
@@ -752,7 +717,12 @@ namespace catapult { namespace cache {
 			action(mixin, *pDelta, *pHeightGroupedDelta);
 		}
 
-		std::unordered_set<int> GetCopiedKeys(const BaseSetType::DeltaType& delta) {
+		template<typename TMixin, typename TAction>
+		void RunHeightBasedMixinTest(TAction action) {
+			RunHeightBasedMixinTest<TMixin>(Height(1000), action);
+		}
+
+		std::unordered_set<int> GetCopiedKeys(const BaseActivitySetType::DeltaType& delta) {
 			std::unordered_set<int> copiedKeys;
 			for (const auto& pair : delta.deltas().Copied)
 				copiedKeys.insert(pair.first);
@@ -768,7 +738,7 @@ namespace catapult { namespace cache {
 			EXPECT_FALSE(heightGroupedSet.contains(Height(5)));
 
 			// Act: touch at a height without any identifiers
-			mixin.touch(Height(5));
+			auto expiryIds = mixin.touch(Height(5));
 
 			// Assert: no modifications
 			EXPECT_EQ(3u, set.size());
@@ -777,6 +747,9 @@ namespace catapult { namespace cache {
 			// - no touched elements
 			auto copiedKeys = GetCopiedKeys(set);
 			EXPECT_TRUE(copiedKeys.empty());
+
+			// - no transitions
+			EXPECT_TRUE(expiryIds.empty());
 		});
 	}
 
@@ -784,7 +757,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		RunHeightBasedMixinTest<TestHeightBasedTouchMixin>([](auto& mixin, const auto& set, const auto& heightGroupedSet) {
 			// Act: touch at a height with known identifiers
-			mixin.touch(Height(3));
+			auto expiryIds = mixin.touch(Height(3));
 
 			// Assert: no modifications
 			EXPECT_EQ(3u, set.size());
@@ -793,8 +766,32 @@ namespace catapult { namespace cache {
 			// - two touched elements
 			auto copiedKeys = GetCopiedKeys(set);
 			EXPECT_EQ(2u, copiedKeys.size());
-			EXPECT_TRUE(copiedKeys.cend() != copiedKeys.find(1));
-			EXPECT_TRUE(copiedKeys.cend() != copiedKeys.find(5));
+			EXPECT_CONTAINS(copiedKeys, 1);
+			EXPECT_CONTAINS(copiedKeys, 5);
+
+			// - no transitions (touched elements are active at previous and current heights)
+			EXPECT_TRUE(expiryIds.empty());
+		});
+	}
+
+	TEST(TEST_CLASS, HeightBasedTouchMixin_DeactivatingIdentifiersAreReturned) {
+		// Arrange:
+		RunHeightBasedMixinTest<TestHeightBasedTouchMixin>(Height(3), [](auto& mixin, const auto& set, const auto& heightGroupedSet) {
+			// Act: touch at a height with known identifiers
+			auto expiryIds = mixin.touch(Height(3));
+
+			// Assert: no modifications
+			EXPECT_EQ(3u, set.size());
+			EXPECT_EQ(2u, heightGroupedSet.size());
+
+			// - two touched elements
+			auto copiedKeys = GetCopiedKeys(set);
+			EXPECT_EQ(2u, copiedKeys.size());
+			EXPECT_CONTAINS(copiedKeys, 1);
+			EXPECT_CONTAINS(copiedKeys, 5);
+
+			// - two transitions
+			EXPECT_EQ(decltype(expiryIds)({ 1, 5 }), expiryIds);
 		});
 	}
 
@@ -802,7 +799,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		RunHeightBasedMixinTest<TestHeightBasedTouchMixin>([](auto& mixin, const auto& set, const auto& heightGroupedSet) {
 			// Act: touch at a height with a mix of known and unknown identifiers
-			mixin.touch(Height(7));
+			auto expiryIds = mixin.touch(Height(7));
 
 			// Assert: no modifications
 			EXPECT_EQ(3u, set.size());
@@ -811,7 +808,10 @@ namespace catapult { namespace cache {
 			// - one touched element
 			auto copiedKeys = GetCopiedKeys(set);
 			EXPECT_EQ(1u, copiedKeys.size());
-			EXPECT_TRUE(copiedKeys.cend() != copiedKeys.find(3));
+			EXPECT_CONTAINS(copiedKeys, 3);
+
+			// - no transitions
+			EXPECT_TRUE(expiryIds.empty());
 		});
 	}
 
@@ -820,7 +820,7 @@ namespace catapult { namespace cache {
 	// region HeightBasedPruningMixin
 
 	namespace {
-		using TestHeightBasedPruningMixin = HeightBasedPruningMixin<BaseSetType::DeltaType, HeightGroupedBaseSetType::DeltaType>;
+		using TestHeightBasedPruningMixin = HeightBasedPruningMixin<BaseActivitySetType::DeltaType, HeightGroupedBaseSetType::DeltaType>;
 	}
 
 	TEST(TEST_CLASS, HeightBasedPruningMixin_NothingIsRemovedWhenNoIdentifiersAtHeight) {

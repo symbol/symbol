@@ -22,10 +22,10 @@
 
 namespace catapult { namespace zeromq {
 
-	std::vector<uint8_t> CreateTopic(TransactionMarker marker, const Address& address) {
-		std::vector<uint8_t> topic;
-		topic.push_back(utils::to_underlying_type(marker));
-		topic.insert(topic.end(), address.cbegin(), address.cend());
+	std::vector<uint8_t> CreateTopic(TransactionMarker marker, const UnresolvedAddress& address) {
+		std::vector<uint8_t> topic(sizeof(TransactionMarker) + address.size());
+		std::memcpy(topic.data(), &marker, sizeof(TransactionMarker));
+		std::memcpy(topic.data() + sizeof(TransactionMarker), address.data(), address.size());
 		return topic;
 	}
 }}

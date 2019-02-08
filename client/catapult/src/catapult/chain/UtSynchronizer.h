@@ -31,8 +31,9 @@ namespace catapult { namespace chain {
 	using ShortHashesSupplier = supplier<model::ShortHashRange>;
 
 	/// Creates an unconfirmed transactions synchronizer around the specified short hashes supplier (\a shortHashesSupplier)
-	/// and transaction range consumer (\a transactionRangeConsumer).
+	/// and transaction range consumer (\a transactionRangeConsumer) for transactions with fee multipliers at least \a minFeeMultiplier.
 	RemoteNodeSynchronizer<api::RemoteTransactionApi> CreateUtSynchronizer(
+			BlockFeeMultiplier minFeeMultiplier,
 			const ShortHashesSupplier& shortHashesSupplier,
 			const handlers::TransactionRangeHandler& transactionRangeConsumer);
 }}

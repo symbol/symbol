@@ -185,7 +185,7 @@ namespace catapult { namespace extensions {
 
 					// Assert: check the node info size then the memory
 					ASSERT_EQ(expectedSize, iter->Size) << message;
-					EXPECT_TRUE(0 == memcmp(pResponseData, &*iter, iter->Size)) << message;
+					EXPECT_EQ_MEMORY(pResponseData, &*iter, iter->Size) << message;
 
 					pResponseData += expectedSize;
 					++iter;
@@ -240,7 +240,7 @@ namespace catapult { namespace extensions {
 					ASSERT_EQ(expectedInfo.DataSize, actualInfo.DataSize) << message;
 
 					EXPECT_EQ(expectedInfo.Id, actualInfo.Id) << message;
-					EXPECT_TRUE(0 == std::memcmp(expectedInfo.DataPtr(), actualInfo.DataPtr(), actualInfo.DataSize)) << message;
+					EXPECT_EQ_MEMORY(expectedInfo.DataPtr(), actualInfo.DataPtr(), actualInfo.DataSize) << message;
 
 					++iter;
 					pData += expectedInfo.Size;
@@ -338,8 +338,8 @@ namespace catapult { namespace extensions {
 
 			static void ValidateRequest(const ionet::Packet& packet) {
 				EXPECT_EQ(TTraits::PacketType(), packet.Type);
-				EXPECT_EQ(sizeof(ionet::Packet) + Request_Data_Size, packet.Size);
-				EXPECT_TRUE(0 == std::memcmp(packet.Data(), TTraits::RequestParamValues().data(), Request_Data_Size));
+				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Size, packet.Size);
+				EXPECT_EQ_MEMORY(packet.Data(), TTraits::RequestParamValues().data(), Request_Data_Size);
 			}
 
 			static void ValidateResponse(const ionet::Packet& response, const typename TTraits::ResponseType& responseEntities) {
@@ -352,8 +352,8 @@ namespace catapult { namespace extensions {
 		// region RemoteDiagnosticApiTraits
 
 		struct RemoteDiagnosticApiTraits {
-			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return CreateRemoteDiagnosticApi(*pPacketIo);
+			static auto Create(ionet::PacketIo& packetIo) {
+				return CreateRemoteDiagnosticApi(packetIo);
 			}
 		};
 

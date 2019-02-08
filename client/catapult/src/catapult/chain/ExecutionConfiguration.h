@@ -32,6 +32,7 @@ namespace catapult { namespace chain {
 		using ObserverPointer = std::shared_ptr<const observers::AggregateNotificationObserver>;
 		using ValidatorPointer = std::shared_ptr<const validators::stateful::AggregateNotificationValidator>;
 		using PublisherPointer = std::shared_ptr<const model::NotificationPublisher>;
+		using ResolverContextFactoryFunc = std::function<model::ResolverContext (const cache::ReadOnlyCatapultCache&)>;
 
 	public:
 		/// Network info.
@@ -45,5 +46,8 @@ namespace catapult { namespace chain {
 
 		/// Notification publisher.
 		PublisherPointer pNotificationPublisher;
+
+		/// Resolver context factory.
+		ResolverContextFactoryFunc ResolverContextFactory;
 	};
 }}

@@ -25,10 +25,10 @@
 
 namespace catapult { namespace sync {
 
-	model::MatchingEntityPredicate ToUnknownTransactionPredicate(const chain::KnownHashPredicate& knownHashPredicate) {
+	model::MatchingEntityPredicate ToRequiresValidationPredicate(const chain::KnownHashPredicate& knownHashPredicate) {
 		return [knownHashPredicate](auto entityType, auto timestamp, const auto& hash) {
 			auto isTransaction = model::BasicEntityType::Transaction == entityType;
-			return isTransaction && !knownHashPredicate(timestamp, hash);
+			return !isTransaction || !knownHashPredicate(timestamp, hash);
 		};
 	}
 
@@ -47,7 +47,7 @@ namespace catapult { namespace sync {
 	chain::UtUpdater::Throttle CreateUtUpdaterThrottle(const config::LocalNodeConfiguration& config) {
 		SpamThrottleConfiguration throttleConfig(
 				config.Node.TransactionSpamThrottlingMaxBoostFee,
-				model::GetTotalImportance(config.BlockChain),
+				config.BlockChain.TotalChainImportance,
 				config.Node.UnconfirmedTransactionsCacheMaxSize,
 				config.BlockChain.MaxTransactionsPerBlock);
 

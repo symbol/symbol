@@ -57,12 +57,16 @@ namespace catapult { namespace plugins {
 				return { "MultisigCache" };
 			}
 
+			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
+				return { ionet::PacketType::Multisig_State_Path };
+			}
+
 			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return { ionet::PacketType::Multisig_Infos, ionet::PacketType::Multisig_State_Path };
+				return { ionet::PacketType::Multisig_Infos };
 			}
 
 			static std::vector<std::string> GetDiagnosticCounterNames() {
-				return {};
+				return { "MULTISIG C" };
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {

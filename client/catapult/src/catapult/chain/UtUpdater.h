@@ -67,14 +67,16 @@ namespace catapult { namespace chain {
 		using Throttle = predicate<const model::TransactionInfo&, const ThrottleContext&>;
 
 	public:
-		/// Creates an updater around \a transactionsCache with execution configuration (\a config),
+		/// Creates an updater around \a transactionsCache with execution configuration (\a executionConfig),
 		/// current time supplier (\a timeSupplier) and failed transaction sink (\a failedTransactionSink).
 		/// \a confirmedCatapultCache is the real (confirmed) catapult cache.
 		/// \a throttle allows throttling (rejection) of transactions.
+		/// \a minFeeMultiplier is the minimum fee multiplier of transactions allowed in the cache.
 		UtUpdater(
 				cache::UtCache& transactionsCache,
 				const cache::CatapultCache& confirmedCatapultCache,
-				const ExecutionConfiguration& config,
+				BlockFeeMultiplier minFeeMultiplier,
+				const ExecutionConfiguration& executionConfig,
 				const TimeSupplier& timeSupplier,
 				const FailedTransactionSink& failedTransactionSink,
 				const Throttle& throttle);

@@ -29,6 +29,12 @@ namespace catapult { namespace observers {
 		return NotifyMode::Commit == context.Mode && 0 == context.Height.unwrap() % pruneInterval;
 	}
 
+	/// Returns \c true if \a action and \a notifyMode indicate that a link should be made.
+	template<typename TAction>
+	constexpr bool ShouldLink(TAction action, NotifyMode notifyMode) {
+		return NotifyMode::Commit == notifyMode ? TAction::Link == action : TAction::Unlink == action;
+	}
+
 	/// Creates a block-based cache pruning observer with \a name that runs every \a interval blocks
 	/// with the specified grace period (\a gracePeriod).
 	template<typename TCache>
@@ -37,7 +43,7 @@ namespace catapult { namespace observers {
 			size_t interval,
 			BlockDuration gracePeriod) {
 		using ObserverType = FunctionalNotificationObserverT<model::BlockNotification>;
-		return std::make_unique<ObserverType>(name + "PruningObserver", [gracePeriod, interval](const auto&, const auto& context) {
+		return std::make_unique<ObserverType>(name + "PruningObserver", [interval, gracePeriod](const auto&, auto& context) {
 			if (!ShouldPrune(context, interval))
 				return;
 
@@ -63,13 +69,24 @@ namespace catapult { namespace observers {
 		});
 	}
 
-	/// Creates a block-based cache touch observer with \a name that touches the cache at every block height.
+	/// Creates a block-based cache touch observer with \a name that touches the cache at every block height
+	/// and creates a receipt of type \a receiptType for all deactivating elements.
 	template<typename TCache>
-	NotificationObserverPointerT<model::BlockNotification> CreateCacheBlockTouchObserver(const std::string& name) {
+	NotificationObserverPointerT<model::BlockNotification> CreateCacheBlockTouchObserver(
+			const std::string& name,
+			model::ReceiptType receiptType) {
 		using ObserverType = FunctionalNotificationObserverT<model::BlockNotification>;
-		return std::make_unique<ObserverType>(name + "TouchObserver", [](const auto&, const auto& context) {
+		return std::make_unique<ObserverType>(name + "TouchObserver", [receiptType](const auto&, auto& context) {
 			auto& cache = context.Cache.template sub<TCache>();
-			cache.touch(context.Height);
+			auto expiryIds = cache.touch(context.Height);
+
+			if (NotifyMode::Rollback == context.Mode)
+				return;
+
+			// sort expiry ids because receipts must be generated deterministically
+			std::set<typename decltype(expiryIds)::value_type> orderedExpiryIds(expiryIds.cbegin(), expiryIds.cend());
+			for (auto id : orderedExpiryIds)
+				context.StatementBuilder().addReceipt(model::ArtifactExpiryReceipt<decltype(id)>(receiptType, id));
 		});
 	}
 }}

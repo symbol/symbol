@@ -29,7 +29,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, TransactionHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(uint32_t) // size
+		auto expectedSize =
+				sizeof(uint32_t) // size
 				+ sizeof(uint16_t) // version
 				+ sizeof(uint16_t) // entity type
 				+ sizeof(Key); // signer
@@ -45,14 +46,14 @@ namespace catapult { namespace model {
 		// Arrange:
 		EmbeddedTransaction transaction;
 		transaction.Size = 121;
-		transaction.Type = static_cast<model::EntityType>(0x1234);
+		transaction.Type = static_cast<EntityType>(0x1234);
 		transaction.Version = MakeVersion(NetworkIdentifier::Zero, 2);
 
 		// Act:
 		auto str = test::ToString(transaction);
 
 		// Assert:
-		EXPECT_EQ("(embedded) EntityType(0x1234) (v2) with size 121", str);
+		EXPECT_EQ("(embedded) EntityType<0x1234> (v2) with size 121", str);
 	}
 
 	// endregion

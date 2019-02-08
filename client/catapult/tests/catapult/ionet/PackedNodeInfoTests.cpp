@@ -32,11 +32,20 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, PackedConnectionStateHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(ServiceIdentifier) + 6 * sizeof(uint32_t);
+		auto expectedSize = sizeof(ServiceIdentifier) + 3 * sizeof(uint32_t);
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(PackedConnectionState));
-		EXPECT_EQ(28u, sizeof(PackedConnectionState));
+		EXPECT_EQ(16u, sizeof(PackedConnectionState));
+	}
+
+	TEST(TEST_CLASS, PackedNodeInteractionsHasExpectedSize) {
+		// Arrange:
+		auto expectedSize = 2 * sizeof(uint32_t);
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(PackedNodeInteractions));
+		EXPECT_EQ(8u, sizeof(PackedNodeInteractions));
 	}
 
 	TEST(TEST_CLASS, PackedNodeInfoHasExpectedSize) {
@@ -45,11 +54,12 @@ namespace catapult { namespace ionet {
 				sizeof(uint32_t) // size
 				+ Key_Size // identity key
 				+ sizeof(NodeSource) // node source
+				+ sizeof(NodeInteractions) // node interactions
 				+ sizeof(uint8_t); // number of connection states
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(PackedNodeInfo));
-		EXPECT_EQ(41u, sizeof(PackedNodeInfo));
+		EXPECT_EQ(49u, sizeof(PackedNodeInfo));
 	}
 
 	// endregion
@@ -114,9 +124,6 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		auto connectionState = ConnectionState();
 		connectionState.Age = 1;
-		connectionState.NumAttempts = 4;
-		connectionState.NumSuccesses = 3;
-		connectionState.NumFailures = 8;
 		connectionState.NumConsecutiveFailures = 5;
 		connectionState.BanAge = 9;
 
@@ -128,11 +135,23 @@ namespace catapult { namespace ionet {
 		// Assert:
 		EXPECT_EQ(ServiceIdentifier(123), packedConnectionState.ServiceId);
 		EXPECT_EQ(1u, packedConnectionState.Age);
-		EXPECT_EQ(4u, packedConnectionState.NumAttempts);
-		EXPECT_EQ(3u, packedConnectionState.NumSuccesses);
-		EXPECT_EQ(8u, packedConnectionState.NumFailures);
 		EXPECT_EQ(5u, packedConnectionState.NumConsecutiveFailures);
 		EXPECT_EQ(9u, packedConnectionState.BanAge);
+	}
+
+	TEST(TEST_CLASS, CanCopyNodeInteractionsValuesIntoPackedNodeInteractions) {
+		// Arrange:
+		auto interactions = NodeInteractions();
+		interactions.NumSuccesses = 123;
+		interactions.NumFailures = 234;
+
+		// Act:
+		auto packedInteractions = PackedNodeInteractions();
+		packedInteractions.Update(interactions);
+
+		// Assert:
+		EXPECT_EQ(123u, packedInteractions.NumSuccesses);
+		EXPECT_EQ(234u, packedInteractions.NumFailures);
 	}
 
 	// endregion

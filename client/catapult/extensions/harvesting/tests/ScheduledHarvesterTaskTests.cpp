@@ -19,11 +19,13 @@
 **/
 
 #include "harvesting/src/ScheduledHarvesterTask.h"
+#include "harvesting/src/BlockExecutionHashesCalculator.h"
 #include "harvesting/src/Harvester.h"
 #include "catapult/cache_core/BlockDifficultyCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/KeyPairTestUtils.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
 using catapult::crypto::KeyPair;
@@ -41,6 +43,7 @@ namespace catapult { namespace harvesting {
 			config.BlockTimeSmoothingFactor = 0;
 			config.MaxDifficultyBlocks = 60;
 			config.ImportanceGrouping = 123;
+			config.TotalChainImportance = test::Default_Total_Chain_Importance;
 			return config;
 		}
 
@@ -51,7 +54,7 @@ namespace catapult { namespace harvesting {
 					, NumTimeSupplierCalls(0)
 					, NumRangeConsumerCalls(0)
 					, BlockHeight(0)
-					, BlockSigner{}
+					, BlockSigner()
 					, pLastBlock(std::make_shared<model::Block>())
 					, LastBlockHash(test::GenerateRandomData<Hash256_Size>()) {
 				HarvestingAllowed = [this]() {
@@ -106,8 +109,7 @@ namespace catapult { namespace harvesting {
 			accountStateCache.addAccount(keyPair.publicKey(), Height(1));
 			auto& accountState = accountStateCache.find(keyPair.publicKey()).get();
 			accountState.ImportanceInfo.set(Importance(1'000'000'000), model::ImportanceHeight(1));
-			accountState.Balances.credit(Xem_Id, Amount(1'000'000'000'000'000));
-			cache.commit(Height());
+			cache.commit(Height(1));
 			return test::CopyKeyPair(keyPair);
 		}
 
@@ -131,8 +133,8 @@ namespace catapult { namespace harvesting {
 
 		auto CreateHarvester(HarvesterContext& context) {
 			Harvester::Suppliers harvesterSuppliers{
-				[](const auto&) { return std::make_pair(Hash256(), true); },
-				[](auto) { return TransactionsInfo(); }
+				[](const auto&, const auto&) { return BlockExecutionHashes(true); },
+				[](auto, auto) { return TransactionsInfo(); }
 			};
 			return std::make_unique<Harvester>(context.Cache, context.Config, context.Accounts, harvesterSuppliers);
 		}

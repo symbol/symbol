@@ -40,8 +40,7 @@ namespace catapult { namespace model {
 	};
 
 	/// Enumeration of entity types.
-	enum class EntityType : uint16_t {
-	};
+	enum class EntityType : uint16_t {};
 
 	/// Makes entity type given \a basicEntityType, \a facilityCode and \a code.
 	constexpr EntityType MakeEntityType(BasicEntityType basicEntityType, FacilityCode facilityCode, uint8_t code) {
@@ -51,7 +50,7 @@ namespace catapult { namespace model {
 				(static_cast<uint8_t>(facilityCode) & 0xFF)); //           09..16: facility
 	}
 
-/// Defines entity type given \a BASICTYPE, \a FACILITY, \a DESCRIPTION and \a CODE.
+/// Defines entity type given \a BASIC_TYPE, \a FACILITY, \a DESCRIPTION and \a CODE.
 #define DEFINE_ENTITY_TYPE(BASIC_TYPE, FACILITY, DESCRIPTION, CODE) \
 	constexpr auto Entity_Type_##DESCRIPTION = model::MakeEntityType( \
 			(model::BasicEntityType::BASIC_TYPE), \

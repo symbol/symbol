@@ -95,6 +95,7 @@ namespace catapult { namespace mocks {
 				, BlockTime(context.BlockTime)
 				, NetworkIdentifier(context.Network.Identifier)
 				, IsMarkedCache(test::IsMarkedCache(context.Cache))
+				, ResolvedMosaicIdOne(context.Resolvers.resolve(UnresolvedMosaicId(1)))
 		{}
 
 	public:
@@ -115,6 +116,9 @@ namespace catapult { namespace mocks {
 
 		/// \c true if the validation cache is marked.
 		bool IsMarkedCache;
+
+		/// Resolved mosaic id for unresolved mosaic id `one`.
+		MosaicId ResolvedMosaicIdOne;
 	};
 
 	/// A mock stateful notification validator that captures parameters passed to validate.

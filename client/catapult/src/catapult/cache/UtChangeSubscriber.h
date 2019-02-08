@@ -30,7 +30,7 @@ namespace catapult { namespace cache {
 		using TransactionInfos = model::TransactionInfosSet;
 
 	public:
-		virtual ~UtChangeSubscriber() {}
+		virtual ~UtChangeSubscriber() = default;
 
 	public:
 		/// Indicates transaction infos (\a transactionInfos) were added to unconfirmed transactions.

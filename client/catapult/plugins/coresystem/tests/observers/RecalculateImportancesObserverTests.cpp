@@ -173,10 +173,12 @@ namespace catapult { namespace observers {
 			auto notification = test::CreateBlockNotification();
 
 			// - trigger an initial calculation at height1
-			test::ObserveNotification(*pObserver, notification, test::CreateObserverContext(observerState, height1, mode));
+			auto observerContext1 = test::CreateObserverContext(observerState, height1, mode);
+			test::ObserveNotification(*pObserver, notification, observerContext1);
 
 			// Act: trigger a recalculation at height2
-			test::ObserveNotification(*pObserver, notification, test::CreateObserverContext(observerState, height2, mode));
+			auto observerContext2 = test::CreateObserverContext(observerState, height2, mode);
+			test::ObserveNotification(*pObserver, notification, observerContext2);
 
 			// Assert: only one calculation was performed
 			ASSERT_EQ(1u, capturedParams.size());
@@ -200,10 +202,12 @@ namespace catapult { namespace observers {
 			auto notification = test::CreateBlockNotification();
 
 			// - trigger an initial calculation at height1
-			test::ObserveNotification(*pObserver, notification, test::CreateObserverContext(observerState, height1, mode));
+			auto observerContext1 = test::CreateObserverContext(observerState, height1, mode);
+			test::ObserveNotification(*pObserver, notification, observerContext1);
 
 			// Act: trigger a recalculation at height2
-			test::ObserveNotification(*pObserver, notification, test::CreateObserverContext(observerState, height2, mode));
+			auto observerContext2 = test::CreateObserverContext(observerState, height2, mode);
+			test::ObserveNotification(*pObserver, notification, observerContext2);
 
 			// Assert: two calculations were performed
 			ASSERT_EQ(2u, capturedParams.size());

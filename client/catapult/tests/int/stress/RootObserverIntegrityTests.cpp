@@ -22,7 +22,9 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/extensions/PluginUtils.h"
+#include "catapult/observers/NotificationObserverAdapter.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/local/LocalTestUtils.h"
 #include "tests/TestHarness.h"
@@ -34,18 +36,25 @@ namespace catapult { namespace extensions {
 	namespace {
 		using NotifyMode = observers::NotifyMode;
 
+		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
+
+		Importance GetTotalChainImportance(uint32_t numAccounts) {
+			return Importance(numAccounts * (numAccounts + 1) / 2);
+		}
+
 		Amount GetTotalChainBalance(uint32_t numAccounts) {
-			return Amount(numAccounts * (numAccounts + 1) / 2 * 1'000'000);
+			return Amount(GetTotalChainImportance(numAccounts).unwrap() * 1'000'000);
 		}
 
 		model::BlockChainConfiguration CreateBlockChainConfiguration(uint32_t numAccounts) {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.Network.Identifier = model::NetworkIdentifier::Mijin_Test;
+			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = 123;
 			config.MaxDifficultyBlocks = 123;
 			config.MaxRollbackBlocks = 124;
 			config.BlockPruneInterval = 360;
-			config.TotalChainBalance = GetTotalChainBalance(numAccounts);
+			config.TotalChainImportance = GetTotalChainImportance(numAccounts);
 			config.MinHarvesterBalance = Amount(1'000'000);
 			return config;
 		}
@@ -57,6 +66,8 @@ namespace catapult { namespace extensions {
 					, m_cache(m_pPluginManager->createCache())
 					, m_specialAccountKey(test::GenerateRandomData<Key_Size>()) {
 				// register mock transaction plugin so that BalanceTransferNotifications are produced and observed
+				// (MockTransaction Publish XORs recipient address, so XOR address resolver is required
+				// for proper roundtripping or else test will fail)
 				m_pPluginManager->addTransactionSupport(mocks::CreateMockTransactionPlugin(mocks::PluginOptionFlags::Publish_Transfers));
 
 				// seed the "nemesis" / transfer account (this account is used to fund all other accounts)
@@ -64,7 +75,7 @@ namespace catapult { namespace extensions {
 				auto& accountStateCache = delta.sub<cache::AccountStateCache>();
 				accountStateCache.addAccount(m_specialAccountKey, Height(1));
 				auto& accountState = accountStateCache.find(m_specialAccountKey).get();
-				accountState.Balances.credit(Xem_Id, GetTotalChainBalance(numAccounts));
+				accountState.Balances.credit(Harvesting_Mosaic_Id, GetTotalChainBalance(numAccounts));
 				m_cache.commit(Height());
 			}
 
@@ -76,7 +87,7 @@ namespace catapult { namespace extensions {
 				for (uint8_t i = startAccountId; i < startAccountId + numAccounts; ++i) {
 					uint8_t multiplier = i - startAccountId + 1;
 					auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
-						{ Xem_Id, Amount(multiplier * baseUnit * 1'000'000) }
+						{ test::UnresolveXor(Harvesting_Mosaic_Id), Amount(multiplier * baseUnit * 1'000'000) }
 					});
 					pTransaction->Signer = m_specialAccountKey;
 					pTransaction->Recipient = Key{ { i } };
@@ -92,7 +103,7 @@ namespace catapult { namespace extensions {
 				for (uint8_t i = startAccountId; i < startAccountId + numAccounts; ++i) {
 					const auto& accountState = accountStateCacheView->find(Key{ { i } }).get();
 					auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
-						{ Xem_Id, accountState.Balances.get(Xem_Id) }
+						{ test::UnresolveXor(Harvesting_Mosaic_Id), accountState.Balances.get(Harvesting_Mosaic_Id) }
 					});
 					pTransaction->Signer = Key{ { i } };
 					pTransaction->Recipient = m_specialAccountKey;
@@ -107,7 +118,7 @@ namespace catapult { namespace extensions {
 				auto accountStateCacheView = m_cache.sub<cache::AccountStateCache>().createView();
 				const auto& accountState1 = accountStateCacheView->find(Key{ { accountId1 } }).get();
 				auto pTransaction = mocks::CreateTransactionWithFeeAndTransfers(Amount(), {
-					{ Xem_Id, accountState1.Balances.get(Xem_Id) }
+					{ test::UnresolveXor(Harvesting_Mosaic_Id), accountState1.Balances.get(Harvesting_Mosaic_Id) }
 				});
 				pTransaction->Signer = accountState1.PublicKey;
 				pTransaction->Recipient = Key{ { accountId2 } };
@@ -120,16 +131,21 @@ namespace catapult { namespace extensions {
 				auto pBlock = createBlock(height);
 				auto blockElement = test::BlockToBlockElement(*pBlock);
 
-				auto pRootObserver = CreateEntityObserver(*m_pPluginManager);
+				// - use XOR resolvers because Publish_Transfers is enabled
+				observers::NotificationObserverAdapter rootObserver(
+						m_pPluginManager->createObserver(),
+						m_pPluginManager->createNotificationPublisher());
+				auto resolverContext = test::CreateResolverContextXor();
 
 				auto delta = m_cache.createDelta();
 				auto observerState = observers::ObserverState(delta, m_state);
+				auto blockExecutionContext = chain::BlockExecutionContext(rootObserver, resolverContext, observerState);
 
 				// Act: use BlockExecutor to execute all transactions and blocks
 				if (NotifyMode::Commit == mode)
-					chain::ExecuteBlock(blockElement, *pRootObserver, observerState);
+					chain::ExecuteBlock(blockElement, blockExecutionContext);
 				else
-					chain::RollbackBlock(blockElement, *pRootObserver, observerState);
+					chain::RollbackBlock(blockElement, blockExecutionContext);
 
 				m_cache.commit(height);
 			}
@@ -203,6 +219,7 @@ namespace catapult { namespace extensions {
 						? test::GenerateEmptyRandomBlock()
 						: test::GenerateRandomBlockWithTransactions(transactionsIter->second);
 				pBlock->Height = height;
+				pBlock->FeeMultiplier = BlockFeeMultiplier(0);
 
 				// in order to emulate correctly, block must have same signer when executed and reverted
 				auto signerIter = m_heightToBlockSigner.find(height);

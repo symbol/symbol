@@ -138,7 +138,7 @@ namespace catapult { namespace builders {
 
 		void AddAll(ModifyMultisigAccountBuilder& builder, const Modifications& modifications) {
 			for (const auto& modification : modifications)
-				builder.addCosignatoryModification(modification.ModificationType, modification.CosignatoryPublicKey);
+				builder.addModification(modification);
 		}
 	}
 

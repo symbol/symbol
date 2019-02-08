@@ -28,6 +28,8 @@ namespace catapult { namespace model {
 #define TEST_CLASS WeakEntityInfoTests
 
 	namespace {
+		// region asserts
+
 		template<typename TEntity>
 		void AssertAreEqual(const WeakEntityInfoT<TEntity>& info, const VerifiableEntity& entity, const Hash256& hash, const char* tag) {
 			// Assert:
@@ -36,8 +38,32 @@ namespace catapult { namespace model {
 
 			ASSERT_TRUE(info.isHashSet()) << tag;
 			EXPECT_EQ(&hash, &info.hash()) << tag;
+
+			EXPECT_FALSE(info.isAssociatedBlockHeaderSet()) << tag;
 		}
+
+		template<typename TEntity>
+		void AssertAreEqual(
+				const WeakEntityInfoT<TEntity>& info,
+				const VerifiableEntity& entity,
+				const Hash256& hash,
+				const BlockHeader& blockHeader,
+				const char* tag) {
+			// Assert:
+			ASSERT_TRUE(info.isSet()) << tag;
+			EXPECT_EQ(&entity, &info.entity()) << tag;
+
+			ASSERT_TRUE(info.isHashSet()) << tag;
+			EXPECT_EQ(&hash, &info.hash()) << tag;
+
+			ASSERT_TRUE(info.isAssociatedBlockHeaderSet()) << tag;
+			EXPECT_EQ(&blockHeader, &info.associatedBlockHeader()) << tag;
+		}
+
+		// endregion
 	}
+
+	// region constructor
 
 	TEST(TEST_CLASS, CanCreateUnsetWeakEntityInfo) {
 		// Act:
@@ -46,9 +72,10 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_FALSE(info.isSet());
 		EXPECT_FALSE(info.isHashSet());
+		EXPECT_FALSE(info.isAssociatedBlockHeaderSet());
 	}
 
-	TEST(TEST_CLASS, CanCreateWeakEntityInfoWithoutHash) {
+	TEST(TEST_CLASS, CanCreateWeakEntityInfoAroundEntity) {
 		// Arrange:
 		VerifiableEntity entity;
 
@@ -56,11 +83,14 @@ namespace catapult { namespace model {
 		WeakEntityInfo info(entity);
 
 		// Assert:
-		EXPECT_TRUE(info.isSet());
+		ASSERT_TRUE(info.isSet());
+		EXPECT_EQ(&entity, &info.entity());
+
 		EXPECT_FALSE(info.isHashSet());
+		EXPECT_FALSE(info.isAssociatedBlockHeaderSet());
 	}
 
-	TEST(TEST_CLASS, CanCreateWeakEntityInfo) {
+	TEST(TEST_CLASS, CanCreateWeakEntityInfoAroundEntityAndHash) {
 		// Arrange:
 		VerifiableEntity entity;
 		Hash256 hash;
@@ -72,13 +102,31 @@ namespace catapult { namespace model {
 		AssertAreEqual(info, entity, hash, "info");
 	}
 
+	TEST(TEST_CLASS, CanCreateWeakEntityInfoAroundEntityAndHashAndAssociatedBlockHeader) {
+		// Arrange:
+		VerifiableEntity entity;
+		Hash256 hash;
+		BlockHeader blockHeader;
+
+		// Act:
+		WeakEntityInfo info(entity, hash, blockHeader);
+
+		// Assert:
+		AssertAreEqual(info, entity, hash, blockHeader, "info");
+	}
+
+	// endregion
+
+	// region assign
+
 	TEST(TEST_CLASS, CanAssignWeakEntityInfo) {
 		// Arrange:
 		VerifiableEntity entity;
 		Hash256 hash;
+		BlockHeader blockHeader;
 
 		WeakEntityInfo info1;
-		WeakEntityInfo info2(entity, hash);
+		WeakEntityInfo info2(entity, hash, blockHeader);
 
 		// Sanity:
 		EXPECT_FALSE(info1.isSet());
@@ -87,26 +135,73 @@ namespace catapult { namespace model {
 		info1 = info2;
 
 		// Assert:
-		AssertAreEqual(info1, entity, hash, "info1");
-		AssertAreEqual(info2, entity, hash, "info2");
+		AssertAreEqual(info1, entity, hash, blockHeader, "info1");
+		AssertAreEqual(info2, entity, hash, blockHeader, "info2");
 	}
+
+	// endregion
+
+	// region type
 
 	TEST(TEST_CLASS, CanAccessEntityType) {
 		// Arrange:
 		VerifiableEntity entity;
 		Hash256 hash;
-		entity.Type = static_cast<model::EntityType>(0x5432);
+		entity.Type = static_cast<EntityType>(0x5432);
 
 		// Act:
 		WeakEntityInfo info(entity, hash);
 
 		// Assert:
-		EXPECT_EQ(static_cast<model::EntityType>(0x5432), info.type());
+		EXPECT_EQ(static_cast<EntityType>(0x5432), info.type());
 	}
+
+	// endregion
+
+	// region cast
+
+	TEST(TEST_CLASS, CanConvertToStronglyTypedInfoWithoutAssociatedBlockHeader) {
+		// Arrange:
+		Block block;
+		Hash256 hash;
+		WeakEntityInfo info(block, hash);
+
+		// Act:
+		auto blockInfo = info.cast<Block>();
+
+		// Assert:
+		AssertAreEqual(info, block, hash, "info");
+		AssertAreEqual(blockInfo, block, hash, "blockInfo");
+
+		auto isEntityTyped = std::is_same<const Block&, decltype(blockInfo.entity())>::value;
+		EXPECT_TRUE(isEntityTyped);
+	}
+
+	TEST(TEST_CLASS, CanConvertToStronglyTypedInfoWithAssociatedBlockHeader) {
+		// Arrange:
+		Block block;
+		Hash256 hash;
+		BlockHeader blockHeader;
+		WeakEntityInfo info(block, hash, blockHeader);
+
+		// Act:
+		auto blockInfo = info.cast<Block>();
+
+		// Assert:
+		AssertAreEqual(info, block, hash, blockHeader, "info");
+		AssertAreEqual(blockInfo, block, hash, blockHeader, "blockInfo");
+
+		auto isEntityTyped = std::is_same<const Block&, decltype(blockInfo.entity())>::value;
+		EXPECT_TRUE(isEntityTyped);
+	}
+
+	// endregion
+
+	// region equality operators
 
 	namespace {
 		std::unordered_set<std::string> GetEqualTags() {
-			return { "default", "copy" };
+			return { "default", "copy", "diff-block-header" };
 		}
 
 		std::unordered_map<std::string, WeakEntityInfo> GenerateEqualityInstanceMap() {
@@ -114,10 +209,12 @@ namespace catapult { namespace model {
 			VerifiableEntity entity2;
 			Hash256 hash1;
 			Hash256 hash2;
+			BlockHeader blockHeader;
 
 			return {
 				{ "default", WeakEntityInfo(entity1, hash1) },
 				{ "copy", WeakEntityInfo(entity1, hash1) },
+				{ "diff-block-header", WeakEntityInfo(entity1, hash1, blockHeader) },
 
 				{ "diff-entity", WeakEntityInfo(entity2, hash1) },
 				{ "diff-hash", WeakEntityInfo(entity1, hash2) },
@@ -143,26 +240,13 @@ namespace catapult { namespace model {
 		WeakEntityInfo unsetInfo2;
 
 		// Assert:
-		EXPECT_TRUE(unsetInfo1 == unsetInfo2);
-		EXPECT_FALSE(unsetInfo1 != unsetInfo2);
+		EXPECT_TRUE(unsetInfo1.operator==(unsetInfo2));
+		EXPECT_FALSE(unsetInfo1.operator!=(unsetInfo2));
 	}
 
-	TEST(TEST_CLASS, CanConvertToStronglyTypedInfo) {
-		// Arrange:
-		Block block;
-		Hash256 hash;
-		WeakEntityInfo info(block, hash);
+	// endregion
 
-		// Act:
-		auto blockInfo = info.cast<Block>();
-
-		// Assert:
-		AssertAreEqual(info, block, hash, "info");
-		AssertAreEqual(blockInfo, block, hash, "blockInfo");
-
-		auto isEntityTyped = std::is_same<const Block&, decltype(blockInfo.entity())>::value;
-		EXPECT_TRUE(isEntityTyped);
-	}
+	// region insertion operator
 
 	TEST(TEST_CLASS, CanOutputUnsetEntityInfo) {
 		// Arrange:
@@ -191,4 +275,6 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_EQ("Nemesis_Block (v2) with size 121 [C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470]", str);
 	}
+
+	// endregion
 }}

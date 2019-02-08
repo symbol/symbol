@@ -89,7 +89,7 @@ namespace catapult { namespace ionet {
 		// - the buffer contains the correct data and points to the original entity
 		auto buffer = payload.buffers()[0];
 		EXPECT_EQ(test::AsVoidPointer(pEntity.get()), buffer.pData);
-		EXPECT_EQ(124u, buffer.Size);
+		ASSERT_EQ(124u, buffer.Size);
 		EXPECT_EQ(*pEntity, *reinterpret_cast<const model::VerifiableEntity*>(buffer.pData));
 	}
 
@@ -108,7 +108,7 @@ namespace catapult { namespace ionet {
 		for (auto i = 0u; i < payload.buffers().size(); ++i) {
 			const auto& buffer = payload.buffers()[i];
 			EXPECT_EQ(test::AsVoidPointer(entities[i].get()), buffer.pData);
-			EXPECT_EQ(entities[i]->Size, buffer.Size);
+			ASSERT_EQ(entities[i]->Size, buffer.Size);
 			EXPECT_EQ(*entities[i], *reinterpret_cast<const model::VerifiableEntity*>(buffer.pData));
 		}
 	}
@@ -152,8 +152,8 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(1u, payload.buffers().size());
 
 		auto buffer = payload.buffers()[0];
-		EXPECT_EQ(12u, buffer.Size);
-		EXPECT_TRUE(0 == std::memcmp(Entity_Range_Buffer.data(), buffer.pData, buffer.Size));
+		ASSERT_EQ(12u, buffer.Size);
+		EXPECT_EQ_MEMORY(Entity_Range_Buffer.data(), buffer.pData, buffer.Size);
 	}
 
 	// endregion

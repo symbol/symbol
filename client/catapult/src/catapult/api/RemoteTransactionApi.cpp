@@ -35,8 +35,11 @@ namespace catapult { namespace api {
 			static constexpr auto PacketType() { return ionet::PacketType::Pull_Transactions; }
 			static constexpr auto FriendlyName() { return "pull unconfirmed transactions"; }
 
-			static auto CreateRequestPacketPayload(model::ShortHashRange&& knownShortHashes) {
-				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(knownShortHashes));
+			static auto CreateRequestPacketPayload(BlockFeeMultiplier minFeeMultiplier, model::ShortHashRange&& knownShortHashes) {
+				ionet::PacketPayloadBuilder builder(PacketType());
+				builder.appendValue(minFeeMultiplier);
+				builder.appendRange(std::move(knownShortHashes));
+				return builder.build();
 			}
 
 		public:
@@ -56,14 +59,17 @@ namespace catapult { namespace api {
 			using FutureType = thread::future<typename TTraits::ResultType>;
 
 		public:
-			explicit DefaultRemoteTransactionApi(ionet::PacketIo& io, const model::TransactionRegistry& registry)
-					: m_registry(registry)
+			DefaultRemoteTransactionApi(ionet::PacketIo& io, const Key& remotePublicKey, const model::TransactionRegistry& registry)
+					: RemoteTransactionApi(remotePublicKey)
+					, m_registry(registry)
 					, m_impl(io)
 			{}
 
 		public:
-			FutureType<UtTraits> unconfirmedTransactions(model::ShortHashRange&& knownShortHashes) const override {
-				return m_impl.dispatch(UtTraits(m_registry), std::move(knownShortHashes));
+			FutureType<UtTraits> unconfirmedTransactions(
+					BlockFeeMultiplier minFeeMultiplier,
+					model::ShortHashRange&& knownShortHashes) const override {
+				return m_impl.dispatch(UtTraits(m_registry), minFeeMultiplier, std::move(knownShortHashes));
 			}
 
 		private:
@@ -72,7 +78,10 @@ namespace catapult { namespace api {
 		};
 	}
 
-	std::unique_ptr<RemoteTransactionApi> CreateRemoteTransactionApi(ionet::PacketIo& io, const model::TransactionRegistry& registry) {
-		return std::make_unique<DefaultRemoteTransactionApi>(io, registry);
+	std::unique_ptr<RemoteTransactionApi> CreateRemoteTransactionApi(
+			ionet::PacketIo& io,
+			const Key& remotePublicKey,
+			const model::TransactionRegistry& registry) {
+		return std::make_unique<DefaultRemoteTransactionApi>(io, remotePublicKey, registry);
 	}
 }}

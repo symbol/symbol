@@ -22,7 +22,7 @@
 #include "BlockGenerator.h"
 #include "BlockSaver.h"
 #include "NemesisConfigurationLoader.h"
-#include "NemesisStateHasher.h"
+#include "NemesisExecutionHasher.h"
 #include "tools/ToolConfigurationUtils.h"
 #include "catapult/io/RawFile.h"
 
@@ -74,17 +74,18 @@ namespace catapult { namespace tools { namespace nemgen {
 						? CacheDatabaseCleanupMode::Purge
 						: CacheDatabaseCleanupMode::None;
 				auto pBlock = CreateNemesisBlock(nemesisConfig);
-				auto blockElement = CreateNemesisBlockElement(*pBlock, nemesisConfig);
-				auto stateHashDescriptor = CalculateAndLogNemesisStateHash(blockElement, config, databaseCleanupMode);
+				auto blockElement = CreateNemesisBlockElement(nemesisConfig, *pBlock);
+				auto executionHashesDescriptor = CalculateAndLogNemesisExecutionHashes(blockElement, config, databaseCleanupMode);
 				if (!options["no-summary"].as<bool>()) {
 					if (m_summaryFilePath.empty())
 						m_summaryFilePath = nemesisConfig.BinDirectory + "/summary.txt";
 
-					WriteToFile(m_summaryFilePath, stateHashDescriptor.Summary);
+					WriteToFile(m_summaryFilePath, executionHashesDescriptor.Summary);
 				}
 
-				CATAPULT_LOG(info) << "*** Nemesis Summary ***" << std::endl << stateHashDescriptor.Summary;
-				pBlock->StateHash = stateHashDescriptor.Hash;
+				// 3. update block with result of execution
+				CATAPULT_LOG(info) << "*** Nemesis Summary ***" << std::endl << executionHashesDescriptor.Summary;
+				blockElement.EntityHash = UpdateNemesisBlock(nemesisConfig, *pBlock, executionHashesDescriptor);
 
 				// 4. save the nemesis block element
 				SaveNemesisBlockElement(blockElement, nemesisConfig);

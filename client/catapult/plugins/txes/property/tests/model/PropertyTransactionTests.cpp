@@ -18,7 +18,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/model/PropertyTransaction.h"
+#include "src/model/AddressPropertyTransaction.h"
+#include "src/model/MosaicPropertyTransaction.h"
+#include "src/model/TransactionTypePropertyTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
@@ -37,7 +39,8 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertEntityHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize = baseSize // base
+			auto expectedSize =
+					baseSize // base
 					+ sizeof(uint8_t) // property type
 					+ sizeof(uint8_t); // modifications count
 
@@ -110,7 +113,7 @@ namespace catapult { namespace model {
 		auto realSize = AddressPropertyTransaction::CalculateRealSize(transaction);
 
 		// Assert:
-		EXPECT_EQ(0xFFFFFFFF, transaction.Size);
+		ASSERT_EQ(0xFFFFFFFF, transaction.Size);
 		EXPECT_EQ(sizeof(AddressPropertyTransaction) + 0xFF * sizeof(PropertyModification<Address>), realSize);
 		EXPECT_GT(0xFFFFFFFF, realSize);
 	}

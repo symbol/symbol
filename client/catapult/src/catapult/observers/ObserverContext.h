@@ -19,11 +19,15 @@
 **/
 
 #pragma once
+#include "ObserverStatementBuilder.h"
 #include "catapult/cache/CatapultCacheDelta.h"
+#include "catapult/model/ResolverContext.h"
 #include "catapult/state/CatapultState.h"
 #include <iosfwd>
 
 namespace catapult { namespace observers {
+
+	// region NotifyMode
 
 #define NOTIFY_MODE_LIST \
 	/* Execute actions. */ \
@@ -42,14 +46,18 @@ namespace catapult { namespace observers {
 	/// Insertion operator for outputting \a value to \a out.
 	std::ostream& operator<<(std::ostream& out, NotifyMode value);
 
-	/// Mutatable state passed to all the observers.
+	// endregion
+
+	// region ObserverState
+
+	/// Block independent mutable state passed to all observers.
 	struct ObserverState {
 	public:
 		/// Creates an observer state around \a cache and \a state.
-		ObserverState(cache::CatapultCacheDelta& cache, state::CatapultState& state)
-				: Cache(cache)
-				, State(state)
-		{}
+		ObserverState(cache::CatapultCacheDelta& cache, state::CatapultState& state);
+
+		/// Creates an observer state around \a cache, \a state and \a blockStatementBuilder.
+		ObserverState(cache::CatapultCacheDelta& cache, state::CatapultState& state, model::BlockStatementBuilder& blockStatementBuilder);
 
 	public:
 		/// Catapult cache.
@@ -57,23 +65,21 @@ namespace catapult { namespace observers {
 
 		/// Catapult state.
 		state::CatapultState& State;
+
+		/// Optional block statement builder.
+		model::BlockStatementBuilder* pBlockStatementBuilder;
 	};
+
+	// endregion
+
+	// region ObserverContext
 
 	/// Context passed to all the observers.
 	struct ObserverContext {
 	public:
-		/// Creates an observer context around \a state at \a height with specified \a mode.
-		constexpr ObserverContext(const ObserverState& state, Height height, NotifyMode mode)
-				: ObserverContext(state.Cache, state.State, height, mode)
-		{}
-
-		/// Creates an observer context around \a cache and \a state at \a height with specified \a mode.
-		constexpr ObserverContext(cache::CatapultCacheDelta& cache, state::CatapultState& state, Height height, NotifyMode mode)
-				: Cache(cache)
-				, State(state)
-				, Height(height)
-				, Mode(mode)
-		{}
+		/// Creates an observer context around \a state at \a height with specified \a mode and \a resolvers.
+		/// \note \a state is const to enable more consise code even though it only contains non-const references.
+		ObserverContext(const ObserverState& state, Height height, NotifyMode mode, const model::ResolverContext& resolvers);
 
 	public:
 		/// Catapult cache.
@@ -87,5 +93,17 @@ namespace catapult { namespace observers {
 
 		/// Notification mode.
 		const NotifyMode Mode;
+
+		/// Alias resolvers.
+		const model::ResolverContext Resolvers;
+
+	public:
+		/// Statement builder.
+		ObserverStatementBuilder& StatementBuilder();
+
+	private:
+		ObserverStatementBuilder m_statementBuilder;
 	};
+
+	// endregion
 }}

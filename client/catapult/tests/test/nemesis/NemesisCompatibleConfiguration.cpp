@@ -34,18 +34,7 @@ namespace catapult { namespace test {
 
 	void AddNemesisPluginExtensions(model::BlockChainConfiguration& config) {
 		config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
-		config.Plugins.emplace("catapult.plugins.namespace", utils::ConfigurationBag({ { "", {
-			{ "maxNameSize", "64" },
-
-			{ "maxNamespaceDuration", "365d" },
-			{ "namespaceGracePeriodDuration", "1h" },
-			{ "reservedRootNamespaceNames", "xem" },
-
-			{ "namespaceRentalFeeSinkPublicKey", Namespace_Rental_Fee_Sink_Public_Key },
-			{ "rootNamespaceRentalFeePerBlock", "10" },
-			{ "childNamespaceRentalFee", "10000" },
-
-			{ "maxChildNamespaces", "100" },
+		config.Plugins.emplace("catapult.plugins.mosaic", utils::ConfigurationBag({ { "", {
 			{ "maxMosaicsPerAccount", "123" },
 
 			{ "maxMosaicDuration", "456d" },
@@ -56,6 +45,19 @@ namespace catapult { namespace test {
 
 			{ "mosaicRentalFeeSinkPublicKey", Mosaic_Rental_Fee_Sink_Public_Key },
 			{ "mosaicRentalFee", "500" }
+		} } }));
+		config.Plugins.emplace("catapult.plugins.namespace", utils::ConfigurationBag({ { "", {
+			{ "maxNameSize", "64" },
+
+			{ "maxNamespaceDuration", "365d" },
+			{ "namespaceGracePeriodDuration", "1h" },
+			{ "reservedRootNamespaceNames", "cat" },
+
+			{ "namespaceRentalFeeSinkPublicKey", Namespace_Rental_Fee_Sink_Public_Key },
+			{ "rootNamespaceRentalFeePerBlock", "10" },
+			{ "childNamespaceRentalFee", "10000" },
+
+			{ "maxChildNamespaces", "100" }
 		} } }));
 	}
 
@@ -81,6 +83,10 @@ namespace catapult { namespace test {
 
 	void AddSimplePartnerPluginExtensions(config::NodeConfiguration& config) {
 		AddPluginExtensions(config, { "filechain", "packetserver", "sync", "syncsource" });
+	}
+
+	void EnableReceiptsVerification(config::LocalNodeConfiguration& config) {
+		const_cast<model::BlockChainConfiguration&>(config.BlockChain).ShouldEnableVerifiableReceipts = true;
 	}
 
 	void EnableStateVerification(config::LocalNodeConfiguration& config) {

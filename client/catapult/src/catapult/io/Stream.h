@@ -26,7 +26,7 @@ namespace catapult { namespace io {
 	/// Reader interface.
 	class InputStream {
 	public:
-		virtual ~InputStream() {}
+		virtual ~InputStream() = default;
 
 		/// Reads data from this stream into \a buffer.
 		/// \throws catapult_file_io_error if requested amount of data could not be read.
@@ -36,7 +36,7 @@ namespace catapult { namespace io {
 	/// Writer interface.
 	class OutputStream {
 	public:
-		virtual ~OutputStream() {}
+		virtual ~OutputStream() = default;
 
 		/// Writes data pointed to by \a buffer to this stream.
 		/// \throws catapult_file_io_error if proper amount of data could not be written.

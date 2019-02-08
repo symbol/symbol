@@ -32,7 +32,7 @@
 namespace catapult { namespace test {
 
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint() {
-		return CreateLocalHostEndpoint(Local_Host_Port);
+		return CreateLocalHostEndpoint(GetLocalHostPort());
 	}
 
 	boost::asio::ip::tcp::endpoint CreateLocalHostEndpoint(unsigned short port) {
@@ -416,7 +416,7 @@ namespace catapult { namespace test {
 			ionet::SocketOperationCode::Closed,
 			ionet::SocketOperationCode::Read_Error
 		};
-		EXPECT_TRUE(possibleValues.end() != possibleValues.find(readCode)) << "read code: " << readCode;
+		EXPECT_CONTAINS(possibleValues, readCode);
 	}
 
 	void AssertSocketClosedDuringWrite(ionet::SocketOperationCode writeCode) {

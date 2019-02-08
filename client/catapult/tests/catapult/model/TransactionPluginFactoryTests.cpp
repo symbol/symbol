@@ -21,6 +21,7 @@
 #include "catapult/model/TransactionPluginFactory.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/core/mocks/MockTransaction.h"
+#include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
@@ -28,20 +29,18 @@ namespace catapult { namespace model {
 #define TEST_CLASS TransactionPluginFactoryTests
 
 	namespace {
-		constexpr auto Mock_Transaction_Type = static_cast<model::EntityType>(0x4FFF);
+		constexpr auto Mock_Transaction_Type = static_cast<EntityType>(0x4FFF);
 
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublisherContext& publisherContext, NotificationSubscriber& sub) {
+		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
 			// raise a notification dependent on the transaction data
 			sub.notify(test::CreateBlockNotification(transaction.Signer));
-
-			// trigger some resolvers
-			publisherContext.resolve(UnresolvedMosaicId(123));
-			publisherContext.resolve(UnresolvedAddress{ { { 124 } } });
 		}
 
 		struct RegularTraits {
 			using TransactionType = mocks::MockTransaction;
+			static constexpr auto Min_Supported_Version = TransactionType::Current_Version;
+			static constexpr auto Max_Supported_Version = TransactionType::Current_Version;
 
 			static auto CreatePlugin() {
 				return TransactionPluginFactory::Create<mocks::MockTransaction, mocks::EmbeddedMockTransaction>(
@@ -52,62 +51,16 @@ namespace catapult { namespace model {
 
 		struct EmbeddedTraits {
 			using TransactionType = mocks::EmbeddedMockTransaction;
+			static constexpr auto Min_Supported_Version = TransactionType::Current_Version;
+			static constexpr auto Max_Supported_Version = TransactionType::Current_Version;
 
 			static auto CreatePlugin() {
 				return TransactionPluginFactory::CreateEmbedded<mocks::EmbeddedMockTransaction>(Publish<mocks::EmbeddedMockTransaction>);
 			}
 		};
-
-#define PLUGIN_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Regular) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Embedded) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmbeddedTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 	}
 
-	TEST(TEST_CLASS, CanCreateTransactionPluginWithEmbeddingSupport) {
-		// Act:
-		auto pPlugin = RegularTraits::CreatePlugin();
-
-		// Assert:
-		ASSERT_TRUE(pPlugin->supportsEmbedding());
-		EXPECT_EQ(Mock_Transaction_Type, pPlugin->embeddedPlugin().type());
-	}
-
-	PLUGIN_TEST(CanCreatePlugin) {
-		// Act:
-		auto pPlugin = TTraits::CreatePlugin();
-
-		// Assert:
-		EXPECT_EQ(Mock_Transaction_Type, pPlugin->type());
-	}
-
-	TEST(TEST_CLASS, CanExtractPrimaryDataBuffer) {
-		// Arrange:
-		auto pPlugin = RegularTraits::CreatePlugin();
-
-		auto pTransaction = mocks::CreateMockTransaction(12);
-
-		// Act:
-		auto buffer = pPlugin->dataBuffer(*pTransaction);
-
-		// Assert:
-		EXPECT_EQ(test::AsVoidPointer(&pTransaction->Version), test::AsVoidPointer(buffer.pData));
-		EXPECT_EQ(sizeof(mocks::MockTransaction) + 12 - VerifiableEntity::Header_Size, buffer.Size);
-	}
-
-	TEST(TEST_CLASS, MerkleSupplementaryBuffersAreEmpty) {
-		// Arrange:
-		auto pPlugin = RegularTraits::CreatePlugin();
-
-		auto pTransaction = mocks::CreateMockTransaction(12);
-
-		// Act:
-		auto buffers = pPlugin->merkleSupplementaryBuffers(*pTransaction);
-
-		// Assert:
-		EXPECT_TRUE(buffers.empty());
-	}
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, , , Mock_Transaction_Type)
 
 	PLUGIN_TEST(CanCalculateSize) {
 		// Arrange:
@@ -130,42 +83,14 @@ namespace catapult { namespace model {
 
 		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction.Signer);
-		PublisherContext publisherContext;
-		mocks::MockTypedNotificationSubscriber<model::BlockNotification> sub;
+		mocks::MockTypedNotificationSubscriber<BlockNotification> sub;
 
 		// Act:
-		pPlugin->publish(transaction, publisherContext, sub);
+		pPlugin->publish(transaction, sub);
 
 		// Assert:
 		EXPECT_EQ(1u, sub.numNotifications());
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
 		EXPECT_EQ(transaction.Signer, sub.matchingNotifications()[0].Signer);
-	}
-
-	PLUGIN_TEST(CanPublishNotificationsWithResolvedFields) {
-		// Arrange:
-		auto pPlugin = TTraits::CreatePlugin();
-		std::vector<UnresolvedMosaicId> unresolvedMosaicIds;
-		std::vector<UnresolvedAddress> unresolvedAddresses;
-
-		typename TTraits::TransactionType transaction;
-		test::FillWithRandomData(transaction.Signer);
-		PublisherContext publisherContext(
-				[&unresolvedMosaicIds](auto mosaicId) {
-					unresolvedMosaicIds.push_back(mosaicId);
-					return MosaicId(); // result unused
-				},
-				[&unresolvedAddresses](const auto& address) {
-					unresolvedAddresses.push_back(address);
-					return Address(); // result unused
-				});
-		mocks::MockTypedNotificationSubscriber<model::BlockNotification> sub;
-
-		// Act:
-		pPlugin->publish(transaction, publisherContext, sub);
-
-		// Assert: passed in resolvers were used
-		EXPECT_EQ(std::vector<UnresolvedMosaicId>{ UnresolvedMosaicId(123) }, unresolvedMosaicIds);
-		EXPECT_EQ(std::vector<UnresolvedAddress>{ UnresolvedAddress{ { { 124 } } } }, unresolvedAddresses);
 	}
 }}

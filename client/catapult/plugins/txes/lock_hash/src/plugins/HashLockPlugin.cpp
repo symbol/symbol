@@ -21,13 +21,12 @@
 #include "HashLockPlugin.h"
 #include "src/cache/HashLockInfoCache.h"
 #include "src/config/HashLockConfiguration.h"
-#include "src/handlers/HashLockDiagnosticHandlers.h"
+#include "src/model/HashLockReceiptType.h"
 #include "src/observers/Observers.h"
 #include "src/plugins/HashLockTransactionPlugin.h"
 #include "src/validators/Validators.h"
-#include "catapult/handlers/CacheEntryInfosProducerFactory.h"
-#include "catapult/handlers/StatePathHandlerFactory.h"
 #include "catapult/observers/ObserverUtils.h"
+#include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
@@ -38,13 +37,8 @@ namespace catapult { namespace plugins {
 		manager.addCacheSupport<cache::HashLockInfoCacheStorage>(
 				std::make_unique<cache::HashLockInfoCache>(manager.cacheConfig(cache::HashLockInfoCache::Name)));
 
-		manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
-			using HashLockInfosProducerFactory = handlers::CacheEntryInfosProducerFactory<cache::HashLockInfoCacheDescriptor>;
-			handlers::RegisterHashLockInfosHandler(handlers, HashLockInfosProducerFactory::Create(cache.sub<cache::HashLockInfoCache>()));
-
-			using PacketType = handlers::StatePathRequestPacket<ionet::PacketType::Hash_Lock_State_Path, Hash256>;
-			handlers::RegisterStatePathHandler<PacketType>(handlers, cache.sub<cache::HashLockInfoCache>());
-		});
+		using CacheHandlers = CacheHandlers<cache::HashLockInfoCacheDescriptor>;
+		CacheHandlers::Register<model::FacilityCode::LockHash>(manager);
 
 		manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
 			counters.emplace_back(utils::DiagnosticCounterId("HASHLOCK C"), [&cache]() {
@@ -54,11 +48,12 @@ namespace catapult { namespace plugins {
 
 		auto config = model::LoadPluginConfiguration<config::HashLockConfiguration>(manager.config(), "catapult.plugins.lockhash");
 		auto blockGenerationTargetTime = manager.config().BlockGenerationTargetTime;
-		manager.addStatelessValidatorHook([config, blockGenerationTargetTime](auto& builder) {
+		auto currencyMosaicId = model::GetUnresolvedCurrencyMosaicId(manager.config());
+		manager.addStatelessValidatorHook([config, blockGenerationTargetTime, currencyMosaicId](auto& builder) {
 			// hash lock validators
 			auto maxHashLockDuration = config.MaxHashLockDuration.blocks(blockGenerationTargetTime);
 			builder.add(validators::CreateHashLockDurationValidator(maxHashLockDuration));
-			builder.add(validators::CreateHashLockMosaicValidator(config.LockedFundsPerAggregate));
+			builder.add(validators::CreateHashLockMosaicValidator(currencyMosaicId, config.LockedFundsPerAggregate));
 		});
 
 		manager.addStatefulValidatorHook([](auto& builder) {
@@ -69,10 +64,11 @@ namespace catapult { namespace plugins {
 
 		auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
 		manager.addObserverHook([maxRollbackBlocks](auto& builder) {
+			auto expiryReceiptType = model::Receipt_Type_LockHash_Expired;
 			builder
 				.add(observers::CreateHashLockObserver())
 				.add(observers::CreateExpiredHashLockInfoObserver())
-				.add(observers::CreateCacheBlockTouchObserver<cache::HashLockInfoCache>("HashLockInfo"))
+				.add(observers::CreateCacheBlockTouchObserver<cache::HashLockInfoCache>("HashLockInfo", expiryReceiptType))
 				.add(observers::CreateCacheBlockPruningObserver<cache::HashLockInfoCache>("HashLockInfo", 1, maxRollbackBlocks))
 				.add(observers::CreateCompletedAggregateObserver());
 		});

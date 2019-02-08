@@ -36,14 +36,12 @@ namespace catapult { namespace test {
 
 		static void AssertCanCreateCacheStorageViaPluginForSummaryStorage() {
 			// Arrange: use TempDirectoryGuard  to remove db directory without including rocksdb related includes
-			test::TempDirectoryGuard dbDirGuard("dbdir");
+			test::TempDirectoryGuard dbDirGuard;
+			auto patriciaTreeStorageMode = cache::PatriciaTreeStorageMode::Disabled;
 
 			// Assert:
 			AssertCanCreateStorageViaPlugin(
-					cache::CacheConfiguration(
-							dbDirGuard.name(),
-							utils::FileSize::FromMegabytes(5),
-							cache::PatriciaTreeStorageMode::Disabled),
+					cache::CacheConfiguration(dbDirGuard.name(), utils::FileSize::FromMegabytes(5), patriciaTreeStorageMode),
 					std::string(TTraits::Base_Name) + "_summary");
 		}
 

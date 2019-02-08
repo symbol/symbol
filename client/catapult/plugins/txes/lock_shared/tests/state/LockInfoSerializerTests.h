@@ -63,7 +63,7 @@ namespace catapult { namespace state {
 				packedValues.emplace_back(value);
 
 			ASSERT_EQ(sizeof(typename TLockInfoTraits::PackedValueType) * packedValues.size(), buffer.size());
-			EXPECT_TRUE(0 == std::memcmp(packedValues.data(), buffer.data(), buffer.size()));
+			EXPECT_EQ_MEMORY(packedValues.data(), buffer.data(), buffer.size());
 		}
 
 		static void AssertCanSaveLockInfos(size_t numLockInfos) {

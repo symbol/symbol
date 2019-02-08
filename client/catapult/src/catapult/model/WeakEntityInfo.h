@@ -24,6 +24,8 @@
 #include <iosfwd>
 #include <vector>
 
+namespace catapult { namespace model { struct BlockHeader; } }
+
 namespace catapult { namespace model {
 
 	/// Wrapper around a strongly typed entity and its associated metadata.
@@ -31,7 +33,10 @@ namespace catapult { namespace model {
 	class WeakEntityInfoT {
 	public:
 		/// Creates an entity info.
-		constexpr WeakEntityInfoT() : m_pEntity(nullptr), m_pHash(nullptr)
+		constexpr WeakEntityInfoT()
+				: m_pEntity(nullptr)
+				, m_pHash(nullptr)
+				, m_pAssociatedBlockHeader(nullptr)
 		{}
 
 		/// Creates an entity info around \a entity.
@@ -39,12 +44,21 @@ namespace catapult { namespace model {
 		constexpr WeakEntityInfoT(const TEntity& entity)
 				: m_pEntity(&entity)
 				, m_pHash(nullptr)
+				, m_pAssociatedBlockHeader(nullptr)
 		{}
 
 		/// Creates an entity info around \a entity and \a hash.
 		constexpr explicit WeakEntityInfoT(const TEntity& entity, const Hash256& hash)
 				: m_pEntity(&entity)
 				, m_pHash(&hash)
+				, m_pAssociatedBlockHeader(nullptr)
+		{}
+
+		/// Creates an entity info around \a entity, \a hash and \a associatedBlockHeader.
+		constexpr explicit WeakEntityInfoT(const TEntity& entity, const Hash256& hash, const BlockHeader& associatedBlockHeader)
+				: m_pEntity(&entity)
+				, m_pHash(&hash)
+				, m_pAssociatedBlockHeader(&associatedBlockHeader)
 		{}
 
 	public:
@@ -58,19 +72,40 @@ namespace catapult { namespace model {
 			return !!m_pHash;
 		}
 
+		/// Returns \c true if this info has an associated block header.
+		constexpr bool isAssociatedBlockHeaderSet() const {
+			return !!m_pAssociatedBlockHeader;
+		}
+
+	public:
 		/// Gets the entity.
 		constexpr const TEntity& entity() const {
 			return *m_pEntity;
 		}
 
 		/// Gets the entity type.
-		constexpr model::EntityType type() const {
+		constexpr EntityType type() const {
 			return m_pEntity->Type;
 		}
 
 		/// Gets the entity hash.
 		constexpr const Hash256& hash() const {
 			return *m_pHash;
+		}
+
+		/// Gets the associated block header.
+		constexpr const BlockHeader& associatedBlockHeader() const {
+			return *m_pAssociatedBlockHeader;
+		}
+
+	public:
+		/// Coerces this info into a differently typed info.
+		template<typename TEntityResult>
+		WeakEntityInfoT<TEntityResult> cast() const {
+			const auto& typedEntity = static_cast<const TEntityResult&>(entity());
+			return isAssociatedBlockHeaderSet()
+					? WeakEntityInfoT<TEntityResult>(typedEntity, hash(), associatedBlockHeader())
+					: WeakEntityInfoT<TEntityResult>(typedEntity, hash());
 		}
 
 	public:
@@ -84,16 +119,10 @@ namespace catapult { namespace model {
 			return !(*this == rhs);
 		}
 
-	public:
-		/// Coerces this info into a differently typed info.
-		template<typename TEntityResult>
-		WeakEntityInfoT<TEntityResult> cast() const {
-			return WeakEntityInfoT<TEntityResult>(static_cast<const TEntityResult&>(entity()), hash());
-		}
-
 	private:
 		const TEntity* m_pEntity;
 		const Hash256* m_pHash;
+		const BlockHeader* m_pAssociatedBlockHeader;
 	};
 
 	using WeakEntityInfo = WeakEntityInfoT<VerifiableEntity>;

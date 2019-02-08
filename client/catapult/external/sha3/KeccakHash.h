@@ -1,12 +1,10 @@
 /*
-Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni,
-Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer, hereby
-denoted as "the implementer".
+Implementation by the Keccak Team, namely, Guido Bertoni, Joan Daemen,
+Michaël Peeters, Gilles Van Assche and Ronny Van Keer,
+hereby denoted as "the implementer".
 
-For more information, feedback or questions, please refer to our websites:
-http://keccak.noekeon.org/
-http://keyak.noekeon.org/
-http://ketje.noekeon.org/
+For more information, feedback or questions, please refer to our website:
+https://keccak.team/
 
 To the extent possible under law, the implementer has waived all copyright
 and related or neighboring rights to the source code in this file.
@@ -83,6 +81,8 @@ HashReturn Keccak_HashInitialize(Keccak_HashInstance *hashInstance, unsigned int
   * @param  data        Pointer to the input data.
   *                     When @a databitLen is not a multiple of 8, the last bits of data must be
   *                     in the least significant bits of the last byte (little-endian convention).
+  *                     In this case, the (8 - @a databitLen mod 8) most significant bits
+  *                     of the last byte are ignored.
   * @param  databitLen  The number of input bits provided in the input data.
   * @pre    In the previous call to Keccak_HashUpdate(), databitlen was a multiple of 8.
   * @return SUCCESS if successful, FAIL otherwise.

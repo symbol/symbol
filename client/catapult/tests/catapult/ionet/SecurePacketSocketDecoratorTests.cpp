@@ -46,7 +46,7 @@ namespace catapult { namespace ionet {
 				m_pBufferedIo->queueWrite(SocketOperationCode::Success);
 				m_pBufferedIo->queueRead(SocketOperationCode::Success, [](const auto* pWrittenPacket) {
 					auto pWrittenPacketCopy = utils::MakeSharedWithSize<Packet>(pWrittenPacket->Size);
-					std::memcpy(pWrittenPacketCopy.get(), pWrittenPacket, pWrittenPacket->Size);
+					std::memcpy(static_cast<void*>(pWrittenPacketCopy.get()), pWrittenPacket, pWrittenPacket->Size);
 					return pWrittenPacketCopy;
 				});
 			}

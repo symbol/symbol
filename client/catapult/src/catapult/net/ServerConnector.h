@@ -42,7 +42,7 @@ namespace catapult { namespace net {
 		using ConnectCallback = consumer<PeerConnectCode, const std::shared_ptr<ionet::PacketSocket>&>;
 
 	public:
-		virtual ~ServerConnector() {}
+		virtual ~ServerConnector() = default;
 
 	public:
 		/// Gets the number of active connections.

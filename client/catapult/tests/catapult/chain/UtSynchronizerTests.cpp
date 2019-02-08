@@ -51,7 +51,7 @@ namespace catapult { namespace chain {
 				}
 
 				const auto& singleRequest() const {
-					return m_pTransactionApi->utRequests()[0];
+					return m_pTransactionApi->utRequests()[0].second;
 				}
 
 				void setError(bool setError = true) {
@@ -59,6 +59,10 @@ namespace catapult { namespace chain {
 							? MockRemoteApi::EntryPoint::Unconfirmed_Transactions
 							: MockRemoteApi::EntryPoint::None;
 					m_pTransactionApi->setError(entryPoint);
+				}
+
+				void checkAdditionalRequestParameters() {
+					EXPECT_EQ(BlockFeeMultiplier(17), m_pTransactionApi->utRequests()[0].first);
 				}
 
 			private:
@@ -82,7 +86,7 @@ namespace catapult { namespace chain {
 			static auto CreateSynchronizer(
 					const ShortHashesSupplier& shortHashesSupplier,
 					const handlers::TransactionRangeHandler& transactionRangeConsumer) {
-				return CreateUtSynchronizer(shortHashesSupplier, transactionRangeConsumer);
+				return CreateUtSynchronizer(BlockFeeMultiplier(17), shortHashesSupplier, transactionRangeConsumer);
 			}
 		};
 	}

@@ -277,7 +277,7 @@ namespace catapult { namespace local {
 	namespace {
 		std::unique_ptr<ionet::NodeContainer> CreateFullNodeContainer() {
 			// Arrange: fill the node container with static nodes that are ineligible for pruning
-			auto pNodes = std::make_unique<ionet::NodeContainer>(3);
+			auto pNodes = std::make_unique<ionet::NodeContainer>(3, []() { return Timestamp(0); });
 			auto modifier = pNodes->modifier();
 			for (auto i = 0u; i < 3u; ++i) {
 				auto key = test::GenerateRandomData<Key_Size>();

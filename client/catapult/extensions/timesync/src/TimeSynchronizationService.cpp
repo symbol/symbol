@@ -90,7 +90,7 @@ namespace catapult { namespace timesync {
 
 				auto pTimeSynchronizer = std::make_shared<TimeSynchronizer>(
 						filters::AggregateSynchronizationFilter(filters),
-						model::GetTotalImportance(state.config().BlockChain).unwrap());
+						state.config().BlockChain.TotalChainImportance);
 				locator.registerRootedService(Synchronizer_Service_Name, pTimeSynchronizer);
 
 				locator.registerRootedService(State_Service_Name, m_pTimeSyncState);

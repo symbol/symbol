@@ -40,7 +40,7 @@ namespace catapult { namespace cache {
 			// Assert:
 			ASSERT_EQ(sizeof(uint64_t) + entries.size() * sizeof(TestEntry), buffer.size());
 			EXPECT_EQ(entries.size(), reinterpret_cast<const uint64_t&>(*buffer.data()));
-			EXPECT_TRUE(0 == memcmp(entries.data(), buffer.data() + sizeof(uint64_t), entries.size() * sizeof(TestEntry)));
+			EXPECT_EQ_MEMORY(entries.data(), buffer.data() + sizeof(uint64_t), entries.size() * sizeof(TestEntry));
 		}
 
 		// region VectorToCacheAdapter

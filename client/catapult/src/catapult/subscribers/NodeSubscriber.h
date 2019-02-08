@@ -29,7 +29,7 @@ namespace catapult { namespace subscribers {
 	/// Node subscriber.
 	class NodeSubscriber {
 	public:
-		virtual ~NodeSubscriber() {}
+		virtual ~NodeSubscriber() = default;
 
 	public:
 		/// Indicates a new \a node was found.

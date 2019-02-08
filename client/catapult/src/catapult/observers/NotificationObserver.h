@@ -32,13 +32,13 @@ namespace catapult { namespace observers {
 		using NotificationType = TNotification;
 
 	public:
-		virtual ~NotificationObserverT() {}
+		virtual ~NotificationObserverT() = default;
 
 	public:
 		/// Gets the observer name.
 		virtual const std::string& name() const = 0;
 
 		/// Notifies the observer with a \a notification to process and an observer \a context.
-		virtual void notify(const TNotification& notification, const ObserverContext& context) const = 0;
+		virtual void notify(const TNotification& notification, ObserverContext& context) const = 0;
 	};
 }}

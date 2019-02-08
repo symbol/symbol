@@ -19,8 +19,12 @@
 **/
 
 #include "BlockTestUtils.h"
+#include "AddressTestUtils.h"
 #include "EntityTestUtils.h"
 #include "sdk/src/extensions/BlockExtensions.h"
+#include "mocks/MockMemoryStream.h"
+#include "mocks/MockReceipt.h"
+#include "catapult/io/BlockStatementSerializer.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/EntityHasher.h"
 #include "tests/TestHarness.h"
@@ -30,6 +34,21 @@ namespace catapult { namespace test {
 
 	namespace {
 		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+
+		void RandomizeBlock(model::Block& block) {
+			auto difficultyRange = (Difficulty::Max() - Difficulty::Min()).unwrap();
+			auto difficultyAdjustment = difficultyRange * RandomByte() / std::numeric_limits<uint8_t>::max();
+
+			block.Height = GenerateRandomValue<Height>();
+			block.Timestamp = GenerateRandomValue<Timestamp>();
+			block.Difficulty = Difficulty::Min() + Difficulty::Unclamped(difficultyAdjustment);
+			block.FeeMultiplier = GenerateRandomValue<BlockFeeMultiplier>();
+			FillWithRandomData(block.PreviousBlockHash);
+			FillWithRandomData(block.BlockTransactionsHash);
+			FillWithRandomData(block.BlockReceiptsHash);
+			FillWithRandomData(block.StateHash);
+			FillWithRandomData(block.BeneficiaryPublicKey);
+		}
 	}
 
 	std::unique_ptr<model::Block> GenerateEmptyRandomBlock() {
@@ -50,6 +69,7 @@ namespace catapult { namespace test {
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const ConstTransactions& transactions) {
 		model::PreviousBlockContext context;
 		auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
+		RandomizeBlock(*pBlock);
 		SignBlock(signer, *pBlock);
 		return pBlock;
 	}
@@ -81,6 +101,9 @@ namespace catapult { namespace test {
 
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height, Timestamp timestamp) {
 		auto pBlock = GenerateBlockWithTransactionsAtHeight(numTransactions, height);
+		for (auto& transaction : pBlock->Transactions())
+			transaction.Deadline = timestamp + Timestamp(1);
+
 		pBlock->Timestamp = timestamp;
 		return pBlock;
 	}
@@ -90,14 +113,8 @@ namespace catapult { namespace test {
 
 		model::PreviousBlockContext context;
 		auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
-		auto difficultyAdjustment = (Difficulty::Max() - Difficulty::Min()).unwrap() * RandomByte() / std::numeric_limits<uint8_t>::max();
-
+		RandomizeBlock(*pBlock);
 		pBlock->Height = height;
-		pBlock->Timestamp = GenerateRandomValue<Timestamp>();
-		pBlock->Difficulty = Difficulty::Min() + Difficulty::Unclamped(difficultyAdjustment);
-		FillWithRandomData(pBlock->PreviousBlockHash);
-		FillWithRandomData(pBlock->BlockTransactionsHash);
-		FillWithRandomData(pBlock->StateHash);
 
 		SignBlock(signer, *pBlock);
 		return pBlock;
@@ -114,14 +131,58 @@ namespace catapult { namespace test {
 		ConstTransactions transactions;
 		transactions.push_back(GenerateDeterministicTransaction());
 		auto pBlock = GenerateBlockWithTransactions(keyPair, transactions);
-		pBlock->Difficulty = Difficulty(123'456'789'123'456);
-		pBlock->Height = Height(12345);
 		pBlock->Signer = keyPair.publicKey();
+		pBlock->Height = Height(12345);
 		pBlock->Timestamp = Timestamp(54321);
-		pBlock->PreviousBlockHash = { { static_cast<uint8_t>(123) } };
-		pBlock->StateHash = { { static_cast<uint8_t>(242), static_cast<uint8_t>(111) } };
+		pBlock->Difficulty = Difficulty(123'456'789'123'456);
+		pBlock->FeeMultiplier = BlockFeeMultiplier(8462);
+		pBlock->PreviousBlockHash = { { 123 } };
+		pBlock->BlockReceiptsHash = { { 55 } };
+		pBlock->StateHash = { { 242, 111 } };
+		pBlock->BeneficiaryPublicKey = { { 77, 99, 88 } };
 		SignBlock(keyPair, *pBlock);
 		return pBlock;
+	}
+
+	namespace {
+		void RandomFillStatement(model::TransactionStatement& statement, size_t numReceipts) {
+			for (auto i = 0u; i < numReceipts; ++i) {
+				mocks::MockReceipt receipt{};
+				receipt.Size = sizeof(mocks::MockReceipt);
+				receipt.Type = mocks::MockReceipt::Receipt_Type;
+				receipt.Payload[0] = static_cast<uint8_t>(i + 1);
+				statement.addReceipt(receipt);
+			}
+		}
+
+		template<typename TResolutionStatement>
+		void RandomFillStatement(TResolutionStatement& statement, size_t numResolutions) {
+			for (auto i = 0u; i < numResolutions; ++i) {
+				typename TResolutionStatement::ResolutionEntry entry;
+				test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&entry), sizeof(typename TResolutionStatement::ResolutionEntry) });
+				entry.Source.PrimaryId = i + 1; // needs to be in ascending order
+				statement.addResolution(entry.ResolvedValue, entry.Source);
+			}
+		}
+
+		template<typename TKey, typename TStatement>
+		void GenerateRandomStatements(std::map<TKey, TStatement>& statements, size_t numStatements) {
+			for (auto i = 0u; i < numStatements; ++i) {
+				TKey key;
+				test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&key), sizeof(TKey) });
+				TStatement statement(key);
+				RandomFillStatement(statement, numStatements * 2);
+				statements.emplace(key, std::move(statement));
+			}
+		}
+	}
+
+	std::unique_ptr<model::BlockStatement> GenerateRandomStatements(const std::vector<size_t>& numStatements) {
+		auto pBlockStatement = std::make_unique<model::BlockStatement>();
+		GenerateRandomStatements(pBlockStatement->TransactionStatements, numStatements[0]);
+		GenerateRandomStatements(pBlockStatement->AddressResolutionStatements, numStatements[1]);
+		GenerateRandomStatements(pBlockStatement->MosaicResolutionStatements, numStatements[2]);
+		return pBlockStatement;
 	}
 
 	std::vector<uint8_t> CreateRandomBlockBuffer(size_t numBlocks) {
@@ -153,6 +214,11 @@ namespace catapult { namespace test {
 		return ranges;
 	}
 
+	size_t CountTransactions(const model::Block& block) {
+		auto count = std::distance(block.Transactions().cbegin(), block.Transactions().cend());
+		return static_cast<size_t>(count);
+	}
+
 	std::unique_ptr<model::Block> CopyBlock(const model::Block& block) {
 		return CopyEntity(block);
 	}
@@ -161,8 +227,9 @@ namespace catapult { namespace test {
 		auto blockElement = BlockToBlockElement(block);
 		blockElement.EntityHash = hash;
 		for (auto& transactionElement : blockElement.Transactions) {
-			transactionElement.OptionalExtractedAddresses = std::make_shared<model::AddressSet>();
-			transactionElement.OptionalExtractedAddresses->emplace(GenerateRandomData<Address_Decoded_Size>());
+			auto pAddresses = std::make_shared<model::UnresolvedAddressSet>();
+			pAddresses->emplace(GenerateRandomUnresolvedAddress());
+			transactionElement.OptionalExtractedAddresses = pAddresses;
 		}
 
 		// add random data to ensure it is roundtripped correctly
@@ -172,6 +239,13 @@ namespace catapult { namespace test {
 
 	model::BlockElement BlockToBlockElement(const model::Block& block) {
 		return extensions::BlockExtensions().convertBlockToBlockElement(block, {});
+	}
+
+	std::vector<uint8_t> SerializeBlockStatement(const model::BlockStatement& blockStatement) {
+		std::vector<uint8_t> serialized;
+		mocks::MockMemoryStream stream("", serialized);
+		io::WriteBlockStatement(stream, blockStatement);
+		return serialized;
 	}
 
 	namespace {
@@ -189,15 +263,79 @@ namespace catapult { namespace test {
 				++iter;
 			}
 		}
+
+		void AssertKeys(const UnresolvedMosaicId& lhs, const UnresolvedMosaicId& rhs, const std::string& message) {
+			EXPECT_EQ(lhs, rhs) << message;
+		}
+
+		void AssertKeys(const UnresolvedAddress& lhs, const UnresolvedAddress& rhs, const std::string& message) {
+			EXPECT_EQ(lhs, rhs) << message;
+		}
+
+		void AssertKeys(const model::ReceiptSource& lhs, const model::ReceiptSource& rhs, const std::string& message) {
+			EXPECT_EQ(lhs.PrimaryId, rhs.PrimaryId) << message;
+			EXPECT_EQ(lhs.SecondaryId, rhs.SecondaryId) << message;
+		}
+
+		void AssertStatement(const model::TransactionStatement& lhs, const model::TransactionStatement& rhs, const std::string& message) {
+			ASSERT_EQ(lhs.size(), rhs.size()) << message;
+			for (auto i = 0u; i < lhs.size(); ++i) {
+				auto receiptMessage = message + " receipt " + std::to_string(i);
+				EXPECT_EQ(lhs.receiptAt(i), rhs.receiptAt(i)) << receiptMessage;
+			}
+		}
+
+		template<typename TStatement>
+		void AssertStatement(const TStatement& lhs, const TStatement& rhs, const std::string& message) {
+			ASSERT_EQ(lhs.size(), rhs.size()) << message;
+			for (auto i = 0u; i < lhs.size(); ++i) {
+				auto receiptMessage = message + " entry " + std::to_string(i);
+				EXPECT_EQ(lhs.entryAt(i).ResolvedValue, rhs.entryAt(i).ResolvedValue) << receiptMessage;
+				AssertKeys(lhs.entryAt(i).Source, rhs.entryAt(i).Source, receiptMessage);
+			}
+		}
+
+		template<typename TMap>
+		void AssertStatements(const TMap& expectedStatements, const TMap& statements) {
+			ASSERT_EQ(expectedStatements.size(), statements.size());
+
+			auto expectedIter = expectedStatements.cbegin();
+			auto iter = statements.cbegin();
+			for (auto i = 0u; i < expectedStatements.size(); ++i) {
+				std::string message = "statement " + std::to_string(i);
+				AssertKeys(expectedIter->first, iter->first, message);
+				AssertStatement(expectedIter->second, iter->second, message);
+				++expectedIter;
+				++iter;
+			}
+		}
+	}
+
+	void AssertEqual(const model::BlockStatement& expectedBlockStatement, const model::BlockStatement& blockStatement) {
+		AssertStatements(expectedBlockStatement.TransactionStatements, blockStatement.TransactionStatements);
+		AssertStatements(expectedBlockStatement.AddressResolutionStatements, blockStatement.AddressResolutionStatements);
+		AssertStatements(expectedBlockStatement.MosaicResolutionStatements, blockStatement.MosaicResolutionStatements);
+
+		// Sanity:
+		EXPECT_EQ(model::CalculateMerkleHash(expectedBlockStatement), model::CalculateMerkleHash(blockStatement));
 	}
 
 	void AssertEqual(const model::BlockElement& expectedBlockElement, const model::BlockElement& blockElement) {
+		// Assert:
 		EXPECT_EQ(expectedBlockElement.Block.Signature, blockElement.Block.Signature);
 		EXPECT_EQ(expectedBlockElement.Block, blockElement.Block);
 		EXPECT_EQ(expectedBlockElement.EntityHash, blockElement.EntityHash);
 		EXPECT_EQ(expectedBlockElement.GenerationHash, blockElement.GenerationHash);
 		EXPECT_EQ(expectedBlockElement.SubCacheMerkleRoots, blockElement.SubCacheMerkleRoots);
 		AssertTransactionHashes(expectedBlockElement.Transactions, blockElement.Transactions);
+
+		if (!expectedBlockElement.OptionalStatement) {
+			EXPECT_FALSE(!!blockElement.OptionalStatement);
+			return;
+		}
+
+		ASSERT_TRUE(!!blockElement.OptionalStatement);
+		AssertEqual(*expectedBlockElement.OptionalStatement, *blockElement.OptionalStatement);
 	}
 
 	void SignBlock(const crypto::KeyPair& signer, model::Block& block) {

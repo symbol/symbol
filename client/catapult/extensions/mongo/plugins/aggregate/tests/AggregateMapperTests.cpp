@@ -134,7 +134,8 @@ namespace catapult { namespace mongo { namespace plugins {
 				subTransaction.Data.Size = 0;
 			}
 
-			std::memcpy(pTransaction->TransactionsPtr(), subTransactions.data(), numTransactions * sizeof(EmbeddedTransactionType));
+			auto transactionsSize = numTransactions * sizeof(EmbeddedTransactionType);
+			std::memcpy(static_cast<void*>(pTransaction->TransactionsPtr()), subTransactions.data(), transactionsSize);
 
 			// - create the plugin
 			MongoTransactionRegistry registry;
@@ -145,7 +146,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			model::TransactionElement transactionElement(*pTransaction);
 			transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
 			transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
-			transactionElement.OptionalExtractedAddresses = std::make_shared<model::AddressSet>(test::GenerateRandomAddressSet(3));
+			transactionElement.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
 			auto metadata = MongoTransactionMetadata(transactionElement, Height(12), 2);
 			auto documents = pPlugin->extractDependentDocuments(*pTransaction, metadata);
 

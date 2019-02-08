@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 	struct BaseLockNotification : public Notification {
 	protected:
 		/// Creates base lock notification around \a signer, \a mosaic and \a duration.
-		BaseLockNotification(const Key& signer, const model::Mosaic& mosaic, BlockDuration duration)
+		BaseLockNotification(const Key& signer, const UnresolvedMosaic& mosaic, BlockDuration duration)
 				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
 				, Signer(signer)
 				, Mosaic(mosaic)
@@ -56,7 +56,7 @@ namespace catapult { namespace model {
 		const Key& Signer;
 
 		/// Locked mosaic.
-		model::Mosaic Mosaic;
+		UnresolvedMosaic Mosaic;
 
 		/// Lock duration.
 		BlockDuration Duration;

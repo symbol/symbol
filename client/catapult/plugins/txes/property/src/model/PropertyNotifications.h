@@ -104,11 +104,12 @@ namespace catapult { namespace model {
 		PropertyModification<TPropertyValue> Modification;
 	};
 
-	using ModifyAddressPropertyValueNotification = ModifyPropertyValueNotification<Address, Property_Address_Modification_Notification>;
-	using ModifyMosaicPropertyValueNotification = ModifyPropertyValueNotification<MosaicId, Property_Mosaic_Modification_Notification>;
-	using ModifyTransactionTypePropertyValueNotification = ModifyPropertyValueNotification<
-		model::EntityType,
-		Property_Transaction_Type_Modification_Notification>;
+	using ModifyAddressPropertyValueNotification =
+		ModifyPropertyValueNotification<UnresolvedAddress, Property_Address_Modification_Notification>;
+	using ModifyMosaicPropertyValueNotification =
+		ModifyPropertyValueNotification<UnresolvedMosaicId, Property_Mosaic_Modification_Notification>;
+	using ModifyTransactionTypePropertyValueNotification =
+		ModifyPropertyValueNotification<EntityType, Property_Transaction_Type_Modification_Notification>;
 
 	/// Notification of a property modification.
 	template<typename TPropertyValue, NotificationType Property_Notification_Type>
@@ -148,6 +149,6 @@ namespace catapult { namespace model {
 	using ModifyAddressPropertyNotification = ModifyPropertyNotification<UnresolvedAddress, Property_Address_Modifications_Notification>;
 	using ModifyMosaicPropertyNotification = ModifyPropertyNotification<UnresolvedMosaicId, Property_Mosaic_Modifications_Notification>;
 	using ModifyTransactionTypePropertyNotification = ModifyPropertyNotification<
-		model::EntityType,
+		EntityType,
 		Property_Transaction_Type_Modifications_Notification>;
 }}

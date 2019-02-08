@@ -35,7 +35,8 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertEntityHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize = baseSize // base
+			auto expectedSize =
+					baseSize // base
 					+ sizeof(Address) // recipient
 					+ sizeof(uint16_t) // message size
 					+ sizeof(uint8_t); // mosaics count
@@ -118,7 +119,7 @@ namespace catapult { namespace model {
 		auto realSize = TransferTransaction::CalculateRealSize(transaction);
 
 		// Assert:
-		EXPECT_EQ(0xFFFFFFFF, transaction.Size);
+		ASSERT_EQ(0xFFFFFFFF, transaction.Size);
 		EXPECT_EQ(sizeof(TransferTransaction) + 0xFFFF + 0xFF * sizeof(Mosaic), realSize);
 		EXPECT_GT(0xFFFFFFFF, realSize);
 	}

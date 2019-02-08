@@ -27,7 +27,7 @@ namespace catapult { namespace chain {
 			const validators::stateful::NotificationValidator& validator,
 			const validators::ValidatorContext& validatorContext,
 			const observers::NotificationObserver& observer,
-			const observers::ObserverContext& observerContext)
+			observers::ObserverContext& observerContext)
 			: m_validator(validator)
 			, m_validatorContext(validatorContext)
 			, m_observer(observer)
@@ -52,10 +52,10 @@ namespace catapult { namespace chain {
 				? observers::NotifyMode::Rollback
 				: observers::NotifyMode::Commit;
 		auto undoObserverContext = observers::ObserverContext(
-				m_observerContext.Cache,
-				m_observerContext.State,
+				{ m_observerContext.Cache, m_observerContext.State },
 				m_observerContext.Height,
-				undoMode);
+				undoMode,
+				m_observerContext.Resolvers);
 		for (auto iter = m_notificationBuffers.crbegin(); m_notificationBuffers.crend() != iter; ++iter) {
 			const auto* pNotification = reinterpret_cast<const model::Notification*>(iter->data());
 			m_observer.notify(*pNotification, undoObserverContext);

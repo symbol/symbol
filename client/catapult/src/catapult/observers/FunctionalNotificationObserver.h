@@ -28,7 +28,7 @@ namespace catapult { namespace observers {
 	template<typename TNotification>
 	class FunctionalNotificationObserverT : public NotificationObserverT<TNotification> {
 	private:
-		using FunctionType = consumer<const TNotification&, const ObserverContext&>;
+		using FunctionType = consumer<const TNotification&, ObserverContext&>;
 
 	public:
 		/// Creates a functional notification observer around \a func with \a name.
@@ -42,7 +42,7 @@ namespace catapult { namespace observers {
 			return m_name;
 		}
 
-		void notify(const TNotification& notification, const ObserverContext& context) const override {
+		void notify(const TNotification& notification, ObserverContext& context) const override {
 			return m_func(notification, context);
 		}
 

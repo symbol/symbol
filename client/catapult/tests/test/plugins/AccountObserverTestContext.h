@@ -52,30 +52,5 @@ namespace catapult { namespace test {
 			accountStateCache.addAccount(publicKey, Height(1));
 			return accountStateCache.find(publicKey).get();
 		}
-
-	public:
-		/// Sets the (xem) balance of the account identified by \a accountIdentifier to \a amount.
-		template<typename IdType>
-		state::AccountBalances& setAccountBalance(const IdType& accountIdentifier, Amount::ValueType amount) {
-			return setAccountBalance(accountIdentifier, Amount(amount));
-		}
-
-		/// Sets the (xem) balance of the account identified by \a accountIdentifier to \a amount.
-		template<typename IdType>
-		state::AccountBalances& setAccountBalance(const IdType& accountIdentifier, Amount amount) {
-			auto& accountState = addAccount(accountIdentifier);
-			accountState.Balances.credit(Xem_Id, amount);
-			return accountState.Balances;
-		}
-
-		/// Gets the (xem) balance of the account identified by \a accountIdentifier.
-		template<typename IdType>
-		Amount getAccountBalance(const IdType& accountIdentifier) const {
-			auto pAccountState = find(accountIdentifier);
-			if (!pAccountState)
-				CATAPULT_THROW_RUNTIME_ERROR_1("could not find account in cache", utils::HexFormat(accountIdentifier));
-
-			return pAccountState->Balances.get(Xem_Id);
-		}
 	};
 }}

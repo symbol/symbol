@@ -19,7 +19,6 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "catapult/constants.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -27,14 +26,20 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS HashLockMosaicValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(HashLockMosaic, Amount(123))
+	DEFINE_COMMON_VALIDATOR_TESTS(HashLockMosaic, UnresolvedMosaicId(11), Amount(123))
 
 	namespace {
-		void AssertValidationResult(ValidationResult expectedResult, MosaicId mosaicId, Amount bondedAmount, Amount requiredBondedAmount) {
+		constexpr UnresolvedMosaicId Currency_Mosaic_Id(1234);
+
+		void AssertValidationResult(
+				ValidationResult expectedResult,
+				UnresolvedMosaicId mosaicId,
+				Amount bondedAmount,
+				Amount requiredBondedAmount) {
 			// Arrange:
-			model::Mosaic mosaic = { mosaicId, bondedAmount };
+			model::UnresolvedMosaic mosaic{ mosaicId, bondedAmount };
 			auto notification = model::HashLockMosaicNotification(mosaic);
-			auto pValidator = CreateHashLockMosaicValidator(requiredBondedAmount);
+			auto pValidator = CreateHashLockMosaicValidator(Currency_Mosaic_Id, requiredBondedAmount);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification);
@@ -46,17 +51,18 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithProperMosaicIdAndAmount) {
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, Xem_Id, Amount(500), Amount(500));
+		AssertValidationResult(ValidationResult::Success, Currency_Mosaic_Id, Amount(500), Amount(500));
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithInvalidMosaicId) {
 		// Assert:
-		AssertValidationResult(Failure_LockHash_Invalid_Mosaic_Id, test::GenerateRandomValue<MosaicId>(), Amount(500), Amount(500));
+		auto mosaicId = test::GenerateRandomValue<UnresolvedMosaicId>();
+		AssertValidationResult(Failure_LockHash_Invalid_Mosaic_Id, mosaicId, Amount(500), Amount(500));
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithInvalidAmount) {
 		// Assert:
 		for (auto amount : { 0ull, 1ull, 10ull, 100ull, 499ull, 501ull, 1000ull })
-			AssertValidationResult(Failure_LockHash_Invalid_Mosaic_Amount, MosaicId(123), Amount(amount), Amount(500));
+			AssertValidationResult(Failure_LockHash_Invalid_Mosaic_Amount, UnresolvedMosaicId(123), Amount(amount), Amount(500));
 	}
 }}

@@ -35,16 +35,17 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertEntityHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize = baseSize // base
+			auto expectedSize =
+					baseSize // base
 					+ sizeof(Mosaic) // mosaic
 					+ sizeof(Height) // height
 					+ sizeof(LockHashAlgorithm) // lock hash algorithm
-					+ Hash512_Size // hash
+					+ Hash256_Size // hash
 					+ sizeof(Address); // address
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 114u, sizeof(T));
+			EXPECT_EQ(baseSize + 82u, sizeof(T));
 		}
 
 		template<typename T>

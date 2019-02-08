@@ -21,6 +21,7 @@
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/model/Block.h"
 #include "catapult/utils/Logging.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace chain {
@@ -28,10 +29,13 @@ namespace catapult { namespace chain {
 #define TEST_CLASS BlockScorerTests
 
 	namespace {
+		constexpr auto Max_Smoothing = 100u;
+
 		model::BlockChainConfiguration CreateConfiguration() {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.BlockGenerationTargetTime = utils::TimeSpan::FromSeconds(60);
 			config.BlockTimeSmoothingFactor = 0;
+			config.TotalChainImportance = test::Default_Total_Chain_Importance;
 			return config;
 		}
 
@@ -282,6 +286,16 @@ namespace catapult { namespace chain {
 			result <<= 64;
 			return result;
 		}();
+
+		BlockTarget GetWellKnownBlockTarget(size_t smoothing = 1) {
+			// (900, 1000, 72000, 50)
+			BlockTarget expectedTarget = 100; // time difference (in seconds)
+			expectedTarget *= 72000; // importance
+			expectedTarget *= Two_To_64; // magic number
+			expectedTarget *= smoothing; // smoothing
+			expectedTarget /= 50'000'000'000'000; // difficulty
+			return expectedTarget;
+		}
 	}
 
 	TEST(TEST_CLASS, BlockTargetIsCorrectlyCalculated) {
@@ -289,13 +303,7 @@ namespace catapult { namespace chain {
 		auto target = CalculateBlockTarget(900, 1000, 72000, 50);
 
 		// Assert:
-		BlockTarget expectedTarget = 100; // time difference (in seconds)
-		expectedTarget *= 72000; // importance
-		expectedTarget *= Two_To_64; // magic number
-		expectedTarget /= 50'000'000'000'000; // difficulty
-
-		// Assert:
-		EXPECT_EQ(expectedTarget, target);
+		EXPECT_EQ(GetWellKnownBlockTarget(), target);
 	}
 
 	TEST(TEST_CLASS, TargetIsCorrectlyCalculatedFromRawValues) {
@@ -303,13 +311,7 @@ namespace catapult { namespace chain {
 		auto target = CalculateTargetFromRawValues(900, 1000, 72000, 50);
 
 		// Assert:
-		BlockTarget expectedTarget = 100; // time difference (in seconds)
-		expectedTarget *= 72000; // importance
-		expectedTarget *= Two_To_64; // magic number
-		expectedTarget /= 50'000'000'000'000; // difficulty
-
-		// Assert:
-		EXPECT_EQ(expectedTarget, target);
+		EXPECT_EQ(GetWellKnownBlockTarget(), target);
 	}
 
 	TEST(TEST_CLASS, BlockTargetIsConsistentWithLegacyBlockTarget) {
@@ -352,6 +354,10 @@ namespace catapult { namespace chain {
 		// Assert:
 		EXPECT_GT(target2, target1);
 	}
+
+	// endregion
+
+	// region CalculateTarget - smoothing
 
 	namespace {
 		void AssertLargerSmoothingFactorBiasesTowardsLargerTargetWhenLastBlockTimeIsLarger(uint32_t factor1, uint32_t factor2) {
@@ -437,13 +443,35 @@ namespace catapult { namespace chain {
 		auto target = CalculateBlockTarget(900, 1000, 72000, 50, config);
 
 		// Assert:
-		BlockTarget expectedTarget = 100; // time difference (in seconds)
-		expectedTarget *= 72000; // importance
-		expectedTarget *= Two_To_64; // magic number
-		expectedTarget *= 100; // max smoothing
-		expectedTarget /= 50'000'000'000'000; // difficulty
+		auto expectedTarget = GetWellKnownBlockTarget(Max_Smoothing);
+		EXPECT_EQ(expectedTarget, target);
+	}
+
+	// endregion
+
+	// region CalculateTarget - scaling
+
+	TEST(TEST_CLASS, BlockTargetIsScaledDownWhenTotalChainImportanceIsGreaterThanDefault) {
+		// Act:
+		auto config = CreateConfiguration();
+		config.TotalChainImportance = Importance(test::Default_Total_Chain_Importance.unwrap() * 3 / 2);
+		auto target = CalculateBlockTarget(900, 1000, 72000, 50, config);
 
 		// Assert:
+		auto expectedTarget = GetWellKnownBlockTarget();
+		(expectedTarget *= 2) /= 3; // scaling
+		EXPECT_EQ(expectedTarget, target);
+	}
+
+	TEST(TEST_CLASS, BlockTargetIsScaledUpWhenTotalChainImportanceIsLessThanDefault) {
+		// Act:
+		auto config = CreateConfiguration();
+		config.TotalChainImportance = Importance(test::Default_Total_Chain_Importance.unwrap() / 2);
+		auto target = CalculateBlockTarget(900, 1000, 72000, 50, config);
+
+		// Assert:
+		auto expectedTarget = GetWellKnownBlockTarget();
+		expectedTarget *= 2; // scaling
 		EXPECT_EQ(expectedTarget, target);
 	}
 
@@ -455,12 +483,10 @@ namespace catapult { namespace chain {
 		struct BlockHitPredicateContext {
 			explicit BlockHitPredicateContext(Importance importance)
 					: Config(CreateConfiguration())
-					, Predicate(
-							Config,
-							[this, importance](const auto& key, auto height) {
-								ImportanceLookupParams.push_back(std::make_pair(key, height));
-								return importance;
-							})
+					, Predicate(Config, [this, importance](const auto& key, auto height) {
+						ImportanceLookupParams.push_back(std::make_pair(key, height));
+						return importance;
+					})
 			{}
 
 			model::BlockChainConfiguration Config;

@@ -89,7 +89,7 @@ namespace catapult { namespace mocks {
 		using TransactionType = MockTransactionBody<THeader>;
 
 	public:
-		static constexpr model::EntityType Entity_Type = static_cast<model::EntityType>(0x4FFF);
+		static constexpr auto Entity_Type = static_cast<model::EntityType>(0x4FFF);
 
 		static constexpr uint8_t Current_Version = 0xFF;
 
@@ -146,7 +146,9 @@ namespace catapult { namespace mocks {
 	std::unique_ptr<EmbeddedMockTransaction> CreateEmbeddedMockTransaction(uint16_t dataSize);
 
 	/// Creates a mock transaction with a \a fee and \a transfers.
-	std::unique_ptr<mocks::MockTransaction> CreateTransactionWithFeeAndTransfers(Amount fee, const test::BalanceTransfers& transfers);
+	std::unique_ptr<mocks::MockTransaction> CreateTransactionWithFeeAndTransfers(
+			Amount fee,
+			const std::vector<model::UnresolvedMosaic>& transfers);
 
 	/// Creates a mock transaction with \a signer and \a recipient.
 	std::unique_ptr<MockTransaction> CreateMockTransactionWithSignerAndRecipient(const Key& signer, const Key& recipient);

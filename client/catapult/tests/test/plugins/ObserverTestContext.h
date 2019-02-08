@@ -23,6 +23,7 @@
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/state/AccountState.h"
 #include "tests/test/cache/CacheTestUtils.h"
+#include "tests/test/core/ResolverTestUtils.h"
 
 namespace catapult { namespace test {
 
@@ -43,12 +44,12 @@ namespace catapult { namespace test {
 		explicit ObserverTestContextT(observers::NotifyMode mode, Height height, const model::BlockChainConfiguration& config)
 				: m_cache(TCacheFactory::Create(config))
 				, m_cacheDelta(m_cache.createDelta())
-				, m_context(m_cacheDelta, m_state, height, mode)
+				, m_context({ m_cacheDelta, m_state, m_blockStatementBuilder }, height, mode, CreateResolverContextXor())
 		{}
 
 	public:
 		/// Gets the observer context.
-		const observers::ObserverContext& observerContext() const {
+		observers::ObserverContext& observerContext() {
 			return m_context;
 		}
 
@@ -67,6 +68,16 @@ namespace catapult { namespace test {
 			return m_state;
 		}
 
+		/// Gets the catapult state.
+		state::CatapultState& state() {
+			return m_state;
+		}
+
+		/// Gets the block statement builder.
+		model::BlockStatementBuilder& statementBuilder() {
+			return m_blockStatementBuilder;
+		}
+
 	public:
 		/// Commits all changes to the underlying cache.
 		void commitCacheChanges() {
@@ -77,6 +88,8 @@ namespace catapult { namespace test {
 		cache::CatapultCache m_cache;
 		cache::CatapultCacheDelta m_cacheDelta;
 		state::CatapultState m_state;
+		model::BlockStatementBuilder m_blockStatementBuilder;
+
 		observers::ObserverContext m_context;
 	};
 

@@ -35,8 +35,7 @@ namespace catapult { namespace cache {
 		class RocksDataSourceWrapper {
 		public:
 			RocksDataSourceWrapper()
-					: m_dbDirGuard("dbdir")
-					, m_db(DefaultSettings(m_dbDirGuard.name()))
+					: m_db(DefaultSettings(m_dbDirGuard.name()))
 					, m_container(m_db, 0)
 					, m_dataSource(m_container) {
 				m_container.setSize(0);

@@ -91,8 +91,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
 		bsoncxx::document::value CreateDbMultisigEntry(const Address& address, uint8_t numCosignatories, uint8_t numMultisigAccounts) {
-			auto descriptor = CreateMultisigEntry(numCosignatories, numMultisigAccounts);
-			return ToDbModel(descriptor, address);
+			return ToDbModel(CreateMultisigEntry(numCosignatories, numMultisigAccounts), address);
 		}
 
 		void AssertCanMapDbMultisigEntry(uint8_t numCosignatories, uint8_t numMultisigAccounts) {

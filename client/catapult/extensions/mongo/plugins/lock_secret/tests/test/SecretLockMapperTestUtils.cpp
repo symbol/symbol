@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 			const bsoncxx::document::view& dbLockInfo) {
 		AssertEqualBaseLockInfoData(lockInfo, address, dbLockInfo);
 		EXPECT_EQ(lockInfo.HashAlgorithm, static_cast<model::LockHashAlgorithm>(GetUint8(dbLockInfo, "hashAlgorithm")));
-		EXPECT_EQ(lockInfo.Secret, GetHash512Value(dbLockInfo, "secret"));
+		EXPECT_EQ(lockInfo.Secret, GetHashValue(dbLockInfo, "secret"));
 		EXPECT_EQ(lockInfo.Recipient, GetAddressValue(dbLockInfo, "recipient"));
 	}
 }}

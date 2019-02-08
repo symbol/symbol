@@ -48,6 +48,10 @@ namespace catapult { namespace ionet {
 		return m_source;
 	}
 
+	NodeInteractions NodeInfo::interactions(Timestamp timestamp) const {
+		return m_interactions.interactions(timestamp);
+	}
+
 	size_t NodeInfo::numConnectionStates() const {
 		return m_connectionStates.size();
 	}
@@ -72,6 +76,16 @@ namespace catapult { namespace ionet {
 
 	void NodeInfo::source(NodeSource source) {
 		m_source = source;
+	}
+
+	void NodeInfo::incrementSuccesses(Timestamp timestamp) {
+		m_interactions.incrementSuccesses(timestamp);
+		m_interactions.pruneBuckets(timestamp);
+	}
+
+	void NodeInfo::incrementFailures(Timestamp timestamp) {
+		m_interactions.incrementFailures(timestamp);
+		m_interactions.pruneBuckets(timestamp);
 	}
 
 	ConnectionState& NodeInfo::provisionConnectionState(ServiceIdentifier serviceId) {

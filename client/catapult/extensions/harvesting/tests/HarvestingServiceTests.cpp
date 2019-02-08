@@ -38,7 +38,11 @@ namespace catapult { namespace harvesting {
 		constexpr auto Harvester_Key = "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF";
 
 		HarvestingConfiguration CreateHarvestingConfiguration(bool autoHarvest) {
-			return HarvestingConfiguration{ Harvester_Key, autoHarvest, 10 };
+			auto config = HarvestingConfiguration::Uninitialized();
+			config.HarvestKey = Harvester_Key;
+			config.IsAutoHarvestingEnabled = autoHarvest;
+			config.MaxUnlockedAccounts = 10;
+			return config;
 		}
 
 		struct HarvestingServiceTraits {
@@ -76,6 +80,10 @@ namespace catapult { namespace harvesting {
 				return m_capturedStateHashes;
 			}
 
+			const auto& capturedSourcePublicKeys() const {
+				return m_capturedSourcePublicKeys;
+			}
+
 		public:
 			void setMinHarvesterBalance(Amount balance) {
 				const_cast<model::BlockChainConfiguration&>(testState().state().config().BlockChain).MinHarvesterBalance = balance;
@@ -96,11 +104,13 @@ namespace catapult { namespace harvesting {
 			void setHooks() {
 				// set up hooks
 				auto& capturedStateHashes = m_capturedStateHashes;
-				testState().state().hooks().setCompletionAwareBlockRangeConsumerFactory([&capturedStateHashes](auto) {
-					return [&capturedStateHashes](auto&& blockRange, auto) {
-						for (const auto& block : blockRange)
+				auto& capturedSourcePublicKeys = m_capturedSourcePublicKeys;
+				testState().state().hooks().setCompletionAwareBlockRangeConsumerFactory([&](auto) {
+					return [&](auto&& blockRange, auto) {
+						for (const auto& block : blockRange.Range)
 							capturedStateHashes.push_back(block.StateHash);
 
+						capturedSourcePublicKeys.push_back(blockRange.SourcePublicKey);
 						return disruptor::DisruptorElementId();
 					};
 				});
@@ -109,6 +119,7 @@ namespace catapult { namespace harvesting {
 		private:
 			HarvestingConfiguration m_config;
 			std::vector<Hash256> m_capturedStateHashes;
+			std::vector<Key> m_capturedSourcePublicKeys;
 		};
 
 		std::shared_ptr<UnlockedAccounts> GetUnlockedAccounts(const extensions::ServiceLocator& locator) {
@@ -175,6 +186,7 @@ namespace catapult { namespace harvesting {
 
 	namespace {
 		constexpr Amount Account_Balance(1000);
+		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 		constexpr auto Importance_Grouping = 234u;
 
 		auto ConvertToImportanceHeight(Height height) {
@@ -189,6 +201,7 @@ namespace catapult { namespace harvesting {
 				model::ImportanceHeight importanceHeight) {
 			// Arrange:
 			auto config = model::BlockChainConfiguration::Uninitialized();
+			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = Importance_Grouping;
 			auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
 			auto delta = cache.createDelta();
@@ -198,7 +211,7 @@ namespace catapult { namespace harvesting {
 			accountStateCache.addAccount(publicKey, Height(100));
 			auto& accountState = accountStateCache.find(publicKey).get();
 			accountState.ImportanceInfo.set(Importance(123), importanceHeight);
-			accountState.Balances.credit(Xem_Id, balance);
+			accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
 
 			// - add a block difficulty info
 			auto& blockDifficultyCache = delta.sub<cache::BlockDifficultyCache>();
@@ -299,7 +312,7 @@ namespace catapult { namespace harvesting {
 	namespace {
 		void RunHarvestingStateHashTest(bool enableVerifiableState, Hash256& harvestedStateHash) {
 			// Arrange: use a huge amount and a max timestamp to force a hit
-			test::TempDirectoryGuard dbDirGuard("testdb");
+			test::TempDirectoryGuard dbDirGuard;
 			auto keyPair = test::GenerateKeyPair();
 			auto balance = Amount(1'000'000'000'000);
 			auto cacheConfig = enableVerifiableState
@@ -322,6 +335,10 @@ namespace catapult { namespace harvesting {
 				// Assert: one block should have been harvested
 				ASSERT_EQ(1u, context.capturedStateHashes().size());
 				harvestedStateHash = context.capturedStateHashes()[0];
+
+				// - source public key is zero indicating harvester
+				ASSERT_EQ(1u, context.capturedSourcePublicKeys().size());
+				EXPECT_EQ(Key(), context.capturedSourcePublicKeys()[0]);
 
 				// Sanity:
 				EXPECT_EQ(thread::TaskResult::Continue, result);

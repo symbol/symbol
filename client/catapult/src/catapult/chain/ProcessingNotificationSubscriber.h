@@ -34,7 +34,7 @@ namespace catapult { namespace chain {
 				const validators::stateful::NotificationValidator& validator,
 				const validators::ValidatorContext& validatorContext,
 				const observers::NotificationObserver& observer,
-				const observers::ObserverContext& observerContext);
+				observers::ObserverContext& observerContext);
 
 	public:
 		/// Gets the aggregate result of processed notifications.
@@ -58,7 +58,7 @@ namespace catapult { namespace chain {
 		const validators::stateful::NotificationValidator& m_validator;
 		const validators::ValidatorContext& m_validatorContext;
 		const observers::NotificationObserver& m_observer;
-		const observers::ObserverContext& m_observerContext;
+		observers::ObserverContext& m_observerContext;
 
 		validators::ValidationResult m_aggregateResult;
 		bool m_isUndoEnabled;

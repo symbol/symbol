@@ -36,6 +36,9 @@ namespace catapult { namespace test {
 	/// Adds configuration for all extensions required by simple partner nodes to \a config.
 	void AddSimplePartnerPluginExtensions(config::NodeConfiguration& config);
 
+	/// Enables receipts verification on \a config.
+	void EnableReceiptsVerification(config::LocalNodeConfiguration& config);
+
 	/// Enables state verification on \a config.
 	void EnableStateVerification(config::LocalNodeConfiguration& config);
 

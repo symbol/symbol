@@ -26,6 +26,15 @@
 namespace catapult { namespace validators {
 
 	namespace {
+		template<typename TUnresolved>
+		static auto Resolve(const model::ResolverContext& resolvers, const TUnresolved& unresolvedValue) {
+			return resolvers.resolve(unresolvedValue);
+		}
+
+		static auto Resolve(const model::ResolverContext&, const model::EntityType& unresolvedValue) {
+			return unresolvedValue;
+		}
+
 		template<typename TPropertyValue, typename TNotification>
 		ValidationResult Validate(const TNotification& notification, const ValidatorContext& context) {
 			auto address = model::PublicKeyToAddress(notification.Key, context.Network.Identifier);
@@ -37,22 +46,21 @@ namespace catapult { namespace validators {
 			const auto& accountProperties = accountPropertiesIter.get();
 			auto typedProperty = accountProperties.template property<TPropertyValue>(notification.PropertyDescriptor.propertyType());
 			auto operationType = notification.PropertyDescriptor.operationType();
-			const auto& modification = notification.Modification;
+
+			auto modification = model::PropertyModification<TPropertyValue>{
+				notification.Modification.ModificationType,
+				Resolve(context.Resolvers, notification.Modification.Value)
+			};
 			auto isAllowAndForbidden = state::OperationType::Allow == operationType && !typedProperty.canAllow(modification);
 			auto isBlockAndForbidden = state::OperationType::Block == operationType && !typedProperty.canBlock(modification);
-			return isAllowAndForbidden || isBlockAndForbidden
-					? Failure_Property_Modification_Not_Allowed
-					: ValidationResult::Success;
+			return isAllowAndForbidden || isBlockAndForbidden ? Failure_Property_Modification_Not_Allowed : ValidationResult::Success;
 		}
 	}
 
 #define DEFINE_PROPERTY_MODIFICATION_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE, PROPERTY_VALUE_TYPE) \
-	DECLARE_STATEFUL_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE)() { \
-		using ValidatorType = stateful::FunctionalNotificationValidatorT<NOTIFICATION_TYPE>; \
-		return std::make_unique<ValidatorType>(#VALIDATOR_NAME "Validator", [](const auto& notification, const auto& context) { \
-			return Validate<PROPERTY_VALUE_TYPE, NOTIFICATION_TYPE>(notification, context); \
-		}); \
-	}
+	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(VALIDATOR_NAME, NOTIFICATION_TYPE, ([](const auto& notification, const auto& context) { \
+		return Validate<PROPERTY_VALUE_TYPE, NOTIFICATION_TYPE>(notification, context); \
+	}));
 
 	DEFINE_PROPERTY_MODIFICATION_VALIDATOR(AddressPropertyValueModification, model::ModifyAddressPropertyValueNotification, Address)
 	DEFINE_PROPERTY_MODIFICATION_VALIDATOR(MosaicPropertyValueModification, model::ModifyMosaicPropertyValueNotification, MosaicId)

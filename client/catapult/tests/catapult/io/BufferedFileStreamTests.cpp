@@ -44,7 +44,7 @@ namespace catapult { namespace io {
 				return MakeStream<BufferedInputFileStream>(OpenMode::Read_Only);
 			}
 
-			const std::string& filename() const {
+			std::string filename() const {
 				return m_guard.name();
 			}
 

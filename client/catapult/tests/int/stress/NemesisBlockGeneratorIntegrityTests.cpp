@@ -75,7 +75,7 @@ namespace catapult {
 			for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys) {
 				auto recipient = KeyPair::FromString(pRecipientPrivateKeyString);
 				auto pTransfer = test::CreateTransferTransaction(signer, recipient.publicKey(), Nemesis_Amount);
-				pTransfer->Fee = Amount(0);
+				pTransfer->MaxFee = Amount(0);
 				extensions::SignTransaction(signer, *pTransfer);
 				transactions.push_back(std::move(pTransfer));
 			}

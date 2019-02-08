@@ -43,7 +43,7 @@ namespace catapult { namespace state {
 
 		public:
 			model::LockHashAlgorithm HashAlgorithm;
-			Hash512 Secret;
+			Hash256 Secret;
 			catapult::Address Recipient;
 		};
 

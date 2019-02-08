@@ -38,7 +38,7 @@ namespace catapult { namespace test {
 			CacheType cache(CreateDefaultOptions());
 
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions({});
+			auto unknownInfos = TTraits::GetUnknownTransactions(cache.view(), {});
 
 			// Assert:
 			EXPECT_TRUE(unknownInfos.empty());
@@ -52,7 +52,7 @@ namespace catapult { namespace test {
 			TTraits::AddAllToCache(cache, transactionInfos);
 
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions({});
+			auto unknownInfos = TTraits::GetUnknownTransactions(cache.view(), {});
 
 			// Assert:
 			EXPECT_EQ(5u, unknownInfos.size());
@@ -67,7 +67,7 @@ namespace catapult { namespace test {
 			TTraits::AddAllToCache(cache, transactionInfos);
 
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions({
+			auto unknownInfos = TTraits::GetUnknownTransactions(cache.view(), {
 				TTraits::MapToFilterId(transactionInfos[1]),
 				TTraits::MapToFilterId(transactionInfos[2]),
 				TTraits::MapToFilterId(transactionInfos[4])
@@ -89,7 +89,7 @@ namespace catapult { namespace test {
 			TTraits::AddAllToCache(cache, transactionInfos);
 
 			// Act:
-			auto unknownInfos = cache.view().unknownTransactions({
+			auto unknownInfos = TTraits::GetUnknownTransactions(cache.view(), {
 				TTraits::MapToFilterId(transactionInfos[0]),
 				TTraits::MapToFilterId(transactionInfos[1]),
 				TTraits::MapToFilterId(transactionInfos[2]),

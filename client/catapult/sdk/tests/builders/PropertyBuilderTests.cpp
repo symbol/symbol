@@ -18,7 +18,9 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/builders/PropertyBuilder.h"
+#include "src/builders/AddressPropertyBuilder.h"
+#include "src/builders/MosaicPropertyBuilder.h"
+#include "src/builders/TransactionTypePropertyBuilder.h"
 #include "sdk/tests/builders/test/BuilderTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
 
@@ -194,7 +196,7 @@ namespace catapult { namespace builders {
 		template<typename TPropertyTraits>
 		void AddAll(typename TPropertyTraits::BuilderType& builder, const typename TPropertyTraits::Modifications& modifications) {
 			for (const auto& modification : modifications)
-				builder.addPropertyModification(modification.ModificationType, modification.Value);
+				builder.addModification(modification);
 		}
 	}
 

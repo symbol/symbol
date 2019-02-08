@@ -20,6 +20,7 @@
 
 #include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/model/EmbeddedTransaction.h"
+#include "catapult/model/Receipt.h"
 #include "catapult/model/VerifiableEntity.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
@@ -390,6 +391,21 @@ namespace catapult { namespace mongo { namespace mappers {
 	TEST(TEST_CLASS, CanStreamUnresolvedMosaic) {
 		// Assert:
 		AssertCanStreamMosaic<UnresolvedMosaicId>();
+	}
+
+	TEST(TEST_CLASS, CanStreamReceipt) {
+		// Arrange:
+		model::Receipt receipt;
+		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&receipt), sizeof(model::Receipt) });
+
+		// Act: serialize to mongo
+		bson_stream::document builder;
+		StreamReceipt(builder, receipt);
+		auto view = builder.view();
+
+		// Assert:
+		EXPECT_EQ(2u, test::GetFieldCount(view));
+		test::AssertEqualReceiptData(receipt, view);
 	}
 
 	// endregion

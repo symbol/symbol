@@ -35,6 +35,7 @@ namespace catapult { namespace validators {
 	DEFINE_COMMON_VALIDATOR_TESTS(EligibleHarvester, Amount(1234))
 
 	namespace {
+		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 		constexpr auto Importance_Grouping = 234u;
 
 		auto ConvertToImportanceHeight(Height height) {
@@ -43,6 +44,7 @@ namespace catapult { namespace validators {
 
 		auto CreateEmptyCatapultCache() {
 			auto config = model::BlockChainConfiguration::Uninitialized();
+			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = Importance_Grouping;
 			return test::CreateEmptyCatapultCache(config);
 		}
@@ -58,7 +60,7 @@ namespace catapult { namespace validators {
 			accountStateCache.addAccount(publicKey, Height(100));
 			auto& accountState = accountStateCache.find(publicKey).get();
 			accountState.ImportanceInfo.set(importance, importanceHeight);
-			accountState.Balances.credit(Xem_Id, balance);
+			accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
 			cache.commit(Height());
 		}
 	}

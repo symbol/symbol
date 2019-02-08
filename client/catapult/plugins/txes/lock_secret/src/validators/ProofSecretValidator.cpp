@@ -20,6 +20,7 @@
 
 #include "Validators.h"
 #include "src/model/LockHashUtils.h"
+#include "catapult/validators/ValidatorUtils.h"
 
 namespace catapult { namespace validators {
 
@@ -27,7 +28,10 @@ namespace catapult { namespace validators {
 
 	namespace {
 		constexpr bool SupportedHash(model::LockHashAlgorithm hashAlgorithm) {
-			return hashAlgorithm == model::LockHashAlgorithm::Op_Sha3;
+			return ValidationResult::Success == ValidateLessThanOrEqual(
+					hashAlgorithm,
+					model::LockHashAlgorithm::Op_Hash_256,
+					ValidationResult::Failure);
 		}
 	}
 

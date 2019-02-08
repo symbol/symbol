@@ -19,7 +19,6 @@
 **/
 
 #include "DispatcherService.h"
-#include "ExecutionConfigurationFactory.h"
 #include "PredicateUtils.h"
 #include "RollbackInfo.h"
 #include "catapult/cache/MemoryUtCache.h"
@@ -27,21 +26,27 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockDifficultyCache.h"
 #include "catapult/cache_core/ImportanceView.h"
+#include "catapult/chain/BlockExecutor.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/chain/ChainUtils.h"
 #include "catapult/chain/UtUpdater.h"
 #include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/consumers/AuditConsumer.h"
 #include "catapult/consumers/BlockConsumers.h"
+#include "catapult/consumers/ConsumerUtils.h"
 #include "catapult/consumers/ReclaimMemoryInspector.h"
 #include "catapult/consumers/TransactionConsumers.h"
 #include "catapult/consumers/UndoBlock.h"
 #include "catapult/disruptor/BatchRangeDispatcher.h"
 #include "catapult/extensions/DispatcherUtils.h"
+#include "catapult/extensions/ExecutionConfigurationFactory.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
+#include "catapult/extensions/NodeInteractionUtils.h"
 #include "catapult/extensions/PluginUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
+#include "catapult/ionet/NodeContainer.h"
+#include "catapult/ionet/NodeInteractionResult.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/subscribers/StateChangeSubscriber.h"
@@ -78,8 +83,12 @@ namespace catapult { namespace sync {
 				std::vector<DisruptorConsumer>&& disruptorConsumers) {
 			auto& statusSubscriber = state.transactionStatusSubscriber();
 			auto reclaimMemoryInspector = CreateReclaimMemoryInspector();
-			auto inspector = [&statusSubscriber, reclaimMemoryInspector](auto& input, const auto& completionResult) {
+			auto inspector = [&statusSubscriber, &nodes = state.nodes(), reclaimMemoryInspector](
+					auto& input,
+					const auto& completionResult) {
 				statusSubscriber.flush();
+				auto interactionResult = consumers::ToNodeInteractionResult(input.sourcePublicKey(), completionResult);
+				extensions::IncrementNodeInteraction(nodes, interactionResult);
 				reclaimMemoryInspector(input, completionResult);
 			};
 
@@ -101,6 +110,10 @@ namespace catapult { namespace sync {
 
 		// region block
 
+		ReceiptValidationMode GetReceiptValidationMode(const model::BlockChainConfiguration& blockChainConfig) {
+			return blockChainConfig.ShouldEnableVerifiableReceipts ? ReceiptValidationMode::Enabled : ReceiptValidationMode::Disabled;
+		}
+
 		BlockChainProcessor CreateSyncProcessor(
 				const model::BlockChainConfiguration& blockChainConfig,
 				const chain::ExecutionConfiguration& executionConfig) {
@@ -110,7 +123,10 @@ namespace catapult { namespace sync {
 					return view.getAccountImportanceOrDefault(publicKey, height);
 				});
 			};
-			return CreateBlockChainProcessor(blockHitPredicateFactory, chain::CreateBatchEntityProcessor(executionConfig));
+			return CreateBlockChainProcessor(
+					blockHitPredicateFactory,
+					chain::CreateBatchEntityProcessor(executionConfig),
+					GetReceiptValidationMode(blockChainConfig));
 		}
 
 		BlockChainSyncHandlers CreateBlockChainSyncHandlers(extensions::ServiceState& state, RollbackInfo& rollbackInfo) {
@@ -125,14 +141,16 @@ namespace catapult { namespace sync {
 			};
 
 			auto pUndoObserver = utils::UniqueToShared(extensions::CreateUndoEntityObserver(pluginManager));
-			syncHandlers.UndoBlock = [&rollbackInfo, pUndoObserver](
+			syncHandlers.UndoBlock = [&rollbackInfo, &pluginManager, pUndoObserver](
 					const auto& blockElement,
-					const auto& observerState,
+					auto& observerState,
 					auto undoBlockType) {
 				rollbackInfo.increment();
-				UndoBlock(blockElement, *pUndoObserver, observerState, undoBlockType);
+				auto readOnlyCache = observerState.Cache.toReadOnly();
+				auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
+				UndoBlock(blockElement, { *pUndoObserver, resolverContext, observerState }, undoBlockType);
 			};
-			syncHandlers.Processor = CreateSyncProcessor(blockChainConfig, CreateExecutionConfiguration(pluginManager));
+			syncHandlers.Processor = CreateSyncProcessor(blockChainConfig, extensions::CreateExecutionConfiguration(pluginManager));
 
 			syncHandlers.StateChange = [&rollbackInfo, &localScore = state.score(), &subscriber = state.stateChangeSubscriber()](
 					const auto& changeInfo) {
@@ -178,7 +196,7 @@ namespace catapult { namespace sync {
 				m_consumers.push_back(CreateBlockStatelessValidationConsumer(
 						extensions::CreateStatelessValidator(m_state.pluginManager()),
 						validators::CreateParallelValidationPolicy(pValidatorPool),
-						ToUnknownTransactionPredicate(m_state.hooks().knownHashPredicate(m_state.utCache()))));
+						ToRequiresValidationPredicate(m_state.hooks().knownHashPredicate(m_state.utCache()))));
 
 				auto disruptorConsumers = DisruptorConsumersFromBlockConsumers(m_consumers);
 				disruptorConsumers.push_back(CreateBlockChainSyncConsumer(
@@ -303,7 +321,8 @@ namespace catapult { namespace sync {
 			auto pUtUpdater = std::make_shared<chain::UtUpdater>(
 					state.utCache(),
 					state.cache(),
-					CreateExecutionConfiguration(state.pluginManager()),
+					state.config().Node.MinFeeMultiplier,
+					extensions::CreateExecutionConfiguration(state.pluginManager()),
 					state.timeSupplier(),
 					extensions::SubscriberToSink(state.transactionStatusSubscriber()),
 					CreateUtUpdaterThrottle(state.config()));

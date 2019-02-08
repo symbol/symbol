@@ -35,6 +35,10 @@ namespace catapult { namespace test {
 		return ToHexString(data.data(), data.size());
 	}
 
+	std::string ToHexString(const std::string& str) {
+		return ToHexString(reinterpret_cast<const uint8_t*>(str.data()), str.size());
+	}
+
 	std::vector<uint8_t> ToVector(const std::string& hexString) {
 		std::vector<uint8_t> result;
 		if (hexString.size() % 2)

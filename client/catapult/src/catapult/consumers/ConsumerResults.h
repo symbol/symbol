@@ -25,11 +25,11 @@
 namespace catapult { namespace consumers {
 
 #endif
-/// Defines a consumer validation result with \a DESCRIPTION and \a CODE.
+/// Defines a failure consumer validation result with \a DESCRIPTION and \a CODE.
 #define DEFINE_CONSUMER_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Consumer, DESCRIPTION, CODE, None)
 
-/// Defines a verbose consumer validation result with \a DESCRIPTION and \a CODE.
-#define DEFINE_CONSUMER_RESULT_VERBOSE(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Consumer, DESCRIPTION, CODE, Verbose)
+/// Defines a neutral consumer validation result with \a DESCRIPTION and \a CODE.
+#define DEFINE_NEUTRAL_CONSUMER_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Neutral, Consumer, DESCRIPTION, CODE, Verbose)
 
 	/// Validation failed because the consumer input is empty.
 	DEFINE_CONSUMER_RESULT(Empty_Input, 0x0001);
@@ -38,7 +38,7 @@ namespace catapult { namespace consumers {
 	DEFINE_CONSUMER_RESULT(Block_Transactions_Hash_Mismatch, 0x1001);
 
 	/// Validation failed because an entity hash is present in the recency cache.
-	DEFINE_CONSUMER_RESULT_VERBOSE(Hash_In_Recency_Cache, 0x1002);
+	DEFINE_NEUTRAL_CONSUMER_RESULT(Hash_In_Recency_Cache, 0x1002);
 
 	/// Validation failed because the chain part has too many blocks.
 	DEFINE_CONSUMER_RESULT(Remote_Chain_Too_Many_Blocks, 0x2001);

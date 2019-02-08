@@ -19,22 +19,22 @@
 **/
 
 #pragma once
-#include "src/model/MosaicNotifications.h"
+#include "src/model/AliasNotifications.h"
 #include "src/model/NamespaceNotifications.h"
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
 
 namespace catapult { namespace observers {
 
-	// region mosaic
+	// region alias
 
-	/// Observes changes triggered by mosaic definition notifications, including:
-	/// - creation of mosaics
-	DECLARE_OBSERVER(MosaicDefinition, model::MosaicDefinitionNotification)();
+	/// Observes changes triggered by aliased address notifications, including:
+	/// - linking/unlinking address to namespace
+	DECLARE_OBSERVER(AliasedAddress, model::AliasedAddressNotification)();
 
-	/// Observes changes triggered by mosaic supply change notifications, including:
-	/// - increase or decrease of supply
-	DECLARE_OBSERVER(MosaicSupplyChange, model::MosaicSupplyChangeNotification)();
+	/// Observes changes triggered by aliased mosaic id notifications, including:
+	/// - linking/unlinking mosaic id to namespace
+	DECLARE_OBSERVER(AliasedMosaicId, model::AliasedMosaicIdNotification)();
 
 	// endregion
 
@@ -47,10 +47,6 @@ namespace catapult { namespace observers {
 	/// Observes changes triggered by child namespace notifications, including:
 	/// - creation of namespaces
 	DECLARE_OBSERVER(ChildNamespace, model::ChildNamespaceNotification)();
-
-	/// Observes changes triggered by root namespace notifications, including:
-	/// - pruning triggered by root namespace replacement given \a maxRollbackBlocks
-	DECLARE_OBSERVER(RegisterNamespaceMosaicPruning, model::RootNamespaceNotification)(BlockDuration maxRollbackBlocks);
 
 	// endregion
 }}

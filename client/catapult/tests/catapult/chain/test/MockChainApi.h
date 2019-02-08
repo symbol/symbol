@@ -44,7 +44,8 @@ namespace catapult { namespace mocks {
 	public:
 		/// Creates a mock chain api around a chain \a score, a last block (\a pLastBlock) and a range of \a hashes.
 		MockChainApi(const model::ChainScore& score, std::shared_ptr<model::Block>&& pLastBlock, const model::HashRange& hashes)
-				: m_score(score)
+				: api::RemoteChainApi(test::GenerateRandomData<Key_Size>())
+				, m_score(score)
 				, m_errorEntryPoint(EntryPoint::None)
 				, m_hashes(model::HashRange::CopyRange(hashes))
 				, m_numBlocksPerBlocksFromRequest({ 2 }) {

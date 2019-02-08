@@ -44,7 +44,9 @@ namespace catapult { namespace harvesting {
 
 		void AssertValidHarvestingConfiguration(const std::string& harvestKey, bool isAutoHarvestingEnabled) {
 			// Arrange:
-			auto harvestingConfig = HarvestingConfiguration{ harvestKey, isAutoHarvestingEnabled, 123 };
+			auto harvestingConfig = HarvestingConfiguration::Uninitialized();
+			harvestingConfig.HarvestKey = harvestKey;
+			harvestingConfig.IsAutoHarvestingEnabled = isAutoHarvestingEnabled;
 
 			// Act + Assert: no exception
 			ValidateHarvestingConfiguration(harvestingConfig);

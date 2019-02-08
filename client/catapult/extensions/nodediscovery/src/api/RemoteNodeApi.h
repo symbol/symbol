@@ -29,7 +29,7 @@ namespace catapult { namespace api {
 	/// An api for retrieving node information from a remote node.
 	class RemoteNodeApi {
 	public:
-		virtual ~RemoteNodeApi() {}
+		virtual ~RemoteNodeApi() = default;
 
 	public:
 		/// Gets information about the node.

@@ -37,8 +37,7 @@ namespace catapult { namespace model {
 	};
 
 	/// Enumeration of all possible notification types.
-	enum class NotificationType : uint32_t {
-	};
+	enum class NotificationType : uint32_t {};
 
 	/// Makes a notification type given \a channel, \a facility and \a code.
 	constexpr NotificationType MakeNotificationType(NotificationChannel channel, FacilityCode facility, uint16_t code) {
@@ -108,6 +107,15 @@ namespace catapult { namespace model {
 
 	/// Source address interacts with destination addresses.
 	DEFINE_CORE_NOTIFICATION(Address_Interaction, 0x0009, Validator);
+
+	/// Mosaic is required.
+	DEFINE_CORE_NOTIFICATION(Mosaic_Required, 0x000A, Validator);
+
+	/// Source has changed.
+	DEFINE_CORE_NOTIFICATION(Source_Change, 0x000B, Observer);
+
+	/// Transaction fee was received.
+	DEFINE_CORE_NOTIFICATION(Transaction_Fee, 0x000C, Validator);
 
 #undef DEFINE_CORE_NOTIFICATION
 

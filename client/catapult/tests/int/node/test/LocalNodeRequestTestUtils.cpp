@@ -19,8 +19,9 @@
 **/
 
 #include "LocalNodeRequestTestUtils.h"
-#include "plugins/txes/namespace/src/plugins/MosaicDefinitionTransactionPlugin.h"
-#include "plugins/txes/namespace/src/plugins/MosaicSupplyChangeTransactionPlugin.h"
+#include "plugins/txes/mosaic/src/plugins/MosaicDefinitionTransactionPlugin.h"
+#include "plugins/txes/mosaic/src/plugins/MosaicSupplyChangeTransactionPlugin.h"
+#include "plugins/txes/namespace/src/plugins/MosaicAliasTransactionPlugin.h"
 #include "plugins/txes/namespace/src/plugins/RegisterNamespaceTransactionPlugin.h"
 #include "plugins/txes/transfer/src/plugins/TransferTransactionPlugin.h"
 #include "tests/test/core/BlockTestUtils.h"
@@ -32,10 +33,11 @@ namespace catapult { namespace test {
 
 	model::TransactionRegistry ExternalSourceConnection::CreateTransactionRegistry() {
 		auto registry = model::TransactionRegistry();
-		registry.registerPlugin(plugins::CreateTransferTransactionPlugin());
-		registry.registerPlugin(plugins::CreateRegisterNamespaceTransactionPlugin({ Key(), Address(), Amount(), Amount(), Key() }));
-		registry.registerPlugin(plugins::CreateMosaicDefinitionTransactionPlugin({ Key(), Address(), Amount(), Key() }));
+		registry.registerPlugin(plugins::CreateMosaicDefinitionTransactionPlugin(plugins::MosaicRentalFeeConfiguration()));
 		registry.registerPlugin(plugins::CreateMosaicSupplyChangeTransactionPlugin());
+		registry.registerPlugin(plugins::CreateMosaicAliasTransactionPlugin());
+		registry.registerPlugin(plugins::CreateRegisterNamespaceTransactionPlugin(plugins::NamespaceRentalFeeConfiguration()));
+		registry.registerPlugin(plugins::CreateTransferTransactionPlugin());
 		return registry;
 	}
 

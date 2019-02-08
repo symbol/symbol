@@ -38,10 +38,13 @@ namespace catapult { namespace eventsource {
 		using TransactionsSink = extensions::SharedNewTransactionsSink;
 
 		thread::Task CreateAgePeersTask(extensions::ServiceState& state, net::ConnectionContainer& connectionContainer) {
-			const auto& connectionsConfig = state.config().Node.IncomingConnections;
-			auto& nodes = state.nodes();
-
-			auto task = extensions::CreateAgePeersTask(nodes, connectionContainer, Service_Id, connectionsConfig);
+			auto settings = extensions::SelectorSettings(
+					state.cache(),
+					state.config().BlockChain.TotalChainImportance,
+					state.nodes(),
+					Service_Id,
+					state.config().Node.IncomingConnections);
+			auto task = extensions::CreateAgePeersTask(settings, connectionContainer);
 			task.Name += " for service Api Writers";
 			return task;
 		}

@@ -37,14 +37,15 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertEntityHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize = baseSize // base
+			auto expectedSize =
+					baseSize // base
 					+ sizeof(uint8_t) // lock hash algorithm
-					+ Hash512_Size // hash size
+					+ Hash256_Size // hash size
 					+ sizeof(uint16_t); // proof size
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 67u, sizeof(T));
+			EXPECT_EQ(baseSize + 35u, sizeof(T));
 		}
 
 		template<typename T>
@@ -107,7 +108,7 @@ namespace catapult { namespace model {
 		auto realSize = TransactionType::CalculateRealSize(transaction);
 
 		// Assert:
-		EXPECT_EQ(0xFFFFFFFF, transaction.Size);
+		ASSERT_EQ(0xFFFFFFFF, transaction.Size);
 		EXPECT_EQ(sizeof(TransactionType) + 0xFFFF, realSize);
 		EXPECT_GT(0xFFFFFFFF, realSize);
 	}

@@ -87,7 +87,6 @@ namespace catapult { namespace sync {
 			auto& accountStateCache = delta.sub<cache::AccountStateCache>();
 			accountStateCache.addAccount(signer.publicKey(), Height(1));
 			auto& accountState = accountStateCache.find(signer.publicKey()).get();
-			accountState.Balances.credit(Xem_Id, Amount(1'000'000'000'000));
 			accountState.ImportanceInfo.set(Importance(1'000'000'000), model::ImportanceHeight(1));
 
 			// commit all changes
@@ -109,15 +108,45 @@ namespace catapult { namespace sync {
 
 		// endregion
 
+		// region MockReceiptBlockObserver
+
+		class MockReceiptBlockObserver : public observers::NotificationObserverT<model::BlockNotification> {
+		public:
+			MockReceiptBlockObserver() : m_name("MockReceiptBlockObserver")
+			{}
+
+		public:
+			const std::string& name() const override {
+				return m_name;
+			}
+
+			void notify(const model::BlockNotification& notification, observers::ObserverContext& context) const override {
+				model::Receipt receipt{};
+				receipt.Size = sizeof(model::Receipt);
+				receipt.Type = static_cast<model::ReceiptType>(notification.Timestamp.unwrap());
+				context.StatementBuilder().addReceipt(receipt);
+			}
+
+		private:
+			std::string m_name;
+		};
+
+		// endregion
+
+		// region TestContext
+
 		struct DispatcherServiceTraits {
 			static constexpr auto CreateRegistrar = CreateDispatcherServiceRegistrar;
 		};
 
-		struct TransactionValidationResults {
+		struct ValidationResults {
 		public:
-			TransactionValidationResults()
-					: Stateless(ValidationResult::Success)
-					, Stateful(ValidationResult::Success)
+			ValidationResults() : ValidationResults(ValidationResult::Success, ValidationResult::Success)
+			{}
+
+			explicit ValidationResults(ValidationResult statelessResult, ValidationResult statefulResult)
+					: Stateless(statelessResult)
+					, Stateful(statefulResult)
 			{}
 
 		public:
@@ -133,7 +162,8 @@ namespace catapult { namespace sync {
 			TestContext()
 					: BaseType(CreateCatapultCacheForDispatcherTests())
 					, m_numNewBlockSinkCalls(0)
-					, m_numNewTransactionsSinkCalls(0) {
+					, m_numNewTransactionsSinkCalls(0)
+					, m_pStatefulBlockValidator(nullptr) {
 				// initialize the cache
 				auto& state = testState().state();
 				InitializeCatapultCacheForDispatcherTests(state.cache(), GetBlockSignerKeyPair());
@@ -158,12 +188,22 @@ namespace catapult { namespace sync {
 					builder.template add<model::TransactionNotification>(std::move(pValidator));
 				});
 
-				// add block validator to emulate block validation failure
-				pluginManager.addStatefulValidatorHook([this](auto& builder) {
-					auto pValidator = std::make_unique<mocks::MockNotificationValidatorT<model::BlockNotification>>();
-					pValidator->setResult(ValidationResult::Success);
-					m_pBlockValidator = pValidator.get();
+				// add block validators to emulate block validation failures
+				pluginManager.addStatelessValidatorHook([&result = m_blockValidationResults.Stateless](auto& builder) {
+					auto pValidator = std::make_unique<mocks::MockStatelessNotificationValidatorT<model::BlockNotification>>();
+					pValidator->setResult(result);
 					builder.template add<model::BlockNotification>(std::move(pValidator));
+				});
+				pluginManager.addStatefulValidatorHook([this, &result = m_blockValidationResults.Stateful](auto& builder) {
+					auto pValidator = std::make_unique<mocks::MockNotificationValidatorT<model::BlockNotification>>();
+					pValidator->setResult(result);
+					m_pStatefulBlockValidator = pValidator.get();
+					builder.template add<model::BlockNotification>(std::move(pValidator));
+				});
+
+				// add receipt block observer to make sure block receipts hash checks are wired up properly
+				pluginManager.addObserverHook([](auto& builder) {
+					builder.template add<model::BlockNotification>(std::make_unique<MockReceiptBlockObserver>());
 				});
 			}
 
@@ -180,25 +220,35 @@ namespace catapult { namespace sync {
 				return m_numNewTransactionsSinkCalls;
 			}
 
-			size_t numBlockValidatorCalls() const {
-				return m_pBlockValidator->notificationTypes().size();
+			size_t numStatefulBlockValidatorCalls() const {
+				return m_pStatefulBlockValidator->notificationTypes().size();
 			}
 
 		public:
-			void setTransactionValidationResults(const TransactionValidationResults& transactionValidationResults) {
+			void setTransactionValidationResults(const ValidationResults& transactionValidationResults) {
 				m_transactionValidationResults = transactionValidationResults;
 			}
 
-			void setBlockValidationResult(validators::ValidationResult result) {
-				m_pBlockValidator->setResult(result);
+			void setBlockValidationResults(const ValidationResults& blockValidationResults) {
+				m_blockValidationResults = blockValidationResults;
+			}
+
+			void setStatefulBlockValidationResult(ValidationResult result) {
+				m_pStatefulBlockValidator->setResult(result);
 			}
 
 		private:
-			TransactionValidationResults m_transactionValidationResults;
+			ValidationResults m_transactionValidationResults;
+			ValidationResults m_blockValidationResults;
 			std::atomic<size_t> m_numNewBlockSinkCalls;
 			std::atomic<size_t> m_numNewTransactionsSinkCalls;
-			mocks::MockNotificationValidatorT<model::BlockNotification>* m_pBlockValidator;
+
+			// stateful block validator needs to be captured in order to allow custom rollback tests,
+			// which require validator to return different results on demand
+			mocks::MockNotificationValidatorT<model::BlockNotification>* m_pStatefulBlockValidator;
 		};
+
+		// endregion
 
 		// region DispatcherStatus
 
@@ -210,7 +260,7 @@ namespace catapult { namespace sync {
 
 		DispatcherStatus GetDispatcherStatus(const std::shared_ptr<disruptor::ConsumerDispatcher>& pDispatcher) {
 			return !pDispatcher
-					? DispatcherStatus{}
+					? DispatcherStatus()
 					: DispatcherStatus{ pDispatcher->name(), pDispatcher->size(), pDispatcher->isRunning() };
 		}
 
@@ -352,13 +402,16 @@ namespace catapult { namespace sync {
 
 	// endregion
 
-	// region consume
+	// region consume - block range
 
 	namespace {
 		template<typename THandler>
-		void AssertCanConsumeBlockRange(model::BlockRange&& range, THandler handler) {
+		void AssertCanConsumeBlockRange(bool shouldEnableVerifiableReceipts, model::AnnotatedBlockRange&& range, THandler handler) {
 			// Arrange:
 			TestContext context;
+			const auto& blockChainConfig = context.testState().config().BlockChain;
+			const_cast<model::BlockChainConfiguration&>(blockChainConfig).ShouldEnableVerifiableReceipts = shouldEnableVerifiableReceipts;
+
 			context.boot();
 			auto factory = context.testState().state().hooks().blockRangeConsumerFactory()(disruptor::InputSource::Local);
 
@@ -373,6 +426,11 @@ namespace catapult { namespace sync {
 			EXPECT_EQ(1u, context.counter(Block_Elements_Counter_Name));
 			EXPECT_EQ(0u, context.counter(Transaction_Elements_Counter_Name));
 			handler(context);
+		}
+
+		template<typename THandler>
+		void AssertCanConsumeBlockRange(model::AnnotatedBlockRange&& range, THandler handler) {
+			AssertCanConsumeBlockRange(false, std::move(range), handler);
 		}
 	}
 
@@ -400,11 +458,62 @@ namespace catapult { namespace sync {
 		});
 	}
 
+	TEST(TEST_CLASS, CanConsumeBlockRange_InvalidElement_WithVerifiableReceipts) {
+		// Arrange: block does not contain correct block receipts hash, so should get rejected
+		auto pNextBlock = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+		auto range = test::CreateEntityRange({ pNextBlock.get() });
+
+		// Assert:
+		AssertCanConsumeBlockRange(true, std::move(range), [](const auto& context) {
+			// - the block was not forwarded to the sink
+			EXPECT_EQ(0u, context.numNewBlockSinkCalls());
+			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
+		});
+	}
+
+	namespace {
+		void SetBlockReceiptsHash(model::Block& block) {
+			// Arrange: set block receipts hash
+			model::Receipt receipt{};
+			receipt.Size = sizeof(model::Receipt);
+			receipt.Type = static_cast<model::ReceiptType>(block.Timestamp.unwrap());
+			model::BlockStatementBuilder blockStatementBuilder;
+			blockStatementBuilder.addReceipt(receipt);
+			block.BlockReceiptsHash = model::CalculateMerkleHash(*blockStatementBuilder.build());
+		}
+	}
+
+	TEST(TEST_CLASS, CanConsumeBlockRange_ValidElement_WithVerifiableReceipts) {
+		// Arrange: block contains correct block receipts hash, so should get accepted
+		auto signer = GetBlockSignerKeyPair();
+		auto pNextBlock = CreateValidBlockForDispatcherTests(signer);
+		SetBlockReceiptsHash(*pNextBlock);
+		test::SignBlock(signer, *pNextBlock);
+		auto range = test::CreateEntityRange({ pNextBlock.get() });
+
+		// Assert:
+		AssertCanConsumeBlockRange(true, std::move(range), [](const auto& context) {
+			WAIT_FOR_ONE_EXPR(context.numNewBlockSinkCalls());
+
+			// - the block was forwarded to the sink
+			EXPECT_EQ(1u, context.numNewBlockSinkCalls());
+			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
+		});
+	}
+
+	// endregion
+
+	// region consume - block range completion aware
+
 	namespace {
 		template<typename THandler>
-		void AssertCanConsumeBlockRangeCompletionAware(model::BlockRange&& range, THandler handler) {
+		void AssertCanConsumeBlockRangeCompletionAware(
+				const ValidationResults& blockValidationResults,
+				model::AnnotatedBlockRange&& range,
+				THandler handler) {
 			// Arrange:
 			TestContext context;
+			context.setBlockValidationResults(blockValidationResults);
 			context.boot();
 			auto factory = context.testState().state().hooks().completionAwareBlockRangeConsumerFactory()(disruptor::InputSource::Local);
 
@@ -422,12 +531,9 @@ namespace catapult { namespace sync {
 			EXPECT_EQ(0u, context.counter(Transaction_Elements_Counter_Name));
 			handler(context);
 		}
-	}
 
-	TEST(TEST_CLASS, CanConsumeBlockRangeCompletionAware_InvalidElement) {
-		// Assert:
-		AssertCanConsumeBlockRangeCompletionAware(test::CreateBlockEntityRange(1), [](const auto& context) {
-			// - the block was not forwarded to the sink
+		void AssertBlockRangeCompletionAwareInvalidElement(const TestContext& context) {
+			// Assert: the block was not forwarded to the sink
 			EXPECT_EQ(0u, context.numNewBlockSinkCalls());
 			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
 
@@ -436,7 +542,37 @@ namespace catapult { namespace sync {
 			EXPECT_EQ(0u, stateChangeSubscriber.numScoreChanges());
 			EXPECT_EQ(0u, stateChangeSubscriber.numStateChanges());
 			EXPECT_EQ(model::ChainScore(), stateChangeSubscriber.lastChainScore());
-		});
+		}
+	}
+
+	TEST(TEST_CLASS, CanConsumeBlockRangeCompletionAware_InvalidElement) {
+		// Assert: BlockTransactionsHash mismatch
+		AssertCanConsumeBlockRangeCompletionAware(
+				ValidationResults(),
+				test::CreateBlockEntityRange(1),
+				AssertBlockRangeCompletionAwareInvalidElement);
+	}
+
+	TEST(TEST_CLASS, CanConsumeBlockRangeCompletionAware_InvalidElement_Stateless) {
+		// Arrange:
+		auto pNextBlock = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+		auto range = test::CreateEntityRange({ pNextBlock.get() });
+
+		// - stateless failure
+		ValidationResults blockValidationResults;
+		blockValidationResults.Stateless = ValidationResult::Failure;
+		AssertCanConsumeBlockRangeCompletionAware(blockValidationResults, std::move(range), AssertBlockRangeCompletionAwareInvalidElement);
+	}
+
+	TEST(TEST_CLASS, CanConsumeBlockRangeCompletionAware_InvalidElement_Stateful) {
+		// Arrange:
+		auto pNextBlock = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+		auto range = test::CreateEntityRange({ pNextBlock.get() });
+
+		// - stateful failure
+		ValidationResults blockValidationResults;
+		blockValidationResults.Stateful = ValidationResult::Failure;
+		AssertCanConsumeBlockRangeCompletionAware(blockValidationResults, std::move(range), AssertBlockRangeCompletionAwareInvalidElement);
 	}
 
 	TEST(TEST_CLASS, CanConsumeBlockRangeCompletionAware_ValidElement) {
@@ -445,7 +581,7 @@ namespace catapult { namespace sync {
 		auto range = test::CreateEntityRange({ pNextBlock.get() });
 
 		// Assert:
-		AssertCanConsumeBlockRangeCompletionAware(std::move(range), [](const auto& context) {
+		AssertCanConsumeBlockRangeCompletionAware(ValidationResults(), std::move(range), [](const auto& context) {
 			// - the block was forwarded to the sink
 			EXPECT_EQ(1u, context.numNewBlockSinkCalls());
 			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
@@ -457,6 +593,10 @@ namespace catapult { namespace sync {
 			EXPECT_EQ(model::ChainScore(99'999'999'999'940), stateChangeSubscriber.lastChainScore());
 		});
 	}
+
+	// endregion
+
+	// region consume - block range rollback
 
 	TEST(TEST_CLASS, SuccessfulRollbackChangesCommittedCounters) {
 		// Arrange: create a chain with one block on top of nemesis
@@ -502,15 +642,15 @@ namespace catapult { namespace sync {
 		auto pBetterBlock = CreateValidBlockForDispatcherTests(keyPair);
 		pBetterBlock->Timestamp = pBetterBlock->Timestamp - Timestamp(1000);
 		test::SignBlock(GetBlockSignerKeyPair(), *pBetterBlock);
-		context.setBlockValidationResult(ValidationResult::Failure);
+		context.setStatefulBlockValidationResult(ValidationResult::Failure);
 
 		factory(test::CreateEntityRange({ pBetterBlock.get() }));
-		WAIT_FOR_VALUE_EXPR(2u, context.numBlockValidatorCalls());
+		WAIT_FOR_VALUE_EXPR(2u, context.numStatefulBlockValidatorCalls());
 
 		// - failure is unknown until next rollback, alter timestamp not to hit recency cache
 		pBetterBlock->Timestamp = pBetterBlock->Timestamp - Timestamp(2000);
 		test::SignBlock(GetBlockSignerKeyPair(), *pBetterBlock);
-		context.setBlockValidationResult(ValidationResult::Success);
+		context.setStatefulBlockValidationResult(ValidationResult::Success);
 
 		factory(test::CreateEntityRange({ pBetterBlock.get() }));
 		WAIT_FOR_VALUE_EXPR(2u, context.numNewBlockSinkCalls());
@@ -525,11 +665,80 @@ namespace catapult { namespace sync {
 		EXPECT_EQ(1u, context.counter(Rollback_Elements_Ignored_Recent));
 	}
 
+	// endregion
+
+	// region reputation
+
+	namespace {
+		template<typename TAssert>
+		void AssertConsumeHandlesReputation(validators::ValidationResult validationResult, TAssert assertFunc) {
+			// Arrange:
+			TestContext context;
+			context.setBlockValidationResults(ValidationResults(validationResult, ValidationResult::Success));
+			context.boot();
+
+			auto nodeIdentity = test::GenerateRandomData<Key_Size>();
+			auto pNextBlock = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
+			auto range = test::CreateEntityRange({ pNextBlock.get() });
+			auto annotatedRange = model::AnnotatedBlockRange(std::move(range), nodeIdentity);
+
+			{
+				auto nodesModifier = context.testState().state().nodes().modifier();
+				nodesModifier.add(ionet::Node(nodeIdentity, ionet::NodeEndpoint(), ionet::NodeMetadata()), ionet::NodeSource::Dynamic);
+			}
+
+			auto factory = context.testState().state().hooks().completionAwareBlockRangeConsumerFactory()(disruptor::InputSource::Local);
+
+			// Act:
+			std::atomic<size_t> numCompletions(0);
+			factory(std::move(annotatedRange), [&numCompletions](auto, auto) { ++numCompletions; });
+			WAIT_FOR_ONE(numCompletions);
+
+			// - wait a bit to give the service time to consume more if there is a bug in the implementation
+			test::Pause();
+
+			// Assert:
+			EXPECT_EQ(1u, context.counter(Block_Elements_Counter_Name));
+			EXPECT_EQ(0u, context.counter(Transaction_Elements_Counter_Name));
+
+			auto interactions = context.testState().state().nodes().view().getNodeInfo(nodeIdentity).interactions(Timestamp());
+			assertFunc(interactions);
+		}
+	}
+
+	TEST(TEST_CLASS, Dispatcher_InteractionsAreUpdatedIfValidationSucceeded) {
+		AssertConsumeHandlesReputation(validators::ValidationResult::Success, [](const auto& interactions) {
+			// Assert: interactions were updated
+			EXPECT_EQ(1u, interactions.NumSuccesses);
+			EXPECT_EQ(0u, interactions.NumFailures);
+		});
+	}
+
+	TEST(TEST_CLASS, Dispatcher_InteractionsAreUpdatedIfValidationFailed) {
+		AssertConsumeHandlesReputation(validators::ValidationResult::Failure, [](const auto& interactions) {
+			// Assert: interactions were updated
+			EXPECT_EQ(0u, interactions.NumSuccesses);
+			EXPECT_EQ(1u, interactions.NumFailures);
+		});
+	}
+
+	TEST(TEST_CLASS, Dispatcher_InteractionsAreNotUpdatedIfValidationIsNeutral) {
+		AssertConsumeHandlesReputation(validators::ValidationResult::Neutral, [](const auto& interactions) {
+			// Assert: interactions were not updated
+			EXPECT_EQ(0u, interactions.NumSuccesses);
+			EXPECT_EQ(0u, interactions.NumFailures);
+		});
+	}
+
+	// endregion
+
+	// region consume - transaction range
+
 	namespace {
 		template<typename THandler>
 		void AssertCanConsumeTransactionRange(
-				const TransactionValidationResults& transactionValidationResults,
-				model::TransactionRange&& range,
+				const ValidationResults& transactionValidationResults,
+				model::AnnotatedTransactionRange&& range,
 				THandler handler) {
 			// Arrange:
 			TestContext context;
@@ -554,7 +763,7 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, CanConsumeTransactionRange_InvalidElement_Stateless) {
 		// Assert:
-		TransactionValidationResults transactionValidationResults;
+		ValidationResults transactionValidationResults;
 		transactionValidationResults.Stateless = ValidationResult::Failure;
 		AssertCanConsumeTransactionRange(transactionValidationResults, test::CreateTransactionEntityRange(1), [](const auto& context) {
 			WAIT_FOR_ONE_EXPR(context.numTransactionStatuses());
@@ -568,7 +777,7 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, CanConsumeTransactionRange_InvalidElement_Stateful) {
 		// Assert:
-		TransactionValidationResults transactionValidationResults;
+		ValidationResults transactionValidationResults;
 		transactionValidationResults.Stateful = ValidationResult::Failure;
 		AssertCanConsumeTransactionRange(transactionValidationResults, test::CreateTransactionEntityRange(1), [](const auto& context) {
 			WAIT_FOR_ONE_EXPR(context.numNewTransactionsSinkCalls());
@@ -592,7 +801,7 @@ namespace catapult { namespace sync {
 		auto range = test::CreateEntityRange({ pValidTransaction.get() });
 
 		// Assert:
-		AssertCanConsumeTransactionRange(TransactionValidationResults(), std::move(range), [](const auto& context) {
+		AssertCanConsumeTransactionRange(ValidationResults(), std::move(range), [](const auto& context) {
 			WAIT_FOR_ONE_EXPR(context.numNewTransactionsSinkCalls());
 
 			// - the transaction was forwarded to the sink
@@ -619,7 +828,7 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, TransactionDispatcherFlushesTransactionStatusSubscriber) {
 		// Arrange: notice that flush should be called even (especially) if transaction failed validation
-		TransactionValidationResults transactionValidationResults;
+		ValidationResults transactionValidationResults;
 		transactionValidationResults.Stateless = ValidationResult::Failure;
 		AssertCanConsumeTransactionRange(transactionValidationResults, test::CreateTransactionEntityRange(1), [](const auto& context) {
 			const auto& subscriber = context.testState().transactionStatusSubscriber();

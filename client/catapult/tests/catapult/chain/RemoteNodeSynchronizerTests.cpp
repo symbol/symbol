@@ -26,8 +26,7 @@ namespace catapult { namespace chain {
 #define TEST_CLASS RemoteNodeSynchronizerTests
 
 	namespace {
-		struct RemoteApi {
-		};
+		struct RemoteApi {};
 
 		class MockSynchronizer {
 		public:
@@ -39,9 +38,9 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			thread::future<NodeInteractionResult> operator()(const RemoteApi& remoteApi) {
+			thread::future<ionet::NodeInteractionResultCode> operator()(const RemoteApi& remoteApi) {
 				m_capturedRemoteApis.push_back(&remoteApi);
-				return thread::make_ready_future(NodeInteractionResult::Neutral);
+				return thread::make_ready_future(ionet::NodeInteractionResultCode::Neutral);
 			}
 
 		private:
@@ -56,10 +55,10 @@ namespace catapult { namespace chain {
 
 		// Act:
 		RemoteApi remoteApi;
-		auto result = remoteNodeSynchronizer(remoteApi).get();
+		auto code = remoteNodeSynchronizer(remoteApi).get();
 
 		// Assert:
-		EXPECT_EQ(NodeInteractionResult::Neutral, result);
+		EXPECT_EQ(ionet::NodeInteractionResultCode::Neutral, code);
 		ASSERT_EQ(1u, pSynchronizer->capturedRemoteApis().size());
 		EXPECT_EQ(&remoteApi, pSynchronizer->capturedRemoteApis()[0]);
 	}

@@ -19,6 +19,7 @@
 **/
 
 #include "BlockUtils.h"
+#include "FeeUtils.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/crypto/Signer.h"
@@ -69,6 +70,21 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region fees
+
+	BlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block) {
+		BlockTransactionsInfo blockTransactionsInfo;
+		for (const auto& transaction : block.Transactions()) {
+			auto transactionFee = CalculateTransactionFee(block.FeeMultiplier, transaction);
+			blockTransactionsInfo.TotalFee = blockTransactionsInfo.TotalFee + transactionFee;
+			++blockTransactionsInfo.Count;
+		}
+
+		return blockTransactionsInfo;
+	}
+
+	// endregion
+
 	// region create block
 
 	namespace {
@@ -101,7 +117,7 @@ namespace catapult { namespace model {
 				const TContainer& transactions) {
 			auto size = sizeof(Block) + CalculateTotalSize(transactions);
 			auto pBlock = utils::MakeUniqueWithSize<Block>(size);
-			std::memset(pBlock.get(), 0, sizeof(Block));
+			std::memset(static_cast<void*>(pBlock.get()), 0, sizeof(Block));
 
 			auto& block = *pBlock;
 			block.Size = static_cast<uint32_t>(size);

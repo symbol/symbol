@@ -21,7 +21,6 @@
 #include "IoServiceThreadPool.h"
 #include "ThreadInfo.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
-#include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/exceptions.h"
 #include <boost/asio.hpp>
@@ -118,16 +117,8 @@ namespace catapult { namespace thread {
 			void ioWorkerFunction() {
 				CATAPULT_LOG(trace) << m_tag << " worker thread started";
 
-				try {
-					auto guard = utils::MakeIncrementDecrementGuard(m_numWorkerThreads);
-					m_service.run();
-				} catch (...) {
-					// if run throws an exception, something really bad happened
-					// log the error and bubble out the exception, which should terminate the process
-					CATAPULT_LOG(fatal) << m_tag << " worker thread threw exception: " << EXCEPTION_DIAGNOSTIC_MESSAGE();
-					utils::CatapultLogFlush();
-					throw;
-				}
+				auto incrementDecrementGuard = utils::MakeIncrementDecrementGuard(m_numWorkerThreads);
+				m_service.run();
 
 				CATAPULT_LOG(trace) << m_tag << " worker thread finished";
 			}

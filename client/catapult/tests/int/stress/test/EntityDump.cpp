@@ -59,7 +59,7 @@ namespace catapult { namespace test {
 		CATAPULT_LOG(debug) << "       Type: " << VALANDHEX(tx.Type);
 		CATAPULT_LOG(debug) << "     Signer: " << FormatKey(tx.Signer);
 		CATAPULT_LOG(debug) << "  Signature:\n" << HexFormat(tx.Signature);
-		CATAPULT_LOG(debug) << "        Fee: " << VALANDHEX(tx.Fee);
+		CATAPULT_LOG(debug) << "    Max Fee: " << VALANDHEX(tx.MaxFee);
 		CATAPULT_LOG(debug) << "   Deadline: " << VALANDHEX(tx.Deadline);
 
 		if (Entity_Type_Transfer == tx.Type)

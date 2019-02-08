@@ -33,7 +33,7 @@ namespace catapult { namespace mongo {
 			model::TransactionElement transactionElement(transaction);
 			transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
 			transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
-			transactionElement.OptionalExtractedAddresses = std::make_shared<model::AddressSet>(test::GenerateRandomAddressSet(3));
+			transactionElement.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
 			return transactionElement;
 		}
 	}

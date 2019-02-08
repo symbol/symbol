@@ -29,17 +29,21 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, EntityHasExpectedSize) {
 		// Arrange:
-		auto expectedSize = sizeof(VerifiableEntity) // base
+		auto expectedSize =
+				sizeof(VerifiableEntity) // base
 				+ sizeof(uint64_t) // height
 				+ sizeof(uint64_t) // timestamp
 				+ sizeof(uint64_t) // difficulty
+				+ sizeof(uint32_t) // fee multiplier
 				+ Hash256_Size // previous block hash
 				+ Hash256_Size // block transactions hash
-				+ Hash256_Size; // state hash
+				+ Hash256_Size // block receipts hash
+				+ Hash256_Size // state hash
+				+ Key_Size; // beneficiary public key
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(Block));
-		EXPECT_EQ(104u + 120u, sizeof(Block));
+		EXPECT_EQ(104u + 188u, sizeof(Block));
 	}
 
 	// region test utils

@@ -59,7 +59,7 @@ namespace catapult { namespace consumers {
 	using BlockChainProcessor = std::function<validators::ValidationResult (
 			const WeakBlockInfo&,
 			disruptor::BlockElements&,
-			const observers::ObserverState&)>;
+			observers::ObserverState&)>;
 
 	/// A predicate for determining whether or not two blocks form a hit.
 	using BlockHitPredicate = predicate<const model::Block&, const model::Block&, const Hash256&>;
@@ -67,9 +67,19 @@ namespace catapult { namespace consumers {
 	/// A factory for creating a predicate for determining whether or not two blocks form a hit.
 	using BlockHitPredicateFactory = std::function<BlockHitPredicate (const cache::ReadOnlyCatapultCache&)>;
 
+	/// Possible receipt validation modes.
+	enum class ReceiptValidationMode {
+		/// Disabled, skip validation of receipts.
+		Disabled,
+
+		/// Enabled, generate and validate receipts.
+		Enabled
+	};
+
 	/// Creates a block chain processor around the specified block hit predicate factory (\a blockHitPredicateFactory)
-	/// and batch entity processor (\a batchEntityProcessor).
+	/// and batch entity processor (\a batchEntityProcessor) with \a receiptValidationMode.
 	BlockChainProcessor CreateBlockChainProcessor(
 			const BlockHitPredicateFactory& blockHitPredicateFactory,
-			const chain::BatchEntityProcessor& batchEntityProcessor);
+			const chain::BatchEntityProcessor& batchEntityProcessor,
+			ReceiptValidationMode receiptValidationMode);
 }}

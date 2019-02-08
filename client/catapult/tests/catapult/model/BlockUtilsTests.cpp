@@ -29,7 +29,7 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS BlockUtilsTests
 
-	// region CalculateBlockTransactionsHash
+	// region hashes - CalculateBlockTransactionsHash
 
 	namespace {
 		struct CalculateBlockTransactionsHashTestContext {
@@ -155,32 +155,24 @@ namespace catapult { namespace model {
 		CalculateBlockTransactionsHash(transactionInfoPointers, actualBlockTransactionsHash);
 
 		// Assert:
-#ifdef SIGNATURE_SCHEME_NIS1
-		auto expectedHash = "B526B3459648D92D0570646D13FF39C8B18EEA926BD2F97A0B19A6401D600671";
-#else
 		auto expectedHash = "DEFB4BF7ACF2145500087A02C88F8D1FCF27B8DEF4E0FDABE09413D87A3F0D09";
-#endif
 		EXPECT_EQ(expectedHash, test::ToHexString(actualBlockTransactionsHash));
 	}
 
 	// endregion
 
-	// region CalculateGenerationHash
+	// region hashes - CalculateGenerationHash
 
 	TEST(TEST_CLASS, GenerationHashIsCalculatedAsExpected) {
 		// Arrange:
 		auto previousGenerationHash = test::ToArray<Hash256_Size>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6");
-		auto keyPair = crypto::KeyPair::FromString("A41BE076B942D915EA3330B135D35C5A959A2DCC50BBB393C6407984D4A3B564");
+		Key publicKey = test::ToArray<Key_Size>("6FB9C930C0AC6BEF09D6DFEBD091AE83C91B35F2C0305B05B4F6F7AF4B6FC1F0");
 
 		// Act:
-		auto hash = CalculateGenerationHash(previousGenerationHash, keyPair.publicKey());
+		auto hash = CalculateGenerationHash(previousGenerationHash, publicKey);
 
 		// Assert:
-#ifdef SIGNATURE_SCHEME_NIS1
-		auto expectedHash = "8E0BE6A4656B15EA3690DA5F3CFE2A60F97D14D78DDFD5EDD8FD0E2D9E3471D9";
-#else
 		auto expectedHash = "575E4F520DC2C026F1C9021FD3773F236F0872A03B4AEFC22A9E0066FF204A23";
-#endif
 		EXPECT_EQ(expectedHash, test::ToHexString(hash));
 	}
 
@@ -223,7 +215,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanSignAndVerifyBlockHeaderWithTransactions) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(3);
-		pBlock->Size = sizeof(model::Block);
+		pBlock->Size = sizeof(Block);
 
 		// Act:
 		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
@@ -285,7 +277,54 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region PreviousBlockContext
+	// region fees - CalculateBlockTransactionsInfo
+
+	TEST(TEST_CLASS, CanCalculateBlockTransactionsInfoForBlockWithZeroTransactions) {
+		// Arrange:
+		auto pBlock = test::GenerateEmptyRandomBlock();
+		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
+
+		// Act:
+		auto blockTransactionsInfo = CalculateBlockTransactionsInfo(*pBlock);
+
+		// Assert:
+		EXPECT_EQ(0u, blockTransactionsInfo.Count);
+		EXPECT_EQ(Amount(), blockTransactionsInfo.TotalFee);
+	}
+
+	TEST(TEST_CLASS, CanCalculateBlockTransactionsInfoForBlockWithSingleTransaction) {
+		// Arrange:
+		auto pBlock = test::GenerateRandomBlockWithTransactions(test::ConstTransactions{ test::GenerateRandomTransactionWithSize(123) });
+		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
+
+		// Act:
+		auto blockTransactionsInfo = CalculateBlockTransactionsInfo(*pBlock);
+
+		// Assert:
+		EXPECT_EQ(1u, blockTransactionsInfo.Count);
+		EXPECT_EQ(Amount(3 * 123), blockTransactionsInfo.TotalFee);
+	}
+
+	TEST(TEST_CLASS, CanCalculateBlockTransactionsInfoForBlockWithMultipleTransactions) {
+		// Arrange:
+		auto pBlock = test::GenerateRandomBlockWithTransactions(test::ConstTransactions{
+			test::GenerateRandomTransactionWithSize(123),
+			test::GenerateRandomTransactionWithSize(222),
+			test::GenerateRandomTransactionWithSize(552)
+		});
+		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
+
+		// Act:
+		auto blockTransactionsInfo = CalculateBlockTransactionsInfo(*pBlock);
+
+		// Assert:
+		EXPECT_EQ(3u, blockTransactionsInfo.Count);
+		EXPECT_EQ(Amount(3 * 897), blockTransactionsInfo.TotalFee);
+	}
+
+	// endregion
+
+	// region create block - PreviousBlockContext
 
 	TEST(TEST_CLASS, CanCreateDefaultPreviousBlockContext) {
 		// Act:
@@ -321,7 +360,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region create block
+	// region create block - CreateBlock
 
 	namespace {
 		struct SharedPointerTraits {
@@ -364,9 +403,12 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Height(1235), block.Height);
 			EXPECT_EQ(Timestamp(), block.Timestamp);
 			EXPECT_EQ(Difficulty(), block.Difficulty);
+			EXPECT_EQ(BlockFeeMultiplier(), block.FeeMultiplier);
 			EXPECT_EQ(context.BlockHash, block.PreviousBlockHash);
 			EXPECT_EQ(Hash256{}, block.BlockTransactionsHash);
+			EXPECT_EQ(Hash256{}, block.BlockReceiptsHash);
 			EXPECT_EQ(Hash256{}, block.StateHash);
+			EXPECT_EQ(Key{}, block.BeneficiaryPublicKey);
 
 			auto transactionCount = 0u;
 			size_t blockSize = sizeof(Block);
@@ -379,7 +421,7 @@ namespace catapult { namespace model {
 			}
 
 			EXPECT_EQ(numTransactions, transactionCount);
-			EXPECT_EQ(blockSize, block.Size);
+			ASSERT_EQ(blockSize, block.Size);
 		}
 	}
 

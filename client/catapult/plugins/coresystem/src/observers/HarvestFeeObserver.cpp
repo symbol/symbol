@@ -20,17 +20,50 @@
 
 #include "Observers.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/model/Mosaic.h"
 
 namespace catapult { namespace observers {
 
-	DEFINE_OBSERVER(HarvestFee, model::BlockNotification, [](const auto& notification, const ObserverContext& context) {
-		// credit the harvester
-		auto& cache = context.Cache.sub<cache::AccountStateCache>();
-		auto accountStateIter = cache.find(notification.Signer);
-		auto& harvesterState = accountStateIter.get();
-		if (NotifyMode::Commit == context.Mode)
-			harvesterState.Balances.credit(Xem_Id, notification.TotalFee);
-		else
-			harvesterState.Balances.debit(Xem_Id, notification.TotalFee);
-	});
+	namespace {
+		void ApplyFee(
+				state::AccountState& accountState,
+				NotifyMode notifyMode,
+				const model::Mosaic& feeMosaic,
+				ObserverStatementBuilder& statementBuilder) {
+			if (NotifyMode::Rollback == notifyMode) {
+				accountState.Balances.debit(feeMosaic.MosaicId, feeMosaic.Amount);
+				return;
+			}
+
+			accountState.Balances.credit(feeMosaic.MosaicId, feeMosaic.Amount);
+
+			// add harvest fee receipt
+			auto receiptType = model::Receipt_Type_Harvest_Fee;
+			model::BalanceChangeReceipt receipt(receiptType, accountState.PublicKey, feeMosaic.MosaicId, feeMosaic.Amount);
+			statementBuilder.addReceipt(receipt);
+		}
+	}
+
+	DECLARE_OBSERVER(HarvestFee, model::BlockNotification)(MosaicId currencyMosaicId) {
+		return MAKE_OBSERVER(HarvestFee, model::BlockNotification, ([currencyMosaicId](const auto& notification, auto& context) {
+			// credit the harvester
+			auto& cache = context.Cache.template sub<cache::AccountStateCache>();
+			auto accountStateIter = cache.find(notification.Signer);
+			auto& harvesterAccountState = accountStateIter.get();
+
+			model::Mosaic feeMosaic{ currencyMosaicId, notification.TotalFee };
+			if (state::AccountType::Remote != harvesterAccountState.AccountType) {
+				ApplyFee(harvesterAccountState, context.Mode, feeMosaic, context.StatementBuilder());
+				return;
+			}
+
+			auto linkedAccountStateIter = cache.find(harvesterAccountState.LinkedAccountKey);
+			auto& linkedAccountState = linkedAccountStateIter.get();
+
+			// this check is merely a precaution and will only fire if there is a bug that has corrupted links
+			RequireLinkedRemoteAndMainAccounts(harvesterAccountState, linkedAccountState);
+
+			ApplyFee(linkedAccountState, context.Mode, feeMosaic, context.StatementBuilder());
+		}));
+	}
 }}

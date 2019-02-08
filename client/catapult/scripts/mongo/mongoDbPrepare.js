@@ -35,6 +35,15 @@
 	db.transactions.createIndex({ 'transaction.mosaicId': 1, 'transaction.type': 1 }, makeSparse('transaction.mosaicId'));
 	db.transactions.createIndex({ 'transaction.namespaceId': 1, 'transaction.type': 1 }, makeSparse('transaction.namespaceId'));
 
+	db.createCollection('transactionStatements');
+	db.transactionStatements.createIndex({ 'height': 1, 'source.primaryId': 1, 'source.secondaryId': 1 }, { unique: true });
+
+	db.createCollection('addressResolutionStatements');
+	db.addressResolutionStatements.createIndex({ 'height': 1, 'unresolved': 1 }, { unique: true });
+
+	db.createCollection('mosaicResolutionStatements');
+	db.mosaicResolutionStatements.createIndex({ 'height': 1, 'unresolved': 1 }, { unique: true });
+
 	db.createCollection('accounts');
 	db.accounts.createIndex({ 'account.publicKey': 1 }); // cannot be unique because zeroed public keys are stored
 	db.accounts.createIndex({ 'account.address': 1 }, { unique: true });
@@ -49,6 +58,9 @@
 
 	db.blocks.getIndexes();
 	db.transactions.getIndexes();
+	db.transactionStatements.getIndexes();
+	db.addressResolutionStatements.getIndexes();
+	db.mosaicResolutionStatements.getIndexes();
 	db.accounts.getIndexes();
 	db.unconfirmedTransactions.getIndexes();
 	db.partialTransactions.getIndexes();
@@ -57,5 +69,6 @@
 
 load('mongoAccountPropertiesDbPrepare.js')
 load('mongoLockInfoDbPrepare.js')
+load('mongoMosaicDbPrepare.js')
 load('mongoMultisigDbPrepare.js')
 load('mongoNamespaceDbPrepare.js')

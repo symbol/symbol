@@ -22,12 +22,10 @@
 #include "src/cache/PropertyCache.h"
 #include "src/cache/PropertyCacheStorage.h"
 #include "src/config/PropertyConfiguration.h"
-#include "src/handlers/AccountPropertiesDiagnosticHandlers.h"
 #include "src/observers/Observers.h"
 #include "src/plugins/PropertyTransactionPlugin.h"
 #include "src/validators/Validators.h"
-#include "catapult/handlers/CacheEntryInfosProducerFactory.h"
-#include "catapult/handlers/StatePathHandlerFactory.h"
+#include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
@@ -41,16 +39,8 @@ namespace catapult { namespace plugins {
 		manager.addCacheSupport<cache::PropertyCacheStorage>(
 				std::make_unique<cache::PropertyCache>(manager.cacheConfig(cache::PropertyCache::Name), networkIdentifier));
 
-		manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
-			using AccountPropertiesInfosProducerFactory = handlers::CacheEntryInfosProducerFactory<cache::PropertyCacheDescriptor>;
-
-			handlers::RegisterAccountPropertiesInfosHandler(
-					handlers,
-					AccountPropertiesInfosProducerFactory::Create(cache.sub<cache::PropertyCache>()));
-
-			using PacketType = handlers::StatePathRequestPacket<ionet::PacketType::Account_Properties_State_Path, Address>;
-			handlers::RegisterStatePathHandler<PacketType>(handlers, cache.sub<cache::PropertyCache>());
-		});
+		using CacheHandlers = CacheHandlers<cache::PropertyCacheDescriptor>;
+		CacheHandlers::Register<model::FacilityCode::Property>(manager);
 
 		manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
 			counters.emplace_back(utils::DiagnosticCounterId("PROPERTY C"), [&cache]() {

@@ -39,10 +39,18 @@ namespace catapult { namespace model {
 		return utils::Base32Encode(address);
 	}
 
+	namespace {
+#ifdef SIGNATURE_SCHEME_NIS1
+		constexpr auto CatapultHash = crypto::Keccak_256;
+#else
+		constexpr auto CatapultHash = crypto::Sha3_256;
+#endif
+	}
+
 	Address PublicKeyToAddress(const Key& publicKey, NetworkIdentifier networkIdentifier) {
 		// step 1: sha3 hash of the public key
 		Hash256 publicKeyHash;
-		crypto::Sha3_256(publicKey, publicKeyHash);
+		CatapultHash(publicKey, publicKeyHash);
 
 		// step 2: ripemd160 hash of (1)
 		Address decoded;
@@ -53,7 +61,7 @@ namespace catapult { namespace model {
 
 		// step 4: concatenate (3) and the checksum of (3)
 		Hash256 step3Hash;
-		crypto::Sha3_256(RawBuffer{ decoded.data(), Hash160_Size + 1 }, step3Hash);
+		CatapultHash(RawBuffer{ decoded.data(), Hash160_Size + 1 }, step3Hash);
 		std::copy(step3Hash.cbegin(), step3Hash.cbegin() + Checksum_Size, decoded.begin() + Hash160_Size + 1);
 
 		return decoded;
@@ -65,7 +73,7 @@ namespace catapult { namespace model {
 
 		Hash256 hash;
 		auto checksumBegin = Address_Decoded_Size - Checksum_Size;
-		crypto::Sha3_256(RawBuffer{ address.data(), checksumBegin }, hash);
+		CatapultHash(RawBuffer{ address.data(), checksumBegin }, hash);
 
 		return std::equal(hash.begin(), hash.begin() + Checksum_Size, address.begin() + checksumBegin);
 	}

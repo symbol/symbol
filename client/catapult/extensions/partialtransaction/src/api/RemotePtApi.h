@@ -20,6 +20,7 @@
 
 #pragma once
 #include "partialtransaction/src/PtTypes.h"
+#include "catapult/api/RemoteApi.h"
 #include "catapult/cache/ShortHashPair.h"
 #include "catapult/thread/Future.h"
 
@@ -28,9 +29,11 @@ namespace catapult { namespace ionet { class PacketIo; } }
 namespace catapult { namespace api {
 
 	/// An api for retrieving partial transaction information from a remote node.
-	class RemotePtApi {
-	public:
-		virtual ~RemotePtApi() {}
+	class RemotePtApi : public RemoteApi {
+	protected:
+		/// Creates a remote api for the node with specified public key (\a remotePublicKey).
+		explicit RemotePtApi(const Key& remotePublicKey) : RemoteApi(remotePublicKey)
+		{}
 
 	public:
 		/// Gets all partial transaction infos from the remote excluding those with all hashes in \a knownShortHashPairs.
@@ -38,7 +41,10 @@ namespace catapult { namespace api {
 				cache::ShortHashPairRange&& knownShortHashPairs) const = 0;
 	};
 
-	/// Creates a partial transaction api for interacting with a remote node with the specified \a io
+	/// Creates a partial transaction api for interacting with a remote node with the specified \a io  with public key (\a remotePublicKey)
 	/// and transaction \a registry composed of supported transactions.
-	std::unique_ptr<RemotePtApi> CreateRemotePtApi(ionet::PacketIo& io, const model::TransactionRegistry& registry);
+	std::unique_ptr<RemotePtApi> CreateRemotePtApi(
+			ionet::PacketIo& io,
+			const Key& remotePublicKey,
+			const model::TransactionRegistry& registry);
 }}

@@ -20,9 +20,21 @@
 
 #include "TreeNodePath.h"
 #include "catapult/utils/HexFormatter.h"
+#include <cstring>
 #include <ostream>
 
 namespace catapult { namespace tree {
+
+	namespace {
+		constexpr size_t CalculateByteSize(size_t offset, size_t size) {
+			// (offset, size)
+			// (2, 4) [00'11'11'00] => 2 == 4/2
+			// (3, 4) [00'01'11'10] => 3 == 4/2 + 1
+			// (2, 5) [00'11'11'10] => 3 == 5/2 + 1
+			// (3, 5) [00'01'11'11] => 3 == 5/2 + 1
+			return size / 2 + ((0 == offset % 2 && 0 == size % 2) ? 0 : 1);
+		}
+	}
 
 	TreeNodePath::TreeNodePath()
 			: m_size(0)
@@ -32,8 +44,12 @@ namespace catapult { namespace tree {
 	TreeNodePath::TreeNodePath(const std::vector<uint8_t>& path, size_t offset, size_t size)
 			: m_size(size)
 			, m_adjustment(offset % 2) // adjustment is needed to correctly handle paths beginning at odd nibbles
-			, m_path(&path[offset / 2], &path[(offset + size) / 2 + (offset + size) % 2])
-	{}
+			, m_path(CalculateByteSize(offset, size)) {
+		if (0 == m_size)
+			return;
+
+		std::memcpy(m_path.data(), &path[offset / 2], m_path.size());
+	}
 
 	bool TreeNodePath::empty() const {
 		return 0 == m_size;

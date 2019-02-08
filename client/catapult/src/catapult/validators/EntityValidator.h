@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 	template<typename... TArgs>
 	class EntityValidatorT {
 	public:
-		virtual ~EntityValidatorT() {}
+		virtual ~EntityValidatorT() = default;
 
 	public:
 		/// Gets the validator name.

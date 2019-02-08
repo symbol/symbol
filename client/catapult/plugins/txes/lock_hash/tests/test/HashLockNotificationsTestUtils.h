@@ -45,7 +45,7 @@ namespace catapult { namespace test {
 
 	private:
 		Key m_signer;
-		model::Mosaic m_mosaic;
+		model::UnresolvedMosaic m_mosaic;
 		BlockDuration m_duration;
 		Hash256 m_hash;
 	};

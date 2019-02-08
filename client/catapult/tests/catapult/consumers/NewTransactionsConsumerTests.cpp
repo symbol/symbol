@@ -75,7 +75,7 @@ namespace catapult { namespace consumers {
 		ConsumerInput CreateInput(size_t numTransactions) {
 			auto input = test::CreateConsumerInputWithTransactions(numTransactions, disruptor::InputSource::Unknown);
 			for (auto& element : input.transactions())
-				element.OptionalExtractedAddresses = std::make_shared<model::AddressSet>();
+				element.OptionalExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
 
 			return input;
 		}
@@ -93,7 +93,7 @@ namespace catapult { namespace consumers {
 			EXPECT_EQ(element.OptionalExtractedAddresses.get(), transactionInfo.OptionalExtractedAddresses.get()) << message;
 
 			// Sanity:
-			EXPECT_FALSE(element.Skip) << message;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, element.ResultSeverity) << message;
 		}
 	}
 
@@ -112,7 +112,7 @@ namespace catapult { namespace consumers {
 		auto result = context.Consumer(input);
 
 		// Assert: the consumer detached the input
-		test::AssertConsumed(result);
+		test::AssertConsumed(result, validators::ValidationResult::Success);
 		EXPECT_TRUE(input.empty());
 
 		// - the new transactions handler was called once (with three entities)
@@ -132,14 +132,17 @@ namespace catapult { namespace consumers {
 		// Arrange:
 		ConsumerTestContext context;
 		auto input = CreateInput(3);
-		for (auto& element : input.transactions())
-			element.Skip = true;
+		auto i = 0u;
+		for (auto& element : input.transactions()) {
+			element.ResultSeverity = 0 == i % 2 ? disruptor::ConsumerResultSeverity::Failure : disruptor::ConsumerResultSeverity::Neutral;
+			++i;
+		}
 
 		// Act:
 		auto result = context.Consumer(input);
 
 		// Assert: the consumer detached the input
-		test::AssertConsumed(result);
+		test::AssertAborted(result, validators::ValidationResult::Failure);
 		EXPECT_TRUE(input.empty());
 
 		// - the new transactions handler was called once (with zero entities)
@@ -153,14 +156,15 @@ namespace catapult { namespace consumers {
 		// Arrange:
 		ConsumerTestContext context;
 		auto input = CreateInput(5);
-		for (auto i : { 0u, 2u, 3u })
-			input.transactions()[i].Skip = true;
+		input.transactions()[0].ResultSeverity = disruptor::ConsumerResultSeverity::Failure;
+		input.transactions()[2].ResultSeverity = disruptor::ConsumerResultSeverity::Neutral;
+		input.transactions()[3].ResultSeverity = disruptor::ConsumerResultSeverity::Failure;
 
 		// Act:
 		auto result = context.Consumer(input);
 
 		// Assert: the consumer detached the input
-		test::AssertConsumed(result);
+		test::AssertAborted(result, validators::ValidationResult::Failure);
 		EXPECT_TRUE(input.empty());
 
 		// - the new transactions handler was called once (with two entities)
@@ -171,5 +175,75 @@ namespace catapult { namespace consumers {
 
 		AssertEqual(input.transactions()[1], actualInfos[0], "info at 0");
 		AssertEqual(input.transactions()[4], actualInfos[1], "info at 1");
+	}
+
+	namespace {
+		void AssertAggregateResult(
+				validators::ValidationResult expectedAggregateResult,
+				const std::vector<disruptor::ConsumerResultSeverity>& results) {
+			// Arrange:
+			ConsumerTestContext context;
+			auto input = CreateInput(results.size());
+			for (auto i = 0u; i < results.size(); ++i)
+				input.transactions()[i].ResultSeverity = results[i];
+
+			// Act:
+			auto result = context.Consumer(input);
+
+			// Assert:
+			if (validators::ResultSeverity::Failure != validators::GetSeverity(expectedAggregateResult))
+				test::AssertConsumed(result, expectedAggregateResult);
+			else
+				test::AssertAborted(result, expectedAggregateResult);
+		}
+	}
+
+	TEST(TEST_CLASS, SuccessResultWhenAtLeastOneResultIsSuccessAndNoResultIsFailure) {
+		// Assert:
+		AssertAggregateResult(validators::ValidationResult::Success, {
+			disruptor::ConsumerResultSeverity::Success,
+			disruptor::ConsumerResultSeverity::Success,
+			disruptor::ConsumerResultSeverity::Success
+		});
+		AssertAggregateResult(validators::ValidationResult::Success, {
+			disruptor::ConsumerResultSeverity::Success,
+			disruptor::ConsumerResultSeverity::Neutral,
+			disruptor::ConsumerResultSeverity::Success,
+			disruptor::ConsumerResultSeverity::Success,
+			disruptor::ConsumerResultSeverity::Neutral
+		});
+	}
+
+	TEST(TEST_CLASS, NeutralResultWhenAllResultsAreNeutral) {
+		// Assert:
+		AssertAggregateResult(validators::ValidationResult::Neutral, {
+			disruptor::ConsumerResultSeverity::Neutral,
+			disruptor::ConsumerResultSeverity::Neutral,
+			disruptor::ConsumerResultSeverity::Neutral
+		});
+	}
+
+	TEST(TEST_CLASS, FailureResultWhenAtLeastOneResultIsFailure) {
+		// Assert:
+		AssertAggregateResult(validators::ValidationResult::Failure, {
+			disruptor::ConsumerResultSeverity::Success,
+			disruptor::ConsumerResultSeverity::Failure,
+			disruptor::ConsumerResultSeverity::Success
+		});
+		AssertAggregateResult(validators::ValidationResult::Failure, {
+			disruptor::ConsumerResultSeverity::Neutral,
+			disruptor::ConsumerResultSeverity::Failure,
+			disruptor::ConsumerResultSeverity::Success
+		});
+		AssertAggregateResult(validators::ValidationResult::Failure, {
+			disruptor::ConsumerResultSeverity::Neutral,
+			disruptor::ConsumerResultSeverity::Failure,
+			disruptor::ConsumerResultSeverity::Neutral
+		});
+		AssertAggregateResult(validators::ValidationResult::Failure, {
+			disruptor::ConsumerResultSeverity::Failure,
+			disruptor::ConsumerResultSeverity::Failure,
+			disruptor::ConsumerResultSeverity::Failure
+		});
 	}
 }}

@@ -63,18 +63,15 @@ namespace catapult { namespace validators {
 	}
 
 #define DEFINE_PROPERTY_REDUNDANT_MODIFICATION_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE, PROPERTY_VALUE_TYPE, HASHER_TYPE) \
-	DECLARE_STATEFUL_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE)() { \
-		using ValidatorType = stateful::FunctionalNotificationValidatorT<NOTIFICATION_TYPE>; \
-		return std::make_unique<ValidatorType>(#VALIDATOR_NAME "Validator", [](const auto& notification, const auto& context) { \
-			return Validate<PROPERTY_VALUE_TYPE, NOTIFICATION_TYPE, HASHER_TYPE>(notification, context); \
-		}); \
-	}
+	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(VALIDATOR_NAME, NOTIFICATION_TYPE, ([](const auto& notification, const auto& context) { \
+		return Validate<PROPERTY_VALUE_TYPE, NOTIFICATION_TYPE, HASHER_TYPE>(notification, context); \
+	}));
 
 	DEFINE_PROPERTY_REDUNDANT_MODIFICATION_VALIDATOR(
 			AddressPropertyRedundantModification,
 			model::ModifyAddressPropertyNotification,
 			UnresolvedAddress,
-			utils::ArrayHasher<UnresolvedAddress>)
+			utils::UnresolvedAddressHasher)
 	DEFINE_PROPERTY_REDUNDANT_MODIFICATION_VALIDATOR(
 			MosaicPropertyRedundantModification,
 			model::ModifyMosaicPropertyNotification,

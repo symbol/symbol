@@ -24,11 +24,13 @@ namespace catapult { namespace builders {
 
 	HashLockBuilder::HashLockBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
+			, m_mosaic()
+			, m_duration()
 			, m_hash()
 	{}
 
-	void HashLockBuilder::setMosaic(UnresolvedMosaicId mosaicId, Amount amount) {
-		m_mosaic = { mosaicId, amount };
+	void HashLockBuilder::setMosaic(const model::UnresolvedMosaic& mosaic) {
+		m_mosaic = mosaic;
 	}
 
 	void HashLockBuilder::setDuration(BlockDuration duration) {
@@ -39,24 +41,25 @@ namespace catapult { namespace builders {
 		m_hash = hash;
 	}
 
-	template<typename TransactionType>
-	std::unique_ptr<TransactionType> HashLockBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
-		auto pTransaction = createTransaction<TransactionType>(sizeof(TransactionType));
-
-		// 2. set transaction fields
-		pTransaction->Mosaic = m_mosaic;
-		pTransaction->Duration = m_duration;
-		pTransaction->Hash = m_hash;
-
-		return pTransaction;
-	}
-
 	std::unique_ptr<HashLockBuilder::Transaction> HashLockBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
 
 	std::unique_ptr<HashLockBuilder::EmbeddedTransaction> HashLockBuilder::buildEmbedded() const {
 		return buildImpl<EmbeddedTransaction>();
+	}
+
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> HashLockBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto size = sizeof(TransactionType);
+		auto pTransaction = createTransaction<TransactionType>(size);
+
+		// 2. set fixed transaction fields
+		pTransaction->Mosaic = m_mosaic;
+		pTransaction->Duration = m_duration;
+		pTransaction->Hash = m_hash;
+
+		return pTransaction;
 	}
 }}

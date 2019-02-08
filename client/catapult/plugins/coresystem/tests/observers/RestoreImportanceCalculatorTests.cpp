@@ -49,7 +49,9 @@ namespace catapult { namespace observers {
 		template<typename TAction>
 		void RunTestWithDelta(TAction action) {
 			// Arrange:
-			cache::AccountStateCache cache(cache::CacheConfiguration(), { model::NetworkIdentifier::Mijin_Test, 123, Amount(0) });
+			auto networkIdentifier = model::NetworkIdentifier::Mijin_Test;
+			cache::AccountStateCacheTypes::Options options{ networkIdentifier, 123, Amount(0), MosaicId(1111), MosaicId(2222) };
+			cache::AccountStateCache cache(cache::CacheConfiguration(), options);
 			auto cacheDelta = cache.createDelta();
 
 			// Act:

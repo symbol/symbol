@@ -45,4 +45,8 @@ namespace catapult { namespace cache {
 	uint64_t ReadOnlyAccountStateCache::importanceGrouping() const {
 		return m_pCache ? m_pCache->importanceGrouping() : m_pCacheDelta->importanceGrouping();
 	}
+
+	MosaicId ReadOnlyAccountStateCache::harvestingMosaicId() const {
+		return m_pCache ? m_pCache->harvestingMosaicId() : m_pCacheDelta->harvestingMosaicId();
+	}
 }}

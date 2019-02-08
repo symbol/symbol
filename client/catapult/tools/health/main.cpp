@@ -25,6 +25,7 @@
 #include "catapult/api/RemoteChainApi.h"
 #include "catapult/extensions/RemoteDiagnosticApi.h"
 #include "catapult/utils/DiagnosticCounterId.h"
+#include "catapult/utils/Functional.h"
 
 namespace catapult { namespace tools { namespace health {
 
@@ -196,8 +197,12 @@ namespace catapult { namespace tools { namespace health {
 				return infoFutures;
 			}
 
-			void processNodeInfos(const std::vector<NodeInfoPointer>& nodeInfos) override {
+			size_t processNodeInfos(const std::vector<NodeInfoPointer>& nodeInfos) override {
 				PrettyPrint(nodeInfos);
+
+				return utils::Sum(nodeInfos, [](const auto& pNodeInfo) {
+					return Height() == pNodeInfo->ChainHeight ? 1u : 0;
+				});
 			}
 
 		private:

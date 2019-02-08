@@ -26,7 +26,7 @@ namespace catapult { namespace tools {
 	/// Interface for command line parsing.
 	class CommandParser {
 	public:
-		virtual ~CommandParser() {}
+		virtual ~CommandParser() = default;
 
 	public:
 		/// Returns name of the command.

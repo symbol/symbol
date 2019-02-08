@@ -21,6 +21,7 @@
 #pragma once
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/model/NetworkInfo.h"
+#include "catapult/model/ResolverContext.h"
 #include "catapult/types.h"
 #include <cstdint>
 #include <limits>
@@ -30,15 +31,17 @@ namespace catapult { namespace validators {
 	/// Contextual information passed to stateful validators.
 	struct ValidatorContext {
 	public:
-		/// Creates a validator context around a \a height, \a blockTime, \a network and \a cache.
-		constexpr ValidatorContext(
+		/// Creates a validator context around a \a height, \a blockTime, \a network, \a resolvers and \a cache.
+		ValidatorContext(
 				catapult::Height height,
 				Timestamp blockTime,
 				const model::NetworkInfo& network,
+				const model::ResolverContext& resolvers,
 				const cache::ReadOnlyCatapultCache& cache)
 				: Height(height)
 				, BlockTime(blockTime)
 				, Network(network)
+				, Resolvers(resolvers)
 				, Cache(cache)
 		{}
 
@@ -51,6 +54,9 @@ namespace catapult { namespace validators {
 
 		/// Network info.
 		const model::NetworkInfo Network;
+
+		/// Alias resolvers.
+		const model::ResolverContext Resolvers;
 
 		/// Catapult cache.
 		const cache::ReadOnlyCatapultCache& Cache;

@@ -19,6 +19,7 @@
 **/
 
 #include "zeromq/src/PublisherUtils.h"
+#include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace zeromq {
@@ -28,7 +29,7 @@ namespace catapult { namespace zeromq {
 	TEST(TEST_CLASS, CanCreateTopic) {
 		// Arrange:
 		TransactionMarker marker = TransactionMarker(0x37);
-		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+		auto address = test::GenerateRandomUnresolvedAddress();
 
 		// Act:
 		auto topic = CreateTopic(marker, address);
@@ -36,6 +37,6 @@ namespace catapult { namespace zeromq {
 		// Assert:
 		ASSERT_EQ(Address_Decoded_Size + 1, topic.size());
 		EXPECT_EQ(marker, TransactionMarker(topic[0]));
-		EXPECT_TRUE(0 == std::memcmp(address.data(), topic.data() + 1, Address_Decoded_Size));
+		EXPECT_EQ_MEMORY(address.data(), topic.data() + 1, Address_Decoded_Size);
 	}
 }}

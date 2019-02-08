@@ -26,7 +26,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS ExpiredHashLockInfoObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(ExpiredHashLockInfo, )
+	DEFINE_COMMON_OBSERVER_TESTS(ExpiredHashLockInfo,)
 
 	namespace {
 		struct ExpiredHashLockInfoTraits : public test::BasicHashLockInfoTestTraits {
@@ -34,10 +34,6 @@ namespace catapult { namespace observers {
 			using ObserverTestContext = test::ObserverTestContextT<test::HashLockInfoCacheFactory>;
 
 		public:
-			static MosaicId LockInfoMosaicId() {
-				return Xem_Id;
-			}
-
 			static auto CreateObserver() {
 				return CreateExpiredHashLockInfoObserver();
 			}

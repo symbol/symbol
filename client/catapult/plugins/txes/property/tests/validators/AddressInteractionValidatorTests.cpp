@@ -36,10 +36,10 @@ namespace catapult { namespace validators {
 		using CacheContents = std::unordered_map<Key, std::vector<Key>, utils::ArrayHasher<Key>>;
 
 		struct AddressTraits {
-			static model::AddressSet ParticipantsByAddress(const std::vector<Key>& keys) {
-				model::AddressSet addresses;
+			static model::UnresolvedAddressSet ParticipantsByAddress(const std::vector<Key>& keys) {
+				model::UnresolvedAddressSet addresses;
 				for (const auto& key : keys)
-					addresses.insert(model::PublicKeyToAddress(key, Default_Network));
+					addresses.insert(test::UnresolveXor(model::PublicKeyToAddress(key, Default_Network)));
 
 				return addresses;
 			}
@@ -50,7 +50,7 @@ namespace catapult { namespace validators {
 		};
 
 		struct KeyTraits {
-			static model::AddressSet ParticipantsByAddress(const std::vector<Key>&) {
+			static model::UnresolvedAddressSet ParticipantsByAddress(const std::vector<Key>&) {
 				return {};
 			}
 
@@ -80,13 +80,14 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				const CacheContents& cacheContents,
 				const Key& source,
-				const model::AddressSet& participantsByAddress,
+				const model::UnresolvedAddressSet& participantsByAddress,
 				const utils::KeySet& participantsByKey) {
 			// Arrange:
 			auto cache = test::PropertyCacheFactory::Create();
 			PopulateCache<TOperationTraits>(cache, cacheContents);
 			auto pValidator = CreateAddressInteractionValidator();
-			auto notification = model::AddressInteractionNotification(source, participantsByAddress, participantsByKey);
+			auto entityType = static_cast<model::EntityType>(0x4123);
+			auto notification = model::AddressInteractionNotification(source, entityType, participantsByAddress, participantsByKey);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);

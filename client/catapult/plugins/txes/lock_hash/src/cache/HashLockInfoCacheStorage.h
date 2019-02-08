@@ -26,6 +26,5 @@
 namespace catapult { namespace cache {
 
 	/// Policy for saving and loading hash lock info cache data.
-	struct HashLockInfoCacheStorage : public LockInfoCacheStorage<HashLockInfoCacheDescriptor, state::HashLockInfoSerializer>
-	{};
+	struct HashLockInfoCacheStorage : public LockInfoCacheStorage<HashLockInfoCacheDescriptor, state::HashLockInfoSerializer> {};
 }}

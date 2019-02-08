@@ -30,7 +30,7 @@ namespace catapult { namespace observers {
 			//                    is executed. The execution of the parent block (height 359, which passes
 			//                    height 360 to the calculator) has already triggered the importance calculation
 			//                    at height 359. The calculation is done on the account states seen after all
-			//                    relevant block action has been executed (the calculation sees the xem balances
+			//                    relevant block action has been executed (the calculation sees the balances
 			//                    after block 359). Thus the hit validation for the block B already sees the
 			//                    new importance values.
 			//       summary: hit validation for block 359 uses importance values from height 1.
@@ -65,7 +65,7 @@ namespace catapult { namespace observers {
 				return m_name;
 			}
 
-			void notify(const model::BlockNotification&, const ObserverContext& context) const override {
+			void notify(const model::BlockNotification&, ObserverContext& context) const override {
 				auto& cache = context.Cache.sub<cache::AccountStateCache>();
 				auto importanceHeight = model::ConvertToImportanceHeight(GetEffectiveHeight(context), cache.importanceGrouping());
 				if (importanceHeight == context.State.LastRecalculationHeight)

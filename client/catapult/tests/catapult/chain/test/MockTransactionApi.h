@@ -20,6 +20,7 @@
 
 #pragma once
 #include "catapult/api/RemoteTransactionApi.h"
+#include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace mocks {
 
@@ -35,7 +36,8 @@ namespace catapult { namespace mocks {
 	public:
 		/// Creates a transaction api around a range of \a transactions.
 		explicit MockTransactionApi(const model::TransactionRange& transactions)
-				: m_transactions(model::TransactionRange::CopyRange(transactions))
+				: api::RemoteTransactionApi(test::GenerateRandomData<Key_Size>())
+				, m_transactions(model::TransactionRange::CopyRange(transactions))
 				, m_errorEntryPoint(EntryPoint::None)
 		{}
 
@@ -45,16 +47,18 @@ namespace catapult { namespace mocks {
 			m_errorEntryPoint = entryPoint;
 		}
 
-		/// Returns the vector of short hash ranges that were passed to the unconfirmed transactions requests.
-		const std::vector<model::ShortHashRange>& utRequests() const {
+		/// Returns a vector of parameters that were passed to the unconfirmed transactions requests.
+		const auto& utRequests() const {
 			return m_utRequests;
 		}
 
 	public:
 		/// Returns the configured unconfirmed transactions and throws if the error entry point is set to Unconfirmed_Transactions.
-		/// \note The \a knownShortHashes parameter is captured.
-		thread::future<model::TransactionRange> unconfirmedTransactions(model::ShortHashRange&& knownShortHashes) const override {
-			m_utRequests.push_back(std::move(knownShortHashes));
+		/// \note The \a minFeeMultiplier and \a knownShortHashes parameters are captured.
+		thread::future<model::TransactionRange> unconfirmedTransactions(
+				BlockFeeMultiplier minFeeMultiplier,
+				model::ShortHashRange&& knownShortHashes) const override {
+			m_utRequests.push_back(std::make_pair(minFeeMultiplier, std::move(knownShortHashes)));
 			if (shouldRaiseException(EntryPoint::Unconfirmed_Transactions))
 				return CreateFutureException<model::TransactionRange>("unconfirmed transactions error has been set");
 
@@ -74,6 +78,6 @@ namespace catapult { namespace mocks {
 	private:
 		model::TransactionRange m_transactions;
 		EntryPoint m_errorEntryPoint;
-		mutable std::vector<model::ShortHashRange> m_utRequests;
+		mutable std::vector<std::pair<BlockFeeMultiplier, model::ShortHashRange>> m_utRequests;
 	};
 }}

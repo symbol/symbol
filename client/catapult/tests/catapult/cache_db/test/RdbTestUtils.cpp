@@ -41,6 +41,13 @@ namespace catapult { namespace test {
 		};
 	}
 
+	DbInitializer::DbInitializer(const ColumnNames& columns, const DbSeeder& seeder) : DbInitializer(columns, seeder, nullptr)
+	{}
+
+	DbInitializer::DbInitializer(const ColumnNames& columns, const DbSeeder& seeder, const rocksdb::CompactionFilter* compactionFilter) {
+		seedDb(m_dbDirGuard.name(), columns, seeder, compactionFilter);
+	}
+
 	bool DbInitializer::seedDb(
 			const std::string& dbDir,
 			const std::vector<std::string>& columns,
@@ -75,21 +82,8 @@ namespace catapult { namespace test {
 		return true;
 	}
 
-	DbInitializer::DbInitializer(const std::string& dbDir, const ColumnNames& columns, const DbSeeder& seeder)
-			: DbInitializer(dbDir, columns, seeder, nullptr)
-	{}
-
-	DbInitializer::DbInitializer(
-			const std::string& dbDir,
-			const ColumnNames& columns,
-			const DbSeeder& seeder,
-			const rocksdb::CompactionFilter* compactionFilter)
-			: m_dbDirGuard(dbDir) {
-		seedDb(dbDir, columns, seeder, compactionFilter);
-	}
-
 	RdbTestContext::RdbTestContext(const cache::RocksDatabaseSettings& settings, const DbSeeder& seeder)
-			: DbInitializer(settings.DatabaseDirectory, settings.ColumnFamilyNames, seeder)
+			: DbInitializer(settings.ColumnFamilyNames, seeder)
 			, m_database(settings)
 	{}
 

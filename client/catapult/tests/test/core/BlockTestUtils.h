@@ -31,9 +31,9 @@ namespace catapult { namespace test {
 
 	/// Hash string of the deterministic block.
 #ifdef SIGNATURE_SCHEME_NIS1
-	constexpr auto Deterministic_Block_Hash_String = "5DB2BBA235DEF16B076EE1F1797397FBBFAE7B4DADC6F57E752EF09FFE6837F4";
+	constexpr auto Deterministic_Block_Hash_String = "4D4C0D925A79FA397634638745301E5AC255C279868A7E19FBCEDC25E80DECAA";
 #else
-	constexpr auto Deterministic_Block_Hash_String = "635E4E1FF97E8C56FCB485AF575DD18A9ECECB3A5BECA8E2F2EAAAE48D2424E0";
+	constexpr auto Deterministic_Block_Hash_String = "CEEFD9DDCCD3547AA5FF79EDBD6DBF07D5AD9EC8620E8E610DE62206CAA71704";
 #endif
 
 	/// Generates an empty block with random signer and no transactions.
@@ -75,6 +75,9 @@ namespace catapult { namespace test {
 	/// Generates a predefined block, i.e. this function will always return the same block.
 	std::unique_ptr<model::Block> GenerateDeterministicBlock();
 
+	/// Generates random block statements with statements described by \a numStatements
+	std::unique_ptr<model::BlockStatement> GenerateRandomStatements(const std::vector<size_t>& numStatements);
+
 	/// Policy for creating an empty block.
 	struct EmptyBlockPolicy {
 		static auto Create() {
@@ -102,6 +105,9 @@ namespace catapult { namespace test {
 	/// Creates \a count ranges of blocks.
 	std::vector<model::BlockRange> PrepareRanges(size_t count);
 
+	/// Counts the number of transactions in \a block.
+	size_t CountTransactions(const model::Block& block);
+
 	/// Creates a copy of \a block.
 	std::unique_ptr<model::Block> CopyBlock(const model::Block& block);
 
@@ -110,6 +116,12 @@ namespace catapult { namespace test {
 
 	/// Converts \a block to a block element.
 	model::BlockElement BlockToBlockElement(const model::Block& block);
+
+	/// Serializes \a blockStatement.
+	std::vector<uint8_t> SerializeBlockStatement(const model::BlockStatement& blockStatement);
+
+	/// Verifies that block statements \a expectedBlockStatement and \a blockStatement are equivalent.
+	void AssertEqual(const model::BlockStatement& expectedBlockStatement, const model::BlockStatement& blockStatement);
 
 	/// Verifies that block elements \a expectedBlockElement and \a blockElement are equivalent.
 	void AssertEqual(const model::BlockElement& expectedBlockElement, const model::BlockElement& blockElement);

@@ -57,8 +57,12 @@ namespace catapult { namespace plugins {
 				return { "HashLockInfoCache" };
 			}
 
+			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
+				return { ionet::PacketType::Hash_Lock_State_Path };
+			}
+
 			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return { ionet::PacketType::Hash_Lock_Infos, ionet::PacketType::Hash_Lock_State_Path };
+				return { ionet::PacketType::Hash_Lock_Infos };
 			}
 
 			static std::vector<std::string> GetDiagnosticCounterNames() {

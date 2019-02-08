@@ -37,6 +37,10 @@ namespace catapult { namespace mongo { namespace plugins {
 				};
 			}
 
+			static std::vector<model::ReceiptType> GetReceiptTypes() {
+				return {};
+			}
+
 			static std::string GetStorageName() {
 				return "{ PropertyCache }";
 			}

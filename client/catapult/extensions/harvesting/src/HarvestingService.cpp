@@ -19,16 +19,20 @@
 **/
 
 #include "HarvestingService.h"
-#include "BlockStateHashCalculator.h"
+#include "BlockExecutionHashesCalculator.h"
 #include "HarvestingConfiguration.h"
+#include "HarvestingUtFacadeFactory.h"
 #include "ScheduledHarvesterTask.h"
 #include "UnlockedAccounts.h"
 #include "catapult/cache/MemoryUtCache.h"
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/extensions/ConfigurationUtils.h"
+#include "catapult/extensions/ExecutionConfigurationFactory.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/io/BlockStorageCache.h"
+#include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace harvesting {
 
@@ -74,12 +78,17 @@ namespace catapult { namespace harvesting {
 		thread::Task CreateHarvestingTask(extensions::ServiceState& state, UnlockedAccounts& unlockedAccounts) {
 			const auto& cache = state.cache();
 			const auto& blockChainConfig = state.config().BlockChain;
+			const auto& utCache = state.utCache();
+			auto executionConfig = extensions::CreateExecutionConfiguration(state.pluginManager());
+			HarvestingUtFacadeFactory utFacadeFactory(cache, extensions::GetUtCacheOptions(state.config().Node), executionConfig);
 
 			Harvester::Suppliers harvesterSuppliers{
-				[&cache, &blockChainConfig, &pluginManager = state.pluginManager()](const auto& block) {
-					return CalculateBlockStateHash(block, cache, blockChainConfig, pluginManager);
+				[&cache, &blockChainConfig, executionConfig](const auto& block, const auto& transactionHashes) {
+					return CalculateBlockExecutionHashes(block, transactionHashes, cache, blockChainConfig, executionConfig);
 				},
-				CreateTransactionsInfoSupplier(state.utCache())
+				[strategy = state.config().Node.TransactionSelectionStrategy, utFacadeFactory, &utCache](auto height, auto count) {
+					return CreateTransactionsInfoSupplier(strategy, utFacadeFactory, utCache)(height, count);
+				}
 			};
 			auto pHarvesterTask = std::make_shared<ScheduledHarvesterTask>(
 					CreateHarvesterTaskOptions(state),

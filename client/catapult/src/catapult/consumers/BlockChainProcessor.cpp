@@ -56,16 +56,18 @@ namespace catapult { namespace consumers {
 		public:
 			DefaultBlockChainProcessor(
 					const BlockHitPredicateFactory& blockHitPredicateFactory,
-					const chain::BatchEntityProcessor& batchEntityProcessor)
+					const chain::BatchEntityProcessor& batchEntityProcessor,
+					ReceiptValidationMode receiptValidationMode)
 					: m_blockHitPredicateFactory(blockHitPredicateFactory)
 					, m_batchEntityProcessor(batchEntityProcessor)
+					, m_receiptValidationMode(receiptValidationMode)
 			{}
 
 		public:
 			ValidationResult operator()(
 					const WeakBlockInfo& parentBlockInfo,
 					BlockElements& elements,
-					const observers::ObserverState& state) const {
+					observers::ObserverState& state) const {
 				if (elements.empty())
 					return ValidationResult::Neutral;
 
@@ -82,32 +84,30 @@ namespace catapult { namespace consumers {
 				LogCacheStateHashInformation(pParent->Height, state.Cache.calculateStateHash(pParent->Height));
 
 				for (auto& element : elements) {
-					const auto& block = element.Block;
-					element.GenerationHash = model::CalculateGenerationHash(*pParentGenerationHash, block.Signer);
-					if (!blockHitPredicate(*pParent, block, element.GenerationHash)) {
-						CATAPULT_LOG(warning) << "block " << block.Height << " failed hit";
+					// 1. check generation hash
+					if (!CheckGenerationHash(element, *pParent, *pParentGenerationHash, blockHitPredicate))
 						return chain::Failure_Chain_Block_Not_Hit;
-					}
 
-					auto result = m_batchEntityProcessor(block.Height, block.Timestamp, ExtractEntityInfos(element), state);
+					// 2. validate and observe block
+					model::BlockStatementBuilder blockStatementBuilder;
+					auto blockDependentState = createBlockDependentObserverState(state, blockStatementBuilder);
+
+					const auto& block = element.Block;
+					auto result = m_batchEntityProcessor(block.Height, block.Timestamp, ExtractEntityInfos(element), blockDependentState);
 					if (!IsValidationResultSuccess(result)) {
 						CATAPULT_LOG(warning) << "batch processing of block " << block.Height << " failed with " << result;
 						return result;
 					}
 
-					auto cacheStateHashInfo = state.Cache.calculateStateHash(block.Height);
-					LogCacheStateHashInformation(block.Height, cacheStateHashInfo);
-
-					if (block.StateHash != cacheStateHashInfo.StateHash) {
-						CATAPULT_LOG(warning)
-								<< "block state hash (" << utils::HexFormat(block.StateHash) << ") does not match "
-								<< "cache state hash (" << utils::HexFormat(cacheStateHashInfo.StateHash) << ") "
-								<< "at height " << block.Height;
+					// 3. check state hash
+					if (!CheckStateHash(element, state.Cache))
 						return chain::Failure_Chain_Block_Inconsistent_State_Hash;
-					}
 
-					element.SubCacheMerkleRoots = cacheStateHashInfo.SubCacheMerkleRoots;
+					// 4. check receipts hash
+					if (!CheckReceiptsHash(element, blockStatementBuilder, m_receiptValidationMode))
+						return chain::Failure_Chain_Block_Inconsistent_Receipts_Hash;
 
+					// 5. set next parent
 					pParent = &block;
 					pParentGenerationHash = &element.GenerationHash;
 				}
@@ -116,14 +116,81 @@ namespace catapult { namespace consumers {
 			}
 
 		private:
+			observers::ObserverState createBlockDependentObserverState(
+					observers::ObserverState& state,
+					model::BlockStatementBuilder& blockStatementBuilder) const {
+				return ReceiptValidationMode::Disabled == m_receiptValidationMode
+						? state
+						: observers::ObserverState(state.Cache, state.State, blockStatementBuilder);
+			}
+
+		private:
+			static bool CheckGenerationHash(
+					model::BlockElement& element,
+					const model::Block& parentBlock,
+					const Hash256& parentGenerationHash,
+					const BlockHitPredicate& blockHitPredicate) {
+				const auto& block = element.Block;
+				element.GenerationHash = model::CalculateGenerationHash(parentGenerationHash, block.Signer);
+				if (!blockHitPredicate(parentBlock, block, element.GenerationHash)) {
+					CATAPULT_LOG(warning) << "block " << block.Height << " failed hit";
+					return false;
+				}
+
+				return true;
+			}
+
+			static bool CheckStateHash(model::BlockElement& element, cache::CatapultCacheDelta& cacheDelta) {
+				const auto& block = element.Block;
+				auto cacheStateHashInfo = cacheDelta.calculateStateHash(block.Height);
+				LogCacheStateHashInformation(block.Height, cacheStateHashInfo);
+
+				if (block.StateHash != cacheStateHashInfo.StateHash) {
+					CATAPULT_LOG(warning)
+							<< "block state hash (" << utils::HexFormat(block.StateHash) << ") does not match "
+							<< "cache state hash (" << utils::HexFormat(cacheStateHashInfo.StateHash) << ") "
+							<< "at height " << block.Height;
+					return false;
+				}
+
+				element.SubCacheMerkleRoots = cacheStateHashInfo.SubCacheMerkleRoots;
+				return true;
+			}
+
+			static bool CheckReceiptsHash(
+					model::BlockElement& element,
+					model::BlockStatementBuilder& blockStatementBuilder,
+					ReceiptValidationMode receiptValidationMode) {
+				const auto& block = element.Block;
+				Hash256 blockReceiptsHash{};
+				if (ReceiptValidationMode::Enabled == receiptValidationMode) {
+					auto pBlockStatement = blockStatementBuilder.build();
+					blockReceiptsHash = CalculateMerkleHash(*pBlockStatement);
+					element.OptionalStatement = std::move(pBlockStatement);
+				}
+
+				if (block.BlockReceiptsHash != blockReceiptsHash) {
+					CATAPULT_LOG(warning)
+							<< "block receipts hash (" << utils::HexFormat(block.BlockReceiptsHash) << ") does not match "
+							<< "calculated receipts hash (" << utils::HexFormat(blockReceiptsHash) << ") "
+							<< "at height " << block.Height;
+					return false;
+				}
+
+				return true;
+			}
+
+		private:
 			BlockHitPredicateFactory m_blockHitPredicateFactory;
 			chain::BatchEntityProcessor m_batchEntityProcessor;
+			ReceiptValidationMode m_receiptValidationMode;
 		};
 	}
 
 	BlockChainProcessor CreateBlockChainProcessor(
 			const BlockHitPredicateFactory& blockHitPredicateFactory,
-			const chain::BatchEntityProcessor& batchEntityProcessor) {
-		return DefaultBlockChainProcessor(blockHitPredicateFactory, batchEntityProcessor);
+			const chain::BatchEntityProcessor& batchEntityProcessor,
+			ReceiptValidationMode receiptValidationMode) {
+		return DefaultBlockChainProcessor(blockHitPredicateFactory, batchEntityProcessor, receiptValidationMode);
 	}
 }}

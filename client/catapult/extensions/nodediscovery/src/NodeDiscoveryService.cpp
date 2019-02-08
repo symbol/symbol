@@ -25,6 +25,7 @@
 #include "nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
 #include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/extensions/NetworkUtils.h"
+#include "catapult/extensions/NodeInteractionUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/ionet/NetworkNode.h"
@@ -47,13 +48,14 @@ namespace catapult { namespace nodediscovery {
 			});
 		}
 
-		thread::Task CreatePeersTask(
-				const utils::TimeSpan& timeout,
-				net::PacketIoPickerContainer& packetIoPickers,
-				const handlers::NodesConsumer& nodesConsumer) {
-			BatchPeersRequestor requestor(packetIoPickers, nodesConsumer);
-			return thread::CreateNamedTask("node discovery peers task", [timeout, requestor]() {
-				return requestor.findPeersOfPeers(timeout).then([](auto&&) {
+		thread::Task CreatePeersTask(extensions::ServiceState& state, const handlers::NodesConsumer& nodesConsumer) {
+			BatchPeersRequestor requestor(state.packetIoPickers(), nodesConsumer);
+			return thread::CreateNamedTask("node discovery peers task", [&config = state.config(), &nodes = state.nodes(), requestor]() {
+				return requestor.findPeersOfPeers(config.Node.SyncTimeout).then([&nodes](auto&& future) {
+					auto results = future.get();
+					for (const auto& result : results)
+						extensions::IncrementNodeInteraction(nodes, result);
+
 					return thread::TaskResult::Continue;
 				});
 			});
@@ -125,7 +127,7 @@ namespace catapult { namespace nodediscovery {
 
 				// add task
 				state.tasks().push_back(CreatePingTask(state.hooks().packetPayloadSink(), m_pLocalNetworkNode));
-				state.tasks().push_back(CreatePeersTask(state.config().Node.SyncTimeout, state.packetIoPickers(), pushPeersHandler));
+				state.tasks().push_back(CreatePeersTask(state, pushPeersHandler));
 			}
 
 		private:

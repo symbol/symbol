@@ -42,6 +42,9 @@ namespace catapult { namespace model {
 	/// Child namespace was registered.
 	DEFINE_NAMESPACE_NOTIFICATION(Child_Registration, 0x0022, All);
 
+	/// Namespace rental fee has been sent.
+	DEFINE_NAMESPACE_NOTIFICATION(Rental_Fee, 0x0030, Observer);
+
 #undef DEFINE_NAMESPACE_NOTIFICATION
 
 	// endregion
@@ -149,4 +152,30 @@ namespace catapult { namespace model {
 		/// Id of the parent namespace.
 		catapult::NamespaceId ParentId;
 	};
+
+	// region rental fee
+
+	/// Notification of a namespace rental fee.
+	struct NamespaceRentalFeeNotification : public BasicBalanceNotification<NamespaceRentalFeeNotification> {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Namespace_Rental_Fee_Notification;
+
+	public:
+		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
+		explicit NamespaceRentalFeeNotification(
+				const Key& sender,
+				const UnresolvedAddress& recipient,
+				UnresolvedMosaicId mosaicId,
+				catapult::Amount amount)
+				: BasicBalanceNotification(sender, mosaicId, amount)
+				, Recipient(recipient)
+		{}
+
+	public:
+		/// Recipient.
+		UnresolvedAddress Recipient;
+	};
+
+	// endregion
 }}

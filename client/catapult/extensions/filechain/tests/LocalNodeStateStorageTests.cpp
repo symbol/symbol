@@ -92,6 +92,7 @@ namespace catapult { namespace filechain {
 
 			supplementalData.ChainScore = model::ChainScore(0x1234567890ABCDEF, 0xFEDCBA0987654321);
 			supplementalData.State.LastRecalculationHeight = model::ImportanceHeight(12345);
+			supplementalData.State.NumTotalTransactions = 7654321;
 			filechain::SaveState(dataDirectory, cache, supplementalData);
 			return supplementalData;
 		}
@@ -113,6 +114,7 @@ namespace catapult { namespace filechain {
 		AssertSubCaches(originalCache, cache);
 		EXPECT_EQ(originalSupplementalData.ChainScore, supplementalData.ChainScore);
 		EXPECT_EQ(originalSupplementalData.State.LastRecalculationHeight, supplementalData.State.LastRecalculationHeight);
+		EXPECT_EQ(originalSupplementalData.State.NumTotalTransactions, supplementalData.State.NumTotalTransactions);
 		EXPECT_EQ(Height(54321), cache.createView().height());
 	}
 
@@ -189,6 +191,7 @@ namespace catapult { namespace filechain {
 		AssertSubCaches(originalCache, cache);
 		EXPECT_EQ(originalSupplementalData.ChainScore, supplementalData.ChainScore);
 		EXPECT_EQ(originalSupplementalData.State.LastRecalculationHeight, supplementalData.State.LastRecalculationHeight);
+		EXPECT_EQ(originalSupplementalData.State.NumTotalTransactions, supplementalData.State.NumTotalTransactions);
 		EXPECT_EQ(Height(54321), cache.createView().height());
 	}
 }}

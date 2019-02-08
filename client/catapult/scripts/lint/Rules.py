@@ -55,6 +55,10 @@ class DefaultRules:
         if 'tests' in splittedPath and 'test' in splittedPath:
             return False
 
+        # everything in int tests or bench, as there's no hierarchy there and we can't figure out ns
+        if 'int' in splittedPath or 'bench' in splittedPath:
+            return True
+
         return nsUnified in pathUnified
 
     @staticmethod
@@ -68,8 +72,9 @@ class DefaultRules:
     @staticmethod
     def firstTestIncludeCheck(sortedIncludes, pathElements):
         fullPath = '/'.join(pathElements)
-        if 'int' in pathElements and 'test' not in pathElements:
-            return sortedIncludes[0].include
+        if 'test' not in pathElements:
+            if 'int' in pathElements or 'bench' in pathElements:
+                return sortedIncludes[0].include
 
         if pathElements[0] != 'tests':
             return '<firstTestIncludeCheck called on non test path>' + fullPath
@@ -249,8 +254,13 @@ class ExtensionRules:
         if pathElements[-1].endswith('Extension.cpp'):
             return sortedIncludes[0].include
 
+        # exclusions have priority over general rules
         if fullPath in EXTENSION_FIRSTINCLUDES:
             return '"{}"'.format(EXTENSION_FIRSTINCLUDES[fullPath])
+
+        if pathElements[-1].startswith('Mongo') and pathElements[-1].endswith('Plugin.cpp'):
+            pluginName = pathElements[-1][5:-10]
+            return '"{}Mapper.h"'.format(pluginName)
 
         if 'filters' in pathElements and 'timesync' in pathElements:
             return '"SynchronizationFilters.h"'
@@ -261,29 +271,36 @@ class ExtensionRules:
     def firstTestIncludeCheck(sortedIncludes, pathElements):
         del sortedIncludes
         if 'tests' in pathElements and pathElements[-1].endswith('Tests.cpp'):
-            fullPath = '/'.join(pathElements)
-            if fullPath in EXTENSION_FIRSTINCLUDES:
-                return '"{}"'.format(EXTENSION_FIRSTINCLUDES[fullPath])
-
-            if 'filters' in pathElements and 'timesync' in pathElements:
-                return '"timesync/src/filters/SynchronizationFilters.h"'
-
-            testsId = pathElements.index('tests')
-            if 'int' in pathElements and pathElements.index('int') == testsId + 1:
-                testsId += 1
-
-            includeDir = '/'.join(pathElements[testsId + 1: -1])
-            includeFilePath = '/'.join(filter(None, [includeDir, pathElements[-1][:-9]]))
-            if 'plugins' in pathElements:  # subplugins should be relative to the subplugin root
-                return '"src/{}.h"'.format(includeFilePath)
-
-            # non-plugins should be relative to the extension root
-            return '"{}/src/{}.h"'.format(pathElements[1], includeFilePath)
+            return ExtensionRules._firstTestIncludeCheckForTestsFile(pathElements)
 
         if 'test' in pathElements:
             return '"{}.h"'.format(pathElements[-1][:-4])
 
         return '<could not figure out first include>'
+
+    @staticmethod
+    def _firstTestIncludeCheckForTestsFile(pathElements):
+        fullPath = '/'.join(pathElements)
+        if fullPath in EXTENSION_FIRSTINCLUDES:
+            return '"{}"'.format(EXTENSION_FIRSTINCLUDES[fullPath])
+
+        if pathElements[-1].startswith('Mongo') and pathElements[-1].endswith('PluginTests.cpp'):
+            return '"mongo/tests/test/MongoPluginTestUtils.h"'
+
+        if 'filters' in pathElements and 'timesync' in pathElements:
+            return '"timesync/src/filters/SynchronizationFilters.h"'
+
+        testsId = pathElements.index('tests')
+        if 'int' in pathElements and pathElements.index('int') == testsId + 1:
+            testsId += 1
+
+        includeDir = '/'.join(pathElements[testsId + 1: -1])
+        includeFilePath = '/'.join(filter(None, [includeDir, pathElements[-1][:-9]]))
+        if 'plugins' in pathElements:  # subplugins should be relative to the subplugin root
+            return '"src/{}.h"'.format(includeFilePath)
+
+        # non-plugins should be relative to the extension root
+        return '"{}/src/{}.h"'.format(pathElements[1], includeFilePath)
 
     @staticmethod
     def validateCrossIncludes(sortedIncludes, pathElements):

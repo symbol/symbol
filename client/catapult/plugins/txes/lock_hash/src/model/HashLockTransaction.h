@@ -38,7 +38,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Transaction mosaic.
-		model::UnresolvedMosaic Mosaic;
+		UnresolvedMosaic Mosaic;
 
 		/// Number of blocks for which a lock should be valid.
 		BlockDuration Duration;

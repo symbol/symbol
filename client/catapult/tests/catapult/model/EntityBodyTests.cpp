@@ -39,8 +39,7 @@ namespace catapult { namespace model {
 	}
 
 	namespace {
-		struct EmptyHeader
-		{};
+		struct EmptyHeader {};
 
 		void AssertNetwork(uint16_t version, uint8_t expectedNetwork) {
 			// Act:

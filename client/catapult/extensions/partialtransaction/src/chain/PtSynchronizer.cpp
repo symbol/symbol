@@ -43,7 +43,7 @@ namespace catapult { namespace chain {
 				return api.transactionInfos(m_shortHashPairsSupplier());
 			}
 
-			void consume(partialtransaction::CosignedTransactionInfos&& transactionInfos) const {
+			void consume(partialtransaction::CosignedTransactionInfos&& transactionInfos, const Key&) const {
 				m_transactionInfosConsumer(std::move(transactionInfos));
 			}
 

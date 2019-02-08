@@ -34,7 +34,7 @@ namespace catapult { namespace mongo {
 		{}
 
 	public:
-		virtual ~ExternalCacheStorage() {}
+		virtual ~ExternalCacheStorage() = default;
 
 	public:
 		/// Gets the cache name.

@@ -41,18 +41,16 @@ namespace catapult { namespace mongo {
 #define TEST_CLASS MongoBulkWriterTests
 
 	namespace {
-#ifdef STRESS
-		constexpr size_t Num_Entities = 200000;
-#else
-		constexpr size_t Num_Entities = 20000;
-#endif
-
 		constexpr auto Transactions_Collection_Name = "transactions";
 		constexpr auto Accounts_Collection_Name = "accounts";
 
 		using AccountStates = std::unordered_set<std::shared_ptr<state::AccountState>>;
 		using Transactions = std::vector<std::unique_ptr<model::Transaction>>;
 		using TransactionElements = std::vector<model::TransactionElement>;
+
+		int32_t GetDefaultEntityCount() {
+			return test::GetStressIterationCount() ? 200'000 : 20'000;
+		}
 
 		auto CreateAccountStates(size_t count) {
 			AccountStates accountStates;
@@ -75,7 +73,7 @@ namespace catapult { namespace mongo {
 
 		auto ModifyAccounts(const AccountStates& accountStates) {
 			for (auto& pAccountState : accountStates)
-				pAccountState->Balances.credit(Xem_Id, Amount(123));
+				pAccountState->Balances.credit(MosaicId(1111), Amount(123));
 		}
 
 		auto CreateTransactions(size_t count) {
@@ -92,7 +90,7 @@ namespace catapult { namespace mongo {
 				transactionElements.emplace_back(*pTransaction);
 				auto& transactionElement = transactionElements.back();
 				transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
-				transactionElement.OptionalExtractedAddresses = std::make_shared<model::AddressSet>();
+				transactionElement.OptionalExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
 			}
 
 			return transactionElements;
@@ -141,7 +139,10 @@ namespace catapult { namespace mongo {
 		class PerformanceContext {
 		public:
 			// the service thread pool has 8 threads since tests show that mongo performs best with this arrangement
-			PerformanceContext(size_t numEntities = Num_Entities)
+			PerformanceContext() : PerformanceContext(static_cast<size_t>(GetDefaultEntityCount()))
+			{}
+
+			explicit PerformanceContext(size_t numEntities)
 					: m_accountStates(CreateAccountStates(numEntities))
 					, m_transactions(CreateTransactions(numEntities))
 					, m_transactionElements(CreateTransactionElements(m_transactions))
@@ -206,8 +207,8 @@ namespace catapult { namespace mongo {
 
 		// Assert:
 		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-		test::AssertCollectionSize(Transactions_Collection_Name, Num_Entities);
-		AssertResult(Num_Entities, 0, 0, 0, 0, aggregate);
+		test::AssertCollectionSize(Transactions_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount()));
+		AssertResult(GetDefaultEntityCount(), 0, 0, 0, 0, aggregate);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, InsertOneToManyPerformance) {
@@ -230,8 +231,8 @@ namespace catapult { namespace mongo {
 
 		// Assert: each entity is mapped to three documents
 		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-		test::AssertCollectionSize(Transactions_Collection_Name, 3 * Num_Entities);
-		AssertResult(3 * Num_Entities, 0, 0, 0, 0, aggregate);
+		test::AssertCollectionSize(Transactions_Collection_Name, static_cast<uint64_t>(3 * GetDefaultEntityCount()));
+		AssertResult(3 * GetDefaultEntityCount(), 0, 0, 0, 0, aggregate);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, UpsertPerformance) {
@@ -249,7 +250,7 @@ namespace catapult { namespace mongo {
 				test::CreateFilter).get();
 
 		// Sanity:
-		test::AssertCollectionSize(Accounts_Collection_Name, Num_Entities / 2);
+		test::AssertCollectionSize(Accounts_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount() / 2));
 
 		// Act:
 		ModifyAccounts(context.accountStates());
@@ -262,8 +263,8 @@ namespace catapult { namespace mongo {
 
 		// Assert:
 		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-		test::AssertCollectionSize(Accounts_Collection_Name, Num_Entities);
-		AssertResult(0, Num_Entities / 2, Num_Entities / 2, 0, Num_Entities / 2, aggregate);
+		test::AssertCollectionSize(Accounts_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount()));
+		AssertResult(0, GetDefaultEntityCount() / 2, GetDefaultEntityCount() / 2, 0, GetDefaultEntityCount() / 2, aggregate);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, DeleteOneToOnePerformance) {
@@ -276,7 +277,7 @@ namespace catapult { namespace mongo {
 				test::CreateFilter).get();
 
 		// Sanity:
-		test::AssertCollectionSize(Accounts_Collection_Name, Num_Entities);
+		test::AssertCollectionSize(Accounts_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount()));
 
 		// Act:
 		utils::StackLogger stopwatch("DeleteOneToOnePerformance", utils::LogLevel::Warning);
@@ -288,7 +289,7 @@ namespace catapult { namespace mongo {
 		// Assert:
 		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
 		test::AssertCollectionSize(Accounts_Collection_Name, 0);
-		AssertResult(0, 0, 0, Num_Entities, 0, aggregate);
+		AssertResult(0, 0, 0, GetDefaultEntityCount(), 0, aggregate);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, DeleteOneToManyPerformance) {
@@ -301,7 +302,7 @@ namespace catapult { namespace mongo {
 				test::CreateFilter).get();
 
 		// Sanity:
-		test::AssertCollectionSize(Accounts_Collection_Name, Num_Entities);
+		test::AssertCollectionSize(Accounts_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount()));
 
 		// Act: simulate a multi-delete by passing in a single element vector and a select all filter
 		//      the createFilter function is called once and returns a filter that matches all documents
@@ -312,7 +313,7 @@ namespace catapult { namespace mongo {
 		// Assert:
 		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
 		test::AssertCollectionSize(Accounts_Collection_Name, 0);
-		AssertResult(0, 0, 0, Num_Entities, 0, aggregate);
+		AssertResult(0, 0, 0, GetDefaultEntityCount(), 0, aggregate);
 	}
 
 	// endregion

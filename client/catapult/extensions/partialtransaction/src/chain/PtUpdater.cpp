@@ -45,9 +45,9 @@ namespace catapult { namespace chain {
 			// copy the transaction data without cosignatures
 			uint32_t truncatedSize = sizeof(model::AggregateTransaction) + pAggregateTransaction->PayloadSize;
 			auto pTransactionWithoutCosignatures = utils::MakeSharedWithSize<model::AggregateTransaction>(truncatedSize);
-			memcpy(pTransactionWithoutCosignatures.get(), pAggregateTransaction.get(), truncatedSize);
+			std::memcpy(static_cast<void*>(pTransactionWithoutCosignatures.get()), pAggregateTransaction.get(), truncatedSize);
 			pTransactionWithoutCosignatures->Size = truncatedSize;
-			return pTransactionWithoutCosignatures;
+			return std::move(pTransactionWithoutCosignatures);
 		}
 
 		DetachedCosignatures ExtractCosignatures(
@@ -138,7 +138,7 @@ namespace catapult { namespace chain {
 			std::shared_ptr<const model::AggregateTransaction> pAggregateTransaction;
 			Hash256 AggregateHash;
 			DetachedCosignatures Cosignatures;
-			std::shared_ptr<const model::AddressSet> pExtractedAddresses;
+			std::shared_ptr<const model::UnresolvedAddressSet> pExtractedAddresses;
 		};
 
 	public:

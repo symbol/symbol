@@ -21,6 +21,8 @@
 #include "DiagnosticHandlers.h"
 #include "BasicProducer.h"
 #include "HandlerFactory.h"
+#include "HeightRequestProcessor.h"
+#include "catapult/api/ChainPackets.h"
 #include "catapult/ionet/NodeContainer.h"
 #include "catapult/ionet/PackedNodeInfo.h"
 #include "catapult/ionet/PacketPayloadFactory.h"
@@ -83,6 +85,7 @@ namespace catapult { namespace handlers {
 						pNodeInfo->Size = nodeInfoSize;
 						pNodeInfo->IdentityKey = node.identityKey();
 						pNodeInfo->Source = nodeInfo.source();
+						pNodeInfo->Interactions.Update(nodeInfo.interactions(view.time()));
 						pNodeInfo->ConnectionStatesCount = utils::checked_cast<size_t, uint8_t>(serviceIds.size());
 
 						auto* pConnectionState = pNodeInfo->ConnectionStatesPtr();
@@ -111,6 +114,36 @@ namespace catapult { namespace handlers {
 				return producer();
 			};
 		});
+	}
+
+	// endregion
+
+	// region DiagnosticBlockStatementHandler
+
+	namespace {
+		auto CreateBlockStatementHandler(const io::BlockStorageCache& storage) {
+			return [&storage](const auto& packet, auto& context) {
+				using RequestType = api::HeightPacket<ionet::PacketType::Block_Statement>;
+				auto storageView = storage.view();
+				auto info = HeightRequestProcessor<RequestType>::Process(storageView, packet, context, false);
+				if (!info.pRequest)
+					return;
+
+				auto blockStatementPair = storageView.loadBlockStatementData(info.NormalizedRequestHeight);
+				if (!blockStatementPair.second)
+					return;
+
+				auto packetSize = utils::checked_cast<size_t, uint32_t>(blockStatementPair.first.size());
+				auto pResponsePacket = ionet::CreateSharedPacket<ionet::Packet>(packetSize);
+				pResponsePacket->Type = RequestType::Packet_Type;
+				memcpy(pResponsePacket->Data(), blockStatementPair.first.data(), blockStatementPair.first.size());
+				context.response(ionet::PacketPayload(pResponsePacket));
+			};
+		}
+	}
+
+	void RegisterDiagnosticBlockStatementHandler(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage) {
+		handlers.registerHandler(ionet::PacketType::Block_Statement, CreateBlockStatementHandler(storage));
 	}
 
 	// endregion

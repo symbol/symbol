@@ -29,6 +29,8 @@ namespace catapult { namespace io {
 			return std::shared_ptr<const model::Block>(&pBlockElement->Block, [pBlockElement](const auto*) {});
 		}
 
+		// region Copy
+
 		void CopyHashes(model::TransactionElement& destElement, const model::TransactionElement& srcElement) {
 			destElement.EntityHash = srcElement.EntityHash;
 			destElement.MerkleComponentHash = srcElement.MerkleComponentHash;
@@ -60,49 +62,52 @@ namespace catapult { namespace io {
 				++i;
 			}
 
+			if (originalBlockElement.OptionalStatement) {
+				auto pBlockStatement = std::make_shared<model::BlockStatement>();
+				DeepCopyTo(*pBlockStatement, *originalBlockElement.OptionalStatement);
+				pBlockElement->OptionalStatement = std::move(pBlockStatement);
+			}
+
 			return pBlockElement;
 		}
+
+		// endregion
 	}
 
-	/// Cached data holder.
+	// region CachedData
+
 	struct CachedData {
 	public:
-		CachedData() = default;
-
-		/// Returns cached height.
-		Height getHeight() const {
+		Height height() const {
 			return m_chainHeight;
 		}
 
-		/// Returns \c true if cache contains element at \a height.
+		std::shared_ptr<const model::Block> block(Height) const {
+			return BlockElementAsSharedBlock(m_pBlockElement);
+		}
+
+		std::shared_ptr<const model::BlockElement> blockElement(Height) const {
+			return m_pBlockElement;
+		}
+
+	public:
 		bool contains(Height height) const {
 			return m_pBlockElement && height == m_pBlockElement->Block.Height;
 		}
 
-		/// Returns cached block element.
-		std::shared_ptr<const model::BlockElement> getBlockElement(Height) const {
-			return m_pBlockElement;
-		}
-
-		/// Returns cached block.
-		std::shared_ptr<const model::Block> getBlock(Height) const {
-			return BlockElementAsSharedBlock(m_pBlockElement);
-		}
-
-		/// Updates cache with block element (\a blockElement).
-		void update(const model::BlockElement& blockElement) {
-			// note: update receives elements during loadBlock, but also saveBlock. We get them from BlockChainSyncConsumer,
-			// and it gets them from disruptor... in order NOT to copy here we'd need to take ownership of those.
-			// Currently we can't/shouldn't do it, as there's "new block" consumer afterwards and possibly ProcessingCompleteFunc.
-			m_pBlockElement = Copy(blockElement);
-		}
-
-		/// Updates cached height to \a height.
+	public:
 		void update(Height height) {
 			m_chainHeight = height;
 
 			if (m_pBlockElement && height < m_pBlockElement->Block.Height)
 				m_pBlockElement.reset();
+		}
+
+		void update(const model::BlockElement& blockElement) {
+			// note: update receives elements during loadBlock, but also saveBlock. We get them from BlockChainSyncConsumer,
+			// and it gets them from disruptor... in order NOT to copy here we'd need to take ownership of those.
+			// Currently we can't/shouldn't do it, as there's "new block" consumer afterwards and possibly ProcessingCompleteFunc.
+			m_pBlockElement = Copy(blockElement);
 		}
 
 	private:
@@ -111,6 +116,8 @@ namespace catapult { namespace io {
 		Height m_chainHeight;
 		std::shared_ptr<const model::BlockElement> m_pBlockElement;
 	};
+
+	// endregion
 
 	BlockStorageCache::~BlockStorageCache() = default;
 
@@ -124,7 +131,11 @@ namespace catapult { namespace io {
 	// region BlockStorageView
 
 	Height BlockStorageView::chainHeight() const {
-		return m_cachedData.getHeight();
+		return m_cachedData.height();
+	}
+
+	model::HashRange BlockStorageView::loadHashesFrom(Height height, size_t maxHashes) const {
+		return m_storage.loadHashesFrom(height, maxHashes);
 	}
 
 	std::shared_ptr<const model::Block> BlockStorageView::loadBlock(Height height) const {
@@ -132,7 +143,7 @@ namespace catapult { namespace io {
 			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot load block at height greater than chain height", height);
 
 		if (m_cachedData.contains(height))
-			return m_cachedData.getBlock(height);
+			return m_cachedData.block(height);
 
 		return m_storage.loadBlock(height);
 	}
@@ -142,13 +153,13 @@ namespace catapult { namespace io {
 			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot load block at height greater than chain height", height);
 
 		if (m_cachedData.contains(height))
-			return m_cachedData.getBlockElement(height);
+			return m_cachedData.blockElement(height);
 
 		return m_storage.loadBlockElement(height);
 	}
 
-	model::HashRange BlockStorageView::loadHashesFrom(Height height, size_t maxHashes) const {
-		return m_storage.loadHashesFrom(height, maxHashes);
+	std::pair<std::vector<uint8_t>, bool> BlockStorageView::loadBlockStatementData(Height height) const {
+		return m_storage.loadBlockStatementData(height);
 	}
 
 	// endregion
@@ -157,7 +168,7 @@ namespace catapult { namespace io {
 
 	namespace {
 		void CacheBlockElement(CachedData& cachedData, const model::BlockElement& blockElement) {
-			if (blockElement.Block.Height > cachedData.getHeight())
+			if (blockElement.Block.Height > cachedData.height())
 				cachedData.update(blockElement.Block.Height);
 
 			cachedData.update(blockElement);

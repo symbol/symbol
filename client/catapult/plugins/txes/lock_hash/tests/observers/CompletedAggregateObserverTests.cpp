@@ -20,6 +20,7 @@
 **/
 
 #include "src/observers/Observers.h"
+#include "src/model/HashLockReceiptType.h"
 #include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
 #include "plugins/txes/lock_shared/tests/observers/LockStatusAndBalanceObserverTests.h"
 #include "tests/test/HashLockInfoCacheTestUtils.h"
@@ -68,6 +69,10 @@ namespace catapult { namespace observers {
 			};
 
 			using ObserverTestContext = observers::ObserverTestContext;
+
+			static constexpr auto ReceiptType() {
+				return model::Receipt_Type_LockHash_Completed;
+			}
 
 			static auto CreateObserver() {
 				return CreateCompletedAggregateObserver();

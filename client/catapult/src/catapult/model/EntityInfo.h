@@ -97,7 +97,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Extracted addresses (optional).
-		std::shared_ptr<const AddressSet> OptionalExtractedAddresses;
+		std::shared_ptr<const UnresolvedAddressSet> OptionalExtractedAddresses;
 	};
 
 	/// A transaction and its associated metadata.

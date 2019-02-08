@@ -69,10 +69,11 @@ namespace catapult { namespace diagnostics {
 		context.boot();
 		const auto& packetHandlers = context.testState().state().packetHandlers();
 
-		// Assert: two handlers were added
-		EXPECT_EQ(3u, packetHandlers.size());
+		// Assert: three default handlers were added
+		EXPECT_EQ(4u, packetHandlers.size());
 		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Diagnostic_Counters)); // the default (counters) diagnostic handler
 		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Active_Node_Infos)); // the default (nodes) diagnostic handler
+		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Block_Statement)); // the default (statements) diagnostic handler
 		EXPECT_TRUE(packetHandlers.canProcess(ionet::PacketType::Chain_Info)); // the diagnostic handler hook registered above
 
 		// - correct params were forwarded to callback

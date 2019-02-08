@@ -20,6 +20,7 @@
 
 #pragma once
 #include "ExternalCacheStorageBuilder.h"
+#include "MongoReceiptPlugin.h"
 #include "MongoStorageContext.h"
 #include "MongoTransactionPlugin.h"
 #include "catapult/model/BlockChainConfiguration.h"
@@ -58,6 +59,11 @@ namespace catapult { namespace mongo {
 			m_transactionRegistry.registerPlugin(std::move(pTransactionPlugin));
 		}
 
+		/// Adds support for a receipt described by \a pReceiptPlugin.
+		void addReceiptSupport(std::unique_ptr<MongoReceiptPlugin>&& pReceiptPlugin) {
+			m_receiptRegistry.registerPlugin(std::move(pReceiptPlugin));
+		}
+
 		/// Adds support for an external cache storage described by \a pStorage.
 		template<typename TStorage>
 		void addStorageSupport(std::unique_ptr<TStorage>&& pStorage) {
@@ -70,6 +76,11 @@ namespace catapult { namespace mongo {
 			return m_transactionRegistry;
 		}
 
+		/// Gets the receipt registry.
+		const MongoReceiptRegistry& receiptRegistry() const {
+			return m_receiptRegistry;
+		}
+
 		/// Creates an external cache storage.
 		std::unique_ptr<ExternalCacheStorage> createStorage() {
 			return m_storageBuilder.build();
@@ -79,6 +90,7 @@ namespace catapult { namespace mongo {
 		MongoStorageContext& m_mongoContext;
 		model::BlockChainConfiguration m_chainConfig;
 		MongoTransactionRegistry m_transactionRegistry;
+		MongoReceiptRegistry m_receiptRegistry;
 		ExternalCacheStorageBuilder m_storageBuilder;
 	};
 }}

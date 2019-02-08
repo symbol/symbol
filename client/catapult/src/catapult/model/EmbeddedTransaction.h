@@ -35,8 +35,7 @@ namespace catapult { namespace model {
 #pragma pack(push, 1)
 
 	/// Binary layout for an embedded transaction (non-verifiable).
-	struct EmbeddedTransaction : public EntityBody<SizePrefixedEntity> {
-	};
+	struct EmbeddedTransaction : public EntityBody<SizePrefixedEntity> {};
 
 #pragma pack(pop)
 

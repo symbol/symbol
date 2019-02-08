@@ -26,7 +26,7 @@ namespace catapult { namespace io {
 	/// Block change subscriber.
 	class BlockChangeSubscriber {
 	public:
-		virtual ~BlockChangeSubscriber() {}
+		virtual ~BlockChangeSubscriber() = default;
 
 	public:
 		/// Indicates \a blockElement was saved.

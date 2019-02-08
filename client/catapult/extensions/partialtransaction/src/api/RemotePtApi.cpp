@@ -56,8 +56,9 @@ namespace catapult { namespace api {
 			using FutureType = thread::future<typename TTraits::ResultType>;
 
 		public:
-			explicit DefaultRemotePtApi(ionet::PacketIo& io, const model::TransactionRegistry& registry)
-					: m_registry(registry)
+			DefaultRemotePtApi(ionet::PacketIo& io, const Key& remotePublicKey, const model::TransactionRegistry& registry)
+					: RemotePtApi(remotePublicKey)
+					, m_registry(registry)
 					, m_impl(io)
 			{}
 
@@ -72,7 +73,10 @@ namespace catapult { namespace api {
 		};
 	}
 
-	std::unique_ptr<RemotePtApi> CreateRemotePtApi(ionet::PacketIo& io, const model::TransactionRegistry& registry) {
-		return std::make_unique<DefaultRemotePtApi>(io, registry);
+	std::unique_ptr<RemotePtApi> CreateRemotePtApi(
+			ionet::PacketIo& io,
+			const Key& remotePublicKey,
+			const model::TransactionRegistry& registry) {
+		return std::make_unique<DefaultRemotePtApi>(io, remotePublicKey, registry);
 	}
 }}

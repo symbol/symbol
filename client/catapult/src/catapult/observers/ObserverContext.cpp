@@ -23,9 +23,65 @@
 
 namespace catapult { namespace observers {
 
+	// region NotifyMode
+
 #define DEFINE_ENUM NotifyMode
 #define ENUM_LIST NOTIFY_MODE_LIST
 #include "catapult/utils/MacroBasedEnum.h"
 #undef ENUM_LIST
 #undef DEFINE_ENUM
+
+	// endregion
+
+	// region ObserverState
+
+	ObserverState::ObserverState(cache::CatapultCacheDelta& cache, state::CatapultState& state)
+			: Cache(cache)
+			, State(state)
+			, pBlockStatementBuilder(nullptr)
+	{}
+
+	ObserverState::ObserverState(
+			cache::CatapultCacheDelta& cache,
+			state::CatapultState& state,
+			model::BlockStatementBuilder& blockStatementBuilder)
+			: Cache(cache)
+			, State(state)
+			, pBlockStatementBuilder(&blockStatementBuilder)
+	{}
+
+	// endregion
+
+	// region ObserverContext
+
+	namespace {
+		model::ResolverContext BindConditional(
+				const model::ResolverContext& resolvers,
+				model::BlockStatementBuilder* pBlockStatementBuilder) {
+			return pBlockStatementBuilder ? Bind(resolvers, *pBlockStatementBuilder) : resolvers;
+		}
+
+		ObserverStatementBuilder CreateObserverStatementBuilder(model::BlockStatementBuilder* pBlockStatementBuilder) {
+			return pBlockStatementBuilder ? ObserverStatementBuilder(*pBlockStatementBuilder) : ObserverStatementBuilder();
+		}
+	}
+
+	ObserverContext::ObserverContext(
+			const ObserverState& state,
+			catapult::Height height,
+			NotifyMode mode,
+			const model::ResolverContext& resolvers)
+			: Cache(state.Cache)
+			, State(state.State)
+			, Height(height)
+			, Mode(mode)
+			, Resolvers(BindConditional(resolvers, state.pBlockStatementBuilder))
+			, m_statementBuilder(CreateObserverStatementBuilder(state.pBlockStatementBuilder))
+	{}
+
+	ObserverStatementBuilder& ObserverContext::StatementBuilder() {
+		return m_statementBuilder;
+	}
+
+	// endregion
 }}

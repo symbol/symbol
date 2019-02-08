@@ -39,10 +39,12 @@ endif()
 ### set compiler settings
 if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /EHsc")
+	# in debug disable "potentially uninitialized local variable" (FP)
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /D_SCL_SECURE_NO_WARNINGS /wd4701")
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Zi")
-	set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /D_SCL_SECURE_NO_WARNINGS")
+
+	set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG")
 
 	# disable: "marked as __forceinline not inlined"
 	add_definitions(-D_WIN32_WINNT=0x0601 /wd4714 /w44287 /w44388)
@@ -54,19 +56,19 @@ if(MSVC)
 	add_definitions(-DNOMINMAX)
 	add_definitions(-DWIN32_LEAN_AND_MEAN)
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+	# -Wstrict-aliasing=1 perform most paranoid strict aliasing checks
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wstrict-aliasing=1")
 
-	if("${CMAKE_BUILD_TYPE}" MATCHES "Release")
-		# - Wno-maybe-uninitialized: false positives where gcc isn't sure if an uninitialized variable is used or not
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized")
-	endif()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+
+	# - Wno-maybe-uninitialized: false positives where gcc isn't sure if an uninitialized variable is used or not
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -Wno-maybe-uninitialized -g1")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-maybe-uninitialized")
 
 	# add memset_s
 	add_definitions(-D_STDC_WANT_LIB_EXT1_=1)
 	add_definitions(-D__STDC_WANT_LIB_EXT1__=1)
-
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	# - Wno-c++98-compat*: catapult is not compatible with C++98
 	# - Wno-disabled-macro-expansion: expansion of recursive macro is required for boost logging macros
@@ -86,6 +88,8 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g1")
 endif()
 
 # set runpath for built binaries on linux
@@ -112,6 +116,11 @@ if(USE_SANITATION)
 
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
+endif()
+
+if(ARCHITECTURE_NAME)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=${ARCHITECTURE_NAME}")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${ARCHITECTURE_NAME}")
 endif()
 
 ### define gtest helper functions
@@ -260,15 +269,6 @@ endfunction()
 # used to define a catapult library, creating an appropriate source group and adding a library
 function(catapult_library TARGET_NAME)
 	catapult_find_all_target_files("lib" ${TARGET_NAME} ${ARGN})
-
-	if (ENABLE_STRESS)
-		if (NOT STRESS_COUNT)
-			set(STRESS_COUNT 100)
-		endif()
-		MESSAGE(STATUS "Enabling stress test for ${TARGET_NAME} (${STRESS_COUNT})")
-		add_definitions(-DSTRESS=${STRESS_COUNT})
-	endif()
-
 	add_library(${TARGET_NAME} ${${TARGET_NAME}_FILES})
 endfunction()
 
@@ -341,16 +341,9 @@ function(catapult_test_executable TARGET_NAME)
 	target_link_libraries(${TARGET_NAME} ${GTEST_LIBRARIES})
 
 	if (ENABLE_CODE_COVERAGE)
-		MESSAGE(STATUS "Enabling code coverage for ${TARGET_NAME}")
+		message(STATUS "Enabling code coverage for ${TARGET_NAME}")
 		set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
 		target_link_libraries(${TARGET_NAME} gcov)
-	endif()
-	if (ENABLE_STRESS)
-		if (NOT STRESS_COUNT)
-			set(STRESS_COUNT 100)
-		endif()
-		MESSAGE(STATUS "Enabling stress test for ${TARGET_NAME} (${STRESS_COUNT})")
-		add_definitions(-DSTRESS=${STRESS_COUNT})
 	endif()
 endfunction()
 

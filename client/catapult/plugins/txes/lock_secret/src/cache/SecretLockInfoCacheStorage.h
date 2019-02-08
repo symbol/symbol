@@ -26,6 +26,5 @@
 namespace catapult { namespace cache {
 
 	/// Policy for saving and loading secret lock info cache data.
-	struct SecretLockInfoCacheStorage : public LockInfoCacheStorage<SecretLockInfoCacheDescriptor, state::SecretLockInfoSerializer>
-	{};
+	struct SecretLockInfoCacheStorage : public LockInfoCacheStorage<SecretLockInfoCacheDescriptor, state::SecretLockInfoSerializer> {};
 }}

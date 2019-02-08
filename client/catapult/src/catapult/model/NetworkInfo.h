@@ -23,6 +23,7 @@
 
 namespace catapult { namespace model {
 
+/// \note The lower 3 bits must be cleared because they are used for different purposes, e.g. resolvers.
 #define NETWORK_IDENTIFIER_LIST \
 	/* A default (zero) identifier that does not identify any known network. */ \
 	ENUM_VALUE(Zero, 0) \

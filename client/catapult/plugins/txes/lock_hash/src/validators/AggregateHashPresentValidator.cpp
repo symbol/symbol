@@ -38,10 +38,6 @@ namespace catapult { namespace validators {
 		if (!cache.isActive(notification.TransactionHash, context.Height))
 			return Failure_LockHash_Inactive_Hash;
 
-		auto lockInfoIter = cache.find(notification.TransactionHash);
-		const auto& lockInfo = lockInfoIter.get();
-		return state::LockStatus::Unused == lockInfo.Status
-				? ValidationResult::Success
-				: Failure_LockHash_Hash_Already_Used;
+		return ValidationResult::Success;
 	})
 }}

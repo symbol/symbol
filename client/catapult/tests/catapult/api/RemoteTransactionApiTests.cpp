@@ -49,6 +49,7 @@ namespace catapult { namespace api {
 		}
 
 		struct UtTraits {
+			static constexpr uint32_t Request_Data_Header_Size = sizeof(BlockFeeMultiplier);
 			static constexpr uint32_t Request_Data_Size = 3 * sizeof(utils::ShortHash);
 
 			static std::vector<uint32_t> KnownHashesValues() {
@@ -60,7 +61,7 @@ namespace catapult { namespace api {
 			}
 
 			static auto Invoke(const RemoteTransactionApi& api) {
-				return api.unconfirmedTransactions(KnownShortHashes());
+				return api.unconfirmedTransactions(BlockFeeMultiplier(17), KnownShortHashes());
 			}
 
 			static auto CreateValidResponsePacket() {
@@ -78,8 +79,9 @@ namespace catapult { namespace api {
 
 			static void ValidateRequest(const ionet::Packet& packet) {
 				EXPECT_EQ(ionet::PacketType::Pull_Transactions, packet.Type);
-				EXPECT_EQ(sizeof(ionet::Packet) + Request_Data_Size, packet.Size);
-				EXPECT_TRUE(0 == std::memcmp(packet.Data(), KnownHashesValues().data(), Request_Data_Size));
+				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Header_Size + Request_Data_Size, packet.Size);
+				EXPECT_EQ(BlockFeeMultiplier(17), reinterpret_cast<const BlockFeeMultiplier&>(*packet.Data()));
+				EXPECT_EQ_MEMORY(packet.Data() + sizeof(BlockFeeMultiplier), KnownHashesValues().data(), Request_Data_Size);
 			}
 
 			static void ValidateResponse(const ionet::Packet& response, const model::TransactionRange& transactions) {
@@ -101,11 +103,17 @@ namespace catapult { namespace api {
 		};
 
 		struct RemoteTransactionApiTraits {
-			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return test::CreateLifetimeExtendedApi(CreateRemoteTransactionApi, *pPacketIo, mocks::CreateDefaultTransactionRegistry());
+			static auto Create(ionet::PacketIo& packetIo, const Key& remotePublicKey) {
+				auto registry = mocks::CreateDefaultTransactionRegistry();
+				return test::CreateLifetimeExtendedApi(CreateRemoteTransactionApi, packetIo, remotePublicKey, std::move(registry));
+			}
+
+			static auto Create(ionet::PacketIo& packetIo) {
+				return Create(packetIo, Key());
 			}
 		};
 	}
 
+	DEFINE_REMOTE_API_TESTS(RemoteTransactionApi)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(RemoteTransactionApi, Ut)
 }}

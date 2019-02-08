@@ -56,7 +56,7 @@ namespace catapult { namespace consumers {
 			}
 
 			static void AssertSkipped(ConsumerResult result, const disruptor::BlockElements& elements) {
-				test::AssertAborted(result, Failure_Consumer_Hash_In_Recency_Cache);
+				test::AssertAborted(result, Neutral_Consumer_Hash_In_Recency_Cache);
 				EXPECT_EQ(1u, elements.size());
 			}
 		};
@@ -73,13 +73,13 @@ namespace catapult { namespace consumers {
 			static void AssertContinued(ConsumerResult result, const disruptor::TransactionElements& elements) {
 				test::AssertContinued(result);
 				ASSERT_EQ(1u, elements.size());
-				EXPECT_FALSE(elements[0].Skip);
+				EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, elements[0].ResultSeverity);
 			}
 
 			static void AssertSkipped(ConsumerResult result, const disruptor::TransactionElements& elements) {
-				test::AssertAborted(result, Failure_Consumer_Hash_In_Recency_Cache);
+				test::AssertAborted(result, Neutral_Consumer_Hash_In_Recency_Cache);
 				ASSERT_EQ(1u, elements.size());
-				EXPECT_TRUE(elements[0].Skip);
+				EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, elements[0].ResultSeverity);
 			}
 		};
 
@@ -259,10 +259,10 @@ namespace catapult { namespace consumers {
 
 		// Assert:
 		test::AssertContinued(consumer(elements1));
-		test::AssertAborted(consumer(elements2), Failure_Consumer_Hash_In_Recency_Cache);
+		test::AssertAborted(consumer(elements2), Neutral_Consumer_Hash_In_Recency_Cache);
 		test::AssertContinued(consumer(elements3));
-		test::AssertAborted(consumer(elements4), Failure_Consumer_Hash_In_Recency_Cache);
-		test::AssertAborted(consumer(elements5), Failure_Consumer_Hash_In_Recency_Cache);
+		test::AssertAborted(consumer(elements4), Neutral_Consumer_Hash_In_Recency_Cache);
+		test::AssertAborted(consumer(elements5), Neutral_Consumer_Hash_In_Recency_Cache);
 	}
 
 	namespace {
@@ -448,7 +448,7 @@ namespace catapult { namespace consumers {
 		auto i = 0u;
 		test::AssertContinued(result);
 		for (const auto& element : elements)
-			EXPECT_FALSE(element.Skip) << "element at " << i++;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, element.ResultSeverity) << "element at " << i++;
 	}
 
 	TRANSACTION_HASH_CHECK_CONSUMER_TEST(PreviouslySeenEntitiesWithinSingleElementRangeAreSkipped) {
@@ -464,10 +464,10 @@ namespace catapult { namespace consumers {
 		// Assert: only previously seen elements were skipped
 		test::AssertContinued(result);
 		for (auto i : { 3u, 4u })
-			EXPECT_TRUE(elements[i].Skip) << "element at " << i;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, elements[i].ResultSeverity) << "element at " << i;
 
 		for (auto i : { 0u, 1u, 2u, 5u })
-			EXPECT_FALSE(elements[i].Skip) << "element at " << i;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, elements[i].ResultSeverity) << "element at " << i;
 	}
 
 	TRANSACTION_HASH_CHECK_CONSUMER_TEST(PreviouslySeenEntitiesWithinMultipleEntitiesAreSkipped) {
@@ -487,10 +487,10 @@ namespace catapult { namespace consumers {
 		// Assert: only previously seen elements were skipped
 		test::AssertContinued(result);
 		for (auto i : { 1u, 3u, 4u })
-			EXPECT_TRUE(elements[i].Skip) << "element at " << i;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, elements[i].ResultSeverity) << "element at " << i;
 
 		for (auto i : { 0u, 2u, 5u })
-			EXPECT_FALSE(elements[i].Skip) << "element at " << i;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, elements[i].ResultSeverity) << "element at " << i;
 	}
 
 	TRANSACTION_HASH_CHECK_CONSUMER_TEST(SkipResultIsReturnedIfAllEntitiesWithinMultipleEntitiesAreSkipped) {
@@ -508,9 +508,9 @@ namespace catapult { namespace consumers {
 
 		// Assert: all elements were skipped
 		auto i = 0u;
-		test::AssertAborted(result, Failure_Consumer_Hash_In_Recency_Cache);
+		test::AssertAborted(result, Neutral_Consumer_Hash_In_Recency_Cache);
 		for (const auto& element : elements)
-			EXPECT_TRUE(element.Skip) << "element at " << i++;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, element.ResultSeverity) << "element at " << i++;
 	}
 
 	namespace {
@@ -605,10 +605,10 @@ namespace catapult { namespace consumers {
 		// Assert: only externally seen elements were skipped
 		test::AssertContinued(result);
 		for (auto i : { 1u, 3u, 4u })
-			EXPECT_TRUE(elements[i].Skip) << "element at " << i;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, elements[i].ResultSeverity) << "element at " << i;
 
 		for (auto i : { 0u, 2u, 5u })
-			EXPECT_FALSE(elements[i].Skip) << "element at " << i;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, elements[i].ResultSeverity) << "element at " << i;
 
 		// - the predicate was called
 		ASSERT_EQ(Num_Transactions, predicate.params().size());
@@ -641,10 +641,10 @@ namespace catapult { namespace consumers {
 		// Assert: only previously seen (1, 4, 5, 6) and/or externally seen (0, 5, 7) elements were skipped
 		test::AssertContinued(result);
 		for (auto i : { 0u, 1u, 4u, 5u, 6u, 7u })
-			EXPECT_TRUE(elements[i].Skip) << "element at " << i;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Neutral, elements[i].ResultSeverity) << "element at " << i;
 
 		for (auto i : { 2u, 3u, 8u })
-			EXPECT_FALSE(elements[i].Skip) << "element at " << i;
+			EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, elements[i].ResultSeverity) << "element at " << i;
 
 		// - the predicate was called only for elements not previously seen
 		ASSERT_EQ(5u, predicate.params().size());

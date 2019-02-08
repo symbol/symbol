@@ -21,6 +21,7 @@
 #include "mongo/src/storages/MongoBlockDifficultyCacheStorage.h"
 #include "mongo/src/MongoBlockStorage.h"
 #include "mongo/src/MongoDatabase.h"
+#include "mongo/src/MongoReceiptPlugin.h"
 #include "catapult/cache_core/BlockDifficultyCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "mongo/tests/test/MongoTestUtils.h"
@@ -44,7 +45,7 @@ namespace catapult { namespace mongo { namespace storages {
 					, m_pCacheStorage(CreateMongoBlockDifficultyCacheStorage(
 							m_pMongoContext->createDatabaseConnection(),
 							Difficulty_History_Size))
-					, m_pDbStorage(CreateMongoBlockStorage(*m_pMongoContext, m_transactionRegistry)) {
+					, m_pDbStorage(CreateMongoBlockStorage(*m_pMongoContext, m_transactionRegistry, m_receiptRegistry)) {
 				for (auto i = 1u; i <= topHeight; ++i) {
 					auto transactions = test::GenerateRandomTransactions(10);
 					m_blocks.push_back(test::GenerateRandomBlockWithTransactions(test::MakeConst(transactions)));
@@ -74,6 +75,7 @@ namespace catapult { namespace mongo { namespace storages {
 			std::vector<model::BlockElement> m_blockElements;
 			std::unique_ptr<MongoStorageContext> m_pMongoContext;
 			mongo::MongoTransactionRegistry m_transactionRegistry;
+			mongo::MongoReceiptRegistry m_receiptRegistry;
 			std::unique_ptr<ExternalCacheStorage> m_pCacheStorage;
 			std::unique_ptr<io::LightBlockStorage> m_pDbStorage;
 		};

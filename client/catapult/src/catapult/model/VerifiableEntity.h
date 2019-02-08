@@ -42,8 +42,7 @@ namespace catapult { namespace model {
 	};
 
 	/// Binary layout for a verifiable (with signature) entity.
-	struct VerifiableEntity : public EntityBody<VerifiableEntityHeader> {
-	};
+	struct VerifiableEntity : public EntityBody<VerifiableEntityHeader> {};
 
 #pragma pack(pop)
 

@@ -20,6 +20,7 @@
 
 #include "src/validators/Validators.h"
 #include "catapult/model/Address.h"
+#include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -34,11 +35,13 @@ namespace catapult { namespace validators {
 
 		void AssertValidationResult(ValidationResult expectedResult, const Address& address) {
 			// Arrange:
-			model::AccountAddressNotification notification(address);
+			auto cache = test::CreateEmptyCatapultCache();
+
+			model::AccountAddressNotification notification(test::UnresolveXor(address));
 			auto pValidator = CreateAddressValidator(Network_Identifier);
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification);
+			auto result = test::ValidateNotification(*pValidator, notification, cache);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "address " << utils::HexFormat(address);

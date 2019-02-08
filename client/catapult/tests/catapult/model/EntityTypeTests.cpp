@@ -33,7 +33,7 @@ namespace catapult { namespace model {
 		}
 
 		auto MakeEntityType(uint8_t basicEntityType, uint8_t facility, uint8_t code) {
-			return model::MakeEntityType(static_cast<BasicEntityType>(basicEntityType), static_cast<FacilityCode>(facility), code);
+			return MakeEntityType(static_cast<BasicEntityType>(basicEntityType), static_cast<FacilityCode>(facility), code);
 		}
 	}
 
@@ -42,27 +42,27 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanMakeEntityType) {
 		// Assert:
 		// - zeros
-		EXPECT_EQ(EntityType(0x00000000), MakeEntityType(0, 0, 0));
+		EXPECT_EQ(static_cast<EntityType>(0x00000000), MakeEntityType(0, 0, 0));
 
 		// - max single component value
-		EXPECT_EQ(EntityType(0xC000), MakeEntityType(0xFF, 0, 0));
-		EXPECT_EQ(EntityType(0x00FF), MakeEntityType(0, 0xFF, 0));
-		EXPECT_EQ(EntityType(0x0F00), MakeEntityType(0, 0, 0xFF));
+		EXPECT_EQ(static_cast<EntityType>(0xC000), MakeEntityType(0xFF, 0, 0));
+		EXPECT_EQ(static_cast<EntityType>(0x00FF), MakeEntityType(0, 0xFF, 0));
+		EXPECT_EQ(static_cast<EntityType>(0x0F00), MakeEntityType(0, 0, 0xFF));
 
 		// - all component values
-		EXPECT_EQ(EntityType(0xCFFF), MakeEntityType(0xFF, 0xFF, 0xFF));
+		EXPECT_EQ(static_cast<EntityType>(0xCFFF), MakeEntityType(0xFF, 0xFF, 0xFF));
 	}
 
 	TEST(TEST_CLASS, CanMakeEntityTypeViaGenericMacros) {
-		// Act
+		// Act:
 		DEFINE_ENTITY_TYPE(Block, Core, Alpha, 0xC);
 		DEFINE_ENTITY_TYPE(Block, Multisig, Beta, 0xD);
 		DEFINE_ENTITY_TYPE(Other, Aggregate, Gamma, 0xE);
 
 		// Assert:
-		EXPECT_EQ(EntityType(0x8C43), Entity_Type_Alpha);
-		EXPECT_EQ(EntityType(0x8D55), Entity_Type_Beta);
-		EXPECT_EQ(EntityType(0x0E41), Entity_Type_Gamma);
+		EXPECT_EQ(static_cast<EntityType>(0x8C43), Entity_Type_Alpha);
+		EXPECT_EQ(static_cast<EntityType>(0x8D55), Entity_Type_Beta);
+		EXPECT_EQ(static_cast<EntityType>(0x0E41), Entity_Type_Gamma);
 	}
 
 	TEST(TEST_CLASS, CanMakeEntityTypeViaTransactionMacros) {
@@ -71,8 +71,8 @@ namespace catapult { namespace model {
 		DEFINE_TRANSACTION_TYPE(Multisig, Beta, 0xD);
 
 		// Assert:
-		EXPECT_EQ(EntityType(0x4C4E), Entity_Type_Alpha);
-		EXPECT_EQ(EntityType(0x4D55), Entity_Type_Beta);
+		EXPECT_EQ(static_cast<EntityType>(0x4C4E), Entity_Type_Alpha);
+		EXPECT_EQ(static_cast<EntityType>(0x4D55), Entity_Type_Beta);
 	}
 
 	// endregion
@@ -115,7 +115,7 @@ namespace catapult { namespace model {
 	// region insertion operator
 
 	namespace {
-		auto ToEntity(uint16_t value) {
+		auto ToEntityType(uint16_t value) {
 			return static_cast<EntityType>(value);
 		}
 	}
@@ -128,11 +128,15 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanOutputPluginEnumValues) {
 		// Assert:
-		EXPECT_EQ("Aggregate_Complete", test::ToString(ToEntity(0x4141)));
-		EXPECT_EQ("Mosaic_Levy_Change", test::ToString(ToEntity(0x434D)));
-		EXPECT_EQ("Modify_Multisig_Account", test::ToString(ToEntity(0x4155)));
-		EXPECT_EQ("Register_Namespace", test::ToString(ToEntity(0x414E)));
-		EXPECT_EQ("Transfer", test::ToString(ToEntity(0x4154)));
+		EXPECT_EQ("Account_Link", test::ToString(ToEntityType(0x414C)));
+		EXPECT_EQ("Aggregate_Complete", test::ToString(ToEntityType(0x4141)));
+		EXPECT_EQ("Hash_Lock", test::ToString(ToEntityType(0x4148)));
+		EXPECT_EQ("Mosaic_Levy_Change", test::ToString(ToEntityType(0x434D)));
+		EXPECT_EQ("Mosaic_Property", test::ToString(ToEntityType(0x4250)));
+		EXPECT_EQ("Modify_Multisig_Account", test::ToString(ToEntityType(0x4155)));
+		EXPECT_EQ("Register_Namespace", test::ToString(ToEntityType(0x414E)));
+		EXPECT_EQ("Secret_Lock", test::ToString(ToEntityType(0x4152)));
+		EXPECT_EQ("Transfer", test::ToString(ToEntityType(0x4154)));
 	}
 
 	TEST(TEST_CLASS, CanOutputUnknownEnumValues) {
@@ -142,9 +146,9 @@ namespace catapult { namespace model {
 		DEFINE_ENTITY_TYPE(Other, Aggregate, Gamma, 0xE);
 
 		// Assert:
-		EXPECT_EQ("EntityType(0x8C55)", test::ToString(Entity_Type_Alpha));
-		EXPECT_EQ("EntityType(0x4D43)", test::ToString(Entity_Type_Beta));
-		EXPECT_EQ("EntityType(0x0E41)", test::ToString(Entity_Type_Gamma));
+		EXPECT_EQ("EntityType<0x8C55>", test::ToString(Entity_Type_Alpha));
+		EXPECT_EQ("EntityType<0x4D43>", test::ToString(Entity_Type_Beta));
+		EXPECT_EQ("EntityType<0x0E41>", test::ToString(Entity_Type_Gamma));
 	}
 
 	// endregion

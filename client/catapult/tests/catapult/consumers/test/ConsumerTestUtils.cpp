@@ -77,9 +77,9 @@ namespace catapult { namespace test {
 
 	// region ConsumerResult Assertions
 
-	void AssertConsumed(const disruptor::ConsumerResult& result) {
+	void AssertConsumed(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult) {
 		EXPECT_EQ(disruptor::CompletionStatus::Consumed, result.CompletionStatus);
-		EXPECT_EQ(0u, result.CompletionCode);
+		EXPECT_EQ(validationResult, static_cast<validators::ValidationResult>(result.CompletionCode));
 	}
 
 	void AssertAborted(const disruptor::ConsumerResult& result, validators::ValidationResult validationResult) {

@@ -26,6 +26,8 @@ namespace catapult { namespace state {
 
 #define TEST_CLASS AccountStateTests
 
+	// region constructor
+
 	TEST(TEST_CLASS, AccountStateCtorInitializesProperFields) {
 		// Arrange:
 		auto address = test::GenerateRandomAddress();
@@ -51,4 +53,103 @@ namespace catapult { namespace state {
 			EXPECT_EQ(model::ImportanceHeight(0), pair.Height);
 		}
 	}
+
+	// endregion
+
+	// region IsRemote
+
+	TEST(TEST_CLASS, IsRemoteReturnsTrueForRemoteAccountTypes) {
+		// Assert:
+		EXPECT_TRUE(IsRemote(AccountType::Remote));
+		EXPECT_TRUE(IsRemote(AccountType::Remote_Unlinked));
+	}
+
+	TEST(TEST_CLASS, IsRemoteReturnsFalseForNonRemoteAccountTypes) {
+		// Assert:
+		EXPECT_FALSE(IsRemote(AccountType::Unlinked));
+		EXPECT_FALSE(IsRemote(AccountType::Main));
+		EXPECT_FALSE(IsRemote(static_cast<AccountType>(234)));
+	}
+
+	// endregion
+
+	// region RequireLinkedRemoteAndMainAccounts
+
+	namespace {
+		template<typename TAction>
+		void PrepareRequireLinkedRemoteAndMainAccountsTest(TAction action) {
+			// Arrange: set up two linked accounts
+			AccountState remoteAccountState(test::GenerateRandomAddress(), Height(1));
+			test::FillWithRandomData(remoteAccountState.PublicKey);
+			remoteAccountState.AccountType = AccountType::Remote;
+
+			AccountState mainAccountState(test::GenerateRandomAddress(), Height(1));
+			test::FillWithRandomData(mainAccountState.PublicKey);
+			mainAccountState.AccountType = AccountType::Main;
+
+			remoteAccountState.LinkedAccountKey = mainAccountState.PublicKey;
+			mainAccountState.LinkedAccountKey = remoteAccountState.PublicKey;
+
+			// Act + Assert:
+			action(remoteAccountState, mainAccountState);
+		}
+	}
+
+	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_DoesNotThrowWhenLinksAreProper) {
+		// Arrange:
+		PrepareRequireLinkedRemoteAndMainAccountsTest([](const auto& remoteAccountState, const auto& mainAccountState) {
+			// Act + Assert:
+			EXPECT_NO_THROW(RequireLinkedRemoteAndMainAccounts(remoteAccountState, mainAccountState));
+		});
+	}
+
+	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenLinksAreReversed) {
+		// Arrange:
+		PrepareRequireLinkedRemoteAndMainAccountsTest([](const auto& remoteAccountState, const auto& mainAccountState) {
+			// Act + Assert:
+			EXPECT_THROW(RequireLinkedRemoteAndMainAccounts(mainAccountState, remoteAccountState), catapult_runtime_error);
+		});
+	}
+
+	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenRemoteAccountStateHasWrongAccountType) {
+		// Arrange:
+		PrepareRequireLinkedRemoteAndMainAccountsTest([](auto& remoteAccountState, const auto& mainAccountState) {
+			remoteAccountState.AccountType = AccountType::Unlinked;
+
+			// Act + Assert:
+			EXPECT_THROW(RequireLinkedRemoteAndMainAccounts(remoteAccountState, mainAccountState), catapult_runtime_error);
+		});
+	}
+
+	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenMainAccountStateHasWrongAccountType) {
+		// Arrange:
+		PrepareRequireLinkedRemoteAndMainAccountsTest([](const auto& remoteAccountState, auto& mainAccountState) {
+			mainAccountState.AccountType = AccountType::Unlinked;
+
+			// Act + Assert:
+			EXPECT_THROW(RequireLinkedRemoteAndMainAccounts(remoteAccountState, mainAccountState), catapult_runtime_error);
+		});
+	}
+
+	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenRemoteAccountStateHasWrongLinkedAccountKey) {
+		// Arrange:
+		PrepareRequireLinkedRemoteAndMainAccountsTest([](auto& remoteAccountState, const auto& mainAccountState) {
+			remoteAccountState.LinkedAccountKey[0] ^= 0xFF;
+
+			// Act + Assert:
+			EXPECT_THROW(RequireLinkedRemoteAndMainAccounts(remoteAccountState, mainAccountState), catapult_runtime_error);
+		});
+	}
+
+	TEST(TEST_CLASS, RequireLinkedRemoteAndMainAccounts_ThrowsWhenMainAccountStateHasWrongLinkedAccountKey) {
+		// Arrange:
+		PrepareRequireLinkedRemoteAndMainAccountsTest([](const auto& remoteAccountState, auto& mainAccountState) {
+			mainAccountState.LinkedAccountKey[0] ^= 0xFF;
+
+			// Act + Assert:
+			EXPECT_THROW(RequireLinkedRemoteAndMainAccounts(remoteAccountState, mainAccountState), catapult_runtime_error);
+		});
+	}
+
+	// endregion
 }}

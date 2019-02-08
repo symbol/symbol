@@ -37,7 +37,8 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertEntityHasExpectedSize(size_t baseSize) {
 			// Arrange:
-			auto expectedSize = baseSize // base
+			auto expectedSize =
+					baseSize // base
 					+ sizeof(int8_t) // min cosignatories removal delta
 					+ sizeof(int8_t) // min cosignatories delta
 					+ sizeof(uint8_t); // modifications count
@@ -108,7 +109,7 @@ namespace catapult { namespace model {
 		auto realSize = TransactionType::CalculateRealSize(transaction);
 
 		// Assert:
-		EXPECT_EQ(0xFFFFFFFF, transaction.Size);
+		ASSERT_EQ(0xFFFFFFFF, transaction.Size);
 		EXPECT_EQ(sizeof(TransactionType) + 0xFF * sizeof(CosignatoryModification), realSize);
 		EXPECT_GT(0xFFFFFFFF, realSize);
 	}

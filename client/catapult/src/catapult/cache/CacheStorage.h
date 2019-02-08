@@ -27,7 +27,7 @@ namespace catapult { namespace cache {
 	/// Interface for loading and saving cache data.
 	class CacheStorage {
 	public:
-		virtual ~CacheStorage() {}
+		virtual ~CacheStorage() = default;
 
 	public:
 		/// Gets the cache name.

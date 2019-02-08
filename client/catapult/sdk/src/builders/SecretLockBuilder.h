@@ -20,7 +20,6 @@
 
 #pragma once
 #include "TransactionBuilder.h"
-#include "plugins/txes/lock_secret/src/model/LockHashAlgorithm.h"
 #include "plugins/txes/lock_secret/src/model/SecretLockTransaction.h"
 
 namespace catapult { namespace builders {
@@ -31,24 +30,25 @@ namespace catapult { namespace builders {
 		using Transaction = model::SecretLockTransaction;
 		using EmbeddedTransaction = model::EmbeddedSecretLockTransaction;
 
+	public:
 		/// Creates a secret lock builder for building a secret lock transaction from \a signer
 		/// for the network specified by \a networkIdentifier.
 		SecretLockBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the mosaic with \a mosaicId and \a amount.
-		void setMosaic(UnresolvedMosaicId mosaicId, Amount amount);
+		/// Sets the lock mosaic to \a mosaic.
+		void setMosaic(const model::UnresolvedMosaic& mosaic);
 
-		/// Sets the \a duration.
+		/// Sets the number of blocks for which a lock should be valid to \a duration.
 		void setDuration(BlockDuration duration);
 
-		// Sets the \a hashAlgorithm.
+		/// Sets the hash alghoritm to \a hashAlgorithm.
 		void setHashAlgorithm(model::LockHashAlgorithm hashAlgorithm);
 
-		// Sets the \a secret.
-		void setSecret(const Hash512& secret);
+		/// Sets the secret to \a secret.
+		void setSecret(const Hash256& secret);
 
-		// Sets the \a recipient.
+		/// Sets the recipient of the locked mosaic to \a recipient.
 		void setRecipient(const UnresolvedAddress& recipient);
 
 	public:
@@ -66,7 +66,7 @@ namespace catapult { namespace builders {
 		model::UnresolvedMosaic m_mosaic;
 		BlockDuration m_duration;
 		model::LockHashAlgorithm m_hashAlgorithm;
-		Hash512 m_secret;
+		Hash256 m_secret;
 		UnresolvedAddress m_recipient;
 	};
 }}

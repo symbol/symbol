@@ -19,7 +19,7 @@
 **/
 
 #include "src/validators/Validators.h"
-#include "src/model/PropertyTransaction.h"
+#include "src/model/TransactionTypePropertyTransaction.h"
 #include "tests/test/PropertyCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"

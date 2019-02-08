@@ -29,6 +29,7 @@ namespace catapult {
 	namespace ionet {
 		struct NodeContainerData;
 		struct NodeData;
+		struct NodeInteractionResult;
 	}
 }
 
@@ -43,6 +44,9 @@ namespace catapult { namespace ionet {
 	public:
 		/// Returns the number of nodes.
 		size_t size() const;
+
+		/// Gets current container time.
+		Timestamp time() const;
 
 		/// Returns \c true if the node with \a identityKey is in the container, \c false otherwise.
 		bool contains(const Key& identityKey) const;
@@ -82,10 +86,18 @@ namespace catapult { namespace ionet {
 		/// \a numConsecutiveFailuresBeforeBanning.
 		void ageConnectionBans(ServiceIdentifier serviceId, uint32_t maxConnectionBanAge, uint32_t numConsecutiveFailuresBeforeBanning);
 
+		/// Increments the number of successful interactions for the node identified by \a identityKey.
+		void incrementSuccesses(const Key& identityKey);
+
+		/// Increments the number of failed interactions for the node identified by \a identityKey.
+		void incrementFailures(const Key& identityKey);
+
 	private:
 		void autoProvisionConnectionStates(NodeData& data);
 
 		bool ensureAtLeastOneEmptySlot();
+
+		void incrementInteraction(const Key& identityKey, const consumer<NodeInfo&>& incrementer);
 
 	private:
 		NodeContainerData& m_data;
@@ -99,8 +111,8 @@ namespace catapult { namespace ionet {
 		/// Creates a node container.
 		NodeContainer();
 
-		/// Creates a node container that can contain at most \a maxNodes nodes.
-		explicit NodeContainer(size_t maxNodes);
+		/// Creates a node container that can contain at most \a maxNodes nodes around a custom time supplier (\a timeSupplier).
+		NodeContainer(size_t maxNodes, const supplier<Timestamp>& timeSupplier);
 
 		/// Destroys a node container.
 		~NodeContainer();

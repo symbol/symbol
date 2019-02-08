@@ -20,6 +20,7 @@
 
 #pragma once
 #include "Block.h"
+#include "BlockStatement.h"
 #include "ContainerTypes.h"
 #include "EntityInfo.h"
 #include "WeakEntityInfo.h"
@@ -30,10 +31,12 @@ namespace catapult { namespace model {
 
 	/// Processing element for a transaction composed of a transaction and metadata.
 	struct TransactionElement {
+	public:
 		/// Creates a transaction element around \a transaction.
 		explicit TransactionElement(const model::Transaction& transaction) : Transaction(transaction)
 		{}
 
+	public:
 		/// Transaction entity.
 		const model::Transaction& Transaction;
 
@@ -44,15 +47,18 @@ namespace catapult { namespace model {
 		Hash256 MerkleComponentHash;
 
 		/// Optional extracted addresses.
-		std::shared_ptr<AddressSet> OptionalExtractedAddresses;
+		/// \note shared_ptr for optionality and more performant copyability.
+		std::shared_ptr<const UnresolvedAddressSet> OptionalExtractedAddresses;
 	};
 
 	/// Processing element for a block composed of a block and metadata.
 	struct BlockElement {
+	public:
 		/// Creates a block element around \a block.
 		explicit BlockElement(const model::Block& block) : Block(block)
 		{}
 
+	public:
 		/// Block entity.
 		const model::Block& Block;
 
@@ -67,6 +73,10 @@ namespace catapult { namespace model {
 
 		/// Transaction elements.
 		std::vector<TransactionElement> Transactions;
+
+		/// Optional block statement.
+		/// \note shared_ptr for optionality and copyability (BlockStatement is move only).
+		std::shared_ptr<const BlockStatement> OptionalStatement;
 	};
 
 	/// Predicate for evaluating a timestamp, a hash and an entity type.
@@ -86,7 +96,7 @@ namespace catapult { namespace model {
 	void ExtractTransactionInfos(std::vector<TransactionInfo>& transactionInfos, const std::shared_ptr<const BlockElement>& pBlockElement);
 
 	/// Makes a transaction info by merging \a pTransaction and \a transactionElement.
-	model::TransactionInfo MakeTransactionInfo(
+	TransactionInfo MakeTransactionInfo(
 			const std::shared_ptr<const Transaction>& pTransaction,
-			const model::TransactionElement& transactionElement);
+			const TransactionElement& transactionElement);
 }}

@@ -59,10 +59,11 @@ namespace catapult { namespace test {
 		return constTransactions;
 	}
 
-	std::unique_ptr<model::Transaction> GenerateRandomTransaction(size_t entitySize) {
+	std::unique_ptr<model::Transaction> GenerateRandomTransactionWithSize(size_t entitySize) {
 		auto pEntity = utils::MakeUniqueWithSize<model::Transaction>(entitySize);
 		FillWithRandomData(MutableRawBuffer{ reinterpret_cast<uint8_t*>(pEntity.get()), entitySize });
 		pEntity->Size = static_cast<uint32_t>(entitySize);
+		pEntity->Type = static_cast<model::EntityType>(0x4000 | (0x0FFF & utils::to_underlying_type(pEntity->Type)));
 		return pEntity;
 	}
 
@@ -78,7 +79,7 @@ namespace catapult { namespace test {
 		auto pTransaction = mocks::CreateMockTransaction(sizeof(uint64_t));
 		pTransaction->Signer = keyPair.publicKey();
 		pTransaction->Version = 1;
-		pTransaction->Fee = Amount(2468);
+		pTransaction->MaxFee = Amount(2468);
 		pTransaction->Deadline = Timestamp(45678);
 		pTransaction->Recipient = crypto::ParseKey("72B69A64B20AF34C3815073647C8A2354800E8E83B718303909ABDC0F38E7ED7");
 		reinterpret_cast<uint64_t&>(*pTransaction->DataPtr()) = 12345;

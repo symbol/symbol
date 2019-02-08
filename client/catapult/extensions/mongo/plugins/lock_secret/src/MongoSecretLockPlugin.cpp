@@ -22,6 +22,8 @@
 #include "SecretProofMapper.h"
 #include "storages/MongoSecretLockInfoCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
+#include "mongo/src/MongoReceiptPluginFactory.h"
+#include "plugins/txes/lock_secret/src/model/SecretLockReceiptType.h"
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
@@ -34,4 +36,9 @@ void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 			manager.createDatabaseConnection(),
 			manager.mongoContext().bulkWriter(),
 			manager.chainConfig().Network.Identifier));
+
+	// receipt support
+	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockSecret_Created));
+	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockSecret_Completed));
+	manager.addReceiptSupport(catapult::mongo::CreateBalanceChangeReceiptMongoPlugin(catapult::model::Receipt_Type_LockSecret_Expired));
 }

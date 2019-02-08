@@ -28,7 +28,7 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS ModifyMultisigCosignersObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(ModifyMultisigCosigners, )
+	DEFINE_COMMON_OBSERVER_TESTS(ModifyMultisigCosigners,)
 
 	namespace {
 		constexpr auto Add = model::CosignatoryModificationType::Add;

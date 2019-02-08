@@ -25,6 +25,8 @@ namespace catapult { namespace model {
 
 	/// Possible facility codes.
 	enum class FacilityCode : uint8_t {
+		/// Account link facility code.
+		AccountLink = 0x4C,
 		/// Aggregate facility code.
 		Aggregate = 0x41,
 		/// Core facility code.

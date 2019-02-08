@@ -19,16 +19,13 @@
 **/
 
 #include "FileBlockStorage.h"
+#include "BlockStatementSerializer.h"
+#include "BufferedFileStream.h"
 #include "PodIoUtils.h"
-#include "RawFile.h"
-#include "catapult/model/Elements.h"
 #include "catapult/utils/MemoryUtils.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
 #include <inttypes.h>
-
-using catapult::model::Block;
-using catapult::model::BlockElement;
 
 namespace catapult { namespace io {
 
@@ -36,13 +33,17 @@ namespace catapult { namespace io {
 		static constexpr uint64_t Unset_Directory_Id = std::numeric_limits<uint64_t>::max();
 		static constexpr uint32_t Files_Per_Directory = 65536u;
 		static constexpr auto Block_File_Extension = ".dat";
+		static constexpr auto Block_Statement_File_Extension = ".stmt";
 		static constexpr auto Index_File = "index.dat";
+
+		// region path utils
 
 #ifdef _MSC_VER
 #define SPRINTF sprintf_s
 #else
 #define SPRINTF sprintf
 #endif
+
 		boost::filesystem::path GetDirectoryPath(const std::string& baseDirectory, Height height) {
 			char subDirectory[16];
 			SPRINTF(subDirectory, "%05" PRId64, height.unwrap() / Files_Per_Directory);
@@ -54,12 +55,12 @@ namespace catapult { namespace io {
 			return path;
 		}
 
-		boost::filesystem::path GetBlockPath(const std::string& baseDirectory, Height height) {
+		boost::filesystem::path GetBlockPath(const std::string& baseDirectory, Height height, const char* extension) {
 			auto path = GetDirectoryPath(baseDirectory, height);
 			char filename[16];
 			SPRINTF(filename, "%05" PRId64, height.unwrap() % Files_Per_Directory);
 			path /= filename;
-			path += Block_File_Extension;
+			path += extension;
 			return path;
 		}
 
@@ -69,16 +70,32 @@ namespace catapult { namespace io {
 			return path;
 		}
 
-		auto OpenBlockFile(const std::string& baseDirectory, Height height, OpenMode mode = OpenMode::Read_Only) {
-			auto blockPath = GetBlockPath(baseDirectory, height);
-			return std::make_unique<RawFile>(blockPath.generic_string().c_str(), mode);
+		boost::filesystem::path GetBlockStatementPath(const std::string& baseDirectory, Height height) {
+			return GetBlockPath(baseDirectory, height, Block_Statement_File_Extension);
+		}
+
+		// endregion
+
+		// region file utils
+
+		bool IsRegularFile(const boost::filesystem::path& path) {
+			return boost::filesystem::exists(path) && boost::filesystem::is_regular_file(path);
 		}
 
 		bool HasJournal(const std::string& baseDirectory) {
 			boost::filesystem::path journalPath = baseDirectory;
 			journalPath /= Index_File;
+			return IsRegularFile(journalPath);
+		}
 
-			return boost::filesystem::exists(journalPath) && boost::filesystem::is_regular_file(journalPath);
+		auto OpenBlockFile(const std::string& baseDirectory, Height height, OpenMode mode = OpenMode::Read_Only) {
+			auto blockPath = GetBlockPath(baseDirectory, height, Block_File_Extension);
+			return std::make_unique<RawFile>(blockPath.generic_string().c_str(), mode);
+		}
+
+		auto OpenBlockStatementFile(const std::string& baseDirectory, Height height, OpenMode mode = OpenMode::Read_Only) {
+			auto blockStatementPath = GetBlockStatementPath(baseDirectory, height);
+			return RawFile(blockStatementPath.generic_string().c_str(), mode);
 		}
 
 		auto OpenJournalFile(const std::string& baseDirectory, OpenMode mode = OpenMode::Read_Only) {
@@ -87,12 +104,10 @@ namespace catapult { namespace io {
 			return std::make_unique<RawFile>(journalPath.generic_string().c_str(), mode);
 		}
 
-		// note: DeleteBlockFile returns false when attempting to delete nonexistent file.
-		bool DeleteBlockFile(const std::string& baseDirectory, Height height) {
-			auto blockPath = GetBlockPath(baseDirectory, height);
-			return boost::filesystem::remove(blockPath);
-		}
+		// endregion
 	}
+
+	// region FileBlockStorage::HashFile
 
 	FileBlockStorage::HashFile::HashFile(const std::string& dataDirectory)
 			: m_dataDirectory(dataDirectory)
@@ -100,7 +115,7 @@ namespace catapult { namespace io {
 	{}
 
 	namespace {
-		std::unique_ptr<RawFile> OpenHashFile(const std::string& baseDirectory, Height height, io::OpenMode openMode) {
+		std::unique_ptr<RawFile> OpenHashFile(const std::string& baseDirectory, Height height, OpenMode openMode) {
 			auto hashFilePath = GetHashFilePath(baseDirectory, height);
 			auto pHashFile = std::make_unique<RawFile>(hashFilePath.generic_string().c_str(), openMode, LockMode::None);
 			// check that first hash file has at least two hashes inside.
@@ -148,109 +163,25 @@ namespace catapult { namespace io {
 		m_pCachedHashFile->write(hash);
 	}
 
+	// endregion
+
+	// region ctor
+
 	FileBlockStorage::FileBlockStorage(const std::string& dataDirectory)
 			: m_dataDirectory(dataDirectory)
 			, m_hashFile(m_dataDirectory)
 	{}
+
+	// endregion
+
+	// region LightBlockStorage
 
 	namespace {
 		void SetHeight(const std::string& baseDirectory, Height height) {
 			auto pJournalFile = OpenJournalFile(baseDirectory, OpenMode::Read_Write);
 			Write(*pJournalFile, height);
 		}
-	}
 
-	Height FileBlockStorage::chainHeight() const {
-		if (!HasJournal(m_dataDirectory))
-			return Height(1);
-
-		auto pJournalFile = OpenJournalFile(m_dataDirectory);
-		return Read<Height>(*pJournalFile);
-	}
-
-	namespace {
-		std::shared_ptr<Block> ReadBlock(RawFile& blockFile) {
-			auto size = Read32(blockFile);
-			blockFile.seek(0);
-
-			auto pBlock = utils::MakeSharedWithSize<Block>(size);
-			blockFile.read({ reinterpret_cast<uint8_t*>(pBlock.get()), size });
-			return pBlock;
-		}
-
-		std::shared_ptr<model::BlockElement> ReadBlockElement(RawFile& blockFile) {
-			auto size = Read32(blockFile);
-			blockFile.seek(0);
-
-			// allocate memory for both the element and the block in one shot (Block data is appended)
-			auto pData = utils::MakeUniqueWithSize<uint8_t>(sizeof(BlockElement) + size);
-
-			// read the block data
-			auto pBlockData = pData.get() + sizeof(BlockElement);
-			blockFile.read({ pBlockData, size });
-
-			// create the block element and transfer ownership from pData to pBlockElement
-			auto pBlockElementRaw = new (pData.get()) BlockElement(*reinterpret_cast<Block*>(pBlockData));
-			auto pBlockElement = std::shared_ptr<BlockElement>(pBlockElementRaw);
-			pData.release();
-
-			// read metadata
-			blockFile.read(pBlockElement->EntityHash);
-			blockFile.read(pBlockElement->GenerationHash);
-			return pBlockElement;
-		}
-
-		void ReadTransactionHashes(RawFile& blockFile, BlockElement& blockElement) {
-			auto numTransactions = Read32(blockFile);
-			std::vector<Hash256> hashes(2 * numTransactions);
-			blockFile.read({ reinterpret_cast<uint8_t*>(hashes.data()), hashes.size() * Hash256_Size });
-
-			size_t i = 0;
-			for (const auto& transaction : blockElement.Block.Transactions()) {
-				blockElement.Transactions.push_back(model::TransactionElement(transaction));
-				blockElement.Transactions.back().EntityHash = hashes[i++];
-				blockElement.Transactions.back().MerkleComponentHash = hashes[i++];
-			}
-		}
-
-		void ReadSubCacheMerkleRoots(RawFile& blockFile, std::vector<Hash256>& subCacheMerkleRoots) {
-			auto numHashes = Read32(blockFile);
-			subCacheMerkleRoots.resize(numHashes);
-			blockFile.read({ reinterpret_cast<uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256_Size });
-		}
-	}
-
-	std::shared_ptr<const model::Block> FileBlockStorage::loadBlock(Height height) const {
-		if (height > chainHeight())
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot load block at height greater than chain height", height);
-
-		auto pBlockFile = OpenBlockFile(m_dataDirectory, height);
-		return ReadBlock(*pBlockFile);
-	}
-
-	std::shared_ptr<const model::BlockElement> FileBlockStorage::loadBlockElement(Height height) const {
-		if (height > chainHeight())
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot load block at height greater than chain height", height);
-
-		auto pBlockFile = OpenBlockFile(m_dataDirectory, height);
-		auto pBlockElement = ReadBlockElement(*pBlockFile);
-
-		ReadTransactionHashes(*pBlockFile, *pBlockElement);
-		ReadSubCacheMerkleRoots(*pBlockFile, pBlockElement->SubCacheMerkleRoots);
-		return pBlockElement;
-	}
-
-	model::HashRange FileBlockStorage::loadHashesFrom(Height height, size_t maxHashes) const {
-		auto currentHeight = chainHeight();
-		if (Height(0) == height || currentHeight < height)
-			return model::HashRange();
-
-		auto numAvailableHashes = static_cast<size_t>((currentHeight - height).unwrap() + 1);
-		auto numHashes = std::min(maxHashes, numAvailableHashes);
-		return m_hashFile.loadHashesFrom(height, numHashes);
-	}
-
-	namespace {
 		void WriteTransactionHashes(RawFile& blockFile, const std::vector<model::TransactionElement>& transactionElements) {
 			auto numTransactions = static_cast<uint32_t>(transactionElements.size());
 			Write32(blockFile, numTransactions);
@@ -269,6 +200,24 @@ namespace catapult { namespace io {
 			Write32(blockFile, numHashes);
 			blockFile.write({ reinterpret_cast<const uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256_Size });
 		}
+	}
+
+	Height FileBlockStorage::chainHeight() const {
+		if (!HasJournal(m_dataDirectory))
+			return Height(1);
+
+		auto pJournalFile = OpenJournalFile(m_dataDirectory);
+		return Read<Height>(*pJournalFile);
+	}
+
+	model::HashRange FileBlockStorage::loadHashesFrom(Height height, size_t maxHashes) const {
+		auto currentHeight = chainHeight();
+		if (Height(0) == height || currentHeight < height)
+			return model::HashRange();
+
+		auto numAvailableHashes = static_cast<size_t>((currentHeight - height).unwrap() + 1);
+		auto numHashes = std::min(maxHashes, numAvailableHashes);
+		return m_hashFile.loadHashesFrom(height, numHashes);
 	}
 
 	void FileBlockStorage::saveBlock(const model::BlockElement& blockElement) {
@@ -290,6 +239,14 @@ namespace catapult { namespace io {
 
 			// 3. write sub cache merkle roots
 			WriteSubCacheMerkleRoots(*pBlockFile, blockElement.SubCacheMerkleRoots);
+
+			// 4. write statements
+			Write32(*pBlockFile, blockElement.OptionalStatement ? 0xFFFF'FFFF : 0);
+			if (blockElement.OptionalStatement) {
+				BufferedOutputFileStream blockStatementOutputStream(OpenBlockStatementFile(m_dataDirectory, height, OpenMode::Read_Write));
+				WriteBlockStatement(blockStatementOutputStream, *blockElement.OptionalStatement);
+				blockStatementOutputStream.flush();
+			}
 		}
 
 		m_hashFile.save(height, blockElement.EntityHash);
@@ -302,14 +259,113 @@ namespace catapult { namespace io {
 		SetHeight(m_dataDirectory, height);
 	}
 
-	void FileBlockStorage::pruneBlocksBefore(Height pruneHeight) {
-		auto currentHeight = chainHeight();
+	// endregion
 
-		if (pruneHeight > currentHeight)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("prune requested with height", pruneHeight);
+	// region BlockStorage
 
-		for (auto height = pruneHeight - Height(1); height > Height(1); height = height - Height(1))
-			if (!DeleteBlockFile(m_dataDirectory, height))
-				break;
+	namespace {
+		std::shared_ptr<model::Block> ReadBlock(RawFile& blockFile) {
+			auto size = Read32(blockFile);
+			blockFile.seek(0);
+
+			auto pBlock = utils::MakeSharedWithSize<model::Block>(size);
+			blockFile.read({ reinterpret_cast<uint8_t*>(pBlock.get()), size });
+			return pBlock;
+		}
+
+		std::shared_ptr<model::BlockElement> ReadBlockElement(RawFile& blockFile) {
+			auto size = Read32(blockFile);
+			blockFile.seek(0);
+
+			// allocate memory for both the element and the block in one shot (Block data is appended)
+			auto pData = utils::MakeUniqueWithSize<uint8_t>(sizeof(model::BlockElement) + size);
+
+			// read the block data
+			auto pBlockData = pData.get() + sizeof(model::BlockElement);
+			blockFile.read({ pBlockData, size });
+
+			// create the block element and transfer ownership from pData to pBlockElement
+			auto pBlockElementRaw = new (pData.get()) model::BlockElement(*reinterpret_cast<model::Block*>(pBlockData));
+			auto pBlockElement = std::shared_ptr<model::BlockElement>(pBlockElementRaw);
+			pData.release();
+
+			// read metadata
+			blockFile.read(pBlockElement->EntityHash);
+			blockFile.read(pBlockElement->GenerationHash);
+			return pBlockElement;
+		}
+
+		void ReadTransactionHashes(RawFile& blockFile, model::BlockElement& blockElement) {
+			auto numTransactions = Read32(blockFile);
+			std::vector<Hash256> hashes(2 * numTransactions);
+			blockFile.read({ reinterpret_cast<uint8_t*>(hashes.data()), hashes.size() * Hash256_Size });
+
+			size_t i = 0;
+			for (const auto& transaction : blockElement.Block.Transactions()) {
+				blockElement.Transactions.push_back(model::TransactionElement(transaction));
+				blockElement.Transactions.back().EntityHash = hashes[i++];
+				blockElement.Transactions.back().MerkleComponentHash = hashes[i++];
+			}
+		}
+
+		void ReadSubCacheMerkleRoots(RawFile& blockFile, std::vector<Hash256>& subCacheMerkleRoots) {
+			auto numHashes = Read32(blockFile);
+			subCacheMerkleRoots.resize(numHashes);
+			blockFile.read({ reinterpret_cast<uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256_Size });
+		}
 	}
+
+	std::shared_ptr<const model::Block> FileBlockStorage::loadBlock(Height height) const {
+		requireHeight(height, "block");
+		auto pBlockFile = OpenBlockFile(m_dataDirectory, height);
+		return ReadBlock(*pBlockFile);
+	}
+
+	std::shared_ptr<const model::BlockElement> FileBlockStorage::loadBlockElement(Height height) const {
+		requireHeight(height, "block element");
+		auto pBlockFile = OpenBlockFile(m_dataDirectory, height);
+		auto pBlockElement = ReadBlockElement(*pBlockFile);
+
+		ReadTransactionHashes(*pBlockFile, *pBlockElement);
+		ReadSubCacheMerkleRoots(*pBlockFile, pBlockElement->SubCacheMerkleRoots);
+
+		auto optionalStatementMarker = Read32(*pBlockFile);
+		if (0 == optionalStatementMarker)
+			return std::move(pBlockElement);
+
+		if (0xFFFF'FFFF != optionalStatementMarker)
+			CATAPULT_THROW_RUNTIME_ERROR_1("block file has invalid marker, height", pBlockElement->Block.Height);
+
+		return std::move(pBlockElement);
+	}
+
+	std::pair<std::vector<uint8_t>, bool> FileBlockStorage::loadBlockStatementData(Height height) const {
+		requireHeight(height, "block statement data");
+		auto path = GetBlockStatementPath(m_dataDirectory, height);
+		if (!IsRegularFile(path))
+			return std::make_pair(std::vector<uint8_t>(), false);
+
+		auto blockStatementFile = OpenBlockStatementFile(m_dataDirectory, height);
+		std::vector<uint8_t> blockStatement;
+		blockStatement.resize(blockStatementFile.size());
+		blockStatementFile.read(blockStatement);
+		return std::make_pair(std::move(blockStatement), true);
+	}
+
+	// endregion
+
+	// region requireHeight
+
+	void FileBlockStorage::requireHeight(Height height, const char* description) const {
+		auto chainHeight = this->chainHeight();
+		if (height <= chainHeight)
+			return;
+
+		std::ostringstream out;
+		out << "cannot load " << description << " at height (" << height << ") greater than chain height (" << chainHeight << ")";
+		CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+	}
+
+	// endregion
+
 }}

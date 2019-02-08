@@ -19,6 +19,7 @@
 **/
 
 #include "src/validators/Validators.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/model/Address.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -36,7 +37,7 @@ namespace catapult { namespace validators {
 		void AssertValidationResult(
 				ValidationResult expectedResult,
 				const Key& signer,
-				const model::PropertyModification<Address>& modification) {
+				const model::PropertyModification<UnresolvedAddress>& modification) {
 			// Arrange:
 			model::ModifyAddressPropertyValueNotification notification(signer, model::PropertyType::Address, modification);
 			auto pValidator = CreatePropertyAddressNoSelfModificationValidator(model::NetworkIdentifier::Zero);
@@ -53,19 +54,20 @@ namespace catapult { namespace validators {
 		// Assert:
 		auto key = test::GenerateRandomData<Key_Size>();
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-		AssertValidationResult(Failure_Property_Modification_Address_Invalid, key, { Add, address });
+		AssertValidationResult(Failure_Property_Modification_Address_Invalid, key, { Add, extensions::CopyToUnresolvedAddress(address) });
 	}
 
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Del) {
 		// Assert:
 		auto key = test::GenerateRandomData<Key_Size>();
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
-		AssertValidationResult(Failure_Property_Modification_Address_Invalid, key, { Del, address });
+		AssertValidationResult(Failure_Property_Modification_Address_Invalid, key, { Del, extensions::CopyToUnresolvedAddress(address) });
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSignerIsNotValueInModification) {
 		// Assert:
+		auto key = test::GenerateRandomData<Key_Size>();
 		auto address = test::GenerateRandomData<Address_Decoded_Size>();
-		AssertValidationResult(ValidationResult::Success, test::GenerateRandomData<Key_Size>(), { Add, address });
+		AssertValidationResult(ValidationResult::Success, key, { Add, extensions::CopyToUnresolvedAddress(address) });
 	}
 }}

@@ -31,7 +31,7 @@ namespace catapult { namespace ionet {
 	namespace {
 		void AssertEntityBuffer(RawBuffer buffer, const model::VerifiableEntity& entity) {
 			EXPECT_EQ(test::AsVoidPointer(&entity), buffer.pData);
-			EXPECT_EQ(entity.Size, buffer.Size);
+			ASSERT_EQ(entity.Size, buffer.Size);
 			EXPECT_EQ(entity, *reinterpret_cast<const model::VerifiableEntity*>(buffer.pData));
 		}
 
@@ -152,7 +152,7 @@ namespace catapult { namespace ionet {
 			// - all cosignatures are present in the buffer
 			const auto* pCosignature = reinterpret_cast<const model::DetachedCosignature*>(buffer.pData);
 			for (auto i = 0u; i < cosignatures.size(); ++i, ++pCosignature)
-				EXPECT_TRUE(0 == std::memcmp(cosignatures.data() + i, pCosignature, cosignatureSize)) << "cosignature at " << i;
+				EXPECT_EQ_MEMORY(cosignatures.data() + i, pCosignature, cosignatureSize) << "cosignature at " << i;
 		}
 	}
 

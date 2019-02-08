@@ -19,50 +19,38 @@
 **/
 
 #include "RegisterNamespaceBuilder.h"
-#include "plugins/txes/namespace/src/model/IdGenerator.h"
-#include "plugins/txes/namespace/src/model/NamespaceConstants.h"
+#include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
 
 namespace catapult { namespace builders {
 
-	RegisterNamespaceBuilder::RegisterNamespaceBuilder(
-			model::NetworkIdentifier networkIdentifier,
-			const Key& signer,
-			const RawString& name)
+	RegisterNamespaceBuilder::RegisterNamespaceBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer)
 			: TransactionBuilder(networkIdentifier, signer)
-			, m_name(name.pData, name.Size) {
-		if (m_name.empty())
-			CATAPULT_THROW_INVALID_ARGUMENT("cannot set empty name");
-	}
+			, m_namespaceType()
+			, m_duration()
+			, m_parentId()
+			, m_namespaceId()
+			, m_name()
+	{}
 
 	void RegisterNamespaceBuilder::setDuration(BlockDuration duration) {
 		m_duration = duration;
+		m_namespaceType = model::NamespaceType::Root;
 	}
 
 	void RegisterNamespaceBuilder::setParentId(NamespaceId parentId) {
 		m_parentId = parentId;
+		m_namespaceType = model::NamespaceType::Child;
 	}
 
-	template<typename TransactionType>
-	std::unique_ptr<TransactionType> RegisterNamespaceBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
-		auto size = sizeof(TransactionType) + m_name.size();
-		auto pTransaction = createTransaction<TransactionType>(size);
+	void RegisterNamespaceBuilder::setName(const RawBuffer& name) {
+		if (0 == name.Size)
+			CATAPULT_THROW_INVALID_ARGUMENT("argument `name` cannot be empty");
 
-		// 2. set transaction fields
-		if (Namespace_Base_Id == m_parentId) {
-			pTransaction->NamespaceType = model::NamespaceType::Root;
-			pTransaction->Duration = m_duration;
-		} else {
-			pTransaction->NamespaceType = model::NamespaceType::Child;
-			pTransaction->ParentId = m_parentId;
-		}
+		if (!m_name.empty())
+			CATAPULT_THROW_RUNTIME_ERROR("`name` field already set");
 
-		pTransaction->NamespaceId = model::GenerateNamespaceId(m_parentId, m_name);
-
-		// 3. set name
-		pTransaction->NamespaceNameSize = utils::checked_cast<size_t, uint8_t>(m_name.size());
-		std::copy(m_name.cbegin(), m_name.cend(), pTransaction->NamePtr());
-		return pTransaction;
+		m_name.resize(name.Size);
+		m_name.assign(name.pData, name.pData + name.Size);
 	}
 
 	std::unique_ptr<RegisterNamespaceBuilder::Transaction> RegisterNamespaceBuilder::build() const {
@@ -71,5 +59,31 @@ namespace catapult { namespace builders {
 
 	std::unique_ptr<RegisterNamespaceBuilder::EmbeddedTransaction> RegisterNamespaceBuilder::buildEmbedded() const {
 		return buildImpl<EmbeddedTransaction>();
+	}
+
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> RegisterNamespaceBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto size = sizeof(TransactionType);
+		size += m_name.size();
+		auto pTransaction = createTransaction<TransactionType>(size);
+
+		// 2. set fixed transaction fields
+		pTransaction->NamespaceType = m_namespaceType;
+		if (model::NamespaceType::Root == m_namespaceType)
+			pTransaction->Duration = m_duration;
+
+		if (model::NamespaceType::Child == m_namespaceType)
+			pTransaction->ParentId = m_parentId;
+
+		pTransaction->NamespaceId = model::GenerateNamespaceId(
+				m_parentId,
+				{ reinterpret_cast<const char*>(m_name.data()), m_name.size() });
+		pTransaction->NamespaceNameSize = utils::checked_cast<size_t, uint8_t>(m_name.size());
+
+		// 3. set transaction attachments
+		std::copy(m_name.cbegin(), m_name.cend(), pTransaction->NamePtr());
+
+		return pTransaction;
 	}
 }}

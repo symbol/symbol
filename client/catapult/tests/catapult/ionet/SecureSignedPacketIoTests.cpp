@@ -115,7 +115,7 @@ namespace catapult { namespace ionet {
 		// Act:
 		RunWritePayloadTest(TestContext(), entities, 126, [&entities](const auto& childPacket) {
 			// Assert:
-			EXPECT_TRUE(0 == std::memcmp(entities[0].get(), childPacket.Data(), entities[0]->Size));
+			EXPECT_EQ_MEMORY(entities[0].get(), childPacket.Data(), entities[0]->Size);
 		});
 	}
 
@@ -130,9 +130,9 @@ namespace catapult { namespace ionet {
 		// Act:
 		RunWritePayloadTest(TestContext(), entities, 126 + 212 + 134, [&entities](const auto& childPacket) {
 			// Assert:
-			EXPECT_TRUE(0 == std::memcmp(entities[0].get(), childPacket.Data(), entities[0]->Size));
-			EXPECT_TRUE(0 == std::memcmp(entities[1].get(), childPacket.Data() + 126, entities[1]->Size));
-			EXPECT_TRUE(0 == std::memcmp(entities[2].get(), childPacket.Data() + 126 + 212, entities[2]->Size));
+			EXPECT_EQ_MEMORY(entities[0].get(), childPacket.Data(), entities[0]->Size);
+			EXPECT_EQ_MEMORY(entities[1].get(), childPacket.Data() + 126, entities[1]->Size);
+			EXPECT_EQ_MEMORY(entities[2].get(), childPacket.Data() + 126 + 212, entities[2]->Size);
 		});
 	}
 
@@ -191,10 +191,10 @@ namespace catapult { namespace ionet {
 		// Act:
 		RunWritePayloadTest(TestContext(126), entities, 126, [&entities](const auto& childPacket) {
 			// Assert:
-			EXPECT_TRUE(0 == std::memcmp(entities[0].get(), childPacket.Data(), entities[0]->Size));
+			EXPECT_EQ_MEMORY(entities[0].get(), childPacket.Data(), entities[0]->Size);
 
 			// Sanity:
-			EXPECT_EQ(sizeof(PacketHeader) + 126, childPacket.Size);
+			ASSERT_EQ(sizeof(PacketHeader) + 126, childPacket.Size);
 		});
 	}
 
@@ -357,7 +357,7 @@ namespace catapult { namespace ionet {
 			ASSERT_EQ(sizeof(PacketHeader) + childPayloadSize, readPacket.Size);
 			EXPECT_EQ(PacketType::Push_Transactions, readPacket.Type);
 
-			EXPECT_TRUE(0 == std::memcmp(childPacket.Data(), readPacket.Data(), childPayloadSize));
+			EXPECT_EQ_MEMORY(childPacket.Data(), readPacket.Data(), childPayloadSize);
 			action(readPacket);
 		}
 	}
@@ -427,12 +427,12 @@ namespace catapult { namespace ionet {
 		const auto& readPacket1 = reinterpret_cast<const Packet&>(*captures[0].ReadPacketBytes.data());
 		ASSERT_EQ(sizeof(PacketHeader) + Data1_Size, readPacket1.Size);
 		EXPECT_EQ(PacketType::Push_Transactions, readPacket1.Type);
-		EXPECT_TRUE(0 == std::memcmp(childPacket1.Data(), readPacket1.Data(), Data1_Size));
+		EXPECT_EQ_MEMORY(childPacket1.Data(), readPacket1.Data(), Data1_Size);
 
 		const auto& readPacket2 = reinterpret_cast<const Packet&>(*captures[1].ReadPacketBytes.data());
 		ASSERT_EQ(sizeof(PacketHeader) + Data2_Size, readPacket2.Size);
 		EXPECT_EQ(PacketType::Push_Transactions, readPacket2.Type);
-		EXPECT_TRUE(0 == std::memcmp(childPacket2.Data(), readPacket2.Data(), Data2_Size));
+		EXPECT_EQ_MEMORY(childPacket2.Data(), readPacket2.Data(), Data2_Size);
 	}
 
 	// endregion

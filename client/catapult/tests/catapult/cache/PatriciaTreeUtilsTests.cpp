@@ -212,7 +212,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(expectedRoot, tree.root());
 	}
 
-	TEST(TEST_CLASS, DeltaAdditionsCannotBeAppliedToTree_Inactive) {
+	TEST(TEST_CLASS, DeltaAdditionsCanBeAppliedToTree_Inactive) {
 		// Arrange:
 		tree::MemoryDataSource dataSource;
 		HeightDependentMemoryPatriciaTree tree(dataSource);
@@ -222,8 +222,23 @@ namespace catapult { namespace cache {
 		deltaset.Added.emplace(0x26'54'32'10, HeightDependentValue("alpha", Height(70)));
 		deltaset.Added.emplace(0x46'54'32'10, HeightDependentValue("beta", Height(80)));
 
+		// - add elements at lower generation
+		ApplyDeltasToTree(tree, deltaset, 1, Height(20));
+
+		// - simulate deactivation at higher generation
+		deltaset.setGenerationId(0x26'54'32'10, 3);
+		deltaset.setGenerationId(0x46'54'32'10, 3);
+
+		deltaset.incrementGenerationId();
+		deltaset.incrementGenerationId(); // active generation id is 3
+
 		// Act: added elements are inactive at height 100
-		EXPECT_THROW(ApplyDeltasToTree(tree, deltaset, 1, Height(100)), catapult_runtime_error);
+		ApplyDeltasToTree(tree, deltaset, 3, Height(100));
+
+		// Assert:
+		auto expectedRoot = CalculateRootHashForTreeWithFourNodes();
+
+		EXPECT_EQ(expectedRoot, tree.root());
 	}
 
 	TEST(TEST_CLASS, DeltaCopiesCanBeAppliedToTree_Active) {

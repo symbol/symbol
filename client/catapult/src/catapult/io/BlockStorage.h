@@ -27,10 +27,10 @@
 
 namespace catapult { namespace io {
 
-	/// A light interface for block storage (does not allow block loading).
+	/// Minimalistic interface for block storage (does not allow block loading).
 	class LightBlockStorage : public utils::NonCopyable {
 	public:
-		virtual ~LightBlockStorage() {}
+		virtual ~LightBlockStorage() = default;
 
 	public:
 		/// Gets the number of blocks.
@@ -46,7 +46,7 @@ namespace catapult { namespace io {
 		virtual void dropBlocksAfter(Height height) = 0;
 	};
 
-	/// An interface for saving and loading blocks.
+	/// Interface for saving and loading blocks.
 	class BlockStorage : public LightBlockStorage {
 	public:
 		/// Returns the block at \a height.
@@ -54,12 +54,8 @@ namespace catapult { namespace io {
 
 		/// Returns the block element (owning a block) at \a height.
 		virtual std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const = 0;
-	};
 
-	/// An interface that allows saving, loading and pruning blocks.
-	class PrunableBlockStorage : public BlockStorage {
-	public:
-		/// Drops all blocks before \a height.
-		virtual void pruneBlocksBefore(Height height) = 0;
+		/// Returns the optional block statement data at \a height.
+		virtual std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const = 0;
 	};
 }}

@@ -23,6 +23,7 @@
 #include "src/model/RegisterNamespaceTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "catapult/constants.h"
+#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
@@ -34,12 +35,15 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS RegisterNamespaceTransactionPluginTests
 
 	namespace {
-		TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(RegisterNamespace, NamespaceRentalFeeConfiguration)
+		TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(RegisterNamespace, NamespaceRentalFeeConfiguration, 2, 2)
+
+		constexpr UnresolvedMosaicId Currency_Mosaic_Id(1234);
 
 		NamespaceRentalFeeConfiguration CreateRentalFeeConfiguration(Amount rootFeePerBlock, Amount childFee) {
 			return {
 				test::GenerateRandomData<Key_Size>(),
-				test::GenerateRandomData<Address_Decoded_Size>(),
+				Currency_Mosaic_Id,
+				test::GenerateRandomUnresolvedAddress(),
 				rootFeePerBlock,
 				childFee,
 				test::GenerateRandomData<Key_Size>()
@@ -89,7 +93,7 @@ namespace catapult { namespace plugins {
 		test::PublishTransaction(*pPlugin, transaction, sub);
 
 		// Assert:
-		EXPECT_EQ(5u, sub.numNotifications());
+		EXPECT_EQ(6u, sub.numNotifications());
 		EXPECT_EQ(0u, sub.numAddresses());
 		EXPECT_EQ(1u, sub.numKeys());
 
@@ -129,9 +133,9 @@ namespace catapult { namespace plugins {
 		// Act:
 		RunBalanceChangeObserverTest<TTraits>(*pTransaction, false, [](const auto& sub, const auto& signer, const auto& recipient) {
 			// Assert:
-			EXPECT_EQ(5u, sub.numNotifications());
+			EXPECT_EQ(6u, sub.numNotifications());
 			EXPECT_EQ(1u, sub.numTransfers());
-			EXPECT_TRUE(sub.contains(signer, recipient, Xem_Id, Amount(987 * 123)));
+			EXPECT_TRUE(sub.contains(signer, recipient, Currency_Mosaic_Id, Amount(987 * 123)));
 		});
 	}
 
@@ -181,9 +185,9 @@ namespace catapult { namespace plugins {
 		// Act:
 		RunBalanceChangeObserverTest<TTraits>(*pTransaction, false, [](const auto& sub, const auto& signer, const auto& recipient) {
 			// Assert:
-			EXPECT_EQ(5u, sub.numNotifications());
+			EXPECT_EQ(6u, sub.numNotifications());
 			EXPECT_EQ(1u, sub.numTransfers());
-			EXPECT_TRUE(sub.contains(signer, recipient, Xem_Id, Amount(777)));
+			EXPECT_TRUE(sub.contains(signer, recipient, Currency_Mosaic_Id, Amount(777)));
 		});
 	}
 
@@ -203,64 +207,114 @@ namespace catapult { namespace plugins {
 
 	// region registration
 
-	template<typename TTraits>
-	auto CreateTransactionWithName(uint8_t nameSize) {
-		using TransactionType = typename TTraits::TransactionType;
-		uint32_t entitySize = sizeof(TransactionType) + nameSize;
-		auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
-		pTransaction->Size = entitySize;
-		pTransaction->NamespaceNameSize = nameSize;
-		test::FillWithRandomData(pTransaction->Signer);
-		return pTransaction;
+	namespace {
+		constexpr Amount Default_Root_Rental_Fee_Per_Block(123);
+		constexpr Amount Default_Child_Rental_Fee(543);
+
+		template<typename TTraits>
+		auto CreateTransactionWithName(uint8_t nameSize) {
+			using TransactionType = typename TTraits::TransactionType;
+			uint32_t entitySize = sizeof(TransactionType) + nameSize;
+			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
+			pTransaction->Size = entitySize;
+			pTransaction->NamespaceNameSize = nameSize;
+			test::FillWithRandomData(pTransaction->Signer);
+			return pTransaction;
+		}
+
+		template<typename TTraits>
+		struct RegisterNamespaceTransactionPluginTestContext {
+		public:
+			using TransactionType = typename TTraits::TransactionType;
+
+		public:
+			template<typename TTransactionPlugin>
+			void PublishTransaction(const TTransactionPlugin& plugin, const TransactionType& transaction) {
+				test::PublishTransaction(plugin, transaction, NamespaceSub);
+				test::PublishTransaction(plugin, transaction, NameSub);
+				test::PublishTransaction(plugin, transaction, RootSub);
+				test::PublishTransaction(plugin, transaction, ChildSub);
+				test::PublishTransaction(plugin, transaction, RentalFeeSub);
+			}
+
+			void AssertNamespaceNotification(NamespaceType namespaceType) {
+				ASSERT_EQ(1u, NamespaceSub.numMatchingNotifications());
+				EXPECT_EQ(namespaceType, NamespaceSub.matchingNotifications()[0].NamespaceType);
+			}
+
+			void AssertNamespaceNameNotification(const uint8_t* namespaceName, NamespaceId parentId) {
+				ASSERT_EQ(1u, NameSub.numMatchingNotifications());
+				const auto& notification = NameSub.matchingNotifications()[0];
+				EXPECT_EQ(NamespaceId(768), notification.NamespaceId);
+				EXPECT_EQ(parentId, notification.ParentId);
+				EXPECT_EQ(12u, notification.NameSize);
+				EXPECT_EQ(namespaceName, notification.NamePtr);
+			}
+
+			void AssertNamespaceRootNotification(const Key& signer) {
+				ASSERT_EQ(1u, RootSub.numMatchingNotifications());
+				const auto& notification = RootSub.matchingNotifications()[0];
+				EXPECT_EQ(signer, notification.Signer);
+				EXPECT_EQ(NamespaceId(768), notification.NamespaceId);
+				EXPECT_EQ(BlockDuration(1234), notification.Duration);
+			}
+
+			void AssertNamespaceChildNotification(const Key& signer) {
+				ASSERT_EQ(1u, ChildSub.numMatchingNotifications());
+				const auto& notification = ChildSub.matchingNotifications()[0];
+				EXPECT_EQ(signer, notification.Signer);
+				EXPECT_EQ(NamespaceId(768), notification.NamespaceId);
+				EXPECT_EQ(NamespaceId(123), notification.ParentId);
+			}
+
+			void AssertNamespaceRentalFeeNotification(const Key& signer, const UnresolvedAddress& recipientSink, Amount expectedFee) {
+				ASSERT_EQ(1u, RentalFeeSub.numMatchingNotifications());
+				const auto& notification = RentalFeeSub.matchingNotifications()[0];
+				EXPECT_EQ(signer, notification.Sender);
+				EXPECT_EQ(recipientSink, notification.Recipient);
+				EXPECT_EQ(Currency_Mosaic_Id, notification.MosaicId);
+				EXPECT_EQ(expectedFee, notification.Amount);
+			}
+
+		public:
+			mocks::MockTypedNotificationSubscriber<NamespaceNotification> NamespaceSub;
+			mocks::MockTypedNotificationSubscriber<NamespaceNameNotification> NameSub;
+			mocks::MockTypedNotificationSubscriber<RootNamespaceNotification> RootSub;
+			mocks::MockTypedNotificationSubscriber<ChildNamespaceNotification> ChildSub;
+			mocks::MockTypedNotificationSubscriber<NamespaceRentalFeeNotification> RentalFeeSub;
+		};
 	}
 
 	PLUGIN_TEST(CanExtractRegistrationNotificationsFromRootRegistration) {
 		// Arrange:
-		mocks::MockTypedNotificationSubscriber<NamespaceNameNotification> nsNameSub;
-		mocks::MockTypedNotificationSubscriber<NamespaceNotification> nsSub;
-		mocks::MockTypedNotificationSubscriber<RootNamespaceNotification> nsRootSub;
-		mocks::MockTypedNotificationSubscriber<ChildNamespaceNotification> nsChildSub;
-		auto config = CreateRentalFeeConfiguration(Amount(0), Amount(0));
+		RegisterNamespaceTransactionPluginTestContext<TTraits> testContext;
+		auto config = CreateRentalFeeConfiguration(Default_Root_Rental_Fee_Per_Block, Default_Child_Rental_Fee);
 		auto pPlugin = TTraits::CreatePlugin(config);
 
 		auto pTransaction = CreateTransactionWithName<TTraits>(12);
 		pTransaction->NamespaceType = NamespaceType::Root;
 		pTransaction->NamespaceId = NamespaceId(768);
-		pTransaction->Duration = BlockDuration(123);
+		pTransaction->Duration = BlockDuration(1234);
 
 		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, nsNameSub);
-		test::PublishTransaction(*pPlugin, *pTransaction, nsSub);
-		test::PublishTransaction(*pPlugin, *pTransaction, nsRootSub);
-		test::PublishTransaction(*pPlugin, *pTransaction, nsChildSub);
+		const auto& transaction = *pTransaction;
+		testContext.PublishTransaction(*pPlugin, transaction);
 
 		// Assert:
-		ASSERT_EQ(1u, nsNameSub.numMatchingNotifications());
-		EXPECT_EQ(NamespaceId(768), nsNameSub.matchingNotifications()[0].NamespaceId);
-		EXPECT_EQ(Namespace_Base_Id, nsNameSub.matchingNotifications()[0].ParentId);
-		EXPECT_EQ(12u, nsNameSub.matchingNotifications()[0].NameSize);
-		EXPECT_EQ(pTransaction->NamePtr(), nsNameSub.matchingNotifications()[0].NamePtr);
-
-		ASSERT_EQ(1u, nsSub.numMatchingNotifications());
-		EXPECT_EQ(NamespaceType::Root, nsSub.matchingNotifications()[0].NamespaceType);
-
-		ASSERT_EQ(1u, nsRootSub.numMatchingNotifications());
-		EXPECT_EQ(pTransaction->Signer, nsRootSub.matchingNotifications()[0].Signer);
-		EXPECT_EQ(NamespaceId(768), nsRootSub.matchingNotifications()[0].NamespaceId);
-		EXPECT_EQ(BlockDuration(123), nsRootSub.matchingNotifications()[0].Duration);
-
-		ASSERT_EQ(0u, nsChildSub.numMatchingNotifications());
+		testContext.AssertNamespaceNotification(NamespaceType::Root);
+		testContext.AssertNamespaceNameNotification(transaction.NamePtr(), Namespace_Base_Id);
+		testContext.AssertNamespaceRootNotification(transaction.Signer);
+		ASSERT_EQ(0u, testContext.ChildSub.numMatchingNotifications());
+		auto expectedFee = Amount(Default_Root_Rental_Fee_Per_Block.unwrap() * 1234);
+		testContext.AssertNamespaceRentalFeeNotification(transaction.Signer, config.SinkAddress, expectedFee);
 	}
 
 	namespace {
 		template<typename TTraits>
 		void AssertCanExtractRegistrationNotificationsFromChildRegistration(NamespaceType namespaceType) {
 			// Arrange:
-			mocks::MockTypedNotificationSubscriber<NamespaceNameNotification> nsNameSub;
-			mocks::MockTypedNotificationSubscriber<NamespaceNotification> nsSub;
-			mocks::MockTypedNotificationSubscriber<RootNamespaceNotification> nsRootSub;
-			mocks::MockTypedNotificationSubscriber<ChildNamespaceNotification> nsChildSub;
-			auto config = CreateRentalFeeConfiguration(Amount(0), Amount(0));
+			RegisterNamespaceTransactionPluginTestContext<TTraits> testContext;
+			auto config = CreateRentalFeeConfiguration(Default_Root_Rental_Fee_Per_Block, Default_Child_Rental_Fee);
 			auto pPlugin = TTraits::CreatePlugin(config);
 
 			auto pTransaction = CreateTransactionWithName<TTraits>(12);
@@ -269,27 +323,15 @@ namespace catapult { namespace plugins {
 			pTransaction->ParentId = NamespaceId(123);
 
 			// Act:
-			test::PublishTransaction(*pPlugin, *pTransaction, nsNameSub);
-			test::PublishTransaction(*pPlugin, *pTransaction, nsSub);
-			test::PublishTransaction(*pPlugin, *pTransaction, nsRootSub);
-			test::PublishTransaction(*pPlugin, *pTransaction, nsChildSub);
+			testContext.PublishTransaction(*pPlugin, *pTransaction);
 
 			// Assert:
-			ASSERT_EQ(1u, nsNameSub.numMatchingNotifications());
-			EXPECT_EQ(NamespaceId(768), nsNameSub.matchingNotifications()[0].NamespaceId);
-			EXPECT_EQ(NamespaceId(123), nsNameSub.matchingNotifications()[0].ParentId);
-			EXPECT_EQ(12u, nsNameSub.matchingNotifications()[0].NameSize);
-			EXPECT_EQ(pTransaction->NamePtr(), nsNameSub.matchingNotifications()[0].NamePtr);
-
-			ASSERT_EQ(1u, nsSub.numMatchingNotifications());
-			EXPECT_EQ(namespaceType, nsSub.matchingNotifications()[0].NamespaceType);
-
-			ASSERT_EQ(0u, nsRootSub.numMatchingNotifications());
-
-			ASSERT_EQ(1u, nsChildSub.numMatchingNotifications());
-			EXPECT_EQ(pTransaction->Signer, nsChildSub.matchingNotifications()[0].Signer);
-			EXPECT_EQ(NamespaceId(768), nsChildSub.matchingNotifications()[0].NamespaceId);
-			EXPECT_EQ(NamespaceId(123), nsChildSub.matchingNotifications()[0].ParentId);
+			const auto& transaction = *pTransaction;
+			testContext.AssertNamespaceNotification(namespaceType);
+			testContext.AssertNamespaceNameNotification(transaction.NamePtr(), NamespaceId(123));
+			ASSERT_EQ(0u, testContext.RootSub.numMatchingNotifications());
+			testContext.AssertNamespaceChildNotification(transaction.Signer);
+			testContext.AssertNamespaceRentalFeeNotification(transaction.Signer, config.SinkAddress, Default_Child_Rental_Fee);
 		}
 	}
 

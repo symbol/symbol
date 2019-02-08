@@ -173,8 +173,8 @@ namespace catapult { namespace api {
 		// endregion
 
 		struct RemoteRequestDispatcherTraits {
-			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return std::make_unique<RemoteRequestDispatcher>(*pPacketIo);
+			static auto Create(ionet::PacketIo& packetIo) {
+				return std::make_unique<RemoteRequestDispatcher>(packetIo);
 			}
 		};
 	}

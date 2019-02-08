@@ -131,6 +131,6 @@ namespace catapult { namespace validators {
 		auto result = RunValidator(cache, hash, model::Entity_Type_Aggregate_Bonded, Height());
 
 		// Assert:
-		EXPECT_EQ(Failure_LockHash_Hash_Already_Used, result);
+		EXPECT_EQ(Failure_LockHash_Inactive_Hash, result);
 	}
 }}

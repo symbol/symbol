@@ -92,6 +92,7 @@ namespace catapult { namespace local {
 		EXPECT_TRUE(test::HasCounter(counters, "ACNTST C")) << "cache counters";
 		EXPECT_TRUE(test::HasCounter(counters, "TX ELEM TOT")) << "service local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "UT CACHE")) << "basic local node counters";
+		EXPECT_TRUE(test::HasCounter(counters, "TOT CONF TXES")) << "basic local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "MEM CUR RSS")) << "memory counters";
 	}
 
@@ -101,7 +102,7 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, CannotConnectToApiPort) {
 		// Assert:
-		test::AssertConnectionError<TestContext>(test::Local_Node_Api_Port);
+		test::AssertConnectionError<TestContext>(test::GetLocalNodeApiPort());
 	}
 
 	namespace {
@@ -112,7 +113,7 @@ namespace catapult { namespace local {
 			context.waitForNumActiveWriters(1);
 
 			// Act: create an external connection to the node
-			auto clientConnection = test::CreateExternalConnection(test::Local_Node_Port);
+			auto clientConnection = test::CreateExternalConnection(test::GetLocalNodePort());
 			context.waitForNumActiveReaders(1);
 			handler(context);
 		}

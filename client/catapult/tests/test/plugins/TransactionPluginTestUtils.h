@@ -39,13 +39,16 @@ namespace catapult { namespace test {
 	/// Publishes \a transaction notifications to \a sub using \a plugin.
 	template<typename TTransactionPlugin, typename TTransaction>
 	void PublishTransaction(const TTransactionPlugin& plugin, const TTransaction& transaction, model::NotificationSubscriber& sub) {
-		plugin.publish(transaction, model::PublisherContext(), sub);
+		plugin.publish(transaction, sub);
 	}
 
-/// Defines traits for transaction plugin based tests for \a NAME transaction using traits prefixed by \a TRAITS_PREFIX.
-#define DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(NAME, TRAITS_PREFIX) \
+/// Defines traits for transaction plugin based tests for \a NAME transaction using traits prefixed by \a TRAITS_PREFIX
+/// with support for transaction versions \a MIN_VERSION to \a MAX_VERSION.
+#define DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(NAME, MIN_VERSION, MAX_VERSION, TRAITS_PREFIX) \
 	struct TRAITS_PREFIX##RegularTraits { \
 		using TransactionType = model::NAME##Transaction; \
+		static constexpr auto Min_Supported_Version = MIN_VERSION; \
+		static constexpr auto Max_Supported_Version = MAX_VERSION; \
 		\
 		static auto CreatePlugin() { \
 			return Create##NAME##TransactionPlugin(); \
@@ -54,19 +57,26 @@ namespace catapult { namespace test {
 	\
 	struct TRAITS_PREFIX##EmbeddedTraits { \
 		using TransactionType = model::Embedded##NAME##Transaction; \
+		static constexpr auto Min_Supported_Version = MIN_VERSION; \
+		static constexpr auto Max_Supported_Version = MAX_VERSION; \
 		\
 		static auto CreatePlugin() { \
 			return test::ExtractEmbeddedPlugin(TRAITS_PREFIX##RegularTraits::CreatePlugin()); \
 		} \
 	};
 
-/// Defines traits for transaction plugin based tests for \a NAME transaction.
-#define DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(NAME) DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(NAME,)
+/// Defines traits for transaction plugin based tests for \a NAME transaction
+/// with support for transaction versions \a MIN_VERSION to \a MAX_VERSION.
+#define DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(NAME, MIN_VERSION, MAX_VERSION) \
+	DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(NAME, MIN_VERSION, MAX_VERSION,)
 
-/// Defines traits for transaction plugin based tests for \a NAME transaction requiring configuration of type \a CONFIG_TYPE.
-#define TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(NAME, CONFIG_TYPE) \
+/// Defines traits for transaction plugin based tests for \a NAME transaction requiring configuration of type \a CONFIG_TYPE
+/// with support for transaction versions \a MIN_VERSION to \a MAX_VERSION.
+#define TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(NAME, CONFIG_TYPE, MIN_VERSION, MAX_VERSION) \
 	struct RegularTraits { \
 		using TransactionType = model::NAME##Transaction; \
+		static constexpr auto Min_Supported_Version = MIN_VERSION; \
+		static constexpr auto Max_Supported_Version = MAX_VERSION; \
 		\
 		static auto CreatePlugin(const CONFIG_TYPE& config) { \
 			return Create##NAME##TransactionPlugin(config); \
@@ -75,6 +85,8 @@ namespace catapult { namespace test {
 	\
 	struct EmbeddedTraits { \
 		using TransactionType = model::Embedded##NAME##Transaction; \
+		static constexpr auto Min_Supported_Version = MIN_VERSION; \
+		static constexpr auto Max_Supported_Version = MAX_VERSION; \
 		\
 		static auto CreatePlugin(const CONFIG_TYPE& config) { \
 			return test::ExtractEmbeddedPlugin(RegularTraits::CreatePlugin(config)); \
@@ -117,6 +129,22 @@ namespace catapult { namespace test {
 		EXPECT_EQ(type, pPlugin->type());
 	}
 
+	/// Asserts that a transaction plugin supports expected versions.
+	template<typename TTraits, typename... TArgs>
+	void AssertSupportedVersionsReturnsCorrectVersions(model::EntityType, TArgs&& ...args) {
+		// Arrange:
+		auto pPlugin = TTraits::CreatePlugin(std::forward<TArgs>(args)...);
+
+		// Act:
+		auto supportedVersions = pPlugin->supportedVersions();
+
+		// Assert:
+		auto minVersion = TTraits::Min_Supported_Version;
+		auto maxVersion = TTraits::Max_Supported_Version;
+		EXPECT_EQ(minVersion, supportedVersions.MinVersion);
+		EXPECT_EQ(maxVersion, supportedVersions.MaxVersion);
+	}
+
 /// Defines common tests for a transaction plugin with \a TYPE in \a TEST_CLASS using traits prefixed by \a TRAITS_PREFIX
 /// and test name postfixed by \a TEST_POSTFIX.
 /// \note \a TYPE is first __VA_ARGS__ parameter.
@@ -150,7 +178,7 @@ namespace catapult { namespace test {
 
 		// Assert:
 		EXPECT_EQ(test::AsVoidPointer(&transaction.Version), test::AsVoidPointer(buffer.pData));
-		EXPECT_EQ(sizeof(typename TTraits::TransactionType) + 12 - model::VerifiableEntity::Header_Size, buffer.Size);
+		ASSERT_EQ(sizeof(typename TTraits::TransactionType) + 12 - model::VerifiableEntity::Header_Size, buffer.Size);
 	}
 
 	/// Asserts that merkle supplementary buffers are empty for a transaction plugin.
@@ -181,6 +209,10 @@ namespace catapult { namespace test {
 	\
 	TEST(TEST_CLASS, MerkleSupplementaryBuffersAreEmpty##TEST_POSTFIX) { \
 		test::AssertMerkleSupplementaryBuffersAreEmpty<TRAITS_PREFIX##RegularTraits>(__VA_ARGS__); \
+	} \
+	\
+	PLUGIN_TEST_WITH_PREFIXED_TRAITS(SupportedVersionsReturnsCorrectVersion, TRAITS_PREFIX, TEST_POSTFIX) { \
+		test::AssertSupportedVersionsReturnsCorrectVersions<TTraits>(__VA_ARGS__); \
 	}
 
 /// Defines basic tests for a transaction plugin with \a TYPE in \a TEST_CLASS.

@@ -32,7 +32,7 @@ namespace catapult { namespace builders {
 		struct TransactionProperties {
 		public:
 			TransactionProperties()
-					: HashAlgorithm(model::LockHashAlgorithm::Op_Sha3)
+					: HashAlgorithm(model::LockHashAlgorithm::Op_Sha3_256)
 					, Secret()
 					, Recipient()
 			{}
@@ -41,7 +41,7 @@ namespace catapult { namespace builders {
 			model::UnresolvedMosaic Mosaic;
 			BlockDuration Duration;
 			model::LockHashAlgorithm HashAlgorithm;
-			Hash512 Secret;
+			Hash256 Secret;
 			UnresolvedAddress Recipient;
 		};
 
@@ -102,7 +102,7 @@ namespace catapult { namespace builders {
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(expectedProperties, [](auto& builder) {
-			builder.setMosaic(UnresolvedMosaicId(123), Amount(234));
+			builder.setMosaic({ UnresolvedMosaicId(123), Amount(234) });
 		});
 	}
 

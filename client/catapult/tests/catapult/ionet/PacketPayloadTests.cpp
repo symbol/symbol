@@ -115,7 +115,7 @@ namespace catapult { namespace ionet {
 
 		const auto& buffer = payload.buffers()[0];
 		ASSERT_EQ(Data_Size, buffer.Size);
-		EXPECT_TRUE(0 == std::memcmp(data.data(), buffer.pData, Data_Size));
+		EXPECT_EQ_MEMORY(data.data(), buffer.pData, Data_Size);
 	}
 
 	// endregion
@@ -147,7 +147,7 @@ namespace catapult { namespace ionet {
 		// - data from packet
 		const auto* pBuffer = &payload.buffers()[0];
 		ASSERT_EQ(Data_Size, pBuffer->Size);
-		EXPECT_TRUE(0 == std::memcmp(data.data(), pBuffer->pData, Data_Size));
+		EXPECT_EQ_MEMORY(data.data(), pBuffer->pData, Data_Size);
 	}
 
 	TEST(TEST_CLASS, CanMergePacketAndPayloadWithHeaderOnly) {
@@ -169,7 +169,7 @@ namespace catapult { namespace ionet {
 		// - data from packet 1
 		const auto* pBuffer = &payload.buffers()[0];
 		ASSERT_EQ(Data_Size, pBuffer->Size);
-		EXPECT_TRUE(0 == std::memcmp(data.data(), pBuffer->pData, Data_Size));
+		EXPECT_EQ_MEMORY(data.data(), pBuffer->pData, Data_Size);
 
 		// - header from packet 2
 		pBuffer = &payload.buffers()[1];
@@ -200,7 +200,7 @@ namespace catapult { namespace ionet {
 		// - data from packet 1
 		const auto* pBuffer = &payload.buffers()[0];
 		ASSERT_EQ(Data1_Size, pBuffer->Size);
-		EXPECT_TRUE(0 == std::memcmp(data1.data(), pBuffer->pData, Data1_Size));
+		EXPECT_EQ_MEMORY(data1.data(), pBuffer->pData, Data1_Size);
 
 		// - header from packet 2
 		pBuffer = &payload.buffers()[1];
@@ -212,7 +212,7 @@ namespace catapult { namespace ionet {
 		// - data from packet 2
 		pBuffer = &payload.buffers()[2];
 		ASSERT_EQ(Data2_Size, pBuffer->Size);
-		EXPECT_TRUE(0 == std::memcmp(data2.data(), pBuffer->pData, Data2_Size));
+		EXPECT_EQ_MEMORY(data2.data(), pBuffer->pData, Data2_Size);
 	}
 
 	TEST(TEST_CLASS, CanMergePacketAndPayloadWithHeaderAndMultipleDataBuffers) {
@@ -240,7 +240,7 @@ namespace catapult { namespace ionet {
 		// - data from packet 1
 		const auto* pBuffer = &payload.buffers()[0];
 		ASSERT_EQ(Data1_Size, pBuffer->Size);
-		EXPECT_TRUE(0 == std::memcmp(data1.data(), pBuffer->pData, Data1_Size));
+		EXPECT_EQ_MEMORY(data1.data(), pBuffer->pData, Data1_Size);
 
 		// - header from packet 2
 		pBuffer = &payload.buffers()[1];
@@ -253,7 +253,7 @@ namespace catapult { namespace ionet {
 		for (auto i = 0u; i < entities.size(); ++i) {
 			pBuffer = &payload.buffers()[2 + i];
 			ASSERT_EQ(entities[i]->Size, pBuffer->Size) << i;
-			EXPECT_TRUE(0 == std::memcmp(entities[i].get(), pBuffer->pData, entities[i]->Size)) << i;
+			EXPECT_EQ_MEMORY(entities[i].get(), pBuffer->pData, entities[i]->Size) << i;
 		}
 	}
 

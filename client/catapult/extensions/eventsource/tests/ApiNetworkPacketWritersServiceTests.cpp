@@ -28,8 +28,6 @@ namespace catapult { namespace eventsource {
 #define TEST_CLASS ApiNetworkPacketWritersServiceTests
 
 	namespace {
-		constexpr unsigned short Local_Host_Api_Port = test::Local_Host_Port + 1;
-
 		struct ApiNetworkPacketWritersServiceTraits {
 			static constexpr auto Counter_Name = "B WRITERS";
 			static constexpr auto Num_Expected_Services = 1;
@@ -58,7 +56,8 @@ namespace catapult { namespace eventsource {
 	namespace {
 		std::shared_ptr<ionet::PacketSocket> AcceptBroadcastWriter(boost::asio::io_service& service, const TestContext& context) {
 			// Act: connect to the server as a broadcast writer
-			auto pIo = test::ConnectToLocalHost(service, Local_Host_Api_Port, context.publicKey());
+			unsigned short localHostApiPort = test::GetLocalHostPort() + 1;
+			auto pIo = test::ConnectToLocalHost(service, localHostApiPort, context.publicKey());
 
 			// - wait for the writer to be available
 			WAIT_FOR_ONE_EXPR(context.counter("B WRITERS"));

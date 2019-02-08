@@ -89,22 +89,26 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	TEST(TEST_CLASS, CanMapAccountStateWithoutPublicKeyButWithSingleMosaic) {
 		// Assert:
-		AssertCanMapAccountState(Height(0), { { Xem_Id, Amount(234) } });
+		AssertCanMapAccountState(Height(0), { { MosaicId(1234), Amount(234) } });
 	}
 
 	TEST(TEST_CLASS, CanMapAccountStateWithoutPublicKeyButWithMultipleMosaics) {
 		// Assert:
-		AssertCanMapAccountState(Height(0), { { Xem_Id, Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
+		AssertCanMapAccountState(
+				Height(0),
+				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
 	}
 
 	TEST(TEST_CLASS, CanMapAccountStateWithPublicKeyAndSingleMosaic) {
 		// Assert:
-		AssertCanMapAccountState(Height(456), { { Xem_Id, Amount(234) } });
+		AssertCanMapAccountState(Height(456), { { MosaicId(1234), Amount(234) } });
 	}
 
 	TEST(TEST_CLASS, CanMapAccountStateWithPublicKeyAndMultipleMosaics) {
 		// Assert:
-		AssertCanMapAccountState(Height(456), { { Xem_Id, Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
+		AssertCanMapAccountState(
+				Height(456),
+				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
 	}
 
 	// endregion
@@ -143,24 +147,26 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	TEST(TEST_CLASS, CanMapDbAccountStateWithoutPublicKeyButWithSingleMosaic) {
 		// Assert:
-		AssertCanMapDbAccountState(Height(0), { { Xem_Id, Amount(234) } });
+		AssertCanMapDbAccountState(Height(0), { { MosaicId(1234), Amount(234) } });
 	}
 
 	TEST(TEST_CLASS, CanMapDbAccountStateWithoutPublicKeyButWithMultipleMosaics) {
 		// Assert:
-		AssertCanMapDbAccountState(Height(0), { { Xem_Id, Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
+		AssertCanMapDbAccountState(
+				Height(0),
+				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
 	}
 
 	TEST(TEST_CLASS, CanMapDbAccountStateWithPublicKeyAndSingleMosaic) {
 		// Assert:
-		AssertCanMapDbAccountState(Height(456), { { Xem_Id, Amount(234) } });
+		AssertCanMapDbAccountState(Height(456), { { MosaicId(1234), Amount(234) } });
 	}
 
 	TEST(TEST_CLASS, CanMapDbAccountStateWithPublicKeyAndMultipleMosaics) {
 		// Assert:
 		AssertCanMapDbAccountState(
 				Height(456),
-				{ { Xem_Id, Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
+				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
 	}
 
 	TEST(TEST_CLASS, CanMapDbAccountStateWithImportanceNotSet) {

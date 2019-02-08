@@ -43,7 +43,7 @@ namespace catapult { namespace validators {
 		auto networkIdentifier = context.Network.Identifier;
 		auto sourceAddress = model::PublicKeyToAddress(notification.Source, networkIdentifier);
 		for (const auto& address : notification.ParticipantsByAddress) {
-			if (!IsInteractionAllowed(context.Cache, sourceAddress, address))
+			if (!IsInteractionAllowed(context.Cache, sourceAddress, context.Resolvers.resolve(address)))
 				return Failure_Property_Signer_Address_Interaction_Not_Allowed;
 		}
 

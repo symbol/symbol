@@ -111,7 +111,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		auto Count(mongocxx::collection& collection, bsoncxx::document::view filter) {
-			return static_cast<size_t>(collection.count(filter));
+			return static_cast<size_t>(collection.count_documents(filter));
 		}
 	}
 
@@ -165,7 +165,7 @@ namespace catapult { namespace test {
 		auto txCursor = collection.find(txFilter.view(), options);
 		auto iter = txCursor.begin();
 		for (const auto& expectedTransactionInfo : expectedTransactionInfos) {
-			const auto& expectedTransaction = reinterpret_cast<const mocks::MockTransaction&>(*expectedTransactionInfo.pEntity);
+			const auto& expectedTransaction = static_cast<const mocks::MockTransaction&>(*expectedTransactionInfo.pEntity);
 			const auto& transactionDocument = (*iter)["transaction"].get_document().value;
 			AssertEqualMockTransactionData(expectedTransaction, transactionDocument);
 

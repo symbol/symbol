@@ -28,16 +28,21 @@ namespace catapult { namespace validators {
 	template<typename TTraits>
 	struct LockDurationTests {
 	public:
+		static void AssertFailureIfDurationIsZero() {
+			// Act + Assert:
+			AssertDurationValidator(TTraits::Failure_Result, BlockDuration(0));
+		}
+
 		static void AssertFailureIfDurationIsGreaterThanMaxDurationSetting() {
 			// Act + Assert:
-			for (auto duration : { 1u, 100u })
-				AssertDurationValidator(TTraits::Failure_Result, MaxDuration() + BlockDuration(duration));
+			for (auto duration : { BlockDuration(1), BlockDuration(100) })
+				AssertDurationValidator(TTraits::Failure_Result, MaxDuration() + duration);
 		}
 
 		static void AssertSuccessIfDurationIsLessThanOrEqualToMaxDurationSetting() {
 			// Act + Assert:
-			for (auto duration : { 10u, 1u, 0u })
-				AssertDurationValidator(ValidationResult::Success, MaxDuration() - BlockDuration(duration));
+			for (auto duration : { MaxDuration() - BlockDuration(1), BlockDuration(10), BlockDuration(1), BlockDuration(0) })
+				AssertDurationValidator(ValidationResult::Success, MaxDuration() - duration);
 		}
 
 	private:
@@ -63,5 +68,6 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, TEST_NAME) { LockDurationTests<TRAITS_NAME>::Assert##TEST_NAME(); }
 
 #define DEFINE_DURATION_VALIDATOR_TESTS(TRAITS_NAME) \
+	MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, FailureIfDurationIsZero) \
 	MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, FailureIfDurationIsGreaterThanMaxDurationSetting) \
 	MAKE_DURATION_VALIDATOR_TEST(TRAITS_NAME, SuccessIfDurationIsLessThanOrEqualToMaxDurationSetting)

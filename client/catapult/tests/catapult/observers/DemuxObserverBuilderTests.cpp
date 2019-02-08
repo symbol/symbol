@@ -190,7 +190,7 @@ namespace catapult { namespace observers {
 				return m_name;
 			}
 
-			void notify(const TNotification&, const ObserverContext&) const override {
+			void notify(const TNotification&, ObserverContext&) const override {
 				m_breadcrumbs.push_back(m_name);
 			}
 

@@ -48,16 +48,21 @@ namespace catapult { namespace cache {
 
 	public:
 		std::unique_ptr<const SubCacheView> createView() const override {
-			return std::make_unique<const SubCacheViewAdapter<decltype(m_pCache->createView())>>(m_pCache->createView());
+			return std::make_unique<const SubCacheViewAdapter<decltype(m_pCache->createView())>>(
+					m_pCache->createView(),
+					makeSubCacheViewIdentifier(SubCacheViewType::View));
 		}
 
 		std::unique_ptr<SubCacheView> createDelta() override {
-			return std::make_unique<SubCacheViewAdapter<decltype(m_pCache->createDelta())>>(m_pCache->createDelta());
+			return std::make_unique<SubCacheViewAdapter<decltype(m_pCache->createDelta())>>(
+					m_pCache->createDelta(),
+					makeSubCacheViewIdentifier(SubCacheViewType::Delta));
 		}
 
 		std::unique_ptr<DetachedSubCacheView> createDetachedDelta() const override {
-			using ViewAdapter = DetachedSubCacheViewAdapter<decltype(m_pCache->createDetachedDelta())>;
-			return std::make_unique<ViewAdapter>(m_pCache->createDetachedDelta());
+			return std::make_unique<DetachedSubCacheViewAdapter<decltype(m_pCache->createDetachedDelta())>>(
+					m_pCache->createDetachedDelta(),
+					makeSubCacheViewIdentifier(SubCacheViewType::DetachedDelta));
 		}
 
 		void commit() override {
@@ -70,28 +75,41 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-		/// Gets a typed reference to the underlying cache.
-		TCache& cache() {
-			return *m_pCache;
-		}
-
-	public:
 		std::unique_ptr<CacheStorage> createStorage() override {
 			return IsCacheStorageSupported(*m_pCache)
 					? std::make_unique<CacheStorageAdapter<TCache, TStorageTraits>>(*m_pCache)
 					: nullptr;
 		}
 
+	public:
+		/// Gets a typed reference to the underlying cache.
+		TCache& cache() {
+			return *m_pCache;
+		}
+
 	private:
-		bool IsCacheStorageSupported(const TCache& cache) {
+		auto makeSubCacheViewIdentifier(SubCacheViewType viewType) const {
+			SubCacheViewIdentifier viewIdentifier{};
+			std::memcpy(viewIdentifier.CacheName.data(), name().data(), viewIdentifier.CacheName.size());
+			viewIdentifier.CacheId = id();
+			viewIdentifier.ViewType = viewType;
+			return viewIdentifier;
+		}
+
+	private:
+		static bool IsCacheStorageSupported(const TCache& cache) {
 			return !!cache.createView()->tryMakeIterableView();
 		}
 
 	private:
+		// region SubCacheViewAdapter
+
 		template<typename TView>
 		class SubCacheViewAdapter : public SubCacheView {
 		public:
-			explicit SubCacheViewAdapter(TView&& view) : m_view(std::move(view))
+			explicit SubCacheViewAdapter(TView&& view, const SubCacheViewIdentifier& id)
+					: m_view(std::move(view))
+					, m_id(id)
 			{}
 
 		private:
@@ -108,6 +126,10 @@ namespace catapult { namespace cache {
 			}
 
 		public:
+			const SubCacheViewIdentifier& id() const override {
+				return m_id;
+			}
+
 			const void* get() const override {
 				return &*m_view;
 			}
@@ -142,25 +164,23 @@ namespace catapult { namespace cache {
 			using SupportedMerkleRootFlag = std::integral_constant<MerkleRootType, MerkleRootType::Supported>;
 
 			template<typename T, typename = void>
-			struct MerkleRootAccessor : UnsupportedMerkleRootFlag
-			{};
+			struct MerkleRootAccessor : public UnsupportedMerkleRootFlag {};
 
 			template<typename T>
 			struct MerkleRootAccessor<
 					T,
 					typename utils::traits::enable_if_type<decltype(reinterpret_cast<const T*>(0)->tryGetMerkleRoot())>::type>
-					: SupportedMerkleRootFlag
+					: public SupportedMerkleRootFlag
 			{};
 
 			template<typename T, typename = void>
-			struct MerkleRootMutator : UnsupportedMerkleRootFlag
-			{};
+			struct MerkleRootMutator : public UnsupportedMerkleRootFlag {};
 
 			template<typename T>
 			struct MerkleRootMutator<
 					T,
 					typename utils::traits::enable_if_type<decltype(reinterpret_cast<T*>(0)->setMerkleRoot(Hash256()))>::type>
-					: SupportedMerkleRootFlag
+					: public SupportedMerkleRootFlag
 			{};
 
 			static bool SupportsMerkleRoot(const TView&, UnsupportedMerkleRootFlag) {
@@ -193,8 +213,8 @@ namespace catapult { namespace cache {
 				return true;
 			}
 
-			static void UpdateMerkleRoot(TView&, Height, UnsupportedMerkleRootFlag) {
-			}
+			static void UpdateMerkleRoot(TView&, Height, UnsupportedMerkleRootFlag)
+			{}
 
 			static void UpdateMerkleRoot(TView& view, Height height, SupportedMerkleRootFlag) {
 				view->updateMerkleRoot(height);
@@ -202,24 +222,33 @@ namespace catapult { namespace cache {
 
 		private:
 			TView m_view;
+			SubCacheViewIdentifier m_id;
 		};
+
+		// endregion
+
+		// region DetachedSubCacheViewAdapter
 
 		template<typename TLockableCacheDelta>
 		class DetachedSubCacheViewAdapter : public DetachedSubCacheView {
 		public:
-			explicit DetachedSubCacheViewAdapter(TLockableCacheDelta&& lockableCacheDelta)
+			explicit DetachedSubCacheViewAdapter(TLockableCacheDelta&& lockableCacheDelta, const SubCacheViewIdentifier& id)
 					: m_lockableCacheDelta(std::move(lockableCacheDelta))
+					, m_id(id)
 			{}
 
 		public:
 			std::unique_ptr<SubCacheView> lock() {
 				auto delta = m_lockableCacheDelta.lock();
-				return delta ? std::make_unique<SubCacheViewAdapter<decltype(delta)>>(std::move(delta)) : nullptr;
+				return delta ? std::make_unique<SubCacheViewAdapter<decltype(delta)>>(std::move(delta), m_id) : nullptr;
 			}
 
 		private:
 			TLockableCacheDelta m_lockableCacheDelta;
+			SubCacheViewIdentifier m_id;
 		};
+
+		// endregion
 
 	private:
 		std::unique_ptr<TCache> m_pCache;

@@ -42,13 +42,26 @@ namespace catapult { namespace observers {
 						if (Amount(0) != initialAmount)
 							accountState.Balances.credit(lockInfo.MosaicId, initialAmount);
 					},
-					[&lockInfo, initialAmount](const auto& lockInfoCache, const auto& accountState) {
+					[&lockInfo, initialAmount](const auto& lockInfoCache, const auto& accountState, auto& observerContext) {
 						// Assert: status and balance
 						const auto& key = TTraits::BasicTraits::ToKey(lockInfo);
 						const auto& result = lockInfoCache.find(key).get();
 						EXPECT_EQ(state::LockStatus::Used, result.Status);
 						auto expectedBalance = lockInfo.Amount + initialAmount;
 						EXPECT_EQ(expectedBalance, accountState.Balances.get(result.MosaicId));
+
+						auto pStatement = observerContext.statementBuilder().build();
+						ASSERT_EQ(1u, pStatement->TransactionStatements.size());
+						const auto& receiptPair = *pStatement->TransactionStatements.find(model::ReceiptSource());
+						ASSERT_EQ(1u, receiptPair.second.size());
+
+						const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
+						ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
+						EXPECT_EQ(1u, receipt.Version);
+						EXPECT_EQ(TTraits::ReceiptType(), receipt.Type);
+						EXPECT_EQ(accountState.PublicKey, receipt.Account);
+						EXPECT_EQ(lockInfo.MosaicId, receipt.MosaicId);
+						EXPECT_EQ(lockInfo.Amount, receipt.Amount);
 					});
 		}
 
@@ -74,12 +87,15 @@ namespace catapult { namespace observers {
 						cache.insert(lockInfo);
 						accountState.Balances.credit(lockInfo.MosaicId, lockInfo.Amount + Amount(100));
 					},
-					[&lockInfo](const auto& lockInfoCache, const auto& accountState) {
+					[&lockInfo](const auto& lockInfoCache, const auto& accountState, auto& observerContext) {
 						// Assert: status and balance
 						const auto& key = TTraits::BasicTraits::ToKey(lockInfo);
 						const auto& result = lockInfoCache.find(key).get();
 						EXPECT_EQ(state::LockStatus::Unused, result.Status);
 						EXPECT_EQ(Amount(100), accountState.Balances.get(lockInfo.MosaicId));
+
+						auto pStatement = observerContext.statementBuilder().build();
+						ASSERT_EQ(0u, pStatement->TransactionStatements.size());
 					});
 		}
 
@@ -110,7 +126,7 @@ namespace catapult { namespace observers {
 			test::ObserveNotification(*pObserver, notification, context);
 
 			// Assert
-			checkCache(lockInfoCacheDelta, accountState);
+			checkCache(lockInfoCacheDelta, accountState, context);
 		}
 	};
 }}

@@ -55,7 +55,7 @@ namespace catapult { namespace extensions {
 		auto unresolvedAddress = CopyToUnresolvedAddress(address);
 
 		// Assert:
-		EXPECT_TRUE(0 == std::memcmp(address.data(), unresolvedAddress.data(), address.size()));
+		EXPECT_EQ_MEMORY(address.data(), unresolvedAddress.data(), address.size());
 	}
 
 	TEST(TEST_CLASS, CanCopyUnresolvedAddressToAddress) {
@@ -66,6 +66,6 @@ namespace catapult { namespace extensions {
 		auto address = CopyToAddress(unresolvedAddress);
 
 		// Assert:
-		EXPECT_TRUE(0 == std::memcmp(unresolvedAddress.data(), address.data(), unresolvedAddress.size()));
+		EXPECT_EQ_MEMORY(unresolvedAddress.data(), address.data(), unresolvedAddress.size());
 	}
 }}

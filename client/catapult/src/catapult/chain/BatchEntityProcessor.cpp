@@ -37,13 +37,14 @@ namespace catapult { namespace chain {
 					Height height,
 					Timestamp timestamp,
 					const model::WeakEntityInfos& entityInfos,
-					const observers::ObserverState& state) const {
+					observers::ObserverState& state) const {
 				if (entityInfos.empty())
 					return ValidationResult::Neutral;
 
 				auto readOnlyCache = state.Cache.toReadOnly();
-				auto validatorContext = ValidatorContext(height, timestamp, m_config.Network, readOnlyCache);
-				auto observerContext = observers::ObserverContext(state, height, observers::NotifyMode::Commit);
+				auto resolverContext = m_config.ResolverContextFactory(readOnlyCache);
+				auto validatorContext = ValidatorContext(height, timestamp, m_config.Network, resolverContext, readOnlyCache);
+				auto observerContext = observers::ObserverContext(state, height, observers::NotifyMode::Commit, resolverContext);
 
 				ProcessingNotificationSubscriber sub(*m_config.pValidator, validatorContext, *m_config.pObserver, observerContext);
 				for (const auto& entityInfo : entityInfos) {

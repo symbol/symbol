@@ -63,6 +63,25 @@ namespace catapult { namespace test {
 		});
 	}
 
+	/// Asserts that receipts have been registered.
+	template<typename TTraits>
+	void AssertAppropriateReceiptsAreRegistered() {
+		// Arrange:
+		RunTestAfterRegistration(TTraits::RegisterSubsystem, [](const auto& manager) {
+			// Act:
+			const auto& receiptRegistry = manager.receiptRegistry();
+
+			// Assert:
+			auto expectedTypes = TTraits::GetReceiptTypes();
+			EXPECT_EQ(expectedTypes.size(), receiptRegistry.size());
+
+			for (const auto type : expectedTypes) {
+				CATAPULT_LOG(debug) << "checking type " << type;
+				EXPECT_TRUE(!!receiptRegistry.findPlugin(type));
+			}
+		});
+	}
+
 	/// Asserts that storages have been registered.
 	template<typename TTraits>
 	void AssertAppropriateStoragesAreRegistered() {
@@ -81,5 +100,6 @@ namespace catapult { namespace test {
 
 #define DEFINE_MONGO_PLUGIN_TESTS(TEST_CLASS, TEST_TRAITS) \
 	MAKE_MONGO_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateTransactionsAreRegistered) \
+	MAKE_MONGO_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateReceiptsAreRegistered) \
 	MAKE_MONGO_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateStoragesAreRegistered)
 }}

@@ -111,12 +111,22 @@ namespace catapult { namespace cache {
 		}
 
 	public:
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4702) /* "unreachable code" */
+#endif
+
 		/// Inserts \a element into container.
 		void insert(const StorageType& element) {
 			TContainer::insert(
 					SerializeKey(TDescriptor::ToKey(element)),
 					TDescriptor::Serializer::SerializeValue(TDescriptor::ToValue(element)));
 		}
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 		/// Finds element with \a key. Returns cend() if \a key has not been found.
 		const_iterator find(const KeyType& key) const {

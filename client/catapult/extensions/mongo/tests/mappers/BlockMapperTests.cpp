@@ -20,8 +20,9 @@
 
 #include "mongo/src/mappers/BlockMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "catapult/crypto/MerkleHashBuilder.h"
+#include "catapult/model/BlockUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
+#include "mongo/tests/test/MongoReceiptTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -32,23 +33,26 @@ namespace catapult { namespace mongo { namespace mappers {
 	// region ToDbModel
 
 	namespace {
-		void AssertCanMapBlock(const model::Block& block, Amount totalFee, int32_t numTransactions) {
+		void AssertCanMapBlock(const model::Block& block, Amount totalFee, uint32_t numTransactions, uint32_t numStatements) {
 			// Arrange:
 			auto blockElement = model::BlockElement(block);
 			blockElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
 			blockElement.GenerationHash = test::GenerateRandomData<Hash256_Size>();
 			blockElement.SubCacheMerkleRoots = test::GenerateRandomDataVector<Hash256>(3);
 
-			crypto::MerkleHashBuilder builder;
 			auto& transactionElements = blockElement.Transactions;
 			for (const auto& transaction: block.Transactions()) {
 				transactionElements.push_back(model::TransactionElement(transaction));
 				transactionElements.back().MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
-				builder.update(transactionElements.back().MerkleComponentHash);
 			}
 
-			std::vector<Hash256> merkleTree;
-			builder.final(merkleTree);
+			auto transactionMerkleTree = test::CalculateMerkleTree(blockElement.Transactions);
+			if (numStatements)
+				blockElement.OptionalStatement = test::GenerateRandomOptionalStatement(numStatements);
+
+			auto statementMerkleTree = blockElement.OptionalStatement
+					? test::CalculateMerkleTreeFromTransactionStatements(*blockElement.OptionalStatement)
+					: std::vector<Hash256>();
 
 			// Act:
 			auto dbBlock = ToDbModel(blockElement);
@@ -58,30 +62,41 @@ namespace catapult { namespace mongo { namespace mappers {
 			EXPECT_EQ(2u, test::GetFieldCount(view));
 
 			auto metaView = view["meta"].get_document().view();
-			test::AssertEqualBlockMetadata(blockElement, totalFee, numTransactions, merkleTree, metaView);
+			test::AssertEqualBlockMetadata(
+					blockElement,
+					totalFee,
+					static_cast<int32_t>(numTransactions),
+					static_cast<int32_t>(numStatements),
+					transactionMerkleTree,
+					statementMerkleTree,
+					metaView);
 
 			auto blockView = view["block"].get_document().view();
 			test::AssertEqualBlockData(block, blockView);
 		}
 	}
 
-	TEST(TEST_CLASS, CanMapBlockWithoutTransactions) {
+#define TRAITS_BASED_RECEIPTS_TEST(TEST_NAME) \
+	template<size_t Num_Statements> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_WithoutReceipts) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<0>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_WithReceipts) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<7>(); } \
+	template<size_t Num_Statements> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	TRAITS_BASED_RECEIPTS_TEST(CanMapBlockWithoutTransactions) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 
 		// Assert:
-		AssertCanMapBlock(*pBlock, Amount(0), 0);
+		AssertCanMapBlock(*pBlock, Amount(0), 0, Num_Statements);
 	}
 
-	TEST(TEST_CLASS, CanMapBlockWithTransactions) {
+	TRAITS_BASED_RECEIPTS_TEST(CanMapBlockWithTransactions) {
 		// Arrange:
 		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(5, Height(123));
-		Amount totalFee(0);
-		for (const auto& transaction : pBlock->Transactions())
-			totalFee = totalFee + transaction.Fee;
+		auto totalFee = model::CalculateBlockTransactionsInfo(*pBlock).TotalFee;
 
 		// Assert:
-		AssertCanMapBlock(*pBlock, totalFee, 5);
+		AssertCanMapBlock(*pBlock, totalFee, 5, Num_Statements);
 	}
 
 	// endregion

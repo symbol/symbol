@@ -28,7 +28,7 @@ namespace catapult { namespace config {
 		return NamespaceConfiguration();
 	}
 
-	NamespaceConfiguration NamespaceConfiguration::LoadFromBag(const utils::ConfigurationBag & bag) {
+	NamespaceConfiguration NamespaceConfiguration::LoadFromBag(const utils::ConfigurationBag& bag) {
 		NamespaceConfiguration config;
 
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
@@ -43,20 +43,10 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(ChildNamespaceRentalFee);
 
 		LOAD_PROPERTY(MaxChildNamespaces);
-		LOAD_PROPERTY(MaxMosaicsPerAccount);
-
-		LOAD_PROPERTY(MaxMosaicDuration);
-
-		LOAD_PROPERTY(IsMosaicLevyUpdateAllowed);
-		LOAD_PROPERTY(MaxMosaicDivisibility);
-		LOAD_PROPERTY(MaxMosaicDivisibleUnits);
-
-		LOAD_PROPERTY(MosaicRentalFeeSinkPublicKey);
-		LOAD_PROPERTY(MosaicRentalFee);
 
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 15);
+		utils::VerifyBagSizeLte(bag, 8);
 		return config;
 	}
 }}

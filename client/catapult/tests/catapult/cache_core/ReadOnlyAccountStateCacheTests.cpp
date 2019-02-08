@@ -28,10 +28,22 @@ namespace catapult { namespace cache {
 
 	// region cache properties
 
+	namespace {
+		constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
+			model::NetworkIdentifier::Mijin_Test,
+			543,
+			Amount(std::numeric_limits<Amount::ValueType>::max()),
+			MosaicId(1111),
+			MosaicId(2222)
+		};
+	}
+
 	TEST(TEST_CLASS, NetworkIdentifierIsExposed) {
 		// Arrange:
 		auto networkIdentifier = static_cast<model::NetworkIdentifier>(19);
-		AccountStateCache originalCache(CacheConfiguration(), { networkIdentifier, 123, Amount() });
+		auto options = Default_Cache_Options;
+		options.NetworkIdentifier = networkIdentifier;
+		AccountStateCache originalCache(CacheConfiguration(), options);
 
 		// Act + Assert:
 		EXPECT_EQ(networkIdentifier, ReadOnlyAccountStateCache(*originalCache.createView()).networkIdentifier());
@@ -40,22 +52,29 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, ImportanceGroupingIsExposed) {
 		// Arrange:
-		AccountStateCache originalCache(CacheConfiguration(), { static_cast<model::NetworkIdentifier>(19), 123, Amount() });
+		auto options = Default_Cache_Options;
+		options.ImportanceGrouping = 123;
+		AccountStateCache originalCache(CacheConfiguration(), options);
 
 		// Act + Assert:
 		EXPECT_EQ(123u, ReadOnlyAccountStateCache(*originalCache.createView()).importanceGrouping());
 		EXPECT_EQ(123u, ReadOnlyAccountStateCache(*originalCache.createDelta()).importanceGrouping());
 	}
 
+	TEST(TEST_CLASS, HarvestingMosaicIdIsExposed) {
+		// Arrange:
+		auto options = Default_Cache_Options;
+		options.HarvestingMosaicId = MosaicId(11229988);
+		AccountStateCache originalCache(CacheConfiguration(), options);
+
+		// Act + Assert:
+		EXPECT_EQ(MosaicId(11229988), ReadOnlyAccountStateCache(*originalCache.createView()).harvestingMosaicId());
+		EXPECT_EQ(MosaicId(11229988), ReadOnlyAccountStateCache(*originalCache.createDelta()).harvestingMosaicId());
+	}
+
 	// endregion
 
 	namespace {
-		constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
-			model::NetworkIdentifier::Mijin_Test,
-			543,
-			Amount(std::numeric_limits<Amount::ValueType>::max())
-		};
-
 		struct AccountStateCacheByAddressTraits {
 			static Address CreateKey(uint8_t tag) {
 				return { { static_cast<uint8_t>(tag * tag) } };

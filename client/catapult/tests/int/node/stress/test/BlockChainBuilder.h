@@ -35,6 +35,7 @@ namespace catapult { namespace test {
 	class BlockChainBuilder {
 	public:
 		using Blocks = std::vector<std::shared_ptr<model::Block>>;
+		using BlockReceiptsHashCalculator = std::function<Hash256 (const model::Block&)>;
 
 	public:
 		// region descriptors
@@ -47,6 +48,8 @@ namespace catapult { namespace test {
 			size_t RecipientId;
 			/// Transfer amount.
 			catapult::Amount Amount;
+			/// Recipient alias (optional).
+			std::string RecipientAlias;
 		};
 
 		/// Describes a namespace registration.
@@ -57,6 +60,8 @@ namespace catapult { namespace test {
 			std::string Name;
 			/// Namespace duration.
 			BlockDuration Duration;
+			/// Address alias identifier (optional).
+			size_t AddressAliasId;
 		};
 
 		// endregion
@@ -71,29 +76,44 @@ namespace catapult { namespace test {
 				StateHashCalculator& stateHashCalculator,
 				const model::BlockChainConfiguration& config);
 
+		/// Creates a builder around \a accounts, \a stateHashCalculator, \a config and explicit \a resourcesPath.
+		BlockChainBuilder(
+				const Accounts& accounts,
+				StateHashCalculator& stateHashCalculator,
+				const model::BlockChainConfiguration& config,
+				const std::string& resourcesPath);
+
 	private:
 		BlockChainBuilder(
 				const Accounts& accounts,
 				StateHashCalculator& stateHashCalculator,
 				const model::BlockChainConfiguration& config,
+				const std::string& resourcesPath,
 				bool isChained);
 
 	public:
 		/// Adds a transfer from \a senderId to \a recipientId for amount \a transferAmount.
 		void addTransfer(size_t senderId, size_t recipientId, Amount transferAmount);
 
-		/// Adds a root namespace registration for namespace \a name by \a ownerId for specified \a duration.
-		void addNamespace(size_t ownerId, const std::string& name, BlockDuration duration);
+		/// Adds a transfer from \a senderId to \a recipientAlias for amount \a transferAmount.
+		void addTransfer(size_t senderId, const std::string& recipientAlias, Amount transferAmount);
+
+		/// Adds a root namespace registration for namespace \a name by \a ownerId for specified \a duration,
+		/// optionally setting an alias for \a aliasId.
+		void addNamespace(size_t ownerId, const std::string& name, BlockDuration duration, size_t aliasId = 0);
 
 		/// Sets the time between blocks to \a blockTimeInterval.
 		void setBlockTimeInterval(Timestamp blockTimeInterval);
+
+		/// Sets a custom block receipts hash calculator (\a blockReceiptsHashCalculator).
+		void setBlockReceiptsHashCalculator(const BlockReceiptsHashCalculator& blockReceiptsHashCalculator);
 
 		/// Creates a new builder starting at this builder's terminal block.
 		BlockChainBuilder createChainedBuilder();
 
 		/// Creates a new builder starting at this builder's terminal block with a different
 		/// state hash calculator (\a stateHashCalculator).
-		BlockChainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator);
+		BlockChainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator) const;
 
 	public:
 		/// Builds a single block.
@@ -108,6 +128,8 @@ namespace catapult { namespace test {
 		std::unique_ptr<model::Transaction> createTransfer(const TransferDescriptor& descriptor, Timestamp deadline);
 
 		std::unique_ptr<model::Transaction> createRegisterNamespace(const NamespaceDescriptor& descriptor, Timestamp deadline);
+
+		std::unique_ptr<model::Transaction> createAddressAlias(const NamespaceDescriptor& descriptor, Timestamp deadline);
 
 		std::unique_ptr<model::Block> createBlock(
 				const model::PreviousBlockContext& context,
@@ -127,6 +149,9 @@ namespace catapult { namespace test {
 				Timestamp deadline);
 
 	private:
+		enum class DescriptorType { Transfer, Namespace };
+
+	private:
 		// pointers instead of references to allow copy
 		const Accounts* m_pAccounts;
 		StateHashCalculator* m_pStateHashCalculator;
@@ -138,7 +163,9 @@ namespace catapult { namespace test {
 
 		std::vector<TransferDescriptor> m_transferDescriptors;
 		std::vector<NamespaceDescriptor> m_namespaceDescriptors;
+		std::vector<DescriptorType> m_descriptorOrdering;
 		Timestamp m_blockTimeInterval;
+		BlockReceiptsHashCalculator m_blockReceiptsHashCalculator;
 		model::BlockChainConfiguration m_config;
 	};
 }}

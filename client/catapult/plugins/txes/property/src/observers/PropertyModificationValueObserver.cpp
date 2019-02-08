@@ -32,7 +32,16 @@ namespace catapult { namespace observers {
 					: model::PropertyModificationType::Add;
 		}
 
-		template<typename TPropertyValue, typename TNotification>
+		template<typename TUnresolved>
+		static auto Resolve(const model::ResolverContext& resolvers, const TUnresolved& unresolvedValue) {
+			return resolvers.resolve(unresolvedValue);
+		}
+
+		static auto Resolve(const model::ResolverContext&, const model::EntityType& unresolvedValue) {
+			return unresolvedValue;
+		}
+
+		template<typename TNotification>
 		void HandleNotifications(const TNotification& notification, const ObserverContext& context) {
 			auto& propertyCache = context.Cache.sub<cache::PropertyCache>();
 			auto address = model::PublicKeyToAddress(notification.Key, propertyCache.networkIdentifier());
@@ -49,7 +58,9 @@ namespace catapult { namespace observers {
 			auto modificationType = NotifyMode::Commit == context.Mode
 					? modification.ModificationType
 					: InvertModificationType(modification.ModificationType);
-			model::RawPropertyModification rawModification{ modificationType, state::ToVector(modification.Value) };
+			auto resolvedRawValue = state::ToVector(Resolve(context.Resolvers, modification.Value));
+			model::RawPropertyModification rawModification{ modificationType, resolvedRawValue };
+
 			if (state::OperationType::Allow == notification.PropertyDescriptor.operationType())
 				accountProperty.allow(rawModification);
 			else
@@ -60,17 +71,12 @@ namespace catapult { namespace observers {
 		}
 	}
 
-#define DEFINE_PROPERTY_MODIFICATION_OBSERVER(OBSERVER_NAME, NOTIFICATION_TYPE, PROPERTY_VALUE_TYPE) \
-	DECLARE_OBSERVER(OBSERVER_NAME, NOTIFICATION_TYPE)() { \
-		return MAKE_OBSERVER(OBSERVER_NAME, NOTIFICATION_TYPE, ([](const auto& notification, const ObserverContext& context) { \
-			HandleNotifications<PROPERTY_VALUE_TYPE, NOTIFICATION_TYPE>(notification, context); \
-		})); \
-	}
+#define DEFINE_PROPERTY_MODIFICATION_OBSERVER(OBSERVER_NAME, NOTIFICATION_TYPE) \
+	DEFINE_OBSERVER(OBSERVER_NAME, NOTIFICATION_TYPE, [](const auto& notification, const ObserverContext& context) { \
+		HandleNotifications<NOTIFICATION_TYPE>(notification, context); \
+	});
 
-	DEFINE_PROPERTY_MODIFICATION_OBSERVER(AddressPropertyValueModification, model::ModifyAddressPropertyValueNotification, Address)
-	DEFINE_PROPERTY_MODIFICATION_OBSERVER(MosaicPropertyValueModification, model::ModifyMosaicPropertyValueNotification, MosaicId)
-	DEFINE_PROPERTY_MODIFICATION_OBSERVER(
-			TransactionTypePropertyValueModification,
-			model::ModifyTransactionTypePropertyValueNotification,
-			model::EntityType)
+	DEFINE_PROPERTY_MODIFICATION_OBSERVER(AddressPropertyValueModification, model::ModifyAddressPropertyValueNotification)
+	DEFINE_PROPERTY_MODIFICATION_OBSERVER(MosaicPropertyValueModification, model::ModifyMosaicPropertyValueNotification)
+	DEFINE_PROPERTY_MODIFICATION_OBSERVER(TransactionTypePropertyValueModification, model::ModifyTransactionTypePropertyValueNotification)
 }}

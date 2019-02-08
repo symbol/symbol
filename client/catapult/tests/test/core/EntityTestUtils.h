@@ -44,7 +44,7 @@ namespace catapult { namespace test {
 	template<typename T>
 	std::unique_ptr<T> CopyEntity(const T& entity) {
 		auto pEntity = utils::MakeUniqueWithSize<T>(entity.Size);
-		std::memcpy(pEntity.get(), &entity, entity.Size);
+		std::memcpy(static_cast<void*>(pEntity.get()), &entity, entity.Size);
 		return pEntity;
 	}
 

@@ -32,9 +32,6 @@
 
 namespace catapult { namespace tools {
 
-	/// Name of an option where public key is kept.
-	constexpr auto Server_Public_Key_Option_Name = "key";
-
 	/// Options builder.
 	using OptionsBuilder = boost::program_options::options_description_easy_init;
 
@@ -44,7 +41,7 @@ namespace catapult { namespace tools {
 	/// Provides access to parsed options.
 	using Options = boost::program_options::variables_map;
 
-	/// Helper wrapper to simplify defining values.
+	/// Helper wrapper to simplify defining values, \a value is used as storage.
 	template<typename TValue>
 	auto OptionsValue(TValue& value) {
 		return boost::program_options::value<TValue>(&value);
@@ -54,10 +51,4 @@ namespace catapult { namespace tools {
 	inline auto OptionsSwitch() {
 		return boost::program_options::bool_switch();
 	}
-
-	/// Returns the key specified via \a options.
-	Key GetKeyFromOptions(const Options& options);
-
-	/// Adds a "key" option using \a optionsBuilder, uses \a key for storage.
-	void AddDefaultServerKeyOption(OptionsBuilder& optionsBuilder, std::string& key);
 }}

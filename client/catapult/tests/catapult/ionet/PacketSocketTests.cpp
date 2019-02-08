@@ -724,7 +724,7 @@ namespace catapult { namespace ionet {
 		//          this is a race condition that is difficult to reproduce, requiring:
 		//          1. delay between async_accept success and remote_endpoint query
 		//          2. client that sets SO_LINGER to 0s and immediately closes connection within (1) delay period
-		test::RunNonDeterministicTest("remote endpoint failure", 50 * test::Max_Non_Deterministic_Test_Retries, [](auto) {
+		test::RunNonDeterministicTest("remote endpoint failure", 50 * test::GetMaxNonDeterministicTestRetries(), [](auto) {
 			auto pPool = test::CreateStartedIoServiceThreadPool(1);
 			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->service());
 
@@ -859,7 +859,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, ConnectionFailsIfNodeEndpointCannotBeResolved) {
 		// Act: attempt to connect to an invalid hostname
-		auto result = ConnectAndWait({ "127.0.0.X", test::Local_Host_Port });
+		auto result = ConnectAndWait({ "127.0.0.X", test::GetLocalHostPort() });
 
 		// Assert:
 #ifdef _WIN32

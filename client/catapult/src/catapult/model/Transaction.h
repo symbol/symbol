@@ -30,8 +30,9 @@ namespace catapult { namespace model {
 
 	/// Binary layout for a transaction.
 	struct Transaction : public VerifiableEntity {
-		/// Transaction fee.
-		Amount Fee;
+		/// Maximum transaction fee paid for confirmation.
+		/// \note Actual fee paid is dependent on containing block.
+		Amount MaxFee;
 
 		/// Transaction deadline.
 		Timestamp Deadline;

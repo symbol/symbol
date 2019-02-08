@@ -63,7 +63,7 @@ namespace catapult { namespace cache {
 		}
 
 		template<typename TRawView>
-		void AssertConstSubCacheView(const SubCacheView& view, size_t expectedValue) {
+		void AssertConstSubCacheView(const SubCacheView& view, size_t expectedValue, SubCacheViewType expectedViewType) {
 			// Assert: const raw view is correct
 			ASSERT_TRUE(!!view.get());
 			EXPECT_EQ(expectedValue, static_cast<const TRawView*>(view.get())->id());
@@ -75,6 +75,11 @@ namespace catapult { namespace cache {
 			const auto* pReadOnlyView = static_cast<const ReadOnlyViewType*>(view.asReadOnly());
 			ASSERT_TRUE(!!pReadOnlyView);
 			EXPECT_EQ(expectedValue, pReadOnlyView->size());
+
+			// - id is correct (name is truncated to 16 characters)
+			EXPECT_EQ("SimpleCache (id ", std::string(view.id().CacheName.cbegin(), view.id().CacheName.cend()));
+			EXPECT_EQ(3u, view.id().CacheId);
+			EXPECT_EQ(expectedViewType, view.id().ViewType);
 		}
 
 		template<typename TRawView>
@@ -89,17 +94,17 @@ namespace catapult { namespace cache {
 		}
 
 		template<typename TRawView>
-		void AssertView(const std::unique_ptr<const SubCacheView>& pView, size_t expectedValue) {
+		void AssertView(const std::unique_ptr<const SubCacheView>& pView, size_t expectedValue, SubCacheViewType expectedViewType) {
 			// Assert: a valid view was returned
 			ASSERT_TRUE(!!pView);
-			AssertConstSubCacheView<TRawView>(*pView, expectedValue);
+			AssertConstSubCacheView<TRawView>(*pView, expectedValue, expectedViewType);
 		}
 
 		template<typename TRawView>
-		void AssertView(const std::unique_ptr<SubCacheView>& pView, size_t expectedValue) {
+		void AssertView(const std::unique_ptr<SubCacheView>& pView, size_t expectedValue, SubCacheViewType expectedViewType) {
 			// Assert: a valid view was returned
 			ASSERT_TRUE(!!pView);
-			AssertConstSubCacheView<TRawView>(*pView, expectedValue);
+			AssertConstSubCacheView<TRawView>(*pView, expectedValue, expectedViewType);
 			AssertNonConstSubCacheView<TRawView>(*pView, expectedValue);
 		}
 	}
@@ -160,7 +165,7 @@ namespace catapult { namespace cache {
 		auto pView = adapter.createView();
 
 		// Assert:
-		AssertView<test::SimpleCacheView>(pView, 5);
+		AssertView<test::SimpleCacheView>(pView, 5, SubCacheViewType::View);
 	}
 
 	TEST(TEST_CLASS, CanAccessDelta) {
@@ -171,7 +176,7 @@ namespace catapult { namespace cache {
 		auto pDelta = adapter.createDelta();
 
 		// Assert:
-		AssertView<test::SimpleCacheDelta>(pDelta, 5);
+		AssertView<test::SimpleCacheDelta>(pDelta, 5, SubCacheViewType::Delta);
 	}
 
 	// endregion
@@ -432,7 +437,7 @@ namespace catapult { namespace cache {
 		auto pDelta = pDetachedDelta->lock();
 
 		// Assert:
-		AssertView<test::SimpleCacheDelta>(pDelta, 5);
+		AssertView<test::SimpleCacheDelta>(pDelta, 5, SubCacheViewType::DetachedDelta);
 	}
 
 	TEST(TEST_CLASS, CannotAccessDeltaViewViaOutdatedDetachedDelta) {
@@ -473,7 +478,7 @@ namespace catapult { namespace cache {
 		auto pView = adapter.createView();
 
 		// Assert: the increment above was discarded
-		AssertView<test::SimpleCacheView>(pView, 5);
+		AssertView<test::SimpleCacheView>(pView, 5, SubCacheViewType::View);
 	}
 
 	TEST(TEST_CLASS, CanCommitChanges) {
@@ -490,7 +495,7 @@ namespace catapult { namespace cache {
 		auto pView = adapter.createView();
 
 		// Assert: the increment above was committed
-		AssertView<test::SimpleCacheView>(pView, 6);
+		AssertView<test::SimpleCacheView>(pView, 6, SubCacheViewType::View);
 	}
 
 	// endregion
@@ -561,7 +566,7 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		auto pView = adapter.createView();
-		AssertView<test::SimpleCacheView>(pView, 3);
+		AssertView<test::SimpleCacheView>(pView, 3, SubCacheViewType::View);
 	}
 
 	// endregion

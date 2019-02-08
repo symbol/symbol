@@ -78,7 +78,24 @@ namespace catapult { namespace test {
 			EXPECT_EQ(NumSeedElements(), delta->size());
 		}
 
-		static void AssertCanPruneSomeElements() {
+		static void AssertCanPruneElementsAtSingleHeight() {
+			// Arrange:
+			CacheType cache;
+			SeedCache(cache);
+			auto delta = cache.createDelta();
+
+			// Act: prune element with id 3 that expires at height 30
+			delta->prune(Height(30));
+			cache.commit();
+
+			// Assert:
+			auto view = cache.createView();
+			EXPECT_EQ(9u, view->size());
+			for (auto id : std::initializer_list<uint8_t>{ 1, 2, 4, 5, 6, 7, 8, 9, 10 })
+				EXPECT_TRUE(view->contains(TTraits::MakeId(id))) << "id " << static_cast<uint16_t>(id);
+		}
+
+		static void AssertCanPruneElementsAtMultipleHeights() {
 			// Arrange:
 			CacheType cache;
 			SeedCache(cache);
@@ -92,6 +109,23 @@ namespace catapult { namespace test {
 			auto view = cache.createView();
 			EXPECT_EQ(3u, view->size());
 			for (auto id : std::initializer_list<uint8_t>{ 8, 9, 10 })
+				EXPECT_TRUE(view->contains(TTraits::MakeId(id))) << "id " << static_cast<uint16_t>(id);
+		}
+
+		static void AssertCanPruneMultipleElementsAtMultipleHeights() {
+			// Arrange:
+			CacheType cache;
+			SeedCacheWithMultipleIdsAtSameHeight(cache);
+			auto delta = cache.createDelta();
+
+			// Act: prune elements expiring at height 10, 20 ids: 1, 2, 5, 6, 9, 10
+			PruneAll(*delta, Height(20));
+			cache.commit();
+
+			// Assert:
+			auto view = cache.createView();
+			EXPECT_EQ(4u, view->size());
+			for (auto id : std::initializer_list<uint8_t>{ 3, 4, 7, 8 })
 				EXPECT_TRUE(view->contains(TTraits::MakeId(id))) << "id " << static_cast<uint16_t>(id);
 		}
 
@@ -159,7 +193,20 @@ namespace catapult { namespace test {
 
 			cache.commit();
 		}
+
+		static void SeedCacheWithMultipleIdsAtSameHeight(CacheType& cache) {
+			auto delta = cache.createDelta();
+			// 10, 20, 30, 40, 10, 20, 30, 40, 10, 20
+			for (uint8_t i = 1; i <= NumSeedElements(); ++i)
+				delta->insert(TTraits::CreateWithIdAndExpiration(i, Height(10 * i % 40)));
+
+			// Sanity:
+			EXPECT_EQ(NumSeedElements(), delta->size());
+
+			cache.commit();
+		}
 	};
+}}
 
 #define MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, TEST_NAME) \
 	TEST(TEST_CLASS, TEST_NAME##SUFFIX) { test::CachePruneTests<CACHE_TRAITS>::Assert##TEST_NAME(); }
@@ -168,7 +215,8 @@ namespace catapult { namespace test {
 	MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, PruneIsNoOpWhenCacheIsEmpty) \
 	MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, PruneIsNoOpWhenAllExpirationsAreAfterPruneHeight) \
 	MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, PruneIsNoOpWhenNoElementsExpireAtExactPruneHeight) \
-	MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, CanPruneSomeElements) \
+	MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, CanPruneElementsAtSingleHeight) \
+	MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, CanPruneElementsAtMultipleHeights) \
+	MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, CanPruneMultipleElementsAtMultipleHeights) \
 	MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, CanPruneAllElements) \
 	MAKE_CACHE_PRUNE_TEST(CACHE_TRAITS, SUFFIX, PruneIsIdempotent)
-}}

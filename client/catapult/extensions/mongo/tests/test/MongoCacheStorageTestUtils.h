@@ -60,7 +60,7 @@ namespace catapult { namespace test {
 		static size_t GetCollectionSize() {
 			auto connection = CreateDbConnection();
 			auto collection = connection[DatabaseName()][TTraits::Collection_Name];
-			return static_cast<size_t>(collection.count({}));
+			return static_cast<size_t>(collection.count_documents({}));
 		}
 
 		static void AssertDbContents(const std::vector<ElementType>& elements, size_t numHiddenElements = 0) {

@@ -26,6 +26,13 @@
 
 namespace catapult { namespace test {
 
+	std::unique_ptr<cache::MemoryUtCache> CreateSeededMemoryUtCache(uint32_t count) {
+		auto pCache = std::make_unique<cache::MemoryUtCache>(cache::MemoryCacheOptions(1000, 1000));
+		auto transactionInfos = CreateTransactionInfos(count);
+		AddAll(*pCache, transactionInfos);
+		return pCache;
+	}
+
 	void AddAll(cache::UtCache& cache, const std::vector<model::TransactionInfo>& transactionInfos) {
 		auto modifier = cache.modifier();
 		for (const auto& transactionInfo : transactionInfos)
@@ -81,14 +88,13 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		void AssertContainsAll(const cache::MemoryUtCache& cache, const std::vector<Hash256>& hashes, bool shouldContain) {
+		void AssertContainsAll(const cache::MemoryUtCacheView& cacheView, const std::vector<Hash256>& hashes, bool shouldContain) {
 			auto i = 0u;
-			auto view = cache.view();
 			for (const auto& hash : hashes) {
 				if (shouldContain)
-					EXPECT_TRUE(view.contains(hash)) << "hash at " << i;
+					EXPECT_TRUE(cacheView.contains(hash)) << "hash at " << i;
 				else
-					EXPECT_FALSE(view.contains(hash)) << "hash at " << i;
+					EXPECT_FALSE(cacheView.contains(hash)) << "hash at " << i;
 
 				++i;
 			}
@@ -96,11 +102,19 @@ namespace catapult { namespace test {
 	}
 
 	void AssertContainsAll(const cache::MemoryUtCache& cache, const std::vector<Hash256>& hashes) {
-		AssertContainsAll(cache, hashes, true);
+		AssertContainsAll(cache.view(), hashes, true);
 	}
 
 	void AssertContainsNone(const cache::MemoryUtCache& cache, const std::vector<Hash256>& hashes) {
-		AssertContainsAll(cache, hashes, false);
+		AssertContainsAll(cache.view(), hashes, false);
+	}
+
+	void AssertContainsAll(const cache::MemoryUtCacheView& cacheView, const std::vector<Hash256>& hashes) {
+		AssertContainsAll(cacheView, hashes, true);
+	}
+
+	void AssertContainsNone(const cache::MemoryUtCacheView& cacheView, const std::vector<Hash256>& hashes) {
+		AssertContainsAll(cacheView, hashes, false);
 	}
 
 	namespace {

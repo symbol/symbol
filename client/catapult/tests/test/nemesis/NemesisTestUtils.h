@@ -25,6 +25,9 @@ namespace catapult { namespace cache { class CatapultCacheView; } }
 
 namespace catapult { namespace test {
 
+	/// Converts a raw private key string (\a privateKeyString) to a public key.
+	Key RawPrivateKeyToPublicKey(const char* privateKeyString);
+
 	/// Converts a raw private key string (\a privateKeyString) to an address.
 	Address RawPrivateKeyToAddress(const char* privateKeyString);
 

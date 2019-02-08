@@ -38,7 +38,7 @@ namespace catapult { namespace mongo {
 	template<typename TTransaction>
 	class MongoTransactionPluginT {
 	public:
-		virtual ~MongoTransactionPluginT() {}
+		virtual ~MongoTransactionPluginT() = default;
 
 	public:
 		/// Gets the transaction entity type.
@@ -49,8 +49,7 @@ namespace catapult { namespace mongo {
 	};
 
 	/// An embedded mongo transaction plugin.
-	class EmbeddedMongoTransactionPlugin : public MongoTransactionPluginT<model::EmbeddedTransaction> {
-	};
+	class EmbeddedMongoTransactionPlugin : public MongoTransactionPluginT<model::EmbeddedTransaction> {};
 
 	/// A mongo transaction plugin.
 	class MongoTransactionPlugin : public MongoTransactionPluginT<model::Transaction> {

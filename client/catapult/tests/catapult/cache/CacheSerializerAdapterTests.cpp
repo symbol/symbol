@@ -62,7 +62,7 @@ namespace catapult { namespace cache {
 
 		// Assert:
 		ASSERT_EQ(5 + Hash512_Size, result.size());
-		EXPECT_TRUE(0 == std::memcmp("alpha", result.data(), 5));
+		EXPECT_EQ_MEMORY("alpha", result.data(), 5);
 		EXPECT_EQ(value, reinterpret_cast<const Hash512&>(result[5]));
 	}
 

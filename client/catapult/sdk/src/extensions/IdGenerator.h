@@ -25,8 +25,8 @@
 
 namespace catapult { namespace extensions {
 
-	/// Generates a mosaic id given a unified mosaic \a name.
-	MosaicId GenerateMosaicId(const RawString& name);
+	/// Generates a mosaic id given mosaic alias \a name.
+	UnresolvedMosaicId GenerateMosaicAliasId(const RawString& name);
 
 	/// A namespace path.
 	using NamespacePath = utils::CheckedArray<NamespaceId, Namespace_Max_Depth>;

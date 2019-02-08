@@ -19,99 +19,49 @@
 **/
 
 #include "NamespacePlugin.h"
-#include "MosaicDefinitionTransactionPlugin.h"
-#include "MosaicSupplyChangeTransactionPlugin.h"
+#include "AddressAliasTransactionPlugin.h"
+#include "MosaicAliasTransactionPlugin.h"
 #include "RegisterNamespaceTransactionPlugin.h"
-#include "src/cache/MosaicCache.h"
-#include "src/cache/MosaicCacheStorage.h"
-#include "src/cache/MosaicCacheSubCachePlugin.h"
 #include "src/cache/NamespaceCache.h"
 #include "src/cache/NamespaceCacheStorage.h"
 #include "src/cache/NamespaceCacheSubCachePlugin.h"
 #include "src/config/NamespaceConfiguration.h"
-#include "src/handlers/NamespaceDiagnosticHandlers.h"
 #include "src/model/NamespaceLifetimeConstraints.h"
+#include "src/model/NamespaceReceiptType.h"
 #include "src/observers/Observers.h"
 #include "src/validators/Validators.h"
-#include "catapult/handlers/CacheEntryInfosProducerFactory.h"
-#include "catapult/handlers/StatePathHandlerFactory.h"
+#include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/model/Address.h"
 #include "catapult/observers/ObserverUtils.h"
+#include "catapult/observers/RentalFeeObserver.h"
+#include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
 
 	namespace {
-		constexpr auto GetPluginName() {
-			return "catapult.plugins.namespace";
-		}
+		// region alias
 
-		// region mosaic
+		void RegisterAliasSubsystem(PluginManager& manager, const config::NamespaceConfiguration&) {
+			manager.addTransactionSupport(CreateAddressAliasTransactionPlugin());
+			manager.addTransactionSupport(CreateMosaicAliasTransactionPlugin());
 
-		plugins::MosaicRentalFeeConfiguration ToMosaicRentalFeeConfiguration(
-				const model::NetworkInfo& network,
-				const config::NamespaceConfiguration& config) {
-			plugins::MosaicRentalFeeConfiguration rentalFeeConfig;
-			rentalFeeConfig.SinkPublicKey = config.MosaicRentalFeeSinkPublicKey;
-			rentalFeeConfig.SinkAddress = PublicKeyToAddress(rentalFeeConfig.SinkPublicKey, network.Identifier);
-			rentalFeeConfig.Fee = config.MosaicRentalFee;
-			rentalFeeConfig.NemesisPublicKey = network.PublicKey;
-			return rentalFeeConfig;
-		}
-
-		auto GetMosaicView(const cache::CatapultCache& cache) {
-			return cache.sub<cache::MosaicCache>().createView();
-		}
-
-		void RegisterMosaicSubsystem(PluginManager& manager, const config::NamespaceConfiguration& config) {
-			auto rentalFeeConfig = ToMosaicRentalFeeConfiguration(manager.config().Network, config);
-			manager.addTransactionSupport(CreateMosaicDefinitionTransactionPlugin(rentalFeeConfig));
-			manager.addTransactionSupport(CreateMosaicSupplyChangeTransactionPlugin());
-
-			manager.addCacheSupport(std::make_unique<cache::MosaicCacheSubCachePlugin>(manager.cacheConfig(cache::MosaicCache::Name)));
-
-			manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
-				using MosaicInfosProducerFactory = handlers::CacheEntryInfosProducerFactory<cache::MosaicCacheDescriptor>;
-				handlers::RegisterMosaicInfosHandler(handlers, MosaicInfosProducerFactory::Create(cache.sub<cache::MosaicCache>()));
-
-				using PacketType = handlers::StatePathRequestPacket<ionet::PacketType::Mosaic_State_Path, MosaicId>;
-				handlers::RegisterStatePathHandler<PacketType>(handlers, cache.sub<cache::MosaicCache>());
+			manager.addStatelessValidatorHook([](auto& builder) {
+				builder.add(validators::CreateAliasActionValidator());
 			});
 
-			manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
-				counters.emplace_back(utils::DiagnosticCounterId("MOSAIC C"), [&cache]() { return GetMosaicView(cache)->size(); });
-				counters.emplace_back(utils::DiagnosticCounterId("MOSAIC C DS"), [&cache]() { return GetMosaicView(cache)->deepSize(); });
-			});
-
-			auto maxDuration = config.MaxMosaicDuration.blocks(manager.config().BlockGenerationTargetTime);
-			manager.addStatelessValidatorHook([config, maxDuration](auto& builder) {
+			manager.addStatefulValidatorHook([](auto& builder) {
 				builder
-					.add(validators::CreateMosaicNameValidator(config.MaxNameSize))
-					.add(validators::CreateMosaicPropertiesValidator(config.MaxMosaicDivisibility, maxDuration))
-					.add(validators::CreateMosaicSupplyChangeValidator());
+					.add(validators::CreateAliasAvailabilityValidator())
+					.add(validators::CreateUnlinkAliasedAddressConsistencyValidator())
+					.add(validators::CreateUnlinkAliasedMosaicIdConsistencyValidator())
+					.add(validators::CreateAddressAliasValidator());
 			});
 
-			auto maxMosaics = config.MaxMosaicsPerAccount;
-			auto maxDivisibleUnits = config.MaxMosaicDivisibleUnits;
-			manager.addStatefulValidatorHook([maxMosaics, maxDivisibleUnits](auto& builder) {
+			manager.addObserverHook([](auto& builder) {
 				builder
-					.add(validators::CreateMosaicChangeAllowedValidator())
-					.add(validators::CreateNamespaceMosaicConsistencyValidator())
-					.add(validators::CreateMosaicAvailabilityValidator())
-					.add(validators::CreateMosaicTransferValidator())
-					.add(validators::CreateMaxMosaicsBalanceTransferValidator(maxMosaics))
-					.add(validators::CreateMaxMosaicsSupplyChangeValidator(maxMosaics))
-					// note that the following validator depends on MosaicChangeAllowedValidator
-					.add(validators::CreateMosaicSupplyChangeAllowedValidator(maxDivisibleUnits));
-			});
-
-			auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
-			manager.addObserverHook([maxRollbackBlocks](auto& builder) {
-				builder
-					.add(observers::CreateMosaicDefinitionObserver())
-					.add(observers::CreateMosaicSupplyChangeObserver())
-					.add(observers::CreateCacheBlockTouchObserver<cache::MosaicCache>("Mosaic"))
-					.add(observers::CreateCacheBlockPruningObserver<cache::MosaicCache>("Mosaic", 1, maxRollbackBlocks));
+					.add(observers::CreateAliasedAddressObserver())
+					.add(observers::CreateAliasedMosaicIdObserver());
 			});
 		}
 
@@ -119,16 +69,78 @@ namespace catapult { namespace plugins {
 
 		// region namespace
 
-		plugins::NamespaceRentalFeeConfiguration ToNamespaceRentalFeeConfiguration(
+		NamespaceRentalFeeConfiguration ToNamespaceRentalFeeConfiguration(
 				const model::NetworkInfo& network,
+				UnresolvedMosaicId currencyMosaicId,
 				const config::NamespaceConfiguration& config) {
-			plugins::NamespaceRentalFeeConfiguration rentalFeeConfig;
+			NamespaceRentalFeeConfiguration rentalFeeConfig;
 			rentalFeeConfig.SinkPublicKey = config.NamespaceRentalFeeSinkPublicKey;
-			rentalFeeConfig.SinkAddress = PublicKeyToAddress(rentalFeeConfig.SinkPublicKey, network.Identifier);
+			rentalFeeConfig.CurrencyMosaicId = currencyMosaicId;
 			rentalFeeConfig.RootFeePerBlock = config.RootNamespaceRentalFeePerBlock;
 			rentalFeeConfig.ChildFee = config.ChildNamespaceRentalFee;
 			rentalFeeConfig.NemesisPublicKey = network.PublicKey;
+
+			// sink address is already resolved but needs to be passed as unresolved into notification
+			auto sinkAddress = PublicKeyToAddress(rentalFeeConfig.SinkPublicKey, network.Identifier);
+			std::memcpy(rentalFeeConfig.SinkAddress.data(), sinkAddress.data(), sinkAddress.size());
 			return rentalFeeConfig;
+		}
+
+		template<typename TAliasValue, typename TAliasValueAccessor>
+		bool RunNamespaceResolver(
+				const cache::NamespaceCacheTypes::CacheReadOnlyType& namespaceCache,
+				NamespaceId namespaceId,
+				state::AliasType aliasType,
+				TAliasValue& aliasValue,
+				TAliasValueAccessor aliasValueAccessor) {
+			auto iter = namespaceCache.find(namespaceId);
+			if (!iter.tryGet())
+				return false;
+
+			const auto& alias = iter.get().root().alias(namespaceId);
+			if (aliasType != alias.type())
+				return false;
+
+			aliasValue = aliasValueAccessor(alias);
+			return true;
+		}
+
+		void RegisterNamespaceAliasResolvers(PluginManager& manager) {
+			manager.addMosaicResolver([](const auto&, const auto& unresolved, auto& resolved) {
+				constexpr uint64_t Namespace_Flag = 1ull << 63;
+				if (0 == (Namespace_Flag & unresolved.unwrap())) {
+					resolved = model::ResolverContext().resolve(unresolved);
+					return true;
+				}
+
+				return false;
+			});
+
+			manager.addMosaicResolver([](const auto& cache, const auto& unresolved, auto& resolved) {
+				auto namespaceCache = cache.template sub<cache::NamespaceCache>();
+				auto namespaceId = NamespaceId(unresolved.unwrap());
+				return RunNamespaceResolver(namespaceCache, namespaceId, state::AliasType::Mosaic, resolved, [](const auto& alias) {
+					return alias.mosaicId();
+				});
+			});
+
+			manager.addAddressResolver([](const auto&, const auto& unresolved, auto& resolved) {
+				if (0 == (1 & unresolved[0].Byte)) {
+					resolved = model::ResolverContext().resolve(unresolved);
+					return true;
+				}
+
+				return false;
+			});
+
+			manager.addAddressResolver([](const auto& cache, const auto& unresolved, auto& resolved) {
+				auto namespaceCache = cache.template sub<cache::NamespaceCache>();
+				NamespaceId namespaceId;
+				std::memcpy(static_cast<void*>(&namespaceId), unresolved.data() + 1, sizeof(NamespaceId));
+				return RunNamespaceResolver(namespaceCache, namespaceId, state::AliasType::Address, resolved, [](const auto& alias) {
+					return alias.address();
+				});
+			});
 		}
 
 		auto GetNamespaceView(const cache::CatapultCache& cache) {
@@ -136,25 +148,21 @@ namespace catapult { namespace plugins {
 		}
 
 		void RegisterNamespaceSubsystem(PluginManager& manager, const config::NamespaceConfiguration& config) {
-			auto rentalFeeConfig = ToNamespaceRentalFeeConfiguration(manager.config().Network, config);
+			auto currencyMosaicId = model::GetUnresolvedCurrencyMosaicId(manager.config());
+			auto rentalFeeConfig = ToNamespaceRentalFeeConfiguration(manager.config().Network, currencyMosaicId, config);
 			manager.addTransactionSupport(CreateRegisterNamespaceTransactionPlugin(rentalFeeConfig));
 
 			auto gracePeriodDuration = config.NamespaceGracePeriodDuration.blocks(manager.config().BlockGenerationTargetTime);
 			auto maxDuration = config.MaxNamespaceDuration.blocks(manager.config().BlockGenerationTargetTime);
 			model::NamespaceLifetimeConstraints constraints(maxDuration, gracePeriodDuration);
+
+			RegisterNamespaceAliasResolvers(manager);
 			manager.addCacheSupport(std::make_unique<cache::NamespaceCacheSubCachePlugin>(
 					manager.cacheConfig(cache::NamespaceCache::Name),
 					cache::NamespaceCacheTypes::Options{ gracePeriodDuration }));
 
-			manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
-				using NamespaceInfosProducerFactory = handlers::CacheEntryInfosProducerFactory<cache::NamespaceCacheDescriptor>;
-				handlers::RegisterNamespaceInfosHandler(
-						handlers,
-						NamespaceInfosProducerFactory::Create(cache.sub<cache::NamespaceCache>()));
-
-				using PacketType = handlers::StatePathRequestPacket<ionet::PacketType::Namespace_State_Path, NamespaceId>;
-				handlers::RegisterStatePathHandler<PacketType>(handlers, cache.sub<cache::NamespaceCache>());
-			});
+			using CacheHandlers = CacheHandlers<cache::NamespaceCacheDescriptor>;
+			CacheHandlers::Register<model::FacilityCode::Namespace>(manager);
 
 			manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
 				counters.emplace_back(utils::DiagnosticCounterId("NS C"), [&cache]() { return GetNamespaceView(cache)->size(); });
@@ -180,11 +188,13 @@ namespace catapult { namespace plugins {
 
 			auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
 			manager.addObserverHook([maxRollbackBlocks](auto& builder) {
+				auto rentalFeeReceiptType = model::Receipt_Type_Namespace_Rental_Fee;
+				auto expiryReceiptType = model::Receipt_Type_Namespace_Expired;
 				builder
-					.add(observers::CreateRegisterNamespaceMosaicPruningObserver(maxRollbackBlocks))
 					.add(observers::CreateRootNamespaceObserver())
 					.add(observers::CreateChildNamespaceObserver())
-					.add(observers::CreateCacheBlockTouchObserver<cache::NamespaceCache>("Namespace"))
+					.add(observers::CreateRentalFeeObserver<model::NamespaceRentalFeeNotification>("Namespace", rentalFeeReceiptType))
+					.add(observers::CreateCacheBlockTouchObserver<cache::NamespaceCache>("Namespace", expiryReceiptType))
 					.add(observers::CreateCacheBlockPruningObserver<cache::NamespaceCache>("Namespace", 1, maxRollbackBlocks));
 			});
 		}
@@ -193,9 +203,9 @@ namespace catapult { namespace plugins {
 	}
 
 	void RegisterNamespaceSubsystem(PluginManager& manager) {
-		auto config = model::LoadPluginConfiguration<config::NamespaceConfiguration>(manager.config(), GetPluginName());
+		auto config = model::LoadPluginConfiguration<config::NamespaceConfiguration>(manager.config(), "catapult.plugins.namespace");
 		RegisterNamespaceSubsystem(manager, config);
-		RegisterMosaicSubsystem(manager, config);
+		RegisterAliasSubsystem(manager, config);
 	}
 }}
 

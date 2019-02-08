@@ -33,6 +33,7 @@ namespace catapult {
 		struct BlockElement;
 		struct Cosignature;
 		struct EmbeddedTransaction;
+		struct Receipt;
 		struct Transaction;
 		struct VerifiableEntity;
 	}
@@ -157,23 +158,28 @@ namespace catapult { namespace test {
 	/// Verifies that model \a block is equal to db block (\a dbBlock).
 	void AssertEqualBlockData(const model::Block& block, const bsoncxx::document::view& dbBlock);
 
-	/// Verifies that \a blockElement, \a totalFee, \a numTransactions and \a merkleTree match
-	/// block metadata (\a dbBlockMetadata) in db.
+	/// Verifies that \a blockElement, \a totalFee, \a numTransactions, \a numStatements,
+	/// \a transactionMerkleTree and \a statementMerkleTree match block metadata (\a dbBlockMetadata) in db.
 	void AssertEqualBlockMetadata(
 			const model::BlockElement& blockElement,
 			Amount totalFee,
 			int32_t numTransactions,
-			const std::vector<Hash256>& merkleTree,
+			int32_t numStatements,
+			const std::vector<Hash256>& transactionMerkleTree,
+			const std::vector<Hash256>& statementMerkleTree,
 			const bsoncxx::document::view& dbBlockMetadata);
 
-	/// Verifies that db account (\a dbAccount) and model \a accountState are equivalent.
+	/// Verifies that model \a accountState and db account (\a dbAccount) are equivalent.
 	void AssertEqualAccountState(const state::AccountState& accountState, const bsoncxx::document::view& dbAccount);
 
 	/// Verifies that mock \a transaction and db transaction (\a dbTransaction) are equivalent.
 	void AssertEqualMockTransactionData(const mocks::MockTransaction& transaction, const bsoncxx::document::view& dbTransaction);
 
-	/// Verifies that db cosignatures (\a dbCosignatures) and model \a expectedCosignatures are equivalent.
+	/// Verifies that model \a expectedCosignatures and db cosignatures (\a dbCosignatures) are equivalent.
 	void AssertEqualCosignatures(const std::vector<model::Cosignature>& expectedCosignatures, const bsoncxx::array::view& dbCosignatures);
+
+	/// Verifies that model \a receipt and db receipt (\a dbReceipt) are equivalent.
+	void AssertEqualReceiptData(const model::Receipt& receipt, const bsoncxx::document::view& dbReceipt);
 
 	// endregion
 }}

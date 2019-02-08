@@ -59,8 +59,8 @@ namespace catapult { namespace mongo {
 			explicit TransactionStatusSubscriberContext(size_t numTransactionStatuses)
 					: m_pMongoContext(ResetDatabaseAndCreateMongoContext())
 					, m_pSubscriber(CreateMongoTransactionStatusStorage(*m_pMongoContext))
-					, m_statuses(CreateTransactionStatuses(numTransactionStatuses)) {
-			}
+					, m_statuses(CreateTransactionStatuses(numTransactionStatuses))
+			{}
 
 		public:
 			subscribers::TransactionStatusSubscriber& subscriber() {
@@ -96,7 +96,7 @@ namespace catapult { namespace mongo {
 			auto collection = database[Collection_Name];
 
 			// Assert: check collection size
-			EXPECT_EQ(expectedTransactionStatuses.size(), static_cast<size_t>(collection.count({})));
+			EXPECT_EQ(expectedTransactionStatuses.size(), static_cast<size_t>(collection.count_documents({})));
 
 			auto txCursor = collection.find({});
 			for (const auto& view : txCursor) {

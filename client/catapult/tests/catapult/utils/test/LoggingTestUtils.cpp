@@ -32,9 +32,28 @@
 namespace catapult { namespace test {
 
 	utils::FileLoggerOptions CreateTestFileLoggerOptions() {
-		auto options = utils::FileLoggerOptions("logs", "CatapultLoggingTests%4N.txt");
+		return CreateTestFileLoggerOptions("CatapultLoggingTests");
+	}
+
+	utils::FileLoggerOptions CreateTestFileLoggerOptions(const std::string& prefix) {
+		auto logDirectory = boost::filesystem::path(TempDirectoryGuard::DefaultName()) / "testlogs";
+		auto options = utils::FileLoggerOptions(logDirectory.generic_string(), prefix + "%4N.txt");
 		options.SinkType = utils::LogSinkType::Sync;
 		return options;
+	}
+
+	TempLogsDirectoryGuard::TempLogsDirectoryGuard() : TempLogsDirectoryGuard("CatapultLoggingTests")
+	{}
+
+	TempLogsDirectoryGuard::TempLogsDirectoryGuard(const std::string& prefix)
+			: m_prefix(prefix)
+			, m_directoryGuard("testlogs")
+	{}
+
+	std::string TempLogsDirectoryGuard::name(size_t id) {
+		std::ostringstream logFilename;
+		logFilename << m_prefix << std::setfill('0') << std::setw(4) << id << ".txt";
+		return (boost::filesystem::path(m_directoryGuard.name()) / logFilename.str()).generic_string();
 	}
 
 	namespace {

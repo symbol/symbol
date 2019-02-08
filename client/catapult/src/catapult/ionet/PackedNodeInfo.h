@@ -36,15 +36,6 @@ namespace catapult { namespace ionet {
 		/// \c 0 if the connection is not active.
 		uint32_t Age;
 
-		/// Number of connection attempts.
-		uint32_t NumAttempts;
-
-		/// Number of successful connections.
-		uint32_t NumSuccesses;
-
-		/// Number of failed connections.
-		uint32_t NumFailures;
-
 		/// Number of consecutive failed connections.
 		uint32_t NumConsecutiveFailures;
 
@@ -53,14 +44,28 @@ namespace catapult { namespace ionet {
 		uint32_t BanAge;
 
 	public:
-		/// Updates values with corresponding values from \a from \a connectionState.
+		/// Updates values with corresponding values from \a connectionState.
 		void Update(const ConnectionState& connectionState) {
 			Age = connectionState.Age;
-			NumAttempts = connectionState.NumAttempts;
-			NumSuccesses = connectionState.NumSuccesses;
-			NumFailures = connectionState.NumFailures;
 			NumConsecutiveFailures = connectionState.NumConsecutiveFailures;
 			BanAge = connectionState.BanAge;
+		}
+	};
+
+	/// Node interactions.
+	struct PackedNodeInteractions {
+	public:
+		/// Number of successful interactions.
+		uint32_t NumSuccesses;
+
+		/// Number of failed interactions.
+		uint32_t NumFailures;
+
+	public:
+		/// Updates values with corresponding values from \a interactions.
+		void Update(const NodeInteractions& interactions) {
+			NumSuccesses = interactions.NumSuccesses;
+			NumFailures = interactions.NumFailures;
 		}
 	};
 
@@ -72,6 +77,9 @@ namespace catapult { namespace ionet {
 
 		/// Node source.
 		NodeSource Source;
+
+		/// Node interactions.
+		PackedNodeInteractions Interactions;
 
 		/// Number of connection states.
 		uint8_t ConnectionStatesCount;

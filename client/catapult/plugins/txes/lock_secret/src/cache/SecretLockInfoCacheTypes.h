@@ -47,7 +47,7 @@ namespace catapult { namespace cache {
 
 	public:
 		// key value types
-		using KeyType = Hash512;
+		using KeyType = Hash256;
 		using ValueType = state::SecretLockInfo;
 
 		// cache types
@@ -70,7 +70,7 @@ namespace catapult { namespace cache {
 		using CacheReadOnlyType = ReadOnlyArtifactCache<
 			BasicSecretLockInfoCacheView,
 			BasicSecretLockInfoCacheDelta,
-			Hash512,
+			Hash256,
 			state::SecretLockInfo>;
 
 		using BaseSetDeltaPointers = SecretLockInfoBaseSetDeltaPointers;

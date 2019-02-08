@@ -29,11 +29,18 @@ namespace catapult { namespace test {
 	/// Uses RAII to delete a test directory.
 	class TempDirectoryGuard final {
 	public:
+		/// Guards a default test directory.
+		TempDirectoryGuard();
+
 		/// Guards the directory with the specified name (\a directoryName).
-		explicit TempDirectoryGuard(const std::string& directoryName = "../temp.dir");
+		explicit TempDirectoryGuard(const std::string& directoryName);
 
 		/// Deletes the guarded directory.
 		~TempDirectoryGuard();
+
+	private:
+		// add a second parameter to disambiguate construction around string literal
+		explicit TempDirectoryGuard(const boost::filesystem::path& directoryPath, bool);
 
 	public:
 		/// Gets the name of the guarded directory.
@@ -41,6 +48,10 @@ namespace catapult { namespace test {
 
 	private:
 		bool exists() const;
+
+	public:
+		/// Gets the default temp directory name.
+		static std::string DefaultName();
 
 	private:
 		boost::filesystem::path m_directoryPath;
@@ -56,15 +67,13 @@ namespace catapult { namespace test {
 		/// Guards the file with the specified \a name.
 		explicit TempFileGuard(const std::string& name);
 
-		/// Deletes the guarded file.
-		~TempFileGuard();
-
 	public:
 		/// Gets the name of the guarded file.
-		const std::string& name() const;
+		std::string name() const;
 
 	private:
 		std::string m_name;
+		TempDirectoryGuard m_directoryGuard;
 	};
 
 	// endregion

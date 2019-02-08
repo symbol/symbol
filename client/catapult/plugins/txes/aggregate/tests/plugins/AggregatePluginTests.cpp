@@ -27,7 +27,7 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<bool EnableStrict, bool EnableBonded>
-		struct BasicAggregatePluginTraits {
+		struct BasicAggregatePluginTraits : public test::EmptyPluginTraits {
 		public:
 			template<typename TAction>
 			static void RunTestAfterRegistration(TAction action) {
@@ -48,31 +48,6 @@ namespace catapult { namespace plugins {
 
 				// Act:
 				action(manager);
-			}
-
-		public:
-			static std::vector<std::string> GetCacheNames() {
-				return {};
-			}
-
-			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return {};
-			}
-
-			static std::vector<std::string> GetDiagnosticCounterNames() {
-				return {};
-			}
-
-			static std::vector<std::string> GetStatefulValidatorNames() {
-				return {};
-			}
-
-			static std::vector<std::string> GetObserverNames() {
-				return {};
-			}
-
-			static std::vector<std::string> GetPermanentObserverNames() {
-				return {};
 			}
 		};
 

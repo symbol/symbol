@@ -41,7 +41,7 @@ namespace catapult { namespace mocks {
 			return m_name;
 		}
 
-		void notify(const model::WeakEntityInfo& entityInfo, const observers::ObserverContext& context) const override {
+		void notify(const model::WeakEntityInfo& entityInfo, observers::ObserverContext& context) const override {
 			m_entityHashes.push_back(entityInfo.hash());
 			m_contexts.push_back(context);
 

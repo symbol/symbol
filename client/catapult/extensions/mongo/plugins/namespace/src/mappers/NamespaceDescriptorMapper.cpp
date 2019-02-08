@@ -41,6 +41,27 @@ namespace catapult { namespace mongo { namespace plugins {
 						<< "index" << static_cast<int32_t>(descriptor.Index)
 					<< bson_stream::close_document;
 		}
+
+		void StreamAlias(bson_stream::document& builder, const state::NamespaceAlias& alias) {
+			builder << "alias"
+					<< bson_stream::open_document
+						<< "type" << utils::to_underlying_type(alias.type());
+
+			switch (alias.type()) {
+			case state::AliasType::Mosaic:
+				builder << "mosaicId" << ToInt64(alias.mosaicId());
+				break;
+
+			case state::AliasType::Address:
+				builder << "address" << ToBinary(alias.address());
+				break;
+
+			default:
+				break;
+			}
+
+			builder << bson_stream::close_document;
+		}
 	}
 
 	// region ToDbModel
@@ -63,6 +84,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		if (2 < depth)
 			builder << "level2" << ToInt64(path[2]);
 
+		StreamAlias(builder, descriptor.Alias);
+
 		builder
 					<< "parentId" << ToInt64(descriptor.IsRoot() ? Namespace_Base_Id : path[path.size() - 2])
 					<< "owner" << ToBinary(root.owner())
@@ -77,6 +100,25 @@ namespace catapult { namespace mongo { namespace plugins {
 	// endregion
 
 	// region ToModel
+
+	namespace {
+		state::NamespaceAlias ToNamespaceAlias(const bsoncxx::document::view& dbAlias) {
+			auto aliasType = static_cast<state::AliasType>(static_cast<uint32_t>(dbAlias["type"].get_int32()));
+
+			Address address;
+			switch (aliasType) {
+			case state::AliasType::Mosaic:
+				return state::NamespaceAlias(GetValue64<MosaicId>(dbAlias["mosaicId"]));
+
+			case state::AliasType::Address:
+				DbBinaryToModelArray(address, dbAlias["address"].get_binary());
+				return state::NamespaceAlias(address);
+
+			default:
+				return state::NamespaceAlias();
+			}
+		}
+	}
 
 	NamespaceDescriptor ToNamespaceDescriptor(const bsoncxx::document::view& document) {
 		// metadata
@@ -97,6 +139,9 @@ namespace catapult { namespace mongo { namespace plugins {
 		if (2 < depth)
 			path.push_back(GetValue64<NamespaceId>(dbNamespace["level2"]));
 
+		// - alias
+		auto alias = ToNamespaceAlias(dbNamespace["alias"].get_document().view());
+
 		// - root
 		Key owner;
 		DbBinaryToModelArray(owner, dbNamespace["owner"].get_binary());
@@ -105,7 +150,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		Address address;
 		DbBinaryToModelArray(address, dbNamespace["ownerAddress"].get_binary());
-		return NamespaceDescriptor(path, pRoot, address, index, isActive);
+		return NamespaceDescriptor(path, alias, pRoot, address, index, isActive);
 	}
 
 	// endregion

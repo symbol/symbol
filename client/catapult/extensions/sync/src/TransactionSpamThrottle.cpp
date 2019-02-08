@@ -75,7 +75,7 @@ namespace catapult { namespace sync {
 				auto readOnlyAccountStateCache = context.UnconfirmedCatapultCache.sub<cache::AccountStateCache>();
 				cache::ImportanceView importanceView(readOnlyAccountStateCache);
 				auto importance = importanceView.getAccountImportanceOrDefault(signer, context.CacheHeight);
-				auto effectiveImportance = GetEffectiveImportance(transactionInfo.pEntity->Fee, importance, m_config);
+				auto effectiveImportance = GetEffectiveImportance(transactionInfo.pEntity->MaxFee, importance, m_config);
 				auto maxTransactions = GetMaxTransactions(cacheSize, m_config.MaxCacheSize, effectiveImportance, m_config.TotalImportance);
 				return context.TransactionsCache.count(signer) >= maxTransactions;
 			}

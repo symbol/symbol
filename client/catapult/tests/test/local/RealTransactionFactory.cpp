@@ -19,17 +19,20 @@
 **/
 
 #include "RealTransactionFactory.h"
+#include "sdk/src/builders/AddressAliasBuilder.h"
 #include "sdk/src/builders/RegisterNamespaceBuilder.h"
 #include "sdk/src/builders/TransferBuilder.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "sdk/src/extensions/TransactionExtensions.h"
+#include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/NetworkInfo.h"
-#include "catapult/constants.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/nodeps/Random.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include <string.h>
 
 namespace catapult { namespace test {
@@ -46,15 +49,17 @@ namespace catapult { namespace test {
 				const UnresolvedAddress& recipient,
 				const std::vector<uint8_t>& message,
 				const std::vector<model::UnresolvedMosaic>& mosaics) {
-			builders::TransferBuilder builder(Network_Identifier, signerPublicKey, recipient);
+			builders::TransferBuilder builder(Network_Identifier, signerPublicKey);
+			builder.setRecipient(recipient);
+
 			if (!message.empty())
 				builder.setMessage(message);
 
 			for (const auto& mosaic : mosaics)
-				builder.addMosaic(mosaic.MosaicId, mosaic.Amount);
+				builder.addMosaic(mosaic);
 
 			auto pTransfer = builder.build();
-			pTransfer->Fee = GenerateRandomValue<Amount>();
+			pTransfer->MaxFee = GenerateRandomValue<Amount>();
 			pTransfer->Deadline = GenerateRandomValue<Timestamp>();
 			return std::move(pTransfer);
 		}
@@ -64,7 +69,8 @@ namespace catapult { namespace test {
 			const Key& signerPublicKey,
 			const UnresolvedAddress& recipient,
 			Amount amount) {
-		return CreateUnsignedTransferTransaction(signerPublicKey, recipient, {}, { { Unresolved_Xem_Id, amount } });
+		auto mosaicId = extensions::CastToUnresolvedMosaicId(Default_Currency_Mosaic_Id);
+		return CreateUnsignedTransferTransaction(signerPublicKey, recipient, {}, { { mosaicId, amount } });
 	}
 
 	std::unique_ptr<model::Transaction> CreateTransferTransaction(
@@ -86,18 +92,33 @@ namespace catapult { namespace test {
 
 	// endregion
 
-	// region namespace transaction
+	// region namespace transactions
 
 	std::unique_ptr<model::Transaction> CreateRegisterRootNamespaceTransaction(
 			const crypto::KeyPair& signer,
 			const std::string& name,
 			BlockDuration duration) {
-		builders::RegisterNamespaceBuilder builder(Network_Identifier, signer.publicKey(), name);
+		builders::RegisterNamespaceBuilder builder(Network_Identifier, signer.publicKey());
+		builder.setName({ reinterpret_cast<const uint8_t*>(name.data()), name.size() });
 		builder.setDuration(duration);
 		auto pTransaction = builder.build();
 
 		extensions::SignTransaction(signer, *pTransaction);
-		return pTransaction;
+		return std::move(pTransaction);
+	}
+
+	std::unique_ptr<model::Transaction> CreateRootAddressAliasTransaction(
+			const crypto::KeyPair& signer,
+			const std::string& name,
+			const Address& address) {
+		auto namespaceId = model::GenerateNamespaceId(NamespaceId(), name);
+		builders::AddressAliasBuilder builder(Network_Identifier, signer.publicKey());
+		builder.setNamespaceId(namespaceId);
+		builder.setAddress(address);
+		auto pTransaction = builder.build();
+
+		extensions::SignTransaction(signer, *pTransaction);
+		return std::move(pTransaction);
 	}
 
 	// endregion

@@ -60,12 +60,12 @@ namespace catapult { namespace plugins {
 		using ObserverPointer = observers::AggregateNotificationObserverPointerT<model::Notification>;
 
 		template<typename TUnresolved, typename TResolved>
-		using Resolver = predicate<const TUnresolved&, TResolved&>;
+		using Resolver = predicate<const cache::ReadOnlyCatapultCache&, const TUnresolved&, TResolved&>;
 		using MosaicResolver = Resolver<UnresolvedMosaicId, MosaicId>;
 		using AddressResolver = Resolver<UnresolvedAddress, Address>;
 
 		template<typename TUnresolved, typename TResolved>
-		using AggregateResolver = std::function<TResolved (const TUnresolved&)>;
+		using AggregateResolver = std::function<TResolved (const cache::ReadOnlyCatapultCache&, const TUnresolved&)>;
 		using AggregateMosaicResolver = AggregateResolver<UnresolvedMosaicId, MosaicId>;
 		using AggregateAddressResolver = AggregateResolver<UnresolvedAddress, Address>;
 
@@ -112,6 +112,16 @@ namespace catapult { namespace plugins {
 
 		/// Creates a catapult cache.
 		cache::CatapultCache createCache();
+
+		// endregion
+
+		// region handlers
+
+		/// Adds a (non-diagnostic) handler \a hook.
+		void addHandlerHook(const HandlerHook& hook);
+
+		/// Adds all (non-diagnostic) handlers to \a handlers given \a cache.
+		void addHandlers(ionet::ServerPacketHandlers& handlers, const cache::CatapultCache& cache) const;
 
 		// endregion
 
@@ -177,11 +187,8 @@ namespace catapult { namespace plugins {
 		/// Adds an address \a resolver.
 		void addAddressResolver(const AddressResolver& resolver);
 
-		/// Creates a mosaic resolver.
-		AggregateMosaicResolver createMosaicResolver() const;
-
-		/// Creates an address resolver.
-		AggregateAddressResolver createAddressResolver() const;
+		/// Creates a resolver context given \a cache.
+		model::ResolverContext createResolverContext(const cache::ReadOnlyCatapultCache& cache) const;
 
 		// endregion
 
@@ -198,6 +205,7 @@ namespace catapult { namespace plugins {
 		model::TransactionRegistry m_transactionRegistry;
 		cache::CatapultCacheBuilder m_cacheBuilder;
 
+		std::vector<HandlerHook> m_nonDiagnosticHandlerHooks;
 		std::vector<HandlerHook> m_diagnosticHandlerHooks;
 		std::vector<CounterHook> m_diagnosticCounterHooks;
 		std::vector<StatelessValidatorHook> m_statelessValidatorHooks;

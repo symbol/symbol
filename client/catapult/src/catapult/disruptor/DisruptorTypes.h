@@ -44,6 +44,17 @@ namespace catapult { namespace disruptor {
 		Consumed
 	};
 
+	/// Consumer result severity.
+	/// \note Non-success results mean that processing was aborted.
+	enum class ConsumerResultSeverity : uint8_t {
+		/// Neutral result.
+		Neutral,
+		/// Success result.
+		Success,
+		/// Failure result.
+		Failure
+	};
+
 	/// Result of a consumer operation.
 	struct ConsumerResult {
 	public:
@@ -80,9 +91,9 @@ namespace catapult { namespace disruptor {
 			return {};
 		}
 
-		/// Creates a consumer result indicating that processing has completed.
-		static constexpr ConsumerResult Complete() {
-			return ConsumerResult(CompletionStatus::Consumed, 0);
+		/// Creates a consumer result indicating that processing has completed with the specified \a code.
+		static constexpr ConsumerResult Complete(disruptor::CompletionCode code) {
+			return ConsumerResult(CompletionStatus::Consumed, code);
 		}
 	};
 
@@ -106,11 +117,11 @@ namespace catapult { namespace disruptor {
 		/// Creates a transaction element around \a transaction.
 		explicit FreeTransactionElement(const model::Transaction& transaction)
 				: model::TransactionElement(transaction)
-				, Skip(false)
+				, ResultSeverity(ConsumerResultSeverity::Success)
 		{}
 
-		/// \c true if the element should be skipped.
-		bool Skip;
+		/// Consumer result severity.
+		ConsumerResultSeverity ResultSeverity;
 	};
 
 	/// A container of BlockElement.

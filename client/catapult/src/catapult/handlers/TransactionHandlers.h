@@ -39,7 +39,7 @@ namespace catapult { namespace handlers {
 			const TransactionRangeHandler& transactionRangeHandler);
 
 	/// Prototype for a function that retrieves unconfirmed transactions given a set of short hashes.
-	using UtRetriever = std::function<UnconfirmedTransactions (const utils::ShortHashesSet&)>;
+	using UtRetriever = std::function<UnconfirmedTransactions (BlockFeeMultiplier, const utils::ShortHashesSet&)>;
 
 	/// Registers a pull transactions handler in \a handlers that responds with unconfirmed transactions
 	/// returned by the retriever (\a utRetriever).

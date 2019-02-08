@@ -32,8 +32,9 @@ namespace catapult { namespace timesync {
 
 	namespace {
 		constexpr int64_t Warning_Threshold_Millis = 5'000;
-		constexpr uint64_t Total_Chain_Balance = 1'000'000'000;
+		constexpr auto Total_Chain_Importance = Importance(1'000'000'000);
 		constexpr model::NetworkIdentifier Default_Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 
 		filters::SynchronizationFilter CreateSynchronizationFilter(size_t& numFilterCalls) {
 			return [&numFilterCalls](const auto&, auto) {
@@ -52,7 +53,7 @@ namespace catapult { namespace timesync {
 			delta->addAccount(key, Height(100));
 			auto& accountState = delta->find(key).get();
 			accountState.ImportanceInfo.set(importance, importanceHeight);
-			accountState.Balances.credit(Xem_Id, Amount(1000));
+			accountState.Balances.credit(Harvesting_Mosaic_Id, Amount(1000));
 			cache.commit();
 		}
 
@@ -73,6 +74,10 @@ namespace catapult { namespace timesync {
 			return addresses;
 		}
 
+		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions() {
+			return { Default_Network_Identifier, 234, Amount(1000), MosaicId(1111), Harvesting_Mosaic_Id };
+		}
+
 		enum class KeyType { Address, PublicKey, };
 
 		class TestContext {
@@ -81,8 +86,8 @@ namespace catapult { namespace timesync {
 					const std::vector<std::pair<int64_t, uint64_t>>& offsetsAndRawImportances,
 					const std::vector<filters::SynchronizationFilter>& filters = {},
 					KeyType keyType = KeyType::PublicKey)
-					: m_cache(cache::CacheConfiguration(), { Default_Network_Identifier, 234, Amount(1000) })
-					, m_synchronizer(filters::AggregateSynchronizationFilter(filters), Total_Chain_Balance, Warning_Threshold_Millis) {
+					: m_cache(cache::CacheConfiguration(), CreateAccountStateCacheOptions())
+					, m_synchronizer(filters::AggregateSynchronizationFilter(filters), Total_Chain_Importance, Warning_Threshold_Millis) {
 				std::vector<Importance> importances;
 				for (const auto& offsetAndRawImportance : offsetsAndRawImportances) {
 					m_samples.emplace(test::CreateTimeSyncSampleWithTimeOffset(offsetAndRawImportance.first));
@@ -182,12 +187,10 @@ namespace catapult { namespace timesync {
 			filters::AggregateSynchronizationFilter aggregateFilter({});
 			auto samples = test::CreateTimeSyncSamplesWithIncreasingTimeOffset(1000, numSamples);
 			auto keys = test::ExtractKeys(samples);
-			cache::AccountStateCache cache(cache::CacheConfiguration(), cache::AccountStateCacheTypes::Options{
-				model::NetworkIdentifier::Mijin_Test,
-				234,
-				Amount(1000)});
-			SeedAccountStateCache(cache, keys, std::vector<Importance>(numSamples, Importance(Total_Chain_Balance / numSamples)));
-			TimeSynchronizer synchronizer(aggregateFilter, Total_Chain_Balance, Warning_Threshold_Millis);
+			cache::AccountStateCache cache(cache::CacheConfiguration(), CreateAccountStateCacheOptions());
+			auto singleAccountImportance = Importance(Total_Chain_Importance.unwrap() / numSamples);
+			SeedAccountStateCache(cache, keys, std::vector<Importance>(numSamples, singleAccountImportance));
+			TimeSynchronizer synchronizer(aggregateFilter, Total_Chain_Importance, Warning_Threshold_Millis);
 
 			// Act:
 			auto timeOffset = synchronizer.calculateTimeOffset(*cache.createView(), Height(1), std::move(samples), nodeAge);

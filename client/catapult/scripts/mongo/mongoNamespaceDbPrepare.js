@@ -7,11 +7,5 @@
 	db.namespaces.createIndex({ 'meta.active': -1, 'namespace.owner': 1 });
 	db.namespaces.createIndex({ 'meta.active': -1, 'namespace.ownerAddress': 1 });
 
-	db.createCollection('mosaics');
-	db.mosaics.createIndex({ 'mosaic.namespaceId': 1, 'mosaic.mosaicId': 1, 'meta.index': 1 }, { unique: true });
-	db.mosaics.createIndex({ 'meta.active': -1, 'meta.index': 1, 'mosaic.mosaicId': 1 }, { unique: true });
-	db.mosaics.createIndex({ 'meta.active': -1, 'mosaic.definition.owner': 1 });
-
 	db.namespaces.getIndexes();
-	db.mosaics.getIndexes();
 })();

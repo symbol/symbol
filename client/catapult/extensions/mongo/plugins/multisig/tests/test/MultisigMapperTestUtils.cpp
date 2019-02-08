@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 			for (auto dbIter = dbKeySet.cbegin(); dbKeySet.cend() != dbIter; ++dbIter) {
 				Key key;
 				mongo::mappers::DbBinaryToModelArray(key, dbIter->get_binary());
-				EXPECT_TRUE(keySet.cend() != keySet.find(key)) << "for public key " << utils::HexFormat(key);
+				EXPECT_CONTAINS(keySet, key);
 			}
 		}
 	}

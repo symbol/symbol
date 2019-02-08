@@ -27,6 +27,7 @@
 #include "catapult/model/EntityType.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/nodeps/Conversions.h"
 #include "tests/test/nodeps/Random.h"
 
@@ -76,6 +77,10 @@ namespace catapult { namespace test {
 			return test::GenerateRandomData<Address_Decoded_Size>();
 		}
 
+		static UnresolvedValueType Unresolve(const ValueType& value) {
+			return test::UnresolveXor(value);
+		}
+
 		static auto FromBuffer(const RawBuffer& buffer) {
 			UnresolvedValueType address;
 			std::memcpy(address.data(), buffer.pData, buffer.Size);
@@ -103,6 +108,10 @@ namespace catapult { namespace test {
 			return test::GenerateRandomValue<ValueType>();
 		}
 
+		static UnresolvedValueType Unresolve(const ValueType& value) {
+			return test::UnresolveXor(value);
+		}
+
 		static auto FromBuffer(const RawBuffer& buffer) {
 			return reinterpret_cast<const UnresolvedValueType&>(*buffer.pData);
 		}
@@ -126,6 +135,10 @@ namespace catapult { namespace test {
 
 		static auto RandomValue() {
 			return static_cast<ValueType>(test::RandomByte());
+		}
+
+		static UnresolvedValueType Unresolve(const ValueType& value) {
+			return value;
 		}
 
 		static auto FromBuffer(const RawBuffer& buffer) {
@@ -169,6 +182,29 @@ namespace catapult { namespace test {
 		}
 	};
 
+	/// Creates a vector with \a count unique values.
+	template<typename TPropertyValueTraits>
+	auto CreateRandomUniqueValues(size_t count) {
+		std::set<typename TPropertyValueTraits::ValueType> values;
+		while (values.size() < count)
+			values.insert(TPropertyValueTraits::RandomValue());
+
+		return std::vector<typename TPropertyValueTraits::ValueType>(values.cbegin(), values.cend());
+	}
+
+	/// Creates a value that is not contained in \a values and transforms the value using \a transform.
+	template<typename TPropertyValueTraits, typename TTransform>
+	auto CreateDifferentValue(const std::vector<typename TPropertyValueTraits::ValueType>& values, TTransform transform) {
+		while (true) {
+			auto randomValue = TPropertyValueTraits::RandomValue();
+			auto isFound = std::any_of(values.cbegin(), values.cend(), [&randomValue](const auto& value) {
+				return value == randomValue;
+			});
+			if (!isFound)
+				return transform(randomValue);
+		}
+	}
+
 	/// Populates \a delta with \a key and \a values.
 	template<typename TPropertyValueTraits, typename TOperationTraits = AllowTraits>
 	void PopulateCache(
@@ -194,7 +230,9 @@ namespace catapult { namespace test {
 
 	/// Creates a notification around \a key and \a modification.
 	template<typename TPropertyValueTraits, typename TOperationTraits = AllowTraits>
-	auto CreateNotification(const Key& key, const model::PropertyModification<typename TPropertyValueTraits::ValueType>& modification) {
+	auto CreateNotification(
+			const Key& key,
+			const model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>& modification) {
 		return typename TPropertyValueTraits::NotificationType{
 			key,
 			TOperationTraits::CompletePropertyType(TPropertyValueTraits::PropertyType()),
@@ -206,7 +244,7 @@ namespace catapult { namespace test {
 	template<typename TPropertyValueTraits, typename TOperationTraits = AllowTraits>
 	auto CreateNotificationWithOppositeOperation(
 			const Key& key,
-			const model::PropertyModification<typename TPropertyValueTraits::ValueType>& modification) {
+			const model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>& modification) {
 		return typename TPropertyValueTraits::NotificationType{
 			key,
 			TOperationTraits::OppositeCompletePropertyType(TPropertyValueTraits::PropertyType()),
@@ -217,10 +255,11 @@ namespace catapult { namespace test {
 	/// Creates a notification around \a key and \a modifications.
 	template<typename TPropertyValueTraits, typename TValueType, typename TOperationTraits = AllowTraits>
 	auto CreateNotification(const Key& key, const std::vector<model::PropertyModification<TValueType>>& modifications) {
-		return typename TPropertyValueTraits::NotificationType(
-				key,
-				TOperationTraits::CompletePropertyType(TPropertyValueTraits::PropertyType()),
-				utils::checked_cast<size_t, uint8_t>(modifications.size()),
-				modifications.data());
+		return typename TPropertyValueTraits::NotificationType{
+			key,
+			TOperationTraits::CompletePropertyType(TPropertyValueTraits::PropertyType()),
+			utils::checked_cast<size_t, uint8_t>(modifications.size()),
+			modifications.data()
+		};
 	}
 }}

@@ -20,6 +20,7 @@
 
 #include "Observers.h"
 #include "src/cache/HashLockInfoCache.h"
+#include "src/model/HashLockReceiptType.h"
 #include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
 #include "plugins/txes/lock_shared/src/observers/LockStatusAccountBalanceObserver.h"
 
@@ -32,6 +33,7 @@ namespace catapult { namespace observers {
 		public:
 			using CacheType = cache::HashLockInfoCache;
 			using Notification = observers::Notification;
+			static auto constexpr Receipt_Type = model::Receipt_Type_LockHash_Completed;
 
 			static auto NotificationToKey(const Notification& notification) {
 				return notification.TransactionHash;
@@ -43,7 +45,7 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	DEFINE_OBSERVER(CompletedAggregate, Notification, [](const auto& notification, const auto& context) {
+	DEFINE_OBSERVER(CompletedAggregate, Notification, [](const auto& notification, auto& context) {
 		if (model::Entity_Type_Aggregate_Bonded != notification.TransactionType)
 			return;
 

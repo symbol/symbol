@@ -20,15 +20,12 @@
 
 #pragma once
 #include "Results.h"
-#include "src/model/MosaicNotifications.h"
+#include "src/model/AliasNotifications.h"
 #include "src/model/NamespaceNotifications.h"
-#include "catapult/model/Notifications.h"
 #include "catapult/validators/ValidatorTypes.h"
 #include <unordered_set>
 
 namespace catapult { namespace validators {
-
-	// region RegisterNamespaceTransaction
 
 	/// A validator implementation that applies to namespace notifications and validates that:
 	/// - namespace type is valid
@@ -60,71 +57,26 @@ namespace catapult { namespace validators {
 	/// - the maximum number of children (\a maxChildren) for a root namespace is not exceeded
 	DECLARE_STATEFUL_VALIDATOR(RootNamespaceMaxChildren, model::ChildNamespaceNotification)(uint16_t maxChildren);
 
-	// endregion
+	/// A validator implementation that applies to alias owner notifications and validates that:
+	/// - alias action is valid
+	DECLARE_STATELESS_VALIDATOR(AliasAction, model::AliasOwnerNotification)();
 
-	// region MosaicChangeTransaction
+	/// A validator implementation that applies to alias owner notifications and validates that:
+	/// - namespace exists
+	/// - link does not overwrite existing link
+	/// - unlinked alias exists
+	/// - owner of namespace matches alias owner
+	DECLARE_STATEFUL_VALIDATOR(AliasAvailability, model::AliasOwnerNotification)();
 
-	/// A validator implementation that applies to mosaic change notifications and validates that:
-	/// - change transaction owner has permission to change mosaic
-	DECLARE_STATEFUL_VALIDATOR(MosaicChangeAllowed, model::MosaicChangeNotification)();
+	/// A validator implementation that applies to aliased address notifications and validates that:
+	/// - unlink operation matches existing link
+	DECLARE_STATEFUL_VALIDATOR(UnlinkAliasedAddressConsistency, model::AliasedAddressNotification)();
 
-	// endregion
+	/// A validator implementation that applies to aliased mosaic id notifications and validates that:
+	/// - unlink operation matches existing link
+	DECLARE_STATEFUL_VALIDATOR(UnlinkAliasedMosaicIdConsistency, model::AliasedMosaicIdNotification)();
 
-	// region MosaicDefinitionTransaction
-
-	/// A validator implementation that applies to mosaic name notifications and validates that:
-	/// - mosaic name has a maximum size of \a maxNameSize
-	/// - mosaic name consists only of allowed characters
-	DECLARE_STATELESS_VALIDATOR(MosaicName, model::MosaicNameNotification)(uint8_t maxNameSize);
-
-	/// A validator implementation that applies to mosaic properties notifications and validates that:
-	/// - definition has valid mosaic flags
-	/// - definition has divisibility no greater than \a maxDivisibility
-	/// - mosaic duration has a value not larger than \a maxMosaicDuration
-	/// - optional mosaic properties are sorted, known and not duplicative
-	DECLARE_STATELESS_VALIDATOR(MosaicProperties, model::MosaicPropertiesNotification)(
-			uint8_t maxDivisibility,
-			BlockDuration maxMosaicDuration);
-
-	/// A validator implementation that applies to mosaic definition notifications and validates that:
-	/// - a mosaic is consistent with its purported namespace
-	DECLARE_STATEFUL_VALIDATOR(NamespaceMosaicConsistency, model::MosaicDefinitionNotification)();
-
-	/// A validator implementation that applies to mosaic definition notifications and validates that:
-	/// - the mosaic is available and can be created or modified
-	DECLARE_STATEFUL_VALIDATOR(MosaicAvailability, model::MosaicDefinitionNotification)();
-
-	// endregion
-
-	// region MosaicSupplyChangeTransaction
-
-	/// A validator implementation that applies to mosaic supply change notifications and validates that:
-	/// - direction has a valid value
-	/// - delta amount is non-zero
-	DECLARE_STATELESS_VALIDATOR(MosaicSupplyChange, model::MosaicSupplyChangeNotification)();
-
-	/// A validator implementation that applies to all balance transfer notifications and validates that:
-	/// - transferred mosaic is active and is transferable
-	DECLARE_STATEFUL_VALIDATOR(MosaicTransfer, model::BalanceTransferNotification)();
-
-	/// A validator implementation that applies to mosaic supply change notifications and validates that:
-	/// - the affected mosaic has mutable supply
-	/// - decrease does not cause owner amount to become negative
-	/// - increase does not cause total divisible units to exceed \a maxDivisibleUnits
-	/// \note This validator is dependent on MosaicChangeAllowedValidator.
-	DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, model::MosaicSupplyChangeNotification)(Amount maxDivisibleUnits);
-
-	/// A validator implementation that applies to mosaic supply change notifications and validates that:
-	/// - the account changing the supply does not exceed the maximum number of mosaics (\a maxMosaics) an account is allowed to own
-	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsSupplyChange, model::MosaicSupplyChangeNotification)(uint16_t maxMosaics);
-
-	// endregion
-
-	// region TransferTransaction
-
-	/// A validator implementation that applies to all balance transfer notifications and validates that:
-	/// - the recipient does not exceed the maximum number of mosaics (\a maxMosaics) an account is allowed to own
-	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsBalanceTransfer, model::BalanceTransferNotification)(uint16_t maxMosaics);
-
-	// endregion
+	/// A validator implementation that applies to aliased address notifications and validates that:
+	/// - account is known
+	DECLARE_STATEFUL_VALIDATOR(AddressAlias, model::AliasedAddressNotification)();
 }}

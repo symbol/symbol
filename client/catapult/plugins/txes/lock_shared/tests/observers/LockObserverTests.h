@@ -19,8 +19,10 @@
 **/
 
 #pragma once
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "catapult/observers/ObserverContext.h"
 #include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/plugins/ObserverTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -44,7 +46,7 @@ namespace catapult { namespace observers {
 					[](const auto&, const auto&) {
 					},
 					// Assert: lock info was added to cache
-					[](const auto& lockInfoCacheDelta, const auto& notification) {
+					[](const auto& lockInfoCacheDelta, const auto& notification, auto& observerContext) {
 						EXPECT_EQ(1u, lockInfoCacheDelta.size());
 
 						const auto& key = TTraits::ToKey(notification);
@@ -52,11 +54,24 @@ namespace catapult { namespace observers {
 
 						const auto& lockInfo = lockInfoCacheDelta.find(key).get();
 						EXPECT_EQ(notification.Signer, lockInfo.Account);
-						EXPECT_EQ(notification.Mosaic.MosaicId, lockInfo.MosaicId);
+						EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(lockInfo.MosaicId));
 						EXPECT_EQ(notification.Mosaic.Amount, lockInfo.Amount);
 						EXPECT_EQ(DefaultHeight() + Height(notification.Duration.unwrap()), lockInfo.Height);
 
 						TTraits::AssertAddedLockInfo(lockInfo, notification);
+
+						auto pStatement = observerContext.statementBuilder().build();
+						ASSERT_EQ(1u, pStatement->TransactionStatements.size());
+						const auto& receiptPair = *pStatement->TransactionStatements.find(model::ReceiptSource());
+						ASSERT_EQ(1u, receiptPair.second.size());
+
+						const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
+						ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
+						EXPECT_EQ(1u, receipt.Version);
+						EXPECT_EQ(TTraits::DebitReceiptType(), receipt.Type);
+						EXPECT_EQ(notification.Signer, receipt.Account);
+						EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(receipt.MosaicId));
+						EXPECT_EQ(notification.Mosaic.Amount, receipt.Amount);
 					});
 		}
 
@@ -89,9 +104,12 @@ namespace catapult { namespace observers {
 						auto lockInfo = TTraits::GenerateRandomLockInfo(notification);
 						lockInfoCacheDelta.insert(lockInfo);
 					},
-					[](const auto& lockInfoCacheDelta, const auto&) {
+					[](const auto& lockInfoCacheDelta, const auto&, auto& observerContext) {
 						// Assert: lock info was removed
 						EXPECT_EQ(0u, lockInfoCacheDelta.size());
+
+						auto pStatement = observerContext.statementBuilder().build();
+						ASSERT_EQ(0u, pStatement->TransactionStatements.size());
 					});
 		}
 
@@ -113,7 +131,7 @@ namespace catapult { namespace observers {
 			test::ObserveNotification(*pObserver, notification, context);
 
 			// Assert: check the cache
-			checkCache(lockInfoCacheDelta, notification);
+			checkCache(lockInfoCacheDelta, notification, context);
 		}
 	};
 }}

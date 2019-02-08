@@ -43,7 +43,7 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CannotValidateUnsignedTransaction) {
 		// Arrange:
-		auto pEntity = test::GenerateRandomTransaction(TTraits::Entity_Size);
+		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 
 		// Act + Assert:
 		EXPECT_FALSE(VerifyTransactionSignature(*pEntity));
@@ -51,7 +51,7 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(SignedTransactionValidates) {
 		// Arrange:
-		auto pEntity = test::GenerateRandomTransaction(TTraits::Entity_Size);
+		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 		auto signer = test::GenerateKeyPair();
 		(*pEntity).Signer = signer.publicKey();
 		SignTransaction(signer, *pEntity);
@@ -62,7 +62,7 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CannotValidateAlteredSignedTransaction) {
 		// Arrange:
-		auto pEntity = test::GenerateRandomTransaction(TTraits::Entity_Size);
+		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 		auto signer = test::GenerateKeyPair();
 		(*pEntity).Signer = signer.publicKey();
 		SignTransaction(signer, *pEntity);
@@ -75,7 +75,7 @@ namespace catapult { namespace extensions {
 
 	TRAITS_BASED_TEST(CannotValidateSignedTransactionWithAlteredSignature) {
 		// Arrange:
-		auto pEntity = test::GenerateRandomTransaction(TTraits::Entity_Size);
+		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 		auto signer = test::GenerateKeyPair();
 		(*pEntity).Signer = signer.publicKey();
 		SignTransaction(signer, *pEntity);

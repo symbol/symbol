@@ -52,6 +52,11 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		EXPECT_EQ(NodeSource::Static, nodeInfo.source());
+
+		auto interactions = nodeInfo.interactions(Timestamp());
+		EXPECT_EQ(0u, interactions.NumSuccesses);
+		EXPECT_EQ(0u, interactions.NumFailures);
+
 		EXPECT_EQ(0u, nodeInfo.numConnectionStates());
 		EXPECT_TRUE(nodeInfo.services().empty());
 	}
@@ -67,6 +72,44 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(NodeSource::Dynamic, nodeInfo.source());
 		EXPECT_EQ(0u, nodeInfo.numConnectionStates());
 		EXPECT_TRUE(nodeInfo.services().empty());
+	}
+
+	// endregion
+
+	// region addNodeInteraction
+
+	namespace {
+		template<typename TIncrement>
+		void AssertCanAddInteraction(uint32_t successesPerIncrement, uint32_t failuresPerIncrement, TIncrement increment) {
+			// Arrange:
+			NodeInfo nodeInfo(NodeSource::Static);
+			auto time1 = Timestamp();
+			auto time2 = Timestamp(NodeInteractionsContainer::BucketDuration().millis());
+			auto time3 = Timestamp(NodeInteractionsContainer::InteractionDuration().millis());
+
+			// Act:
+			increment(nodeInfo, time1); // creates bucket 1, active (time1)
+			increment(nodeInfo, time2); // creates bucket 2, active (time1, time2)
+			increment(nodeInfo, time2); // (time1, time2, time2)
+			increment(nodeInfo, time3); // creates bucket 3, prunes bucket 1, active (time2, time2, time3)
+			increment(nodeInfo, time3); // (time2, time2, time3, time3)
+			increment(nodeInfo, time3); // (time2, time2, time3, time3, time3)
+
+			// Assert: if pruning did not occur, these would not all be the same
+			test::AssertNodeInteractions(5 * successesPerIncrement, 5 * failuresPerIncrement, nodeInfo.interactions(time1), "time 1");
+			test::AssertNodeInteractions(5 * successesPerIncrement, 5 * failuresPerIncrement, nodeInfo.interactions(time2), "time 2");
+			test::AssertNodeInteractions(5 * successesPerIncrement, 5 * failuresPerIncrement, nodeInfo.interactions(time3), "time 3");
+		}
+	}
+
+	TEST(TEST_CLASS, CanAddSuccessfulNodeInteractionWithAutoPruning) {
+		// Assert:
+		AssertCanAddInteraction(1, 0, [](auto& nodeInfo, auto timestamp) { nodeInfo.incrementSuccesses(timestamp); });
+	}
+
+	TEST(TEST_CLASS, CanAddFailureNodeInteractionWithAutoPruning) {
+		// Assert:
+		AssertCanAddInteraction(0, 1, [](auto& nodeInfo, auto timestamp) { nodeInfo.incrementFailures(timestamp); });
 	}
 
 	// endregion

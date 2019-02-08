@@ -20,9 +20,11 @@
 
 #include "catapult/extensions/NodeSelector.h"
 #include "catapult/ionet/NodeContainer.h"
+#include "catapult/ionet/NodeInteractionResult.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/other/NodeSelectorTestUtils.h"
 #include "tests/TestHarness.h"
+#include <numeric>
 #include <random>
 
 namespace catapult { namespace extensions {
@@ -34,18 +36,14 @@ namespace catapult { namespace extensions {
 	namespace {
 		constexpr auto Default_Service_Id = ionet::ServiceIdentifier(7);
 
+		ImportanceDescriptor UniformImportanceRetriever(const Key&) {
+			return { Importance(1), Importance(100) };
+		}
+
 		ionet::Node CreateNamedNode(const Key& identityKey, const std::string& name, ionet::NodeRoles roles) {
 			auto metadata = ionet::NodeMetadata(model::NetworkIdentifier::Zero, name);
 			metadata.Roles = roles;
 			return ionet::Node(identityKey, ionet::NodeEndpoint(), metadata);
-		}
-
-		ionet::ConnectionState CreateConnectionStateFromAttempts(uint32_t numSuccesses, uint32_t numFailures) {
-			ionet::ConnectionState connectionState;
-			connectionState.NumAttempts = numSuccesses + numFailures;
-			connectionState.NumSuccesses = numSuccesses;
-			connectionState.NumFailures = numFailures;
-			return connectionState;
 		}
 
 		std::vector<ionet::Node> SeedNodes(
@@ -84,7 +82,7 @@ namespace catapult { namespace extensions {
 
 		void AssertSubset(const ionet::NodeSet& set, const ionet::NodeSet& subset) {
 			for (const auto& node : subset)
-				EXPECT_TRUE(set.cend() != set.find(node)) << "set expected to contain " << node;
+				EXPECT_CONTAINS(set, node);
 		}
 
 		void AssertSubset(const std::vector<ionet::Node>& set, const ionet::NodeSet& subset) {
@@ -93,7 +91,7 @@ namespace catapult { namespace extensions {
 
 		void AssertSubset(const utils::KeySet& set, const utils::KeySet& subset) {
 			for (const auto& key : subset)
-				EXPECT_TRUE(set.cend() != set.find(key)) << "set expected to contain " << utils::HexFormat(key);
+				EXPECT_CONTAINS(set, key);
 		}
 
 		void AssertSubset(const std::vector<ionet::Node>& set, const utils::KeySet& subset) {
@@ -103,39 +101,110 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region CalculateWeight
+	// region CalculateWeight - from interactions
 
 	namespace {
 		uint32_t CalculateWeightFromAttempts(uint32_t numSuccesses, uint32_t numFailures) {
-			return CalculateWeight(CreateConnectionStateFromAttempts(numSuccesses, numFailures));
+			return CalculateWeight(
+					ionet::NodeInteractions(numSuccesses, numFailures),
+					WeightPolicy::Interactions,
+					[]() { return UniformImportanceRetriever(Key()); });
 		}
 	}
 
-	TEST(TEST_CLASS, ConnectionStateWithZeroAttemptsIsGivenMedianWeight) {
+	TEST(TEST_CLASS, NodeInteractionsWithLessThanFourAttemptsAreGivenMedianWeight) {
 		// Act + Assert:
-		EXPECT_EQ(5'000u, CalculateWeightFromAttempts(0, 0));
+		for (auto i = 0u; i <= 3; ++i) {
+			for (auto j = 0u; j <= 3 - i; ++j)
+				EXPECT_EQ(5'000u, CalculateWeightFromAttempts(i, j)) << "NumSuccesses " << i << " NumFailures " << j;
+		}
 	}
 
-	TEST(TEST_CLASS, ConnectionStateWithAllSuccessesIsGivenMaxWeight) {
+	TEST(TEST_CLASS, NodeInteractionsWithAllSuccessesIsGivenMaxWeight) {
 		// Act + Assert:
-		EXPECT_EQ(10'000u, CalculateWeightFromAttempts(1, 0));
+		EXPECT_EQ(10'000u, CalculateWeightFromAttempts(4, 0));
 		EXPECT_EQ(10'000u, CalculateWeightFromAttempts(99, 0));
 		EXPECT_EQ(10'000u, CalculateWeightFromAttempts(10'000, 0));
 	}
 
-	TEST(TEST_CLASS, ConnectionStateWithAllFailuresIsGivenDecreasingWeightAsAttemptsIncrease) {
+	TEST(TEST_CLASS, NodeInteractionsWithAllFailuresIsGivenMinWeight) {
 		// Act + Assert:
-		EXPECT_EQ(1'000u, CalculateWeightFromAttempts(0, 1));
-		EXPECT_EQ(10u, CalculateWeightFromAttempts(0, 99));
-		EXPECT_EQ(1u, CalculateWeightFromAttempts(0, 10'000)); // 1 (> 1'000 / 10'000) is the weight lower bound
+		EXPECT_EQ(500u, CalculateWeightFromAttempts(0, 4));
+		EXPECT_EQ(500u, CalculateWeightFromAttempts(0, 99));
+		EXPECT_EQ(500u, CalculateWeightFromAttempts(0, 10'000));
 	}
 
-	TEST(TEST_CLASS, ConnectionStateWithMixedSuccessesAndFailuresIsGivenWeightEqualToSuccessPercentage) {
+	TEST(TEST_CLASS, NodeInteractionsWithMixedSuccessesAndFailuresIsGivenWeightAccordingToFormula) {
+		// Act + Assert: weight = max(500, Successes * 10'000 / (Successes + 9 * Failures))
+		EXPECT_EQ(1'000u, CalculateWeightFromAttempts(20, 20));
+		EXPECT_EQ(1'000u, CalculateWeightFromAttempts(500, 500));
+		EXPECT_EQ(9'174u, CalculateWeightFromAttempts(100, 1));
+		EXPECT_EQ(5'263u, CalculateWeightFromAttempts(100, 10));
+		EXPECT_EQ(1'818u, CalculateWeightFromAttempts(100, 50));
+		EXPECT_EQ(526u, CalculateWeightFromAttempts(50, 100));
+		EXPECT_EQ(500u, CalculateWeightFromAttempts(10, 100));
+		EXPECT_EQ(500u, CalculateWeightFromAttempts(1, 100));
+	}
+
+	// endregion
+
+	// region CalculateWeight - from importance
+
+	namespace {
+		constexpr Importance Default_Total_Importance(9'000'000'000);
+
+		uint32_t CalculateWeightFromImportance(uint64_t rawImportance) {
+			auto retriever = [rawImportance](const auto&) {
+				return ImportanceDescriptor{ Importance(rawImportance), Default_Total_Importance };
+			};
+			return CalculateWeight(
+					ionet::NodeInteractions(),
+					WeightPolicy::Importance,
+					[retriever]() { return retriever(Key()); });
+		}
+	}
+
+	TEST(TEST_CLASS, NodeWithAtLeastSupernodeImportanceIsGivenMaxWeight) {
 		// Act + Assert:
-		EXPECT_EQ(1'111u, CalculateWeightFromAttempts(11, 88));
-		EXPECT_EQ(7'010u, CalculateWeightFromAttempts(701, 299));
-		EXPECT_EQ(1'230u, CalculateWeightFromAttempts(123, 877));
-		EXPECT_EQ(1u, CalculateWeightFromAttempts(100, 9'999'900)); // 1 (> 100 / 10'000'000 * 10'000) is the weight lower bound
+		for (auto rawImportance : { 3'000'000ull, 5'000'000ull, 1'000'000'000ull, 9'000'000'000ull }) {
+			EXPECT_EQ(10'000u, CalculateWeightFromImportance(rawImportance));
+		}
+	}
+
+	TEST(TEST_CLASS, NodeWithLowImportanceIsGivenMinWeight) {
+		// Act + Assert:
+		for (auto rawImportance : { 150'000ull, 100'000ull, 10'000ull, 1'000ull }) {
+			EXPECT_EQ(500u, CalculateWeightFromImportance(rawImportance));
+		}
+	}
+
+	TEST(TEST_CLASS, NodeIsGivenWeightAccordingToFormula) {
+		// Act + Assert:
+		EXPECT_EQ(750u, CalculateWeightFromImportance(225'000));
+		EXPECT_EQ(1000u, CalculateWeightFromImportance(300'000));
+		EXPECT_EQ(2000u, CalculateWeightFromImportance(600'000));
+		EXPECT_EQ(5000u, CalculateWeightFromImportance(1'500'000));
+		EXPECT_EQ(9000u, CalculateWeightFromImportance(2'700'000));
+	}
+
+	// endregion
+
+	// region WeightPolicyGenerator
+
+	TEST(TEST_CLASS, WeightPolicyGeneratorGeneratedValuesAreAccordinglyBalancedBetweenInteractionsAndImportance) {
+		// Arrange:
+		WeightPolicyGenerator policyGenerator;
+
+		// Act + Assert:
+		test::RunNonDeterministicTest("CalculateWeight algorithm", [&policyGenerator]() {
+			auto numSelectionsViaImportance = 0u;
+			for (auto i = 0u; i < 1000; ++i) {
+				if (WeightPolicy::Importance == policyGenerator())
+					++numSelectionsViaImportance;
+			}
+
+			return 230 < numSelectionsViaImportance && 270 > numSelectionsViaImportance;
+		});
 	}
 
 	// endregion
@@ -209,7 +278,7 @@ namespace catapult { namespace extensions {
 		// Assert:
 		EXPECT_EQ(3u, nodes.size());
 		for (const auto& node : nodes)
-			EXPECT_TRUE(allKeys.cend() != allKeys.find(node.identityKey()));
+			EXPECT_CONTAINS(allKeys, node.identityKey());
 	}
 
 	// endregion
@@ -256,12 +325,13 @@ namespace catapult { namespace extensions {
 					const std::vector<ionet::Node>& nodes,
 					const std::vector<uint64_t>& rawWeights,
 					uint64_t numIterations) {
+				// both interaction stats and importances are chosen in such a way that they yield the same node weight
 				KeyStatistics keyStatistics;
 				ionet::NodeContainer container;
-				SeedNodeContainer(container, nodes, CreateConnectionStates(rawWeights));
+				SeedNodeContainer(container, nodes, CreateInteractionSeeds(rawWeights));
 				NodeSelectionConfiguration config{ Default_Service_Id, ionet::NodeRoles::None, 1, 1234 };
 				for (auto i = 0u; i < numIterations; ++i) {
-					auto nodeSelectionResult = SelectNodes(container, config);
+					auto nodeSelectionResult = SelectNodes(container, config, CreateImportanceRetriever(nodes, rawWeights));
 					const auto& selectedNodes = nodeSelectionResult.AddCandidates;
 					if (1u != selectedNodes.size())
 						CATAPULT_THROW_RUNTIME_ERROR_1("unexpected number of nodes were selected", selectedNodes.size());
@@ -276,30 +346,52 @@ namespace catapult { namespace extensions {
 			static void SeedNodeContainer(
 					ionet::NodeContainer& container,
 					const std::vector<ionet::Node>& nodes,
-					const std::vector<ionet::ConnectionState>& connectionState) {
+					const std::vector<ionet::NodeInteractions>& interactionsSeeds) {
 				auto modifier = container.modifier();
 				for (auto i = 0u; i < nodes.size(); ++i) {
 					modifier.add(nodes[i], ionet::NodeSource::Dynamic);
-					modifier.provisionConnectionState(Default_Service_Id, nodes[i].identityKey()) = connectionState[i];
+					modifier.provisionConnectionState(Default_Service_Id, nodes[i].identityKey());
+					auto& interactions = interactionsSeeds[i];
+					test::AddNodeInteractions(modifier, nodes[i].identityKey(), interactions.NumSuccesses, interactions.NumFailures);
 				}
 			}
 
-			static std::vector<ionet::ConnectionState> CreateConnectionStates(const std::vector<uint64_t>& rawWeights) {
+			static std::vector<ionet::NodeInteractions> CreateInteractionSeeds(const std::vector<uint64_t>& rawWeights) {
 				// weights have to be in the range from 1 to 10'000
-				// NumFailures is deliberately set to 1'000 to make weight calculation easy to follow
+				// the test needs values for NumSuccesses and NumFailures that result in node weight == scaledRawWeight;
+				// after setting node weight and NumSuccesses to scaledRawWeight, NumFailures can be calculated
 				auto maxWeight = *std::max_element(rawWeights.cbegin(), rawWeights.cend());
-				std::vector<ionet::ConnectionState> connectionStates;
+				std::vector<ionet::NodeInteractions> interactionsSeeds;
 				for (auto rawWeight : rawWeights) {
 					auto scaledRawWeight = static_cast<uint32_t>(rawWeight * 10'000ull / maxWeight);
-					ionet::ConnectionState connectionState;
-					connectionState.Age = 0;
-					connectionState.NumAttempts = 10'000;
-					connectionState.NumSuccesses = scaledRawWeight;
-					connectionState.NumFailures = 1'000;
-					connectionStates.push_back(connectionState);
+					ionet::NodeInteractions interactions;
+					interactions.NumSuccesses = scaledRawWeight;
+					interactions.NumFailures = (10'000 - scaledRawWeight) / 9;
+					interactionsSeeds.push_back(interactions);
 				}
 
-				return connectionStates;
+				return interactionsSeeds;
+			}
+
+			static ImportanceRetriever CreateImportanceRetriever(
+					const std::vector<ionet::Node>& nodes,
+					const std::vector<uint64_t>& rawWeights) {
+				// weights have to be in the range from 1 to 10'000
+				// the test needs values for importance and total chain balance that result in
+				// node weight == rawWeight * 10'000ull / maxWeight;
+				// setting totalChainImportance = totalWeight, the importance can be calculated from
+				// rawWeight * 10'000 / maxWeight = importance * 30'000'000 / totalChainImportance
+				auto maxWeight = *std::max_element(rawWeights.cbegin(), rawWeights.cend());
+				auto totalWeight = std::accumulate(rawWeights.cbegin(), rawWeights.cend(), 0ull);
+				std::map<Key, ImportanceDescriptor> map;
+				for (auto i = 0u; i < nodes.size(); ++i) {
+					auto rawImportance = totalWeight * rawWeights[i] / (3'000 * maxWeight);
+					map.emplace(nodes[i].identityKey(), ImportanceDescriptor({ Importance(rawImportance), Importance(totalWeight) }));
+				}
+
+				return [map](const Key& key) {
+					return map.find(key)->second;
+				};
 			}
 		};
 	}
@@ -316,7 +408,7 @@ namespace catapult { namespace extensions {
 		ionet::NodeContainer container;
 
 		// Act:
-		auto result = SelectNodes(container, CreateConfiguration(5, 8));
+		auto result = SelectNodes(container, CreateConfiguration(5, 8), UniformImportanceRetriever);
 
 		// Assert:
 		EXPECT_TRUE(result.AddCandidates.empty());
@@ -330,7 +422,8 @@ namespace catapult { namespace extensions {
 			SetAge(container, SeedNodes(container, 10), age);
 
 			// Act:
-			auto result = SelectNodes(container, { ionet::ServiceIdentifier(2), ionet::NodeRoles::Peer, 5, maxAge });
+			auto selectionConfig = NodeSelectionConfiguration{ ionet::ServiceIdentifier(2), ionet::NodeRoles::Peer, 5, maxAge };
+			auto result = SelectNodes(container, selectionConfig, UniformImportanceRetriever);
 
 			// Assert:
 			EXPECT_TRUE(result.AddCandidates.empty());
@@ -355,7 +448,7 @@ namespace catapult { namespace extensions {
 			SetAge(container, SeedNodes(container, 10), age);
 
 			// Act:
-			auto result = SelectNodes(container, { Default_Service_Id, ionet::NodeRoles::Api, 5, maxAge });
+			auto result = SelectNodes(container, { Default_Service_Id, ionet::NodeRoles::Api, 5, maxAge }, UniformImportanceRetriever);
 
 			// Assert:
 			EXPECT_TRUE(result.AddCandidates.empty());
@@ -380,7 +473,7 @@ namespace catapult { namespace extensions {
 			SetAge(container, SeedNodes(container, 10, ionet::NodeSource::Local), age);
 
 			// Act:
-			auto result = SelectNodes(container, CreateConfiguration(5, maxAge));
+			auto result = SelectNodes(container, CreateConfiguration(5, maxAge), UniformImportanceRetriever);
 
 			// Assert:
 			EXPECT_TRUE(result.AddCandidates.empty());
@@ -407,7 +500,7 @@ namespace catapult { namespace extensions {
 			SetBanAge(container, nodes, 1);
 
 			// Act:
-			auto result = SelectNodes(container, { Default_Service_Id, ionet::NodeRoles::Peer, 5, maxAge });
+			auto result = SelectNodes(container, { Default_Service_Id, ionet::NodeRoles::Peer, 5, maxAge }, UniformImportanceRetriever);
 
 			// Assert:
 			EXPECT_TRUE(result.AddCandidates.empty());
@@ -446,7 +539,7 @@ namespace catapult { namespace extensions {
 			prepare(container, nodes);
 
 			// Act:
-			auto result = SelectNodes(container, CreateConfiguration(maxConnections, 8));
+			auto result = SelectNodes(container, CreateConfiguration(maxConnections, 8), UniformImportanceRetriever);
 
 			// Assert:
 			EXPECT_EQ(numExpectedAddCandidates, result.AddCandidates.size());
@@ -501,7 +594,7 @@ namespace catapult { namespace extensions {
 		auto nodes = SeedNodes(container, 10, ionet::NodeSource::Dynamic, ionet::NodeRoles::Api | ionet::NodeRoles::Peer);
 
 		// Act:
-		auto result = SelectNodes(container, CreateConfiguration(5, 8));
+		auto result = SelectNodes(container, CreateConfiguration(5, 8), UniformImportanceRetriever);
 
 		// Assert: nodes were selected even though they support BOTH Api and Peer roles
 		EXPECT_EQ(5u, result.AddCandidates.size());
@@ -516,18 +609,20 @@ namespace catapult { namespace extensions {
 	namespace {
 		struct NodeInfos {
 		public:
-			NodeInfos(const ionet::ConnectionState& connectionState1, const ionet::ConnectionState& connectionState2)
-					: ConnectionState1(connectionState1)
-					, ConnectionState2(connectionState2)
+			NodeInfos(const ionet::NodeInteractions& interactions1, const ionet::NodeInteractions& interactions2)
+					: Interactions1(interactions1)
+					, Interactions2(interactions2)
 					, Source1(ionet::NodeSource::Dynamic)
 					, Source2(ionet::NodeSource::Dynamic)
 			{}
 
 		public:
-			const ionet::ConnectionState& ConnectionState1;
-			const ionet::ConnectionState& ConnectionState2;
+			const ionet::NodeInteractions& Interactions1;
+			const ionet::NodeInteractions& Interactions2;
 			ionet::NodeSource Source1;
 			ionet::NodeSource Source2;
+			ionet::ConnectionState ConnectionState1;
+			ionet::ConnectionState ConnectionState2;
 		};
 
 		std::pair<uint32_t, uint32_t> RunManyPairwiseSelections(const NodeInfos& nodeInfos) {
@@ -539,12 +634,16 @@ namespace catapult { namespace extensions {
 				auto modifier = container.modifier();
 				modifier.provisionConnectionState(Default_Service_Id, node1.identityKey()) = nodeInfos.ConnectionState1;
 				modifier.provisionConnectionState(Default_Service_Id, node2.identityKey()) = nodeInfos.ConnectionState2;
+				auto& interactions1 = nodeInfos.Interactions1;
+				test::AddNodeInteractions(modifier, node1.identityKey(), interactions1.NumSuccesses, interactions1.NumFailures);
+				auto& interactions2 = nodeInfos.Interactions2;
+				test::AddNodeInteractions(modifier, node2.identityKey(), interactions2.NumSuccesses, interactions2.NumFailures);
 			}
 
 			// Act: run a lot of selections
 			std::pair<uint32_t, uint32_t> counts(0, 0);
 			for (auto i = 0u; i < 1000; ++i) {
-				auto result = SelectNodes(container, CreateConfiguration(1, 8));
+				auto result = SelectNodes(container, CreateConfiguration(1, 8), UniformImportanceRetriever);
 				if (1 != result.AddCandidates.size())
 					CATAPULT_THROW_RUNTIME_ERROR("unexpected number of candidate nodes returned");
 
@@ -579,31 +678,31 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, NewNodeHasLowerPriorityThanNodeWithSuccesses) {
 		// Arrange:
-		auto connectionState1 = ionet::ConnectionState();
-		auto connectionState2 = CreateConnectionStateFromAttempts(5, 0);
+		auto interactions1 = ionet::NodeInteractions();
+		auto interactions2 = ionet::NodeInteractions(5, 0);
 
 		// Assert:
-		RunNonDeterministicPairwiseSelectionTest(NodeInfos(connectionState1, connectionState2), [](const auto& counts) {
+		RunNonDeterministicPairwiseSelectionTest(NodeInfos(interactions1, interactions2), [](const auto& counts) {
 			return counts.first < counts.second;
 		});
 	}
 
 	TEST(TEST_CLASS, NewNodeHasHigherPriorityThanNodeWithFailures) {
 		// Arrange:
-		auto connectionState1 = ionet::ConnectionState();
-		auto connectionState2 = CreateConnectionStateFromAttempts(0, 5);
+		auto interactions1 = ionet::NodeInteractions();
+		auto interactions2 = ionet::NodeInteractions(0, 5);
 
 		// Assert:
-		RunNonDeterministicPairwiseSelectionTest(NodeInfos(connectionState1, connectionState2), [](const auto& counts) {
+		RunNonDeterministicPairwiseSelectionTest(NodeInfos(interactions1, interactions2), [](const auto& counts) {
 			return counts.first > counts.second;
 		});
 	}
 
 	TEST(TEST_CLASS, StaticNodeHasHigherPriorityThanDynamicNode) {
 		// Arrange:
-		auto connectionState1 = ionet::ConnectionState();
-		auto connectionState2 = ionet::ConnectionState();
-		NodeInfos nodeInfos(connectionState1, connectionState2);
+		auto interactions1 = ionet::NodeInteractions();
+		auto interactions2 = ionet::NodeInteractions();
+		NodeInfos nodeInfos(interactions1, interactions2);
 		nodeInfos.Source1 = ionet::NodeSource::Static;
 		nodeInfos.Source2 = ionet::NodeSource::Dynamic;
 
@@ -615,9 +714,9 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, DynamicNodeWithLargeWeightHasHigherPriorityThanStaticNodeWithSmallWeight) {
 		// Arrange: weights 4000 / 9500
-		auto connectionState1 = CreateConnectionStateFromAttempts(1, 4);
-		auto connectionState2 = CreateConnectionStateFromAttempts(95, 5);
-		NodeInfos nodeInfos(connectionState1, connectionState2);
+		auto interactions1 = ionet::NodeInteractions(1, 4);
+		auto interactions2 = ionet::NodeInteractions(95, 5);
+		NodeInfos nodeInfos(interactions1, interactions2);
 		nodeInfos.Source1 = ionet::NodeSource::Static;
 		nodeInfos.Source2 = ionet::NodeSource::Dynamic;
 
@@ -629,13 +728,12 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, BannedStaticNodeHasLowerPriorityThanNonBannedStaticNode) {
 		// Arrange:
-		auto connectionState1 = ionet::ConnectionState();
-		connectionState1.BanAge = 0;
-		auto connectionState2 = ionet::ConnectionState();
-		connectionState2.BanAge = 1;
-		NodeInfos nodeInfos(connectionState1, connectionState2);
+		auto interactions1 = ionet::NodeInteractions();
+		auto interactions2 = ionet::NodeInteractions();
+		NodeInfos nodeInfos(interactions1, interactions2);
 		nodeInfos.Source1 = ionet::NodeSource::Static;
 		nodeInfos.Source2 = ionet::NodeSource::Static;
+		nodeInfos.ConnectionState2.BanAge = 1;
 
 		// Assert:
 		RunNonDeterministicPairwiseSelectionTest(nodeInfos, [](const auto& counts) {
@@ -645,13 +743,12 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, BannedDynamicNodeHasLowerPriorityThanNonBannedDynamicNode) {
 		// Arrange:
-		auto connectionState1 = ionet::ConnectionState();
-		connectionState1.BanAge = 0;
-		auto connectionState2 = ionet::ConnectionState();
-		connectionState2.BanAge = 1;
-		NodeInfos nodeInfos(connectionState1, connectionState2);
+		auto interactions1 = ionet::NodeInteractions();
+		auto interactions2 = ionet::NodeInteractions();
+		NodeInfos nodeInfos(interactions1, interactions2);
 		nodeInfos.Source1 = ionet::NodeSource::Dynamic;
 		nodeInfos.Source2 = ionet::NodeSource::Dynamic;
+		nodeInfos.ConnectionState2.BanAge = 1;
 
 		// Assert:
 		RunNonDeterministicPairwiseSelectionTest(nodeInfos, [](const auto& counts) {
@@ -671,7 +768,7 @@ namespace catapult { namespace extensions {
 			SetAge(container, SeedNodes(container, numActiveNodes), 7);
 
 			// Act:
-			auto result = SelectNodes(container, CreateConfiguration(maxConnections, 8));
+			auto result = SelectNodes(container, CreateConfiguration(maxConnections, 8), UniformImportanceRetriever);
 
 			// Assert:
 			EXPECT_TRUE(result.AddCandidates.empty());
@@ -699,7 +796,7 @@ namespace catapult { namespace extensions {
 				container.modifier().provisionConnectionState(Default_Service_Id, node.identityKey()).Age = 8 + i++;
 
 			// Act:
-			auto result = SelectNodes(container, CreateConfiguration(maxConnections, 8));
+			auto result = SelectNodes(container, CreateConfiguration(maxConnections, 8), UniformImportanceRetriever);
 
 			// Assert:
 			EXPECT_TRUE(result.AddCandidates.empty());
@@ -739,7 +836,7 @@ namespace catapult { namespace extensions {
 				container.modifier().provisionConnectionState(Default_Service_Id, node.identityKey()).Age = 8 + i++;
 
 			// Act:
-			auto result = SelectNodes(container, CreateConfiguration(maxConnections, 8));
+			auto result = SelectNodes(container, CreateConfiguration(maxConnections, 8), UniformImportanceRetriever);
 
 			// Assert: one candidate is added
 			EXPECT_EQ(1u, result.AddCandidates.size());
@@ -774,7 +871,7 @@ namespace catapult { namespace extensions {
 		ionet::NodeContainer container;
 
 		// Act:
-		auto removeCandidates = SelectNodesForRemoval(container, CreateAgingConfiguration(5, 8));
+		auto removeCandidates = SelectNodesForRemoval(container, CreateAgingConfiguration(5, 8), UniformImportanceRetriever);
 
 		// Assert:
 		EXPECT_TRUE(removeCandidates.empty());
@@ -786,7 +883,7 @@ namespace catapult { namespace extensions {
 		SetAge(container, SeedNodes(container, 10), 10);
 
 		// Act:
-		auto removeCandidates = SelectNodesForRemoval(container, { ionet::ServiceIdentifier(2), 5, 8 });
+		auto removeCandidates = SelectNodesForRemoval(container, { ionet::ServiceIdentifier(2), 5, 8 }, UniformImportanceRetriever);
 
 		// Assert:
 		EXPECT_TRUE(removeCandidates.empty());
@@ -798,7 +895,7 @@ namespace catapult { namespace extensions {
 		SetAge(container, SeedNodes(container, 10, ionet::NodeSource::Local), 10);
 
 		// Act:
-		auto removeCandidates = SelectNodesForRemoval(container, CreateAgingConfiguration(5, 8));
+		auto removeCandidates = SelectNodesForRemoval(container, CreateAgingConfiguration(5, 8), UniformImportanceRetriever);
 
 		// Assert:
 		EXPECT_TRUE(removeCandidates.empty());
@@ -812,7 +909,7 @@ namespace catapult { namespace extensions {
 		SetBanAge(container, nodes, 1);
 
 		// Act:
-		auto removeCandidates = SelectNodesForRemoval(container, CreateAgingConfiguration(5, 8));
+		auto removeCandidates = SelectNodesForRemoval(container, CreateAgingConfiguration(5, 8), UniformImportanceRetriever);
 
 		// Assert:
 		EXPECT_TRUE(removeCandidates.empty());
@@ -826,7 +923,8 @@ namespace catapult { namespace extensions {
 			SetAge(container, SeedNodes(container, numActiveNodes), 7);
 
 			// Act:
-			auto removeCandidates = SelectNodesForRemoval(container, CreateAgingConfiguration(maxConnections, 8));
+			auto agingConfig = CreateAgingConfiguration(maxConnections, 8);
+			auto removeCandidates = SelectNodesForRemoval(container, agingConfig, UniformImportanceRetriever);
 
 			// Assert:
 			EXPECT_TRUE(removeCandidates.empty());
@@ -857,7 +955,8 @@ namespace catapult { namespace extensions {
 				container.modifier().provisionConnectionState(Default_Service_Id, node.identityKey()).Age = 8 + i++;
 
 			// Act:
-			auto removeCandidates = SelectNodesForRemoval(container, CreateAgingConfiguration(maxConnections, 8));
+			auto agingConfig = CreateAgingConfiguration(maxConnections, 8);
+			auto removeCandidates = SelectNodesForRemoval(container, agingConfig, UniformImportanceRetriever);
 
 			// Assert:
 			EXPECT_EQ(numExpectedRemoveCandidates, removeCandidates.size());

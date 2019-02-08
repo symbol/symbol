@@ -110,8 +110,7 @@ namespace catapult { namespace api {
 				for (auto i = 0u; i < hashes.size(); ++i) {
 					auto pExpectedHash = response.Data() + i * sizeof(Hash256);
 					auto pActualHash = iter->data();
-					EXPECT_TRUE(0 == std::memcmp(pExpectedHash, pActualHash, sizeof(Hash256)))
-							<< "comparing hashes at " << i;
+					EXPECT_EQ_MEMORY(pExpectedHash, pActualHash, sizeof(Hash256)) << "comparing hashes at " << i;
 					++iter;
 				}
 			}
@@ -156,7 +155,7 @@ namespace catapult { namespace api {
 				ASSERT_EQ(response.Size - sizeof(ionet::Packet), pBlock->Size);
 				ASSERT_EQ(sizeof(model::Block), pBlock->Size);
 				EXPECT_EQ(TInvoker::RequestHeight(), pBlock->Height);
-				EXPECT_TRUE(0 == std::memcmp(response.Data(), pBlock.get(), pBlock->Size));
+				EXPECT_EQ_MEMORY(response.Data(), pBlock.get(), pBlock->Size);
 			}
 		};
 
@@ -210,14 +209,18 @@ namespace catapult { namespace api {
 		};
 
 		struct RemoteChainApiBlocklessTraits {
-			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return CreateRemoteChainApiWithoutRegistry(*pPacketIo);
+			static auto Create(ionet::PacketIo& packetIo) {
+				return CreateRemoteChainApiWithoutRegistry(packetIo);
 			}
 		};
 
 		struct RemoteChainApiTraits {
-			static auto Create(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
-				return test::CreateLifetimeExtendedApi(CreateRemoteChainApi, *pPacketIo, model::TransactionRegistry());
+			static auto Create(ionet::PacketIo& packetIo, const Key& remotePublicKey) {
+				return test::CreateLifetimeExtendedApi(CreateRemoteChainApi, packetIo, remotePublicKey, model::TransactionRegistry());
+			}
+
+			static auto Create(ionet::PacketIo& packetIo) {
+				return Create(packetIo, Key());
 			}
 		};
 	}
@@ -225,6 +228,7 @@ namespace catapult { namespace api {
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteChainApiBlockless, ChainInfo)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteChainApiBlockless, HashesFrom)
 
+	DEFINE_REMOTE_API_TESTS(RemoteChainApi)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteChainApi, ChainInfo)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteChainApi, HashesFrom)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteChainApi, BlockLast)

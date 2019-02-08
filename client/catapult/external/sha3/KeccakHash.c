@@ -1,12 +1,10 @@
 /*
-Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni,
-Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer, hereby
-denoted as "the implementer".
+Implementation by the Keccak Team, namely, Guido Bertoni, Joan Daemen,
+Michaël Peeters, Gilles Van Assche and Ronny Van Keer,
+hereby denoted as "the implementer".
 
-For more information, feedback or questions, please refer to our websites:
-http://keccak.noekeon.org/
-http://keyak.noekeon.org/
-http://ketje.noekeon.org/
+For more information, feedback or questions, please refer to our website:
+https://keccak.team/
 
 To the extent possible under law, the implementer has waived all copyright
 and related or neighboring rights to the source code in this file.
@@ -44,7 +42,7 @@ HashReturn Keccak_HashUpdate(Keccak_HashInstance *instance, const BitSequence *d
             /* The last partial byte is assumed to be aligned on the least significant bits */
             unsigned char lastByte = data[databitlen/8];
             /* Concatenate the last few bits provided here with those of the suffix */
-            unsigned short delimitedLastBytes = (unsigned short)((unsigned short)lastByte | ((unsigned short)instance->delimitedSuffix << (databitlen % 8)));
+            unsigned short delimitedLastBytes = (unsigned short)((unsigned short)(lastByte & ((1 << (databitlen % 8)) - 1)) | ((unsigned short)instance->delimitedSuffix << (databitlen % 8)));
             if ((delimitedLastBytes & 0xFF00) == 0x0000) {
                 instance->delimitedSuffix = delimitedLastBytes & 0xFF;
             }

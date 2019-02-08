@@ -19,6 +19,7 @@
 **/
 
 #include "FilechainTestUtils.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
@@ -83,7 +84,7 @@ namespace catapult { namespace test {
 					sender.publicKey(),
 					extensions::CopyToUnresolvedAddress(recipientAddress),
 					amount);
-			pTransaction->Fee = Amount(0);
+			pTransaction->MaxFee = Amount(0);
 			transactions.push_back(std::move(pTransaction));
 
 			blockWithAttributes.SenderIds.push_back(senderIndex);

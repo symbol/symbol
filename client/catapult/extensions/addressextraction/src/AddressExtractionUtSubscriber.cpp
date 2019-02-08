@@ -40,7 +40,7 @@ namespace catapult { namespace addressextraction {
 					auto addresses = model::ExtractAddresses(*transactionInfo.pEntity, *m_pPublisher);
 
 					auto& mutableTransactionInfo = const_cast<model::TransactionInfo&>(transactionInfo);
-					mutableTransactionInfo.OptionalExtractedAddresses = std::make_shared<model::AddressSet>(std::move(addresses));
+					mutableTransactionInfo.OptionalExtractedAddresses = std::make_shared<decltype(addresses)>(std::move(addresses));
 				}
 			}
 

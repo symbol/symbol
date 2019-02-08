@@ -54,7 +54,7 @@ namespace catapult { namespace consumers {
 				m_newBlockSink(pNewBlock);
 
 				// 2. indicate input was consumed and processing is complete
-				return Complete();
+				return CompleteSuccess();
 			}
 
 		private:

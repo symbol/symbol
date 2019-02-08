@@ -19,24 +19,28 @@
 **/
 
 #include "CoreSystem.h"
-#include "handlers/CoreDiagnosticHandlers.h"
 #include "observers/Observers.h"
 #include "validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/AccountStateCacheStorage.h"
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
 #include "catapult/cache_core/BlockDifficultyCacheStorage.h"
-#include "catapult/handlers/CacheEntryInfosProducerFactory.h"
-#include "catapult/handlers/StatePathHandlerFactory.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/observers/ObserverUtils.h"
+#include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
 
 	namespace {
 		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockChainConfiguration& config) {
-			return { config.Network.Identifier, config.ImportanceGrouping, config.MinHarvesterBalance };
+			return {
+				config.Network.Identifier,
+				config.ImportanceGrouping,
+				config.MinHarvesterBalance,
+				config.CurrencyMosaicId,
+				config.HarvestingMosaicId
+			};
 		}
 
 		void AddAccountStateCache(PluginManager& manager, const model::BlockChainConfiguration& config) {
@@ -46,14 +50,8 @@ namespace catapult { namespace plugins {
 			auto cacheOptions = CreateAccountStateCacheOptions(config);
 			manager.addCacheSupport(std::make_unique<AccountStateCacheSubCachePlugin>(cacheConfig, cacheOptions));
 
-			manager.addDiagnosticHandlerHook([](auto& handlers, const CatapultCache& cache) {
-				handlers::RegisterAccountInfosHandler(
-						handlers,
-						handlers::CacheEntryInfosProducerFactory<AccountStateCacheDescriptor>::Create(cache.sub<AccountStateCache>()));
-
-				using PacketType = handlers::StatePathRequestPacket<ionet::PacketType::Account_State_Path, Address>;
-				handlers::RegisterStatePathHandler<PacketType>(handlers, cache.sub<AccountStateCache>());
-			});
+			using CacheHandlers = CacheHandlers<cache::AccountStateCacheDescriptor>;
+			CacheHandlers::Register<model::FacilityCode::Core>(manager);
 
 			manager.addDiagnosticCounterHook([](auto& counters, const CatapultCache& cache) {
 				counters.emplace_back(utils::DiagnosticCounterId("ACNTST C"), [&cache]() {
@@ -88,12 +86,14 @@ namespace catapult { namespace plugins {
 		manager.addStatelessValidatorHook([&config](auto& builder) {
 			builder
 				.add(validators::CreateMaxTransactionsValidator(config.MaxTransactionsPerBlock))
-				.add(validators::CreateAddressValidator(config.Network.Identifier))
-				.add(validators::CreateNetworkValidator(config.Network.Identifier));
+				.add(validators::CreateNetworkValidator(config.Network.Identifier))
+				.add(validators::CreateEntityVersionValidator())
+				.add(validators::CreateTransactionFeeValidator());
 		});
 
 		manager.addStatefulValidatorHook([&config](auto& builder) {
 			builder
+				.add(validators::CreateAddressValidator(config.Network.Identifier))
 				.add(validators::CreateDeadlineValidator(config.MaxTransactionLifetime))
 				.add(validators::CreateNemesisSinkValidator())
 				.add(validators::CreateEligibleHarvesterValidator(config.MinHarvesterBalance))
@@ -101,13 +101,15 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateBalanceTransferValidator());
 		});
 
-		manager.addObserverHook([](auto& builder) {
+		manager.addObserverHook([&config](auto& builder) {
 			builder
+				.add(observers::CreateSourceChangeObserver())
 				.add(observers::CreateAccountAddressObserver())
 				.add(observers::CreateAccountPublicKeyObserver())
 				.add(observers::CreateBalanceDebitObserver())
 				.add(observers::CreateBalanceTransferObserver())
-				.add(observers::CreateHarvestFeeObserver());
+				.add(observers::CreateHarvestFeeObserver(config.CurrencyMosaicId))
+				.add(observers::CreateTotalTransactionsObserver());
 		});
 
 		manager.addTransientObserverHook([&config](auto& builder) {

@@ -49,9 +49,15 @@ namespace catapult { namespace consumers {
 				// 3. filter transactions
 				//    - the input elements are still valid even though the backing range has been detached
 				auto i = 0u;
+				auto numSuccesses = 0u;
+				auto numFailures = 0u;
 				for (const auto& element : input.transactions()) {
-					if (!element.Skip)
+					if (disruptor::ConsumerResultSeverity::Success == element.ResultSeverity) {
 						transactionInfos.emplace_back(model::MakeTransactionInfo(transactions[i], element));
+						++numSuccesses;
+					} else if (disruptor::ConsumerResultSeverity::Failure == element.ResultSeverity) {
+						++numFailures;
+					}
 
 					++i;
 				}
@@ -60,7 +66,9 @@ namespace catapult { namespace consumers {
 				m_newTransactionsSink(std::move(transactionInfos));
 
 				// 5. indicate input was consumed and processing is complete
-				return Complete();
+				return numFailures > 0
+						? Abort(validators::ValidationResult::Failure)
+						: numSuccesses > 0 ? CompleteSuccess() : CompleteNeutral();
 			}
 
 		private:

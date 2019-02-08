@@ -31,21 +31,20 @@ namespace catapult { namespace builders {
 		using Transaction = model::ModifyMultisigAccountTransaction;
 		using EmbeddedTransaction = model::EmbeddedModifyMultisigAccountTransaction;
 
+	public:
 		/// Creates a modify multisig account builder for building a modify multisig account transaction from \a signer
 		/// for the network specified by \a networkIdentifier.
 		ModifyMultisigAccountBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		/// Sets the relative change of the minimal number of cosignatories (\a minRemovalDelta)
-		/// required when removing an account.
+		/// Sets the relative change of the minimal number of cosignatories required when removing an account to \a minRemovalDelta.
 		void setMinRemovalDelta(int8_t minRemovalDelta);
 
-		/// Sets the relative change of the minimal number of cosignatories (\a minApprovalDelta)
-		/// required when approving a transaction.
+		/// Sets the relative change of the minimal number of cosignatories required when approving a transaction to \a minApprovalDelta.
 		void setMinApprovalDelta(int8_t minApprovalDelta);
 
-		/// Adds a cosignatory modification around \a type and \a key.
-		void addCosignatoryModification(model::CosignatoryModificationType type, const Key& key);
+		/// Adds \a modification to attached cosignatory modifications.
+		void addModification(const model::CosignatoryModification& modification);
 
 	public:
 		/// Builds a new modify multisig account transaction.

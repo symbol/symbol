@@ -49,7 +49,7 @@ namespace catapult { namespace ionet {
 		using StatsCallback = consumer<const Stats&>;
 
 	public:
-		virtual ~PacketSocket() {}
+		virtual ~PacketSocket() = default;
 
 	public:
 		/// Retrieves statistics about this socket and passes them to \a callback.

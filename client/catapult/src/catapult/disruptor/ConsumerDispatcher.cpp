@@ -21,7 +21,6 @@
 #include "ConsumerDispatcher.h"
 #include "ConsumerEntry.h"
 #include "catapult/thread/ThreadInfo.h"
-#include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Functional.h"
 #include <thread>
 
@@ -69,25 +68,17 @@ namespace catapult { namespace disruptor {
 			m_threads.create_thread([pThis = this, consumerEntry, consumer]() mutable {
 				thread::SetThreadName(std::to_string(consumerEntry.level()) + " " + pThis->name());
 				while (pThis->m_keepRunning) {
-					try {
-						auto* pDisruptorElement = pThis->tryNext(consumerEntry);
-						if (!pDisruptorElement) {
-							std::this_thread::sleep_for(std::chrono::milliseconds(10));
-							continue;
-						}
-
-						auto result = consumer(pDisruptorElement->input());
-						if (CompletionStatus::Aborted == result.CompletionStatus)
-							pThis->m_disruptor.markSkipped(consumerEntry.position(), result.CompletionCode);
-
-						pThis->advance(consumerEntry);
-					} catch (...) {
-						CATAPULT_LOG(fatal)
-								<< "consumer at level " << consumerEntry.level() << " threw exception: "
-								<< EXCEPTION_DIAGNOSTIC_MESSAGE();
-						utils::CatapultLogFlush();
-						throw;
+					auto* pDisruptorElement = pThis->tryNext(consumerEntry);
+					if (!pDisruptorElement) {
+						std::this_thread::sleep_for(std::chrono::milliseconds(10));
+						continue;
 					}
+
+					auto result = consumer(pDisruptorElement->input());
+					if (CompletionStatus::Aborted == result.CompletionStatus)
+						pThis->m_disruptor.markSkipped(consumerEntry.position(), result.CompletionCode);
+
+					pThis->advance(consumerEntry);
 				}
 			});
 		}

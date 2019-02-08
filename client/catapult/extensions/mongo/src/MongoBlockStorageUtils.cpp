@@ -35,7 +35,7 @@ namespace catapult { namespace mongo {
 		auto nemesisBlock = *pSourceNemesisBlock;
 		for (auto& transactionElement : nemesisBlock.Transactions) {
 			auto addresses = model::ExtractAddresses(transactionElement.Transaction, notificationPublisher);
-			transactionElement.OptionalExtractedAddresses = std::make_shared<model::AddressSet>(std::move(addresses));
+			transactionElement.OptionalExtractedAddresses = std::make_shared<decltype(addresses)>(std::move(addresses));
 		}
 
 		destinationStorage.saveBlock(nemesisBlock);

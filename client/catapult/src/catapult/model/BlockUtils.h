@@ -49,7 +49,23 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region create
+	// region fees
+
+	/// Information about transactions stored in a block.
+	struct BlockTransactionsInfo {
+		/// Number of transactions.
+		uint32_t Count = 0;
+
+		/// Total fee of all transactions.
+		Amount TotalFee;
+	};
+
+	/// Calculates information about transactions stored in \a block.
+	BlockTransactionsInfo CalculateBlockTransactionsInfo(const Block& block);
+
+	// endregion
+
+	// region create block
 
 	/// Container of transactions.
 	using Transactions = std::vector<std::shared_ptr<const Transaction>>;
@@ -58,8 +74,8 @@ namespace catapult { namespace model {
 	struct PreviousBlockContext {
 		/// Creates an empty context.
 		PreviousBlockContext()
-				: BlockHash{}
-				, GenerationHash{}
+				: BlockHash()
+				, GenerationHash()
 				, BlockHeight(0)
 				, Timestamp(0)
 		{}

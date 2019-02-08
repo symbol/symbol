@@ -37,7 +37,30 @@ namespace catapult { namespace state {
 		// in order for this map to behave like std::unordered_map, the element type needs to be a pair, not model::Mosaic
 		using Mosaic = std::pair<const MosaicId, Amount>;
 		using MutableMosaic = std::pair<MosaicId, Amount>;
-		using MosaicArray = std::array<MutableMosaic, Array_Size>;
+
+		// gcc strict aliasing workaround because pair<X, Y> and pair<const X, Y> are two different types
+		struct MosaicUnion {
+		public:
+			MosaicUnion() : Mosaic()
+			{}
+
+			MosaicUnion(MosaicUnion&& rhs) : Mosaic(std::move(rhs.Mosaic))
+			{}
+
+		public:
+			MosaicUnion& operator=(MosaicUnion&& rhs) {
+				Mosaic = std::move(rhs.Mosaic);
+				return *this;
+			}
+
+		public:
+			union {
+				MutableMosaic Mosaic;
+				CompactMosaicMap::Mosaic ConstMosaic;
+			};
+		};
+
+		using MosaicArray = std::array<MosaicUnion, Array_Size>;
 		using MosaicMap = std::map<MosaicId, Amount>;
 
 	private:
@@ -49,7 +72,7 @@ namespace catapult { namespace state {
 
 		struct FirstLevelStorage {
 		public:
-			MutableMosaic Value;
+			MosaicUnion Value;
 			std::unique_ptr<SecondLevelStorage> pNextStorage;
 
 		public:
@@ -205,6 +228,9 @@ namespace catapult { namespace state {
 		/// Erases the mosaic with \a id.
 		void erase(MosaicId id);
 
+		/// Optimizes access of the mosaic with \a id.
+		void optimize(MosaicId id);
+
 	private:
 		bool find(MosaicId id, MosaicLocation& location) const;
 
@@ -218,5 +244,6 @@ namespace catapult { namespace state {
 
 	private:
 		FirstLevelStorage m_storage;
+		MosaicId m_optimizedMosaicId;
 	};
 }}

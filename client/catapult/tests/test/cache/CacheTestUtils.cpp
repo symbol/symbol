@@ -33,6 +33,16 @@ namespace catapult { namespace test {
 		Key GetSentinelCachePublicKey() {
 			return { { 0xFF, 0xFF, 0xFF, 0xFF } };
 		}
+
+		cache::AccountStateCacheTypes::Options CreateAccountStateCacheOptions(const model::BlockChainConfiguration& config) {
+			return {
+				config.Network.Identifier,
+				config.ImportanceGrouping,
+				config.MinHarvesterBalance,
+				config.CurrencyMosaicId,
+				config.HarvestingMosaicId
+			};
+		}
 	}
 
 	// region CoreSystemCacheFactory
@@ -57,7 +67,7 @@ namespace catapult { namespace test {
 
 		subCaches[AccountStateCache::Id] = MakeSubCachePluginWithCacheConfiguration<AccountStateCache, AccountStateCacheStorage>(
 				cacheConfig,
-				AccountStateCacheTypes::Options{ config.Network.Identifier, config.ImportanceGrouping, config.MinHarvesterBalance });
+				CreateAccountStateCacheOptions(config));
 
 		subCaches[BlockDifficultyCache::Id] = MakeConfigurationFreeSubCachePlugin<BlockDifficultyCache, BlockDifficultyCacheStorage>(
 				CalculateDifficultyHistorySize(config));
@@ -82,11 +92,22 @@ namespace catapult { namespace test {
 	}
 
 	cache::CatapultCache CreateCatapultCacheWithMarkerAccount() {
+		return CreateCatapultCacheWithMarkerAccount(Height(0));
+	}
+
+	cache::CatapultCache CreateCatapultCacheWithMarkerAccount(Height height) {
 		auto cache = CreateEmptyCatapultCache();
+		AddMarkerAccount(cache);
+
+		auto delta = cache.createDelta();
+		cache.commit(height);
+		return cache;
+	}
+
+	void AddMarkerAccount(cache::CatapultCache& cache) {
 		auto delta = cache.createDelta();
 		delta.sub<cache::AccountStateCache>().addAccount(GetSentinelCachePublicKey(), Height(1));
-		cache.commit(Height());
-		return cache;
+		cache.commit(Height(1));
 	}
 
 	namespace {

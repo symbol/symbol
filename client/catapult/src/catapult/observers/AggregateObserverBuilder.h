@@ -61,7 +61,7 @@ namespace catapult { namespace observers {
 				return utils::ExtractNames(m_observers);
 			}
 
-			void notify(const TNotification& notification, const ObserverContext& context) const override {
+			void notify(const TNotification& notification, ObserverContext& context) const override {
 				if (NotifyMode::Commit == context.Mode)
 					notifyAll(m_observers.cbegin(), m_observers.cend(), notification, context);
 				else
@@ -70,7 +70,7 @@ namespace catapult { namespace observers {
 
 		private:
 			template<typename TIter>
-			void notifyAll(TIter begin, TIter end, const TNotification& notification, const ObserverContext& context) const {
+			void notifyAll(TIter begin, TIter end, const TNotification& notification, ObserverContext& context) const {
 				for (auto iter = begin; end != iter; ++iter)
 					(*iter)->notify(notification, context);
 			}

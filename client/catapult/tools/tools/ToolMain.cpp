@@ -21,6 +21,7 @@
 #include "ToolMain.h"
 #include "catapult/config/ConfigurationFileLoader.h"
 #include "catapult/config/LoggingConfiguration.h"
+#include "catapult/thread/ThreadInfo.h"
 #include "catapult/utils/ExceptionLogging.h"
 #include "catapult/version/version.h"
 #include <boost/filesystem/path.hpp>
@@ -30,6 +31,8 @@
 namespace catapult { namespace tools {
 
 	namespace {
+		// region initialization utils
+
 		config::LoggingConfiguration LoadLoggingConfiguration(const std::string& userLoggingConfigurationPath) {
 			// if the user has provided a path, try that first
 			std::vector<boost::filesystem::path> loggingConfigurationPaths;
@@ -63,8 +66,26 @@ namespace catapult { namespace tools {
 		std::shared_ptr<void> SetupLogging(const config::LoggingConfiguration& config) {
 			auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
 			pBootstrapper->addConsoleLogger(config::GetConsoleLoggerOptions(config.Console), *CreateLogFilter(config.Console));
-			return pBootstrapper;
+			return std::move(pBootstrapper);
 		}
+
+		[[noreturn]]
+		void TerminateHandler() noexcept {
+			// 1. if termination is caused by an exception, log it
+			if (std::current_exception()) {
+				CATAPULT_LOG(fatal)
+						<< std::endl << "thread: " << thread::GetThreadName()
+						<< std::endl << UNHANDLED_EXCEPTION_MESSAGE("running tool");
+			}
+
+			// 2. flush the log and abort
+			utils::CatapultLogFlush();
+			std::abort();
+		}
+
+		// endregion
+
+		// region ParseOptions
 
 		struct ParsedOptions {
 			Options ToolOptions;
@@ -144,9 +165,14 @@ namespace catapult { namespace tools {
 			// 5. run notifications
 			po::notify(options.ToolOptions);
 		}
+
+		// endregion
 	}
 
 	int ToolMain(int argc, const char** argv, Tool& tool) {
+		std::set_terminate(&TerminateHandler);
+		thread::SetThreadName("Tool Main");
+
 		std::cout << tool.name() << std::endl;
 		version::WriteVersionInformation(std::cout);
 		std::cout << std::endl;
@@ -154,25 +180,20 @@ namespace catapult { namespace tools {
 		// 1. seed the random number generator
 		std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-		try {
-			// 2. parse all options
-			ParsedOptions options;
-			ParseOptions(options, tool, argc, argv);
+		// 2. parse all options
+		ParsedOptions options;
+		ParseOptions(options, tool, argc, argv);
 
-			// 3. bypass the tool if help was requested
-			if (options.IsHelpRequest)
-				return 1;
+		// 3. bypass the tool if help was requested
+		if (options.IsHelpRequest)
+			return 1;
 
-			// 4. initialize logging
-			std::cout << tool.name() << " Initializing Logging..." << std::endl;
-			auto pLoggingGuard = catapult::tools::SetupLogging(LoadLoggingConfiguration(options.LoggingConfigurationPath));
-			std::cout << std::endl;
+		// 4. initialize logging
+		std::cout << tool.name() << " Initializing Logging..." << std::endl;
+		auto pLoggingGuard = catapult::tools::SetupLogging(LoadLoggingConfiguration(options.LoggingConfigurationPath));
+		std::cout << std::endl;
 
-			// 5. run the tool
-			return tool.run(options.ToolOptions);
-		} catch (...) {
-			CATAPULT_LOG(fatal) << UNHANDLED_EXCEPTION_MESSAGE("running a tool");
-			return -1;
-		}
+		// 5. run the tool
+		return tool.run(options.ToolOptions);
 	}
 }}

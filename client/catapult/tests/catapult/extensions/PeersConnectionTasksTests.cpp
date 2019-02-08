@@ -19,6 +19,10 @@
 **/
 
 #include "catapult/extensions/PeersConnectionTasks.h"
+#include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/ionet/NodeInteractionResult.h"
+#include "catapult/model/BlockChainConfiguration.h"
+#include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
 #include "tests/TestHarness.h"
@@ -103,12 +107,93 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
+	// region SelectorSettings
+
+	namespace {
+		void AssertImportanceDescriptor(
+				const SelectorSettings& settings,
+				const Key& key,
+				Importance expectedImportance,
+				Importance expectedTotalChainImportance,
+				const std::string& message) {
+			const auto& descriptor = settings.ImportanceRetriever(key);
+			EXPECT_EQ(expectedImportance, descriptor.Importance) << message;
+			EXPECT_EQ(expectedTotalChainImportance, descriptor.TotalChainImportance) << message;
+		}
+
+		template<typename TSettingsFactory>
+		void AssertCanCreateSelectorSettings(ionet::NodeRoles expectedRole, TSettingsFactory settingsFactory) {
+			// Arrange:
+			ionet::NodeContainer container;
+			auto unknownKey = test::GenerateRandomData<Key_Size>();
+			auto knownKeyWrongHeight = test::GenerateRandomData<Key_Size>();
+			auto knownKey = test::GenerateRandomData<Key_Size>();
+
+			// -  create and initialize a cache
+			auto blockChainConfiguration = model::BlockChainConfiguration::Uninitialized();
+			blockChainConfiguration.ImportanceGrouping = 1;
+			auto cache = test::CreateEmptyCatapultCache(blockChainConfiguration);
+			{
+				auto cacheDelta = cache.createDelta();
+				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
+				accountStateCacheDelta.addAccount(knownKeyWrongHeight, Height(1));
+				accountStateCacheDelta.find(knownKeyWrongHeight).get().ImportanceInfo.set(Importance(222), model::ImportanceHeight(100));
+
+				accountStateCacheDelta.addAccount(knownKey, Height(1));
+				accountStateCacheDelta.find(knownKey).get().ImportanceInfo.set(Importance(111), model::ImportanceHeight(999));
+				cache.commit(Height(1000));
+			}
+
+			// Act:
+			auto settings = settingsFactory(cache, Importance(100), container, ionet::ServiceIdentifier(4), CreateConfiguration());
+
+			// Assert:
+			EXPECT_EQ(&container, &settings.Nodes);
+			EXPECT_EQ(ionet::ServiceIdentifier(4), settings.ServiceId);
+			EXPECT_EQ(expectedRole, settings.RequiredRole);
+			EXPECT_EQ(5u, settings.Config.MaxConnections); // only check one config field as proxy
+
+			AssertImportanceDescriptor(settings, unknownKey, Importance(0), Importance(100), "unknownKey");
+			AssertImportanceDescriptor(settings, knownKeyWrongHeight, Importance(0), Importance(100), "knownKeyWrongHeight");
+			AssertImportanceDescriptor(settings, knownKey, Importance(111), Importance(100), "knownKey");
+		}
+	}
+
+	TEST(TEST_CLASS, CanCreateSelectorSettingsWithRole) {
+		// Assert:
+		AssertCanCreateSelectorSettings(ionet::NodeRoles::Api, [](
+				const auto& cache,
+				auto totalChainImportance,
+				auto& nodes,
+				auto serviceId,
+				const auto& config) {
+			return SelectorSettings(cache, totalChainImportance, nodes, serviceId, ionet::NodeRoles::Api, config);
+		});
+	}
+
+	TEST(TEST_CLASS, CanCreateSelectorSettingsWithoutRole) {
+		// Assert:
+		AssertCanCreateSelectorSettings(ionet::NodeRoles::None, [](
+				const auto& cache,
+				auto totalChainImportance,
+				auto& nodes,
+				auto serviceId,
+				const auto& config) {
+			return SelectorSettings(cache, totalChainImportance, nodes, serviceId, config);
+		});
+	}
+
+	// endregion
+
 	// region CreateNodeSelector
 
 	TEST(TEST_CLASS, CanCreateNodeSelector) {
 		// Arrange:
+		auto cache = test::CreateEmptyCatapultCache();
 		ionet::NodeContainer container;
-		auto selector = CreateNodeSelector(ionet::ServiceIdentifier(1), ionet::NodeRoles::Api, CreateConfiguration(), container);
+		auto serviceId = ionet::ServiceIdentifier(1);
+		auto settings = SelectorSettings(cache, Importance(100), container, serviceId, ionet::NodeRoles::Api, CreateConfiguration());
+		auto selector = CreateNodeSelector(settings);
 
 		// Act:
 		auto result = selector();
@@ -120,15 +205,17 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CreateNodeSelectorProvisionsConnectionStatesForRoleCompatibleNodes) {
 		// Arrange:
+		auto cache = test::CreateEmptyCatapultCache();
 		ionet::NodeContainer container;
 		auto keys = test::GenerateRandomDataVector<Key>(3);
 		Add(container, keys[0], "bob", ionet::NodeRoles::Api);
 		Add(container, keys[1], "alice", ionet::NodeRoles::Peer);
 		Add(container, keys[2], "charlie", ionet::NodeRoles::Api | ionet::NodeRoles::Peer);
 		auto serviceId = ionet::ServiceIdentifier(1);
+		auto settings = SelectorSettings(cache, Importance(100), container, serviceId, ionet::NodeRoles::Api, CreateConfiguration());
 
 		// Act:
-		CreateNodeSelector(serviceId, ionet::NodeRoles::Api, CreateConfiguration(), container);
+		CreateNodeSelector(settings);
 
 		// Assert:
 		const auto& view = container.view();
@@ -154,13 +241,11 @@ namespace catapult { namespace extensions {
 				auto node = test::CreateNamedNode(identityKey, "node " + std::to_string(i));
 				modifier.add(node, ionet::NodeSource::Dynamic);
 				nodes.push_back(node);
+				test::AddNodeInteractions(modifier, identityKey, 7, 3);
 
 				auto serviceId = 0 == i % 2 ? evenServiceId : oddServiceId;
 				auto& connectionState = modifier.provisionConnectionState(serviceId, identityKey);
 				connectionState.Age = i + 1;
-				connectionState.NumAttempts = 10;
-				connectionState.NumSuccesses = 7;
-				connectionState.NumFailures = 3;
 				connectionState.NumConsecutiveFailures = 1;
 				connectionState.BanAge = 123;
 			}
@@ -179,9 +264,11 @@ namespace catapult { namespace extensions {
 				ionet::ServiceIdentifier serviceId,
 				const NodeSelector& selector = NodeSelector()) {
 			// Act:
+			auto cache = test::CreateEmptyCatapultCache();
+			auto settings = SelectorSettings(cache, Importance(100), container, serviceId, ionet::NodeRoles::Peer, CreateConfiguration());
 			auto task = selector
-					? CreateConnectPeersTask(container, packetWriters, serviceId, CreateConfiguration(), selector)
-					: CreateConnectPeersTask(container, packetWriters, serviceId, ionet::NodeRoles::Peer, CreateConfiguration());
+					? CreateConnectPeersTask(settings, packetWriters, selector)
+					: CreateConnectPeersTask(settings, packetWriters);
 			auto result = task.Callback().get();
 
 			// Assert:
@@ -290,19 +377,22 @@ namespace catapult { namespace extensions {
 			});
 		}
 
+		void AssertInteractions(
+				const ionet::NodeContainerView& view,
+				const Key& identityKey,
+				uint32_t expectedNumSuccesses,
+				uint32_t expectedNumFailures) {
+			auto interactions = view.getNodeInfo(identityKey).interactions(Timestamp());
+			test::AssertNodeInteractions(expectedNumSuccesses, expectedNumFailures, interactions);
+		}
+
 		void AssertConnectionState(
 				const ionet::NodeContainerView& view,
 				const Key& identityKey,
 				ionet::ServiceIdentifier serviceId,
-				uint32_t expectedNumAttempts,
-				uint32_t expectedNumSuccesses,
-				uint32_t expectedNumFailures,
 				bool hasLastSuccess) {
 			const auto& nodeInfo = view.getNodeInfo(identityKey);
 			const auto& connectionState = *nodeInfo.getConnectionState(serviceId);
-			EXPECT_EQ(expectedNumAttempts, connectionState.NumAttempts);
-			EXPECT_EQ(expectedNumSuccesses, connectionState.NumSuccesses);
-			EXPECT_EQ(expectedNumFailures, connectionState.NumFailures);
 
 			if (hasLastSuccess) {
 				EXPECT_EQ(0u, connectionState.NumConsecutiveFailures);
@@ -318,7 +408,7 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	TEST(TEST_CLASS, ConnectPeersTask_AddCandidatesHaveConnectionsInitiatedAndStatsUpdated_AllSucceed) {
+	TEST(TEST_CLASS, ConnectPeersTask_AddCandidatesHaveConnectionsInitiatedAndInteractionsUpdated_AllSucceed) {
 		// Arrange: prepare a container with alternating matching service nodes
 		auto serviceId = ionet::ServiceIdentifier(3);
 		ionet::NodeContainer container;
@@ -339,14 +429,19 @@ namespace catapult { namespace extensions {
 		EXPECT_TRUE(IsConnectedNode(writers, nodes[5]));
 		EXPECT_TRUE(IsConnectedNode(writers, nodes[9]));
 
-		// - connection states have been updated appropriately from initial values (10A, 7S, 3F)
+		// - interactions have been updated appropriately from initial values (7S, 3F)
 		auto view = container.view();
-		AssertConnectionState(view, nodes[3].identityKey(), serviceId, 11, 8, 3, true);
-		AssertConnectionState(view, nodes[5].identityKey(), serviceId, 11, 8, 3, true);
-		AssertConnectionState(view, nodes[9].identityKey(), serviceId, 11, 8, 3, true);
+		AssertInteractions(view, nodes[3].identityKey(), 8, 3);
+		AssertInteractions(view, nodes[5].identityKey(), 8, 3);
+		AssertInteractions(view, nodes[9].identityKey(), 8, 3);
+
+		// - connection states have correct number of consecutive failures and ban age
+		AssertConnectionState(view, nodes[3].identityKey(), serviceId, true);
+		AssertConnectionState(view, nodes[5].identityKey(), serviceId, true);
+		AssertConnectionState(view, nodes[9].identityKey(), serviceId, true);
 	}
 
-	TEST(TEST_CLASS, ConnectPeersTask_AddCandidatesHaveConnectionsInitiatedAndStatsUpdated_SomeSucceed) {
+	TEST(TEST_CLASS, ConnectPeersTask_AddCandidatesHaveConnectionsInitiatedAndInteractionsUpdated_SomeSucceed) {
 		// Arrange: prepare a container with alternating matching service nodes and increment consecutive failures for some nodes
 		//          so that those nodes have requisite number of consecutive failures for banning
 		auto serviceId = ionet::ServiceIdentifier(3);
@@ -373,14 +468,19 @@ namespace catapult { namespace extensions {
 		EXPECT_TRUE(IsConnectedNode(writers, nodes[5]));
 		EXPECT_TRUE(IsConnectedNode(writers, nodes[9]));
 
-		// - connection states have been updated appropriately from initial values (10A, 7S, 3F)
+		// - interactions have been updated appropriately from initial values (7S, 3F)
 		auto view = container.view();
-		AssertConnectionState(view, nodes[3].identityKey(), serviceId, 11, 7, 4, false);
-		AssertConnectionState(view, nodes[5].identityKey(), serviceId, 11, 8, 3, true);
-		AssertConnectionState(view, nodes[9].identityKey(), serviceId, 11, 7, 4, false);
+		AssertInteractions(view, nodes[3].identityKey(), 7, 4);
+		AssertInteractions(view, nodes[5].identityKey(), 8, 3);
+		AssertInteractions(view, nodes[9].identityKey(), 7, 4);
+
+		// - connection states have correct number of consecutive failures and ban age
+		AssertConnectionState(view, nodes[3].identityKey(), serviceId, false);
+		AssertConnectionState(view, nodes[5].identityKey(), serviceId, true);
+		AssertConnectionState(view, nodes[9].identityKey(), serviceId, false);
 	}
 
-	TEST(TEST_CLASS, ConnectPeersTask_AddCandidatesHaveConnectionsInitiatedAndStatsUpdated_NoneSucceed) {
+	TEST(TEST_CLASS, ConnectPeersTask_AddCandidatesHaveConnectionsInitiatedAndInteractionsUpdated_NoneSucceed) {
 		// Arrange: prepare a container with alternating matching service nodes and increment consecutive failures fo all nodes
 		//          so that those nodes have requisite number of consecutive failures for banning
 		auto serviceId = ionet::ServiceIdentifier(3);
@@ -409,11 +509,16 @@ namespace catapult { namespace extensions {
 		EXPECT_TRUE(IsConnectedNode(writers, nodes[5]));
 		EXPECT_TRUE(IsConnectedNode(writers, nodes[9]));
 
-		// - connection states have been updated appropriately from initial values (10A, 7S, 3F)
+		// - interactions have been updated appropriately from initial values (7S, 3F)
 		auto view = container.view();
-		AssertConnectionState(view, nodes[3].identityKey(), serviceId, 11, 7, 4, false);
-		AssertConnectionState(view, nodes[5].identityKey(), serviceId, 11, 7, 4, false);
-		AssertConnectionState(view, nodes[9].identityKey(), serviceId, 11, 7, 4, false);
+		AssertInteractions(view, nodes[3].identityKey(), 7, 4);
+		AssertInteractions(view, nodes[5].identityKey(), 7, 4);
+		AssertInteractions(view, nodes[9].identityKey(), 7, 4);
+
+		// - connection states have correct number of consecutive failures and ban age
+		AssertConnectionState(view, nodes[3].identityKey(), serviceId, false);
+		AssertConnectionState(view, nodes[5].identityKey(), serviceId, false);
+		AssertConnectionState(view, nodes[9].identityKey(), serviceId, false);
 	}
 
 	// endregion
@@ -422,8 +527,10 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanCreateRemoveOnlyNodeSelector) {
 		// Arrange:
+		auto cache = test::CreateEmptyCatapultCache();
 		ionet::NodeContainer container;
-		auto selector = CreateRemoveOnlyNodeSelector(ionet::ServiceIdentifier(1), CreateConfiguration(), container);
+		auto settings = SelectorSettings(cache, Importance(100), container, ionet::ServiceIdentifier(1), CreateConfiguration());
+		auto selector = CreateRemoveOnlyNodeSelector(settings);
 
 		// Act:
 		auto removeCandidates = selector();
@@ -443,9 +550,11 @@ namespace catapult { namespace extensions {
 				ionet::ServiceIdentifier serviceId,
 				const RemoveOnlyNodeSelector& selector = RemoveOnlyNodeSelector()) {
 			// Act:
+			auto cache = test::CreateEmptyCatapultCache();
+			auto settings = SelectorSettings(cache, Importance(100), container, serviceId, CreateConfiguration());
 			auto task = selector
-					? CreateAgePeersTask(container, packetWriters, serviceId, CreateConfiguration(), selector)
-					: CreateAgePeersTask(container, packetWriters, serviceId, CreateConfiguration());
+					? CreateAgePeersTask(settings, packetWriters, selector)
+					: CreateAgePeersTask(settings, packetWriters);
 			auto result = task.Callback().get();
 
 			// Assert:

@@ -136,12 +136,18 @@ namespace catapult { namespace mocks {
 		/// Creates writers with packet io \a reuse policy.
 		explicit PickOneAwareMockPacketWriters(SetPacketIoBehavior setPacketIoBehavior = SetPacketIoBehavior::Use_Forever)
 				: m_setPacketIoBehavior(setPacketIoBehavior)
+				, m_nodeIdentity()
 		{}
 
 	public:
 		/// Sets the packet io returned by pickOne to \a pPacketIo.
 		void setPacketIo(const std::shared_ptr<ionet::PacketIo>& pPacketIo) {
 			m_pPacketIo = pPacketIo;
+		}
+
+		/// Sets the node identity for the node returned by pickOne to \a nodeIdentity.
+		void setNodeIdentity(const Key& nodeIdentity) {
+			m_nodeIdentity = nodeIdentity;
 		}
 
 	public:
@@ -158,7 +164,7 @@ namespace catapult { namespace mocks {
 	public:
 		ionet::NodePacketIoPair pickOne(const utils::TimeSpan& ioDuration) override {
 			m_ioDurations.push_back(ioDuration);
-			auto pair = ionet::NodePacketIoPair(ionet::Node(), m_pPacketIo);
+			auto pair = ionet::NodePacketIoPair(ionet::Node(m_nodeIdentity, ionet::NodeEndpoint(), ionet::NodeMetadata()), m_pPacketIo);
 
 			// if the io should only be used once, destroy the reference in writers before returning
 			if (SetPacketIoBehavior::Use_Once == m_setPacketIoBehavior)
@@ -171,6 +177,7 @@ namespace catapult { namespace mocks {
 		SetPacketIoBehavior m_setPacketIoBehavior;
 		std::vector<utils::TimeSpan> m_ioDurations;
 		std::shared_ptr<ionet::PacketIo> m_pPacketIo;
+		Key m_nodeIdentity;
 	};
 
 	/// Mock packet writers that has a broadcast implementation.

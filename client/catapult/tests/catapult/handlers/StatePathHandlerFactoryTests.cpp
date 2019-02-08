@@ -116,6 +116,12 @@ namespace catapult { namespace handlers {
 
 		// region test traits
 
+		struct StatePathRequestPacket : public ionet::Packet {
+			static constexpr ionet::PacketType Packet_Type = Mock_Packet_Type;
+
+			TestPayloadType Key;
+		};
+
 		struct StatePathHandlerFactoryTraits {
 		public:
 			static constexpr auto Packet_Type = Mock_Packet_Type;
@@ -145,8 +151,7 @@ namespace catapult { namespace handlers {
 
 		public:
 			static void RegisterHandler(ionet::ServerPacketHandlers& handlers, const MockCache& cache) {
-				using MockPacket = StatePathRequestPacket<Mock_Packet_Type, RequestPayloadType>;
-				RegisterStatePathHandler<MockPacket>(handlers, cache);
+				RegisterStatePathHandler<StatePathRequestPacket>(handlers, cache);
 			}
 		};
 
@@ -193,7 +198,7 @@ namespace catapult { namespace handlers {
 			ASSERT_EQ(1u, payload.buffers().size());
 			ASSERT_EQ(expectedResult.size(), payload.buffers()[0].Size);
 
-			EXPECT_TRUE(0 == std::memcmp(expectedResult.data(), payload.buffers()[0].pData, expectedResult.size()));
+			EXPECT_EQ_MEMORY(expectedResult.data(), payload.buffers()[0].pData, expectedResult.size());
 		}
 
 		// endregion

@@ -38,7 +38,7 @@ namespace catapult { namespace consumers {
 		template<typename TAction>
 		void RunAuditConsumerTest(TAction action) {
 			// Arrange:
-			test::TempDirectoryGuard tempDirectoryGuard("../temp.audit");
+			test::TempDirectoryGuard tempDirectoryGuard;
 			auto consumer = CreateAuditConsumer(tempDirectoryGuard.name());
 
 			// Act:

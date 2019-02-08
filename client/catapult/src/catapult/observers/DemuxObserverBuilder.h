@@ -61,7 +61,7 @@ namespace catapult { namespace observers {
 				return m_pObserver->name();
 			}
 
-			void notify(const model::Notification& notification, const ObserverContext& context) const override {
+			void notify(const model::Notification& notification, ObserverContext& context) const override {
 				if (!m_predicate(notification))
 					return;
 

@@ -67,7 +67,19 @@ namespace catapult { namespace state {
 		if (m_pChildren->cend() == iter)
 			CATAPULT_THROW_INVALID_ARGUMENT_1("unknown child namespace (id) ", id);
 
-		return Namespace(iter->second);
+		return Namespace(iter->second.Path);
+	}
+
+	const NamespaceAlias& RootNamespace::alias(NamespaceId id) const {
+		// check if root
+		if (m_id == id)
+			return m_alias;
+
+		auto iter = m_pChildren->find(id);
+		if (m_pChildren->cend() == iter)
+			CATAPULT_THROW_INVALID_ARGUMENT_1("unknown child namespace (id) ", id);
+
+		return iter->second.Alias;
 	}
 
 	void RootNamespace::add(const Namespace& ns) {
@@ -81,7 +93,7 @@ namespace catapult { namespace state {
 			if (m_pChildren->cend() == iter)
 				CATAPULT_THROW_INVALID_ARGUMENT_2("child namespace has no parent, (child id, parent id)", ns.id(), ns.parentId());
 
-			if (iter->second.size() != ns.path().size() - 1)
+			if (iter->second.Path.size() != ns.path().size() - 1)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("child has incorrect path (id)", ns.id());
 		}
 
@@ -99,9 +111,9 @@ namespace catapult { namespace state {
 
 		// only allow removal if it has no descendents
 		// note that all children have a level >= 2
-		auto level = iter->second.size();
+		auto level = iter->second.Path.size();
 		auto hasDescendents = std::any_of(m_pChildren->cbegin(), m_pChildren->cend(), [level, id](const auto& pair) {
-			const auto& path = pair.second;
+			const auto& path = pair.second.Path;
 			return level < path.size() && id == path[level - 1];
 		});
 
@@ -109,6 +121,21 @@ namespace catapult { namespace state {
 			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot remove child namespace because it has decendents (id)", id);
 
 		m_pChildren->erase(id);
+	}
+
+	void RootNamespace::setAlias(NamespaceId id, const NamespaceAlias& alias) {
+		// check if root
+		if (m_id == id){
+			m_alias = alias;
+			return;
+		}
+
+		// child must exist
+		auto iter = m_pChildren->find(id);
+		if (m_pChildren->cend() == iter)
+			CATAPULT_THROW_INVALID_ARGUMENT_2("namespace (id) being linked is not under (root)", id, m_id);
+
+		iter->second.Alias = alias;
 	}
 
 	bool RootNamespace::operator==(const RootNamespace& rhs) const {
@@ -123,10 +150,10 @@ namespace catapult { namespace state {
 		return RootNamespace(m_id, m_owner, newLifetime, m_pChildren);
 	}
 
-	RootNamespace::OrderedChildPaths RootNamespace::sortChildren() const {
+	RootNamespace::OrderedChildPaths RootNamespace::sortedChildPaths() const {
 		RootNamespace::OrderedChildPaths orderedPaths;
-		for (const auto& child : children())
-			orderedPaths.insert(child.second);
+		for (const auto& child : *m_pChildren)
+			orderedPaths.insert(child.second.Path);
 
 		return orderedPaths;
 	}

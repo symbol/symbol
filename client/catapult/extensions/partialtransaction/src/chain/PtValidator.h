@@ -53,7 +53,7 @@ namespace catapult { namespace chain {
 	/// \note Upon completion the full aggregate transaction will be revalidated.
 	class PtValidator {
 	public:
-		virtual ~PtValidator() {}
+		virtual ~PtValidator() = default;
 
 	public:
 		/// A validation result.

@@ -80,6 +80,16 @@ namespace catapult { namespace nodediscovery {
 
 			return pPacketIo;
 		}
+
+		void AssertEqualRemoteApiResults(
+				const std::vector<ionet::NodeInteractionResult>& expectedResults,
+				const std::vector<ionet::NodeInteractionResult>& results) {
+			ASSERT_EQ(expectedResults.size(), results.size());
+			for (auto i = 0u; i < results.size(); ++i) {
+				EXPECT_EQ(expectedResults[i].IdentityKey, results[i].IdentityKey) << "at index " << i;
+				EXPECT_EQ(expectedResults[i].Code, results[i].Code) << "at index " << i;
+			}
+		}
 	}
 
 	TEST(TEST_CLASS, TimeoutIsPassedDownToPickers) {
@@ -104,7 +114,7 @@ namespace catapult { namespace nodediscovery {
 		auto result = context.Requestor.findPeersOfPeers(utils::TimeSpan::FromMilliseconds(15)).get();
 
 		// Assert:
-		EXPECT_FALSE(result);
+		EXPECT_TRUE(result.empty());
 		EXPECT_TRUE(context.NodeSets.empty());
 	}
 
@@ -113,13 +123,17 @@ namespace catapult { namespace nodediscovery {
 		TestContext context;
 
 		// - configure one picker to return a packet io with a failure interaction
+		auto partnerKey = test::GenerateRandomData<Key_Size>();
 		context.Writers2.setPacketIo(CreateFailureMockPacketIo());
+		context.Writers2.setNodeIdentity(partnerKey);
 
 		// Act:
 		auto result = context.Requestor.findPeersOfPeers(utils::TimeSpan::FromMilliseconds(15)).get();
 
 		// Assert:
-		EXPECT_TRUE(result);
+		std::vector<ionet::NodeInteractionResult> expectedResult{ { partnerKey, ionet::NodeInteractionResultCode::Failure } };
+		AssertEqualRemoteApiResults(expectedResult, result);
+
 		EXPECT_TRUE(context.NodeSets.empty());
 	}
 
@@ -140,12 +154,15 @@ namespace catapult { namespace nodediscovery {
 		// - configure one picker to return a packet io with a successful interaction
 		auto partnerKey = test::GenerateRandomData<Key_Size>();
 		context.Writers2.setPacketIo(CreateSuccessMockPacketIo(partnerKey, "alice"));
+		context.Writers2.setNodeIdentity(partnerKey);
 
 		// Act:
 		auto result = context.Requestor.findPeersOfPeers(utils::TimeSpan::FromMilliseconds(15)).get();
 
 		// Assert:
-		EXPECT_TRUE(result);
+		std::vector<ionet::NodeInteractionResult> expectedResult{ { partnerKey, ionet::NodeInteractionResultCode::Success } };
+		AssertEqualRemoteApiResults(expectedResult, result);
+
 		ASSERT_EQ(1u, context.NodeSets.size());
 
 		AssertSingleNodeSet(context.NodeSets[0], partnerKey, "alice");
@@ -158,15 +175,22 @@ namespace catapult { namespace nodediscovery {
 		// - configure two pickers to return a packet io with a successful interaction
 		auto partnerKey1 = test::GenerateRandomData<Key_Size>();
 		context.Writers1.setPacketIo(CreateSuccessMockPacketIo(partnerKey1, "alice"));
+		context.Writers1.setNodeIdentity(partnerKey1);
 
 		auto partnerKey2 = test::GenerateRandomData<Key_Size>();
 		context.Writers2.setPacketIo(CreateSuccessMockPacketIo(partnerKey2, "bob"));
+		context.Writers2.setNodeIdentity(partnerKey2);
 
 		// Act:
 		auto result = context.Requestor.findPeersOfPeers(utils::TimeSpan::FromMilliseconds(15)).get();
 
 		// Assert:
-		EXPECT_TRUE(result);
+		std::vector<ionet::NodeInteractionResult> expectedResult{
+			{ partnerKey1, ionet::NodeInteractionResultCode::Success },
+			{ partnerKey2, ionet::NodeInteractionResultCode::Success }
+		};
+		AssertEqualRemoteApiResults(expectedResult, result);
+
 		ASSERT_EQ(2u, context.NodeSets.size());
 
 		AssertSingleNodeSet(context.NodeSets[0], partnerKey1, "alice");
@@ -181,20 +205,30 @@ namespace catapult { namespace nodediscovery {
 		//   and one to return a packet io with a failure interaction
 		auto partnerKey1 = test::GenerateRandomData<Key_Size>();
 		context.Writers1.setPacketIo(CreateSuccessMockPacketIo(partnerKey1, "alice"));
-
-		context.Writers2.setPacketIo(CreateFailureMockPacketIo());
+		context.Writers1.setNodeIdentity(partnerKey1);
 
 		auto partnerKey2 = test::GenerateRandomData<Key_Size>();
-		context.Writers3.setPacketIo(CreateSuccessMockPacketIo(partnerKey2, "bob"));
+		context.Writers2.setPacketIo(CreateFailureMockPacketIo());
+		context.Writers2.setNodeIdentity(partnerKey2);
+
+		auto partnerKey3 = test::GenerateRandomData<Key_Size>();
+		context.Writers3.setPacketIo(CreateSuccessMockPacketIo(partnerKey3, "bob"));
+		context.Writers3.setNodeIdentity(partnerKey3);
 
 		// Act:
 		auto result = context.Requestor.findPeersOfPeers(utils::TimeSpan::FromMilliseconds(15)).get();
 
 		// Assert:
-		EXPECT_TRUE(result);
+		std::vector<ionet::NodeInteractionResult> expectedResult{
+			{ partnerKey1, ionet::NodeInteractionResultCode::Success },
+			{ partnerKey2, ionet::NodeInteractionResultCode::Failure },
+			{ partnerKey3, ionet::NodeInteractionResultCode::Success }
+		};
+		AssertEqualRemoteApiResults(expectedResult, result);
+
 		ASSERT_EQ(2u, context.NodeSets.size());
 
 		AssertSingleNodeSet(context.NodeSets[0], partnerKey1, "alice");
-		AssertSingleNodeSet(context.NodeSets[1], partnerKey2, "bob");
+		AssertSingleNodeSet(context.NodeSets[1], partnerKey3, "bob");
 	}
 }}

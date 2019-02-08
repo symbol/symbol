@@ -53,11 +53,8 @@ namespace catapult { namespace validators {
 	/// Validation failed because hash algorithm does not match.
 	DEFINE_LOCKSECRET_RESULT(Hash_Algorithm_Mismatch, 8);
 
-	/// Validation failed because secret has already been used.
-	DEFINE_LOCKSECRET_RESULT(Secret_Already_Used, 9);
-
 	/// Validation failed because duration is too long.
-	DEFINE_LOCKSECRET_RESULT(Invalid_Duration, 10);
+	DEFINE_LOCKSECRET_RESULT(Invalid_Duration, 9);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

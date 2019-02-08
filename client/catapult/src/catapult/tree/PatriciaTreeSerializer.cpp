@@ -78,6 +78,9 @@ namespace catapult { namespace tree {
 		auto DeserializePath(io::InputStream& input) {
 			auto numNibbles = io::Read8(input);
 			std::vector<uint8_t> alignedPath((numNibbles + 1) / 2);
+			if (alignedPath.empty())
+				return TreeNodePath();
+
 			input.read(alignedPath);
 			TreeNodePath path(alignedPath);
 

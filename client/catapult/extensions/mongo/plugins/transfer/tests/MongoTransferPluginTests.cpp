@@ -33,6 +33,10 @@ namespace catapult { namespace mongo { namespace plugins {
 				return { model::Entity_Type_Transfer };
 			}
 
+			static std::vector<model::ReceiptType> GetReceiptTypes() {
+				return {};
+			}
+
 			static std::string GetStorageName() {
 				return "{}";
 			}

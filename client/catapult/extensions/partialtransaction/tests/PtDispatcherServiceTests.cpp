@@ -270,7 +270,8 @@ namespace catapult { namespace partialtransaction {
 			if (sizeof(model::AggregateTransaction) + aggregateTransaction.PayloadSize < sizeof(mocks::MockTransaction))
 				CATAPULT_THROW_RUNTIME_ERROR("this test requires mockTransaction Data to fit inside the aggregate transaction Payload");
 
-			auto& mockTransaction = reinterpret_cast<mocks::MockTransaction&>(aggregateTransaction);
+			auto* pTransactionData = reinterpret_cast<uint8_t*>(&aggregateTransaction);
+			auto& mockTransaction = reinterpret_cast<mocks::MockTransaction&>(*pTransactionData);
 			auto headerSizeDifference = sizeof(mocks::MockTransaction) - sizeof(model::AggregateTransaction);
 			mockTransaction.Data.Size = static_cast<uint16_t>(aggregateTransaction.PayloadSize - headerSizeDifference);
 		}
@@ -429,7 +430,7 @@ namespace catapult { namespace partialtransaction {
 		EXPECT_EQ(0u, context.numCompletedTransactions());
 
 		EXPECT_EQ(disruptor::CompletionStatus::Aborted, result.CompletionStatus);
-		EXPECT_EQ(utils::to_underlying_type(consumers::Failure_Consumer_Hash_In_Recency_Cache), result.CompletionCode);
+		EXPECT_EQ(utils::to_underlying_type(consumers::Neutral_Consumer_Hash_In_Recency_Cache), result.CompletionCode);
 	}
 
 	TEST(TEST_CLASS, Dispatcher_UpdaterForwardsToConsumerIfValidationSucceeded) {

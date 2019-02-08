@@ -25,7 +25,7 @@
 namespace catapult { namespace plugins {
 
 	namespace {
-		struct SignatureSystemTraits {
+		struct SignatureSystemTraits : public test::EmptyPluginTraits {
 		public:
 			template<typename TAction>
 			static void RunTestAfterRegistration(TAction action) {
@@ -38,36 +38,8 @@ namespace catapult { namespace plugins {
 			}
 
 		public:
-			static std::vector<model::EntityType> GetTransactionTypes() {
-				return {};
-			}
-
-			static std::vector<std::string> GetCacheNames() {
-				return {};
-			}
-
-			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
-				return {};
-			}
-
-			static std::vector<std::string> GetDiagnosticCounterNames() {
-				return {};
-			}
-
 			static std::vector<std::string> GetStatelessValidatorNames() {
 				return { "SignatureValidator" };
-			}
-
-			static std::vector<std::string> GetStatefulValidatorNames() {
-				return {};
-			}
-
-			static std::vector<std::string> GetObserverNames() {
-				return {};
-			}
-
-			static std::vector<std::string> GetPermanentObserverNames() {
-				return {};
 			}
 		};
 	}

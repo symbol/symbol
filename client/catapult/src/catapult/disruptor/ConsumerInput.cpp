@@ -133,8 +133,8 @@ namespace catapult { namespace disruptor {
 			out << " (heights " << startHeight << " - " << endHeight << ")";
 		}
 
-		void OutputAdditionalInformation(std::ostream&) {
-		}
+		void OutputAdditionalInformation(std::ostream&)
+		{}
 
 		template<typename TElements, typename ...TArgs>
 		void OutputElementsInfoT(std::ostream& out, const TElements& elements, const char* tag, TArgs... args) {

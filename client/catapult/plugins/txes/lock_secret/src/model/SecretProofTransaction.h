@@ -41,7 +41,7 @@ namespace catapult { namespace model {
 		LockHashAlgorithm HashAlgorithm;
 
 		/// Secret.
-		Hash512 Secret;
+		Hash256 Secret;
 
 		/// Proof size in bytes.
 		uint16_t ProofSize;

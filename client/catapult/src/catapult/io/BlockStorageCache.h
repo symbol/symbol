@@ -43,14 +43,17 @@ namespace catapult { namespace io {
 		/// Gets the number of blocks.
 		Height chainHeight() const;
 
+		/// Returns a range of at most \a maxHashes hashes starting at \a height.
+		model::HashRange loadHashesFrom(Height height, size_t maxHashes) const;
+
 		/// Returns the block at \a height.
 		std::shared_ptr<const model::Block> loadBlock(Height height) const;
 
 		/// Returns the block element (owning a block) at \a height.
 		std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const;
 
-		/// Returns a range of at most \a maxHashes hashes starting at \a height.
-		model::HashRange loadHashesFrom(Height height, size_t maxHashes) const;
+		/// Returns the optional block statement data at \a height.
+		std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const;
 
 	private:
 		const BlockStorage& m_storage;

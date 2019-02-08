@@ -48,7 +48,7 @@ namespace catapult { namespace api {
 				}
 
 				auto pTransactionCopy = utils::MakeSharedWithSize<model::Transaction>(pTransaction->Size);
-				std::memcpy(pTransactionCopy.get(), pTransaction, pTransaction->Size);
+				std::memcpy(static_cast<void*>(pTransactionCopy.get()), pTransaction, pTransaction->Size);
 				transactionInfo.pTransaction = pTransactionCopy;
 
 				// clear the hash

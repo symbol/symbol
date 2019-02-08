@@ -31,7 +31,7 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		template<typename TTransaction>
-		void Publish(const TTransaction& transaction, const PublisherContext&, NotificationSubscriber& sub) {
+		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
 			// 1. cosig changes
 			utils::KeySet addedCosignatoryKeys;
 			if (0 < transaction.ModificationsCount) {
@@ -49,7 +49,7 @@ namespace catapult { namespace plugins {
 			}
 
 			if (!addedCosignatoryKeys.empty())
-				sub.notify(AddressInteractionNotification(transaction.Signer, model::AddressSet{}, addedCosignatoryKeys));
+				sub.notify(AddressInteractionNotification(transaction.Signer, transaction.Type, {}, addedCosignatoryKeys));
 
 			// 2. setting changes
 			sub.notify(ModifyMultisigSettingsNotification(transaction.Signer, transaction.MinRemovalDelta, transaction.MinApprovalDelta));

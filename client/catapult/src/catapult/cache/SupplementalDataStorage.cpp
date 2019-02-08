@@ -25,8 +25,21 @@
 
 namespace catapult { namespace cache {
 
+	namespace {
+		void LogSupplementalData(const char* prefix, const SupplementalData& supplementalData, Height chainHeight) {
+			auto scoreArray = supplementalData.ChainScore.toArray();
+			CATAPULT_LOG(debug)
+					<< prefix
+					<< " last recalculation height " << supplementalData.State.LastRecalculationHeight
+					<< " total transactions " << supplementalData.State.NumTotalTransactions
+					<< " (score = [" << scoreArray[0] << ", " << scoreArray[1] << "]"
+					<< ", height = " << chainHeight << ")";
+		}
+	}
+
 	void SaveSupplementalData(const SupplementalData& supplementalData, Height chainHeight, io::OutputStream& output) {
 		io::Write(output, supplementalData.State.LastRecalculationHeight);
+		io::Write64(output, supplementalData.State.NumTotalTransactions);
 
 		auto scoreArray = supplementalData.ChainScore.toArray();
 		io::Write64(output, scoreArray[0]);
@@ -34,24 +47,20 @@ namespace catapult { namespace cache {
 
 		io::Write(output, chainHeight);
 
-		CATAPULT_LOG(debug)
-				<< "wrote last recalculation height " << supplementalData.State.LastRecalculationHeight
-				<< " (score = [" << scoreArray[0] << ", " << scoreArray[1] << "]"
-				<< ", height = " << chainHeight << ")";
-
+		LogSupplementalData("wrote", supplementalData, chainHeight);
 		output.flush();
 	}
 
 	void LoadSupplementalData(io::InputStream& input, SupplementalData& supplementalData, Height& chainHeight) {
 		io::Read(input, supplementalData.State.LastRecalculationHeight);
+		supplementalData.State.NumTotalTransactions = io::Read64(input);
+
 		auto scoreHigh = io::Read64(input);
 		auto scoreLow = io::Read64(input);
 		supplementalData.ChainScore = model::ChainScore(scoreHigh, scoreLow);
+
 		io::Read(input, chainHeight);
 
-		CATAPULT_LOG(debug)
-				<< "read last recalculation height " << supplementalData.State.LastRecalculationHeight
-				<< " (score = [" << scoreHigh << ", " << scoreLow << "]"
-				<< ", height = " << chainHeight << ")";
+		LogSupplementalData("read", supplementalData, chainHeight);
 	}
 }}

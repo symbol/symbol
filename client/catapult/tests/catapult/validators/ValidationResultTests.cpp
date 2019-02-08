@@ -40,16 +40,16 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, CanMakeValidationResult) {
 		// Assert:
 		// - zeros
-		EXPECT_EQ(ValidationResult(0x00000000), MakeValidationResult(0, 0, 0, 0));
+		EXPECT_EQ(static_cast<ValidationResult>(0x00000000), MakeValidationResult(0, 0, 0, 0));
 
 		// - max single component value
-		EXPECT_EQ(ValidationResult(0xC0000000), MakeValidationResult(0xFF, 0, 0, 0));
-		EXPECT_EQ(ValidationResult(0x00FF0000), MakeValidationResult(0, 0xFF, 0, 0));
-		EXPECT_EQ(ValidationResult(0x0000FFFF), MakeValidationResult(0, 0, 0xFFFF, 0));
-		EXPECT_EQ(ValidationResult(0x3F000000), MakeValidationResult(0, 0, 0, 0xFF));
+		EXPECT_EQ(static_cast<ValidationResult>(0xC0000000), MakeValidationResult(0xFF, 0, 0, 0));
+		EXPECT_EQ(static_cast<ValidationResult>(0x00FF0000), MakeValidationResult(0, 0xFF, 0, 0));
+		EXPECT_EQ(static_cast<ValidationResult>(0x0000FFFF), MakeValidationResult(0, 0, 0xFFFF, 0));
+		EXPECT_EQ(static_cast<ValidationResult>(0x3F000000), MakeValidationResult(0, 0, 0, 0xFF));
 
 		// - all component values
-		EXPECT_EQ(ValidationResult(0x47020005), MakeValidationResult(1, 2, 5, 7));
+		EXPECT_EQ(static_cast<ValidationResult>(0x47020005), MakeValidationResult(1, 2, 5, 7));
 	}
 
 	TEST(TEST_CLASS, CanMakeValidationResultViaMacro) {
@@ -59,9 +59,9 @@ namespace catapult { namespace validators {
 		DEFINE_VALIDATION_RESULT(Failure, Transfer, Gamma, 0x00AB, None);
 
 		// Assert:
-		EXPECT_EQ(ValidationResult(0x41431234), Neutral_Core_Alpha);
-		EXPECT_EQ(ValidationResult(0x00FF8800), Success_Chain_Beta);
-		EXPECT_EQ(ValidationResult(0x805400AB), Failure_Transfer_Gamma);
+		EXPECT_EQ(static_cast<ValidationResult>(0x41431234), Neutral_Core_Alpha);
+		EXPECT_EQ(static_cast<ValidationResult>(0x00FF8800), Success_Chain_Beta);
+		EXPECT_EQ(static_cast<ValidationResult>(0x805400AB), Failure_Transfer_Gamma);
 	}
 
 	// endregion
@@ -168,25 +168,25 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, CanOutputKnownPluginEnumValues) {
 		// Assert:
-		EXPECT_EQ("Failure_Aggregate_Too_Many_Cosignatures", test::ToString(ValidationResult(0x80410003)));
-		EXPECT_EQ("Failure_Chain_Unlinked", test::ToString(ValidationResult(0x80FF0066)));
-		EXPECT_EQ("Failure_Consumer_Remote_Chain_Improper_Link", test::ToString(ValidationResult(0x80FE2002)));
-		EXPECT_EQ("Failure_Core_Insufficient_Balance", test::ToString(ValidationResult(0x80430005)));
-		EXPECT_EQ("Failure_Extension_Partial_Transaction_Cache_Prune", test::ToString(ValidationResult(0x80450101)));
-		EXPECT_EQ("Failure_Hash_Exists", test::ToString(ValidationResult(0x81480007)));
-		EXPECT_EQ("Failure_LockHash_Invalid_Mosaic_Amount", test::ToString(ValidationResult(0x80480002)));
-		EXPECT_EQ("Failure_LockSecret_Invalid_Hash_Algorithm", test::ToString(ValidationResult(0x80520001)));
-		EXPECT_EQ("Failure_Mosaic_Invalid_Name", test::ToString(ValidationResult(0x804D0002)));
-		EXPECT_EQ("Failure_Multisig_Modify_Redundant_Modifications", test::ToString(ValidationResult(0x80550003)));
-		EXPECT_EQ("Failure_Namespace_Invalid_Name", test::ToString(ValidationResult(0x804E0002)));
-		EXPECT_EQ("Failure_Signature_Not_Verifiable", test::ToString(ValidationResult(0x80530008)));
-		EXPECT_EQ("Failure_Transfer_Message_Too_Large", test::ToString(ValidationResult(0x80540006)));
+		EXPECT_EQ("Failure_Aggregate_Too_Many_Cosignatures", test::ToString(static_cast<ValidationResult>(0x80410003)));
+		EXPECT_EQ("Failure_Chain_Unlinked", test::ToString(static_cast<ValidationResult>(0x80FF0066)));
+		EXPECT_EQ("Failure_Consumer_Remote_Chain_Improper_Link", test::ToString(static_cast<ValidationResult>(0x80FE2002)));
+		EXPECT_EQ("Failure_Core_Insufficient_Balance", test::ToString(static_cast<ValidationResult>(0x80430005)));
+		EXPECT_EQ("Failure_Extension_Partial_Transaction_Cache_Prune", test::ToString(static_cast<ValidationResult>(0x80450101)));
+		EXPECT_EQ("Failure_Hash_Exists", test::ToString(static_cast<ValidationResult>(0x81480007)));
+		EXPECT_EQ("Failure_LockHash_Invalid_Mosaic_Amount", test::ToString(static_cast<ValidationResult>(0x80480002)));
+		EXPECT_EQ("Failure_LockSecret_Invalid_Hash_Algorithm", test::ToString(static_cast<ValidationResult>(0x80520001)));
+		EXPECT_EQ("Failure_Mosaic_Invalid_Name", test::ToString(static_cast<ValidationResult>(0x804D0002)));
+		EXPECT_EQ("Failure_Multisig_Modify_Redundant_Modifications", test::ToString(static_cast<ValidationResult>(0x80550003)));
+		EXPECT_EQ("Failure_Namespace_Invalid_Name", test::ToString(static_cast<ValidationResult>(0x804E0002)));
+		EXPECT_EQ("Failure_Signature_Not_Verifiable", test::ToString(static_cast<ValidationResult>(0x80530008)));
+		EXPECT_EQ("Failure_Transfer_Message_Too_Large", test::ToString(static_cast<ValidationResult>(0x80540006)));
 	}
 
 	TEST(TEST_CLASS, CanOutputUnknownEnumValues) {
 		// Assert:
-		EXPECT_EQ("ValidationResult(0xABCD9812)", test::ToString(ValidationResult(0xABCD9812)));
-		EXPECT_EQ("ValidationResult(0x00CD9812)", test::ToString(ValidationResult(0x00CD9812)));
+		EXPECT_EQ("ValidationResult<0xABCD9812>", test::ToString(static_cast<ValidationResult>(0xABCD9812)));
+		EXPECT_EQ("ValidationResult<0x00CD9812>", test::ToString(static_cast<ValidationResult>(0x00CD9812)));
 	}
 
 	// endregion

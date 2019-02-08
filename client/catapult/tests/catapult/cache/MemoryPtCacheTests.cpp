@@ -709,6 +709,12 @@ namespace catapult { namespace cache {
 			using CacheType = MemoryPtCache;
 
 		public:
+			static UnknownTransactionInfos GetUnknownTransactions(
+					const MemoryPtCacheView& view,
+					const ShortHashPairMap& knownShortHashPairs) {
+				return view.unknownTransactions(knownShortHashPairs);
+			}
+
 			static void AddAllToCache(cache::PtCache& cache, const std::vector<model::TransactionInfo>& transactionInfos) {
 				AddAll(cache, transactionInfos);
 			}

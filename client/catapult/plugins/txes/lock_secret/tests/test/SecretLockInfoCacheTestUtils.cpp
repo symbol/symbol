@@ -30,7 +30,7 @@ namespace catapult { namespace test {
 				Amount(Random()),
 				height,
 				static_cast<model::LockHashAlgorithm>(RandomByte()),
-				GenerateRandomData<Hash512_Size>(),
+				GenerateRandomData<Hash256_Size>(),
 				GenerateRandomData<Address_Decoded_Size>());
 	}
 

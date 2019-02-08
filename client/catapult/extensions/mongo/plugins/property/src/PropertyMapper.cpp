@@ -21,8 +21,10 @@
 #include "PropertyMapper.h"
 #include "mongo/src/MongoTransactionPluginFactory.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/property/src/model/PropertyTransaction.h"
+#include "plugins/txes/property/src/model/AddressPropertyTransaction.h"
+#include "plugins/txes/property/src/model/MosaicPropertyTransaction.h"
 #include "plugins/txes/property/src/model/PropertyTypes.h"
+#include "plugins/txes/property/src/model/TransactionTypePropertyTransaction.h"
 #include "plugins/txes/property/src/state/PropertyUtils.h"
 
 using namespace catapult::mongo::mappers;

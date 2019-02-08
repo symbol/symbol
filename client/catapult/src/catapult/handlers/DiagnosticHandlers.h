@@ -23,6 +23,7 @@
 #include <vector>
 
 namespace catapult {
+	namespace io { class BlockStorageCache; }
 	namespace ionet { class NodeContainer; }
 	namespace utils { class DiagnosticCounter; }
 }
@@ -34,4 +35,7 @@ namespace catapult { namespace handlers {
 
 	/// Registers a diagnostic nodes handler in \a handlers that responds with info about all (active) partner nodes in \a nodeContainer.
 	void RegisterDiagnosticNodesHandler(ionet::ServerPacketHandlers& handlers, const ionet::NodeContainer& nodeContainer);
+
+	/// Registers a diagnostic block statement handler in \a handlers that responds with data from \a storage.
+	void RegisterDiagnosticBlockStatementHandler(ionet::ServerPacketHandlers& handlers, const io::BlockStorageCache& storage);
 }}

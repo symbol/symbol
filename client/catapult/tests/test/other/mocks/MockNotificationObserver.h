@@ -30,7 +30,7 @@ namespace catapult { namespace mocks {
 	class MockNotificationObserverT : public observers::NotificationObserverT<TNotification> {
 	public:
 		/// Creates a mock observer with a default name.
-		MockNotificationObserverT() : MockNotificationObserverT("MockObserverT")
+		MockNotificationObserverT() : MockNotificationObserverT("MockNotificationObserverT")
 		{}
 
 		/// Creates a mock observer with \a name.
@@ -42,7 +42,7 @@ namespace catapult { namespace mocks {
 			return m_name;
 		}
 
-		void notify(const TNotification& notification, const observers::ObserverContext& context) const override {
+		void notify(const TNotification& notification, observers::ObserverContext& context) const override {
 			m_notificationHashes.push_back(test::CalculateNotificationHash(notification));
 			m_notificationTypes.push_back(notification.Type);
 

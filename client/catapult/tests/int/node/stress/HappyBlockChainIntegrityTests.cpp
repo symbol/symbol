@@ -21,12 +21,14 @@
 #include "sdk/src/extensions/TransactionExtensions.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/config/ValidateConfiguration.h"
+#include "catapult/model/BlockUtils.h"
 #include "catapult/model/ChainScore.h"
 #include "tests/int/node/stress/test/BlockChainBuilder.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 #include "tests/int/node/test/LocalNodeTestContext.h"
 #include "tests/test/nodeps/Logging.h"
 #include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -48,7 +50,7 @@ namespace catapult { namespace local {
 		using NodeTestContext = test::LocalNodeTestContext<HappyLocalNodeTraits>;
 
 		uint16_t GetPortForNode(uint32_t id) {
-			return static_cast<uint16_t>(test::Local_Host_Port + 10 * (id + 1));
+			return static_cast<uint16_t>(test::GetLocalHostPort() + 10 * (id + 1));
 		}
 
 		ionet::Node CreateNode(uint32_t id) {
@@ -123,7 +125,9 @@ namespace catapult { namespace local {
 
 		ChainStatistics PushRandomBlockChainToNode(
 				const ionet::Node& node,
-				test::StateHashCalculator&& stateHashCalculator,
+				test::StateHashCalculator& stateHashCalculator,
+				const std::string& resourcesPath,
+				const test::BlockChainBuilder::BlockReceiptsHashCalculator& blockReceiptsHashCalculator,
 				size_t numBlocks,
 				Timestamp blockTimeInterval) {
 			constexpr uint32_t Num_Accounts = 11;
@@ -132,8 +136,9 @@ namespace catapult { namespace local {
 			auto blockChainConfig = test::CreateLocalNodeBlockChainConfiguration();
 			UpdateBlockChainConfiguration(blockChainConfig);
 
-			test::BlockChainBuilder builder(accounts, stateHashCalculator, blockChainConfig);
+			test::BlockChainBuilder builder(accounts, stateHashCalculator, blockChainConfig, resourcesPath);
 			builder.setBlockTimeInterval(blockTimeInterval);
+			builder.setBlockReceiptsHashCalculator(blockReceiptsHashCalculator);
 
 			for (auto i = 0u; i < numBlocks; ++i) {
 				// don't allow account 0 to be recipient because it is sender
@@ -207,7 +212,34 @@ namespace catapult { namespace local {
 		struct SparseNetworkTraits {
 			static std::vector<ionet::Node> GetPeersForNode(uint32_t id, const std::vector<ionet::Node>& networkNodes) {
 				// let each node only pull from "next" node
-				return { networkNodes[(id + 1) % (networkNodes.size() - 1)] };
+				return { networkNodes[(id + 1) % networkNodes.size()] };
+			}
+		};
+
+		// endregion
+
+		// region block receipts traits
+
+		class BlockReceiptsDisabledTraits {
+		public:
+			Hash256 calculateReceiptsHash(const model::Block&) const {
+				return Hash256();
+			}
+		};
+
+		class BlockReceiptsEnabledTraits {
+		public:
+			Hash256 calculateReceiptsHash(const model::Block& block) const {
+				// happy block chain tests send transfers, so only harvest fee receipt needs to be added
+				auto totalFee = model::CalculateBlockTransactionsInfo(block).TotalFee;
+
+				model::BlockStatementBuilder blockStatementBuilder;
+				auto currencyMosaicId = test::Default_Currency_Mosaic_Id;
+				model::BalanceChangeReceipt receipt(model::Receipt_Type_Harvest_Fee, block.Signer, currencyMosaicId, totalFee);
+				blockStatementBuilder.addReceipt(receipt);
+
+				auto pStatement = blockStatementBuilder.build();
+				return model::CalculateMerkleHash(*pStatement);
 			}
 		};
 
@@ -217,7 +249,13 @@ namespace catapult { namespace local {
 
 		class StateHashDisabledTraits {
 		public:
-			static constexpr auto Node_Flag = test::NodeFlag::Regular;
+#if defined __APPLE__
+			static constexpr size_t Dense_Network_Size = 8;
+			static constexpr size_t Sparse_Network_Size = Default_Network_Size;
+#else
+			static constexpr size_t Dense_Network_Size = Default_Network_Size;
+			static constexpr size_t Sparse_Network_Size = Default_Network_Size;
+#endif
 
 		public:
 			test::StateHashCalculator createStateHashCalculator(const NodeTestContext&) const {
@@ -227,17 +265,25 @@ namespace catapult { namespace local {
 
 		class StateHashEnabledTraits {
 		public:
-			static constexpr auto Node_Flag = test::NodeFlag::Verify_State;
+#if defined __APPLE__
+			static constexpr size_t Dense_Network_Size = 4;
+			static constexpr size_t Sparse_Network_Size = 6;
+#else
+			static constexpr size_t Dense_Network_Size = Default_Network_Size;
+			static constexpr size_t Sparse_Network_Size = Default_Network_Size;
+#endif
+
+			static constexpr auto State_Hash_Directory = "statehash";
 
 		public:
 			StateHashEnabledTraits()
-					: m_stateHashCalculationDir("../temp/statehash") // isolated directory used for state hash calculation
+					: m_stateHashCalculationDir(State_Hash_Directory) // isolated directory used for state hash calculation
 			{}
 
 		public:
 			test::StateHashCalculator createStateHashCalculator(const NodeTestContext& context) const {
 				{
-					test::TempDirectoryGuard forceCleanResourcesDir(m_stateHashCalculationDir.name());
+					test::TempDirectoryGuard forceCleanResourcesDir(State_Hash_Directory);
 				}
 
 				return test::StateHashCalculator(context.prepareFreshDataDirectory(m_stateHashCalculationDir.name()));
@@ -249,10 +295,12 @@ namespace catapult { namespace local {
 
 		// endregion
 
-		template<typename TNetworkTraits, typename TStateHashTraits>
-		void AssertMultiNodeNetworkCanReachConsensus(TStateHashTraits&& stateHashTraits, size_t networkSize) {
+		// region consensus test
+
+		template<typename TNetworkTraits, typename TVerifyTraits>
+		void AssertMultiNodeNetworkCanReachConsensus(TVerifyTraits&& verifyTraits, size_t networkSize) {
 			// Arrange: create nodes
-			test::GlobalLogFilter testLogFilter(utils::LogLevel::Info);
+			test::GlobalLogFilter testLogFilter(utils::LogLevel::Debug);
 			auto networkNodes = CreateNodes(networkSize);
 
 			// Act: boot all nodes
@@ -261,7 +309,7 @@ namespace catapult { namespace local {
 			ChainStatistics bestChainStats;
 			for (auto i = 0u; i < networkSize; ++i) {
 				// - give each node a separate directory
-				auto nodeFlag = test::NodeFlag::Require_Explicit_Boot | TStateHashTraits::Node_Flag;
+				auto nodeFlag = test::NodeFlag::Require_Explicit_Boot | TVerifyTraits::Node_Flag;
 				auto peers = TNetworkTraits::GetPeersForNode(i, networkNodes);
 				auto configTransform = [i](auto& config) {
 					UpdateConfigurationForNode(config, i);
@@ -279,9 +327,14 @@ namespace catapult { namespace local {
 				// - vary time spacing so that all chains will have different scores
 				auto numBlocks = RandomByteClamped(Max_Rollback_Blocks - 1) + 1u; // always generate at least one block
 				chainHeights.push_back(numBlocks + 1);
+
+				// - when stateHashCalculator data directory is empty, there is no cache lock so node resources can be used directly
+				auto stateHashCalculator = verifyTraits.createStateHashCalculator(context);
 				auto chainStats = PushRandomBlockChainToNode(
 						networkNodes[i],
-						stateHashTraits.createStateHashCalculator(context),
+						stateHashCalculator,
+						stateHashCalculator.dataDirectory().empty() ? context.dataDirectory() : stateHashCalculator.dataDirectory(),
+						[&verifyTraits](const auto& block) { return verifyTraits.calculateReceiptsHash(block); },
 						numBlocks,
 						Timestamp(60'000 + i * 1'000));
 
@@ -317,46 +370,49 @@ namespace catapult { namespace local {
 				}
 			}
 		}
+
+		// endregion
+
+		// region verify traits
+
+		class VerifyNoneTraits : public StateHashDisabledTraits, public BlockReceiptsDisabledTraits {
+		public:
+			static constexpr auto Node_Flag = test::NodeFlag::Regular;
+		};
+
+		class VerifyReceiptsTraits : public StateHashDisabledTraits, public BlockReceiptsEnabledTraits {
+		public:
+			static constexpr auto Node_Flag = test::NodeFlag::Verify_Receipts;
+		};
+
+		class VerifyStateTraits : public StateHashEnabledTraits, public BlockReceiptsDisabledTraits {
+		public:
+			static constexpr auto Node_Flag = test::NodeFlag::Verify_State;
+		};
+
+		class VerifyAllTraits : public StateHashEnabledTraits, public BlockReceiptsEnabledTraits {
+		public:
+			static constexpr auto Node_Flag = test::NodeFlag::Verify_State | test::NodeFlag::Verify_Receipts;
+		};
+
+		// endregion
 	}
 
-	NO_STRESS_TEST(TEST_CLASS, MultiNodeDenseNetworkCanReachConsensus) {
-		// Arrange: allow test to pass with low default MacOS file descriptor limit
-#if defined __APPLE__
-		static constexpr size_t Network_Size = 8;
-#else
-		static constexpr size_t Network_Size = Default_Network_Size;
-#endif
+#define VERIFY_OPTIONS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyNone) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyNoneTraits>(); } \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyReceipts) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyReceiptsTraits>(); } \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyState) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyStateTraits>(); } \
+	NO_STRESS_TEST(TEST_CLASS, TEST_NAME##_VerifyAll) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifyAllTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
+	VERIFY_OPTIONS_BASED_TEST(MultiNodeDenseNetworkCanReachConsensus) {
 		// Assert:
-		AssertMultiNodeNetworkCanReachConsensus<DenseNetworkTraits>(StateHashDisabledTraits(), Network_Size);
+		AssertMultiNodeNetworkCanReachConsensus<DenseNetworkTraits>(TTraits(), TTraits::Dense_Network_Size);
 	}
 
-	NO_STRESS_TEST(TEST_CLASS, MultiNodeDenseNetworkCanReachConsensusWithStateHashEnabled) {
-		// Arrange: allow test to pass with low default MacOS file descriptor limit
-#if defined __APPLE__
-		static constexpr size_t Network_Size = 4;
-#else
-		static constexpr size_t Network_Size = Default_Network_Size;
-#endif
-
+	VERIFY_OPTIONS_BASED_TEST(MultiNodeSparseNetworkCanReachConsensus) {
 		// Assert:
-		AssertMultiNodeNetworkCanReachConsensus<DenseNetworkTraits>(StateHashEnabledTraits(), Network_Size);
-	}
-
-	NO_STRESS_TEST(TEST_CLASS, MultiNodeSparseNetworkCanReachConsensus) {
-		// Assert:
-		AssertMultiNodeNetworkCanReachConsensus<SparseNetworkTraits>(StateHashDisabledTraits(), Default_Network_Size);
-	}
-
-	NO_STRESS_TEST(TEST_CLASS, MultiNodeSparseNetworkCanReachConsensusWithStateHashEnabled) {
-		// Arrange: allow test to pass with low default MacOS file descriptor limit
-#if defined __APPLE__
-		static constexpr size_t Network_Size = 6;
-#else
-		static constexpr size_t Network_Size = Default_Network_Size;
-#endif
-
-		// Assert:
-		AssertMultiNodeNetworkCanReachConsensus<SparseNetworkTraits>(StateHashEnabledTraits(), Network_Size);
+		AssertMultiNodeNetworkCanReachConsensus<SparseNetworkTraits>(TTraits(), TTraits::Sparse_Network_Size);
 	}
 }}

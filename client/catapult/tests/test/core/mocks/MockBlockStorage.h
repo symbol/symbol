@@ -23,16 +23,13 @@
 
 namespace catapult { namespace mocks {
 
-	/// A mock block storage that only supports chain height accesses.
-	class MockHeightOnlyBlockStorage : public io::BlockStorage {
-	public:
-		/// Creates the storage with height \a chainHeight.
-		explicit MockHeightOnlyBlockStorage(Height chainHeight) : m_chainHeight(chainHeight)
-		{}
+	// region UnsupportedBlockStorage
 
+	/// An unsupported block storage.
+	class UnsupportedBlockStorage : public io::BlockStorage {
 	public:
 		Height chainHeight() const override {
-			return m_chainHeight;
+			CATAPULT_THROW_RUNTIME_ERROR("chainHeight - not supported in mock");
 		}
 
 		model::HashRange loadHashesFrom(Height, size_t) const override {
@@ -55,9 +52,34 @@ namespace catapult { namespace mocks {
 			CATAPULT_THROW_RUNTIME_ERROR("loadBlockElement - not supported in mock");
 		}
 
+		std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height) const override {
+			CATAPULT_THROW_RUNTIME_ERROR("loadBlockStatementData - not supported in mock");
+		}
+	};
+
+	// endregion
+
+	// region MockHeightOnlyBlockStorage
+
+	/// A mock block storage that only supports chain height accesses.
+	class MockHeightOnlyBlockStorage : public UnsupportedBlockStorage {
+	public:
+		/// Creates the storage with height \a chainHeight.
+		explicit MockHeightOnlyBlockStorage(Height chainHeight) : m_chainHeight(chainHeight)
+		{}
+
+	public:
+		Height chainHeight() const override {
+			return m_chainHeight;
+		}
+
 	private:
 		Height m_chainHeight;
 	};
+
+	// endregion
+
+	// region MockSavingBlockStorage
 
 	/// A mock block storage that captures saved blocks.
 	class MockSavingBlockStorage : public MockHeightOnlyBlockStorage {
@@ -78,4 +100,6 @@ namespace catapult { namespace mocks {
 	private:
 		std::vector<model::BlockElement> m_savedBlockElements;
 	};
+
+	// endregion
 }}

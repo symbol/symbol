@@ -22,12 +22,10 @@
 #include "src/cache/MultisigCache.h"
 #include "src/cache/MultisigCacheStorage.h"
 #include "src/config/MultisigConfiguration.h"
-#include "src/handlers/MultisigDiagnosticHandlers.h"
 #include "src/observers/Observers.h"
 #include "src/plugins/ModifyMultisigAccountTransactionPlugin.h"
 #include "src/validators/Validators.h"
-#include "catapult/handlers/CacheEntryInfosProducerFactory.h"
-#include "catapult/handlers/StatePathHandlerFactory.h"
+#include "catapult/plugins/CacheHandlers.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace plugins {
@@ -38,12 +36,13 @@ namespace catapult { namespace plugins {
 		manager.addCacheSupport<cache::MultisigCacheStorage>(
 				std::make_unique<cache::MultisigCache>(manager.cacheConfig(cache::MultisigCache::Name)));
 
-		manager.addDiagnosticHandlerHook([](auto& handlers, const cache::CatapultCache& cache) {
-			using MultisigInfosProducerFactory = handlers::CacheEntryInfosProducerFactory<cache::MultisigCacheDescriptor>;
-			handlers::RegisterMultisigInfosHandler(handlers, MultisigInfosProducerFactory::Create(cache.sub<cache::MultisigCache>()));
+		using CacheHandlers = CacheHandlers<cache::MultisigCacheDescriptor>;
+		CacheHandlers::Register<model::FacilityCode::Multisig>(manager);
 
-			using PacketType = handlers::StatePathRequestPacket<ionet::PacketType::Multisig_State_Path, Key>;
-			handlers::RegisterStatePathHandler<PacketType>(handlers, cache.sub<cache::MultisigCache>());
+		manager.addDiagnosticCounterHook([](auto& counters, const cache::CatapultCache& cache) {
+			counters.emplace_back(utils::DiagnosticCounterId("MULTISIG C"), [&cache]() {
+				return cache.sub<cache::MultisigCache>().createView()->size();
+			});
 		});
 
 		manager.addStatelessValidatorHook([](auto& builder) {

@@ -34,7 +34,7 @@ namespace catapult { namespace extensions {
 	/// An interface for saving and loading block chains.
 	class BlockChainStorage : public utils::NonCopyable {
 	public:
-		virtual ~BlockChainStorage() {}
+		virtual ~BlockChainStorage() = default;
 
 	public:
 		/// Loads data from storage into \a stateRef using plugins registered with \a pluginManager.

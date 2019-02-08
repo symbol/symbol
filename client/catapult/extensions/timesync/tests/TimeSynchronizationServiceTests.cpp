@@ -57,15 +57,15 @@ namespace catapult { namespace timesync {
 
 		constexpr uint64_t Default_Threshold = 85;
 
-		cache::CatapultCache CreateCache(Amount totalChainBalance) {
+		cache::CatapultCache CreateCache(Importance totalChainImportance) {
 			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
 			blockChainConfig.ImportanceGrouping = 123;
-			blockChainConfig.TotalChainBalance = totalChainBalance;
+			blockChainConfig.TotalChainImportance = totalChainImportance;
 			return test::CoreSystemCacheFactory::Create(blockChainConfig);
 		}
 
 		cache::CatapultCache CreateCache() {
-			return CreateCache(Amount());
+			return CreateCache(Importance());
 		}
 
 		struct TimeSynchronizationServiceTraits {
@@ -188,7 +188,7 @@ namespace catapult { namespace timesync {
 
 	namespace {
 		constexpr uint8_t Positive = 0u;
-		constexpr Amount Total_Chain_Balance(1'000'000'000'000);
+		constexpr Importance Total_Chain_Importance(1'000'000);
 
 		auto CreateValidResponsePacket(uint64_t timeOffset) {
 			auto pResponsePacket = ionet::CreateSharedPacket<api::NetworkTimePacket>();
@@ -212,7 +212,7 @@ namespace catapult { namespace timesync {
 		void AssertStateChange(int64_t remoteOffset, Importance importance, ResponseType responseType, TAssertState assertState) {
 			// Arrange: prepare account state cache
 			auto keyPair = test::GenerateKeyPair();
-			auto cache = CreateCache(Total_Chain_Balance);
+			auto cache = CreateCache(Total_Chain_Importance);
 			{
 				auto cacheDelta = cache.createDelta();
 				test::AddAccount(cacheDelta.sub<cache::AccountStateCache>(), keyPair.publicKey(), importance, model::ImportanceHeight(1));
@@ -232,7 +232,8 @@ namespace catapult { namespace timesync {
 
 			// - prepare context
 			TestContext context(std::move(cache), timeSupplier);
-			const_cast<model::BlockChainConfiguration&>(context.testState().config().BlockChain).TotalChainBalance = Total_Chain_Balance;
+			auto& blockChainConfig = const_cast<model::BlockChainConfiguration&>(context.testState().config().BlockChain);
+			blockChainConfig.TotalChainImportance = Total_Chain_Importance;
 			test::AddNode(context.testState().state().nodes(), keyPair.publicKey(), "alice");
 			auto pTimeSyncState = std::make_shared<TimeSynchronizationState>(Default_Threshold);
 			context.boot(pTimeSyncState);

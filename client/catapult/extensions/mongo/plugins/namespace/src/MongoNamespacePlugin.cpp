@@ -18,18 +18,21 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "MosaicDefinitionMapper.h"
-#include "MosaicSupplyChangeMapper.h"
+#include "AddressAliasMapper.h"
+#include "MosaicAliasMapper.h"
+#include "NamespaceExpiryReceiptMapper.h"
 #include "RegisterNamespaceMapper.h"
-#include "storages/MongoMosaicCacheStorage.h"
 #include "storages/MongoNamespaceCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
+#include "mongo/src/MongoReceiptPluginFactory.h"
+#include "plugins/txes/namespace/src/constants.h"
+#include "plugins/txes/namespace/src/model/NamespaceReceiptType.h"
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 	// transaction support
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicDefinitionTransactionMongoPlugin());
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicSupplyChangeTransactionMongoPlugin());
+	manager.addTransactionSupport(catapult::mongo::plugins::CreateAddressAliasTransactionMongoPlugin());
+	manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicAliasTransactionMongoPlugin());
 	manager.addTransactionSupport(catapult::mongo::plugins::CreateRegisterNamespaceTransactionMongoPlugin());
 
 	// cache storage support
@@ -37,8 +40,9 @@ void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 			manager.createDatabaseConnection(),
 			manager.mongoContext().bulkWriter(),
 			manager.chainConfig().Network.Identifier));
-	manager.addStorageSupport(catapult::mongo::plugins::CreateMongoMosaicCacheStorage(
-			manager.createDatabaseConnection(),
-			manager.mongoContext().bulkWriter(),
-			manager.chainConfig().Network.Identifier));
+
+	// receipt support
+	manager.addReceiptSupport(catapult::mongo::plugins::CreateNamespaceExpiryReceiptMongoPlugin());
+	manager.addReceiptSupport(catapult::mongo::CreateBalanceTransferReceiptMongoPlugin(
+			catapult::model::Receipt_Type_Namespace_Rental_Fee));
 }

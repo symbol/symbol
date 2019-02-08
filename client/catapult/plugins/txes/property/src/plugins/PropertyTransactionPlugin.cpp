@@ -19,8 +19,10 @@
 **/
 
 #include "PropertyTransactionPlugin.h"
+#include "src/model/AddressPropertyTransaction.h"
+#include "src/model/MosaicPropertyTransaction.h"
 #include "src/model/PropertyNotifications.h"
-#include "src/model/PropertyTransaction.h"
+#include "src/model/TransactionTypePropertyTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
 #include "catapult/utils/UnresolvedAddress.h"
@@ -35,10 +37,6 @@ namespace catapult { namespace plugins {
 			using ResolvedValueType = Address;
 			using ModifyPropertyNotification = ModifyAddressPropertyNotification;
 			using ModifyPropertyValueNotification = ModifyAddressPropertyValueNotification;
-
-			static auto Resolve(const PublisherContext& context, const UnresolvedValueType& unresolvedValue) {
-				return context.resolve(unresolvedValue);
-			}
 		};
 
 		struct MosaicTraits {
@@ -46,10 +44,6 @@ namespace catapult { namespace plugins {
 			using ResolvedValueType = MosaicId;
 			using ModifyPropertyNotification = ModifyMosaicPropertyNotification;
 			using ModifyPropertyValueNotification = ModifyMosaicPropertyValueNotification;
-
-			static auto Resolve(const PublisherContext& context, const UnresolvedValueType& unresolvedValue) {
-				return context.resolve(unresolvedValue);
-			}
 		};
 
 		struct TransactionTypeTraits {
@@ -57,26 +51,22 @@ namespace catapult { namespace plugins {
 			using ResolvedValueType = model::EntityType;
 			using ModifyPropertyNotification = ModifyTransactionTypePropertyNotification;
 			using ModifyPropertyValueNotification = ModifyTransactionTypePropertyValueNotification;
-
-			static auto Resolve(const PublisherContext&, const UnresolvedValueType& unresolvedValue) {
-				return unresolvedValue;
-			}
 		};
 
 		template<typename TTraits>
 		class Publisher {
 		public:
 			template<typename TTransaction>
-			static void Publish(const TTransaction& transaction, const PublisherContext& context, NotificationSubscriber& sub) {
+			static void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
 				sub.notify(PropertyTypeNotification(transaction.PropertyType));
 				sub.notify(CreatePropertyModificationsNotification<TTransaction>(transaction));
 
 				using ValueNotification = typename TTraits::ModifyPropertyValueNotification;
 				const auto* pModifications = transaction.ModificationsPtr();
 				for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
-					PropertyModification<typename TTraits::ResolvedValueType> modification{
+					PropertyModification<typename TTraits::UnresolvedValueType> modification{
 						pModifications[i].ModificationType,
-						TTraits::Resolve(context, pModifications[i].Value)
+						pModifications[i].Value
 					};
 					sub.notify(ValueNotification(transaction.Signer, transaction.PropertyType, modification));
 				}

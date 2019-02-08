@@ -35,7 +35,11 @@ extern "C" {
 #pragma clang diagnostic pop
 #endif
 
+#include <sha256/crypto_hash_sha256.h>
+
 namespace catapult { namespace crypto {
+
+	// region free functions
 
 	void Ripemd160(const RawBuffer& dataBuffer, Hash160& hash) noexcept {
 		struct ripemd160 context;
@@ -43,67 +47,105 @@ namespace catapult { namespace crypto {
 		memcpy(hash.data(), context.u.u8, Hash160_Size);
 	}
 
-	void Sha3_256(const RawBuffer& dataBuffer, Hash256& hash) noexcept {
-		Sha3_256_Builder sha3;
-		sha3.update(dataBuffer);
-		sha3.final(hash);
+	namespace {
+		void Sha256(crypto_hash_sha256_state& state, const RawBuffer& dataBuffer, Hash256& hash) {
+			crypto_hash_sha256_init(&state);
+			crypto_hash_sha256_update(&state, dataBuffer.pData, dataBuffer.Size);
+			crypto_hash_sha256_final(&state, hash.data());
+		}
 	}
 
-	void Sha3_512(const RawBuffer& dataBuffer, Hash512& hash) noexcept {
-		Sha3_512_Builder sha3;
-		sha3.update(dataBuffer);
-		sha3.final(hash);
+	void Bitcoin160(const RawBuffer& dataBuffer, Hash160& hash) noexcept {
+		crypto_hash_sha256_state state;
+		Hash256 firstHash;
+		Sha256(state, dataBuffer, firstHash);
+		Ripemd160(firstHash, hash);
+	}
+
+	void Sha256Double(const RawBuffer& dataBuffer, Hash256& hash) noexcept {
+		crypto_hash_sha256_state state;
+		Hash256 firstHash;
+		Sha256(state, dataBuffer, firstHash);
+		Sha256(state, firstHash, hash);
 	}
 
 	namespace {
-		auto CastToKeccakHashInstance(uint8_t* pHashContext) noexcept {
+		template<typename TBuilder, typename THash>
+		void HashSingleBuffer(const RawBuffer& dataBuffer, THash& hash) noexcept {
+			TBuilder hashBuilder;
+			hashBuilder.update(dataBuffer);
+			hashBuilder.final(hash);
+		}
+	}
+
+	void Sha3_256(const RawBuffer& dataBuffer, Hash256& hash) noexcept {
+		HashSingleBuffer<Sha3_256_Builder>(dataBuffer, hash);
+	}
+
+	void Sha3_512(const RawBuffer& dataBuffer, Hash512& hash) noexcept {
+		HashSingleBuffer<Sha3_512_Builder>(dataBuffer, hash);
+	}
+
+	void Keccak_256(const RawBuffer& dataBuffer, Hash256& hash) noexcept {
+		HashSingleBuffer<Keccak_256_Builder>(dataBuffer, hash);
+	}
+
+	void Keccak_512(const RawBuffer& dataBuffer, Hash512& hash) noexcept {
+		HashSingleBuffer<Keccak_512_Builder>(dataBuffer, hash);
+	}
+
+	// endregion
+
+	// region sha3 / keccak builders
+
+	namespace {
+		Keccak_HashInstance* CastToKeccakHashInstance(uint8_t* pHashContext) noexcept {
 			return reinterpret_cast<Keccak_HashInstance*>(pHashContext);
 		}
 
-#ifdef SIGNATURE_SCHEME_NIS1
-		inline void KeccakFinal(uint8_t* context, uint8_t* output, int hashSize) noexcept {
+		CATAPULT_INLINE void KeccakInitialize(Keccak_HashInstance* pHashContext, std::integral_constant<size_t, 32>) {
+			Keccak_HashInitialize_SHA3_256(pHashContext);
+		}
+
+		CATAPULT_INLINE void KeccakInitialize(Keccak_HashInstance* pHashContext, std::integral_constant<size_t, 64>) {
+			Keccak_HashInitialize_SHA3_512(pHashContext);
+		}
+
+		CATAPULT_INLINE void KeccakFinal(uint8_t* context, uint8_t* output, int hashSize, KeccakModeTag) noexcept {
 			Keccak_HashSqueeze(CastToKeccakHashInstance(context), output, static_cast<uint32_t>(hashSize * 8));
 		}
-#else
-		inline void KeccakFinal(uint8_t* context, uint8_t* output, int /* ignore last argument */) noexcept {
+
+		CATAPULT_INLINE void KeccakFinal(uint8_t* context, uint8_t* output, int /* ignore last argument */, Sha3ModeTag) noexcept {
 			Keccak_HashFinal(CastToKeccakHashInstance(context), output);
 		}
-#endif
 	}
 
-	Sha3_256_Builder::Sha3_256_Builder() {
-		static_assert(sizeof(Keccak_HashInstance) <= sizeof(m_hashContext), "Provided m_hashContext is too small to fit Keccak instance.");
-		Keccak_HashInitialize_SHA3_256(CastToKeccakHashInstance(m_hashContext));
+	template<typename TMode, size_t Size>
+	KeccakBuilder<TMode, Size>::KeccakBuilder() {
+		static_assert(sizeof(Keccak_HashInstance) <= sizeof(m_hashContext), "m_hashContext is too small to fit Keccak instance");
+		KeccakInitialize(CastToKeccakHashInstance(m_hashContext), ByteSizeTag());
 	}
 
-	void Sha3_256_Builder::update(const RawBuffer& dataBuffer) noexcept {
+	template<typename TMode, size_t Size>
+	void KeccakBuilder<TMode, Size>::update(const RawBuffer& dataBuffer) noexcept {
 		Keccak_HashUpdate(CastToKeccakHashInstance(m_hashContext), dataBuffer.pData, dataBuffer.Size * 8);
 	}
 
-	void Sha3_256_Builder::update(std::initializer_list<const RawBuffer> buffersList) noexcept {
-		for (const auto& buffer : buffersList)
+	template<typename TMode, size_t Size>
+	void KeccakBuilder<TMode, Size>::update(std::initializer_list<const RawBuffer> buffers) noexcept {
+		for (const auto& buffer : buffers)
 			update(buffer);
 	}
 
-	void Sha3_256_Builder::final(OutputType& output) noexcept {
-		KeccakFinal(m_hashContext, output.data(), std::tuple_size<OutputType>::value);
+	template<typename TMode, size_t Size>
+	void KeccakBuilder<TMode, Size>::final(OutputType& output) noexcept {
+		KeccakFinal(m_hashContext, output.data(), std::tuple_size<OutputType>::value, TMode());
 	}
 
-	Sha3_512_Builder::Sha3_512_Builder() {
-		static_assert(sizeof(Keccak_HashInstance) <= sizeof(m_hashContext), "Provided m_hashContext is too small to fit Keccak instance.");
-		Keccak_HashInitialize_SHA3_512(CastToKeccakHashInstance(m_hashContext));
-	}
+	template class KeccakBuilder<Sha3ModeTag, 32>;
+	template class KeccakBuilder<Sha3ModeTag, 64>;
+	template class KeccakBuilder<KeccakModeTag, 32>;
+	template class KeccakBuilder<KeccakModeTag, 64>;
 
-	void Sha3_512_Builder::update(const RawBuffer& dataBuffer) noexcept {
-		Keccak_HashUpdate(CastToKeccakHashInstance(m_hashContext), dataBuffer.pData, dataBuffer.Size * 8);
-	}
-
-	void Sha3_512_Builder::update(std::initializer_list<const RawBuffer> buffersList) noexcept {
-		for (const auto& buffer : buffersList)
-			update(buffer);
-	}
-
-	void Sha3_512_Builder::final(OutputType& output) noexcept {
-		KeccakFinal(m_hashContext, output.data(), std::tuple_size<OutputType>::value);
-	}
+	// endregion
 }}

@@ -37,6 +37,7 @@ namespace catapult { namespace extensions {
 
 			size_t NumFactoryCalls = 0;
 			const ionet::PacketIo* pFactoryPacketIo = nullptr;
+			Key FactoryRemotePublicKey;
 			const model::TransactionRegistry* pFactoryTransactionRegistry = nullptr;
 
 			size_t NumActionCalls = 0;
@@ -48,7 +49,8 @@ namespace catapult { namespace extensions {
 				test::ServiceTestState& testState,
 				net::PacketIoPicker& packetIoPicker,
 				bool isChainSynced,
-				TaskCallbackParamsCapture& capture) {
+				TaskCallbackParamsCapture& capture,
+				ionet::NodeInteractionResultCode code = ionet::NodeInteractionResultCode::Success) {
 			const_cast<utils::TimeSpan&>(testState.config().Node.SyncTimeout) = utils::TimeSpan::FromSeconds(Default_Timeout_Seconds);
 
 			testState.state().hooks().setChainSyncedPredicate([isChainSynced, &capture]() {
@@ -56,21 +58,19 @@ namespace catapult { namespace extensions {
 				return isChainSynced;
 			});
 
-			return TTraits::CreateTask(
-				chain::RemoteNodeSynchronizer<int>([&capture](const auto& apiId) {
-					++capture.NumActionCalls;
-					capture.ActionApiId = apiId;
-					return thread::make_ready_future(chain::NodeInteractionResult::Success);
-				}),
-				[&capture](const auto& packetIo, const auto& registry) {
-					++capture.NumFactoryCalls;
-					capture.pFactoryPacketIo = &packetIo;
-					capture.pFactoryTransactionRegistry = &registry;
-					return std::make_unique<int>(Default_Action_Api_Id);
-				},
-				packetIoPicker,
-				testState.state(),
-				"test");
+			auto synchronizer = chain::RemoteNodeSynchronizer<int>([&capture, code](const auto& apiId) {
+				++capture.NumActionCalls;
+				capture.ActionApiId = apiId;
+				return thread::make_ready_future(std::move(static_cast<ionet::NodeInteractionResultCode>(code)));
+			});
+			auto remoteApiFactory = [&capture](const auto& packetIo, const auto& remotePublicKey, const auto& registry) {
+				++capture.NumFactoryCalls;
+				capture.pFactoryPacketIo = &packetIo;
+				capture.FactoryRemotePublicKey = remotePublicKey;
+				capture.pFactoryTransactionRegistry = &registry;
+				return std::make_unique<int>(Default_Action_Api_Id);
+			};
+			return TTraits::CreateTask(std::move(synchronizer), remoteApiFactory, packetIoPicker, testState.state(), "test");
 		}
 
 		struct DefaultCallbackTraits {
@@ -121,8 +121,10 @@ namespace catapult { namespace extensions {
 			// Arrange: create writers with a valid packet
 			test::ServiceTestState testState;
 			auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
+			auto identityKey = test::GenerateRandomData<Key_Size>();
 			mocks::PickOneAwareMockPacketWriters writers;
 			writers.setPacketIo(pPacketIo);
+			writers.setNodeIdentity(identityKey);
 
 			// Act:
 			TaskCallbackParamsCapture capture;
@@ -141,6 +143,7 @@ namespace catapult { namespace extensions {
 			// - factory was called
 			EXPECT_EQ(1u, capture.NumFactoryCalls);
 			EXPECT_EQ(pPacketIo.get(), capture.pFactoryPacketIo);
+			EXPECT_EQ(identityKey, capture.FactoryRemotePublicKey);
 			EXPECT_EQ(&testState.state().pluginManager().transactionRegistry(), capture.pFactoryTransactionRegistry);
 
 			// - action was called
@@ -197,5 +200,63 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, ChainSyncedCallback_ActionIsCalledWhenPeerIsAvailableAndChainIsSynched) {
 		// Assert:
 		AssertCallbackCallsAction<ChainSyncAwareCallbackTraits>(true);
+	}
+
+	namespace {
+		template<typename TAssert>
+		void AssertNodeInteractionResultIsInspected(ionet::NodeInteractionResultCode code, TAssert assertFunc) {
+			// Arrange:
+			test::ServiceTestState testState;
+			auto nodeIdentity = test::GenerateRandomData<Key_Size>();
+			auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
+			mocks::PickOneAwareMockPacketWriters writers;
+			writers.setPacketIo(pPacketIo);
+			writers.setNodeIdentity(nodeIdentity);
+
+			{
+				auto nodesModifier = testState.state().nodes().modifier();
+				nodesModifier.add(ionet::Node(nodeIdentity, ionet::NodeEndpoint(), ionet::NodeMetadata()), ionet::NodeSource::Dynamic);
+			}
+
+			// Act:
+			TaskCallbackParamsCapture capture;
+			auto result = ProcessSyncAndCapture<DefaultCallbackTraits>(testState, writers, true, capture, code)().get();
+
+			// Assert:
+			EXPECT_EQ(thread::TaskResult::Continue, result);
+
+			auto interactions = testState.state().nodes().view().getNodeInfo(nodeIdentity).interactions(Timestamp());
+			assertFunc(interactions);
+		}
+
+		void AssertNodeInteractionsAreNotUpdated(ionet::NodeInteractionResultCode code) {
+			AssertNodeInteractionResultIsInspected(code, [](const auto& interactions) {
+				test::AssertNodeInteractions(0, 0, interactions);
+			});
+		}
+	}
+
+	TEST(TEST_CLASS, NodeInteractionsAreUpdatedOnSuccessfulInteraction) {
+		// Assert:
+		AssertNodeInteractionResultIsInspected(ionet::NodeInteractionResultCode::Success, [](const auto& interactions) {
+			test::AssertNodeInteractions(1, 0, interactions);
+		});
+	}
+
+	TEST(TEST_CLASS, NodeInteractionsAreUpdatedOnFailedInteraction) {
+		// Assert:
+		AssertNodeInteractionResultIsInspected(ionet::NodeInteractionResultCode::Failure, [](const auto& interactions) {
+			test::AssertNodeInteractions(0, 1, interactions);
+		});
+	}
+
+	TEST(TEST_CLASS, NodeInteractionsAreNotUpdatedOnNeutralInteraction) {
+		// Assert:
+		AssertNodeInteractionsAreNotUpdated(ionet::NodeInteractionResultCode::Neutral);
+	}
+
+	TEST(TEST_CLASS, NodeInteractionsAreNotUpdatedOnNoneInteraction) {
+		// Assert:
+		AssertNodeInteractionsAreNotUpdated(ionet::NodeInteractionResultCode::None);
 	}
 }}

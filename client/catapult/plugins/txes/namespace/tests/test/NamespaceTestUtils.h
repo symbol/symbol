@@ -36,6 +36,9 @@ namespace catapult { namespace test {
 	/// Creates a random namespace owner.
 	Key CreateRandomOwner();
 
+	/// Generates valid namespace name of length \a size.
+	std::string GenerateValidName(size_t size);
+
 	/// Creates a namespace path from \a ids.
 	state::Namespace::Path CreatePath(const std::vector<NamespaceId::ValueType>& ids);
 
@@ -53,4 +56,10 @@ namespace catapult { namespace test {
 
 	/// Asserts that the expected children (\a expectedChildren) are equal to the actual children (\a actualChildren).
 	void AssertChildren(const ChildNamespaces& expectedChildren, const ChildNamespaces& actualChildren);
+
+	/// Asserts that \a expectedAlias and \a actualAlias are equal with optional \a message.
+	void AssertEqualAlias(
+			const state::NamespaceAlias& expectedAlias,
+			const state::NamespaceAlias& actualAlias,
+			const std::string& message = "");
 }}

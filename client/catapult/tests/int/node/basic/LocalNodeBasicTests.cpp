@@ -108,6 +108,7 @@ namespace catapult { namespace local {
 		EXPECT_TRUE(test::HasCounter(counters, "TX ELEM TOT")) << "service local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "UNLKED ACCTS")) << "peer local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "UT CACHE")) << "basic local node counters";
+		EXPECT_TRUE(test::HasCounter(counters, "TOT CONF TXES")) << "basic local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "MEM CUR RSS")) << "memory counters";
 	}
 
@@ -161,7 +162,7 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, CanConnectToLocalNodeAsReader) {
 		// Act:
-		RunExternalConnectionTest(test::Local_Node_Port, [](auto& context) {
+		RunExternalConnectionTest(test::GetLocalNodePort(), [](auto& context) {
 			context.waitForNumActiveReaders(1);
 			auto stats = context.stats();
 
@@ -174,7 +175,7 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, CanConnectToLocalNodeAsBroadcastWriter) {
 		// Act:
-		RunExternalConnectionTest(test::Local_Node_Api_Port, [](auto& context) {
+		RunExternalConnectionTest(test::GetLocalNodeApiPort(), [](auto& context) {
 			context.waitForNumActiveBroadcastWriters(1);
 			auto stats = context.stats();
 
@@ -191,8 +192,8 @@ namespace catapult { namespace local {
 		context.waitForNumActiveWriters(1);
 
 		// Act: create external connections to the node
-		auto connection1 = test::CreateExternalConnection(test::Local_Node_Port);
-		auto connection2 = test::CreateExternalConnection(test::Local_Node_Api_Port);
+		auto connection1 = test::CreateExternalConnection(test::GetLocalNodePort());
+		auto connection2 = test::CreateExternalConnection(test::GetLocalNodeApiPort());
 		context.waitForNumActiveReaders(1);
 		context.waitForNumActiveBroadcastWriters(1);
 

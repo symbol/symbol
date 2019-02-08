@@ -20,6 +20,7 @@
 
 #include "BlockStateHash.h"
 #include "LocalTestUtils.h"
+#include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
@@ -54,8 +55,12 @@ namespace catapult { namespace test {
 		catapultState.LastRecalculationHeight = importanceHeight;
 		auto observerState = observers::ObserverState(cache, catapultState);
 
-		// 3. execute block
-		chain::ExecuteBlock(test::BlockToBlockElement(block), entityObserver, observerState);
+		// 3. prepare resolvers
+		auto readOnlyCache = cache.toReadOnly();
+		auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
+
+		// 4. execute block
+		chain::ExecuteBlock(test::BlockToBlockElement(block), { entityObserver, resolverContext, observerState });
 		return cache.calculateStateHash(block.Height).StateHash;
 	}
 }}

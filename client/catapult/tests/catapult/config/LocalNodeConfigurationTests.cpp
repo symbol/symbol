@@ -22,6 +22,7 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 #include <boost/filesystem.hpp>
 
@@ -47,6 +48,12 @@ namespace catapult { namespace config {
 			EXPECT_EQ(crypto::ParseKey("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6"), config.Network.GenerationHash);
 
 			EXPECT_TRUE(config.ShouldEnableVerifiableState);
+			EXPECT_TRUE(config.ShouldEnableVerifiableReceipts);
+
+			// - raw values are used instead of test::Default_*_Mosaic_Ids because
+			// config files contain mosaic ids when SIGNATURE_SCHEME_NIS1 is disabled
+			EXPECT_EQ(MosaicId(0x0DC6'7FBE'1CAD'29E3), config.CurrencyMosaicId);
+			EXPECT_EQ(MosaicId(0x2651'4E2A'1EF3'3824), config.HarvestingMosaicId);
 
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(15), config.BlockGenerationTargetTime);
 			EXPECT_EQ(3000u, config.BlockTimeSmoothingFactor);
@@ -58,8 +65,8 @@ namespace catapult { namespace config {
 			EXPECT_EQ(utils::TimeSpan::FromHours(24), config.MaxTransactionLifetime);
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(10), config.MaxBlockFutureTime);
 
-			EXPECT_EQ(utils::XemUnit(Amount(8'999'999'998'000'000)), config.TotalChainBalance);
-			EXPECT_EQ(Amount(1'000'000'000'000), config.MinHarvesterBalance);
+			EXPECT_EQ(Importance(15'000'000), config.TotalChainImportance);
+			EXPECT_EQ(Amount(500), config.MinHarvesterBalance);
 
 			EXPECT_EQ(360u, config.BlockPruneInterval);
 			EXPECT_EQ(200'000u, config.MaxTransactionsPerBlock);
@@ -86,6 +93,8 @@ namespace catapult { namespace config {
 			EXPECT_EQ(utils::TimeSpan::FromSeconds(90), config.ShortLivedCachePruneInterval);
 			EXPECT_EQ(10'000'000u, config.ShortLivedCacheMaxSize);
 
+			EXPECT_EQ(BlockFeeMultiplier(0), config.MinFeeMultiplier);
+			EXPECT_EQ(model::TransactionSelectionStrategy::Oldest, config.TransactionSelectionStrategy);
 			EXPECT_EQ(utils::FileSize::FromMegabytes(20), config.UnconfirmedTransactionsCacheMaxResponseSize);
 			EXPECT_EQ(1'000'000u, config.UnconfirmedTransactionsCacheMaxSize);
 
@@ -130,8 +139,8 @@ namespace catapult { namespace config {
 			auto expectedExtensions = std::vector<std::string>{
 				"extension.eventsource", "extension.harvesting", "extension.syncsource",
 				"extension.diagnostics", "extension.filechain", "extension.hashcache", "extension.networkheight",
-				"extension.nodediscovery", "extension.packetserver", "extension.sync", "extension.timesync",
-				"extension.transactionsink", "extension.unbondedpruning"
+				"extension.nodediscovery", "extension.packetserver", "extension.pluginhandlers", "extension.sync",
+				"extension.timesync", "extension.transactionsink", "extension.unbondedpruning"
 			};
 			EXPECT_EQ(expectedExtensions, config.Extensions);
 		}
@@ -208,7 +217,7 @@ namespace catapult { namespace config {
 		// Assert:
 		EXPECT_LE(CountOf(Config_Filenames), numFiles);
 		for (const auto& expectedFilename : expectedFilenames)
-			EXPECT_NE(actualFilenames.cend(), actualFilenames.find(expectedFilename)) << "expected " << expectedFilename;
+			EXPECT_CONTAINS(actualFilenames, expectedFilename);
 	}
 
 	TEST(TEST_CLASS, CanLoadConfigFromResourcesDirectory) {

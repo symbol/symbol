@@ -61,6 +61,7 @@ namespace catapult { namespace cache {
 			, public NamespaceCacheDeltaMixins::NamespaceLookup {
 	public:
 		using ReadOnlyView = NamespaceCacheTypes::CacheReadOnlyType;
+		using CollectedIds = std::unordered_set<NamespaceId, utils::BaseValueHasher<NamespaceId>>;
 
 	public:
 		/// Creates a delta around \a namespaceSets, \a options and \a namespaceSizes.
@@ -76,11 +77,14 @@ namespace catapult { namespace cache {
 		/// Inserts the namespace \a ns into the cache.
 		void insert(const state::Namespace& ns);
 
+		/// Sets an \a alias for namespace \a id.
+		void setAlias(NamespaceId id, const state::NamespaceAlias& alias);
+
 		/// Removes the namespace specified by its \a id from the cache.
 		void remove(NamespaceId id);
 
 		/// Prunes the namespace cache at \a height.
-		void prune(Height height);
+		CollectedIds prune(Height height);
 
 	private:
 		void removeRoot(NamespaceId id);

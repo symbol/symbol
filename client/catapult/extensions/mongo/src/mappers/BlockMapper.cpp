@@ -21,6 +21,7 @@
 #include "BlockMapper.h"
 #include "MapperUtils.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
+#include "catapult/model/BlockUtils.h"
 #include "catapult/model/Elements.h"
 #include "catapult/model/EntityHasher.h"
 
@@ -35,41 +36,45 @@ namespace catapult { namespace mongo { namespace mappers {
 			hashArray << bson_stream::close_array;
 		}
 
-		auto& StreamBlockMetadata(
+		void StreamBlockBasicMetadata(bson_stream::document& builder, const model::BlockElement& blockElement, Amount totalFee) {
+			builder
+					<< "hash" << ToBinary(blockElement.EntityHash)
+					<< "generationHash" << ToBinary(blockElement.GenerationHash)
+					<< "totalFee" << ToInt64(totalFee);
+		}
+
+		void StreamBlockMerkleTree(
 				bson_stream::document& builder,
-				const model::BlockElement& blockElement,
-				const std::vector<Hash256>& merkleTree,
-				Amount totalFee,
-				int32_t numTransactions) {
-			builder << "meta"
-					<< bson_stream::open_document
-						<< "hash" << ToBinary(blockElement.EntityHash)
-						<< "generationHash" << ToBinary(blockElement.GenerationHash)
-						<< "totalFee" << ToInt64(totalFee)
-						<< "numTransactions" << numTransactions;
-
-			StreamHashArray(builder, "subCacheMerkleRoots", blockElement.SubCacheMerkleRoots);
-			StreamHashArray(builder, "merkleTree", merkleTree);
-
-			builder << bson_stream::close_document;
-			return builder;
+				const std::string& countLabel,
+				uint32_t count,
+				const std::string& merkleTreeLabel,
+				const std::vector<Hash256>& merkleTree) {
+			builder << countLabel << static_cast<int32_t>(count);
+			StreamHashArray(builder, merkleTreeLabel, merkleTree);
 		}
 	}
 
 	bsoncxx::document::value ToDbModel(const model::BlockElement& blockElement) {
-		auto merkleTree = model::CalculateMerkleTree(blockElement.Transactions);
-
-		Amount totalFee;
-		int32_t numTransactions = 0;
 		const auto& block = blockElement.Block;
-		for (const auto& transaction : block.Transactions()) {
-			totalFee = totalFee + transaction.Fee;
-			++numTransactions;
-		}
+		auto blockTransactionsInfo = model::CalculateBlockTransactionsInfo(block);
+		auto transactionMerkleTree = model::CalculateMerkleTree(blockElement.Transactions);
 
 		// block metadata
 		bson_stream::document builder;
-		StreamBlockMetadata(builder, blockElement, merkleTree, totalFee, numTransactions);
+
+		builder << "meta" << bson_stream::open_document;
+		StreamBlockBasicMetadata(builder, blockElement, blockTransactionsInfo.TotalFee);
+		StreamHashArray(builder, "subCacheMerkleRoots", blockElement.SubCacheMerkleRoots);
+		StreamBlockMerkleTree(builder, "numTransactions", blockTransactionsInfo.Count, "transactionMerkleTree", transactionMerkleTree);
+
+		if (blockElement.OptionalStatement) {
+			const auto& blockStatement = *blockElement.OptionalStatement;
+			auto numStatements = static_cast<uint32_t>(model::CountTotalStatements(blockStatement));
+			auto statementMerkleTree = model::CalculateMerkleTree(blockStatement);
+			StreamBlockMerkleTree(builder, "numStatements", numStatements, "statementMerkleTree", statementMerkleTree);
+		}
+
+		builder << bson_stream::close_document;
 
 		// block data
 		builder << "block" << bson_stream::open_document;
@@ -77,9 +82,12 @@ namespace catapult { namespace mongo { namespace mappers {
 				<< "height" << ToInt64(block.Height)
 				<< "timestamp" << ToInt64(block.Timestamp)
 				<< "difficulty" << ToInt64(block.Difficulty)
+				<< "feeMultiplier" << ToInt32(block.FeeMultiplier)
 				<< "previousBlockHash" << ToBinary(block.PreviousBlockHash)
 				<< "blockTransactionsHash" << ToBinary(block.BlockTransactionsHash)
-				<< "stateHash" << ToBinary(block.StateHash);
+				<< "blockReceiptsHash" << ToBinary(block.BlockReceiptsHash)
+				<< "stateHash" << ToBinary(block.StateHash)
+				<< "beneficiaryPublicKey" << ToBinary(block.BeneficiaryPublicKey);
 		builder << bson_stream::close_document;
 		return builder << bson_stream::finalize;
 	}

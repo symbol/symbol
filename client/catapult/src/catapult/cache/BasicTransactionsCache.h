@@ -90,7 +90,7 @@ namespace catapult { namespace cache {
 	template<typename TTransactionsCacheModifierProxy>
 	class BasicTransactionsCache : public utils::NonCopyable {
 	public:
-		virtual ~BasicTransactionsCache() {}
+		virtual ~BasicTransactionsCache() = default;
 
 	public:
 		/// Gets a write only view of the cache.

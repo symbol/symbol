@@ -28,6 +28,41 @@ namespace catapult { namespace ionet {
 
 #define TEST_CLASS PacketEntityUtilsTests
 
+	// region CalculatePacketDataSize
+
+	TEST(TEST_CLASS, CalculatePacketDataSizeReturnsZeroWhenPacketIsTooSmall) {
+		// Arrange:
+		for (auto size : std::initializer_list<uint32_t>{ 0, sizeof(PacketHeader) - 1 }) {
+			Packet packet;
+			packet.Size = size;
+
+			// Act + Assert:
+			EXPECT_EQ(0u, CalculatePacketDataSize(packet));
+		}
+	}
+
+	TEST(TEST_CLASS, CalculatePacketDataSizeReturnsZeroWhenPacketIsHeaderOnly) {
+		// Arrange:
+		Packet packet;
+		packet.Size = sizeof(PacketHeader);
+
+		// Act + Assert:
+		EXPECT_EQ(0u, CalculatePacketDataSize(packet));
+	}
+
+	TEST(TEST_CLASS, CalculatePacketDataSizeReturnsDataSizeWhenPacketContainsData) {
+		// Arrange:
+		for (auto dataSize : std::initializer_list<uint32_t>{ 1, 100 }) {
+			Packet packet;
+			packet.Size = sizeof(PacketHeader) + dataSize;
+
+			// Act + Assert:
+			EXPECT_EQ(dataSize, CalculatePacketDataSize(packet));
+		}
+	}
+
+	// endregion
+
 	// region IsSizeValid
 
 	namespace {
@@ -292,8 +327,8 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		ASSERT_TRUE(!!pBlock);
-		EXPECT_EQ(sizeof(model::Block), pBlock->Size);
-		EXPECT_TRUE(0 == std::memcmp(&buffer[sizeof(Packet)], pBlock, pBlock->Size));
+		ASSERT_EQ(sizeof(model::Block), pBlock->Size);
+		EXPECT_EQ_MEMORY(&buffer[sizeof(Packet)], pBlock, pBlock->Size);
 	}
 
 	PACKET_SINGLE_ENTITY_TEST(IsValidPredicateHasHigherPrecedenceThanSizeCheck) {
@@ -326,8 +361,8 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		ASSERT_TRUE(!!pBlock);
-		EXPECT_EQ(Block_Transaction_Size, pBlock->Size);
-		EXPECT_TRUE(0 == std::memcmp(&buffer[sizeof(Packet)], pBlock, pBlock->Size));
+		ASSERT_EQ(Block_Transaction_Size, pBlock->Size);
+		EXPECT_EQ_MEMORY(&buffer[sizeof(Packet)], pBlock, pBlock->Size);
 	}
 
 	namespace {
@@ -358,20 +393,20 @@ namespace catapult { namespace ionet {
 		auto iter = range.cbegin();
 		const auto* pBlock = &*iter;
 		size_t offset = sizeof(Packet);
-		EXPECT_EQ(sizeof(model::Block), pBlock->Size);
-		EXPECT_TRUE(0 == std::memcmp(&buffer[offset], pBlock, pBlock->Size));
+		ASSERT_EQ(sizeof(model::Block), pBlock->Size);
+		EXPECT_EQ_MEMORY(&buffer[offset], pBlock, pBlock->Size);
 
 		// - block 2
 		pBlock = &*++iter;
 		offset += sizeof(model::Block);
-		EXPECT_EQ(Block_Transaction_Size, pBlock->Size);
-		EXPECT_TRUE(0 == std::memcmp(&buffer[offset], pBlock, pBlock->Size));
+		ASSERT_EQ(Block_Transaction_Size, pBlock->Size);
+		EXPECT_EQ_MEMORY(&buffer[offset], pBlock, pBlock->Size);
 
 		// - block 3
 		pBlock = &*++iter;
 		offset += Block_Transaction_Size;
-		EXPECT_EQ(sizeof(model::Block), pBlock->Size);
-		EXPECT_TRUE(0 == std::memcmp(&buffer[offset], pBlock, pBlock->Size));
+		ASSERT_EQ(sizeof(model::Block), pBlock->Size);
+		EXPECT_EQ_MEMORY(&buffer[offset], pBlock, pBlock->Size);
 	}
 
 	TEST(TEST_CLASS, CannotExtractMultipleBlocks_ExtractEntity) {
@@ -432,7 +467,7 @@ namespace catapult { namespace ionet {
 		// Assert:
 		ASSERT_EQ(1u, range.size());
 		const auto& structure = *range.cbegin();
-		EXPECT_TRUE(0 == std::memcmp(&buffer[sizeof(Packet)], &structure, Fixed_Size));
+		EXPECT_EQ_MEMORY(&buffer[sizeof(Packet)], &structure, Fixed_Size);
 	}
 
 	TEST(TEST_CLASS, CanExtractMultipleStructures_FixedSizeStructures) {
@@ -452,17 +487,17 @@ namespace catapult { namespace ionet {
 		// - structure 1
 		auto iter = range.cbegin();
 		size_t offset = sizeof(Packet);
-		EXPECT_TRUE(0 == std::memcmp(&buffer[offset], &*iter, Fixed_Size));
+		EXPECT_EQ_MEMORY(&buffer[offset], &*iter, Fixed_Size);
 
 		// - structure 2
 		++iter;
 		offset += Fixed_Size;
-		EXPECT_TRUE(0 == std::memcmp(&buffer[offset], &*iter, Fixed_Size));
+		EXPECT_EQ_MEMORY(&buffer[offset], &*iter, Fixed_Size);
 
 		// - structure 3
 		++iter;
 		offset += Fixed_Size;
-		EXPECT_TRUE(0 == std::memcmp(&buffer[offset], &*iter, Fixed_Size));
+		EXPECT_EQ_MEMORY(&buffer[offset], &*iter, Fixed_Size);
 	}
 
 	// endregion

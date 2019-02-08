@@ -19,6 +19,7 @@
 **/
 
 #include "src/validators/Validators.h"
+#include "sdk/src/extensions/ConversionExtensions.h"
 #include "tests/test/PropertyCacheTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
@@ -39,18 +40,30 @@ namespace catapult { namespace validators {
 			static constexpr auto CreateValidator = CreateAddressPropertyValueModificationValidator;
 
 			using NotificationType = model::ModifyAddressPropertyValueNotification;
+
+			static UnresolvedValueType ToUnresolved(const ValueType& value) {
+				return extensions::CopyToUnresolvedAddress(value);
+			}
 		};
 
 		struct MosaicPropertyTraits : public test::BaseMosaicPropertyTraits {
 			static constexpr auto CreateValidator = CreateMosaicPropertyValueModificationValidator;
 
 			using NotificationType = model::ModifyMosaicPropertyValueNotification;
+
+			static UnresolvedValueType ToUnresolved(const ValueType& value) {
+				return extensions::CastToUnresolvedMosaicId(value);
+			}
 		};
 
 		struct TransactionTypePropertyTraits : public test::BaseTransactionTypePropertyTraits {
 			static constexpr auto CreateValidator = CreateTransactionTypePropertyValueModificationValidator;
 
 			using NotificationType = model::ModifyTransactionTypePropertyValueNotification;
+
+			static UnresolvedValueType ToUnresolved(const ValueType& value) {
+				return value;
+			}
 		};
 
 		template<typename TPropertyValueTraits>
@@ -87,14 +100,14 @@ namespace catapult { namespace validators {
 		template<typename TPropertyValueTraits, typename TOperationTraits>
 		auto CreateNotification(
 				const Key& key,
-				const model::PropertyModification<typename TPropertyValueTraits::ValueType>& modification) {
+				const model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>& modification) {
 			return test::CreateNotification<TPropertyValueTraits, TOperationTraits>(key, modification);
 		}
 
 		template<typename TPropertyValueTraits, typename TOperationTraits>
 		auto CreateNotificationWithRandomKey(
 				const Key&,
-				const model::PropertyModification<typename TPropertyValueTraits::ValueType>& modification) {
+				const model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>& modification) {
 			return test::CreateNotification<TPropertyValueTraits, TOperationTraits>(test::GenerateRandomData<Key_Size>(), modification);
 		}
 
@@ -107,7 +120,7 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto cache = test::PropertyCacheFactory::Create();
 			auto key = test::GenerateRandomData<Key_Size>();
-			auto values = test::GenerateRandomDataVector<typename TPropertyValueTraits::ValueType>(numValues);
+			auto values = test::CreateRandomUniqueValues<TPropertyValueTraits>(numValues);
 			test::PopulateCache<TPropertyValueTraits, TOperationTraits>(cache, key, values);
 			auto modification = modificationFactory(values);
 
@@ -121,7 +134,8 @@ namespace catapult { namespace validators {
 		auto createNotification = CreateNotificationWithRandomKey<TPropertyValueTraits, TOperationTraits>;
 		constexpr auto Success = ValidationResult::Success;
 		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Success, 0, createNotification, [](const auto&) {
-			return model::PropertyModification<typename TPropertyValueTraits::ValueType>{ Add, TPropertyValueTraits::RandomValue() };
+			using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>;
+			return PropertyModification{ Add, TPropertyValueTraits::RandomUnresolvedValue() };
 		});
 	}
 
@@ -130,7 +144,8 @@ namespace catapult { namespace validators {
 		auto createNotification = CreateNotification<TPropertyValueTraits, TOperationTraits>;
 		constexpr auto Failure = Failure_Property_Modification_Not_Allowed;
 		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto& values) {
-			return model::PropertyModification<typename TPropertyValueTraits::ValueType>{ Add, values[1] };
+			using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>;
+			return PropertyModification{ Add, TPropertyValueTraits::Unresolve(values[1]) };
 		});
 	}
 
@@ -138,8 +153,10 @@ namespace catapult { namespace validators {
 		// Act + Assert:
 		auto createNotification = CreateNotification<TPropertyValueTraits, TOperationTraits>;
 		constexpr auto Success = ValidationResult::Success;
-		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Success, 3, createNotification, [](const auto&) {
-			return model::PropertyModification<typename TPropertyValueTraits::ValueType>{ Add, TPropertyValueTraits::RandomValue() };
+		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Success, 3, createNotification, [](const auto& values) {
+			using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>;
+			auto transform = TPropertyValueTraits::ToUnresolved;
+			return PropertyModification{ Add, test::CreateDifferentValue<TPropertyValueTraits>(values, transform) };
 		});
 	}
 
@@ -147,8 +164,10 @@ namespace catapult { namespace validators {
 		// Act + Assert:
 		auto createNotification = CreateNotification<TPropertyValueTraits, TOperationTraits>;
 		constexpr auto Failure = Failure_Property_Modification_Not_Allowed;
-		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto&) {
-			return model::PropertyModification<typename TPropertyValueTraits::ValueType>{ Del, TPropertyValueTraits::RandomValue() };
+		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto& values) {
+			using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>;
+			auto transform = TPropertyValueTraits::ToUnresolved;
+			return PropertyModification{ Del, test::CreateDifferentValue<TPropertyValueTraits>(values, transform) };
 		});
 	}
 
@@ -157,7 +176,8 @@ namespace catapult { namespace validators {
 		auto createNotification = CreateNotification<TPropertyValueTraits, TOperationTraits>;
 		constexpr auto Success = ValidationResult::Success;
 		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Success, 3, createNotification, [](const auto& values) {
-			return model::PropertyModification<typename TPropertyValueTraits::ValueType>{ Del, values[2] };
+			using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>;
+			return PropertyModification{ Del, TPropertyValueTraits::Unresolve(values[2]) };
 		});
 	}
 
@@ -166,7 +186,8 @@ namespace catapult { namespace validators {
 		auto createNotification = test::CreateNotificationWithOppositeOperation<TPropertyValueTraits, TOperationTraits>;
 		constexpr auto Failure = Failure_Property_Modification_Not_Allowed;
 		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto&) {
-			return model::PropertyModification<typename TPropertyValueTraits::ValueType>{ Add, TPropertyValueTraits::RandomValue() };
+			using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>;
+			return PropertyModification{ Add, TPropertyValueTraits::RandomUnresolvedValue() };
 		});
 	}
 
@@ -175,7 +196,8 @@ namespace catapult { namespace validators {
 		auto createNotification = test::CreateNotificationWithOppositeOperation<TPropertyValueTraits, TOperationTraits>;
 		constexpr auto Failure = Failure_Property_Modification_Not_Allowed;
 		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto& values) {
-			return model::PropertyModification<typename TPropertyValueTraits::ValueType>{ Del, values[0] };
+			using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>;
+			return PropertyModification{ Del, TPropertyValueTraits::Unresolve(values[0]) };
 		});
 	}
 
@@ -184,7 +206,8 @@ namespace catapult { namespace validators {
 		auto createNotification = test::CreateNotificationWithOppositeOperation<TPropertyValueTraits, TOperationTraits>;
 		constexpr auto Success = ValidationResult::Success;
 		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Success, 0, createNotification, [](const auto&) {
-			return model::PropertyModification<typename TPropertyValueTraits::ValueType>{ Add, TPropertyValueTraits::RandomValue() };
+			using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>;
+			return PropertyModification{ Add, TPropertyValueTraits::RandomUnresolvedValue() };
 		});
 	}
 }}

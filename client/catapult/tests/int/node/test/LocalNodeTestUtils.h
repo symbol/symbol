@@ -33,11 +33,17 @@
 
 namespace catapult { namespace test {
 
-	/// Local node port.
-	constexpr unsigned short Local_Node_Port = Local_Host_Port;
+	/// Gets local node port.
+	CATAPULT_INLINE
+	unsigned short GetLocalNodePort() {
+		return GetLocalHostPort();
+	}
 
-	/// Local node api port.
-	constexpr unsigned short Local_Node_Api_Port = Local_Node_Port + 1;
+	/// Gets local node api port.
+	CATAPULT_INLINE
+	unsigned short GetLocalNodeApiPort() {
+		return GetLocalNodePort() + 1;
+	}
 
 	/// Possible node flags.
 	enum class NodeFlag {
@@ -56,11 +62,14 @@ namespace catapult { namespace test {
 		/// Simulated api node.
 		Simulated_Api = 16,
 
+		/// Node supporting verifiable receipts.
+		Verify_Receipts = 32,
+
 		/// Node supporting verifiable state.
-		Verify_State = 32,
+		Verify_State = 64,
 
 		/// Node that should not be booted implicitly.
-		Require_Explicit_Boot = 64,
+		Require_Explicit_Boot = 128,
 	};
 
 	MAKE_BITWISE_ENUM(NodeFlag)
@@ -126,6 +135,9 @@ namespace catapult { namespace test {
 	/// and updating setings to be compatible with \a nodeFlag.
 	template<typename TAddNodeExtensions>
 	void PrepareLocalNodeConfiguration(config::LocalNodeConfiguration& config, TAddNodeExtensions addNodeExtensions, NodeFlag nodeFlag) {
+		if (HasFlag(NodeFlag::Verify_Receipts, nodeFlag))
+			EnableReceiptsVerification(config);
+
 		if (HasFlag(NodeFlag::Verify_State, nodeFlag))
 			EnableStateVerification(config);
 

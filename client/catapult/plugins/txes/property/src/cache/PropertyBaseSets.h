@@ -42,8 +42,7 @@ namespace catapult { namespace cache {
 	using PropertySingleSetCacheTypesAdapter =
 		SingleSetAndPatriciaTreeCacheTypesAdapter<PropertyCacheTypes::PrimaryTypes, PropertyPatriciaTree>;
 
-	struct PropertyBaseSetDeltaPointers : public PropertySingleSetCacheTypesAdapter::BaseSetDeltaPointers {
-	};
+	struct PropertyBaseSetDeltaPointers : public PropertySingleSetCacheTypesAdapter::BaseSetDeltaPointers {};
 
 	struct PropertyBaseSets : public PropertySingleSetCacheTypesAdapter::BaseSets<PropertyBaseSetDeltaPointers> {
 		using PropertySingleSetCacheTypesAdapter::BaseSets<PropertyBaseSetDeltaPointers>::BaseSets;

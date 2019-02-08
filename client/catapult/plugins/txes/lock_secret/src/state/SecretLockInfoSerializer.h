@@ -34,6 +34,5 @@ namespace catapult { namespace state {
 	};
 
 	/// Policy for saving and loading secret lock info data.
-	struct SecretLockInfoSerializer : public LockInfoSerializer<SecretLockInfo, SecretLockInfoExtendedDataSerializer>
-	{};
+	struct SecretLockInfoSerializer : public LockInfoSerializer<SecretLockInfo, SecretLockInfoExtendedDataSerializer> {};
 }}

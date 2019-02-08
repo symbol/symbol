@@ -20,9 +20,7 @@
 
 #pragma once
 #include "TransactionBuilder.h"
-#include "plugins/txes/lock_secret/src/model/LockHashAlgorithm.h"
 #include "plugins/txes/lock_secret/src/model/SecretProofTransaction.h"
-#include <vector>
 
 namespace catapult { namespace builders {
 
@@ -32,18 +30,19 @@ namespace catapult { namespace builders {
 		using Transaction = model::SecretProofTransaction;
 		using EmbeddedTransaction = model::EmbeddedSecretProofTransaction;
 
+	public:
 		/// Creates a secret proof builder for building a secret proof transaction from \a signer
 		/// for the network specified by \a networkIdentifier.
 		SecretProofBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
-		// Sets the \a hashAlgorithm.
+		/// Sets the hash algorithm to \a hashAlgorithm.
 		void setHashAlgorithm(model::LockHashAlgorithm hashAlgorithm);
 
-		// Sets the \a secret.
-		void setSecret(const Hash512& secret);
+		/// Sets the secret to \a secret.
+		void setSecret(const Hash256& secret);
 
-		// Sets the \a proof.
+		/// Sets the proof data to \a proof.
 		void setProof(const RawBuffer& proof);
 
 	public:
@@ -59,7 +58,7 @@ namespace catapult { namespace builders {
 
 	private:
 		model::LockHashAlgorithm m_hashAlgorithm;
-		Hash512 m_secret;
+		Hash256 m_secret;
 		std::vector<uint8_t> m_proof;
 	};
 }}

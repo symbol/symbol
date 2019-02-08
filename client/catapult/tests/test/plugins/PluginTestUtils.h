@@ -25,6 +25,51 @@
 
 namespace catapult { namespace test {
 
+	// region EmptyPluginTraits
+
+	/// Empty plugin traits.
+	struct EmptyPluginTraits {
+		static std::vector<model::EntityType> GetTransactionTypes() {
+			return {};
+		}
+
+		static std::vector<std::string> GetCacheNames() {
+			return {};
+		}
+
+		static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
+			return {};
+		}
+
+		static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
+			return {};
+		}
+
+		static std::vector<std::string> GetDiagnosticCounterNames() {
+			return {};
+		}
+
+		static std::vector<std::string> GetStatelessValidatorNames() {
+			return {};
+		}
+
+		static std::vector<std::string> GetStatefulValidatorNames() {
+			return {};
+		}
+
+		static std::vector<std::string> GetObserverNames() {
+			return {};
+		}
+
+		static std::vector<std::string> GetPermanentObserverNames() {
+			return {};
+		}
+	};
+
+	// endregion
+
+	// region tests
+
 	/// Asserts that transactions have been registered.
 	template<typename TTraits>
 	void AssertAppropriateTransactionsAreRegistered() {
@@ -59,6 +104,28 @@ namespace catapult { namespace test {
 
 			// Assert:
 			EXPECT_EQ(TTraits::GetCacheNames(), storageNames);
+		});
+	}
+
+	/// Asserts that (non-diagnostic) handlers have been registered.
+	template<typename TTraits>
+	void AssertAppropriateNonDiagnosticHandlersAreRegistered() {
+		// Arrange:
+		TTraits::RunTestAfterRegistration([](auto& manager) {
+			// Act:
+			ionet::ServerPacketHandlers handlers;
+			manager.addHandlers(handlers, manager.createCache());
+
+			// Assert:
+			auto expectedTypes = TTraits::GetNonDiagnosticPacketTypes();
+			EXPECT_EQ(expectedTypes.size(), handlers.size());
+
+			for (const auto type : expectedTypes) {
+				CATAPULT_LOG(debug) << "checking type " << type;
+				ionet::Packet packet;
+				packet.Type = type;
+				EXPECT_TRUE(handlers.canProcess(packet));
+			}
 		});
 	}
 
@@ -155,12 +222,15 @@ namespace catapult { namespace test {
 		});
 	}
 
+	// endregion
+
 #define MAKE_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, TEST_NAME) \
 	TEST(TEST_CLASS, TEST_NAME) { test::Assert##TEST_NAME<TEST_TRAITS>(); }
 
 #define DEFINE_PLUGIN_TESTS(TEST_CLASS, TEST_TRAITS) \
 	MAKE_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateTransactionsAreRegistered) \
 	MAKE_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateCachesAreRegistered) \
+	MAKE_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateNonDiagnosticHandlersAreRegistered) \
 	MAKE_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateDiagnosticHandlersAreRegistered) \
 	MAKE_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateDiagnosticCountersAreRegistered) \
 	MAKE_PLUGIN_TEST(TEST_CLASS, TEST_TRAITS, AppropriateStatelessValidatorsAreRegistered) \

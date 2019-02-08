@@ -47,10 +47,10 @@ namespace catapult { namespace tools { namespace nemgen {
 	using NamespaceIdToRootNamespaceMap = std::unordered_map<NamespaceId, state::RootNamespace, utils::BaseValueHasher<NamespaceId>>;
 
 	/// Mapping of mosaic names to mosaic entries.
-	using MosaicNameToMosaicEntryMap = std::unordered_map<std::string, state::MosaicEntry>;
+	using MosaicNameToMosaicEntryMap = std::vector<std::pair<std::string, state::MosaicEntry>>;
 
 	/// Mapping of addresses to mosaic seeds.
-	using AddressToMosaicSeedsMap = std::unordered_map<std::string, std::vector<MosaicSeed>>;
+	using AddressToMosaicSeedsMap = std::vector<std::pair<std::string, std::vector<MosaicSeed>>>;
 
 	/// Nemesis configuration.
 	struct NemesisConfiguration {

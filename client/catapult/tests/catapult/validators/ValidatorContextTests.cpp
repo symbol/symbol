@@ -26,18 +26,30 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS ValidatorContextTests
 
+	namespace {
+		model::ResolverContext CreateResolverContext() {
+			return model::ResolverContext(
+					[](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
+					[](const auto& unresolved) { return Address{ { unresolved[0].Byte } }; });
+		}
+	}
+
 	TEST(TEST_CLASS, CanCreateValidatorContextAroundHeightAndNetworkAndCache) {
 		// Act:
 		auto networkInfo = model::NetworkInfo(static_cast<model::NetworkIdentifier>(0xAD), {}, {});
 		auto cache = test::CreateEmptyCatapultCache();
 		auto cacheView = cache.createView();
 		auto readOnlyCache = cacheView.toReadOnly();
-		auto context = ValidatorContext(Height(1234), Timestamp(987), networkInfo, readOnlyCache);
+		auto context = ValidatorContext(Height(1234), Timestamp(987), networkInfo, CreateResolverContext(), readOnlyCache);
 
 		// Assert:
 		EXPECT_EQ(Height(1234), context.Height);
 		EXPECT_EQ(Timestamp(987), context.BlockTime);
 		EXPECT_EQ(static_cast<model::NetworkIdentifier>(0xAD), context.Network.Identifier);
 		EXPECT_EQ(&readOnlyCache, &context.Cache);
+
+		// - resolvers are copied into context and wired up correctly
+		EXPECT_EQ(MosaicId(48), context.Resolvers.resolve(UnresolvedMosaicId(24)));
+		EXPECT_EQ(Address{ { 11 } }, context.Resolvers.resolve(UnresolvedAddress{ { { 11 }, { 32 } } }));
 	}
 }}

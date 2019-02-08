@@ -52,6 +52,9 @@ namespace catapult { namespace cache {
 	/// Describes a namespace cache.
 	struct NamespaceCacheDescriptor {
 	public:
+		static constexpr auto Name = "NamespaceCache";
+
+	public:
 		// key value types
 		using KeyType = NamespaceId;
 		using ValueType = state::RootNamespaceHistory;

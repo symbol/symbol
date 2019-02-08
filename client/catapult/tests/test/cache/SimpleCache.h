@@ -25,6 +25,7 @@
 #include "catapult/cache/SynchronizedCache.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/Stream.h"
+#include "catapult/tree/TreeNode.h"
 #include "tests/test/nodeps/Atomics.h"
 #include <numeric>
 
@@ -78,6 +79,11 @@ namespace catapult { namespace test {
 				CATAPULT_THROW_OUT_OF_RANGE("invalid id supplied to get");
 
 			return m_value;
+		}
+
+		/// Tries to get a const (unadapted) value.
+		const auto* tryGetUnadapted() const {
+			return &get();
 		}
 
 	private:
@@ -135,6 +141,12 @@ namespace catapult { namespace test {
 		/// Tries to get the merkle root if supported.
 		std::pair<Hash256, bool> tryGetMerkleRoot() const {
 			return std::make_pair(m_merkleRoot, supportsMerkleRoot());
+		}
+
+		/// Tries to find the value associated with (key) in the tree and stores proof of existence or not in (nodePath).
+		/// \note This is just a placeholder and not implemented.
+		std::pair<Hash256, bool> tryLookup(const size_t&, std::vector<tree::TreeNode>&) const {
+			return std::make_pair(Hash256(), false);
 		}
 
 	private:

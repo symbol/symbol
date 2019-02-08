@@ -19,13 +19,11 @@
 **/
 
 #include "catapult/io/FileBlockStorage.h"
-#include "tests/catapult/io/test/BlockStorageTestUtils.h"
+#include "tests/test/core/BlockStorageTests.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 #include <boost/filesystem.hpp>
-
-using catapult::test::TempDirectoryGuard;
 
 namespace catapult { namespace io {
 
@@ -33,7 +31,7 @@ namespace catapult { namespace io {
 
 	namespace {
 		struct FileTraits {
-			using Guard = TempDirectoryGuard;
+			using Guard = test::TempDirectoryGuard;
 			using StorageType = FileBlockStorage;
 
 			static std::unique_ptr<StorageType> OpenStorage(const std::string& destination) {
@@ -52,12 +50,14 @@ namespace catapult { namespace io {
 
 	DEFINE_BLOCK_STORAGE_TESTS(FileTraits)
 
+	// region disk persistence
+
 	// these tests do not make sense for memory-based storage because blocks stored in memory-based storage
 	// do not persist across instances
 
 	TEST(TEST_CLASS, CanReadSavedBlockAcrossDifferentStorageInstances) {
 		// Arrange:
-		TempDirectoryGuard tempDir;
+		test::TempDirectoryGuard tempDir;
 		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(Height(2));
 		auto element = test::BlockToBlockElement(*pBlock, test::GenerateRandomData<Hash256_Size>());
 		{
@@ -75,7 +75,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, CanReadMultipleSavedBlocksAcrossDifferentStorageInstances) {
 		// Arrange:
-		TempDirectoryGuard tempDir;
+		test::TempDirectoryGuard tempDir;
 		auto pBlock1 = test::GenerateBlockWithTransactionsAtHeight(Height(2));
 		auto pBlock2 = test::GenerateBlockWithTransactionsAtHeight(Height(3));
 		auto element1 = test::BlockToBlockElement(*pBlock1, test::GenerateRandomData<Hash256_Size>());
@@ -96,83 +96,5 @@ namespace catapult { namespace io {
 		test::AssertEqual(element2, *pBlockElement2);
 	}
 
-	namespace {
-		// note: for test purposes, hardcoded 00000 dir is ok
-		auto GetPath(const std::string& baseDirectory, uint64_t height) {
-			std::stringstream pathBuilder;
-			pathBuilder
-					<< baseDirectory
-					<< "/00000/"
-					<< std::setw(5) << std::setfill('0') << height
-					<< ".dat";
-
-			return pathBuilder.str();
-		}
-
-		bool BlockFileExists(const std::string& baseDirectory, uint64_t height) {
-			return boost::filesystem::exists(GetPath(baseDirectory, height));
-		}
-
-		void DeleteBlockFile(const std::string& baseDirectory, uint64_t height) {
-			boost::filesystem::remove(GetPath(baseDirectory, height));
-		}
-
-		bool Contains(const std::set<uint64_t>& heights, uint64_t height) {
-			return heights.end() != heights.find(height);
-		}
-
-		void AssertBlockFiles(const std::string& baseDirectory, const std::set<uint64_t>& heights) {
-			auto maxHeight = *heights.rbegin();
-			for (auto height = 1u; height <= maxHeight; ++height)
-				if (Contains(heights, height))
-					EXPECT_TRUE(BlockFileExists(baseDirectory, height)) << "block at height " << height;
-				else
-					EXPECT_FALSE(BlockFileExists(baseDirectory, height)) << "block at height " << height;
-		}
-	}
-
-	TEST(TEST_CLASS, PruneBlocksBefore_CanPruneAtHeightBeforeChainHeight) {
-		// Arrange:
-		auto pStorage = test::PrepareStorageWithBlocks<FileTraits>(10);
-
-		// Act: prune will remove 2-7
-		pStorage->pruneBlocksBefore(Height(8));
-
-		// Assert:
-		EXPECT_EQ(Height(10), pStorage->chainHeight());
-		AssertBlockFiles(pStorage.pTempDirectoryGuard->name(), { 1, 8, 9, 10 });
-	}
-
-	TEST(TEST_CLASS, PruneBlocksBefore_CanPruneAtHeightEqualToChainHeight) {
-		// Arrange:
-		auto pStorage = test::PrepareStorageWithBlocks<FileTraits>(10);
-
-		// Act: prune will remove 2-9
-		pStorage->pruneBlocksBefore(Height(10));
-
-		// Assert:
-		EXPECT_EQ(Height(10), pStorage->chainHeight());
-		AssertBlockFiles(pStorage.pTempDirectoryGuard->name(), { 1, 10 });
-	}
-
-	TEST(TEST_CLASS, PruneBlocksBefore_ThrowsAtHeightAfterChainHeight) {
-		// Arrange:
-		auto pStorage = test::PrepareStorageWithBlocks<FileTraits>(5);
-
-		// Act + Assert:
-		EXPECT_THROW(pStorage->pruneBlocksBefore(Height(10)), catapult_invalid_argument);
-	}
-
-	TEST(TEST_CLASS, PruneBlocksStopsOnFirstNonexistentFile) {
-		// Arrange:
-		auto pStorage = test::PrepareStorageWithBlocks<FileTraits>(10);
-		DeleteBlockFile(pStorage.pTempDirectoryGuard->name(), 4);
-
-		// Act: prune will remove 5, 6, 7
-		pStorage->pruneBlocksBefore(Height(8));
-
-		// Assert:
-		EXPECT_EQ(Height(10), pStorage->chainHeight());
-		AssertBlockFiles(pStorage.pTempDirectoryGuard->name(), { 1, 2, 3, 8, 9, 10 });
-	}
+	// endregion
 }}

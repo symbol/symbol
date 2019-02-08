@@ -45,15 +45,11 @@ namespace catapult { namespace test {
 	/// Db initialization helper that destroys and seeds db.
 	class DbInitializer {
 	public:
-		/// Creates db in \a dbDir with \a columns and seeds using \a seeder.
-		DbInitializer(const std::string& dbDir, const ColumnNames& columns, const DbSeeder& seeder);
+		/// Creates db in default directory with \a columns and seeds using \a seeder.
+		DbInitializer(const ColumnNames& columns, const DbSeeder& seeder);
 
-		/// Creates db with \a compactionFilter in \a dbDir with \a columns and seeds using \a seeder.
-		DbInitializer(
-				const std::string& dbDir,
-				const ColumnNames& columns,
-				const DbSeeder& seeder,
-				const rocksdb::CompactionFilter* compactionFilter);
+		/// Creates db with \a compactionFilter in default directory with \a columns and seeds using \a seeder.
+		DbInitializer(const ColumnNames& columns, const DbSeeder& seeder, const rocksdb::CompactionFilter* compactionFilter);
 
 	private:
 		bool seedDb(

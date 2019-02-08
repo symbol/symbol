@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 		template<typename TTransaction, typename TDerivedTransaction, typename TPlugin>
 		class BasicTransactionPluginT : public TPlugin {
 		private:
-			using PublishFunc = consumer<const TDerivedTransaction&, const PublisherContext&, NotificationSubscriber&>;
+			using PublishFunc = consumer<const TDerivedTransaction&, NotificationSubscriber&>;
 
 		public:
 			explicit BasicTransactionPluginT(const PublishFunc& publishFunc) : m_publishFunc(publishFunc)
@@ -59,12 +59,14 @@ namespace catapult { namespace model {
 				return TDerivedTransaction::CalculateRealSize(static_cast<const TDerivedTransaction&>(transaction));
 			}
 
+			SupportedVersions supportedVersions() const override {
+				auto version = TDerivedTransaction::Current_Version;
+				return { version, version };
+			}
+
 		protected:
-			void publishImpl(
-					const TTransaction& transaction,
-					const PublisherContext& publisherContext,
-					NotificationSubscriber& sub) const {
-				m_publishFunc(static_cast<const TDerivedTransaction&>(transaction), publisherContext, sub);
+			void publishImpl(const TTransaction& transaction, NotificationSubscriber& sub) const {
+				m_publishFunc(static_cast<const TDerivedTransaction&>(transaction), sub);
 			}
 
 		private:
@@ -83,11 +85,8 @@ namespace catapult { namespace model {
 			{}
 
 		public:
-			void publish(
-					const EmbeddedTransaction& transaction,
-					const PublisherContext& publisherContext,
-					NotificationSubscriber& sub) const override {
-				BaseType::publishImpl(transaction, publisherContext, sub);
+			void publish(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) const override {
+				BaseType::publishImpl(transaction, sub);
 			}
 		};
 
@@ -104,11 +103,8 @@ namespace catapult { namespace model {
 			{}
 
 		public:
-			void publish(
-					const WeakEntityInfoT<Transaction>& transactionInfo,
-					const PublisherContext& publisherContext,
-					NotificationSubscriber& sub) const override {
-				BaseType::publishImpl(transactionInfo.entity(), publisherContext, sub);
+			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, NotificationSubscriber& sub) const override {
+				BaseType::publishImpl(transactionInfo.entity(), sub);
 			}
 
 			RawBuffer dataBuffer(const Transaction& transaction) const override {

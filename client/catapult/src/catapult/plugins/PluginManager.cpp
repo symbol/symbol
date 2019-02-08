@@ -89,6 +89,18 @@ namespace catapult { namespace plugins {
 		}
 	}
 
+	// region handlers
+
+	void PluginManager::addHandlerHook(const HandlerHook& hook) {
+		m_nonDiagnosticHandlerHooks.push_back(hook);
+	}
+
+	void PluginManager::addHandlers(ionet::ServerPacketHandlers& handlers, const cache::CatapultCache& cache) const {
+		ApplyAll(handlers, m_nonDiagnosticHandlerHooks, cache);
+	}
+
+	// endregion
+
 	// region diagnostics
 
 	void PluginManager::addDiagnosticHandlerHook(const HandlerHook& hook) {
@@ -175,24 +187,27 @@ namespace catapult { namespace plugins {
 	namespace {
 		template<typename TResolved, typename TResolvers>
 		auto BuildResolver(const TResolvers& resolvers) {
-			return [resolvers](const auto& unresolved) {
+			return [resolvers](const auto& cache, const auto& unresolved) {
 				TResolved resolved;
 				for (const auto& resolver : resolvers) {
-					if (resolver(unresolved, resolved))
+					if (resolver(cache, unresolved, resolved))
 						return resolved;
 				}
 
-				return model::PublisherContext().resolve(unresolved);
+				return model::ResolverContext().resolve(unresolved);
 			};
 		}
 	}
 
-	PluginManager::AggregateMosaicResolver PluginManager::createMosaicResolver() const {
-		return BuildResolver<MosaicId>(m_mosaicResolvers);
-	}
+	model::ResolverContext PluginManager::createResolverContext(const cache::ReadOnlyCatapultCache& cache) const {
+		auto mosaicResolver = BuildResolver<MosaicId>(m_mosaicResolvers);
+		auto addressResolver = BuildResolver<Address>(m_addressResolvers);
 
-	PluginManager::AggregateAddressResolver PluginManager::createAddressResolver() const {
-		return BuildResolver<Address>(m_addressResolvers);
+		auto bindResolverToCache = [&cache](const auto& resolver) {
+			return [&cache, resolver](const auto& unresolved) { return resolver(cache, unresolved); };
+		};
+
+		return model::ResolverContext(bindResolverToCache(mosaicResolver), bindResolverToCache(addressResolver));
 	}
 
 	// endregion
@@ -200,8 +215,7 @@ namespace catapult { namespace plugins {
 	// region publisher
 
 	PluginManager::PublisherPointer PluginManager::createNotificationPublisher(model::PublicationMode mode) const {
-		model::PublisherContext publisherContext(createMosaicResolver(), createAddressResolver());
-		return model::CreateNotificationPublisher(m_transactionRegistry, publisherContext, mode);
+		return model::CreateNotificationPublisher(m_transactionRegistry, model::GetUnresolvedCurrencyMosaicId(m_config), mode);
 	}
 
 	// endregion

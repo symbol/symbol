@@ -75,4 +75,19 @@ namespace catapult { namespace utils {
 		value /= divisor;
 		return remainder;
 	}
+
+	/// Returns \c true if \a rhs is equal to \a lhs multipled by a power of \a base.
+	template<typename T, typename X = typename std::enable_if<std::is_unsigned<T>::value>::type>
+	CPP14_CONSTEXPR bool IsPowerMultiple(T lhs, T rhs, T base) {
+		if (lhs > rhs || 0 != rhs % lhs)
+			return false;
+
+		T quotient = rhs / lhs;
+		while (quotient > 1) {
+			if (0 != DivideAndGetRemainder(quotient, base))
+				return false;
+		}
+
+		return true;
+	}
 }}

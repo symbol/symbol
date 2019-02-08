@@ -37,7 +37,7 @@ namespace catapult { namespace net {
 	/// of the current read).
 	class ChainedSocketReader {
 	public:
-		virtual ~ChainedSocketReader() {}
+		virtual ~ChainedSocketReader() = default;
 
 	public:
 		/// Callback that is called when the read chain is broken.

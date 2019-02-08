@@ -26,9 +26,31 @@
 
 namespace catapult { namespace test {
 
-	/// Group of tests for testing remote apis.
+	// region RemoteApiTests
+
+	/// Group of tests for testing remote api classes.
 	template<typename TApiTraits>
 	class RemoteApiTests {
+	public:
+		static void AssertCanCreateApiWithRemotePublicKey() {
+			// Arrange:
+			auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
+			auto remotePublicKey = test::GenerateRandomData<Key_Size>();
+
+			auto pApi = TApiTraits::Create(*pPacketIo, remotePublicKey);
+
+			// Act + Assert:
+			EXPECT_EQ(remotePublicKey, pApi->remotePublicKey());
+		}
+	};
+
+	// endregion
+
+	// region RemoteApiMethodTests
+
+	/// Group of tests for testing remote api methods.
+	template<typename TApiTraits>
+	class RemoteApiMethodTests {
 	private:
 		using MockPacketIo = mocks::MockPacketIo;
 
@@ -38,7 +60,7 @@ namespace catapult { namespace test {
 			// Arrange: queue a write error
 			auto pPacketIo = std::make_shared<MockPacketIo>();
 			pPacketIo->queueWrite(ionet::SocketOperationCode::Write_Error);
-			auto pApi = TApiTraits::Create(pPacketIo);
+			auto pApi = TApiTraits::Create(*pPacketIo);
 
 			// Act:
 			AssertThrowsApiError([&api = *pApi] { TTraits::Invoke(api).get(); }, "write to remote node failed");
@@ -54,7 +76,7 @@ namespace catapult { namespace test {
 			auto pPacketIo = std::make_shared<MockPacketIo>();
 			pPacketIo->queueWrite(ionet::SocketOperationCode::Success);
 			pPacketIo->queueRead(ionet::SocketOperationCode::Read_Error);
-			auto pApi = TApiTraits::Create(pPacketIo);
+			auto pApi = TApiTraits::Create(*pPacketIo);
 
 			// Act:
 			AssertThrowsApiError([&api = *pApi] { TTraits::Invoke(api).get(); }, "read from remote node failed");
@@ -71,7 +93,7 @@ namespace catapult { namespace test {
 			auto pPacketIo = std::make_shared<MockPacketIo>();
 			pPacketIo->queueWrite(ionet::SocketOperationCode::Success);
 			pPacketIo->queueRead(ionet::SocketOperationCode::Success, Wrap(pResponsePacket));
-			auto pApi = TApiTraits::Create(pPacketIo);
+			auto pApi = TApiTraits::Create(*pPacketIo);
 
 			// Act:
 			AssertThrowsApiError(
@@ -112,7 +134,7 @@ namespace catapult { namespace test {
 			auto pPacketIo = std::make_shared<MockPacketIo>();
 			pPacketIo->queueWrite(ionet::SocketOperationCode::Success);
 			pPacketIo->queueRead(ionet::SocketOperationCode::Success, Wrap(TTraits::CreateValidResponsePacket()));
-			auto pApi = TApiTraits::Create(pPacketIo);
+			auto pApi = TApiTraits::Create(*pPacketIo);
 
 			// Act:
 			TTraits::Invoke(*pApi).get();
@@ -132,7 +154,7 @@ namespace catapult { namespace test {
 			auto pPacketIo = std::make_shared<MockPacketIo>();
 			pPacketIo->queueWrite(ionet::SocketOperationCode::Success);
 			pPacketIo->queueRead(ionet::SocketOperationCode::Success, Wrap(pResponsePacket));
-			auto pApi = TApiTraits::Create(pPacketIo);
+			auto pApi = TApiTraits::Create(*pPacketIo);
 
 			// Act:
 			auto result = TTraits::Invoke(*pApi).get();
@@ -152,7 +174,7 @@ namespace catapult { namespace test {
 			auto pPacketIo = std::make_shared<MockPacketIo>();
 			pPacketIo->queueWrite(ionet::SocketOperationCode::Success);
 			pPacketIo->queueRead(ionet::SocketOperationCode::Success, Wrap(pResponsePacket));
-			auto pApi = TApiTraits::Create(pPacketIo);
+			auto pApi = TApiTraits::Create(*pPacketIo);
 
 			// Act:
 			auto result = TTraits::Invoke(*pApi).get();
@@ -180,27 +202,38 @@ namespace catapult { namespace test {
 		}
 	};
 
-#define MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, TEST_NAME) \
+	// endregion
+
+#define MAKE_REMOTE_API_TEST(API_CLASS, TEST_NAME) \
+	TEST(API_CLASS##Tests, TEST_NAME) { \
+		test::RemoteApiTests<API_CLASS##Traits>::Assert##TEST_NAME(); \
+	}
+
+#define MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, TEST_NAME) \
 	TEST(API_CLASS##Tests, TEST_NAME##_##API_FUNCTION) { \
-		test::RemoteApiTests<API_CLASS##Traits>::TEST_NAME<API_FUNCTION##Traits>(); \
-	} \
+		test::RemoteApiMethodTests<API_CLASS##Traits>::TEST_NAME<API_FUNCTION##Traits>(); \
+	}
+
+/// Adds all remote api tests for the specified api class (\a API_CLASS).
+#define DEFINE_REMOTE_API_TESTS(API_CLASS) \
+	MAKE_REMOTE_API_TEST(API_CLASS, CanCreateApiWithRemotePublicKey)
 
 /// Adds all remote api tests for the specified api class (\a API_CLASS) and function (\a API_FUNCTION).
 #define DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
-	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeWriteFails) \
-	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReadFails) \
-	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsPacketWithWrongType) \
-	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsMalformedPacket) \
-	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, WellFormedRequestIsWrittenToRemoteNode) \
-	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, WellFormedResponseFromRemoteNodeIsCoercedIntoDesiredType)
+	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeWriteFails) \
+	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReadFails) \
+	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsPacketWithWrongType) \
+	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsMalformedPacket) \
+	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, WellFormedRequestIsWrittenToRemoteNode) \
+	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, WellFormedResponseFromRemoteNodeIsCoercedIntoDesiredType)
 
 // For those requests where a non-empty response is expected
 #define DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(API_CLASS, API_FUNCTION) \
 	DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
-	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsEmptyPacket)
+	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsEmptyPacket)
 
 // For those requests where a non-empty response is common
 #define DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(API_CLASS, API_FUNCTION) \
 	DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
-	MAKE_REMOTE_API_TEST(API_CLASS, API_FUNCTION, EmptyResponseIsConsideredValid)
+	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, EmptyResponseIsConsideredValid)
 }}

@@ -46,6 +46,5 @@ namespace catapult { namespace cache {
 	};
 
 	/// Serializer for namespace cache height grouped elements.
-	struct NamespaceHeightGroupingSerializer : public IdentifierGroupSerializer<NamespaceCacheTypes::HeightGroupingTypesDescriptor>
-	{};
+	struct NamespaceHeightGroupingSerializer : public IdentifierGroupSerializer<NamespaceCacheTypes::HeightGroupingTypesDescriptor> {};
 }}

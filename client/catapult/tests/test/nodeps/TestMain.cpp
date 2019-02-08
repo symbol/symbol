@@ -18,6 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "catapult/utils/ConfigurationValueParsers.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/version/version.h"
 #include "tests/TestHarness.h"
@@ -31,6 +32,22 @@ char** global_argv;
 #endif
 
 namespace catapult { namespace test {
+
+	namespace {
+		uint32_t global_stress_iteration_count = 0;
+	}
+
+	uint32_t GetStressIterationCount() {
+		return global_stress_iteration_count;
+	}
+
+	unsigned short GetLocalHostPort() {
+		return GetStressIterationCount() ? 3014 : 2014;
+	}
+
+	uint32_t GetMaxNonDeterministicTestRetries() {
+		return GetStressIterationCount() ? 500 : 25;
+	}
 
 	uint32_t GetNumDefaultPoolThreads() {
 		return 2 * std::thread::hardware_concurrency();
@@ -46,12 +63,30 @@ namespace catapult { namespace test {
 
 			auto pBootstrapper = std::make_shared<utils::LoggingBootstrapper>();
 			pBootstrapper->addConsoleLogger(options, utils::LogFilter(utils::LogLevel::Debug));
-			return pBootstrapper;
+			return std::move(pBootstrapper);
+		}
+
+		uint32_t GetArgumentUint32(const std::string& name, int argc, char** argv) {
+			auto key = "--cat_" + name + "=";
+			for (auto i = 0; i < argc; ++i) {
+				auto argumentKeyValue = std::string(argv[i]);
+				if (0 != argumentKeyValue.find(key))
+					continue;
+
+				uint32_t parsedValue;
+				auto value = argumentKeyValue.substr(key.size());
+				if (!utils::TryParseValue(value, parsedValue))
+					CATAPULT_LOG(warning) << "argument '" << name << "' has invalid value: " << value;
+
+				return parsedValue;
+			}
+
+			return 0;
 		}
 	}
 }}
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
 	catapult::version::WriteVersionInformation(std::cout);
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
@@ -65,6 +100,12 @@ int main(int argc, char **argv) {
 	global_argc = argc;
 	global_argv = argv;
 #endif
+
+	if (argc >= 2) {
+		auto& count = catapult::test::global_stress_iteration_count;
+		count = catapult::test::GetArgumentUint32("stress", argc, argv);
+		CATAPULT_LOG(warning) << "Note: Catapult Test stress iteration count = " << count << std::endl;
+	}
 
 	return RUN_ALL_TESTS();
 }

@@ -125,13 +125,14 @@ namespace catapult { namespace test {
 			AssertPacketIsRejected(*pPacket, expectedCanProcessPacketType);
 		}
 
-		static void AssertValidPacketWithElementsIsAccepted(uint32_t numElements) {
+		static void AssertValidPacketWithElementsIsAccepted(uint32_t numElements, uint32_t dataHeaderSize = 0) {
 			// Arrange:
 			ionet::ServerPacketHandlers handlers;
 			typename THandlerTraits::HandlerContext handlerContext;
 			THandlerTraits::RegisterHandler(handlers, handlerContext);
 
-			auto pPacket = test::CreateRandomPacket(numElements * TTraits::Valid_Request_Payload_Size, TTraits::Packet_Type);
+			uint32_t dataSize = dataHeaderSize + numElements * TTraits::Valid_Request_Payload_Size;
+			auto pPacket = test::CreateRandomPacket(dataSize, TTraits::Packet_Type);
 
 			// Act:
 			ionet::ServerPacketHandlerContext context({}, "");

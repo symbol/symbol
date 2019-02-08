@@ -31,7 +31,7 @@ namespace catapult { namespace crypto {
 	// a) in case of !SIGNATURE_SCHEME_NIS1:
 	//    result of HashPrivateKey, matches 512-bit sha3 hash (tested in sha3_512 tests)
 	// b) in case of SIGNATURE_SCHEME_NIS1
-	//    result of HashPrivateKey, matches 512-bit sha3 hash of REVERSED data
+	//    result of HashPrivateKey, matches 512-bit keccak hash of REVERSED data
 	TEST(TEST_CLASS, PassesShaVector) {
 		// Arrange:
 		auto privateKey = PrivateKey::FromString("9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10");
@@ -41,14 +41,15 @@ namespace catapult { namespace crypto {
 		HashPrivateKey(privateKey, hash);
 
 		// Assert:
+		Hash512 expectedHash;
 #ifdef SIGNATURE_SCHEME_NIS1
 		// pass reversed key
 		auto shaVector = test::ToVector("109C1EACB65D7EF9E95D2DFC1811B26CEAC118977ECD876B0D09DE907CCC2F9F");
+		Keccak_512(shaVector, expectedHash);
 #else
 		auto shaVector = test::ToVector("9F2FCC7C90DE090D6B87CD7E9718C1EA6CB21118FC2D5DE9F97E5DB6AC1E9C10");
-#endif
-		Hash512 expectedHash;
 		Sha3_512(shaVector, expectedHash);
+#endif
 
 		EXPECT_EQ(expectedHash, hash);
 	}

@@ -27,7 +27,7 @@ namespace catapult { namespace test {
 	template<typename TParams>
 	class ParamsCapture {
 	public:
-		virtual ~ParamsCapture() {}
+		virtual ~ParamsCapture() = default;
 
 	public:
 		/// Gets the captured parameters.

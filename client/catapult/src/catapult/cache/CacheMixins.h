@@ -315,9 +315,13 @@ namespace catapult { namespace cache {
 		{}
 
 	public:
-		/// Touches the cache at \a height.
-		void touch(Height height) {
+		/// Touches the cache at \a height and returns identifiers of all deactivating elements.
+		typename THeightGroupedSet::ElementType::Identifiers touch(Height height) {
+			// 1. using non-const set, touch all elements at height
 			ForEachIdentifierWithGroup(m_set, m_heightGroupedSet, height, [](const auto&) {});
+
+			// 2. using const set, find identifiers of all deactivating elements
+			return FindDeactivatingIdentifiersAtHeight(m_set, m_heightGroupedSet, height);
 		}
 
 	private:

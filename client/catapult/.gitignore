@@ -1,4 +1,5 @@
 _build*/
+_temp/
 CMakeFiles/
 niserve.dir/
 Release/

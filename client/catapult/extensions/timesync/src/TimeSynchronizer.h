@@ -35,10 +35,10 @@ namespace catapult { namespace timesync {
 	/// A time synchronizer that synchronizes local time with the network.
 	class TimeSynchronizer {
 	public:
-		/// Creates a time synchronizer around \a filter, \a totalChainBalance and \a warningThresholdMillis.
+		/// Creates a time synchronizer around \a filter, \a totalChainImportance and \a warningThresholdMillis.
 		explicit TimeSynchronizer(
 				const filters::AggregateSynchronizationFilter& filter,
-				uint64_t totalChainBalance,
+				Importance totalChainImportance,
 				int64_t warningThresholdMillis = Warning_Threshold_Millis);
 
 	public:
@@ -62,7 +62,7 @@ namespace catapult { namespace timesync {
 				double scaling);
 	private:
 		filters::AggregateSynchronizationFilter m_filter;
-		uint64_t m_totalChainBalance;
+		Importance m_totalChainImportance;
 		int64_t m_warningThresholdMillis;
 	};
 }}

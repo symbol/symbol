@@ -20,7 +20,9 @@
 
 #include "src/PropertyMapper.h"
 #include "mongo/src/mappers/MapperUtils.h"
-#include "plugins/txes/property/src/model/PropertyTransaction.h"
+#include "plugins/txes/property/src/model/AddressPropertyTransaction.h"
+#include "plugins/txes/property/src/model/MosaicPropertyTransaction.h"
+#include "plugins/txes/property/src/model/TransactionTypePropertyTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "mongo/tests/test/MongoTransactionPluginTestUtils.h"

@@ -20,6 +20,7 @@
 
 #include "Observers.h"
 #include "src/cache/SecretLockInfoCache.h"
+#include "src/model/SecretLockReceiptType.h"
 #include "src/state/SecretLockInfo.h"
 
 namespace catapult { namespace observers {
@@ -27,23 +28,33 @@ namespace catapult { namespace observers {
 	using Notification = model::SecretLockNotification;
 
 	namespace {
-		auto CreateLockInfo(const Key& account, Height endHeight, const Notification& notification) {
+		auto CreateLockInfo(
+				const Key& account,
+				MosaicId mosaicId,
+				Height endHeight,
+				const Notification& notification,
+				const model::ResolverContext& resolvers) {
 			return state::SecretLockInfo(
 					account,
-					notification.Mosaic.MosaicId,
+					mosaicId,
 					notification.Mosaic.Amount,
 					endHeight,
 					notification.HashAlgorithm,
 					notification.Secret,
-					notification.Recipient);
+					resolvers.resolve(notification.Recipient));
 		}
 	}
 
-	DEFINE_OBSERVER(SecretLock, Notification, [](const auto& notification, const ObserverContext& context) {
+	DEFINE_OBSERVER(SecretLock, Notification, [](const auto& notification, ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::SecretLockInfoCache>();
 		if (NotifyMode::Commit == context.Mode) {
 			auto endHeight = context.Height + Height(notification.Duration.unwrap());
-			cache.insert(CreateLockInfo(notification.Signer, endHeight, notification));
+			auto mosaicId = context.Resolvers.resolve(notification.Mosaic.MosaicId);
+			cache.insert(CreateLockInfo(notification.Signer, mosaicId, endHeight, notification, context.Resolvers));
+
+			auto receiptType = model::Receipt_Type_LockSecret_Created;
+			model::BalanceChangeReceipt receipt(receiptType, notification.Signer, mosaicId, notification.Mosaic.Amount);
+			context.StatementBuilder().addReceipt(receipt);
 		} else {
 			cache.remove(notification.Secret);
 		}

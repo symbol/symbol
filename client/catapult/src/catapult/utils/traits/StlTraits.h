@@ -27,22 +27,17 @@ namespace catapult { namespace utils { namespace traits {
 	/// If T is a standard map type, this struct will provide the member constant value equal to \c true.
 	/// For any other type, value is \c false.
 	template<typename T>
-	struct is_map : std::false_type
-	{};
+	struct is_map : std::false_type {};
 
 	template<typename ...TArgs>
-	struct is_map<std::map<TArgs...>> : std::true_type
-	{};
+	struct is_map<std::map<TArgs...>> : std::true_type {};
 
 	template<typename ...TArgs>
-	struct is_map<const std::map<TArgs...>> : std::true_type
-	{};
+	struct is_map<const std::map<TArgs...>> : std::true_type {};
 
 	template<typename ...TArgs>
-	struct is_map<std::unordered_map<TArgs...>> : std::true_type
-	{};
+	struct is_map<std::unordered_map<TArgs...>> : std::true_type {};
 
 	template<typename ...TArgs>
-	struct is_map<const std::unordered_map<TArgs...>> : std::true_type
-	{};
+	struct is_map<const std::unordered_map<TArgs...>> : std::true_type {};
 }}}

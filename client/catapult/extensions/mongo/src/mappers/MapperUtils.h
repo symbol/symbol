@@ -28,6 +28,7 @@
 namespace catapult {
 	namespace model {
 		struct EmbeddedTransaction;
+		struct Receipt;
 		struct VerifiableEntity;
 	}
 }
@@ -128,6 +129,9 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	/// Streams a mosaic composed of \a id and \a amount to \a context.
 	bson_stream::array_context& StreamMosaic(bson_stream::array_context& context, UnresolvedMosaicId id, Amount amount);
+
+	/// Streams a \a receipt to \a builder.
+	bson_stream::document& StreamReceipt(bson_stream::document& builder, const model::Receipt& receipt);
 
 	// endregion
 }}}
