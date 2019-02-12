@@ -2,30 +2,53 @@
 
 [![Build Status](https://api.travis-ci.org/nemtech/catbuffer.svg?branch=master)](https://travis-ci.org/nemtech/catbuffer)
 
-Catbuffer library defines the protocol to serialize and deserialize Catapult entities. The library comes with code generators for different languages. SDKs and applications use the generated code to interact with REST transaction endpoint.
+Catbuffer library defines the protocol to serialize and deserialize Catapult entities. SDKs and applications use the generated code to interact with REST transaction endpoint.
 
-Check the complete [serialization documentation](https://nemtech.github.io/api/serialization.html).
+## Supported languages
 
-## Parse an schema and generate transaction builders
+- C++
 
-A schema file defines the entity data structure. The library generates the leanest code necessary to serialize and deserialize defined entities.
+## Requirements
 
-Generate the code for a determined schema in one of the available languages. For example, run the following command to generate C++ code to serialize and deserialize a transfer transaction:
+* Python >= 3.4
+* pip install -r requirements.txt
+
+## Usage
+
+python main.py [OPTIONS]
+
+| Option               | Description                                             | Default       |
+|----------------------|---------------------------------------------------------|---------------|
+| -s, --schema TEXT    | input CATS file                                         |               |
+| -o, --output TEXT    | output directory                                        | _generated    |
+| -i, --include TEXT   | schema root directory                                   | ./schemas     |
+| -g, --generator TEXT | generator to use to produce output files                |               |
+| -c, --copyright TEXT | file containing copyright data to use with output files | ../HEADER.inc |
+
+
+## Examples
+
+### Generate transaction builders
+
+The [schemas](schemas) define the entities data structure. The library generates the leanest code necessary to serialize and deserialize defined entities.
+
+ For example, run the following command to generate C++ transaction builders for a transfer transaction:
 
 ```
-python3 main.py -i schemas/transfer.cats -g cpp_builder
+python main.py --schema schemas/transfer/transfer.cats --generator cpp_builder
 ```
-The generator creates a new file under _generated/cpp folder. Repeat the process using a different input schema (-i) or generator (-g) as needed.
 
-## Run lint
+The generator creates a new file under ``_generated/cpp_builder`` folder.
+
+### Run the linter
 ```
 pylint --load-plugins pylint_quotes main.py catparser generators test
 pycodestyle --config=.pycodestyle .
 ```
 
-## Run tests
+### Run the tests
 ```
-python3 -m unittest discover -v
+python -m unittest discover -v
 ```
 
 Copyright (c) 2018 Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp Licensed under the [MIT License](LICENSE)
