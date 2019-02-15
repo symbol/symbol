@@ -37,7 +37,7 @@ describe('receipts plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 9);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 10);
 			expect(modelSchema).to.contain.all.keys([
 				'receipts',
 				'receipts.addressResolutionStatement',
@@ -47,7 +47,8 @@ describe('receipts plugin', () => {
 				'receipts.balanceTransfer',
 				'receipts.artifactExpiry',
 				'receipts.entry.address',
-				'receipts.entry.mosaic'
+				'receipts.entry.mosaic',
+				'receipts.unknown'
 			]);
 
 			// -  receipts
@@ -109,78 +110,62 @@ describe('receipts plugin', () => {
 			// - receipts.artifactExpiry
 			expect(Object.keys(modelSchema['receipts.artifactExpiry']).length).to.equal(1);
 			expect(modelSchema['receipts.artifactExpiry']).to.contain.all.keys(['artifactId']);
+
+			// - receipts.unknown
+			expect(Object.keys(modelSchema['receipts.unknown']).length).to.equal(0);
 		});
 	});
 
 	describe('conditional schema', () => {
 		describe('uses the correct conditional schema depending on receipt type', () => {
-			// Arrange:
-			const formattingRules = {
-				[ModelType.none]: () => 'none',
-				[ModelType.binary]: () => 'binary',
-				[ModelType.uint64]: () => 'uint64',
-				[ModelType.objectId]: () => 'objectId',
-				[ModelType.string]: () => 'string'
-			};
-			const builder = new ModelSchemaBuilder();
-			const balanceChangeReceipt = {
-				version: 1,
-				type: 0x1000,
-				account: null,
-				mosaicId: null,
-				amount: null
-			};
-			const balanceTransferReceipt = {
-				version: 1,
-				type: 0x2000,
-				sender: null,
-				recipient: null,
-				mosaicId: null,
-				amount: null
-			};
-			const artifcatExpiryReceipt = {
-				version: 1,
-				type: 0x3000,
-				artifactId: null
-			};
-			const transactionStatement = {
-				height: null,
-				source: {
-					primaryId: null,
-					secondaryId: null
-				},
-				receipts: [
-					balanceChangeReceipt,
-					balanceTransferReceipt,
-					artifcatExpiryReceipt
-				]
-			};
+			const formatReceipt = receipt => {
+				// Arrange:
+				const formattingRules = {
+					[ModelType.none]: () => 'none',
+					[ModelType.binary]: () => 'binary',
+					[ModelType.uint64]: () => 'uint64',
+					[ModelType.objectId]: () => 'objectId',
+					[ModelType.string]: () => 'string'
+				};
+				const transactionStatement = {
+					height: null,
+					source: { primaryId: null, secondaryId: null },
+					receipts: [receipt]
+				};
+				const builder = new ModelSchemaBuilder();
 
-			// Act:
-			receiptsPlugin.registerSchema(builder);
-			const modelSchema = builder.build();
-			const formattedEntity = schemaFormatter.format(
-				transactionStatement,
-				modelSchema['receipts.transactionStatement'],
-				modelSchema,
-				formattingRules
-			);
+				// Act:
+				receiptsPlugin.registerSchema(builder);
+				const modelSchema = builder.build();
+				const formattedEntity = schemaFormatter.format(
+					transactionStatement,
+					modelSchema['receipts.transactionStatement'],
+					modelSchema,
+					formattingRules
+				);
 
-			// Assert:
-			it('creates correct format keys', () => {
-				// - formatted entity keys
+				// Assert
 				expect(Object.keys(formattedEntity).length).to.equal(3);
-				expect(formattedEntity).to.contain.all.keys([
-					'height',
-					'source',
-					'receipts'
-				]);
-			});
+				expect(formattedEntity).to.contain.all.keys(['height', 'source', 'receipts']);
+				expect(formattedEntity.receipts.length).to.equal(1);
+				return formattedEntity.receipts[0];
+			};
 
 			it('formats balance change receipt type', () => {
-				// - balance change receipt type
-				expect(Object.keys(formattedEntity.receipts[0]).length).to.equal(5);
-				expect(formattedEntity.receipts[0]).to.contain.all.keys([
+				// Arrange:
+				const balanceChangeReceipt = {
+					version: 1,
+					type: 0x1000,
+					account: null,
+					mosaicId: null,
+					amount: null
+				};
+
+				// Act:
+				const formattedReceipt = formatReceipt(balanceChangeReceipt);
+
+				// Assert:
+				expect(formattedReceipt).to.contain.all.keys([
 					'version',
 					'type',
 					'account',
@@ -190,9 +175,21 @@ describe('receipts plugin', () => {
 			});
 
 			it('formats balance transfer receipt type', () => {
-				// - balance transfer receipt type
-				expect(Object.keys(formattedEntity.receipts[1]).length).to.equal(6);
-				expect(formattedEntity.receipts[1]).to.contain.all.keys([
+				// Arrange:
+				const balanceTransferReceipt = {
+					version: 1,
+					type: 0x2000,
+					sender: null,
+					recipient: null,
+					mosaicId: null,
+					amount: null
+				};
+
+				// Act:
+				const formattedReceipt = formatReceipt(balanceTransferReceipt);
+
+				// Assert:
+				expect(formattedReceipt).to.contain.all.keys([
 					'version',
 					'type',
 					'sender',
@@ -203,12 +200,40 @@ describe('receipts plugin', () => {
 			});
 
 			it('formats artifact expiry receipt type', () => {
-				// - artifact expiry receipt type
-				expect(Object.keys(formattedEntity.receipts[2]).length).to.equal(3);
-				expect(formattedEntity.receipts[2]).to.contain.all.keys([
+				// Arrange:
+				const artifactExpiryReceipt = {
+					version: 1,
+					type: 0x3000,
+					artifactId: null
+				};
+
+				// Act:
+				const formattedReceipt = formatReceipt(artifactExpiryReceipt);
+
+				// Assert:
+				expect(formattedReceipt).to.contain.all.keys([
 					'version',
 					'type',
 					'artifactId'
+				]);
+			});
+
+			it('formats unknown receipt type', () => {
+				// Arrange:
+				const unknownReceipt = {
+					version: null,
+					type: 82356235,
+					unknownProperty1: null,
+					unknownProperty2: null
+				};
+
+				// Act:
+				const formattedReceipt = formatReceipt(unknownReceipt);
+
+				// Assert:
+				expect(formattedReceipt).to.contain.all.keys([
+					'version',
+					'type'
 				]);
 			});
 		});

@@ -28,7 +28,7 @@ const ReceiptType = {
 	4: 'receipts.artifactExpiry'
 };
 
-const getBasicReceiptType = type => ReceiptType[(type & 0xF000) >> 12];
+const getBasicReceiptType = type => ReceiptType[(type & 0xF000) >> 12] || 'receipts.unknown';
 
 /**
  * Creates a receipts plugin.
@@ -83,6 +83,8 @@ const receiptsPlugin = {
 		builder.addSchema('receipts.artifactExpiry', {
 			artifactId: ModelType.uint64
 		});
+
+		builder.addSchema('receipts.unknown', {});
 	}
 };
 
