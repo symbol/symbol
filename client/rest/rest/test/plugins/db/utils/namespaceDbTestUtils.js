@@ -27,7 +27,15 @@ const { Binary, Long } = MongoDb;
 
 const Namespace_Types = { root: 0, child: 1 };
 
-const createNamespace = (id, owner, namespaceType, parentIdOrDuration, path, lifetime, active) => {
+const createAlias = id => {
+	switch (id % 3) {
+	case 1: return { type: 1, mosaicId: 1000 };
+	case 2: return { type: 2, address: new Binary(dbTestUtils.random.address()) };
+	default: return { type: 0 };
+	}
+};
+
+const createNamespace = (id, owner, namespaceType, parentIdOrDuration, path, lifetime, active, alias) => {
 	// namespace data
 	const namespace = {
 		owner: new Binary(owner.publicKey),
@@ -37,7 +45,8 @@ const createNamespace = (id, owner, namespaceType, parentIdOrDuration, path, lif
 		depth: path.length,
 		level0: Long.fromNumber(path[0]),
 		type: namespaceType,
-		name: namespaceType === Namespace_Types.root ? `root${id}` : `child${id}`
+		name: namespaceType === Namespace_Types.root ? `root${id}` : `child${id}`,
+		alias
 	};
 
 	if (1 < path.length)
@@ -72,7 +81,7 @@ const createNamespaces = (numRounds, owner, startdId = 0) => {
 		while (0 !== nsId % 3)
 			path.unshift(--nsId);
 
-		namespaces.push(createNamespace(id++, namespaceOwner, namespaceType, id, path, lifetime, active));
+		namespaces.push(createNamespace(id++, namespaceOwner, namespaceType, id, path, lifetime, active, createAlias(i)));
 	};
 
 	for (let i = 0; i < numRounds; ++i)

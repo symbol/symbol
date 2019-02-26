@@ -109,7 +109,7 @@ describe('namespace db', () => {
 		const namespaces = [];
 		for (let id = startId; id < startId + count; ++id) {
 			const lifetime = { start: 10 * id, end: 10 * (id + 1) };
-			namespaces.push(test.db.createNamespace(id, createOwner(), 0, id, [1234], lifetime, false));
+			namespaces.push(test.db.createNamespace(id, createOwner(), 0, id, [1234], lifetime, false, { type: 0 }));
 		}
 
 		return namespaces;

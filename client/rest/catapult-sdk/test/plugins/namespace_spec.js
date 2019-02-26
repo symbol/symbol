@@ -20,7 +20,9 @@
 
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
+const ModelType = require('../../src/model/ModelType');
 const namespace = require('../../src/plugins/namespace');
+const schemaFormatter = require('../../src/utils/schemaFormatter');
 const test = require('../binaryTestUtils');
 const { expect } = require('chai');
 
@@ -45,12 +47,15 @@ describe('namespace plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 6);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 9);
 			expect(modelSchema).to.contain.all.keys(
 				'aliasAddress',
 				'aliasMosaic',
 				'namespaceDescriptor',
 				'namespaceDescriptor.namespace',
+				'namespaceDescriptor.alias.mosaic',
+				'namespaceDescriptor.alias.address',
+				'namespaceDescriptor.alias.empty',
 				'namespaceNameTuple',
 				'registerNamespace'
 			);
@@ -63,20 +68,136 @@ describe('namespace plugin', () => {
 			expect(Object.keys(modelSchema.aliasMosaic).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
 			expect(modelSchema.aliasMosaic).to.contain.all.keys(['namespaceId', 'mosaicId']);
 
+			// - namespaceDescriptor
 			expect(Object.keys(modelSchema.namespaceDescriptor).length).to.equal(2);
 			expect(modelSchema.namespaceDescriptor).to.contain.all.keys(['meta', 'namespace']);
 
-			expect(Object.keys(modelSchema['namespaceDescriptor.namespace']).length).to.equal(8);
+			// - namespaceDescriptor.namespace
+			expect(Object.keys(modelSchema['namespaceDescriptor.namespace']).length).to.equal(9);
 			expect(modelSchema['namespaceDescriptor.namespace']).to.contain.all.keys([
-				'level0', 'level1', 'level2', 'parentId', 'owner', 'ownerAddress', 'startHeight', 'endHeight'
+				'level0', 'level1', 'level2', 'alias', 'parentId', 'owner', 'ownerAddress', 'startHeight', 'endHeight'
 			]);
 
+			// - namespaceDescriptor.alias.mosaic
+			expect(Object.keys(modelSchema['namespaceDescriptor.alias.mosaic']).length).to.equal(1);
+			expect(modelSchema['namespaceDescriptor.alias.mosaic']).to.contain.all.keys([
+				'mosaicId'
+			]);
+
+			// - namespaceDescriptor.alias.address
+			expect(Object.keys(modelSchema['namespaceDescriptor.alias.address']).length).to.equal(1);
+			expect(modelSchema['namespaceDescriptor.alias.address']).to.contain.all.keys([
+				'address'
+			]);
+
+			// - namespaceDescriptor.alias.empty
+			expect(Object.keys(modelSchema['namespaceDescriptor.alias.empty']).length).to.equal(0);
+
+			// - namespaceNameTuple
 			expect(Object.keys(modelSchema.namespaceNameTuple).length).to.equal(3);
 			expect(modelSchema.namespaceNameTuple).to.contain.all.keys(['namespaceId', 'name', 'parentId']);
 
 			// - register namespace
 			expect(Object.keys(modelSchema.registerNamespace).length).to.equal(Object.keys(modelSchema.transaction).length + 4);
 			expect(modelSchema.registerNamespace).to.contain.all.keys(['namespaceId', 'parentId', 'duration', 'name']);
+		});
+	});
+
+	describe('conditional schema', () => {
+		describe('uses the correct conditional schema depending on alias type', () => {
+			const formatAlias = alias => {
+				// Arrange:
+				const formattingRules = {
+					[ModelType.none]: () => 'none',
+					[ModelType.binary]: () => 'binary',
+					[ModelType.uint64]: () => 'uint64',
+					[ModelType.objectId]: () => 'objectId',
+					[ModelType.string]: () => 'string'
+				};
+				const namespaceDescriptorNamespace = {
+					type: null,
+					depth: null,
+					level0: null,
+					level1: null,
+					level2: null,
+					alias,
+					parentId: null,
+					owner: null,
+					ownerAddress: null,
+					startHeight: null,
+					endHeight: null
+				};
+				const builder = new ModelSchemaBuilder();
+
+				// Act:
+				namespace.registerSchema(builder);
+				const modelSchema = builder.build();
+				const formattedEntity = schemaFormatter.format(
+					namespaceDescriptorNamespace,
+					modelSchema['namespaceDescriptor.namespace'],
+					modelSchema,
+					formattingRules
+				);
+
+				// Assert
+				expect(Object.keys(formattedEntity).length).to.equal(11);
+				expect(formattedEntity).to.contain.all.keys([
+					'type', 'depth', 'level0', 'level1', 'level2', 'alias', 'parentId', 'owner', 'ownerAddress', 'startHeight', 'endHeight'
+				]);
+				return formattedEntity.alias;
+			};
+
+			it('formats alias mosaic type', () => {
+				// Arrange:
+				const aliasMosaic = {
+					type: 1,
+					mosaicId: null
+				};
+
+				// Act:
+				const formattedAlias = formatAlias(aliasMosaic);
+
+				// Assert:
+				expect(formattedAlias).to.contain.all.keys(['type', 'mosaicId']);
+				expect(formattedAlias).deep.equal({
+					type: 'none',
+					mosaicId: 'uint64'
+				});
+			});
+
+			it('formats alias address type', () => {
+				// Arrange:
+				const aliasAddress = {
+					type: 2,
+					address: null
+				};
+
+				// Act:
+				const formattedAlias = formatAlias(aliasAddress);
+
+				// Assert:
+				expect(formattedAlias).to.contain.all.keys(['type', 'address']);
+				expect(formattedAlias).deep.equal({
+					type: 'none',
+					address: 'binary'
+				});
+			});
+
+			it('formats alias empty type', () => {
+				// Arrange:
+				const aliasAddress = {
+					type: null
+				};
+
+				// Act:
+				const formattedAlias = formatAlias(aliasAddress);
+
+				// Assert:
+				expect(formattedAlias).to.contain.all.keys(['type']);
+				expect(formattedAlias).deep.equal({
+					type: 'none'
+				});
+			});
 		});
 	});
 

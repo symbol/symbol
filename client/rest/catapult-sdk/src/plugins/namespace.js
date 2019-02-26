@@ -31,6 +31,13 @@ const parseString = (parser, size) => parser.buffer(size).toString('ascii');
 
 const writeString = (serializer, str) => { serializer.writeBuffer(Buffer.from(str, 'ascii')); };
 
+const AliasType = {
+	1: 'namespaceDescriptor.alias.mosaic',
+	2: 'namespaceDescriptor.alias.address'
+};
+
+const getAliasBasicType = type => AliasType[type] || 'namespaceDescriptor.alias.empty';
+
 /**
  * Creates a namespace plugin.
  * @type {module:plugins/CatapultPlugin}
@@ -63,6 +70,8 @@ const namespacePlugin = {
 			level1: ModelType.uint64,
 			level2: ModelType.uint64,
 
+			alias: { type: ModelType.object, schemaName: entity => getAliasBasicType(entity.type) },
+
 			parentId: ModelType.uint64,
 			owner: ModelType.binary,
 			ownerAddress: ModelType.binary,
@@ -70,6 +79,16 @@ const namespacePlugin = {
 			startHeight: ModelType.uint64,
 			endHeight: ModelType.uint64
 		});
+
+		builder.addSchema('namespaceDescriptor.alias.mosaic', {
+			mosaicId: ModelType.uint64
+		});
+
+		builder.addSchema('namespaceDescriptor.alias.address', {
+			address: ModelType.binary
+		});
+
+		builder.addSchema('namespaceDescriptor.alias.empty', {});
 
 		builder.addSchema('namespaceNameTuple', {
 			namespaceId: ModelType.uint64,
