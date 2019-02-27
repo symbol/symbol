@@ -121,21 +121,21 @@ namespace catapult { namespace ionet {
 		template<typename TRequest, typename TCallback>
 		class QueuedOperation {
 		public:
-			explicit QueuedOperation(boost::asio::strand& strand)
+			explicit QueuedOperation(boost::asio::io_context::strand& strand)
 					: m_strand(strand)
 					, m_requests(m_strand)
 			{}
 
 		public:
 			void push(const TRequest& request, const TCallback& callback) {
-				m_strand.post([this, request, callback] {
+				boost::asio::post(m_strand, [this, request, callback] {
 					m_requests.push(request, callback);
 				});
 			}
 
 		private:
-			boost::asio::strand& m_strand;
-			RequestQueue<TRequest, TCallback, boost::asio::strand> m_requests;
+			boost::asio::io_context::strand& m_strand;
+			RequestQueue<TRequest, TCallback, boost::asio::io_context::strand> m_requests;
 		};
 
 		using QueuedWriteOperation = QueuedOperation<WriteRequest, PacketIo::WriteCallback>;
@@ -145,7 +145,7 @@ namespace catapult { namespace ionet {
 				: public PacketIo
 				, public std::enable_shared_from_this<BufferedPacketIo> {
 		public:
-			BufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::strand& strand)
+			BufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::io_context::strand& strand)
 					: m_pIo(pIo)
 					, m_strand(strand)
 					, m_pWriteOperation(std::make_unique<QueuedWriteOperation>(m_strand))
@@ -169,13 +169,13 @@ namespace catapult { namespace ionet {
 
 		private:
 			std::shared_ptr<PacketIo> m_pIo;
-			boost::asio::strand& m_strand;
+			boost::asio::io_context::strand& m_strand;
 			std::unique_ptr<QueuedWriteOperation> m_pWriteOperation;
 			std::unique_ptr<QueuedReadOperation> m_pReadOperation;
 		};
 	}
 
-	std::shared_ptr<PacketIo> CreateBufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::strand& strand) {
+	std::shared_ptr<PacketIo> CreateBufferedPacketIo(const std::shared_ptr<PacketIo>& pIo, boost::asio::io_context::strand& strand) {
 		return std::make_shared<BufferedPacketIo>(pIo, strand);
 	}
 }}

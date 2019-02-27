@@ -23,7 +23,7 @@
 namespace catapult { namespace state {
 
 	namespace {
-		constexpr static bool IsZero(Amount amount) {
+		static constexpr bool IsZero(Amount amount) {
 			return Amount(0) == amount;
 		}
 	}

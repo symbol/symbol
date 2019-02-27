@@ -46,7 +46,7 @@ namespace catapult { namespace api {
 				}
 
 				auto message = GetErrorMessage(result);
-				CATAPULT_LOG(error) << message << " for " << TFuncTraits::FriendlyName() << " request";
+				CATAPULT_LOG(error) << message << " for " << TFuncTraits::Friendly_Name << " request";
 				pPromise->set_exception(std::make_exception_ptr(catapult_api_error(message)));
 			});
 
@@ -65,10 +65,10 @@ namespace catapult { namespace api {
 					if (ionet::SocketOperationCode::Success != readCode)
 						return callback(RemoteChainResult::Read_Error, ResultType());
 
-					if (TFuncTraits::PacketType() != pResponsePacket->Type) {
+					if (TFuncTraits::Packet_Type != pResponsePacket->Type) {
 						CATAPULT_LOG(warning)
 								<< "received packet of type " << pResponsePacket->Type
-								<< " but expected type " << TFuncTraits::PacketType();
+								<< " but expected type " << TFuncTraits::Packet_Type;
 						return callback(RemoteChainResult::Malformed_Packet, ResultType());
 					}
 
@@ -93,8 +93,7 @@ namespace catapult { namespace api {
 			Malformed_Packet
 		};
 
-		CPP14_CONSTEXPR
-		static const char* GetErrorMessage(RemoteChainResult result) {
+		static constexpr const char* GetErrorMessage(RemoteChainResult result) {
 			switch (result) {
 			case RemoteChainResult::Write_Error:
 				return "write to remote node failed";

@@ -25,7 +25,6 @@ NAMESPACES_FALSEPOSITIVES = (
     # no types (only includes and/or fwd declares and/or defines)
     re.compile(r'src.catapult.constants.h'),
     re.compile(r'src.catapult.plugins.h'),
-    re.compile(r'src.catapult.preprocessor.h'),
     re.compile(r'src.catapult.cache_db.RocksInclude.h'),
     re.compile(r'src.catapult.crypto.KeccakHash.h'),
     re.compile(r'src.catapult.utils.BitwiseEnum.h'),
@@ -51,6 +50,7 @@ NAMESPACES_FALSEPOSITIVES = (
 
     # main entry points
     re.compile(r'src.catapult.server.main.cpp'),
+    re.compile(r'tests.bench.nodeps.BenchMain.cpp'),
 
     # mongo plugins (only entry point)
     re.compile(r'extensions.mongo.plugins.*.src.Mongo.*Plugin.cpp'),
@@ -125,12 +125,7 @@ CORE_FIRSTINCLUDES = {
     'tests/catapult/utils/CountOfTests.cpp': 'catapult/types.h',
     'tests/catapult/utils/MacroBasedEnumTests.cpp': 'catapult/utils/MacroBasedEnumIncludes.h',
     'tests/catapult/utils/TraitsTests.cpp': 'catapult/utils/traits/Traits.h',
-    'tests/catapult/utils/StlTraitsTests.cpp': 'catapult/utils/traits/StlTraits.h',
-
-    # clang workaround
-    'tests/catapult/utils/StackLoggerTests.cpp': '<string>',
-    'tests/catapult/utils/test/LoggingTestUtils.cpp': '<string>',
-    'tests/test/nodeps/Filesystem.cpp': '<string>',
+    'tests/catapult/utils/StlTraitsTests.cpp': 'catapult/utils/traits/StlTraits.h'
 }
 
 PLUGINS_FIRSTINCLUDES = {

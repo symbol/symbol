@@ -173,7 +173,7 @@ namespace catapult { namespace model {
 		AssertAreEqual(info, block, hash, "info");
 		AssertAreEqual(blockInfo, block, hash, "blockInfo");
 
-		auto isEntityTyped = std::is_same<const Block&, decltype(blockInfo.entity())>::value;
+		auto isEntityTyped = std::is_same_v<const Block&, decltype(blockInfo.entity())>;
 		EXPECT_TRUE(isEntityTyped);
 	}
 
@@ -191,7 +191,7 @@ namespace catapult { namespace model {
 		AssertAreEqual(info, block, hash, blockHeader, "info");
 		AssertAreEqual(blockInfo, block, hash, blockHeader, "blockInfo");
 
-		auto isEntityTyped = std::is_same<const Block&, decltype(blockInfo.entity())>::value;
+		auto isEntityTyped = std::is_same_v<const Block&, decltype(blockInfo.entity())>;
 		EXPECT_TRUE(isEntityTyped);
 	}
 

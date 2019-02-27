@@ -23,7 +23,7 @@
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/Packet.h"
 #include "catapult/ionet/WorkingBuffer.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/net/NodeTestUtils.h"
@@ -57,13 +57,13 @@ namespace catapult { namespace ionet {
 
 			// Act: "server" - writes a payload to the socket
 			//      "client" - reads a payload from the socket
-			auto pPool = test::CreateStartedIoServiceThreadPool();
-			test::SpawnPacketServerWork(pPool->service(), options, [&payload, &writeCode](const auto& pServerSocket) {
+			auto pPool = test::CreateStartedIoThreadPool();
+			test::SpawnPacketServerWork(pPool->ioContext(), options, [&payload, &writeCode](const auto& pServerSocket) {
 				pServerSocket->write(payload, [&writeCode](auto code) {
 					writeCode = code;
 				});
 			});
-			test::AddClientReadBufferTask(pPool->service(), receiveBuffer);
+			test::AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
 			pPool->join();
 
 			// Assert: the write succeeded and all data was read from the socket
@@ -80,13 +80,13 @@ namespace catapult { namespace ionet {
 
 			// Act: "server" - writes a payload to the socket
 			//      "client" - accepts a connection
-			auto pPool = test::CreateStartedIoServiceThreadPool();
-			test::SpawnPacketServerWork(pPool->service(), options, [&payload, &writeCode](const auto& pServerSocket) {
+			auto pPool = test::CreateStartedIoThreadPool();
+			test::SpawnPacketServerWork(pPool->ioContext(), options, [&payload, &writeCode](const auto& pServerSocket) {
 				pServerSocket->write(payload, [&writeCode](auto code) {
 					writeCode = code;
 				});
 			});
-			test::AddClientConnectionTask(pPool->service());
+			test::AddClientConnectionTask(pPool->ioContext());
 			pPool->join();
 
 			// Assert: the write failed due to malformed data
@@ -129,8 +129,8 @@ namespace catapult { namespace ionet {
 
 		// Act: "server" - closes the socket and then writes a payload to the (closed) socket
 		//      "client" - reads a payload from the socket
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		test::SpawnPacketServerWork(pPool->service(), [&payload, &writeCode](const auto& pServerSocket) {
+		auto pPool = test::CreateStartedIoThreadPool();
+		test::SpawnPacketServerWork(pPool->ioContext(), [&payload, &writeCode](const auto& pServerSocket) {
 			pServerSocket->close();
 			CATAPULT_LOG(debug) << "closed server socket";
 
@@ -138,7 +138,7 @@ namespace catapult { namespace ionet {
 				writeCode = code;
 			});
 		});
-		test::AddClientReadBufferTask(pPool->service(), receiveBuffer);
+		test::AddClientReadBufferTask(pPool->ioContext(), receiveBuffer);
 		pPool->join();
 
 		// Assert:
@@ -154,14 +154,14 @@ namespace catapult { namespace ionet {
 
 		// Act: "server" - waits for the client socket to close; writes to the socket
 		//      "client" - closes the client socket
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		test::SpawnPacketServerWork(pPool->service(), [&payload, &writeCode, &isSocketClosed](const auto& pServerSocket) {
+		auto pPool = test::CreateStartedIoThreadPool();
+		test::SpawnPacketServerWork(pPool->ioContext(), [&payload, &writeCode, &isSocketClosed](const auto& pServerSocket) {
 			WAIT_FOR(isSocketClosed);
 			pServerSocket->write(payload, [&writeCode](auto code) {
 				writeCode = code;
 			});
 		});
-		test::CreateClientSocket(pPool->service())->connect().then([&isSocketClosed](auto&& socketFuture) {
+		test::CreateClientSocket(pPool->ioContext())->connect().then([&isSocketClosed](auto&& socketFuture) {
 			socketFuture.get()->shutdown();
 			isSocketClosed = true;
 		});
@@ -241,13 +241,13 @@ namespace catapult { namespace ionet {
 
 			// Act: "server" - reads the next packet(s) from the socket (using read)
 			//      "client" - sends all buffers to the socket
-			auto pPool = test::CreateStartedIoServiceThreadPool();
-			test::SpawnPacketServerWork(pPool->service(), [&result](const auto& pServerSocket) {
+			auto pPool = test::CreateStartedIoThreadPool();
+			test::SpawnPacketServerWork(pPool->ioContext(), [&result](const auto& pServerSocket) {
 				pServerSocket->read([pServerSocket, &result](auto code, const auto* pPacket) {
 					FillResult(result, pServerSocket, code, pPacket);
 				});
 			});
-			test::AddClientWriteBuffersTask(pPool->service(), sendBuffers);
+			test::AddClientWriteBuffersTask(pPool->ioContext(), sendBuffers);
 			pPool->join();
 
 			return result;
@@ -320,8 +320,8 @@ namespace catapult { namespace ionet {
 		// Act: "server" - closes the server socket and then attempts to read the next packet(s) from the socket
 		//      "client" - sends all buffers to the socket
 		SendBuffersResult result;
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		test::SpawnPacketServerWork(pPool->service(), [&result](const auto& pServerSocket) {
+		auto pPool = test::CreateStartedIoThreadPool();
+		test::SpawnPacketServerWork(pPool->ioContext(), [&result](const auto& pServerSocket) {
 			pServerSocket->close();
 			CATAPULT_LOG(debug) << "closed server socket";
 
@@ -329,7 +329,7 @@ namespace catapult { namespace ionet {
 				FillResult(result, pServerSocket, code, pPacket);
 			});
 		});
-		test::AddClientWriteBuffersTask(pPool->service(), sendBuffers);
+		test::AddClientWriteBuffersTask(pPool->ioContext(), sendBuffers);
 		pPool->join();
 
 		// Assert: the server should get a read error when attempting to read from the socket
@@ -344,14 +344,14 @@ namespace catapult { namespace ionet {
 
 		// Act: "server" - waits for the client socket to close; reads from the socket
 		//      "client" - closes the client socket
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		test::SpawnPacketServerWork(pPool->service(), [&readCode, &isSocketClosed](const auto& pServerSocket) {
+		auto pPool = test::CreateStartedIoThreadPool();
+		test::SpawnPacketServerWork(pPool->ioContext(), [&readCode, &isSocketClosed](const auto& pServerSocket) {
 			WAIT_FOR(isSocketClosed);
 			pServerSocket->read([&readCode](auto code, const auto*) {
 				readCode = code;
 			});
 		});
-		test::CreateClientSocket(pPool->service())->connect().then([&isSocketClosed](auto&& socketFuture) {
+		test::CreateClientSocket(pPool->ioContext())->connect().then([&isSocketClosed](auto&& socketFuture) {
 			socketFuture.get()->shutdown();
 			isSocketClosed = true;
 		});
@@ -383,14 +383,14 @@ namespace catapult { namespace ionet {
 
 			// Act: "server" - reads the next packet(s) from the socket (using readMultiple)
 			//      "client" - sends all buffers to the socket
-			auto pPool = test::CreateStartedIoServiceThreadPool();
-			test::SpawnPacketServerWork(pPool->service(), [&results](const auto& pServerSocket) {
+			auto pPool = test::CreateStartedIoThreadPool();
+			test::SpawnPacketServerWork(pPool->ioContext(), [&results](const auto& pServerSocket) {
 				pServerSocket->readMultiple([pServerSocket, &results](auto code, const auto* pPacket) {
 					results.push_back(SendBuffersResult());
 					FillResult(results.back(), pServerSocket, code, pPacket);
 				});
 			});
-			test::AddClientWriteBuffersTask(pPool->service(), sendBuffers);
+			test::AddClientWriteBuffersTask(pPool->ioContext(), sendBuffers);
 			pPool->join();
 
 			return results;
@@ -496,8 +496,8 @@ namespace catapult { namespace ionet {
 		// Act: "server" - chains two read multiple calls (each should read exactly one packet)
 		//      "client" - sends two batches of buffers
 		std::atomic_bool firstReadCompleted(false);
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+		auto pPool = test::CreateStartedIoThreadPool();
+		test::SpawnPacketServerWork(pPool->ioContext(), [&](const auto& pServerSocket) {
 			// - start the first read multiple call
 			pServerSocket->readMultiple([&, pServerSocket](auto code, const auto* pPacket) {
 				CATAPULT_LOG(debug) << "server handling readMultiple (1) callback " << code;
@@ -517,7 +517,7 @@ namespace catapult { namespace ionet {
 				firstReadCompleted = true;
 			});
 		});
-		test::CreateClientSocket(pPool->service())->connect()
+		test::CreateClientSocket(pPool->ioContext())->connect()
 			.then([&sendBuffers, &firstReadCompleted](auto&& socketFuture) {
 				// - write 3 buffers (composed of one full and one partial packet) and wait for them to be read
 				CATAPULT_LOG(debug) << "client writing three buffers";
@@ -566,21 +566,21 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CloseTransitionsSocketToClosedState) {
 		// Arrange:
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->service());
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->ioContext());
 
 		// Act: "server" - accepts a connection and closes the socket
 		//      "client" - connects to the server
 		PacketSocket::Stats stats;
 		std::shared_ptr<PacketSocket> pSocket;
-		pPool->service().post([&acceptor = *pAcceptor, &stats, &pSocket]() {
+		boost::asio::post(pPool->ioContext(), [&acceptor = *pAcceptor, &stats, &pSocket]() {
 			Accept(acceptor, test::CreatePacketSocketOptions(), [&stats, &pSocket](const auto& acceptedSocketInfo) {
 				pSocket = acceptedSocketInfo.socket();
 				pSocket->close();
 				pSocket->stats([&stats](const auto& socketStats) { stats = socketStats; });
 			});
 		});
-		test::AddClientConnectionTask(pPool->service());
+		test::AddClientConnectionTask(pPool->ioContext());
 		pPool->join();
 
 		// Assert:
@@ -597,8 +597,8 @@ namespace catapult { namespace ionet {
 		// Act: "server" - start a read and destroy the server socket
 		//      "client" - sends all buffers to the socket
 		SendBuffersResult result;
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		test::SpawnPacketServerWork(pPool->service(), [&result](const auto& pServerSocket) {
+		auto pPool = test::CreateStartedIoThreadPool();
+		test::SpawnPacketServerWork(pPool->ioContext(), [&result](const auto& pServerSocket) {
 			pServerSocket->read([&result](auto code, const auto* pPacket) {
 				result.Code = code;
 				result.IsPacketValid = !!pPacket;
@@ -609,7 +609,7 @@ namespace catapult { namespace ionet {
 			std::const_pointer_cast<PacketSocket>(pServerSocket).reset();
 			CATAPULT_LOG(debug) << "destroyed server socket";
 		});
-		test::AddClientWriteBuffersTask(pPool->service(), sendBuffers);
+		test::AddClientWriteBuffersTask(pPool->ioContext(), sendBuffers);
 		pPool->join();
 
 		// Assert: the read should have completed successfully
@@ -623,14 +623,14 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, OperationsOnSingleSocketAreStranded) {
 		// Arrange:
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->service());
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->ioContext());
 
 		// Act: "server" - accepts a connection and posts a few operations on the socket
 		//      "client" - connects to the server
 		std::shared_ptr<PacketSocket> pSocket;
 		std::vector<std::string> breadcrumbs;
-		pPool->service().post([&acceptor = *pAcceptor, &breadcrumbs, &pSocket]() {
+		boost::asio::post(pPool->ioContext(), [&acceptor = *pAcceptor, &breadcrumbs, &pSocket]() {
 			Accept(acceptor, test::CreatePacketSocketOptions(), [&breadcrumbs, &pSocket](const auto& acceptedSocketInfo) {
 				pSocket = acceptedSocketInfo.socket();
 				auto addStatsBreadcrumb = [&breadcrumbs](const auto& stats) {
@@ -646,7 +646,7 @@ namespace catapult { namespace ionet {
 					pSocket->stats(addStatsBreadcrumb);
 			});
 		});
-		test::AddClientConnectionTask(pPool->service());
+		test::AddClientConnectionTask(pPool->ioContext());
 		pPool->join();
 
 		// Assert: if the operations were not synchronized, the ordering would not be guaranteed (4 open, 4 closed)
@@ -663,20 +663,20 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, AcceptReturnsOpenSocketOnSuccess) {
 		// Arrange:
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->service());
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->ioContext());
 
 		// Act: "server" - accepts a connection
 		//      "client" - connects to the server
 		PacketSocket::Stats stats;
 		AcceptedPacketSocketInfo socketInfo;
-		pPool->service().post([&acceptor = *pAcceptor, &stats, &socketInfo]() {
+		boost::asio::post(pPool->ioContext(), [&acceptor = *pAcceptor, &stats, &socketInfo]() {
 			Accept(acceptor, test::CreatePacketSocketOptions(), [&stats, &socketInfo](const auto& acceptedSocketInfo) {
 				socketInfo = acceptedSocketInfo;
 				socketInfo.socket()->stats([&stats](const auto& socketStats) { stats = socketStats; });
 			});
 		});
-		test::AddClientConnectionTask(pPool->service());
+		test::AddClientConnectionTask(pPool->ioContext());
 		pPool->join();
 
 		// Assert: loopback address is used in tests
@@ -690,14 +690,14 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, AcceptReturnsNullSocketOnAcceptFailure) {
 		// Arrange:
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->service());
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->ioContext());
 
 		// Act: "server" - accepts a connection after invalidating the socket in the configure callback
 		//      "client" - connects to the server
 		AcceptedPacketSocketInfo socketInfo;
 		std::atomic_bool isCallbackCalled(false);
-		pPool->service().post([&acceptor = *pAcceptor, &socketInfo, &isCallbackCalled]() {
+		boost::asio::post(pPool->ioContext(), [&acceptor = *pAcceptor, &socketInfo, &isCallbackCalled]() {
 			auto invalidateSocket = [](auto& socket) { socket.open(boost::asio::ip::tcp::v4()); };
 			auto options = test::CreatePacketSocketOptions();
 			Accept(acceptor, options, invalidateSocket, [&socketInfo, &isCallbackCalled](const auto& acceptedSocketInfo) {
@@ -705,7 +705,7 @@ namespace catapult { namespace ionet {
 				isCallbackCalled = true;
 			});
 		});
-		test::AddClientConnectionTask(pPool->service());
+		test::AddClientConnectionTask(pPool->ioContext());
 		pPool->join();
 
 		// Assert:
@@ -725,20 +725,20 @@ namespace catapult { namespace ionet {
 		//          1. delay between async_accept success and remote_endpoint query
 		//          2. client that sets SO_LINGER to 0s and immediately closes connection within (1) delay period
 		test::RunNonDeterministicTest("remote endpoint failure", 50 * test::GetMaxNonDeterministicTestRetries(), [](auto) {
-			auto pPool = test::CreateStartedIoServiceThreadPool(1);
-			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->service());
+			auto pPool = test::CreateStartedIoThreadPool(1);
+			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->ioContext());
 
 			// Act: "server" - accepts a connection after invalidating the socket in the configure callback
 			//      "client" - connects to the server and immediately aborts the connection
 			AcceptedPacketSocketInfo socketInfo;
 			std::atomic_bool isCallbackCalled(false);
-			pPool->service().post([&acceptor = *pAcceptor, &socketInfo, &isCallbackCalled]() {
+			boost::asio::post(pPool->ioContext(), [&acceptor = *pAcceptor, &socketInfo, &isCallbackCalled]() {
 				Accept(acceptor, test::CreatePacketSocketOptions(), [&socketInfo, &isCallbackCalled](const auto& acceptedSocketInfo) {
 					socketInfo = acceptedSocketInfo;
 					isCallbackCalled = true;
 				});
 			});
-			test::CreateClientSocket(pPool->service())->connect(test::ClientSocket::ConnectOptions::Abort);
+			test::CreateClientSocket(pPool->ioContext())->connect(test::ClientSocket::ConnectOptions::Abort);
 			pPool->join();
 
 			if (socketInfo)
@@ -758,20 +758,20 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, AcceptCallsConfigureSocketCallbackForSocket) {
 		// Arrange:
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->service());
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->ioContext());
 
 		// Act: "server" - accepts a connection with a custom configure socket callback
 		//      "client" - connects to the server
 		auto numConfigureSocketCalls = 0u;
-		pPool->service().post([&acceptor = *pAcceptor, &numConfigureSocketCalls]() {
+		boost::asio::post(pPool->ioContext(), [&acceptor = *pAcceptor, &numConfigureSocketCalls]() {
 			Accept(
 					acceptor,
 					test::CreatePacketSocketOptions(),
 					[&numConfigureSocketCalls](const auto&) { ++numConfigureSocketCalls; },
 					[](const auto&) {});
 		});
-		test::AddClientConnectionTask(pPool->service());
+		test::AddClientConnectionTask(pPool->ioContext());
 		pPool->join();
 
 		// Assert: the configure socket callback should have been called
@@ -783,15 +783,15 @@ namespace catapult { namespace ionet {
 		void RunAcceptHonorsOptionsTest(uint32_t bufferSize, uint32_t adjustmentSize, TAction action) {
 			// Arrange:
 			auto sendBuffer = test::GenerateRandomPacketBuffer(bufferSize);
-			auto pPool = test::CreateStartedIoServiceThreadPool();
-			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->service());
+			auto pPool = test::CreateStartedIoThreadPool();
+			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(pPool->ioContext());
 
 			// Act: "server" - accepts a connection and reads a buffer
 			//      "client" - connects to the server and writes a buffer
 			SendBuffersResult result;
 			auto options = test::CreatePacketSocketOptions();
 			options.MaxPacketDataSize = bufferSize - sizeof(PacketHeader) - adjustmentSize;
-			pPool->service().post([&acceptor = *pAcceptor, &options, &result]() {
+			boost::asio::post(pPool->ioContext(), [&acceptor = *pAcceptor, &options, &result]() {
 				Accept(acceptor, options, [&result](const auto& acceptedSocketInfo) {
 					auto pServerSocket = acceptedSocketInfo.socket();
 					pServerSocket->read([pServerSocket, &result](auto code, const auto* pPacket) {
@@ -799,7 +799,7 @@ namespace catapult { namespace ionet {
 					});
 				});
 			});
-			test::AddClientWriteBuffersTask(pPool->service(), { sendBuffer });
+			test::AddClientWriteBuffersTask(pPool->ioContext(), { sendBuffer });
 			pPool->join();
 
 			// Assert:
@@ -833,27 +833,27 @@ namespace catapult { namespace ionet {
 			bool IsSocketValid;
 		};
 
-		auto Connect(boost::asio::io_service& service, const NodeEndpoint& endpoint, ConnectResultPair& result) {
+		auto Connect(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint, ConnectResultPair& result) {
 			auto options = test::CreatePacketSocketOptions();
-			return ionet::Connect(service, options, endpoint, [&result](auto connectResult, const auto& pSocket) {
+			return ionet::Connect(ioContext, options, endpoint, [&result](auto connectResult, const auto& pSocket) {
 				result.Result = connectResult;
 				result.IsSocketValid = !!pSocket;
 			});
 		}
 
-		ConnectResultPair ConnectAndWait(boost::asio::io_service& service, const NodeEndpoint& endpoint) {
+		ConnectResultPair ConnectAndWait(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint) {
 			// Act:
 			ConnectResultPair result;
-			Connect(service, endpoint, result);
+			Connect(ioContext, endpoint, result);
 
 			// - wait for all work to complete
-			service.run();
+			ioContext.run();
 			return result;
 		}
 
 		ConnectResultPair ConnectAndWait(const NodeEndpoint& endpoint) {
-			boost::asio::io_service service;
-			return ConnectAndWait(service, endpoint);
+			boost::asio::io_context ioContext;
+			return ConnectAndWait(ioContext, endpoint);
 		}
 	}
 
@@ -882,9 +882,9 @@ namespace catapult { namespace ionet {
 	}
 
 	namespace {
-		void AssertCanConnectToServer(boost::asio::io_service& service, const NodeEndpoint& endpoint) {
+		void AssertCanConnectToServer(boost::asio::io_context& ioContext, const NodeEndpoint& endpoint) {
 			// Act: attempt to connect to a running server
-			auto result = ConnectAndWait(service, endpoint);
+			auto result = ConnectAndWait(ioContext, endpoint);
 
 			// Assert:
 			EXPECT_EQ(ConnectResult::Connected, result.Result);
@@ -894,26 +894,26 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, ConnectionSucceedsIfServerAcceptsConnection) {
 		// Arrange: set up a server acceptor thread
-		boost::asio::io_service service;
-		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(service);
+		boost::asio::io_context ioContext;
+		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(ioContext);
 
 		// Assert:
-		AssertCanConnectToServer(service, test::CreateLocalHostNodeEndpoint());
+		AssertCanConnectToServer(ioContext, test::CreateLocalHostNodeEndpoint());
 	}
 
 	namespace {
 		bool RunCancellationTestIteration() {
 			// Arrange: set up a server thread
-			auto pPool = test::CreateStartedIoServiceThreadPool();
-			auto& service = pPool->service();
+			auto pPool = test::CreateStartedIoThreadPool();
+			auto& ioContext = pPool->ioContext();
 
 			CATAPULT_LOG(debug) << "starting async accept";
-			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(service);
-			auto acceptorStrand = boost::asio::strand(service);
-			auto serverSocket = boost::asio::ip::tcp::socket(service);
+			auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(ioContext);
+			auto acceptorStrand = boost::asio::io_context::strand(ioContext);
+			auto serverSocket = boost::asio::ip::tcp::socket(ioContext);
 
 			// - post an async server accept
-			acceptorStrand.post([&acceptor = *pAcceptor, &serverSocket]() {
+			boost::asio::post(acceptorStrand, [&acceptor = *pAcceptor, &serverSocket]() {
 				acceptor.async_accept(serverSocket, [](const auto& acceptEc) {
 					CATAPULT_LOG(debug) << "async_accept completed with: " << acceptEc.message();
 				});
@@ -921,13 +921,13 @@ namespace catapult { namespace ionet {
 
 			// Act: attempt to connect to a running local server
 			ConnectResultPair result;
-			auto cancel = Connect(service, test::CreateLocalHostNodeEndpoint(), result);
+			auto cancel = Connect(ioContext, test::CreateLocalHostNodeEndpoint(), result);
 
 			// - immediately cancel the connect
 			cancel();
 
 			// - cancel any pending server accepts (depending on timing, either the resolve or connect could be cancelled)
-			acceptorStrand.post([&acceptor = *pAcceptor]() {
+			boost::asio::post(acceptorStrand, [&acceptor = *pAcceptor]() {
 				acceptor.cancel();
 			});
 
@@ -957,12 +957,12 @@ namespace catapult { namespace ionet {
 		void RunConnectHonorsOptionsTest(uint32_t bufferSize, uint32_t adjustmentSize, TAction action) {
 			// Arrange:
 			auto sendBuffer = test::GenerateRandomPacketBuffer(bufferSize);
-			auto pPool = test::CreateStartedIoServiceThreadPool();
+			auto pPool = test::CreateStartedIoThreadPool();
 
 			// Act: "server" - accepts a connection and writes a buffer
 			//      "client" - connects to the server and reads a buffer
 			SendBuffersResult result;
-			test::SpawnPacketServerWork(pPool->service(), [&sendBuffer](const auto& pServerSocket) {
+			test::SpawnPacketServerWork(pPool->ioContext(), [&sendBuffer](const auto& pServerSocket) {
 				pServerSocket->write(test::BufferToPacketPayload(sendBuffer), [](auto code) {
 					CATAPULT_LOG(debug) << "write completed with code " << code;
 				});
@@ -971,7 +971,7 @@ namespace catapult { namespace ionet {
 			auto endpoint = test::CreateLocalHostNodeEndpoint();
 			auto options = test::CreatePacketSocketOptions();
 			options.MaxPacketDataSize = bufferSize - sizeof(PacketHeader) - adjustmentSize;
-			ionet::Connect(pPool->service(), options, endpoint, [&result](auto, const auto& pClientSocket) {
+			ionet::Connect(pPool->ioContext(), options, endpoint, [&result](auto, const auto& pClientSocket) {
 				pClientSocket->read([pClientSocket, &result](auto code, const auto* pPacket) {
 					CATAPULT_LOG(debug) << "read completed with code " << code;
 					FillResult(result, pClientSocket, code, pPacket);

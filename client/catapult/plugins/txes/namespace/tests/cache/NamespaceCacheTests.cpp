@@ -691,62 +691,61 @@ namespace catapult { namespace cache {
 			return view.find(id).get().root().alias(id);
 		}
 
-		template<typename TAction>
-		void RunSetAliasTest(TAction action) {
+		void AssertCanSetNamespace(NamespaceId namespaceId) {
 			// Arrange: insert a root with child
 			NamespaceCacheMixinTraits::CacheType cache;
-			auto delta = cache.createDelta();
 			auto owner = test::CreateRandomOwner();
 			state::RootNamespace root(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-			delta->insert(root);
-			delta->insert(state::Namespace(test::CreatePath({ 123, 127 })));
 
-			// Sanity:
-			test::AssertCacheSizes(*delta, 1, 2, 2);
-			EXPECT_TRUE(delta->contains(NamespaceId(127)));
+			{
+				auto delta = cache.createDelta();
+				delta->insert(root);
+				delta->insert(state::Namespace(test::CreatePath({ 123, 127 })));
 
-			// Act + Assert:
-			action(*delta, cache);
+				// Sanity:
+				test::AssertCacheSizes(*delta, 1, 2, 2);
+				EXPECT_TRUE(delta->contains(NamespaceId(127)));
+
+				// Act:
+				delta->setAlias(namespaceId, state::NamespaceAlias(MosaicId(444)));
+				cache.commit();
+			}
+
+			auto view = cache.createView();
+			auto alias = GetNamespaceAliasFromCache(*view, namespaceId);
+
+			// Assert:
+			EXPECT_EQ(state::AliasType::Mosaic, alias.type());
+			EXPECT_EQ(MosaicId(444), alias.mosaicId());
 		}
 	}
 
 	TEST(TEST_CLASS, CanSetRootNamespaceAlias) {
-		// Arrange:
-		RunSetAliasTest([](auto& delta, auto& cache) {
-			// Act:
-			delta.setAlias(NamespaceId(123), state::NamespaceAlias(MosaicId(444)));
-			cache.commit();
-
-			auto alias = GetNamespaceAliasFromCache(*cache.createView(), NamespaceId(123));
-
-			// Assert:
-			EXPECT_EQ(state::AliasType::Mosaic, alias.type());
-			EXPECT_EQ(MosaicId(444), alias.mosaicId());
-		});
+		// Assert:
+		AssertCanSetNamespace(NamespaceId(123));
 	}
 
 	TEST(TEST_CLASS, CanSetChildNamespaceAlias) {
-		// Arrange:
-		RunSetAliasTest([](auto& delta, auto& cache) {
-			// Act:
-			delta.setAlias(NamespaceId(127), state::NamespaceAlias(MosaicId(444)));
-			cache.commit();
-
-			auto alias = GetNamespaceAliasFromCache(*cache.createView(), NamespaceId(127));
-
-			// Assert:
-			EXPECT_EQ(state::AliasType::Mosaic, alias.type());
-			EXPECT_EQ(MosaicId(444), alias.mosaicId());
-
-		});
+		// Assert:
+		AssertCanSetNamespace(NamespaceId(127));
 	}
 
 	TEST(TEST_CLASS, CannotSetUnknownNamespaceAlias) {
-		// Arrange:
-		RunSetAliasTest([](auto& delta, const auto&) {
-			// Act + Assert:
-			EXPECT_THROW(delta.setAlias(NamespaceId(129), state::NamespaceAlias(MosaicId(444))), catapult_invalid_argument);
-		});
+		// Arrange: insert a root with child
+		NamespaceCacheMixinTraits::CacheType cache;
+		auto owner = test::CreateRandomOwner();
+		state::RootNamespace root(NamespaceId(123), owner, test::CreateLifetime(234, 321));
+
+		auto delta = cache.createDelta();
+		delta->insert(root);
+		delta->insert(state::Namespace(test::CreatePath({ 123, 127 })));
+
+		// Sanity:
+		test::AssertCacheSizes(*delta, 1, 2, 2);
+		EXPECT_TRUE(delta->contains(NamespaceId(127)));
+
+		// Act + Assert:
+		EXPECT_THROW(delta->setAlias(NamespaceId(129), state::NamespaceAlias(MosaicId(444))), catapult_invalid_argument);
 	}
 
 	// endregion
@@ -1019,17 +1018,21 @@ namespace catapult { namespace cache {
 		NamespaceCacheMixinTraits::CacheType cache;
 		auto owner = test::CreateRandomOwner();
 		SetupCacheForPruneTests(cache, owner);
-		auto delta = cache.createDelta();
+		NamespaceIds prunedIds;
+		{
+			auto delta = cache.createDelta();
 
-		// Sanity:
-		test::AssertCacheSizes(*delta, 5, 15, 15);
+			// Sanity:
+			test::AssertCacheSizes(*delta, 5, 15, 15);
 
-		// Act: prune root with id 2 and the associated children
-		auto prunedIds = delta->prune(Height(30 + Grace_Period_Duration));
-		cache.commit();
+			// Act: prune root with id 2 and the associated children
+			prunedIds = delta->prune(Height(30 + Grace_Period_Duration));
+			cache.commit();
 
-		// Assert:
-		test::AssertCacheSizes(*delta, 4, 12, 12);
+			// Assert:
+			test::AssertCacheSizes(*delta, 4, 12, 12);
+		}
+
 		test::AssertCacheContents(cache, { 0, 10, 20, 1, 11, 21, 3, 13, 23, 4, 14, 24 });
 		AssertPrunedIds({ 2, 12, 22 }, prunedIds);
 	}
@@ -1040,17 +1043,21 @@ namespace catapult { namespace cache {
 		auto owner = test::CreateRandomOwner();
 		SetupCacheForPruneTests(cache, owner);
 		RenewSameOwner(cache);
-		auto delta = cache.createDelta();
+		NamespaceIds prunedIds;
+		{
+			auto delta = cache.createDelta();
 
-		// Sanity:
-		test::AssertCacheSizes(*delta, 5, 16, 20);
+			// Sanity:
+			test::AssertCacheSizes(*delta, 5, 16, 20);
 
-		// Act: prune root with id 0 (note that only the old root 0 is pruned, all children are protected by the newer version)
-		auto prunedIds = delta->prune(Height(10 + Grace_Period_Duration));
-		cache.commit();
+			// Act: prune root with id 0 (note that only the old root 0 is pruned, all children are protected by the newer version)
+			prunedIds = delta->prune(Height(10 + Grace_Period_Duration));
+			cache.commit();
 
-		// Assert:
-		test::AssertCacheSizes(*delta, 5, 16, 16);
+			// Assert:
+			test::AssertCacheSizes(*delta, 5, 16, 16);
+		}
+
 		test::AssertCacheContents(cache, { 0, 10, 20, 30, 1, 11, 21, 2, 12, 22, 3, 13, 23, 4, 14, 24 });
 		AssertPrunedIds({}, prunedIds);
 	}
@@ -1062,21 +1069,24 @@ namespace catapult { namespace cache {
 		auto diffOwner = test::CreateRandomOwner();
 		SetupCacheForPruneTests(cache, owner);
 		RenewDifferentOwner(cache, diffOwner);
-		auto delta = cache.createDelta();
-
-		// Sanity:
-		test::AssertCacheSizes(*delta, 5, 14, 17);
-
-		// Act: prune all roots at their original expiration heights
-		//      the old root with id 4 had two children (that get pruned) and the renewed root has one child (that stays)
 		std::vector<NamespaceIds> prunedIdGroups;
-		for (auto height = Height(10); height <= Height(50); height = height + Height(10))
-			prunedIdGroups.push_back(delta->prune(Height(height.unwrap() + Grace_Period_Duration)));
+		{
+			auto delta = cache.createDelta();
 
-		cache.commit();
+			// Sanity:
+			test::AssertCacheSizes(*delta, 5, 14, 17);
 
-		// Assert:
-		test::AssertCacheSizes(*delta, 1, 2, 2);
+			// Act: prune all roots at their original expiration heights
+			//      the old root with id 4 had two children (that get pruned) and the renewed root has one child (that stays)
+			for (auto height = Height(10); height <= Height(50); height = height + Height(10))
+				prunedIdGroups.push_back(delta->prune(Height(height.unwrap() + Grace_Period_Duration)));
+
+			cache.commit();
+
+			// Assert:
+			test::AssertCacheSizes(*delta, 1, 2, 2);
+		}
+
 		test::AssertCacheContents(cache, { 4, 34 });
 
 		AssertPrunedIds({ 0, 10, 20 }, prunedIdGroups[0]);

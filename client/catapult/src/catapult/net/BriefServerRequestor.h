@@ -25,7 +25,7 @@
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/thread/Future.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/HexFormatter.h"
 
@@ -60,7 +60,7 @@ namespace catapult { namespace net {
 		public:
 			NodeRequest(
 					const ionet::Node& requestNode,
-					const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const TResponseCompatibilityChecker& compatibilityChecker,
 					const CallbackType& callback)
 					: m_requestNode(requestNode)
@@ -72,14 +72,14 @@ namespace catapult { namespace net {
 		public:
 			void setTimeout(const utils::TimeSpan& timeout, const std::shared_ptr<ionet::PacketSocket>& pSocket) {
 				auto pTimedCallback = thread::MakeTimedCallback(
-						m_pPool->service(),
+						m_pPool->ioContext(),
 						m_callback,
 						NodeRequestResult::Failure_Timeout,
 						ResponseType());
 				pTimedCallback->setTimeout(timeout);
 				pTimedCallback->setTimeoutHandler([pSocket, requestNode = m_requestNode]() {
 					pSocket->close();
-					CATAPULT_LOG(debug) << TRequestPolicy::FriendlyName() << " request connection to '" << requestNode << "' timed out";
+					CATAPULT_LOG(debug) << TRequestPolicy::Friendly_Name << " request connection to '" << requestNode << "' timed out";
 				});
 				m_callback = [pTimedCallback](auto result, const auto& response) {
 					pTimedCallback->callback(result, response);
@@ -89,7 +89,7 @@ namespace catapult { namespace net {
 		public:
 			void complete(PeerConnectCode connectCode) {
 				CATAPULT_LOG(debug)
-						<< TRequestPolicy::FriendlyName() << " request connection to '" << m_requestNode
+						<< TRequestPolicy::Friendly_Name << " request connection to '" << m_requestNode
 						<< "' failed: " << connectCode;
 				complete(NodeRequestResult::Failure_Connection);
 			}
@@ -103,7 +103,7 @@ namespace catapult { namespace net {
 					complete(response);
 				} catch (const catapult_runtime_error& e) {
 					CATAPULT_LOG(warning)
-							<< "exception thrown during " << TRequestPolicy::FriendlyName() << " request to '"
+							<< "exception thrown during " << TRequestPolicy::Friendly_Name << " request to '"
 							<< m_requestNode << "': " << e.what();
 					complete(NodeRequestResult::Failure_Interaction);
 				}
@@ -120,7 +120,7 @@ namespace catapult { namespace net {
 
 		private:
 			ionet::Node m_requestNode;
-			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			TResponseCompatibilityChecker m_compatibilityChecker;
 			CallbackType m_callback;
 		};
@@ -131,7 +131,7 @@ namespace catapult { namespace net {
 		/// Creates a server requestor for a server with a key pair of \a keyPair using \a pPool and configured with \a settings
 		/// and a custom response compatibility checker (\a responseCompatibilityChecker).
 		BriefServerRequestor(
-				const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+				const std::shared_ptr<thread::IoThreadPool>& pPool,
 				const crypto::KeyPair& keyPair,
 				const ConnectionSettings& settings,
 				const TResponseCompatibilityChecker& responseCompatibilityChecker)
@@ -189,7 +189,7 @@ namespace catapult { namespace net {
 		}
 
 	private:
-		std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+		std::shared_ptr<thread::IoThreadPool> m_pPool;
 		TResponseCompatibilityChecker m_responseCompatibilityChecker;
 		utils::TimeSpan m_requestTimeout;
 		std::shared_ptr<ServerConnector> m_pConnector;

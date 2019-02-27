@@ -99,7 +99,7 @@ namespace catapult { namespace test {
 	}
 
 	std::unique_ptr<mongo::MongoStorageContext> CreateDefaultMongoStorageContext(const std::string& dbName) {
-		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), dbName, CreateStartedIoServiceThreadPool(8));
+		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), dbName, CreateStartedIoThreadPool(8));
 		return std::make_unique<mongo::MongoStorageContext>(DefaultDbUri(), dbName, pWriter);
 	}
 

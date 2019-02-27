@@ -34,8 +34,8 @@ namespace catapult { namespace cache {
 			{}
 
 		public:
-			auto lock() {
-				return m_detachedDelta.lock();
+			auto tryLock() {
+				return m_detachedDelta.tryLock();
 			}
 
 		private:
@@ -54,15 +54,15 @@ namespace catapult { namespace cache {
 			return m_cacheHeight;
 		}
 
-		std::unique_ptr<CatapultCacheDelta> getAndLock() {
-			return m_pLockableUnconfirmedCatapultCache->lock();
+		std::unique_ptr<CatapultCacheDelta> getAndTryLock() {
+			return m_pLockableUnconfirmedCatapultCache->tryLock();
 		}
 
 		std::unique_ptr<CatapultCacheDelta> rebaseAndLock() {
 			auto detachableDelta = m_catapultCache.createDetachableDelta();
 			m_cacheHeight = detachableDelta.height();
 			m_pLockableUnconfirmedCatapultCache = std::make_unique<DetachedDeltaWrapper>(detachableDelta.detach());
-			return m_pLockableUnconfirmedCatapultCache->lock();
+			return m_pLockableUnconfirmedCatapultCache->tryLock();
 		}
 
 	private:
@@ -81,8 +81,8 @@ namespace catapult { namespace cache {
 		return m_pImpl->height();
 	}
 
-	std::unique_ptr<CatapultCacheDelta> RelockableDetachedCatapultCache::getAndLock() {
-		return m_pImpl->getAndLock();
+	std::unique_ptr<CatapultCacheDelta> RelockableDetachedCatapultCache::getAndTryLock() {
+		return m_pImpl->getAndTryLock();
 	}
 
 	std::unique_ptr<CatapultCacheDelta> RelockableDetachedCatapultCache::rebaseAndLock() {

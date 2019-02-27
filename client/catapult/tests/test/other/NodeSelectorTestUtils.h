@@ -29,7 +29,7 @@ namespace catapult { namespace test {
 	class NodeSelectorProbabilityTests {
 	public:
 		static void AssertSelectsCandidatesBasedOnWeight() {
-			test::RunNonDeterministicTest(TTraits::Description(), []() {
+			test::RunNonDeterministicTest(TTraits::Description, []() {
 				// Arrange:
 				constexpr size_t Max_Percentage_Deviation = 10;
 				constexpr uint64_t Num_Iterations = 10'000;

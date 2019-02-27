@@ -124,11 +124,11 @@ namespace catapult { namespace ionet {
 	/// Callback for a connected socket.
 	using ConnectCallback = consumer<ConnectResult, const std::shared_ptr<PacketSocket>&>;
 
-	/// Attempts to connect a socket to the specified \a endpoint using \a service and calls \a callback on
+	/// Attempts to connect a socket to the specified \a endpoint using \a ioContext and calls \a callback on
 	/// completion configuring the socket with \a options. The returned function can be used to cancel the connect.
 	/// \note User callbacks passed to the connected socket are serialized.
 	action Connect(
-			boost::asio::io_service& service,
+			boost::asio::io_context& ioContext,
 			const PacketSocketOptions& options,
 			const NodeEndpoint& endpoint,
 			const ConnectCallback& callback);

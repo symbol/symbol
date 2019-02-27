@@ -58,7 +58,7 @@ namespace catapult { namespace api {
 		struct BaseGenericApiTraits {
 		public:
 			using ResultType = uint8_t;
-			static constexpr auto PacketType() { return GenericResponse::Packet_Type; }
+			static constexpr auto Packet_Type = GenericResponse::Packet_Type;
 
 		public:
 			explicit BaseGenericApiTraits(uint8_t multiplier = 1) : m_multiplier(multiplier)
@@ -79,7 +79,7 @@ namespace catapult { namespace api {
 		};
 
 		struct GenericWithoutParametersApiTraits : public BaseGenericApiTraits {
-			static constexpr auto FriendlyName() { return "generic without parameters"; }
+			static constexpr auto Friendly_Name = "generic without parameters";
 
 			using BaseGenericApiTraits::BaseGenericApiTraits;
 
@@ -89,7 +89,7 @@ namespace catapult { namespace api {
 		};
 
 		struct GenericWithParametersApiTraits : public BaseGenericApiTraits {
-			static constexpr auto FriendlyName() { return "generic with parameters"; }
+			static constexpr auto Friendly_Name = "generic with parameters";
 
 			static auto CreateRequestPacketPayload(uint8_t alpha, uint64_t beta, uint16_t gamma) {
 				auto pPacket = ionet::CreateSharedPacket<GenericRequestWithParams>();

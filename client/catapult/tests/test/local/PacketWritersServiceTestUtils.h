@@ -85,7 +85,7 @@ namespace catapult { namespace test {
 			context.boot();
 
 			// Assert:
-			EXPECT_EQ(static_cast<size_t>(Traits::Num_Expected_Services), context.locator().numServices());
+			EXPECT_EQ(Traits::Num_Expected_Services, context.locator().numServices());
 			EXPECT_EQ(1u, context.locator().counters().size());
 
 			EXPECT_TRUE(!!Traits::GetWriters(context.locator()));
@@ -101,11 +101,11 @@ namespace catapult { namespace test {
 			context.shutdown();
 
 			// Assert:
-			EXPECT_EQ(static_cast<size_t>(Traits::Num_Expected_Services), context.locator().numServices());
+			EXPECT_EQ(Traits::Num_Expected_Services, context.locator().numServices());
 			EXPECT_EQ(1u, context.locator().counters().size());
 
 			EXPECT_FALSE(!!Traits::GetWriters(context.locator()));
-			EXPECT_EQ(static_cast<uint64_t>(extensions::ServiceLocator::Sentinel_Counter_Value), context.counter(Traits::Counter_Name));
+			EXPECT_EQ(extensions::ServiceLocator::Sentinel_Counter_Value, context.counter(Traits::Counter_Name));
 		}
 
 		// endregion
@@ -124,9 +124,9 @@ namespace catapult { namespace test {
 
 		static void AssertCanConnectToExternalServer() {
 			// Arrange: create a (tcp) server
-			auto pPool = CreateStartedIoServiceThreadPool();
+			auto pPool = CreateStartedIoThreadPool();
 			auto serverKeyPair = GenerateKeyPair();
-			SpawnPacketServerWork(pPool->service(), [&serverKeyPair](const auto& pServer) {
+			SpawnPacketServerWork(pPool->ioContext(), [&serverKeyPair](const auto& pServer) {
 				net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [](auto, const auto&) {});
 			});
 
@@ -153,15 +153,16 @@ namespace catapult { namespace test {
 		static void AssertCanBroadcastEntityToWriters() {
 			// Arrange: create a (tcp) server
 			ionet::ByteBuffer packetBuffer;
-			auto pPool = CreateStartedIoServiceThreadPool();
+			auto pPool = CreateStartedIoThreadPool();
 			auto serverKeyPair = GenerateKeyPair();
-			SpawnPacketServerWork(pPool->service(), [&service = pPool->service(), &packetBuffer, &serverKeyPair](const auto& pServer) {
+			SpawnPacketServerWork(pPool->ioContext(), [&ioContext = pPool->ioContext(), &packetBuffer, &serverKeyPair](
+					const auto& pServer) {
 				// - verify the client
-				net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [&service, &packetBuffer, pServer](
+				net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [&ioContext, &packetBuffer, pServer](
 						auto,
 						const auto&) {
 					// - read the packet and copy it into packetBuffer
-					AsyncReadIntoBuffer(service, *pServer, packetBuffer);
+					AsyncReadIntoBuffer(ioContext, *pServer, packetBuffer);
 				});
 			});
 

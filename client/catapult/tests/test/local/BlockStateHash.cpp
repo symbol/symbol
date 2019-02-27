@@ -32,8 +32,9 @@ namespace catapult { namespace test {
 		auto pPluginManager = CreatePluginManager(config);
 
 		auto cache = pPluginManager->createCache();
-		auto cacheDetachedDelta = cache.createDetachableDelta().detach();
-		auto pCacheDelta = cacheDetachedDelta.lock();
+		auto cacheDetachableDelta = cache.createDetachableDelta();
+		auto cacheDetachedDelta = cacheDetachableDelta.detach();
+		auto pCacheDelta = cacheDetachedDelta.tryLock();
 
 		return CalculateBlockStateHash(blockElement.Block, *pCacheDelta, *pPluginManager);
 	}

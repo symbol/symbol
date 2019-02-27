@@ -32,7 +32,7 @@ namespace catapult { namespace ionet {
 
 	namespace {
 		constexpr uint32_t Transaction_Size = sizeof(mocks::MockTransaction);
-		constexpr uint32_t Block_Transaction_Size = sizeof(model::Block) + Transaction_Size;
+		constexpr uint32_t Block_Transaction_Size = sizeof(model::BlockHeader) + Transaction_Size;
 
 		void SetTransactionAt(ByteBuffer& buffer, size_t offset) {
 			test::SetTransactionAt(buffer, offset, Transaction_Size);
@@ -58,7 +58,7 @@ namespace catapult { namespace ionet {
 
 			static void PrepareBufferWithOverflowSize(ByteBuffer& buffer, uint32_t size) {
 				// create a buffer with no complete blocks but some overflow bytes
-				buffer.resize(std::max<uint32_t>(sizeof(model::Block), size));
+				buffer.resize(std::max<uint32_t>(sizeof(model::BlockHeader), size));
 				test::SetBlockAt(buffer, 0, buffer.size());
 				buffer.resize(size);
 			}
@@ -93,12 +93,12 @@ namespace catapult { namespace ionet {
 			static void PrepareBufferWithOverflowSize(ByteBuffer& buffer, uint32_t size) {
 				// create a buffer with two complete blocks and some overflow bytes
 				constexpr auto Num_Full_Blocks = 2u;
-				constexpr auto Base_Buffer_Size = Num_Full_Blocks * sizeof(model::Block);
-				buffer.resize(Base_Buffer_Size + std::max<uint32_t>(sizeof(model::Block), size));
+				constexpr auto Base_Buffer_Size = Num_Full_Blocks * sizeof(model::BlockHeader);
+				buffer.resize(Base_Buffer_Size + std::max<uint32_t>(sizeof(model::BlockHeader), size));
 				test::SetBlockAt(buffer, 0);
 				for (auto i = 0u; i <= Num_Full_Blocks; ++i) {
-					auto blockSize = Num_Full_Blocks == i ? size : sizeof(model::Block);
-					test::SetBlockAt(buffer, i * sizeof(model::Block), blockSize);
+					auto blockSize = Num_Full_Blocks == i ? size : sizeof(model::BlockHeader);
+					test::SetBlockAt(buffer, i * sizeof(model::BlockHeader), blockSize);
 				}
 			}
 		};
@@ -168,7 +168,7 @@ namespace catapult { namespace ionet {
 
 	BUFFER_FAILURE_TEST(CannotExtractFromBufferWithoutFullEntityData) {
 		// Assert:
-		for (auto size : std::vector<uint32_t>{ sizeof(model::VerifiableEntity), sizeof(model::Block) - 1 })
+		for (auto size : std::vector<uint32_t>{ sizeof(model::VerifiableEntity), sizeof(model::BlockHeader) - 1 })
 			AssertCannotParseBufferWithSize<TTraits>(size);
 	}
 
@@ -192,7 +192,7 @@ namespace catapult { namespace ionet {
 		// - create a buffer wrapping a block
 		// - expand the buffer by the size of a transaction so it looks like the buffer expands beyond the last entity
 		ByteBuffer buffer;
-		TTraits::PrepareBufferWithOverflowSize(buffer, sizeof(model::Block));
+		TTraits::PrepareBufferWithOverflowSize(buffer, sizeof(model::BlockHeader));
 		buffer.resize(buffer.size() + Transaction_Size);
 
 		// Act:
@@ -204,7 +204,7 @@ namespace catapult { namespace ionet {
 
 	BUFFER_SINGLE_ENTITY_TEST(CanExtractSingleBlockWithoutTransactions) {
 		// Arrange: create a buffer containing a block with no transactions
-		ByteBuffer buffer(sizeof(model::Block));
+		ByteBuffer buffer(sizeof(model::BlockHeader));
 		test::SetBlockAt(buffer, 0);
 
 		// Act:
@@ -216,7 +216,7 @@ namespace catapult { namespace ionet {
 
 	BUFFER_SINGLE_ENTITY_TEST(IsValidPredicateHasHigherPrecedenceThanSizeCheck) {
 		// Arrange: create a buffer containing a block with no transactions
-		ByteBuffer buffer(sizeof(model::Block));
+		ByteBuffer buffer(sizeof(model::BlockHeader));
 		test::SetBlockAt(buffer, 0);
 
 		// Act: extract and return false from the isValid predicate even though the buffer has a valid size
@@ -247,11 +247,11 @@ namespace catapult { namespace ionet {
 	namespace {
 		void PrepareMultiBlockBuffer(ByteBuffer& buffer) {
 			// create a buffer containing three blocks
-			buffer.resize(Block_Transaction_Size + 2 * sizeof(model::Block));
+			buffer.resize(Block_Transaction_Size + 2 * sizeof(model::BlockHeader));
 			test::SetBlockAt(buffer, 0); // block 1
-			test::SetBlockAt(buffer, sizeof(model::Block), Block_Transaction_Size); // block 2
-			SetTransactionAt(buffer, 2 * sizeof(model::Block)); // block 2 tx
-			test::SetBlockAt(buffer, sizeof(model::Block) + Block_Transaction_Size); // block 3
+			test::SetBlockAt(buffer, sizeof(model::BlockHeader), Block_Transaction_Size); // block 2
+			SetTransactionAt(buffer, 2 * sizeof(model::BlockHeader)); // block 2 tx
+			test::SetBlockAt(buffer, sizeof(model::BlockHeader) + Block_Transaction_Size); // block 3
 		}
 	}
 
@@ -265,7 +265,7 @@ namespace catapult { namespace ionet {
 
 		// Assert:
 		ASSERT_EQ(3u, offsets.size());
-		EXPECT_EQ(std::vector<size_t>({ 0, sizeof(model::Block), sizeof(model::Block) + Block_Transaction_Size }), offsets);
+		EXPECT_EQ(std::vector<size_t>({ 0, sizeof(model::BlockHeader), sizeof(model::BlockHeader) + Block_Transaction_Size }), offsets);
 	}
 
 	TEST(TEST_CLASS, CannotExtractMultipleBlocks_ContainsSingleEntity) {

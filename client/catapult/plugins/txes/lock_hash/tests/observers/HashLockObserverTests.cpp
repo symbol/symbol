@@ -38,9 +38,7 @@ namespace catapult { namespace observers {
 			using NotificationBuilder = test::HashLockNotificationBuilder;
 			using ObserverTestContext = test::ObserverTestContextT<test::HashLockInfoCacheFactory>;
 
-			static constexpr auto DebitReceiptType() {
-				return model::Receipt_Type_LockHash_Created;
-			}
+			static constexpr auto Debit_Receipt_Type = model::Receipt_Type_LockHash_Created;
 
 			static auto CreateObserver() {
 				return CreateHashLockObserver();

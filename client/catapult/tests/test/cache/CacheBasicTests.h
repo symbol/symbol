@@ -118,7 +118,7 @@ namespace catapult { namespace test {
 			auto lockableDelta = cache.createDetachedDelta();
 
 			// Assert:
-			AssertDefaultCacheContents(*lockableDelta.lock());
+			AssertDefaultCacheContents(*lockableDelta.tryLock());
 		}
 
 		static void AssertCanCreateMultipleDetachedDeltas() {
@@ -133,7 +133,7 @@ namespace catapult { namespace test {
 
 			// Assert:
 			for (auto& lockableDelta : deltas)
-				AssertDefaultCacheContents(*lockableDelta.lock());
+				AssertDefaultCacheContents(*lockableDelta.tryLock());
 		}
 
 		// endregion
@@ -146,13 +146,13 @@ namespace catapult { namespace test {
 			detail::InsertMultiple<TTraits>(cache, { 1, 2, 3 });
 
 			using LockableCacheDeltaType = decltype(cache.createDetachedDelta());
-			using LockedCacheDeltaType = decltype(cache.createDetachedDelta().lock());
+			using LockedCacheDeltaType = decltype(cache.createDetachedDelta().tryLock());
 
 			struct DetachedDeltaGuard {
 			public:
 				explicit DetachedDeltaGuard(LockableCacheDeltaType&& lockableDelta)
 						: m_lockableDelta(std::move(lockableDelta))
-						, m_delta(m_lockableDelta.lock())
+						, m_delta(m_lockableDelta.tryLock())
 				{}
 
 			private:
@@ -180,7 +180,7 @@ namespace catapult { namespace test {
 				// Sanity:
 				std::thread([&detachedDelta]() {
 					// - need to lock on a separate thread because test thread owns pDelta
-					EXPECT_TRUE(detachedDelta.lock());
+					EXPECT_TRUE(detachedDelta.tryLock());
 				}).join();
 
 				// Act:
@@ -188,7 +188,7 @@ namespace catapult { namespace test {
 			}
 
 			// Assert:
-			EXPECT_FALSE(detachedDelta.lock());
+			EXPECT_FALSE(detachedDelta.tryLock());
 		}
 
 		// endregion

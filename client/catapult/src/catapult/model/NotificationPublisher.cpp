@@ -101,7 +101,7 @@ namespace catapult { namespace model {
 
 				// raise a signature notification
 				auto headerSize = VerifiableEntity::Header_Size;
-				auto blockData = RawBuffer{ reinterpret_cast<const uint8_t*>(&block) + headerSize, sizeof(Block) - headerSize };
+				auto blockData = RawBuffer{ reinterpret_cast<const uint8_t*>(&block) + headerSize, sizeof(BlockHeader) - headerSize };
 				sub.notify(SignatureNotification(block.Signer, block.Signature, blockData));
 			}
 

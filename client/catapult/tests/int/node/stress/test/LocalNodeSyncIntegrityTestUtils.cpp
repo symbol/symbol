@@ -75,10 +75,11 @@ namespace catapult { namespace test {
 			Height height,
 			uint32_t numExpectedBlockElements,
 			uint32_t numTerminalReaders) {
-		// Act: wait for the chain height to change and for all height readers to disconnect
+		// Act: wait for the chain height to change, for all height readers to disconnect and completion of block element processing
 		context.waitForHeight(height);
 		auto chainHeight = context.height();
 		WAIT_FOR_VALUE_EXPR(numTerminalReaders, context.stats().NumActiveReaders);
+		WAIT_FOR_VALUE_EXPR(0u, context.stats().NumActiveBlockElements);
 
 		// Assert: the chain height is correct
 		EXPECT_EQ(height, chainHeight);

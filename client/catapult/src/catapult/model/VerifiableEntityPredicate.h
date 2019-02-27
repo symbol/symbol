@@ -21,7 +21,6 @@
 #pragma once
 #include "VerifiableEntity.h"
 #include "catapult/functions.h"
-#include "catapult/preprocessor.h"
 
 namespace catapult { namespace model {
 
@@ -29,20 +28,17 @@ namespace catapult { namespace model {
 	using VerifiableEntityPredicate = predicate<const VerifiableEntity&>;
 
 	/// Creates a predicate that always returns \c true.
-	CATAPULT_INLINE
-	VerifiableEntityPredicate NeverFilter() {
+	inline VerifiableEntityPredicate NeverFilter() {
 		return [](const auto&) { return true; };
 	}
 
 	/// Creates a predicate that returns \c true when an entity has a matching entity \a type.
-	CATAPULT_INLINE
-	VerifiableEntityPredicate HasTypeFilter(EntityType type) {
+	inline VerifiableEntityPredicate HasTypeFilter(EntityType type) {
 		return [type](const auto& entity) { return entity.Type == type; };
 	}
 
 	/// Creates a predicate that returns \c true when an entity has a matching basic entity \a type.
-	CATAPULT_INLINE
-	VerifiableEntityPredicate HasBasicTypeFilter(BasicEntityType type) {
+	inline VerifiableEntityPredicate HasBasicTypeFilter(BasicEntityType type) {
 		return [type](const auto& entity) { return ToBasicEntityType(entity.Type) == type; };
 	}
 }}

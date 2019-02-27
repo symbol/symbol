@@ -21,7 +21,6 @@
 #pragma once
 #include "catapult/exceptions.h"
 #include "catapult/functions.h"
-#include "catapult/preprocessor.h"
 #include <atomic>
 #include <thread>
 
@@ -151,8 +150,7 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Blocks until a reader lock can be acquired.
-		CATAPULT_INLINE
-		ReaderLockGuard acquireReader() {
+		inline ReaderLockGuard acquireReader() {
 			uint16_t current = m_value;
 			for (;;) {
 				// wait for any pending writes to complete
@@ -175,26 +173,22 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Returns \c true if there is a pending (or active) writer.
-		CATAPULT_INLINE
-		bool isWriterPending() const {
+		inline bool isWriterPending() const {
 			return isSet(Pending_Writer_Mask);
 		}
 
 		/// Returns \c true if there is an active writer.
-		CATAPULT_INLINE
-		bool isWriterActive() const {
+		inline bool isWriterActive() const {
 			return isSet(Active_Writer_Flag);
 		}
 
 		/// Returns \c true if there is an active reader.
-		CATAPULT_INLINE
-		bool isReaderActive() const {
+		inline bool isReaderActive() const {
 			return isSet(Reader_Mask);
 		}
 
 	private:
-		CATAPULT_INLINE
-		bool isSet(uint16_t mask) const {
+		inline bool isSet(uint16_t mask) const {
 			return 0 != (m_value & mask);
 		}
 
@@ -205,13 +199,11 @@ namespace catapult { namespace utils {
 	/// A no-op reader notification policy.
 	struct NoOpReaderNotificationPolicy {
 		/// A reader was acquried by the current thread.
-		CPP14_CONSTEXPR
-		void readerAcquired()
+		constexpr void readerAcquired()
 		{}
 
 		/// A reader was released by the current thread.
-		CPP14_CONSTEXPR
-		void readerReleased()
+		constexpr void readerReleased()
 		{}
 	};
 }}

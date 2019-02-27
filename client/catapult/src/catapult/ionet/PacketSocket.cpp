@@ -36,7 +36,9 @@ namespace catapult { namespace ionet {
 			explicit AutoConsume(PacketExtractor& packetExtractor) : m_packetExtractor(packetExtractor)
 			{}
 
-			~AutoConsume() { m_packetExtractor.consume(); }
+			~AutoConsume() {
+				m_packetExtractor.consume();
+			}
 
 		private:
 			PacketExtractor& m_packetExtractor;
@@ -69,8 +71,8 @@ namespace catapult { namespace ionet {
 		template<typename TSocketCallbackWrapper>
 		class BasicPacketSocket final {
 		public:
-			BasicPacketSocket(boost::asio::io_service& service, const PacketSocketOptions& options, TSocketCallbackWrapper& wrapper)
-					: m_socket(service)
+			BasicPacketSocket(boost::asio::io_context& ioContext, const PacketSocketOptions& options, TSocketCallbackWrapper& wrapper)
+					: m_socket(ioContext)
 					, m_wrapper(wrapper)
 					, m_buffer(options)
 					, m_maxPacketDataSize(options.MaxPacketDataSize)
@@ -250,10 +252,10 @@ namespace catapult { namespace ionet {
 			using SocketType = BasicPacketSocket<StrandedPacketSocket>;
 
 		public:
-			StrandedPacketSocket(boost::asio::io_service& service, const PacketSocketOptions& options)
-					: m_strand(service)
+			StrandedPacketSocket(boost::asio::io_context& ioContext, const PacketSocketOptions& options)
+					: m_strand(ioContext)
 					, m_strandWrapper(m_strand)
-					, m_socket(service, options, *this)
+					, m_socket(ioContext, options, *this)
 			{}
 
 			~StrandedPacketSocket() override {
@@ -296,7 +298,7 @@ namespace catapult { namespace ionet {
 				return m_socket.impl();
 			}
 
-			boost::asio::strand& strand() {
+			boost::asio::io_context::strand& strand() {
 				return m_strand;
 			}
 
@@ -317,7 +319,7 @@ namespace catapult { namespace ionet {
 			}
 
 		private:
-			boost::asio::strand m_strand;
+			boost::asio::io_context::strand m_strand;
 			thread::StrandOwnerLifetimeExtender<StrandedPacketSocket> m_strandWrapper;
 			SocketType m_socket;
 		};
@@ -334,7 +336,7 @@ namespace catapult { namespace ionet {
 					: m_acceptor(acceptor)
 					, m_configureSocket(configureSocket)
 					, m_accept(accept)
-					, m_pSocket(std::make_shared<StrandedPacketSocket>(m_acceptor.get_io_service(), options))
+					, m_pSocket(std::make_shared<StrandedPacketSocket>(m_acceptor.get_io_context(), options))
 			{}
 
 		public:
@@ -398,15 +400,15 @@ namespace catapult { namespace ionet {
 
 		public:
 			BasicConnectHandler(
-					boost::asio::io_service& service,
+					boost::asio::io_context& ioContext,
 					const PacketSocketOptions& options,
 					const NodeEndpoint& endpoint,
 					const ConnectCallback& callback,
 					TCallbackWrapper& wrapper)
 					: m_callback(callback)
 					, m_wrapper(wrapper)
-					, m_pSocket(std::make_shared<StrandedPacketSocket>(service, options))
-					, m_resolver(service)
+					, m_pSocket(std::make_shared<StrandedPacketSocket>(ioContext, options))
+					, m_resolver(ioContext)
 					, m_host(endpoint.Host)
 					, m_query(m_host, std::to_string(endpoint.Port))
 					, m_isCancelled(false)
@@ -483,11 +485,11 @@ namespace catapult { namespace ionet {
 		class StrandedConnectHandler : public std::enable_shared_from_this<StrandedConnectHandler> {
 		public:
 			StrandedConnectHandler(
-					boost::asio::io_service& service,
+					boost::asio::io_context& ioContext,
 					const PacketSocketOptions& options,
 					const NodeEndpoint& endpoint,
 					const ConnectCallback& callback)
-					: m_handler(service, options, endpoint, callback, *this)
+					: m_handler(ioContext, options, endpoint, callback, *this)
 					, m_strandWrapper(m_handler.impl().strand()) // use the socket's strand
 			{}
 
@@ -521,11 +523,11 @@ namespace catapult { namespace ionet {
 	}
 
 	action Connect(
-			boost::asio::io_service& service,
+			boost::asio::io_context& ioContext,
 			const PacketSocketOptions& options,
 			const NodeEndpoint& endpoint,
 			const ConnectCallback& callback) {
-		auto pHandler = std::make_shared<StrandedConnectHandler>(service, options, endpoint, callback);
+		auto pHandler = std::make_shared<StrandedConnectHandler>(ioContext, options, endpoint, callback);
 		pHandler->start();
 		return [pHandler] { pHandler->cancel(); };
 	}

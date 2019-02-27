@@ -19,7 +19,6 @@
 **/
 
 #include "Harvester.h"
-#include "BlockExecutionHashesCalculator.h"
 #include "catapult/cache_core/ImportanceView.h"
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/chain/BlockScorer.h"
@@ -54,15 +53,13 @@ namespace catapult { namespace harvesting {
 			}
 		};
 
-		std::unique_ptr<model::Block> CreateUnsignedBlock(
+		std::unique_ptr<model::Block> CreateUnsignedBlockHeader(
 				const NextBlockContext& context,
 				model::NetworkIdentifier networkIdentifier,
-				const crypto::KeyPair& keyPair,
-				const TransactionsInfo& transactionsInfo) {
-			auto pBlock = model::CreateBlock(context.ParentContext, networkIdentifier, keyPair.publicKey(), transactionsInfo.Transactions);
+				const Key& publicKey) {
+			auto pBlock = model::CreateBlock(context.ParentContext, networkIdentifier, publicKey, {});
 			pBlock->Difficulty = context.Difficulty;
 			pBlock->Timestamp = context.Timestamp;
-			pBlock->BlockTransactionsHash = transactionsInfo.TransactionsHash;
 			return pBlock;
 		}
 	}
@@ -71,11 +68,11 @@ namespace catapult { namespace harvesting {
 			const cache::CatapultCache& cache,
 			const model::BlockChainConfiguration& config,
 			const UnlockedAccounts& unlockedAccounts,
-			const Suppliers& suppliers)
+			const BlockGenerator& blockGenerator)
 			: m_cache(cache)
 			, m_config(config)
 			, m_unlockedAccounts(unlockedAccounts)
-			, m_suppliers(suppliers)
+			, m_blockGenerator(blockGenerator)
 	{}
 
 	std::unique_ptr<model::Block> Harvester::harvest(const model::BlockElement& lastBlockElement, Timestamp timestamp) {
@@ -114,17 +111,11 @@ namespace catapult { namespace harvesting {
 			return nullptr;
 
 		utils::StackLogger stackLogger("generating candidate block", utils::LogLevel::Debug);
-		auto transactionsInfo = m_suppliers.SupplyTransactions(context.Timestamp, m_config.MaxTransactionsPerBlock);
-		auto pBlock = CreateUnsignedBlock(context, m_config.Network.Identifier, *pHarvesterKeyPair, transactionsInfo);
-		pBlock->FeeMultiplier = transactionsInfo.FeeMultiplier;
+		auto pBlockHeader = CreateUnsignedBlockHeader(context, m_config.Network.Identifier, pHarvesterKeyPair->publicKey());
+		auto pBlock = m_blockGenerator(*pBlockHeader, m_config.MaxTransactionsPerBlock);
+		if (pBlock)
+			SignBlockHeader(*pHarvesterKeyPair, *pBlock);
 
-		auto blockExecutionHashes = m_suppliers.CalculateBlockExecutionHashes(*pBlock, transactionsInfo.TransactionHashes);
-		if (!blockExecutionHashes.IsExecutionSuccess)
-			return nullptr;
-
-		pBlock->BlockReceiptsHash = blockExecutionHashes.ReceiptsHash;
-		pBlock->StateHash = blockExecutionHashes.StateHash;
-		SignBlockHeader(*pHarvesterKeyPair, *pBlock);
 		return pBlock;
 	}
 }}

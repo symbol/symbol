@@ -47,7 +47,7 @@ namespace catapult { namespace test {
 
 		/// Creates an external source connection to specified local \a node.
 		explicit ExternalSourceConnection(const ionet::Node& node)
-				: m_pPool(CreateStartedIoServiceThreadPool(1))
+				: m_pPool(CreateStartedIoThreadPool(1))
 				, m_clientKeyPair(crypto::KeyPair::FromPrivate(GenerateRandomPrivateKey()))
 				, m_pConnector(net::CreateServerConnector(m_pPool, m_clientKeyPair, net::ConnectionSettings()))
 				, m_localNode(node)
@@ -81,7 +81,7 @@ namespace catapult { namespace test {
 		static model::TransactionRegistry CreateTransactionRegistry();
 
 	private:
-		std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+		std::shared_ptr<thread::IoThreadPool> m_pPool;
 		crypto::KeyPair m_clientKeyPair;
 		std::shared_ptr<net::ServerConnector> m_pConnector;
 		ionet::Node m_localNode;

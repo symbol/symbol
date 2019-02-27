@@ -79,19 +79,10 @@ namespace catapult { namespace cache {
 				return m_iterator;
 			}
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4702) /* "unreachable code" triggered by IdentifierGroupCacheUtilsTests.cpp and CacheMixinsTests.cpp */
-#endif
-
 			/// Returns reference to underlying db iterator.
 			RdbDataIterator& dbIterator() {
 				return m_iterator;
 			}
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
 		private:
 			RdbDataIterator m_iterator;
@@ -112,7 +103,7 @@ namespace catapult { namespace cache {
 
 	public:
 
-#ifdef _MSC_VER
+#if !defined(NDEBUG) && defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable:4702) /* "unreachable code" */
 #endif
@@ -124,7 +115,7 @@ namespace catapult { namespace cache {
 					TDescriptor::Serializer::SerializeValue(TDescriptor::ToValue(element)));
 		}
 
-#ifdef _MSC_VER
+#if !defined(NDEBUG) && defined(_MSC_VER)
 #pragma warning(pop)
 #endif
 
@@ -140,19 +131,10 @@ namespace catapult { namespace cache {
 			return TContainer::prune(TDescriptor::Serializer::KeyToBoundary(key));
 		}
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4702) /* "unreachable code" triggered by IdentifierGroupCacheUtilsTests.cpp and CacheMixinsTests.cpp */
-#endif
-
 		/// Removes element with \a key.
 		void remove(const KeyType& key) {
 			TContainer::remove(SerializeKey(key));
 		}
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
 		/// Returns iterator that represents non-existing element.
 		const_iterator cend() const {

@@ -19,6 +19,11 @@ set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
+### set custom diagnostics
+if(ENABLE_CATAPULT_DIAGNOSTICS)
+	add_definitions(-DENABLE_CATAPULT_DIAGNOSTICS)
+endif()
+
 ### detect signature scheme
 if(USE_KECCAK AND USE_REVERSED_PRIVATE_KEYS)
 	add_definitions(-DSIGNATURE_SCHEME_NIS1)
@@ -44,10 +49,10 @@ if(MSVC)
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Zi")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 
+	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /DEBUG:FASTLINK")
 	set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG")
 
-	# disable: "marked as __forceinline not inlined"
-	add_definitions(-D_WIN32_WINNT=0x0601 /wd4714 /w44287 /w44388)
+	add_definitions(-D_WIN32_WINNT=0x0601 /w44287 /w44388)
 
 	# explicitly disable linking against static boost libs
 	add_definitions(-DBOOST_ALL_NO_LIB)
@@ -55,6 +60,11 @@ if(MSVC)
 	# min/max macros are useless
 	add_definitions(-DNOMINMAX)
 	add_definitions(-DWIN32_LEAN_AND_MEAN)
+
+	# mongo cxx view inherits std::iterator
+	add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
+	# boost asio associated_allocator
+	add_definitions(-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING)
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 	# -Wstrict-aliasing=1 perform most paranoid strict aliasing checks
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wstrict-aliasing=1")
@@ -76,7 +86,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	# - Wno-switch-enum: do not require enum switch statements to list every value (this setting is also incompatible with GCC warnings)
 	# - Wno-weak-vtables: vtables are emitted in all translsation units for virtual classes with no out-of-line virtual method definitions
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-		-std=c++11 -stdlib=libc++ \
+		-stdlib=libc++ \
 		-Weverything \
 		-Werror \
 		-Wno-c++98-compat \
@@ -194,7 +204,7 @@ endif()
 
 # used to define a catapult target (library, executable) and automatically enables PCH for clang
 function(catapult_target TARGET_NAME)
-	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 14)
+	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 
 	# indicate boost as a dependency
 	target_link_libraries(${TARGET_NAME} ${Boost_LIBRARIES})
@@ -263,7 +273,7 @@ endfunction()
 function(catapult_object_library TARGET_NAME)
 	add_library(${TARGET_NAME} OBJECT ${ARGN})
 	set_property(TARGET ${TARGET_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
-	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 14)
+	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 endfunction()
 
 # used to define a catapult library, creating an appropriate source group and adding a library

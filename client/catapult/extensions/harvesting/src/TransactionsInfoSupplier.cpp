@@ -28,7 +28,6 @@
 namespace catapult { namespace harvesting {
 
 	namespace {
-		using HarvestingUtFacade = HarvestingUtFacadeFactory::HarvestingUtFacade;
 		using TransactionInfoPointers = std::vector<const model::TransactionInfo*>;
 
 		enum class SortDirection { Ascending, Descending };
@@ -105,30 +104,31 @@ namespace catapult { namespace harvesting {
 				return true;
 			});
 
-			// 2. pick the best fee policy and truncate the transactions
+			// 2. pick the best fee policy and truncate the transactions and facade
 			const auto& bestFeePolicy = maximizer.best();
 			candidates.resize(bestFeePolicy.NumTransactions);
+			while (utFacade.size() > bestFeePolicy.NumTransactions)
+				utFacade.unapply();
+
 			return ToTransactionsInfo(candidates, bestFeePolicy.FeeMultiplier);
 		}
 	}
 
 	TransactionsInfoSupplier CreateTransactionsInfoSupplier(
 			model::TransactionSelectionStrategy strategy,
-			const HarvestingUtFacadeFactory& utFacadeFactory,
 			const cache::MemoryUtCache& utCache) {
-		return [strategy, &utFacadeFactory, &utCache](auto timestamp, auto count) {
+		return [strategy, &utCache](auto& utFacade, auto count) {
 			auto utCacheView = utCache.view();
-			auto pUtFacade = utFacadeFactory.create(timestamp);
 
 			switch (strategy) {
 			case model::TransactionSelectionStrategy::Minimize_Fee:
-				return SupplyMinimumFee(utCacheView, *pUtFacade, count);
+				return SupplyMinimumFee(utCacheView, utFacade, count);
 
 			case model::TransactionSelectionStrategy::Maximize_Fee:
-				return SupplyMaximumFee(utCacheView, *pUtFacade, count);
+				return SupplyMaximumFee(utCacheView, utFacade, count);
 
 			default:
-				return SupplyOldest(utCacheView, *pUtFacade, count);
+				return SupplyOldest(utCacheView, utFacade, count);
 			};
 		};
 	}

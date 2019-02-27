@@ -87,7 +87,7 @@ namespace catapult { namespace consumers {
 				const model::TransactionRegistry& registry,
 				uint32_t numBlocks,
 				uint32_t numTransactionsPerBlock) {
-			uint32_t numBytesPerBlock = sizeof(model::Block) + numTransactionsPerBlock * Transaction_Size;
+			uint32_t numBytesPerBlock = sizeof(model::BlockHeader) + numTransactionsPerBlock * Transaction_Size;
 			std::vector<uint8_t> buffer(numBlocks * numBytesPerBlock);
 			test::FillWithRandomData(buffer);
 
@@ -99,7 +99,7 @@ namespace catapult { namespace consumers {
 				block.Type = model::Entity_Type_Block;
 
 				for (auto j = 0u; j < numTransactionsPerBlock; ++j) {
-					auto txOffset = offsets.back() + sizeof(model::Block) + j * Transaction_Size;
+					auto txOffset = offsets.back() + sizeof(model::BlockHeader) + j * Transaction_Size;
 					WriteTransactionAt(buffer, txOffset);
 				}
 

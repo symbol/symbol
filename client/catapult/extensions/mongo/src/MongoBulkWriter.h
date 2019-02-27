@@ -22,22 +22,16 @@
 #include "catapult/model/Elements.h"
 #include "catapult/state/AccountState.h"
 #include "catapult/thread/FutureUtils.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/ParallelFor.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "catapult/exceptions.h"
 #include "catapult/types.h"
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <bsoncxx/json.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/config/version.hpp>
-#ifndef _MSC_VER
-#pragma GCC visibility push(default)
-#endif
 #include <mongocxx/exception/bulk_write_exception.hpp>
-#ifndef _MSC_VER
-#pragma GCC visibility pop
-#endif
 #include <mongocxx/pool.hpp>
 #include <unordered_set>
 
@@ -132,10 +126,10 @@ namespace catapult { namespace mongo {
 		using CreateFilter = std::function<bsoncxx::document::value (const TEntity&)>;
 
 	private:
-		MongoBulkWriter(const mongocxx::uri& uri, const std::string& dbName, const std::shared_ptr<thread::IoServiceThreadPool>& pPool)
+		MongoBulkWriter(const mongocxx::uri& uri, const std::string& dbName, const std::shared_ptr<thread::IoThreadPool>& pPool)
 				: m_dbName(dbName)
 				, m_pPool(pPool)
-				, m_service(pPool->service())
+				, m_ioContext(pPool->ioContext())
 				, m_connectionPool(uri)
 		{}
 
@@ -145,7 +139,7 @@ namespace catapult { namespace mongo {
 		static std::shared_ptr<MongoBulkWriter> Create(
 				const mongocxx::uri& uri,
 				const std::string& dbName,
-				const std::shared_ptr<thread::IoServiceThreadPool>& pPool) {
+				const std::shared_ptr<thread::IoThreadPool>& pPool) {
 			// cannot use make_shared with private constructor
 			auto pData = utils::MakeUniqueWithSize<uint8_t>(sizeof(MongoBulkWriter));
 			auto pWriterRaw = new (pData.get()) MongoBulkWriter(uri, dbName, pPool);
@@ -219,9 +213,11 @@ namespace catapult { namespace mongo {
 		}
 
 	private:
-		thread::future<BulkWriteResult> handleBulkOperation(const std::shared_ptr<BulkWriteParams>& pBulkWriteParams) {
+		thread::future<BulkWriteResult> handleBulkOperation(std::shared_ptr<BulkWriteParams>&& pBulkWriteParams) {
+			// note: pBulkWriteParams depends on pThis (pBulkWriteParams.pConnection depends on pThis.m_connectionPool)
+			// it's crucial to move pBulkWriteParams into lambda, otherwise it would be copied while pThis would be moved
 			auto pPromise = std::make_shared<thread::promise<BulkWriteResult>>();
-			m_service.post([pThis = shared_from_this(), pBulkWriteParams, pPromise]() {
+			boost::asio::post(m_ioContext, [pThis = shared_from_this(), pBulkWriteParams{std::move(pBulkWriteParams)}, pPromise]() {
 				pThis->bulkWrite(*pBulkWriteParams, *pPromise);
 			});
 
@@ -276,7 +272,7 @@ namespace catapult { namespace mongo {
 			auto pContext = std::make_shared<BulkWriteContext>(std::min<size_t>(entities.size(), numThreads));
 			return thread::compose(
 					thread::ParallelForPartition(
-							m_service,
+							m_ioContext,
 							entities,
 							numThreads,
 							[pThis = shared_from_this(), entitiesStart = entities.cbegin(), collectionName, appendOperation, pContext](
@@ -290,7 +286,7 @@ namespace catapult { namespace mongo {
 								for (auto iter = itBegin; itEnd != iter; ++iter, ++index)
 									appendOperation(pBulkWriteParams->Bulk, *iter, index);
 
-								pContext->setFutureAt(batchIndex, pThis->handleBulkOperation(pBulkWriteParams));
+								pContext->setFutureAt(batchIndex, pThis->handleBulkOperation(std::move(pBulkWriteParams)));
 							}),
 					[pContext](const auto&) {
 						return pContext->aggregateFuture();
@@ -299,8 +295,8 @@ namespace catapult { namespace mongo {
 
 	private:
 		std::string m_dbName;
-		std::shared_ptr<const thread::IoServiceThreadPool> m_pPool;
-		boost::asio::io_service& m_service;
+		std::shared_ptr<const thread::IoThreadPool> m_pPool;
+		boost::asio::io_context& m_ioContext;
 		mongocxx::pool m_connectionPool;
 	};
 }}

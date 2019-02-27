@@ -33,7 +33,7 @@ namespace catapult { namespace extensions {
 			using RequestParamType = state::TimestampedHashRange;
 			using ResponseType = state::TimestampedHashRange;
 
-			static constexpr auto PacketType() { return ionet::PacketType::Confirm_Timestamped_Hashes; }
+			static constexpr auto Packet_Type = ionet::PacketType::Confirm_Timestamped_Hashes;
 			static constexpr auto Request_Entity_Size = sizeof(state::TimestampedHash);
 			static constexpr auto Response_Entity_Size = Request_Entity_Size;
 
@@ -195,14 +195,14 @@ namespace catapult { namespace extensions {
 
 		// endregion
 
-		template<typename TIdentifier, ionet::PacketType Packet_Type>
+		template<typename TIdentifier, ionet::PacketType PacketType>
 		struct InfosTraits {
 		public:
 			using RequestParamType = model::EntityRange<TIdentifier>;
 			using EntityType = model::CacheEntryInfo<TIdentifier>;
 			using ResponseType = model::EntityRange<EntityType>;
 
-			static constexpr auto PacketType() { return Packet_Type; }
+			static constexpr auto Packet_Type = PacketType;
 			static constexpr auto Response_Entity_Data_Size = 10u;
 			static constexpr auto Response_Entity_Size = sizeof(EntityType) + Response_Entity_Data_Size;
 
@@ -248,13 +248,11 @@ namespace catapult { namespace extensions {
 			}
 
 		private:
-			template<typename X = std::enable_if_t<utils::traits::is_pod<TIdentifier>::value>>
 			static TIdentifier ToIdentifier(uint32_t value) {
-				return TIdentifier(value);
-			}
-
-			static TIdentifier ToIdentifier(uint32_t value) {
-				return TIdentifier{ { static_cast<uint8_t>(value) } };
+				if constexpr (std::is_same_v<MosaicId, TIdentifier> || std::is_same_v<NamespaceId, TIdentifier>)
+					return TIdentifier(value);
+				else
+					return TIdentifier{ { static_cast<uint8_t>(value) } };
 			}
 		};
 
@@ -325,7 +323,7 @@ namespace catapult { namespace extensions {
 
 			static auto CreateValidResponsePacket() {
 				auto pResponsePacket = TTraits::CreateResponsePacket(Num_Entities);
-				pResponsePacket->Type = TTraits::PacketType();
+				pResponsePacket->Type = TTraits::Packet_Type;
 				return pResponsePacket;
 			}
 
@@ -337,7 +335,7 @@ namespace catapult { namespace extensions {
 			}
 
 			static void ValidateRequest(const ionet::Packet& packet) {
-				EXPECT_EQ(TTraits::PacketType(), packet.Type);
+				EXPECT_EQ(TTraits::Packet_Type, packet.Type);
 				ASSERT_EQ(sizeof(ionet::Packet) + Request_Data_Size, packet.Size);
 				EXPECT_EQ_MEMORY(packet.Data(), TTraits::RequestParamValues().data(), Request_Data_Size);
 			}

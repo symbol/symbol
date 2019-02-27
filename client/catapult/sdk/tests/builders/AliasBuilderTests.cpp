@@ -30,9 +30,7 @@ namespace catapult { namespace builders {
 		struct AddressAliasTestTraits {
 			using AliasedType = Address;
 
-			static constexpr auto TransactionType() {
-				return model::Entity_Type_Alias_Address;
-			}
+			static constexpr auto Transaction_Type = model::Entity_Type_Alias_Address;
 
 			template<typename TTransaction>
 			static Address GetAliased(const TTransaction& transaction) {
@@ -48,9 +46,7 @@ namespace catapult { namespace builders {
 		struct MosaicAliasTestTraits {
 			using AliasedType = MosaicId;
 
-			static constexpr auto TransactionType() {
-				return model::Entity_Type_Alias_Mosaic;
-			}
+			static constexpr auto Transaction_Type = model::Entity_Type_Alias_Mosaic;
 
 			template<typename TTransaction>
 			static MosaicId GetAliased(const TTransaction& transaction) {
@@ -118,7 +114,7 @@ namespace catapult { namespace builders {
 			TTraits::CheckFields(0, *pTransaction);
 			EXPECT_EQ(signer, pTransaction->Signer);
 			EXPECT_EQ(0x6201, pTransaction->Version);
-			EXPECT_EQ(TAliasTraits::TransactionType(), pTransaction->Type);
+			EXPECT_EQ(TAliasTraits::Transaction_Type, pTransaction->Type);
 
 			TAliasTraits::AssertTransactionProperties(expectedProperties, *pTransaction);
 		}

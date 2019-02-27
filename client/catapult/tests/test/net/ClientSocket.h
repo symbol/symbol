@@ -63,15 +63,15 @@ namespace catapult { namespace test {
 		virtual void shutdown() = 0;
 	};
 
-	/// Creates a client socket around \a service.
-	std::shared_ptr<ClientSocket> CreateClientSocket(boost::asio::io_service& service);
+	/// Creates a client socket around \a ioContext.
+	std::shared_ptr<ClientSocket> CreateClientSocket(boost::asio::io_context& ioContext);
 
-	/// Spawns a task on \a service that connects to the (localhost) server.
-	void AddClientConnectionTask(boost::asio::io_service& service);
+	/// Spawns a task on \a ioContext that connects to the (localhost) server.
+	void AddClientConnectionTask(boost::asio::io_context& ioContext);
 
-	/// Spawns a task on \a service that reads \a receiveBuffer from a client socket.
-	void AddClientReadBufferTask(boost::asio::io_service& service, ionet::ByteBuffer& receiveBuffer);
+	/// Spawns a task on \a ioContext that reads \a receiveBuffer from a client socket.
+	void AddClientReadBufferTask(boost::asio::io_context& ioContext, ionet::ByteBuffer& receiveBuffer);
 
-	/// Spawns a task on \a service that writes all \a sendBuffers to a client socket.
-	void AddClientWriteBuffersTask(boost::asio::io_service& service, const std::vector<ionet::ByteBuffer>& sendBuffers);
+	/// Spawns a task on \a ioContext that writes all \a sendBuffers to a client socket.
+	void AddClientWriteBuffersTask(boost::asio::io_context& ioContext, const std::vector<ionet::ByteBuffer>& sendBuffers);
 }}

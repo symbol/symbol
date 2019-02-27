@@ -30,11 +30,11 @@ namespace catapult { namespace api {
 		struct NetworkTimeTraits {
 		public:
 			using ResultType = timesync::CommunicationTimestamps;
-			static constexpr auto PacketType() { return ionet::PacketType::Time_Sync_Network_Time; }
-			static constexpr auto FriendlyName() { return "network time"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Time_Sync_Network_Time;
+			static constexpr auto Friendly_Name = "network time";
 
 			static auto CreateRequestPacketPayload() {
-				return ionet::PacketPayload(PacketType());
+				return ionet::PacketPayload(Packet_Type);
 			}
 
 		public:

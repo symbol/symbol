@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "TransactionsInfoSupplier.h"
+#include "HarvesterBlockGenerator.h"
 #include "UnlockedAccounts.h"
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
@@ -33,23 +33,13 @@ namespace catapult { namespace harvesting {
 	/// A class that creates new blocks.
 	class Harvester {
 	public:
-		/// Suppliers used to customize block generation.
-		struct Suppliers {
-			/// Calculates execution dependent hashes for a block composed of transactions with specified hashes.
-			std::function<BlockExecutionHashes (const model::Block&, const std::vector<Hash256>&)> CalculateBlockExecutionHashes;
-
-			/// Supplies transaction infos for a block.
-			TransactionsInfoSupplier SupplyTransactions;
-		};
-
-	public:
 		/// Creates a harvester around a catapult \a cache, a block chain \a config, an unlocked accounts set (\a unlockedAccounts)
-		/// and \a suppliers used to customize block generation.
+		/// and \a blockGenerator used to customize block generation.
 		explicit Harvester(
 				const cache::CatapultCache& cache,
 				const model::BlockChainConfiguration& config,
 				const UnlockedAccounts& unlockedAccounts,
-				const Suppliers& suppliers);
+				const BlockGenerator& blockGenerator);
 
 	public:
 		/// Creates the best block (if any) harvested by any unlocked account.
@@ -60,6 +50,6 @@ namespace catapult { namespace harvesting {
 		const cache::CatapultCache& m_cache;
 		const model::BlockChainConfiguration m_config;
 		const UnlockedAccounts& m_unlockedAccounts;
-		Suppliers m_suppliers;
+		BlockGenerator m_blockGenerator;
 	};
 }}

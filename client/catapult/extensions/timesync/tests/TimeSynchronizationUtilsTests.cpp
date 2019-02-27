@@ -250,9 +250,11 @@ namespace catapult { namespace timesync {
 
 			// - prepare account state cache
 			auto& cache = context.ServiceTestState.state().cache();
-			auto cacheDelta = cache.createDelta();
-			SeedAccountStateCache(cacheDelta.sub<cache::AccountStateCache>(), keys, importances);
-			cache.commit(Height(1));
+			{
+				auto cacheDelta = cache.createDelta();
+				SeedAccountStateCache(cacheDelta.sub<cache::AccountStateCache>(), keys, importances);
+				cache.commit(Height(1));
+			}
 
 			// Sanity:
 			EXPECT_EQ(TimeOffset(0), context.pTimeSyncState->offset());

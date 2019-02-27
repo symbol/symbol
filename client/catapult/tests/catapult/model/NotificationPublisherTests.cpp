@@ -145,7 +145,7 @@ namespace catapult { namespace model {
 			EXPECT_EQ(block.Signer, notification.Signer);
 			EXPECT_EQ(block.Signature, notification.Signature);
 			EXPECT_EQ(test::AsVoidPointer(&block.Version), test::AsVoidPointer(notification.Data.pData));
-			EXPECT_EQ(sizeof(Block) - VerifiableEntity::Header_Size, notification.Data.Size);
+			EXPECT_EQ(sizeof(BlockHeader) - VerifiableEntity::Header_Size, notification.Data.Size);
 		});
 	}
 

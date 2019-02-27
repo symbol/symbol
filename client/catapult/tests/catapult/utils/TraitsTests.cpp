@@ -35,6 +35,10 @@ namespace catapult { namespace utils {
 			// Assert: both const and non const variants
 			EXPECT_TRUE(traits::is_scalar<T>::value) << lineNumber;
 			EXPECT_TRUE(traits::is_scalar<const T>::value) << lineNumber;
+
+			EXPECT_TRUE(traits::is_scalar_v<T>) << lineNumber;
+			EXPECT_TRUE(traits::is_scalar_v<const T>) << lineNumber;
+
 		}
 
 		template<typename T>
@@ -42,6 +46,9 @@ namespace catapult { namespace utils {
 			// Assert: both const and non const variants
 			EXPECT_FALSE(traits::is_scalar<T>::value) << lineNumber;
 			EXPECT_FALSE(traits::is_scalar<const T>::value) << lineNumber;
+
+			EXPECT_FALSE(traits::is_scalar_v<T>) << lineNumber;
+			EXPECT_FALSE(traits::is_scalar_v<const T>) << lineNumber;
 		}
 
 		template<typename T>
@@ -49,6 +56,9 @@ namespace catapult { namespace utils {
 			// Assert: both const and non const variants
 			EXPECT_TRUE(traits::is_pod<T>::value) << lineNumber;
 			EXPECT_TRUE(traits::is_pod<const T>::value) << lineNumber;
+
+			EXPECT_TRUE(traits::is_pod_v<T>) << lineNumber;
+			EXPECT_TRUE(traits::is_pod_v<const T>) << lineNumber;
 		}
 
 		template<typename T>
@@ -56,6 +66,9 @@ namespace catapult { namespace utils {
 			// Assert: both const and non const variants
 			EXPECT_FALSE(traits::is_pod<T>::value) << lineNumber;
 			EXPECT_FALSE(traits::is_pod<const T>::value) << lineNumber;
+
+			EXPECT_FALSE(traits::is_pod_v<T>) << lineNumber;
+			EXPECT_FALSE(traits::is_pod_v<const T>) << lineNumber;
 		}
 	}
 
@@ -76,7 +89,7 @@ namespace catapult { namespace utils {
 
 		// - compound types
 		AssertIsNotScalar<std::vector<int>>(__LINE__);
-		AssertIsNotScalar<std::array<unsigned char, 1>>(__LINE__);
+		AssertIsNotScalar<std::array<uint8_t, 1>>(__LINE__);
 	}
 
 	TEST(TEST_CLASS, IsPodReturnsTrueOnlyForIntegralAndIntegralLikeTypes) {
@@ -96,7 +109,7 @@ namespace catapult { namespace utils {
 
 		// - compound types
 		AssertIsNotPod<std::vector<int>>(__LINE__);
-		AssertIsPod<std::array<unsigned char, 1>>(__LINE__);
+		AssertIsPod<std::array<uint8_t, 1>>(__LINE__);
 	}
 
 	// endregion
@@ -107,12 +120,16 @@ namespace catapult { namespace utils {
 		struct Base {};
 
 		struct Derived : Base {};
+	}
 
 #define EXPECT_IS_BASE_OF_IGNORE_REFERENCE_RESULT(EXPECTED, TLEFT, TRIGHT) \
 	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT>::value)); \
 	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT&>::value)); \
-	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT&&>::value));
-	}
+	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference<TLEFT, TRIGHT&&>::value)); \
+	\
+	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT>)); \
+	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&>)); \
+	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&&>));
 
 	TEST(TEST_CLASS, IsBaseOfIgnoreReferenceReturnsTrueIfLeftStrippedOfReferenceIsDerivedFromBase) {
 		// Assert:
@@ -141,11 +158,14 @@ namespace catapult { namespace utils {
 		// - references are not stripped from the left
 		EXPECT_FALSE((traits::is_base_of_ignore_reference<Base&, Base>::value));
 		EXPECT_FALSE((traits::is_base_of_ignore_reference<Base&&, Base>::value));
+
+		EXPECT_FALSE((traits::is_base_of_ignore_reference_v<Base&, Base>));
+		EXPECT_FALSE((traits::is_base_of_ignore_reference_v<Base&&, Base>));
 	}
 
 	// endregion
 
-	// region enable_if_type
+	// region is_type_expression
 
 	namespace {
 		template<typename T, typename = void>
@@ -154,12 +174,22 @@ namespace catapult { namespace utils {
 		};
 
 		template<typename T>
-		struct FooTagger<T, typename traits::enable_if_type<typename T::Foo>::type> {
+		struct FooTagger<T, typename traits::is_type_expression<typename T::Foo>::type> {
+			static constexpr auto Tag = 2u;
+		};
+
+		template<typename T, typename = void>
+		struct FooTagger2 {
+			static constexpr auto Tag = 1u;
+		};
+
+		template<typename T>
+		struct FooTagger2<T, traits::is_type_expression_t<typename T::Foo>> {
 			static constexpr auto Tag = 2u;
 		};
 	}
 
-	TEST(TEST_CLASS, EnableIfTypeCanBeUsedToConditionallySelectTypeBasedOnPresenceOfSubTypeAlias) {
+	TEST(TEST_CLASS, IsTypeExpressionCanBeUsedToConditionallySelectTypeBasedOnPresenceOfSubTypeAlias) {
 		// Arrange:
 		struct FooContainer { using Foo = int; };
 		struct OtherContainer {};
@@ -167,6 +197,9 @@ namespace catapult { namespace utils {
 		// Assert: FooTagger::Tag is 2u iff T contains a `Foo` type alias
 		EXPECT_EQ(2u, static_cast<uint32_t>(FooTagger<FooContainer>::Tag));
 		EXPECT_EQ(1u, static_cast<uint32_t>(FooTagger<OtherContainer>::Tag));
+
+		EXPECT_EQ(2u, static_cast<uint32_t>(FooTagger2<FooContainer>::Tag));
+		EXPECT_EQ(1u, static_cast<uint32_t>(FooTagger2<OtherContainer>::Tag));
 	}
 
 	// endregion

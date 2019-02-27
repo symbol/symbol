@@ -109,7 +109,7 @@ namespace catapult { namespace networkheight {
 			auto modifier = storage.modifier();
 			for (auto i = 2u; i <= numBlocks; ++i) {
 				model::Block block;
-				block.Size = sizeof(model::Block);
+				block.Size = sizeof(model::BlockHeader);
 				block.Height = Height(i);
 				modifier.saveBlock(test::BlockToBlockElement(block));
 			}

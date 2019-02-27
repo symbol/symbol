@@ -30,9 +30,9 @@ namespace catapult { namespace observers {
 	template<typename TTraits>
 	struct ExpiredLockInfoObserverTests {
 	public:
-		static constexpr auto InitialBalance() { return Amount(500); }
-		static constexpr auto LockInfoMosaicId() { return MosaicId(1234); }
-		static constexpr auto LockInfoAmount() { return Amount(100); }
+		static constexpr auto Initial_Balance = Amount(500);
+		static constexpr auto Lock_Mosaic_Id = MosaicId(1234);
+		static constexpr auto Lock_Amount = Amount(100);
 
 		using HeightGenerator = std::function<Height (uint32_t)>;
 
@@ -95,7 +95,7 @@ namespace catapult { namespace observers {
 				auto& accountStateCache = this->accountStateCache();
 				for (auto i = 0u; i < numLockInfos; ++i) {
 					// - lock info cache
-					auto lockInfo = CreateLockInfoWithAmount(LockInfoAmount(), heightGenerator(i));
+					auto lockInfo = CreateLockInfoWithAmount(Lock_Amount, heightGenerator(i));
 					keys.insert(lockInfo.Account);
 					lockInfoCacheDelta.insert(lockInfo);
 
@@ -159,7 +159,7 @@ namespace catapult { namespace observers {
 		private:
 			static typename TTraits::ValueType CreateLockInfoWithAmount(Amount amount, Height height) {
 				auto lockInfo = TTraits::CreateLockInfo(height);
-				lockInfo.MosaicId = LockInfoMosaicId();
+				lockInfo.MosaicId = Lock_Mosaic_Id;
 				lockInfo.Amount = amount;
 				return lockInfo;
 			}
@@ -174,7 +174,7 @@ namespace catapult { namespace observers {
 	private:
 		static void AssertObserverDoesNothingWhenNoLockInfoExpired(NotifyMode mode) {
 			// Arrange:
-			auto seedMosaic = model::Mosaic{ LockInfoMosaicId(), InitialBalance() };
+			auto seedMosaic = model::Mosaic{ Lock_Mosaic_Id, Initial_Balance };
 			TestContext context(Height(55), mode, seedMosaic);
 			auto blockSigner = context.addBlockSigner();
 
@@ -196,7 +196,7 @@ namespace catapult { namespace observers {
 
 		static void AssertObserverTransfersMosaics(NotifyMode mode, size_t numExpiringLockInfos) {
 			// Arrange:
-			auto seedMosaic = model::Mosaic{ LockInfoMosaicId(), InitialBalance() };
+			auto seedMosaic = model::Mosaic{ Lock_Mosaic_Id, Initial_Balance };
 			TestContext context(Height(55), mode, seedMosaic);
 			auto blockSigner = context.addBlockSigner();
 
@@ -218,14 +218,14 @@ namespace catapult { namespace observers {
 			// - owner accounts of lock infos expiring at height might have been credited / debited mosaics
 			auto expectedExpiringMosaic = model::Mosaic{
 				seedMosaic.MosaicId,
-				TTraits::GetExpectedExpiringLockOwnerBalance(mode, InitialBalance(), LockInfoAmount())
+				TTraits::GetExpectedExpiringLockOwnerBalance(mode, Initial_Balance, Lock_Amount)
 			};
 			context.assertBalances(expiringLockInfoKeys, expectedExpiringMosaic, "expiringLockInfoKeys");
 
 			// - block signer might have been credited / debited mosaics
 			auto expectedSignerMosaic = model::Mosaic{
 				seedMosaic.MosaicId,
-				TTraits::GetExpectedBlockSignerBalance(mode, InitialBalance(), LockInfoAmount(), numExpiringLockInfos)
+				TTraits::GetExpectedBlockSignerBalance(mode, Initial_Balance, Lock_Amount, numExpiringLockInfos)
 			};
 			context.assertBalances({ blockSigner }, expectedSignerMosaic, "blockSigner");
 		}

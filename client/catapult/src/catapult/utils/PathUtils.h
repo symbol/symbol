@@ -20,7 +20,6 @@
 
 #pragma once
 #include "RawBuffer.h"
-#include "catapult/preprocessor.h"
 
 namespace catapult { namespace utils {
 
@@ -34,7 +33,7 @@ namespace catapult { namespace utils {
 	}
 
 	/// Advances \a str to its end (the \c NUL terminator).
-	CPP14_CONSTEXPR const char* AdvanceToEnd(const char* str) {
+	constexpr const char* AdvanceToEnd(const char* str) {
 		const auto* pEnd = str;
 		while (*pEnd != '\0') ++pEnd;
 		return pEnd;
@@ -42,7 +41,7 @@ namespace catapult { namespace utils {
 
 	/// Extracts the filename part from \a fullPath.
 	/// e.g. ExtractFilename("cat/bar/baz/foo.cpp") == "foo.cpp"
-	CPP14_CONSTEXPR const char* ExtractFilename(const char* fullPath) {
+	constexpr const char* ExtractFilename(const char* fullPath) {
 		const auto* pEnd = AdvanceToEnd(fullPath);
 		for (const auto* pCh = pEnd - 1; pCh >= fullPath; --pCh) {
 			if (IsDirectorySeparator(*pCh))
@@ -54,7 +53,7 @@ namespace catapult { namespace utils {
 
 	/// Extracts the last directory and filename from \a fullPath.
 	/// e.g. ExtractDirectoryAndFilename("cat/baz/bar/foo.cpp") == "bar/foo.cpp"
-	CPP14_CONSTEXPR const char* ExtractDirectoryAndFilename(const char* fullPath) {
+	constexpr const char* ExtractDirectoryAndFilename(const char* fullPath) {
 		const auto* pEnd = ExtractFilename(fullPath);
 
 		// skip consecutive directory separators
@@ -75,7 +74,7 @@ namespace catapult { namespace utils {
 
 	/// Extracts the last directory name from \a fullPath.
 	/// e.g. ExtractLastDirectoryName("cat/baz/bar/foo.cpp") == "bar"
-	CPP14_CONSTEXPR RawString ExtractDirectoryName(const char* fullPath) {
+	constexpr RawString ExtractDirectoryName(const char* fullPath) {
 		const auto* pDirectoryName = ExtractDirectoryAndFilename(fullPath);
 		const auto* pEnd = ExtractFilename(fullPath);
 

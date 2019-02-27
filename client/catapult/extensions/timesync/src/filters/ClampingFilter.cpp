@@ -36,8 +36,8 @@ namespace catapult { namespace timesync { namespace filters {
 		return [](const auto& sample, auto nodeAge) {
 			auto ageToUse = std::max<int64_t>(nodeAge.unwrap() - Start_Decay_After_Round, 0);
 			auto toleratedDeviation = std::max(
-					static_cast<int64_t>(std::exp(-Decay_Strength * ageToUse) * ToInt64(ToleratedDeviationStart())),
-					ToInt64(ToleratedDeviationMinimum()));
+					static_cast<int64_t>(std::exp(-Decay_Strength * ageToUse) * ToInt64(Tolerated_Deviation_Start)),
+					ToInt64(Tolerated_Deviation_Minimum));
 			auto timeOffsetToRemote = sample.timeOffsetToRemote();
 			return timeOffsetToRemote > toleratedDeviation || -toleratedDeviation > timeOffsetToRemote;
 		};

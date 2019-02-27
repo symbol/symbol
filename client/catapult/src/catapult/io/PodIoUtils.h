@@ -110,7 +110,7 @@ namespace catapult { namespace io {
 	template<
 		typename TValue,
 		typename TIo,
-		typename X = std::enable_if_t<utils::traits::is_pod<TValue>::value>
+		typename X = std::enable_if_t<utils::traits::is_pod_v<TValue>>
 	>
 	TValue Read(TIo& input) {
 		TValue result;

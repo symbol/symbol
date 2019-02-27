@@ -23,7 +23,7 @@
 namespace catapult { namespace nodediscovery {
 
 	std::shared_ptr<NodePingRequestor> CreateNodePingRequestor(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
 			const net::ConnectionSettings& settings,
 			model::NetworkIdentifier networkIdentifier) {

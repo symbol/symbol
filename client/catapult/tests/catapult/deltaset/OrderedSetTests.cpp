@@ -28,7 +28,7 @@ namespace catapult { namespace deltaset {
 
 	namespace {
 		template<typename TSet>
-		using PruningBoundaryType = PruningBoundary<typename std::remove_const<typename TSet::ElementType>::type>;
+		using PruningBoundaryType = PruningBoundary<std::remove_const_t<typename TSet::ElementType>>;
 
 		template<typename TSet>
 		void CommitWithoutPruning(TSet& set) {

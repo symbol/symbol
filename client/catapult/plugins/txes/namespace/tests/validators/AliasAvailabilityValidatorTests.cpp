@@ -106,9 +106,7 @@ namespace catapult { namespace validators {
 		};
 
 		struct RootTraits {
-			static constexpr auto NotificationNamespaceId() {
-				return Default_Namespace_Id;
-			}
+			static constexpr auto Notification_Namespace_Id = Default_Namespace_Id;
 
 			static void Prepare(const cache::NamespaceCacheDelta&)
 			{}
@@ -117,9 +115,7 @@ namespace catapult { namespace validators {
 		constexpr auto Child_Namespace_Id = NamespaceId(234);
 
 		struct ChildTraits {
-			static constexpr auto NotificationNamespaceId() {
-				return Child_Namespace_Id;
-			}
+			static constexpr auto Notification_Namespace_Id = Child_Namespace_Id;
 
 			static void Prepare(cache::NamespaceCacheDelta& cache) {
 				// Arrange: always set some link in root namespace
@@ -132,7 +128,7 @@ namespace catapult { namespace validators {
 		void RunTest(ValidationResult expectedResult, AliasAction aliasAction, LinkState linkState) {
 			// Arrange:
 			auto owner = test::GenerateRandomData<Key_Size>();
-			AliasOwnerNotification notification(owner, TTraits::NotificationNamespaceId(), aliasAction);
+			AliasOwnerNotification notification(owner, TTraits::Notification_Namespace_Id, aliasAction);
 
 			// Assert:
 			RunAvailabilityTest(expectedResult, notification, [&owner, linkState](auto& cache) {
@@ -142,7 +138,7 @@ namespace catapult { namespace validators {
 
 				// type of alias does not matter
 				if (LinkState::Set == linkState)
-					test::SetRandomAlias<MosaicId>(cache, TTraits::NotificationNamespaceId());
+					test::SetRandomAlias<MosaicId>(cache, TTraits::Notification_Namespace_Id);
 			});
 		}
 	}

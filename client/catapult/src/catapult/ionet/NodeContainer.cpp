@@ -240,11 +240,13 @@ namespace catapult { namespace ionet {
 	NodeContainer::~NodeContainer() = default;
 
 	NodeContainerView NodeContainer::view() const {
-		return NodeContainerView(*m_pImpl, m_lock.acquireReader());
+		auto readLock = m_lock.acquireReader();
+		return NodeContainerView(*m_pImpl, std::move(readLock));
 	}
 
 	NodeContainerModifier NodeContainer::modifier() {
-		return NodeContainerModifier(*m_pImpl, m_lock.acquireReader());
+		auto readLock = m_lock.acquireReader();
+		return NodeContainerModifier(*m_pImpl, std::move(readLock));
 	}
 
 	// endregion

@@ -58,7 +58,7 @@ namespace catapult { namespace observers {
 						const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
 						ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
 						EXPECT_EQ(1u, receipt.Version);
-						EXPECT_EQ(TTraits::ReceiptType(), receipt.Type);
+						EXPECT_EQ(TTraits::Receipt_Type, receipt.Type);
 						EXPECT_EQ(accountState.PublicKey, receipt.Account);
 						EXPECT_EQ(lockInfo.MosaicId, receipt.MosaicId);
 						EXPECT_EQ(lockInfo.Amount, receipt.Amount);

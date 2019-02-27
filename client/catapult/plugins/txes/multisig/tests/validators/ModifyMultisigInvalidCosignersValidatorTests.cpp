@@ -99,22 +99,22 @@ namespace catapult { namespace validators {
 				modifications.push_back({ settings[i].Operation, keys[1 + i] });
 
 			auto notification = CreateNotification(signer, modifications);
-
 			auto cache = test::MultisigCacheFactory::Create();
-			auto delta = cache.createDelta();
 
 			// - create multisig entry in cache
 			{
+				auto delta = cache.createDelta();
 				auto& multisigDelta = delta.sub<cache::MultisigCache>();
 				const auto& multisigAccountKey = keys[0];
 				multisigDelta.insert(state::MultisigEntry(multisigAccountKey));
 				auto& cosignatories = multisigDelta.find(multisigAccountKey).get().cosignatories();
-				for (auto i = 0u; i < settings.size(); ++i)
+				for (auto i = 0u; i < settings.size(); ++i) {
 					if (CosignerType::Existing == settings[i].Type)
 						cosignatories.insert(keys[1 + i]);
-			}
+				}
 
-			cache.commit(Height(1));
+				cache.commit(Height(1));
+			}
 
 			// Assert:
 			AssertValidationResult(expectedResult, cache, Height(100), notification);

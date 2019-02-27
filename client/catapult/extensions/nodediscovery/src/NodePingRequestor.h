@@ -48,14 +48,10 @@ namespace catapult { namespace nodediscovery {
 	};
 
 	/// Node ping request policy.
-	class NodePingRequestPolicy {
-	public:
+	struct NodePingRequestPolicy {
 		using ResponseType = ionet::Node;
 
-	public:
-		static constexpr const char* FriendlyName() {
-			return "ping";
-		}
+		static constexpr auto Friendly_Name = "ping";
 
 		static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo) {
 			return api::CreateRemoteNodeApi(packetIo)->nodeInfo();
@@ -68,7 +64,7 @@ namespace catapult { namespace nodediscovery {
 	/// Creates a node ping requestor for a server with a key pair of \a keyPair and a network identified by \a networkIdentifier
 	/// using \a pPool and configured with \a settings.
 	std::shared_ptr<NodePingRequestor> CreateNodePingRequestor(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
 			const net::ConnectionSettings& settings,
 			model::NetworkIdentifier networkIdentifier);

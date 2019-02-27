@@ -27,7 +27,7 @@ namespace catapult { namespace io {
 	namespace {
 		template<typename T>
 		auto ToBytePointer(T& data) {
-			using Pointer = std::conditional_t<std::is_const<T>::value, const uint8_t*, uint8_t*>;
+			using Pointer = std::conditional_t<std::is_const_v<T>, const uint8_t*, uint8_t*>;
 			return reinterpret_cast<Pointer>(&data);
 		}
 

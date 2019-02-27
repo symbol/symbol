@@ -30,15 +30,6 @@
 #include <boost/phoenix.hpp>
 #include <unordered_map>
 
-#ifdef __clang__
-
-namespace boost { namespace log { namespace sinks {
-
-	extern template void basic_text_ostream_backend<char>::add_stream(const shared_ptr<stream_type>&);
-}}}
-
-#endif
-
 namespace catapult { namespace utils {
 
 	namespace {

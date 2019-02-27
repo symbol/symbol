@@ -60,12 +60,8 @@ namespace catapult { namespace validators {
 
 #ifdef __clang__
 #pragma clang diagnostic push
-
-#if __has_warning("-Wunused-lambda-capture")
 // clang generates this warning when curry() is called without arguments
 #pragma clang diagnostic ignored "-Wunused-lambda-capture"
-#endif
-
 #endif
 
 		/// Prepares the invocation of sub validators by currying \a args to invocations made on the returned forwarder.

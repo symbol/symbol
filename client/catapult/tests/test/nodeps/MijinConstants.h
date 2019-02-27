@@ -25,7 +25,7 @@
 namespace catapult { namespace test {
 
 	// private keys
-	constexpr const char* Mijin_Test_Nemesis_Private_Key = "C06B2CC5D7B66900B2493CF68BE10B7AA8690D973B7F0B65D0DAE4F7AA464716";
+	constexpr auto Mijin_Test_Nemesis_Private_Key = "C06B2CC5D7B66900B2493CF68BE10B7AA8690D973B7F0B65D0DAE4F7AA464716";
 	constexpr const char* Mijin_Test_Private_Keys[] = {
 		"4A236D9F894CF0C4FC8C042DB5DB41CCF35118B7B220163E5B4BC1872C1CD618",
 		"8473645728B15F007385CE2889D198D26369D2806DCDED4A9B219FD0DE23A505",
@@ -52,12 +52,11 @@ namespace catapult { namespace test {
 	};
 
 	// public keys
-	constexpr const char* Namespace_Rental_Fee_Sink_Public_Key = "3E82E1C1E4A75ADAA3CBA8C101C3CD31D9817A2EB966EB3B511FB2ED45B8E262";
-	constexpr const char* Mosaic_Rental_Fee_Sink_Public_Key = "53E140B5947F104CABC2D6FE8BAEDBC30EF9A0609C717D9613DE593EC2A266D3";
+	constexpr auto Namespace_Rental_Fee_Sink_Public_Key = "3E82E1C1E4A75ADAA3CBA8C101C3CD31D9817A2EB966EB3B511FB2ED45B8E262";
+	constexpr auto Mosaic_Rental_Fee_Sink_Public_Key = "53E140B5947F104CABC2D6FE8BAEDBC30EF9A0609C717D9613DE593EC2A266D3";
 
 	/// Gets the nemesis importance for \a publicKey.
-	CATAPULT_INLINE
-	Importance GetNemesisImportance(const Key& publicKey) {
+	inline Importance GetNemesisImportance(const Key& publicKey) {
 		auto index = 0u;
 		for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys) {
 			auto keyPair = crypto::KeyPair::FromString(pRecipientPrivateKeyString);

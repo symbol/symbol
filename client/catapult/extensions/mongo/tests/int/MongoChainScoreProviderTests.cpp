@@ -40,7 +40,7 @@ namespace catapult { namespace mongo {
 					: m_mongoContext(
 							test::DefaultDbUri(),
 							test::DatabaseName(),
-							MongoBulkWriter::Create(test::DefaultDbUri(), test::DatabaseName(), test::CreateStartedIoServiceThreadPool(8)))
+							MongoBulkWriter::Create(test::DefaultDbUri(), test::DatabaseName(), test::CreateStartedIoThreadPool(8)))
 					, m_pScoreProvider(CreateMongoChainScoreProvider(m_mongoContext))
 			{}
 

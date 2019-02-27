@@ -194,7 +194,7 @@ namespace catapult { namespace cache {
 
 	CatapultCacheDetachedDelta& CatapultCacheDetachedDelta::operator=(CatapultCacheDetachedDelta&&) = default;
 
-	std::unique_ptr<CatapultCacheDelta> CatapultCacheDetachedDelta::lock() {
+	std::unique_ptr<CatapultCacheDelta> CatapultCacheDetachedDelta::tryLock() {
 		std::vector<std::unique_ptr<SubCacheView>> subViews;
 		for (const auto& pDetachedSubView : m_detachedSubViews) {
 			if (!pDetachedSubView) {
@@ -202,7 +202,7 @@ namespace catapult { namespace cache {
 				continue;
 			}
 
-			auto pSubView = pDetachedSubView->lock();
+			auto pSubView = pDetachedSubView->tryLock();
 			if (!pSubView)
 				return nullptr;
 

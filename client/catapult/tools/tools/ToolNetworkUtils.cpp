@@ -25,7 +25,7 @@
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/ServerConnector.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 
 namespace catapult { namespace tools {
 
@@ -38,14 +38,14 @@ namespace catapult { namespace tools {
 	PacketIoFuture ConnectToLocalNode(
 			const crypto::KeyPair& clientKeyPair,
 			const Key& serverPublicKey,
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool) {
+			const std::shared_ptr<thread::IoThreadPool>& pPool) {
 		return ConnectToNode(clientKeyPair, CreateLocalNode(serverPublicKey), pPool);
 	}
 
 	namespace {
 		std::shared_ptr<ionet::PacketIo> CreateBufferedPacketIo(
 				const std::shared_ptr<ionet::PacketSocket>& pSocket,
-				const std::shared_ptr<thread::IoServiceThreadPool>& pPool) {
+				const std::shared_ptr<thread::IoThreadPool>& pPool) {
 			// attach the lifetime of the pool to the returned io in order to prevent it from being destroyed before the io
 			auto pBufferedIo = pSocket->buffered();
 			return std::shared_ptr<ionet::PacketIo>(pBufferedIo.get(), [pBufferedIo, pPool](const auto*) {});
@@ -61,7 +61,7 @@ namespace catapult { namespace tools {
 	PacketIoFuture ConnectToNode(
 			const crypto::KeyPair& clientKeyPair,
 			const ionet::Node& node,
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool) {
+			const std::shared_ptr<thread::IoThreadPool>& pPool) {
 		auto pPromise = std::make_shared<thread::promise<std::shared_ptr<ionet::PacketIo>>>();
 
 		auto pConnector = net::CreateServerConnector(pPool, clientKeyPair, net::ConnectionSettings());
@@ -97,7 +97,7 @@ namespace catapult { namespace tools {
 		m_pPool->join();
 	}
 
-	thread::IoServiceThreadPool& MultiNodeConnector::pool() {
+	thread::IoThreadPool& MultiNodeConnector::pool() {
 		return *m_pPool;
 	}
 

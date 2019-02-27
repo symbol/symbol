@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "IoServiceThreadPool.h"
+#include "IoThreadPool.h"
 #include "ThreadInfo.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
 #include "catapult/utils/Logging.h"
@@ -29,17 +29,16 @@
 namespace catapult { namespace thread {
 
 	namespace {
-		/// Helper RAII class to simplify a restartable threadpool with limitless work.
+		// helper RAII class to simplify a restartable thread pool with limitless work
 		class ThreadPoolContext {
 		public:
-			explicit ThreadPoolContext(boost::asio::io_service& service) :
-					m_pWork(std::make_unique<boost::asio::io_service::work>(service)) {
-				service.reset();
+			explicit ThreadPoolContext(boost::asio::io_context& ioContext) : m_work(boost::asio::make_work_guard(ioContext)) {
+				ioContext.reset();
 			}
 
 			~ThreadPoolContext() {
-				// destroy the work before waiting for the threadpool threads to stop
-				m_pWork.reset();
+				// destroy the work before waiting for the thread pool threads to stop
+				m_work.reset();
 				m_threads.join_all();
 			}
 
@@ -54,19 +53,19 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			std::unique_ptr<boost::asio::io_service::work> m_pWork;
+			boost::asio::executor_work_guard<boost::asio::io_context::executor_type> m_work;
 			boost::thread_group m_threads;
 		};
 
-		class DefaultIoServiceThreadPool : public IoServiceThreadPool {
+		class DefaultIoThreadPool : public IoThreadPool {
 		public:
-			DefaultIoServiceThreadPool(size_t numWorkerThreads, const std::string& tag)
+			DefaultIoThreadPool(size_t numWorkerThreads, const std::string& tag)
 					: m_numConfiguredWorkerThreads(numWorkerThreads)
 					, m_tag(tag)
 					, m_numWorkerThreads(0)
 			{}
 
-			~DefaultIoServiceThreadPool() override {
+			~DefaultIoThreadPool() override {
 				join();
 			}
 
@@ -79,18 +78,18 @@ namespace catapult { namespace thread {
 				return m_tag;
 			}
 
-			boost::asio::io_service& service() override {
-				return m_service;
+			boost::asio::io_context& ioContext() override {
+				return m_ioContext;
 			}
 
 		public:
 			void start() override {
 				if (0 != m_numWorkerThreads)
-					CATAPULT_THROW_RUNTIME_ERROR_1("cannot restart running threadpool", m_numWorkerThreads);
+					CATAPULT_THROW_RUNTIME_ERROR_1("cannot restart running thread pool", m_numWorkerThreads);
 
 				// spawn the number of configured threads
 				CATAPULT_LOG(trace) << m_tag << " spawning threads";
-				m_pContext = std::make_unique<ThreadPoolContext>(m_service);
+				m_pContext = std::make_unique<ThreadPoolContext>(m_ioContext);
 				for (auto i = 0u; i < m_numConfiguredWorkerThreads; ++i) {
 					m_pContext->createThread([this, i]() {
 						thread::SetThreadName(std::to_string(i) + " " + this->tag() + " worker");
@@ -108,9 +107,9 @@ namespace catapult { namespace thread {
 				if (!m_pContext)
 					return;
 
-				CATAPULT_LOG(debug) << m_tag << " waiting for " << m_numWorkerThreads << " threadpool threads to exit";
+				CATAPULT_LOG(debug) << m_tag << " waiting for " << m_numWorkerThreads << " thread pool threads to exit";
 				m_pContext.reset();
-				CATAPULT_LOG(info) << m_tag << " all threadpool threads exited";
+				CATAPULT_LOG(info) << m_tag << " all thread pool threads exited";
 			}
 
 		private:
@@ -118,7 +117,7 @@ namespace catapult { namespace thread {
 				CATAPULT_LOG(trace) << m_tag << " worker thread started";
 
 				auto incrementDecrementGuard = utils::MakeIncrementDecrementGuard(m_numWorkerThreads);
-				m_service.run();
+				m_ioContext.run();
 
 				CATAPULT_LOG(trace) << m_tag << " worker thread finished";
 			}
@@ -127,7 +126,7 @@ namespace catapult { namespace thread {
 			size_t m_numConfiguredWorkerThreads;
 			std::string m_tag;
 
-			boost::asio::io_service m_service;
+			boost::asio::io_context m_ioContext;
 			std::unique_ptr<ThreadPoolContext> m_pContext;
 			std::atomic<uint32_t> m_numWorkerThreads;
 		};
@@ -139,12 +138,12 @@ namespace catapult { namespace thread {
 				tag.push_back(' ');
 			}
 
-			tag.append("IoServiceThreadPool");
+			tag.append("IoThreadPool");
 			return tag;
 		}
 	}
 
-	std::unique_ptr<IoServiceThreadPool> CreateIoServiceThreadPool(size_t numWorkerThreads, const char* name) {
-		return std::make_unique<DefaultIoServiceThreadPool>(numWorkerThreads, CreateTagFromName(name));
+	std::unique_ptr<IoThreadPool> CreateIoThreadPool(size_t numWorkerThreads, const char* name) {
+		return std::make_unique<DefaultIoThreadPool>(numWorkerThreads, CreateTagFromName(name));
 	}
 }}

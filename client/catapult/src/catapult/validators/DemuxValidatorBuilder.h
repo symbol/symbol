@@ -37,21 +37,23 @@ namespace catapult { namespace validators {
 
 	public:
 		/// Adds a validator (\a pValidator) to the builder that is invoked only when matching notifications are processed.
-		template<
-				typename TNotification,
-				typename X = typename std::enable_if<!std::is_same<model::Notification, TNotification>::value>::type>
+		template<typename TNotification>
 		DemuxValidatorBuilderT& add(NotificationValidatorPointerT<TNotification>&& pValidator) {
-			auto predicate = [type = TNotification::Notification_Type](const auto& notification) {
-				return model::AreEqualExcludingChannel(type, notification.Type);
-			};
-			m_builder.add(std::make_unique<ConditionalValidator<TNotification>>(std::move(pValidator), predicate));
-			return *this;
+			if constexpr (!std::is_same_v<model::Notification, TNotification>) {
+				auto predicate = [type = TNotification::Notification_Type](const auto& notification) {
+					return model::AreEqualExcludingChannel(type, notification.Type);
+				};
+				m_builder.add(std::make_unique<ConditionalValidator<TNotification>>(std::move(pValidator), predicate));
+				return *this;
+			} else {
+				m_builder.add(std::move(pValidator));
+				return *this;
+			}
 		}
 
 		/// Adds a validator (\a pValidator) to the builder that is always invoked.
 		DemuxValidatorBuilderT& add(NotificationValidatorPointerT<model::Notification>&& pValidator) {
-			m_builder.add(std::move(pValidator));
-			return *this;
+			return add<model::Notification>(std::move(pValidator));
 		}
 
 		/// Builds a demultiplexing validator that ignores suppressed failures according to \a isSuppressedFailure.

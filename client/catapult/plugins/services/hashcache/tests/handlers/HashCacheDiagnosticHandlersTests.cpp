@@ -33,7 +33,7 @@ namespace catapult { namespace handlers {
 			using ResponseType = UnconfirmedTimestampedHashes;
 			static constexpr auto Packet_Type = ionet::PacketType::Confirm_Timestamped_Hashes;
 			static constexpr auto Valid_Request_Payload_Size = sizeof(state::TimestampedHash);
-			static constexpr auto Message() { return "timestamped hash at "; }
+			static constexpr auto Message = "timestamped hash at ";
 
 		public:
 			struct ResponseState {
@@ -68,7 +68,7 @@ namespace catapult { namespace handlers {
 				auto i = 0u;
 				auto pTimestampedHash = reinterpret_cast<const state::TimestampedHash*>(payload.buffers()[0].pData);
 				for (const auto& pExpectedTimestampedHash : expectedResult) {
-					EXPECT_EQ(*pExpectedTimestampedHash, *pTimestampedHash++) << Message() << i;
+					EXPECT_EQ(*pExpectedTimestampedHash, *pTimestampedHash++) << Message << i;
 					++i;
 				}
 			}

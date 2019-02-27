@@ -97,7 +97,7 @@ namespace catapult { namespace mongo {
 					dbUri,
 					dbName,
 					// pass in a non-owning shared_ptr so that the writer does not keep the bulk writer pool alive during shutdown
-					std::shared_ptr<thread::IoServiceThreadPool>(pBulkWriterPool.get(), [](const auto*) {}));
+					std::shared_ptr<thread::IoThreadPool>(pBulkWriterPool.get(), [](const auto*) {}));
 
 			// create transaction registry
 			const auto& config = bootstrapper.config();

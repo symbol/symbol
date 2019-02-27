@@ -265,7 +265,7 @@ namespace catapult { namespace timesync {
 		struct ImportanceAwareNodeSelectorTraits {
 		public:
 			using KeyStatistics = std::unordered_map<Key, uint32_t, utils::ArrayHasher<Key>>;
-			static constexpr auto Description() { return "node selection and importance correlation"; }
+			static constexpr auto Description = "node selection and importance correlation";
 
 			static KeyStatistics CreateStatistics(
 					const std::vector<ionet::Node>& nodes,

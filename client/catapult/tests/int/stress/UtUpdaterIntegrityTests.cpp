@@ -53,7 +53,7 @@ namespace catapult { namespace chain {
 		public:
 			UpdaterTestContext()
 					: m_pPluginManager(CreatePluginManager())
-					, m_transactionsCache(cache::MemoryCacheOptions(1024, 1000))
+					, m_transactionsCache(cache::MemoryCacheOptions(1024, GetNumIterations() * 2))
 					, m_cache(test::CreateCatapultCacheWithMarkerAccount())
 					, m_updater(
 							m_transactionsCache,
@@ -88,7 +88,7 @@ namespace catapult { namespace chain {
 		// endregion
 	}
 
-	TEST(TEST_CLASS, UtUpdaterUpdateOverloadsAreThreadSafe) {
+	NO_STRESS_TEST(TEST_CLASS, UtUpdaterUpdateOverloadsAreThreadSafe) {
 		// Arrange:
 		UpdaterTestContext context;
 

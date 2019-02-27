@@ -29,7 +29,7 @@ namespace catapult { namespace model {
 	}
 
 	bool IsSizeValid(const Block& block, const TransactionRegistry& registry) {
-		if (block.Size < sizeof(Block)) {
+		if (block.Size < sizeof(BlockHeader)) {
 			CATAPULT_LOG(warning) << block.Type << " block failed size validation with size " << block.Size;
 			return false;
 		}

@@ -123,7 +123,7 @@ namespace catapult { namespace partialtransaction {
 				constexpr auto Custom_Buffers = utils::to_underlying_type(mocks::PluginOptionFlags::Custom_Buffers);
 
 				pluginManager.addTransactionSupport(mocks::CreateMockTransactionPlugin(
-						static_cast<int>(Transaction_Type),
+						Transaction_Type,
 						static_cast<mocks::PluginOptionFlags>(Not_Embeddable | Custom_Buffers)));
 				pluginManager.addTransactionSupport(mocks::CreateMockTransactionPlugin());
 

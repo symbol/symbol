@@ -19,21 +19,16 @@
 **/
 
 #pragma once
+#include "catapult/types.h"
 
-namespace catapult {
+namespace catapult { namespace bench {
 
-#ifdef _MSC_VER
+	/// Generates a uint64_t random number.
+	uint64_t Random();
 
-#define CPP14_CONSTEXPR __forceinline
-#define CATAPULT_INLINE __forceinline
-#define MAY_ALIAS
+	/// Generates a uint8_t random number.
+	uint8_t RandomByte();
 
-#else
-
-#define CPP14_CONSTEXPR constexpr
-#define CATAPULT_INLINE inline
-#define MAY_ALIAS __attribute__((may_alias))
-
-#endif
-
-}
+	/// Fills a buffer \a dataBuffer with random data.
+	void FillWithRandomData(const MutableRawBuffer& dataBuffer);
+}}

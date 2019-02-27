@@ -23,7 +23,7 @@
 #include "catapult/ionet/PacketIo.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/Challenge.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/mocks/MockPacketIo.h"
@@ -460,7 +460,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, VerifyServerWritesClientChallengeResponseWithValidSignature) {
 		// Arrange:
-		constexpr auto Challenge_Size = std::tuple_size<Challenge>::value;
+		constexpr auto Challenge_Size = std::tuple_size_v<Challenge>;
 		auto serverKeyPair = test::GenerateKeyPair();
 		auto clientKeyPair = test::GenerateKeyPair();
 		Challenge challenge;
@@ -498,14 +498,14 @@ namespace catapult { namespace net {
 			// Arrange:
 			auto serverKeyPair = test::GenerateKeyPair();
 			auto clientKeyPair = test::GenerateKeyPair();
-			auto pPool = test::CreateStartedIoServiceThreadPool();
-			auto& service = pPool->service();
+			auto pPool = test::CreateStartedIoThreadPool();
+			auto& ioContext = pPool->ioContext();
 			std::atomic<size_t> numResults(0);
 
 			// Act: start a server and client verify operation
 			VerifyResult serverResult;
 			VerifiedPeerInfo verifiedClientPeerInfo;
-			test::SpawnPacketServerWork(service, [&](const auto& pSocket) {
+			test::SpawnPacketServerWork(ioContext, [&](const auto& pSocket) {
 				net::VerifyClient(pSocket, serverKeyPair, allowedSecurityModes, [&](auto result, const auto& peerInfo) {
 					serverResult = result;
 					verifiedClientPeerInfo = peerInfo;
@@ -515,7 +515,7 @@ namespace catapult { namespace net {
 
 			VerifyResult clientResult;
 			VerifiedPeerInfo verifiedServerPeerInfo;
-			test::SpawnPacketClientWork(service, [&](const auto& pSocket) {
+			test::SpawnPacketClientWork(ioContext, [&](const auto& pSocket) {
 				auto severPeerInfo = VerifiedPeerInfo{ serverKeyPair.publicKey(), securityMode };
 				net::VerifyServer(pSocket, severPeerInfo, clientKeyPair, [&](auto result, const auto& peerInfo) {
 					clientResult = result;

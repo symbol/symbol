@@ -187,7 +187,7 @@ namespace catapult { namespace sync {
 			}
 
 			std::shared_ptr<ConsumerDispatcher> build(
-					const std::shared_ptr<thread::IoServiceThreadPool>& pValidatorPool,
+					const std::shared_ptr<thread::IoThreadPool>& pValidatorPool,
 					RollbackInfo& rollbackInfo) {
 				m_consumers.push_back(CreateBlockChainCheckConsumer(
 						m_nodeConfig.MaxBlocksPerSyncAttempt,
@@ -265,7 +265,7 @@ namespace catapult { namespace sync {
 			}
 
 			std::shared_ptr<ConsumerDispatcher> build(
-					const std::shared_ptr<thread::IoServiceThreadPool>& pValidatorPool,
+					const std::shared_ptr<thread::IoThreadPool>& pValidatorPool,
 					chain::UtUpdater& utUpdater) {
 				m_consumers.push_back(CreateTransactionStatelessValidationConsumer(
 						extensions::CreateStatelessValidator(m_state.pluginManager()),

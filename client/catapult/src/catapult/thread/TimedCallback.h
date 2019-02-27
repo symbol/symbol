@@ -42,13 +42,13 @@ namespace catapult { namespace thread {
 		public:
 			BasicTimedCallback(
 					TCallbackWrapper& wrapper,
-					boost::asio::io_service& service,
+					boost::asio::io_context& ioContext,
 					const TCallback& callback,
 					TCallbackArgs&&... timeoutArgs)
 					: m_wrapper(wrapper)
 					, m_callback(callback)
 					, m_timeoutArgs(std::forward<TCallbackArgs>(timeoutArgs)...)
-					, m_timer(service)
+					, m_timer(ioContext)
 					, m_isCallbackInvoked(false)
 					, m_isTimedOut(false)
 			{}
@@ -114,11 +114,11 @@ namespace catapult { namespace thread {
 		};
 
 	public:
-		/// Creates a timed callback by wrapping \a callback with a timed callback using \a service.
+		/// Creates a timed callback by wrapping \a callback with a timed callback using \a ioContext.
 		/// On a timeout, the callback is invoked with \a timeoutArgs.
-		StrandedTimedCallback(boost::asio::io_service& service, const TCallback& callback, TCallbackArgs&&... timeoutArgs)
-				: m_impl(*this, service, callback, std::forward<TCallbackArgs>(timeoutArgs)...)
-				, m_strand(service)
+		StrandedTimedCallback(boost::asio::io_context& ioContext, const TCallback& callback, TCallbackArgs&&... timeoutArgs)
+				: m_impl(*this, ioContext, callback, std::forward<TCallbackArgs>(timeoutArgs)...)
+				, m_strand(ioContext)
 				, m_strandWrapper(m_strand)
 		{}
 
@@ -160,16 +160,16 @@ namespace catapult { namespace thread {
 
 	private:
 		BasicTimedCallback<StrandedTimedCallback> m_impl;
-		boost::asio::strand m_strand;
+		boost::asio::io_context::strand m_strand;
 		StrandOwnerLifetimeExtender<StrandedTimedCallback> m_strandWrapper;
 	};
 
-	/// Wraps \a callback with a timed callback using \a service.
+	/// Wraps \a callback with a timed callback using \a ioContext.
 	/// On a timeout, the callback is invoked with \a timeoutArgs.
 	template<typename TCallback, typename... TCallbackArgs>
-	auto MakeTimedCallback(boost::asio::io_service& service, TCallback callback, TCallbackArgs&&... timeoutArgs) {
+	auto MakeTimedCallback(boost::asio::io_context& ioContext, TCallback callback, TCallbackArgs&&... timeoutArgs) {
 		return std::make_shared<StrandedTimedCallback<TCallback, TCallbackArgs...>>(
-				service,
+				ioContext,
 				callback,
 				std::forward<TCallbackArgs>(timeoutArgs)...);
 	}

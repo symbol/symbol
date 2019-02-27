@@ -33,7 +33,7 @@ namespace catapult { namespace sync {
 	namespace {
 		struct NetworkPacketWritersServiceTraits {
 			static constexpr auto Counter_Name = "WRITERS";
-			static constexpr auto Num_Expected_Services = 1;
+			static constexpr auto Num_Expected_Services = 1u;
 
 			static constexpr auto GetWriters = GetPacketWriters;
 			static constexpr auto CreateRegistrar = CreateNetworkPacketWritersServiceRegistrar;
@@ -55,9 +55,9 @@ namespace catapult { namespace sync {
 
 	TEST(TEST_CLASS, WritersAreRegisteredInPacketIoPickers) {
 		// Arrange: create a (tcp) server
-		auto pPool = test::CreateStartedIoServiceThreadPool();
+		auto pPool = test::CreateStartedIoThreadPool();
 		auto serverKeyPair = test::GenerateKeyPair();
-		test::SpawnPacketServerWork(pPool->service(), [&serverKeyPair](const auto& pServer) {
+		test::SpawnPacketServerWork(pPool->ioContext(), [&serverKeyPair](const auto& pServer) {
 			net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [](auto, const auto&) {});
 		});
 
@@ -81,15 +81,16 @@ namespace catapult { namespace sync {
 	TEST(TEST_CLASS, PacketPayloadsAreBroadcastViaWriters) {
 		// Arrange: create a (tcp) server
 		ionet::ByteBuffer packetBuffer;
-		auto pPool = test::CreateStartedIoServiceThreadPool();
+		auto pPool = test::CreateStartedIoThreadPool();
 		auto serverKeyPair = test::GenerateKeyPair();
-		test::SpawnPacketServerWork(pPool->service(), [&service = pPool->service(), &packetBuffer, &serverKeyPair](const auto& pServer) {
+		test::SpawnPacketServerWork(pPool->ioContext(), [&ioContext = pPool->ioContext(), &packetBuffer, &serverKeyPair](
+				const auto& pServer) {
 			// - verify the client
-			net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [&service, &packetBuffer, pServer](
+			net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [&ioContext, &packetBuffer, pServer](
 					auto,
 					const auto&) {
 				// - read the packet and copy it into packetBuffer
-				test::AsyncReadIntoBuffer(service, *pServer, packetBuffer);
+				test::AsyncReadIntoBuffer(ioContext, *pServer, packetBuffer);
 			});
 		});
 
@@ -125,14 +126,14 @@ namespace catapult { namespace sync {
 
 		void EstablishConnections(
 				size_t numConnections,
-				boost::asio::io_service& service,
+				boost::asio::io_context& ioContext,
 				const TestContext& context,
 				PacketSockets& serverSockets) {
 			// Arrange:
 			auto pWriters = GetPacketWriters(context.locator());
 
 			// - connect to the desired number of peers
-			test::TcpAcceptor acceptor(service);
+			test::TcpAcceptor acceptor(ioContext);
 			for (auto i = 0u; i < numConnections; ++i) {
 				// - connect to nodes with different identities
 				auto peerKeyPair = test::GenerateKeyPair();
@@ -166,9 +167,9 @@ namespace catapult { namespace sync {
 			auto retriever = context.testState().state().hooks().remoteChainHeightsRetriever();
 
 			// - connect to the desired number of peers
-			auto pPool = test::CreateStartedIoServiceThreadPool();
+			auto pPool = test::CreateStartedIoThreadPool();
 			PacketSockets serverSockets;
-			EstablishConnections(numConnections, pPool->service(), context, serverSockets);
+			EstablishConnections(numConnections, pPool->ioContext(), context, serverSockets);
 			CATAPULT_LOG(debug) << "established " << numConnections << " connection(s)";
 
 			// - write the heights to the server sockets

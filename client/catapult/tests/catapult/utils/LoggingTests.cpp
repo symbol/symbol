@@ -271,7 +271,7 @@ namespace catapult { namespace utils {
 			LoggingBootstrapper bootstrapper;
 			bootstrapper.addFileLogger(test::CreateTestFileLoggerOptions(), filter);
 
-			// Act: create a threadpool and write logs from each thread
+			// Act: create a thread pool and write logs from each thread
 			std::atomic<size_t> numWaitingThreads(0);
 			boost::thread_group threads;
 			for (auto i = 0u; i < test::GetNumDefaultPoolThreads(); ++i) {

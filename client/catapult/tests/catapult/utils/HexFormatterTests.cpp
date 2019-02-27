@@ -251,10 +251,10 @@ namespace catapult { namespace utils {
 
 	CONTAINER_TRAITS_BASED_TEST(CanFormatArrayByteIntegralType) {
 		// Assert:
-		TTraits::AssertHexString("", std::array<unsigned char, 0>());
-		TTraits::AssertHexString("24", std::array<unsigned char, 1>{ { 0x24 } });
-		TTraits::AssertHexString("02", std::array<unsigned char, 1>{ { 0x02 } });
-		TTraits::AssertHexString("28027A", std::array<unsigned char, 3>{ { 0x28, 0x02, 0x7A } });
+		TTraits::AssertHexString("", std::array<uint8_t, 0>());
+		TTraits::AssertHexString("24", std::array<uint8_t, 1>{ { 0x24 } });
+		TTraits::AssertHexString("02", std::array<uint8_t, 1>{ { 0x02 } });
+		TTraits::AssertHexString("28027A", std::array<uint8_t, 3>{ { 0x28, 0x02, 0x7A } });
 	}
 
 	CONTAINER_TRAITS_BASED_TEST(CanFormatVectorShortIntegralType) {

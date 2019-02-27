@@ -65,7 +65,7 @@ namespace catapult { namespace chain {
 		void update(const std::vector<model::TransactionInfo>& utInfos) {
 			// 1. lock the UT cache and lock the unconfirmed copy
 			auto modifier = m_transactionsCache.modifier();
-			auto pUnconfirmedCatapultCache = m_detachedCatapultCache.getAndLock();
+			auto pUnconfirmedCatapultCache = m_detachedCatapultCache.getAndTryLock();
 			if (!pUnconfirmedCatapultCache) {
 				// if there is no unconfirmed cache state, it means that a block update is forthcoming
 				// just add all to the cache and they will be validated later

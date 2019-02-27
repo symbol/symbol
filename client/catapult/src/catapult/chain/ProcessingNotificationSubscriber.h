@@ -19,8 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/model/NotificationSubscriber.h"
-#include "catapult/observers/ObserverTypes.h"
+#include "ProcessingUndoNotificationSubscriber.h"
 #include "catapult/validators/ValidatorContext.h"
 #include "catapult/validators/ValidatorTypes.h"
 
@@ -60,8 +59,8 @@ namespace catapult { namespace chain {
 		const observers::NotificationObserver& m_observer;
 		observers::ObserverContext& m_observerContext;
 
+		ProcessingUndoNotificationSubscriber m_undoNotificationSubscriber;
 		validators::ValidationResult m_aggregateResult;
 		bool m_isUndoEnabled;
-		std::vector<std::vector<uint8_t>> m_notificationBuffers;
 	};
 }}

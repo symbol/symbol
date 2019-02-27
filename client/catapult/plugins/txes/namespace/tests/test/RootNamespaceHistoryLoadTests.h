@@ -92,8 +92,7 @@ namespace catapult { namespace test {
 	};
 
 	/// Asserts that \a root has expected property values (\a owner, \a lifetimeStart, \a lifetimeEnd, \a numChildren)
-	CATAPULT_INLINE
-	void AssertRootNamespace(
+	inline void AssertRootNamespace(
 			const state::RootNamespace& root,
 			const Key& owner,
 			Height lifetimeStart,

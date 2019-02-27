@@ -206,17 +206,16 @@ namespace catapult { namespace mocks {
 		};
 	}
 
-	std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(int type) {
-		return std::make_unique<MockTransactionPlugin>(static_cast<EntityType>(type), PluginOptionFlags::Not_Embeddable);
+	std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(EntityType type) {
+		return std::make_unique<MockTransactionPlugin>(type, PluginOptionFlags::Not_Embeddable);
 	}
 
 	std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(PluginOptionFlags options) {
-		// cast needed to avoid clang linker error
-		return std::make_unique<MockTransactionPlugin>(static_cast<EntityType>(MockTransaction::Entity_Type), options);
+		return std::make_unique<MockTransactionPlugin>(MockTransaction::Entity_Type, options);
 	}
 
-	std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(int type, PluginOptionFlags options) {
-		return std::make_unique<MockTransactionPlugin>(static_cast<EntityType>(type), options);
+	std::unique_ptr<TransactionPlugin> CreateMockTransactionPlugin(EntityType type, PluginOptionFlags options) {
+		return std::make_unique<MockTransactionPlugin>(type, options);
 	}
 
 	TransactionRegistry CreateDefaultTransactionRegistry(PluginOptionFlags options) {

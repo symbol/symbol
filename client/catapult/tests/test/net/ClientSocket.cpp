@@ -37,7 +37,9 @@ namespace catapult { namespace test {
 
 		struct DefaultClientSocket : public ClientSocket, public std::enable_shared_from_this<DefaultClientSocket> {
 		public:
-			explicit DefaultClientSocket(boost::asio::io_service& service) : m_socket(service), m_timer(service)
+			explicit DefaultClientSocket(boost::asio::io_context& ioContext)
+					: m_socket(ioContext)
+					, m_timer(ioContext)
 			{}
 
 			~DefaultClientSocket() override {
@@ -186,22 +188,22 @@ namespace catapult { namespace test {
 		};
 	}
 
-	std::shared_ptr<ClientSocket> CreateClientSocket(boost::asio::io_service& service) {
-		return std::make_shared<DefaultClientSocket>(service);
+	std::shared_ptr<ClientSocket> CreateClientSocket(boost::asio::io_context& ioContext) {
+		return std::make_shared<DefaultClientSocket>(ioContext);
 	}
 
-	void AddClientConnectionTask(boost::asio::io_service& service) {
-		CreateClientSocket(service)->connect();
+	void AddClientConnectionTask(boost::asio::io_context& ioContext) {
+		CreateClientSocket(ioContext)->connect();
 	}
 
-	void AddClientReadBufferTask(boost::asio::io_service& service, ionet::ByteBuffer& receiveBuffer) {
-		CreateClientSocket(service)->connect().then([&receiveBuffer](auto&& socketFuture) {
+	void AddClientReadBufferTask(boost::asio::io_context& ioContext, ionet::ByteBuffer& receiveBuffer) {
+		CreateClientSocket(ioContext)->connect().then([&receiveBuffer](auto&& socketFuture) {
 			socketFuture.get()->read(receiveBuffer);
 		});
 	}
 
-	void AddClientWriteBuffersTask(boost::asio::io_service& service, const std::vector<ionet::ByteBuffer>& sendBuffers) {
-		CreateClientSocket(service)->connect().then([sendBuffers](auto&& socketFuture) {
+	void AddClientWriteBuffersTask(boost::asio::io_context& ioContext, const std::vector<ionet::ByteBuffer>& sendBuffers) {
+		CreateClientSocket(ioContext)->connect().then([sendBuffers](auto&& socketFuture) {
 			socketFuture.get()->write(sendBuffers);
 		});
 	}

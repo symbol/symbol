@@ -269,15 +269,22 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CommitOfSubCacheInvalidatesDetachedDelta) {
 		// Arrange:
 		auto cache = CreateSimpleCatapultCache();
-		auto lockableDelta = cache.createDetachableDelta().detach();
+		CatapultCacheDetachedDelta cacheDetachedDelta({});
 		{
+			// - create a detachable delta and release it (to release read lock it holds)
+			auto cacheDetachableDelta = cache.createDetachableDelta();
+			cacheDetachedDelta = cacheDetachableDelta.detach();
+		}
+
+		{
+			// - create a delta and make some changes
 			auto delta = cache.createDelta();
 			delta.sub<test::SimpleCacheT<4>>().increment();
 
-			// Sanity:
-			std::thread([&lockableDelta]() {
-				// - need to lock on a separate thread because test thread owns pDelta
-				EXPECT_TRUE(!!lockableDelta.lock());
+			// Sanity: detached delta can still be locked (no commits)
+			std::thread([&cacheDetachedDelta]() {
+				// - need to lock on a separate thread because test thread owns delta
+				EXPECT_TRUE(!!cacheDetachedDelta.tryLock());
 			}).join();
 
 			// Act:
@@ -285,7 +292,7 @@ namespace catapult { namespace cache {
 		}
 
 		// Assert:
-		EXPECT_FALSE(!!lockableDelta.lock());
+		EXPECT_FALSE(!!cacheDetachedDelta.tryLock());
 	}
 
 	// endregion
@@ -504,7 +511,8 @@ namespace catapult { namespace cache {
 			}
 
 			auto createDetachedDelta() const {
-				return DetachedDeltaProxy(m_cache.createDetachableDelta().detach());
+				auto cacheDetachableDelta = m_cache.createDetachableDelta();
+				return DetachedDeltaProxy(cacheDetachableDelta.detach());
 			}
 
 			void commit() {
@@ -549,8 +557,8 @@ namespace catapult { namespace cache {
 				{}
 
 			public:
-				auto lock() {
-					auto pLockedDelta = m_detachedDelta.lock();
+				auto tryLock() {
+					auto pLockedDelta = m_detachedDelta.tryLock();
 					return pLockedDelta
 							? ViewProxy<CatapultCacheDelta, test::SimpleCacheDelta>(std::move(*pLockedDelta))
 							: ViewProxy<CatapultCacheDelta, test::SimpleCacheDelta>();

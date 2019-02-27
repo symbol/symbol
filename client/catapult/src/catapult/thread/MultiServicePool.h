@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "IoServiceThreadPool.h"
+#include "IoThreadPool.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/functions.h"
 #include <memory>
@@ -28,7 +28,7 @@
 
 namespace catapult { namespace thread {
 
-	/// Manages a primary threadpool with dependent service groups and secondary isolated threadpools.
+	/// Manages a primary thread pool with dependent service groups and secondary isolated thread pools.
 	/// \note Services are shutdown in reverse order of registration.
 	class MultiServicePool {
 	public:
@@ -55,7 +55,7 @@ namespace catapult { namespace thread {
 		class ServiceGroup {
 		public:
 			/// Creates a group around \a pPool and \a name.
-			ServiceGroup(const std::shared_ptr<thread::IoServiceThreadPool>& pPool, const std::string& name)
+			ServiceGroup(const std::shared_ptr<thread::IoThreadPool>& pPool, const std::string& name)
 					: m_pPool(pPool)
 					, m_name(name)
 			{}
@@ -105,7 +105,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			std::string m_name;
 			std::vector<std::shared_ptr<void>> m_services;
 			std::vector<action> m_shutdownFunctions;
@@ -176,17 +176,17 @@ namespace catapult { namespace thread {
 			return pGroup;
 		}
 
-		/// Creates a new isolated threadpool with a default number of threads and \a name.
-		std::shared_ptr<thread::IoServiceThreadPool> pushIsolatedPool(const std::string& name) {
+		/// Creates a new isolated thread pool with a default number of threads and \a name.
+		std::shared_ptr<thread::IoThreadPool> pushIsolatedPool(const std::string& name) {
 			return pushIsolatedPool(name, DefaultPoolConcurrency());
 		}
 
-		/// Creates a new isolated threadpool with the specified number of threads (\a numWorkerThreads) and \a name.
+		/// Creates a new isolated thread pool with the specified number of threads (\a numWorkerThreads) and \a name.
 		/// \note If \a numWorkerThreads is \c 0, a default number of threads will be used.
-		std::shared_ptr<thread::IoServiceThreadPool> pushIsolatedPool(const std::string& name, size_t numWorkerThreads) {
+		std::shared_ptr<thread::IoThreadPool> pushIsolatedPool(const std::string& name, size_t numWorkerThreads) {
 			class PoolServiceAdapter {
 			public:
-				explicit PoolServiceAdapter(const std::shared_ptr<thread::IoServiceThreadPool>& pPool) : m_pPool(pPool)
+				explicit PoolServiceAdapter(const std::shared_ptr<thread::IoThreadPool>& pPool) : m_pPool(pPool)
 				{}
 
 			public:
@@ -196,7 +196,7 @@ namespace catapult { namespace thread {
 				}
 
 			private:
-				std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+				std::shared_ptr<thread::IoThreadPool> m_pPool;
 			};
 
 			// when isolated pool mode is disabled, use the main pool for everything
@@ -210,7 +210,7 @@ namespace catapult { namespace thread {
 		}
 
 	public:
-		/// Safely shuts down the threadpool and its dependent services.
+		/// Safely shuts down the thread pool and its dependent services.
 		void shutdown() {
 			// if the pool has already been destroyed, don't do anything
 			if (!m_pPool)
@@ -227,23 +227,23 @@ namespace catapult { namespace thread {
 			m_numTotalIsolatedPoolThreads = 0;
 			m_numServiceGroups = 0;
 
-			// 3. after the services are destroyed, the threadpool can be safely destroyed
+			// 3. after the services are destroyed, the thread pool can be safely destroyed
 			WaitForLastReference(m_pPool);
 			m_pPool.reset();
 		}
 
 	private:
-		static std::shared_ptr<thread::IoServiceThreadPool> CreateThreadPool(size_t numWorkerThreads, const std::string& name) {
+		static std::shared_ptr<thread::IoThreadPool> CreateThreadPool(size_t numWorkerThreads, const std::string& name) {
 			numWorkerThreads = DefaultPoolConcurrency() == numWorkerThreads ? std::thread::hardware_concurrency() : numWorkerThreads;
-			auto pPool = thread::CreateIoServiceThreadPool(numWorkerThreads, name.c_str());
+			auto pPool = thread::CreateIoThreadPool(numWorkerThreads, name.c_str());
 			pPool->start();
 			return std::move(pPool);
 		}
 
 		template<typename T>
 		static void WaitForLastReference(const std::shared_ptr<T>& pVoid) {
-			volatile bool isLastReference;
-			while (false == (isLastReference = pVoid.unique()))
+			volatile long useCount;
+			while (1 < (useCount = pVoid.use_count()))
 				std::this_thread::yield();
 		}
 
@@ -252,7 +252,7 @@ namespace catapult { namespace thread {
 		IsolatedPoolMode m_isolatedPoolMode;
 		size_t m_numTotalIsolatedPoolThreads;
 		size_t m_numServiceGroups;
-		std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+		std::shared_ptr<thread::IoThreadPool> m_pPool;
 		std::vector<std::shared_ptr<ServiceGroup>> m_serviceGroups;
 		std::vector<action> m_shutdownFunctions;
 	};

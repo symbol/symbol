@@ -63,9 +63,11 @@ namespace catapult { namespace cache {
 					const state::NamespaceAlias& alias) {
 				// Act:
 				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
-				auto delta = cache.createDelta();
-				LoadInto(inputStream, *delta);
-				cache.commit();
+				{
+					auto delta = cache.createDelta();
+					LoadInto(inputStream, *delta);
+					cache.commit();
+				}
 
 				// Assert:
 				auto view = cache.createView();
@@ -90,9 +92,11 @@ namespace catapult { namespace cache {
 					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
 				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
-				auto delta = cache.createDelta();
-				LoadInto(inputStream, *delta);
-				cache.commit();
+				{
+					auto delta = cache.createDelta();
+					LoadInto(inputStream, *delta);
+					cache.commit();
+				}
 
 				// Assert:
 				auto view = cache.createView();
@@ -117,29 +121,34 @@ namespace catapult { namespace cache {
 					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
 				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
-				auto delta = cache.createDelta();
-				LoadInto(inputStream, *delta);
-				cache.commit();
+				{
+					auto delta = cache.createDelta();
+					LoadInto(inputStream, *delta);
+					cache.commit();
+				}
 
 				// Assert:
-				auto view = cache.createView();
-				test::AssertCacheSizes(*view, 1, 5, 15);
+				{
+					auto view = cache.createView();
+					test::AssertCacheSizes(*view, 1, 5, 15);
 
-				ASSERT_TRUE(view->contains(NamespaceId(123)));
-				test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner, Height(444), Height(555), 4);
-				EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(124)).get().ns().parentId());
-				EXPECT_EQ(NamespaceId(124), view->find(NamespaceId(125)).get().ns().parentId());
-				EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(126)).get().ns().parentId());
-				EXPECT_EQ(NamespaceId(126), view->find(NamespaceId(129)).get().ns().parentId());
+					ASSERT_TRUE(view->contains(NamespaceId(123)));
+					test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner, Height(444), Height(555), 4);
+					EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(124)).get().ns().parentId());
+					EXPECT_EQ(NamespaceId(124), view->find(NamespaceId(125)).get().ns().parentId());
+					EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(126)).get().ns().parentId());
+					EXPECT_EQ(NamespaceId(126), view->find(NamespaceId(129)).get().ns().parentId());
 
-				// - check aliases
-				ASSERT_EQ(4u, aliases.size());
-				test::AssertEqualAlias(aliases[0], GetAlias(*view, NamespaceId(124)), "124");
-				test::AssertEqualAlias(aliases[1], GetAlias(*view, NamespaceId(125)), "125");
-				test::AssertEqualAlias(aliases[2], GetAlias(*view, NamespaceId(126)), "126");
-				test::AssertEqualAlias(aliases[3], GetAlias(*view, NamespaceId(129)), "129");
+					// - check aliases
+					ASSERT_EQ(4u, aliases.size());
+					test::AssertEqualAlias(aliases[0], GetAlias(*view, NamespaceId(124)), "124");
+					test::AssertEqualAlias(aliases[1], GetAlias(*view, NamespaceId(125)), "125");
+					test::AssertEqualAlias(aliases[2], GetAlias(*view, NamespaceId(126)), "126");
+					test::AssertEqualAlias(aliases[3], GetAlias(*view, NamespaceId(129)), "129");
+				}
 
 				// - check history (one back)
+				auto delta = cache.createDelta();
 				delta->remove(NamespaceId(123));
 				test::AssertCacheSizes(*delta, 1, 5, 10);
 				test::AssertRootNamespace(delta->find(NamespaceId(123)).get().root(), owner, Height(222), Height(333), 4);
@@ -158,23 +167,28 @@ namespace catapult { namespace cache {
 					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
 				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
-				auto delta = cache.createDelta();
-				LoadInto(inputStream, *delta);
-				cache.commit();
+				{
+					auto delta = cache.createDelta();
+					LoadInto(inputStream, *delta);
+					cache.commit();
+				}
 
 				// Assert:
-				auto view = cache.createView();
-				test::AssertCacheSizes(*view, 1, 2, 7);
+				{
+					auto view = cache.createView();
+					test::AssertCacheSizes(*view, 1, 2, 7);
 
-				ASSERT_TRUE(view->contains(NamespaceId(123)));
-				test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner3, Height(444), Height(555), 1);
-				EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(126)).get().ns().parentId());
+					ASSERT_TRUE(view->contains(NamespaceId(123)));
+					test::AssertRootNamespace(view->find(NamespaceId(123)).get().root(), owner3, Height(444), Height(555), 1);
+					EXPECT_EQ(NamespaceId(123), view->find(NamespaceId(126)).get().ns().parentId());
 
-				// - check aliases
-				ASSERT_EQ(4u, aliases.size());
-				test::AssertEqualAlias(aliases[3], GetAlias(*view, NamespaceId(126)), "126 :: 0");
+					// - check aliases
+					ASSERT_EQ(4u, aliases.size());
+					test::AssertEqualAlias(aliases[3], GetAlias(*view, NamespaceId(126)), "126 :: 0");
+				}
 
 				// - check history (one back)
+				auto delta = cache.createDelta();
 				delta->remove(NamespaceId(123));
 				test::AssertCacheSizes(*delta, 1, 4, 5);
 				test::AssertRootNamespace(delta->find(NamespaceId(123)).get().root(), owner2, Height(222), Height(333), 3);

@@ -22,7 +22,7 @@
 #include "catapult/utils/ExceptionLogging.h"
 #include "catapult/utils/Logging.h"
 
-namespace catapult { namespace thread { class IoServiceThreadPool; } }
+namespace catapult { namespace thread { class IoThreadPool; } }
 
 namespace catapult { namespace tools {
 
@@ -41,5 +41,5 @@ namespace catapult { namespace tools {
 	}
 
 	/// Creates a started thread pool with \a numThreads threads.
-	std::shared_ptr<thread::IoServiceThreadPool> CreateStartedThreadPool(uint32_t numThreads = 1);
+	std::shared_ptr<thread::IoThreadPool> CreateStartedThreadPool(uint32_t numThreads = 1);
 }}

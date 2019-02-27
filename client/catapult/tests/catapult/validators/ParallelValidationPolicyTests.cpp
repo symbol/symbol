@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 
 		class PoolValidationPolicyPair {
 		public:
-			explicit PoolValidationPolicyPair(const std::shared_ptr<thread::IoServiceThreadPool>& pPool)
+			explicit PoolValidationPolicyPair(const std::shared_ptr<thread::IoThreadPool>& pPool)
 					: m_pPool(pPool)
 					, m_pValidationPolicy(CreateParallelValidationPolicy(m_pPool))
 					, m_isReleased(false)
@@ -66,12 +66,9 @@ namespace catapult { namespace validators {
 			}
 
 		private:
-			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			std::shared_ptr<const ParallelValidationPolicy> m_pValidationPolicy;
 			bool m_isReleased;
-
-		public:
-			PoolValidationPolicyPair(PoolValidationPolicyPair&& rhs) = default;
 		};
 
 		// endregion
@@ -151,7 +148,7 @@ namespace catapult { namespace validators {
 		};
 
 		auto CreatePolicy(uint32_t numThreads = 0) {
-			auto pPool = numThreads > 0 ? test::CreateStartedIoServiceThreadPool(numThreads) : test::CreateStartedIoServiceThreadPool();
+			auto pPool = numThreads > 0 ? test::CreateStartedIoThreadPool(numThreads) : test::CreateStartedIoThreadPool();
 			return PoolValidationPolicyPair(std::move(pPool));
 		}
 

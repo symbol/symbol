@@ -36,7 +36,7 @@ namespace catapult { namespace chain {
 			return Failure_Aggregate_Missing_Cosigners == result;
 		}
 
-		CPP14_CONSTEXPR CosignersValidationResult MapToCosignersValidationResult(ValidationResult result) {
+		constexpr CosignersValidationResult MapToCosignersValidationResult(ValidationResult result) {
 			if (IsValidationResultSuccess(result))
 				return CosignersValidationResult::Success;
 

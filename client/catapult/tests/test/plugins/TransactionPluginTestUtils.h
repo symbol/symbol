@@ -31,7 +31,7 @@ namespace catapult { namespace test {
 			CATAPULT_THROW_RUNTIME_ERROR("plugin must support embedding");
 
 		const auto* pEmbeddedPlugin = &pPlugin->embeddedPlugin();
-		return std::shared_ptr<typename std::remove_reference<decltype(*pEmbeddedPlugin)>::type>(
+		return std::shared_ptr<std::remove_reference_t<decltype(*pEmbeddedPlugin)>>(
 				pEmbeddedPlugin,
 				[pPlugin = std::shared_ptr<TTransactionPlugin>(std::move(pPlugin))](auto*) {});
 	}

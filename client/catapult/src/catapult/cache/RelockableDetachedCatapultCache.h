@@ -41,7 +41,7 @@ namespace catapult { namespace cache {
 
 		/// Gets and locks the last (detached) catapult cache delta.
 		/// \note If locking fails, \c nullptr is returned.
-		std::unique_ptr<CatapultCacheDelta> getAndLock();
+		std::unique_ptr<CatapultCacheDelta> getAndTryLock();
 
 		/// Rebases and locks the (detached) catapult cache delta.
 		std::unique_ptr<CatapultCacheDelta> rebaseAndLock();

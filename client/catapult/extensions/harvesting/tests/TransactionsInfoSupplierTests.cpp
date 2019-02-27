@@ -35,18 +35,41 @@ namespace catapult { namespace harvesting {
 
 		// region test context
 
+		auto CreateBlockChainConfiguration() {
+			auto config = model::BlockChainConfiguration::Uninitialized();
+			config.ImportanceGrouping = 1;
+			return config;
+		}
+
+		void AssertConsistent(const TransactionsInfo& transactionsInfo, const HarvestingUtFacade& facade) {
+			// Assert: transactionsInfo and facade should contain exact same transactions (and hashes)
+			ASSERT_EQ(transactionsInfo.Transactions.size(), facade.size());
+			ASSERT_EQ(transactionsInfo.TransactionHashes.size(), facade.size());
+
+			for (auto i = 0u; i < facade.size(); ++i) {
+				EXPECT_EQ(*transactionsInfo.Transactions[i], *facade.transactionInfos()[i].pEntity) << i;
+				EXPECT_EQ(transactionsInfo.TransactionHashes[i], facade.transactionInfos()[i].EntityHash) << i;
+			}
+		}
+
 		class TestContext {
 		public:
 			explicit TestContext(TransactionSelectionStrategy strategy, uint32_t utCacheSize = 0)
 					: m_catapultCache(test::CreateCatapultCacheWithMarkerAccount(Height(7)))
-					, m_utFacadeFactory(m_catapultCache, cache::MemoryCacheOptions(1024, 1000), m_executionConfig.Config)
+					, m_utFacadeFactory(m_catapultCache, CreateBlockChainConfiguration(), m_executionConfig.Config)
 					, m_pUtCache(test::CreateSeededMemoryUtCache(utCacheSize))
-					, m_supplier(CreateTransactionsInfoSupplier(strategy, m_utFacadeFactory, *m_pUtCache))
+					, m_supplier(CreateTransactionsInfoSupplier(strategy, *m_pUtCache))
 			{}
 
 		public:
 			auto supply(uint32_t count) {
-				return m_supplier(Timestamp(1234), count);
+				// Act:
+				auto pUtFacade = m_utFacadeFactory.create(Timestamp(1234));
+				auto transactionsInfo = m_supplier(*pUtFacade, count);
+
+				// Assert: supplied transactions should populate the ut facade
+				AssertConsistent(transactionsInfo, *pUtFacade);
+				return transactionsInfo;
 			}
 
 		public:

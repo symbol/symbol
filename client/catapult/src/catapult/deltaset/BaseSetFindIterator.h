@@ -95,11 +95,11 @@ namespace catapult { namespace deltaset {
 
 		/// Iterator that represents a find result from a base set that supports either one or two types of container iterators.
 		template<typename TFindTraits, typename TSetTraits, typename TStorageIterator, typename TMemoryIterator, typename TFindResult>
-		using BaseSetConditionalIteratorWrapper = typename std::conditional<
-			std::is_same<TStorageIterator, TMemoryIterator>::value,
+		using BaseSetConditionalIteratorWrapper = std::conditional_t<
+			std::is_same_v<TStorageIterator, TMemoryIterator>,
 			BaseSetSingleIteratorWrapper<TFindTraits, TSetTraits, TStorageIterator, TFindResult>,
 			BaseSetDualIteratorWrapper<TFindTraits, TSetTraits, TStorageIterator, TMemoryIterator, TFindResult>
-		>::type;
+		>;
 	}
 
 	/// Iterator that returns a find result from a base set.

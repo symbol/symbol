@@ -219,7 +219,7 @@ namespace catapult { namespace test {
 	/// Traits for accessing an entity as non-const.
 	struct NonConstAccessor {
 		/// Gets a non-const reference.
-		template<typename T, typename X = typename std::enable_if<!std::is_const<T>::value>::type>
+		template<typename T, typename X = std::enable_if_t<!std::is_const_v<T>>>
 		static T& Get(T& entity) {
 			return entity;
 		}

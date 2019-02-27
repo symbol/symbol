@@ -215,7 +215,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanSignAndVerifyBlockHeaderWithTransactions) {
 		// Arrange:
 		auto pBlock = CreateSignedBlock(3);
-		pBlock->Size = sizeof(Block);
+		pBlock->Size = sizeof(BlockHeader);
 
 		// Act:
 		auto isVerified = VerifyBlockHeaderSignature(*pBlock);
@@ -375,8 +375,31 @@ namespace catapult { namespace model {
 			}
 		};
 
+		size_t SumTransactionSizes(const Transactions& transactions) {
+			auto transactionsSize = 0u;
+			for (const auto& pTransaction : transactions)
+				transactionsSize += pTransaction->Size;
+
+			return transactionsSize;
+		}
+
+		void AssertTransactionsInBlock(const Block& block, const Transactions& expectedTransactions) {
+			auto transactionCount = 0u;
+			auto transactionsSize = 0u;
+			auto expectedIter = expectedTransactions.cbegin();
+			for (const auto& blockTransaction : block.Transactions()) {
+				ASSERT_NE(expectedTransactions.cend(), expectedIter);
+				EXPECT_EQ(**expectedIter++, blockTransaction);
+				transactionsSize += blockTransaction.Size;
+				++transactionCount;
+			}
+
+			EXPECT_EQ(expectedTransactions.size(), transactionCount);
+			EXPECT_EQ(SumTransactionSizes(expectedTransactions), transactionsSize);
+		}
+
 		template<typename TContainerTraits>
-		void AssertBlockSetsProperFields(size_t numTransactions) {
+		void AssertCanCreateBlock(size_t numTransactions) {
 			// Arrange:
 			auto signer = test::GenerateKeyPair();
 
@@ -390,49 +413,77 @@ namespace catapult { namespace model {
 
 			// Act:
 			auto pBlock = CreateBlock(context, static_cast<NetworkIdentifier>(0x17), signer.publicKey(), transactions);
-			const auto& block = *pBlock;
 
-			// Assert: the only reason for static_casts here is to solve gcc's linking problem
-			EXPECT_EQ(Signature{}, block.Signature);
+			// Assert:
+			ASSERT_EQ(sizeof(BlockHeader) + SumTransactionSizes(transactions), pBlock->Size);
+			EXPECT_EQ(Signature{}, pBlock->Signature);
 
-			EXPECT_EQ(signer.publicKey(), block.Signer);
-			EXPECT_EQ(static_cast<NetworkIdentifier>(0x17), block.Network());
-			EXPECT_EQ(static_cast<uint8_t>(Block::Current_Version), block.EntityVersion());
-			EXPECT_EQ(Entity_Type_Block, block.Type);
+			EXPECT_EQ(signer.publicKey(), pBlock->Signer);
+			EXPECT_EQ(static_cast<NetworkIdentifier>(0x17), pBlock->Network());
+			EXPECT_EQ(Block::Current_Version, pBlock->EntityVersion());
+			EXPECT_EQ(Entity_Type_Block, pBlock->Type);
 
-			EXPECT_EQ(Height(1235), block.Height);
-			EXPECT_EQ(Timestamp(), block.Timestamp);
-			EXPECT_EQ(Difficulty(), block.Difficulty);
-			EXPECT_EQ(BlockFeeMultiplier(), block.FeeMultiplier);
-			EXPECT_EQ(context.BlockHash, block.PreviousBlockHash);
-			EXPECT_EQ(Hash256{}, block.BlockTransactionsHash);
-			EXPECT_EQ(Hash256{}, block.BlockReceiptsHash);
-			EXPECT_EQ(Hash256{}, block.StateHash);
-			EXPECT_EQ(Key{}, block.BeneficiaryPublicKey);
+			EXPECT_EQ(Height(1235), pBlock->Height);
+			EXPECT_EQ(Timestamp(), pBlock->Timestamp);
+			EXPECT_EQ(Difficulty(), pBlock->Difficulty);
+			EXPECT_EQ(BlockFeeMultiplier(), pBlock->FeeMultiplier);
+			EXPECT_EQ(context.BlockHash, pBlock->PreviousBlockHash);
+			EXPECT_EQ(Hash256{}, pBlock->BlockTransactionsHash);
+			EXPECT_EQ(Hash256{}, pBlock->BlockReceiptsHash);
+			EXPECT_EQ(Hash256{}, pBlock->StateHash);
+			EXPECT_EQ(Key{}, pBlock->BeneficiaryPublicKey);
 
-			auto transactionCount = 0u;
-			size_t blockSize = sizeof(Block);
-			auto iter = transactions.cbegin();
-			for (const auto& blockTransaction : block.Transactions()) {
-				ASSERT_NE(transactions.cend(), iter);
-				EXPECT_EQ(**iter++, blockTransaction);
-				blockSize += blockTransaction.Size;
-				++transactionCount;
-			}
-
-			EXPECT_EQ(numTransactions, transactionCount);
-			ASSERT_EQ(blockSize, block.Size);
+			AssertTransactionsInBlock(*pBlock, transactions);
 		}
 	}
 
-	TEST(TEST_CLASS, CreateBlockSetsProperFields_WithoutTransactions_SharedPointer) {
+	TEST(TEST_CLASS, CanCreateBlockWithoutTransactions) {
 		// Assert:
-		AssertBlockSetsProperFields<SharedPointerTraits>(0);
+		AssertCanCreateBlock<SharedPointerTraits>(0);
 	}
 
-	TEST(TEST_CLASS, CreateBlockSetsProperFields_WithTransactions_SharedPointer) {
+	TEST(TEST_CLASS, CanCreateBlockWithTransactions) {
 		// Assert:
-		AssertBlockSetsProperFields<SharedPointerTraits>(5);
+		AssertCanCreateBlock<SharedPointerTraits>(5);
+	}
+
+	// endregion
+
+	// region create block - StitchBlock
+
+	namespace {
+		template<typename TContainerTraits>
+		void AssertCanStitchBlock(size_t numTransactions) {
+			// Arrange:
+			BlockHeader blockHeader;
+			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&blockHeader), sizeof(BlockHeader) });
+
+			auto randomTransactions = test::GenerateRandomTransactions(numTransactions);
+			auto transactions = TContainerTraits::MapTransactions(randomTransactions);
+
+			// Act:
+			auto pBlock = StitchBlock(blockHeader, transactions);
+
+			// Assert:
+			ASSERT_EQ(sizeof(BlockHeader) + SumTransactionSizes(transactions), pBlock->Size);
+
+			EXPECT_EQ_MEMORY(
+					reinterpret_cast<const uint8_t*>(&blockHeader) + sizeof(BlockHeader::Size),
+					reinterpret_cast<const uint8_t*>(pBlock.get()) + sizeof(BlockHeader::Size),
+					sizeof(BlockHeader) - sizeof(BlockHeader::Size));
+
+			AssertTransactionsInBlock(*pBlock, transactions);
+		}
+	}
+
+	TEST(TEST_CLASS, CanStitchBlockWithoutTransactions) {
+		// Assert:
+		AssertCanStitchBlock<SharedPointerTraits>(0);
+	}
+
+	TEST(TEST_CLASS, CanStitchBlockWithTransactions) {
+		// Assert:
+		AssertCanStitchBlock<SharedPointerTraits>(5);
 	}
 
 	// endregion

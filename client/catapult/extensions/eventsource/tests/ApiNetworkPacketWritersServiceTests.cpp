@@ -30,7 +30,7 @@ namespace catapult { namespace eventsource {
 	namespace {
 		struct ApiNetworkPacketWritersServiceTraits {
 			static constexpr auto Counter_Name = "B WRITERS";
-			static constexpr auto Num_Expected_Services = 1;
+			static constexpr auto Num_Expected_Services = 1u;
 
 			static auto GetWriters(const extensions::ServiceLocator& locator) {
 				return locator.service<net::PacketWriters>("api.writers");
@@ -54,10 +54,10 @@ namespace catapult { namespace eventsource {
 	// region accepting external conncetions
 
 	namespace {
-		std::shared_ptr<ionet::PacketSocket> AcceptBroadcastWriter(boost::asio::io_service& service, const TestContext& context) {
+		std::shared_ptr<ionet::PacketSocket> AcceptBroadcastWriter(boost::asio::io_context& ioContext, const TestContext& context) {
 			// Act: connect to the server as a broadcast writer
 			unsigned short localHostApiPort = test::GetLocalHostPort() + 1;
-			auto pIo = test::ConnectToLocalHost(service, localHostApiPort, context.publicKey());
+			auto pIo = test::ConnectToLocalHost(ioContext, localHostApiPort, context.publicKey());
 
 			// - wait for the writer to be available
 			WAIT_FOR_ONE_EXPR(context.counter("B WRITERS"));
@@ -77,8 +77,8 @@ namespace catapult { namespace eventsource {
 		context.boot();
 
 		// Act + Assert: connect to the server as a broadcast writer
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		AcceptBroadcastWriter(pPool->service(), context);
+		auto pPool = test::CreateStartedIoThreadPool();
+		AcceptBroadcastWriter(pPool->ioContext(), context);
 	}
 
 	namespace {
@@ -89,12 +89,12 @@ namespace catapult { namespace eventsource {
 			context.boot();
 
 			// - connect to the server as a broadcast writer
-			auto pPool = test::CreateStartedIoServiceThreadPool();
-			auto pIo = AcceptBroadcastWriter(pPool->service(), context);
+			auto pPool = test::CreateStartedIoThreadPool();
+			auto pIo = AcceptBroadcastWriter(pPool->ioContext(), context);
 
 			// - set up a read
 			ionet::ByteBuffer packetBuffer;
-			test::AsyncReadIntoBuffer(pPool->service(), *pIo, packetBuffer);
+			test::AsyncReadIntoBuffer(pPool->ioContext(), *pIo, packetBuffer);
 
 			// Act: broadcast an entity to the server
 			auto entity = TBroadcastTraits::CreateEntity();

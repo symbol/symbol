@@ -321,7 +321,7 @@ namespace catapult { namespace model {
 		class iterator {
 		public:
 			using difference_type = typename TIterator::difference_type;
-			using value_type = typename std::remove_const<TIteratorEntity>::type;
+			using value_type = std::remove_const_t<TIteratorEntity>;
 			using pointer = TIteratorEntity*;
 			using reference = TIteratorEntity&;
 			using iterator_category = std::bidirectional_iterator_tag;

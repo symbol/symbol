@@ -176,7 +176,7 @@ namespace catapult { namespace test {
 	// region type declarations for set element type
 
 	template<typename TMutabilityTraits>
-	using SetElementType = typename std::remove_const<typename TMutabilityTraits::ElementType>::type;
+	using SetElementType = std::remove_const_t<typename TMutabilityTraits::ElementType>;
 
 	// endregion
 

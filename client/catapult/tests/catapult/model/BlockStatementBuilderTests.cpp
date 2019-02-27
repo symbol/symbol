@@ -73,6 +73,33 @@ namespace catapult { namespace model {
 		EXPECT_EQ(11u, source.SecondaryId);
 	}
 
+	TEST(TEST_CLASS, CanPopZeroedSource) {
+		// Arrange:
+		BlockStatementBuilder builder;
+
+		// Act:
+		builder.popSource();
+		const auto& source = builder.source();
+
+		// Assert:
+		EXPECT_EQ(0u, source.PrimaryId);
+		EXPECT_EQ(0u, source.SecondaryId);
+	}
+
+	TEST(TEST_CLASS, CanPopSource) {
+		// Arrange:
+		BlockStatementBuilder builder;
+		builder.setSource({ 12, 8 });
+
+		// Act:
+		builder.popSource();
+		const auto& source = builder.source();
+
+		// Assert:
+		EXPECT_EQ(11u, source.PrimaryId);
+		EXPECT_EQ(0u, source.SecondaryId);
+	}
+
 	// endregion
 
 	// region empty
@@ -386,6 +413,67 @@ namespace catapult { namespace model {
 		ASSERT_EQ(2u, pStatement->MosaicResolutionStatements.size());
 		EXPECT_EQ(mosaicResolutionStatementHash1, GetResolutionStatementHash<MosaicResolutionTraits>(*pStatement, unresolvedMosaicId1));
 		EXPECT_EQ(mosaicResolutionStatementHash2, GetResolutionStatementHash<MosaicResolutionTraits>(*pStatement, unresolvedMosaicId2));
+	}
+
+	TEST(TEST_CLASS, CanCreateBlockStatementWithHeterogenousComponentStatementsAfterPoppingSource) {
+		// Arrange:
+		RandomPayloadReceipt<3> receipt1;
+		RandomPayloadReceipt<4> receipt2;
+		RandomPayloadReceipt<2> receipt3;
+
+		auto unresolvedAddress1 = AddressResolutionTraits::GenerateUnresolved();
+		auto unresolvedAddress2 = AddressResolutionTraits::GenerateUnresolved();
+		auto resolvedAddress1 = AddressResolutionTraits::GenerateResolved();
+		auto resolvedAddress2 = AddressResolutionTraits::GenerateResolved();
+		auto resolvedAddress3 = AddressResolutionTraits::GenerateResolved();
+
+		auto unresolvedMosaicId1 = MosaicResolutionTraits::GenerateUnresolved();
+		auto unresolvedMosaicId2 = MosaicResolutionTraits::GenerateUnresolved();
+		auto resolvedMosaicId1 = MosaicResolutionTraits::GenerateResolved();
+		auto resolvedMosaicId2 = MosaicResolutionTraits::GenerateResolved();
+		auto resolvedMosaicId3 = MosaicResolutionTraits::GenerateResolved();
+
+		BlockStatementBuilder builder;
+		builder.setSource({ 12, 11 });
+		builder.addReceipt(receipt1);
+		builder.addResolution(unresolvedAddress1, resolvedAddress1);
+		builder.addResolution(unresolvedAddress2, resolvedAddress2);
+		builder.addResolution(unresolvedMosaicId1, resolvedMosaicId3);
+		builder.setSource({ 14, 0 });
+		builder.addReceipt(receipt2);
+		builder.addResolution(unresolvedAddress1, resolvedAddress3);
+		builder.setSource({ 14, 1 });
+		builder.addReceipt(receipt3);
+		builder.addResolution(unresolvedMosaicId1, resolvedMosaicId1);
+		builder.addResolution(unresolvedMosaicId2, resolvedMosaicId2);
+		builder.popSource(); // pop source with primary id 14
+
+		// Act:
+		auto pStatement = builder.build();
+
+		// Assert:
+		auto transactionStatementHash1 = CalculateTransactionStatementHash({ 12, 11 }, { &receipt1 });
+
+		auto addressResolutionStatementHash1 = CalculateResolutionStatementHash<AddressResolutionTraits>(unresolvedAddress1, {
+			{ { 12, 11 }, resolvedAddress1 }
+		});
+		auto addressResolutionStatementHash2 = CalculateResolutionStatementHash<AddressResolutionTraits>(unresolvedAddress2, {
+			{ { 12, 11 }, resolvedAddress2 }
+		});
+
+		auto mosaicResolutionStatementHash1 = CalculateResolutionStatementHash<MosaicResolutionTraits>(unresolvedMosaicId1, {
+			{ { 12, 11 }, resolvedMosaicId3 }
+		});
+
+		ASSERT_EQ(1u, pStatement->TransactionStatements.size());
+		EXPECT_EQ(transactionStatementHash1, GetTransactionStatementHash(*pStatement, { 12, 11 }));
+
+		ASSERT_EQ(2u, pStatement->AddressResolutionStatements.size());
+		EXPECT_EQ(addressResolutionStatementHash1, GetResolutionStatementHash<AddressResolutionTraits>(*pStatement, unresolvedAddress1));
+		EXPECT_EQ(addressResolutionStatementHash2, GetResolutionStatementHash<AddressResolutionTraits>(*pStatement, unresolvedAddress2));
+
+		ASSERT_EQ(1u, pStatement->MosaicResolutionStatements.size());
+		EXPECT_EQ(mosaicResolutionStatementHash1, GetResolutionStatementHash<MosaicResolutionTraits>(*pStatement, unresolvedMosaicId1));
 	}
 
 	// endregion

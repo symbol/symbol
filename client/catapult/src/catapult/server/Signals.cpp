@@ -32,8 +32,8 @@ namespace catapult { namespace server {
 	}
 
 	void WaitForTerminationSignal() {
-		boost::asio::io_service service;
-		boost::asio::signal_set signals(service, SIGINT, SIGTERM);
+		boost::asio::io_context ioContext;
+		boost::asio::signal_set signals(ioContext, SIGINT, SIGTERM);
 
 		SignalInfo info;
 		signals.async_wait([&info](const auto& ec, auto signalId) {
@@ -42,7 +42,7 @@ namespace catapult { namespace server {
 		});
 
 		CATAPULT_LOG(info) << "waiting for termination signal";
-		service.run();
+		ioContext.run();
 
 		if (info.Error)
 			CATAPULT_LOG(warning) << "error waiting for termination signal: " << info.Error;

@@ -59,18 +59,18 @@ namespace catapult { namespace validators {
 		template<typename TPropertyValueTraits, typename TModificationsFactory>
 		void AssertValidationResult(ValidationResult expectedResult, CacheSeed cacheSeed, TModificationsFactory modificationsFactory) {
 			// Arrange:
-			auto values = test::GenerateRandomDataVector<typename TPropertyValueTraits::UnresolvedValueType>(5);
+			auto values = test::GenerateUniqueRandomDataVector<typename TPropertyValueTraits::UnresolvedValueType>(5);
 			auto modifications = modificationsFactory(values);
 			typename TPropertyValueTraits::NotificationType notification(
 					test::GenerateRandomData<Key_Size>(),
-					TPropertyValueTraits::PropertyType(),
+					TPropertyValueTraits::Property_Type,
 					static_cast<uint8_t>(modifications.size()),
 					modifications.data());
 			auto cache = test::PropertyCacheFactory::Create();
 			if (CacheSeed::Yes == cacheSeed) {
 				auto address = model::PublicKeyToAddress(notification.Key, model::NetworkIdentifier::Zero);
 				auto accountProperties = state::AccountProperties(address);
-				accountProperties.property(TPropertyValueTraits::PropertyType()).allow({ Add, state::ToVector(values[1]) });
+				accountProperties.property(TPropertyValueTraits::Property_Type).allow({ Add, state::ToVector(values[1]) });
 				auto delta = cache.createDelta();
 				auto& propertyDelta = delta.template sub<cache::PropertyCache>();
 				propertyDelta.insert(accountProperties);
@@ -104,7 +104,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<TTraits>(Failure_Property_Modification_Redundant, [](const auto& values) {
 			return std::vector<model::PropertyModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },
-				{ Add, TTraits::RandomUnresolvedValue() },
+				{ Add, test::CreateRandomUniqueValue(values) },
 				{ Add, values[0] },
 				{ Add, values[2] }
 			};
@@ -116,7 +116,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<TTraits>(Failure_Property_Modification_Redundant, [](const auto& values) {
 			return std::vector<model::PropertyModification<typename TTraits::UnresolvedValueType>>{
 				{ Del, values[2] },
-				{ Add, TTraits::RandomUnresolvedValue() },
+				{ Add, test::CreateRandomUniqueValue(values) },
 				{ Add, values[0] },
 				{ Del, values[2] }
 			};
@@ -128,7 +128,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<TTraits>(Failure_Property_Modification_Redundant, [](const auto& values) {
 			return std::vector<model::PropertyModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },
-				{ Add, TTraits::RandomUnresolvedValue() },
+				{ Add, test::CreateRandomUniqueValue(values) },
 				{ Add, values[0] },
 				{ Del, values[2] }
 			};
@@ -140,7 +140,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<TTraits>(Failure_Property_Modification_Not_Allowed, [](const auto& values) {
 			return std::vector<model::PropertyModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },
-				{ Del, TTraits::RandomUnresolvedValue() },
+				{ Del, test::CreateRandomUniqueValue(values) },
 				{ Add, values[0] }
 			};
 		});
@@ -162,7 +162,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult<TTraits>(ValidationResult::Success, CacheSeed::Yes, [](const auto& values) {
 			return std::vector<model::PropertyModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },
-				{ Add, TTraits::RandomUnresolvedValue() },
+				{ Add, test::CreateRandomUniqueValue(values) },
 				{ Del, values[1] },
 				{ Add, values[0] }
 			};

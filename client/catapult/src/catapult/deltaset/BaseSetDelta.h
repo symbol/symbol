@@ -24,7 +24,6 @@
 #include "DeltaElements.h"
 #include "catapult/utils/NonCopyable.h"
 #include "catapult/exceptions.h"
-#include "catapult/preprocessor.h"
 #include <memory>
 #include <type_traits>
 #include <unordered_map>
@@ -78,11 +77,11 @@ namespace catapult { namespace deltaset {
 		using FindTraits = FindTraitsT<ElementType, TSetTraits::AllowsNativeValueModification>;
 		using SetTraits = TSetTraits;
 
-		using FindIterator = typename std::conditional<
-			std::is_same<ElementMutabilityTag, ImmutableTypeTag>::value,
+		using FindIterator = std::conditional_t<
+			std::is_same_v<ElementMutabilityTag, ImmutableTypeTag>,
 			BaseSetDeltaFindConstIterator<FindTraits, TSetTraits>,
 			BaseSetDeltaFindIterator<FindTraits, TSetTraits>
-		>::type;
+		>;
 		using FindConstIterator = BaseSetDeltaFindConstIterator<FindTraits, TSetTraits>;
 
 	public:
@@ -355,13 +354,13 @@ namespace catapult { namespace deltaset {
 		// for sorted containers, use map because no hasher is specified
 		template<typename T, typename = void>
 		struct KeyGenerationIdMap {
-			using type = std::map<KeyType, uint32_t, typename T::key_compare>;
+			using Type = std::map<KeyType, uint32_t, typename T::key_compare>;
 		};
 
 		// for hashed containers, use unordered_map because hasher is specified
 		template<typename T>
-		struct KeyGenerationIdMap<T, typename utils::traits::enable_if_type<typename T::hasher>::type> {
-			using type = std::unordered_map<KeyType, uint32_t, typename T::hasher, typename T::key_equal>;
+		struct KeyGenerationIdMap<T, utils::traits::is_type_expression_t<typename T::hasher>> {
+			using Type = std::unordered_map<KeyType, uint32_t, typename T::hasher, typename T::key_equal>;
 		};
 
 	private:
@@ -371,7 +370,7 @@ namespace catapult { namespace deltaset {
 		MemorySetType m_copiedElements;
 
 		uint32_t m_generationId;
-		typename KeyGenerationIdMap<SetType>::type m_keyGenerationIdMap;
+		typename KeyGenerationIdMap<SetType>::Type m_keyGenerationIdMap;
 
 	private:
 		template<typename TElementTraits2, typename TSetTraits2>

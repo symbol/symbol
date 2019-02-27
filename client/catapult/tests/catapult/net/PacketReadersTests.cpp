@@ -23,7 +23,7 @@
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/ionet/SocketReader.h"
 #include "catapult/net/VerifyPeer.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/KeyPairTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
@@ -39,7 +39,7 @@ namespace catapult { namespace net {
 
 	namespace {
 		auto CreateDefaultPacketReaders() {
-			auto pPool = utils::UniqueToShared(test::CreateStartedIoServiceThreadPool());
+			auto pPool = utils::UniqueToShared(test::CreateStartedIoThreadPool());
 			return CreatePacketReaders(pPool, ionet::ServerPacketHandlers(), test::GenerateKeyPair(), ConnectionSettings(), 1);
 		}
 
@@ -54,8 +54,8 @@ namespace catapult { namespace net {
 					uint32_t numClientKeyPairs,
 					uint32_t maxConnectionsPerIdentity)
 					: ServerKeyPair(test::GenerateKeyPair())
-					, pPool(test::CreateStartedIoServiceThreadPool())
-					, Service(pPool->service())
+					, pPool(test::CreateStartedIoThreadPool())
+					, IoContext(pPool->ioContext())
 					, Handlers(handlers)
 					, pReaders(CreatePacketReaders(pPool, Handlers, ServerKeyPair, ConnectionSettings(), maxConnectionsPerIdentity)) {
 				for (auto i = 0u; i < numClientKeyPairs; ++i)
@@ -71,8 +71,8 @@ namespace catapult { namespace net {
 		public:
 			crypto::KeyPair ServerKeyPair; // the server hosting the PacketReaders instance
 			std::vector<crypto::KeyPair> ClientKeyPairs; // accepted clients forwarded to the server
-			std::shared_ptr<thread::IoServiceThreadPool> pPool;
-			boost::asio::io_service& Service;
+			std::shared_ptr<thread::IoThreadPool> pPool;
+			boost::asio::io_context& IoContext;
 			ionet::ServerPacketHandlers Handlers;
 			std::shared_ptr<PacketReaders> pReaders;
 
@@ -101,7 +101,7 @@ namespace catapult { namespace net {
 		MultiConnectionState SetupMultiConnectionTest(const PacketReadersTestContext& context) {
 			// Act: start multiple server and client verify operations
 			MultiConnectionState state;
-			test::TcpAcceptor acceptor(context.Service);
+			test::TcpAcceptor acceptor(context.IoContext);
 			for (auto i = 0u; i < context.ClientKeyPairs.size(); ++i) {
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&, i](const auto& pSocket) {
@@ -113,7 +113,7 @@ namespace catapult { namespace net {
 				});
 
 				bool isServerVerified = false;
-				test::SpawnPacketClientWork(context.Service, [&, i](const auto& pSocket) {
+				test::SpawnPacketClientWork(context.IoContext, [&, i](const auto& pSocket) {
 					state.ClientSockets.push_back(pSocket);
 					auto serverPeerInfo = VerifiedPeerInfo{ context.ServerKeyPair.publicKey(), ionet::ConnectionSecurityMode::None };
 					VerifyServer(pSocket, serverPeerInfo, context.ClientKeyPairs[i], [&](auto result, const auto&) {
@@ -178,14 +178,14 @@ namespace catapult { namespace net {
 
 		// Act: start a server and client verify operation
 		PeerConnectResult result;
-		test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) {
+		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
 			context.pReaders->accept(ionet::AcceptedPacketSocketInfo("", pSocket), [&](const auto& acceptResult) {
 				result = acceptResult;
 				++numCallbacks;
 			});
 		});
 
-		test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
+		test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
 			// - trigger a verify error by closing the socket without responding
 			pSocket->close();
 			++numCallbacks;
@@ -322,7 +322,7 @@ namespace catapult { namespace net {
 			//      (use a result shared_ptr so that the accept callback is valid even after this function returns)
 			auto pResult = std::make_shared<PeerConnectResult>(static_cast<PeerConnectCode>(-1));
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(context.Service, [&, pResult](const auto& pSocket) {
+			test::SpawnPacketServerWork(context.IoContext, [&, pResult](const auto& pSocket) {
 				pServerSocket = pSocket;
 				context.pReaders->accept(ionet::AcceptedPacketSocketInfo("", pSocket), [&, pResult](const auto& acceptResult) {
 					// note that this is not expected to get called until shutdown because the client doesn't read
@@ -333,7 +333,7 @@ namespace catapult { namespace net {
 			});
 
 			std::shared_ptr<ionet::PacketSocket> pClientSocket;
-			test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
+			test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
 				pClientSocket = pSocket;
 				++numCallbacks;
 			});

@@ -55,7 +55,7 @@ namespace catapult { namespace mongo { namespace plugins {
 	private:
 		static auto CreatePropertyTransaction(uint8_t numModifications) {
 			using TransactionType = typename TTraits::TransactionType;
-			auto valueSize = TPropertyValueTraits::PropertyValueSize();
+			auto valueSize = TPropertyValueTraits::Property_Value_Size;
 			auto entitySize = static_cast<uint32_t>(sizeof(TransactionType) + numModifications * (1 + valueSize));
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
 			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });

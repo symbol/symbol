@@ -489,7 +489,7 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(NamespaceId(123), history.id());
-		EXPECT_FALSE(std::is_const<std::remove_reference<decltype(root)>::type>::value);
+		EXPECT_FALSE(std::is_const_v<std::remove_reference_t<decltype(root)>>);
 		EXPECT_EQ(&constRoot, &root);
 		EXPECT_EQ(test::CreateLifetime(567, 689), root.lifetime());
 		EXPECT_EQ(test::CreateLifetime(567, 689), constRoot.lifetime());

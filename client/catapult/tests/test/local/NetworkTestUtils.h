@@ -24,15 +24,15 @@
 #include "catapult/types.h"
 #include <memory>
 
-namespace boost { namespace asio { class io_service; } }
+namespace boost { namespace asio { class io_context; } }
 
 namespace catapult { namespace net { class PacketWriters; } }
 
 namespace catapult { namespace test {
 
-	/// Creates a connection to localhost on \a port configured with server public key \a serverPublicKey using \a service.
+	/// Creates a connection to localhost on \a port configured with server public key \a serverPublicKey using \a ioContext.
 	std::shared_ptr<ionet::PacketSocket> ConnectToLocalHost(
-			boost::asio::io_service& service,
+			boost::asio::io_context& ioContext,
 			unsigned short port,
 			const Key& serverPublicKey);
 
@@ -40,6 +40,6 @@ namespace catapult { namespace test {
 	/// using \a packetWriters.
 	void ConnectToLocalHost(net::PacketWriters& packetWriters, const Key& serverPublicKey);
 
-	/// Starts an async read on \a io that fills \a buffer using \a service.
-	void AsyncReadIntoBuffer(boost::asio::io_service& service, ionet::PacketSocket& io, ionet::ByteBuffer& buffer);
+	/// Starts an async read on \a io that fills \a buffer using \a ioContext.
+	void AsyncReadIntoBuffer(boost::asio::io_context& ioContext, ionet::PacketSocket& io, ionet::ByteBuffer& buffer);
 }}

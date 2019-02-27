@@ -26,7 +26,7 @@
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionStatus.h"
 #include "catapult/model/TransactionUtils.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include <boost/asio.hpp>
 #include <set>
 
@@ -60,7 +60,7 @@ namespace catapult { namespace zeromq {
 	public:
 		explicit SynchronizedPublisher(unsigned short port)
 				: m_zmqSocket(m_zmqContext, ZMQ_PUB)
-				, m_pPool(thread::CreateIoServiceThreadPool(1, "ZeroMqEntityPublisher")) {
+				, m_pPool(thread::CreateIoThreadPool(1, "ZeroMqEntityPublisher")) {
 			// note that we want closing the socket to be synchronous
 			// setting linger to 0 means that all pending messages are discarded and the socket is closed immediately
 			m_zmqSocket.setsockopt(ZMQ_LINGER, 0);
@@ -79,7 +79,7 @@ namespace catapult { namespace zeromq {
 		void queue(std::unique_ptr<MessageGroup>&& pMessageGroup) {
 			// dispatch function needs to be copyable
 			auto pMessageGroupShared = std::shared_ptr<MessageGroup>(std::move(pMessageGroup));
-			m_pPool->service().dispatch([&zmqSocket = m_zmqSocket, pMessageGroup = pMessageGroupShared]() {
+			boost::asio::dispatch(m_pPool->ioContext(), [&zmqSocket = m_zmqSocket, pMessageGroup{std::move(pMessageGroupShared)}]() {
 				pMessageGroup->flush(zmqSocket);
 			});
 		}
@@ -87,7 +87,7 @@ namespace catapult { namespace zeromq {
 	private:
 		zmq::context_t m_zmqContext;
 		zmq::socket_t m_zmqSocket;
-		std::unique_ptr<thread::IoServiceThreadPool> m_pPool;
+		std::unique_ptr<thread::IoThreadPool> m_pPool;
 	};
 
 	struct ZeroMqEntityPublisher::WeakTransactionInfo {

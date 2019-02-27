@@ -97,7 +97,7 @@ namespace catapult { namespace thread {
 	template<
 			typename TSeed,
 			typename TCreateNextFuture,
-			typename TResultFuture = typename std::result_of<TCreateNextFuture(future<TSeed>&&)>::type,
+			typename TResultFuture = std::invoke_result_t<TCreateNextFuture, future<TSeed>&&>,
 			typename TResultType = decltype(TResultFuture().get())>
 	auto compose(future<TSeed>&& startFuture, TCreateNextFuture createNextFuture) {
 		auto pComposePromise = std::make_shared<promise<TResultType>>();

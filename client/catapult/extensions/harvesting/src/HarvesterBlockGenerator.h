@@ -19,14 +19,22 @@
 **/
 
 #pragma once
-#include "catapult/cache/UtChangeSubscriber.h"
-#include <memory>
+#include "catapult/model/Block.h"
+#include "catapult/model/TransactionSelectionStrategy.h"
 
-namespace catapult { namespace model { class NotificationPublisher; } }
+namespace catapult {
+	namespace cache { class MemoryUtCache; }
+	namespace harvesting { class HarvestingUtFacadeFactory; }
+}
 
-namespace catapult { namespace addressextraction {
+namespace catapult { namespace harvesting {
 
-	/// Creates an address extraction unconfirmed transactions subscriber around a notification publisher (\a pPublisher).
-	std::unique_ptr<cache::UtChangeSubscriber> CreateAddressExtractionChangeSubscriber(
-			std::unique_ptr<model::NotificationPublisher>&& pPublisher);
+	/// Generates a block from a seed block header given a maximum number of transactions.
+	using BlockGenerator = std::function<std::unique_ptr<model::Block> (const model::BlockHeader&, uint32_t)>;
+
+	/// Creates a default block generator around \a utFacadeFactory and \a utCache for specified transaction \a strategy.
+	BlockGenerator CreateHarvesterBlockGenerator(
+			model::TransactionSelectionStrategy strategy,
+			const HarvestingUtFacadeFactory& utFacadeFactory,
+			const cache::MemoryUtCache& utCache);
 }}

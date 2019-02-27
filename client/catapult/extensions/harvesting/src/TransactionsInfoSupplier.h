@@ -24,7 +24,7 @@
 
 namespace catapult {
 	namespace cache { class MemoryUtCache; }
-	namespace harvesting { class HarvestingUtFacadeFactory; }
+	namespace harvesting { class HarvestingUtFacade; }
 }
 
 namespace catapult { namespace harvesting {
@@ -44,12 +44,11 @@ namespace catapult { namespace harvesting {
 		Hash256 TransactionsHash;
 	};
 
-	/// Supplies a transactions info composed of a maximum number of transactions for a block with specified time.
-	using TransactionsInfoSupplier = std::function<TransactionsInfo (Timestamp, uint32_t)>;
+	/// Supplies a transactions info composed of a maximum number of transactions for a block given a harvesting ut facade.
+	using TransactionsInfoSupplier = std::function<TransactionsInfo (HarvestingUtFacade&, uint32_t)>;
 
-	/// Creates a default transactions info supplier around \a utFacadeFactory and \a utCache for specified transaction \a strategy.
+	/// Creates a default transactions info supplier around\a utCache for specified transaction \a strategy.
 	TransactionsInfoSupplier CreateTransactionsInfoSupplier(
 			model::TransactionSelectionStrategy strategy,
-			const HarvestingUtFacadeFactory& utFacadeFactory,
 			const cache::MemoryUtCache& utCache);
 }}

@@ -18,14 +18,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "addressextraction/src/AddressExtractionUtSubscriber.h"
+#include "addressextraction/src/AddressExtractionUtChangeSubscriber.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/mocks/MockNotificationPublisher.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace addressextraction {
 
-#define TEST_CLASS AddressExtractionUtSubscriberTests
+#define TEST_CLASS AddressExtractionUtChangeSubscriberTests
 
 	namespace {
 		cache::UtChangeSubscriber::TransactionInfos MoveToSetAndRemoveExtractedAddresses(
@@ -41,7 +41,7 @@ namespace catapult { namespace addressextraction {
 		// Arrange:
 		auto pNotificationPublisher = std::make_unique<mocks::MockNotificationPublisher>();
 		const auto& publisher = *pNotificationPublisher;
-		auto pSubscriber = CreateAddressExtractionChangeSubscriber(std::move(pNotificationPublisher));
+		auto pSubscriber = CreateAddressExtractionUtChangeSubscriber(std::move(pNotificationPublisher));
 
 		auto transactionInfoSet = MoveToSetAndRemoveExtractedAddresses(test::CreateTransactionInfos(3));
 
@@ -60,7 +60,7 @@ namespace catapult { namespace addressextraction {
 		// Arrange:
 		auto pNotificationPublisher = std::make_unique<mocks::MockNotificationPublisher>();
 		const auto& publisher = *pNotificationPublisher;
-		auto pSubscriber = CreateAddressExtractionChangeSubscriber(std::move(pNotificationPublisher));
+		auto pSubscriber = CreateAddressExtractionUtChangeSubscriber(std::move(pNotificationPublisher));
 
 		// - create two infos with addresses and two without
 		auto transactionInfos = test::CreateTransactionInfos(4);
@@ -92,7 +92,7 @@ namespace catapult { namespace addressextraction {
 		// Arrange:
 		auto pNotificationPublisher = std::make_unique<mocks::MockNotificationPublisher>();
 		const auto& publisher = *pNotificationPublisher;
-		auto pSubscriber = CreateAddressExtractionChangeSubscriber(std::move(pNotificationPublisher));
+		auto pSubscriber = CreateAddressExtractionUtChangeSubscriber(std::move(pNotificationPublisher));
 
 		auto transactionInfoSet = MoveToSetAndRemoveExtractedAddresses(test::CreateTransactionInfos(3));
 
@@ -110,7 +110,7 @@ namespace catapult { namespace addressextraction {
 		// Arrange:
 		auto pNotificationPublisher = std::make_unique<mocks::MockNotificationPublisher>();
 		const auto& publisher = *pNotificationPublisher;
-		auto pSubscriber = CreateAddressExtractionChangeSubscriber(std::move(pNotificationPublisher));
+		auto pSubscriber = CreateAddressExtractionUtChangeSubscriber(std::move(pNotificationPublisher));
 
 		// Act:
 		pSubscriber->flush();

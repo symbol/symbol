@@ -178,7 +178,7 @@ namespace catapult { namespace cache {
 		AssertCacheSize(cache, 1);
 
 		auto view = cache.view();
-		auto transactionInfoFromCache = cache.view().find(originalInfo.EntityHash);
+		auto transactionInfoFromCache = view.find(originalInfo.EntityHash);
 		AssertTransactionWithCosignatures(*originalInfo.pEntity, {}, transactionInfoFromCache);
 	}
 
@@ -196,7 +196,7 @@ namespace catapult { namespace cache {
 
 		auto view = cache.view();
 		for (const auto& transactionInfo : originalTransactionInfos) {
-			auto transactionInfoFromCache = cache.view().find(transactionInfo.EntityHash);
+			auto transactionInfoFromCache = view.find(transactionInfo.EntityHash);
 			AssertTransactionWithCosignatures(*transactionInfo.pEntity, {}, transactionInfoFromCache);
 		}
 	}
@@ -217,7 +217,7 @@ namespace catapult { namespace cache {
 		AssertCacheSize(cache, 1);
 
 		auto view = cache.view();
-		auto transactionInfoFromCache = cache.view().find(originalTransactionInfo.EntityHash);
+		auto transactionInfoFromCache = view.find(originalTransactionInfo.EntityHash);
 		AssertTransactionWithCosignatures(*originalTransactionInfo.pEntity, {}, transactionInfoFromCache);
 	}
 

@@ -39,9 +39,7 @@ namespace catapult { namespace observers {
 			using NotificationBuilder = test::ProofNotificationBuilder;
 			using ObserverTestContext = observers::ObserverTestContext;
 
-			static constexpr auto ReceiptType() {
-				return model::Receipt_Type_LockSecret_Completed;
-			}
+			static constexpr auto Receipt_Type = model::Receipt_Type_LockSecret_Completed;
 
 			static auto CreateObserver() {
 				return CreateProofObserver();

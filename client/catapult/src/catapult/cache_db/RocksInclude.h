@@ -19,19 +19,9 @@
 **/
 
 #pragma once
-
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4100) /* unreferenced formal parameter */
-#endif
-
 #include <rocksdb/compaction_filter.h>
 #include <rocksdb/db.h>
 #include <rocksdb/write_batch.h>
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 namespace catapult { namespace cache {
 

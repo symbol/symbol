@@ -26,8 +26,7 @@
 namespace catapult { namespace ionet {
 
 	/// Calculates the data size of \a packet.
-	CATAPULT_INLINE
-	size_t CalculatePacketDataSize(const Packet& packet) {
+	inline size_t CalculatePacketDataSize(const Packet& packet) {
 		constexpr auto Min_Size = sizeof(PacketHeader);
 		if (packet.Size <= Min_Size) {
 			if (packet.Size < Min_Size)

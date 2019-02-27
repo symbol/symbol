@@ -37,6 +37,12 @@ namespace catapult { namespace state {
 
 	// region raw serialization
 
+#ifdef _MSC_VER
+#define MAY_ALIAS
+#else
+#define MAY_ALIAS __attribute__((may_alias))
+#endif
+
 	namespace {
 #pragma pack(push, 1)
 

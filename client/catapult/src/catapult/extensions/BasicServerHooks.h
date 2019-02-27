@@ -42,26 +42,12 @@ namespace catapult { namespace extensions {
 		return func;
 	}
 
-#ifdef __clang__
-#pragma clang diagnostic push
-
-#if __has_warning("-Wunused-template")
-#pragma clang diagnostic ignored "-Wunused-template"
-#endif
-
-#endif
-
 	/// Aggregates multiple \a consumers into a single consumer.
 	template<typename TConsumer>
-	static TConsumer AggregateConsumers(const std::vector<TConsumer>& consumers) {
+	TConsumer AggregateConsumers(const std::vector<TConsumer>& consumers) {
 		return [consumers](const auto& data) {
 			for (const auto& consumer : consumers)
 				consumer(data);
 		};
 	}
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
 }}

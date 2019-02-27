@@ -28,7 +28,7 @@ namespace catapult {
 		class Node;
 		class PacketIo;
 	}
-	namespace thread { class IoServiceThreadPool; }
+	namespace thread { class IoThreadPool; }
 }
 
 namespace catapult { namespace tools {
@@ -41,13 +41,13 @@ namespace catapult { namespace tools {
 	PacketIoFuture ConnectToLocalNode(
 			const crypto::KeyPair& clientKeyPair,
 			const Key& serverPublicKey,
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool);
+			const std::shared_ptr<thread::IoThreadPool>& pPool);
 
 	/// Connects to \a node as a client with \a clientKeyPair using \a pPool.
 	PacketIoFuture ConnectToNode(
 			const crypto::KeyPair& clientKeyPair,
 			const ionet::Node& node,
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool);
+			const std::shared_ptr<thread::IoThreadPool>& pPool);
 
 	/// Helper class for connecting to multiple nodes.
 	class MultiNodeConnector {
@@ -60,7 +60,7 @@ namespace catapult { namespace tools {
 
 	public:
 		/// Gets the underlying pool used by the connector.
-		thread::IoServiceThreadPool& pool();
+		thread::IoThreadPool& pool();
 
 	public:
 		/// Connects to \a node.
@@ -68,6 +68,6 @@ namespace catapult { namespace tools {
 
 	private:
 		crypto::KeyPair m_clientKeyPair;
-		std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+		std::shared_ptr<thread::IoThreadPool> m_pPool;
 	};
 }}

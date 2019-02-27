@@ -25,14 +25,10 @@
 namespace catapult { namespace timesync { namespace filters {
 
 	/// Start value for the maximum tolerated deviation in ms.
-	constexpr auto ToleratedDeviationStart() {
-		return utils::TimeSpan::FromMinutes(120);
-	}
+	constexpr auto Tolerated_Deviation_Start = utils::TimeSpan::FromMinutes(120);
 
 	/// Minimum value for the maximum tolerated deviation in ms.
-	constexpr auto ToleratedDeviationMinimum() {
-		return utils::TimeSpan::FromMinutes(1);
-	}
+	constexpr auto Tolerated_Deviation_Minimum = utils::TimeSpan::FromMinutes(1);
 
 	/// Value that indicates after which round the decay starts.
 	constexpr int64_t Start_Decay_After_Round = 5;

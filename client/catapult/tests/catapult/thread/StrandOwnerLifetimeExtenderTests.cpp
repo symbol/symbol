@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/thread/StrandOwnerLifetimeExtender.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
 
@@ -52,16 +52,16 @@ namespace catapult { namespace thread {
 
 		struct TestContext {
 		public:
-			std::shared_ptr<IoServiceThreadPool> pPool;
-			boost::asio::strand Strand;
+			std::shared_ptr<IoThreadPool> pPool;
+			boost::asio::io_context::strand Strand;
 			std::shared_ptr<Owner> pOwner;
 			ExtenderType Extender;
 			BreadcrumbsType Breadcrumbs;
 
 		public:
 			TestContext()
-					: pPool(test::CreateStartedIoServiceThreadPool())
-					, Strand(boost::asio::strand(pPool->service()))
+					: pPool(test::CreateStartedIoThreadPool())
+					, Strand(boost::asio::io_context::strand(pPool->ioContext()))
 					, pOwner(std::make_shared<Owner>(Breadcrumbs))
 					, Extender(Strand)
 			{}

@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/ionet/IoTypes.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
 #include "tests/test/core/WaitFunctions.h"
@@ -29,35 +29,35 @@
 
 namespace catapult { namespace thread {
 
-#define TEST_CLASS IoServiceThreadPoolTests
+#define TEST_CLASS IoThreadPoolTests
 
 	namespace {
 		const uint32_t Num_Default_Threads = test::GetNumDefaultPoolThreads();
 
-		auto CreateDefaultIoServiceThreadPool() {
-			return CreateIoServiceThreadPool(Num_Default_Threads);
+		auto CreateDefaultIoThreadPool() {
+			return CreateIoThreadPool(Num_Default_Threads);
 		}
 	}
 
 	TEST(TEST_CLASS, CanCreateThreadPoolWithDefaultName) {
 		// Act: set up a pool with a default name
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 
 		// Assert:
-		EXPECT_EQ("IoServiceThreadPool", pPool->tag());
+		EXPECT_EQ("IoThreadPool", pPool->tag());
 	}
 
 	TEST(TEST_CLASS, CanCreateThreadPoolWithCustomName) {
 		// Act: set up a pool with a custom name
-		auto pPool = CreateIoServiceThreadPool(Num_Default_Threads, "Crazy Amazing");
+		auto pPool = CreateIoThreadPool(Num_Default_Threads, "Crazy Amazing");
 
 		// Assert:
-		EXPECT_EQ("Crazy Amazing IoServiceThreadPool", pPool->tag());
+		EXPECT_EQ("Crazy Amazing IoThreadPool", pPool->tag());
 	}
 
 	TEST(TEST_CLASS, ConstructorDoesNotCreateAnyThreads) {
 		// Act: set up a pool
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 
 		// Assert:
 		EXPECT_EQ(0u, pPool->numWorkerThreads());
@@ -65,7 +65,7 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, StartSpawnsSpecifiedNumberOfWorkerThreads) {
 		// Act: set up a pool
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 		pPool->start();
 
 		// Assert: all threads have been spawned
@@ -74,7 +74,7 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, JoinDestroysAllWorkerThreads) {
 		// Arrange: set up a pool
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 		pPool->start();
 
 		// Act: stop the pool
@@ -86,7 +86,7 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, JoinIsIdempotent) {
 		// Arrange: set up a pool
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 		pPool->start();
 
 		// Act: stop the pool
@@ -99,7 +99,7 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, PoolCanBeRestarted) {
 		// Arrange: set up a pool
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 		pPool->start();
 
 		// Act: restart the pool
@@ -112,7 +112,7 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, PoolCannotBeRestartedWhenRunning) {
 		// Arrange: set up a pool
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 		pPool->start();
 
 		// Act + Assert: restart the pool
@@ -121,14 +121,14 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, JoinDoesNotAbortThreads) {
 		// Arrange: set up a pool
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 		pPool->start();
 
 		// - post some work on it
 		std::atomic<uint32_t> numWaits(0);
 		std::atomic<uint32_t> maxWaits(10000);
 		std::atomic_bool isHandlerExecuting(false);
-		pPool->service().post([&]() {
+		boost::asio::post(pPool->ioContext(), [&]() {
 			isHandlerExecuting = true;
 			while (numWaits < maxWaits) {
 				test::Sleep(1);
@@ -153,13 +153,13 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, PoolCanServeMoreRequestsThanWorkerThreads) {
 		// Arrange: set up a pool
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 		pPool->start();
 
 		// - post 100 work items on the pool
 		std::atomic<uint32_t> numHandlerCalls(0);
 		for (auto i = 0u; i < 100; ++i)
-			pPool->service().post([&]() { ++numHandlerCalls; });
+			boost::asio::post(pPool->ioContext(), [&]() { ++numHandlerCalls; });
 
 		// Act: stop the pool
 		pPool->join();
@@ -178,13 +178,13 @@ namespace catapult { namespace thread {
 		// Assert: if an exception bubbles out of thread pool work, program termination is expected
 		ASSERT_DEATH([]() {
 			// Arrange: set up a pool
-			auto pPool = CreateDefaultIoServiceThreadPool();
+			auto pPool = CreateDefaultIoThreadPool();
 			pPool->start();
 
 			// - cause one work item to except
 			std::atomic<uint32_t> numHandlerCalls(0);
 			for (auto i = 0u; i < 10; ++i) {
-				pPool->service().post([&]() {
+				boost::asio::post(pPool->ioContext(), [&]() {
 					if (7u == ++numHandlerCalls)
 						CATAPULT_THROW_RUNTIME_ERROR("exception from thread pool thread");
 				});
@@ -204,7 +204,7 @@ namespace catapult { namespace thread {
 
 		class AbstractBlockingWork {
 		public:
-			explicit AbstractBlockingWork(IoServiceThreadPool& pool, const test::WaitFunction& wait)
+			explicit AbstractBlockingWork(IoThreadPool& pool, const test::WaitFunction& wait)
 					: m_pool(pool)
 					, m_wait(wait)
 					, m_shouldWait(true)
@@ -227,9 +227,9 @@ namespace catapult { namespace thread {
 			}
 
 			void postOne() {
-				m_pool.service().post([this]() {
+				boost::asio::post(m_pool.ioContext(), [this]() {
 					++m_numHandlerCalls;
-					this->m_wait(m_pool.service(), [this]() { return m_shouldWait.load(); });
+					this->m_wait(m_pool.ioContext(), [this]() { return m_shouldWait.load(); });
 				});
 			}
 
@@ -245,7 +245,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			IoServiceThreadPool& m_pool;
+			IoThreadPool& m_pool;
 			test::WaitFunction m_wait;
 			std::atomic_bool m_shouldWait;
 			std::atomic<uint32_t> m_numHandlerCalls;
@@ -253,14 +253,14 @@ namespace catapult { namespace thread {
 
 		class BlockingWork : public AbstractBlockingWork {
 		public:
-			explicit BlockingWork(IoServiceThreadPool& pool)
+			explicit BlockingWork(IoThreadPool& pool)
 					: AbstractBlockingWork(pool, test::CreateSyncWaitFunction(Wait_Duration_Millis))
 			{}
 		};
 
 		class NonBlockingWork : public AbstractBlockingWork {
 		public:
-			explicit NonBlockingWork(IoServiceThreadPool& pool)
+			explicit NonBlockingWork(IoThreadPool& pool)
 					: AbstractBlockingWork(pool, test::CreateAsyncWaitFunction(Wait_Duration_Millis))
 			{}
 		};
@@ -268,7 +268,7 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, PoolWorkerThreadsCannotServiceAdditionalRequestsWhenHandlersWaitBlocking) {
 		// Arrange: set up a pool
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 
 		// - post 2X work items on the pool (blocking)
 		BlockingWork work(*pPool);
@@ -288,7 +288,7 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, PoolWorkerThreadsCanServiceAdditionalRequestsWhenHandlersWaitNonBlocking) {
 		// Arrange: set up a pool
-		auto pPool = CreateDefaultIoServiceThreadPool();
+		auto pPool = CreateDefaultIoThreadPool();
 
 		// - post 2X work items on the pool (non blocking)
 		NonBlockingWork work(*pPool);

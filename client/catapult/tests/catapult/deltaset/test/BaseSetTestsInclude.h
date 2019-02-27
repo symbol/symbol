@@ -73,7 +73,7 @@ namespace catapult { namespace test {
 	/// Returns \c true if container is a map.
 	template<typename T>
 	bool IsMap(const T&) {
-		return utils::traits::is_map<T>::value;
+		return utils::traits::is_map_v<T>;
 	}
 
 	// endregion
@@ -122,7 +122,7 @@ namespace catapult { namespace test {
 	struct BatchElementFactory : public ElementFactory<typename TBaseSetTraits::ElementType> {
 		using BaseType = ElementFactory<typename TBaseSetTraits::ElementType>;
 		using ElementType = typename BaseType::ElementType;
-		using ElementVector = std::vector<typename std::remove_const<ElementType>::type>;
+		using ElementVector = std::vector<std::remove_const_t<ElementType>>;
 
 		static ElementVector CreateElements(size_t count) {
 			ElementVector elements;

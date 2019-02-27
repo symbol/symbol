@@ -47,7 +47,7 @@ namespace catapult { namespace mocks {
 		// storage already contains nemesis block (height 1)
 		for (auto i = 2u; i <= numBlocks; ++i) {
 			model::Block block;
-			block.Size = sizeof(model::Block);
+			block.Size = sizeof(model::BlockHeader);
 			block.Height = Height(i);
 			pStorage->saveBlock(test::BlockToBlockElement(block));
 		}

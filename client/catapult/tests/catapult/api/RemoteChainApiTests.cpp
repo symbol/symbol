@@ -29,14 +29,14 @@ namespace catapult { namespace api {
 
 	namespace {
 		std::shared_ptr<ionet::Packet> CreatePacketWithBlocks(uint32_t numBlocks, Height startHeight) {
-			uint32_t payloadSize = numBlocks * sizeof(model::Block);
+			uint32_t payloadSize = numBlocks * sizeof(model::BlockHeader);
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			test::FillWithRandomData({ pPacket->Data(), payloadSize });
 
 			auto pData = pPacket->Data();
-			for (auto i = 0u; i < numBlocks; ++i, pData += sizeof(model::Block)) {
+			for (auto i = 0u; i < numBlocks; ++i, pData += sizeof(model::BlockHeader)) {
 				auto& block = reinterpret_cast<model::Block&>(*pData);
-				block.Size = sizeof(model::Block);
+				block.Size = sizeof(model::BlockHeader);
 				block.Type = model::Entity_Type_Block;
 				block.Height = startHeight + Height(i);
 			}
@@ -78,10 +78,10 @@ namespace catapult { namespace api {
 		};
 
 		struct HashesFromTraits {
-			static constexpr Height RequestHeight() { return Height(521); }
+			static constexpr auto Request_Height = Height(521);
 
 			static auto Invoke(const ChainApi& api) {
-				return api.hashesFrom(RequestHeight(), 123);
+				return api.hashesFrom(Request_Height, 123);
 			}
 
 			static auto CreateValidResponsePacket(uint32_t payloadSize = 3u * sizeof(Hash256)) {
@@ -99,7 +99,7 @@ namespace catapult { namespace api {
 			static void ValidateRequest(const ionet::Packet& packet) {
 				const auto* pRequest = ionet::CoercePacket<BlockHashesRequest>(&packet);
 				ASSERT_TRUE(!!pRequest);
-				EXPECT_EQ(RequestHeight(), pRequest->Height);
+				EXPECT_EQ(Request_Height, pRequest->Height);
 				EXPECT_EQ(123u, pRequest->NumHashes);
 			}
 
@@ -117,7 +117,7 @@ namespace catapult { namespace api {
 		};
 
 		struct BlockLastInvoker {
-			static constexpr Height RequestHeight() { return Height(0); }
+			static constexpr auto Request_Height = Height(0);
 
 			static auto Invoke(const RemoteChainApi& api) {
 				return api.blockLast();
@@ -125,17 +125,17 @@ namespace catapult { namespace api {
 		};
 
 		struct BlockAtInvoker {
-			static constexpr Height RequestHeight() { return Height(728); }
+			static constexpr auto Request_Height = Height(728);
 
 			static auto Invoke(const RemoteChainApi& api) {
-				return api.blockAt(RequestHeight());
+				return api.blockAt(Request_Height);
 			}
 		};
 
 		template<typename TInvoker>
 		struct BlockAtTraitsT : public TInvoker {
 			static auto CreateValidResponsePacket(uint32_t numBlocks = 1) {
-				auto pResponsePacket = CreatePacketWithBlocks(numBlocks, TInvoker::RequestHeight());
+				auto pResponsePacket = CreatePacketWithBlocks(numBlocks, TInvoker::Request_Height);
 				pResponsePacket->Type = ionet::PacketType::Pull_Block;
 				return pResponsePacket;
 			}
@@ -148,13 +148,13 @@ namespace catapult { namespace api {
 			static void ValidateRequest(const ionet::Packet& packet) {
 				const auto* pRequest = ionet::CoercePacket<PullBlockRequest>(&packet);
 				ASSERT_TRUE(!!pRequest);
-				EXPECT_EQ(TInvoker::RequestHeight(), pRequest->Height);
+				EXPECT_EQ(TInvoker::Request_Height, pRequest->Height);
 			}
 
 			static void ValidateResponse(const ionet::Packet& response, const std::shared_ptr<const model::Block>& pBlock) {
 				ASSERT_EQ(response.Size - sizeof(ionet::Packet), pBlock->Size);
-				ASSERT_EQ(sizeof(model::Block), pBlock->Size);
-				EXPECT_EQ(TInvoker::RequestHeight(), pBlock->Height);
+				ASSERT_EQ(sizeof(model::BlockHeader), pBlock->Size);
+				EXPECT_EQ(TInvoker::Request_Height, pBlock->Height);
 				EXPECT_EQ_MEMORY(response.Data(), pBlock.get(), pBlock->Size);
 			}
 		};
@@ -163,14 +163,14 @@ namespace catapult { namespace api {
 		using BlockAtTraits = BlockAtTraitsT<BlockAtInvoker>;
 
 		struct BlocksFromTraits {
-			static constexpr Height RequestHeight() { return Height(823); }
+			static constexpr auto Request_Height = Height(823);
 
 			static auto Invoke(const RemoteChainApi& api) {
-				return api.blocksFrom(RequestHeight(), { 200, 1024 });
+				return api.blocksFrom(Request_Height, { 200, 1024 });
 			}
 
 			static auto CreateValidResponsePacket() {
-				auto pResponsePacket = CreatePacketWithBlocks(3, RequestHeight());
+				auto pResponsePacket = CreatePacketWithBlocks(3, Request_Height);
 				pResponsePacket->Type = ionet::PacketType::Pull_Blocks;
 				return pResponsePacket;
 			}
@@ -185,7 +185,7 @@ namespace catapult { namespace api {
 			static void ValidateRequest(const ionet::Packet& packet) {
 				const auto* pRequest = ionet::CoercePacket<PullBlocksRequest>(&packet);
 				ASSERT_TRUE(!!pRequest);
-				EXPECT_EQ(RequestHeight(), pRequest->Height);
+				EXPECT_EQ(Request_Height, pRequest->Height);
 				EXPECT_EQ(200u, pRequest->NumBlocks);
 				EXPECT_EQ(1024u, pRequest->NumResponseBytes);
 			}
@@ -200,7 +200,7 @@ namespace catapult { namespace api {
 					const auto& expectedBlock = reinterpret_cast<const model::Block&>(*pData);
 					const auto& actualBlock = *iter;
 					ASSERT_EQ(expectedBlock.Size, actualBlock.Size) << message;
-					EXPECT_EQ(RequestHeight() + Height(i), actualBlock.Height) << message;
+					EXPECT_EQ(Request_Height + Height(i), actualBlock.Height) << message;
 					EXPECT_EQ(expectedBlock, actualBlock) << message;
 					++iter;
 					pData += expectedBlock.Size;

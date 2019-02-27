@@ -170,7 +170,7 @@ namespace catapult { namespace crypto {
 		ge_double_scalarmult_vartime(&R, h.data(), &A, encodedS);
 
 		// Compare calculated R to given R.
-		unsigned char checkr[Encoded_Size];
+		uint8_t checkr[Encoded_Size];
 		ge_tobytes(checkr, &R);
 		return 0 == crypto_verify_32(checkr, encodedR);
 	}

@@ -19,8 +19,9 @@
 **/
 
 #include "catapult/thread/Scheduler.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/SchedulerTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/WaitFunctions.h"
@@ -64,7 +65,7 @@ namespace catapult { namespace thread {
 
 		class PoolSchedulerPair {
 		public:
-			explicit PoolSchedulerPair(const std::shared_ptr<IoServiceThreadPool>& pPool)
+			explicit PoolSchedulerPair(const std::shared_ptr<IoThreadPool>& pPool)
 					: m_pPool(pPool)
 					, m_pScheduler(CreateScheduler(pPool))
 			{}
@@ -93,15 +94,12 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			std::shared_ptr<IoServiceThreadPool> m_pPool;
+			std::shared_ptr<IoThreadPool> m_pPool;
 			std::shared_ptr<Scheduler> m_pScheduler;
-
-		public:
-			PoolSchedulerPair(PoolSchedulerPair&& rhs) = default;
 		};
 
 		PoolSchedulerPair CreateScheduler() {
-			return PoolSchedulerPair(test::CreateStartedIoServiceThreadPool());
+			return PoolSchedulerPair(test::CreateStartedIoThreadPool());
 		}
 
 		// region [Scheduler|Blocking|NonBlocking]Work
@@ -112,10 +110,10 @@ namespace catapult { namespace thread {
 		private:
 			class State : public std::enable_shared_from_this<State> {
 			public:
-				State(const test::WaitFunction& wait, WaitStrategy waitStrategy, boost::asio::io_service& service)
+				State(const test::WaitFunction& wait, WaitStrategy waitStrategy, boost::asio::io_context& ioContext)
 						: m_wait(wait)
 						, m_waitStrategy(waitStrategy)
-						, m_service(service)
+						, m_ioContext(ioContext)
 						, m_isPostingWork(false)
 						, m_shouldWait(true)
 				{}
@@ -131,7 +129,7 @@ namespace catapult { namespace thread {
 
 				future<TaskResult> wait() {
 					auto pPromise = std::make_shared<promise<TaskResult>>();
-					m_wait(m_service, [pThis = shared_from_this(), pPromise]() {
+					m_wait(m_ioContext, [pThis = shared_from_this(), pPromise]() {
 						if (pThis->shouldWait())
 							return true;
 
@@ -151,15 +149,15 @@ namespace catapult { namespace thread {
 			private:
 				test::WaitFunction m_wait;
 				WaitStrategy m_waitStrategy;
-				boost::asio::io_service& m_service;
+				boost::asio::io_context& m_ioContext;
 				std::atomic_bool m_isPostingWork;
 				std::atomic_bool m_shouldWait;
 			};
 
 		public:
 			explicit SchedulerWork(const test::WaitFunction& wait, WaitStrategy waitStrategy)
-					: m_pPool(test::CreateStartedIoServiceThreadPool(1))
-					, m_pState(std::make_shared<State>(wait, waitStrategy, m_pPool->service()))
+					: m_pPool(test::CreateStartedIoThreadPool(1))
+					, m_pState(std::make_shared<State>(wait, waitStrategy, m_pPool->ioContext()))
 			{}
 
 			~SchedulerWork() {
@@ -193,7 +191,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			std::unique_ptr<IoServiceThreadPool> m_pPool;
+			std::unique_ptr<IoThreadPool> m_pPool;
 			std::shared_ptr<State> m_pState;
 		};
 
@@ -293,12 +291,12 @@ namespace catapult { namespace thread {
 			std::atomic<uint32_t> numWaits(0);
 			std::atomic<uint32_t> maxWaits(10000);
 
-			auto pPool = std::shared_ptr<IoServiceThreadPool>(test::CreateStartedIoServiceThreadPool(1));
+			auto pPool = utils::UniqueToShared(test::CreateStartedIoThreadPool(1));
 			auto pScheduler = CreateScheduler();
 			auto task = CreateImmediateTask([&, wait, pPool]() {
 				isAccepted = true;
 				auto pPromise = std::make_shared<promise<TaskResult>>();
-				wait(pPool->service(), [&, pPromise]() {
+				wait(pPool->ioContext(), [&, pPromise]() {
 					if (numWaits < maxWaits) {
 						++numWaits;
 						return true;
@@ -479,12 +477,12 @@ namespace catapult { namespace thread {
 		}
 
 		Task CreateContinuousAsyncTaskWithCounter(
-				boost::asio::io_service& service,
+				boost::asio::io_context& ioContext,
 				uint32_t startDelayMs,
 				uint32_t repeatDelayMs,
 				uint32_t callbackDelayMs,
 				std::atomic<uint32_t>& counter) {
-			auto pTimer = std::make_shared<boost::asio::steady_timer>(service);
+			auto pTimer = std::make_shared<boost::asio::steady_timer>(ioContext);
 			return CreateContinuousTaskWithCounterAndSleep(startDelayMs, repeatDelayMs, counter, [callbackDelayMs, pTimer]() {
 				auto pPromise = std::make_shared<promise<TaskResult>>();
 				pTimer->expires_from_now(std::chrono::milliseconds(callbackDelayMs));
@@ -600,11 +598,11 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, RepeatDelayIsRelativeToCallbackTime_NonBlocking) {
 		// Arrange: create pool here so that current thread joins the pool (in the pool destructor)
-		auto pPool = test::CreateStartedIoServiceThreadPool(1);
+		auto pPool = test::CreateStartedIoThreadPool(1);
 
 		// Assert:
 		AssertRepeatDelayIsRelativeToCallbackTime([&pPool](auto startDelayMs, auto repeatDelayMs, auto callbackDelayMs, auto& counter) {
-			return CreateContinuousAsyncTaskWithCounter(pPool->service(), startDelayMs, repeatDelayMs, callbackDelayMs, counter);
+			return CreateContinuousAsyncTaskWithCounter(pPool->ioContext(), startDelayMs, repeatDelayMs, callbackDelayMs, counter);
 		});
 	}
 

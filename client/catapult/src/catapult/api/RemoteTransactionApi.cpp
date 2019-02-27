@@ -32,11 +32,11 @@ namespace catapult { namespace api {
 		struct UtTraits : public RegistryDependentTraits<model::Transaction> {
 		public:
 			using ResultType = model::TransactionRange;
-			static constexpr auto PacketType() { return ionet::PacketType::Pull_Transactions; }
-			static constexpr auto FriendlyName() { return "pull unconfirmed transactions"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Pull_Transactions;
+			static constexpr auto Friendly_Name = "pull unconfirmed transactions";
 
 			static auto CreateRequestPacketPayload(BlockFeeMultiplier minFeeMultiplier, model::ShortHashRange&& knownShortHashes) {
-				ionet::PacketPayloadBuilder builder(PacketType());
+				ionet::PacketPayloadBuilder builder(Packet_Type);
 				builder.appendValue(minFeeMultiplier);
 				builder.appendRange(std::move(knownShortHashes));
 				return builder.build();

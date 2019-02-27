@@ -20,7 +20,7 @@
 
 #include "Scheduler.h"
 #include "FutureUtils.h"
-#include "IoServiceThreadPool.h"
+#include "IoThreadPool.h"
 #include "StrandOwnerLifetimeExtender.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/utils/WeakContainer.h"
@@ -39,10 +39,10 @@ namespace catapult { namespace thread {
 		template<typename TCallbackWrapper>
 		class BasicTaskWrapper {
 		public:
-			BasicTaskWrapper(boost::asio::io_service& service, const Task& task, TCallbackWrapper& wrapper)
+			BasicTaskWrapper(boost::asio::io_context& ioContext, const Task& task, TCallbackWrapper& wrapper)
 					: m_task(task)
 					, m_wrapper(wrapper)
-					, m_timer(service, ToMillis(task.StartDelay))
+					, m_timer(ioContext, ToMillis(task.StartDelay))
 					, m_isStopped(false) {
 				CATAPULT_LOG(debug) << "task '" << m_task.Name << "' is scheduled in " << task.StartDelay;
 			}
@@ -101,10 +101,10 @@ namespace catapult { namespace thread {
 		/// enable_shared_from_this.
 		class StrandedTaskWrapper : public std::enable_shared_from_this<StrandedTaskWrapper> {
 		public:
-			StrandedTaskWrapper(boost::asio::io_service& service, const Task& task)
-					: m_strand(service)
+			StrandedTaskWrapper(boost::asio::io_context& ioContext, const Task& task)
+					: m_strand(ioContext)
 					, m_strandWrapper(m_strand)
-					, m_impl(service, task, *this)
+					, m_impl(ioContext, task, *this)
 			{}
 
 		public:
@@ -140,7 +140,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			boost::asio::strand m_strand;
+			boost::asio::io_context::strand m_strand;
 			StrandOwnerLifetimeExtender<StrandedTaskWrapper> m_strandWrapper;
 			BasicTaskWrapper<StrandedTaskWrapper> m_impl;
 		};
@@ -149,9 +149,9 @@ namespace catapult { namespace thread {
 				: public Scheduler
 				, public std::enable_shared_from_this<DefaultScheduler> {
 		public:
-			explicit DefaultScheduler(const std::shared_ptr<IoServiceThreadPool>& pPool)
+			explicit DefaultScheduler(const std::shared_ptr<IoThreadPool>& pPool)
 					: m_pPool(pPool)
-					, m_service(pPool->service())
+					, m_ioContext(pPool->ioContext())
 					, m_numExecutingTaskCallbacks(0)
 					, m_isStopped(false)
 					, m_tasks([](auto& task) { task.stop(); })
@@ -185,7 +185,7 @@ namespace catapult { namespace thread {
 					});
 				};
 
-				auto pTask = std::make_shared<StrandedTaskWrapper>(m_service, taskCopy);
+				auto pTask = std::make_shared<StrandedTaskWrapper>(m_ioContext, taskCopy);
 				m_tasks.insert(pTask);
 				pTask->start();
 			}
@@ -201,8 +201,8 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			std::shared_ptr<const IoServiceThreadPool> m_pPool;
-			boost::asio::io_service& m_service;
+			std::shared_ptr<const IoThreadPool> m_pPool;
+			boost::asio::io_context& m_ioContext;
 
 			std::atomic<uint32_t> m_numExecutingTaskCallbacks;
 			std::atomic_bool m_isStopped;
@@ -210,7 +210,7 @@ namespace catapult { namespace thread {
 		};
 	}
 
-	std::shared_ptr<Scheduler> CreateScheduler(const std::shared_ptr<IoServiceThreadPool>& pPool) {
+	std::shared_ptr<Scheduler> CreateScheduler(const std::shared_ptr<IoThreadPool>& pPool) {
 		auto pScheduler = std::make_shared<DefaultScheduler>(pPool);
 		return std::move(pScheduler);
 	}

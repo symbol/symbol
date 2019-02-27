@@ -24,7 +24,7 @@
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/VerifyPeer.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/TimeSpan.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/KeyPairTestUtils.h"
@@ -42,7 +42,7 @@ namespace catapult { namespace net {
 		const auto Default_Timeout = []() { return utils::TimeSpan::FromMinutes(1); }();
 
 		auto CreateDefaultPacketWriters() {
-			return CreatePacketWriters(test::CreateStartedIoServiceThreadPool(), test::GenerateKeyPair(), ConnectionSettings());
+			return CreatePacketWriters(test::CreateStartedIoThreadPool(), test::GenerateKeyPair(), ConnectionSettings());
 		}
 
 		void EmptyReadCallback(ionet::SocketOperationCode, const ionet::Packet*)
@@ -55,8 +55,8 @@ namespace catapult { namespace net {
 		public:
 			PacketWritersTestContext(size_t numClientKeyPairs = 1)
 					: ServerKeyPair(test::GenerateKeyPair())
-					, pPool(test::CreateStartedIoServiceThreadPool())
-					, Service(pPool->service())
+					, pPool(test::CreateStartedIoThreadPool())
+					, IoContext(pPool->ioContext())
 					, pWriters(CreatePacketWriters(pPool, ServerKeyPair, ConnectionSettings())) {
 				for (auto i = 0u; i < numClientKeyPairs; ++i)
 					ClientKeyPairs.push_back(test::GenerateKeyPair());
@@ -75,8 +75,8 @@ namespace catapult { namespace net {
 		public:
 			crypto::KeyPair ServerKeyPair; // the server hosting the PacketWriters instance
 			std::vector<crypto::KeyPair> ClientKeyPairs; // accepted clients forwarded to the server AND/OR connections initiated by server
-			std::shared_ptr<thread::IoServiceThreadPool> pPool;
-			boost::asio::io_service& Service;
+			std::shared_ptr<thread::IoThreadPool> pPool;
+			boost::asio::io_context& IoContext;
 			std::shared_ptr<PacketWriters> pWriters;
 
 		public:
@@ -144,7 +144,7 @@ namespace catapult { namespace net {
 		MultiConnectionState SetupMultiConnectionTest(const PacketWritersTestContext& context, size_t numExpectedWriters = 0) {
 			// Act: start multiple server and client verify operations
 			MultiConnectionState state;
-			test::TcpAcceptor acceptor(context.Service);
+			test::TcpAcceptor acceptor(context.IoContext);
 
 			auto numConnections = context.ClientKeyPairs.size();
 			for (auto i = 0u; i < numConnections; ++i) {
@@ -176,7 +176,7 @@ namespace catapult { namespace net {
 		MultiConnectionState SetupMultiConnectionAcceptTest(const PacketWritersTestContext& context, size_t numExpectedWriters = 0) {
 			// Act: start multiple server and client verify operations
 			MultiConnectionState state;
-			test::TcpAcceptor acceptor(context.Service);
+			test::TcpAcceptor acceptor(context.IoContext);
 
 			auto numConnections = context.ClientKeyPairs.size();
 			for (auto i = 0u; i < numConnections; ++i) {
@@ -190,7 +190,7 @@ namespace catapult { namespace net {
 				});
 
 				bool isServerVerified = false;
-				test::SpawnPacketClientWork(context.Service, [&, i](const auto& pSocket) {
+				test::SpawnPacketClientWork(context.IoContext, [&, i](const auto& pSocket) {
 					state.ClientSockets.push_back(pSocket);
 					auto serverPeerInfo = VerifiedPeerInfo{ context.ServerKeyPair.publicKey(), ionet::ConnectionSecurityMode::None };
 					VerifyServer(pSocket, serverPeerInfo, context.ClientKeyPairs[i], [&](auto result, const auto&) {
@@ -277,7 +277,7 @@ namespace catapult { namespace net {
 
 		// Act: start a server and client verify operation
 		PeerConnectResult result;
-		test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) {
+		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
 			// - trigger a verify error by closing the socket without responding
 			pSocket->close();
 			++numCallbacks;
@@ -304,14 +304,14 @@ namespace catapult { namespace net {
 
 		// Act: start a server and client verify operation
 		PeerConnectResult result;
-		test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) {
+		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
 			context.pWriters->accept(pSocket, [&](auto acceptResult) {
 				result = acceptResult;
 				++numCallbacks;
 			});
 		});
 
-		test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
+		test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
 			// - trigger a verify error by closing the socket without responding
 			pSocket->close();
 			++numCallbacks;
@@ -501,7 +501,7 @@ namespace catapult { namespace net {
 
 			// Act: start a verify operation that the server does not respond to
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) {
+			test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
 				pServerSocket = pSocket;
 				++numCallbacks;
 			});
@@ -532,7 +532,7 @@ namespace catapult { namespace net {
 			//      (use a result shared_ptr so that the accept callback is valid even after this function returns)
 			auto pResult = std::make_shared<PeerConnectResult>(static_cast<PeerConnectCode>(-1));
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(context.Service, [&, pResult](const auto& pSocket) {
+			test::SpawnPacketServerWork(context.IoContext, [&, pResult](const auto& pSocket) {
 				pServerSocket = pSocket;
 				context.pWriters->accept(pSocket, [&, pResult](const auto& acceptResult) {
 					// note that this is not expected to get called until shutdown because the client doesn't read
@@ -543,7 +543,7 @@ namespace catapult { namespace net {
 			});
 
 			std::shared_ptr<ionet::PacketSocket> pClientSocket;
-			test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
+			test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
 				pClientSocket = pSocket;
 				++numCallbacks;
 			});
@@ -564,7 +564,7 @@ namespace catapult { namespace net {
 		test::RunNonDeterministicTest("numActiveConnections includes connecting connections", []() {
 			// Arrange: start a verify operation that the server does not respond to
 			PacketWritersTestContext context;
-			test::SpawnPacketServerWork(context.Service, [](const auto&) {});
+			test::SpawnPacketServerWork(context.IoContext, [](const auto&) {});
 
 			// Act: start a connect
 			context.pWriters->connect(context.serverNode(), [](auto) {
@@ -1206,7 +1206,7 @@ namespace catapult { namespace net {
 
 		// - pick a third socket
 		//   (use WaitFor because the completion handler triggered by the release of pIo2 is invoked after some
-		//    delay because it is posted onto a threadpool)
+		//    delay because it is posted onto a thread pool)
 		decltype(pIo1) pIo3;
 		WAIT_FOR_EXPR(!!(pIo3 = writers.pickOne(Default_Timeout).io()));
 

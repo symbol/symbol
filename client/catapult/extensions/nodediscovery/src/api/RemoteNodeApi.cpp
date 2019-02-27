@@ -30,11 +30,11 @@ namespace catapult { namespace api {
 		struct NodeInfoTraits {
 		public:
 			using ResultType = ionet::Node;
-			static constexpr auto PacketType() { return ionet::PacketType::Node_Discovery_Pull_Ping; }
-			static constexpr auto FriendlyName() { return "node info"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Node_Discovery_Pull_Ping;
+			static constexpr auto Friendly_Name = "node info";
 
 			static auto CreateRequestPacketPayload() {
-				return ionet::PacketPayload(PacketType());
+				return ionet::PacketPayload(Packet_Type);
 			}
 
 		public:
@@ -46,11 +46,11 @@ namespace catapult { namespace api {
 		struct PeersInfoTraits {
 		public:
 			using ResultType = ionet::NodeSet;
-			static constexpr auto PacketType() { return ionet::PacketType::Node_Discovery_Pull_Peers; }
-			static constexpr auto FriendlyName() { return "peers info"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Node_Discovery_Pull_Peers;
+			static constexpr auto Friendly_Name = "peers info";
 
 			static auto CreateRequestPacketPayload() {
-				return ionet::PacketPayload(PacketType());
+				return ionet::PacketPayload(Packet_Type);
 			}
 
 		public:

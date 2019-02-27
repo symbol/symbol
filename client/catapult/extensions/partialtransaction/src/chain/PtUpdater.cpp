@@ -25,7 +25,7 @@
 #include "catapult/cache/MemoryPtCache.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/thread/FutureUtils.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/ArraySet.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/MemoryUtils.h"
@@ -125,7 +125,7 @@ namespace catapult { namespace chain {
 				std::unique_ptr<const PtValidator>&& pValidator,
 				const CompletedTransactionSink& completedTransactionSink,
 				const FailedTransactionSink& failedTransactionSink,
-				const std::shared_ptr<thread::IoServiceThreadPool>& pPool)
+				const std::shared_ptr<thread::IoThreadPool>& pPool)
 				: m_transactionsCache(transactionsCache)
 				, m_pValidator(std::move(pValidator))
 				, m_completedTransactionSink(completedTransactionSink)
@@ -167,7 +167,7 @@ namespace catapult { namespace chain {
 			updateContext.AggregateHash = aggregateHash;
 			updateContext.Cosignatures = std::move(cosignatures);
 			updateContext.pExtractedAddresses = transactionInfo.OptionalExtractedAddresses;
-			m_pPool->service().post([pThis = shared_from_this(), updateContext, pPromise]() {
+			boost::asio::post(m_pPool->ioContext(), [pThis = shared_from_this(), updateContext, pPromise{std::move(pPromise)}]() {
 				pThis->updateImpl(updateContext).then([pPromise](auto&& resultFuture) {
 					pPromise->set_value(resultFuture.get());
 				});
@@ -200,7 +200,7 @@ namespace catapult { namespace chain {
 			auto pPromise = std::make_shared<thread::promise<CosignatureUpdateResult>>(); // needs to be copyable to pass to post
 			auto updateFuture = pPromise->get_future();
 
-			m_pPool->service().post([pThis = shared_from_this(), cosignature, pPromise]() {
+			boost::asio::post(m_pPool->ioContext(), [pThis = shared_from_this(), cosignature, pPromise{std::move(pPromise)}]() {
 				auto result = pThis->updateImpl(cosignature);
 				pPromise->set_value(std::move(result));
 			});
@@ -390,7 +390,7 @@ namespace catapult { namespace chain {
 		std::unique_ptr<const PtValidator> m_pValidator;
 		CompletedTransactionSink m_completedTransactionSink;
 		FailedTransactionSink m_failedTransactionSink;
-		std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+		std::shared_ptr<thread::IoThreadPool> m_pPool;
 	};
 
 	PtUpdater::PtUpdater(
@@ -398,7 +398,7 @@ namespace catapult { namespace chain {
 			std::unique_ptr<const PtValidator>&& pValidator,
 			const CompletedTransactionSink& completedTransactionSink,
 			const FailedTransactionSink& failedTransactionSink,
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool)
+			const std::shared_ptr<thread::IoThreadPool>& pPool)
 			: m_pImpl(std::make_shared<Impl>(
 					transactionsCache,
 					std::move(pValidator),

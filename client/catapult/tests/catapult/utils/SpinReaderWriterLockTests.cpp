@@ -305,7 +305,8 @@ namespace catapult { namespace utils {
 
 		public:
 			void doWriterWork() {
-				doWriterWork(acquireReader());
+				auto readLock = acquireReader();
+				doWriterWork(std::move(readLock));
 			}
 
 			void doWriterWork(SpinReaderWriterLock::ReaderLockGuard&& readLock) {

@@ -102,7 +102,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Locks the cache delta.
 		/// \note Returns \c nullptr if the detached delta is no longer valid.
-		virtual std::unique_ptr<SubCacheView> lock() = 0;
+		virtual std::unique_ptr<SubCacheView> tryLock() = 0;
 	};
 
 	// endregion

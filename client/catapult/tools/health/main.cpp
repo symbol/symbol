@@ -50,7 +50,7 @@ namespace catapult { namespace tools { namespace health {
 
 		// region futures
 
-		thread::future<bool> CreateChainInfoFuture(thread::IoServiceThreadPool& pool, ionet::PacketIo& io, NodeInfo& nodeInfo) {
+		thread::future<bool> CreateChainInfoFuture(thread::IoThreadPool& pool, ionet::PacketIo& io, NodeInfo& nodeInfo) {
 			thread::future<api::ChainInfo> chainInfoFuture;
 			if (!HasFlag(ionet::NodeRoles::Peer, nodeInfo.Node.metadata().Roles)) {
 				chainInfoFuture = CreateApiNodeChainInfoFuture(pool, nodeInfo.Node);
@@ -188,7 +188,7 @@ namespace catapult { namespace tools { namespace health {
 
 		private:
 			std::vector<thread::future<bool>> getNodeInfoFutures(
-					thread::IoServiceThreadPool& pool,
+					thread::IoThreadPool& pool,
 					ionet::PacketIo& io,
 					NodeInfo& nodeInfo) override {
 				std::vector<thread::future<bool>> infoFutures;

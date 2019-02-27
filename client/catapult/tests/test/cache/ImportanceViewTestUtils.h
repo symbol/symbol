@@ -52,8 +52,7 @@ namespace catapult { namespace test {
 	};
 
 	/// Creates an importance view wrapper around \a cache.
-	CATAPULT_INLINE
-	ImportanceViewWrapper CreateImportanceView(const cache::AccountStateCache& cache) {
+	inline ImportanceViewWrapper CreateImportanceView(const cache::AccountStateCache& cache) {
 		return ImportanceViewWrapper(cache);
 	}
 }}

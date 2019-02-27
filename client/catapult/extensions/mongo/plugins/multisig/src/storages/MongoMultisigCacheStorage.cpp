@@ -30,8 +30,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
 		struct MultisigCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::MultisigCacheDescriptor> {
-			static constexpr const char* Collection_Name = "multisigs";
-			static constexpr const char* Id_Property_Name = "multisig.account";
+			static constexpr auto Collection_Name = "multisigs";
+			static constexpr auto Id_Property_Name = "multisig.account";
 
 			static auto MapToMongoId(const KeyType& key) {
 				return mappers::ToBinary(key);

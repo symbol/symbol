@@ -77,7 +77,7 @@ namespace catapult { namespace mongo {
 		RunPluginManagerTest([](auto& manager) {
 			// Act:
 			for (auto i : { 7, 9, 4 })
-				manager.addTransactionSupport(mocks::CreateMockTransactionMongoPlugin(i));
+				manager.addTransactionSupport(mocks::CreateMockTransactionMongoPlugin(static_cast<model::EntityType>(i)));
 
 			// Assert:
 			EXPECT_EQ(3u, manager.transactionRegistry().size());

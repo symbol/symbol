@@ -35,7 +35,7 @@ namespace catapult { namespace chain {
 
 	namespace {
 		constexpr auto MakeTestNotificationType(model::NotificationChannel channel, uint16_t code = 1) {
-				return model::MakeNotificationType(channel, static_cast<model::FacilityCode>(0), code);
+			return model::MakeNotificationType(channel, static_cast<model::FacilityCode>(0), code);
 		}
 
 		constexpr auto Notification_Type_None = MakeTestNotificationType(model::NotificationChannel::None);
@@ -409,6 +409,31 @@ namespace catapult { namespace chain {
 		}, 3);
 	}
 
+	NOTIFY_MODE_TRAITS_BASED_TEST(OnlyObservableNotificationsCanBeUndone) {
+		// Arrange:
+		TestContext context(TMode);
+		context.sub().enableUndo();
+		auto notification1 = test::CreateNotification(Notification_Type_Validator);
+		auto notification2 = test::CreateNotification(Notification_Type_All_2);
+		auto notification3 = test::CreateNotification(Notification_Type_Observer);
+
+		// - process notifications
+		context.sub().notify(notification1);
+		context.sub().notify(notification2);
+		context.sub().notify(notification3);
+
+		// Act: undo notification
+		context.sub().undo();
+
+		// Assert: notice that notifications are undone in reverse order
+		EXPECT_EQ(ValidationResult::Success, context.sub().result());
+		context.assertValidatorCalls({ Notification_Type_Validator, Notification_Type_All_2 });
+		context.assertObserverCalls({
+			Notification_Type_All_2, Notification_Type_Observer,
+			Notification_Type_Observer, Notification_Type_All_2
+		}, 2);
+	}
+
 	// endregion
 
 	namespace {
@@ -417,7 +442,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, CanUndoMultipleNotificationsWithVaryingSizes) {
+	TEST(TEST_CLASS, CanUndoMultipleNotificationsWithVaryingSizesAndChannels) {
 		// Arrange:
 		TestContext context;
 		context.sub().enableUndo();

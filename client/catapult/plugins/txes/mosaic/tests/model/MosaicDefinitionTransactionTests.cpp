@@ -53,8 +53,8 @@ namespace catapult { namespace model {
 		template<typename T>
 		void AssertTransactionHasExpectedProperties() {
 			// Assert:
-			EXPECT_EQ(Entity_Type_Mosaic_Definition, static_cast<EntityType>(T::Entity_Type));
-			EXPECT_EQ(3u, static_cast<uint8_t>(T::Current_Version));
+			EXPECT_EQ(Entity_Type_Mosaic_Definition, T::Entity_Type);
+			EXPECT_EQ(3u, T::Current_Version);
 		}
 	}
 

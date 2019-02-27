@@ -46,8 +46,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, TransactionHasExpectedProperties) {
 		// Assert:
-		EXPECT_EQ(Entity_Type_Mosaic_Levy_Change, static_cast<EntityType>(MosaicLevyChangeTransaction::Entity_Type));
-		EXPECT_EQ(1u, static_cast<uint8_t>(MosaicLevyChangeTransaction::Current_Version));
+		EXPECT_EQ(Entity_Type_Mosaic_Levy_Change, MosaicLevyChangeTransaction::Entity_Type);
+		EXPECT_EQ(1u, MosaicLevyChangeTransaction::Current_Version);
 	}
 
 	// region data pointers

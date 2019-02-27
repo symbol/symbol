@@ -89,7 +89,7 @@ namespace catapult { namespace cache {
 			utils::ArrayHasher<typename TLockInfoTraits::KeyType>>;
 		using KeyVector = typename std::vector<typename TLockInfoTraits::KeyType>;
 
-		static constexpr size_t NumDefaultEntries() { return 10; }
+		static constexpr size_t Num_Default_Entries = 10;
 
 		static void PopulateCache(
 				typename TLockInfoTraits::CacheType& cache,
@@ -147,11 +147,11 @@ namespace catapult { namespace cache {
 		static void AssertProcessUnusedExpiredLocksForwardsEmptyVectorIfNoLockExpired() {
 			// Arrange:
 			typename CacheTraits::CacheType cache;
-			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(NumDefaultEntries());
+			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
 			PopulateCache(cache, lockInfos);
 
 			// Sanity:
-			EXPECT_EQ(NumDefaultEntries(), cache.createView()->size());
+			EXPECT_EQ(Num_Default_Entries, cache.createView()->size());
 
 			// Act: no lock expired at height 15
 			auto delta = cache.createDelta();
@@ -164,11 +164,11 @@ namespace catapult { namespace cache {
 		static void AssertProcessUnusedExpiredLocksForwardsEmptyVectorIfOnlyUsedLocksExpired() {
 			// Arrange:
 			typename CacheTraits::CacheType cache;
-			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(NumDefaultEntries());
+			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
 			PopulateCache(cache, lockInfos);
 
 			// Sanity:
-			EXPECT_EQ(NumDefaultEntries(), cache.createView()->size());
+			EXPECT_EQ(Num_Default_Entries, cache.createView()->size());
 
 			// Act: locks at height 10, 30, ..., 90 are used
 			auto delta = cache.createDelta();
@@ -201,11 +201,11 @@ namespace catapult { namespace cache {
 		static void AssertProcessUnusedExpiredLocksForwardsUnusedExpiredLocks_SingleLock() {
 			// Arrange:
 			typename CacheTraits::CacheType cache;
-			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(NumDefaultEntries());
+			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
 			PopulateCache(cache, lockInfos);
 
 			// Sanity:
-			EXPECT_EQ(NumDefaultEntries(), cache.createView()->size());
+			EXPECT_EQ(Num_Default_Entries, cache.createView()->size());
 
 			// Act: locks at height 20, 40, ..., 100 are unused
 			auto delta = cache.createDelta();
@@ -219,7 +219,7 @@ namespace catapult { namespace cache {
 		static void AssertProcessUnusedExpiredLocksForwardsUnusedExpiredLocks_MultipleLocks() {
 			// Arrange:
 			typename CacheTraits::CacheType cache;
-			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(NumDefaultEntries());
+			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
 			PopulateCache(cache, lockInfos);
 			{
 				// add another two lock infos that expire at height 40
@@ -233,21 +233,21 @@ namespace catapult { namespace cache {
 			}
 
 			// Sanity:
-			EXPECT_EQ(NumDefaultEntries() + 2, cache.createView()->size());
+			EXPECT_EQ(Num_Default_Entries + 2, cache.createView()->size());
 
 			// Act:
 			auto delta = cache.createDelta();
 			auto expiredLockInfoKeys = CollectUnusedExpiredLockKeys(*delta, Height(40));
 
 			// Assert:
-			LockInfoPointers expectedLockInfos{ &lockInfos[3], &lockInfos[NumDefaultEntries()], &lockInfos[NumDefaultEntries() + 1] };
+			LockInfoPointers expectedLockInfos{ &lockInfos[3], &lockInfos[Num_Default_Entries], &lockInfos[Num_Default_Entries + 1] };
 			AssertEqualLockInfos(expectedLockInfos, expiredLockInfoKeys);
 		}
 
 		static void AssertProcessUnusedExpiredLocksForwardsOnlyUnusedExpiredLocks_MultipleLocks() {
 			// Arrange:
 			typename CacheTraits::CacheType cache;
-			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(NumDefaultEntries());
+			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
 			PopulateCache(cache, lockInfos);
 			{
 				// add another four lock infos that expire at height 40, two of which are used
@@ -265,14 +265,14 @@ namespace catapult { namespace cache {
 			}
 
 			// Sanity:
-			EXPECT_EQ(NumDefaultEntries() + 4, cache.createView()->size());
+			EXPECT_EQ(Num_Default_Entries + 4, cache.createView()->size());
 
 			// Act:
 			auto delta = cache.createDelta();
 			auto expiredLockInfoKeys = CollectUnusedExpiredLockKeys(*delta, Height(40));
 
 			// Assert:
-			LockInfoPointers expectedLockInfos{ &lockInfos[3], &lockInfos[NumDefaultEntries()], &lockInfos[NumDefaultEntries() + 2] };
+			LockInfoPointers expectedLockInfos{ &lockInfos[3], &lockInfos[Num_Default_Entries], &lockInfos[Num_Default_Entries + 2] };
 			AssertEqualLockInfos(expectedLockInfos, expiredLockInfoKeys);
 		}
 	};

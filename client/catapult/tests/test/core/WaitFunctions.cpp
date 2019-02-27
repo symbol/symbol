@@ -33,21 +33,21 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		void WaitAsync(boost::asio::io_service& service, const ShouldWaitPredicate& shouldWait, uint32_t waitMillis) {
+		void WaitAsync(boost::asio::io_context& ioContext, const ShouldWaitPredicate& shouldWait, uint32_t waitMillis) {
 			if (!shouldWait())
 				return;
 
-			auto pTimer = std::make_shared<boost::asio::steady_timer>(service);
+			auto pTimer = std::make_shared<boost::asio::steady_timer>(ioContext);
 			pTimer->expires_from_now(std::chrono::milliseconds(waitMillis));
-			pTimer->async_wait([&service, shouldWait, waitMillis](const auto&) {
-				WaitAsync(service, shouldWait, waitMillis);
+			pTimer->async_wait([&ioContext, shouldWait, waitMillis](const auto&) {
+				WaitAsync(ioContext, shouldWait, waitMillis);
 			});
 		}
 	}
 
 	WaitFunction CreateAsyncWaitFunction(uint32_t waitMillis) {
-		return [waitMillis](auto& service, const auto& shouldWait) {
-			WaitAsync(service, shouldWait, waitMillis);
+		return [waitMillis](auto& ioContext, const auto& shouldWait) {
+			WaitAsync(ioContext, shouldWait, waitMillis);
 		};
 	}
 }}

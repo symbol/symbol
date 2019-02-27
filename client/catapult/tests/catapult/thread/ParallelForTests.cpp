@@ -42,7 +42,7 @@ namespace catapult { namespace thread {
 		struct BasicTestContext {
 		public:
 			explicit BasicTestContext(size_t numItemsAdjustment = 0)
-					: pPool(test::CreateStartedIoServiceThreadPool())
+					: pPool(test::CreateStartedIoThreadPool())
 					, NumThreads(pPool->numWorkerThreads())
 					, NumItems(NumThreads * 5 + numItemsAdjustment)
 					, ItemsSum((NumItems * (NumItems + 1)) / 2) {
@@ -51,7 +51,7 @@ namespace catapult { namespace thread {
 			}
 
 		public:
-			std::unique_ptr<thread::IoServiceThreadPool> pPool;
+			std::unique_ptr<thread::IoThreadPool> pPool;
 			size_t NumThreads;
 			size_t NumItems;
 			size_t ItemsSum;
@@ -82,7 +82,7 @@ namespace catapult { namespace thread {
 
 		// Act:
 		std::atomic<size_t> counter(0);
-		ParallelForPartition(context.pPool->service(), items, context.NumThreads, [&counter](auto, auto, auto, auto) {
+		ParallelForPartition(context.pPool->ioContext(), items, context.NumThreads, [&counter](auto, auto, auto, auto) {
 			++counter;
 		}).get();
 
@@ -131,7 +131,7 @@ namespace catapult { namespace thread {
 
 		// Act:
 		PartitionAggregateCapture capture(1, 1);
-		ParallelForPartition(context.pPool->service(), items, context.NumThreads, CreatePartitionAggregate(capture)).get();
+		ParallelForPartition(context.pPool->ioContext(), items, context.NumThreads, CreatePartitionAggregate(capture)).get();
 
 		// Assert: the callback was only called once (since there is only one item and one partition)
 		EXPECT_EQ(7u, capture.Sum);
@@ -147,7 +147,7 @@ namespace catapult { namespace thread {
 
 			// Act:
 			PartitionAggregateCapture capture(context.Items.size(), context.NumThreads);
-			ParallelForPartition(context.pPool->service(), context.Items, context.NumThreads, CreatePartitionAggregate(capture)).get();
+			ParallelForPartition(context.pPool->ioContext(), context.Items, context.NumThreads, CreatePartitionAggregate(capture)).get();
 
 			// Assert:
 			EXPECT_EQ(context.ItemsSum, capture.Sum);
@@ -176,7 +176,7 @@ namespace catapult { namespace thread {
 		BasicTestContext<typename TTraits::ContainerType> context;
 
 		// Act:
-		ParallelForPartition(context.pPool->service(), context.Items, context.NumThreads, [](auto itBegin, auto itEnd, auto, auto) {
+		ParallelForPartition(context.pPool->ioContext(), context.Items, context.NumThreads, [](auto itBegin, auto itEnd, auto, auto) {
 			for (auto iter = itBegin; itEnd != iter; ++iter)
 				*iter = *iter * *iter + 1;
 		}).get();
@@ -200,7 +200,7 @@ namespace catapult { namespace thread {
 
 		// Act:
 		std::atomic<size_t> counter(0);
-		ParallelFor(context.pPool->service(), items, context.NumThreads, [&counter](auto, auto) {
+		ParallelFor(context.pPool->ioContext(), items, context.NumThreads, [&counter](auto, auto) {
 			++counter;
 			return true;
 		}).get();
@@ -234,7 +234,7 @@ namespace catapult { namespace thread {
 		// Act:
 		std::atomic<size_t> sum(0);
 		std::vector<uint8_t> indexFlags(1, 0);
-		ParallelFor(context.pPool->service(), items, context.NumThreads, CreateItemAggregate(sum, indexFlags)).get();
+		ParallelFor(context.pPool->ioContext(), items, context.NumThreads, CreateItemAggregate(sum, indexFlags)).get();
 
 		// Assert: the callback was only called once (since there is only one item)
 		EXPECT_EQ(7u, sum);
@@ -250,7 +250,7 @@ namespace catapult { namespace thread {
 			// Act:
 			std::atomic<size_t> sum(0);
 			std::vector<uint8_t> indexFlags(context.NumItems, 0);
-			ParallelFor(context.pPool->service(), context.Items, context.NumThreads, CreateItemAggregate(sum, indexFlags)).get();
+			ParallelFor(context.pPool->ioContext(), context.Items, context.NumThreads, CreateItemAggregate(sum, indexFlags)).get();
 
 			// Assert:
 			EXPECT_EQ(context.ItemsSum, sum);
@@ -279,7 +279,7 @@ namespace catapult { namespace thread {
 
 		// Act:
 		std::atomic<size_t> sum(0);
-		ParallelFor(context.pPool->service(), context.Items, context.NumThreads, [&sum, itemsSum = context.ItemsSum](auto value, auto) {
+		ParallelFor(context.pPool->ioContext(), context.Items, context.NumThreads, [&sum, itemsSum = context.ItemsSum](auto value, auto) {
 			sum += value;
 			return itemsSum < sum;
 		}).get();
@@ -293,7 +293,7 @@ namespace catapult { namespace thread {
 		BasicTestContext<typename TTraits::ContainerType> context;
 
 		// Act:
-		ParallelFor(context.pPool->service(), context.Items, context.NumThreads, [](auto& value, auto) {
+		ParallelFor(context.pPool->ioContext(), context.Items, context.NumThreads, [](auto& value, auto) {
 			value = value * value + 1;
 			return true;
 		}).get();
@@ -312,7 +312,7 @@ namespace catapult { namespace thread {
 
 		// Act: capture all values by their index
 		std::vector<uint32_t> capturedValues(context.NumItems, 0);
-		ParallelFor(context.pPool->service(), context.Items, context.NumThreads, [&capturedValues](auto value, auto index) {
+		ParallelFor(context.pPool->ioContext(), context.Items, context.NumThreads, [&capturedValues](auto value, auto index) {
 			// Sanity: fail if any index is too large
 			EXPECT_GT(capturedValues.size(), index) << "unexpected index " << index;
 			if (capturedValues.size() <= index)
@@ -344,12 +344,12 @@ namespace catapult { namespace thread {
 
 		struct DistributeParallelForTraits {
 			static void ParallelFor(
-					boost::asio::io_service& service,
+					boost::asio::io_context& ioContext,
 					const std::vector<ItemType>& items,
 					size_t numThreads,
 					MultiThreadedState& state) {
 				std::atomic<size_t> numItemsProcessed(0);
-				thread::ParallelFor(service, items, numThreads, [&state, &numItemsProcessed, numThreads](auto value, auto) {
+				thread::ParallelFor(ioContext, items, numThreads, [&state, &numItemsProcessed, numThreads](auto value, auto) {
 					// - process the value
 					state.process(value);
 
@@ -363,12 +363,12 @@ namespace catapult { namespace thread {
 
 		struct DistributeParallelForPartitionTraits {
 			static void ParallelFor(
-					boost::asio::io_service& service,
+					boost::asio::io_context& ioContext,
 					const std::vector<ItemType>& items,
 					size_t numThreads,
 					MultiThreadedState& state) {
 				std::atomic<size_t> numItemsProcessed(0);
-				ParallelForPartition(service, items, numThreads, [&state, &numItemsProcessed, numThreads](
+				ParallelForPartition(ioContext, items, numThreads, [&state, &numItemsProcessed, numThreads](
 						auto itBegin,
 						auto itEnd,
 						auto,
@@ -388,7 +388,7 @@ namespace catapult { namespace thread {
 		template<typename TParallelFunc>
 		void AssertCanDistributeWorkEvenly(size_t multiplier, size_t divisor, TParallelFunc parallelFunc) {
 			// Arrange:
-			auto pPool = test::CreateStartedIoServiceThreadPool();
+			auto pPool = test::CreateStartedIoThreadPool();
 			auto numThreads = pPool->numWorkerThreads();
 			auto numItems = numThreads * multiplier / divisor;
 			auto items = CreateIncrementingValues(numItems);
@@ -398,7 +398,7 @@ namespace catapult { namespace thread {
 
 			// Act:
 			MultiThreadedState state;
-			parallelFunc(pPool->service(), items, numThreads, state);
+			parallelFunc(pPool->ioContext(), items, numThreads, state);
 
 			// Assert: all items were processed once
 			EXPECT_EQ(numItems, state.counter());

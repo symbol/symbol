@@ -43,7 +43,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Locks the detached delta.
 		/// \note If locking fails, \c nullptr is returned.
-		std::unique_ptr<CatapultCacheDelta> lock();
+		std::unique_ptr<CatapultCacheDelta> tryLock();
 
 	private:
 		std::vector<std::unique_ptr<DetachedSubCacheView>> m_detachedSubViews;

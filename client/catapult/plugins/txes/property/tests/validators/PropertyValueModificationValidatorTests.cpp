@@ -120,7 +120,7 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto cache = test::PropertyCacheFactory::Create();
 			auto key = test::GenerateRandomData<Key_Size>();
-			auto values = test::CreateRandomUniqueValues<TPropertyValueTraits>(numValues);
+			auto values = test::GenerateUniqueRandomDataVector<typename TPropertyValueTraits::ValueType>(numValues);
 			test::PopulateCache<TPropertyValueTraits, TOperationTraits>(cache, key, values);
 			auto modification = modificationFactory(values);
 
@@ -155,8 +155,7 @@ namespace catapult { namespace validators {
 		constexpr auto Success = ValidationResult::Success;
 		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Success, 3, createNotification, [](const auto& values) {
 			using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>;
-			auto transform = TPropertyValueTraits::ToUnresolved;
-			return PropertyModification{ Add, test::CreateDifferentValue<TPropertyValueTraits>(values, transform) };
+			return PropertyModification{ Add, TPropertyValueTraits::ToUnresolved(test::CreateRandomUniqueValue(values)) };
 		});
 	}
 
@@ -166,8 +165,7 @@ namespace catapult { namespace validators {
 		constexpr auto Failure = Failure_Property_Modification_Not_Allowed;
 		AssertValidationResult<TPropertyValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto& values) {
 			using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>;
-			auto transform = TPropertyValueTraits::ToUnresolved;
-			return PropertyModification{ Del, test::CreateDifferentValue<TPropertyValueTraits>(values, transform) };
+			return PropertyModification{ Del, TPropertyValueTraits::ToUnresolved(test::CreateRandomUniqueValue(values)) };
 		});
 	}
 

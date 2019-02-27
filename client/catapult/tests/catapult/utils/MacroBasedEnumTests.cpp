@@ -260,7 +260,7 @@ namespace catapult { namespace utils {
 		void AssertHasBackingType() {
 			// Act:
 			using ActualBackingType = std::underlying_type_t<TEnum>;
-			auto areTypesSame = std::is_same<TExpectedBackingType, ActualBackingType>::value;
+			auto areTypesSame = std::is_same_v<TExpectedBackingType, ActualBackingType>;
 
 			// Assert:
 			EXPECT_TRUE(areTypesSame) << "sizeof(TEnum): " << sizeof(TEnum) << " " << TEnum::Foo;

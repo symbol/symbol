@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/thread/MultiServicePool.h"
+#include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/TestHarness.h"
 #include <mutex>
@@ -84,7 +85,7 @@ namespace catapult { namespace thread {
 		};
 
 		static std::shared_ptr<FooService> CreateFooService(
-				const std::shared_ptr<IoServiceThreadPool>& pPool,
+				const std::shared_ptr<IoThreadPool>& pPool,
 				size_t id,
 				ShutdownIds& shutdownIds) {
 			return std::make_shared<FooService>(pPool->tag(), id, shutdownIds);
@@ -131,7 +132,7 @@ namespace catapult { namespace thread {
 		// Arrange:
 		ShutdownIds shutdownIds;
 		MultiServicePool pool("foo", 3);
-		auto pExternalPool = std::shared_ptr<IoServiceThreadPool>(test::CreateStartedIoServiceThreadPool(1));
+		auto pExternalPool = utils::UniqueToShared(test::CreateStartedIoThreadPool(1));
 
 		// Act:
 		auto pService = pool.pushServiceGroup("beta")->registerService(CreateFooService(pExternalPool, 7u, shutdownIds));
@@ -141,7 +142,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(1u, pool.numServiceGroups());
 		EXPECT_EQ(1u, pool.numServices());
 
-		AssertService(*pService, "IoServiceThreadPool", 7);
+		AssertService(*pService, "IoThreadPool", 7);
 	}
 
 	TEST(TEST_CLASS, CanPushSingleService) {
@@ -157,7 +158,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(1u, pool.numServiceGroups());
 		EXPECT_EQ(1u, pool.numServices());
 
-		AssertService(*pService, "foo IoServiceThreadPool", 7);
+		AssertService(*pService, "foo IoThreadPool", 7);
 	}
 
 	TEST(TEST_CLASS, CanPushSingleServiceGroupWithMultipleServices) {
@@ -176,8 +177,8 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(2u, pool.numServices());
 		EXPECT_EQ(2u, pGroup->numServices());
 
-		AssertService(*pService1, "foo IoServiceThreadPool", 7);
-		AssertService(*pService2, "foo IoServiceThreadPool", 10);
+		AssertService(*pService1, "foo IoThreadPool", 7);
+		AssertService(*pService2, "foo IoThreadPool", 10);
 	}
 
 	// endregion
@@ -200,7 +201,7 @@ namespace catapult { namespace thread {
 			EXPECT_EQ(1u, pool.numServices());
 
 			EXPECT_EQ(expectedNumWorkerThreads, pPool->numWorkerThreads());
-			EXPECT_EQ("pool IoServiceThreadPool", pPool->tag());
+			EXPECT_EQ("pool IoThreadPool", pPool->tag());
 		}
 
 		void AssertCanAddSingleIsolatedPoolWithExplicitThreads(size_t numWorkerThreads, size_t expectedNumWorkerThreads) {
@@ -245,7 +246,7 @@ namespace catapult { namespace thread {
 
 			// - the returned pool is actually the main pool
 			EXPECT_EQ(3u, pPool->numWorkerThreads());
-			EXPECT_EQ("foo IoServiceThreadPool", pPool->tag());
+			EXPECT_EQ("foo IoThreadPool", pPool->tag());
 		}
 	}
 
@@ -271,7 +272,7 @@ namespace catapult { namespace thread {
 		// Arrange:
 		ShutdownIds shutdownIds;
 		MultiServicePool pool("foo", 3);
-		auto pExternalPool = std::shared_ptr<IoServiceThreadPool>(test::CreateStartedIoServiceThreadPool(1));
+		auto pExternalPool = utils::UniqueToShared(test::CreateStartedIoThreadPool(1));
 
 		// Act:
 		auto pGroup1 = pool.pushServiceGroup("alpha");
@@ -297,13 +298,13 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(4u, pGroup1->numServices());
 		EXPECT_EQ(3u, pGroup2->numServices());
 
-		AssertService(*pService1, "foo IoServiceThreadPool", 7);
-		AssertService(*pService2, "IoServiceThreadPool", 9);
-		AssertService(*pService3, "foo IoServiceThreadPool", 11);
-		AssertService(*pService4, "foo IoServiceThreadPool", 77);
-		AssertService(*pService5, "foo IoServiceThreadPool", 82);
-		AssertService(*pService6, "foo IoServiceThreadPool", 22);
-		AssertService(*pService7, "IoServiceThreadPool", 99);
+		AssertService(*pService1, "foo IoThreadPool", 7);
+		AssertService(*pService2, "IoThreadPool", 9);
+		AssertService(*pService3, "foo IoThreadPool", 11);
+		AssertService(*pService4, "foo IoThreadPool", 77);
+		AssertService(*pService5, "foo IoThreadPool", 82);
+		AssertService(*pService6, "foo IoThreadPool", 22);
+		AssertService(*pService7, "IoThreadPool", 99);
 	}
 
 	// endregion
@@ -322,7 +323,7 @@ namespace catapult { namespace thread {
 			// Arrange:
 			ShutdownIds shutdownIds;
 			MultiServicePool pool("foo", 3);
-			auto pExternalPool = std::shared_ptr<IoServiceThreadPool>(test::CreateStartedIoServiceThreadPool(1));
+			auto pExternalPool = utils::UniqueToShared(test::CreateStartedIoThreadPool(1));
 
 			// - add services
 			auto pGroup1 = pool.pushServiceGroup("alpha");
@@ -432,7 +433,7 @@ namespace catapult { namespace thread {
 	TEST(TEST_CLASS, ShutdownWaitsForOutstandingExternalServices) {
 		// Assert:
 		AssertShutdownWaitsForOutstandingServices([](auto& pool, auto id, auto& shutdownIds) {
-			auto pExternalPool = std::shared_ptr<IoServiceThreadPool>(test::CreateStartedIoServiceThreadPool(1));
+			auto pExternalPool = utils::UniqueToShared(test::CreateStartedIoThreadPool(1));
 
 			auto pServiceGroup = pool.pushServiceGroup("zeta");
 			return pServiceGroup->registerService(CreateFooService(pExternalPool, id, shutdownIds));
@@ -465,7 +466,7 @@ namespace catapult { namespace thread {
 		//          the multi service pool must wait for all references to its primary pool to be released before shutting down
 		ShutdownIds shutdownIds;
 		MultiServicePool pool("foo", 3);
-		std::shared_ptr<IoServiceThreadPool> pSimulatedSubService;
+		std::shared_ptr<IoThreadPool> pSimulatedSubService;
 		pool.pushServiceGroup("alpha")->pushService(CreateFooService, 7u, shutdownIds);
 		pool.pushServiceGroup("epsilon")->pushService([&pSimulatedSubService, &shutdownIds](const auto& pPool) {
 			pSimulatedSubService = pPool;

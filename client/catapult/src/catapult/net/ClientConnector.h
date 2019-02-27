@@ -27,7 +27,7 @@
 namespace catapult {
 	namespace crypto { class KeyPair; }
 	namespace ionet { class PacketSocket; }
-	namespace thread { class IoServiceThreadPool; }
+	namespace thread { class IoThreadPool; }
 }
 
 namespace catapult { namespace net {
@@ -55,7 +55,7 @@ namespace catapult { namespace net {
 
 	/// Creates a client connector for a server with a key pair of \a keyPair using \a pPool and configured with \a settings.
 	std::shared_ptr<ClientConnector> CreateClientConnector(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
 			const ConnectionSettings& settings);
 }}

@@ -72,7 +72,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, GenerateServerChallengeResponseCreatesAppropriateResponse) {
 		// Arrange:
-		constexpr auto Challenge_Size = std::tuple_size<Challenge>::value;
+		constexpr auto Challenge_Size = std::tuple_size_v<Challenge>;
 		auto pRequest = GenerateServerChallengeRequest();
 		auto keyPair = test::GenerateKeyPair();
 

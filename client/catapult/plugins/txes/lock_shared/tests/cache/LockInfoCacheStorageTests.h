@@ -35,9 +35,11 @@ namespace catapult { namespace cache {
 
 			// Act:
 			typename TLockInfoTraits::CacheType cache(CacheConfiguration{});
-			auto delta = cache.createDelta();
-			TLockInfoTraits::StorageType::LoadInto(originalLockInfo, *delta);
-			cache.commit();
+			{
+				auto delta = cache.createDelta();
+				TLockInfoTraits::StorageType::LoadInto(originalLockInfo, *delta);
+				cache.commit();
+			}
 
 			// Assert: the cache contains the value
 			auto view = cache.createView();

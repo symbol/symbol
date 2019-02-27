@@ -26,14 +26,10 @@
 namespace catapult { namespace timesync {
 
 	/// Node network time request policy.
-	class NodeNetworkTimeRequestPolicy {
-	public:
+	struct NodeNetworkTimeRequestPolicy {
 		using ResponseType = CommunicationTimestamps;
 
-	public:
-		static constexpr const char* FriendlyName() {
-			return "network time";
-		}
+		static constexpr auto Friendly_Name = "network time";
 
 		static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo) {
 			return api::CreateRemoteTimeSyncApi(packetIo)->networkTime();
@@ -45,7 +41,7 @@ namespace catapult { namespace timesync {
 
 	/// Creates a node network time requestor for a server with a key pair of \a keyPair using \a pPool and configured with \a settings.
 	std::shared_ptr<NodeNetworkTimeRequestor> CreateNodeNetworkTimeRequestor(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
 			const net::ConnectionSettings& settings);
 }}

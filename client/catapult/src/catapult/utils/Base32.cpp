@@ -94,9 +94,6 @@ namespace catapult { namespace utils {
 		};
 
 		DecodeResult TryBase32DecodeInternal(const RawString& encodedData, const MutableRawBuffer& data) {
-			static_assert(sizeof(std::uint8_t) == sizeof(unsigned char),
-				"Base32 implementation requires std::uint8_t to have same size as unsigned char.");
-
 			if (data.Size < GetDecodedDataSize(encodedData.Size))
 				return DecodeResult::OutputBufferTooSmall;
 

@@ -87,8 +87,8 @@ namespace catapult { namespace packetserver {
 		context.boot();
 
 		// - connect to the server as a reader
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pIo = test::ConnectToLocalHost(pPool->service(), test::GetLocalHostPort(), context.publicKey());
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort(), context.publicKey());
 
 		// Assert: a single connection was accepted
 		EXPECT_EQ(1u, context.counter(Counter_Name));
@@ -145,8 +145,8 @@ namespace catapult { namespace packetserver {
 		context.boot();
 
 		// - connect to the server as a reader
-		auto pPool = test::CreateStartedIoServiceThreadPool();
-		auto pIo = test::ConnectToLocalHost(pPool->service(), test::GetLocalHostPort(), context.publicKey());
+		auto pPool = test::CreateStartedIoThreadPool();
+		auto pIo = test::ConnectToLocalHost(pPool->ioContext(), test::GetLocalHostPort(), context.publicKey());
 
 		// Sanity: a single connection was accepted
 		EXPECT_EQ(1u, context.counter(Counter_Name));
@@ -154,8 +154,8 @@ namespace catapult { namespace packetserver {
 		// Act: send a simple squares request
 		ionet::ByteBuffer packetBuffer;
 		auto pRequestPacket = GenerateSquaresRequestPacket();
-		pIo->write(ionet::PacketPayload(pRequestPacket), [&service = pPool->service(), &io = *pIo, &packetBuffer](auto) {
-			test::AsyncReadIntoBuffer(service, io, packetBuffer);
+		pIo->write(ionet::PacketPayload(pRequestPacket), [&ioContext = pPool->ioContext(), &io = *pIo, &packetBuffer](auto) {
+			test::AsyncReadIntoBuffer(ioContext, io, packetBuffer);
 		});
 
 		pPool->join();
@@ -164,7 +164,7 @@ namespace catapult { namespace packetserver {
 		auto pResponsePacket = reinterpret_cast<const ionet::PacketHeader*>(packetBuffer.data());
 		ASSERT_TRUE(!!pResponsePacket);
 		ASSERT_EQ(sizeof(ionet::PacketHeader) + 3 * sizeof(uint64_t), pResponsePacket->Size);
-		EXPECT_EQ(static_cast<ionet::PacketType>(SquaresTraits::Packet_Type), pResponsePacket->Type);
+		EXPECT_EQ(SquaresTraits::Packet_Type, pResponsePacket->Type);
 
 		const auto* pData = reinterpret_cast<const uint64_t*>(packetBuffer.data() + sizeof(ionet::PacketHeader));
 		EXPECT_EQ(9u, pData[0]);

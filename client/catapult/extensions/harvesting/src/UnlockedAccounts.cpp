@@ -84,11 +84,13 @@ namespace catapult { namespace harvesting {
 	// region UnlockedAccounts
 
 	UnlockedAccountsView UnlockedAccounts::view() const {
-		return UnlockedAccountsView(m_keyPairs, m_lock.acquireReader());
+		auto readLock = m_lock.acquireReader();
+		return UnlockedAccountsView(m_keyPairs, std::move(readLock));
 	}
 
 	UnlockedAccountsModifier UnlockedAccounts::modifier() {
-		return UnlockedAccountsModifier(m_maxUnlockedAccounts, m_keyPairs, m_lock.acquireReader());
+		auto readLock = m_lock.acquireReader();
+		return UnlockedAccountsModifier(m_maxUnlockedAccounts, m_keyPairs, std::move(readLock));
 	}
 
 	// endregion

@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 		using RequestStructureType = TIdentifier;
 		using ResponseType = Infos;
 		static constexpr auto Packet_Type = PacketType;
-		static constexpr auto Message() { return "info at "; }
+		static constexpr auto Message = "info at ";
 
 	public:
 		struct ResponseState {};
@@ -62,19 +62,18 @@ namespace catapult { namespace test {
 			auto i = 0u;
 			for (const auto& pExpectedInfo : expectedResult) {
 				const auto& info = reinterpret_cast<const model::CacheEntryInfo<TIdentifier>&>(*payload.buffers()[i].pData);
-				EXPECT_EQ(pExpectedInfo->Id, info.Id) << Message() << i;
+				EXPECT_EQ(pExpectedInfo->Id, info.Id) << Message << i;
 				++i;
 			}
 		}
 
 	private:
-		template<typename X = std::enable_if_t<utils::traits::is_pod<TIdentifier>::value>>
+		template<typename X>
 		static TIdentifier ToIdentifier(uint32_t value) {
-			return TIdentifier(value);
-		}
-
-		static TIdentifier ToIdentifier(uint32_t value) {
-			return TIdentifier{ { static_cast<uint8_t>(value) } };
+			if constexpr (utils::traits::is_pod_v<TIdentifier>)
+				return TIdentifier(value)
+			else
+				return TIdentifier{ { static_cast<uint8_t>(value) } };
 		}
 	};
 }}

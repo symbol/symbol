@@ -27,7 +27,7 @@ namespace catapult { namespace test {
 	template<typename TTraits>
 	class BaseSetCommonTests {
 	private:
-		using BaseSetType = typename std::remove_reference<decltype(*TTraits::Create())>::type;
+		using BaseSetType = std::remove_reference_t<decltype(*TTraits::Create())>;
 
 	public:
 		// region ctor

@@ -103,19 +103,19 @@ namespace catapult { namespace crypto {
 			return reinterpret_cast<Keccak_HashInstance*>(pHashContext);
 		}
 
-		CATAPULT_INLINE void KeccakInitialize(Keccak_HashInstance* pHashContext, std::integral_constant<size_t, 32>) {
+		inline void KeccakInitialize(Keccak_HashInstance* pHashContext, std::integral_constant<size_t, 32>) {
 			Keccak_HashInitialize_SHA3_256(pHashContext);
 		}
 
-		CATAPULT_INLINE void KeccakInitialize(Keccak_HashInstance* pHashContext, std::integral_constant<size_t, 64>) {
+		inline void KeccakInitialize(Keccak_HashInstance* pHashContext, std::integral_constant<size_t, 64>) {
 			Keccak_HashInitialize_SHA3_512(pHashContext);
 		}
 
-		CATAPULT_INLINE void KeccakFinal(uint8_t* context, uint8_t* output, int hashSize, KeccakModeTag) noexcept {
+		inline void KeccakFinal(uint8_t* context, uint8_t* output, int hashSize, KeccakModeTag) noexcept {
 			Keccak_HashSqueeze(CastToKeccakHashInstance(context), output, static_cast<uint32_t>(hashSize * 8));
 		}
 
-		CATAPULT_INLINE void KeccakFinal(uint8_t* context, uint8_t* output, int /* ignore last argument */, Sha3ModeTag) noexcept {
+		inline void KeccakFinal(uint8_t* context, uint8_t* output, int /* ignore last argument */, Sha3ModeTag) noexcept {
 			Keccak_HashFinal(CastToKeccakHashInstance(context), output);
 		}
 	}
@@ -139,7 +139,7 @@ namespace catapult { namespace crypto {
 
 	template<typename TMode, size_t Size>
 	void KeccakBuilder<TMode, Size>::final(OutputType& output) noexcept {
-		KeccakFinal(m_hashContext, output.data(), std::tuple_size<OutputType>::value, TMode());
+		KeccakFinal(m_hashContext, output.data(), std::tuple_size_v<OutputType>, TMode());
 	}
 
 	template class KeccakBuilder<Sha3ModeTag, 32>;

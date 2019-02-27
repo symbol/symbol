@@ -21,7 +21,7 @@
 #include "ApiNodeHealthUtils.h"
 #include "catapult/ionet/ConnectResult.h"
 #include "catapult/ionet/Node.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/ConfigurationValueParsers.h"
 #include <boost/asio.hpp>
 #include <regex>
@@ -93,9 +93,9 @@ namespace catapult { namespace tools { namespace health {
 			using ResolverType = boost::asio::ip::tcp::resolver;
 
 		public:
-			SocketConnector(boost::asio::io_service& service, const std::string& host, uint16_t port)
-					: m_socket(service)
-					, m_resolver(service)
+			SocketConnector(boost::asio::io_context& ioContext, const std::string& host, uint16_t port)
+					: m_socket(ioContext)
+					, m_resolver(ioContext)
 					, m_host(host + ":" + std::to_string(port))
 					, m_query(host, std::to_string(port))
 			{}
@@ -172,11 +172,11 @@ namespace catapult { namespace tools { namespace health {
 
 		public:
 			MultiHttpGetRetriever(
-					boost::asio::io_service& service,
+					boost::asio::io_context& ioContext,
 					const std::string& host,
 					uint16_t port,
 					const std::vector<std::string>& apiUris)
-					: m_connector(service, host, port)
+					: m_connector(ioContext, host, port)
 					, m_apiUris(apiUris)
 			{}
 
@@ -312,9 +312,9 @@ namespace catapult { namespace tools { namespace health {
 		// endregion
 	}
 
-	thread::future<api::ChainInfo> CreateApiNodeChainInfoFuture(thread::IoServiceThreadPool& pool, const ionet::Node& node) {
+	thread::future<api::ChainInfo> CreateApiNodeChainInfoFuture(thread::IoThreadPool& pool, const ionet::Node& node) {
 		auto apiUris = std::vector<std::string>{ "/chain/height", "/chain/score" };
-		auto pRetriever = std::make_shared<MultiHttpGetRetriever>(pool.service(), node.endpoint().Host, Rest_Api_Port, apiUris);
+		auto pRetriever = std::make_shared<MultiHttpGetRetriever>(pool.ioContext(), node.endpoint().Host, Rest_Api_Port, apiUris);
 		pRetriever->start();
 		return pRetriever->future().then([pRetriever](auto&& valuesMapFuture) {
 			auto valuesMap = valuesMapFuture.get();

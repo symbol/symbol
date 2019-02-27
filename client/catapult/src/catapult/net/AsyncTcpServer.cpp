@@ -21,7 +21,7 @@
 #include "AsyncTcpServer.h"
 #include "ConnectionSettings.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/Logging.h"
 #include <atomic>
 
@@ -59,12 +59,12 @@ namespace catapult { namespace net {
 				, public std::enable_shared_from_this<DefaultAsyncTcpServer> {
 		public:
 			DefaultAsyncTcpServer(
-					const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const boost::asio::ip::tcp::endpoint& endpoint,
 					const AsyncTcpServerSettings& settings)
 					: m_pPool(pPool)
-					, m_acceptorStrand(pPool->service())
-					, m_acceptor(pPool->service())
+					, m_acceptorStrand(pPool->ioContext())
+					, m_acceptor(pPool->ioContext())
 					, m_settings(settings)
 					, m_isStopped(false)
 					, m_numPendingAccepts(0)
@@ -108,7 +108,7 @@ namespace catapult { namespace net {
 
 				// close the acceptor to prevent new connections and block until the close actually happens
 				CATAPULT_LOG(info) << "AsyncTcpServer stopping";
-				m_acceptorStrand.dispatch([pThis = shared_from_this()]() {
+				boost::asio::dispatch(m_acceptorStrand, [pThis = shared_from_this()]() {
 					pThis->closeAcceptor();
 				});
 
@@ -125,7 +125,7 @@ namespace catapult { namespace net {
 			void handleAccept(const ionet::AcceptedPacketSocketInfo& socketInfo) {
 				// add a destruction hook to the socket and post additional handling to the strand
 				ionet::AcceptedPacketSocketInfo decoratedSocketInfo(socketInfo.host(), addDestructionHook(socketInfo.socket()));
-				m_acceptorStrand.post([pThis = shared_from_this(), decoratedSocketInfo]() {
+				boost::asio::post(m_acceptorStrand, [pThis = shared_from_this(), decoratedSocketInfo]() {
 					pThis->handleAcceptOnStrand(decoratedSocketInfo);
 				});
 			}
@@ -145,8 +145,8 @@ namespace catapult { namespace net {
 				++m_numCurrentConnections;
 				tryStartAccept();
 
-				// post the user callback on the threadpool (outside of the strand)
-				m_pPool->service().post([userCallback = m_settings.Accept, socketInfo] {
+				// post the user callback on the thread pool (outside of the strand)
+				boost::asio::post(m_pPool->ioContext(), [userCallback = m_settings.Accept, socketInfo] {
 					userCallback(socketInfo);
 				});
 			}
@@ -159,7 +159,7 @@ namespace catapult { namespace net {
 					pRawSocket->close();
 
 					// if a valid connection was wrapped, decrement the number of current connections and attempt to start a new accept
-					pThis->m_acceptorStrand.post([pThis] {
+					boost::asio::post(pThis->m_acceptorStrand, [pThis] {
 						pThis->handleContextDestructionOnStrand();
 					});
 				});
@@ -189,16 +189,15 @@ namespace catapult { namespace net {
 
 				// start a new accept
 				++m_numPendingAccepts;
-				ionet::Accept(
-						m_acceptor,
-						m_settings.PacketSocketOptions,
-						m_settings.ConfigureSocket,
-						[pThis = shared_from_this()](const auto& socketInfo) { pThis->handleAccept(socketInfo); });
+				ionet::Accept(m_acceptor, m_settings.PacketSocketOptions, m_settings.ConfigureSocket, [pThis = shared_from_this()](
+						const auto& socketInfo) {
+					pThis->handleAccept(socketInfo);
+				});
 			}
 
 		private:
-			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
-			boost::asio::strand m_acceptorStrand;
+			std::shared_ptr<thread::IoThreadPool> m_pPool;
+			boost::asio::io_context::strand m_acceptorStrand;
 			boost::asio::ip::tcp::acceptor m_acceptor;
 
 			const AsyncTcpServerSettings m_settings;
@@ -216,7 +215,7 @@ namespace catapult { namespace net {
 	{}
 
 	std::shared_ptr<AsyncTcpServer> CreateAsyncTcpServer(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const boost::asio::ip::tcp::endpoint& endpoint,
 			const AsyncTcpServerSettings& settings) {
 		auto pServer = std::make_shared<DefaultAsyncTcpServer>(pPool, endpoint, settings);

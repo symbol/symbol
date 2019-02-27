@@ -40,9 +40,11 @@ namespace catapult { namespace cache {
 
 		// Act:
 		PropertyCache cache(CacheConfiguration{}, model::NetworkIdentifier::Zero);
-		auto delta = cache.createDelta();
-		PropertyCacheStorage::LoadInto(originalAccountProperties, *delta);
-		cache.commit();
+		{
+			auto delta = cache.createDelta();
+			PropertyCacheStorage::LoadInto(originalAccountProperties, *delta);
+			cache.commit();
+		}
 
 		// Assert: the cache contains the value
 		auto view = cache.createView();

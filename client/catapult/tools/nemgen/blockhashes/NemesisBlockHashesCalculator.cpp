@@ -40,8 +40,9 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		// 3. prepare observer state
 		auto cache = pluginManager.createCache();
-		auto cacheDetachedDelta = cache.createDetachableDelta().detach();
-		auto pCacheDelta = cacheDetachedDelta.lock();
+		auto cacheDetachableDelta = cache.createDetachableDelta();
+		auto cacheDetachedDelta = cacheDetachableDelta.detach();
+		auto pCacheDelta = cacheDetachedDelta.tryLock();
 		auto catapultState = state::CatapultState();
 		auto blockStatementBuilder = model::BlockStatementBuilder();
 		auto observerState = observers::ObserverState(*pCacheDelta, catapultState, blockStatementBuilder);

@@ -71,12 +71,14 @@ namespace catapult { namespace cache {
 	public:
 		/// Gets a read only view of the height.
 		CacheHeightView view() const {
-			return CacheHeightView(m_height, m_lock.acquireReader());
+			auto readLock = m_lock.acquireReader();
+			return CacheHeightView(m_height, std::move(readLock));
 		}
 
 		/// Gets a write only view of the height.
 		CacheHeightModifier modifier() {
-			return CacheHeightModifier(m_height, m_lock.acquireReader());
+			auto readLock = m_lock.acquireReader();
+			return CacheHeightModifier(m_height, std::move(readLock));
 		}
 
 	private:

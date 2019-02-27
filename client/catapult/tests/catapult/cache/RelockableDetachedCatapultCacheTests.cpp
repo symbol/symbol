@@ -43,7 +43,7 @@ namespace catapult { namespace cache {
 
 		// Assert: the detached cache should have the correct height and be lockable
 		EXPECT_EQ(Height(7), detachedCatapultCache.height());
-		EXPECT_TRUE(!!detachedCatapultCache.getAndLock());
+		EXPECT_TRUE(!!detachedCatapultCache.getAndTryLock());
 	}
 
 	TEST(TEST_CLASS, RelockableDetachedCatapultCacheIsInvalidatedWhenUnderlyingCacheChanges) {
@@ -59,7 +59,7 @@ namespace catapult { namespace cache {
 
 		// Assert: the detached cache should have the original height and not be lockable
 		EXPECT_EQ(Height(7), detachedCatapultCache.height());
-		EXPECT_FALSE(!!detachedCatapultCache.getAndLock());
+		EXPECT_FALSE(!!detachedCatapultCache.getAndTryLock());
 	}
 
 	TEST(TEST_CLASS, RelockableDetachedCatapultCacheCanBeRebasedOnTopOfUnderlyingCache) {
@@ -74,13 +74,15 @@ namespace catapult { namespace cache {
 		SetHeight(cache, Height(11));
 
 		// Act: rebase it
-		auto pDelta = detachedCatapultCache.rebaseAndLock();
+		{
+			auto pDelta = detachedCatapultCache.rebaseAndLock();
+
+			// Assert: the returned delta should always be a valid pointer
+			EXPECT_TRUE(!!pDelta);
+		}
 
 		// Assert: the detached cache should have the new height and be lockable
 		EXPECT_EQ(Height(11), detachedCatapultCache.height());
-		EXPECT_TRUE(!!detachedCatapultCache.getAndLock());
-
-		// - the returned delta should always be a valid pointer
-		EXPECT_TRUE(!!pDelta);
+		EXPECT_TRUE(!!detachedCatapultCache.getAndTryLock());
 	}
 }}

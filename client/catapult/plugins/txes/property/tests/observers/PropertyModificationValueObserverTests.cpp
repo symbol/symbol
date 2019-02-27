@@ -82,7 +82,7 @@ namespace catapult { namespace observers {
 			}
 
 			const auto& accountProperties = iter.get();
-			auto typedProperties = accountProperties.template property<ValueType>(TPropertyValueTraits::PropertyType());
+			auto typedProperties = accountProperties.template property<ValueType>(TPropertyValueTraits::Property_Type);
 			if (IsInsert(notifyMode, modification.ModificationType))
 				EXPECT_TRUE(typedProperties.contains(modification.Value));
 			else
@@ -102,7 +102,7 @@ namespace catapult { namespace observers {
 				TModificationFactory modificationFactory) {
 			// Arrange:
 			ObserverTestContext context(notifyMode);
-			auto values = test::CreateRandomUniqueValues<TPropertyValueTraits>(numInitialValues);
+			auto values = test::GenerateUniqueRandomDataVector<typename TPropertyValueTraits::ValueType>(numInitialValues);
 			auto key = test::GenerateRandomData<Key_Size>();
 			test::PopulateCache<TPropertyValueTraits, TOperationTraits>(context.cache(), key, values);
 
@@ -194,8 +194,7 @@ namespace catapult { namespace observers {
 			RunTest<TOperationTraits, TPropertyValueTraits>(Num_Default_Entries + 1, notifyMode, [notifyMode](const auto& values) {
 				using PropertyModification = model::PropertyModification<typename TPropertyValueTraits::ValueType>;
 				auto modificationType = NotifyMode::Commit == notifyMode ? Add : Del;
-				auto transform = [](const auto& value) { return value; };
-				return PropertyModification{ modificationType, test::CreateDifferentValue<TPropertyValueTraits>(values, transform) };
+				return PropertyModification{ modificationType, test::CreateRandomUniqueValue(values) };
 			});
 		}
 

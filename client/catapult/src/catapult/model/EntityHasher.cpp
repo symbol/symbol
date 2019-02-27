@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 	}
 
 	Hash256 CalculateHash(const Block& block) {
-		return CalculateHash(block, EntityDataBuffer(block, sizeof(Block)));
+		return CalculateHash(block, EntityDataBuffer(block, sizeof(BlockHeader)));
 	}
 
 	Hash256 CalculateHash(const Transaction& transaction) {

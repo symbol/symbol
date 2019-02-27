@@ -99,7 +99,10 @@ namespace catapult { namespace test {
 
 	class MockAggregateNotificationObserver : public observers::AggregateNotificationObserver, public ParamsCapture<ObserverParams> {
 	public:
-		MockAggregateNotificationObserver() : m_name("MockAggregateNotificationObserver")
+		MockAggregateNotificationObserver()
+				: m_name("MockAggregateNotificationObserver")
+				, m_enableRollbackEmulation(false)
+				, m_enableReceiptGeneration(false)
 		{}
 
 	public:
@@ -112,15 +115,49 @@ namespace catapult { namespace test {
 		}
 
 		void notify(const model::Notification& notification, observers::ObserverContext& context) const override {
-			const_cast<MockAggregateNotificationObserver*>(this)->push(CastToDerivedNotification<MockNotification>(notification), context);
+			const auto& mockNotification = CastToDerivedNotification<MockNotification>(notification);
+			const_cast<MockAggregateNotificationObserver*>(this)->push(mockNotification, context);
 
-			// - add a block difficulty info to the cache as a marker
+			// add a block difficulty info to the cache as a marker
 			auto& cache = context.Cache.sub<cache::BlockDifficultyCache>();
-			cache.insert(state::BlockDifficultyInfo(Height(cache.size() + 1)));
+			if (!m_enableRollbackEmulation || observers::NotifyMode::Commit == context.Mode)
+				cache.insert(state::BlockDifficultyInfo(Height(cache.size() + 1)));
+			else
+				cache.remove(state::BlockDifficultyInfo(Height(cache.size())));
+
+			// add receipt breadcrumb if enabled
+			if (m_enableReceiptGeneration && observers::NotifyMode::Commit == context.Mode)
+				AddReceiptBreadcrumb(context.StatementBuilder(), mockNotification.Id, cache.size());
+		}
+
+	public:
+		/// Enables rollback emulation.
+		void enableRollbackEmulation() {
+			m_enableRollbackEmulation = true;
+		}
+
+		/// Enables generation of receipts for every notify (commit) call.
+		void enableReceiptGeneration() {
+			m_enableReceiptGeneration = true;
+		}
+
+	private:
+		static void AddReceiptBreadcrumb(observers::ObserverStatementBuilder& statementBuilder, size_t sequenceId, size_t breadcrumbId) {
+			// simulate source increment for each entity
+			if (1 == sequenceId)
+				statementBuilder.setSource({ statementBuilder.source().PrimaryId + 1, 0 });
+
+			// add receipt breadcrumb
+			model::Receipt receipt{};
+			receipt.Size = sizeof(model::Receipt);
+			receipt.Type = static_cast<model::ReceiptType>(2 * breadcrumbId);
+			statementBuilder.addReceipt(receipt);
 		}
 
 	private:
 		std::string m_name;
+		bool m_enableRollbackEmulation;
+		bool m_enableReceiptGeneration;
 	};
 
 	// endregion

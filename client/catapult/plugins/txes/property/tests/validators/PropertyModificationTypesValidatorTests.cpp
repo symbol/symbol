@@ -72,7 +72,7 @@ namespace catapult { namespace validators {
 			auto modifications = CreateModifications<TPropertyValueTraits>(modificationTypes);
 			typename TPropertyValueTraits::NotificationType notification(
 					test::GenerateRandomData<Key_Size>(),
-					TPropertyValueTraits::PropertyType(),
+					TPropertyValueTraits::Property_Type,
 					static_cast<uint8_t>(modifications.size()),
 					modifications.data());
 			auto pValidator = TPropertyValueTraits::CreateValidator();

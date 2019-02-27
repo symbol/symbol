@@ -54,44 +54,27 @@ namespace catapult { namespace thread {
 		/// Configures \a continuation to run at the completion of this future.
 		template<
 				typename TContinuation,
-				typename TResultType = typename std::result_of<TContinuation(future<T>&&)>::type
+				typename TResultType = std::invoke_result_t<TContinuation, future<T>&&>
 		>
-		auto then(TContinuation continuation, typename std::enable_if<!std::is_same<TResultType, void>::value>::type* = nullptr) {
-			auto pResultState = std::make_shared<detail::shared_state<TResultType>>();
-			m_pState->set_continuation([pResultState, continuation](const auto& pState) {
-				try {
-					pResultState->set_value(continuation(future<T>(pState)));
-				} catch (...) {
-					pResultState->set_exception(std::current_exception());
-				}
-			});
+		auto then(TContinuation continuation) {
+			if constexpr (!std::is_same_v<TResultType, void>) {
+				auto pResultState = std::make_shared<detail::shared_state<TResultType>>();
+				m_pState->set_continuation([pResultState, continuation](const auto& pState) {
+					try {
+						pResultState->set_value(continuation(future<T>(pState)));
+					} catch (...) {
+						pResultState->set_exception(std::current_exception());
+					}
+				});
 
-			return future<TResultType>(pResultState);
+				return future<TResultType>(pResultState);
+			} else {
+				return then([continuation](auto&& future) {
+					continuation(std::move(future));
+					return true;
+				});
+			}
 		}
-
-// if vs 2017+
-#if defined(_MSC_VER) && _MSC_VER > 1900
-#pragma warning(push)
-#pragma warning(disable:4702) /* "unreachable code" triggered by FutureTests.cpp, but due to bug in VS need to disable warning here... */
-#endif
-
-		/// Configures \a continuation to run at the completion of this future.
-		template<
-				typename TContinuation,
-				typename TResultType = typename std::result_of<TContinuation(future<T>&&)>::type
-		>
-		auto then(TContinuation continuation, typename std::enable_if<std::is_same<TResultType, void>::value>::type* = nullptr) {
-			return then([continuation](auto&& future) {
-				continuation(std::move(future));
-				// 'unreachable code'
-				return true;
-			});
-		}
-
-// if vs 2017+
-#if defined(_MSC_VER) && _MSC_VER > 1900
-#pragma warning(pop)
-#endif
 
 	private:
 		std::shared_ptr<detail::shared_state<T>> m_pState;

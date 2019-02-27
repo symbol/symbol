@@ -118,7 +118,7 @@ namespace catapult { namespace test {
 		struct UseCount {};
 
 		try {
-			WAIT_FOR_EXPR(pObject.unique());
+			WAIT_FOR_ONE_EXPR(static_cast<unsigned long>(pObject.use_count()));
 		} catch (catapult_runtime_error& ex) {
 			auto useCount = pObject.use_count();
 			ex << exception_detail::Make<UseCount>::From(useCount);

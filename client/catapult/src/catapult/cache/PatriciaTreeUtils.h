@@ -46,7 +46,7 @@ namespace catapult { namespace cache {
 			template<typename T>
 			struct IsActiveAccessor<
 					T,
-					typename utils::traits::enable_if_type<decltype(reinterpret_cast<const T*>(0)->isActive(Height()))>::type>
+					utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(0)->isActive(Height()))>>
 					: public SupportedIsActiveFlag
 			{};
 

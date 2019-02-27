@@ -56,7 +56,7 @@ namespace catapult { namespace plugins {
 		// Arrange:
 		auto pPlugin = TTraits::CreatePlugin(CreateRentalFeeConfiguration(Amount(0)));
 
-		typename TTraits::TransactionType transaction{};
+		typename TTraits::TransactionType transaction;
 		transaction.Size = 0;
 		transaction.PropertiesHeader.Count = 2;
 
@@ -73,7 +73,8 @@ namespace catapult { namespace plugins {
 		auto config = CreateRentalFeeConfiguration(Amount(0));
 		auto pPlugin = TTraits::CreatePlugin(config);
 
-		typename TTraits::TransactionType transaction{};
+		typename TTraits::TransactionType transaction;
+		transaction.PropertiesHeader.Count = 0;
 		test::FillWithRandomData(transaction.Signer);
 
 		// Act:
@@ -98,7 +99,8 @@ namespace catapult { namespace plugins {
 			auto pPlugin = TTraits::CreatePlugin(config);
 
 			// - prepare the transaction
-			typename TTraits::TransactionType transaction{};
+			typename TTraits::TransactionType transaction;
+			transaction.PropertiesHeader.Count = 0;
 			test::FillWithRandomData(transaction.Signer);
 			if (isSignerExempt)
 				transaction.Signer = config.NemesisPublicKey;

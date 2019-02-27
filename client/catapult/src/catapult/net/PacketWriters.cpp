@@ -22,7 +22,7 @@
 #include "ClientConnector.h"
 #include "ServerConnector.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/ModificationSafeIterableContainer.h"
@@ -256,7 +256,7 @@ namespace catapult { namespace net {
 				, public std::enable_shared_from_this<DefaultPacketWriters> {
 		public:
 			DefaultPacketWriters(
-					const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const crypto::KeyPair& keyPair,
 					const ConnectionSettings& settings)
 					: m_pPool(pPool)
@@ -330,7 +330,7 @@ namespace catapult { namespace net {
 					pThis->makeWriterAvailable(pSocket);
 				};
 
-				auto pTimedCompletionHandler = thread::MakeTimedCallback(m_pPool->service(), completionHandler, false);
+				auto pTimedCompletionHandler = thread::MakeTimedCallback(m_pPool->ioContext(), completionHandler, false);
 				pTimedCompletionHandler->setTimeout(ioDuration);
 				pTimedCompletionHandler->setTimeoutHandler([errorHandler]() {
 					CATAPULT_LOG(warning) << "calling error handler due to timeout";
@@ -414,7 +414,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			std::shared_ptr<ClientConnector> m_pClientConnector;
 			std::shared_ptr<ServerConnector> m_pServerConnector;
 			model::NetworkIdentifier m_networkIdentifier;
@@ -423,7 +423,7 @@ namespace catapult { namespace net {
 	}
 
 	std::shared_ptr<PacketWriters> CreatePacketWriters(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
 			const ConnectionSettings& settings) {
 		return std::make_shared<DefaultPacketWriters>(pPool, keyPair, settings);

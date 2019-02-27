@@ -26,7 +26,7 @@
 #include "catapult/model/DiagnosticCounterValue.h"
 #include "catapult/utils/DiagnosticCounter.h"
 #include "tests/catapult/handlers/test/HeightRequestHandlerTests.h"
-#include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
 #include "tests/test/net/NodeTestUtils.h"

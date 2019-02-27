@@ -29,10 +29,10 @@ namespace catapult { namespace observers {
 
 	namespace {
 		struct TestHeights {
-			static constexpr auto Zero() { return model::ImportanceHeight(0); }
-			static constexpr auto One() { return model::ImportanceHeight(100); }
-			static constexpr auto Two() { return model::ImportanceHeight(200); }
-			static constexpr auto Three() { return model::ImportanceHeight(300); }
+			static constexpr auto Zero = model::ImportanceHeight(0);
+			static constexpr auto One = model::ImportanceHeight(100);
+			static constexpr auto Two = model::ImportanceHeight(200);
+			static constexpr auto Three = model::ImportanceHeight(300);
 		};
 
 		auto& AddRandomAccount(cache::AccountStateCacheDelta& delta) {
@@ -67,10 +67,10 @@ namespace catapult { namespace observers {
 			const auto& accountState = AddRandomAccount(delta);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two(), delta);
+			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two, delta);
 
 			// Assert: nothing to restore
-			AssertImportance(accountState.ImportanceInfo, Importance(), TestHeights::Zero());
+			AssertImportance(accountState.ImportanceInfo, Importance(), TestHeights::Zero);
 		});
 	}
 
@@ -78,13 +78,13 @@ namespace catapult { namespace observers {
 		// Arrange:
 		RunTestWithDelta([](auto& delta) {
 			auto& accountState = AddRandomAccount(delta);
-			accountState.ImportanceInfo.set(Importance(987), TestHeights::Two());
+			accountState.ImportanceInfo.set(Importance(987), TestHeights::Two);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Three(), delta);
+			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Three, delta);
 
 			// Assert: nothing to restore (TH.2 < TH.3)
-			AssertImportance(accountState.ImportanceInfo, Importance(987), TestHeights::Two());
+			AssertImportance(accountState.ImportanceInfo, Importance(987), TestHeights::Two);
 		});
 	}
 
@@ -92,13 +92,13 @@ namespace catapult { namespace observers {
 		// Arrange:
 		RunTestWithDelta([](auto& delta) {
 			auto& accountState = AddRandomAccount(delta);
-			accountState.ImportanceInfo.set(Importance(987), TestHeights::Two());
+			accountState.ImportanceInfo.set(Importance(987), TestHeights::Two);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two(), delta);
+			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two, delta);
 
 			// Assert: nothing to restore (TH.2 == TH.2)
-			AssertImportance(accountState.ImportanceInfo, Importance(987), TestHeights::Two());
+			AssertImportance(accountState.ImportanceInfo, Importance(987), TestHeights::Two);
 		});
 	}
 
@@ -110,15 +110,15 @@ namespace catapult { namespace observers {
 		// Arrange:
 		RunTestWithDelta([](auto& delta) {
 			auto& accountState = AddRandomAccount(delta);
-			accountState.ImportanceInfo.set(Importance(777), TestHeights::One());
-			accountState.ImportanceInfo.set(Importance(888), TestHeights::Two());
-			accountState.ImportanceInfo.set(Importance(999), TestHeights::Three());
+			accountState.ImportanceInfo.set(Importance(777), TestHeights::One);
+			accountState.ImportanceInfo.set(Importance(888), TestHeights::Two);
+			accountState.ImportanceInfo.set(Importance(999), TestHeights::Three);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two(), delta);
+			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two, delta);
 
 			// Assert: restored (TH.3 > TH.2) to TH.2
-			AssertImportance(accountState.ImportanceInfo, Importance(888), TestHeights::Two());
+			AssertImportance(accountState.ImportanceInfo, Importance(888), TestHeights::Two);
 		});
 	}
 
@@ -126,14 +126,14 @@ namespace catapult { namespace observers {
 		// Arrange:
 		RunTestWithDelta([](auto& delta) {
 			auto& accountState = AddRandomAccount(delta);
-			accountState.ImportanceInfo.set(Importance(777), TestHeights::One());
-			accountState.ImportanceInfo.set(Importance(999), TestHeights::Three());
+			accountState.ImportanceInfo.set(Importance(777), TestHeights::One);
+			accountState.ImportanceInfo.set(Importance(999), TestHeights::Three);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two(), delta);
+			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two, delta);
 
 			// Assert: restored (TH.3 > TH.2) to TH.1
-			AssertImportance(accountState.ImportanceInfo, Importance(777), TestHeights::One());
+			AssertImportance(accountState.ImportanceInfo, Importance(777), TestHeights::One);
 		});
 	}
 
@@ -141,16 +141,16 @@ namespace catapult { namespace observers {
 		// Arrange:
 		RunTestWithDelta([](auto& delta) {
 			auto& accountState = AddRandomAccount(delta);
-			accountState.ImportanceInfo.set(Importance(777), TestHeights::One());
-			accountState.ImportanceInfo.set(Importance(888), TestHeights::Two());
-			accountState.ImportanceInfo.set(Importance(999), TestHeights::Three());
+			accountState.ImportanceInfo.set(Importance(777), TestHeights::One);
+			accountState.ImportanceInfo.set(Importance(888), TestHeights::Two);
+			accountState.ImportanceInfo.set(Importance(999), TestHeights::Three);
 
 			// Act: restore height
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::One(), delta);
+			CreateRestoreImportanceCalculator()->recalculate(TestHeights::One, delta);
 
 			// Assert: restored (TH.3 > TH.2 > TH.1) to TH.2
 			//         (this is an edge case scenario that cannot happen in production because rollbacks can't be skipped)
-			AssertImportance(accountState.ImportanceInfo, Importance(888), TestHeights::Two());
+			AssertImportance(accountState.ImportanceInfo, Importance(888), TestHeights::Two);
 		});
 	}
 
@@ -158,13 +158,13 @@ namespace catapult { namespace observers {
 		// Arrange:
 		RunTestWithDelta([](auto& delta) {
 			auto& accountState = AddRandomAccount(delta);
-			accountState.ImportanceInfo.set(Importance(987), TestHeights::Two());
+			accountState.ImportanceInfo.set(Importance(987), TestHeights::Two);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::One(), delta);
+			CreateRestoreImportanceCalculator()->recalculate(TestHeights::One, delta);
 
 			// Assert: restored (TH.2 > TH.1) to 0
-			AssertImportance(accountState.ImportanceInfo, Importance(), TestHeights::Zero());
+			AssertImportance(accountState.ImportanceInfo, Importance(), TestHeights::Zero);
 		});
 	}
 
@@ -176,29 +176,29 @@ namespace catapult { namespace observers {
 		// Arrange:
 		RunTestWithDelta([](auto& delta) {
 			auto& accountState1 = AddRandomAccount(delta);
-			accountState1.ImportanceInfo.set(Importance(1), TestHeights::One());
-			accountState1.ImportanceInfo.set(Importance(2), TestHeights::Two());
-			accountState1.ImportanceInfo.set(Importance(3), TestHeights::Three());
+			accountState1.ImportanceInfo.set(Importance(1), TestHeights::One);
+			accountState1.ImportanceInfo.set(Importance(2), TestHeights::Two);
+			accountState1.ImportanceInfo.set(Importance(3), TestHeights::Three);
 
 			const auto& accountState2 = AddRandomAccount(delta);
 
 			auto& accountState3 = AddRandomAccount(delta);
-			accountState3.ImportanceInfo.set(Importance(1), TestHeights::One());
-			accountState3.ImportanceInfo.set(Importance(3), TestHeights::Three());
+			accountState3.ImportanceInfo.set(Importance(1), TestHeights::One);
+			accountState3.ImportanceInfo.set(Importance(3), TestHeights::Three);
 
 			auto& accountState4 = AddRandomAccount(delta);
-			accountState4.ImportanceInfo.set(Importance(4), TestHeights::One());
-			accountState4.ImportanceInfo.set(Importance(5), TestHeights::Two());
-			accountState4.ImportanceInfo.set(Importance(6), TestHeights::Three());
+			accountState4.ImportanceInfo.set(Importance(4), TestHeights::One);
+			accountState4.ImportanceInfo.set(Importance(5), TestHeights::Two);
+			accountState4.ImportanceInfo.set(Importance(6), TestHeights::Three);
 
 			// Act:
-			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two(), delta);
+			CreateRestoreImportanceCalculator()->recalculate(TestHeights::Two, delta);
 
 			// Assert:
-			AssertImportance(accountState1.ImportanceInfo, Importance(2), TestHeights::Two());
-			AssertImportance(accountState2.ImportanceInfo, Importance(), TestHeights::Zero());
-			AssertImportance(accountState3.ImportanceInfo, Importance(1), TestHeights::One());
-			AssertImportance(accountState4.ImportanceInfo, Importance(5), TestHeights::Two());
+			AssertImportance(accountState1.ImportanceInfo, Importance(2), TestHeights::Two);
+			AssertImportance(accountState2.ImportanceInfo, Importance(), TestHeights::Zero);
+			AssertImportance(accountState3.ImportanceInfo, Importance(1), TestHeights::One);
+			AssertImportance(accountState4.ImportanceInfo, Importance(5), TestHeights::Two);
 		});
 	}
 

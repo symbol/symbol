@@ -345,8 +345,9 @@ namespace catapult { namespace filechain {
 			// - calculate expected state hash after loading first two blocks (1, 2)
 			Hash256 expectedHash;
 			ExecuteWithStorage(storage, [&expectedHash, &block = *blocks[0] ](auto& cache, const auto& pluginManager) {
-				auto cacheDetachedDelta = cache.createDetachableDelta().detach();
-				auto pCacheDelta = cacheDetachedDelta.lock();
+				auto cacheDetachableDelta = cache.createDetachableDelta();
+				auto cacheDetachedDelta = cacheDetachableDelta.detach();
+				auto pCacheDelta = cacheDetachedDelta.tryLock();
 
 				expectedHash = test::CalculateBlockStateHash(block, *pCacheDelta, pluginManager);
 			});
@@ -369,8 +370,9 @@ namespace catapult { namespace filechain {
 					EXPECT_EQ(expectedHash, hashInfo.StateHash);
 
 					// - calculate next expected hash
-					auto cacheDetachedDelta = cache.createDetachableDelta().detach();
-					auto pCacheDelta = cacheDetachedDelta.lock();
+					auto cacheDetachableDelta = cache.createDetachableDelta();
+					auto cacheDetachedDelta = cacheDetachableDelta.detach();
+					auto pCacheDelta = cacheDetachedDelta.tryLock();
 
 					expectedHash = test::CalculateBlockStateHash(nextBlock, *pCacheDelta, pluginManager);
 				});

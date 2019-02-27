@@ -33,7 +33,7 @@ namespace catapult { namespace deltaset {
 		};
 
 		template<typename T>
-		struct StlContainerTraits<T, typename utils::traits::enable_if_type<typename T::hasher>::type> {
+		struct StlContainerTraits<T, utils::traits::is_type_expression_t<typename T::hasher>> {
 			using hasher = typename T::hasher;
 			using key_equal = typename T::key_equal;
 		};

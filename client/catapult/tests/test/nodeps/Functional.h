@@ -27,7 +27,7 @@ namespace catapult { namespace test {
 	/// \see http://stackoverflow.com/questions/33379145/equivalent-of-python-map-function-using-lambda
 	template<typename Container, typename Function>
 	auto Apply(bool forward, const Container& container, Function fun) {
-		std::vector<typename std::result_of<Function(const typename Container::value_type&)>::type> result;
+		std::vector<std::invoke_result_t<Function, const typename Container::value_type&>> result;
 		for (const auto& element : container)
 			result.push_back(fun(element));
 

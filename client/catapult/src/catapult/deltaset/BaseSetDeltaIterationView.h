@@ -135,7 +135,7 @@ namespace catapult { namespace deltaset {
 				return m_deltas.Copied.end() != m_iter;
 			}
 
-			static CPP14_CONSTEXPR bool contains(const SetType& set, const KeyType& key) {
+			static constexpr bool contains(const SetType& set, const KeyType& key) {
 				return set.cend() != set.find(key);
 			}
 

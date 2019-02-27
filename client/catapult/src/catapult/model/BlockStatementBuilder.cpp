@@ -35,6 +35,16 @@ namespace catapult { namespace model {
 		m_activeSource = source;
 	}
 
+	void BlockStatementBuilder::popSource() {
+		if (0 == m_activeSource.PrimaryId)
+			return;
+
+		setSource({ m_activeSource.PrimaryId - 1, 0 });
+		auto pTruncatedStatement = std::make_unique<BlockStatement>();
+		DeepCopyTo(*pTruncatedStatement, *m_pStatement, m_activeSource.PrimaryId);
+		m_pStatement = std::move(pTruncatedStatement);
+	}
+
 	void BlockStatementBuilder::addReceipt(const Receipt& receipt) {
 		auto& statements = m_pStatement->TransactionStatements;
 		auto iter = statements.find(m_activeSource);

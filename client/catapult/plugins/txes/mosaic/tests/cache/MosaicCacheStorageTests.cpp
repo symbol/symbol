@@ -35,9 +35,11 @@ namespace catapult { namespace cache {
 
 		// Act:
 		MosaicCache cache(CacheConfiguration{});
-		auto delta = cache.createDelta();
-		MosaicCacheStorage::LoadInto(originalEntry, *delta);
-		cache.commit();
+		{
+			auto delta = cache.createDelta();
+			MosaicCacheStorage::LoadInto(originalEntry, *delta);
+			cache.commit();
+		}
 
 		// Assert: the cache contains the value
 		auto view = cache.createView();

@@ -53,8 +53,9 @@ namespace catapult { namespace mongo {
 		PrepareMongoBlockStorage(m_destinationStorage, m_sourceStorage, *pNotificationPublisher);
 
 		// 2. create a detached delta
-		auto cacheDetachedDelta = cache.createDetachableDelta().detach();
-		auto pCacheDelta = cacheDetachedDelta.lock();
+		auto cacheDetachableDelta = cache.createDetachableDelta();
+		auto cacheDetachedDelta = cacheDetachableDelta.detach();
+		auto pCacheDelta = cacheDetachedDelta.tryLock();
 
 		// 3. execute the nemesis block
 		auto pNemesisBlockElement = m_sourceStorage.loadBlockElement(Height(1));

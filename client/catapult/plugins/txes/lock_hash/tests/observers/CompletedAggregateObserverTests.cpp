@@ -70,9 +70,7 @@ namespace catapult { namespace observers {
 
 			using ObserverTestContext = observers::ObserverTestContext;
 
-			static constexpr auto ReceiptType() {
-				return model::Receipt_Type_LockHash_Completed;
-			}
+			static constexpr auto Receipt_Type = model::Receipt_Type_LockHash_Completed;
 
 			static auto CreateObserver() {
 				return CreateCompletedAggregateObserver();

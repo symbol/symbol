@@ -32,14 +32,10 @@ namespace catapult { namespace net {
 		// region ChainInfoRequestor
 
 		// use chain info requests to test BriefServerRequestor
-		class ChainInfoRequestPolicy {
-		public:
+		struct ChainInfoRequestPolicy {
 			using ResponseType = api::ChainInfo;
 
-		public:
-			static constexpr const char* FriendlyName() {
-				return "chain info";
-			}
+			static constexpr auto Friendly_Name = "chain info";
 
 			static thread::future<ResponseType> CreateFuture(ionet::PacketIo& packetIo) {
 				return api::CreateRemoteChainApiWithoutRegistry(packetIo)->chainInfo();
@@ -203,7 +199,7 @@ namespace catapult { namespace net {
 			RequestorTestContext<> context(utils::TimeSpan::FromMilliseconds(100));
 
 			// - set up a server but don't respond to verify in order to trigger a timeout error
-			test::TcpAcceptor acceptor(context.pPool->service());
+			test::TcpAcceptor acceptor(context.pPool->ioContext());
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
 			test::SpawnPacketServerWork(acceptor, [&serverKeyPair = context.ServerKeyPair, &pServerSocket](const auto& pSocket) {
 				pServerSocket = pSocket;

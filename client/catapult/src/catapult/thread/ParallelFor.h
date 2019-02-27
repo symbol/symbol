@@ -24,11 +24,11 @@
 
 namespace catapult { namespace thread {
 
-	/// Uses \a service to process \a items in \a numPartitions batches and calls \a callback for each partition.
+	/// Uses \a ioContext to process \a items in \a numPartitions batches and calls \a callback for each partition.
 	/// A future is returned that is resolved when all items have been processed.
 	template<typename TItems, typename TWorkCallback>
 	thread::future<bool> ParallelForPartition(
-			boost::asio::io_service& service,
+			boost::asio::io_context& ioContext,
 			TItems& items,
 			size_t numPartitions,
 			TWorkCallback callback) {
@@ -99,7 +99,7 @@ namespace catapult { namespace thread {
 			pParallelContext->incrementOutstandingOperations();
 			auto startIndex = numTotalItems - numRemainingItems;
 			auto batchIndex = numPartitions - numRemainingPartitions;
-			service.post([callback, pParallelContext, itBegin, itEnd, startIndex, batchIndex]() {
+			boost::asio::post(ioContext, [callback, pParallelContext, itBegin, itEnd, startIndex, batchIndex]() {
 				DecrementGuard threadOperationGuard(*pParallelContext);
 				callback(itBegin, itEnd, startIndex, batchIndex);
 			});
@@ -112,15 +112,16 @@ namespace catapult { namespace thread {
 		return pParallelContext->future();
 	}
 
-	/// Uses \a service to process \a items in \a numPartitions batches and calls \a callback for each item.
+	/// Uses \a ioContext to process \a items in \a numPartitions batches and calls \a callback for each item.
 	/// A future is returned that is resolved when all items have been processed.
 	template<typename TItems, typename TWorkCallback>
-	thread::future<bool> ParallelFor(boost::asio::io_service& service, TItems& items, size_t numPartitions, TWorkCallback callback) {
-		return ParallelForPartition(service, items, numPartitions, [callback](auto itBegin, auto itEnd, auto startIndex, auto) {
+	thread::future<bool> ParallelFor(boost::asio::io_context& ioContext, TItems& items, size_t numPartitions, TWorkCallback callback) {
+		return ParallelForPartition(ioContext, items, numPartitions, [callback](auto itBegin, auto itEnd, auto startIndex, auto) {
 			auto i = 0u;
-			std::all_of(itBegin, itEnd, [callback, startIndex, &i](auto& item) {
-				return callback(item, startIndex + i++);
-			});
+			for (auto iter = itBegin; itEnd != iter; ++iter, ++i) {
+				if (!callback(*iter, startIndex + i))
+					break;
+			}
 		});
 	}
 }}

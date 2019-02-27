@@ -27,8 +27,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
 		struct HashLockCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::HashLockInfoCacheDescriptor> {
-			static constexpr const char* Collection_Name = "hashLockInfos";
-			static constexpr const char* Id_Property_Name = "lock.hash";
+			static constexpr auto Collection_Name = "hashLockInfos";
+			static constexpr auto Id_Property_Name = "lock.hash";
 		};
 	}
 

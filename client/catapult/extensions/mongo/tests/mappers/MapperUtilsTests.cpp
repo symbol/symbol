@@ -24,13 +24,7 @@
 #include "catapult/model/VerifiableEntity.h"
 #include "mongo/tests/test/MapperTestUtils.h"
 #include "tests/TestHarness.h"
-#ifndef _MSC_VER
-#pragma GCC visibility push(default)
-#endif
 #include <bsoncxx/exception/exception.hpp>
-#ifndef _MSC_VER
-#pragma GCC visibility pop
-#endif
 
 namespace catapult { namespace mongo { namespace mappers {
 

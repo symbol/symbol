@@ -55,7 +55,7 @@ namespace catapult { namespace handlers {
 
 			static auto CreateRegistry() {
 				model::TransactionRegistry registry;
-				registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<int>(model::Entity_Type_Aggregate_Bonded)));
+				registry.registerPlugin(mocks::CreateMockTransactionPlugin(model::Entity_Type_Aggregate_Bonded));
 				registry.registerPlugin(mocks::CreateMockTransactionPlugin());
 				return registry;
 			}

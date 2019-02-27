@@ -21,7 +21,7 @@
 #pragma once
 #include "catapult/functions.h"
 
-namespace boost { namespace asio { class io_service; } }
+namespace boost { namespace asio { class io_context; } }
 
 namespace catapult { namespace test {
 
@@ -29,7 +29,7 @@ namespace catapult { namespace test {
 	using ShouldWaitPredicate = predicate<>;
 
 	/// A wait function.
-	using WaitFunction = consumer<boost::asio::io_service&, const ShouldWaitPredicate&>;
+	using WaitFunction = consumer<boost::asio::io_context&, const ShouldWaitPredicate&>;
 
 	/// Creates a synchronous wait function that waits for intervals of \a waitMillis ms.
 	WaitFunction CreateSyncWaitFunction(uint32_t waitMillis);

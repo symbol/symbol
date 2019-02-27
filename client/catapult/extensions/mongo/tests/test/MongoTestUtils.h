@@ -109,7 +109,7 @@ namespace catapult { namespace test {
 		else if (test::DbInitializationType::Prepare == dbInitializationType)
 			PrepareDatabase(DatabaseName());
 
-		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), DatabaseName(), CreateStartedIoServiceThreadPool(8));
+		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), DatabaseName(), CreateStartedIoThreadPool(8));
 		auto pMongoContext = std::make_shared<mongo::MongoStorageContext>(DefaultDbUri(), DatabaseName(), pWriter);
 
 		auto pRegistry = std::make_shared<mongo::MongoTransactionRegistry>();

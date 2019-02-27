@@ -32,25 +32,20 @@ namespace catapult { namespace tree {
 	namespace {
 		template<size_t Size, size_t NibbleSize>
 		struct BasePathTraits {
-			constexpr static size_t PathSize() {
-				return Size;
-			}
-
-			constexpr static size_t PathNibbleSize() {
-				return NibbleSize;
-			}
+			static constexpr auto Path_Size = Size;
+			static constexpr auto Path_Nibble_Size = NibbleSize;
 		};
 
 		struct OddPathTraits : public BasePathTraits<6, 11> {
 			static auto CreatePath() {
-				auto path = TreeNodePath(test::GenerateRandomData<PathSize()>());
+				auto path = TreeNodePath(test::GenerateRandomData<Path_Size>());
 				return path.subpath(1);
 			}
 		};
 
 		struct EvenPathTraits : public BasePathTraits<7, 14> {
 			static auto CreatePath() {
-				return TreeNodePath(test::GenerateRandomData<PathSize()>());
+				return TreeNodePath(test::GenerateRandomData<Path_Size>());
 			}
 		};
 
@@ -65,19 +60,19 @@ namespace catapult { namespace tree {
 			EXPECT_EQ(marker, static_cast<uint8_t>(result[0]));
 
 			auto pathSize = *reinterpret_cast<const uint8_t*>(result.data() + sizeof(uint8_t));
-			EXPECT_EQ(TPathTraits::PathNibbleSize(), pathSize);
+			EXPECT_EQ(TPathTraits::Path_Nibble_Size, pathSize);
 
 			const auto* pPath = reinterpret_cast<const uint8_t*>(result.data() + 2 * sizeof(uint8_t));
-			std::vector<uint8_t> rawPath(pPath, pPath + TPathTraits::PathSize());
+			std::vector<uint8_t> rawPath(pPath, pPath + TPathTraits::Path_Size);
 			TreeNodePath resultPath(rawPath);
-			EXPECT_EQ(path, resultPath.subpath(0, TPathTraits::PathNibbleSize()));
+			EXPECT_EQ(path, resultPath.subpath(0, TPathTraits::Path_Nibble_Size));
 
-			return pPath + TPathTraits::PathSize();
+			return pPath + TPathTraits::Path_Size;
 		}
 
 		template<typename TPathTraits>
 		void AssertSerializedLeaf(const LeafTreeNode& value, const std::string& result) {
-			auto expectedSize = 2 * sizeof(uint8_t) + TPathTraits::PathSize() + Hash256_Size;
+			auto expectedSize = 2 * sizeof(uint8_t) + TPathTraits::Path_Size + Hash256_Size;
 			ASSERT_EQ(expectedSize, result.size());
 
 			const auto* pData = AssertCommonData<TPathTraits>(0xFF, value.path(), result);
@@ -93,7 +88,7 @@ namespace catapult { namespace tree {
 				TIndexGenerator indexGenerator,
 				uint16_t expectedLinksMask,
 				const std::string& result) {
-			auto expectedSize = 2 * sizeof(uint8_t) + TPathTraits::PathSize() + sizeof(uint16_t) + numLinks * Hash256_Size;
+			auto expectedSize = 2 * sizeof(uint8_t) + TPathTraits::Path_Size + sizeof(uint16_t) + numLinks * Hash256_Size;
 			ASSERT_EQ(expectedSize, result.size());
 
 			const auto* pData = AssertCommonData<TPathTraits>(0, value.path(), result);
@@ -204,10 +199,10 @@ namespace catapult { namespace tree {
 
 		template<typename TPathTraits>
 		auto GenerateValidPath() {
-			auto rawPath = test::GenerateRandomDataVector<uint8_t>(TPathTraits::PathSize());
-			bool isOdd = 1 == TPathTraits::PathNibbleSize() % 2;
+			auto rawPath = test::GenerateRandomDataVector<uint8_t>(TPathTraits::Path_Size);
+			bool isOdd = 1 == TPathTraits::Path_Nibble_Size % 2;
 			if (isOdd)
-				rawPath[TPathTraits::PathSize() - 1] &= 0xF0;
+				rawPath[TPathTraits::Path_Size - 1] &= 0xF0;
 
 			return rawPath;
 		}
@@ -215,7 +210,7 @@ namespace catapult { namespace tree {
 		template<typename TPathTraits>
 		auto GenerateInvalidPath() {
 			auto rawPath = GenerateValidPath<TPathTraits>();
-			rawPath[TPathTraits::PathSize() - 1] |= 0x0F;
+			rawPath[TPathTraits::Path_Size - 1] |= 0x0F;
 			return rawPath;
 		}
 	}
@@ -228,7 +223,7 @@ namespace catapult { namespace tree {
 		// Arrange:
 		auto rawPath = GenerateValidPath<TPathTraits>();
 		auto value = test::GenerateRandomData<Hash256_Size>();
-		auto data = CreateSerializedLeaf(rawPath, TPathTraits::PathNibbleSize(), value);
+		auto data = CreateSerializedLeaf(rawPath, TPathTraits::Path_Nibble_Size, value);
 
 		// - drop last byte
 		data.resize(data.size() - 1);
@@ -240,7 +235,7 @@ namespace catapult { namespace tree {
 	PTSERIALIZER_TRAITS_BASED_TEST(DeserializeFailsIfThereIsNotEnoughData_Branch) {
 		// Arrange:
 		auto rawPath = GenerateValidPath<TPathTraits>();
-		auto data = CreateSerializedBranch(rawPath, TPathTraits::PathNibbleSize(), 0x0000, {});
+		auto data = CreateSerializedBranch(rawPath, TPathTraits::Path_Nibble_Size, 0x0000, {});
 
 		// - drop last byte
 		data.resize(data.size() - 1);
@@ -257,7 +252,7 @@ namespace catapult { namespace tree {
 		// Arrange:
 		auto rawPath = GenerateValidPath<TPathTraits>();
 		auto value = test::GenerateRandomData<Hash256_Size>();
-		auto data = CreateSerializedLeaf(rawPath, TPathTraits::PathNibbleSize(), value);
+		auto data = CreateSerializedLeaf(rawPath, TPathTraits::Path_Nibble_Size, value);
 
 		// - change marker
 		data[0] = 0x34;
@@ -274,7 +269,7 @@ namespace catapult { namespace tree {
 		// Arrange: make sure filler nibble is non-zero
 		auto rawPath = GenerateInvalidPath<OddPathTraits>();
 		auto value = test::GenerateRandomData<Hash256_Size>();
-		auto data = CreateSerializedLeaf(rawPath, OddPathTraits::PathNibbleSize(), value);
+		auto data = CreateSerializedLeaf(rawPath, OddPathTraits::Path_Nibble_Size, value);
 
 		// Act + Assert:
 		EXPECT_THROW(Serializer::DeserializeValue(data), catapult_runtime_error);
@@ -284,7 +279,7 @@ namespace catapult { namespace tree {
 		// Arrange:
 		auto rawPath = GenerateInvalidPath<EvenPathTraits>();
 		auto value = test::GenerateRandomData<Hash256_Size>();
-		auto data = CreateSerializedLeaf(rawPath, EvenPathTraits::PathNibbleSize(), value);
+		auto data = CreateSerializedLeaf(rawPath, EvenPathTraits::Path_Nibble_Size, value);
 
 		// Act + Assert:
 		EXPECT_NO_THROW(Serializer::DeserializeValue(data));
@@ -298,7 +293,7 @@ namespace catapult { namespace tree {
 		// Arrange:
 		auto rawPath = GenerateValidPath<TPathTraits>();
 		auto value = test::GenerateRandomData<Hash256_Size>();
-		auto data = CreateSerializedLeaf(rawPath, TPathTraits::PathNibbleSize(), value);
+		auto data = CreateSerializedLeaf(rawPath, TPathTraits::Path_Nibble_Size, value);
 		auto path = TreeNodePath(rawPath);
 
 		// Act:
@@ -307,8 +302,8 @@ namespace catapult { namespace tree {
 		// Assert:
 		EXPECT_TRUE(node.isLeaf());
 		const auto& leafNode = node.asLeafNode();
-		EXPECT_EQ(TPathTraits::PathNibbleSize(), leafNode.path().size());
-		EXPECT_EQ(TPathTraits::PathNibbleSize(), FindFirstDifferenceIndex(path, leafNode.path()));
+		EXPECT_EQ(TPathTraits::Path_Nibble_Size, leafNode.path().size());
+		EXPECT_EQ(TPathTraits::Path_Nibble_Size, FindFirstDifferenceIndex(path, leafNode.path()));
 		EXPECT_EQ(value, leafNode.value());
 	}
 
@@ -331,7 +326,7 @@ namespace catapult { namespace tree {
 			// Arrange:
 			auto rawPath = GenerateValidPath<TPathTraits>();
 			auto links = test::GenerateRandomDataVector<Hash256>(numLinks);
-			auto data = CreateSerializedBranch(rawPath, TPathTraits::PathNibbleSize(), linksMask, links);
+			auto data = CreateSerializedBranch(rawPath, TPathTraits::Path_Nibble_Size, linksMask, links);
 			auto path = TreeNodePath(rawPath);
 
 			// Act:
@@ -340,8 +335,8 @@ namespace catapult { namespace tree {
 			// Assert:
 			EXPECT_TRUE(node.isBranch());
 			const auto& branchNode = node.asBranchNode();
-			EXPECT_EQ(TPathTraits::PathNibbleSize(), branchNode.path().size());
-			EXPECT_EQ(TPathTraits::PathNibbleSize(), FindFirstDifferenceIndex(path, branchNode.path()));
+			EXPECT_EQ(TPathTraits::Path_Nibble_Size, branchNode.path().size());
+			EXPECT_EQ(TPathTraits::Path_Nibble_Size, FindFirstDifferenceIndex(path, branchNode.path()));
 			EXPECT_EQ(numLinks, branchNode.numLinks());
 			AssertBranchLinks(links, linksMask, branchNode);
 		}

@@ -43,8 +43,12 @@ namespace catapult { namespace model {
 
 		void CopyTransactionStatements(
 				std::map<ReceiptSource, TransactionStatement>& destination,
-				const std::map<ReceiptSource, TransactionStatement>& source) {
+				const std::map<ReceiptSource, TransactionStatement>& source,
+				uint32_t maxSourcePrimaryId) {
 			for (const auto& pair : source) {
+				if (pair.first.PrimaryId > maxSourcePrimaryId)
+					continue;
+
 				TransactionStatement statement(pair.first);
 				for (auto i = 0u; i < pair.second.size(); ++i)
 					statement.addReceipt(pair.second.receiptAt(i));
@@ -54,13 +58,22 @@ namespace catapult { namespace model {
 		}
 
 		template<typename TKey, typename TStatement>
-		void CopyResolutionStatements(std::map<TKey, TStatement>& destination, const std::map<TKey, TStatement>& source) {
+		void CopyResolutionStatements(
+				std::map<TKey, TStatement>& destination,
+				const std::map<TKey, TStatement>& source,
+				uint32_t maxSourcePrimaryId) {
 			for (const auto& pair : source) {
 				TStatement statement(pair.first);
 				for (auto i = 0u; i < pair.second.size(); ++i) {
 					const auto& entry = pair.second.entryAt(i);
+					if (entry.Source.PrimaryId > maxSourcePrimaryId)
+						continue;
+
 					statement.addResolution(entry.ResolvedValue, entry.Source);
 				}
+
+				if (0 == statement.size())
+					continue;
 
 				destination.emplace(pair.first, std::move(statement));
 			}
@@ -86,8 +99,12 @@ namespace catapult { namespace model {
 	}
 
 	void DeepCopyTo(BlockStatement& destination, const BlockStatement& source) {
-		CopyTransactionStatements(destination.TransactionStatements, source.TransactionStatements);
-		CopyResolutionStatements(destination.AddressResolutionStatements, source.AddressResolutionStatements);
-		CopyResolutionStatements(destination.MosaicResolutionStatements, source.MosaicResolutionStatements);
+		DeepCopyTo(destination, source, std::numeric_limits<uint32_t>::max());
+	}
+
+	void DeepCopyTo(BlockStatement& destination, const BlockStatement& source, uint32_t maxSourcePrimaryId) {
+		CopyTransactionStatements(destination.TransactionStatements, source.TransactionStatements, maxSourcePrimaryId);
+		CopyResolutionStatements(destination.AddressResolutionStatements, source.AddressResolutionStatements, maxSourcePrimaryId);
+		CopyResolutionStatements(destination.MosaicResolutionStatements, source.MosaicResolutionStatements, maxSourcePrimaryId);
 	}
 }}

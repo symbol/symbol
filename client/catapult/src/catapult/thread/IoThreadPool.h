@@ -22,14 +22,14 @@
 #include <memory>
 #include <string>
 
-namespace boost { namespace asio { class io_service; } }
+namespace boost { namespace asio { class io_context; } }
 
 namespace catapult { namespace thread {
 
-	/// Represents an io service thread pool that shares a single io service across multiple threads.
-	class IoServiceThreadPool {
+	/// Represents a thread pool that shares a single io context across multiple threads.
+	class IoThreadPool {
 	public:
-		virtual ~IoServiceThreadPool() = default;
+		virtual ~IoThreadPool() = default;
 
 	public:
 		/// Gets the number of active worker threads.
@@ -38,8 +38,8 @@ namespace catapult { namespace thread {
 		/// Gets the friendly name of this thread pool.
 		virtual const std::string& tag() const = 0;
 
-		/// Gets the underlying io_service.
-		virtual boost::asio::io_service& service() = 0;
+		/// Gets the underlying io_context.
+		virtual boost::asio::io_context& ioContext() = 0;
 
 	public:
 		/// Starts the thread pool.
@@ -50,7 +50,7 @@ namespace catapult { namespace thread {
 		virtual void join() = 0;
 	};
 
-	/// Creates an io service thread pool with the specified number of threads (\a numWorkerThreads) and the
+	/// Creates an io thread pool with the specified number of threads (\a numWorkerThreads) and the
 	/// optional friendly \a name used in logging.
-	std::unique_ptr<IoServiceThreadPool> CreateIoServiceThreadPool(size_t numWorkerThreads, const char* name = nullptr);
+	std::unique_ptr<IoThreadPool> CreateIoThreadPool(size_t numWorkerThreads, const char* name = nullptr);
 }}

@@ -34,8 +34,8 @@ namespace catapult { namespace mongo { namespace storages {
 			using KeyType = Address;
 			using ModelType = state::AccountState;
 
-			static constexpr const char* Collection_Name = "accounts";
-			static constexpr const char* Id_Property_Name = "account.address";
+			static constexpr auto Collection_Name = "accounts";
+			static constexpr auto Id_Property_Name = "account.address";
 
 			static auto GetId(const ModelType& accountState) {
 				return accountState.Address;

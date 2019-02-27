@@ -203,7 +203,7 @@ namespace catapult { namespace extensions {
 	FACTORY_RETRIEVER_TEST(CanSetOnce) {
 		// Arrange:
 		ServerHooks hooks;
-		std::vector<typename std::remove_const<decltype(TTraits::Input)>::type> inputs;
+		std::vector<std::remove_const_t<decltype(TTraits::Input)>> inputs;
 		TTraits::Set(hooks, [&inputs](auto input) {
 			inputs.push_back(input);
 			return TTraits::CreateResult();
@@ -238,9 +238,9 @@ namespace catapult { namespace extensions {
 		using T3 = decltype(TransactionRangeConsumerFactoryTraits::CreateResult()(model::AnnotatedTransactionRange()));
 
 		// - use types to get this to compile
-		EXPECT_TRUE((std::is_same<T1, void>::value));
-		EXPECT_TRUE((std::is_same<T2, disruptor::DisruptorElementId>::value));
-		EXPECT_TRUE((std::is_same<T3, void>::value));
+		EXPECT_TRUE((std::is_same_v<T1, void>));
+		EXPECT_TRUE((std::is_same_v<T2, disruptor::DisruptorElementId>));
+		EXPECT_TRUE((std::is_same_v<T3, void>));
 	}
 
 	// endregion

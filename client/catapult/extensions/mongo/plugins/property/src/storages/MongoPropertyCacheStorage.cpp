@@ -29,8 +29,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
 		struct PropertyCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::PropertyCacheDescriptor> {
-			static constexpr const char* Collection_Name = "accountProperties";
-			static constexpr const char* Id_Property_Name = "accountProperties.address";
+			static constexpr auto Collection_Name = "accountProperties";
+			static constexpr auto Id_Property_Name = "accountProperties.address";
 
 			static auto MapToMongoId(const KeyType& key) {
 				return mappers::ToBinary(key);

@@ -21,10 +21,10 @@
 #include "ParallelValidationPolicy.h"
 #include "AggregateValidationResult.h"
 #include "catapult/thread/FutureUtils.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/ParallelFor.h"
 #include "catapult/utils/Logging.h"
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <algorithm>
 
 namespace catapult { namespace validators {
@@ -146,9 +146,9 @@ namespace catapult { namespace validators {
 				: public ParallelValidationPolicy
 				, public std::enable_shared_from_this<DefaultParallelValidationPolicy> {
 		public:
-			explicit DefaultParallelValidationPolicy(const std::shared_ptr<thread::IoServiceThreadPool>& pPool)
+			explicit DefaultParallelValidationPolicy(const std::shared_ptr<thread::IoThreadPool>& pPool)
 					: m_pPool(pPool)
-					, m_service(pPool->service()) {
+					, m_ioContext(pPool->ioContext()) {
 				CATAPULT_LOG(trace) << "DefaultParallelValidationPolicy created with " << pPool->numWorkerThreads() << " worker threads";
 			}
 
@@ -157,7 +157,7 @@ namespace catapult { namespace validators {
 			auto validateT(const model::WeakEntityInfos& entityInfos, const ValidationFunctions& validationFunctions) const {
 				auto pWork = std::make_shared<ValidationWork<TTraits>>(shared_from_this(), validationFunctions, entityInfos);
 				return thread::compose(
-						thread::ParallelFor(m_service, pWork->entityInfos(), m_pPool->numWorkerThreads(), [pWork](
+						thread::ParallelFor(m_ioContext, pWork->entityInfos(), m_pPool->numWorkerThreads(), [pWork](
 								const auto& entityInfo,
 								auto index) {
 							return pWork->validateEntity(entityInfo, index);
@@ -182,13 +182,12 @@ namespace catapult { namespace validators {
 			}
 
 		private:
-			std::shared_ptr<const thread::IoServiceThreadPool> m_pPool;
-			boost::asio::io_service& m_service;
+			std::shared_ptr<const thread::IoThreadPool> m_pPool;
+			boost::asio::io_context& m_ioContext;
 		};
 	}
 
-	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool) {
+	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(const std::shared_ptr<thread::IoThreadPool>& pPool) {
 		return std::make_shared<const DefaultParallelValidationPolicy>(pPool);
 	}
 }}

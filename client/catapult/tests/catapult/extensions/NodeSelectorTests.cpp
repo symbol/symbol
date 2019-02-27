@@ -289,7 +289,7 @@ namespace catapult { namespace extensions {
 		struct SelectCandidatesBasedOnWeightTraits {
 		public:
 			using KeyStatistics = std::unordered_map<Key, uint32_t, utils::ArrayHasher<Key>>;
-			static constexpr auto Description() { return "select candidates and weight correlation"; }
+			static constexpr auto Description = "select candidates and weight correlation";
 
 			static KeyStatistics CreateStatistics(
 					const std::vector<ionet::Node>& nodes,
@@ -319,7 +319,7 @@ namespace catapult { namespace extensions {
 		struct SelectNodesTraits {
 		public:
 			using KeyStatistics = std::unordered_map<Key, uint32_t, utils::ArrayHasher<Key>>;
-			static constexpr auto Description() { return "select nodes and weight correlation"; }
+			static constexpr auto Description = "select nodes and weight correlation";
 
 			static KeyStatistics CreateStatistics(
 					const std::vector<ionet::Node>& nodes,

@@ -233,17 +233,15 @@ namespace catapult { namespace thread {
 		promise.set_value(6);
 		auto future = promise.get_future();
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4702) /* "unreachable code" */
-#endif
+		// note: following future always throws, `if` condition is added to avoid
+		// VS false-positive warning that `return` statement done inside then() is unreachable
 		auto finalFuture = future
-			.then([](const auto&) {
-				throw std::runtime_error("future exception");
+			.then([](auto&& f) {
+				if (0 != f.get())
+					throw std::runtime_error("future exception");
+
+				return std::move(f);
 			});
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
 		// Assert: both futures should be ready and the outer future has the correct exception
 		EXPECT_TRUE(future.is_ready());

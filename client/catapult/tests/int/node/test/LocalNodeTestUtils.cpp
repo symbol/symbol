@@ -36,6 +36,7 @@ namespace catapult { namespace test {
 			stats.NumActiveWriters = GetCounterValue(counters, "WRITERS");
 			stats.NumScheduledTasks = GetCounterValue(counters, "TASKS");
 			stats.NumAddedBlockElements = GetCounterValue(counters, "BLK ELEM TOT");
+			stats.NumActiveBlockElements = GetCounterValue(counters, "BLK ELEM ACT");
 			stats.NumAddedTransactionElements = GetCounterValue(counters, "TX ELEM TOT");
 		}
 	}
@@ -72,7 +73,7 @@ namespace catapult { namespace test {
 	// region partner nodes
 
 	namespace {
-		constexpr const char* Local_Node_Partner_Private_Key = "8473645728B15F007385CE2889D198D26369D2806DCDED4A9B219FD0DE23A505";
+		constexpr auto Local_Node_Partner_Private_Key = "8473645728B15F007385CE2889D198D26369D2806DCDED4A9B219FD0DE23A505";
 	}
 
 	crypto::KeyPair LoadPartnerServerKeyPair() {
@@ -110,10 +111,10 @@ namespace catapult { namespace test {
 
 	ExternalConnection CreateExternalConnection(unsigned short port) {
 		ExternalConnection connection;
-		connection.pPool = CreateStartedIoServiceThreadPool(1);
+		connection.pPool = CreateStartedIoThreadPool(1);
 
 		auto serverKeyPair = LoadServerKeyPair();
-		connection.pIo = ConnectToLocalHost(connection.pPool->service(), port, serverKeyPair.publicKey());
+		connection.pIo = ConnectToLocalHost(connection.pPool->ioContext(), port, serverKeyPair.publicKey());
 		return connection;
 	}
 

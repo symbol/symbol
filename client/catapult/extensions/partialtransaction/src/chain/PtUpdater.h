@@ -31,7 +31,7 @@ namespace catapult {
 		struct Transaction;
 		struct TransactionInfo;
 	}
-	namespace thread { class IoServiceThreadPool; }
+	namespace thread { class IoThreadPool; }
 }
 
 namespace catapult { namespace chain {
@@ -96,7 +96,7 @@ namespace catapult { namespace chain {
 				std::unique_ptr<const PtValidator>&& pValidator,
 				const CompletedTransactionSink& completedTransactionSink,
 				const FailedTransactionSink& failedTransactionSink,
-				const std::shared_ptr<thread::IoServiceThreadPool>& pPool);
+				const std::shared_ptr<thread::IoThreadPool>& pPool);
 
 		/// Destroys the updater.
 		~PtUpdater();

@@ -277,15 +277,17 @@ namespace catapult { namespace cache {
 	MemoryPtCache::~MemoryPtCache() = default;
 
 	MemoryPtCacheView MemoryPtCache::view() const {
-		return MemoryPtCacheView(m_options.MaxResponseSize, m_pImpl->TransactionDataContainer, m_lock.acquireReader());
+		auto readLock = m_lock.acquireReader();
+		return MemoryPtCacheView(m_options.MaxResponseSize, m_pImpl->TransactionDataContainer, std::move(readLock));
 	}
 
 	PtCacheModifierProxy MemoryPtCache::modifier() {
+		auto readLock = m_lock.acquireReader();
 		return PtCacheModifierProxy(std::make_unique<MemoryPtCacheModifier>(
 				m_options.MaxCacheSize,
 				m_pImpl->TransactionDataContainer,
 				m_pImpl->TimestampedHashes,
-				m_lock.acquireReader()));
+				std::move(readLock)));
 	}
 
 	// endregion

@@ -23,7 +23,7 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/ionet/SecurePacketSocketDecorator.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/utils/WeakContainer.h"
@@ -40,7 +40,7 @@ namespace catapult { namespace net {
 				, public std::enable_shared_from_this<DefaultClientConnector> {
 		public:
 			explicit DefaultClientConnector(
-					const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const crypto::KeyPair& keyPair,
 					const ConnectionSettings& settings)
 					: m_pPool(pPool)
@@ -61,7 +61,7 @@ namespace catapult { namespace net {
 				m_sockets.insert(pAcceptedSocket);
 
 				auto pRequest = thread::MakeTimedCallback(
-						m_pPool->service(),
+						m_pPool->ioContext(),
 						callback,
 						PeerConnectCode::Timed_Out,
 						PacketSocketPointer(),
@@ -94,7 +94,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			const crypto::KeyPair& m_keyPair;
 			ConnectionSettings m_settings;
 			utils::WeakContainer<ionet::PacketSocket> m_sockets;
@@ -102,7 +102,7 @@ namespace catapult { namespace net {
 	}
 
 	std::shared_ptr<ClientConnector> CreateClientConnector(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
 			const ConnectionSettings& settings) {
 		return std::make_shared<DefaultClientConnector>(pPool, keyPair, settings);

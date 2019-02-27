@@ -245,9 +245,8 @@ namespace catapult { namespace test {
 				case Action::Modify:
 					expected.push_back(TTraits::Mutate(delta, element)); // both versions should be present
 					++numModified;
-#ifndef _MSC_VER
-					[[clang::fallthrough]];
-#endif
+					[[fallthrough]];
+
 				case Action::Add:
 					expected.push_back(element);
 					break;

@@ -193,13 +193,13 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanAssignAliasedType) {
 		// Assert:
-		bool result = std::is_convertible<TestValue, AliasedValue>::value;
+		bool result = std::is_convertible_v<TestValue, AliasedValue>;
 		EXPECT_TRUE(result);
 	}
 
 	TEST(TEST_CLASS, CannotAssignUsingDifferentType) {
 		// Assert:
-		bool result = std::is_convertible<TestValue, SameSizeValue>::value;
+		bool result = std::is_convertible_v<TestValue, SameSizeValue>;
 		EXPECT_FALSE(result);
 	}
 
@@ -209,8 +209,8 @@ namespace catapult { namespace utils {
 
 		template<typename T, typename U>
 		void Create(T, U) {
-			bool convertible = std::is_convertible<T, U>::value;
-			if (std::is_same<T, U>::value) {
+			bool convertible = std::is_convertible_v<T, U>;
+			if (std::is_same_v<T, U>) {
 				EXPECT_TRUE(convertible);
 			} else {
 				EXPECT_FALSE(convertible);

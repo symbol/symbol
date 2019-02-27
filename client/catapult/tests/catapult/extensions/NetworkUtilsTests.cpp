@@ -125,8 +125,8 @@ namespace catapult { namespace extensions {
 
 		public:
 			void accept(const ionet::AcceptedPacketSocketInfo&, const consumer<net::PeerConnectResult>& consumer) {
-				++m_numAccepts;
 				consumer({ m_connectCode, m_identityKey });
+				++m_numAccepts;
 			}
 
 		private:
@@ -195,8 +195,8 @@ namespace catapult { namespace extensions {
 		auto pServer = context.boot();
 
 		// Act: connect to the server
-		auto pClientThreadPool = test::CreateStartedIoServiceThreadPool(1);
-		test::CreateClientSocket(pClientThreadPool->service())->connect().get();
+		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
+		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
 		WAIT_FOR_ONE_EXPR(context.numAccepts());
 
 		// Assert:
@@ -214,8 +214,8 @@ namespace catapult { namespace extensions {
 		auto pServer = context.boot();
 
 		// Act: connect to the server
-		auto pClientThreadPool = test::CreateStartedIoServiceThreadPool(1);
-		test::CreateClientSocket(pClientThreadPool->service())->connect().get();
+		auto pClientThreadPool = test::CreateStartedIoThreadPool(1);
+		test::CreateClientSocket(pClientThreadPool->ioContext())->connect().get();
 		WAIT_FOR_ONE_EXPR(context.numAccepts());
 
 		// Assert:

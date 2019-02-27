@@ -34,14 +34,12 @@
 namespace catapult { namespace test {
 
 	/// Gets local node port.
-	CATAPULT_INLINE
-	unsigned short GetLocalNodePort() {
+	inline unsigned short GetLocalNodePort() {
 		return GetLocalHostPort();
 	}
 
 	/// Gets local node api port.
-	CATAPULT_INLINE
-	unsigned short GetLocalNodeApiPort() {
+	inline unsigned short GetLocalNodeApiPort() {
 		return GetLocalNodePort() + 1;
 	}
 
@@ -89,6 +87,9 @@ namespace catapult { namespace test {
 
 		/// Number of block elements added to the disruptor.
 		uint64_t NumAddedBlockElements;
+
+		/// Number of active block elements in the disruptor.
+		uint64_t NumActiveBlockElements;
 
 		/// Number of transaction elements added to the disruptor.
 		uint64_t NumAddedTransactionElements;
@@ -264,11 +265,11 @@ namespace catapult { namespace test {
 		// Act: attempt to connect to the node
 		auto result = ionet::ConnectResult::Connected;
 		std::atomic_bool isConnectionAttemptComplete(false);
-		auto pPool = CreateStartedIoServiceThreadPool(1);
+		auto pPool = CreateStartedIoThreadPool(1);
 		auto options = CreatePacketSocketOptions();
 		auto endpoint = CreateLocalHostNodeEndpoint(port);
 		auto clientKeyPair = GenerateKeyPair();
-		ionet::Connect(pPool->service(), options, endpoint, [&](auto connectResult, const auto&) {
+		ionet::Connect(pPool->ioContext(), options, endpoint, [&](auto connectResult, const auto&) {
 			CATAPULT_LOG(debug) << "connection attempt completed with " << connectResult;
 			result = connectResult;
 			isConnectionAttemptComplete = true;
@@ -282,7 +283,7 @@ namespace catapult { namespace test {
 	/// Represents an external connection.
 	struct ExternalConnection {
 		/// Connection thread pool.
-		std::unique_ptr<thread::IoServiceThreadPool> pPool;
+		std::unique_ptr<thread::IoThreadPool> pPool;
 
 		/// Connection io.
 		std::shared_ptr<ionet::PacketIo> pIo;

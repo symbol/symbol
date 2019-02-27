@@ -187,14 +187,19 @@ namespace catapult { namespace extensions {
 
 			// - create the publisher, observer and loader
 			auto pluginManager = CreatePluginManager();
-			auto cacheDelta = state.ref().Cache.createDelta();
-			NemesisBlockLoader loader(cacheDelta, pluginManager, CreateObserver());
+			{
+				auto cacheDelta = state.ref().Cache.createDelta();
+				NemesisBlockLoader loader(cacheDelta, pluginManager, CreateObserver());
 
-			// Act:
-			TTraits::Execute(loader, state.ref(), stateHashVerification);
+				// Act:
+				TTraits::Execute(loader, state.ref(), stateHashVerification);
 
-			// Assert:
-			TTraits::Assert(cacheDelta, state.ref(), assertAccountStateCache);
+				// Assert:
+				TTraits::Assert(cacheDelta, assertAccountStateCache);
+			}
+
+			auto cacheView = state.ref().Cache.createView();
+			TTraits::Assert(cacheView, assertAccountStateCache);
 		}
 
 		template<typename TTraits, typename TAssertAccountStateCache>
@@ -233,13 +238,15 @@ namespace catapult { namespace extensions {
 			test::LocalNodeTestState state(config, "", std::move(cache));
 			SetNemesisBlock(state.ref().Storage, nemesisBlockSignerPair, config.Network, modification);
 
-			// - create the publisher, observer and loader
-			auto pluginManager = CreatePluginManager();
-			auto cacheDelta = state.ref().Cache.createDelta();
-			NemesisBlockLoader loader(cacheDelta, pluginManager, CreateObserver());
+			{
+				// - create the publisher, observer and loader
+				auto pluginManager = CreatePluginManager();
+				auto cacheDelta = state.ref().Cache.createDelta();
+				NemesisBlockLoader loader(cacheDelta, pluginManager, CreateObserver());
 
-			// Act + Assert:
-			EXPECT_THROW(TTraits::Execute(loader, state.ref(), StateHashVerification::Enabled), TException);
+				// Act + Assert:
+				EXPECT_THROW(TTraits::Execute(loader, state.ref(), StateHashVerification::Enabled), TException);
+			}
 
 			// Sanity:
 			auto cacheStateHash = state.cref().Cache.createView().calculateStateHash().StateHash;
@@ -264,16 +271,15 @@ namespace catapult { namespace extensions {
 			}
 
 			template<typename TAssertAccountStateCache>
-			static void Assert(
-					cache::CatapultCacheDelta& cacheDelta,
-					const LocalNodeStateRef& stateRef,
-					TAssertAccountStateCache assertAccountStateCache) {
+			static void Assert(cache::CatapultCacheDelta& cacheDelta, TAssertAccountStateCache assertAccountStateCache) {
 				// Assert: changes should only be present in the delta
 				const auto& accountStateCache = cacheDelta.sub<cache::AccountStateCache>();
 				assertAccountStateCache(accountStateCache);
+			}
 
+			template<typename TAssertAccountStateCache>
+			static void Assert(cache::CatapultCacheView& cacheView, TAssertAccountStateCache) {
 				// Sanity: the view is not modified
-				const auto& cacheView = stateRef.Cache.createView();
 				EXPECT_EQ(0u, cacheView.sub<cache::AccountStateCache>().size());
 			}
 		};
@@ -287,12 +293,15 @@ namespace catapult { namespace extensions {
 			}
 
 			template<typename TAssertAccountStateCache>
-			static void Assert(
-					cache::CatapultCacheDelta&,
-					const LocalNodeStateRef& stateRef,
-					TAssertAccountStateCache assertAccountStateCache) {
+			static void Assert(cache::CatapultCacheDelta& cacheDelta, TAssertAccountStateCache assertAccountStateCache) {
+				// Assert: changes should be present in the delta
+				const auto& accountStateCache = cacheDelta.sub<cache::AccountStateCache>();
+				assertAccountStateCache(accountStateCache);
+			}
+
+			template<typename TAssertAccountStateCache>
+			static void Assert(cache::CatapultCacheView& cacheView, TAssertAccountStateCache assertAccountStateCache) {
 				// Assert: changes should be committed to the underlying cache, so check the view
-				const auto& cacheView = stateRef.Cache.createView();
 				const auto& accountStateCache = cacheView.sub<cache::AccountStateCache>();
 				assertAccountStateCache(accountStateCache);
 			}
@@ -305,16 +314,15 @@ namespace catapult { namespace extensions {
 			}
 
 			template<typename TAssertAccountStateCache>
-			static void Assert(
-					cache::CatapultCacheDelta& cacheDelta,
-					const LocalNodeStateRef& stateRef,
-					TAssertAccountStateCache assertAccountStateCache) {
+			static void Assert(cache::CatapultCacheDelta& cacheDelta, TAssertAccountStateCache assertAccountStateCache) {
 				// Assert: changes should only be present in the delta
 				const auto& accountStateCache = cacheDelta.sub<cache::AccountStateCache>();
 				assertAccountStateCache(accountStateCache);
+			}
 
+			template<typename TAssertAccountStateCache>
+			static void Assert(cache::CatapultCacheView& cacheView, TAssertAccountStateCache) {
 				// Sanity: the view is not modified
-				const auto& cacheView = stateRef.Cache.createView();
 				EXPECT_EQ(0u, cacheView.sub<cache::AccountStateCache>().size());
 			}
 		};
@@ -475,7 +483,7 @@ namespace catapult { namespace extensions {
 		TTraits::Execute(loader, state.ref(), StateHashVerification::Enabled);
 
 		// Assert:
-		TTraits::Assert(cacheDelta, state.ref(), [&nemesisBlock](const auto& accountStateCache) {
+		TTraits::Assert(cacheDelta, [&nemesisBlock](const auto& accountStateCache) {
 			// Assert:
 			EXPECT_EQ(2u, accountStateCache.size());
 			test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});
@@ -529,7 +537,7 @@ namespace catapult { namespace extensions {
 		TTraits::Execute(loader, state.ref(), StateHashVerification::Enabled);
 
 		// Assert:
-		TTraits::Assert(cacheDelta, state.ref(), [&nemesisBlock](const auto& accountStateCache) {
+		TTraits::Assert(cacheDelta, [&nemesisBlock](const auto& accountStateCache) {
 			// Assert:
 			EXPECT_EQ(2u, accountStateCache.size());
 			test::AssertBalances(accountStateCache, nemesisBlock.Signer, {});

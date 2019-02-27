@@ -28,7 +28,6 @@ message("bsonc     lib: ${BSONC_LIB}")
 
 ### find and set mongo includes and libraries
 function(catapult_add_mongo_dependencies TARGET_NAME)
-	add_definitions(-DBSONCXX_STATIC -DMONGOCXX_STATIC)
 	include_directories(SYSTEM ${LIBMONGOCXX_INCLUDE_DIRS} ${LIBBSONCXX_INCLUDE_DIRS})
 	target_link_libraries(${TARGET_NAME} ${LIBMONGOCXX_LIBRARIES} ${MONGOC_LIB} ${BSONC_LIB} ${MONGO_ADDITIONAL_LIBS})
 endfunction()

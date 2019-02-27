@@ -40,4 +40,8 @@ namespace catapult { namespace utils { namespace traits {
 
 	template<typename ...TArgs>
 	struct is_map<const std::unordered_map<TArgs...>> : std::true_type {};
+
+	/// \c true if T is a standard map type, \c false otherwise.
+	template<typename T>
+	inline constexpr bool is_map_v = is_map<T>::value;
 }}}

@@ -19,17 +19,12 @@
 **/
 
 #pragma once
+#include "PropertyTestUtils.h"
 #include "src/cache/PropertyCache.h"
 #include "src/cache/PropertyCacheStorage.h"
-#include "src/state/PropertyUtils.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/BlockChainConfiguration.h"
-#include "catapult/model/EntityType.h"
 #include "tests/test/cache/CacheTestUtils.h"
-#include "tests/test/core/AddressTestUtils.h"
-#include "tests/test/core/ResolverTestUtils.h"
-#include "tests/test/nodeps/Conversions.h"
-#include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {
 
@@ -57,153 +52,7 @@ namespace catapult { namespace test {
 		}
 	};
 
-	struct BaseAddressPropertyTraits {
-		using UnresolvedValueType = UnresolvedAddress;
-		using ValueType = Address;
-
-		static constexpr auto PropertyType() {
-			return model::PropertyType::Address;
-		}
-
-		static constexpr auto PropertyValueSize() {
-			return Address_Decoded_Size;
-		}
-
-		static auto RandomUnresolvedValue() {
-			return test::GenerateRandomUnresolvedAddress();
-		}
-
-		static auto RandomValue() {
-			return test::GenerateRandomData<Address_Decoded_Size>();
-		}
-
-		static UnresolvedValueType Unresolve(const ValueType& value) {
-			return test::UnresolveXor(value);
-		}
-
-		static auto FromBuffer(const RawBuffer& buffer) {
-			UnresolvedValueType address;
-			std::memcpy(address.data(), buffer.pData, buffer.Size);
-			return address;
-		}
-	};
-
-	struct BaseMosaicPropertyTraits {
-		using UnresolvedValueType = UnresolvedMosaicId;
-		using ValueType = MosaicId;
-
-		static constexpr auto PropertyType() {
-			return model::PropertyType::MosaicId;
-		}
-
-		static constexpr auto PropertyValueSize() {
-			return sizeof(ValueType);
-		}
-
-		static auto RandomUnresolvedValue() {
-			return test::GenerateRandomValue<UnresolvedValueType>();
-		}
-
-		static auto RandomValue() {
-			return test::GenerateRandomValue<ValueType>();
-		}
-
-		static UnresolvedValueType Unresolve(const ValueType& value) {
-			return test::UnresolveXor(value);
-		}
-
-		static auto FromBuffer(const RawBuffer& buffer) {
-			return reinterpret_cast<const UnresolvedValueType&>(*buffer.pData);
-		}
-	};
-
-	struct BaseTransactionTypePropertyTraits {
-		using UnresolvedValueType = model::EntityType;
-		using ValueType = model::EntityType;
-
-		static constexpr auto PropertyType() {
-			return model::PropertyType::TransactionType;
-		}
-
-		static constexpr auto PropertyValueSize() {
-			return sizeof(ValueType);
-		}
-
-		static auto RandomUnresolvedValue() {
-			return static_cast<UnresolvedValueType>(test::RandomByte());
-		}
-
-		static auto RandomValue() {
-			return static_cast<ValueType>(test::RandomByte());
-		}
-
-		static UnresolvedValueType Unresolve(const ValueType& value) {
-			return value;
-		}
-
-		static auto FromBuffer(const RawBuffer& buffer) {
-			return reinterpret_cast<const UnresolvedValueType&>(*buffer.pData);
-		}
-	};
-
-	/// Traits for operation type 'Allow'.
-	struct AllowTraits {
-		/// Given \a propertyType gets the property type including the operation type.
-		static model::PropertyType CompletePropertyType(model::PropertyType propertyType) {
-			return propertyType;
-		}
-
-		/// Given \a propertyType gets the property type including the opposite operation type.
-		static model::PropertyType OppositeCompletePropertyType(model::PropertyType propertyType) {
-			return propertyType | model::PropertyType::Block;
-		}
-
-		/// Adds \a value to \a property for operation type 'Allow'.
-		static void Add(state::AccountProperty& property, const state::AccountProperty::RawPropertyValue& value) {
-			property.allow({ model::PropertyModificationType::Add, value });
-		}
-	};
-
-	/// Traits for operation type 'Block'.
-	struct BlockTraits {
-		/// Given \a propertyType gets the property type including the operation type.
-		static model::PropertyType CompletePropertyType(model::PropertyType propertyType) {
-			return propertyType | model::PropertyType::Block;
-		}
-
-		/// Given \a propertyType gets the property type including the opposite operation type.
-		static model::PropertyType OppositeCompletePropertyType(model::PropertyType propertyType) {
-			return propertyType;
-		}
-
-		/// Adds \a value to \a property for operation type 'Block'.
-		static void Add(state::AccountProperty& property, const state::AccountProperty::RawPropertyValue& value) {
-			property.block({ model::PropertyModificationType::Add, value });
-		}
-	};
-
-	/// Creates a vector with \a count unique values.
-	template<typename TPropertyValueTraits>
-	auto CreateRandomUniqueValues(size_t count) {
-		std::set<typename TPropertyValueTraits::ValueType> values;
-		while (values.size() < count)
-			values.insert(TPropertyValueTraits::RandomValue());
-
-		return std::vector<typename TPropertyValueTraits::ValueType>(values.cbegin(), values.cend());
-	}
-
-	/// Creates a value that is not contained in \a values and transforms the value using \a transform.
-	template<typename TPropertyValueTraits, typename TTransform>
-	auto CreateDifferentValue(const std::vector<typename TPropertyValueTraits::ValueType>& values, TTransform transform) {
-		while (true) {
-			auto randomValue = TPropertyValueTraits::RandomValue();
-			auto isFound = std::any_of(values.cbegin(), values.cend(), [&randomValue](const auto& value) {
-				return value == randomValue;
-			});
-			if (!isFound)
-				return transform(randomValue);
-		}
-	}
+	// region PopulateCache
 
 	/// Populates \a delta with \a key and \a values.
 	template<typename TPropertyValueTraits, typename TOperationTraits = AllowTraits>
@@ -215,7 +64,7 @@ namespace catapult { namespace test {
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
 		propertyCacheDelta.insert(state::AccountProperties(address));
 		auto& accountProperties = propertyCacheDelta.find(address).get();
-		auto& accountProperty = accountProperties.property(TPropertyValueTraits::PropertyType());
+		auto& accountProperty = accountProperties.property(TPropertyValueTraits::Property_Type);
 		for (const auto& value : values)
 			TOperationTraits::Add(accountProperty, state::ToVector(value));
 	}
@@ -228,38 +77,5 @@ namespace catapult { namespace test {
 		cache.commit(Height(1));
 	}
 
-	/// Creates a notification around \a key and \a modification.
-	template<typename TPropertyValueTraits, typename TOperationTraits = AllowTraits>
-	auto CreateNotification(
-			const Key& key,
-			const model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>& modification) {
-		return typename TPropertyValueTraits::NotificationType{
-			key,
-			TOperationTraits::CompletePropertyType(TPropertyValueTraits::PropertyType()),
-			modification
-		};
-	}
-
-	/// Creates a notification with opposite operation type around \a key and \a modification.
-	template<typename TPropertyValueTraits, typename TOperationTraits = AllowTraits>
-	auto CreateNotificationWithOppositeOperation(
-			const Key& key,
-			const model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>& modification) {
-		return typename TPropertyValueTraits::NotificationType{
-			key,
-			TOperationTraits::OppositeCompletePropertyType(TPropertyValueTraits::PropertyType()),
-			modification
-		};
-	}
-
-	/// Creates a notification around \a key and \a modifications.
-	template<typename TPropertyValueTraits, typename TValueType, typename TOperationTraits = AllowTraits>
-	auto CreateNotification(const Key& key, const std::vector<model::PropertyModification<TValueType>>& modifications) {
-		return typename TPropertyValueTraits::NotificationType{
-			key,
-			TOperationTraits::CompletePropertyType(TPropertyValueTraits::PropertyType()),
-			utils::checked_cast<size_t, uint8_t>(modifications.size()),
-			modifications.data()
-		};
-	}
+	// endregion
 }}

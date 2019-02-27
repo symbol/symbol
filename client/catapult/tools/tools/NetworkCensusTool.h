@@ -106,7 +106,7 @@ namespace catapult { namespace tools {
 	private:
 		/// Gets all futures to fill \a nodeInfo using \a pool and \a io.
 		virtual std::vector<thread::future<bool>> getNodeInfoFutures(
-				thread::IoServiceThreadPool& pool,
+				thread::IoThreadPool& pool,
 				ionet::PacketIo& io,
 				TNodeInfo& nodeInfo) = 0;
 

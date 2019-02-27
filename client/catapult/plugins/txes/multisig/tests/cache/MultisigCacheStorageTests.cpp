@@ -41,9 +41,11 @@ namespace catapult { namespace cache {
 
 		// Act:
 		MultisigCache cache(CacheConfiguration{});
-		auto delta = cache.createDelta();
-		MultisigCacheStorage::LoadInto(originalEntry, *delta);
-		cache.commit();
+		{
+			auto delta = cache.createDelta();
+			MultisigCacheStorage::LoadInto(originalEntry, *delta);
+			cache.commit();
+		}
 
 		// Assert: the cache contains the value
 		auto view = cache.createView();

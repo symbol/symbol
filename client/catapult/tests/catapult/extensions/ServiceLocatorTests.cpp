@@ -248,7 +248,7 @@ namespace catapult { namespace extensions {
 			// Assert:
 			ASSERT_EQ(1u, counters.size());
 			EXPECT_EQ(utils::DiagnosticCounterId("ALPHA").value(), counters[0].id().value());
-			EXPECT_EQ(static_cast<uint64_t>(ServiceLocator::Sentinel_Counter_Value), counters[0].value());
+			EXPECT_EQ(ServiceLocator::Sentinel_Counter_Value, counters[0].value());
 		});
 	}
 
@@ -283,7 +283,7 @@ namespace catapult { namespace extensions {
 			// Assert:
 			ASSERT_EQ(1u, counters.size());
 			EXPECT_EQ(utils::DiagnosticCounterId("ALPHA").value(), counters[0].id().value());
-			EXPECT_EQ(static_cast<uint64_t>(ServiceLocator::Sentinel_Counter_Value), counters[0].value());
+			EXPECT_EQ(ServiceLocator::Sentinel_Counter_Value, counters[0].value());
 		});
 	}
 

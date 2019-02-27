@@ -32,6 +32,7 @@ namespace catapult { namespace chain {
 			, m_validatorContext(validatorContext)
 			, m_observer(observer)
 			, m_observerContext(observerContext)
+			, m_undoNotificationSubscriber(m_observer, m_observerContext)
 			, m_aggregateResult(validators::ValidationResult::Success)
 			, m_isUndoEnabled(false)
 	{}
@@ -48,20 +49,7 @@ namespace catapult { namespace chain {
 		if (!m_isUndoEnabled)
 			CATAPULT_THROW_RUNTIME_ERROR("cannot undo because undo is not enabled");
 
-		auto undoMode = observers::NotifyMode::Commit == m_observerContext.Mode
-				? observers::NotifyMode::Rollback
-				: observers::NotifyMode::Commit;
-		auto undoObserverContext = observers::ObserverContext(
-				{ m_observerContext.Cache, m_observerContext.State },
-				m_observerContext.Height,
-				undoMode,
-				m_observerContext.Resolvers);
-		for (auto iter = m_notificationBuffers.crbegin(); m_notificationBuffers.crend() != iter; ++iter) {
-			const auto* pNotification = reinterpret_cast<const model::Notification*>(iter->data());
-			m_observer.notify(*pNotification, undoObserverContext);
-		}
-
-		m_notificationBuffers.clear();
+		m_undoNotificationSubscriber.undo();
 	}
 
 	void ProcessingNotificationSubscriber::notify(const model::Notification& notification) {
@@ -95,8 +83,6 @@ namespace catapult { namespace chain {
 		if (!m_isUndoEnabled)
 			return;
 
-		// store a copy of the notification buffer
-		const auto* pData = reinterpret_cast<const uint8_t*>(&notification);
-		m_notificationBuffers.emplace_back(pData, pData + notification.Size);
+		m_undoNotificationSubscriber.notify(notification);
 	}
 }}

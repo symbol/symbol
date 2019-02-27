@@ -20,7 +20,7 @@
 
 #include "catapult/model/BlockStatement.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
-#include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace model {
@@ -238,12 +238,12 @@ namespace catapult { namespace model {
 	namespace {
 		struct CountTraits {
 			static void RunStatementTest(
-					size_t numTransactionStatements,
-					size_t numAddressResolutions,
-					size_t numMosaicResolutions,
-					size_t numTotalStatements) {
+					uint32_t numTransactionStatements,
+					uint32_t numAddressStatements,
+					uint32_t numMosaicStatements,
+					uint32_t numTotalStatements) {
 				// Arrange:
-				std::vector<size_t> numStatements{ numTransactionStatements, numAddressResolutions, numMosaicResolutions };
+				std::vector<size_t> numStatements{ numTransactionStatements, numAddressStatements, numMosaicStatements };
 				auto pBlockStatement = test::GenerateRandomStatements(numStatements);
 
 				// Act:
@@ -256,12 +256,12 @@ namespace catapult { namespace model {
 
 		struct DeepCopyTraits {
 			static void RunStatementTest(
-					size_t numTransactionStatements,
-					size_t numAddressResolutions,
-					size_t numMosaicResolutions,
-					size_t) {
+					uint32_t numTransactionStatements,
+					uint32_t numAddressStatements,
+					uint32_t numMosaicStatements,
+					uint32_t) {
 				// Arrange:
-				std::vector<size_t> numStatements{ numTransactionStatements, numAddressResolutions, numMosaicResolutions };
+				std::vector<size_t> numStatements{ numTransactionStatements, numAddressStatements, numMosaicStatements };
 				auto pBlockStatement = test::GenerateRandomStatements(numStatements);
 
 				// Act:
@@ -272,12 +272,101 @@ namespace catapult { namespace model {
 				test::AssertEqual(*pBlockStatement, blockStatementCopy);
 			}
 		};
+
+		struct DeepCopyTruncationTraits {
+		public:
+			static void RunStatementTest(
+					uint32_t numTransactionStatements,
+					uint32_t numAddressStatements,
+					uint32_t numMosaicStatements,
+					uint32_t) {
+				// Arrange:
+				std::vector<size_t> numStatements{ numTransactionStatements, numAddressStatements, numMosaicStatements };
+				auto maxStatements = *std::max_element(numStatements.cbegin(), numStatements.cend());
+				auto pBlockStatement = test::GenerateRandomStatements(numStatements, test::RandomStatementsConstraints::Order);
+
+				// - GenerateRandomStatements generates statements as follows:
+				//   1. Transaction: N statements with source ids (1, 3, 5 ...); 2N receipts each => statments are truncated
+				//   2. Resolution: N statements, 2N resolutions with source ids (1, 2, 3 ...) each => resolutions are truncated
+
+				// Act:
+				for (uint32_t i = 0u; i <= maxStatements; ++i) {
+					auto message = "max source primary id " + std::to_string(i);
+					BlockStatement blockStatementCopy;
+
+					// - 2 * i so that no truncation occurs when i == maxStatements
+					DeepCopyTo(blockStatementCopy, *pBlockStatement, 2 * i);
+
+					// Assert:
+					if (maxStatements == i) {
+						// - nothing should be truncated
+						test::AssertEqual(*pBlockStatement, blockStatementCopy);
+					} else {
+						// - high primary source ids should be truncated
+						AssertTransactionStatementSources(
+								std::min(i, numTransactionStatements),
+								2 * numTransactionStatements,
+								blockStatementCopy.TransactionStatements,
+								message + " (transaction statements)");
+						AssertResolutionStatementSources(
+								numAddressStatements,
+								2 * std::min(i, numAddressStatements),
+								blockStatementCopy.AddressResolutionStatements,
+								message + " (address resolution statements)");
+						AssertResolutionStatementSources(
+								numMosaicStatements,
+								2 * std::min(i, numMosaicStatements),
+								blockStatementCopy.MosaicResolutionStatements,
+								message + " (mosaic resolution statements)");
+					}
+				}
+			}
+
+		private:
+			static void AssertTransactionStatementSources(
+					size_t numExpectedStatements,
+					size_t numExpectedReceipts,
+					const std::map<ReceiptSource, TransactionStatement>& statements,
+					const std::string& message) {
+				EXPECT_EQ(numExpectedStatements, statements.size()) << message;
+
+				auto i = 0u;
+				for (const auto& pair : statements) {
+					EXPECT_EQ(2 * i + 1, pair.first.PrimaryId) << message << " at " << i;
+					EXPECT_EQ(numExpectedReceipts, pair.second.size()) << message << " at " << i;
+					++i;
+				}
+			}
+
+			template<typename TKey, typename TStatement>
+			static void AssertResolutionStatementSources(
+					size_t numExpectedStatements,
+					size_t numExpectedResolutions,
+					std::map<TKey, TStatement>& statements,
+					const std::string& message) {
+				// empty statements are pruned
+				if (0 == numExpectedResolutions) {
+					EXPECT_EQ(0u, statements.size()) << message;
+					return;
+				}
+
+				EXPECT_EQ(numExpectedStatements, statements.size()) << message;
+				for (const auto& pair : statements) {
+					EXPECT_EQ(numExpectedResolutions, pair.second.size()) << message;
+					for (auto i = 0u; i < pair.second.size(); ++i) {
+						const auto& entry = pair.second.entryAt(i);
+						EXPECT_EQ(i + 1, entry.Source.PrimaryId) << message << " at " << i;
+					}
+				}
+			}
+		};
 	}
 
 #define SUB_STATEMENT_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, CanCount##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CountTraits>(); } \
 	TEST(TEST_CLASS, CanDeepCopy##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeepCopyTraits>(); } \
+	TEST(TEST_CLASS, CanDeepCopyTruncation##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<DeepCopyTruncationTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SUB_STATEMENT_TEST(EmptyBlockStatement) {

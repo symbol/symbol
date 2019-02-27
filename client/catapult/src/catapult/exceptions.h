@@ -98,7 +98,7 @@ namespace catapult {
 	namespace exception_detail {
 		/// Converts \a value into a value that can be stored in a catapult exception.
 		/// \note pointer types are not supported.
-		template<typename T, typename X = typename std::enable_if<!std::is_pointer<T>::value>::type>
+		template<typename T, typename X = std::enable_if_t<!std::is_pointer_v<T>>>
 		constexpr T ConvertToValue(const T& value) {
 			return value;
 		}

@@ -36,6 +36,9 @@ namespace catapult { namespace model {
 		/// Sets active \a source.
 		void setSource(const ReceiptSource& source);
 
+		/// Decrements the current primary source and removes all receipts associated with it.
+		void popSource();
+
 	public:
 		/// Adds \a receipt to this builder.
 		void addReceipt(const Receipt& receipt);

@@ -160,8 +160,8 @@ namespace catapult { namespace consumers {
 		struct BlockTraits {
 			using TestContextType = BlockTestContext;
 
-			constexpr static auto Num_Sub_Entities_Single = 4u;
-			constexpr static auto Num_Sub_Entities_Multiple = 10u;
+			static constexpr auto Num_Sub_Entities_Single = 4u;
+			static constexpr auto Num_Sub_Entities_Multiple = 10u;
 
 			static auto CreateSingleEntityElements() {
 				auto pBlock = test::GenerateBlockWithTransactionsAtHeight(3, 246);

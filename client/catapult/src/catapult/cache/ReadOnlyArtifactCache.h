@@ -33,7 +33,8 @@ namespace catapult { namespace cache {
 		class ReadOnlyFindIterator {
 		public:
 			/// Creates an uninitialized iterator.
-			ReadOnlyFindIterator() = default;
+			ReadOnlyFindIterator() : m_hasCacheIter(false)
+			{}
 
 			/// Creates a find iterator around \a cacheIter.
 			explicit ReadOnlyFindIterator(TCacheIterator&& cacheIter)

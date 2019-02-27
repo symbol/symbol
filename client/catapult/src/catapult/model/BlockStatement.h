@@ -48,4 +48,7 @@ namespace catapult { namespace model {
 
 	/// Creates a deep copy of \a source into \a destination.
 	void DeepCopyTo(BlockStatement& destination, const BlockStatement& source);
+
+	/// Creates a deep copy of \a source into \a destination excluding receipts with primary source id greater than \a maxSourcePrimaryId.
+	void DeepCopyTo(BlockStatement& destination, const BlockStatement& source, uint32_t maxSourcePrimaryId);
 }}

@@ -21,7 +21,6 @@
 #pragma once
 #include "DisruptorTypes.h"
 #include "catapult/utils/Logging.h"
-#include "catapult/preprocessor.h"
 #include <atomic>
 #include <stddef.h>
 #include <stdint.h>
@@ -39,17 +38,17 @@ namespace catapult { namespace disruptor {
 		{}
 
 		/// Advances the barrier.
-		CATAPULT_INLINE void advance() {
+		inline void advance() {
 			++m_position;
 		}
 
 		/// Returns level of the barrier.
-		CATAPULT_INLINE size_t level() const {
+		inline size_t level() const {
 			return m_level;
 		}
 
 		/// Returns position of the barrier.
-		CATAPULT_INLINE PositionType position() const {
+		inline PositionType position() const {
 			return m_position;
 		}
 

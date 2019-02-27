@@ -23,7 +23,7 @@
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/VerifyPeer.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
@@ -40,8 +40,8 @@ namespace catapult { namespace net {
 			explicit ConnectorTestContext(const ConnectionSettings& settings = ConnectionSettings())
 					: ServerKeyPair(test::GenerateKeyPair())
 					, ClientKeyPair(test::GenerateKeyPair())
-					, pPool(test::CreateStartedIoServiceThreadPool())
-					, Service(pPool->service())
+					, pPool(test::CreateStartedIoThreadPool())
+					, IoContext(pPool->ioContext())
 					, pConnector(CreateServerConnector(pPool, ClientKeyPair, settings))
 			{}
 
@@ -56,8 +56,8 @@ namespace catapult { namespace net {
 		public:
 			crypto::KeyPair ServerKeyPair;
 			crypto::KeyPair ClientKeyPair;
-			std::shared_ptr<thread::IoServiceThreadPool> pPool;
-			boost::asio::io_service& Service;
+			std::shared_ptr<thread::IoThreadPool> pPool;
+			boost::asio::io_context& IoContext;
 			std::shared_ptr<ServerConnector> pConnector;
 
 		public:
@@ -73,7 +73,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, InitiallyNoConnectionsAreActive) {
 		// Act:
-		auto pPool = test::CreateStartedIoServiceThreadPool();
+		auto pPool = test::CreateStartedIoThreadPool();
 		auto pConnector = CreateServerConnector(std::move(pPool), test::GenerateKeyPair(), ConnectionSettings());
 
 		// Assert:
@@ -108,7 +108,7 @@ namespace catapult { namespace net {
 
 		// Act: start a server and client verify operation
 		PeerConnectCode code;
-		test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) {
+		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
 			// - trigger a verify error by closing the socket without responding
 			pSocket->close();
 			++numCallbacks;
@@ -141,7 +141,7 @@ namespace catapult { namespace net {
 		MultiConnectionState SetupMultiConnectionTest(const ConnectorTestContext& context, size_t numConnections) {
 			// Act: start multiple server and client verify operations
 			MultiConnectionState state;
-			test::TcpAcceptor acceptor(context.Service);
+			test::TcpAcceptor acceptor(context.IoContext);
 			for (auto i = 0u; i < numConnections; ++i) {
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
@@ -224,7 +224,7 @@ namespace catapult { namespace net {
 
 			// Act: start a verify operation that the server does not respond to
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) {
+			test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
 				pServerSocket = pSocket;
 				++numCallbacks;
 			});
@@ -281,9 +281,9 @@ namespace catapult { namespace net {
 			// Act: start a verify operation that the server does not respond to
 			// - server: accept a single connection
 			CATAPULT_LOG(debug) << "starting async accept";
-			test::TcpAcceptor acceptor(context.Service);
-			auto serverSocket = boost::asio::ip::tcp::socket(context.Service);
-			acceptor.strand().post([&acceptor = acceptor.get(), &numCallbacks, &serverSocket]() {
+			test::TcpAcceptor acceptor(context.IoContext);
+			auto serverSocket = boost::asio::ip::tcp::socket(context.IoContext);
+			boost::asio::post(acceptor.strand(), [&acceptor = acceptor.get(), &numCallbacks, &serverSocket]() {
 				acceptor.async_accept(serverSocket, [&numCallbacks](const auto& acceptEc) {
 					CATAPULT_LOG(debug) << "async_accept completed with: " << acceptEc.message();
 					++numCallbacks;
@@ -308,7 +308,7 @@ namespace catapult { namespace net {
 
 					// - cancel all outstanding acceptor operations to allow the server to shutdown
 					CATAPULT_LOG(debug) << "cancelling outstanding acceptor operations";
-					acceptor.strand().post([&acceptor = acceptor.get()]() {
+					boost::asio::post(acceptor.strand(), [&acceptor = acceptor.get()]() {
 						acceptor.cancel();
 					});
 				}
@@ -319,7 +319,8 @@ namespace catapult { namespace net {
 
 			// Retry: if there are an unexpected number of connections or dummy connections
 			if (numActiveConnections != numDesiredActiveConnections || numDummyConnections == numDesiredActiveConnections) {
-				CATAPULT_LOG(warning) << "unexpected number of connections " << numActiveConnections
+				CATAPULT_LOG(warning)
+						<< "unexpected number of connections " << numActiveConnections
 						<< " or dummy connections " << numDummyConnections;
 				return false;
 			}
@@ -377,7 +378,7 @@ namespace catapult { namespace net {
 		void RunSecurityModeTest(const ConnectionSettings& settings, bool shouldSimulateError, TAction action) {
 			// Arrange:
 			ConnectorTestContext context(settings);
-			test::TcpAcceptor acceptor(context.Service);
+			test::TcpAcceptor acceptor(context.IoContext);
 			auto pNumCallbacks = std::make_shared<std::atomic<size_t>>(0);
 
 			// - make a single connection with custom settings

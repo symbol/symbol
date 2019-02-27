@@ -31,9 +31,9 @@
 namespace catapult { namespace tools { namespace nemgen {
 
 	namespace {
-		constexpr const char* Namespace_Section_Prefix = "namespace>";
-		constexpr const char* Mosaic_Section_Prefix = "mosaic>";
-		constexpr const char* Distribution_Section_Prefix = "distribution>";
+		constexpr auto Namespace_Section_Prefix = "namespace>";
+		constexpr auto Mosaic_Section_Prefix = "mosaic>";
+		constexpr auto Distribution_Section_Prefix = "distribution>";
 		constexpr size_t Num_Namespace_Properties = 1; // duration
 		constexpr size_t Num_Mosaic_Properties = 6; // divisibility, duration, supply, 3 flags
 

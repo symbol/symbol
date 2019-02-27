@@ -39,8 +39,8 @@ namespace catapult { namespace timesync { namespace filters {
 
 		// Act + Assert:
 		for (int64_t offset : { 1, 2, 10, 1000 }) {
-			EXPECT_TRUE(filter(test::CreateTimeSyncSampleWithTimeOffset(ToInt64(ToleratedDeviationStart()) + offset), NodeAge()));
-			EXPECT_TRUE(filter(test::CreateTimeSyncSampleWithTimeOffset(-ToInt64(ToleratedDeviationStart()) - offset), NodeAge()));
+			EXPECT_TRUE(filter(test::CreateTimeSyncSampleWithTimeOffset(ToInt64(Tolerated_Deviation_Start) + offset), NodeAge()));
+			EXPECT_TRUE(filter(test::CreateTimeSyncSampleWithTimeOffset(-ToInt64(Tolerated_Deviation_Start) - offset), NodeAge()));
 		}
 	}
 
@@ -50,8 +50,8 @@ namespace catapult { namespace timesync { namespace filters {
 
 		// Act + Assert:
 		for (int64_t offset : { 0, 1, 2, 10, 1000 }) {
-			EXPECT_FALSE(filter(test::CreateTimeSyncSampleWithTimeOffset(ToInt64(ToleratedDeviationStart()) - offset), NodeAge()));
-			EXPECT_FALSE(filter(test::CreateTimeSyncSampleWithTimeOffset(-ToInt64(ToleratedDeviationStart()) + offset), NodeAge()));
+			EXPECT_FALSE(filter(test::CreateTimeSyncSampleWithTimeOffset(ToInt64(Tolerated_Deviation_Start) - offset), NodeAge()));
+			EXPECT_FALSE(filter(test::CreateTimeSyncSampleWithTimeOffset(-ToInt64(Tolerated_Deviation_Start) + offset), NodeAge()));
 		}
 	}
 

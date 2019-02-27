@@ -79,8 +79,7 @@ namespace catapult { namespace observers {
 
 	/// Adds an observer (\a pObserver) to the builder that is always invoked.
 	template<>
-	CATAPULT_INLINE
-	DemuxObserverBuilder& DemuxObserverBuilder::add(NotificationObserverPointerT<model::Notification>&& pObserver) {
+	inline DemuxObserverBuilder& DemuxObserverBuilder::add(NotificationObserverPointerT<model::Notification>&& pObserver) {
 		m_builder.add(std::move(pObserver));
 		return *this;
 	}

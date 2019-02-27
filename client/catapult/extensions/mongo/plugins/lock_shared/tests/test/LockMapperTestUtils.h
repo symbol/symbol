@@ -36,8 +36,7 @@ namespace catapult { namespace test {
 	}
 
 	/// Asserts that \a lockInfo with \a accountAddress is equal to \a dbLockInfo.
-	CATAPULT_INLINE
-	void AssertEqualBaseLockInfoData(
+	inline void AssertEqualBaseLockInfoData(
 			const state::LockInfo& lockInfo,
 			const Address& accountAddress,
 			const bsoncxx::document::view& dbLockInfo) {

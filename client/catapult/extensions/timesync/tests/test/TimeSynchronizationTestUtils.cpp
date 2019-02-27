@@ -26,9 +26,7 @@
 namespace catapult { namespace test {
 
 	namespace {
-		constexpr auto DefaultStartTime() {
-			return static_cast<int64_t>(utils::TimeSpan::FromMinutes(240).millis());
-		}
+		constexpr auto Default_Start_Time = static_cast<int64_t>(utils::TimeSpan::FromMinutes(240).millis());
 
 		ionet::Node CreateNode(const Key& key) {
 			return ionet::Node(key, { "alice.com", 1234 }, { model::NetworkIdentifier::Mijin_Test, "alice" });
@@ -73,8 +71,8 @@ namespace catapult { namespace test {
 		// remote timestamps have 0 duration to make it more readable
 		return timesync::TimeSynchronizationSample(
 				CreateNode(test::GenerateRandomData<Key_Size>()),
-				CreateCommunicationTimestamps(0, 2 * DefaultStartTime() + 100),
-				CreateCommunicationTimestamps(DefaultStartTime() + 50 + timeOffset, DefaultStartTime() + 50 + timeOffset));
+				CreateCommunicationTimestamps(0, 2 * Default_Start_Time + 100),
+				CreateCommunicationTimestamps(Default_Start_Time + 50 + timeOffset, Default_Start_Time + 50 + timeOffset));
 	}
 
 	timesync::TimeSynchronizationSamples CreateTimeSyncSamplesWithIncreasingTimeOffset(int64_t initialTimeOffset, int64_t count) {

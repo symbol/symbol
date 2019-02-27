@@ -164,15 +164,7 @@ namespace catapult { namespace observers {
 			}
 
 			CacheDeltaType createDetachedDelta() const {
-#ifndef _MSC_VER
 				CATAPULT_THROW_RUNTIME_ERROR("createDetachedDelta - not supported");
-#else
-				// return something with invalid references to quiet unreachable code warning
-				auto pruneHeights = std::vector<Height>();
-				auto pruneTimes = std::vector<Timestamp>();
-				auto touchHeights = std::vector<Height>();
-				return PrunableCacheDelta(pruneHeights, pruneTimes, touchHeights);
-#endif
 			}
 
 		private:

@@ -21,9 +21,10 @@
 #include "catapult/io/BlockStatementSerializer.h"
 #include "catapult/io/BufferInputStreamAdapter.h"
 #include "catapult/io/PodIoUtils.h"
-#include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/test/core/mocks/MockReceipt.h"
+#include "tests/TestHarness.h"
 
 namespace catapult { namespace io {
 

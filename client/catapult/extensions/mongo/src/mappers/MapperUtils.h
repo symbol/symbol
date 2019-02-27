@@ -63,7 +63,7 @@ namespace catapult { namespace mongo { namespace mappers {
 	/// Converts base \a value to int32_t.
 	template<
 		typename TBaseValue,
-		typename X = typename std::enable_if<std::is_same<uint32_t, typename TBaseValue::ValueType>::value>::type>
+		typename X = std::enable_if_t<std::is_same_v<uint32_t, typename TBaseValue::ValueType>>>
 	int32_t ToInt32(TBaseValue value) {
 		return static_cast<int32_t>(value.unwrap());
 	}
@@ -71,7 +71,7 @@ namespace catapult { namespace mongo { namespace mappers {
 	/// Converts base \a value to int64_t.
 	template<
 		typename TBaseValue,
-		typename X = typename std::enable_if<std::is_same<uint64_t, typename TBaseValue::ValueType>::value>::type>
+		typename X = std::enable_if_t<std::is_same_v<uint64_t, typename TBaseValue::ValueType>>>
 	int64_t ToInt64(TBaseValue value) {
 		return static_cast<int64_t>(value.unwrap());
 	}
@@ -90,7 +90,7 @@ namespace catapult { namespace mongo { namespace mappers {
 	template<
 			typename TBaseValue,
 			typename TBsonElement,
-			typename X = typename std::enable_if<std::is_same<uint64_t, typename TBaseValue::ValueType>::value>::type>
+			typename X = std::enable_if_t<std::is_same_v<uint64_t, typename TBaseValue::ValueType>>>
 	TBaseValue GetValue64(TBsonElement element) {
 		return TBaseValue(static_cast<typename TBaseValue::ValueType>(element.get_int64().value));
 	}

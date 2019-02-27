@@ -47,14 +47,12 @@ namespace catapult {
 	namespace {
 		struct MijinTestNetworkTraits {
 			static const auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
-			static constexpr auto NemesisPrivateKey() { return test::Mijin_Test_Nemesis_Private_Key; }
-			static constexpr auto ExpectedNemesisAddress() {
+			static constexpr auto Nemesis_Private_Key = test::Mijin_Test_Nemesis_Private_Key;
 #ifdef SIGNATURE_SCHEME_NIS1
-				return "SDXZPM4GUCEYAMMJH6QRPTRMEZ4JIXUU5W276BYK";
+			static constexpr auto Expected_Nemesis_Address = "SDXZPM4GUCEYAMMJH6QRPTRMEZ4JIXUU5W276BYK";
 #else
-				return "SARNASAS2BIAB6LMFA3FPMGBPGIJGK6IJETM3ZSP";
+			static constexpr auto Expected_Nemesis_Address = "SARNASAS2BIAB6LMFA3FPMGBPGIJGK6IJETM3ZSP";
 #endif
-			}
 
 			static std::vector<const char*> PrivateKeys() {
 				return std::vector<const char*>(&test::Mijin_Test_Private_Keys[0], &test::Mijin_Test_Private_Keys[11]);
@@ -105,10 +103,10 @@ namespace catapult {
 
 	TRAITS_BASED_TEST(NemesisKeyProducesExpectedAddress) {
 		// Act:
-		auto address = PrivateKeyStringToAddressString(TTraits::NemesisPrivateKey(), TTraits::Network_Identifier);
+		auto address = PrivateKeyStringToAddressString(TTraits::Nemesis_Private_Key, TTraits::Network_Identifier);
 
 		// Assert:
-		EXPECT_EQ(TTraits::ExpectedNemesisAddress(), address);
+		EXPECT_EQ(TTraits::Expected_Nemesis_Address, address);
 	}
 
 	TRAITS_BASED_TEST(PrivateKeysProduceExpectedAddresses) {

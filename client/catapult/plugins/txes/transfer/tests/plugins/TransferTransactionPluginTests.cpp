@@ -73,7 +73,9 @@ namespace catapult { namespace plugins {
 		mocks::MockNotificationSubscriber sub;
 		auto pPlugin = TTraits::CreatePlugin();
 
-		typename TTraits::TransactionType transaction{};
+		typename TTraits::TransactionType transaction;
+		transaction.MessageSize = 0;
+		transaction.MosaicsCount = 0;
 		test::FillWithRandomData(transaction.Signer);
 		test::FillWithRandomData(transaction.Recipient);
 
@@ -93,7 +95,9 @@ namespace catapult { namespace plugins {
 		mocks::MockTypedNotificationSubscriber<AddressInteractionNotification> sub;
 		auto pPlugin = TTraits::CreatePlugin();
 
-		typename TTraits::TransactionType transaction{};
+		typename TTraits::TransactionType transaction;
+		transaction.MessageSize = 0;
+		transaction.MosaicsCount = 0;
 		test::FillWithRandomData(transaction.Signer);
 		test::FillWithRandomData(transaction.Recipient);
 		transaction.Type = static_cast<model::EntityType>(0x0815);

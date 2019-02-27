@@ -556,7 +556,7 @@ namespace catapult { namespace model {
 			// Assert:
 			EXPECT_FALSE(range.empty());
 			ASSERT_EQ(expectedBlocks.size(), range.size());
-			EXPECT_EQ(sizeof(Block) * expectedBlocks.size(), range.totalSize());
+			EXPECT_EQ(sizeof(BlockHeader) * expectedBlocks.size(), range.totalSize());
 
 			// Assert: non-const and const iteration should produce the same results
 			auto& mutableRange = const_cast<BlockRange&>(range);
@@ -731,7 +731,7 @@ namespace catapult { namespace model {
 		template<typename TIterator>
 		bool IsIteratorPointeeConst(TIterator iterator) {
 			*iterator; // use iterator to workaround vs warning
-			return std::is_const<typename std::remove_reference<decltype(*iterator)>::type>::value;
+			return std::is_const_v<std::remove_reference_t<decltype(*iterator)>>;
 		}
 	}
 

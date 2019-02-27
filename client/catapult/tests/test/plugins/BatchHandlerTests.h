@@ -60,7 +60,7 @@ namespace catapult { namespace test {
 
 			auto i = 0u;
 			for (const auto& structure : actualRange) {
-				EXPECT_EQ(expectedStructures[i], structure) << TTraits::Message() << i;
+				EXPECT_EQ(expectedStructures[i], structure) << TTraits::Message << i;
 				++i;
 			}
 		}

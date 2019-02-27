@@ -33,7 +33,7 @@ namespace catapult {
 		class PacketIo;
 		class PacketSocket;
 	}
-	namespace thread { class IoServiceThreadPool; }
+	namespace thread { class IoThreadPool; }
 }
 
 namespace catapult { namespace test {
@@ -50,8 +50,8 @@ namespace catapult { namespace test {
 	/// A local host tcp acceptor facade with timeout.
 	class TcpAcceptor {
 	public:
-		/// Creates an acceptor around \a service.
-		explicit TcpAcceptor(boost::asio::io_service& service);
+		/// Creates an acceptor around \a ioContext.
+		explicit TcpAcceptor(boost::asio::io_context& ioContext);
 
 		/// Destroys the acceptor.
 		~TcpAcceptor();
@@ -61,7 +61,7 @@ namespace catapult { namespace test {
 		boost::asio::ip::tcp::acceptor& get() const;
 
 		/// Gets a strand that should be used when calling the acceptor.
-		boost::asio::strand& strand() const;
+		boost::asio::io_context::strand& strand() const;
 
 	private:
 		class Impl;
@@ -69,18 +69,18 @@ namespace catapult { namespace test {
 	};
 
 	/// Creates an implicitly closed local host acceptor around \a service.
-	/// \note This acceptor can only be used in tests where it is implicitly closed by stopping \a service.
-	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateImplicitlyClosedLocalHostAcceptor(boost::asio::io_service& service);
+	/// \note This acceptor can only be used in tests where it is implicitly closed by stopping \a ioContext.
+	std::shared_ptr<boost::asio::ip::tcp::acceptor> CreateImplicitlyClosedLocalHostAcceptor(boost::asio::io_context& ioContext);
 
 	/// Function representing custom work that a socket should perform using a packet aware socket.
 	using PacketSocketWork = consumer<const std::shared_ptr<ionet::PacketSocket>&>;
 
-	/// Spawns custom server work on \a service by passing an accepted socket to \a serverWork.
-	void SpawnPacketServerWork(boost::asio::io_service& service, const PacketSocketWork& serverWork);
+	/// Spawns custom server work on \a ioContext by passing an accepted socket to \a serverWork.
+	void SpawnPacketServerWork(boost::asio::io_context& ioContext, const PacketSocketWork& serverWork);
 
-	/// Spawns custom server work on \a service by passing an accepted socket to \a serverWork with custom \a options.
+	/// Spawns custom server work on \a ioContext by passing an accepted socket to \a serverWork with custom \a options.
 	void SpawnPacketServerWork(
-			boost::asio::io_service& service,
+			boost::asio::io_context& ioContext,
 			const ionet::PacketSocketOptions& options,
 			const PacketSocketWork& serverWork);
 
@@ -90,8 +90,8 @@ namespace catapult { namespace test {
 	/// Spawns custom server work using \a acceptor by passing an accepted socket to \a serverWork with custom \a options.
 	void SpawnPacketServerWork(const TcpAcceptor& acceptor, const ionet::PacketSocketOptions& options, const PacketSocketWork& serverWork);
 
-	/// Spawns custom client work on \a service by passing an accepted socket to \a clientWork.
-	void SpawnPacketClientWork(boost::asio::io_service& service, const PacketSocketWork& clientWork);
+	/// Spawns custom client work on \a ioContext by passing an accepted socket to \a clientWork.
+	void SpawnPacketClientWork(boost::asio::io_context& ioContext, const PacketSocketWork& clientWork);
 
 	/// Gets a value indicating whether or not \a socket is open.
 	bool IsSocketOpen(ionet::PacketSocket& socket);

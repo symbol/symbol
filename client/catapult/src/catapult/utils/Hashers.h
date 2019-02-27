@@ -21,6 +21,7 @@
 #pragma once
 #include <array>
 #include <cstring>
+#include <tuple>
 
 namespace catapult { namespace utils {
 
@@ -30,7 +31,7 @@ namespace catapult { namespace utils {
 	template<typename TArray, size_t Offset = 4>
 	struct ArrayHasher {
 	private:
-		static constexpr auto N = std::tuple_size<TArray>::value;
+		static constexpr auto N = std::tuple_size_v<TArray>;
 
 	public:
 		/// Hashes \a arrayData.

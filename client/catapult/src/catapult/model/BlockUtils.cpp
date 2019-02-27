@@ -32,7 +32,7 @@ namespace catapult { namespace model {
 		RawBuffer BlockDataBuffer(const Block& block) {
 			return {
 				reinterpret_cast<const uint8_t*>(&block) + VerifiableEntity::Header_Size,
-				sizeof(Block) - VerifiableEntity::Header_Size
+				sizeof(BlockHeader) - VerifiableEntity::Header_Size
 			};
 		}
 	}
@@ -115,23 +115,21 @@ namespace catapult { namespace model {
 				NetworkIdentifier networkIdentifier,
 				const Key& signerPublicKey,
 				const TContainer& transactions) {
-			auto size = sizeof(Block) + CalculateTotalSize(transactions);
+			auto size = sizeof(BlockHeader) + CalculateTotalSize(transactions);
 			auto pBlock = utils::MakeUniqueWithSize<Block>(size);
-			std::memset(static_cast<void*>(pBlock.get()), 0, sizeof(Block));
+			std::memset(static_cast<void*>(pBlock.get()), 0, sizeof(BlockHeader));
+			pBlock->Size = static_cast<uint32_t>(size);
 
-			auto& block = *pBlock;
-			block.Size = static_cast<uint32_t>(size);
+			pBlock->Signer = signerPublicKey;
+			pBlock->Version = MakeVersion(networkIdentifier, 3);
+			pBlock->Type = Entity_Type_Block;
 
-			block.Signer = signerPublicKey;
-			block.Version = MakeVersion(networkIdentifier, 3);
-			block.Type = Entity_Type_Block;
-
-			block.Height = context.BlockHeight + Height(1);
-			block.Difficulty = Difficulty();
-			block.PreviousBlockHash = context.BlockHash;
+			pBlock->Height = context.BlockHeight + Height(1);
+			pBlock->Difficulty = Difficulty();
+			pBlock->PreviousBlockHash = context.BlockHash;
 
 			// append all the transactions
-			auto pDestination = reinterpret_cast<uint8_t*>(block.TransactionsPtr());
+			auto pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());
 			CopyTransactions(pDestination, transactions);
 			return pBlock;
 		}
@@ -143,6 +141,18 @@ namespace catapult { namespace model {
 			const Key& signerPublicKey,
 			const Transactions& transactions) {
 		return CreateBlockT(context, networkIdentifier, signerPublicKey, transactions);
+	}
+
+	std::unique_ptr<Block> StitchBlock(const BlockHeader& blockHeader, const Transactions& transactions) {
+		auto size = sizeof(BlockHeader) + CalculateTotalSize(transactions);
+		auto pBlock = utils::MakeUniqueWithSize<Block>(size);
+		std::memcpy(static_cast<void*>(pBlock.get()), &blockHeader, sizeof(BlockHeader));
+		pBlock->Size = static_cast<uint32_t>(size);
+
+		// append all the transactions
+		auto pDestination = reinterpret_cast<uint8_t*>(pBlock->TransactionsPtr());
+		CopyTransactions(pDestination, transactions);
+		return pBlock;
 	}
 
 	// endregion

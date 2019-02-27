@@ -283,7 +283,7 @@ class PragmaOnceValidator(SimpleValidator):
                 self.emptyLineNumber = lineNumber
 
         if self.gotPragmaOnce is None:
-            self.gotPragmaOnce = True if line == '#pragma once' else False
+            self.gotPragmaOnce = line == '#pragma once'
 
     @staticmethod
     def formatError(err):
@@ -312,6 +312,7 @@ class TypoChecker(SimpleValidator):
             re.compile(r'ileSystem'): 'Filesystem not FileSystem',
             re.compile(r'ileName'): 'Filename not FileName',
             re.compile(r'ile_Name'): 'Filename not File_Name',
+            re.compile(r'hreadpool'): 'ThreadPool not Threadpool',
             re.compile(r'lockchain'): 'BlockChain not Blockchain',
             re.compile(r'_EQ\(nullptr,'): 'use _FALSE(!!ptr) instead',
             re.compile(r'_NE\(nullptr,'): 'use _TRUE(!!ptr) instead',
@@ -375,7 +376,17 @@ class TypoChecker(SimpleValidator):
             re.compile(r'\b(EntityType|ReceiptType|ValidationResult)\((0[xX])?\d+\)'): 'use static_cast instead',
             re.compile(r'~.*\(\)\s*{}'): 'use default instead',
             re.compile(r'EXPECT_EQ\(.*(ransaction|lock|eceipt|uffer|ntity|acket)(s\[\w+\])?(\.|->)\w*Size\);'):
-                'looks like size comparison, use ASSERT instead'
+                'looks like size comparison, use ASSERT instead',
+            re.compile(r'typedef'): 'prefer using',
+            re.compile(r'unsigned char'): 'prefer uint8_t',
+            re.compile(r'static_cast<.*>\(\w*::\w*_\w*\)'): 'cpp17 shouldn\'t need suspect cast',
+            re.compile(r'constexpr auto \w+\(\) {'): 'cpp17 shouldn\'t need suspect function',
+            re.compile(r'^\s*(inline|constexpr)\s*$'): 'combine with following line',
+            re.compile(r'(inline|constexpr) static'): 'static first',
+            re.compile(r'acquireReader\(\)\);'): 'for safety, acquire read lock outside of view constructor',
+            re.compile(r'(reader|writer)Lock'): 'prefer readLock/writeLock',
+            re.compile(r'createDetachableDelta\(\).detach\(\)'): 'warning: releasing read lock at end of scope, might lead to crash',
+            re.compile(r'sizeof\((model::)?Block\)'): 'use sizeof(BlockHeader)'
         }
 
     def check(self, lineNumber, line):
@@ -570,6 +581,24 @@ class MultiConditionChecker(SimpleValidator):
 
         self.patternDeclareMacroNoParams = re.compile(r'DECLARE_(.+_)?(OBSERVER|VALIDATOR).*\(\)')
 
+        self.patternSingleLineFunction = re.compile(r'^[^\[\]]*\) { .*; }')
+        self.patternTestSingleLineFunction = re.compile(r'TEST_CLASS|TEST_NAME')
+
+        self.errors = {
+            self.checkTestLine: 'TEST should use TEST_CLASS',
+            self.checkExplicitOperatorBool: 'Missing explicit before operator bool',
+            self.checkValidationResult: 'ValidationResult should not be last argument or should be called `value`',
+            self.checkExplicitCtor: 'missing explicit before ctor',
+            self.checkEnumClass: 'use enum class instead of enum',
+            self.checkCoerce: 'use const auto* .. = CoercePacket',
+            self.checkDefineTests: 'use MAKE_ for singular TEST',
+            self.checkFileSize: 'FileSize should be passed by value',
+            self.checkTestExpectedSize: 'first size part should start on own line',
+            self.checkTestAsserts: 'use a different EXPECT or ASSERT macro',
+            self.checkDeclareMacroNoParams: 'use DEFINE macro',
+            self.checkSingleLineFunction: 'reformat info multiple lines'
+        }
+
     def reset(self, path):
         super().reset(path)
         # match common part of validation, validator
@@ -676,32 +705,45 @@ class MultiConditionChecker(SimpleValidator):
 
         return re.search(self.patternDeclareMacroNoParams, line)
 
+    def checkSingleLineFunction(self, line):
+        return re.search(self.patternSingleLineFunction, line) and not re.search(self.patternTestSingleLineFunction, line)
+
     def check(self, lineNumber, line):
         strippedLine = stripCommentsAndStrings(line)
-        # note that these checks are exclusive
+        for func, errorMsg in self.errors.items():
+            if func(strippedLine):
+                self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, errorMsg))
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
+
+class Cpp17TraitsValidator(SimpleValidator):
+    """Validates that cpp17 traits are used in most files"""
+
+    SUITE_NAME = 'Cpp17Traits'
+    NAME = 'cpp17Traits'
+
+    # pylint: disable=attribute-defined-outside-init
+    def __init__(self, errorReporter):
+        super().__init__(errorReporter)
+        self.typePattern = re.compile(r'>::type\b')
+        self.valuePattern = re.compile(r'>::value\b')
+
+    def check(self, lineNumber, line):
+        #  skip custom traits files that need to use ::value and ::type
+        if self.path.endswith(('Traits.h', 'StlTraits.h', 'TraitsTests.cpp', 'StlTraitsTests.cpp')):
+            return
+
         errorMessage = ''
-        if self.checkTestLine(line):
-            errorMessage = 'TEST should use TEST_CLASS'
-        elif self.checkExplicitOperatorBool(strippedLine):
-            errorMessage = 'Missing explicit before operator bool'
-        elif self.checkValidationResult(strippedLine):
-            errorMessage = 'ValidationResult should not be last argument or should be called `value`'
-        elif self.checkExplicitCtor(strippedLine):
-            errorMessage = 'missing explicit before ctor'
-        elif self.checkEnumClass(strippedLine):
-            errorMessage = 'use enum class instead of enum'
-        elif self.checkCoerce(strippedLine):
-            errorMessage = 'use const auto* .. = CoercePacket'
-        elif self.checkDefineTests(strippedLine):
-            errorMessage = 'use MAKE_ for singular TEST'
-        elif self.checkFileSize(strippedLine):
-            errorMessage = 'FileSize should be passed by value'
-        elif self.checkTestExpectedSize(strippedLine):
-            errorMessage = 'first size part should start on own line'
-        elif self.checkTestAsserts(strippedLine):
-            errorMessage = 'use a different EXPECT or ASSERT macro'
-        elif self.checkDeclareMacroNoParams(strippedLine):
-            errorMessage = 'use DEFINE macro'
+        if re.search(self.valuePattern, line):
+            errorMessage = 'use _v instead of ::value'
+
+        #  boost::logging requires one usage of ::type
+        if not self.path.endswith('Logging.h') and re.search(self.typePattern, line):
+            errorMessage = 'use _t instead of ::type'
 
         if not errorMessage:
             return
@@ -1112,6 +1154,7 @@ def createValidators(errorReporter):
         ForwardsValidator,
         ReturnOnNewLineValidator,
         MultiConditionChecker,
+        Cpp17TraitsValidator,
         UtilsSubdirValidator,
         StressTestNameValidator,
         RegionValidator,

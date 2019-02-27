@@ -119,7 +119,7 @@ namespace catapult { namespace test {
 	}
 
 	void SetBlockAt(ionet::ByteBuffer& buffer, size_t offset) {
-		SetBlockAt(buffer, offset, sizeof(model::Block));
+		SetBlockAt(buffer, offset, sizeof(model::BlockHeader));
 	}
 
 	void SetBlockAt(ionet::ByteBuffer& buffer, size_t offset, size_t size) {

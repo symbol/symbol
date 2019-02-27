@@ -21,7 +21,6 @@
 #pragma once
 #include "StreamFormatGuard.h"
 #include "traits/Traits.h"
-#include "catapult/preprocessor.h"
 #include <array>
 #include <iostream>
 #include <vector>
@@ -53,15 +52,14 @@ namespace catapult { namespace utils {
 		}
 
 		template<typename T>
-		static typename std::enable_if<std::is_integral<T>::value>::type Output(std::ostream& out, T value) {
-			OutputValue(out, value, N);
-		}
-
-		template<typename T>
-		static typename std::enable_if<!std::is_integral<T>::value>::type Output(std::ostream& out, T value) {
-			auto pData = reinterpret_cast<const uint8_t*>(&value);
-			for (auto i = 0u; i < sizeof(T); ++i)
-				OutputValue(out, pData[sizeof(T) - 1 - i], 1);
+		static void Output(std::ostream& out, const T& value) {
+			if constexpr (std::is_integral_v<T>) {
+				OutputValue(out, value, N);
+			} else {
+				auto pData = reinterpret_cast<const uint8_t*>(&value);
+				for (auto i = 0u; i < sizeof(T); ++i)
+					OutputValue(out, pData[sizeof(T) - 1 - i], 1);
+			}
 		}
 
 	private:
@@ -85,12 +83,6 @@ namespace catapult { namespace utils {
 	private:
 		T m_value;
 	};
-
-	/// Factory function for creating a hex formatter around \a value.
-	template<typename T, typename X = typename std::enable_if<traits::is_scalar<T>::value>::type>
-	auto HexFormat(T value) {
-		return IntegralHexFormatter<T>(value);
-	}
 
 	/// Formatter for printing a container of integral hex numbers to a stream.
 	template<typename TInputIterator>
@@ -135,10 +127,14 @@ namespace catapult { namespace utils {
 	}
 
 	/// Factory function for creating a hex formatter around \a data.
-	template<typename T, typename X = typename std::enable_if<!traits::is_scalar<T>::value>::type>
+	template<typename T>
 	auto HexFormat(const T& data) {
-		auto pData = reinterpret_cast<const uint8_t*>(&data);
-		return HexFormat(pData, pData + sizeof(T), 0);
+		if constexpr (traits::is_scalar_v<T>) {
+			return IntegralHexFormatter<T>(data);
+		} else {
+			auto pData = reinterpret_cast<const uint8_t*>(&data);
+			return HexFormat(pData, pData + sizeof(T), 0);
+		}
 	}
 
 	/// Factory function for creating a hex formatter around \a container.

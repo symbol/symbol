@@ -75,9 +75,6 @@ namespace catapult { namespace test {
 	/// Generates a predefined block, i.e. this function will always return the same block.
 	std::unique_ptr<model::Block> GenerateDeterministicBlock();
 
-	/// Generates random block statements with statements described by \a numStatements
-	std::unique_ptr<model::BlockStatement> GenerateRandomStatements(const std::vector<size_t>& numStatements);
-
 	/// Policy for creating an empty block.
 	struct EmptyBlockPolicy {
 		static auto Create() {
@@ -116,12 +113,6 @@ namespace catapult { namespace test {
 
 	/// Converts \a block to a block element.
 	model::BlockElement BlockToBlockElement(const model::Block& block);
-
-	/// Serializes \a blockStatement.
-	std::vector<uint8_t> SerializeBlockStatement(const model::BlockStatement& blockStatement);
-
-	/// Verifies that block statements \a expectedBlockStatement and \a blockStatement are equivalent.
-	void AssertEqual(const model::BlockStatement& expectedBlockStatement, const model::BlockStatement& blockStatement);
 
 	/// Verifies that block elements \a expectedBlockElement and \a blockElement are equivalent.
 	void AssertEqual(const model::BlockElement& expectedBlockElement, const model::BlockElement& blockElement);

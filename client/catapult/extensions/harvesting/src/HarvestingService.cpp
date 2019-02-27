@@ -19,8 +19,7 @@
 **/
 
 #include "HarvestingService.h"
-#include "BlockExecutionHashesCalculator.h"
-#include "HarvestingConfiguration.h"
+#include "HarvesterBlockGenerator.h"
 #include "HarvestingUtFacadeFactory.h"
 #include "ScheduledHarvesterTask.h"
 #include "UnlockedAccounts.h"
@@ -79,20 +78,14 @@ namespace catapult { namespace harvesting {
 			const auto& cache = state.cache();
 			const auto& blockChainConfig = state.config().BlockChain;
 			const auto& utCache = state.utCache();
+			auto strategy = state.config().Node.TransactionSelectionStrategy;
 			auto executionConfig = extensions::CreateExecutionConfiguration(state.pluginManager());
-			HarvestingUtFacadeFactory utFacadeFactory(cache, extensions::GetUtCacheOptions(state.config().Node), executionConfig);
+			HarvestingUtFacadeFactory utFacadeFactory(cache, blockChainConfig, executionConfig);
 
-			Harvester::Suppliers harvesterSuppliers{
-				[&cache, &blockChainConfig, executionConfig](const auto& block, const auto& transactionHashes) {
-					return CalculateBlockExecutionHashes(block, transactionHashes, cache, blockChainConfig, executionConfig);
-				},
-				[strategy = state.config().Node.TransactionSelectionStrategy, utFacadeFactory, &utCache](auto height, auto count) {
-					return CreateTransactionsInfoSupplier(strategy, utFacadeFactory, utCache)(height, count);
-				}
-			};
+			auto blockGenerator = CreateHarvesterBlockGenerator(strategy, utFacadeFactory, utCache);
 			auto pHarvesterTask = std::make_shared<ScheduledHarvesterTask>(
 					CreateHarvesterTaskOptions(state),
-					std::make_unique<Harvester>(cache, blockChainConfig, unlockedAccounts, harvesterSuppliers));
+					std::make_unique<Harvester>(cache, blockChainConfig, unlockedAccounts, blockGenerator));
 
 			auto minHarvesterBalance = blockChainConfig.MinHarvesterBalance;
 			return thread::CreateNamedTask("harvesting task", [&cache, &unlockedAccounts, pHarvesterTask, minHarvesterBalance]() {

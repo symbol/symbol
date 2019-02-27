@@ -18,16 +18,16 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "AddressExtractionUtSubscriber.h"
+#include "AddressExtractionUtChangeSubscriber.h"
 #include "catapult/model/NotificationPublisher.h"
 #include "catapult/model/TransactionUtils.h"
 
 namespace catapult { namespace addressextraction {
 
 	namespace {
-		class AddressExtractionChangeSubscriber : public cache::UtChangeSubscriber {
+		class AddressExtractionUtChangeSubscriber : public cache::UtChangeSubscriber {
 		public:
-			explicit AddressExtractionChangeSubscriber(std::unique_ptr<model::NotificationPublisher>&& pPublisher)
+			explicit AddressExtractionUtChangeSubscriber(std::unique_ptr<model::NotificationPublisher>&& pPublisher)
 					: m_pPublisher(std::move(pPublisher))
 			{}
 
@@ -57,8 +57,8 @@ namespace catapult { namespace addressextraction {
 		};
 	}
 
-	std::unique_ptr<cache::UtChangeSubscriber> CreateAddressExtractionChangeSubscriber(
+	std::unique_ptr<cache::UtChangeSubscriber> CreateAddressExtractionUtChangeSubscriber(
 			std::unique_ptr<model::NotificationPublisher>&& pPublisher) {
-		return std::make_unique<AddressExtractionChangeSubscriber>(std::move(pPublisher));
+		return std::make_unique<AddressExtractionUtChangeSubscriber>(std::move(pPublisher));
 	}
 }}

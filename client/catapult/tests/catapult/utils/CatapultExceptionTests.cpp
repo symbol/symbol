@@ -30,10 +30,10 @@ namespace catapult {
 
 	namespace {
 		struct CustomTestTag1 {};
-		typedef boost::error_info<CustomTestTag1, int> custom_info1;
+		using custom_info1 = boost::error_info<CustomTestTag1, int>;
 
 		struct CustomTestTag2 {};
-		typedef boost::error_info<CustomTestTag2, int> custom_info2;
+		using custom_info2 = boost::error_info<CustomTestTag2, int>;
 
 		std::vector<std::string> GetLocationIndependentDiagnosticInformation(const boost::exception& ex) {
 			// Arrange: remove file path and line number
@@ -81,7 +81,7 @@ namespace catapult {
 			// Arrange:
 			std::vector<std::string> expectedDiagLines{
 				"Throw in function " + expected.FunctionName,
-				"Dynamic exception type: " CLASSPREFIX "boost::exception_detail::clone_impl<" + std::string(TTraits::Exception_Fqn) + " >",
+				"Dynamic exception type: " CLASSPREFIX "boost::wrapexcept<" + std::string(TTraits::Exception_Fqn) + " >",
 				"std::exception::what: " + expected.What
 			};
 

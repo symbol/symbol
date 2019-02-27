@@ -80,7 +80,7 @@ namespace catapult { namespace cache {
 		// Assert:
 		EXPECT_EQ(utils::TimeSpan::FromHours(123), cache.createView()->retentionTime());
 		EXPECT_EQ(utils::TimeSpan::FromHours(123), cache.createDelta()->retentionTime());
-		EXPECT_EQ(utils::TimeSpan::FromHours(123), cache.createDetachedDelta().lock()->retentionTime());
+		EXPECT_EQ(utils::TimeSpan::FromHours(123), cache.createDetachedDelta().tryLock()->retentionTime());
 	}
 
 	// endregion

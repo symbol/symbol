@@ -33,7 +33,7 @@ namespace catapult {
 		class PacketIo;
 		class PacketSocket;
 	}
-	namespace thread { class IoServiceThreadPool; }
+	namespace thread { class IoThreadPool; }
 }
 
 namespace catapult { namespace net {
@@ -58,7 +58,7 @@ namespace catapult { namespace net {
 	/// Creates a packet readers container for a server with a key pair of \a keyPair using \a pPool and \a handlers,
 	/// configured with \a settings and allowing \a maxConnectionsPerIdentity.
 	std::shared_ptr<PacketReaders> CreatePacketReaders(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const ionet::ServerPacketHandlers& handlers,
 			const crypto::KeyPair& keyPair,
 			const ConnectionSettings& settings,

@@ -33,11 +33,11 @@ namespace catapult { namespace extensions {
 		struct ConfirmTimestampedHashesTraits {
 		public:
 			using ResultType = state::TimestampedHashRange;
-			static constexpr auto PacketType() { return ionet::PacketType::Confirm_Timestamped_Hashes; }
-			static constexpr auto FriendlyName() { return "confirm timestamped hashes"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Confirm_Timestamped_Hashes;
+			static constexpr auto Friendly_Name = "confirm timestamped hashes";
 
 			static auto CreateRequestPacketPayload(state::TimestampedHashRange&& timestampedHashes) {
-				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(timestampedHashes));
+				return ionet::PacketPayloadFactory::FromFixedSizeRange(Packet_Type, std::move(timestampedHashes));
 			}
 
 		public:
@@ -50,11 +50,11 @@ namespace catapult { namespace extensions {
 		struct DiagnosticCountersTraits {
 		public:
 			using ResultType = model::EntityRange<model::DiagnosticCounterValue>;
-			static constexpr auto PacketType() { return ionet::PacketType::Diagnostic_Counters; }
-			static constexpr auto FriendlyName() { return "diagnostic counters"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Diagnostic_Counters;
+			static constexpr auto Friendly_Name = "diagnostic counters";
 
 			static auto CreateRequestPacketPayload() {
-				return ionet::PacketPayload(PacketType());
+				return ionet::PacketPayload(Packet_Type);
 			}
 
 		public:
@@ -67,11 +67,11 @@ namespace catapult { namespace extensions {
 		struct ActiveNodeInfosTraits {
 		public:
 			using ResultType = model::EntityRange<ionet::PackedNodeInfo>;
-			static constexpr auto PacketType() { return ionet::PacketType::Active_Node_Infos; }
-			static constexpr auto FriendlyName() { return "active node infos"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Active_Node_Infos;
+			static constexpr auto Friendly_Name = "active node infos";
 
 			static auto CreateRequestPacketPayload() {
-				return ionet::PacketPayload(PacketType());
+				return ionet::PacketPayload(Packet_Type);
 			}
 
 		public:
@@ -81,14 +81,14 @@ namespace catapult { namespace extensions {
 			}
 		};
 
-		template<typename TIdentifier, ionet::PacketType Packet_Type>
+		template<typename TIdentifier, ionet::PacketType PacketType>
 		struct InfosTraits {
 		public:
 			using ResultType = model::EntityRange<model::CacheEntryInfo<TIdentifier>>;
-			static constexpr ionet::PacketType PacketType() { return Packet_Type; }
+			static constexpr ionet::PacketType Packet_Type = PacketType;
 
 			static auto CreateRequestPacketPayload(model::EntityRange<TIdentifier>&& ids) {
-				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(ids));
+				return ionet::PacketPayloadFactory::FromFixedSizeRange(Packet_Type, std::move(ids));
 			}
 
 		public:
@@ -101,23 +101,19 @@ namespace catapult { namespace extensions {
 		};
 
 		struct AccountInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Infos> {
-		public:
-			static constexpr auto FriendlyName() { return "account infos"; }
+			static constexpr auto Friendly_Name = "account infos";
 		};
 
 		struct AccountPropertiesInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Properties_Infos> {
-		public:
-			static constexpr auto FriendlyName() { return "account properties infos"; }
+			static constexpr auto Friendly_Name = "account properties infos";
 		};
 
 		struct NamespaceInfosTraits : public InfosTraits<NamespaceId, ionet::PacketType::Namespace_Infos> {
-		public:
-			static constexpr auto FriendlyName() { return "namespace infos"; }
+			static constexpr auto Friendly_Name = "namespace infos";
 		};
 
 		struct MosaicInfosTraits : public InfosTraits<MosaicId, ionet::PacketType::Mosaic_Infos> {
-		public:
-			static constexpr auto FriendlyName() { return "mosaic infos"; }
+			static constexpr auto Friendly_Name = "mosaic infos";
 		};
 
 		// endregion

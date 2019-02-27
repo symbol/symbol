@@ -45,9 +45,11 @@ namespace catapult { namespace cache {
 
 		// Act:
 		AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
-		auto delta = cache.createDelta();
-		AccountStateCacheStorage::LoadInto(originalAccountState, *delta);
-		cache.commit();
+		{
+			auto delta = cache.createDelta();
+			AccountStateCacheStorage::LoadInto(originalAccountState, *delta);
+			cache.commit();
+		}
 
 		// Assert: the cache contains the value
 		auto view = cache.createView();

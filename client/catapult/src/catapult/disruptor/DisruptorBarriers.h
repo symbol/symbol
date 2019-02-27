@@ -34,17 +34,17 @@ namespace catapult { namespace disruptor {
 
 	public:
 		/// Returns number of barriers.
-		CATAPULT_INLINE size_t size() const {
+		inline size_t size() const {
 			return m_barriers.size();
 		}
 
 		/// Returns a barrier at a given \a level.
-		CATAPULT_INLINE const DisruptorBarrier& operator[](size_t level) const {
+		inline const DisruptorBarrier& operator[](size_t level) const {
 			return *m_barriers[level];
 		}
 
 		/// Returns a barrier at a given \a level.
-		CATAPULT_INLINE DisruptorBarrier& operator[](size_t level) {
+		inline DisruptorBarrier& operator[](size_t level) {
 			return *m_barriers[level];
 		}
 

@@ -22,7 +22,7 @@
 #include "catapult/ionet/BufferedPacketIo.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/ionet/SocketReader.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
@@ -116,10 +116,10 @@ namespace catapult { namespace net {
 
 			// Act: "server" - reads packets from the socket using the Reader
 			//      "client" - writes sendBuffers to the socket waiting until the previous buffer has been read
-			auto pPool = test::CreateStartedIoServiceThreadPool();
+			auto pPool = test::CreateStartedIoThreadPool();
 			std::weak_ptr<ChainedSocketReader> pReader;
 			ionet::SocketOperationCode completionCode;
-			test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+			test::SpawnPacketServerWork(pPool->ioContext(), [&](const auto& pServerSocket) {
 				auto pReaderShared = CreateChainedReader(pServerSocket, handlers, clientIdentity, completionCode);
 				pReader = pReaderShared;
 
@@ -139,7 +139,7 @@ namespace catapult { namespace net {
 			});
 
 			auto pWriteContext = std::make_shared<WriteHandshakeContext>(numReceivedBuffers, options.NumReadsToConfirm);
-			test::CreateClientSocket(pPool->service())->connect().then([&](auto&& socketFuture) {
+			test::CreateClientSocket(pPool->ioContext())->connect().then([&](auto&& socketFuture) {
 				pWriteContext->start(*socketFuture.get(), sendBuffers);
 			});
 
@@ -162,13 +162,13 @@ namespace catapult { namespace net {
 
 		// Act: "server" - creates a chained reader but does not start it
 		//      "client" - sends a packet to the server
-		auto pPool = test::CreateStartedIoServiceThreadPool();
+		auto pPool = test::CreateStartedIoThreadPool();
 		auto completionCode = static_cast<ionet::SocketOperationCode>(123);
 		std::shared_ptr<ChainedSocketReader> pReader;
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(pPool->ioContext(), [&](const auto& pServerSocket) {
 			pReader = CreateChainedReader(pServerSocket, handlers, clientIdentity, completionCode);
 		});
-		test::AddClientWriteBuffersTask(pPool->service(), { test::GenerateRandomPacketBuffer(50) });
+		test::AddClientWriteBuffersTask(pPool->ioContext(), { test::GenerateRandomPacketBuffer(50) });
 
 		// - wait for the test to complete
 		pPool->join();
@@ -191,14 +191,14 @@ namespace catapult { namespace net {
 
 		// Act: "server" - creates a chained reader and starts it
 		//      "client" - sends a packet to the server
-		auto pPool = test::CreateStartedIoServiceThreadPool();
+		auto pPool = test::CreateStartedIoThreadPool();
 		auto completionCode = static_cast<ionet::SocketOperationCode>(123);
 		std::shared_ptr<ChainedSocketReader> pReader;
-		test::SpawnPacketServerWork(pPool->service(), [&](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(pPool->ioContext(), [&](const auto& pServerSocket) {
 			pReader = CreateChainedReader(pServerSocket, handlers, clientIdentity, completionCode);
 			pReader->start();
 		});
-		test::AddClientWriteBuffersTask(pPool->service(), { test::GenerateRandomPacketBuffer(50) });
+		test::AddClientWriteBuffersTask(pPool->ioContext(), { test::GenerateRandomPacketBuffer(50) });
 
 		// - wait for the test to complete
 		pPool->join();

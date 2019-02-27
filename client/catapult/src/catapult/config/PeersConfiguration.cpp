@@ -26,14 +26,9 @@
 
 #ifdef _MSC_VER
 #include <boost/config/compiler/visualc.hpp>
+#endif
 
-#pragma warning(push)
-#pragma warning(disable:4715) /* "not all control paths return a value" */
-#endif
 #include <boost/property_tree/json_parser.hpp>
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
 namespace pt = boost::property_tree;
 

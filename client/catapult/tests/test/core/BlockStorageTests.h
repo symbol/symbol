@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "BlockStatementTestUtils.h"
 #include "BlockStorageTestUtils.h"
 #include "BlockTestUtils.h"
 #include "mocks/MockMemoryBlockStorage.h"
@@ -26,6 +27,7 @@
 #include "catapult/io/BlockStatementSerializer.h"
 #include "catapult/model/BlockUtils.h"
 #include "tests/test/nodeps/Nemesis.h"
+#include "tests/TestHarness.h"
 #include <numeric>
 
 namespace catapult { namespace test {

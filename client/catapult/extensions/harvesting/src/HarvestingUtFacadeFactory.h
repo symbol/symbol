@@ -20,45 +20,60 @@
 
 #pragma once
 #include "catapult/cache/CatapultCache.h"
-#include "catapult/cache/MemoryUtCache.h"
-#include "catapult/chain/UtUpdater.h"
+#include "catapult/chain/ExecutionConfiguration.h"
+#include "catapult/model/Block.h"
+#include "catapult/model/BlockChainConfiguration.h"
 
 namespace catapult { namespace harvesting {
+
+	/// Facade around unconfirmed transactions cache and updater.
+	class HarvestingUtFacade {
+	public:
+		/// Creates a facade around \a blockTime, \a cache, \a blockChainConfig and \a executionConfig.
+		HarvestingUtFacade(
+				Timestamp blockTime,
+				const cache::CatapultCache& cache,
+				const model::BlockChainConfiguration& blockChainConfig,
+				const chain::ExecutionConfiguration& executionConfig);
+
+		/// Destroys the facade.
+		~HarvestingUtFacade();
+
+	public:
+		/// Gets locked height.
+		Height height() const;
+
+		/// Gets the number of successfully applied transactions.
+		size_t size() const;
+
+		/// Gets all successfully applied transactions.
+		const std::vector<model::TransactionInfo>& transactionInfos() const;
+
+	public:
+		/// Attempts to apply \a transactionInfo to the cache.
+		bool apply(const model::TransactionInfo& transactionInfo);
+
+		/// Unapplies last successfully applied transaction.
+		void unapply();
+
+		/// Commits all transactions into a block with specified seed header (\a blockHeader).
+		std::unique_ptr<model::Block> commit(const model::BlockHeader& blockHeader);
+
+	private:
+		class Impl;
+
+	private:
+		std::vector<model::TransactionInfo> m_transactionInfos;
+		std::unique_ptr<Impl> m_pImpl;
+	};
 
 	/// Factory for creating unconfirmed transactions facades.
 	class HarvestingUtFacadeFactory {
 	public:
-		/// Facade around unconfirmed transactions cache and updater.
-		class HarvestingUtFacade {
-		public:
-			/// Creates a facade around \a blockTime, \a catapultCache, \a memoryCacheOptions and \a executionConfig.
-			HarvestingUtFacade(
-					Timestamp blockTime,
-					const cache::CatapultCache& catapultCache,
-					const cache::MemoryCacheOptions& memoryCacheOptions,
-					const chain::ExecutionConfiguration& executionConfig);
-
-		public:
-			/// Gets a read only view of the underlying cache.
-			cache::MemoryUtCacheView view() const;
-
-		public:
-			/// Attempts to apply \a transactionInfo to the cache.
-			bool apply(const model::TransactionInfo& transactionInfo);
-
-		private:
-			size_t size() const;
-
-		private:
-			cache::MemoryUtCache m_utCache;
-			chain::UtUpdater m_utUpdater;
-		};
-
-	public:
-		/// Creates a factory around \a catapultCache, \a memoryCacheOptions and \a executionConfig.
+		/// Creates a factory around \a cache, \a blockChainConfig and \a executionConfig.
 		HarvestingUtFacadeFactory(
-				const cache::CatapultCache& catapultCache,
-				const cache::MemoryCacheOptions& memoryCacheOptions,
+				const cache::CatapultCache& cache,
+				const model::BlockChainConfiguration& blockChainConfig,
 				const chain::ExecutionConfiguration& executionConfig);
 
 	public:
@@ -66,8 +81,8 @@ namespace catapult { namespace harvesting {
 		std::unique_ptr<HarvestingUtFacade> create(Timestamp blockTime) const;
 
 	private:
-		const cache::CatapultCache& m_catapultCache;
-		cache::MemoryCacheOptions m_memoryCacheOptions;
+		const cache::CatapultCache& m_cache;
+		model::BlockChainConfiguration m_blockChainConfig;
 		chain::ExecutionConfiguration m_executionConfig;
 	};
 }}

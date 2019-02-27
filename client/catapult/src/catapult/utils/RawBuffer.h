@@ -39,9 +39,9 @@ namespace catapult { namespace utils {
 		template<
 				typename TContainer,
 				// disable when copy/move constructors should be used
-				typename X = traits::disable_if_same_or_derived<BasicRawBuffer, TContainer>,
+				typename X = std::enable_if_t<!traits::is_base_of_ignore_reference_v<BasicRawBuffer, TContainer>>,
 				// disable when other constructors are better match
-				typename Y = typename std::enable_if<!std::is_scalar<TContainer>::value>::type
+				typename Y = std::enable_if_t<!std::is_scalar_v<TContainer>>
 		>
 		BasicRawBuffer(TContainer&& container) : BasicRawBuffer(container.data(), container.size())
 		{}
@@ -95,7 +95,7 @@ namespace catapult { namespace utils {
 	/// Insertion operator for outputting \a str to \a out.
 	template<
 			typename T,
-			typename X = typename std::enable_if<std::is_same<char, typename std::remove_const<T>::type>::value>::type>
+			typename X = std::enable_if_t<std::is_same_v<char, typename std::remove_const_t<T>>>>
 	std::ostream& operator<<(std::ostream& out, const BasicRawBuffer<T>& str) {
 		out.write(str.pData, static_cast<std::streamsize>(str.Size));
 		return out;

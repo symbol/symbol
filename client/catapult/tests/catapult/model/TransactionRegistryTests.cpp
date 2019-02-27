@@ -43,7 +43,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanRegisterPlugin) {
 		// Act:
 		TransactionRegistry registry;
-		registry.registerPlugin(mocks::CreateMockTransactionPlugin(124));
+		registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124)));
 
 		// Assert:
 		EXPECT_EQ(1u, registry.size());
@@ -53,7 +53,7 @@ namespace catapult { namespace model {
 		// Act:
 		TransactionRegistry registry;
 		for (auto i : { 123, 7, 222 })
-			registry.registerPlugin(mocks::CreateMockTransactionPlugin(i));
+			registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
 
 		// Assert:
 		EXPECT_EQ(3u, registry.size());
@@ -62,10 +62,12 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CannotRegisterMultiplePluginsWithSameType) {
 		// Arrange:
 		TransactionRegistry registry;
-		registry.registerPlugin(mocks::CreateMockTransactionPlugin(124));
+		registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124)));
 
 		// Act + Assert:
-		EXPECT_THROW(registry.registerPlugin(mocks::CreateMockTransactionPlugin(124)), catapult_invalid_argument);
+		EXPECT_THROW(
+				registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(124))),
+				catapult_invalid_argument);
 	}
 
 	// endregion
@@ -76,7 +78,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		TransactionRegistry registry;
 		for (auto i : { 123, 7, 222 })
-			registry.registerPlugin(mocks::CreateMockTransactionPlugin(i));
+			registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
 
 		// Act:
 		const auto* pPlugin = registry.findPlugin(static_cast<EntityType>(7));
@@ -90,7 +92,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		TransactionRegistry registry;
 		for (auto i : { 123, 7, 222 })
-			registry.registerPlugin(mocks::CreateMockTransactionPlugin(i));
+			registry.registerPlugin(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
 
 		// Act:
 		const auto* pPlugin = registry.findPlugin(static_cast<EntityType>(8));

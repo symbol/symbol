@@ -37,8 +37,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			using IdContainerType = std::unordered_set<KeyType, utils::BaseValueHasher<KeyType>>;
 			using ElementContainerType = std::unordered_set<const state::RootNamespaceHistory*>;
 
-			static constexpr const char* Collection_Name = "namespaces";
-			static constexpr const char* Id_Property_Name = "namespace.level0";
+			static constexpr auto Collection_Name = "namespaces";
+			static constexpr auto Id_Property_Name = "namespace.level0";
 
 			static auto GetId(const state::RootNamespaceHistory& history) {
 				return history.id();

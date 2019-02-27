@@ -44,7 +44,7 @@ namespace catapult { namespace chain {
 		}
 
 		struct ExecuteTraits {
-			static constexpr auto GetNotifyMode() { return observers::NotifyMode::Commit; }
+			static constexpr auto Notify_Mode = observers::NotifyMode::Commit;
 
 			static std::vector<uint16_t> GetExpectedVersions(size_t numTransactions, uint16_t seed) {
 				std::vector<uint16_t> versions;
@@ -79,7 +79,7 @@ namespace catapult { namespace chain {
 		};
 
 		struct RollbackTraits {
-			static constexpr auto GetNotifyMode() { return observers::NotifyMode::Rollback; }
+			static constexpr auto Notify_Mode = observers::NotifyMode::Rollback;
 
 			static std::vector<uint16_t> GetExpectedVersions(size_t numTransactions, uint16_t seed) {
 				auto versions = ExecuteTraits::GetExpectedVersions(numTransactions, seed);
@@ -153,7 +153,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(TTraits::GetExpectedVersions(0, 22), observer.versions());
 
 		EXPECT_EQ(1u, observer.contexts().size());
-		AssertContexts(observer.contexts(), state, Height(10), TTraits::GetNotifyMode());
+		AssertContexts(observer.contexts(), state, Height(10), TTraits::Notify_Mode);
 	}
 
 	TRAITS_BASED_TEST(CanDispatchSingleBlockWithTransactions) {
@@ -175,7 +175,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(TTraits::GetExpectedVersions(7, 22), observer.versions());
 
 		EXPECT_EQ(8u, observer.contexts().size());
-		AssertContexts(observer.contexts(), state, Height(10), TTraits::GetNotifyMode());
+		AssertContexts(observer.contexts(), state, Height(10), TTraits::Notify_Mode);
 	}
 
 	TRAITS_BASED_TEST(ProcessPassesAllEntityHashesToObserverWithoutModification) {
@@ -224,7 +224,7 @@ namespace catapult { namespace chain {
 		const auto& contexts = observer.contexts();
 		EXPECT_EQ(10u, observer.contexts().size());
 		auto contextsSplitIter = contexts.cbegin() + 6;
-		auto mode = TTraits::GetNotifyMode();
+		auto mode = TTraits::Notify_Mode;
 		AssertContexts(std::vector<observers::ObserverContext>(contexts.cbegin(), contextsSplitIter), state, Height(10), mode);
 		AssertContexts(std::vector<observers::ObserverContext>(contextsSplitIter, contexts.cend()), state, Height(25), mode);
 	}

@@ -30,7 +30,7 @@ namespace catapult { namespace test {
 	struct VariableSizedBlockChain {
 		/// Gets the block size at \a height.
 		static constexpr uint32_t GetBlockSizeAtHeight(Height height) {
-			return static_cast<uint32_t>(sizeof(model::Block) + height.unwrap() * 100);
+			return static_cast<uint32_t>(sizeof(model::BlockHeader) + height.unwrap() * 100);
 		}
 
 		/// Creates storage for a chain with \a numBlocks variable sized blocks.
@@ -46,7 +46,7 @@ namespace catapult { namespace test {
 				pBlock->Size = size;
 				pBlock->Height = Height(i);
 				pBlock->Difficulty = Difficulty::Min() + Difficulty::Unclamped(1000 + i);
-				pBlock->TransactionsPtr()->Size = size - sizeof(model::Block);
+				pBlock->TransactionsPtr()->Size = size - sizeof(model::BlockHeader);
 				storageModifier.saveBlock(test::BlockToBlockElement(*pBlock, test::GenerateRandomData<Hash256_Size>()));
 			}
 

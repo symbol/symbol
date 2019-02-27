@@ -22,7 +22,6 @@
 #include "PacketHeader.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "catapult/utils/NonCopyable.h"
-#include "catapult/preprocessor.h"
 #include <memory>
 
 namespace catapult { namespace ionet {
@@ -56,8 +55,7 @@ namespace catapult { namespace ionet {
 	}
 
 	template<>
-	CATAPULT_INLINE
-	std::shared_ptr<Packet> CreateSharedPacket(uint32_t payloadSize) {
+	inline std::shared_ptr<Packet> CreateSharedPacket(uint32_t payloadSize) {
 		uint32_t packetSize = sizeof(Packet) + payloadSize;
 		auto pPacket = utils::MakeSharedWithSize<Packet>(packetSize);
 		pPacket->Size = packetSize;
@@ -74,8 +72,7 @@ namespace catapult { namespace ionet {
 	}
 
 	/// Checks if \a packet is valid with \a type.
-	constexpr
-	bool IsPacketValid(const Packet& packet, PacketType type) {
+	constexpr bool IsPacketValid(const Packet& packet, PacketType type) {
 		return sizeof(Packet) == packet.Size && type == packet.Type;
 	}
 }}

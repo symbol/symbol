@@ -146,14 +146,14 @@ namespace catapult { namespace mongo {
 					: m_accountStates(CreateAccountStates(numEntities))
 					, m_transactions(CreateTransactions(numEntities))
 					, m_transactionElements(CreateTransactionElements(m_transactions))
-					, m_pPool(test::CreateStartedIoServiceThreadPool(8)) {
+					, m_pPool(test::CreateStartedIoThreadPool(8)) {
 				test::PrepareDatabase(test::DatabaseName());
 				m_pBulkWriter = MongoBulkWriter::Create(test::DefaultDbUri(), test::DatabaseName(), m_pPool);
 				m_connection = test::CreateDbConnection();
 			}
 
 			~PerformanceContext() {
-				// wait for all pending threadpool work to complete
+				// wait for all pending thread pool work to complete
 				m_pPool->join();
 			}
 
@@ -179,7 +179,7 @@ namespace catapult { namespace mongo {
 			AccountStates m_accountStates;
 			test::MutableTransactions m_transactions;
 			TransactionElements m_transactionElements;
-			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			std::shared_ptr<MongoBulkWriter> m_pBulkWriter;
 			mongocxx::client m_connection;
 		};

@@ -109,5 +109,8 @@ namespace catapult { namespace model {
 			const Key& signerPublicKey,
 			const Transactions& transactions);
 
+	/// Creates a new block by stitching together \a blockHeader and \a transactions.
+	std::unique_ptr<Block> StitchBlock(const BlockHeader& blockHeader, const Transactions& transactions);
+
 	// endregion
 }}

@@ -76,22 +76,13 @@ namespace catapult { namespace filechain {
 			void loadCompleteBlockChainFromStorage(
 					const extensions::LocalNodeStateRef& stateRef,
 					const plugins::PluginManager& pluginManager) {
-				auto pPublisher = pluginManager.createNotificationPublisher();
+				auto observerFactory = createObserverFactory(stateRef, pluginManager);
 
-				auto storageView = stateRef.Storage.view();
-				auto pLastBlock = storageView.loadBlock(storageView.chainHeight());
-				auto observerFactory = CreateBlockDependentNotificationObserverFactory(
-						*pLastBlock,
-						stateRef.Config.BlockChain,
-						[&pluginManager]() { return pluginManager.createObserver(); },
-						[&pluginManager]() { return pluginManager.createPermanentObserver(); });
-
-				auto pNemesisBlock = storageView.loadBlock(Height(1));
-
-				// if verifiable state is enabled check it by executing only non-permanent observers on detached delta
+				// if verifiable state is enabled, check it by executing only non-permanent observers on detached delta
 				if (stateRef.Config.BlockChain.ShouldEnableVerifiableState) {
-					auto detachedDelta = stateRef.Cache.createDetachableDelta().detach();
-					auto pCacheDelta = detachedDelta.lock();
+					auto detachableDelta = stateRef.Cache.createDetachableDelta();
+					auto detachedDelta = detachableDelta.detach();
+					auto pCacheDelta = detachedDelta.tryLock();
 					auto& cacheDelta = *pCacheDelta;
 
 					extensions::NemesisBlockLoader loader(cacheDelta, pluginManager, pluginManager.createObserver());
@@ -107,11 +98,13 @@ namespace catapult { namespace filechain {
 					loader.execute(stateRefCopy, extensions::StateHashVerification::Enabled);
 				}
 
-				// if verifiable state is enabled do NOT check hash when committing.
 				{
-					auto cacheDelta = stateRef.Cache.createDelta();
-					extensions::NemesisBlockLoader loader(cacheDelta, pluginManager, observerFactory(*pNemesisBlock));
+					auto pNemesisObserver = createNemesisObserver(stateRef, observerFactory);
 
+					auto cacheDelta = stateRef.Cache.createDelta();
+					extensions::NemesisBlockLoader loader(cacheDelta, pluginManager, std::move(pNemesisObserver));
+
+					// if verifiable state is enabled, do NOT check hash when committing
 					auto stateHashVerification = stateRef.Config.BlockChain.ShouldEnableVerifiableState
 							? extensions::StateHashVerification::Disabled
 							: extensions::StateHashVerification::Enabled;
@@ -120,6 +113,26 @@ namespace catapult { namespace filechain {
 				}
 
 				loadBlockChainFromStorage(observerFactory, pluginManager, stateRef, Height(2));
+			}
+
+			BlockDependentNotificationObserverFactory createObserverFactory(
+					const extensions::LocalNodeStateRef& stateRef,
+					const plugins::PluginManager& pluginManager) const {
+				auto storageView = stateRef.Storage.view();
+				auto pLastBlock = storageView.loadBlock(storageView.chainHeight());
+				return CreateBlockDependentNotificationObserverFactory(
+						*pLastBlock,
+						stateRef.Config.BlockChain,
+						[&pluginManager]() { return pluginManager.createObserver(); },
+						[&pluginManager]() { return pluginManager.createPermanentObserver(); });
+			}
+
+			std::unique_ptr<const observers::NotificationObserver> createNemesisObserver(
+					const extensions::LocalNodeStateRef& stateRef,
+					const BlockDependentNotificationObserverFactory& observerFactory) const {
+				auto storageView = stateRef.Storage.view();
+				auto pNemesisBlock = storageView.loadBlock(Height(1));
+				return observerFactory(*pNemesisBlock);
 			}
 
 			void loadPartialBlockChainFromStorage(

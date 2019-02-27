@@ -24,7 +24,7 @@
 #include "catapult/ionet/Node.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/ionet/SecurePacketSocketDecorator.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/TimedCallback.h"
 #include "catapult/utils/Logging.h"
 #include "catapult/utils/WeakContainer.h"
@@ -39,7 +39,7 @@ namespace catapult { namespace net {
 				, public std::enable_shared_from_this<DefaultServerConnector> {
 		public:
 			DefaultServerConnector(
-					const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const crypto::KeyPair& keyPair,
 					const ConnectionSettings& settings)
 					: m_pPool(pPool)
@@ -55,11 +55,11 @@ namespace catapult { namespace net {
 
 		public:
 			void connect(const ionet::Node& node, const ConnectCallback& callback) override {
-				auto& service = m_pPool->service();
-				auto pRequest = thread::MakeTimedCallback(service, callback, PeerConnectCode::Timed_Out, PacketSocketPointer());
+				auto& ioContext = m_pPool->ioContext();
+				auto pRequest = thread::MakeTimedCallback(ioContext, callback, PeerConnectCode::Timed_Out, PacketSocketPointer());
 				pRequest->setTimeout(m_settings.Timeout);
 				auto cancel = ionet::Connect(
-						service,
+						ioContext,
 						m_settings.toSocketOptions(),
 						node.endpoint(),
 						[pThis = shared_from_this(), node, pRequest](auto result, const auto& pConnectedSocket) {
@@ -109,7 +109,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			const crypto::KeyPair& m_keyPair;
 			ConnectionSettings m_settings;
 			utils::WeakContainer<ionet::PacketSocket> m_sockets;
@@ -117,7 +117,7 @@ namespace catapult { namespace net {
 	}
 
 	std::shared_ptr<ServerConnector> CreateServerConnector(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const crypto::KeyPair& keyPair,
 			const ConnectionSettings& settings) {
 		return std::make_shared<DefaultServerConnector>(pPool, keyPair, settings);

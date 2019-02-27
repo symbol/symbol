@@ -74,7 +74,7 @@ namespace catapult { namespace extensions {
 		}
 
 		struct DefaultCallbackTraits {
-			static constexpr auto NumExpectedChainSyncedCalls() { return 0u; }
+			static constexpr auto Num_Expected_Chain_Synced_Calls = 0u;
 
 			template<typename... TArgs>
 			static auto CreateTask(TArgs&&... args) {
@@ -83,7 +83,7 @@ namespace catapult { namespace extensions {
 		};
 
 		struct ChainSyncAwareCallbackTraits {
-			static constexpr auto NumExpectedChainSyncedCalls() { return 1u; }
+			static constexpr auto Num_Expected_Chain_Synced_Calls = 1u;
 
 			template<typename... TArgs>
 			static auto CreateTask(TArgs&&... args) {
@@ -105,7 +105,7 @@ namespace catapult { namespace extensions {
 			EXPECT_EQ(thread::TaskResult::Continue, result);
 
 			// - chain synced was called expected number of times
-			EXPECT_EQ(TTraits::NumExpectedChainSyncedCalls(), capture.NumChainSyncedCalls);
+			EXPECT_EQ(TTraits::Num_Expected_Chain_Synced_Calls, capture.NumChainSyncedCalls);
 
 			// - pick one was called
 			ASSERT_EQ(1u, writers.numPickOneCalls());
@@ -134,7 +134,7 @@ namespace catapult { namespace extensions {
 			EXPECT_EQ(thread::TaskResult::Continue, result);
 
 			// - chain synced was called expected number of times
-			EXPECT_EQ(TTraits::NumExpectedChainSyncedCalls(), capture.NumChainSyncedCalls);
+			EXPECT_EQ(TTraits::Num_Expected_Chain_Synced_Calls, capture.NumChainSyncedCalls);
 
 			// - pick one was called
 			ASSERT_EQ(1u, writers.numPickOneCalls());

@@ -164,8 +164,8 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CorrectInformationIsExtractedFromRealPaths) {
 		// Arrange:
-		constexpr const char* Nix_Path = "catapult/utils/PathUtils.h";
-		constexpr const char* Windows_Path = "catapult\\utils\\PathUtils.h";
+		constexpr auto Nix_Path = "catapult/utils/PathUtils.h";
+		constexpr auto Windows_Path = "catapult\\utils\\PathUtils.h";
 
 		// Assert:
 		// - both windows and *nix should parse nix paths

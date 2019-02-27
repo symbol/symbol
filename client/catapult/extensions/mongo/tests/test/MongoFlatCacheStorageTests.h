@@ -190,9 +190,7 @@ namespace catapult { namespace test {
 				case Action::Modify:
 					TTraits::Mutate(delta, element);
 					++numModified;
-#ifndef _MSC_VER
-					[[clang::fallthrough]];
-#endif
+					[[fallthrough]];
 
 				case Action::Add:
 					expected.push_back(element);

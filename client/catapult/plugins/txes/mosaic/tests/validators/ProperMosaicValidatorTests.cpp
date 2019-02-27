@@ -35,16 +35,12 @@ namespace catapult { namespace validators {
 		constexpr auto Mosaic_Expiry_Height = Height(150);
 
 		struct ResolvedMosaicTraits {
-			constexpr static auto DefaultId() {
-				return MosaicId(110);
-			}
+			static constexpr auto Default_Id = MosaicId(110);
 		};
 
 		struct UnresolvedMosaicTraits {
-			constexpr static auto DefaultId() {
-				// custom resolver doubles unresolved mosaic ids
-				return UnresolvedMosaicId(55);
-			}
+			// custom resolver doubles unresolved mosaic ids
+			static constexpr auto Default_Id = UnresolvedMosaicId(55);
 		};
 
 		template<typename TMosaicId>
@@ -63,7 +59,7 @@ namespace catapult { namespace validators {
 			// - create the validator context
 			auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 			auto delta = cache.createDelta();
-			test::AddMosaic(delta, ResolvedMosaicTraits::DefaultId(), Height(50), BlockDuration(100), artifactOwner);
+			test::AddMosaic(delta, ResolvedMosaicTraits::Default_Id, Height(50), BlockDuration(100), artifactOwner);
 			cache.commit(Height());
 
 			auto readOnlyCache = delta.toReadOnly();
@@ -94,24 +90,24 @@ namespace catapult { namespace validators {
 
 	MOSAIC_ID_TRAITS_BASED_TEST(FailureIfMosaicIsUnknown) {
 		// Assert:
-		auto unknownMosaicId = TTraits::DefaultId() + decltype(TTraits::DefaultId())(1);
+		auto unknownMosaicId = TTraits::Default_Id + decltype(TTraits::Default_Id)(1);
 		AssertValidationResult(Failure_Mosaic_Expired, unknownMosaicId, Height(100));
 	}
 
 	MOSAIC_ID_TRAITS_BASED_TEST(FailureIfMosaicExpired) {
 		// Assert:
-		AssertValidationResult(Failure_Mosaic_Expired, TTraits::DefaultId(), Mosaic_Expiry_Height);
+		AssertValidationResult(Failure_Mosaic_Expired, TTraits::Default_Id, Mosaic_Expiry_Height);
 	}
 
 	MOSAIC_ID_TRAITS_BASED_TEST(FailureIfMosaicOwnerDoesNotMatch) {
 		// Assert:
 		auto key1 = test::GenerateRandomData<Key_Size>();
 		auto key2 = test::GenerateRandomData<Key_Size>();
-		AssertValidationResult(Failure_Mosaic_Owner_Conflict, TTraits::DefaultId(), Height(100), key1, key2);
+		AssertValidationResult(Failure_Mosaic_Owner_Conflict, TTraits::Default_Id, Height(100), key1, key2);
 	}
 
 	MOSAIC_ID_TRAITS_BASED_TEST(SuccessIfMosaicIsActiveAndOwnerMatches) {
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, TTraits::DefaultId(), Height(100));
+		AssertValidationResult(ValidationResult::Success, TTraits::Default_Id, Height(100));
 	}
 }}

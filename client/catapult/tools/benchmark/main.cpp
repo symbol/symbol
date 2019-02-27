@@ -22,7 +22,7 @@
 #include "tools/ToolKeys.h"
 #include "tools/ToolThreadUtils.h"
 #include "catapult/crypto/Signer.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/thread/ParallelFor.h"
 #include "catapult/utils/StackLogger.h"
 
@@ -94,12 +94,12 @@ namespace catapult { namespace tools { namespace benchmark {
 			template<typename TAction>
 			uint64_t RunParallel(
 					const char* testName,
-					thread::IoServiceThreadPool& pool,
+					thread::IoThreadPool& pool,
 					std::vector<BenchmarkEntry>& entries,
 					TAction action) const {
 				utils::StackLogger logger(testName, utils::LogLevel::Info);
 				utils::StackTimer stopwatch;
-				thread::ParallelFor(pool.service(), entries, m_numPartitions, [action](auto& entry, auto) {
+				thread::ParallelFor(pool.ioContext(), entries, m_numPartitions, [action](auto& entry, auto) {
 					action(entry);
 					return true;
 				}).get();

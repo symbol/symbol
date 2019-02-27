@@ -56,7 +56,7 @@ namespace catapult { namespace plugins {
 		mocks::MockNotificationSubscriber sub;
 		auto pPlugin = TTraits::CreatePlugin();
 
-		typename TTraits::TransactionType transaction{};
+		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction.Signer);
 		test::FillWithRandomData(transaction.RemoteAccountKey);
 
@@ -76,7 +76,7 @@ namespace catapult { namespace plugins {
 		mocks::MockTypedNotificationSubscriber<NewRemoteAccountNotification> sub;
 		auto pPlugin = TTraits::CreatePlugin();
 
-		typename TTraits::TransactionType transaction{};
+		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction.Signer);
 		test::FillWithRandomData(transaction.RemoteAccountKey);
 
@@ -93,7 +93,7 @@ namespace catapult { namespace plugins {
 		mocks::MockTypedNotificationSubscriber<AddressInteractionNotification> sub;
 		auto pPlugin = TTraits::CreatePlugin();
 
-		typename TTraits::TransactionType transaction{};
+		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction.Signer);
 		transaction.Type = static_cast<model::EntityType>(0x0815);
 		test::FillWithRandomData(transaction.RemoteAccountKey);
@@ -115,7 +115,7 @@ namespace catapult { namespace plugins {
 		mocks::MockTypedNotificationSubscriber<RemoteAccountLinkNotification> sub;
 		auto pPlugin = TTraits::CreatePlugin();
 
-		typename TTraits::TransactionType transaction{};
+		typename TTraits::TransactionType transaction;
 		test::FillWithRandomData(transaction.Signer);
 		test::FillWithRandomData(transaction.RemoteAccountKey);
 		transaction.LinkAction = AccountLinkAction::Unlink;

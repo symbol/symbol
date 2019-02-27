@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.0.2] - 27-Feb-2019
+
+### Changed
+- Upgrade boost from 1.64.0 to 1.69.0 and related changes around asio usage.
+- Shift from c++14 to c++17.
+- Optimized harvester performance.
+
+### Fixed
+- Fix harvester crash, CacheHeightView was not thread safe.
+
 ## [0.3.0.1] - 08-Feb-2019
 
 ### Added

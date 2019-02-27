@@ -80,7 +80,7 @@ namespace catapult { namespace handlers {
 		struct AppendAccessor : EntitiesAppendFlag {};
 
 		template<typename T>
-		struct AppendAccessor<T, typename utils::traits::enable_if_type<decltype(T::Should_Append_As_Values)>::type> : ValuesAppendFlag {};
+		struct AppendAccessor<T, utils::traits::is_type_expression_t<decltype(T::Should_Append_As_Values)>> : ValuesAppendFlag {};
 
 	private:
 		template<typename TProducer>

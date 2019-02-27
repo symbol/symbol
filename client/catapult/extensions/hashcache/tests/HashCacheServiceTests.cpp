@@ -62,19 +62,21 @@ namespace catapult { namespace hashcache {
 			auto& cache = context.testState().state().cache();
 
 			// - populate the hash cache
-			auto delta = cache.createDelta();
-			auto& hashCacheDelta = delta.template sub<cache::HashCache>();
-
-			for (auto i = 0u; i < 5; ++i)
-				hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
-
 			auto hash = test::GenerateRandomData<Hash256_Size>();
-			hashCacheDelta.insert(state::TimestampedHash(Timestamp(5), hash));
+			{
+				auto delta = cache.createDelta();
+				auto& hashCacheDelta = delta.template sub<cache::HashCache>();
 
-			for (auto i = 6u; i < 10; ++i)
-				hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
+				for (auto i = 0u; i < 5; ++i)
+					hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
 
-			cache.commit(Height());
+				hashCacheDelta.insert(state::TimestampedHash(Timestamp(5), hash));
+
+				for (auto i = 6u; i < 10; ++i)
+					hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
+
+				cache.commit(Height());
+			}
 
 			// Act + Assert:
 			action(context.testState().state().hooks(), hash);

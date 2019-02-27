@@ -196,7 +196,7 @@ namespace catapult { namespace utils {
 		template<typename TAttributes>
 		class EraseOnExit {
 		private:
-			using IteratorType = typename std::remove_reference<TAttributes>::type::iterator;
+			using IteratorType = typename std::remove_reference_t<TAttributes>::iterator;
 
 		public:
 			EraseOnExit(TAttributes& attrs, IteratorType& iter) : m_attrs(attrs), m_iter(iter)
@@ -216,8 +216,8 @@ namespace catapult { namespace utils {
 		template<typename TBase, typename TTraits>
 		class custom_info_tagger_feature : public TBase {
 		public:
-			typedef typename TBase::char_type char_type;
-			typedef typename TBase::threading_model threading_model;
+			using char_type = typename TBase::char_type;
+			using threading_model = typename TBase::threading_model;
 
 		public:
 			custom_info_tagger_feature()
@@ -232,12 +232,12 @@ namespace catapult { namespace utils {
 
 		public:
 			// choose the most restrictive lock
-			typedef typename boost::log::strictest_lock<
+			using open_record_lock = typename boost::log::strictest_lock<
 				boost::lock_guard<threading_model>,
 				typename TBase::open_record_lock,
 				typename TBase::add_attribute_lock,
 				typename TBase::remove_attribute_lock
-			>::type open_record_lock;
+			>::type;
 
 		protected:
 			template<typename TArgs>

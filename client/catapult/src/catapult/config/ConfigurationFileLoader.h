@@ -29,7 +29,7 @@ namespace catapult { namespace config {
 	/// Loads configuration from \a path using \a loader.
 	template<
 			typename TConfigurationLoader,
-			typename TConfiguration = typename std::result_of<TConfigurationLoader(const std::string&)>::type
+			typename TConfiguration = std::invoke_result_t<TConfigurationLoader, const std::string&>
 	>
 	TConfiguration LoadConfiguration(const boost::filesystem::path& path, TConfigurationLoader loader) {
 		if (!boost::filesystem::exists(path)) {
@@ -51,8 +51,9 @@ namespace catapult { namespace config {
 	}
 
 	/// Loads peers configuration from \a path for network \a networkIdentifier.
-	inline
-	std::vector<ionet::Node> LoadPeersConfiguration(const boost::filesystem::path& path, model::NetworkIdentifier networkIdentifier) {
+	inline std::vector<ionet::Node> LoadPeersConfiguration(
+			const boost::filesystem::path& path,
+			model::NetworkIdentifier networkIdentifier) {
 		return LoadConfiguration(path, [networkIdentifier](const auto& filePath) {
 			return LoadPeersFromPath(filePath, networkIdentifier);
 		});

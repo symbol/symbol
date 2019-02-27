@@ -81,7 +81,7 @@ namespace catapult { namespace test {
 /// Asserts that \a VALUE is contained in \a VALUES with \a MESSAGE.
 #define EXPECT_CONTAINS_MESSAGE(VALUES, VALUE, MESSAGE) \
 	do { \
-		using Printer = testing::internal::UniversalPrinter<typename std::remove_reference<decltype(VALUES)>::type::value_type>; \
+		using Printer = testing::internal::UniversalPrinter<typename std::remove_reference_t<decltype(VALUES)>::value_type>; \
 		if (VALUES.end() == VALUES.find(VALUE)) { \
 			std::ostringstream ecm_out; \
 			if (!MESSAGE.empty()) \

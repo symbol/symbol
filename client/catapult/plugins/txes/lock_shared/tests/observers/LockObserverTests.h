@@ -68,7 +68,7 @@ namespace catapult { namespace observers {
 						const auto& receipt = static_cast<const model::BalanceChangeReceipt&>(receiptPair.second.receiptAt(0));
 						ASSERT_EQ(sizeof(model::BalanceChangeReceipt), receipt.Size);
 						EXPECT_EQ(1u, receipt.Version);
-						EXPECT_EQ(TTraits::DebitReceiptType(), receipt.Type);
+						EXPECT_EQ(TTraits::Debit_Receipt_Type, receipt.Type);
 						EXPECT_EQ(notification.Signer, receipt.Account);
 						EXPECT_EQ(notification.Mosaic.MosaicId, test::UnresolveXor(receipt.MosaicId));
 						EXPECT_EQ(notification.Mosaic.Amount, receipt.Amount);

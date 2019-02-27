@@ -70,10 +70,16 @@ namespace catapult { namespace utils {
 
 	public:
 		/// Gets the minimum clamped value.
-		static constexpr ClampedBaseValue Min() { return ClampedBaseValue(TRange::Min_Value); }
+		/// \note Function because ClampedBaseValue is incomplete (until closing brace).
+		static constexpr ClampedBaseValue Min() {
+			return ClampedBaseValue(TRange::Min_Value);
+		}
 
 		/// Gets the maximum clamped value.
-		static constexpr ClampedBaseValue Max() { return ClampedBaseValue(TRange::Max_Value); }
+		/// \note Function because ClampedBaseValue is incomplete (until closing brace).
+		static constexpr ClampedBaseValue Max() {
+			return ClampedBaseValue(TRange::Max_Value);
+		}
 
 	public:
 		/// Adds \a rhs and this value and returns a new value

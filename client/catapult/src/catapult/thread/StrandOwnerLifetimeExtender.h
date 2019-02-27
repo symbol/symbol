@@ -29,7 +29,7 @@ namespace catapult { namespace thread {
 	class StrandOwnerLifetimeExtender {
 	public:
 		/// Creates a strand owner lifetime extender around \a strand.
-		explicit StrandOwnerLifetimeExtender(boost::asio::strand& strand) : m_strand(strand)
+		explicit StrandOwnerLifetimeExtender(boost::asio::io_context::strand& strand) : m_strand(strand)
 		{}
 
 	public:
@@ -46,12 +46,12 @@ namespace catapult { namespace thread {
 		template<typename THandler>
 		void post(const std::shared_ptr<TOwner>& pOwner, THandler handler) {
 			// ensure all handlers extend the lifetime of pOwner and post to a strand
-			m_strand.post([pOwner, handler]() {
+			boost::asio::post(m_strand, [pOwner, handler]() {
 				handler(pOwner);
 			});
 		}
 
 	private:
-		boost::asio::strand& m_strand;
+		boost::asio::io_context::strand& m_strand;
 	};
 }}

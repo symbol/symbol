@@ -38,8 +38,8 @@ namespace catapult { namespace utils {
 
 		// Assert:
 		EXPECT_EQ(7, ref);
-		EXPECT_TRUE(std::is_const<decltype(val)>::value);
-		EXPECT_TRUE(std::is_const<std::remove_reference<decltype(ref)>::type>::value);
+		EXPECT_TRUE(std::is_const_v<decltype(val)>);
+		EXPECT_TRUE(std::is_const_v<std::remove_reference_t<decltype(ref)>>);
 	}
 
 	TEST(TEST_CLASS, AsConstReturnsConstReferenceForNonConstType) {
@@ -51,8 +51,8 @@ namespace catapult { namespace utils {
 
 		// Assert:
 		EXPECT_EQ(7, ref);
-		EXPECT_FALSE(std::is_const<decltype(val)>::value);
-		EXPECT_TRUE(std::is_const<std::remove_reference<decltype(ref)>::type>::value);
+		EXPECT_FALSE(std::is_const_v<decltype(val)>);
+		EXPECT_TRUE(std::is_const_v<std::remove_reference_t<decltype(ref)>>);
 	}
 
 	// endregion
@@ -94,7 +94,7 @@ namespace catapult { namespace utils {
 
 			// Assert: the underlying types are the same
 			EXPECT_EQ(sizeof(TUnderlyingType), sizeof(ActualUnderlyingType)) << "has same size " << message;
-			auto areTypesSame = std::is_same<TUnderlyingType, ActualUnderlyingType>::value;
+			auto areTypesSame = std::is_same_v<TUnderlyingType, ActualUnderlyingType>;
 			EXPECT_TRUE(areTypesSame) << "has same type " << message;
 		}
 	}
@@ -126,7 +126,7 @@ namespace catapult { namespace utils {
 			auto convertedValue = checked_cast<TSource, TDest>(value);
 
 			// Assert:
-			auto areTypesSame = std::is_same<TDest, decltype(convertedValue)>::value;
+			auto areTypesSame = std::is_same_v<TDest, decltype(convertedValue)>;
 			EXPECT_TRUE(areTypesSame) << message.str();
 			EXPECT_EQ(expectedValue, convertedValue) << message.str();
 		}

@@ -102,14 +102,11 @@ namespace catapult { namespace mocks {
 		};
 	}
 
-	std::unique_ptr<MongoTransactionPlugin> CreateMockTransactionMongoPlugin(int type) {
-		return std::make_unique<MockMongoTransactionPlugin>(static_cast<model::EntityType>(type), PluginOptionFlags::Not_Embeddable, 0);
+	std::unique_ptr<MongoTransactionPlugin> CreateMockTransactionMongoPlugin(model::EntityType type) {
+		return std::make_unique<MockMongoTransactionPlugin>(type, PluginOptionFlags::Not_Embeddable, 0);
 	}
 
 	std::unique_ptr<MongoTransactionPlugin> CreateMockTransactionMongoPlugin(PluginOptionFlags options, size_t numDependentDocuments) {
-		return std::make_unique<MockMongoTransactionPlugin>(
-				static_cast<model::EntityType>(MockTransaction::Entity_Type),
-				options,
-				numDependentDocuments);
+		return std::make_unique<MockMongoTransactionPlugin>(MockTransaction::Entity_Type, options, numDependentDocuments);
 	}
 }}

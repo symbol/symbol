@@ -115,13 +115,13 @@ namespace catapult { namespace cache {
 		private:
 			auto merkleRootAccessor() const {
 				// need to dereference to get underlying view type from LockedCacheView
-				using UnderlyingViewType = typename std::remove_reference<decltype(*m_view)>::type;
+				using UnderlyingViewType = std::remove_reference_t<decltype(*m_view)>;
 				return MerkleRootAccessor<UnderlyingViewType>();
 			}
 
 			auto merkleRootMutator() {
 				// need to dereference to get underlying view type from LockedCacheView
-				using UnderlyingViewType = typename std::remove_reference<decltype(*m_view)>::type;
+				using UnderlyingViewType = std::remove_reference_t<decltype(*m_view)>;
 				return MerkleRootMutator<UnderlyingViewType>();
 			}
 
@@ -169,7 +169,7 @@ namespace catapult { namespace cache {
 			template<typename T>
 			struct MerkleRootAccessor<
 					T,
-					typename utils::traits::enable_if_type<decltype(reinterpret_cast<const T*>(0)->tryGetMerkleRoot())>::type>
+					utils::traits::is_type_expression_t<decltype(reinterpret_cast<const T*>(0)->tryGetMerkleRoot())>>
 					: public SupportedMerkleRootFlag
 			{};
 
@@ -179,7 +179,7 @@ namespace catapult { namespace cache {
 			template<typename T>
 			struct MerkleRootMutator<
 					T,
-					typename utils::traits::enable_if_type<decltype(reinterpret_cast<T*>(0)->setMerkleRoot(Hash256()))>::type>
+					utils::traits::is_type_expression_t<decltype(reinterpret_cast<T*>(0)->setMerkleRoot(Hash256()))>>
 					: public SupportedMerkleRootFlag
 			{};
 
@@ -238,8 +238,8 @@ namespace catapult { namespace cache {
 			{}
 
 		public:
-			std::unique_ptr<SubCacheView> lock() {
-				auto delta = m_lockableCacheDelta.lock();
+			std::unique_ptr<SubCacheView> tryLock() {
+				auto delta = m_lockableCacheDelta.tryLock();
 				return delta ? std::make_unique<SubCacheViewAdapter<decltype(delta)>>(std::move(delta), m_id) : nullptr;
 			}
 

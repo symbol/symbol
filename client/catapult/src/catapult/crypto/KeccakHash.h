@@ -26,7 +26,7 @@
 #pragma clang diagnostic ignored "-Wdocumentation"
 #elif defined(_MSC_VER)
 #pragma warning(push)
-#pragma warning(disable : 4324)
+#pragma warning(disable : 4324) /* keccak structs use __declspec(align()) */
 #endif
 
 extern "C" {

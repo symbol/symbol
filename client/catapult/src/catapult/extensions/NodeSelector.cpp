@@ -24,7 +24,7 @@
 namespace catapult { namespace extensions {
 
 	namespace {
-		CPP14_CONSTEXPR uint32_t GetWeightMultipler(ionet::NodeSource source) {
+		constexpr uint32_t GetWeightMultipler(ionet::NodeSource source) {
 			switch (source) {
 			case ionet::NodeSource::Dynamic:
 				return 1;

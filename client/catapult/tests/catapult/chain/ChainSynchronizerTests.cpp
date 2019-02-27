@@ -396,7 +396,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, NeutralInteractionIfContainerIsFull) {
 		// Arrange:
 		auto context = CreateTestContextForUnprocessedElementTests();
-		context.Config.MaxChainBytesPerSyncAttempt = sizeof(Block) / 3 - 1;
+		context.Config.MaxChainBytesPerSyncAttempt = sizeof(BlockHeader) / 3 - 1;
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act: second call is short circuited since the container is full
@@ -412,10 +412,10 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, SuccessfulInteractionIfPreviouslyFullContainerIsNoLongerFull) {
-		// Arrange: the container's max size is set to 3 * MaxChainBytesPerSyncAttempt = 3 * sizeof(Block)
+		// Arrange: the container's max size is set to 3 * MaxChainBytesPerSyncAttempt = 3 * sizeof(BlockHeader)
 		//          that means the container is full after 2 syncs (2 blocks per sync)
 		auto context = CreateTestContextForUnprocessedElementTests();
-		context.Config.MaxChainBytesPerSyncAttempt = sizeof(Block);
+		context.Config.MaxChainBytesPerSyncAttempt = sizeof(BlockHeader);
 		auto synchronizer = CreateSynchronizer(context);
 		std::vector<ionet::NodeInteractionResultCode> interactionResultCodes;
 

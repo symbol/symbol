@@ -107,7 +107,7 @@ namespace catapult { namespace cache {
 		template<typename TElementTraits>
 		struct OrderedMemorySetAdapter {
 		private:
-			using ElementType = typename std::remove_const<typename TElementTraits::ElementType>::type;
+			using ElementType = std::remove_const_t<typename TElementTraits::ElementType>;
 
 			class StorageSetType : public deltaset::detail::OrderedSetType<TElementTraits> {
 			public:
@@ -178,7 +178,7 @@ namespace catapult { namespace cache {
 				}
 			};
 
-			using ElementType = typename std::remove_const<typename TElementTraits::ElementType>::type;
+			using ElementType = std::remove_const_t<typename TElementTraits::ElementType>;
 			using StorageSetType = CacheContainerView<DescriptorAdapter>;
 			using MemorySetType = std::set<ElementType>;
 

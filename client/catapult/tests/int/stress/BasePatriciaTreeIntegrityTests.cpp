@@ -62,17 +62,20 @@ namespace catapult { namespace cache {
 			AccountStateCache cache(cacheConfig, CreateAccountStateCacheOptions());
 
 			// - load all test accounts into the delta
-			auto delta = cache.createDelta();
-			test::RunInputDependentTest(sourceFilename, ParseAccount<TSerializer>, [&delta](const auto& accountState) {
-				delta->addAccount(accountState);
-			});
+			std::pair<Hash256, bool> deltaMerkleRootPair;
+			{
+				auto delta = cache.createDelta();
+				test::RunInputDependentTest(sourceFilename, ParseAccount<TSerializer>, [&delta](const auto& accountState) {
+					delta->addAccount(accountState);
+				});
 
-			// Act: calculate the delta state hash
-			delta->updateMerkleRoot(Height(123));
-			auto deltaMerkleRootPair = delta->tryGetMerkleRoot();
+				// Act: calculate the delta state hash and commit
+				delta->updateMerkleRoot(Height(123));
+				deltaMerkleRootPair = delta->tryGetMerkleRoot();
+				cache.commit();
+			}
 
-			// - commit and calculate the committed state hash
-			cache.commit();
+			// Act: calculate the committed state hash from the view
 			auto committedMerkleRootPair = cache.createView()->tryGetMerkleRoot();
 
 			// Assert: merkle root should be enabled

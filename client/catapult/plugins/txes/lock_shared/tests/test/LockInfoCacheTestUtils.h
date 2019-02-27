@@ -39,8 +39,7 @@ namespace catapult { namespace test {
 	}
 
 	/// Asserts that \a lhs and \a rhs are equal.
-	CATAPULT_INLINE
-	void AssertEqualLockInfo(const state::LockInfo& lhs, const state::LockInfo& rhs) {
+	inline void AssertEqualLockInfo(const state::LockInfo& lhs, const state::LockInfo& rhs) {
 		EXPECT_EQ(lhs.Account, rhs.Account);
 		EXPECT_EQ(lhs.MosaicId, rhs.MosaicId);
 		EXPECT_EQ(lhs.Amount, rhs.Amount);

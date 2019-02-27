@@ -63,7 +63,7 @@ namespace catapult { namespace test {
 	};
 
 	/// Serializes string-based \a key.
-	CATAPULT_INLINE RawBuffer SerializeKey(const StringKey& key) {
+	inline RawBuffer SerializeKey(const StringKey& key) {
 		return { AsBytePointer(key.data()), key.size() };
 	}
 }}

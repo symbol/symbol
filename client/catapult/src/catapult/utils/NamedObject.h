@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include "catapult/preprocessor.h"
 #include <string>
 #include <vector>
 
@@ -54,8 +53,7 @@ namespace catapult { namespace utils {
 	}
 
 	/// Reduces \a names into a single string.
-	CATAPULT_INLINE
-	std::string ReduceNames(const std::vector<std::string>& names) {
+	inline std::string ReduceNames(const std::vector<std::string>& names) {
 		size_t numNames = 0;
 		std::string result = "{";
 		for (const auto& name : names) {

@@ -37,9 +37,7 @@ namespace catapult { namespace builders {
 		struct AccountLinkTestTraits {
 			using LinkedType = Key;
 
-			static constexpr auto TransactionType() {
-				return model::Entity_Type_Account_Link;
-			}
+			static constexpr auto Transaction_Type = model::Entity_Type_Account_Link;
 		};
 
 		template<typename TBuilder, typename TExpectedTraits>
@@ -89,7 +87,7 @@ namespace catapult { namespace builders {
 			TTraits::CheckFields(0, *pTransaction);
 			EXPECT_EQ(signer, pTransaction->Signer);
 			EXPECT_EQ(0x6202, pTransaction->Version);
-			EXPECT_EQ(TLinkTraits::TransactionType(), pTransaction->Type);
+			EXPECT_EQ(TLinkTraits::Transaction_Type, pTransaction->Type);
 
 			TLinkTraits::AssertTransactionProperties(expectedProperties, *pTransaction);
 		}

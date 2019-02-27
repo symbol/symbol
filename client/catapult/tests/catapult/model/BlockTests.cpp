@@ -42,8 +42,10 @@ namespace catapult { namespace model {
 				+ Key_Size; // beneficiary public key
 
 		// Assert:
-		EXPECT_EQ(expectedSize, sizeof(Block));
-		EXPECT_EQ(104u + 188u, sizeof(Block));
+		EXPECT_EQ(expectedSize, sizeof(BlockHeader));
+		EXPECT_EQ(104u + 188u, sizeof(BlockHeader));
+
+		EXPECT_EQ(sizeof(BlockHeader), sizeof(decltype(Block()))); // use decltype to bypass lint rule
 	}
 
 	// region test utils
@@ -83,7 +85,7 @@ namespace catapult { namespace model {
 
 	DATA_POINTER_TEST(TransactionsAreInaccessibleWhenBlockHasNoTransactions) {
 		// Arrange:
-		auto pBlock = CreateBlockWithReportedSize(sizeof(Block));
+		auto pBlock = CreateBlockWithReportedSize(sizeof(BlockHeader));
 		auto& accessor = TTraits::GetAccessor(*pBlock);
 
 		// Act + Assert:
@@ -139,7 +141,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, SizeInvalidIfReportedSizeIsLessThanHeaderSize) {
 		// Arrange:
-		auto pBlock = CreateBlockWithReportedSize(sizeof(Block) - 1);
+		auto pBlock = CreateBlockWithReportedSize(sizeof(BlockHeader) - 1);
 
 		// Act + Assert:
 		EXPECT_FALSE(IsSizeValid(*pBlock));
@@ -147,7 +149,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, SizeValidIfReportedSizeIsEqualToHeaderSize) {
 		// Arrange:
-		auto pBlock = CreateBlockWithReportedSize(sizeof(Block));
+		auto pBlock = CreateBlockWithReportedSize(sizeof(BlockHeader));
 
 		// Act + Assert:
 		EXPECT_TRUE(IsSizeValid(*pBlock));
@@ -159,7 +161,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasPartialHeader) {
 		// Arrange: create a block with 1 extra byte (which should be interpeted as a partial tx header)
-		auto pBlock = CreateBlockWithReportedSize(sizeof(Block) + 1);
+		auto pBlock = CreateBlockWithReportedSize(sizeof(BlockHeader) + 1);
 
 		// Act + Assert:
 		EXPECT_FALSE(IsSizeValid(*pBlock));

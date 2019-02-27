@@ -20,7 +20,7 @@
 
 #include "catapult/net/AsyncTcpServer.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/AtomicIncrementDecrementGuard.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/core/WaitFunctions.h"
@@ -41,7 +41,7 @@ namespace catapult { namespace net {
 		class PoolServerPair {
 		public:
 			PoolServerPair(
-					const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const boost::asio::ip::tcp::endpoint& endpoint,
 					const AsyncTcpServerSettings& settings)
 					: m_pPool(pPool) {
@@ -83,7 +83,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			std::shared_ptr<AsyncTcpServer> m_pServer;
 
 		public:
@@ -105,7 +105,7 @@ namespace catapult { namespace net {
 					, m_numConnectTimeouts(0) {
 				spawnConnectionAttempts(numAttempts);
 				for (auto i = 0u; i < numThreads; ++i)
-					m_threads.create_thread([&]() { m_service.run(); });
+					m_threads.create_thread([&]() { m_ioContext.run(); });
 			}
 
 			~ClientService() {
@@ -135,7 +135,7 @@ namespace catapult { namespace net {
 					<< "Shutting down ClientService: "
 					<< "connects " << m_numConnects
 					<< ", failures " << m_numConnectFailures;
-				m_service.stop();
+				m_ioContext.stop();
 				m_threads.join_all();
 				CATAPULT_LOG(debug) << "ClientService shut down";
 			}
@@ -150,10 +150,10 @@ namespace catapult { namespace net {
 				using ConnectionHandler = consumer<ConnectionStatus>;
 
 			public:
-				SpawnContext(boost::asio::io_service& service, size_t id)
-						: m_socket(service)
+				SpawnContext(boost::asio::io_context& ioContext, size_t id)
+						: m_socket(ioContext)
 						, m_id(id)
-						, m_deadline(service)
+						, m_deadline(ioContext)
 						, m_status(ConnectionStatus::Unset)
 				{}
 
@@ -209,8 +209,8 @@ namespace catapult { namespace net {
 
 			void spawnConnectionAttempts(uint32_t numAttempts) {
 				for (auto i = 0u; i < numAttempts; ++i) {
-					auto pContext = std::make_shared<SpawnContext>(m_service, i);
-					m_service.post([this, pContext]() {
+					auto pContext = std::make_shared<SpawnContext>(m_ioContext, i);
+					boost::asio::post(m_ioContext, [this, pContext{std::move(pContext)}]() {
 						// set a 50ms deadline on the async_connect
 						pContext->setDeadline(50);
 						pContext->connect([this](auto status) {
@@ -234,7 +234,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			boost::asio::io_service m_service;
+			boost::asio::io_context m_ioContext;
 			boost::thread_group m_threads;
 			uint32_t m_numAttempts;
 			std::atomic<uint32_t> m_numConnects;
@@ -248,7 +248,7 @@ namespace catapult { namespace net {
 			auto testSettings = AsyncTcpServerSettings(settings);
 			testSettings.AllowAddressReuse = allowAddressReuse;
 
-			auto pPool = test::CreateStartedIoServiceThreadPool();
+			auto pPool = test::CreateStartedIoThreadPool();
 			return PoolServerPair(std::move(pPool), test::CreateLocalHostEndpoint(), testSettings);
 		}
 
@@ -257,12 +257,12 @@ namespace catapult { namespace net {
 		class AcceptServer {
 		public:
 			explicit AcceptServer(const test::WaitFunction& wait)
-					: m_pPool(test::CreateStartedIoServiceThreadPool(1))
+					: m_pPool(test::CreateStartedIoThreadPool(1))
 					, m_shouldWait(1)
 					, m_numAcceptCallbacks(0) {
 				m_pSettings = std::make_unique<AsyncTcpServerSettings>([&, wait](const auto& acceptedSocketInfo) {
 					++m_numAcceptCallbacks;
-					wait(m_pPool->service(), [this, acceptedSocketInfo]() { return 0 != m_shouldWait; });
+					wait(m_pPool->ioContext(), [this, acceptedSocketInfo]() { return 0 != m_shouldWait; });
 				});
 				m_pSettings->MaxActiveConnections = Default_Max_Active_Connections;
 			}
@@ -295,7 +295,7 @@ namespace catapult { namespace net {
 			}
 
 		private:
-			std::unique_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::unique_ptr<thread::IoThreadPool> m_pPool;
 			std::unique_ptr<AsyncTcpServerSettings> m_pSettings;
 			std::atomic<uint32_t> m_shouldWait;
 			std::atomic<uint32_t> m_numAcceptCallbacks;
@@ -378,12 +378,12 @@ namespace catapult { namespace net {
 
 		// Act: connect to the server
 		boost::system::error_code connectEc;
-		boost::asio::io_service service;
-		ionet::socket socket(service);
+		boost::asio::io_context ioContext;
+		ionet::socket socket(ioContext);
 		socket.async_connect(test::CreateLocalHostEndpoint(), [&connectEc](const auto& ec) {
 			connectEc = ec;
 		});
-		service.run();
+		ioContext.run();
 
 		// Assert: a connection error was returned
 		EXPECT_EQ(boost::system::errc::connection_refused, connectEc);

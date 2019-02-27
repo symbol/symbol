@@ -183,7 +183,7 @@ class HeaderParser:
                 validator.check(self.lineNumber, line)
 
             prevEmptyLine = isEmptyLine
-            isEmptyLine = True if re.match(self.patternEmptyLine, line) else False
+            isEmptyLine = bool(re.match(self.patternEmptyLine, line))
             if isEmptyLine and prevEmptyLine:
                 self.errorReporter('consecutiveEmpty', Line(self.path, pprev + prev + temp, self.lineNumber))
 

@@ -22,7 +22,7 @@
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/VerifyPeer.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
@@ -37,8 +37,8 @@ namespace catapult { namespace net {
 			explicit ConnectorTestContext(const ConnectionSettings& settings = ConnectionSettings())
 					: ServerKeyPair(test::GenerateKeyPair())
 					, ClientKeyPair(test::GenerateKeyPair())
-					, pPool(test::CreateStartedIoServiceThreadPool())
-					, Service(pPool->service())
+					, pPool(test::CreateStartedIoThreadPool())
+					, IoContext(pPool->ioContext())
 					, pConnector(CreateClientConnector(pPool, ServerKeyPair, settings))
 			{}
 
@@ -51,8 +51,8 @@ namespace catapult { namespace net {
 		public:
 			crypto::KeyPair ServerKeyPair;
 			crypto::KeyPair ClientKeyPair;
-			std::shared_ptr<thread::IoServiceThreadPool> pPool;
-			boost::asio::io_service& Service;
+			std::shared_ptr<thread::IoThreadPool> pPool;
+			boost::asio::io_context& IoContext;
 			std::shared_ptr<ClientConnector> pConnector;
 		};
 
@@ -114,11 +114,11 @@ namespace catapult { namespace net {
 
 		// Act: start a server and client verify operation
 		AcceptCallbackParams capture;
-		test::SpawnPacketServerWork(context.Service, [&](const auto& pSocket) {
+		test::SpawnPacketServerWork(context.IoContext, [&](const auto& pSocket) {
 			AcceptAndCapture(*context.pConnector, pSocket, capture);
 		});
 
-		test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
+		test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
 			// - trigger a verify error by closing the socket without responding
 			pSocket->close();
 			++capture.NumCallbacks;
@@ -144,7 +144,7 @@ namespace catapult { namespace net {
 		MultiConnectionState SetupMultiConnectionTest(const ConnectorTestContext& context, size_t numConnections) {
 			// Act: start multiple server and client verify operations
 			MultiConnectionState state;
-			test::TcpAcceptor acceptor(context.Service);
+			test::TcpAcceptor acceptor(context.IoContext);
 			for (auto i = 0u; i < numConnections; ++i) {
 				std::atomic<size_t> numCallbacks(0);
 				test::SpawnPacketServerWork(acceptor, [&](const auto& pSocket) {
@@ -156,7 +156,7 @@ namespace catapult { namespace net {
 					});
 				});
 
-				test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
+				test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
 					state.ClientSockets.push_back(pSocket);
 					auto serverPeerInfo = VerifiedPeerInfo{ context.ServerKeyPair.publicKey(), ionet::ConnectionSecurityMode::None };
 					VerifyServer(pSocket, serverPeerInfo, context.ClientKeyPair, [&](auto, const auto&) {
@@ -236,7 +236,7 @@ namespace catapult { namespace net {
 			//      (use a result shared_ptr so that the accept callback is valid even after this function returns)
 			auto pConnectCode = std::make_shared<PeerConnectCode>(static_cast<PeerConnectCode>(-1));
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(context.Service, [&, pConnectCode](const auto& pSocket) {
+			test::SpawnPacketServerWork(context.IoContext, [&, pConnectCode](const auto& pSocket) {
 				pServerSocket = pSocket;
 				context.pConnector->accept(pSocket, [&, pConnectCode](auto acceptConnectCode, const auto&, const auto&) {
 					// note that this is not expected to get called until shutdown because the client doesn't read or write any data
@@ -246,7 +246,7 @@ namespace catapult { namespace net {
 			});
 
 			std::shared_ptr<ionet::PacketSocket> pClientSocket;
-			test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
+			test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
 				pClientSocket = pSocket;
 				++numCallbacks;
 			});
@@ -324,7 +324,7 @@ namespace catapult { namespace net {
 	TEST(TEST_CLASS, TimeoutClosesVerifyingSocket) {
 		// Act:
 		ConnectionSettings settings;
-		settings.Timeout = utils::TimeSpan::FromMilliseconds(1);
+		settings.Timeout = utils::TimeSpan::FromMilliseconds(0);
 		ConnectorTestContext context(settings);
 		RunTimeoutTest(context);
 	}
@@ -345,7 +345,7 @@ namespace catapult { namespace net {
 		void RunSecurityModeTest(const ConnectionSettings& settings, bool shouldExpectError, TAction action) {
 			// Arrange:
 			ConnectorTestContext context(settings);
-			test::TcpAcceptor acceptor(context.Service);
+			test::TcpAcceptor acceptor(context.IoContext);
 			auto pNumCallbacks = std::make_shared<std::atomic<size_t>>(0);
 
 			// - make a single connection with custom settings
@@ -359,7 +359,7 @@ namespace catapult { namespace net {
 				});
 			});
 
-			test::SpawnPacketClientWork(context.Service, [&](const auto& pSocket) {
+			test::SpawnPacketClientWork(context.IoContext, [&](const auto& pSocket) {
 				state.pClientSocket = pSocket;
 
 				auto serverPeerInfo = VerifiedPeerInfo{ context.ServerKeyPair.publicKey(), settings.OutgoingSecurityMode };

@@ -24,12 +24,12 @@
 
 namespace catapult {
 	namespace ionet { class Node; }
-	namespace thread { class IoServiceThreadPool; }
+	namespace thread { class IoThreadPool; }
 }
 
 namespace catapult { namespace tools { namespace health {
 
 	/// Creates a future for retrieving the chain info of the specified api \a node over REST API using \a pool.
 	/// \note Default REST API port is assumed.
-	thread::future<api::ChainInfo> CreateApiNodeChainInfoFuture(thread::IoServiceThreadPool& pool, const ionet::Node& node);
+	thread::future<api::ChainInfo> CreateApiNodeChainInfoFuture(thread::IoThreadPool& pool, const ionet::Node& node);
 }}}

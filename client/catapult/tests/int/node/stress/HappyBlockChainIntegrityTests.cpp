@@ -30,8 +30,10 @@
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
+#include <boost/filesystem.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/thread.hpp>
 
 namespace catapult { namespace local {
 
@@ -107,7 +109,7 @@ namespace catapult { namespace local {
 			properties.put("connect peers task for service Sync.repeatDelay", "500ms");
 
 			// 2. run far more frequent sync rounds but delay initial sync to allow all nodes to receive their initial chains via push
-			properties.put("synchronizer task.startDelay", "5s");
+			properties.put("synchronizer task.startDelay", "10s");
 			properties.put("synchronizer task.repeatDelay", "500ms");
 
 			pt::write_ini(configFilePath, properties);
@@ -258,7 +260,7 @@ namespace catapult { namespace local {
 #endif
 
 		public:
-			test::StateHashCalculator createStateHashCalculator(const NodeTestContext&) const {
+			test::StateHashCalculator createStateHashCalculator(const NodeTestContext&, size_t) const {
 				return test::StateHashCalculator();
 			}
 		};
@@ -267,7 +269,7 @@ namespace catapult { namespace local {
 		public:
 #if defined __APPLE__
 			static constexpr size_t Dense_Network_Size = 4;
-			static constexpr size_t Sparse_Network_Size = 6;
+			static constexpr size_t Sparse_Network_Size = 4;
 #else
 			static constexpr size_t Dense_Network_Size = Default_Network_Size;
 			static constexpr size_t Sparse_Network_Size = Default_Network_Size;
@@ -276,17 +278,17 @@ namespace catapult { namespace local {
 			static constexpr auto State_Hash_Directory = "statehash";
 
 		public:
-			StateHashEnabledTraits()
-					: m_stateHashCalculationDir(State_Hash_Directory) // isolated directory used for state hash calculation
+			// State_Hash_Directory is containing directory of all isolated directories used for state hash calculation
+			StateHashEnabledTraits() : m_stateHashCalculationDir(State_Hash_Directory)
 			{}
 
 		public:
-			test::StateHashCalculator createStateHashCalculator(const NodeTestContext& context) const {
-				{
-					test::TempDirectoryGuard forceCleanResourcesDir(State_Hash_Directory);
-				}
+			test::StateHashCalculator createStateHashCalculator(const NodeTestContext& context, size_t id) const {
+				boost::filesystem::path stateHashDirectory = m_stateHashCalculationDir.name();
+				stateHashDirectory /= std::to_string(id);
+				boost::filesystem::create_directories(stateHashDirectory);
 
-				return test::StateHashCalculator(context.prepareFreshDataDirectory(m_stateHashCalculationDir.name()));
+				return test::StateHashCalculator(context.prepareFreshDataDirectory(stateHashDirectory.generic_string()));
 			}
 
 		private:
@@ -305,7 +307,8 @@ namespace catapult { namespace local {
 
 			// Act: boot all nodes
 			std::vector<std::unique_ptr<NodeTestContext>> contexts;
-			std::vector<uint64_t> chainHeights;
+			std::vector<ChainStatistics> chainStatsPerNode;
+			chainStatsPerNode.resize(networkSize);
 			ChainStatistics bestChainStats;
 			for (auto i = 0u; i < networkSize; ++i) {
 				// - give each node a separate directory
@@ -317,28 +320,39 @@ namespace catapult { namespace local {
 				};
 				auto postfix = "_" + std::to_string(i);
 				contexts.push_back(std::make_unique<NodeTestContext>(nodeFlag, peers, configTransform, postfix));
+			}
 
-				// - (re)schedule a few tasks and boot the node
-				auto& context = *contexts.back();
-				RescheduleTasks(context.resourcesDirectory());
-				context.boot();
+			boost::thread_group threads;
+			for (auto i = 0u; i < networkSize; ++i) {
+				threads.create_thread([&contexts, &networkNodes, &chainStatsPerNode, &verifyTraits, i] {
+					// - (re)schedule a few tasks and boot the node
+					auto& context = *contexts[i];
+					RescheduleTasks(context.resourcesDirectory());
+					context.boot();
 
-				// - push a random number of different (valid) blocks to each node
-				// - vary time spacing so that all chains will have different scores
-				auto numBlocks = RandomByteClamped(Max_Rollback_Blocks - 1) + 1u; // always generate at least one block
-				chainHeights.push_back(numBlocks + 1);
+					// - push a random number of different (valid) blocks to each node
+					// - vary time spacing so that all chains will have different scores
+					auto numBlocks = RandomByteClamped(Max_Rollback_Blocks - 1) + 1u; // always generate at least one block
 
-				// - when stateHashCalculator data directory is empty, there is no cache lock so node resources can be used directly
-				auto stateHashCalculator = verifyTraits.createStateHashCalculator(context);
-				auto chainStats = PushRandomBlockChainToNode(
-						networkNodes[i],
-						stateHashCalculator,
-						stateHashCalculator.dataDirectory().empty() ? context.dataDirectory() : stateHashCalculator.dataDirectory(),
-						[&verifyTraits](const auto& block) { return verifyTraits.calculateReceiptsHash(block); },
-						numBlocks,
-						Timestamp(60'000 + i * 1'000));
+					// - when stateHashCalculator data directory is empty, there is no cache lock so node resources can be used directly
+					auto stateHashCalculator = verifyTraits.createStateHashCalculator(context, i);
+					auto chainStats = PushRandomBlockChainToNode(
+							networkNodes[i],
+							stateHashCalculator,
+							stateHashCalculator.dataDirectory().empty() ? context.dataDirectory() : stateHashCalculator.dataDirectory(),
+							[&verifyTraits](const auto& block) { return verifyTraits.calculateReceiptsHash(block); },
+							numBlocks,
+							Timestamp(60'000 + i * 1'000));
 
-				LogStatistics(networkNodes[i], chainStats);
+					chainStatsPerNode[i] = chainStats;
+					LogStatistics(networkNodes[i], chainStats);
+				});
+			}
+
+			// - wait for all nodes to get booted and receive an initial chain
+			threads.join_all();
+
+			for (const auto& chainStats : chainStatsPerNode) {
 				if (chainStats.Score > bestChainStats.Score)
 					bestChainStats = chainStats;
 			}

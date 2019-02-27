@@ -34,24 +34,20 @@ namespace catapult { namespace tree {
 		TreeNodePath();
 
 		/// Creates a path from \a key.
-		template<typename TKey, typename X = typename std::enable_if<utils::traits::is_scalar<TKey>::value>::type>
-		explicit TreeNodePath(TKey key)
-				: m_size(2 * sizeof(TKey))
-				, m_adjustment(0) {
-			m_path.resize(sizeof(TKey));
+		template<typename TKey>
+		explicit TreeNodePath(TKey key) : m_adjustment(0) {
+			if constexpr (utils::traits::is_scalar_v<TKey>) {
+				m_size = 2 * sizeof(TKey);
+				m_path.resize(sizeof(TKey));
 
-			// copy in big endian byte order
-			const auto* pKeyData = reinterpret_cast<const uint8_t*>(&key);
-			std::reverse_copy(pKeyData, pKeyData + sizeof(TKey), m_path.begin());
-		}
-
-		/// Creates a path from \a key.
-		template<typename TKey, typename X = typename std::enable_if<!utils::traits::is_scalar<TKey>::value>::type>
-		explicit TreeNodePath(const TKey& key)
-				: m_size(2 * key.size())
-				, m_adjustment(0) {
-			m_path.resize(key.size());
-			std::copy(key.cbegin(), key.cend(), m_path.begin());
+				// copy in big endian byte order
+				const auto* pKeyData = reinterpret_cast<const uint8_t*>(&key);
+				std::reverse_copy(pKeyData, pKeyData + sizeof(TKey), m_path.begin());
+			} else {
+				m_size = 2 * key.size();
+				m_path.resize(key.size());
+				std::copy(key.cbegin(), key.cend(), m_path.begin());
+			}
 		}
 
 	private:

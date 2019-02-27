@@ -18,7 +18,7 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "src/AddressExtractionUtSubscriber.h"
+#include "src/AddressExtractionUtChangeSubscriber.h"
 #include "catapult/extensions/LocalNodeBootstrapper.h"
 
 namespace catapult { namespace addressextraction {
@@ -29,7 +29,7 @@ namespace catapult { namespace addressextraction {
 
 			// register subscriber
 			auto& subscriptionManager = bootstrapper.subscriptionManager();
-			subscriptionManager.addUtChangeSubscriber(CreateAddressExtractionChangeSubscriber(std::move(pNotificationPublisher)));
+			subscriptionManager.addUtChangeSubscriber(CreateAddressExtractionUtChangeSubscriber(std::move(pNotificationPublisher)));
 		}
 	}
 }}

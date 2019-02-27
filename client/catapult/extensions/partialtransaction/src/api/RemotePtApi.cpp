@@ -32,11 +32,11 @@ namespace catapult { namespace api {
 		struct TransactionInfosTraits : public RegistryDependentTraits<model::Transaction> {
 		public:
 			using ResultType = partialtransaction::CosignedTransactionInfos;
-			static constexpr auto PacketType() { return ionet::PacketType::Pull_Partial_Transaction_Infos; }
-			static constexpr auto FriendlyName() { return "pull partial transaction infos"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Pull_Partial_Transaction_Infos;
+			static constexpr auto Friendly_Name = "pull partial transaction infos";
 
 			static auto CreateRequestPacketPayload(cache::ShortHashPairRange&& knownShortHashPairs) {
-				return ionet::PacketPayloadFactory::FromFixedSizeRange(PacketType(), std::move(knownShortHashPairs));
+				return ionet::PacketPayloadFactory::FromFixedSizeRange(Packet_Type, std::move(knownShortHashPairs));
 			}
 
 		public:

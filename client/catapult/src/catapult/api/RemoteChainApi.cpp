@@ -32,11 +32,11 @@ namespace catapult { namespace api {
 		struct ChainInfoTraits {
 		public:
 			using ResultType = ChainInfo;
-			static constexpr auto PacketType() { return ionet::PacketType::Chain_Info; }
-			static constexpr auto FriendlyName() { return "chain info"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Chain_Info;
+			static constexpr auto Friendly_Name = "chain info";
 
 			static auto CreateRequestPacketPayload() {
-				return ionet::PacketPayload(PacketType());
+				return ionet::PacketPayload(Packet_Type);
 			}
 
 		public:
@@ -54,8 +54,8 @@ namespace catapult { namespace api {
 		struct HashesFromTraits {
 		public:
 			using ResultType = model::HashRange;
-			static constexpr auto PacketType() { return ionet::PacketType::Block_Hashes; }
-			static constexpr auto FriendlyName() { return "hashes from"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Block_Hashes;
+			static constexpr auto Friendly_Name = "hashes from";
 
 			static auto CreateRequestPacketPayload(Height height, uint32_t maxHashes) {
 				auto pPacket = ionet::CreateSharedPacket<BlockHashesRequest>();
@@ -74,8 +74,8 @@ namespace catapult { namespace api {
 		struct BlockAtTraits : public RegistryDependentTraits<model::Block> {
 		public:
 			using ResultType = std::shared_ptr<const model::Block>;
-			static constexpr auto PacketType() { return ionet::PacketType::Pull_Block; }
-			static constexpr auto FriendlyName() { return "block at"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Pull_Block;
+			static constexpr auto Friendly_Name = "block at";
 
 			static auto CreateRequestPacketPayload(Height height) {
 				auto pPacket = ionet::CreateSharedPacket<PullBlockRequest>();
@@ -95,8 +95,8 @@ namespace catapult { namespace api {
 		struct BlocksFromTraits : public RegistryDependentTraits<model::Block> {
 		public:
 			using ResultType = model::BlockRange;
-			static constexpr auto PacketType() { return ionet::PacketType::Pull_Blocks; }
-			static constexpr auto FriendlyName() { return "blocks from"; }
+			static constexpr auto Packet_Type = ionet::PacketType::Pull_Blocks;
+			static constexpr auto Friendly_Name = "blocks from";
 
 			static auto CreateRequestPacketPayload(Height height, const BlocksFromOptions& options) {
 				auto pPacket = ionet::CreateSharedPacket<PullBlocksRequest>();

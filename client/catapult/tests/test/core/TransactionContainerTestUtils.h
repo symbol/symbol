@@ -36,7 +36,7 @@ namespace catapult { namespace test {
 	/// Traits for accessing a source via a const reference.
 	template<typename TSource>
 	struct ConstTraitsT {
-		using SourceType = typename std::add_const<TSource>::type;
+		using SourceType = std::add_const_t<TSource>;
 
 		/// Gets a const reference to \a source.
 		static SourceType& GetAccessor(SourceType& source) {
@@ -47,7 +47,7 @@ namespace catapult { namespace test {
 	/// Traits for accessing a source via a non-const reference.
 	template<typename TSource>
 	struct NonConstTraitsT {
-		using SourceType = typename std::remove_const<TSource>::type;
+		using SourceType = std::remove_const_t<TSource>;
 
 		/// Gets a non-const reference to \a source.
 		static SourceType& GetAccessor(SourceType& source) {

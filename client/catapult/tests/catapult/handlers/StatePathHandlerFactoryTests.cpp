@@ -92,8 +92,8 @@ namespace catapult { namespace handlers {
 
 		public:
 			auto createView() const {
-				auto readerLock = m_lock.acquireReader();
-				return cache::LockedCacheView<MockCacheView>(MockCacheView(m_lookupResult, m_path), std::move(readerLock));
+				auto readLock = m_lock.acquireReader();
+				return cache::LockedCacheView<MockCacheView>(MockCacheView(m_lookupResult, m_path), std::move(readLock));
 			}
 
 		public:

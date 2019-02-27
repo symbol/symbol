@@ -22,7 +22,7 @@
 #include "ValidatorTypes.h"
 #include "catapult/thread/Future.h"
 
-namespace catapult { namespace thread { class IoServiceThreadPool; } }
+namespace catapult { namespace thread { class IoThreadPool; } }
 
 namespace catapult { namespace validators {
 
@@ -44,6 +44,5 @@ namespace catapult { namespace validators {
 	};
 
 	/// Creates a parallel validation policy using \a pPool for parallelization.
-	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool);
+	std::shared_ptr<const ParallelValidationPolicy> CreateParallelValidationPolicy(const std::shared_ptr<thread::IoThreadPool>& pPool);
 }}

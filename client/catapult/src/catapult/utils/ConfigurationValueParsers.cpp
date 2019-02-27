@@ -303,7 +303,7 @@ namespace catapult { namespace utils {
 
 	namespace {
 		std::string Trim(const std::string& str) {
-			constexpr const char* Whitespace = " \t";
+			constexpr auto Whitespace = " \t";
 			auto startIndex = str.find_first_not_of(Whitespace);
 			if (std::string::npos == startIndex)
 				return std::string();

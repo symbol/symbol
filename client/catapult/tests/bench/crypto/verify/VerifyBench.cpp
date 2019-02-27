@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/crypto/Signer.h"
-#include "tests/test/nodeps/Random.h"
+#include "tests/bench/nodeps/Random.h"
 #include <benchmark/benchmark.h>
 
 namespace catapult { namespace crypto {
@@ -31,9 +31,9 @@ namespace catapult { namespace crypto {
 			Signature signature;
 			for (auto _ : state) {
 				state.PauseTiming();
-				test::FillWithRandomData(key);
-				test::FillWithRandomData(data);
-				test::FillWithRandomData(signature);
+				bench::FillWithRandomData(key);
+				bench::FillWithRandomData(data);
+				bench::FillWithRandomData(signature);
 				state.ResumeTiming();
 
 				crypto::Verify(key, data, signature);
@@ -41,20 +41,15 @@ namespace catapult { namespace crypto {
 
 			state.SetBytesProcessed(static_cast<int64_t>(data.size() * state.iterations()));
 		}
-
-		void RegisterTests() {
-			benchmark::RegisterBenchmark("BenchmarkVerify", BenchmarkVerify)
-					->UseRealTime()
-					->Threads(1)
-					->Threads(2)
-					->Threads(4)
-					->Threads(8);
-		}
 	}
 }}
 
-int main(int argc, char **argv) {
-	catapult::crypto::RegisterTests();
-	benchmark::Initialize(&argc, argv);
-	benchmark::RunSpecifiedBenchmarks();
+void RegisterTests();
+void RegisterTests() {
+	benchmark::RegisterBenchmark("BenchmarkVerify", catapult::crypto::BenchmarkVerify)
+			->UseRealTime()
+			->Threads(1)
+			->Threads(2)
+			->Threads(4)
+			->Threads(8);
 }

@@ -78,7 +78,7 @@ namespace catapult { namespace validators {
 			ASSERT_GE(numInitialValues, numDelModifications);
 
 			// Arrange:
-			auto initialValues = test::GenerateRandomDataVector<typename TPropertyValueTraits::ValueType>(numInitialValues);
+			auto initialValues = test::GenerateUniqueRandomDataVector<typename TPropertyValueTraits::ValueType>(numInitialValues);
 			auto cache = test::PropertyCacheFactory::Create();
 			auto key = test::GenerateRandomData<Key_Size>();
 			test::PopulateCache<TPropertyValueTraits>(cache, key, initialValues);

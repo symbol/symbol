@@ -18,13 +18,6 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#ifdef __clang__
-// workaround for https://llvm.org/bugs/show_bug.cgi?id=25230
-#pragma GCC visibility push(default)
-#include <string>
-#pragma GCC visibility pop
-#endif
-
 #include "LoggingTestUtils.h"
 #include "tests/TestHarness.h"
 #include <fstream>

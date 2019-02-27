@@ -48,22 +48,22 @@ namespace catapult { namespace disruptor {
 		bool isSkipped(PositionType position) const;
 
 		/// Gets element at given position.
-		CATAPULT_INLINE DisruptorElement& elementAt(PositionType position) {
+		inline DisruptorElement& elementAt(PositionType position) {
 			return m_container[position];
 		}
 
 		/// Gets the size of the disruptor.
-		CATAPULT_INLINE size_t size() const {
+		inline size_t size() const {
 			return m_container.size();
 		}
 
 		/// Gets the capacity of the disruptor.
-		CATAPULT_INLINE size_t capacity() const {
+		inline size_t capacity() const {
 			return m_container.capacity();
 		}
 
 		/// Gets the number of total elements added to the disruptor.
-		CATAPULT_INLINE uint64_t added() const {
+		inline uint64_t added() const {
 			return m_allElementsCount;
 		}
 

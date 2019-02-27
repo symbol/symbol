@@ -221,9 +221,9 @@ namespace catapult { namespace chain {
 					++m_numValidateCosignersCalls;
 					m_transactions.push_back(test::CopyTransaction(transactionInfo.transaction()));
 
-					// there shouldn't be any duplicate cosigners, but filter out duplicates just in case
+					// there shouldn't be any duplicate cosigners
+					m_numLastCosigners = transactionInfo.cosignatures().size();
 					cosignaturesMap = test::ToMap(transactionInfo.cosignatures());
-					m_numLastCosigners = cosignaturesMap.size();
 				}
 
 				if (m_shouldSleepInValidateCosigners) {
@@ -322,7 +322,7 @@ namespace catapult { namespace chain {
 					: m_transactionsCache(cache::MemoryCacheOptions(1024, 1000))
 					, m_pUniqueValidator(std::make_unique<MockPtValidator>())
 					, m_pValidator(m_pUniqueValidator.get())
-					, m_pPool(test::CreateStartedIoServiceThreadPool())
+					, m_pPool(test::CreateStartedIoThreadPool())
 					, m_pUpdater(std::make_unique<PtUpdater>(
 							m_transactionsCache,
 							std::move(m_pUniqueValidator),
@@ -377,8 +377,7 @@ namespace catapult { namespace chain {
 					const model::AggregateTransaction& aggregateTransaction,
 					const std::vector<model::Cosignature>& cosignatures) const {
 				// Assert:
-				auto view = m_transactionsCache.view();
-				EXPECT_EQ(1u, view.size());
+				EXPECT_EQ(1u, m_transactionsCache.view().size());
 
 				assertTransactionInCache(aggregateHash, aggregateTransaction, cosignatures);
 			}
@@ -451,7 +450,7 @@ namespace catapult { namespace chain {
 			MockPtValidator* m_pValidator;
 			std::vector<std::unique_ptr<model::Transaction>> m_completedTransactions;
 
-			std::shared_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::shared_ptr<thread::IoThreadPool> m_pPool;
 			std::unique_ptr<PtUpdater> m_pUpdater; // unique_ptr for destroyUpdater
 
 			std::vector<model::TransactionStatus> m_failedTransactionStatuses;
@@ -708,7 +707,10 @@ namespace catapult { namespace chain {
 
 	namespace {
 		template<typename TCorruptCosignature>
-		void RunTransactionWithInvalidCosignatureTest(size_t numIneligibleCosigners, TCorruptCosignature corruptCosignature) {
+		void RunTransactionWithInvalidCosignatureTest(
+				size_t numIneligibleCosigners,
+				bool isRejectedInCheckEligibility,
+				TCorruptCosignature corruptCosignature) {
 			// Arrange:
 			UpdaterTestContext context;
 			auto pTransaction = CreateRandomAggregateTransaction(3);
@@ -736,16 +738,21 @@ namespace catapult { namespace chain {
 			// * 1 x 3 (cosig checkEligibility) + 1 x numIneligibleCosigners (ineligible-cosig checkEligibility)
 			// * 1 x 2 (valid-cosig isComplete)
 			expectedValidatorCalls.NumValidateCosignersCalls.setExactMatch(5 + numIneligibleCosigners);
+
 			// * 1: { Valid, Valid, Invalid } - last call only with ineligible cosignature
 			// * 2: { Valid, Invalid, Valid }, { Invalid, Valid, Valid } - invalid cosignature is excluded from subsequent calls
-			expectedValidatorCalls.NumLastCosigners.setInclusiveRangeMatch(1, 2);
+			// - above is for !!isRejectedInCheckEligibility
+			//   when !isRejectedInCheckEligibility, cosignatures are rejected after validateCosigners call,
+			//   which captures NumLastCosigners, so add one
+			auto numLastCosignersDelta = isRejectedInCheckEligibility ? 0u : 1u;
+			expectedValidatorCalls.NumLastCosigners.setInclusiveRangeMatch(1 + numLastCosignersDelta, 2 + numLastCosignersDelta);
 			context.validator().assertCalls(*pTransaction, transactionInfo.EntityHash, expectedValidatorCalls);
 		}
 	}
 
 	TEST(TEST_CLASS, AddingAggregateWithCosignaturesIgnoresIneligibleCosignatures) {
 		// Arrange:
-		RunTransactionWithInvalidCosignatureTest(1, [](auto& context, const auto& cosignature) {
+		RunTransactionWithInvalidCosignatureTest(1, true, [](auto& context, const auto& cosignature) {
 			// - mark a cosigner as ineligible
 			context.validator().setValidateCosignersResult(CosignersValidationResult::Ineligible, cosignature.Signer);
 		});
@@ -753,7 +760,9 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, AddingAggregateWithCosignaturesIgnoresUnverifiableCosignatures) {
 		// Arrange:
-		RunTransactionWithInvalidCosignatureTest(0, [](const auto&, auto& cosignature) {
+		// - validateCosigners is called before signature check, so corrupt cosignature will always be passed to validateCosigners
+		//   where it is captured
+		RunTransactionWithInvalidCosignatureTest(0, false, [](const auto&, auto& cosignature) {
 			// - corrupt a signature
 			cosignature.Signature[0] ^= 0xFF;
 		});

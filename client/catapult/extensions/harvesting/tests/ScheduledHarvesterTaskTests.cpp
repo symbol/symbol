@@ -19,7 +19,6 @@
 **/
 
 #include "harvesting/src/ScheduledHarvesterTask.h"
-#include "harvesting/src/BlockExecutionHashesCalculator.h"
 #include "harvesting/src/Harvester.h"
 #include "catapult/cache_core/BlockDifficultyCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
@@ -79,7 +78,7 @@ namespace catapult { namespace harvesting {
 					BlockSigner = block.Signer;
 					CompletionFunction = processingComplete;
 				};
-				pLastBlock->Size = sizeof(model::Block);
+				pLastBlock->Size = sizeof(model::BlockHeader);
 				pLastBlock->Height = Height(1);
 			}
 
@@ -132,11 +131,11 @@ namespace catapult { namespace harvesting {
 		};
 
 		auto CreateHarvester(HarvesterContext& context) {
-			Harvester::Suppliers harvesterSuppliers{
-				[](const auto&, const auto&) { return BlockExecutionHashes(true); },
-				[](auto, auto) { return TransactionsInfo(); }
-			};
-			return std::make_unique<Harvester>(context.Cache, context.Config, context.Accounts, harvesterSuppliers);
+			return std::make_unique<Harvester>(context.Cache, context.Config, context.Accounts, [](const auto& blockHeader, auto) {
+				auto pBlock = std::make_unique<model::Block>();
+				std::memcpy(static_cast<void*>(pBlock.get()), &blockHeader, sizeof(model::BlockHeader));
+				return pBlock;
+			});
 		}
 	}
 

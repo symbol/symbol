@@ -434,7 +434,7 @@ namespace catapult { namespace cache {
 		ASSERT_TRUE(!!pDetachedDelta);
 
 		// Act:
-		auto pDelta = pDetachedDelta->lock();
+		auto pDelta = pDetachedDelta->tryLock();
 
 		// Assert:
 		AssertView<test::SimpleCacheDelta>(pDelta, 5, SubCacheViewType::DetachedDelta);
@@ -455,7 +455,7 @@ namespace catapult { namespace cache {
 		}
 
 		// Act:
-		auto pDelta = pDetachedDelta->lock();
+		auto pDelta = pDetachedDelta->tryLock();
 
 		// Assert:
 		EXPECT_FALSE(!!pDelta);
@@ -626,8 +626,8 @@ namespace catapult { namespace cache {
 				{}
 
 			public:
-				auto lock() {
-					return ViewProxy<SubCacheView, test::SimpleCacheDelta>(m_pView->lock());
+				auto tryLock() {
+					return ViewProxy<SubCacheView, test::SimpleCacheDelta>(m_pView->tryLock());
 				}
 
 			private:

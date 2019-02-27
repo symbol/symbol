@@ -152,7 +152,7 @@ namespace catapult { namespace net {
 		class DefaultPacketReaders : public PacketReaders, public std::enable_shared_from_this<DefaultPacketReaders> {
 		public:
 			explicit DefaultPacketReaders(
-					const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const ionet::ServerPacketHandlers& handlers,
 					const crypto::KeyPair& keyPair,
 					const ConnectionSettings& settings,
@@ -237,7 +237,7 @@ namespace catapult { namespace net {
 	}
 
 	std::shared_ptr<PacketReaders> CreatePacketReaders(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const ionet::ServerPacketHandlers& handlers,
 			const crypto::KeyPair& keyPair,
 			const ConnectionSettings& settings,

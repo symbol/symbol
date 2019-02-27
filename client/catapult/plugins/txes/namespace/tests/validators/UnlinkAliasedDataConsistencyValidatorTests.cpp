@@ -32,19 +32,17 @@ namespace catapult { namespace validators {
 		private:
 			using NotificationType = typename TTraits::NotificationType;
 
-			static constexpr auto DefaultNamespaceId() {
-				return NamespaceId(123);
-			}
+			static constexpr auto Default_Namespace_Id = NamespaceId(123);
 
 			static auto CreateDefaultRootNamespace() {
 				auto owner = test::GenerateRandomData<Key_Size>();
-				return state::RootNamespace(DefaultNamespaceId(), owner, test::CreateLifetime(10, 20));
+				return state::RootNamespace(Default_Namespace_Id, owner, test::CreateLifetime(10, 20));
 			}
 
 			static NotificationType CreateNotification(model::AliasAction aliasAction = model::AliasAction::Unlink) {
 				typename TTraits::AliasType alias;
 				test::FillWithRandomData(alias);
-				return NotificationType(DefaultNamespaceId(), aliasAction, alias);
+				return NotificationType(Default_Namespace_Id, aliasAction, alias);
 			}
 
 			template<typename TSeedCacheFunc>
@@ -107,7 +105,7 @@ namespace catapult { namespace validators {
 				// Assert:
 				RunUnlinkValidatorTest(validators::Failure_Namespace_Alias_Unlink_Type_Inconsistency, notification, [](auto& cache) {
 					cache.insert(CreateDefaultRootNamespace());
-					test::SetRandomAlias<typename TTraits::InvalidAliasType>(cache, DefaultNamespaceId());
+					test::SetRandomAlias<typename TTraits::InvalidAliasType>(cache, Default_Namespace_Id);
 				});
 			}
 
@@ -118,7 +116,7 @@ namespace catapult { namespace validators {
 				// Assert:
 				RunUnlinkValidatorTest(validators::Failure_Namespace_Alias_Unlink_Data_Inconsistency, notification, [](auto& cache) {
 					cache.insert(CreateDefaultRootNamespace());
-					test::SetRandomAlias<typename TTraits::AliasType>(cache, DefaultNamespaceId());
+					test::SetRandomAlias<typename TTraits::AliasType>(cache, Default_Namespace_Id);
 				});
 			}
 
@@ -129,7 +127,7 @@ namespace catapult { namespace validators {
 				// Assert:
 				RunUnlinkValidatorTest(validators::ValidationResult::Success, notification, [&notification](auto& cache) {
 					cache.insert(CreateDefaultRootNamespace());
-					test::SetAlias(cache, DefaultNamespaceId(), notification.AliasedData);
+					test::SetAlias(cache, Default_Namespace_Id, notification.AliasedData);
 				});
 			}
 		};

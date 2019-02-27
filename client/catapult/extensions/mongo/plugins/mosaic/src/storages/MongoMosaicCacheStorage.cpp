@@ -29,8 +29,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
 		struct MosaicCacheTraits : public storages::BasicMongoCacheStorageTraits<cache::MosaicCacheDescriptor> {
-			static constexpr const char* Collection_Name = "mosaics";
-			static constexpr const char* Id_Property_Name = "mosaic.mosaicId";
+			static constexpr auto Collection_Name = "mosaics";
+			static constexpr auto Id_Property_Name = "mosaic.mosaicId";
 
 			static auto MapToMongoId(const KeyType& key) {
 				return mappers::ToInt64(key);

@@ -123,7 +123,7 @@ namespace catapult { namespace ionet {
 		/// \note \a generator is expected to produce pointers to fixed-size data.
 		template<typename TValueGenerator>
 		bool appendGeneratedValues(TValueGenerator&& generator) {
-			using ValueType = typename std::remove_const<typename std::remove_reference<decltype(*generator())>::type>::type;
+			using ValueType = std::remove_const_t<std::remove_reference_t<decltype(*generator())>>;
 			std::vector<ValueType> values;
 			for (;;) {
 				auto pValue = generator();

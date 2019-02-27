@@ -22,6 +22,6 @@
 
 namespace {
 	// export version information so that it is findable by `what`
-	constexpr const char* WHAT_CATAPULT_VERSION __attribute__((used)) = "@(#)catapult version " CATAPULT_VERSION;
-	constexpr const char* WHAT_CATAPULT_COPYRIGHT __attribute__((used)) = "@(#)" CATAPULT_COPYRIGHT;
+	constexpr auto WHAT_CATAPULT_VERSION __attribute__((used)) = "@(#)catapult version " CATAPULT_VERSION;
+	constexpr auto WHAT_CATAPULT_COPYRIGHT __attribute__((used)) = "@(#)" CATAPULT_COPYRIGHT;
 }

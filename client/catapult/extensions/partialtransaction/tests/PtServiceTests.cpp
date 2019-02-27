@@ -36,7 +36,7 @@ namespace catapult { namespace partialtransaction {
 
 		struct PtServiceTraits {
 			static constexpr auto Counter_Name = "PT WRITERS";
-			static constexpr auto Num_Expected_Services = 3; // writers (1) + dependent services (2)
+			static constexpr auto Num_Expected_Services = 3u; // writers (1) + dependent services (2)
 
 			static auto GetWriters(const extensions::ServiceLocator& locator) {
 				return locator.service<net::PacketWriters>("api.partial");
@@ -77,9 +77,9 @@ namespace catapult { namespace partialtransaction {
 
 	TEST(TEST_CLASS, WritersAreRegisteredInPacketIoPickers) {
 		// Arrange: create a (tcp) server
-		auto pPool = test::CreateStartedIoServiceThreadPool();
+		auto pPool = test::CreateStartedIoThreadPool();
 		auto serverKeyPair = test::GenerateKeyPair();
-		test::SpawnPacketServerWork(pPool->service(), [&serverKeyPair](const auto& pServer) {
+		test::SpawnPacketServerWork(pPool->ioContext(), [&serverKeyPair](const auto& pServer) {
 			net::VerifyClient(pServer, serverKeyPair, ionet::ConnectionSecurityMode::None, [](auto, const auto&) {});
 		});
 

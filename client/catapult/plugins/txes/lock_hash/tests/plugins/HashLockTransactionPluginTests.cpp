@@ -60,7 +60,7 @@ namespace catapult { namespace plugins {
 		mocks::MockNotificationSubscriber sub;
 		auto pPlugin = TTraits::CreatePlugin();
 
-		typename TTraits::TransactionType transaction{};
+		typename TTraits::TransactionType transaction;
 
 		// Act:
 		test::PublishTransaction(*pPlugin, transaction, sub);

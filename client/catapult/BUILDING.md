@@ -16,16 +16,16 @@ Boost
 ---
 
 ```sh
-curl -o boost_1_64_0.tar.gz -SL \
-    https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
-tar -xzf boost_1_64_0.tar.gz
+curl -o boost_1_69_0.tar.gz -SL \
+    https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz
+tar -xzf boost_1_69_0.tar.gz
 
 ## WARNING: below use $HOME rather than ~ - boost scripts might treat it literally
-mkdir boost-build-1.64.0
-cd boost_1_64_0
-./bootstrap.sh --prefix=${HOME}/boost-build-1.64.0
-./b2 --prefix=${HOME}/boost-build-1.64.0 -j 4 stage release
-./b2 install --prefix=${HOME}/boost-build-1.64.0
+mkdir boost-build-1.69.0
+cd boost_1_69_0
+./bootstrap.sh --prefix=${HOME}/boost-build-1.69.0
+./b2 --prefix=${HOME}/boost-build-1.69.0 -j 4 stage release
+./b2 install --prefix=${HOME}/boost-build-1.69.0
 ```
 
 Gtest
@@ -84,7 +84,7 @@ sed -i 's/kvp("maxAwaitTimeMS", count)/kvp("maxAwaitTimeMS", static_cast<int64_t
     src/mongocxx/options/change_stream.cpp
 
 mkdir _build && cd _build
-cmake -DLIBBSON_DIR=/usr/local -DBOOST_ROOT=~/boost-build-1.64.0 \
+cmake -DLIBBSON_DIR=/usr/local -DBOOST_ROOT=~/boost-build-1.69.0 \
     -DLIBMONGOC_DIR=/usr/local -DBSONCXX_POLY_USE_BOOST=1 \
     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
 make
@@ -125,12 +125,11 @@ Rocks
 
 Currently ubuntu 18.04 has gflags in version 2.2.1 and snappy in version 1.1.7 which are OK
 
-NOTE: we're currently NOT coupled to any specific rocksdb version, this might change in future
-
 rocks
 ```sh
 git clone https://github.com/facebook/rocksdb.git rocksdb.git
 cd rocksdb.git
+git checkout -B "5.18.fb" "origin/5.18.fb"
 
 mkdir _build && cd _build
 cmake -DCMAKE_BUILD_TYPE=Release -DWITH_TESTS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
@@ -146,7 +145,7 @@ git clone https://github.com/nemtech/catapult-server.git
 cd catapult-server
 
 mkdir _build && cd _build
-cmake -DBOOST_ROOT=~/boost-build-1.64.0 -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+cmake -DBOOST_ROOT=~/boost-build-1.69.0 -DCMAKE_BUILD_TYPE=Release -G Ninja ..
 ninja publish
 ninja -j4
 ```
@@ -280,9 +279,6 @@ msbuild /p:Configuration=RelWithDebInfo /p:Platform=x64 INSTALL.vcxproj
 Rocks
 ---
 
-NOTE: we're currently NOT coupled to any specific rocksdb version, this might change in future
-NOTE: on windows master usually does not build, so we're using FB branches
-
 gflags
 ```bat
 wget https://github.com/gflags/gflags/archive/v2.2.2.zip
@@ -312,7 +308,7 @@ rocks
 ```bat
 git clone https://github.com/facebook/rocksdb.git rocksdb.git
 cd rocksdb.git
-git checkout -B "5.18.fb" "origin/5.18.fb">
+git checkout -B "5.18.fb" "origin/5.18.fb"
 ```
 
 edit `thirdparty.inc`

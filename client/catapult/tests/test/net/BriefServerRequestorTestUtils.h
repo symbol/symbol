@@ -41,7 +41,7 @@ namespace catapult { namespace test {
 		template<typename TRequestorParam>
 		BriefServerRequestorTestContext(const utils::TimeSpan& timeout, const TRequestorParam& requestorParam)
 				: ClientKeyPair(GenerateKeyPair())
-				, pPool(CreateStartedIoServiceThreadPool())
+				, pPool(CreateStartedIoThreadPool())
 				, ServerKeyPair(GenerateKeyPair())
 				, ServerPublicKey(ServerKeyPair.publicKey())
 				, pRequestor(std::make_shared<TRequestor>(pPool, ClientKeyPair, CreateSettingsWithTimeout(timeout), requestorParam))
@@ -49,7 +49,7 @@ namespace catapult { namespace test {
 
 	public:
 		crypto::KeyPair ClientKeyPair;
-		std::shared_ptr<thread::IoServiceThreadPool> pPool;
+		std::shared_ptr<thread::IoThreadPool> pPool;
 
 		crypto::KeyPair ServerKeyPair;
 		Key ServerPublicKey;
@@ -89,7 +89,7 @@ namespace catapult { namespace test {
 		using ResponseType = typename decltype(context.pRequestor)::element_type::ResponseType;
 
 		// Arrange: create a server for connecting
-		TcpAcceptor acceptor(context.pPool->service());
+		TcpAcceptor acceptor(context.pPool->ioContext());
 
 		std::shared_ptr<ionet::PacketSocket> pServerSocket;
 		SpawnPacketServerWork(acceptor, [&context, &pServerSocket, pResponsePacket](const auto& pSocket) {
@@ -149,8 +149,8 @@ namespace catapult { namespace test {
 	public:
 		/// Creates a remote pull server.
 		RemotePullServer()
-				: m_pPool(test::CreateStartedIoServiceThreadPool(1))
-				, m_acceptor(m_pPool->service())
+				: m_pPool(test::CreateStartedIoThreadPool(1))
+				, m_acceptor(m_pPool->ioContext())
 		{}
 
 	public:
@@ -189,7 +189,7 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		std::unique_ptr<thread::IoServiceThreadPool> m_pPool;
+		std::unique_ptr<thread::IoThreadPool> m_pPool;
 		test::TcpAcceptor m_acceptor;
 
 		std::shared_ptr<ionet::PacketSocket> m_pServerSocket;

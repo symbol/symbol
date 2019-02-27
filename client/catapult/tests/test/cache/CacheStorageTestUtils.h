@@ -46,7 +46,7 @@ namespace catapult { namespace test {
 			TTraits::StorageType::Save(originalValue, stream);
 
 			// Assert: the value was saved
-			ASSERT_EQ(static_cast<uint64_t>(TTraits::Value_Size), buffer.size());
+			ASSERT_EQ(TTraits::Value_Size, buffer.size());
 			const auto& savedValue = reinterpret_cast<const ValueType&>(*buffer.data());
 			EXPECT_EQ(originalValue, savedValue);
 
@@ -65,9 +65,11 @@ namespace catapult { namespace test {
 			static void Load(io::InputStream& inputStream, const ValueType& originalValue, ValueType& result) {
 				// Act:
 				typename TTraits::CacheType cache;
-				auto delta = cache.createDelta();
-				TTraits::StorageType::LoadInto(TTraits::StorageType::Load(inputStream), *delta);
-				cache.commit();
+				{
+					auto delta = cache.createDelta();
+					TTraits::StorageType::LoadInto(TTraits::StorageType::Load(inputStream), *delta);
+					cache.commit();
+				}
 
 				// Assert:
 				auto view = cache.createView();

@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include "catapult/preprocessor.h"
 #include <vector>
 #include <stddef.h>
 
@@ -70,7 +69,7 @@ namespace catapult { namespace utils {
 		}
 
 	private:
-		CATAPULT_INLINE size_t incrementNext() {
+		inline size_t incrementNext() {
 			size_t next = truncateIndex(m_next);
 			++m_next;
 			return next;

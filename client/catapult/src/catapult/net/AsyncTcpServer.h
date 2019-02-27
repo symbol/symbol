@@ -21,7 +21,7 @@
 #pragma once
 #include "catapult/ionet/PacketSocket.h"
 
-namespace catapult { namespace thread { class IoServiceThreadPool; } }
+namespace catapult { namespace thread { class IoThreadPool; } }
 
 namespace catapult { namespace net {
 
@@ -78,7 +78,7 @@ namespace catapult { namespace net {
 	/// Creates an async tcp server listening on \a endpoint with the specified \a settings using the specified
 	/// thread pool (\a pPool).
 	std::shared_ptr<AsyncTcpServer> CreateAsyncTcpServer(
-			const std::shared_ptr<thread::IoServiceThreadPool>& pPool,
+			const std::shared_ptr<thread::IoThreadPool>& pPool,
 			const boost::asio::ip::tcp::endpoint& endpoint,
 			const AsyncTcpServerSettings& settings);
 }}

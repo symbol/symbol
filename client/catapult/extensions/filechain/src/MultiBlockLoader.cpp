@@ -53,7 +53,7 @@ namespace catapult { namespace filechain {
 			}
 
 		private:
-			constexpr static uint64_t DifferenceOrZero(uint64_t lhs, uint64_t rhs) {
+			static constexpr uint64_t DifferenceOrZero(uint64_t lhs, uint64_t rhs) {
 				return lhs > rhs ? lhs - rhs : 0;
 			}
 
@@ -140,7 +140,12 @@ namespace catapult { namespace filechain {
 				height = height + Height(1);
 			}
 
-			CATAPULT_LOG(info) << "cache state hash at height " << chainHeight << " : " << utils::HexFormat(stateHash);
+			if (chainHeight >= m_startHeight) {
+				CATAPULT_LOG(info)
+						<< "cache state hash at height " << chainHeight << ": " << utils::HexFormat(stateHash)
+						<< " (loaded from height " << m_startHeight << ")";
+			}
+
 			return score;
 		}
 

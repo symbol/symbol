@@ -22,7 +22,7 @@
 #include "Task.h"
 #include <string>
 
-namespace catapult { namespace thread { class IoServiceThreadPool; } }
+namespace catapult { namespace thread { class IoThreadPool; } }
 
 namespace catapult { namespace thread {
 
@@ -47,5 +47,5 @@ namespace catapult { namespace thread {
 	};
 
 	/// Creates a scheduler around the specified thread pool (\a pPool).
-	std::shared_ptr<Scheduler> CreateScheduler(const std::shared_ptr<IoServiceThreadPool>& pPool);
+	std::shared_ptr<Scheduler> CreateScheduler(const std::shared_ptr<IoThreadPool>& pPool);
 }}

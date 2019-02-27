@@ -92,7 +92,7 @@ namespace catapult { namespace plugins {
 
 		// Act:
 		for (auto i : { 7, 9, 4 })
-			manager.addTransactionSupport(mocks::CreateMockTransactionPlugin(i));
+			manager.addTransactionSupport(mocks::CreateMockTransactionPlugin(static_cast<model::EntityType>(i)));
 
 		// Assert:
 		EXPECT_EQ(3u, manager.transactionRegistry().size());

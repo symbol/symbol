@@ -68,7 +68,7 @@ namespace catapult { namespace deltaset {
 			ASSERT_TRUE(!!iter.get());
 			EXPECT_EQ(3u, iter.get()->Value);
 
-			EXPECT_EQ(TIteratorTraits::IsConstAccessor(), std::is_const<typename std::remove_reference<decltype(*iter.get())>::type>());
+			EXPECT_EQ(TIteratorTraits::Is_Const_Accessor, std::is_const_v<std::remove_reference_t<decltype(*iter.get())>>);
 		}
 
 		template<typename TIteratorTraits>
@@ -84,7 +84,7 @@ namespace catapult { namespace deltaset {
 			ASSERT_TRUE(!!iter.get());
 			EXPECT_EQ(3u, iter.get()->Value);
 
-			EXPECT_EQ(TIteratorTraits::IsConstAccessor(), std::is_const<typename std::remove_reference<decltype(*iter.get())>::type>());
+			EXPECT_EQ(TIteratorTraits::Is_Const_Accessor, std::is_const_v<std::remove_reference_t<decltype(*iter.get())>>);
 		}
 
 		template<typename TSetTraits>
@@ -114,7 +114,7 @@ namespace catapult { namespace deltaset {
 			ASSERT_TRUE(!!iter.get());
 			EXPECT_EQ(3u, iter.get()->Value);
 
-			EXPECT_EQ(TIteratorTraits::IsConstAccessor(), std::is_const<typename std::remove_reference<decltype(*iter.get())>::type>());
+			EXPECT_EQ(TIteratorTraits::Is_Const_Accessor, std::is_const_v<std::remove_reference_t<decltype(*iter.get())>>);
 		}
 	}
 
@@ -132,7 +132,7 @@ namespace catapult { namespace deltaset {
 			using IteratorType = BaseSetFindIterator<FindTraits, SetTraits>;
 
 			static constexpr auto CreateElement = TTraits::CreateElement;
-			static constexpr auto IsConstAccessor() { return true; }
+			static constexpr auto Is_Const_Accessor = true;
 		};
 
 		template<typename TTraits>
@@ -175,7 +175,7 @@ namespace catapult { namespace deltaset {
 			using IteratorType = BaseSetDeltaFindIterator<FindTraits, SetTraits>;
 
 			static constexpr auto CreateElement = TTraits::CreateElement;
-			static constexpr auto IsConstAccessor() { return false; }
+			static constexpr auto Is_Const_Accessor = false;
 		};
 
 		template<typename TTraits>
@@ -218,7 +218,7 @@ namespace catapult { namespace deltaset {
 			using IteratorType = BaseSetDeltaFindConstIterator<FindTraits, SetTraits>;
 
 			static constexpr auto CreateElement = TTraits::CreateElement;
-			static constexpr auto IsConstAccessor() { return true; }
+			static constexpr auto Is_Const_Accessor = true;
 		};
 
 		template<typename TTraits>

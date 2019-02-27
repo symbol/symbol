@@ -171,13 +171,13 @@ namespace catapult { namespace mocks {
 	bool IsPluginOptionFlagSet(PluginOptionFlags options, PluginOptionFlags flag);
 
 	/// Creates a (mock) transaction plugin with the specified \a type.
-	std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPlugin(int type);
+	std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPlugin(model::EntityType type);
 
 	/// Creates a (mock) transaction plugin with \a options.
 	std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPlugin(PluginOptionFlags options = PluginOptionFlags::Default);
 
 	/// Creates a (mock) transaction plugin with the specified \a type and \a options.
-	std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPlugin(int type, PluginOptionFlags options);
+	std::unique_ptr<model::TransactionPlugin> CreateMockTransactionPlugin(model::EntityType type, PluginOptionFlags options);
 
 	/// Creates a default transaction registry with a single registered (mock) transaction with \a options.
 	model::TransactionRegistry CreateDefaultTransactionRegistry(PluginOptionFlags options = PluginOptionFlags::Default);

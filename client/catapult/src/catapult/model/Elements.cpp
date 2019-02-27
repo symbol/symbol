@@ -44,23 +44,19 @@ namespace catapult { namespace model {
 			}
 
 		private:
-			inline
-			static const VerifiableEntity& GetEntity(const BlockElement& element) {
+			static inline const VerifiableEntity& GetEntity(const BlockElement& element) {
 				return element.Block;
 			}
 
-			inline
-			static const VerifiableEntity& GetEntity(const TransactionElement& element) {
+			static inline const VerifiableEntity& GetEntity(const TransactionElement& element) {
 				return element.Transaction;
 			}
 
-			inline
-			static const Timestamp GetTimestamp(const BlockElement& element) {
+			static inline const Timestamp GetTimestamp(const BlockElement& element) {
 				return element.Block.Timestamp;
 			}
 
-			inline
-			static const Timestamp GetTimestamp(const TransactionElement& element) {
+			static inline const Timestamp GetTimestamp(const TransactionElement& element) {
 				return element.Transaction.Deadline;
 			}
 

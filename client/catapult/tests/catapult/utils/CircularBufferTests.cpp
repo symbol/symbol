@@ -138,7 +138,7 @@ namespace catapult { namespace utils {
 
 			// Assert:
 			EXPECT_EQ(4, value);
-			EXPECT_FALSE(std::is_const<typename std::remove_reference<decltype(value)>::type>());
+			EXPECT_FALSE(std::is_const_v<std::remove_reference_t<decltype(value)>>);
 
 			std::vector<int> expectedValues{ 5, 7, 4, 2 };
 			EXPECT_EQ(expectedValues, ToVector(buffer));
@@ -154,7 +154,7 @@ namespace catapult { namespace utils {
 
 			// Assert:
 			EXPECT_EQ(3, value);
-			EXPECT_TRUE(std::is_const<typename std::remove_reference<decltype(value)>::type>());
+			EXPECT_TRUE(std::is_const_v<std::remove_reference_t<decltype(value)>>);
 
 			std::vector<int> expectedValues{ 5, 7, 3, 2 };
 			EXPECT_EQ(expectedValues, ToVector(buffer));

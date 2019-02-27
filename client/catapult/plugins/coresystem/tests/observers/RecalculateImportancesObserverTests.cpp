@@ -75,8 +75,8 @@ namespace catapult { namespace observers {
 		}
 
 		struct CommitTraits {
-			static constexpr NotifyMode Mode() { return NotifyMode::Commit; }
-			static constexpr Height BaseHeight() { return Height(Importance_Grouping); }
+			static constexpr auto Mode = NotifyMode::Commit;
+			static constexpr auto Base_Height = Height(Importance_Grouping);
 
 			static auto CreateObserver(std::unique_ptr<ImportanceCalculator>&& pCalculator) {
 				return CreateRecalculateImportancesObserver(std::move(pCalculator), CreateFailingCalculator());
@@ -84,8 +84,8 @@ namespace catapult { namespace observers {
 		};
 
 		struct RollbackTraits {
-			static constexpr NotifyMode Mode() { return NotifyMode::Rollback; }
-			static constexpr Height BaseHeight() { return Height(Importance_Grouping + 1); }
+			static constexpr auto Mode = NotifyMode::Rollback;
+			static constexpr auto Base_Height = Height(Importance_Grouping + 1);
 
 			static auto CreateObserver(std::unique_ptr<ImportanceCalculator>&& pCalculator) {
 				return CreateRecalculateImportancesObserver(CreateFailingCalculator(), std::move(pCalculator));
@@ -226,8 +226,8 @@ namespace catapult { namespace observers {
 
 	TRAITS_BASED_TEST(RecalculationIsBypassedIfImportanceHeightEqualsLastCalculationHeight) {
 		// Assert:
-		auto mode = TTraits::Mode();
-		auto baseHeight = TTraits::BaseHeight();
+		auto mode = TTraits::Mode;
+		auto baseHeight = TTraits::Base_Height;
 		for (auto i = 1u; i < 10; ++i)
 			AssertNoRecalculation<TTraits>(mode, baseHeight, baseHeight + Height(i));
 
@@ -236,8 +236,8 @@ namespace catapult { namespace observers {
 
 	TRAITS_BASED_TEST(RecalculationIsTriggeredIfImportanceHeightIsNotEqualToLastCalculationHeight) {
 		// Assert:
-		auto mode = TTraits::Mode();
-		auto baseHeight = TTraits::BaseHeight();
+		auto mode = TTraits::Mode;
+		auto baseHeight = TTraits::Base_Height;
 		AssertRecalculation<TTraits>(mode, baseHeight, Height(1));
 		AssertRecalculation<TTraits>(mode, baseHeight, baseHeight - Height(1));
 		AssertRecalculation<TTraits>(mode, baseHeight, baseHeight + Height(Importance_Grouping));

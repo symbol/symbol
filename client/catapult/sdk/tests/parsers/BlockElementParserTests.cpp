@@ -42,7 +42,7 @@ namespace catapult { namespace parsers {
 	TEST(TEST_CLASS, CannotParseBlockElementIfReportedBlockSizeIsSmallerThanHeader) {
 		// Arrange: invalidate the block size (too small)
 		auto buffer = PrepareBlockElementBuffer(3);
-		reinterpret_cast<model::Block&>(*buffer.data()).Size = sizeof(model::Block) - 1;
+		reinterpret_cast<model::Block&>(*buffer.data()).Size = sizeof(model::BlockHeader) - 1;
 
 		// Act + Assert:
 		size_t numBytesConsumed;
@@ -72,7 +72,7 @@ namespace catapult { namespace parsers {
 	TEST(TEST_CLASS, CannotParseBlockElementIfBlockHeaderDoesNotFit) {
 		// Arrange: use a buffer one byte smaller than a block header
 		auto buffer = PrepareBlockElementBuffer(3);
-		buffer.resize(sizeof(model::Block) - 1);
+		buffer.resize(sizeof(model::BlockHeader) - 1);
 
 		// Act + Assert:
 		size_t numBytesConsumed;

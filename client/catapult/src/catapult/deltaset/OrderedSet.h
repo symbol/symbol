@@ -57,7 +57,7 @@ namespace catapult { namespace deltaset {
 
 		template<typename T>
 		using OrderedSetType = std::set<
-			typename std::remove_const<typename T::ElementType>::type,
+			std::remove_const_t<typename T::ElementType>,
 			OrderedSetDefaultComparator<typename T::ElementType>>;
 
 		/// Policy for committing changes to an ordered set.

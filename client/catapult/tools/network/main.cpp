@@ -307,10 +307,7 @@ namespace catapult { namespace tools { namespace network {
 			{}
 
 		private:
-			std::vector<thread::future<bool>> getNodeInfoFutures(
-					thread::IoServiceThreadPool&,
-					ionet::PacketIo& io,
-					NodeInfo& nodeInfo) override {
+			std::vector<thread::future<bool>> getNodeInfoFutures(thread::IoThreadPool&, ionet::PacketIo& io, NodeInfo& nodeInfo) override {
 				auto pApi = api::CreateRemoteNodeApi(io);
 				auto pDiagnosticApi = extensions::CreateRemoteDiagnosticApi(io);
 

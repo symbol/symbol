@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/thread/TimedCallback.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "catapult/utils/MacroBasedEnumIncludes.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/TestHarness.h"
@@ -67,12 +67,12 @@ namespace catapult { namespace thread {
 
 		public:
 			explicit TestContext(bool setDefaultTimeoutHandler = true, const std::shared_ptr<int>& pObject = nullptr)
-					: m_pPool(test::CreateStartedIoServiceThreadPool()) {
+					: m_pPool(test::CreateStartedIoThreadPool()) {
 				Callback callback = [&result = m_result, pObject](auto code) {
 					result.Code = code;
 					++result.NumCallbackCalls;
 				};
-				m_pTimedCallback = MakeTimedCallback(m_pPool->service(), callback, TimedCallbackResultCode::Timed_Out);
+				m_pTimedCallback = MakeTimedCallback(m_pPool->ioContext(), callback, TimedCallbackResultCode::Timed_Out);
 
 				if (!setDefaultTimeoutHandler)
 					return;
@@ -87,7 +87,7 @@ namespace catapult { namespace thread {
 			}
 
 			void postCallbackWithDelay(uint32_t numMillis) {
-				m_pPool->service().post([numMillis, pTimedCallback = m_pTimedCallback]() {
+				boost::asio::post(m_pPool->ioContext(), [numMillis, pTimedCallback = m_pTimedCallback]() {
 					test::Sleep(numMillis);
 					pTimedCallback->callback(TimedCallbackResultCode::Completed);
 				});
@@ -99,7 +99,7 @@ namespace catapult { namespace thread {
 			}
 
 		private:
-			std::shared_ptr<IoServiceThreadPool> m_pPool;
+			std::shared_ptr<IoThreadPool> m_pPool;
 			std::shared_ptr<TimedCallback> m_pTimedCallback;
 			TimedCallbackResult m_result;
 		};

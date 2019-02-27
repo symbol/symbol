@@ -554,6 +554,10 @@ namespace catapult { namespace test {
 			}, "");
 		}
 
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
 	public:
 		/// Asserts that an add exception crashes the process.
 		static void AssertAddExceptionTerminatesProcess() {
@@ -578,10 +582,6 @@ namespace catapult { namespace test {
 				// do nothing, flush will still be called
 			});
 		}
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
 
 		// endregion
 	};

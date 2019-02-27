@@ -20,15 +20,7 @@
 
 #pragma once
 #include "catapult/types.h"
-
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4505)
 #include <boost/program_options.hpp>
-#pragma warning(pop)
-#else
-#include <boost/program_options.hpp>
-#endif
 
 namespace catapult { namespace tools {
 

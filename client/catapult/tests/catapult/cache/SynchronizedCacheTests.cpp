@@ -201,7 +201,7 @@ namespace catapult { namespace cache {
 		// Act:
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
-		auto delta = lockableDelta.lock();
+		auto delta = lockableDelta.tryLock();
 
 		// Assert:
 		AssertDefaultContents(delta);
@@ -212,14 +212,14 @@ namespace catapult { namespace cache {
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
 		{
-			auto delta = lockableDelta.lock();
+			auto delta = lockableDelta.tryLock();
 
 			// - reset the delta
 			EXPECT_TRUE(!!delta);
 		}
 
 		// Act: relock the delta
-		auto delta = lockableDelta.lock();
+		auto delta = lockableDelta.tryLock();
 
 		// Assert:
 		AssertDefaultContents(delta);
@@ -233,13 +233,13 @@ namespace catapult { namespace cache {
 		// Act:
 		for (auto i = 0u; i < 10; ++i) {
 			auto lockableDelta = cache.createDetachedDelta();
-			lockableDelta.lock()->increment();
+			lockableDelta.tryLock()->increment();
 			deltas.push_back(std::move(lockableDelta));
 		}
 
 		// Assert: the detached deltas are independent (because different lockable caches are being locked)
 		for (auto& lockableDelta : deltas) {
-			auto delta = lockableDelta.lock();
+			auto delta = lockableDelta.tryLock();
 			AssertContents(delta, 1);
 		}
 	}
@@ -251,12 +251,12 @@ namespace catapult { namespace cache {
 
 		// Act:
 		for (auto i = 0u; i < 10; ++i) {
-			auto delta = lockableDelta.lock();
+			auto delta = lockableDelta.tryLock();
 			delta->increment();
 		}
 
 		// Assert:
-		AssertContents(lockableDelta.lock(), 10);
+		AssertContents(lockableDelta.tryLock(), 10);
 	}
 
 	TEST(TEST_CLASS, CanChangeDetachedDeltaWithoutCommitting) {
@@ -264,7 +264,7 @@ namespace catapult { namespace cache {
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
 		{
-			auto delta = lockableDelta.lock();
+			auto delta = lockableDelta.tryLock();
 
 			// Act:
 			delta->increment();
@@ -282,7 +282,7 @@ namespace catapult { namespace cache {
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
 		{
-			auto delta = lockableDelta.lock();
+			auto delta = lockableDelta.tryLock();
 
 			// Act:
 			delta->increment();
@@ -307,7 +307,7 @@ namespace catapult { namespace cache {
 			EXPECT_TRUE(!!delta);
 			std::thread([&lockableDelta]() {
 				// - need to lock on a separate thread because test thread owns delta
-				EXPECT_TRUE(lockableDelta.lock());
+				EXPECT_TRUE(lockableDelta.tryLock());
 			}).join();
 
 			// Act:
@@ -318,7 +318,7 @@ namespace catapult { namespace cache {
 			EXPECT_TRUE(!!delta);
 		}
 
-		EXPECT_FALSE(lockableDelta.lock());
+		EXPECT_FALSE(lockableDelta.tryLock());
 	}
 
 	// endregion
@@ -348,7 +348,7 @@ namespace catapult { namespace cache {
 			// - detached delta
 			threads.create_thread([&cache, &handler]() {
 				auto lockableDelta = cache.createDetachedDelta();
-				auto detachedDelta = lockableDelta.lock();
+				auto detachedDelta = lockableDelta.tryLock();
 				handler(detachedDelta);
 			});
 		}
@@ -379,7 +379,7 @@ namespace catapult { namespace cache {
 		public:
 			explicit DetachedDeltaGuard(LockableCacheDelta<test::SimpleCacheDelta>&& lockableDelta)
 					: m_lockableDelta(std::move(lockableDelta))
-					, m_delta(m_lockableDelta.lock())
+					, m_delta(m_lockableDelta.tryLock())
 			{}
 
 		private:
@@ -401,7 +401,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		test::SimpleCache cache;
 		auto lockableDelta = cache.createDetachedDelta();
-		lockableDelta.lock()->increment(); // lock is acquired only for the increment operation
+		lockableDelta.tryLock()->increment(); // lock is acquired only for the increment operation
 
 		{
 			auto delta = cache.createDelta();
@@ -413,7 +413,7 @@ namespace catapult { namespace cache {
 			std::thread([&cache, &lockableDelta]() {
 				// - need to lock on a separate thread because test thread owns delta
 				AssertContents(cache.createView(), 0);
-				AssertContents(lockableDelta.lock(), 1);
+				AssertContents(lockableDelta.tryLock(), 1);
 			}).join();
 
 			// Act:
@@ -424,7 +424,7 @@ namespace catapult { namespace cache {
 		}
 
 		AssertContents(cache.createView(), 2);
-		EXPECT_FALSE(lockableDelta.lock());
+		EXPECT_FALSE(lockableDelta.tryLock());
 	}
 
 	namespace {
@@ -570,7 +570,7 @@ namespace catapult { namespace cache {
 			auto lockableDelta = cache.createDetachedDelta();
 
 			// Assert:
-			EXPECT_TRUE(lockableDelta.lock());
+			EXPECT_TRUE(lockableDelta.tryLock());
 		});
 	}
 
@@ -634,8 +634,13 @@ namespace catapult { namespace cache {
 		SimpleCacheWithInit cache;
 
 		// Act + Assert: no exception
-		auto delta = cache.createDelta();
-		auto view = cache.createView();
+		{
+			auto delta = cache.createDelta();
+		}
+
+		{
+			auto view = cache.createView();
+		}
 
 		// -  init wasn't called
 		EXPECT_TRUE(cache.initString().empty());

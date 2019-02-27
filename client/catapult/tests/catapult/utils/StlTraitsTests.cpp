@@ -33,6 +33,9 @@ namespace catapult { namespace utils {
 			// Assert: both const and non const variants
 			EXPECT_TRUE(traits::is_map<T>::value) << lineNumber;
 			EXPECT_TRUE(traits::is_map<const T>::value) << lineNumber;
+
+			EXPECT_TRUE(traits::is_map_v<T>) << lineNumber;
+			EXPECT_TRUE(traits::is_map_v<const T>) << lineNumber;
 		}
 
 		template<typename T>
@@ -40,6 +43,9 @@ namespace catapult { namespace utils {
 			// Assert: both const and non const variants
 			EXPECT_FALSE(traits::is_map<T>::value) << lineNumber;
 			EXPECT_FALSE(traits::is_map<const T>::value) << lineNumber;
+
+			EXPECT_FALSE(traits::is_map_v<T>) << lineNumber;
+			EXPECT_FALSE(traits::is_map_v<const T>) << lineNumber;
 		}
 
 		struct CustomIntHasher {};

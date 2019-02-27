@@ -72,9 +72,14 @@ namespace catapult { namespace thread {
 	}
 
 	std::string GetThreadName() {
+#if defined(__APPLE__) || defined(__GLIBC__) || defined(_WIN32)
 		std::string name;
 		name.resize(GetMaxThreadNameLength() + 1); // include space for NUL-terminator
 		pthread_getname_np(pthread_self(), &name[0], name.size());
 		return name.substr(0, name.find_first_of('\0'));
+#else
+		// musl libc (from alpine) defines __GNU_SOURCE__ but it only has pthread_setname_np
+		return std::string();
+#endif
 	}
 }}

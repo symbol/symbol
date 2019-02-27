@@ -89,7 +89,7 @@ namespace catapult { namespace utils {
 		// Assert:
 		EXPECT_FALSE(!!pUniqueInt);
 		EXPECT_TRUE(!!pSharedInt);
-		EXPECT_TRUE(pSharedInt.unique());
+		EXPECT_EQ(1, pSharedInt.use_count());
 		EXPECT_EQ(pRawInt, pSharedInt.get());
 	}
 

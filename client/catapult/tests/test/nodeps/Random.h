@@ -79,4 +79,29 @@ namespace catapult { namespace test {
 		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(vec.data()), count * sizeof(T) });
 		return vec;
 	}
+
+	/// Creates a value that is not contained in \a values.
+	template<typename T>
+	T CreateRandomUniqueValue(const std::vector<T>& values) {
+		while (true) {
+			T randomValue;
+			FillWithRandomData({ reinterpret_cast<uint8_t*>(&randomValue), sizeof(T) });
+
+			auto isFound = std::any_of(values.cbegin(), values.cend(), [&randomValue](const auto& value) {
+				return value == randomValue;
+			});
+			if (!isFound)
+				return randomValue;
+		}
+	}
+
+	/// Generates random vector of \a count unique elements.
+	template<typename T>
+	std::vector<T> GenerateUniqueRandomDataVector(size_t count) {
+		std::vector<T> vec;
+		while (vec.size() < count)
+			vec.push_back(CreateRandomUniqueValue(vec));
+
+		return vec;
+	}
 }}

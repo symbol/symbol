@@ -30,7 +30,7 @@ namespace catapult { namespace model {
 	class ChainScore {
 	private:
 		using ArrayType = std::array<uint64_t, 2>;
-		static constexpr uint32_t BitsPerValue() { return 64u; }
+		static constexpr uint32_t Bits_Per_Value = 64;
 
 	public:
 		/// Creates a default chain score.
@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 		/// Creates a chain score from a 128-bit value composed of two 64-bit values (\a scoreHigh and \a scoreLow).
 		explicit ChainScore(uint64_t scoreHigh, uint64_t scoreLow) {
 			m_score = scoreHigh;
-			m_score <<= BitsPerValue();
+			m_score <<= Bits_Per_Value;
 			m_score += scoreLow;
 		}
 
@@ -56,7 +56,7 @@ namespace catapult { namespace model {
 		/// Gets an array representing the underlying score.
 		ArrayType toArray() const {
 			return { {
-				static_cast<uint64_t>(m_score >> BitsPerValue()),
+				static_cast<uint64_t>(m_score >> Bits_Per_Value),
 				static_cast<uint64_t>(m_score & std::numeric_limits<uint64_t>::max())
 			} };
 		}

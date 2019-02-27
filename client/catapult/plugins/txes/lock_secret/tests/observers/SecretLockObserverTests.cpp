@@ -38,9 +38,7 @@ namespace catapult { namespace observers {
 			using NotificationBuilder = test::SecretLockNotificationBuilder;
 			using ObserverTestContext = test::ObserverTestContextT<test::SecretLockInfoCacheFactory>;
 
-			static constexpr auto DebitReceiptType() {
-				return model::Receipt_Type_LockSecret_Created;
-			}
+			static constexpr auto Debit_Receipt_Type = model::Receipt_Type_LockSecret_Created;
 
 			static auto CreateObserver() {
 				return CreateSecretLockObserver();

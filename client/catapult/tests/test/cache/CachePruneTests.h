@@ -30,17 +30,15 @@ namespace catapult { namespace test {
 		using CacheType = typename TTraits::CacheType;
 
 	private:
-		static constexpr auto NumSeedElements() {
-			return 10u;
-		}
+		static constexpr auto Num_Seed_Elements = 10u;
 
 	public:
 		static void AssertPruneIsNoOpWhenCacheIsEmpty() {
 			// Arrange:
 			CacheType cache;
-			auto delta = cache.createDelta();
 
 			// Sanity:
+			auto delta = cache.createDelta();
 			EXPECT_EQ(0u, delta->size());
 
 			// Act: prune on empty cache does not throw
@@ -54,39 +52,41 @@ namespace catapult { namespace test {
 			// Arrange:
 			CacheType cache;
 			SeedCache(cache);
-			auto delta = cache.createDelta();
 
 			// Act: first element expires at height 10
+			auto delta = cache.createDelta();
 			for (auto i = 0u; 10u > i; ++i)
 				delta->prune(Height(i));
 
 			// Assert: size has not changed
-			EXPECT_EQ(NumSeedElements(), delta->size());
+			EXPECT_EQ(Num_Seed_Elements, delta->size());
 		}
 
 		static void AssertPruneIsNoOpWhenNoElementsExpireAtExactPruneHeight() {
 			// Arrange:
 			CacheType cache;
 			SeedCache(cache);
-			auto delta = cache.createDelta();
 
 			// Act: for heights 11 to 19 no elements expired
+			auto delta = cache.createDelta();
 			for (auto i = 11u; 20u > i; ++i)
 				delta->prune(Height(i));
 
 			// Assert: size has not changed
-			EXPECT_EQ(NumSeedElements(), delta->size());
+			EXPECT_EQ(Num_Seed_Elements, delta->size());
 		}
 
 		static void AssertCanPruneElementsAtSingleHeight() {
 			// Arrange:
 			CacheType cache;
 			SeedCache(cache);
-			auto delta = cache.createDelta();
 
 			// Act: prune element with id 3 that expires at height 30
-			delta->prune(Height(30));
-			cache.commit();
+			{
+				auto delta = cache.createDelta();
+				delta->prune(Height(30));
+				cache.commit();
+			}
 
 			// Assert:
 			auto view = cache.createView();
@@ -99,11 +99,13 @@ namespace catapult { namespace test {
 			// Arrange:
 			CacheType cache;
 			SeedCache(cache);
-			auto delta = cache.createDelta();
 
 			// Act: prune elements with id 1 - 7 that expire at heights 10, 20, ..., 70
-			PruneAll(*delta, Height(70));
-			cache.commit();
+			{
+				auto delta = cache.createDelta();
+				PruneAll(*delta, Height(70));
+				cache.commit();
+			}
 
 			// Assert:
 			auto view = cache.createView();
@@ -116,11 +118,13 @@ namespace catapult { namespace test {
 			// Arrange:
 			CacheType cache;
 			SeedCacheWithMultipleIdsAtSameHeight(cache);
-			auto delta = cache.createDelta();
 
 			// Act: prune elements expiring at height 10, 20 ids: 1, 2, 5, 6, 9, 10
-			PruneAll(*delta, Height(20));
-			cache.commit();
+			{
+				auto delta = cache.createDelta();
+				PruneAll(*delta, Height(20));
+				cache.commit();
+			}
 
 			// Assert:
 			auto view = cache.createView();
@@ -133,9 +137,9 @@ namespace catapult { namespace test {
 			// Arrange:
 			CacheType cache;
 			SeedCache(cache);
-			auto delta = cache.createDelta();
 
 			// Act: prune all elements
+			auto delta = cache.createDelta();
 			PruneAll(*delta, Height(100));
 
 			// Assert:
@@ -146,13 +150,16 @@ namespace catapult { namespace test {
 			// Arrange:
 			CacheType cache;
 			SeedCache(cache);
-			auto delta = cache.createDelta();
 
 			// Act: prune elements with id 1 - 5 (multiple times)
-			for (auto i = 0u; 10 > i; ++i)
-				PruneAll(*delta, Height(50));
+			{
+				auto delta = cache.createDelta();
 
-			cache.commit();
+				for (auto i = 0u; 10 > i; ++i)
+					PruneAll(*delta, Height(50));
+
+				cache.commit();
+			}
 
 			// Assert:
 			auto view = cache.createView();
@@ -185,11 +192,11 @@ namespace catapult { namespace test {
 
 		static void SeedCache(CacheType& cache) {
 			auto delta = cache.createDelta();
-			for (uint8_t i = 1; i <= NumSeedElements(); ++i)
+			for (uint8_t i = 1; i <= Num_Seed_Elements; ++i)
 				delta->insert(TTraits::CreateWithIdAndExpiration(i, Height(10 * i)));
 
 			// Sanity:
-			EXPECT_EQ(NumSeedElements(), delta->size());
+			EXPECT_EQ(Num_Seed_Elements, delta->size());
 
 			cache.commit();
 		}
@@ -197,11 +204,11 @@ namespace catapult { namespace test {
 		static void SeedCacheWithMultipleIdsAtSameHeight(CacheType& cache) {
 			auto delta = cache.createDelta();
 			// 10, 20, 30, 40, 10, 20, 30, 40, 10, 20
-			for (uint8_t i = 1; i <= NumSeedElements(); ++i)
+			for (uint8_t i = 1; i <= Num_Seed_Elements; ++i)
 				delta->insert(TTraits::CreateWithIdAndExpiration(i, Height(10 * i % 40)));
 
 			// Sanity:
-			EXPECT_EQ(NumSeedElements(), delta->size());
+			EXPECT_EQ(Num_Seed_Elements, delta->size());
 
 			cache.commit();
 		}

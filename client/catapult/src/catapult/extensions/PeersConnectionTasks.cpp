@@ -84,8 +84,7 @@ namespace catapult { namespace extensions {
 	// region CreateNodeSelector / CreateConnectPeersTask
 
 	namespace {
-		CPP14_CONSTEXPR
-		utils::LogLevel MapToLogLevel(net::PeerConnectCode connectCode) {
+		constexpr utils::LogLevel MapToLogLevel(net::PeerConnectCode connectCode) {
 			switch (connectCode) {
 			case net::PeerConnectCode::Accepted:
 				return utils::LogLevel::Info;

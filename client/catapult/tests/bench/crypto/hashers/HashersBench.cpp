@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/crypto/Hashes.h"
-#include "tests/test/nodeps/Random.h"
+#include "tests/bench/nodeps/Random.h"
 #include <benchmark/benchmark.h>
 
 namespace catapult { namespace crypto {
@@ -70,7 +70,7 @@ namespace catapult { namespace crypto {
 			typename TTraits::HashType hash;
 			for (auto _ : state) {
 				state.PauseTiming();
-				test::FillWithRandomData(data);
+				bench::FillWithRandomData(data);
 				state.ResumeTiming();
 
 				TTraits::HashFunc(data, hash);
@@ -83,25 +83,21 @@ namespace catapult { namespace crypto {
 			for (auto arg : { 256, 1024, 4096, 16384})
 				benchmark.UseRealTime()->Arg(arg);
 		}
-
-#define REGISTER_BENCHMARK(BENCH_NAME) benchmark::RegisterBenchmark(#BENCH_NAME, BENCH_NAME)
-
-#define CATAPULT_REGISTER_HASHER_BENCHMARK(TRAITS_NAME) AddDefaultArguments(*REGISTER_BENCHMARK(BenchmarkHasher<TRAITS_NAME>))
-
-		void RegisterTests() {
-			CATAPULT_REGISTER_HASHER_BENCHMARK(Ripemd160_Traits);
-			CATAPULT_REGISTER_HASHER_BENCHMARK(Bitcoin160_Traits);
-			CATAPULT_REGISTER_HASHER_BENCHMARK(Sha256Double_Traits);
-			CATAPULT_REGISTER_HASHER_BENCHMARK(Sha3_256_Traits);
-			CATAPULT_REGISTER_HASHER_BENCHMARK(Sha3_512_Traits);
-			CATAPULT_REGISTER_HASHER_BENCHMARK(Keccak_256_Traits);
-			CATAPULT_REGISTER_HASHER_BENCHMARK(Keccak_512_Traits);
-		}
 	}
 }}
 
-int main(int argc, char **argv) {
-	catapult::crypto::RegisterTests();
-	benchmark::Initialize(&argc, argv);
-	benchmark::RunSpecifiedBenchmarks();
+#define REGISTER_BENCHMARK(BENCH_NAME) benchmark::RegisterBenchmark(#BENCH_NAME, BENCH_NAME)
+
+#define CATAPULT_REGISTER_HASHER_BENCHMARK(TRAITS_NAME) \
+	catapult::crypto::AddDefaultArguments(*REGISTER_BENCHMARK(catapult::crypto::BenchmarkHasher<catapult::crypto::TRAITS_NAME>))
+
+void RegisterTests();
+void RegisterTests() {
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Ripemd160_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Bitcoin160_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Sha256Double_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Sha3_256_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Sha3_512_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Keccak_256_Traits);
+	CATAPULT_REGISTER_HASHER_BENCHMARK(Keccak_512_Traits);
 }

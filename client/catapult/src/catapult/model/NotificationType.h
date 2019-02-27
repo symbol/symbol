@@ -65,7 +65,7 @@ namespace catapult { namespace model {
 	}
 
 	/// Sets the notification channel in \a type to \a channel.
-	CPP14_CONSTEXPR void SetNotificationChannel(NotificationType& type, NotificationChannel channel) {
+	constexpr void SetNotificationChannel(NotificationType& type, NotificationChannel channel) {
 		type = static_cast<NotificationType>(
 				static_cast<uint32_t>(utils::to_underlying_type(channel) << 24) |
 				(0x00FFFFFFu & utils::to_underlying_type(type)));

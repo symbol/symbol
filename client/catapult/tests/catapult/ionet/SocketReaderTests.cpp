@@ -22,7 +22,7 @@
 #include "catapult/ionet/BufferedPacketIo.h"
 #include "catapult/ionet/IoTypes.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/thread/IoServiceThreadPool.h"
+#include "catapult/thread/IoThreadPool.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
 #include "tests/test/net/SocketTestUtils.h"
@@ -46,7 +46,7 @@ namespace catapult { namespace ionet {
 			{}
 
 			explicit ReaderFactory(const Key& clientPublicKey, const std::string& clientHost)
-					: m_pPool(test::CreateStartedIoServiceThreadPool())
+					: m_pPool(test::CreateStartedIoThreadPool())
 					, m_clientPublicKey(clientPublicKey)
 					, m_clientHost(clientHost)
 			{}
@@ -61,7 +61,7 @@ namespace catapult { namespace ionet {
 
 			template<typename TContinuation>
 			void createReader(const ServerPacketHandlers& handlers, TContinuation continuation) {
-				test::SpawnPacketServerWork(m_pPool->service(), [this, &handlers, continuation](const auto& pServerSocket) {
+				test::SpawnPacketServerWork(m_pPool->ioContext(), [this, &handlers, continuation](const auto& pServerSocket) {
 					continuation(pServerSocket, this->createReader(pServerSocket, handlers));
 				});
 			}
@@ -98,8 +98,8 @@ namespace catapult { namespace ionet {
 			}
 
 		public:
-			auto& service() {
-				return m_pPool->service();
+			auto& ioContext() {
+				return m_pPool->ioContext();
 			}
 
 			void join() {
@@ -107,7 +107,7 @@ namespace catapult { namespace ionet {
 			}
 
 		private:
-			std::unique_ptr<thread::IoServiceThreadPool> m_pPool;
+			std::unique_ptr<thread::IoThreadPool> m_pPool;
 			Key m_clientPublicKey;
 			std::string m_clientHost;
 		};
@@ -134,7 +134,7 @@ namespace catapult { namespace ionet {
 			factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
 				pReader = std::move(pStartedReader);
 			});
-			test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
+			test::AddClientWriteBuffersTask(factory.ioContext(), sendBuffers);
 
 			// - wait for the test to complete
 			factory.join();
@@ -266,7 +266,7 @@ namespace catapult { namespace ionet {
 		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
 			pReader = std::move(pStartedReader);
 		});
-		test::CreateClientSocket(factory.service())->connect().then([&sendBuffers, &responseBytes](auto&& socketFuture) {
+		test::CreateClientSocket(factory.ioContext())->connect().then([&sendBuffers, &responseBytes](auto&& socketFuture) {
 			auto pClientSocket = socketFuture.get();
 			pClientSocket->write(sendBuffers).then([pClientSocket, &responseBytes](auto) {
 				pClientSocket->read(responseBytes);
@@ -306,13 +306,13 @@ namespace catapult { namespace ionet {
 		//      "client" - writes sendBuffers to the socket
 		SocketReadResult readResult;
 		std::unique_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(factory.service(), [&](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(factory.ioContext(), [&](const auto& pServerSocket) {
 			pServerSocket->close();
 			factory.startReader(pServerSocket, handlers, readResult, [&pReader](auto&& pStartedReader) {
 				pReader = std::move(pStartedReader);
 			});
 		});
-		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
+		test::AddClientWriteBuffersTask(factory.ioContext(), sendBuffers);
 
 		// - wait for the test to complete
 		factory.join();
@@ -336,7 +336,7 @@ namespace catapult { namespace ionet {
 		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
 			pReader = std::move(pStartedReader);
 		});
-		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
+		test::AddClientWriteBuffersTask(factory.ioContext(), sendBuffers);
 
 		// - wait for the test to complete
 		factory.join();
@@ -358,7 +358,7 @@ namespace catapult { namespace ionet {
 		ServerPacketHandlers handlers;
 		SocketReadResult readResult;
 		std::unique_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(factory.service(), [&](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(factory.ioContext(), [&](const auto& pServerSocket) {
 			test::RegisterDefaultHandler(handlers, [pServerSocket](const auto&, auto& context) {
 				// - shut down the server socket
 				pServerSocket->close();
@@ -372,7 +372,7 @@ namespace catapult { namespace ionet {
 				pReader = std::move(pStartedReader);
 			});
 		});
-		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
+		test::AddClientWriteBuffersTask(factory.ioContext(), sendBuffers);
 		factory.join();
 
 		// Assert: the server should get a write error when attempting to write to the client
@@ -412,7 +412,7 @@ namespace catapult { namespace ionet {
 		std::atomic_bool isFirstPacketRead(false);
 		std::vector<std::vector<SocketOperationCode>> readCodes(2);
 		std::unique_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(factory.service(), [&](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(factory.ioContext(), [&](const auto& pServerSocket) {
 			pReader = factory.createReader(pServerSocket, handlers);
 
 			// - first read
@@ -431,7 +431,7 @@ namespace catapult { namespace ionet {
 				});
 			});
 		});
-		test::CreateClientSocket(factory.service())->connect().then([&](auto&& socketFuture) {
+		test::CreateClientSocket(factory.ioContext())->connect().then([&](auto&& socketFuture) {
 			auto pClientSocket = socketFuture.get();
 			pClientSocket->write(sendBuffers[0]).then([&, pClientSocket](auto) {
 				WAIT_FOR(isFirstPacketRead);
@@ -461,14 +461,14 @@ namespace catapult { namespace ionet {
 		auto handlers = CreateNoOpHandlers();
 		SocketOperationCode readCode;
 		std::unique_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(factory.service(), [&](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(factory.ioContext(), [&](const auto& pServerSocket) {
 			pReader = factory.createReader(pServerSocket, handlers);
 			pReader->read([&readCode](auto code) {
 				readCode = code;
 			});
 			pServerSocket->close();
 		});
-		test::AddClientConnectionTask(factory.service());
+		test::AddClientConnectionTask(factory.ioContext());
 
 		// - wait for the test to complete
 		factory.join();
@@ -492,7 +492,7 @@ namespace catapult { namespace ionet {
 		// Act: "server" - starts multiple reads
 		//      "client" - writes a buffer to the socket
 		std::unique_ptr<SocketReader> pReader;
-		test::SpawnPacketServerWork(factory.service(), [&, pAllReadsAttempted](const auto& pServerSocket) {
+		test::SpawnPacketServerWork(factory.ioContext(), [&, pAllReadsAttempted](const auto& pServerSocket) {
 			pReader = factory.createReader(pServerSocket, handlers);
 			pReader->read([](auto) {});
 
@@ -501,7 +501,7 @@ namespace catapult { namespace ionet {
 			EXPECT_THROW(pReader->read([](auto) {}), catapult_runtime_error);
 			pAllReadsAttempted->set();
 		});
-		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
+		test::AddClientWriteBuffersTask(factory.ioContext(), sendBuffers);
 
 		// - wait for the test to complete
 		factory.join();
@@ -529,7 +529,7 @@ namespace catapult { namespace ionet {
 		factory.startReader(handlers, readResult, [&pReader](auto&& pStartedReader) {
 			pReader = std::move(pStartedReader);
 		});
-		test::AddClientWriteBuffersTask(factory.service(), sendBuffers);
+		test::AddClientWriteBuffersTask(factory.ioContext(), sendBuffers);
 
 		// - wait for the test to complete
 		factory.join();
