@@ -18,13 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const dbFacade = require('./dbFacade');
 const errors = require('../server/errors');
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
-
-const { buildAuditPath, indexOfLeafWithHash } = catapult.crypto.merkle;
 
 const parseHeight = params => routeUtils.parseArgument(params, 'height', 'uint');
 
@@ -47,43 +44,10 @@ module.exports = {
 				.then(routeUtils.createSender(routeResultTypes.block).sendOne(height, res, next));
 		});
 
-		server.get('/block/:height/transaction/:hash/merkle', (req, res, next) => {
-			const height = parseHeight(req.params);
-			const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
-
-			return dbFacade.runHeightDependentOperation(db, height, () => db.blockWithTransactionMerkleTreeAtHeight(height))
-				.then(result => {
-					if (!result.isRequestValid) {
-						res.send(errors.createNotFoundError(height));
-						return next();
-					}
-
-					const block = result.payload;
-					if (!block.meta.numTransactions) {
-						res.send(errors.createInvalidArgumentError(`hash '${req.params.hash}' not included in block height '${height}'`));
-						return next();
-					}
-
-					const merkleTree = {
-						count: block.meta.numTransactions,
-						nodes: block.meta.transactionMerkleTree.map(merkleHash => merkleHash.buffer)
-					};
-
-					if (0 > indexOfLeafWithHash(hash, merkleTree)) {
-						res.send(errors.createInvalidArgumentError(`hash '${req.params.hash}' not included in block height '${height}'`));
-						return next();
-					}
-
-					const merklePath = buildAuditPath(hash, merkleTree);
-
-					res.send({
-						payload: { merklePath },
-						type: routeResultTypes.merkleProofInfo
-					});
-
-					return next();
-				});
-		});
+		server.get(
+			'/block/:height/transaction/:hash/merkle',
+			routeUtils.blockRouteMerkleProcessor(db, db.blockWithTransactionMerkleTreeAtHeight, 'numTransactions', 'transactionMerkleTree')
+		);
 
 		server.get('/block/:height/transactions', (req, res, next) => {
 			const height = parseHeight(req.params);

@@ -116,6 +116,7 @@ describe('receipts plugin', () => {
 		});
 	});
 
+
 	describe('conditional schema', () => {
 		describe('uses the correct conditional schema depending on receipt type', () => {
 			const formatReceipt = receipt => {

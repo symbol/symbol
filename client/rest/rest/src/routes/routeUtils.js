@@ -19,9 +19,12 @@
  */
 
 const catapult = require('catapult-sdk');
+const dbFacade = require('./dbFacade');
 const errors = require('../server/errors');
+const routeResultTypes = require('./routeResultTypes');
 
 const { address } = catapult.model;
+const { buildAuditPath, indexOfLeafWithHash } = catapult.crypto.merkle;
 const { convert } = catapult.utils;
 const packetHeader = catapult.packet.header;
 const constants = {
@@ -265,6 +268,52 @@ const routeUtils = {
 					next();
 				});
 		});
+	},
+
+	/**
+	 * Returns function for processing merkle tree path requests.
+	 * @param {module:db/CatapultDb} db The catapult database.
+	 * @param {function} blockAtHeightDbFunction Function that queries db for block at height.
+	 * @param {string} blockMetaCountField Field name for block meta count.
+	 * @param {string} blockMetaTreeField Field name for block meta merkle tree.
+	 * @returns {Function} The restify response function to process merkle path requests.
+	 */
+	blockRouteMerkleProcessor: (db, blockAtHeightDbFunction, blockMetaCountField, blockMetaTreeField) => (req, res, next) => {
+		const height = routeUtils.parseArgument(req.params, 'height', 'uint');
+		const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
+
+		return dbFacade.runHeightDependentOperation(db, height, () => blockAtHeightDbFunction(height))
+			.then(result => {
+				if (!result.isRequestValid) {
+					res.send(errors.createNotFoundError(height));
+					return next();
+				}
+
+				const block = result.payload;
+				if (!block.meta[blockMetaCountField]) {
+					res.send(errors.createInvalidArgumentError(`hash '${req.params.hash}' not included in block height '${height}'`));
+					return next();
+				}
+
+				const merkleTree = {
+					count: block.meta[blockMetaCountField],
+					nodes: block.meta[blockMetaTreeField].map(merkleHash => merkleHash.buffer)
+				};
+
+				if (0 > indexOfLeafWithHash(hash, merkleTree)) {
+					res.send(errors.createInvalidArgumentError(`hash '${req.params.hash}' not included in block height '${height}'`));
+					return next();
+				}
+
+				const merklePath = buildAuditPath(hash, merkleTree);
+
+				res.send({
+					payload: { merklePath },
+					type: routeResultTypes.merkleProofInfo
+				});
+
+				return next();
+			});
 	}
 };
 

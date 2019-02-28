@@ -20,7 +20,10 @@
 
 const catapult = require('catapult-sdk');
 const routeUtils = require('../../src/routes/routeUtils');
+const sinon = require('sinon');
 const test = require('./utils/routeTestUtils');
+
+const { convert } = catapult.utils;
 const { expect } = require('chai');
 
 const invalidObjectIdStrings = [
@@ -450,6 +453,139 @@ describe('route utils', () => {
 					error: { key: 'beta' }
 				}
 			}
+		});
+	});
+
+	describe('blockRouteMerkleProcessor', () => {
+		// Arrange:
+		const highestHeight = 50;
+
+		const sendFake = sinon.fake();
+		const nextFake = sinon.fake();
+
+		const formatHashAsBinary = hash => test.factory.createBinary(Buffer.from(convert.hexToUint8(hash), 'hex'));
+		const formatBinaryAsHash = binary => convert.uint8ToHex(binary.buffer);
+		const merkleTree = [
+			formatHashAsBinary('9922093F19F7160BDCBCA8AA48499DA8DF532D4102745670B85AA4BDF63B8D59'),
+			formatHashAsBinary('E8FCFD95CA220D442BE748F5494001A682DC8015A152EBC433222136E99A96B8'),
+			formatHashAsBinary('C1C1062C63CAB4197C87B366052ECE3F4FEAE575D81A7F728F4E3704613AF876'),
+			formatHashAsBinary('F8E8FCDAD1B94D2C76D769B113FF5CAC5D5170772F2D80E466EB04FCA23D6887'),
+			formatHashAsBinary('2D3418274BBC250616223C162534B460216AED82C4FA9A87B53083B7BA7A9391'),
+			formatHashAsBinary('AEAF30ED55BBE4805C53E5232D88242F0CF719F99A8E6D339BCBF5D5DE85E1FB'),
+			formatHashAsBinary('AFE6C917BABA60ADC1512040CC35033B563DAFD1718FA486AB1F3D9B84866B27')
+		];
+		const blockMetaCountField = 'blockMetaCountField';
+		const blockMetaTreeField = 'blockMetaTreeField';
+
+		const db = { chainInfo: () => Promise.resolve({ height: highestHeight }) };
+		const blockInfoMockData = { meta: {} };
+		blockInfoMockData.meta[blockMetaCountField] = 4;
+		blockInfoMockData.meta[blockMetaTreeField] = merkleTree;
+		const blockAtHeightDbFunction = () => Promise.resolve(blockInfoMockData);
+
+		const processorFunction = routeUtils.blockRouteMerkleProcessor(
+			db,
+			blockAtHeightDbFunction,
+			blockMetaCountField,
+			blockMetaTreeField
+		);
+
+		beforeEach(() => {
+			sendFake.resetHistory();
+			nextFake.resetHistory();
+		});
+
+		it('returns a merkle path for valid height and hash', () => {
+			// Arrange:
+			const req = { params: { height: highestHeight.toString(), hash: formatBinaryAsHash(merkleTree[2]) } };
+
+			// Act:
+			return processorFunction(req, { send: sendFake }, nextFake).then(() => {
+				// Assert:
+				expect(sendFake.calledOnceWith(sinon.match({
+					payload: {
+						merklePath: [
+							{ position: 2, hash: merkleTree[3].buffer },
+							{ position: 1, hash: merkleTree[4].buffer }
+						]
+					},
+					type: 'merkleProofInfo'
+				}))).to.equal(true);
+				expect(nextFake.calledOnce).to.equal(true);
+			});
+		});
+
+		it('throws error if height has an invalid format', () => {
+			// Arrange:
+			const req = { params: { height: 'abc', hash: formatBinaryAsHash(merkleTree[2]) } };
+
+			// Act + Assert:
+			expect(processorFunction.bind(processorFunction, req, { send: sendFake }, nextFake))
+				.to.throw('height has an invalid format');
+		});
+
+		it('throws error if hash has an invalid format', () => {
+			// Arrange:
+			const req = { params: { height: highestHeight.toString(), hash: 'AFE6C917' } };
+
+			// Act + Assert:
+			expect(processorFunction.bind(processorFunction, req, { send: sendFake }, nextFake))
+				.to.throw('hash has an invalid format');
+		});
+
+		it('returns resource not found error if there is no block at this height', () => {
+			// Arrange:
+			const queriedHeight = highestHeight + 10;
+			const queriedHash = formatBinaryAsHash(merkleTree[2]);
+			const req = { params: { height: queriedHeight.toString(), hash: queriedHash } };
+
+			// Act:
+			return processorFunction(req, { send: sendFake }, nextFake).then(() => {
+				// Assert:
+				expect(sendFake.firstCall.args[0].body).to.deep.equal({
+					code: 'ResourceNotFound',
+					message: `no resource exists with id '${queriedHeight}'`
+				});
+				expect(nextFake.calledOnce).to.equal(true);
+			});
+		});
+
+		it('returns invalid argument if hash is not included in block at this height', () => {
+			// Arrange:
+			const req = { params: { height: highestHeight.toString(), hash: formatBinaryAsHash(merkleTree[2]) } };
+			blockInfoMockData.meta[blockMetaCountField] = 0;
+
+			// Act:
+			return processorFunction(req, { send: sendFake }, nextFake).then(() => {
+				// Assert:
+				expect(sendFake.firstCall.args[0].body).to.deep.equal({
+					code: 'InvalidArgument',
+					message: `hash '${req.params.hash}' not included in block height '${highestHeight}'`
+				});
+				expect(nextFake.calledOnce).to.equal(true);
+				// restore data for following tests
+				blockInfoMockData.meta[blockMetaCountField] = 4;
+			});
+		});
+
+		it('returns invalid argument if hash is not found in merkle tree', () => {
+			// Arrange:
+			const req = {
+				params: {
+					height: highestHeight.toString(),
+					hash: 'AAAAA62C63CAB4197C87B36605AAAAAF4FEAE575D81A7F728F4E3704613AAAAA'
+				}
+			};
+
+			// Act:
+			return processorFunction(req, { send: sendFake }, nextFake).then(() => {
+				// Assert:
+				expect(sendFake.firstCall.args[0].body).to.deep.equal({
+					code: 'InvalidArgument',
+					message: `hash '${req.params.hash}' not included in block height '${highestHeight}'`
+				});
+				expect(nextFake.calledOnce).to.equal(true);
+			});
 		});
 	});
 });
