@@ -29,7 +29,7 @@ describe('mosaic db', () => {
 
 	describe('mosaics by ids', () => {
 		it('returns empty array for unknown mosaic ids', () => {
-			// Arrange: mosaic ids: 10000, 10001, ... 10011, (inactive) 10000, 10003, 10006, 10009
+			// Arrange: mosaic ids: 10000, 10001, ... 10011
 			const mosaics = createMosaics(3, 4);
 
 			// Assert:
@@ -41,7 +41,7 @@ describe('mosaic db', () => {
 		});
 
 		it('returns single matching mosaic', () => {
-			// Arrange: mosaic ids: 10000, 10001, ... 10011, (inactive) 10000, 10003, 10006, 10009
+			// Arrange: mosaic ids: 10000, 10001, ... 10011
 			const mosaics = createMosaics(3, 4);
 
 			// Assert:
@@ -53,7 +53,7 @@ describe('mosaic db', () => {
 		});
 
 		it('returns multiple matching mosaics', () => {
-			// Arrange: mosaic ids: 10000, 10001, ... 10011, (inactive) 10000, 10003, 10006, 10009
+			// Arrange: mosaic ids: 10000, 10001, ... 10011
 			const mosaics = createMosaics(3, 4);
 
 			// Assert:
@@ -65,7 +65,7 @@ describe('mosaic db', () => {
 		});
 
 		it('returns only known mosaics', () => {
-			// Arrange: mosaic ids: 10000, 10001, ... 10011, (inactive) 10000, 10003, 10006, 10009
+			// Arrange: mosaic ids: 10000, 10001, ... 10011
 			const mosaics = createMosaics(3, 4);
 
 			// Assert:

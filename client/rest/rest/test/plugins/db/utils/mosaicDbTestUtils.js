@@ -25,7 +25,7 @@ const test = require('../../../testUtils');
 
 const { Binary, Long } = MongoDb;
 
-const createMosaic = (id, mosaicId, owner, parentId, active) => {
+const createMosaic = (id, mosaicId, owner, parentId) => {
 	// mosaic data
 	const mosaic = {
 		owner: new Binary(owner),
@@ -33,25 +33,17 @@ const createMosaic = (id, mosaicId, owner, parentId, active) => {
 		namespaceId: Long.fromNumber(parentId)
 	};
 
-	return { _id: dbTestUtils.db.createObjectId(id), mosaic, meta: { active } };
+	return { _id: dbTestUtils.db.createObjectId(id), mosaic, meta: {} };
 };
 
 const createMosaics = (owner, numNamespaces, numMosaicsPerNamespace) => {
 	// mosaic ids start at 10000, namespace ids start at 20000 in order to differentiate from db _id
-	// there is only 1 inactive mosaic per namespace and it has the same id as smallest active mosaic in each namespace
 	const mosaics = [];
 	let dbId = 0;
 	let mosaicId = 10000;
 	for (let namespaceId = 0; namespaceId < numNamespaces; ++namespaceId) {
 		for (let i = 0; i < numMosaicsPerNamespace; ++i)
-			mosaics.push(createMosaic(dbId++, mosaicId++, owner, 20000 + namespaceId, true));
-	}
-
-	// in every namespace add a single inactive mosaic
-	mosaicId = 10000;
-	for (let namespaceId = 0; namespaceId < numNamespaces; ++namespaceId) {
-		mosaics.push(createMosaic(dbId++, mosaicId, owner, 20000 + namespaceId, false));
-		mosaicId += numMosaicsPerNamespace;
+			mosaics.push(createMosaic(dbId++, mosaicId++, owner, 20000 + namespaceId));
 	}
 
 	return mosaics;

@@ -22,11 +22,6 @@ const MongoDb = require('mongodb');
 
 const { Long } = MongoDb;
 
-const createActiveConditions = () => {
-	const conditions = { $and: [{ 'meta.active': true }] };
-	return conditions;
-};
-
 class MosaicDb {
 	/**
 	 * Creates MosaicDb around CatapultDb.
@@ -45,8 +40,7 @@ class MosaicDb {
 	 */
 	mosaicsByIds(ids) {
 		const mosaicIds = ids.map(id => new Long(id[0], id[1]));
-		const conditions = createActiveConditions();
-		conditions.$and.push({ 'mosaic.mosaicId': { $in: mosaicIds } });
+		const conditions = { 'mosaic.mosaicId': { $in: mosaicIds } };
 		const collection = this.catapultDb.database.collection('mosaics');
 		return collection.find(conditions)
 			.sort({ _id: -1 })
