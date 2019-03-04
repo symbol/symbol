@@ -46,7 +46,7 @@ module.exports = {
 		});
 
 		server.get('/lock/secret/:secret', (req, res, next) => {
-			const secret = routeUtils.parseArgument(req.params, 'secret', 'hash512');
+			const secret = routeUtils.parseArgument(req.params, 'secret', 'hash256');
 
 			return db.secretLockBySecret(secret)
 				.then(routeUtils.createSender('secretLockInfo').sendOne(req.params.secret, res, next));

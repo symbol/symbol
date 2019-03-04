@@ -110,7 +110,7 @@ const lockPlugin = {
 				parseLockData(parser, transaction);
 
 				transaction.hashAlgorithm = parser.uint8();
-				transaction.secret = parser.buffer(constants.sizes.hash512);
+				transaction.secret = parser.buffer(constants.sizes.hash256);
 				transaction.recipient = parser.buffer(constants.sizes.addressDecoded);
 				return transaction;
 			},
@@ -128,7 +128,7 @@ const lockPlugin = {
 			deserialize: parser => {
 				const transaction = {};
 				transaction.hashAlgorithm = parser.uint8();
-				transaction.secret = parser.buffer(constants.sizes.hash512);
+				transaction.secret = parser.buffer(constants.sizes.hash256);
 				const proofSize = parser.uint16();
 				transaction.proof = parser.buffer(proofSize);
 				return transaction;

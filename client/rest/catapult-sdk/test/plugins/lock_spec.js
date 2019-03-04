@@ -28,8 +28,8 @@ const { expect } = require('chai');
 const constants = {
 	sizes: {
 		hashLockSize: 24 + 32,
-		secretLockSize: 24 + 1 + 64 + 25,
-		secretProof: 1 + 64 + 2
+		secretLockSize: 24 + 1 + 32 + 25,
+		secretProof: 1 + 32 + 2
 	}
 };
 
@@ -139,7 +139,7 @@ describe('lock plugin', () => {
 
 		describe('supports secret lock', () => {
 			const Recipient_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.addressDecoded));
-			const Secret_Buffer = Buffer.from(test.random.bytes(constants.sizes.hash512));
+			const Secret_Buffer = Buffer.from(test.random.bytes(constants.sizes.hash256));
 
 			const addSecretLockProperties = generator => () => {
 				const data = generator();
@@ -161,7 +161,7 @@ describe('lock plugin', () => {
 		});
 
 		describe('supports secret proof', () => {
-			const Secret_Buffer = Buffer.from(test.random.bytes(constants.sizes.hash512));
+			const Secret_Buffer = Buffer.from(test.random.bytes(constants.sizes.hash256));
 			const Proof_Buffer = Buffer.from(test.random.bytes(300));
 
 			const generateTransaction = () => {

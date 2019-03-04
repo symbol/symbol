@@ -136,8 +136,7 @@ describe('lock routes', () => {
 	});
 
 	describe('get secret lock info by hash', () => {
-		const secret = 'E6592D848865FF65F6FA38955C8BEC595710A461F692B59ECC14' +
-			'19D5395C7E15697E5F39A0A01B9FD5D0366190BAC1F82B2BE6255E5F6DA1E9B9307124A091CB';
+		const secret = '5994471ABB01112AFCC18159F6CC74B4F511B99806DA59B3CAF5A9C173CACFC5';
 		test.route.document.addGetDocumentRouteTests(lockRoutes.register, {
 			route: '/lock/secret/:secret',
 			inputs: {
