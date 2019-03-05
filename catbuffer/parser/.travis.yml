@@ -9,3 +9,4 @@ script:
   - pycodestyle --config=.pycodestyle .
   - python3 -m unittest discover -v
   - bash ./scripts/generate_all.sh cpp_builder
+  - bash ./scripts/generate_all.sh java
