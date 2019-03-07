@@ -44,6 +44,7 @@ describe('route system', () => {
 			'mosaic',
 			'multisig',
 			'namespace',
+			'receipts',
 			'transfer'
 		]);
 	});
