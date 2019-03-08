@@ -85,7 +85,9 @@ const receiptsPlugin = {
 		});
 
 		builder.addSchema('receipts.unknown', {});
-	}
+	},
+
+	registerCodecs: codecBuilder => {}
 };
 
 module.exports = receiptsPlugin;
