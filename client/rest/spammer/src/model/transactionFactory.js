@@ -29,7 +29,7 @@ const createTransaction = (options, type) => ({
 	signer: options.signerPublicKey,
 	version: (options.networkId << 8) + 3,
 	type,
-	fee: uint64.fromUint(0),
+	maxFee: uint64.fromUint(0),
 	deadline: uint64.fromUint(networkTime.getNetworkTime() + (60 * 60 * 1000))
 });
 
