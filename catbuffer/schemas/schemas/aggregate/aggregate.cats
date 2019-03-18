@@ -4,7 +4,7 @@ import "transaction.cats"
 struct AggregateTransactionHeader
 	# transaction payload size in bytes
 	# \note this is the total number of bytes occupied by all sub-transactions
-	payloadSize = uint8
+	payloadSize = uint32
 
 # binary layout for an aggregate transaction
 struct AggregateTransaction
