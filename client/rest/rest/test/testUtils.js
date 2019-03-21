@@ -42,7 +42,6 @@ module.exports = {
 	random,
 	factory: {
 		createBinary: buffer => new MongoDb.Binary(buffer),
-		createLong: (low, high) => new MongoDb.Long(low, high),
 		createObjectIdFromHexString: id => new MongoDb.ObjectID(id)
 	},
 	log: (...args) => {

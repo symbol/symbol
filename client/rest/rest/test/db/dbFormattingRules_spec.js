@@ -21,6 +21,7 @@
 const catapult = require('catapult-sdk');
 const formattingRules = require('../../src/db/dbFormattingRules');
 const test = require('../testUtils');
+const { convertToLong } = require('../../src/db/dbUtils');
 const { expect } = require('chai');
 
 const { ModelType } = catapult.model;
@@ -61,7 +62,7 @@ describe('db formatting rules', () => {
 
 	it('can format uint64 type', () => {
 		// Arrange:
-		const object = test.factory.createLong(1, 2);
+		const object = convertToLong([1, 2]);
 
 		// Act:
 		const result = formattingRules[ModelType.uint64](object);

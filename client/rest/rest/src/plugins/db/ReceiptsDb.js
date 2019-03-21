@@ -18,15 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MongoDb = require('mongodb');
-
-const createLong = value => {
-	if (Number.isInteger(value))
-		return MongoDb.Long.fromNumber(value);
-
-	// if value is an array, assume it is a uint64
-	return Array.isArray(value) ? new MongoDb.Long(value[0], value[1]) : value;
-};
+const { convertToLong } = require('../../db/dbUtils');
 
 class ReceiptsDb {
 	/**
@@ -43,7 +35,7 @@ class ReceiptsDb {
 	* @returns {Promise.<array>} Address resolution statements in a block.
 	*/
 	addressResolutionStatementsAtHeight(height) {
-		return this.catapultDb.queryDocuments('addressResolutionStatements', { height: createLong(height) });
+		return this.catapultDb.queryDocuments('addressResolutionStatements', { height: convertToLong(height) });
 	}
 
 	/**
@@ -52,7 +44,7 @@ class ReceiptsDb {
 	* @returns {Promise.<array>} Mosaic resolution statements in a block.
 	*/
 	mosaicResolutionStatementsAtHeight(height) {
-		return this.catapultDb.queryDocuments('mosaicResolutionStatements', { height: createLong(height) });
+		return this.catapultDb.queryDocuments('mosaicResolutionStatements', { height: convertToLong(height) });
 	}
 
 	/**
@@ -61,7 +53,7 @@ class ReceiptsDb {
 	* @returns {Promise.<array>} Transaction statements in a block.
 	*/
 	transactionStatementsAtHeight(height) {
-		return this.catapultDb.queryDocuments('transactionStatements', { height: createLong(height) });
+		return this.catapultDb.queryDocuments('transactionStatements', { height: convertToLong(height) });
 	}
 }
 

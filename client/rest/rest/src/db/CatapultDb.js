@@ -23,20 +23,13 @@
 const catapult = require('catapult-sdk');
 const connector = require('./connector');
 const MongoDb = require('mongodb');
+const { convertToLong } = require('../../src/db/dbUtils');
 
 const { address, EntityType } = catapult.model;
 const { ObjectId } = MongoDb;
 
 const isAggregateType = document => EntityType.aggregateComplete === document.transaction.type
 	|| EntityType.aggregateBonded === document.transaction.type;
-
-const createLong = value => {
-	if (Number.isInteger(value))
-		return MongoDb.Long.fromNumber(value);
-
-	// if value is an array, assume it is a uint64
-	return Array.isArray(value) ? new MongoDb.Long(value[0], value[1]) : value;
-};
 
 const createAccountTransactionsAllConditions = (publicKey, networkId) => {
 	const decodedAddress = address.publicKeyToAddress(publicKey, networkId);
@@ -88,7 +81,7 @@ const createSanitizer = () => ({
 const mapToPromise = dbObject => Promise.resolve(null === dbObject ? undefined : dbObject);
 
 const buildBlocksFromOptions = (height, numBlocks, chainHeight) => {
-	const one = createLong(1);
+	const one = convertToLong(1);
 	const startHeight = height.isZero() ? chainHeight.subtract(numBlocks).add(one) : height;
 
 	// In all cases endHeight is actually max height + 1.
@@ -194,18 +187,18 @@ class CatapultDb {
 	blockAtHeight(height) {
 		return this.queryDocument(
 			'blocks',
-			{ 'block.height': createLong(height) },
+			{ 'block.height': convertToLong(height) },
 			{ 'meta.transactionMerkleTree': 0, 'meta.statementMerkleTree': 0 }
 		).then(this.sanitizer.deleteId);
 	}
 
 	blockWithStatementMerkleTreeAtHeight(height) {
-		return this.queryDocument('blocks', { 'block.height': createLong(height) }, { 'meta.transactionMerkleTree': 0 })
+		return this.queryDocument('blocks', { 'block.height': convertToLong(height) }, { 'meta.transactionMerkleTree': 0 })
 			.then(this.sanitizer.deleteId);
 	}
 
 	blockWithTransactionMerkleTreeAtHeight(height) {
-		return this.queryDocument('blocks', { 'block.height': createLong(height) }, { 'meta.statementMerkleTree': 0 })
+		return this.queryDocument('blocks', { 'block.height': convertToLong(height) }, { 'meta.statementMerkleTree': 0 })
 			.then(this.sanitizer.deleteId);
 	}
 
@@ -215,7 +208,7 @@ class CatapultDb {
 
 		return this.chainInfo().then(chainInfo => {
 			const blockCollection = this.database.collection('blocks');
-			const options = buildBlocksFromOptions(createLong(height), createLong(numBlocks), chainInfo.height);
+			const options = buildBlocksFromOptions(convertToLong(height), convertToLong(numBlocks), chainInfo.height);
 
 			return blockCollection.find({ 'block.height': { $gte: options.startHeight, $lt: options.endHeight } })
 				.project({ 'meta.transactionMerkleTree': 0, 'meta.statementMerkleTree': 0 })
@@ -269,7 +262,7 @@ class CatapultDb {
 	}
 
 	transactionsAtHeight(height, id, pageSize) {
-		return this.queryTransactions({ 'meta.height': createLong(height) }, id, pageSize, { sortOrder: 1 });
+		return this.queryTransactions({ 'meta.height': convertToLong(height) }, id, pageSize, { sortOrder: 1 });
 	}
 
 	transactionsByIdsImpl(collectionName, conditions) {
@@ -315,7 +308,7 @@ class CatapultDb {
 	 * @returns {Promise.<array>} The promise that is resolved when tuples are ready.
 	 */
 	findNamesByIds(ids, transactionType, fieldNames) {
-		const queriedIds = ids.map(createLong);
+		const queriedIds = ids.map(convertToLong);
 		const conditions = {
 			$match: {
 				'transaction.type': transactionType,
@@ -382,8 +375,8 @@ class CatapultDb {
 					account.importance = importanceSnapshot.value;
 					account.importanceHeight = importanceSnapshot.height;
 				} else {
-					account.importance = createLong(0);
-					account.importanceHeight = createLong(0);
+					account.importance = convertToLong(0);
+					account.importanceHeight = convertToLong(0);
 				}
 
 				delete account.importances;

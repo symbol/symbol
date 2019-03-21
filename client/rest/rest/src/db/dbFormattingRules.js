@@ -19,6 +19,7 @@
  */
 
 const catapult = require('catapult-sdk');
+const { longToUint64 } = require('./dbUtils');
 
 const { ModelType, status } = catapult.model;
 const { convert } = catapult.utils;
@@ -27,7 +28,7 @@ module.exports = {
 	[ModelType.none]: value => value,
 	// `binary` should support both mongo binary buffers and intermediate js buffers
 	[ModelType.binary]: value => (convert.uint8ToHex(value.buffer instanceof ArrayBuffer ? value : value.buffer)),
-	[ModelType.uint64]: value => [value.getLowBitsUnsigned(), value.getHighBits() >>> 0],
+	[ModelType.uint64]: value => longToUint64(value),
 	[ModelType.objectId]: value => value.toHexString().toUpperCase(),
 	[ModelType.string]: value => value.toString(),
 	[ModelType.statusCode]: value => status.toString(value >>> 0)
