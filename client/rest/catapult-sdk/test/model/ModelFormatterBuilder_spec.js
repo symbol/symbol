@@ -121,6 +121,7 @@ describe('model formatter builder', () => {
 					difficulty: 0,
 					previousBlockHash: 0,
 					blockTransactionsHash: 0,
+					blockReceiptsHash: 0,
 					stateHash: 0,
 					beneficiary: 0
 				}
@@ -146,6 +147,7 @@ describe('model formatter builder', () => {
 					difficulty: 'uint64',
 					previousBlockHash: 'binary',
 					blockTransactionsHash: 'binary',
+					blockReceiptsHash: 'binary',
 					stateHash: 'binary',
 					beneficiary: 'binary'
 				}

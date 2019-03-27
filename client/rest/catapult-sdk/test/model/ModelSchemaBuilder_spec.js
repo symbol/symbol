@@ -180,6 +180,7 @@ describe('model schema builder', () => {
 
 				'blockHeader.previousBlockHash',
 				'blockHeader.blockTransactionsHash',
+				'blockHeader.blockReceiptsHash',
 				'blockHeader.stateHash',
 				'blockHeader.beneficiary',
 				'blockHeader.signature',

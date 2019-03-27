@@ -48,6 +48,7 @@ class ModelSchemaBuilder {
 				difficulty: ModelType.uint64,
 				previousBlockHash: ModelType.binary,
 				blockTransactionsHash: ModelType.binary,
+				blockReceiptsHash: ModelType.binary,
 				stateHash: ModelType.binary,
 				beneficiary: ModelType.binary
 			},
