@@ -28,7 +28,7 @@ const transactionCodec = {
 	 */
 	deserialize: parser => {
 		const transaction = {};
-		transaction.fee = parser.uint64();
+		transaction.maxFee = parser.uint64();
 		transaction.deadline = parser.uint64();
 		return transaction;
 	},
@@ -39,7 +39,7 @@ const transactionCodec = {
 	 * @param {object} serializer The serializer.
 	 */
 	serialize: (transaction, serializer) => {
-		serializer.writeUint64(transaction.fee);
+		serializer.writeUint64(transaction.maxFee);
 		serializer.writeUint64(transaction.deadline);
 	}
 };

@@ -143,7 +143,7 @@ const createDbTransaction = (id, signer, recipient, options) => {
 		version: 432,
 		type: 543,
 		timestamp: Long.fromNumber(65432),
-		fee: Long.fromNumber(76543),
+		maxFee: Long.fromNumber(76543),
 		deadline: Long.fromNumber(87654),
 		recipient: new Binary(recipient),
 		message: { size: 12, payload: new Binary(test.random.bytes(12)) },

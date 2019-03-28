@@ -38,7 +38,7 @@ describe('transaction factory', () => {
 		expect(transaction.signature).to.deep.equal(new Uint8Array(Signature_Size));
 		expect(transaction.version).to.equal(version);
 		expect(transaction.type).to.equal(type);
-		expect(transaction.fee).to.deep.equal([0x00, 0x00]);
+		expect(transaction.maxFee).to.deep.equal([0x00, 0x00]);
 		expect(txDeadline).to.be.at.least(networkTime.getNetworkTime());
 		expect(txDeadline).to.be.at.most(networkTime.getNetworkTime() + (24 * 60 * 60 * 1000));
 	};
