@@ -477,15 +477,17 @@ describe('route utils', () => {
 		const blockMetaCountField = 'blockMetaCountField';
 		const blockMetaTreeField = 'blockMetaTreeField';
 
-		const db = { chainInfo: () => Promise.resolve({ height: highestHeight }) };
 		const blockInfoMockData = { meta: {} };
 		blockInfoMockData.meta[blockMetaCountField] = 4;
 		blockInfoMockData.meta[blockMetaTreeField] = merkleTree;
-		const blockAtHeightDbFunction = () => Promise.resolve(blockInfoMockData);
+
+		const db = {
+			chainInfo: () => Promise.resolve({ height: highestHeight }),
+			blockWithMerkleTreeAtHeight: () => Promise.resolve(blockInfoMockData)
+		};
 
 		const processorFunction = routeUtils.blockRouteMerkleProcessor(
 			db,
-			blockAtHeightDbFunction,
 			blockMetaCountField,
 			blockMetaTreeField
 		);

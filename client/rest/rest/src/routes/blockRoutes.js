@@ -46,7 +46,7 @@ module.exports = {
 
 		server.get(
 			'/block/:height/transaction/:hash/merkle',
-			routeUtils.blockRouteMerkleProcessor(db, db.blockWithTransactionMerkleTreeAtHeight, 'numTransactions', 'transactionMerkleTree')
+			routeUtils.blockRouteMerkleProcessor(db, 'numTransactions', 'transactionMerkleTree')
 		);
 
 		server.get('/block/:height/transactions', (req, res, next) => {

@@ -185,7 +185,7 @@ describe('catapult db', () => {
 			// Assert:
 			runDbTest(
 				{ block: test.db.createDbBlock(Default_Height) },
-				db => db.blockWithStatementMerkleTreeAtHeight(Long.fromNumber(Default_Height + 1)),
+				db => db.blockWithMerkleTreeAtHeight(Long.fromNumber(Default_Height + 1), 'statementMerkleTree'),
 				block => expect(block).to.equal(undefined)
 			));
 
@@ -198,7 +198,7 @@ describe('catapult db', () => {
 			// Assert:
 			return runDbTest(
 				{ block: seedBlock },
-				db => db.blockWithStatementMerkleTreeAtHeight(height),
+				db => db.blockWithMerkleTreeAtHeight(height, 'statementMerkleTree'),
 				block => expect(block).to.deep.equal(stripBlockFields(seedBlock, ['transactionMerkleTree']))
 			);
 		};
@@ -216,7 +216,7 @@ describe('catapult db', () => {
 			// Assert:
 			return runDbTest(
 				{ block: seedBlock, transactions: blockTransactions },
-				db => db.blockWithStatementMerkleTreeAtHeight(Long.fromNumber(Default_Height)),
+				db => db.blockWithMerkleTreeAtHeight(Long.fromNumber(Default_Height), 'statementMerkleTree'),
 				block => expect(block).to.deep.equal(stripBlockFields(seedBlock, ['transactionMerkleTree']))
 			);
 		});
@@ -227,7 +227,7 @@ describe('catapult db', () => {
 			// Assert:
 			runDbTest(
 				{ block: test.db.createDbBlock(Default_Height) },
-				db => db.blockWithTransactionMerkleTreeAtHeight(Long.fromNumber(Default_Height + 1)),
+				db => db.blockWithMerkleTreeAtHeight(Long.fromNumber(Default_Height + 1), 'transactionMerkleTree'),
 				block => expect(block).to.equal(undefined)
 			));
 
@@ -240,7 +240,7 @@ describe('catapult db', () => {
 			// Assert:
 			return runDbTest(
 				{ block: seedBlock },
-				db => db.blockWithTransactionMerkleTreeAtHeight(height),
+				db => db.blockWithMerkleTreeAtHeight(height, 'transactionMerkleTree'),
 				block => expect(block).to.deep.equal(stripBlockFields(seedBlock, ['statementMerkleTree']))
 			);
 		};
@@ -258,7 +258,7 @@ describe('catapult db', () => {
 			// Assert:
 			return runDbTest(
 				{ block: seedBlock, transactions: blockTransactions },
-				db => db.blockWithTransactionMerkleTreeAtHeight(Long.fromNumber(Default_Height)),
+				db => db.blockWithMerkleTreeAtHeight(Long.fromNumber(Default_Height), 'transactionMerkleTree'),
 				block => expect(block).to.deep.equal(stripBlockFields(seedBlock, ['statementMerkleTree']))
 			);
 		});

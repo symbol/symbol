@@ -192,13 +192,12 @@ class CatapultDb {
 		).then(this.sanitizer.deleteId);
 	}
 
-	blockWithStatementMerkleTreeAtHeight(height) {
-		return this.queryDocument('blocks', { 'block.height': convertToLong(height) }, { 'meta.transactionMerkleTree': 0 })
-			.then(this.sanitizer.deleteId);
-	}
-
-	blockWithTransactionMerkleTreeAtHeight(height) {
-		return this.queryDocument('blocks', { 'block.height': convertToLong(height) }, { 'meta.statementMerkleTree': 0 })
+	blockWithMerkleTreeAtHeight(height, merkleTreeName) {
+		const blockMerkleTreeNames = ['transactionMerkleTree', 'statementMerkleTree'];
+		const excludedMerkleTrees = {};
+		blockMerkleTreeNames.filter(merkleTree => merkleTree !== merkleTreeName)
+			.forEach(merkleTree => { excludedMerkleTrees[`meta.${merkleTree}`] = 0; });
+		return this.queryDocument('blocks', { 'block.height': convertToLong(height) }, excludedMerkleTrees)
 			.then(this.sanitizer.deleteId);
 	}
 

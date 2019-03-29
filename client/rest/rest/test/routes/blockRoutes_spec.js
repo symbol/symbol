@@ -143,8 +143,8 @@ describe('block routes', () => {
 
 			// Assert:
 			expect(blockRouteMerkleProcessorSpy.calledOnce).to.equal(true);
-			expect(blockRouteMerkleProcessorSpy.firstCall.args[2]).to.equal('numTransactions');
-			expect(blockRouteMerkleProcessorSpy.firstCall.args[3]).to.equal('transactionMerkleTree');
+			expect(blockRouteMerkleProcessorSpy.firstCall.args[1]).to.equal('numTransactions');
+			expect(blockRouteMerkleProcessorSpy.firstCall.args[2]).to.equal('transactionMerkleTree');
 			blockRouteMerkleProcessorSpy.restore();
 		});
 	});

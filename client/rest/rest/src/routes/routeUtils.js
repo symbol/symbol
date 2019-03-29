@@ -273,16 +273,15 @@ const routeUtils = {
 	/**
 	 * Returns function for processing merkle tree path requests.
 	 * @param {module:db/CatapultDb} db The catapult database.
-	 * @param {function} blockAtHeightDbFunction Function that queries db for block at height.
 	 * @param {string} blockMetaCountField Field name for block meta count.
 	 * @param {string} blockMetaTreeField Field name for block meta merkle tree.
 	 * @returns {Function} The restify response function to process merkle path requests.
 	 */
-	blockRouteMerkleProcessor: (db, blockAtHeightDbFunction, blockMetaCountField, blockMetaTreeField) => (req, res, next) => {
+	blockRouteMerkleProcessor: (db, blockMetaCountField, blockMetaTreeField) => (req, res, next) => {
 		const height = routeUtils.parseArgument(req.params, 'height', 'uint');
 		const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
 
-		return dbFacade.runHeightDependentOperation(db, height, () => blockAtHeightDbFunction(height))
+		return dbFacade.runHeightDependentOperation(db, height, () => db.blockWithMerkleTreeAtHeight(height, blockMetaTreeField))
 			.then(result => {
 				if (!result.isRequestValid) {
 					res.send(errors.createNotFoundError(height));

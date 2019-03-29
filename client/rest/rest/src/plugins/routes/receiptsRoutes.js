@@ -65,7 +65,7 @@ module.exports = {
 
 		server.get(
 			'/block/:height/receipt/:hash/merkle',
-			routeUtils.blockRouteMerkleProcessor(db, db.blockWithStatementMerkleTreeAtHeight, 'numStatements', 'statementMerkleTree')
+			routeUtils.blockRouteMerkleProcessor(db, 'numStatements', 'statementMerkleTree')
 		);
 	}
 };
