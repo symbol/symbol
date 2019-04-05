@@ -30,30 +30,13 @@ class ReceiptsDb {
 	}
 
 	/**
-	* Retrieves all address resolution statements in a given block.
+	* Retrieves all the statements in a given collection and block.
 	* @param {module:catapult.utils/uint64~uint64} height The given block height.
-	* @returns {Promise.<array>} Address resolution statements in a block.
+	* @param {string} statementsCollection The statements collection.
+	* @returns {Promise.<array>} Statements from a collection in a block.
 	*/
-	addressResolutionStatementsAtHeight(height) {
-		return this.catapultDb.queryDocuments('addressResolutionStatements', { height: convertToLong(height) });
-	}
-
-	/**
-	* Retrieves all mosaic resolution statements in a given block.
-	* @param {module:catapult.utils/uint64~uint64} height The given block height.
-	* @returns {Promise.<array>} Mosaic resolution statements in a block.
-	*/
-	mosaicResolutionStatementsAtHeight(height) {
-		return this.catapultDb.queryDocuments('mosaicResolutionStatements', { height: convertToLong(height) });
-	}
-
-	/**
-	* Retrieves all transaction statements in a given block.
-	* @param {module:catapult.utils/uint64~uint64} height The given block height.
-	* @returns {Promise.<array>} Transaction statements in a block.
-	*/
-	transactionStatementsAtHeight(height) {
-		return this.catapultDb.queryDocuments('transactionStatements', { height: convertToLong(height) });
+	statementsAtHeight(height, statementsCollection) {
+		return this.catapultDb.queryDocuments(statementsCollection, { height: convertToLong(height) });
 	}
 }
 

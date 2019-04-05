@@ -36,7 +36,7 @@ describe('receipts db', () => {
 			// Assert:
 			test.addressResolutionStatementDb.runDbTest(
 				[addressResolutionsStatement1, addressResolutionsStatement2, addressResolutionsStatement3],
-				db => db.addressResolutionStatementsAtHeight(Long.fromNumber(knownHeight + 10)),
+				db => db.statementsAtHeight(Long.fromNumber(knownHeight + 10), 'addressResolutionStatements'),
 				entities => { expect(entities).to.deep.equal([]); }
 			));
 
@@ -44,7 +44,7 @@ describe('receipts db', () => {
 			// Assert:
 			test.addressResolutionStatementDb.runDbTest(
 				[addressResolutionsStatement1, addressResolutionsStatement2, addressResolutionsStatement3],
-				db => db.addressResolutionStatementsAtHeight(Long.fromNumber(knownHeight)),
+				db => db.statementsAtHeight(Long.fromNumber(knownHeight), 'addressResolutionStatements'),
 				entities => { expect(entities).to.deep.equal([addressResolutionsStatement1, addressResolutionsStatement2]); }
 			));
 	});
@@ -60,7 +60,7 @@ describe('receipts db', () => {
 			// Assert:
 			test.mosaicResolutionStatementDb.runDbTest(
 				[mosaicResolutionsStatement1, mosaicResolutionsStatement2, mosaicResolutionsStatement3],
-				db => db.mosaicResolutionStatementsAtHeight(Long.fromNumber(knownHeight + 10)),
+				db => db.statementsAtHeight(Long.fromNumber(knownHeight + 10), 'mosaicResolutionStatements'),
 				entities => { expect(entities).to.deep.equal([]); }
 			));
 
@@ -68,7 +68,7 @@ describe('receipts db', () => {
 			// Assert:
 			test.mosaicResolutionStatementDb.runDbTest(
 				[mosaicResolutionsStatement1, mosaicResolutionsStatement2, mosaicResolutionsStatement3],
-				db => db.mosaicResolutionStatementsAtHeight(Long.fromNumber(knownHeight)),
+				db => db.statementsAtHeight(Long.fromNumber(knownHeight), 'mosaicResolutionStatements'),
 				entities => { expect(entities).to.deep.equal([mosaicResolutionsStatement1, mosaicResolutionsStatement2]); }
 			));
 	});
@@ -84,7 +84,7 @@ describe('receipts db', () => {
 			// Assert:
 			test.transactionStatementDb.runDbTest(
 				[transactionStatement1, transactionStatement2, transactionStatement3],
-				db => db.transactionStatementsAtHeight(Long.fromNumber(knownHeight + 10)),
+				db => db.statementsAtHeight(Long.fromNumber(knownHeight + 10), 'transactionStatements'),
 				entities => { expect(entities).to.deep.equal([]); }
 			));
 
@@ -92,7 +92,7 @@ describe('receipts db', () => {
 			// Assert:
 			test.transactionStatementDb.runDbTest(
 				[transactionStatement1, transactionStatement2, transactionStatement3],
-				db => db.transactionStatementsAtHeight(Long.fromNumber(knownHeight)),
+				db => db.statementsAtHeight(Long.fromNumber(knownHeight), 'transactionStatements'),
 				entities => { expect(entities).to.deep.equal([transactionStatement1, transactionStatement2]); }
 			));
 	});

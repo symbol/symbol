@@ -25,7 +25,8 @@ const routeUtils = require('../../routes/routeUtils');
 
 const parseHeight = params => routeUtils.parseArgument(params, 'height', 'uint');
 
-const getStatementsPromise = (db, height, operation) => dbFacade.runHeightDependentOperation(db, height, () => operation(height));
+const getStatementsPromise = (db, height, statementsCollection) =>
+	dbFacade.runHeightDependentOperation(db.catapultDb, height, () => db.statementsAtHeight(height, statementsCollection));
 
 module.exports = {
 	register: (server, db) => {
@@ -33,9 +34,9 @@ module.exports = {
 			const height = parseHeight(req.params);
 
 			return Promise.all([
-				getStatementsPromise(db, height, db.transactionStatementsAtHeight),
-				getStatementsPromise(db, height, db.addressResolutionStatementsAtHeight),
-				getStatementsPromise(db, height, db.mosaicResolutionStatementsAtHeight)
+				getStatementsPromise(db, height, 'transactionStatements'),
+				getStatementsPromise(db, height, 'addressResolutionStatements'),
+				getStatementsPromise(db, height, 'mosaicResolutionStatements')
 			]).then(results => {
 				const [
 					transactionStatementsInfo,
@@ -65,7 +66,7 @@ module.exports = {
 
 		server.get(
 			'/block/:height/receipt/:hash/merkle',
-			routeUtils.blockRouteMerkleProcessor(db, 'numStatements', 'statementMerkleTree')
+			routeUtils.blockRouteMerkleProcessor(db.catapultDb, 'numStatements', 'statementMerkleTree')
 		);
 	}
 };
