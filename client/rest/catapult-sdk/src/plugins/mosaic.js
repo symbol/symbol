@@ -47,6 +47,7 @@ const mosaicPlugin = {
 			meta: { type: ModelType.object, schemaName: 'transactionMetadata' },
 			mosaic: { type: ModelType.object, schemaName: 'mosaicDescriptor.mosaic' }
 		});
+
 		builder.addSchema('mosaicDescriptor.mosaic', {
 			mosaicId: ModelType.uint64,
 			supply: ModelType.uint64,
@@ -54,6 +55,15 @@ const mosaicPlugin = {
 			height: ModelType.uint64,
 			owner: ModelType.binary,
 			properties: { type: ModelType.array, schemaName: ModelType.uint64 }
+		});
+
+		builder.addSchema('mosaicNamesTuples', {
+			mosaicNames: { type: ModelType.array, schemaName: 'mosaicNamesTuple' }
+		});
+
+		builder.addSchema('mosaicNamesTuple', {
+			mosaicId: ModelType.uint64,
+			names: { type: ModelType.array, schemaName: ModelType.string }
 		});
 	},
 

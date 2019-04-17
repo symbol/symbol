@@ -53,7 +53,8 @@ describe('mosaic plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/mosaic'
+				'/mosaic',
+				'/mosaic/names'
 			]);
 		});
 	});

@@ -32,6 +32,7 @@ const future = require('./utils/future');
 const idReducer = require('./model/idReducer');
 const merkle = require('./crypto/merkleAuditProof');
 const ModelType = require('./model/ModelType');
+const namespace = require('./model/namespace');
 const networkInfo = require('./model/networkInfo');
 const objects = require('./utils/objects');
 const packetHeader = require('./packet/header');
@@ -65,6 +66,7 @@ const catapultSdk = {
 		EntityType,
 		idReducer,
 		ModelType,
+		namespace,
 		networkInfo,
 		status
 	},

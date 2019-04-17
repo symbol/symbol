@@ -18,8 +18,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const catapult = require('catapult-sdk');
+const dbUtils = require('../../db/dbUtils');
 const MongoDb = require('mongodb');
 
+const { convertToLong } = dbUtils;
 const { Long } = MongoDb;
 
 class MosaicDb {
@@ -49,6 +52,42 @@ class MosaicDb {
 	}
 
 	// endregion
+
+	/**
+	 * Retrieves non expired namespaces aliasing specified mosaics.
+	 * @param {Array.<module:catapult.utils/uint64~uint64>} mosaicsIds The mosaic ids.
+	 * @returns {Promise.<array>} Mosaic alias namespaces.
+	 */
+	activeNamespacesByMosaicsIds(mosaicsIds) {
+		const namespaceAliasType = catapult.model.namespace.aliasType.mosaic;
+		const blockCountPromise = this.catapultDb.database.collection('blocks').count();
+
+		return blockCountPromise.then(numBlocks => {
+			const conditions = { $and: [] };
+			conditions.$and.push({ 'namespace.alias.mosaicId': { $in: mosaicsIds.map(convertToLong) } });
+			conditions.$and.push({ 'namespace.alias.type': namespaceAliasType });
+			conditions.$and.push({
+				$or: [
+					{ 'namespace.endHeight': convertToLong(-1) },
+					{ 'namespace.endHeight': { $gt: numBlocks } }]
+			});
+
+			return this.catapultDb.queryDocuments('namespaces', conditions);
+		});
+	}
+
+	/**
+	 * Retrieves transactions that registered the specified namespaces.
+	 * @param {Array.<module:catapult.utils/uint64~uint64>} namespaceIds The namespaces ids.
+	 * @returns {Promise.<array>} Register namespace transactions.
+	 */
+	registerNamespaceTransactionsByNamespaceIds(namespaceIds) {
+		const type = catapult.model.EntityType.registerNamespace;
+		const conditions = { $and: [] };
+		conditions.$and.push({ 'transaction.namespaceId': { $in: namespaceIds } });
+		conditions.$and.push({ 'transaction.type': type });
+		return this.catapultDb.queryDocuments('transactions', conditions);
+	}
 }
 
 module.exports = MosaicDb;
