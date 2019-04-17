@@ -48,6 +48,17 @@ describe('message formatting rules', () => {
 		expect(result).to.equal('FEDCBA9876543210');
 	});
 
+	it('can format uint16 type', () => {
+		// Arrange:
+		const object = 56;
+
+		// Act:
+		const result = formattingRules[ModelType.uint16](object);
+
+		// Assert:
+		expect(result).to.deep.equal(56);
+	});
+
 	it('can format uint64 type', () => {
 		// Arrange:
 		const object = [1, 2];

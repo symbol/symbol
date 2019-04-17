@@ -34,7 +34,8 @@ describe('model type enumeration', () => {
 			objectId: 6,
 			string: 7,
 			statusCode: 8,
-			max: 8
+			uint16: 9,
+			max: 9
 		});
 	});
 });

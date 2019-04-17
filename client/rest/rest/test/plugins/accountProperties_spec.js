@@ -39,7 +39,7 @@ describe('account properties plugin', () => {
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/properties/:accountId'
+				'/account/:accountId/properties'
 			]);
 		});
 

@@ -24,20 +24,13 @@ const test = require('../binaryTestUtils');
 const { expect } = require('chai');
 
 const accountPropertiesPlugin = require('../../src/plugins/accountProperties');
-
-const propertyTypeBlockOffset = 128;
-const PropertyType = Object.freeze({
-	addressAllow: 1,
-	addressBlock: 1 + propertyTypeBlockOffset,
-	mosaicAllow: 2,
-	mosaicBlock: 2 + propertyTypeBlockOffset,
-	entityTypeAllow: 4,
-	entityTypeBlock: 4 + propertyTypeBlockOffset
-});
+const { PropertyType } = require('../../src/plugins/accountProperties');
 
 describe('account properties plugin', () => {
 	describe('property types enumeration', () => {
 		it('contains valid values', () => {
+			const propertyTypeBlockOffset = 128;
+
 			// Assert:
 			expect(PropertyType.addressAllow).to.equal(1);
 			expect(PropertyType.addressBlock).to.equal(1 + propertyTypeBlockOffset);
@@ -53,21 +46,30 @@ describe('account properties plugin', () => {
 			// Arrange:
 			const builder = new ModelSchemaBuilder();
 			const numDefaultKeys = Object.keys(builder.build()).length;
+			const modificationTypeSchemas = [
+				'accountProperties.addressModificationType',
+				'accountProperties.mosaicModificationType',
+				'accountProperties.entityTypeModificationType'
+			];
+			const accountPropertySchemas = [
+				'accountProperties.addressAccountProperty',
+				'accountProperties.mosaicAccountProperty',
+				'accountProperties.entityTypeAccountProperty'
+			];
 
 			// Act:
 			accountPropertiesPlugin.registerSchema(builder);
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 6);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 11);
 			expect(modelSchema).to.contain.all.keys([
 				'accountPropertiesAddress',
 				'accountPropertiesMosaic',
 				'accountPropertiesEntityType',
-				'accountProperties.modificationType',
-				'accountProperties.accountProperties',
-				'accountProperties.accountProperty'
-			]);
+				'accountProperties',
+				'accountProperties.accountProperties'
+			].concat(modificationTypeSchemas).concat(accountPropertySchemas));
 
 			// - accountPropertiesAddress
 			expect(Object.keys(modelSchema.accountPropertiesAddress).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
@@ -81,17 +83,49 @@ describe('account properties plugin', () => {
 			expect(Object.keys(modelSchema.accountPropertiesEntityType).length).to.equal(Object.keys(modelSchema.transaction).length + 1);
 			expect(modelSchema.accountPropertiesEntityType).to.contain.all.keys(['modifications']);
 
-			// - accountProperties.modificationType
-			expect(Object.keys(modelSchema['accountProperties.modificationType']).length).to.equal(1);
-			expect(modelSchema['accountProperties.modificationType']).to.contain.all.keys(['value']);
+			// - accountProperties
+			expect(Object.keys(modelSchema.accountProperties).length).to.equal(1);
+			expect(modelSchema.accountProperties).to.contain.all.keys(['accountProperties']);
+
+			// - accountProperties modification types
+			modificationTypeSchemas.forEach(schema => {
+				expect(Object.keys(modelSchema[schema]).length).to.equal(1);
+				expect(modelSchema[schema]).to.contain.all.keys(['value']);
+			});
 
 			// - accountProperties.accountProperties
 			expect(Object.keys(modelSchema['accountProperties.accountProperties']).length).to.equal(2);
 			expect(modelSchema['accountProperties.accountProperties']).to.contain.all.keys(['address', 'properties']);
 
-			// - accountProperties.accountProperty
-			expect(Object.keys(modelSchema['accountProperties.accountProperty']).length).to.equal(1);
-			expect(modelSchema['accountProperties.accountProperty']).to.contain.all.keys(['values']);
+			// - accountProperties properties
+			accountPropertySchemas.forEach(schema => {
+				expect(Object.keys(modelSchema[schema]).length).to.equal(1);
+				expect(modelSchema[schema]).to.contain.all.keys(['values']);
+			});
+		});
+
+		describe('aggregation schemas', () => {
+			it('use the correct conditional schema depending on property type', () => {
+				// Arrange:
+				const builder = new ModelSchemaBuilder();
+				accountPropertiesPlugin.registerSchema(builder);
+				const modelSchema = builder.build();
+				const accountPropertiesSchema = modelSchema['accountProperties.accountProperties'].properties.schemaName;
+
+				// Assert:
+				expect(accountPropertiesSchema({ propertyType: PropertyType.addressAllow }))
+					.to.equal('accountProperties.addressAccountProperty');
+				expect(accountPropertiesSchema({ propertyType: PropertyType.addressBlock }))
+					.to.equal('accountProperties.addressAccountProperty');
+				expect(accountPropertiesSchema({ propertyType: PropertyType.mosaicAllow }))
+					.to.equal('accountProperties.mosaicAccountProperty');
+				expect(accountPropertiesSchema({ propertyType: PropertyType.mosaicBlock }))
+					.to.equal('accountProperties.mosaicAccountProperty');
+				expect(accountPropertiesSchema({ propertyType: PropertyType.entityTypeAllow }))
+					.to.equal('accountProperties.entityTypeAccountProperty');
+				expect(accountPropertiesSchema({ propertyType: PropertyType.entityTypeBlock }))
+					.to.equal('accountProperties.entityTypeAccountProperty');
+			});
 		});
 	});
 

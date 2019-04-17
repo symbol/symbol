@@ -33,7 +33,7 @@ describe('account properties routes', () => {
 
 	describe('get by address', () => {
 		test.route.document.addGetPostDocumentRouteTests(accountPropertiesRoutes.register, {
-			routes: { singular: '/account/properties/:accountId', plural: '/account/properties' },
+			routes: { singular: '/account/:accountId/properties', plural: '/account/properties' },
 			inputs: {
 				valid: {
 					object: { accountId: addresses.valid[0] },
@@ -54,14 +54,14 @@ describe('account properties routes', () => {
 				}
 			},
 			dbApiName: 'accountPropertiesByAddresses',
-			type: 'accountProperties.accountProperties',
+			type: 'accountProperties',
 			config
 		});
 	});
 
 	describe('get by public key', () => {
 		test.route.document.addGetPostDocumentRouteTests(accountPropertiesRoutes.register, {
-			routes: { singular: '/account/properties/:accountId', plural: '/account/properties' },
+			routes: { singular: '/account/:accountId/properties', plural: '/account/properties' },
 			inputs: {
 				valid: {
 					object: { accountId: publicKeys.valid[0] },
@@ -83,7 +83,7 @@ describe('account properties routes', () => {
 				}
 			},
 			dbApiName: 'accountPropertiesByAddresses',
-			type: 'accountProperties.accountProperties',
+			type: 'accountProperties',
 			config
 		});
 	});

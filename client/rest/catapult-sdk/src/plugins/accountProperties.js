@@ -25,6 +25,12 @@ const sizes = require('../modelBinary/sizes');
 
 const constants = { sizes };
 
+const propertyTypeBlockOffset = 128;
+const PropertyTypeFlags = Object.freeze({
+	address: 1,
+	mosaic: 2,
+	entityType: 4
+});
 
 const accountPropertiesCreateBaseCodec = valueCodec => ({
 	deserialize: parser => {
@@ -50,28 +56,76 @@ const accountPropertiesCreateBaseCodec = valueCodec => ({
 	}
 });
 
+const propertyTypeDescriptors = [
+	{
+		entityType: EntityType.accountPropertiesAddress,
+		schemaPrefix: 'address',
+		valueType: ModelType.binary,
+		flag: PropertyTypeFlags.address
+	},
+	{
+		entityType: EntityType.accountPropertiesMosaic,
+		schemaPrefix: 'mosaic',
+		valueType: ModelType.uint64,
+		flag: PropertyTypeFlags.mosaic
+	},
+	{
+		entityType: EntityType.accountPropertiesEntityType,
+		schemaPrefix: 'entityType',
+		valueType: ModelType.uint16,
+		flag: PropertyTypeFlags.entityType
+	}
+];
+
 /**
  * Creates an accountProperties plugin.
  * @type {module:plugins/CatapultPlugin}
  */
 const accountPropertiesPlugin = {
+	PropertyType: Object.freeze({
+		addressAllow: PropertyTypeFlags.address,
+		addressBlock: PropertyTypeFlags.address + propertyTypeBlockOffset,
+		mosaicAllow: PropertyTypeFlags.mosaic,
+		mosaicBlock: PropertyTypeFlags.mosaic + propertyTypeBlockOffset,
+		entityTypeAllow: PropertyTypeFlags.entityType,
+		entityTypeBlock: PropertyTypeFlags.entityType + propertyTypeBlockOffset
+	}),
+
 	registerSchema: builder => {
-		const modificationTypeSchema = {
-			modifications: { type: ModelType.array, schemaName: 'accountProperties.modificationType' }
-		};
-		builder.addTransactionSupport(EntityType.accountPropertiesAddress, modificationTypeSchema);
-		builder.addTransactionSupport(EntityType.accountPropertiesMosaic, modificationTypeSchema);
-		builder.addTransactionSupport(EntityType.accountPropertiesEntityType, modificationTypeSchema);
-		builder.addSchema('accountProperties.modificationType', {
-			value: ModelType.binary
+		const modificationTypeSchema = modificationsSchemaName => ({
+			modifications: { type: ModelType.array, schemaName: modificationsSchemaName }
+		});
+		propertyTypeDescriptors.forEach(propertyTypeDescriptor => {
+			// transaction schemas
+			builder.addTransactionSupport(
+				propertyTypeDescriptor.entityType,
+				modificationTypeSchema(`accountProperties.${propertyTypeDescriptor.schemaPrefix}ModificationType`)
+			);
+			builder.addSchema(`accountProperties.${propertyTypeDescriptor.schemaPrefix}ModificationType`, {
+				value: propertyTypeDescriptor.valueType
+			});
+
+			// aggregated account property schemas
+			builder.addSchema(`accountProperties.${propertyTypeDescriptor.schemaPrefix}AccountProperty`, {
+				values: { type: ModelType.array, schemaName: propertyTypeDescriptor.valueType }
+			});
 		});
 
+		// aggregated account property schemas
+		builder.addSchema('accountProperties', {
+			accountProperties: { type: ModelType.object, schemaName: 'accountProperties.accountProperties' }
+		});
 		builder.addSchema('accountProperties.accountProperties', {
 			address: ModelType.binary,
-			properties: { type: ModelType.array, schemaName: 'accountProperties.accountProperty' }
-		});
-		builder.addSchema('accountProperties.accountProperty', {
-			values: ModelType.binary
+			properties: {
+				type: ModelType.array,
+				schemaName: entity => {
+					for (let i = 0; i < propertyTypeDescriptors.length; i++) {
+						if ((entity.propertyType & 0x7F) === propertyTypeDescriptors[i].flag)
+							return `accountProperties.${propertyTypeDescriptors[i].schemaPrefix}AccountProperty`;
+					}
+				}
+			}
 		});
 	},
 
