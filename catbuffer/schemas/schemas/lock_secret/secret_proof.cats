@@ -9,6 +9,9 @@ struct SecretProofTransactionBody
 	# secret
 	secret = Hash256
 
+	# recipient
+	recipient = UnresolvedAddress
+
 	# proof size in bytes
 	proofSize = uint16
 
