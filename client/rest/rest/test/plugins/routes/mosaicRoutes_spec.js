@@ -66,7 +66,7 @@ describe('mosaic routes', () => {
 		const createRegisterNamespaceTransaction = (namespaceId, height, index, name) => ({
 			meta: {
 				height: convertToLong(height),
-				index: convertToLong(index)
+				index
 			},
 			transaction: {
 				type: catapult.model.EntityType.registerNamespace,

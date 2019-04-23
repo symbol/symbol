@@ -32,7 +32,7 @@ const getUniqueTransactionsBasedOnHeight = transactions => {
 	const uniqueTransactions = [];
 	transactions.sort((lhs, rhs) => {
 		if (lhs.meta.height.equals(rhs.meta.height))
-			return rhs.meta.index.greaterThan(lhs.meta.index) ? 1 : -1;
+			return rhs.meta.index > lhs.meta.index ? 1 : -1;
 		return rhs.meta.height.greaterThan(lhs.meta.height) ? 1 : -1;
 	});
 	transactions.forEach(t => {
