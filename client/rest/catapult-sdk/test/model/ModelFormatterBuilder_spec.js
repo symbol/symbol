@@ -51,6 +51,7 @@ describe('model formatter builder', () => {
 				'merkleProofInfo',
 				'nodeInfo',
 				'nodeTime',
+				'serverInfo',
 				'storageInfo',
 				'transactionStatus'
 			]);

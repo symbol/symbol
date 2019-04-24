@@ -33,5 +33,6 @@ module.exports = {
 	nodeTime: 'nodeTime',
 
 	// diagnostic
+	serverInfo: 'serverInfo',
 	storageInfo: 'storageInfo'
 };

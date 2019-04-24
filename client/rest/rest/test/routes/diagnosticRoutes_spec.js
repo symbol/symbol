@@ -21,10 +21,71 @@
 const diagnosticRoutes = require('../../src/routes/diagnosticRoutes');
 const test = require('./utils/routeTestUtils');
 const { expect } = require('chai');
+const { version: restVersion } = require('../../package.json');
+const { version: sdkVersion } = require('../../../catapult-sdk/package.json');
 
 describe('diagnostic routes', () => {
 	const executeRoute = (routeName, db, assertResponse) =>
 		test.route.executeSingle(diagnosticRoutes.register, routeName, 'get', {}, db, undefined, assertResponse);
+
+	describe('blocks', () => {
+		const builder = test.route.document.prepareGetDocumentsRouteTests(diagnosticRoutes.register, {
+			route: '/diagnostic/blocks/:height/limit/:limit',
+			dbApiName: 'blocksFrom',
+			type: 'blockHeaderWithMetadata'
+		});
+
+		builder.addValidInputTest({ object: { height: '1234', limit: '4321' }, parsed: [1234, 4321] });
+		builder.addEmptyArrayTest({ object: { height: '1234', limit: '4321' }, parsed: [1234, 4321] });
+
+		// notice that this expands to four tests { 'height', 'limit'} x { '10A', '-4321' }
+		['height', 'limit'].forEach(property => ['10A', '-4321'].forEach(value => {
+			const object = Object.assign({ height: '1234', limit: '4321' }, { [property]: value });
+			const errorMessage = `${property} has an invalid format`;
+			builder.addInvalidKeyTest({ object, error: errorMessage }, `(${property} with value ${value})`);
+		}));
+	});
+
+	describe('server info', () => {
+		it('can retrieve info', () => {
+			// Arrange:
+			const endpointUnderTest = '/diagnostic/server';
+			const routes = {};
+			const server = {
+				get: (path, handler) => {
+					routes[path] = handler;
+				}
+			};
+
+			diagnosticRoutes.register(server, {});
+
+			let capturedResponse;
+			const next = () => {};
+			const res = {
+				send: response => {
+					capturedResponse = response;
+				},
+				redirect: () => {
+					next();
+				}
+			};
+
+			// Act:
+			const route = routes[endpointUnderTest];
+			route({}, res, next);
+
+			// Assert:
+			expect(capturedResponse).to.deep.equal({
+				payload: {
+					serverInfo: {
+						restVersion,
+						sdkVersion
+					}
+				},
+				type: 'serverInfo'
+			});
+		});
+	});
 
 	describe('storage', () => {
 		const createMockStorageInfoDb = (numBlocks, numTransactions, numAccounts) => ({
@@ -44,23 +105,5 @@ describe('diagnostic routes', () => {
 				});
 			});
 		});
-	});
-
-	describe('blocks', () => {
-		const builder = test.route.document.prepareGetDocumentsRouteTests(diagnosticRoutes.register, {
-			route: '/diagnostic/blocks/:height/limit/:limit',
-			dbApiName: 'blocksFrom',
-			type: 'blockHeaderWithMetadata'
-		});
-
-		builder.addValidInputTest({ object: { height: '1234', limit: '4321' }, parsed: [1234, 4321] });
-		builder.addEmptyArrayTest({ object: { height: '1234', limit: '4321' }, parsed: [1234, 4321] });
-
-		// notice that this expands to four tests { 'height', 'limit'} x { '10A', '-4321' }
-		['height', 'limit'].forEach(property => ['10A', '-4321'].forEach(value => {
-			const object = Object.assign({ height: '1234', limit: '4321' }, { [property]: value });
-			const errorMessage = `${property} has an invalid format`;
-			builder.addInvalidKeyTest({ object, error: errorMessage }, `(${property} with value ${value})`);
-		}));
 	});
 });

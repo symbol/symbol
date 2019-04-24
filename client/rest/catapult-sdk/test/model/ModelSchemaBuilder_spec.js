@@ -90,6 +90,7 @@ describe('model schema builder', () => {
 				'nodeInfo',
 				'communicationTimestamps',
 				'nodeTime',
+				'serverInfo',
 				'storageInfo'
 			]);
 		});

@@ -42,6 +42,7 @@ class ModelFormatterBuilder {
 			'merkleProofInfo',
 			'nodeInfo',
 			'nodeTime',
+			'serverInfo',
 			'storageInfo',
 			'transactionStatus'
 		]);
