@@ -32,6 +32,7 @@ const createTransactionStatement = height => ({
 		secondaryId: 0
 	},
 	receipts: [
+		// balance change
 		{
 			version: 1,
 			type: 8515,
@@ -39,6 +40,7 @@ const createTransactionStatement = height => ({
 			mosaicId: Long.fromNumber(2345),
 			amount: Long.fromNumber(6789)
 		},
+		// balance transfer
 		{
 			version: 1,
 			type: 8516,
@@ -47,10 +49,18 @@ const createTransactionStatement = height => ({
 			mosaicId: Long.fromNumber(9212),
 			amount: Long.fromNumber(1314)
 		},
+		// artifact expiry
 		{
 			version: 1,
 			type: 8517,
 			artifactId: Long.fromNumber(1234)
+		},
+		// inflation
+		{
+			version: 1,
+			type: 8518,
+			mosaicId: Long.fromNumber(4532),
+			amount: Long.fromNumber(200)
 		}
 	]
 });

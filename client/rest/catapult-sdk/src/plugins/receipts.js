@@ -25,7 +25,8 @@ const ReceiptType = {
 	1: 'receipts.balanceTransfer',
 	2: 'receipts.balanceChange',
 	3: 'receipts.balanceChange',
-	4: 'receipts.artifactExpiry'
+	4: 'receipts.artifactExpiry',
+	5: 'receipts.inflation'
 };
 
 const getBasicReceiptType = type => ReceiptType[(type & 0xF000) >> 12] || 'receipts.unknown';
@@ -84,9 +85,15 @@ const receiptsPlugin = {
 			artifactId: ModelType.uint64
 		});
 
+		builder.addSchema('receipts.inflation', {
+			mosaicId: ModelType.uint64,
+			amount: ModelType.uint64
+		});
+
 		builder.addSchema('receipts.unknown', {});
 	},
 
+	/* eslint-disable-next-line no-unused-vars */
 	registerCodecs: codecBuilder => {}
 };
 
