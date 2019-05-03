@@ -46,13 +46,13 @@ const receiptsPlugin = {
 		builder.addSchema('receipts.addressResolutionStatement', {
 			height: ModelType.uint64,
 			unresolved: ModelType.binary,
-			entries: { type: ModelType.array, schemaName: 'receipts.entry.address' }
+			resolutionEntries: { type: ModelType.array, schemaName: 'receipts.entry.address' }
 		});
 
 		builder.addSchema('receipts.mosaicResolutionStatement', {
 			height: ModelType.uint64,
 			unresolved: ModelType.uint64,
-			entries: { type: ModelType.array, schemaName: 'receipts.entry.mosaic' }
+			resolutionEntries: { type: ModelType.array, schemaName: 'receipts.entry.mosaic' }
 		});
 
 		builder.addSchema('receipts.transactionStatement', {

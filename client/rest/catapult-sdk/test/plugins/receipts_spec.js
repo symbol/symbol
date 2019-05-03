@@ -65,7 +65,7 @@ describe('receipts plugin', () => {
 			expect(modelSchema['receipts.addressResolutionStatement']).to.contain.all.keys([
 				'height',
 				'unresolved',
-				'entries'
+				'resolutionEntries'
 			]);
 
 			// - receipts.mosaicResolutionStatement
@@ -73,7 +73,7 @@ describe('receipts plugin', () => {
 			expect(modelSchema['receipts.mosaicResolutionStatement']).to.contain.all.keys([
 				'height',
 				'unresolved',
-				'entries'
+				'resolutionEntries'
 			]);
 
 			// - receipts.transactionStatement
