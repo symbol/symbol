@@ -68,7 +68,7 @@ const createTransactionStatement = height => ({
 const createAddressResolutionStatement = height => ({
 	height: Long.fromNumber(height),
 	unresolved: new Binary(test.random.address()),
-	entries: [
+	resolutionEntries: [
 		{
 			source: {
 				primaryId: 23,
@@ -82,7 +82,7 @@ const createAddressResolutionStatement = height => ({
 const createMosaicResolutionStatement = height => ({
 	height: Long.fromNumber(height),
 	unresolved: Long.fromNumber(5432),
-	entries: [
+	resolutionEntries: [
 		{
 			source: {
 				primaryId: 23,
