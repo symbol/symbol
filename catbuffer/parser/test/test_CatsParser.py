@@ -83,7 +83,7 @@ class CatsParserTests(unittest.TestCase):
             '# comment alias',
             '# another comment',
             '',  # should clear previous comments
-            'using MosaicId = uint64',
+            'using MosaicId = uint64'
         ])
 
         # Assert:
@@ -96,7 +96,7 @@ class CatsParserTests(unittest.TestCase):
             '# comment one',
             'using Age = uint64',
             '# comment two',
-            'using Year = uint16',
+            'using Year = uint16'
         ])
 
         # Assert:
@@ -187,7 +187,7 @@ class CatsParserTests(unittest.TestCase):
             '\t# u part 1',
             '\tcircumference = Circ if enclosingType equals circle',
             '\t# union part 2',
-            '\tperimiter = Perm if enclosingType equals rectangle',
+            '\tperimiter = Perm if enclosingType equals rectangle'
         ])
 
         # Assert:
@@ -207,7 +207,7 @@ class CatsParserTests(unittest.TestCase):
             '\tcarCount = uint8',
             '# all trucks in the fleet',
             '\ttrucks = array(Truck, 10)',
-            '\tcars = array(Car, carCount)',
+            '\tcars = array(Car, carCount)'
         ])
 
         # Assert:
@@ -230,8 +230,58 @@ class CatsParserTests(unittest.TestCase):
         # Assert:
         self.assertEqual(2, len(type_descriptors))
         self.assertEqual(type_descriptors['Tracking'], {'type': 'struct', 'comments': '', 'layout': [
-            {'name': 'faces', 'type': 'Face', 'size': 10, 'sort_key': 'eyeColor', 'comments': ''},
+            {'name': 'faces', 'type': 'Face', 'size': 10, 'sort_key': 'eyeColor', 'comments': ''}
         ]})
+
+    def test_can_parse_struct_vararray_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'using Car = uint16',
+            'struct Fleet',
+            '\tcarsSize = uint8',
+            '# all cars in the fleet',
+            '\tcars = vararray(Car, carsSize)'
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'carsSize', **uint_descriptor(1), 'comments': ''},
+            {'name': 'cars', 'type': 'Car', 'size': 'carsSize', 'disposition': 'var', 'comments': 'all cars in the fleet'}
+        ]})
+
+    def test_can_parse_struct_array_fill_types(self):
+        # Act:
+        type_descriptors = parse_all([
+            'using Car = uint16',
+            'struct Fleet',
+            '# all cars in the fleet',
+            '\tcars = array(Car, __FILL__)'
+        ])
+
+        # Assert:
+        self.assertEqual(2, len(type_descriptors))
+        self.assertEqual(type_descriptors['Fleet'], {'type': 'struct', 'comments': '', 'layout': [
+            {'name': 'cars', 'type': 'Car', 'size': 0, 'disposition': 'fill', 'comments': 'all cars in the fleet'}
+        ]})
+
+    def test_cannot_parse_struct_vararray_numeric_size_types(self):
+        # Act + Assert:
+        self._assert_parse_delayed_exception([
+            'using Car = uint16',
+            'struct Fleet',
+            '# all cars in the fleet',
+            '\tcars = vararray(Car, 123)'
+        ])
+
+    def test_cannot_parse_struct_vararray_fill_types(self):
+        # Act + Assert:
+        self._assert_parse_delayed_exception([
+            'using Car = uint16',
+            'struct Fleet',
+            '# all cars in the fleet',
+            '\tcars = vararray(Car, __FILL__)'
+        ])
 
     def test_can_parse_struct_closed_by_other_type(self):
         # Act:
@@ -258,7 +308,7 @@ class CatsParserTests(unittest.TestCase):
             '\tfooBar = uint64',
             '# some placeholder comment',
             '\tinline Placeholder',
-            '\tbaz = uint32',
+            '\tbaz = uint32'
         ])
 
         # Assert:
@@ -276,7 +326,7 @@ class CatsParserTests(unittest.TestCase):
             '\tfooBar = uint64',
             '# some const comment',
             '\tconst int8 tupleSize = 2',
-            '\tbaz = uint32',
+            '\tbaz = uint32'
         ])
 
         # Assert:
@@ -292,11 +342,11 @@ class CatsParserTests(unittest.TestCase):
         for type_name in ['MosaicId', 'array(MosaicId, 10)']:
             self._assert_parse_delayed_exception([
                 'struct Foo',
-                '\tid = {0}'.format(type_name),
+                '\tid = {0}'.format(type_name)
             ])
 
     def test_cannot_parse_struct_with_non_enum_condition_link(self):
-        # Act:
+        # Act + Assert:
         self._assert_parse_delayed_exception([
             'using Shape = uint8',
             'using Circ = uint16',
@@ -306,7 +356,7 @@ class CatsParserTests(unittest.TestCase):
         ])
 
     def test_cannot_parse_struct_with_unknown_condition_value(self):
-        # Act:
+        # Act + Assert:
         self._assert_parse_delayed_exception([
             'enum Shape : uint8',
             '\tcircle = 1',
@@ -321,7 +371,7 @@ class CatsParserTests(unittest.TestCase):
         self._assert_parse_delayed_exception([
             'using MosaicId = uint16',
             'struct Foo',
-            '\tids = array(MosaicId, numMosaics)',
+            '\tids = array(MosaicId, numMosaics)'
         ])
 
     def test_cannot_parse_struct_with_unknown_sort_key(self):
@@ -438,7 +488,7 @@ class CatsParserTests(unittest.TestCase):
         self._assert_parse_delayed_exception([
             'struct Bar',
             '\tfoo = uint8',
-            '\tfoo = uint16',
+            '\tfoo = uint16'
         ])
 
     def test_cannot_parse_schema_with_duplicate_enum_property_names_in_same_scope(self):
@@ -446,7 +496,7 @@ class CatsParserTests(unittest.TestCase):
         self._assert_parse_delayed_exception([
             'enum Bar : uint16',
             '\tfoo = 4',
-            '\tfoo = 9',
+            '\tfoo = 9'
         ])
 
     def test_can_parse_schema_with_duplicate_struct_property_names_in_different_scopes(self):

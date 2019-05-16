@@ -8,5 +8,6 @@ script:
   - pylint --load-plugins pylint_quotes main.py catparser generators test
   - pycodestyle --config=.pycodestyle .
   - python3 -m unittest discover -v
+  - python3 main.py --schema ./schemas/aggregate/aggregate.cats # temporary until generate_all.sh/cpp_builder are updated
   - bash ./scripts/generate_all.sh cpp_builder
   - bash ./scripts/generate_all.sh java

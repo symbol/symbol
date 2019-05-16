@@ -15,8 +15,9 @@ class StructParser(CompositeTypeParser):
         super().__init__(regex, [
             StructConstParserFactory(),
             StructInlineParserFactory(),
+            StructScalarMemberParserFactory(),
             StructArrayMemberParserFactory(),
-            StructScalarMemberParserFactory()
+            StructVarArrayMemberParserFactory()
         ])
 
     def process_line(self, line):
@@ -25,6 +26,8 @@ class StructParser(CompositeTypeParser):
         self.type_descriptor = {'type': 'struct', 'layout': []}
 
     def append(self, property_type_descriptor):
+        self._require_no_array_with_fill_disposition()
+
         if 'size' in property_type_descriptor:
             self._require_known_property(property_type_descriptor['size'])
 
@@ -36,6 +39,15 @@ class StructParser(CompositeTypeParser):
             self._require_unknown_property(descriptor_uid)
 
         self.type_descriptor['layout'].append(property_type_descriptor)
+
+    def _require_no_array_with_fill_disposition(self):
+        layout = self.type_descriptor['layout']
+        if not layout:
+            return
+
+        last_property = layout[-1]
+        if 'fill' == last_property.get('disposition'):
+            raise CatsParseException('array property with fill disposition "{0}" must be last property'.format(last_property['name']))
 
     def _require_known_property(self, property_name, allow_numeric=True):
         # size can be a constant represented by a numeric type
@@ -117,41 +129,6 @@ class StructInlineParserFactory(RegexParserFactory):
 
 # endregion
 
-# region StructArrayMemberParser(Factory)
-
-
-class StructArrayMemberParser:
-    """Parser for non-inline array struct members"""
-    def __init__(self, regex):
-        self.regex = regex
-
-    def process_line(self, line):
-        match = self.regex.match(line)
-
-        # type is resolved to exist upstream, so its naming doesn't need to be checked here
-        array_size = match.group(3)
-        if is_dec_or_hex(array_size):
-            array_size = parse_dec_or_hex(array_size)
-
-        property_type_descriptor = {
-            'type': match.group(2),
-            'size': array_size
-        }
-
-        if match.group(4):
-            property_type_descriptor['sort_key'] = match.group(5)
-
-        property_type_descriptor['name'] = require_property_name(match.group(1))
-        return property_type_descriptor
-
-
-class StructArrayMemberParserFactory(RegexParserFactory):
-    """Factory for creating struct member parsers"""
-    def __init__(self):
-        super().__init__(r'(\S+) = array\((\S+), (\S+)(, sort_key=(\S+))?\)', StructArrayMemberParser)
-
-# endregion
-
 # region StructScalarMemberParser(Factory)
 
 
@@ -179,8 +156,77 @@ class StructScalarMemberParser:
 
 
 class StructScalarMemberParserFactory(RegexParserFactory):
-    """Factory for creating struct member parsers"""
+    """Factory for creating struct scalar member parsers"""
     def __init__(self):
         super().__init__(r'(\S+) = (\S+)( if (\S+) equals (\S+))?', StructScalarMemberParser)
+
+# endregion
+
+# region StructArrayMemberParser(Factory)
+
+
+class StructArrayMemberParser:
+    """Parser for non-inline array struct members"""
+    def __init__(self, regex):
+        self.regex = regex
+
+    def process_line(self, line):
+        match = self.regex.match(line)
+
+        # type is resolved to exist upstream, so its naming doesn't need to be checked here
+        array_size = match.group(3)
+        if is_dec_or_hex(array_size):
+            array_size = parse_dec_or_hex(array_size)
+
+        property_type_descriptor = {
+            'type': match.group(2),
+            'size': array_size
+        }
+
+        if '__FILL__' == array_size:
+            property_type_descriptor['size'] = 0
+            property_type_descriptor['disposition'] = 'fill'
+
+        if match.group(4):
+            property_type_descriptor['sort_key'] = match.group(5)
+
+        property_type_descriptor['name'] = require_property_name(match.group(1))
+        return property_type_descriptor
+
+
+class StructArrayMemberParserFactory(RegexParserFactory):
+    """Factory for creating struct array member parsers"""
+    def __init__(self):
+        super().__init__(r'(\S+) = array\((\S+), (\S+)(, sort_key=(\S+))?\)', StructArrayMemberParser)
+
+# endregion
+
+# region StructVarArrayMemberParser(Factory)
+
+
+class StructVarArrayMemberParser:
+    """Parser for non-inline vararray struct members"""
+    def __init__(self, regex):
+        self.regex = regex
+
+    def process_line(self, line):
+        match = self.regex.match(line)
+
+        # type is resolved to exist upstream, so its naming doesn't need to be checked here
+        array_size = match.group(3)
+        property_type_descriptor = {
+            'type': match.group(2),
+            'size': array_size,
+            'disposition': 'var'
+        }
+
+        property_type_descriptor['name'] = require_property_name(match.group(1))
+        return property_type_descriptor
+
+
+class StructVarArrayMemberParserFactory(RegexParserFactory):
+    """Factory for creating struct vararray member parsers"""
+    def __init__(self):
+        super().__init__(r'(\S+) = vararray\((\S+), (\S+)\)', StructVarArrayMemberParser)
 
 # endregion
