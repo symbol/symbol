@@ -43,7 +43,7 @@ function generate_all {
 }
 
 if [ "$#" -lt 2 ]; then
-	generate_all "../HEADER.inc"
+	generate_all "./HEADER.inc"
 else
 	nis2_root="$2"
 	rm -rf _generated/${builder}
