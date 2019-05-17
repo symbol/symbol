@@ -13,7 +13,7 @@ function generate_all {
 	local end_color="\033[0m"
 
 	local inputs=(
-		"accountlink/account_link"
+		"account_link/account_link"
 		"lock_hash/hash_lock"
 		"lock_secret/secret_lock"
 		"lock_secret/secret_proof"
