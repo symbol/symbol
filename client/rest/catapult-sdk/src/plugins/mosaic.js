@@ -54,7 +54,7 @@ const mosaicPlugin = {
 
 			height: ModelType.uint64,
 			owner: ModelType.binary,
-			properties: { type: ModelType.array, schemaName: ModelType.uint64 }
+			properties: { type: ModelType.array, schemaName: 'mosaicDefinition.mosaicProperty' }
 		});
 
 		builder.addSchema('mosaicNamesTuples', {

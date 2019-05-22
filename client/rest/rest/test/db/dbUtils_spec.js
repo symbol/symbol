@@ -81,5 +81,10 @@ describe('db utils', () => {
 			// Act + Assert:
 			expect(dbUtils.longToUint64(MongoDb.Long.ZERO)).to.deep.equal([0, 0]);
 		});
+
+		it('throws error if value not long', () => {
+			// Act + Assert:
+			expect(() => dbUtils.longToUint64('abc')).to.throw('abc has an invalid format: not long');
+		});
 	});
 });

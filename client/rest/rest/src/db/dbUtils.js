@@ -48,7 +48,12 @@ const dbUtils = {
 	 * @param {Long} value The value to convert.
 	 * @returns {uint64} The converted value.
 	 */
-	longToUint64: value => [value.getLowBitsUnsigned(), value.getHighBits() >>> 0]
+	longToUint64: value => {
+		if (value instanceof Long)
+			return [value.getLowBitsUnsigned(), value.getHighBits() >>> 0];
+
+		throw errors.createInvalidArgumentError(`${value} has an invalid format: not long`);
+	}
 };
 
 module.exports = dbUtils;
