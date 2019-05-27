@@ -23,7 +23,7 @@
 const catapult = require('catapult-sdk');
 const connector = require('./connector');
 const MongoDb = require('mongodb');
-const { convertToLong } = require('../../src/db/dbUtils');
+const { convertToLong } = require('./dbUtils');
 
 const { address, EntityType } = catapult.model;
 const { ObjectId } = MongoDb;
