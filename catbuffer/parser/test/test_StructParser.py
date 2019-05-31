@@ -5,7 +5,7 @@ from test.constants import \
 from test.ParserTestUtils import MultiLineParserTestUtils, SingleLineParserTestUtils, ParserFactoryTestUtils
 from catparser.StructParser import \
     StructParserFactory, StructConstParserFactory, StructInlineParserFactory, StructScalarMemberParserFactory, \
-    StructArrayMemberParserFactory, StructVarArrayMemberParserFactory
+    StructArrayMemberParserFactory
 from catparser.CatsParseException import CatsParseException
 
 # region StructParserTest
@@ -39,7 +39,7 @@ class StructParserTest(unittest.TestCase):
         parser = StructParserFactory().create()
 
         # Assert
-        self.assertEqual(5, len(parser.factories()))
+        self.assertEqual(4, len(parser.factories()))
 
     def test_can_parse_type_declaration(self):
         # Act + Assert:
@@ -368,25 +368,28 @@ class StructScalarParserTest(unittest.TestCase):
 # region StructArrayMemberParser
 
 
-VALID_ARRAY_PATTERNS = ['foo = {0}(bar, baz)', '$$$ = {0}(&, **)']
+VALID_ARRAY_PATTERNS = ['foo = {0}(bar, {1}baz)', '$$$ = {0}(&, {1}**)', '$$$ = {0}(&, {1}**, sort_key=@@)']
 INVALID_ARRAY_PATTERNS = [
-    ' foo = {0}(bar, baz)', 'foo = {0}(bar, baz) ', 'foo = ', '= {0}(bar, baz)',
-    'foo = {0}(bar, baz', 'foo = {0}(bar, baz) if abc equals def'
+    ' foo = {0}(bar, {1}baz)', 'foo = {0}(bar, {1}baz) ', 'foo = ', '= {0}(bar, {1}baz)',
+    'foo = {0}(bar, {1}baz', 'foo = {0}(bar, {1}baz) if abc equals def'
 ]
+ARRAY_DIMENSION_QUALIFIERS = ['', 'size=']
 
 
 class StructArrayMemberParserFactoryTest(unittest.TestCase):
     def test_is_match_returns_true_for_positives(self):
         # Assert:
-        ParserFactoryTestUtils(StructArrayMemberParserFactory, self).assert_positives([
-            pattern.format('array') for pattern in VALID_ARRAY_PATTERNS
-        ])
+        for dimension_qualifier in ARRAY_DIMENSION_QUALIFIERS:
+            ParserFactoryTestUtils(StructArrayMemberParserFactory, self).assert_positives([
+                pattern.format('array', dimension_qualifier) for pattern in VALID_ARRAY_PATTERNS
+            ])
 
     def test_is_match_returns_false_for_negatives(self):
         # Assert:
-        ParserFactoryTestUtils(StructArrayMemberParserFactory, self).assert_negatives([
-            pattern.format('array') for pattern in INVALID_ARRAY_PATTERNS
-        ])
+        for dimension_qualifier in ARRAY_DIMENSION_QUALIFIERS:
+            ParserFactoryTestUtils(StructArrayMemberParserFactory, self).assert_negatives([
+                pattern.format('array', dimension_qualifier) for pattern in INVALID_ARRAY_PATTERNS
+            ])
 
 
 class StructArrayMemberParserTest(unittest.TestCase):
@@ -422,48 +425,37 @@ class StructArrayMemberParserTest(unittest.TestCase):
             'vehicles = array(Car, 10, sort_key=bar)',
             {'name': 'vehicles', 'type': 'Car', 'size': 10, 'sort_key': 'bar'})
 
+    def test_can_parse_vararray_with_non_numeric_size(self):
+        for type_name in ['byte', 'Car']:
+            # Act + Assert:
+            self._assert_parse(
+                'vehicles = array({0}, size=garageSize)'.format(type_name),
+                {'name': 'vehicles', 'type': type_name, 'size': 'garageSize', 'disposition': 'var'})
+
+    def test_can_parse_vararray_with_unsupported_numeric_size(self):
+        for type_name in ['byte', 'Car']:
+            # Act + Assert: size is not converted for var array
+            self._assert_parse(
+                'vehicles = array({0}, size=0x0A)'.format(type_name),
+                {'name': 'vehicles', 'type': type_name, 'size': '0x0A', 'disposition': 'var'})
+
+    def test_can_parse_vararray_with_unsupported_fill_size(self):
+        for type_name in ['byte', 'Car']:
+            # Act + Assert: size is not converted for var array
+            self._assert_parse(
+                'vehicles = array({0}, size=__FILL__)'.format(type_name),
+                {'name': 'vehicles', 'type': type_name, 'size': '__FILL__', 'disposition': 'var'})
+
+    def test_can_parse_vararray_with_sort_key(self):
+        # Act + Assert:
+        self._assert_parse(
+            'vehicles = array(Car, size=garageSize, sort_key=bar)',
+            {'name': 'vehicles', 'type': 'Car', 'size': 'garageSize', 'disposition': 'var', 'sort_key': 'bar'})
+
     def test_member_names_must_have_property_name_semantics(self):
         # Assert:
         SingleLineParserTestUtils(StructArrayMemberParserFactory, self).assert_naming(
             '{0} = array(Car, 10)',
-            VALID_PROPERTY_NAMES,
-            INVALID_PROPERTY_NAMES)
-
-# endregion
-
-# region StructVarArrayMemberParser
-
-
-class StructVarArrayMemberParserFactoryTest(unittest.TestCase):
-    def test_is_match_returns_true_for_positives(self):
-        # Assert:
-        ParserFactoryTestUtils(StructVarArrayMemberParserFactory, self).assert_positives([
-            pattern.format('vararray') for pattern in VALID_ARRAY_PATTERNS
-        ])
-
-    def test_is_match_returns_false_for_negatives(self):
-        # Assert:
-        ParserFactoryTestUtils(StructVarArrayMemberParserFactory, self).assert_negatives([
-            pattern.format('vararray') for pattern in INVALID_ARRAY_PATTERNS
-        ])
-
-
-class StructVarArrayMemberParserTest(unittest.TestCase):
-    def _assert_parse(self, line, expected_result):
-        # Assert:
-        SingleLineParserTestUtils(StructVarArrayMemberParserFactory, self).assert_parse(line, expected_result)
-
-    def test_can_parse_array_with_non_numeric_size(self):
-        for type_name in ['byte', 'Car']:
-            # Act + Assert:
-            self._assert_parse(
-                'vehicles = vararray({0}, garageSize)'.format(type_name),
-                {'name': 'vehicles', 'type': type_name, 'size': 'garageSize', 'disposition': 'var'})
-
-    def test_member_names_must_have_property_name_semantics(self):
-        # Assert:
-        SingleLineParserTestUtils(StructVarArrayMemberParserFactory, self).assert_naming(
-            '{0} = vararray(Car, 10)',
             VALID_PROPERTY_NAMES,
             INVALID_PROPERTY_NAMES)
 

@@ -240,7 +240,7 @@ class CatsParserTests(unittest.TestCase):
             'struct Fleet',
             '\tcarsSize = uint8',
             '# all cars in the fleet',
-            '\tcars = vararray(Car, carsSize)'
+            '\tcars = array(Car, size=carsSize)'
         ])
 
         # Assert:
@@ -271,7 +271,7 @@ class CatsParserTests(unittest.TestCase):
             'using Car = uint16',
             'struct Fleet',
             '# all cars in the fleet',
-            '\tcars = vararray(Car, 123)'
+            '\tcars = array(Car, size=123)'
         ])
 
     def test_cannot_parse_struct_vararray_fill_types(self):
@@ -280,7 +280,7 @@ class CatsParserTests(unittest.TestCase):
             'using Car = uint16',
             'struct Fleet',
             '# all cars in the fleet',
-            '\tcars = vararray(Car, __FILL__)'
+            '\tcars = array(Car, size=__FILL__)'
         ])
 
     def test_can_parse_struct_closed_by_other_type(self):
