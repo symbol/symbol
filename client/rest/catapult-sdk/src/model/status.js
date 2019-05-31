@@ -33,6 +33,8 @@ const toStringInternal = code => {
 	case 0x80430012: return 'Failure_Core_Nemesis_Account_Signed_After_Nemesis_Block';
 	case 0x80430014: return 'Failure_Core_Wrong_Network';
 	case 0x80430015: return 'Failure_Core_Invalid_Address';
+	case 0x80430016: return 'Failure_Core_Invalid_Version';
+	case 0x80430017: return 'Failure_Core_Invalid_Transaction_Fee';
 	case 0x80430069: return 'Failure_Core_Block_Harvester_Ineligible';
 	case 0x81480007: return 'Failure_Hash_Exists';
 	case 0x80530008: return 'Failure_Signature_Not_Verifiable';
@@ -60,7 +62,7 @@ const toStringInternal = code => {
 	case 0x80520003: return 'Failure_LockSecret_Hash_Not_Implemented';
 	case 0x80520004: return 'Failure_LockSecret_Proof_Size_Out_Of_Bounds';
 	case 0x80520005: return 'Failure_LockSecret_Secret_Mismatch';
-	case 0x80520006: return 'Failure_LockSecret_Unknown_Secret';
+	case 0x80520006: return 'Failure_LockSecret_Unknown_Composite_Key';
 	case 0x80520007: return 'Failure_LockSecret_Inactive_Secret';
 	case 0x80520008: return 'Failure_LockSecret_Hash_Algorithm_Mismatch';
 	case 0x80520009: return 'Failure_LockSecret_Invalid_Duration';
@@ -142,7 +144,7 @@ const toStringInternal = code => {
 	case 0x80FF00C9: return 'Failure_Chain_Unconfirmed_Cache_Too_Full';
 	case 0x80FE0001: return 'Failure_Consumer_Empty_Input';
 	case 0x80FE1001: return 'Failure_Consumer_Block_Transactions_Hash_Mismatch';
-	case 0x81FE1002: return 'Failure_Consumer_Hash_In_Recency_Cache';
+	case 0x41FE1002: return 'Neutral_Consumer_Hash_In_Recency_Cache';
 	case 0x80FE2001: return 'Failure_Consumer_Remote_Chain_Too_Many_Blocks';
 	case 0x80FE2002: return 'Failure_Consumer_Remote_Chain_Improper_Link';
 	case 0x80FE2003: return 'Failure_Consumer_Remote_Chain_Duplicate_Transactions';
