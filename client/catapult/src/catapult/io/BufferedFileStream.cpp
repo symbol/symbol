@@ -70,6 +70,10 @@ namespace catapult { namespace io {
 			, m_numBytesInBuffer(0)
 	{}
 
+	bool BufferedInputFileStream::eof() const {
+		return m_rawFile.position() == m_rawFile.size();
+	}
+
 	namespace {
 		[[noreturn]]
 		void ThrowReadError(size_t requestedBytes, size_t availableBytes) {

@@ -54,7 +54,7 @@ namespace catapult { namespace extensions {
 			std::vector<ionet::Node> nodes;
 			auto modifier = container.modifier();
 			for (auto i = 0u; i < numNodes; ++i) {
-				auto identityKey = test::GenerateRandomData<Key_Size>();
+				auto identityKey = test::GenerateRandomByteArray<Key>();
 				auto node = CreateNamedNode(identityKey, "node " + std::to_string(i), roles);
 				modifier.add(node, source);
 				modifier.provisionConnectionState(Default_Service_Id, identityKey);

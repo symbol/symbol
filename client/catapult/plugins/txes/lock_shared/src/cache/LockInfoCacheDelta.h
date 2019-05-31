@@ -82,6 +82,16 @@ namespace catapult { namespace cache {
 			AddIdentifierWithGroup(*m_pHeightGroupingDelta, value.Height, TDescriptor::GetKeyFromValue(value));
 		}
 
+		/// Removes the value identified by \a key from the cache.
+		void remove(const typename TDescriptor::KeyType& key) {
+			auto iter = m_pDelta->find(key);
+			const auto* pLockInfo = iter.get();
+			if (!!pLockInfo)
+				RemoveIdentifierWithGroup(*m_pHeightGroupingDelta, pLockInfo->Height, key);
+
+			LockInfoCacheDeltaMixins<TDescriptor, TCacheTypes>::BasicInsertRemove::remove(key);
+		}
+
 		/// Processes all unused lock infos that expired at \a height by passing them to \a consumer
 		void processUnusedExpiredLocks(Height height, const consumer<const typename TDescriptor::ValueType>& consumer) const {
 			ForEachIdentifierWithGroup(utils::as_const(*m_pDelta), *m_pHeightGroupingDelta, height, [consumer](const auto& lockInfo) {

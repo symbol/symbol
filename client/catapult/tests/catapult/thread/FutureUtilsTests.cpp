@@ -413,7 +413,7 @@ namespace catapult { namespace thread {
 		EXPECT_EQ(expected, results);
 	}
 
-	TEST(TEST_CLASS, GetAllThrowsIfAnyExceptionalFutureIsEncountered) {
+	TEST(TEST_CLASS, GetAllThrowsWhenAnyExceptionalFutureIsEncountered) {
 		// Arrange:
 		IntFuturesVector futures;
 		futures.push_back(CreateSleepValueFuture(3, 1));

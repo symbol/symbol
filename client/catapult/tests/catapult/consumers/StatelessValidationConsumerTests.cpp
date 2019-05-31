@@ -164,15 +164,15 @@ namespace catapult { namespace consumers {
 			static constexpr auto Num_Sub_Entities_Multiple = 10u;
 
 			static auto CreateSingleEntityElements() {
-				auto pBlock = test::GenerateBlockWithTransactionsAtHeight(3, 246);
+				auto pBlock = test::GenerateBlockWithTransactions(3, Height(246));
 				return test::CreateBlockElements({ pBlock.get() });
 			}
 
 			static auto CreateMultipleEntityElements() {
-				auto pBlock1 = test::GenerateBlockWithTransactionsAtHeight(1, 246);
-				auto pBlock2 = test::GenerateBlockWithTransactionsAtHeight(0, 247);
-				auto pBlock3 = test::GenerateBlockWithTransactionsAtHeight(3, 248);
-				auto pBlock4 = test::GenerateBlockWithTransactionsAtHeight(2, 249);
+				auto pBlock1 = test::GenerateBlockWithTransactions(1, Height(246));
+				auto pBlock2 = test::GenerateBlockWithTransactions(0, Height(247));
+				auto pBlock3 = test::GenerateBlockWithTransactions(3, Height(248));
+				auto pBlock4 = test::GenerateBlockWithTransactions(2, Height(249));
 				return test::CreateBlockElements({ pBlock1.get(), pBlock2.get(), pBlock3.get(), pBlock4.get() });
 			}
 
@@ -262,7 +262,7 @@ namespace catapult { namespace consumers {
 	TEST(BLOCK_TEST_CLASS, CanValidateEmptyBlock) {
 		// Arrange:
 		BlockTestContext context;
-		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(0, 246);
+		auto pBlock = test::GenerateBlockWithTransactions(0, Height(246));
 		auto elements = test::CreateBlockElements({ pBlock.get() });
 
 		// Act:

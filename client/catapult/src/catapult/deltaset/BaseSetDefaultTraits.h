@@ -144,33 +144,18 @@ namespace catapult { namespace deltaset {
 	// mutability tagging allows BaseSet to optimize for immutable values that can never be modified
 	// in contrast, mutable values have copy-on-write semantics
 
-	namespace detail {
-		// used to support (deep) copying of values and values pointed to by shared_ptr
-		// (this is required to support shared_ptr mutable value types in BaseSet)
-
-		template<typename T>
-		struct ElementDeepCopy {
-			static constexpr T Copy(const T* pElement) {
-				return *pElement;
-			}
-		};
-
-		template<typename T>
-		struct ElementDeepCopy<std::shared_ptr<T>> {
-			static std::shared_ptr<T> Copy(const std::shared_ptr<const T>& pElement) {
-				return std::make_shared<T>(*pElement);
-			}
-		};
-	}
-
 	/// Tag that indicates a type is mutable.
 	struct MutableTypeTag {};
 
 	/// Traits used for describing a mutable type.
 	template<typename TElement>
-	struct MutableTypeTraits : public detail::ElementDeepCopy<TElement> {
+	struct MutableTypeTraits {
 		using ElementType = TElement;
 		using MutabilityTag = MutableTypeTag;
+
+		static constexpr TElement Copy(const TElement* pElement) {
+			return *pElement;
+		}
 	};
 
 	/// Tag that indicates a type is immutable.
@@ -183,19 +168,12 @@ namespace catapult { namespace deltaset {
 		using MutabilityTag = ImmutableTypeTag;
 	};
 
-	template<typename T>
-	struct ImmutableTypeTraits<std::shared_ptr<T>> {
-		using ElementType = std::shared_ptr<T>;
-		using MutabilityTag = ImmutableTypeTag;
-	};
-
 	// endregion
 
 	// region find traits
 
-	// used to find values and values pointed to by shared_ptr
-	// this also ensures that values stored in stl set-based containers are always exposed as const (because they are not modifiable)
-	// (this is required to support shared_ptr value types in BaseSet)
+	// used to find values, ensuring that values stored in stl set-based containers are always exposed as const
+	// (because they're not modifiable)
 
 	/// Traits for customizing the behavior of find depending on element type.
 	template<typename T, bool AllowsNativeValueModification>
@@ -219,25 +197,6 @@ namespace catapult { namespace deltaset {
 			return &value;
 		}
 	};
-
-	namespace detail {
-		// the object pointed to by shared_ptr can be modified in any type of container
-		template<typename T>
-		struct SharedPtrFindTraits {
-			using ConstResultType = std::shared_ptr<const T>;
-			using ResultType = std::shared_ptr<T>;
-
-			static constexpr ResultType ToResult(const std::shared_ptr<T>& value) {
-				return value;
-			}
-		};
-	}
-
-	template<typename T>
-	struct FindTraitsT<std::shared_ptr<T>, true> : public detail::SharedPtrFindTraits<T> {};
-
-	template<typename T>
-	struct FindTraitsT<std::shared_ptr<T>, false> : public detail::SharedPtrFindTraits<T> {};
 
 	// endregion
 }}

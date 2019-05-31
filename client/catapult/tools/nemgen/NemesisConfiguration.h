@@ -59,7 +59,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		model::NetworkIdentifier NetworkIdentifier;
 
 		/// Nemesis generation hash.
-		std::string NemesisGenerationHash;
+		GenerationHash NemesisGenerationHash;
 
 		/// Nemesis signer private key.
 		std::string NemesisSignerPrivateKey;

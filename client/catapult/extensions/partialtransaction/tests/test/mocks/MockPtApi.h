@@ -36,7 +36,7 @@ namespace catapult { namespace mocks {
 	public:
 		/// Creates a partial transaction api around cosigned transaction infos (\a transactionInfos).
 		explicit MockPtApi(const partialtransaction::CosignedTransactionInfos& transactionInfos)
-				: api::RemotePtApi(test::GenerateRandomData<Key_Size>())
+				: api::RemotePtApi(test::GenerateRandomByteArray<Key>())
 				, m_transactionInfos(transactionInfos)
 				, m_errorEntryPoint(EntryPoint::None)
 		{}

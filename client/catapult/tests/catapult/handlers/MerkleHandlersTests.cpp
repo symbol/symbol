@@ -81,7 +81,7 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	TEST(TEST_CLASS, SubCacheMerkleRootsHandler_WritesSubCacheMerkleRootsIfPresent) {
+	TEST(TEST_CLASS, SubCacheMerkleRootsHandler_WritesSubCacheMerkleRootsWhenPresent) {
 		// Assert:
 		AssertCanRetrieveSubCacheMerkleRoots(12, Height(7));
 	}
@@ -91,7 +91,7 @@ namespace catapult { namespace handlers {
 		AssertCanRetrieveSubCacheMerkleRoots(12, Height(12));
 	}
 
-	TEST(TEST_CLASS, SubCacheMerkleRootsHandler_WritesEmptyResponseIfSubCacheMerkleRootsAreNotPresent) {
+	TEST(TEST_CLASS, SubCacheMerkleRootsHandler_WritesEmptyResponseWhenSubCacheMerkleRootsAreNotPresent) {
 		// Arrange:
 		ionet::ServerPacketHandlers handlers;
 		auto pStorage = CreateStorage(12);

@@ -25,7 +25,7 @@
 
 namespace catapult { namespace cache {
 
-	/// Builder for creating a catapult cache around subcaches.
+	/// Builder for creating a catapult cache around sub caches.
 	class CatapultCacheBuilder {
 	public:
 		/// Adds \a pSubCache to the builder with the specified storage traits.
@@ -39,7 +39,7 @@ namespace catapult { namespace cache {
 			auto id = pSubCachePlugin->id();
 			m_subCaches.resize(std::max(m_subCaches.size(), id + 1));
 			if (m_subCaches[id])
-				CATAPULT_THROW_INVALID_ARGUMENT_1("subcache has already been registered with id", id);
+				CATAPULT_THROW_INVALID_ARGUMENT_1("sub cache has already been registered with id", id);
 
 			m_subCaches[id] = std::move(pSubCachePlugin);
 		}
@@ -47,7 +47,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Builds a catapult cache.
 		CatapultCache build() {
-			CATAPULT_LOG(debug) << "creating CatapultCache with " << m_subCaches.size() << " subcaches";
+			CATAPULT_LOG(debug) << "creating CatapultCache with " << m_subCaches.size() << " sub caches";
 			return CatapultCache(std::move(m_subCaches));
 		}
 

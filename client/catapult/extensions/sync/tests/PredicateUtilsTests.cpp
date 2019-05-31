@@ -20,13 +20,14 @@
 
 #include "sync/src/PredicateUtils.h"
 #include "catapult/cache/CatapultCache.h"
-#include "catapult/cache/MemoryUtCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace sync {
@@ -38,8 +39,8 @@ namespace catapult { namespace sync {
 	TEST(TEST_CLASS, ToRequiresValidationPredicateDelegatesToKnownHashPredicateForTransactionType) {
 		// Arrange:
 		auto entityType = model::BasicEntityType::Transaction;
-		auto knownHash = test::GenerateRandomData<Hash256_Size>();
-		auto otherHash = test::GenerateRandomData<Hash256_Size>();
+		auto knownHash = test::GenerateRandomByteArray<Hash256>();
+		auto otherHash = test::GenerateRandomByteArray<Hash256>();
 		auto predicate = ToRequiresValidationPredicate([&knownHash](auto timestamp, const auto& hash) {
 			return Timestamp(123) == timestamp && knownHash == hash;
 		});
@@ -54,8 +55,8 @@ namespace catapult { namespace sync {
 	namespace {
 		void AssertAlwaysRequiresValidation(model::BasicEntityType entityType) {
 			// Arrange:
-			auto knownHash = test::GenerateRandomData<Hash256_Size>();
-			auto otherHash = test::GenerateRandomData<Hash256_Size>();
+			auto knownHash = test::GenerateRandomByteArray<Hash256>();
+			auto otherHash = test::GenerateRandomByteArray<Hash256>();
 			auto predicate = ToRequiresValidationPredicate([&knownHash](auto timestamp, const auto& hash) {
 				return Timestamp(123) == timestamp && knownHash == hash;
 			});
@@ -97,22 +98,16 @@ namespace catapult { namespace sync {
 			uint32_t MaxBlockSize;
 		};
 
-		config::LocalNodeConfiguration CreateLocalNodeConfigurationFromSettings(const ThrottleTestSettings& settings) {
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.TotalChainImportance = Importance(1'000'000'000);
-			blockChainConfig.MaxTransactionsPerBlock = settings.MaxBlockSize;
-			blockChainConfig.ImportanceGrouping = 1;
+		config::CatapultConfiguration CreateCatapultConfigurationFromSettings(const ThrottleTestSettings& settings) {
+			test::MutableCatapultConfiguration config;
+			config.BlockChain.TotalChainImportance = Importance(1'000'000'000);
+			config.BlockChain.MaxTransactionsPerBlock = settings.MaxBlockSize;
+			config.BlockChain.ImportanceGrouping = 1;
 
-			auto nodeConfig = config::NodeConfiguration::Uninitialized();
-			nodeConfig.ShouldEnableTransactionSpamThrottling = settings.ShouldEnableTransactionSpamThrottling;
-			nodeConfig.TransactionSpamThrottlingMaxBoostFee = Amount(10'000'000);
-			nodeConfig.UnconfirmedTransactionsCacheMaxSize = settings.MaxCacheSize;
-
-			return config::LocalNodeConfiguration(
-					std::move(blockChainConfig),
-					std::move(nodeConfig),
-					config::LoggingConfiguration::Uninitialized(),
-					config::UserConfiguration::Uninitialized());
+			config.Node.ShouldEnableTransactionSpamThrottling = settings.ShouldEnableTransactionSpamThrottling;
+			config.Node.TransactionSpamThrottlingMaxBoostFee = Amount(10'000'000);
+			config.Node.UnconfirmedTransactionsCacheMaxSize = settings.MaxCacheSize;
+			return config.ToConst();
 		}
 
 		chain::UtUpdater::ThrottleContext CreateThrottleContext(
@@ -127,7 +122,7 @@ namespace catapult { namespace sync {
 				uint32_t cacheSize,
 				model::EntityType transactionType = Normal_Transaction_Type) {
 			// Arrange:
-			auto config = CreateLocalNodeConfigurationFromSettings(settings);
+			auto config = CreateCatapultConfigurationFromSettings(settings);
 
 			// - create a read only catapult cache (importance grouping needs to be nonzero)
 			auto catapultCache = test::CreateEmptyCatapultCache(config.BlockChain);

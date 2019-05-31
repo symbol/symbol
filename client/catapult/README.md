@@ -1,7 +1,7 @@
 # Catapult server
 
-[![docs](https://raw.githubusercontent.com/nemtech/catapult-server/master/badges/docs--green.svg)](https://nemtech.github.io)
-[![docker](https://raw.githubusercontent.com/nemtech/catapult-server/master/badges/docker-techbureau-brightgreen.svg)](https://hub.docker.com/u/techbureau)
+[![docs](badges/docs--green.svg)](https://nemtech.github.io)
+[![docker](badges/docker-techbureau-brightgreen.svg)](https://hub.docker.com/u/techbureau)
 
 ## Welcome
 

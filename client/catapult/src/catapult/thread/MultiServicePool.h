@@ -36,6 +36,7 @@ namespace catapult { namespace thread {
 		enum class IsolatedPoolMode {
 			/// Sub pool isolation is enabled.
 			Enabled,
+
 			/// Sub pool isolation is disabled.
 			Disabled
 		};

@@ -31,13 +31,19 @@ namespace catapult { namespace test {
 
 	/// Creates a placeholder block notification.
 	inline model::BlockNotification CreateBlockNotification() {
-		// notice that notification Signer will be garbage after this returns
-		return model::BlockNotification(Key(), Timestamp(), Difficulty());
+		// notice that notification Signer and Beneficiary will be garbage after this returns
+		return model::BlockNotification(Key(), Key(), Timestamp(), Difficulty());
 	}
 
 	/// Creates a block notification around \a signer.
 	inline model::BlockNotification CreateBlockNotification(const Key& signer) {
-		return model::BlockNotification(signer, Timestamp(), Difficulty());
+		// notice that notification Beneficiary will be garbage after this returns
+		return model::BlockNotification(signer, Key(), Timestamp(), Difficulty());
+	}
+
+	/// Creates a block notification around \a signer and \a beneficiary.
+	inline model::BlockNotification CreateBlockNotification(const Key& signer, const Key& beneficiary) {
+		return model::BlockNotification(signer, beneficiary, Timestamp(), Difficulty());
 	}
 
 	/// Casts \a notification to a derived notification type.

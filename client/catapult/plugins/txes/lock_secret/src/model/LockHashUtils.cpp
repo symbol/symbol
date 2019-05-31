@@ -60,4 +60,12 @@ namespace catapult { namespace model {
 
 		CATAPULT_THROW_INVALID_ARGUMENT_1("invalid hash algorithm", utils::to_underlying_type(hashAlgorithm));
 	}
+
+	Hash256 CalculateSecretLockInfoHash(const Hash256& secret, const Address& recipient) {
+		Hash256 hash;
+		crypto::Sha3_256_Builder builder;
+		builder.update({ secret, recipient });
+		builder.final(hash);
+		return hash;
+	}
 }}

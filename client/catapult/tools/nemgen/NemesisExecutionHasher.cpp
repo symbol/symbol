@@ -20,7 +20,7 @@
 
 #include "NemesisExecutionHasher.h"
 #include "blockhashes/NemesisBlockHashesCalculator.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/model/Elements.h"
 #include "catapult/utils/HexFormatter.h"
 #include <boost/filesystem.hpp>
@@ -47,11 +47,11 @@ namespace catapult { namespace tools { namespace nemgen {
 		std::string Format(const BlockExecutionHashesInfo& blockExecutionHashesInfo) {
 			std::ostringstream out;
 			out
-					<< "       State Hash: " << utils::HexFormat(blockExecutionHashesInfo.StateHash) << std::endl
+					<< "       State Hash: " << blockExecutionHashesInfo.StateHash << std::endl
 					<< "--- Components (" << blockExecutionHashesInfo.SubCacheMerkleRoots.size() << ") ---" << std::endl;
 
 			for (const auto& subCacheMerkleRoot : blockExecutionHashesInfo.SubCacheMerkleRoots)
-				out << " + " << utils::HexFormat(subCacheMerkleRoot) << std::endl;
+				out << " + " << subCacheMerkleRoot << std::endl;
 
 			return out.str();
 		}
@@ -59,7 +59,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	NemesisExecutionHashesDescriptor CalculateAndLogNemesisExecutionHashes(
 			const model::BlockElement& blockElement,
-			const config::LocalNodeConfiguration& config,
+			const config::CatapultConfiguration& config,
 			CacheDatabaseCleanupMode databaseCleanupMode) {
 		if (!config.Node.ShouldUseCacheDatabaseStorage || !config.BlockChain.ShouldEnableVerifiableState)
 			CATAPULT_LOG(warning) << "cache database storage and verifiable state must both be enabled to calculate state hash";
@@ -80,9 +80,9 @@ namespace catapult { namespace tools { namespace nemgen {
 		std::ostringstream out;
 		out
 				<< "           Height: " << blockElement.Block.Height << std::endl
-				<< "  Generation Hash: " << utils::HexFormat(blockElement.GenerationHash) << std::endl
-				<< "Transactions Hash: " << utils::HexFormat(blockElement.Block.BlockTransactionsHash) << std::endl
-				<< "    Receipts Hash: " << utils::HexFormat(blockExecutionHashesInfo.ReceiptsHash) << std::endl
+				<< "  Generation Hash: " << blockElement.GenerationHash << std::endl
+				<< "Transactions Hash: " << blockElement.Block.BlockTransactionsHash << std::endl
+				<< "    Receipts Hash: " << blockExecutionHashesInfo.ReceiptsHash << std::endl
 				<< Format(blockExecutionHashesInfo);
 
 		return { blockExecutionHashesInfo.ReceiptsHash, blockExecutionHashesInfo.StateHash, out.str() };

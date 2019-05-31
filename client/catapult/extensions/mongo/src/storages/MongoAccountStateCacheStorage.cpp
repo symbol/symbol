@@ -48,13 +48,6 @@ namespace catapult { namespace mongo { namespace storages {
 			static auto MapToMongoDocument(const state::AccountState& accountState, model::NetworkIdentifier) {
 				return mappers::ToDbModel(accountState);
 			}
-
-			static void Insert(CacheDeltaType& cache, const bsoncxx::document::view& document) {
-				mappers::ToAccountState(document, [&cache](const auto& address, auto height) -> state::AccountState& {
-					cache.addAccount(address, height);
-					return cache.find(address).get(); // since deltas are always in memory, reference will always be valid
-				});
-			}
 		};
 	}
 

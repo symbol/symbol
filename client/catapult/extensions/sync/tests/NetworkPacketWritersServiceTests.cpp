@@ -189,18 +189,18 @@ namespace catapult { namespace sync {
 		}
 	}
 
-	TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsEmptyHeightVectorIfNoPacketIosAreAvailable) {
+	TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsEmptyHeightVectorWhenNoPacketIosAreAvailable) {
 		// Assert:
 		AssertReturnedHeights(3, 0, {});
 	}
 
-	TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsLessThanNumPeersHeightsIfNotEnoughPacketIosAreAvailable) {
+	TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsLessThanNumPeersHeightsWhenNotEnoughPacketIosAreAvailable) {
 		// Assert:
 		AssertReturnedHeights(3, 1, { { Height(1) } });
 		AssertReturnedHeights(3, 2, { { Height(1), Height(102) } });
 	}
 
-	TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsNumPeersHeightsIfEnoughPacketIosAreAvailable) {
+	TEST(TEST_CLASS, RemoteChainHeightsRetrieverReturnsNumPeersHeightsWhenEnoughPacketIosAreAvailable) {
 		// Assert:
 		AssertReturnedHeights(3, 3, { { Height(1), Height(102), Height(3) } });
 		AssertReturnedHeights(3, 10, { { Height(1), Height(102), Height(3) } });

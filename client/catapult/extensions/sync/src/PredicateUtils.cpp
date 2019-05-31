@@ -20,8 +20,8 @@
 
 #include "PredicateUtils.h"
 #include "TransactionSpamThrottle.h"
-#include "catapult/cache/UtCache.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/cache_tx/UtCache.h"
+#include "catapult/config/CatapultConfiguration.h"
 
 namespace catapult { namespace sync {
 
@@ -44,7 +44,7 @@ namespace catapult { namespace sync {
 		}
 	}
 
-	chain::UtUpdater::Throttle CreateUtUpdaterThrottle(const config::LocalNodeConfiguration& config) {
+	chain::UtUpdater::Throttle CreateUtUpdaterThrottle(const config::CatapultConfiguration& config) {
 		SpamThrottleConfiguration throttleConfig(
 				config.Node.TransactionSpamThrottlingMaxBoostFee,
 				config.BlockChain.TotalChainImportance,

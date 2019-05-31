@@ -77,7 +77,7 @@ namespace catapult { namespace mongo {
 
 	// region file io
 
-	TEST(TEST_CLASS, LoadFromPathFailsIfFileDoesNotExist) {
+	TEST(TEST_CLASS, LoadFromPathFailsWhenFileDoesNotExist) {
 		// Act + Assert: attempt to load the config
 		EXPECT_THROW(DatabaseConfiguration::LoadFromPath("../no-resources"), catapult_runtime_error);
 	}

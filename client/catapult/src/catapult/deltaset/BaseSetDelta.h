@@ -34,10 +34,13 @@ namespace catapult { namespace deltaset {
 	enum class InsertResult {
 		/// An element pending removal was reverted.
 		Unremoved,
+
 		/// An existing element was updated (mutable elements only).
 		Updated,
+
 		/// Insert failed because the element already exists (immutable elements only).
 		Redundant,
+
 		/// A new element was inserted.
 		Inserted
 	};
@@ -46,12 +49,16 @@ namespace catapult { namespace deltaset {
 	enum class RemoveResult {
 		/// No matching element was found.
 		None,
+
 		/// An element pending modification was reverted and removed (mutable elements only).
 		Unmodified_And_Removed,
+
 		/// An element pending insert was reverted.
 		Uninserted,
+
 		/// Remove failed because the element already was removed.
 		Redundant,
+
 		/// An existing element was removed.
 		Removed
 	};
@@ -106,13 +113,13 @@ namespace catapult { namespace deltaset {
 		/// Searches for \a key in this set.
 		/// Returns a pointer to the matching element if it is found or \c nullptr if it is not found.
 		FindConstIterator find(const KeyType& key) const {
-			return find<FindConstIterator>(*this, key);
+			return Find<FindConstIterator>(*this, key);
 		}
 
 		/// Searches for \a key in this set.
 		/// Returns a pointer to the matching element if it is found or \c nullptr if it is not found.
 		FindIterator find(const KeyType& key) {
-			auto iter = find<FindIterator>(*this, key);
+			auto iter = Find<FindIterator>(*this, key);
 			if (!!iter.get())
 				markFoundElement(key, ElementMutabilityTag());
 
@@ -121,8 +128,8 @@ namespace catapult { namespace deltaset {
 
 	private:
 		template<typename TResultIterator, typename TBaseSetDelta>
-		static TResultIterator find(TBaseSetDelta& set, const KeyType& key) {
-			if (contains(set.m_removedElements, key))
+		static TResultIterator Find(TBaseSetDelta& set, const KeyType& key) {
+			if (Contains(set.m_removedElements, key))
 				return TResultIterator();
 
 			auto originalIter = set.find(key, ElementMutabilityTag());
@@ -171,34 +178,14 @@ namespace catapult { namespace deltaset {
 		/// Searches for \a key in this set.
 		/// Returns \c true if it is found or \c false if it is not found.
 		bool contains(const KeyType& key) const {
-			return !contains(m_removedElements, key) && (contains(m_addedElements, key) || contains(m_originalElements, key));
+			return !Contains(m_removedElements, key) && (Contains(m_addedElements, key) || Contains(m_originalElements, key));
 		}
 
 	private:
 		template<typename TSet> // SetType or MemorySetType
-		static constexpr bool contains(const TSet& set, const KeyType& key) {
+		static constexpr bool Contains(const TSet& set, const KeyType& key) {
 			return set.cend() != set.find(key);
 		}
-
-	private:
-		// used to support creating values and values pointed to by shared_ptr
-		// (this is required to support shared_ptr value types in BaseSet)
-
-		template<typename T>
-		struct ElementCreator {
-			template<typename... TArgs>
-			static T Create(TArgs&&... args) {
-				return T(std::forward<TArgs>(args)...);
-			}
-		};
-
-		template<typename T>
-		struct ElementCreator<std::shared_ptr<T>> {
-			template<typename... TArgs>
-			static std::shared_ptr<T> Create(TArgs&&... args) {
-				return std::make_shared<T>(std::forward<TArgs>(args)...);
-			}
-		};
 
 	public:
 		/// Inserts \a element into this set.
@@ -210,39 +197,32 @@ namespace catapult { namespace deltaset {
 		/// Creates an element around the passed arguments (\a args) and inserts the element into this set.
 		template<typename... TArgs>
 		InsertResult emplace(TArgs&&... args) {
-			auto element = ElementCreator<ElementType>::Create(std::forward<TArgs>(args)...);
-			return insert(element);
+			return insert(ElementType(std::forward<TArgs>(args)...));
 		}
 
 	private:
 		InsertResult insert(const ElementType& element, MutableTypeTag) {
+			// copy the storage before erasing in case element is sourced from the same container being updated
 			const auto& key = TSetTraits::ToKey(element);
-			auto removedIter = m_removedElements.find(key);
-			if (m_removedElements.cend() != removedIter) {
-				// since the element is in the set of removed elements, it must be an original element
-				// and cannot be in the set of added elements
-				markKey(key);
-				m_removedElements.erase(removedIter);
-
-				// since the element is mutable, it could have been modified, so add it to the copied elements
-				m_copiedElements.insert(TSetTraits::ToStorage(element));
-				return InsertResult::Unremoved;
-			}
+			auto storage = TSetTraits::ToStorage(element);
+			markKey(key);
 
 			auto insertResult = InsertResult::Inserted;
 			decltype(m_copiedElements)* pTargetElements;
-			if (contains(m_originalElements, key)) {
+			auto removedIter = m_removedElements.find(key);
+			if (m_removedElements.cend() != removedIter) {
+				m_removedElements.erase(removedIter);
+				pTargetElements = Contains(m_addedElements, key) ? &m_addedElements : &m_copiedElements;
+				insertResult = InsertResult::Unremoved;
+			} else if (Contains(m_originalElements, key)) {
 				pTargetElements = &m_copiedElements; // original element, possibly modified
 				insertResult = InsertResult::Updated;
 			} else {
 				pTargetElements = &m_addedElements; // not an original element
-				if (contains(m_addedElements, key))
+				if (Contains(m_addedElements, key))
 					insertResult = InsertResult::Updated;
 			}
 
-			// copy the storage before erasing in case element is sourced from the same container being updated
-			auto storage = TSetTraits::ToStorage(element);
-			markKey(key);
 			pTargetElements->erase(key);
 			pTargetElements->insert(std::move(storage));
 			return insertResult;
@@ -252,14 +232,17 @@ namespace catapult { namespace deltaset {
 			const auto& key = TSetTraits::ToKey(element);
 			auto removedIter = m_removedElements.find(key);
 			if (m_removedElements.cend() != removedIter) {
-				// since the element is in the set of removed elements, it must be an original element
-				// and cannot be in the set of added elements
-				clearKey(key);
+				// since element is immutable, always preserve the first seen element
+				if (Contains(m_addedElements, key))
+					markKey(key);
+				else
+					clearKey(key);
+
 				m_removedElements.erase(removedIter);
 				return InsertResult::Unremoved;
 			}
 
-			if (contains(m_originalElements, key) || contains(m_addedElements, key))
+			if (Contains(m_originalElements, key) || Contains(m_addedElements, key))
 				return InsertResult::Redundant;
 
 			markKey(key);
@@ -270,7 +253,7 @@ namespace catapult { namespace deltaset {
 	public:
 		/// Removes the element identified by \a key from the delta.
 		RemoveResult remove(const KeyType& key) {
-			if (contains(m_removedElements, key))
+			if (Contains(m_removedElements, key))
 				return RemoveResult::Redundant;
 
 			return remove(key, ElementMutabilityTag());
@@ -292,8 +275,17 @@ namespace catapult { namespace deltaset {
 		RemoveResult remove(const KeyType& key, ImmutableTypeTag) {
 			auto addedIter = m_addedElements.find(key);
 			if (m_addedElements.cend() != addedIter) {
-				clearKey(key);
-				m_addedElements.erase(addedIter);
+				// in order for generations to work correctly, deltas must reflect removal of temporarily added elements
+				// so that subsequent generation processing can process their removal
+				//
+				// consider:
+				// 1. add(x) at generation y
+				// 2. remove(x) at generation y+1
+				//
+				// processing at generation y+1 must be able to detect removal of x
+				// chosen solution is to include x in both Added and Removed at generation y+1
+				markKey(key);
+				m_removedElements.insert(*addedIter);
 				return RemoveResult::Uninserted;
 			}
 

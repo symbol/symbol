@@ -39,7 +39,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanSerializeArray) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Hash256_Size>();
+		auto key = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto result = SerializeKey(key);

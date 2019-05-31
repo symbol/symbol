@@ -25,7 +25,6 @@
 #include "src/model/TransactionTypePropertyTransaction.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
-#include "catapult/utils/UnresolvedAddress.h"
 
 using namespace catapult::model;
 
@@ -84,7 +83,7 @@ namespace catapult { namespace plugins {
 		};
 	}
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(AddressProperty, Publisher<AddressTraits>::Publish)
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicProperty, Publisher<MosaicTraits>::Publish)
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(TransactionTypeProperty, Publisher<TransactionTypeTraits>::Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(AddressProperty, Default, Publisher<AddressTraits>::Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicProperty, Default, Publisher<MosaicTraits>::Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(TransactionTypeProperty, Default, Publisher<TransactionTypeTraits>::Publish)
 }}

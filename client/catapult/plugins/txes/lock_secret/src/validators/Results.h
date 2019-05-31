@@ -44,8 +44,8 @@ namespace catapult { namespace validators {
 	/// Validation failed because secret does not match proof.
 	DEFINE_LOCKSECRET_RESULT(Secret_Mismatch, 5);
 
-	/// Validation failed because secret is unknown.
-	DEFINE_LOCKSECRET_RESULT(Unknown_Secret, 6);
+	/// Validation failed because composite key is unknown.
+	DEFINE_LOCKSECRET_RESULT(Unknown_Composite_Key, 6);
 
 	/// Validation failed because secret is inactive.
 	DEFINE_LOCKSECRET_RESULT(Inactive_Secret, 7);

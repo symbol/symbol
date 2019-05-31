@@ -45,7 +45,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	bsoncxx::document::value ToDbModel(const state::AccountProperties& accountProperties) {
 		bson_stream::document builder;
-		auto doc = builder << "accountProperties" << bson_stream::open_document
+		auto doc = builder
+				<< "accountProperties" << bson_stream::open_document
 				<< "address" << ToBinary(accountProperties.address());
 
 		auto propertyArray = builder << "properties" << bson_stream::open_array;

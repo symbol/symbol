@@ -33,8 +33,12 @@ namespace catapult { namespace plugins {
 		const auto& transactionRegistry = manager.transactionRegistry();
 		auto config = model::LoadPluginConfiguration<config::AggregateConfiguration>(manager.config(), "catapult.plugins.aggregate");
 		manager.addTransactionSupport(CreateAggregateTransactionPlugin(transactionRegistry, model::Entity_Type_Aggregate_Complete));
-		if (config.EnableBondedAggregateSupport)
-			manager.addTransactionSupport(CreateAggregateTransactionPlugin(transactionRegistry, model::Entity_Type_Aggregate_Bonded));
+		if (config.EnableBondedAggregateSupport) {
+			manager.addTransactionSupport(CreateAggregateTransactionPlugin(
+					transactionRegistry,
+					config.MaxBondedTransactionLifetime,
+					model::Entity_Type_Aggregate_Bonded));
+		}
 
 		manager.addStatelessValidatorHook([config](auto& builder) {
 			builder.add(validators::CreateBasicAggregateCosignaturesValidator(

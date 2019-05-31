@@ -24,13 +24,13 @@
 #include "src/PtService.h"
 #include "src/PtSyncSourceService.h"
 #include "catapult/config/ConfigurationFileLoader.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include <boost/filesystem/path.hpp>
 
 namespace catapult { namespace partialtransaction {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			const auto& resourcesPath = bootstrapper.resourcesPath();
 			auto config = PtConfiguration::LoadFromPath(resourcesPath);
 			auto ptCacheOptions = cache::MemoryCacheOptions(config.CacheMaxResponseSize.bytes(), config.CacheMaxSize);
@@ -52,6 +52,6 @@ namespace catapult { namespace partialtransaction {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::partialtransaction::RegisterExtension(bootstrapper);
 }

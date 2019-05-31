@@ -128,6 +128,7 @@ namespace catapult { namespace mocks {
 		enum class SetPacketIoBehavior {
 			/// Set packet is only returned once.
 			Use_Once,
+
 			/// Set packet is sticky and returned repeatedly.
 			Use_Forever
 		};

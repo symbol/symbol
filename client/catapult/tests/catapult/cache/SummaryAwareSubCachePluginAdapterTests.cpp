@@ -32,7 +32,11 @@ namespace catapult { namespace cache {
 			using SummaryCacheStorage<test::SimpleCache>::SummaryCacheStorage;
 
 		public:
-			void saveAll(io::OutputStream&) const override {
+			void saveAll(const CatapultCacheView&, io::OutputStream&) const override {
+				// do nothing
+			}
+
+			void saveSummary(const CatapultCacheDelta&, io::OutputStream&) const override {
 				// do nothing
 			}
 

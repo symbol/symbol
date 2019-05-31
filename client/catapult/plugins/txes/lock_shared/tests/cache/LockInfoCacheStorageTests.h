@@ -21,42 +21,34 @@
 #pragma once
 #include "plugins/txes/lock_shared/tests/test/LockInfoCacheTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
-#include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
 
-	/// Lock info cache storage test suite.
+	/// Lock info cache storage test traits.
 	template<typename TLockInfoTraits>
-	class LockInfoCacheStorageTests {
-	public:
-		static void AssertCanLoadValueIntoCache() {
-			// Arrange: create a random value to insert
-			auto originalLockInfo = test::CreateLockInfos<TLockInfoTraits>(1)[0];
+	struct LockInfoCacheStorageTraits {
+		using StorageType = typename TLockInfoTraits::StorageType;
+		class CacheType : public TLockInfoTraits::CacheType {
+		public:
+			CacheType() : TLockInfoTraits::CacheType(CacheConfiguration())
+			{}
+		};
 
-			// Act:
-			typename TLockInfoTraits::CacheType cache(CacheConfiguration{});
-			{
-				auto delta = cache.createDelta();
-				TLockInfoTraits::StorageType::LoadInto(originalLockInfo, *delta);
-				cache.commit();
-			}
+		static auto CreateId(uint8_t id) {
+			return typename TLockInfoTraits::KeyType{ { id } };
+		}
 
-			// Assert: the cache contains the value
-			auto view = cache.createView();
-			EXPECT_EQ(1u, view->size());
+		static auto CreateValue(const typename TLockInfoTraits::KeyType& key) {
+			auto lockInfo = TLockInfoTraits::CreateLockInfo(Height(1));
+			TLockInfoTraits::SetKey(lockInfo, key);
+			return lockInfo;
+		}
 
-			const auto& key = TLockInfoTraits::ToKey(originalLockInfo);
-			ASSERT_TRUE(view->contains(key));
-			const auto& loadedLockInfo = view->find(key).get();
-
-			// - the loaded cache value is correct
-			TLockInfoTraits::AssertEqual(originalLockInfo, loadedLockInfo);
+		static void AssertEqual(const typename TLockInfoTraits::ValueType& lhs, const typename TLockInfoTraits::ValueType& rhs) {
+			TLockInfoTraits::AssertEqual(lhs, rhs);
 		}
 	};
 }}
 
-#define MAKE_LOCK_INFO_CACHE_STORAGE_TEST(TRAITS_NAME, TEST_NAME) \
-	TEST(TEST_CLASS, TEST_NAME) { LockInfoCacheStorageTests<TRAITS_NAME>::Assert##TEST_NAME(); }
-
 #define DEFINE_LOCK_INFO_CACHE_STORAGE_TESTS(TRAITS_NAME) \
-	MAKE_LOCK_INFO_CACHE_STORAGE_TEST(TRAITS_NAME, CanLoadValueIntoCache)
+	DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(TEST_CLASS, LockInfoCacheStorageTraits<TRAITS_NAME>)

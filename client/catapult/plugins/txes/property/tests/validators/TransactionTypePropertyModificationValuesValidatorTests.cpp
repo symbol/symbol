@@ -43,7 +43,7 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto modifications = CreateModifications(rawValues);
 			model::ModifyTransactionTypePropertyNotification notification(
-					test::GenerateRandomData<Key_Size>(),
+					test::GenerateRandomByteArray<Key>(),
 					model::PropertyType::TransactionType,
 					static_cast<uint8_t>(modifications.size()),
 					modifications.data());

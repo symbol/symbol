@@ -35,18 +35,18 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS RegisterNamespaceTransactionPluginTests
 
 	namespace {
-		TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(RegisterNamespace, NamespaceRentalFeeConfiguration, 2, 2)
+		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(RegisterNamespace, NamespaceRentalFeeConfiguration, 2, 2,)
 
 		constexpr UnresolvedMosaicId Currency_Mosaic_Id(1234);
 
 		NamespaceRentalFeeConfiguration CreateRentalFeeConfiguration(Amount rootFeePerBlock, Amount childFee) {
 			return {
-				test::GenerateRandomData<Key_Size>(),
+				test::GenerateRandomByteArray<Key>(),
 				Currency_Mosaic_Id,
 				test::GenerateRandomUnresolvedAddress(),
 				rootFeePerBlock,
 				childFee,
-				test::GenerateRandomData<Key_Size>()
+				test::GenerateRandomByteArray<Key>()
 			};
 		}
 
@@ -61,6 +61,8 @@ namespace catapult { namespace plugins {
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(
 			TEST_CLASS,
+			,
+			,
 			Entity_Type_Register_Namespace,
 			CreateRentalFeeConfiguration(Amount(0), Amount(0)))
 

@@ -23,9 +23,20 @@
 
 namespace catapult { namespace extensions {
 
-	/// Signs the \a transaction using \a signer private key.
-	void SignTransaction(const crypto::KeyPair& signer, model::Transaction& transaction);
+	/// Extensions for working with transactions.
+	class TransactionExtensions {
+	public:
+		/// Creates extensions for transactions for the network with the specified generation hash (\a generationHash).
+		explicit TransactionExtensions(const GenerationHash& generationHash);
 
-	/// Verifies signature of the \a transaction.
-	bool VerifyTransactionSignature(const model::Transaction& transaction);
+	public:
+		/// Signs the \a transaction using \a signer private key.
+		void sign(const crypto::KeyPair& signer, model::Transaction& transaction) const;
+
+		/// Verifies signature of the \a transaction.
+		bool verify(const model::Transaction& transaction) const;
+
+	private:
+		GenerationHash m_generationHash;
+	};
 }}

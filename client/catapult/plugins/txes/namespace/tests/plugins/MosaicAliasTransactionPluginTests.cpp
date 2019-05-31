@@ -31,7 +31,7 @@ namespace catapult { namespace plugins {
 	// region TransactionPlugin
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicAlias, 1, 1)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicAlias, 1, 1,)
 
 		struct NotificationTraits {
 		public:
@@ -50,7 +50,7 @@ namespace catapult { namespace plugins {
 		};
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Entity_Type_Alias_Mosaic)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Alias_Mosaic)
 
 	DEFINE_ALIAS_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, MosaicAlias, NotificationTraits)
 
@@ -62,7 +62,7 @@ namespace catapult { namespace plugins {
 		typename TTraits::TransactionType transaction;
 		transaction.NamespaceId = NamespaceId(123);
 		transaction.AliasAction = model::AliasAction::Unlink;
-		transaction.Signer = test::GenerateRandomData<Key_Size>();
+		transaction.Signer = test::GenerateRandomByteArray<Key>();
 		transaction.MosaicId = test::GenerateRandomValue<MosaicId>();
 
 		// Act:

@@ -91,69 +91,69 @@ namespace catapult { namespace utils {
 
 	ALL_BUFFER_TRAITS_BASED_TEST(CanCreateRawBufferAroundEntireContainer) {
 		// Arrange:
-		auto data = TTraits::GenerateRandomData(25);
+		auto input = TTraits::GenerateRandomData(25);
 
 		// Act:
-		typename TTraits::Type buffer(data);
+		typename TTraits::Type buffer(input);
 
 		// Assert:
 		ASSERT_EQ(25u, buffer.Size);
-		EXPECT_EQ(data.data(), buffer.pData);
-		EXPECT_EQ(TTraits::ToString(data.data(), data.size()), TTraits::ToString(buffer.pData, buffer.Size));
+		EXPECT_EQ(input.data(), buffer.pData);
+		EXPECT_EQ(TTraits::ToString(input.data(), input.size()), TTraits::ToString(buffer.pData, buffer.Size));
 	}
 
 	ALL_BUFFER_TRAITS_BASED_TEST(CanCreateRawBufferAroundEntireTemporaryContainer) {
 		// Arrange:
-		auto data = TTraits::GenerateRandomData(25);
+		auto input = TTraits::GenerateRandomData(25);
 
 		// Act:
-		[&data](const typename TTraits::Type& buffer) {
+		[&input](const typename TTraits::Type& buffer) {
 			// Assert:
 			ASSERT_EQ(25u, buffer.Size);
-			EXPECT_EQ(TTraits::ToString(data.data(), data.size()), TTraits::ToString(buffer.pData, buffer.Size));
-		}(decltype(data)(data)); // call the lambda with a (temporary) copy of data
+			EXPECT_EQ(TTraits::ToString(input.data(), input.size()), TTraits::ToString(buffer.pData, buffer.Size));
+		}(decltype(input)(input)); // call the lambda with a (temporary) copy of input
 	}
 
 	ALL_BUFFER_TRAITS_BASED_TEST(CanCreateRawBufferAroundPartialContainer) {
 		// Arrange:
-		auto data = TTraits::GenerateRandomData(25);
+		auto input = TTraits::GenerateRandomData(25);
 
 		// Act:
-		typename TTraits::Type buffer(data.data() + 5, 6);
+		typename TTraits::Type buffer(input.data() + 5, 6);
 
 		// Assert:
 		ASSERT_EQ(6u, buffer.Size);
-		EXPECT_EQ(data.data() + 5, buffer.pData);
-		EXPECT_EQ(TTraits::ToString(data.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
+		EXPECT_EQ(input.data() + 5, buffer.pData);
+		EXPECT_EQ(TTraits::ToString(input.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 	}
 
 	ALL_BUFFER_TRAITS_BASED_TEST(CanCopyConstructRawBuffer) {
 		// Arrange:
-		auto data = TTraits::GenerateRandomData(25);
+		auto input = TTraits::GenerateRandomData(25);
 
 		// Act:
-		typename TTraits::Type originalBuffer(data.data() + 5, 6);
+		typename TTraits::Type originalBuffer(input.data() + 5, 6);
 		typename TTraits::Type buffer(originalBuffer);
 
 		// Assert:
 		ASSERT_EQ(6u, buffer.Size);
-		EXPECT_EQ(data.data() + 5, buffer.pData);
-		EXPECT_EQ(TTraits::ToString(data.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
+		EXPECT_EQ(input.data() + 5, buffer.pData);
+		EXPECT_EQ(TTraits::ToString(input.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 	}
 
 	ALL_BUFFER_TRAITS_BASED_TEST(CanCopyRawBuffer) {
 		// Arrange:
-		auto data = TTraits::GenerateRandomData(25);
+		auto input = TTraits::GenerateRandomData(25);
 
 		// Act:
-		typename TTraits::Type originalBuffer(data.data() + 5, 6);
+		typename TTraits::Type originalBuffer(input.data() + 5, 6);
 		typename TTraits::Type buffer;
 		buffer = originalBuffer;
 
 		// Assert:
 		ASSERT_EQ(6u, buffer.Size);
-		EXPECT_EQ(data.data() + 5, buffer.pData);
-		EXPECT_EQ(TTraits::ToString(data.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
+		EXPECT_EQ(input.data() + 5, buffer.pData);
+		EXPECT_EQ(TTraits::ToString(input.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
 	}
 
 	namespace {
@@ -170,12 +170,12 @@ namespace catapult { namespace utils {
 
 	ALL_BUFFER_TRAITS_BASED_TEST(CanResolveProperlyWhenInitializerListOverloadIsPresent) {
 		// Arrange:
-		auto data = TTraits::GenerateRandomData(25);
+		auto input = TTraits::GenerateRandomData(25);
 
 		// Act:
 		using ValueType = typename TTraits::ValueType;
-		auto result1 = Foo<ValueType>({ data.data(), data.size() }); // should call BasicRawBuffer overload
-		auto result2 = Foo<ValueType>({ { data }, { data.data(), data.size() } }); // should call initializer_list overload
+		auto result1 = Foo<ValueType>({ input.data(), input.size() }); // should call BasicRawBuffer overload
+		auto result2 = Foo<ValueType>({ { input }, { input.data(), input.size() } }); // should call initializer_list overload
 
 		// Assert:
 		EXPECT_EQ(1u, result1);
@@ -194,34 +194,34 @@ namespace catapult { namespace utils {
 
 	MUTABLE_BUFFER_TRAITS_BASED_TEST(CanCreateMutableRawBufferAroundEntireContainer) {
 		// Arrange:
-		auto data = TTraits::GenerateRandomData(25);
-		auto originalByte = data[0];
+		auto input = TTraits::GenerateRandomData(25);
+		auto originalByte = input[0];
 
 		// Act:
-		typename TTraits::Type buffer(data);
+		typename TTraits::Type buffer(input);
 		buffer.pData[0] ^= 0xFF;
 
 		// Assert:
 		ASSERT_EQ(25u, buffer.Size);
-		EXPECT_EQ(data.data(), buffer.pData);
-		EXPECT_EQ(TTraits::ToString(data.data(), data.size()), TTraits::ToString(buffer.pData, buffer.Size));
-		EXPECT_EQ(static_cast<decltype(originalByte)>(originalByte ^ 0xFF), data[0]);
+		EXPECT_EQ(input.data(), buffer.pData);
+		EXPECT_EQ(TTraits::ToString(input.data(), input.size()), TTraits::ToString(buffer.pData, buffer.Size));
+		EXPECT_EQ(static_cast<decltype(originalByte)>(originalByte ^ 0xFF), input[0]);
 	}
 
 	MUTABLE_BUFFER_TRAITS_BASED_TEST(CanCreateMutableRawBufferAroundPartialContainer) {
 		// Arrange:
-		auto data = TTraits::GenerateRandomData(25);
-		auto originalByte = data[7];
+		auto input = TTraits::GenerateRandomData(25);
+		auto originalByte = input[7];
 
 		// Act:
-		typename TTraits::Type buffer(data.data() + 5, 6);
+		typename TTraits::Type buffer(input.data() + 5, 6);
 		buffer.pData[2] ^= 0xFF;
 
 		// Assert:
 		ASSERT_EQ(6u, buffer.Size);
-		EXPECT_EQ(data.data() + 5, buffer.pData);
-		EXPECT_EQ(TTraits::ToString(data.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
-		EXPECT_EQ(static_cast<decltype(originalByte)>(originalByte ^ 0xFF), data[7]);
+		EXPECT_EQ(input.data() + 5, buffer.pData);
+		EXPECT_EQ(TTraits::ToString(input.data() + 5, 6), TTraits::ToString(buffer.pData, buffer.Size));
+		EXPECT_EQ(static_cast<decltype(originalByte)>(originalByte ^ 0xFF), input[7]);
 	}
 
 	// endregion
@@ -248,8 +248,8 @@ namespace catapult { namespace utils {
 
 	STRING_BUFFER_TRAITS_BASED_TEST(CanOutputNonEmptyRawString) {
 		// Arrange:
-		std::string data("abcdef");
-		typename TTraits::Type str(&data[0], 3);
+		std::string input("abcdef");
+		typename TTraits::Type str(&input[0], 3);
 
 		// Act:
 		std::stringstream out;
@@ -261,15 +261,15 @@ namespace catapult { namespace utils {
 
 	STRING_BUFFER_TRAITS_BASED_TEST(CanCreateRawStringAroundStlString) {
 		// Arrange:
-		auto data = test::GenerateRandomString(25);
+		auto input = test::GenerateRandomString(25);
 
 		// Act:
-		typename TTraits::Type str(data);
+		typename TTraits::Type str(input);
 
 		// Assert:
 		EXPECT_EQ(25u, str.Size);
-		EXPECT_EQ(data.data(), str.pData);
-		EXPECT_EQ(data, std::string(str.pData, str.Size));
+		EXPECT_EQ(input.data(), str.pData);
+		EXPECT_EQ(input, std::string(str.pData, str.Size));
 	}
 
 	// endregion

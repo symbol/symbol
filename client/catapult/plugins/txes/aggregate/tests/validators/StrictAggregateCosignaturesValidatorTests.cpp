@@ -62,7 +62,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenTransactionSignersExactlyMatchCosigners) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosigners = test::GenerateRandomDataVector<Key>(3);
 		auto txSigners = Keys{ signer, cosigners[0], cosigners[1], cosigners[2] };
 
@@ -72,7 +72,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenTransactionSignersExactlyMatchCosignersOutOfOrder) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosigners = test::GenerateRandomDataVector<Key>(3);
 		auto txSigners = Keys{ cosigners[2], cosigners[0], signer, cosigners[1] };
 
@@ -82,7 +82,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenAllTransactionsHaveSameSignerAsAggregate) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto txSigners = Keys{ signer, signer, signer };
 
 		// Assert:
@@ -95,9 +95,9 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenTransactionSignerIsNotMachedByCosigner) {
 		// Arrange: there is an extra tx signer with no match
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosigners = test::GenerateRandomDataVector<Key>(3);
-		auto txSigners = Keys{ signer, cosigners[0], cosigners[1], cosigners[2], test::GenerateRandomData<Key_Size>() };
+		auto txSigners = Keys{ signer, cosigners[0], cosigners[1], cosigners[2], test::GenerateRandomByteArray<Key>() };
 
 		// Assert:
 		AssertValidationResult(Failure_Aggregate_Missing_Cosigners, signer, cosigners, txSigners);
@@ -105,7 +105,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenCosignerIsNotTransactionSigner) {
 		// Arrange: there is a cosigner that doesn't match any tx
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosigners = test::GenerateRandomDataVector<Key>(3);
 		auto txSigners = Keys{ signer, cosigners[0], cosigners[2] };
 
@@ -115,9 +115,9 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureIneligibleDominatesFailureMissing) {
 		// Arrange: there is an extra tx signer with no match and there is a cosigner that doesn't match any tx
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosigners = test::GenerateRandomDataVector<Key>(3);
-		auto txSigners = Keys{ signer, cosigners[0], cosigners[2], test::GenerateRandomData<Key_Size>() };
+		auto txSigners = Keys{ signer, cosigners[0], cosigners[2], test::GenerateRandomByteArray<Key>() };
 
 		// Assert:
 		AssertValidationResult(Failure_Aggregate_Ineligible_Cosigners, signer, cosigners, txSigners);

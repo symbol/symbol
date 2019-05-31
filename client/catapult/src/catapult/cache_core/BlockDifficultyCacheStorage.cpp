@@ -38,7 +38,16 @@ namespace catapult { namespace cache {
 		return info;
 	}
 
-	void BlockDifficultyCacheStorage::LoadInto(const state::BlockDifficultyInfo& blockDifficultyInfo, DestinationType& cacheDelta) {
-		cacheDelta.insert(blockDifficultyInfo);
+	void BlockDifficultyCacheStorage::Purge(const ValueType& info, DestinationType& cacheDelta) {
+		if (!cacheDelta.contains(info))
+			return;
+
+		// in order to purge `info` from the cache, all infos with larger heights must be purged first
+		auto maxHeight = info.BlockHeight;
+		while (cacheDelta.contains(state::BlockDifficultyInfo(maxHeight + Height(1))))
+			maxHeight = maxHeight + Height(1);
+
+		for (auto height = maxHeight; info.BlockHeight <= height; height = height - Height(1))
+			cacheDelta.remove(height);
 	}
 }}

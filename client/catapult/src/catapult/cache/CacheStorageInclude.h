@@ -45,4 +45,20 @@ namespace catapult { namespace cache {
 		/// Cache value type.
 		using ValueType = typename TDescriptor::ValueType;
 	};
+
+	/// Defines cache storage for cache with basic insert remove support.
+	template<typename TDescriptor>
+	struct CacheStorageForBasicInsertRemoveCache : public CacheStorageFromDescriptor<TDescriptor> {
+		/// Loads \a value into \a cacheDelta.
+		static void LoadInto(const typename TDescriptor::ValueType& value, typename TDescriptor::CacheDeltaType& cacheDelta) {
+			cacheDelta.insert(value);
+		}
+
+		/// Purges \a value from \a cacheDelta.
+		static void Purge(const typename TDescriptor::ValueType& value, typename TDescriptor::CacheDeltaType& cacheDelta) {
+			auto key = TDescriptor::GetKeyFromValue(value);
+			if (cacheDelta.contains(key))
+				cacheDelta.remove(key);
+		}
+	};
 }}

@@ -33,7 +33,13 @@ namespace catapult { namespace tools {
 	/// Provides access to parsed options.
 	using Options = boost::program_options::variables_map;
 
-	/// Helper wrapper to simplify defining values, \a value is used as storage.
+	/// Helper wrapper to simplify defining values with no specified storage.
+	template<typename TValue>
+	auto OptionsValue() {
+		return boost::program_options::value<TValue>();
+	}
+
+	/// Helper wrapper to simplify defining values where \a value is used as storage.
 	template<typename TValue>
 	auto OptionsValue(TValue& value) {
 		return boost::program_options::value<TValue>(&value);

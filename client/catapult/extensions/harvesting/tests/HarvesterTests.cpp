@@ -101,6 +101,7 @@ namespace catapult { namespace harvesting {
 			HarvesterContext()
 					: Cache(test::CreateEmptyCatapultCache(CreateConfiguration()))
 					, KeyPairs(CreateKeyPairs(Num_Accounts))
+					, Beneficiary(test::GenerateRandomByteArray<Key>())
 					, Importances(CreateImportances(Num_Accounts))
 					, pUnlockedAccounts(std::make_unique<UnlockedAccounts>(Num_Accounts))
 					, pLastBlock(CreateBlock())
@@ -114,7 +115,7 @@ namespace catapult { namespace harvesting {
 				Cache.commit(Height(1));
 				UnlockAllAccounts(*pUnlockedAccounts, KeyPairs);
 
-				LastBlockElement.GenerationHash = test::GenerateRandomData<Hash256_Size>();
+				LastBlockElement.GenerationHash = test::GenerateRandomByteArray<GenerationHash>();
 			}
 
 		public:
@@ -133,7 +134,7 @@ namespace catapult { namespace harvesting {
 			std::unique_ptr<Harvester> CreateHarvester(
 					const model::BlockChainConfiguration& config,
 					const BlockGenerator& blockGenerator) {
-				return std::make_unique<Harvester>(Cache, config, *pUnlockedAccounts, blockGenerator);
+				return std::make_unique<Harvester>(Cache, config, Beneficiary, *pUnlockedAccounts, blockGenerator);
 			}
 
 		private:
@@ -146,6 +147,7 @@ namespace catapult { namespace harvesting {
 		public:
 			cache::CatapultCache Cache;
 			std::vector<KeyPair> KeyPairs;
+			Key Beneficiary;
 			std::vector<Importance> Importances;
 			std::unique_ptr<UnlockedAccounts> pUnlockedAccounts;
 			std::shared_ptr<model::Block> pLastBlock;
@@ -383,14 +385,15 @@ namespace catapult { namespace harvesting {
 
 			// Assert:
 			EXPECT_TRUE(!!pBlock);
-			EXPECT_EQ(timestamp, pBlock->Timestamp);
-			EXPECT_EQ(Height(2), pBlock->Height);
 			EXPECT_EQ(bestKey, pBlock->Signer);
-			EXPECT_EQ(model::CalculateHash(*context.pLastBlock), pBlock->PreviousBlockHash);
-			EXPECT_TRUE(model::VerifyBlockHeaderSignature(*pBlock));
-			EXPECT_EQ(chain::CalculateDifficulty(difficultyCache, pLastBlock->Height, config), pBlock->Difficulty);
 			EXPECT_EQ(model::MakeVersion(Network_Identifier, 3), pBlock->Version);
 			EXPECT_EQ(model::Entity_Type_Block, pBlock->Type);
+			EXPECT_EQ(Height(2), pBlock->Height);
+			EXPECT_EQ(timestamp, pBlock->Timestamp);
+			EXPECT_EQ(chain::CalculateDifficulty(difficultyCache, pLastBlock->Height, config), pBlock->Difficulty);
+			EXPECT_EQ(model::CalculateHash(*context.pLastBlock), pBlock->PreviousBlockHash);
+			EXPECT_EQ(context.Beneficiary, pBlock->Beneficiary);
+			EXPECT_TRUE(model::VerifyBlockHeaderSignature(*pBlock));
 			EXPECT_TRUE(model::IsSizeValid(*pBlock, model::TransactionRegistry()));
 			return true;
 		});

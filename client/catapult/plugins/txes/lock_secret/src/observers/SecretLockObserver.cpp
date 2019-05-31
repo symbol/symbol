@@ -34,7 +34,7 @@ namespace catapult { namespace observers {
 				Height endHeight,
 				const Notification& notification,
 				const model::ResolverContext& resolvers) {
-			return state::SecretLockInfo(
+			state::SecretLockInfo lockInfo(
 					account,
 					mosaicId,
 					notification.Mosaic.Amount,
@@ -42,6 +42,8 @@ namespace catapult { namespace observers {
 					notification.HashAlgorithm,
 					notification.Secret,
 					resolvers.resolve(notification.Recipient));
+			lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.Recipient);
+			return lockInfo;
 		}
 	}
 
@@ -56,7 +58,7 @@ namespace catapult { namespace observers {
 			model::BalanceChangeReceipt receipt(receiptType, notification.Signer, mosaicId, notification.Mosaic.Amount);
 			context.StatementBuilder().addReceipt(receipt);
 		} else {
-			cache.remove(notification.Secret);
+			cache.remove(model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient)));
 		}
 	});
 }}

@@ -92,21 +92,21 @@ class DefaultRules:
 
     @staticmethod
     def validateCrossIncludes(sortedIncludes, pathElements):
-        if pathElements[1] != 'catapult':
-            return []
-
-        component = pathElements[2]
         invalid = []
+        component = pathElements[2]
         for elem in sortedIncludes:
             includePathElements = elem.include[1:-1].split('/')
             if len(includePathElements) <= 2:
                 continue
 
-            if includePathElements[1] != 'catapult':
-                continue
+            if pathElements[1] == 'catapult':
+                if includePathElements[1] == 'catapult' and includePathElements[2] != component:
+                    invalid.append(elem)
 
-            if includePathElements[2] != component:
-                invalid.append(elem)
+            if pathElements[1] == 'int':
+                if includePathElements[0] == 'tests' and includePathElements[1] == 'catapult':
+                    invalid.append(elem)
+
         return invalid
 
 

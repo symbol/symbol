@@ -21,7 +21,7 @@
 #pragma once
 #include "BasicServerHooks.h"
 #include "TransactionEvent.h"
-#include "catapult/cache/MemoryUtCache.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/chain/ChainFunctions.h"
 #include "catapult/chain/ChainSynchronizer.h"
 #include "catapult/consumers/BlockConsumers.h"

@@ -37,12 +37,12 @@ namespace catapult { namespace ionet {
 		}
 
 		template<size_t N>
-		std::array<uint8_t, N> AppendRandomData(WorkingBuffer& buffer) {
-			auto data = test::GenerateRandomData<N>();
+		std::array<uint8_t, N> AppendRandomBuffer(WorkingBuffer& buffer) {
+			auto appendBuffer = test::GenerateRandomArray<N>();
 			auto context = buffer.prepareAppend();
-			std::memcpy(boost::asio::buffer_cast<uint8_t*>(context.buffer()), data.data(), data.size());
+			std::memcpy(boost::asio::buffer_cast<uint8_t*>(context.buffer()), appendBuffer.data(), appendBuffer.size());
 			context.commit(N);
-			return data;
+			return appendBuffer;
 		}
 
 		void SetPacketSize(WorkingBuffer& buffer, uint32_t size) {
@@ -82,12 +82,12 @@ namespace catapult { namespace ionet {
 		auto buffer = CreateWorkingBuffer();
 
 		// Act:
-		auto data = AppendRandomData<100>(buffer);
+		auto appendBuffer = AppendRandomBuffer<100>(buffer);
 
 		// Assert:
 		EXPECT_EQ(100u, buffer.size());
 		EXPECT_EQ(Default_Capacity, buffer.capacity());
-		AssertEqual(data, buffer);
+		AssertEqual(appendBuffer, buffer);
 	}
 
 	TEST(TEST_CLASS, CanAppendDataToWorkingBufferMultipleTimes) {
@@ -97,8 +97,8 @@ namespace catapult { namespace ionet {
 		// Act:
 		std::vector<uint8_t> allData;
 		for (auto i = 0u; i < 5; ++i) {
-			auto data = AppendRandomData<100>(buffer);
-			allData.insert(allData.end(), data.cbegin(), data.cend());
+			auto appendBuffer = AppendRandomBuffer<100>(buffer);
+			allData.insert(allData.end(), appendBuffer.cbegin(), appendBuffer.cend());
 		}
 
 		// Assert:
@@ -113,9 +113,9 @@ namespace catapult { namespace ionet {
 
 		// Act: don't call context.commit
 		{
-			auto data = test::GenerateRandomData<100>();
+			auto appendBuffer = test::GenerateRandomArray<100>();
 			auto context = buffer.prepareAppend();
-			std::memcpy(boost::asio::buffer_cast<uint8_t*>(context.buffer()), &data, data.size());
+			std::memcpy(boost::asio::buffer_cast<uint8_t*>(context.buffer()), &appendBuffer, appendBuffer.size());
 		}
 
 		// Assert:
@@ -130,7 +130,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanExtractPacketFromWorkingBuffer) {
 		// Arrange:
 		auto buffer = CreateWorkingBuffer();
-		AppendRandomData<100>(buffer);
+		AppendRandomBuffer<100>(buffer);
 		SetPacketSize(buffer, 25);
 
 		// Act:
@@ -154,7 +154,7 @@ namespace catapult { namespace ionet {
 		options.MaxPacketDataSize = Packet_Buffer_Size - sizeof(PacketHeader) - 1;
 
 		auto buffer = WorkingBuffer(options);
-		AppendRandomData<100>(buffer);
+		AppendRandomBuffer<100>(buffer);
 		SetPacketSize(buffer, Packet_Buffer_Size);
 
 		// Act:
@@ -171,7 +171,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanConsumePacketFromWorkingBuffer) {
 		// Arrange:
 		auto buffer = CreateWorkingBuffer();
-		AppendRandomData<100>(buffer);
+		AppendRandomBuffer<100>(buffer);
 		SetPacketSize(buffer, 25);
 
 		// Act:
@@ -193,7 +193,7 @@ namespace catapult { namespace ionet {
 			// add a large packet to the buffer (notice that chunks cannot be larger than Default_Capacity because
 			// prepareAppend prepares a buffer of size Default_Capacity)
 			for (auto i = 0u; i < multiple; ++i)
-				AppendRandomData<Default_Capacity>(buffer);
+				AppendRandomBuffer<Default_Capacity>(buffer);
 
 			SetPacketSize(buffer, multiple * Default_Capacity);
 
@@ -212,8 +212,8 @@ namespace catapult { namespace ionet {
 		// Act: keep appending to the working buffer without committing
 		std::vector<uint8_t> allData;
 		for (auto i = 0u; i < 10; ++i) {
-			auto data = AppendRandomData<Default_Capacity / 4>(buffer);
-			allData.insert(allData.end(), data.cbegin(), data.cend());
+			auto appendBuffer = AppendRandomBuffer<Default_Capacity / 4>(buffer);
+			allData.insert(allData.end(), appendBuffer.cbegin(), appendBuffer.cend());
 		}
 
 		// Assert:
@@ -239,8 +239,8 @@ namespace catapult { namespace ionet {
 		std::vector<size_t> capacities;
 		std::vector<size_t> capacityChangeIndexes;
 		for (auto i = 0u; i < 12; ++i) {
-			auto data = AppendRandomData<10>(buffer);
-			allData.insert(allData.end(), data.cbegin(), data.cend());
+			auto appendBuffer = AppendRandomBuffer<10>(buffer);
+			allData.insert(allData.end(), appendBuffer.cbegin(), appendBuffer.cend());
 
 			if (capacities.empty() || buffer.capacity() != capacities.back()) {
 				capacities.push_back(buffer.capacity());
@@ -282,8 +282,8 @@ namespace catapult { namespace ionet {
 		// Act: append small data
 		std::vector<uint8_t> allData;
 		for (auto i = 0u; i < 12; ++i) {
-			auto data = AppendRandomData<10>(buffer);
-			allData.insert(allData.end(), data.cbegin(), data.cend());
+			auto appendBuffer = AppendRandomBuffer<10>(buffer);
+			allData.insert(allData.end(), appendBuffer.cbegin(), appendBuffer.cend());
 		}
 
 		// Assert: capacity should not be reduced

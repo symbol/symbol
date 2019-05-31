@@ -19,6 +19,7 @@
 **/
 
 #include "LocalNodeRequestTestUtils.h"
+#include "sdk/src/extensions/BlockExtensions.h"
 #include "plugins/txes/mosaic/src/plugins/MosaicDefinitionTransactionPlugin.h"
 #include "plugins/txes/mosaic/src/plugins/MosaicSupplyChangeTransactionPlugin.h"
 #include "plugins/txes/namespace/src/plugins/MosaicAliasTransactionPlugin.h"
@@ -76,7 +77,7 @@ namespace catapult { namespace test {
 			model::PreviousBlockContext context(*pNemesisBlockElement);
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
-			SignBlock(signer, *pBlock);
+			extensions::BlockExtensions(GetDefaultGenerationHash()).signFullBlock(signer, *pBlock);
 			return std::move(pBlock);
 		}
 	}
@@ -97,17 +98,26 @@ namespace catapult { namespace test {
 	// region height
 
 	Height GetLocalNodeHeightViaApi(ExternalSourceConnection& connection) {
-		std::atomic<Height::ValueType> height(0);
-		std::atomic_bool isHeightReceived(false);
-		connection.apiCall([&](const auto& pRemoteChainApi) {
-			pRemoteChainApi->chainInfo().then([&isHeightReceived, &height](auto&& infoFuture) {
-				height = infoFuture.get().Height.unwrap();
-				isHeightReceived = true;
+		struct ChainInfoResult {
+		public:
+			ChainInfoResult() : IsHeightReceived(false)
+			{}
+
+		public:
+			catapult::Height Height;
+			std::atomic_bool IsHeightReceived;
+		};
+
+		auto pChainInfoResult = std::make_shared<ChainInfoResult>();
+		connection.apiCall([pChainInfoResult](const auto& pRemoteChainApi) {
+			pRemoteChainApi->chainInfo().then([pChainInfoResult](auto&& infoFuture) {
+				pChainInfoResult->Height = infoFuture.get().Height;
+				pChainInfoResult->IsHeightReceived = true;
 			});
 		});
 
-		WAIT_FOR(isHeightReceived);
-		return Height(height);
+		WAIT_FOR(pChainInfoResult->IsHeightReceived);
+		return Height(pChainInfoResult->Height);
 	}
 
 	void WaitForLocalNodeHeight(ExternalSourceConnection& connection, Height height) {

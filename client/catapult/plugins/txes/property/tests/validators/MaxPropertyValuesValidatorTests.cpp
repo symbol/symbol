@@ -80,7 +80,7 @@ namespace catapult { namespace validators {
 			// Arrange:
 			auto initialValues = test::GenerateUniqueRandomDataVector<typename TPropertyValueTraits::ValueType>(numInitialValues);
 			auto cache = test::PropertyCacheFactory::Create();
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			test::PopulateCache<TPropertyValueTraits>(cache, key, initialValues);
 			std::vector<model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>> modifications;
 			for (auto i = 0u; i < std::max(numAddModifications, numDelModifications); ++i) {

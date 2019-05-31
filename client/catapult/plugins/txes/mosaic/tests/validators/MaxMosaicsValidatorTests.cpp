@@ -54,8 +54,8 @@ namespace catapult { namespace validators {
 
 		void RunBalanceTransferTest(ValidationResult expectedResult, uint16_t maxMosaics, UnresolvedMosaicId mosaicId, Amount amount) {
 			// Arrange:
-			auto owner = test::GenerateRandomData<Key_Size>();
-			auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
+			auto owner = test::GenerateRandomByteArray<Key>();
+			auto recipient = test::GenerateRandomByteArray<Address>();
 			auto unresolvedRecipient = test::UnresolveXor(recipient);
 			auto cache = CreateAndSeedCache(recipient);
 
@@ -70,24 +70,24 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(BALANCE_TRANSFER_TEST_CLASS, FailureIfMaximumIsExceeded) {
+	TEST(BALANCE_TRANSFER_TEST_CLASS, FailureWhenMaximumIsExceeded) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
 		RunBalanceTransferTest(Failure_Mosaic_Max_Mosaics_Exceeded, 1, test::UnresolveXor(MosaicId(6)), Amount(100));
 		RunBalanceTransferTest(Failure_Mosaic_Max_Mosaics_Exceeded, 4, test::UnresolveXor(MosaicId(6)), Amount(100));
 		RunBalanceTransferTest(Failure_Mosaic_Max_Mosaics_Exceeded, 5, test::UnresolveXor(MosaicId(6)), Amount(100));
 	}
 
-	TEST(BALANCE_TRANSFER_TEST_CLASS, SuccessIfAmountIsZero) {
+	TEST(BALANCE_TRANSFER_TEST_CLASS, SuccessWhenAmountIsZero) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
 		RunBalanceTransferTest(ValidationResult::Success, 5, test::UnresolveXor(MosaicId(6)), Amount(0));
 	}
 
-	TEST(BALANCE_TRANSFER_TEST_CLASS, SuccessIfAccountAlreadyOwnsThatMosaic) {
+	TEST(BALANCE_TRANSFER_TEST_CLASS, SuccessWhenAccountAlreadyOwnsThatMosaic) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
 		RunBalanceTransferTest(ValidationResult::Success, 5, test::UnresolveXor(MosaicId(3)), Amount(100));
 	}
 
-	TEST(BALANCE_TRANSFER_TEST_CLASS, SuccessIfMaximumIsNotExceeded) {
+	TEST(BALANCE_TRANSFER_TEST_CLASS, SuccessWhenMaximumIsNotExceeded) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
 		RunBalanceTransferTest(ValidationResult::Success, 6, test::UnresolveXor(MosaicId(6)), Amount(100));
 		RunBalanceTransferTest(ValidationResult::Success, 10, test::UnresolveXor(MosaicId(6)), Amount(100));
@@ -101,7 +101,7 @@ namespace catapult { namespace validators {
 				UnresolvedMosaicId mosaicId,
 				model::MosaicSupplyChangeDirection direction) {
 			// Arrange:
-			auto owner = test::GenerateRandomData<Key_Size>();
+			auto owner = test::GenerateRandomByteArray<Key>();
 			auto cache = CreateAndSeedCache(owner);
 
 			auto pValidator = CreateMaxMosaicsSupplyChangeValidator(maxMosaics);
@@ -118,7 +118,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(SUPPLY_CHANGE_TEST_CLASS, FailureIfMaximumIsExceeded) {
+	TEST(SUPPLY_CHANGE_TEST_CLASS, FailureWhenMaximumIsExceeded) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
 		auto direction = model::MosaicSupplyChangeDirection::Increase;
 		RunMosaicSupplyTest(Failure_Mosaic_Max_Mosaics_Exceeded, 1, test::UnresolveXor(MosaicId(6)), direction);
@@ -126,19 +126,19 @@ namespace catapult { namespace validators {
 		RunMosaicSupplyTest(Failure_Mosaic_Max_Mosaics_Exceeded, 5, test::UnresolveXor(MosaicId(6)), direction);
 	}
 
-	TEST(SUPPLY_CHANGE_TEST_CLASS, SuccessIfSupplyIsDecreased) {
+	TEST(SUPPLY_CHANGE_TEST_CLASS, SuccessWhenSupplyIsDecreased) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
 		auto direction = model::MosaicSupplyChangeDirection::Decrease;
 		RunMosaicSupplyTest(ValidationResult::Success, 5, test::UnresolveXor(MosaicId(6)), direction);
 	}
 
-	TEST(SUPPLY_CHANGE_TEST_CLASS, SuccessIfAccountAlreadyOwnsThatMosaic) {
+	TEST(SUPPLY_CHANGE_TEST_CLASS, SuccessWhenAccountAlreadyOwnsThatMosaic) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
 		auto direction = model::MosaicSupplyChangeDirection::Increase;
 		RunMosaicSupplyTest(ValidationResult::Success, 5, test::UnresolveXor(MosaicId(3)), direction);
 	}
 
-	TEST(SUPPLY_CHANGE_TEST_CLASS, SuccessIfMaximumIsNotExceeded) {
+	TEST(SUPPLY_CHANGE_TEST_CLASS, SuccessWhenMaximumIsNotExceeded) {
 		// Act: account in test already owns 5 mosaics with ids 1 to 5
 		auto direction = model::MosaicSupplyChangeDirection::Increase;
 		RunMosaicSupplyTest(ValidationResult::Success, 6, test::UnresolveXor(MosaicId(6)), direction);

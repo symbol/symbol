@@ -26,6 +26,9 @@ namespace catapult { namespace state {
 
 	/// Policy for saving and loading account properties data.
 	struct AccountPropertiesSerializer {
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
+
 		/// Saves \a accountProperties to \a output.
 		static void Save(const AccountProperties& accountProperties, io::OutputStream& output);
 

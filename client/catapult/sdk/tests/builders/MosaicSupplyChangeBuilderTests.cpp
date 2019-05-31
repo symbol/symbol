@@ -58,7 +58,7 @@ namespace catapult { namespace builders {
 				const consumer<MosaicSupplyChangeBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 
 			// Act:
 			auto builder = MosaicSupplyChangeBuilder(networkId, signer);

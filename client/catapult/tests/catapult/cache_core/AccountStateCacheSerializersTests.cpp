@@ -28,26 +28,26 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, KeyAddressPairSerializer_CanSerializeValue) {
 		// Arrange:
-		auto pair = std::make_pair(test::GenerateRandomData<Key_Size>(), test::GenerateRandomData<Address_Decoded_Size>());
+		auto pair = std::make_pair(test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Address>());
 
 		// Act:
 		auto result = KeyAddressPairSerializer::SerializeValue(pair);
 
 		// Assert:
 		ASSERT_EQ(Key_Size + Address_Decoded_Size, result.size());
-		EXPECT_EQ(pair.first, reinterpret_cast<const Key&>(*result.data()));
-		EXPECT_EQ(pair.second, reinterpret_cast<const Address&>(*(result.data() + Key_Size)));
+		EXPECT_EQ(pair.first, reinterpret_cast<const Key&>(result[0]));
+		EXPECT_EQ(pair.second, reinterpret_cast<const Address&>(result[Key_Size]));
 	}
 
 	TEST(TEST_CLASS, KeyAddressPairSerializer_CanDeserializeValue) {
 		// Arrange:
-		auto buffer = test::GenerateRandomData<Key_Size + Address_Decoded_Size>();
+		auto buffer = test::GenerateRandomArray<Key_Size + Address_Decoded_Size>();
 
 		// Act:
 		auto pair = KeyAddressPairSerializer::DeserializeValue(buffer);
 
 		// Assert:
-		EXPECT_EQ(reinterpret_cast<const Key&>(*buffer.data()), pair.first);
-		EXPECT_EQ(reinterpret_cast<const Address&>(*(buffer.data() + Key_Size)), pair.second);
+		EXPECT_EQ(reinterpret_cast<const Key&>(buffer[0]), pair.first);
+		EXPECT_EQ(reinterpret_cast<const Address&>(buffer[Key_Size]), pair.second);
 	}
 }}

@@ -25,7 +25,7 @@
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/chain/BlockExecutor.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/io/BlockStorageCache.h"
 #include "catapult/model/NotificationPublisher.h"
@@ -54,8 +54,8 @@ namespace catapult { namespace extensions {
 			CATAPULT_LOG(info)
 					<< std::endl
 					<< "      nemesis network id: " << networkId << std::endl
-					<< "      nemesis public key: " << utils::HexFormat(publicKey) << std::endl
-					<< " nemesis generation hash: " << utils::HexFormat(generationHash);
+					<< "      nemesis public key: " << publicKey << std::endl
+					<< " nemesis generation hash: " << generationHash;
 		}
 
 		void OutputNemesisBalance(std::ostream& out, MosaicId mosaicId, Amount amount, char special = ' ') {
@@ -85,17 +85,23 @@ namespace catapult { namespace extensions {
 				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis network id does not match network", networkId);
 
 			if (expectedNetwork.PublicKey != publicKey)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis public key does not match network", utils::HexFormat(publicKey));
+				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis public key does not match network", publicKey);
 
 			if (expectedNetwork.GenerationHash != generationHash)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis generation hash does not match network", utils::HexFormat(generationHash));
+				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis generation hash does not match network", generationHash);
 		}
 
 		void CheckNemesisBlockTransactionTypes(const model::Block& block, const model::TransactionRegistry& transactionRegistry) {
 			for (const auto& transaction : block.Transactions()) {
-				if (!transactionRegistry.findPlugin(transaction.Type))
+				const auto* pPlugin = transactionRegistry.findPlugin(transaction.Type);
+				if (!pPlugin || !pPlugin->supportsTopLevel())
 					CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis block contains unsupported transaction type", transaction.Type);
 			}
+		}
+
+		void CheckNemesisBlockFeeMultiplier(const model::Block& block) {
+			if (BlockFeeMultiplier() != block.FeeMultiplier)
+				CATAPULT_THROW_INVALID_ARGUMENT_1("nemesis block contains non-zero fee multiplier", block.FeeMultiplier);
 		}
 
 		void CheckImportanceAndBalanceConsistency(Importance totalChainImportance, Amount totalChainBalance) {
@@ -105,6 +111,28 @@ namespace catapult { namespace extensions {
 						<< "harvesting outflows (" << totalChainBalance << ") do not add up to power ten multiple of "
 						<< "expected importance (" << totalChainImportance << ")";
 				CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+			}
+		}
+
+		void CheckInitialCurrencyAtomicUnits(Amount expectedInitialCurrencyAtomicUnits, Amount initialCurrencyAtomicUnits) {
+			if (expectedInitialCurrencyAtomicUnits != initialCurrencyAtomicUnits) {
+				std::ostringstream out;
+				out
+						<< "currency outflows (" << initialCurrencyAtomicUnits << ") do not equal the "
+						<< "expected initial currency atomic units (" << expectedInitialCurrencyAtomicUnits << ")";
+				CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+			}
+		}
+
+		void CheckMaxMosaicAtomicUnits(const state::AccountBalances& totalFundedMosaics, Amount maxMosaicAtomicUnits) {
+			for (const auto& pair : totalFundedMosaics) {
+				if (maxMosaicAtomicUnits < pair.second) {
+					std::ostringstream out;
+					out
+							<< "currency outflows (" << pair.second << ") for mosaic id " << pair.first
+							<< " exceed max allowed atomic units (" << maxMosaicAtomicUnits << ")";
+					CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+				}
 			}
 		}
 	}
@@ -150,8 +178,8 @@ namespace catapult { namespace extensions {
 
 			std::ostringstream out;
 			out
-					<< "nemesis block " << hashDescription << " hash (" << utils::HexFormat(blockHash) << ") does not match "
-					<< "calculated " << hashDescription << " hash (" << utils::HexFormat(calculatedHash) << ")";
+					<< "nemesis block " << hashDescription << " hash (" << blockHash << ") does not match "
+					<< "calculated " << hashDescription << " hash (" << calculatedHash << ")";
 			CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
 		}
 
@@ -177,6 +205,7 @@ namespace catapult { namespace extensions {
 
 		CheckNemesisBlockInfo(nemesisBlockElement, config.Network);
 		CheckNemesisBlockTransactionTypes(nemesisBlockElement.Block, m_pluginManager.transactionRegistry());
+		CheckNemesisBlockFeeMultiplier(nemesisBlockElement.Block);
 
 		// 2. reset nemesis funding observer data
 		m_nemesisPublicKey = nemesisBlockElement.Block.Signer;
@@ -191,13 +220,19 @@ namespace catapult { namespace extensions {
 				: observers::ObserverState(m_cacheDelta, catapultState);
 		chain::ExecuteBlock(nemesisBlockElement, { *m_pObserver, resolverContext, observerState });
 
-		// 4. check the funded balance is reasonable
+		// 4. check the funded balances are reasonable
 		if (Verbosity::On == verbosity)
 			LogNemesisBalances(config.CurrencyMosaicId, config.HarvestingMosaicId, m_nemesisFundingState.TotalFundedMosaics);
 
 		CheckImportanceAndBalanceConsistency(
 				config.TotalChainImportance,
 				m_nemesisFundingState.TotalFundedMosaics.get(config.HarvestingMosaicId));
+
+		CheckInitialCurrencyAtomicUnits(
+				config.InitialCurrencyAtomicUnits,
+				m_nemesisFundingState.TotalFundedMosaics.get(config.CurrencyMosaicId));
+
+		CheckMaxMosaicAtomicUnits(m_nemesisFundingState.TotalFundedMosaics, config.MaxMosaicAtomicUnits);
 
 		// 5. check the hashes
 		auto blockReceiptsHash = model::CalculateMerkleHash(*blockStatementBuilder.build());

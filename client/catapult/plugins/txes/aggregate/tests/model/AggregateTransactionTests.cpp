@@ -124,7 +124,7 @@ namespace catapult { namespace model {
 
 	// region cosignatures
 
-	DATA_POINTER_TEST(CosignaturesAreInacessibleIfReportedSizeIsLessThanHeaderSize) {
+	DATA_POINTER_TEST(CosignaturesAreInacessibleWhenReportedSizeIsLessThanHeaderSize) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, {});
 		--pTransaction->Size;
@@ -135,7 +135,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(!!accessor.CosignaturesPtr());
 	}
 
-	DATA_POINTER_TEST(CosignaturesAreInacessibleIfThereAreNoCosignatures) {
+	DATA_POINTER_TEST(CosignaturesAreInacessibleWhenThereAreNoCosignatures) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, {});
 		auto& accessor = TTraits::GetAccessor(*pTransaction);
@@ -145,7 +145,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(!!accessor.CosignaturesPtr());
 	}
 
-	DATA_POINTER_TEST(CosignaturesAreAccessibleIfThereAreNoTransactionsButCosignatures) {
+	DATA_POINTER_TEST(CosignaturesAreAccessibleWhenThereAreNoTransactionsButCosignatures) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(2 * sizeof(Cosignature), {});
 		const auto* pAggregateEnd = reinterpret_cast<const uint8_t*>(pTransaction.get() + 1);
@@ -160,7 +160,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(pAggregateEnd, pTransactionsEnd);
 	}
 
-	DATA_POINTER_TEST(CosignaturesAreAccessibleIfThereAreTransactionsAndCosignatures) {
+	DATA_POINTER_TEST(CosignaturesAreAccessibleWhenThereAreTransactionsAndCosignatures) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(sizeof(Cosignature), { 1, 2, 3 });
 		const auto* pAggregateEnd = reinterpret_cast<const uint8_t*>(pTransaction.get() + 1);
@@ -175,7 +175,7 @@ namespace catapult { namespace model {
 		EXPECT_NE(pAggregateEnd, pTransactionsEnd);
 	}
 
-	DATA_POINTER_TEST(CosignaturesAreAccessibleIfThereAreTransactionsAndPartialCosignatures) {
+	DATA_POINTER_TEST(CosignaturesAreAccessibleWhenThereAreTransactionsAndPartialCosignatures) {
 		// Arrange: three transactions and space for 2.5 cosignatures
 		auto pTransaction = CreateAggregateTransaction(2 * sizeof(Cosignature) + sizeof(Cosignature) / 2, { 1, 2, 3 });
 		const auto* pAggregateEnd = reinterpret_cast<const uint8_t*>(pTransaction.get() + 1);
@@ -219,7 +219,7 @@ namespace catapult { namespace model {
 
 	// region IsSizeValid - no transactions
 
-	TEST(TEST_CLASS, SizeInvalidIfReportedSizeIsZero) {
+	TEST(TEST_CLASS, SizeInvalidWhenReportedSizeIsZero) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, {});
 		pTransaction->Size = 0;
@@ -228,7 +228,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pTransaction));
 	}
 
-	TEST(TEST_CLASS, SizeInvalidIfReportedSizeIsLessThanHeaderSize) {
+	TEST(TEST_CLASS, SizeInvalidWhenReportedSizeIsLessThanHeaderSize) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, {});
 		--pTransaction->Size;
@@ -237,7 +237,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pTransaction));
 	}
 
-	TEST(TEST_CLASS, SizeValidIfReportedSizeIsEqualToHeaderSize) {
+	TEST(TEST_CLASS, SizeValidWhenReportedSizeIsEqualToHeaderSize) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, {});
 
@@ -249,7 +249,7 @@ namespace catapult { namespace model {
 
 	// region IsSizeValid - invalid inner tx sizes
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasPartialHeader) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionHasPartialHeader) {
 		// Arrange: create an aggregate with 1 extra byte (which can be interpeted as a partial tx header)
 		auto pTransaction = CreateAggregateTransaction(1, {});
 
@@ -257,7 +257,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pTransaction));
 	}
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasInvalidSize) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionHasInvalidSize) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
 		GetSecondTransaction(*pTransaction).Data.Size = 1;
@@ -266,7 +266,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pTransaction));
 	}
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasZeroSize) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionHasZeroSize) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
 		GetSecondTransaction(*pTransaction).Size = 0;
@@ -275,7 +275,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pTransaction));
 	}
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyInnerTransactionExpandsBeyondBuffer) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyInnerTransactionExpandsBeyondBuffer) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
 		GetSecondTransaction(*pTransaction).Size = pTransaction->Size - pTransaction->TransactionsPtr()->Size + 1;
@@ -288,7 +288,7 @@ namespace catapult { namespace model {
 
 	// region IsSizeValid - invalid inner tx types
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasUnknownType) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionHasUnknownType) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
 		GetSecondTransaction(*pTransaction).Type = static_cast<EntityType>(-1);
@@ -297,7 +297,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pTransaction));
 	}
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionDoesNotSupportEmbedding) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionDoesNotSupportEmbedding) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
 
@@ -309,7 +309,7 @@ namespace catapult { namespace model {
 
 	// region IsSizeValid - payload size
 
-	TEST(TEST_CLASS, SizeInvalidIfPayloadSizeIsTooLargeRelativeToSize) {
+	TEST(TEST_CLASS, SizeInvalidWhenPayloadSizeIsTooLargeRelativeToSize) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
 		++pTransaction->PayloadSize;
@@ -318,7 +318,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pTransaction));
 	}
 
-	TEST(TEST_CLASS, SizeInvalidIfSpaceForCosignaturesIsNotMultipleOfCosignatureSize) {
+	TEST(TEST_CLASS, SizeInvalidWhenSpaceForCosignaturesIsNotMultipleOfCosignatureSize) {
 		// Arrange:
 		for (auto extraSize : { 1u, 3u, static_cast<uint32_t>(sizeof(Cosignature) - 1) }) {
 			// - add extra bytes, which will cause space to not be multiple of cosignature size
@@ -333,7 +333,7 @@ namespace catapult { namespace model {
 
 	// region IsSizeValid - valid transactions
 
-	TEST(TEST_CLASS, SizeValidIfReportedSizeIsEqualToHeaderSizePlusTransactionsSize) {
+	TEST(TEST_CLASS, SizeValidWhenReportedSizeIsEqualToHeaderSizePlusTransactionsSize) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
 
@@ -341,7 +341,7 @@ namespace catapult { namespace model {
 		EXPECT_TRUE(IsSizeValid(*pTransaction));
 	}
 
-	TEST(TEST_CLASS, SizeValidIfReportedSizeIsEqualToHeaderSizePlusTransactionsSizeAndHasSpaceForCosignatures) {
+	TEST(TEST_CLASS, SizeValidWhenReportedSizeIsEqualToHeaderSizePlusTransactionsSizeAndHasSpaceForCosignatures) {
 		// Arrange:
 		for (auto numCosignatures : { 1u, 3u }) {
 			// Arrange:

@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/cache/CacheMixins.h"
-#include "tests/catapult/cache/test/TestCacheTypes.h"
+#include "tests/test/cache/TestCacheTypes.h"
 #include "tests/TestHarness.h"
 #include <unordered_map>
 
@@ -609,7 +609,7 @@ namespace catapult { namespace cache {
 		EXPECT_FALSE(pDelta->contains(3));
 	}
 
-	TEST(TEST_CLASS, BasicInsertRemoveMixin_CannotRemoveNonExistentValueFromCache) {
+	TEST(TEST_CLASS, BasicInsertRemoveMixin_CannotRemoveNonexistentValueFromCache) {
 		// Arrange:
 		BaseSetType set;
 		auto pDelta = SeedThreeDelta(set);

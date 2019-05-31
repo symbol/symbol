@@ -38,7 +38,7 @@ namespace catapult { namespace builders {
 
 		struct TransactionProperties {
 		public:
-			TransactionProperties() : Recipient(extensions::CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>()))
+			TransactionProperties() : Recipient(extensions::CopyToUnresolvedAddress(test::GenerateRandomByteArray<Address>()))
 			{}
 
 		public:
@@ -70,7 +70,7 @@ namespace catapult { namespace builders {
 				const consumer<TransferBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 
 			// Act:
 			TransferBuilder builder(networkId, signer);
@@ -89,8 +89,8 @@ namespace catapult { namespace builders {
 
 		void RunBuilderTest(const consumer<TransferBuilder&>& buildTransaction) {
 			// Arrange:
-			TransferBuilder builder(static_cast<model::NetworkIdentifier>(0x62), test::GenerateRandomData<Key_Size>());
-			builder.setRecipient(extensions::CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>()));
+			TransferBuilder builder(static_cast<model::NetworkIdentifier>(0x62), test::GenerateRandomByteArray<Key>());
+			builder.setRecipient(extensions::CopyToUnresolvedAddress(test::GenerateRandomByteArray<Address>()));
 
 			// Act:
 			buildTransaction(builder);

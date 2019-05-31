@@ -29,11 +29,8 @@ namespace catapult { namespace model {
 	/// Mosaic expiry.
 	DEFINE_RECEIPT_TYPE(ArtifactExpiry, Mosaic, Mosaic_Expired, 1);
 
-	/// Mosaic levy.
-	DEFINE_RECEIPT_TYPE(BalanceTransfer, Mosaic, Mosaic_Levy, 2);
-
 	/// Mosaic rental fee.
-	DEFINE_RECEIPT_TYPE(BalanceTransfer, Mosaic, Mosaic_Rental_Fee, 3);
+	DEFINE_RECEIPT_TYPE(BalanceTransfer, Mosaic, Mosaic_Rental_Fee, 2);
 
 #ifndef CUSTOM_RECEIPT_TYPE_DEFINITION
 }}

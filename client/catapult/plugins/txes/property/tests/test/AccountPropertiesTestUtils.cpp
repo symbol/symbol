@@ -39,7 +39,7 @@ namespace catapult { namespace test {
 
 	std::vector<model::PropertyType> CollectPropertyTypes() {
 		std::vector<model::PropertyType> propertyTypes;
-		state::AccountProperties accountProperties(test::GenerateRandomData<Address_Decoded_Size>());
+		state::AccountProperties accountProperties(test::GenerateRandomByteArray<Address>());
 		for (auto& pair : accountProperties)
 			propertyTypes.push_back(pair.first);
 
@@ -47,7 +47,7 @@ namespace catapult { namespace test {
 	}
 
 	state::AccountProperties CreateAccountProperties(state::OperationType operationType, const std::vector<size_t>& valuesSizes) {
-		state::AccountProperties accountProperties(test::GenerateRandomData<Address_Decoded_Size>());
+		state::AccountProperties accountProperties(test::GenerateRandomByteArray<Address>());
 		if (valuesSizes.size() != accountProperties.size())
 			CATAPULT_THROW_INVALID_ARGUMENT_2("values size mismatch", valuesSizes.size(), accountProperties.size());
 

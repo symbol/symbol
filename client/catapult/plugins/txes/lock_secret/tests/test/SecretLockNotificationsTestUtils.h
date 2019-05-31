@@ -21,6 +21,7 @@
 #pragma once
 #include "SecretLockInfoCacheTestUtils.h"
 #include "src/model/SecretLockNotifications.h"
+#include "tests/test/core/ResolverTestUtils.h"
 #include "tests/test/nodeps/Random.h"
 
 namespace catapult { namespace test {
@@ -43,9 +44,10 @@ namespace catapult { namespace test {
 			return model::SecretLockNotification(m_signer, m_mosaic, m_duration, m_hashAlgorithm, m_secret, m_recipient);
 		}
 
-		/// Sets notification hash to \a secret.
-		void setHash(const Hash256& secret) {
-			m_secret = secret;
+		/// Prepares the builder using \a lockInfo.
+		void prepare(const state::SecretLockInfo& lockInfo) {
+			m_secret = lockInfo.Secret;
+			m_recipient = test::UnresolveXor(lockInfo.Recipient);
 		}
 
 	private:
@@ -69,14 +71,15 @@ namespace catapult { namespace test {
 		explicit ProofNotificationBuilder(Height notificationHeight)
 				: m_notificationHeight(notificationHeight)
 				, m_algorithm(model::LockHashAlgorithm::Op_Sha3_256) {
-				test::FillWithRandomData(m_signer);
-				test::FillWithRandomData(m_hash);
+			test::FillWithRandomData(m_signer);
+			test::FillWithRandomData(m_secret);
+			test::FillWithRandomData(m_recipient);
 		}
 
 	public:
 		/// Creates a notification.
 		auto notification() const {
-			return model::ProofPublicationNotification(m_signer, m_algorithm, m_hash);
+			return model::ProofPublicationNotification(m_signer, m_algorithm, m_secret, m_recipient);
 		}
 
 		/// Sets notification \a height.
@@ -89,9 +92,10 @@ namespace catapult { namespace test {
 			m_algorithm = algorithm;
 		}
 
-		/// Sets notification \a hash.
-		void setHash(const Hash256& hash) {
-			m_hash = hash;
+		/// Prepares the builder using \a lockInfo.
+		void prepare(const state::SecretLockInfo& lockInfo) {
+			m_secret = lockInfo.Secret;
+			m_recipient = test::UnresolveXor(lockInfo.Recipient);
 		}
 
 		/// Returns notification height.
@@ -100,14 +104,20 @@ namespace catapult { namespace test {
 		}
 
 		/// Returns notification hash.
-		auto hash() const {
-			return m_hash;
+		const auto& hash() const {
+			return m_secret;
+		}
+
+		/// Returns notification recipient.
+		const auto& recipient() const {
+			return m_recipient;
 		}
 
 	private:
 		Height m_notificationHeight;
 		model::LockHashAlgorithm m_algorithm;
 		Key m_signer;
-		Hash256 m_hash;
+		Hash256 m_secret;
+		UnresolvedAddress m_recipient;
 	};
 }}

@@ -425,7 +425,7 @@ namespace catapult { namespace validators {
 
 	// region multithreading
 
-	PARALLEL_POLICY_TEST(FutureIsFulfilledEvenIfValidatorIsDestroyed) {
+	PARALLEL_POLICY_TEST(FutureIsFulfilledEvenWhenValidatorIsDestroyed) {
 		// Arrange:
 		auto counters = Counters();
 		auto funcs = CreateValidationFuncs({ ValidationResult::Success, ValidationResult::Neutral }, counters);
@@ -480,7 +480,7 @@ namespace catapult { namespace validators {
 			using ItemType = model::VerifiableEntity;
 
 			static uint64_t GetValue(const model::VerifiableEntity& entity) {
-				// Deadline is set in GenerateRandomBlockWithTransactions and used as a unique entity id
+				// Deadline is set in GenerateBlockWithTransactions and used as a unique entity id
 				return static_cast<const model::Transaction&>(entity).Deadline.unwrap();
 			}
 		};

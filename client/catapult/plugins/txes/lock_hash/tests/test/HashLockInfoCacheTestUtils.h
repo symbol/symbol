@@ -40,6 +40,9 @@ namespace catapult { namespace test {
 		/// Creates a random hash lock info.
 		static ValueType CreateLockInfo();
 
+		/// Sets the \a key of the \a lockInfo.
+		static void SetKey(ValueType& lockInfo, const KeyType& key);
+
 		/// Asserts that the hash lock infos \a lhs and \a rhs are equal.
 		static void AssertEqual(const ValueType& lhs, const ValueType& rhs);
 	};

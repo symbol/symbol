@@ -61,19 +61,14 @@ namespace catapult { namespace deltaset {
 		using OrderedSetTypeTraits = OrderedSetTraits<TMutabilityTraits>;
 
 		using OrderedSetMutableTraits = OrderedSetTypeTraits<MutableTypeTraits<test::MutableTestElement>>;
-		using OrderedSetMutablePointerTraits = OrderedSetTypeTraits<MutableTypeTraits<std::shared_ptr<test::MutableTestElement>>>;
 		using OrderedSetImmutableTraits = OrderedSetTypeTraits<ImmutableTypeTraits<const test::ImmutableTestElement>>;
-		using OrderedSetImmutablePointerTraits
-			= OrderedSetTypeTraits<ImmutableTypeTraits<std::shared_ptr<const test::ImmutableTestElement>>>;
 	}
 
 // base (mutable)
 DEFINE_MUTABLE_BASE_SET_TESTS_FOR(OrderedSetMutable);
-DEFINE_MUTABLE_BASE_SET_TESTS_FOR(OrderedSetMutablePointer);
 
 // base (immutable)
 DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutable);
-DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutablePointer);
 
 #define MAKE_ORDERED_SET_TEST(TEST_NAME, TYPE) \
 	TEST(BaseOrderedSet##TYPE##Tests, TEST_NAME) { \
@@ -83,9 +78,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutablePointer);
 #define ORDERED_SET_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	MAKE_ORDERED_SET_TEST(TEST_NAME, Mutable) \
-	MAKE_ORDERED_SET_TEST(TEST_NAME, MutablePointer) \
 	MAKE_ORDERED_SET_TEST(TEST_NAME, Immutable) \
-	MAKE_ORDERED_SET_TEST(TEST_NAME, ImmutablePointer) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region commit
@@ -125,7 +118,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutablePointer);
 		});
 	}
 
-	ORDERED_SET_TEST(CommitIsNullOperationIfPruningBoundaryIsEqualToFirstSetElement) {
+	ORDERED_SET_TEST(CommitIsNullOperationWhenPruningBoundaryIsEqualToFirstSetElement) {
 		// Arrange:
 		auto pSet = TTraits::CreateWithElements(5);
 		auto pDelta = pSet->rebase();
@@ -150,7 +143,7 @@ DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedSetImmutablePointer);
 		});
 	}
 
-	ORDERED_SET_TEST(CommitIsNullOperationIfPruningBoundaryIsSmallerThanFirstSetElement) {
+	ORDERED_SET_TEST(CommitIsNullOperationWhenPruningBoundaryIsSmallerThanFirstSetElement) {
 		// Arrange:
 		auto pSet = TTraits::CreateWithElements(5);
 		auto pDelta = pSet->rebase();

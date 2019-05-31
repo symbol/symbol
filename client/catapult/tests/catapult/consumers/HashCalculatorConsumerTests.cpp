@@ -23,12 +23,14 @@
 #include "catapult/consumers/TransactionConsumers.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/model/EntityHasher.h"
+#include "catapult/utils/HexParser.h"
 #include "catapult/exceptions.h"
 #include "tests/catapult/consumers/test/ConsumerTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/core/mocks/MockTransactionPluginWithCustomBuffers.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
 using catapult::disruptor::ConsumerInput;
@@ -41,6 +43,10 @@ namespace catapult { namespace consumers {
 	// region CustomBuffersTraits
 
 	namespace {
+		GenerationHash GetNetworkGenerationHash() {
+			return utils::ParseByteArray<GenerationHash>("CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230");
+		}
+
 		struct CustomBuffersTraits {
 			static model::TransactionRegistry CreateTransactionRegistry() {
 				auto pPlugin = mocks::CreateMockTransactionPluginWithCustomBuffers(
@@ -52,7 +58,7 @@ namespace catapult { namespace consumers {
 			}
 
 			static Hash256 CalculateExpectedEntityHash(const model::Transaction& transaction) {
-				return model::CalculateHash(transaction, mocks::ExtractBuffer({ 6, 10 }, &transaction));
+				return model::CalculateHash(transaction, GetNetworkGenerationHash(), mocks::ExtractBuffer({ 6, 10 }, &transaction));
 			}
 
 			static Hash256 CalculateExpectedMerkleComponentHash(const Hash256& entityHash, const model::Transaction& transaction) {
@@ -103,7 +109,7 @@ namespace catapult { namespace consumers {
 					WriteTransactionAt(buffer, txOffset);
 				}
 
-				extensions::BlockExtensions(registry).updateBlockTransactionsHash(block);
+				extensions::BlockExtensions(GetNetworkGenerationHash(), registry).updateBlockTransactionsHash(block);
 			}
 
 			auto range = model::BlockRange::CopyVariable(buffer.data(), buffer.size(), offsets);
@@ -146,7 +152,7 @@ namespace catapult { namespace consumers {
 			auto& blockElements = input.blocks();
 
 			// Act:
-			auto result = CreateBlockHashCalculatorConsumer(registry)(blockElements);
+			auto result = CreateBlockHashCalculatorConsumer(GetNetworkGenerationHash(), registry)(blockElements);
 
 			// Assert:
 			test::AssertContinued(result);
@@ -159,7 +165,7 @@ namespace catapult { namespace consumers {
 	TEST(BLOCK_TEST_CLASS, CanProcessZeroEntities) {
 		// Assert:
 		auto registry = mocks::CreateDefaultTransactionRegistry();
-		test::AssertPassthroughForEmptyInput(CreateBlockHashCalculatorConsumer(registry));
+		test::AssertPassthroughForEmptyInput(CreateBlockHashCalculatorConsumer(GetNetworkGenerationHash(), registry));
 	}
 
 	TEST(BLOCK_TEST_CLASS, CanProcessSingleEntity) {
@@ -184,21 +190,23 @@ namespace catapult { namespace consumers {
 
 	TEST(BLOCK_TEST_CLASS, CalculatesCorrectHashForDeterministicEntity) {
 		// Arrange:
+		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
+
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto pEntity = test::GenerateDeterministicBlock();
 		auto input = ConsumerInput(model::BlockRange::FromEntity(std::move(pEntity)));
 		auto& blockElements = input.blocks();
 
 		// Act:
-		auto result = CreateBlockHashCalculatorConsumer(registry)(blockElements);
+		auto result = CreateBlockHashCalculatorConsumer(generationHash, registry)(blockElements);
 
 		// Assert:
 		test::AssertContinued(result);
 		ASSERT_EQ(1u, blockElements.size());
-		EXPECT_EQ(test::Deterministic_Block_Hash_String, test::ToHexString(blockElements[0].EntityHash));
+		EXPECT_EQ(test::Deterministic_Block_Hash_String, test::ToString(blockElements[0].EntityHash));
 	}
 
-	TEST(BLOCK_TEST_CLASS, ExceptionIsPropagatedIfMalformedTransactionIsProcessed) {
+	TEST(BLOCK_TEST_CLASS, ExceptionIsPropagatedWhenMalformedTransactionIsProcessed) {
 		// Arrange: make the size of the third transaction invalid
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto input = CreateBlockConsumerInput(3, 4);
@@ -208,7 +216,7 @@ namespace catapult { namespace consumers {
 		const_cast<mocks::MockTransaction*>(pTransaction)->Size = 2 * sizeof(mocks::MockTransaction) + 1;
 
 		// Act + Assert: transaction iteration throws an exception
-		EXPECT_THROW(CreateBlockHashCalculatorConsumer(registry)(blockElements), catapult_runtime_error);
+		EXPECT_THROW(CreateBlockHashCalculatorConsumer(GetNetworkGenerationHash(), registry)(blockElements), catapult_runtime_error);
 	}
 
 	// endregion
@@ -227,20 +235,20 @@ namespace catapult { namespace consumers {
 			const_cast<model::Block&>(blockElements[mismatchedIndex].Block).BlockTransactionsHash[0] ^= 0xFF;
 
 			// Act:
-			auto result = CreateBlockHashCalculatorConsumer(registry)(blockElements);
+			auto result = CreateBlockHashCalculatorConsumer(GetNetworkGenerationHash(), registry)(blockElements);
 
 			// Assert: the elements were skipped because a block transactions hash didn't match
 			test::AssertAborted(result, Failure_Consumer_Block_Transactions_Hash_Mismatch);
 		}
 	}
 
-	TEST(BLOCK_TEST_CLASS, SingleEntityIsSkippedIfBlockTransactionsHashDoesNotMatch) {
+	TEST(BLOCK_TEST_CLASS, SingleEntityIsSkippedWhenBlockTransactionsHashDoesNotMatch) {
 		// Assert:
 		AssertBlockWithMismatchedBlockTransactionsHashIsSkipped(1, 0, 0);
 		AssertBlockWithMismatchedBlockTransactionsHashIsSkipped(1, 3, 0);
 	}
 
-	TEST(BLOCK_TEST_CLASS, MultipleEntitiesAreSkippedIfAnyBlockTransactionsHashDoesNotMatch) {
+	TEST(BLOCK_TEST_CLASS, MultipleEntitiesAreSkippedWhenAnyBlockTransactionsHashDoesNotMatch) {
 		// Assert:
 		AssertBlockWithMismatchedBlockTransactionsHashIsSkipped(3, 0, 1);
 		AssertBlockWithMismatchedBlockTransactionsHashIsSkipped(3, 4, 1);
@@ -273,7 +281,7 @@ namespace catapult { namespace consumers {
 			auto& transactionElements = input.transactions();
 
 			// Act:
-			auto result = CreateTransactionHashCalculatorConsumer(registry)(transactionElements);
+			auto result = CreateTransactionHashCalculatorConsumer(GetNetworkGenerationHash(), registry)(transactionElements);
 
 			// Assert:
 			test::AssertContinued(result);
@@ -286,7 +294,7 @@ namespace catapult { namespace consumers {
 	TEST(TRANSACTION_TEST_CLASS, CanProcessZeroEntities) {
 		// Assert:
 		auto registry = mocks::CreateDefaultTransactionRegistry();
-		test::AssertPassthroughForEmptyInput(CreateTransactionHashCalculatorConsumer(registry));
+		test::AssertPassthroughForEmptyInput(CreateTransactionHashCalculatorConsumer(GetNetworkGenerationHash(), registry));
 	}
 
 	TEST(TRANSACTION_TEST_CLASS, CanProcessSingleEntity) {
@@ -301,18 +309,20 @@ namespace catapult { namespace consumers {
 
 	TEST(TRANSACTION_TEST_CLASS, CalculatesCorrectHashForDeterministicEntity) {
 		// Arrange:
+		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
+
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto pEntity = test::GenerateDeterministicTransaction();
 		auto input = ConsumerInput(model::TransactionRange::FromEntity(std::move(pEntity)));
 		auto& transactionElements = input.transactions();
 
 		// Act:
-		auto result = CreateTransactionHashCalculatorConsumer(registry)(transactionElements);
+		auto result = CreateTransactionHashCalculatorConsumer(generationHash, registry)(transactionElements);
 
 		// Assert:
 		test::AssertContinued(result);
 		ASSERT_EQ(1u, transactionElements.size());
-		EXPECT_EQ(test::Deterministic_Transaction_Hash_String, test::ToHexString(transactionElements[0].EntityHash));
+		EXPECT_EQ(test::Deterministic_Transaction_Hash_String, test::ToString(transactionElements[0].EntityHash));
 	}
 
 	// endregion
@@ -331,7 +341,7 @@ namespace catapult { namespace consumers {
 				}
 
 				static auto Consume(const model::TransactionRegistry& registry, ConsumerInput& input) {
-					return CreateBlockHashCalculatorConsumer(registry)(input.blocks());
+					return CreateBlockHashCalculatorConsumer(GetNetworkGenerationHash(), registry)(input.blocks());
 				}
 
 				static const auto& GetTransaction(const ConsumerInput& input) {
@@ -352,7 +362,7 @@ namespace catapult { namespace consumers {
 				{}
 
 				static auto Consume(const model::TransactionRegistry& registry, ConsumerInput& input) {
-					return CreateTransactionHashCalculatorConsumer(registry)(input.transactions());
+					return CreateTransactionHashCalculatorConsumer(GetNetworkGenerationHash(), registry)(input.transactions());
 				}
 
 				static const auto& GetTransaction(const ConsumerInput& input) {
@@ -381,7 +391,8 @@ namespace catapult { namespace consumers {
 		const auto& transaction = TTraits::GetTransaction(input);
 
 		// - since there are no supplementary buffers, the transaction hash is equal to the merkle hash
-		auto expectedEntityHash = model::CalculateHash(transaction, mocks::ExtractBuffer({ 5, 15 }, &transaction));
+		auto generationHash = GetNetworkGenerationHash();
+		auto expectedEntityHash = model::CalculateHash(transaction, generationHash, mocks::ExtractBuffer({ 5, 15 }, &transaction));
 		TTraits::UpdateWithExpectedMerkleHash(input, expectedEntityHash);
 
 		// Act:

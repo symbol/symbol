@@ -19,10 +19,10 @@
 **/
 
 #include "TransactionSpamThrottle.h"
-#include "catapult/cache/MemoryUtCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/ImportanceView.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/model/Transaction.h"
 #include <cmath>
 

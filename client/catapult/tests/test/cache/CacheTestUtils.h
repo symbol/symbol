@@ -29,31 +29,31 @@ namespace catapult { namespace cache { class ReadOnlyCatapultCache; } }
 
 namespace catapult { namespace test {
 
-	/// Cache factory for creating a catapult cache composed of all core subcaches.
+	/// Cache factory for creating a catapult cache composed of all core sub caches.
 	struct CoreSystemCacheFactory {
 		/// Creates an empty catapult cache around \a config.
 		static cache::CatapultCache Create(const model::BlockChainConfiguration& config);
 
-		/// Adds all core subcaches initialized with \a config to \a subCaches.
+		/// Adds all core sub caches initialized with \a config to \a subCaches.
 		static void CreateSubCaches(
 				const model::BlockChainConfiguration& config,
 				std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
 
-		/// Adds all core subcaches initialized with \a config and \a cacheConfig to \a subCaches.
+		/// Adds all core sub caches initialized with \a config and \a cacheConfig to \a subCaches.
 		static void CreateSubCaches(
 				const model::BlockChainConfiguration& config,
 				const cache::CacheConfiguration& cacheConfig,
 				std::vector<std::unique_ptr<cache::SubCachePlugin>>& subCaches);
 	};
 
-	/// Creates a subcache plugin given \a args for a plugin that doesn't require configuration.
+	/// Creates a sub cache plugin given \a args for a plugin that doesn't require configuration.
 	template<typename TCache, typename TStorageTraits, typename... TArgs>
 	std::unique_ptr<cache::SubCachePlugin> MakeConfigurationFreeSubCachePlugin(TArgs&&... args) {
 		auto pCache = std::make_unique<TCache>(std::forward<TArgs>(args)...);
 		return std::make_unique<cache::SubCachePluginAdapter<TCache, TStorageTraits>>(std::move(pCache));
 	}
 
-	/// Creates a subcache plugin around \a cacheConfig given \a args.
+	/// Creates a sub cache plugin around \a cacheConfig given \a args.
 	template<typename TCache, typename TStorageTraits, typename... TArgs>
 	std::unique_ptr<cache::SubCachePlugin> MakeSubCachePluginWithCacheConfiguration(
 			const cache::CacheConfiguration& cacheConfig,
@@ -61,7 +61,7 @@ namespace catapult { namespace test {
 		return MakeConfigurationFreeSubCachePlugin<TCache, TStorageTraits>(cacheConfig, std::forward<TArgs>(args)...);
 	}
 
-	/// Creates a subcache plugin given \a args.
+	/// Creates a sub cache plugin given \a args.
 	template<typename TCache, typename TStorageTraits, typename... TArgs>
 	std::unique_ptr<cache::SubCachePlugin> MakeSubCachePlugin(TArgs&&... args) {
 		return MakeSubCachePluginWithCacheConfiguration<TCache, TStorageTraits>(cache::CacheConfiguration(), std::forward<TArgs>(args)...);

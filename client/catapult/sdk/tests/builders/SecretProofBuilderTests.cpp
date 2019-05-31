@@ -34,11 +34,13 @@ namespace catapult { namespace builders {
 			TransactionProperties()
 					: HashAlgorithm(model::LockHashAlgorithm::Op_Sha3_256)
 					, Secret()
+					, Recipient()
 			{}
 
 		public:
 			model::LockHashAlgorithm HashAlgorithm;
 			Hash256 Secret;
+			UnresolvedAddress Recipient;
 			RawBuffer Proof;
 		};
 
@@ -46,6 +48,7 @@ namespace catapult { namespace builders {
 		void AssertTransactionProperties(const TransactionProperties& expectedProperties, const TTransaction& transaction) {
 			EXPECT_EQ(expectedProperties.HashAlgorithm, transaction.HashAlgorithm);
 			EXPECT_EQ(expectedProperties.Secret, transaction.Secret);
+			EXPECT_EQ(expectedProperties.Recipient, transaction.Recipient);
 			EXPECT_EQ_MEMORY(expectedProperties.Proof.pData, transaction.ProofPtr(), expectedProperties.Proof.Size);
 		}
 
@@ -56,7 +59,7 @@ namespace catapult { namespace builders {
 				const consumer<SecretProofBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 
 			// Act:
 			SecretProofBuilder builder(networkId, signer);
@@ -104,7 +107,7 @@ namespace catapult { namespace builders {
 	TRAITS_BASED_TEST(CanSetSecret) {
 		// Arrange:
 		auto expectedProperties = TransactionProperties();
-		expectedProperties.Secret = test::GenerateRandomData<Hash256_Size>();
+		expectedProperties.Secret = test::GenerateRandomByteArray<Hash256>();
 
 		// Assert:
 		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [&secret = expectedProperties.Secret](auto& builder) {
@@ -112,9 +115,20 @@ namespace catapult { namespace builders {
 		});
 	}
 
+	TRAITS_BASED_TEST(CanSetRecipient) {
+		// Arrange:
+		auto expectedProperties = TransactionProperties();
+		test::FillWithRandomData(expectedProperties.Recipient);
+
+		// Assert:
+		AssertCanBuildTransaction<TTraits>(0, expectedProperties, [&recipient = expectedProperties.Recipient](auto& builder) {
+			builder.setRecipient(recipient);
+		});
+	}
+
 	TRAITS_BASED_TEST(CanSetProof) {
 		// Arrange:
-		auto proof = test::GenerateRandomData<20>();
+		auto proof = test::GenerateRandomArray<20>();
 
 		auto expectedProperties = TransactionProperties();
 		expectedProperties.Proof = proof;

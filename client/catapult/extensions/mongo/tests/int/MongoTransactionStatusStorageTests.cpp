@@ -49,7 +49,7 @@ namespace catapult { namespace mongo {
 		auto CreateTransactionStatuses(size_t count) {
 			std::vector<model::TransactionStatus> statuses;
 			for (auto i = 0u; i < count; ++i)
-				statuses.emplace_back(test::GenerateRandomData<Hash256_Size>(), i, Timestamp(i * i));
+				statuses.emplace_back(test::GenerateRandomByteArray<Hash256>(), i, Timestamp(i * i));
 
 			return statuses;
 		}
@@ -170,7 +170,7 @@ namespace catapult { namespace mongo {
 
 	// region flush
 
-	TEST(TEST_CLASS, FlushExecutesSaveBatches) {
+	TEST(TEST_CLASS, FlushWritesPendingBufferedData) {
 		// Arrange:
 		TransactionStatusSubscriberContext context(Num_Transaction_Statuses);
 		auto& transactionStatuses = context.statuses();
@@ -187,7 +187,7 @@ namespace catapult { namespace mongo {
 		test::AssertCollectionSize(Collection_Name, transactionStatuses.size());
 	}
 
-	TEST(TEST_CLASS, FlushIsNoOpIfNoDataIsPending) {
+	TEST(TEST_CLASS, FlushIsNoOpWhenNoDataIsPending) {
 		// Arrange:
 		TransactionStatusSubscriberContext context(Num_Transaction_Statuses);
 

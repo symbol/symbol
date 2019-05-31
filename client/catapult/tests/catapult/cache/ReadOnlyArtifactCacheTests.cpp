@@ -26,7 +26,7 @@ namespace catapult { namespace cache {
 
 #define TEST_CLASS ReadOnlyArtifactCacheTests
 
-	using ReadOnlyArtifactCacheType = ReadOnlyArtifactCache<test::BasicSimpleCacheView, test::BasicSimpleCacheDelta, size_t, size_t>;
+	using ReadOnlyArtifactCacheType = ReadOnlyArtifactCache<test::BasicSimpleCacheView, test::BasicSimpleCacheDelta, uint64_t, uint64_t>;
 
 	namespace {
 		template<typename TAssertFunc>
@@ -129,7 +129,7 @@ namespace catapult { namespace cache {
 
 	// region isActive
 
-	TEST(TEST_CLASS, ReadOnlyViewCanDetermineIfArtifactIsActive) {
+	TEST(TEST_CLASS, ReadOnlyViewCanDetermineWhetherOrNotArtifactIsActive) {
 		// Assert:
 		RunReadOnlyViewTest([](const auto& readOnlyCache) {
 			// - { 1, 2 } committed
@@ -154,7 +154,7 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	TEST(TEST_CLASS, ReadOnlyDeltaCanDetermineIfArtifactIsActive) {
+	TEST(TEST_CLASS, ReadOnlyDeltaCanDetermineWhetherOrNotArtifactIsActive) {
 		// Assert:
 		RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
 			// - { 1, 2 } committed, { 3, 4 } uncommitted

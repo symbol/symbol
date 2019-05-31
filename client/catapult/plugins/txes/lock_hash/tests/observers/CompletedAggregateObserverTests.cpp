@@ -53,12 +53,12 @@ namespace catapult { namespace observers {
 					return model::TransactionNotification(m_signer, m_transactionHash, m_entityType, m_deadline);
 				}
 
-				void setHash(const Hash256& hash) {
-					m_transactionHash = hash;
-				}
-
 				void setType(model::EntityType type) {
 					m_entityType = type;
+				}
+
+				void prepare(const state::HashLockInfo& lockInfo) {
+					m_transactionHash = lockInfo.Hash;
 				}
 
 			private:

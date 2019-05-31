@@ -80,4 +80,7 @@ namespace catapult { namespace test {
 
 	/// Gets the explicit directory for a plugin test.
 	std::string GetExplicitPluginsDirectory();
+
+	/// Counts the number of files and directories in \a directoryPath.
+	size_t CountFilesAndDirectories(const boost::filesystem::path& directoryPath);
 }}

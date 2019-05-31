@@ -42,6 +42,7 @@ namespace catapult { namespace harvesting {
 			config.HarvestKey = Harvester_Key;
 			config.IsAutoHarvestingEnabled = autoHarvest;
 			config.MaxUnlockedAccounts = 10;
+			config.Beneficiary = std::string(64, '0');
 			return config;
 		}
 

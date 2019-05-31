@@ -96,6 +96,9 @@ namespace catapult { namespace chain {
 			}
 
 			ChainComparisonCode compareChainInfos(const api::ChainInfo& localInfo, const api::ChainInfo& remoteInfo) {
+				if (model::ChainScore(0) == localInfo.Score)
+					return ChainComparisonCode::Local_Chain_Score_Zero;
+
 				if (isRemoteTooFarBehind(localInfo.Height, remoteInfo.Height))
 					return ChainComparisonCode::Remote_Is_Too_Far_Behind;
 

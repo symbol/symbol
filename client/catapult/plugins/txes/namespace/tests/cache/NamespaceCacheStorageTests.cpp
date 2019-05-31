@@ -27,9 +27,9 @@ namespace catapult { namespace cache {
 
 #define TEST_CLASS NamespaceCacheStorageTests
 
-	namespace {
-		constexpr auto Default_Cache_Options = NamespaceCacheTypes::Options{ BlockDuration(100) };
+	// region LoadInto
 
+	namespace {
 		void LoadInto(io::InputStream& inputStream, NamespaceCacheDelta& delta) {
 			return NamespaceCacheStorage::LoadInto(NamespaceCacheStorage::Load(inputStream), delta);
 		}
@@ -42,19 +42,41 @@ namespace catapult { namespace cache {
 			return delta.find(id).get().root().alias(id);
 		}
 
-		struct LoadTraits {
+		struct SharedTraits {
+			class CacheType : public NamespaceCache {
+			public:
+				CacheType() : NamespaceCache(CacheConfiguration(), NamespaceCacheTypes::Options{ BlockDuration(100) })
+				{}
+			};
+
 			using NamespaceHistoryHeader = test::NamespaceHistoryHeader;
 
 			static NamespaceHistoryHeader CreateHistoryHeader(NamespaceId namespaceId, uint64_t depth) {
 				return { depth, namespaceId };
 			}
+		};
 
+		struct LoadTraits : public SharedTraits {
 			template<typename TException>
 			static void AssertCannotLoad(io::InputStream& inputStream) {
 				// Assert:
-				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
+				CacheType cache;
 				auto delta = cache.createDelta();
 				EXPECT_THROW(LoadInto(inputStream, *delta), TException);
+			}
+
+			static void AssertCanLoadEmptyHistory(io::InputStream& inputStream) {
+				// Act:
+				CacheType cache;
+				{
+					auto delta = cache.createDelta();
+					LoadInto(inputStream, *delta);
+					cache.commit();
+				}
+
+				// Assert:
+				auto view = cache.createView();
+				test::AssertCacheSizes(*view, 0, 0, 0);
 			}
 
 			static void AssertCanLoadHistoryWithDepthOneWithoutChildren(
@@ -62,7 +84,7 @@ namespace catapult { namespace cache {
 					const Key& owner,
 					const state::NamespaceAlias& alias) {
 				// Act:
-				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
+				CacheType cache;
 				{
 					auto delta = cache.createDelta();
 					LoadInto(inputStream, *delta);
@@ -79,7 +101,7 @@ namespace catapult { namespace cache {
 
 			static void AssertCannotLoadHistoryWithDepthOneOutOfOrderChildren(io::InputStream& inputStream) {
 				// Arrange:
-				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
+				CacheType cache;
 				auto delta = cache.createDelta();
 
 				// Act + Assert:
@@ -91,7 +113,7 @@ namespace catapult { namespace cache {
 					const Key& owner,
 					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
-				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
+				CacheType cache;
 				{
 					auto delta = cache.createDelta();
 					LoadInto(inputStream, *delta);
@@ -120,7 +142,7 @@ namespace catapult { namespace cache {
 					const Key& owner,
 					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
-				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
+				CacheType cache;
 				{
 					auto delta = cache.createDelta();
 					LoadInto(inputStream, *delta);
@@ -166,7 +188,7 @@ namespace catapult { namespace cache {
 					const Key& owner3,
 					const std::vector<state::NamespaceAlias>& aliases) {
 				// Act:
-				NamespaceCache cache(CacheConfiguration{}, Default_Cache_Options);
+				CacheType cache;
 				{
 					auto delta = cache.createDelta();
 					LoadInto(inputStream, *delta);
@@ -210,4 +232,159 @@ namespace catapult { namespace cache {
 	}
 
 	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_TESTS(LoadTraits,)
+
+	// endregion
+
+	// region Purge
+
+	namespace {
+		class PurgeTraits : public SharedTraits {
+		public:
+			static void AssertCanLoadHistoryWithDepthOneWithoutChildren(
+					io::InputStream& inputStream,
+					const Key&,
+					const state::NamespaceAlias&) {
+				// Arrange:
+				CacheType cache;
+				auto history = SeedCache(cache, inputStream);
+
+				// Sanity:
+				test::AssertCacheSizes(*cache.createView(), 2, 2, 2);
+
+				// Act + Assert:
+				RunPurgeTest(cache, history);
+			}
+
+			static void AssertCanLoadHistoryWithDepthOneWithChildren(
+					io::InputStream& inputStream,
+					const Key&,
+					const std::vector<state::NamespaceAlias>&) {
+				// Arrange:
+				CacheType cache;
+				auto history = SeedCache(cache, inputStream);
+
+				// Sanity:
+				test::AssertCacheSizes(*cache.createView(), 2, 5, 5);
+
+				// Act + Assert:
+				RunPurgeTest(cache, history);
+			}
+
+			static void AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner(
+					io::InputStream& inputStream,
+					const Key&,
+					const std::vector<state::NamespaceAlias>&) {
+				// Arrange:
+				CacheType cache;
+				auto history = SeedCache(cache, inputStream);
+
+				// Sanity:
+				test::AssertCacheSizes(*cache.createView(), 2, 6, 16);
+
+				// Act + Assert:
+				RunPurgeTest(cache, history);
+			}
+
+			static void AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner(
+					io::InputStream& inputStream,
+					const Key&,
+					const Key&,
+					const Key&,
+					const std::vector<state::NamespaceAlias>&) {
+				// Arrange:
+				CacheType cache;
+				auto history = SeedCache(cache, inputStream);
+
+				// Sanity:
+				test::AssertCacheSizes(*cache.createView(), 2, 3, 8);
+
+				// Act + Assert:
+				RunPurgeTest(cache, history);
+			}
+
+		private:
+			static state::RootNamespaceHistory SeedCache(CacheType& cache, io::InputStream& inputStream) {
+				// Arrange: add two histories one of which will be purged
+				auto history = NamespaceCacheStorage::Load(inputStream);
+				{
+					auto delta = cache.createDelta();
+					auto owner = test::GenerateRandomByteArray<Key>();
+					delta->insert(state::RootNamespace(NamespaceId(987), owner, test::CreateLifetime(100, 200)));
+					NamespaceCacheStorage::LoadInto(history, *delta);
+					cache.commit();
+				}
+
+				return history;
+			}
+
+			static void RunPurgeTest(CacheType& cache, const state::RootNamespaceHistory& history) {
+				// Sanity:
+				EXPECT_TRUE(cache.createView()->contains(history.id()));
+				EXPECT_TRUE(cache.createView()->contains(NamespaceId(987)));
+
+				// Act:
+				{
+					auto delta = cache.createDelta();
+					NamespaceCacheStorage::Purge(history, *delta);
+					cache.commit();
+				}
+
+				// Assert:
+				auto view = cache.createView();
+				test::AssertCacheSizes(*view, 1, 1, 1);
+				EXPECT_FALSE(view->contains(history.id()));
+				EXPECT_TRUE(view->contains(NamespaceId(987)));
+			}
+		};
+	}
+
+	TEST(TEST_CLASS, CanPurgeNonexistentHistoryFromCache) {
+		// Arrange: add one value that will not be purged
+		PurgeTraits::CacheType cache;
+		{
+			auto delta = cache.createDelta();
+			delta->insert(state::RootNamespace(NamespaceId(987), test::GenerateRandomByteArray<Key>(), test::CreateLifetime(100, 200)));
+			cache.commit();
+		}
+
+		// Sanity:
+		test::AssertCacheSizes(*cache.createView(), 1, 1, 1);
+		EXPECT_FALSE(cache.createView()->contains(NamespaceId(123)));
+		EXPECT_TRUE(cache.createView()->contains(NamespaceId(987)));
+
+		// Act:
+		{
+			auto delta = cache.createDelta();
+			NamespaceCacheStorage::Purge(state::RootNamespaceHistory(NamespaceId(123)), *delta);
+			cache.commit();
+		}
+
+		// Assert:
+		auto view = cache.createView();
+		test::AssertCacheSizes(*view, 1, 1, 1);
+		EXPECT_FALSE(view->contains(NamespaceId(123)));
+		EXPECT_TRUE(view->contains(NamespaceId(987)));
+	}
+
+	TEST(TEST_CLASS, CanPurgeHistoryWithDepthOneWithoutChildren) {
+		// Assert:
+		test::RootNamespaceHistoryLoadTests<PurgeTraits>::AssertCanLoadHistoryWithDepthOneWithoutChildren();
+	}
+
+	TEST(TEST_CLASS, CanPurgeHistoryWithDepthOneWithChildren) {
+		// Assert:
+		test::RootNamespaceHistoryLoadTests<PurgeTraits>::AssertCanLoadHistoryWithDepthOneWithChildren();
+	}
+
+	TEST(TEST_CLASS, CanPurgeHistoryWithDepthGreaterThanOneSameOwner) {
+		// Assert:
+		test::RootNamespaceHistoryLoadTests<PurgeTraits>::AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner();
+	}
+
+	TEST(TEST_CLASS, CanPurgeHistoryWithDepthGreaterThanOneDifferentOwner) {
+		// Assert:
+		test::RootNamespaceHistoryLoadTests<PurgeTraits>::AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner();
+	}
+
+	// endregion
 }}

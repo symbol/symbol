@@ -23,27 +23,18 @@
 #include "catapult/model/NetworkInfo.h"
 #include <memory>
 
-namespace catapult {
-	namespace mongo {
-		class MongoBulkWriter;
-		class MongoDatabase;
-	}
-}
+namespace catapult { namespace mongo { class MongoStorageContext; } }
 
 /// Declares a mongo cache storage with \a NAME.
 #define DECLARE_MONGO_CACHE_STORAGE(NAME) \
 	std::unique_ptr<mongo::ExternalCacheStorage> CreateMongo##NAME##CacheStorage( \
-			mongo::MongoDatabase&& database, \
-			mongo::MongoBulkWriter& bulkWriter, \
+			mongo::MongoStorageContext& storageContext, \
 			model::NetworkIdentifier networkIdentifier) \
 
 /// Defines a mongo cache storage with \a NAME and \a STORAGE_TYPE using \a TRAITS_NAME.
 #define DEFINE_MONGO_CACHE_STORAGE(NAME, STORAGE_TYPE, TRAITS_NAME) \
 	DECLARE_MONGO_CACHE_STORAGE(NAME) { \
-		return std::make_unique<storages::STORAGE_TYPE<TRAITS_NAME>>( \
-				std::move(database), \
-				bulkWriter, \
-				networkIdentifier); \
+		return std::make_unique<storages::STORAGE_TYPE<TRAITS_NAME>>(storageContext, networkIdentifier); \
 	}
 
 /// Defines a mongo flat cache storage with \a NAME using \a TRAITS_NAME.

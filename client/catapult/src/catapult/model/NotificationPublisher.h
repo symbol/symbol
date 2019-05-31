@@ -34,8 +34,10 @@ namespace catapult { namespace model {
 	enum class PublicationMode {
 		/// Only basic notifications are published.
 		Basic,
+
 		/// Only custom notifications are published.
 		Custom,
+
 		/// All notifications are published.
 		All
 	};

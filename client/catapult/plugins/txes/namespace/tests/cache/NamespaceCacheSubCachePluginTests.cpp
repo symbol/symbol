@@ -19,6 +19,7 @@
 **/
 
 #include "src/cache/NamespaceCacheSubCachePlugin.h"
+#include "tests/test/NamespaceCacheTestUtils.h"
 #include "tests/test/NamespaceTestUtils.h"
 #include "tests/test/cache/SummaryAwareCacheStoragePluginTests.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
@@ -30,60 +31,84 @@ namespace catapult { namespace cache {
 
 	// region NamespaceCacheSummaryCacheStorage
 
-	TEST(TEST_CLASS, CanSaveActiveAndDeepSize) {
-		// Arrange:
-		auto config = CacheConfiguration();
-		NamespaceCache cache(config, NamespaceCacheTypes::Options());
-		NamespaceCacheSummaryCacheStorage storage(cache);
-		{
-			// - insert root with 2 children, then renew root
-			auto delta = cache.createDelta();
-			auto owner = test::CreateRandomOwner();
-			state::RootNamespace root(NamespaceId(123), owner, test::CreateLifetime(234, 321));
-			delta->insert(root);
-			delta->insert(state::Namespace(test::CreatePath({ 123, 127 })));
-			delta->insert(state::Namespace(test::CreatePath({ 123, 128 })));
-			state::RootNamespace renewedRoot(NamespaceId(123), owner, test::CreateLifetime(345, 456));
-			delta->insert(renewedRoot);
-			cache.commit();
+	namespace {
+		template<typename TAction>
+		void RunCacheStorageTest(TAction action) {
+			// Arrange:
+			auto config = CacheConfiguration();
+			NamespaceCache cache(config, NamespaceCacheTypes::Options());
+			NamespaceCacheSummaryCacheStorage storage(cache);
+
+			// Act + Assert:
+			action(storage, cache);
 		}
-
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream("", buffer);
-
-		// Act:
-		storage.saveAll(stream);
-
-		// Assert: all sizes were saved
-		ASSERT_EQ(sizeof(uint64_t) * 2, buffer.size());
-
-		auto activeSize = reinterpret_cast<uint64_t&>(*buffer.data());
-		auto deepSize = reinterpret_cast<uint64_t&>(*(buffer.data() + sizeof(uint64_t)));
-		EXPECT_EQ(3u, activeSize);
-		EXPECT_EQ(6u, deepSize);
-
-		// - there was a single flush
-		EXPECT_EQ(1u, stream.numFlushes());
 	}
 
-	TEST(TEST_CLASS, CanLoadActiveAndDeepSize) {
+	TEST(TEST_CLASS, CannotSaveAll) {
 		// Arrange:
-		auto config = CacheConfiguration();
-		NamespaceCache cache(config, NamespaceCacheTypes::Options());
-		NamespaceCacheSummaryCacheStorage storage(cache);
+		RunCacheStorageTest([](const auto& storage, const auto&) {
+			auto catapultCache = test::NamespaceCacheFactory::Create();
+			auto cacheView = catapultCache.createView();
 
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream("", buffer);
-		io::Write64(stream, 7);
-		io::Write64(stream, 11);
+			std::vector<uint8_t> buffer;
+			mocks::MockMemoryStream stream(buffer);
 
-		// Act:
-		storage.loadAll(stream, 0);
+			// Act + Assert:
+			EXPECT_THROW(storage.saveAll(cacheView, stream), catapult_invalid_argument);
+		});
+	}
 
-		// Assert:
-		auto view = cache.createView();
-		EXPECT_EQ(7u, view->activeSize());
-		EXPECT_EQ(11u, view->deepSize());
+	TEST(TEST_CLASS, CanSaveSummary) {
+		// Arrange:
+		RunCacheStorageTest([](const auto& storage, const auto&) {
+			auto catapultCache = test::NamespaceCacheFactory::Create();
+
+			// - insert root with 2 children, then renew root
+			auto cacheDelta = catapultCache.createDelta();
+			auto& delta = cacheDelta.sub<NamespaceCache>();
+			auto owner = test::CreateRandomOwner();
+			state::RootNamespace root(NamespaceId(123), owner, test::CreateLifetime(234, 321));
+			delta.insert(root);
+			delta.insert(state::Namespace(test::CreatePath({ 123, 127 })));
+			delta.insert(state::Namespace(test::CreatePath({ 123, 128 })));
+			state::RootNamespace renewedRoot(NamespaceId(123), owner, test::CreateLifetime(345, 456));
+			delta.insert(renewedRoot);
+
+			std::vector<uint8_t> buffer;
+			mocks::MockMemoryStream stream(buffer);
+
+			// Act:
+			storage.saveSummary(cacheDelta, stream);
+
+			// Assert: all sizes were saved
+			ASSERT_EQ(sizeof(uint64_t) * 2, buffer.size());
+
+			auto activeSize = reinterpret_cast<uint64_t&>(buffer[0]);
+			auto deepSize = reinterpret_cast<uint64_t&>(buffer[sizeof(uint64_t)]);
+			EXPECT_EQ(3u, activeSize);
+			EXPECT_EQ(6u, deepSize);
+
+			// - there was a single flush
+			EXPECT_EQ(1u, stream.numFlushes());
+		});
+	}
+
+	TEST(TEST_CLASS, CanLoadSummary) {
+		// Arrange:
+		RunCacheStorageTest([](auto& storage, const auto& cache) {
+			std::vector<uint8_t> buffer;
+			mocks::MockMemoryStream stream(buffer);
+			io::Write64(stream, 7);
+			io::Write64(stream, 11);
+
+			// Act:
+			storage.loadAll(stream, 0);
+
+			// Assert:
+			auto view = cache.createView();
+			EXPECT_EQ(7u, view->activeSize());
+			EXPECT_EQ(11u, view->deepSize());
+		});
 	}
 
 	// endregion

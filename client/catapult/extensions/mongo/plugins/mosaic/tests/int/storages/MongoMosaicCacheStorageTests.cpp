@@ -47,7 +47,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static ModelType GenerateRandomElement(uint32_t id) {
-				auto owner = test::GenerateRandomData<Key_Size>();
+				auto owner = test::GenerateRandomByteArray<Key>();
 				return test::CreateMosaicEntry(MosaicId(id), Height(345), owner, Amount(456), BlockDuration(567));
 			}
 

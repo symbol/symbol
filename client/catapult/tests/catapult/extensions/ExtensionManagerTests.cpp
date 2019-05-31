@@ -69,26 +69,6 @@ namespace catapult { namespace extensions {
 
 	// endregion
 
-	// region lifetime handlers
-
-	struct PreLoadHandlerTraits {
-		static auto CreateConsumer(const ExtensionManager& manager) {
-			return manager.preLoadHandler();
-		}
-
-		static void AddConsumer(ExtensionManager& manager, const ExtensionManager::CacheConsumer& handler) {
-			manager.addPreLoadHandler(handler);
-		}
-
-		static auto CreateConsumerData() {
-			return cache::CatapultCache({});
-		}
-	};
-
-	DEFINE_CONSUMER_HANDLER_TESTS(TEST_CLASS, ExtensionManager, PreLoadHandler)
-
-	// endregion
-
 	// region network time supplier
 
 	TEST(TEST_CLASS, CanUseDefaultNetworkTimeSupplierWhenUnset) {
@@ -126,56 +106,6 @@ namespace catapult { namespace extensions {
 
 		// Act + Assert:
 		EXPECT_THROW(manager.setNetworkTimeSupplier([]() { return Timestamp(123); }), catapult_invalid_argument);
-	}
-
-	// endregion
-
-	// region block chain storage
-
-	TEST(TEST_CLASS, CannotCreateBlockChainStorageWithoutRegistration) {
-		// Arrange:
-		ExtensionManager manager;
-
-		// Act + Assert:
-		EXPECT_THROW(manager.createBlockChainStorage(), catapult_runtime_error);
-	}
-
-	namespace {
-		class UnsupportedBlockChainStorage : public BlockChainStorage {
-		public:
-			void loadFromStorage(const LocalNodeStateRef&, const plugins::PluginManager&) override {
-				CATAPULT_THROW_RUNTIME_ERROR("loadFromStorage - not supported in mock");
-			}
-
-			void saveToStorage(const LocalNodeStateConstRef&) override {
-				CATAPULT_THROW_RUNTIME_ERROR("saveToStorage - not supported in mock");
-			}
-		};
-	}
-
-	TEST(TEST_CLASS, CanCreateBlockChainStorageWithRegistration) {
-		// Arrange:
-		ExtensionManager manager;
-		auto pRegisteredStorage = std::make_unique<UnsupportedBlockChainStorage>();
-		const auto& registeredStorage = *pRegisteredStorage;
-
-		// Act:
-		manager.setBlockChainStorage(std::move(pRegisteredStorage));
-		auto pStorage = manager.createBlockChainStorage();
-
-		// Assert: saveToStorage should trigger storage exception
-		ASSERT_TRUE(!!pStorage);
-		EXPECT_EQ(&registeredStorage, pStorage.get());
-		EXPECT_THROW(pStorage->saveToStorage(test::LocalNodeTestState().cref()), catapult_runtime_error);
-	}
-
-	TEST(TEST_CLASS, CannotSetBlockChainStorageMultipleTimes) {
-		// Arrange:
-		ExtensionManager manager;
-		manager.setBlockChainStorage(std::make_unique<UnsupportedBlockChainStorage>());
-
-		// Act + Assert:
-		EXPECT_THROW(manager.setBlockChainStorage(std::make_unique<UnsupportedBlockChainStorage>()), catapult_invalid_argument);
 	}
 
 	// endregion

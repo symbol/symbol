@@ -40,7 +40,7 @@ namespace catapult { namespace extensions {
 		void AssertUnsupported(observers::NotifyMode notifyMode, Height height) {
 			// Arrange:
 			test::AccountObserverTestContext context(notifyMode, height);
-			auto sender = test::GenerateRandomData<Key_Size>();
+			auto sender = test::GenerateRandomByteArray<Key>();
 
 			NemesisFundingState fundingState;
 			auto pObserver = CreateNemesisFundingObserver(sender, fundingState);
@@ -61,11 +61,11 @@ namespace catapult { namespace extensions {
 		AssertUnsupported(observers::NotifyMode::Commit, Height(2));
 	}
 
-	TEST(TEST_CLASS, ObserverFailsIfTransferIsFromNonNemesisAccount) {
+	TEST(TEST_CLASS, ObserverFailsWhenTransferIsFromNonNemesisAccount) {
 		// Arrange:
 		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
-		auto nemesis = test::GenerateRandomData<Key_Size>();
-		auto sender = test::GenerateRandomData<Key_Size>();
+		auto nemesis = test::GenerateRandomByteArray<Key>();
+		auto sender = test::GenerateRandomByteArray<Key>();
 
 		NemesisFundingState fundingState;
 		auto pObserver = CreateNemesisFundingObserver(nemesis, fundingState);
@@ -86,7 +86,7 @@ namespace catapult { namespace extensions {
 
 		// - pre-fund account
 		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
-		auto sender = test::GenerateRandomData<Key_Size>();
+		auto sender = test::GenerateRandomByteArray<Key>();
 
 		auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
 		accountStateCache.addAccount(sender, Height(1));
@@ -131,7 +131,7 @@ namespace catapult { namespace extensions {
 
 		// - don't pre-fund account
 		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
-		auto sender = test::GenerateRandomData<Key_Size>();
+		auto sender = test::GenerateRandomByteArray<Key>();
 
 		NemesisFundingState fundingState;
 		auto pObserver = CreateNemesisFundingObserver(sender, fundingState);

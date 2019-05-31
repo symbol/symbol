@@ -32,16 +32,14 @@ namespace catapult { namespace deltaset {
 		using OrderedTraits = test::BaseSetTraits<TMutabilityTraits, test::OrderedSetTraits<test::SetElementType<TMutabilityTraits>>>;
 
 		using NonPointerTraits = test::BaseTraits<OrderedTraits<test::MutableElementValueTraits>>;
-		using PointerTraits = test::BaseTraits<OrderedTraits<test::MutableElementPointerTraits>>;
 	}
 
 #define SET_UTILS_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_NonPointer) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonPointerTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Pointer) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PointerTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	SET_UTILS_TRAITS_BASED_TEST(ContainsAnyReturnsTrueIfAtLeastOneElementExists) {
+	SET_UTILS_TRAITS_BASED_TEST(ContainsAnyReturnsTrueWhenAtLeastOneElementExists) {
 		// Arrange:
 		auto pSet = TTraits::Create();
 		auto pDelta = pSet->rebase();
@@ -59,7 +57,7 @@ namespace catapult { namespace deltaset {
 		EXPECT_TRUE(found);
 	}
 
-	SET_UTILS_TRAITS_BASED_TEST(ContainsAnyReturnsFalseIfNoElementExists) {
+	SET_UTILS_TRAITS_BASED_TEST(ContainsAnyReturnsFalseWhenNoElementExists) {
 		// Arrange:
 		auto pSet = TTraits::Create();
 		auto elements = typename TTraits::ElementVector{

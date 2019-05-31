@@ -20,9 +20,9 @@
 
 #include "sync/src/TransactionSpamThrottle.h"
 #include "catapult/cache/CatapultCache.h"
-#include "catapult/cache/MemoryUtCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/ImportanceHeight.h"
 #include "tests/test/cache/CacheTestUtils.h"
@@ -38,13 +38,13 @@ namespace catapult { namespace sync {
 		using TransactionSource = chain::UtUpdater::TransactionSource;
 
 		cache::CatapultCache CreateCatapultCacheWithImportanceGrouping(uint64_t importanceGrouping) {
-			auto blockChainConfiguration = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfiguration.ImportanceGrouping = importanceGrouping;
-			return test::CreateEmptyCatapultCache(blockChainConfiguration);
+			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+			blockChainConfig.ImportanceGrouping = importanceGrouping;
+			return test::CreateEmptyCatapultCache(blockChainConfig);
 		}
 
 		Key AddAccount(cache::AccountStateCacheDelta& delta, Importance importance) {
-			auto publicKey = test::GenerateRandomData<Key_Size>();
+			auto publicKey = test::GenerateRandomByteArray<Key>();
 			delta.addAccount(publicKey, Height(1));
 			auto& accountState = delta.find(publicKey).get();
 			accountState.ImportanceInfo.set(importance, model::ImportanceHeight(1));

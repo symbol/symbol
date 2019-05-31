@@ -37,7 +37,7 @@ namespace catapult { namespace validators {
 			{
 				auto cacheDelta = cache.createDelta();
 				auto& namespaceCacheDelta = cacheDelta.sub<cache::NamespaceCache>();
-				auto rootOwner = test::GenerateRandomData<Key_Size>();
+				auto rootOwner = test::GenerateRandomByteArray<Key>();
 
 				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), rootOwner, test::CreateLifetime(10, 20)));
 				namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36 })));
@@ -66,7 +66,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, FailureIfMaxChildrenIsExceeded) {
+	TEST(TEST_CLASS, FailureWhenMaxChildrenIsExceeded) {
 		// Act: root with id 25 has 3 children
 		auto notification = model::ChildNamespaceNotification(Key(), NamespaceId(26), NamespaceId(25));
 		RunTest(Failure_Namespace_Max_Children_Exceeded, notification, 1);
@@ -74,7 +74,7 @@ namespace catapult { namespace validators {
 		RunTest(Failure_Namespace_Max_Children_Exceeded, notification, 3);
 	}
 
-	TEST(TEST_CLASS, SuccessIfMaxChildrenIsNotExceeded) {
+	TEST(TEST_CLASS, SuccessWhenMaxChildrenIsNotExceeded) {
 		// Act: root with id 25 has 3 children
 		auto notification = model::ChildNamespaceNotification(Key(), NamespaceId(26), NamespaceId(25));
 		RunTest(ValidationResult::Success, notification, 4);

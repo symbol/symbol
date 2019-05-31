@@ -27,19 +27,19 @@ namespace catapult { namespace crypto {
 	namespace {
 		void BenchmarkVerify(benchmark::State& state) {
 			Key key;
-			std::vector<uint8_t> data(279);
+			std::vector<uint8_t> buffer(279);
 			Signature signature;
 			for (auto _ : state) {
 				state.PauseTiming();
 				bench::FillWithRandomData(key);
-				bench::FillWithRandomData(data);
+				bench::FillWithRandomData(buffer);
 				bench::FillWithRandomData(signature);
 				state.ResumeTiming();
 
-				crypto::Verify(key, data, signature);
+				crypto::Verify(key, buffer, signature);
 			}
 
-			state.SetBytesProcessed(static_cast<int64_t>(data.size() * state.iterations()));
+			state.SetBytesProcessed(static_cast<int64_t>(buffer.size() * state.iterations()));
 		}
 	}
 }}

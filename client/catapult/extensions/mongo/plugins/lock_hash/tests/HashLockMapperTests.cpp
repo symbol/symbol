@@ -30,7 +30,7 @@ namespace catapult { namespace mongo { namespace plugins {
 #define TEST_CLASS HashLockMapperTests
 
 	namespace {
-		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(HashLock)
+		DEFINE_MONGO_TRANSACTION_PLUGIN_TEST_TRAITS_NO_ADAPT(HashLock,)
 
 		template<typename TTransaction>
 		void AssertHashLockTransaction(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
@@ -38,7 +38,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		}
 	}
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, model::Entity_Type_Hash_Lock)
+	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Hash_Lock)
 
 	// region streamTransaction
 

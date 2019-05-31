@@ -83,7 +83,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(2357u, array[2]);
 	}
 
-	TEST(TEST_CLASS, AddingElementThrowsIfCapacityIsExceeded) {
+	TEST(TEST_CLASS, AddingElementThrowsWhenCapacityIsExceeded) {
 		// Arrange:
 		UintCheckedArray array;
 		for (auto i = 0u; i < Default_Size; ++i)
@@ -114,7 +114,7 @@ namespace catapult { namespace utils {
 			EXPECT_EQ(i * i, array[i]) << "element at " << i;
 	}
 
-	TEST(TEST_CLASS, SubscriptOperatorThrowsIfIndexIsOutOfRange) {
+	TEST(TEST_CLASS, SubscriptOperatorThrowsWhenIndexIsOutOfRange) {
 		// Arrange:
 		UintCheckedArray array;
 		for (auto i = 0u; i < Default_Size / 2; ++i)

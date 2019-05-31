@@ -41,28 +41,6 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region MosaicEntryLevyMixin
-
-	bool MosaicEntryLevyMixin::hasLevy() const {
-		return !!m_pLevy;
-	}
-
-	const MosaicLevy& MosaicEntryLevyMixin::levy() const {
-		if (!hasLevy())
-			CATAPULT_THROW_RUNTIME_ERROR("mosaic has no levy");
-
-		return *m_pLevy;
-	}
-
-	void MosaicEntryLevyMixin::setLevy(std::shared_ptr<MosaicLevy>&& pLevy) {
-		if (hasLevy())
-			CATAPULT_THROW_RUNTIME_ERROR("mosaic already has levy set");
-
-		m_pLevy = std::move(pLevy);
-	}
-
-	// endregion
-
 	// region MosaicEntry
 
 	MosaicEntry::MosaicEntry(MosaicId id, const MosaicDefinition& definition)

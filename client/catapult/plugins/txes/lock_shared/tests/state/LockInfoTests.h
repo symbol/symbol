@@ -27,7 +27,7 @@ namespace catapult { namespace state {
 	template<typename TLockInfo>
 	class LockInfoTests {
 	public:
-		static void AssertIsActiveReturnsTrueIfHeightIsLessThanUnusedLockInfoHeight() {
+		static void AssertIsActiveReturnsTrueWhenHeightIsLessThanUnusedLockInfoHeight() {
 			// Arrange:
 			TLockInfo lockInfo;
 			lockInfo.Status = LockStatus::Unused;
@@ -38,12 +38,12 @@ namespace catapult { namespace state {
 			EXPECT_TRUE(lockInfo.isActive(Height(1)));
 		}
 
-		static void AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToUnusedLockInfoHeight() {
+		static void AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUnusedLockInfoHeight() {
 			// Assert:
-			AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus::Unused);
+			AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus::Unused);
 		}
 
-		static void AssertIsActiveReturnsFalseIfHeightIsLessThanUsedLockInfoHeight() {
+		static void AssertIsActiveReturnsFalseWhenHeightIsLessThanUsedLockInfoHeight() {
 			// Arrange:
 			TLockInfo lockInfo;
 			lockInfo.Status = LockStatus::Used;
@@ -54,13 +54,13 @@ namespace catapult { namespace state {
 			EXPECT_FALSE(lockInfo.isActive(Height(1)));
 		}
 
-		static void AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToUsedLockInfoHeight() {
+		static void AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUsedLockInfoHeight() {
 			// Assert:
-			AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus::Used);
+			AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus::Used);
 		}
 
 	private:
-		static void AssertIsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus status) {
+		static void AssertIsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToLockInfoHeight(LockStatus status) {
 			// Arrange:
 			TLockInfo lockInfo;
 			lockInfo.Status = status;
@@ -78,7 +78,7 @@ namespace catapult { namespace state {
 	TEST(TEST_CLASS, TEST_NAME) { LockInfoTests<LOCK_INFO_TYPE>::Assert##TEST_NAME(); }
 
 #define DEFINE_LOCK_INFO_TESTS(LOCK_INFO_TYPE) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsTrueIfHeightIsLessThanUnusedLockInfoHeight) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToUnusedLockInfoHeight) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseIfHeightIsLessThanUsedLockInfoHeight) \
-	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseIfHeightIsGreaterThanOrEqualToUsedLockInfoHeight)
+	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsTrueWhenHeightIsLessThanUnusedLockInfoHeight) \
+	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUnusedLockInfoHeight) \
+	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsLessThanUsedLockInfoHeight) \
+	MAKE_LOCK_INFO_TEST(LOCK_INFO_TYPE, IsActiveReturnsFalseWhenHeightIsGreaterThanOrEqualToUsedLockInfoHeight)

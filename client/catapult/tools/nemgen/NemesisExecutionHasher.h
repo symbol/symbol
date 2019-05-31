@@ -23,7 +23,7 @@
 #include <string>
 
 namespace catapult {
-	namespace config { class LocalNodeConfiguration; }
+	namespace config { class CatapultConfiguration; }
 	namespace model { struct BlockElement; }
 }
 
@@ -46,7 +46,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		/// State hash.
 		Hash256 StateHash;
 
-		/// Textual summary including subcache hashes.
+		/// Textual summary including sub cache hashes.
 		std::string Summary;
 	};
 
@@ -54,6 +54,6 @@ namespace catapult { namespace tools { namespace nemgen {
 	/// for network configured with \a config with specified cache database cleanup mode (\a databaseCleanupMode).
 	NemesisExecutionHashesDescriptor CalculateAndLogNemesisExecutionHashes(
 			const model::BlockElement& blockElement,
-			const config::LocalNodeConfiguration& config,
+			const config::CatapultConfiguration& config,
 			CacheDatabaseCleanupMode databaseCleanupMode);
 }}}

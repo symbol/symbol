@@ -37,10 +37,10 @@ namespace catapult { namespace ionet {
 		}
 
 		template<typename TDataContainer>
-		auto CreatePacketPointerWithData(const TDataContainer& data) {
-			auto dataSize = static_cast<uint32_t>(data.size());
-			auto pPacket = CreatePacketPointer(dataSize);
-			std::memcpy(pPacket->Data(), data.data(), dataSize);
+		auto CreatePacketPointerWithData(const TDataContainer& buffer) {
+			auto bufferSize = static_cast<uint32_t>(buffer.size());
+			auto pPacket = CreatePacketPointer(bufferSize);
+			std::memcpy(pPacket->Data(), buffer.data(), bufferSize);
 			return pPacket;
 		}
 	}
@@ -99,8 +99,8 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanCreatePacketPayloadFromPacketWithData) {
 		// Arrange:
 		constexpr auto Data_Size = 123u;
-		auto data = test::GenerateRandomData<Data_Size>();
-		auto pPacket = CreatePacketPointerWithData(data);
+		auto dataBuffer = test::GenerateRandomArray<Data_Size>();
+		auto pPacket = CreatePacketPointerWithData(dataBuffer);
 
 		// Act:
 		auto payload = PacketPayload(std::move(pPacket));
@@ -113,9 +113,9 @@ namespace catapult { namespace ionet {
 		test::AssertPacketHeader(payload, sizeof(PacketHeader) + Data_Size, Test_Packet_Type);
 		ASSERT_EQ(1u, payload.buffers().size());
 
-		const auto& buffer = payload.buffers()[0];
-		ASSERT_EQ(Data_Size, buffer.Size);
-		EXPECT_EQ_MEMORY(data.data(), buffer.pData, Data_Size);
+		const auto& payloadBuffer = payload.buffers()[0];
+		ASSERT_EQ(Data_Size, payloadBuffer.Size);
+		EXPECT_EQ_MEMORY(dataBuffer.data(), payloadBuffer.pData, Data_Size);
 	}
 
 	// endregion
@@ -134,8 +134,8 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanMergePacketAndUnsetPayload) {
 		// Arrange:
 		constexpr auto Data_Size = 222u;
-		auto data = test::GenerateRandomData<Data_Size>();
-		auto pPacket = CreatePacketPointerWithData(data);
+		auto dataBuffer = test::GenerateRandomArray<Data_Size>();
+		auto pPacket = CreatePacketPointerWithData(dataBuffer);
 
 		// Act:
 		auto payload = PacketPayload::Merge(std::move(pPacket), PacketPayload());
@@ -145,16 +145,16 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(1u, payload.buffers().size());
 
 		// - data from packet
-		const auto* pBuffer = &payload.buffers()[0];
-		ASSERT_EQ(Data_Size, pBuffer->Size);
-		EXPECT_EQ_MEMORY(data.data(), pBuffer->pData, Data_Size);
+		const auto& payloadBuffer = payload.buffers()[0];
+		ASSERT_EQ(Data_Size, payloadBuffer.Size);
+		EXPECT_EQ_MEMORY(dataBuffer.data(), payloadBuffer.pData, Data_Size);
 	}
 
 	TEST(TEST_CLASS, CanMergePacketAndPayloadWithHeaderOnly) {
 		// Arrange:
 		constexpr auto Data_Size = 222u;
-		auto data = test::GenerateRandomData<Data_Size>();
-		auto pPacket1 = CreatePacketPointerWithData(data);
+		auto dataBuffer = test::GenerateRandomArray<Data_Size>();
+		auto pPacket1 = CreatePacketPointerWithData(dataBuffer);
 
 		auto pPacket2 = CreateSharedPacket<Packet>(0);
 		pPacket2->Type = static_cast<PacketType>(987);
@@ -167,14 +167,14 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(2u, payload.buffers().size());
 
 		// - data from packet 1
-		const auto* pBuffer = &payload.buffers()[0];
-		ASSERT_EQ(Data_Size, pBuffer->Size);
-		EXPECT_EQ_MEMORY(data.data(), pBuffer->pData, Data_Size);
+		const auto* pPayloadBuffer = &payload.buffers()[0];
+		ASSERT_EQ(Data_Size, pPayloadBuffer->Size);
+		EXPECT_EQ_MEMORY(dataBuffer.data(), pPayloadBuffer->pData, Data_Size);
 
 		// - header from packet 2
-		pBuffer = &payload.buffers()[1];
-		const auto& childPacketHeader = reinterpret_cast<const PacketHeader&>(*pBuffer->pData);
-		ASSERT_EQ(sizeof(PacketHeader), pBuffer->Size);
+		pPayloadBuffer = &payload.buffers()[1];
+		const auto& childPacketHeader = reinterpret_cast<const PacketHeader&>(*pPayloadBuffer->pData);
+		ASSERT_EQ(sizeof(PacketHeader), pPayloadBuffer->Size);
 		EXPECT_EQ(sizeof(PacketHeader), childPacketHeader.Size);
 		EXPECT_EQ(static_cast<PacketType>(987), childPacketHeader.Type);
 	}
@@ -182,12 +182,12 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanMergePacketAndPayloadWithHeaderAndSingleDataBuffer) {
 		// Arrange:
 		constexpr auto Data1_Size = 222u;
-		auto data1 = test::GenerateRandomData<Data1_Size>();
-		auto pPacket1 = CreatePacketPointerWithData(data1);
+		auto dataBuffer1 = test::GenerateRandomArray<Data1_Size>();
+		auto pPacket1 = CreatePacketPointerWithData(dataBuffer1);
 
 		constexpr auto Data2_Size = 123u;
-		auto data2 = test::GenerateRandomData<Data2_Size>();
-		auto pPacket2 = CreatePacketPointerWithData(data2);
+		auto dataBuffer2 = test::GenerateRandomArray<Data2_Size>();
+		auto pPacket2 = CreatePacketPointerWithData(dataBuffer2);
 		pPacket2->Type = static_cast<PacketType>(987);
 
 		// Act:
@@ -198,28 +198,28 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(3u, payload.buffers().size());
 
 		// - data from packet 1
-		const auto* pBuffer = &payload.buffers()[0];
-		ASSERT_EQ(Data1_Size, pBuffer->Size);
-		EXPECT_EQ_MEMORY(data1.data(), pBuffer->pData, Data1_Size);
+		const auto* pPayloadBuffer = &payload.buffers()[0];
+		ASSERT_EQ(Data1_Size, pPayloadBuffer->Size);
+		EXPECT_EQ_MEMORY(dataBuffer1.data(), pPayloadBuffer->pData, Data1_Size);
 
 		// - header from packet 2
-		pBuffer = &payload.buffers()[1];
-		const auto& childPacketHeader = reinterpret_cast<const PacketHeader&>(*pBuffer->pData);
-		ASSERT_EQ(sizeof(PacketHeader), pBuffer->Size);
+		pPayloadBuffer = &payload.buffers()[1];
+		const auto& childPacketHeader = reinterpret_cast<const PacketHeader&>(*pPayloadBuffer->pData);
+		ASSERT_EQ(sizeof(PacketHeader), pPayloadBuffer->Size);
 		EXPECT_EQ(sizeof(PacketHeader) + Data2_Size, childPacketHeader.Size);
 		EXPECT_EQ(static_cast<PacketType>(987), childPacketHeader.Type);
 
 		// - data from packet 2
-		pBuffer = &payload.buffers()[2];
-		ASSERT_EQ(Data2_Size, pBuffer->Size);
-		EXPECT_EQ_MEMORY(data2.data(), pBuffer->pData, Data2_Size);
+		pPayloadBuffer = &payload.buffers()[2];
+		ASSERT_EQ(Data2_Size, pPayloadBuffer->Size);
+		EXPECT_EQ_MEMORY(dataBuffer2.data(), pPayloadBuffer->pData, Data2_Size);
 	}
 
 	TEST(TEST_CLASS, CanMergePacketAndPayloadWithHeaderAndMultipleDataBuffers) {
 		// Arrange:
 		constexpr auto Data1_Size = 222u;
-		auto data1 = test::GenerateRandomData<Data1_Size>();
-		auto pPacket1 = CreatePacketPointerWithData(data1);
+		auto dataBuffer1 = test::GenerateRandomArray<Data1_Size>();
+		auto pPacket1 = CreatePacketPointerWithData(dataBuffer1);
 
 		constexpr auto Data2_Size = 126u + 212 + 111;
 		auto entities = std::vector<std::shared_ptr<model::VerifiableEntity>>{
@@ -238,22 +238,22 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(5u, payload.buffers().size());
 
 		// - data from packet 1
-		const auto* pBuffer = &payload.buffers()[0];
-		ASSERT_EQ(Data1_Size, pBuffer->Size);
-		EXPECT_EQ_MEMORY(data1.data(), pBuffer->pData, Data1_Size);
+		const auto* pPayloadBuffer = &payload.buffers()[0];
+		ASSERT_EQ(Data1_Size, pPayloadBuffer->Size);
+		EXPECT_EQ_MEMORY(dataBuffer1.data(), pPayloadBuffer->pData, Data1_Size);
 
 		// - header from packet 2
-		pBuffer = &payload.buffers()[1];
-		const auto& childPacketHeader = reinterpret_cast<const PacketHeader&>(*pBuffer->pData);
-		ASSERT_EQ(sizeof(PacketHeader), pBuffer->Size);
+		pPayloadBuffer = &payload.buffers()[1];
+		const auto& childPacketHeader = reinterpret_cast<const PacketHeader&>(*pPayloadBuffer->pData);
+		ASSERT_EQ(sizeof(PacketHeader), pPayloadBuffer->Size);
 		EXPECT_EQ(sizeof(PacketHeader) + Data2_Size, childPacketHeader.Size);
 		EXPECT_EQ(static_cast<PacketType>(987), childPacketHeader.Type);
 
 		// - data (entities) from packet 2
 		for (auto i = 0u; i < entities.size(); ++i) {
-			pBuffer = &payload.buffers()[2 + i];
-			ASSERT_EQ(entities[i]->Size, pBuffer->Size) << i;
-			EXPECT_EQ_MEMORY(entities[i].get(), pBuffer->pData, entities[i]->Size) << i;
+			pPayloadBuffer = &payload.buffers()[2 + i];
+			ASSERT_EQ(entities[i]->Size, pPayloadBuffer->Size) << i;
+			EXPECT_EQ_MEMORY(entities[i].get(), pPayloadBuffer->pData, entities[i]->Size) << i;
 		}
 	}
 

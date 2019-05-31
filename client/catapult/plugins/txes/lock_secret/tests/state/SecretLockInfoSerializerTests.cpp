@@ -62,4 +62,21 @@ namespace catapult { namespace state {
 	}
 
 	DEFINE_LOCK_INFO_SERIALIZER_TESTS(SecretLockInfoStorageTraits)
+
+	TEST(TEST_CLASS, LoadCalculatesCompositeHash) {
+		// Arrange:
+		auto originalLockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo();
+		test::FillWithRandomData(originalLockInfo.CompositeHash);
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream outputStream(buffer);
+
+		// Act:
+		SecretLockInfoSerializer::Save(originalLockInfo, outputStream);
+		mocks::MockMemoryStream inputStream(buffer);
+		auto lockInfo = SecretLockInfoSerializer::Load(inputStream);
+
+		// Assert: the random composite hash was not saved but recalculated during load
+		auto expectedCompositeHash = model::CalculateSecretLockInfoHash(originalLockInfo.Secret, originalLockInfo.Recipient);
+		EXPECT_EQ(expectedCompositeHash, lockInfo.CompositeHash);
+	}
 }}

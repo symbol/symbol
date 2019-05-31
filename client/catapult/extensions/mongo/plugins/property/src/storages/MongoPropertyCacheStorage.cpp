@@ -39,10 +39,6 @@ namespace catapult { namespace mongo { namespace plugins {
 			static auto MapToMongoDocument(const ModelType& accountProperties, model::NetworkIdentifier) {
 				return plugins::ToDbModel(accountProperties);
 			}
-
-			static void Insert(CacheDeltaType& cache, const bsoncxx::document::view& document) {
-				cache.insert(ToAccountProperties(document));
-			}
 		};
 	}
 

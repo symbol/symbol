@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.4.0.1] - 31-May-2019
+
+### Added
+- New catapult.broker process that pushes changes into MongoDB and and ZMQ.
+- New catapult.recovery process that repairs local state after ungraceful termination.
+- catapult.server produces file-backed messages that are consumed by catapult.broker.
+- Inflation support via new config-inflation.properties.
+- Implementation of harvest fee sharing and beneficiary specification.
+
+### Changed
+- Prevent transactions from being replayed on different networks by prepending the network generation hash to transaction data prior to signing and verifying.
+- Cosigners must opt-in before being added to a multisig account.
+- Allow use of same secret with different recipients by adding Recipient to SecretLockTransaction.
+- HashLockTransaction Mosaic supports aliases to to the currency mosaic.
+- Allow aggregate bonded transaction lifetime to be configured independently of other transactions.
+
+### Fixed
+- Bugs in rollback causing potential fork.
+- Bugs in state hash calculation causing potential fork.
+- Bugs in receipts hash calculation causing potential fork.
+
+### Removed
+- Mosaic levy references.
+
 ## [0.3.0.2] - 27-Feb-2019
 
 ### Changed
@@ -49,6 +73,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 - Initial code release.
 
 
-[0.3.0.0]: https://github.com/nemtech/catapult-server/compare/v0.2.0.2...v0.3.0.0
+[0.4.0.1]: https://github.com/nemtech/catapult-server/compare/v0.3.0.2...v0.4.0.1
+[0.3.0.2]: https://github.com/nemtech/catapult-server/compare/v0.3.0.1...v0.3.0.2
+[0.3.0.1]: https://github.com/nemtech/catapult-server/compare/v0.2.0.2...v0.3.0.1
 [0.2.0.2]: https://github.com/nemtech/catapult-server/compare/v0.1.0.1...v0.2.0.2
 [0.1.0.1]: https://github.com/nemtech/catapult-server/releases/tag/v0.1.0.1

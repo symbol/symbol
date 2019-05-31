@@ -36,7 +36,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanCreateCustomNodeInteractionResult) {
 		// Act:
-		auto identityKey = test::GenerateRandomData<Key_Size>();
+		auto identityKey = test::GenerateRandomByteArray<Key>();
 		NodeInteractionResult result(identityKey, NodeInteractionResultCode::Failure);
 
 		// Assert:

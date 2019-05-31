@@ -25,7 +25,17 @@
 
 namespace catapult { namespace model {
 
+	/// Transaction plugin factory options.
+	enum class TransactionPluginFactoryOptions {
+		/// Transaction supports both top-level and embedding.
+		Default,
+
+		/// Transaction only supports embedding.
+		Only_Embeddable
+	};
+
 	/// Factory for creating transaction plugins.
+	template<TransactionPluginFactoryOptions Options>
 	class TransactionPluginFactory {
 	public:
 		/// Creates an embedded transaction plugin around \a publishEmbeddedFunc.
@@ -55,13 +65,13 @@ namespace catapult { namespace model {
 				return TDerivedTransaction::Entity_Type;
 			}
 
-			uint64_t calculateRealSize(const TTransaction& transaction) const override {
-				return TDerivedTransaction::CalculateRealSize(static_cast<const TDerivedTransaction&>(transaction));
+			TransactionAttributes attributes() const override {
+				auto version = TDerivedTransaction::Current_Version;
+				return { version, version, utils::TimeSpan() };
 			}
 
-			SupportedVersions supportedVersions() const override {
-				auto version = TDerivedTransaction::Current_Version;
-				return { version, version };
+			uint64_t calculateRealSize(const TTransaction& transaction) const override {
+				return TDerivedTransaction::CalculateRealSize(static_cast<const TDerivedTransaction&>(transaction));
 			}
 
 		protected:
@@ -116,6 +126,10 @@ namespace catapult { namespace model {
 				return {};
 			}
 
+			bool supportsTopLevel() const override {
+				return TransactionPluginFactoryOptions::Default == Options;
+			}
+
 			bool supportsEmbedding() const override {
 				return true;
 			}
@@ -129,18 +143,20 @@ namespace catapult { namespace model {
 		};
 	};
 
-/// Defines a transaction plugin factory for \a NAME transaction using \a PUBLISH.
-#define DEFINE_TRANSACTION_PLUGIN_FACTORY(NAME, PUBLISH) \
+/// Defines a transaction plugin factory for \a NAME transaction with \a OPTIONS using \a PUBLISH.
+#define DEFINE_TRANSACTION_PLUGIN_FACTORY(NAME, OPTIONS, PUBLISH) \
 	std::unique_ptr<TransactionPlugin> Create##NAME##TransactionPlugin() { \
-		return TransactionPluginFactory::Create<NAME##Transaction, Embedded##NAME##Transaction>( \
+		using Factory = TransactionPluginFactory<TransactionPluginFactoryOptions::OPTIONS>; \
+		return Factory::Create<NAME##Transaction, Embedded##NAME##Transaction>( \
 				PUBLISH<NAME##Transaction>, \
 				PUBLISH<Embedded##NAME##Transaction>); \
 	}
 
-/// Defines a transaction plugin factory for \a NAME transaction using \a PUBLISH accepting \a CONFIG_TYPE configuration.
-#define DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(NAME, PUBLISH, CONFIG_TYPE) \
+/// Defines a transaction plugin factory for \a NAME transaction with \a OPTIONS using \a PUBLISH accepting \a CONFIG_TYPE configuration.
+#define DEFINE_TRANSACTION_PLUGIN_FACTORY_WITH_CONFIG(NAME, OPTIONS, PUBLISH, CONFIG_TYPE) \
 	std::unique_ptr<TransactionPlugin> Create##NAME##TransactionPlugin(const CONFIG_TYPE& config) { \
-		return TransactionPluginFactory::Create<NAME##Transaction, Embedded##NAME##Transaction>( \
+		using Factory = TransactionPluginFactory<TransactionPluginFactoryOptions::OPTIONS>; \
+		return Factory::Create<NAME##Transaction, Embedded##NAME##Transaction>( \
 				PUBLISH<NAME##Transaction>(config), \
 				PUBLISH<Embedded##NAME##Transaction>(config)); \
 	}

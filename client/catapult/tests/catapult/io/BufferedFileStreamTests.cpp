@@ -23,14 +23,13 @@
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
 
-using catapult::test::TempFileGuard;
-using catapult::test::Default_Test_Buffer_Size;
-
 namespace catapult { namespace io {
 
 #define TEST_CLASS BufferedFileStreamTests
 
 	namespace {
+		constexpr auto Default_Test_Buffer_Size = test::StreamTests<void>::Default_Test_Buffer_Size;
+
 		class BufferedFileStreamContext {
 		public:
 			explicit BufferedFileStreamContext(const char* name) : m_guard(name)
@@ -55,7 +54,7 @@ namespace catapult { namespace io {
 			}
 
 		private:
-			TempFileGuard m_guard;
+			test::TempFileGuard m_guard;
 		};
 
 		class ReadWriteTest : BufferedFileStreamContext {

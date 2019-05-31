@@ -19,9 +19,10 @@
 **/
 
 #include "catapult/config/ValidateConfiguration.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "tests/test/net/NodeTestUtils.h"
+#include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace config {
@@ -33,43 +34,21 @@ namespace catapult { namespace config {
 		const char* Invalid_Private_Key = "3485D98EFD7EB07ABAFCFD1A157D89DE2G96A95E780813C0258AF3F5F84ED8CB";
 		const char* Valid_Private_Key = "3485D98EFD7EB07ABAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB";
 
-		auto CreateValidNodeConfiguration() {
-			return NodeConfiguration::Uninitialized();
-		}
+		auto CreateMutableCatapultConfiguration() {
+			test::MutableCatapultConfiguration config;
 
-		auto CreateValidUserConfiguration() {
-			auto userConfig = UserConfiguration::Uninitialized();
+			auto& blockChainConfig = config.BlockChain;
+			blockChainConfig.ImportanceGrouping = 1;
+			blockChainConfig.MaxMosaicAtomicUnits = Amount(1000);
+
+			auto& inflationConfig = config.Inflation;
+			inflationConfig.InflationCalculator.add(Height(1), Amount(1));
+			inflationConfig.InflationCalculator.add(Height(100), Amount());
+
+			auto& userConfig = config.User;
 			userConfig.BootKey = Valid_Private_Key;
-			return userConfig;
-		}
 
-		auto CreateImportanceGroupingConfiguration(uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.ImportanceGrouping = importanceGrouping;
-			blockChainConfig.MaxRollbackBlocks = maxRollbackBlocks;
-			return blockChainConfig;
-		}
-
-		auto CreateAndValidateLocalNodeConfiguration(
-				UserConfiguration&& userConfig,
-				NodeConfiguration&& nodeConfig = CreateValidNodeConfiguration()) {
-			// Act:
-			auto config = LocalNodeConfiguration(
-					CreateImportanceGroupingConfiguration(1, 0),
-					std::move(nodeConfig),
-					LoggingConfiguration::Uninitialized(),
-					std::move(userConfig));
-			ValidateConfiguration(config);
-		}
-
-		auto CreateAndValidateLocalNodeConfiguration(model::BlockChainConfiguration&& blockChainConfig) {
-			// Act:
-			auto config = LocalNodeConfiguration(
-					std::move(blockChainConfig),
-					CreateValidNodeConfiguration(),
-					LoggingConfiguration::Uninitialized(),
-					CreateValidUserConfiguration());
-			ValidateConfiguration(config);
+			return config;
 		}
 	}
 
@@ -78,15 +57,15 @@ namespace catapult { namespace config {
 	namespace {
 		void AssertInvalidBootKey(const std::string& bootKey) {
 			// Arrange:
-			auto userConfig = UserConfiguration::Uninitialized();
-			userConfig.BootKey = bootKey;
+			auto mutableConfig = CreateMutableCatapultConfiguration();
+			mutableConfig.User.BootKey = bootKey;
 
 			// Act + Assert:
-			EXPECT_THROW(CreateAndValidateLocalNodeConfiguration(std::move(userConfig)), utils::property_malformed_error);
+			EXPECT_THROW(ValidateConfiguration(mutableConfig.ToConst()), utils::property_malformed_error);
 		}
 	}
 
-	TEST(TEST_CLASS, ValidationFailsIfBootKeyIsInvalid) {
+	TEST(TEST_CLASS, ValidationFailsWhenBootKeyIsInvalid) {
 		// Assert:
 		AssertInvalidBootKey(Invalid_Private_Key);
 		AssertInvalidBootKey("");
@@ -96,17 +75,25 @@ namespace catapult { namespace config {
 
 	// region importance grouping validation
 
+	namespace {
+		auto CreateCatapultConfiguration(uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
+			auto mutableConfig = CreateMutableCatapultConfiguration();
+			mutableConfig.BlockChain.ImportanceGrouping = importanceGrouping;
+			mutableConfig.BlockChain.MaxRollbackBlocks = maxRollbackBlocks;
+			return mutableConfig.ToConst();
+		}
+	}
+
 	TEST(TEST_CLASS, ImportanceGroupingIsValidatedAgainstMaxRollbackBlocks) {
 		// Arrange:
 		auto assertNoThrow = [](uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
-			auto blockChainConfig = CreateImportanceGroupingConfiguration(importanceGrouping, maxRollbackBlocks);
-			EXPECT_NO_THROW(CreateAndValidateLocalNodeConfiguration(std::move(blockChainConfig)))
-					<< "IG " << importanceGrouping << ", MRB " << maxRollbackBlocks;
+			auto config = CreateCatapultConfiguration(importanceGrouping, maxRollbackBlocks);
+			EXPECT_NO_THROW(ValidateConfiguration(config)) << "IG " << importanceGrouping << ", MRB " << maxRollbackBlocks;
 		};
 
 		auto assertThrow = [](uint32_t importanceGrouping, uint32_t maxRollbackBlocks) {
-			auto blockChainConfig = CreateImportanceGroupingConfiguration(importanceGrouping, maxRollbackBlocks);
-			EXPECT_THROW(CreateAndValidateLocalNodeConfiguration(std::move(blockChainConfig)), utils::property_malformed_error)
+			auto config = CreateCatapultConfiguration(importanceGrouping, maxRollbackBlocks);
+			EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error)
 					<< "IG " << importanceGrouping << ", MRB " << maxRollbackBlocks;
 		};
 
@@ -119,6 +106,113 @@ namespace catapult { namespace config {
 		assertThrow(0, 360); // 0 IG
 		assertThrow(180, 360); // 2 * IG == MRB
 		assertThrow(179, 360); // 2 * IG < MRB
+	}
+
+	// endregion
+
+	// region harvest beneficiary percentage validation
+
+	namespace {
+		auto CreateCatapultConfiguration(uint8_t harvestBeneficiaryPercentage) {
+			auto mutableConfig = CreateMutableCatapultConfiguration();
+			mutableConfig.BlockChain.HarvestBeneficiaryPercentage = harvestBeneficiaryPercentage;
+			return mutableConfig.ToConst();
+		}
+	}
+
+	TEST(TEST_CLASS, HarvestBeneficiaryPercentageIsValidated) {
+		// Arrange:
+		auto assertNoThrow = [](uint8_t harvestBeneficiaryPercentage) {
+			auto config = CreateCatapultConfiguration(harvestBeneficiaryPercentage);
+			EXPECT_NO_THROW(ValidateConfiguration(config)) << "HBP " << harvestBeneficiaryPercentage;
+		};
+
+		auto assertThrow = [](uint8_t harvestBeneficiaryPercentage) {
+			auto config = CreateCatapultConfiguration(harvestBeneficiaryPercentage);
+			EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error) << "HBP " << harvestBeneficiaryPercentage;
+		};
+
+		// Act + Assert:
+		// - no exceptions
+		assertNoThrow(0);
+		assertNoThrow(1);
+		assertNoThrow(57);
+		assertNoThrow(99);
+		assertNoThrow(100);
+
+		// - exceptions
+		assertThrow(101);
+		assertThrow(156);
+		assertThrow(255);
+	}
+
+	// endregion
+
+	// region total chain currency validation
+
+	namespace {
+		struct InflationEntry {
+			catapult::Height Height;
+			catapult::Amount Amount;
+		};
+
+		namespace {
+			auto CreateCatapultConfiguration(uint64_t initialCurrencyAtomicUnits, const std::vector<InflationEntry>& inflationEntries) {
+				auto mutableConfig = CreateMutableCatapultConfiguration();
+				mutableConfig.BlockChain.InitialCurrencyAtomicUnits = Amount(initialCurrencyAtomicUnits);
+
+				model::InflationCalculator calculator;
+				for (const auto& inflationEntry : inflationEntries)
+					calculator.add(inflationEntry.Height, inflationEntry.Amount);
+
+				// Sanity:
+				EXPECT_EQ(inflationEntries.size(), calculator.size());
+
+				mutableConfig.Inflation.InflationCalculator = std::move(calculator);
+				return mutableConfig.ToConst();
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, SuccessfulValidationWhenConfigIsValid) {
+		// Arrange: MaxMosaicAtomicUnits is 1000
+		auto config = CreateCatapultConfiguration(123, { { Height(1), Amount(1) }, { Height(234), Amount(0) } });
+
+		// Act:
+		EXPECT_NO_THROW(ValidateConfiguration(config));
+	}
+
+	TEST(TEST_CLASS, InitialTotalChainAmountMustNotExceedMaxMosaicAtomicUnits) {
+		// Act + Assert: MaxMosaicAtomicUnits is 1000
+		auto inflationEntries = std::vector<InflationEntry>();
+		EXPECT_THROW(ValidateConfiguration(CreateCatapultConfiguration(1001, inflationEntries)), utils::property_malformed_error);
+		EXPECT_THROW(ValidateConfiguration(CreateCatapultConfiguration(5000, inflationEntries)), utils::property_malformed_error);
+		EXPECT_THROW(ValidateConfiguration(CreateCatapultConfiguration(1234567890, inflationEntries)), utils::property_malformed_error);
+	}
+
+	TEST(TEST_CLASS, InitialTotalCurrenyPlusInflationMustNotExceedMaxMosaicAtomicUnits) {
+		// Arrange: MaxMosaicAtomicUnits is 1000
+		auto config = CreateCatapultConfiguration(600, { { Height(1), Amount(1) }, { Height(500), Amount(0) } });
+
+		// Act:
+		EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error);
+	}
+
+	TEST(TEST_CLASS, InitialTotalCurrenyPlusInflationMustNotOverflow) {
+		// Arrange:
+		auto numBlocks = std::numeric_limits<uint64_t>::max();
+		auto config = CreateCatapultConfiguration(2, { { Height(1), Amount(1) }, { Height(numBlocks), Amount(0) } });
+
+		// Act:
+		EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error);
+	}
+
+	TEST(TEST_CLASS, TerminalInflationMustBeZero) {
+		// Arrange:
+		auto config = CreateCatapultConfiguration(0, { { Height(3), Amount(5) }, { Height(10), Amount(2) } });
+
+		// Act:
+		EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error);
 	}
 
 	// endregion

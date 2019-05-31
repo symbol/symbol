@@ -19,12 +19,16 @@
 **/
 
 #include "src/extensions/TransactionExtensions.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {
 
 #define TEST_CLASS TransactionExtensionsTests
+
+	// region traits
 
 	namespace {
 		struct NormalTraits {
@@ -41,59 +45,93 @@ namespace catapult { namespace extensions {
 	TEST(TEST_CLASS, TEST_NAME##_Large) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<LargeTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	TRAITS_BASED_TEST(CannotValidateUnsignedTransaction) {
-		// Arrange:
-		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
+	// endregion
 
-		// Act + Assert:
-		EXPECT_FALSE(VerifyTransactionSignature(*pEntity));
+	// region basic sign / verify tests
+
+	namespace {
+		template<typename TTraits>
+		bool RunSignVerifyAction(const consumer<model::Transaction&>& modifier) {
+			// Arrange: create a signed transaction
+			TransactionExtensions extensions(test::GenerateRandomByteArray<GenerationHash>());
+			auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
+			auto signer = test::GenerateKeyPair();
+			pEntity->Signer = signer.publicKey();
+			extensions.sign(signer, *pEntity);
+
+			// - modify the transaction
+			modifier(*pEntity);
+
+			// Act:
+			return extensions.verify(*pEntity);
+		}
+	}
+
+	TRAITS_BASED_TEST(CannotValidateUnsignedTransaction) {
+		// Act:
+		auto result = RunSignVerifyAction<TTraits>([](auto& transaction) {
+			transaction.Signature = {};
+		});
+
+		// Assert:
+		EXPECT_FALSE(result);
 	}
 
 	TRAITS_BASED_TEST(SignedTransactionValidates) {
-		// Arrange:
-		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
-		auto signer = test::GenerateKeyPair();
-		(*pEntity).Signer = signer.publicKey();
-		SignTransaction(signer, *pEntity);
+		// Act:
+		auto result = RunSignVerifyAction<TTraits>([](const auto&) {});
 
-		// Act + Assert:
-		EXPECT_TRUE(VerifyTransactionSignature(*pEntity));
+		// Assert:
+		EXPECT_TRUE(result);
 	}
 
 	TRAITS_BASED_TEST(CannotValidateAlteredSignedTransaction) {
-		// Arrange:
-		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
-		auto signer = test::GenerateKeyPair();
-		(*pEntity).Signer = signer.publicKey();
-		SignTransaction(signer, *pEntity);
+		// Act:
+		auto result = RunSignVerifyAction<TTraits>([](auto& transaction) {
+			transaction.Deadline = Timestamp(transaction.Deadline.unwrap() ^ 0xFFFF'FFFF'FFFF'FFFFull);
+		});
 
-		(*pEntity).Deadline = Timestamp(pEntity->Deadline.unwrap() ^ 0xFFFF'FFFF'FFFF'FFFFull);
-
-		// Act + Assert:
-		EXPECT_FALSE(VerifyTransactionSignature(*pEntity));
+		// Assert:
+		EXPECT_FALSE(result);
 	}
 
 	TRAITS_BASED_TEST(CannotValidateSignedTransactionWithAlteredSignature) {
+		// Act:
+		auto result = RunSignVerifyAction<TTraits>([](auto& transaction) {
+			transaction.Signature[0] ^= 0xFFu;
+		});
+
+		// Assert:
+		EXPECT_FALSE(result);
+	}
+
+	TRAITS_BASED_TEST(CannotValidateSignedTransactionWithAlteredGenerationHash) {
 		// Arrange:
+		TransactionExtensions extensions1(test::GenerateRandomByteArray<GenerationHash>());
+		TransactionExtensions extensions2(test::GenerateRandomByteArray<GenerationHash>());
 		auto pEntity = test::GenerateRandomTransactionWithSize(TTraits::Entity_Size);
 		auto signer = test::GenerateKeyPair();
-		(*pEntity).Signer = signer.publicKey();
-		SignTransaction(signer, *pEntity);
+		pEntity->Signer = signer.publicKey();
+		extensions1.sign(signer, *pEntity);
 
-		(*pEntity).Signature[0] ^= 0xFFu;
+		// Sanity:
+		EXPECT_TRUE(extensions1.verify(*pEntity));
 
 		// Act + Assert:
-		EXPECT_FALSE(VerifyTransactionSignature(*pEntity));
+		EXPECT_FALSE(extensions2.verify(*pEntity));
 	}
+
+	// endregion
 
 	// region Deterministic Entity Sanity
 
 	TEST(TEST_CLASS, DeterministicTransactionIsFullyVerifiable) {
 		// Arrange:
+		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
 		auto pTransaction = test::GenerateDeterministicTransaction();
 
 		// Act:
-		auto isVerified = VerifyTransactionSignature(*pTransaction);
+		auto isVerified = TransactionExtensions(generationHash).verify(*pTransaction);
 
 		// Assert:
 		EXPECT_TRUE(isVerified);

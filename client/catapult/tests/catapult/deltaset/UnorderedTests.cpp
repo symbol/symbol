@@ -28,26 +28,20 @@ namespace catapult { namespace deltaset {
 		using UnorderedTraits = test::BaseSetTraits<TMutabilityTraits, test::UnorderedSetTraits<test::SetElementType<TMutabilityTraits>>>;
 
 		using UnorderedMutableTraits = UnorderedTraits<test::MutableElementValueTraits>;
-		using UnorderedMutablePointerTraits = UnorderedTraits<test::MutableElementPointerTraits>;
 		using UnorderedImmutableTraits = UnorderedTraits<test::ImmutableElementValueTraits>;
-		using UnorderedImmutablePointerTraits = UnorderedTraits<test::ImmutablePointerValueTraits>;
 	}
 
 // base (mutable)
 DEFINE_MUTABLE_BASE_SET_TESTS_FOR(UnorderedMutable);
-DEFINE_MUTABLE_BASE_SET_TESTS_FOR(UnorderedMutablePointer);
 
 // base (immutable)
 DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(UnorderedImmutable);
-DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(UnorderedImmutablePointer);
 
 // delta (mutable)
 DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMutable);
-DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMutablePointer);
 
 // delta (immutable)
 DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedImmutable);
-DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedImmutablePointer);
 
 /* hasher tests only use unordered delta variants */
 #define TEST_CLASS UnorderedTests
@@ -60,9 +54,7 @@ DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedImmutablePointer);
 #define UNORDERED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	MAKE_UNORDERED_TEST(TEST_NAME, Mutable) \
-	MAKE_UNORDERED_TEST(TEST_NAME, MutablePointer) \
 	MAKE_UNORDERED_TEST(TEST_NAME, Immutable) \
-	MAKE_UNORDERED_TEST(TEST_NAME, ImmutablePointer) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	UNORDERED_TEST(SuppliedHasherIsUsed) {

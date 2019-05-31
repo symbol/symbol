@@ -29,7 +29,9 @@ namespace catapult { namespace io {
 #define TEST_CLASS RawFileTests
 
 	namespace {
-		static const size_t Default_Bytes_Written = 123u;
+		constexpr size_t Default_Bytes_Written = 123u;
+
+		// region utils
 
 		auto WriteRandomVectorToFile(const TempFileGuard &guard, size_t size = Default_Bytes_Written) {
 			auto inputData = test::GenerateRandomVector(size);
@@ -46,6 +48,10 @@ namespace catapult { namespace io {
 					input.begin() + static_cast<difference_type>(start + length));
 		}
 
+		// endregion
+
+		// region traits
+
 		struct WriteTraits {
 			static constexpr OpenMode Mode = OpenMode::Read_Write;
 		};
@@ -53,6 +59,8 @@ namespace catapult { namespace io {
 		struct AppendTraits {
 			static constexpr OpenMode Mode = OpenMode::Read_Append;
 		};
+
+		// endregion
 	}
 
 #define WRITING_TRAITS_BASED_TEST(TEST_NAME) \
@@ -61,7 +69,9 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, TEST_NAME##_Append) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AppendTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	TEST(TEST_CLASS, OpeningNonExistingFileThrows) {
+	// region ctor (open)
+
+	TEST(TEST_CLASS, OpeningNonexistentFileThrows) {
 		// Arrange:
 		TempFileGuard guard("abcdefghijklmnopqrstuvwxyz");
 
@@ -72,56 +82,14 @@ namespace catapult { namespace io {
 	WRITING_TRAITS_BASED_TEST(CanOpenFileForWriting) {
 		// Arrange:
 		TempFileGuard guard("test.dat");
-		RawFile r(guard.name(), TTraits::Mode);
+		RawFile rawFile(guard.name(), TTraits::Mode);
 
 		// Assert:
-		EXPECT_EQ(0ull, r.size());
-		EXPECT_EQ(0ull, r.position());
+		EXPECT_EQ(0ull, rawFile.size());
+		EXPECT_EQ(0ull, rawFile.position());
 	}
 
-	WRITING_TRAITS_BASED_TEST(WriteAltersSizeAndPosition) {
-		// Arrange:
-		TempFileGuard guard("test.dat");
-		RawFile r(guard.name(), TTraits::Mode);
-		auto inputData = test::GenerateRandomVector(Default_Bytes_Written);
-
-		// Act:
-		r.write(inputData);
-
-		// Assert:
-		EXPECT_EQ(inputData.size(), r.size());
-		EXPECT_EQ(inputData.size(), r.position());
-	}
-
-	TEST(TEST_CLASS, WriteOnReadOnlyFileThrowsException) {
-		// Arrange:
-		TempFileGuard guard("test.dat");
-		{
-			RawFile r(guard.name(), OpenMode::Read_Write);
-		}
-
-		RawFile r(guard.name(), OpenMode::Read_Only);
-		auto data = test::GenerateRandomVector(Default_Bytes_Written);
-
-		// Act + Assert:
-		EXPECT_THROW(r.write(data), catapult_file_io_error);
-	}
-
-	TEST(TEST_CLASS, ReadReturnsProperData) {
-		// Arrange:
-		TempFileGuard guard("test.dat");
-		auto inputData = WriteRandomVectorToFile(guard);
-		RawFile r(guard.name(), OpenMode::Read_Only);
-
-		// Act:
-		auto outputData = std::vector<uint8_t>(Default_Bytes_Written);
-		r.read(outputData);
-
-		// Assert:
-		EXPECT_EQ(inputData, outputData);
-		EXPECT_EQ(inputData.size(), r.size());
-		EXPECT_EQ(inputData.size(), r.position());
-	}
+	// endregion
 
 	// region move-construct
 
@@ -133,11 +101,11 @@ namespace catapult { namespace io {
 		original.seek(Default_Bytes_Written - 10);
 
 		// Act:
-		RawFile r(std::move(original));
+		RawFile rawFile(std::move(original));
 
 		// Assert: position and size are correct
-		EXPECT_EQ(Default_Bytes_Written - 10, r.position());
-		EXPECT_EQ(inputData.size(), r.size());
+		EXPECT_EQ(Default_Bytes_Written - 10, rawFile.position());
+		EXPECT_EQ(inputData.size(), rawFile.size());
 	}
 
 	TEST(TEST_CLASS, MovedFileDoesNotSupportFileOperations) {
@@ -148,7 +116,7 @@ namespace catapult { namespace io {
 		original.seek(Default_Bytes_Written - 10);
 
 		// Act:
-		RawFile r(std::move(original));
+		RawFile rawFile(std::move(original));
 
 		// Assert:
 		auto buffer = std::vector<uint8_t>(10);
@@ -169,22 +137,145 @@ namespace catapult { namespace io {
 		original.seek(Default_Bytes_Written - 10);
 
 		// Act:
-		RawFile r(std::move(original));
+		RawFile rawFile(std::move(original));
 
-		auto dataPart = std::vector<uint8_t>(10);
-		r.read(dataPart);
+		auto readBuffer = std::vector<uint8_t>(10);
+		rawFile.read(readBuffer);
 
 		// Assert:
 		auto buffer = std::vector<uint8_t>(10);
 		std::vector<uint8_t> expectedPart(inputData.begin() + Default_Bytes_Written - 10, inputData.end());
-		EXPECT_EQ(expectedPart, dataPart);
-		EXPECT_EQ(inputData.size(), r.size());
-		EXPECT_EQ(inputData.size(), r.position());
+		EXPECT_EQ(expectedPart, readBuffer);
+		EXPECT_EQ(inputData.size(), rawFile.size());
+		EXPECT_EQ(inputData.size(), rawFile.position());
 	}
 
 	// endregion
 
-	// region reading & writing
+	// region read
+
+	TEST(TEST_CLASS, ReadReturnsProperData) {
+		// Arrange:
+		TempFileGuard guard("test.dat");
+		auto inputData = WriteRandomVectorToFile(guard);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
+
+		// Act:
+		auto outputData = std::vector<uint8_t>(Default_Bytes_Written);
+		rawFile.read(outputData);
+
+		// Assert:
+		EXPECT_EQ(inputData, outputData);
+		EXPECT_EQ(inputData.size(), rawFile.size());
+		EXPECT_EQ(inputData.size(), rawFile.position());
+	}
+
+	TEST(TEST_CLASS, ReadReturnsConsecutiveChunks) {
+		// Arrange:
+		TempFileGuard guard("test.dat");
+		auto inputData = WriteRandomVectorToFile(guard);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
+
+		// Act:
+		auto outputData = std::vector<uint8_t>(Default_Bytes_Written);
+		rawFile.read({ outputData.data(), 100 });
+		rawFile.read({ outputData.data() + 100, 23 });
+
+		// Assert:
+		EXPECT_EQ(inputData, outputData);
+		EXPECT_EQ(inputData.size(), rawFile.size());
+		EXPECT_EQ(inputData.size(), rawFile.position());
+	}
+
+	TEST(TEST_CLASS, ReadThrowsOnOobRead) {
+		// Arrange:
+		TempFileGuard guard("test.dat");
+		auto inputData = WriteRandomVectorToFile(guard);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
+		rawFile.seek(100ull);
+
+		// Act + Assert:
+		auto outputData1 = std::vector<uint8_t>(23);
+		rawFile.read(outputData1);
+
+		EXPECT_EQ(Default_Bytes_Written, rawFile.size());
+		EXPECT_EQ(Default_Bytes_Written, rawFile.position());
+		EXPECT_THROW(rawFile.read(outputData1), catapult_file_io_error);
+	}
+
+	TEST(TEST_CLASS, ReadingDoesNotAlterFileSize) {
+		// Arrange:
+		TempFileGuard guard("test.dat");
+		auto inputData = WriteRandomVectorToFile(guard);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
+
+		// Act:
+		auto preActionSize = rawFile.size();
+		auto preActionPosition = rawFile.position();
+		auto outputData1 = std::vector<uint8_t>(Default_Bytes_Written);
+		rawFile.read(outputData1);
+
+		// Assert:
+		EXPECT_EQ(inputData.size(), preActionSize);
+		EXPECT_EQ(0ull, preActionPosition);
+
+		EXPECT_EQ(inputData.size(), rawFile.size());
+		EXPECT_EQ(inputData.size(), rawFile.position());
+	}
+
+	TEST(TEST_CLASS, CanReadSameData) {
+		// Arrange:
+		TempFileGuard guard("test.dat");
+		auto inputData = WriteRandomVectorToFile(guard);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
+
+		// Act:
+		auto outputData1 = std::vector<uint8_t>(Default_Bytes_Written);
+		rawFile.read(outputData1);
+		rawFile.seek(23ull);
+		auto position = rawFile.position();
+		auto outputData2 = std::vector<uint8_t>(Default_Bytes_Written - 23);
+		rawFile.read(outputData2);
+
+		// Assert:
+		EXPECT_EQ(inputData.size(), rawFile.size());
+		EXPECT_EQ(inputData, outputData1);
+		EXPECT_EQ(23ull, position);
+		EXPECT_TRUE(std::equal(inputData.cbegin() + 23, inputData.cend(), outputData2.cbegin(), outputData2.cend()));
+		EXPECT_EQ(inputData.size(), rawFile.position());
+	}
+
+	// endregion
+
+	// region write
+
+	WRITING_TRAITS_BASED_TEST(WriteAltersSizeAndPosition) {
+		// Arrange:
+		TempFileGuard guard("test.dat");
+		RawFile rawFile(guard.name(), TTraits::Mode);
+		auto inputData = test::GenerateRandomVector(Default_Bytes_Written);
+
+		// Act:
+		rawFile.write(inputData);
+
+		// Assert:
+		EXPECT_EQ(inputData.size(), rawFile.size());
+		EXPECT_EQ(inputData.size(), rawFile.position());
+	}
+
+	TEST(TEST_CLASS, WriteOnReadOnlyFileThrowsException) {
+		// Arrange:
+		TempFileGuard guard("test.dat");
+		{
+			RawFile rawFile(guard.name(), OpenMode::Read_Write);
+		}
+
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
+		auto buffer = test::GenerateRandomVector(Default_Bytes_Written);
+
+		// Act + Assert:
+		EXPECT_THROW(rawFile.write(buffer), catapult_file_io_error);
+	}
 
 	TEST(TEST_CLASS, OpenForWriteTruncatesTheFile) {
 		// Arrange:
@@ -193,13 +284,13 @@ namespace catapult { namespace io {
 
 		// Act:
 		{
-			RawFile r(guard.name(), OpenMode::Read_Write);
+			RawFile rawFile(guard.name(), OpenMode::Read_Write);
 		}
 
 		// Assert:
-		RawFile r(guard.name(), OpenMode::Read_Only);
-		EXPECT_EQ(0u, r.size());
-		EXPECT_EQ(0u, r.position());
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
+		EXPECT_EQ(0u, rawFile.size());
+		EXPECT_EQ(0u, rawFile.position());
 	}
 
 	TEST(TEST_CLASS, AppendCanOverwriteDataAtTheBeginning) {
@@ -212,19 +303,19 @@ namespace catapult { namespace io {
 			file.write(partialData);
 		}
 
-		RawFile r(guard.name(), OpenMode::Read_Only);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
 
 		// Act:
 		auto outputData = std::vector<uint8_t>(Default_Bytes_Written);
-		r.read(outputData);
+		rawFile.read(outputData);
 
 		// Assert:
 		EXPECT_EQ(partialData, Slice(outputData, 0, 50));
 		constexpr size_t Untouched_Size = Default_Bytes_Written - 50;
 		EXPECT_EQ(Slice(inputData, 50, Untouched_Size), Slice(outputData, 50, Untouched_Size));
 
-		EXPECT_EQ(outputData.size(), r.size());
-		EXPECT_EQ(outputData.size(), r.position());
+		EXPECT_EQ(outputData.size(), rawFile.size());
+		EXPECT_EQ(outputData.size(), rawFile.position());
 	}
 
 	TEST(TEST_CLASS, AppendCanOverwriteDataInTheMiddle) {
@@ -238,11 +329,11 @@ namespace catapult { namespace io {
 			file.write(partialData);
 		}
 
-		RawFile r(guard.name(), OpenMode::Read_Only);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
 
 		// Act:
 		auto outputData = std::vector<uint8_t>(Default_Bytes_Written);
-		r.read(outputData);
+		rawFile.read(outputData);
 
 		// Assert:
 		EXPECT_EQ(Slice(inputData, 0, 50), Slice(outputData, 0, 50));
@@ -250,8 +341,8 @@ namespace catapult { namespace io {
 		constexpr size_t Leftover_Size = Default_Bytes_Written - 100;
 		EXPECT_EQ(Slice(inputData, 100, Leftover_Size), Slice(outputData, 100, Leftover_Size));
 
-		EXPECT_EQ(outputData.size(), r.size());
-		EXPECT_EQ(outputData.size(), r.position());
+		EXPECT_EQ(outputData.size(), rawFile.size());
+		EXPECT_EQ(outputData.size(), rawFile.position());
 	}
 
 	TEST(TEST_CLASS, AppendCanOverwriteDataNearTheEnd) {
@@ -265,18 +356,18 @@ namespace catapult { namespace io {
 			file.write(partialData);
 		}
 
-		RawFile r(guard.name(), OpenMode::Read_Only);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
 
 		// Act:
 		auto outputData = std::vector<uint8_t>(150);
-		r.read(outputData);
+		rawFile.read(outputData);
 
 		// Assert:
 		EXPECT_EQ(Slice(inputData, 0, 100), Slice(outputData, 0, 100));
 		EXPECT_EQ(partialData, Slice(outputData, 100, 50));
 
-		EXPECT_EQ(outputData.size(), r.size());
-		EXPECT_EQ(outputData.size(), r.position());
+		EXPECT_EQ(outputData.size(), rawFile.size());
+		EXPECT_EQ(outputData.size(), rawFile.position());
 	}
 
 	TEST(TEST_CLASS, AppendCanOverwriteDataAtTheEnd) {
@@ -290,166 +381,93 @@ namespace catapult { namespace io {
 			file.write(finalData);
 		}
 
-		RawFile r(guard.name(), OpenMode::Read_Only);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
 
 		// Act:
 		auto outputData = std::vector<uint8_t>(Default_Bytes_Written + 50);
-		r.read(outputData);
+		rawFile.read(outputData);
 
 		// Assert:
 		EXPECT_EQ(inputData, Slice(outputData, 0, Default_Bytes_Written));
 		EXPECT_EQ(finalData, Slice(outputData, Default_Bytes_Written, 50));
 
-		EXPECT_EQ(outputData.size(), r.size());
-		EXPECT_EQ(outputData.size(), r.position());
-	}
-
-	TEST(TEST_CLASS, ReadReturnsConsecutiveChunks) {
-		// Arrange:
-		TempFileGuard guard("test.dat");
-		auto inputData = WriteRandomVectorToFile(guard);
-		RawFile r(guard.name(), OpenMode::Read_Only);
-
-		// Act:
-		auto outputData = std::vector<uint8_t>(Default_Bytes_Written);
-		r.read({ outputData.data(), 100 });
-		r.read({ outputData.data() + 100, 23 });
-
-		// Assert:
-		EXPECT_EQ(inputData, outputData);
-		EXPECT_EQ(inputData.size(), r.size());
-		EXPECT_EQ(inputData.size(), r.position());
+		EXPECT_EQ(outputData.size(), rawFile.size());
+		EXPECT_EQ(outputData.size(), rawFile.position());
 	}
 
 	// endregion
 
-	// region seeking + OOB seeking
+	// region seek
 
 	WRITING_TRAITS_BASED_TEST(OobSeekInWritableFileThrows) {
 		// Arrange:
 		TempFileGuard guard("test.dat");
-		RawFile r(guard.name(), TTraits::Mode);
+		RawFile rawFile(guard.name(), TTraits::Mode);
 
 		// Act + Assert:
-		EXPECT_EQ(0ull, r.size());
-		EXPECT_THROW(r.seek(10ull), catapult_file_io_error);
+		EXPECT_EQ(0ull, rawFile.size());
+		EXPECT_THROW(rawFile.seek(10ull), catapult_file_io_error);
 	}
 
 	TEST(TEST_CLASS, OobSeekInRoFileThrows) {
 		// Arrange:
 		TempFileGuard guard("test.dat");
 		{
-			RawFile r(guard.name(), OpenMode::Read_Write);
+			RawFile rawFile(guard.name(), OpenMode::Read_Write);
 		}
 
-		RawFile r(guard.name(), OpenMode::Read_Only);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
 
 		// Act + Assert:
-		EXPECT_EQ(0ull, r.size());
-		EXPECT_THROW(r.seek(10ull), catapult_file_io_error);
+		EXPECT_EQ(0ull, rawFile.size());
+		EXPECT_THROW(rawFile.seek(10ull), catapult_file_io_error);
 	}
 
 	WRITING_TRAITS_BASED_TEST(CanSeekInsideFile) {
 		// Arrange:
 		TempFileGuard guard("test.dat");
 		auto inputData = test::GenerateRandomVector(Default_Bytes_Written);
-		RawFile r(guard.name(), TTraits::Mode);
-		r.write(inputData);
+		RawFile rawFile(guard.name(), TTraits::Mode);
+		rawFile.write(inputData);
 
 		// Act:
-		r.seek(10ull);
+		rawFile.seek(10ull);
 
 		// Assert:
-		EXPECT_EQ(inputData.size(), r.size());
-		EXPECT_EQ(10ull, r.position());
+		EXPECT_EQ(inputData.size(), rawFile.size());
+		EXPECT_EQ(10ull, rawFile.position());
 	}
 
 	WRITING_TRAITS_BASED_TEST(CanSeekToEndOfFile) {
 		// Arrange:
 		TempFileGuard guard("test.dat");
 		auto inputData = test::GenerateRandomVector(Default_Bytes_Written);
-		RawFile r(guard.name(), TTraits::Mode);
-		r.write(inputData);
-		r.seek(10ull);
+		RawFile rawFile(guard.name(), TTraits::Mode);
+		rawFile.write(inputData);
+		rawFile.seek(10ull);
 
 		// Act:
-		r.seek(inputData.size());
+		rawFile.seek(inputData.size());
 
 		// Assert:
-		EXPECT_EQ(inputData.size(), r.size());
-		EXPECT_EQ(inputData.size(), r.position());
+		EXPECT_EQ(inputData.size(), rawFile.size());
+		EXPECT_EQ(inputData.size(), rawFile.position());
 	}
 
 	WRITING_TRAITS_BASED_TEST(CannotSeekBeyondWrittenData) {
 		// Arrange:
 		TempFileGuard guard("test.dat");
 		auto inputData = test::GenerateRandomVector(Default_Bytes_Written);
-		RawFile r(guard.name(), TTraits::Mode);
-		r.write(inputData);
+		RawFile rawFile(guard.name(), TTraits::Mode);
+		rawFile.write(inputData);
 
 		// Act + Assert:
-		EXPECT_THROW(r.seek(inputData.size() + 1), catapult_file_io_error);
+		EXPECT_THROW(rawFile.seek(inputData.size() + 1), catapult_file_io_error);
 	}
 
 	// endregion
 
-	TEST(TEST_CLASS, ReadThrowsOnOobRead) {
-		// Arrange:
-		TempFileGuard guard("test.dat");
-		auto inputData = WriteRandomVectorToFile(guard);
-		RawFile r(guard.name(), OpenMode::Read_Only);
-		r.seek(100ull);
-
-		// Act + Assert:
-		auto outputData1 = std::vector<uint8_t>(23);
-		r.read(outputData1);
-
-		EXPECT_EQ(Default_Bytes_Written, r.size());
-		EXPECT_EQ(Default_Bytes_Written, r.position());
-		EXPECT_THROW(r.read(outputData1), catapult_file_io_error);
-	}
-
-	TEST(TEST_CLASS, ReadingDoesNotAlterFileSize) {
-		// Arrange:
-		TempFileGuard guard("test.dat");
-		auto inputData = WriteRandomVectorToFile(guard);
-		RawFile r(guard.name(), OpenMode::Read_Only);
-
-		// Act:
-		auto preActionSize = r.size();
-		auto preActionPosition = r.position();
-		auto outputData1 = std::vector<uint8_t>(Default_Bytes_Written);
-		r.read(outputData1);
-
-		// Assert:
-		EXPECT_EQ(inputData.size(), preActionSize);
-		EXPECT_EQ(0ull, preActionPosition);
-
-		EXPECT_EQ(inputData.size(), r.size());
-		EXPECT_EQ(inputData.size(), r.position());
-	}
-
-	TEST(TEST_CLASS, CanReadSameData) {
-		// Arrange:
-		TempFileGuard guard("test.dat");
-		auto inputData = WriteRandomVectorToFile(guard);
-		RawFile r(guard.name(), OpenMode::Read_Only);
-
-		// Act:
-		auto outputData1 = std::vector<uint8_t>(Default_Bytes_Written);
-		r.read(outputData1);
-		r.seek(23ull);
-		auto position = r.position();
-		auto outputData2 = std::vector<uint8_t>(Default_Bytes_Written - 23);
-		r.read(outputData2);
-
-		// Assert:
-		EXPECT_EQ(inputData.size(), r.size());
-		EXPECT_EQ(inputData, outputData1);
-		EXPECT_EQ(23ull, position);
-		EXPECT_TRUE(std::equal(inputData.cbegin() + 23, inputData.cend(), outputData2.cbegin(), outputData2.cend()));
-		EXPECT_EQ(inputData.size(), r.position());
-	}
+	// region multiple raw files around same physical file
 
 	TEST(TEST_CLASS, PositionInDifferentInstancesIsIndependent) {
 		// Arrange:
@@ -489,7 +507,33 @@ namespace catapult { namespace io {
 		EXPECT_EQ(inputData.size(), r2.position());
 	}
 
-	// region multiple open with locking
+	TEST(TEST_CLASS, ReadAfterOverlappingWriteReturnsProperData) {
+		// Arrange:
+		TempFileGuard guard("test.dat");
+		auto inputData1 = WriteRandomVectorToFile(guard);
+
+		auto outputData1 = std::vector<uint8_t>(Default_Bytes_Written);
+		{
+			RawFile rawFile(guard.name(), OpenMode::Read_Only);
+			rawFile.read(outputData1);
+		}
+
+		// Act:
+		auto inputData2 = WriteRandomVectorToFile(guard, Default_Bytes_Written + 10);
+		RawFile rawFile(guard.name(), OpenMode::Read_Only);
+		auto outputData2 = std::vector<uint8_t>(Default_Bytes_Written + 10);
+		rawFile.read(outputData2);
+
+		// Assert:
+		EXPECT_EQ(inputData2.size(), rawFile.size());
+		EXPECT_EQ(inputData1, outputData1);
+		EXPECT_EQ(inputData2, outputData2);
+		EXPECT_EQ(inputData2.size(), rawFile.position());
+	}
+
+	// endregion
+
+	// region multiple open with locking (LockMode::File)
 
 	namespace {
 		void AssertCannotOpenForIfOpened(OpenMode alreadyOpenedMode, OpenMode newMode) {
@@ -507,32 +551,33 @@ namespace catapult { namespace io {
 		}
 	}
 
-	WRITING_TRAITS_BASED_TEST(CannotOpenForWriteIfOpenedForRead) {
+	WRITING_TRAITS_BASED_TEST(CannotOpenForWriteWhenOpenedForRead) {
+		// Assert:
 		AssertCannotOpenForIfOpened(OpenMode::Read_Only, TTraits::Mode);
 	}
 
-	WRITING_TRAITS_BASED_TEST(CannotOpenForReadIfOpenedForWrite) {
+	WRITING_TRAITS_BASED_TEST(CannotOpenForReadWhenOpenedForWrite) {
+		// Assert:
 		AssertCannotOpenForIfOpened(TTraits::Mode, OpenMode::Read_Only);
 	}
 
 	WRITING_TRAITS_BASED_TEST(CannotOpenMixedAppendWrite) {
+		// Assert:
 		auto oppositeMode = OpenMode::Read_Write == TTraits::Mode ? OpenMode::Read_Append : OpenMode::Read_Write;
 		AssertCannotOpenForIfOpened(TTraits::Mode, oppositeMode);
 	}
 
-	WRITING_TRAITS_BASED_TEST(CannotOpenForWriteIfOpenedForWrite) {
+	WRITING_TRAITS_BASED_TEST(CannotOpenForWriteWhenOpenedForWrite) {
+		// Assert:
 		AssertCannotOpenForIfOpened(TTraits::Mode, TTraits::Mode);
 	}
 
 	// endregion
 
-	// region multiple open without locking
+	// region multiple open with locking (LockMode::None)
 
 	namespace {
-		enum class SubsequentOpens {
-			Close,
-			Keep_Open
-		};
+		enum class SubsequentOpens { Close, Keep_Open };
 
 		void AssertCanOpenForReadIfOpenedNonLocking(OpenMode alreadyOpenedMode, SubsequentOpens subsequentOpens) {
 			// Arrange:
@@ -552,15 +597,17 @@ namespace catapult { namespace io {
 		}
 	}
 
-	WRITING_TRAITS_BASED_TEST(CanOpenForReadIfOpenedForWriteNonLocking) {
+	WRITING_TRAITS_BASED_TEST(CanOpenForReadWhenOpenedForWriteNonLocking) {
+		// Assert:
 		AssertCanOpenForReadIfOpenedNonLocking(TTraits::Mode, SubsequentOpens::Close);
 	}
 
-	WRITING_TRAITS_BASED_TEST(CanOpenMultipleForReadIfOpenedForWriteNonLocking) {
+	WRITING_TRAITS_BASED_TEST(CanOpenMultipleForReadWhenOpenedForWriteNonLocking) {
+		// Assert:
 		AssertCanOpenForReadIfOpenedNonLocking(TTraits::Mode, SubsequentOpens::Keep_Open);
 	}
 
-	TEST(TEST_CLASS, CanOpenForWriteIfOpenedForReadNonLocking) {
+	TEST(TEST_CLASS, CanOpenForWriteWhenOpenedForReadNonLocking) {
 		// Arrange:
 		TempFileGuard guard("test.dat");
 		auto inputData = WriteRandomVectorToFile(guard);
@@ -575,7 +622,7 @@ namespace catapult { namespace io {
 		}
 	}
 
-	TEST(TEST_CLASS, CanOpenForAppendIfOpenedForReadNonLocking) {
+	TEST(TEST_CLASS, CanOpenForAppendWhenOpenedForReadNonLocking) {
 		// Arrange:
 		TempFileGuard guard("test.dat");
 		auto inputData = WriteRandomVectorToFile(guard);
@@ -617,38 +664,15 @@ namespace catapult { namespace io {
 	}
 
 	WRITING_TRAITS_BASED_TEST(CanOpenMultipleWhenNonLocking_SameMode) {
+		// Assert:
 		AssertCanOpenMultipleWhenNonLocking(TTraits::Mode, TTraits::Mode);
 	}
 
 	WRITING_TRAITS_BASED_TEST(CanOpenMultipleWhenNonLocking_MixedMode) {
+		// Assert:
 		auto oppositeMode = OpenMode::Read_Write == TTraits::Mode ? OpenMode::Read_Append : OpenMode::Read_Write;
 		AssertCanOpenMultipleWhenNonLocking(TTraits::Mode, oppositeMode);
 	}
 
 	// endregion
-
-	TEST(TEST_CLASS, ReadAfterOverlappingWriteReturnsProperData) {
-		// Arrange:
-		TempFileGuard guard("test.dat");
-		auto inputData1 = WriteRandomVectorToFile(guard);
-
-		auto outputData1 = std::vector<uint8_t>(Default_Bytes_Written);
-		{
-			RawFile r(guard.name(), OpenMode::Read_Only);
-			r.read(outputData1);
-		}
-
-		// Act:
-		auto inputData2 = WriteRandomVectorToFile(guard, Default_Bytes_Written + 10);
-		RawFile r(guard.name(), OpenMode::Read_Only);
-		auto outputData2 = std::vector<uint8_t>(Default_Bytes_Written + 10);
-		r.read(outputData2);
-
-		// Assert:
-		EXPECT_EQ(inputData2.size(), r.size());
-		EXPECT_EQ(inputData1, outputData1);
-		EXPECT_EQ(inputData2, outputData2);
-		EXPECT_EQ(inputData2.size(), r.position());
-
-	}
 }}

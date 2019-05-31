@@ -19,8 +19,8 @@
 **/
 
 #include "catapult/cache_db/PatriciaTreeRdbDataSource.h"
-#include "tests/catapult/tree/test/PatriciaTreeTests.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/tree/PatriciaTreeTests.h"
 
 namespace catapult { namespace tree {
 

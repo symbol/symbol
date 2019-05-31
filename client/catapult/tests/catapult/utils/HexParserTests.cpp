@@ -28,7 +28,9 @@ namespace catapult { namespace utils {
 #define TEST_CLASS HexParserTests
 
 	namespace {
-		struct ParseTraits {
+		// region Parse traits
+
+		struct ParseByteTraits {
 			static uint8_t Parse(char ch1, char ch2) {
 				return ParseByte(ch1, ch2);
 			}
@@ -36,7 +38,9 @@ namespace catapult { namespace utils {
 			static void AssertBadParse(char ch1, char ch2) {
 				EXPECT_THROW(ParseByte(ch1, ch2), catapult_invalid_argument);
 			}
+		};
 
+		struct ParseTraits {
 			template<typename TContainer>
 			static void ParseString(const char* const pHexData, size_t dataSize, TContainer& outputContainer) {
 				ParseHexStringIntoContainer(pHexData, dataSize, outputContainer);
@@ -48,7 +52,30 @@ namespace catapult { namespace utils {
 			}
 		};
 
-		struct TryParseTraits {
+		struct ParseByteArrayTraits {
+			template<typename TContainer>
+			static void ParseString(const char* const pHexData, size_t dataSize, TContainer& outputContainer) {
+				struct Tag {};
+				using ByteArrayContainer = ByteArray<std::tuple_size_v<TContainer>, Tag>;
+				auto hexString = std::string(pHexData, dataSize);
+				auto byteArray = ParseByteArray<ByteArrayContainer>(hexString);
+				std::copy(byteArray.cbegin(), byteArray.cend(), outputContainer.begin());
+			}
+
+			template<typename TContainer>
+			static void AssertBadParse(const char* const pHexData, size_t dataSize, TContainer&) {
+				struct Tag {};
+				using ByteArrayContainer = ByteArray<std::tuple_size_v<TContainer>, Tag>;
+				auto hexString = std::string(pHexData, dataSize);
+				EXPECT_THROW(ParseByteArray<ByteArrayContainer>(hexString), catapult_invalid_argument);
+			}
+		};
+
+		// endregion
+
+		// region TryParse traits
+
+		struct TryParseByteTraits {
 			static uint8_t Parse(char ch1, char ch2) {
 				uint8_t by;
 				EXPECT_TRUE(TryParseByte(ch1, ch2, by));
@@ -59,7 +86,9 @@ namespace catapult { namespace utils {
 				uint8_t by;
 				EXPECT_FALSE(TryParseByte(ch1, ch2, by));
 			}
+		};
 
+		struct TryParseTraits {
 			template<typename TContainer>
 			static void ParseString(const char* const pHexData, size_t dataSize, TContainer& outputContainer) {
 				EXPECT_TRUE(TryParseHexStringIntoContainer(pHexData, dataSize, outputContainer));
@@ -70,15 +99,24 @@ namespace catapult { namespace utils {
 				EXPECT_FALSE(TryParseHexStringIntoContainer(pHexData, dataSize, outputContainer));
 			}
 		};
+
+		// endregion
 	}
+
+#define PARSE_BYTE_TRAITS_BASED_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ParseByteTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Try) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryParseByteTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 #define PARSE_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ParseTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_ByteArray) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ParseByteArrayTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Try) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TryParseTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	PARSE_TRAITS_BASED_TEST(CanConvertAllValidHexCharCombinationsToByte) {
+	PARSE_BYTE_TRAITS_BASED_TEST(CanConvertAllValidHexCharCombinationsToByte) {
 		// Arrange:
 		std::vector<std::pair<char, uint8_t>> charToValueMappings;
 		for (char ch = '0'; ch <= '9'; ++ch) charToValueMappings.push_back(std::make_pair(ch, static_cast<uint8_t>(ch - '0')));
@@ -103,7 +141,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(22 * 22, numTests);
 	}
 
-	PARSE_TRAITS_BASED_TEST(CannotConvertInvalidHexCharsToByte) {
+	PARSE_BYTE_TRAITS_BASED_TEST(CannotConvertInvalidHexCharsToByte) {
 		// Assert:
 		TTraits::AssertBadParse('G', '6');
 		TTraits::AssertBadParse('7', 'g');

@@ -40,7 +40,7 @@ namespace catapult { namespace subscribers {
 		// Arrange:
 		TestContext<mocks::MockTransactionStatusSubscriber> context;
 		auto pTransaction = test::GenerateRandomTransaction();
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 
 		// Sanity:
 		EXPECT_EQ(3u, context.subscribers().size());

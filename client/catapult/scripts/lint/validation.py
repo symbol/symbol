@@ -314,6 +314,9 @@ class TypoChecker(SimpleValidator):
             re.compile(r'ile_Name'): 'Filename not File_Name',
             re.compile(r'hreadpool'): 'ThreadPool not Threadpool',
             re.compile(r'lockchain'): 'BlockChain not Blockchain',
+            re.compile(r'alidatorResult'): 'ValidationResult not ValidatorResult',
+            re.compile(r'ub-?cache'): 'SubCache or sub cache not Subcache or sub-cache',
+            re.compile(r'on[eE]xisting|onExistent'): 'Nonexistent',
             re.compile(r'_EQ\(nullptr,'): 'use _FALSE(!!ptr) instead',
             re.compile(r'_NE\(nullptr,'): 'use _TRUE(!!ptr) instead',
             re.compile(r'[!=]= nullptr|nullptr [!=]='): 'don\'t compare against nullptr directly',
@@ -386,7 +389,13 @@ class TypoChecker(SimpleValidator):
             re.compile(r'acquireReader\(\)\);'): 'for safety, acquire read lock outside of view constructor',
             re.compile(r'(reader|writer)Lock'): 'prefer readLock/writeLock',
             re.compile(r'createDetachableDelta\(\).detach\(\)'): 'warning: releasing read lock at end of scope, might lead to crash',
-            re.compile(r'sizeof\((model::)?Block\)'): 'use sizeof(BlockHeader)'
+            re.compile(r'sizeof\((model::)?Block\)'): 'use sizeof(BlockHeader)',
+            re.compile(r'static const [^{]+$'): 'use static constexpr',
+            re.compile(r'&>.*\.data\(\)'): 'use [] operator',
+            re.compile(r'\bdata[0-9]* =|std::vector<uint8_t> data'): 'prefer buffer',
+            re.compile(r' ;$'): 'no space before semicolon',
+            re.compile(r'(struct|class) \S+{'): 'add space before {',
+            re.compile(r'\b[A-Z]\w+{}'): 'zero initialize with () not \\{\\}'
         }
 
     def check(self, lineNumber, line):
@@ -584,6 +593,9 @@ class MultiConditionChecker(SimpleValidator):
         self.patternSingleLineFunction = re.compile(r'^[^\[\]]*\) { .*; }')
         self.patternTestSingleLineFunction = re.compile(r'TEST_CLASS|TEST_NAME')
 
+        self.patternTestNameIf = re.compile(r'TEST.*If|\b(Next|Remove)When')
+        self.patternTestNameIfExclusions = re.compile(r'\b(Next|Remove)If')
+
         self.errors = {
             self.checkTestLine: 'TEST should use TEST_CLASS',
             self.checkExplicitOperatorBool: 'Missing explicit before operator bool',
@@ -596,7 +608,8 @@ class MultiConditionChecker(SimpleValidator):
             self.checkTestExpectedSize: 'first size part should start on own line',
             self.checkTestAsserts: 'use a different EXPECT or ASSERT macro',
             self.checkDeclareMacroNoParams: 'use DEFINE macro',
-            self.checkSingleLineFunction: 'reformat info multiple lines'
+            self.checkSingleLineFunction: 'reformat info multiple lines',
+            self.checkTestNameIf: 'use When instead of If'
         }
 
     def reset(self, path):
@@ -642,6 +655,10 @@ class MultiConditionChecker(SimpleValidator):
 
         # this implies copy ctor `Foo(const Foo& ...)`
         if match.group(1) == match.group(2):
+            return False
+
+        # allow implicit constructors for some types
+        if 'TestBlockTransactions' == match.group(1):
             return False
 
         return True
@@ -707,6 +724,9 @@ class MultiConditionChecker(SimpleValidator):
 
     def checkSingleLineFunction(self, line):
         return re.search(self.patternSingleLineFunction, line) and not re.search(self.patternTestSingleLineFunction, line)
+
+    def checkTestNameIf(self, line):
+        return re.search(self.patternTestNameIf, line) and not re.search(self.patternTestNameIfExclusions, line)
 
     def check(self, lineNumber, line):
         strippedLine = stripCommentsAndStrings(line)
@@ -1139,6 +1159,65 @@ class EmptyStatementValidator(SimpleValidator):
         return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
+class DocumentationVerticalSpacingValidator(SimpleValidator):
+    """Validator for ensuring documentation has appropriate vertical spacing."""
+    SUITE_NAME = 'DocumentationVerticalSpacingChecker'
+    NAME = 'documentationVerticalSpacingChecker'
+
+    def __init__(self, errorReporter):
+        super().__init__(errorReporter)
+        self.previousStrippedLine = ''
+
+    def check(self, lineNumber, line):
+        strippedLine = line.strip('\n\r\t')  # also strip tabs
+
+        if strippedLine.startswith('///'):
+            if (self.previousStrippedLine
+                    and all(not self.previousStrippedLine.startswith(postfix) for postfix in ['///', '#'])
+                    and all(not self.previousStrippedLine.endswith(postfix) for postfix in [':', '{'])):
+                self.reportError(lineNumber, line, 'documentation has unexpected previous line')
+
+        self.previousStrippedLine = strippedLine
+
+    def reportError(self, lineNumber, line, message):
+        self.errorReporter(self.NAME, Line(self.path, line, lineNumber, message))
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
+
+class InsertionOperatorFormattingValidator(SimpleValidator):
+    """Validator for ensuring insertion operator has appropriate formatting."""
+    SUITE_NAME = 'InsertionOperatorFormattingChecker'
+    NAME = 'insertionOperatorFormattingChecker'
+
+    def __init__(self, errorReporter):
+        super().__init__(errorReporter)
+        self.previousStrippedLine = ''
+
+    def check(self, lineNumber, line):
+        strippedLine = line.strip('\n\r\t')  # also strip tabs
+
+        if strippedLine.startswith('<<'):
+            if self.previousStrippedLine.startswith('<<'):
+                return
+
+            if '<<' in self.previousStrippedLine:
+                self.reportError(lineNumber - 1, self.previousStrippedLine, '<< should be on own line')
+
+        self.previousStrippedLine = strippedLine
+
+    def reportError(self, lineNumber, line, message):
+        self.errorReporter(self.NAME, Line(self.path, line, lineNumber, message))
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
+
 def createValidators(errorReporter):
     validators = [
         WhitespaceLineValidator,
@@ -1163,6 +1242,8 @@ def createValidators(errorReporter):
         ClosingBraceVerticalSpacingValidator,
         NamespaceOpeningBraceVerticalSpacingValidator,
         CopyrightCommentValidator,
-        EmptyStatementValidator
+        EmptyStatementValidator,
+        DocumentationVerticalSpacingValidator,
+        InsertionOperatorFormattingValidator
     ]
     return list(map(lambda validator: validator(errorReporter), validators))

@@ -137,7 +137,7 @@ namespace catapult { namespace disruptor {
 
 	ENTITY_TRAITS_BASED_TEST(FromTypedConsumers_TypedConsumerCanModifyInput) {
 		// Arrange: create a single consumer
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		typename TTraits::ConsumersType typedConsumers{
 			[&hash](auto& elements) {
 				elements[0].EntityHash = hash;

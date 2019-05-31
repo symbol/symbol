@@ -27,7 +27,7 @@ namespace catapult { namespace model {
 	namespace {
 		bool TryCalculateRealSize(const Transaction& transaction, const TransactionRegistry& registry, uint64_t& realSize) {
 			const auto* pPlugin = registry.findPlugin(transaction.Type);
-			if (!pPlugin) {
+			if (!pPlugin || !pPlugin->supportsTopLevel()) {
 				CATAPULT_LOG(warning) << "rejected transaction with type: " << transaction.Type;
 				return false;
 			}
@@ -45,7 +45,8 @@ namespace catapult { namespace model {
 		if (transaction.Size == realSize)
 			return true;
 
-		CATAPULT_LOG(warning) << transaction.Type << " transaction failed size validation with size " << transaction.Size
+		CATAPULT_LOG(warning)
+				<< transaction.Type << " transaction failed size validation with size " << transaction.Size
 				<< " (expected " << realSize << ")";
 		return false;
 	}

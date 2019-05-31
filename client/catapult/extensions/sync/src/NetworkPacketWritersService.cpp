@@ -20,7 +20,6 @@
 
 #include "NetworkPacketWritersService.h"
 #include "catapult/api/RemoteChainApi.h"
-#include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"

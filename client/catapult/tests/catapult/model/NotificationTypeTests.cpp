@@ -67,7 +67,7 @@ namespace catapult { namespace model {
 
 	// region IsSet
 
-	TEST(TEST_CLASS, CanCheckIfChannelFlagIsSet) {
+	TEST(TEST_CLASS, CanCheckWhetherOrNotChannelFlagIsSet) {
 		// Act + Assert:
 		// - none
 		auto type = MakeNotificationType(NotificationChannel::None, 0, 0);
@@ -131,7 +131,7 @@ namespace catapult { namespace model {
 
 	// region AreEqualExcludingChannel
 
-	TEST(TEST_CLASS, AreEqualExcludingChannelReturnsTrueIfAndOnlyIfTypesHaveSameFacilityAndCode) {
+	TEST(TEST_CLASS, AreEqualExcludingChannelReturnsTrueWhenTypesHaveSameFacilityAndCode) {
 		// Arrange:
 		auto type = MakeNotificationType(NotificationChannel::Observer, 0xAB, 0x9876);
 

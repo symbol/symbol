@@ -55,8 +55,8 @@ namespace catapult { namespace observers {
 		void RunObserverTest(observers::NotifyMode mode, TAssert assertContext) {
 			// Arrange: create observer and notification
 			auto pObserver = CreateMockRentalFeeObserver();
-			auto signer = test::GenerateRandomData<Key_Size>();
-			auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
+			auto recipient = test::GenerateRandomByteArray<Address>();
 			MockRentalFeeNotification notification(
 					signer,
 					test::UnresolveXor(recipient),

@@ -27,7 +27,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, SecureZeroZerosOutBackingMemoryOfKey) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		const uint8_t* pRawKey = key.data();
 
 		// Sanity:
@@ -45,19 +45,19 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, SecureZeroZerosOutBackingMemoryOfData) {
 		// Arrange:
-		auto data = test::GenerateRandomData<625>();
-		uint8_t* pRawData = data.data();
+		auto buffer = test::GenerateRandomArray<625>();
+		uint8_t* pRawData = buffer.data();
 
 		// Sanity:
 		std::array<uint8_t, 625> zeroData;
 		std::fill(zeroData.begin(), zeroData.end(), static_cast<uint8_t>(0));
-		EXPECT_FALSE(std::equal(zeroData.cbegin(), zeroData.cend(), pRawData, pRawData + data.size()));
+		EXPECT_FALSE(std::equal(zeroData.cbegin(), zeroData.cend(), pRawData, pRawData + buffer.size()));
 
 		// Act:
 		SecureZero(pRawData, 625);
 
 		// Assert:
-		EXPECT_TRUE(std::equal(zeroData.cbegin(), zeroData.cend(), pRawData, pRawData + data.size()));
-		EXPECT_EQ(zeroData, data);
+		EXPECT_TRUE(std::equal(zeroData.cbegin(), zeroData.cend(), pRawData, pRawData + buffer.size()));
+		EXPECT_EQ(zeroData, buffer);
 	}
 }}

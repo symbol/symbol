@@ -37,7 +37,7 @@ namespace catapult { namespace chain {
 			return utils::TimeSpan::FromDifference(block.Timestamp, parent.Timestamp);
 		}
 
-		uint32_t NumLeadingZeros(const Hash256& generationHash) {
+		uint32_t NumLeadingZeros(const GenerationHash& generationHash) {
 			for (auto i = 0u; i < Hash256_Size; ++i) {
 				if (0 != generationHash[i])
 					return 8u * i + 7u - utils::Log2(generationHash[i]);
@@ -52,11 +52,11 @@ namespace catapult { namespace chain {
 #define BSWAP(VAL) __builtin_bswap32(VAL)
 #endif
 
-		uint32_t ExtractFromHashAtPosition(const Hash256& hash, size_t index) {
+		uint32_t ExtractFromHashAtPosition(const GenerationHash& hash, size_t index) {
 			return BSWAP(*reinterpret_cast<const uint32_t*>(hash.data() + index));
 		}
 
-		GenerationHashInfo ExtractGenerationHashInfo(const Hash256& generationHash) {
+		GenerationHashInfo ExtractGenerationHashInfo(const GenerationHash& generationHash) {
 			auto numLeadingZeros = NumLeadingZeros(generationHash);
 			if (224 <= numLeadingZeros)
 				return GenerationHashInfo{ ExtractFromHashAtPosition(generationHash, Hash256_Size - 4), 224 };
@@ -70,7 +70,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	uint64_t CalculateHit(const Hash256& generationHash) {
+	uint64_t CalculateHit(const GenerationHash& generationHash) {
 		// we want to calculate 2^54 * abs(log(x)), where x = value/2^256 and value is a 256 bit integer
 		// note that x is always < 1, therefore log(x) is always negative
 		// the original version used boost::multiprecision to convert the generation hash (interpreted as 256 bit integer) to a double
@@ -151,7 +151,10 @@ namespace catapult { namespace chain {
 			, m_importanceLookup(importanceLookup)
 	{}
 
-	bool BlockHitPredicate::operator()(const model::Block& parentBlock, const model::Block& block, const Hash256& generationHash) const {
+	bool BlockHitPredicate::operator()(
+			const model::Block& parentBlock,
+			const model::Block& block,
+			const GenerationHash& generationHash) const {
 		auto importance = m_importanceLookup(block.Signer, block.Height);
 		auto hit = CalculateHit(generationHash);
 		auto target = CalculateTarget(parentBlock, block, importance, m_config);

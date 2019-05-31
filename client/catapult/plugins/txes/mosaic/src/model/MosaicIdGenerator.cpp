@@ -34,6 +34,6 @@ namespace catapult { namespace model {
 
 		// clear high bit
 		constexpr uint64_t Namespace_Flag = 1ull << 63;
-		return MosaicId(reinterpret_cast<const uint64_t&>(*result.data()) & ~Namespace_Flag);
+		return MosaicId(reinterpret_cast<const uint64_t&>(result[0]) & ~Namespace_Flag);
 	}
 }}

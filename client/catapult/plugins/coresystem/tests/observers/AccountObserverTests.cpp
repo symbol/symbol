@@ -33,7 +33,7 @@ namespace catapult { namespace observers {
 	namespace {
 		struct AddressTraits {
 			static Address CreateKey() {
-				return test::GenerateRandomData<Address_Decoded_Size>();
+				return test::GenerateRandomByteArray<Address>();
 			}
 
 			static auto CreateNotification(const Address& key) {
@@ -47,7 +47,7 @@ namespace catapult { namespace observers {
 
 		struct PublicKeyTraits {
 			static Key CreateKey() {
-				return test::GenerateRandomData<Key_Size>();
+				return test::GenerateRandomByteArray<Key>();
 			}
 
 			static auto CreateNotification(const Key& key) {

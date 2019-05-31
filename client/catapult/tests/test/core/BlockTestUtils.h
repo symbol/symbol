@@ -31,49 +31,56 @@ namespace catapult { namespace test {
 
 	/// Hash string of the deterministic block.
 #ifdef SIGNATURE_SCHEME_NIS1
-	constexpr auto Deterministic_Block_Hash_String = "4D4C0D925A79FA397634638745301E5AC255C279868A7E19FBCEDC25E80DECAA";
+	constexpr auto Deterministic_Block_Hash_String = "80ED33530BE86977CCE8A84208F9D1C0404A12D53FFCDF442CA6FBD0F691AE35";
 #else
-	constexpr auto Deterministic_Block_Hash_String = "CEEFD9DDCCD3547AA5FF79EDBD6DBF07D5AD9EC8620E8E610DE62206CAA71704";
+	constexpr auto Deterministic_Block_Hash_String = "C8D620525C3967169D65BD0D0DE110E5B2AB193C26C0E7C052C4605B5F7932F5";
 #endif
+
+	// region TestBlockTransactions
+
+	/// Container of transactions for seeding a test block.
+	class TestBlockTransactions {
+	public:
+		/// Creates block transactions from const \a transactions.
+		TestBlockTransactions(const ConstTransactions& transactions);
+
+		/// Creates block transactions from mutable \a transactions.
+		TestBlockTransactions(const MutableTransactions& transactions);
+
+		/// Creates \a numTransactions (random) block transactions.
+		TestBlockTransactions(size_t numTransactions);
+
+	public:
+		/// Gets the transactions.
+		const ConstTransactions& get() const;
+
+	private:
+		ConstTransactions m_transactions;
+	};
+
+	// endregion
+
+	// region Block factory functions
 
 	/// Generates an empty block with random signer and no transactions.
 	std::unique_ptr<model::Block> GenerateEmptyRandomBlock();
 
-	/// Generates a block with random signer and given \a transactions.
-	std::unique_ptr<model::Block> GenerateRandomBlockWithTransactions(const ConstTransactions& transactions);
+	/// Generates a block with random signer and \a transactions.
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const TestBlockTransactions& transactions);
 
-	/// Generates a block with random signer and given \a transactions.
-	std::unique_ptr<model::Block> GenerateRandomBlockWithTransactions(const MutableTransactions& transactions);
-
-	/// Generates a block with a given \a signer and given \a transactions.
-	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const ConstTransactions& transactions);
-
-	/// Generates a block with a given \a signer and given \a transactions.
-	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const MutableTransactions& transactions);
-
-	/// Generates a block with \a numTransactions transactions.
-	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions);
+	/// Generates a block with a given \a signer and \a transactions.
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const TestBlockTransactions& transactions);
 
 	/// Generates a block with \a numTransactions transactions at \a height.
-	std::unique_ptr<model::Block> GenerateBlockWithTransactionsAtHeight(size_t numTransactions, size_t height);
-
-	/// Generates a block with \a numTransactions transactions at \a height.
-	std::unique_ptr<model::Block> GenerateBlockWithTransactionsAtHeight(size_t numTransactions, Height height);
-
-	/// Generates a block with transactions at \a height.
-	std::unique_ptr<model::Block> GenerateBlockWithTransactionsAtHeight(Height height);
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height);
 
 	/// Generates a block with \a numTransactions transactions at \a height and \a timestamp.
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height, Timestamp timestamp);
 
-	/// Generates a block with no transactions and \a height that can be verified.
-	std::unique_ptr<model::Block> GenerateVerifiableBlockAtHeight(Height height);
-
-	/// Generates a block with no transactions and \a height that cannot be verified.
-	std::unique_ptr<model::Block> GenerateNonVerifiableBlockAtHeight(Height height);
-
 	/// Generates a predefined block, i.e. this function will always return the same block.
 	std::unique_ptr<model::Block> GenerateDeterministicBlock();
+
+	// endregion
 
 	/// Policy for creating an empty block.
 	struct EmptyBlockPolicy {
@@ -86,7 +93,7 @@ namespace catapult { namespace test {
 	struct NonEmptyBlockPolicy {
 		static auto Create() {
 			auto transactions = GenerateRandomTransactions(3);
-			return GenerateRandomBlockWithTransactions(transactions);
+			return GenerateBlockWithTransactions(transactions);
 		}
 	};
 
@@ -105,19 +112,15 @@ namespace catapult { namespace test {
 	/// Counts the number of transactions in \a block.
 	size_t CountTransactions(const model::Block& block);
 
-	/// Creates a copy of \a block.
-	std::unique_ptr<model::Block> CopyBlock(const model::Block& block);
+	/// Converts \a block to a block element.
+	model::BlockElement BlockToBlockElement(const model::Block& block);
+
+	/// Converts \a block to a block element with specified generation hash (\a generationHash).
+	model::BlockElement BlockToBlockElement(const model::Block& block, const GenerationHash& generationHash);
 
 	/// Converts \a block with \a hash to a block element.
 	model::BlockElement BlockToBlockElement(const model::Block& block, const Hash256& hash);
 
-	/// Converts \a block to a block element.
-	model::BlockElement BlockToBlockElement(const model::Block& block);
-
 	/// Verifies that block elements \a expectedBlockElement and \a blockElement are equivalent.
 	void AssertEqual(const model::BlockElement& expectedBlockElement, const model::BlockElement& blockElement);
-
-	/// Signs \a block as \a signer and calculates the block transactions hash.
-	/// \note All data is assumed to be present and valid.
-	void SignBlock(const crypto::KeyPair& signer, model::Block& block);
 }}

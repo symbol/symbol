@@ -31,17 +31,13 @@ namespace catapult { namespace mongo {
 
 		class MockChainScoreProvider : public ChainScoreProvider {
 		public:
-			const auto& scores() const {
+			const auto& capturedScores() const {
 				return m_scores;
 			}
 
 		public:
 			void saveScore(const model::ChainScore& chainScore) override {
 				m_scores.push_back(chainScore);
-			}
-
-			model::ChainScore loadScore() const override {
-				CATAPULT_THROW_RUNTIME_ERROR("loadScore - not supported in mock");
 			}
 
 		private:
@@ -54,24 +50,22 @@ namespace catapult { namespace mongo {
 			{}
 
 		public:
-			const auto& deltas() const {
-				return m_deltas;
+			const auto& capturedChanges() const {
+				return m_capturedChanges;
 			}
 
 		public:
-			void saveDelta(const cache::CatapultCacheDelta& cache) override {
-				m_deltas.push_back(&cache);
-			}
-
-			void loadAll(cache::CatapultCache&, Height) const override {
-				CATAPULT_THROW_RUNTIME_ERROR("loadAll - not supported in mock");
+			void saveDelta(const cache::CacheChanges& changes) override {
+				m_capturedChanges.push_back(&changes);
 			}
 
 		private:
-			std::vector<const cache::CatapultCacheDelta*> m_deltas;
+			std::vector<const cache::CacheChanges*> m_capturedChanges;
 		};
 
 		// endregion
+
+		// region test context
 
 		class TestContext {
 		public:
@@ -103,6 +97,8 @@ namespace catapult { namespace mongo {
 			MockExternalCacheStorage* m_pExternalCacheStorageRaw;
 			ApiStateChangeSubscriber m_subscriber;
 		};
+
+		// endregion
 	}
 
 	TEST(TEST_CLASS, NotifyScoreChangeForwardsToChainScoreProvider) {
@@ -114,26 +110,25 @@ namespace catapult { namespace mongo {
 		context.subscriber().notifyScoreChange(chainScore);
 
 		// Assert:
-		ASSERT_EQ(1u, context.chainScoreProvider().scores().size());
-		EXPECT_EQ(chainScore, context.chainScoreProvider().scores()[0]);
+		ASSERT_EQ(1u, context.chainScoreProvider().capturedScores().size());
+		EXPECT_EQ(chainScore, context.chainScoreProvider().capturedScores()[0]);
 
-		EXPECT_TRUE(context.externalCacheStorage().deltas().empty());
+		EXPECT_TRUE(context.externalCacheStorage().capturedChanges().empty());
 	}
 
 	TEST(TEST_CLASS, NotifyStateChangeForwardsToExternalCacheStorage) {
 		// Arrange:
 		TestContext context;
-		auto cache = cache::CatapultCache({});
-		auto cacheDelta = cache.createDelta();
 		auto chainScore = model::ChainScore(123, 435);
+		auto stateChangeInfo = subscribers::StateChangeInfo(cache::CacheChanges({}), chainScore, Height(123));
 
 		// Act:
-		context.subscriber().notifyStateChange(consumers::StateChangeInfo(cacheDelta, chainScore, Height(123)));
+		context.subscriber().notifyStateChange(stateChangeInfo);
 
 		// Assert:
-		EXPECT_TRUE(context.chainScoreProvider().scores().empty());
+		EXPECT_TRUE(context.chainScoreProvider().capturedScores().empty());
 
-		ASSERT_EQ(1u, context.externalCacheStorage().deltas().size());
-		EXPECT_EQ(&cacheDelta, context.externalCacheStorage().deltas()[0]);
+		ASSERT_EQ(1u, context.externalCacheStorage().capturedChanges().size());
+		EXPECT_EQ(&stateChangeInfo.CacheChanges, context.externalCacheStorage().capturedChanges()[0]);
 	}
 }}

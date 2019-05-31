@@ -25,11 +25,12 @@
 #include "catapult/chain/BlockExecutor.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/nodeps/Nemesis.h"
 
 namespace catapult { namespace test {
 
-	Hash256 CalculateNemesisStateHash(const model::BlockElement& blockElement, const config::LocalNodeConfiguration& config) {
-		auto pPluginManager = CreatePluginManager(config);
+	Hash256 CalculateNemesisStateHash(const model::BlockElement& blockElement, const config::CatapultConfiguration& config) {
+		auto pPluginManager = CreatePluginManagerWithRealPlugins(config);
 
 		auto cache = pPluginManager->createCache();
 		auto cacheDetachableDelta = cache.createDetachableDelta();
@@ -61,7 +62,7 @@ namespace catapult { namespace test {
 		auto resolverContext = pluginManager.createResolverContext(readOnlyCache);
 
 		// 4. execute block
-		chain::ExecuteBlock(test::BlockToBlockElement(block), { entityObserver, resolverContext, observerState });
+		chain::ExecuteBlock(BlockToBlockElement(block, GetNemesisGenerationHash()), { entityObserver, resolverContext, observerState });
 		return cache.calculateStateHash(block.Height).StateHash;
 	}
 }}

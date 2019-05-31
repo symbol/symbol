@@ -26,7 +26,7 @@ namespace catapult { namespace state {
 	namespace {
 		void SaveDefinition(io::OutputStream& output, const MosaicDefinition& definition) {
 			io::Write(output, definition.height());
-			io::Write(output, definition.owner());
+			output.write(definition.owner());
 			io::Write32(output, definition.revision());
 			for (const auto& property : definition.properties())
 				io::Write64(output, property.Value);
@@ -34,9 +34,6 @@ namespace catapult { namespace state {
 	}
 
 	void MosaicEntrySerializer::Save(const MosaicEntry& entry, io::OutputStream& output) {
-		if (entry.hasLevy())
-			CATAPULT_THROW_RUNTIME_ERROR("cannot save mosaic entry with levy");
-
 		io::Write(output, entry.mosaicId());
 		io::Write(output, entry.supply());
 		SaveDefinition(output, entry.definition());

@@ -45,7 +45,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, CanCreateDefaultResultFromCodeAndKey_Success) {
 		// Act:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto result = PeerConnectResult(PeerConnectCode::Accepted, key);
 
 		// Assert:
@@ -55,7 +55,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, CanCreateDefaultResultFromCodeAndKey_Error) {
 		// Act:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto result = PeerConnectResult(PeerConnectCode::Already_Connected, key);
 
 		// Assert:

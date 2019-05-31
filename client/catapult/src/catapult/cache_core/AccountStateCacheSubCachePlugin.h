@@ -31,7 +31,9 @@ namespace catapult { namespace cache {
 		using SummaryCacheStorage<AccountStateCache>::SummaryCacheStorage;
 
 	public:
-		void saveAll(io::OutputStream& output) const override;
+		void saveAll(const CatapultCacheView& cacheView, io::OutputStream& output) const override;
+
+		void saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const override;
 
 		void loadAll(io::InputStream& input, size_t) override;
 	};

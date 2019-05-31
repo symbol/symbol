@@ -139,7 +139,7 @@ namespace catapult { namespace test {
 			EXPECT_THROW(TTraits::Commit(*pBaseSet), catapult_runtime_error);
 		}
 
-		static void AssertCommitThrowsIfOnlyDetachedDeltasAreOutstanding() {
+		static void AssertCommitThrowsWhenOnlyDetachedDeltasAreOutstanding() {
 			// Arrange:
 			auto pBaseSet = TTraits::Create();
 			auto pDetachedDelta = pBaseSet->rebaseDetached();
@@ -224,7 +224,7 @@ namespace catapult { namespace test {
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, RebaseDetachedAllowsManyDeltas) \
 	\
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, CannotCommitWhenThereAreNoPendingAttachedDeltas) \
-	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, CommitThrowsIfOnlyDetachedDeltasAreOutstanding) \
+	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, CommitThrowsWhenOnlyDetachedDeltasAreOutstanding) \
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, CommitCommitsToOriginalElements) \
 	MAKE_BASE_SET_TEST(TEST_CLASS, TRAITS, CommitIsIdempotent)
 

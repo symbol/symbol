@@ -35,10 +35,10 @@ namespace catapult { namespace plugins {
 	// region TransactionPlugin
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicSupplyChange, 2, 2)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicSupplyChange, 2, 2,)
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Entity_Type_Mosaic_Supply_Change)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Mosaic_Supply_Change)
 
 	PLUGIN_TEST(CanCalculateSize) {
 		// Arrange:

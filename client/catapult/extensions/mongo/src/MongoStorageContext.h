@@ -20,6 +20,7 @@
 
 #pragma once
 #include "MongoDatabase.h"
+#include "MongoErrorPolicy.h"
 
 namespace catapult { namespace mongo { class MongoBulkWriter; } }
 
@@ -32,17 +33,27 @@ namespace catapult { namespace mongo {
 		MongoStorageContext() = default;
 
 		/// Creates a storage context for a mongodb-based storage connected to \a uri storing inside database \a databaseName
-		/// with the specified bulk writer (\a pBulkWriter).
-		MongoStorageContext(const mongocxx::uri& uri, const std::string& databaseName, const std::shared_ptr<MongoBulkWriter>& pBulkWriter)
+		/// with the specified bulk writer (\a pBulkWriter) and error policy mode (\a errorPolicyMode).
+		MongoStorageContext(
+				const mongocxx::uri& uri,
+				const std::string& databaseName,
+				const std::shared_ptr<MongoBulkWriter>& pBulkWriter,
+				MongoErrorPolicy::Mode errorPolicyMode)
 				: m_connectionPool(uri)
 				, m_databaseName(databaseName)
 				, m_pBulkWriter(pBulkWriter)
+				, m_errorPolicyMode(errorPolicyMode)
 		{}
 
 	public:
 		/// Creates a mongo database connection.
 		MongoDatabase createDatabaseConnection() {
 			return MongoDatabase(m_connectionPool, m_databaseName);
+		}
+
+		/// Creates a mongo error policy for the collection with name \a collectionName.
+		MongoErrorPolicy createCollectionErrorPolicy(const std::string& collectionName) {
+			return MongoErrorPolicy(collectionName, m_errorPolicyMode);
 		}
 
 		/// Gets the bulk writer.
@@ -54,5 +65,6 @@ namespace catapult { namespace mongo {
 		mongocxx::pool m_connectionPool;
 		std::string m_databaseName;
 		std::shared_ptr<MongoBulkWriter> m_pBulkWriter;
+		MongoErrorPolicy::Mode m_errorPolicyMode;
 	};
 }}

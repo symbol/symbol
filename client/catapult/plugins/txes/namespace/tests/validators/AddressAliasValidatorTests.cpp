@@ -60,9 +60,9 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, FailureIfAccountIsNotKnown) {
+	TEST(TEST_CLASS, FailureWhenAccountIsNotKnown) {
 		// Arrange:
-		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+		auto address = test::GenerateRandomByteArray<Address>();
 		auto unknownAddress = address;
 		unknownAddress[0] ^= 0xFF;
 
@@ -70,9 +70,9 @@ namespace catapult { namespace validators {
 		RunAddressAliasTest(Failure_Namespace_Alias_Invalid_Address, address, unknownAddress);
 	}
 
-	TEST(TEST_CLASS, SuccessIfAccountIsKnown) {
+	TEST(TEST_CLASS, SuccessWhenAccountIsKnown) {
 		// Arrange:
-		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+		auto address = test::GenerateRandomByteArray<Address>();
 
 		// Act + Assert:
 		RunAddressAliasTest(ValidationResult::Success, address, address);

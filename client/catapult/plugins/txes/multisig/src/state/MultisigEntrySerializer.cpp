@@ -28,14 +28,14 @@ namespace catapult { namespace state {
 		void SaveKeySet(io::OutputStream& output, const utils::SortedKeySet& keySet) {
 			io::Write64(output, keySet.size());
 			for (const auto& key : keySet)
-				io::Write(output, key);
+				output.write(key);
 		}
 	}
 
 	void MultisigEntrySerializer::Save(const MultisigEntry& entry, io::OutputStream& output) {
 		io::Write8(output, entry.minApproval());
 		io::Write8(output, entry.minRemoval());
-		io::Write(output, entry.key());
+		output.write(entry.key());
 
 		SaveKeySet(output, entry.cosignatories());
 		SaveKeySet(output, entry.multisigAccounts());

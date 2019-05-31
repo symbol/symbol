@@ -56,13 +56,13 @@ namespace catapult { namespace test {
 			int64_t localReceiveTime,
 			int64_t remoteSendTime,
 			int64_t remoteReceiveTime) {
-		auto node = test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "alice");
+		auto node = test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "alice");
 		return CreateSample(node, localSendTime, localReceiveTime, remoteSendTime, remoteReceiveTime);
 	}
 
 	timesync::TimeSynchronizationSample CreateTimeSyncSampleWithDuration(int64_t duration) {
 		return timesync::TimeSynchronizationSample(
-				CreateNode(test::GenerateRandomData<Key_Size>()),
+				CreateNode(test::GenerateRandomByteArray<Key>()),
 				CreateCommunicationTimestamps(0, duration),
 				CreateCommunicationTimestamps(duration / 2, duration / 2));
 	}
@@ -70,7 +70,7 @@ namespace catapult { namespace test {
 	timesync::TimeSynchronizationSample CreateTimeSyncSampleWithTimeOffset(int64_t timeOffset) {
 		// remote timestamps have 0 duration to make it more readable
 		return timesync::TimeSynchronizationSample(
-				CreateNode(test::GenerateRandomData<Key_Size>()),
+				CreateNode(test::GenerateRandomByteArray<Key>()),
 				CreateCommunicationTimestamps(0, 2 * Default_Start_Time + 100),
 				CreateCommunicationTimestamps(Default_Start_Time + 50 + timeOffset, Default_Start_Time + 50 + timeOffset));
 	}

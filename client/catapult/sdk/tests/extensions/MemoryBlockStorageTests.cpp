@@ -37,19 +37,16 @@ namespace catapult { namespace extensions {
 
 			static std::unique_ptr<StorageType> OpenStorage(const std::string&) {
 				// load and copy the nemesis into storage
-				auto nemesisBlockElement = test::BlockToBlockElement(test::GetNemesisBlock());
-				nemesisBlockElement.GenerationHash = test::GetNemesisGenerationHash();
+				auto nemesisBlockElement = test::BlockToBlockElement(test::GetNemesisBlock(), test::GetNemesisGenerationHash());
 				return std::make_unique<StorageType>(nemesisBlockElement);
 			}
 
 			static std::unique_ptr<StorageType> PrepareStorage(const std::string& destination, Height height = Height()) {
 				auto pStorage = OpenStorage(destination);
 
-				// abuse drop blocks to fake current height...
-				// note: since we will want to save next block at height, we need to drop all
-				// after `height-1` due to check in saveBlock()
+				// set storage height to `height - 1` because next block saved will be at `height`
 				if (Height() != height)
-					pStorage->dropBlocksAfter(Height(height.unwrap() - 1));
+					pStorage->dropBlocksAfter(height - Height(1));
 
 				return pStorage;
 			}
@@ -57,4 +54,5 @@ namespace catapult { namespace extensions {
 	}
 
 	DEFINE_BLOCK_STORAGE_TESTS(MemoryTraits)
+	DEFINE_PRUNABLE_BLOCK_STORAGE_TESTS(MemoryTraits)
 }}

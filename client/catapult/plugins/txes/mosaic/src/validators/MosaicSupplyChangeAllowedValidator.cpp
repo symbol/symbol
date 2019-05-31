@@ -27,8 +27,8 @@ namespace catapult { namespace validators {
 
 	using Notification = model::MosaicSupplyChangeNotification;
 
-	DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, Notification)(Amount maxDivisibleUnits) {
-		return MAKE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, [maxDivisibleUnits](
+	DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, Notification)(Amount maxAtomicUnits) {
+		return MAKE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, [maxAtomicUnits](
 				const auto& notification,
 				const ValidatorContext& context) {
 			// notice that MosaicChangeAllowedValidator is required to run first, so both mosaic and owning account must exist
@@ -52,7 +52,7 @@ namespace catapult { namespace validators {
 			// check that new supply does not overflow and is not too large
 			auto initialSupply = entry.supply();
 			auto newSupply = entry.supply() + notification.Delta;
-			return newSupply < initialSupply || newSupply > maxDivisibleUnits
+			return newSupply < initialSupply || newSupply > maxAtomicUnits
 					? Failure_Mosaic_Supply_Exceeded
 					: ValidationResult::Success;
 		});

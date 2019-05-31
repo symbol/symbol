@@ -21,9 +21,11 @@
 #include "catapult/model/EntityHasher.h"
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/core/mocks/MockTransactionPluginWithCustomBuffers.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 #include <array>
 
@@ -34,10 +36,10 @@ namespace catapult { namespace model {
 	namespace {
 		struct BlockTraits {
 			static std::unique_ptr<Block> Generate() {
-				return test::GenerateBlockWithTransactionsAtHeight(7, 7);
+				return test::GenerateBlockWithTransactions(7, Height(7));
 			}
 
-			static Hash256 CalculateHash(const Block& block) {
+			static Hash256 CalculateHash(const Block& block, const GenerationHash&) {
 				return model::CalculateHash(block);
 			}
 		};
@@ -47,23 +49,19 @@ namespace catapult { namespace model {
 				return test::GenerateRandomTransaction();
 			}
 
-			static Hash256 CalculateHash(const Transaction& transaction) {
-				return model::CalculateHash(transaction);
+			static Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHash) {
+				return model::CalculateHash(transaction, generationHash);
 			}
 		};
 
-		struct VerifiableEntityTraits {
-			static std::unique_ptr<VerifiableEntity> Generate() {
-				auto pEntity = std::make_unique<VerifiableEntity>();
-				test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pEntity.get()), sizeof(VerifiableEntity) });
-				return pEntity;
-			}
-
-			static Hash256 CalculateHash(const VerifiableEntity& entity) {
-				// hash full entity header body in traits-based tests
-				auto headerSize = VerifiableEntity::Header_Size;
-				const auto* pEntityData = reinterpret_cast<const uint8_t*>(&entity);
-				return model::CalculateHash(entity, { pEntityData + headerSize, sizeof(VerifiableEntity) - headerSize });
+		struct TransactionCustomPayloadTraits : public TransactionTraits {
+			static Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHash) {
+				// hash full transaction header body in traits-based tests
+				auto transactionBuffer = RawBuffer{
+					reinterpret_cast<const uint8_t*>(&transaction) + Transaction::Header_Size,
+					sizeof(Transaction) - Transaction::Header_Size
+				};
+				return model::CalculateHash(transaction, generationHash, transactionBuffer);
 			}
 		};
 	}
@@ -74,57 +72,61 @@ namespace catapult { namespace model {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_Block) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Transaction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_VerifiableEntity) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<VerifiableEntityTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_TransactionCustomPayload) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionCustomPayloadTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	BASIC_HASH_TEST(HashChangesIfRPartOfSignatureChanges) {
+	BASIC_HASH_TEST(HashChangesWhenRPartOfSignatureChanges) {
 		// Arrange:
 		auto pEntity = TTraits::Generate();
-		auto originalHash = TTraits::CalculateHash(*pEntity);
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
+		auto originalHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Act:
 		pEntity->Signature[0] ^= 0xFF;
-		auto modifiedHash = TTraits::CalculateHash(*pEntity);
+		auto modifiedHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Assert:
 		EXPECT_NE(originalHash, modifiedHash);
 	}
 
-	BASIC_HASH_TEST(HashDoesNotChangeIfSPartOfSignatureChanges) {
+	BASIC_HASH_TEST(HashDoesNotChangeWhenSPartOfSignatureChanges) {
 		// Arrange:
 		auto pEntity = TTraits::Generate();
-		auto originalHash = TTraits::CalculateHash(*pEntity);
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
+		auto originalHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Act:
 		pEntity->Signature[Signature_Size / 2] ^= 0xFF;
-		auto modifiedHash = TTraits::CalculateHash(*pEntity);
+		auto modifiedHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Assert:
 		EXPECT_EQ(originalHash, modifiedHash);
 	}
 
-	BASIC_HASH_TEST(HashChangesIfSignerChanges) {
+	BASIC_HASH_TEST(HashChangesWhenSignerChanges) {
 		// Arrange:
 		auto pEntity = TTraits::Generate();
-		auto originalHash = TTraits::CalculateHash(*pEntity);
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
+		auto originalHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Act:
 		pEntity->Signer[Key_Size / 2] ^= 0xFF;
-		auto modifiedHash = TTraits::CalculateHash(*pEntity);
+		auto modifiedHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Assert:
 		EXPECT_NE(originalHash, modifiedHash);
 	}
 
-	BASIC_HASH_TEST(HashChangesIfEntityDataChanges) {
+	BASIC_HASH_TEST(HashChangesWhenEntityDataChanges) {
 		// Arrange:
 		auto pEntity = TTraits::Generate();
-		auto originalHash = TTraits::CalculateHash(*pEntity);
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
+		auto originalHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Act: change the last byte
 		auto* pLastByte = reinterpret_cast<uint8_t*>(pEntity.get() + 1) - 1;
 		++*pLastByte;
-		auto modifiedHash = TTraits::CalculateHash(*pEntity);
+		auto modifiedHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Assert:
 		EXPECT_NE(originalHash, modifiedHash);
@@ -142,10 +144,10 @@ namespace catapult { namespace model {
 		auto hash = CalculateHash(*pBlock);
 
 		// Assert:
-		EXPECT_EQ(test::Deterministic_Block_Hash_String, test::ToHexString(hash));
+		EXPECT_EQ(test::Deterministic_Block_Hash_String, test::ToString(hash));
 	}
 
-	TEST(TEST_CLASS, BlockHashDoesNotChangeIfBlockTransactionDataChanges) {
+	TEST(TEST_CLASS, BlockHashDoesNotChangeWhenBlockTransactionDataChanges) {
 		// Arrange:
 		auto pBlock = BlockTraits::Generate();
 		auto originalHash = CalculateHash(*pBlock);
@@ -167,39 +169,67 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CalculateTransactionHashReturnsExpectedHash) {
 		// Arrange: create a predefined transaction
 		auto pTransaction = test::GenerateDeterministicTransaction();
+		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
 
 		// Act:
-		auto hash = CalculateHash(*pTransaction);
+		auto hash = CalculateHash(*pTransaction, generationHash);
 
 		// Assert:
-		EXPECT_EQ(test::Deterministic_Transaction_Hash_String, test::ToHexString(hash));
+		EXPECT_EQ(test::Deterministic_Transaction_Hash_String, test::ToString(hash));
 	}
 
-	// endregion
-
-	// region CalculateHash - verifiable entity
-
-	TEST(TEST_CLASS, VerifiableEntityHashChangesIfDataBufferDataChanges) {
+	TEST(TEST_CLASS, TransactionHashChangesWhenGenerationHashChanges) {
 		// Arrange:
-		auto pEntity = VerifiableEntityTraits::Generate();
-		const auto* pEntityData = reinterpret_cast<uint8_t*>(pEntity.get());
-		auto originalHash = CalculateHash(*pEntity, { pEntityData, sizeof(VerifiableEntity) - 1});
+		auto pTransaction = TransactionTraits::Generate();
+		auto originalHash = CalculateHash(*pTransaction, test::GenerateRandomByteArray<GenerationHash>());
 
 		// Act:
-		auto modifiedHash = CalculateHash(*pEntity, { pEntityData + 1, sizeof(VerifiableEntity) - 1 });
+		auto modifiedHash = CalculateHash(*pTransaction, test::GenerateRandomByteArray<GenerationHash>());
 
 		// Assert:
 		EXPECT_NE(originalHash, modifiedHash);
 	}
 
-	TEST(TEST_CLASS, VerifiableEntityHashChangesIfDataBufferSizeChanges) {
+	// endregion
+
+	// region CalculateHash - transaction custom payload
+
+	TEST(TEST_CLASS, TransactionCustomPayloadHashChangesWhenGenerationHashChanges) {
 		// Arrange:
-		auto pEntity = VerifiableEntityTraits::Generate();
-		const auto* pEntityData = reinterpret_cast<uint8_t*>(pEntity.get());
-		auto originalHash = CalculateHash(*pEntity, { pEntityData, sizeof(VerifiableEntity) });
+		auto pTransaction = TransactionCustomPayloadTraits::Generate();
+		auto transactionBuffer = RawBuffer{ reinterpret_cast<uint8_t*>(pTransaction.get()), sizeof(Transaction) - 1 };
+		auto originalHash = CalculateHash(*pTransaction, test::GenerateRandomByteArray<GenerationHash>(), transactionBuffer);
 
 		// Act:
-		auto modifiedHash = CalculateHash(*pEntity, { pEntityData, sizeof(VerifiableEntity) - 1 });
+		auto modifiedHash = CalculateHash(*pTransaction, test::GenerateRandomByteArray<GenerationHash>(), transactionBuffer);
+
+		// Assert:
+		EXPECT_NE(originalHash, modifiedHash);
+	}
+
+	TEST(TEST_CLASS, TransactionCustomPayloadHashChangesWhenDataBufferDataChanges) {
+		// Arrange:
+		auto pTransaction = TransactionCustomPayloadTraits::Generate();
+		const auto* pTransactionData = reinterpret_cast<uint8_t*>(pTransaction.get());
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
+		auto originalHash = CalculateHash(*pTransaction, generationHash, { pTransactionData, sizeof(Transaction) - 1 });
+
+		// Act:
+		auto modifiedHash = CalculateHash(*pTransaction, generationHash, { pTransactionData + 1, sizeof(Transaction) - 1 });
+
+		// Assert:
+		EXPECT_NE(originalHash, modifiedHash);
+	}
+
+	TEST(TEST_CLASS, TransactionCustomPayloadHashChangesWhenDataBufferSizeChanges) {
+		// Arrange:
+		auto pTransaction = TransactionCustomPayloadTraits::Generate();
+		const auto* pTransactionData = reinterpret_cast<uint8_t*>(pTransaction.get());
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
+		auto originalHash = CalculateHash(*pTransaction, generationHash, { pTransactionData, sizeof(Transaction) });
+
+		// Act:
+		auto modifiedHash = CalculateHash(*pTransaction, generationHash, { pTransactionData, sizeof(Transaction) - 1 });
 
 		// Assert:
 		EXPECT_NE(originalHash, modifiedHash);
@@ -217,7 +247,7 @@ namespace catapult { namespace model {
 
 		auto pTransaction = test::GenerateRandomTransaction();
 		const auto& transaction = *pTransaction;
-		auto transactionHash = test::GenerateRandomData<Hash256_Size>();
+		auto transactionHash = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto merkleComponentHash = CalculateMerkleComponentHash(transaction, transactionHash, registry);
@@ -236,7 +266,7 @@ namespace catapult { namespace model {
 
 		auto pTransaction = test::GenerateRandomTransaction();
 		const auto& transaction = *pTransaction;
-		auto transactionHash = test::GenerateRandomData<Hash256_Size>();
+		auto transactionHash = test::GenerateRandomByteArray<Hash256>();
 
 		Hash256 expectedMerkleComponentHash;
 		crypto::Sha3_256_Builder sha3;
@@ -263,7 +293,7 @@ namespace catapult { namespace model {
 			std::vector<TransactionElement> transactionElements;
 			for (const auto& pTransaction : transactions) {
 				transactionElements.emplace_back(*pTransaction);
-				transactionElements.back().MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+				transactionElements.back().MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 			}
 
 			return transactionElements;
@@ -316,12 +346,13 @@ namespace catapult { namespace model {
 		auto pTransaction = test::GenerateRandomTransaction();
 		auto transactionElement = TransactionElement(*pTransaction);
 		const auto& transaction = *pTransaction;
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
 
 		// - since there are no supplementary buffers, the transaction hash is equal to the merkle hash
-		auto expectedEntityHash = CalculateHash(transaction, mocks::ExtractBuffer({ 5, 15 }, &transaction));
+		auto expectedEntityHash = CalculateHash(transaction, generationHash, mocks::ExtractBuffer({ 5, 15 }, &transaction));
 
 		// Act:
-		UpdateHashes(registry, transactionElement);
+		UpdateHashes(registry, generationHash, transactionElement);
 
 		// Assert:
 		EXPECT_EQ(expectedEntityHash, transactionElement.EntityHash);
@@ -340,8 +371,9 @@ namespace catapult { namespace model {
 		auto pTransaction = test::GenerateRandomTransaction();
 		auto transactionElement = TransactionElement(*pTransaction);
 		const auto& transaction = *pTransaction;
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
 
-		auto expectedEntityHash = CalculateHash(transaction, mocks::ExtractBuffer({ 6, 10 }, &transaction));
+		auto expectedEntityHash = CalculateHash(transaction, generationHash, mocks::ExtractBuffer({ 6, 10 }, &transaction));
 
 		Hash256 expectedMerkleComponentHash;
 		crypto::Sha3_256_Builder sha3;
@@ -352,7 +384,7 @@ namespace catapult { namespace model {
 		sha3.final(expectedMerkleComponentHash);
 
 		// Act:
-		UpdateHashes(registry, transactionElement);
+		UpdateHashes(registry, generationHash, transactionElement);
 
 		// Assert:
 		EXPECT_EQ(expectedEntityHash, transactionElement.EntityHash);

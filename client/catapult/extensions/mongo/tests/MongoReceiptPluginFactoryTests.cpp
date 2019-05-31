@@ -87,8 +87,8 @@ namespace catapult { namespace mongo {
 
 		model::BalanceTransferReceipt receipt(
 				model::ReceiptType(),
-				test::GenerateRandomData<Key_Size>(),
-				test::GenerateRandomData<Address_Decoded_Size>(),
+				test::GenerateRandomByteArray<Key>(),
+				test::GenerateRandomByteArray<Address>(),
 				MosaicId(234),
 				Amount(345));
 
@@ -119,7 +119,7 @@ namespace catapult { namespace mongo {
 		auto pPlugin = CreateBalanceChangeReceiptMongoPlugin(model::ReceiptType());
 		bsoncxx::builder::stream::document builder;
 
-		model::BalanceChangeReceipt receipt(model::ReceiptType(), test::GenerateRandomData<Key_Size>(), MosaicId(234), Amount(345));
+		model::BalanceChangeReceipt receipt(model::ReceiptType(), test::GenerateRandomByteArray<Key>(), MosaicId(234), Amount(345));
 
 		// Act:
 		pPlugin->streamReceipt(builder, receipt);
@@ -130,6 +130,33 @@ namespace catapult { namespace mongo {
 		EXPECT_EQ(3u, test::GetFieldCount(view));
 
 		EXPECT_EQ(receipt.Account, test::GetKeyValue(view, "account"));
+		EXPECT_EQ(receipt.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
+		EXPECT_EQ(receipt.Amount, Amount(test::GetUint64(view, "amount")));
+	}
+
+	TEST(TEST_CLASS, CreateInflationReceiptMongoPluginRespectsSuppliedType) {
+		// Act:
+		auto pPlugin = CreateInflationReceiptMongoPlugin(static_cast<model::ReceiptType>(1234));
+
+		// Assert:
+		EXPECT_EQ(static_cast<model::ReceiptType>(1234), pPlugin->type());
+	}
+
+	TEST(TEST_CLASS, CanStreamInflationReceipt) {
+		// Arrange:
+		auto pPlugin = CreateInflationReceiptMongoPlugin(model::ReceiptType());
+		bsoncxx::builder::stream::document builder;
+
+		model::InflationReceipt receipt(model::ReceiptType(), MosaicId(234), Amount(345));
+
+		// Act:
+		pPlugin->streamReceipt(builder, receipt);
+		auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
+
+		// Assert:
+		auto view = dbReceipt.view();
+		EXPECT_EQ(2u, test::GetFieldCount(view));
+
 		EXPECT_EQ(receipt.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
 		EXPECT_EQ(receipt.Amount, Amount(test::GetUint64(view, "amount")));
 	}

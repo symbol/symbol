@@ -58,7 +58,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		model::MosaicFlags GetFlags(const model::MosaicProperties& properties) {
 			auto flags = model::MosaicFlags::None;
 			auto allFlags = std::initializer_list<model::MosaicFlags>{
-				model::MosaicFlags::Supply_Mutable, model::MosaicFlags::Transferable, model::MosaicFlags::Levy_Mutable
+				model::MosaicFlags::Supply_Mutable, model::MosaicFlags::Transferable
 			};
 
 			for (auto flag : allFlags) {
@@ -71,8 +71,12 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		class NemesisTransactions {
 		public:
-			explicit NemesisTransactions(model::NetworkIdentifier networkIdentifier, const crypto::KeyPair& signer)
+			NemesisTransactions(
+					model::NetworkIdentifier networkIdentifier,
+					const GenerationHash& generationHash,
+					const crypto::KeyPair& signer)
 					: m_networkIdentifier(networkIdentifier)
+					, m_generationHash(generationHash)
 					, m_signer(signer)
 			{}
 
@@ -153,12 +157,13 @@ namespace catapult { namespace tools { namespace nemgen {
 		private:
 			void signAndAdd(std::unique_ptr<model::Transaction>&& pTransaction) {
 				pTransaction->Deadline = Timestamp(1);
-				extensions::SignTransaction(m_signer, *pTransaction);
+				extensions::TransactionExtensions(m_generationHash).sign(m_signer, *pTransaction);
 				m_transactions.push_back(std::move(pTransaction));
 			}
 
 		private:
 			model::NetworkIdentifier m_networkIdentifier;
+			const GenerationHash& m_generationHash;
 			const crypto::KeyPair& m_signer;
 			model::Transactions m_transactions;
 		};
@@ -166,7 +171,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	std::unique_ptr<model::Block> CreateNemesisBlock(const NemesisConfiguration& config) {
 		auto signer = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey);
-		NemesisTransactions transactions(config.NetworkIdentifier, signer);
+		NemesisTransactions transactions(config.NetworkIdentifier, config.NemesisGenerationHash, signer);
 
 		// - namespace creation
 		for (const auto& rootPair : config.RootNamespaces) {
@@ -222,7 +227,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		model::PreviousBlockContext context;
 		auto pBlock = model::CreateBlock(context, config.NetworkIdentifier, signer.publicKey(), transactions.transactions());
 		pBlock->Type = model::Entity_Type_Nemesis_Block;
-		extensions::BlockExtensions().signFullBlock(signer, *pBlock);
+		extensions::BlockExtensions(config.NemesisGenerationHash).signFullBlock(signer, *pBlock);
 		return pBlock;
 	}
 
@@ -234,21 +239,13 @@ namespace catapult { namespace tools { namespace nemgen {
 		block.StateHash = executionHashesDescriptor.StateHash;
 
 		auto signer = crypto::KeyPair::FromString(config.NemesisSignerPrivateKey);
-		extensions::BlockExtensions().signFullBlock(signer, block);
+		extensions::BlockExtensions(config.NemesisGenerationHash).signFullBlock(signer, block);
 		return model::CalculateHash(block);
-	}
-
-	namespace {
-		Hash256 ParseHash(const std::string& hashString) {
-			Hash256 hash;
-			utils::ParseHexStringIntoContainer(hashString.c_str(), hashString.size(), hash);
-			return hash;
-		}
 	}
 
 	model::BlockElement CreateNemesisBlockElement(const NemesisConfiguration& config, const model::Block& block) {
 		auto registry = CreateTransactionRegistry();
-		auto generationHash = ParseHash(config.NemesisGenerationHash);
-		return extensions::BlockExtensions(registry).convertBlockToBlockElement(block, generationHash);
+		auto generationHash = config.NemesisGenerationHash;
+		return extensions::BlockExtensions(generationHash, registry).convertBlockToBlockElement(block, generationHash);
 	}
 }}}

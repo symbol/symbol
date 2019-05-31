@@ -25,17 +25,18 @@
 #else
 #include "data/NemesisMemoryBlockStorage_data.nis1.h"
 #endif
+#include "catapult/utils/HexParser.h"
 
 namespace catapult { namespace test {
 
-	Hash256 GetNemesisGenerationHash() {
+	GenerationHash GetNemesisGenerationHash() {
 #ifdef SIGNATURE_SCHEME_NIS1
 		constexpr auto Nemesis_Generation_Hash_String = "16ED3D69d3CA67132AACE4405AA122E5E041E58741A4364255B15201F5AAF6E4";
 #else
 		constexpr auto Nemesis_Generation_Hash_String = "57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6";
 #endif
 
-		return ToArray<Hash256_Size>(Nemesis_Generation_Hash_String);
+		return utils::ParseByteArray<GenerationHash>(Nemesis_Generation_Hash_String);
 	}
 
 	const model::Block& GetNemesisBlock() {

@@ -79,7 +79,7 @@ namespace catapult { namespace partialtransaction {
 		}
 
 		model::Cosignature GenerateRandomCosignature() {
-			return { test::GenerateRandomData<Key_Size>(), test::GenerateRandomData<Signature_Size>() };
+			return { test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Signature>() };
 		}
 
 		class TransactionGenerator {
@@ -115,7 +115,7 @@ namespace catapult { namespace partialtransaction {
 		public:
 			void addData(CosignedTransactionInfos& transactionInfos, size_t numCosignatures) {
 				model::CosignedTransactionInfo transactionInfo;
-				transactionInfo.EntityHash = test::GenerateRandomData<Hash256_Size>();
+				transactionInfo.EntityHash = test::GenerateRandomByteArray<Hash256>();
 				for (auto i = 0u; i < numCosignatures; ++i) {
 					auto cosignature = GenerateRandomCosignature();
 					transactionInfo.Cosignatures.push_back(cosignature);

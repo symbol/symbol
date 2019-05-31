@@ -68,7 +68,7 @@ namespace catapult { namespace cache {
 			auto readOnlyCache = cacheView.toReadOnly();
 
 			// Act:
-			action(readOnlyCache.sub<cache::MultisigCache>(), keys);
+			action(readOnlyCache.sub<MultisigCache>(), keys);
 		}
 	}
 

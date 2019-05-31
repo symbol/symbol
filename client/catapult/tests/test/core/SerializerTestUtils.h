@@ -28,7 +28,7 @@ namespace catapult { namespace test {
 	template<typename TSerializer, typename TValue>
 	void RunLoadValueTest(std::vector<uint8_t>& buffer, TValue& result) {
 		// Arrange:
-		mocks::MockMemoryStream inputStream("", buffer);
+		mocks::MockMemoryStream inputStream(buffer);
 
 		// Act:
 		result = TSerializer::Load(inputStream);

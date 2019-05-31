@@ -26,14 +26,19 @@
 
 namespace catapult { namespace validators {
 
-	DEFINE_COMMON_VALIDATOR_TESTS(Signature,)
+	DEFINE_COMMON_VALIDATOR_TESTS(Signature, GenerationHash())
 
 #define TEST_CLASS SignatureValidatorTests
 
 	namespace {
-		void AssertValidationResult(ValidationResult expectedResult, const model::SignatureNotification& notification) {
+		using ReplayProtectionMode = model::SignatureNotification::ReplayProtectionMode;
+
+		void AssertValidationResult(
+				ValidationResult expectedResult,
+				const GenerationHash& generationHash,
+				const model::SignatureNotification& notification) {
 			// Arrange:
-			auto pValidator = CreateSignatureValidator();
+			auto pValidator = CreateSignatureValidator(generationHash);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification);
@@ -41,46 +46,86 @@ namespace catapult { namespace validators {
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
 		}
+
+		struct TestContext {
+		public:
+			explicit TestContext(ReplayProtectionMode mode)
+					: SignerKeyPair(test::GenerateKeyPair())
+					, GenerationHash(test::GenerateRandomByteArray<catapult::GenerationHash>())
+					, DataBuffer(test::GenerateRandomVector(55)) {
+				// when replay protection is enabled, data buffer should be prepended by generation hash
+				if (ReplayProtectionMode::Enabled == mode)
+					crypto::Sign(SignerKeyPair, { GenerationHash, DataBuffer }, Signature);
+				else
+					crypto::Sign(SignerKeyPair, DataBuffer, Signature);
+			}
+
+		public:
+			crypto::KeyPair SignerKeyPair;
+			catapult::GenerationHash GenerationHash;
+			std::vector<uint8_t> DataBuffer;
+			catapult::Signature Signature;
+		};
 	}
 
-	TEST(TEST_CLASS, SuccessWhenValidatingValidSignature) {
-		// Arrange:
-		auto signer = test::GenerateKeyPair();
-		auto data = test::GenerateRandomVector(55);
-		Signature signature;
-		crypto::Sign(signer, data, signature);
+#define ALL_REPLAY_PROTECTION_MODES_TEST(TEST_NAME) \
+	template<ReplayProtectionMode Mode> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_ReplayProtectionEnabled) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReplayProtectionMode::Enabled>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_ReplayProtectionDisabled) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ReplayProtectionMode::Disabled>(); } \
+	template<ReplayProtectionMode Mode> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-		model::SignatureNotification notification(signer.publicKey(), signature, data);
+	ALL_REPLAY_PROTECTION_MODES_TEST(SuccessWhenValidatingValidSignature) {
+		// Arrange:
+		TestContext context(Mode);
+		model::SignatureNotification notification(context.SignerKeyPair.publicKey(), context.Signature, context.DataBuffer, Mode);
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, notification);
+		AssertValidationResult(ValidationResult::Success, context.GenerationHash, notification);
 	}
 
-	TEST(TEST_CLASS, FailureWhenSignatureIsAltered) {
+	ALL_REPLAY_PROTECTION_MODES_TEST(FailureWhenSignatureIsAltered) {
 		// Arrange:
-		auto signer = test::GenerateKeyPair();
-		auto data = test::GenerateRandomVector(55);
-		Signature signature;
-		crypto::Sign(signer, data, signature);
+		TestContext context(Mode);
+		model::SignatureNotification notification(context.SignerKeyPair.publicKey(), context.Signature, context.DataBuffer, Mode);
 
-		model::SignatureNotification notification(signer.publicKey(), signature, data);
-		signature[0] ^= 0xFF;
+		context.Signature[0] ^= 0xFF;
 
 		// Assert:
-		AssertValidationResult(Failure_Signature_Not_Verifiable, notification);
+		AssertValidationResult(Failure_Signature_Not_Verifiable, context.GenerationHash, notification);
 	}
 
-	TEST(TEST_CLASS, FailureWhenDataIsAltered) {
+	ALL_REPLAY_PROTECTION_MODES_TEST(FailureWhenDataIsAltered) {
 		// Arrange:
-		auto signer = test::GenerateKeyPair();
-		auto data = test::GenerateRandomVector(55);
-		Signature signature;
-		crypto::Sign(signer, data, signature);
+		TestContext context(Mode);
+		model::SignatureNotification notification(context.SignerKeyPair.publicKey(), context.Signature, context.DataBuffer, Mode);
 
-		model::SignatureNotification notification(signer.publicKey(), signature, data);
-		data[10] ^= 0xFF;
+		context.DataBuffer[10] ^= 0xFF;
 
 		// Assert:
-		AssertValidationResult(Failure_Signature_Not_Verifiable, notification);
+		AssertValidationResult(Failure_Signature_Not_Verifiable, context.GenerationHash, notification);
+	}
+
+	TEST(TEST_CLASS, FailureWhenGenerationHashIsAltered_ReplayProtectionEnabled) {
+		// Arrange:
+		auto mode = ReplayProtectionMode::Enabled;
+		TestContext context(mode);
+		model::SignatureNotification notification(context.SignerKeyPair.publicKey(), context.Signature, context.DataBuffer, mode);
+
+		context.GenerationHash[2] ^= 0xFF;
+
+		// Assert:
+		AssertValidationResult(Failure_Signature_Not_Verifiable, context.GenerationHash, notification);
+	}
+
+	TEST(TEST_CLASS, SuccessWhenGenerationHashIsAltered_ReplayProtectionDisabled) {
+		// Arrange:
+		auto mode = ReplayProtectionMode::Disabled;
+		TestContext context(mode);
+		model::SignatureNotification notification(context.SignerKeyPair.publicKey(), context.Signature, context.DataBuffer, mode);
+
+		context.GenerationHash[2] ^= 0xFF;
+
+		// Assert:
+		AssertValidationResult(ValidationResult::Success, context.GenerationHash, notification);
 	}
 }}

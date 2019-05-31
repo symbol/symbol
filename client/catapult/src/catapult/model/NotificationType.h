@@ -28,10 +28,13 @@ namespace catapult { namespace model {
 	enum class NotificationChannel : uint8_t {
 		/// Publish notification on no channels.
 		None = 0x00,
+
 		/// Publish notification on validator channel.
 		Validator = 0x01,
+
 		/// Publish notification on observer channel.
 		Observer = 0x02,
+
 		/// Publish notification on all channels.
 		All = 0xFF
 	};
@@ -116,6 +119,9 @@ namespace catapult { namespace model {
 
 	/// Transaction fee was received.
 	DEFINE_CORE_NOTIFICATION(Transaction_Fee, 0x000C, Validator);
+
+	/// Transaction deadline was received.
+	DEFINE_CORE_NOTIFICATION(Transaction_Deadline, 0x000D, Validator);
 
 #undef DEFINE_CORE_NOTIFICATION
 

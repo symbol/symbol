@@ -42,7 +42,7 @@ namespace catapult { namespace tree {
 	TEST(TEST_CLASS, CanCreateLeafNodeWithEmptyPath) {
 		// Act:
 		auto path = TreeNodePath();
-		auto value = test::GenerateRandomData<Hash256_Size>();
+		auto value = test::GenerateRandomByteArray<Hash256>();
 		auto node = LeafTreeNode(path, value);
 
 		// Assert:
@@ -56,7 +56,7 @@ namespace catapult { namespace tree {
 	TEST(TEST_CLASS, CanCreateLeafNodeWithEvenPath) {
 		// Act:
 		auto path = TreeNodePath(0x64'6F'67'00);
-		auto value = test::GenerateRandomData<Hash256_Size>();
+		auto value = test::GenerateRandomByteArray<Hash256>();
 		auto node = LeafTreeNode(path, value);
 
 		// Assert:
@@ -70,7 +70,7 @@ namespace catapult { namespace tree {
 	TEST(TEST_CLASS, CanCreateLeafNodeWithOddPath) {
 		// Act:
 		auto path = TreeNodePath(0x64'6F'67'00);
-		auto value = test::GenerateRandomData<Hash256_Size>();
+		auto value = test::GenerateRandomByteArray<Hash256>();
 		auto node = LeafTreeNode(path.subpath(0, 5), value);
 
 		// Assert:
@@ -230,7 +230,7 @@ namespace catapult { namespace tree {
 			static std::vector<TreeNode> GenerateLinks(size_t count) {
 				std::vector<TreeNode> nodes;
 				for (auto i = 0u; i < count; ++i)
-					nodes.emplace_back(LeafTreeNode(TreeNodePath(i), test::GenerateRandomData<Hash256_Size>()));
+					nodes.emplace_back(LeafTreeNode(TreeNodePath(i), test::GenerateRandomByteArray<Hash256>()));
 
 				return nodes;
 			}
@@ -396,7 +396,7 @@ namespace catapult { namespace tree {
 			auto node = BranchTreeNode(TreeNodePath(0x64'6F'67'00));
 
 			for (auto index : linkIndexes)
-				node.setLink(test::GenerateRandomData<Hash256_Size>(), index);
+				node.setLink(test::GenerateRandomByteArray<Hash256>(), index);
 
 			return node;
 		}
@@ -523,7 +523,7 @@ namespace catapult { namespace tree {
 	TEST(TEST_CLASS, CanCreateLeafBasedTreeNode) {
 		// Arrange:
 		auto path = TreeNodePath(0x64'6F'67'00);
-		auto value = test::GenerateRandomData<Hash256_Size>();
+		auto value = test::GenerateRandomByteArray<Hash256>();
 		auto leafNode = LeafTreeNode(path, value);
 
 		// Act:
@@ -537,7 +537,7 @@ namespace catapult { namespace tree {
 	TEST(TEST_CLASS, CanCopyLeafBasedTreeNode) {
 		// Arrange:
 		auto path = TreeNodePath(0x64'6F'67'00);
-		auto value = test::GenerateRandomData<Hash256_Size>();
+		auto value = test::GenerateRandomByteArray<Hash256>();
 		auto leafNode = LeafTreeNode(path, value);
 
 		// Act:
@@ -567,8 +567,8 @@ namespace catapult { namespace tree {
 	TEST(TEST_CLASS, CanCreateBranchBasedTreeNode) {
 		// Arrange:
 		auto path = TreeNodePath(0x64'6F'67'00);
-		auto link1 = test::GenerateRandomData<Hash256_Size>();
-		auto link2 = test::GenerateRandomData<Hash256_Size>();
+		auto link1 = test::GenerateRandomByteArray<Hash256>();
+		auto link2 = test::GenerateRandomByteArray<Hash256>();
 
 		auto branchNode = BranchTreeNode(path);
 		branchNode.setLink(link1, 6);
@@ -585,8 +585,8 @@ namespace catapult { namespace tree {
 	TEST(TEST_CLASS, CanCopyBranchBasedTreeNode) {
 		// Arrange:
 		auto path = TreeNodePath(0x64'6F'67'00);
-		auto link1 = test::GenerateRandomData<Hash256_Size>();
-		auto link2 = test::GenerateRandomData<Hash256_Size>();
+		auto link1 = test::GenerateRandomByteArray<Hash256>();
+		auto link2 = test::GenerateRandomByteArray<Hash256>();
 
 		auto branchNode = BranchTreeNode(path);
 		branchNode.setLink(link1, 6);
@@ -616,7 +616,7 @@ namespace catapult { namespace tree {
 
 	TEST(TEST_CLASS, CanChangeLeafTreeNodePathViaTreeNode) {
 		// Arrange:
-		auto value = test::GenerateRandomData<Hash256_Size>();
+		auto value = test::GenerateRandomByteArray<Hash256>();
 		auto leafNode = LeafTreeNode(TreeNodePath(0x64'6F'67'00), value);
 		TreeNode node(leafNode);
 
@@ -633,8 +633,8 @@ namespace catapult { namespace tree {
 
 	TEST(TEST_CLASS, CanChangeBranchTreeNodePathViaTreeNode) {
 		// Arrange:
-		auto link1 = test::GenerateRandomData<Hash256_Size>();
-		auto link2 = test::GenerateRandomData<Hash256_Size>();
+		auto link1 = test::GenerateRandomByteArray<Hash256>();
+		auto link2 = test::GenerateRandomByteArray<Hash256>();
 		auto branchNode = BranchTreeNode(TreeNodePath(0x64'6F'67'00));
 		branchNode.setLink(link1, 6);
 		branchNode.setLink(link2, 11);

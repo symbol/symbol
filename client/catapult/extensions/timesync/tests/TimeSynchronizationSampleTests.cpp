@@ -45,7 +45,7 @@ namespace catapult { namespace timesync {
 
 	TEST(TEST_CLASS, CanCreateTimeSynchronizationSample) {
 		// Act:
-		auto node = test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "alice");
+		auto node = test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "alice");
 		TimeSynchronizationSample sample(node, test::CreateCommunicationTimestamps(12, 23), test::CreateCommunicationTimestamps(34, 45));
 
 		// Assert:
@@ -152,7 +152,7 @@ namespace catapult { namespace timesync {
 		}
 
 		std::unordered_map<std::string, TimeSynchronizationSample> GenerateEqualityInstanceMap() {
-			auto node = test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "alice");
+			auto node = test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "alice");
 			return {
 				{ Default_Key, test::CreateSample(node, 37, 43, 15, 13) },
 				{ "copy", test::CreateSample(node, 37, 43, 15, 13) },

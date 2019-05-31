@@ -52,7 +52,7 @@ function(catapult_mongo_plugin_tests_with_deps TARGET_NAME)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction()
 
-add_subdirectory(accountlink)
+add_subdirectory(account_link)
 add_subdirectory(aggregate)
 add_subdirectory(lock_hash)
 add_subdirectory(lock_secret)

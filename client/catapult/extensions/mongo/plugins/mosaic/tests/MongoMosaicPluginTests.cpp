@@ -40,7 +40,6 @@ namespace catapult { namespace mongo { namespace plugins {
 			static std::vector<model::ReceiptType> GetReceiptTypes() {
 				return {
 					model::Receipt_Type_Mosaic_Expired,
-					model::Receipt_Type_Mosaic_Levy,
 					model::Receipt_Type_Mosaic_Rental_Fee
 				};
 			}

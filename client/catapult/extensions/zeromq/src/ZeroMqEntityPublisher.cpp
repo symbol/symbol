@@ -167,7 +167,7 @@ namespace catapult { namespace zeromq {
 		auto CreateHashMessageGenerator(const std::string& topicName, const Hash256& hash) {
 			return [topicName, hash]() {
 				std::ostringstream out;
-				out << "cannot publish " << topicName << " with hash: " << utils::HexFormat(hash);
+				out << "cannot publish " << topicName << " with hash: " << hash;
 				return out.str();
 			};
 		}
@@ -238,7 +238,7 @@ namespace catapult { namespace zeromq {
 				: model::ExtractAddresses(transactionInfo.Transaction, *m_pNotificationPublisher);
 
 		if (addresses.empty())
-			CATAPULT_LOG(warning) << "no addresses are associated with transaction " << utils::HexFormat(transactionInfo.EntityHash);
+			CATAPULT_LOG(warning) << "no addresses are associated with transaction " << transactionInfo.EntityHash;
 
 		for (const auto& address : addresses) {
 			zmq::multipart_t multipart;

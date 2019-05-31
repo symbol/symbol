@@ -21,7 +21,6 @@
 #pragma once
 #include "NetworkTestUtils.h"
 #include "ServiceLocatorTestContext.h"
-#include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/ionet/PacketSocket.h"
 #include "catapult/net/VerifyPeer.h"
 #include "tests/test/core/BlockTestUtils.h"

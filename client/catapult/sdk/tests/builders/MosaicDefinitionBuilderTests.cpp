@@ -77,7 +77,7 @@ namespace catapult { namespace builders {
 				const consumer<MosaicDefinitionBuilder&>& buildTransaction) {
 			// Arrange:
 			auto networkId = static_cast<model::NetworkIdentifier>(0x62);
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 
 			// Act:
 			MosaicDefinitionBuilder builder(networkId, signer);
@@ -137,18 +137,11 @@ namespace catapult { namespace builders {
 		});
 	}
 
-	TRAITS_BASED_TEST(CanSetFlags_LevyMutable) {
-		// Assert:
-		AssertCanSetFlags<TTraits>(model::MosaicFlags::Levy_Mutable, [](auto& builder) {
-			builder.setFlags(model::MosaicFlags::Levy_Mutable);
-		});
-	}
-
 	TRAITS_BASED_TEST(CanSetFlags_All) {
 		// Assert:
-		auto flags = model::MosaicFlags::Supply_Mutable | model::MosaicFlags::Transferable | model::MosaicFlags::Levy_Mutable;
+		auto flags = model::MosaicFlags::Supply_Mutable | model::MosaicFlags::Transferable;
 		AssertCanSetFlags<TTraits>(flags, [](auto& builder) {
-			builder.setFlags(model::MosaicFlags::Supply_Mutable | model::MosaicFlags::Transferable | model::MosaicFlags::Levy_Mutable);
+			builder.setFlags(model::MosaicFlags::Supply_Mutable | model::MosaicFlags::Transferable);
 		});
 	}
 

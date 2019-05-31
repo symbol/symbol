@@ -46,7 +46,7 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	TEST(TEST_CLASS, CanConvertUnresolvedAddressToBinary) {
 		// Arrange:
-		auto unresolvedAddress = extensions::CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>());
+		auto unresolvedAddress = extensions::CopyToUnresolvedAddress(test::GenerateRandomByteArray<Address>());
 
 		// Act
 		auto bsonBinary = ToBinary(unresolvedAddress);
@@ -58,23 +58,24 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	namespace {
 		template<size_t N>
-		void AssertCanConvertArrayToBinary() {
+		void AssertCanConvertByteArrayToBinary() {
 			// Arrange:
-			auto data = test::GenerateRandomData<N>();
+			struct Tag {};
+			auto inputArray = utils::ByteArray<N, Tag>(test::GenerateRandomArray<N>());
 
 			// Act
-			auto bsonBinary = ToBinary(data);
+			auto bsonBinary = ToBinary(inputArray);
 
 			// Assert:
-			EXPECT_EQ(data.data(), bsonBinary.bytes);
+			EXPECT_EQ(inputArray.data(), bsonBinary.bytes);
 			EXPECT_EQ(N, bsonBinary.size);
 		}
 	}
 
-	TEST(TEST_CLASS, CanConvertArraysToBinary) {
+	TEST(TEST_CLASS, CanConvertByteArraysToBinary) {
 		// Assert:
-		AssertCanConvertArrayToBinary<123>();
-		AssertCanConvertArrayToBinary<111>();
+		AssertCanConvertByteArrayToBinary<123>();
+		AssertCanConvertByteArrayToBinary<111>();
 	}
 
 	// endregion
@@ -192,7 +193,8 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	TEST(TEST_CLASS, DbBinaryToModelArray_CanMapBinaryToStlArray) {
 		// Arrange:
-		auto input = test::GenerateRandomData<17>();
+		struct Tag {};
+		auto input = utils::ByteArray<17, Tag>(test::GenerateRandomArray<17>());
 
 		// Act: serialize to mongo
 		bson_stream::document builder;
@@ -204,7 +206,7 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto dbBinary = view["bin"].get_binary();
 
 		// Act:
-		std::array<uint8_t, 17> output;
+		utils::ByteArray<17, Tag> output;
 		DbBinaryToModelArray(output, dbBinary);
 
 		// Assert:
@@ -215,7 +217,8 @@ namespace catapult { namespace mongo { namespace mappers {
 		template<size_t InputSize, size_t OutputSize>
 		void AssertDbBinaryToModelArrayFailsIfOutputArrayHasUnexpectedSize() {
 			// Arrange:
-			auto input = test::GenerateRandomData<InputSize>();
+			struct Tag {};
+			auto input = utils::ByteArray<InputSize, Tag>(test::GenerateRandomArray<InputSize>());
 
 			// Act: serialize to mongo
 			bson_stream::document builder;
@@ -227,17 +230,17 @@ namespace catapult { namespace mongo { namespace mappers {
 			auto dbBinary = view["bin"].get_binary();
 
 			// Act + Assert:
-			std::array<uint8_t, OutputSize> output;
+			utils::ByteArray<OutputSize, Tag> output;
 			EXPECT_THROW(DbBinaryToModelArray(output, dbBinary), catapult_invalid_argument);
 		}
 	}
 
-	TEST(TEST_CLASS, DbBinaryToModelArray_FailsIfOutputArrayIsTooSmall) {
+	TEST(TEST_CLASS, DbBinaryToModelArray_FailsWhenOutputArrayIsTooSmall) {
 		// Assert:
 		AssertDbBinaryToModelArrayFailsIfOutputArrayHasUnexpectedSize<17, 16>();
 	}
 
-	TEST(TEST_CLASS, DbBinaryToModelArray_FailsIfOutputArrayIsTooLarge) {
+	TEST(TEST_CLASS, DbBinaryToModelArray_FailsWhenOutputArrayIsTooLarge) {
 		// Assert:
 		AssertDbBinaryToModelArrayFailsIfOutputArrayHasUnexpectedSize<17, 18>();
 	}

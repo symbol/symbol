@@ -25,7 +25,7 @@
 namespace catapult { namespace state {
 
 	void AccountPropertiesSerializer::Save(const AccountProperties& accountProperties, io::OutputStream& output) {
-		io::Write(output, accountProperties.address());
+		output.write(accountProperties.address());
 
 		io::Write64(output, accountProperties.size());
 		for (const auto& pair : accountProperties) {

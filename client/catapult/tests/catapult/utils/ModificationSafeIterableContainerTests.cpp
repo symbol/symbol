@@ -199,8 +199,7 @@ namespace catapult { namespace utils {
 				const std::function<IntIterableList::iterator (IntIterableList&)>& getIterator,
 				const std::vector<int>& expectedBeforeValues,
 				const std::vector<int>& expectedAfterValues) {
-			CATAPULT_LOG(debug) << "before values = " << expectedBeforeValues.size()
-					<< ", after values = " << expectedAfterValues.size();
+			CATAPULT_LOG(debug) << "before values = " << expectedBeforeValues.size() << ", after values = " << expectedAfterValues.size();
 
 			// Arrange:
 			IntIterableList container;
@@ -249,7 +248,7 @@ namespace catapult { namespace utils {
 		RunNextAfterEraseTest(getIterator, { 5, 7, 3, 2 }, { 5, 7, 3, 5 });
 	}
 
-	TEST(TEST_CLASS, NextIfReturnsNullptrIfContainerIsEmpty) {
+	TEST(TEST_CLASS, NextIfReturnsNullptrWhenContainerIsEmpty) {
 		// Arrange:
 		IntIterableList container;
 
@@ -288,7 +287,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(2, *pValue);
 	}
 
-	TEST(TEST_CLASS, NextIfReturnsNullptrIfNoElementsMatch) {
+	TEST(TEST_CLASS, NextIfReturnsNullptrWhenNoElementsMatch) {
 		// Arrange:
 		IntIterableList container;
 		PushAll(container, { 5, 4, 3, 2 });

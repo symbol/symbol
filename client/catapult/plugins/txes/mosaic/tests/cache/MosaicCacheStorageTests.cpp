@@ -21,33 +21,35 @@
 #include "src/cache/MosaicCacheStorage.h"
 #include "src/cache/MosaicCache.h"
 #include "tests/test/MosaicTestUtils.h"
+#include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
 
-#define TEST_CLASS MosaicCacheStorageTests
+	namespace {
+		struct MosaicCacheStorageTraits {
+			using StorageType = MosaicCacheStorage;
+			class CacheType : public MosaicCache {
+			public:
+				CacheType() : MosaicCache(CacheConfiguration())
+				{}
+			};
 
-	TEST(TEST_CLASS, CanLoadValueIntoCache) {
-		// Arrange: create an entry with optional properties
-		auto properties = test::CreateMosaicPropertiesWithDuration(BlockDuration(37));
-		auto definition = state::MosaicDefinition(Height(11), test::GenerateRandomData<Key_Size>(), 3, properties);
-		auto originalEntry = state::MosaicEntry(MosaicId(680), definition);
+			static auto CreateId(uint8_t id) {
+				return MosaicId(id);
+			}
 
-		// Act:
-		MosaicCache cache(CacheConfiguration{});
-		{
-			auto delta = cache.createDelta();
-			MosaicCacheStorage::LoadInto(originalEntry, *delta);
-			cache.commit();
-		}
+			static auto CreateValue(MosaicId id) {
+				auto properties = test::CreateMosaicPropertiesWithDuration(BlockDuration(37));
+				auto definition = state::MosaicDefinition(Height(11), test::GenerateRandomByteArray<Key>(), 3, properties);
+				return state::MosaicEntry(id, definition);
+			}
 
-		// Assert: the cache contains the value
-		auto view = cache.createView();
-		EXPECT_EQ(1u, view->size());
-		ASSERT_TRUE(view->contains(originalEntry.mosaicId()));
-		const auto& loadedEntry = view->find(originalEntry.mosaicId()).get();
-
-		// - the loaded cache value is correct
-		test::AssertEqual(originalEntry, loadedEntry);
+			static void AssertEqual(const state::MosaicEntry& lhs, const state::MosaicEntry& rhs) {
+				test::AssertEqual(lhs, rhs);
+			}
+		};
 	}
+
+	DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(MosaicCacheStorageTests, MosaicCacheStorageTraits)
 }}

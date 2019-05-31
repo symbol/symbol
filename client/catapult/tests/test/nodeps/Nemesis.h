@@ -24,7 +24,7 @@
 namespace catapult { namespace test {
 
 	/// Gets the nemesis generation hash.
-	Hash256 GetNemesisGenerationHash();
+	GenerationHash GetNemesisGenerationHash();
 
 	/// Gets the nemesis block.
 	const model::Block& GetNemesisBlock();

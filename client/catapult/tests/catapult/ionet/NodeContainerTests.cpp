@@ -65,8 +65,8 @@ namespace catapult { namespace ionet {
 
 		auto SeedFiveNodes(NodeContainer& container) {
 			auto keys = SeedThreeNodes(container);
-			keys.push_back(test::GenerateRandomData<Key_Size>());
-			keys.push_back(test::GenerateRandomData<Key_Size>());
+			keys.push_back(test::GenerateRandomByteArray<Key>());
+			keys.push_back(test::GenerateRandomByteArray<Key>());
 			Add(container, keys[3], "dolly", NodeSource::Dynamic);
 			Add(container, keys[4], "ed", NodeSource::Static);
 			return keys;
@@ -144,7 +144,7 @@ namespace catapult { namespace ionet {
 		// - seed 10 keys
 		for (const auto& key : keys) {
 			Add(container, key, "", NodeSource::Dynamic);
-			Add(container, test::GenerateRandomData<Key_Size>(), "", NodeSource::Dynamic);
+			Add(container, test::GenerateRandomByteArray<Key>(), "", NodeSource::Dynamic);
 		}
 
 		// Sanity:
@@ -180,7 +180,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanAddSingleNode) {
 		// Arrange:
 		NodeContainer container;
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Act:
 		Add(container, key, "bob", NodeSource::Dynamic);
@@ -218,7 +218,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanPromoteNodeSource) {
 		// Arrange:
 		NodeContainer container;
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Act: promote from remote to local
 		Add(container, key, "bob", NodeSource::Dynamic);
@@ -235,7 +235,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CannotDemoteNodeSource) {
 		// Arrange:
 		NodeContainer container;
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Act: demote from local to remote
 		Add(container, key, "bob", NodeSource::Local);
@@ -252,7 +252,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, NewerDataFromSameSourcePreemptsOlderData) {
 		// Arrange:
 		NodeContainer container;
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Act: push a name change from the same source
 		Add(container, key, "bob", NodeSource::Static);
@@ -427,7 +427,7 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		NodeContainer container;
 		SeedThreeNodes(container);
-		auto otherKey = test::GenerateRandomData<Key_Size>();
+		auto otherKey = test::GenerateRandomByteArray<Key>();
 
 		// Act + Assert:
 		EXPECT_THROW(container.view().getNodeInfo(otherKey), catapult_invalid_argument);
@@ -436,7 +436,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, NodeInfoIsInitializedWhenNodeIsAdded) {
 		// Arrange:
 		NodeContainer container;
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Act:
 		Add(container, key, "bob", NodeSource::Dynamic);
@@ -453,7 +453,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, NodeInfoStateIsPreservedWhenSourceIsPromoted) {
 		// Arrange:
 		NodeContainer container;
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 
 		// - add an aged connection
 		Add(container, key, "bob", NodeSource::Dynamic);
@@ -560,7 +560,7 @@ namespace catapult { namespace ionet {
 		container.modifier().addConnectionStates(ServiceIdentifier(123), NodeRoles::Api);
 
 		// - add a node that does not have matching roles
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		Add(container, key, "bob", NodeSource::Dynamic, NodeRoles::Peer);
 
 		// Sanity: the connection state is not present
@@ -584,7 +584,7 @@ namespace catapult { namespace ionet {
 		container.modifier().addConnectionStates(ServiceIdentifier(126), NodeRoles::Api);
 
 		// Act: add a node with matching roles
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		Add(container, key, "bob", NodeSource::Dynamic, NodeRoles::Api);
 
 		// Assert: connection states are present for the matching services (None matches everything)
@@ -604,13 +604,13 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		NodeContainer container;
 		SeedThreeNodes(container);
-		auto otherKey = test::GenerateRandomData<Key_Size>();
+		auto otherKey = test::GenerateRandomByteArray<Key>();
 
 		// Act + Assert:
 		EXPECT_THROW(container.modifier().provisionConnectionState(ServiceIdentifier(123), otherKey), catapult_invalid_argument);
 	}
 
-	TEST(TEST_CLASS, ProvisionConnectionStateAddsStateIfNotPresent) {
+	TEST(TEST_CLASS, ProvisionConnectionStateAddsStateWhenNotPresent) {
 		// Arrange:
 		NodeContainer container;
 		auto keys = SeedThreeNodes(container);
@@ -622,7 +622,7 @@ namespace catapult { namespace ionet {
 		test::AssertZeroed(connectionState);
 	}
 
-	TEST(TEST_CLASS, ProvisionConnectionStateReturnsExistingStateIfPresent) {
+	TEST(TEST_CLASS, ProvisionConnectionStateReturnsExistingStateWhenPresent) {
 		// Arrange:
 		NodeContainer container;
 		auto keys = SeedThreeNodes(container);
@@ -792,9 +792,9 @@ namespace catapult { namespace ionet {
 
 	// region incrementSuccesses / incrementFailures
 
-	TEST(TEST_CLASS, NoIncrementIfNodeIsNotFound) {
+	TEST(TEST_CLASS, NoIncrementWhenNodeIsNotFound) {
 		// Arrange:
-		auto identityKey = test::GenerateRandomData<Key_Size>();
+		auto identityKey = test::GenerateRandomByteArray<Key>();
 		NodeContainer container;
 
 		// Act:
@@ -819,7 +819,7 @@ namespace catapult { namespace ionet {
 			auto timestampIndex = 0u;
 			std::vector<Timestamp> timestamps{ time1, time2, time2, time3, time3, time3 };
 
-			auto identityKey = test::GenerateRandomData<Key_Size>();
+			auto identityKey = test::GenerateRandomByteArray<Key>();
 			NodeContainer container(3, [&timestampIndex, &timestamps]() { return timestamps[timestampIndex++]; });
 			Add(container, identityKey, "bob", NodeSource::Dynamic);
 

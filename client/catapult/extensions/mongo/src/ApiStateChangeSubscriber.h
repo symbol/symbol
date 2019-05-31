@@ -21,7 +21,7 @@
 #pragma once
 #include "ChainScoreProvider.h"
 #include "ExternalCacheStorage.h"
-#include "catapult/consumers/StateChangeInfo.h"
+#include "catapult/subscribers/StateChangeInfo.h"
 #include "catapult/subscribers/StateChangeSubscriber.h"
 
 namespace catapult { namespace mongo {
@@ -42,8 +42,8 @@ namespace catapult { namespace mongo {
 			m_pChainScoreProvider->saveScore(chainScore);
 		}
 
-		void notifyStateChange(const consumers::StateChangeInfo& stateChangeInfo) override {
-			m_pCacheStorage->saveDelta(stateChangeInfo.CacheDelta);
+		void notifyStateChange(const subscribers::StateChangeInfo& stateChangeInfo) override {
+			m_pCacheStorage->saveDelta(stateChangeInfo.CacheChanges);
 		}
 
 	private:

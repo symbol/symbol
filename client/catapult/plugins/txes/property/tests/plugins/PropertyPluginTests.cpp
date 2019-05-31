@@ -20,6 +20,7 @@
 
 #include "src/plugins/PropertyPlugin.h"
 #include "src/model/PropertyEntityType.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -39,7 +40,7 @@ namespace catapult { namespace plugins {
 					}
 				}}));
 
-				PluginManager manager(config, StorageConfiguration());
+				auto manager = test::CreatePluginManager(config);
 				RegisterPropertySubsystem(manager);
 
 				// Act:

@@ -60,9 +60,15 @@ namespace catapult { namespace model {
 	// region IsSizeValid
 
 	namespace {
-		bool IsSizeValid(const Transaction& transaction) {
-			auto registry = mocks::CreateDefaultTransactionRegistry();
+		bool IsSizeValid(const Transaction& transaction, mocks::PluginOptionFlags options = mocks::PluginOptionFlags::Default) {
+			auto registry = mocks::CreateDefaultTransactionRegistry(options);
 			return IsSizeValid(transaction, registry);
+		}
+
+		std::unique_ptr<Transaction> CreateMockTransaction(uint32_t delta) {
+			auto pTransaction = mocks::CreateMockTransaction(7);
+			pTransaction->Size += delta;
+			return std::move(pTransaction);
 		}
 	}
 
@@ -76,12 +82,12 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(transaction));
 	}
 
-	namespace {
-		std::unique_ptr<Transaction> CreateMockTransaction(uint32_t delta) {
-			auto pTransaction = mocks::CreateMockTransaction(7);
-			pTransaction->Size += delta;
-			return std::move(pTransaction);
-		}
+	TEST(TEST_CLASS, SizeIsInvalidForTransactionWithoutTopLevelSupport) {
+		// Arrange:
+		auto pTransaction = CreateMockTransaction(0);
+
+		// Act + Assert:
+		EXPECT_FALSE(IsSizeValid(*pTransaction, mocks::PluginOptionFlags::Not_Top_Level));
 	}
 
 	TEST(TEST_CLASS, SizeIsValidForTransactionWithEqualReportedSizeAndActualSize) {

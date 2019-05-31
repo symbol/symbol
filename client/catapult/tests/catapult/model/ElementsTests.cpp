@@ -21,6 +21,7 @@
 #include "catapult/model/Elements.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -34,10 +35,10 @@ namespace catapult { namespace model {
 		class MultiBlockInput {
 		public:
 			MultiBlockInput() {
-				m_blocks.push_back(test::GenerateBlockWithTransactionsAtHeight(1, 246));
-				m_blocks.push_back(test::GenerateBlockWithTransactionsAtHeight(0, 247));
-				m_blocks.push_back(test::GenerateBlockWithTransactionsAtHeight(3, 248));
-				m_blocks.push_back(test::GenerateBlockWithTransactionsAtHeight(2, 249));
+				m_blocks.push_back(test::GenerateBlockWithTransactions(1, Height(246)));
+				m_blocks.push_back(test::GenerateBlockWithTransactions(0, Height(247)));
+				m_blocks.push_back(test::GenerateBlockWithTransactions(3, Height(248)));
+				m_blocks.push_back(test::GenerateBlockWithTransactions(2, Height(249)));
 
 				for (const auto& pBlock : m_blocks)
 					m_elements.push_back(test::BlockToBlockElement(*pBlock));
@@ -207,7 +208,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, ExtractEntityInfos_CanExtractAllEntitiesFromBlockWithoutTransactions) {
 		// Arrange:
 		WeakEntityInfos entityInfos;
-		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(0, 246);
+		auto pBlock = test::GenerateBlockWithTransactions(0, Height(246));
 		auto element = test::BlockToBlockElement(*pBlock);
 
 		// Act:
@@ -221,7 +222,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, ExtractEntityInfos_CanExtractAllEntitiesFromBlockWithTransactions) {
 		// Arrange:
 		WeakEntityInfos entityInfos;
-		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(3, 246);
+		auto pBlock = test::GenerateBlockWithTransactions(3, Height(246));
 		auto element = test::BlockToBlockElement(*pBlock);
 
 		// Act:
@@ -266,13 +267,13 @@ namespace catapult { namespace model {
 			EXPECT_EQ(2 * (id + 1), transactionInfo.EntityHash[0]) << "entity hash at " << id;
 			EXPECT_EQ(3 * (id + 1), transactionInfo.MerkleComponentHash[0]) << "merkle component hash at " << id;
 			ASSERT_EQ(1u, transactionInfo.OptionalExtractedAddresses->size()) << "extracted addresses at " << id;
-			ASSERT_EQ(4 * (id + 1), (*transactionInfo.OptionalExtractedAddresses->cbegin())[0].Byte) << "extracted address 0 at " << id;
+			ASSERT_EQ(4 * (id + 1), (*transactionInfo.OptionalExtractedAddresses->cbegin())[0]) << "extracted address 0 at " << id;
 		}
 	}
 
 	TEST(TEST_CLASS, CanExtractTransactionInfosFromBlockWithNoTransactions) {
 		// Arrange: create a block with no transactions
-		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(0, 123);
+		auto pBlock = test::GenerateBlockWithTransactions(0, Height(123));
 		auto pElement = PrepareBlockElement(*pBlock);
 
 		// Act:
@@ -288,8 +289,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanExtractTransactionInfosFromBlockWithTransactions) {
 		// Arrange: create a block with transactions
 		constexpr auto Num_Transactions = 5u;
-		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(Num_Transactions, 123);
-		auto pBlockCopy = test::CopyBlock(*pBlock);
+		auto pBlock = test::GenerateBlockWithTransactions(Num_Transactions, Height(123));
+		auto pBlockCopy = test::CopyEntity(*pBlock);
 		auto pElement = PrepareBlockElement(*pBlock);
 
 		// Act:
@@ -313,7 +314,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, ExtractTransactionInfosExtendsBlockElementLifetime) {
 		// Arrange: create a block with transactions
 		constexpr auto Num_Transactions = 5u;
-		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(Num_Transactions, 123);
+		auto pBlock = test::GenerateBlockWithTransactions(Num_Transactions, Height(123));
 		auto pElement = PrepareBlockElement(*pBlock);
 
 		// Act:
@@ -340,8 +341,8 @@ namespace catapult { namespace model {
 		Blocks blocks;
 		Blocks blockCopies;
 		for (auto i = 0u; i < Num_Blocks; ++i) {
-			blocks.push_back(test::GenerateBlockWithTransactionsAtHeight(Num_Transactions + i, 123 + i));
-			blockCopies.push_back(test::CopyBlock(*blocks.back()));
+			blocks.push_back(test::GenerateBlockWithTransactions(Num_Transactions + i, Height(123 + i)));
+			blockCopies.push_back(test::CopyEntity(*blocks.back()));
 		}
 
 		// Act:
@@ -370,8 +371,8 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto pTransaction1 = utils::UniqueToShared(test::GenerateRandomTransaction());
 		auto transactionElement = TransactionElement(*pTransaction1);
-		transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
-		transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+		transactionElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
+		transactionElement.MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 		transactionElement.OptionalExtractedAddresses = std::make_shared<UnresolvedAddressSet>();
 
 		auto pTransaction2 = utils::UniqueToShared(test::GenerateRandomTransaction());

@@ -132,7 +132,7 @@ namespace catapult { namespace cache {
 		auto view = TTraits::CreateView(cache);
 
 		// Act + Assert:
-		EXPECT_EQ(Hash256{}, TTraits::CalculateStateHash(view).StateHash);
+		EXPECT_EQ(Hash256(), TTraits::CalculateStateHash(view).StateHash);
 	}
 
 	VIEW_DELTA_TEST(SubCacheMerkleRootsAreEmptyWhenStateCalculationIsDisabled) {
@@ -409,7 +409,7 @@ namespace catapult { namespace cache {
 	// region storages
 
 	TEST(TEST_CLASS, CanRoundTripCacheViaStorages) {
-		// Arrange: seed the cache with 9 items per subcache
+		// Arrange: seed the cache with 9 items per sub cache
 		std::vector<std::vector<uint8_t>> serializedSubCaches;
 		{
 			auto cache = CreateSimpleCatapultCache();
@@ -422,10 +422,12 @@ namespace catapult { namespace cache {
 			}
 
 			// Act: save all data
-			for (const auto& pStorage : const_cast<const CatapultCache&>(cache).storages()) {
+			auto storages = const_cast<const CatapultCache&>(cache).storages();
+			auto view = cache.createView();
+			for (const auto& pStorage : storages) {
 				std::vector<uint8_t> buffer;
-				mocks::MockMemoryStream stream("", buffer);
-				pStorage->saveAll(stream);
+				mocks::MockMemoryStream stream(buffer);
+				pStorage->saveAll(view, stream);
 				serializedSubCaches.push_back(buffer);
 			}
 		}
@@ -434,7 +436,7 @@ namespace catapult { namespace cache {
 		auto i = 0u;
 		auto cache = CreateSimpleCatapultCache();
 		for (const auto& pStorage : cache.storages()) {
-			mocks::MockMemoryStream stream("", serializedSubCaches[i++]);
+			mocks::MockMemoryStream stream(serializedSubCaches[i++]);
 			pStorage->loadAll(stream, 5);
 		}
 
@@ -454,7 +456,7 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanRoundTripCacheViaStoragesWhenSomeSubCachesDoNotSupportStorage) {
-		// Arrange: seed the cache with 9 items per subcache
+		// Arrange: seed the cache with 9 items per sub cache
 		std::vector<std::vector<uint8_t>> serializedSubCaches;
 		{
 			// - configure only 2/3 caches to support storage
@@ -468,10 +470,12 @@ namespace catapult { namespace cache {
 			}
 
 			// Act: save all data
-			for (const auto& pStorage : const_cast<const CatapultCache&>(cache).storages()) {
+			auto storages = const_cast<const CatapultCache&>(cache).storages();
+			auto view = cache.createView();
+			for (const auto& pStorage : storages) {
 				std::vector<uint8_t> buffer;
-				mocks::MockMemoryStream stream("", buffer);
-				pStorage->saveAll(stream);
+				mocks::MockMemoryStream stream(buffer);
+				pStorage->saveAll(view, stream);
 				serializedSubCaches.push_back(buffer);
 			}
 		}
@@ -480,7 +484,7 @@ namespace catapult { namespace cache {
 		auto i = 0u;
 		auto cache = CreateSimpleCatapultCacheWithSomeNonIterableSubCaches();
 		for (const auto& pStorage : cache.storages()) {
-			mocks::MockMemoryStream stream("", serializedSubCaches[i++]);
+			mocks::MockMemoryStream stream(serializedSubCaches[i++]);
 			pStorage->loadAll(stream, 5);
 		}
 
@@ -489,6 +493,68 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(9u, view.template sub<test::SimpleCacheT<2>>().size());
 		EXPECT_EQ(0u, view.template sub<test::SimpleCacheT<4>>().size());
 		EXPECT_EQ(9u, view.template sub<test::SimpleCacheT<6>>().size());
+	}
+
+	// endregion
+
+	// region changesStorages
+
+	namespace {
+		void AssertEquivalent(
+				const MemoryCacheChangesT<uint64_t>& changes,
+				const std::unordered_set<uint64_t>& expectedAdded,
+				const std::unordered_set<uint64_t>& expectedRemoved,
+				const std::unordered_set<uint64_t>& expectedModified,
+				const std::string& message) {
+			EXPECT_EQ(expectedAdded.size(), changes.Added.size()) << message;
+			EXPECT_EQ(expectedRemoved.size(), changes.Removed.size()) << message;
+			EXPECT_EQ(expectedModified.size(), changes.Copied.size()) << message;
+
+			EXPECT_EQ(expectedAdded, std::unordered_set<uint64_t>(changes.Added.cbegin(), changes.Added.cend())) << message;
+			EXPECT_EQ(expectedRemoved, std::unordered_set<uint64_t>(changes.Removed.cbegin(), changes.Removed.cend())) << message;
+			EXPECT_EQ(expectedModified, std::unordered_set<uint64_t>(changes.Copied.cbegin(), changes.Copied.cend())) << message;
+		}
+	}
+
+	TEST(TEST_CLASS, CanRoundTripCacheChangesViaChangesStorages) {
+		// Arrange: seed the cache with custom elements such that: A { 0 }, R { 1, 3 }, M { 2 }
+		std::vector<std::vector<uint8_t>> serializedSubCacheChanges;
+		{
+			auto cache = CreateSimpleCatapultCache();
+			auto delta = cache.createDelta();
+			delta.sub<test::SimpleCacheT<2>>().setElements({ { 0, 5, 7, 1 } });
+			delta.sub<test::SimpleCacheT<4>>().setElements({ { 1, 4, 9, 3 } });
+			delta.sub<test::SimpleCacheT<6>>().setElements({ { 2, 3, 8, 6 } });
+
+			// Act: save all data
+			for (const auto& pStorage : cache.changesStorages()) {
+				std::vector<uint8_t> buffer;
+				mocks::MockMemoryStream stream(buffer);
+				pStorage->saveAll(CacheChanges(delta), stream);
+				serializedSubCacheChanges.push_back(buffer);
+			}
+		}
+
+		// - load all data
+		auto i = 0u;
+		std::vector<std::unique_ptr<const MemoryCacheChanges>> loadedChanges;
+		auto cache = CreateSimpleCatapultCache();
+		for (const auto& pStorage : cache.changesStorages()) {
+			mocks::MockMemoryStream stream(serializedSubCacheChanges[i++]);
+			loadedChanges.push_back(pStorage->loadAll(stream));
+		}
+
+		// Assert: the cache data was loaded successfully
+		ASSERT_EQ(3u, loadedChanges.size());
+
+		using TypedMemoryCacheChanges = MemoryCacheChangesT<uint64_t>;
+		const auto& loadedChanges1 = static_cast<const TypedMemoryCacheChanges&>(*loadedChanges[0]);
+		const auto& loadedChanges2 = static_cast<const TypedMemoryCacheChanges&>(*loadedChanges[1]);
+		const auto& loadedChanges3 = static_cast<const TypedMemoryCacheChanges&>(*loadedChanges[2]);
+
+		AssertEquivalent(loadedChanges1, { 0 }, { 5, 1 }, { 7 }, "loadedChanges1");
+		AssertEquivalent(loadedChanges2, { 1 }, { 4, 3 }, { 9 }, "loadedChanges2");
+		AssertEquivalent(loadedChanges3, { 2 }, { 3, 6 }, { 8 }, "loadedChanges3");
 	}
 
 	// endregion

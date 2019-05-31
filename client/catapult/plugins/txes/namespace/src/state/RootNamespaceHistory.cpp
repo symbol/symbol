@@ -40,7 +40,7 @@ namespace catapult { namespace state {
 
 	RootNamespaceHistory::RootNamespaceHistory(const RootNamespaceHistory& history) : RootNamespaceHistory(history.m_id) {
 		std::shared_ptr<RootNamespace::Children> pChildren;
-		auto owner = Key{};
+		auto owner = Key();
 		for (const auto& root : history) {
 			if (owner != root.owner()) {
 				pChildren = std::make_shared<RootNamespace::Children>(root.children());
@@ -116,7 +116,7 @@ namespace catapult { namespace state {
 	std::set<NamespaceId> RootNamespaceHistory::prune(Height height) {
 		std::set<NamespaceId> ids;
 		for (auto iter = m_rootHistory.begin(); m_rootHistory.end() != iter;) {
-			if (iter->lifetime().End <= height) {
+			if (iter->lifetime().GracePeriodEnd <= height) {
 				AddAllIds(ids, iter->children());
 				iter = m_rootHistory.erase(iter);
 			} else {

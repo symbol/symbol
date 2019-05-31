@@ -38,7 +38,7 @@ namespace catapult { namespace test {
 					auto i = 0u;
 					Address resolved;
 					for (const auto& byte : unresolved)
-						resolved[i++] = byte.Byte ^ 0xFF;
+						resolved[i++] = byte ^ 0xFF;
 
 					return resolved;
 				});
@@ -52,7 +52,7 @@ namespace catapult { namespace test {
 		auto i = 0u;
 		UnresolvedAddress unresolved;
 		for (auto byte : address)
-			unresolved[i++].Byte = byte ^ 0xFF;
+			unresolved[i++] = byte ^ 0xFF;
 
 		return unresolved;
 	}

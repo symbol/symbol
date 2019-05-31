@@ -32,11 +32,10 @@ namespace catapult { namespace validators {
 #define ROOT_TEST_CLASS RootNamespaceAvailabilityValidatorTests
 #define CHILD_TEST_CLASS ChildNamespaceAvailabilityValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(RootNamespaceAvailability, BlockDuration())
+	DEFINE_COMMON_VALIDATOR_TESTS(RootNamespaceAvailability,)
 	DEFINE_COMMON_VALIDATOR_TESTS(ChildNamespaceAvailability,)
 
 	namespace {
-		constexpr BlockDuration Max_Duration(105);
 		constexpr BlockDuration Default_Duration(10);
 		constexpr BlockDuration Grace_Period_Duration(25);
 
@@ -61,8 +60,7 @@ namespace catapult { namespace validators {
 				TSeedCacheFunc seedCache) {
 			// Arrange:
 			auto cache = CreateAndSeedCache(seedCache);
-			model::NamespaceLifetimeConstraints constraints(Max_Duration, Grace_Period_Duration);
-			auto pValidator = CreateRootNamespaceAvailabilityValidator(constraints.MaxNamespaceDuration);
+			auto pValidator = CreateRootNamespaceAvailabilityValidator();
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache, height);
@@ -129,7 +127,7 @@ namespace catapult { namespace validators {
 
 	TEST(ROOT_TEST_CLASS, CannotRenewNonEternalRootNamespaceWithEternalDurationAfterNemesis) {
 		// Act: try to renew a root with an eternal duration
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), Eternal_Artifact_Duration);
 		RunRootTest(Failure_Namespace_Eternal_After_Nemesis_Block, notification, Height(15), SeedCacheWithRoot25Signer(signer));
 	}
@@ -155,7 +153,7 @@ namespace catapult { namespace validators {
 		// Arrange: namespace is deactivated at height 20 and grace period is 25, so it is available starting at 45
 		for (auto height : { Height(15), Height(20), Height(44) }) {
 			// Act: try to renew the owner of a root that has not yet exceeded its grace period
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), Default_Duration);
 			RunRootTest(ValidationResult::Success, notification, height, SeedCacheWithRoot25Signer(signer));
 		}
@@ -165,7 +163,7 @@ namespace catapult { namespace validators {
 		// Arrange: namespace is deactivated at height 20 and grace period is 25, so it is available starting at 45
 		for (auto height : { Height(15), Height(20), Height(44) }) {
 			// Act: try to change the owner of a root that has not yet exceeded its grace period
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), Default_Duration);
 			RunRootTest(Failure_Namespace_Owner_Conflict, notification, height, SeedCacheWithRoot25);
 		}
@@ -179,7 +177,7 @@ namespace catapult { namespace validators {
 		// Arrange: namespace is deactivated at height 20 and grace period is 25, so it is available starting at 45
 		for (auto height : { Height(45), Height(100) }) {
 			// Act: try to renew the owner of a root that has expired and exceeded its grace period
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), Default_Duration);
 			RunRootTest(ValidationResult::Success, notification, height, SeedCacheWithRoot25Signer(signer));
 		}
@@ -201,7 +199,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertCannotChangeDuration(Height height, const state::NamespaceLifetime& lifetime, BlockDuration duration) {
 			// Act: try to extend a root that is already in the cache
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), duration);
 			RunRootTest(
 					Failure_Namespace_Invalid_Duration,
@@ -228,22 +226,6 @@ namespace catapult { namespace validators {
 		AssertCannotChangeDuration(Height(100), test::CreateLifetime(10, 0xFFFF'FFFF'FFFF'FFFF), BlockDuration(2));
 	}
 
-	TEST(ROOT_TEST_CLASS, CannotRenewRootNamespaceWithDurationTooLarge) {
-		// Arrange: max duration is 125 [Max_Duration(105) + Grace_Period_Duration(25) + height(15) - lifetime.End(20)]
-		for (auto duration : { BlockDuration(126), BlockDuration(200) })
-			AssertCannotChangeDuration(Height(15), test::CreateLifetime(10, 20), duration);
-	}
-
-	TEST(ROOT_TEST_CLASS, CanRenewRootNamespaceWithAcceptableDurations) {
-		// Arrange: max duration is 125 [Max_Duration(105) + Grace_Period_Duration(25) + height(15) - lifetime.End(20)]
-		for (auto duration : { BlockDuration(20), BlockDuration(75), BlockDuration(125) }) {
-			// Act: try to renew a root
-			auto signer = test::GenerateRandomData<Key_Size>();
-			auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), duration);
-			RunRootTest(ValidationResult::Success, notification, Height(15), SeedCacheWithRoot25Signer(signer));
-		}
-	}
-
 	// endregion
 
 	namespace {
@@ -266,7 +248,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		for (auto height : { Height(10), Height(15), Height(19) }) {
 			// Act: try to create a child that is not in the cache (parent is root 25)
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::ChildNamespaceNotification(signer, NamespaceId(38), NamespaceId(25));
 			RunChildTest(ValidationResult::Success, notification, height, SeedCacheWithRoot25TreeSigner(signer));
 		}
@@ -276,7 +258,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		for (auto height : { Height(10), Height(15), Height(19) }) {
 			// Act: try to create a child that is not in the cache (parent is non-root 36)
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::ChildNamespaceNotification(signer, NamespaceId(50), NamespaceId(36));
 			RunChildTest(ValidationResult::Success, notification, height, SeedCacheWithRoot25TreeSigner(signer));
 		}
@@ -285,7 +267,7 @@ namespace catapult { namespace validators {
 	TEST(CHILD_TEST_CLASS, CannotAddChildNamespaceThatAlreadyExists) {
 		// Act: try to create a child that is already in the cache
 		for (auto height : { Height(15), Height(19) }) {
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::ChildNamespaceNotification(signer, NamespaceId(36), NamespaceId(25));
 			RunChildTest(Failure_Namespace_Already_Exists, notification, height, SeedCacheWithRoot25TreeSigner(signer));
 		};
@@ -297,14 +279,14 @@ namespace catapult { namespace validators {
 
 	TEST(CHILD_TEST_CLASS, CannotAddChildNamespaceThatHasUnknownParent) {
 		// Act: try to create a child with an unknown (root) parent
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = model::ChildNamespaceNotification(signer, NamespaceId(38), NamespaceId(26));
 		RunChildTest(Failure_Namespace_Parent_Unknown, notification, Height(15), SeedCacheWithRoot25TreeSigner(signer));
 	}
 
 	TEST(CHILD_TEST_CLASS, CannotAddChildNamespaceToParentWithMaxNamespaceDepth) {
 		// Act: try to create a child that is too deep
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = model::ChildNamespaceNotification(signer, NamespaceId(64), NamespaceId(49));
 		RunChildTest(Failure_Namespace_Too_Deep, notification, Height(15), SeedCacheWithRoot25TreeSigner(signer));
 	}
@@ -317,7 +299,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		for (auto height : { Height(20), Height(25), Height(100) }) {
 			// Act: try to create a child attached to a root that has expired (root namespace expires at height 20)
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::ChildNamespaceNotification(signer, NamespaceId(50), NamespaceId(36));
 			RunChildTest(Failure_Namespace_Expired, notification, height, SeedCacheWithRoot25TreeSigner(signer));
 		}
@@ -327,7 +309,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		for (auto height : { Height(10), Height(15), Height(19) }) {
 			// Act: try to create a child attached to a root with a different owner
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::ChildNamespaceNotification(signer, NamespaceId(50), NamespaceId(36));
 			auto rootSigner = test::CreateRandomOwner();
 			RunChildTest(Failure_Namespace_Owner_Conflict, notification, height, SeedCacheWithRoot25TreeSigner(rootSigner));

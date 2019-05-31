@@ -20,12 +20,12 @@
 
 #include "src/NetworkHeightConfiguration.h"
 #include "src/NetworkHeightService.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace networkheight {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			// register service(s)
 			auto config = NetworkHeightConfiguration::LoadFromPath(bootstrapper.resourcesPath());
 			bootstrapper.extensionManager().addServiceRegistrar(CreateNetworkHeightServiceRegistrar(config));
@@ -34,6 +34,6 @@ namespace catapult { namespace networkheight {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::networkheight::RegisterExtension(bootstrapper);
 }

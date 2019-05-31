@@ -44,23 +44,23 @@ namespace catapult { namespace validators {
 		static void AssertFailureWhenHashIsInCache() {
 			// Arrange:
 			typename TTraits::NotificationBuilder builder;
-			auto infos = test::CreateLockInfos<BasicTraits>(3);
-			auto cache = CreateDefaultCache(infos);
-			builder.setHash(BasicTraits::ToKey(infos[1]));
+			auto lockInfos = test::CreateLockInfos<BasicTraits>(3);
+			auto cache = CreateDefaultCache(lockInfos);
+			builder.prepare(lockInfos[1]);
 
 			// Assert:
 			RunTest(TTraits::Failure, builder.notification(), cache);
 		}
 
 	private:
-		static auto CreateDefaultCache(const std::vector<typename BasicTraits::ValueType>& infos) {
+		static auto CreateDefaultCache(const std::vector<typename BasicTraits::ValueType>& lockInfos) {
 			using CacheFactory = typename TTraits::CacheFactory;
 			auto cache = CacheFactory::Create();
 			{
 				auto cacheDelta = cache.createDelta();
 				auto& lockInfoCacheDelta = cacheDelta.template sub<typename BasicTraits::CacheType>();
-				for (const auto& info : infos)
-					lockInfoCacheDelta.insert(info);
+				for (const auto& lockInfo : lockInfos)
+					lockInfoCacheDelta.insert(lockInfo);
 
 				cache.commit(Height());
 			}

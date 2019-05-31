@@ -62,7 +62,7 @@ namespace catapult { namespace tools { namespace statusgen {
 				#include "../../plugins/coresystem/src/validators/Results.h"
 				#include "../../plugins/services/hashcache/src/validators/Results.h"
 				#include "../../plugins/services/signature/src/validators/Results.h"
-				#include "../../plugins/txes/accountlink/src/validators/Results.h"
+				#include "../../plugins/txes/account_link/src/validators/Results.h"
 				#include "../../plugins/txes/aggregate/src/validators/Results.h"
 				#include "../../plugins/txes/lock_hash/src/validators/Results.h"
 				#include "../../plugins/txes/lock_secret/src/validators/Results.h"

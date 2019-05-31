@@ -25,6 +25,7 @@
 
 namespace catapult {
 	namespace cache {
+		class CacheChangesStorage;
 		class CacheStorage;
 		class CatapultCache;
 	}
@@ -143,6 +144,9 @@ namespace catapult { namespace cache {
 	public:
 		/// Returns a cache storage based on this cache.
 		virtual std::unique_ptr<CacheStorage> createStorage() = 0;
+
+		/// Returns a cache changes storage based on this cache.
+		virtual std::unique_ptr<CacheChangesStorage> createChangesStorage() const = 0;
 	};
 
 	// endregion

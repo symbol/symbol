@@ -77,7 +77,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, FailureIfHashAlgorithmIsNotSupported) {
+	TEST(TEST_CLASS, FailureWhenHashAlgorithmIsNotSupported) {
 		using model::LockHashAlgorithm;
 
 		// Assert:
@@ -85,7 +85,7 @@ namespace catapult { namespace validators {
 		AssertFailureIfHashAlgorithmIsNotSupported(unsupportedAlgorithm);
 	}
 
-	TEST(TEST_CLASS, FailureIfSecretDoesNotMatchProof) {
+	TEST(TEST_CLASS, FailureWhenSecretDoesNotMatchProof) {
 		NotificationBuilder notificationBuilder;
 		auto pValidator = CreateDefaultProofSecretValidator();
 
@@ -111,22 +111,22 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, SuccessIfSecretMatchesProof_Sha3) {
+	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Sha3) {
 		// Assert:
 		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Sha3_256);
 	}
 
-	TEST(TEST_CLASS, SuccessIfSecretMatchesProof_Keccak) {
+	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Keccak) {
 		// Assert:
 		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Keccak_256);
 	}
 
-	TEST(TEST_CLASS, SuccessIfSecretMatchesProof_Bitcoin160) {
+	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Bitcoin160) {
 		// Assert:
 		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_160);
 	}
 
-	TEST(TEST_CLASS, SuccessIfSecretMatchesProof_Sha256Double) {
+	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Sha256Double) {
 		// Assert:
 		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_256);
 	}
@@ -147,13 +147,13 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, FailureIfProofIsOutOfBounds) {
+	TEST(TEST_CLASS, FailureWhenProofIsOutOfBounds) {
 		// Assert: minimum size is 10, maximum is 100, so all should fail
 		for (auto proofSize : { 3u, 9u, 101u, 105u })
 			AssertProofSize(Failure_LockSecret_Proof_Size_Out_Of_Bounds, proofSize);
 	}
 
-	TEST(TEST_CLASS, SuccessIfProofIsWithinBounds) {
+	TEST(TEST_CLASS, SuccessWhenProofIsWithinBounds) {
 		// Assert: minimum size is 10, maximum is 100, so all should succeed
 		for (auto proofSize : { 10u, 40u, 100u })
 			AssertProofSize(ValidationResult::Success, proofSize);

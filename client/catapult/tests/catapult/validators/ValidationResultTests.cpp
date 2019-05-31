@@ -85,7 +85,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, CanCheckIfResultFlagIsSet) {
+	TEST(TEST_CLASS, CanCheckWhetherOrNotResultFlagIsSet) {
 		// Assert:
 		// - none
 		auto result = MakeValidationResult(ResultSeverity::Success, 0, 0, static_cast<ResultFlags>(0));

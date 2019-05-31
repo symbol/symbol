@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "ByteArray.h"
 #include "catapult/exceptions.h"
 
 namespace catapult { namespace utils {
@@ -52,5 +53,13 @@ namespace catapult { namespace utils {
 
 		for (auto i = 0u; i < dataSize; i += 2)
 			outputContainer[i / 2] = ParseByte(pHexData[i], pHexData[i + 1]);
+	}
+
+	/// Parses a hex string (\a hexString) into a byte array.
+	template<typename TByteArray>
+	TByteArray ParseByteArray(const std::string& hexString) {
+		TByteArray array;
+		utils::ParseHexStringIntoContainer(hexString.c_str(), hexString.size(), array);
+		return array;
 	}
 }}

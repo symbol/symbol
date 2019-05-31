@@ -78,12 +78,12 @@ namespace catapult { namespace timesync {
 		EXPECT_EQ(NodeAge(1), state.nodeAge());
 	}
 
-	TEST(TEST_CLASS, UpdateDoesNotChangeOffsetIfSuppliedOffsetIsSmallerThanThreshold_Positive) {
+	TEST(TEST_CLASS, UpdateDoesNotChangeOffsetWhenSuppliedOffsetIsSmallerThanThreshold_Positive) {
 		// Assert:
 		AssertUpdateDoesNotChangeState(Default_Threshold, 50);
 	}
 
-	TEST(TEST_CLASS, UpdateDoesNotChangeOffsetIfSuppliedOffsetIsSmallerThanThreshold_Negative) {
+	TEST(TEST_CLASS, UpdateDoesNotChangeOffsetWhenSuppliedOffsetIsSmallerThanThreshold_Negative) {
 		// Assert:
 		AssertUpdateDoesNotChangeState(Default_Threshold, -50);
 	}

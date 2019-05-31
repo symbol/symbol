@@ -73,7 +73,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsKnownAndTransactionTypeIsNotContainedInValues_Allow) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto signerAddress = model::PublicKeyToAddress(signer, model::NetworkIdentifier::Zero);
 
 		// Act:
@@ -87,7 +87,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsKnownAndTransactionTypeIsContainedInValues_Block) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto signerAddress = model::PublicKeyToAddress(signer, model::NetworkIdentifier::Zero);
 		auto values = DefaultRawTransactionTypes();
 
@@ -112,8 +112,8 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(SuccessWhenAccountIsNotKnown) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
-		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
+		auto address = test::GenerateRandomByteArray<Address>();
 		auto values = DefaultRawTransactionTypes();
 
 		// Act:
@@ -122,7 +122,7 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(SuccessWhenAccountIsKnownButPropertyHasNoValues) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto signerAddress = model::PublicKeyToAddress(signer, model::NetworkIdentifier::Zero);
 
 		// Act:
@@ -133,7 +133,7 @@ namespace catapult { namespace validators {
 		template<typename TOperationTraits>
 		void AssertSuccess(const std::vector<uint16_t>& rawValues, uint16_t rawTransactionType) {
 			// Arrange:
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto signerAddress = model::PublicKeyToAddress(signer, model::NetworkIdentifier::Zero);
 
 			// Act:

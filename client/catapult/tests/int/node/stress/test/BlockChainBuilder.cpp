@@ -19,16 +19,14 @@
 **/
 
 #include "BlockChainBuilder.h"
-#include "sdk/src/extensions/ConversionExtensions.h"
-#include "sdk/src/extensions/TransactionExtensions.h"
-#include "plugins/txes/namespace/src/model/NamespaceIdGenerator.h"
+#include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/chain/BlockDifficultyScorer.h"
 #include "catapult/chain/BlockScorer.h"
 #include "catapult/io/FileBlockStorage.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
-#include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/Nemesis.h"
 
 namespace catapult { namespace test {
 
@@ -37,7 +35,7 @@ namespace catapult { namespace test {
 	}
 
 	BlockChainBuilder::BlockChainBuilder(const Accounts& accounts, StateHashCalculator& stateHashCalculator)
-			: BlockChainBuilder(accounts, stateHashCalculator, CreateLocalNodeBlockChainConfiguration())
+			: BlockChainBuilder(accounts, stateHashCalculator, CreatePrototypicalBlockChainConfiguration())
 	{}
 
 	BlockChainBuilder::BlockChainBuilder(
@@ -63,7 +61,7 @@ namespace catapult { namespace test {
 			bool isChained)
 			: m_pAccounts(&accounts)
 			, m_pStateHashCalculator(&stateHashCalculator)
-			, m_blockTimeInterval(60'000)
+			, m_blockTimeInterval(utils::TimeSpan::FromSeconds(60))
 			, m_blockReceiptsHashCalculator([](const auto&) { return Hash256(); })
 			, m_config(config) {
 		if (isChained)
@@ -87,22 +85,7 @@ namespace catapult { namespace test {
 		m_pStateHashCalculator->execute(m_pParentBlockElement->Block);
 	}
 
-	void BlockChainBuilder::addTransfer(size_t senderId, size_t recipientId, Amount transferAmount) {
-		m_transferDescriptors.push_back(TransferDescriptor{ senderId, recipientId, transferAmount, "" });
-		m_descriptorOrdering.push_back(DescriptorType::Transfer);
-	}
-
-	void BlockChainBuilder::addTransfer(size_t senderId, const std::string& recipientAlias, Amount transferAmount) {
-		m_transferDescriptors.push_back(TransferDescriptor{ senderId, 0, transferAmount, recipientAlias });
-		m_descriptorOrdering.push_back(DescriptorType::Transfer);
-	}
-
-	void BlockChainBuilder::addNamespace(size_t ownerId, const std::string& name, BlockDuration duration, size_t aliasId) {
-		m_namespaceDescriptors.push_back(NamespaceDescriptor{ ownerId, name, duration, aliasId });
-		m_descriptorOrdering.push_back(DescriptorType::Namespace);
-	}
-
-	void BlockChainBuilder::setBlockTimeInterval(Timestamp blockTimeInterval) {
+	void BlockChainBuilder::setBlockTimeInterval(utils::TimeSpan blockTimeInterval) {
 		m_blockTimeInterval = blockTimeInterval;
 	}
 
@@ -117,53 +100,49 @@ namespace catapult { namespace test {
 	BlockChainBuilder BlockChainBuilder::createChainedBuilder(StateHashCalculator& stateHashCalculator) const {
 		// resources directory is not used when creating chained builder
 		auto builder = BlockChainBuilder(*m_pAccounts, stateHashCalculator, m_config, "", true);
+		builder.m_pTailBlockElement = m_pTailBlockElement;
 		builder.m_pParentBlockElement = m_pTailBlockElement;
 		builder.m_difficulties = m_difficulties;
 		return builder;
 	}
 
-	std::unique_ptr<model::Block> BlockChainBuilder::asSingleBlock() {
+	BlockChainBuilder BlockChainBuilder::createChainedBuilder(StateHashCalculator& stateHashCalculator, const model::Block& block) const {
+		// resources directory is not used when creating chained builder
+		auto builder = BlockChainBuilder(*m_pAccounts, stateHashCalculator, m_config, "", true);
+		builder.m_pTailBlockElement = ToSharedBlockElement(m_pTailBlockElement->GenerationHash, block);
+		builder.m_pParentBlockElement = builder.m_pTailBlockElement;
+		builder.m_difficulties = m_difficulties;
+		return builder;
+	}
+
+	std::unique_ptr<model::Block> BlockChainBuilder::asSingleBlock(const TransactionsGenerator& transactionsGenerator) {
 		model::PreviousBlockContext context(*m_pParentBlockElement);
 		pushDifficulty(m_pParentBlockElement->Block);
 
-		size_t transferIndex = 0;
-		size_t namespaceIndex = 0;
 		model::Transactions transactions;
 		auto blockTimestamp = context.Timestamp + m_blockTimeInterval;
-		for (auto descriptorType : m_descriptorOrdering) {
-			if (DescriptorType::Transfer == descriptorType) {
-				transactions.push_back(createTransfer(m_transferDescriptors[transferIndex], blockTimestamp));
-				++transferIndex;
-			} else {
-				const auto& descriptor = m_namespaceDescriptors[namespaceIndex];
-				transactions.push_back(createRegisterNamespace(descriptor, blockTimestamp));
-				if (0 != descriptor.AddressAliasId)
-					transactions.push_back(createAddressAlias(descriptor, blockTimestamp));
-
-				++namespaceIndex;
-			}
-		}
+		for (auto i = 0u; i < transactionsGenerator.size(); ++i)
+			transactions.push_back(transactionsGenerator.generateAt(i, blockTimestamp));
 
 		auto pBlock = createBlock(context, blockTimestamp, transactions);
 		m_pTailBlockElement = ToSharedBlockElement(context.GenerationHash, *pBlock);
+		m_pParentBlockElement = m_pTailBlockElement;
 		return pBlock;
 	}
 
-	BlockChainBuilder::Blocks BlockChainBuilder::asBlockChain() {
-		auto pParentBlockElement = m_pParentBlockElement;
-
+	BlockChainBuilder::Blocks BlockChainBuilder::asBlockChain(const TransactionsGenerator& transactionsGenerator) {
 		Blocks blocks;
-		for (const auto& descriptor : m_transferDescriptors) {
-			model::PreviousBlockContext context(*pParentBlockElement);
-			pushDifficulty(pParentBlockElement->Block);
+		for (auto i = 0u; i < transactionsGenerator.size(); ++i) {
+			model::PreviousBlockContext context(*m_pParentBlockElement);
+			pushDifficulty(m_pParentBlockElement->Block);
 
 			auto blockTimestamp = context.Timestamp + m_blockTimeInterval;
-			auto pBlock = createBlock(context, blockTimestamp, { createTransfer(descriptor, blockTimestamp) });
-			pParentBlockElement = ToSharedBlockElement(context.GenerationHash, *pBlock);
+			auto pBlock = createBlock(context, blockTimestamp, { transactionsGenerator.generateAt(i, blockTimestamp) });
+			m_pParentBlockElement = ToSharedBlockElement(context.GenerationHash, *pBlock);
 			blocks.push_back(std::move(pBlock));
 		}
 
-		m_pTailBlockElement = pParentBlockElement;
+		m_pTailBlockElement = m_pParentBlockElement;
 		return blocks;
 	}
 
@@ -174,62 +153,27 @@ namespace catapult { namespace test {
 			m_difficulties.erase(m_difficulties.cbegin());
 	}
 
-	namespace {
-		UnresolvedAddress RootAliasToAddress(const std::string& namespaceName) {
-			auto namespaceId = model::GenerateNamespaceId(NamespaceId(), namespaceName);
-
-			UnresolvedAddress address{}; // force zero initialization
-			address[0].Byte = utils::to_underlying_type(Network_Identifier) | 0x01;
-			std::memcpy(address.data() + 1, &namespaceId, sizeof(NamespaceId));
-			return address;
-		}
-	}
-
-	std::unique_ptr<model::Transaction> BlockChainBuilder::createTransfer(const TransferDescriptor& descriptor, Timestamp deadline) {
-		const auto& senderKeyPair = m_pAccounts->getKeyPair(descriptor.SenderId);
-		auto recipientAddress = descriptor.RecipientAlias.empty()
-				? extensions::CopyToUnresolvedAddress(m_pAccounts->getAddress(descriptor.RecipientId))
-				: RootAliasToAddress(descriptor.RecipientAlias);
-
-		auto pTransaction = CreateTransferTransaction(senderKeyPair, recipientAddress, descriptor.Amount);
-		return SignWithDeadline(std::move(pTransaction), senderKeyPair, deadline);
-	}
-
-	std::unique_ptr<model::Transaction> BlockChainBuilder::createRegisterNamespace(
-			const NamespaceDescriptor& descriptor,
-			Timestamp deadline) {
-		const auto& ownerKeyPair = m_pAccounts->getKeyPair(descriptor.OwnerId);
-
-		auto pTransaction = CreateRegisterRootNamespaceTransaction(ownerKeyPair, descriptor.Name, descriptor.Duration);
-		return SignWithDeadline(std::move(pTransaction), ownerKeyPair, deadline);
-	}
-
-	std::unique_ptr<model::Transaction> BlockChainBuilder::createAddressAlias(const NamespaceDescriptor& descriptor, Timestamp deadline) {
-		const auto& ownerKeyPair = m_pAccounts->getKeyPair(descriptor.OwnerId);
-		const auto& aliasedAddress = m_pAccounts->getAddress(descriptor.AddressAliasId);
-
-		auto pTransaction = CreateRootAddressAliasTransaction(ownerKeyPair, descriptor.Name, aliasedAddress);
-		return SignWithDeadline(std::move(pTransaction), ownerKeyPair, deadline);
-	}
-
 	std::unique_ptr<model::Block> BlockChainBuilder::createBlock(
 			const model::PreviousBlockContext& context,
 			Timestamp timestamp,
 			const model::Transactions& transactions) {
 		auto difficulty = chain::CalculateDifficulty(cache::DifficultyInfoRange(m_difficulties.cbegin(), m_difficulties.cend()), m_config);
 
-		auto signer = findSigner(context, timestamp, difficulty);
+		auto signer = findBlockSigner(context, timestamp, difficulty);
 		auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
 		pBlock->Timestamp = timestamp;
 		pBlock->Difficulty = difficulty;
 
 		pBlock->BlockReceiptsHash = m_blockReceiptsHashCalculator(*pBlock);
 		m_pStateHashCalculator->updateStateHash(*pBlock);
-		SignBlock(signer, *pBlock);
+		extensions::BlockExtensions(GetNemesisGenerationHash()).signFullBlock(signer, *pBlock);
 		return pBlock;
 	}
 
-	crypto::KeyPair BlockChainBuilder::findSigner(const model::PreviousBlockContext& context, Timestamp timestamp, Difficulty difficulty) {
+	crypto::KeyPair BlockChainBuilder::findBlockSigner(
+			const model::PreviousBlockContext& context,
+			Timestamp timestamp,
+			Difficulty difficulty) {
 		chain::BlockHitPredicate hitPredicate(m_config, [](const auto& publicKey, auto) {
 			// to simplfy tests, just return nemesis importance
 			return GetNemesisImportance(publicKey);
@@ -258,20 +202,10 @@ namespace catapult { namespace test {
 	}
 
 	std::shared_ptr<const model::BlockElement> BlockChainBuilder::ToSharedBlockElement(
-			const Hash256& parentGenerationHash,
+			const GenerationHash& parentGenerationHash,
 			const model::Block& block) {
-		auto pBlockElement = std::make_shared<model::BlockElement>(BlockToBlockElement(block));
+		auto pBlockElement = std::make_shared<model::BlockElement>(BlockToBlockElement(block, GetNemesisGenerationHash()));
 		pBlockElement->GenerationHash = model::CalculateGenerationHash(parentGenerationHash, block.Signer);
 		return std::move(pBlockElement);
-	}
-
-	std::unique_ptr<model::Transaction> BlockChainBuilder::SignWithDeadline(
-			std::unique_ptr<model::Transaction>&& pTransaction,
-			const crypto::KeyPair& signerKeyPair,
-			Timestamp deadline) {
-		pTransaction->Deadline = deadline;
-		pTransaction->MaxFee = Amount(0);
-		extensions::SignTransaction(signerKeyPair, *pTransaction);
-		return std::move(pTransaction);
 	}
 }}

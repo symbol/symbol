@@ -47,7 +47,7 @@ namespace catapult { namespace test {
 		auto numHeaderBytes = sizeof(uint64_t);
 		uint64_t numBytes = numHeaderBytes + entries.size() * sizeof(CacheSerializationTestEntry);
 		std::vector<uint8_t> buffer(numBytes);
-		reinterpret_cast<uint64_t&>(*buffer.data()) = entries.size();
+		reinterpret_cast<uint64_t&>(buffer[0]) = entries.size();
 		std::memcpy(buffer.data() + numHeaderBytes, entries.data(), numBytes - numHeaderBytes);
 		return buffer;
 	}

@@ -23,7 +23,7 @@
 #include "plugins/txes/aggregate/src/model/AggregateNotifications.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "plugins/txes/aggregate/src/validators/Results.h"
-#include "catapult/cache/MemoryPtCache.h"
+#include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/consumers/ConsumerResults.h"
 #include "catapult/disruptor/ConsumerDispatcher.h"
 #include "catapult/ionet/BroadcastUtils.h"
@@ -35,6 +35,7 @@
 #include "tests/test/local/ServiceLocatorTestContext.h"
 #include "tests/test/local/ServiceTestUtils.h"
 #include "tests/test/net/mocks/MockPacketWriters.h"
+#include "tests/test/nodeps/Nemesis.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace partialtransaction {
@@ -164,7 +165,7 @@ namespace catapult { namespace partialtransaction {
 
 		Hash256 CalculateTransactionHash(const model::TransactionRegistry& registry, const model::Transaction& transaction) {
 			const auto& plugin = *registry.findPlugin(transaction.Type);
-			return model::CalculateHash(transaction, plugin.dataBuffer(transaction));
+			return model::CalculateHash(transaction, test::GetNemesisGenerationHash(), plugin.dataBuffer(transaction));
 		}
 
 		std::vector<Hash256> CalculateHashes(const model::TransactionRegistry& registry, const model::TransactionRange& transactionRange) {
@@ -209,27 +210,6 @@ namespace catapult { namespace partialtransaction {
 
 		// - no ranges have been completed
 		EXPECT_EQ(0u, context.numCompletedTransactions());
-	}
-
-	TEST(TEST_CLASS, CanBootServiceWithAddressPrecomputationEnabled) {
-		// Arrange:
-		TestContext context;
-		const auto& config = context.testState().config();
-		const_cast<bool&>(config.Node.ShouldPrecomputeTransactionAddresses) = true;
-
-		// Act:
-		context.boot();
-
-		// Assert:
-		EXPECT_EQ(Num_Expected_Services + 1, context.locator().numServices());
-		EXPECT_EQ(Num_Expected_Counters, context.locator().counters().size());
-		EXPECT_EQ(Num_Expected_Tasks, context.testState().state().tasks().size());
-
-		auto pDispatcher = context.locator().service<disruptor::ConsumerDispatcher>("pt.dispatcher");
-		EXPECT_EQ(4u, pDispatcher->size());
-
-		// - notification publisher service should exist
-		EXPECT_TRUE(!!context.locator().service<model::NotificationPublisher>("pt.notificationPublisher"));
 	}
 
 	TEST(TEST_CLASS, CanShutdownService) {
@@ -341,7 +321,7 @@ namespace catapult { namespace partialtransaction {
 		}
 	}
 
-	TEST(TEST_CLASS, Dispatcher_DoesNotForwardToUpdaterIfValidationFailed) {
+	TEST(TEST_CLASS, Dispatcher_DoesNotForwardToUpdaterWhenValidationFailed) {
 		// Arrange:
 		AssertDispatcherForwarding(
 				DispatcherTestOptions{ ValidationResult::Failure, 1, false },
@@ -358,7 +338,7 @@ namespace catapult { namespace partialtransaction {
 				});
 	}
 
-	TEST(TEST_CLASS, Dispatcher_ForwardsToUpdaterIfValidationSucceeded) {
+	TEST(TEST_CLASS, Dispatcher_ForwardsToUpdaterWhenValidationSucceeded) {
 		AssertDispatcherForwarding(
 				DispatcherTestOptions{ ValidationResult::Success, 1, false },
 				[](const auto& context) {
@@ -376,7 +356,7 @@ namespace catapult { namespace partialtransaction {
 				});
 	}
 
-	TEST(TEST_CLASS, Dispatcher_ForwardsMultipleEntitiesToUpdaterIfValidationSucceeded) {
+	TEST(TEST_CLASS, Dispatcher_ForwardsMultipleEntitiesToUpdaterWhenValidationSucceeded) {
 		AssertDispatcherForwarding(
 				DispatcherTestOptions{ ValidationResult::Success, 3, false },
 				[](const auto& context) {
@@ -433,7 +413,7 @@ namespace catapult { namespace partialtransaction {
 		EXPECT_EQ(utils::to_underlying_type(consumers::Neutral_Consumer_Hash_In_Recency_Cache), result.CompletionCode);
 	}
 
-	TEST(TEST_CLASS, Dispatcher_UpdaterForwardsToConsumerIfValidationSucceeded) {
+	TEST(TEST_CLASS, Dispatcher_UpdaterForwardsToConsumerWhenValidationSucceeded) {
 		AssertDispatcherForwarding(
 				DispatcherTestOptions{ ValidationResult::Success, 3, true },
 				[](const auto& context) {

@@ -20,6 +20,7 @@
 
 #pragma once
 #include "src/model/LockHashAlgorithm.h"
+#include "src/model/LockHashUtils.h"
 #include "plugins/txes/lock_shared/src/state/LockInfo.h"
 
 namespace catapult { namespace state {
@@ -44,6 +45,7 @@ namespace catapult { namespace state {
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
 				, Recipient(recipient)
+				, CompositeHash()
 		{}
 
 	public:
@@ -55,5 +57,8 @@ namespace catapult { namespace state {
 
 		/// Recipient of the locked mosaic.
 		catapult::Address Recipient;
+
+		/// Composite hash.
+		Hash256 CompositeHash;
 	};
 }}

@@ -31,28 +31,35 @@ namespace catapult { namespace model {
 			auto headerSize = VerifiableEntity::Header_Size;
 			return { reinterpret_cast<const uint8_t*>(&entity) + headerSize, totalSize - headerSize };
 		}
+
+		Hash256 CalculateHash(const VerifiableEntity& entity, const RawBuffer& buffer, const GenerationHash* pGenerationHash) {
+			Hash256 entityHash;
+			crypto::Sha3_256_Builder sha3;
+			// "R" part of a signature
+			sha3.update({ entity.Signature.data(), Signature_Size / 2 });
+
+			// public key is added here to match Sign/Verify behavior, which explicitly hashes it
+			sha3.update(entity.Signer);
+
+			if (pGenerationHash)
+				sha3.update(*pGenerationHash);
+
+			sha3.update(buffer);
+			sha3.final(entityHash);
+			return entityHash;
+		}
 	}
 
 	Hash256 CalculateHash(const Block& block) {
-		return CalculateHash(block, EntityDataBuffer(block, sizeof(BlockHeader)));
+		return CalculateHash(block, EntityDataBuffer(block, sizeof(BlockHeader)), nullptr);
 	}
 
-	Hash256 CalculateHash(const Transaction& transaction) {
-		return CalculateHash(transaction, EntityDataBuffer(transaction, transaction.Size));
+	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHash) {
+		return CalculateHash(transaction, EntityDataBuffer(transaction, transaction.Size), &generationHash);
 	}
 
-	Hash256 CalculateHash(const VerifiableEntity& entity, const RawBuffer& buffer) {
-		Hash256 entityHash;
-		crypto::Sha3_256_Builder sha3;
-		// "R" part of a signature
-		sha3.update({ entity.Signature.data(), Signature_Size / 2 });
-
-		// public key is added here to match Sign/Verify behavior, which explicitly hashes it
-		sha3.update(entity.Signer);
-
-		sha3.update(buffer);
-		sha3.final(entityHash);
-		return entityHash;
+	Hash256 CalculateHash(const Transaction& transaction, const GenerationHash& generationHash, const RawBuffer& buffer) {
+		return CalculateHash(transaction, buffer, &generationHash);
 	}
 
 	Hash256 CalculateMerkleComponentHash(
@@ -85,11 +92,14 @@ namespace catapult { namespace model {
 		return merkleTree;
 	}
 
-	void UpdateHashes(const TransactionRegistry& transactionRegistry, TransactionElement& transactionElement) {
+	void UpdateHashes(
+			const TransactionRegistry& transactionRegistry,
+			const GenerationHash& generationHash,
+			TransactionElement& transactionElement) {
 		const auto& transaction = transactionElement.Transaction;
 		const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
 
-		transactionElement.EntityHash = CalculateHash(transaction, plugin.dataBuffer(transaction));
+		transactionElement.EntityHash = CalculateHash(transaction, generationHash, plugin.dataBuffer(transaction));
 		transactionElement.MerkleComponentHash = CalculateMerkleComponentHash(
 				transaction,
 				transactionElement.EntityHash,

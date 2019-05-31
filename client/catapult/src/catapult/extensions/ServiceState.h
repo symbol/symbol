@@ -21,7 +21,7 @@
 #pragma once
 #include "ServerHooks.h"
 #include "ServiceState.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/ionet/PacketHandlers.h"
 #include "catapult/net/PacketIoPickerContainer.h"
 #include "catapult/thread/Task.h"
@@ -53,7 +53,7 @@ namespace catapult { namespace extensions {
 		/// Creates service state around \a config, \a nodes, \a cache, \a state, \a storage, \a score, \a utCache, \a timeSupplier
 		/// \a transactionStatusSubscriber, \a stateChangeSubscriber, \a nodeSubscriber, \a counters, \a pluginManager and \a pool.
 		ServiceState(
-				const config::LocalNodeConfiguration& config,
+				const config::CatapultConfiguration& config,
 				ionet::NodeContainer& nodes,
 				cache::CatapultCache& cache,
 				state::CatapultState& state,
@@ -183,7 +183,7 @@ namespace catapult { namespace extensions {
 
 	private:
 		// references
-		const config::LocalNodeConfiguration& m_config;
+		const config::CatapultConfiguration& m_config;
 		ionet::NodeContainer& m_nodes;
 		cache::CatapultCache& m_cache;
 		state::CatapultState& m_state;

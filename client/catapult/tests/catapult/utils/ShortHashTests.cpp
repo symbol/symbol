@@ -31,11 +31,11 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, HasherIsDeterministic) {
 		// Arrange:
 		ShortHashHasher hasher;
-		auto data = ShortHash(123456789);
+		auto shortHash = ShortHash(123456789);
 
 		// Act:
-		auto result1 = hasher(data);
-		auto result2 = hasher(data);
+		auto result1 = hasher(shortHash);
+		auto result2 = hasher(shortHash);
 
 		// Assert:
 		EXPECT_EQ(result1, result2);
@@ -44,10 +44,10 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, HashHasSameValueAsShortHash) {
 		// Arrange:
 		ShortHashHasher hasher;
-		auto data = ShortHash(123456789);
+		auto shortHash = ShortHash(123456789);
 
 		// Act:
-		auto result = hasher(data);
+		auto result = hasher(shortHash);
 
 		// Assert:
 		EXPECT_EQ(123456789u, result);
@@ -56,12 +56,12 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, EqualShortHashesHaveSameHash) {
 		// Arrange:
 		ShortHashHasher hasher;
-		auto data1 = ShortHash(123456789);
-		auto data2 = ShortHash(123456789);
+		auto shortHash1 = ShortHash(123456789);
+		auto shortHash2 = ShortHash(123456789);
 
 		// Act:
-		auto result1 = hasher(data1);
-		auto result2 = hasher(data2);
+		auto result1 = hasher(shortHash1);
+		auto result2 = hasher(shortHash2);
 
 		// Assert:
 		EXPECT_EQ(result1, result2);
@@ -70,12 +70,12 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, DifferentShortHashesHaveDifferentHashes) {
 		// Arrange:
 		ShortHashHasher hasher;
-		auto data1 = ShortHash(123456789);
-		auto data2 = ShortHash(987654321);
+		auto shortHash1 = ShortHash(123456789);
+		auto shortHash2 = ShortHash(987654321);
 
 		// Act:
-		auto result1 = hasher(data1);
-		auto result2 = hasher(data2);
+		auto result1 = hasher(shortHash1);
+		auto result2 = hasher(shortHash2);
 
 		// Assert:
 		EXPECT_NE(result1, result2);

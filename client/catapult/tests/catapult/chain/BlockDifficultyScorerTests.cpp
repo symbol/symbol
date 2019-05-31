@@ -178,8 +178,7 @@ namespace catapult { namespace chain {
 				}
 
 				// Assert: the percentage change matches the expected change
-				CATAPULT_LOG(debug) << "sample = " << i << ", % change = " << percentageChange
-						<< ", difficulty = " << difficulty;
+				CATAPULT_LOG(debug) << "sample = " << i << ", % change = " << percentageChange << ", difficulty = " << difficulty;
 				EXPECT_EQ(expectedChange, percentageChange);
 
 				// Arrange: add new entry to difficulty set and update previous
@@ -332,7 +331,7 @@ namespace catapult { namespace chain {
 		EXPECT_EQ(Difficulty::Min() + Difficulty::Unclamped(7000), difficulty);
 	}
 
-	CACHE_OVERLOAD_TRAITS_BASED_TEST(CannotCalculateDifficultyIfStartingHeightIsNotInCache) {
+	CACHE_OVERLOAD_TRAITS_BASED_TEST(CannotCalculateDifficultyWhenStartingHeightIsNotInCache) {
 		// Arrange:
 		auto count = 10u;
 		cache::BlockDifficultyCache cache(count);

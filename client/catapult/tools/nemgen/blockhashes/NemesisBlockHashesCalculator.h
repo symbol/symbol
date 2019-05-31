@@ -23,7 +23,7 @@
 #include <vector>
 
 namespace catapult {
-	namespace config { class LocalNodeConfiguration; }
+	namespace config { class CatapultConfiguration; }
 	namespace model { struct BlockElement; }
 }
 
@@ -44,5 +44,5 @@ namespace catapult { namespace tools { namespace nemgen {
 	/// Calculates the block execution dependent hashes after executing nemesis \a blockElement for network configured with \a config.
 	BlockExecutionHashesInfo CalculateNemesisBlockExecutionHashes(
 			const model::BlockElement& blockElement,
-			const config::LocalNodeConfiguration& config);
+			const config::CatapultConfiguration& config);
 }}}

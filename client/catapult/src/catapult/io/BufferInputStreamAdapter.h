@@ -21,6 +21,7 @@
 #pragma once
 #include "Stream.h"
 #include "catapult/exceptions.h"
+#include <sstream>
 
 namespace catapult { namespace io {
 
@@ -41,10 +42,21 @@ namespace catapult { namespace io {
 		}
 
 	public:
+		bool eof() const override {
+			RawBuffer input(m_input);
+			return m_position == input.Size;
+		}
+
 		void read(const MutableRawBuffer& buffer) override {
 			RawBuffer input(m_input);
-			if (buffer.Size + m_position > input.Size)
-				CATAPULT_THROW_FILE_IO_ERROR("BufferInputStreamAdapter invalid read");
+			if (buffer.Size + m_position > input.Size) {
+				std::ostringstream out;
+				out
+						<< "BufferInputStreamAdapter invalid read (buffer-size = " << buffer.Size
+						<< ", position = " << m_position
+						<< ", input-size = " << input.Size << ")";
+				CATAPULT_THROW_FILE_IO_ERROR(out.str().c_str());
+			}
 
 			std::memcpy(buffer.pData, input.pData + m_position, buffer.Size);
 			m_position += buffer.Size;

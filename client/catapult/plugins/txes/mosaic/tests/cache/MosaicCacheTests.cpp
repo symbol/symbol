@@ -69,7 +69,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-		struct MosaicEntryModificationPolicy {
+		struct MosaicCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
 			static void Modify(MosaicCacheDelta& delta, const state::MosaicEntry& entry) {
 				auto mosaicIter = delta.find(entry.mosaicId());
 				auto& entryFromCache = mosaicIter.get();
@@ -95,9 +95,82 @@ namespace catapult { namespace cache {
 
 	DEFINE_CACHE_TOUCH_TESTS(MosaicCacheMixinTraits, _Delta)
 
-	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MosaicCacheMixinTraits, MosaicEntryModificationPolicy, _Delta)
+	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MosaicCacheMixinTraits, MosaicCacheDeltaModificationPolicy, _Delta)
 
 	DEFINE_CACHE_BASIC_TESTS(MosaicCacheMixinTraits,)
+
+	// endregion
+
+	// region remove
+
+	namespace {
+		constexpr size_t Default_Cache_Size = 10;
+
+		void PopulateCache(LockedCacheDelta<MosaicCacheDelta>& delta) {
+			for (uint8_t i = 0; i < Default_Cache_Size; ++i)
+				delta->insert(MosaicCacheMixinTraits::CreateWithIdAndExpiration(i + 1, Height(i + 1)));
+		}
+	}
+
+	TEST(TEST_CLASS, CanRemoveEternalMosaic) {
+		// Arrange: populate cache with some entries and insert eternal mosaic
+		MosaicCacheMixinTraits::CacheType cache;
+		{
+			auto delta = cache.createDelta();
+			PopulateCache(delta);
+			delta->insert(MosaicCacheMixinTraits::CreateWithId(15));
+
+			// Sanity:
+			EXPECT_EQ(Default_Cache_Size + 1, delta->size());
+			EXPECT_TRUE(delta->find(MosaicId(15)).get().definition().isEternal());
+
+			cache.commit();
+		}
+
+		{
+			// Act: remove mosaic with id 15
+			auto delta = cache.createDelta();
+			delta->remove(MosaicId(15));
+			cache.commit();
+		}
+
+		// Assert:
+		EXPECT_FALSE(cache.createView()->contains(MosaicId(15)));
+	}
+
+	TEST(TEST_CLASS, RemoveAndReinsertAddsNewEntryInHeightBasedMap) {
+		// Arrange: populate cache with some entries and insert mosaic with id 15 and expiry height 123
+		MosaicCacheMixinTraits::CacheType cache;
+		{
+			auto delta = cache.createDelta();
+			PopulateCache(delta);
+			delta->insert(MosaicCacheMixinTraits::CreateWithIdAndExpiration(15, Height(123)));
+
+			// Sanity:
+			EXPECT_EQ(Default_Cache_Size + 1, delta->size());
+			EXPECT_CONTAINS(delta->touch(Height(123)), MosaicId(15));
+
+			cache.commit();
+		}
+
+		{
+			// Act: remove mosaic with id 15
+			auto delta = cache.createDelta();
+			delta->remove(MosaicId(15));
+			cache.commit();
+		}
+
+		// Act: reinsert mosaic with id 15 and expiry height 234
+		auto delta = cache.createDelta();
+		delta->insert(MosaicCacheMixinTraits::CreateWithIdAndExpiration(15, Height(234)));
+
+		// Assert: height based entry at height 234 was added
+		auto deactivatingIds1 = delta->touch(Height(123));
+		EXPECT_TRUE(deactivatingIds1.empty());
+
+		auto deactivatingIds2 = delta->touch(Height(234));
+		EXPECT_CONTAINS(deactivatingIds2, MosaicId(15));
+	}
 
 	// endregion
 }}

@@ -169,7 +169,7 @@ namespace catapult { namespace observers {
 		AssertCumulativeImportance(*holder.Delta);
 	}
 
-	TEST(TEST_CLASS, PosSetsImportanceToZeroIfAccountBalanceIsBelowMinimum) {
+	TEST(TEST_CLASS, PosSetsImportanceToZeroWhenAccountBalanceIsBelowMinimum) {
 		// Arrange:
 		auto config = CreateConfiguration();
 		std::vector<Amount::ValueType> amounts;

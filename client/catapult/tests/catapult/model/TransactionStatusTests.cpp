@@ -28,7 +28,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateTransactionStatus) {
 		// Arrange + Act:
-		Hash256 hash = test::GenerateRandomData<Hash256_Size>();
+		Hash256 hash = test::GenerateRandomByteArray<Hash256>();
 		TransactionStatus result(hash, 123, Timestamp(234));
 
 		// Assert:
@@ -42,8 +42,8 @@ namespace catapult { namespace model {
 
 	namespace {
 		std::unordered_map<std::string, TransactionStatus> GenerateEqualityInstanceMap() {
-			auto hash1 = test::GenerateRandomData<Hash256_Size>();
-			auto hash2 = test::GenerateRandomData<Hash256_Size>();
+			auto hash1 = test::GenerateRandomByteArray<Hash256>();
+			auto hash2 = test::GenerateRandomByteArray<Hash256>();
 			return {
 				{ "default", TransactionStatus(hash1, 123, Timestamp(234)) },
 				{ "copy", TransactionStatus(hash1, 123, Timestamp(234)) },

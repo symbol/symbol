@@ -33,13 +33,19 @@ namespace catapult { namespace test {
 
 	/// Hash string of the deterministic transaction.
 #ifdef SIGNATURE_SCHEME_NIS1
-	constexpr auto Deterministic_Transaction_Hash_String = "070D67A92D441EAAD25AB5C78F1F68628BE33EAA1DEBEDBE14D4FBE8F4DC326E";
+	constexpr auto Deterministic_Transaction_Hash_String = "6EA6D56912DF29CDE28A182F091DC952CE4B74BFA1A4E11D1F606C79F4A57549";
 #else
-	constexpr auto Deterministic_Transaction_Hash_String = "8877DC5D8D21B6E007D640E703F47BD0C5E5D6D831E4F207539747F4E8D0426A";
+	constexpr auto Deterministic_Transaction_Hash_String = "928C1370941AAACE99C91D31D6C6B4FA511F83387C4DA99536F8F0B62545D755";
 #endif
+
+	/// Gets default generation hash used in tests.
+	GenerationHash GetDefaultGenerationHash();
 
 	/// Generates a transaction with random data.
 	std::unique_ptr<model::Transaction> GenerateRandomTransaction();
+
+	/// Generates a transaction for a network with specified generation hash (\a generationHash).
+	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const GenerationHash& generationHash);
 
 	/// Generates a transaction with random data around \a signer.
 	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const Key& signer);
@@ -58,9 +64,6 @@ namespace catapult { namespace test {
 
 	/// Generates a predefined transaction, i.e. this function will always return the same transaction.
 	std::unique_ptr<model::Transaction> GenerateDeterministicTransaction();
-
-	/// Creates a copy of \a transaction.
-	std::unique_ptr<model::Transaction> CopyTransaction(const model::Transaction& transaction);
 
 	/// Policy for creating a transaction.
 	struct TransactionPolicy {

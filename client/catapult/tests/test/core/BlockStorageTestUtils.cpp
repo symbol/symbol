@@ -20,12 +20,14 @@
 
 #include "BlockStorageTestUtils.h"
 #include "BlockTestUtils.h"
+#include "catapult/io/BlockStatementSerializer.h"
+#include "catapult/io/BufferInputStreamAdapter.h"
 
 namespace catapult { namespace test {
 
 	void SeedBlocks(io::BlockStorage& storage, Height startHeight, Height endHeight) {
 		for (auto height = startHeight; height <= endHeight; height = height + Height(1)) {
-			auto pBlock = GenerateBlockWithTransactionsAtHeight(height);
+			auto pBlock = GenerateBlockWithTransactions(5, height);
 			auto blockElement = BlockToBlockElement(*pBlock);
 			blockElement.EntityHash = Hash256();
 			blockElement.EntityHash[Hash256_Size - 1] = static_cast<uint8_t>(height.unwrap());
@@ -39,11 +41,25 @@ namespace catapult { namespace test {
 
 	model::BlockElement CreateBlockElementForSaveTests(const model::Block& block) {
 		// Arrange: create a block element with a random hash
-		auto blockElement = BlockToBlockElement(block, GenerateRandomData<Hash256_Size>());
-		blockElement.GenerationHash = GenerateRandomData<Hash256_Size>();
+		auto blockElement = BlockToBlockElement(block, GenerateRandomByteArray<Hash256>());
+		blockElement.GenerationHash = GenerateRandomByteArray<GenerationHash>();
 
 		// - give the first transaction a random hash too (the random hash should be saved)
-		blockElement.Transactions[0].EntityHash = GenerateRandomData<Hash256_Size>();
+		blockElement.Transactions[0].EntityHash = GenerateRandomByteArray<Hash256>();
 		return blockElement;
+	}
+
+	std::shared_ptr<const model::BlockElement> LoadBlockElementWithStatements(const io::BlockStorage& storage, Height height) {
+		auto pBlockElement = storage.loadBlockElement(height);
+		auto blockStatementPair = storage.loadBlockStatementData(height);
+
+		if (blockStatementPair.second) {
+			auto pBlockStatement = std::make_shared<model::BlockStatement>();
+			io::BufferInputStreamAdapter blockStatementStream(blockStatementPair.first);
+			io::ReadBlockStatement(blockStatementStream, *pBlockStatement);
+			const_cast<model::BlockElement&>(*pBlockElement).OptionalStatement = std::move(pBlockStatement);
+		}
+
+		return pBlockElement;
 	}
 }}

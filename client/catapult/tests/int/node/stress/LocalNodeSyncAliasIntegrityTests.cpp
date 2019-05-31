@@ -19,6 +19,7 @@
 **/
 
 #include "tests/int/node/stress/test/LocalNodeSyncIntegrityTestUtils.h"
+#include "tests/int/node/stress/test/TransactionsBuilder.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -27,7 +28,6 @@ namespace catapult { namespace local {
 #define TEST_CLASS LocalNodeSyncAliasIntegrityTests
 
 	namespace {
-		using Accounts = test::Accounts;
 		using BlockChainBuilder = test::BlockChainBuilder;
 		using Blocks = BlockChainBuilder::Blocks;
 	}
@@ -46,26 +46,28 @@ namespace catapult { namespace local {
 			EXPECT_EQ(Height(1), context.height());
 
 			// - prepare transactions
-			Accounts accounts(3);
-			auto stateHashCalculator = context.createStateHashCalculator();
-			BlockChainBuilder builder(accounts, stateHashCalculator);
+			test::Accounts accounts(3);
+			test::TransactionsBuilder transactionsBuilder(accounts);
 
 			// - make transfers to the accounts to be aliased so that they're in the account state cache
-			builder.addTransfer(0, 1, Amount(1));
-			builder.addTransfer(0, 2, Amount(1));
+			transactionsBuilder.addTransfer(0, 1, Amount(1));
+			transactionsBuilder.addTransfer(0, 2, Amount(1));
 
 			// -  make root namespaces and assign address aliases to each one
-			builder.addNamespace(0, "foo", BlockDuration(12), 1); // root "foo" namespace with alias for account 1
-			builder.addNamespace(0, "bar", BlockDuration(12), 2); // root "bar" namespace with alias for account 2
+			transactionsBuilder.addNamespace(0, "foo", BlockDuration(12), 1); // root "foo" namespace with alias for account 1
+			transactionsBuilder.addNamespace(0, "bar", BlockDuration(12), 2); // root "bar" namespace with alias for account 2
 
 			// - send direct
-			builder.addTransfer(0, 1, Amount(1'000'000));
-			builder.addTransfer(0, 2, Amount(900'000));
+			transactionsBuilder.addTransfer(0, 1, Amount(1'000'000));
+			transactionsBuilder.addTransfer(0, 2, Amount(900'000));
 
 			// - send via alias
-			builder.addTransfer(0, "foo", Amount(700'000));
-			builder.addTransfer(0, "bar", Amount(400'000));
-			auto pBlock = utils::UniqueToShared(builder.asSingleBlock());
+			transactionsBuilder.addTransfer(0, "foo", Amount(700'000));
+			transactionsBuilder.addTransfer(0, "bar", Amount(400'000));
+
+			auto stateHashCalculator = context.createStateHashCalculator();
+			BlockChainBuilder builder(accounts, stateHashCalculator);
+			auto pBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 
 			// Act:
 			test::ExternalSourceConnection connection;
@@ -116,45 +118,54 @@ namespace catapult { namespace local {
 	// region alias application + rollback
 
 	namespace {
+		auto CreateTimeSpan(uint64_t numSeconds) {
+			return utils::TimeSpan::FromSeconds(numSeconds);
+		}
+
 		template<typename TTestContext>
 		std::shared_ptr<model::Block> CreateBlockWithTwoAliasesAndTransfers(
 				const TTestContext& context,
+				const test::Accounts& accounts,
 				const BlockChainBuilder& builder,
 				const Blocks& seedBlocks,
-				Timestamp blockTimeInterval,
+				utils::TimeSpan blockTimeInterval,
 				size_t aliasId1,
 				size_t aliasId2) {
+			// 1. make root namespaces and assign address aliases to each one
+			test::TransactionsBuilder transactionsBuilder(accounts);
+			transactionsBuilder.addNamespace(0, "foo", BlockDuration(12), aliasId1); // root "foo" namespace with account `aliasId1` alias
+			transactionsBuilder.addNamespace(0, "bar", BlockDuration(12), aliasId2); // root "bar" namespace with account `aliasId2` alias
+
+			// 2. send via alias
+			transactionsBuilder.addTransfer(0, "foo", Amount(700'000));
+			transactionsBuilder.addTransfer(0, "bar", Amount(400'000));
+
+			// 3. create block
 			auto stateHashCalculator = context.createStateHashCalculator();
 			SeedStateHashCalculator(stateHashCalculator, seedBlocks);
 			auto builder2 = builder.createChainedBuilder(stateHashCalculator);
 			builder2.setBlockTimeInterval(blockTimeInterval);
-
-			// -  make root namespaces and assign address aliases to each one
-			builder2.addNamespace(0, "foo", BlockDuration(12), aliasId1); // root "foo" namespace with alias for account `aliasId1`
-			builder2.addNamespace(0, "bar", BlockDuration(12), aliasId2); // root "bar" namespace with alias for account `aliasId2`
-
-			// - send via alias
-			builder2.addTransfer(0, "foo", Amount(700'000));
-			builder2.addTransfer(0, "bar", Amount(400'000));
-			return utils::UniqueToShared(builder2.asSingleBlock());
+			return utils::UniqueToShared(builder2.asSingleBlock(transactionsBuilder));
 		}
 
 		template<typename TTestContext>
 		std::vector<Hash256> RunRollbackAliasTest(TTestContext& context) {
 			// Arrange:
 			std::vector<Hash256> stateHashes;
-			Accounts accounts(4);
+			test::Accounts accounts(4);
 
 			// - make transfers to the accounts to be aliased so that they're in the account state cache
 			std::unique_ptr<BlockChainBuilder> pBuilder1;
 			Blocks seedBlocks;
 			{
+				test::TransactionsBuilder transactionsBuilder(accounts);
+				transactionsBuilder.addTransfer(0, 1, Amount(1));
+				transactionsBuilder.addTransfer(0, 2, Amount(1));
+				transactionsBuilder.addTransfer(0, 3, Amount(1));
+
 				auto stateHashCalculator = context.createStateHashCalculator();
 				BlockChainBuilder builder(accounts, stateHashCalculator);
-				builder.addTransfer(0, 1, Amount(1));
-				builder.addTransfer(0, 2, Amount(1));
-				builder.addTransfer(0, 3, Amount(1));
-				auto pBlock = utils::UniqueToShared(builder.asSingleBlock());
+				auto pBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
 
 				test::ExternalSourceConnection connection;
 				auto pIo = test::PushEntity(connection, ionet::PacketType::Push_Block, pBlock);
@@ -168,8 +179,8 @@ namespace catapult { namespace local {
 			}
 
 			// - create two blocks with same aliases pointing to different accounts where (better) second block will yield better chain
-			auto pTailBlock1 = CreateBlockWithTwoAliasesAndTransfers(context, *pBuilder1, seedBlocks, Timestamp(60'000), 1, 2);
-			auto pTailBlock2 = CreateBlockWithTwoAliasesAndTransfers(context, *pBuilder1, seedBlocks, Timestamp(58'000), 2, 3);
+			auto pTailBlock1 = CreateBlockWithTwoAliasesAndTransfers(context, accounts, *pBuilder1, seedBlocks, CreateTimeSpan(60), 1, 2);
+			auto pTailBlock2 = CreateBlockWithTwoAliasesAndTransfers(context, accounts, *pBuilder1, seedBlocks, CreateTimeSpan(58), 2, 3);
 
 			// Act:
 			test::ExternalSourceConnection connection;

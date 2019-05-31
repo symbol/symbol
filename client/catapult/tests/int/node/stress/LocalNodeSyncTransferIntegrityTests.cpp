@@ -18,9 +18,12 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "sdk/src/extensions/BlockExtensions.h"
 #include "tests/int/node/stress/test/LocalNodeSyncIntegrityTestUtils.h"
+#include "tests/int/node/stress/test/TransactionsBuilder.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/nodeps/Nemesis.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace local {
@@ -28,21 +31,20 @@ namespace catapult { namespace local {
 #define TEST_CLASS LocalNodeSyncTransferIntegrityTests
 
 	namespace {
-		using Accounts = test::Accounts;
 		using BlockChainBuilder = test::BlockChainBuilder;
 		using Blocks = BlockChainBuilder::Blocks;
 
 		// region traits
 
 		struct SingleBlockTraits {
-			static auto GetBlocks(BlockChainBuilder& builder) {
-				return Blocks{ utils::UniqueToShared(builder.asSingleBlock()) };
+			static auto GetBlocks(BlockChainBuilder& builder, const test::TransactionsGenerator& transactionsGenerator) {
+				return Blocks{ utils::UniqueToShared(builder.asSingleBlock(transactionsGenerator)) };
 			}
 		};
 
 		struct MultiBlockTraits {
-			static auto GetBlocks(BlockChainBuilder& builder) {
-				return builder.asBlockChain();
+			static auto GetBlocks(BlockChainBuilder& builder, const test::TransactionsGenerator& transactionsGenerator) {
+				return builder.asBlockChain(transactionsGenerator);
 			}
 		};
 
@@ -60,7 +62,7 @@ namespace catapult { namespace local {
 			for (const auto* pPrivateKeyString : test::Mijin_Test_Private_Keys) {
 				auto keyPair = crypto::KeyPair::FromString(pPrivateKeyString);
 				if (keyPair.publicKey() == block.Signer) {
-					test::SignBlock(keyPair, block);
+					extensions::BlockExtensions(test::GetNemesisGenerationHash()).signFullBlock(keyPair, block);
 					return;
 				}
 			}
@@ -85,15 +87,17 @@ namespace catapult { namespace local {
 			EXPECT_EQ(Height(1), context.height());
 
 			// - prepare transfers (all transfers are dependent on previous transfer)
-			Accounts accounts(6);
+			test::Accounts accounts(6);
+			test::TransactionsBuilder transactionsBuilder(accounts);
+			transactionsBuilder.addTransfer(0, 1, Amount(1'000'000));
+			transactionsBuilder.addTransfer(1, 2, Amount(900'000));
+			transactionsBuilder.addTransfer(2, 3, Amount(700'000));
+			transactionsBuilder.addTransfer(3, 4, Amount(400'000));
+			transactionsBuilder.addTransfer(4, 5, Amount(50'000));
+
 			auto stateHashCalculator = context.createStateHashCalculator();
 			BlockChainBuilder builder(accounts, stateHashCalculator);
-			builder.addTransfer(0, 1, Amount(1'000'000));
-			builder.addTransfer(1, 2, Amount(900'000));
-			builder.addTransfer(2, 3, Amount(700'000));
-			builder.addTransfer(3, 4, Amount(400'000));
-			builder.addTransfer(4, 5, Amount(50'000));
-			auto blocks = TTraits::GetBlocks(builder);
+			auto blocks = TTraits::GetBlocks(builder, transactionsBuilder);
 
 			// Act:
 			test::ExternalSourceConnection connection;
@@ -147,7 +151,7 @@ namespace catapult { namespace local {
 		template<typename TTraits, typename TTestContext>
 		std::pair<BlockChainBuilder, Blocks> PrepareFiveChainedTransfers(
 				TTestContext& context,
-				const Accounts& accounts,
+				const test::Accounts& accounts,
 				test::StateHashCalculator& stateHashCalculator) {
 			// Arrange:
 			test::WaitForBoot(context);
@@ -156,13 +160,15 @@ namespace catapult { namespace local {
 			EXPECT_EQ(Height(1), context.height());
 
 			// - prepare transfers (all transfers are dependent on previous transfer)
+			test::TransactionsBuilder transactionsBuilder(accounts);
+			transactionsBuilder.addTransfer(0, 1, Amount(1'000'000));
+			transactionsBuilder.addTransfer(1, 2, Amount(900'000));
+			transactionsBuilder.addTransfer(2, 3, Amount(700'000));
+			transactionsBuilder.addTransfer(3, 4, Amount(400'000));
+			transactionsBuilder.addTransfer(4, 5, Amount(50'000));
+
 			BlockChainBuilder builder(accounts, stateHashCalculator);
-			builder.addTransfer(0, 1, Amount(1'000'000));
-			builder.addTransfer(1, 2, Amount(900'000));
-			builder.addTransfer(2, 3, Amount(700'000));
-			builder.addTransfer(3, 4, Amount(400'000));
-			builder.addTransfer(4, 5, Amount(50'000));
-			auto blocks = TTraits::GetBlocks(builder);
+			auto blocks = TTraits::GetBlocks(builder, transactionsBuilder);
 
 			// Act:
 			test::ExternalSourceConnection connection;
@@ -177,7 +183,7 @@ namespace catapult { namespace local {
 		std::vector<Hash256> RunRollbackTest(TTestContext& context) {
 			// Arrange:
 			std::vector<Hash256> stateHashes;
-			Accounts accounts(6);
+			test::Accounts accounts(6);
 			{
 				// - always use SingleBlockTraits because a push can rollback at most one block
 				auto stateHashCalculator = context.createStateHashCalculator();
@@ -186,20 +192,24 @@ namespace catapult { namespace local {
 			}
 
 			// - prepare transfers (all are from nemesis)
+			test::TransactionsBuilder transactionsBuilder1(accounts);
+			transactionsBuilder1.addTransfer(0, 1, Amount(1'000'000));
+			transactionsBuilder1.addTransfer(0, 2, Amount(900'000));
+			transactionsBuilder1.addTransfer(0, 3, Amount(700'000));
+			transactionsBuilder1.addTransfer(0, 4, Amount(400'000));
+			transactionsBuilder1.addTransfer(0, 5, Amount(50'000));
+
 			auto stateHashCalculator = context.createStateHashCalculator();
 			BlockChainBuilder builder1(accounts, stateHashCalculator);
-			builder1.setBlockTimeInterval(Timestamp(58'000)); // better block time will yield better chain
-			builder1.addTransfer(0, 1, Amount(1'000'000));
-			builder1.addTransfer(0, 2, Amount(900'000));
-			builder1.addTransfer(0, 3, Amount(700'000));
-			builder1.addTransfer(0, 4, Amount(400'000));
-			builder1.addTransfer(0, 5, Amount(50'000));
-			auto blocks = TTraits::GetBlocks(builder1);
+			builder1.setBlockTimeInterval(utils::TimeSpan::FromSeconds(58)); // better block time will yield better chain
+			auto blocks = TTraits::GetBlocks(builder1, transactionsBuilder1);
 
 			// - prepare a transfer that can only attach to rollback case
+			test::TransactionsBuilder transactionsBuilder2(accounts);
+			transactionsBuilder2.addTransfer(2, 4, Amount(350'000));
+
 			auto builder2 = builder1.createChainedBuilder();
-			builder2.addTransfer(2, 4, Amount(350'000));
-			auto pTailBlock = utils::UniqueToShared(builder2.asSingleBlock());
+			auto pTailBlock = utils::UniqueToShared(builder2.asSingleBlock(transactionsBuilder2));
 
 			// Act:
 			test::ExternalSourceConnection connection;
@@ -255,7 +265,7 @@ namespace catapult { namespace local {
 		std::vector<Hash256> RunRejectInvalidApplyTest(TTestContext& context, TGenerateInvalidBlocks generateInvalidBlocks) {
 			// Arrange:
 			std::vector<Hash256> stateHashes;
-			Accounts accounts(6);
+			test::Accounts accounts(6);
 			std::unique_ptr<BlockChainBuilder> pBuilder1;
 			Blocks seedBlocks;
 			{
@@ -274,7 +284,7 @@ namespace catapult { namespace local {
 
 				// - prepare invalid blocks
 				auto builder2 = pBuilder1->createChainedBuilder(stateHashCalculator);
-				invalidBlocks = generateInvalidBlocks(builder2);
+				invalidBlocks = generateInvalidBlocks(accounts, builder2);
 			}
 
 			std::shared_ptr<model::Block> pTailBlock;
@@ -283,9 +293,11 @@ namespace catapult { namespace local {
 				test::SeedStateHashCalculator(stateHashCalculator, seedBlocks);
 
 				// - prepare a transfer that can only attach to initial blocks
+				test::TransactionsBuilder transactionsBuilder3(accounts);
+				transactionsBuilder3.addTransfer(1, 2, Amount(91'000));
+
 				auto builder3 = pBuilder1->createChainedBuilder(stateHashCalculator);
-				builder3.addTransfer(1, 2, Amount(91'000));
-				pTailBlock = utils::UniqueToShared(builder3.asSingleBlock());
+				pTailBlock = utils::UniqueToShared(builder3.asSingleBlock(transactionsBuilder3));
 			}
 
 			// Act:
@@ -312,12 +324,13 @@ namespace catapult { namespace local {
 		template<typename TTraits, typename TTestContext>
 		std::vector<Hash256> RunRejectInvalidValidationApplyTest(TTestContext& context) {
 			// Act + Assert:
-			return RunRejectInvalidApplyTest<TTraits>(context, [](auto& builder) {
+			return RunRejectInvalidApplyTest<TTraits>(context, [](const auto& accounts, auto& builder) {
 				// Arrange: prepare three transfers, where second is invalid
-				builder.addTransfer(1, 5, Amount(90'000));
-				builder.addTransfer(2, 5, Amount(200'001));
-				builder.addTransfer(3, 5, Amount(80'000));
-				return TTraits::GetBlocks(builder);
+				test::TransactionsBuilder transactionsBuilder(accounts);
+				transactionsBuilder.addTransfer(1, 5, Amount(90'000));
+				transactionsBuilder.addTransfer(2, 5, Amount(200'001));
+				transactionsBuilder.addTransfer(3, 5, Amount(80'000));
+				return TTraits::GetBlocks(builder, transactionsBuilder);
 			});
 		}
 	}
@@ -353,12 +366,13 @@ namespace catapult { namespace local {
 		template<typename TTraits, typename TTestContext>
 		std::vector<Hash256> RunRejectInvalidStateHashApplyTest(TTestContext& context) {
 			// Act + Assert:
-			return RunRejectInvalidApplyTest<TTraits>(context, [](auto& builder) {
+			return RunRejectInvalidApplyTest<TTraits>(context, [](const auto& accounts, auto& builder) {
 				// Arrange: prepare three valid transfers
-				builder.addTransfer(1, 5, Amount(90'000));
-				builder.addTransfer(2, 5, Amount(80'000));
-				builder.addTransfer(3, 5, Amount(80'000));
-				auto blocks = TTraits::GetBlocks(builder);
+				test::TransactionsBuilder transactionsBuilder(accounts);
+				transactionsBuilder.addTransfer(1, 5, Amount(90'000));
+				transactionsBuilder.addTransfer(2, 5, Amount(80'000));
+				transactionsBuilder.addTransfer(3, 5, Amount(80'000));
+				auto blocks = TTraits::GetBlocks(builder, transactionsBuilder);
 
 				// - corrupt state hash of last block
 				test::FillWithRandomData(blocks.back()->StateHash);
@@ -400,7 +414,7 @@ namespace catapult { namespace local {
 		std::vector<Hash256> RunRejectInvalidRollbackTest(TTestContext& context, TGenerateInvalidBlocks generateInvalidBlocks) {
 			// Arrange:
 			std::vector<Hash256> stateHashes;
-			Accounts accounts(6);
+			test::Accounts accounts(6);
 			std::unique_ptr<BlockChainBuilder> pBuilder1;
 			Blocks seedBlocks;
 			{
@@ -419,8 +433,8 @@ namespace catapult { namespace local {
 				BlockChainBuilder builder2(accounts, stateHashCalculator);
 
 				// - prepare invalid blocks
-				builder2.setBlockTimeInterval(Timestamp(58'000)); // better block time will yield better chain
-				invalidBlocks = generateInvalidBlocks(builder2);
+				builder2.setBlockTimeInterval(utils::TimeSpan::FromSeconds(58)); // better block time will yield better chain
+				invalidBlocks = generateInvalidBlocks(accounts, builder2);
 			}
 
 			std::shared_ptr<model::Block> pTailBlock;
@@ -429,9 +443,11 @@ namespace catapult { namespace local {
 				test::SeedStateHashCalculator(stateHashCalculator, seedBlocks);
 
 				// - prepare a transfer that can only attach to initial blocks
+				test::TransactionsBuilder transactionsBuilder3(accounts);
+				transactionsBuilder3.addTransfer(1, 2, Amount(91'000));
+
 				auto builder3 = pBuilder1->createChainedBuilder(stateHashCalculator);
-				builder3.addTransfer(1, 2, Amount(91'000));
-				pTailBlock = utils::UniqueToShared(builder3.asSingleBlock());
+				pTailBlock = utils::UniqueToShared(builder3.asSingleBlock(transactionsBuilder3));
 			}
 
 			// Act:
@@ -458,14 +474,15 @@ namespace catapult { namespace local {
 		template<typename TTraits, typename TTestContext>
 		std::vector<Hash256> RunRejectInvalidValidationRollbackTest(TTestContext& context) {
 			// Act + Assert:
-			return RunRejectInvalidRollbackTest<TTraits>(context, [](auto& builder) {
+			return RunRejectInvalidRollbackTest<TTraits>(context, [](const auto& accounts, auto& builder) {
 				// Arrange: prepare five transfers, where third is invalid
-				builder.addTransfer(0, 1, Amount(10'000));
-				builder.addTransfer(0, 2, Amount(900'000));
-				builder.addTransfer(2, 3, Amount(900'001));
-				builder.addTransfer(0, 4, Amount(400'000));
-				builder.addTransfer(0, 5, Amount(50'000));
-				return TTraits::GetBlocks(builder);
+				test::TransactionsBuilder transactionsBuilder(accounts);
+				transactionsBuilder.addTransfer(0, 1, Amount(10'000));
+				transactionsBuilder.addTransfer(0, 2, Amount(900'000));
+				transactionsBuilder.addTransfer(2, 3, Amount(900'001));
+				transactionsBuilder.addTransfer(0, 4, Amount(400'000));
+				transactionsBuilder.addTransfer(0, 5, Amount(50'000));
+				return TTraits::GetBlocks(builder, transactionsBuilder);
 			});
 		}
 	}
@@ -501,14 +518,15 @@ namespace catapult { namespace local {
 		template<typename TTraits, typename TTestContext>
 		std::vector<Hash256> RunRejectInvalidStateHashRollbackTest(TTestContext& context) {
 			// Act + Assert:
-			return RunRejectInvalidRollbackTest<TTraits>(context, [](auto& builder) {
+			return RunRejectInvalidRollbackTest<TTraits>(context, [](const auto& accounts, auto& builder) {
 				// Arrange: prepare five valid transfers
-				builder.addTransfer(0, 1, Amount(10'000));
-				builder.addTransfer(0, 2, Amount(900'000));
-				builder.addTransfer(0, 3, Amount(900'001));
-				builder.addTransfer(0, 4, Amount(400'000));
-				builder.addTransfer(0, 5, Amount(50'000));
-				auto blocks = TTraits::GetBlocks(builder);
+				test::TransactionsBuilder transactionsBuilder(accounts);
+				transactionsBuilder.addTransfer(0, 1, Amount(10'000));
+				transactionsBuilder.addTransfer(0, 2, Amount(900'000));
+				transactionsBuilder.addTransfer(0, 3, Amount(900'001));
+				transactionsBuilder.addTransfer(0, 4, Amount(400'000));
+				transactionsBuilder.addTransfer(0, 5, Amount(50'000));
+				auto blocks = TTraits::GetBlocks(builder, transactionsBuilder);
 
 				// - corrupt state hash of last block
 				test::FillWithRandomData(blocks.back()->StateHash);

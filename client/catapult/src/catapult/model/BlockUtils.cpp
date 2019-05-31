@@ -47,13 +47,13 @@ namespace catapult { namespace model {
 		builder.final(blockTransactionsHash);
 	}
 
-	Hash256 CalculateGenerationHash(const Hash256& previousGenerationHash, const Key& publicKey) {
-		Hash256 hash;
-		crypto::Sha3_256_Builder sha3;
-		sha3.update(previousGenerationHash);
-		sha3.update(publicKey);
-		sha3.final(hash);
-		return hash;
+	GenerationHash CalculateGenerationHash(const GenerationHash& previousGenerationHash, const Key& publicKey) {
+		GenerationHash generationHash;
+		crypto::GenerationHash_Builder hasher;
+		hasher.update(previousGenerationHash);
+		hasher.update(publicKey);
+		hasher.final(generationHash);
+		return generationHash;
 	}
 
 	// endregion

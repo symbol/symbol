@@ -33,6 +33,6 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ("foo dispatcher", options.DispatcherName);
 		EXPECT_EQ(123u, options.DisruptorSize);
 		EXPECT_EQ(1u, options.ElementTraceInterval);
-		EXPECT_TRUE(options.ShouldThrowIfFull);
+		EXPECT_TRUE(options.ShouldThrowWhenFull);
 	}
 }}

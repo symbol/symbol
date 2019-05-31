@@ -4,6 +4,7 @@ catapult_library_target(catapult.chain)
 target_link_libraries(catapult.chain
 	catapult.api
 	catapult.cache_core
+	catapult.cache_tx
 	catapult.disruptor
 	catapult.model
 	catapult.observers

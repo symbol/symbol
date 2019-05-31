@@ -79,7 +79,7 @@ namespace catapult { namespace chain {
 				partialtransaction::CosignedTransactionInfos transactionInfos;
 				for (auto i = 0u; i < count; ++i) {
 					model::CosignedTransactionInfo transactionInfo;
-					transactionInfo.EntityHash = test::GenerateRandomData<Hash256_Size>();
+					transactionInfo.EntityHash = test::GenerateRandomByteArray<Hash256>();
 					transactionInfos.push_back(transactionInfo);
 				}
 

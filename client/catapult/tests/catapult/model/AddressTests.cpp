@@ -64,7 +64,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_TRUE(IsValidAddress(decoded, Network_Identifier));
-		EXPECT_EQ(expectedHex, test::ToHexString(decoded));
+		EXPECT_EQ(expectedHex, test::ToString(decoded));
 	}
 
 	TEST(TEST_CLASS, CannotCreateAddressFromEncodedStringWithWrongLength) {
@@ -120,7 +120,7 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_TRUE(IsValidAddress(decoded, NetworkIdentifier::Mijin));
 		EXPECT_EQ(decoded[0], utils::to_underlying_type(networkId));
-		EXPECT_EQ(expected, test::ToHexString(decoded));
+		EXPECT_EQ(expected, test::ToString(decoded));
 	}
 
 	TEST(TEST_CLASS, CanCreateAddressFromPublicKeyForCustomNetwork) {
@@ -139,7 +139,7 @@ namespace catapult { namespace model {
 		// Assert:
 		EXPECT_TRUE(IsValidAddress(decoded, networkId));
 		EXPECT_EQ(decoded[0], utils::to_underlying_type(networkId));
-		EXPECT_EQ(expected, test::ToHexString(decoded));
+		EXPECT_EQ(expected, test::ToString(decoded));
 	}
 
 	TEST(TEST_CLASS, AddressCalculationIsDeterministic) {
@@ -157,8 +157,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, DifferentPublicKeysResultInDifferentAddresses) {
 		// Arrange:
-		auto pubKey1 = test::GenerateRandomData<Key_Size>();
-		auto pubKey2 = test::GenerateRandomData<Key_Size>();
+		auto pubKey1 = test::GenerateRandomByteArray<Key>();
+		auto pubKey2 = test::GenerateRandomByteArray<Key>();
 
 		// Act:
 		auto decoded1 = PublicKeyToAddress(pubKey1, Network_Identifier);
@@ -172,7 +172,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, DifferentNetworksResultInDifferentAddresses) {
 		// Arrange:
-		auto pubKey = test::GenerateRandomData<Key_Size>();
+		auto pubKey = test::GenerateRandomByteArray<Key>();
 
 		// Act:
 		auto decoded1 = PublicKeyToAddress(pubKey, NetworkIdentifier::Public);

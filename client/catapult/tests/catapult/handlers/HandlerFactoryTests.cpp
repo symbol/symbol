@@ -107,7 +107,7 @@ namespace catapult { namespace handlers {
 			});
 
 			// Sanity: the handler was registered
-			EXPECT_EQ(1u, handlers.size()) ;
+			EXPECT_EQ(1u, handlers.size());
 			EXPECT_TRUE(handlers.canProcess(Valid_Packet_Type));
 
 			// Act:
@@ -161,7 +161,7 @@ namespace catapult { namespace handlers {
 			});
 
 			// Sanity: the handler was registered
-			EXPECT_EQ(1u, handlers.size()) ;
+			EXPECT_EQ(1u, handlers.size());
 			EXPECT_TRUE(handlers.canProcess(Valid_Packet_Type));
 
 			// Act:
@@ -287,7 +287,7 @@ namespace catapult { namespace handlers {
 			});
 
 			// Sanity: the handler was registered
-			EXPECT_EQ(1u, handlers.size()) ;
+			EXPECT_EQ(1u, handlers.size());
 			EXPECT_TRUE(handlers.canProcess(Valid_Packet_Type));
 
 			// Act:

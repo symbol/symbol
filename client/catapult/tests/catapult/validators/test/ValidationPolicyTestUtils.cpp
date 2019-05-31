@@ -25,18 +25,18 @@
 namespace catapult { namespace test {
 
 	namespace {
-		auto GenerateRandomBlockWithTransactions(size_t count) {
+		auto GenerateBlockWithTransactions(size_t count) {
 			auto transactions = GenerateRandomTransactions(count);
 			size_t i = 0;
 			for (const auto& pTransaction : transactions)
 				pTransaction->Deadline = Timestamp(i++); // use deadline as a unique entity id
 
-			return test::GenerateRandomBlockWithTransactions(transactions);
+			return test::GenerateBlockWithTransactions(transactions);
 		}
 	}
 
 	EntityInfoContainerWrapper::EntityInfoContainerWrapper(size_t count)
-			: m_pBlock(GenerateRandomBlockWithTransactions(count))
+			: m_pBlock(GenerateBlockWithTransactions(count))
 			, m_container(m_pBlock->Transactions())
 			, m_hashes(count) {
 		for (auto i = 0u; i < count; ++i)

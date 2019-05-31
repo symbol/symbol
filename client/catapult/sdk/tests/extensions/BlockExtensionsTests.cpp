@@ -19,11 +19,14 @@
 **/
 
 #include "src/extensions/BlockExtensions.h"
+#include "src/extensions/TransactionExtensions.h"
 #include "catapult/crypto/MerkleHashBuilder.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/EntityHasher.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/mocks/MockTransactionPluginWithCustomBuffers.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {
@@ -36,19 +39,23 @@ namespace catapult { namespace extensions {
 			Hash256 MerkleComponentHash;
 		};
 
+		GenerationHash GetNetworkGenerationHash() {
+			return utils::ParseByteArray<GenerationHash>("CE076EF4ABFBC65B046987429E274EC31506D173E91BF102F16BEB7FB8176230");
+		}
+
 		struct BasicTraits {
 		public:
 			template<typename TAction>
 			static void RunExtensionsTest(TAction action) {
 				// Act:
-				action(BlockExtensions());
+				action(BlockExtensions(GetNetworkGenerationHash()));
 			}
 
 			static Hash256 CalculateExpectedBlockTransactionsHash(const model::Block& block) {
 				// calculate the expected block transactions hash
 				crypto::MerkleHashBuilder builder;
 				for (const auto& transaction : block.Transactions())
-					builder.update(model::CalculateHash(transaction));
+					builder.update(model::CalculateHash(transaction, GetNetworkGenerationHash()));
 
 				Hash256 expectedBlockTransactionsHash;
 				builder.final(expectedBlockTransactionsHash);
@@ -57,7 +64,7 @@ namespace catapult { namespace extensions {
 
 			static TransactionHashes CalculateTransactionHashes(const model::Transaction& transaction) {
 				TransactionHashes hashes;
-				hashes.EntityHash = model::CalculateHash(transaction);
+				hashes.EntityHash = model::CalculateHash(transaction, GetNetworkGenerationHash());
 				hashes.MerkleComponentHash = hashes.EntityHash;
 				return hashes;
 			}
@@ -71,7 +78,7 @@ namespace catapult { namespace extensions {
 				auto transactionRegistry = CreateCustomTransactionRegistry();
 
 				// Act:
-				action(BlockExtensions(transactionRegistry));
+				action(BlockExtensions(GetNetworkGenerationHash(), transactionRegistry));
 			}
 
 			static Hash256 CalculateExpectedBlockTransactionsHash(const model::Block& block) {
@@ -80,7 +87,7 @@ namespace catapult { namespace extensions {
 				crypto::MerkleHashBuilder builder;
 				for (const auto& transaction : block.Transactions()) {
 					auto transactionElement = model::TransactionElement(transaction);
-					model::UpdateHashes(transactionRegistry, transactionElement);
+					model::UpdateHashes(transactionRegistry, GetNetworkGenerationHash(), transactionElement);
 					builder.update(transactionElement.MerkleComponentHash);
 				}
 
@@ -94,7 +101,7 @@ namespace catapult { namespace extensions {
 				const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
 
 				TransactionHashes hashes;
-				hashes.EntityHash = model::CalculateHash(transaction, plugin.dataBuffer(transaction));
+				hashes.EntityHash = model::CalculateHash(transaction, GetNetworkGenerationHash(), plugin.dataBuffer(transaction));
 				hashes.MerkleComponentHash = model::CalculateMerkleComponentHash(transaction, hashes.EntityHash, transactionRegistry);
 				return hashes;
 			}
@@ -126,7 +133,7 @@ namespace catapult { namespace extensions {
 			// generate transactions
 			test::ConstTransactions transactions;
 			for (auto i = 1u; i <= numTransactions; ++i) {
-				auto pTransaction = test::GenerateRandomTransaction();
+				auto pTransaction = test::GenerateRandomTransaction(GetNetworkGenerationHash());
 				transactions.push_back(std::move(pTransaction));
 			}
 
@@ -144,8 +151,8 @@ namespace catapult { namespace extensions {
 			return CreateValidBlock<TTraits>(test::GenerateKeyPair(), numTransactions);
 		}
 
-		auto GenerateRandomBlockWithTransactions() {
-			return test::GenerateBlockWithTransactionsAtHeight(7, 7);
+		auto GenerateBlockWithTransactions() {
+			return test::GenerateBlockWithTransactions(7, Height(7));
 		}
 	}
 
@@ -155,7 +162,7 @@ namespace catapult { namespace extensions {
 		template<typename TTraits, typename THashCalculator>
 		void AssertBlockTransactionsHashCalculation(THashCalculator blockTransactionsHashCalculator) {
 			// Arrange: generate a random block and calculate the expected block transactions hash
-			auto pBlock = GenerateRandomBlockWithTransactions();
+			auto pBlock = GenerateBlockWithTransactions();
 			pBlock->BlockTransactionsHash = Hash256();
 			auto expectedBlockTransactionsHash = TTraits::CalculateExpectedBlockTransactionsHash(*pBlock);
 
@@ -217,8 +224,8 @@ namespace catapult { namespace extensions {
 			auto result = extensions.verifyFullBlock(*pBlock);
 
 			// Assert: fields have been updated and it is verifiable
-			EXPECT_NE(Signature{}, pBlock->Signature);
-			EXPECT_NE(Hash256{}, pBlock->BlockTransactionsHash);
+			EXPECT_NE(Signature(), pBlock->Signature);
+			EXPECT_NE(Hash256(), pBlock->BlockTransactionsHash);
 			EXPECT_EQ(VerifyFullBlockResult::Success, result);
 		});
 	}
@@ -289,16 +296,32 @@ namespace catapult { namespace extensions {
 		});
 	}
 
+	REGISTRY_DEPENDENT_TEST(VerifyFullBlockFailsWhenGenerationHashIsAltered) {
+		// Arrange:
+		TTraits::RunExtensionsTest([](const auto& extensions) {
+			auto pBlock = CreateValidBlock<TTraits>();
+
+			// Sanity:
+			EXPECT_EQ(VerifyFullBlockResult::Success, extensions.verifyFullBlock(*pBlock));
+
+			// Act:
+			auto result = BlockExtensions(test::GenerateRandomByteArray<GenerationHash>()).verifyFullBlock(*pBlock);
+
+			// Assert:
+			EXPECT_EQ(VerifyFullBlockResult::Invalid_Block_Transactions_Hash, result);
+		});
+	}
+
 	// endregion
 
 	// region ConvertBlockToBlockElement
 
 	namespace {
 		model::BlockElement AssertBlockToBlockElementConversionExcludingTransactions(
-					const BlockExtensions& extensions,
-					const model::Block& block) {
+				const BlockExtensions& extensions,
+				const model::Block& block) {
 			// Arrange:
-			auto generationHash = test::GenerateRandomData<Hash256_Size>();
+			auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
 
 			// Act:
 			auto element = extensions.convertBlockToBlockElement(block, generationHash);
@@ -359,10 +382,11 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, DeterministicBlockIsFullyVerifiable) {
 		// Arrange:
+		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
 		auto pBlock = test::GenerateDeterministicBlock();
 
 		// Act: deterministic block does not contain any aggregate transactions, so no transaction registry is required
-		auto result = BlockExtensions().verifyFullBlock(*pBlock);
+		auto result = BlockExtensions(generationHash).verifyFullBlock(*pBlock);
 
 		// Assert:
 		EXPECT_EQ(VerifyFullBlockResult::Success, result);

@@ -20,16 +20,14 @@
 
 #pragma once
 #include "extensions/mongo/src/MongoBulkWriter.h"
+#include "extensions/mongo/src/MongoStorageContext.h"
 #include "extensions/mongo/src/MongoTransactionPlugin.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include <mongocxx/client.hpp>
 
 namespace catapult {
 	namespace model { struct TransactionInfo; }
-	namespace mongo {
-		class MongoStorageContext;
-		class MongoTransactionRegistry;
-	}
+	namespace mongo { class MongoTransactionRegistry; }
 	namespace state { struct AccountState; }
 }
 
@@ -97,12 +95,13 @@ namespace catapult { namespace test {
 	template<typename TStorage>
 	using StorageFactory = std::function<std::unique_ptr<TStorage> (mongo::MongoStorageContext&, const mongo::MongoTransactionRegistry&)>;
 
-	/// Creates a mongo transaction storage around \a pTransactionPlugin using \a dbInitializationType for initializing the database
-	/// and \a storageFactory to create the storage.
+	/// Creates a mongo storage around \a pTransactionPlugin using \a dbInitializationType for initializing the database,
+	/// the specified error policy mode (\a errorPolicyMode) for inspecting errors and \a storageFactory to create the storage.
 	template<typename TStorage>
 	std::shared_ptr<TStorage> CreateMongoStorage(
 			std::unique_ptr<mongo::MongoTransactionPlugin>&& pTransactionPlugin,
 			DbInitializationType dbInitializationType,
+			mongo::MongoErrorPolicy::Mode errorPolicyMode,
 			const StorageFactory<TStorage>& storageFactory) {
 		if (test::DbInitializationType::Reset == dbInitializationType)
 			ResetDatabase(DatabaseName());
@@ -110,7 +109,7 @@ namespace catapult { namespace test {
 			PrepareDatabase(DatabaseName());
 
 		auto pWriter = mongo::MongoBulkWriter::Create(DefaultDbUri(), DatabaseName(), CreateStartedIoThreadPool(8));
-		auto pMongoContext = std::make_shared<mongo::MongoStorageContext>(DefaultDbUri(), DatabaseName(), pWriter);
+		auto pMongoContext = std::make_shared<mongo::MongoStorageContext>(DefaultDbUri(), DatabaseName(), pWriter, errorPolicyMode);
 
 		auto pRegistry = std::make_shared<mongo::MongoTransactionRegistry>();
 		pRegistry->registerPlugin(std::move(pTransactionPlugin));

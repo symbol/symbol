@@ -19,8 +19,8 @@
 **/
 
 #include "LocalNodeTestUtils.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
-#include "catapult/local/BasicLocalNode.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
+#include "tests/test/local/NetworkTestUtils.h"
 
 namespace catapult { namespace test {
 
@@ -86,23 +86,37 @@ namespace catapult { namespace test {
 		return ionet::Node(LoadPartnerServerKeyPair().publicKey(), CreateLocalHostNodeEndpoint(GetLocalHostPort() + 10), metadata);
 	}
 
-	std::unique_ptr<local::BootedLocalNode> BootLocalPartnerNode(
-			const std::string& dataDirectory,
+	std::unique_ptr<local::LocalNode> BootLocalPartnerNode(
+			config::CatapultConfiguration&& config,
 			const crypto::KeyPair& keyPair,
 			NodeFlag nodeFlag) {
 		// partner node is a P2P node on offset ports
-		auto config = CreateLocalNodeConfiguration(dataDirectory);
 		const_cast<uint16_t&>(config.Node.Port) += 10;
 		const_cast<uint16_t&>(config.Node.ApiPort) += 10;
 
 		// make additional configuration modifications
-		PrepareLocalNodeConfiguration(config, AddSimplePartnerPluginExtensions, nodeFlag);
+		PrepareCatapultConfiguration(config, AddSimplePartnerPluginExtensions, nodeFlag);
 
-		const auto& resourcesPath = dataDirectory + "/resources";
-		auto pBootstrapper = std::make_unique<extensions::LocalNodeBootstrapper>(std::move(config), resourcesPath, "Partner");
+		const auto& resourcesPath = config.User.DataDirectory + "/resources";
+		auto disposition = extensions::ProcessDisposition::Production;
+		auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(std::move(config), resourcesPath, disposition, "Partner");
 		pBootstrapper->loadExtensions();
 
-		return local::CreateBasicLocalNode(keyPair, std::move(pBootstrapper));
+		return local::CreateLocalNode(keyPair, std::move(pBootstrapper));
+	}
+
+	void PrepareCatapultConfiguration(config::CatapultConfiguration& config, NodeFlag nodeFlag) {
+		if (HasFlag(NodeFlag::Cache_Database_Storage, nodeFlag))
+			const_cast<config::NodeConfiguration&>(config.Node).ShouldUseCacheDatabaseStorage = true;
+
+		if (HasFlag(NodeFlag::Verify_Receipts, nodeFlag))
+			const_cast<model::BlockChainConfiguration&>(config.BlockChain).ShouldEnableVerifiableReceipts = true;
+
+		if (HasFlag(NodeFlag::Verify_State, nodeFlag))
+			const_cast<model::BlockChainConfiguration&>(config.BlockChain).ShouldEnableVerifiableState = true;
+
+		if (HasFlag(NodeFlag::Auto_Sync_Cleanup, nodeFlag))
+			const_cast<config::NodeConfiguration&>(config.Node).ShouldEnableAutoSyncCleanup = true;
 	}
 
 	// endregion

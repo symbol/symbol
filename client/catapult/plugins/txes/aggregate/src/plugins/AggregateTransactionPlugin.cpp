@@ -35,8 +35,12 @@ namespace catapult { namespace plugins {
 
 		class AggregateTransactionPlugin : public TransactionPlugin {
 		public:
-			AggregateTransactionPlugin(const TransactionRegistry& transactionRegistry, model::EntityType transactionType)
+			AggregateTransactionPlugin(
+					const TransactionRegistry& transactionRegistry,
+					const utils::TimeSpan& maxTransactionLifetime,
+					EntityType transactionType)
 					: m_transactionRegistry(transactionRegistry)
+					, m_maxTransactionLifetime(maxTransactionLifetime)
 					, m_transactionType(transactionType)
 			{}
 
@@ -45,17 +49,17 @@ namespace catapult { namespace plugins {
 				return m_transactionType;
 			}
 
+			TransactionAttributes attributes() const override {
+				auto version = AggregateTransaction::Current_Version;
+				return { version, version, m_maxTransactionLifetime };
+			}
+
 			uint64_t calculateRealSize(const Transaction& transaction) const override {
 				// if size is valid, the real size is the transaction size
 				// if size is invalid, return a size that can never be correct (transaction size is uint32_t)
 				return IsSizeValid(CastToDerivedType(transaction), m_transactionRegistry)
 						? transaction.Size
 						: std::numeric_limits<uint64_t>::max();
-			}
-
-			SupportedVersions supportedVersions() const override {
-				auto version = AggregateTransaction::Current_Version;
-				return { version, version };
 			}
 
 			void publish(const WeakEntityInfoT<Transaction>& transactionInfo, NotificationSubscriber& sub) const override {
@@ -74,18 +78,19 @@ namespace catapult { namespace plugins {
 				// publish all sub-transaction information
 				for (const auto& subTransaction : aggregate.Transactions()) {
 					// - change source
-					sub.notify(SourceChangeNotification(0, 1, SourceChangeNotification::SourceChangeType::Relative));
+					constexpr auto Relative = SourceChangeNotification::SourceChangeType::Relative;
+					sub.notify(SourceChangeNotification(Relative, 0, Relative, 1));
 
 					// - signers and entity
 					sub.notify(AccountPublicKeyNotification(subTransaction.Signer));
 					const auto& plugin = m_transactionRegistry.findPlugin(subTransaction.Type)->embeddedPlugin();
-					auto supportedVersions = plugin.supportedVersions();
+					auto subTransactionAttributes = plugin.attributes();
 
 					sub.notify(EntityNotification(
 							subTransaction.Network(),
-							supportedVersions.MinVersion,
-							supportedVersions.MaxVersion,
-							subTransaction.EntityVersion()));
+							subTransaction.EntityVersion(),
+							subTransactionAttributes.MinVersion,
+							subTransactionAttributes.MaxVersion));
 
 					// - generic sub-transaction notification
 					sub.notify(AggregateEmbeddedTransactionNotification(
@@ -134,6 +139,10 @@ namespace catapult { namespace plugins {
 				return buffers;
 			}
 
+			bool supportsTopLevel() const override {
+				return true;
+			}
+
 			bool supportsEmbedding() const override {
 				return false;
 			}
@@ -144,13 +153,21 @@ namespace catapult { namespace plugins {
 
 		private:
 			const TransactionRegistry& m_transactionRegistry;
-			model::EntityType m_transactionType;
+			utils::TimeSpan m_maxTransactionLifetime;
+			EntityType m_transactionType;
 		};
 	}
 
 	std::unique_ptr<TransactionPlugin> CreateAggregateTransactionPlugin(
 			const TransactionRegistry& transactionRegistry,
-			model::EntityType transactionType) {
-		return std::make_unique<AggregateTransactionPlugin>(transactionRegistry, transactionType);
+			EntityType transactionType) {
+		return CreateAggregateTransactionPlugin(transactionRegistry, utils::TimeSpan(), transactionType);
+	}
+
+	std::unique_ptr<TransactionPlugin> CreateAggregateTransactionPlugin(
+			const TransactionRegistry& transactionRegistry,
+			const utils::TimeSpan& maxTransactionLifetime,
+			EntityType transactionType) {
+		return std::make_unique<AggregateTransactionPlugin>(transactionRegistry, maxTransactionLifetime, transactionType);
 	}
 }}

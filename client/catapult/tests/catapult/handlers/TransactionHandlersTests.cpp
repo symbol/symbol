@@ -139,7 +139,7 @@ namespace catapult { namespace handlers {
 			UnconfirmedTransactions m_transactions;
 		};
 
-		void AssertPullResponseIsSetIfPacketIsValid(uint32_t numRequestHashes, uint32_t numResponseTransactions) {
+		void AssertPullResponseIsSetWhenPacketIsValid(uint32_t numRequestHashes, uint32_t numResponseTransactions) {
 			// Arrange:
 			auto packetType = PullTransactionsTraits::Packet_Type;
 			auto pPacket = test::CreateRandomPacket(sizeof(BlockFeeMultiplier) + numRequestHashes * sizeof(utils::ShortHash), packetType);
@@ -176,7 +176,7 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(TEST_CLASS, AssertPullResponseIsSetIfPacketIsValid)
+	DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(TEST_CLASS, AssertPullResponseIsSetWhenPacketIsValid)
 
 	// endregion
 }}

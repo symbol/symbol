@@ -35,7 +35,7 @@ namespace catapult { namespace crypto {
 		}
 
 		Key GenerateRandomRawKey() {
-			return test::GenerateRandomData<Key_Size>();
+			return test::GenerateRandomByteArray<Key>();
 		}
 
 		PrivateKey CreatePrivateKey(const Key& rawKey) {

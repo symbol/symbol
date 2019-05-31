@@ -83,8 +83,8 @@ namespace catapult { namespace plugins {
 		});
 
 		auto maxMosaics = config.MaxMosaicsPerAccount;
-		auto maxDivisibleUnits = config.MaxMosaicDivisibleUnits;
-		manager.addStatefulValidatorHook([maxMosaics, maxDivisibleUnits, maxDuration, currencyMosaicId](auto& builder) {
+		auto maxAtomicUnits = manager.config().MaxMosaicAtomicUnits;
+		manager.addStatefulValidatorHook([maxMosaics, maxAtomicUnits, maxDuration, currencyMosaicId](auto& builder) {
 			builder
 				.add(validators::CreateProperMosaicValidator())
 				.add(validators::CreateMosaicAvailabilityValidator())
@@ -93,7 +93,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateMaxMosaicsBalanceTransferValidator(maxMosaics))
 				.add(validators::CreateMaxMosaicsSupplyChangeValidator(maxMosaics))
 				// note that the following validator depends on MosaicChangeAllowedValidator
-				.add(validators::CreateMosaicSupplyChangeAllowedValidator(maxDivisibleUnits));
+				.add(validators::CreateMosaicSupplyChangeAllowedValidator(maxAtomicUnits));
 		});
 
 		auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);

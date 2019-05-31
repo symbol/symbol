@@ -19,9 +19,10 @@
 **/
 
 #include "catapult/extensions/PluginUtils.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/validators/AggregateEntityValidator.h"
 #include "tests/test/local/LocalTestUtils.h"
+#include "tests/test/other/MutableCatapultConfiguration.h"
 
 namespace catapult { namespace extensions {
 
@@ -29,21 +30,13 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanCreateStorageConfiguration) {
 		// Arrange:
-		auto nodeConfig = config::NodeConfiguration::Uninitialized();
-		nodeConfig.ShouldUseCacheDatabaseStorage = true;
-		nodeConfig.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromKilobytes(123);
-
-		auto userConfig = config::UserConfiguration::Uninitialized();
-		userConfig.DataDirectory = "foo_bar";
-
-		auto config = config::LocalNodeConfiguration(
-				model::BlockChainConfiguration::Uninitialized(),
-				std::move(nodeConfig),
-				config::LoggingConfiguration::Uninitialized(),
-				std::move(userConfig));
+		test::MutableCatapultConfiguration config;
+		config.Node.ShouldUseCacheDatabaseStorage = true;
+		config.Node.MaxCacheDatabaseWriteBatchSize = utils::FileSize::FromKilobytes(123);
+		config.User.DataDirectory = "foo_bar";
 
 		// Act:
-		auto storageConfig = CreateStorageConfiguration(config);
+		auto storageConfig = CreateStorageConfiguration(config.ToConst());
 
 		// Assert:
 		EXPECT_TRUE(storageConfig.PreferCacheDatabase);
@@ -53,7 +46,7 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanCreateStatelessValidator) {
 		// Arrange:
-		auto pPluginManager = test::CreateDefaultPluginManager();
+		auto pPluginManager = test::CreateDefaultPluginManagerWithRealPlugins();
 
 		// Act:
 		auto pEntityValidator = CreateStatelessValidator(*pPluginManager);
@@ -69,7 +62,7 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanCreateUndoEntityObserver) {
 		// Arrange:
-		auto pPluginManager = test::CreateDefaultPluginManager();
+		auto pPluginManager = test::CreateDefaultPluginManagerWithRealPlugins();
 
 		// Act:
 		auto pEntityObserver = CreateUndoEntityObserver(*pPluginManager);

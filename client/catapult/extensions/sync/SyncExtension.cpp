@@ -23,12 +23,12 @@
 #include "src/SchedulerService.h"
 #include "src/SyncService.h"
 #include "src/TasksConfiguration.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace sync {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			const auto& resourcesPath = bootstrapper.resourcesPath();
 			auto tasksConfig = TasksConfiguration::LoadFromPath(resourcesPath);
 
@@ -43,6 +43,6 @@ namespace catapult { namespace sync {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::sync::RegisterExtension(bootstrapper);
 }

@@ -22,7 +22,7 @@
 
 namespace catapult { namespace extensions {
 
-	net::ConnectionSettings GetConnectionSettings(const config::LocalNodeConfiguration& config) {
+	net::ConnectionSettings GetConnectionSettings(const config::CatapultConfiguration& config) {
 		net::ConnectionSettings settings;
 		settings.NetworkIdentifier = config.BlockChain.Network.Identifier;
 		settings.Timeout = config.Node.ConnectTimeout;
@@ -35,7 +35,7 @@ namespace catapult { namespace extensions {
 		return settings;
 	}
 
-	void UpdateAsyncTcpServerSettings(net::AsyncTcpServerSettings& settings, const config::LocalNodeConfiguration& config) {
+	void UpdateAsyncTcpServerSettings(net::AsyncTcpServerSettings& settings, const config::CatapultConfiguration& config) {
 		settings.PacketSocketOptions = GetConnectionSettings(config).toSocketOptions();
 		settings.AllowAddressReuse = config.Node.ShouldAllowAddressReuse;
 

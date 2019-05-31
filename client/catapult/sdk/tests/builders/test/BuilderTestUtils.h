@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 		static void CheckFields(size_t additionalSize, const TTransaction& transaction) {
 			ASSERT_EQ(sizeof(TTransaction) + additionalSize, transaction.Size);
 
-			EXPECT_EQ(Signature{}, transaction.Signature);
+			EXPECT_EQ(Signature(), transaction.Signature);
 			EXPECT_EQ(Amount(0), transaction.MaxFee);
 			EXPECT_EQ(Timestamp(0), transaction.Deadline);
 		}

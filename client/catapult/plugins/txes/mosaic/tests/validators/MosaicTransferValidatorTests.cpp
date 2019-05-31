@@ -104,7 +104,7 @@ namespace catapult { namespace validators {
 
 		void AssertMosaicsTest(ValidationResult expectedResult, UnresolvedMosaicId mosaicId) {
 			// Arrange:
-			auto owner = test::GenerateRandomData<Key_Size>();
+			auto owner = test::GenerateRandomByteArray<Key>();
 			auto notification = model::BalanceTransferNotification(owner, UnresolvedAddress(), mosaicId, Amount(123));
 
 			auto cache = CreateAndSeedCache(owner, model::MosaicFlags::Transferable);
@@ -133,7 +133,7 @@ namespace catapult { namespace validators {
 
 		void AssertNonTransferableMosaicsTest(ValidationResult expectedResult, uint8_t notificationFlags) {
 			// Arrange:
-			auto owner = test::GenerateRandomData<Key_Size>();
+			auto owner = test::GenerateRandomByteArray<Key>();
 			auto cache = CreateAndSeedCache(owner, model::MosaicFlags::None);
 
 			// - notice that BalanceTransferNotification holds references to sender + recipient

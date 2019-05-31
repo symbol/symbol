@@ -41,9 +41,10 @@ namespace catapult { namespace model {
 			switch (utils::to_underlying_type(receiptType)) {
 			// well known types defined in ReceiptType.h
 			CASE_WELL_KNOWN_RECEIPT_TYPE(Harvest_Fee);
+			CASE_WELL_KNOWN_RECEIPT_TYPE(Inflation);
+			CASE_WELL_KNOWN_RECEIPT_TYPE(Transaction_Group);
 			CASE_WELL_KNOWN_RECEIPT_TYPE(Address_Alias_Resolution);
 			CASE_WELL_KNOWN_RECEIPT_TYPE(Mosaic_Alias_Resolution);
-			CASE_WELL_KNOWN_RECEIPT_TYPE(Transaction_Group);
 
 			// plugin receipt types
 			#include "plugins/txes/lock_hash/src/model/HashLockReceiptType.h"

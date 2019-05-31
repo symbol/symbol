@@ -27,15 +27,25 @@
 namespace catapult { namespace cache {
 
 	/// Primary serializer for namespace cache.
-	struct NamespaceRootHistoryPrimarySerializer
+	struct RootNamespaceHistoryPrimarySerializer
 			: public CacheSerializerAdapter<state::RootNamespaceHistorySerializer, NamespaceCacheDescriptor>
 	{};
 
-	/// Serializer for namespace flat map subcache.
+	/// Primary serializer for namespace cache for patricia tree hashes.
+	/// \note This serializer excludes historical namespaces.
+	struct RootNamespaceHistoryPatriciaTreeSerializer
+			: public CacheSerializerAdapter<state::RootNamespaceHistoryNonHistoricalSerializer, NamespaceCacheDescriptor>
+	{};
+
+	/// Serializer for namespace flat map sub cache.
 	struct NamespaceFlatMapTypesSerializer {
 	private:
 		using KeyType = NamespaceId;
 		using ValueType = state::Namespace;
+
+	public:
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
 
 	public:
 		/// Serializes \a element to string.

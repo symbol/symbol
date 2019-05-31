@@ -35,9 +35,8 @@ namespace catapult { namespace test {
 		// - windows requires the caller to explicitly create a mongocxx instance before certain operations
 		//   like creating a mongocxx::pool (via MongoStorageContext)
 		mongocxx::instance::current();
-		mongo::MongoStorageContext mongoContext(test::DefaultDbUri(), "", nullptr);
-		auto chainConfig = model::BlockChainConfiguration::Uninitialized();
-		mongo::MongoPluginManager manager(mongoContext, chainConfig);
+		mongo::MongoStorageContext mongoContext(test::DefaultDbUri(), "", nullptr, mongo::MongoErrorPolicy::Mode::Strict);
+		mongo::MongoPluginManager manager(mongoContext, model::NetworkIdentifier::Zero);
 		registerSubsystem(manager);
 
 		// Act:

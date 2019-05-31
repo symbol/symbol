@@ -127,7 +127,7 @@ namespace catapult { namespace net {
 				if (m_readers.end() == iter)
 					return false;
 
-				CATAPULT_LOG(debug) << "closing connection to " << utils::HexFormat(identityKey) << " - " << id;
+				CATAPULT_LOG(debug) << "closing connection to " << identityKey << " - " << id;
 				auto state = iter->second;
 				m_readers.erase(iter);
 				stop(state);
@@ -183,13 +183,10 @@ namespace catapult { namespace net {
 						const auto& identityKey) {
 					ionet::AcceptedPacketSocketInfo verifiedSocketInfo(host, pVerifiedSocket);
 					if (PeerConnectCode::Accepted == connectCode) {
-						if (!pThis->addReader(identityKey, verifiedSocketInfo)) {
+						if (!pThis->addReader(identityKey, verifiedSocketInfo))
 							connectCode = PeerConnectCode::Already_Connected;
-						} else {
-							CATAPULT_LOG(debug)
-									<< "accepted connection from '" << verifiedSocketInfo.host()
-									<< "' as " << utils::HexFormat(identityKey);
-						}
+						else
+							CATAPULT_LOG(debug) << "accepted connection from '" << verifiedSocketInfo.host() << "' as " << identityKey;
 					}
 
 					return callback({ connectCode, identityKey });

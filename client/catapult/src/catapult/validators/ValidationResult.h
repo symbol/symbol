@@ -30,8 +30,10 @@ namespace catapult { namespace validators {
 	enum class ResultSeverity : uint8_t {
 		/// Validation result is success.
 		Success = 0,
+
 		/// Validation result is neither success nor failure.
 		Neutral = 1,
+
 		/// Validation result is failure.
 		Failure = 2
 	};
@@ -40,6 +42,7 @@ namespace catapult { namespace validators {
 	enum class ResultFlags : uint8_t {
 		/// No special result flags are set.
 		None,
+
 		/// Result is verbose and should be suppressed from most logs.
 		Verbose = 1
 	};
@@ -48,8 +51,10 @@ namespace catapult { namespace validators {
 	enum class ValidationResult : uint32_t {
 		/// Validation succeeded.
 		Success = 0x00000000,
+
 		/// Validation is neutral.
 		Neutral = 0x40000000,
+
 		/// Validation failed.
 		Failure = 0x80000000
 	};

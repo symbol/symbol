@@ -28,14 +28,14 @@
 namespace catapult { namespace cache {
 
 	using BasicNamespacePatriciaTree = tree::BasePatriciaTree<
-		SerializerHashedKeyEncoder<NamespaceCacheDescriptor::Serializer>,
+		SerializerHashedKeyEncoder<RootNamespaceHistoryPatriciaTreeSerializer>,
 		PatriciaTreeRdbDataSource,
 		utils::BaseValueHasher<NamespaceId>>;
 
 	class NamespacePatriciaTree : public BasicNamespacePatriciaTree {
 	public:
 		using BasicNamespacePatriciaTree::BasicNamespacePatriciaTree;
-		using Serializer = NamespaceCacheDescriptor::Serializer;
+		using Serializer = RootNamespaceHistoryPatriciaTreeSerializer;
 	};
 
 	struct NamespaceBaseSetDeltaPointers {

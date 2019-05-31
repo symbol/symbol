@@ -58,11 +58,11 @@ namespace catapult { namespace cache {
 			}
 		};
 
-		struct MultisigEntryModificationPolicy {
+		struct MultisigCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
 			static void Modify(MultisigCacheDelta& delta, const state::MultisigEntry& entry) {
 				auto multisigIter = delta.find(entry.key());
 				auto& entryFromCache = multisigIter.get();
-				entryFromCache.cosignatories().insert(test::GenerateRandomData<Key_Size>());
+				entryFromCache.cosignatories().insert(test::GenerateRandomByteArray<Key>());
 			}
 		};
 	}
@@ -79,7 +79,7 @@ namespace catapult { namespace cache {
 
 	DEFINE_CACHE_MUTATION_TESTS(MultisigCacheMixinTraits, DeltaAccessor, _Delta)
 
-	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MultisigCacheMixinTraits, MultisigEntryModificationPolicy, _Delta)
+	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(MultisigCacheMixinTraits, MultisigCacheDeltaModificationPolicy, _Delta)
 
 	DEFINE_CACHE_BASIC_TESTS(MultisigCacheMixinTraits,)
 

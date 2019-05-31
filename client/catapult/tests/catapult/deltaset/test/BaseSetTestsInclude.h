@@ -37,7 +37,7 @@ namespace catapult { namespace test {
 	// region type declarations for common set types
 
 	template<typename TElement>
-	using OrderedSetTraits = deltaset::SetStorageTraits<std::set<TElement, deltaset::detail::OrderedSetDefaultComparator<TElement>>>;
+	using OrderedSetTraits = deltaset::SetStorageTraits<std::set<TElement, std::less<TElement>>>;
 
 	template<typename TElement>
 	using UnorderedSetTraits = deltaset::SetStorageTraits<std::unordered_set<TElement, Hasher<TElement>, EqualityChecker<TElement>>>;
@@ -62,11 +62,6 @@ namespace catapult { namespace test {
 
 	template<>
 	constexpr bool IsMutable<MutableTestElement>() {
-		return true;
-	}
-
-	template<>
-	constexpr bool IsMutable<std::shared_ptr<MutableTestElement>>() {
 		return true;
 	}
 
@@ -97,23 +92,6 @@ namespace catapult { namespace test {
 		template<typename TElement>
 		static TElement& ToSetElement(TElement* pElement) {
 			return *pElement;
-		}
-	};
-
-	template<typename T>
-	struct ElementFactory<std::shared_ptr<T>> {
-		using ElementType = std::shared_ptr<T>;
-
-		static std::shared_ptr<T> CreateElement(const std::string& name, unsigned int value) {
-			return std::make_shared<T>(name, value);
-		}
-
-		static std::shared_ptr<T> ToPointer(const std::shared_ptr<T>& pElement) {
-			return pElement;
-		}
-
-		static std::shared_ptr<T> ToSetElement(const std::shared_ptr<T>& pElement) {
-			return pElement;
 		}
 	};
 
@@ -242,11 +220,6 @@ namespace catapult { namespace test {
 	/// Dereferences pointer \a pElement.
 	template<typename T>
 	T Unwrap(T* pElement) {
-		return *pElement;
-	}
-
-	template<typename T>
-	T Unwrap(const std::shared_ptr<T>& pElement) {
 		return *pElement;
 	}
 

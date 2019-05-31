@@ -59,12 +59,12 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, HasCosignerReturnsFalseWhenSignerIsNotCosigner) {
 		// Arrange:
 		Transaction transaction;
-		transaction.Signer = test::GenerateRandomData<Key_Size>();
+		transaction.Signer = test::GenerateRandomByteArray<Key>();
 		auto cosignatures = test::GenerateRandomDataVector<Cosignature>(3);
 		WeakCosignedTransactionInfo transactionInfo(&transaction, &cosignatures);
 
 		// Act + Assert:
 		EXPECT_FALSE(transactionInfo.hasCosigner(transaction.Signer));
-		EXPECT_FALSE(transactionInfo.hasCosigner(test::GenerateRandomData<Key_Size>()));
+		EXPECT_FALSE(transactionInfo.hasCosigner(test::GenerateRandomByteArray<Key>()));
 	}
 }}

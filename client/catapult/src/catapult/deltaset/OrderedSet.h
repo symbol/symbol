@@ -33,32 +33,10 @@ namespace catapult { namespace deltaset {
 	}
 
 	namespace detail {
-		// region DefaultComparator
-
-		// used to support comparing values and values pointed to by shared_ptr
-		// (this is required to support shared_ptr value types in OrderedSet)
-
-		template<typename T>
-		struct OrderedSetDefaultComparator {
-			bool operator()(const T& lhs, const T& rhs) const {
-				return lhs < rhs;
-			}
-		};
-
-		template<typename T>
-		struct OrderedSetDefaultComparator<std::shared_ptr<T>> {
-			bool operator()(const std::shared_ptr<T>& pLhs, const std::shared_ptr<T>& pRhs) const {
-				OrderedSetDefaultComparator<T> comparator;
-				return comparator(*pLhs, *pRhs);
-			}
-		};
-
-		// endregion
-
 		template<typename T>
 		using OrderedSetType = std::set<
 			std::remove_const_t<typename T::ElementType>,
-			OrderedSetDefaultComparator<typename T::ElementType>>;
+			std::less<typename T::ElementType>>;
 
 		/// Policy for committing changes to an ordered set.
 		template<typename TSetTraits>

@@ -65,6 +65,7 @@ namespace catapult { namespace mongo {
 					: m_pStorage(test::CreateMongoStorage<cache::UtChangeSubscriber>(
 							std::move(pTransactionPlugin),
 							dbInitializationType,
+							MongoErrorPolicy::Mode::Strict,
 							[](auto& context, const auto& registry) {
 								return CreateMongoTransactionStorage(context, registry, Ut_Collection_Name);
 							}))

@@ -34,13 +34,11 @@ namespace catapult { namespace deltaset {
 				test::UnorderedMapSetTraits<test::SetElementType<TMutabilityTraits>>>>;
 
 		using NonPointerTraits = UnorderedMapTraits<test::MutableElementValueTraits>;
-		using PointerTraits = UnorderedMapTraits<test::MutableElementPointerTraits>;
 	}
 
 #define FIND_ITERATOR_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_NonPointer) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonPointerTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Pointer) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PointerTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region utils

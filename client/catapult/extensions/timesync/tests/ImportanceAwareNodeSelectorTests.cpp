@@ -127,7 +127,7 @@ namespace catapult { namespace timesync {
 		}
 	}
 
-	TEST(TEST_CLASS, ReturnsEmptySetIfNoNodeHasImportanceSetAtHeight) {
+	TEST(TEST_CLASS, ReturnsEmptySetWhenNoNodeHasImportanceSetAtHeight) {
 		// Arrange:
 		Options options;
 		options.NodeImportanceHeight = model::ImportanceHeight(124);
@@ -136,7 +136,7 @@ namespace catapult { namespace timesync {
 		AssertNoNodesAreSelected(options);
 	}
 
-	TEST(TEST_CLASS, ReturnsEmptySetIfNoNodeHasEnoughImportance) {
+	TEST(TEST_CLASS, ReturnsEmptySetWhenNoNodeHasEnoughImportance) {
 		// Arrange:
 		Options options;
 		options.NodeImportance = Importance(123);
@@ -145,7 +145,7 @@ namespace catapult { namespace timesync {
 		AssertNoNodesAreSelected(options);
 	}
 
-	TEST(TEST_CLASS, ReturnsEmptySetIfNoNodeHasAnActiveConnectionStateForAnyService) {
+	TEST(TEST_CLASS, ReturnsEmptySetWhenNoNodeHasAnActiveConnectionStateForAnyService) {
 		Options options;
 		options.SeedNodeOptions.IsActive = false;
 
@@ -153,7 +153,7 @@ namespace catapult { namespace timesync {
 		AssertNoNodesAreSelected(options);
 	}
 
-	TEST(TEST_CLASS, ReturnsEmptySetIfNodeHasActiveConnectionStateOnlyForNonMatchingService) {
+	TEST(TEST_CLASS, ReturnsEmptySetWhenNodeHasActiveConnectionStateOnlyForNonMatchingService) {
 		Options options;
 		options.NodeServiceIdentifier = ionet::ServiceIdentifier(321);
 
@@ -161,7 +161,7 @@ namespace catapult { namespace timesync {
 		AssertNoNodesAreSelected(options);
 	}
 
-	TEST(TEST_CLASS, ReturnsEmptySetIfNodeIsLocal) {
+	TEST(TEST_CLASS, ReturnsEmptySetWhenNodeIsLocal) {
 		Options options;
 		options.SeedNodeOptions.NodeSource = ionet::NodeSource::Local;
 

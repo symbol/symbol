@@ -142,7 +142,7 @@ namespace catapult { namespace timesync { namespace filters {
 		EXPECT_EQ(expectedSamples, samples);
 	}
 
-	TEST(TEST_CLASS, DoesNotFilterOutSamplesIfSamplesSetIsTooSmall) {
+	TEST(TEST_CLASS, DoesNotFilterOutSamplesWhenSamplesSetIsTooSmall) {
 		// Arrange: 10 samples
 		AggregateSynchronizationFilter aggregateFilter({});
 		auto samples = CreateSamplesWithIncreasingOffsets(3);

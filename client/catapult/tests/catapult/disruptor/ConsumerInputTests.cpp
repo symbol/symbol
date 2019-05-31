@@ -99,7 +99,7 @@ namespace catapult { namespace disruptor {
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputWithCustomContext) {
 		// Arrange:
 		test::EntitiesVector entities;
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto range = TTraits::CreateRange(3, entities);
 		auto input = ConsumerInput({ std::move(range), key }, InputSource::Local);
 

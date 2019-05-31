@@ -21,7 +21,6 @@
 #pragma once
 #include "Results.h"
 #include "src/model/PropertyNotifications.h"
-#include "catapult/utils/UnresolvedAddress.h"
 #include "catapult/validators/ValidatorTypes.h"
 
 namespace catapult { namespace validators {

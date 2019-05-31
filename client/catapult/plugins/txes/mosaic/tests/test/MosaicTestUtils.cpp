@@ -30,7 +30,7 @@ namespace catapult { namespace test {
 	}
 
 	state::MosaicDefinition CreateMosaicDefinition(Height height) {
-		return state::MosaicDefinition(height, test::GenerateRandomData<Key_Size>(), 3, model::MosaicProperties::FromValues({}));
+		return state::MosaicDefinition(height, test::GenerateRandomByteArray<Key>(), 3, model::MosaicProperties::FromValues({}));
 	}
 
 	state::MosaicEntry CreateMosaicEntry(MosaicId id, Amount supply) {
@@ -83,9 +83,5 @@ namespace catapult { namespace test {
 		EXPECT_EQ(expected.mosaicId(), actual.mosaicId());
 		EXPECT_EQ(expected.supply(), actual.supply());
 		AssertEqual(expected.definition(), actual.definition());
-
-		// don't support comparing levies yet
-		EXPECT_FALSE(expected.hasLevy());
-		EXPECT_FALSE(actual.hasLevy());
 	}
 }}

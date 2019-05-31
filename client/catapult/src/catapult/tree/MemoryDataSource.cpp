@@ -44,8 +44,8 @@ namespace catapult { namespace tree {
 	void MemoryDataSource::set(const LeafTreeNode& node) {
 		if (m_isVerbose) {
 			CATAPULT_LOG(debug)
-					<< "saving leaf node: " << node.path() << ", hash = " << utils::HexFormat(node.hash())
-					<< ", value = " << utils::HexFormat(node.value());
+					<< "saving leaf node: " << node.path() << ", hash = " << node.hash()
+					<< ", value = " << node.value();
 		}
 
 		save(node);
@@ -54,7 +54,7 @@ namespace catapult { namespace tree {
 	void MemoryDataSource::set(const BranchTreeNode& node) {
 		if (m_isVerbose) {
 			CATAPULT_LOG(debug)
-					<< "saving branch node: " << node.path() << ", hash = " << utils::HexFormat(node.hash())
+					<< "saving branch node: " << node.path() << ", hash = " << node.hash()
 					<< ", #links " << node.numLinks();
 		}
 

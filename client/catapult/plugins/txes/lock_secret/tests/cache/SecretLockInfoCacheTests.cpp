@@ -28,17 +28,10 @@ namespace catapult { namespace cache {
 #define TEST_CLASS SecretLockInfoCacheTests
 
 	namespace {
-		struct SecretTraits : public test::BasicSecretLockInfoTestTraits {
-			static void SetKey(ValueType& lockInfo, const KeyType& key) {
-				lockInfo.Secret = key;
-			}
-		};
+		struct SecretTraits : public test::BasicSecretLockInfoTestTraits {};
 	}
 
-	DEFINE_LOCK_INFO_CACHE_TESTS(
-			LockInfoCacheDeltaElementsMixinTraits<SecretTraits>,
-			LockInfoCacheDeltaMarkUsedModificationPolicy<SecretTraits>,
-			)
+	DEFINE_LOCK_INFO_CACHE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>, LockInfoCacheDeltaModificationPolicy<SecretTraits>,)
 
 	DEFINE_CACHE_PRUNE_TESTS(LockInfoCacheDeltaElementsMixinTraits<SecretTraits>,)
 }}

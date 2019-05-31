@@ -31,7 +31,7 @@ namespace catapult { namespace test {
 		void AssertBalancesT(const TCache& cache, const TKey& key, const BalanceTransfers& expectedBalances) {
 			// Assert:
 			auto accountStateIter = cache.find(key);
-			ASSERT_TRUE(!!accountStateIter.tryGet()) << utils::HexFormat(key);
+			ASSERT_TRUE(!!accountStateIter.tryGet()) << key;
 
 			const auto& accountState = accountStateIter.get();
 			EXPECT_EQ(expectedBalances.size(), accountState.Balances.size());

@@ -37,5 +37,5 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicAlias, Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(MosaicAlias, Default, Publish)
 }}

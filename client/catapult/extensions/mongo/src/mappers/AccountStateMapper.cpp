@@ -29,7 +29,8 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	namespace {
 		void StreamAccountMetadata(bson_stream::document& builder) {
-			builder << "meta"
+			builder
+					<< "meta"
 					<< bson_stream::open_document
 					<< bson_stream::close_document;
 		}
@@ -46,7 +47,8 @@ namespace catapult { namespace mongo { namespace mappers {
 		auto& StreamImportanceSnapshot(
 				bson_stream::array_context& context,
 				const state::AccountImportance::ImportanceSnapshot& importanceSnapshot) {
-			context << bson_stream::open_document
+			context
+					<< bson_stream::open_document
 						<< "value" << ToInt64(importanceSnapshot.Importance)
 						<< "height" << ToInt64(importanceSnapshot.Height)
 					<< bson_stream::close_document;
@@ -79,13 +81,15 @@ namespace catapult { namespace mongo { namespace mappers {
 		StreamAccountMetadata(builder);
 
 		// account data
-		builder << "account" << bson_stream::open_document
-				<< "address" << ToBinary(accountState.Address)
-				<< "addressHeight" << ToInt64(accountState.AddressHeight)
-				<< "publicKey" << ToBinary(accountState.PublicKey)
-				<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight)
-				<< "accountType" << utils::to_underlying_type(accountState.AccountType)
-				<< "linkedAccountKey" << ToBinary(accountState.LinkedAccountKey);
+		builder
+				<< "account"
+				<< bson_stream::open_document
+					<< "address" << ToBinary(accountState.Address)
+					<< "addressHeight" << ToInt64(accountState.AddressHeight)
+					<< "publicKey" << ToBinary(accountState.PublicKey)
+					<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight)
+					<< "accountType" << utils::to_underlying_type(accountState.AccountType)
+					<< "linkedAccountKey" << ToBinary(accountState.LinkedAccountKey);
 		StreamAccountImportances(builder, accountState.ImportanceInfo);
 		StreamAccountBalances(builder, accountState.Balances);
 		builder << bson_stream::close_document;

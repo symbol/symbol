@@ -20,7 +20,6 @@
 
 #include "Observers.h"
 #include "src/cache/MosaicCache.h"
-#include "src/state/MosaicLevy.h"
 #include "catapult/cache_core/AccountStateCache.h"
 
 namespace catapult { namespace observers {
@@ -54,11 +53,7 @@ namespace catapult { namespace observers {
 			auto newProperties = MergeProperties(currentDefinition.properties(), notification.Properties, mode);
 			auto revision = NotifyMode::Commit == mode ? currentDefinition.revision() + 1 : currentDefinition.revision() - 1;
 			auto definition = state::MosaicDefinition(currentDefinition.height(), notification.Signer, revision, newProperties);
-			state::MosaicEntry newEntry(notification.MosaicId, definition);
-			if (currentEntry.hasLevy())
-				CATAPULT_THROW_RUNTIME_ERROR("cannot observe mosaic entry with levy");
-
-			return newEntry;
+			return state::MosaicEntry(notification.MosaicId, definition);
 		}
 	}
 

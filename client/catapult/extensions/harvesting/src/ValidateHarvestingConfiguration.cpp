@@ -35,5 +35,8 @@ namespace catapult { namespace harvesting {
 	void ValidateHarvestingConfiguration(const HarvestingConfiguration& config) {
 		if (!IsHarvestKeyValid(config))
 			CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "HarvestKey must be a valid private key")
+
+		if (!crypto::IsValidKeyString(config.Beneficiary))
+			CATAPULT_THROW_AND_LOG_0(utils::property_malformed_error, "Beneficiary must be a valid public key")
 	}
 }}

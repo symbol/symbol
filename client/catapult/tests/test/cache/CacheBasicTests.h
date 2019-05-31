@@ -219,7 +219,7 @@ namespace catapult { namespace test {
 			AssertDefaultCacheContents(*view);
 		}
 
-		static void AssertCommitThrowsIfOnlyDetachedDeltasAreOutstanding() {
+		static void AssertCommitThrowsWhenOnlyDetachedDeltasAreOutstanding() {
 			// Arrange:
 			CacheType cache;
 			auto lockableDelta = cache.createDetachedDelta();
@@ -334,7 +334,7 @@ namespace catapult { namespace test {
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanCommitToUnderlyingCache) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CommitIsIdempotent) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CommitWithNoPendingChangesHasNoEffect) \
-	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CommitThrowsIfOnlyDetachedDeltasAreOutstanding) \
+	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CommitThrowsWhenOnlyDetachedDeltasAreOutstanding) \
 	\
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanOverlayReadOnlyViewOnView) \
 	MAKE_CACHE_BASIC_TEST(CACHE_TRAITS, SUFFIX, CanOverlayReadOnlyViewOnDelta)

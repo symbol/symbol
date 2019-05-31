@@ -36,7 +36,7 @@ namespace catapult { namespace observers {
 		};
 
 		auto& AddRandomAccount(cache::AccountStateCacheDelta& delta) {
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			delta.addAccount(key, Height(1));
 			return delta.find(key).get();
 		}
@@ -154,7 +154,7 @@ namespace catapult { namespace observers {
 		});
 	}
 
-	TEST(TEST_CLASS, ImportanceZeroedIfLastImportanceIsPopped) {
+	TEST(TEST_CLASS, ImportanceZeroedWhenLastImportanceIsPopped) {
 		// Arrange:
 		RunTestWithDelta([](auto& delta) {
 			auto& accountState = AddRandomAccount(delta);

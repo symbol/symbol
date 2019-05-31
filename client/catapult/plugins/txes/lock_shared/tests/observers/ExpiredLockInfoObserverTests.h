@@ -110,7 +110,7 @@ namespace catapult { namespace observers {
 			Key addBlockSigner() {
 				// Arrange: add block signer to account state cache
 				auto& accountStateCache = this->accountStateCache();
-				auto signer = test::GenerateRandomData<Key_Size>();
+				auto signer = test::GenerateRandomByteArray<Key>();
 				accountStateCache.addAccount(signer, Height(1));
 				credit(accountStateCache.find(signer).get());
 				return signer;

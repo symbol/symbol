@@ -77,7 +77,7 @@ namespace catapult { namespace validators {
 
 		template<typename TMosaicId>
 		void AssertValidationResult(ValidationResult expectedResult, TMosaicId affectedMosaicId, Height height) {
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			AssertValidationResult(expectedResult, affectedMosaicId, height, key, key);
 		}
 	}
@@ -88,25 +88,25 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, TEST_NAME##_Unresolved) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UnresolvedMosaicTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	MOSAIC_ID_TRAITS_BASED_TEST(FailureIfMosaicIsUnknown) {
+	MOSAIC_ID_TRAITS_BASED_TEST(FailureWhenMosaicIsUnknown) {
 		// Assert:
 		auto unknownMosaicId = TTraits::Default_Id + decltype(TTraits::Default_Id)(1);
 		AssertValidationResult(Failure_Mosaic_Expired, unknownMosaicId, Height(100));
 	}
 
-	MOSAIC_ID_TRAITS_BASED_TEST(FailureIfMosaicExpired) {
+	MOSAIC_ID_TRAITS_BASED_TEST(FailureWhenMosaicExpired) {
 		// Assert:
 		AssertValidationResult(Failure_Mosaic_Expired, TTraits::Default_Id, Mosaic_Expiry_Height);
 	}
 
-	MOSAIC_ID_TRAITS_BASED_TEST(FailureIfMosaicOwnerDoesNotMatch) {
+	MOSAIC_ID_TRAITS_BASED_TEST(FailureWhenMosaicOwnerDoesNotMatch) {
 		// Assert:
-		auto key1 = test::GenerateRandomData<Key_Size>();
-		auto key2 = test::GenerateRandomData<Key_Size>();
+		auto key1 = test::GenerateRandomByteArray<Key>();
+		auto key2 = test::GenerateRandomByteArray<Key>();
 		AssertValidationResult(Failure_Mosaic_Owner_Conflict, TTraits::Default_Id, Height(100), key1, key2);
 	}
 
-	MOSAIC_ID_TRAITS_BASED_TEST(SuccessIfMosaicIsActiveAndOwnerMatches) {
+	MOSAIC_ID_TRAITS_BASED_TEST(SuccessWhenMosaicIsActiveAndOwnerMatches) {
 		// Assert:
 		AssertValidationResult(ValidationResult::Success, TTraits::Default_Id, Height(100));
 	}

@@ -62,7 +62,7 @@ namespace catapult { namespace validators {
 			auto values = test::GenerateUniqueRandomDataVector<typename TPropertyValueTraits::UnresolvedValueType>(5);
 			auto modifications = modificationsFactory(values);
 			typename TPropertyValueTraits::NotificationType notification(
-					test::GenerateRandomData<Key_Size>(),
+					test::GenerateRandomByteArray<Key>(),
 					TPropertyValueTraits::Property_Type,
 					static_cast<uint8_t>(modifications.size()),
 					modifications.data());

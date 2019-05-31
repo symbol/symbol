@@ -19,11 +19,10 @@
 **/
 
 #pragma once
+#include "StateVersion.h"
 #include "catapult/io/BufferInputStreamAdapter.h"
 #include "catapult/io/SizeCalculatingOutputStream.h"
 #include "catapult/io/StringOutputStream.h"
-#include "catapult/utils/traits/Traits.h"
-#include "catapult/types.h"
 
 namespace catapult { namespace cache {
 
@@ -38,9 +37,11 @@ namespace catapult { namespace cache {
 		/// Serializes \a value to string.
 		static std::string SerializeValue(const ValueType& value) {
 			io::SizeCalculatingOutputStream calculator;
+			StateVersion<TSerializerTraits>::Write(calculator);
 			TSerializerTraits::Save(value, calculator);
 
 			io::StringOutputStream output(calculator.size());
+			StateVersion<TSerializerTraits>::Write(output);
 			TSerializerTraits::Save(value, output);
 			return output.str();
 		}
@@ -48,6 +49,7 @@ namespace catapult { namespace cache {
 		/// Deserializes value from \a buffer.
 		static ValueType DeserializeValue(const RawBuffer& buffer) {
 			io::BufferInputStreamAdapter<RawBuffer> input(buffer);
+			StateVersion<TSerializerTraits>::ReadAndCheck(input);
 			return TSerializerTraits::Load(input);
 		}
 	};

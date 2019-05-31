@@ -66,17 +66,17 @@ namespace catapult { namespace crypto {
 
 		template<typename TTraits>
 		void BenchmarkHasher(benchmark::State& state) {
-			std::vector<uint8_t> data(static_cast<size_t>(state.range(0)));
+			std::vector<uint8_t> buffer(static_cast<size_t>(state.range(0)));
 			typename TTraits::HashType hash;
 			for (auto _ : state) {
 				state.PauseTiming();
-				bench::FillWithRandomData(data);
+				bench::FillWithRandomData(buffer);
 				state.ResumeTiming();
 
-				TTraits::HashFunc(data, hash);
+				TTraits::HashFunc(buffer, hash);
 			}
 
-			state.SetBytesProcessed(static_cast<int64_t>(data.size() * state.iterations()));
+			state.SetBytesProcessed(static_cast<int64_t>(buffer.size() * state.iterations()));
 		}
 
 		void AddDefaultArguments(benchmark::internal::Benchmark& benchmark) {

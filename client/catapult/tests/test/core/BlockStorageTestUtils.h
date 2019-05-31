@@ -32,6 +32,9 @@ namespace catapult { namespace test {
 	/// Creates block element from \a block with a random transaction hash.
 	model::BlockElement CreateBlockElementForSaveTests(const model::Block& block);
 
+	/// Loads the block element at \a height along with its statements from \a storage.
+	std::shared_ptr<const model::BlockElement> LoadBlockElementWithStatements(const io::BlockStorage& storage, Height height);
+
 	// region PrepareStorageWithBlocks
 
 	/// Context for holding storage and optional storage guard.

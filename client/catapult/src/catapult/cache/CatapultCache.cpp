@@ -244,21 +244,21 @@ namespace catapult { namespace cache {
 	CatapultCache& CatapultCache::operator=(CatapultCache&&) = default;
 
 	CatapultCacheView CatapultCache::createView() const {
-		// acquire a height reader lock to ensure the view is composed of consistent subcache views
+		// acquire a height reader lock to ensure the view is composed of consistent sub cache views
 		auto pCacheHeightView = m_pCacheHeight->view();
 		auto subViews = MapSubCaches<const SubCacheView>(m_subCaches, [](const auto& pSubCache) { return pSubCache->createView(); });
 		return CatapultCacheView(std::move(pCacheHeightView), std::move(subViews));
 	}
 
 	CatapultCacheDelta CatapultCache::createDelta() {
-		// since only one subcache delta is allowed outstanding at a time and an outstanding delta is required for commit,
-		// subcache deltas will always be consistent
+		// since only one sub cache delta is allowed outstanding at a time and an outstanding delta is required for commit,
+		// sub cache deltas will always be consistent
 		auto subViews = MapSubCaches<SubCacheView>(m_subCaches, [](const auto& pSubCache) { return pSubCache->createDelta(); });
 		return CatapultCacheDelta(std::move(subViews));
 	}
 
 	CatapultCacheDetachableDelta CatapultCache::createDetachableDelta() const {
-		// acquire a height reader lock to ensure the delta is composed of consistent subcache deltas
+		// acquire a height reader lock to ensure the delta is composed of consistent sub cache deltas
 		auto pCacheHeightView = m_pCacheHeight->view();
 		auto detachedSubViews = MapSubCaches<DetachedSubCacheView>(m_subCaches, [](const auto& pSubCache) {
 			return pSubCache->createDetachedDelta();
@@ -290,6 +290,13 @@ namespace catapult { namespace cache {
 		return MapSubCaches<CacheStorage>(
 				m_subCaches,
 				[](const auto& pSubCache) { return pSubCache->createStorage(); },
+				false);
+	}
+
+	std::vector<std::unique_ptr<const CacheChangesStorage>> CatapultCache::changesStorages() const {
+		return MapSubCaches<const CacheChangesStorage>(
+				m_subCaches,
+				[](const auto& pSubCache) { return pSubCache->createChangesStorage(); },
 				false);
 	}
 

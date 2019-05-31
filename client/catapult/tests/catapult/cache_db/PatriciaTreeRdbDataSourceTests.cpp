@@ -20,7 +20,7 @@
 
 #include "catapult/cache_db/PatriciaTreeRdbDataSource.h"
 #include "tests/test/nodeps/Filesystem.h"
-#include "tests/test/other/PatriciaTreeDataSourceTests.h"
+#include "tests/test/tree/PatriciaTreeDataSourceTests.h"
 
 namespace catapult { namespace cache {
 

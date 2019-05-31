@@ -50,7 +50,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateAroundRangeAndContext) {
 		// Arrange:
-		auto sourcePublicKey = test::GenerateRandomData<Key_Size>();
+		auto sourcePublicKey = test::GenerateRandomByteArray<Key>();
 		auto range = test::CreateBlockEntityRange(3);
 		const auto* pRangeData = range.data();
 

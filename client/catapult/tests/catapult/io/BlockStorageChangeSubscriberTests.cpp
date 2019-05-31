@@ -77,7 +77,7 @@ namespace catapult { namespace io {
 
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		pBlock->Height = Height(987);
-		auto blockElement = test::BlockToBlockElement(*pBlock, test::GenerateRandomData<Hash256_Size>());
+		auto blockElement = test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>());
 
 		// Act:
 		context.subscriber().notifyBlock(blockElement);

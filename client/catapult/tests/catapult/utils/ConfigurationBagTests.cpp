@@ -118,7 +118,7 @@ namespace catapult { namespace utils {
 
 	// region contains
 
-	TEST(TEST_CLASS, ContainsReturnsTrueIfBothSectionAndNameMatch) {
+	TEST(TEST_CLASS, ContainsReturnsTrueWhenBothSectionAndNameMatch) {
 		// Arrange:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 
@@ -126,7 +126,7 @@ namespace catapult { namespace utils {
 		EXPECT_TRUE(bag.contains(Foo_Alpha_Key)); // match
 	}
 
-	TEST(TEST_CLASS, ContainsReturnsFalseIfEitherSectionOrNameDoesNotMatch) {
+	TEST(TEST_CLASS, ContainsReturnsFalseWhenEitherSectionOrNameDoesNotMatch) {
 		// Arrange:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 
@@ -140,7 +140,7 @@ namespace catapult { namespace utils {
 
 	// region tryGet
 
-	TEST(TEST_CLASS, TryGetReturnsValueIfBothSectionAndNameMatch) {
+	TEST(TEST_CLASS, TryGetReturnsValueWhenBothSectionAndNameMatch) {
 		// Arrange:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 
@@ -169,14 +169,14 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(TEST_CLASS, TryGetReturnsFalseIfEitherSectionOrNameDoesNotMatch) {
+	TEST(TEST_CLASS, TryGetReturnsFalseWhenEitherSectionOrNameDoesNotMatch) {
 		// Assert:
 		AssertTryGetFailure(Foo_Beta_Key, static_cast<uint32_t>(17)); // different name
 		AssertTryGetFailure(Bar_Alpha_Key, static_cast<uint32_t>(18)); // different section
 		AssertTryGetFailure(Bar_Beta_Key, static_cast<uint32_t>(19)); // unrelated
 	}
 
-	TEST(TEST_CLASS, TryGetThrowsIfValueCannotBeParsed) {
+	TEST(TEST_CLASS, TryGetThrowsWhenValueCannotBeParsed) {
 		// Arrange:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 		auto initialValue = TimeSpan::FromSeconds(123);
@@ -193,7 +193,7 @@ namespace catapult { namespace utils {
 
 	// region get
 
-	TEST(TEST_CLASS, GetReturnsValueIfBothSectionAndNameMatch) {
+	TEST(TEST_CLASS, GetReturnsValueWhenBothSectionAndNameMatch) {
 		// Arrange:
 		auto bag = LoadFromString(String_With_Single_Foo_Alpha_Property);
 
@@ -215,7 +215,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(TEST_CLASS, GetThrowsIfEitherSectionOrNameDoesNotMatch) {
+	TEST(TEST_CLASS, GetThrowsWhenEitherSectionOrNameDoesNotMatch) {
 		// Assert:
 		using ExceptionType = property_not_found_error;
 		AssertGetFailure<FooAlphaType, ExceptionType>(Foo_Beta_Key); // different name
@@ -223,7 +223,7 @@ namespace catapult { namespace utils {
 		AssertGetFailure<FooAlphaType, ExceptionType>(Bar_Beta_Key); // unrelated
 	}
 
-	TEST(TEST_CLASS, GetThrowsIfIfValueCannotBeParsed) {
+	TEST(TEST_CLASS, GetThrowsWhenValueCannotBeParsed) {
 		// Assert:
 		using ExceptionType = property_malformed_error;
 		AssertGetFailure<utils::TimeSpan, ExceptionType>(Foo_Alpha_Key);
@@ -332,7 +332,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(expectedProperties, properties);
 	}
 
-	GET_ALL_TRAITS_BASED_TEST(GetAllThrowsIfAnyValueCannotBeParsed) {
+	GET_ALL_TRAITS_BASED_TEST(GetAllThrowsWhenAnyValueCannotBeParsed) {
 		// Arrange:
 		auto bag = LoadFromString(R"(
 			[bar]

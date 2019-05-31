@@ -47,7 +47,7 @@ namespace catapult { namespace cache {
 		CatapultCacheView& operator=(CatapultCacheView&&);
 
 	public:
-		/// Gets a specific subcache view.
+		/// Gets a specific sub cache view.
 		template<typename TCache>
 		const typename TCache::CacheViewType& sub() const {
 			return *static_cast<const typename TCache::CacheViewType*>(m_subViews[TCache::Id]->get());

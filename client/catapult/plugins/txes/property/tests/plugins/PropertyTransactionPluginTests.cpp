@@ -33,9 +33,9 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS PropertyTransactionPluginTests
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(AddressProperty, 1, 1, AddressProperty)
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(MosaicProperty, 1, 1, MosaicProperty)
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS_WITH_PREFIXED_TRAITS(TransactionTypeProperty, 1, 1, TransactionTypeProperty)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AddressProperty, 1, 1, AddressProperty)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicProperty, 1, 1, MosaicProperty)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(TransactionTypeProperty, 1, 1, TransactionTypeProperty)
 
 		template<typename TTransaction, typename TTransactionTraits>
 		struct AddressTraits : public TTransactionTraits {
@@ -212,13 +212,9 @@ namespace catapult { namespace plugins {
 		// endregion
 	};
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(
-			TEST_CLASS,
-			Address,
-			_Address,
-			model::Entity_Type_Address_Property)
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, Mosaic, _Mosaic, model::Entity_Type_Mosaic_Property)
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Address, _Address, model::Entity_Type_Address_Property)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Mosaic, _Mosaic, model::Entity_Type_Mosaic_Property)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(
 			TEST_CLASS,
 			TransactionType,
 			_TransactionType,

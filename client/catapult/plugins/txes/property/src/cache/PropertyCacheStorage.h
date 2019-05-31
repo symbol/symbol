@@ -27,9 +27,7 @@ namespace catapult { namespace cache {
 
 	/// Policy for saving and loading property cache data.
 	struct PropertyCacheStorage
-			: public CacheStorageFromDescriptor<PropertyCacheDescriptor>
-			, public state::AccountPropertiesSerializer {
-		/// Loads \a accountProperties into \a cacheDelta.
-		static void LoadInto(const ValueType& accountProperties, DestinationType& cacheDelta);
-	};
+			: public CacheStorageForBasicInsertRemoveCache<PropertyCacheDescriptor>
+			, public state::AccountPropertiesSerializer
+	{};
 }}

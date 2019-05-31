@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 	model::HashRange GenerateRandomHashes(size_t numHashes) {
 		std::vector<Hash256> hashes(numHashes);
 		for (auto i = 0u; i < numHashes; ++i)
-			hashes[i] = GenerateRandomData<Hash256_Size>();
+			hashes[i] = GenerateRandomByteArray<Hash256>();
 
 		return CopyHashes(hashes.data(), numHashes);
 	}

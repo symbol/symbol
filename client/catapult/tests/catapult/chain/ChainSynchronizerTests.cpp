@@ -41,29 +41,12 @@ namespace catapult { namespace chain {
 	namespace {
 		constexpr Height Default_Height(20);
 
-		disruptor::ConsumerCompletionResult CreateContinueResult() {
-			disruptor::ConsumerCompletionResult result;
-			result.CompletionStatus = disruptor::CompletionStatus::Normal;
-			return result;
-		}
-
-		disruptor::ConsumerCompletionResult CreateAbortResult() {
-			disruptor::ConsumerCompletionResult result;
-			result.CompletionStatus = disruptor::CompletionStatus::Aborted;
-			return result;
-		}
-
-		ChainSynchronizerConfiguration CreateConfiguration() {
-			auto config = ChainSynchronizerConfiguration();
-			config.MaxBlocksPerSyncAttempt = 4 * 100;
-			config.MaxChainBytesPerSyncAttempt = utils::FileSize::FromKilobytes(8 * 512).bytes32();
-			config.MaxRollbackBlocks = 360;
-			return config;
-		}
+		// region test context
 
 		struct TestContext {
+		public:
 			TestContext(const ChainScore& localScore, const ChainScore& remoteScore)
-					: TestContext(localScore, remoteScore, {}, {}, test::GenerateVerifiableBlockAtHeight(Default_Height))
+					: TestContext(localScore, remoteScore, {}, {}, test::GenerateBlockWithTransactions(0, Default_Height))
 			{}
 
 			TestContext(const ChainScore& localScore, const ChainScore& remoteScore, std::unique_ptr<Block>&& pRemoteLastBlock)
@@ -84,10 +67,21 @@ namespace catapult { namespace chain {
 					, Config(CreateConfiguration())
 			{}
 
+		public:
 			void assertNoCalls() const {
 				EXPECT_EQ(0u, BlockRangeConsumerCalls);
 			}
 
+		private:
+			static ChainSynchronizerConfiguration CreateConfiguration() {
+				auto config = ChainSynchronizerConfiguration();
+				config.MaxBlocksPerSyncAttempt = 4 * 100;
+				config.MaxChainBytesPerSyncAttempt = utils::FileSize::FromKilobytes(8 * 512).bytes32();
+				config.MaxRollbackBlocks = 360;
+				return config;
+			}
+
+		public:
 			ChainScore LocalScore;
 			HashRange LocalHashes;
 			std::shared_ptr<MockPacketIo> pIo;
@@ -98,10 +92,14 @@ namespace catapult { namespace chain {
 			disruptor::ProcessingCompleteFunc ProcessingComplete;
 		};
 
+		// endregion
+
+		// region test utils
+
 		enum class ConsumerMode { Normal, Full };
 
 		RemoteNodeSynchronizer<api::RemoteChainApi> CreateSynchronizer(TestContext& context, ConsumerMode mode = ConsumerMode::Normal) {
-			auto pVerifiableBlock = test::GenerateVerifiableBlockAtHeight(Default_Height);
+			auto pVerifiableBlock = test::GenerateBlockWithTransactions(0, Default_Height);
 			auto pLocal = std::make_shared<MockChainApi>(context.LocalScore, std::move(pVerifiableBlock), context.LocalHashes);
 
 			auto blockRangeConsumer = [mode, &context](const auto& range, const auto& processingComplete) {
@@ -112,6 +110,18 @@ namespace catapult { namespace chain {
 			};
 
 			return CreateChainSynchronizer(pLocal, context.Config, blockRangeConsumer);
+		}
+
+		disruptor::ConsumerCompletionResult CreateContinueResult() {
+			disruptor::ConsumerCompletionResult result;
+			result.CompletionStatus = disruptor::CompletionStatus::Normal;
+			return result;
+		}
+
+		disruptor::ConsumerCompletionResult CreateAbortResult() {
+			disruptor::ConsumerCompletionResult result;
+			result.CompletionStatus = disruptor::CompletionStatus::Aborted;
+			return result;
 		}
 
 		void AssertSync(const TestContext& context, size_t numBlockConsumerCalls) {
@@ -125,9 +135,11 @@ namespace catapult { namespace chain {
 				++i;
 			}
 		}
+
+		// endregion
 	}
 
-	// region chain synchronization
+	// region chain synchronization - compare chains (neutral)
 
 	namespace {
 		void AssertNeutralInteraction(ChainScore localScore, ChainScore remoteScore) {
@@ -144,30 +156,47 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, NeutralInteractionIfCompareChainsReturnsEqualScoreResult) {
+	TEST(TEST_CLASS, NeutralInteractionWhenCompareChainsReturnsEqualScoreResult) {
 		// Assert:
 		AssertNeutralInteraction(ChainScore(10), ChainScore(10));
 	}
 
-	TEST(TEST_CLASS, NeutralInteractionIfCompareChainsReturnsLowerScoreResult) {
+	TEST(TEST_CLASS, NeutralInteractionWhenCompareChainsReturnsLowerScoreResult) {
 		// Assert:
 		AssertNeutralInteraction(ChainScore(11), ChainScore(10));
 	}
 
-	TEST(TEST_CLASS, FailedInteractionIfCompareChainsReturnsFailureResult) {
-		// Arrange: trigger failure by letting the remote return a non-verifiable last block
-		TestContext context(ChainScore(10), ChainScore(11), test::GenerateNonVerifiableBlockAtHeight(Default_Height));
-		auto synchronizer = CreateSynchronizer(context);
+	// endregion
 
-		// Act:
-		auto code = synchronizer(*context.pChainApi).get();
+	// region chain synchronization - compare chains (failed)
 
-		// Assert:
-		EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, code);
-		context.assertNoCalls();
+	namespace {
+		void AssertFailedInteraction(ChainScore localScore, ChainScore remoteScore, std::unique_ptr<Block>&& pRemoteLastBlock) {
+			// Arrange:
+			TestContext context(localScore, remoteScore, std::move(pRemoteLastBlock));
+			auto synchronizer = CreateSynchronizer(context);
+
+			// Act:
+			auto code = synchronizer(*context.pChainApi).get();
+
+			// Assert:
+			EXPECT_EQ(ionet::NodeInteractionResultCode::Failure, code);
+			context.assertNoCalls();
+		}
 	}
 
-	TEST(TEST_CLASS, FailedInteractionIfCompareChainsReturnsException) {
+	TEST(TEST_CLASS, FailedInteractionWhenCompareChainsReturnsNonRecoverableOutOfSyncResult) {
+		// Assert: trigger failure by letting the remote return a block too far behind
+		//         (using wraparound to force this condition)
+		AssertFailedInteraction(ChainScore(10), ChainScore(11), test::GenerateBlockWithTransactions(0, Default_Height - Height(361)));
+	}
+
+	TEST(TEST_CLASS, FailedInteractionWhenCompareChainsReturnsEvilResult) {
+		// Assert: trigger failure by letting the remote return a non-verifiable last block
+		AssertFailedInteraction(ChainScore(10), ChainScore(11), test::GenerateBlockWithTransactions(0, Default_Height));
+	}
+
+	TEST(TEST_CLASS, FailedInteractionWhenCompareChainsReturnsException) {
 		// Arrange:
 		TestContext context(ChainScore(10), ChainScore(11));
 		context.pChainApi->setError(MockChainApi::EntryPoint::Chain_Info);
@@ -181,8 +210,12 @@ namespace catapult { namespace chain {
 		context.assertNoCalls();
 	}
 
+	// endregion
+
+	// region chain synchronization
+
 	namespace {
-		auto CreateDefaultTestContext(size_t numLocalHashes, size_t numRemoteHashes, size_t forkDepth = 0) {
+		TestContext CreateTestContextWithHashes(size_t numLocalHashes, size_t numRemoteHashes, size_t forkDepth = 0) {
 			auto remoteHashes = test::GenerateRandomHashes(numRemoteHashes);
 			auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, numLocalHashes);
 			localHashes = test::ConcatHashes(localHashes, test::GenerateRandomHashes(forkDepth));
@@ -192,7 +225,7 @@ namespace catapult { namespace chain {
 					ChainScore(11),
 					localHashes,
 					remoteHashes,
-					test::GenerateVerifiableBlockAtHeight(Default_Height));
+					test::GenerateBlockWithTransactions(0, Default_Height));
 			context.pChainApi->setNumBlocksPerBlocksFromRequest({ 2 });
 			context.Config.MaxRollbackBlocks = 9;
 			context.Config.MaxBlocksPerSyncAttempt = 5;
@@ -223,9 +256,9 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, SuccessfulInteractionIfRemoteChainPartWasSuccessfullyPulled) {
+	TEST(TEST_CLASS, SuccessfulInteractionWhenRemoteChainPartWasSuccessfullyPulled) {
 		// Arrange:
-		auto context = CreateDefaultTestContext(9, 10);
+		auto context = CreateTestContextWithHashes(9, 10);
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act:
@@ -237,9 +270,9 @@ namespace catapult { namespace chain {
 		AssertDefaultSinglePullRequest(*context.pChainApi);
 	}
 
-	TEST(TEST_CLASS, NeutralInteractionIfRemoteChainPartWasSuccessfullyPulledAndConsumerIsFull) {
+	TEST(TEST_CLASS, NeutralInteractionWhenRemoteChainPartWasSuccessfullyPulledAndConsumerIsFull) {
 		// Arrange: simulate a full consumer
-		auto context = CreateDefaultTestContext(9, 10);
+		auto context = CreateTestContextWithHashes(9, 10);
 		auto synchronizer = CreateSynchronizer(context, ConsumerMode::Full);
 
 		// Act:
@@ -256,7 +289,7 @@ namespace catapult { namespace chain {
 		// - last block has height 20, rewrite limit is 9
 		// - common block has height 14 = 20 - 9 + 4 - 1 (fork depth 6)
 		// - pulls 2 blocks at time: 3 attempts needed to pull 6 blocks
-		auto context = CreateDefaultTestContext(4, 10, 6);
+		auto context = CreateTestContextWithHashes(4, 10, 6);
 		auto synchronizer = CreateSynchronizer(context);
 
 		// Act:
@@ -268,9 +301,9 @@ namespace catapult { namespace chain {
 		AssertDefaultMultiplePullRequest(*context.pChainApi, { Height(15), Height(17), Height(19) });
 	}
 
-	TEST(TEST_CLASS, NeutralInteractionIfRemoteDoesNotHaveBlocksAtRequestedHeight) {
+	TEST(TEST_CLASS, NeutralInteractionWhenRemoteDoesNotHaveBlocksAtRequestedHeight) {
 		// Arrange:
-		auto context = CreateDefaultTestContext(9, 10);
+		auto context = CreateTestContextWithHashes(9, 10);
 		context.pChainApi->setNumBlocksPerBlocksFromRequest({ 0 });
 		auto synchronizer = CreateSynchronizer(context);
 
@@ -289,7 +322,7 @@ namespace catapult { namespace chain {
 		// - common block has height 12 = 20 - 9 + 2 - 1 (fork depth 8)
 		// - pulls 2 blocks at time: 4 attempts needed to pull 8 blocks but blocks are only returned twice
 		//   (third attempt returns no blocks, so subsequent attempts are bypassed)
-		auto context = CreateDefaultTestContext(2, 10, 8);
+		auto context = CreateTestContextWithHashes(2, 10, 8);
 		context.pChainApi->setNumBlocksPerBlocksFromRequest({ 2, 2, 0 });
 		auto synchronizer = CreateSynchronizer(context);
 
@@ -302,9 +335,9 @@ namespace catapult { namespace chain {
 		AssertDefaultMultiplePullRequest(*context.pChainApi, { Height(13), Height(15), Height(17) });
 	}
 
-	TEST(TEST_CLASS, FailedInteractionIfBlocksFromReturnsException) {
+	TEST(TEST_CLASS, FailedInteractionWhenBlocksFromReturnsException) {
 		// Arrange:
-		auto context = CreateDefaultTestContext(9, 10);
+		auto context = CreateTestContextWithHashes(9, 10);
 		context.pChainApi->setError(MockChainApi::EntryPoint::Blocks_From);
 		auto synchronizer = CreateSynchronizer(context);
 
@@ -319,7 +352,7 @@ namespace catapult { namespace chain {
 
 	TEST(TEST_CLASS, ReturnsNotReadyFutureWhenPullingBlocks) {
 		// Arrange:
-		auto context = CreateDefaultTestContext(9, 10);
+		auto context = CreateTestContextWithHashes(9, 10);
 		context.pChainApi->setDelay(utils::TimeSpan::FromMilliseconds(10));
 		auto synchronizer = CreateSynchronizer(context);
 
@@ -351,7 +384,7 @@ namespace catapult { namespace chain {
 					ChainScoreRelation::RemoteBetter == relation ? ChainScore(11) : ChainScore(10),
 					localHashes,
 					remoteHashes,
-					test::GenerateVerifiableBlockAtHeight(Default_Height));
+					test::GenerateBlockWithTransactions(0, Default_Height));
 			context.pChainApi->setNumBlocksPerBlocksFromRequest({ 2 });
 			context.Config.MaxRollbackBlocks = 9;
 			return context;
@@ -371,7 +404,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, SuccessfulInteractionIfContainerIsNeitherFullNorDirty) {
+	TEST(TEST_CLASS, SuccessfulInteractionWhenContainerIsNeitherFullNorDirty) {
 		// Arrange: by default the container max size is large enough to pass many sync rounds without being full
 		auto context = CreateTestContextForUnprocessedElementTests();
 		auto synchronizer = CreateSynchronizer(context);
@@ -393,7 +426,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, NeutralInteractionIfContainerIsFull) {
+	TEST(TEST_CLASS, NeutralInteractionWhenContainerIsFull) {
 		// Arrange:
 		auto context = CreateTestContextForUnprocessedElementTests();
 		context.Config.MaxChainBytesPerSyncAttempt = sizeof(BlockHeader) / 3 - 1;
@@ -411,7 +444,7 @@ namespace catapult { namespace chain {
 		AssertRequestHeights(context, { Default_Height });
 	}
 
-	TEST(TEST_CLASS, SuccessfulInteractionIfPreviouslyFullContainerIsNoLongerFull) {
+	TEST(TEST_CLASS, SuccessfulInteractionWhenPreviouslyFullContainerIsNoLongerFull) {
 		// Arrange: the container's max size is set to 3 * MaxChainBytesPerSyncAttempt = 3 * sizeof(BlockHeader)
 		//          that means the container is full after 2 syncs (2 blocks per sync)
 		auto context = CreateTestContextForUnprocessedElementTests();
@@ -446,7 +479,7 @@ namespace catapult { namespace chain {
 		AssertRequestHeights(context, { Default_Height, Default_Height + Height(2), Default_Height + Height(4) });
 	}
 
-	TEST(TEST_CLASS, NeutralInteractionIfContainerIsDirty) {
+	TEST(TEST_CLASS, NeutralInteractionWhenContainerIsDirty) {
 		// Arrange:
 		auto context = CreateTestContextForUnprocessedElementTests();
 		auto synchronizer = CreateSynchronizer(context);
@@ -510,7 +543,7 @@ namespace catapult { namespace chain {
 		AssertRequestHeights(context, { Default_Height, Default_Height + Height(2), Default_Height });
 	}
 
-	TEST(TEST_CLASS, PendingBlocksAreMarkedAsDirtyIfRootBlocksAreDirty) {
+	TEST(TEST_CLASS, PendingBlocksAreMarkedAsDirtyWhenRootBlocksAreDirty) {
 		// Arrange: non-deterministic because of dependency on delay
 		test::RunNonDeterministicTest("closes socket test", [](auto i) {
 			// Arrange:
@@ -578,7 +611,7 @@ namespace catapult { namespace chain {
 		AssertRequestHeights(context, { Default_Height });
 	}
 
-	TEST(TEST_CLASS, ThrowsIfCompletionHandlerIsCalledWithUnknownElementId) {
+	TEST(TEST_CLASS, ThrowsWhenCompletionHandlerIsCalledWithUnknownElementId) {
 		// Arrange:
 		auto context = CreateTestContextForUnprocessedElementTests();
 		auto synchronizer = CreateSynchronizer(context);
@@ -638,7 +671,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, SynchronizerFutureCanCompleteAfterSynchronizerIsDestroyed) {
 		// Arrange:
 		thread::future<ionet::NodeInteractionResultCode> future;
-		auto context = CreateDefaultTestContext(9, 10);
+		auto context = CreateTestContextWithHashes(9, 10);
 		{
 			context.pChainApi->setDelay(utils::TimeSpan::FromMilliseconds(10));
 			auto synchronizer = CreateSynchronizer(context);

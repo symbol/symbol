@@ -21,7 +21,7 @@
 #pragma once
 #include "partialtransaction/src/PtTypes.h"
 #include "catapult/api/RemoteApi.h"
-#include "catapult/cache/ShortHashPair.h"
+#include "catapult/cache_tx/ShortHashPair.h"
 #include "catapult/thread/Future.h"
 
 namespace catapult { namespace ionet { class PacketIo; } }

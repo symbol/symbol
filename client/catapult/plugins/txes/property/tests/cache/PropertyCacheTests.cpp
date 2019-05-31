@@ -57,7 +57,7 @@ namespace catapult { namespace cache {
 			}
 		};
 
-		struct PropertyEntryModificationPolicy {
+		struct PropertyCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
 			static void Modify(PropertyCacheDelta& delta, const state::AccountProperties& properties) {
 				auto& propertiesFromCache = delta.find(properties.address()).get();
 				auto& property = propertiesFromCache.property(model::PropertyType::Address);
@@ -78,7 +78,7 @@ namespace catapult { namespace cache {
 
 	DEFINE_CACHE_MUTATION_TESTS(PropertyCacheMixinTraits, DeltaAccessor, _Delta)
 
-	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(PropertyCacheMixinTraits, PropertyEntryModificationPolicy, _Delta)
+	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(PropertyCacheMixinTraits, PropertyCacheDeltaModificationPolicy, _Delta)
 
 	DEFINE_CACHE_BASIC_TESTS(PropertyCacheMixinTraits,)
 

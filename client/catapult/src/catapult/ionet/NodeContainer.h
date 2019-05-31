@@ -38,8 +38,8 @@ namespace catapult { namespace ionet {
 	/// A read only view on top of node container.
 	class NodeContainerView : utils::MoveOnly {
 	public:
-		/// Creates a view around \a data with lock context \a readLock.
-		NodeContainerView(const NodeContainerData& data, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
+		/// Creates a view around \a nodeContainerData with lock context \a readLock.
+		NodeContainerView(const NodeContainerData& nodeContainerData, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
 
 	public:
 		/// Returns the number of nodes.
@@ -58,15 +58,15 @@ namespace catapult { namespace ionet {
 		void forEach(const consumer<const Node&, const NodeInfo&>& consumer) const;
 
 	private:
-		const NodeContainerData& m_data;
+		const NodeContainerData& m_nodeContainerData;
 		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 	};
 
 	/// A write only view on top of node container.
 	class NodeContainerModifier : utils::MoveOnly {
 	public:
-		/// Creates a view around \a data with lock context \a readLock.
-		NodeContainerModifier(NodeContainerData& data, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
+		/// Creates a view around \a nodeContainerData with lock context \a readLock.
+		NodeContainerModifier(NodeContainerData& nodeContainerData, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);
 
 	public:
 		/// Adds a \a node to the collection with \a source.
@@ -93,14 +93,14 @@ namespace catapult { namespace ionet {
 		void incrementFailures(const Key& identityKey);
 
 	private:
-		void autoProvisionConnectionStates(NodeData& data);
+		void autoProvisionConnectionStates(NodeData& nodeData);
 
 		bool ensureAtLeastOneEmptySlot();
 
 		void incrementInteraction(const Key& identityKey, const consumer<NodeInfo&>& incrementer);
 
 	private:
-		NodeContainerData& m_data;
+		NodeContainerData& m_nodeContainerData;
 		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 		utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
 	};

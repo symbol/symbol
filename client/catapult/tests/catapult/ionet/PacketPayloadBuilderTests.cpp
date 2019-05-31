@@ -62,7 +62,7 @@ namespace catapult { namespace ionet {
 		struct SingleEntityTraits {
 			using DataType = std::shared_ptr<model::VerifiableEntity>;
 
-			static auto CreateData() {
+			static auto CreateAppendData() {
 				return MakeEntityWithSize(124);
 			}
 
@@ -105,7 +105,7 @@ namespace catapult { namespace ionet {
 		struct MultipleEntitiesTraits {
 			using DataType = EntitiesContainer;
 
-			static auto CreateData() {
+			static auto CreateAppendData() {
 				return EntitiesContainer{ MakeEntityWithSize(124), MakeEntityWithSize(300), MakeEntityWithSize(198) };
 			}
 
@@ -158,7 +158,7 @@ namespace catapult { namespace ionet {
 			public:
 				DataType()
 						: Index(0)
-						, Entities(MultipleEntitiesTraits::CreateData())
+						, Entities(MultipleEntitiesTraits::CreateAppendData())
 				{}
 
 			public:
@@ -171,7 +171,7 @@ namespace catapult { namespace ionet {
 				EntitiesContainer Entities;
 			};
 
-			static auto CreateData() {
+			static auto CreateAppendData() {
 				return DataType();
 			}
 
@@ -206,9 +206,9 @@ namespace catapult { namespace ionet {
 		struct EntityRangeTraits {
 			using DataType = model::EntityRange<uint32_t>;
 
-			static auto CreateData() {
-				auto data = test::GenerateRandomVector(3 * sizeof(uint32_t));
-				return model::EntityRange<uint32_t>::CopyFixed(data.data(), 3);
+			static auto CreateAppendData() {
+				auto buffer = test::GenerateRandomVector(3 * sizeof(uint32_t));
+				return model::EntityRange<uint32_t>::CopyFixed(buffer.data(), 3);
 			}
 
 			static uint32_t GetDataSize(const DataType& range) {
@@ -240,8 +240,8 @@ namespace catapult { namespace ionet {
 		struct ValueTraits {
 			using DataType = Hash256;
 
-			static auto CreateData() {
-				return test::GenerateRandomData<Hash256_Size>();
+			static auto CreateAppendData() {
+				return test::GenerateRandomByteArray<Hash256>();
 			}
 
 			static uint32_t GetDataSize(const DataType&) {
@@ -269,7 +269,7 @@ namespace catapult { namespace ionet {
 		struct ValuesTraits {
 			using DataType = std::vector<Hash256>;
 
-			static auto CreateData() {
+			static auto CreateAppendData() {
 				return test::GenerateRandomDataVector<Hash256>(3);
 			}
 
@@ -303,7 +303,7 @@ namespace catapult { namespace ionet {
 			public:
 				DataType()
 						: Index(0)
-						, Values(ValuesTraits::CreateData())
+						, Values(ValuesTraits::CreateAppendData())
 				{}
 
 			public:
@@ -316,7 +316,7 @@ namespace catapult { namespace ionet {
 				std::vector<Hash256> Values;
 			};
 
-			static auto CreateData() {
+			static auto CreateAppendData() {
 				return DataType();
 			}
 
@@ -365,44 +365,44 @@ namespace catapult { namespace ionet {
 
 	DEFINE_BASIC_APPEND_TESTS(CanAppendData) {
 		// Arrange:
-		auto data = TTraits::CreateData();
-		auto dataSize = TTraits::GetDataSize(data);
+		auto appendData = TTraits::CreateAppendData();
+		auto appendDataSize = TTraits::GetDataSize(appendData);
 		PacketPayloadBuilder builder(PacketType::Chain_Info);
 
 		// Act:
-		auto isAppendSuccess = TTraits::Append(builder, data);
+		auto isAppendSuccess = TTraits::Append(builder, appendData);
 		auto payload = builder.build();
 
 		// Assert:
 		EXPECT_TRUE(isAppendSuccess);
-		test::AssertPacketHeader(payload, sizeof(PacketHeader) + dataSize, PacketType::Chain_Info);
-		TTraits::AssertBuffers(payload.buffers(), data);
+		test::AssertPacketHeader(payload, sizeof(PacketHeader) + appendDataSize, PacketType::Chain_Info);
+		TTraits::AssertBuffers(payload.buffers(), appendData);
 	}
 
 	DEFINE_BASIC_APPEND_TESTS(CanAppendDataWithSizeEqualToLimit) {
 		// Arrange:
-		auto data = TTraits::CreateData();
-		auto dataSize = TTraits::GetDataSize(data);
-		PacketPayloadBuilder builder(PacketType::Chain_Info, dataSize);
+		auto appendData = TTraits::CreateAppendData();
+		auto appendDataSize = TTraits::GetDataSize(appendData);
+		PacketPayloadBuilder builder(PacketType::Chain_Info, appendDataSize);
 
 		// Act:
-		auto isAppendSuccess = TTraits::Append(builder, data);
+		auto isAppendSuccess = TTraits::Append(builder, appendData);
 		auto payload = builder.build();
 
 		// Assert:
 		EXPECT_TRUE(isAppendSuccess);
-		test::AssertPacketHeader(payload, sizeof(PacketHeader) + dataSize, PacketType::Chain_Info);
-		TTraits::AssertBuffers(payload.buffers(), data);
+		test::AssertPacketHeader(payload, sizeof(PacketHeader) + appendDataSize, PacketType::Chain_Info);
+		TTraits::AssertBuffers(payload.buffers(), appendData);
 	}
 
 	DEFINE_BASIC_APPEND_TESTS(CannotAppendDataWithSizeExceedingLimit) {
 		// Arrange:
-		auto data = TTraits::CreateData();
-		auto dataSize = TTraits::GetDataSize(data);
-		PacketPayloadBuilder builder(PacketType::Chain_Info, dataSize - 1);
+		auto appendData = TTraits::CreateAppendData();
+		auto appendDataSize = TTraits::GetDataSize(appendData);
+		PacketPayloadBuilder builder(PacketType::Chain_Info, appendDataSize - 1);
 
 		// Act:
-		auto isAppendSuccess = TTraits::Append(builder, data);
+		auto isAppendSuccess = TTraits::Append(builder, appendData);
 		auto payload = builder.build();
 
 		// Assert:
@@ -412,15 +412,15 @@ namespace catapult { namespace ionet {
 
 	DEFINE_BASIC_APPEND_TESTS(CannotAppendDataAfterAppendDataFailure) {
 		// Arrange:
-		auto data1 = TTraits::CreateData();
-		auto data2 = TTraits::CreateData();
-		auto dataSize = TTraits::GetDataSize(data1);
-		PacketPayloadBuilder builder(PacketType::Chain_Info, dataSize + dataSize / 2);
+		auto appendData1 = TTraits::CreateAppendData();
+		auto appendData2 = TTraits::CreateAppendData();
+		auto appendDataSize = TTraits::GetDataSize(appendData1);
+		PacketPayloadBuilder builder(PacketType::Chain_Info, appendDataSize + appendDataSize / 2);
 
 		// Act: the second append should fail (sticky) causing the payload to be unset
-		auto isAppendSuccess1 = TTraits::Append(builder, data1);
-		auto isAppendSuccess2 = TTraits::Append(builder, data2);
-		auto isAppendSuccess3 = TTraits::Append(builder, data1);
+		auto isAppendSuccess1 = TTraits::Append(builder, appendData1);
+		auto isAppendSuccess2 = TTraits::Append(builder, appendData2);
+		auto isAppendSuccess3 = TTraits::Append(builder, appendData1);
 		auto payload = builder.build();
 
 		// Assert:
@@ -432,27 +432,27 @@ namespace catapult { namespace ionet {
 
 	DEFINE_BASIC_APPEND_TESTS(AppendingDataExtendsDataLifetime) {
 		// Arrange:
-		typename TTraits::DataType dataCopy;
-		size_t dataSize;
+		typename TTraits::DataType appendDataCopy;
+		size_t appendDataSize;
 		bool isAppendSuccess;
 		ionet::PacketPayload payload;
 
 		// - ensure the appended data goes out of scope
 		{
-			auto data = TTraits::CreateData();
-			dataCopy = TTraits::CopyData(data);
-			dataSize = TTraits::GetDataSize(data);
+			auto appendData = TTraits::CreateAppendData();
+			appendDataCopy = TTraits::CopyData(appendData);
+			appendDataSize = TTraits::GetDataSize(appendData);
 
 			// Act:
 			PacketPayloadBuilder builder(PacketType::Chain_Info);
-			isAppendSuccess = TTraits::Append(builder, data);
+			isAppendSuccess = TTraits::Append(builder, appendData);
 			payload = builder.build();
 		}
 
 		// Assert: use Shallow compare because copy is passed into AssertBuffers
 		EXPECT_TRUE(isAppendSuccess);
-		test::AssertPacketHeader(payload, sizeof(PacketHeader) + dataSize, PacketType::Chain_Info);
-		TTraits::AssertBuffers(payload.buffers(), dataCopy, AssertBuffersType::Shallow);
+		test::AssertPacketHeader(payload, sizeof(PacketHeader) + appendDataSize, PacketType::Chain_Info);
+		TTraits::AssertBuffers(payload.buffers(), appendDataCopy, AssertBuffersType::Shallow);
 	}
 
 	// endregion
@@ -461,12 +461,12 @@ namespace catapult { namespace ionet {
 
 	DEFINE_OVERFLOW_APPEND_TESTS(CannotAppendDataWithOverflowingSize) {
 		// Arrange:
-		auto data = TTraits::CreateData();
-		TTraits::MakeOverflow(data);
+		auto appendData = TTraits::CreateAppendData();
+		TTraits::MakeOverflow(appendData);
 		PacketPayloadBuilder builder(PacketType::Chain_Info);
 
 		// Act:
-		auto isAppendSuccess = TTraits::Append(builder, data);
+		auto isAppendSuccess = TTraits::Append(builder, appendData);
 		auto payload = builder.build();
 
 		// Assert:
@@ -527,9 +527,9 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanAppendOverlaidFixedSizeRange) {
 		// Arrange:
-		auto data = test::GenerateRandomVector(3 * sizeof(uint32_t));
+		auto rangeBuffer = test::GenerateRandomVector(3 * sizeof(uint32_t));
 		PacketPayloadBuilder builder(PacketType::Chain_Info);
-		auto range = model::EntityRange<uint32_t>::CopyVariable(data.data(), data.size(), { 2, 6 });
+		auto range = model::EntityRange<uint32_t>::CopyVariable(rangeBuffer.data(), rangeBuffer.size(), { 2, 6 });
 
 		// Act:
 		auto isAppendSuccess = builder.appendRange(std::move(range));
@@ -542,7 +542,7 @@ namespace catapult { namespace ionet {
 
 		auto buffer = payload.buffers()[0];
 		ASSERT_EQ(8u, buffer.Size);
-		EXPECT_EQ_MEMORY(data.data() + 2u, buffer.pData, buffer.Size);
+		EXPECT_EQ_MEMORY(rangeBuffer.data() + 2u, buffer.pData, buffer.Size);
 	}
 
 	// endregion
@@ -608,17 +608,17 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		PacketPayloadBuilder builder(PacketType::Chain_Info);
 
-		auto rangeData = test::GenerateRandomVector(3 * sizeof(uint32_t));
-		auto valuesData = test::GenerateRandomVector(3 * sizeof(uint32_t));
+		auto rangeBuffer = test::GenerateRandomVector(3 * sizeof(uint32_t));
+		auto valuesBuffer = test::GenerateRandomVector(3 * sizeof(uint32_t));
 		auto pEntity = MakeEntityWithSize(124);
 
 		// Act:
 		auto isAppendSuccess = true
 				&& builder.appendValue<uint32_t>(0x03981204)
 				&& builder.appendEntity(pEntity)
-				&& builder.appendValues(valuesData)
+				&& builder.appendValues(valuesBuffer)
 				&& builder.appendValue<uint32_t>(0x11111111)
-				&& builder.appendRange(model::EntityRange<uint32_t>::CopyFixed(rangeData.data(), 2))
+				&& builder.appendRange(model::EntityRange<uint32_t>::CopyFixed(rangeBuffer.data(), 2))
 				&& builder.appendValue<uint32_t>(0x00003322);
 		auto payload = builder.build();
 
@@ -636,13 +636,13 @@ namespace catapult { namespace ionet {
 		EXPECT_EQ(*pEntity, reinterpret_cast<const model::VerifiableEntity&>(*buffers[1].pData));
 
 		ASSERT_EQ(12u, buffers[2].Size);
-		EXPECT_EQ_MEMORY(valuesData.data(), buffers[2].pData, buffers[2].Size);
+		EXPECT_EQ_MEMORY(valuesBuffer.data(), buffers[2].pData, buffers[2].Size);
 
 		ASSERT_EQ(4u, buffers[3].Size);
 		EXPECT_EQ(0x11111111u, reinterpret_cast<const uint32_t&>(*buffers[3].pData));
 
 		ASSERT_EQ(8u, buffers[4].Size);
-		EXPECT_EQ_MEMORY(rangeData.data(), buffers[4].pData, buffers[4].Size);
+		EXPECT_EQ_MEMORY(rangeBuffer.data(), buffers[4].pData, buffers[4].Size);
 
 		ASSERT_EQ(4u, buffers[5].Size);
 		EXPECT_EQ(0x00003322u, reinterpret_cast<const uint32_t&>(*buffers[5].pData));

@@ -37,13 +37,13 @@ namespace catapult { namespace handlers {
 		// region helpers
 
 		auto CreateRandomLeafNode() {
-			return tree::LeafTreeNode(tree::TreeNodePath(test::Random()), test::GenerateRandomData<Hash256_Size>());
+			return tree::LeafTreeNode(tree::TreeNodePath(test::Random()), test::GenerateRandomByteArray<Hash256>());
 		}
 
 		auto CreateRandomBranchNode() {
 			auto node = tree::BranchTreeNode(tree::TreeNodePath(test::Random()));
 			for (auto i = 0u; i < 16u; ++i)
-				node.setLink(test::GenerateRandomData<Hash256_Size>(), i);
+				node.setLink(test::GenerateRandomByteArray<Hash256>(), i);
 
 			return node;
 		}
@@ -212,7 +212,7 @@ namespace catapult { namespace handlers {
 	MAKE_BASIC_STATE_PATH_HANDLER_TEST(PacketWithTooSmallPayloadIsRejected)
 	MAKE_BASIC_STATE_PATH_HANDLER_TEST(PacketWithNoPayloadIsRejected)
 
-	TEST(TEST_CLASS, ValidPacketIsAcceptedIfCacheIsEmpty) {
+	TEST(TEST_CLASS, ValidPacketIsAcceptedWhenCacheIsEmpty) {
 		// Assert: no element in cache, so response packet only contains header
 		AssertPacketIsAccepted(
 				[](const auto&) {},
@@ -221,7 +221,7 @@ namespace catapult { namespace handlers {
 				});
 	}
 
-	TEST(TEST_CLASS, NegativeProofIsReturnedIfCacheDoesNotContainKey) {
+	TEST(TEST_CLASS, NegativeProofIsReturnedWhenCacheDoesNotContainKey) {
 		// Arrange:
 		std::vector<uint8_t> expectedResponse;
 
@@ -237,7 +237,7 @@ namespace catapult { namespace handlers {
 				});
 	}
 
-	TEST(TEST_CLASS, PositiveProofIsReturnedIfCacheContainsKey) {
+	TEST(TEST_CLASS, PositiveProofIsReturnedWhenCacheContainsKey) {
 		// Arrange:
 		std::vector<uint8_t> expectedResponse;
 

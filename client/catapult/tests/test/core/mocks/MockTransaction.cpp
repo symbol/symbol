@@ -121,12 +121,12 @@ namespace catapult { namespace mocks {
 				return m_type;
 			}
 
-			uint64_t calculateRealSize(const TTransaction& transaction) const override {
-				return TDerivedTransaction::CalculateRealSize(static_cast<const TDerivedTransaction&>(transaction));
+			TransactionAttributes attributes() const override {
+				return { 0x02, 0xFE, utils::TimeSpan::FromMilliseconds(0xEEEE'EEEE'EEEE'1234) };
 			}
 
-			SupportedVersions supportedVersions() const override {
-				return { 0x02, 0xFE };
+			uint64_t calculateRealSize(const TTransaction& transaction) const override {
+				return TDerivedTransaction::CalculateRealSize(static_cast<const TDerivedTransaction&>(transaction));
 			}
 
 		private:
@@ -187,6 +187,10 @@ namespace catapult { namespace mocks {
 
 			std::vector<RawBuffer> merkleSupplementaryBuffers(const Transaction&) const override {
 				return {};
+			}
+
+			bool supportsTopLevel() const override {
+				return !IsPluginOptionFlagSet(m_options, PluginOptionFlags::Not_Top_Level);
 			}
 
 			bool supportsEmbedding() const override {

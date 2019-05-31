@@ -19,8 +19,8 @@
 **/
 
 #pragma once
-#include "catapult/cache/PtChangeSubscriber.h"
-#include "catapult/cache/UtChangeSubscriber.h"
+#include "catapult/cache_tx/PtChangeSubscriber.h"
+#include "catapult/cache_tx/UtChangeSubscriber.h"
 
 namespace catapult { namespace test {
 

@@ -19,25 +19,29 @@
 **/
 
 #include "mongo/src/CoreMongo.h"
-#include "mongo/src/MongoPluginManager.h"
-#include "mongo/tests/test/MongoTestUtils.h"
+#include "mongo/tests/test/MongoPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo {
 
-#define TEST_CLASS CoreMongoTests
+	namespace {
+		struct CoreMongoTraits {
+		public:
+			static constexpr auto RegisterSubsystem = RegisterCoreMongoSystem;
 
-	TEST(TEST_CLASS, AppropriateStoragesAreRegistered) {
-		// Arrange:
-		test::PrepareDatabase(test::DatabaseName());
-		MongoStorageContext mongoContext(test::DefaultDbUri(), test::DatabaseName(), nullptr);
-		MongoPluginManager manager(mongoContext, model::BlockChainConfiguration::Uninitialized());
+			static std::vector<model::EntityType> GetTransactionTypes() {
+				return {};
+			}
 
-		// Act:
-		RegisterCoreMongoSystem(manager);
+			static std::vector<model::ReceiptType> GetReceiptTypes() {
+				return { model::Receipt_Type_Harvest_Fee, model::Receipt_Type_Inflation };
+			}
 
-		// Assert:
-		auto pStorage = manager.createStorage();
-		EXPECT_EQ("{ AccountStateCache, BlockDifficultyCache }", pStorage->name());
+			static std::string GetStorageName() {
+				return "{ AccountStateCache }";
+			}
+		};
 	}
+
+	DEFINE_MONGO_PLUGIN_TESTS(CoreMongoTests, CoreMongoTraits)
 }}

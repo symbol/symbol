@@ -19,7 +19,7 @@
 **/
 
 #include "ValidateConfiguration.h"
-#include "LocalNodeConfiguration.h"
+#include "CatapultConfiguration.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/HexParser.h"
@@ -37,12 +37,28 @@ namespace catapult { namespace config {
 		void ValidateConfiguration(const model::BlockChainConfiguration& config) {
 			if (2 * config.ImportanceGrouping <= config.MaxRollbackBlocks)
 				CATAPULT_THROW_VALIDATION_ERROR("ImportanceGrouping must be greater than MaxRollbackBlocks / 2");
+
+			if (100u < config.HarvestBeneficiaryPercentage)
+				CATAPULT_THROW_VALIDATION_ERROR("HarvestBeneficiaryPercentage must not be greater than 100");
+		}
+
+		void ValidateConfiguration(
+				const model::BlockChainConfiguration& blockChainConfig,
+				const config::InflationConfiguration& inflationConfig) {
+			auto totalInflation = inflationConfig.InflationCalculator.sumAll();
+			if (!totalInflation.second)
+				CATAPULT_THROW_VALIDATION_ERROR("total currency inflation could not be calculated");
+
+			auto totalCurrency = blockChainConfig.InitialCurrencyAtomicUnits + totalInflation.first;
+			if (blockChainConfig.InitialCurrencyAtomicUnits > totalCurrency || totalCurrency > blockChainConfig.MaxMosaicAtomicUnits)
+				CATAPULT_THROW_VALIDATION_ERROR("sum of InitialCurrencyAtomicUnits and inflation must not exceed MaxMosaicAtomicUnits");
 		}
 	}
 
-	void ValidateConfiguration(const LocalNodeConfiguration& config) {
+	void ValidateConfiguration(const CatapultConfiguration& config) {
 		ValidateConfiguration(config.User);
 		ValidateConfiguration(config.BlockChain);
+		ValidateConfiguration(config.BlockChain, config.Inflation);
 	}
 
 #undef CATAPULT_THROW_VALIDATION_ERROR

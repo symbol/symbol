@@ -130,13 +130,10 @@ namespace catapult { namespace chain {
 		};
 
 		ionet::NodeInteractionResultCode ToNodeInteractionResultCode(ChainComparisonCode code) {
-			switch (code) {
-			case ChainComparisonCode::Remote_Reported_Equal_Chain_Score:
-			case ChainComparisonCode::Remote_Reported_Lower_Chain_Score:
-				return ionet::NodeInteractionResultCode::Neutral;
-			default:
-				return ionet::NodeInteractionResultCode::Failure;
-			}
+			// notice that this function is only called when code is not Remote_Is_Not_Synced
+			return IsRemoteOutOfSync(code) || IsRemoteEvil(code)
+					? ionet::NodeInteractionResultCode::Failure
+					: ionet::NodeInteractionResultCode::Neutral;
 		}
 
 		class RangeAggregator {

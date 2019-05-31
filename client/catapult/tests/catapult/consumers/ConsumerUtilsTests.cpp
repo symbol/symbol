@@ -32,7 +32,7 @@ namespace catapult { namespace consumers {
 	namespace {
 		void AssertNodeInteractionResult(ionet::NodeInteractionResultCode expectedCode, validators::ValidationResult validationResult) {
 			// Arrange:
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			model::AnnotatedTransactionRange range;
 			range.SourcePublicKey = key;
 			disruptor::ConsumerInput input(std::move(range));
@@ -49,7 +49,7 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(TEST_CLASS, NeutralIfConsumerResultIsNeutral) {
+	TEST(TEST_CLASS, NeutralWhenConsumerResultIsNeutral) {
 		// Assert:
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Neutral, validators::ValidationResult::Neutral);
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Neutral, consumers::Neutral_Consumer_Hash_In_Recency_Cache);
@@ -57,14 +57,14 @@ namespace catapult { namespace consumers {
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Neutral, static_cast<validators::ValidationResult>(0x41234567));
 	}
 
-	TEST(TEST_CLASS, SuccessIfConsumerResultIsSuccess) {
+	TEST(TEST_CLASS, SuccessWhenConsumerResultIsSuccess) {
 		// Assert:
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Success, validators::ValidationResult::Success);
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Success, static_cast<validators::ValidationResult>(0x00001234));
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Success, static_cast<validators::ValidationResult>(0x01234567));
 	}
 
-	TEST(TEST_CLASS, FailureIfConsumerResultIsFailure) {
+	TEST(TEST_CLASS, FailureWhenConsumerResultIsFailure) {
 		// Assert:
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Failure, validators::ValidationResult::Failure);
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Failure, static_cast<validators::ValidationResult>(0x80001234));

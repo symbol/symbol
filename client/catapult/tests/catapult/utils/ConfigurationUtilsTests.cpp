@@ -27,14 +27,14 @@ namespace catapult { namespace utils {
 
 	// region GetIniPropertyName
 
-	TEST(TEST_CLASS, GetIniPropertyNameThrowsIfCppVariableNameIsTooShort) {
+	TEST(TEST_CLASS, GetIniPropertyNameThrowsWhenCppVariableNameIsTooShort) {
 		// Act + Assert:
 		EXPECT_THROW(GetIniPropertyName(nullptr), catapult_invalid_argument);
 		EXPECT_THROW(GetIniPropertyName(""), catapult_invalid_argument);
 		EXPECT_THROW(GetIniPropertyName("a"), catapult_invalid_argument);
 	}
 
-	TEST(TEST_CLASS, GetIniPropertyNameThrowsIfCppVariableNameDoesNotStartWithLetter) {
+	TEST(TEST_CLASS, GetIniPropertyNameThrowsWhenCppVariableNameDoesNotStartWithLetter) {
 		// Act + Assert:
 		EXPECT_THROW(GetIniPropertyName("0abcd"), catapult_invalid_argument);
 		EXPECT_THROW(GetIniPropertyName("9abcd"), catapult_invalid_argument);
@@ -65,7 +65,7 @@ namespace catapult { namespace utils {
 
 	// region LoadIniProperty
 
-	TEST(TEST_CLASS, LoadIniPropertyThrowsIfCppVariableNameIsInvalid) {
+	TEST(TEST_CLASS, LoadIniPropertyThrowsWhenCppVariableNameIsInvalid) {
 		// Arrange:
 		auto bag = ConfigurationBag({{ "foo", { { "0baz", "1234" } } }});
 
@@ -74,7 +74,7 @@ namespace catapult { namespace utils {
 		EXPECT_THROW(LoadIniProperty(bag, "foo", "0baz", value), catapult_invalid_argument);
 	}
 
-	TEST(TEST_CLASS, LoadIniPropertyThrowsIfBagDoesNotContainKey) {
+	TEST(TEST_CLASS, LoadIniPropertyThrowsWhenBagDoesNotContainKey) {
 		// Arrange:
 		auto bag = ConfigurationBag({{ "foo", { { "baz", "1234" } } }});
 
@@ -108,7 +108,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(TEST_CLASS, VerifyBagSizeLteDoesNotThrowIfBagSizeIsLessThanOrEqualToExpectedSize) {
+	TEST(TEST_CLASS, VerifyBagSizeLteDoesNotThrowWhenBagSizeIsLessThanOrEqualToExpectedSize) {
 		// Arrange:
 		auto bag = CreateBagForVerifyBagSizeTests();
 
@@ -118,7 +118,7 @@ namespace catapult { namespace utils {
 		VerifyBagSizeLte(bag, 100);
 	}
 
-	TEST(TEST_CLASS, VerifyBagSizeLteThrowsIfBagSizeIsGreaterThanExpectedSize) {
+	TEST(TEST_CLASS, VerifyBagSizeLteThrowsWhenBagSizeIsGreaterThanExpectedSize) {
 		// Arrange:
 		auto bag = CreateBagForVerifyBagSizeTests();
 
@@ -214,7 +214,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(3u, allResultPair.second);
 	}
 
-	CONTAINER_BASED_TEST(ExtractSectionAsContainerFailsIfAnyValueIsNotBoolean) {
+	CONTAINER_BASED_TEST(ExtractSectionAsContainerFailsWhenAnyValueIsNotBoolean) {
 		// Arrange:
 		auto bag = ConfigurationBag({
 			{ "foo", { { "zeta", "true" }, { "beta", "1" }, { "gamma", "true" } } }

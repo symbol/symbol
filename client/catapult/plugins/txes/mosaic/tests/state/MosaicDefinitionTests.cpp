@@ -34,7 +34,6 @@ namespace catapult { namespace state {
 		void AssertDefaultRequiredProperties(const model::MosaicProperties& properties) {
 			EXPECT_FALSE(properties.is(model::MosaicFlags::Supply_Mutable));
 			EXPECT_FALSE(properties.is(model::MosaicFlags::Transferable));
-			EXPECT_FALSE(properties.is(model::MosaicFlags::Levy_Mutable));
 			EXPECT_EQ(0u, properties.divisibility());
 		}
 
@@ -43,7 +42,7 @@ namespace catapult { namespace state {
 		}
 
 		MosaicDefinition CreateMosaicDefinition(uint64_t duration) {
-			auto owner = test::GenerateRandomData<Key_Size>();
+			auto owner = test::GenerateRandomByteArray<Key>();
 			return MosaicDefinition(Default_Height, owner, 3, test::CreateMosaicPropertiesWithDuration(BlockDuration(duration)));
 		}
 	}
@@ -52,7 +51,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanCreateMosaicDefinition_DefaultProperties) {
 		// Arrange:
-		auto owner = test::GenerateRandomData<Key_Size>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		auto properties = model::MosaicProperties::FromValues({});
 
 		// Act:
@@ -68,7 +67,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanCreateMosaicDefinition_CustomProperties) {
 		// Arrange:
-		auto owner = test::GenerateRandomData<Key_Size>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		auto properties = test::CreateMosaicPropertiesWithDuration(BlockDuration(3));
 
 		// Act:
@@ -86,7 +85,7 @@ namespace catapult { namespace state {
 
 	// region isEternal
 
-	TEST(TEST_CLASS, IsEternalReturnsTrueIfMosaicDefinitionHasEternalDuration) {
+	TEST(TEST_CLASS, IsEternalReturnsTrueWhenMosaicDefinitionHasEternalDuration) {
 		// Arrange:
 		auto definition = CreateMosaicDefinition(Eternal_Artifact_Duration.unwrap());
 
@@ -94,7 +93,7 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(definition.isEternal());
 	}
 
-	TEST(TEST_CLASS, IsEternalReturnsFalseIfMosaicDefinitionDoesNotHaveEternalDuration) {
+	TEST(TEST_CLASS, IsEternalReturnsFalseWhenMosaicDefinitionDoesNotHaveEternalDuration) {
 		// Arrange:
 		for (auto duration : { 1u, 2u, 1000u, 10000u, 1'000'000'000u }) {
 			auto definition = CreateMosaicDefinition(duration);
@@ -119,21 +118,21 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(TEST_CLASS, IsActiveReturnsTrueIfMosaicDefinitionIsActive) {
+	TEST(TEST_CLASS, IsActiveReturnsTrueWhenMosaicDefinitionIsActive) {
 		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();
 		AssertActiveOrNot(duration, { height, height + 1, height + 22, height + duration - 2, height + duration - 1 }, true);
 	}
 
-	TEST(TEST_CLASS, IsActiveReturnsTrueIfMosaicDefinitionIsEternal) {
+	TEST(TEST_CLASS, IsActiveReturnsTrueWhenMosaicDefinitionIsEternal) {
 		// Assert:
 		auto duration = Eternal_Artifact_Duration.unwrap();
 		auto height = Default_Height.unwrap();
 		AssertActiveOrNot(duration, { height - 1, height, height + 1, 500u, 5000u, std::numeric_limits<Height::ValueType>::max() }, true);
 	}
 
-	TEST(TEST_CLASS, IsActiveReturnsFalseIfMosaicDefinitionIsNotActive) {
+	TEST(TEST_CLASS, IsActiveReturnsFalseWhenMosaicDefinitionIsNotActive) {
 		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();
@@ -155,21 +154,21 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(TEST_CLASS, IsExpiredReturnsTrueIfMosaicDefinitionIsExpired) {
+	TEST(TEST_CLASS, IsExpiredReturnsTrueWhenMosaicDefinitionIsExpired) {
 		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();
 		AssertExpiredOrNot(duration, { height + duration, height + duration + 1, height + 10'000 }, true);
 	}
 
-	TEST(TEST_CLASS, IsExpiredReturnsFalseIfMosaicDefinitionIsEternal) {
+	TEST(TEST_CLASS, IsExpiredReturnsFalseWhenMosaicDefinitionIsEternal) {
 		// Assert:
 		auto duration = Eternal_Artifact_Duration.unwrap();
 		auto height = Default_Height.unwrap();
 		AssertExpiredOrNot(duration, { 1, height - 1, height, height + 1, 5000u, std::numeric_limits<Height::ValueType>::max() }, false);
 	}
 
-	TEST(TEST_CLASS, IsExpiredReturnsFalseIfMosaicDefinitionIsNotExpired) {
+	TEST(TEST_CLASS, IsExpiredReturnsFalseWhenMosaicDefinitionIsNotExpired) {
 		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();

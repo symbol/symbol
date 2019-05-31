@@ -40,7 +40,7 @@ namespace catapult { namespace cache {
 		ReadOnlyCatapultCache readOnlyCache(subViews);
 
 		// Assert:
-		// - subcaches match input
+		// - sub caches match input
 		EXPECT_EQ(subViews[0], &readOnlyCache.sub<test::SimpleCacheT<0>>());
 		EXPECT_EQ(subViews[2], &readOnlyCache.sub<test::SimpleCacheT<2>>());
 	}

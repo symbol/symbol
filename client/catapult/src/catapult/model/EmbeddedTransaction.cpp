@@ -52,7 +52,8 @@ namespace catapult { namespace model {
 		if (transaction.Size == realSize)
 			return true;
 
-		CATAPULT_LOG(warning) << transaction.Type << " transaction failed size validation with size " << transaction.Size
+		CATAPULT_LOG(warning)
+				<< transaction.Type << " transaction failed size validation with size " << transaction.Size
 				<< " (expected " << realSize << ")";
 		return false;
 	}

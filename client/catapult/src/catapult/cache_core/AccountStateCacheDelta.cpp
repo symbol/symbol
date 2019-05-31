@@ -152,7 +152,7 @@ namespace catapult { namespace cache {
 
 		// safe, as the account is still in m_pStateByAddress
 		accountState.PublicKeyHeight = Height(0);
-		accountState.PublicKey = Key{};
+		accountState.PublicKey = Key();
 	}
 
 	void BasicAccountStateCacheDelta::queueRemove(const Address& address, Height height) {

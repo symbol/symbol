@@ -189,7 +189,7 @@ namespace catapult { namespace ionet {
 
 	// region hasActiveConnection
 
-	TEST(TEST_CLASS, HasActiveConnectionReturnsFalseIfThereAreNoConnections) {
+	TEST(TEST_CLASS, HasActiveConnectionReturnsFalseWhenThereAreNoConnections) {
 		// Arrange:
 		NodeInfo nodeInfo(NodeSource::Static);
 
@@ -197,7 +197,7 @@ namespace catapult { namespace ionet {
 		EXPECT_FALSE(nodeInfo.hasActiveConnection());
 	}
 
-	TEST(TEST_CLASS, HasActiveConnectionReturnsFalseIfAllConnectionsHaveZeroAge) {
+	TEST(TEST_CLASS, HasActiveConnectionReturnsFalseWhenAllConnectionsHaveZeroAge) {
 		// Arrange:
 		NodeInfo nodeInfo(NodeSource::Static);
 		nodeInfo.provisionConnectionState(ServiceIdentifier(123)).Age = 0;
@@ -208,7 +208,7 @@ namespace catapult { namespace ionet {
 		EXPECT_FALSE(nodeInfo.hasActiveConnection());
 	}
 
-	TEST(TEST_CLASS, HasActiveConnectionReturnsTrueIfSomeConnectionsHaveNonzeroAge) {
+	TEST(TEST_CLASS, HasActiveConnectionReturnsTrueWhenSomeConnectionsHaveNonzeroAge) {
 		// Arrange:
 		NodeInfo nodeInfo(NodeSource::Static);
 		nodeInfo.provisionConnectionState(ServiceIdentifier(123)).Age = 0;
@@ -219,7 +219,7 @@ namespace catapult { namespace ionet {
 		EXPECT_TRUE(nodeInfo.hasActiveConnection());
 	}
 
-	TEST(TEST_CLASS, HasActiveConnectionReturnsTrueIfAllConnectionsHaveNonzeroAge) {
+	TEST(TEST_CLASS, HasActiveConnectionReturnsTrueWhenAllConnectionsHaveNonzeroAge) {
 		// Arrange:
 		NodeInfo nodeInfo(NodeSource::Static);
 		nodeInfo.provisionConnectionState(ServiceIdentifier(123)).Age = 12;

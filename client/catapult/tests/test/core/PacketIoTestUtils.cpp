@@ -68,7 +68,7 @@ namespace catapult { namespace test {
 			// Assert:
 			ASSERT_EQ(ionet::SocketOperationCode::Success, readCode);
 
-			const auto& readPacket = reinterpret_cast<const ionet::Packet&>(*readPacketBytes.data());
+			const auto& readPacket = reinterpret_cast<const ionet::Packet&>(readPacketBytes[0]);
 			ASSERT_EQ(sizeof(ionet::PacketHeader) + 126 + 212, readPacket.Size);
 			EXPECT_EQ(ionet::PacketType::Push_Transactions, readPacket.Type);
 

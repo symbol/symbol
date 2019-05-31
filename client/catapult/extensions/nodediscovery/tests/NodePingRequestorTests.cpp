@@ -55,7 +55,7 @@ namespace catapult { namespace nodediscovery {
 		void AssertFailedConnection(const NodePingRequestor& requestor, const ionet::Node& responseNode) {
 			// Assert:
 			test::AssertBriefServerRequestorFailedConnection(requestor);
-			EXPECT_EQ(Key{}, responseNode.identityKey());
+			EXPECT_EQ(Key(), responseNode.identityKey());
 		}
 	}
 

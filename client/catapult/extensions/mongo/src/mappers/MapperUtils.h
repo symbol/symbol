@@ -54,9 +54,9 @@ namespace catapult { namespace mongo { namespace mappers {
 	/// Converts \a unresolvedAddress into bson binary type.
 	bsoncxx::v_noabi::types::b_binary ToBinary(const UnresolvedAddress& unresolvedAddress);
 
-	/// Converts \a array into bson binary type.
-	template<size_t N>
-	auto ToBinary(const std::array<uint8_t, N>& array) {
+	/// Converts byte \a array into bson binary type.
+	template<size_t N, typename TTag>
+	auto ToBinary(const utils::ByteArray<N, TTag>& array) {
 		return ToBinary(array.data(), array.size());
 	}
 
@@ -96,8 +96,8 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 	/// Populates \a dest with data from \a source.
-	template<size_t N, typename TMongoContainer>
-	void DbBinaryToModelArray(std::array<uint8_t, N>& dest, const TMongoContainer& source) {
+	template<size_t N, typename TTag, typename TMongoContainer>
+	void DbBinaryToModelArray(utils::ByteArray<N, TTag>& dest, const TMongoContainer& source) {
 		if (dest.size() != source.size)
 			CATAPULT_THROW_INVALID_ARGUMENT_1("invalid size of dest array", dest.size());
 

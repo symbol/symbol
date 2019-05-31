@@ -61,7 +61,7 @@ namespace catapult { namespace validators {
 		});
 
 		// Act:
-		auto publicKey = test::GenerateRandomData<Key_Size>();
+		auto publicKey = test::GenerateRandomByteArray<Key>();
 		model::AccountPublicKeyNotification notification(publicKey);
 		auto result = validator.validate(notification, 7);
 

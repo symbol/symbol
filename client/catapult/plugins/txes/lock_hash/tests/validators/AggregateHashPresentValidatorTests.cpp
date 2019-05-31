@@ -66,18 +66,18 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessForNonAggregateBondedTransactionType) {
 		// Arrange:
-		auto cache = CreateCache(test::GenerateRandomData<Hash256_Size>(), Height());
+		auto cache = CreateCache(test::GenerateRandomByteArray<Hash256>(), Height());
 
 		// Act:
-		auto result = RunValidator(cache, test::GenerateRandomData<Hash256_Size>(), model::Entity_Type_Aggregate_Complete, Height());
+		auto result = RunValidator(cache, test::GenerateRandomByteArray<Hash256>(), model::Entity_Type_Aggregate_Complete, Height());
 
 		// Assert:
 		EXPECT_EQ(ValidationResult::Success, result);
 	}
 
-	TEST(TEST_CLASS, SuccessIfLockInfoMeetsAllConditions) {
+	TEST(TEST_CLASS, SuccessWhenLockInfoMeetsAllConditions) {
 		// Arrange:
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto cache = CreateCache(hash, Height(123));
 
 		// Act:
@@ -89,18 +89,18 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureForUnknownTransactionHash) {
 		// Arrange:
-		auto cache = CreateCache(test::GenerateRandomData<Hash256_Size>(), Height());
+		auto cache = CreateCache(test::GenerateRandomByteArray<Hash256>(), Height());
 
 		// Act:
-		auto result = RunValidator(cache, test::GenerateRandomData<Hash256_Size>(), model::Entity_Type_Aggregate_Bonded, Height());
+		auto result = RunValidator(cache, test::GenerateRandomByteArray<Hash256>(), model::Entity_Type_Aggregate_Bonded, Height());
 
 		// Assert:
 		EXPECT_EQ(Failure_LockHash_Hash_Does_Not_Exist, result);
 	}
 
-	TEST(TEST_CLASS, FailureIfLockInfoIsExpired_AtExpirationHeight) {
+	TEST(TEST_CLASS, FailureWhenLockInfoIsExpired_AtExpirationHeight) {
 		// Arrange:
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto cache = CreateCache(hash, Height(123));
 
 		// Act:
@@ -110,9 +110,9 @@ namespace catapult { namespace validators {
 		EXPECT_EQ(Failure_LockHash_Inactive_Hash, result);
 	}
 
-	TEST(TEST_CLASS, FailureIfLockInfoIsExpired_AfterExpirationHeight) {
+	TEST(TEST_CLASS, FailureWhenLockInfoIsExpired_AfterExpirationHeight) {
 		// Arrange:
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto cache = CreateCache(hash, Height(123));
 
 		// Act:
@@ -122,9 +122,9 @@ namespace catapult { namespace validators {
 		EXPECT_EQ(Failure_LockHash_Inactive_Hash, result);
 	}
 
-	TEST(TEST_CLASS, FailureIfTransactionHashIsAlreadyUsed) {
+	TEST(TEST_CLASS, FailureWhenTransactionHashIsAlreadyUsed) {
 		// Arrange:
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto cache = CreateCache(hash, Height(123), state::LockStatus::Used);
 
 		// Act:

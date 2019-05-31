@@ -26,6 +26,9 @@ namespace catapult { namespace state {
 
 	/// Policy for saving and loading root namespace history data without historical information.
 	struct RootNamespaceHistoryNonHistoricalSerializer {
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
+
 		/// Saves \a history to \a output.
 		static void Save(const RootNamespaceHistory& history, io::OutputStream& output);
 
@@ -35,6 +38,9 @@ namespace catapult { namespace state {
 
 	/// Policy for saving and loading root namespace history data.
 	struct RootNamespaceHistorySerializer {
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
+
 		/// Saves \a history to \a output.
 		static void Save(const RootNamespaceHistory& history, io::OutputStream& output);
 

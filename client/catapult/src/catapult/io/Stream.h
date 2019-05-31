@@ -28,6 +28,10 @@ namespace catapult { namespace io {
 	public:
 		virtual ~InputStream() = default;
 
+	public:
+		/// Returns \c true if no data is left in the stream.
+		virtual bool eof() const = 0;
+
 		/// Reads data from this stream into \a buffer.
 		/// \throws catapult_file_io_error if requested amount of data could not be read.
 		virtual void read(const MutableRawBuffer& buffer) = 0;
@@ -38,6 +42,7 @@ namespace catapult { namespace io {
 	public:
 		virtual ~OutputStream() = default;
 
+	public:
 		/// Writes data pointed to by \a buffer to this stream.
 		/// \throws catapult_file_io_error if proper amount of data could not be written.
 		virtual void write(const RawBuffer& buffer) = 0;

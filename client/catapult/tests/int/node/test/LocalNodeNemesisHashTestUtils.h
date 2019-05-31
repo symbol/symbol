@@ -22,7 +22,7 @@
 #include "catapult/types.h"
 #include "tests/test/local/BlockStateHash.h"
 
-namespace catapult { namespace config { class LocalNodeConfiguration; } }
+namespace catapult { namespace config { class CatapultConfiguration; } }
 
 namespace catapult { namespace test {
 
@@ -30,5 +30,5 @@ namespace catapult { namespace test {
 	void SetNemesisReceiptsHash(const std::string& destination);
 
 	/// Updates the nemesis block in the \a destination directory by setting an appropriate state hash in accordance with \a config.
-	void SetNemesisStateHash(const std::string& destination, const config::LocalNodeConfiguration& config);
+	void SetNemesisStateHash(const std::string& destination, const config::CatapultConfiguration& config);
 }}

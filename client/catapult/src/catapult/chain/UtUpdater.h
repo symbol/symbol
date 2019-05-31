@@ -42,8 +42,10 @@ namespace catapult { namespace chain {
 		enum class TransactionSource {
 			/// A new transaction that is added for the first time.
 			New,
+
 			/// A previously committed transaction that was reverted.
 			Reverted,
+
 			/// An existing transaction that is reapplied.
 			Existing
 		};

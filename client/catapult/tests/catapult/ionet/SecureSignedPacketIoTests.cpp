@@ -353,7 +353,7 @@ namespace catapult { namespace ionet {
 			// Assert:
 			ASSERT_EQ(SocketOperationCode::Success, capture.ReadCode);
 
-			const auto& readPacket = reinterpret_cast<const Packet&>(*capture.ReadPacketBytes.data());
+			const auto& readPacket = reinterpret_cast<const Packet&>(capture.ReadPacketBytes[0]);
 			ASSERT_EQ(sizeof(PacketHeader) + childPayloadSize, readPacket.Size);
 			EXPECT_EQ(PacketType::Push_Transactions, readPacket.Type);
 
@@ -424,12 +424,12 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(SocketOperationCode::Success, captures[0].ReadCode);
 		ASSERT_EQ(SocketOperationCode::Success, captures[1].ReadCode);
 
-		const auto& readPacket1 = reinterpret_cast<const Packet&>(*captures[0].ReadPacketBytes.data());
+		const auto& readPacket1 = reinterpret_cast<const Packet&>(captures[0].ReadPacketBytes[0]);
 		ASSERT_EQ(sizeof(PacketHeader) + Data1_Size, readPacket1.Size);
 		EXPECT_EQ(PacketType::Push_Transactions, readPacket1.Type);
 		EXPECT_EQ_MEMORY(childPacket1.Data(), readPacket1.Data(), Data1_Size);
 
-		const auto& readPacket2 = reinterpret_cast<const Packet&>(*captures[1].ReadPacketBytes.data());
+		const auto& readPacket2 = reinterpret_cast<const Packet&>(captures[1].ReadPacketBytes[0]);
 		ASSERT_EQ(sizeof(PacketHeader) + Data2_Size, readPacket2.Size);
 		EXPECT_EQ(PacketType::Push_Transactions, readPacket2.Type);
 		EXPECT_EQ_MEMORY(childPacket2.Data(), readPacket2.Data(), Data2_Size);

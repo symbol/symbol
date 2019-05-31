@@ -33,11 +33,11 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		void InsertRandom(utils::SortedKeySet& keys, size_t count) {
 			for (auto i = 0u; i < count; ++i)
-				keys.insert(test::GenerateRandomData<Key_Size>());
+				keys.insert(test::GenerateRandomByteArray<Key>());
 		}
 
 		state::MultisigEntry CreateMultisigEntry(uint8_t numCosignatories, uint8_t numMultisigAccounts) {
-			state::MultisigEntry entry(test::GenerateRandomData<Key_Size>());
+			state::MultisigEntry entry(test::GenerateRandomByteArray<Key>());
 			entry.setMinApproval(12);
 			entry.setMinRemoval(23);
 
@@ -50,7 +50,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		void AssertCanMapMultisigEntry(uint8_t numCosignatories, uint8_t numMultisigAccounts) {
 			// Arrange:
 			auto entry = CreateMultisigEntry(numCosignatories, numMultisigAccounts);
-			auto address = test::GenerateRandomData<Address_Decoded_Size>();
+			auto address = test::GenerateRandomByteArray<Address>();
 
 			// Act:
 			auto document = ToDbModel(entry, address);
@@ -96,7 +96,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		void AssertCanMapDbMultisigEntry(uint8_t numCosignatories, uint8_t numMultisigAccounts) {
 			// Arrange:
-			auto address = test::GenerateRandomData<Address_Decoded_Size>();
+			auto address = test::GenerateRandomByteArray<Address>();
 			auto dbMultisigEntry = CreateDbMultisigEntry(address, numCosignatories, numMultisigAccounts);
 
 			// Act:

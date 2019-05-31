@@ -132,8 +132,7 @@ namespace catapult { namespace utils {
 			// Assert:
 			auto expectedSize = strlen(expected);
 			std::stringstream message;
-			message << "input: " << input << " E(" << expected << ") != A("
-				<< actual.pData << ", " << actual.Size << ")";
+			message << "input: " << input << " E(" << expected << ") != A(" << actual.pData << ", " << actual.Size << ")";
 			ASSERT_EQ(expectedSize, actual.Size) << message.str();
 			EXPECT_EQ_MEMORY(expected, actual.pData, expectedSize) << message.str();
 		}

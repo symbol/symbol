@@ -47,7 +47,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(0u, filter.numRemoved());
 	}
 
-	TEST(TEST_CLASS, SetPruningBoundaryIsNoOpIfPruningIsDisabled) {
+	TEST(TEST_CLASS, SetPruningBoundaryIsNoOpWhenPruningIsDisabled) {
 		// Arrange:
 		RocksPruningFilter filter;
 
@@ -58,7 +58,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(0u, filter.pruningBoundary());
 	}
 
-	TEST(TEST_CLASS, SetPruningBoundaryChangesBoundaryIfPruningIsEnabled) {
+	TEST(TEST_CLASS, SetPruningBoundaryChangesBoundaryWhenPruningIsEnabled) {
 		// Arrange:
 		RocksPruningFilter filter(FilterPruningMode::Enabled);
 

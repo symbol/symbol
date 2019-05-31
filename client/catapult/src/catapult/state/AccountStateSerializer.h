@@ -27,6 +27,9 @@ namespace catapult { namespace state {
 
 	/// Policy for saving and loading account state data without historical information.
 	struct AccountStateNonHistoricalSerializer {
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
+
 		/// Saves \a accountState to \a output.
 		static void Save(const AccountState& accountState, io::OutputStream& output);
 
@@ -36,6 +39,9 @@ namespace catapult { namespace state {
 
 	/// Policy for saving and loading account state data.
 	struct AccountStateSerializer {
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
+
 		/// Saves \a accountState to \a output.
 		static void Save(const AccountState& accountState, io::OutputStream& output);
 

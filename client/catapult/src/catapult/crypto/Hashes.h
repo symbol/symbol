@@ -57,13 +57,10 @@ namespace catapult { namespace crypto {
 	struct KeccakModeTag {};
 
 	/// Builder for building a hash.
-	template<typename TModeTag, size_t ByteSize>
+	template<typename TModeTag, typename THashTag>
 	class alignas(32) KeccakBuilder {
-	private:
-		using ByteSizeTag = std::integral_constant<size_t, ByteSize>;
-
 	public:
-		using OutputType = std::array<uint8_t, ByteSize>;
+		using OutputType = utils::ByteArray<THashTag::Byte_Size, THashTag>;
 
 	public:
 		/// Creates a builder.
@@ -85,20 +82,24 @@ namespace catapult { namespace crypto {
 	};
 
 	/// Sha3_256_Builder.
-	using Sha3_256_Builder = KeccakBuilder<Sha3ModeTag, 32>;
-	extern template class KeccakBuilder<Sha3ModeTag, 32>;
+	using Sha3_256_Builder = KeccakBuilder<Sha3ModeTag, Hash256_tag>;
+	extern template class KeccakBuilder<Sha3ModeTag, Hash256_tag>;
 
 	/// Sha3_512_Builder.
-	using Sha3_512_Builder = KeccakBuilder<Sha3ModeTag, 64>;
-	extern template class KeccakBuilder<Sha3ModeTag, 64>;
+	using Sha3_512_Builder = KeccakBuilder<Sha3ModeTag, Hash512_tag>;
+	extern template class KeccakBuilder<Sha3ModeTag, Hash512_tag>;
 
 	/// Keccak_256_Builder.
-	using Keccak_256_Builder = KeccakBuilder<KeccakModeTag, 32>;
-	extern template class KeccakBuilder<KeccakModeTag, 32>;
+	using Keccak_256_Builder = KeccakBuilder<KeccakModeTag, Hash256_tag>;
+	extern template class KeccakBuilder<KeccakModeTag, Hash256_tag>;
 
 	/// Keccak_512_Builder.
-	using Keccak_512_Builder = KeccakBuilder<KeccakModeTag, 64>;
-	extern template class KeccakBuilder<KeccakModeTag, 64>;
+	using Keccak_512_Builder = KeccakBuilder<KeccakModeTag, Hash512_tag>;
+	extern template class KeccakBuilder<KeccakModeTag, Hash512_tag>;
+
+	/// GenerationHash_Builder.
+	using GenerationHash_Builder = KeccakBuilder<Sha3ModeTag, GenerationHash_tag>;
+	extern template class KeccakBuilder<Sha3ModeTag, GenerationHash_tag>;
 
 	// endregion
 }}

@@ -38,14 +38,14 @@ namespace catapult { namespace tree {
 
 		struct OddPathTraits : public BasePathTraits<6, 11> {
 			static auto CreatePath() {
-				auto path = TreeNodePath(test::GenerateRandomData<Path_Size>());
+				auto path = TreeNodePath(test::GenerateRandomArray<Path_Size>());
 				return path.subpath(1);
 			}
 		};
 
 		struct EvenPathTraits : public BasePathTraits<7, 14> {
 			static auto CreatePath() {
-				return TreeNodePath(test::GenerateRandomData<Path_Size>());
+				return TreeNodePath(test::GenerateRandomArray<Path_Size>());
 			}
 		};
 
@@ -113,14 +113,14 @@ namespace catapult { namespace tree {
 
 	// region serialization - value
 
-	TEST(TEST_CLASS, SerializeNodeFailsIfNodeIsEmpty) {
+	TEST(TEST_CLASS, SerializeNodeFailsWhenNodeIsEmpty) {
 		// Act + Assert:
 		EXPECT_THROW(Serializer::SerializeValue(TreeNode()), catapult_invalid_argument);
 	}
 
 	PTSERIALIZER_TRAITS_BASED_TEST(CanSerializeLeaf) {
 		// Arrange:
-		auto leafValue = test::GenerateRandomData<Hash256_Size>();
+		auto leafValue = test::GenerateRandomByteArray<Hash256>();
 		auto node = LeafTreeNode(TPathTraits::CreatePath(), leafValue);
 
 		// Act:
@@ -136,7 +136,7 @@ namespace catapult { namespace tree {
 			// Arrange:
 			auto node = BranchTreeNode(TPathTraits::CreatePath());
 			for (auto i = 0u; i < numLinks; ++i)
-				node.setLink(test::GenerateRandomData<Hash256_Size>(), indexGenerator(i));
+				node.setLink(test::GenerateRandomByteArray<Hash256>(), indexGenerator(i));
 
 			// Act:
 			auto result = Serializer::SerializeValue(TreeNode(node));
@@ -167,17 +167,17 @@ namespace catapult { namespace tree {
 		}
 
 		auto CreateNodeHeader(uint8_t marker, uint8_t numNibbles, const std::vector<uint8_t>& rawPath) {
-			std::vector<uint8_t> data;
-			data.push_back(marker);
-			data.push_back(numNibbles);
-			Append(data, rawPath);
-			return data;
+			std::vector<uint8_t> buffer;
+			buffer.push_back(marker);
+			buffer.push_back(numNibbles);
+			Append(buffer, rawPath);
+			return buffer;
 		}
 
 		auto CreateSerializedLeaf(const std::vector<uint8_t>& rawPath, size_t size, const Hash256& value) {
-			auto data = CreateNodeHeader(0xFF, static_cast<uint8_t>(size), rawPath);
-			Append(data, value);
-			return data;
+			auto buffer = CreateNodeHeader(0xFF, static_cast<uint8_t>(size), rawPath);
+			Append(buffer, value);
+			return buffer;
 		}
 
 		auto CreateSerializedBranch(
@@ -185,16 +185,16 @@ namespace catapult { namespace tree {
 				size_t size,
 				uint16_t linksMask,
 				const std::vector<Hash256>& links) {
-			auto data = CreateNodeHeader(0x00, static_cast<uint8_t>(size), rawPath);
+			auto buffer = CreateNodeHeader(0x00, static_cast<uint8_t>(size), rawPath);
 
 			std::vector<uint8_t> serializedLinksMask(sizeof(uint16_t));
-			reinterpret_cast<uint16_t&>(*serializedLinksMask.data()) = linksMask;
-			Append(data, serializedLinksMask);
+			reinterpret_cast<uint16_t&>(serializedLinksMask[0]) = linksMask;
+			Append(buffer, serializedLinksMask);
 
 			for (const auto& link : links)
-				Append(data, link);
+				Append(buffer, link);
 
-			return data;
+			return buffer;
 		}
 
 		template<typename TPathTraits>
@@ -219,70 +219,70 @@ namespace catapult { namespace tree {
 
 	// region deserialize - not enough data
 
-	PTSERIALIZER_TRAITS_BASED_TEST(DeserializeFailsIfThereIsNotEnoughData_Leaf) {
+	PTSERIALIZER_TRAITS_BASED_TEST(DeserializeFailsWhenThereIsNotEnoughData_Leaf) {
 		// Arrange:
 		auto rawPath = GenerateValidPath<TPathTraits>();
-		auto value = test::GenerateRandomData<Hash256_Size>();
-		auto data = CreateSerializedLeaf(rawPath, TPathTraits::Path_Nibble_Size, value);
+		auto value = test::GenerateRandomByteArray<Hash256>();
+		auto buffer = CreateSerializedLeaf(rawPath, TPathTraits::Path_Nibble_Size, value);
 
 		// - drop last byte
-		data.resize(data.size() - 1);
+		buffer.resize(buffer.size() - 1);
 
 		// Act + Assert:
-		EXPECT_THROW(Serializer::DeserializeValue(data), catapult_file_io_error);
+		EXPECT_THROW(Serializer::DeserializeValue(buffer), catapult_file_io_error);
 	}
 
-	PTSERIALIZER_TRAITS_BASED_TEST(DeserializeFailsIfThereIsNotEnoughData_Branch) {
+	PTSERIALIZER_TRAITS_BASED_TEST(DeserializeFailsWhenThereIsNotEnoughData_Branch) {
 		// Arrange:
 		auto rawPath = GenerateValidPath<TPathTraits>();
-		auto data = CreateSerializedBranch(rawPath, TPathTraits::Path_Nibble_Size, 0x0000, {});
+		auto buffer = CreateSerializedBranch(rawPath, TPathTraits::Path_Nibble_Size, 0x0000, {});
 
 		// - drop last byte
-		data.resize(data.size() - 1);
+		buffer.resize(buffer.size() - 1);
 
 		// Act + Assert:
-		EXPECT_THROW(Serializer::DeserializeValue(data), catapult_file_io_error);
+		EXPECT_THROW(Serializer::DeserializeValue(buffer), catapult_file_io_error);
 	}
 
 	// endregion
 
 	// region deserialize - invalid marker
 
-	PTSERIALIZER_TRAITS_BASED_TEST(DeserializeFailsIfMarkerIsInvalid_Leaf) {
+	PTSERIALIZER_TRAITS_BASED_TEST(DeserializeFailsWhenMarkerIsInvalid_Leaf) {
 		// Arrange:
 		auto rawPath = GenerateValidPath<TPathTraits>();
-		auto value = test::GenerateRandomData<Hash256_Size>();
-		auto data = CreateSerializedLeaf(rawPath, TPathTraits::Path_Nibble_Size, value);
+		auto value = test::GenerateRandomByteArray<Hash256>();
+		auto buffer = CreateSerializedLeaf(rawPath, TPathTraits::Path_Nibble_Size, value);
 
 		// - change marker
-		data[0] = 0x34;
+		buffer[0] = 0x34;
 
 		// Act + Assert:
-		EXPECT_THROW(Serializer::DeserializeValue(data), catapult_invalid_argument);
+		EXPECT_THROW(Serializer::DeserializeValue(buffer), catapult_invalid_argument);
 	}
 
 	// endregion
 
 	// region path deserializing throws
 
-	TEST(TEST_CLASS, DeserializeValueFailsIfPathSizeIsOddAndHasWrongFillerNibble) {
+	TEST(TEST_CLASS, DeserializeValueFailsWhenPathSizeIsOddAndHasWrongFillerNibble) {
 		// Arrange: make sure filler nibble is non-zero
 		auto rawPath = GenerateInvalidPath<OddPathTraits>();
-		auto value = test::GenerateRandomData<Hash256_Size>();
-		auto data = CreateSerializedLeaf(rawPath, OddPathTraits::Path_Nibble_Size, value);
+		auto value = test::GenerateRandomByteArray<Hash256>();
+		auto buffer = CreateSerializedLeaf(rawPath, OddPathTraits::Path_Nibble_Size, value);
 
 		// Act + Assert:
-		EXPECT_THROW(Serializer::DeserializeValue(data), catapult_runtime_error);
+		EXPECT_THROW(Serializer::DeserializeValue(buffer), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, DeserializeValueDoesNotFailIfPathSizeIsEven) {
+	TEST(TEST_CLASS, DeserializeValueDoesNotFailWhenPathSizeIsEven) {
 		// Arrange:
 		auto rawPath = GenerateInvalidPath<EvenPathTraits>();
-		auto value = test::GenerateRandomData<Hash256_Size>();
-		auto data = CreateSerializedLeaf(rawPath, EvenPathTraits::Path_Nibble_Size, value);
+		auto value = test::GenerateRandomByteArray<Hash256>();
+		auto buffer = CreateSerializedLeaf(rawPath, EvenPathTraits::Path_Nibble_Size, value);
 
 		// Act + Assert:
-		EXPECT_NO_THROW(Serializer::DeserializeValue(data));
+		EXPECT_NO_THROW(Serializer::DeserializeValue(buffer));
 	}
 
 	// endregion
@@ -292,12 +292,12 @@ namespace catapult { namespace tree {
 	PTSERIALIZER_TRAITS_BASED_TEST(CanDeserializeLeaf) {
 		// Arrange:
 		auto rawPath = GenerateValidPath<TPathTraits>();
-		auto value = test::GenerateRandomData<Hash256_Size>();
-		auto data = CreateSerializedLeaf(rawPath, TPathTraits::Path_Nibble_Size, value);
+		auto value = test::GenerateRandomByteArray<Hash256>();
+		auto buffer = CreateSerializedLeaf(rawPath, TPathTraits::Path_Nibble_Size, value);
 		auto path = TreeNodePath(rawPath);
 
 		// Act:
-		auto node = Serializer::DeserializeValue(data);
+		auto node = Serializer::DeserializeValue(buffer);
 
 		// Assert:
 		EXPECT_TRUE(node.isLeaf());
@@ -326,11 +326,11 @@ namespace catapult { namespace tree {
 			// Arrange:
 			auto rawPath = GenerateValidPath<TPathTraits>();
 			auto links = test::GenerateRandomDataVector<Hash256>(numLinks);
-			auto data = CreateSerializedBranch(rawPath, TPathTraits::Path_Nibble_Size, linksMask, links);
+			auto buffer = CreateSerializedBranch(rawPath, TPathTraits::Path_Nibble_Size, linksMask, links);
 			auto path = TreeNodePath(rawPath);
 
 			// Act:
-			auto node = Serializer::DeserializeValue(data);
+			auto node = Serializer::DeserializeValue(buffer);
 
 			// Assert:
 			EXPECT_TRUE(node.isBranch());

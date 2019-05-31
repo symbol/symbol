@@ -98,7 +98,7 @@ namespace catapult { namespace utils {
 			EXPECT_TRUE(HasFlag(TestEnum::None, flags)) << "flags " << utils::to_underlying_type(flags);
 	}
 
-	TEST(TEST_CLASS, HasFlagReturnsTrueIfAndOnlyIfFlagIsSet) {
+	TEST(TEST_CLASS, HasFlagReturnsTrueOnlyWhenFlagIsSet) {
 		// Arrange:
 		auto flags = TestEnum::Alpha | TestEnum::Gamma;
 

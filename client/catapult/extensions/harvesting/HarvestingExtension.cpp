@@ -21,12 +21,12 @@
 #include "src/HarvestingConfiguration.h"
 #include "src/HarvestingService.h"
 #include "src/ValidateHarvestingConfiguration.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace harvesting {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			auto config = HarvestingConfiguration::LoadFromPath(bootstrapper.resourcesPath());
 			ValidateHarvestingConfiguration(config);
 
@@ -36,6 +36,6 @@ namespace catapult { namespace harvesting {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::harvesting::RegisterExtension(bootstrapper);
 }

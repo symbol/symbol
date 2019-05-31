@@ -72,11 +72,20 @@ namespace catapult { namespace model {
 		/// Maximum future time of a block that can be accepted.
 		utils::TimeSpan MaxBlockFutureTime;
 
+		/// Initial currency atomic units available in the network.
+		Amount InitialCurrencyAtomicUnits;
+
+		/// Maximum atomic units (total-supply * 10 ^ divisibility) of a mosaic allowed in the network.
+		Amount MaxMosaicAtomicUnits;
+
 		/// Total whole importance units available in the network.
 		Importance TotalChainImportance;
 
 		/// Minimum number of harvesting mosaic atomic units needed for an account to be eligible for harvesting.
 		Amount MinHarvesterBalance;
+
+		/// Percentage of the harvested fee that is collected by the beneficiary account.
+		uint8_t HarvestBeneficiaryPercentage;
 
 		/// Number of blocks between cache pruning.
 		uint32_t BlockPruneInterval;

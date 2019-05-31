@@ -32,5 +32,8 @@ namespace catapult { namespace cache {
 			, public state::AccountStateSerializer {
 		/// Loads \a accountState into \a cacheDelta.
 		static void LoadInto(const ValueType& accountState, DestinationType& cacheDelta);
+
+		/// Purges \a accountState from \a cacheDelta.
+		static void Purge(const ValueType& accountState, DestinationType& cacheDelta);
 	};
 }}

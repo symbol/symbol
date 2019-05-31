@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/tree/BasePatriciaTree.h"
-#include "tests/catapult/tree/test/PassThroughEncoder.h"
+#include "tests/test/tree/PassThroughEncoder.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace tree {
@@ -189,7 +189,7 @@ namespace catapult { namespace tree {
 			SeedTreeWithFourNodes(tree);
 		}
 
-		auto root = test::GenerateRandomData<Hash256_Size>();
+		auto root = test::GenerateRandomByteArray<Hash256>();
 
 		// Act + Assert:
 		EXPECT_THROW(MemoryBasePatriciaTree tree(dataSource, root), catapult_runtime_error);
@@ -273,7 +273,7 @@ namespace catapult { namespace tree {
 		EXPECT_THROW(tree.commit(), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, CommitThrowsIfOnlyDetachedDeltasAreOutstanding) {
+	TEST(TEST_CLASS, CommitThrowsWhenOnlyDetachedDeltasAreOutstanding) {
 		// Arrange:
 		MemoryDataSource dataSource;
 		MemoryBasePatriciaTree tree(dataSource);
@@ -543,7 +543,7 @@ namespace catapult { namespace tree {
 		// Act:
 		RunResetToBaseRootTest([](const auto&, auto& deltaTree) {
 			// Act + Assert:
-			EXPECT_THROW(deltaTree.reset(test::GenerateRandomData<Hash256_Size>()), catapult_runtime_error);
+			EXPECT_THROW(deltaTree.reset(test::GenerateRandomByteArray<Hash256>()), catapult_runtime_error);
 		});
 	}
 

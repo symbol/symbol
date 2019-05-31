@@ -139,11 +139,11 @@ namespace catapult { namespace consumers {
 			for (auto index : transactionIndexes)
 				transactionsCopy.push_back(test::CopyEntity(*transactions[index]));
 
-			return test::GenerateRandomBlockWithTransactions(transactionsCopy);
+			return test::GenerateBlockWithTransactions(transactionsCopy);
 		}
 	}
 
-	TEST(TEST_CLASS, ChainIsInvalidIfOneBlockContainsTheSameTransactionTwice) {
+	TEST(TEST_CLASS, ChainIsInvalidWhenOneBlockContainsTheSameTransactionTwice) {
 		// Arrange: create three blocks where the middle one has duplicate transactions
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(9));
 		auto pBlock1 = CreateBlockFromTransactions(transactions, { 0, 1, 2 });
@@ -159,7 +159,7 @@ namespace catapult { namespace consumers {
 		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Duplicate_Transactions);
 	}
 
-	TEST(TEST_CLASS, ChainIsInvalidIfTwoBlocksContainTheSameTransaction) {
+	TEST(TEST_CLASS, ChainIsInvalidWhenTwoBlocksContainTheSameTransaction) {
 		// Arrange: create three blocks where the first and third share transactions
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(9));
 		auto pBlock1 = CreateBlockFromTransactions(transactions, { 0, 1, 2 });
@@ -175,7 +175,7 @@ namespace catapult { namespace consumers {
 		test::AssertAborted(result, Failure_Consumer_Remote_Chain_Duplicate_Transactions);
 	}
 
-	TEST(TEST_CLASS, ChainIsValidIfAllTransactionsAreUnique) {
+	TEST(TEST_CLASS, ChainIsValidWhenAllTransactionsAreUnique) {
 		// Arrange: create three blocks where all transactions are unique
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(9));
 		auto pBlock1 = CreateBlockFromTransactions(transactions, { 0, 1, 2 });

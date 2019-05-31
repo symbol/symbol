@@ -34,7 +34,7 @@ namespace catapult { namespace plugins {
 	// region TransactionPlugin
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretProof, 1, 1)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretProof, 1, 1,)
 
 		template<typename TTraits>
 		auto CreateSecretProofTransaction() {
@@ -42,7 +42,7 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Entity_Type_Secret_Proof)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Secret_Proof)
 
 	PLUGIN_TEST(CanCalculateSize) {
 		// Arrange:
@@ -100,7 +100,7 @@ namespace catapult { namespace plugins {
 
 	// region proof notification
 
-	PLUGIN_TEST(CanSecretProofSecretNotification) {
+	PLUGIN_TEST(CanPublishSecretProofSecretNotification) {
 		// Arrange:
 		mocks::MockTypedNotificationSubscriber<ProofSecretNotification> sub;
 		auto pPlugin = TTraits::CreatePlugin();
@@ -119,7 +119,7 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ_MEMORY(transaction.ProofPtr(), notification.Proof.pData, notification.Proof.Size);
 	}
 
-	PLUGIN_TEST(CanSecretProofPublicationNotification) {
+	PLUGIN_TEST(CanPublishSecretProofPublicationNotification) {
 		// Arrange:
 		mocks::MockTypedNotificationSubscriber<ProofPublicationNotification> sub;
 		auto pPlugin = TTraits::CreatePlugin();
@@ -135,6 +135,7 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ(transaction.Signer, notification.Signer);
 		EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
 		EXPECT_EQ(transaction.Secret, notification.Secret);
+		EXPECT_EQ(transaction.Recipient, notification.Recipient);
 	}
 
 	// endregion

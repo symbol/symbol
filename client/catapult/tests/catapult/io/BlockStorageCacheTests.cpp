@@ -33,7 +33,8 @@ namespace catapult { namespace io {
 		// wraps a BlockStorageCache in a BlockStorage so that it can be tested via the tests in ChainStorageTests.h
 		class BlockStorageCacheToBlockStorageAdapter : public BlockStorage {
 		public:
-			explicit BlockStorageCacheToBlockStorageAdapter(std::unique_ptr<BlockStorage>&& pStorage) : m_cache(std::move(pStorage))
+			explicit BlockStorageCacheToBlockStorageAdapter(std::unique_ptr<BlockStorage>&& pStorage)
+					: m_cache(std::move(pStorage), mocks::CreateMemoryBlockStorage(0))
 			{}
 
 		public: // LightBlockStorage
@@ -46,11 +47,15 @@ namespace catapult { namespace io {
 			}
 
 			void saveBlock(const model::BlockElement& blockElement) override {
-				return m_cache.modifier().saveBlock(blockElement);
+				auto modifier = m_cache.modifier();
+				modifier.saveBlock(blockElement);
+				modifier.commit();
 			}
 
 			void dropBlocksAfter(Height height) override {
-				return m_cache.modifier().dropBlocksAfter(height);
+				auto modifier = m_cache.modifier();
+				modifier.dropBlocksAfter(height);
+				modifier.commit();
 			}
 
 		public: // BlockStorage
@@ -83,19 +88,20 @@ namespace catapult { namespace io {
 			using StorageType = BlockStorageCacheToBlockStorageAdapter;
 
 			static std::unique_ptr<StorageType> OpenStorage(const std::string&) {
-				return std::make_unique<StorageType>(std::make_unique<mocks::MockMemoryBlockStorage>());
+				return std::make_unique<StorageType>(mocks::CreateMemoryBlockStorage(0));
 			}
 
 			static std::unique_ptr<StorageType> PrepareStorage(const std::string& destination, Height height = Height()) {
-				auto pStorage = OpenStorage(destination);
+				if (Height() == height)
+					return OpenStorage(destination);
 
-				if (Height() != height)
-					// abuse drop blocks to fake current height...
-					// note: since we will want to save next block at height, we need to drop all
-					// after `height-1` due to check in saveBlock()
-					pStorage->dropBlocksAfter(Height(height.unwrap() - 1));
-
-				return pStorage;
+				// set storage height to `height - 1` because next block saved will be at `height`
+				// (real block needs to be saved at this height because BlockStorageCache will load it to populate MRU block cache)
+				auto pBlock = test::GenerateBlockWithTransactions(5, height - Height(1));
+				auto pRealStorage = mocks::CreateMemoryBlockStorage(0);
+				pRealStorage->dropBlocksAfter(pBlock->Height - Height(1));
+				pRealStorage->saveBlock(test::CreateBlockElementForSaveTests(*pBlock));
+				return std::make_unique<StorageType>(std::move(pRealStorage));
 			}
 		};
 
@@ -115,7 +121,7 @@ namespace catapult { namespace io {
 
 	TEST(TEST_CLASS, ChainHeightDelegatesToStorage) {
 		// Arrange:
-		BlockStorageCache cache(mocks::CreateMemoryBlockStorage(Delegation_Chain_Size));
+		BlockStorageCache cache(mocks::CreateMemoryBlockStorage(Delegation_Chain_Size), mocks::CreateMemoryBlockStorage(0));
 
 		// Act:
 		auto height = cache.view().chainHeight();
@@ -132,7 +138,7 @@ namespace catapult { namespace io {
 		// Arrange:
 		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
-		BlockStorageCache cache(std::move(pStorage));
+		BlockStorageCache cache(std::move(pStorage), mocks::CreateMemoryBlockStorage(0));
 
 		for (auto i = 1u; i <= Delegation_Chain_Size; ++i) {
 			// Act:
@@ -151,7 +157,7 @@ namespace catapult { namespace io {
 		// Arrange:
 		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
-		BlockStorageCache cache(std::move(pStorage));
+		BlockStorageCache cache(std::move(pStorage), mocks::CreateMemoryBlockStorage(0));
 
 		// Act:
 		Height height(1);
@@ -179,7 +185,7 @@ namespace catapult { namespace io {
 		// Arrange:
 		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
-		BlockStorageCache cache(std::move(pStorage));
+		BlockStorageCache cache(std::move(pStorage), mocks::CreateMemoryBlockStorage(0));
 
 		for (auto i = 1u; i <= Delegation_Chain_Size; ++i) {
 			// Act:
@@ -196,7 +202,7 @@ namespace catapult { namespace io {
 		// Arrange:
 		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
-		BlockStorageCache cache(std::move(pStorage));
+		BlockStorageCache cache(std::move(pStorage), mocks::CreateMemoryBlockStorage(0));
 
 		for (auto i = 1u; i <= Delegation_Chain_Size; ++i) {
 			// Act:
@@ -212,77 +218,179 @@ namespace catapult { namespace io {
 
 	// endregion
 
-	// region saveBlock(s)
+	// region saveBlock - delegation
 
-	TEST(TEST_CLASS, SaveBlockDelegatesToStorage) {
-		// Arrange:
-		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
-		auto pStorageRaw = pStorage.get();
-		BlockStorageCache cache(std::move(pStorage));
-		Height newBlockHeight(Delegation_Chain_Size + 1);
-		auto pBlock = test::GenerateVerifiableBlockAtHeight(newBlockHeight);
-		auto blockHash = test::GenerateRandomData<Hash256_Size>();
+	namespace {
+		template<typename TAction>
+		void RunSaveDelegationTest(TAction action) {
+			// Arrange:
+			auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
+			auto pStorageRaw = pStorage.get();
 
-		// Act:
-		cache.modifier().saveBlock(test::BlockToBlockElement(*pBlock, blockHash));
+			auto pStagingStorage = mocks::CreateMemoryBlockStorage(0);
+			auto pStagingStorageRaw = pStagingStorage.get();
 
-		// Assert: cache is updated
-		EXPECT_EQ(newBlockHeight, cache.view().chainHeight());
-		auto pCacheBlockElement = cache.view().loadBlockElement(newBlockHeight);
-		EXPECT_EQ(*pBlock, pCacheBlockElement->Block);
-		EXPECT_EQ(blockHash, pCacheBlockElement->EntityHash);
+			BlockStorageCache cache(std::move(pStorage), std::move(pStagingStorage));
 
-		// - underlying storage is updated
-		EXPECT_EQ(newBlockHeight, pStorageRaw->chainHeight());
-		auto pStorageBlockElement = pStorageRaw->loadBlockElement(newBlockHeight);
-		EXPECT_EQ(*pBlock, pStorageBlockElement->Block);
-		EXPECT_EQ(blockHash, pStorageBlockElement->EntityHash);
-	}
-
-	TEST(TEST_CLASS, SaveBlocksDelegatesToStorage) {
-		// Arrange:
-		constexpr size_t Num_Block_Elements = 5;
-		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
-		auto pStorageRaw = pStorage.get();
-		BlockStorageCache cache(std::move(pStorage));
-		std::vector<std::unique_ptr<model::Block>> blocks;
-		std::vector<model::BlockElement> blockElements;
-		for (auto i = 0u; i < Num_Block_Elements; ++i) {
-			blocks.push_back(test::GenerateVerifiableBlockAtHeight(Height(Delegation_Chain_Size + i + 1)));
-			blockElements.push_back(test::BlockToBlockElement(*blocks.back(), test::GenerateRandomData<Hash256_Size>()));
+			// Act + Assert:
+			action(cache, *pStorageRaw, *pStagingStorageRaw);
 		}
 
-		// Act:
-		cache.modifier().saveBlocks(blockElements);
+		template<typename TSource>
+		void AssertBlockInSource(
+				const TSource& source,
+				Height height,
+				const model::Block& block,
+				const Hash256& blockHash,
+				const std::string& message) {
+			// Assert:
+			EXPECT_EQ(height, source.chainHeight()) << message;
 
-		// Assert: cache is updated
-		auto expectedChainHeight = Height(Delegation_Chain_Size + Num_Block_Elements);
-		EXPECT_EQ(expectedChainHeight, cache.view().chainHeight());
-		for (auto i = 0u; i < Num_Block_Elements; ++i) {
-			auto pCacheBlockElement = cache.view().loadBlockElement(Height(Delegation_Chain_Size + i + 1));
-			EXPECT_EQ(blockElements[i].Block, pCacheBlockElement->Block);
-			EXPECT_EQ(blockElements[i].EntityHash, pCacheBlockElement->EntityHash);
-		}
-
-		// - underlying storage is updated
-		EXPECT_EQ(expectedChainHeight, pStorageRaw->chainHeight());
-		for (auto i = 0u; i < Num_Block_Elements; ++i) {
-			auto pStorageBlockElement = pStorageRaw->loadBlockElement(Height(Delegation_Chain_Size + i + 1));
-			EXPECT_EQ(blockElements[i].Block, pStorageBlockElement->Block);
-			EXPECT_EQ(blockElements[i].EntityHash, pStorageBlockElement->EntityHash);
+			auto pSourceBlockElement = source.loadBlockElement(height);
+			EXPECT_EQ(block, pSourceBlockElement->Block) << message;
+			EXPECT_EQ(blockHash, pSourceBlockElement->EntityHash) << message;
 		}
 	}
+
+	TEST(TEST_CLASS, SaveBlockDoesNotDelegateToPrimaryStorageWhenCommitIsNotCalled) {
+		// Arrange:
+		RunSaveDelegationTest([](auto& cache, const auto& storage, const auto& stagingStorage) {
+			Height newBlockHeight(Delegation_Chain_Size + 1);
+			auto pBlock = test::GenerateBlockWithTransactions(0, newBlockHeight);
+			auto blockHash = test::GenerateRandomByteArray<Hash256>();
+
+			// Act:
+			cache.modifier().saveBlock(test::BlockToBlockElement(*pBlock, blockHash));
+
+			// Assert: cache is not updated
+			EXPECT_EQ(Height(Delegation_Chain_Size), cache.view().chainHeight());
+
+			// - permanent storage is not updated
+			EXPECT_EQ(Height(Delegation_Chain_Size), storage.chainHeight());
+
+			// - staging storage is updated
+			AssertBlockInSource(stagingStorage, newBlockHeight, *pBlock, blockHash, "stagingStorage");
+		});
+	}
+
+	TEST(TEST_CLASS, SaveBlockDelegatesToPrimaryStorageWhenCommitIsCalled) {
+		// Arrange:
+		RunSaveDelegationTest([](auto& cache, const auto& storage, const auto& stagingStorage) {
+			Height newBlockHeight(Delegation_Chain_Size + 1);
+			auto pBlock = test::GenerateBlockWithTransactions(0, newBlockHeight);
+			auto blockHash = test::GenerateRandomByteArray<Hash256>();
+
+			// Act:
+			{
+				auto modifier = cache.modifier();
+				modifier.saveBlock(test::BlockToBlockElement(*pBlock, blockHash));
+				modifier.commit();
+			}
+
+			// Assert: cache is updated
+			AssertBlockInSource(cache.view(), newBlockHeight, *pBlock, blockHash, "cache.view()");
+
+			// - permanent storage is updated
+			AssertBlockInSource(storage, newBlockHeight, *pBlock, blockHash, "storage");
+
+			// - staging storage is pruned
+			EXPECT_EQ(Height(0), stagingStorage.chainHeight());
+		});
+	}
+
+	// endregion
+
+	// region saveBlocks - delegation
+
+	namespace {
+		auto GenerateBlockElements(size_t numBlockElements) {
+			std::vector<std::unique_ptr<model::Block>> blocks;
+			std::vector<model::BlockElement> blockElements;
+			for (auto i = 0u; i < numBlockElements; ++i) {
+				blocks.push_back(test::GenerateBlockWithTransactions(0, Height(Delegation_Chain_Size + 1 + i)));
+				blockElements.push_back(test::BlockToBlockElement(*blocks.back(), test::GenerateRandomByteArray<Hash256>()));
+			}
+
+			return std::make_pair(std::move(blocks), std::move(blockElements));
+		}
+
+		template<typename TSource>
+		void AssertBlocksInSource(
+				const TSource& source,
+				Height height,
+				const std::vector<model::BlockElement>& blockElements,
+				const std::string& message) {
+			// Assert:
+			EXPECT_EQ(height, source.chainHeight()) << message;
+
+			for (auto i = 0u; i < blockElements.size(); ++i) {
+				auto pSourceBlockElement = source.loadBlockElement(height - Height(blockElements.size() - 1 - i));
+				EXPECT_EQ(blockElements[i].Block, pSourceBlockElement->Block) << message << " at " << i;
+				EXPECT_EQ(blockElements[i].EntityHash, pSourceBlockElement->EntityHash) << message << " at " << i;
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, SaveBlocksDoesNotDelegateToPrimaryStorageWhenCommitIsNotCalled) {
+		// Arrange:
+		RunSaveDelegationTest([](auto& cache, const auto& storage, const auto& stagingStorage) {
+			constexpr size_t Num_Block_Elements = 5;
+			auto blockElements = GenerateBlockElements(Num_Block_Elements);
+			auto newBlockHeight = Height(Delegation_Chain_Size + Num_Block_Elements);
+
+			// Act:
+			cache.modifier().saveBlocks(blockElements.second);
+
+			// Assert: cache is not updated
+			EXPECT_EQ(Height(Delegation_Chain_Size), cache.view().chainHeight());
+
+			// - permanent storage is not updated
+			EXPECT_EQ(Height(Delegation_Chain_Size), storage.chainHeight());
+
+			// - staging storage is updated
+			AssertBlocksInSource(stagingStorage, newBlockHeight, blockElements.second, "stagingStorage");
+		});
+	}
+
+	TEST(TEST_CLASS, SaveBlocksDelegatesToPrimaryStorageWhenCommitIsCalled) {
+		// Arrange:
+		RunSaveDelegationTest([](auto& cache, const auto& storage, const auto& stagingStorage) {
+			constexpr size_t Num_Block_Elements = 5;
+			auto blockElements = GenerateBlockElements(Num_Block_Elements);
+			auto newBlockHeight = Height(Delegation_Chain_Size + Num_Block_Elements);
+
+			// Act:
+			{
+				auto modifier = cache.modifier();
+				modifier.saveBlocks(blockElements.second);
+				modifier.commit();
+			}
+
+			// Assert: cache is updated
+			AssertBlocksInSource(cache.view(), newBlockHeight, blockElements.second, "cache.view()");
+
+			// - permanent storage is updated
+			AssertBlocksInSource(storage, newBlockHeight, blockElements.second, "storage");
+
+			// - staging storage is pruned
+			EXPECT_EQ(Height(0), stagingStorage.chainHeight());
+		});
+	}
+
+	// endregion
+
+	// region saveBlocks - other
 
 	TEST(TEST_CLASS, SaveBlocksOutOfOrderThrows) {
 		// Arrange:
 		constexpr size_t Num_Block_Elements = 3;
 		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
-		BlockStorageCache cache(std::move(pStorage));
+		BlockStorageCache cache(std::move(pStorage), mocks::CreateMemoryBlockStorage(0));
 		std::vector<std::unique_ptr<model::Block>> blocks;
 		std::vector<model::BlockElement> blockElements;
 		for (auto i = 0u; i < Num_Block_Elements; ++i) {
-			blocks.push_back(test::GenerateVerifiableBlockAtHeight(Height(Delegation_Chain_Size + i + 1)));
-			blockElements.push_back(test::BlockToBlockElement(*blocks.back(), test::GenerateRandomData<Hash256_Size>()));
+			blocks.push_back(test::GenerateBlockWithTransactions(0, Height(Delegation_Chain_Size + i + 1)));
+			blockElements.push_back(test::BlockToBlockElement(*blocks.back(), test::GenerateRandomByteArray<Hash256>()));
 		}
 
 		// - swap heights of two blocks
@@ -297,7 +405,7 @@ namespace catapult { namespace io {
 		// Arrange:
 		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
 		auto pStorageRaw = pStorage.get();
-		BlockStorageCache cache(std::move(pStorage));
+		BlockStorageCache cache(std::move(pStorage), mocks::CreateMemoryBlockStorage(0));
 
 		// Act:
 		cache.modifier().saveBlocks(std::vector<model::BlockElement>());
@@ -310,22 +418,70 @@ namespace catapult { namespace io {
 
 	// endregion
 
-	// region dropBlocksAfter
+	// region dropBlocksAfter - delegation
 
-	TEST(TEST_CLASS, DropBlocksAfterDelegatesToStorage) {
+	TEST(TEST_CLASS, DropBlocksAfterDoesNotDelegateToPrimaryStorageWhenCommitIsNotCalled) {
 		// Arrange:
-		auto pStorage = mocks::CreateMemoryBlockStorage(Delegation_Chain_Size);
-		auto pStorageRaw = pStorage.get();
-		BlockStorageCache cache(std::move(pStorage));
+		RunSaveDelegationTest([](auto& cache, const auto& storage, const auto& stagingStorage) {
+			// Act:
+			cache.modifier().dropBlocksAfter(Height(7));
+
+			// Assert: cache is not updated
+			EXPECT_EQ(Height(Delegation_Chain_Size), cache.view().chainHeight());
+
+			// - permanent storage is not updated
+			EXPECT_EQ(Height(Delegation_Chain_Size), storage.chainHeight());
+
+			// - staging storage is updated
+			EXPECT_EQ(Height(7), stagingStorage.chainHeight());
+		});
+	}
+
+	TEST(TEST_CLASS, DropBlocksAfterDelegatesToPrimaryStorageWhenCommitIsCalled) {
+		// Arrange:
+		RunSaveDelegationTest([](auto& cache, const auto& storage, const auto& stagingStorage) {
+			// Act:
+			{
+				auto modifier = cache.modifier();
+				modifier.dropBlocksAfter(Height(7));
+				modifier.commit();
+			}
+
+			// Assert: cache is updated
+			EXPECT_EQ(Height(7), cache.view().chainHeight());
+
+			// - permanent storage is updated
+			EXPECT_EQ(Height(7), storage.chainHeight());
+
+			// - staging storage is pruned
+			EXPECT_EQ(Height(0), stagingStorage.chainHeight());
+		});
+	}
+
+	// endregion
+
+	// region commit
+
+	TEST(TEST_CLASS, CanDropAndSaveBlocksWithSingleCommmit) {
+		// Arrange:
+		BlockStorageCache cache(mocks::CreateMemoryBlockStorage(12), mocks::CreateMemoryBlockStorage(0));
+
+		// Sanity:
+		EXPECT_EQ(Height(12), cache.view().chainHeight());
 
 		// Act:
-		cache.modifier().dropBlocksAfter(Height(7));
+		auto pNewBlock = test::GenerateBlockWithTransactions(5, Height(9));
+		auto newBlockElement = test::CreateBlockElementForSaveTests(*pNewBlock);
+		{
+			auto modifier = cache.modifier();
+			modifier.dropBlocksAfter(Height(8));
+			modifier.saveBlock(newBlockElement);
+			modifier.commit();
+		}
 
-		// Assert: cache is updated
-		EXPECT_EQ(Height(7), cache.view().chainHeight());
-
-		// - underlying storage is updated
-		EXPECT_EQ(Height(7), pStorageRaw->chainHeight());
+		// Assert:
+		EXPECT_EQ(Height(9), cache.view().chainHeight());
+		test::AssertEqual(newBlockElement, *cache.view().loadBlockElement(Height(9)));
 	}
 
 	// endregion
@@ -334,7 +490,7 @@ namespace catapult { namespace io {
 
 	namespace {
 		auto CreateLockProvider() {
-			return std::make_unique<BlockStorageCache>(mocks::CreateMemoryBlockStorage(7));
+			return std::make_unique<BlockStorageCache>(mocks::CreateMemoryBlockStorage(7), mocks::CreateMemoryBlockStorage(0));
 		}
 	}
 

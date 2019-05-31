@@ -29,7 +29,8 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	namespace {
 		auto CreateDbHash(const Hash256& hash) {
-			return bson_stream::document() << "meta"
+			return bson_stream::document()
+					<< "meta"
 					<< bson_stream::open_document
 						<< "hash" << ToBinary(hash)
 					<< bson_stream::close_document
@@ -54,7 +55,7 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	TEST(TEST_CLASS, CanMapDbHashes) {
 		// Arrange:
-		auto expectedRange = model::HashRange::CopyFixed(test::GenerateRandomData<3 * Hash256_Size>().data(), 3);
+		auto expectedRange = model::HashRange::CopyFixed(test::GenerateRandomArray<3 * Hash256_Size>().data(), 3);
 		auto values = GenerateValues(expectedRange);
 		auto views = CreateViews(values);
 

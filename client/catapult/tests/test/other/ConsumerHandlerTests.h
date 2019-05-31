@@ -36,32 +36,32 @@ namespace catapult { namespace test {
 			ASSERT_TRUE(!!consumer);
 
 			// Assert: no exception
-			consumer(TTraits::CreateConsumerData());
+			consumer(TTraits::CreateConsumerInput());
 		}
 
 		static void AssertCanCreateConsumerAroundMultipleFunctions() {
 			// Arrange:
 			struct Breadcrumb {
-				const decltype(TTraits::CreateConsumerData())* pData;
+				const decltype(TTraits::CreateConsumerInput())* pInput;
 				size_t Id;
 			};
 
 			TConsumerOwner owner;
 			std::vector<Breadcrumb> breadcrumbs;
-			TTraits::AddConsumer(owner, [&breadcrumbs](const auto& data) { breadcrumbs.push_back({ &data, 1 }); });
-			TTraits::AddConsumer(owner, [&breadcrumbs](const auto& data) { breadcrumbs.push_back({ &data, 2 }); });
-			auto data = TTraits::CreateConsumerData();
+			TTraits::AddConsumer(owner, [&breadcrumbs](const auto& input) { breadcrumbs.push_back({ &input, 1 }); });
+			TTraits::AddConsumer(owner, [&breadcrumbs](const auto& input) { breadcrumbs.push_back({ &input, 2 }); });
+			auto consumerInput = TTraits::CreateConsumerInput();
 
 			// Act:
 			auto consumer = TTraits::CreateConsumer(owner);
 			ASSERT_TRUE(!!consumer);
 
-			consumer(data);
+			consumer(consumerInput);
 
 			// Assert:
 			ASSERT_EQ(2u, breadcrumbs.size());
 			for (auto i = 0u; i < breadcrumbs.size(); ++i) {
-				EXPECT_EQ(&data, breadcrumbs[i].pData) << "at " << i;
+				EXPECT_EQ(&consumerInput, breadcrumbs[i].pInput) << "at " << i;
 				EXPECT_EQ(i + 1u, breadcrumbs[i].Id) << "at " << i;
 			}
 		}

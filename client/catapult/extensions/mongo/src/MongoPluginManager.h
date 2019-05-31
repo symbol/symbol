@@ -23,7 +23,7 @@
 #include "MongoReceiptPlugin.h"
 #include "MongoStorageContext.h"
 #include "MongoTransactionPlugin.h"
-#include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/model/NetworkInfo.h"
 #include "catapult/plugins.h"
 
 namespace catapult { namespace mongo {
@@ -31,26 +31,21 @@ namespace catapult { namespace mongo {
 	/// A manager for registering mongo plugins.
 	class MongoPluginManager {
 	public:
-		/// Creates a new plugin manager around \a mongoContext and \a chainConfig.
-		explicit MongoPluginManager(MongoStorageContext& mongoContext, const model::BlockChainConfiguration& chainConfig)
+		/// Creates a new plugin manager around \a mongoContext and \a networkIdentifier.
+		explicit MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier)
 				: m_mongoContext(mongoContext)
-				, m_chainConfig(chainConfig)
+				, m_networkIdentifier(networkIdentifier)
 		{}
 
 	public:
 		/// Gets the mongo storage context.
-		const MongoStorageContext& mongoContext() const {
+		MongoStorageContext& mongoContext() const {
 			return m_mongoContext;
 		}
 
-		/// Gets the block chain configuration.
-		const model::BlockChainConfiguration& chainConfig() const {
-			return m_chainConfig;
-		}
-
-		/// Creates a mongo database connection.
-		MongoDatabase createDatabaseConnection() {
-			return m_mongoContext.createDatabaseConnection();
+		/// Gets the network idenfifier.
+		model::NetworkIdentifier networkIdentifier() const {
+			return m_networkIdentifier;
 		}
 
 	public:
@@ -88,7 +83,7 @@ namespace catapult { namespace mongo {
 
 	private:
 		MongoStorageContext& m_mongoContext;
-		model::BlockChainConfiguration m_chainConfig;
+		model::NetworkIdentifier m_networkIdentifier;
 		MongoTransactionRegistry m_transactionRegistry;
 		MongoReceiptRegistry m_receiptRegistry;
 		ExternalCacheStorageBuilder m_storageBuilder;

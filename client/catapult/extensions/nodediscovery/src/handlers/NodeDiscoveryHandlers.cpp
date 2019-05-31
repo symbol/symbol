@@ -42,13 +42,13 @@ namespace catapult { namespace handlers {
 			if (!nodediscovery::IsNodeCompatible(node, networkIdentifier, context.key())) {
 				CATAPULT_LOG(warning)
 						<< "ignoring ping packet for incompatible node (identity = "
-						<< utils::HexFormat(node.identityKey()) << ", network = " << node.metadata().NetworkIdentifier << ")";
+						<< node.identityKey() << ", network = " << node.metadata().NetworkIdentifier << ")";
 				return;
 			}
 
 			if (node.endpoint().Host.empty()) {
 				auto endpoint = ionet::NodeEndpoint{ context.host(), node.endpoint().Port };
-				CATAPULT_LOG(debug) << "auto detected host '" << endpoint.Host << "' for " << utils::HexFormat(node.identityKey());
+				CATAPULT_LOG(debug) << "auto detected host '" << endpoint.Host << "' for " << node.identityKey();
 				node = ionet::Node(node.identityKey(), endpoint, node.metadata());
 			}
 

@@ -19,7 +19,6 @@
 **/
 
 #include "ApiNetworkPacketWritersService.h"
-#include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/PeersConnectionTasks.h"
 #include "catapult/extensions/ServiceLocator.h"

@@ -69,7 +69,7 @@ namespace catapult { namespace cache {
 				if (!m_container.prop("root", rootHash))
 					return;
 
-				if (Hash256{} == rootHash)
+				if (Hash256() == rootHash)
 					return;
 
 				m_pTree = std::make_unique<TTree>(m_dataSource, rootHash);

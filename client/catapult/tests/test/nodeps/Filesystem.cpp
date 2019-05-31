@@ -165,4 +165,14 @@ namespace catapult { namespace test {
 	}
 
 	// endregion
+
+	// region CountFilesAndDirectories
+
+	size_t CountFilesAndDirectories(const boost::filesystem::path& directoryPath) {
+		auto begin = boost::filesystem::directory_iterator(directoryPath);
+		auto end = boost::filesystem::directory_iterator();
+		return static_cast<size_t>(std::distance(begin, end));
+	}
+
+	// endregion
 }}

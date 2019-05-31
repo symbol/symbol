@@ -857,7 +857,7 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(TEST_CLASS, ConnectionFailsIfNodeEndpointCannotBeResolved) {
+	TEST(TEST_CLASS, ConnectionFailsWhenNodeEndpointCannotBeResolved) {
 		// Act: attempt to connect to an invalid hostname
 		auto result = ConnectAndWait({ "127.0.0.X", test::GetLocalHostPort() });
 
@@ -872,7 +872,7 @@ namespace catapult { namespace ionet {
 		EXPECT_FALSE(result.IsSocketValid);
 	}
 
-	TEST(TEST_CLASS, ConnectionFailsIfServerRefusesConnection) {
+	TEST(TEST_CLASS, ConnectionFailsWhenServerRefusesConnection) {
 		// Act: attempt to connect to a local server that hasn't been started
 		auto result = ConnectAndWait(test::CreateLocalHostNodeEndpoint());
 
@@ -892,7 +892,7 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(TEST_CLASS, ConnectionSucceedsIfServerAcceptsConnection) {
+	TEST(TEST_CLASS, ConnectionSucceedsWhenServerAcceptsConnection) {
 		// Arrange: set up a server acceptor thread
 		boost::asio::io_context ioContext;
 		auto pAcceptor = test::CreateImplicitlyClosedLocalHostAcceptor(ioContext);
@@ -947,7 +947,7 @@ namespace catapult { namespace ionet {
 		}
 	}
 
-	TEST(TEST_CLASS, ConnectionFailsIfConnectAttemptIsCancelled) {
+	TEST(TEST_CLASS, ConnectionFailsWhenConnectAttemptIsCancelled) {
 		// Assert: non-deterministic because a socket could connect before it is cancelled
 		test::RunNonDeterministicTest("Cancellation", RunCancellationTestIteration);
 	}

@@ -20,12 +20,12 @@
 
 #include "src/SyncSourceService.h"
 #include "src/VerifiableStateService.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace syncsource {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			// register service(s)
 			auto& extensionManager = bootstrapper.extensionManager();
 			extensionManager.addServiceRegistrar(CreateSyncSourceServiceRegistrar());
@@ -37,6 +37,6 @@ namespace catapult { namespace syncsource {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::syncsource::RegisterExtension(bootstrapper);
 }

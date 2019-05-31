@@ -49,6 +49,99 @@ namespace catapult { namespace io {
 	}
 
 	DEFINE_BLOCK_STORAGE_TESTS(FileTraits)
+	DEFINE_PRUNABLE_BLOCK_STORAGE_TESTS(FileTraits)
+
+	// region modes
+
+	TEST(TEST_CLASS, HashIndexCanBeEnabled) {
+		// Arrange: prepare a directory with a hashes file
+		test::TempDirectoryGuard tempDir;
+		FileTraits::PrepareStorage(tempDir.name());
+
+		// - purge the nemesis block
+		FileBlockStorage storage(tempDir.name(), FileBlockStorageMode::Hash_Index);
+		storage.dropBlocksAfter(Height());
+
+		// - save a block
+		auto pBlock = test::GenerateBlockWithTransactions(5, Height(1));
+		auto blockElement = test::CreateBlockElementForSaveTests(*pBlock);
+		storage.saveBlock(blockElement);
+
+		// Act:
+		auto pStorageBlockElement = storage.loadBlockElement(Height(1));
+		auto hashes = storage.loadHashesFrom(Height(1), 100);
+
+		// Assert: hashes are present
+		ASSERT_EQ(1u, hashes.size());
+		EXPECT_EQ(blockElement.EntityHash, *hashes.cbegin());
+		test::AssertEqual(blockElement, *pStorageBlockElement);
+	}
+
+	TEST(TEST_CLASS, HashIndexCanBeDisabled) {
+		// Arrange: prepare a directory without a hashes file
+		test::TempDirectoryGuard tempDir;
+		FileBlockStorage storage(tempDir.name(), FileBlockStorageMode::None);
+
+		// - save a block
+		auto pBlock = test::GenerateBlockWithTransactions(5, Height(1));
+		auto blockElement = test::CreateBlockElementForSaveTests(*pBlock);
+		storage.saveBlock(blockElement);
+
+		// Act:
+		auto pStorageBlockElement = storage.loadBlockElement(Height(1));
+
+		// Assert: hashes are not present
+		EXPECT_THROW(storage.loadHashesFrom(Height(1), 100), catapult_invalid_argument);
+		test::AssertEqual(blockElement, *pStorageBlockElement);
+	}
+
+	// endregion
+
+	// region folder management
+
+	TEST(TEST_CLASS, PurgeDoesNotDeleteDataDirectory) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		FileBlockStorage storage(tempDir.name());
+
+		// Sanity:
+		EXPECT_TRUE(boost::filesystem::exists(tempDir.name()));
+
+		// Act:
+		storage.purge();
+
+		// Assert:
+		EXPECT_TRUE(boost::filesystem::exists(tempDir.name()));
+	}
+
+	// endregion
+
+	// region storage trailing data
+
+	TEST(TEST_CLASS, CannotReadSavedBlockElementWithTrailingData) {
+		// Arrange:
+		test::TempDirectoryGuard tempDir;
+		auto pBlock = test::GenerateBlockWithTransactions(5, Height(2));
+		auto element = test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>());
+		{
+			auto pStorage = FileTraits::PrepareStorage(tempDir.name());
+			pStorage->saveBlock(element);
+		}
+
+		// - append some data
+		{
+			io::RawFile file(tempDir.name() + "/00000/00002.dat", io::OpenMode::Read_Append);
+			file.seek(file.size());
+			std::vector<uint8_t> buffer{ 42 };
+			file.write(buffer);
+		}
+
+		// Act + Assert
+		FileBlockStorage storage(tempDir.name());
+		EXPECT_THROW(storage.loadBlockElement(Height(2)), catapult_runtime_error);
+	}
+
+	// endregion
 
 	// region disk persistence
 
@@ -58,8 +151,8 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, CanReadSavedBlockAcrossDifferentStorageInstances) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(Height(2));
-		auto element = test::BlockToBlockElement(*pBlock, test::GenerateRandomData<Hash256_Size>());
+		auto pBlock = test::GenerateBlockWithTransactions(5, Height(2));
+		auto element = test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>());
 		{
 			auto pStorage = FileTraits::PrepareStorage(tempDir.name());
 			pStorage->saveBlock(element);
@@ -76,10 +169,10 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, CanReadMultipleSavedBlocksAcrossDifferentStorageInstances) {
 		// Arrange:
 		test::TempDirectoryGuard tempDir;
-		auto pBlock1 = test::GenerateBlockWithTransactionsAtHeight(Height(2));
-		auto pBlock2 = test::GenerateBlockWithTransactionsAtHeight(Height(3));
-		auto element1 = test::BlockToBlockElement(*pBlock1, test::GenerateRandomData<Hash256_Size>());
-		auto element2 = test::BlockToBlockElement(*pBlock2, test::GenerateRandomData<Hash256_Size>());
+		auto pBlock1 = test::GenerateBlockWithTransactions(5, Height(2));
+		auto pBlock2 = test::GenerateBlockWithTransactions(5, Height(3));
+		auto element1 = test::BlockToBlockElement(*pBlock1, test::GenerateRandomByteArray<Hash256>());
+		auto element2 = test::BlockToBlockElement(*pBlock2, test::GenerateRandomByteArray<Hash256>());
 		{
 			auto pStorage = FileTraits::PrepareStorage(tempDir.name());
 			pStorage->saveBlock(element1);

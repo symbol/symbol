@@ -36,7 +36,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		static void AssertCanMapLockInfo_ModelToDbModel() {
 			// Arrange:
 			auto lockInfo = TLockInfoTraits::CreateLockInfo(Height(123));
-			auto address = test::GenerateRandomData<Address_Decoded_Size>();
+			auto address = test::GenerateRandomByteArray<Address>();
 			lockInfo.Status = state::LockStatus::Used;
 
 			// Act:
@@ -57,7 +57,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		static void AssertCanMapLockInfo_DbModelToModel() {
 			// Arrange:
 			auto originalLockInfo = TLockInfoTraits::CreateLockInfo(Height(123));
-			auto address = test::GenerateRandomData<Address_Decoded_Size>();
+			auto address = test::GenerateRandomByteArray<Address>();
 			originalLockInfo.Status = state::LockStatus::Used;
 			auto dbLockInfo = ToDbModel(originalLockInfo, address);
 

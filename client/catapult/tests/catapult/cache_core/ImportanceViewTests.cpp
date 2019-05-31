@@ -65,7 +65,7 @@ namespace catapult { namespace cache {
 				// explicitly mark the account as a main account (local harvesting when remote harvesting is enabled)
 				auto accountStateIter = PublicKeyTraits::AddAccount(delta, publicKey, height);
 				accountStateIter.get().AccountType = state::AccountType::Main;
-				accountStateIter.get().LinkedAccountKey = test::GenerateRandomData<Key_Size>();
+				accountStateIter.get().LinkedAccountKey = test::GenerateRandomByteArray<Key>();
 				return accountStateIter;
 			}
 		};
@@ -73,7 +73,7 @@ namespace catapult { namespace cache {
 		struct RemoteAccountTraits {
 			static auto AddAccount(AccountStateCacheDelta& delta, const Key& publicKey, Height height) {
 				// 1. add the main account with a balance
-				auto mainAccountPublicKey = test::GenerateRandomData<Key_Size>();
+				auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
 				auto mainAccountStateIter = PublicKeyTraits::AddAccount(delta, mainAccountPublicKey, height);
 				mainAccountStateIter.get().AccountType = state::AccountType::Main;
 				mainAccountStateIter.get().LinkedAccountKey = publicKey;
@@ -137,19 +137,19 @@ namespace catapult { namespace cache {
 
 	KEY_TRAITS_BASED_TEST(CannotRetrieveImportanceForUnknownAccount) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto height = Height(1000);
 		auto pCache = CreateAccountStateCache();
 		AddAccount<TTraits>(*pCache, key, Importance(1000), ConvertToImportanceHeight(height));
 		auto pView = test::CreateImportanceView(*pCache);
 
 		// Act + Assert: mismatched key
-		AssertCannotFindImportance(*pView, test::GenerateRandomData<Key_Size>(), height);
+		AssertCannotFindImportance(*pView, test::GenerateRandomByteArray<Key>(), height);
 	}
 
 	KEY_TRAITS_BASED_TEST(CannotRetrieveImportanceForAccountAtMismatchedHeight) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto pCache = CreateAccountStateCache();
 		AddAccount<TTraits>(*pCache, key, Importance(1000), ConvertToImportanceHeight(Height(10000)));
 		auto pView = test::CreateImportanceView(*pCache);
@@ -162,7 +162,7 @@ namespace catapult { namespace cache {
 		template<typename TTraits>
 		void AssertCanFindImportance(Importance accountImportance) {
 			// Arrange:
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			auto height = Height(1000);
 			auto pCache = CreateAccountStateCache();
 			AddAccount<TTraits>(*pCache, key, accountImportance, ConvertToImportanceHeight(height));
@@ -216,22 +216,22 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, TEST_NAME##_RemoteAccount) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RemoteAccountCanHarvestViaMemberTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestIfAccountIsUnknown) {
+	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenAccountIsUnknown) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto height = Height(1000);
 		auto pCache = CreateAccountStateCache();
 		AddAccount<TTraits>(*pCache, key, Importance(1000), ConvertToImportanceHeight(height));
 
 		// Act + Assert:
-		EXPECT_FALSE(TTraits::CanHarvest(*pCache, test::GenerateRandomData<Key_Size>(), height, Amount(1234)));
+		EXPECT_FALSE(TTraits::CanHarvest(*pCache, test::GenerateRandomByteArray<Key>(), height, Amount(1234)));
 	}
 
 	namespace {
 		template<typename TTraits>
 		bool CanHarvest(int64_t minBalanceDelta, Importance importance, ImportanceHeight importanceHeight, Height testHeight) {
 			// Arrange:
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			auto pCache = CreateAccountStateCache();
 			auto initialBalance = Amount(static_cast<Amount::ValueType>(1234 + minBalanceDelta));
 			AddAccount<TTraits>(*pCache, key, importance, importanceHeight, initialBalance);
@@ -241,25 +241,25 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestIfBalanceIsBelowMinBalance) {
+	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenBalanceIsBelowMinBalance) {
 		// Assert:
 		auto height = Height(10000);
 		EXPECT_FALSE(CanHarvest<TTraits>(-1, Importance(123), ConvertToImportanceHeight(height), height));
 		EXPECT_FALSE(CanHarvest<TTraits>(-100, Importance(123), ConvertToImportanceHeight(height), height));
 	}
 
-	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestIfImportanceIsZero) {
+	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenImportanceIsZero) {
 		// Assert:
 		auto height = Height(10000);
 		EXPECT_FALSE(CanHarvest<TTraits>(12345, Importance(0), ConvertToImportanceHeight(height), height));
 	}
 
-	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestIfImportanceIsNotSetAtCorrectHeight) {
+	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenImportanceIsNotSetAtCorrectHeight) {
 		// Assert:
 		EXPECT_FALSE(CanHarvest<TTraits>(12345, Importance(0), ImportanceHeight(123), Height(1234)));
 	}
 
-	CAN_HARVEST_TRAITS_BASED_TEST(CanHarvestIfAllCriteriaAreMet) {
+	CAN_HARVEST_TRAITS_BASED_TEST(CanHarvestWhenAllCriteriaAreMet) {
 		// Assert:
 		auto height = Height(10000);
 		EXPECT_TRUE(CanHarvest<TTraits>(0, Importance(123), ConvertToImportanceHeight(height), height));
@@ -303,7 +303,7 @@ namespace catapult { namespace cache {
 		template<typename TTraits, typename TMutator>
 		void AssertImproperLink(TMutator mutator) {
 			// Arrange:
-			auto publicKey = test::GenerateRandomData<Key_Size>();
+			auto publicKey = test::GenerateRandomByteArray<Key>();
 			auto pCache = CreateAccountStateCache();
 
 			{
@@ -320,7 +320,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	IMPROPER_LINKS_TRAITS_BASED_TEST(FailureIfLinkedAccountHasWrongType) {
+	IMPROPER_LINKS_TRAITS_BASED_TEST(FailureWhenLinkedAccountHasWrongType) {
 		// Assert:
 		AssertImproperLink<TTraits>([](auto& accountState) {
 			// Arrange: change the main account to have the wrong type
@@ -328,7 +328,7 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	IMPROPER_LINKS_TRAITS_BASED_TEST(FailureIfLinkedAccountDoesNotReferenceRemoteAccount) {
+	IMPROPER_LINKS_TRAITS_BASED_TEST(FailureWhenLinkedAccountDoesNotReferenceRemoteAccount) {
 		// Assert:
 		AssertImproperLink<TTraits>([](auto& accountState) {
 			// Arrange: change the main account to point to a different account

@@ -35,8 +35,11 @@ namespace catapult { namespace config {
 						{
 							{ "maxTransactionsPerAggregate", "674" },
 							{ "maxCosignaturesPerAggregate", "52" },
+
 							{ "enableStrictCosignatureCheck", "true" },
-							{ "enableBondedAggregateSupport", "true" }
+							{ "enableBondedAggregateSupport", "true" },
+
+							{ "maxBondedTransactionLifetime", "14m" }
 						}
 					}
 				};
@@ -50,16 +53,22 @@ namespace catapult { namespace config {
 				// Assert:
 				EXPECT_EQ(0u, config.MaxTransactionsPerAggregate);
 				EXPECT_EQ(0u, config.MaxCosignaturesPerAggregate);
+
 				EXPECT_FALSE(config.EnableStrictCosignatureCheck);
 				EXPECT_FALSE(config.EnableBondedAggregateSupport);
+
+				EXPECT_EQ(utils::TimeSpan(), config.MaxBondedTransactionLifetime);
 			}
 
 			static void AssertCustom(const AggregateConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(674u, config.MaxTransactionsPerAggregate);
 				EXPECT_EQ(52u, config.MaxCosignaturesPerAggregate);
+
 				EXPECT_TRUE(config.EnableStrictCosignatureCheck);
 				EXPECT_TRUE(config.EnableBondedAggregateSupport);
+
+				EXPECT_EQ(utils::TimeSpan::FromMinutes(14), config.MaxBondedTransactionLifetime);
 			}
 		};
 	}

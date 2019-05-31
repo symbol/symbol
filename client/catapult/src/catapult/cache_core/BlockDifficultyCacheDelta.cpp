@@ -29,6 +29,7 @@ namespace catapult { namespace cache {
 			const BlockDifficultyCacheTypes::Options& options)
 			: BlockDifficultyCacheDeltaMixins::Size(*difficultyInfoSets.pPrimary)
 			, BlockDifficultyCacheDeltaMixins::Contains(*difficultyInfoSets.pPrimary)
+			, BlockDifficultyCacheDeltaMixins::DeltaElements(*difficultyInfoSets.pPrimary)
 			, m_pOrderedDelta(difficultyInfoSets.pPrimary)
 			, m_difficultyHistorySize(options.DifficultyHistorySize)
 			// note: empty indicates initial cache seeding;
@@ -38,6 +39,10 @@ namespace catapult { namespace cache {
 
 	deltaset::PruningBoundary<BasicBlockDifficultyCacheDelta::ValueType> BasicBlockDifficultyCacheDelta::pruningBoundary() const {
 		return m_pruningBoundary;
+	}
+
+	std::unique_ptr<BasicBlockDifficultyCacheDelta::IterableView> BasicBlockDifficultyCacheDelta::tryMakeIterableView() const {
+		return std::make_unique<IterableView>(*m_pOrderedDelta);
 	}
 
 	void BasicBlockDifficultyCacheDelta::insert(const ValueType& info) {
@@ -66,6 +71,17 @@ namespace catapult { namespace cache {
 			m_pruningBoundary = deltaset::PruningBoundary<ValueType>(ValueType(height - heightDifference));
 	}
 
+	namespace {
+		[[noreturn]]
+		void ThrowInvalidHeightError(const char* operation, Height nextCacheHeight, Height elementHeight) {
+			std::ostringstream out;
+			out
+					<< "cannot " << operation << " element with height " << elementHeight
+					<< " when cache height is " << (nextCacheHeight - Height(1));
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+		}
+	}
+
 	void BasicBlockDifficultyCacheDelta::checkInsert(Height height) {
 		// insert is only allowed if either
 		// - the set is empty
@@ -76,7 +92,7 @@ namespace catapult { namespace cache {
 		}
 
 		if (nextHeight() != height)
-			CATAPULT_THROW_INVALID_ARGUMENT_2("insertion of element with unexpected height (nextHeight, height)", nextHeight(), height);
+			ThrowInvalidHeightError("insert", nextHeight(), height);
 	}
 
 	void BasicBlockDifficultyCacheDelta::checkRemove(Height height) const {
@@ -87,7 +103,7 @@ namespace catapult { namespace cache {
 			CATAPULT_THROW_RUNTIME_ERROR("remove called on empty cache");
 
 		if (nextHeight() != height + Height(1))
-			CATAPULT_THROW_INVALID_ARGUMENT_2("removal of element with unexpected height (nextHeight, height)", nextHeight(), height);
+			ThrowInvalidHeightError("remove", nextHeight(), height);
 	}
 
 	Height BasicBlockDifficultyCacheDelta::nextHeight() const {

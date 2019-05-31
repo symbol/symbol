@@ -20,11 +20,10 @@
 
 #include "mongo/src/MongoPluginManager.h"
 #include "mongo/src/MongoTransactionPlugin.h"
-#include "catapult/model/BlockChainConfiguration.h"
 #include "mongo/tests/test/MongoTestUtils.h"
+#include "mongo/tests/test/mocks/MockExternalCacheStorage.h"
 #include "mongo/tests/test/mocks/MockReceiptMapper.h"
 #include "mongo/tests/test/mocks/MockTransactionMapper.h"
-#include "tests/test/local/mocks/MockExternalCacheStorage.h"
 #include "tests/TestHarness.h"
 #include <mongocxx/instance.hpp>
 
@@ -34,14 +33,14 @@ namespace catapult { namespace mongo {
 
 	namespace {
 		template<typename TAction>
-		void RunPluginManagerTest(const model::BlockChainConfiguration& config, TAction action) {
+		void RunPluginManagerTest(model::NetworkIdentifier networkIdentifier, TAction action) {
 			// Arrange:
 			// - windows requires the caller to explicitly create a mongocxx instance before certain operations
 			//   like creating a mongocxx::pool (via MongoStorageContext)
 			mongocxx::instance::current();
-			MongoStorageContext mongoContext(test::DefaultDbUri(), "", nullptr);
+			MongoStorageContext mongoContext(test::DefaultDbUri(), "", nullptr, MongoErrorPolicy::Mode::Strict);
 
-			MongoPluginManager manager(mongoContext, config);
+			MongoPluginManager manager(mongoContext, networkIdentifier);
 
 			// Act + Assert:
 			action(manager, mongoContext);
@@ -49,7 +48,7 @@ namespace catapult { namespace mongo {
 
 		template<typename TAction>
 		void RunPluginManagerTest(TAction action) {
-			RunPluginManagerTest(model::BlockChainConfiguration::Uninitialized(), [action](auto& manager, const auto&) {
+			RunPluginManagerTest(model::NetworkIdentifier::Zero, [action](auto& manager, const auto&) {
 				action(manager);
 			});
 		}
@@ -59,12 +58,10 @@ namespace catapult { namespace mongo {
 
 	TEST(TEST_CLASS, CanCreateManager) {
 		// Arrange:
-		auto config = model::BlockChainConfiguration::Uninitialized();
-		config.BlockPruneInterval = 15;
-		RunPluginManagerTest(config, [](const auto& manager, const auto& mongoContext) {
-			// Assert: compare BlockPruneInterval as a sentinel value because the manager copies the config
+		RunPluginManagerTest(static_cast<model::NetworkIdentifier>(17), [](const auto& manager, const auto& mongoContext) {
+			// Assert:
 			EXPECT_EQ(&mongoContext, &manager.mongoContext());
-			EXPECT_EQ(15u, manager.chainConfig().BlockPruneInterval);
+			EXPECT_EQ(static_cast<model::NetworkIdentifier>(17), manager.networkIdentifier());
 		});
 	}
 

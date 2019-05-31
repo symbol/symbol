@@ -80,7 +80,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanCreateAccountProperties) {
 		// Arrange:
-		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+		auto address = test::GenerateRandomByteArray<Address>();
 
 		// Act:
 		AccountProperties properties(address);
@@ -92,7 +92,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanCreateAccountPropertiesWithDifferentPropertyOperationTypes) {
 		// Arrange:
-		AccountProperties properties(test::GenerateRandomData<Address_Decoded_Size>());
+		AccountProperties properties(test::GenerateRandomByteArray<Address>());
 		auto& addressProperty = properties.property(model::PropertyType::Address);
 		auto& mosaicProperty = properties.property(model::PropertyType::MosaicId);
 
@@ -126,7 +126,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanIterateThroughAccountProperties) {
 		// Arrange:
-		AccountProperties properties(test::GenerateRandomData<Address_Decoded_Size>());
+		AccountProperties properties(test::GenerateRandomByteArray<Address>());
 
 		// Act:
 		auto types = CollectPropertyTypes(properties);
@@ -140,9 +140,9 @@ namespace catapult { namespace state {
 		EXPECT_EQ(expectedTypes, types);
 	}
 
-	PROPERTY_TRAITS_BASED_TEST(TypedPropertyReturnsCorrectTypedPropertyIfPropertyTypeIsKnown) {
+	PROPERTY_TRAITS_BASED_TEST(TypedPropertyReturnsCorrectTypedPropertyWhenPropertyTypeIsKnown) {
 		// Arrange:
-		AccountProperties properties(test::GenerateRandomData<Address_Decoded_Size>());
+		AccountProperties properties(test::GenerateRandomByteArray<Address>());
 
 		// Act:
 		auto property = properties.property<typename TTraits::ValueType>(TTraits::PropertyType());
@@ -151,17 +151,17 @@ namespace catapult { namespace state {
 		EXPECT_EQ(TTraits::PropertyType() | model::PropertyType::Block, property.descriptor().raw());
 	}
 
-	TEST(TEST_CLASS, TypedPropertyThrowsIfPropertyTypeIsUnknown) {
+	TEST(TEST_CLASS, TypedPropertyThrowsWhenPropertyTypeIsUnknown) {
 		// Arrange:
-		AccountProperties properties(test::GenerateRandomData<Address_Decoded_Size>());
+		AccountProperties properties(test::GenerateRandomByteArray<Address>());
 
 		// Act + Assert:
 		EXPECT_THROW(properties.property<Address>(model::PropertyType::Sentinel), catapult_invalid_argument);
 	}
 
-	PROPERTY_TRAITS_BASED_TEST(PropertyReturnsCorrectPropertyIfPropertyTypeIsKnown) {
+	PROPERTY_TRAITS_BASED_TEST(PropertyReturnsCorrectPropertyWhenPropertyTypeIsKnown) {
 		// Arrange:
-		AccountProperties properties(test::GenerateRandomData<Address_Decoded_Size>());
+		AccountProperties properties(test::GenerateRandomByteArray<Address>());
 
 		// Act:
 		auto& property = properties.property(TTraits::PropertyType());
@@ -170,17 +170,17 @@ namespace catapult { namespace state {
 		EXPECT_EQ(TTraits::PropertyType(), property.descriptor().propertyType());
 	}
 
-	TEST(TEST_CLASS, PropertyThrowsIfPropertyTypeIsUnknown) {
+	TEST(TEST_CLASS, PropertyThrowsWhenPropertyTypeIsUnknown) {
 		// Arrange:
-		AccountProperties properties(test::GenerateRandomData<Address_Decoded_Size>());
+		AccountProperties properties(test::GenerateRandomByteArray<Address>());
 
 		// Act + Assert:
 		EXPECT_THROW(properties.property(model::PropertyType::Sentinel), catapult_invalid_argument);
 	}
 
-	PROPERTY_TRAITS_BASED_TEST(PropertyReturnsCorrectPropertyIfPropertyTypeIsKnown_Const) {
+	PROPERTY_TRAITS_BASED_TEST(PropertyReturnsCorrectPropertyWhenPropertyTypeIsKnown_Const) {
 		// Arrange:
-		AccountProperties properties(test::GenerateRandomData<Address_Decoded_Size>());
+		AccountProperties properties(test::GenerateRandomByteArray<Address>());
 
 		// Act:
 		auto& property = const_cast<const AccountProperties&>(properties).property(TTraits::PropertyType());
@@ -189,9 +189,9 @@ namespace catapult { namespace state {
 		EXPECT_EQ(TTraits::PropertyType(), property.descriptor().propertyType());
 	}
 
-	TEST(TEST_CLASS, PropertyThrowsIfPropertyTypeIsUnknown_Const) {
+	TEST(TEST_CLASS, PropertyThrowsWhenPropertyTypeIsUnknown_Const) {
 		// Arrange:
-		AccountProperties properties(test::GenerateRandomData<Address_Decoded_Size>());
+		AccountProperties properties(test::GenerateRandomByteArray<Address>());
 
 		// Act + Assert:
 		EXPECT_THROW(const_cast<const AccountProperties&>(properties).property(model::PropertyType::Sentinel), catapult_invalid_argument);

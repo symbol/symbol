@@ -106,6 +106,15 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ(Entity_Type, pPlugin->type());
 	}
 
+	TEST(TEST_CLASS, PluginSupportsTopLevel) {
+		// Arrange:
+		TransactionRegistry registry;
+		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
+
+		// Act + Assert:
+		EXPECT_TRUE(pPlugin->supportsTopLevel());
+	}
+
 	TEST(TEST_CLASS, PluginDoesNotSupportEmbedding) {
 		// Arrange:
 		TransactionRegistry registry;
@@ -114,6 +123,41 @@ namespace catapult { namespace plugins {
 		// Act + Assert:
 		EXPECT_FALSE(pPlugin->supportsEmbedding());
 		EXPECT_THROW(pPlugin->embeddedPlugin(), catapult_runtime_error);
+	}
+
+	// endregion
+
+	// region attributes
+
+	TEST(TEST_CLASS, AttributesReturnsCorrectValuesWhenConfiguredWithDefaultMaxLifetime) {
+		// Arrange:
+		TransactionRegistry registry;
+		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
+
+		// Act:
+		auto attributes = pPlugin->attributes();
+
+		// Assert:
+		EXPECT_EQ(2u, attributes.MinVersion);
+		EXPECT_EQ(2u, attributes.MaxVersion);
+
+		// - zero denotes default lifetime should be used
+		EXPECT_EQ(utils::TimeSpan(), attributes.MaxLifetime);
+	}
+
+	TEST(TEST_CLASS, AttributesReturnsCorrectValuesWhenConfiguredWithCustomMaxLifetime) {
+		// Arrange:
+		TransactionRegistry registry;
+		auto pPlugin = CreateAggregateTransactionPlugin(registry, utils::TimeSpan::FromMinutes(1234), Entity_Type);
+
+		// Act:
+		auto attributes = pPlugin->attributes();
+
+		// Assert:
+		EXPECT_EQ(2u, attributes.MinVersion);
+		EXPECT_EQ(2u, attributes.MaxVersion);
+
+		EXPECT_EQ(utils::TimeSpan::FromMinutes(1234), attributes.MaxLifetime);
 	}
 
 	// endregion
@@ -144,23 +188,6 @@ namespace catapult { namespace plugins {
 
 		// Assert:
 		EXPECT_EQ(std::numeric_limits<uint64_t>::max(), realSize);
-	}
-
-	// endregion
-
-	// region supported versions
-
-	TEST(TEST_CLASS, SupportedVersionsReturnsCorrectVersion) {
-		// Arrange:
-		TransactionRegistry registry;
-		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
-
-		// Act:
-		auto supportedVersions = pPlugin->supportedVersions();
-
-		// Assert:
-		EXPECT_EQ(2u, supportedVersions.MinVersion);
-		EXPECT_EQ(2u, supportedVersions.MaxVersion);
 	}
 
 	// endregion
@@ -284,7 +311,8 @@ namespace catapult { namespace plugins {
 
 			EXPECT_EQ(0u, notification.PrimaryId) << message;
 			EXPECT_EQ(1u, notification.SecondaryId) << message;
-			EXPECT_EQ(SourceChangeNotification::SourceChangeType::Relative, notification.ChangeType) << message;
+			EXPECT_EQ(SourceChangeNotification::SourceChangeType::Relative, notification.PrimaryChangeType) << message;
+			EXPECT_EQ(SourceChangeNotification::SourceChangeType::Relative, notification.SecondaryChangeType) << message;
 		}
 	}
 
@@ -310,9 +338,9 @@ namespace catapult { namespace plugins {
 
 			// - min/max version comes from MockTransactionPlugin created in CreateDefaultTransactionRegistry
 			EXPECT_EQ(static_cast<NetworkIdentifier>(100 + i), notification.NetworkIdentifier) << message;
+			EXPECT_EQ((i + 1) * 2, notification.EntityVersion) << message;
 			EXPECT_EQ(0x02u, notification.MinVersion) << message;
 			EXPECT_EQ(0xFEu, notification.MaxVersion) << message;
-			EXPECT_EQ((i + 1) * 2, notification.EntityVersion) << message;
 		}
 	}
 
@@ -367,7 +395,7 @@ namespace catapult { namespace plugins {
 			auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
 			auto wrapper = CreateAggregateTransaction(numTransactions, numCosignatures);
 
-			auto aggregateDataHash = test::GenerateRandomData<Hash256_Size>();
+			auto aggregateDataHash = test::GenerateRandomByteArray<Hash256>();
 
 			// Act:
 			test::PublishTransaction(*pPlugin, WeakEntityInfoT<Transaction>(*wrapper.pTransaction, aggregateDataHash), sub);
@@ -386,6 +414,9 @@ namespace catapult { namespace plugins {
 				// - notifications should refer to same (aggregate) data hash
 				EXPECT_EQ(aggregateDataHash.data(), notification.Data.pData) << message;
 				EXPECT_EQ(Hash256_Size, notification.Data.Size) << message;
+
+				// - notifications should not have replay protection because they represent cosignatures
+				EXPECT_EQ(SignatureNotification::ReplayProtectionMode::Disabled, notification.DataReplayProtectionMode);
 			}
 		}
 	}

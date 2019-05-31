@@ -131,7 +131,7 @@ namespace catapult { namespace test {
 		FillWithRandomData(buffer);
 
 		// set the packet at the start of the buffer
-		auto& packet = reinterpret_cast<ionet::Packet&>(*buffer.data());
+		auto& packet = reinterpret_cast<ionet::Packet&>(buffer[0]);
 		packet.Size = static_cast<uint32_t>(buffer.size());
 		packet.Type = ionet::PacketType::Push_Block;
 

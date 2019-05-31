@@ -117,25 +117,38 @@ namespace catapult { namespace deltaset {
 					m_iter = m_deltas.Added.cbegin();
 				}
 
-				// last stage, nothing left to do
+				// last stage
+				handleAddedStage();
+			}
+
+			bool handleCopiedStage() {
+				return m_deltas.Copied.cend() != m_iter;
 			}
 
 			bool handleOriginalStage() {
-				// advance to the first original element that has neither been removed nor copied
-				for (; m_elements.end() != m_iter; ++m_iter) {
+				// advance to the next original element that has neither been removed nor copied
+				for (; m_elements.cend() != m_iter; ++m_iter) {
 					const auto& key = TSetTraits::ToKey(*m_iter);
-					if (!contains(m_deltas.Removed, key) && !contains(m_deltas.Copied, key))
+					if (!Contains(m_deltas.Removed, key) && !Contains(m_deltas.Copied, key))
 						return true;
 				}
 
 				return false;
 			}
 
-			bool handleCopiedStage() {
-				return m_deltas.Copied.end() != m_iter;
+			bool handleAddedStage() {
+				// advance to the next added element that has not been removed
+				for (; m_deltas.Added.cend() != m_iter; ++m_iter) {
+					const auto& key = TSetTraits::ToKey(*m_iter);
+					if (!Contains(m_deltas.Removed, key))
+						return true;
+				}
+
+				return false;
 			}
 
-			static constexpr bool contains(const SetType& set, const KeyType& key) {
+		private:
+			static constexpr bool Contains(const SetType& set, const KeyType& key) {
 				return set.cend() != set.find(key);
 			}
 

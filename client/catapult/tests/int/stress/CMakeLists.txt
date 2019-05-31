@@ -8,7 +8,8 @@ target_link_libraries(${TARGET_NAME}
 	catapult.harvesting
 	catapult.plugins.hashcache
 	catapult.plugins.hashcache.cache
-	tests.catapult.test.local)
+	tests.catapult.test.local
+	tests.catapult.test.nemesis)
 
 set_property(TEST ${TARGET_NAME} PROPERTY LABELS Stress)
 

@@ -33,13 +33,13 @@ namespace catapult { namespace cache {
 			auto& hashCacheDelta = delta.sub<HashCache>();
 
 			for (auto i = 0u; i < 5; ++i)
-				hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
+				hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
 
-			auto hash = test::GenerateRandomData<Hash256_Size>();
+			auto hash = test::GenerateRandomByteArray<Hash256>();
 			hashCacheDelta.insert(state::TimestampedHash(Timestamp(5), hash));
 
 			for (auto i = 6u; i < 10; ++i)
-				hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
+				hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
 
 			cache.commit(Height());
 			return hash;
@@ -48,7 +48,7 @@ namespace catapult { namespace cache {
 
 	// region HashCacheContains
 
-	TEST(TEST_CLASS, HashCacheContains_ReturnsTrueIfElementIsContainedInHashCache) {
+	TEST(TEST_CLASS, HashCacheContains_ReturnsTrueWhenElementIsContainedInHashCache) {
 		// Arrange:
 		auto cache = test::HashCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 		auto hash = PopulateHashCache(cache);
@@ -57,14 +57,14 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(HashCacheContains(cache, Timestamp(5), hash));
 	}
 
-	TEST(TEST_CLASS, HashCacheContains_ReturnsFalseIfElementIsNotContainedInHashCache) {
+	TEST(TEST_CLASS, HashCacheContains_ReturnsFalseWhenElementIsNotContainedInHashCache) {
 		// Arrange:
 		auto cache = test::HashCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
 		auto hash = PopulateHashCache(cache);
 
 		// Act + Assert:
 		EXPECT_FALSE(HashCacheContains(cache, Timestamp(6), hash));
-		EXPECT_FALSE(HashCacheContains(cache, Timestamp(5), test::GenerateRandomData<Hash256_Size>()));
+		EXPECT_FALSE(HashCacheContains(cache, Timestamp(5), test::GenerateRandomByteArray<Hash256>()));
 	}
 
 	// endregion

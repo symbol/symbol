@@ -43,7 +43,10 @@ namespace catapult { namespace consumers {
 
 		struct BlockHitPredicateParams {
 		public:
-			BlockHitPredicateParams(const model::Block* pParent, const model::Block* pChild, const Hash256& generationHash)
+			BlockHitPredicateParams(
+					const model::Block* pParent,
+					const model::Block* pChild,
+					const catapult::GenerationHash& generationHash)
 					: pParentBlock(pParent)
 					, pChildBlock(pChild)
 					, GenerationHash(generationHash)
@@ -52,7 +55,7 @@ namespace catapult { namespace consumers {
 		public:
 			const model::Block* pParentBlock;
 			const model::Block* pChildBlock;
-			const Hash256 GenerationHash;
+			const catapult::GenerationHash GenerationHash;
 		};
 
 		class MockBlockHitPredicate : public test::ParamsCapture<BlockHitPredicateParams> {
@@ -61,7 +64,7 @@ namespace catapult { namespace consumers {
 			{}
 
 		public:
-			bool operator()(const model::Block& parent, const model::Block& child, const Hash256& generationHash) const {
+			bool operator()(const model::Block& parent, const model::Block& child, const GenerationHash& generationHash) const {
 				const_cast<MockBlockHitPredicate*>(this)->push(&parent, &child, generationHash);
 				return ++m_numCalls < m_trigger;
 			}
@@ -392,7 +395,7 @@ namespace catapult { namespace consumers {
 
 	RECEIPT_VALIDATION_MODE_BASED_TEST(CanProcessSingleBlockWithTransactions) {
 		// Arrange:
-		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(3, 12);
+		auto pBlock = test::GenerateBlockWithTransactions(3, Height(12));
 		auto elements = test::CreateBlockElements({ pBlock.get() });
 
 		// Assert:
@@ -409,9 +412,9 @@ namespace catapult { namespace consumers {
 
 	RECEIPT_VALIDATION_MODE_BASED_TEST(CanProcessMultipleBlocksWithTransactions) {
 		// Arrange:
-		auto pBlock1 = test::GenerateBlockWithTransactionsAtHeight(3, 12);
-		auto pBlock2 = test::GenerateBlockWithTransactionsAtHeight(2, 13);
-		auto pBlock3 = test::GenerateBlockWithTransactionsAtHeight(4, 14);
+		auto pBlock1 = test::GenerateBlockWithTransactions(3, Height(12));
+		auto pBlock2 = test::GenerateBlockWithTransactions(2, Height(13));
+		auto pBlock3 = test::GenerateBlockWithTransactions(4, Height(14));
 		auto elements = test::CreateBlockElements({ pBlock1.get(), pBlock2.get(), pBlock3.get() });
 
 		// Assert:

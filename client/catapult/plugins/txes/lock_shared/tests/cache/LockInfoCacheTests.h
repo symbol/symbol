@@ -31,7 +31,7 @@ namespace catapult { namespace cache {
 	// region DeltaElementsMixinTraits
 
 	template<typename TLockInfoTraits>
-	struct LockInfoCacheDeltaMarkUsedModificationPolicy {
+	struct LockInfoCacheDeltaModificationPolicy : public test:: DeltaInsertModificationPolicy {
 		template<typename TDelta, typename TValue>
 		static void Modify(TDelta& delta, const TValue& value) {
 			delta.find(TLockInfoTraits::ToKey(value)).get().Status = state::LockStatus::Used;
@@ -118,6 +118,41 @@ namespace catapult { namespace cache {
 		}
 
 	public:
+		static void AssertRemoveRemovesLockFromHeightBasedMap() {
+			// Arrange:
+			typename CacheTraits::CacheType cache;
+			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
+			PopulateCache(cache, lockInfos);
+
+			// Sanity:
+			EXPECT_EQ(Num_Default_Entries, cache.createView()->size());
+			EXPECT_TRUE(cache.createView()->contains(TLockInfoTraits::ToKey(lockInfos[1])));
+
+			// Act: remove unused lock at height 20
+			{
+				auto delta = cache.createDelta();
+				delta->remove(TLockInfoTraits::ToKey(lockInfos[1]));
+				cache.commit();
+			}
+
+			// Sanity:
+			EXPECT_FALSE(cache.createView()->contains(TLockInfoTraits::ToKey(lockInfos[1])));
+
+			// - reinsert lock at height 25
+			lockInfos[1].Height = Height(25);
+			auto delta = cache.createDelta();
+			delta->insert(lockInfos[1]);
+			cache.commit();
+
+			auto expiredLockInfoKeys1 = CollectUnusedExpiredLockKeys(*delta, Height(20));
+			auto expiredLockInfoKeys2 = CollectUnusedExpiredLockKeys(*delta, Height(25));
+
+			// Assert:
+			EXPECT_TRUE(expiredLockInfoKeys1.empty());
+			AssertEqualLockInfos({ &lockInfos[1] }, expiredLockInfoKeys2);
+		}
+
+	public:
 		static void AssertOnlyUnusedValuesAreTouched() {
 			// Arrange:
 			typename CacheTraits::CacheType cache;
@@ -144,7 +179,7 @@ namespace catapult { namespace cache {
 		}
 
 	public:
-		static void AssertProcessUnusedExpiredLocksForwardsEmptyVectorIfNoLockExpired() {
+		static void AssertProcessUnusedExpiredLocksForwardsEmptyVectorWhenNoLockExpired() {
 			// Arrange:
 			typename CacheTraits::CacheType cache;
 			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
@@ -161,7 +196,7 @@ namespace catapult { namespace cache {
 			EXPECT_TRUE(expiredLockInfoKeys.empty());
 		}
 
-		static void AssertProcessUnusedExpiredLocksForwardsEmptyVectorIfOnlyUsedLocksExpired() {
+		static void AssertProcessUnusedExpiredLocksForwardsEmptyVectorWhenOnlyUsedLocksExpired() {
 			// Arrange:
 			typename CacheTraits::CacheType cache;
 			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(Num_Default_Entries);
@@ -303,9 +338,10 @@ namespace catapult { namespace cache {
 	\
 	DEFINE_CACHE_BASIC_TESTS(TRAITS, SUFFIX) \
 	\
+	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, RemoveRemovesLockFromHeightBasedMap) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, OnlyUnusedValuesAreTouched) \
-	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsEmptyVectorIfNoLockExpired) \
-	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsEmptyVectorIfOnlyUsedLocksExpired) \
+	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsEmptyVectorWhenNoLockExpired) \
+	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsEmptyVectorWhenOnlyUsedLocksExpired) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsUnusedExpiredLocks_SingleLock) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsUnusedExpiredLocks_MultipleLocks) \
 	MAKE_LOCK_INFO_CACHE_TEST(TRAITS::LockInfoTraits, ProcessUnusedExpiredLocksForwardsOnlyUnusedExpiredLocks_MultipleLocks)

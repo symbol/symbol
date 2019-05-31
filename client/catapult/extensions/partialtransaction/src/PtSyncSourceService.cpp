@@ -22,7 +22,7 @@
 #include "PtBootstrapperService.h"
 #include "partialtransaction/src/handlers/CosignatureHandler.h"
 #include "partialtransaction/src/handlers/PtHandlers.h"
-#include "catapult/cache/MemoryPtCache.h"
+#include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/extensions/ServiceState.h"
 #include "catapult/plugins/PluginManager.h"
 

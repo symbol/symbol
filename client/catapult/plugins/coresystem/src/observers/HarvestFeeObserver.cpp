@@ -20,11 +20,14 @@
 
 #include "Observers.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/model/InflationCalculator.h"
 #include "catapult/model/Mosaic.h"
 
 namespace catapult { namespace observers {
 
 	namespace {
+		using Notification = model::BlockNotification;
+
 		void ApplyFee(
 				state::AccountState& accountState,
 				NotifyMode notifyMode,
@@ -37,33 +40,62 @@ namespace catapult { namespace observers {
 
 			accountState.Balances.credit(feeMosaic.MosaicId, feeMosaic.Amount);
 
-			// add harvest fee receipt
+			// add fee receipt
 			auto receiptType = model::Receipt_Type_Harvest_Fee;
 			model::BalanceChangeReceipt receipt(receiptType, accountState.PublicKey, feeMosaic.MosaicId, feeMosaic.Amount);
 			statementBuilder.addReceipt(receipt);
 		}
-	}
 
-	DECLARE_OBSERVER(HarvestFee, model::BlockNotification)(MosaicId currencyMosaicId) {
-		return MAKE_OBSERVER(HarvestFee, model::BlockNotification, ([currencyMosaicId](const auto& notification, auto& context) {
-			// credit the harvester
+		void ApplyFee(const Key& publicKey, const model::Mosaic& feeMosaic, ObserverContext& context) {
 			auto& cache = context.Cache.template sub<cache::AccountStateCache>();
-			auto accountStateIter = cache.find(notification.Signer);
-			auto& harvesterAccountState = accountStateIter.get();
+			auto accountStateIter = cache.find(publicKey);
+			auto& accountState = accountStateIter.get();
 
-			model::Mosaic feeMosaic{ currencyMosaicId, notification.TotalFee };
-			if (state::AccountType::Remote != harvesterAccountState.AccountType) {
-				ApplyFee(harvesterAccountState, context.Mode, feeMosaic, context.StatementBuilder());
+			if (state::AccountType::Remote != accountState.AccountType) {
+				ApplyFee(accountState, context.Mode, feeMosaic, context.StatementBuilder());
 				return;
 			}
 
-			auto linkedAccountStateIter = cache.find(harvesterAccountState.LinkedAccountKey);
+			auto linkedAccountStateIter = cache.find(accountState.LinkedAccountKey);
 			auto& linkedAccountState = linkedAccountStateIter.get();
 
 			// this check is merely a precaution and will only fire if there is a bug that has corrupted links
-			RequireLinkedRemoteAndMainAccounts(harvesterAccountState, linkedAccountState);
+			RequireLinkedRemoteAndMainAccounts(accountState, linkedAccountState);
 
 			ApplyFee(linkedAccountState, context.Mode, feeMosaic, context.StatementBuilder());
+		}
+
+		bool ShouldShareFees(const Key& signer, const Key& harvesterBeneficiary, uint8_t harvestBeneficiaryPercentage) {
+			return 0u < harvestBeneficiaryPercentage && Key() != harvesterBeneficiary && signer != harvesterBeneficiary;
+		}
+	}
+
+	DECLARE_OBSERVER(HarvestFee, Notification)(
+			MosaicId currencyMosaicId,
+			uint8_t harvestBeneficiaryPercentage,
+			const model::InflationCalculator& calculator) {
+		auto mosaicId = currencyMosaicId;
+		auto percentage = harvestBeneficiaryPercentage;
+		return MAKE_OBSERVER(HarvestFee, Notification, ([mosaicId, percentage, calculator](const auto& notification, auto& context) {
+			auto inflationAmount = calculator.getSpotAmount(context.Height);
+			auto totalAmount = notification.TotalFee + inflationAmount;
+			auto beneficiaryAmount = ShouldShareFees(notification.Signer, notification.Beneficiary, percentage)
+					? Amount(totalAmount.unwrap() * percentage / 100)
+					: Amount();
+			auto harvesterAmount = totalAmount - beneficiaryAmount;
+
+			// always create receipt for harvester
+			ApplyFee(notification.Signer, { mosaicId, harvesterAmount }, context);
+
+			// only if amount is non-zero create receipt for beneficiary account
+			if (Amount() != beneficiaryAmount)
+				ApplyFee(notification.Beneficiary, { mosaicId, beneficiaryAmount }, context);
+
+			// add inflation receipt
+			if (Amount() != inflationAmount && NotifyMode::Commit == context.Mode) {
+				model::InflationReceipt receipt(model::Receipt_Type_Inflation, mosaicId, inflationAmount);
+				context.StatementBuilder().addReceipt(receipt);
+			}
 		}));
 	}
 }}

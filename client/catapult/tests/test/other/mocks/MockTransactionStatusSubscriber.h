@@ -22,6 +22,7 @@
 #include "catapult/model/Transaction.h"
 #include "catapult/model/TransactionStatus.h"
 #include "catapult/subscribers/TransactionStatusSubscriber.h"
+#include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/nodeps/ParamsCapture.h"
 #include <atomic>
 
@@ -33,14 +34,18 @@ namespace catapult { namespace mocks {
 		/// Creates params around \a transaction, \a hash and \a status.
 		explicit TransactionStatusSubscriberStatusParams(const model::Transaction& transaction, const Hash256& hash, uint32_t status)
 				: Transaction(transaction)
+				, pTransactionCopy(test::CopyEntity(transaction))
 				, Hash(hash)
 				, HashCopy(hash)
 				, Status(status)
 		{}
 
 	public:
-		/// Transaction.
+		/// Reference to the transaction.
 		const model::Transaction& Transaction;
+
+		/// Copy of the transaction.
+		std::unique_ptr<model::Transaction> pTransactionCopy;
 
 		/// Reference to the transaction hash.
 		const Hash256& Hash;

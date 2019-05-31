@@ -24,6 +24,22 @@
 
 namespace catapult { namespace harvesting {
 
+	namespace {
+		std::unique_ptr<model::Block> GenerateBlock(
+				HarvestingUtFacade& facade,
+				const model::BlockHeader& originalBlockHeader,
+				const TransactionsInfo& transactionsInfo) {
+			// copy and update block header
+			model::BlockHeader blockHeader;
+			std::memcpy(static_cast<void*>(&blockHeader), &originalBlockHeader, sizeof(model::BlockHeader));
+			blockHeader.BlockTransactionsHash = transactionsInfo.TransactionsHash;
+			blockHeader.FeeMultiplier = transactionsInfo.FeeMultiplier;
+
+			// generate the block
+			return facade.commit(blockHeader);
+		}
+	}
+
 	BlockGenerator CreateHarvesterBlockGenerator(
 			model::TransactionSelectionStrategy strategy,
 			const HarvestingUtFacadeFactory& utFacadeFactory,
@@ -43,14 +59,12 @@ namespace catapult { namespace harvesting {
 			auto transactionsInfo = transactionsInfoSupplier(*pUtFacade, maxTransactionsPerBlock);
 
 			// 3. build a block
-			auto pBlock = pUtFacade->commit(blockHeader);
+			auto pBlock = GenerateBlock(*pUtFacade, blockHeader, transactionsInfo);
 			if (!pBlock) {
 				CATAPULT_LOG(warning) << "failed to generate harvested block";
 				return std::unique_ptr<model::Block>();
 			}
 
-			pBlock->BlockTransactionsHash = transactionsInfo.TransactionsHash;
-			pBlock->FeeMultiplier = transactionsInfo.FeeMultiplier;
 			return pBlock;
 		};
 	}

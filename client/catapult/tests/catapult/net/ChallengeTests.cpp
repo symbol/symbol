@@ -31,7 +31,7 @@ namespace catapult { namespace net {
 	namespace {
 		void AssertRandomChallengeGenerator(const supplier<Challenge>& generate) {
 			// Arrange:
-			static const auto Num_Challenges = 100u;
+			constexpr auto Num_Challenges = 100u;
 			std::set<Challenge> challenges;
 
 			// Act: generate Num_Challenges
@@ -58,7 +58,7 @@ namespace catapult { namespace net {
 		// Assert:
 		EXPECT_EQ(sizeof(ServerChallengeRequest), pRequest->Size);
 		EXPECT_EQ(ionet::PacketType::Server_Challenge, pRequest->Type);
-		EXPECT_NE(Challenge{}, pRequest->Challenge); // challenge is non-zero
+		EXPECT_NE(Challenge(), pRequest->Challenge); // challenge is non-zero
 	}
 
 	TEST(TEST_CLASS, GenerateServerChallengeRequestCreatesRandomChallenge) {
@@ -87,7 +87,7 @@ namespace catapult { namespace net {
 		// Assert:
 		EXPECT_EQ(sizeof(ServerChallengeResponse), pResponse->Size);
 		EXPECT_EQ(ionet::PacketType::Server_Challenge, pResponse->Type);
-		EXPECT_NE(Challenge{}, pResponse->Challenge); // challenge is non-zero
+		EXPECT_NE(Challenge(), pResponse->Challenge); // challenge is non-zero
 		EXPECT_NE(pRequest->Challenge, pResponse->Challenge); // challenge is not the same as the request challenge
 		EXPECT_TRUE(crypto::Verify(pResponse->PublicKey, signedData, pResponse->Signature));
 		EXPECT_EQ(keyPair.publicKey(), pResponse->PublicKey);

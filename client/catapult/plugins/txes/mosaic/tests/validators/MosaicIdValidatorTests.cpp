@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenValidatingInvalidMosaicId) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto pValidator = CreateMosaicIdValidator();
 		auto notification = model::MosaicNonceNotification(signer, MosaicNonce(), MosaicId());
 
@@ -55,7 +55,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMatchingId) {
 		// Arrange: note that CreateMosaicNonceIdNotification creates proper mosaic id
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto pValidator = CreateMosaicIdValidator();
 		auto notification = CreateMosaicNonceIdNotification(signer);
 
@@ -68,7 +68,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMismatchedId) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto pValidator = CreateMosaicIdValidator();
 
 		for (auto i = 0u; i < utils::GetNumBits<uint64_t>(); ++i) {

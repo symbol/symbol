@@ -39,7 +39,7 @@ namespace catapult { namespace mocks {
 
 			void streamReceipt(bson_stream::document& builder, const model::Receipt& receipt) const override {
 				const auto& mockReceipt = static_cast<const MockReceipt&>(receipt);
-				builder << "mock_payload" << ToBinary(mockReceipt.Payload);
+				builder << "mock_payload" << ToBinary(mockReceipt.Payload.data(), mockReceipt.Payload.size());
 			}
 
 		private:

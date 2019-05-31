@@ -24,11 +24,25 @@
 
 namespace catapult { namespace test {
 
-	/// A default modification policy.
-	/// \note This flexibility is needed because lock info caches do not support multiple inserts.
+	/// Modification policy that calls insert.
 	struct DeltaInsertModificationPolicy {
+		static constexpr auto Is_Mutable = true;
+		static constexpr auto Is_Strictly_Ordered = false;
+
 		template<typename TDelta, typename TValue>
 		static void Modify(TDelta& delta, const TValue& value) {
+			delta.insert(value);
+		}
+	};
+
+	/// Modification policy that calls remove and insert.
+	struct DeltaRemoveInsertModificationPolicy {
+		static constexpr auto Is_Mutable = true;
+		static constexpr auto Is_Strictly_Ordered = false;
+
+		template<typename TDelta, typename TValue>
+		static void Modify(TDelta& delta, const TValue& value) {
+			delta.remove(value);
 			delta.insert(value);
 		}
 	};
@@ -73,8 +87,8 @@ namespace catapult { namespace test {
 			// Act:
 			TModificationPolicy::Modify(*delta, TTraits::CreateWithId(123));
 
-			// Assert:
-			AssertMarkedElements(*delta, {}, { TTraits::MakeId(123) }, {});
+			// Assert: if elements are immutable, no modifications are possible
+			AssertMarkedElements(*delta, {}, SelectIfMutable({ TTraits::MakeId(123) }), {});
 		}
 
 		static void AssertRemovedElementsAreMarkedAsRemoved() {
@@ -100,32 +114,72 @@ namespace catapult { namespace test {
 
 			cache.commit();
 
+			// Act + Assert:
+			if (TModificationPolicy::Is_Strictly_Ordered)
+				AssertMultipleMarkedElementsCanBeTrackedOrdered(*delta);
+			else
+				AssertMultipleMarkedElementsCanBeTrackedUnordered(*delta);
+		}
+
+	private:
+		template<typename TDelta>
+		static void AssertMultipleMarkedElementsCanBeTrackedOrdered(TDelta& delta) {
 			// Act:
-			// - add two
-			delta->insert(TTraits::CreateWithId(123));
-			delta->insert(TTraits::CreateWithId(128));
+			// - add three
+			delta.insert(TTraits::CreateWithId(110));
+			delta.insert(TTraits::CreateWithId(111));
+			delta.insert(TTraits::CreateWithId(112));
 
-			// - modify three
-			TModificationPolicy::Modify(*delta, TTraits::CreateWithId(105));
-			TModificationPolicy::Modify(*delta, TTraits::CreateWithId(107));
-			TModificationPolicy::Modify(*delta, TTraits::CreateWithId(108));
+			// - modify one
+			TModificationPolicy::Modify(delta, TTraits::CreateWithId(112));
 
-			// - remove four
-			delta->remove(TTraits::MakeId(100));
-			delta->remove(TTraits::MakeId(101));
-			delta->remove(TTraits::MakeId(104));
-			delta->remove(TTraits::MakeId(106));
+			// - remove five
+			delta.remove(TTraits::MakeId(112));
+			delta.remove(TTraits::MakeId(111));
+			delta.remove(TTraits::MakeId(110));
+			delta.remove(TTraits::MakeId(109));
+			delta.remove(TTraits::MakeId(108));
 
 			// Assert:
 			AssertMarkedElements(
-					*delta,
+					delta,
+					{ TTraits::MakeId(110), TTraits::MakeId(111), TTraits::MakeId(112) },
+					{},
+					{ TTraits::MakeId(108), TTraits::MakeId(109), TTraits::MakeId(110), TTraits::MakeId(111), TTraits::MakeId(112) });
+		}
+
+		template<typename TDelta>
+		static void AssertMultipleMarkedElementsCanBeTrackedUnordered(TDelta& delta) {
+			// Act:
+			// - add two
+			delta.insert(TTraits::CreateWithId(123));
+			delta.insert(TTraits::CreateWithId(128));
+
+			// - modify three
+			TModificationPolicy::Modify(delta, TTraits::CreateWithId(105));
+			TModificationPolicy::Modify(delta, TTraits::CreateWithId(107));
+			TModificationPolicy::Modify(delta, TTraits::CreateWithId(108));
+
+			// - remove four
+			delta.remove(TTraits::MakeId(100));
+			delta.remove(TTraits::MakeId(101));
+			delta.remove(TTraits::MakeId(104));
+			delta.remove(TTraits::MakeId(106));
+
+			// Assert: if elements are immutable, no modifications are possible
+			AssertMarkedElements(
+					delta,
 					{ TTraits::MakeId(123), TTraits::MakeId(128) },
-					{ TTraits::MakeId(105), TTraits::MakeId(107), TTraits::MakeId(108) },
+					SelectIfMutable({ TTraits::MakeId(105), TTraits::MakeId(107), TTraits::MakeId(108) }),
 					{ TTraits::MakeId(100), TTraits::MakeId(101), TTraits::MakeId(104), TTraits::MakeId(106) });
 		}
 
 	private:
 		// use set instead of unordered_set to simplify traits (all keys are required to support equality)
+
+		static std::set<IdType> SelectIfMutable(const std::set<IdType>& ids) {
+			return TModificationPolicy::Is_Mutable ? ids : std::set<IdType>();
+		}
 
 		template<typename TElementContainer>
 		static std::set<IdType> CollectIds(const TElementContainer& elements) {

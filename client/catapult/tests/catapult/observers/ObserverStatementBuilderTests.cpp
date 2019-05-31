@@ -137,7 +137,7 @@ namespace catapult { namespace observers {
 			};
 			return model::ResolverContext(
 					[resolver](const auto& unresolved) { return resolver(0 != unresolved.unwrap() % 2, unresolved); },
-					[resolver](const auto& unresolved) { return resolver(0 != unresolved[0].Byte % 2, unresolved); });
+					[resolver](const auto& unresolved) { return resolver(0 != unresolved[0] % 2, unresolved); });
 		}
 
 		struct AddressResolverTraits {

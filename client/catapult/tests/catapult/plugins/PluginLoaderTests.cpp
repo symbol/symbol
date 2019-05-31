@@ -23,6 +23,7 @@
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/utils/ExceptionLogging.h"
 #include "tests/test/nodeps/Filesystem.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace plugins {
@@ -40,7 +41,7 @@ namespace catapult { namespace plugins {
 			// Arrange: ensure module is destroyed after manager
 			for (const auto& name : pluginNames) {
 				PluginModules modules;
-				PluginManager manager(config, StorageConfiguration());
+				auto manager = test::CreatePluginManager(config);
 				CATAPULT_LOG(debug) << "loading plugin with name: " << name;
 
 				// Act:
@@ -72,7 +73,7 @@ namespace catapult { namespace plugins {
 		void AssertCannotLoadUnknownPlugin(const std::string& directory) {
 			// Arrange:
 			PluginModules modules;
-			PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
+			auto manager = test::CreatePluginManager();
 
 			// Act + Assert:
 			EXPECT_THROW(LoadPluginByName(manager, modules, directory, "catapult.plugins.awesome"), catapult_invalid_argument);
@@ -119,7 +120,7 @@ namespace catapult { namespace plugins {
 
 			// - create the manager
 			PluginModules modules;
-			PluginManager manager(config, StorageConfiguration());
+			auto manager = test::CreatePluginManager(config);
 
 			// Act:
 			LoadPluginByName(manager, modules, "", Known_Plugin_Name);

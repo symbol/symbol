@@ -38,7 +38,7 @@ namespace catapult { namespace test {
 	}
 
 	Address GenerateRandomAddress(model::NetworkIdentifier networkIdentifier) {
-		auto publicKey = GenerateRandomData<Key_Size>();
+		auto publicKey = GenerateRandomByteArray<Key>();
 		return model::PublicKeyToAddress(publicKey, networkIdentifier);
 	}
 

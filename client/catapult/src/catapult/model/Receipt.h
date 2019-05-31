@@ -93,6 +93,26 @@ namespace catapult { namespace model {
 		catapult::Amount Amount;
 	};
 
+	/// Binary layout for an inflation receipt.
+	struct InflationReceipt : public Receipt {
+	public:
+		/// Creates a receipt around \a receiptType, \a mosaicId and \a amount.
+		InflationReceipt(ReceiptType receiptType, catapult::MosaicId mosaicId, catapult::Amount amount)
+				: MosaicId(mosaicId)
+				, Amount(amount) {
+			Size = sizeof(InflationReceipt);
+			Version = 1;
+			Type = receiptType;
+		}
+
+	public:
+		/// Mosaic id.
+		catapult::MosaicId MosaicId;
+
+		/// Amount.
+		catapult::Amount Amount;
+	};
+
 	/// Binary layout for an artifact expiry receipt.
 	template<typename TArtifactId>
 	struct ArtifactExpiryReceipt : public Receipt {

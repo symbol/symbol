@@ -35,7 +35,7 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto entry = TTraits::CreateEntry();
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 
 			// - intentionally supply unordered keys
 			std::vector<KeyType> keys{ { { 123 } }, { { 34 } }, { { 57 } }, { { 12 } } };

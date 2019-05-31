@@ -94,7 +94,7 @@ namespace catapult { namespace cache {
 		/// \note There must not be any pending changes.
 		void setMerkleRoot(const Hash256& merkleRoot) {
 			if (!m_pTree)
-				CATAPULT_THROW_RUNTIME_ERROR_1("cannot set merkle root", utils::HexFormat(merkleRoot));
+				CATAPULT_THROW_RUNTIME_ERROR_1("cannot set merkle root", merkleRoot);
 
 			m_pTree->reset(merkleRoot);
 			setApplyCheckpoint();

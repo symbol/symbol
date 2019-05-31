@@ -31,7 +31,7 @@ namespace catapult { namespace builders {
 		using EmbeddedTransactionPointer = std::unique_ptr<model::EmbeddedTransaction>;
 
 		/// Creates an aggregate transaction builder using \a signer for the network specified by \a networkIdentifier.
-		explicit AggregateTransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
+		AggregateTransactionBuilder(model::NetworkIdentifier networkIdentifier, const Key& signer);
 
 	public:
 		/// Adds a \a transaction.
@@ -48,8 +48,11 @@ namespace catapult { namespace builders {
 	/// Helper to add cosignatures to an aggregate transaction.
 	class AggregateCosignatureAppender {
 	public:
-		/// Creates aggregate cosignature appender around aggregate transaction (\a pAggregateTransaction).
-		explicit AggregateCosignatureAppender(std::unique_ptr<model::AggregateTransaction>&& pAggregateTransaction);
+		/// Creates aggregate cosignature appender around aggregate transaction (\a pAggregateTransaction)
+		/// for the network with the specified generation hash (\a generationHash).
+		AggregateCosignatureAppender(
+				const GenerationHash& generationHash,
+				std::unique_ptr<model::AggregateTransaction>&& pAggregateTransaction);
 
 	public:
 		/// Cosigns an aggregate \a transaction using \a cosigner key pair.
@@ -59,6 +62,7 @@ namespace catapult { namespace builders {
 		std::unique_ptr<model::AggregateTransaction> build() const;
 
 	private:
+		GenerationHash m_generationHash;
 		std::unique_ptr<model::AggregateTransaction> m_pAggregateTransaction;
 		Hash256 m_transactionHash;
 		std::vector<model::Cosignature> m_cosignatures;

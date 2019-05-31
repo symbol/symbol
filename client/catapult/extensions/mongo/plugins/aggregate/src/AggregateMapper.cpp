@@ -74,7 +74,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 					// transaction metadata
 					bson_stream::document builder;
-					builder << "meta"
+					builder
+							<< "meta"
 							<< bson_stream::open_document
 								<< "height" << ToInt64(metadata.Height)
 								<< "aggregateHash" << ToBinary(metadata.EntityHash)

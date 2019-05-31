@@ -23,6 +23,8 @@
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
 
+namespace catapult { namespace model { class InflationCalculator; } }
+
 namespace catapult { namespace observers {
 
 	// region VerifiableEntity
@@ -43,8 +45,13 @@ namespace catapult { namespace observers {
 			std::unique_ptr<ImportanceCalculator>&& pCommitCalculator,
 			std::unique_ptr<ImportanceCalculator>&& pRollbackCalculator);
 
-	/// Observes block notifications and credits the harvester with transaction fees given the currency mosaic id (\a currencyMosaicId).
-	DECLARE_OBSERVER(HarvestFee, model::BlockNotification)(MosaicId currencyMosaicId);
+	/// Observes block notifications and credits the harvester and optionally the beneficiary account with transaction fees
+	/// given the currency mosaic id (\a currencyMosaicId), the harvest beneficiary percentage (\a harvestBeneficiaryPercentage)
+	/// and the inflation \a calculator.
+	DECLARE_OBSERVER(HarvestFee, model::BlockNotification)(
+			MosaicId currencyMosaicId,
+			uint8_t harvestBeneficiaryPercentage,
+			const model::InflationCalculator& calculator);
 
 	/// Observes block difficulties.
 	DECLARE_OBSERVER(BlockDifficulty, model::BlockNotification)();

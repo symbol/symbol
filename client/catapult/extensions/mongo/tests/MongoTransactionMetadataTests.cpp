@@ -31,8 +31,8 @@ namespace catapult { namespace mongo {
 	namespace {
 		model::TransactionElement CreateTransactionElement(const model::Transaction& transaction) {
 			model::TransactionElement transactionElement(transaction);
-			transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
-			transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+			transactionElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
+			transactionElement.MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 			transactionElement.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
 			return transactionElement;
 		}

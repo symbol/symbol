@@ -65,16 +65,16 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, FailureIfAccountIsUnknown) {
+	TEST(TEST_CLASS, FailureWhenAccountIsUnknown) {
 		// Arrange:
 		auto cache = CreateEmptyCatapultCache();
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto height = Height(1000);
 		AddAccount(cache, key, Importance(1000), ConvertToImportanceHeight(height), Amount(9999));
 
 		auto pValidator = CreateEligibleHarvesterValidator(Amount(1234));
 
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = test::CreateBlockNotification(signer);
 
 		// Act:
@@ -93,7 +93,7 @@ namespace catapult { namespace validators {
 				Height blockHeight) {
 			// Arrange:
 			auto cache = CreateEmptyCatapultCache();
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			auto initialBalance = Amount(static_cast<Amount::ValueType>(1234 + minBalanceDelta));
 			AddAccount(cache, key, importance, importanceHeight, initialBalance);
 
@@ -108,7 +108,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, FailureIfBalanceIsBelowMinBalance) {
+	TEST(TEST_CLASS, FailureWhenBalanceIsBelowMinBalance) {
 		// Assert:
 		constexpr auto expectedResult = Failure_Core_Block_Harvester_Ineligible;
 		auto height = Height(10000);
@@ -116,18 +116,18 @@ namespace catapult { namespace validators {
 		AssertValidationResult(expectedResult, -100, Importance(123), ConvertToImportanceHeight(height), height);
 	}
 
-	TEST(TEST_CLASS, FailureIfImportanceIsZero) {
+	TEST(TEST_CLASS, FailureWhenImportanceIsZero) {
 		// Assert:
 		auto height = Height(10000);
 		AssertValidationResult(Failure_Core_Block_Harvester_Ineligible, 12345, Importance(0), ConvertToImportanceHeight(height), height);
 	}
 
-	TEST(TEST_CLASS, FailureIfImportanceIsNotSetAtCorrectHeight) {
+	TEST(TEST_CLASS, FailureWhenImportanceIsNotSetAtCorrectHeight) {
 		// Assert:
 		AssertValidationResult(Failure_Core_Block_Harvester_Ineligible, 12345, Importance(0), model::ImportanceHeight(123), Height(1234));
 	}
 
-	TEST(TEST_CLASS, SuccessIfAllCriteriaAreMet) {
+	TEST(TEST_CLASS, SuccessWhenAllCriteriaAreMet) {
 		// Assert:
 		constexpr auto expectedResult = ValidationResult::Success;
 		auto height = Height(10000);

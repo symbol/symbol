@@ -109,7 +109,7 @@ namespace catapult { namespace model {
 	namespace {
 		void AssertFailureForBlockWithEntityType(EntityType type) {
 			// Act:
-			auto pBlock = test::GenerateRandomBlockWithTransactions(test::GenerateRandomTransactions(1));
+			auto pBlock = test::GenerateBlockWithTransactions(test::GenerateRandomTransactions(1));
 			auto transactions = pBlock->Transactions();
 			transactions.begin()->Type = type;
 
@@ -130,7 +130,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingTransactionWithWrongSize) {
 		// Act:
-		auto pBlock = test::GenerateRandomBlockWithTransactions(test::GenerateRandomTransactions(1));
+		auto pBlock = test::GenerateBlockWithTransactions(test::GenerateRandomTransactions(1));
 		auto transactions = pBlock->Transactions();
 		transactions.begin()->Size += 123;
 

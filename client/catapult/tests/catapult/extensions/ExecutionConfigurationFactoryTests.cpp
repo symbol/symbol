@@ -28,7 +28,7 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanCreateExecutionConfiguration) {
 		// Act:
-		auto config = CreateExecutionConfiguration(*test::CreateDefaultPluginManager());
+		auto config = CreateExecutionConfiguration(*test::CreateDefaultPluginManagerWithRealPlugins());
 
 		// Assert:
 		EXPECT_EQ(model::NetworkIdentifier::Mijin_Test, config.Network.Identifier);
@@ -37,7 +37,7 @@ namespace catapult { namespace extensions {
 		EXPECT_TRUE(!!config.pNotificationPublisher);
 		EXPECT_TRUE(!!config.ResolverContextFactory);
 
-		// - notice that only observers and validators registered in CreateDefaultPluginManager are present
+		// - notice that only observers and validators registered in CreateDefaultPluginManagerWithRealPlugins are present
 		std::vector<std::string> expectedObserverNames{
 			"SourceChangeObserver",
 			"AccountAddressObserver",

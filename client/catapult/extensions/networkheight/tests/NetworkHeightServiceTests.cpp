@@ -107,12 +107,15 @@ namespace catapult { namespace networkheight {
 	namespace {
 		void SetChainHeight(io::BlockStorageCache& storage, uint32_t numBlocks) {
 			auto modifier = storage.modifier();
+
 			for (auto i = 2u; i <= numBlocks; ++i) {
 				model::Block block;
 				block.Size = sizeof(model::BlockHeader);
 				block.Height = Height(i);
 				modifier.saveBlock(test::BlockToBlockElement(block));
 			}
+
+			modifier.commit();
 		}
 
 		void AssertChainSyncedPredicate(uint32_t localChainHeight, uint32_t remoteChainHeight, bool expectedResult) {
@@ -138,7 +141,7 @@ namespace catapult { namespace networkheight {
 		}
 	}
 
-	TEST(TEST_CLASS, ChainSyncedPredicateHookReturnsTrueIfLocalChainHeightIsWithinAcceptedRange) {
+	TEST(TEST_CLASS, ChainSyncedPredicateHookReturnsTrueWhenLocalChainHeightIsWithinAcceptedRange) {
 		// Assert:
 		AssertChainSyncedPredicate(100, 23, true);
 		AssertChainSyncedPredicate(24, 23, true);
@@ -148,7 +151,7 @@ namespace catapult { namespace networkheight {
 		AssertChainSyncedPredicate(23, 26, true);
 	}
 
-	TEST(TEST_CLASS, ChainSyncedPredicateHookReturnsFalseIfLocalChainHeightIsOutsideOfAcceptedRange) {
+	TEST(TEST_CLASS, ChainSyncedPredicateHookReturnsFalseWhenLocalChainHeightIsOutsideOfAcceptedRange) {
 		// Assert:
 		AssertChainSyncedPredicate(23, 27, false);
 		AssertChainSyncedPredicate(23, 28, false);
@@ -205,7 +208,7 @@ namespace catapult { namespace networkheight {
 		AssertMedian(std::vector<Height>{ Height(11), Height(5), Height(13), Height(21), Height(1), Height(4) }, 8);
 	}
 
-	TEST(TEST_CLASS, NetworkChainHeightDetectionUpdatesChainHeightIfMedianOfRetrievedHeightsIsLarger) {
+	TEST(TEST_CLASS, NetworkChainHeightDetectionUpdatesChainHeightWhenMedianOfRetrievedHeightsIsLarger) {
 		// Arrange: median is 33
 		TestContext context({ Height(12), Height(57), Height(35), Height(31) });
 		RunTaskTest(context, Task_Name, [](auto& networkChainHeight, const auto& task) {
@@ -220,7 +223,7 @@ namespace catapult { namespace networkheight {
 		});
 	}
 
-	TEST(TEST_CLASS, NetworkChainHeightDetectionDoesNotUpdateChainHeightIfMedianOfRetrievedHeightsIsSmaller) {
+	TEST(TEST_CLASS, NetworkChainHeightDetectionDoesNotUpdateChainHeightWhenMedianOfRetrievedHeightsIsSmaller) {
 		// Arrange:
 		TestContext context({ Height(12), Height(57), Height(35), Height(31) });
 		RunTaskTest(context, Task_Name, [](auto& networkChainHeight, const auto& task) {
@@ -235,7 +238,7 @@ namespace catapult { namespace networkheight {
 		});
 	}
 
-	TEST(TEST_CLASS, NetworkChainHeightDetectionIsNoOpIfEmptyHeightVectorIsReturnedAndLocalHeightIsZero) {
+	TEST(TEST_CLASS, NetworkChainHeightDetectionIsNoOpWhenEmptyHeightVectorIsReturnedAndLocalHeightIsZero) {
 		// Arrange:
 		TestContext context;
 		RunTaskTest(context, Task_Name, [](const auto& networkChainHeight, const auto& task) {
@@ -248,7 +251,7 @@ namespace catapult { namespace networkheight {
 		});
 	}
 
-	TEST(TEST_CLASS, NetworkChainHeightDetectionIsNoOpIfEmptyHeightVectorIsReturnedAndLocalHeightIsNonZero) {
+	TEST(TEST_CLASS, NetworkChainHeightDetectionIsNoOpWhenEmptyHeightVectorIsReturnedAndLocalHeightIsNonZero) {
 		// Arrange:
 		TestContext context;
 		RunTaskTest(context, Task_Name, [](auto& networkChainHeight, const auto& task) {

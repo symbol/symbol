@@ -42,7 +42,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanCreateEntityInfo) {
 		// Arrange:
 		auto pBlock = utils::UniqueToShared(test::GenerateEmptyRandomBlock());
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		EntityInfo<Block> entityInfo(pBlock, hash);
@@ -56,7 +56,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanMoveConstructEntityInfo) {
 		// Arrange:
 		auto pBlock = utils::UniqueToShared(test::GenerateEmptyRandomBlock());
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		EntityInfo<Block> original(pBlock, hash);
 
 		// Act:
@@ -75,7 +75,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, EntityInfoHasher_SameObjectReturnsSameHash) {
 		// Arrange:
 		auto pBlock = utils::UniqueToShared(test::GenerateEmptyRandomBlock());
-		EntityInfo<Block> entityInfo(pBlock, test::GenerateRandomData<Hash256_Size>());
+		EntityInfo<Block> entityInfo(pBlock, test::GenerateRandomByteArray<Hash256>());
 		EntityInfoHasher<Block> hasher;
 
 		// Act:
@@ -89,7 +89,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, EntityInfoHasher_EqualObjectsReturnSameHash) {
 		// Arrange:
 		auto pBlock = utils::UniqueToShared(test::GenerateEmptyRandomBlock());
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		EntityInfo<Block> entityInfo1(pBlock, hash);
 		EntityInfo<Block> entityInfo2(pBlock, hash);
 		EntityInfoHasher<Block> hasher;
@@ -105,8 +105,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, EntityInfoHasher_DifferentObjectsReturnDifferentHashes) {
 		// Arrange:
 		auto pBlock = utils::UniqueToShared(test::GenerateEmptyRandomBlock());
-		EntityInfo<Block> entityInfo1(pBlock, test::GenerateRandomData<Hash256_Size>());
-		EntityInfo<Block> entityInfo2(pBlock, test::GenerateRandomData<Hash256_Size>());
+		EntityInfo<Block> entityInfo1(pBlock, test::GenerateRandomByteArray<Hash256>());
+		EntityInfo<Block> entityInfo2(pBlock, test::GenerateRandomByteArray<Hash256>());
 		EntityInfoHasher<Block> hasher;
 
 		// Act:
@@ -124,12 +124,12 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, EntityInfoComparer_ReturnsTrueForObjectsWithEqualHashes) {
 		// Arrange:
 		auto pBlock = utils::UniqueToShared(test::GenerateEmptyRandomBlock());
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		std::unordered_map<std::string, EntityInfo<Block>> map;
 		map.emplace("default", EntityInfo<Block>(pBlock, hash));
 		map.emplace("copy", EntityInfo<Block>(pBlock, hash));
 		map.emplace("diff-block", EntityInfo<Block>(utils::UniqueToShared(test::GenerateEmptyRandomBlock()), hash));
-		map.emplace("diff-hash", EntityInfo<Block>(pBlock, test::GenerateRandomData<Hash256_Size>()));
+		map.emplace("diff-hash", EntityInfo<Block>(pBlock, test::GenerateRandomByteArray<Hash256>()));
 
 		// Assert:
 		test::AssertEqualReturnsTrueForEqualObjects<EntityInfo<Block>>(
@@ -194,7 +194,7 @@ namespace catapult { namespace model {
 	TRANSACTION_INFO_TEST(CanCreateTransactionInfoWithHash) {
 		// Arrange:
 		auto pTransaction = utils::UniqueToShared(test::GenerateRandomTransaction());
-		auto entityHash = test::GenerateRandomData<Hash256_Size>();
+		auto entityHash = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		typename TTraits::TransactionInfoType transactionInfo(pTransaction, entityHash);
@@ -209,7 +209,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanCopyDetachedTransactionInfo) {
 		// Arrange:
 		auto pTransaction = utils::UniqueToShared(test::GenerateRandomTransaction());
-		auto entityHash = test::GenerateRandomData<Hash256_Size>();
+		auto entityHash = test::GenerateRandomByteArray<Hash256>();
 		auto pExtractedAddresses = std::make_shared<UnresolvedAddressSet>();
 
 		DetachedTransactionInfo transactionInfo(pTransaction, entityHash);
@@ -233,9 +233,9 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanCopyTransactionInfo) {
 		// Arrange:
 		auto pTransaction = utils::UniqueToShared(test::GenerateRandomTransaction());
-		auto entityHash = test::GenerateRandomData<Hash256_Size>();
+		auto entityHash = test::GenerateRandomByteArray<Hash256>();
 		auto pExtractedAddresses = std::make_shared<UnresolvedAddressSet>();
-		auto merkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+		auto merkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 
 		TransactionInfo transactionInfo(pTransaction, entityHash);
 		transactionInfo.OptionalExtractedAddresses = pExtractedAddresses;

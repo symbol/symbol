@@ -34,7 +34,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CanSaveData) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream(buffer);
 
 		// - create random data
 		SupplementalData data;
@@ -65,7 +65,7 @@ namespace catapult { namespace cache {
 
 		std::vector<uint8_t> buffer(Data_Size);
 		test::FillWithRandomData(buffer);
-		mocks::MockMemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream(buffer);
 
 		// Act:
 		LoadSupplementalData(stream, data, chainHeight);

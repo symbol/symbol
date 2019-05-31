@@ -32,7 +32,7 @@ namespace catapult { namespace extensions {
 		template<typename TAssert>
 		void AssertIncrement(ionet::NodeInteractionResultCode code, TAssert assertFunc) {
 			// Arrange:
-			auto identityKey = test::GenerateRandomData<Key_Size>();
+			auto identityKey = test::GenerateRandomByteArray<Key>();
 			ionet::NodeContainer container;
 			container.modifier().add(test::CreateNamedNode(identityKey, "Alice"), ionet::NodeSource::Static);
 

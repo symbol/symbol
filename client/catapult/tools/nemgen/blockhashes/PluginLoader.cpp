@@ -19,13 +19,13 @@
 **/
 
 #include "PluginLoader.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/plugins/PluginLoader.h"
 
 namespace catapult { namespace tools { namespace nemgen {
 
 	namespace {
-		plugins::StorageConfiguration CreateStorageConfiguration(const config::LocalNodeConfiguration& config) {
+		plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config) {
 			plugins::StorageConfiguration storageConfig;
 			storageConfig.PreferCacheDatabase = config.Node.ShouldUseCacheDatabaseStorage;
 			storageConfig.CacheDatabaseDirectory = (boost::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();
@@ -33,9 +33,9 @@ namespace catapult { namespace tools { namespace nemgen {
 		}
 	}
 
-	PluginLoader::PluginLoader(const config::LocalNodeConfiguration& config)
+	PluginLoader::PluginLoader(const config::CatapultConfiguration& config)
 			: m_config(config)
-			, m_pluginManager(m_config.BlockChain, CreateStorageConfiguration(config))
+			, m_pluginManager(m_config.BlockChain, CreateStorageConfiguration(config), m_config.Inflation)
 	{}
 
 	plugins::PluginManager& PluginLoader::manager() {

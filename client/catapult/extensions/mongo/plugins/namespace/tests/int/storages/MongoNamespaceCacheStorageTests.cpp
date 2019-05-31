@@ -79,10 +79,6 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 		}
 
-		state::NamespaceAlias GetNamespaceAlias(NamespaceId id, size_t adjustment) {
-			return GetNamespaceAlias(NamespaceId(id.unwrap() + adjustment));
-		}
-
 		struct NamespaceCacheTraits {
 			using CacheType = cache::NamespaceCache;
 			using ModelType = NamespaceDescriptor;
@@ -96,7 +92,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			}
 
 			static NamespaceDescriptor GenerateRandomElement(uint32_t id, uint32_t index, bool isActive) {
-				return CreateElement(test::GenerateRandomData<Key_Size>(), id, index, isActive);
+				return CreateElement(test::GenerateRandomByteArray<Key>(), id, index, isActive);
 			}
 
 			static NamespaceDescriptor CreateElement(const Key& key, uint32_t id, uint32_t index, bool isActive) {
@@ -104,13 +100,6 @@ namespace catapult { namespace mongo { namespace plugins {
 				auto pRoot = std::make_shared<state::RootNamespace>(NamespaceId(id), key, test::CreateLifetime(123, 456));
 				auto address = model::PublicKeyToAddress(key, Network_Id);
 				return NamespaceDescriptor(CreateRootPath(NamespaceId(id)), alias, pRoot, address, index, isActive);
-			}
-
-			static NamespaceDescriptor CreateElement(const state::RootNamespace& root, uint32_t index, bool isActive) {
-				auto alias = GetNamespaceAlias(NamespaceId(root.id()));
-				auto pRootCopy = std::make_shared<state::RootNamespace>(root);
-				auto address = model::PublicKeyToAddress(root.owner(), Network_Id);
-				return NamespaceDescriptor(CreateRootPath(pRootCopy->id()), alias, pRootCopy, address, index, isActive);
 			}
 
 			static void Add(cache::CatapultCacheDelta& delta, const ModelType& descriptor) {
@@ -137,7 +126,7 @@ namespace catapult { namespace mongo { namespace plugins {
 	struct NamespaceCacheRootModificationTraits : public NamespaceCacheTraits {
 		static NamespaceDescriptor Mutate(cache::CatapultCacheDelta& delta, ModelType& descriptor) {
 			// change owner
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			auto pChangedRoot = std::make_shared<state::RootNamespace>(descriptor.pRoot->id(), key, descriptor.pRoot->lifetime());
 			auto address = model::PublicKeyToAddress(key, Network_Id);
 
@@ -169,190 +158,4 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	// modifications that create children (path filter is passed path with multiple parts)
 	DEFINE_HISTORICAL_CACHE_STORAGE_TESTS(NamespaceCacheChildModificationTraits, _ChildModification)
-
-	// region custom load tests - load all with children
-
-	namespace {
-		struct RootNamespaceDescriptor {
-		private:
-			using ChildrenPaths = std::vector<std::vector<NamespaceId::ValueType>>;
-
-		public:
-			// note that the constructor is not explicit to allow an initializer list for the children
-			RootNamespaceDescriptor(NamespaceId::ValueType id, const Key& owner, const ChildrenPaths& paths)
-					: Id(id)
-					, Owner(owner)
-					, Children(paths)
-				{}
-
-		public:
-			NamespaceId::ValueType Id;
-			Key Owner;
-			ChildrenPaths Children;
-		};
-
-		// increment must be zero for all tests relying on element equals behavior
-		// use nonzero increment to have aliases change across levels
-		void SeedCache(
-				const std::vector<RootNamespaceDescriptor>& seeds,
-				cache::NamespaceCacheDelta& namespaceCacheDelta,
-				size_t increment = 0) {
-			size_t adjustment = 0;
-			auto lifetime = test::CreateLifetime(123, 456);
-			for (const auto& rootDescriptor : seeds) {
-				auto pRoot = std::make_shared<state::RootNamespace>(NamespaceId(rootDescriptor.Id), rootDescriptor.Owner, lifetime);
-				namespaceCacheDelta.insert(*pRoot);
-				namespaceCacheDelta.setAlias(pRoot->id(), GetNamespaceAlias(pRoot->id(), adjustment));
-
-				for (const auto& childPath : rootDescriptor.Children) {
-					auto childNamespace = state::Namespace(test::CreatePath(childPath));
-					namespaceCacheDelta.insert(childNamespace);
-					namespaceCacheDelta.setAlias(childNamespace.id(), GetNamespaceAlias(childNamespace.id(), adjustment));
-				}
-
-				adjustment += increment;
-			}
-		}
-
-		void AssertCanLoadAll(const std::vector<RootNamespaceDescriptor>& seeds, size_t expectedCacheSize, size_t expectedDeepSize) {
-			// Arrange:
-			using Runner = test::MongoHistoricalCacheStorageTests<NamespaceCacheRootModificationTraits>;
-			Runner::RunCustomLoadTest([&seeds, expectedCacheSize, expectedDeepSize](auto& delta) {
-				auto& namespaceCacheDelta = delta.template sub<cache::NamespaceCache>();
-				SeedCache(seeds, namespaceCacheDelta);
-				return std::make_pair(expectedCacheSize, expectedDeepSize);
-			});
-		}
-	}
-
-	TEST(TEST_CLASS, CanLoadAll_SameOwner_WithChildren) {
-		// Arrange: id / owner / children
-		// - note that this simulates the following sequence:
-		//   1) first root is added, then children with ids { 10, 11, 12 } are added
-		//   2) second root is added, then child with id { 13 } is added
-		//   3) third root is added, then  child with id { 14 } is added
-		//   since roots with same owner share children, all roots refer to the same set of children
-		auto owner = test::GenerateRandomData<Key_Size>();
-		std::vector<RootNamespaceDescriptor> seedEntries{
-			{ 1, owner, { { 1, 10 }, { 1, 10, 11 }, { 1, 12 } } },
-			{ 1, owner, { { 1, 12, 13 } } },
-			{ 1, owner, { { 1, 14 } } }
-		};
-
-		// Assert:
-		AssertCanLoadAll(seedEntries, 3, 6 + 6 + 6);
-	}
-
-	TEST(TEST_CLASS, CanLoadAll_AlternatingOwner_WithChildren) {
-		// Arrange: id / owner / children
-		// - note that since the owner changes from root to root, there is no inheritance of children
-		auto owner1 = test::GenerateRandomData<Key_Size>();
-		auto owner2 = test::GenerateRandomData<Key_Size>();
-		std::vector<RootNamespaceDescriptor> seedEntries{
-			{ 1, owner1, { { 1, 10 }, { 1, 10, 11 }, { 1, 12 } } },
-			{ 1, owner2, { { 1, 13 } } },
-			{ 1, owner1, { { 1, 15 }, { 1, 15, 16 } } },
-		};
-
-		// Assert:
-		AssertCanLoadAll(seedEntries, 3, 4 + 2 + 3);
-	}
-
-	// endregion
-
-	// region custom load tests - aliases
-
-	namespace {
-		std::pair<size_t, size_t> AssertLoadAllPreservesAliases(
-				const std::vector<RootNamespaceDescriptor>& seeds,
-				const std::vector<size_t>& expectedChildCounts) {
-			// Arrange:
-			auto seeder = [&seeds](auto& delta) {
-				// - seed the cache with a nonzero increment to ensure all aliases are different across all levels
-				auto& namespaceCacheDelta = delta.template sub<cache::NamespaceCache>();
-				SeedCache(seeds, namespaceCacheDelta, 1);
-			};
-
-			// Act:
-			using Runner = test::MongoHistoricalCacheStorageTests<NamespaceCacheRootModificationTraits>;
-			auto counts = std::make_pair<size_t, size_t>(0, 0);
-			Runner::RunCustomLoadTest(seeder, [&seeds, &expectedChildCounts, &counts](auto& cache) {
-				auto cacheDelta = cache.createDelta();
-				auto& namespaceCacheDelta = cacheDelta.template sub<cache::NamespaceCache>();
-
-				// Assert: iterate over (root) seeds in reverse order (last seed is added last so it is at the top of the history)
-				auto i = 0u;
-				for (auto iter = seeds.crbegin(); seeds.crend() != iter; ++iter) {
-					const auto& rootDescriptor = *iter;
-					auto rootId = NamespaceId(rootDescriptor.Id);
-					const auto& root = namespaceCacheDelta.find(rootId).get().root();
-
-					// - check the root alias and the number of children
-					auto adjustment = seeds.size() - 1 - i;
-					std::ostringstream rootMessage;
-					rootMessage << "root " << rootId << " (level " << i << ")";
-					test::AssertEqualAlias(GetNamespaceAlias(rootId, adjustment), root.alias(rootId), rootMessage.str());
-					EXPECT_EQ(expectedChildCounts[i], root.size()) << rootMessage.str();
-
-					// - iterate over (child) seeds in reverse order (last child is added last and could depend on prior children)
-					for (auto childIter = rootDescriptor.Children.crbegin(); rootDescriptor.Children.crend() != childIter; ++childIter) {
-						const auto& childPath = *childIter;
-						auto childId = NamespaceId(childPath[childPath.size() - 1]);
-
-						// - check the child alias
-						std::ostringstream childMessage;
-						childMessage << "child " << childId << " (level " << i << ")";
-						test::AssertEqualAlias(GetNamespaceAlias(childId, adjustment), root.alias(childId), childMessage.str());
-
-						// - remove the child (this allows root to be popped below)
-						namespaceCacheDelta.remove(childId);
-						++counts.second;
-					}
-
-					// - pop the root (to activate previous root)
-					namespaceCacheDelta.remove(rootId);
-					++counts.first;
-					++i;
-				}
-
-				// Sanity: the root should have been completely removed (this test assumes all root descriptors have the same root id)
-				EXPECT_FALSE(namespaceCacheDelta.contains(NamespaceId(seeds[0].Id)));
-			});
-
-			return counts;
-		}
-	}
-
-	TEST(TEST_CLASS, LoadAllPreservesAliases_SameOwner_WithChildren) {
-		// Arrange: see CanLoadAll_SameOwner_WithChildren
-		auto owner = test::GenerateRandomData<Key_Size>();
-		std::vector<RootNamespaceDescriptor> seedEntries{
-			{ 1, owner, { { 1, 10 }, { 1, 10, 11 }, { 1, 12 } } },
-			{ 1, owner, { { 1, 12, 13 } } },
-			{ 1, owner, { { 1, 14 } } }
-		};
-
-		// Assert:
-		auto counts = AssertLoadAllPreservesAliases(seedEntries, { 5, 4, 3 });
-		EXPECT_EQ(3u, counts.first);
-		EXPECT_EQ(3u + 1 + 1, counts.second);
-	}
-
-	TEST(TEST_CLASS, LoadAllPreservesAliases_AlternatingOwner_WithChildren) {
-		// Arrange: see CanLoadAll_AlternatingOwner_WithChildren
-		auto owner1 = test::GenerateRandomData<Key_Size>();
-		auto owner2 = test::GenerateRandomData<Key_Size>();
-		std::vector<RootNamespaceDescriptor> seedEntries{
-			{ 1, owner1, { { 1, 10 }, { 1, 10, 11 }, { 1, 12 } } },
-			{ 1, owner2, { { 1, 13 } } },
-			{ 1, owner1, { { 1, 15 }, { 1, 15, 16 } } },
-		};
-
-		// Assert:
-		auto counts = AssertLoadAllPreservesAliases(seedEntries, { 2, 1, 3 });
-		EXPECT_EQ(3u, counts.first);
-		EXPECT_EQ(3u + 1 + 2, counts.second);
-	}
-
-	// endregion
 }}}

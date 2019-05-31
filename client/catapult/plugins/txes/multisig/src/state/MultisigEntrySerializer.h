@@ -26,6 +26,9 @@ namespace catapult { namespace state {
 
 	/// Policy for saving and loading multisig entry data.
 	struct MultisigEntrySerializer {
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
+
 		/// Saves \a entry to \a output.
 		static void Save(const MultisigEntry& entry, io::OutputStream& output);
 

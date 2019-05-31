@@ -45,13 +45,13 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, CalculateMaxHashesToAnalyzeReturnsMaxBlocksIfLargerThanRewriteLimitPlusTwo) {
+	TEST(TEST_CLASS, CalculateMaxHashesToAnalyzeReturnsMaxBlocksWhenLargerThanRewriteLimitPlusTwo) {
 		AssertMaxHashesToAnalyze(20, 20, 10);
 		AssertMaxHashesToAnalyze(20, 20, 15);
 		AssertMaxHashesToAnalyze(20, 20, 18);
 	}
 
-	TEST(TEST_CLASS, CalculateMaxHashesToAnalyzeReturnsMaxRewriteLimitPlusTwoIfLargerThanMaxBlocks) {
+	TEST(TEST_CLASS, CalculateMaxHashesToAnalyzeReturnsMaxRewriteLimitPlusTwoWhenLargerThanMaxBlocks) {
 		AssertMaxHashesToAnalyze(21, 20, 19);
 		AssertMaxHashesToAnalyze(22, 20, 20);
 		AssertMaxHashesToAnalyze(32, 20, 30);
@@ -104,7 +104,20 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, RemoteReportedLowerChainScoreIfRemoteChainScoreIsLessThanLocalChainScore) {
+	TEST(TEST_CLASS, LocalChainScoreZeroBypassesSync) {
+		// Arrange:
+		MockChainApi local(ChainScore(0), Height(20));
+		MockChainApi remote(ChainScore(9), Height(20));
+
+		// Act:
+		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
+
+		// Assert:
+		EXPECT_EQ(ChainComparisonCode::Local_Chain_Score_Zero, result.Code);
+		AssertDefaultChainInformation(result);
+	}
+
+	TEST(TEST_CLASS, RemoteReportedLowerChainScoreWhenRemoteChainScoreIsLessThanLocalChainScore) {
 		// Arrange:
 		MockChainApi local(ChainScore(10), Height(20));
 		MockChainApi remote(ChainScore(9), Height(20));
@@ -117,7 +130,7 @@ namespace catapult { namespace chain {
 		AssertDefaultChainInformation(result);
 	}
 
-	TEST(TEST_CLASS, RemoteReportedEqualChainScoreIfRemoteChainScoreIsEqualToLocalChainScore) {
+	TEST(TEST_CLASS, RemoteReportedEqualChainScoreWhenRemoteChainScoreIsEqualToLocalChainScore) {
 		// Arrange:
 		MockChainApi local(ChainScore(10), Height(20));
 		MockChainApi remote(ChainScore(10), Height(20));
@@ -160,12 +173,12 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, RemoteIsTooFarBehindIfRemoteIsMoreThanMaxBlocksToRewriteBehindLocal) {
+	TEST(TEST_CLASS, RemoteIsTooFarBehindWhenRemoteIsMoreThanMaxBlocksToRewriteBehindLocal) {
 		// Assert:
 		AssertIsTooFarBehind(Height(18), Height(7), 10, true);
 	}
 
-	TEST(TEST_CLASS, RemoteIsNotTooFarBehindIfRemoteIsMaxBlocksToRewriteBehindLocal) {
+	TEST(TEST_CLASS, RemoteIsNotTooFarBehindWhenRemoteIsMaxBlocksToRewriteBehindLocal) {
 		// Assert:
 		AssertIsTooFarBehind(Height(17), Height(7), 10, false);
 	}
@@ -199,32 +212,32 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, RemoteReturnedTooManyHashesIfItReturnedMoreThanMaxBlocksToAnalyze) {
+	TEST(TEST_CLASS, RemoteReturnedTooManyHashesWhenItReturnedMoreThanMaxBlocksToAnalyze) {
 		// Assert:
 		AssertRemoteReturnedTooManyHashes(21, 20, 10, true);
 	}
 
-	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesIfItReturnedExactlyMaxBlocksToAnalyze) {
+	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesWhenItReturnedExactlyMaxBlocksToAnalyze) {
 		// Assert:
 		AssertRemoteReturnedTooManyHashes(20, 20, 10, false);
 	}
 
-	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesIfItReturnedLessThanRewriteLimit) {
+	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesWhenItReturnedLessThanRewriteLimit) {
 		// Assert:
 		AssertRemoteReturnedTooManyHashes(21, 20, 30, false);
 	}
 
-	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesIfItMatchesRewriteLimit) {
+	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesWhenItMatchesRewriteLimit) {
 		// Assert:
 		AssertRemoteReturnedTooManyHashes(32, 20, 30, false);
 	}
 
-	TEST(TEST_CLASS, RemoteReturnedTooManyHashesIfItReturnedMoreThanRewriteLimit) {
+	TEST(TEST_CLASS, RemoteReturnedTooManyHashesWhenItReturnedMoreThanRewriteLimit) {
 		// Assert:
 		AssertRemoteReturnedTooManyHashes(33, 20, 30, true);
 	}
 
-	TEST(TEST_CLASS, RemoteIsForkedIfTheFirstLocalAndRemoteHashesDoNotMatch) {
+	TEST(TEST_CLASS, RemoteIsForkedWhenTheFirstLocalAndRemoteHashesDoNotMatch) {
 		// Arrange: Local { A, B, C }, Remote { D, B, C }
 		auto localHashes = test::GenerateRandomHashes(3);
 		auto remoteHashes = test::GenerateRandomHashes(3);
@@ -241,7 +254,7 @@ namespace catapult { namespace chain {
 		AssertDefaultChainInformation(result);
 	}
 
-	TEST(TEST_CLASS, RemoteLiedAboutChainScoreIfLocalIsSameSizeAsRemoteChainAndContainsAllHashesInRemoteChain) {
+	TEST(TEST_CLASS, RemoteLiedAboutChainScoreWhenLocalIsSameSizeAsRemoteChainAndContainsAllHashesInRemoteChain) {
 		// Arrange: Local { A, B, C }, Remote { A, B, C }
 		auto commonHashes = test::GenerateRandomHashes(3);
 		MockChainApi local(ChainScore(10), Height(3), commonHashes);
@@ -255,7 +268,7 @@ namespace catapult { namespace chain {
 		AssertDefaultChainInformation(result);
 	}
 
-	TEST(TEST_CLASS, RemoteLiedAboutChainScoreIfRemoteChainIsSubsetOfLocalChainButRemoteReportedHigherScore) {
+	TEST(TEST_CLASS, RemoteLiedAboutChainScoreWhenRemoteChainIsSubsetOfLocalChainButRemoteReportedHigherScore) {
 		// Arrange: Local { A, B, C }, Remote { A, B }
 		auto localHashes = test::GenerateRandomHashes(3);
 		auto remoteHashes = test::GenerateRandomHashesSubset(localHashes, 2);
@@ -270,13 +283,13 @@ namespace catapult { namespace chain {
 		AssertDefaultChainInformation(result);
 	}
 
-	TEST(TEST_CLASS, RemoteIsNotSyncedIfLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChain) {
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChain) {
 		// Arrange: Local { A, B }, Remote { A, B, C }
 		auto remoteHashes = test::GenerateRandomHashes(3);
 		auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, 2);
 		MockChainApi local(ChainScore(10), Height(2), localHashes);
 		MockChainApi remote(ChainScore(11), Height(3), remoteHashes);
-		remote.addBlock(test::GenerateVerifiableBlockAtHeight(Height(3)));
+		remote.addBlock(test::GenerateBlockWithTransactions(0, Height(3)));
 
 		// Act:
 		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
@@ -288,7 +301,7 @@ namespace catapult { namespace chain {
 		EXPECT_TRUE(AreChainsConsistent(localHashes.size(), result.CommonBlockHeight, Height(1)));
 	}
 
-	TEST(TEST_CLASS, RemoteIsNotSyncedIfLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChainButReturnsMoreHashesThanExpected) {
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenLocalIsSmallerThanRemoteChainAndContainsAllHashesInRemoteChainButReturnsMoreHashesThanExpected) {
 		// Arrange: simulate the scenario where the local height increases in-between the height and hashes requests
 		//   1. report local height as 8
 		//   2. return 12 local hashes (12 > 8)
@@ -299,7 +312,7 @@ namespace catapult { namespace chain {
 		auto localHashes = test::GenerateRandomHashesSubset(remoteHashes, 12);
 		MockChainApi local(ChainScore(10), Height(8), localHashes);
 		MockChainApi remote(ChainScore(11), Height(13), remoteHashes);
-		remote.addBlock(test::GenerateVerifiableBlockAtHeight(Height(3)));
+		remote.addBlock(test::GenerateBlockWithTransactions(0, Height(3)));
 
 		// Act:
 		auto result = CompareChains(local, remote, { 1000, 1000 }).get();
@@ -357,7 +370,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, RemoteIsNotSyncedIfChainsDivergeAndRemoteHasHigherScore) {
+	TEST(TEST_CLASS, RemoteIsNotSyncedWhenChainsDivergeAndRemoteHasHigherScore) {
 		// Assert: note chain height is 20 < 1000
 		AssertRemoteIsNotSynced(1000, Height(1), Height(19));
 	}

@@ -28,6 +28,7 @@ namespace catapult { namespace test {
 	enum class RandomStatementsConstraints {
 		/// No constraints.
 		None,
+
 		/// Enforce transaction statement ordering.
 		/// \note Resolution statement entries are always ordered.
 		Order

@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 				test::FillWithRandomData(m_buffer);
 
 				// set the packet at the start of the buffer
-				auto& packet = reinterpret_cast<ionet::Packet&>(*m_buffer.data());
+				auto& packet = reinterpret_cast<ionet::Packet&>(m_buffer[0]);
 				packet.Size = static_cast<uint32_t>(m_buffer.size() - (validBuffer ? 0 : 1));
 				packet.Type = TTraits::Packet_Type;
 
@@ -45,7 +45,7 @@ namespace catapult { namespace test {
 			}
 
 			const ionet::Packet& packet() const {
-				return reinterpret_cast<const ionet::Packet&>(*m_buffer.data());
+				return reinterpret_cast<const ionet::Packet&>(m_buffer[0]);
 			}
 
 			ionet::ByteBuffer& buffer() {
@@ -70,7 +70,7 @@ namespace catapult { namespace test {
 			});
 
 			// Act:
-			auto sourcePublicKey = test::GenerateRandomData<Key_Size>();
+			auto sourcePublicKey = test::GenerateRandomByteArray<Key>();
 			ionet::ServerPacketHandlerContext context(sourcePublicKey, "");
 			EXPECT_TRUE(handlers.process(packet, context));
 

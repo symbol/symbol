@@ -40,12 +40,13 @@ namespace catapult { namespace model {
 			auto expectedSize =
 					baseSize // base
 					+ sizeof(uint8_t) // lock hash algorithm
-					+ Hash256_Size // hash size
+					+ Hash256_Size // secret
+					+ Address_Decoded_Size // recipient
 					+ sizeof(uint16_t); // proof size
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));
-			EXPECT_EQ(baseSize + 35u, sizeof(T));
+			EXPECT_EQ(baseSize + 60u, sizeof(T));
 		}
 
 		template<typename T>

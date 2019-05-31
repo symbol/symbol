@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "BulkWriteResult.h"
 #include "catapult/model/Elements.h"
 #include "catapult/state/AccountState.h"
 #include "catapult/thread/FutureUtils.h"
@@ -36,59 +37,6 @@
 #include <unordered_set>
 
 namespace catapult { namespace mongo {
-
-	/// Result of a bulk write operation to the database.
-	struct BulkWriteResult {
-	public:
-		/// Creates a default bulk write result.
-		BulkWriteResult()
-				: NumInserted(0)
-				, NumMatched(0)
-				, NumModified(0)
-				, NumDeleted(0)
-				, NumUpserted(0)
-		{}
-
-		/// Creates a bulk result from a mongo \a result.
-		explicit BulkWriteResult(const mongocxx::result::bulk_write& result)
-				: NumInserted(result.inserted_count())
-				, NumMatched(result.matched_count())
-				, NumModified(result.modified_count())
-				, NumDeleted(result.deleted_count())
-				, NumUpserted(result.upserted_count())
-		{}
-
-	public:
-		/// Aggregates all bulk write results in \a results into a single result.
-		static BulkWriteResult Aggregate(const std::vector<BulkWriteResult>& results) {
-			BulkWriteResult aggregate;
-			for (const auto& result : results) {
-				aggregate.NumInserted += result.NumInserted;
-				aggregate.NumMatched += result.NumMatched;
-				aggregate.NumModified += result.NumModified;
-				aggregate.NumDeleted += result.NumDeleted;
-				aggregate.NumUpserted += result.NumUpserted;
-			}
-
-			return aggregate;
-		}
-
-	public:
-		/// Number of documents that were inserted.
-		int32_t NumInserted;
-
-		/// Number of documents that matched existing documents.
-		int32_t NumMatched;
-
-		/// Number of existing documents that were modified.
-		int32_t NumModified;
-
-		/// Number of existing documents that were deleted.
-		int32_t NumDeleted;
-
-		/// Number of documents that were inserted because no document matched.
-		int32_t NumUpserted;
-	};
 
 	/// Class for writing bulk data to the mongo database.
 	/// \note The bulk writer supports inserting, upserting and deleting documents.
@@ -270,27 +218,22 @@ namespace catapult { namespace mongo {
 
 			auto numThreads = m_pPool->numWorkerThreads();
 			auto pContext = std::make_shared<BulkWriteContext>(std::min<size_t>(entities.size(), numThreads));
-			return thread::compose(
-					thread::ParallelForPartition(
-							m_ioContext,
-							entities,
-							numThreads,
-							[pThis = shared_from_this(), entitiesStart = entities.cbegin(), collectionName, appendOperation, pContext](
-									auto itBegin,
-									auto itEnd,
-									auto startIndex,
-									auto batchIndex) {
-								auto pBulkWriteParams = std::make_shared<BulkWriteParams>(*pThis, collectionName);
+			auto workCallback = [pThis = shared_from_this(), entitiesStart = entities.cbegin(), collectionName, appendOperation, pContext](
+					auto itBegin,
+					auto itEnd,
+					auto startIndex,
+					auto batchIndex) {
+				auto pBulkWriteParams = std::make_shared<BulkWriteParams>(*pThis, collectionName);
 
-								auto index = static_cast<uint32_t>(startIndex);
-								for (auto iter = itBegin; itEnd != iter; ++iter, ++index)
-									appendOperation(pBulkWriteParams->Bulk, *iter, index);
+				auto index = static_cast<uint32_t>(startIndex);
+				for (auto iter = itBegin; itEnd != iter; ++iter, ++index)
+					appendOperation(pBulkWriteParams->Bulk, *iter, index);
 
-								pContext->setFutureAt(batchIndex, pThis->handleBulkOperation(std::move(pBulkWriteParams)));
-							}),
-					[pContext](const auto&) {
-						return pContext->aggregateFuture();
-					});
+				pContext->setFutureAt(batchIndex, pThis->handleBulkOperation(std::move(pBulkWriteParams)));
+			};
+			return thread::compose(thread::ParallelForPartition(m_ioContext, entities, numThreads, workCallback), [pContext](const auto&) {
+				return pContext->aggregateFuture();
+			});
 		}
 
 	private:

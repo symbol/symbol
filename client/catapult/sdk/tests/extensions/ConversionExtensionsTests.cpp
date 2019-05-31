@@ -49,7 +49,7 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanCopyAddressToUnresolvedAddress) {
 		// Arrange:
-		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+		auto address = test::GenerateRandomByteArray<Address>();
 
 		// Act:
 		auto unresolvedAddress = CopyToUnresolvedAddress(address);
@@ -60,7 +60,7 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanCopyUnresolvedAddressToAddress) {
 		// Arrange:
-		auto unresolvedAddress = CopyToUnresolvedAddress(test::GenerateRandomData<Address_Decoded_Size>());
+		auto unresolvedAddress = CopyToUnresolvedAddress(test::GenerateRandomByteArray<Address>());
 
 		// Act:
 		auto address = CopyToAddress(unresolvedAddress);

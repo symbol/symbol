@@ -365,6 +365,16 @@ namespace catapult { namespace utils {
 		AssertUnsignedIntDecimalParseFailure<BlockFeeMultiplier, BlockFeeMultiplier::ValueType>();
 	}
 
+	TEST(TEST_CLASS, CanParseValidHeight) {
+		// Assert:
+		AssertUnsignedIntDecimalParseSuccess<Height, Height::ValueType>(0xFFFF'FFFF'FFFF'FFFF);
+	}
+
+	TEST(TEST_CLASS, CannotParseInvalidHeight) {
+		// Assert:
+		AssertUnsignedIntDecimalParseFailure<Height, Height::ValueType>();
+	}
+
 	TEST(TEST_CLASS, CanParseValidImportance) {
 		// Assert:
 		AssertUnsignedIntDecimalParseSuccess<Importance, Importance::ValueType>(0xFFFF'FFFF'FFFF'FFFF);
@@ -446,30 +456,64 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// region key
+	// region byte array
+
+	namespace {
+		template<typename TByteArray>
+		void AssertCanParseValidByteArray() {
+			// Assert:
+			AssertSuccessfulParse("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", TByteArray{{
+				0x03, 0x17, 0x29, 0xD1, 0x0D, 0xB5, 0x2E, 0xCF, 0x0A, 0xD3, 0x68, 0x45, 0x58, 0xDB, 0x31, 0x89,
+				0x5D, 0xDF, 0xA5, 0xCD, 0x7F, 0x41, 0x43, 0xAF, 0x6E, 0x82, 0x2E, 0x11, 0x4E, 0x16, 0xE3, 0x1C
+			}});
+			AssertSuccessfulParse("AB1729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E300", TByteArray{{
+				0xAB, 0x17, 0x29, 0xD1, 0x0D, 0xB5, 0x2E, 0xCF, 0x0A, 0xD3, 0x68, 0x45, 0x58, 0xDB, 0x31, 0x89,
+				0x5D, 0xDF, 0xA5, 0xCD, 0x7F, 0x41, 0x43, 0xAF, 0x6E, 0x82, 0x2E, 0x11, 0x4E, 0x16, 0xE3, 0x00
+			}});
+		}
+
+		template<typename TByteArray>
+		void AssertCannotParseInvalidByteArray() {
+			// Arrange:
+			TByteArray initialValue{ { 0x25 } };
+
+			// Assert
+			AssertFailedParse("031729D10DB52ECF0AD3684558DB3189@DDFA5CD7F4143AF6E822E114E16E31C", initialValue); // invalid char
+			AssertFailedParse("31729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", initialValue); // too short (odd)
+			AssertFailedParse("1729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", initialValue); // too short (even)
+			AssertFailedParse("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31CA", initialValue); // too long (odd)
+			AssertFailedParse("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31CAB", initialValue); // too long (even)
+		}
+	}
 
 	TEST(TEST_CLASS, CanParseValidKey) {
 		// Assert:
-		AssertSuccessfulParse("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", Key{{
-			0x03, 0x17, 0x29, 0xD1, 0x0D, 0xB5, 0x2E, 0xCF, 0x0A, 0xD3, 0x68, 0x45, 0x58, 0xDB, 0x31, 0x89,
-			0x5D, 0xDF, 0xA5, 0xCD, 0x7F, 0x41, 0x43, 0xAF, 0x6E, 0x82, 0x2E, 0x11, 0x4E, 0x16, 0xE3, 0x1C
-		}});
-		AssertSuccessfulParse("AB1729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E300", Key{{
-			0xAB, 0x17, 0x29, 0xD1, 0x0D, 0xB5, 0x2E, 0xCF, 0x0A, 0xD3, 0x68, 0x45, 0x58, 0xDB, 0x31, 0x89,
-			0x5D, 0xDF, 0xA5, 0xCD, 0x7F, 0x41, 0x43, 0xAF, 0x6E, 0x82, 0x2E, 0x11, 0x4E, 0x16, 0xE3, 0x00
-		}});
+		AssertCanParseValidByteArray<Key>();
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidKey) {
-		// Arrange:
-		Key initialValue{ { 0x25 } };
+		// Assert:
+		AssertCannotParseInvalidByteArray<Key>();
+	}
 
-		// Assert
-		AssertFailedParse("031729D10DB52ECF0AD3684558DB3189@DDFA5CD7F4143AF6E822E114E16E31C", initialValue); // invalid char
-		AssertFailedParse("31729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", initialValue); // too short (odd)
-		AssertFailedParse("1729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", initialValue); // too short (even)
-		AssertFailedParse("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31CA", initialValue); // too long (odd)
-		AssertFailedParse("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31CAB", initialValue); // too long (even)
+	TEST(TEST_CLASS, CanParseValidHash256) {
+		// Assert:
+		AssertCanParseValidByteArray<Hash256>();
+	}
+
+	TEST(TEST_CLASS, CannotParseInvalidHash256) {
+		// Assert:
+		AssertCannotParseInvalidByteArray<Hash256>();
+	}
+
+	TEST(TEST_CLASS, CanParseValidGenerationHash) {
+		// Assert:
+		AssertCanParseValidByteArray<GenerationHash>();
+	}
+
+	TEST(TEST_CLASS, CannotParseInvalidGenerationHash) {
+		// Assert:
+		AssertCannotParseInvalidByteArray<GenerationHash>();
 	}
 
 	// endregion

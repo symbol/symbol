@@ -24,14 +24,14 @@
 #include <memory>
 
 namespace catapult {
-	namespace config { class LocalNodeConfiguration; }
+	namespace config { class CatapultConfiguration; }
 	namespace observers { class EntityObserver; }
 }
 
 namespace catapult { namespace extensions {
 
 	/// Creates plugin storage configuration from \a config.
-	plugins::StorageConfiguration CreateStorageConfiguration(const config::LocalNodeConfiguration& config);
+	plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config);
 
 	/// Creates an entity stateless validator using \a pluginManager.
 	std::unique_ptr<const validators::stateless::AggregateEntityValidator> CreateStatelessValidator(const plugins::PluginManager& manager);

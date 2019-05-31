@@ -41,12 +41,16 @@ namespace catapult { namespace validators {
 
 		/// Chain facility code.
 		Chain = 0xFF,
+
 		/// Consumer facility code.
 		Consumer = 0xFE,
+
 		/// Extension facility code.
 		Extension = 0x45,
+
 		/// Hash facility code.
 		Hash = 0x48,
+
 		/// Signature facility code.
 		Signature = 0x53
 	};

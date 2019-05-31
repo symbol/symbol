@@ -66,6 +66,12 @@ namespace catapult { namespace model {
 		// make a copy of the receipt
 		auto pReceiptCopy = utils::MakeUniqueWithSize<Receipt>(receipt.Size);
 		std::memcpy(static_cast<void*>(pReceiptCopy.get()), &receipt, receipt.Size);
-		m_receipts.push_back(std::move(pReceiptCopy));
+
+		// insertion sort by receipt type
+		auto iter = std::find_if(m_receipts.cbegin(), m_receipts.cend(), [&receipt](const auto& pReceipt) {
+			return pReceipt->Type > receipt.Type;
+		});
+
+		m_receipts.insert(iter, std::move(pReceiptCopy));
 	}
 }}

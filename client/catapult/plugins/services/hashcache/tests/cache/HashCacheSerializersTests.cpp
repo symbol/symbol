@@ -29,7 +29,7 @@ namespace catapult { namespace cache {
 		using Serializer = HashCachePrimarySerializer;
 
 		static auto GenerateRandomTimestampedHash() {
-			return state::TimestampedHash(test::GenerateRandomValue<Timestamp>(), test::GenerateRandomData<Cached_Hash_Size>());
+			return state::TimestampedHash(test::GenerateRandomValue<Timestamp>(), test::GenerateRandomArray<Cached_Hash_Size>());
 		}
 	}
 

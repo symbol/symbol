@@ -63,4 +63,16 @@ namespace catapult { namespace cache {
 			}
 		}
 	}
+
+	void NamespaceCacheStorage::Purge(const ValueType& history, DestinationType& cacheDelta) {
+		while (cacheDelta.contains(history.id())) {
+			auto childrenMap = SortChildren(history.back().children());
+			for (auto iter = childrenMap.crbegin(); childrenMap.crend() != iter; ++iter) {
+				if (cacheDelta.contains(iter->second))
+					cacheDelta.remove(iter->second);
+			}
+
+			cacheDelta.remove(history.id());
+		}
+	}
 }}

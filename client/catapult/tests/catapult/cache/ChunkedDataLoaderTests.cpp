@@ -40,7 +40,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, CanLoadStorageFromEmptyStream) {
 		// Arrange:
 		auto buffer = CopyEntriesToStreamBuffer({});
-		mocks::MockMemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream(buffer);
 		ChunkedDataLoader<TestEntryLoaderTraits> loader(stream);
 
 		// Assert:
@@ -52,7 +52,7 @@ namespace catapult { namespace cache {
 			// Arrange:
 			auto seed = GenerateRandomEntries(numEntries);
 			auto buffer = CopyEntriesToStreamBuffer(seed);
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 			ChunkedDataLoader<TestEntryLoaderTraits> loader(stream);
 
 			// Sanity:
@@ -82,7 +82,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		auto seed = GenerateRandomEntries(7);
 		auto buffer = CopyEntriesToStreamBuffer(seed);
-		mocks::MockMemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream(buffer);
 		ChunkedDataLoader<TestEntryLoaderTraits> loader(stream);
 
 		// Act:
@@ -109,7 +109,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, ReadingFromEndOfStreamHasNoEffect) {
 		// Arrange:
 		auto buffer = CopyEntriesToStreamBuffer({});
-		mocks::MockMemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream(buffer);
 		ChunkedDataLoader<TestEntryLoaderTraits> loader(stream);
 
 		// Sanity:
@@ -134,7 +134,7 @@ namespace catapult { namespace cache {
 			auto buffer = CopyEntriesToStreamBuffer(seed);
 			malformBuffer(buffer);
 
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 			ChunkedDataLoader<TestEntryLoaderTraits> loader(stream);
 
 			// Sanity:
@@ -148,7 +148,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CannotLoadFromStreamWithInsufficientEntries) {
 		// Assert: indicate the stream contains more entries than it really does
-		AssertCannotLoadMalformedStream([](auto& buffer) { ++reinterpret_cast<uint64_t&>(*buffer.data()); });
+		AssertCannotLoadMalformedStream([](auto& buffer) { ++reinterpret_cast<uint64_t&>(buffer[0]); });
 	}
 
 	TEST(TEST_CLASS, CannotLoadFromStreamWithTruncatedEntries) {

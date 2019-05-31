@@ -125,7 +125,7 @@ namespace catapult { namespace plugins {
 			});
 
 			manager.addAddressResolver([](const auto&, const auto& unresolved, auto& resolved) {
-				if (0 == (1 & unresolved[0].Byte)) {
+				if (0 == (1 & unresolved[0])) {
 					resolved = model::ResolverContext().resolve(unresolved);
 					return true;
 				}
@@ -180,7 +180,8 @@ namespace catapult { namespace plugins {
 
 			manager.addStatefulValidatorHook([constraints, maxChildNamespaces = config.MaxChildNamespaces](auto& builder) {
 				builder
-					.add(validators::CreateRootNamespaceAvailabilityValidator(constraints.MaxNamespaceDuration))
+					.add(validators::CreateRootNamespaceAvailabilityValidator())
+					.add(validators::CreateNamespaceDurationOverflowValidator(constraints.MaxNamespaceDuration))
 					// note that the following validator needs to run before the RootNamespaceMaxChildrenValidator
 					.add(validators::CreateChildNamespaceAvailabilityValidator())
 					.add(validators::CreateRootNamespaceMaxChildrenValidator(maxChildNamespaces));

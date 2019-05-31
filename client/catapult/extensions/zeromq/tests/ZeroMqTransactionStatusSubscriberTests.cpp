@@ -73,7 +73,7 @@ namespace catapult { namespace zeromq {
 		auto pTransaction = test::GenerateTransactionWithDeadline(Timestamp(123));
 
 		// Act:
-		context.notifyStatus(*pTransaction, test::GenerateRandomData<Hash256_Size>(), 123);
+		context.notifyStatus(*pTransaction, test::GenerateRandomByteArray<Hash256>(), 123);
 
 		// Assert:
 		test::AssertNoPendingMessages(context.zmqSocket());

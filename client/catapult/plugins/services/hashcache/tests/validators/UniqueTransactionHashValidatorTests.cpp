@@ -47,9 +47,10 @@ namespace catapult { namespace validators {
 				ValidationResult expectedResult,
 				const CatapultCache& cache,
 				const state::TimestampedHash& timestampedHash) {
-			// Arrange:
+			// Arrange: need to copy timestampedHash.Hash because it is an std::array, not a Hash256
 			auto pValidator = CreateUniqueTransactionHashValidator();
-			auto notification = model::TransactionNotification(Key(), timestampedHash.Hash, model::EntityType(), timestampedHash.Time);
+			auto transactionHash = Hash256(timestampedHash.Hash);
+			auto notification = model::TransactionNotification(Key(), transactionHash, model::EntityType(), timestampedHash.Time);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
@@ -64,7 +65,7 @@ namespace catapult { namespace validators {
 			TimestampedHashes timestampedHashes;
 			timestampedHashes.reserve(count);
 			for (auto i = 0u; i < count; ++i)
-				timestampedHashes.push_back(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
+				timestampedHashes.push_back(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
 
 			return timestampedHashes;
 		}
@@ -85,7 +86,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		auto timestampedHashes = CreateTimestampedHashes(10);
 		auto cache = CreateCache(timestampedHashes);
-		auto notificationTimestampedHash = state::TimestampedHash(Timestamp(100), test::GenerateRandomData<Hash256_Size>());
+		auto notificationTimestampedHash = state::TimestampedHash(Timestamp(100), test::GenerateRandomByteArray<Hash256>());
 
 		// Assert:
 		AssertValidationResult(Success_Result, cache, notificationTimestampedHash);
@@ -95,7 +96,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		auto timestampedHashes = CreateTimestampedHashes(10);
 		auto cache = CreateCache(timestampedHashes);
-		auto notificationTimestampedHash = state::TimestampedHash(Timestamp(5), test::GenerateRandomData<Hash256_Size>());
+		auto notificationTimestampedHash = state::TimestampedHash(Timestamp(5), test::GenerateRandomByteArray<Hash256>());
 
 		// Assert:
 		AssertValidationResult(Success_Result, cache, notificationTimestampedHash);

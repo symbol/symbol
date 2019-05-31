@@ -1,3 +1,3 @@
 cmake_minimum_required(VERSION 3.2)
 
-catapult_define_extension_test(addressextraction)
+catapult_define_extension_test(addressextraction test)

@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/cache/UtChangeSubscriber.h"
+#include "catapult/cache_tx/UtChangeSubscriber.h"
 #include <memory>
 
 namespace catapult { namespace zeromq { class ZeroMqEntityPublisher; } }

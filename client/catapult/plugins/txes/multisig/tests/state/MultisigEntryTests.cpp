@@ -43,7 +43,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanCreateMultisigEntry) {
 		// Act:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto entry = MultisigEntry(key);
 
 		// Assert:
@@ -56,7 +56,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanChangeSettings) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto entry = MultisigEntry(key);
 
 		// Act:
@@ -71,7 +71,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanAddAndRemoveBothCosignatoriesAndAccounts) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto accountKeys = test::GenerateKeys(10);
 		auto entry = MultisigEntry(key);
 
@@ -105,9 +105,9 @@ namespace catapult { namespace state {
 		AssertMultisigAccounts(expectedMultisigAccounts, entry);
 	}
 
-	TEST(TEST_CLASS, HasCosignatoryReturnsTrueIfKeyIsCosignatory) {
+	TEST(TEST_CLASS, HasCosignatoryReturnsTrueWhenKeyIsCosignatory) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto accountKeys = test::GenerateKeys(10);
 		auto entry = MultisigEntry(key);
 
@@ -122,9 +122,9 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(TEST_CLASS, HasCosignatoryReturnsFalseIfKeyIsNotCosignatory) {
+	TEST(TEST_CLASS, HasCosignatoryReturnsFalseWhenKeyIsNotCosignatory) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto accountKeys = test::GenerateKeys(10);
 		auto entry = MultisigEntry(key);
 

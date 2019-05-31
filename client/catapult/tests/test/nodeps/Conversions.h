@@ -23,6 +23,7 @@
 #include <array>
 #include <sstream>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace catapult { namespace test {
@@ -44,15 +45,6 @@ namespace catapult { namespace test {
 
 	/// Converts a binary buffer \a data to a hex string.
 	std::string ToHexString(const std::vector<uint8_t>& data);
-
-	/// Converts a binary buffer \a data to a hex string.
-	template<size_t N>
-	std::string ToHexString(const std::array<uint8_t, N>& data) {
-		return ToHexString(data.data(), data.size());
-	}
-
-	/// Converts a string \a str to a hex string.
-	std::string ToHexString(const std::string& str);
 
 	/// Converts a hex string (\a hexString) to a vector.
 	std::vector<uint8_t> ToVector(const std::string& hexString);
@@ -78,5 +70,15 @@ namespace catapult { namespace test {
 	template<size_t N>
 	std::string ToString(const std::array<uint8_t, N>& value) {
 		return ToHexString(value);
+	}
+
+	/// Converts an unordered set of \a pointers to values.
+	template<typename T>
+	auto PointersToValues(const std::unordered_set<T*>& pointers) {
+		std::unordered_set<std::remove_cv_t<T>> values;
+		for (const auto* pValue : pointers)
+			values.insert(*pValue);
+
+		return values;
 	}
 }}

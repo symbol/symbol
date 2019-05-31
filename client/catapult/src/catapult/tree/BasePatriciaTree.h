@@ -43,7 +43,7 @@ namespace catapult { namespace tree {
 		/// Creates a tree around a \a dataSource with specified root hash (\a rootHash).
 		BasePatriciaTree(TDataSource& dataSource, const Hash256& rootHash) : BasePatriciaTree(dataSource) {
 			if (!m_tree.tryLoad(rootHash))
-				CATAPULT_THROW_RUNTIME_ERROR_1("unable to load tree with root hash", utils::HexFormat(rootHash));
+				CATAPULT_THROW_RUNTIME_ERROR_1("unable to load tree with root hash", rootHash);
 		}
 
 	public:

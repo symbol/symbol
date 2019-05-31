@@ -29,7 +29,7 @@ namespace catapult { namespace state {
 	template<typename T>
 	auto ToVector(T value) {
 		std::vector<uint8_t> vec(sizeof(T));
-		reinterpret_cast<T&>(*vec.data()) = value;
+		reinterpret_cast<T&>(vec[0]) = value;
 		return vec;
 	}
 

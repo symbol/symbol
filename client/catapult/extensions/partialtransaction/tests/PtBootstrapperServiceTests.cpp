@@ -19,7 +19,7 @@
 **/
 
 #include "partialtransaction/src/PtBootstrapperService.h"
-#include "catapult/cache/MemoryPtCache.h"
+#include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/extensions/Results.h"
 #include "catapult/utils/NetworkTime.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
@@ -298,7 +298,7 @@ namespace catapult { namespace partialtransaction {
 		// Act:
 		AssertTransactionEventHandlerIsNoOp([](const auto& handler, const auto&) {
 			// Act: call the handler with a hash not in the cache
-			handler({ test::GenerateRandomData<Hash256_Size>(), extensions::TransactionEvent::Dependency_Removed });
+			handler({ test::GenerateRandomByteArray<Hash256>(), extensions::TransactionEvent::Dependency_Removed });
 		});
 	}
 

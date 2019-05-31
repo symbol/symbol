@@ -28,14 +28,14 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, WriteStoresDataInUnderlyingBuffer) {
 		// Act:
 		StringOutputStream output(25);
-		auto data = test::GenerateRandomData<25>();
+		auto buffer = test::GenerateRandomArray<25>();
 
 		// Act:
-		output.write(data);
+		output.write(buffer);
 
 		// Assert:
 		EXPECT_EQ(25u, output.str().size());
-		std::string expected(data.cbegin(), data.cend());
+		std::string expected(buffer.cbegin(), buffer.cend());
 		EXPECT_EQ(expected, output.str());
 	}
 
@@ -53,7 +53,7 @@ namespace catapult { namespace io {
 	TEST(TEST_CLASS, FlushDoesNotAffectWrite) {
 		// Act:
 		StringOutputStream output(25);
-		output.write(test::GenerateRandomData<25>());
+		output.write(test::GenerateRandomArray<25>());
 
 		// Sanity:
 		EXPECT_EQ(25u, output.str().size());

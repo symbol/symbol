@@ -146,8 +146,7 @@ namespace catapult { namespace crypto {
 			return false;
 
 		// reject zero public key, which is known weak key
-		const Key Zero_Key{};
-		if (Zero_Key == publicKey)
+		if (Key() == publicKey)
 			return false;
 
 		// h = H(encodedR || public || data)

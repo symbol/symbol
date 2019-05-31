@@ -73,7 +73,7 @@ namespace catapult { namespace api {
 		public:
 			explicit HashGenerator(uint8_t numCosignatures)
 					: m_numCosignatures(numCosignatures)
-					, m_hash(test::GenerateRandomData<Hash256_Size>())
+					, m_hash(test::GenerateRandomByteArray<Hash256>())
 					, m_cosignatures(test::GenerateRandomDataVector<model::Cosignature>(numCosignatures))
 			{}
 
@@ -273,7 +273,7 @@ namespace catapult { namespace api {
 		AssertParseFailure([](auto& builder) {
 			// Arrange: two cosignatures are present but only one is written
 			builder.appendValue(static_cast<uint16_t>(0x0002));
-			builder.appendValue(test::GenerateRandomData<Hash256_Size>());
+			builder.appendValue(test::GenerateRandomByteArray<Hash256>());
 			AppendValues(builder, test::GenerateRandomDataVector<model::Cosignature>(1));
 		});
 	}

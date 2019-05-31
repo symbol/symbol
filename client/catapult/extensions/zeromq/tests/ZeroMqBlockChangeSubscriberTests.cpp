@@ -139,7 +139,7 @@ namespace catapult { namespace zeromq {
 		void AssertCanNotifyBlockWithTransactions(const std::vector<Key>& keys, const std::vector<std::pair<Key, Key>>& pairs) {
 			MqSubscriberContext context;
 			auto transactions = CreateTransactions(pairs);
-			auto pBlock = test::GenerateRandomBlockWithTransactions(transactions);
+			auto pBlock = test::GenerateBlockWithTransactions(transactions);
 			auto blockElement = test::BlockToBlockElement(*pBlock);
 
 			// - subscribe to all relevant topics

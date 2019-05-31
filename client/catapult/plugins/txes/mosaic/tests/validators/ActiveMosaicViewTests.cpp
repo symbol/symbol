@@ -105,7 +105,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, CanGetActiveMosaicWithoutOwnerCheck) {
 		// Arrange:
-		RunTestWithActiveMosaic(test::GenerateRandomData<Key_Size>(), [](const auto& view) {
+		RunTestWithActiveMosaic(test::GenerateRandomByteArray<Key>(), [](const auto& view) {
 			// Act:
 			ActiveMosaicView::FindIterator mosaicIter;
 			auto result = view.tryGet(MosaicId(123), Height(100), mosaicIter);
@@ -118,10 +118,10 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, CannotGetActiveMosaicWithWrongOwner) {
 		// Arrange:
-		RunTestWithActiveMosaic(test::GenerateRandomData<Key_Size>(), [](const auto& view) {
+		RunTestWithActiveMosaic(test::GenerateRandomByteArray<Key>(), [](const auto& view) {
 			// Act:
 			ActiveMosaicView::FindIterator mosaicIter;
-			auto result = view.tryGet(MosaicId(123), Height(100), test::GenerateRandomData<Key_Size>(), mosaicIter);
+			auto result = view.tryGet(MosaicId(123), Height(100), test::GenerateRandomByteArray<Key>(), mosaicIter);
 
 			// Assert:
 			EXPECT_EQ(Failure_Mosaic_Owner_Conflict, result);
@@ -130,7 +130,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, CanGetActiveMosaicWithCorrectOwner) {
 		// Arrange:
-		const auto& owner = test::GenerateRandomData<Key_Size>();
+		const auto& owner = test::GenerateRandomByteArray<Key>();
 		RunTestWithActiveMosaic(owner, [&owner](const auto& view) {
 			// Act:
 			ActiveMosaicView::FindIterator mosaicIter;

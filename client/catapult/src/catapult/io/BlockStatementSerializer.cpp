@@ -33,7 +33,7 @@ namespace catapult { namespace io {
 
 		void ReadStatement(InputStream& inputStream, std::map<model::ReceiptSource, model::TransactionStatement>& statements) {
 			model::ReceiptSource key;
-			inputStream.read({ ToBytePointer(key), sizeof(key) });
+			inputStream.read({ ToBytePointer(key), sizeof(model::ReceiptSource) });
 
 			model::TransactionStatement statement(key);
 			auto numReceipts = Read32(inputStream);
@@ -45,7 +45,7 @@ namespace catapult { namespace io {
 				receiptBuffer.resize(receiptSize);
 				inputStream.read({ receiptBuffer.data() + Header_Size, receiptSize - Header_Size });
 
-				auto& receipt = reinterpret_cast<model::Receipt&>(*receiptBuffer.data());
+				auto& receipt = reinterpret_cast<model::Receipt&>(receiptBuffer[0]);
 				receipt.Size = receiptSize;
 				statement.addReceipt(receipt);
 			}
@@ -56,7 +56,7 @@ namespace catapult { namespace io {
 		template<typename TUnresolvedKey, typename TResolutionStatement>
 		void ReadStatement(InputStream& inputStream, std::map<TUnresolvedKey, TResolutionStatement>& statements) {
 			TUnresolvedKey key;
-			inputStream.read({ ToBytePointer(key), sizeof(key) });
+			inputStream.read({ ToBytePointer(key), sizeof(TUnresolvedKey) });
 
 			TResolutionStatement statement(key);
 			auto numEntries = Read32(inputStream);
@@ -86,7 +86,7 @@ namespace catapult { namespace io {
 
 	namespace {
 		void WriteStatement(OutputStream& outputStream, const model::ReceiptSource& key, const model::TransactionStatement& statement) {
-			outputStream.write({ ToBytePointer(key), sizeof(key) });
+			outputStream.write({ ToBytePointer(key), sizeof(model::ReceiptSource) });
 
 			Write32(outputStream, utils::checked_cast<size_t, uint32_t>(statement.size()));
 			for (auto i = 0u; i < statement.size(); ++i) {
@@ -97,7 +97,7 @@ namespace catapult { namespace io {
 
 		template<typename TUnresolvedKey, typename TResolutionStatement>
 		void WriteStatement(OutputStream& outputStream, const TUnresolvedKey& key, const TResolutionStatement& statement) {
-			outputStream.write({ ToBytePointer(key), sizeof(key) });
+			outputStream.write({ ToBytePointer(key), sizeof(TUnresolvedKey) });
 
 			Write32(outputStream, utils::checked_cast<size_t, uint32_t>(statement.size()));
 			for (auto i = 0u; i < statement.size(); ++i) {

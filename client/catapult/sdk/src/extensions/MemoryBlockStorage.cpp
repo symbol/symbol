@@ -92,11 +92,19 @@ namespace catapult { namespace extensions {
 
 	void MemoryBlockStorage::saveBlock(const model::BlockElement& blockElement) {
 		auto height = blockElement.Block.Height;
-		if (height != m_height + Height(1))
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot save out of order block at height", height);
+		if (height != m_height + Height(1)) {
+			std::ostringstream out;
+			out << "cannot save block with height " << height << " when storage height is " << m_height;
+			CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
+		}
 
 		m_blocks[height] = CopyBlock(blockElement.Block);
+
+		// simulate file storage, which stores elements and statements separately
 		m_blockElements[height] = Copy(*m_blocks[height], blockElement);
+		m_blockStatements[height] = m_blockElements[height]->OptionalStatement;
+		m_blockElements[height]->OptionalStatement.reset();
+
 		m_height = std::max(m_height, height);
 	}
 
@@ -108,14 +116,31 @@ namespace catapult { namespace extensions {
 
 	// region BlockStorage
 
+	namespace {
+		[[noreturn]]
+		void ThrowInvalidHeight(Height height) {
+			std::ostringstream out;
+			out << "block not found at height: " << height;
+			CATAPULT_THROW_FILE_IO_ERROR(out.str().c_str());
+		}
+	}
+
 	std::shared_ptr<const model::Block> MemoryBlockStorage::loadBlock(Height height) const {
 		requireHeight(height, "block");
-		return m_blocks.find(height)->second; // throw if not found
+		auto iter = m_blocks.find(height);
+		if (m_blocks.end() == iter)
+			ThrowInvalidHeight(height);
+
+		return iter->second;
 	}
 
 	std::shared_ptr<const model::BlockElement> MemoryBlockStorage::loadBlockElement(Height height) const {
 		requireHeight(height, "block element");
-		return m_blockElements.find(height)->second; // throw if not found
+		auto iter = m_blockElements.find(height);
+		if (m_blockElements.end() == iter)
+			ThrowInvalidHeight(height);
+
+		return iter->second;
 	}
 
 	namespace {
@@ -138,15 +163,26 @@ namespace catapult { namespace extensions {
 	}
 
 	std::pair<std::vector<uint8_t>, bool> MemoryBlockStorage::loadBlockStatementData(Height height) const {
-		requireHeight(height, "block statment data");
-		const auto& blockElement = *m_blockElements.find(height)->second; // throw if not found
-		if (!blockElement.OptionalStatement)
+		requireHeight(height, "block statement data");
+		auto pBlockStatement = m_blockStatements.find(height)->second; // throw if not found
+		if (!pBlockStatement)
 			return std::make_pair(std::vector<uint8_t>(), false);
 
 		std::vector<uint8_t> serialized;
 		BufferOutputStream stream(serialized);
-		io::WriteBlockStatement(stream, *blockElement.OptionalStatement);
+		io::WriteBlockStatement(stream, *pBlockStatement);
 		return std::make_pair(std::move(serialized), true);
+	}
+
+	// endregion
+
+	// region PrunableBlockStorage
+
+	void MemoryBlockStorage::purge() {
+		m_blocks.clear();
+		m_blockElements.clear();
+		m_blockStatements.clear();
+		m_height = Height(0);
 	}
 
 	// endregion

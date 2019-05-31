@@ -30,8 +30,11 @@ namespace catapult { namespace model { class NotificationPublisher; } }
 
 namespace catapult { namespace consumers {
 
-	/// Creates a consumer that calculates hashes of all entities using \a transactionRegistry.
-	disruptor::TransactionConsumer CreateTransactionHashCalculatorConsumer(const model::TransactionRegistry& transactionRegistry);
+	/// Creates a consumer that calculates hashes of all entities using \a transactionRegistry for the network with the specified
+	/// generation hash (\a generationHash).
+	disruptor::TransactionConsumer CreateTransactionHashCalculatorConsumer(
+			const GenerationHash& generationHash,
+			const model::TransactionRegistry& transactionRegistry);
 
 	/// Creates a consumer that checks entities for previous processing based on their hash.
 	/// \a timeSupplier is used for generating timestamps and \a options specifies additional cache options.
@@ -40,9 +43,6 @@ namespace catapult { namespace consumers {
 			const chain::TimeSupplier& timeSupplier,
 			const HashCheckOptions& options,
 			const chain::KnownHashPredicate& knownHashPredicate);
-
-	/// Creates a consumer that extracts all addresses affected by transactions using \a notificationPublisher.
-	disruptor::TransactionConsumer CreateTransactionAddressExtractionConsumer(const model::NotificationPublisher& notificationPublisher);
 
 	/// Creates a consumer that runs stateless validation using \a pValidator and the specified policy
 	/// (\a pValidationPolicy) and calls \a failedTransactionSink for each failure.

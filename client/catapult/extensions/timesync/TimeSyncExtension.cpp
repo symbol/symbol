@@ -22,12 +22,12 @@
 #include "src/TimeSynchronizationService.h"
 #include "src/TimeSynchronizationState.h"
 #include "src/constants.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace timesync {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			auto& extensionManager = bootstrapper.extensionManager();
 
 			// register network time provider
@@ -44,6 +44,6 @@ namespace catapult { namespace timesync {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::timesync::RegisterExtension(bootstrapper);
 }

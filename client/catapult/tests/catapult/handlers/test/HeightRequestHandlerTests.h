@@ -35,7 +35,9 @@ namespace catapult { namespace test {
 
 		/// Creates storage for a chain with \a numBlocks variable sized blocks.
 		static std::unique_ptr<io::BlockStorageCache> CreateStorage(size_t numBlocks) {
-			auto pStorage = std::make_unique<io::BlockStorageCache>(std::make_unique<mocks::MockMemoryBlockStorage>());
+			auto pStorage = std::make_unique<io::BlockStorageCache>(
+					std::make_unique<mocks::MockMemoryBlockStorage>(),
+					std::make_unique<mocks::MockMemoryBlockStorage>());
 
 			// storage already contains nemesis block (height 1)
 			auto storageModifier = pStorage->modifier();
@@ -47,9 +49,10 @@ namespace catapult { namespace test {
 				pBlock->Height = Height(i);
 				pBlock->Difficulty = Difficulty::Min() + Difficulty::Unclamped(1000 + i);
 				pBlock->TransactionsPtr()->Size = size - sizeof(model::BlockHeader);
-				storageModifier.saveBlock(test::BlockToBlockElement(*pBlock, test::GenerateRandomData<Hash256_Size>()));
+				storageModifier.saveBlock(test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>()));
 			}
 
+			storageModifier.commit();
 			return pStorage;
 		}
 	};
@@ -101,13 +104,13 @@ namespace catapult { namespace test {
 			test::AssertNoResponse(context);
 		}
 
-		static void AssertWritesEmptyResponseIfRequestHeightIsLargerThanLocalHeight() {
+		static void AssertWritesEmptyResponseWhenRequestHeightIsLargerThanLocalHeight() {
 			// Assert:
 			AssertWritesEmptyResponse(12, Height(13));
 			AssertWritesEmptyResponse(12, Height(100));
 		}
 
-		static void AssertWritesEmptyResponseIfRequestHeightIsZero() {
+		static void AssertWritesEmptyResponseWhenRequestHeightIsZero() {
 			// Assert:
 			AssertWritesEmptyResponse(12, Height(0));
 		}
@@ -118,9 +121,9 @@ namespace catapult { namespace test {
 
 #define DEFINE_HEIGHT_REQUEST_HANDLER_ALLOW_ZERO_HEIGHT_TESTS(TEST_CLASS, HANDLER_NAME) \
 	MAKE_HEIGHT_REQUEST_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, DoesNotRespondToMalformedRequest) \
-	MAKE_HEIGHT_REQUEST_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, WritesEmptyResponseIfRequestHeightIsLargerThanLocalHeight) \
+	MAKE_HEIGHT_REQUEST_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, WritesEmptyResponseWhenRequestHeightIsLargerThanLocalHeight) \
 
 #define DEFINE_HEIGHT_REQUEST_HANDLER_TESTS(TEST_CLASS, HANDLER_NAME) \
 	DEFINE_HEIGHT_REQUEST_HANDLER_ALLOW_ZERO_HEIGHT_TESTS(TEST_CLASS, HANDLER_NAME) \
-	MAKE_HEIGHT_REQUEST_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, WritesEmptyResponseIfRequestHeightIsZero)
+	MAKE_HEIGHT_REQUEST_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, WritesEmptyResponseWhenRequestHeightIsZero)
 }}

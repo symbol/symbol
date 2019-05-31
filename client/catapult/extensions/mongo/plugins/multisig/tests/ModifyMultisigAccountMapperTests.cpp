@@ -74,7 +74,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				int8_t minApprovalDelta,
 				std::initializer_list<model::CosignatoryModification> modifications) {
 			// Arrange:
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto pBuilder = CreateModifyMultisigAccountTransactionBuilder(signer, minRemovalDelta, minApprovalDelta, modifications);
 			auto pTransaction = TTraits::Adapt(pBuilder);
 			auto pPlugin = TTraits::CreatePlugin();
@@ -90,7 +90,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		}
 	}
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, model::Entity_Type_Modify_Multisig_Account)
+	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Modify_Multisig_Account)
 
 	// region streamTransaction
 
@@ -101,15 +101,15 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithSingleModification) {
 		// Assert:
-		AssertCanMapModifyMultisigAccountTransaction<TTraits>(3, 5, { { ModificationType::Add, test::GenerateRandomData<Key_Size>() } });
+		AssertCanMapModifyMultisigAccountTransaction<TTraits>(3, 5, { { ModificationType::Add, test::GenerateRandomByteArray<Key>() } });
 	}
 
 	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithMultipleModification) {
 		// Assert:
 		AssertCanMapModifyMultisigAccountTransaction<TTraits>(3, 5, {
-			{ ModificationType::Add, test::GenerateRandomData<Key_Size>() },
-			{ ModificationType::Del, test::GenerateRandomData<Key_Size>() },
-			{ ModificationType::Add, test::GenerateRandomData<Key_Size>() },
+			{ ModificationType::Add, test::GenerateRandomByteArray<Key>() },
+			{ ModificationType::Del, test::GenerateRandomByteArray<Key>() },
+			{ ModificationType::Add, test::GenerateRandomByteArray<Key>() },
 		});
 	}
 

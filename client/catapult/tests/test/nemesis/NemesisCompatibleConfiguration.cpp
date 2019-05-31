@@ -26,7 +26,7 @@ namespace catapult { namespace test {
 
 	namespace {
 		model::BlockChainConfiguration CreateBlockChainConfiguration() {
-			auto config = CreateLocalNodeBlockChainConfiguration();
+			auto config = CreatePrototypicalBlockChainConfiguration();
 			AddNemesisPluginExtensions(config);
 			return config;
 		}
@@ -36,12 +36,8 @@ namespace catapult { namespace test {
 		config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
 		config.Plugins.emplace("catapult.plugins.mosaic", utils::ConfigurationBag({ { "", {
 			{ "maxMosaicsPerAccount", "123" },
-
 			{ "maxMosaicDuration", "456d" },
-
-			{ "isMosaicLevyUpdateAllowed", "true" },
 			{ "maxMosaicDivisibility", "6" },
-			{ "maxMosaicDivisibleUnits", "9'000'000'000'000'000" },
 
 			{ "mosaicRentalFeeSinkPublicKey", Mosaic_Rental_Fee_Sink_Public_Key },
 			{ "mosaicRentalFee", "500" }
@@ -62,39 +58,34 @@ namespace catapult { namespace test {
 	}
 
 	namespace {
-		void AddPluginExtensions(config::NodeConfiguration& config, const std::unordered_set<std::string>& extensionNames) {
+		void AddPluginExtensions(config::ExtensionsConfiguration& config, const std::unordered_set<std::string>& extensionNames) {
 			for (const auto& extensionName : extensionNames)
-				config.Extensions.emplace_back("extension." + extensionName);
+				config.Names.emplace_back("extension." + extensionName);
 		}
 
-		void AddCommonPluginExtensions(config::NodeConfiguration& config) {
-			AddPluginExtensions(config, { "diagnostics", "filechain", "networkheight", "packetserver", "sync", "transactionsink" });
+		void AddCommonPluginExtensions(config::ExtensionsConfiguration& config) {
+			AddPluginExtensions(config, { "diagnostics", "networkheight", "packetserver", "sync", "transactionsink" });
 		}
 	}
 
-	void AddApiPluginExtensions(config::NodeConfiguration& config) {
+	void AddApiPluginExtensions(config::ExtensionsConfiguration& config) {
 		AddCommonPluginExtensions(config);
 	}
 
-	void AddPeerPluginExtensions(config::NodeConfiguration& config) {
+	void AddPeerPluginExtensions(config::ExtensionsConfiguration& config) {
 		AddCommonPluginExtensions(config);
 		AddPluginExtensions(config, { "eventsource", "harvesting", "syncsource" });
 	}
 
-	void AddSimplePartnerPluginExtensions(config::NodeConfiguration& config) {
-		AddPluginExtensions(config, { "filechain", "packetserver", "sync", "syncsource" });
+	void AddSimplePartnerPluginExtensions(config::ExtensionsConfiguration& config) {
+		AddPluginExtensions(config, { "packetserver", "sync", "syncsource" });
 	}
 
-	void EnableReceiptsVerification(config::LocalNodeConfiguration& config) {
-		const_cast<model::BlockChainConfiguration&>(config.BlockChain).ShouldEnableVerifiableReceipts = true;
+	void AddRecoveryPluginExtensions(config::ExtensionsConfiguration& config) {
+		AddPluginExtensions(config, {});
 	}
 
-	void EnableStateVerification(config::LocalNodeConfiguration& config) {
-		const_cast<config::NodeConfiguration&>(config.Node).ShouldUseCacheDatabaseStorage = true;
-		const_cast<model::BlockChainConfiguration&>(config.BlockChain).ShouldEnableVerifiableState = true;
-	}
-
-	config::LocalNodeConfiguration CreateLocalNodeConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory) {
-		return CreateLocalNodeConfiguration(CreateBlockChainConfiguration(), dataDirectory);
+	config::CatapultConfiguration CreateCatapultConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory) {
+		return CreatePrototypicalCatapultConfiguration(CreateBlockChainConfiguration(), dataDirectory);
 	}
 }}

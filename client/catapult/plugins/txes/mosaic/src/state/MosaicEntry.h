@@ -21,8 +21,6 @@
 #pragma once
 #include "MosaicDefinition.h"
 
-namespace catapult { namespace state { class MosaicLevy; } }
-
 namespace catapult { namespace state {
 
 	// region MosaicEntrySupplyMixin
@@ -46,32 +44,10 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region MosaicEntryLevyMixin
-
-	/// Mixin for storing and modifying a levy in MosaicEntry.
-	class MosaicEntryLevyMixin {
-	public:
-		/// Returns \c true if the mosaic has a levy.
-		bool hasLevy() const;
-
-		/// Gets the mosaic levy.
-		const MosaicLevy& levy() const;
-
-	public:
-		/// Sets the mosaic levy to \a pLevy.
-		void setLevy(std::shared_ptr<MosaicLevy>&& pLevy);
-
-	private:
-		std::shared_ptr<MosaicLevy> m_pLevy;
-	};
-
-	// endregion
-
 	// region MosaicEntry
 
 	/// A tuple composed of a mosaic definition and its current state.
-	/// \note The mosaic entry has no mosaic levy by default.
-	class MosaicEntry : public MosaicEntrySupplyMixin, public MosaicEntryLevyMixin {
+	class MosaicEntry : public MosaicEntrySupplyMixin {
 	public:
 		/// Creates a mosaic entry around mosaic \a id and mosaic \a definition.
 		MosaicEntry(MosaicId id, const MosaicDefinition& definition);

@@ -62,10 +62,13 @@ namespace catapult { namespace mongo {
 		// Arrange:
 		RunTestWithDatabase([](auto& database) {
 			// Act:
-			SetChainInfoDocument(database, CreateUpdateDocument(12).view());
+			auto result = TrySetChainInfoDocument(database, CreateUpdateDocument(12).view());
 			auto doc = GetChainInfoDocument(database);
 
 			// Assert:
+			EXPECT_EQ(1, result.NumUpserted);
+			EXPECT_EQ(0, result.NumModified);
+
 			EXPECT_FALSE(mappers::IsEmptyDocument(doc));
 			EXPECT_EQ(12u, test::GetUint64(doc.view(), "value"));
 		});
@@ -74,15 +77,36 @@ namespace catapult { namespace mongo {
 	TEST(TEST_CLASS, CanUpdateChainInfoDocument) {
 		// Arrange:
 		RunTestWithDatabase([](auto& database) {
-			SetChainInfoDocument(database, CreateUpdateDocument(12).view());
+			TrySetChainInfoDocument(database, CreateUpdateDocument(12).view());
 
 			// Act:
-			SetChainInfoDocument(database, CreateUpdateDocument(15).view());
+			auto result = TrySetChainInfoDocument(database, CreateUpdateDocument(15).view());
 			auto doc = GetChainInfoDocument(database);
 
 			// Assert:
+			EXPECT_EQ(0, result.NumUpserted);
+			EXPECT_EQ(1, result.NumModified);
+
 			EXPECT_FALSE(mappers::IsEmptyDocument(doc));
 			EXPECT_EQ(15u, test::GetUint64(doc.view(), "value"));
+		});
+	}
+
+	TEST(TEST_CLASS, CanUpdateChainInfoDocumentToSameValue) {
+		// Arrange:
+		RunTestWithDatabase([](auto& database) {
+			TrySetChainInfoDocument(database, CreateUpdateDocument(12).view());
+
+			// Act:
+			auto result = TrySetChainInfoDocument(database, CreateUpdateDocument(12).view());
+			auto doc = GetChainInfoDocument(database);
+
+			// Assert:
+			EXPECT_EQ(0, result.NumUpserted);
+			EXPECT_EQ(0, result.NumModified);
+
+			EXPECT_FALSE(mappers::IsEmptyDocument(doc));
+			EXPECT_EQ(12u, test::GetUint64(doc.view(), "value"));
 		});
 	}
 }}

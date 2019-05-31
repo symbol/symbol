@@ -124,7 +124,7 @@ namespace catapult { namespace sync {
 		}
 	}
 
-	TEST(TEST_CLASS, PruneDoesNothingIfAllEntriesAreAboveThreshold) {
+	TEST(TEST_CLASS, PruneDoesNothingWhenAllEntriesAreAboveThreshold) {
 		// Arrange:
 		auto stats = CreateStatsWithEntries();
 

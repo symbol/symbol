@@ -61,7 +61,7 @@ namespace catapult { namespace tree {
 			if (Hash256() == rootHash)
 				m_tree.clear();
 			else if (!m_tree.tryLoad(rootHash))
-				CATAPULT_THROW_RUNTIME_ERROR_1("unable to load root hash", utils::HexFormat(rootHash));
+				CATAPULT_THROW_RUNTIME_ERROR_1("unable to load root hash", rootHash);
 
 			m_baseRootHash = rootHash;
 		}

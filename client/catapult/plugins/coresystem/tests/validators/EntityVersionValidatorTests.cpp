@@ -34,7 +34,7 @@ namespace catapult { namespace validators {
 
 		void AssertValidationResult(ValidationResult expectedResult, uint8_t version) {
 			// Arrange:
-			model::EntityNotification notification(model::NetworkIdentifier::Zero, Min_Entity_Version, Max_Entity_Version, version);
+			model::EntityNotification notification(model::NetworkIdentifier::Zero, version, Min_Entity_Version, Max_Entity_Version);
 			auto pValidator = CreateEntityVersionValidator();
 
 			// Act:

@@ -28,42 +28,31 @@ using namespace bsoncxx::builder::stream;
 namespace catapult { namespace mongo {
 
 	namespace {
-		void SetScore(mongocxx::database& database, const model::ChainScore& score) {
-			auto scoreArray = score.toArray();
-			auto scoreValue = document()
-					<< "$set"
-					<< open_document
-						<< "scoreHigh" << static_cast<int64_t>(scoreArray[0])
-						<< "scoreLow" << static_cast<int64_t>(scoreArray[1])
-					<< close_document
-					<< finalize;
-
-			SetChainInfoDocument(database, scoreValue.view());
-		}
-
 		class MongoChainScoreProvider final : public ChainScoreProvider {
 		public:
 			explicit MongoChainScoreProvider(MongoStorageContext& context)
 					: m_database(context.createDatabaseConnection())
+					, m_errorPolicy(context.createCollectionErrorPolicy("chainInfo"))
 			{}
 
 		public:
 			void saveScore(const model::ChainScore& chainScore) override {
-				SetScore(m_database, chainScore);
-			}
+				auto scoreArray = chainScore.toArray();
+				auto scoreValue = document()
+						<< "$set"
+						<< open_document
+							<< "scoreHigh" << static_cast<int64_t>(scoreArray[0])
+							<< "scoreLow" << static_cast<int64_t>(scoreArray[1])
+						<< close_document
+						<< finalize;
 
-			model::ChainScore loadScore() const override {
-				auto chainInfoDocument = GetChainInfoDocument(m_database);
-				if (mappers::IsEmptyDocument(chainInfoDocument))
-					return model::ChainScore();
-
-				auto scoreLow = mappers::GetUint64OrDefault(chainInfoDocument.view(), "scoreLow", 0);
-				auto scoreHigh = mappers::GetUint64OrDefault(chainInfoDocument.view(), "scoreHigh", 0);
-				return model::ChainScore(scoreHigh, scoreLow);
+				auto result = TrySetChainInfoDocument(m_database, scoreValue.view());
+				m_errorPolicy.checkUpserted(1, result, "chain score");
 			}
 
 		private:
 			MongoDatabase m_database;
+			MongoErrorPolicy m_errorPolicy;
 		};
 	}
 

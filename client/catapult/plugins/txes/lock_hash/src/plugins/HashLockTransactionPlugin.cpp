@@ -38,5 +38,5 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(HashLock, Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(HashLock, Default, Publish)
 }}

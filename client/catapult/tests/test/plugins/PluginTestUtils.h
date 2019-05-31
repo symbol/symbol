@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/plugins/PluginManager.h"
 #include "tests/TestHarness.h"
 

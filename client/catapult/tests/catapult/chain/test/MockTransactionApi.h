@@ -36,7 +36,7 @@ namespace catapult { namespace mocks {
 	public:
 		/// Creates a transaction api around a range of \a transactions.
 		explicit MockTransactionApi(const model::TransactionRange& transactions)
-				: api::RemoteTransactionApi(test::GenerateRandomData<Key_Size>())
+				: api::RemoteTransactionApi(test::GenerateRandomByteArray<Key>())
 				, m_transactions(model::TransactionRange::CopyRange(transactions))
 				, m_errorEntryPoint(EntryPoint::None)
 		{}

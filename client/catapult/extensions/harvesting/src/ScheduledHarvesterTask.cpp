@@ -32,7 +32,7 @@ namespace catapult { namespace harvesting {
 		if (!pBlock)
 			return;
 
-		CATAPULT_LOG(info) << "successfully harvested block at " << pBlock->Height << " with signer " << utils::HexFormat(pBlock->Signer);
+		CATAPULT_LOG(info) << "successfully harvested block at " << pBlock->Height << " with signer " << pBlock->Signer;
 		m_isAnyHarvestedBlockPending = true;
 		m_rangeConsumer(model::BlockRange::FromEntity(std::move(pBlock)), [&isBlockPending = m_isAnyHarvestedBlockPending](auto, auto) {
 			isBlockPending = false;

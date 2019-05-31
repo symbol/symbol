@@ -58,4 +58,11 @@ namespace catapult { namespace io {
 		/// Returns the optional block statement data at \a height.
 		virtual std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const = 0;
 	};
+
+	/// Interface that allows saving, loading and pruning blocks.
+	class PrunableBlockStorage : public BlockStorage {
+	public:
+		/// Purges all blocks from storage.
+		virtual void purge() = 0;
+	};
 }}

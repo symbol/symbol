@@ -42,7 +42,7 @@ namespace catapult { namespace ionet {
 
 		class ReaderFactory {
 		public:
-			ReaderFactory() : ReaderFactory(test::GenerateRandomData<Key_Size>(), std::string())
+			ReaderFactory() : ReaderFactory(test::GenerateRandomByteArray<Key>(), std::string())
 			{}
 
 			explicit ReaderFactory(const Key& clientPublicKey, const std::string& clientHost)
@@ -509,7 +509,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, AppropriateHandlerContextIsForwardedToHandlers) {
 		// Arrange:
-		auto clientPublicKey = test::GenerateRandomData<Key_Size>();
+		auto clientPublicKey = test::GenerateRandomByteArray<Key>();
 		auto clientHost = std::string("alice.com");
 		ReaderIdentity contextClientIdentity;
 

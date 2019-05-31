@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 	}
 
 	template<typename TLockPolicy, typename ...Args>
-	void AssertLockTypeTryLockFailsIfLockIsLocked(Args&& ...args) {
+	void AssertLockTypeTryLockFailsWhenLockIsLocked(Args&& ...args) {
 		// Arrange:
 		typename TLockPolicy::LockType lock{ std::forward<Args>(args)... };
 		ASSERT_TRUE(lock.try_lock());
@@ -80,7 +80,7 @@ namespace catapult { namespace test {
 
 #define DEFINE_BASIC_LOCK_TESTS(TEST_CLASS, ...) \
 	MAKE_BASIC_LOCK_TEST(TEST_CLASS, LockIsInitiallyUnlocked, __VA_ARGS__) \
-	MAKE_BASIC_LOCK_TEST(TEST_CLASS, TryLockFailsIfLockIsLocked, __VA_ARGS__) \
+	MAKE_BASIC_LOCK_TEST(TEST_CLASS, TryLockFailsWhenLockIsLocked, __VA_ARGS__) \
 	MAKE_BASIC_LOCK_TEST(TEST_CLASS, LockCanBeUnlocked, __VA_ARGS__) \
 	MAKE_BASIC_LOCK_TEST(TEST_CLASS, LockGuaranteesExclusiveAccess, __VA_ARGS__) \
 	MAKE_BASIC_LOCK_TEST(TEST_CLASS, LockGuaranteesExclusiveAccessAfterLockUnlockCycles, __VA_ARGS__)

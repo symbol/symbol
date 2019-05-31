@@ -42,13 +42,13 @@ namespace catapult { namespace cache {
 		CatapultCacheDelta& operator=(CatapultCacheDelta&&);
 
 	public:
-		/// Gets a specific subcache delta view.
+		/// Gets a specific sub cache delta view.
 		template<typename TCache>
 		const typename TCache::CacheDeltaType& sub() const {
 			return *static_cast<const typename TCache::CacheDeltaType*>(m_subViews[TCache::Id]->get());
 		}
 
-		/// Gets a specific subcache delta view.
+		/// Gets a specific sub cache delta view.
 		template<typename TCache>
 		typename TCache::CacheDeltaType& sub() {
 			return *static_cast<typename TCache::CacheDeltaType*>(m_subViews[TCache::Id]->get());
@@ -58,7 +58,7 @@ namespace catapult { namespace cache {
 		/// Calculates the cache state hash given \a height.
 		StateHashInfo calculateStateHash(Height height) const;
 
-		/// Sets the merkle roots for all subcaches (\a subCacheMerkleRoots).
+		/// Sets the merkle roots for all sub caches (\a subCacheMerkleRoots).
 		void setSubCacheMerkleRoots(const std::vector<Hash256>& subCacheMerkleRoots);
 
 	public:

@@ -86,7 +86,7 @@ namespace catapult { namespace test {
 			auto blockStatementPair = storage.loadBlockStatementData(height);
 
 			// - deserialize block statement
-			mocks::MockMemoryStream stream("", blockStatementPair.first);
+			mocks::MockMemoryStream stream(blockStatementPair.first);
 			auto pBlockStatement = std::make_shared<model::BlockStatement>();
 			io::ReadBlockStatement(stream, *pBlockStatement);
 			const_cast<model::BlockElement&>(*pBlockElement).OptionalStatement = std::move(pBlockStatement);
@@ -160,7 +160,7 @@ namespace catapult { namespace test {
 			auto pStorage = PrepareStorageWithBlocks(10);
 
 			// - save the initial block
-			auto pNewBlock = GenerateBlockWithTransactionsAtHeight(Height(11));
+			auto pNewBlock = GenerateBlockWithTransactions(5, Height(11));
 			pStorage->saveBlock(BlockToBlockElementWithStatements(*pNewBlock));
 
 			// Sanity:
@@ -178,7 +178,7 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithBlocks(10);
 
-			auto pBlock = GenerateBlockWithTransactionsAtHeight(Height(11));
+			auto pBlock = GenerateBlockWithTransactions(5, Height(11));
 			auto expectedBlockElement = CreateBlockElementForSaveTests(*pBlock);
 
 			// Act: save and load a block
@@ -194,7 +194,7 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithBlocks(10);
 
-			auto pBlock = GenerateBlockWithTransactionsAtHeight(Height(11));
+			auto pBlock = GenerateBlockWithTransactions(5, Height(11));
 			auto expectedBlockElement = CreateBlockElementForSaveTests(*pBlock);
 			pStorage->saveBlock(expectedBlockElement);
 
@@ -212,7 +212,7 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithBlocks(10);
 
-			auto pBlock = GenerateBlockWithTransactionsAtHeight(Height(11));
+			auto pBlock = GenerateBlockWithTransactions(5, Height(11));
 			pStorage->saveBlock(CreateBlockElementForSaveTests(*pBlock));
 
 			auto expectedBlockElement = CreateBlockElementForSaveTests(*pBlock);
@@ -327,7 +327,7 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithBlocks(10);
 
-			auto pBlock = GenerateBlockWithTransactionsAtHeight(Height(11));
+			auto pBlock = GenerateBlockWithTransactions(5, Height(11));
 			auto expectedBlockElement = CreateBlockElementForSaveTests(*pBlock);
 			expectedBlockElement.OptionalStatement = GenerateRandomStatements(numStatements);
 
@@ -373,7 +373,7 @@ namespace catapult { namespace test {
 			auto pStorage = PrepareStorageWithBlocks(numSeedBlocks);
 
 			// Act + Assert:
-			auto pNewBlock = GenerateBlockWithTransactionsAtHeight(newBlockHeight);
+			auto pNewBlock = GenerateBlockWithTransactions(5, newBlockHeight);
 			EXPECT_THROW(pStorage->saveBlock(BlockToBlockElementWithStatements(*pNewBlock)), catapult_invalid_argument);
 		}
 
@@ -417,6 +417,41 @@ namespace catapult { namespace test {
 			EXPECT_THROW(pStorage->loadBlockElement(Height(10)), catapult_invalid_argument);
 		}
 
+		static void AssertCanDropBlocksAfterHeightAndSaveBlock() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithBlocks(10);
+
+			// Sanity:
+			EXPECT_EQ(Height(10), pStorage->chainHeight());
+
+			// Act:
+			pStorage->dropBlocksAfter(Height(8));
+
+			// - save the next block
+			auto pNewBlock = GenerateBlockWithTransactions(5, Height(9));
+			pStorage->saveBlock(CreateBlockElementForSaveTests(*pNewBlock));
+
+			// Assert:
+			EXPECT_EQ(Height(9), pStorage->chainHeight());
+			EXPECT_TRUE(!!pStorage->loadBlockElement(Height(9)));
+			EXPECT_THROW(pStorage->loadBlockElement(Height(10)), catapult_invalid_argument);
+		}
+
+		static void AssertCanDropAllBlocks() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithBlocks(10);
+
+			// Sanity:
+			EXPECT_EQ(Height(10), pStorage->chainHeight());
+
+			// Act:
+			pStorage->dropBlocksAfter(Height(0));
+
+			// Assert:
+			EXPECT_EQ(Height(0), pStorage->chainHeight());
+			EXPECT_THROW(pStorage->loadBlockElement(Height(1)), catapult_invalid_argument);
+		}
+
 		// endregion
 
 		// region loadBlockElement - nemesis
@@ -429,8 +464,7 @@ namespace catapult { namespace test {
 			constexpr auto Source_Directory = "../seed/mijin-test";
 #endif
 
-			auto nemesisBlockElement = BlockToBlockElement(GetNemesisBlock());
-			nemesisBlockElement.GenerationHash = GetNemesisGenerationHash();
+			auto nemesisBlockElement = BlockToBlockElement(GetNemesisBlock(), GetNemesisGenerationHash());
 
 			// Act:
 			const auto pStorage = TTraits::OpenStorage(Source_Directory);
@@ -451,10 +485,10 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithBlocks(10);
 
-			auto pBlock = GenerateBlockWithTransactionsAtHeight(Height(11));
-			auto blockElement = BlockToBlockElementWithStatements(*pBlock, GenerateRandomData<Hash256_Size>());
+			auto pBlock = GenerateBlockWithTransactions(5, Height(11));
+			auto blockElement = BlockToBlockElementWithStatements(*pBlock, GenerateRandomByteArray<Hash256>());
 			pStorage->saveBlock(blockElement);
-			auto pNextBlock = GenerateBlockWithTransactionsAtHeight(Height(12));
+			auto pNextBlock = GenerateBlockWithTransactions(5, Height(12));
 			auto nextBlockElement = BlockToBlockElementWithStatements(*pNextBlock);
 			pStorage->saveBlock(nextBlockElement);
 
@@ -471,8 +505,8 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithBlocks(10);
 
-			auto pBlock = GenerateBlockWithTransactionsAtHeight(Height(11));
-			auto blockElement = BlockToBlockElementWithStatements(*pBlock, GenerateRandomData<Hash256_Size>());
+			auto pBlock = GenerateBlockWithTransactions(5, Height(11));
+			auto blockElement = BlockToBlockElementWithStatements(*pBlock, GenerateRandomByteArray<Hash256>());
 			pStorage->saveBlock(blockElement);
 
 			// Act:
@@ -497,10 +531,10 @@ namespace catapult { namespace test {
 			// Arrange:
 			auto pStorage = PrepareStorageWithBlocks(5);
 
-			auto pBlock1 = GenerateBlockWithTransactionsAtHeight(Height(6));
-			auto pBlock2 = GenerateBlockWithTransactionsAtHeight(Height(7));
-			auto blockElement1 = BlockToBlockElementWithStatements(*pBlock1, GenerateRandomData<Hash256_Size>());
-			auto blockElement2 = BlockToBlockElementWithStatements(*pBlock2, GenerateRandomData<Hash256_Size>());
+			auto pBlock1 = GenerateBlockWithTransactions(5, Height(6));
+			auto pBlock2 = GenerateBlockWithTransactions(5, Height(7));
+			auto blockElement1 = BlockToBlockElementWithStatements(*pBlock1, GenerateRandomByteArray<Hash256>());
+			auto blockElement2 = BlockToBlockElementWithStatements(*pBlock2, GenerateRandomByteArray<Hash256>());
 			pStorage->saveBlock(blockElement1);
 			pStorage->saveBlock(blockElement2);
 
@@ -512,6 +546,35 @@ namespace catapult { namespace test {
 			EXPECT_EQ(Height(7), pStorage->chainHeight());
 			TLoadTraits::Assert(blockElement1, result1);
 			TLoadTraits::Assert(blockElement2, result2);
+		}
+
+		// endregion
+
+		// region purge
+
+		static void AssertPurgeDestroysStorage() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithBlocks(5);
+
+			// Act:
+			pStorage->purge();
+
+			// Assert:
+			EXPECT_EQ(Height(0), pStorage->chainHeight());
+			EXPECT_THROW(pStorage->loadBlock(Height(1)), catapult_invalid_argument);
+			EXPECT_THROW(pStorage->loadBlockElement(Height(1)), catapult_invalid_argument);
+		}
+
+		static void AssertCanSetHeightAfterPurge() {
+			// Arrange:
+			auto pStorage = PrepareStorageWithBlocks(5);
+
+			// Act:
+			pStorage->purge();
+			pStorage->dropBlocksAfter(Height(7));
+
+			// Assert:
+			EXPECT_EQ(Height(7), pStorage->chainHeight());
 		}
 
 		// endregion
@@ -558,6 +621,8 @@ namespace catapult { namespace test {
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CannotSaveBlockMoreThanOneHeightBeyondChainHeight) \
 	\
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanDropBlocksAfterHeight) \
+	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanDropBlocksAfterHeightAndSaveBlock) \
+	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanDropAllBlocks) \
 	\
 	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, StorageSeedInitiallyContainsNemesisBlock) \
 	\
@@ -565,6 +630,10 @@ namespace catapult { namespace test {
 	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CanLoadAtChainHeight) \
 	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CannotLoadAtHeightGreaterThanChainHeight) \
 	DEFINE_BLOCK_STORAGE_LOAD_TESTS(TRAITS_NAME, CanLoadMultipleSaved)
+
+#define DEFINE_PRUNABLE_BLOCK_STORAGE_TESTS(TRAITS_NAME) \
+	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, PurgeDestroysStorage) \
+	MAKE_BLOCK_STORAGE_TEST(TRAITS_NAME, CanSetHeightAfterPurge)
 
 // endregion
 }}

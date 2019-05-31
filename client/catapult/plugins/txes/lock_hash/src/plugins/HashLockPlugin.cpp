@@ -48,18 +48,18 @@ namespace catapult { namespace plugins {
 
 		auto config = model::LoadPluginConfiguration<config::HashLockConfiguration>(manager.config(), "catapult.plugins.lockhash");
 		auto blockGenerationTargetTime = manager.config().BlockGenerationTargetTime;
-		auto currencyMosaicId = model::GetUnresolvedCurrencyMosaicId(manager.config());
-		manager.addStatelessValidatorHook([config, blockGenerationTargetTime, currencyMosaicId](auto& builder) {
+		auto currencyMosaicId = manager.config().CurrencyMosaicId;
+		manager.addStatelessValidatorHook([config, blockGenerationTargetTime](auto& builder) {
 			// hash lock validators
 			auto maxHashLockDuration = config.MaxHashLockDuration.blocks(blockGenerationTargetTime);
 			builder.add(validators::CreateHashLockDurationValidator(maxHashLockDuration));
-			builder.add(validators::CreateHashLockMosaicValidator(currencyMosaicId, config.LockedFundsPerAggregate));
 		});
 
-		manager.addStatefulValidatorHook([](auto& builder) {
+		manager.addStatefulValidatorHook([config, currencyMosaicId](auto& builder) {
 			builder
 				.add(validators::CreateAggregateHashPresentValidator())
-				.add(validators::CreateHashLockCacheUniqueValidator());
+				.add(validators::CreateHashLockCacheUniqueValidator())
+				.add(validators::CreateHashLockMosaicValidator(currencyMosaicId, config.LockedFundsPerAggregate));
 		});
 
 		auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);

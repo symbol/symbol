@@ -19,25 +19,21 @@
 **/
 
 #pragma once
-#include <array>
+#include "ByteArray.h"
 #include <cstring>
 #include <tuple>
 
 namespace catapult { namespace utils {
 
-	/// Hasher object for an std::array with a variable offset.
+	/// Hasher object for a ByteArray with a variable offset.
 	/// \note Offset defaults to 4 because because some arrays (e.g. Address) don't have a lot of entropy at the beginning.
 	/// \note Hash is composed of only sizeof(size_t) bytes starting at offset.
 	template<typename TArray, size_t Offset = 4>
 	struct ArrayHasher {
-	private:
-		static constexpr auto N = std::tuple_size_v<TArray>;
-
-	public:
 		/// Hashes \a arrayData.
-		size_t operator()(const std::array<uint8_t, N>& arrayData) const {
+		size_t operator()(const TArray& array) const {
 			size_t hash;
-			std::memcpy(static_cast<void*>(&hash), &arrayData[Offset], sizeof(size_t));
+			std::memcpy(static_cast<void*>(&hash), &array[Offset], sizeof(size_t));
 			return hash;
 		}
 	};

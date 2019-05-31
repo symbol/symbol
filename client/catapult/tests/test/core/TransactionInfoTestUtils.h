@@ -49,6 +49,9 @@ namespace catapult { namespace test {
 	std::vector<model::TransactionInfo> CreateTransactionInfosFromSizeMultiplierPairs(
 			const std::vector<std::pair<uint32_t, uint32_t>>& sizeMultiplierPairs);
 
+	/// Creates \a count transaction infos with optional extracted addresses.
+	std::vector<model::TransactionInfo> CreateTransactionInfosWithOptionalAddresses(size_t count);
+
 	// endregion
 
 	// region copy
@@ -94,6 +97,9 @@ namespace catapult { namespace test {
 			const std::vector<model::TransactionInfo>& lhs,
 			const std::vector<model::TransactionInfo>& rhs,
 			const std::string& message = "");
+
+	/// Asserts that \a lhs is equal to \a rhs in any order with \a message.
+	void AssertEquivalent(const model::TransactionInfosSet& lhs, const model::TransactionInfosSet& rhs, const std::string& message = "");
 
 	// endregion
 }}

@@ -55,25 +55,6 @@ namespace catapult { namespace mongo { namespace plugins {
 			static auto MapToMongoModels(const state::RootNamespaceHistory& history, model::NetworkIdentifier networkIdentifier) {
 				return NamespaceDescriptorsFromHistory(history, networkIdentifier);
 			}
-
-			static auto LoadSortOrder() {
-				return document() << "namespace.level0" << 1 << "meta.index" << 1 << "namespace.depth" << 1 << finalize;
-			}
-
-			static void Insert(CacheDeltaType& cache, const bsoncxx::document::view& document) {
-				auto descriptor = ToNamespaceDescriptor(document);
-
-				auto ns = state::Namespace(descriptor.Path);
-				if (descriptor.IsRoot()) {
-					cache.insert(*descriptor.pRoot);
-				} else {
-					// it might be an inherited child
-					if (!cache.contains(ns.id()))
-						cache.insert(ns);
-				}
-
-				cache.setAlias(ns.id(), descriptor.Alias);
-			}
 		};
 	}
 

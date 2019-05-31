@@ -112,7 +112,7 @@ namespace catapult { namespace test {
 	template<typename TTraits>
 	class BaseSetIterationTests {
 	public:
-		static void AssertFindIteratorReturnsIteratorToElementIfElementExists() {
+		static void AssertFindIteratorReturnsIteratorToElementWhenElementExists() {
 			// Arrange:
 			auto pSet = TTraits::CreateWithElements(3);
 			auto iterableSet = MakeIterableView(*pSet);
@@ -125,7 +125,7 @@ namespace catapult { namespace test {
 			EXPECT_EQ(*TTraits::ToPointer(element), *TTraits::ToPointerFromStorage(*iter));
 		}
 
-		static void AssertFindIteratorReturnsCendIfElementDoesNotExist() {
+		static void AssertFindIteratorReturnsCendWhenElementDoesNotExist() {
 			// Arrange:
 			auto pSet = TTraits::CreateWithElements(3);
 			auto iterableSet = MakeIterableView(*pSet);
@@ -145,8 +145,8 @@ namespace catapult { namespace test {
 #define DEFINE_BASE_SET_ITERATION_TESTS(TEST_CLASS, TRAITS) \
 	DEFINE_COMMON_BASE_SET_ITERATION_TESTS(TEST_CLASS, TRAITS) \
 	\
-	MAKE_BASE_SET_ITERATION_TEST(TEST_CLASS, TRAITS, FindIteratorReturnsIteratorToElementIfElementExists) \
-	MAKE_BASE_SET_ITERATION_TEST(TEST_CLASS, TRAITS, FindIteratorReturnsCendIfElementDoesNotExist)
+	MAKE_BASE_SET_ITERATION_TEST(TEST_CLASS, TRAITS, FindIteratorReturnsIteratorToElementWhenElementExists) \
+	MAKE_BASE_SET_ITERATION_TEST(TEST_CLASS, TRAITS, FindIteratorReturnsCendWhenElementDoesNotExist)
 
 	// endregion
 
@@ -247,7 +247,7 @@ namespace catapult { namespace test {
 				TestElement("TestElement", 7)
 			};
 			EXPECT_EQ(expectedElements, actualElements);
-			AssertDeltaSizes(pDelta, 3, 1, 1, 0);
+			AssertDeltaSizes(pDelta, 3, 2, 2, 0);
 		}
 
 	private:
@@ -431,7 +431,7 @@ namespace catapult { namespace test {
 
 			// Sanity: value_type should be const
 			EXPECT_TRUE(std::is_const<typename decltype(iterableDelta.begin())::value_type>());
-			AssertDeltaSizes(pDelta, 4, 2, 1, TTraits::IsElementMutable() ? 1 : 0);
+			AssertDeltaSizes(pDelta, 4, 3, 2, TTraits::IsElementMutable() ? 1 : 0);
 		}
 
 	public:

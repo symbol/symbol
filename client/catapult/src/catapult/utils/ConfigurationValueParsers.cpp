@@ -203,6 +203,10 @@ namespace catapult { namespace utils {
 		return TryParseCustomUnsignedIntDecimalValue<BlockFeeMultiplier::ValueType>(factory, str, parsedValue);
 	}
 
+	bool TryParseValue(const std::string& str, Height& parsedValue) {
+		return TryParseCustomUnsignedIntDecimalValue<Height::ValueType>([](auto raw) { return Height(raw); }, str, parsedValue);
+	}
+
 	bool TryParseValue(const std::string& str, Importance& parsedValue) {
 		return TryParseCustomUnsignedIntDecimalValue<Importance::ValueType>([](auto raw) { return Importance(raw); }, str, parsedValue);
 	}
@@ -277,15 +281,30 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// region key
+	// region byte array
+
+	namespace {
+		template<typename TByteArray>
+		bool TryParseByteArray(const std::string& str, TByteArray& parsedValue) {
+			TByteArray array;
+			if (!TryParseHexStringIntoContainer(str.data(), str.size(), array))
+				return false;
+
+			parsedValue = array;
+			return true;
+		}
+	}
 
 	bool TryParseValue(const std::string& str, Key& parsedValue) {
-		Key key;
-		if (!TryParseHexStringIntoContainer(str.data(), str.size(), key))
-			return false;
+		return TryParseByteArray(str, parsedValue);
+	}
 
-		parsedValue = key;
-		return true;
+	bool TryParseValue(const std::string& str, Hash256& parsedValue) {
+		return TryParseByteArray(str, parsedValue);
+	}
+
+	bool TryParseValue(const std::string& str, GenerationHash& parsedValue) {
+		return TryParseByteArray(str, parsedValue);
 	}
 
 	// endregion

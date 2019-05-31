@@ -23,7 +23,6 @@
 #include "NodePingRequestor.h"
 #include "PeersProcessor.h"
 #include "nodediscovery/src/handlers/NodeDiscoveryHandlers.h"
-#include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/NodeInteractionUtils.h"
 #include "catapult/extensions/ServiceLocator.h"

@@ -19,7 +19,6 @@
 **/
 
 #include "src/state/MosaicEntrySerializer.h"
-#include "src/state/MosaicLevy.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
@@ -49,13 +48,6 @@ namespace catapult { namespace state {
 	// region Save
 
 	namespace {
-		std::unique_ptr<MosaicLevy> CreateMosaicLevy() {
-			return std::make_unique<MosaicLevy>(
-					MosaicId(9988),
-					test::GenerateRandomData<Address_Decoded_Size>(),
-					std::vector<MosaicLevyRule>());
-		}
-
 		model::MosaicProperties CreateMosaicProperties(uint64_t seed) {
 			auto values = model::MosaicProperties::PropertyValuesContainer();
 
@@ -77,7 +69,7 @@ namespace catapult { namespace state {
 				uint32_t revision,
 				uint64_t propertiesSeed) {
 			auto message = "entry header at 0";
-			const auto& entryHeader = reinterpret_cast<const MosaicEntryHeader&>(*buffer.data());
+			const auto& entryHeader = reinterpret_cast<const MosaicEntryHeader&>(buffer[0]);
 
 			// - id and supply
 			EXPECT_EQ(mosaicId, entryHeader.MosaicId) << message;
@@ -92,27 +84,12 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(TEST_CLASS, CannotSaveEntryWithMosaicLevy) {
+	TEST(TEST_CLASS, CanSaveEntry) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream(buffer);
 
-		// - add a levy
-		auto definition = MosaicDefinition(Height(888), test::GenerateRandomData<Key_Size>(), 1, CreateMosaicProperties(17));
-		auto entry = MosaicEntry(MosaicId(123), definition);
-		entry.increaseSupply(Amount(111));
-		entry.setLevy(CreateMosaicLevy());
-
-		// Act + Assert:
-		EXPECT_THROW(MosaicEntrySerializer::Save(entry, stream), catapult_runtime_error);
-	}
-
-	TEST(TEST_CLASS, CanSaveEntryWithoutMosaicLevy) {
-		// Arrange:
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream("", buffer);
-
-		auto definition = MosaicDefinition(Height(888), test::GenerateRandomData<Key_Size>(), 5, CreateMosaicProperties(17));
+		auto definition = MosaicDefinition(Height(888), test::GenerateRandomByteArray<Key>(), 5, CreateMosaicProperties(17));
 		auto entry = MosaicEntry(MosaicId(123), definition);
 		entry.increaseSupply(Amount(111));
 
@@ -158,12 +135,12 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(TEST_CLASS, CanLoadEntryWithoutMosaicLevy) {
+	TEST(TEST_CLASS, CanLoadEntry) {
 		// Arrange:
-		auto owner = test::GenerateRandomData<Key_Size>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		std::vector<uint8_t> buffer(sizeof(MosaicEntryHeader));
-		reinterpret_cast<MosaicEntryHeader&>(*buffer.data()) = { MosaicId(123), Amount(786), Height(222), owner, 5, { { 9, 8, 7 } } };
-		mocks::MockMemoryStream stream("", buffer);
+		reinterpret_cast<MosaicEntryHeader&>(buffer[0]) = { MosaicId(123), Amount(786), Height(222), owner, 5, { { 9, 8, 7 } } };
+		mocks::MockMemoryStream stream(buffer);
 
 		// Act:
 		auto entry = MosaicEntrySerializer::Load(stream);

@@ -33,11 +33,7 @@ namespace catapult { namespace io {
 		explicit BlockStorageView(
 				const BlockStorage& storage,
 				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock,
-				const CachedData& cachedData)
-				: m_storage(storage)
-				, m_readLock(std::move(readLock))
-				, m_cachedData(cachedData)
-		{}
+				const CachedData& cachedData);
 
 	public:
 		/// Gets the number of blocks.
@@ -56,6 +52,9 @@ namespace catapult { namespace io {
 		std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const;
 
 	private:
+		void requireHeight(Height height, const char* description) const;
+
+	private:
 		const BlockStorage& m_storage;
 		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 		const CachedData& m_cachedData;
@@ -64,16 +63,12 @@ namespace catapult { namespace io {
 	/// A write only view on top of block storage.
 	class BlockStorageModifier : utils::MoveOnly {
 	public:
-		/// Creates a view around \a storage and cache data (\a cachedData) with lock context \a readLock.
-		explicit BlockStorageModifier(
+		/// Creates a view around \a storage, \a stagingStorage and cache data (\a cachedData) with lock context \a readLock.
+		BlockStorageModifier(
 				BlockStorage& storage,
+				PrunableBlockStorage& stagingStorage,
 				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock,
-				CachedData& cachedData)
-				: m_storage(storage)
-				, m_readLock(std::move(readLock))
-				, m_writeLock(m_readLock.promoteToWriter())
-				, m_cachedData(cachedData)
-		{}
+				CachedData& cachedData);
 
 	public:
 		/// Saves a block element (\a blockElement).
@@ -85,19 +80,24 @@ namespace catapult { namespace io {
 		/// Drops all blocks after \a height.
 		void dropBlocksAfter(Height height);
 
+		/// Commits all staged changes to the primary storage.
+		void commit();
+
 	private:
 		BlockStorage& m_storage;
+		PrunableBlockStorage& m_stagingStorage;
 		utils::SpinReaderWriterLock::ReaderLockGuard m_readLock;
 		utils::SpinReaderWriterLock::WriterLockGuard m_writeLock;
 		CachedData& m_cachedData;
+		Height m_saveStartHeight;
 	};
 
 	/// A cache around a BlockStorage.
-	/// \note Currently this "cache" only provides synchronization.
+	/// \note Currently this "cache" provides synchronization and support for two-phase commit.
 	class BlockStorageCache {
 	public:
-		/// Creates a new cache around \a pStorage.
-		explicit BlockStorageCache(std::unique_ptr<BlockStorage>&& pStorage);
+		/// Creates a new cache around \a pStorage that uses \a pStagingStorage for staging blocks in order to enable two-phase commit.
+		BlockStorageCache(std::unique_ptr<BlockStorage>&& pStorage, std::unique_ptr<PrunableBlockStorage>&& pStagingStorage);
 
 		/// Destroys the cache.
 		~BlockStorageCache();
@@ -111,6 +111,7 @@ namespace catapult { namespace io {
 
 	private:
 		std::unique_ptr<BlockStorage> m_pStorage;
+		std::unique_ptr<PrunableBlockStorage> m_pStagingStorage;
 		std::unique_ptr<CachedData> m_pCachedData;
 		mutable utils::SpinReaderWriterLock m_lock;
 	};

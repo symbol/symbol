@@ -18,8 +18,8 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "catapult/cache/MemoryUtCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/chain/UtUpdater.h"
 #include "catapult/extensions/ExecutionConfigurationFactory.h"
 #include "tests/test/cache/CacheTestUtils.h"
@@ -42,9 +42,9 @@ namespace catapult { namespace chain {
 		}
 
 		std::shared_ptr<plugins::PluginManager> CreatePluginManager() {
-			auto config = test::CreateLocalNodeBlockChainConfiguration();
+			auto config = test::CreatePrototypicalBlockChainConfiguration();
 			config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
-			return test::CreatePluginManager(config);
+			return test::CreatePluginManagerWithRealPlugins(config);
 		}
 
 		// region UpdaterTestContext
@@ -107,12 +107,12 @@ namespace catapult { namespace chain {
 		// - simulate tx dispatcher processing N elements of 1 tx transfering 1 unit each
 		boost::thread_group threads;
 		threads.create_thread([&senderKeyPair, &updater = context.updater()] {
-			auto recipient = test::GenerateRandomData<Key_Size>();
+			auto recipient = test::GenerateRandomByteArray<Key>();
 			for (auto i = 0u; i < GetNumIterations(); ++i) {
 				auto pTransaction = test::CreateTransferTransaction(senderKeyPair, recipient, Amount(1));
 				pTransaction->MaxFee = Amount(0);
 				pTransaction->Deadline = Default_Time + Timestamp(1);
-				model::TransactionInfo transactionInfo(std::move(pTransaction), test::GenerateRandomData<Key_Size>());
+				model::TransactionInfo transactionInfo(std::move(pTransaction), test::GenerateRandomByteArray<Hash256>());
 
 				std::vector<model::TransactionInfo> transactionInfos;
 				transactionInfos.emplace_back(std::move(transactionInfo));
@@ -122,7 +122,7 @@ namespace catapult { namespace chain {
 
 		// - simulate block dispatcher processing N block elements with single confirmed tx
 		threads.create_thread([&updater = context.updater()] {
-			auto hash = test::GenerateRandomData<Hash256_Size>();
+			auto hash = test::GenerateRandomByteArray<Hash256>();
 			for (auto i = 0u; i < GetNumIterations(); ++i)
 				updater.update({ &hash }, {});
 		});

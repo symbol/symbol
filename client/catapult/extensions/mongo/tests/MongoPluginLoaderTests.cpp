@@ -20,7 +20,6 @@
 
 #include "mongo/src/MongoPluginLoader.h"
 #include "mongo/src/MongoPluginManager.h"
-#include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/plugins/PluginExceptions.h"
 #include "catapult/utils/ExceptionLogging.h"
 #include "mongo/tests/test/MongoTestUtils.h"
@@ -41,9 +40,9 @@ namespace catapult { namespace mongo {
 			// - windows requires the caller to explicitly create a mongocxx instance before certain operations
 			//   like creating a mongocxx::pool (via MongoStorageContext)
 			mongocxx::instance::current();
-			MongoStorageContext mongoContext(test::DefaultDbUri(), "", nullptr);
+			MongoStorageContext mongoContext(test::DefaultDbUri(), "", nullptr, MongoErrorPolicy::Mode::Strict);
 
-			MongoPluginManager manager(mongoContext, model::BlockChainConfiguration::Uninitialized());
+			MongoPluginManager manager(mongoContext, model::NetworkIdentifier::Zero);
 
 			// Act + Assert:
 			action(manager);

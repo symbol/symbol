@@ -20,6 +20,7 @@
 
 #include "src/plugins/TransferPlugin.h"
 #include "plugins/txes/transfer/src/model/TransferEntityType.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -33,7 +34,7 @@ namespace catapult { namespace plugins {
 				// Arrange:
 				auto config = model::BlockChainConfiguration::Uninitialized();
 				config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
-				PluginManager manager(config, StorageConfiguration());
+				auto manager = test::CreatePluginManager(config);
 				RegisterTransferSubsystem(manager);
 
 				// Act:

@@ -22,7 +22,7 @@
 #include "catapult/plugins/PluginManager.h"
 #include "catapult/plugins/PluginModule.h"
 
-namespace catapult { namespace config { class LocalNodeConfiguration; } }
+namespace catapult { namespace config { class CatapultConfiguration; } }
 
 namespace catapult { namespace tools { namespace nemgen {
 
@@ -30,7 +30,7 @@ namespace catapult { namespace tools { namespace nemgen {
 	class PluginLoader {
 	public:
 		/// Creates a loader around \a config.
-		explicit PluginLoader(const config::LocalNodeConfiguration& config);
+		explicit PluginLoader(const config::CatapultConfiguration& config);
 
 	public:
 		/// Gets the plugin manager.
@@ -44,7 +44,7 @@ namespace catapult { namespace tools { namespace nemgen {
 		void loadPlugin(const std::string& pluginName);
 
 	private:
-		const config::LocalNodeConfiguration& m_config;
+		const config::CatapultConfiguration& m_config;
 		std::vector<plugins::PluginModule> m_pluginModules;
 		plugins::PluginManager m_pluginManager;
 	};

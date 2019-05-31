@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/extensions/ServiceLocator.h"
+#include "tests/int/node/test/LocalNodeBasicTests.h"
 #include "tests/int/node/test/LocalNodeTestContext.h"
 #include "tests/TestHarness.h"
 
@@ -42,43 +43,21 @@ namespace catapult { namespace local {
 				EXPECT_EQ(Sentinel_Counter_Value, stats.NumActiveWriters);
 				EXPECT_EQ(Sentinel_Counter_Value, stats.NumScheduledTasks);
 			}
+		};
 
-			void assertStateLoaded() const {
-				EXPECT_EQ(1u, numPreLoadHandlerCalls());
-			}
+		struct BasicTestContext {
+			using LocalNodeTestContext = TestContext;
+
+			static constexpr auto Num_Tasks = 7u;
+
+			static void AssertBoot(const test::BasicLocalNodeStats&)
+			{}
 		};
 	}
 
 	// region basic tests
 
-	TEST(TEST_CLASS, CanBootLocalNodeWithoutPeers) {
-		// Assert:
-		test::AssertCanBootLocalNodeWithoutPeers<TestContext>([](const auto& context, const auto&) {
-			context.assertStateLoaded();
-		});
-	}
-
-	TEST(TEST_CLASS, CanBootLocalNodeWithPeers) {
-		// Assert:
-		test::AssertCanBootLocalNodeWithPeers<TestContext>([](const auto& context, const auto&) {
-			context.assertStateLoaded();
-		});
-	}
-
-	TEST(TEST_CLASS, CanShutdownNode) {
-		// Assert:
-		test::AssertCanShutdownLocalNode<TestContext>();
-	}
-
-	TEST(TEST_CLASS, NodeSubscriberIsWiredUpToNodeContainer) {
-		// Assert:
-		test::AssertNodeSubscriberIsWiredUpToNodeContainer<TestContext>();
-	}
-
-	TEST(TEST_CLASS, AllPeriodicTasksAreScheduled) {
-		// Assert:
-		test::AssertLocalNodeSchedulesTasks<TestContext>(7);
-	}
+	DEFINE_LOCAL_NODE_BASIC_TESTS(BasicTestContext)
 
 	TEST(TEST_CLASS, AllCounterGroupsAreRegistered) {
 		// Act:
@@ -91,8 +70,8 @@ namespace catapult { namespace local {
 		// Assert: check candidate counters
 		EXPECT_TRUE(test::HasCounter(counters, "ACNTST C")) << "cache counters";
 		EXPECT_TRUE(test::HasCounter(counters, "TX ELEM TOT")) << "service local node counters";
-		EXPECT_TRUE(test::HasCounter(counters, "UT CACHE")) << "basic local node counters";
-		EXPECT_TRUE(test::HasCounter(counters, "TOT CONF TXES")) << "basic local node counters";
+		EXPECT_TRUE(test::HasCounter(counters, "UT CACHE")) << "local node counters";
+		EXPECT_TRUE(test::HasCounter(counters, "TOT CONF TXES")) << "local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "MEM CUR RSS")) << "memory counters";
 	}
 

@@ -38,7 +38,7 @@ namespace catapult { namespace disruptor {
 				// Sanity:
 				auto key = std::make_pair(input.source(), input.sourcePublicKey());
 				auto iter = inputs.find(key);
-				EXPECT_EQ(inputs.cend(), iter) << "unexpected entry for " << key.first << ", " << utils::HexFormat(key.second);
+				EXPECT_EQ(inputs.cend(), iter) << "unexpected entry for " << key.first << ", " << key.second;
 
 				inputs.emplace(key, input.detachBlockRange());
 				return ConsumerResult::Continue();
@@ -128,7 +128,7 @@ namespace catapult { namespace disruptor {
 				const Key& expectedSourcePublicKey = Key()) {
 			// Arrange:
 			auto iter = inputs.find(std::make_pair(expectedSource, expectedSourcePublicKey));
-			ASSERT_NE(inputs.cend(), iter) << "no entry for " << expectedSource << ", " << utils::HexFormat(expectedSourcePublicKey);
+			ASSERT_NE(inputs.cend(), iter) << "no entry for " << expectedSource << ", " << expectedSourcePublicKey;
 			const auto& entry = *iter;
 
 			std::vector<Height::ValueType> heights;

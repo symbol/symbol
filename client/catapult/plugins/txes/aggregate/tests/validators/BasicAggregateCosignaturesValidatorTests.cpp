@@ -39,7 +39,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertMaxTransactionsValidationResult(ValidationResult expectedResult, uint32_t numTransactions, uint32_t maxTransactions) {
 			// Arrange: notice that transaction data is not actually checked
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			model::AggregateCosignaturesNotification notification(signer, numTransactions, nullptr, 0, nullptr);
 			auto pValidator = CreateBasicAggregateCosignaturesValidator(maxTransactions, std::numeric_limits<uint8_t>::max());
 
@@ -80,7 +80,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertMaxCosignaturesValidationResult(ValidationResult expectedResult, uint8_t numCosignatures, uint8_t maxCosignatures) {
 			// Arrange:
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto cosignatures = GenerateRandomCosignatures(numCosignatures);
 			model::AggregateCosignaturesNotification notification(signer, 3, nullptr, numCosignatures, cosignatures.data());
 			auto pValidator = CreateBasicAggregateCosignaturesValidator(std::numeric_limits<uint32_t>::max(), maxCosignatures);
@@ -142,7 +142,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithAllCosignersBeingUnique) {
 		// Arrange: no conflicts
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosignatures = GenerateRandomCosignatures(5);
 
 		// Assert:
@@ -151,7 +151,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithRedundantExplicitAndImplicitCosigner) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosignatures = GenerateRandomCosignatures(5);
 		cosignatures[2].Signer = signer;
 
@@ -161,7 +161,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithRedundantImplicitCosigners) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto cosignatures = GenerateRandomCosignatures(5);
 		cosignatures[0].Signer = cosignatures[4].Signer;
 

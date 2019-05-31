@@ -68,7 +68,7 @@ namespace catapult { namespace test {
 			typename TTraits::TransactionType transaction;
 			transaction.NamespaceId = NamespaceId(123);
 			transaction.AliasAction = model::AliasAction::Unlink;
-			transaction.Signer = test::GenerateRandomData<Key_Size>();
+			transaction.Signer = test::GenerateRandomByteArray<Key>();
 			test::FillWithRandomData(TNotificationTraits::TransactionAlias(transaction));
 
 			// Act:

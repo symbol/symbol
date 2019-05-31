@@ -71,12 +71,12 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, CanAddCosignatoriesIfAccountIsUnknown) {
+	TEST(TEST_CLASS, CanAddCosignatoriesWhenAccountIsUnknown) {
 		// Assert:
 		AssertMultisigAccountIsUnknown(ValidationResult::Success, Add);
 	}
 
-	TEST(TEST_CLASS, CannotRemoveCosignatoryIfAccountIsUnknown) {
+	TEST(TEST_CLASS, CannotRemoveCosignatoryWhenAccountIsUnknown) {
 		// Assert:
 		AssertMultisigAccountIsUnknown(Failure_Multisig_Modify_Unknown_Multisig_Account, Del);
 	}
@@ -123,7 +123,7 @@ namespace catapult { namespace validators {
 
 	// region single
 
-	TEST(TEST_CLASS, CanAddCosignatoryIfNotPresent) {
+	TEST(TEST_CLASS, CanAddCosignatoryWhenNotPresent) {
 		// Assert:
 		AssertCosignatoriesModifications(ValidationResult::Success, { { Add, CosignerType::New } });
 	}
@@ -138,7 +138,7 @@ namespace catapult { namespace validators {
 		AssertCosignatoriesModifications(ValidationResult::Success, { { Del, CosignerType::Existing } });
 	}
 
-	TEST(TEST_CLASS, CannotRemoveCosignatoryIfNotPresent) {
+	TEST(TEST_CLASS, CannotRemoveCosignatoryWhenNotPresent) {
 		// Assert:
 		AssertCosignatoriesModifications(Failure_Multisig_Modify_Not_A_Cosigner, { { Del, CosignerType::New } });
 	}
@@ -147,7 +147,7 @@ namespace catapult { namespace validators {
 
 	// region multiple success
 
-	TEST(TEST_CLASS, CanAddCosignatoriesIfNotPresent) {
+	TEST(TEST_CLASS, CanAddCosignatoriesWhenNotPresent) {
 		// Assert:
 		AssertCosignatoriesModifications(ValidationResult::Success, {
 				{ Add, CosignerType::New },
@@ -188,7 +188,7 @@ namespace catapult { namespace validators {
 		});
 	}
 
-	TEST(TEST_CLASS, CannotRemoveCosignatoryIfNotPresent_Multiple) {
+	TEST(TEST_CLASS, CannotRemoveCosignatoryWhenNotPresent_Multiple) {
 		// Assert:
 		AssertCosignatoriesModifications(Failure_Multisig_Modify_Not_A_Cosigner, {
 				{ Del, CosignerType::Existing },

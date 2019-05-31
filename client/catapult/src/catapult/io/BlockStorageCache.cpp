@@ -19,6 +19,7 @@
 **/
 
 #include "BlockStorageCache.h"
+#include "MoveBlockFiles.h"
 #include "catapult/model/Elements.h"
 #include "catapult/utils/MemoryUtils.h"
 
@@ -28,50 +29,6 @@ namespace catapult { namespace io {
 		std::shared_ptr<const model::Block> BlockElementAsSharedBlock(const std::shared_ptr<const model::BlockElement>& pBlockElement) {
 			return std::shared_ptr<const model::Block>(&pBlockElement->Block, [pBlockElement](const auto*) {});
 		}
-
-		// region Copy
-
-		void CopyHashes(model::TransactionElement& destElement, const model::TransactionElement& srcElement) {
-			destElement.EntityHash = srcElement.EntityHash;
-			destElement.MerkleComponentHash = srcElement.MerkleComponentHash;
-		}
-
-		std::shared_ptr<model::BlockElement> Copy(const model::BlockElement& originalBlockElement) {
-			using model::BlockElement;
-
-			auto dataSize = sizeof(BlockElement) + originalBlockElement.Block.Size;
-			auto pData = utils::MakeUniqueWithSize<uint8_t>(dataSize);
-
-			// copy the block data
-			auto pBlockData = pData.get() + sizeof(BlockElement);
-			std::memcpy(pBlockData, &originalBlockElement.Block, originalBlockElement.Block.Size);
-
-			// create the block element and transfer ownership from pData to pBlockElement
-			auto pBlockElementRaw = new (pData.get()) BlockElement(*reinterpret_cast<model::Block*>(pBlockData));
-			auto pBlockElement = std::shared_ptr<BlockElement>(pBlockElementRaw);
-			pData.release();
-
-			pBlockElement->EntityHash = originalBlockElement.EntityHash;
-			pBlockElement->GenerationHash = originalBlockElement.GenerationHash;
-			pBlockElement->SubCacheMerkleRoots = originalBlockElement.SubCacheMerkleRoots;
-
-			auto i = 0u;
-			for (const auto& transaction : pBlockElement->Block.Transactions()) {
-				pBlockElement->Transactions.emplace_back(model::TransactionElement(transaction));
-				CopyHashes(pBlockElement->Transactions.back(), originalBlockElement.Transactions[i]);
-				++i;
-			}
-
-			if (originalBlockElement.OptionalStatement) {
-				auto pBlockStatement = std::make_shared<model::BlockStatement>();
-				DeepCopyTo(*pBlockStatement, *originalBlockElement.OptionalStatement);
-				pBlockElement->OptionalStatement = std::move(pBlockStatement);
-			}
-
-			return pBlockElement;
-		}
-
-		// endregion
 	}
 
 	// region CachedData
@@ -79,7 +36,7 @@ namespace catapult { namespace io {
 	struct CachedData {
 	public:
 		Height height() const {
-			return m_chainHeight;
+			return m_pBlockElement ? m_pBlockElement->Block.Height : Height(0);
 		}
 
 		std::shared_ptr<const model::Block> block(Height) const {
@@ -92,43 +49,34 @@ namespace catapult { namespace io {
 
 	public:
 		bool contains(Height height) const {
-			return m_pBlockElement && height == m_pBlockElement->Block.Height;
+			return height == m_pBlockElement->Block.Height;
 		}
 
 	public:
-		void update(Height height) {
-			m_chainHeight = height;
-
-			if (m_pBlockElement && height < m_pBlockElement->Block.Height)
-				m_pBlockElement.reset();
+		void update(const std::shared_ptr<const model::BlockElement>& pBlockElement) {
+			m_pBlockElement = pBlockElement;
 		}
 
-		void update(const model::BlockElement& blockElement) {
-			// note: update receives elements during loadBlock, but also saveBlock. We get them from BlockChainSyncConsumer,
-			// and it gets them from disruptor... in order NOT to copy here we'd need to take ownership of those.
-			// Currently we can't/shouldn't do it, as there's "new block" consumer afterwards and possibly ProcessingCompleteFunc.
-			m_pBlockElement = Copy(blockElement);
+		void reset() {
+			m_pBlockElement.reset();
 		}
 
 	private:
-		// note: the reason to have them separated is drop blocks, which
-		// updates the height, but we don't want to touch cached block(s).
-		Height m_chainHeight;
 		std::shared_ptr<const model::BlockElement> m_pBlockElement;
 	};
 
 	// endregion
 
-	BlockStorageCache::~BlockStorageCache() = default;
-
-	// This ctor takes r-value, to move the storage (that's not a move ctor).
-	BlockStorageCache::BlockStorageCache(std::unique_ptr<BlockStorage>&& pStorage)
-			: m_pStorage(std::move(pStorage))
-			, m_pCachedData(std::make_unique<CachedData>()) {
-		m_pCachedData->update(m_pStorage->chainHeight());
-	}
-
 	// region BlockStorageView
+
+	BlockStorageView::BlockStorageView(
+			const BlockStorage& storage,
+			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock,
+			const CachedData& cachedData)
+			: m_storage(storage)
+			, m_readLock(std::move(readLock))
+			, m_cachedData(cachedData)
+	{}
 
 	Height BlockStorageView::chainHeight() const {
 		return m_cachedData.height();
@@ -139,9 +87,7 @@ namespace catapult { namespace io {
 	}
 
 	std::shared_ptr<const model::Block> BlockStorageView::loadBlock(Height height) const {
-		if (height > chainHeight())
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot load block at height greater than chain height", height);
-
+		requireHeight(height, "block");
 		if (m_cachedData.contains(height))
 			return m_cachedData.block(height);
 
@@ -149,9 +95,7 @@ namespace catapult { namespace io {
 	}
 
 	std::shared_ptr<const model::BlockElement> BlockStorageView::loadBlockElement(Height height) const {
-		if (height > chainHeight())
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot load block at height greater than chain height", height);
-
+		requireHeight(height, "block element");
 		if (m_cachedData.contains(height))
 			return m_cachedData.blockElement(height);
 
@@ -159,52 +103,82 @@ namespace catapult { namespace io {
 	}
 
 	std::pair<std::vector<uint8_t>, bool> BlockStorageView::loadBlockStatementData(Height height) const {
+		requireHeight(height, "block statement data");
 		return m_storage.loadBlockStatementData(height);
+	}
+
+	void BlockStorageView::requireHeight(Height height, const char* description) const {
+		auto chainHeight = this->chainHeight();
+		if (height <= chainHeight)
+			return;
+
+		std::ostringstream out;
+		out << "cannot load " << description << " at height (" << height << ") greater than chain height (" << chainHeight << ")";
+		CATAPULT_THROW_INVALID_ARGUMENT(out.str().c_str());
 	}
 
 	// endregion
 
 	// region BlockStorageModifier
 
-	namespace {
-		void CacheBlockElement(CachedData& cachedData, const model::BlockElement& blockElement) {
-			if (blockElement.Block.Height > cachedData.height())
-				cachedData.update(blockElement.Block.Height);
-
-			cachedData.update(blockElement);
-		}
+	BlockStorageModifier::BlockStorageModifier(
+			BlockStorage& storage,
+			PrunableBlockStorage& stagingStorage,
+			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock,
+			CachedData& cachedData)
+			: m_storage(storage)
+			, m_stagingStorage(stagingStorage)
+			, m_readLock(std::move(readLock))
+			, m_writeLock(m_readLock.promoteToWriter())
+			, m_cachedData(cachedData) {
+		dropBlocksAfter(storage.chainHeight());
 	}
 
 	void BlockStorageModifier::saveBlock(const model::BlockElement& blockElement) {
-		m_storage.saveBlock(blockElement);
-		CacheBlockElement(m_cachedData, blockElement);
+		m_stagingStorage.saveBlock(blockElement);
 	}
 
 	void BlockStorageModifier::saveBlocks(const std::vector<model::BlockElement>& blockElements) {
-		if (blockElements.empty())
-			return;
-
 		for (const auto& blockElement : blockElements)
-			m_storage.saveBlock(blockElement);
-
-		CacheBlockElement(m_cachedData, blockElements.back());
+			m_stagingStorage.saveBlock(blockElement);
 	}
 
 	void BlockStorageModifier::dropBlocksAfter(Height height) {
-		m_storage.dropBlocksAfter(height);
-		m_cachedData.update(height);
+		m_stagingStorage.dropBlocksAfter(height);
+		m_saveStartHeight = height;
+	}
+
+	void BlockStorageModifier::commit() {
+		// 1. apply staging changes to permananent storage
+		MoveBlockFiles(m_stagingStorage, m_storage, m_saveStartHeight + Height(1));
+
+		// 2. update cache
+		auto newChainHeight = m_storage.chainHeight();
+		if (newChainHeight > Height(0))
+			m_cachedData.update(m_storage.loadBlockElement(newChainHeight));
+		else
+			m_cachedData.reset();
 	}
 
 	// endregion
 
 	// region BlockStorageCache
 
+	BlockStorageCache::BlockStorageCache(std::unique_ptr<BlockStorage>&& pStorage, std::unique_ptr<PrunableBlockStorage>&& pStagingStorage)
+			: m_pStorage(std::move(pStorage))
+			, m_pStagingStorage(std::move(pStagingStorage))
+			, m_pCachedData(std::make_unique<CachedData>()) {
+		m_pCachedData->update(m_pStorage->loadBlockElement(m_pStorage->chainHeight()));
+	}
+
+	BlockStorageCache::~BlockStorageCache() = default;
+
 	BlockStorageView BlockStorageCache::view() const {
 		return BlockStorageView(*m_pStorage, m_lock.acquireReader(), *m_pCachedData);
 	}
 
 	BlockStorageModifier BlockStorageCache::modifier() {
-		return BlockStorageModifier(*m_pStorage, m_lock.acquireReader(), *m_pCachedData);
+		return BlockStorageModifier(*m_pStorage, *m_pStagingStorage, m_lock.acquireReader(), *m_pCachedData);
 	}
 
 	// endregion

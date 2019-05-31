@@ -26,6 +26,9 @@ namespace catapult { namespace state {
 
 	/// Policy for saving and loading mosaic entry data.
 	struct MosaicEntrySerializer {
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
+
 		/// Saves \a entry to \a output.
 		static void Save(const MosaicEntry& entry, io::OutputStream& output);
 

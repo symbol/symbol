@@ -24,103 +24,184 @@
 
 namespace catapult { namespace test {
 
-	using ByteBuffer = std::vector<uint8_t>;
-
-	constexpr size_t Default_Test_Buffer_Size = 1000u;
-	constexpr auto Chunk_Size = Default_Test_Buffer_Size / 9;
-	constexpr size_t Num_Chunks = 15u;
-
-	struct SingleWritePolicy {
-		template<typename TOutput>
-		static void Write(TOutput& output, const ByteBuffer& buffer) {
-			output.write(buffer);
-		}
-	};
-
-	struct ChunkedWritePolicy {
-		template<typename TOutput>
-		static void Write(TOutput& output, const ByteBuffer& buffer) {
-			for (auto i = 0u; i < Num_Chunks; ++i) {
-				auto beginIter = buffer.begin() + i * Chunk_Size;
-				ByteBuffer chunk(beginIter, beginIter + Chunk_Size);
-				output.write(chunk);
-			}
-		}
-	};
-
-	struct SingleReadPolicy {
-		template<typename TInput>
-		static void Read(TInput& input, ByteBuffer& result) {
-			input.read(result);
-		}
-	};
-
-	struct ChunkedReadPolicy {
-		template<typename TInput>
-		static void Read(TInput& input, ByteBuffer& result) {
-			ByteBuffer chunk(Chunk_Size);
-			for (auto i = 0u; i < Num_Chunks; ++i) {
-				input.read(chunk);
-				std::copy(chunk.begin(), chunk.end(), result.begin() + i * Chunk_Size);
-			}
-		}
-	};
-
-	template<typename TContext, typename TWritePolicy, typename TReadPolicy>
-	void RunRoundtripTest() {
-		// Arrange:
-		constexpr auto Roundtrip_Buffer_Size = Num_Chunks * Chunk_Size;
-		TContext context("test.dat");
-		auto expected = test::GenerateRandomVector(Roundtrip_Buffer_Size);
-
-		// Act:
-		{
-			auto pOutput = context.outputStream();
-			TWritePolicy::Write(*pOutput, expected);
-			pOutput->flush();
-		}
-
-		ByteBuffer result(Roundtrip_Buffer_Size);
-		{
-			auto pInput = context.inputStream();
-			TReadPolicy::Read(*pInput, result);
-		}
-
-		// Assert:
-		EXPECT_EQ(expected, result);
-	}
-
+	/// Container of tests for io::InputStream and io::OutputStream.
 	template<typename TContext>
-	void CannotReadMoreThanWritten() {
-		// Arrange:
-		TContext context("test.dat");
-		auto expected = test::GenerateRandomVector(12345);
-		{
-			auto pOutput = context.outputStream();
-			pOutput->write(expected);
-			pOutput->flush();
+	class StreamTests {
+	public:
+		static constexpr size_t Default_Test_Buffer_Size = 1000;
+
+	private:
+		using ByteBuffer = std::vector<uint8_t>;
+
+		static constexpr size_t Chunk_Size = Default_Test_Buffer_Size / 9;
+		static constexpr size_t Num_Chunks = 15;
+
+	public:
+		// region eof tests
+
+		static void AssertEmptyStreamIsInitiallyAtEof() {
+			// Arrange:
+			TContext context("test.dat");
+			{
+				auto pOutput = context.outputStream();
+				pOutput->flush();
+			}
+
+			auto pInput = context.inputStream();
+
+			// Act + Assert:
+			EXPECT_TRUE(pInput->eof());
 		}
 
-		ByteBuffer result(expected.size() + 1);
+		static void AssertNonEmptyStreamIsInitiallyNotAtEof() {
+			// Arrange:
+			TContext context("test.dat");
+			{
+				auto pOutput = context.outputStream();
+				pOutput->write(test::GenerateRandomVector(257));
+				pOutput->flush();
+			}
 
-		// Act + Assert:
-		auto pInput = context.inputStream();
-		EXPECT_THROW(pInput->read(result), catapult_file_io_error);
+			auto pInput = context.inputStream();
+
+			// Act + Assert:
+			EXPECT_FALSE(pInput->eof());
+		}
+
+		static void AssertNonEmptyStreamCanAdvanceToEof() {
+			// Arrange:
+			TContext context("test.dat");
+			{
+				auto pOutput = context.outputStream();
+				pOutput->write(test::GenerateRandomVector(257));
+				pOutput->flush();
+			}
+
+			auto pInput = context.inputStream();
+
+			// Sanity:
+			EXPECT_FALSE(pInput->eof());
+
+			// - advance input stream to eof
+			ByteBuffer buffer(257);
+			pInput->read(buffer);
+
+			// Act + Assert:
+			EXPECT_TRUE(pInput->eof());
+		}
+
+		// endregion
+
+	public:
+		// region read/write policies
+
+		struct SingleWritePolicy {
+			template<typename TOutput>
+			static void Write(TOutput& output, const ByteBuffer& buffer) {
+				output.write(buffer);
+			}
+		};
+
+		struct ChunkedWritePolicy {
+			template<typename TOutput>
+			static void Write(TOutput& output, const ByteBuffer& buffer) {
+				for (auto i = 0u; i < Num_Chunks; ++i) {
+					auto beginIter = buffer.begin() + i * Chunk_Size;
+					ByteBuffer chunk(beginIter, beginIter + Chunk_Size);
+					output.write(chunk);
+				}
+			}
+		};
+
+		struct SingleReadPolicy {
+			template<typename TInput>
+			static void Read(TInput& input, ByteBuffer& buffer) {
+				input.read(buffer);
+			}
+		};
+
+		struct ChunkedReadPolicy {
+			template<typename TInput>
+			static void Read(TInput& input, ByteBuffer& buffer) {
+				ByteBuffer chunk(Chunk_Size);
+				for (auto i = 0u; i < Num_Chunks; ++i) {
+					input.read(chunk);
+					std::copy(chunk.begin(), chunk.end(), buffer.begin() + i * Chunk_Size);
+				}
+			}
+		};
+
+		// endregion
+
+		// region read tests
+
+	public:
+		template<typename TWritePolicy, typename TReadPolicy>
+		static void RunRoundtripTest() {
+			// Arrange:
+			constexpr auto Roundtrip_Buffer_Size = Num_Chunks * Chunk_Size;
+			TContext context("test.dat");
+			auto expected = test::GenerateRandomVector(Roundtrip_Buffer_Size);
+
+			// Act:
+			{
+				auto pOutput = context.outputStream();
+				TWritePolicy::Write(*pOutput, expected);
+				pOutput->flush();
+			}
+
+			ByteBuffer buffer(Roundtrip_Buffer_Size);
+			{
+				auto pInput = context.inputStream();
+				TReadPolicy::Read(*pInput, buffer);
+			}
+
+			// Assert:
+			EXPECT_EQ(expected, buffer);
+		}
+
+	public:
+		static void AssertCannotReadMoreThanWritten() {
+			// Arrange:
+			TContext context("test.dat");
+			auto expected = test::GenerateRandomVector(1234);
+			{
+				auto pOutput = context.outputStream();
+				pOutput->write(expected);
+				pOutput->flush();
+			}
+
+			ByteBuffer buffer(expected.size() + 1);
+
+			// Act + Assert:
+			auto pInput = context.inputStream();
+			EXPECT_THROW(pInput->read(buffer), catapult_file_io_error);
+		}
+
+		// endregion
+	};
+
+#define MAKE_STREAM_TEST(TRAITS_NAME, TEST_NAME) \
+	TEST(TEST_CLASS, TEST_NAME) { \
+		test::StreamTests<TRAITS_NAME>::Assert##TEST_NAME(); \
 	}
 
 #define MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, WRITE_POLICY, READ_POLICY) \
 	TEST(TEST_CLASS, RunRoundtripTest_##WRITE_POLICY##_##READ_POLICY) { \
-		test::RunRoundtripTest<TRAITS_NAME, test::WRITE_POLICY, test::READ_POLICY>(); \
+		using TestsContainer = test::StreamTests<TRAITS_NAME>; \
+		TestsContainer::RunRoundtripTest<TestsContainer::WRITE_POLICY, TestsContainer::READ_POLICY>(); \
 	}
 
 /// Adds all stream tests for the specified stream traits (\a TRAITS_NAME).
 #define DEFINE_STREAM_TESTS(TRAITS_NAME) \
-	TEST(TEST_CLASS, CannotReadMoreThanWritten) { \
-		test::CannotReadMoreThanWritten<TRAITS_NAME>(); \
-	} \
+	MAKE_STREAM_TEST(TRAITS_NAME, EmptyStreamIsInitiallyAtEof) \
+	MAKE_STREAM_TEST(TRAITS_NAME, NonEmptyStreamIsInitiallyNotAtEof) \
+	MAKE_STREAM_TEST(TRAITS_NAME, NonEmptyStreamCanAdvanceToEof) \
 	\
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, SingleWritePolicy, SingleReadPolicy) \
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, SingleWritePolicy, ChunkedReadPolicy) \
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, ChunkedWritePolicy, SingleReadPolicy) \
-	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, ChunkedWritePolicy, ChunkedReadPolicy)
+	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, ChunkedWritePolicy, ChunkedReadPolicy) \
+	\
+	MAKE_STREAM_TEST(TRAITS_NAME, CannotReadMoreThanWritten)
 }}

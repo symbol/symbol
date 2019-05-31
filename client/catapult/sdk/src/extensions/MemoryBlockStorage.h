@@ -26,10 +26,11 @@
 namespace catapult { namespace extensions {
 
 	/// A memory-based block storage that loads and saves blocks in memory.
-	class MemoryBlockStorage : public io::BlockStorage {
+	class MemoryBlockStorage : public io::PrunableBlockStorage {
 	private:
 		using Blocks = std::map<Height, std::shared_ptr<model::Block>>;
 		using BlockElements = std::map<Height, std::shared_ptr<model::BlockElement>>;
+		using BlockStatements = std::map<Height, std::shared_ptr<const model::BlockStatement>>;
 
 	public:
 		/// Creates a memory-based block storage around \a nemesisBlockElement.
@@ -47,12 +48,16 @@ namespace catapult { namespace extensions {
 		std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override;
 		std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const override;
 
+		// PrunableBlockStorage
+		void purge() override;
+
 	private:
 		void requireHeight(Height height, const char* description) const;
 
 	private:
 		Blocks m_blocks;
 		BlockElements m_blockElements;
+		BlockStatements m_blockStatements;
 		Height m_height;
 	};
 }}

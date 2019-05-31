@@ -20,39 +20,42 @@
 
 #pragma once
 #include "BaseSetDefaultTraits.h"
+#include "catapult/utils/traits/StlTraits.h"
 #include <unordered_set>
 
 namespace catapult { namespace deltaset {
 
 	/// Mixin that wraps BaseSetDelta and provides a facade on top of BaseSetDelta::deltas().
-	/// \note This only works for map-based delta sets.
 	template<typename TSetDelta>
 	class DeltaElementsMixin {
 	private:
-		// used to dereference values and values pointed to by shared_ptr
-		// (this is required to support shared_ptr value types in BaseSet)
+		// region value accessors
 
-		template<typename TElement>
-		struct DerefHelperT {
-			using const_pointer_type = const TElement*;
+		template<typename TSet, bool IsMap = utils::traits::is_map_v<TSet>>
+		struct ValueAccessorT {
+			using ValueType = typename TSet::value_type;
 
-			static const TElement& Deref(const TElement& element) {
-				return element;
+			static const ValueType* GetPointer(const typename TSet::value_type& value) {
+				return &value;
 			}
 		};
 
-		template<typename T>
-		struct DerefHelperT<std::shared_ptr<T>> {
-			using const_pointer_type = const T*;
+		template<typename TSet>
+		struct ValueAccessorT<TSet, true> { // map specialization
+			using ValueType = typename TSet::value_type::second_type;
 
-			static const T& Deref(const std::shared_ptr<T>& element) {
-				return *element;
+			static const ValueType* GetPointer(const typename TSet::value_type& pair) {
+				return &pair.second;
 			}
 		};
+
+		// endregion
 
 	private:
-		using DerefHelper = DerefHelperT<typename TSetDelta::SetType::value_type::second_type>;
-		using PointerContainer = std::unordered_set<typename DerefHelper::const_pointer_type>;
+		// use MemorySetType for detection because it is always stl (memory) container
+		using ValueAccessor = ValueAccessorT<typename TSetDelta::MemorySetType>;
+		using ValueType = typename ValueAccessor::ValueType;
+		using PointerContainer = std::unordered_set<const ValueType*>;
 
 	public:
 		/// Creates a mixin around \a setDelta.
@@ -61,17 +64,17 @@ namespace catapult { namespace deltaset {
 
 	public:
 		/// Gets pointers to all added elements.
-		auto addedElements() const {
+		PointerContainer addedElements() const {
 			return CollectAllPointers(m_setDelta.deltas().Added);
 		}
 
 		/// Gets pointers to all modified elements.
-		auto modifiedElements() const {
+		PointerContainer modifiedElements() const {
 			return CollectAllPointers(m_setDelta.deltas().Copied);
 		}
 
 		/// Gets pointers to all removed elements.
-		auto removedElements() const {
+		PointerContainer removedElements() const {
 			return CollectAllPointers(m_setDelta.deltas().Removed);
 		}
 
@@ -79,8 +82,8 @@ namespace catapult { namespace deltaset {
 		template<typename TSource>
 		static PointerContainer CollectAllPointers(const TSource& source) {
 			PointerContainer dest;
-			for (const auto& pair : source)
-				dest.insert(&DerefHelper::Deref(pair.second));
+			for (const auto& value : source)
+				dest.insert(ValueAccessor::GetPointer(value));
 
 			return dest;
 		}

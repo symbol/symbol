@@ -25,8 +25,7 @@
 #include "partialtransaction/src/chain/PtValidator.h"
 #include "partialtransaction/src/handlers/CosignatureHandler.h"
 #include "partialtransaction/src/handlers/PtHandlers.h"
-#include "catapult/cache/MemoryPtCache.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/consumers/RecentHashCache.h"
 #include "catapult/consumers/ReclaimMemoryInspector.h"
 #include "catapult/consumers/TransactionConsumers.h"
@@ -60,7 +59,7 @@ namespace catapult { namespace partialtransaction {
 		ConsumerDispatcherOptions CreateTransactionConsumerDispatcherOptions(const config::NodeConfiguration& config) {
 			auto options = ConsumerDispatcherOptions("partial transaction dispatcher", config.TransactionDisruptorSize);
 			options.ElementTraceInterval = config.TransactionElementTraceInterval;
-			options.ShouldThrowIfFull = config.ShouldAbortWhenDispatcherIsFull;
+			options.ShouldThrowWhenFull = config.ShouldAbortWhenDispatcherIsFull;
 			return options;
 		}
 
@@ -98,15 +97,13 @@ namespace catapult { namespace partialtransaction {
 
 		public:
 			void addHashConsumers(const cache::MemoryPtCacheProxy& ptCache) {
-				m_consumers.push_back(CreateTransactionHashCalculatorConsumer(m_state.pluginManager().transactionRegistry()));
+				m_consumers.push_back(CreateTransactionHashCalculatorConsumer(
+						m_state.config().BlockChain.Network.GenerationHash,
+						m_state.pluginManager().transactionRegistry()));
 				m_consumers.push_back(CreateTransactionHashCheckConsumer(
 						m_state.timeSupplier(),
 						extensions::CreateHashCheckOptions(m_nodeConfig.ShortLivedCacheTransactionDuration, m_nodeConfig),
 						CreateKnownHashPredicate(ptCache, m_state)));
-			}
-
-			void addPrecomputedTransactionAddressConsumer(const model::NotificationPublisher& publisher) {
-				m_consumers.push_back(CreateTransactionAddressExtractionConsumer(publisher));
 			}
 
 			std::shared_ptr<ConsumerDispatcher> build(
@@ -255,12 +252,6 @@ namespace catapult { namespace partialtransaction {
 				auto pServiceGroup = state.pool().pushServiceGroup("partial dispatcher");
 				TransactionDispatcherBuilder dispatcherBuilder(state);
 				dispatcherBuilder.addHashConsumers(ptCache);
-
-				if (state.config().Node.ShouldPrecomputeTransactionAddresses) {
-					auto pPublisher = state.pluginManager().createNotificationPublisher();
-					dispatcherBuilder.addPrecomputedTransactionAddressConsumer(*pPublisher);
-					locator.registerRootedService("pt.notificationPublisher", std::move(pPublisher));
-				}
 
 				auto pDispatcher = dispatcherBuilder.build(*pPtUpdater, CreateNewTransactionSink(locator));
 				RegisterTransactionDispatcherService(pDispatcher, *pPtUpdater, locator, state);

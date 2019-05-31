@@ -39,15 +39,15 @@ namespace catapult { namespace zeromq {
 	namespace {
 		model::TransactionInfo ToTransactionInfo(std::unique_ptr<mocks::MockTransaction>&& pTransaction) {
 			model::TransactionInfo transactionInfo(std::move(pTransaction));
-			transactionInfo.EntityHash = test::GenerateRandomData<Hash256_Size>();
-			transactionInfo.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+			transactionInfo.EntityHash = test::GenerateRandomByteArray<Hash256>();
+			transactionInfo.MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 			return transactionInfo;
 		}
 
 		model::TransactionElement ToTransactionElement(const mocks::MockTransaction& transaction) {
 			model::TransactionElement transactionElement(transaction);
-			transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
-			transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+			transactionElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
+			transactionElement.MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 			return transactionElement;
 		}
 
@@ -246,7 +246,7 @@ namespace catapult { namespace zeromq {
 		test::AssertNoPendingMessages(context.zmqSocket());
 	}
 
-	TEST(TEST_CLASS, PublishTransactionDeliversNoMessagesIfNoAddressesAreAssociatedWithTransaction) {
+	TEST(TEST_CLASS, PublishTransactionDeliversNoMessagesWhenNoAddressesAreAssociatedWithTransaction) {
 		// Arrange:
 		EntityPublisherContext context;
 		auto transactionInfo = ToTransactionInfo(mocks::CreateMockTransaction(0));
@@ -312,7 +312,7 @@ namespace catapult { namespace zeromq {
 		// Arrange:
 		EntityPublisherContext context;
 		auto pTransaction = mocks::CreateMockTransaction(0);
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto addresses = test::ExtractAddresses(*pTransaction);
 		TransactionMarker marker = TransactionMarker::Transaction_Status_Marker;
 		context.subscribeAll(marker, addresses);
@@ -335,8 +335,8 @@ namespace catapult { namespace zeromq {
 		// Arrange:
 		EntityPublisherContext context;
 		auto transactionInfo = ToTransactionInfo(mocks::CreateMockTransaction(0));
-		auto signer = test::GenerateRandomData<Key_Size>();
-		auto signature = test::GenerateRandomData<Signature_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
+		auto signature = test::GenerateRandomByteArray<Signature>();
 		auto addresses = test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
 		TransactionMarker marker = TransactionMarker::Cosignature_Marker;
 		context.subscribeAll(marker, addresses);

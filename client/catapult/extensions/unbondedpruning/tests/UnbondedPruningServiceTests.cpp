@@ -133,7 +133,7 @@ namespace catapult { namespace unbondedpruning {
 
 	TEST(TEST_CLASS, TransactionEventsAreRaisedWhenDependentHashesAreFound_SingleTransactionSingleDependency) {
 		// Assert: 1 transaction x 1 dependent hash => 1 collected dependent hash
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		AssertDependencyRemovedTransactionEvents(1, { hash }, { MutateHash(0, hash) });
 	}
 
@@ -152,7 +152,7 @@ namespace catapult { namespace unbondedpruning {
 
 	TEST(TEST_CLASS, TransactionEventsAreRaisedWhenDependentHashesAreFound_MultipleTransactionsSingleDependency) {
 		// Assert: 3 transaction x 1 dependent hash => 3 collected dependent hash
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		AssertDependencyRemovedTransactionEvents(3, { hash }, {
 			MutateHash(0, hash), MutateHash(1, hash), MutateHash(2, hash)
 		});

@@ -243,7 +243,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, CanManageMultipleConnections) {
 		// Act: establish multiple connections
-		static const auto Num_Connections = 5u;
+		constexpr auto Num_Connections = 5u;
 		PacketReadersTestContext context(Num_Connections);
 		auto state = SetupMultiConnectionTest(context);
 
@@ -262,7 +262,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, OnlyOneConnectionIsAllowedPerIdentityByDefault) {
 		// Act: establish multiple connections with the same identity
-		static const auto Num_Connections = 5u;
+		constexpr auto Num_Connections = 5u;
 		PacketReadersTestContext context(Num_Connections);
 		context.useSharedIdentity();
 
@@ -286,7 +286,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, MultipleConnectionsAreAllowedPerIdentityWithCustomConfiguration) {
 		// Act: establish multiple connections with the same identity
-		static const auto Num_Connections = 5u;
+		constexpr auto Num_Connections = 5u;
 		PacketReadersTestContext context(Num_Connections, 3);
 		context.useSharedIdentity();
 
@@ -574,7 +574,7 @@ namespace catapult { namespace net {
 		EXPECT_NUM_ACTIVE_READERS(2u, readers);
 
 		// Act: close one connection
-		auto isClosed = readers.closeOne(test::GenerateRandomData<Key_Size>());
+		auto isClosed = readers.closeOne(test::GenerateRandomByteArray<Key>());
 
 		// Assert:
 		EXPECT_FALSE(isClosed);

@@ -131,7 +131,7 @@ namespace catapult { namespace utils {
 	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&>)); \
 	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&&>));
 
-	TEST(TEST_CLASS, IsBaseOfIgnoreReferenceReturnsTrueIfLeftStrippedOfReferenceIsDerivedFromBase) {
+	TEST(TEST_CLASS, IsBaseOfIgnoreReferenceReturnsTrueWhenLeftStrippedOfReferenceIsDerivedFromBase) {
 		// Assert:
 		// - (Base, Base) with any reference qualifiers is true
 		EXPECT_IS_BASE_OF_IGNORE_REFERENCE_RESULT(true, Base, Base);

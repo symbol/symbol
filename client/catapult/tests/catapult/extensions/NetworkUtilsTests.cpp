@@ -21,6 +21,7 @@
 #include "catapult/extensions/NetworkUtils.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/net/ClientSocket.h"
+#include "tests/test/other/MutableCatapultConfiguration.h"
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/TestHarness.h"
 
@@ -29,36 +30,29 @@ namespace catapult { namespace extensions {
 #define TEST_CLASS NetworkUtilsTests
 
 	namespace {
-		auto CreateLocalNodeConfiguration() {
-			// Arrange:
-			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.Network.Identifier = static_cast<model::NetworkIdentifier>(7);
+		auto CreateCatapultConfiguration() {
+			test::MutableCatapultConfiguration config;
+			config.BlockChain.Network.Identifier = static_cast<model::NetworkIdentifier>(7);
 
-			auto nodeConfig = config::NodeConfiguration::Uninitialized();
-			nodeConfig.ConnectTimeout = utils::TimeSpan::FromSeconds(11);
-			nodeConfig.SocketWorkingBufferSize = utils::FileSize::FromBytes(512);
-			nodeConfig.SocketWorkingBufferSensitivity = 987;
-			nodeConfig.MaxPacketDataSize = utils::FileSize::FromKilobytes(12);
+			config.Node.ConnectTimeout = utils::TimeSpan::FromSeconds(11);
+			config.Node.SocketWorkingBufferSize = utils::FileSize::FromBytes(512);
+			config.Node.SocketWorkingBufferSensitivity = 987;
+			config.Node.MaxPacketDataSize = utils::FileSize::FromKilobytes(12);
 
-			nodeConfig.IncomingConnections.MaxConnections = 17;
-			nodeConfig.IncomingConnections.BacklogSize = 83;
-			nodeConfig.ShouldAllowAddressReuse = true;
-			nodeConfig.OutgoingSecurityMode = static_cast<ionet::ConnectionSecurityMode>(8);
-			nodeConfig.IncomingSecurityModes = static_cast<ionet::ConnectionSecurityMode>(21);
-
-			return config::LocalNodeConfiguration(
-					std::move(blockChainConfig),
-					std::move(nodeConfig),
-					config::LoggingConfiguration::Uninitialized(),
-					config::UserConfiguration::Uninitialized());
+			config.Node.IncomingConnections.MaxConnections = 17;
+			config.Node.IncomingConnections.BacklogSize = 83;
+			config.Node.ShouldAllowAddressReuse = true;
+			config.Node.OutgoingSecurityMode = static_cast<ionet::ConnectionSecurityMode>(8);
+			config.Node.IncomingSecurityModes = static_cast<ionet::ConnectionSecurityMode>(21);
+			return config.ToConst();
 		}
 	}
 
 	// region GetConnectionSettings / UpdateAsyncTcpServerSettings
 
-	TEST(TEST_CLASS, CanExtractConnectionSettingsFromLocalNodeConfiguration) {
+	TEST(TEST_CLASS, CanExtractConnectionSettingsFromCatapultConfiguration) {
 		// Arrange:
-		auto config = CreateLocalNodeConfiguration();
+		auto config = CreateCatapultConfiguration();
 
 		// Act:
 		auto settings = GetConnectionSettings(config);
@@ -74,9 +68,9 @@ namespace catapult { namespace extensions {
 		EXPECT_EQ(static_cast<ionet::ConnectionSecurityMode>(21), settings.IncomingSecurityModes);
 	}
 
-	TEST(TEST_CLASS, CanUpdateAsyncTcpServerSettingsFromLocalNodeConfiguration) {
+	TEST(TEST_CLASS, CanUpdateAsyncTcpServerSettingsFromCatapultConfiguration) {
 		// Arrange:
-		auto config = CreateLocalNodeConfiguration();
+		auto config = CreateCatapultConfiguration();
 		auto settings = net::AsyncTcpServerSettings([](const auto&) {});
 
 		// Act:
@@ -155,7 +149,7 @@ namespace catapult { namespace extensions {
 			auto boot() {
 				// Act:
 				auto& serviceGroup = *m_pool.pushServiceGroup("server");
-				auto config = CreateLocalNodeConfiguration();
+				auto config = CreateCatapultConfiguration();
 				auto serviceId = ionet::ServiceIdentifier(123);
 				auto& acceptor = m_acceptor;
 				return BootServer(serviceGroup, test::GetLocalHostPort(), serviceId, config, m_nodeSubscriber, [&acceptor](
@@ -174,7 +168,7 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanBootServer) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		BootServerContext context(net::PeerConnectCode::Accepted, key);
 
 		// Act:
@@ -190,7 +184,7 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanConnectToBootedServer_AcceptFails) {
 		// Arrange: boot the server
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		BootServerContext context(net::PeerConnectCode::Socket_Error, key);
 		auto pServer = context.boot();
 
@@ -209,7 +203,7 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanConnectToBootedServer_AcceptSucceeds) {
 		// Arrange: boot the server
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		BootServerContext context(net::PeerConnectCode::Accepted, key);
 		auto pServer = context.boot();
 

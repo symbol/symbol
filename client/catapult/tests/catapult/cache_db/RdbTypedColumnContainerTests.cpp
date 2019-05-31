@@ -170,7 +170,7 @@ namespace catapult { namespace cache {
 
 	// region adapter tests
 
-	TEST(TEST_CLASS, EmptyReturnsTrueIfContainerSizeIsZero) {
+	TEST(TEST_CLASS, EmptyReturnsTrueWhenContainerSizeIsZero) {
 		// Arrange:
 		MockDb db;
 		auto container = CreateContainer(db);
@@ -185,7 +185,7 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(isEmpty);
 	}
 
-	TEST(TEST_CLASS, EmptyReturnsFalseIfContainerSizeIsNonZero) {
+	TEST(TEST_CLASS, EmptyReturnsFalseWhenContainerSizeIsNonZero) {
 		// Arrange:
 		MockDb db;
 		auto container = CreateContainer(db);

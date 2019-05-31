@@ -85,7 +85,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		template<typename TTraits>
 		void AssertCanMapTransferTransaction(const std::vector<uint8_t>& message, std::initializer_list<model::UnresolvedMosaic> mosaics) {
 			// Arrange:
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto recipient = test::GenerateRandomUnresolvedAddress();
 			auto pTransaction = TTraits::Adapt(CreateTransferTransactionBuilder(signer, recipient, message, mosaics));
 			auto pPlugin = TTraits::CreatePlugin();
@@ -101,7 +101,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		}
 	}
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, model::Entity_Type_Transfer)
+	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Transfer)
 
 	// region streamTransaction
 

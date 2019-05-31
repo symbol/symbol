@@ -39,17 +39,17 @@ namespace catapult { namespace parsers {
 		}
 	}
 
-	TEST(TEST_CLASS, CannotParseBlockElementIfReportedBlockSizeIsSmallerThanHeader) {
+	TEST(TEST_CLASS, CannotParseBlockElementWhenReportedBlockSizeIsSmallerThanHeader) {
 		// Arrange: invalidate the block size (too small)
 		auto buffer = PrepareBlockElementBuffer(3);
-		reinterpret_cast<model::Block&>(*buffer.data()).Size = sizeof(model::BlockHeader) - 1;
+		reinterpret_cast<model::Block&>(buffer[0]).Size = sizeof(model::BlockHeader) - 1;
 
 		// Act + Assert:
 		size_t numBytesConsumed;
 		EXPECT_THROW(ParseBlockElement(buffer, numBytesConsumed), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, CannotParseBlockElementIfHashesAreNotFullyPresent) {
+	TEST(TEST_CLASS, CannotParseBlockElementWhenHashesAreNotFullyPresent) {
 		// Arrange: use a buffer one byte too small
 		auto buffer = PrepareBlockElementBuffer(3);
 		buffer.resize(buffer.size() - 1);
@@ -59,7 +59,7 @@ namespace catapult { namespace parsers {
 		EXPECT_THROW(ParseBlockElement(buffer, numBytesConsumed), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, CannotParseBlockElementIfAnyHashIsMissing) {
+	TEST(TEST_CLASS, CannotParseBlockElementWhenAnyHashIsMissing) {
 		// Arrange: use a buffer missing a single hash
 		auto buffer = PrepareBlockElementBuffer(3);
 		buffer.resize(buffer.size() - Hash256_Size);
@@ -69,7 +69,7 @@ namespace catapult { namespace parsers {
 		EXPECT_THROW(ParseBlockElement(buffer, numBytesConsumed), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, CannotParseBlockElementIfBlockHeaderDoesNotFit) {
+	TEST(TEST_CLASS, CannotParseBlockElementWhenBlockHeaderDoesNotFit) {
 		// Arrange: use a buffer one byte smaller than a block header
 		auto buffer = PrepareBlockElementBuffer(3);
 		buffer.resize(sizeof(model::BlockHeader) - 1);
@@ -79,10 +79,10 @@ namespace catapult { namespace parsers {
 		EXPECT_THROW(ParseBlockElement(buffer, numBytesConsumed), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, CannotParseBlockElementIfReportedBlockSizeIsLargerThanRemainingData) {
+	TEST(TEST_CLASS, CannotParseBlockElementWhenReportedBlockSizeIsLargerThanRemainingData) {
 		// Arrange: invalidate the block size (too big)
 		auto buffer = PrepareBlockElementBuffer(3);
-		buffer.resize(reinterpret_cast<model::Block&>(*buffer.data()).Size - 1);
+		buffer.resize(reinterpret_cast<model::Block&>(buffer[0]).Size - 1);
 
 		// Act + Assert:
 		size_t numBytesConsumed;
@@ -108,10 +108,10 @@ namespace catapult { namespace parsers {
 			EXPECT_EQ(*pBlock, blockElement.Block);
 
 			// - compare hashes
-			const auto* pHash = reinterpret_cast<Hash256*>(&buffer[pBlock->Size]);
+			const auto* pHash = reinterpret_cast<const Hash256*>(&buffer[pBlock->Size]);
 			EXPECT_EQ(*pHash, blockElement.EntityHash);
 			++pHash;
-			EXPECT_EQ(*pHash, blockElement.GenerationHash);
+			EXPECT_EQ(reinterpret_cast<const GenerationHash&>(*pHash), blockElement.GenerationHash);
 			++pHash;
 
 			auto i = 0u;

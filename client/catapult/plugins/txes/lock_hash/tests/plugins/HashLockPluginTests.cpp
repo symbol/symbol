@@ -20,6 +20,7 @@
 
 #include "src/plugins/HashLockPlugin.h"
 #include "src/model/HashLockEntityType.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -41,7 +42,7 @@ namespace catapult { namespace plugins {
 					}
 				}}));
 
-				PluginManager manager(config, StorageConfiguration());
+				auto manager = test::CreatePluginManager(config);
 				RegisterHashLockSubsystem(manager);
 
 				// Act:
@@ -70,11 +71,11 @@ namespace catapult { namespace plugins {
 			}
 
 			static std::vector<std::string> GetStatelessValidatorNames() {
-				return { "HashLockDurationValidator", "HashLockMosaicValidator" };
+				return { "HashLockDurationValidator" };
 			}
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
-				return { "AggregateHashPresentValidator", "HashLockCacheUniqueValidator" };
+				return { "AggregateHashPresentValidator", "HashLockCacheUniqueValidator", "HashLockMosaicValidator" };
 			}
 
 			static std::vector<std::string> GetObserverNames() {

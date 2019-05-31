@@ -26,6 +26,7 @@ namespace catapult { namespace tree {
 	enum class DataSourceVerbosity {
 		/// No messages.
 		Off,
+
 		/// Verbose messages.
 		Verbose
 	};

@@ -37,9 +37,8 @@ void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
 
 	// cache storage support
 	manager.addStorageSupport(catapult::mongo::plugins::CreateMongoNamespaceCacheStorage(
-			manager.createDatabaseConnection(),
-			manager.mongoContext().bulkWriter(),
-			manager.chainConfig().Network.Identifier));
+			manager.mongoContext(),
+			manager.networkIdentifier()));
 
 	// receipt support
 	manager.addReceiptSupport(catapult::mongo::plugins::CreateNamespaceExpiryReceiptMongoPlugin());

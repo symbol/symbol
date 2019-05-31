@@ -64,7 +64,7 @@ namespace catapult { namespace partialtransaction {
 
 	// region file io
 
-	TEST(TEST_CLASS, LoadFromPathFailsIfFileDoesNotExist) {
+	TEST(TEST_CLASS, LoadFromPathFailsWhenFileDoesNotExist) {
 		// Act + Assert: attempt to load the config
 		EXPECT_THROW(PtConfiguration::LoadFromPath("../no-resources"), catapult_runtime_error);
 	}

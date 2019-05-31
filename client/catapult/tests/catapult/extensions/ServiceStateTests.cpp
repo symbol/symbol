@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/extensions/ServiceState.h"
-#include "catapult/cache/MemoryUtCache.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/ionet/NodeContainer.h"
@@ -29,6 +29,7 @@
 #include "tests/test/other/mocks/MockNodeSubscriber.h"
 #include "tests/test/other/mocks/MockStateChangeSubscriber.h"
 #include "tests/test/other/mocks/MockTransactionStatusSubscriber.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace extensions {
@@ -37,13 +38,15 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, CanCreateServiceState) {
 		// Arrange:
-		auto config = test::CreateUninitializedLocalNodeConfiguration();
+		auto config = test::CreateUninitializedCatapultConfiguration();
 		const_cast<utils::FileSize&>(config.Node.MaxPacketDataSize) = utils::FileSize::FromKilobytes(1234);
 
 		ionet::NodeContainer nodes;
 		auto catapultCache = cache::CatapultCache({});
 		state::CatapultState catapultState;
-		io::BlockStorageCache storage(std::make_unique<mocks::MockMemoryBlockStorage>());
+		io::BlockStorageCache storage(
+				std::make_unique<mocks::MockMemoryBlockStorage>(),
+				std::make_unique<mocks::MockMemoryBlockStorage>());
 		LocalNodeChainScore score;
 		auto pUtCache = test::CreateUtCacheProxy();
 
@@ -58,7 +61,7 @@ namespace catapult { namespace extensions {
 		mocks::MockNodeSubscriber nodeSubscriber;
 
 		std::vector<utils::DiagnosticCounter> counters;
-		plugins::PluginManager pluginManager(config.BlockChain, plugins::StorageConfiguration());
+		auto pluginManager = test::CreatePluginManager(config.BlockChain);
 		thread::MultiServicePool pool("test", 1);
 
 		// Act:

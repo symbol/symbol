@@ -37,7 +37,7 @@ namespace catapult { namespace builders {
 		public:
 			explicit TestContext(size_t numTransactions)
 					: m_networkId(static_cast<model::NetworkIdentifier>(0x62))
-					, m_signer(test::GenerateRandomData<Key_Size>()) {
+					, m_signer(test::GenerateRandomByteArray<Key>()) {
 				for (auto i = 0u; i < numTransactions; ++i)
 					m_pTransactions.push_back(mocks::CreateEmbeddedMockTransaction(static_cast<uint16_t>(31 + i)));
 			}
@@ -106,7 +106,8 @@ namespace catapult { namespace builders {
 		void AssertAggregateCosignaturesTransaction(size_t numCosignatures) {
 			// Arrange: create transaction with 3 embedded transactions
 			TestContext context(3);
-			AggregateCosignatureAppender builder(context.buildTransaction());
+			auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
+			AggregateCosignatureAppender builder(generationHash, context.buildTransaction());
 			auto cosigners = GenerateKeys(numCosignatures);
 
 			// Act:
@@ -117,12 +118,12 @@ namespace catapult { namespace builders {
 
 			// Assert:
 			context.assertTransaction(*pTransaction, cosigners.size(), model::Entity_Type_Aggregate_Complete);
-			auto hash = model::CalculateHash(*pTransaction, TransactionDataBuffer(*pTransaction));
+			auto hash = model::CalculateHash(*pTransaction, generationHash, TransactionDataBuffer(*pTransaction));
 			const auto* pCosignature = pTransaction->CosignaturesPtr();
 			for (const auto& cosigner : cosigners) {
 				EXPECT_EQ(cosigner.publicKey(), pCosignature->Signer) << "invalid signer";
 				EXPECT_TRUE(crypto::Verify(pCosignature->Signer, hash, pCosignature->Signature))
-						<< "invalid cosignature " << utils::HexFormat(pCosignature->Signature);
+						<< "invalid cosignature " << pCosignature->Signature;
 				++pCosignature;
 			}
 		}

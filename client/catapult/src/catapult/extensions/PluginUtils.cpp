@@ -19,7 +19,7 @@
 **/
 
 #include "PluginUtils.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 #include "catapult/observers/ReverseNotificationObserverAdapter.h"
 #include "catapult/validators/AggregateEntityValidator.h"
@@ -27,7 +27,7 @@
 
 namespace catapult { namespace extensions {
 
-	plugins::StorageConfiguration CreateStorageConfiguration(const config::LocalNodeConfiguration& config) {
+	plugins::StorageConfiguration CreateStorageConfiguration(const config::CatapultConfiguration& config) {
 		plugins::StorageConfiguration storageConfig;
 		storageConfig.PreferCacheDatabase = config.Node.ShouldUseCacheDatabaseStorage;
 		storageConfig.CacheDatabaseDirectory = (boost::filesystem::path(config.User.DataDirectory) / "statedb").generic_string();

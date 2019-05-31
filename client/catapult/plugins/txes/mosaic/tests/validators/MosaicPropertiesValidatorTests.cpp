@@ -54,13 +54,13 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenValidatingValidMosaicFlags) {
 		// Assert:
-		for (auto flags : { 0x00, 0x02, 0x05, 0x07 })
+		for (auto flags : { 0x00, 0x02, 0x03 })
 			AssertFlagsResult(ValidationResult::Success, static_cast<model::MosaicFlags>(flags));
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingInvalidMosaicFlags) {
 		// Assert:
-		for (auto flags : { 0x08, 0x09, 0xFF })
+		for (auto flags : { 0x04, 0x07, 0x08, 0x09, 0xFF })
 			AssertFlagsResult(Failure_Mosaic_Invalid_Flags, static_cast<model::MosaicFlags>(flags));
 	}
 

@@ -19,8 +19,8 @@
 **/
 
 #include "mongo/src/AggregateExternalCacheStorage.h"
+#include "mongo/tests/test/mocks/MockExternalCacheStorage.h"
 #include "tests/test/cache/CacheTestUtils.h"
-#include "tests/test/local/mocks/MockExternalCacheStorage.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo {
@@ -100,15 +100,10 @@ namespace catapult { namespace mongo {
 		}
 
 		template<size_t CacheId>
-		void AssertStorage(
-				const ExternalCacheStorage& storage,
-				size_t numExpectedSaves,
-				size_t numExpectedLoads,
-				Height expectedChainHeight) {
+		void AssertStorage(const ExternalCacheStorage& storage, size_t numExpectedSaves, Height expectedChainHeight) {
 			const auto& mockStorage = static_cast<const mocks::MockExternalCacheStorage<CacheId>&>(storage);
 			std::string message = "for cache with id " + std::to_string(mockStorage.id());
 			EXPECT_EQ(numExpectedSaves, mockStorage.numSaveDeltaCalls()) << message;
-			EXPECT_EQ(numExpectedLoads, mockStorage.numLoadAllCalls()) << message;
 			EXPECT_EQ(expectedChainHeight, mockStorage.chainHeight()) << message;
 		}
 	}
@@ -121,30 +116,13 @@ namespace catapult { namespace mongo {
 		auto delta = catapultCache.createDelta();
 
 		// Act:
-		pStorage->saveDelta(delta);
+		pStorage->saveDelta(cache::CacheChanges(delta));
 
 		// Assert:
 		EXPECT_EQ(0u, pStorage->id());
 		EXPECT_EQ("{ SimpleCache, SimpleCache, SimpleCache }", pStorage->name());
-		AssertStorage<1>(*subStorages[0], 1u, 0u, Height(0));
-		AssertStorage<2>(*subStorages[1], 1u, 0u, Height(0));
-		AssertStorage<3>(*subStorages[2], 1u, 0u, Height(0));
-	}
-
-	TEST(TEST_CLASS, AggregateExternalCacheStorage_LoadAllDelegatesToAllSubStorages) {
-		// Arrange:
-		std::vector<ExternalCacheStorage*> subStorages;
-		auto pStorage = CreateAggregateExternalCacheStorage(subStorages);
-		auto catapultCache = CreateCatapultCache();
-
-		// Act:
-		pStorage->loadAll(catapultCache, Height(123));
-
-		// Assert:
-		EXPECT_EQ(0u, pStorage->id());
-		EXPECT_EQ("{ SimpleCache, SimpleCache, SimpleCache }", pStorage->name());
-		AssertStorage<1>(*subStorages[0], 0u, 1u, Height(123));
-		AssertStorage<2>(*subStorages[1], 0u, 1u, Height(123));
-		AssertStorage<3>(*subStorages[2], 0u, 1u, Height(123));
+		AssertStorage<1>(*subStorages[0], 1, Height(0));
+		AssertStorage<2>(*subStorages[1], 1, Height(0));
+		AssertStorage<3>(*subStorages[2], 1, Height(0));
 	}
 }}

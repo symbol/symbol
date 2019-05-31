@@ -27,6 +27,8 @@ namespace catapult { namespace model {
 
 #define TEST_CLASS LockHashUtilsTests
 
+	// region CalculateHash
+
 	namespace {
 		struct OpSha3_256_Traits {
 			using HashType = Hash256;
@@ -55,12 +57,12 @@ namespace catapult { namespace model {
 		template<typename TTraits>
 		void AssertCalculateHashReturnsProperHash() {
 			// Arrange:
-			auto data = test::GenerateRandomVector(123);
+			auto dataBuffer = test::GenerateRandomVector(123);
 			typename TTraits::HashType expected;
-			TTraits::HashFunc(data, expected);
+			TTraits::HashFunc(dataBuffer, expected);
 
 			// Act:
-			auto result = CalculateHash(TTraits::HashAlgorithm, data);
+			auto result = CalculateHash(TTraits::HashAlgorithm, dataBuffer);
 
 			// Assert: if expected hash is shorter than 256bits, validate that rest is zero initialized
 			EXPECT_EQ_MEMORY(expected.data(), result.data(), expected.size());
@@ -86,10 +88,57 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CalculateHashThrowsForInvalidAlgorithm) {
 		// Arrange:
-		auto data = test::GenerateRandomVector(123);
+		auto dataBuffer = test::GenerateRandomVector(123);
 
 		// Act + Assert:
 		auto algorithm = static_cast<LockHashAlgorithm>(utils::to_underlying_type(LockHashAlgorithm::Op_Hash_256) + 1);
-		EXPECT_THROW(CalculateHash(algorithm, data), catapult_invalid_argument);
+		EXPECT_THROW(CalculateHash(algorithm, dataBuffer), catapult_invalid_argument);
 	}
+
+	// endregion
+
+	// region CalculateSecretLockInfoHash
+
+	TEST(TEST_CLASS, CalculateSecretLockInfoHash_DifferentSecretsYieldDifferentHashes) {
+		// Arrange:
+		auto secret1 = test::GenerateRandomByteArray<Hash256>();
+		auto secret2 = test::GenerateRandomByteArray<Hash256>();
+		auto recipient = test::GenerateRandomByteArray<Address>();
+
+		// Act:
+		auto hash1 = CalculateSecretLockInfoHash(secret1, recipient);
+		auto hash2 = CalculateSecretLockInfoHash(secret2, recipient);
+
+		// Assert:
+		EXPECT_NE(hash1, hash2);
+	}
+
+	TEST(TEST_CLASS, CalculateSecretLockInfoHash_DifferentRecipientsYieldDifferentHashes) {
+		// Arrange:
+		auto secret = test::GenerateRandomByteArray<Hash256>();
+		auto recipient1 = test::GenerateRandomByteArray<Address>();
+		auto recipient2 = test::GenerateRandomByteArray<Address>();
+
+		// Act:
+		auto hash1 = CalculateSecretLockInfoHash(secret, recipient1);
+		auto hash2 = CalculateSecretLockInfoHash(secret, recipient2);
+
+		// Assert:
+		EXPECT_NE(hash1, hash2);
+	}
+
+	TEST(TEST_CLASS, CalculateSecretLockInfoHash_IsDeterministic) {
+		// Arrange:
+		auto secret = test::GenerateRandomByteArray<Hash256>();
+		auto recipient = test::GenerateRandomByteArray<Address>();
+
+		// Act:
+		auto hash1 = CalculateSecretLockInfoHash(secret, recipient);
+		auto hash2 = CalculateSecretLockInfoHash(secret, recipient);
+
+		// Assert:
+		EXPECT_EQ(hash1, hash2);
+	}
+
+	// endregion
 }}

@@ -37,12 +37,8 @@ namespace catapult { namespace config {
 						"",
 						{
 							{ "maxMosaicsPerAccount", "4321" },
-
 							{ "maxMosaicDuration", "2340h" },
-
-							{ "isMosaicLevyUpdateAllowed", "true" },
 							{ "maxMosaicDivisibility", "7" },
-							{ "maxMosaicDivisibleUnits", "12349876" },
 
 							{ "mosaicRentalFeeSinkPublicKey", Mosaic_Rental_Fee_Sink_Public_Key },
 							{ "mosaicRentalFee", "773388" }
@@ -58,12 +54,8 @@ namespace catapult { namespace config {
 			static void AssertZero(const MosaicConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(0u, config.MaxMosaicsPerAccount);
-
 				EXPECT_EQ(utils::BlockSpan(), config.MaxMosaicDuration);
-
-				EXPECT_FALSE(config.IsMosaicLevyUpdateAllowed);
 				EXPECT_EQ(0u, config.MaxMosaicDivisibility);
-				EXPECT_EQ(Amount(), config.MaxMosaicDivisibleUnits);
 
 				EXPECT_EQ(Key(), config.MosaicRentalFeeSinkPublicKey);
 				EXPECT_EQ(Amount(), config.MosaicRentalFee);
@@ -72,12 +64,8 @@ namespace catapult { namespace config {
 			static void AssertCustom(const MosaicConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(4321u, config.MaxMosaicsPerAccount);
-
 				EXPECT_EQ(utils::BlockSpan::FromHours(2340), config.MaxMosaicDuration);
-
-				EXPECT_TRUE(config.IsMosaicLevyUpdateAllowed);
 				EXPECT_EQ(7u, config.MaxMosaicDivisibility);
-				EXPECT_EQ(Amount(12349876), config.MaxMosaicDivisibleUnits);
 
 				EXPECT_EQ(crypto::ParseKey(Mosaic_Rental_Fee_Sink_Public_Key), config.MosaicRentalFeeSinkPublicKey);
 				EXPECT_EQ(Amount(773388), config.MosaicRentalFee);

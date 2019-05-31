@@ -20,6 +20,7 @@
 
 #include "catapult/model/EntityRange.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/nodeps/IteratorTestTraits.h"
 #include "tests/TestHarness.h"
 
@@ -394,7 +395,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanCreateRangeAroundSingleVerifiableEntity) {
 		// Arrange:
 		auto pBlock = test::NonEmptyBlockPolicy::Create();
-		auto pBlockCopy = test::CopyBlock(*pBlock);
+		auto pBlockCopy = test::CopyEntity(*pBlock);
 
 		// Act:
 		auto range = BlockRange::FromEntity(std::move(pBlock));
@@ -409,7 +410,7 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanCopyRangeAroundSingleVerifiableEntity) {
 		// Arrange:
 		auto pBlock = test::NonEmptyBlockPolicy::Create();
-		auto pBlockCopy = test::CopyBlock(*pBlock);
+		auto pBlockCopy = test::CopyEntity(*pBlock);
 
 		// Act:
 		auto original = BlockRange::FromEntity(std::move(pBlock));
@@ -428,7 +429,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto pBlock = test::NonEmptyBlockPolicy::Create();
 		auto pBlockRaw = pBlock.get();
-		auto pBlockCopy = test::CopyBlock(*pBlock);
+		auto pBlockCopy = test::CopyEntity(*pBlock);
 
 		// Act:
 		auto range = BlockRange::FromEntity(std::move(pBlock));
@@ -574,12 +575,12 @@ namespace catapult { namespace model {
 
 			std::vector<BlockRange> ranges;
 			ranges.push_back(test::CreateEntityRange({ blocks[0].get() })); // single-buffer
-			ranges.push_back(BlockRange::FromEntity(test::CopyBlock(*blocks[1]))); // single-entity
+			ranges.push_back(BlockRange::FromEntity(test::CopyEntity(*blocks[1]))); // single-entity
 			ranges.push_back(test::CreateEntityRange(std::vector<const Block*>{ blocks[2].get(), blocks[3].get() })); // single-buffer
 
 			std::vector<BlockRange> subRanges;
 			subRanges.push_back(test::CreateEntityRange({ blocks[4].get() })); // single-buffer
-			subRanges.push_back(BlockRange::FromEntity(test::CopyBlock(*blocks[5]))); // single-entity
+			subRanges.push_back(BlockRange::FromEntity(test::CopyEntity(*blocks[5]))); // single-entity
 			ranges.push_back(BlockRange::MergeRanges(std::move(subRanges))); // multi-buffer
 
 			// Act:

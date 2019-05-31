@@ -40,7 +40,7 @@ namespace catapult { namespace validators {
 				const std::vector<model::CosignatoryModificationType>& modificationTypes,
 				uint8_t maxCosignersPerAccount) {
 			// Arrange:
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 
 			// - setup cache
 			auto cache = test::MultisigCacheFactory::Create();
@@ -50,7 +50,7 @@ namespace catapult { namespace validators {
 
 				// - add cosignatories
 				for (auto i = 0; i < numInitialCosigners; ++i)
-					entry.cosignatories().insert(test::GenerateRandomData<Key_Size>());
+					entry.cosignatories().insert(test::GenerateRandomByteArray<Key>());
 
 				cacheDelta.sub<cache::MultisigCache>().insert(entry);
 				cache.commit(Height());
@@ -58,7 +58,7 @@ namespace catapult { namespace validators {
 
 			std::vector<model::CosignatoryModification> modifications;
 			for (auto modificationType : modificationTypes)
-				modifications.push_back({ modificationType, test::GenerateRandomData<Key_Size>() });
+				modifications.push_back({ modificationType, test::GenerateRandomByteArray<Key>() });
 
 			model::ModifyMultisigCosignersNotification notification(
 					signer,
@@ -78,7 +78,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, CanAddCosignersIfMaxCosignersIsNotExceeded) {
+	TEST(TEST_CLASS, CanAddCosignersWhenMaxCosignersIsNotExceeded) {
 		// Assert:
 		AssertValidationResult(ValidationResult::Success, 0, { Add, Add, Add, Add, Add }, 10);
 	}
@@ -90,7 +90,7 @@ namespace catapult { namespace validators {
 		AssertValidationResult(ValidationResult::Success, 9, { Del, Add, Add, Del, Add }, 10);
 	}
 
-	TEST(TEST_CLASS, CannotAddCosignersIfMaxCosignersIsExceeded) {
+	TEST(TEST_CLASS, CannotAddCosignersWhenMaxCosignersIsExceeded) {
 		// Assert:
 		AssertValidationResult(Failure_Multisig_Modify_Max_Cosigners, 10, { Add }, 10);
 		AssertValidationResult(Failure_Multisig_Modify_Max_Cosigners, 8, { Add, Add, Add }, 10);

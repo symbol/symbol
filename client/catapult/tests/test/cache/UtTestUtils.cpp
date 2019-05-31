@@ -19,8 +19,9 @@
 **/
 
 #include "UtTestUtils.h"
-#include "catapult/cache/MemoryUtCache.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/model/EntityRange.h"
+#include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -62,7 +63,7 @@ namespace catapult { namespace test {
 		auto view = cache.view();
 		if (0 != count) {
 			view.forEach([count, &transactions](const auto& info) {
-				transactions.push_back(test::CopyTransaction(*info.pEntity));
+				transactions.push_back(CopyEntity(*info.pEntity));
 				return count != transactions.size();
 			});
 		}

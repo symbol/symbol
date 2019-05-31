@@ -392,7 +392,7 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	DELTA_VIEW_BASED_TEST(GetThrowsIfNamespaceIsUnknown) {
+	DELTA_VIEW_BASED_TEST(GetThrowsWhenNamespaceIsUnknown) {
 		// Act:
 		TTraits::RunTest([](const auto& view) {
 			auto namespaceIter = view->find(NamespaceId(123));
@@ -430,7 +430,7 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	DELTA_VIEW_BASED_TEST(TryGetReturnsNullptrIfNamespaceIsUnknown) {
+	DELTA_VIEW_BASED_TEST(TryGetReturnsNullptrWhenNamespaceIsUnknown) {
 		// Act:
 		TTraits::RunTest([](const auto& view) {
 			auto namespaceIter = view->find(NamespaceId(123));
@@ -469,7 +469,7 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	DELTA_VIEW_BASED_TEST(TryGetUnadaptedReturnsNullptrIfNamespaceIsUnknown) {
+	DELTA_VIEW_BASED_TEST(TryGetUnadaptedReturnsNullptrWhenNamespaceIsUnknown) {
 		// Act:
 		TTraits::RunTest([](const auto& view) {
 			auto namespaceIter = view->find(NamespaceId(123));
@@ -605,7 +605,7 @@ namespace catapult { namespace cache {
 		AssertLifetime(delta->find(NamespaceId(123)).get().root().lifetime(), 345, 456);
 	}
 
-	TEST(TEST_CLASS, CanInsertSingleChildIfRootIsKnown) {
+	TEST(TEST_CLASS, CanInsertSingleChildWhenRootIsKnown) {
 		// Arrange:
 		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
@@ -624,7 +624,7 @@ namespace catapult { namespace cache {
 		AssertLifetime(delta->find(NamespaceId(123)).get().root().lifetime(), 234, 321);
 	}
 
-	TEST(TEST_CLASS, CanAbandonInsertSingleChildIfRootIsKnown) {
+	TEST(TEST_CLASS, CanAbandonInsertSingleChildWhenRootIsKnown) {
 		// Arrange:
 		NamespaceCacheMixinTraits::CacheType cache;
 		{
@@ -646,7 +646,7 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(view->contains(NamespaceId(123)));
 	}
 
-	TEST(TEST_CLASS, CanInsertMultipleChildrenIfParentsAreKnown) {
+	TEST(TEST_CLASS, CanInsertMultipleChildrenWhenParentsAreKnown) {
 		// Arrange:
 		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
@@ -668,7 +668,7 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(delta->contains(NamespaceId(125)));
 	}
 
-	TEST(TEST_CLASS, CannotInsertChildIfParentIsUnknown) {
+	TEST(TEST_CLASS, CannotInsertChildWhenParentIsUnknown) {
 		// Arrange:
 		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
@@ -829,7 +829,7 @@ namespace catapult { namespace cache {
 		EXPECT_FALSE(delta->contains(NamespaceId(5)));
 	}
 
-	TEST(TEST_CLASS, CanRemoveRootNamespaceWithChildrenIfHistoryDepthIsNotOne) {
+	TEST(TEST_CLASS, CanRemoveRootNamespaceWithChildrenWhenHistoryDepthIsNotOne) {
 		// Arrange:
 		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
@@ -850,7 +850,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(4u, delta->find(NamespaceId(1)).get().root().size());
 	}
 
-	TEST(TEST_CLASS, RemovingRootNamespaceIfHistoryDepthIsNotOneUpdatesChildNamespacesWithOldRoot) {
+	TEST(TEST_CLASS, RemovingRootNamespaceWhenHistoryDepthIsNotOneUpdatesChildNamespacesWithOldRoot) {
 		// Arrange:
 		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
@@ -879,7 +879,7 @@ namespace catapult { namespace cache {
 			EXPECT_EQ(Height(234), delta->find(pair.first).get().root().lifetime().Start);
 	}
 
-	TEST(TEST_CLASS, CanRemoveRootNamespaceWithoutChildrenIfHistoryDepthIsNotOne) {
+	TEST(TEST_CLASS, CanRemoveRootNamespaceWithoutChildrenWhenHistoryDepthIsNotOne) {
 		// Arrange:
 		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
@@ -903,7 +903,7 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(delta->find(NamespaceId(5)).get().root().empty());
 	}
 
-	TEST(TEST_CLASS, CannotRemoveRootNamespaceWithChildrenIfHistoryDepthIsOne) {
+	TEST(TEST_CLASS, CannotRemoveRootNamespaceWithChildrenWhenHistoryDepthIsOne) {
 		// Arrange:
 		NamespaceCacheMixinTraits::CacheType cache;
 		auto delta = cache.createDelta();
@@ -962,6 +962,107 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(MosaicId(1), GetNamespaceAliasFromCache(*view, NamespaceId(123)).mosaicId());
 		EXPECT_EQ(MosaicId(2), GetNamespaceAliasFromCache(*view, NamespaceId(111)).mosaicId());
 		EXPECT_EQ(MosaicId(3), GetNamespaceAliasFromCache(*view, NamespaceId(222)).mosaicId());
+	}
+
+	namespace {
+		bool Contains(const BasicNamespaceCacheDelta::CollectedIds& ids, NamespaceId id) {
+			return ids.cend() != ids.find(id);
+		}
+	}
+
+	TEST(TEST_CLASS, RemoveRootNamespaceRemovesNamespaceIdFromHeightBasedMapWhenHistoryDepthIsOne) {
+		// Arrange: namespace with id 5 expires at height 321
+		NamespaceCacheMixinTraits::CacheType cache;
+		auto owner = test::CreateRandomOwner();
+		{
+			auto delta = cache.createDelta();
+			PopulateCache(delta, owner);
+
+			// Sanity:
+			test::AssertCacheSizes(*delta, 5, 10, 15);
+			ASSERT_TRUE(delta->contains(NamespaceId(5)));
+			EXPECT_TRUE(delta->find(NamespaceId(5)).get().root().empty());
+
+			cache.commit();
+		}
+
+		{
+			// Act: remove namespace with id 5
+			auto delta = cache.createDelta();
+			delta->remove(NamespaceId(5));
+			cache.commit();
+		}
+
+		// Act: reinsert namespace with id 5 and expiry height 123
+		// - note that the new expiry height has to be lower so that pruning will see an expired root at height 321 + Grace_Period_Duration
+		auto delta = cache.createDelta();
+		auto newOwner = test::CreateRandomOwner();
+		delta->insert(state::RootNamespace(NamespaceId(5), newOwner, test::CreateLifetime(100, 123)));
+
+		// Assert:
+		auto removedIds1 = delta->prune(Height(321 + Grace_Period_Duration));
+		EXPECT_FALSE(Contains(removedIds1, NamespaceId(5)));
+
+		auto removedIds2 = delta->prune(Height(123 + Grace_Period_Duration));
+		EXPECT_CONTAINS(removedIds2, NamespaceId(5));
+	}
+
+	TEST(TEST_CLASS, RemoveRootNamespaceRemovesNamespaceIdFromHeightBasedMapWhenHistoryDepthIsGreaterThanOne) {
+		// Arrange: namespace with id 5 expires at height 321
+		NamespaceCacheMixinTraits::CacheType cache;
+		auto owner = test::CreateRandomOwner();
+		{
+			auto delta = cache.createDelta();
+			PopulateCache(delta, owner);
+
+			// Sanity:
+			test::AssertCacheSizes(*delta, 5, 10, 15);
+			ASSERT_TRUE(delta->contains(NamespaceId(5)));
+			EXPECT_TRUE(delta->find(NamespaceId(5)).get().root().empty());
+
+			cache.commit();
+		}
+
+		// Act: renew namespace with id 5 and expiry height 432
+		{
+			auto delta = cache.createDelta();
+			delta->insert(state::RootNamespace(NamespaceId(5), owner, test::CreateLifetime(325, 432)));
+			cache.commit();
+		}
+
+		{
+			// - remove namespace with id 5
+			auto delta = cache.createDelta();
+			delta->remove(NamespaceId(5));
+			cache.commit();
+		}
+
+		{
+			// - renew namespace with id 5 and expiry height 345
+			auto delta = cache.createDelta();
+			delta->insert(state::RootNamespace(NamespaceId(5), owner, test::CreateLifetime(325, 345)));
+			cache.commit();
+		}
+
+		{
+			// - prune at height 321
+			auto delta = cache.createDelta();
+			delta->prune(Height(321 + Grace_Period_Duration));
+			cache.commit();
+		}
+
+		// Sanity:
+		auto delta = cache.createDelta();
+		EXPECT_EQ(Height(345), delta->find(NamespaceId(5)).get().root().lifetime().End);
+
+		// Assert: if the height based map would contain an entry at height 432 + Grace_Period_Duration, then the last root
+		//         would be pruned and the root id would be collected
+		auto removedIds1 = delta->prune(Height(432 + Grace_Period_Duration));
+		EXPECT_FALSE(Contains(removedIds1, NamespaceId(5)));
+
+		// - the height based map does contain an entry at height 345 + Grace_Period_Duration
+		auto removedIds2 = delta->prune(Height(345 + Grace_Period_Duration));
+		EXPECT_CONTAINS(removedIds2, NamespaceId(5));
 	}
 
 	// endregion
@@ -1094,6 +1195,40 @@ namespace catapult { namespace cache {
 		AssertPrunedIds({ 2, 12, 22 }, prunedIdGroups[2]);
 		AssertPrunedIds({ 3, 13, 23 }, prunedIdGroups[3]);
 		AssertPrunedIds({ 14, 24 }, prunedIdGroups[4]);
+	}
+
+	TEST(TEST_CLASS, PruneOnlyRemovesExpiredNamespacesWithGracePeriodEndHeightLessOrEqualToPruneHeight) {
+		// Arrange:
+		auto owner = test::CreateRandomOwner();
+		NamespaceCacheMixinTraits::CacheType cache;
+		{
+			auto delta = cache.createDelta();
+			delta->insert(state::RootNamespace(NamespaceId(5), owner, test::CreateLifetime(100, 120)));
+			delta->insert(state::RootNamespace(NamespaceId(5), owner, test::CreateLifetime(120, 121)));
+			delta->insert(state::RootNamespace(NamespaceId(6), owner, test::CreateLifetime(100, 120)));
+			delta->insert(state::RootNamespace(NamespaceId(6), owner, test::CreateLifetime(120, 120 + Grace_Period_Duration)));
+			delta->insert(state::RootNamespace(NamespaceId(7), owner, test::CreateLifetime(100, 110)));
+			delta->insert(state::RootNamespace(NamespaceId(7), owner, test::CreateLifetime(110, 120)));
+			cache.commit();
+		}
+
+		NamespaceIds prunedIds;
+		{
+			auto delta = cache.createDelta();
+
+			// Sanity:
+			test::AssertCacheSizes(*delta, 3, 3, 6);
+
+			// Act: note that only the roots with expiry height less than or equal to 120 should be pruned
+			prunedIds = delta->prune(Height(120 + Grace_Period_Duration));
+			cache.commit();
+
+			// Assert:
+			test::AssertCacheSizes(*delta, 2, 2, 2);
+		}
+
+		test::AssertCacheContents(cache, { 5, 6 });
+		AssertPrunedIds({ 7 }, prunedIds);
 	}
 
 	// endregion

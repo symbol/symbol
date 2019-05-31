@@ -56,7 +56,7 @@ namespace catapult { namespace crypto {
 		auto keyPair = KeyPair::FromString(rawKeyString);
 
 		// Assert:
-		EXPECT_EQ(expectedKey, test::ToHexString(keyPair.publicKey()));
+		EXPECT_EQ(expectedKey, test::ToString(keyPair.publicKey()));
 		EXPECT_EQ(rawKeyString, test::ToHexString(keyPair.privateKey().data(), keyPair.privateKey().size()));
 	}
 
@@ -77,7 +77,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, KeyPairCreatedFromPrivateKeyMatchesKeyPairCreatedFromString) {
 		// Arrange:
-		auto privateKeyStr = std::string("3485d98efd7eb07adafcfd1a157d89de2796a95e780813c0258af3f5f84ed8cb");
+		auto privateKeyStr = std::string("3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB");
 		auto privateKey = PrivateKey::FromString(privateKeyStr);
 
 		// Act:
@@ -93,11 +93,11 @@ namespace catapult { namespace crypto {
 #ifdef SIGNATURE_SCHEME_NIS1
 		// from nem https://github.com/NewEconomyMovement/nem-test-vectors)
 		std::string dataSet[] {
-			"575dbb3062267eff57c970a336ebbc8fbcfe12c5bd3ed7bc11eb0481d7704ced",
-			"5b0e3fa5d3b49a79022d7c1e121ba1cbbf4db5821f47ab8c708ef88defc29bfe",
-			"738ba9bb9110aea8f15caa353aca5653b4bdfca1db9f34d0efed2ce1325aeeda",
-			"e8bf9bc0f35c12d8c8bf94dd3a8b5b4034f1063948e3cc5304e55e31aa4b95a6",
-			"c325ea529674396db5675939e7988883d59a5fc17a28ca977e3ba85370232a83"
+			"575DBB3062267EFF57C970A336EBBC8FBCFE12C5BD3ED7BC11EB0481D7704CED",
+			"5B0E3FA5D3B49A79022D7C1E121BA1CBBF4DB5821F47AB8C708EF88DEFC29BFE",
+			"738BA9BB9110AEA8F15CAA353ACA5653B4BDFCA1DB9F34D0EFED2CE1325AEEDA",
+			"E8BF9BC0F35C12D8C8BF94DD3A8B5B4034F1063948E3CC5304E55E31AA4B95A6",
+			"C325EA529674396DB5675939E7988883D59A5FC17A28CA977E3BA85370232A83"
 		};
 
 		std::string expectedSet[] {
@@ -109,11 +109,11 @@ namespace catapult { namespace crypto {
 		};
 #else
 		std::string dataSet[] {
-			"ed4c70d78104eb11bcd73ebdc512febc8fbceb36a370c957ff7e266230bb5d57",
-			"fe9bc2ef8df88e708cab471f82b54dbfcba11b121e7c2d02799ab4d3a53f0e5b",
-			"daee5a32e12cedefd0349fdba1fcbdb45356ca3a35aa5cf1a8ae1091bba98b73",
-			"a6954baa315ee50453cce3483906f134405b8b3add94bfc8d8125cf3c09bbfe8",
-			"832a237053a83b7e97ca287ac15f9ad5838898e7395967b56d39749652ea25c3"
+			"ED4C70D78104EB11BCD73EBDC512FEBC8FBCEB36A370C957FF7E266230BB5D57",
+			"FE9BC2EF8DF88E708CAB471F82B54DBFCBA11B121E7C2D02799AB4D3A53F0E5B",
+			"DAEE5A32E12CEDEFD0349FDBA1FCBDB45356CA3A35AA5CF1A8AE1091BBA98B73",
+			"A6954BAA315EE50453CCE3483906F134405B8B3ADD94BFC8D8125CF3C09BBFE8",
+			"832A237053A83B7E97CA287AC15F9AD5838898E7395967B56D39749652EA25C3"
 		};
 		std::string expectedSet[] {
 			"5C9901721703B1B082263065BDE4929079312FB6A09683C00F131AA794796467",
@@ -130,7 +130,7 @@ namespace catapult { namespace crypto {
 			auto keyPair = KeyPair::FromString(dataSet[i]);
 
 			// Assert:
-			EXPECT_EQ(expectedSet[i], test::ToHexString(keyPair.publicKey()));
+			EXPECT_EQ(expectedSet[i], test::ToString(keyPair.publicKey()));
 		}
 	}
 }}

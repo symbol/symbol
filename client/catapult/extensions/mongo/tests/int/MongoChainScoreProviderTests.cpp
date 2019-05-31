@@ -36,11 +36,12 @@ namespace catapult { namespace mongo {
 	namespace {
 		class TestContext final : public test::PrepareDatabaseMixin {
 		public:
-			TestContext()
+			explicit TestContext(MongoErrorPolicy::Mode errorPolicyMode = MongoErrorPolicy::Mode::Strict)
 					: m_mongoContext(
 							test::DefaultDbUri(),
 							test::DatabaseName(),
-							MongoBulkWriter::Create(test::DefaultDbUri(), test::DatabaseName(), test::CreateStartedIoThreadPool(8)))
+							MongoBulkWriter::Create(test::DefaultDbUri(), test::DatabaseName(), test::CreateStartedIoThreadPool(8)),
+							errorPolicyMode)
 					, m_pScoreProvider(CreateMongoChainScoreProvider(m_mongoContext))
 			{}
 
@@ -83,17 +84,29 @@ namespace catapult { namespace mongo {
 		AssertDbScore(score);
 	}
 
-	TEST(TEST_CLASS, CanLoadScore) {
+	TEST(TEST_CLASS, CannotSaveSameScoreTwiceWhenErrorModeIsStrict) {
 		// Arrange:
 		TestContext context;
 		model::ChainScore score(0x12345670, 0x89ABCDEF);
+
+		context.chainScoreProvider().saveScore(score);
+
+		// Act + Assert:
+		EXPECT_THROW(context.chainScoreProvider().saveScore(score), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, CanSaveSameScoreTwiceWhenErrorModeIsIdempotent) {
+		// Arrange:
+		TestContext context(MongoErrorPolicy::Mode::Idempotent);
+		model::ChainScore score(0x12345670, 0x89ABCDEF);
+
 		context.chainScoreProvider().saveScore(score);
 
 		// Act:
-		auto result = context.chainScoreProvider().loadScore();
+		context.chainScoreProvider().saveScore(score);
 
 		// Assert:
-		EXPECT_EQ(score, result);
+		AssertDbScore(score);
 	}
 
 	TEST(TEST_CLASS, SaveScoreDoesNotOverwriteHeight) {
@@ -105,7 +118,7 @@ namespace catapult { namespace mongo {
 		auto connection = test::CreateDbConnection();
 		auto database = connection[test::DatabaseName()];
 		auto heightDocument = document() << "$set" << open_document << "height" << static_cast<int64_t>(123) << close_document << finalize;
-		SetChainInfoDocument(database, heightDocument.view());
+		TrySetChainInfoDocument(database, heightDocument.view());
 
 		// Act:
 		context.chainScoreProvider().saveScore(score);

@@ -22,6 +22,7 @@
 #include "catapult/api/RemoteChainApi.h"
 #include "catapult/utils/TimeSpan.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/core/EntityTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"
 #include <map>
 #include <thread>
@@ -44,7 +45,7 @@ namespace catapult { namespace mocks {
 	public:
 		/// Creates a mock chain api around a chain \a score, a last block (\a pLastBlock) and a range of \a hashes.
 		MockChainApi(const model::ChainScore& score, std::shared_ptr<model::Block>&& pLastBlock, const model::HashRange& hashes)
-				: api::RemoteChainApi(test::GenerateRandomData<Key_Size>())
+				: api::RemoteChainApi(test::GenerateRandomByteArray<Key>())
 				, m_score(score)
 				, m_errorEntryPoint(EntryPoint::None)
 				, m_hashes(model::HashRange::CopyRange(hashes))
@@ -54,7 +55,7 @@ namespace catapult { namespace mocks {
 
 		/// Creates a mock chain api around a chain \a score, a chain \a height and a range of \a hashes.
 		MockChainApi(const model::ChainScore& score, Height height, const model::HashRange& hashes)
-				: MockChainApi(score, test::GenerateVerifiableBlockAtHeight(height), hashes)
+				: MockChainApi(score, test::GenerateBlockWithTransactions(0, height), hashes)
 		{}
 
 		/// Creates a mock chain api around a chain \a score, a last block (\a pLastBlock) and the number of
@@ -66,7 +67,7 @@ namespace catapult { namespace mocks {
 		/// Creates a mock chain api around a chain \a score, a chain \a height and the number of
 		/// hashes (\a numHashesToReturn) to return from a hashes-from request.
 		MockChainApi(const model::ChainScore& score, Height height, size_t numHashesToReturn = 0)
-				: MockChainApi(score, test::GenerateVerifiableBlockAtHeight(height), numHashesToReturn)
+				: MockChainApi(score, test::GenerateBlockWithTransactions(0, height), numHashesToReturn)
 		{}
 
 	public:
@@ -149,7 +150,7 @@ namespace catapult { namespace mocks {
 				return CreateFutureException<std::shared_ptr<const model::Block>>("block at error has been set");
 
 			auto iter = m_blocks.find(height);
-			return CreateFutureResponse(std::shared_ptr<const model::Block>(test::CopyBlock(*iter->second)));
+			return CreateFutureResponse(std::shared_ptr<const model::Block>(test::CopyEntity(*iter->second)));
 		}
 
 		/// Returns a range of the configured blocks and throws if the error entry point is set to Blocks_From.
@@ -186,7 +187,7 @@ namespace catapult { namespace mocks {
 			std::vector<std::unique_ptr<const model::Block>> blocks;
 			std::vector<const model::Block*> rawBlocks;
 			for (auto i = 0u; i < numBlocks; ++i) {
-				blocks.push_back(test::GenerateVerifiableBlockAtHeight(startHeight + Height(i)));
+				blocks.push_back(test::GenerateBlockWithTransactions(0, startHeight + Height(i)));
 				rawBlocks.push_back(blocks[i].get());
 			}
 

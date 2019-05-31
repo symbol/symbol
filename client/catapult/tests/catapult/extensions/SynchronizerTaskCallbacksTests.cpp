@@ -121,7 +121,7 @@ namespace catapult { namespace extensions {
 			// Arrange: create writers with a valid packet
 			test::ServiceTestState testState;
 			auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
-			auto identityKey = test::GenerateRandomData<Key_Size>();
+			auto identityKey = test::GenerateRandomByteArray<Key>();
 			mocks::PickOneAwareMockPacketWriters writers;
 			writers.setPacketIo(pPacketIo);
 			writers.setNodeIdentity(identityKey);
@@ -207,7 +207,7 @@ namespace catapult { namespace extensions {
 		void AssertNodeInteractionResultIsInspected(ionet::NodeInteractionResultCode code, TAssert assertFunc) {
 			// Arrange:
 			test::ServiceTestState testState;
-			auto nodeIdentity = test::GenerateRandomData<Key_Size>();
+			auto nodeIdentity = test::GenerateRandomByteArray<Key>();
 			auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
 			mocks::PickOneAwareMockPacketWriters writers;
 			writers.setPacketIo(pPacketIo);

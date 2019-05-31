@@ -62,18 +62,18 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, FailureIfNamespaceIsUnknown) {
+	TEST(TEST_CLASS, FailureWhenNamespaceIsUnknown) {
 		// Arrange:
-		auto owner = test::GenerateRandomData<Key_Size>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		AliasOwnerNotification notification(owner, Default_Namespace_Id, AliasAction::Link);
 
 		// Assert:
 		RunAvailabilityTest(Failure_Namespace_Alias_Namespace_Unknown, notification, [](const auto&) {});
 	}
 
-	TEST(TEST_CLASS, FailureIfOwnerDoesNotMatch) {
+	TEST(TEST_CLASS, FailureWhenOwnerDoesNotMatch) {
 		// Arrange:
-		auto owner = test::GenerateRandomData<Key_Size>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		AliasOwnerNotification notification(owner, Default_Namespace_Id, AliasAction::Link);
 
 		// Assert:
@@ -84,9 +84,9 @@ namespace catapult { namespace validators {
 		});
 	}
 
-	TEST(TEST_CLASS, FailureIfNamespaceExpired) {
+	TEST(TEST_CLASS, FailureWhenNamespaceExpired) {
 		// Arrange:
-		auto owner = test::GenerateRandomData<Key_Size>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		AliasOwnerNotification notification(owner, Default_Namespace_Id, AliasAction::Link);
 
 		// Assert: notification is at height 200, so limit lifetime to 150
@@ -127,7 +127,7 @@ namespace catapult { namespace validators {
 		template<typename TTraits>
 		void RunTest(ValidationResult expectedResult, AliasAction aliasAction, LinkState linkState) {
 			// Arrange:
-			auto owner = test::GenerateRandomData<Key_Size>();
+			auto owner = test::GenerateRandomByteArray<Key>();
 			AliasOwnerNotification notification(owner, TTraits::Notification_Namespace_Id, aliasAction);
 
 			// Assert:
@@ -149,19 +149,19 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, TEST_NAME##_Child) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ChildTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	MAKE_ALIAS_AVAILABILITY_TEST(SuccessIfActionLinkAndLinkDoesNotExist) {
+	MAKE_ALIAS_AVAILABILITY_TEST(SuccessWhenActionLinkAndLinkDoesNotExist) {
 		RunTest<TTraits>(ValidationResult::Success, AliasAction::Link, LinkState::Unset);
 	}
 
-	MAKE_ALIAS_AVAILABILITY_TEST(SuccessIfActionUnlinkAndLinkExists) {
+	MAKE_ALIAS_AVAILABILITY_TEST(SuccessWhenActionUnlinkAndLinkExists) {
 		RunTest<TTraits>(ValidationResult::Success, AliasAction::Unlink, LinkState::Set);
 	}
 
-	MAKE_ALIAS_AVAILABILITY_TEST(FailureIfActionLinkAndLinkAlreadyExists) {
+	MAKE_ALIAS_AVAILABILITY_TEST(FailureWhenActionLinkAndLinkAlreadyExists) {
 		RunTest<TTraits>(Failure_Namespace_Alias_Already_Exists, AliasAction::Link, LinkState::Set);
 	}
 
-	MAKE_ALIAS_AVAILABILITY_TEST(FailureIfActionUnlinkAndLinkDoesNotExist) {
+	MAKE_ALIAS_AVAILABILITY_TEST(FailureWhenActionUnlinkAndLinkDoesNotExist) {
 		RunTest<TTraits>(Failure_Namespace_Alias_Does_Not_Exist, AliasAction::Unlink, LinkState::Unset);
 	}
 

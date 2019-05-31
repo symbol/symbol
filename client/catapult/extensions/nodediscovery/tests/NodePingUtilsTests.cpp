@@ -33,7 +33,7 @@ namespace catapult { namespace nodediscovery {
 
 	TEST(TEST_CLASS, TryParseNodePacketFailsWhenPacketDoesNotContainExactlyOneNetworkNode) {
 		// Arrange: change the packet size so it looks like it contains two nodes
-		auto identityKey = test::GenerateRandomData<Key_Size>();
+		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto pPacket = test::CreateNodePushPingPacket(identityKey, ionet::NodeVersion(1234), "alice.com", "xyz");
 		pPacket->Size += pPacket->Size - sizeof(ionet::Packet);
 
@@ -47,7 +47,7 @@ namespace catapult { namespace nodediscovery {
 
 	TEST(TEST_CLASS, TryParseNodePacketSucceedsWhenPacketContainsExactlyOneNetworkNode) {
 		// Arrange:
-		auto identityKey = test::GenerateRandomData<Key_Size>();
+		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto pPacket = test::CreateNodePushPingPacket(identityKey, ionet::NodeVersion(1234), "alice.com", "xyz");
 
 		// Act:
@@ -68,7 +68,7 @@ namespace catapult { namespace nodediscovery {
 
 	TEST(TEST_CLASS, TryParseNodesPacketFailsWhenPacketPayloadIsMalformed) {
 		// Arrange:
-		std::vector<ionet::Node> nodes{ test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "a") };
+		std::vector<ionet::Node> nodes{ test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a") };
 		auto pPacket = test::CreateNodePushPeersPacket(nodes);
 		pPacket->Size += 1;
 
@@ -97,7 +97,7 @@ namespace catapult { namespace nodediscovery {
 
 	TEST(TEST_CLASS, TryParseNodesPacketSucceedsWhenPacketPayloadContainsSingleNode) {
 		// Arrange:
-		std::vector<ionet::Node> nodes{ test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "a") };
+		std::vector<ionet::Node> nodes{ test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a") };
 		auto pPacket = test::CreateNodePushPeersPacket(nodes);
 
 		// Act:
@@ -113,9 +113,9 @@ namespace catapult { namespace nodediscovery {
 	TEST(TEST_CLASS, TryParseNodesPacketSucceedsWhenPacketPayloadContainsMultipleUniqueNodes) {
 		// Arrange:
 		std::vector<ionet::Node> nodes{
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "a"),
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "bc"),
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "def")
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a"),
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "bc"),
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "def")
 		};
 		auto pPacket = test::CreateNodePushPeersPacket(nodes);
 
@@ -132,9 +132,9 @@ namespace catapult { namespace nodediscovery {
 	TEST(TEST_CLASS, TryParseNodesPacketSucceedsWhenPacketPayloadContainsMultipleNodesWithDuplicates) {
 		// Arrange: create a payload with 3 unique nodes and 2 duplicates
 		std::vector<ionet::Node> nodes{
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "a"),
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "bc"),
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "def")
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a"),
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "bc"),
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "def")
 		};
 		nodes.push_back(nodes[2]);
 		nodes.push_back(nodes[0]);
@@ -157,25 +157,25 @@ namespace catapult { namespace nodediscovery {
 
 	// region IsNodeCompatible
 
-	TEST(TEST_CLASS, IsNodeCompatibleReturnsFalseIfNetworkDoesNotMatch) {
+	TEST(TEST_CLASS, IsNodeCompatibleReturnsFalseWhenNetworkDoesNotMatch) {
 		// Arrange:
-		ionet::Node node(test::GenerateRandomData<Key_Size>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
+		ionet::Node node(test::GenerateRandomByteArray<Key>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
 
 		// Act + Assert:
 		EXPECT_FALSE(IsNodeCompatible(node, model::NetworkIdentifier::Mijin_Test, node.identityKey()));
 	}
 
-	TEST(TEST_CLASS, IsNodeCompatibleReturnsFalseIfIdentityDoesNotMatch) {
+	TEST(TEST_CLASS, IsNodeCompatibleReturnsFalseWhenIdentityDoesNotMatch) {
 		// Arrange:
-		ionet::Node node(test::GenerateRandomData<Key_Size>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
+		ionet::Node node(test::GenerateRandomByteArray<Key>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
 
 		// Act + Assert:
-		EXPECT_FALSE(IsNodeCompatible(node, node.metadata().NetworkIdentifier, test::GenerateRandomData<Key_Size>()));
+		EXPECT_FALSE(IsNodeCompatible(node, node.metadata().NetworkIdentifier, test::GenerateRandomByteArray<Key>()));
 	}
 
-	TEST(TEST_CLASS, IsNodeCompatibleReturnsTrueIfAllChecksPass) {
+	TEST(TEST_CLASS, IsNodeCompatibleReturnsTrueWhenAllChecksPass) {
 		// Arrange:
-		ionet::Node node(test::GenerateRandomData<Key_Size>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
+		ionet::Node node(test::GenerateRandomByteArray<Key>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
 
 		// Act + Assert:
 		EXPECT_TRUE(IsNodeCompatible(node, node.metadata().NetworkIdentifier, node.identityKey()));
@@ -189,7 +189,7 @@ namespace catapult { namespace nodediscovery {
 		ionet::NodeSet CreateNodes(size_t numNodes) {
 			ionet::NodeSet nodes;
 			for (auto i = 0u; i < numNodes; ++i)
-				nodes.emplace(test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), ""));
+				nodes.emplace(test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), ""));
 
 			return nodes;
 		}

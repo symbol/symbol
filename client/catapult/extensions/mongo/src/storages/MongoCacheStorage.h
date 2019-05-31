@@ -20,63 +20,53 @@
 
 #pragma once
 #include "mongo/src/MongoBulkWriter.h"
-#include "mongo/src/MongoDatabase.h"
+#include "mongo/src/MongoStorageContext.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/thread/FutureUtils.h"
+#include <set>
 #include <unordered_set>
 
 namespace catapult { namespace mongo { namespace storages {
 
 	namespace detail {
-		template<typename TCacheTraits>
-		class CacheStorageLoader {
-		private:
-			using CacheDeltaType = typename TCacheTraits::CacheDeltaType;
-
-		private:
-			enum class LoaderType { Unsorted, Sorted };
-			using UnsortedLoaderFlag = std::integral_constant<LoaderType, LoaderType::Unsorted>;
-			using SortedLoaderFlag = std::integral_constant<LoaderType, LoaderType::Sorted>;
-
-		private:
-			static constexpr size_t Checkpoint_Interval = 10'000;
-
+		/// Defines a mongo element filter.
+		template<typename TCacheTraits, typename TElementContainerType>
+		struct MongoElementFilter {
 		public:
-			static void LoadAll(const MongoDatabase& database, CacheDeltaType& cache, const action& checkpoint) {
-				auto collection = database[TCacheTraits::Collection_Name];
+			/// Filters all elements common to added elements (\a addedElements) and removed elements (\a removedElements).
+			static void RemoveCommonElements(TElementContainerType& addedElements, TElementContainerType& removedElements) {
+				auto commonIds = GetCommonIds(addedElements, removedElements);
+				RemoveElements(addedElements, commonIds);
+				RemoveElements(removedElements, commonIds);
+			}
 
-				mongocxx::options::find options;
-				boost::optional<bsoncxx::document::value> ordering;
-				if (PrepareOrdering(ordering, LoaderTypeAccessor<TCacheTraits>()))
-					options.sort(ordering->view());
+		private:
+			static auto GetCommonIds(const TElementContainerType& addedElements, const TElementContainerType& removedElements) {
+				std::set<typename TCacheTraits::KeyType> addedElementIds;
+				for (const auto* pAddedElement : addedElements)
+					addedElementIds.insert(TCacheTraits::GetId(*pAddedElement));
 
-				auto counter = 0u;
-				auto cursor = collection.find({}, options);
-				for (const auto& document : cursor) {
-					if (0 == ++counter % Checkpoint_Interval) {
-						checkpoint();
-						CATAPULT_LOG(info) << "committing " << counter << " documents to collection " << TCacheTraits::Collection_Name;
-					}
+				std::set<typename TCacheTraits::KeyType> removedElementIds;
+				for (const auto* pRemovedElement : removedElements)
+					removedElementIds.insert(TCacheTraits::GetId(*pRemovedElement));
 
-					TCacheTraits::Insert(cache, document);
+				std::set<typename TCacheTraits::KeyType> commonIds;
+				std::set_intersection(
+						addedElementIds.cbegin(),
+						addedElementIds.cend(),
+						removedElementIds.cbegin(),
+						removedElementIds.cend(),
+						std::inserter(commonIds, commonIds.cbegin()));
+				return commonIds;
+			}
+
+			static void RemoveElements(TElementContainerType& elements, std::set<typename TCacheTraits::KeyType>& ids) {
+				for (auto iter = elements.cbegin(); elements.cend() != iter;) {
+					if (ids.cend() != ids.find(TCacheTraits::GetId(**iter)))
+						iter = elements.erase(iter);
+					else
+						++iter;
 				}
-			}
-
-		private:
-			template<typename T, typename = void>
-			struct LoaderTypeAccessor : UnsortedLoaderFlag {};
-
-			template<typename T>
-			struct LoaderTypeAccessor<T, utils::traits::is_type_expression_t<decltype(T::LoadSortOrder())>> : SortedLoaderFlag {};
-
-		private:
-			static bool PrepareOrdering(boost::optional<bsoncxx::document::value>&, UnsortedLoaderFlag) {
-				return false;
-			}
-
-			static bool PrepareOrdering(boost::optional<bsoncxx::document::value>& ordering, SortedLoaderFlag) {
-				ordering = TCacheTraits::LoadSortOrder();
-				return true;
 			}
 		};
 	}
@@ -104,32 +94,37 @@ namespace catapult { namespace mongo { namespace storages {
 	template<typename TCacheTraits>
 	class MongoHistoricalCacheStorage : public ExternalCacheStorageT<typename TCacheTraits::CacheType> {
 	private:
-		using CacheDeltaType = typename TCacheTraits::CacheDeltaType;
+		using CacheChangesType = cache::SingleCacheChangesT<
+			typename TCacheTraits::CacheDeltaType,
+			typename TCacheTraits::CacheType::CacheValueType>;
 		using ElementContainerType = typename TCacheTraits::ElementContainerType;
 		using IdContainerType = typename TCacheTraits::IdContainerType;
-		using LoadCheckpointFunc = typename ExternalCacheStorageT<typename TCacheTraits::CacheType>::LoadCheckpointFunc;
 
 	public:
-		/// Creates a cache storage around \a database, \a bulkWriter and \a networkIdentifier.
-		MongoHistoricalCacheStorage(MongoDatabase&& database, MongoBulkWriter& bulkWriter, model::NetworkIdentifier networkIdentifier)
-				: m_database(std::move(database))
-				, m_bulkWriter(bulkWriter)
+		/// Creates a cache storage around \a storageContext and \a networkIdentifier.
+		MongoHistoricalCacheStorage(MongoStorageContext& storageContext, model::NetworkIdentifier networkIdentifier)
+				: m_database(storageContext.createDatabaseConnection())
+				, m_errorPolicy(storageContext.createCollectionErrorPolicy(TCacheTraits::Collection_Name))
+				, m_bulkWriter(storageContext.bulkWriter())
 				, m_networkIdentifier(networkIdentifier)
 		{}
 
 	private:
-		void saveDelta(const CacheDeltaType& cache) override {
-			auto addedElements = cache.addedElements();
-			auto modifiedElements = cache.modifiedElements();
-			auto removedElements = cache.removedElements();
+		void saveDelta(const CacheChangesType& changes) override {
+			auto addedElements = changes.addedElements();
+			auto modifiedElements = changes.modifiedElements();
+			auto removedElements = changes.removedElements();
 
-			// 1. remove all modified and removed elements
+			// 1. remove elements common to both added and removed
+			detail::MongoElementFilter<TCacheTraits, ElementContainerType>::RemoveCommonElements(addedElements, removedElements);
+
+			// 2. remove all modified and removed elements from db
 			auto modifiedIds = GetIds(modifiedElements);
 			auto removedIds = GetIds(removedElements);
 			modifiedIds.insert(removedIds.cbegin(), removedIds.cend());
 			removeAll(modifiedIds);
 
-			// 2. insert new elements and modified elements
+			// 3. insert new elements and modified elements into db
 			modifiedElements.insert(addedElements.cbegin(), addedElements.cend());
 			insertAll(modifiedElements);
 		}
@@ -143,15 +138,7 @@ namespace catapult { namespace mongo { namespace storages {
 
 			auto filter = CreateDeleteFilter(ids);
 			auto deleteResult = collection.delete_many(filter.view());
-
-			auto numActualRemoved = mappers::ToUint32(deleteResult.get().deleted_count());
-			if (!deleteResult || ids.size() > numActualRemoved) {
-				std::ostringstream out;
-				out
-						<< "error deleting removed and modified " << TCacheTraits::Collection_Name << " elements"
-						<< " (" << ids.size() << " expected, " << numActualRemoved << " actual)";
-				CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
-			}
+			m_errorPolicy.checkDeletedAtLeast(ids.size(), BulkWriteResult(deleteResult.get().result()), "removed and modified elements");
 		}
 
 		void insertAll(const ElementContainerType& elements) {
@@ -169,15 +156,7 @@ namespace catapult { namespace mongo { namespace storages {
 			}).get();
 
 			auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(insertResults)));
-
-			auto numActualInserted = mappers::ToUint32(aggregateResult.NumInserted);
-			if (allModels.size() != numActualInserted) {
-				std::ostringstream out;
-				out
-						<< "error inserting modified and added " << TCacheTraits::Collection_Name << " elements"
-						<< " (" << allModels.size() << " expected, " << numActualInserted << " actual)";
-				CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
-			}
+			m_errorPolicy.checkInserted(allModels.size(), aggregateResult, "modified and added elements");
 		}
 
 	private:
@@ -211,12 +190,8 @@ namespace catapult { namespace mongo { namespace storages {
 		}
 
 	private:
-		void loadAll(CacheDeltaType& cache, Height, const LoadCheckpointFunc& checkpoint) const override {
-			detail::CacheStorageLoader<TCacheTraits>::LoadAll(m_database, cache, checkpoint);
-		}
-
-	private:
 		MongoDatabase m_database;
+		MongoErrorPolicy m_errorPolicy;
 		MongoBulkWriter& m_bulkWriter;
 		model::NetworkIdentifier m_networkIdentifier;
 	};
@@ -225,30 +200,33 @@ namespace catapult { namespace mongo { namespace storages {
 	template<typename TCacheTraits>
 	class MongoFlatCacheStorage : public ExternalCacheStorageT<typename TCacheTraits::CacheType> {
 	private:
-		using CacheDeltaType = typename TCacheTraits::CacheDeltaType;
+		using CacheChangesType = cache::SingleCacheChangesT<typename TCacheTraits::CacheDeltaType, typename TCacheTraits::ModelType>;
 		using KeyType = typename TCacheTraits::KeyType;
 		using ModelType = typename TCacheTraits::ModelType;
 		using ElementContainerType = std::unordered_set<const ModelType*>;
-		using LoadCheckpointFunc = typename ExternalCacheStorageT<typename TCacheTraits::CacheType>::LoadCheckpointFunc;
 
 	public:
-		/// Creates a cache storage around \a database, \a bulkWriter and \a networkIdentifier.
-		MongoFlatCacheStorage(MongoDatabase&& database, MongoBulkWriter& bulkWriter, model::NetworkIdentifier networkIdentifier)
-				: m_database(std::move(database))
-				, m_bulkWriter(bulkWriter)
+		/// Creates a cache storage around \a storageContext and \a networkIdentifier.
+		MongoFlatCacheStorage(MongoStorageContext& storageContext, model::NetworkIdentifier networkIdentifier)
+				: m_database(storageContext.createDatabaseConnection())
+				, m_errorPolicy(storageContext.createCollectionErrorPolicy(TCacheTraits::Collection_Name))
+				, m_bulkWriter(storageContext.bulkWriter())
 				, m_networkIdentifier(networkIdentifier)
 		{}
 
 	private:
-		void saveDelta(const CacheDeltaType& cache) override {
-			auto addedElements = cache.addedElements();
-			auto modifiedElements = cache.modifiedElements();
-			auto removedElements = cache.removedElements();
+		void saveDelta(const CacheChangesType& changes) override {
+			auto addedElements = changes.addedElements();
+			auto modifiedElements = changes.modifiedElements();
+			auto removedElements = changes.removedElements();
 
-			// 1. remove all removed elements
+			// 1. remove elements common to both added and removed
+			detail::MongoElementFilter<TCacheTraits, ElementContainerType>::RemoveCommonElements(addedElements, removedElements);
+
+			// 2. remove all removed elements from db
 			removeAll(removedElements);
 
-			// 2. upsert new elements and modified elements
+			// 3. upsert new elements and modified elements into db
 			modifiedElements.insert(addedElements.cbegin(), addedElements.cend());
 			upsertAll(modifiedElements);
 		}
@@ -260,15 +238,7 @@ namespace catapult { namespace mongo { namespace storages {
 
 			auto deleteResults = m_bulkWriter.bulkDelete(TCacheTraits::Collection_Name, elements, CreateFilter).get();
 			auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(deleteResults)));
-
-			auto numActualRemoved = mappers::ToUint32(aggregateResult.NumDeleted);
-			if (elements.size() != numActualRemoved) {
-				std::ostringstream out;
-				out
-						<< "error deleting removed " << TCacheTraits::Collection_Name << " elements"
-						<< " (" << elements.size() << " expected, " << numActualRemoved << " actual)";
-				CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
-			}
+			m_errorPolicy.checkDeleted(elements.size(), aggregateResult, "removed elements");
 		}
 
 		void upsertAll(const ElementContainerType& elements) {
@@ -280,15 +250,7 @@ namespace catapult { namespace mongo { namespace storages {
 			};
 			auto upsertResults = m_bulkWriter.bulkUpsert(TCacheTraits::Collection_Name, elements, createDocument, CreateFilter).get();
 			auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(upsertResults)));
-
-			auto numActualUpserted = mappers::ToUint32(aggregateResult.NumModified) + mappers::ToUint32(aggregateResult.NumUpserted);
-			if (elements.size() != numActualUpserted) {
-				std::ostringstream out;
-				out
-						<< "error upserting modified and added " << TCacheTraits::Collection_Name << " elements"
-						<< " (" << elements.size() << " expected, " << numActualUpserted << " actual)";
-				CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
-			}
+			m_errorPolicy.checkUpserted(elements.size(), aggregateResult, "modified and added elements");
 		}
 
 	private:
@@ -303,12 +265,8 @@ namespace catapult { namespace mongo { namespace storages {
 		}
 
 	private:
-		void loadAll(CacheDeltaType& cache, Height, const LoadCheckpointFunc& checkpoint) const override {
-			detail::CacheStorageLoader<TCacheTraits>::LoadAll(m_database, cache, checkpoint);
-		}
-
-	private:
 		MongoDatabase m_database;
+		MongoErrorPolicy m_errorPolicy;
 		MongoBulkWriter& m_bulkWriter;
 		model::NetworkIdentifier m_networkIdentifier;
 	};

@@ -35,8 +35,8 @@ namespace catapult { namespace validators {
 				uint8_t initialCosignedAccounts,
 				uint8_t maxCosignedAccountsPerAccount) {
 			// Arrange:
-			auto multisigAccountKey = test::GenerateRandomData<Key_Size>();
-			auto cosignatoryKey = test::GenerateRandomData<Key_Size>();
+			auto multisigAccountKey = test::GenerateRandomByteArray<Key>();
+			auto cosignatoryKey = test::GenerateRandomByteArray<Key>();
 
 			// - setup cache
 			auto cache = test::MultisigCacheFactory::Create();
@@ -46,7 +46,7 @@ namespace catapult { namespace validators {
 
 				// - add multisig accounts
 				for (auto i = 0; i < initialCosignedAccounts; ++i)
-					cosignatoryEntry.multisigAccounts().insert(test::GenerateRandomData<Key_Size>());
+					cosignatoryEntry.multisigAccounts().insert(test::GenerateRandomByteArray<Key>());
 
 				cacheDelta.sub<cache::MultisigCache>().insert(cosignatoryEntry);
 				cache.commit(Height());

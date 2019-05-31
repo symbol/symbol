@@ -80,7 +80,7 @@ namespace catapult { namespace consumers {
 			auto cache = test::CreateEmptyCatapultCache();
 			auto delta = cache.createDelta();
 			mocks::MockEntityObserver observer;
-			auto pBlock = test::GenerateBlockWithTransactionsAtHeight(7, Height(10));
+			auto pBlock = test::GenerateBlockWithTransactions(7, Height(10));
 			SetVersions(*pBlock, 22);
 
 			state::CatapultState catapultState;
@@ -135,7 +135,7 @@ namespace catapult { namespace consumers {
 
 			auto delta = cache.createDelta();
 			mocks::MockEntityObserver observer;
-			auto pBlock = test::GenerateBlockWithTransactionsAtHeight(7, Height(10));
+			auto pBlock = test::GenerateBlockWithTransactions(7, Height(10));
 			SetVersions(*pBlock, 22);
 
 			state::CatapultState catapultState;
@@ -146,7 +146,7 @@ namespace catapult { namespace consumers {
 
 			// - add an account so the cache is not empty
 			{
-				delta.sub<cache::AccountStateCache>().addAccount(test::GenerateRandomData<Key_Size>(), Height(4));
+				delta.sub<cache::AccountStateCache>().addAccount(test::GenerateRandomByteArray<Key>(), Height(4));
 				delta.calculateStateHash(Height(1)); // force a recalculation of the state root
 				cache.commit(Height(1));
 			}

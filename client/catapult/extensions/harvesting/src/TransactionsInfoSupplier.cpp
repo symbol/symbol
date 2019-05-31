@@ -21,8 +21,8 @@
 #include "TransactionsInfoSupplier.h"
 #include "HarvestingUtFacadeFactory.h"
 #include "TransactionFeeMaximizer.h"
-#include "catapult/cache/MemoryUtCache.h"
-#include "catapult/cache/MemoryUtCacheUtils.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
+#include "catapult/cache_tx/MemoryUtCacheUtils.h"
 #include "catapult/model/FeeUtils.h"
 
 namespace catapult { namespace harvesting {

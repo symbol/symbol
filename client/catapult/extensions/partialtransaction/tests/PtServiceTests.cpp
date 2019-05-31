@@ -20,7 +20,7 @@
 
 #include "partialtransaction/src/PtService.h"
 #include "partialtransaction/src/PtBootstrapperService.h"
-#include "catapult/cache/MemoryPtCache.h"
+#include "catapult/cache_tx/MemoryPtCache.h"
 #include "tests/test/core/PacketTestUtils.h"
 #include "tests/test/local/PacketWritersServiceTestUtils.h"
 #include "tests/test/local/ServiceTestUtils.h"

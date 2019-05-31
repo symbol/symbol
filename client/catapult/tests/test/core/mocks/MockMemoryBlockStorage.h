@@ -25,14 +25,14 @@
 namespace catapult { namespace mocks {
 
 	/// A mock memory-based block storage that loads and saves blocks in memory.
-	class MockMemoryBlockStorage final : public extensions::MemoryBlockStorage {
+	class MockMemoryBlockStorage : public extensions::MemoryBlockStorage {
 	public:
 		/// Creates a mock memory-based block storage.
 		MockMemoryBlockStorage();
 	};
 
 	/// Creates a memory based block storage composed of \a numBlocks.
-	std::unique_ptr<io::BlockStorage> CreateMemoryBlockStorage(uint32_t numBlocks);
+	std::unique_ptr<io::PrunableBlockStorage> CreateMemoryBlockStorage(uint32_t numBlocks);
 
 	/// Creates a memory based block storage cache composed of \a numBlocks.
 	std::unique_ptr<io::BlockStorageCache> CreateMemoryBlockStorageCache(uint32_t numBlocks);

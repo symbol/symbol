@@ -34,5 +34,8 @@ namespace catapult { namespace state {
 	};
 
 	/// Policy for saving and loading hash lock info data.
-	struct HashLockInfoSerializer : public LockInfoSerializer<HashLockInfo, HashLockInfoExtendedDataSerializer> {};
+	struct HashLockInfoSerializer : public LockInfoSerializer<HashLockInfo, HashLockInfoExtendedDataSerializer> {
+		/// Serialized state version.
+		static constexpr uint16_t State_Version = 1;
+	};
 }}

@@ -93,7 +93,7 @@ namespace catapult { namespace ionet {
 		void registerHandler(PacketType type, const PacketHandler& handler);
 
 	private:
-		const PacketHandler* findHandler(const Packet& packet) const ;
+		const PacketHandler* findHandler(const Packet& packet) const;
 
 	private:
 		uint32_t m_maxPacketDataSize;

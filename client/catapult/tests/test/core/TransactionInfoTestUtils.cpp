@@ -76,6 +76,17 @@ namespace catapult { namespace test {
 		return transactionInfos;
 	}
 
+	std::vector<model::TransactionInfo> CreateTransactionInfosWithOptionalAddresses(size_t count) {
+		std::vector<model::TransactionInfo> transactionInfos;
+		for (auto i = 0u; i < count; ++i) {
+			auto transactionInfo = test::CreateRandomTransactionInfo();
+			transactionInfo.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(i % 2 + 1);
+			transactionInfos.push_back(std::move(transactionInfo));
+		}
+
+		return transactionInfos;
+	}
+
 	// endregion
 
 	// region copy
@@ -129,17 +140,41 @@ namespace catapult { namespace test {
 	void AssertEqual(const model::TransactionInfo& lhs, const model::TransactionInfo& rhs, const std::string& message) {
 		EXPECT_EQ(*lhs.pEntity, *rhs.pEntity) << message;
 		EXPECT_EQ(lhs.EntityHash, rhs.EntityHash) << message;
-		EXPECT_EQ(lhs.OptionalExtractedAddresses.get(), rhs.OptionalExtractedAddresses.get()) << message;
+		if (lhs.OptionalExtractedAddresses && rhs.OptionalExtractedAddresses)
+			EXPECT_EQ(*lhs.OptionalExtractedAddresses, *rhs.OptionalExtractedAddresses) << message;
+		else
+			EXPECT_EQ(lhs.OptionalExtractedAddresses.get(), rhs.OptionalExtractedAddresses.get()) << message;
+
 		EXPECT_EQ(lhs.MerkleComponentHash, rhs.MerkleComponentHash) << message;
 	}
 
 	namespace {
-		std::map<Hash256, model::TransactionInfo> ToMap(const std::vector<model::TransactionInfo>& transactionInfos) {
+		template<typename TContainer>
+		std::map<Hash256, model::TransactionInfo> ToMap(const TContainer& transactionInfos) {
 			std::map<Hash256, model::TransactionInfo> map;
 			for (const auto& transactionInfo : transactionInfos)
 				map.emplace(transactionInfo.EntityHash, transactionInfo.copy());
 
 			return map;
+		}
+
+		template<typename TContainer>
+		void AssertEquivalentImpl(const TContainer& lhs, const TContainer& rhs, const std::string& message) {
+			ASSERT_EQ(lhs.size(), rhs.size()) << message;
+
+			auto lhsMap = ToMap(lhs);
+			auto rhsMap = ToMap(rhs);
+
+			auto lhsIter = lhsMap.cbegin();
+			auto rhsIter = rhsMap.cbegin();
+			for (auto i = 0u; i < lhs.size(); ++i) {
+				std::ostringstream out;
+				out << message << " " << i << " (" << lhsIter->first << ")";
+				AssertEqual(lhsIter->second, rhsIter->second, out.str());
+
+				++lhsIter;
+				++rhsIter;
+			}
 		}
 	}
 
@@ -147,21 +182,11 @@ namespace catapult { namespace test {
 			const std::vector<model::TransactionInfo>& lhs,
 			const std::vector<model::TransactionInfo>& rhs,
 			const std::string& message) {
-		ASSERT_EQ(lhs.size(), rhs.size()) << message;
+		AssertEquivalentImpl(lhs, rhs, message);
+	}
 
-		auto lhsMap = ToMap(lhs);
-		auto rhsMap = ToMap(rhs);
-
-		auto lhsIter = lhsMap.cbegin();
-		auto rhsIter = rhsMap.cbegin();
-		for (auto i = 0u; i < lhs.size(); ++i) {
-			std::ostringstream out;
-			out << message << " " << i << " (" << utils::HexFormat(lhsIter->first) << ")";
-			AssertEqual(lhsIter->second, rhsIter->second, out.str());
-
-			++lhsIter;
-			++rhsIter;
-		}
+	void AssertEquivalent(const model::TransactionInfosSet& lhs, const model::TransactionInfosSet& rhs, const std::string& message) {
+		AssertEquivalentImpl(lhs, rhs, message);
 	}
 
 	// endregion

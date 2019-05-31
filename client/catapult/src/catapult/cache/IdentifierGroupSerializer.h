@@ -40,7 +40,7 @@ namespace catapult { namespace cache {
 			io::Write(output, value.key());
 			io::Write64(output, static_cast<uint64_t>(value.size()));
 			for (const auto& identifier : value.identifiers())
-				io::Write(output, identifier);
+				Write(output, identifier);
 
 			return output.str();
 		}
@@ -52,10 +52,34 @@ namespace catapult { namespace cache {
 			ValueType value(key);
 
 			auto size = io::Read64(input);
-			for (auto i = 0u; i < size; ++i)
-				value.add(io::Read<typename ValueType::Identifiers::key_type>(input));
+			for (auto i = 0u; i < size; ++i) {
+				typename ValueType::Identifiers::key_type identifier;
+				Read(input, identifier);
+				value.add(identifier);
+			}
 
 			return value;
+		}
+
+	private:
+		template<typename T>
+		static void Read(io::InputStream& input, T& value) {
+			io::Read(input, value);
+		}
+
+		template<size_t N, typename TTag>
+		static void Read(io::InputStream& input, utils::ByteArray<N, TTag>& value) {
+			input.read(value);
+		}
+
+		template<typename T>
+		static void Write(io::OutputStream& input, const T& value) {
+			io::Write(input, value);
+		}
+
+		template<size_t N, typename TTag>
+		static void Write(io::OutputStream& input, const utils::ByteArray<N, TTag>& value) {
+			input.write(value);
 		}
 
 	private:

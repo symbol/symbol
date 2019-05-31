@@ -63,7 +63,7 @@ namespace catapult { namespace disruptor {
 		EXPECT_EQ(16u, disruptor.capacity());
 	}
 
-	TEST(TEST_CLASS, PushOverwritesElementsIfCapacityIsExceeded) {
+	TEST(TEST_CLASS, PushOverwritesElementsWhenCapacityIsExceeded) {
 		// Arrange:
 		Disruptor disruptor(16);
 

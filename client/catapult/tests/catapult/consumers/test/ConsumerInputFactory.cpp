@@ -36,14 +36,16 @@ namespace catapult { namespace test {
 
 			// 2. add all hashes
 			auto transactionRegistry = mocks::CreateDefaultTransactionRegistry();
-			consumers::CreateBlockHashCalculatorConsumer(transactionRegistry)(input.blocks());
+			auto consumer = consumers::CreateBlockHashCalculatorConsumer(GetDefaultGenerationHash(), transactionRegistry);
+			consumer(input.blocks());
 			return std::move(input);
 		}
 
 		ConsumerInput PrepareTransactionInput(ConsumerInput&& input) {
 			// 1. add all hashes
 			auto transactionRegistry = mocks::CreateDefaultTransactionRegistry();
-			consumers::CreateTransactionHashCalculatorConsumer(transactionRegistry)(input.transactions());
+			auto consumer = consumers::CreateTransactionHashCalculatorConsumer(GetDefaultGenerationHash(), transactionRegistry);
+			consumer(input.transactions());
 			return std::move(input);
 		}
 	}

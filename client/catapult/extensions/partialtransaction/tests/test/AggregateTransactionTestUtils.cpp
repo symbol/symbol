@@ -21,7 +21,8 @@
 #include "AggregateTransactionTestUtils.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/utils/MemoryUtils.h"
-#include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/core/AddressTestUtils.h"
+#include "tests/test/core/EntityTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
@@ -81,10 +82,10 @@ namespace catapult { namespace test {
 	}
 
 	std::unique_ptr<model::Transaction> StripCosignatures(const model::AggregateTransaction& aggregateTransaction) {
-		auto pTransactionWithoutCosignatures = CopyTransaction(aggregateTransaction);
+		auto pTransactionWithoutCosignatures = CopyEntity(aggregateTransaction);
 		uint32_t cosignaturesSize = static_cast<uint32_t>(aggregateTransaction.CosignaturesCount()) * sizeof(model::Cosignature);
 		pTransactionWithoutCosignatures->Size -= cosignaturesSize;
-		return pTransactionWithoutCosignatures;
+		return std::move(pTransactionWithoutCosignatures);
 	}
 
 	CosignaturesMap ToMap(const std::vector<model::Cosignature>& cosignatures) {
@@ -118,7 +119,7 @@ namespace catapult { namespace test {
 		auto numUnknownCosignatures = 0u;
 		const auto* pCosignature = aggregateStitchedTransaction.CosignaturesPtr();
 		for (auto i = 0u; i < aggregateStitchedTransaction.CosignaturesCount(); ++i) {
-			auto message = "cosigner " + ToHexString(pCosignature->Signer);
+			auto message = "cosigner " + ToString(pCosignature->Signer);
 
 			auto iter = expectedCosignaturesMap.find(pCosignature->Signer);
 			if (expectedCosignaturesMap.cend() != iter) {

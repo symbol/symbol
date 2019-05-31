@@ -19,8 +19,7 @@
 **/
 
 #include "SyncSourceService.h"
-#include "catapult/cache/MemoryUtCache.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/extensions/LocalNodeChainScore.h"
 #include "catapult/extensions/ServerHooksUtils.h"
 #include "catapult/extensions/ServiceState.h"

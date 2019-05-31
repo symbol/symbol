@@ -186,7 +186,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		CacheDatabaseHolder holder;
 
-		tree::LeafTreeNode leafNode(tree::TreeNodePath(0x01'23'4A'B6'78), test::GenerateRandomData<Hash256_Size>());
+		tree::LeafTreeNode leafNode(tree::TreeNodePath(0x01'23'4A'B6'78), test::GenerateRandomByteArray<Hash256>());
 		auto rootHash = leafNode.hash();
 		auto serializedLeafNode = tree::PatriciaTreeSerializer::SerializeValue(tree::TreeNode(leafNode));
 
@@ -206,7 +206,7 @@ namespace catapult { namespace cache {
 		// Arrange:
 		CacheDatabaseHolder holder;
 
-		auto rootHash = test::GenerateRandomData<Hash256_Size>();
+		auto rootHash = test::GenerateRandomByteArray<Hash256>();
 		holder.database().put(1, "root", HashToString(rootHash));
 
 		// Act + Assert:

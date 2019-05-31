@@ -28,13 +28,14 @@ namespace catapult { namespace validators {
 
 	DEFINE_STATEFUL_VALIDATOR(Proof, [](const auto& notification, const auto& context) {
 		const auto& cache = context.Cache.template sub<cache::SecretLockInfoCache>();
-		if (!cache.contains(notification.Secret))
-			return Failure_LockSecret_Unknown_Secret;
+		auto key = model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient));
+		if (!cache.contains(key))
+			return Failure_LockSecret_Unknown_Composite_Key;
 
-		if (!cache.isActive(notification.Secret, context.Height))
+		if (!cache.isActive(key, context.Height))
 			return Failure_LockSecret_Inactive_Secret;
 
-		auto lockInfoIter = cache.find(notification.Secret);
+		auto lockInfoIter = cache.find(key);
 		const auto& lockInfo = lockInfoIter.get();
 		if (lockInfo.HashAlgorithm != notification.HashAlgorithm)
 			return Failure_LockSecret_Hash_Algorithm_Mismatch;

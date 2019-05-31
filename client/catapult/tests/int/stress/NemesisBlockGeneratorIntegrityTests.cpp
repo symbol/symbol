@@ -27,9 +27,8 @@
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/local/RealTransactionFactory.h"
 #include "tests/test/nodeps/MijinConstants.h"
+#include "tests/test/nodeps/Nemesis.h"
 #include "tests/TestHarness.h"
-
-using catapult::crypto::KeyPair;
 
 namespace catapult {
 
@@ -38,56 +37,68 @@ namespace catapult {
 	namespace {
 		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 		constexpr Amount Nemesis_Amount(9000000000ull / CountOf(test::Mijin_Test_Private_Keys) * 1000000ull);
+
+		bool VerifyNemesisNetworkTransactionSignature(const model::Transaction& transaction) {
+			return extensions::TransactionExtensions(test::GetNemesisGenerationHash()).verify(transaction);
+		}
 	}
 
 	TEST(TEST_CLASS, CreateTransaction) {
 		// Arrange:
-		auto signer = KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
-		auto recipient = KeyPair::FromString(test::Mijin_Test_Private_Keys[0]);
+		auto signer = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
+		auto recipient = crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[0]);
 
 		// Act:
 		auto pTransaction = test::CreateTransferTransaction(signer, recipient.publicKey(), Amount(1234));
 		test::EntityDump(*pTransaction);
 
 		// Assert:
-		EXPECT_TRUE(extensions::VerifyTransactionSignature(*pTransaction));
+		EXPECT_TRUE(VerifyNemesisNetworkTransactionSignature(*pTransaction));
 	}
 
 	TEST(TEST_CLASS, CreateNemesisBlockTransactions) {
 		// Arrange:
-		auto signer = KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
+		auto signer = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
 
 		for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys) {
-			auto recipient = KeyPair::FromString(pRecipientPrivateKeyString);
+			auto recipient = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
+
+			// Act:
 			auto pTransaction = test::CreateTransferTransaction(signer, recipient.publicKey(), Nemesis_Amount);
 #ifdef _DEBUG
 			test::EntityDump(*pTransaction);
 #endif
-			EXPECT_TRUE(extensions::VerifyTransactionSignature(*pTransaction));
+
+			// Assert:
+			EXPECT_TRUE(VerifyNemesisNetworkTransactionSignature(*pTransaction));
 		}
 	}
 
 	namespace {
 		auto CreateNemesisBlock() {
-			auto signer = KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
+			auto signer = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key);
+			auto generationHash = test::GetNemesisGenerationHash();
 
 			model::Transactions transactions;
 			for (const auto* pRecipientPrivateKeyString : test::Mijin_Test_Private_Keys) {
-				auto recipient = KeyPair::FromString(pRecipientPrivateKeyString);
+				auto recipient = crypto::KeyPair::FromString(pRecipientPrivateKeyString);
 				auto pTransfer = test::CreateTransferTransaction(signer, recipient.publicKey(), Nemesis_Amount);
 				pTransfer->MaxFee = Amount(0);
-				extensions::SignTransaction(signer, *pTransfer);
+				extensions::TransactionExtensions(generationHash).sign(signer, *pTransfer);
 				transactions.push_back(std::move(pTransfer));
 			}
 
 			model::PreviousBlockContext context;
+			context.GenerationHash = generationHash;
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
-			test::SignBlock(signer, *pBlock);
+			extensions::BlockExtensions(generationHash).signFullBlock(signer, *pBlock);
 			return pBlock;
 		}
 
 		void VerifyNemesisBlock(const model::Block& block) {
-			EXPECT_EQ(extensions::VerifyFullBlockResult::Success, extensions::BlockExtensions().verifyFullBlock(block));
+			auto blockExtensions = extensions::BlockExtensions(test::GetNemesisGenerationHash());
+			auto verifyResult = blockExtensions.verifyFullBlock(block);
+			EXPECT_EQ(extensions::VerifyFullBlockResult::Success, verifyResult);
 		}
 	}
 

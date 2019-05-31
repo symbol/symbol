@@ -20,6 +20,7 @@
 
 #include "src/plugins/MultisigPlugin.h"
 #include "plugins/txes/multisig/src/model/MultisigEntityType.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -41,7 +42,7 @@ namespace catapult { namespace plugins {
 					}
 				}}));
 
-				PluginManager manager(config, StorageConfiguration());
+				auto manager = test::CreatePluginManager(config);
 				RegisterMultisigSubsystem(manager);
 
 				// Act:

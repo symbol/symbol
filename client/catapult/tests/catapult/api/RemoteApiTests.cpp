@@ -35,7 +35,7 @@ namespace catapult { namespace api {
 
 	TEST(TEST_CLASS, CanCreateApiWithRemotePublicKey) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		CustomRemoteApi remoteApi(key);
 
 		// Act + Assert:

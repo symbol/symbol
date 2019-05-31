@@ -67,17 +67,20 @@ namespace catapult { namespace mongo {
 			}
 		};
 
-		std::shared_ptr<io::LightBlockStorage> CreateMongoBlockStorage(std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin) {
-			auto mode = test::DbInitializationType::None;
+		std::shared_ptr<io::LightBlockStorage> CreateMongoBlockStorage(
+				std::unique_ptr<MongoTransactionPlugin>&& pTransactionPlugin,
+				MongoErrorPolicy::Mode errorPolicyMode = MongoErrorPolicy::Mode::Strict) {
 			auto pMongoReceiptRegistry = std::make_shared<MongoReceiptRegistry>();
 			auto mockReceiptType = utils::to_underlying_type(mocks::MockReceipt::Receipt_Type);
 			pMongoReceiptRegistry->registerPlugin(mocks::CreateMockReceiptMongoPlugin(mockReceiptType));
 			const auto& receiptRegistry = *pMongoReceiptRegistry;
-			auto pBlockStorage = test::CreateMongoStorage<io::LightBlockStorage>(std::move(pTransactionPlugin), mode, [&receiptRegistry](
-					auto& context,
-					const auto& transactionRegistry) {
-				return mongo::CreateMongoBlockStorage(context, transactionRegistry, receiptRegistry);
-			});
+			auto pBlockStorage = test::CreateMongoStorage<io::LightBlockStorage>(
+					std::move(pTransactionPlugin),
+					test::DbInitializationType::None,
+					errorPolicyMode,
+					[&receiptRegistry](auto& context, const auto& transactionRegistry) {
+						return mongo::CreateMongoBlockStorage(context, transactionRegistry, receiptRegistry);
+					});
 
 			return decltype(pBlockStorage)(pBlockStorage.get(), [pMongoReceiptRegistry, pBlockStorage](const auto*) {});
 		}
@@ -279,7 +282,7 @@ namespace catapult { namespace mongo {
 
 		model::AddressResolutionStatement CreateAddressResolutionStatement(const UnresolvedAddress& address, uint32_t index) {
 			model::AddressResolutionStatement statement(address);
-			statement.addResolution(test::GenerateRandomData<Address_Decoded_Size>(), model::ReceiptSource(index, index + 1));
+			statement.addResolution(test::GenerateRandomByteArray<Address>(), model::ReceiptSource(index, index + 1));
 			return statement;
 		}
 
@@ -332,9 +335,9 @@ namespace catapult { namespace mongo {
 			explicit TestContext(size_t topHeight) : m_pStorage(CreateMongoBlockStorage(mocks::CreateMockTransactionMongoPlugin())) {
 				for (auto i = 1u; i <= topHeight; ++i) {
 					auto transactions = test::GenerateRandomTransactions(10);
-					m_blocks.push_back(test::GenerateRandomBlockWithTransactions(test::MakeConst(transactions)));
+					m_blocks.push_back(test::GenerateBlockWithTransactions(transactions));
 					m_blocks.back()->Height = Height(i);
-					auto blockElement = test::BlockToBlockElement(*m_blocks.back(), test::GenerateRandomData<Hash256_Size>());
+					auto blockElement = test::BlockToBlockElement(*m_blocks.back(), test::GenerateRandomByteArray<Hash256>());
 					AddStatements(blockElement, { 0, 1, 2, 3});
 					m_blockElements.emplace_back(blockElement);
 				}
@@ -451,7 +454,7 @@ namespace catapult { namespace mongo {
 				size_t numExpectedTransactions) {
 			// Arrange:
 			auto pBlock = PrepareDbAndBlock(blockElementCounts);
-			auto blockElement = test::BlockToBlockElement(*pBlock, test::GenerateRandomData<Hash256_Size>());
+			auto blockElement = test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>());
 			AddStatements(blockElement, blockElementCounts);
 			auto pTransactionPlugin = mocks::CreateMockTransactionMongoPlugin(mocks::PluginOptionFlags::Default, numDependentDocuments);
 			auto pStorage = CreateMongoBlockStorage(std::move(pTransactionPlugin));
@@ -534,12 +537,13 @@ namespace catapult { namespace mongo {
 		// - set the score
 		auto connection = test::CreateDbConnection();
 		auto database = connection[test::DatabaseName()];
-		auto scoreDocument = document() << "$set"
+		auto scoreDocument = document()
+				<< "$set"
 				<< open_document
 					<< "scoreHigh" << static_cast<int64_t>(12)
 					<< "scoreLow" << static_cast<int64_t>(98)
 				<< close_document << finalize;
-		SetChainInfoDocument(database, scoreDocument.view());
+		TrySetChainInfoDocument(database, scoreDocument.view());
 
 		// Act:
 		context.saveBlocks();
@@ -549,6 +553,74 @@ namespace catapult { namespace mongo {
 		EXPECT_EQ(4u, test::GetFieldCount(chainInfoDocument.view()));
 		EXPECT_EQ(12u, test::GetUint64(chainInfoDocument.view(), "scoreHigh"));
 		EXPECT_EQ(98u, test::GetUint64(chainInfoDocument.view(), "scoreLow"));
+	}
+
+	TEST(TEST_CLASS, CannotSaveSameBlockTwiceWhenErrorModeIsStrict) {
+		// Arrange:
+		auto pTransactionPlugin = mocks::CreateMockTransactionMongoPlugin(mocks::PluginOptionFlags::Default, 0);
+		auto pStorage = CreateMongoBlockStorage(std::move(pTransactionPlugin));
+
+		auto pBlock = PrepareDbAndBlock({ 3, 0, 0, 0 });
+		auto blockElement = test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>());
+		pStorage->saveBlock(blockElement);
+
+		// Act + Assert:
+		EXPECT_THROW(pStorage->saveBlock(blockElement), catapult_invalid_argument);
+	}
+
+	TEST(TEST_CLASS, CanSaveSameBlockTwiceWhenErrorModeIsIdempotent) {
+		// Arrange:
+		auto pTransactionPlugin = mocks::CreateMockTransactionMongoPlugin(mocks::PluginOptionFlags::Default, 0);
+		auto pStorage = CreateMongoBlockStorage(std::move(pTransactionPlugin), MongoErrorPolicy::Mode::Idempotent);
+
+		auto pBlock = PrepareDbAndBlock({ 3, 0, 0, 0 });
+		auto blockElement = test::BlockToBlockElement(*pBlock, test::GenerateRandomByteArray<Hash256>());
+		pStorage->saveBlock(blockElement);
+
+		// Act:
+		pStorage->saveBlock(blockElement);
+
+		// Assert:
+		ASSERT_EQ(Height(1), pStorage->chainHeight());
+		AssertEqual(blockElement);
+
+		// - check collection sizes
+		auto connection = test::CreateDbConnection();
+		auto database = connection[test::DatabaseName()];
+		auto filter = document() << finalize;
+		EXPECT_EQ(1u, database["blocks"].count_documents(filter.view()));
+		EXPECT_EQ(3u, static_cast<size_t>(database["transactions"].count_documents(filter.view())));
+	}
+
+	namespace {
+		void AssertCannotSaveOutOfOrderBlock(MongoErrorPolicy::Mode errorPolicyMode) {
+			// Arrange:
+			auto pTransactionPlugin = mocks::CreateMockTransactionMongoPlugin(mocks::PluginOptionFlags::Default, 0);
+			auto pStorage = CreateMongoBlockStorage(std::move(pTransactionPlugin), errorPolicyMode);
+
+			// - prepare and save a block with height 1
+			auto pBlock1 = PrepareDbAndBlock({ 3, 0, 0, 0 });
+			auto blockElement1 = test::BlockToBlockElement(*pBlock1, test::GenerateRandomByteArray<Hash256>());
+			pStorage->saveBlock(blockElement1);
+
+			// - prepare a block with height 3
+			auto pBlock2 = PrepareDbAndBlock({ 3, 0, 0, 0 });
+			pBlock2->Height = Height(3);
+			auto blockElement2 = test::BlockToBlockElement(*pBlock2, test::GenerateRandomByteArray<Hash256>());
+
+			// Act + Assert:
+			EXPECT_THROW(pStorage->saveBlock(blockElement2), catapult_invalid_argument);
+		}
+	}
+
+	TEST(TEST_CLASS, CannotSaveOutOfOrderBlockWhenModeIsStrict) {
+		// Assert:
+		AssertCannotSaveOutOfOrderBlock(MongoErrorPolicy::Mode::Strict);
+	}
+
+	TEST(TEST_CLASS, CannotSaveOutOfOrderBlockWhenModeIsIdempotent) {
+		// Assert:
+		AssertCannotSaveOutOfOrderBlock(MongoErrorPolicy::Mode::Idempotent);
 	}
 
 	// endregion

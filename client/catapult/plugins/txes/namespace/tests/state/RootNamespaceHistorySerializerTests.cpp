@@ -52,7 +52,7 @@ namespace catapult { namespace state {
 			}
 
 			static void AssertHistoryHeader(const std::vector<uint8_t>& buffer, NamespaceId namespaceId, uint64_t depth) {
-				const auto& historyHeader = reinterpret_cast<const NamespaceHistoryHeader&>(*buffer.data());
+				const auto& historyHeader = reinterpret_cast<const NamespaceHistoryHeader&>(buffer[0]);
 				EXPECT_EQ(namespaceId, historyHeader.NamespaceId);
 				EXPECT_EQ(depth, historyHeader.Depth);
 			}
@@ -75,7 +75,7 @@ namespace catapult { namespace state {
 			}
 
 			static void AssertHistoryHeader(const std::vector<uint8_t>& buffer, NamespaceId namespaceId, uint64_t) {
-				const auto& historyHeader = reinterpret_cast<const NamespaceHistoryHeader&>(*buffer.data());
+				const auto& historyHeader = reinterpret_cast<const NamespaceHistoryHeader&>(buffer[0]);
 				EXPECT_EQ(namespaceId, historyHeader.NamespaceId);
 			}
 		};
@@ -101,7 +101,7 @@ namespace catapult { namespace state {
 				uint64_t numChildren,
 				const NamespaceAlias& alias = NamespaceAlias()) {
 			auto message = "root header at " + std::to_string(offset);
-			const auto& rootHeader = reinterpret_cast<const RootNamespaceHeader&>(*(buffer.data() + offset));
+			const auto& rootHeader = reinterpret_cast<const RootNamespaceHeader&>(buffer[offset]);
 			EXPECT_EQ(owner, rootHeader.Owner) << message;
 			EXPECT_EQ(lifetimeStart, rootHeader.LifetimeStart) << message;
 			EXPECT_EQ(lifetimeEnd, rootHeader.LifetimeEnd) << message;
@@ -137,8 +137,9 @@ namespace catapult { namespace state {
 				size_t offset,
 				const std::vector<NamespaceDataWithAliasPayload>& expected) {
 			for (auto i = 0u; i < expected.size(); ++i) {
-				const auto& data = reinterpret_cast<const NamespaceData&>(*(buffer.data() + offset + i * sizeof(NamespaceData)));
-				EXPECT_TRUE(AreEqual(expected[i], data)) << "actual at " << i << " (" << data.Part1 << ", " << data.Part2 << ")";
+				const auto& namespaceData = reinterpret_cast<const NamespaceData&>(buffer[offset + i * sizeof(NamespaceData)]);
+				EXPECT_TRUE(AreEqual(expected[i], namespaceData))
+						<< "actual at " << i << " (" << namespaceData.Part1 << ", " << namespaceData.Part2 << ")";
 			}
 		}
 
@@ -148,26 +149,26 @@ namespace catapult { namespace state {
 				const std::vector<NamespaceDataWithAliasPayload>& expected) {
 			auto* pData = buffer.data() + offset;
 			for (auto i = 0u; i < expected.size(); ++i) {
-				const auto& data = reinterpret_cast<const NamespaceData&>(*pData);
+				const auto& namespaceData = reinterpret_cast<const NamespaceData&>(*pData);
 
 				bool hasMatch = false;
 				NamespaceAlias expectedAlias;
-				for (const auto& expectedData : expected) {
-					if (!AreEqual(expectedData, data))
+				for (const auto& expectedNamespaceData : expected) {
+					if (!AreEqual(expectedNamespaceData, namespaceData))
 						continue;
 
 					hasMatch = true;
-					expectedAlias = expectedData.Alias;
+					expectedAlias = expectedNamespaceData.Alias;
 					break;
 				}
 
 				std::ostringstream message;
-				message << " at " << i << " (" << data.Part1 << ", " << data.Part2 << ")";
+				message << " at " << i << " (" << namespaceData.Part1 << ", " << namespaceData.Part2 << ")";
 				EXPECT_TRUE(hasMatch) << "actual" << message.str();
 
 				pData += sizeof(NamespaceData);
 
-				switch (data.AliasType) {
+				switch (namespaceData.AliasType) {
 				case AliasType::Mosaic:
 					EXPECT_EQ(expectedAlias.mosaicId(), reinterpret_cast<const MosaicId&>(*pData)) << "mosaic alias" << message.str();
 					pData += sizeof(MosaicId);
@@ -185,15 +186,30 @@ namespace catapult { namespace state {
 		}
 	}
 
-	SERIALIZER_TEST(CannotSaveEmptyHistory) {
+	TEST(TEST_CLASS, CanSaveEmptyHistory) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream(buffer);
+
+		RootNamespaceHistory history(NamespaceId(123));
+
+		// Act:
+		FullTraits::Serializer::Save(history, stream);
+
+		// Assert:
+		ASSERT_EQ(sizeof(FullTraits::NamespaceHistoryHeader), buffer.size());
+		FullTraits::AssertHistoryHeader(buffer, NamespaceId(123), 0);
+	}
+
+	TEST(TEST_CLASS, CannotSaveEmptyHistory_NonHistorical) {
+		// Arrange:
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream stream(buffer);
 
 		RootNamespaceHistory history(NamespaceId(123));
 
 		// Act + Assert:
-		EXPECT_THROW(TTraits::Serializer::Save(history, stream), catapult_runtime_error);
+		EXPECT_THROW(NonHistoricalTraits::Serializer::Save(history, stream), catapult_runtime_error);
 	}
 
 	namespace {
@@ -201,7 +217,7 @@ namespace catapult { namespace state {
 		void AssertCanSaveHistoryWithDepthOneWithoutChildren(const NamespaceAlias& alias, size_t aliasDataSize) {
 			// Arrange:
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 
 			auto owner = test::CreateRandomOwner();
 			RootNamespaceHistory history(NamespaceId(123));
@@ -231,7 +247,7 @@ namespace catapult { namespace state {
 	SERIALIZER_TEST(CanSaveHistoryWithDepthOneWithoutChildren_RootAddressAlias) {
 		// Assert:
 		AssertCanSaveHistoryWithDepthOneWithoutChildren<TTraits>(
-				NamespaceAlias(test::GenerateRandomData<Address_Decoded_Size>()),
+				NamespaceAlias(test::GenerateRandomByteArray<Address>()),
 				Address_Decoded_Size);
 	}
 
@@ -243,7 +259,7 @@ namespace catapult { namespace state {
 				TPrepareAliases prepareAliases) {
 			// Arrange:
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 
 			auto owner = test::CreateRandomOwner();
 			RootNamespaceHistory history(NamespaceId(123));
@@ -280,7 +296,7 @@ namespace catapult { namespace state {
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthOneWithChildren_WithAliases) {
 		// Arrange:
-		auto aliasedAddress = test::GenerateRandomData<Address_Decoded_Size>();
+		auto aliasedAddress = test::GenerateRandomByteArray<Address>();
 		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{
 			{ NamespaceId(124), NamespaceId(), NamespaceAlias(MosaicId(444)) },
 			{ NamespaceId(124), NamespaceId(125), NamespaceAlias(aliasedAddress) },
@@ -320,7 +336,7 @@ namespace catapult { namespace state {
 	SERIALIZER_TEST(SavingHistoryWithOutOfOrderChildrenSortsChildrenBeforeSaving) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream("", buffer);
+		mocks::MockMemoryStream stream(buffer);
 
 		auto owner = test::CreateRandomOwner();
 		RootNamespaceHistory history(NamespaceId(123));
@@ -361,7 +377,7 @@ namespace catapult { namespace state {
 				TPrepareAliases prepareAliases) {
 			// Arrange:
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 
 			auto owner = test::CreateRandomOwner();
 			RootNamespaceHistory history(NamespaceId(123));
@@ -418,7 +434,7 @@ namespace catapult { namespace state {
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthGreaterThanOneSameOwner_WithAliases) {
 		// Arrange:
-		auto aliasedAddress = test::GenerateRandomData<Address_Decoded_Size>();
+		auto aliasedAddress = test::GenerateRandomByteArray<Address>();
 		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{
 			{ NamespaceId(124), NamespaceId(), NamespaceAlias(MosaicId(444)) },
 			{ NamespaceId(124), NamespaceId(125), NamespaceAlias(aliasedAddress) },
@@ -445,7 +461,7 @@ namespace catapult { namespace state {
 				TPrepareAliases prepareAliases) {
 			// Arrange:
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 
 			auto owner1 = test::CreateRandomOwner();
 			auto owner2 = test::CreateRandomOwner();
@@ -506,7 +522,7 @@ namespace catapult { namespace state {
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthGreaterThanOneDifferentOwner_WithAliases) {
 		// Arrange:
-		auto aliasedAddress = test::GenerateRandomData<Address_Decoded_Size>();
+		auto aliasedAddress = test::GenerateRandomByteArray<Address>();
 		std::vector<NamespaceDataWithAliasPayload> expectedChildNamespaceData{
 			{ NamespaceId(124), NamespaceId(), NamespaceAlias(MosaicId(444)) },
 			{ NamespaceId(124), NamespaceId(125), NamespaceAlias(aliasedAddress) },
@@ -541,6 +557,15 @@ namespace catapult { namespace state {
 				EXPECT_THROW(TTraits::Serializer::Load(inputStream), TException);
 			}
 
+			static void AssertCanLoadEmptyHistory(io::InputStream& inputStream) {
+				// Act:
+				auto history = TTraits::Serializer::Load(inputStream);
+
+				// Assert:
+				EXPECT_EQ(0u, history.historyDepth());
+				EXPECT_EQ(NamespaceId(123), history.id());
+			}
+
 			static void AssertCanLoadHistoryWithDepthOneWithoutChildren(
 					io::InputStream& inputStream,
 					const Key& owner,
@@ -550,6 +575,7 @@ namespace catapult { namespace state {
 
 				// Assert:
 				ASSERT_EQ(1u, history.historyDepth());
+				EXPECT_EQ(NamespaceId(123), history.id());
 
 				test::AssertRootNamespace(history.back(), owner, Height(222), Height(333), 0, alias);
 			}
@@ -568,6 +594,7 @@ namespace catapult { namespace state {
 
 				// Assert:
 				ASSERT_EQ(1u, history.historyDepth());
+				EXPECT_EQ(NamespaceId(123), history.id());
 
 				test::AssertRootNamespace(history.back(), owner, Height(222), Height(333), 3);
 				EXPECT_EQ(NamespaceId(123), history.back().child(NamespaceId(124)).parentId());
@@ -590,6 +617,7 @@ namespace catapult { namespace state {
 
 				// Assert:
 				ASSERT_EQ(TTraits::Has_Historical_Entries ? 3u : 1u, history.historyDepth());
+				EXPECT_EQ(NamespaceId(123), history.id());
 
 				if (TTraits::Has_Historical_Entries) {
 					test::AssertRootNamespace(history.back(), owner, Height(444), Height(555), 4);
@@ -628,6 +656,7 @@ namespace catapult { namespace state {
 
 				// Assert:
 				ASSERT_EQ(TTraits::Has_Historical_Entries ? 3u : 1u, history.historyDepth());
+				EXPECT_EQ(NamespaceId(123), history.id());
 
 				if (TTraits::Has_Historical_Entries) {
 					test::AssertRootNamespace(history.back(), owner3, Height(444), Height(555), 1);
@@ -660,7 +689,7 @@ namespace catapult { namespace state {
 	}
 
 	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_TESTS(LoadTraits<FullTraits>,)
-	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_TESTS(LoadTraits<NonHistoricalTraits>, _NonHistorical)
+	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_NON_EMPTY_TESTS(LoadTraits<NonHistoricalTraits>, _NonHistorical)
 
 	// endregion
 }}

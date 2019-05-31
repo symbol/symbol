@@ -36,15 +36,15 @@ namespace catapult {
 
 namespace catapult { namespace consumers {
 
-	/// Creates a consumer that calculates hashes of all entities using \a transactionRegistry.
-	disruptor::BlockConsumer CreateBlockHashCalculatorConsumer(const model::TransactionRegistry& transactionRegistry);
+	/// Creates a consumer that calculates hashes of all entities using \a transactionRegistry for the network with the specified
+	/// generation hash (\a generationHash).
+	disruptor::BlockConsumer CreateBlockHashCalculatorConsumer(
+			const GenerationHash& generationHash,
+			const model::TransactionRegistry& transactionRegistry);
 
 	/// Creates a consumer that checks entities for previous processing based on their hash.
 	/// \a timeSupplier is used for generating timestamps and \a options specifies additional cache options.
 	disruptor::ConstBlockConsumer CreateBlockHashCheckConsumer(const chain::TimeSupplier& timeSupplier, const HashCheckOptions& options);
-
-	/// Creates a consumer that extracts all addresses affected by transactions using \a notificationPublisher.
-	disruptor::BlockConsumer CreateBlockAddressExtractionConsumer(const model::NotificationPublisher& notificationPublisher);
 
 	/// Creates a consumer that checks a block chain for internal integrity.
 	/// A valid chain must have no more than \a maxChainSize blocks and end no more than \a maxBlockFutureTime past the current time
@@ -76,6 +76,9 @@ namespace catapult { namespace consumers {
 			io::BlockStorageCache& storage,
 			uint32_t maxRollbackBlocks,
 			const BlockChainSyncHandlers& handlers);
+
+	/// Creates a consumer that cleans up temporary state produced by the block chain sync consumer given \a dataDirectory.
+	disruptor::ConstDisruptorConsumer CreateBlockChainSyncCleanupConsumer(const std::string& dataDirectory);
 
 	/// Prototype for a function that is called with a new block.
 	using NewBlockSink = consumer<const std::shared_ptr<const model::Block>&>;

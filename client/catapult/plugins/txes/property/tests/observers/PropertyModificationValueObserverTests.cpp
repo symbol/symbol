@@ -103,7 +103,7 @@ namespace catapult { namespace observers {
 			// Arrange:
 			ObserverTestContext context(notifyMode);
 			auto values = test::GenerateUniqueRandomDataVector<typename TPropertyValueTraits::ValueType>(numInitialValues);
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			test::PopulateCache<TPropertyValueTraits, TOperationTraits>(context.cache(), key, values);
 
 			auto modification = modificationFactory(values);
@@ -138,9 +138,9 @@ namespace catapult { namespace observers {
 		void AssertObserverDoesNotRemoveNonEmptyAccountProperties(NotifyMode notifyMode) {
 			// Arrange:
 			ObserverTestContext context(notifyMode);
-			auto filteredAddress = test::GenerateRandomData<Address_Decoded_Size>();
+			auto filteredAddress = test::GenerateRandomByteArray<Address>();
 			auto unresolvedFilteredAddress = AddressPropertyTraits::Unresolve(filteredAddress);
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			auto& propertyCacheDelta = context.cache().sub<cache::PropertyCache>();
 			auto accountAddress = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
 			propertyCacheDelta.insert(state::AccountProperties(accountAddress));

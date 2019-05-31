@@ -31,6 +31,7 @@ namespace catapult { namespace cache {
 	template<typename TCacheDescriptor, typename TBaseSet, typename... TSubViewArgs>
 	class BasicCache : public utils::MoveOnly {
 	public:
+		using CacheValueType = typename TCacheDescriptor::ValueType;
 		using CacheViewType = typename TCacheDescriptor::CacheViewType;
 		using CacheDeltaType = typename TCacheDescriptor::CacheDeltaType;
 		using CacheReadOnlyType = typename CacheViewType::ReadOnlyView;

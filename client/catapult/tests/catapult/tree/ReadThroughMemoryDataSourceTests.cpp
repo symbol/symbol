@@ -20,7 +20,7 @@
 
 #include "catapult/tree/ReadThroughMemoryDataSource.h"
 #include "catapult/utils/ArraySet.h"
-#include "tests/test/other/PatriciaTreeDataSourceTests.h"
+#include "tests/test/tree/PatriciaTreeDataSourceTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace tree {
@@ -46,8 +46,8 @@ namespace catapult { namespace tree {
 
 	TEST(TEST_CLASS, CanVisitAllSavedNodesViaForEach) {
 		// Arrange: prepare four nodes
-		auto leafNode1 = LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomData<Hash256_Size>());
-		auto leafNode2 = LeafTreeNode(TreeNodePath(0x64'6F'67'02), test::GenerateRandomData<Hash256_Size>());
+		auto leafNode1 = LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomByteArray<Hash256>());
+		auto leafNode2 = LeafTreeNode(TreeNodePath(0x64'6F'67'02), test::GenerateRandomByteArray<Hash256>());
 		auto branchNode1 = BranchTreeNode(TreeNodePath(0x64'6F'67'01));
 		auto branchNode2 = BranchTreeNode(TreeNodePath(0x64'6F'67'04));
 
@@ -78,12 +78,12 @@ namespace catapult { namespace tree {
 	TEST(TEST_CLASS, CanClearAllMemoryNodes) {
 		// Arrange: set a leaf and branch node on the backing data source
 		MemoryDataSource backingDataSource;
-		backingDataSource.set(LeafTreeNode(TreeNodePath(0x84'6F'67'00), test::GenerateRandomData<Hash256_Size>()));
+		backingDataSource.set(LeafTreeNode(TreeNodePath(0x84'6F'67'00), test::GenerateRandomByteArray<Hash256>()));
 		backingDataSource.set(BranchTreeNode(TreeNodePath(0x84'6F'67'01)));
 
 		// - set a leaf and branch node on the wrapping data source
 		ReadThroughMemoryDataSource<MemoryDataSource> dataSource(backingDataSource);
-		dataSource.set(LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomData<Hash256_Size>()));
+		dataSource.set(LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomByteArray<Hash256>()));
 		dataSource.set(BranchTreeNode(TreeNodePath(0x64'6F'67'01)));
 
 		// Sanity:
@@ -120,7 +120,7 @@ namespace catapult { namespace tree {
 
 	TEST(TEST_CLASS, SetLeafNodeDoesNotModifyBackingSet) {
 		// Assert:
-		AssertSetDoesNotModifyBackingSet(LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomData<Hash256_Size>()));
+		AssertSetDoesNotModifyBackingSet(LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomByteArray<Hash256>()));
 	}
 
 	TEST(TEST_CLASS, SetBranchNodeDoesNotModifyBackingSet) {
@@ -133,7 +133,7 @@ namespace catapult { namespace tree {
 		MemoryDataSource backingDataSource;
 		ReadThroughMemoryDataSource<MemoryDataSource> dataSource(backingDataSource);
 
-		auto node = LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomData<Hash256_Size>());
+		auto node = LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomByteArray<Hash256>());
 		backingDataSource.set(node);
 
 		// Act:

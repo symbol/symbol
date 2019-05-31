@@ -31,7 +31,7 @@ namespace catapult { namespace disruptor {
 				: DispatcherName(dispatcherName)
 				, DisruptorSize(disruptorSize)
 				, ElementTraceInterval(1)
-				, ShouldThrowIfFull(true)
+				, ShouldThrowWhenFull(true)
 		{}
 
 	public:
@@ -44,7 +44,7 @@ namespace catapult { namespace disruptor {
 		/// Multiple of elements at which an element should be traced through queue and completion.
 		size_t ElementTraceInterval;
 
-		/// \c true if the dispatcher should throw if full, \c false if it should return an error.
-		bool ShouldThrowIfFull;
+		/// \c true if the dispatcher should throw when full, \c false if it should return an error.
+		bool ShouldThrowWhenFull;
 	};
 }}

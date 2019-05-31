@@ -19,13 +19,13 @@
 **/
 
 #include "src/NodeDiscoveryService.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/ionet/NetworkNode.h"
 
 namespace catapult { namespace nodediscovery {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			auto pLocalNetworkNode = ionet::PackNode(config::ToLocalNode(bootstrapper.config()));
 
 			// register service(s)
@@ -35,6 +35,6 @@ namespace catapult { namespace nodediscovery {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::nodediscovery::RegisterExtension(bootstrapper);
 }

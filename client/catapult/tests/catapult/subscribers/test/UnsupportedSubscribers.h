@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 			CATAPULT_THROW_RUNTIME_ERROR("notifyScoreChange - not supported in mock");
 		}
 
-		void notifyStateChange(const consumers::StateChangeInfo&) override {
+		void notifyStateChange(const subscribers::StateChangeInfo&) override {
 			CATAPULT_THROW_RUNTIME_ERROR("notifyStateChange - not supported in mock");
 		}
 	};

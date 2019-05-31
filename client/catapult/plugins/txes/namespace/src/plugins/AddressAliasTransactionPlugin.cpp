@@ -36,5 +36,5 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	DEFINE_TRANSACTION_PLUGIN_FACTORY(AddressAlias, Publish)
+	DEFINE_TRANSACTION_PLUGIN_FACTORY(AddressAlias, Default, Publish)
 }}

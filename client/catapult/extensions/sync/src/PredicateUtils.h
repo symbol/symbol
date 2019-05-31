@@ -23,7 +23,7 @@
 #include "catapult/consumers/TransactionConsumers.h"
 #include "catapult/model/Elements.h"
 
-namespace catapult { namespace config { class LocalNodeConfiguration; } }
+namespace catapult { namespace config { class CatapultConfiguration; } }
 
 namespace catapult { namespace sync {
 
@@ -31,5 +31,5 @@ namespace catapult { namespace sync {
 	model::MatchingEntityPredicate ToRequiresValidationPredicate(const chain::KnownHashPredicate& knownHashPredicate);
 
 	/// Creates a ut updater throttle based on \a config.
-	chain::UtUpdater::Throttle CreateUtUpdaterThrottle(const config::LocalNodeConfiguration& config);
+	chain::UtUpdater::Throttle CreateUtUpdaterThrottle(const config::CatapultConfiguration& config);
 }}

@@ -26,6 +26,10 @@ namespace catapult { namespace crypto {
 #define TEST_CLASS HashesTests
 
 	namespace {
+		std::string AsciiToHexString(const std::string& str) {
+			return test::ToHexString(reinterpret_cast<const uint8_t*>(str.data()), str.size());
+		}
+
 		// region traits
 
 		struct Ripemd160_Traits {
@@ -40,13 +44,13 @@ namespace catapult { namespace crypto {
 			// data taken from : https://homes.esat.kuleuven.be/~bosselae/ripemd160.html
 			static std::vector<std::string> SampleTestVectorsInput() {
 				return {
-					test::ToHexString("a"),
-					test::ToHexString("abc"),
-					test::ToHexString("message digest"),
-					test::ToHexString("abcdefghijklmnopqrstuvwxyz"),
-					test::ToHexString("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
-					test::ToHexString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"),
-					test::ToHexString("12345678901234567890123456789012345678901234567890123456789012345678901234567890")
+					AsciiToHexString("a"),
+					AsciiToHexString("abc"),
+					AsciiToHexString("message digest"),
+					AsciiToHexString("abcdefghijklmnopqrstuvwxyz"),
+					AsciiToHexString("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+					AsciiToHexString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"),
+					AsciiToHexString("12345678901234567890123456789012345678901234567890123456789012345678901234567890")
 				};
 			}
 
@@ -89,8 +93,8 @@ namespace catapult { namespace crypto {
 			// https://github.com/libbitcoin/libbitcoin-system/blob/master/test/chain/script.hpp
 			static std::vector<std::string> SampleTestVectorsInput() {
 				return {
-					test::ToHexString("a"),
-					test::ToHexString("abcdefghijklmnopqrstuvwxyz"),
+					AsciiToHexString("a"),
+					AsciiToHexString("abcdefghijklmnopqrstuvwxyz"),
 					// https://en.bitcoin.it/wiki/Transaction
 					"04D4FB35C2CDB822644F1057E9BD07E3D3B0A36702662327EF4EB799EB219856"
 						"D0FD884FCE43082B73424A3293837C5F94A478F7BC4EC4DA82BFB7E0B43FB218CC",
@@ -185,7 +189,7 @@ namespace catapult { namespace crypto {
 			using HashBuilder = Sha3_256_Builder;
 			using HashType = HashBuilder::OutputType;
 
-			static constexpr auto HashFunc = crypto::Sha3_256;
+			static constexpr auto HashFunc = Sha3_256;
 
 			static std::string EmptyStringHash() {
 				return "A7FFC6F8BF1ED76651C14756A061D662F580FF4DE43B49FA82D80A4B80F8434A";
@@ -212,7 +216,7 @@ namespace catapult { namespace crypto {
 			using HashBuilder = Sha3_512_Builder;
 			using HashType = HashBuilder::OutputType;
 
-			static constexpr auto HashFunc = crypto::Sha3_512;
+			static constexpr auto HashFunc = Sha3_512;
 
 			static std::string EmptyStringHash() {
 				return "A69F73CCA23A9AC5C8B567DC185A756E97C982164FE25859E0D1DCC1475C80A6"
@@ -246,7 +250,7 @@ namespace catapult { namespace crypto {
 			using HashBuilder = Keccak_256_Builder;
 			using HashType = HashBuilder::OutputType;
 
-			static constexpr auto HashFunc = crypto::Keccak_256;
+			static constexpr auto HashFunc = Keccak_256;
 
 			static std::string EmptyStringHash() {
 				return "C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470";
@@ -273,7 +277,7 @@ namespace catapult { namespace crypto {
 			using HashBuilder = Keccak_512_Builder;
 			using HashType = HashBuilder::OutputType;
 
-			static constexpr auto HashFunc = crypto::Keccak_512;
+			static constexpr auto HashFunc = Keccak_512;
 
 			static std::string EmptyStringHash() {
 				return "0EAB42DE4C3CEB9235FC91ACFFE746B29C29A8C366B7C60E4E67C466F36A4304"
@@ -303,6 +307,19 @@ namespace catapult { namespace crypto {
 			}
 		};
 
+		struct GenerationHash_Traits : public Sha3_256_Traits {
+		public:
+			using HashBuilder = GenerationHash_Builder;
+			using HashType = HashBuilder::OutputType;
+
+			static void HashFunc(const RawBuffer& dataBuffer, GenerationHash& hash) noexcept {
+				// workaround because there is no source GenerationHash function
+				Hash256 tempHash;
+				Sha3_256(dataBuffer, tempHash);
+				std::copy(tempHash.cbegin(), tempHash.cend(), hash.begin());
+			}
+		};
+
 		// endregion
 
 		// region single call hash function tests
@@ -310,14 +327,14 @@ namespace catapult { namespace crypto {
 		template<typename TTraits>
 		void AssertEmptyStringHasExpectedHash() {
 			// Arrange:
-			auto data = test::ToVector("");
+			auto buffer = test::ToVector("");
 
 			// Act:
 			typename TTraits::HashType hash;
-			TTraits::HashFunc(data, hash);
+			TTraits::HashFunc(buffer, hash);
 
 			// Assert:
-			EXPECT_EQ(TTraits::EmptyStringHash(), test::ToHexString(hash));
+			EXPECT_EQ(TTraits::EmptyStringHash(), test::ToString(hash));
 		}
 
 		template<typename TTraits>
@@ -331,14 +348,14 @@ namespace catapult { namespace crypto {
 
 			auto i = 0u;
 			for (const auto& dataHexStr : dataSet) {
-				auto data = test::ToVector(dataHexStr);
+				auto buffer = test::ToVector(dataHexStr);
 
 				// Act:
 				typename TTraits::HashType hash;
-				TTraits::HashFunc(data, hash);
+				TTraits::HashFunc(buffer, hash);
 
 				// Assert:
-				EXPECT_EQ(expectedHashes[i], test::ToHexString(hash));
+				EXPECT_EQ(expectedHashes[i], test::ToString(hash));
 				++i;
 			}
 		}
@@ -346,15 +363,15 @@ namespace catapult { namespace crypto {
 		template<typename TTraits>
 		void AssertMillionTimesAHasExpectedHash() {
 			// Arrange:
-			std::vector<uint8_t> data(1'000'000, 'a');
+			std::vector<uint8_t> buffer(1'000'000, 'a');
 			std::string expectedHash = TTraits::MillionTimesATestVector();
 
 			// Act:
 			typename TTraits::HashType hash;
-			TTraits::HashFunc(data, hash);
+			TTraits::HashFunc(buffer, hash);
 
 			// Assert:
-			EXPECT_EQ(expectedHash, test::ToHexString(hash));
+			EXPECT_EQ(expectedHash, test::ToString(hash));
 		}
 
 		template<typename TTraits>
@@ -376,14 +393,14 @@ namespace catapult { namespace crypto {
 			for (const auto& dataStr : dataSet) {
 				// Arrange:
 				auto hex = test::ToHexString(reinterpret_cast<const uint8_t*>(dataStr.c_str()), dataStr.size());
-				auto data = test::ToVector(hex);
+				auto buffer = test::ToVector(hex);
 
 				// Act:
 				typename TTraits::HashType hash;
-				TTraits::HashFunc(data, hash);
+				TTraits::HashFunc(buffer, hash);
 
 				// Assert:
-				EXPECT_EQ(expectedHashes[i], test::ToHexString(hash));
+				EXPECT_EQ(expectedHashes[i], test::ToString(hash));
 				++i;
 			}
 		}
@@ -429,6 +446,7 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, Sha3_512_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Sha3_512_Traits>(); } \
 	TEST(TEST_CLASS, Keccak_256_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Keccak_256_Traits>(); } \
 	TEST(TEST_CLASS, Keccak_512_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<Keccak_512_Traits>(); } \
+	TEST(TEST_CLASS, GenerationHash_##TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<GenerationHash_Traits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SHA3_TRAITS_BASED_TEST(EmptyStringHasExpectedHash) {
@@ -465,40 +483,40 @@ namespace catapult { namespace crypto {
 			// Arrange:
 			for (const auto& dataStr : Data_Sets_Long) {
 				OutputHashType expected;
-				auto data = test::ToVector(dataStr);
-				calculateHashSingle(data, expected);
+				auto buffer = test::ToVector(dataStr);
+				calculateHashSingle(buffer, expected);
 
 				// Act:
-				auto splitInTwo = data.size() / 2;
+				auto splitInTwo = buffer.size() / 2;
 				OutputHashType result1;
 				{
 					THashBuilder hashBuilder;
 					hashBuilder.update({
-						{ data.data(), splitInTwo },
-						{ data.data() + splitInTwo, data.size() - splitInTwo } });
+						{ buffer.data(), splitInTwo },
+						{ buffer.data() + splitInTwo, buffer.size() - splitInTwo } });
 					hashBuilder.final(result1);
 				}
 
-				auto splitInThree = data.size() / 3;
+				auto splitInThree = buffer.size() / 3;
 				OutputHashType result2;
 				{
 					THashBuilder hashBuilder;
 					hashBuilder.update({
-						{ data.data(), splitInThree },
-						{ data.data() + splitInThree, splitInThree },
-						{ data.data() + 2 * splitInThree, data.size() - 2 * splitInThree } });
+						{ buffer.data(), splitInThree },
+						{ buffer.data() + splitInThree, splitInThree },
+						{ buffer.data() + 2 * splitInThree, buffer.size() - 2 * splitInThree } });
 					hashBuilder.final(result2);
 				}
 
-				auto splitInFour = data.size() / 4;
+				auto splitInFour = buffer.size() / 4;
 				OutputHashType result3;
 				{
 					THashBuilder hashBuilder;
 					hashBuilder.update({
-						{ data.data(), splitInFour },
-						{ data.data() + splitInFour, splitInFour },
-						{ data.data() + 2 * splitInFour, splitInFour },
-						{ data.data() + 3 * splitInFour, data.size() - 3 * splitInFour } });
+						{ buffer.data(), splitInFour },
+						{ buffer.data() + splitInFour, splitInFour },
+						{ buffer.data() + 2 * splitInFour, splitInFour },
+						{ buffer.data() + 3 * splitInFour, buffer.size() - 3 * splitInFour } });
 					hashBuilder.final(result3);
 				}
 
@@ -515,18 +533,18 @@ namespace catapult { namespace crypto {
 			// Arrange:
 			for (const auto& dataStr : Data_Sets_Long) {
 				OutputHashType expected;
-				auto data = test::ToVector(dataStr);
-				calculateHashSingle(data, expected);
+				auto buffer = test::ToVector(dataStr);
+				calculateHashSingle(buffer, expected);
 
 				// Act:
 				OutputHashType results[5];
 				for (auto i = 2u; i < 2 + CountOf(results); ++i) {
-					auto partSize = data.size() / i;
+					auto partSize = buffer.size() / i;
 					THashBuilder hashBuilder;
 					for (auto j = 0u; j < i - 1; ++j)
-						hashBuilder.update({ data.data() + partSize * j, partSize });
+						hashBuilder.update({ buffer.data() + partSize * j, partSize });
 
-					hashBuilder.update({ data.data() + partSize * (i - 1), data.size() - partSize * (i - 1) });
+					hashBuilder.update({ buffer.data() + partSize * (i - 1), buffer.size() - partSize * (i - 1) });
 					hashBuilder.final(results[i - 2]);
 				}
 
@@ -551,21 +569,21 @@ namespace catapult { namespace crypto {
 
 	SHA3_TRAITS_BASED_TEST(AlignedAndUnalignedBuildersProduceSameResults) {
 		// Arrange:
-		auto data = test::GenerateRandomVector(1 * 1024 * 1024);
+		auto buffer = test::GenerateRandomVector(1 * 1024 * 1024);
 
 		typename TTraits::HashBuilder::OutputType alignedResult;
 		typename TTraits::HashBuilder::OutputType unalignedResult;
 		{
 			typename TTraits::HashBuilder hashBuilder;
-			hashBuilder.update(data);
+			hashBuilder.update(buffer);
 			hashBuilder.final(alignedResult);
 		}
 
 		// Act:
 		{
-			uint8_t buffer[512];
-			auto pHashBuilder = new (buffer + 3) typename TTraits::HashBuilder();
-			pHashBuilder->update(data);
+			uint8_t hashBuilderBackingMemory[512];
+			auto pHashBuilder = new (hashBuilderBackingMemory + 3) typename TTraits::HashBuilder();
+			pHashBuilder->update(buffer);
 			pHashBuilder->final(unalignedResult);
 		}
 

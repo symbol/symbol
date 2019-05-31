@@ -157,14 +157,21 @@ namespace catapult { namespace mocks {
 	enum class PluginOptionFlags : uint8_t {
 		/// Default plugin options.
 		Default = 1,
+
+		/// Configures the mock transaction plugin to not support top-level.
+		Not_Top_Level = 2,
+
 		/// Configures the mock transaction plugin to not support embedding.
-		Not_Embeddable = 2,
+		Not_Embeddable = 4,
+
 		/// Configures the mock transaction plugin to publish extra transaction data as balance transfers.
-		Publish_Transfers = 4,
+		Publish_Transfers = 8,
+
 		/// Configures the mock transaction plugin to publish extra custom notifications.
-		Publish_Custom_Notifications = 8,
+		Publish_Custom_Notifications = 16,
+
 		/// Configures the mock transaction plugin to return a custom data buffer (equal to the mock transaction's payload sans header).
-		Custom_Buffers = 16
+		Custom_Buffers = 32
 	};
 
 	/// Returns \c true if \a options has \a flag set.

@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 
 	/// Calculates the generation hash from a previous generation hash (\a previousGenerationHash)
 	/// and a public key (\a publicKey).
-	Hash256 CalculateGenerationHash(const Hash256& previousGenerationHash, const Key& publicKey);
+	GenerationHash CalculateGenerationHash(const GenerationHash& previousGenerationHash, const Key& publicKey);
 
 	// endregion
 
@@ -92,7 +92,7 @@ namespace catapult { namespace model {
 		Hash256 BlockHash;
 
 		/// Generation hash of previous block.
-		Hash256 GenerationHash;
+		catapult::GenerationHash GenerationHash;
 
 		/// Height of previous block.
 		Height BlockHeight;

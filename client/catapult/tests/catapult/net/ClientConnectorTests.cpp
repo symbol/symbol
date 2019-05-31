@@ -212,7 +212,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, CanManageMultipleConnections) {
 		// Act: establish multiple connections
-		static const auto Num_Connections = 5u;
+		constexpr auto Num_Connections = 5u;
 		ConnectorTestContext context;
 		auto state = SetupMultiConnectionTest(context, Num_Connections);
 

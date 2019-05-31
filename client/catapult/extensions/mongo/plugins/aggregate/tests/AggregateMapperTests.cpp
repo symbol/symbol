@@ -81,7 +81,10 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			// - create and copy cosignatures
 			auto cosignatures = test::GenerateRandomDataVector<model::Cosignature>(numCosignatures);
-			std::memcpy(pTransaction->CosignaturesPtr(), cosignatures.data(), numCosignatures * sizeof(model::Cosignature));
+			std::memcpy(
+					static_cast<void*>(pTransaction->CosignaturesPtr()),
+					cosignatures.data(),
+					numCosignatures * sizeof(model::Cosignature));
 
 			// - create the plugin
 			MongoTransactionRegistry registry;
@@ -144,8 +147,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			// Act:
 			model::TransactionElement transactionElement(*pTransaction);
-			transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
-			transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+			transactionElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
+			transactionElement.MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 			transactionElement.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
 			auto metadata = MongoTransactionMetadata(transactionElement, Height(12), 2);
 			auto documents = pPlugin->extractDependentDocuments(*pTransaction, metadata);

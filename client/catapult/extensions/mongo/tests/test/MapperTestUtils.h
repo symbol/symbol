@@ -107,6 +107,12 @@ namespace catapult { namespace test {
 		return GetBinaryArray<Hash256_Size>(doc, name);
 	}
 
+	/// Converts binary field \a name from a document (\a doc) to a generation hash.
+	template<typename TDocument>
+	GenerationHash GetGenerationHashValue(const TDocument& doc, const std::string& name) {
+		return GetBinaryArray<Hash256_Size>(doc, name);
+	}
+
 	/// Converts binary field \a name from a document (\a doc) to a 512 bit hash.
 	template<typename TDocument>
 	Hash512 GetHash512Value(const TDocument& doc, const std::string& name) {

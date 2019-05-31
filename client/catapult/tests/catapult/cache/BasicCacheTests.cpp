@@ -54,6 +54,8 @@ namespace catapult { namespace cache {
 		// provide two constructors for each sub view so it can be used with and without options
 		template<typename TBaseSet>
 		struct TestCacheDescriptor {
+			using ValueType = void;
+
 			struct CacheViewType {
 			public:
 				using ReadOnlyView = void;
@@ -98,17 +100,26 @@ namespace catapult { namespace cache {
 		};
 
 		// define the test caches using BasicCache
-		using TestCache = BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit>;
+		class TestCache : public BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit> {
+		public:
+			TestCache() : BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit>(CacheConfiguration())
+			{}
+		};
+
 		using TestCacheWithOptions = BasicCache<TestCacheDescriptor<BaseSetTypeUnorderedExplicit>, BaseSetTypeUnorderedExplicit, int>;
 
-		using TestCacheOrderedExplicit = BasicCache<TestCacheDescriptor<OrderedSetType>, OrderedSetType>;
+		class TestCacheOrderedExplicit : public BasicCache<TestCacheDescriptor<OrderedSetType>, OrderedSetType> {
+		public:
+			TestCacheOrderedExplicit() : BasicCache<TestCacheDescriptor<OrderedSetType>, OrderedSetType>(CacheConfiguration())
+			{}
+		};
 	}
 
 	// region sub views - no options
 
 	TEST(TEST_CLASS, CanCreateViews) {
 		// Arrange:
-		TestCache cache(CacheConfiguration{});
+		TestCache cache;
 
 		// Act:
 		auto view1 = cache.createView();
@@ -120,7 +131,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateDelta) {
 		// Arrange:
-		TestCache cache(CacheConfiguration{});
+		TestCache cache;
 
 		// Act:
 		auto delta = cache.createDelta();
@@ -131,7 +142,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanCreateDetachedDeltas) {
 		// Arrange:
-		TestCache cache(CacheConfiguration{});
+		TestCache cache;
 
 		// Act:
 		auto delta1 = cache.createDetachedDelta();
@@ -204,7 +215,7 @@ namespace catapult { namespace cache {
 
 	COMMIT_TEST(CanCommitDelta) {
 		// Arrange:
-		TCache cache(CacheConfiguration{});
+		TCache cache;
 
 		// Act:
 		auto delta = cache.createDelta();
@@ -215,7 +226,7 @@ namespace catapult { namespace cache {
 
 	COMMIT_TEST(CannotCommitDetachedDelta) {
 		// Arrange:
-		TCache cache(CacheConfiguration{});
+		TCache cache;
 
 		// Act:
 		auto delta = cache.createDetachedDelta();

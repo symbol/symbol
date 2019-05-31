@@ -28,6 +28,7 @@
 #include "catapult/tree/TreeNode.h"
 #include "tests/test/nodeps/Atomics.h"
 #include <numeric>
+#include <unordered_set>
 
 namespace catapult {
 	namespace test {
@@ -45,28 +46,30 @@ namespace catapult { namespace test {
 	using SimpleCacheReadOnlyType = cache::ReadOnlySimpleCache<
 		BasicSimpleCacheViewExtension<TViewExtension, TDeltaExtension>,
 		BasicSimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>,
-		size_t>;
+		uint64_t>;
 
 	/// Possible simple cache view modes.
 	enum class SimpleCacheViewMode {
 		/// View supports iteration.
 		Iterable,
+
 		/// View supports merkle roots.
 		Merkle_Root,
+
 		/// View only supports minimum functionality.
 		Basic
 	};
 
 	/// Find iterator returned by simple cache views.
 	/// \note Template on a tag so that view and delta return different iterator types to better emulate real caches.
-	template<size_t Tag>
+	template<uint64_t Tag>
 	class SimpleCacheFindIterator {
 	public:
 		/// Creates an uninitialized iterator.
 		SimpleCacheFindIterator() = default;
 
 		/// Creates an iterator around \a value and \a isValid.
-		SimpleCacheFindIterator(size_t value, bool isValid)
+		SimpleCacheFindIterator(uint64_t value, bool isValid)
 				: m_value(value)
 				, m_isValid(isValid)
 		{}
@@ -74,7 +77,7 @@ namespace catapult { namespace test {
 	public:
 		/// Gets a value.
 		/// \throws catapult_out_of_range if this iterator does not point to a valid value.
-		const size_t& get() const {
+		const uint64_t& get() const {
 			if (!m_isValid)
 				CATAPULT_THROW_OUT_OF_RANGE("invalid id supplied to get");
 
@@ -87,7 +90,7 @@ namespace catapult { namespace test {
 		}
 
 	private:
-		size_t m_value;
+		uint64_t m_value;
 		bool m_isValid;
 	};
 
@@ -97,12 +100,12 @@ namespace catapult { namespace test {
 		/// Creates default state.
 		SimpleCacheState()
 				: Id(0)
-				, MerkleRoot(GenerateRandomData<Hash256_Size>())
+				, MerkleRoot(GenerateRandomByteArray<Hash256>())
 		{}
 
 	public:
 		/// Current cache identifier / value.
-		size_t Id;
+		uint64_t Id;
 
 		/// Cache merkle root.
 		Hash256 MerkleRoot;
@@ -145,7 +148,7 @@ namespace catapult { namespace test {
 
 		/// Tries to find the value associated with (key) in the tree and stores proof of existence or not in (nodePath).
 		/// \note This is just a placeholder and not implemented.
-		std::pair<Hash256, bool> tryLookup(const size_t&, std::vector<tree::TreeNode>&) const {
+		std::pair<Hash256, bool> tryLookup(const uint64_t&, std::vector<tree::TreeNode>&) const {
 			return std::make_pair(Hash256(), false);
 		}
 
@@ -214,35 +217,35 @@ namespace catapult { namespace test {
 
 	public:
 		/// Gets the id.
-		size_t id() const {
+		uint64_t id() const {
 			return m_id;
 		}
 
 	public:
 		/// Gets the size.
 		size_t size() const {
-			return m_id;
+			return static_cast<size_t>(m_id);
 		}
 
 		/// Returns \c true if \a id is contained by this view.
-		bool contains(size_t id) const {
+		bool contains(uint64_t id) const {
 			return id <= m_id;
 		}
 
 	public:
 		/// Finds the cache value identified by \a id.
-		const_iterator find(size_t id) const {
+		const_iterator find(uint64_t id) const {
 			return const_iterator(id * id, contains(id));
 		}
 
 		/// Gets an entry specified by its \a id.
 		/// \note The method will throw if the id is unknown.
-		size_t get(size_t id) const {
+		uint64_t get(uint64_t id) const {
 			return find(id).get();
 		}
 
 		/// Gets a value indicating whether or not an artifact with \a id is active at \a height.
-		bool isActive(size_t id, Height height) const {
+		bool isActive(uint64_t id, Height height) const {
 			return contains(id) && 0 == id % height.unwrap();
 		}
 
@@ -265,8 +268,8 @@ namespace catapult { namespace test {
 
 	private:
 		SimpleCacheViewMode m_mode;
-		const size_t& m_id;
-		std::vector<size_t> m_ids;
+		const uint64_t& m_id;
+		std::vector<uint64_t> m_ids;
 	};
 
 	/// View on top of the simple cache.
@@ -307,7 +310,7 @@ namespace catapult { namespace test {
 
 	public:
 		/// Gets the id.
-		size_t id() const {
+		uint64_t id() const {
 			return m_id;
 		}
 
@@ -318,39 +321,62 @@ namespace catapult { namespace test {
 
 	public:
 		/// Finds the cache value identified by \a id.
-		const_iterator find(size_t id) const {
+		const_iterator find(uint64_t id) const {
 			return const_iterator(id * id, contains(id));
 		}
 
 		/// Gets an entry specified by its \a id.
 		/// \note The method will throw if the id is unknown.
-		size_t get(size_t id) const {
+		uint64_t get(uint64_t id) const {
 			return find(id).get();
 		}
 
 		/// Gets a value indicating whether or not an artifact with \a id is active at \a height.
-		bool isActive(size_t id, Height height) const {
+		bool isActive(uint64_t id, Height height) const {
 			return contains(id) && 0 == id % height.unwrap();
 		}
 
 	public:
 		/// Gets the size.
 		size_t size() const {
-			return m_id;
+			return static_cast<size_t>(m_id);
 		}
 
 		/// Returns \c true if \a id is contained by this view.
-		bool contains(size_t id) const {
+		bool contains(uint64_t id) const {
 			return id <= m_id;
 		}
 
 		/// Inserts \a id into the cache.
-		void insert(size_t id) {
+		void insert(uint64_t id) {
 			m_id = id;
 		}
 
+	public:
+		/// Sets \a elements returned by delta element accessors (addedElements, modifiedElements, removedElements).
+		void setElements(const std::array<uint64_t, 4>& elements) {
+			m_elements = elements;
+		}
+
+	public:
+		/// Gets pointers to all added elements.
+		std::unordered_set<const uint64_t*> addedElements() const {
+			return { &m_elements[0] };
+		}
+
+		/// Gets pointers to all modified elements.
+		std::unordered_set<const uint64_t*> modifiedElements() const {
+			return { &m_elements[2] };
+		}
+
+		/// Gets pointers to all removed elements.
+		std::unordered_set<const uint64_t*> removedElements() const {
+			return { &m_elements[1], &m_elements[3] };
+		}
+
 	private:
-		size_t m_id;
+		uint64_t m_id;
+		std::array<uint64_t, 4> m_elements;
 	};
 
 	/// Delta on top of the simple cache.
@@ -374,6 +400,7 @@ namespace catapult { namespace test {
 	template<typename TViewExtension, typename TDeltaExtension>
 	class BasicSimpleCacheExtension : public utils::MoveOnly {
 	public:
+		using CacheValueType = uint64_t;
 		using CacheViewType = SimpleCacheViewExtension<TViewExtension, TDeltaExtension>;
 		using CacheDeltaType = SimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>;
 		using CacheReadOnlyType = SimpleCacheReadOnlyType<TViewExtension, TDeltaExtension>;
@@ -453,14 +480,14 @@ namespace catapult { namespace test {
 
 	/// Synchronized cache composed of simple data with a specific id.
 	template<
-		size_t CacheId,
+		uint64_t CacheId,
 		typename TViewExtension = SimpleCacheDefaultViewExtension,
 		typename TDeltaExtension = SimpleCacheDefaultDeltaExtension
 	>
 	class SimpleCacheT : public SimpleCacheExtension<TViewExtension, TDeltaExtension> {
 	public:
 		/// Unique cache identifier.
-		static constexpr size_t Id = CacheId;
+		static constexpr uint64_t Id = CacheId;
 
 	public:
 		using SimpleCacheExtension<TViewExtension, TDeltaExtension>::SimpleCacheExtension;
@@ -477,7 +504,7 @@ namespace catapult { namespace test {
 		using DestinationType = SimpleCacheDeltaExtension<TViewExtension, TDeltaExtension>;
 
 		/// Saves \a value to \a output.
-		static void Save(size_t value, io::OutputStream& output) {
+		static void Save(uint64_t value, io::OutputStream& output) {
 			// Act: encode each value before writing
 			io::Write64(output, value ^ 0xFFFFFFFF'FFFFFFFFull);
 		}
@@ -495,6 +522,11 @@ namespace catapult { namespace test {
 				CATAPULT_THROW_RUNTIME_ERROR_2("read value was unexpected (value, id)", value, cacheDelta.id());
 
 			cacheDelta.increment();
+		}
+
+		/// Purges \a value from \a cacheDelta.
+		static void Purge(uint64_t value, DestinationType& cacheDelta) {
+			CATAPULT_THROW_RUNTIME_ERROR_2("SimpleCacheExtensionStorage does not support Purge (value, id)", value, cacheDelta.id());
 		}
 	};
 

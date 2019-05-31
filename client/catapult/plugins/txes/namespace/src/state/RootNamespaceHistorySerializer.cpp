@@ -32,9 +32,6 @@ namespace catapult { namespace state {
 		enum class HeaderMode { Include_History_Depth, Exclude_History_Depth };
 
 		void SaveHeader(io::OutputStream& output, const RootNamespaceHistory& history, HeaderMode headerMode) {
-			if (0 == history.historyDepth())
-				CATAPULT_THROW_RUNTIME_ERROR_1("cannot save empty namespace history", history.id());
-
 			if (HeaderMode::Include_History_Depth == headerMode)
 				io::Write64(output, history.historyDepth());
 
@@ -49,7 +46,7 @@ namespace catapult { namespace state {
 				break;
 
 			case AliasType::Address:
-				io::Write(output, alias.address());
+				output.write(alias.address());
 				break;
 
 			default:
@@ -75,7 +72,7 @@ namespace catapult { namespace state {
 		}
 
 		const Key& SaveRootNamespace(io::OutputStream& output, const RootNamespace& root, const Key* pLastOwner) {
-			io::Write(output, root.owner());
+			output.write(root.owner());
 			io::Write(output, root.lifetime().Start);
 			io::Write(output, root.lifetime().End);
 			SaveAlias(output, root.alias(root.id()));
@@ -91,6 +88,8 @@ namespace catapult { namespace state {
 
 	void RootNamespaceHistoryNonHistoricalSerializer::Save(const RootNamespaceHistory& history, io::OutputStream& output) {
 		SaveHeader(output, history, HeaderMode::Exclude_History_Depth);
+		if (0 == history.historyDepth())
+			CATAPULT_THROW_RUNTIME_ERROR_1("cannot save empty namespace history", history.id());
 
 		SaveRootNamespace(output, history.back(), nullptr);
 	}
@@ -103,12 +102,8 @@ namespace catapult { namespace state {
 
 		Header ReadHeader(io::InputStream& input, HeaderMode headerMode) {
 			Header header;
-			if (headerMode == HeaderMode::Include_History_Depth) {
+			if (headerMode == HeaderMode::Include_History_Depth)
 				header.HistoryDepth = io::Read64(input);
-
-				if (0 == header.HistoryDepth)
-					CATAPULT_THROW_RUNTIME_ERROR_1("namespace history in storage is empty", header.Id);
-			}
 
 			header.Id = io::Read<NamespaceId>(input);
 			return header;
@@ -135,8 +130,11 @@ namespace catapult { namespace state {
 			case AliasType::Mosaic:
 				return NamespaceAlias(io::Read<MosaicId>(input));
 
-			case AliasType::Address:
-				return NamespaceAlias(io::Read<Address>(input));
+			case AliasType::Address: {
+				Address address;
+				input.read(address);
+				return NamespaceAlias(address);
+			}
 
 			default:
 				return NamespaceAlias();

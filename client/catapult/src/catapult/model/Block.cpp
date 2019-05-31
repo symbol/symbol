@@ -42,7 +42,8 @@ namespace catapult { namespace model {
 		if (areAllTransactionsValid && !transactions.hasError())
 			return true;
 
-		CATAPULT_LOG(warning) << "block transactions failed size validation (valid sizes? " << areAllTransactionsValid
+		CATAPULT_LOG(warning)
+				<< "block transactions failed size validation (valid sizes? " << areAllTransactionsValid
 				<< ", errors? " << transactions.hasError() << ")";
 		return false;
 	}

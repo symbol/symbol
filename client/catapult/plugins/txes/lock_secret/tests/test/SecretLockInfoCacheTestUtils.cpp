@@ -24,18 +24,24 @@
 namespace catapult { namespace test {
 
 	BasicSecretLockInfoTestTraits::ValueType BasicSecretLockInfoTestTraits::CreateLockInfo(Height height) {
-		return state::SecretLockInfo(
-				GenerateRandomData<Key_Size>(),
+		state::SecretLockInfo lockInfo(
+				GenerateRandomByteArray<Key>(),
 				MosaicId(Random()),
 				Amount(Random()),
 				height,
 				static_cast<model::LockHashAlgorithm>(RandomByte()),
-				GenerateRandomData<Hash256_Size>(),
-				GenerateRandomData<Address_Decoded_Size>());
+				GenerateRandomByteArray<Hash256>(),
+				GenerateRandomByteArray<Address>());
+		lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.Recipient);
+		return lockInfo;
 	}
 
 	BasicSecretLockInfoTestTraits::ValueType BasicSecretLockInfoTestTraits::CreateLockInfo() {
 		return CreateLockInfo(test::GenerateRandomValue<Height>());
+	}
+
+	void BasicSecretLockInfoTestTraits::SetKey(ValueType& lockInfo, const KeyType& key) {
+		lockInfo.CompositeHash = key;
 	}
 
 	void BasicSecretLockInfoTestTraits::AssertEqual(const ValueType& lhs, const ValueType& rhs) {
@@ -43,5 +49,6 @@ namespace catapult { namespace test {
 		EXPECT_EQ(lhs.HashAlgorithm, rhs.HashAlgorithm);
 		EXPECT_EQ(lhs.Secret, rhs.Secret);
 		EXPECT_EQ(lhs.Recipient, rhs.Recipient);
+		EXPECT_EQ(lhs.CompositeHash, rhs.CompositeHash);
 	}
 }}

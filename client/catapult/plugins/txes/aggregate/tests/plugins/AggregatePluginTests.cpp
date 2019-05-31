@@ -20,6 +20,7 @@
 
 #include "src/plugins/AggregatePlugin.h"
 #include "src/model/AggregateEntityType.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -38,12 +39,15 @@ namespace catapult { namespace plugins {
 					{
 						{ "maxTransactionsPerAggregate", "0" },
 						{ "maxCosignaturesPerAggregate", "0" },
+
 						{ "enableStrictCosignatureCheck", EnableStrict ? "true" : "false" },
 						{ "enableBondedAggregateSupport", EnableBonded ? "true" : "false" },
+
+						{ "maxBondedTransactionLifetime", "1h" }
 					}
 				}}));
 
-				PluginManager manager(config, StorageConfiguration());
+				auto manager = test::CreatePluginManager(config);
 				RegisterAggregateSubsystem(manager);
 
 				// Act:

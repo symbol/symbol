@@ -61,7 +61,7 @@ namespace catapult { namespace model {
 				return MakeContiguousEntityContainer(pEntity, size, ErrorPolicy);
 			}
 
-			static const bool ThrowsOnError = EntityContainerErrorPolicy::Throw == ErrorPolicy;
+			static constexpr bool ThrowsOnError = EntityContainerErrorPolicy::Throw == ErrorPolicy;
 		};
 
 		using EntityContainerThrowBasedTraits = EntityContainerBasedTraits<EntityContainerErrorPolicy::Throw>;
@@ -410,17 +410,17 @@ namespace catapult { namespace model {
 		}
 	}
 
-	POSITIONAL_TRAITS_BASED_TEST(AbortsIfEntitySizeIsZero) {
+	POSITIONAL_TRAITS_BASED_TEST(AbortsWhenEntitySizeIsZero) {
 		// Assert:
 		AssertShortCircuitOnInsufficientEntitySize<TContainerTraits, TPositionalTraits>(0);
 	}
 
-	POSITIONAL_TRAITS_BASED_TEST(AbortsIfEntityHeaderExtendsBeyondBuffer) {
+	POSITIONAL_TRAITS_BASED_TEST(AbortsWhenEntityHeaderExtendsBeyondBuffer) {
 		// Assert:
 		AssertShortCircuitOnInsufficientEntitySize<TContainerTraits, TPositionalTraits>(sizeof(EntityHeader) - 1);
 	}
 
-	POSITIONAL_TRAITS_BASED_TEST(AbortsIfEntityExtendsBeyondBuffer) {
+	POSITIONAL_TRAITS_BASED_TEST(AbortsWhenEntityExtendsBeyondBuffer) {
 		// Assert: buffer contains three elements but one extends beyond buffer
 		AssertShortCircuitOnInsufficientEntitySize<TContainerTraits, TPositionalTraits>(101);
 	}
@@ -511,7 +511,7 @@ namespace catapult { namespace model {
 		AssertCannotAdvanceIteratorAfterErrorAtEnd<TTraits, TContainerTraits, PrefixIteratorTraits>();
 	}
 
-	TRAITS_BASED_TEST(BeginAbortsIfFirstElementHasInvalidSize) {
+	TRAITS_BASED_TEST(BeginAbortsWhenFirstElementHasInvalidSize) {
 		// Arrange: trigger an error by setting the size of the first element to zero
 		auto entities = CreateFixedSizedEntities({ 17, 25, 14 });
 		entities[0].Size = 0;

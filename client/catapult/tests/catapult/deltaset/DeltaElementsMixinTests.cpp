@@ -29,12 +29,17 @@ namespace catapult { namespace deltaset {
 
 	namespace {
 		template<typename TMutabilityTraits>
+		using OrderedSetTraits = test::BaseSetTraits<
+			TMutabilityTraits,
+			test::OrderedSetTraits<test::SetElementType<TMutabilityTraits>>>;
+
+		template<typename TMutabilityTraits>
 		using UnorderedMapTraits = test::BaseSetTraits<
 			TMutabilityTraits,
 			test::UnorderedMapSetTraits<test::SetElementType<TMutabilityTraits>>>;
 
+		using OrderedSetMutableTraits = OrderedSetTraits<test::MutableElementValueTraits>;
 		using UnorderedMapMutableTraits = UnorderedMapTraits<test::MutableElementValueTraits>;
-		using UnorderedMapMutablePointerTraits = UnorderedMapTraits<test::MutableElementPointerTraits>;
 
 		// need to wrap DeltaElementsMixin in cache-like object in order to use MAKE_DELTA_ELEMENTS_MIXIN_TESTS
 
@@ -55,7 +60,8 @@ namespace catapult { namespace deltaset {
 			}
 
 			void remove(unsigned int id) {
-				m_pSetDelta->remove(std::make_pair(std::to_string(id), id));
+				auto key = test::BatchElementFactory<TTraits>::CreateKey(std::to_string(id), id);
+				m_pSetDelta->remove(key);
 			}
 
 		private:
@@ -89,8 +95,9 @@ namespace catapult { namespace deltaset {
 			}
 		};
 
+		template<typename TSetTraits>
 		struct MutableTraits : public BaseTraits {
-			using CacheType = CacheProxy<UnorderedMapMutableTraits>;
+			using CacheType = CacheProxy<TSetTraits>;
 			using ValueType = test::MutableTestElement;
 
 			static ValueType CreateWithId(uint8_t id) {
@@ -100,19 +107,8 @@ namespace catapult { namespace deltaset {
 				return element;
 			}
 		};
-
-		struct MutablePointerTraits : public BaseTraits {
-			using CacheType = CacheProxy<UnorderedMapMutablePointerTraits>;
-			using ValueType = std::shared_ptr<test::MutableTestElement>;
-
-			static ValueType CreateWithId(uint8_t id) {
-				auto pElement = std::make_shared<test::MutableTestElement>();
-				*pElement = MutableTraits::CreateWithId(id);
-				return pElement;
-			}
-		};
 	}
 
-	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(MutableTraits, _Mutable)
-	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(MutablePointerTraits, _MutablePointer)
+	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(MutableTraits<OrderedSetMutableTraits>, _OrderedSetMutable)
+	DEFINE_DELTA_ELEMENTS_MIXIN_TESTS(MutableTraits<UnorderedMapMutableTraits>, _UnorderedMapMutable)
 }}

@@ -87,7 +87,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(test::CreatePath({ test::Default_Root_Id, 357, 123 }), child.path());
 	}
 
-	TEST(TEST_CLASS, CannotCreateChildIfMaxDepthIsExceeded) {
+	TEST(TEST_CLASS, CannotCreateChildWhenMaxDepthIsExceeded) {
 		// Arrange:
 		auto path = test::CreatePath({ test::Default_Root_Id, 357, 468 });
 		Namespace ns(path);

@@ -34,8 +34,8 @@ namespace catapult { namespace observers {
 			using Notification = observers::Notification;
 			static constexpr auto Receipt_Type = model::Receipt_Type_LockSecret_Completed;
 
-			static auto NotificationToKey(const Notification& notification) {
-				return notification.Secret;
+			static auto NotificationToKey(const Notification& notification, const model::ResolverContext& resolvers) {
+				return model::CalculateSecretLockInfoHash(notification.Secret, resolvers.resolve(notification.Recipient));
 			}
 
 			static auto DestinationAccount(const state::SecretLockInfo& lockInfo) {

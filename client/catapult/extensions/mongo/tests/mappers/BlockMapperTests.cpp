@@ -36,14 +36,14 @@ namespace catapult { namespace mongo { namespace mappers {
 		void AssertCanMapBlock(const model::Block& block, Amount totalFee, uint32_t numTransactions, uint32_t numStatements) {
 			// Arrange:
 			auto blockElement = model::BlockElement(block);
-			blockElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
-			blockElement.GenerationHash = test::GenerateRandomData<Hash256_Size>();
+			blockElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
+			blockElement.GenerationHash = test::GenerateRandomByteArray<GenerationHash>();
 			blockElement.SubCacheMerkleRoots = test::GenerateRandomDataVector<Hash256>(3);
 
 			auto& transactionElements = blockElement.Transactions;
 			for (const auto& transaction: block.Transactions()) {
 				transactionElements.push_back(model::TransactionElement(transaction));
-				transactionElements.back().MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+				transactionElements.back().MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 			}
 
 			auto transactionMerkleTree = test::CalculateMerkleTree(blockElement.Transactions);
@@ -92,7 +92,7 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	TRAITS_BASED_RECEIPTS_TEST(CanMapBlockWithTransactions) {
 		// Arrange:
-		auto pBlock = test::GenerateBlockWithTransactionsAtHeight(5, Height(123));
+		auto pBlock = test::GenerateBlockWithTransactions(5, Height(123));
 		auto totalFee = model::CalculateBlockTransactionsInfo(*pBlock).TotalFee;
 
 		// Assert:

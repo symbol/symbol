@@ -144,8 +144,8 @@ namespace catapult { namespace mongo { namespace mappers {
 			// Arrange:
 			auto pTransaction = CreateArbitraryTransaction();
 			model::TransactionElement transactionElement(*pTransaction);
-			transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
-			transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+			transactionElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
+			transactionElement.MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 			transactionElement.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
 			auto metadata = MongoTransactionMetadata(transactionElement, Height(123), 234);
 
@@ -188,8 +188,8 @@ namespace catapult { namespace mongo { namespace mappers {
 		// Arrange:
 		auto pTransaction = CreateArbitraryTransaction();
 		model::TransactionElement transactionElement(*pTransaction);
-		transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
-		transactionElement.MerkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+		transactionElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
+		transactionElement.MerkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 		transactionElement.OptionalExtractedAddresses = test::GenerateRandomUnresolvedAddressSetPointer(3);
 		auto metadata = MongoTransactionMetadata(transactionElement, Height(123), 234);
 

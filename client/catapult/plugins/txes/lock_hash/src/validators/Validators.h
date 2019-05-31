@@ -32,8 +32,8 @@ namespace catapult { namespace validators {
 	/// A validator implementation that applies to hash lock mosaic notifications and validates that:
 	/// - mosaic id is \a currencyMosaicId
 	/// - mosaic amount is equal to \a lockedFundsPerAggregate
-	DECLARE_STATELESS_VALIDATOR(HashLockMosaic, model::HashLockMosaicNotification)(
-			UnresolvedMosaicId currencyMosaicId,
+	DECLARE_STATEFUL_VALIDATOR(HashLockMosaic, model::HashLockMosaicNotification)(
+			MosaicId currencyMosaicId,
 			Amount lockedFundsPerAggregate);
 
 	/// A validator implementation that applies to hash lock notifications and validates that:

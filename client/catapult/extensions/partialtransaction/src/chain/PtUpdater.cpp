@@ -22,7 +22,7 @@
 #include "PtValidator.h"
 #include "partialtransaction/src/PtUtils.h"
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
-#include "catapult/cache/MemoryPtCache.h"
+#include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/thread/FutureUtils.h"
 #include "catapult/thread/IoThreadPool.h"
@@ -54,7 +54,7 @@ namespace catapult { namespace chain {
 				const model::AggregateTransaction& aggregateTransaction,
 				const Hash256& aggregateHash,
 				const model::WeakCosignedTransactionInfo& transactionInfoFromCache) {
-			utils::HashSet cosigners;
+			utils::KeySet cosigners;
 			DetachedCosignatures cosignatures;
 			const auto* pCosignature = aggregateTransaction.CosignaturesPtr();
 			for (auto i = 0u; i < aggregateTransaction.CosignaturesCount(); ++i) {
@@ -225,8 +225,8 @@ namespace catapult { namespace chain {
 
 			if (!crypto::Verify(cosignature.Signer, cosignature.ParentHash, cosignature.Signature)) {
 				CATAPULT_LOG(debug)
-						<< "ignoring unverifiable cosignature (signer = " << utils::HexFormat(cosignature.Signer)
-						<< ", parentHash = " << utils::HexFormat(cosignature.ParentHash) << ")";
+						<< "ignoring unverifiable cosignature (signer = " << cosignature.Signer
+						<< ", parentHash = " << cosignature.ParentHash << ")";
 				return CosignatureUpdateResult::Unverifiable;
 			}
 
@@ -331,7 +331,7 @@ namespace catapult { namespace chain {
 				return newCosignatureEligiblityResult;
 
 			// 2. a state change caused one of the previously accepted cosignatures to be invalid, so reprocess all of them
-			CATAPULT_LOG(debug) << "detected stale cosignature for transaction " << utils::HexFormat(cosignature.ParentHash);
+			CATAPULT_LOG(debug) << "detected stale cosignature for transaction " << cosignature.ParentHash;
 
 			StaleTransactionInfo staleTransactionInfo;
 			staleTransactionInfo.AggregateHash = cosignature.ParentHash;
@@ -342,8 +342,8 @@ namespace catapult { namespace chain {
 				auto validateSingleResult = validateCosigners(transactionInfoFromCache, singleElementCosignatures);
 				if (CosignersValidationResult::Ineligible == validateSingleResult.Normalized) {
 					CATAPULT_LOG(debug)
-							<< "detected stale cosignature with signer " << utils::HexFormat(cosignature.Signer)
-							<< " for transaction " << utils::HexFormat(cosignature.ParentHash);
+							<< "detected stale cosignature with signer " << cosignature.Signer
+							<< " for transaction " << cosignature.ParentHash;
 				} else {
 					// cosignature is still valid
 					staleTransactionInfo.EligibleCosignatures.push_back(existingCosignature);

@@ -35,19 +35,8 @@ namespace catapult { namespace extensions {
 		m_systemPluginNames.push_back(name);
 	}
 
-	void ExtensionManager::addPreLoadHandler(const CacheConsumer& handler) {
-		m_preLoadHandlers.push_back(handler);
-	}
-
 	void ExtensionManager::setNetworkTimeSupplier(const NetworkTimeSupplier& supplier) {
 		SetOnce(m_networkTimeSupplier, supplier);
-	}
-
-	void ExtensionManager::setBlockChainStorage(std::unique_ptr<BlockChainStorage>&& pBlockChainStorage) {
-		if (m_pBlockChainStorage)
-			CATAPULT_THROW_INVALID_ARGUMENT("block chain storage cannot be set more than once");
-
-		m_pBlockChainStorage = std::move(pBlockChainStorage);
 	}
 
 	void ExtensionManager::addServiceRegistrar(std::unique_ptr<ServiceRegistrar>&& pServiceRegistrar) {
@@ -58,19 +47,8 @@ namespace catapult { namespace extensions {
 		return m_systemPluginNames;
 	}
 
-	ExtensionManager::CacheConsumer ExtensionManager::preLoadHandler() const {
-		return AggregateConsumers(m_preLoadHandlers);
-	}
-
 	ExtensionManager::NetworkTimeSupplier ExtensionManager::networkTimeSupplier() const {
 		return m_networkTimeSupplier ? m_networkTimeSupplier : &utils::NetworkTime;
-	}
-
-	std::unique_ptr<BlockChainStorage> ExtensionManager::createBlockChainStorage() {
-		if (!m_pBlockChainStorage)
-			CATAPULT_THROW_RUNTIME_ERROR("BlockChainStorage is not configured");
-
-		return std::move(m_pBlockChainStorage);
 	}
 
 	void ExtensionManager::registerServices(ServiceLocator& locator, ServiceState& state) {

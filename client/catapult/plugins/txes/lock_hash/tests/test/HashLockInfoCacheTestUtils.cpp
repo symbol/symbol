@@ -25,15 +25,19 @@ namespace catapult { namespace test {
 
 	BasicHashLockInfoTestTraits::ValueType BasicHashLockInfoTestTraits::CreateLockInfo(Height height) {
 		return state::HashLockInfo(
-				GenerateRandomData<Key_Size>(),
+				GenerateRandomByteArray<Key>(),
 				MosaicId(Random()),
 				Amount(Random()),
 				height,
-				GenerateRandomData<Hash256_Size>());
+				GenerateRandomByteArray<Hash256>());
 	}
 
 	BasicHashLockInfoTestTraits::ValueType BasicHashLockInfoTestTraits::CreateLockInfo() {
 		return CreateLockInfo(test::GenerateRandomValue<Height>());
+	}
+
+	void BasicHashLockInfoTestTraits::SetKey(ValueType& lockInfo, const KeyType& key) {
+		lockInfo.Hash = key;
 	}
 
 	void BasicHashLockInfoTestTraits::AssertEqual(const ValueType& lhs, const ValueType& rhs) {

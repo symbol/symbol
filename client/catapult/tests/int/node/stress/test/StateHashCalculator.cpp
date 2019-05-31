@@ -27,21 +27,25 @@ namespace catapult { namespace test {
 
 	StateHashCalculator::StateHashCalculator()
 			: m_stateVerificationMode(StateVerificationMode::Disabled)
-			, m_config(CreateUninitializedLocalNodeConfiguration())
+			, m_config(CreateUninitializedCatapultConfiguration())
 			, m_catapultCache({})
 			, m_isDirty(false)
 	{}
 
-	StateHashCalculator::StateHashCalculator(const config::LocalNodeConfiguration& config)
+	StateHashCalculator::StateHashCalculator(const config::CatapultConfiguration& config)
 			: m_stateVerificationMode(StateVerificationMode::Enabled)
 			, m_config(config)
-			, m_pPluginManager(CreatePluginManager(m_config))
+			, m_pPluginManager(CreatePluginManagerWithRealPlugins(m_config))
 			, m_catapultCache(m_pPluginManager->createCache())
 			, m_isDirty(false)
 	{}
 
 	const std::string& StateHashCalculator::dataDirectory() const {
 		return m_config.User.DataDirectory;
+	}
+
+	const config::CatapultConfiguration& StateHashCalculator::config() const {
+		return m_config;
 	}
 
 	Hash256 StateHashCalculator::execute(const model::Block& block) {

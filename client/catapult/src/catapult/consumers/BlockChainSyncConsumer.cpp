@@ -77,6 +77,10 @@ namespace catapult { namespace consumers {
 				return *m_pCacheDelta;
 			}
 
+			const state::CatapultState& state() const {
+				return m_stateCopy;
+			}
+
 		public:
 			TransactionInfos detachRemovedTransactionInfos() {
 				return std::move(m_removedTransactionInfos);
@@ -252,14 +256,25 @@ namespace catapult { namespace consumers {
 				utils::SlowOperationLogger logger("BlockChainSyncConsumer::commitAll", utils::LogLevel::Warning);
 
 				// 1. save the peer chain into storage
-				auto newHeight = elements.back().Block.Height;
-				commitToStorage(syncState.commonBlockHeight(), elements);
+				auto storageModifier = m_storage.modifier();
+				storageModifier.dropBlocksAfter(syncState.commonBlockHeight());
+				storageModifier.saveBlocks(elements);
+				m_handlers.CommitStep(CommitOperationStep::Blocks_Written);
 
 				// 2. indicate a state change
-				m_handlers.StateChange(StateChangeInfo(syncState.cacheDelta(), syncState.scoreDelta(), newHeight));
+				auto newHeight = elements.back().Block.Height;
+				m_handlers.StateChange({ cache::CacheChanges(syncState.cacheDelta()), syncState.scoreDelta(), newHeight });
+				m_handlers.PreStateWritten(syncState.cacheDelta(), syncState.state(), newHeight);
+				m_handlers.CommitStep(CommitOperationStep::State_Written);
 
-				// 3. commit changes to the in-memory cache
+				// *** checkpoint ***
+				// - both blocks and state have been written out to disk and can be fully restored
+				// - broker process is not yet able to consume changes (all changes are consumable after step 3)
+
+				// 3. commit changes to the in-memory cache and primary block chain storage
 				syncState.commit(newHeight);
+				storageModifier.commit();
+				m_handlers.CommitStep(CommitOperationStep::All_Updated);
 
 				// 4. update the unconfirmed transactions
 				auto peerTransactionHashes = ExtractTransactionHashes(elements);
@@ -267,12 +282,6 @@ namespace catapult { namespace consumers {
 						peerTransactionHashes,
 						syncState.detachRemovedTransactionInfos());
 				m_handlers.TransactionsChange({ peerTransactionHashes, revertedTransactionInfos });
-			}
-
-			void commitToStorage(Height commonBlockHeight, const BlockElements& elements) const {
-				auto storageModifier = m_storage.modifier();
-				storageModifier.dropBlocksAfter(commonBlockHeight);
-				storageModifier.saveBlocks(elements);
 			}
 
 		private:

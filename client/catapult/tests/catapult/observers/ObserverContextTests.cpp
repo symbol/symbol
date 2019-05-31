@@ -77,7 +77,7 @@ namespace catapult { namespace observers {
 		model::ResolverContext CreateResolverContext() {
 			return model::ResolverContext(
 					[](const auto& unresolved) { return MosaicId(unresolved.unwrap() * 2); },
-					[](const auto& unresolved) { return Address{ { unresolved[0].Byte } }; });
+					[](const auto& unresolved) { return Address{ { unresolved[0] } }; });
 		}
 
 		void AddRandomReceipt(ObserverStatementBuilder& statementBuilder) {
@@ -102,7 +102,7 @@ namespace catapult { namespace observers {
 			auto resolvedMosaicId = context.Resolvers.resolve(UnresolvedMosaicId(24));
 			EXPECT_EQ(MosaicId(48), resolvedMosaicId);
 
-			auto resolvedAddress = context.Resolvers.resolve(UnresolvedAddress{ { { 11 }, { 32 } } });
+			auto resolvedAddress = context.Resolvers.resolve(UnresolvedAddress{ { 11, 32 } });
 			EXPECT_EQ(Address{ { 11 } }, resolvedAddress);
 		}
 	}

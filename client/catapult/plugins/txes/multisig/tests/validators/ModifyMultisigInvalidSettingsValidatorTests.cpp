@@ -48,9 +48,9 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, SuccessIfAccountIsUnknownAndDeltasAreSetToMinusOne) {
+	TEST(TEST_CLASS, SuccessWhenAccountIsUnknownAndDeltasAreSetToMinusOne) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = CreateNotification(signer, -1, -1);
 
 		auto cache = test::MultisigCacheFactory::Create();
@@ -62,9 +62,9 @@ namespace catapult { namespace validators {
 		EXPECT_EQ(ValidationResult::Success, result);
 	}
 
-	TEST(TEST_CLASS, FailureIfAccountIsUnknownAndAtLeastOneDeltaIsNotSetToMinusOne) {
+	TEST(TEST_CLASS, FailureWhenAccountIsUnknownAndAtLeastOneDeltaIsNotSetToMinusOne) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		std::vector<model::ModifyMultisigSettingsNotification> notifications{
 			CreateNotification(signer, 0, 1),
 			CreateNotification(signer, 0, -1),
@@ -208,23 +208,23 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, TEST_NAME##_BothInvalid) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TRAITS_NAME, TRAITS_NAME>(); } \
 	template<typename TRemovalTraits, typename TApprovalTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	TEST(TEST_CLASS, SuccessIfBothResultingSettingsAreWithinBounds) {
+	TEST(TEST_CLASS, SuccessWhenBothResultingSettingsAreWithinBounds) {
 		RunTest<ValidTraits, ValidTraits>(ValidationResult::Success, 10);
 	}
 
-	TRAITS_BASED_SETTINGS_TEST(FailureIfResultingSettingIsNotPositive, NotPositiveTraits) {
+	TRAITS_BASED_SETTINGS_TEST(FailureWhenResultingSettingIsNotPositive, NotPositiveTraits) {
 		RunTest<TRemovalTraits, TApprovalTraits>(Failure_Multisig_Modify_Min_Setting_Out_Of_Range, 10);
 	}
 
-	TRAITS_BASED_SETTINGS_TEST(SuccessIfResultingSettingIsLessThanNumberOfCosignatories, GreaterThan15Traits) {
+	TRAITS_BASED_SETTINGS_TEST(SuccessWhenResultingSettingIsLessThanNumberOfCosignatories, GreaterThan15Traits) {
 		RunTest<TRemovalTraits, TApprovalTraits>(ValidationResult::Success, 400);
 	}
 
-	TRAITS_BASED_SETTINGS_TEST(SuccessIfResultingSettingIsEqualToNumberOfCosignatories, EqualTo15Traits) {
+	TRAITS_BASED_SETTINGS_TEST(SuccessWhenResultingSettingIsEqualToNumberOfCosignatories, EqualTo15Traits) {
 		RunTest<TRemovalTraits, TApprovalTraits>(ValidationResult::Success, 15);
 	}
 
-	TRAITS_BASED_SETTINGS_TEST(FailureIfResultingSettingIsGreaterThanNumberOfCosignatories, GreaterThan15Traits) {
+	TRAITS_BASED_SETTINGS_TEST(FailureWhenResultingSettingIsGreaterThanNumberOfCosignatories, GreaterThan15Traits) {
 		RunTest<TRemovalTraits, TApprovalTraits>(Failure_Multisig_Modify_Min_Setting_Larger_Than_Num_Cosignatories, 15);
 	}
 

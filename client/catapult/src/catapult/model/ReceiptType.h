@@ -44,6 +44,9 @@ namespace catapult { namespace model {
 		/// Artifact expiry receipt.
 		ArtifactExpiry = 0x4,
 
+		/// Inflation.
+		Inflation = 0x5,
+
 		/// Aggregate receipt.
 		Aggregate = 0xE,
 
@@ -72,14 +75,17 @@ namespace catapult { namespace model {
 	/// Harvest fee credit.
 	DEFINE_RECEIPT_TYPE(BalanceCredit, Core, Harvest_Fee, 1);
 
+	/// Inflation.
+	DEFINE_RECEIPT_TYPE(Inflation, Core, Inflation, 1);
+
+	/// Transaction group.
+	DEFINE_RECEIPT_TYPE(Aggregate, Core, Transaction_Group, 1);
+
 	/// Address alias resolution.
 	DEFINE_RECEIPT_TYPE(AliasResolution, Core, Address_Alias_Resolution, 1);
 
 	/// Mosaic alias resolution.
 	DEFINE_RECEIPT_TYPE(AliasResolution, Core, Mosaic_Alias_Resolution, 2);
-
-	/// Transaction group.
-	DEFINE_RECEIPT_TYPE(Aggregate, Core, Transaction_Group, 1);
 
 	/// Insertion operator for outputting \a receiptType to \a out.
 	std::ostream& operator<<(std::ostream& out, ReceiptType receiptType);

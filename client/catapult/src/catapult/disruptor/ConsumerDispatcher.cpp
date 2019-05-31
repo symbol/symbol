@@ -56,7 +56,7 @@ namespace catapult { namespace disruptor {
 			const DisruptorInspector& inspector)
 			: NamedObjectMixin(CheckOptions(options).DispatcherName)
 			, m_elementTraceInterval(options.ElementTraceInterval)
-			, m_shouldThrowIfFull(options.ShouldThrowIfFull)
+			, m_shouldThrowIfFull(options.ShouldThrowWhenFull)
 			, m_keepRunning(true)
 			, m_barriers(consumers.size() + 1)
 			, m_disruptor(options.DisruptorSize, options.ElementTraceInterval)

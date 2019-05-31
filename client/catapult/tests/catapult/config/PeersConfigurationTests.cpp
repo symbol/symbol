@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/config/PeersConfiguration.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/TestHarness.h"
 #include <boost/filesystem/path.hpp>
 
@@ -162,7 +163,7 @@ namespace catapult { namespace config {
 
 		// Assert:
 		ASSERT_EQ(1u, nodes.size());
-		auto expectedKey = test::ToArray<Key_Size>("1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF");
+		auto expectedKey = utils::ParseByteArray<Key>("1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF");
 
 		const auto& node = *nodes.cbegin();
 		EXPECT_EQ(expectedKey, node.identityKey());
@@ -189,7 +190,7 @@ namespace catapult { namespace config {
 
 		// Assert:
 		ASSERT_EQ(1u, nodes.size());
-		auto expectedKey = test::ToArray<Key_Size>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
+		auto expectedKey = utils::ParseByteArray<Key>("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751");
 
 		const auto& node = *nodes.cbegin();
 		EXPECT_EQ(expectedKey, node.identityKey());
@@ -230,7 +231,7 @@ namespace catapult { namespace config {
 		auto iter = nodes.cbegin();
 		{
 			const auto& node = *iter++;
-			auto expectedKey = test::ToArray<Key_Size>("1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF");
+			auto expectedKey = utils::ParseByteArray<Key>("1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF");
 
 			EXPECT_EQ(expectedKey, node.identityKey());
 			AssertEndpoint(node.endpoint(), "bob.nem.ninja", 12345);
@@ -240,7 +241,7 @@ namespace catapult { namespace config {
 
 		{
 			const auto& node = *iter++;
-			auto expectedKey = test::ToArray<Key_Size>("FEDCBA0987654321FEDCBA0987654321FEDCBA0987654321FEDCBA0987654321");
+			auto expectedKey = utils::ParseByteArray<Key>("FEDCBA0987654321FEDCBA0987654321FEDCBA0987654321FEDCBA0987654321");
 
 			EXPECT_EQ(expectedKey, node.identityKey());
 			AssertEndpoint(node.endpoint(), "123.456.789.1011", 5432);

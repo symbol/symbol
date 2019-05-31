@@ -21,6 +21,7 @@
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/utils/ConfigurationUtils.h"
+#include "catapult/utils/HexParser.h"
 #include "tests/test/nodeps/ConfigurationTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -66,8 +67,12 @@ namespace catapult { namespace model {
 							{ "maxTransactionLifetime", "30m" },
 							{ "maxBlockFutureTime", "21m" },
 
+							{ "initialCurrencyAtomicUnits", "77'000'000'000" },
+							{ "maxMosaicAtomicUnits", "66'000'000'000" },
+
 							{ "totalChainImportance", "88'000'000'000" },
 							{ "minHarvesterBalance", "4'000'000'000" },
+							{ "harvestBeneficiaryPercentage", "56" },
 
 							{ "blockPruneInterval", "432" },
 							{ "maxTransactionsPerBlock", "120" }
@@ -96,8 +101,8 @@ namespace catapult { namespace model {
 			static void AssertZero(const BlockChainConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(NetworkIdentifier::Zero, config.Network.Identifier);
-				EXPECT_EQ(Key{}, config.Network.PublicKey);
-				EXPECT_EQ(Hash256{}, config.Network.GenerationHash);
+				EXPECT_EQ(Key(), config.Network.PublicKey);
+				EXPECT_EQ(GenerationHash(), config.Network.GenerationHash);
 
 				EXPECT_FALSE(config.ShouldEnableVerifiableState);
 				EXPECT_FALSE(config.ShouldEnableVerifiableReceipts);
@@ -115,8 +120,12 @@ namespace catapult { namespace model {
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.MaxTransactionLifetime);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(0), config.MaxBlockFutureTime);
 
+				EXPECT_EQ(Amount(0), config.InitialCurrencyAtomicUnits);
+				EXPECT_EQ(Amount(0), config.MaxMosaicAtomicUnits);
+
 				EXPECT_EQ(Importance(0), config.TotalChainImportance);
 				EXPECT_EQ(Amount(0), config.MinHarvesterBalance);
+				EXPECT_EQ(0u, config.HarvestBeneficiaryPercentage);
 
 				EXPECT_EQ(0u, config.BlockPruneInterval);
 				EXPECT_EQ(0u, config.MaxTransactionsPerBlock);
@@ -128,7 +137,7 @@ namespace catapult { namespace model {
 				// Assert: notice that ParseKey also works for Hash256 because it is the same type as Key
 				EXPECT_EQ(NetworkIdentifier::Public_Test, config.Network.Identifier);
 				EXPECT_EQ(crypto::ParseKey(Nemesis_Public_Key), config.Network.PublicKey);
-				EXPECT_EQ(crypto::ParseKey(Nemesis_Generation_Hash), config.Network.GenerationHash);
+				EXPECT_EQ(utils::ParseByteArray<GenerationHash>(Nemesis_Generation_Hash), config.Network.GenerationHash);
 
 				EXPECT_TRUE(config.ShouldEnableVerifiableState);
 				EXPECT_TRUE(config.ShouldEnableVerifiableReceipts);
@@ -146,8 +155,12 @@ namespace catapult { namespace model {
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(30), config.MaxTransactionLifetime);
 				EXPECT_EQ(utils::TimeSpan::FromMinutes(21), config.MaxBlockFutureTime);
 
+				EXPECT_EQ(Amount(77'000'000'000), config.InitialCurrencyAtomicUnits);
+				EXPECT_EQ(Amount(66'000'000'000), config.MaxMosaicAtomicUnits);
+
 				EXPECT_EQ(Importance(88'000'000'000), config.TotalChainImportance);
 				EXPECT_EQ(Amount(4'000'000'000), config.MinHarvesterBalance);
+				EXPECT_EQ(56u, config.HarvestBeneficiaryPercentage);
 
 				EXPECT_EQ(432u, config.BlockPruneInterval);
 				EXPECT_EQ(120u, config.MaxTransactionsPerBlock);

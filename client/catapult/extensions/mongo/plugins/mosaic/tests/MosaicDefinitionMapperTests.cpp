@@ -39,7 +39,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		model::MosaicFlags GetFlags(const model::MosaicProperties& properties) {
 			auto flags = model::MosaicFlags::None;
 			auto allFlags = std::initializer_list<model::MosaicFlags>{
-				model::MosaicFlags::Supply_Mutable, model::MosaicFlags::Transferable, model::MosaicFlags::Levy_Mutable
+				model::MosaicFlags::Supply_Mutable, model::MosaicFlags::Transferable
 			};
 
 			for (auto flag : allFlags) {
@@ -88,9 +88,9 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		template<typename TTraits>
 		void AssertCanMapTransaction(BlockDuration duration, size_t numExpectedProperties) {
-			PropertyValuesContainer propertyValues{ { 7, 5, duration.unwrap() } };
+			PropertyValuesContainer propertyValues{ { 3, 5, duration.unwrap() } };
 			auto properties = model::MosaicProperties::FromValues(propertyValues);
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto mosaicNonce = test::GenerateRandomValue<MosaicNonce>();
 			auto pTransaction = TTraits::Adapt(CreateMosaicDefinitionTransactionBuilder(signer, mosaicNonce, properties));
 			auto mosaicId = pTransaction->MosaicId;
@@ -107,7 +107,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		}
 	}
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, model::Entity_Type_Mosaic_Definition)
+	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Mosaic_Definition)
 
 	// region streamTransaction
 

@@ -22,6 +22,7 @@
 #include "NemesisConfiguration.h"
 #include "catapult/extensions/BlockExtensions.h"
 #include "catapult/io/FileBlockStorage.h"
+#include "catapult/io/IndexFile.h"
 #include "catapult/utils/HexFormatter.h"
 #include "catapult/utils/HexParser.h"
 #include <boost/filesystem.hpp>
@@ -29,22 +30,6 @@
 namespace catapult { namespace tools { namespace nemgen {
 
 	namespace {
-		class TempZeroIndexFile {
-		public:
-			explicit TempZeroIndexFile(const boost::filesystem::path& binDirectory) : m_indexFilePath(binDirectory / "index.dat") {
-				io::RawFile indexFile(m_indexFilePath.generic_string(), io::OpenMode::Read_Write);
-				uint8_t zero[8] = { 0 };
-				indexFile.write(RawBuffer(zero, sizeof(zero)));
-			}
-
-			~TempZeroIndexFile() {
-				boost::filesystem::remove(m_indexFilePath);
-			}
-
-		private:
-			boost::filesystem::path m_indexFilePath;
-		};
-
 		void UpdateMemoryBlockStorageData(const model::Block& block, const std::string& cppFile, const std::string& cppFileHeader) {
 			io::RawFile cppRawFile(cppFile, io::OpenMode::Read_Write);
 
@@ -88,8 +73,8 @@ namespace catapult { namespace tools { namespace nemgen {
 	}
 
 	void SaveNemesisBlockElement(const model::BlockElement& blockElement, const NemesisConfiguration& config) {
-		// 1. temporarily zero the index file
-		TempZeroIndexFile zeroIndexFile(config.BinDirectory);
+		// 1. reset the index file
+		io::IndexFile((boost::filesystem::path(config.BinDirectory) / "index.dat").generic_string()).set(0);
 
 		// 2. update the file based storage data
 		CATAPULT_LOG(info) << "creating binary storage seed in " << config.BinDirectory;

@@ -493,7 +493,7 @@ namespace catapult { namespace consumers {
 			EXPECT_EQ(disruptor::ConsumerResultSeverity::Success, elements[i].ResultSeverity) << "element at " << i;
 	}
 
-	TRANSACTION_HASH_CHECK_CONSUMER_TEST(SkipResultIsReturnedIfAllEntitiesWithinMultipleEntitiesAreSkipped) {
+	TRANSACTION_HASH_CHECK_CONSUMER_TEST(SkipResultIsReturnedWhenAllEntitiesWithinMultipleEntitiesAreSkipped) {
 		// Arrange: prepare an input with 6 elements
 		auto transactions = test::MakeConst(test::GenerateRandomTransactions(6));
 		auto elements = CreateTransactionElements(transactions);

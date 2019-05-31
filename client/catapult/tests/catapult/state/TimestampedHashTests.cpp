@@ -40,30 +40,30 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanCreateTimestampedHash) {
 		// Arrange:
-		auto hash = test::GenerateRandomData<Hash256_Size>();
-		auto data = TimestampedHash(Timestamp(123), hash);
+		auto hash = test::GenerateRandomByteArray<Hash256>();
+		auto timestampedHash = TimestampedHash(Timestamp(123), hash);
 
 		// Assert:
-		EXPECT_EQ(Timestamp(123), data.Time);
-		EXPECT_EQ(GetPartialHash(hash), data.Hash);
+		EXPECT_EQ(Timestamp(123), timestampedHash.Time);
+		EXPECT_EQ(GetPartialHash(hash), timestampedHash.Hash);
 	}
 
 	TEST(TEST_CLASS, CanCreateTimestampedHashFromTimestamp) {
 		// Arrange:
-		auto data = TimestampedHash(Timestamp(123));
+		auto timestampedHash = TimestampedHash(Timestamp(123));
 
 		// Assert:
-		EXPECT_EQ(Timestamp(123), data.Time);
-		EXPECT_EQ(TimestampedHash::HashType(), data.Hash);
+		EXPECT_EQ(Timestamp(123), timestampedHash.Time);
+		EXPECT_EQ(TimestampedHash::HashType(), timestampedHash.Hash);
 	}
 
 	TEST(TEST_CLASS, CanCreateDefaultTimestampedHash) {
 		// Arrange:
-		auto data = TimestampedHash();
+		auto timestampedHash = TimestampedHash();
 
 		// Assert:
-		EXPECT_EQ(Timestamp(0), data.Time);
-		EXPECT_EQ(TimestampedHash::HashType(), data.Hash);
+		EXPECT_EQ(Timestamp(0), timestampedHash.Time);
+		EXPECT_EQ(TimestampedHash::HashType(), timestampedHash.Hash);
 	}
 
 	// endregion
@@ -86,32 +86,36 @@ namespace catapult { namespace state {
 		test::AssertOperatorBehaviorForIncreasingValues(timestampedHashes, std::less<>());
 	}
 
-	TEST(TEST_CLASS, OperatorEqualReturnsTrueIfAndOnlyIfTimestampAndHashAreEqual) {
+	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
 		// Arrange:
 		Hash256 hash1{ {} };
 		Hash256 hash2{ { 1 } }; // hash1 < hash2
-		auto data1 = TimestampedHash(Timestamp(123), hash1);
-		auto data2 = TimestampedHash(Timestamp(123), hash1);
-		auto data3 = TimestampedHash(Timestamp(234), hash1);
-		auto data4 = TimestampedHash(Timestamp(123), hash2);
-		auto data5 = TimestampedHash(Timestamp(234), hash2);
+		auto timestampedHash1 = TimestampedHash(Timestamp(123), hash1);
+		auto timestampedHash2 = TimestampedHash(Timestamp(123), hash1);
+		auto timestampedHash3 = TimestampedHash(Timestamp(234), hash1);
+		auto timestampedHash4 = TimestampedHash(Timestamp(123), hash2);
+		auto timestampedHash5 = TimestampedHash(Timestamp(234), hash2);
 
 		// Assert:
-		test::AssertOperatorEqualReturnsTrueForEqualObjects({ data1, data2 }, { data3, data4, data5 });
+		test::AssertOperatorEqualReturnsTrueForEqualObjects(
+				{ timestampedHash1, timestampedHash2 },
+				{ timestampedHash3, timestampedHash4, timestampedHash5 });
 	}
 
-	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueIfAndOnlyIfTimestampAndHashAreNotEqual) {
+	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
 		// Arrange:
 		Hash256 hash1{ {} };
 		Hash256 hash2{ { 1 } }; // hash1 < hash2
-		auto data1 = TimestampedHash(Timestamp(123), hash1);
-		auto data2 = TimestampedHash(Timestamp(123), hash1);
-		auto data3 = TimestampedHash(Timestamp(234), hash1);
-		auto data4 = TimestampedHash(Timestamp(123), hash2);
-		auto data5 = TimestampedHash(Timestamp(234), hash2);
+		auto timestampedHash1 = TimestampedHash(Timestamp(123), hash1);
+		auto timestampedHash2 = TimestampedHash(Timestamp(123), hash1);
+		auto timestampedHash3 = TimestampedHash(Timestamp(234), hash1);
+		auto timestampedHash4 = TimestampedHash(Timestamp(123), hash2);
+		auto timestampedHash5 = TimestampedHash(Timestamp(234), hash2);
 
 		// Assert:
-		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects({ data1, data2 }, { data3, data4, data5 });
+		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(
+				{ timestampedHash1, timestampedHash2 },
+				{ timestampedHash3, timestampedHash4, timestampedHash5 });
 	}
 
 	// endregion
@@ -120,7 +124,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanSerializeTimestampedHash) {
 		// Arrange:
-		auto key = TimestampedHash(test::GenerateRandomValue<Timestamp>(), test::GenerateRandomData<Cached_Hash_Size>());
+		auto key = TimestampedHash(test::GenerateRandomValue<Timestamp>(), test::GenerateRandomArray<Cached_Hash_Size>());
 
 		// Act:
 		auto result = SerializeKey(key);
@@ -140,10 +144,10 @@ namespace catapult { namespace state {
 		std::string hashString = "1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751";
 		utils::ParseHexStringIntoContainer(hashString.c_str(), hashString.size(), hash);
 
-		auto data = TimestampedHash(Timestamp(98126), hash);
+		auto timestampedHash = TimestampedHash(Timestamp(98126), hash);
 
 		// Act:
-		auto str = test::ToString(data);
+		auto str = test::ToString(timestampedHash);
 
 		// Assert:
 		EXPECT_EQ("1B664F8BDA2DBF33CB6BE21C8EB3ECA9D9D5BF144C08E9577ED0D1E5E5608751 @ 98126", str);

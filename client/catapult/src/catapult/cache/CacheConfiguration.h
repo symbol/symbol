@@ -28,6 +28,7 @@ namespace catapult { namespace cache {
 	enum class PatriciaTreeStorageMode {
 		/// Patricia tree storage should be disabled.
 		Disabled,
+
 		/// Patricia tree storage should be enabled.
 		Enabled
 	};

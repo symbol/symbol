@@ -21,13 +21,10 @@
 #pragma once
 #include "catapult/ionet/ConnectResult.h"
 #include "catapult/ionet/PacketSocket.h"
-#include "catapult/local/BootedLocalNode.h"
-#include "catapult/utils/BitwiseEnum.h"
+#include "catapult/local/server/LocalNode.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
 #include "tests/test/local/LocalTestUtils.h"
-#include "tests/test/local/NetworkTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
-#include "tests/test/net/NodeTestUtils.h"
 #include "tests/test/net/SocketTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -63,11 +60,17 @@ namespace catapult { namespace test {
 		/// Node supporting verifiable receipts.
 		Verify_Receipts = 32,
 
+		/// Node supporting cache database storage.
+		Cache_Database_Storage = 64,
+
 		/// Node supporting verifiable state.
-		Verify_State = 64,
+		Verify_State = 128 | Cache_Database_Storage,
 
 		/// Node that should not be booted implicitly.
-		Require_Explicit_Boot = 128,
+		Require_Explicit_Boot = 256,
+
+		/// Node supporting auto sync cleanup.
+		Auto_Sync_Cleanup = 512
 	};
 
 	MAKE_BITWISE_ENUM(NodeFlag)
@@ -126,130 +129,24 @@ namespace catapult { namespace test {
 	/// Creates a local partner node.
 	ionet::Node CreateLocalPartnerNode();
 
-	/// Boots a local partner node around \a dataDirectory with \a keyPair and specified \a nodeFlag.
-	std::unique_ptr<local::BootedLocalNode> BootLocalPartnerNode(
-			const std::string& dataDirectory,
+	/// Boots a local partner node around \a config with \a keyPair and specified \a nodeFlag.
+	std::unique_ptr<local::LocalNode> BootLocalPartnerNode(
+			config::CatapultConfiguration&& config,
 			const crypto::KeyPair& keyPair,
 			NodeFlag nodeFlag);
 
-	/// Prepares local node configuration (\a config) by adding plugins and extensions (via \a addNodeExtensions)
+	/// Prepares catapult configuration (\a config) by  updating setings to be compatible with \a nodeFlag.
+	void PrepareCatapultConfiguration(config::CatapultConfiguration& config, NodeFlag nodeFlag);
+
+	/// Prepares catapult configuration (\a config) by adding plugins and extensions (via \a addNodeExtensions)
 	/// and updating setings to be compatible with \a nodeFlag.
 	template<typename TAddNodeExtensions>
-	void PrepareLocalNodeConfiguration(config::LocalNodeConfiguration& config, TAddNodeExtensions addNodeExtensions, NodeFlag nodeFlag) {
-		if (HasFlag(NodeFlag::Verify_Receipts, nodeFlag))
-			EnableReceiptsVerification(config);
-
-		if (HasFlag(NodeFlag::Verify_State, nodeFlag))
-			EnableStateVerification(config);
+	void PrepareCatapultConfiguration(config::CatapultConfiguration& config, TAddNodeExtensions addNodeExtensions, NodeFlag nodeFlag) {
+		PrepareCatapultConfiguration(config, nodeFlag);
 
 		// in order for the nemesis block to be processed, at least the transfer plugin needs to be loaded
 		AddNemesisPluginExtensions(const_cast<model::BlockChainConfiguration&>(config.BlockChain));
-		addNodeExtensions(const_cast<config::NodeConfiguration&>(config.Node));
-	}
-
-	// endregion
-
-	// region basic tests
-
-	/// Asserts that the local node can be booted without peers and then calls \a handler.
-	template<typename TTestContext, typename THandlerFunc>
-	void AssertCanBootLocalNodeWithoutPeers(THandlerFunc handler) {
-		// Act: create the node with no peers (really it is a peer to itself)
-		TTestContext context(NodeFlag::Custom_Peers, {});
-
-		context.waitForNumActiveReaders(0);
-		auto stats = context.stats();
-		auto nodes = context.localNode().nodes();
-
-		// Assert: check stats
-		EXPECT_EQ(0u, stats.NumActiveReaders);
-		EXPECT_EQ(0u, stats.NumActiveWriters);
-		handler(context, stats);
-
-		// - check nodes
-		EXPECT_EQ(1u, nodes.size());
-		auto expectedContents = BasicNodeDataContainer{ { LoadServerKeyPair().publicKey(), "LOCAL", ionet::NodeSource::Local } };
-		EXPECT_EQ(expectedContents, test::CollectAll(nodes));
-	}
-
-	/// Asserts that the local node can be booted with peers and then calls \a handler.
-	template<typename TTestContext, typename THandlerFunc>
-	void AssertCanBootLocalNodeWithPeers(THandlerFunc handler) {
-		// Act: create the node with custom peers
-		auto keys = GenerateRandomDataVector<Key>(3);
-		TTestContext context(NodeFlag::Custom_Peers | NodeFlag::With_Partner, {
-			CreateNamedNode(keys[0], "alice"),
-			CreateNamedNode(keys[1], "bob"),
-			CreateNamedNode(keys[2], "charlie"),
-			CreateLocalPartnerNode()
-		});
-
-		context.waitForNumActiveWriters(1);
-		auto stats = context.stats();
-		auto nodes = context.localNode().nodes();
-
-		// Assert: check stats
-		EXPECT_EQ(0u, stats.NumActiveReaders);
-		EXPECT_EQ(1u, stats.NumActiveWriters);
-		handler(context, stats);
-
-		// - check nodes
-		EXPECT_EQ(5u, nodes.size());
-		auto expectedContents = BasicNodeDataContainer{
-			{ LoadServerKeyPair().publicKey(), "LOCAL", ionet::NodeSource::Local },
-			{ CreateLocalPartnerNode().identityKey(), "PARTNER", ionet::NodeSource::Static },
-			{ keys[0], "alice", ionet::NodeSource::Static },
-			{ keys[1], "bob", ionet::NodeSource::Static },
-			{ keys[2], "charlie", ionet::NodeSource::Static }
-		};
-		EXPECT_EQ(expectedContents, test::CollectAll(nodes));
-	}
-
-	/// Asserts that the local node can be shutdown.
-	template<typename TTestContext>
-	void AssertCanShutdownLocalNode() {
-		// Arrange:
-		TTestContext context(NodeFlag::Regular);
-
-		// Act:
-		context.localNode().shutdown();
-
-		// Assert:
-		context.assertShutdown();
-	}
-
-	/// Asserts that the local node forwards node notifications to its node container.
-	template<typename TTestContext>
-	void AssertNodeSubscriberIsWiredUpToNodeContainer() {
-		// Arrange:
-		TTestContext context(NodeFlag::Regular);
-
-		auto key = test::GenerateRandomData<Key_Size>();
-		auto node = ionet::Node(key, ionet::NodeEndpoint(), ionet::NodeMetadata());
-
-		// Sanity:
-		EXPECT_FALSE(context.localNode().nodes().contains(key));
-
-		// Act:
-		context.nodeSubscriber().notifyNode(node);
-
-		// Assert:
-		auto nodeContainerView = context.localNode().nodes();
-		ASSERT_TRUE(nodeContainerView.contains(key));
-		EXPECT_EQ(ionet::NodeSource::Dynamic, nodeContainerView.getNodeInfo(key).source());
-	}
-
-	/// Asserts that the local node is booted with \a numTasks scheduled tasks.
-	template<typename TTestContext>
-	void AssertLocalNodeSchedulesTasks(uint32_t numTasks) {
-		// Act:
-		TTestContext context(NodeFlag::Regular);
-
-		context.waitForNumScheduledTasks(numTasks);
-		auto stats = context.stats();
-
-		// Assert:
-		EXPECT_EQ(numTasks, stats.NumScheduledTasks);
+		addNodeExtensions(const_cast<config::ExtensionsConfiguration&>(config.Extensions));
 	}
 
 	// endregion

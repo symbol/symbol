@@ -19,9 +19,9 @@
 **/
 
 #include "catapult/extensions/ServiceLocator.h"
+#include "tests/int/node/test/LocalNodeBasicTests.h"
 #include "tests/int/node/test/LocalNodeTestContext.h"
 #include "tests/TestHarness.h"
-#include <boost/filesystem.hpp>
 
 namespace catapult { namespace local {
 
@@ -41,18 +41,6 @@ namespace catapult { namespace local {
 			}
 
 		public:
-			bool hasSavedState() const {
-				return boost::filesystem::exists(getSupplementalStatePath());
-			}
-
-			Height loadSavedChainHeight() const {
-				auto path = getSupplementalStatePath();
-				io::RawFile file(path.generic_string(), io::OpenMode::Read_Only);
-				file.seek(file.size() - sizeof(Height));
-				return io::Read<Height>(file);
-			}
-
-		public:
 			void assertShutdown() const {
 				// Assert:
 				auto stats = this->stats();
@@ -62,38 +50,21 @@ namespace catapult { namespace local {
 				EXPECT_EQ(Sentinel_Counter_Value, stats.NumActiveBroadcastWriters);
 			}
 		};
+
+		struct BasicTestContext {
+			using LocalNodeTestContext = TestContext;
+
+			static constexpr auto Num_Tasks = 9u;
+
+			static void AssertBoot(const test::PeerLocalNodeStats& stats) {
+				EXPECT_EQ(0u, stats.NumActiveBroadcastWriters);
+			}
+		};
 	}
 
 	// region basic tests
 
-	TEST(TEST_CLASS, CanBootLocalNodeWithoutPeers) {
-		// Assert:
-		test::AssertCanBootLocalNodeWithoutPeers<TestContext>([](const auto&, const auto& stats) {
-			EXPECT_EQ(0u, stats.NumActiveBroadcastWriters);
-		});
-	}
-
-	TEST(TEST_CLASS, CanBootLocalNodeWithPeers) {
-		// Assert:
-		test::AssertCanBootLocalNodeWithPeers<TestContext>([](const auto&, const auto& stats) {
-			EXPECT_EQ(0u, stats.NumActiveBroadcastWriters);
-		});
-	}
-
-	TEST(TEST_CLASS, CanShutdownNode) {
-		// Assert:
-		test::AssertCanShutdownLocalNode<TestContext>();
-	}
-
-	TEST(TEST_CLASS, NodeSubscriberIsWiredUpToNodeContainer) {
-		// Assert:
-		test::AssertNodeSubscriberIsWiredUpToNodeContainer<TestContext>();
-	}
-
-	TEST(TEST_CLASS, AllPeriodicTasksAreScheduled) {
-		// Assert:
-		test::AssertLocalNodeSchedulesTasks<TestContext>(9);
-	}
+	DEFINE_LOCAL_NODE_BASIC_TESTS(BasicTestContext)
 
 	TEST(TEST_CLASS, AllCounterGroupsAreRegistered) {
 		// Act:
@@ -107,8 +78,8 @@ namespace catapult { namespace local {
 		EXPECT_TRUE(test::HasCounter(counters, "ACNTST C")) << "cache counters";
 		EXPECT_TRUE(test::HasCounter(counters, "TX ELEM TOT")) << "service local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "UNLKED ACCTS")) << "peer local node counters";
-		EXPECT_TRUE(test::HasCounter(counters, "UT CACHE")) << "basic local node counters";
-		EXPECT_TRUE(test::HasCounter(counters, "TOT CONF TXES")) << "basic local node counters";
+		EXPECT_TRUE(test::HasCounter(counters, "UT CACHE")) << "local node counters";
+		EXPECT_TRUE(test::HasCounter(counters, "TOT CONF TXES")) << "local node counters";
 		EXPECT_TRUE(test::HasCounter(counters, "MEM CUR RSS")) << "memory counters";
 	}
 
@@ -133,12 +104,12 @@ namespace catapult { namespace local {
 		}
 	}
 
-	TEST(TEST_CLASS, BootUnlocksAccountIfAutoHarvestIsEnabled) {
+	TEST(TEST_CLASS, BootUnlocksAccountWhenAutoHarvestIsEnabled) {
 		// Assert:
 		AssertNumUnlockedAccounts(Auto_Harvest, 1);
 	}
 
-	TEST(TEST_CLASS, BootDoesNotUnlockAccountIfAutoHarvestIsDisabled) {
+	TEST(TEST_CLASS, BootDoesNotUnlockAccountWhenAutoHarvestIsDisabled) {
 		// Assert:
 		AssertNumUnlockedAccounts(!Auto_Harvest, 0);
 	}
@@ -203,48 +174,6 @@ namespace catapult { namespace local {
 
 		// Assert: the shutdown completed successfully without hanging
 		context.assertShutdown();
-	}
-
-	// endregion
-
-	// region state saving
-
-	TEST(TEST_CLASS, ShutdownSavesStateToDiskOnSuccessfulBoot) {
-		// Arrange:
-		TestContext context(NodeFlag::Regular);
-
-		// Sanity:
-		EXPECT_FALSE(context.hasSavedState());
-
-		// Act:
-		context.localNode().shutdown();
-
-		// Assert:
-		EXPECT_TRUE(context.hasSavedState());
-		EXPECT_EQ(Height(1), context.loadSavedChainHeight());
-	}
-
-	TEST(TEST_CLASS, ShutdownDoesNotSaveStateToDiskOnFailedBoot) {
-		// Arrange: create saved state
-		TestContext context(NodeFlag::Regular);
-		context.localNode().shutdown();
-
-		// Sanity:
-		EXPECT_TRUE(context.hasSavedState());
-		EXPECT_EQ(Height(1), context.loadSavedChainHeight());
-
-		// - prepare bad config
-		auto badConfig = context.createConfig();
-		const_cast<model::BlockChainConfiguration&>(badConfig.BlockChain).Plugins.emplace(
-				"catapult.plugins.awesome",
-				utils::ConfigurationBag({}));
-
-		// Act + Assert: simulate a boot failure by specifying an incorrect plugin
-		EXPECT_THROW(context.boot(std::move(badConfig)), catapult_runtime_error);
-
-		// Assert: the config was not overwritten
-		EXPECT_TRUE(context.hasSavedState());
-		EXPECT_EQ(Height(1), context.loadSavedChainHeight());
 	}
 
 	// endregion

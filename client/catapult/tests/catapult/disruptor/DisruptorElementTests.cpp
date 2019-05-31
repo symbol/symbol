@@ -139,12 +139,12 @@ namespace catapult { namespace disruptor {
 		}
 	}
 
-	TEST(TEST_CLASS, MarkProcessingCompleteDelegatesToCompletionHandlerIfElementIsNotSkipped) {
+	TEST(TEST_CLASS, MarkProcessingCompleteDelegatesToCompletionHandlerWhenElementIsNotSkipped) {
 		// Assert:
 		AssertProcessingCompleteDelegatesToCompletionHandler([](const auto&) {}, ConsumerCompletionResult());
 	}
 
-	TEST(TEST_CLASS, MarkProcessingCompleteDelegatesToCompletionHandlerIfElementIsSkipped) {
+	TEST(TEST_CLASS, MarkProcessingCompleteDelegatesToCompletionHandlerWhenElementIsSkipped) {
 		// Arrange:
 		auto expectedResult = ConsumerCompletionResult();
 		expectedResult.CompletionStatus = CompletionStatus::Aborted;

@@ -28,6 +28,7 @@
 
 #ifdef _MSC_VER
 #include <io.h>
+#include <windows.h>
 #else
 #include <unistd.h>
 #include <sys/file.h>
@@ -36,17 +37,49 @@
 namespace catapult { namespace io {
 
 	namespace {
-		static const size_t Invalid_Size = static_cast<size_t>(-1);
-		static const int Invalid_Descriptor = -1;
-		static const int Read_Error = -1;
-		static const int Write_Error = -1;
+		// region constants
 
-		static const char* Error_Open = "couldn't open the file";
-		static const char* Error_Size = "couldn't determine file size";
-		static const char* Error_Write = "couldn't write to file";
-		static const char* Error_Read = "couldn't read from file";
-		static const char* Error_Seek = "couldn't seek in file";
-		static const char* Error_Desc = "invalid file descriptor";
+		constexpr size_t Invalid_Size = static_cast<size_t>(-1);
+		constexpr int Invalid_Descriptor = -1;
+		constexpr int Read_Error = -1;
+		constexpr int Write_Error = -1;
+
+		constexpr const char* Error_Open = "couldn't open the file";
+		constexpr const char* Error_Size = "couldn't determine file size";
+		constexpr const char* Error_Write = "couldn't write to file";
+		constexpr const char* Error_Read = "couldn't read from file";
+		constexpr const char* Error_Seek = "couldn't seek in file";
+		constexpr const char* Error_Seek_Outside = "couldn't seek past end of file";
+		constexpr const char* Error_Desc = "invalid file descriptor";
+
+		// endregion
+
+		// region FileOperationResult
+
+		template<typename T>
+		class FileOperationResult {
+		public:
+			FileOperationResult(bool isSuccess, T value)
+					: IsSuccess(isSuccess)
+					, Value(value)
+			{}
+
+		public:
+			bool IsSuccess;
+			T Value;
+
+			int32_t ErrorCode;
+			std::string Message;
+		};
+
+		template<typename T>
+		FileOperationResult<T> MakeSuccessResult(T value) {
+			return FileOperationResult<T>(true, value);
+		}
+
+		// endregion
+
+		// region platform-dependent file io
 
 #ifdef _MSC_VER
 		constexpr auto Flag_Read_Only = _O_RDONLY;
@@ -71,12 +104,30 @@ namespace catapult { namespace io {
 			return static_cast<unsigned int>(size);
 		}
 
-		inline int open(const char* name, int flags, int lockingFlags, int permissions) {
-			int fd;
-			if (0 != _sopen_s(&fd, name, flags, lockingFlags, permissions))
-				return Invalid_Descriptor;
+		template<typename T>
+		FileOperationResult<T> MakeFailureResult(T value) {
+			auto lastError = ::GetLastError();
 
-			return fd;
+			FileOperationResult<T> result(false, value);
+			result.ErrorCode = static_cast<int32_t>(lastError);
+
+			constexpr uint32_t Max_Message_Size = 256;
+			result.Message.resize(Max_Message_Size);
+
+			auto formatMessageFlags = FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM;
+			auto messageSize = ::FormatMessage(formatMessageFlags, nullptr, lastError, 0, &result.Message[0], Max_Message_Size, nullptr);
+			result.Message.resize(messageSize);
+			return result;
+		}
+
+		inline FileOperationResult<int> open(int& fd, const char* name, int flags, int lockingFlags, int permissions) {
+			auto result = _sopen_s(&fd, name, flags, lockingFlags, permissions);
+			if (0 != result) {
+				fd = Invalid_Descriptor;
+				return MakeFailureResult(result);
+			}
+
+			return MakeSuccessResult(0);
 		}
 #else
 		constexpr auto Flag_Read_Only = O_RDONLY;
@@ -87,7 +138,7 @@ namespace catapult { namespace io {
 		constexpr auto File_Binary_Flag = 0;
 		constexpr auto File_Locking_Exclusive = LOCK_NB | LOCK_EX;
 		constexpr auto File_Locking_Shared_Read = LOCK_NB | LOCK_SH;
-		constexpr auto File_Locking_None = LOCK_NB | LOCK_SH;
+		constexpr auto File_Locking_None = 0;
 		using StatStruct = struct stat;
 
 		template<typename TSize>
@@ -95,17 +146,29 @@ namespace catapult { namespace io {
 			return static_cast<size_t>(size);
 		}
 
-		inline int open(const char* name, int flags, int lockingFlags, int permissions) {
-			int fd = ::open(name, flags, permissions);
-			if (Invalid_Descriptor == fd)
-				return Invalid_Descriptor;
+		template<typename T>
+		FileOperationResult<T> MakeFailureResult(T value) {
+			auto lastError = errno;
 
-			if (-1 == ::flock(fd, lockingFlags)) {
+			FileOperationResult<T> result(false, value);
+			result.ErrorCode = lastError;
+			result.Message = std::strerror(lastError);
+			return result;
+		}
+
+		inline FileOperationResult<int> open(int& fd, const char* name, int flags, int lockingFlags, int permissions) {
+			fd = ::open(name, flags, permissions);
+			if (Invalid_Descriptor == fd)
+				return MakeFailureResult(Invalid_Descriptor);
+
+			if (0 != lockingFlags && -1 == ::flock(fd, lockingFlags)) {
+				auto result = MakeFailureResult(-1);
 				::close(fd);
 				fd = Invalid_Descriptor;
+				return result;
 			}
 
-			return fd;
+			return MakeSuccessResult(0);
 		}
 
 		inline void close(int fd) {
@@ -113,58 +176,60 @@ namespace catapult { namespace io {
 			::close(fd);
 		}
 #endif
+		// endregion
+
+		// region platform-independent nem file io wrappers
 
 		void nemClose(int fd) {
 			close(fd);
 		}
 
 		template<typename TIoOperation, typename TBuffer>
-		size_t ProcessInBlocks(TIoOperation ioOperation, int ioErrorCode, int fd, TBuffer& buffer) {
+		FileOperationResult<size_t> ProcessInBlocks(TIoOperation ioOperation, int ioErrorCode, int fd, TBuffer& buffer) {
 			auto* pData = buffer.pData;
 			auto size = buffer.Size;
-			size_t dataProcessed = 0;
+			size_t numBytesProcessed = 0;
 			while (size > 0) {
-				auto bytesToProcess = std::min<size_t>(0x40'00'00'00, size);
-				auto ioResult = ioOperation(fd, pData, CastToDataSize(bytesToProcess));
+				auto numBytesToProcess = std::min<size_t>(0x40'00'00'00, size);
+				auto ioResult = ioOperation(fd, pData, CastToDataSize(numBytesToProcess));
 				if (ioErrorCode == ioResult)
-					return Invalid_Size;
+					return MakeFailureResult(Invalid_Size);
 
 				if (0 == ioResult)
 					break;
 
 				auto ioProcessed = CastToDataSize(ioResult);
-				dataProcessed += ioProcessed;
+				numBytesProcessed += ioProcessed;
 				pData += ioProcessed;
 				size -= ioProcessed;
 			}
 
-			return dataProcessed;
+			return buffer.Size == numBytesProcessed ? MakeSuccessResult(numBytesProcessed) : MakeFailureResult(numBytesProcessed);
 		}
 
-		size_t nemWrite(int fd, const RawBuffer& data) {
+		FileOperationResult<size_t> nemWrite(int fd, const RawBuffer& data) {
 			return ProcessInBlocks(write, Write_Error, fd, data);
 		}
 
-		size_t nemRead(int fd, const MutableRawBuffer& data) {
+		FileOperationResult<size_t> nemRead(int fd, const MutableRawBuffer& data) {
 			return ProcessInBlocks(read, Read_Error, fd, data);
 		}
 
-		bool nemSeekSet(int fd, int64_t offset) {
-			auto r = lseek(fd, offset, SEEK_SET);
-			return offset == r;
+		FileOperationResult<bool> nemSeekSet(int fd, int64_t offset) {
+			return -1 == lseek(fd, offset, SEEK_SET) ? MakeFailureResult(false) : MakeSuccessResult(true);
 		}
 
-		bool nemFileSize(int fd, uint64_t& fileSize) {
+		FileOperationResult<bool> nemFileSize(int fd, uint64_t& fileSize) {
 			StatStruct st;
 			fileSize = 0;
 			if (0 != fstat(fd, &st))
-				return false;
+				return MakeFailureResult(false);
 
 			fileSize = static_cast<uint64_t>(st.st_size);
-			return true;
+			return MakeSuccessResult(true);
 		}
 
-		bool nemOpen(int& fd, const char* name, OpenMode mode, LockMode lockMode) {
+		FileOperationResult<int> nemOpen(int& fd, const char* name, OpenMode mode, LockMode lockMode) {
 			int flags = mode == OpenMode::Read_Only ? Flag_Read_Only : Flag_Read_Write;
 			int createFlag = mode == OpenMode::Read_Write
 					? New_File_Create_Truncate_Flags
@@ -173,29 +238,13 @@ namespace catapult { namespace io {
 					? ((flags & Flag_Read_Write) ? File_Locking_Exclusive : File_Locking_Shared_Read)
 					: File_Locking_None;
 
-			fd = open(name, File_Binary_Flag | flags | createFlag, lockingFlags, New_File_Permissions);
-			return Invalid_Descriptor != fd;
+			return open(fd, name, File_Binary_Flag | flags | createFlag, lockingFlags, New_File_Permissions);
 		}
+
+		// endregion
 	}
 
-// note that this macro can only be used within RawFile member functions
-#define CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(MESSAGE) \
-	do { \
-		CATAPULT_LOG(error) << MESSAGE << " " << m_pathname << (!m_fd.isValid() ? " (invalid)" : ""); \
-		CATAPULT_THROW_FILE_IO_ERROR(MESSAGE); \
-	} while (false)
-
-	RawFile::RawFile(const std::string& pathname, OpenMode mode, LockMode lockMode)
-			: m_pathname(pathname)
-			, m_fd(Invalid_Descriptor)
-			, m_fileSize(0)
-			, m_position(0) {
-		if (!nemOpen(m_fd.rawRef(), m_pathname.c_str(), mode, lockMode))
-			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Open);
-
-		if (!nemFileSize(m_fd.raw(), m_fileSize))
-			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Size);
-	}
+	// region RawFile::FileDescriptorHolder
 
 	RawFile::FileDescriptorHolder::FileDescriptorHolder(int fd) : m_fd(fd)
 	{}
@@ -226,29 +275,58 @@ namespace catapult { namespace io {
 		return m_fd;
 	}
 
-	void RawFile::write(const RawBuffer& dataBuffer) {
-		if (dataBuffer.Size != nemWrite(m_fd.raw(), dataBuffer))
-			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Write);
+	// endregion
 
-		m_position += dataBuffer.Size;
+	// region RawFile
+
+// note that this macro can only be used within RawFile member functions
+#define CATAPULT_CHECK_FILE_OPERATION_RESULT(MESSAGE, OPERATION_RESULT) \
+	do { \
+		if (!OPERATION_RESULT.IsSuccess) { \
+			CATAPULT_LOG(error) \
+					<< MESSAGE << " " << m_pathname << ": " \
+					<< OPERATION_RESULT.Message << " (" << OPERATION_RESULT.ErrorCode << ")"; \
+			CATAPULT_THROW_FILE_IO_ERROR(MESSAGE); \
+		} \
+	} while (false)
+
+	RawFile::RawFile(const std::string& pathname, OpenMode mode, LockMode lockMode)
+			: m_pathname(pathname)
+			, m_fd(Invalid_Descriptor)
+			, m_fileSize(0)
+			, m_position(0) {
+		auto openResult = nemOpen(m_fd.rawRef(), m_pathname.c_str(), mode, lockMode);
+		CATAPULT_CHECK_FILE_OPERATION_RESULT(Error_Open, openResult);
+
+		auto fileSizeResult = nemFileSize(m_fd.raw(), m_fileSize);
+		CATAPULT_CHECK_FILE_OPERATION_RESULT(Error_Size, fileSizeResult);
+	}
+
+	void RawFile::write(const RawBuffer& dataBuffer) {
+		auto writeResult = nemWrite(m_fd.raw(), dataBuffer);
+		CATAPULT_CHECK_FILE_OPERATION_RESULT(Error_Write, writeResult);
+
+		m_position += writeResult.Value;
 		m_fileSize = std::max(m_fileSize, m_position);
 	}
 
 	void RawFile::read(const MutableRawBuffer& dataBuffer) {
-		if (dataBuffer.Size != nemRead(m_fd.raw(), dataBuffer))
-			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Read);
+		auto readResult = nemRead(m_fd.raw(), dataBuffer);
+		CATAPULT_CHECK_FILE_OPERATION_RESULT(Error_Read, readResult);
 
-		m_position += dataBuffer.Size;
+		m_position += readResult.Value;
 	}
 
 	void RawFile::seek(uint64_t position) {
-		// Although low-level api allows seek outside the file, we won't allow
-		// it. If we'll need it we'll add resize() and/or truncate() methods.
-		if (position > size())
-			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Seek);
+		// constrain seek to inside the file even though low-level api allows seek outside the file
+		// if needed, such behavior is better suited for resize and/or truncate methods
+		if (position > size()) {
+			CATAPULT_LOG(error) << Error_Seek_Outside << " " << m_pathname;
+			CATAPULT_THROW_FILE_IO_ERROR(Error_Seek_Outside);
+		}
 
-		if (!nemSeekSet(m_fd.raw(), static_cast<int64_t>(position)))
-			CATAPULT_THROW_AND_LOG_RAW_FILE_ERROR(Error_Seek);
+		auto seekSetResult = nemSeekSet(m_fd.raw(), static_cast<int64_t>(position));
+		CATAPULT_CHECK_FILE_OPERATION_RESULT(Error_Seek, seekSetResult);
 
 		m_position = position;
 	}
@@ -260,4 +338,6 @@ namespace catapult { namespace io {
 	uint64_t RawFile::position() const {
 		return m_position;
 	}
+
+	// endregion
 }}

@@ -37,7 +37,7 @@ namespace catapult { namespace observers {
 			test::AccountObserverTestContext context(NotifyMode::Commit);
 			auto pObserver = CreateBalanceDebitObserver();
 
-			auto sender = test::GenerateRandomData<Key_Size>();
+			auto sender = test::GenerateRandomByteArray<Key>();
 			auto notification = TTraits::CreateNotification(sender);
 
 			test::SetCacheBalances(context.cache(), sender, TTraits::GetInitialSenderBalances());
@@ -55,7 +55,7 @@ namespace catapult { namespace observers {
 			test::AccountObserverTestContext context(NotifyMode::Rollback);
 			auto pObserver = CreateBalanceDebitObserver();
 
-			auto sender = test::GenerateRandomData<Key_Size>();
+			auto sender = test::GenerateRandomByteArray<Key>();
 			auto notification = TTraits::CreateNotification(sender);
 
 			test::SetCacheBalances(context.cache(), sender, TTraits::GetFinalSenderBalances());

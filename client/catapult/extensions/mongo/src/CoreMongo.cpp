@@ -21,18 +21,17 @@
 #include "CoreMongo.h"
 #include "MongoPluginManager.h"
 #include "storages/MongoAccountStateCacheStorage.h"
-#include "storages/MongoBlockDifficultyCacheStorage.h"
+#include "mongo/src/MongoReceiptPluginFactory.h"
 #include "catapult/model/BlockChainConfiguration.h"
 
 namespace catapult { namespace mongo {
 
 	void RegisterCoreMongoSystem(MongoPluginManager& manager) {
-		manager.addStorageSupport(storages::CreateMongoAccountStateCacheStorage(
-				manager.createDatabaseConnection(),
-				manager.mongoContext().bulkWriter(),
-				manager.chainConfig().Network.Identifier));
-		manager.addStorageSupport(storages::CreateMongoBlockDifficultyCacheStorage(
-				manager.createDatabaseConnection(),
-				model::CalculateDifficultyHistorySize(manager.chainConfig())));
+		// cache storage support
+		manager.addStorageSupport(storages::CreateMongoAccountStateCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
+
+		// receipt support
+		manager.addReceiptSupport(CreateBalanceChangeReceiptMongoPlugin(model::Receipt_Type_Harvest_Fee));
+		manager.addReceiptSupport(CreateInflationReceiptMongoPlugin(model::Receipt_Type_Inflation));
 	}
 }}

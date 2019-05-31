@@ -30,7 +30,7 @@ namespace catapult { namespace cache {
 		explicit ReadOnlyCatapultCache(const std::vector<const void*>& readOnlyViews);
 
 	public:
-		/// Gets a specific subcache read-only view.
+		/// Gets a specific sub cache read-only view.
 		template<typename TCache>
 		const typename TCache::CacheReadOnlyType& sub() const {
 			return *static_cast<const typename TCache::CacheReadOnlyType*>(m_readOnlyViews[TCache::Id]);

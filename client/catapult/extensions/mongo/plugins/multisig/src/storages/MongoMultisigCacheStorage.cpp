@@ -40,10 +40,6 @@ namespace catapult { namespace mongo { namespace plugins {
 			static auto MapToMongoDocument(const ModelType& entry, model::NetworkIdentifier networkIdentifier) {
 				return plugins::ToDbModel(entry, model::PublicKeyToAddress(entry.key(), networkIdentifier));
 			}
-
-			static void Insert(CacheDeltaType& cache, const bsoncxx::document::view& document) {
-				cache.insert(ToMultisigEntry(document));
-			}
 		};
 	}
 

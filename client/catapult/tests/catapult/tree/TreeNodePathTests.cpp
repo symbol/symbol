@@ -365,9 +365,9 @@ namespace catapult { namespace tree {
 
 	TEST(TEST_CLASS, FindFirstDifferenceIndexCanCompareIdenticalPaths) {
 		// Arrange:
-		auto data = std::array<uint8_t, 12>{ { 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34 } };
-		TreeNodePath path1(data);
-		TreeNodePath path2(data);
+		auto pathArray = std::array<uint8_t, 12>{ { 0x00, 0x11, 0x22, 0x33, 0xFF, 0xDD, 0xBB, 0x99, 0x76, 0x98, 0x12, 0x34 } };
+		TreeNodePath path1(pathArray);
+		TreeNodePath path2(pathArray);
 
 		// Assert:
 		AssertDifferenceIndex(path1, path2, 24);

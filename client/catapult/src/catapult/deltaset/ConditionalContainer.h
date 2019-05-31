@@ -43,6 +43,7 @@ namespace catapult { namespace deltaset {
 	enum class ConditionalContainerMode {
 		/// Delegate to storage.
 		Storage,
+
 		/// Delegate to memory.
 		Memory
 	};

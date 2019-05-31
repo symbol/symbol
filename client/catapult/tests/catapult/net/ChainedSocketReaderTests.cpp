@@ -101,7 +101,7 @@ namespace catapult { namespace net {
 		};
 
 		ionet::ReaderIdentity CreateDefaultClientIdentity() {
-			return { test::GenerateRandomData<Key_Size>(), "alice.com" };
+			return { test::GenerateRandomByteArray<Key>(), "alice.com" };
 		}
 
 		/// Writes all \a sendBuffers to a socket and reads them with a reader.

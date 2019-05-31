@@ -28,6 +28,7 @@ namespace catapult { namespace model {
 	enum class EntityContainerErrorPolicy {
 		/// Immediately throw when an iteration error is encounted.
 		Throw,
+
 		/// Do not throw when an iteration error is encountered (but error flag will still be set).
 		Suppress
 	};

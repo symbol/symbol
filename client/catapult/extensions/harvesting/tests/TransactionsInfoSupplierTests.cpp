@@ -20,7 +20,7 @@
 
 #include "harvesting/src/TransactionsInfoSupplier.h"
 #include "harvesting/src/HarvestingUtFacadeFactory.h"
-#include "catapult/cache/MemoryUtCache.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
 #include "tests/test/cache/UtTestUtils.h"
 #include "tests/test/other/MockExecutionConfiguration.h"
 #include "tests/TestHarness.h"
@@ -182,12 +182,12 @@ namespace catapult { namespace harvesting {
 		}
 	}
 
-	STRATEGY_BASED_TEST(SupplierReturnsNoTransactionInfosIfCacheIsEmpty) {
+	STRATEGY_BASED_TEST(SupplierReturnsNoTransactionInfosWhenCacheIsEmpty) {
 		// Assert:
 		AssertEmptySupplierResults(Strategy, 0, 3);
 	}
 
-	STRATEGY_BASED_TEST(SupplierReturnsNoTransactionInfosIfZeroInfosAreRequested) {
+	STRATEGY_BASED_TEST(SupplierReturnsNoTransactionInfosWhenZeroInfosAreRequested) {
 		// Assert:
 		AssertEmptySupplierResults(Strategy, 10, 0);
 	}

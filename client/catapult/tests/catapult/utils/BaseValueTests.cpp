@@ -21,6 +21,7 @@
 #include "catapult/utils/BaseValue.h"
 #include "catapult/types.h"
 #include "tests/test/nodeps/Comparison.h"
+#include "tests/test/nodeps/Convertibility.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace utils {
@@ -41,18 +42,18 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, DefaultValueIsZeroInitialized) {
 		// Arrange:
-		TestValue data;
+		TestValue value;
 
 		// Act + Assert:
-		EXPECT_EQ(0u, data.unwrap());
+		EXPECT_EQ(0u, value.unwrap());
 	}
 
 	TEST(TEST_CLASS, CanStoreValue) {
 		// Arrange:
-		TestValue data(123);
+		TestValue value(123);
 
 		// Act + Assert:
-		EXPECT_EQ(123u, data.unwrap());
+		EXPECT_EQ(123u, value.unwrap());
 	}
 
 	TEST(TEST_CLASS, CanStoreValueAsConstexpr) {
@@ -69,48 +70,48 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanCopyAssign) {
 		// Arrange:
-		TestValue data(123);
-		TestValue newData(642);
+		TestValue value(123);
+		TestValue newValue(642);
 
 		// Act:
-		const auto& assignResult = (data = newData);
+		const auto& assignResult = (value = newValue);
 
 		// Assert:
-		EXPECT_EQ(642u, newData.unwrap());
-		EXPECT_EQ(642u, data.unwrap());
-		EXPECT_EQ(&data, &assignResult);
+		EXPECT_EQ(642u, newValue.unwrap());
+		EXPECT_EQ(642u, value.unwrap());
+		EXPECT_EQ(&value, &assignResult);
 	}
 
 	TEST(TEST_CLASS, CanCopyConstruct) {
 		// Act:
-		TestValue data(123);
-		TestValue newData(data);
+		TestValue value(123);
+		TestValue newValue(value);
 
 		// Assert:
-		EXPECT_EQ(123u, newData.unwrap());
-		EXPECT_EQ(123u, data.unwrap());
+		EXPECT_EQ(123u, newValue.unwrap());
+		EXPECT_EQ(123u, value.unwrap());
 	}
 
 	TEST(TEST_CLASS, CanMoveAssign) {
 		// Arrange:
-		TestValue data(123);
-		TestValue newData(642);
+		TestValue value(123);
+		TestValue newValue(642);
 
 		// Act:
-		const auto& assignResult = (newData = std::move(data));
+		const auto& assignResult = (newValue = std::move(value));
 
 		// Assert:
-		EXPECT_EQ(123u, newData.unwrap());
-		EXPECT_EQ(&newData, &assignResult);
+		EXPECT_EQ(123u, newValue.unwrap());
+		EXPECT_EQ(&newValue, &assignResult);
 	}
 
 	TEST(TEST_CLASS, CanMoveConstruct) {
 		// Act:
-		TestValue data(123);
-		TestValue newData(std::move(data));
+		TestValue value(123);
+		TestValue newValue(std::move(value));
 
 		// Assert:
-		EXPECT_EQ(123u, newData.unwrap());
+		EXPECT_EQ(123u, newValue.unwrap());
 	}
 
 	// endregion
@@ -119,10 +120,10 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanUnwrapAndRetrieveRawValue) {
 		// Arrange:
-		TestValue data(123);
+		TestValue value(123);
 
 		// Act:
-		auto rawValue = data.unwrap();
+		auto rawValue = value.unwrap();
 
 		// Assert:
 		EXPECT_EQ(123u, rawValue);
@@ -146,10 +147,10 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanOutputBaseValue) {
 		// Arrange:
-		TestValue data1(123);
+		TestValue value1(123);
 
 		// Act:
-		auto str = test::ToString(data1);
+		auto str = test::ToString(value1);
 
 		// Assert:
 		EXPECT_EQ("123", str);
@@ -161,30 +162,30 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanAddBaseValues) {
 		// Arrange:
-		TestValue data1(123);
-		TestValue data2(234);
+		TestValue value1(123);
+		TestValue value2(234);
 
 		// Act:
-		auto data3 = data1 + data2;
+		auto value3 = value1 + value2;
 
 		// Assert:
-		EXPECT_EQ(TestValue(123), data1);
-		EXPECT_EQ(TestValue(234), data2);
-		EXPECT_EQ(TestValue(357), data3);
+		EXPECT_EQ(TestValue(123), value1);
+		EXPECT_EQ(TestValue(234), value2);
+		EXPECT_EQ(TestValue(357), value3);
 	}
 
 	TEST(TEST_CLASS, CanSubtractBaseValues) {
 		// Arrange:
-		TestValue data1(543);
-		TestValue data2(123);
+		TestValue value1(543);
+		TestValue value2(123);
 
 		// Act:
-		auto data3 = data1 - data2;
+		auto value3 = value1 - value2;
 
 		// Assert:
-		EXPECT_EQ(TestValue(543), data1);
-		EXPECT_EQ(TestValue(123), data2);
-		EXPECT_EQ(TestValue(420), data3);
+		EXPECT_EQ(TestValue(543), value1);
+		EXPECT_EQ(TestValue(123), value2);
+		EXPECT_EQ(TestValue(420), value3);
 	}
 
 	// endregion
@@ -193,60 +194,19 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, CanAssignAliasedType) {
 		// Assert:
-		bool result = std::is_convertible_v<TestValue, AliasedValue>;
-		EXPECT_TRUE(result);
+		auto isConvertible = std::is_convertible_v<TestValue, AliasedValue>;
+		EXPECT_TRUE(isConvertible);
 	}
 
 	TEST(TEST_CLASS, CannotAssignUsingDifferentType) {
 		// Assert:
-		bool result = std::is_convertible_v<TestValue, SameSizeValue>;
-		EXPECT_FALSE(result);
-	}
-
-	namespace {
-		template<typename... T>
-		struct Set {};
-
-		template<typename T, typename U>
-		void Create(T, U) {
-			bool convertible = std::is_convertible_v<T, U>;
-			if (std::is_same_v<T, U>) {
-				EXPECT_TRUE(convertible);
-			} else {
-				EXPECT_FALSE(convertible);
-			}
-		}
-
-		template<typename ElemOuter, typename Head, typename... Tail>
-		void DispatchInner(ElemOuter, Set<Head, Tail...>) {
-			Create(ElemOuter{}, Head{});
-			DispatchInner(ElemOuter{}, Set<Tail...>{});
-		}
-
-		template<typename ElemOuter, typename... Tail>
-		void DispatchInner(ElemOuter, Set<>) {
-			// finished iteration of inner loop
-		}
-
-		template<typename TSetInner, typename Head, typename... Tail>
-		void DispatchOuter(Set<Head, Tail...>, TSetInner) {
-			DispatchInner(Head{}, TSetInner{});
-			DispatchOuter(Set<Tail...>{}, TSetInner{});
-		}
-
-		template<typename TSetInner, typename... Tail>
-		void DispatchOuter(Set<>, TSetInner) {
-			// finished iteration of outer loop
-		}
-
-		template<typename TSet>
-		void AssertCannotConvertTypes() {
-			DispatchOuter(TSet{}, TSet{});
-		}
+		auto isConvertible = std::is_convertible_v<TestValue, SameSizeValue>;
+		EXPECT_FALSE(isConvertible);
 	}
 
 	TEST(TEST_CLASS, CatapultTypesTests) {
-		AssertCannotConvertTypes<Set<Timestamp, Amount, Height, Difficulty>>();
+		// Assert:
+		test::TypeConvertibilityTests::AssertCannotConvertTypes<Timestamp, Amount, Height, Difficulty>();
 	}
 
 	// endregion

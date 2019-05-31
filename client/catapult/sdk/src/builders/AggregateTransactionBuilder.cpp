@@ -63,14 +63,20 @@ namespace catapult { namespace builders {
 		}
 	}
 
-	AggregateCosignatureAppender::AggregateCosignatureAppender(std::unique_ptr<TransactionType>&& pAggregateTransaction)
-			: m_pAggregateTransaction(std::move(pAggregateTransaction))
+	AggregateCosignatureAppender::AggregateCosignatureAppender(
+			const GenerationHash& generationHash,
+			std::unique_ptr<TransactionType>&& pAggregateTransaction)
+			: m_generationHash(generationHash)
+			, m_pAggregateTransaction(std::move(pAggregateTransaction))
 	{}
 
 	void AggregateCosignatureAppender::cosign(const crypto::KeyPair& cosigner) {
 		if (m_cosignatures.empty()) {
 			m_pAggregateTransaction->Type = model::Entity_Type_Aggregate_Complete;
-			m_transactionHash = model::CalculateHash(*m_pAggregateTransaction, TransactionDataBuffer(*m_pAggregateTransaction));
+			m_transactionHash = model::CalculateHash(
+					*m_pAggregateTransaction,
+					m_generationHash,
+					TransactionDataBuffer(*m_pAggregateTransaction));
 		}
 
 		model::Cosignature cosignature{ cosigner.publicKey(), {} };
@@ -85,7 +91,7 @@ namespace catapult { namespace builders {
 
 		std::memcpy(static_cast<void*>(pTransaction.get()), m_pAggregateTransaction.get(), m_pAggregateTransaction->Size);
 		pTransaction->Size = size;
-		std::memcpy(pTransaction->CosignaturesPtr(), m_cosignatures.data(), cosignaturesSize);
+		std::memcpy(static_cast<void*>(pTransaction->CosignaturesPtr()), m_cosignatures.data(), cosignaturesSize);
 		return pTransaction;
 	}
 }}

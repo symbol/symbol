@@ -65,7 +65,7 @@ namespace catapult { namespace handlers {
 				});
 
 				// Act:
-				auto sourcePublicKey = test::GenerateRandomData<Key_Size>();
+				auto sourcePublicKey = test::GenerateRandomByteArray<Key>();
 				ionet::ServerPacketHandlerContext context(sourcePublicKey, "");
 				EXPECT_TRUE(handlers.process(packet, context));
 

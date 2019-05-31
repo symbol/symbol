@@ -37,7 +37,7 @@ namespace catapult { namespace chain {
 		class MockHashApi : public api::RemoteApi {
 		public:
 			explicit MockHashApi(const model::HashRange& hashes)
-					: RemoteApi(test::GenerateRandomData<Key_Size>())
+					: RemoteApi(test::GenerateRandomByteArray<Key>())
 					, m_hashes(model::HashRange::CopyRange(hashes))
 					, m_hasError(false)
 			{}

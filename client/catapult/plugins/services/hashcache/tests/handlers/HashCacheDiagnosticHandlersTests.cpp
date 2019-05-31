@@ -50,7 +50,7 @@ namespace catapult { namespace handlers {
 				ResponseType response;
 				state.TimestampedHashes.reserve(count);
 				for (auto i = 0u; i < count; ++i) {
-					state::TimestampedHash timestampedHash(Timestamp(123 + i), test::GenerateRandomData<Hash256_Size>());
+					state::TimestampedHash timestampedHash(Timestamp(123 + i), test::GenerateRandomByteArray<Hash256>());
 					state.TimestampedHashes.push_back(timestampedHash);
 					response.push_back(&state.TimestampedHashes.back());
 				}

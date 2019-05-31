@@ -61,7 +61,7 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PushPingHandler_FailsWhenPacketDoesNotContainExactlyOneNetworkNode) {
 		// Arrange: decrease the node size by one so that the packet size is too large
-		auto identityKey = test::GenerateRandomData<Key_Size>();
+		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto pPacket = CreateNodePushPingPacket(identityKey, "");
 		--(reinterpret_cast<ionet::NetworkNode&>(*pPacket->Data())).Size;
 
@@ -77,8 +77,8 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PushPingHandler_FailsWhenIdentityKeyDoesNotMatch) {
 		// Arrange: use a random identity key
-		auto identityKey = test::GenerateRandomData<Key_Size>();
-		auto pPacket = CreateNodePushPingPacket(test::GenerateRandomData<Key_Size>(), "");
+		auto identityKey = test::GenerateRandomByteArray<Key>();
+		auto pPacket = CreateNodePushPingPacket(test::GenerateRandomByteArray<Key>(), "");
 
 		std::string host = "alice.com";
 		ionet::ServerPacketHandlerContext context(identityKey, host);
@@ -92,7 +92,7 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PushPingHandler_FailsWhenNetworkDoesNotMatch) {
 		// Arrange:
-		auto identityKey = test::GenerateRandomData<Key_Size>();
+		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto pPacket = CreateNodePushPingPacket(identityKey, "");
 		reinterpret_cast<ionet::NetworkNode&>(*pPacket->Data()).NetworkIdentifier = static_cast<model::NetworkIdentifier>(123);
 
@@ -108,7 +108,7 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PushPingHandler_SucceedsWhenProvidedExplicitHost) {
 		// Arrange:
-		auto identityKey = test::GenerateRandomData<Key_Size>();
+		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto pPacket = CreateNodePushPingPacket(identityKey, "bob.org");
 
 		std::string host = "alice.com";
@@ -129,7 +129,7 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PushPingHandler_SucceedsWhenProvidedImplicitHost) {
 		// Arrange:
-		auto identityKey = test::GenerateRandomData<Key_Size>();
+		auto identityKey = test::GenerateRandomByteArray<Key>();
 		auto pPacket = CreateNodePushPingPacket(identityKey, "");
 
 		std::string host = "alice.com";
@@ -225,7 +225,7 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PushPeersHandler_DoesNotForwardMalformedEntityToConsumer) {
 		// Arrange:
-		std::vector<ionet::Node> nodes{ test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "a") };
+		std::vector<ionet::Node> nodes{ test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a") };
 
 		// Act:
 		auto result = RegisterAndExecutePushPeersHandler(nodes, 1);
@@ -247,7 +247,7 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PushPeersHandler_ForwardsSingleEntityPayloadToConsumer) {
 		// Arrange:
-		std::vector<ionet::Node> nodes{ test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "a") };
+		std::vector<ionet::Node> nodes{ test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a") };
 
 		// Act:
 		auto result = RegisterAndExecutePushPeersHandler(nodes);
@@ -261,9 +261,9 @@ namespace catapult { namespace handlers {
 	TEST(TEST_CLASS, PushPeersHandler_ForwardsMultipleEntityPayloadToConsumer) {
 		// Arrange:
 		std::vector<ionet::Node> nodes{
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "a"),
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "bc"),
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "def")
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a"),
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "bc"),
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "def")
 		};
 
 		// Act:
@@ -302,7 +302,7 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PullPeersHandler_DoesNotRespondToMalformedRequest) {
 		// Arrange:
-		ionet::NodeSet nodes{ test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "a") };
+		ionet::NodeSet nodes{ test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a") };
 
 		// Act:
 		RunPullPeersHandlerTest(nodes, 1, [](const auto& context) {
@@ -322,7 +322,7 @@ namespace catapult { namespace handlers {
 
 	TEST(TEST_CLASS, PullPeersHandler_RespondsWhenSingleNodeIsAvailable) {
 		// Arrange:
-		ionet::NodeSet nodes{ test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "a") };
+		ionet::NodeSet nodes{ test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a") };
 		auto networkNodes = test::PackAllNodes(nodes);
 
 		// Act:
@@ -338,9 +338,9 @@ namespace catapult { namespace handlers {
 	TEST(TEST_CLASS, PullPeersHandler_RespondsWhenMultipleNodesAreAvailable) {
 		// Arrange:
 		ionet::NodeSet nodes{
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "a"),
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "bc"),
-			test::CreateNamedNode(test::GenerateRandomData<Key_Size>(), "def")
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "a"),
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "bc"),
+			test::CreateNamedNode(test::GenerateRandomByteArray<Key>(), "def")
 		};
 		auto networkNodes = test::PackAllNodes(nodes);
 

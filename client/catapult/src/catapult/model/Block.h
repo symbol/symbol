@@ -62,7 +62,7 @@ namespace catapult { namespace model {
 		Hash256 StateHash;
 
 		/// Public key of optional beneficiary designated by harvester.
-		Key BeneficiaryPublicKey;
+		Key Beneficiary;
 	};
 
 	/// Binary layout for a block.

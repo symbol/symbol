@@ -175,7 +175,7 @@ namespace catapult { namespace cache {
 			std::unordered_map<uint32_t, HeightDependentValue>>;
 
 		using HeightDependentMemoryPatriciaTree = tree::PatriciaTree<
-			cache::SerializerPlainKeyEncoder<HeightDependentValueSimpleSerializer>,
+			SerializerPlainKeyEncoder<HeightDependentValueSimpleSerializer>,
 			tree::MemoryDataSource>;
 
 		void SeedTreeWithFourNodes(HeightDependentMemoryPatriciaTree& tree) {

@@ -34,10 +34,10 @@ namespace catapult { namespace plugins {
 	// region TransactionPlugin
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretLock, 1, 1)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretLock, 1, 1,)
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Entity_Type_Secret_Lock)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Secret_Lock)
 
 	PLUGIN_TEST(CanCalculateSize) {
 		// Arrange:
@@ -90,7 +90,7 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ(pTransaction->Signer, notification.Source);
 		EXPECT_EQ(pTransaction->Type, notification.TransactionType);
 		EXPECT_EQ(model::UnresolvedAddressSet{ pTransaction->Recipient }, notification.ParticipantsByAddress);
-		EXPECT_EQ(utils::KeySet{}, notification.ParticipantsByKey);
+		EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
 	}
 
 	// endregion

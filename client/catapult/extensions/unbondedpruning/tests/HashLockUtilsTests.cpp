@@ -78,15 +78,15 @@ namespace catapult { namespace unbondedpruning {
 
 	TEST(TEST_CLASS, DependentHashIsExtractedFromLockHashNotifications) {
 		// Assert:
-		AssertDependentTransactionHashesExtraction(1, { test::GenerateRandomData<Hash256_Size>() });
+		AssertDependentTransactionHashesExtraction(1, { test::GenerateRandomByteArray<Hash256>() });
 	}
 
 	TEST(TEST_CLASS, MultipleDependentHashesCanBeExtractedFromSingleTransaction) {
 		// Assert:
 		AssertDependentTransactionHashesExtraction(3, {
-			test::GenerateRandomData<Hash256_Size>(),
-			test::GenerateRandomData<Hash256_Size>(),
-			test::GenerateRandomData<Hash256_Size>()
+			test::GenerateRandomByteArray<Hash256>(),
+			test::GenerateRandomByteArray<Hash256>(),
+			test::GenerateRandomByteArray<Hash256>()
 		});
 	}
 

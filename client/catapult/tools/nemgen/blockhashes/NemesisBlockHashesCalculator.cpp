@@ -22,14 +22,14 @@
 #include "PluginLoader.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/chain/BlockExecutor.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/observers/NotificationObserverAdapter.h"
 
 namespace catapult { namespace tools { namespace nemgen {
 
 	BlockExecutionHashesInfo CalculateNemesisBlockExecutionHashes(
 			const model::BlockElement& blockElement,
-			const config::LocalNodeConfiguration& config) {
+			const config::CatapultConfiguration& config) {
 		// 1. load all plugins
 		PluginLoader pluginLoader(config);
 		pluginLoader.loadAll();

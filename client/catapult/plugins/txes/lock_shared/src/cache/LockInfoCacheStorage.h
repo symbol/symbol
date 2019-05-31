@@ -26,16 +26,7 @@ namespace catapult { namespace cache {
 	/// Policy for saving and loading lock info cache data.
 	template<typename TDescriptor, typename TLockInfoSerializer>
 	struct LockInfoCacheStorage
-			: public CacheStorageFromDescriptor<TDescriptor>
-			, public TLockInfoSerializer {
-	public:
-		using typename CacheStorageFromDescriptor<TDescriptor>::ValueType;
-		using typename CacheStorageFromDescriptor<TDescriptor>::DestinationType;
-
-	public:
-		/// Loads \a lockInfo into \a cacheDelta.
-		static void LoadInto(const ValueType& lockInfo, DestinationType& cacheDelta) {
-			cacheDelta.insert(lockInfo);
-		}
-	};
+			: public CacheStorageForBasicInsertRemoveCache<TDescriptor>
+			, public TLockInfoSerializer
+	{};
 }}

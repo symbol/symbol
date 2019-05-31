@@ -34,7 +34,8 @@ namespace catapult { namespace cache {
 			: public utils::MoveOnly
 			, public HashCacheDeltaMixins::Size
 			, public HashCacheDeltaMixins::Contains
-			, public HashCacheDeltaMixins::BasicInsertRemove {
+			, public HashCacheDeltaMixins::BasicInsertRemove
+			, public HashCacheDeltaMixins::DeltaElements {
 	public:
 		using ReadOnlyView = HashCacheTypes::CacheReadOnlyType;
 		using ValueType = HashCacheDescriptor::ValueType;

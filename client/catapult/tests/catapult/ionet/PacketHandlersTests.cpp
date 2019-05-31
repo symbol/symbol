@@ -74,7 +74,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, ServerPacketHandlerContextInitiallyHasNoResponse) {
 		// Act:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto host = std::string("alice.com");
 		ServerPacketHandlerContext context(key, host);
 
@@ -96,7 +96,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, ServerPacketHandlerContextCanHaveResponseSet) {
 		// Arrange:
 		auto pPacket = CreateSharedPacket<Packet>(25);
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto host = std::string("alice.com");
 		ServerPacketHandlerContext context(key, host);
 
@@ -123,7 +123,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, ServerPacketHandlerContextHasResponseWhenExplicitlyUnset) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto host = std::string("alice.com");
 		ServerPacketHandlerContext context(key, host);
 
@@ -335,10 +335,10 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, PacketIsPassedToHandler) {
 		// Arrange:
-		static const uint32_t Packet_Size = 25;
+		constexpr uint32_t Packet_Size = 25;
 		PacketHandlers handlers;
 		ByteBuffer packetBufferPassedToHandler(Packet_Size);
-		handlers.registerHandler(static_cast<PacketType>(1), [&packetBufferPassedToHandler](const auto& packet, const auto&) {
+		handlers.registerHandler(static_cast<PacketType>(1), [&](const auto& packet, const auto&) {
 			std::memcpy(&packetBufferPassedToHandler[0], &packet, Packet_Size);
 		});
 
@@ -357,7 +357,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, MatchingHandlerCanRespondViaContext) {
 		// Arrange: set up 3 handlers for packet types 1, 2, 3
 		//          the handler will write the packet type to the response packet based on the matching type
-		static const uint32_t Num_Handlers = 3;
+		constexpr uint32_t Num_Handlers = 3;
 		PacketHandlers handlers;
 		auto numCallbackCalls = 0u;
 		for (auto i = 0u; i < Num_Handlers; ++i) {

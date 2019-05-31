@@ -149,11 +149,11 @@ namespace catapult { namespace sync {
 		// Assert: non-deterministic because delay is impacted by scheduling
 		test::RunNonDeterministicTest("SchedulerService", [](auto i) {
 			// Arrange:
+			std::atomic<uint32_t> counter(0);
 			TestContext context;
 
 			// - add a single task with a config
 			auto timeUnit = test::GetTimeUnitForIteration(i);
-			std::atomic<uint32_t> counter(0);
 			context.testState().state().tasks().push_back(CreateContinuousTaskWithCounter("gamma", counter));
 
 			auto config = TasksConfiguration::Uninitialized();
@@ -182,11 +182,11 @@ namespace catapult { namespace sync {
 		// Assert: non-deterministic because delay is impacted by scheduling
 		test::RunNonDeterministicTest("SchedulerService", [](auto i) {
 			// Arrange:
+			std::atomic<uint32_t> counter(0);
 			TestContext context;
 
 			// - add a single task with a config
 			auto timeUnit = test::GetTimeUnitForIteration(i);
-			std::atomic<uint32_t> counter(0);
 			context.testState().state().tasks().push_back(CreateContinuousTaskWithCounter("gamma", counter));
 
 			auto config = TasksConfiguration::Uninitialized();
@@ -209,11 +209,11 @@ namespace catapult { namespace sync {
 		// Assert: non-deterministic because delay is impacted by scheduling
 		test::RunNonDeterministicTest("SchedulerService", [](auto i) {
 			// Arrange:
+			std::atomic<uint32_t> counter(0);
 			TestContext context;
 
 			// - add a single task with a config
 			auto timeUnit = test::GetTimeUnitForIteration(i);
-			std::atomic<uint32_t> counter(0);
 			context.testState().state().tasks().push_back(CreateContinuousTaskWithCounter("gamma", counter));
 
 			// - configure the delays to be: 1 (start), 2, 3.6, 5.2

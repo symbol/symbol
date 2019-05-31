@@ -23,6 +23,7 @@
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/cache_core/BlockDifficultyCache.h"
 #include "catapult/disruptor/ConsumerDispatcher.h"
+#include "catapult/io/IndexFile.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/plugins/PluginLoader.h"
 #include "catapult/utils/NetworkTime.h"
@@ -102,7 +103,6 @@ namespace catapult { namespace sync {
 			model::PreviousBlockContext context(*pNemesisBlockElement);
 			auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
 			pBlock->Timestamp = context.Timestamp + Timestamp(60000);
-			test::SignBlock(signer, *pBlock);
 			return std::move(pBlock);
 		}
 
@@ -164,8 +164,11 @@ namespace catapult { namespace sync {
 					, m_numNewBlockSinkCalls(0)
 					, m_numNewTransactionsSinkCalls(0)
 					, m_pStatefulBlockValidator(nullptr) {
-				// initialize the cache
+				// override data directory
 				auto& state = testState().state();
+				const_cast<std::string&>(state.config().User.DataDirectory) = m_tempDir.name();
+
+				// initialize the cache
 				InitializeCatapultCacheForDispatcherTests(state.cache(), GetBlockSignerKeyPair());
 
 				// set up sinks
@@ -208,6 +211,18 @@ namespace catapult { namespace sync {
 			}
 
 		public:
+			boost::filesystem::path tempPath() const {
+				return m_tempDir.name();
+			}
+
+			std::pair<consumers::CommitOperationStep, bool> tryReadCommitStep() const {
+				auto indexFile = io::IndexFile((tempPath() / "commit_step.dat").generic_string());
+				return indexFile.exists()
+						? std::make_pair(static_cast<consumers::CommitOperationStep>(indexFile.get()), true)
+						: std::make_pair(static_cast<consumers::CommitOperationStep>(-1), false);
+			}
+
+		public:
 			size_t numTransactionStatuses() const {
 				return testState().transactionStatusSubscriber().numNotifies();
 			}
@@ -238,6 +253,8 @@ namespace catapult { namespace sync {
 			}
 
 		private:
+			test::TempDirectoryGuard m_tempDir;
+
 			ValidationResults m_transactionValidationResults;
 			ValidationResults m_blockValidationResults;
 			std::atomic<size_t> m_numNewBlockSinkCalls;
@@ -322,14 +339,9 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, CanBootServiceWithAuditingEnabled) {
-		// Arrange:
+		// Arrange: enable auditing
 		TestContext context;
-
-		// - enable auditing
-		test::TempDirectoryGuard tempDirectoryGuard;
-		const auto& config = context.testState().config();
-		const_cast<std::string&>(config.User.DataDirectory) = tempDirectoryGuard.name();
-		const_cast<bool&>(config.Node.ShouldAuditDispatcherInputs) = true;
+		const_cast<bool&>(context.testState().config().Node.ShouldAuditDispatcherInputs) = true;
 
 		// Act:
 		context.boot();
@@ -343,30 +355,26 @@ namespace catapult { namespace sync {
 		EXPECT_EQ(5u, GetTransactionDispatcherStatus(context.locator()).Size);
 
 		// - auditing directories were created
-		auto auditDirectory = boost::filesystem::path(tempDirectoryGuard.name()) / "audit";
+		auto auditDirectory = context.tempPath() / "audit";
 		EXPECT_TRUE(boost::filesystem::is_directory(auditDirectory / "block dispatcher"));
 		EXPECT_TRUE(boost::filesystem::is_directory(auditDirectory / "transaction dispatcher"));
 	}
 
-	TEST(TEST_CLASS, CanBootServiceWithAddressPrecomputationEnabled) {
-		// Arrange:
+	TEST(TEST_CLASS, CanBootServiceWithAutoSyncCleanupEnabled) {
+		// Arrange: enable cleanup
 		TestContext context;
-		const auto& config = context.testState().config();
-		const_cast<bool&>(config.Node.ShouldPrecomputeTransactionAddresses) = true;
+		const_cast<bool&>(context.testState().config().Node.ShouldEnableAutoSyncCleanup) = true;
 
 		// Act:
 		context.boot();
 
 		// Assert:
-		EXPECT_EQ(Num_Expected_Services + 1, context.locator().numServices());
+		EXPECT_EQ(Num_Expected_Services, context.locator().numServices());
 		EXPECT_EQ(Num_Expected_Counters, context.locator().counters().size());
 		EXPECT_EQ(Num_Expected_Tasks, context.testState().state().tasks().size());
 
 		EXPECT_EQ(7u, GetBlockDispatcherStatus(context.locator()).Size);
-		EXPECT_EQ(5u, GetTransactionDispatcherStatus(context.locator()).Size);
-
-		// - notification publisher service should exist
-		EXPECT_TRUE(!!context.locator().service<model::NotificationPublisher>("dispatcher.notificationPublisher"));
+		EXPECT_EQ(4u, GetTransactionDispatcherStatus(context.locator()).Size);
 	}
 
 	TEST(TEST_CLASS, CanShutdownService) {
@@ -415,6 +423,9 @@ namespace catapult { namespace sync {
 			context.boot();
 			auto factory = context.testState().state().hooks().blockRangeConsumerFactory()(disruptor::InputSource::Local);
 
+			// Sanity: commit step index file does not exist
+			EXPECT_FALSE(context.tryReadCommitStep().second);
+
 			// Act:
 			factory(std::move(range));
 			WAIT_FOR_ONE_EXPR(context.counter(Block_Elements_Counter_Name));
@@ -432,15 +443,27 @@ namespace catapult { namespace sync {
 		void AssertCanConsumeBlockRange(model::AnnotatedBlockRange&& range, THandler handler) {
 			AssertCanConsumeBlockRange(false, std::move(range), handler);
 		}
+
+		void AssertBlockRangeInvalidElement(const TestContext& context) {
+			// Assert: the block was not forwarded to the sink
+			EXPECT_EQ(0u, context.numNewBlockSinkCalls());
+			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
+
+			// - commit step index file does not exist
+			EXPECT_FALSE(context.tryReadCommitStep().second);
+		}
+
+		void AssertCommitStepFileUpdated(const TestContext& context) {
+			// Assert:
+			auto pair = context.tryReadCommitStep();
+			EXPECT_TRUE(pair.second);
+			EXPECT_EQ(consumers::CommitOperationStep::All_Updated, pair.first);
+		}
 	}
 
 	TEST(TEST_CLASS, CanConsumeBlockRange_InvalidElement) {
 		// Assert:
-		AssertCanConsumeBlockRange(test::CreateBlockEntityRange(1), [](const auto& context) {
-			// - the block was not forwarded to the sink
-			EXPECT_EQ(0u, context.numNewBlockSinkCalls());
-			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
-		});
+		AssertCanConsumeBlockRange(test::CreateBlockEntityRange(1), AssertBlockRangeInvalidElement);
 	}
 
 	TEST(TEST_CLASS, CanConsumeBlockRange_ValidElement) {
@@ -455,6 +478,9 @@ namespace catapult { namespace sync {
 			// - the block was forwarded to the sink
 			EXPECT_EQ(1u, context.numNewBlockSinkCalls());
 			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
+
+			// - commit step index file was updated
+			AssertCommitStepFileUpdated(context);
 		});
 	}
 
@@ -464,11 +490,7 @@ namespace catapult { namespace sync {
 		auto range = test::CreateEntityRange({ pNextBlock.get() });
 
 		// Assert:
-		AssertCanConsumeBlockRange(true, std::move(range), [](const auto& context) {
-			// - the block was not forwarded to the sink
-			EXPECT_EQ(0u, context.numNewBlockSinkCalls());
-			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
-		});
+		AssertCanConsumeBlockRange(true, std::move(range), AssertBlockRangeInvalidElement);
 	}
 
 	namespace {
@@ -488,7 +510,6 @@ namespace catapult { namespace sync {
 		auto signer = GetBlockSignerKeyPair();
 		auto pNextBlock = CreateValidBlockForDispatcherTests(signer);
 		SetBlockReceiptsHash(*pNextBlock);
-		test::SignBlock(signer, *pNextBlock);
 		auto range = test::CreateEntityRange({ pNextBlock.get() });
 
 		// Assert:
@@ -498,6 +519,9 @@ namespace catapult { namespace sync {
 			// - the block was forwarded to the sink
 			EXPECT_EQ(1u, context.numNewBlockSinkCalls());
 			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
+
+			// - commit step index file was updated
+			AssertCommitStepFileUpdated(context);
 		});
 	}
 
@@ -516,6 +540,9 @@ namespace catapult { namespace sync {
 			context.setBlockValidationResults(blockValidationResults);
 			context.boot();
 			auto factory = context.testState().state().hooks().completionAwareBlockRangeConsumerFactory()(disruptor::InputSource::Local);
+
+			// Sanity: commit step index file does not exist
+			EXPECT_FALSE(context.tryReadCommitStep().second);
 
 			// Act:
 			std::atomic<size_t> numCompletions(0);
@@ -542,6 +569,9 @@ namespace catapult { namespace sync {
 			EXPECT_EQ(0u, stateChangeSubscriber.numScoreChanges());
 			EXPECT_EQ(0u, stateChangeSubscriber.numStateChanges());
 			EXPECT_EQ(model::ChainScore(), stateChangeSubscriber.lastChainScore());
+
+			// - commit step index file does not exist
+			EXPECT_FALSE(context.tryReadCommitStep().second);
 		}
 	}
 
@@ -591,6 +621,9 @@ namespace catapult { namespace sync {
 			EXPECT_EQ(1u, stateChangeSubscriber.numScoreChanges());
 			EXPECT_EQ(1u, stateChangeSubscriber.numStateChanges());
 			EXPECT_EQ(model::ChainScore(99'999'999'999'940), stateChangeSubscriber.lastChainScore());
+
+			// - commit step index file was updated
+			AssertCommitStepFileUpdated(context);
 		});
 	}
 
@@ -612,10 +645,10 @@ namespace catapult { namespace sync {
 		// Act: create a better block to cause a rollback
 		auto pBetterBlock = CreateValidBlockForDispatcherTests(keyPair);
 		pBetterBlock->Timestamp = pBetterBlock->Timestamp - Timestamp(1000);
-		test::SignBlock(GetBlockSignerKeyPair(), *pBetterBlock);
 
 		factory(test::CreateEntityRange({ pBetterBlock.get() }));
 		WAIT_FOR_ONE_EXPR(context.counter(Rollback_Elements_Committed_All));
+		WAIT_FOR_ZERO_EXPR(context.counter(Block_Elements_Active_Counter_Name));
 
 		// Assert:
 		EXPECT_EQ(2u, context.counter(Block_Elements_Counter_Name));
@@ -641,7 +674,6 @@ namespace catapult { namespace sync {
 		// Act: create a better block to cause a rollback and fail validation
 		auto pBetterBlock = CreateValidBlockForDispatcherTests(keyPair);
 		pBetterBlock->Timestamp = pBetterBlock->Timestamp - Timestamp(1000);
-		test::SignBlock(GetBlockSignerKeyPair(), *pBetterBlock);
 		context.setStatefulBlockValidationResult(ValidationResult::Failure);
 
 		factory(test::CreateEntityRange({ pBetterBlock.get() }));
@@ -649,7 +681,6 @@ namespace catapult { namespace sync {
 
 		// - failure is unknown until next rollback, alter timestamp not to hit recency cache
 		pBetterBlock->Timestamp = pBetterBlock->Timestamp - Timestamp(2000);
-		test::SignBlock(GetBlockSignerKeyPair(), *pBetterBlock);
 		context.setStatefulBlockValidationResult(ValidationResult::Success);
 
 		factory(test::CreateEntityRange({ pBetterBlock.get() }));
@@ -677,7 +708,7 @@ namespace catapult { namespace sync {
 			context.setBlockValidationResults(ValidationResults(validationResult, ValidationResult::Success));
 			context.boot();
 
-			auto nodeIdentity = test::GenerateRandomData<Key_Size>();
+			auto nodeIdentity = test::GenerateRandomByteArray<Key>();
 			auto pNextBlock = CreateValidBlockForDispatcherTests(GetBlockSignerKeyPair());
 			auto range = test::CreateEntityRange({ pNextBlock.get() });
 			auto annotatedRange = model::AnnotatedBlockRange(std::move(range), nodeIdentity);
@@ -706,7 +737,7 @@ namespace catapult { namespace sync {
 		}
 	}
 
-	TEST(TEST_CLASS, Dispatcher_InteractionsAreUpdatedIfValidationSucceeded) {
+	TEST(TEST_CLASS, Dispatcher_InteractionsAreUpdatedWhenValidationSucceeded) {
 		AssertConsumeHandlesReputation(validators::ValidationResult::Success, [](const auto& interactions) {
 			// Assert: interactions were updated
 			EXPECT_EQ(1u, interactions.NumSuccesses);
@@ -714,7 +745,7 @@ namespace catapult { namespace sync {
 		});
 	}
 
-	TEST(TEST_CLASS, Dispatcher_InteractionsAreUpdatedIfValidationFailed) {
+	TEST(TEST_CLASS, Dispatcher_InteractionsAreUpdatedWhenValidationFailed) {
 		AssertConsumeHandlesReputation(validators::ValidationResult::Failure, [](const auto& interactions) {
 			// Assert: interactions were updated
 			EXPECT_EQ(0u, interactions.NumSuccesses);
@@ -722,7 +753,7 @@ namespace catapult { namespace sync {
 		});
 	}
 
-	TEST(TEST_CLASS, Dispatcher_InteractionsAreNotUpdatedIfValidationIsNeutral) {
+	TEST(TEST_CLASS, Dispatcher_InteractionsAreNotUpdatedWhenValidationIsNeutral) {
 		AssertConsumeHandlesReputation(validators::ValidationResult::Neutral, [](const auto& interactions) {
 			// Assert: interactions were not updated
 			EXPECT_EQ(0u, interactions.NumSuccesses);
@@ -796,7 +827,6 @@ namespace catapult { namespace sync {
 		auto pValidTransaction = test::GenerateRandomTransaction();
 		pValidTransaction->Signer = signer.publicKey();
 		pValidTransaction->Deadline = utils::NetworkTime() + Timestamp(60'000);
-		extensions::SignTransaction(signer, *pValidTransaction);
 
 		auto range = test::CreateEntityRange({ pValidTransaction.get() });
 

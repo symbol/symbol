@@ -62,12 +62,12 @@ namespace catapult { namespace cache {
 
 	// region constructor
 
-	TEST(TEST_CLASS, RdbThrowsIfNoColumnsAreGiven) {
+	TEST(TEST_CLASS, RdbThrowsWhenNoColumnsAreGiven) {
 		// Act + Assert:
 		EXPECT_THROW(RocksDatabase(CreateSettings({})), catapult_invalid_argument);
 	}
 
-	TEST(TEST_CLASS, RdbThrowsIfDbCannotBeOpened) {
+	TEST(TEST_CLASS, RdbThrowsWhenDbCannotBeOpened) {
 		// Arrange: use TempDirectoryGuard to create any intermediate directories (except for last one)
 		test::TempDirectoryGuard dbDirGuard;
 		boost::filesystem::remove(dbDirGuard.name());
@@ -80,7 +80,7 @@ namespace catapult { namespace cache {
 		EXPECT_THROW(RocksDatabase(CreateSettings({ "default" })), catapult_runtime_error);
 	}
 
-	TEST(TEST_CLASS, RdbThrowsIfBatchSizeIsTooSmall) {
+	TEST(TEST_CLASS, RdbThrowsWhenBatchSizeIsTooSmall) {
 		// Act + Assert:
 		test::TempDirectoryGuard dbDirGuard;
 		EXPECT_THROW(RocksDatabase(CreateSettings({ "default" }, 99)), catapult_invalid_argument);
@@ -135,7 +135,7 @@ namespace catapult { namespace cache {
 
 	// region single value
 
-	TEST(TEST_CLASS, ReadingNonExistentKeyReturnsSentinelValue) {
+	TEST(TEST_CLASS, ReadingNonexistentKeyReturnsSentinelValue) {
 		// Arrange:
 		test::RdbTestContext context(DefaultSettings());
 		auto& database = context.database();
@@ -177,7 +177,7 @@ namespace catapult { namespace cache {
 		test::AssertIteratorValue("amazing", iter);
 	}
 
-	TEST(TEST_CLASS, CanDeleteFromDb_DefaultColumn_NonExistingKey) {
+	TEST(TEST_CLASS, CanDeleteFromDb_DefaultColumn_NonexistentKey) {
 		// Arrange:
 		test::RdbTestContext context(DefaultSettings());
 		auto& database = context.database();

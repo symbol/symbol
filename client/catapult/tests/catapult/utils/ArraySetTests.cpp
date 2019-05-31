@@ -27,9 +27,9 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, ArrayPointerHasher_ReturnsSameHashOnlyWhenPointedToHashesAreEqual) {
 		// Arrange:
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto hashCopy = hash;
-		auto differentHash = test::GenerateRandomData<Hash256_Size>();
+		auto differentHash = test::GenerateRandomByteArray<Hash256>();
 		ArrayPointerHasher<Hash256> hasher;
 
 		// Act + Assert:
@@ -40,9 +40,9 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, ArrayPointerEquality_ReturnsTrueOnlyWhenPointedToHashesAreEqual) {
 		// Arrange:
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto hashCopy = hash;
-		auto differentHash = test::GenerateRandomData<Hash256_Size>();
+		auto differentHash = test::GenerateRandomByteArray<Hash256>();
 		ArrayPointerEquality<Hash256> equality;
 
 		// Act + Assert:

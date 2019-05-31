@@ -21,8 +21,8 @@
 #pragma once
 
 namespace catapult {
-	namespace consumers { struct StateChangeInfo; }
 	namespace model { class ChainScore; }
+	namespace subscribers { struct StateChangeInfo; }
 }
 
 namespace catapult { namespace subscribers {
@@ -37,6 +37,6 @@ namespace catapult { namespace subscribers {
 		virtual void notifyScoreChange(const model::ChainScore& chainScore) = 0;
 
 		/// Indicates state was changed with change information in \a stateChangeInfo.
-		virtual void notifyStateChange(const consumers::StateChangeInfo& stateChangeInfo) = 0;
+		virtual void notifyStateChange(const StateChangeInfo& stateChangeInfo) = 0;
 	};
 }}

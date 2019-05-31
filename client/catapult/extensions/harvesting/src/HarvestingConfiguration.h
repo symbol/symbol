@@ -38,6 +38,9 @@ namespace catapult { namespace harvesting {
 		/// Maximum number of unlocked accounts.
 		uint32_t MaxUnlockedAccounts;
 
+		/// Public key of the account receiving part of the harvested fee.
+		std::string Beneficiary;
+
 	private:
 		HarvestingConfiguration() = default;
 

@@ -424,7 +424,7 @@ namespace catapult { namespace net {
 
 	TEST(TEST_CLASS, OnlyOneConnectionIsAllowedPerAcceptedIdentity) {
 		// Act: establish multiple connections with the same identity
-		static const auto Num_Connections = 5u;
+		constexpr auto Num_Connections = 5u;
 		PacketWritersTestContext context(Num_Connections);
 		for (auto& keyPair : context.ClientKeyPairs)
 			keyPair = test::CopyKeyPair(context.ClientKeyPairs[0]);
@@ -447,7 +447,7 @@ namespace catapult { namespace net {
 		EXPECT_NUM_ACTIVE_WRITERS(1u, *context.pWriters);
 	}
 
-	TEST(TEST_CLASS, AcceptIsRejectedIfIdentityIsAlreadyConnected) {
+	TEST(TEST_CLASS, AcceptIsRejectedWhenIdentityIsAlreadyConnected) {
 		// Arrange: establish a single connection (via connect)
 		PacketWritersTestContext context(1);
 		auto state1 = SetupMultiConnectionTest(context);
@@ -472,7 +472,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(test::ToKeySet(context.ClientKeyPairs), context.pWriters->identities());
 	}
 
-	TEST(TEST_CLASS, ConnectIsRejectedIfIdentityIsAlreadyAccepted) {
+	TEST(TEST_CLASS, ConnectIsRejectedWhenIdentityIsAlreadyAccepted) {
 		// Arrange: establish a single connection (via accept)
 		PacketWritersTestContext context(1);
 		auto state1 = SetupMultiConnectionAcceptTest(context);
@@ -1500,7 +1500,7 @@ namespace catapult { namespace net {
 		EXPECT_NUM_ACTIVE_WRITERS(2u, writers);
 
 		// Act: close one connection
-		auto isClosed = writers.closeOne(test::GenerateRandomData<Key_Size>());
+		auto isClosed = writers.closeOne(test::GenerateRandomByteArray<Key>());
 
 		// Assert:
 		EXPECT_FALSE(isClosed);

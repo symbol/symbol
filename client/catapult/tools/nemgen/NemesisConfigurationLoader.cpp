@@ -38,7 +38,7 @@ namespace catapult { namespace tools { namespace nemgen {
 				const auto& root = pair.second;
 				const auto& name = config.NamespaceNames.at(root.id());
 				OutputName(name, root.id());
-				CATAPULT_LOG(debug) << " - Owner: " << utils::HexFormat(root.owner());
+				CATAPULT_LOG(debug) << " - Owner: " << root.owner();
 				CATAPULT_LOG(debug) << " - Start Height: " << root.lifetime().Start;
 				CATAPULT_LOG(debug) << " - End Height: " << root.lifetime().End;
 				if (!root.empty()) {
@@ -64,13 +64,12 @@ namespace catapult { namespace tools { namespace nemgen {
 				const auto& properties = definition.properties();
 				OutputName(name, id);
 				CATAPULT_LOG(debug)
-						<< " - Owner: " << utils::HexFormat(definition.owner()) << std::endl
+						<< " - Owner: " << definition.owner() << std::endl
 						<< " - Supply: " << mosaicEntry.supply() << std::endl
 						<< " - Divisibility: " << static_cast<uint32_t>(properties.divisibility()) << std::endl
 						<< " - Duration: " << properties.duration() << " blocks (0 = eternal)" << std::endl
 						<< " - IsTransferable: " << properties.is(model::MosaicFlags::Transferable) << std::endl
 						<< " - IsSupplyMutable: " << properties.is(model::MosaicFlags::Supply_Mutable) << std::endl
-						<< " - IsLevyMutable: " << properties.is(model::MosaicFlags::Levy_Mutable) << std::endl
 						<< std::endl;
 
 				if (!mosaicIds.insert(id).second) {

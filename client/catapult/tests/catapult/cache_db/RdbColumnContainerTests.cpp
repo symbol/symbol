@@ -127,7 +127,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, FlushFinalizesBatch) {
 		// Arrange: five elements in batch
-		auto key = test::GenerateRandomData<10>();
+		auto key = test::GenerateRandomArray<10>();
 		test::RdbTestContext context(BatchSettings());
 		TestColumnContainer container(context.database(), 0);
 
@@ -153,7 +153,7 @@ namespace catapult { namespace cache {
 		using PropType = Address;
 	}
 
-	TEST(TEST_CLASS, PropFailsIfPropertyIsNotPresent) {
+	TEST(TEST_CLASS, PropFailsWhenPropertyIsNotPresent) {
 		// Arrange:
 		test::RdbTestContext context(DefaultSettings());
 		RdbColumnContainer container(context.database(), 0);
@@ -179,7 +179,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(originalProperty, value);
 	}
 
-	TEST(TEST_CLASS, PropFailsIfPropertyNameIsTooLong) {
+	TEST(TEST_CLASS, PropFailsWhenPropertyNameIsTooLong) {
 		// Arrange:
 		test::RdbTestContext context(DefaultSettings(), [](auto& db, const auto& columns) {
 			db.Put(rocksdb::WriteOptions(), columns[0], "12345678", "\x12\x34\x56\x78\x90\xAB\xCD\xEF");
@@ -191,7 +191,7 @@ namespace catapult { namespace cache {
 		EXPECT_THROW(container.prop("12345678", value), catapult_invalid_argument);
 	}
 
-	TEST(TEST_CLASS, SetPropFailsIfPropertyNameIsTooLong) {
+	TEST(TEST_CLASS, SetPropFailsWhenPropertyNameIsTooLong) {
 		// Arrange:
 		test::RdbTestContext context(DefaultSettings());
 		RdbColumnContainer container(context.database(), 0);
@@ -227,7 +227,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, FindForwardsToGet) {
 		// Arrange:
-		auto key = test::GenerateRandomData<10>();
+		auto key = test::GenerateRandomArray<10>();
 		test::RdbTestContext context(DefaultSettings(), [&key](auto& db, const auto& columns) {
 			db.Put(rocksdb::WriteOptions(), columns[0], ToSlice(key), "world");
 		});
@@ -243,7 +243,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, InsertForwardsToPut) {
 		// Arrange:
-		auto key = test::GenerateRandomData<10>();
+		auto key = test::GenerateRandomArray<10>();
 		test::RdbTestContext context(DefaultSettings());
 		TestColumnContainer container(context.database(), 0);
 
@@ -258,7 +258,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, InsertForwardsToPut_Batched) {
 		// Arrange: five elements in batch
-		auto key = test::GenerateRandomData<10>();
+		auto key = test::GenerateRandomArray<10>();
 		test::RdbTestContext context(BatchSettings());
 		TestColumnContainer container(context.database(), 0);
 
@@ -273,7 +273,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, RemoveForwardsToDel) {
 		// Arrange:
-		auto key = test::GenerateRandomData<10>();
+		auto key = test::GenerateRandomArray<10>();
 		test::RdbTestContext context(DefaultSettings(), [&key](auto& db, const auto& columns) {
 			db.Put(rocksdb::WriteOptions(), columns[0], ToSlice(key), "world");
 		});

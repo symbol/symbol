@@ -27,6 +27,7 @@
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nodeps/Filesystem.h"
 #include "tests/TestHarness.h"
+#include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
 namespace catapult { namespace io {
@@ -47,7 +48,13 @@ namespace catapult { namespace io {
 			// - prepare and create the storage
 			test::TempDirectoryGuard tempDir;
 			test::PrepareStorage(tempDir.name());
-			BlockStorageCache storage(std::make_unique<FileBlockStorage>(tempDir.name()));
+
+			auto stagingDirectory = boost::filesystem::path(tempDir.name()) / "staging";
+			boost::filesystem::create_directory(stagingDirectory);
+
+			BlockStorageCache storage(
+					std::make_unique<FileBlockStorage>(tempDir.name()),
+					std::make_unique<FileBlockStorage>(stagingDirectory.generic_string(), FileBlockStorageMode::None));
 
 			// - note that there can only ever be a single writer at a time since only one modifier can be outstanding at once
 			std::vector<Height> heights(numReaders);
@@ -72,10 +79,11 @@ namespace catapult { namespace io {
 
 				for (auto i = 0u; i < GetNumIterations(); ++i) {
 					logger.notifyIteration(i, GetNumIterations());
+					auto pNextBlock = test::GenerateBlockWithTransactions(0, Height(2 + i));
 
 					auto modifier = storage.modifier();
-					auto pNextBlock = test::GenerateVerifiableBlockAtHeight(Height(2 + i));
 					modifier.saveBlock(test::BlockToBlockElement(*pNextBlock));
+					modifier.commit();
 				}
 			});
 

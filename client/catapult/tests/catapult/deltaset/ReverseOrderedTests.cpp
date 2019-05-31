@@ -30,26 +30,20 @@ namespace catapult { namespace deltaset {
 			test::ReverseOrderedSetTraits<test::SetElementType<TMutabilityTraits>>>;
 
 		using ReverseOrderedMutableTraits = ReverseOrderedTraits<test::MutableElementValueTraits>;
-		using ReverseOrderedMutablePointerTraits = ReverseOrderedTraits<test::MutableElementPointerTraits>;
 		using ReverseOrderedImmutableTraits = ReverseOrderedTraits<test::ImmutableElementValueTraits>;
-		using ReverseOrderedImmutablePointerTraits = ReverseOrderedTraits<test::ImmutablePointerValueTraits>;
 	}
 
 // base (mutable)
 DEFINE_MUTABLE_BASE_SET_TESTS_FOR(ReverseOrderedMutable);
-DEFINE_MUTABLE_BASE_SET_TESTS_FOR(ReverseOrderedMutablePointer);
 
 // base (immutable)
 DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(ReverseOrderedImmutable);
-DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(ReverseOrderedImmutablePointer);
 
 // delta (mutable)
 DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(ReverseOrderedMutable);
-DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(ReverseOrderedMutablePointer);
 
 // delta (immutable)
 DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(ReverseOrderedImmutable);
-DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(ReverseOrderedImmutablePointer);
 
 /* reverse tests only use ordered base variants */
 #define TEST_CLASS ReverseOrderedTests
@@ -62,9 +56,7 @@ DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(ReverseOrderedImmutablePointer);
 #define REVERSE_ORDERED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	MAKE_REVERSE_ORDERED_TEST(TEST_NAME, Mutable) \
-	MAKE_REVERSE_ORDERED_TEST(TEST_NAME, MutablePointer) \
 	MAKE_REVERSE_ORDERED_TEST(TEST_NAME, Immutable) \
-	MAKE_REVERSE_ORDERED_TEST(TEST_NAME, ImmutablePointer) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	REVERSE_ORDERED_TEST(ReverseOrderedBaseCanIterateThroughSetInReverseOrder) {

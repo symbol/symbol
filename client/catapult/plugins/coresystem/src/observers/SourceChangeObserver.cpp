@@ -30,11 +30,12 @@ namespace catapult { namespace observers {
 
 		auto& statementBuilder = context.StatementBuilder();
 		model::ReceiptSource newSource(notification.PrimaryId, notification.SecondaryId);
-		if (model::SourceChangeNotification::SourceChangeType::Relative == notification.ChangeType) {
-			const auto& currentSource = statementBuilder.source();
+		const auto& currentSource = statementBuilder.source();
+		if (model::SourceChangeNotification::SourceChangeType::Relative == notification.PrimaryChangeType)
 			newSource.PrimaryId += currentSource.PrimaryId;
+
+		if (model::SourceChangeNotification::SourceChangeType::Relative == notification.SecondaryChangeType)
 			newSource.SecondaryId += currentSource.SecondaryId;
-		}
 
 		statementBuilder.setSource(newSource);
 	});

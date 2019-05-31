@@ -31,6 +31,8 @@ namespace catapult { namespace cache {
 			using KeyType = Hash160;
 			using ValueType = Hash512;
 
+			static constexpr uint16_t State_Version = 42;
+
 		public:
 			static ValueType Load(io::InputStream& inputStream) {
 				Hash512 hash;
@@ -55,33 +57,45 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, SerializeValueForwardsToStorageSave) {
 		// Arrange:
-		auto value = test::GenerateRandomData<Hash512_Size>();
+		auto value = test::GenerateRandomByteArray<Hash512>();
 
 		// Act:
 		auto result = Serializer::SerializeValue(value);
 
 		// Assert:
-		ASSERT_EQ(5 + Hash512_Size, result.size());
-		EXPECT_EQ_MEMORY("alpha", result.data(), 5);
-		EXPECT_EQ(value, reinterpret_cast<const Hash512&>(result[5]));
+		ASSERT_EQ(sizeof(uint16_t) + 5 + Hash512_Size, result.size());
+		EXPECT_EQ(MockStorage::State_Version, reinterpret_cast<const uint16_t&>(result[0]));
+		EXPECT_EQ_MEMORY("alpha", result.data() + sizeof(uint16_t), 5);
+		EXPECT_EQ(value, reinterpret_cast<const Hash512&>(result[sizeof(uint16_t) + 5]));
 	}
 
-	TEST(TEST_CLASS, DeserializeValueFailsIfThereIsNotEnoughData) {
+	TEST(TEST_CLASS, DeserializeValueFailsWhenThereIsNotEnoughData) {
 		// Arrange:
-		auto serialized = test::GenerateRandomData<Hash512_Size - 1>();
+		auto serialized = test::GenerateRandomArray<sizeof(uint16_t) + Hash512_Size - 1>();
+		reinterpret_cast<uint16_t&>(serialized[0]) = MockStorage::State_Version;
 
 		// Act + Assert:
 		EXPECT_THROW(Serializer::DeserializeValue(serialized), catapult_file_io_error);
 	}
 
+	TEST(TEST_CLASS, DeserializeValueFailsWhenVersionIsIncorrect) {
+		// Arrange:
+		auto serialized = test::GenerateRandomArray<sizeof(uint16_t) + Hash512_Size>();
+		reinterpret_cast<uint16_t&>(serialized[0]) = MockStorage::State_Version ^ 0xFFFF;
+
+		// Act + Assert:
+		EXPECT_THROW(Serializer::DeserializeValue(serialized), catapult_runtime_error);
+	}
+
 	TEST(TEST_CLASS, DeserializeValueForwardsToStorageLoad) {
 		// Arrange:
-		auto serialized = test::GenerateRandomData<Hash512_Size>();
+		auto serialized = test::GenerateRandomArray<sizeof(uint16_t) + Hash512_Size>();
+		reinterpret_cast<uint16_t&>(serialized[0]) = MockStorage::State_Version;
 
 		// Act:
 		auto result = Serializer::DeserializeValue(serialized);
 
 		// Assert:
-		EXPECT_EQ(serialized, result);
+		EXPECT_EQ_MEMORY(serialized.data() + sizeof(uint16_t), result.data(), serialized.size() - sizeof(uint16_t));
 	}
 }}

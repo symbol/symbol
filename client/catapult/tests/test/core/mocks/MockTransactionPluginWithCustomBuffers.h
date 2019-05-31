@@ -27,6 +27,7 @@ namespace catapult { namespace mocks {
 	struct OffsetRange {
 		/// Start offset (inclusive).
 		size_t Start;
+
 		/// End offset (exclusive).
 		size_t End;
 	};

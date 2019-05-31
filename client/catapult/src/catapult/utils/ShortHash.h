@@ -40,6 +40,6 @@ namespace catapult { namespace utils {
 
 	/// Gets the short hash corresponding to \a hash.
 	inline ShortHash ToShortHash(const Hash256& hash) {
-		return reinterpret_cast<const ShortHash&>(*hash.data());
+		return reinterpret_cast<const ShortHash&>(hash[0]);
 	}
 }}

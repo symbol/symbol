@@ -18,23 +18,35 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "src/AddressExtractionBlockChangeSubscriber.h"
+#include "src/AddressExtractionPtChangeSubscriber.h"
 #include "src/AddressExtractionUtChangeSubscriber.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "src/AddressExtractor.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
+#include "catapult/extensions/RootedService.h"
 
 namespace catapult { namespace addressextraction {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
-			auto pNotificationPublisher = bootstrapper.pluginManager().createNotificationPublisher();
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
+			auto pAddressExtractor = std::make_shared<AddressExtractor>(bootstrapper.pluginManager().createNotificationPublisher());
+
+			// add a dummy service for extending service lifetimes
+			bootstrapper.extensionManager().addServiceRegistrar(extensions::CreateRootedServiceRegistrar(
+					pAddressExtractor,
+					"addressextraction.extractor",
+					extensions::ServiceRegistrarPhase::Initial));
 
 			// register subscriber
 			auto& subscriptionManager = bootstrapper.subscriptionManager();
-			subscriptionManager.addUtChangeSubscriber(CreateAddressExtractionUtChangeSubscriber(std::move(pNotificationPublisher)));
+			subscriptionManager.addBlockChangeSubscriber(CreateAddressExtractionBlockChangeSubscriber(*pAddressExtractor));
+			subscriptionManager.addUtChangeSubscriber(CreateAddressExtractionUtChangeSubscriber(*pAddressExtractor));
+			subscriptionManager.addPtChangeSubscriber(CreateAddressExtractionPtChangeSubscriber(*pAddressExtractor));
 		}
 	}
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::addressextraction::RegisterExtension(bootstrapper);
 }

@@ -52,6 +52,19 @@ namespace catapult { namespace cache {
 		}
 	}
 
+	/// Removes an \a identifier with grouping \a key from \a groupedSet.
+	template<typename TGroupedSet, typename TGroupingKey, typename TIdentifier>
+	void RemoveIdentifierWithGroup(TGroupedSet& groupedSet, const TGroupingKey& key, const TIdentifier& identifier) {
+		auto groupIter = groupedSet.find(key);
+		auto* pGroup = groupIter.get();
+		if (!pGroup)
+			return;
+
+		pGroup->remove(identifier);
+		if (pGroup->empty())
+			groupedSet.remove(key);
+	}
+
 	/// Removes all values in \a set with grouping \a key according to \a groupedSet.
 	template<typename TSet, typename TGroupedSet, typename TGroupingKey>
 	void RemoveAllIdentifiersWithGroup(TSet& set, TGroupedSet& groupedSet, const TGroupingKey& key) {

@@ -19,11 +19,12 @@
 **/
 
 #pragma once
+#include "catapult/subscribers/StateChangeInfo.h"
 #include "catapult/subscribers/StateChangeSubscriber.h"
 
 namespace catapult { namespace mocks {
 
-	/// Mock noop state change subscriber implementation.
+	/// Mock state change subscriber implementation.
 	class MockStateChangeSubscriber : public subscribers::StateChangeSubscriber {
 	public:
 		/// Creates a subscriber.
@@ -44,8 +45,19 @@ namespace catapult { namespace mocks {
 		}
 
 		/// Gets the last chain score.
-		model::ChainScore lastChainScore() const {
+		const model::ChainScore& lastChainScore() const {
 			return m_lastChainScore;
+		}
+
+		/// Gets the last state change info.
+		const subscribers::StateChangeInfo& lastStateChangeInfo() const {
+			return *m_pLastStateChangeInfo;
+		}
+
+	public:
+		/// Sets \a consumer that will be called with cache changes.
+		void setCacheChangesConsumer(const consumer<const cache::CacheChanges&>& consumer) {
+			m_cacheChangesConsumer = consumer;
 		}
 
 	public:
@@ -54,13 +66,24 @@ namespace catapult { namespace mocks {
 			++m_numScoreChanges;
 		}
 
-		void notifyStateChange(const consumers::StateChangeInfo&) override {
+		void notifyStateChange(const subscribers::StateChangeInfo& stateChangeInfo) override {
 			++m_numStateChanges;
+
+			if (m_cacheChangesConsumer)
+				m_cacheChangesConsumer(stateChangeInfo.CacheChanges);
+
+			// for test purposes, ignore const and take ownership of stateChangeInfo.CacheChanges
+			m_pLastStateChangeInfo = std::make_unique<subscribers::StateChangeInfo>(
+					std::move(const_cast<cache::CacheChanges&>(stateChangeInfo.CacheChanges)),
+					stateChangeInfo.ScoreDelta,
+					stateChangeInfo.Height);
 		}
 
 	private:
 		size_t m_numScoreChanges;
 		size_t m_numStateChanges;
 		model::ChainScore m_lastChainScore;
+		std::unique_ptr<subscribers::StateChangeInfo> m_pLastStateChangeInfo;
+		consumer<const cache::CacheChanges&> m_cacheChangesConsumer;
 	};
 }}

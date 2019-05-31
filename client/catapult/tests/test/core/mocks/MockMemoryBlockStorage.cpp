@@ -28,9 +28,7 @@ namespace catapult { namespace mocks {
 
 	namespace {
 		model::BlockElement CreateNemesisBlockElement() {
-			auto nemesisBlockElement = test::BlockToBlockElement(test::GetNemesisBlock());
-			nemesisBlockElement.GenerationHash = test::GetNemesisGenerationHash();
-			return nemesisBlockElement;
+			return test::BlockToBlockElement(test::GetNemesisBlock(), test::GetNemesisGenerationHash());
 		}
 	}
 
@@ -41,7 +39,7 @@ namespace catapult { namespace mocks {
 
 	// region factories
 
-	std::unique_ptr<io::BlockStorage> CreateMemoryBlockStorage(uint32_t numBlocks) {
+	std::unique_ptr<io::PrunableBlockStorage> CreateMemoryBlockStorage(uint32_t numBlocks) {
 		auto pStorage = std::make_unique<MockMemoryBlockStorage>();
 
 		// storage already contains nemesis block (height 1)
@@ -56,7 +54,7 @@ namespace catapult { namespace mocks {
 	}
 
 	std::unique_ptr<io::BlockStorageCache> CreateMemoryBlockStorageCache(uint32_t numBlocks) {
-		return std::make_unique<io::BlockStorageCache>(CreateMemoryBlockStorage(numBlocks));
+		return std::make_unique<io::BlockStorageCache>(CreateMemoryBlockStorage(numBlocks), CreateMemoryBlockStorage(0));
 	}
 
 	// endregion

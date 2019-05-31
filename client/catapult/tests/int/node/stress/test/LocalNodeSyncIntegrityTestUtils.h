@@ -21,7 +21,7 @@
 #pragma once
 #include "BlockChainBuilder.h"
 #include "StateHashCalculator.h"
-#include "tests/int/node/test/PeerLocalNodeTestUtils.h"
+#include "tests/int/node/test/PeerLocalNodeTestContext.h"
 #include "tests/test/nodeps/Filesystem.h"
 
 namespace catapult { namespace test {
@@ -31,8 +31,10 @@ namespace catapult { namespace test {
 	/// Test context for running tests with state hash disabled.
 	class StateHashDisabledTestContext : public PeerLocalNodeTestContext {
 	public:
-		/// Creates a test context.
-		StateHashDisabledTestContext();
+		/// Creates a test context around \a additionalPlugins and \a configTransform.
+		explicit StateHashDisabledTestContext(
+				NonNemesisTransactionPlugins additionalPlugins = NonNemesisTransactionPlugins::None,
+				const consumer<config::CatapultConfiguration&>& configTransform = [](const auto&) {});
 
 	public:
 		/// Creates a state hash calculator.
@@ -42,8 +44,10 @@ namespace catapult { namespace test {
 	/// Test context for running tests with state hash enabled.
 	class StateHashEnabledTestContext : public PeerLocalNodeTestContext {
 	public:
-		/// Creates a test context.
-		StateHashEnabledTestContext();
+		/// Creates a test context around \a additionalPlugins and \a configTransform.
+		explicit StateHashEnabledTestContext(
+				NonNemesisTransactionPlugins additionalPlugins = NonNemesisTransactionPlugins::None,
+				const consumer<config::CatapultConfiguration&>& configTransform = [](const auto&) {});
 
 	public:
 		/// Creates a state hash calculator.
@@ -75,11 +79,14 @@ namespace catapult { namespace test {
 
 	// region state hash asserts
 
-	/// Asserts that every hash in \a hashes is zero and \a numExpected hashes are provided.
-	void AssertAllZero(const std::vector<Hash256>& hashes, size_t numExpected);
+	/// Asserts that every hash in \a hashes is zero and \a numExpected hashes are provided with optional \a message.
+	void AssertAllZero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message = "");
 
-	/// Asserts that every hash in \a hashes is nonzero and \a numExpected hashes are provided.
-	void AssertAllNonZero(const std::vector<Hash256>& hashes, size_t numExpected);
+	/// Asserts that every hash in \a hashesPair is zero and \a numExpected hashes are provided in each part.
+	void AssertAllZero(const std::pair<std::vector<Hash256>, std::vector<Hash256>>& hashes, size_t numExpected);
+
+	/// Asserts that every hash in \a hashes is nonzero and \a numExpected hashes are provided with optional \a message.
+	void AssertAllNonZero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message = "");
 
 	/// Asserts that every hash in \a hashes is unique.
 	void AssertUnique(const std::vector<Hash256>& hashes);
@@ -92,6 +99,7 @@ namespace catapult { namespace test {
 	struct ExpectedBalance {
 		/// Account identifier.
 		size_t AccountId;
+
 		/// Expected account balance.
 		Amount Balance;
 	};
@@ -104,7 +112,7 @@ namespace catapult { namespace test {
 			const std::vector<ExpectedBalance>& expectedBalances);
 
 	/// Asserts that \a localNode has \a numExpectedNamespaces namespace cache entries.
-	void AssertNamespaceCount(const local::BootedLocalNode& localNode, size_t numExpectedNamespaces);
+	void AssertNamespaceCount(const local::LocalNode& localNode, size_t numExpectedNamespaces);
 
 	// endregion
 }}

@@ -28,26 +28,20 @@ namespace catapult { namespace deltaset {
 		using OrderedTraits = test::BaseSetTraits<TMutabilityTraits, test::OrderedSetTraits<test::SetElementType<TMutabilityTraits>>>;
 
 		using OrderedMutableTraits = OrderedTraits<test::MutableElementValueTraits>;
-		using OrderedMutablePointerTraits = OrderedTraits<test::MutableElementPointerTraits>;
 		using OrderedImmutableTraits = OrderedTraits<test::ImmutableElementValueTraits>;
-		using OrderedImmutablePointerTraits = OrderedTraits<test::ImmutablePointerValueTraits>;
 	}
 
 // base (mutable)
 DEFINE_MUTABLE_BASE_SET_TESTS_FOR(OrderedMutable);
-DEFINE_MUTABLE_BASE_SET_TESTS_FOR(OrderedMutablePointer);
 
 // base (immutable)
 DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedImmutable);
-DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(OrderedImmutablePointer);
 
 // delta (mutable)
 DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(OrderedMutable);
-DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(OrderedMutablePointer);
 
 // delta (immutable)
 DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(OrderedImmutable);
-DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(OrderedImmutablePointer);
 
 /* forward tests only use ordered base variants */
 #define TEST_CLASS OrderedTests
@@ -60,9 +54,7 @@ DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(OrderedImmutablePointer);
 #define ORDERED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	MAKE_ORDERED_TEST(TEST_NAME, Mutable) \
-	MAKE_ORDERED_TEST(TEST_NAME, MutablePointer) \
 	MAKE_ORDERED_TEST(TEST_NAME, Immutable) \
-	MAKE_ORDERED_TEST(TEST_NAME, ImmutablePointer) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ORDERED_TEST(OrderedBaseCanIterateThroughSetInOrder) {

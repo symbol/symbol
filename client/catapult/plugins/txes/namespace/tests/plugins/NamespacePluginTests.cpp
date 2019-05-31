@@ -23,6 +23,7 @@
 #include "src/model/NamespaceEntityType.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "tests/test/NamespaceTestUtils.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -57,7 +58,7 @@ namespace catapult { namespace plugins {
 					}
 				}}));
 
-				PluginManager manager(config, StorageConfiguration());
+				auto manager = test::CreatePluginManager(config);
 				RegisterNamespaceSubsystem(manager);
 
 				// Act:
@@ -101,6 +102,7 @@ namespace catapult { namespace plugins {
 			static std::vector<std::string> GetStatefulValidatorNames() {
 				return {
 					"RootNamespaceAvailabilityValidator",
+					"NamespaceDurationOverflowValidator",
 					"ChildNamespaceAvailabilityValidator",
 					"RootNamespaceMaxChildrenValidator",
 					"AliasAvailabilityValidator",
@@ -136,13 +138,9 @@ namespace catapult { namespace plugins {
 
 	namespace {
 		constexpr uint64_t Unresolved_Flag = 1ull << 63;
-		constexpr UnresolvedAddress Unresolved_Address_With_Alias = {
-			{ { 0x01 }, { 0x33 }, { 0x22 }, { 0x11 }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x80 } }
-		};
-		constexpr UnresolvedAddress Unresolved_Address_With_No_Alias = {
-			{ { 0x01 }, { 0xDF }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x00 }, { 0x80 } }
-		};
-		constexpr Address Resolved_Address_With_No_Alias = { { 0x01, 0xDF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 } };
+		constexpr UnresolvedAddress Unresolved_Address_With_Alias{ { 0x01, 0x33, 0x22, 0x11, 0x00, 0x00, 0x00, 0x00, 0x80 } };
+		constexpr UnresolvedAddress Unresolved_Address_With_No_Alias{ { 0x01, 0xDF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 } };
+		constexpr Address Resolved_Address_With_No_Alias{ { 0x01, 0xDF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 } };
 
 		template<typename TAction>
 		void RunResolverTest(TAction action) {
@@ -153,7 +151,7 @@ namespace catapult { namespace plugins {
 				auto readOnlyCache = cacheDelta.toReadOnly();
 				auto& namespaceCacheDelta = cacheDelta.template sub<cache::NamespaceCache>();
 
-				auto owner = test::GenerateRandomData<Key_Size>();
+				auto owner = test::GenerateRandomByteArray<Key>();
 				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(Unresolved_Flag | 123), owner, test::CreateLifetime(10, 20)));
 				namespaceCacheDelta.setAlias(NamespaceId(Unresolved_Flag | 123), state::NamespaceAlias(MosaicId(456)));
 
@@ -170,7 +168,7 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	TEST(TEST_CLASS, MosaicResolutionIsBypassedIfValueIsAlreadyResolved) {
+	TEST(TEST_CLASS, MosaicResolutionIsBypassedWhenValueIsAlreadyResolved) {
 		// Act:
 		RunResolverTest([](const auto& resolverContext) {
 			// Act:
@@ -214,14 +212,15 @@ namespace catapult { namespace plugins {
 		});
 	}
 
-	TEST(TEST_CLASS, AddressResolutionIsBypassedIfValueIsAlreadyResolved) {
+	TEST(TEST_CLASS, AddressResolutionIsBypassedWhenValueIsAlreadyResolved) {
 		// Act:
 		RunResolverTest([](const auto& resolverContext) {
 			// Act: unset bit 0 of first byte indicates a resolved address
-			auto mosaicId = resolverContext.resolve(UnresolvedAddress{ { { 0x44 }, { 0x38 }, { 0x22 }, { 0x11 } } });
+			auto mosaicId = resolverContext.resolve(UnresolvedAddress{ { 0x44, 0x38, 0x22, 0x11 } });
 
 			// Assert:
-			EXPECT_EQ(Address({ { 0x44, 0x38, 0x22, 0x11 } }), mosaicId);
+			auto expectedAddress = Address{ { 0x44, 0x38, 0x22, 0x11 } };
+			EXPECT_EQ(expectedAddress, mosaicId);
 		});
 	}
 
@@ -229,10 +228,11 @@ namespace catapult { namespace plugins {
 		// Act:
 		RunResolverTest([](const auto& resolverContext) {
 			// Act:
-			auto address = resolverContext.resolve(UnresolvedAddress{ { { 0x43 }, { 0x38 }, { 0x22 }, { 0x11 } } });
+			auto address = resolverContext.resolve(UnresolvedAddress{ { 0x43, 0x38, 0x22, 0x11 } });
 
 			// Assert:
-			EXPECT_EQ(Address({ { 0x43, 0x38, 0x22, 0x11 } }), address);
+			auto expectedAddress = Address{ { 0x43, 0x38, 0x22, 0x11 } };
+			EXPECT_EQ(expectedAddress, address);
 		});
 	}
 
@@ -254,7 +254,8 @@ namespace catapult { namespace plugins {
 			auto address = resolverContext.resolve(Unresolved_Address_With_Alias);
 
 			// Assert:
-			EXPECT_EQ(Address({ { 25, 16 } }), address);
+			auto expectedAddress = Address{ { 25, 16 } };
+			EXPECT_EQ(expectedAddress, address);
 		});
 	}
 

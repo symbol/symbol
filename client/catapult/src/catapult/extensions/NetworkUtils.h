@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/net/AsyncTcpServer.h"
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/net/PeerConnectResult.h"
@@ -29,10 +29,10 @@
 namespace catapult { namespace extensions {
 
 	/// Extracts connection settings from \a config.
-	net::ConnectionSettings GetConnectionSettings(const config::LocalNodeConfiguration& config);
+	net::ConnectionSettings GetConnectionSettings(const config::CatapultConfiguration& config);
 
 	/// Updates \a settings with values in \a config.
-	void UpdateAsyncTcpServerSettings(net::AsyncTcpServerSettings& settings, const config::LocalNodeConfiguration& config);
+	void UpdateAsyncTcpServerSettings(net::AsyncTcpServerSettings& settings, const config::CatapultConfiguration& config);
 
 	/// Gets the maximum number of incoming connections per identity as specified by \a roles.
 	uint32_t GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles roles);
@@ -44,7 +44,7 @@ namespace catapult { namespace extensions {
 			thread::MultiServicePool::ServiceGroup& serviceGroup,
 			unsigned short port,
 			ionet::ServiceIdentifier serviceId,
-			const config::LocalNodeConfiguration& config,
+			const config::CatapultConfiguration& config,
 			subscribers::NodeSubscriber& nodeSubscriber,
 			TAcceptor acceptor) {
 		auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port);

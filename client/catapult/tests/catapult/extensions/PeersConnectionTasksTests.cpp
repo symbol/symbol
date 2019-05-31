@@ -125,14 +125,14 @@ namespace catapult { namespace extensions {
 		void AssertCanCreateSelectorSettings(ionet::NodeRoles expectedRole, TSettingsFactory settingsFactory) {
 			// Arrange:
 			ionet::NodeContainer container;
-			auto unknownKey = test::GenerateRandomData<Key_Size>();
-			auto knownKeyWrongHeight = test::GenerateRandomData<Key_Size>();
-			auto knownKey = test::GenerateRandomData<Key_Size>();
+			auto unknownKey = test::GenerateRandomByteArray<Key>();
+			auto knownKeyWrongHeight = test::GenerateRandomByteArray<Key>();
+			auto knownKey = test::GenerateRandomByteArray<Key>();
 
 			// -  create and initialize a cache
-			auto blockChainConfiguration = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfiguration.ImportanceGrouping = 1;
-			auto cache = test::CreateEmptyCatapultCache(blockChainConfiguration);
+			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+			blockChainConfig.ImportanceGrouping = 1;
+			auto cache = test::CreateEmptyCatapultCache(blockChainConfig);
 			{
 				auto cacheDelta = cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
@@ -237,7 +237,7 @@ namespace catapult { namespace extensions {
 			std::vector<ionet::Node> nodes;
 			auto modifier = container.modifier();
 			for (auto i = 0u; i < numNodes; ++i) {
-				auto identityKey = test::GenerateRandomData<Key_Size>();
+				auto identityKey = test::GenerateRandomByteArray<Key>();
 				auto node = test::CreateNamedNode(identityKey, "node " + std::to_string(i));
 				modifier.add(node, ionet::NodeSource::Dynamic);
 				nodes.push_back(node);

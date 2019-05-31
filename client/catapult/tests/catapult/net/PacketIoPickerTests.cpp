@@ -50,22 +50,22 @@ namespace catapult { namespace net {
 		}
 	}
 
-	TEST(TEST_CLASS, PickMultipleReturnsZeroIosIfZeroAreRequested) {
+	TEST(TEST_CLASS, PickMultipleReturnsZeroIosWhenZeroAreRequested) {
 		// Assert:
 		AssertPickMultiple(5, 0, 0, 0);
 	}
 
-	TEST(TEST_CLASS, PickMultipleReturnsZeroIosIfZeroAreAvailable) {
+	TEST(TEST_CLASS, PickMultipleReturnsZeroIosWhenZeroAreAvailable) {
 		// Assert:
 		AssertPickMultiple(0, 5, 0, 1);
 	}
 
-	TEST(TEST_CLASS, PickMultipleReturnsAllIosIfRequestedIsGreaterThanAvailable) {
+	TEST(TEST_CLASS, PickMultipleReturnsAllIosWhenRequestedIsGreaterThanAvailable) {
 		// Assert:
 		AssertPickMultiple(3, 5, 3, 4);
 	}
 
-	TEST(TEST_CLASS, PickMultipleReturnsRequestedIosIfActualIsAtLeastRequested) {
+	TEST(TEST_CLASS, PickMultipleReturnsRequestedIosWhenActualIsAtLeastRequested) {
 		// Assert:
 		AssertPickMultiple(5, 5, 5, 5);
 		AssertPickMultiple(9, 5, 5, 5);

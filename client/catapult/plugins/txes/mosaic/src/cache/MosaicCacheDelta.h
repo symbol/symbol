@@ -63,6 +63,9 @@ namespace catapult { namespace cache {
 		/// Inserts the mosaic \a entry into the cache.
 		void insert(const state::MosaicEntry& entry);
 
+		/// Removes the value identified by \a mosaicId from the cache.
+		void remove(MosaicId mosaicId);
+
 	private:
 		MosaicCacheTypes::PrimaryTypes::BaseSetDeltaPointerType m_pEntryById;
 		MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaPointerType m_pMosaicIdsByExpiryHeight;

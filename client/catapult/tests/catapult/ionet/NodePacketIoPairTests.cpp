@@ -38,7 +38,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanCreateNonEmptyPair) {
 		// Act:
-		auto node = Node(test::GenerateRandomData<Key_Size>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
+		auto node = Node(test::GenerateRandomByteArray<Key>(), ionet::NodeEndpoint(), ionet::NodeMetadata());
 		auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
 		NodePacketIoPair pair(node, pPacketIo);
 

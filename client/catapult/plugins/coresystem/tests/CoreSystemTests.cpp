@@ -19,6 +19,7 @@
 **/
 
 #include "src/CoreSystem.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -30,7 +31,7 @@ namespace catapult { namespace plugins {
 			template<typename TAction>
 			static void RunTestAfterRegistration(TAction action) {
 				// Arrange:
-				PluginManager manager(model::BlockChainConfiguration::Uninitialized(), StorageConfiguration());
+				auto manager = test::CreatePluginManager();
 				RegisterCoreSystem(manager);
 
 				// Act:

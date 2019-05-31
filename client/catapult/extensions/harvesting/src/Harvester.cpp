@@ -56,10 +56,12 @@ namespace catapult { namespace harvesting {
 		std::unique_ptr<model::Block> CreateUnsignedBlockHeader(
 				const NextBlockContext& context,
 				model::NetworkIdentifier networkIdentifier,
-				const Key& publicKey) {
-			auto pBlock = model::CreateBlock(context.ParentContext, networkIdentifier, publicKey, {});
+				const Key& signer,
+				const Key& beneficiary) {
+			auto pBlock = model::CreateBlock(context.ParentContext, networkIdentifier, signer, {});
 			pBlock->Difficulty = context.Difficulty;
 			pBlock->Timestamp = context.Timestamp;
+			pBlock->Beneficiary = beneficiary;
 			return pBlock;
 		}
 	}
@@ -67,10 +69,12 @@ namespace catapult { namespace harvesting {
 	Harvester::Harvester(
 			const cache::CatapultCache& cache,
 			const model::BlockChainConfiguration& config,
+			const Key& beneficiary,
 			const UnlockedAccounts& unlockedAccounts,
 			const BlockGenerator& blockGenerator)
 			: m_cache(cache)
 			, m_config(config)
+			, m_beneficiary(beneficiary)
 			, m_unlockedAccounts(unlockedAccounts)
 			, m_blockGenerator(blockGenerator)
 	{}
@@ -111,7 +115,8 @@ namespace catapult { namespace harvesting {
 			return nullptr;
 
 		utils::StackLogger stackLogger("generating candidate block", utils::LogLevel::Debug);
-		auto pBlockHeader = CreateUnsignedBlockHeader(context, m_config.Network.Identifier, pHarvesterKeyPair->publicKey());
+		auto networkIdentifier = m_config.Network.Identifier;
+		auto pBlockHeader = CreateUnsignedBlockHeader(context, networkIdentifier, pHarvesterKeyPair->publicKey(), m_beneficiary);
 		auto pBlock = m_blockGenerator(*pBlockHeader, m_config.MaxTransactionsPerBlock);
 		if (pBlock)
 			SignBlockHeader(*pHarvesterKeyPair, *pBlock);

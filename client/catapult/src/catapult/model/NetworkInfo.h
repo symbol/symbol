@@ -59,7 +59,7 @@ namespace catapult { namespace model {
 
 		/// Creates a network info around a network \a identifier, a nemesis public key (\a publicKey)
 		/// and a nemesis generation hash (\a generationHash).
-		constexpr NetworkInfo(NetworkIdentifier identifier, const Key& publicKey, const Hash256& generationHash)
+		constexpr NetworkInfo(NetworkIdentifier identifier, const Key& publicKey, const catapult::GenerationHash& generationHash)
 				: Identifier(identifier)
 				, PublicKey(publicKey)
 				, GenerationHash(generationHash)
@@ -73,7 +73,7 @@ namespace catapult { namespace model {
 		Key PublicKey;
 
 		/// Nemesis generation hash.
-		Hash256 GenerationHash;
+		catapult::GenerationHash GenerationHash;
 	};
 
 	/// Tries to parse \a networkName into a network identifier (\a networkIdentifier).

@@ -23,7 +23,6 @@
 #include "ServiceState.h"
 #include "catapult/chain/RemoteApiForwarder.h"
 #include "catapult/chain/RemoteNodeSynchronizer.h"
-#include "catapult/config/LocalNodeConfiguration.h"
 #include "catapult/plugins/PluginManager.h"
 
 namespace catapult { namespace extensions {

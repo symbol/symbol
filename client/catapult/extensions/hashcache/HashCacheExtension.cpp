@@ -19,12 +19,12 @@
 **/
 
 #include "src/HashCacheService.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace hashcache {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			auto& extensionManager = bootstrapper.extensionManager();
 
 			// register hash cache
@@ -35,6 +35,6 @@ namespace catapult { namespace hashcache {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::hashcache::RegisterExtension(bootstrapper);
 }

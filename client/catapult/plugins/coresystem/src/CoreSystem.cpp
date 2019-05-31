@@ -25,6 +25,7 @@
 #include "catapult/cache_core/AccountStateCacheStorage.h"
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
 #include "catapult/cache_core/BlockDifficultyCacheStorage.h"
+#include "catapult/cache_core/BlockDifficultyCacheSubCachePlugin.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/observers/ObserverUtils.h"
 #include "catapult/plugins/CacheHandlers.h"
@@ -66,8 +67,7 @@ namespace catapult { namespace plugins {
 		void AddBlockDifficultyCache(PluginManager& manager, const model::BlockChainConfiguration& config) {
 			using namespace catapult::cache;
 
-			auto difficultyHistorySize = CalculateDifficultyHistorySize(config);
-			manager.addCacheSupport<BlockDifficultyCacheStorage>(std::make_unique<BlockDifficultyCache>(difficultyHistorySize));
+			manager.addCacheSupport(std::make_unique<BlockDifficultyCacheSubCachePlugin>(CalculateDifficultyHistorySize(config)));
 
 			manager.addDiagnosticCounterHook([](auto& counters, const CatapultCache& cache) {
 				counters.emplace_back(utils::DiagnosticCounterId("BLKDIF C"), [&cache]() {
@@ -101,14 +101,15 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateBalanceTransferValidator());
 		});
 
-		manager.addObserverHook([&config](auto& builder) {
+		const auto& calculator = manager.inflationConfig().InflationCalculator;
+		manager.addObserverHook([&config, &calculator](auto& builder) {
 			builder
 				.add(observers::CreateSourceChangeObserver())
 				.add(observers::CreateAccountAddressObserver())
 				.add(observers::CreateAccountPublicKeyObserver())
 				.add(observers::CreateBalanceDebitObserver())
 				.add(observers::CreateBalanceTransferObserver())
-				.add(observers::CreateHarvestFeeObserver(config.CurrencyMosaicId))
+				.add(observers::CreateHarvestFeeObserver(config.CurrencyMosaicId, config.HarvestBeneficiaryPercentage, calculator))
 				.add(observers::CreateTotalTransactionsObserver());
 		});
 

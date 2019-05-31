@@ -52,9 +52,6 @@ namespace catapult { namespace test {
 		/// Returns a state ref.
 		extensions::LocalNodeStateRef ref();
 
-		/// Returns a const state ref.
-		extensions::LocalNodeStateConstRef cref() const;
-
 	private:
 		struct Impl;
 		std::unique_ptr<Impl> m_pImpl;

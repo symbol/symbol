@@ -63,7 +63,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanCreateAddressNamespaceAlias) {
 		// Act:
-		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+		auto address = test::GenerateRandomByteArray<Address>();
 		NamespaceAlias alias(address);
 
 		// Assert:
@@ -87,7 +87,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanCopyAddressNamespaceAlias) {
 		// Arrange:
-		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+		auto address = test::GenerateRandomByteArray<Address>();
 		NamespaceAlias originalAlias(address);
 
 		// Act:
@@ -116,7 +116,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanAssignAddressNamespaceAlias) {
 		// Arrange:
-		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+		auto address = test::GenerateRandomByteArray<Address>();
 		NamespaceAlias originalAlias(address);
 
 		// Act:

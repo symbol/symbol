@@ -34,7 +34,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	namespace {
 		state::MosaicEntry CreateMosaicEntry() {
-			auto owner = test::GenerateRandomData<Key_Size>();
+			auto owner = test::GenerateRandomByteArray<Key>();
 			return test::CreateMosaicEntry(MosaicId(345), Height(123), owner, Amount(456), BlockDuration(12345));
 		}
 
@@ -58,7 +58,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		AssertEqualMosaicEntryMetadata(metaView);
 
 		auto mosaicView = documentView["mosaic"].get_document().view();
-		EXPECT_EQ(7u, test::GetFieldCount(mosaicView));
+		EXPECT_EQ(6u, test::GetFieldCount(mosaicView));
 		test::AssertEqualMosaicData(entry, mosaicView);
 	}
 
@@ -84,7 +84,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		EXPECT_EQ(2u, test::GetFieldCount(view));
 
 		auto mosaicView = view["mosaic"].get_document().view();
-		EXPECT_EQ(7u, test::GetFieldCount(mosaicView));
+		EXPECT_EQ(6u, test::GetFieldCount(mosaicView));
 		test::AssertEqualMosaicData(entry, mosaicView);
 	}
 

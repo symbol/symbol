@@ -52,22 +52,22 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Add) {
 		// Assert:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
 		AssertValidationResult(Failure_Property_Modification_Address_Invalid, key, { Add, extensions::CopyToUnresolvedAddress(address) });
 	}
 
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Del) {
 		// Assert:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
 		AssertValidationResult(Failure_Property_Modification_Address_Invalid, key, { Del, extensions::CopyToUnresolvedAddress(address) });
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSignerIsNotValueInModification) {
 		// Assert:
-		auto key = test::GenerateRandomData<Key_Size>();
-		auto address = test::GenerateRandomData<Address_Decoded_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
+		auto address = test::GenerateRandomByteArray<Address>();
 		AssertValidationResult(ValidationResult::Success, key, { Add, extensions::CopyToUnresolvedAddress(address) });
 	}
 }}

@@ -64,6 +64,9 @@ namespace catapult { namespace utils {
 	/// Tries to parse \a str into a BlockFeeMultiplier (\a parsedValue).
 	bool TryParseValue(const std::string& str, BlockFeeMultiplier& parsedValue);
 
+	/// Tries to parse \a str into a Height (\a parsedValue).
+	bool TryParseValue(const std::string& str, Height& parsedValue);
+
 	/// Tries to parse \a str into an Importance (\a parsedValue).
 	bool TryParseValue(const std::string& str, Importance& parsedValue);
 
@@ -81,6 +84,12 @@ namespace catapult { namespace utils {
 
 	/// Tries to parse \a str into a Key (\a parsedValue).
 	bool TryParseValue(const std::string& str, Key& parsedValue);
+
+	/// Tries to parse \a str into a Hash256 (\a parsedValue).
+	bool TryParseValue(const std::string& str, Hash256& parsedValue);
+
+	/// Tries to parse \a str into a GenerationHash (\a parsedValue).
+	bool TryParseValue(const std::string& str, GenerationHash& parsedValue);
 
 	/// Tries to parse \a str into a string (\a parsedValue).
 	/// \note This function just copies \a str into \a parsedValue.

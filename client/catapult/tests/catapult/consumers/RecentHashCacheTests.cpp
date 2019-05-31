@@ -65,7 +65,7 @@ namespace catapult { namespace consumers {
 	TEST(TEST_CLASS, CanAddSingleUnknownHash) {
 		// Arrange:
 		auto cache = CreateDefaultCache();
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto result = cache.add(hash);
@@ -98,10 +98,10 @@ namespace catapult { namespace consumers {
 		}
 	}
 
-	TEST(TEST_CLASS, HashIsNotAddedIfItIsKnown) {
+	TEST(TEST_CLASS, HashIsNotAddedWhenItIsAlreadyKnown) {
 		// Arrange:
 		auto cache = CreateDefaultCache();
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		cache.add(hash);
 
 		// Act:
@@ -115,8 +115,8 @@ namespace catapult { namespace consumers {
 	TEST(TEST_CLASS, HashIsNotEvictedFromCacheBeforeCacheDuration) {
 		// Arrange:
 		RecentHashCache cache(CreateTimeSupplier({ 10, 11, 405, 612 }), Default_Options);
-		auto hash1 = test::GenerateRandomData<Hash256_Size>();
-		auto hash2 = test::GenerateRandomData<Hash256_Size>();
+		auto hash1 = test::GenerateRandomByteArray<Hash256>();
+		auto hash2 = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto result1 = cache.add(hash1); // t11
@@ -133,8 +133,8 @@ namespace catapult { namespace consumers {
 	TEST(TEST_CLASS, HashIsNotEvictedFromCacheAtCacheDuration) {
 		// Arrange:
 		RecentHashCache cache(CreateTimeSupplier({ 10, 11, 611, 612 }), Default_Options);
-		auto hash1 = test::GenerateRandomData<Hash256_Size>();
-		auto hash2 = test::GenerateRandomData<Hash256_Size>();
+		auto hash1 = test::GenerateRandomByteArray<Hash256>();
+		auto hash2 = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto result1 = cache.add(hash1); // t11
@@ -151,8 +151,8 @@ namespace catapult { namespace consumers {
 	TEST(TEST_CLASS, HashIsEvictedFromCacheAfterCacheDuration) {
 		// Arrange:
 		RecentHashCache cache(CreateTimeSupplier({ 10, 11, 612, 613 }), Default_Options);
-		auto hash1 = test::GenerateRandomData<Hash256_Size>();
-		auto hash2 = test::GenerateRandomData<Hash256_Size>();
+		auto hash1 = test::GenerateRandomByteArray<Hash256>();
+		auto hash2 = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto result1 = cache.add(hash1); // t11
@@ -169,7 +169,7 @@ namespace catapult { namespace consumers {
 	TEST(TEST_CLASS, SingleHashCannotSelfEvict) {
 		// Arrange:
 		RecentHashCache cache(CreateTimeSupplier({ 10, 11, 612, 613 }), Default_Options);
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto result1 = cache.add(hash); // t11
@@ -185,8 +185,8 @@ namespace catapult { namespace consumers {
 	TEST(TEST_CLASS, MultiplePruningsCannotOccurWithinPruneInterval) {
 		// Arrange:
 		RecentHashCache cache(CreateTimeSupplier({ 10, 11, 553, 612, 613 }), Default_Options);
-		auto hash1 = test::GenerateRandomData<Hash256_Size>();
-		auto hash2 = test::GenerateRandomData<Hash256_Size>();
+		auto hash1 = test::GenerateRandomByteArray<Hash256>();
+		auto hash2 = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto result1 = cache.add(hash1); // t11
@@ -205,8 +205,8 @@ namespace catapult { namespace consumers {
 	TEST(TEST_CLASS, MultiplePruningsCanOccurAtPruneInterval) {
 		// Arrange:
 		RecentHashCache cache(CreateTimeSupplier({ 10, 11, 552, 612, 613 }), Default_Options);
-		auto hash1 = test::GenerateRandomData<Hash256_Size>();
-		auto hash2 = test::GenerateRandomData<Hash256_Size>();
+		auto hash1 = test::GenerateRandomByteArray<Hash256>();
+		auto hash2 = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto result1 = cache.add(hash1); // t11
@@ -253,11 +253,11 @@ namespace catapult { namespace consumers {
 
 	// region contains
 
-	TEST(TEST_CLASS, ContainsReturnsTrueIfHashIsKnown) {
+	TEST(TEST_CLASS, ContainsReturnsTrueWhenHashIsKnown) {
 		// Arrange:
 		auto cache = CreateDefaultCache();
-		auto hash1 = test::GenerateRandomData<Hash256_Size>();
-		auto hash2 = test::GenerateRandomData<Hash256_Size>();
+		auto hash1 = test::GenerateRandomByteArray<Hash256>();
+		auto hash2 = test::GenerateRandomByteArray<Hash256>();
 		cache.add(hash1);
 		cache.add(hash2);
 
@@ -267,15 +267,15 @@ namespace catapult { namespace consumers {
 		EXPECT_TRUE(cache.contains(hash2));
 	}
 
-	TEST(TEST_CLASS, ContainsReturnsFalseIfHashIsUnknown) {
+	TEST(TEST_CLASS, ContainsReturnsFalseWhenHashIsUnknown) {
 		// Arrange:
 		auto cache = CreateDefaultCache();
 		for (auto i = 0u; i < 10; ++i)
-			cache.add(test::GenerateRandomData<Hash256_Size>());
+			cache.add(test::GenerateRandomByteArray<Hash256>());
 
 		// Assert:
 		for (auto i = 0u; i < 5; ++i)
-			EXPECT_FALSE(cache.contains(test::GenerateRandomData<Hash256_Size>()));
+			EXPECT_FALSE(cache.contains(test::GenerateRandomByteArray<Hash256>()));
 	}
 
 	// endregion
@@ -299,7 +299,7 @@ namespace catapult { namespace consumers {
 		FillCache(cache, hashes); // t11..t14
 
 		// Act: add another hash
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto result = cache.add(hash);
 
 		// Assert: hash is unknown and was added
@@ -308,7 +308,7 @@ namespace catapult { namespace consumers {
 		EXPECT_TRUE(cache.contains(hash));
 	}
 
-	TEST(TEST_CLASS, CannotAddUnknownHashIfCacheIsFull) {
+	TEST(TEST_CLASS, CannotAddUnknownHashWhenCacheIsFull) {
 		// Arrange:
 		RecentHashCache cache(CreateTimeSupplier({ 10, 11, 12, 13, 14, 15, 15 }), Max_Cache_Size_Options);
 		auto hashes = test::GenerateRandomDataVector<Hash256>(Max_Cache_Size);
@@ -318,7 +318,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ(Max_Cache_Size, cache.size());
 
 		// Act: try to add another hash
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto result = cache.add(hash);
 
 		// Assert: hash is unknown but hash was not added
@@ -327,7 +327,7 @@ namespace catapult { namespace consumers {
 		EXPECT_FALSE(cache.contains(hash));
 	}
 
-	TEST(TEST_CLASS, CanAddUnknownHashIfCacheIsFullButAtLeastOneHashIsEvicted) {
+	TEST(TEST_CLASS, CanAddUnknownHashWhenCacheIsFullButAtLeastOneHashIsEvicted) {
 		// Arrange:
 		RecentHashCache cache(CreateTimeSupplier({ 10, 11, 12, 13, 14, 15, 612 }), Max_Cache_Size_Options);
 		auto hashes = test::GenerateRandomDataVector<Hash256>(Max_Cache_Size);
@@ -337,7 +337,7 @@ namespace catapult { namespace consumers {
 		EXPECT_EQ(Max_Cache_Size, cache.size());
 
 		// Act: try to add another hash
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto result = cache.add(hash); // t612 - triggers a prune and should evict hashes[0]
 
 		// Assert: hash is unknown and was added

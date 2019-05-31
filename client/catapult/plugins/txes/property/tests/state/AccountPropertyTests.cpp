@@ -40,7 +40,7 @@ namespace catapult { namespace state {
 		public:
 			explicit TestContext(const std::vector<model::PropertyModificationType>& modificationTypes) {
 				for (auto modificationType : modificationTypes) {
-					Modifications.push_back({ modificationType, test::GenerateRandomData<Custom_Property_Size>() });
+					Modifications.push_back({ modificationType, test::GenerateRandomArray<Custom_Property_Size>() });
 					Values.push_back(Modifications.back().Value);
 				}
 			}
@@ -188,7 +188,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Custom_Property_Size, property.propertyValueSize());
 	}
 
-	TRAITS_BASED_TEST(ContainsReturnsTrueIfValueIsKnown) {
+	TRAITS_BASED_TEST(ContainsReturnsTrueWhenValueIsKnown) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::Create(context.Modifications);
@@ -199,7 +199,7 @@ namespace catapult { namespace state {
 			EXPECT_TRUE(property.contains(value));
 	}
 
-	TRAITS_BASED_TEST(ContainsReturnsFalseIfValueIsUnknown) {
+	TRAITS_BASED_TEST(ContainsReturnsFalseWhenValueIsUnknown) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::Create(context.Modifications);
@@ -209,7 +209,7 @@ namespace catapult { namespace state {
 			EXPECT_FALSE(property.contains(test::GenerateRandomVector(Custom_Property_Size)));
 	}
 
-	TRAITS_BASED_TEST(CanAddValueIfOperationIsPermissible) {
+	TRAITS_BASED_TEST(CanAddValueWhenOperationIsPermissible) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::Create(context.Modifications);
@@ -218,7 +218,7 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(TTraits::CanAdd(property, test::GenerateRandomVector(Custom_Property_Size)));
 	}
 
-	TRAITS_BASED_TEST(CannotAddValueIfValueSizeIsInvalid) {
+	TRAITS_BASED_TEST(CannotAddValueWhenValueSizeIsInvalid) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::Create(context.Modifications);
@@ -228,7 +228,7 @@ namespace catapult { namespace state {
 		EXPECT_THROW(TTraits::CanAdd(property, test::GenerateRandomVector(Custom_Property_Size + 1)), catapult_invalid_argument);
 	}
 
-	TRAITS_BASED_TEST(CannotAddValueIfValueIsKnown) {
+	TRAITS_BASED_TEST(CannotAddValueWhenValueIsKnown) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::Create(context.Modifications);
@@ -237,7 +237,7 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(TTraits::CanAdd(property, ToVector(context.Values[1])));
 	}
 
-	TRAITS_BASED_TEST(CanAddValueIfOperationTypeConflictsPropertyTypeButValuesAreEmpty) {
+	TRAITS_BASED_TEST(CanAddValueWhenOperationTypeConflictsPropertyTypeButValuesAreEmpty) {
 		// Arrange:
 		TestContext context({});
 		auto property = TTraits::CreateWithOppositeOperationType(context.Modifications);
@@ -246,7 +246,7 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(TTraits::CanAdd(property, test::GenerateRandomVector(Custom_Property_Size)));
 	}
 
-	TRAITS_BASED_TEST(CannotAddValueIfOperationTypeConflictsPropertyTypeAndValuesAreNotEmpty) {
+	TRAITS_BASED_TEST(CannotAddValueWhenOperationTypeConflictsPropertyTypeAndValuesAreNotEmpty) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::CreateWithOppositeOperationType(context.Modifications);
@@ -255,7 +255,7 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(TTraits::CanAdd(property, test::GenerateRandomVector(Custom_Property_Size)));
 	}
 
-	TRAITS_BASED_TEST(CanRemoveValueIfOperationIsPermissible) {
+	TRAITS_BASED_TEST(CanRemoveValueWhenOperationIsPermissible) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::Create(context.Modifications);
@@ -264,7 +264,7 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(TTraits::CanRemove(property, ToVector(context.Values[1])));
 	}
 
-	TRAITS_BASED_TEST(CannotRemoveValueIfValueSizeIsInvalid) {
+	TRAITS_BASED_TEST(CannotRemoveValueWhenValueSizeIsInvalid) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::Create(context.Modifications);
@@ -274,7 +274,7 @@ namespace catapult { namespace state {
 		EXPECT_THROW(TTraits::CanRemove(property, test::GenerateRandomVector(Custom_Property_Size + 1)), catapult_invalid_argument);
 	}
 
-	TRAITS_BASED_TEST(CannotRemoveValueIfValueIsUnknown) {
+	TRAITS_BASED_TEST(CannotRemoveValueWhenValueIsUnknown) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::Create(context.Modifications);
@@ -283,7 +283,7 @@ namespace catapult { namespace state {
 		EXPECT_FALSE(TTraits::CanRemove(property, test::GenerateRandomVector(Custom_Property_Size)));
 	}
 
-	TRAITS_BASED_TEST(CannotRemoveValueIfOperationTypeConflictsPropertyTypeAndValuesAreNotEmpty) {
+	TRAITS_BASED_TEST(CannotRemoveValueWhenOperationTypeConflictsPropertyTypeAndValuesAreNotEmpty) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::CreateWithOppositeOperationType(context.Modifications);
@@ -326,7 +326,7 @@ namespace catapult { namespace state {
 		AssertEqualValues(expectedValues, property.values());
 	}
 
-	TRAITS_BASED_TEST(CannotAddValueIfValueSizeMismatches) {
+	TRAITS_BASED_TEST(CannotAddValueWhenValueSizeMismatches) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::Create(context.Modifications);
@@ -351,7 +351,7 @@ namespace catapult { namespace state {
 		AssertEqualValues(expectedValues, property.values());
 	}
 
-	TRAITS_BASED_TEST(CannotRemoveValueIfValueSizeMismatches) {
+	TRAITS_BASED_TEST(CannotRemoveValueWhenValueSizeMismatches) {
 		// Arrange:
 		TestContext context({ Add, Add, Add });
 		auto property = TTraits::Create(context.Modifications);

@@ -19,7 +19,6 @@
 **/
 
 #include "src/state/MosaicEntry.h"
-#include "src/state/MosaicLevyRuleFactory.h"
 #include "tests/test/MosaicTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -40,7 +39,6 @@ namespace catapult { namespace state {
 		EXPECT_EQ(MosaicId(225), entry.mosaicId());
 		EXPECT_EQ(Height(123), entry.definition().height());
 		EXPECT_EQ(Amount(), entry.supply());
-		EXPECT_FALSE(entry.hasLevy());
 	}
 
 	// endregion
@@ -98,73 +96,11 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region levy
-
-	namespace {
-		auto CreateRule(RuleId ruleId) {
-			MosaicLevyRuleFactory factory;
-			return factory.createRule(Amount(), Amount(), 0u, ruleId);
-		}
-	}
-
-	TEST(TEST_CLASS, CannotAccessLevyIfNoneIsPresent) {
-		// Arrange:
-		auto definition = test::CreateMosaicDefinition(Height(123));
-		auto entry = MosaicEntry(MosaicId(225), definition);
-
-		// Sanity:
-		EXPECT_FALSE(entry.hasLevy());
-
-		// Act + Assert:
-		EXPECT_THROW(entry.levy(), catapult_runtime_error);
-	}
-
-	TEST(TEST_CLASS, CanSetLevyIfNoneIsPresent) {
-		// Arrange:
-		auto definition = test::CreateMosaicDefinition(Height(123));
-		auto entry = MosaicEntry(MosaicId(225), definition);
-		auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
-		auto rules = std::vector<MosaicLevyRule>{ CreateRule(RuleId::Bounded_Percentile), CreateRule(RuleId::Constant) };
-		auto pLevy = std::make_unique<MosaicLevy>(MosaicId(234), recipient, rules);
-
-		// Sanity:
-		EXPECT_FALSE(entry.hasLevy());
-
-		// Act:
-		entry.setLevy(std::move(pLevy));
-
-		// Assert:
-		ASSERT_TRUE(entry.hasLevy());
-
-		const auto& levy = entry.levy();
-		EXPECT_EQ(MosaicId(234), levy.id());
-		EXPECT_EQ(recipient, levy.recipient());
-		EXPECT_EQ(2u, levy.rules().size());
-	}
-
-	TEST(TEST_CLASS, CannotSetLevyIfAlreadyPresent) {
-		// Arrange:
-		auto definition = test::CreateMosaicDefinition(Height(123));
-		auto entry = MosaicEntry(MosaicId(225), definition);
-		auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
-		auto pLevy = std::make_unique<MosaicLevy>(MosaicId(234), recipient, std::vector<MosaicLevyRule>());
-		auto pLevy2 = std::make_unique<MosaicLevy>(MosaicId(345), recipient, std::vector<MosaicLevyRule>());
-		entry.setLevy(std::move(pLevy));
-
-		// Sanity:
-		EXPECT_TRUE(entry.hasLevy());
-
-		// Act + Assert:
-		EXPECT_THROW(entry.setLevy(std::move(pLevy2)), catapult_runtime_error);
-	}
-
-	// endregion
-
 	// region isActive
 
 	namespace {
 		MosaicDefinition CreateMosaicDefinition(Height height, uint64_t duration) {
-			auto owner = test::GenerateRandomData<Key_Size>();
+			auto owner = test::GenerateRandomByteArray<Key>();
 			return MosaicDefinition(height, owner, 3, test::CreateMosaicPropertiesWithDuration(BlockDuration(duration)));
 		}
 	}

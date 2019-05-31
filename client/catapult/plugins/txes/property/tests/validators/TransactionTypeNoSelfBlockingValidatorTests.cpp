@@ -104,8 +104,8 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsUnknown_Allow_Add_NotRelevantType) {
 		// Arrange:
-		auto seedKey = test::GenerateRandomData<Key_Size>();
-		auto notificationKey = test::GenerateRandomData<Key_Size>();
+		auto seedKey = test::GenerateRandomByteArray<Key>();
+		auto notificationKey = test::GenerateRandomByteArray<Key>();
 		auto modification = model::PropertyModification<model::EntityType>{ Add, RandomValue() };
 		auto notification = test::CreateNotification<TransactionTypePropertyTraits, test::AllowTraits>(notificationKey, modification);
 
@@ -115,8 +115,8 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsUnknown_Block_Add_RelevantType) {
 		// Arrange:
-		auto seedKey = test::GenerateRandomData<Key_Size>();
-		auto notificationKey = test::GenerateRandomData<Key_Size>();
+		auto seedKey = test::GenerateRandomByteArray<Key>();
+		auto notificationKey = test::GenerateRandomByteArray<Key>();
 		auto modification = model::PropertyModification<model::EntityType>{ Add, Relevant_Entity_Type };
 		auto notification = test::CreateNotification<TransactionTypePropertyTraits, test::BlockTraits>(notificationKey, modification);
 
@@ -126,7 +126,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsKnown_Allow_Del_RelevantType) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto modification = model::PropertyModification<model::EntityType>{ Del, Relevant_Entity_Type };
 		auto notification = test::CreateNotification<TransactionTypePropertyTraits, test::AllowTraits>(key, modification);
 
@@ -136,7 +136,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsKnown_Allow_Add_NotRelevantType) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto modification = model::PropertyModification<model::EntityType>{ Add, RandomValue() };
 		auto notification = test::CreateNotification<TransactionTypePropertyTraits, test::AllowTraits>(key, modification);
 
@@ -146,7 +146,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsKnown_Block_Add_RelevantType) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto modification = model::PropertyModification<model::EntityType>{ Add, Relevant_Entity_Type };
 		auto notification = test::CreateNotification<TransactionTypePropertyTraits, test::BlockTraits>(key, modification);
 
@@ -160,8 +160,8 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenAccountIsUnknown_Allow_Add_RelevantType) {
 		// Arrange:
-		auto seedKey = test::GenerateRandomData<Key_Size>();
-		auto notificationKey = test::GenerateRandomData<Key_Size>();
+		auto seedKey = test::GenerateRandomByteArray<Key>();
+		auto notificationKey = test::GenerateRandomByteArray<Key>();
 		auto modification = model::PropertyModification<model::EntityType>{ Add, Relevant_Entity_Type };
 		auto notification = test::CreateNotification<TransactionTypePropertyTraits, test::AllowTraits>(notificationKey, modification);
 
@@ -171,8 +171,8 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenAccountIsUnknown_Block_Add_NotRelevantType) {
 		// Arrange:
-		auto seedKey = test::GenerateRandomData<Key_Size>();
-		auto notificationKey = test::GenerateRandomData<Key_Size>();
+		auto seedKey = test::GenerateRandomByteArray<Key>();
+		auto notificationKey = test::GenerateRandomByteArray<Key>();
 		auto modification = model::PropertyModification<model::EntityType>{ Add, RandomValue() };
 		auto notification = test::CreateNotification<TransactionTypePropertyTraits, test::BlockTraits>(notificationKey, modification);
 
@@ -182,7 +182,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenAccountIsKnown_Allow_Add_RelevantType) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto modification = model::PropertyModification<model::EntityType>{ Add, Relevant_Entity_Type };
 		auto notification = test::CreateNotification<TransactionTypePropertyTraits, test::AllowTraits>(key, modification);
 
@@ -192,7 +192,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenAccountIsKnown_Allow_Add_NotRelevantType_SeededRelevantType) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto modification = model::PropertyModification<model::EntityType>{ Add, RandomValue() };
 		auto notification = test::CreateNotification<TransactionTypePropertyTraits, test::AllowTraits>(key, modification);
 
@@ -202,7 +202,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenAccountIsKnown_Block_Add_NotRelevantType) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto modification = model::PropertyModification<model::EntityType>{ Add, RandomValue() };
 		auto notification = test::CreateNotification<TransactionTypePropertyTraits, test::BlockTraits>(key, modification);
 

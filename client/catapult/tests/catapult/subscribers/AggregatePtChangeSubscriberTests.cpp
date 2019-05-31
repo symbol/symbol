@@ -79,8 +79,8 @@ namespace catapult { namespace subscribers {
 
 		TestContext<MockPtChangeSubscriber> context;
 		auto transactionInfo = test::CreateRandomTransactionInfo();
-		auto signer = test::GenerateRandomData<Key_Size>();
-		auto signature = test::GenerateRandomData<Signature_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
+		auto signature = test::GenerateRandomByteArray<Signature>();
 
 		// Sanity:
 		EXPECT_EQ(3u, context.subscribers().size());

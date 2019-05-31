@@ -126,7 +126,7 @@ namespace catapult { namespace handlers {
 				// note: 0th element will have 0 cosignatures
 				for (uint16_t i = 0u; i < numResponseTransactions; ++i) {
 					m_transactionInfos.push_back({
-						test::GenerateRandomData<Hash256_Size>(),
+						test::GenerateRandomByteArray<Hash256>(),
 						i % 2 ? nullptr : mocks::CreateMockTransaction(static_cast<uint16_t>(i)),
 						test::GenerateRandomDataVector<model::Cosignature>(i)
 					});
@@ -186,7 +186,7 @@ namespace catapult { namespace handlers {
 			CosignedTransactionInfos m_transactionInfos;
 		};
 
-		void AssertPullResponseIsSetIfPacketIsValid(uint32_t numRequestHashPairs, uint32_t numResponseTransactions) {
+		void AssertPullResponseIsSetWhenPacketIsValid(uint32_t numRequestHashPairs, uint32_t numResponseTransactions) {
 			// Arrange:
 			auto packetType = PullTransactionsTraits::Packet_Type;
 			auto pPacket = test::CreateRandomPacket(numRequestHashPairs * sizeof(cache::ShortHashPair), packetType);
@@ -220,7 +220,7 @@ namespace catapult { namespace handlers {
 		}
 	}
 
-	DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(TEST_CLASS, AssertPullResponseIsSetIfPacketIsValid)
+	DEFINE_PULL_HANDLER_REQUEST_RESPONSE_TESTS(TEST_CLASS, AssertPullResponseIsSetWhenPacketIsValid)
 
 	// endregion
 }}

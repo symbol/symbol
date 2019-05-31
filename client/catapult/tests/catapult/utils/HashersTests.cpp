@@ -28,17 +28,18 @@ namespace catapult { namespace utils {
 	// region ArrayHasher
 
 	namespace {
-		using TestArray = std::array<uint8_t, 4 + sizeof(size_t)>;
+		struct TestArray_tag {};
+		using TestArray = ByteArray<4 + sizeof(size_t), TestArray_tag>;
 	}
 
 	TEST(TEST_CLASS, Array_SameObjectReturnsSameHash) {
 		// Arrange:
 		ArrayHasher<TestArray> hasher;
-		auto data1 = test::GenerateRandomData<sizeof(TestArray)>();
+		auto array1 = test::GenerateRandomByteArray<TestArray>();
 
 		// Act:
-		auto result1 = hasher(data1);
-		auto result2 = hasher(data1);
+		auto result1 = hasher(array1);
+		auto result2 = hasher(array1);
 
 		// Assert:
 		EXPECT_EQ(result1, result2);
@@ -47,12 +48,12 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, Array_EqualObjectsReturnSameHash) {
 		// Arrange:
 		ArrayHasher<TestArray> hasher;
-		auto data1 = test::GenerateRandomData<sizeof(TestArray)>();
-		auto data2 = data1;
+		auto array1 = test::GenerateRandomByteArray<TestArray>();
+		auto array2 = array1;
 
 		// Act:
-		auto result1 = hasher(data1);
-		auto result2 = hasher(data2);
+		auto result1 = hasher(array1);
+		auto result2 = hasher(array2);
 
 		// Assert:
 		EXPECT_EQ(result1, result2);
@@ -61,13 +62,13 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, Array_DifferentObjectsReturnDifferentHashes) {
 		// Arrange:
 		ArrayHasher<TestArray> hasher;
-		auto data1 = test::GenerateRandomData<sizeof(TestArray)>();
-		TestArray data2;
-		std::transform(data1.cbegin(), data1.cend(), data2.begin(), [](auto byte) { return static_cast<uint8_t>(byte ^ 0xFF); });
+		auto array1 = test::GenerateRandomByteArray<TestArray>();
+		TestArray array2;
+		std::transform(array1.cbegin(), array1.cend(), array2.begin(), [](auto byte) { return static_cast<uint8_t>(byte ^ 0xFF); });
 
 		// Act:
-		auto result1 = hasher(data1);
-		auto result2 = hasher(data2);
+		auto result1 = hasher(array1);
+		auto result2 = hasher(array2);
 
 		// Assert:
 		EXPECT_NE(result1, result2);
@@ -75,11 +76,11 @@ namespace catapult { namespace utils {
 
 	TEST(TEST_CLASS, Array_DifferentHasherOffsetsReturnDifferentHashes) {
 		// Arrange:
-		auto data1 = test::GenerateRandomData<sizeof(TestArray)>();
+		auto array1 = test::GenerateRandomByteArray<TestArray>();
 
 		// Act:
-		auto result1 = ArrayHasher<TestArray, 0>()(data1);
-		auto result2 = ArrayHasher<TestArray, 4>()(data1);
+		auto result1 = ArrayHasher<TestArray, 0>()(array1);
+		auto result2 = ArrayHasher<TestArray, 4>()(array1);
 
 		// Assert:
 		EXPECT_NE(result1, result2);

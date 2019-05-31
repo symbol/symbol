@@ -33,11 +33,14 @@ namespace catapult { namespace extensions {
 		}
 	}
 
-	void SignTransaction(const crypto::KeyPair& signer, model::Transaction& transaction) {
-		crypto::Sign(signer, TransactionDataBuffer(transaction), transaction.Signature);
+	TransactionExtensions::TransactionExtensions(const GenerationHash& generationHash) : m_generationHash(generationHash)
+	{}
+
+	void TransactionExtensions::sign(const crypto::KeyPair& signer, model::Transaction& transaction) const {
+		crypto::Sign(signer, { m_generationHash, TransactionDataBuffer(transaction) }, transaction.Signature);
 	}
 
-	bool VerifyTransactionSignature(const model::Transaction& transaction) {
-		return crypto::Verify(transaction.Signer, TransactionDataBuffer(transaction), transaction.Signature);
+	bool TransactionExtensions::verify(const model::Transaction& transaction) const {
+		return crypto::Verify(transaction.Signer, { m_generationHash, TransactionDataBuffer(transaction) }, transaction.Signature);
 	}
 }}

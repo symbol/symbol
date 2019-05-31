@@ -39,8 +39,8 @@ namespace catapult { namespace model {
 				crypto::MerkleHashBuilder builder;
 				TransactionInfos.reserve(numTransactions);
 				for (auto i = 0u; i < numTransactions; ++i) {
-					auto entityHash = test::GenerateRandomData<Hash256_Size>();
-					auto merkleComponentHash = test::GenerateRandomData<Hash256_Size>();
+					auto entityHash = test::GenerateRandomByteArray<Hash256>();
+					auto merkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 					TransactionInfos.emplace_back(test::GenerateRandomTransaction(), entityHash);
 					TransactionInfos.back().MerkleComponentHash = merkleComponentHash;
 					TransactionInfoPointers.push_back(&TransactionInfos.back());
@@ -93,12 +93,12 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TEST(TEST_CLASS, BlockTransactionsHashChangesIfAnyTransactionMerkleComponentHashChanges) {
+	TEST(TEST_CLASS, BlockTransactionsHashChangesWhenAnyTransactionMerkleComponentHashChanges) {
 		// Assert:
 		AssertSignificantChange(5, [](auto& context) { context.TransactionInfos[2].MerkleComponentHash[0] ^= 0xFF; });
 	}
 
-	TEST(TEST_CLASS, BlockTransactionsHashChangesIfTransactionOrderChanges) {
+	TEST(TEST_CLASS, BlockTransactionsHashChangesWhenTransactionOrderChanges) {
 		// Assert:
 		AssertSignificantChange(5, [](auto& context) {
 			std::swap(context.TransactionInfoPointers[1], context.TransactionInfoPointers[2]);
@@ -125,7 +125,7 @@ namespace catapult { namespace model {
 		}
 	}
 
-	TEST(TEST_CLASS, BlockTransactionsHashDoesNotChangeIfAnyTransactionEntityHashChanges) {
+	TEST(TEST_CLASS, BlockTransactionsHashDoesNotChangeWhenAnyTransactionEntityHashChanges) {
 		// Assert:
 		AssertInsignificantChange(5, [](auto& context) { context.TransactionInfos[2].EntityHash[0] ^= 0xFF; });
 	}
@@ -145,7 +145,7 @@ namespace catapult { namespace model {
 		std::vector<const TransactionInfo*> transactionInfoPointers;
 		for (const auto& seedHash : seedHashes) {
 			// - notice that only MerkleComponentHash should be used in calculation
-			transactionInfos.emplace_back(test::GenerateRandomTransaction(), test::GenerateRandomData<Hash256_Size>());
+			transactionInfos.emplace_back(test::GenerateRandomTransaction(), test::GenerateRandomByteArray<Hash256>());
 			transactionInfos.back().MerkleComponentHash = seedHash;
 			transactionInfoPointers.push_back(&transactionInfos.back());
 		}
@@ -156,7 +156,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		auto expectedHash = "DEFB4BF7ACF2145500087A02C88F8D1FCF27B8DEF4E0FDABE09413D87A3F0D09";
-		EXPECT_EQ(expectedHash, test::ToHexString(actualBlockTransactionsHash));
+		EXPECT_EQ(expectedHash, test::ToString(actualBlockTransactionsHash));
 	}
 
 	// endregion
@@ -173,7 +173,7 @@ namespace catapult { namespace model {
 
 		// Assert:
 		auto expectedHash = "575E4F520DC2C026F1C9021FD3773F236F0872A03B4AEFC22A9E0066FF204A23";
-		EXPECT_EQ(expectedHash, test::ToHexString(hash));
+		EXPECT_EQ(expectedHash, test::ToString(hash));
 	}
 
 	// endregion
@@ -182,9 +182,10 @@ namespace catapult { namespace model {
 
 	namespace {
 		auto CreateSignedBlock(size_t numTransactions) {
+			// random generation hash is used because VerifyBlockHeaderSignature should succeed independent of generation hash
 			auto signer = test::GenerateKeyPair();
 			auto pBlock = test::GenerateBlockWithTransactions(signer, test::GenerateRandomTransactions(numTransactions));
-			extensions::BlockExtensions().updateBlockTransactionsHash(*pBlock);
+			extensions::BlockExtensions(test::GenerateRandomByteArray<GenerationHash>()).updateBlockTransactionsHash(*pBlock);
 			SignBlockHeader(signer, *pBlock);
 			return pBlock;
 		}
@@ -294,7 +295,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateBlockTransactionsInfoForBlockWithSingleTransaction) {
 		// Arrange:
-		auto pBlock = test::GenerateRandomBlockWithTransactions(test::ConstTransactions{ test::GenerateRandomTransactionWithSize(123) });
+		auto pBlock = test::GenerateBlockWithTransactions(test::ConstTransactions{ test::GenerateRandomTransactionWithSize(123) });
 		pBlock->FeeMultiplier = BlockFeeMultiplier(3);
 
 		// Act:
@@ -307,7 +308,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCalculateBlockTransactionsInfoForBlockWithMultipleTransactions) {
 		// Arrange:
-		auto pBlock = test::GenerateRandomBlockWithTransactions(test::ConstTransactions{
+		auto pBlock = test::GenerateBlockWithTransactions(test::ConstTransactions{
 			test::GenerateRandomTransactionWithSize(123),
 			test::GenerateRandomTransactionWithSize(222),
 			test::GenerateRandomTransactionWithSize(552)
@@ -331,8 +332,8 @@ namespace catapult { namespace model {
 		PreviousBlockContext context;
 
 		// Assert:
-		EXPECT_EQ(Hash256{}, context.BlockHash);
-		EXPECT_EQ(Hash256{}, context.GenerationHash);
+		EXPECT_EQ(Hash256(), context.BlockHash);
+		EXPECT_EQ(GenerationHash(), context.GenerationHash);
 		EXPECT_EQ(Height(0), context.BlockHeight);
 		EXPECT_EQ(Timestamp(0), context.Timestamp);
 	}
@@ -343,8 +344,8 @@ namespace catapult { namespace model {
 		pBlock->Height = Height(123);
 		pBlock->Timestamp = Timestamp(9876);
 
-		auto blockHash = test::GenerateRandomData<Hash256_Size>();
-		auto generationHash = test::GenerateRandomData<Hash256_Size>();
+		auto blockHash = test::GenerateRandomByteArray<Hash256>();
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
 		auto blockElement = test::BlockToBlockElement(*pBlock, blockHash);
 		blockElement.GenerationHash = generationHash;
 
@@ -405,8 +406,8 @@ namespace catapult { namespace model {
 
 			PreviousBlockContext context;
 			context.BlockHeight = Height(1234);
-			context.BlockHash = test::GenerateRandomData<Hash256_Size>();
-			context.GenerationHash = test::GenerateRandomData<Hash256_Size>();
+			context.BlockHash = test::GenerateRandomByteArray<Hash256>();
+			context.GenerationHash = test::GenerateRandomByteArray<GenerationHash>();
 
 			auto randomTransactions = test::GenerateRandomTransactions(numTransactions);
 			auto transactions = TContainerTraits::MapTransactions(randomTransactions);
@@ -416,7 +417,7 @@ namespace catapult { namespace model {
 
 			// Assert:
 			ASSERT_EQ(sizeof(BlockHeader) + SumTransactionSizes(transactions), pBlock->Size);
-			EXPECT_EQ(Signature{}, pBlock->Signature);
+			EXPECT_EQ(Signature(), pBlock->Signature);
 
 			EXPECT_EQ(signer.publicKey(), pBlock->Signer);
 			EXPECT_EQ(static_cast<NetworkIdentifier>(0x17), pBlock->Network());
@@ -428,10 +429,10 @@ namespace catapult { namespace model {
 			EXPECT_EQ(Difficulty(), pBlock->Difficulty);
 			EXPECT_EQ(BlockFeeMultiplier(), pBlock->FeeMultiplier);
 			EXPECT_EQ(context.BlockHash, pBlock->PreviousBlockHash);
-			EXPECT_EQ(Hash256{}, pBlock->BlockTransactionsHash);
-			EXPECT_EQ(Hash256{}, pBlock->BlockReceiptsHash);
-			EXPECT_EQ(Hash256{}, pBlock->StateHash);
-			EXPECT_EQ(Key{}, pBlock->BeneficiaryPublicKey);
+			EXPECT_EQ(Hash256(), pBlock->BlockTransactionsHash);
+			EXPECT_EQ(Hash256(), pBlock->BlockReceiptsHash);
+			EXPECT_EQ(Hash256(), pBlock->StateHash);
+			EXPECT_EQ(Key(), pBlock->Beneficiary);
 
 			AssertTransactionsInBlock(*pBlock, transactions);
 		}

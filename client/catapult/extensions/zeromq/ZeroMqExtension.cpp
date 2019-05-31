@@ -24,14 +24,14 @@
 #include "src/ZeroMqPtChangeSubscriber.h"
 #include "src/ZeroMqTransactionStatusSubscriber.h"
 #include "src/ZeroMqUtChangeSubscriber.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/extensions/RootedService.h"
 #include "catapult/model/NotificationPublisher.h"
 
 namespace catapult { namespace zeromq {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			auto config = MessagingConfiguration::LoadFromPath(bootstrapper.resourcesPath());
 			auto pZeroEntityPublisher = std::make_shared<ZeroMqEntityPublisher>(
 					config.SubscriberPort,
@@ -54,6 +54,6 @@ namespace catapult { namespace zeromq {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::zeromq::RegisterExtension(bootstrapper);
 }

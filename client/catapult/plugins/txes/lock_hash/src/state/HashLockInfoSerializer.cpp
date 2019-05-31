@@ -23,10 +23,10 @@
 namespace catapult { namespace state {
 
 	void HashLockInfoExtendedDataSerializer::Save(const HashLockInfo& lockInfo, io::OutputStream& output) {
-		io::Write(output, lockInfo.Hash);
+		output.write(lockInfo.Hash);
 	}
 
 	void HashLockInfoExtendedDataSerializer::Load(io::InputStream& input, HashLockInfo& lockInfo) {
-		io::Read(input, lockInfo.Hash);
+		input.read(lockInfo.Hash);
 	}
 }}

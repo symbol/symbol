@@ -109,7 +109,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(&entity, pEntityStart);
 	}
 
-	BYTE_POINTER_TEST(PayloadStartReturnsPointerToStartOfEntityPayload_IfEntitySizeIsCorrect) {
+	BYTE_POINTER_TEST(PayloadStartReturnsPointerToStartOfEntityPayload_WhenEntitySizeIsCorrect) {
 		// Arrange:
 		CustomSizePrefixedEntity entity;
 		entity.Size = sizeof(CustomSizePrefixedEntity);
@@ -136,12 +136,12 @@ namespace catapult { namespace model {
 		}
 	}
 
-	BYTE_POINTER_TEST(PayloadStartReturnsNullPointer_IfEntitySizeIsTooLarge) {
+	BYTE_POINTER_TEST(PayloadStartReturnsNullPointer_WhenEntitySizeIsTooLarge) {
 		// Assert:
 		AssertPayloadStartReturnsNullPointerForSize<TTraits>(sizeof(CustomSizePrefixedEntity) + 1);
 	}
 
-	BYTE_POINTER_TEST(PayloadStartReturnsNullPointer_IfEntitySizeIsTooSmall) {
+	BYTE_POINTER_TEST(PayloadStartReturnsNullPointer_WhenEntitySizeIsTooSmall) {
 		// Assert:
 		AssertPayloadStartReturnsNullPointerForSize<TTraits>(sizeof(CustomSizePrefixedEntity) - 1);
 	}

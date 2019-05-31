@@ -30,26 +30,20 @@ namespace catapult { namespace deltaset {
 			test::UnorderedMapSetTraits<test::SetElementType<TMutabilityTraits>>>;
 
 		using UnorderedMapMutableTraits = UnorderedMapTraits<test::MutableElementValueTraits>;
-		using UnorderedMapMutablePointerTraits = UnorderedMapTraits<test::MutableElementPointerTraits>;
 		using UnorderedMapImmutableTraits = UnorderedMapTraits<test::ImmutableElementValueTraits>;
-		using UnorderedMapImmutablePointerTraits = UnorderedMapTraits<test::ImmutablePointerValueTraits>;
 	}
 
 // base (mutable)
 DEFINE_MUTABLE_BASE_SET_TESTS_FOR(UnorderedMapMutable);
-DEFINE_MUTABLE_BASE_SET_TESTS_FOR(UnorderedMapMutablePointer);
 
 // base (immutable)
 DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(UnorderedMapImmutable);
-DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(UnorderedMapImmutablePointer);
 
 // delta (mutable)
 DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMapMutable);
-DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMapMutablePointer);
 
 // delta (immutable)
 DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMapImmutable);
-DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMapImmutablePointer);
 
 #define TEST_CLASS UnorderedMapTests
 
@@ -61,7 +55,6 @@ DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(UnorderedMapImmutablePointer);
 #define UNORDERED_MAP_MUTABLE_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	MAKE_UNORDERED_MAP_MUTABLE_TEST(TEST_NAME, Mutable) \
-	MAKE_UNORDERED_MAP_MUTABLE_TEST(TEST_NAME, MutablePointer) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	UNORDERED_MAP_MUTABLE_TEST(NonConstFindAllowsElementModification) {

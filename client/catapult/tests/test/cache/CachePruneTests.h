@@ -205,7 +205,7 @@ namespace catapult { namespace test {
 			auto delta = cache.createDelta();
 			// 10, 20, 30, 40, 10, 20, 30, 40, 10, 20
 			for (uint8_t i = 1; i <= Num_Seed_Elements; ++i)
-				delta->insert(TTraits::CreateWithIdAndExpiration(i, Height(10 * i % 40)));
+				delta->insert(TTraits::CreateWithIdAndExpiration(i, Height(0 == i % 4 ? 40 : 10 * i % 40)));
 
 			// Sanity:
 			EXPECT_EQ(Num_Seed_Elements, delta->size());

@@ -84,7 +84,7 @@ namespace catapult { namespace ionet {
 
 	namespace {
 		Node CreateNodeForPackTests(const std::string& host, const std::string& name) {
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			return Node(key, { host, 1234 }, { model::NetworkIdentifier::Mijin_Test, name, NodeVersion(7), NodeRoles::Peer });
 		}
 

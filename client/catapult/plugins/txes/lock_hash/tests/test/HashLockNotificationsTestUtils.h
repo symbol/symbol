@@ -38,9 +38,9 @@ namespace catapult { namespace test {
 			return model::HashLockNotification(m_signer, m_mosaic, m_duration, m_hash);
 		}
 
-		/// Sets notification hash to \a hash.
-		void setHash(const Hash256& hash) {
-			m_hash = hash;
+		/// Prepares the builder using \a lockInfo.
+		void prepare(const state::HashLockInfo& lockInfo) {
+			m_hash = lockInfo.Hash;
 		}
 
 	private:

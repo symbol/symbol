@@ -19,139 +19,323 @@
 **/
 
 #include "catapult/io/BlockStatementSerializer.h"
-#include "catapult/io/BufferInputStreamAdapter.h"
-#include "catapult/io/PodIoUtils.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
-#include "tests/test/core/mocks/MockReceipt.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace io {
 
 #define TEST_CLASS BlockStatementSerializerTests
 
-	// region WriteBlockStatement
-
 	namespace {
-		constexpr auto NumStatementsToNumEntries(size_t numStatements) {
-			return 2 * numStatements;
+		// region DTOs
+
+#pragma pack(push, 1)
+
+		struct TransactionStatementWithZeroReceipts {
+			model::ReceiptSource ReceiptSource;
+			uint32_t NumReceipts;
+		};
+
+		struct TransactionStatementWithTwoReceipts : public TransactionStatementWithZeroReceipts {
+			model::BalanceChangeReceipt Receipt1;
+			model::ArtifactExpiryReceipt<MosaicId> Receipt2;
+		};
+
+		template<typename TUnresolved>
+		struct ResolutionStatementWithZeroEntries {
+			TUnresolved Key;
+			uint32_t NumEntries;
+		};
+
+		template<typename TUnresolved, typename TResolved>
+		struct ResolutionStatementWithTwoEntries : public ResolutionStatementWithZeroEntries<TUnresolved> {
+			TResolved ResolvedValue1;
+			model::ReceiptSource ReceiptSource1;
+			TResolved ResolvedValue2;
+			model::ReceiptSource ReceiptSource2;
+		};
+
+#pragma pack(pop)
+
+		// endregion
+
+		// region prepare statements
+
+		template<typename T>
+		void SetMarker(T& value, uint8_t byte) {
+			// set both high and low bytes so that ordering is enforced for both big and little endian types
+			auto* pLowByte = reinterpret_cast<uint8_t*>(&value);
+			auto* pHighByte = reinterpret_cast<uint8_t*>(&value) + sizeof(T) - 1;
+
+			*pLowByte = byte;
+			*pHighByte = byte;
 		}
 
-		template<typename KeyType, typename ElementType>
-		size_t CalculateStatementsSize(size_t numStatements) {
-			auto statementSize =
-					sizeof(KeyType) + // key
-					sizeof(uint32_t) + // number of receipts / resolutions
-					NumStatementsToNumEntries(numStatements) * sizeof(ElementType); // receipts / resolutions
+		void PrepareStatements(model::BlockStatement& blockStatement, TransactionStatementWithZeroReceipts& statement, uint8_t order = 0) {
+			statement.NumReceipts = 0;
+			SetMarker(statement.ReceiptSource.PrimaryId, order);
 
-			return
-					sizeof(uint32_t) // number of statements
-					+ numStatements * statementSize; // statements
+			const auto& source = statement.ReceiptSource;
+			blockStatement.TransactionStatements.emplace(source, model::TransactionStatement(source));
 		}
 
-		size_t CalculateTransactionStatementsSize(size_t numStatements) {
-			return CalculateStatementsSize<model::ReceiptSource, mocks::MockReceipt>(numStatements);
+		void PrepareStatements(model::BlockStatement& blockStatement, TransactionStatementWithTwoReceipts& statement, uint8_t order = 0) {
+			statement.NumReceipts = 2;
+			SetMarker(statement.ReceiptSource.PrimaryId, order);
+
+			statement.Receipt1.Size = sizeof(model::BalanceChangeReceipt);
+			SetMarker(statement.Receipt1.Type, 10);
+
+			statement.Receipt2.Size = sizeof(model::ArtifactExpiryReceipt<MosaicId>);
+			SetMarker(statement.Receipt2.Type, 20);
+
+			const auto& source = statement.ReceiptSource;
+			model::TransactionStatement transactionStatement(source);
+			transactionStatement.addReceipt(statement.Receipt1);
+			transactionStatement.addReceipt(statement.Receipt2);
+			blockStatement.TransactionStatements.emplace(source, std::move(transactionStatement));
 		}
 
-		size_t CalculateAddressResolutionStatementsSize(size_t numStatements) {
-			return CalculateStatementsSize<UnresolvedAddress, model::AddressResolutionStatement::ResolutionEntry>(numStatements);
+		auto& AddStatement(model::BlockStatement& blockStatement, UnresolvedAddress address) {
+			return blockStatement.AddressResolutionStatements.emplace(address, model::AddressResolutionStatement(address)).first->second;
 		}
 
-		size_t CalculateMosaicResolutionStatementsSize(size_t numStatements) {
-			return CalculateStatementsSize<UnresolvedMosaicId, model::MosaicResolutionStatement::ResolutionEntry>(numStatements);
+		auto& AddStatement(model::BlockStatement& blockStatement, UnresolvedMosaicId mosaicId) {
+			return blockStatement.MosaicResolutionStatements.emplace(mosaicId, model::MosaicResolutionStatement(mosaicId)).first->second;
 		}
 
-		void SkipBytes(io::InputStream& inputStream, size_t numBytes) {
-			std::vector<uint8_t> data(numBytes);
-			inputStream.read(data);
+		template<typename TUnresolved>
+		void PrepareStatements(
+				model::BlockStatement& blockStatement,
+				ResolutionStatementWithZeroEntries<TUnresolved>& statement,
+				uint8_t order = 0) {
+			statement.NumEntries = 0;
+			SetMarker(statement.Key, order);
+
+			AddStatement(blockStatement, statement.Key);
 		}
 
-		template<typename KeyType, typename ElementType>
-		void AssertStatements(io::InputStream& inputStream, size_t expectedNumStatements) {
-			auto numStatements = io::Read32(inputStream);
-			ASSERT_EQ(expectedNumStatements, numStatements);
+		template<typename TUnresolved, typename TResolved>
+		void PrepareStatements(
+				model::BlockStatement& blockStatement,
+				ResolutionStatementWithTwoEntries<TUnresolved, TResolved>& statement,
+				uint8_t order = 0) {
+			statement.NumEntries = 2;
+			SetMarker(statement.Key, order);
+			SetMarker(statement.ReceiptSource1.PrimaryId, 1);
+			SetMarker(statement.ReceiptSource2.PrimaryId, 2);
 
-			// content of statements is not checked, read roundtrip tests below check content
-			for (auto i = 0u; i < expectedNumStatements; ++i) {
-				SkipBytes(inputStream, sizeof(KeyType));
-				auto numReceiptsOrResolutions = io::Read32(inputStream);
-				ASSERT_EQ(NumStatementsToNumEntries(expectedNumStatements), numReceiptsOrResolutions) << "statement " << i;
-				for (auto j = 0u; j < NumStatementsToNumEntries(expectedNumStatements); ++j)
-					SkipBytes(inputStream, sizeof(ElementType));
-			}
+			auto& resolutionStatement = AddStatement(blockStatement, statement.Key);
+			resolutionStatement.addResolution(statement.ResolvedValue1, statement.ReceiptSource1);
+			resolutionStatement.addResolution(statement.ResolvedValue2, statement.ReceiptSource2);
 		}
 
-		void AssertCanWriteBlockWithStatement(const std::vector<size_t>& numStatements) {
+		// endregion
+
+		// region prepare tests
+
+		template<typename TZeroEntryStatement, typename TTwoEntryStatement, typename TAction, typename TSetSizes>
+		void PrepareOnlyHomogenousStatementsTest(bool shouldOrder, TAction action, TSetSizes setSizes) {
 			// Arrange:
-			auto pBlockStatement = test::GenerateRandomStatements(numStatements);
+			size_t statementsSize = sizeof(TZeroEntryStatement) + 2 * sizeof(TTwoEntryStatement);
+			std::vector<uint8_t> buffer(3 * sizeof(uint32_t) + statementsSize);
+			test::FillWithRandomData(buffer);
+			auto offset = setSizes(buffer, statementsSize);
 
+			// - fix up sizes and generate expected block statement
+			model::BlockStatement blockStatement;
+			PrepareStatements(blockStatement, reinterpret_cast<TTwoEntryStatement&>(buffer[offset]), shouldOrder ? 1 : 0);
+			offset += sizeof(TTwoEntryStatement);
+			PrepareStatements(blockStatement, reinterpret_cast<TZeroEntryStatement&>(buffer[offset]), shouldOrder ? 2 : 0);
+			offset += sizeof(TZeroEntryStatement);
+			PrepareStatements(blockStatement, reinterpret_cast<TTwoEntryStatement&>(buffer[offset]), shouldOrder ? 3 : 0);
+
+			// Act + Assert:
+			action(blockStatement, buffer);
+		}
+
+		template<typename TAction>
+		void PrepareOnlyTransactionStatementsTest(bool shouldOrder, TAction action) {
+			// Arrange:
+			using ZeroEntryStatement = TransactionStatementWithZeroReceipts;
+			using TwoEntryStatement = TransactionStatementWithTwoReceipts;
+
+			// Act + Assert:
+			PrepareOnlyHomogenousStatementsTest<ZeroEntryStatement, TwoEntryStatement>(shouldOrder, action, [](
+					auto& buffer,
+					auto statementsSize) {
+				reinterpret_cast<uint32_t&>(buffer[0]) = 3;
+				reinterpret_cast<uint32_t&>(buffer[sizeof(uint32_t) + statementsSize]) = 0;
+				reinterpret_cast<uint32_t&>(buffer[2 * sizeof(uint32_t) + statementsSize]) = 0;
+				return sizeof(uint32_t);
+			});
+		}
+
+		template<typename TAction>
+		void PrepareOnlyAddressResolutionsTest(bool shouldOrder, TAction action) {
+			// Arrange:
+			using ZeroEntryStatement = ResolutionStatementWithZeroEntries<UnresolvedAddress>;
+			using TwoEntryStatement = ResolutionStatementWithTwoEntries<UnresolvedAddress, Address>;
+
+			// Act + Assert:
+			PrepareOnlyHomogenousStatementsTest<ZeroEntryStatement, TwoEntryStatement>(shouldOrder, action, [](
+					auto& buffer,
+					auto statementsSize) {
+				reinterpret_cast<uint32_t&>(buffer[0]) = 0;
+				reinterpret_cast<uint32_t&>(buffer[sizeof(uint32_t)]) = 3;
+				reinterpret_cast<uint32_t&>(buffer[2 * sizeof(uint32_t) + statementsSize]) = 0;
+				return 2 * sizeof(uint32_t);
+			});
+		}
+
+		template<typename TAction>
+		void PrepareOnlyMosaicResolutionsTest(bool shouldOrder, TAction action) {
+			// Arrange:
+			using ZeroEntryStatement = ResolutionStatementWithZeroEntries<UnresolvedMosaicId>;
+			using TwoEntryStatement = ResolutionStatementWithTwoEntries<UnresolvedMosaicId, MosaicId>;
+
+			// Act + Assert:
+			PrepareOnlyHomogenousStatementsTest<ZeroEntryStatement, TwoEntryStatement>(shouldOrder, action, [](auto& buffer, auto) {
+				reinterpret_cast<uint32_t&>(buffer[0]) = 0;
+				reinterpret_cast<uint32_t&>(buffer[sizeof(uint32_t)]) = 0;
+				reinterpret_cast<uint32_t&>(buffer[2 * sizeof(uint32_t)]) = 3;
+				return 3 * sizeof(uint32_t);
+			});
+		}
+
+		template<typename TAction>
+		void PrepareAllStatementsTest(bool shouldOrder, TAction action) {
+			// Arrange:
+			model::BlockStatement aggregateBlockStatement;
+			std::vector<uint8_t> aggregateBuffer;
+			PrepareOnlyTransactionStatementsTest(shouldOrder, [&](auto& blockStatement, const auto& buffer) {
+				aggregateBlockStatement.TransactionStatements = std::move(blockStatement.TransactionStatements);
+
+				aggregateBuffer.resize(buffer.size() - 2 * sizeof(uint32_t));
+				std::memcpy(aggregateBuffer.data(), buffer.data(), aggregateBuffer.size());
+			});
+			PrepareOnlyAddressResolutionsTest(shouldOrder, [&](auto& blockStatement, const auto& buffer) {
+				aggregateBlockStatement.AddressResolutionStatements = std::move(blockStatement.AddressResolutionStatements);
+
+				auto initialSize = aggregateBuffer.size();
+				auto appendSize = buffer.size() - 2 * sizeof(uint32_t);
+				aggregateBuffer.resize(aggregateBuffer.size() + appendSize);
+				std::memcpy(aggregateBuffer.data() + initialSize, buffer.data() + sizeof(uint32_t), appendSize);
+			});
+			PrepareOnlyMosaicResolutionsTest(shouldOrder, [&](auto& blockStatement, const auto& buffer) {
+				aggregateBlockStatement.MosaicResolutionStatements = std::move(blockStatement.MosaicResolutionStatements);
+
+				auto initialSize = aggregateBuffer.size();
+				auto appendSize = buffer.size() - 2 * sizeof(uint32_t);
+				aggregateBuffer.resize(aggregateBuffer.size() + appendSize);
+				std::memcpy(aggregateBuffer.data() + initialSize, buffer.data() + 2 * sizeof(uint32_t), appendSize);
+			});
+
+			// Act + Assert:
+			action(aggregateBlockStatement, aggregateBuffer);
+		}
+
+		// endregion
+
+		// region asserts
+
+		void AssertRead(const model::BlockStatement& expectedBlockStatement, std::vector<uint8_t>& buffer) {
 			// Act:
-			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream outputStream("", buffer);
-			WriteBlockStatement(outputStream, *pBlockStatement);
+			model::BlockStatement blockStatement;
+			mocks::MockMemoryStream inputStream(buffer);
+			ReadBlockStatement(inputStream, blockStatement);
 
 			// Assert:
-			auto expectedSize =
-					CalculateTransactionStatementsSize(numStatements[0])
-					+ CalculateAddressResolutionStatementsSize(numStatements[1])
-					+ CalculateMosaicResolutionStatementsSize(numStatements[2]);
-
-			ASSERT_EQ(expectedSize, buffer.size());
-
-			io::BufferInputStreamAdapter<std::vector<uint8_t>> inputStream(buffer);
-			AssertStatements<model::ReceiptSource, mocks::MockReceipt>(inputStream, numStatements[0]);
-			AssertStatements<UnresolvedAddress, model::AddressResolutionStatement::ResolutionEntry>(inputStream, numStatements[1]);
-			AssertStatements<UnresolvedMosaicId, model::MosaicResolutionStatement::ResolutionEntry>(inputStream, numStatements[2]);
+			test::AssertEqual(expectedBlockStatement, blockStatement);
 		}
+
+		void AssertWrite(const model::BlockStatement& blockStatement, const std::vector<uint8_t>& expectedBuffer) {
+			// Act:
+			std::vector<uint8_t> outputBuffer;
+			mocks::MockMemoryStream outputStream(outputBuffer);
+			WriteBlockStatement(outputStream, blockStatement);
+
+			// Assert:
+			ASSERT_EQ(expectedBuffer.size(), outputBuffer.size());
+			EXPECT_EQ_MEMORY(expectedBuffer.data(), outputBuffer.data(), expectedBuffer.size());
+		}
+
+		// endregion
 	}
 
-	TEST(TEST_CLASS, WritingEmptyBlockStatementResultsInNonEmptyFile) {
-		// Arrange:
-		auto pBlockStatement = test::GenerateRandomStatements({ 0, 0, 0 });
+	// region ReadBlockStatement
 
-		// Act:
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream outputStream("", buffer);
-		WriteBlockStatement(outputStream, *pBlockStatement);
-
-		// Assert:
-		std::array<uint8_t, 12u> zero{};
-		ASSERT_EQ(12u, buffer.size());
-		EXPECT_EQ_MEMORY(zero.data(), buffer.data(), 12);
-
+	TEST(TEST_CLASS, CanReadBlockStatementWithoutStatements) {
+		// Act + Assert:
+		auto buffer = std::vector<uint8_t>(3 * sizeof(uint32_t), 0);
+		AssertRead(model::BlockStatement(), buffer);
 	}
 
-	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyTransactionStatements) {
-		AssertCanWriteBlockWithStatement({ 5, 0, 0 });
+	TEST(TEST_CLASS, CanReadBlockStatementWithOnlyTransactionStatements) {
+		// Act + Assert:
+		PrepareOnlyTransactionStatementsTest(false, AssertRead);
 	}
 
-	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyAddressResolutions) {
-		AssertCanWriteBlockWithStatement({ 0, 8, 0 });
+	TEST(TEST_CLASS, CanReadBlockStatementWithOnlyAddressResolutions) {
+		// Act + Assert:
+		PrepareOnlyAddressResolutionsTest(false, AssertRead);
 	}
 
-	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyMosaicResolutions) {
-		AssertCanWriteBlockWithStatement({ 0, 0, 13 });
+	TEST(TEST_CLASS, CanReadBlockStatementWithOnlyMosaicResolutions) {
+		// Act + Assert:
+		PrepareOnlyMosaicResolutionsTest(false, AssertRead);
 	}
 
-	TEST(TEST_CLASS, CanWriteBlockStatementWithAllStatements) {
-		AssertCanWriteBlockWithStatement({ 5, 8, 13 });
+	TEST(TEST_CLASS, CanReadBlockStatementWithAllStatements) {
+		// Act + Assert:
+		PrepareAllStatementsTest(false, AssertRead);
 	}
 
 	// endregion
 
-	// region ReadBlockStatement
+	// region WriteBlockStatement
+
+	TEST(TEST_CLASS, CanWriteBlockStatementWithoutStatements) {
+		// Act + Assert:
+		AssertWrite(model::BlockStatement(), std::vector<uint8_t>(3 * sizeof(uint32_t), 0));
+	}
+
+	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyTransactionStatements) {
+		// Act + Assert: ordering is required to have output in deterministic order
+		PrepareOnlyTransactionStatementsTest(true, AssertWrite);
+	}
+
+	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyAddressResolutions) {
+		// Act + Assert: ordering is required to have output in deterministic order
+		PrepareOnlyAddressResolutionsTest(true, AssertWrite);
+	}
+
+	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyMosaicResolutions) {
+		// Act + Assert: ordering is required to have output in deterministic order
+		PrepareOnlyMosaicResolutionsTest(true, AssertWrite);
+	}
+
+	TEST(TEST_CLASS, CanWriteBlockStatementWithAllStatements) {
+		// Act + Assert: ordering is required to have output in deterministic order
+		PrepareAllStatementsTest(true, AssertWrite);
+	}
+
+	// endregion
+
+	// region roundtrip
 
 	namespace {
-		void AssertCanReadBlockWithStatement(const std::vector<size_t>& numStatements) {
+		void AssertCanRoundtripBlockWithStatement(const std::vector<size_t>& numStatements) {
 			// Arrange:
 			auto pOriginalBlockStatement = test::GenerateRandomStatements(numStatements);
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream outputStream("", buffer);
+			mocks::MockMemoryStream outputStream(buffer);
 			WriteBlockStatement(outputStream, *pOriginalBlockStatement);
 
 			// Act:
 			model::BlockStatement blockStatement;
-			mocks::MockMemoryStream inputStream("", buffer);
+			mocks::MockMemoryStream inputStream(buffer);
 			ReadBlockStatement(inputStream, blockStatement);
 
 			// Assert:
@@ -159,24 +343,29 @@ namespace catapult { namespace io {
 		}
 	}
 
-	TEST(TEST_CLASS, CanReadBlockStatementWithoutStatements) {
-		AssertCanReadBlockWithStatement({ 0, 0, 0 });
+	TEST(TEST_CLASS, CanRoundtripBlockStatementWithoutStatements) {
+		// Assert:
+		AssertCanRoundtripBlockWithStatement({ 0, 0, 0 });
 	}
 
-	TEST(TEST_CLASS, CanReadBlockStatementWithOnlyTransactionStatements) {
-		AssertCanReadBlockWithStatement({ 5, 0, 0 });
+	TEST(TEST_CLASS, CanRoundtripBlockStatementWithOnlyTransactionStatements) {
+		// Assert:
+		AssertCanRoundtripBlockWithStatement({ 5, 0, 0 });
 	}
 
-	TEST(TEST_CLASS, CanReadBlockStatementWithOnlyAddressResolutions) {
-		AssertCanReadBlockWithStatement({ 0, 8, 0 });
+	TEST(TEST_CLASS, CanRoundtripBlockStatementWithOnlyAddressResolutions) {
+		// Assert:
+		AssertCanRoundtripBlockWithStatement({ 0, 8, 0 });
 	}
 
-	TEST(TEST_CLASS, CanReadBlockStatementWithOnlyMosaicResolutions) {
-		AssertCanReadBlockWithStatement({ 0, 0, 13 });
+	TEST(TEST_CLASS, CanRoundtripBlockStatementWithOnlyMosaicResolutions) {
+		// Assert:
+		AssertCanRoundtripBlockWithStatement({ 0, 0, 13 });
 	}
 
-	TEST(TEST_CLASS, CanReadBlockStatementWithAllStatements) {
-		AssertCanWriteBlockWithStatement({ 5, 8, 13 });
+	TEST(TEST_CLASS, CanRoundtripBlockStatementWithAllStatements) {
+		// Assert:
+		AssertCanRoundtripBlockWithStatement({ 5, 8, 13 });
 	}
 
 	// endregion

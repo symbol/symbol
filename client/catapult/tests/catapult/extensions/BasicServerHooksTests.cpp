@@ -92,18 +92,18 @@ namespace catapult { namespace extensions {
 
 		// Act:
 		auto consumer = AggregateConsumers<catapult::consumer<const int&>>({
-			[&breadcrumbs](const auto& data) { breadcrumbs.push_back(&data); }
+			[&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back(&sentinel); }
 		});
 
 		ASSERT_TRUE(!!consumer);
 
 		// - call the consumer
-		int data = 11;
-		consumer(data);
+		int sentinel = 11;
+		consumer(sentinel);
 
 		// Assert:
 		ASSERT_EQ(1u, breadcrumbs.size());
-		EXPECT_EQ(&data, breadcrumbs[0]);
+		EXPECT_EQ(&sentinel, breadcrumbs[0]);
 	}
 
 	TEST(TEST_CLASS, CanAggregateMultipleConsumers) {
@@ -113,20 +113,20 @@ namespace catapult { namespace extensions {
 
 		// Act:
 		auto consumer = AggregateConsumers<catapult::consumer<const int&>>({
-			[&breadcrumbs](const auto& data) { breadcrumbs.push_back({ &data, 1 }); },
-			[&breadcrumbs](const auto& data) { breadcrumbs.push_back({ &data, 2 }); }
+			[&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back({ &sentinel, 1 }); },
+			[&breadcrumbs](const auto& sentinel) { breadcrumbs.push_back({ &sentinel, 2 }); }
 		});
 
 		ASSERT_TRUE(!!consumer);
 
 		// - call the consumer
-		int data = 11;
-		consumer(data);
+		int sentinel = 11;
+		consumer(sentinel);
 
 		// Assert:
 		ASSERT_EQ(2u, breadcrumbs.size());
 		for (auto i = 0u; i < breadcrumbs.size(); ++i) {
-			EXPECT_EQ(&data, breadcrumbs[i].pData) << "at " << i;
+			EXPECT_EQ(&sentinel, breadcrumbs[i].pData) << "at " << i;
 			EXPECT_EQ(i + 1u, breadcrumbs[i].Id) << "at " << i;
 		}
 	}

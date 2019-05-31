@@ -73,7 +73,7 @@ namespace catapult { namespace parsers {
 
 		// 2. read block metadata
 		element.EntityHash = reader.read<Hash256>();
-		element.GenerationHash = reader.read<Hash256>();
+		element.GenerationHash = reader.read<GenerationHash>();
 
 		// 3. write transaction metadata
 		for (const auto& transaction : element.Block.Transactions()) {

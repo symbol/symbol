@@ -119,8 +119,7 @@ namespace catapult { namespace observers {
 
 			// Act:
 			typename TTraits::NotificationBuilder notificationBuilder;
-			const auto& key = TTraits::BasicTraits::ToKey(lockInfo);
-			notificationBuilder.setHash(key);
+			notificationBuilder.prepare(lockInfo);
 
 			auto notification = notificationBuilder.notification();
 			test::ObserveNotification(*pObserver, notification, context);

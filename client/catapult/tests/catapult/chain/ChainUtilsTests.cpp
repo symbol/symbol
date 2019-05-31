@@ -35,7 +35,7 @@ namespace catapult { namespace chain {
 
 	namespace {
 		std::unique_ptr<model::Block> GenerateBlockAtHeight(Height height, Timestamp timestamp) {
-			auto pBlock = test::GenerateBlockWithTransactionsAtHeight(0, height);
+			auto pBlock = test::GenerateBlockWithTransactions(0, height);
 			pBlock->Timestamp = timestamp;
 			return pBlock;
 		}
@@ -58,7 +58,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, IsChainLinkReturnsFalseIfHeightIsMismatched) {
+	TEST(TEST_CLASS, IsChainLinkReturnsFalseWhenHeightIsMismatched) {
 		// Assert:
 		AssertNotLinkedForHeights(Height(70), Height(60));
 		AssertNotLinkedForHeights(Height(70), Height(69));
@@ -67,14 +67,14 @@ namespace catapult { namespace chain {
 		AssertNotLinkedForHeights(Height(70), Height(80));
 	}
 
-	TEST(TEST_CLASS, IsChainLinkReturnsFalseIfPreviousBlockHashIsIncorrect) {
+	TEST(TEST_CLASS, IsChainLinkReturnsFalseWhenPreviousBlockHashIsIncorrect) {
 		// Arrange:
 		auto pParent = GenerateBlockAtHeight(Height(70), Timestamp(100));
 		auto pChild = GenerateBlockAtHeight(Height(71), Timestamp(101));
 		LinkHashes(*pParent, *pChild);
 
 		// Act:
-		bool isLink = IsChainLink(*pParent, test::GenerateRandomData<Hash256_Size>(), *pChild);
+		bool isLink = IsChainLink(*pParent, test::GenerateRandomByteArray<Hash256>(), *pChild);
 
 		// Assert:
 		EXPECT_FALSE(isLink);
@@ -95,7 +95,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, IsChainLinkReturnsFalseIfTimestampsAreNotIncreasing) {
+	TEST(TEST_CLASS, IsChainLinkReturnsFalseWhenTimestampsAreNotIncreasing) {
 		// Assert:
 		AssertNotLinkedForTimestamps(Timestamp(70), Timestamp(60));
 		AssertNotLinkedForTimestamps(Timestamp(70), Timestamp(69));
@@ -117,7 +117,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, IsChainLinkReturnsTrueIfBothHeightAndHashesAreCorrectAndTimestampsAreIncreasing) {
+	TEST(TEST_CLASS, IsChainLinkReturnsTrueWhenBothHeightAndHashesAreCorrectAndTimestampsAreIncreasing) {
 		// Assert:
 		AssertLinkedForTimestamps(Timestamp(70), Timestamp(71));
 		AssertLinkedForTimestamps(Timestamp(70), Timestamp(700));
@@ -180,7 +180,7 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, DifficultiesAreValidIfPeerChainIsEmpty) {
+	TEST(TEST_CLASS, DifficultiesAreValidWhenPeerChainIsEmpty) {
 		// Arrange: set up the config
 		auto config = CreateConfiguration();
 		config.BlockGenerationTargetTime = utils::TimeSpan::FromMilliseconds(10000);
@@ -217,12 +217,12 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, DifficultiesAreValidIfAllDifficultiesAreCorrectAndFullHistoryIsPresent_Equal) {
+	TEST(TEST_CLASS, DifficultiesAreValidWhenAllDifficultiesAreCorrectAndFullHistoryIsPresent_Equal) {
 		// Assert:
 		AssertDifficultiesAreValidForBlocksWithEqualDifficulties(15, Height(20));
 	}
 
-	TEST(TEST_CLASS, DifficultiesAreValidIfAllDifficultiesAreCorrectAndPartialHistoryIsPresent_Equal) {
+	TEST(TEST_CLASS, DifficultiesAreValidWhenAllDifficultiesAreCorrectAndPartialHistoryIsPresent_Equal) {
 		// Assert:
 		AssertDifficultiesAreValidForBlocksWithEqualDifficulties(15, Height(5));
 	}
@@ -270,12 +270,12 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, DifficultiesAreValidIfAllDifficultiesAreCorrectAndFullHistoryIsPresent_Increasing) {
+	TEST(TEST_CLASS, DifficultiesAreValidWhenAllDifficultiesAreCorrectAndFullHistoryIsPresent_Increasing) {
 		// Assert:
 		AssertDifficultiesAreValidForBlocksWithIncreasingDifficulties(15, Height(20));
 	}
 
-	TEST(TEST_CLASS, DifficultiesAreValidIfAllDifficultiesAreCorrectAndPartialHistoryIsPresent_Increasing) {
+	TEST(TEST_CLASS, DifficultiesAreValidWhenAllDifficultiesAreCorrectAndPartialHistoryIsPresent_Increasing) {
 		// Assert:
 		AssertDifficultiesAreValidForBlocksWithIncreasingDifficulties(15, Height(5));
 	}
@@ -307,17 +307,17 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, DifficultiesAreInvalidIfFirstBlockHasIncorrectDifficulty) {
+	TEST(TEST_CLASS, DifficultiesAreInvalidWhenFirstBlockHasIncorrectDifficulty) {
 		// Assert:
 		AssertDifficultiesAreInvalidForDifferenceAt(15, Height(20), 5, 0);
 	}
 
-	TEST(TEST_CLASS, DifficultiesAreInvalidIfMiddleBlockHasIncorrectDifficulty) {
+	TEST(TEST_CLASS, DifficultiesAreInvalidWhenMiddleBlockHasIncorrectDifficulty) {
 		// Assert:
 		AssertDifficultiesAreInvalidForDifferenceAt(15, Height(20), 5, 2);
 	}
 
-	TEST(TEST_CLASS, DifficultiesAreInvalidIfLastBlockHasIncorrectDifficulty) {
+	TEST(TEST_CLASS, DifficultiesAreInvalidWhenLastBlockHasIncorrectDifficulty) {
 		// Assert:
 		AssertDifficultiesAreInvalidForDifferenceAt(15, Height(20), 5, 4);
 	}

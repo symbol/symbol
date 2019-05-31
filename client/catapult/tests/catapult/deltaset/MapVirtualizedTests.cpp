@@ -36,9 +36,7 @@ namespace catapult { namespace deltaset {
 		>;
 
 		using MapVirtualizedMutableTraits = MapVirtualizedTraits<test::MutableElementValueTraits>;
-		using MapVirtualizedMutablePointerTraits = MapVirtualizedTraits<test::MutableElementPointerTraits>;
 		using MapVirtualizedImmutableTraits = MapVirtualizedTraits<test::ImmutableElementValueTraits>;
-		using MapVirtualizedImmutablePointerTraits = MapVirtualizedTraits<test::ImmutablePointerValueTraits>;
 	}
 
 // iteration is not supported by virtualized sets
@@ -49,17 +47,13 @@ namespace catapult { namespace deltaset {
 
 // base (mutable)
 DEFINE_MUTABLE_BASE_SET_TESTS_FOR(MapVirtualizedMutable);
-DEFINE_MUTABLE_BASE_SET_TESTS_FOR(MapVirtualizedMutablePointer);
 
 // base (immutable)
 DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(MapVirtualizedImmutable);
-DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(MapVirtualizedImmutablePointer);
 
 // delta (mutable)
 DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(MapVirtualizedMutable);
-DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(MapVirtualizedMutablePointer);
 
 // delta (immutable)
 DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(MapVirtualizedImmutable);
-DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(MapVirtualizedImmutablePointer);
 }}

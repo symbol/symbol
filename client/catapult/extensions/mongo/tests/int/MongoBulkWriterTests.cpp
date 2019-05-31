@@ -89,7 +89,7 @@ namespace catapult { namespace mongo {
 			for (const auto& pTransaction : transactions) {
 				transactionElements.emplace_back(*pTransaction);
 				auto& transactionElement = transactionElements.back();
-				transactionElement.EntityHash = test::GenerateRandomData<Hash256_Size>();
+				transactionElement.EntityHash = test::GenerateRandomByteArray<Hash256>();
 				transactionElement.OptionalExtractedAddresses = std::make_shared<model::UnresolvedAddressSet>();
 			}
 
@@ -206,9 +206,9 @@ namespace catapult { namespace mongo {
 				createDocument).get();
 
 		// Assert:
-		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
+		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
 		test::AssertCollectionSize(Transactions_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount()));
-		AssertResult(GetDefaultEntityCount(), 0, 0, 0, 0, aggregate);
+		AssertResult(GetDefaultEntityCount(), 0, 0, 0, 0, aggregateResult);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, InsertOneToManyPerformance) {
@@ -230,9 +230,9 @@ namespace catapult { namespace mongo {
 				createDocuments).get();
 
 		// Assert: each entity is mapped to three documents
-		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
+		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
 		test::AssertCollectionSize(Transactions_Collection_Name, static_cast<uint64_t>(3 * GetDefaultEntityCount()));
-		AssertResult(3 * GetDefaultEntityCount(), 0, 0, 0, 0, aggregate);
+		AssertResult(3 * GetDefaultEntityCount(), 0, 0, 0, 0, aggregateResult);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, UpsertPerformance) {
@@ -262,9 +262,9 @@ namespace catapult { namespace mongo {
 				test::CreateFilter).get();
 
 		// Assert:
-		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
+		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
 		test::AssertCollectionSize(Accounts_Collection_Name, static_cast<uint64_t>(GetDefaultEntityCount()));
-		AssertResult(0, GetDefaultEntityCount() / 2, GetDefaultEntityCount() / 2, 0, GetDefaultEntityCount() / 2, aggregate);
+		AssertResult(0, GetDefaultEntityCount() / 2, GetDefaultEntityCount() / 2, 0, GetDefaultEntityCount() / 2, aggregateResult);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, DeleteOneToOnePerformance) {
@@ -287,9 +287,9 @@ namespace catapult { namespace mongo {
 				test::CreateFilter).get();
 
 		// Assert:
-		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
+		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
 		test::AssertCollectionSize(Accounts_Collection_Name, 0);
-		AssertResult(0, 0, 0, GetDefaultEntityCount(), 0, aggregate);
+		AssertResult(0, 0, 0, GetDefaultEntityCount(), 0, aggregateResult);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, DeleteOneToManyPerformance) {
@@ -311,9 +311,9 @@ namespace catapult { namespace mongo {
 		auto results = context.bulkWriter().bulkDelete<std::vector<int>>(Accounts_Collection_Name, { 1 }, createSelectAllFilter).get();
 
 		// Assert:
-		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
+		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
 		test::AssertCollectionSize(Accounts_Collection_Name, 0);
-		AssertResult(0, 0, 0, GetDefaultEntityCount(), 0, aggregate);
+		AssertResult(0, 0, 0, GetDefaultEntityCount(), 0, aggregateResult);
 	}
 
 	// endregion
@@ -372,11 +372,14 @@ namespace catapult { namespace mongo {
 						CreateDocumentThrow<model::TransactionElement>);
 			}
 
-			static void AssertDelegation(const TransactionElements& elements, const Capture& capture, const BulkWriteResult& aggregate) {
+			static void AssertDelegation(
+					const TransactionElements& elements,
+					const Capture& capture,
+					const BulkWriteResult& aggregateResult) {
 				// Assert:
 				EXPECT_EQ(1u, capture.NumCreateDocumentCalls);
 				EXPECT_EQ(&(*elements.cbegin()), capture.pCreateDocumentElement);
-				AssertResult(1, 0, 0, 0, 0, aggregate);
+				AssertResult(1, 0, 0, 0, 0, aggregateResult);
 			}
 		};
 
@@ -417,11 +420,14 @@ namespace catapult { namespace mongo {
 						CreateDocumentsThrow<model::TransactionElement>);
 			}
 
-			static void AssertDelegation(const TransactionElements& elements, const Capture& capture, const BulkWriteResult& aggregate) {
+			static void AssertDelegation(
+					const TransactionElements& elements,
+					const Capture& capture,
+					const BulkWriteResult& aggregateResult) {
 				// Assert:
 				EXPECT_EQ(1u, capture.NumCreateDocumentsCalls);
 				EXPECT_EQ(&(*elements.cbegin()), capture.pCreateDocumentsElement);
-				AssertResult(3, 0, 0, 0, 0, aggregate); // 3 documents should have been inserted
+				AssertResult(3, 0, 0, 0, 0, aggregateResult); // 3 documents should have been inserted
 			}
 		};
 
@@ -470,7 +476,10 @@ namespace catapult { namespace mongo {
 						CreateFilterThrow<AccountStates::value_type>);
 			}
 
-			static void AssertDelegation(const AccountStates& accountStates, const Capture& capture, const BulkWriteResult& aggregate) {
+			static void AssertDelegation(
+					const AccountStates& accountStates,
+					const Capture& capture,
+					const BulkWriteResult& aggregateResult) {
 				// Assert:
 				EXPECT_EQ(1u, capture.NumCreateDocumentCalls);
 				EXPECT_EQ((*accountStates.cbegin()).get(), capture.pCreateDocumentAccountState);
@@ -478,7 +487,7 @@ namespace catapult { namespace mongo {
 				EXPECT_EQ(1u, capture.NumCreateFilterCalls);
 				EXPECT_EQ((*accountStates.cbegin()).get(), capture.pCreateFilterAccountState);
 
-				AssertResult(0, 0, 0, 0, 1, aggregate);
+				AssertResult(0, 0, 0, 0, 1, aggregateResult);
 			}
 		};
 
@@ -513,13 +522,16 @@ namespace catapult { namespace mongo {
 				return writer.bulkDelete<AccountStates>(Accounts_Collection_Name, {}, CreateFilterThrow<AccountStates::value_type>);
 			}
 
-			static void AssertDelegation(const AccountStates& accountStates, const Capture& capture, const BulkWriteResult& aggregate) {
+			static void AssertDelegation(
+					const AccountStates& accountStates,
+					const Capture& capture,
+					const BulkWriteResult& aggregateResult) {
 				// Assert:
 				EXPECT_EQ(1u, capture.NumCreateFilterCalls);
 				EXPECT_EQ((*accountStates.cbegin()).get(), capture.pCreateFilterAccountState);
 
 				// - note that nothing was deleted because the db is empty
-				AssertResult(0, 0, 0, 0, 0, aggregate);
+				AssertResult(0, 0, 0, 0, 0, aggregateResult);
 			}
 		};
 	}
@@ -546,15 +558,15 @@ namespace catapult { namespace mongo {
 		auto results = TTraits::Execute(context.bulkWriter(), TTraits::GetElements(context), blockFlag, capture).get();
 
 		// Assert:
-		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-		TTraits::AssertDelegation(TTraits::GetElements(context), capture, aggregate);
+		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
+		TTraits::AssertDelegation(TTraits::GetElements(context), capture, aggregateResult);
 	}
 
 	// endregion
 
 	// region shutdown
 
-	BULK_OPERATION_TEST(FutureIsFulfilledEvenIfWriterIsDestroyed) {
+	BULK_OPERATION_TEST(FutureIsFulfilledEvenWhenWriterIsDestroyed) {
 		// Arrange:
 		PerformanceContext context(1);
 		std::atomic_bool blockFlag(true);
@@ -575,10 +587,10 @@ namespace catapult { namespace mongo {
 		blockFlag = false;
 
 		CATAPULT_LOG(debug) << "waiting for writer";
-		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(future.get()));
+		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(future.get()));
 
 		// Assert: the write should have completed successfully
-		TTraits::AssertDelegation(TTraits::GetElements(context), capture, aggregate);
+		TTraits::AssertDelegation(TTraits::GetElements(context), capture, aggregateResult);
 	}
 
 	// endregion
@@ -593,8 +605,8 @@ namespace catapult { namespace mongo {
 		auto results = TTraits::ExecuteZero(context.bulkWriter()).get();
 
 		// Assert:
-		auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-		AssertResult(0, 0, 0, 0, 0, aggregate);
+		auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
+		AssertResult(0, 0, 0, 0, 0, aggregateResult);
 	}
 
 	// endregion

@@ -56,18 +56,18 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, NonMultisigAccountIsAllowedToMakeAnyOperation) {
 		// Arrange:
-		auto multisigAccountKey = test::GenerateRandomData<Key_Size>();
-		auto cosignatoryAccountKey = test::GenerateRandomData<Key_Size>();
+		auto multisigAccountKey = test::GenerateRandomByteArray<Key>();
+		auto cosignatoryAccountKey = test::GenerateRandomByteArray<Key>();
 		auto cache = CreateCacheWithSingleLevelMultisig(multisigAccountKey, { cosignatoryAccountKey });
 
 		// Assert:
-		AssertValidationResult(ValidationResult::Success, cache, test::GenerateRandomData<Key_Size>());
+		AssertValidationResult(ValidationResult::Success, cache, test::GenerateRandomByteArray<Key>());
 	}
 
 	TEST(TEST_CLASS, CosignatoryAccountIsAllowedToMakeAnyOperation) {
 		// Arrange:
-		auto multisigAccountKey = test::GenerateRandomData<Key_Size>();
-		auto cosignatoryAccountKey = test::GenerateRandomData<Key_Size>();
+		auto multisigAccountKey = test::GenerateRandomByteArray<Key>();
+		auto cosignatoryAccountKey = test::GenerateRandomByteArray<Key>();
 		auto cache = CreateCacheWithSingleLevelMultisig(multisigAccountKey, { cosignatoryAccountKey });
 
 		// Assert:
@@ -76,8 +76,8 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, MultisigAccountIsNotAllowedToMakeAnyOperation) {
 		// Arrange:
-		auto multisigAccountKey = test::GenerateRandomData<Key_Size>();
-		auto cosignatoryAccountKey = test::GenerateRandomData<Key_Size>();
+		auto multisigAccountKey = test::GenerateRandomByteArray<Key>();
+		auto cosignatoryAccountKey = test::GenerateRandomByteArray<Key>();
 		auto cache = CreateCacheWithSingleLevelMultisig(multisigAccountKey, { cosignatoryAccountKey });
 
 		// Assert:

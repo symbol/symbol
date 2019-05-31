@@ -22,6 +22,7 @@
 #include "tests/test/core/BlockTestUtils.h"
 #include "tests/test/core/HashTestUtils.h"
 #include "tests/test/core/mocks/MockBlockStorage.h"
+#include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace io {
@@ -153,17 +154,7 @@ namespace catapult { namespace io {
 			}
 		};
 
-		class MockBlockChangeSubscriber : public UnsupportedBlockChangeSubscriber {
-		public:
-			std::vector<const model::BlockElement*> Elements;
-
-		public:
-			void notifyBlock(const model::BlockElement& blockElement) override {
-				Elements.push_back(&blockElement);
-			}
-		};
-
-		TestContext<MockBlockStorage, MockBlockChangeSubscriber> context;
+		TestContext<MockBlockStorage, mocks::MockBlockChangeSubscriber> context;
 
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		auto pBlockElement = std::make_shared<model::BlockElement>(*pBlock);
@@ -175,8 +166,8 @@ namespace catapult { namespace io {
 		ASSERT_EQ(1u, context.storage().Elements.size());
 		EXPECT_EQ(pBlockElement.get(), context.storage().Elements[0]);
 
-		ASSERT_EQ(1u, context.subscriber().Elements.size());
-		EXPECT_EQ(pBlockElement.get(), context.subscriber().Elements[0]);
+		ASSERT_EQ(1u, context.subscriber().blockElements().size());
+		EXPECT_EQ(pBlockElement.get(), context.subscriber().blockElements()[0]);
 	}
 
 	TEST(TEST_CLASS, DropBlocksAfterDelegatesToStorageAndPublisher) {
@@ -191,17 +182,7 @@ namespace catapult { namespace io {
 			}
 		};
 
-		class MockBlockChangeSubscriber : public UnsupportedBlockChangeSubscriber {
-		public:
-			std::vector<Height> Heights;
-
-		public:
-			void notifyDropBlocksAfter(Height height) override {
-				Heights.push_back(height);
-			}
-		};
-
-		TestContext<MockBlockStorage, MockBlockChangeSubscriber> context;
+		TestContext<MockBlockStorage, mocks::MockBlockChangeSubscriber> context;
 
 		// Act:
 		context.aggregate().dropBlocksAfter(Height(553));
@@ -210,8 +191,8 @@ namespace catapult { namespace io {
 		ASSERT_EQ(1u, context.storage().Heights.size());
 		EXPECT_EQ(Height(553), context.storage().Heights[0]);
 
-		ASSERT_EQ(1u, context.subscriber().Heights.size());
-		EXPECT_EQ(Height(553), context.subscriber().Heights[0]);
+		ASSERT_EQ(1u, context.subscriber().dropBlocksAfterHeights().size());
+		EXPECT_EQ(Height(553), context.subscriber().dropBlocksAfterHeights()[0]);
 	}
 
 	// endregion

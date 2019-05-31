@@ -50,6 +50,7 @@ namespace catapult { namespace mongo {
 					: m_pStorage(test::CreateMongoStorage<cache::PtChangeSubscriber>(
 							std::move(pTransactionPlugin),
 							dbInitializationType,
+							MongoErrorPolicy::Mode::Strict,
 							CreateMongoPtStorage))
 					, m_transactionInfos(test::CreateTransactionInfos(numTransactionInfos))
 			{}

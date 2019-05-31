@@ -24,7 +24,7 @@
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/cache/ReadOnlyCatapultCache.h"
 #include "catapult/cache/RelockableDetachedCatapultCache.h"
-#include "catapult/cache/UtCache.h"
+#include "catapult/cache_tx/UtCache.h"
 #include "catapult/model/FeeUtils.h"
 #include "catapult/utils/HexFormatter.h"
 
@@ -85,7 +85,7 @@ namespace catapult { namespace chain {
 			}
 
 			// 1. lock and clear the UT cache - UT cache must be locked before catapult cache to prevent race condition whereby
-			//    other update overload applies transactions to rebased cache before UT lock is held
+			//    other update overload applies transactions to rebased cache before UT lock is held
 			auto modifier = m_transactionsCache.modifier();
 			auto originalTransactionInfos = modifier.removeAll();
 
@@ -141,8 +141,8 @@ namespace catapult { namespace chain {
 				if (entity.MaxFee < minTransactionFee) {
 					// don't log reverted transactions that could have been included by harvester with lower min fee multiplier
 					if (TransactionSource::New == transactionSource) {
-						CATAPULT_LOG(info)
-								<< "dropping transaction " << utils::HexFormat(entityHash) << " with max fee " << entity.MaxFee
+						CATAPULT_LOG(debug)
+								<< "dropping transaction " << entityHash << " with max fee " << entity.MaxFee
 								<< " because min fee is " << minTransactionFee;
 					}
 
@@ -150,7 +150,7 @@ namespace catapult { namespace chain {
 				}
 
 				if (throttle(utInfo, transactionSource, applyState, readOnlyCache)) {
-					CATAPULT_LOG(warning) << "dropping transaction " << utils::HexFormat(entityHash) << " due to throttle";
+					CATAPULT_LOG(warning) << "dropping transaction " << entityHash << " due to throttle";
 					m_failedTransactionSink(entity, entityHash, Failure_Chain_Unconfirmed_Cache_Too_Full);
 					continue;
 				}
@@ -167,7 +167,7 @@ namespace catapult { namespace chain {
 				m_executionConfig.pNotificationPublisher->publish(entityInfo, sub);
 				if (!IsValidationResultSuccess(sub.result())) {
 					CATAPULT_LOG_LEVEL(validators::MapToLogLevel(sub.result()))
-							<< "dropping transaction " << utils::HexFormat(entityHash) << ": " << sub.result();
+							<< "dropping transaction " << entityHash << ": " << sub.result();
 
 					// only forward failure (not neutral) results
 					if (IsValidationResultFailure(sub.result()))

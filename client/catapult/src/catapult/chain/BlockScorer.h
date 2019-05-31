@@ -31,7 +31,7 @@ namespace catapult { namespace chain {
 	using BlockTarget = boost::multiprecision::uint256_t;
 
 	/// Calculates the hit for a \a generationHash.
-	uint64_t CalculateHit(const Hash256& generationHash);
+	uint64_t CalculateHit(const GenerationHash& generationHash);
 
 	/// Calculates the score of \a currentBlock with parent \a parentBlock.
 	uint64_t CalculateScore(const model::Block& parentBlock, const model::Block& currentBlock);
@@ -61,7 +61,7 @@ namespace catapult { namespace chain {
 
 	public:
 		/// Generation hash.
-		Hash256 GenerationHash;
+		catapult::GenerationHash GenerationHash;
 
 		/// Time since the last block.
 		utils::TimeSpan ElapsedTime;
@@ -88,7 +88,7 @@ namespace catapult { namespace chain {
 
 	public:
 		/// Determines if the \a block is a hit given its parent (\a parentBlock) and generation hash (\a generationHash).
-		bool operator()(const model::Block& parentBlock, const model::Block& block, const Hash256& generationHash) const;
+		bool operator()(const model::Block& parentBlock, const model::Block& block, const GenerationHash& generationHash) const;
 
 		/// Determines if the specified \a context is a hit.
 		bool operator()(const BlockHitContext& context) const;

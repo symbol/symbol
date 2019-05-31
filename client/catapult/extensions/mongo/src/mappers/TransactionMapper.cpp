@@ -41,7 +41,8 @@ namespace catapult { namespace mongo { namespace mappers {
 			// transaction metadata
 			bson_stream::document builder;
 			builder << "_id" << metadata.ObjectId;
-			builder << "meta"
+			builder
+					<< "meta"
 					<< bson_stream::open_document
 						<< "height" << ToInt64(metadata.Height)
 						<< "hash" << ToBinary(metadata.EntityHash)

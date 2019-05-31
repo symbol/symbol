@@ -25,6 +25,13 @@
 
 namespace catapult { namespace test {
 
+	namespace {
+		void SetIndexHeight(const std::string& destination, uint64_t height) {
+			io::RawFile indexFile(destination + "/index.dat", io::OpenMode::Read_Write);
+			io::Write64(indexFile, height);
+		}
+	}
+
 	void PrepareStorage(const std::string& destination) {
 #ifdef SIGNATURE_SCHEME_NIS1
 		constexpr auto Source_Directory = "../seed/mijin-test.nis1";
@@ -38,22 +45,20 @@ namespace catapult { namespace test {
 		boost::filesystem::copy_file(Source_Directory + nemesisFilename, destination + nemesisFilename);
 		const std::string nemesisHashFilename = nemesisDirectory + "/hashes.dat";
 		boost::filesystem::copy_file(Source_Directory + nemesisHashFilename, destination + nemesisHashFilename);
+
+		SetIndexHeight(destination, 1);
 	}
 
 	void FakeHeight(const std::string& destination, uint64_t height) {
 		const std::string nemesisDirectory = "/00000";
 		const std::string nemesisHashFilename = destination + nemesisDirectory + "/hashes.dat";
 
-		std::vector<uint8_t> data(height * Hash256_Size);
+		std::vector<uint8_t> hashesBuffer(height * Hash256_Size);
 		{
 			io::RawFile file(nemesisHashFilename, io::OpenMode::Read_Write);
-			file.write(data);
+			file.write(hashesBuffer);
 		}
 
-		--height;
-		{
-			io::RawFile file(destination + "/index.dat", io::OpenMode::Read_Write);
-			io::Write64(file, height);
-		}
+		SetIndexHeight(destination, --height);
 	}
 }}

@@ -34,7 +34,7 @@ namespace catapult { namespace cache {
 			: public CacheSerializerAdapter<state::AccountStateNonHistoricalSerializer, AccountStateCacheDescriptor>
 	{};
 
-	/// Serializer for key address lookup subcache.
+	/// Serializer for key address lookup sub cache.
 	struct KeyAddressPairSerializer {
 	private:
 		using KeyType = Key;

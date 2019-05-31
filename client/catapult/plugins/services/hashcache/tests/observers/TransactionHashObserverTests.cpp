@@ -39,7 +39,7 @@ namespace catapult { namespace observers {
 
 		void SeedCache(cache::HashCacheDelta& cache) {
 			for (auto i = 0u; i < Num_Hashes; ++i) {
-				cache.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
+				cache.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
 			}
 		}
 
@@ -58,7 +58,7 @@ namespace catapult { namespace observers {
 		auto pObserver = CreateTransactionHashObserver();
 
 		auto deadline = test::GenerateRandomValue<Timestamp>();
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto timestampedHash = CreateTimestampedHash(deadline, hash);
 
 		auto& cache = context.observerContext().Cache.sub<cache::HashCache>();
@@ -82,7 +82,7 @@ namespace catapult { namespace observers {
 		auto pObserver = CreateTransactionHashObserver();
 
 		auto deadline = test::GenerateRandomValue<Timestamp>();
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto timestampedHash = CreateTimestampedHash(deadline, hash);
 
 		auto& cache = context.observerContext().Cache.sub<cache::HashCache>();

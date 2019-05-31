@@ -73,9 +73,10 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, CanOutputWellKnownEnumValues) {
 		// Assert:
 		EXPECT_EQ("Harvest_Fee", test::ToString(Receipt_Type_Harvest_Fee));
+		EXPECT_EQ("Inflation", test::ToString(Receipt_Type_Inflation));
+		EXPECT_EQ("Transaction_Group", test::ToString(Receipt_Type_Transaction_Group));
 		EXPECT_EQ("Address_Alias_Resolution", test::ToString(Receipt_Type_Address_Alias_Resolution));
 		EXPECT_EQ("Mosaic_Alias_Resolution", test::ToString(Receipt_Type_Mosaic_Alias_Resolution));
-		EXPECT_EQ("Transaction_Group", test::ToString(Receipt_Type_Transaction_Group));
 	}
 
 	TEST(TEST_CLASS, CanOutputPluginEnumValues) {

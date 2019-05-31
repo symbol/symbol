@@ -22,15 +22,15 @@
 #include "NodeSubscriber.h"
 #include "StateChangeSubscriber.h"
 #include "TransactionStatusSubscriber.h"
-#include "catapult/cache/MemoryPtCache.h"
-#include "catapult/cache/MemoryUtCache.h"
-#include "catapult/cache/PtChangeSubscriber.h"
-#include "catapult/cache/UtChangeSubscriber.h"
+#include "catapult/cache_tx/MemoryPtCache.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
+#include "catapult/cache_tx/PtChangeSubscriber.h"
+#include "catapult/cache_tx/UtChangeSubscriber.h"
 #include "catapult/io/BlockChangeSubscriber.h"
 #include "catapult/io/FileBlockStorage.h"
 #include "catapult/utils/Casting.h"
 
-namespace catapult { namespace config { class LocalNodeConfiguration; } }
+namespace catapult { namespace config { class CatapultConfiguration; } }
 
 namespace catapult { namespace subscribers {
 
@@ -38,7 +38,7 @@ namespace catapult { namespace subscribers {
 	class SubscriptionManager {
 	public:
 		/// Creates a new subscription manager around \a config.
-		explicit SubscriptionManager(const config::LocalNodeConfiguration& config);
+		explicit SubscriptionManager(const config::CatapultConfiguration& config);
 
 	public:
 		/// Gets the underlying file storage.
@@ -64,14 +64,14 @@ namespace catapult { namespace subscribers {
 		void addNodeSubscriber(std::unique_ptr<NodeSubscriber>&& pSubscriber);
 
 	public:
-		/// Creates the block storage.
-		std::unique_ptr<io::BlockStorage> createBlockStorage();
+		/// Creates the block change subscriber.
+		std::unique_ptr<io::BlockChangeSubscriber> createBlockChangeSubscriber();
 
-		/// Creates the unconfirmed transactions cache with the specified cache \a options.
-		std::unique_ptr<cache::MemoryUtCacheProxy> createUtCache(const cache::MemoryCacheOptions& options);
+		/// Creates the ut change subscriber.
+		std::unique_ptr<cache::UtChangeSubscriber> createUtChangeSubscriber();
 
-		/// Creates the partial transactions cache with the specified cache \a options.
-		std::unique_ptr<cache::MemoryPtCacheProxy> createPtCache(const cache::MemoryCacheOptions& options);
+		/// Creates the pt change subscriber.
+		std::unique_ptr<cache::PtChangeSubscriber> createPtChangeSubscriber();
 
 		/// Creates the transaction status subscriber.
 		std::unique_ptr<TransactionStatusSubscriber> createTransactionStatusSubscriber();
@@ -82,6 +82,19 @@ namespace catapult { namespace subscribers {
 		/// Creates the node subscriber.
 		std::unique_ptr<NodeSubscriber> createNodeSubscriber();
 
+	public:
+		/// Creates the block storage and sets \a pSubscriber to the created block change subscriber.
+		/// \note createBlockChangeSubscriber cannot be called if this function is called.
+		std::unique_ptr<io::BlockStorage> createBlockStorage(io::BlockChangeSubscriber*& pSubscriber);
+
+		/// Creates the unconfirmed transactions cache with the specified cache \a options.
+		/// \note createUtChangeSubscriber cannot be called if this function is called.
+		std::unique_ptr<cache::MemoryUtCacheProxy> createUtCache(const cache::MemoryCacheOptions& options);
+
+		/// Creates the partial transactions cache with the specified cache \a options.
+		/// \note createPtChangeSubscriber cannot be called if this function is called.
+		std::unique_ptr<cache::MemoryPtCacheProxy> createPtCache(const cache::MemoryCacheOptions& options);
+
 	private:
 		enum class SubscriberType : uint32_t { BlockChange, UtChange, PtChange, TransactionStatus, StateChange, Node, Count };
 
@@ -91,7 +104,7 @@ namespace catapult { namespace subscribers {
 		void markUsed(SubscriberType subscriberType);
 
 	private:
-		const config::LocalNodeConfiguration& m_config;
+		const config::CatapultConfiguration& m_config;
 		std::unique_ptr<io::FileBlockStorage> m_pStorage;
 		std::array<bool, utils::to_underlying_type(SubscriberType::Count)> m_subscriberUsedFlags;
 

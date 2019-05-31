@@ -39,7 +39,7 @@ namespace catapult { namespace model {
 				+ Hash256_Size // block transactions hash
 				+ Hash256_Size // block receipts hash
 				+ Hash256_Size // state hash
-				+ Key_Size; // beneficiary public key
+				+ Key_Size; // beneficiary
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BlockHeader));
@@ -53,7 +53,7 @@ namespace catapult { namespace model {
 	namespace {
 		std::unique_ptr<Block> CreateBlockWithTransactions(size_t numTransactions = 3) {
 			auto transactions = test::GenerateRandomTransactions(numTransactions);
-			return test::GenerateRandomBlockWithTransactions(transactions);
+			return test::GenerateBlockWithTransactions(transactions);
 		}
 
 		std::unique_ptr<Block> CreateBlockWithReportedSize(uint32_t size) {
@@ -131,7 +131,7 @@ namespace catapult { namespace model {
 
 	// region IsSizeValid - no transactions
 
-	TEST(TEST_CLASS, SizeInvalidIfReportedSizeIsZero) {
+	TEST(TEST_CLASS, SizeInvalidWhenReportedSizeIsZero) {
 		// Arrange:
 		auto pBlock = CreateBlockWithReportedSize(0);
 
@@ -139,7 +139,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pBlock));
 	}
 
-	TEST(TEST_CLASS, SizeInvalidIfReportedSizeIsLessThanHeaderSize) {
+	TEST(TEST_CLASS, SizeInvalidWhenReportedSizeIsLessThanHeaderSize) {
 		// Arrange:
 		auto pBlock = CreateBlockWithReportedSize(sizeof(BlockHeader) - 1);
 
@@ -147,7 +147,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pBlock));
 	}
 
-	TEST(TEST_CLASS, SizeValidIfReportedSizeIsEqualToHeaderSize) {
+	TEST(TEST_CLASS, SizeValidWhenReportedSizeIsEqualToHeaderSize) {
 		// Arrange:
 		auto pBlock = CreateBlockWithReportedSize(sizeof(BlockHeader));
 
@@ -159,7 +159,7 @@ namespace catapult { namespace model {
 
 	// region IsSizeValid - invalid inner tx sizes
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasPartialHeader) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionHasPartialHeader) {
 		// Arrange: create a block with 1 extra byte (which should be interpeted as a partial tx header)
 		auto pBlock = CreateBlockWithReportedSize(sizeof(BlockHeader) + 1);
 
@@ -167,7 +167,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pBlock));
 	}
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasInvalidSize) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionHasInvalidSize) {
 		// Arrange:
 		auto pBlock = CreateBlockWithTransactions();
 		GetSecondTransaction(*pBlock).Data.Size = 1;
@@ -176,7 +176,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pBlock));
 	}
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasZeroSize) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionHasZeroSize) {
 		// Arrange:
 		auto pBlock = CreateBlockWithTransactions();
 		GetSecondTransaction(*pBlock).Size = 0;
@@ -185,7 +185,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pBlock));
 	}
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyInnerTransactionExpandsBeyondBuffer) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyInnerTransactionExpandsBeyondBuffer) {
 		// Arrange:
 		auto pBlock = CreateBlockWithTransactions();
 		GetSecondTransaction(*pBlock).Size = pBlock->Size - pBlock->TransactionsPtr()->Size + 1;
@@ -198,7 +198,7 @@ namespace catapult { namespace model {
 
 	// region IsSizeValid - invalid inner tx types
 
-	TEST(TEST_CLASS, SizeInvalidIfAnyTransactionHasUnknownType) {
+	TEST(TEST_CLASS, SizeInvalidWhenAnyTransactionHasUnknownType) {
 		// Arrange:
 		auto pBlock = CreateBlockWithTransactions();
 		GetSecondTransaction(*pBlock).Type = static_cast<EntityType>(-1);
@@ -207,7 +207,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pBlock));
 	}
 
-	TEST(TEST_CLASS, SizeValidIfAnyTransactionDoesNotSupportEmbedding) {
+	TEST(TEST_CLASS, SizeValidWhenAnyTransactionDoesNotSupportEmbedding) {
 		// Arrange:
 		auto pBlock = CreateBlockWithTransactions();
 
@@ -219,7 +219,7 @@ namespace catapult { namespace model {
 
 	// region IsSizeValid - valid transactions
 
-	TEST(TEST_CLASS, SizeInvalidIfBlockWithTransactionsHasLargerReportedSizeThanActual) {
+	TEST(TEST_CLASS, SizeInvalidWhenBlockWithTransactionsHasLargerReportedSizeThanActual) {
 		// Arrange:
 		auto pBlock = CreateBlockWithTransactions();
 		++pBlock->Size;
@@ -228,7 +228,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(IsSizeValid(*pBlock));
 	}
 
-	TEST(TEST_CLASS, SizeValidIfReportedSizeIsEqualToHeaderSizePlusTransactionsSize) {
+	TEST(TEST_CLASS, SizeValidWhenReportedSizeIsEqualToHeaderSizePlusTransactionsSize) {
 		// Arrange:
 		auto pBlock = CreateBlockWithTransactions();
 

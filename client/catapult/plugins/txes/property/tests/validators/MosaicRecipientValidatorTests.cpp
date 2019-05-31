@@ -54,7 +54,7 @@ namespace catapult { namespace validators {
 			auto cache = test::PropertyCacheFactory::Create();
 			PopulateCache<TOperationTraits>(cache, accountAddress, mosaicIds);
 			auto pValidator = CreateMosaicRecipientValidator();
-			auto sender = test::GenerateRandomData<Key_Size>();
+			auto sender = test::GenerateRandomByteArray<Key>();
 			auto notification = model::BalanceTransferNotification(sender, recipient, mosaicId, Amount(123));
 
 			// Act:
@@ -69,7 +69,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenRecipientIsKnownAndMosaicIdIsNotContainedInValues_Allow) {
 		// Arrange:
-		auto accountAddress = test::GenerateRandomData<Address_Decoded_Size>();
+		auto accountAddress = test::GenerateRandomByteArray<Address>();
 
 		// Act:
 		AssertValidationResult<test::AllowTraits>(
@@ -82,7 +82,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenRecipientIsKnownAndMosaicIdIsContainedInValues_Block) {
 		// Arrange:
-		auto accountAddress = test::GenerateRandomData<Address_Decoded_Size>();
+		auto accountAddress = test::GenerateRandomByteArray<Address>();
 		auto values = test::GenerateRandomDataVector<MosaicId>(3);
 
 		// Act:
@@ -106,20 +106,20 @@ namespace catapult { namespace validators {
 
 	TRAITS_BASED_TEST(SuccessWhenRecipientIsNotKnown) {
 		// Arrange:
-		auto accountAddress = test::GenerateRandomData<Address_Decoded_Size>();
+		auto accountAddress = test::GenerateRandomByteArray<Address>();
 
 		// Act:
 		AssertValidationResult<TTraits>(
 				ValidationResult::Success,
 				accountAddress,
 				test::GenerateRandomDataVector<MosaicId>(3),
-				test::UnresolveXor(test::GenerateRandomData<Address_Decoded_Size>()),
+				test::UnresolveXor(test::GenerateRandomByteArray<Address>()),
 				test::GenerateRandomValue<UnresolvedMosaicId>());
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenRecipientIsKnownButPropertyHasNoValues) {
 		// Arrange:
-		auto accountAddress = test::GenerateRandomData<Address_Decoded_Size>();
+		auto accountAddress = test::GenerateRandomByteArray<Address>();
 
 		// Act:
 		AssertValidationResult<TTraits>(
@@ -134,7 +134,7 @@ namespace catapult { namespace validators {
 		template<typename TOperationTraits>
 		void AssertSuccess(const std::vector<MosaicId>& mosaicIds, UnresolvedMosaicId transferredMosaicId) {
 			// Arrange:
-			auto accountAddress = test::GenerateRandomData<Address_Decoded_Size>();
+			auto accountAddress = test::GenerateRandomByteArray<Address>();
 
 			// Act:
 			AssertValidationResult<TOperationTraits>(

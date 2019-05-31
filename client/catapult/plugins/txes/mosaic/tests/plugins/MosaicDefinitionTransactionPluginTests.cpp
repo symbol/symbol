@@ -35,22 +35,27 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS MosaicDefinitionTransactionPluginTests
 
 	namespace {
-		TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(MosaicDefinition, MosaicRentalFeeConfiguration, 3, 3)
+		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(MosaicDefinition, MosaicRentalFeeConfiguration, 3, 3,)
 
 		constexpr UnresolvedMosaicId Currency_Mosaic_Id(1234);
 
 		MosaicRentalFeeConfiguration CreateRentalFeeConfiguration(Amount fee) {
 			return {
-				test::GenerateRandomData<Key_Size>(),
+				test::GenerateRandomByteArray<Key>(),
 				Currency_Mosaic_Id,
 				test::GenerateRandomUnresolvedAddress(),
 				fee,
-				test::GenerateRandomData<Key_Size>()
+				test::GenerateRandomByteArray<Key>()
 			};
 		}
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Entity_Type_Mosaic_Definition, CreateRentalFeeConfiguration(Amount(0)))
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(
+			TEST_CLASS,
+			,
+			,
+			Entity_Type_Mosaic_Definition,
+			CreateRentalFeeConfiguration(Amount(0)))
 
 	PLUGIN_TEST(CanCalculateSize) {
 		// Arrange:

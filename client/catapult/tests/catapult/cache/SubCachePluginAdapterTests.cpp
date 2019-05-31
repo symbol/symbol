@@ -502,6 +502,10 @@ namespace catapult { namespace cache {
 
 	// region createStorage
 
+	namespace {
+		constexpr auto Xor_Operand = 0xFFFFFFFF'FFFFFFFFu;
+	}
+
 	TEST(TEST_CLASS, CanAccessStorageWhenCacheSupportsIteration) {
 		// Arrange:
 		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(0, test::SimpleCacheViewMode::Iterable));
@@ -526,15 +530,19 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, CanSerializeCacheToStorage) {
 		// Arrange:
-		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
-		auto pCacheStorage = adapter.createStorage();
+		auto pAdapter = std::make_unique<SimpleCachePluginAdapter>(CreateSimpleCacheWithValue(5));
+		auto pCacheStorage = pAdapter->createStorage();
 		ASSERT_TRUE(!!pCacheStorage);
 
-		std::vector<uint8_t> buffer;
-		mocks::MockMemoryStream stream("", buffer);
+		std::vector<std::unique_ptr<SubCachePlugin>> subCaches(4);
+		subCaches[3] = std::move(pAdapter);
+		CatapultCache cache(std::move(subCaches));
+		auto cacheView = cache.createView();
 
 		// Act:
-		pCacheStorage->saveAll(stream);
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream stream(buffer);
+		pCacheStorage->saveAll(cacheView, stream);
 
 		// Assert:
 		ASSERT_EQ(6 * sizeof(uint64_t), buffer.size());
@@ -543,7 +551,7 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(5u, pData64[0]); // size;
 
 		for (auto i = 1u; i <= 5; ++i)
-			EXPECT_EQ(i ^ 0xFFFFFFFF'FFFFFFFF, pData64[i]) << "value at " << i;
+			EXPECT_EQ(i ^ Xor_Operand, pData64[i]) << "value at " << i;
 	}
 
 	TEST(TEST_CLASS, CanDeserializeCacheFromStorage) {
@@ -557,16 +565,97 @@ namespace catapult { namespace cache {
 		auto* pData64 = reinterpret_cast<uint64_t*>(buffer.data());
 		pData64[0] = 3; // size
 		for (auto i = 1u; i <= 3; ++i)
-			pData64[i] = i ^ 0xFFFFFFFF'FFFFFFFF;
-
-		mocks::MockMemoryStream stream("", buffer);
+			pData64[i] = i ^ Xor_Operand;
 
 		// Act:
+		mocks::MockMemoryStream stream(buffer);
 		pCacheStorage->loadAll(stream, 2);
 
 		// Assert:
 		auto pView = adapter.createView();
 		AssertView<test::SimpleCacheView>(pView, 3, SubCacheViewType::View);
+	}
+
+	// endregion
+
+	// region createChangesStorage
+
+	namespace {
+		std::unordered_set<uint64_t> XorAll(const std::unordered_set<uint64_t>& values) {
+			std::unordered_set<uint64_t> xoredValues;
+			for (auto value : values)
+				xoredValues.insert(value ^ Xor_Operand);
+
+			return xoredValues;
+		}
+	}
+
+	TEST(TEST_CLASS, CanSerializeCacheChangesToStream) {
+		// Arrange: create cache changes storage
+		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
+		auto pCacheChangesStorage = adapter.createChangesStorage();
+		ASSERT_TRUE(!!pCacheChangesStorage);
+
+		// - create cache changes (simple cache id is 3)
+		auto pSubCacheChanges = std::make_unique<MemoryCacheChangesT<uint64_t>>();
+		pSubCacheChanges->Added = { 1, 16 };
+		pSubCacheChanges->Removed = { 9, 25, 36 };
+		pSubCacheChanges->Copied = { 4 };
+
+		CacheChanges::MemoryCacheChangesContainer cacheChangesContainer;
+		cacheChangesContainer.emplace_back(nullptr);
+		cacheChangesContainer.emplace_back(nullptr);
+		cacheChangesContainer.emplace_back(nullptr);
+		cacheChangesContainer.emplace_back(std::move(pSubCacheChanges));
+		CacheChanges changes(std::move(cacheChangesContainer));
+
+		// Act: write changes to buffer
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream stream(buffer);
+		pCacheChangesStorage->saveAll(changes, stream);
+
+		ASSERT_EQ(9 * sizeof(uint64_t), buffer.size());
+		const auto* pData64 = reinterpret_cast<const uint64_t*>(buffer.data());
+
+		// - header
+		EXPECT_EQ(2u, pData64[0]);
+		EXPECT_EQ(3u, pData64[1]);
+		EXPECT_EQ(1u, pData64[2]);
+
+		// values
+		EXPECT_EQ(XorAll({ 1, 16 }), std::unordered_set<uint64_t>({ pData64[3], pData64[4] }));
+		EXPECT_EQ(XorAll({ 9, 25, 36 }), std::unordered_set<uint64_t>({ pData64[5], pData64[6], pData64[7] }));
+		EXPECT_EQ(XorAll({ 4 }), std::unordered_set<uint64_t>({ pData64[8] }));
+	}
+
+	TEST(TEST_CLASS, CanDeserializeCacheChangesFromStream) {
+		// Arrange: create cache changes storage
+		SimpleCachePluginAdapter adapter(CreateSimpleCacheWithValue(5));
+		auto pCacheChangesStorage = adapter.createChangesStorage();
+		ASSERT_TRUE(!!pCacheChangesStorage);
+
+		// - prepare the input
+		std::vector<uint8_t> buffer(9 * sizeof(uint64_t));
+		auto* pData64 = reinterpret_cast<uint64_t*>(buffer.data());
+		for (auto value : std::initializer_list<uint64_t>{ 2, 3, 1 })
+			*pData64++ = value;
+
+		for (auto value : std::initializer_list<uint64_t>{ 1, 16, 9, 25, 36, 4 })
+			*pData64++ = value ^ Xor_Operand;
+
+		// Act:
+		mocks::MockMemoryStream stream(buffer);
+		auto pChangesVoid = pCacheChangesStorage->loadAll(stream);
+		const auto& changes = static_cast<const MemoryCacheChangesT<uint64_t>&>(*pChangesVoid);
+
+		// Assert:
+		EXPECT_EQ(2u, changes.Added.size());
+		EXPECT_EQ(3u, changes.Removed.size());
+		EXPECT_EQ(1u, changes.Copied.size());
+
+		EXPECT_EQ(std::vector<uint64_t>({ 1, 16 }), changes.Added);
+		EXPECT_EQ(std::vector<uint64_t>({ 9, 25, 36 }), changes.Removed);
+		EXPECT_EQ(std::vector<uint64_t>({ 4 }), changes.Copied);
 	}
 
 	// endregion

@@ -48,7 +48,7 @@ namespace catapult { namespace test {
 	}
 
 	std::ostream& operator<<(std::ostream& out, const BasicNodeData& data) {
-		out << data.Name << " (source " << data.Source << ") " << utils::HexFormat(data.IdentityKey);
+		out << data.Name << " (source " << data.Source << ") " << data.IdentityKey;
 		return out;
 	}
 

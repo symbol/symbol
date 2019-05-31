@@ -30,7 +30,7 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	TEST(TEST_CLASS, CanMapTransactionStatus) {
 		// Arrange:
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto status = 123456u;
 		auto deadline = Timestamp(321);
 

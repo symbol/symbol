@@ -59,7 +59,7 @@ namespace catapult { namespace config {
 
 	// region LoadConfiguration
 
-	TEST(TEST_CLASS, LoadConfigurationFailsIfFileDoesNotExist) {
+	TEST(TEST_CLASS, LoadConfigurationFailsWhenFileDoesNotExist) {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
 			// Act + Assert:
@@ -73,7 +73,7 @@ namespace catapult { namespace config {
 		});
 	}
 
-	TEST(TEST_CLASS, LoadConfigurationSucceedsIfFileExists) {
+	TEST(TEST_CLASS, LoadConfigurationSucceedsWhenFileExists) {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
 			// Act:
@@ -110,7 +110,7 @@ namespace catapult { namespace config {
 		};
 	}
 
-	TEST(TEST_CLASS, LoadIniConfigurationFailsIfFileDoesNotExist) {
+	TEST(TEST_CLASS, LoadIniConfigurationFailsWhenFileDoesNotExist) {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
 			// Act + Assert:
@@ -118,7 +118,7 @@ namespace catapult { namespace config {
 		});
 	}
 
-	TEST(TEST_CLASS, LoadIniConfigurationSucceedsIfFileExists) {
+	TEST(TEST_CLASS, LoadIniConfigurationSucceedsWhenFileExists) {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
 			// Act:
@@ -135,7 +135,7 @@ namespace catapult { namespace config {
 
 	// region LoadPeersConfiguration
 
-	TEST(TEST_CLASS, LoadPeersConfigurationFailsIfFileDoesNotExist) {
+	TEST(TEST_CLASS, LoadPeersConfigurationFailsWhenFileDoesNotExist) {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
 			// Act + Assert:
@@ -143,7 +143,7 @@ namespace catapult { namespace config {
 		});
 	}
 
-	TEST(TEST_CLASS, LoadPeersConfigurationSucceedsIfFileExists) {
+	TEST(TEST_CLASS, LoadPeersConfigurationSucceedsWhenFileExists) {
 		// Arrange:
 		RunTestWithTemporaryDirectory([](const auto& path) {
 			// Act:

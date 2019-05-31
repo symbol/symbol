@@ -38,9 +38,8 @@ namespace catapult { namespace state {
 			return size;
 		}
 
-		void AssertEqualData(const std::vector<uint8_t>& expectedData, const uint8_t* pData, const std::string& message) {
-			auto data = std::vector<uint8_t>(pData, pData + expectedData.size());
-			EXPECT_EQ(expectedData, data) << message;
+		void AssertEqualData(const std::vector<uint8_t>& expectedBuffer, const uint8_t* pData, const std::string& message) {
+			EXPECT_EQ_MEMORY(expectedBuffer.data(), pData, expectedBuffer.size()) << message;
 		}
 
 		void AssertBuffer(const AccountProperties& accountProperties, const std::vector<uint8_t>& buffer, size_t expectedSize) {
@@ -79,7 +78,7 @@ namespace catapult { namespace state {
 		void AssertCanSaveAccountProperties(const std::vector<size_t>& valuesSizes) {
 			// Arrange:
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream outputStream("", buffer);
+			mocks::MockMemoryStream outputStream(buffer);
 			auto accountProperties = test::CreateAccountProperties(state::OperationType::Allow, valuesSizes);
 
 			// Act:
@@ -117,7 +116,7 @@ namespace catapult { namespace state {
 			using SerializerType = AccountPropertiesSerializer;
 
 			static auto CreateEntry() {
-				return AccountProperties(test::GenerateRandomData<Address_Decoded_Size>());
+				return AccountProperties(test::GenerateRandomByteArray<Address>());
 			}
 
 			static void AddKeys(AccountProperties& accountProperties, const std::vector<Address>& addresses) {
@@ -171,12 +170,12 @@ namespace catapult { namespace state {
 			// Arrange: make address property Block and mosaic property Allow
 			// - empty properties always have Block flag set
 			constexpr auto Add = model::PropertyModificationType::Add;
-			AccountProperties accountProperties(test::GenerateRandomData<Address_Decoded_Size>());
+			AccountProperties accountProperties(test::GenerateRandomByteArray<Address>());
 			model::RawPropertyModification modification{ Add, test::GenerateRandomVector(sizeof(MosaicId)) };
 			accountProperties.property(model::PropertyType::MosaicId).allow(modification);
 
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 
 			// Act:
 			AccountPropertiesSerializer::Save(accountProperties, stream);
@@ -233,7 +232,7 @@ namespace catapult { namespace state {
 			auto buffer = CreateBuffer(originalAccountProperties);
 
 			// Act:
-			AccountProperties result(test::GenerateRandomData<Address_Decoded_Size>());
+			AccountProperties result(test::GenerateRandomByteArray<Address>());
 			test::RunLoadValueTest<AccountPropertiesSerializer>(buffer, result);
 
 			// Assert:

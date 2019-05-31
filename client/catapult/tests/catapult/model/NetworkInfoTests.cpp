@@ -35,14 +35,14 @@ namespace catapult { namespace model {
 
 		// Assert:
 		EXPECT_EQ(0x00u, utils::to_underlying_type(info.Identifier));
-		EXPECT_EQ(Key{}, info.PublicKey);
-		EXPECT_EQ(Hash256{}, info.GenerationHash);
+		EXPECT_EQ(Key(), info.PublicKey);
+		EXPECT_EQ(GenerationHash(), info.GenerationHash);
 	}
 
 	TEST(TEST_CLASS, CanCreateCustomNetwork) {
 		// Arrange:
-		auto publicKey = test::GenerateRandomData<Key_Size>();
-		auto generationHash = test::GenerateRandomData<Hash256_Size>();
+		auto publicKey = test::GenerateRandomByteArray<Key>();
+		auto generationHash = test::GenerateRandomByteArray<GenerationHash>();
 
 		// Act:
 		NetworkInfo info(static_cast<NetworkIdentifier>(0xB9), publicKey, generationHash);

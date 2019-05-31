@@ -176,7 +176,7 @@ namespace catapult { namespace ionet {
 		ASSERT_EQ(2u, buffer.size());
 	}
 
-	TEST(TEST_CLASS, BufferIsNotConsumedByExtractorIfConsumeIsNotCalledExplicitly) {
+	TEST(TEST_CLASS, BufferIsNotConsumedByExtractorWhenConsumeIsNotCalledExplicitly) {
 		// Arrange:
 		auto buffer = test::GenerateRandomVector(20);
 		SetValueAtOffset(buffer, 0, 20);

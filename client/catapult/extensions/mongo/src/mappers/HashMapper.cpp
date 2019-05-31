@@ -32,7 +32,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			size_t boundCheck = 0;
 			for (const auto& dbHash : iterable) {
 				if (numHashes == boundCheck++)
-					CATAPULT_THROW_RUNTIME_ERROR("db inconsistent, more hashes in db then expected");
+					CATAPULT_THROW_RUNTIME_ERROR("db inconsistent, more hashes in db than expected");
 
 				DbBinaryToModelArray(*hashRangeIter++, dbHash["meta"]["hash"].get_binary());
 			}

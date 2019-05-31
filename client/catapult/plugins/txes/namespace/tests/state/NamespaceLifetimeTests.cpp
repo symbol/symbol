@@ -21,6 +21,7 @@
 #include "src/state/NamespaceLifetime.h"
 #include "tests/test/nodeps/Equality.h"
 #include "tests/TestHarness.h"
+#include <limits>
 
 namespace catapult { namespace state {
 
@@ -38,6 +39,16 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Height(234), lifetime.GracePeriodEnd);
 	}
 
+	TEST(TEST_CLASS, CanCreateEternalNamespaceLifetimeWithoutGracePeriod) {
+		// Act:
+		NamespaceLifetime lifetime(Height(123), Height(0xFFFF'FFFF'FFFF'FFFF));
+
+		// Assert:
+		EXPECT_EQ(Height(123), lifetime.Start);
+		EXPECT_EQ(Height(0xFFFF'FFFF'FFFF'FFFF), lifetime.End);
+		EXPECT_EQ(Height(0xFFFF'FFFF'FFFF'FFFF), lifetime.GracePeriodEnd);
+	}
+
 	TEST(TEST_CLASS, CanCreateNamespaceLifetimeWithGracePeriod) {
 		// Act:
 		NamespaceLifetime lifetime(Height(123), Height(234), BlockDuration(50));
@@ -46,6 +57,16 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Height(123), lifetime.Start);
 		EXPECT_EQ(Height(234), lifetime.End);
 		EXPECT_EQ(Height(284), lifetime.GracePeriodEnd);
+	}
+
+	TEST(TEST_CLASS, CanCreateEternalNamespaceLifetimeWithGracePeriod) {
+		// Act:
+		NamespaceLifetime lifetime(Height(123), Height(0xFFFF'FFFF'FFFF'FFFF), BlockDuration(50));
+
+		// Assert:
+		EXPECT_EQ(Height(123), lifetime.Start);
+		EXPECT_EQ(Height(0xFFFF'FFFF'FFFF'FFFF), lifetime.End);
+		EXPECT_EQ(Height(0xFFFF'FFFF'FFFF'FFFF), lifetime.GracePeriodEnd);
 	}
 
 	TEST(TEST_CLASS, CanCreateNamespaceLifetimeWithMinLifetimeWithoutGracePeriod) {
@@ -68,6 +89,17 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Height(284), lifetime.GracePeriodEnd);
 	}
 
+	TEST(TEST_CLASS, CanCreateNamespaceLifetimeWithMaxGracePeriodEnd) {
+		// Act:
+		auto maxValue = std::numeric_limits<uint64_t>::max();
+		NamespaceLifetime lifetime(Height(123), Height(234), BlockDuration(maxValue - 234));
+
+		// Assert:
+		EXPECT_EQ(Height(123), lifetime.Start);
+		EXPECT_EQ(Height(234), lifetime.End);
+		EXPECT_EQ(Height(maxValue), lifetime.GracePeriodEnd);
+	}
+
 	TEST(TEST_CLASS, CannotCreateNamespaceLifetimeWithZeroLifetime) {
 		// Act + Assert:
 		EXPECT_THROW(NamespaceLifetime(Height(123), Height(123)), catapult_invalid_argument);
@@ -84,11 +116,19 @@ namespace catapult { namespace state {
 		EXPECT_THROW(NamespaceLifetime(Height(125), Height(63), BlockDuration(50)), catapult_invalid_argument);
 	}
 
+	TEST(TEST_CLASS, CannotCreateNamespaceWithGracePeriodEndOverflow) {
+		// Act + Assert:
+		auto maxValue = std::numeric_limits<uint64_t>::max();
+		EXPECT_THROW(NamespaceLifetime(Height(123), Height(234), BlockDuration(maxValue - 234 + 1)), catapult_invalid_argument);
+		EXPECT_THROW(NamespaceLifetime(Height(123), Height(234), BlockDuration(maxValue - 123 + 1)), catapult_invalid_argument);
+		EXPECT_THROW(NamespaceLifetime(Height(123), Height(234), BlockDuration(maxValue)), catapult_invalid_argument);
+	}
+
 	// endregion
 
 	// region isActiveAndUnlocked / isActiveOrGracePeriod
 
-	TEST(TEST_CLASS, IsActiveAndUnlockedReturnsTrueIfHeightIsWithinLifetime) {
+	TEST(TEST_CLASS, IsActiveAndUnlockedReturnsTrueWhenHeightIsWithinLifetime) {
 		// Arrange:
 		NamespaceLifetime lifetime(Height(123), Height(234), BlockDuration(50));
 
@@ -97,7 +137,7 @@ namespace catapult { namespace state {
 			EXPECT_TRUE(lifetime.isActiveAndUnlocked(Height(height))) << "at height " << height;
 	}
 
-	TEST(TEST_CLASS, IsActiveAndUnlockedReturnsFalseIfHeightIsNotWithinLifetime) {
+	TEST(TEST_CLASS, IsActiveAndUnlockedReturnsFalseWhenHeightIsNotWithinLifetime) {
 		// Arrange:
 		NamespaceLifetime lifetime(Height(123), Height(234), BlockDuration(50));
 
@@ -106,7 +146,7 @@ namespace catapult { namespace state {
 			EXPECT_FALSE(lifetime.isActiveAndUnlocked(Height(height))) << "at height " << height;
 	}
 
-	TEST(TEST_CLASS, IsActiveOrGracePeriodReturnsTrueIfHeightIsWithinLifetimeOrGracePeriod) {
+	TEST(TEST_CLASS, IsActiveOrGracePeriodReturnsTrueWhenHeightIsWithinLifetimeOrGracePeriod) {
 		// Arrange:
 		NamespaceLifetime lifetime(Height(123), Height(234), BlockDuration(50));
 
@@ -115,7 +155,7 @@ namespace catapult { namespace state {
 			EXPECT_TRUE(lifetime.isActiveOrGracePeriod(Height(height))) << "at height " << height;
 	}
 
-	TEST(TEST_CLASS, IsActiveOrGracePeriodReturnsFalseIfHeightIsNotWithinLifetimeOrGracePeriod) {
+	TEST(TEST_CLASS, IsActiveOrGracePeriodReturnsFalseWhenHeightIsNotWithinLifetimeOrGracePeriod) {
 		// Arrange:
 		NamespaceLifetime lifetime(Height(123), Height(234), BlockDuration(50));
 

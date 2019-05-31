@@ -37,7 +37,8 @@ namespace catapult { namespace model {
 
 	bool IsSizeValid(const AggregateTransaction& aggregate, const TransactionRegistry& registry) {
 		if (!IsPayloadSizeValid(aggregate)) {
-			CATAPULT_LOG(warning) << "aggregate transaction failed size validation with size "
+			CATAPULT_LOG(warning)
+					<< "aggregate transaction failed size validation with size "
 					<< aggregate.Size << " and payload size " << aggregate.PayloadSize;
 			return false;
 		}
@@ -50,7 +51,8 @@ namespace catapult { namespace model {
 		if (areAllTransactionsValid && !transactions.hasError())
 			return true;
 
-		CATAPULT_LOG(warning) << "aggregate transactions failed size validation (valid sizes? " << areAllTransactionsValid
+		CATAPULT_LOG(warning)
+				<< "aggregate transactions failed size validation (valid sizes? " << areAllTransactionsValid
 				<< ", errors? " << transactions.hasError() << ")";
 		return false;
 	}

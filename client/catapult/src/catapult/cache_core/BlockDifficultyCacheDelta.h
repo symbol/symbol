@@ -36,10 +36,12 @@ namespace catapult { namespace cache {
 	class BasicBlockDifficultyCacheDelta
 			: public utils::MoveOnly
 			, public BlockDifficultyCacheDeltaMixins::Size
-			, public BlockDifficultyCacheDeltaMixins::Contains {
+			, public BlockDifficultyCacheDeltaMixins::Contains
+			, public BlockDifficultyCacheDeltaMixins::DeltaElements {
 	public:
 		using ReadOnlyView = BlockDifficultyCacheTypes::CacheReadOnlyType;
 		using ValueType = BlockDifficultyCacheDescriptor::ValueType;
+		using IterableView = IterationMixin<BlockDifficultyCacheTypes::PrimaryTypes::BaseSetDeltaType>::IterableView;
 
 	public:
 		/// Creates a delta around \a difficultyInfoSets and \a options.
@@ -50,6 +52,12 @@ namespace catapult { namespace cache {
 	public:
 		/// Gets the pruning boundary that is used during commit.
 		deltaset::PruningBoundary<ValueType> pruningBoundary() const;
+
+	public:
+		/// Creates an iterable view of the cache.
+		/// \note Match BlockDifficultyCacheDeltaMixins::Iteration signature but don't derive because
+		//  IsBaseSetIterable is not (and should not be) implemented for base set deltas.
+		std::unique_ptr<IterableView> tryMakeIterableView() const;
 
 	public:
 		/// Inserts a block difficulty \a info into the set.

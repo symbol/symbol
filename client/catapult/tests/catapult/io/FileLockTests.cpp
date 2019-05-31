@@ -48,7 +48,7 @@ namespace catapult { namespace io {
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-	TEST(TEST_CLASS, LockFileIsNotRemovedIfProcessExits) {
+	TEST(TEST_CLASS, LockFileIsNotRemovedWhenProcessExits) {
 		// Arrange:
 		TempFileGuard guard("test.lock");
 
@@ -61,6 +61,27 @@ namespace catapult { namespace io {
 
 		// Assert:
 		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
+	}
+
+	TEST(TEST_CLASS, LockFileCanBeRemovedAfterOriginalProcessExits) {
+		// Arrange:
+		TempFileGuard guard("test.lock");
+
+		// - create a lock, but don't let the process run the dtor
+		ASSERT_DEATH({
+			FileLock lock(guard.name());
+			lock.lock();
+			_exit(1);
+		}, "");
+
+		// Sanity:
+		EXPECT_TRUE(boost::filesystem::exists(guard.name()));
+
+		// Act:
+		boost::filesystem::remove(guard.name());
+
+		// Assert:
+		EXPECT_FALSE(boost::filesystem::exists(guard.name()));
 	}
 
 	TEST(TEST_CLASS, LockFileCannotBeAcquiredFromOtherProcess) {

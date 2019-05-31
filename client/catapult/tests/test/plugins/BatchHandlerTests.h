@@ -42,16 +42,16 @@ namespace catapult { namespace test {
 		}
 
 		/// Asserts that an expected response is set if the request packet is valid.
-		static void AssertResponseIsSetIfPacketIsValid() {
+		static void AssertResponseIsSetWhenPacketIsValid() {
 			// Assert:
 			// - returning 1 item is handled correctly
-			AssertResponseIsSetIfPacketIsValid(3, 1);
+			AssertResponseIsSetWhenPacketIsValid(3, 1);
 
 			// - returning some items is handled correctly
-			AssertResponseIsSetIfPacketIsValid(5, 3);
+			AssertResponseIsSetWhenPacketIsValid(5, 3);
 
 			// - returning more items than passed in request is handled correctly
-			AssertResponseIsSetIfPacketIsValid(7, 10);
+			AssertResponseIsSetWhenPacketIsValid(7, 10);
 		}
 
 	private:
@@ -65,7 +65,7 @@ namespace catapult { namespace test {
 			}
 		}
 
-		static void AssertResponseIsSetIfPacketIsValid(uint32_t numRequestStructures, uint32_t numResponseEntities) {
+		static void AssertResponseIsSetWhenPacketIsValid(uint32_t numRequestStructures, uint32_t numResponseEntities) {
 			// Arrange:
 			using RequestStructureType = typename TTraits::RequestStructureType;
 
@@ -139,5 +139,5 @@ namespace catapult { namespace test {
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, PacketWithNoPayloadIsRejected) \
 	\
 	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithNonEmptyPayloadIsAccepted) \
-	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, ResponseIsSetIfPacketIsValid)
+	MAKE_BATCH_HANDLER_TEST(TEST_CLASS, HANDLER_NAME, ResponseIsSetWhenPacketIsValid)
 }}

@@ -32,7 +32,8 @@ namespace catapult { namespace test {
 			ASSERT_EQ(properties.size(), test::GetFieldCount(dbProperties));
 			auto dbIter = dbProperties.cbegin();
 			for (const auto& property : properties) {
-				EXPECT_EQ(property.Value, static_cast<uint64_t>(dbIter->get_int64().value));
+				EXPECT_EQ(property.Id, static_cast<model::MosaicPropertyId>(GetUint8(*dbIter, "id")));
+				EXPECT_EQ(property.Value, GetUint64(*dbIter, "value"));
 				++dbIter;
 			}
 		}
@@ -53,9 +54,5 @@ namespace catapult { namespace test {
 		// two required and one optional property
 		EXPECT_EQ(3u, test::GetFieldCount(dbProperties));
 		AssertMosaicProperties(properties, dbProperties);
-
-		auto dbLevy = dbMosaic["levy"].get_document().view();
-		EXPECT_EQ(0u, test::GetFieldCount(dbLevy));
-		EXPECT_TRUE(dbLevy.empty()); // fix when document contains levy
 	}
 }}

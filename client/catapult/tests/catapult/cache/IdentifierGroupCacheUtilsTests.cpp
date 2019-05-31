@@ -19,7 +19,7 @@
 **/
 
 #include "catapult/cache/IdentifierGroupCacheUtils.h"
-#include "tests/catapult/cache/test/TestCacheTypes.h"
+#include "tests/test/cache/TestCacheTypes.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -134,6 +134,14 @@ namespace catapult { namespace cache {
 		void RunHeightGroupedTest(TAction action) {
 			RunHeightGroupedTest(Height(std::numeric_limits<Height::ValueType>::max()), action);
 		}
+
+		size_t CountIdentifiers(const test::TestCacheTypes::HeightGroupedBaseSetDeltaType& groupedDelta, const std::vector<Height>& keys) {
+			size_t count = 0;
+			for (auto key : keys)
+				count += groupedDelta.find(key).get()->size();
+
+			return count;
+		}
 	}
 
 	// endregion
@@ -195,6 +203,61 @@ namespace catapult { namespace cache {
 			EXPECT_EQ(2u, values.size());
 			EXPECT_CONTAINS(values, "bbbb");
 			EXPECT_CONTAINS(values, std::string(100, 'z'));
+		});
+	}
+
+	// endregion
+
+	// region RemoveIdentifierWithGroup
+
+	TEST(TEST_CLASS, RemoveIdentifierWithGroup_DoesNotRemoveAnythingWhenGroupDoesNotExist) {
+		// Arrange:
+		RunHeightGroupedTest([](const auto&, auto& groupedDelta) {
+			// Sanity:
+			EXPECT_FALSE(groupedDelta.contains(Height(5)));
+			EXPECT_EQ(4u, groupedDelta.size());
+			EXPECT_EQ(10u, CountIdentifiers(groupedDelta, { Height(1), Height(3), Height(6), Height(7) }));
+
+			// Act:
+			RemoveIdentifierWithGroup(groupedDelta, Height(5), 100);
+
+			// Assert: nothing changed
+			EXPECT_EQ(4u, groupedDelta.size());
+			EXPECT_EQ(10u, CountIdentifiers(groupedDelta, { Height(1), Height(3), Height(6), Height(7) }));
+		});
+	}
+
+	TEST(TEST_CLASS, RemoveIdentifierWithGroup_RemovesIdentifierInGroup) {
+		// Arrange:
+		RunHeightGroupedTest([](const auto&, auto& groupedDelta) {
+			// Sanity:
+			EXPECT_EQ(4u, groupedDelta.size());
+			EXPECT_EQ(10u, CountIdentifiers(groupedDelta, { Height(1), Height(3), Height(6), Height(7) }));
+
+			// Act:
+			RemoveIdentifierWithGroup(groupedDelta, Height(3), 100);
+
+			// Assert: identifier was removed
+			EXPECT_EQ(4u, groupedDelta.size());
+			EXPECT_EQ(9u, CountIdentifiers(groupedDelta, { Height(1), Height(3), Height(6), Height(7) }));
+		});
+	}
+
+	TEST(TEST_CLASS, RemoveIdentifierWithGroup_RemovesEmptyGroup) {
+		// Arrange:
+		RunHeightGroupedTest([](const auto&, auto& groupedDelta) {
+			// Sanity:
+			EXPECT_EQ(4u, groupedDelta.size());
+			EXPECT_EQ(10u, CountIdentifiers(groupedDelta, { Height(1), Height(3), Height(6), Height(7) }));
+
+			// Act:
+			RemoveIdentifierWithGroup(groupedDelta, Height(1), 99);
+			RemoveIdentifierWithGroup(groupedDelta, Height(1), 98);
+
+			// Assert: group was removed
+			EXPECT_FALSE(groupedDelta.contains(Height(1)));
+			EXPECT_EQ(3u, groupedDelta.size());
+			EXPECT_EQ(8u, CountIdentifiers(groupedDelta, { Height(3), Height(6), Height(7) }));
 		});
 	}
 

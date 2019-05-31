@@ -44,7 +44,7 @@ namespace catapult { namespace model {
 			CASE_WELL_KNOWN_ENTITY_TYPE(Block);
 
 			// plugin entity types
-			#include "plugins/txes/accountlink/src/model/AccountLinkEntityType.h"
+			#include "plugins/txes/account_link/src/model/AccountLinkEntityType.h"
 			#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
 			#include "plugins/txes/lock_hash/src/model/HashLockEntityType.h"
 			#include "plugins/txes/lock_secret/src/model/SecretLockEntityType.h"

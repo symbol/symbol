@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/crypto/KeyPair.h"
 #include "catapult/plugins/PluginManager.h"
 #include "tests/test/core/AddressTestUtils.h"
@@ -52,21 +52,23 @@ namespace catapult { namespace test {
 	/// Returns server key pair.
 	crypto::KeyPair LoadServerKeyPair();
 
-	/// Creates a block chain configuration.
-	model::BlockChainConfiguration CreateLocalNodeBlockChainConfiguration();
+	/// Creates a prototypical block chain configuration that is safe to use in local tests.
+	model::BlockChainConfiguration CreatePrototypicalBlockChainConfiguration();
 
-	/// Creates a test configuration for a local node with a storage in the specified directory (\a dataDirectory).
-	config::LocalNodeConfiguration CreateLocalNodeConfiguration(const std::string& dataDirectory);
+	/// Creates an uninitialized catapult configuration.
+	config::CatapultConfiguration CreateUninitializedCatapultConfiguration();
 
-	/// Creates a test configuration for a local node according to the supplied configuration (\a config)
+	/// Creates a prototypical catapult configuration that is safe to use in local tests.
+	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration();
+
+	/// Creates a test catapult configuration with a storage in the specified directory (\a dataDirectory).
+	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(const std::string& dataDirectory);
+
+	/// Creates a test catapult configuration according to the supplied configuration (\a blockChainConfig)
 	/// with a storage in the specified directory (\a dataDirectory).
-	config::LocalNodeConfiguration CreateLocalNodeConfiguration(model::BlockChainConfiguration&& config, const std::string& dataDirectory);
-
-	/// Creates a prototypical local node configuration that is safe to use in local node tests.
-	config::LocalNodeConfiguration CreatePrototypicalLocalNodeConfiguration();
-
-	/// Creates an uninitialized local node configuration.
-	config::LocalNodeConfiguration CreateUninitializedLocalNodeConfiguration();
+	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(
+			model::BlockChainConfiguration&& blockChainConfig,
+			const std::string& dataDirectory);
 
 	/// Creates a default unconfirmed transactions cache.
 	std::unique_ptr<cache::MemoryUtCache> CreateUtCache();
@@ -75,12 +77,12 @@ namespace catapult { namespace test {
 	std::unique_ptr<cache::MemoryUtCacheProxy> CreateUtCacheProxy();
 
 	/// Creates a default plugin manager.
-	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManager();
+	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManagerWithRealPlugins();
 
 	/// Creates a plugin manager around \a config.
-	std::shared_ptr<plugins::PluginManager> CreatePluginManager(const model::BlockChainConfiguration& config);
+	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const model::BlockChainConfiguration& config);
 
 	/// Creates a plugin manager around \a config.
 	/// \note This overload is the only overload that allows state verification.
-	std::shared_ptr<plugins::PluginManager> CreatePluginManager(const config::LocalNodeConfiguration& config);
+	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const config::CatapultConfiguration& config);
 }}

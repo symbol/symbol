@@ -19,12 +19,12 @@
 **/
 
 #include "src/TransactionSinkService.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace transactionsink {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			// register service(s)
 			bootstrapper.extensionManager().addServiceRegistrar(CreateTransactionSinkServiceRegistrar());
 		}
@@ -32,6 +32,6 @@ namespace catapult { namespace transactionsink {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::transactionsink::RegisterExtension(bootstrapper);
 }

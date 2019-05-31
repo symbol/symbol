@@ -36,7 +36,7 @@ namespace catapult { namespace mongo { namespace plugins {
 	namespace {
 		void InsertRandom(utils::SortedKeySet& keys, size_t count) {
 			for (auto i = 0u; i < count; ++i)
-				keys.insert(test::GenerateRandomData<Key_Size>());
+				keys.insert(test::GenerateRandomByteArray<Key>());
 		}
 
 		struct MultisigCacheTraits {

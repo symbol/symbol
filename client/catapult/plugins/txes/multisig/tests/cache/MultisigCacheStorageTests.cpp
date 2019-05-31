@@ -21,39 +21,43 @@
 #include "src/cache/MultisigCacheStorage.h"
 #include "src/cache/MultisigCache.h"
 #include "tests/test/MultisigTestUtils.h"
+#include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
 
-#define TEST_CLASS MultisigCacheStorageTests
+	namespace {
+		struct MultisigCacheStorageTraits {
+			using StorageType = MultisigCacheStorage;
+			class CacheType : public MultisigCache {
+			public:
+				CacheType() : MultisigCache(CacheConfiguration())
+				{}
+			};
 
-	TEST(TEST_CLASS, CanLoadValueIntoCache) {
-		// Arrange: create a random value to insert
-		state::MultisigEntry originalEntry(test::GenerateRandomData<Key_Size>());
-		originalEntry.setMinApproval(23);
-		originalEntry.setMinRemoval(34);
+			static auto CreateId(uint8_t id) {
+				return Key{ { id } };
+			}
 
-		for (auto i = 0u; i < 3u; ++i)
-			originalEntry.cosignatories().insert(test::GenerateRandomData<Key_Size>());
+			static auto CreateValue(const Key& key) {
+				state::MultisigEntry entry(key);
+				entry.setMinApproval(23);
+				entry.setMinRemoval(34);
 
-		for (auto i = 0u; i < 4u; ++i)
-			originalEntry.multisigAccounts().insert(test::GenerateRandomData<Key_Size>());
+				for (auto i = 0u; i < 3u; ++i)
+					entry.cosignatories().insert(test::GenerateRandomByteArray<Key>());
 
-		// Act:
-		MultisigCache cache(CacheConfiguration{});
-		{
-			auto delta = cache.createDelta();
-			MultisigCacheStorage::LoadInto(originalEntry, *delta);
-			cache.commit();
-		}
+				for (auto i = 0u; i < 4u; ++i)
+					entry.multisigAccounts().insert(test::GenerateRandomByteArray<Key>());
 
-		// Assert: the cache contains the value
-		auto view = cache.createView();
-		EXPECT_EQ(1u, view->size());
-		ASSERT_TRUE(view->contains(originalEntry.key()));
-		const auto& loadedEntry = view->find(originalEntry.key()).get();
+				return entry;
+			}
 
-		// - the loaded cache value is correct
-		test::AssertEqual(originalEntry, loadedEntry);
+			static void AssertEqual(const state::MultisigEntry& lhs, const state::MultisigEntry& rhs) {
+				test::AssertEqual(lhs, rhs);
+			}
+		};
 	}
+
+	DEFINE_BASIC_INSERT_REMOVE_CACHE_STORAGE_TESTS(MultisigCacheStorageTests, MultisigCacheStorageTraits)
 }}

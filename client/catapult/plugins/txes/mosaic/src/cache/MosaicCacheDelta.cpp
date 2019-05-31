@@ -29,14 +29,17 @@ namespace catapult { namespace cache {
 		using MosaicByIdMap = MosaicCacheTypes::PrimaryTypes::BaseSetDeltaType;
 		using HeightBasedMosaicIdsMap = MosaicCacheTypes::HeightGroupingTypes::BaseSetDeltaType;
 
+		Height GetExpiryHeight(const state::MosaicDefinition& definition) {
+			return Height(definition.height().unwrap() + definition.properties().duration().unwrap());
+		}
+
 		void UpdateExpiryMap(HeightBasedMosaicIdsMap& mosaicIdsByExpiryHeight, const state::MosaicEntry& entry) {
 			// in case the mosaic is not eternal, update the expiry height based mosaic ids map
 			const auto& definition = entry.definition();
 			if (definition.isEternal())
 				return;
 
-			Height expiryHeight(definition.height().unwrap() + definition.properties().duration().unwrap());
-			AddIdentifierWithGroup(mosaicIdsByExpiryHeight, expiryHeight, entry.mosaicId());
+			AddIdentifierWithGroup(mosaicIdsByExpiryHeight, GetExpiryHeight(definition), entry.mosaicId());
 		}
 	}
 
@@ -57,5 +60,17 @@ namespace catapult { namespace cache {
 	void BasicMosaicCacheDelta::insert(const state::MosaicEntry& entry) {
 		MosaicCacheDeltaMixins::BasicInsertRemove::insert(entry);
 		UpdateExpiryMap(*m_pMosaicIdsByExpiryHeight, entry);
+	}
+
+	void BasicMosaicCacheDelta::remove(MosaicId mosaicId) {
+		auto iter = m_pEntryById->find(mosaicId);
+		const auto* pEntry = iter.get();
+		if (!!pEntry) {
+			const auto& definition = pEntry->definition();
+			if (!definition.isEternal())
+				RemoveIdentifierWithGroup(*m_pMosaicIdsByExpiryHeight, GetExpiryHeight(definition), mosaicId);
+		}
+
+		MosaicCacheDeltaMixins::BasicInsertRemove::remove(mosaicId);
 	}
 }}

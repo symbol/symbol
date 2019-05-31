@@ -141,12 +141,17 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = LockSecret_Proof_Publication_Notification;
 
 	public:
-		/// Creates proof publication notification around \a signer, \a hashAlgorithm and \a secret.
-		ProofPublicationNotification(const Key& signer, LockHashAlgorithm hashAlgorithm, const Hash256& secret)
+		/// Creates proof publication notification around \a signer, \a hashAlgorithm, \a secret and \a recipient.
+		ProofPublicationNotification(
+				const Key& signer,
+				LockHashAlgorithm hashAlgorithm,
+				const Hash256& secret,
+				const UnresolvedAddress& recipient)
 				: Notification(Notification_Type, sizeof(ProofPublicationNotification))
 				, Signer(signer)
 				, HashAlgorithm(hashAlgorithm)
 				, Secret(secret)
+				, Recipient(recipient)
 		{}
 
 	public:
@@ -158,5 +163,8 @@ namespace catapult { namespace model {
 
 		/// Secret.
 		const Hash256& Secret;
+
+		/// Recipient of the locked mosaic.
+		UnresolvedAddress Recipient;
 	};
 }}

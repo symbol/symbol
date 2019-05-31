@@ -50,6 +50,7 @@ namespace catapult { namespace mongo {
 			MongoTransactionStatusStorage(MongoStorageContext& context)
 					: m_context(context)
 					, m_database(m_context.createDatabaseConnection())
+					, m_errorPolicy(m_context.createCollectionErrorPolicy(Collection_Name))
 			{}
 
 		public:
@@ -75,18 +76,13 @@ namespace catapult { namespace mongo {
 						[](const auto& status, auto) { return mappers::ToDbModel(status); },
 						CreateFilter("hash")).get();
 				auto aggregateUpsert = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-				auto numTotalModified = mappers::ToUint32(aggregateUpsert.NumModified) + mappers::ToUint32(aggregateUpsert.NumUpserted);
-				if (transactionStatuses.size() != numTotalModified) {
-					CATAPULT_THROW_RUNTIME_ERROR_2(
-							"could not save transaction statuses to transaction statuses collection (expected, actual)",
-							transactionStatuses.size(),
-							numTotalModified);
-				}
+				m_errorPolicy.checkUpserted(transactionStatuses.size(), aggregateUpsert, "transaction statuses");
 			}
 
 		private:
 			MongoStorageContext& m_context;
 			MongoDatabase m_database;
+			MongoErrorPolicy m_errorPolicy;
 			std::vector<model::TransactionStatus> m_transactionStatuses;
 			utils::SpinLock m_lock;
 		};

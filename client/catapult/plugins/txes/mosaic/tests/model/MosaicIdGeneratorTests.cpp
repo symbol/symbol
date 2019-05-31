@@ -49,7 +49,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, GenerateMosaicId_DifferentKeysProduceDifferentIds) {
 		// Arrange:
-		auto key1 = test::GenerateRandomData<Key_Size>();
+		auto key1 = test::GenerateRandomByteArray<Key>();
 		auto key2 = MutateKey(key1);
 
 		// Assert:
@@ -58,7 +58,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, GenerateMosaicId_DifferentNoncesProduceDifferentIds) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		auto nonce1 = test::GenerateRandomValue<MosaicNonce>();
 		auto nonce2 = test::GenerateRandomValue<MosaicNonce>();
 
@@ -69,12 +69,12 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, GenerateMosaicId_HasHighestBitCleared) {
 		for (auto i = 0u; i < 1000; ++i) {
 			// Act:
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			auto nonce = test::GenerateRandomValue<MosaicNonce>();
 			auto id = GenerateMosaicId(key, nonce);
 
 			// Assert:
-			EXPECT_EQ(0u, id.unwrap() >> 63) << utils::HexFormat(key) << " " << utils::HexFormat(nonce);
+			EXPECT_EQ(0u, id.unwrap() >> 63) << key << " " << nonce;
 		}
 	}
 

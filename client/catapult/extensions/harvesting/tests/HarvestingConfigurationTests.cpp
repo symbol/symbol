@@ -24,6 +24,8 @@
 
 namespace catapult { namespace harvesting {
 
+#define TEST_CLASS HarvestingConfigurationTests
+
 	namespace {
 		struct HarvestingConfigurationTraits {
 			using ConfigurationType = HarvestingConfiguration;
@@ -35,7 +37,8 @@ namespace catapult { namespace harvesting {
 						{
 							{ "harvestKey", "harvest-key" },
 							{ "isAutoHarvestingEnabled", "true" },
-							{ "maxUnlockedAccounts", "2" }
+							{ "maxUnlockedAccounts", "2" },
+							{ "beneficiary", "beneficiary-key" }
 						}
 					}
 				};
@@ -50,6 +53,7 @@ namespace catapult { namespace harvesting {
 				EXPECT_EQ("", config.HarvestKey);
 				EXPECT_FALSE(config.IsAutoHarvestingEnabled);
 				EXPECT_EQ(0u, config.MaxUnlockedAccounts);
+				EXPECT_EQ("", config.Beneficiary);
 			}
 
 			static void AssertCustom(const HarvestingConfiguration& config) {
@@ -57,6 +61,7 @@ namespace catapult { namespace harvesting {
 				EXPECT_EQ("harvest-key", config.HarvestKey);
 				EXPECT_TRUE(config.IsAutoHarvestingEnabled);
 				EXPECT_EQ(2u, config.MaxUnlockedAccounts);
+				EXPECT_EQ("beneficiary-key", config.Beneficiary);
 			}
 		};
 	}
@@ -65,7 +70,7 @@ namespace catapult { namespace harvesting {
 
 	// region file io
 
-	TEST(TEST_CLASS, LoadFromPathFailsIfFileDoesNotExist) {
+	TEST(TEST_CLASS, LoadFromPathFailsWhenFileDoesNotExist) {
 		// Act + Assert: attempt to load the config
 		EXPECT_THROW(HarvestingConfiguration::LoadFromPath("../no-resources"), catapult_runtime_error);
 	}
@@ -78,6 +83,7 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ("", config.HarvestKey);
 		EXPECT_FALSE(config.IsAutoHarvestingEnabled);
 		EXPECT_EQ(5u, config.MaxUnlockedAccounts);
+		EXPECT_EQ("0000000000000000000000000000000000000000000000000000000000000000", config.Beneficiary);
 	}
 
 	// endregion

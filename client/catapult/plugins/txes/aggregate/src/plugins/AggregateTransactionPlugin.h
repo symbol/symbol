@@ -28,6 +28,7 @@ namespace catapult {
 		class TransactionPlugin;
 		class TransactionRegistry;
 	}
+	namespace utils { class TimeSpan; }
 }
 
 namespace catapult { namespace plugins {
@@ -36,5 +37,13 @@ namespace catapult { namespace plugins {
 	PLUGIN_API
 	std::unique_ptr<model::TransactionPlugin> CreateAggregateTransactionPlugin(
 			const model::TransactionRegistry& transactionRegistry,
+			model::EntityType transactionType);
+
+	/// Creates an aggregate transaction plugin around \a transactionRegistry for transactions with type \a transactionType
+	/// and specified max transaction lifetime (\a maxTransactionLifetime).
+	PLUGIN_API
+	std::unique_ptr<model::TransactionPlugin> CreateAggregateTransactionPlugin(
+			const model::TransactionRegistry& transactionRegistry,
+			const utils::TimeSpan& maxTransactionLifetime,
 			model::EntityType transactionType);
 }}

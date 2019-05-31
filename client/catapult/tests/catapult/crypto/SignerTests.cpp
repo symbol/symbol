@@ -46,7 +46,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, SignFillsTheSignature) {
 		// Arrange:
-		auto payload = test::GenerateRandomData<100>();
+		auto payload = test::GenerateRandomArray<100>();
 
 		// Act:
 		Signature signature;
@@ -63,7 +63,7 @@ namespace catapult { namespace crypto {
 		// Arrange:
 		auto keyPair1 = KeyPair::FromString(Default_Key_String);
 		auto keyPair2 = KeyPair::FromString(Default_Key_String);
-		auto payload = test::GenerateRandomData<100>();
+		auto payload = test::GenerateRandomArray<100>();
 
 		// Act:
 
@@ -76,7 +76,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, SignaturesGeneratedForSameDataByDifferentKeyPairsAreDifferent) {
 		// Arrange:
-		auto payload = test::GenerateRandomData<100>();
+		auto payload = test::GenerateRandomArray<100>();
 
 		// Act:
 		auto signature1 = SignPayload(GetDefaultKeyPair(), payload);
@@ -88,7 +88,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, SignedDataCanBeVerified) {
 		// Arrange:
-		auto payload = test::GenerateRandomData<100>();
+		auto payload = test::GenerateRandomArray<100>();
 		auto signature = SignPayload(GetDefaultKeyPair(), payload);
 
 		// Act:
@@ -100,7 +100,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, SignedDataCannotBeVerifiedWithDifferentKeyPair) {
 		// Arrange:
-		auto payload = test::GenerateRandomData<100>();
+		auto payload = test::GenerateRandomArray<100>();
 		auto signature = SignPayload(GetDefaultKeyPair(), payload);
 
 		// Act:
@@ -114,7 +114,7 @@ namespace catapult { namespace crypto {
 		void AssertSignatureChangeInvalidatesSignature(size_t position) {
 			// Arrange:
 			auto keyPair = GetDefaultKeyPair();
-			auto payload = test::GenerateRandomData<100>();
+			auto payload = test::GenerateRandomArray<100>();
 
 			auto signature = SignPayload(keyPair, payload);
 			signature[position] ^= 0xFF;
@@ -127,22 +127,22 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	TEST(TEST_CLASS, SignatureDoesNotVerifyIfRPartOfSignatureIsModified) {
+	TEST(TEST_CLASS, SignatureDoesNotVerifyWhenRPartOfSignatureIsModified) {
 		// Assert:
 		for (auto i = 0u; i < Signature_Size / 2; ++i)
 			AssertSignatureChangeInvalidatesSignature(i);
 	}
 
-	TEST(TEST_CLASS, SignatureDoesNotVerifyIfSPartOfSignatureIsModified) {
+	TEST(TEST_CLASS, SignatureDoesNotVerifyWhenSPartOfSignatureIsModified) {
 		// Assert:
 		for (auto i = Signature_Size / 2; i < Signature_Size; ++i)
 			AssertSignatureChangeInvalidatesSignature(i);
 	}
 
-	TEST(TEST_CLASS, SignatureDoesNotVerifyIfPayloadIsModified) {
+	TEST(TEST_CLASS, SignatureDoesNotVerifyWhenPayloadIsModified) {
 		// Arrange:
 		auto keyPair = GetDefaultKeyPair();
-		auto payload = test::GenerateRandomData<100>();
+		auto payload = test::GenerateRandomArray<100>();
 		for (auto i = 0u; i < payload.size(); ++i) {
 			auto signature = SignPayload(keyPair, payload);
 			payload[i] ^= 0xFF;
@@ -158,12 +158,12 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, PublicKeyNotOnACurveCausesVerifyToFail) {
 		// Arrange:
 		auto hackedKeyPair = GetDefaultKeyPair();
-		auto payload = test::GenerateRandomData<100>();
+		auto payload = test::GenerateRandomArray<100>();
 
 		// hack the key, to an invalid one (not on a curve)
 		auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
 		std::fill(hackPublic.begin(), hackPublic.end(), static_cast<uint8_t>(0));
-		hackPublic.back() = 0x01;
+		hackPublic[hackPublic.size() - 1] = 0x01;
 
 		auto signature = SignPayload(hackedKeyPair, payload);
 
@@ -174,10 +174,10 @@ namespace catapult { namespace crypto {
 		EXPECT_FALSE(isVerified);
 	}
 
-	TEST(TEST_CLASS, VerificationFailsIfPublicKeyDoesNotCorrespondToPrivateKey) {
+	TEST(TEST_CLASS, VerificationFailsWhenPublicKeyDoesNotCorrespondToPrivateKey) {
 		// Arrange:
 		auto hackedKeyPair = GetDefaultKeyPair();
-		auto payload = test::GenerateRandomData<100>();
+		auto payload = test::GenerateRandomArray<100>();
 
 		// hack the key, to an invalid one
 		auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
@@ -197,7 +197,7 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, VerifyRejectsZeroPublicKey) {
 		// Arrange:
 		auto hackedKeyPair = GetDefaultKeyPair();
-		auto payload = test::GenerateRandomData<100>();
+		auto payload = test::GenerateRandomArray<100>();
 
 		// hack the key, to an invalid one
 		auto& hackPublic = const_cast<Key&>(hackedKeyPair.publicKey());
@@ -331,8 +331,8 @@ namespace catapult { namespace crypto {
 
 			// Assert:
 			auto message = "test vector at " + std::to_string(i);
-			EXPECT_EQ(input.ExpectedPublicKeys[i], test::ToHexString(keyPair.publicKey())) << message;
-			EXPECT_EQ(input.ExpectedSignatures[i], test::ToHexString(signature)) << message;
+			EXPECT_EQ(input.ExpectedPublicKeys[i], test::ToString(keyPair.publicKey())) << message;
+			EXPECT_EQ(input.ExpectedSignatures[i], test::ToString(signature)) << message;
 		}
 	}
 

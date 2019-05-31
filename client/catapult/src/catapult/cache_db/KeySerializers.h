@@ -33,8 +33,8 @@ namespace catapult { namespace cache {
 	}
 
 	/// Serializes array-based key (\a container).
-	template<size_t N>
-	RawBuffer SerializeKey(const std::array<uint8_t, N>& container) {
+	template<size_t N, typename TTag>
+	RawBuffer SerializeKey(const utils::ByteArray<N, TTag>& container) {
 		return container;
 	}
 }}

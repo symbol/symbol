@@ -38,8 +38,10 @@ namespace catapult { namespace disruptor {
 	enum class CompletionStatus : uint8_t {
 		/// Processing of the entity was aborted by a consumer.
 		Aborted,
+
 		/// Processing of the entity is ongoing.
 		Normal,
+
 		/// Processing of the entity was completed and the entity was consumed.
 		Consumed
 	};
@@ -49,8 +51,10 @@ namespace catapult { namespace disruptor {
 	enum class ConsumerResultSeverity : uint8_t {
 		/// Neutral result.
 		Neutral,
+
 		/// Success result.
 		Success,
+
 		/// Failure result.
 		Failure
 	};

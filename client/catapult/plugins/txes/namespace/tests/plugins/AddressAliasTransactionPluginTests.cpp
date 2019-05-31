@@ -31,7 +31,7 @@ namespace catapult { namespace plugins {
 	// region TransactionPlugin
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AddressAlias, 1, 1)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AddressAlias, 1, 1,)
 
 		struct NotificationTraits {
 		public:
@@ -50,7 +50,7 @@ namespace catapult { namespace plugins {
 		};
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Entity_Type_Alias_Address)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Alias_Address)
 
 	DEFINE_ALIAS_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, AddressAlias, NotificationTraits)
 

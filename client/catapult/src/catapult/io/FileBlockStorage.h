@@ -20,16 +20,27 @@
 
 #pragma once
 #include "BlockStorage.h"
+#include "IndexFile.h"
 #include "RawFile.h"
 #include <string>
 
 namespace catapult { namespace io {
 
+	/// File block storage modes.
+	enum class FileBlockStorageMode {
+		/// Maintain hash-based index.
+		Hash_Index,
+
+		/// None.
+		None
+	};
+
 	/// File-based block storage.
-	class FileBlockStorage final : public BlockStorage {
+	class FileBlockStorage final : public PrunableBlockStorage {
 	public:
-		/// Creates a file-based block storage, where blocks will be stored inside \a dataDirectory.
-		explicit FileBlockStorage(const std::string& dataDirectory);
+		/// Creates a file-based block storage, where blocks will be stored inside \a dataDirectory
+		/// with specified storage \a mode.
+		explicit FileBlockStorage(const std::string& dataDirectory, FileBlockStorageMode mode = FileBlockStorageMode::Hash_Index);
 
 	public:
 		// LightBlockStorage
@@ -43,6 +54,9 @@ namespace catapult { namespace io {
 		std::shared_ptr<const model::BlockElement> loadBlockElement(Height height) const override;
 		std::pair<std::vector<uint8_t>, bool> loadBlockStatementData(Height height) const override;
 
+		// PrunableBlockStorage
+		void purge() override;
+
 	private:
 		void requireHeight(Height height, const char* description) const;
 
@@ -53,6 +67,7 @@ namespace catapult { namespace io {
 
 			model::HashRange loadHashesFrom(Height height, size_t numHashes) const;
 			void save(Height height, const Hash256& hash);
+			void reset();
 
 		private:
 			const std::string& m_dataDirectory;
@@ -63,6 +78,9 @@ namespace catapult { namespace io {
 		};
 
 		std::string m_dataDirectory;
+		FileBlockStorageMode m_mode;
+
 		HashFile m_hashFile;
+		IndexFile m_indexFile;
 	};
 }}

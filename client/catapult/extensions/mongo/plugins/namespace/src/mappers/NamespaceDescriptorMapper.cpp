@@ -35,7 +35,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		using Path = state::Namespace::Path;
 
 		void StreamDescriptorMetadata(bson_stream::document& builder, const NamespaceDescriptor& descriptor) {
-			builder << "meta"
+			builder
+					<< "meta"
 					<< bson_stream::open_document
 						<< "active" << descriptor.IsActive
 						<< "index" << static_cast<int32_t>(descriptor.Index)
@@ -43,7 +44,8 @@ namespace catapult { namespace mongo { namespace plugins {
 		}
 
 		void StreamAlias(bson_stream::document& builder, const state::NamespaceAlias& alias) {
-			builder << "alias"
+			builder
+					<< "alias"
 					<< bson_stream::open_document
 						<< "type" << utils::to_underlying_type(alias.type());
 

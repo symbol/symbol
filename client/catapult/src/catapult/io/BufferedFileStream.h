@@ -52,6 +52,8 @@ namespace catapult { namespace io {
 		BufferedInputFileStream(RawFile&& rawFile, size_t bufferSize = Default_Stream_Buffer_Size);
 
 	public:
+		bool eof() const override;
+
 		void read(const MutableRawBuffer& buffer) override;
 
 	private:

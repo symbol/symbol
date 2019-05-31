@@ -22,7 +22,7 @@
 #include "PtBootstrapperService.h"
 #include "partialtransaction/src/api/RemotePtApi.h"
 #include "partialtransaction/src/chain/PtSynchronizer.h"
-#include "catapult/cache/MemoryPtCache.h"
+#include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/extensions/NetworkUtils.h"
 #include "catapult/extensions/PeersConnectionTasks.h"
 #include "catapult/extensions/ServiceLocator.h"

@@ -34,7 +34,7 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS TransferTransactionPluginTests
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(Transfer, 3, 3)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(Transfer, 3, 3,)
 
 		template<typename TTraits>
 		auto CreateTransactionWithMosaics(uint8_t numMosaics, uint16_t messageSize = 0) {
@@ -50,7 +50,7 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Entity_Type_Transfer)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Transfer)
 
 	PLUGIN_TEST(CanCalculateSize) {
 		// Arrange:
@@ -111,7 +111,7 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ(transaction.Signer, notification.Source);
 		EXPECT_EQ(transaction.Type, notification.TransactionType);
 		EXPECT_EQ(model::UnresolvedAddressSet{ transaction.Recipient }, notification.ParticipantsByAddress);
-		EXPECT_EQ(utils::KeySet{}, notification.ParticipantsByKey);
+		EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
 	}
 
 	// region balance change

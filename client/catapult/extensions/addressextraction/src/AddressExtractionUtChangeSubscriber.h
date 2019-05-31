@@ -19,14 +19,13 @@
 **/
 
 #pragma once
-#include "catapult/cache/UtChangeSubscriber.h"
+#include "catapult/cache_tx/UtChangeSubscriber.h"
 #include <memory>
 
-namespace catapult { namespace model { class NotificationPublisher; } }
+namespace catapult { namespace addressextraction { class AddressExtractor; } }
 
 namespace catapult { namespace addressextraction {
 
-	/// Creates an address extraction unconfirmed transactions subscriber around a notification publisher (\a pPublisher).
-	std::unique_ptr<cache::UtChangeSubscriber> CreateAddressExtractionUtChangeSubscriber(
-			std::unique_ptr<model::NotificationPublisher>&& pPublisher);
+	/// Creates an address extraction unconfirmed transactions change subscriber around \a extractor.
+	std::unique_ptr<cache::UtChangeSubscriber> CreateAddressExtractionUtChangeSubscriber(const AddressExtractor& extractor);
 }}

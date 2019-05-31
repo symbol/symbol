@@ -26,6 +26,7 @@
 
 namespace catapult {
 	namespace cache {
+		class CacheChangesStorage;
 		class CacheHeight;
 		class CacheStorage;
 		class SubCachePlugin;
@@ -35,7 +36,7 @@ namespace catapult {
 
 namespace catapult { namespace cache {
 
-	/// Central cache holding all subcaches.
+	/// Central cache holding all sub caches.
 	class CatapultCache {
 	public:
 		/// Creates a catapult cache around \a subCaches.
@@ -50,7 +51,7 @@ namespace catapult { namespace cache {
 		CatapultCache& operator=(CatapultCache&&);
 
 	public:
-		/// Gets a specific subcache.
+		/// Gets a specific sub cache.
 		template<typename TCache>
 		const TCache& sub() const {
 			return *static_cast<const TCache*>(m_subCaches[TCache::Id]->get());
@@ -72,11 +73,14 @@ namespace catapult { namespace cache {
 		void commit(Height height);
 
 	public:
-		/// Gets cache storages for all subcaches.
+		/// Gets cache storages for all sub caches.
 		std::vector<std::unique_ptr<const CacheStorage>> storages() const;
 
-		/// Gets cache storages for all subcaches.
+		/// Gets cache storages for all sub caches.
 		std::vector<std::unique_ptr<CacheStorage>> storages();
+
+		/// Gets cache changes storages for all sub caches.
+		std::vector<std::unique_ptr<const CacheChangesStorage>> changesStorages() const;
 
 	private:
 		std::unique_ptr<CacheHeight> m_pCacheHeight; // use a unique_ptr to allow fwd declare

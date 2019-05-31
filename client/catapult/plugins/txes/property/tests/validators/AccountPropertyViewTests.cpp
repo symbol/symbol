@@ -44,7 +44,7 @@ namespace catapult { namespace validators {
 		auto PopulateCache(const PopulateOptions& options, cache::CatapultCache& cache) {
 			auto delta = cache.createDelta();
 			auto& propertyCacheDelta = delta.sub<cache::PropertyCache>();
-			auto address = test::GenerateRandomData<Address_Decoded_Size>();
+			auto address = test::GenerateRandomByteArray<Address>();
 			auto accountProperties = state::AccountProperties(address);
 			auto& accountProperty = accountProperties.property(model::PropertyType::MosaicId);
 			for (auto i = 0u; i < options.NumProperties; ++i) {
@@ -80,7 +80,7 @@ namespace catapult { namespace validators {
 		// Arrange:
 		RunTest(5, [](auto& view, const auto&) {
 			// Act + Assert:
-			EXPECT_FALSE(view.initialize(test::GenerateRandomData<Address_Decoded_Size>()));
+			EXPECT_FALSE(view.initialize(test::GenerateRandomByteArray<Address>()));
 		});
 	}
 
@@ -114,7 +114,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, GetThrowsWhenInitializeFailed) {
 		// Arrange:
 		RunTest(5, [](auto& view, const auto&) {
-			ASSERT_FALSE(view.initialize(test::GenerateRandomData<Address_Decoded_Size>()));
+			ASSERT_FALSE(view.initialize(test::GenerateRandomByteArray<Address>()));
 
 			// Act + Assert:
 			EXPECT_THROW(view.template get<MosaicId>(model::PropertyType::MosaicId), catapult_invalid_argument);

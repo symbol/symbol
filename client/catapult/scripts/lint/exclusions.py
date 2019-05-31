@@ -49,7 +49,9 @@ NAMESPACES_FALSEPOSITIVES = (
     re.compile(r'plugins.txes.namespace.src.cache.NamespaceCacheTypes.h'),
 
     # main entry points
-    re.compile(r'src.catapult.server.main.cpp'),
+    re.compile(r'src.catapult.process.broker.main.cpp'),
+    re.compile(r'src.catapult.process.recovery.main.cpp'),
+    re.compile(r'src.catapult.process.server.main.cpp'),
     re.compile(r'tests.bench.nodeps.BenchMain.cpp'),
 
     # mongo plugins (only entry point)
@@ -86,8 +88,8 @@ SPECIAL_INCLUDES = (
 
 CORE_FIRSTINCLUDES = {
     # src
-    'src/catapult/consumers/AddressExtractionConsumer.cpp': 'BlockConsumers.h',
     'src/catapult/consumers/BlockChainCheckConsumer.cpp': 'BlockConsumers.h',
+    'src/catapult/consumers/BlockChainSyncCleanupConsumer.cpp': 'BlockConsumers.h',
     'src/catapult/consumers/BlockChainSyncConsumer.cpp': 'BlockConsumers.h',
     'src/catapult/consumers/HashCalculatorConsumer.cpp': 'BlockConsumers.h',
     'src/catapult/consumers/HashCheckConsumer.cpp': 'BlockConsumers.h',
@@ -97,14 +99,16 @@ CORE_FIRSTINCLUDES = {
 
     'src/catapult/ionet/IoEnums.cpp': 'ConnectionSecurityMode.h',
     'src/catapult/net/NetEnums.cpp': 'NodeRequestResult.h',
-    'src/catapult/server/main.cpp': 'ServerMain.h',
+    'src/catapult/process/broker/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
+    'src/catapult/process/recovery/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
+    'src/catapult/process/server/main.cpp': 'catapult/extensions/ProcessBootstrapper.h',
     'src/catapult/version/nix/what_version.cpp': 'catapult/version/version.h',
 
     # tests
     'tests/test/nodeps/TestMain.cpp': 'catapult/utils/ConfigurationValueParsers.h',
 
-    'tests/catapult/consumers/AddressExtractionConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
     'tests/catapult/consumers/BlockChainCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
+    'tests/catapult/consumers/BlockChainSyncCleanupConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
     'tests/catapult/consumers/BlockChainSyncConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
     'tests/catapult/consumers/HashCalculatorConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
     'tests/catapult/consumers/HashCheckConsumerTests.cpp': 'catapult/consumers/BlockConsumers.h',
@@ -118,7 +122,6 @@ CORE_FIRSTINCLUDES = {
     'tests/catapult/deltaset/SetVirtualizedTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
     'tests/catapult/deltaset/UnorderedMapTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
     'tests/catapult/deltaset/UnorderedTests.cpp': 'tests/catapult/deltaset/test/BaseSetDeltaTests.h',
-    'tests/catapult/io/MemoryStreamTests.cpp': 'tests/test/core/mocks/MockMemoryStream.h',
     'tests/catapult/thread/FutureSharedStateTests.cpp': 'catapult/thread/detail/FutureSharedState.h',
     'tests/catapult/utils/CatapultExceptionTests.cpp': 'catapult/exceptions.h',
     'tests/catapult/utils/CatapultTypesTests.cpp': 'catapult/types.h',

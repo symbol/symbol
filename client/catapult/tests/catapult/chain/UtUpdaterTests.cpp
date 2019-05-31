@@ -20,7 +20,7 @@
 
 #include "catapult/chain/UtUpdater.h"
 #include "catapult/cache/CatapultCache.h"
-#include "catapult/cache/MemoryUtCache.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/chain/ChainResults.h"
 #include "catapult/model/FeeUtils.h"
 #include "catapult/model/TransactionStatus.h"
@@ -771,7 +771,7 @@ namespace catapult { namespace chain {
 
 	// region update (tx disruptor)
 
-	TEST(TEST_CLASS, NewTransactionsValidationIsSkippedIfUnconfirmedCacheIsStale) {
+	TEST(TEST_CLASS, NewTransactionsValidationIsSkippedWhenUnconfirmedCacheIsStale) {
 		// Arrange: initialize the UT cache with 3 transactions
 		UpdaterTestContext context;
 		auto originalTransactionData = CreateTransactionData(3);

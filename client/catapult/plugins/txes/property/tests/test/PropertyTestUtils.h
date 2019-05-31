@@ -40,7 +40,7 @@ namespace catapult { namespace test {
 		}
 
 		static auto RandomValue() {
-			return test::GenerateRandomData<Address_Decoded_Size>();
+			return test::GenerateRandomByteArray<Address>();
 		}
 
 		static UnresolvedValueType Unresolve(const ValueType& value) {

@@ -33,8 +33,11 @@ namespace catapult { namespace mongo { namespace plugins {
 		void StreamProperties(bson_stream::document& builder, const model::MosaicProperties& properties) {
 			auto propertiesArray = builder << "properties" << bson_stream::open_array;
 			for (const auto& property : properties)
-				propertiesArray << static_cast<int64_t>(property.Value);
-
+				propertiesArray
+						<< bson_stream::open_document
+							<< "id" << utils::to_underlying_type(property.Id)
+							<< "value" << static_cast<int64_t>(property.Value)
+						<< bson_stream::close_document;
 			propertiesArray << bson_stream::close_array;
 		}
 
@@ -57,10 +60,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		StreamProperties(builder, definition.properties());
 
-		// levy document left blank until levy structure is decided
-		doc
-					<< "levy" << bson_stream::open_document << bson_stream::close_document
-				<< bson_stream::close_document;
+		doc << bson_stream::close_document;
 
 		return builder << bson_stream::finalize;
 	}
@@ -74,9 +74,10 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		PropertyValuesContainer ReadProperties(const bsoncxx::array::view& dbProperties) {
 			PropertyValuesContainer container{};
-			auto i = 0u;
-			for (const auto& property : dbProperties)
-				container[i++] = static_cast<uint64_t>(property.get_int64().value);
+			for (const auto& property : dbProperties) {
+				auto id = utils::checked_cast<int32_t, uint8_t>(property["id"].get_int32().value);
+				container[id] = static_cast<uint64_t>(property["value"].get_int64().value);
+			}
 
 			return container;
 		}

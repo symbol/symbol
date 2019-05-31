@@ -29,19 +29,21 @@
 
 namespace catapult { namespace extensions {
 
-	BlockExtensions::BlockExtensions()
-			: m_calculateTransactionEntityHash([](const auto& transaction) {
-				return model::CalculateHash(transaction);
+	BlockExtensions::BlockExtensions(const GenerationHash& generationHash)
+			: m_generationHash(generationHash)
+			, m_calculateTransactionEntityHash([generationHash](const auto& transaction) {
+				return model::CalculateHash(transaction, generationHash);
 			})
 			, m_calculateTransactionMerkleComponentHash([](const auto&, const auto& entityHash) {
 				return entityHash;
 			})
 	{}
 
-	BlockExtensions::BlockExtensions(const model::TransactionRegistry& transactionRegistry)
-			: m_calculateTransactionEntityHash([&transactionRegistry](const auto& transaction) {
+	BlockExtensions::BlockExtensions(const GenerationHash& generationHash, const model::TransactionRegistry& transactionRegistry)
+			: m_generationHash(generationHash)
+			, m_calculateTransactionEntityHash([generationHash, &transactionRegistry](const auto& transaction) {
 				const auto& plugin = *transactionRegistry.findPlugin(transaction.Type);
-				return model::CalculateHash(transaction, plugin.dataBuffer(transaction));
+				return model::CalculateHash(transaction, generationHash, plugin.dataBuffer(transaction));
 			})
 			, m_calculateTransactionMerkleComponentHash([&transactionRegistry](const auto& transaction, const auto& entityHash) {
 				return model::CalculateMerkleComponentHash(transaction, entityHash, transactionRegistry);
@@ -83,15 +85,18 @@ namespace catapult { namespace extensions {
 			return VerifyFullBlockResult::Invalid_Block_Transactions_Hash;
 
 		// check transaction signatures
+		TransactionExtensions transactionExtensions(m_generationHash);
 		for (const auto& transaction : block.Transactions()) {
-			if (!VerifyTransactionSignature(transaction))
+			if (!transactionExtensions.verify(transaction))
 				return VerifyFullBlockResult::Invalid_Transaction_Signature;
 		}
 
 		return VerifyFullBlockResult::Success;
 	}
 
-	model::BlockElement BlockExtensions::convertBlockToBlockElement(const model::Block& block, const Hash256& generationHash) const {
+	model::BlockElement BlockExtensions::convertBlockToBlockElement(
+			const model::Block& block,
+			const GenerationHash& generationHash) const {
 		model::BlockElement blockElement(block);
 		blockElement.EntityHash = model::CalculateHash(block);
 		blockElement.GenerationHash = generationHash;

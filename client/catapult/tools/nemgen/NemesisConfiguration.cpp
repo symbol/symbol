@@ -100,9 +100,6 @@ namespace catapult { namespace tools { namespace nemgen {
 			if (bag.get<bool>(makeKey("isSupplyMutable")))
 				flags |= model::MosaicFlags::Supply_Mutable;
 
-			if (bag.get<bool>(makeKey("isLevyMutable")))
-				flags |= model::MosaicFlags::Levy_Mutable;
-
 			values[utils::to_underlying_type(model::MosaicPropertyId::Flags)] = utils::to_underlying_type(flags);
 			state::MosaicDefinition definition(Height(1), owner, 1, model::MosaicProperties::FromValues(values));
 			return ToMosaicEntry(definition, mosaicNonce, supply);

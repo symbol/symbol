@@ -76,9 +76,9 @@ namespace catapult { namespace validators {
 	/// A validator implementation that applies to mosaic supply change notifications and validates that:
 	/// - the affected mosaic has mutable supply
 	/// - decrease does not cause owner amount to become negative
-	/// - increase does not cause total divisible units to exceed \a maxDivisibleUnits
+	/// - increase does not cause total atomic units to exceed \a maxAtomicUnits
 	/// \note This validator is dependent on MosaicChangeAllowedValidator.
-	DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, model::MosaicSupplyChangeNotification)(Amount maxDivisibleUnits);
+	DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, model::MosaicSupplyChangeNotification)(Amount maxAtomicUnits);
 
 	/// A validator implementation that applies to mosaic supply change notifications and validates that:
 	/// - the account changing the supply does not exceed the maximum number of mosaics (\a maxMosaics) an account is allowed to own

@@ -22,6 +22,7 @@
 #include "ConsumerInputFactory.h"
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/model/EntityHasher.h"
+#include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/other/DisruptorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -60,14 +61,15 @@ namespace catapult { namespace test {
 	}
 
 	void LinkBlocks(Height chainHeight, disruptor::BlockElements& blockElements) {
+		auto blockExtensions = extensions::BlockExtensions(GetDefaultGenerationHash());
 		auto* pParentBlock = const_cast<model::Block*>(&blockElements[0].Block);
-		extensions::BlockExtensions().updateBlockTransactionsHash(*pParentBlock);
+		blockExtensions.updateBlockTransactionsHash(*pParentBlock);
 		pParentBlock->Height = chainHeight;
 		pParentBlock->Timestamp = static_cast<Timestamp>(chainHeight.unwrap() * 2);
 
 		for (auto i = 1u; i < blockElements.size(); ++i) {
 			auto& block = const_cast<model::Block&>(blockElements[i].Block);
-			extensions::BlockExtensions().updateBlockTransactionsHash(block);
+			blockExtensions.updateBlockTransactionsHash(block);
 			LinkBlocks(*pParentBlock, block);
 			pParentBlock = &block;
 		}

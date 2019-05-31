@@ -61,7 +61,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, ActionIsSkippedWhenNoPeerIsAvailable) {
 		// Arrange: create an empty writers
 		mocks::PickOneAwareMockPacketWriters writers;
-		writers.setNodeIdentity(test::GenerateRandomData<Key_Size>());
+		writers.setNodeIdentity(test::GenerateRandomByteArray<Key>());
 
 		// - create the forwarder
 		model::TransactionRegistry registry;
@@ -87,7 +87,7 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, ActionIsInvokedWhenPeerIsAvailable) {
 		// Arrange: create writers with a valid packet
 		auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
-		auto identityKey = test::GenerateRandomData<Key_Size>();
+		auto identityKey = test::GenerateRandomByteArray<Key>();
 		mocks::PickOneAwareMockPacketWriters writers;
 		writers.setPacketIo(pPacketIo);
 		writers.setNodeIdentity(identityKey);

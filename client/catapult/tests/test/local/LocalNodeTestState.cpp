@@ -30,10 +30,10 @@ namespace catapult { namespace test {
 
 	struct LocalNodeTestState::Impl {
 	public:
-		explicit Impl(config::LocalNodeConfiguration&& config, cache::CatapultCache&& cache)
+		explicit Impl(config::CatapultConfiguration&& config, cache::CatapultCache&& cache)
 				: m_config(std::move(config))
 				, m_cache(std::move(cache))
-				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>())
+				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>())
 		{}
 
 	public:
@@ -41,12 +41,8 @@ namespace catapult { namespace test {
 			return extensions::LocalNodeStateRef(m_config, m_state, m_cache, m_storage, m_score);
 		}
 
-		extensions::LocalNodeStateConstRef cref() const {
-			return extensions::LocalNodeStateConstRef(m_config, m_state, m_cache, m_storage, m_score);
-		}
-
 	private:
-		config::LocalNodeConfiguration m_config;
+		config::CatapultConfiguration m_config;
 		state::CatapultState m_state;
 		cache::CatapultCache m_cache;
 		io::BlockStorageCache m_storage;
@@ -61,7 +57,7 @@ namespace catapult { namespace test {
 	{}
 
 	LocalNodeTestState::LocalNodeTestState(cache::CatapultCache&& cache)
-			: m_pImpl(std::make_unique<Impl>(CreatePrototypicalLocalNodeConfiguration(), std::move(cache)))
+			: m_pImpl(std::make_unique<Impl>(CreatePrototypicalCatapultConfiguration(), std::move(cache)))
 	{}
 
 	LocalNodeTestState::LocalNodeTestState(
@@ -69,7 +65,7 @@ namespace catapult { namespace test {
 			const std::string& userDataDirectory,
 			cache::CatapultCache&& cache)
 			: m_pImpl(std::make_unique<Impl>(
-					CreateLocalNodeConfiguration(model::BlockChainConfiguration(config), userDataDirectory),
+					CreatePrototypicalCatapultConfiguration(model::BlockChainConfiguration(config), userDataDirectory),
 					std::move(cache)))
 	{}
 
@@ -77,9 +73,5 @@ namespace catapult { namespace test {
 
 	extensions::LocalNodeStateRef LocalNodeTestState::ref() {
 		return m_pImpl->ref();
-	}
-
-	extensions::LocalNodeStateConstRef LocalNodeTestState::cref() const {
-		return m_pImpl->cref();
 	}
 }}

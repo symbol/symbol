@@ -22,16 +22,14 @@
 #include "src/CoreMongo.h"
 #include "src/DatabaseConfiguration.h"
 #include "src/MongoBlockStorage.h"
-#include "src/MongoBlockStorageUtils.h"
 #include "src/MongoBulkWriter.h"
 #include "src/MongoChainScoreProvider.h"
-#include "src/MongoNemesisBlockPreparer.h"
 #include "src/MongoPluginLoader.h"
 #include "src/MongoPluginManager.h"
 #include "src/MongoPtStorage.h"
 #include "src/MongoTransactionStatusStorage.h"
 #include "src/MongoTransactionStorage.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/extensions/RootedService.h"
 #include "catapult/io/BlockStorageChangeSubscriber.h"
 #include <mongocxx/instance.hpp>
@@ -82,7 +80,7 @@ namespace catapult { namespace mongo {
 			std::shared_ptr<const MongoTransactionRegistry> m_pRegistry;
 		};
 
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			mongocxx::instance::current();
 
 			// load db configuration
@@ -101,8 +99,11 @@ namespace catapult { namespace mongo {
 
 			// create transaction registry
 			const auto& config = bootstrapper.config();
-			auto pMongoContext = std::make_shared<MongoStorageContext>(dbUri, dbName, pMongoBulkWriter);
-			auto pPluginManager = std::make_shared<MongoPluginManager>(*pMongoContext, config.BlockChain);
+			auto mongoErrorPolicyMode = extensions::ProcessDisposition::Recovery == bootstrapper.disposition()
+					? MongoErrorPolicy::Mode::Idempotent
+					: MongoErrorPolicy::Mode::Strict;
+			auto pMongoContext = std::make_shared<MongoStorageContext>(dbUri, dbName, pMongoBulkWriter, mongoErrorPolicyMode);
+			auto pPluginManager = std::make_shared<MongoPluginManager>(*pMongoContext, config.BlockChain.Network.Identifier);
 			auto pTransactionRegistry = CreateTransactionRegistry(pPluginManager, config.User.PluginsDirectory, dbConfig.Plugins);
 
 			// create mongo chain score provider and mongo (cache) storage
@@ -118,16 +119,6 @@ namespace catapult { namespace mongo {
 			// add a pre load handler for initializing (nemesis) storage
 			// (pPluginManager is kept alive by pTransactionRegistry)
 			auto pMongoBlockStorage = CreateMongoBlockStorage(*pMongoContext, *pTransactionRegistry, pPluginManager->receiptRegistry());
-			MongoNemesisBlockPreparer nemesisBlockPreparer(
-					*pMongoBlockStorage,
-					*pExternalCacheStorage,
-					config.BlockChain,
-					bootstrapper.subscriptionManager().fileStorage(),
-					bootstrapper.pluginManager());
-
-			bootstrapper.extensionManager().addPreLoadHandler([nemesisBlockPreparer](const auto& cache) {
-				nemesisBlockPreparer.prepare(cache);
-			});
 
 			// empty unconfirmed and partial transactions collections
 			EmptyCollection(*pMongoContext, Ut_Collection_Name);
@@ -148,6 +139,6 @@ namespace catapult { namespace mongo {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::mongo::RegisterExtension(bootstrapper);
 }

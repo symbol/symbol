@@ -74,7 +74,7 @@ namespace catapult { namespace validators {
 				auto cacheDelta = cache.createDelta();
 
 				// make the aggregate signer a cosigner of a different account
-				test::MakeMultisig(cacheDelta, test::GenerateRandomData<Key_Size>(), { aggregateSigner });
+				test::MakeMultisig(cacheDelta, test::GenerateRandomByteArray<Key>(), { aggregateSigner });
 
 				cache.commit(Height());
 				return cache;
@@ -104,7 +104,7 @@ namespace catapult { namespace validators {
 
 	NON_MULTISIG_TRAITS_TEST(SufficientWhenEmbeddedTransactionSignerIsAggregateSigner) {
 		// Arrange:
-		auto aggregateSigner = test::GenerateRandomData<Key_Size>();
+		auto aggregateSigner = test::GenerateRandomByteArray<Key>();
 		auto cosigners = test::GenerateRandomDataVector<Key>(2);
 
 		// Assert: aggregate signer (implicit cosigner) is same as embedded transaction signer
@@ -113,9 +113,9 @@ namespace catapult { namespace validators {
 
 	NON_MULTISIG_TRAITS_TEST(SufficientWhenEmbeddedTransactionSignerIsCosigner) {
 		// Arrange:
-		auto embeddedSigner = test::GenerateRandomData<Key_Size>();
-		auto aggregateSigner = test::GenerateRandomData<Key_Size>();
-		auto cosigners = std::vector<Key>{ test::GenerateRandomData<Key_Size>(), embeddedSigner, test::GenerateRandomData<Key_Size>() };
+		auto embeddedSigner = test::GenerateRandomByteArray<Key>();
+		auto aggregateSigner = test::GenerateRandomByteArray<Key>();
+		auto cosigners = std::vector<Key>{ test::GenerateRandomByteArray<Key>(), embeddedSigner, test::GenerateRandomByteArray<Key>() };
 
 		// Assert: one cosigner is same as embedded transaction signer
 		AssertValidationResult<TTraits>(ValidationResult::Success, embeddedSigner, aggregateSigner, cosigners);
@@ -123,8 +123,8 @@ namespace catapult { namespace validators {
 
 	NON_MULTISIG_TRAITS_TEST(InsufficientWhenTransactionSignerIsNeitherAggregateSignerNorCosigner) {
 		// Arrange:
-		auto embeddedSigner = test::GenerateRandomData<Key_Size>();
-		auto aggregateSigner = test::GenerateRandomData<Key_Size>();
+		auto embeddedSigner = test::GenerateRandomByteArray<Key>();
+		auto aggregateSigner = test::GenerateRandomByteArray<Key>();
 		auto cosigners = test::GenerateRandomDataVector<Key>(2);
 
 		// Assert: embedded transaction signer is neither aggregate signer nor cosigner
@@ -153,8 +153,8 @@ namespace catapult { namespace validators {
 		template<typename TGetCosigners>
 		void AssertBasicMultisigResult(ValidationResult expectedResult, TGetCosigners getCosigners) {
 			// Arrange:
-			auto embeddedSigner = test::GenerateRandomData<Key_Size>();
-			auto aggregateSigner = test::GenerateRandomData<Key_Size>();
+			auto embeddedSigner = test::GenerateRandomByteArray<Key>();
+			auto aggregateSigner = test::GenerateRandomByteArray<Key>();
 			auto cosignatories = test::GenerateRandomDataVector<Key>(4);
 
 			auto pSubTransaction = CreateEmbeddedTransaction(embeddedSigner);
@@ -191,8 +191,8 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SufficientWhenMultisigEmbeddedTransactionSignerHasMinApproversIncludingAggregateSigner) {
 		// Arrange: include the aggregate signer as a cosignatory
-		auto embeddedSigner = test::GenerateRandomData<Key_Size>();
-		auto aggregateSigner = test::GenerateRandomData<Key_Size>();
+		auto embeddedSigner = test::GenerateRandomByteArray<Key>();
+		auto aggregateSigner = test::GenerateRandomByteArray<Key>();
 		auto cosignatories = test::GenerateRandomDataVector<Key>(4);
 		cosignatories.push_back(aggregateSigner);
 
@@ -228,8 +228,8 @@ namespace catapult { namespace validators {
 		template<typename TGetCosigners>
 		void AssertBasicMultilevelMultisigResult(ValidationResult expectedResult, TGetCosigners getCosigners) {
 			// Arrange:
-			auto embeddedSigner = test::GenerateRandomData<Key_Size>();
-			auto aggregateSigner = test::GenerateRandomData<Key_Size>();
+			auto embeddedSigner = test::GenerateRandomByteArray<Key>();
+			auto aggregateSigner = test::GenerateRandomByteArray<Key>();
 			auto cosignatories = test::GenerateRandomDataVector<Key>(3);
 			auto secondLevelCosignatories = test::GenerateRandomDataVector<Key>(4);
 
@@ -269,8 +269,8 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenMultisigTransactionSignerHasMinApproversSharedAcrossLevels) {
 		// Arrange:
-		auto embeddedSigner = test::GenerateRandomData<Key_Size>();
-		auto aggregateSigner = test::GenerateRandomData<Key_Size>();
+		auto embeddedSigner = test::GenerateRandomByteArray<Key>();
+		auto aggregateSigner = test::GenerateRandomByteArray<Key>();
 		auto cosignatories = test::GenerateRandomDataVector<Key>(3);
 		auto secondLevelCosignatories = test::GenerateRandomDataVector<Key>(4);
 		secondLevelCosignatories.push_back(cosignatories[2]);
@@ -296,14 +296,25 @@ namespace catapult { namespace validators {
 		constexpr auto Add = model::CosignatoryModificationType::Add;
 		constexpr auto Del = model::CosignatoryModificationType::Del;
 
+		void AddRequiredCosignersKeys(std::vector<Key>& cosigners, const model::EmbeddedModifyMultisigAccountTransaction& transaction) {
+			auto numModifications = transaction.ModificationsCount;
+			auto* pModification = transaction.ModificationsPtr();
+			for (auto i = 0u; i < numModifications; ++i) {
+				if (model::CosignatoryModificationType::Add == pModification->ModificationType)
+					cosigners.push_back(pModification->CosignatoryPublicKey);
+
+				++pModification;
+			}
+		}
+
 		void AssertMinApprovalLimit(
 				uint32_t expectedLimit,
 				const std::vector<model::CosignatoryModificationType>& modificationTypes,
 				uint8_t minApproval,
 				uint8_t minRemoval) {
 			// Arrange:
-			auto embeddedSigner = test::GenerateRandomData<Key_Size>();
-			auto aggregateSigner = test::GenerateRandomData<Key_Size>();
+			auto embeddedSigner = test::GenerateRandomByteArray<Key>();
+			auto aggregateSigner = test::GenerateRandomByteArray<Key>();
 			auto cosignatories = test::GenerateRandomDataVector<Key>(expectedLimit);
 
 			auto pSubTransaction = test::CreateModifyMultisigAccountTransaction(embeddedSigner, modificationTypes);
@@ -314,10 +325,12 @@ namespace catapult { namespace validators {
 			// Assert:
 			CATAPULT_LOG(debug) << "running test with " << expectedLimit - 1 << " cosigners (insufficient)";
 			auto insufficientCosigners = std::vector<Key>(cosignatories.cbegin(), cosignatories.cbegin() + expectedLimit - 1);
+			AddRequiredCosignersKeys(insufficientCosigners, *pSubTransaction);
 			AssertValidationResult(Failure_Aggregate_Missing_Cosigners, cache, aggregateSigner, *pSubTransaction, insufficientCosigners);
 
 			CATAPULT_LOG(debug) << "running test with " << expectedLimit << " cosigners (sufficient)";
 			auto sufficientCosigners = std::vector<Key>(cosignatories.cbegin(), cosignatories.cbegin() + expectedLimit);
+			AddRequiredCosignersKeys(sufficientCosigners, *pSubTransaction);
 			AssertValidationResult(ValidationResult::Success, cache, aggregateSigner, *pSubTransaction, sufficientCosigners);
 		}
 	}
@@ -359,8 +372,8 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, MinRemovalLimitIsAppliedAcrossMultipleLevels) {
 		// Arrange:
-		auto embeddedSigner = test::GenerateRandomData<Key_Size>();
-		auto aggregateSigner = test::GenerateRandomData<Key_Size>();
+		auto embeddedSigner = test::GenerateRandomByteArray<Key>();
+		auto aggregateSigner = test::GenerateRandomByteArray<Key>();
 		auto cosignatories = test::GenerateRandomDataVector<Key>(3);
 		auto secondLevelCosignatories = test::GenerateRandomDataVector<Key>(4);
 		auto base23Cosigners = std::vector<Key>{
@@ -389,6 +402,170 @@ namespace catapult { namespace validators {
 		sufficientCosigners.push_back(cosignatories[2]);
 		sufficientCosigners.push_back(secondLevelCosignatories[3]);
 		AssertValidationResult(ValidationResult::Success, cache, aggregateSigner, *pSubTransaction, sufficientCosigners);
+	}
+
+	// endregion
+
+	// region cosignatory approval - utils
+
+	namespace {
+		enum class AccountPolicy { Regular, Multisig };
+
+		void AddSingleLevelMultisig(cache::CatapultCache& cache, const Key& multisigPublicKey, const std::vector<Key>& cosignatories) {
+			auto cacheDelta = cache.createDelta();
+			test::MakeMultisig(cacheDelta, multisigPublicKey, cosignatories, 3, 3); // make a (3-3-X default) multisig
+			cache.commit(Height());
+		}
+
+		void AddAll(std::vector<Key>& allCosigners, const std::vector<Key>& cosigners) {
+			allCosigners.insert(allCosigners.cend(), cosigners.cbegin(), cosigners.cend());
+		}
+
+		template<typename TMergeKeys>
+		void AssertCosignatoriesMustApproveTransaction(
+				ValidationResult expectedResult,
+				const std::vector<model::CosignatoryModificationType>& modificationTypes,
+				const std::vector<AccountPolicy>& accountPolicies,
+				TMergeKeys mergeKeys) {
+			// Sanity:
+			ASSERT_EQ(modificationTypes.size(), accountPolicies.size());
+
+			// Arrange:
+			auto embeddedSigner = test::GenerateRandomByteArray<Key>();
+			auto aggregateSigner = test::GenerateRandomByteArray<Key>();
+			auto embeddedSignerCosignatories = test::GenerateRandomDataVector<Key>(3);
+
+			auto pSubTransaction = test::CreateModifyMultisigAccountTransaction(embeddedSigner, modificationTypes);
+
+			// - create the cache making the embedded signer a single level multisig
+			auto cache = test::MultisigCacheFactory::Create();
+			AddSingleLevelMultisig(cache, embeddedSigner, embeddedSignerCosignatories);
+
+			// - make added cosigners single level multisig according to the multisig policies
+			std::vector<Key> requiredCosignatories;
+			auto numModifications = pSubTransaction->ModificationsCount;
+			auto* pModification = pSubTransaction->ModificationsPtr();
+			for (auto i = 0u; i < numModifications; ++i, ++pModification) {
+				auto isAdded = model::CosignatoryModificationType::Add == pModification->ModificationType;
+				if (isAdded && AccountPolicy::Multisig == accountPolicies[i]) {
+					// - CosignatoryPublicKey is not a required cosigner because it is a multisig account
+					auto cosignerCosignatories = test::GenerateRandomDataVector<Key>(3);
+					AddSingleLevelMultisig(cache, pModification->CosignatoryPublicKey, cosignerCosignatories);
+					AddAll(requiredCosignatories, cosignerCosignatories);
+				} else {
+					requiredCosignatories.push_back(pModification->CosignatoryPublicKey);
+				}
+			}
+
+			// Assert:
+			auto cosigners = mergeKeys(embeddedSignerCosignatories, requiredCosignatories);
+			AssertValidationResult(expectedResult, cache, aggregateSigner, *pSubTransaction, cosigners);
+		}
+
+		template<typename TTraits>
+		void AssertCosignatoriesMustApproveTransaction(const std::vector<AccountPolicy>& accountPolicies) {
+			// Assert:
+			AssertCosignatoriesMustApproveTransaction(TTraits::ExpectedResult, { Add, Add, Add }, accountPolicies, TTraits::MergeKeys);
+		}
+
+		struct ValidationFailureTraits {
+			static constexpr auto ExpectedResult = Failure_Aggregate_Missing_Cosigners;
+
+			static auto MergeKeys(const std::vector<Key>& embeddedSignerCosignatories, const std::vector<Key>&) {
+				return embeddedSignerCosignatories;
+			}
+		};
+
+		struct ValidationSuccessTraits {
+			static constexpr auto ExpectedResult = ValidationResult::Success;
+
+			static auto MergeKeys(const std::vector<Key>& embeddedSignerCosignatories, const std::vector<Key>& requiredCosignatories) {
+				auto cosigners = std::vector<Key>(embeddedSignerCosignatories.cbegin(), embeddedSignerCosignatories.cend());
+				AddAll(cosigners, requiredCosignatories);
+				return cosigners;
+			}
+		};
+	}
+
+	// endregion
+
+	// region cosignatory approval - shared
+
+#define COSIGNER_APPROVAL_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Failure) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationFailureTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Success) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ValidationSuccessTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	COSIGNER_APPROVAL_TEST(CosignatoryApproval_SingleAdd_NotMultisig) {
+		// Assert:
+		AssertCosignatoriesMustApproveTransaction(TTraits::ExpectedResult, { Add }, { AccountPolicy::Regular }, TTraits::MergeKeys);
+	}
+
+	COSIGNER_APPROVAL_TEST(CosignatoryApproval_SingleAdd_Multisig) {
+		// Assert:
+		AssertCosignatoriesMustApproveTransaction(TTraits::ExpectedResult, { Add }, { AccountPolicy::Multisig }, TTraits::MergeKeys);
+	}
+
+	COSIGNER_APPROVAL_TEST(CosignatoryApproval_MultipleAdds_NoneMultisig) {
+		// Assert:
+		AssertCosignatoriesMustApproveTransaction<TTraits>({ AccountPolicy::Regular, AccountPolicy::Regular, AccountPolicy::Regular });
+	}
+
+	COSIGNER_APPROVAL_TEST(CosignatoryApproval_MultipleAdds_SomeMultisig) {
+		// Assert:
+		AssertCosignatoriesMustApproveTransaction<TTraits>({ AccountPolicy::Multisig, AccountPolicy::Regular, AccountPolicy::Multisig });
+	}
+
+	COSIGNER_APPROVAL_TEST(CosignatoryApproval_MultipleAdds_AllMultisig) {
+		// Assert:
+		AssertCosignatoriesMustApproveTransaction<TTraits>({ AccountPolicy::Multisig, AccountPolicy::Multisig, AccountPolicy::Multisig });
+	}
+
+	COSIGNER_APPROVAL_TEST(CosignatoryApproval_AddsAndDelete_SomeMultisig) {
+		// Assert:
+		AssertCosignatoriesMustApproveTransaction(
+				TTraits::ExpectedResult,
+				{ Add, Del, Add },
+				{ AccountPolicy::Multisig, AccountPolicy::Multisig, AccountPolicy::Regular },
+				TTraits::MergeKeys);
+	}
+
+	// endregion
+
+	// region cosignatory approval - failure
+
+	TEST(TEST_CLASS, InsuffientWhenOnlySomeCosignatoriesApprove) {
+		// Assert:
+		AssertCosignatoriesMustApproveTransaction(
+				Failure_Aggregate_Missing_Cosigners,
+				{ Add, Del, Add },
+				{ AccountPolicy::Multisig, AccountPolicy::Multisig, AccountPolicy::Regular },
+				[](const auto& embeddedSignerCosignatories, const auto& requiredCosignatories) {
+					auto cosigners = ValidationSuccessTraits::MergeKeys(embeddedSignerCosignatories, requiredCosignatories);
+					cosigners.erase(--cosigners.cend());
+					return cosigners;
+				});
+	}
+
+	// endregion
+
+	// region cosignatory approval - success
+
+	TEST(TEST_CLASS, SufficientWhenOnlyDeleteModification_NotMultisig) {
+		// Assert:
+		constexpr auto Success = ValidationResult::Success;
+		AssertCosignatoriesMustApproveTransaction(Success, { Del }, { AccountPolicy::Regular }, [](const auto& cosigners, const auto&) {
+			return cosigners;
+		});
+	}
+
+	TEST(TEST_CLASS, SufficientWhenOnlyDeleteModification_Multisig) {
+		// Assert:
+		constexpr auto Success = ValidationResult::Success;
+		AssertCosignatoriesMustApproveTransaction(Success, { Del }, { AccountPolicy::Multisig }, [](const auto& cosigners, const auto&) {
+			return cosigners;
+		});
 	}
 
 	// endregion

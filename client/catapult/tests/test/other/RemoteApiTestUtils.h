@@ -35,7 +35,7 @@ namespace catapult { namespace test {
 		static void AssertCanCreateApiWithRemotePublicKey() {
 			// Arrange:
 			auto pPacketIo = std::make_shared<mocks::MockPacketIo>();
-			auto remotePublicKey = test::GenerateRandomData<Key_Size>();
+			auto remotePublicKey = test::GenerateRandomByteArray<Key>();
 
 			auto pApi = TApiTraits::Create(*pPacketIo, remotePublicKey);
 

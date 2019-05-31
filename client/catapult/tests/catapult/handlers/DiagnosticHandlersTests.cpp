@@ -282,7 +282,7 @@ namespace catapult { namespace handlers {
 			});
 
 			if (nodeInfos.cend() == iter)
-				CATAPULT_THROW_INVALID_ARGUMENT_1("could not find packet node info with key", utils::HexFormat(identityKey));
+				CATAPULT_THROW_INVALID_ARGUMENT_1("could not find packet node info with key", identityKey);
 
 			return **iter;
 		}
@@ -406,7 +406,7 @@ namespace catapult { namespace handlers {
 		}
 
 		auto BlockToBlockElement(const model::Block& block, const std::vector<size_t>& numStatements) {
-			auto blockElement = test::BlockToBlockElement(block, test::GenerateRandomData<Hash256_Size>());
+			auto blockElement = test::BlockToBlockElement(block, test::GenerateRandomByteArray<Hash256>());
 			test::FillWithRandomData(blockElement.GenerationHash);
 			blockElement.OptionalStatement = test::GenerateRandomStatements(numStatements);
 			return blockElement;
@@ -414,12 +414,15 @@ namespace catapult { namespace handlers {
 
 		void AssertWritesBlockStatementDataInResponseToValidRequest(const std::vector<size_t>& numStatements) {
 			// Arrange:
-			auto pBlock = test::GenerateBlockWithTransactionsAtHeight(Height(2));
+			auto pBlock = test::GenerateBlockWithTransactions(5, Height(2));
 			auto blockElement = BlockToBlockElement(*pBlock, numStatements);
-			io::BlockStorageCache storage(std::make_unique<mocks::MockMemoryBlockStorage>());
+			io::BlockStorageCache storage(
+					std::make_unique<mocks::MockMemoryBlockStorage>(),
+					std::make_unique<mocks::MockMemoryBlockStorage>());
 			{
 				auto modifier = storage.modifier();
 				modifier.saveBlock(blockElement);
+				modifier.commit();
 			}
 
 			// Act + Assert:
@@ -435,7 +438,7 @@ namespace catapult { namespace handlers {
 
 	DEFINE_HEIGHT_REQUEST_HANDLER_TESTS(TEST_CLASS, DiagnosticBlockStatementHandler)
 
-	TEST(TEST_CLASS, DiagnosticBlockStatementHandler_NoResponseIfBlockStatementIsNotPresent) {
+	TEST(TEST_CLASS, DiagnosticBlockStatementHandler_NoResponseWhenBlockStatementIsNotPresent) {
 		// Arrange:
 		auto pStorage = mocks::CreateMemoryBlockStorageCache(2);
 		ionet::ServerPacketHandlers handlers;

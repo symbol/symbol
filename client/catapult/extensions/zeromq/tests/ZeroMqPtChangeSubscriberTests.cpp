@@ -143,8 +143,8 @@ namespace catapult { namespace zeromq {
 		MqSubscriberContext context;
 		auto marker = TransactionMarker::Cosignature_Marker;
 		auto transactionInfo = test::RemoveExtractedAddresses(test::CreateRandomTransactionInfo());
-		auto signer = test::GenerateRandomData<Key_Size>();
-		auto signature = test::GenerateRandomData<Signature_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
+		auto signature = test::GenerateRandomByteArray<Signature>();
 		auto addresses = test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
 		context.subscribeAll(marker, addresses);
 

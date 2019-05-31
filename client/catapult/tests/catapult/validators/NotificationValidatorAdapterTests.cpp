@@ -110,18 +110,19 @@ namespace catapult { namespace validators {
 
 			// Assert: the mock transaction plugin sends additional public key notification and 6 custom notifications
 			//         (notice that only 4/6 are raised on validator channel)
-			ASSERT_EQ(5u + 4u, validator.notificationTypes().size());
+			ASSERT_EQ(6u + 4u, validator.notificationTypes().size());
 			EXPECT_EQ(model::Core_Entity_Notification, validator.notificationTypes()[0]);
 			EXPECT_EQ(model::Core_Transaction_Notification, validator.notificationTypes()[1]);
-			EXPECT_EQ(model::Core_Transaction_Fee_Notification, validator.notificationTypes()[2]);
-			EXPECT_EQ(model::Core_Balance_Debit_Notification, validator.notificationTypes()[3]);
-			EXPECT_EQ(model::Core_Signature_Notification, validator.notificationTypes()[4]);
+			EXPECT_EQ(model::Core_Transaction_Deadline_Notification, validator.notificationTypes()[2]);
+			EXPECT_EQ(model::Core_Transaction_Fee_Notification, validator.notificationTypes()[3]);
+			EXPECT_EQ(model::Core_Balance_Debit_Notification, validator.notificationTypes()[4]);
+			EXPECT_EQ(model::Core_Signature_Notification, validator.notificationTypes()[5]);
 
 			// - mock transaction notifications
-			EXPECT_EQ(mocks::Mock_Validator_1_Notification, validator.notificationTypes()[5]);
-			EXPECT_EQ(mocks::Mock_All_1_Notification, validator.notificationTypes()[6]);
-			EXPECT_EQ(mocks::Mock_Validator_2_Notification, validator.notificationTypes()[7]);
-			EXPECT_EQ(mocks::Mock_All_2_Notification, validator.notificationTypes()[8]);
+			EXPECT_EQ(mocks::Mock_Validator_1_Notification, validator.notificationTypes()[6]);
+			EXPECT_EQ(mocks::Mock_All_1_Notification, validator.notificationTypes()[7]);
+			EXPECT_EQ(mocks::Mock_Validator_2_Notification, validator.notificationTypes()[8]);
+			EXPECT_EQ(mocks::Mock_All_2_Notification, validator.notificationTypes()[9]);
 
 			// - spot check the signer keys as a proxy for verifying data integrity
 			ASSERT_EQ(1u, validator.signerKeys().size());
@@ -146,12 +147,12 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, DelegatesWhenTypeMatches_Success) {
 		// Assert: all notifications should be processed
-		AssertMockTransactionValidation(ValidationResult::Success, 9);
+		AssertMockTransactionValidation(ValidationResult::Success, 10);
 	}
 
 	TEST(TEST_CLASS, DelegatesWhenTypeMatches_Neutral) {
 		// Assert: all notifications should be processed
-		AssertMockTransactionValidation(ValidationResult::Neutral, 9);
+		AssertMockTransactionValidation(ValidationResult::Neutral, 10);
 	}
 
 	TEST(TEST_CLASS, DelegatesWhenTypeMatches_Failure) {

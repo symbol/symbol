@@ -23,9 +23,31 @@
 #include "EntityTestUtils.h"
 #include "sdk/src/extensions/BlockExtensions.h"
 #include "catapult/model/BlockUtils.h"
+#include "catapult/utils/HexParser.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
+
+	// region TestBlockTransactions
+
+	TestBlockTransactions::TestBlockTransactions(const ConstTransactions& transactions) : m_transactions(transactions)
+	{}
+
+	TestBlockTransactions::TestBlockTransactions(const MutableTransactions& transactions) : TestBlockTransactions(MakeConst(transactions))
+	{}
+
+	TestBlockTransactions::TestBlockTransactions(size_t numTransactions)
+			: TestBlockTransactions(GenerateRandomTransactions(numTransactions))
+	{}
+
+	const ConstTransactions& TestBlockTransactions::get() const {
+		return m_transactions;
+	}
+
+	// endregion
+
+	// region Block factory functions
 
 	namespace {
 		constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
@@ -42,83 +64,63 @@ namespace catapult { namespace test {
 			FillWithRandomData(block.BlockTransactionsHash);
 			FillWithRandomData(block.BlockReceiptsHash);
 			FillWithRandomData(block.StateHash);
-			FillWithRandomData(block.BeneficiaryPublicKey);
+			FillWithRandomData(block.Beneficiary);
+		}
+
+		struct TestBlockOptions {
+		public:
+			explicit TestBlockOptions(const crypto::KeyPair& signer) : Signer(signer)
+			{}
+
+		public:
+			const crypto::KeyPair& Signer;
+			catapult::Height Height;
+			catapult::Timestamp Timestamp;
+		};
+
+		std::unique_ptr<model::Block> GenerateBlock(const TestBlockTransactions& transactions, const TestBlockOptions& options) {
+			model::PreviousBlockContext context;
+			auto pBlock = model::CreateBlock(context, Network_Identifier, options.Signer.publicKey(), transactions.get());
+			RandomizeBlock(*pBlock);
+
+			if (Height() != options.Height)
+				pBlock->Height = options.Height;
+
+			if (Timestamp() != options.Timestamp) {
+				pBlock->Timestamp = options.Timestamp;
+				for (auto& transaction : pBlock->Transactions())
+					transaction.Deadline = options.Timestamp + Timestamp(1);
+			}
+
+			return pBlock;
 		}
 	}
 
 	std::unique_ptr<model::Block> GenerateEmptyRandomBlock() {
+		return GenerateBlockWithTransactions(0);
+	}
+
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const TestBlockTransactions& transactions) {
+		return GenerateBlock(transactions, TestBlockOptions(GenerateKeyPair()));
+	}
+
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const TestBlockTransactions& transactions) {
+		return GenerateBlock(transactions, TestBlockOptions(signer));
+	}
+
+	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height) {
 		auto signer = GenerateKeyPair();
-		ConstTransactions transactions;
-		return GenerateBlockWithTransactions(signer, transactions);
-	}
-
-	std::unique_ptr<model::Block> GenerateRandomBlockWithTransactions(const ConstTransactions& transactions) {
-		auto signer = GenerateKeyPair();
-		return GenerateBlockWithTransactions(signer, transactions);
-	}
-
-	std::unique_ptr<model::Block> GenerateRandomBlockWithTransactions(const MutableTransactions& transactions) {
-		return GenerateRandomBlockWithTransactions(MakeConst(transactions));
-	}
-
-	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const ConstTransactions& transactions) {
-		model::PreviousBlockContext context;
-		auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), transactions);
-		RandomizeBlock(*pBlock);
-		SignBlock(signer, *pBlock);
-		return pBlock;
-	}
-
-	std::unique_ptr<model::Block> GenerateBlockWithTransactions(const crypto::KeyPair& signer, const MutableTransactions& transactions) {
-		return GenerateBlockWithTransactions(signer, MakeConst(transactions));
-	}
-
-	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions) {
-		auto transactions = GenerateRandomTransactions(numTransactions);
-		return GenerateRandomBlockWithTransactions(MakeConst(transactions));
-	}
-
-	std::unique_ptr<model::Block> GenerateBlockWithTransactionsAtHeight(size_t numTransactions, size_t height) {
-		return GenerateBlockWithTransactionsAtHeight(numTransactions, Height(height));
-	}
-
-	std::unique_ptr<model::Block> GenerateBlockWithTransactionsAtHeight(size_t numTransactions, Height height) {
-		auto pBlock = GenerateBlockWithTransactions(numTransactions);
-		pBlock->Height = height;
-		return pBlock;
-	}
-
-	std::unique_ptr<model::Block> GenerateBlockWithTransactionsAtHeight(Height height) {
-		auto pBlock = GenerateBlockWithTransactionsAtHeight(5, height);
-		FillWithRandomData(pBlock->PreviousBlockHash);
-		return pBlock;
+		auto blockOptions = TestBlockOptions(signer);
+		blockOptions.Height = height;
+		return GenerateBlock(numTransactions, blockOptions);
 	}
 
 	std::unique_ptr<model::Block> GenerateBlockWithTransactions(size_t numTransactions, Height height, Timestamp timestamp) {
-		auto pBlock = GenerateBlockWithTransactionsAtHeight(numTransactions, height);
-		for (auto& transaction : pBlock->Transactions())
-			transaction.Deadline = timestamp + Timestamp(1);
-
-		pBlock->Timestamp = timestamp;
-		return pBlock;
-	}
-
-	std::unique_ptr<model::Block> GenerateVerifiableBlockAtHeight(Height height) {
 		auto signer = GenerateKeyPair();
-
-		model::PreviousBlockContext context;
-		auto pBlock = model::CreateBlock(context, Network_Identifier, signer.publicKey(), model::Transactions());
-		RandomizeBlock(*pBlock);
-		pBlock->Height = height;
-
-		SignBlock(signer, *pBlock);
-		return pBlock;
-	}
-
-	std::unique_ptr<model::Block> GenerateNonVerifiableBlockAtHeight(Height height) {
-		auto pBlock = GenerateVerifiableBlockAtHeight(height);
-		pBlock->Signature = {};
-		return pBlock;
+		auto blockOptions = TestBlockOptions(signer);
+		blockOptions.Height = height;
+		blockOptions.Timestamp = timestamp;
+		return GenerateBlock(numTransactions, blockOptions);
 	}
 
 	std::unique_ptr<model::Block> GenerateDeterministicBlock() {
@@ -134,10 +136,14 @@ namespace catapult { namespace test {
 		pBlock->PreviousBlockHash = { { 123 } };
 		pBlock->BlockReceiptsHash = { { 55 } };
 		pBlock->StateHash = { { 242, 111 } };
-		pBlock->BeneficiaryPublicKey = { { 77, 99, 88 } };
-		SignBlock(keyPair, *pBlock);
+		pBlock->Beneficiary = { { 77, 99, 88 } };
+
+		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
+		extensions::BlockExtensions(generationHash).signFullBlock(keyPair, *pBlock);
 		return pBlock;
 	}
+
+	// endregion
 
 	std::vector<uint8_t> CreateRandomBlockBuffer(size_t numBlocks) {
 		constexpr auto Entity_Size = sizeof(model::BlockHeader);
@@ -173,8 +179,12 @@ namespace catapult { namespace test {
 		return static_cast<size_t>(count);
 	}
 
-	std::unique_ptr<model::Block> CopyBlock(const model::Block& block) {
-		return CopyEntity(block);
+	model::BlockElement BlockToBlockElement(const model::Block& block) {
+		return BlockToBlockElement(block, GetDefaultGenerationHash());
+	}
+
+	model::BlockElement BlockToBlockElement(const model::Block& block, const GenerationHash& generationHash) {
+		return extensions::BlockExtensions(generationHash).convertBlockToBlockElement(block, generationHash);
 	}
 
 	model::BlockElement BlockToBlockElement(const model::Block& block, const Hash256& hash) {
@@ -189,10 +199,6 @@ namespace catapult { namespace test {
 		// add random data to ensure it is roundtripped correctly
 		blockElement.SubCacheMerkleRoots = GenerateRandomDataVector<Hash256>(3);
 		return blockElement;
-	}
-
-	model::BlockElement BlockToBlockElement(const model::Block& block) {
-		return extensions::BlockExtensions().convertBlockToBlockElement(block, {});
 	}
 
 	namespace {
@@ -228,9 +234,5 @@ namespace catapult { namespace test {
 
 		ASSERT_TRUE(!!blockElement.OptionalStatement);
 		AssertEqual(*expectedBlockElement.OptionalStatement, *blockElement.OptionalStatement);
-	}
-
-	void SignBlock(const crypto::KeyPair& signer, model::Block& block) {
-		extensions::BlockExtensions().signFullBlock(signer, block);
 	}
 }}

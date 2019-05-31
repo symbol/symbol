@@ -62,18 +62,18 @@ namespace catapult { namespace hashcache {
 			auto& cache = context.testState().state().cache();
 
 			// - populate the hash cache
-			auto hash = test::GenerateRandomData<Hash256_Size>();
+			auto hash = test::GenerateRandomByteArray<Hash256>();
 			{
 				auto delta = cache.createDelta();
 				auto& hashCacheDelta = delta.template sub<cache::HashCache>();
 
 				for (auto i = 0u; i < 5; ++i)
-					hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
+					hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
 
 				hashCacheDelta.insert(state::TimestampedHash(Timestamp(5), hash));
 
 				for (auto i = 6u; i < 10; ++i)
-					hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomData<Hash256_Size>()));
+					hashCacheDelta.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
 
 				cache.commit(Height());
 			}
@@ -83,7 +83,7 @@ namespace catapult { namespace hashcache {
 		}
 	}
 
-	TEST(TEST_CLASS, KnownHashPredicate_ReturnsTrueIfEntityIsContainedInHashCache) {
+	TEST(TEST_CLASS, KnownHashPredicate_ReturnsTrueWhenEntityIsContainedInHashCache) {
 		// Act:
 		RunHashCacheTest([](const auto& hooks, const auto& hash) {
 			// Assert:
@@ -92,13 +92,13 @@ namespace catapult { namespace hashcache {
 		});
 	}
 
-	TEST(TEST_CLASS, KnownHashPredicate_ReturnsFalseIfEntityIsNotContainedInHashCache) {
+	TEST(TEST_CLASS, KnownHashPredicate_ReturnsFalseWhenEntityIsNotContainedInHashCache) {
 		// Act:
 		RunHashCacheTest([](const auto& hooks, const auto& hash) {
 			// Assert:
 			cache::MemoryUtCache utCache({});
 			EXPECT_FALSE(hooks.knownHashPredicate(utCache)(Timestamp(6), hash));
-			EXPECT_FALSE(hooks.knownHashPredicate(utCache)(Timestamp(5), test::GenerateRandomData<Hash256_Size>()));
+			EXPECT_FALSE(hooks.knownHashPredicate(utCache)(Timestamp(5), test::GenerateRandomByteArray<Hash256>()));
 		});
 	}
 }}

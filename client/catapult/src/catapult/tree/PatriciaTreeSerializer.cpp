@@ -52,7 +52,7 @@ namespace catapult { namespace tree {
 			io::Write8(out, 0xFF);
 			SerializePath(out, node.path());
 
-			io::Write(out, node.value());
+			out.write(node.value());
 			return out.str();
 		}
 
@@ -69,7 +69,7 @@ namespace catapult { namespace tree {
 			io::Write16(out, linksMask);
 			for (auto i = 0u; i < utils::GetNumBits<LinksMaskType>(); ++i) {
 				if (node.hasLink(i))
-					io::Write(out, node.link(i));
+					out.write(node.link(i));
 			}
 
 			return out.str();
@@ -95,7 +95,7 @@ namespace catapult { namespace tree {
 			auto path = DeserializePath(input);
 
 			Hash256 value;
-			io::Read(input, value);
+			input.read(value);
 			return LeafTreeNode(path, value);
 		}
 
@@ -107,7 +107,7 @@ namespace catapult { namespace tree {
 			Hash256 link;
 			for (auto i = 0u; i < utils::GetNumBits<LinksMaskType>(); ++i) {
 				if (links & (1 << i)) {
-					io::Read(input, link);
+					input.read(link);
 					branch.setLink(link, i);
 				}
 			}

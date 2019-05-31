@@ -21,6 +21,7 @@
 #include "src/cache/HashCache.h"
 #include "tests/test/cache/CacheBasicTests.h"
 #include "tests/test/cache/CacheMixinsTests.h"
+#include "tests/test/cache/DeltaElementsMixinTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -56,6 +57,12 @@ namespace catapult { namespace cache {
 				return MakeId(id);
 			}
 		};
+
+		// custom modification policy is needed because elements are immutable
+		struct HashCacheDeltaModificationPolicy : public test::DeltaRemoveInsertModificationPolicy {
+			static constexpr auto Is_Mutable = false;
+			static constexpr auto Is_Strictly_Ordered = false;
+		};
 	}
 
 	DEFINE_CACHE_CONTAINS_TESTS(HashCacheMixinTraits, ViewAccessor, _View)
@@ -64,6 +71,8 @@ namespace catapult { namespace cache {
 	DEFINE_CACHE_ITERATION_TESTS_ORDERING(HashCacheMixinTraits, ViewAccessor, Ordered, _View)
 
 	DEFINE_CACHE_MUTATION_TESTS(HashCacheMixinTraits, DeltaAccessor, _Delta)
+
+	DEFINE_DELTA_ELEMENTS_MIXIN_CUSTOM_TESTS(HashCacheMixinTraits, HashCacheDeltaModificationPolicy, _Delta)
 
 	DEFINE_CACHE_BASIC_TESTS(HashCacheMixinTraits,)
 

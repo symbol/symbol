@@ -20,7 +20,7 @@
 
 #pragma once
 #include "BlockChainProcessor.h"
-#include "StateChangeInfo.h"
+#include "catapult/subscribers/StateChangeInfo.h"
 #include "catapult/utils/ArraySet.h"
 
 namespace catapult {
@@ -53,8 +53,21 @@ namespace catapult { namespace consumers {
 	enum class UndoBlockType {
 		/// Rolled back block.
 		Rollback,
+
 		/// New common block.
 		Common
+	};
+
+	/// Steps in a commit operation.
+	enum class CommitOperationStep : uint16_t {
+		/// Blocks were written to disk.
+		Blocks_Written,
+
+		/// State was written to disk.
+		State_Written,
+
+		/// Everything was updated.
+		All_Updated
 	};
 
 	/// Handlers used by the block chain sync consumer.
@@ -68,10 +81,16 @@ namespace catapult { namespace consumers {
 		using UndoBlockFunc = consumer<const model::BlockElement&, observers::ObserverState&, UndoBlockType>;
 
 		/// Prototype for state change notification.
-		using StateChangeFunc = consumer<const StateChangeInfo&>;
+		using StateChangeFunc = consumer<const subscribers::StateChangeInfo&>;
+
+		/// Prototype for pre state written notification.
+		using PreStateWrittenFunc = consumer<const cache::CatapultCacheDelta&, const state::CatapultState&, Height>;
 
 		/// Prototype for transaction change notification.
 		using TransactionsChangeFunc = consumer<const TransactionsChangeInfo&>;
+
+		/// Prototype for commit step notification.
+		using CommitStepFunc = consumer<CommitOperationStep>;
 
 	public:
 		/// Checks all difficulties in a block chain for correctness.
@@ -86,7 +105,13 @@ namespace catapult { namespace consumers {
 		/// Called with state change info to indicate a state change.
 		StateChangeFunc StateChange;
 
+		/// Called after state change but before state written checkpoint.
+		PreStateWrittenFunc PreStateWritten;
+
 		/// Called with the hashes of confirmed transactions and the infos of reverted transactions when transaction statuses change.
 		TransactionsChangeFunc TransactionsChange;
+
+		/// Called with the commit operation step.
+		CommitStepFunc CommitStep;
 	};
 }}

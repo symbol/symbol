@@ -108,7 +108,7 @@ namespace catapult { namespace validators {
 		auto CreateNotificationWithRandomKey(
 				const Key&,
 				const model::PropertyModification<typename TPropertyValueTraits::UnresolvedValueType>& modification) {
-			return test::CreateNotification<TPropertyValueTraits, TOperationTraits>(test::GenerateRandomData<Key_Size>(), modification);
+			return test::CreateNotification<TPropertyValueTraits, TOperationTraits>(test::GenerateRandomByteArray<Key>(), modification);
 		}
 
 		template<typename TPropertyValueTraits, typename TOperationTraits, typename TCreateNotification, typename TModificationFactory>
@@ -119,7 +119,7 @@ namespace catapult { namespace validators {
 				TModificationFactory modificationFactory) {
 			// Arrange:
 			auto cache = test::PropertyCacheFactory::Create();
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			auto values = test::GenerateUniqueRandomDataVector<typename TPropertyValueTraits::ValueType>(numValues);
 			test::PopulateCache<TPropertyValueTraits, TOperationTraits>(cache, key, values);
 			auto modification = modificationFactory(values);

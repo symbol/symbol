@@ -76,7 +76,7 @@ namespace catapult { namespace chain {
 			explicit ImportanceGroup(catapult::Importance::ValueType importance)
 					: Importance(catapult::Importance(importance))
 					, HitCount(0)
-					, Signer(test::GenerateRandomData<Key_Size>())
+					, Signer(test::GenerateRandomByteArray<Key>())
 			{}
 		};
 
@@ -97,7 +97,7 @@ namespace catapult { namespace chain {
 		Timestamp GetBlockTime(
 				const model::Block& parent,
 				model::Block& current,
-				const Hash256& generationHash,
+				const GenerationHash& generationHash,
 				const BlockHitPredicate& predicate) {
 			const auto MS_In_S = 1000;
 
@@ -123,24 +123,24 @@ namespace catapult { namespace chain {
 		}
 
 		// runs an iteration and returns the next generation hash
-		Hash256 RunHitCountIteration(
+		GenerationHash RunHitCountIteration(
 				const BlockHitPredicate& predicate,
 				ImportanceGroups& importances,
 				const model::Block& parent,
-				const Hash256& parentGenerationHash,
+				const GenerationHash& parentGenerationHash,
 				model::Block& current) {
 			Timestamp bestTime = Max_Time;
-			Hash256 bestGenerationHash{};
+			GenerationHash bestGenerationHash{};
 			ImportanceGroup* pBestGroup = nullptr;
 			for (const auto& pGroup : importances) {
 				// - set the signer and generation hash
 				current.Signer = pGroup->Signer;
-				Hash256 nextGenerationHash;
+				GenerationHash nextGenerationHash;
 
-				crypto::Sha3_256_Builder sha3;
-				sha3.update(parentGenerationHash);
-				sha3.update(current.Signer);
-				sha3.final(nextGenerationHash);
+				crypto::GenerationHash_Builder hasher;
+				hasher.update(parentGenerationHash);
+				hasher.update(current.Signer);
+				hasher.final(nextGenerationHash);
 
 				auto time = GetBlockTime(parent, current, nextGenerationHash, predicate);
 				if (time >= bestTime)
@@ -154,7 +154,7 @@ namespace catapult { namespace chain {
 			// - if no blocks hit, use a random generation hash for the next iteration
 			//   (in a real scenario, this would result in a lowered difficulty)
 			if (!pBestGroup)
-				return test::GenerateRandomData<Hash256_Size>();
+				return test::GenerateRandomByteArray<GenerationHash>();
 
 			// - increment the hit count for the best group and use its generation hash for the next iteration
 			++pBestGroup->HitCount;
@@ -238,12 +238,12 @@ namespace catapult { namespace chain {
 					// - set up blocks
 					model::Block parent;
 					parent.Timestamp = Timestamp((900 + i) * 1000);
-					auto parentGenerationHash = test::GenerateRandomData<Hash256_Size>();
+					auto parentGenerationHash = test::GenerateRandomByteArray<GenerationHash>();
 
 					model::Block current;
 					current.Difficulty = Difficulty((50 + i) * 1'000'000'000'000);
 
-					CATAPULT_LOG(debug) << "generation hash " << i << ": " << utils::HexFormat(parentGenerationHash);
+					CATAPULT_LOG(debug) << "generation hash " << i << ": " << parentGenerationHash;
 
 					// Act: calculate hit counts for lots of blocks
 					for (auto j = 0u; j < numIterationsPerThread; ++j)

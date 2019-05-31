@@ -182,7 +182,7 @@ namespace catapult { namespace test {
 
 			const auto* pAddressData = reinterpret_cast<const uint8_t*>(message[0].data()) + 1;
 			const auto& address = reinterpret_cast<const UnresolvedAddress&>(*pAddressData);
-			EXPECT_EQ(1u, addressesCopy.erase(address)) << "address " << utils::HexFormat(address);
+			EXPECT_EQ(1u, addressesCopy.erase(address)) << "address " << address;
 
 			auto topic = CreateTopic(marker, address);
 			assertMessage(message, topic);

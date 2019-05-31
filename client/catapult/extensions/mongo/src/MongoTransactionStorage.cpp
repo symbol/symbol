@@ -40,6 +40,7 @@ namespace catapult { namespace mongo {
 					, m_transactionRegistry(transactionRegistry)
 					, m_collectionName(collectionName)
 					, m_database(m_context.createDatabaseConnection())
+					, m_errorPolicy(m_context.createCollectionErrorPolicy(collectionName))
 			{}
 
 		public:
@@ -57,7 +58,7 @@ namespace catapult { namespace mongo {
 
 		private:
 			void commitInserts(const TransactionInfos& addedTransactionInfos) {
-				// note that unconfirmed transactions don't have height and block index metadata
+				// note that only confirmed transactions have height and block index metadata
 				const auto& registry = m_transactionRegistry;
 				std::atomic<size_t> numTotalTransactionDocuments(0);
 				auto createDocuments = [&registry, &numTotalTransactionDocuments](const auto& transactionInfo, auto) {
@@ -67,14 +68,8 @@ namespace catapult { namespace mongo {
 					return documents;
 				};
 				auto results = m_context.bulkWriter().bulkInsert(m_collectionName, addedTransactionInfos, createDocuments).get();
-				auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-				auto numInsertedDocuments = mappers::ToUint32(aggregate.NumInserted);
-				if (addedTransactionInfos.size() > numInsertedDocuments || numTotalTransactionDocuments != numInsertedDocuments) {
-					CATAPULT_THROW_RUNTIME_ERROR_2(
-							"insert unconfirmed transactions failed: insert count mismatch (expected, actual)",
-							addedTransactionInfos.size(),
-							numInsertedDocuments);
-				}
+				auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
+				m_errorPolicy.checkInserted(numTotalTransactionDocuments, aggregateResult, "transactions");
 			}
 
 			void commitDeletes(const TransactionInfos& removedTransactionInfos) {
@@ -88,14 +83,8 @@ namespace catapult { namespace mongo {
 							<< finalize;
 				};
 				auto results = m_context.bulkWriter().bulkDelete(m_collectionName, removedTransactionInfos, createFilter).get();
-				auto aggregate = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
-				auto numDeleted = mappers::ToUint32(aggregate.NumDeleted);
-				if (removedTransactionInfos.size() > numDeleted) {
-					CATAPULT_THROW_RUNTIME_ERROR_2(
-							"delete unconfirmed transactions failed: delete count mismatch (min expected, actual)",
-							removedTransactionInfos.size(),
-							numDeleted);
-				}
+				auto aggregateResult = BulkWriteResult::Aggregate(thread::get_all(std::move(results)));
+				m_errorPolicy.checkDeletedAtLeast(removedTransactionInfos.size(), aggregateResult, "transactions");
 			}
 
 		private:
@@ -103,6 +92,7 @@ namespace catapult { namespace mongo {
 			const MongoTransactionRegistry& m_transactionRegistry;
 			std::string m_collectionName;
 			MongoDatabase m_database;
+			MongoErrorPolicy m_errorPolicy;
 		};
 	}
 

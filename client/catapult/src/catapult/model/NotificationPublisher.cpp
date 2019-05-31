@@ -74,12 +74,12 @@ namespace catapult { namespace model {
 				switch (basicEntityType) {
 				case BasicEntityType::Block:
 					// set block source to zero (source ids are 1-based)
-					sub.notify(Notification(0, 0, Notification::SourceChangeType::Absolute));
+					sub.notify(Notification(Notification::SourceChangeType::Absolute, 0, Notification::SourceChangeType::Absolute, 0));
 					break;
 
 				case BasicEntityType::Transaction:
 					// set transaction source (source ids are 1-based)
-					sub.notify(Notification(1, 0, Notification::SourceChangeType::Relative));
+					sub.notify(Notification(Notification::SourceChangeType::Relative, 1, Notification::SourceChangeType::Absolute, 0));
 					break;
 
 				default:
@@ -88,12 +88,16 @@ namespace catapult { namespace model {
 			}
 
 			void publish(const Block& block, NotificationSubscriber& sub) const {
+				// raise an account public key notification
+				if (Key() != block.Beneficiary)
+					sub.notify(AccountPublicKeyNotification(block.Beneficiary));
+
 				// raise an entity notification
-				sub.notify(EntityNotification(block.Network(), Block::Current_Version, Block::Current_Version, block.EntityVersion()));
+				sub.notify(EntityNotification(block.Network(), block.EntityVersion(), Block::Current_Version, Block::Current_Version));
 
 				// raise a block notification
 				auto blockTransactionsInfo = CalculateBlockTransactionsInfo(block);
-				BlockNotification blockNotification(block.Signer, block.Timestamp, block.Difficulty);
+				BlockNotification blockNotification(block.Signer, block.Beneficiary, block.Timestamp, block.Difficulty);
 				blockNotification.NumTransactions = blockTransactionsInfo.Count;
 				blockNotification.TotalFee = blockTransactionsInfo.TotalFee;
 
@@ -111,23 +115,28 @@ namespace catapult { namespace model {
 					const BlockHeader* pBlockHeader,
 					NotificationSubscriber& sub) const {
 				const auto& plugin = *m_transactionRegistry.findPlugin(transaction.Type);
-				auto supportedVersions = plugin.supportedVersions();
+				auto attributes = plugin.attributes();
 
 				// raise an entity notification
 				sub.notify(EntityNotification(
 						transaction.Network(),
-						supportedVersions.MinVersion,
-						supportedVersions.MaxVersion,
-						transaction.EntityVersion()));
+						transaction.EntityVersion(),
+						attributes.MinVersion,
+						attributes.MaxVersion));
 
 				// raise transaction notifications
 				auto fee = pBlockHeader ? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction) : transaction.MaxFee;
 				sub.notify(TransactionNotification(transaction.Signer, hash, transaction.Type, transaction.Deadline));
+				sub.notify(TransactionDeadlineNotification(transaction.Deadline, attributes.MaxLifetime));
 				sub.notify(TransactionFeeNotification(transaction.Size, fee, transaction.MaxFee));
 				sub.notify(BalanceDebitNotification(transaction.Signer, m_feeMosaicId, fee));
 
 				// raise a signature notification
-				sub.notify(SignatureNotification(transaction.Signer, transaction.Signature, plugin.dataBuffer(transaction)));
+				sub.notify(SignatureNotification(
+						transaction.Signer,
+						transaction.Signature,
+						plugin.dataBuffer(transaction),
+						SignatureNotification::ReplayProtectionMode::Enabled));
 			}
 
 		private:

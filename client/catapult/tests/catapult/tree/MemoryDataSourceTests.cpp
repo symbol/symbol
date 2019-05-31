@@ -20,7 +20,7 @@
 
 #include "catapult/tree/MemoryDataSource.h"
 #include "catapult/utils/ArraySet.h"
-#include "tests/test/other/PatriciaTreeDataSourceTests.h"
+#include "tests/test/tree/PatriciaTreeDataSourceTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace tree {
@@ -37,8 +37,8 @@ namespace catapult { namespace tree {
 
 	TEST(TEST_CLASS, CanVisitAllSavedNodesViaForEach) {
 		// Arrange: prepare four nodes
-		auto leafNode1 = LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomData<Hash256_Size>());
-		auto leafNode2 = LeafTreeNode(TreeNodePath(0x64'6F'67'02), test::GenerateRandomData<Hash256_Size>());
+		auto leafNode1 = LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomByteArray<Hash256>());
+		auto leafNode2 = LeafTreeNode(TreeNodePath(0x64'6F'67'02), test::GenerateRandomByteArray<Hash256>());
 		auto branchNode1 = BranchTreeNode(TreeNodePath(0x64'6F'67'01));
 		auto branchNode2 = BranchTreeNode(TreeNodePath(0x64'6F'67'04));
 
@@ -66,7 +66,7 @@ namespace catapult { namespace tree {
 	TEST(TEST_CLASS, CanClearAllNodes) {
 		// Arrange: set a leaf and branch node
 		MemoryDataSource dataSource;
-		dataSource.set(LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomData<Hash256_Size>()));
+		dataSource.set(LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomByteArray<Hash256>()));
 		dataSource.set(BranchTreeNode(TreeNodePath(0x64'6F'67'01)));
 
 		// Sanity:

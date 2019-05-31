@@ -19,12 +19,14 @@
 **/
 
 #include "catapult/subscribers/SubscriptionManager.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include "catapult/ionet/Node.h"
 #include "catapult/model/ChainScore.h"
 #include "tests/catapult/subscribers/test/UnsupportedSubscribers.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
+#include "tests/test/other/MutableCatapultConfiguration.h"
+#include "tests/test/other/mocks/MockBlockChangeSubscriber.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace subscribers {
@@ -39,12 +41,8 @@ namespace catapult { namespace subscribers {
 	using UnsupportedNodeSubscriber = test::UnsupportedNodeSubscriber;
 
 	namespace {
-		config::LocalNodeConfiguration CreateConfiguration() {
-			return config::LocalNodeConfiguration(
-					model::BlockChainConfiguration::Uninitialized(),
-					config::NodeConfiguration::Uninitialized(),
-					config::LoggingConfiguration::Uninitialized(),
-					config::UserConfiguration::Uninitialized());
+		config::CatapultConfiguration CreateConfiguration() {
+			return test::MutableCatapultConfiguration().ToConst();
 		}
 	}
 
@@ -55,11 +53,15 @@ namespace catapult { namespace subscribers {
 			using UnsupportedSubscriberType = UnsupportedBlockChangeSubscriber;
 
 			static auto CreateAggregate(SubscriptionManager& manager) {
-				return manager.createBlockStorage();
+				return manager.createBlockChangeSubscriber();
 			}
 
 			static void AddSubscriber(SubscriptionManager& manager, std::unique_ptr<io::BlockChangeSubscriber>&& pSubscriber) {
 				manager.addBlockChangeSubscriber(std::move(pSubscriber));
+			}
+
+			static void Notify(io::BlockChangeSubscriber& subscriber) {
+				subscriber.notifyDropBlocksAfter(Height(11));
 			}
 		};
 
@@ -67,11 +69,15 @@ namespace catapult { namespace subscribers {
 			using UnsupportedSubscriberType = UnsupportedUtChangeSubscriber;
 
 			static auto CreateAggregate(SubscriptionManager& manager) {
-				return manager.createUtCache(cache::MemoryCacheOptions(100, 100));
+				return manager.createUtChangeSubscriber();
 			}
 
 			static void AddSubscriber(SubscriptionManager& manager, std::unique_ptr<cache::UtChangeSubscriber>&& pSubscriber) {
 				manager.addUtChangeSubscriber(std::move(pSubscriber));
+			}
+
+			static void Notify(cache::UtChangeSubscriber& subscriber) {
+				subscriber.notifyAdds({});
 			}
 		};
 
@@ -79,11 +85,15 @@ namespace catapult { namespace subscribers {
 			using UnsupportedSubscriberType = UnsupportedPtChangeSubscriber;
 
 			static auto CreateAggregate(SubscriptionManager& manager) {
-				return manager.createPtCache(cache::MemoryCacheOptions(100, 100));
+				return manager.createPtChangeSubscriber();
 			}
 
 			static void AddSubscriber(SubscriptionManager& manager, std::unique_ptr<cache::PtChangeSubscriber>&& pSubscriber) {
 				manager.addPtChangeSubscriber(std::move(pSubscriber));
+			}
+
+			static void Notify(cache::PtChangeSubscriber& subscriber) {
+				subscriber.notifyAddPartials({});
 			}
 		};
 
@@ -99,7 +109,7 @@ namespace catapult { namespace subscribers {
 			}
 
 			static void Notify(TransactionStatusSubscriber& subscriber) {
-				subscriber.notifyStatus(*test::GenerateRandomTransaction(), test::GenerateRandomData<Hash256_Size>(), 123);
+				subscriber.notifyStatus(*test::GenerateRandomTransaction(), test::GenerateRandomByteArray<Hash256>(), 123);
 			}
 		};
 
@@ -134,11 +144,30 @@ namespace catapult { namespace subscribers {
 				subscriber.notifyNode(ionet::Node());
 			}
 		};
+
+		struct BlockStorageTraits : public BlockChangeTraits {
+			static auto CreateAggregate(SubscriptionManager& manager) {
+				io::BlockChangeSubscriber* pAggregateSubscriber;
+				return manager.createBlockStorage(pAggregateSubscriber);
+			}
+		};
+
+		struct UtCacheTraits : public UtChangeTraits {
+			static auto CreateAggregate(SubscriptionManager& manager) {
+				return manager.createUtCache(cache::MemoryCacheOptions(100, 100));
+			}
+		};
+
+		struct PtCacheTraits : public PtChangeTraits {
+			static auto CreateAggregate(SubscriptionManager& manager) {
+				return manager.createPtCache(cache::MemoryCacheOptions(100, 100));
+			}
+		};
 	}
 
 	// endregion
 
-	// region basic
+	// region constructor
 
 	TEST(TEST_CLASS, CanCreateManager) {
 		// Act:
@@ -161,6 +190,9 @@ namespace catapult { namespace subscribers {
 	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_StateChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Node) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_BlockStorage) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockStorageTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_UtCache) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtCacheTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_PtCache) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtCacheTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	SINGLE_AGGREGATE_CREATION_TEST(CannotCreateAggregateMultipleTimes) {
@@ -190,7 +222,48 @@ namespace catapult { namespace subscribers {
 
 	// endregion
 
-	// region block storage
+	// region create - subscriber
+
+#define BASIC_SUBSCRIPTION_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_BlockChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockChangeTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_UtChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<UtChangeTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_PtChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<PtChangeTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_StateChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Node) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	BASIC_SUBSCRIPTION_TEST(CanCreateAggregateWithoutSubscriptions) {
+		// Arrange:
+		auto config = CreateConfiguration();
+		SubscriptionManager manager(config);
+
+		// Act:
+		auto pSubscriber = TTraits::CreateAggregate(manager);
+
+		// Assert: notification should not trigger subscriber exception
+		ASSERT_TRUE(!!pSubscriber);
+		TTraits::Notify(*pSubscriber);
+	}
+
+	BASIC_SUBSCRIPTION_TEST(CanCreateAggregateWithSubscriptions) {
+		// Arrange:
+		auto config = CreateConfiguration();
+		SubscriptionManager manager(config);
+
+		// Act:
+		TTraits::AddSubscriber(manager, std::make_unique<typename TTraits::UnsupportedSubscriberType>());
+		auto pSubscriber = TTraits::CreateAggregate(manager);
+
+		// Assert: notification should trigger subscriber exception
+		ASSERT_TRUE(!!pSubscriber);
+		EXPECT_THROW(TTraits::Notify(*pSubscriber), catapult_runtime_error);
+	}
+
+	// endregion
+
+	// region create - block storage
 
 	TEST(TEST_CLASS, CanCreateBlockStorageWithoutSubscriptions) {
 		// Arrange:
@@ -199,11 +272,15 @@ namespace catapult { namespace subscribers {
 		const auto& fileStorage = manager.fileStorage();
 
 		// Act:
-		auto pBlockStorage = manager.createBlockStorage();
+		io::BlockChangeSubscriber* pAggregateSubscriber;
+		auto pBlockStorage = manager.createBlockStorage(pAggregateSubscriber);
 
 		// Assert: the file storage is returned as is
 		ASSERT_TRUE(!!pBlockStorage);
 		EXPECT_EQ(&fileStorage, pBlockStorage.get());
+
+		// - no subscriber was returned
+		EXPECT_FALSE(!!pAggregateSubscriber);
 	}
 
 	TEST(TEST_CLASS, CanCreateBlockStorageWithSubscriptions) {
@@ -212,21 +289,36 @@ namespace catapult { namespace subscribers {
 		SubscriptionManager manager(config);
 		const auto& fileStorage = manager.fileStorage();
 
+		auto pMockBlockChangeSubscriber = std::make_unique<mocks::MockBlockChangeSubscriber>();
+		const auto& mockBlockChangeSubscriber = *pMockBlockChangeSubscriber;
+
 		// Act:
-		manager.addBlockChangeSubscriber(std::make_unique<UnsupportedBlockChangeSubscriber>());
-		auto pBlockStorage = manager.createBlockStorage();
+		io::BlockChangeSubscriber* pAggregateSubscriber;
+		manager.addBlockChangeSubscriber(std::move(pMockBlockChangeSubscriber));
+		auto pBlockStorage = manager.createBlockStorage(pAggregateSubscriber);
 
 		// Assert: the file storage is not returned directly
 		ASSERT_TRUE(!!pBlockStorage);
 		EXPECT_NE(&fileStorage, pBlockStorage.get());
 
-		// - dropBlocksAfter should trigger subscriber exception
-		EXPECT_THROW(pBlockStorage->dropBlocksAfter(Height(1)), catapult_runtime_error);
+		// - dropBlocksAfter should delegate
+		pBlockStorage->dropBlocksAfter(Height(123));
+
+		ASSERT_EQ(1u, mockBlockChangeSubscriber.dropBlocksAfterHeights().size());
+		EXPECT_EQ(Height(123), mockBlockChangeSubscriber.dropBlocksAfterHeights()[0]);
+
+		// - subscriber was returned and should delegate
+		ASSERT_TRUE(!!pAggregateSubscriber);
+
+		pAggregateSubscriber->notifyDropBlocksAfter(Height(256));
+
+		ASSERT_EQ(2u, mockBlockChangeSubscriber.dropBlocksAfterHeights().size());
+		EXPECT_EQ(Height(256), mockBlockChangeSubscriber.dropBlocksAfterHeights()[1]);
 	}
 
 	// endregion
 
-	// region ut / pt caches
+	// region create - ut / pt caches
 
 	namespace {
 		struct UtTraits {
@@ -313,44 +405,6 @@ namespace catapult { namespace subscribers {
 		pCache->modifier().add(test::CreateRandomTransactionInfo());
 
 		EXPECT_EQ(1u, counter);
-	}
-
-	// endregion
-
-	// region basic (transaction status, status change, node) subscribers
-
-#define BASIC_SUBSCRIPTION_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_TransactionStatus) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionStatusTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_StateChange) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<StateChangeTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Node) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NodeTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-
-	BASIC_SUBSCRIPTION_TEST(CanCreateAggregateWithoutSubscriptions) {
-		// Arrange:
-		auto config = CreateConfiguration();
-		SubscriptionManager manager(config);
-
-		// Act:
-		auto pSubscriber = TTraits::CreateAggregate(manager);
-
-		// Assert: notification should not trigger subscriber exception
-		ASSERT_TRUE(!!pSubscriber);
-		TTraits::Notify(*pSubscriber);
-	}
-
-	BASIC_SUBSCRIPTION_TEST(CanCreateAggregateWithSubscriptions) {
-		// Arrange:
-		auto config = CreateConfiguration();
-		SubscriptionManager manager(config);
-
-		// Act:
-		TTraits::AddSubscriber(manager, std::make_unique<typename TTraits::UnsupportedSubscriberType>());
-		auto pSubscriber = TTraits::CreateAggregate(manager);
-
-		// Assert: notification should trigger subscriber exception
-		ASSERT_TRUE(!!pSubscriber);
-		EXPECT_THROW(TTraits::Notify(*pSubscriber), catapult_runtime_error);
 	}
 
 	// endregion

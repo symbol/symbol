@@ -47,7 +47,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		struct AddressAliasTraits {
 			static auto CreateAlias() {
-				return state::NamespaceAlias(test::GenerateRandomData<Address_Decoded_Size>());
+				return state::NamespaceAlias(test::GenerateRandomByteArray<Address>());
 			}
 		};
 	}
@@ -69,7 +69,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			for (auto i = 0u; i < depth; ++i)
 				path.push_back(test::GenerateRandomValue<NamespaceId>());
 
-			auto owner = test::GenerateRandomData<Key_Size>();
+			auto owner = test::GenerateRandomByteArray<Key>();
 			auto pRoot = std::make_shared<state::RootNamespace>(path[0], owner, state::NamespaceLifetime(Height(123), Height(234)));
 			return NamespaceDescriptor(path, alias, pRoot, test::GenerateRandomAddress(), 321, NamespaceStatus::Active == status);
 		}

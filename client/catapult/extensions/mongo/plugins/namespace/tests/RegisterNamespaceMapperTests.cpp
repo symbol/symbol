@@ -65,7 +65,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		}
 	}
 
-	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, model::Entity_Type_Register_Namespace)
+	DEFINE_BASIC_MONGO_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , model::Entity_Type_Register_Namespace)
 
 	// region streamTransaction
 
@@ -87,7 +87,7 @@ namespace catapult { namespace mongo { namespace plugins {
 	PLUGIN_TEST(CanMapRootRegisterNamespaceTransactionWithName) {
 		// Arrange:
 		std::string namespaceName("jabo38");
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto pTransaction = TTraits::Adapt(CreateRegisterNamespaceTransactionBuilder(signer, model::NamespaceType::Root, namespaceName));
 		auto namespaceId = pTransaction->NamespaceId;
 		auto pPlugin = TTraits::CreatePlugin();
@@ -106,7 +106,7 @@ namespace catapult { namespace mongo { namespace plugins {
 	PLUGIN_TEST(CanMapChildRegisterNamespaceTransactionWithName) {
 		// Arrange:
 		std::string namespaceName("jabo38");
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto pTransaction = TTraits::Adapt(CreateRegisterNamespaceTransactionBuilder(signer, model::NamespaceType::Child, namespaceName));
 		auto namespaceId = pTransaction->NamespaceId;
 		auto pPlugin = TTraits::CreatePlugin();

@@ -36,16 +36,24 @@ namespace catapult { namespace test {
 
 	/// Generates random array data.
 	template<size_t N>
-	std::array<uint8_t, N> GenerateRandomData() {
+	std::array<uint8_t, N> GenerateRandomArray() {
 		std::array<uint8_t, N> data;
 		std::generate_n(data.begin(), data.size(), RandomByte);
 		return data;
 	}
 
+	/// Generates random array data.
+	template<typename TArray>
+	TArray GenerateRandomByteArray() {
+		TArray data;
+		std::generate_n(data.begin(), data.size(), RandomByte);
+		return data;
+	}
+
 	/// Generates a random base value.
-	template<typename T>
-	T GenerateRandomValue() {
-		return T(static_cast<typename T::ValueType>(Random()));
+	template<typename TBaseValue>
+	TBaseValue GenerateRandomValue() {
+		return TBaseValue(static_cast<typename TBaseValue::ValueType>(Random()));
 	}
 
 	/// Generates random string data of \a size.

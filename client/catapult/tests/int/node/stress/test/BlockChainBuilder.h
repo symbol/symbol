@@ -21,6 +21,7 @@
 #pragma once
 #include "Accounts.h"
 #include "StateHashCalculator.h"
+#include "TransactionsGenerator.h"
 #include "catapult/model/BlockUtils.h"
 #include "catapult/state/BlockDifficultyInfo.h"
 #include "tests/test/core/mocks/MockMemoryBlockStorage.h"
@@ -29,42 +30,10 @@
 namespace catapult { namespace test {
 
 	/// Single use builder used to build a single block or block chain from transactions.
-	/// \note
-	/// transfers are supported by both asSingleBlock and asBlockChain
-	/// root namespace registrations are only supporte by asSingleBlock
 	class BlockChainBuilder {
 	public:
 		using Blocks = std::vector<std::shared_ptr<model::Block>>;
 		using BlockReceiptsHashCalculator = std::function<Hash256 (const model::Block&)>;
-
-	public:
-		// region descriptors
-
-		/// Describes a transfer.
-		struct TransferDescriptor {
-			/// Sender identifier.
-			size_t SenderId;
-			/// Receipient identifier.
-			size_t RecipientId;
-			/// Transfer amount.
-			catapult::Amount Amount;
-			/// Recipient alias (optional).
-			std::string RecipientAlias;
-		};
-
-		/// Describes a namespace registration.
-		struct NamespaceDescriptor {
-			/// Owner identifier.
-			size_t OwnerId;
-			/// Namespace name.
-			std::string Name;
-			/// Namespace duration.
-			BlockDuration Duration;
-			/// Address alias identifier (optional).
-			size_t AddressAliasId;
-		};
-
-		// endregion
 
 	public:
 		/// Creates a builder around \a accounts and \a stateHashCalculator.
@@ -92,18 +61,8 @@ namespace catapult { namespace test {
 				bool isChained);
 
 	public:
-		/// Adds a transfer from \a senderId to \a recipientId for amount \a transferAmount.
-		void addTransfer(size_t senderId, size_t recipientId, Amount transferAmount);
-
-		/// Adds a transfer from \a senderId to \a recipientAlias for amount \a transferAmount.
-		void addTransfer(size_t senderId, const std::string& recipientAlias, Amount transferAmount);
-
-		/// Adds a root namespace registration for namespace \a name by \a ownerId for specified \a duration,
-		/// optionally setting an alias for \a aliasId.
-		void addNamespace(size_t ownerId, const std::string& name, BlockDuration duration, size_t aliasId = 0);
-
 		/// Sets the time between blocks to \a blockTimeInterval.
-		void setBlockTimeInterval(Timestamp blockTimeInterval);
+		void setBlockTimeInterval(utils::TimeSpan blockTimeInterval);
 
 		/// Sets a custom block receipts hash calculator (\a blockReceiptsHashCalculator).
 		void setBlockReceiptsHashCalculator(const BlockReceiptsHashCalculator& blockReceiptsHashCalculator);
@@ -115,41 +74,30 @@ namespace catapult { namespace test {
 		/// state hash calculator (\a stateHashCalculator).
 		BlockChainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator) const;
 
-	public:
-		/// Builds a single block.
-		std::unique_ptr<model::Block> asSingleBlock();
+		/// Creates a new builder with a different state hash calculator (\a stateHashCalculator) starting at the supplied \a block.
+		BlockChainBuilder createChainedBuilder(StateHashCalculator& stateHashCalculator, const model::Block& block) const;
 
-		/// Builds a block chain.
-		Blocks asBlockChain();
+	public:
+		/// Builds a single block with transactions from \a transactionsGenerator.
+		std::unique_ptr<model::Block> asSingleBlock(const TransactionsGenerator& transactionsGenerator);
+
+		/// Builds a block chain with transactions from \a transactionsGenerator.
+		Blocks asBlockChain(const TransactionsGenerator& transactionsGenerator);
 
 	private:
 		void pushDifficulty(const model::Block& block);
-
-		std::unique_ptr<model::Transaction> createTransfer(const TransferDescriptor& descriptor, Timestamp deadline);
-
-		std::unique_ptr<model::Transaction> createRegisterNamespace(const NamespaceDescriptor& descriptor, Timestamp deadline);
-
-		std::unique_ptr<model::Transaction> createAddressAlias(const NamespaceDescriptor& descriptor, Timestamp deadline);
 
 		std::unique_ptr<model::Block> createBlock(
 				const model::PreviousBlockContext& context,
 				Timestamp timestamp,
 				const model::Transactions& transactions);
 
-		crypto::KeyPair findSigner(const model::PreviousBlockContext& context, Timestamp timestamp, Difficulty difficulty);
+		crypto::KeyPair findBlockSigner(const model::PreviousBlockContext& context, Timestamp timestamp, Difficulty difficulty);
 
 	private:
 		static std::shared_ptr<const model::BlockElement> ToSharedBlockElement(
-				const Hash256& parentGenerationHash,
+				const GenerationHash& parentGenerationHash,
 				const model::Block& block);
-
-		static std::unique_ptr<model::Transaction> SignWithDeadline(
-				std::unique_ptr<model::Transaction>&& pTransaction,
-				const crypto::KeyPair& signerKeyPair,
-				Timestamp deadline);
-
-	private:
-		enum class DescriptorType { Transfer, Namespace };
 
 	private:
 		// pointers instead of references to allow copy
@@ -161,10 +109,7 @@ namespace catapult { namespace test {
 		std::shared_ptr<const model::Block> m_pNemesisBlock; // only used to extend block lifetime
 		std::set<state::BlockDifficultyInfo> m_difficulties;
 
-		std::vector<TransferDescriptor> m_transferDescriptors;
-		std::vector<NamespaceDescriptor> m_namespaceDescriptors;
-		std::vector<DescriptorType> m_descriptorOrdering;
-		Timestamp m_blockTimeInterval;
+		utils::TimeSpan m_blockTimeInterval;
 		BlockReceiptsHashCalculator m_blockReceiptsHashCalculator;
 		model::BlockChainConfiguration m_config;
 	};

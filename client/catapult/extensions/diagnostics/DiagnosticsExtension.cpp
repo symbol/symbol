@@ -19,12 +19,12 @@
 **/
 
 #include "src/DiagnosticsService.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 
 namespace catapult { namespace diagnostics {
 
 	namespace {
-		void RegisterExtension(extensions::LocalNodeBootstrapper& bootstrapper) {
+		void RegisterExtension(extensions::ProcessBootstrapper& bootstrapper) {
 			// register service(s)
 			bootstrapper.extensionManager().addServiceRegistrar(CreateDiagnosticsServiceRegistrar());
 		}
@@ -32,6 +32,6 @@ namespace catapult { namespace diagnostics {
 }}
 
 extern "C" PLUGIN_API
-void RegisterExtension(catapult::extensions::LocalNodeBootstrapper& bootstrapper) {
+void RegisterExtension(catapult::extensions::ProcessBootstrapper& bootstrapper) {
 	catapult::diagnostics::RegisterExtension(bootstrapper);
 }

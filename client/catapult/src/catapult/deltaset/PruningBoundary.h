@@ -19,7 +19,6 @@
 **/
 
 #pragma once
-#include <memory>
 
 namespace catapult { namespace deltaset {
 
@@ -49,28 +48,5 @@ namespace catapult { namespace deltaset {
 	private:
 		bool m_isSet;
 		T m_value;
-	};
-
-	template<typename T>
-	class PruningBoundary<std::shared_ptr<T>> {
-	public:
-		constexpr PruningBoundary() : m_isSet(false)
-		{}
-
-		constexpr PruningBoundary(const std::shared_ptr<T>& pValue) : m_isSet(true), m_pValue(pValue)
-		{}
-
-	public:
-		constexpr bool isSet() const {
-			return m_isSet;
-		}
-
-		constexpr std::shared_ptr<T> value() const {
-			return m_pValue;
-		}
-
-	private:
-		bool m_isSet;
-		std::shared_ptr<T> m_pValue;
 	};
 }}

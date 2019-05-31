@@ -32,15 +32,20 @@ namespace catapult { namespace test {
 		constexpr auto State_Hash_Directory = "statehash";
 	}
 
-	StateHashDisabledTestContext::StateHashDisabledTestContext() : PeerLocalNodeTestContext(NodeFlag::Regular)
+	StateHashDisabledTestContext::StateHashDisabledTestContext(
+			NonNemesisTransactionPlugins additionalPlugins,
+			const consumer<config::CatapultConfiguration&>& configTransform)
+			: PeerLocalNodeTestContext(NodeFlag::Regular, additionalPlugins, configTransform)
 	{}
 
 	StateHashCalculator StateHashDisabledTestContext::createStateHashCalculator() const {
 		return StateHashCalculator();
 	}
 
-	StateHashEnabledTestContext::StateHashEnabledTestContext()
-			: PeerLocalNodeTestContext(NodeFlag::Verify_State)
+	StateHashEnabledTestContext::StateHashEnabledTestContext(
+			NonNemesisTransactionPlugins additionalPlugins,
+			const consumer<config::CatapultConfiguration&>& configTransform)
+			: PeerLocalNodeTestContext(NodeFlag::Verify_State, additionalPlugins, configTransform)
 			, m_stateHashCalculationDir(State_Hash_Directory) // isolated directory used for state hash calculation
 	{}
 
@@ -97,24 +102,34 @@ namespace catapult { namespace test {
 
 	// region state hash asserts
 
-	void AssertAllZero(const std::vector<Hash256>& hashes, size_t numExpected) {
+	void AssertAllZero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message) {
 		// Sanity:
 		EXPECT_EQ(numExpected, hashes.size());
 
 		// Assert:
 		auto i = 0u;
-		for (const auto& hash : hashes)
-			EXPECT_EQ(Hash256(), hash) << "hash at " << i;
+		for (const auto& hash : hashes) {
+			EXPECT_EQ(Hash256(), hash) << "hash at " << i << " " << message;
+			++i;
+		}
 	}
 
-	void AssertAllNonZero(const std::vector<Hash256>& hashes, size_t numExpected) {
+	void AssertAllZero(const std::pair<std::vector<Hash256>, std::vector<Hash256>>& hashes, size_t numExpected) {
+		// Assert:
+		AssertAllZero(hashes.first, numExpected, "first");
+		AssertAllZero(hashes.second, numExpected, "second");
+	}
+
+	void AssertAllNonZero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message) {
 		// Sanity:
 		EXPECT_EQ(numExpected, hashes.size());
 
 		// Assert:
 		auto i = 0u;
-		for (const auto& hash : hashes)
-			EXPECT_NE(Hash256(), hash) << "hash at " << i;
+		for (const auto& hash : hashes) {
+			EXPECT_NE(Hash256(), hash) << "hash at " << i << " " << message;
+			++i;
+		}
 	}
 
 	void AssertUnique(const std::vector<Hash256>& hashes) {
@@ -151,7 +166,7 @@ namespace catapult { namespace test {
 		}
 	}
 
-	void AssertNamespaceCount(const local::BootedLocalNode& localNode, size_t numExpectedNamespaces) {
+	void AssertNamespaceCount(const local::LocalNode& localNode, size_t numExpectedNamespaces) {
 		// Assert:
 		auto numNamespaces = GetCounterValue(localNode.counters(), "NS C");
 		auto numActiveNamespaces = GetCounterValue(localNode.counters(), "NS C AS");

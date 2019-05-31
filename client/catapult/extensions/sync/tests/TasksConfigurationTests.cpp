@@ -202,7 +202,7 @@ namespace catapult { namespace sync {
 		AssertContains(config, "eta", TimeSpan::FromMinutes(27), TimeSpan::FromMinutes(34), TimeSpan::FromMinutes(35), 65, 11);
 	}
 
-	TEST(TEST_CLASS, Tasks_LoadFromBagFailsIfAnyTaskHasInvalidValue) {
+	TEST(TEST_CLASS, Tasks_LoadFromBagFailsWhenAnyTaskHasInvalidValue) {
 		// Arrange:
 		utils::ConfigurationBag bag({
 			{ "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
@@ -214,7 +214,7 @@ namespace catapult { namespace sync {
 		EXPECT_THROW(TasksConfiguration::LoadFromBag(bag), utils::property_malformed_error);
 	}
 
-	TEST(TEST_CLASS, Tasks_LoadFromBagFailsIfAnyTaskHasMissingValue) {
+	TEST(TEST_CLASS, Tasks_LoadFromBagFailsWhenAnyTaskHasMissingValue) {
 		// Arrange:
 		utils::ConfigurationBag bag({
 			{ "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
@@ -226,7 +226,7 @@ namespace catapult { namespace sync {
 		EXPECT_THROW(TasksConfiguration::LoadFromBag(bag), utils::property_not_found_error);
 	}
 
-	TEST(TEST_CLASS, Tasks_LoadFromBagFailsIfAnyTaskHasExtraValue) {
+	TEST(TEST_CLASS, Tasks_LoadFromBagFailsWhenAnyTaskHasExtraValue) {
 		// Arrange:
 		utils::ConfigurationBag bag({
 			{ "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
@@ -242,7 +242,7 @@ namespace catapult { namespace sync {
 
 	// region tasks (file io)
 
-	TEST(TEST_CLASS, Tasks_LoadFromPathFailsIfFileDoesNotExist) {
+	TEST(TEST_CLASS, Tasks_LoadFromPathFailsWhenFileDoesNotExist) {
 		// Act + Assert: attempt to load the config
 		EXPECT_THROW(TasksConfiguration::LoadFromPath("../no-resources"), catapult_runtime_error);
 	}

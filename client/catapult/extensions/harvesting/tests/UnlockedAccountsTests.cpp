@@ -286,7 +286,7 @@ namespace catapult { namespace harvesting {
 
 	// region removeIf
 
-	TEST(TEST_CLASS, RemoveIfRemovesAllAccountsIfPredicateReturnsTrueForAllAccounts) {
+	TEST(TEST_CLASS, RemoveIfRemovesAllAccountsWhenPredicateReturnsTrueForAllAccounts) {
 		// Arrange:
 		TestContext context(8);
 		auto& accounts = context.Accounts;
@@ -303,7 +303,7 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(0u, accounts.view().size());
 	}
 
-	TEST(TEST_CLASS, RemoveIfRemovesNoAccountsIfPredicateReturnsFalseForAllAccounts) {
+	TEST(TEST_CLASS, RemoveIfRemovesNoAccountsWhenPredicateReturnsFalseForAllAccounts) {
 		// Arrange:
 		TestContext context(8);
 		auto& accounts = context.Accounts;

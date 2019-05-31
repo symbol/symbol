@@ -30,6 +30,7 @@ namespace catapult { namespace model {
 
 		/// Mosaic flags.
 		Flags,
+
 		/// Mosaic divisibility.
 		Divisibility,
 
@@ -56,11 +57,8 @@ namespace catapult { namespace model {
 		/// Mosaic is transferable.
 		Transferable = 0x02,
 
-		/// Mosaic levy is mutable.
-		Levy_Mutable = 0x04,
-
 		/// All flags.
-		All = 0x07
+		All = 0x03
 	};
 
 	MAKE_BITWISE_ENUM(MosaicFlags)

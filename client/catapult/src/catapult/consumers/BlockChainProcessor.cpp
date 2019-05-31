@@ -44,11 +44,11 @@ namespace catapult { namespace consumers {
 		void LogCacheStateHashInformation(Height height, const cache::StateHashInfo& stateHashInfo) {
 			std::ostringstream formattedSubCacheMerkleRoots;
 			for (const auto& subCacheMerkleRoot : stateHashInfo.SubCacheMerkleRoots)
-				formattedSubCacheMerkleRoots << std::endl << " + " << utils::HexFormat(subCacheMerkleRoot);
+				formattedSubCacheMerkleRoots << std::endl << " + " << subCacheMerkleRoot;
 
 			CATAPULT_LOG(debug)
 					<< "cache state hash (" << stateHashInfo.SubCacheMerkleRoots.size() << " components) at height " << height
-					<< std::endl << utils::HexFormat(stateHashInfo.StateHash)
+					<< std::endl << stateHashInfo.StateHash
 					<< formattedSubCacheMerkleRoots.str();
 		}
 
@@ -128,7 +128,7 @@ namespace catapult { namespace consumers {
 			static bool CheckGenerationHash(
 					model::BlockElement& element,
 					const model::Block& parentBlock,
-					const Hash256& parentGenerationHash,
+					const GenerationHash& parentGenerationHash,
 					const BlockHitPredicate& blockHitPredicate) {
 				const auto& block = element.Block;
 				element.GenerationHash = model::CalculateGenerationHash(parentGenerationHash, block.Signer);
@@ -147,8 +147,8 @@ namespace catapult { namespace consumers {
 
 				if (block.StateHash != cacheStateHashInfo.StateHash) {
 					CATAPULT_LOG(warning)
-							<< "block state hash (" << utils::HexFormat(block.StateHash) << ") does not match "
-							<< "cache state hash (" << utils::HexFormat(cacheStateHashInfo.StateHash) << ") "
+							<< "block state hash (" << block.StateHash << ") does not match "
+							<< "cache state hash (" << cacheStateHashInfo.StateHash << ") "
 							<< "at height " << block.Height;
 					return false;
 				}
@@ -171,8 +171,8 @@ namespace catapult { namespace consumers {
 
 				if (block.BlockReceiptsHash != blockReceiptsHash) {
 					CATAPULT_LOG(warning)
-							<< "block receipts hash (" << utils::HexFormat(block.BlockReceiptsHash) << ") does not match "
-							<< "calculated receipts hash (" << utils::HexFormat(blockReceiptsHash) << ") "
+							<< "block receipts hash (" << block.BlockReceiptsHash << ") does not match "
+							<< "calculated receipts hash (" << blockReceiptsHash << ") "
 							<< "at height " << block.Height;
 					return false;
 				}

@@ -48,7 +48,7 @@ namespace catapult { namespace utils {
 		}
 	}
 
-	TEST(TEST_CLASS, NoElementsAreRemovedIfPredicateAlwaysReturnsFalse) {
+	TEST(TEST_CLASS, NoElementsAreRemovedWhenPredicateAlwaysReturnsFalse) {
 		// Arrange:
 		auto map = CreateMap(5);
 
@@ -59,7 +59,7 @@ namespace catapult { namespace utils {
 		AssertMapContents(map, { 0u, 1u, 2u, 3u, 4u });
 	}
 
-	TEST(TEST_CLASS, ElementsAreRemovedOnlyIfPredicateReturnsTrue) {
+	TEST(TEST_CLASS, ElementsAreRemovedOnlyWhenPredicateReturnsTrue) {
 		// Arrange:
 		auto map = CreateMap(5);
 
@@ -70,7 +70,7 @@ namespace catapult { namespace utils {
 		AssertMapContents(map, { 1u, 3u });
 	}
 
-	TEST(TEST_CLASS, AllElementsAreRemovedIfPredicateAlwaysReturnsTrue) {
+	TEST(TEST_CLASS, AllElementsAreRemovedWhenPredicateAlwaysReturnsTrue) {
 		// Arrange:
 		auto map = CreateMap(5);
 

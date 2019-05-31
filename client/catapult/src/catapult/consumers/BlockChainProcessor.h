@@ -46,12 +46,12 @@ namespace catapult { namespace consumers {
 
 		public:
 			/// Gets the generation hash.
-			constexpr const Hash256& generationHash() const {
+			constexpr const GenerationHash& generationHash() const {
 				return *m_pGenerationHash;
 			}
 
 		private:
-			const Hash256* m_pGenerationHash;
+			const GenerationHash* m_pGenerationHash;
 	};
 
 	/// Function signature for validating, executing and updating a partial block chain given a parent block info
@@ -62,7 +62,7 @@ namespace catapult { namespace consumers {
 			observers::ObserverState&)>;
 
 	/// A predicate for determining whether or not two blocks form a hit.
-	using BlockHitPredicate = predicate<const model::Block&, const model::Block&, const Hash256&>;
+	using BlockHitPredicate = predicate<const model::Block&, const model::Block&, const GenerationHash&>;
 
 	/// A factory for creating a predicate for determining whether or not two blocks form a hit.
 	using BlockHitPredicateFactory = std::function<BlockHitPredicate (const cache::ReadOnlyCatapultCache&)>;

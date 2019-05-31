@@ -61,7 +61,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Gets the key corresponding to \a lockInfo.
 		static const auto& GetKeyFromValue(const ValueType& lockInfo) {
-			return lockInfo.Secret;
+			return lockInfo.CompositeHash;
 		}
 	};
 

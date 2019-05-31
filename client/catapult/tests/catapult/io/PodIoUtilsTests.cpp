@@ -78,14 +78,14 @@ namespace catapult { namespace io {
 		template<typename TTraits>
 		void AssertCanRoundtripInteger() {
 			// Arrange:
-			std::vector<uint8_t> data;
-			mocks::MockMemoryStream stream("dummy", data);
+			std::vector<uint8_t> buffer;
+			mocks::MockMemoryStream stream(buffer);
 
 			// Act:
 			TTraits::Write(stream);
 
 			// Sanity:
-			EXPECT_EQ(sizeof(TTraits::Value), data.size());
+			EXPECT_EQ(sizeof(TTraits::Value), buffer.size());
 
 			// Act:
 			auto result = TTraits::Read(stream);
@@ -138,8 +138,8 @@ namespace catapult { namespace io {
 		template<typename TReadTraits, typename T>
 		T RoundtripPod(const T& source) {
 			// Arrange:
-			std::vector<uint8_t> data;
-			mocks::MockMemoryStream stream("dummy", data);
+			std::vector<uint8_t> buffer;
+			mocks::MockMemoryStream stream(buffer);
 
 			// Act:
 			WriteTraits::template Write(stream, source);
@@ -158,17 +158,6 @@ namespace catapult { namespace io {
 		struct Dummy_tag {};
 		using DummyValue = utils::BaseValue<uint64_t, Dummy_tag>;
 		constexpr DummyValue Expected(0x12345678'90ABCDEFull);
-
-		// Act:
-		auto actual = RoundtripPod<TTraits>(Expected);
-
-		// Assert:
-		EXPECT_EQ(Expected, actual);
-	}
-
-	ROUNDTRIP_TEST(CanRoundtripArray) {
-		// Arrange:
-		std::array<uint8_t, 10> Expected = { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } };
 
 		// Act:
 		auto actual = RoundtripPod<TTraits>(Expected);

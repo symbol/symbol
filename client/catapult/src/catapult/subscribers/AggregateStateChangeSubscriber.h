@@ -35,7 +35,7 @@ namespace catapult { namespace subscribers {
 			this->forEach([&chainScore](auto& subscriber) { subscriber.notifyScoreChange(chainScore); });
 		}
 
-		void notifyStateChange(const consumers::StateChangeInfo& stateChangeInfo) override {
+		void notifyStateChange(const StateChangeInfo& stateChangeInfo) override {
 			this->forEach([&stateChangeInfo](auto& subscriber) { subscriber.notifyStateChange(stateChangeInfo); });
 		}
 	};

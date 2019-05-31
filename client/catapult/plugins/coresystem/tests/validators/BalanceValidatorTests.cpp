@@ -132,7 +132,7 @@ namespace catapult { namespace validators {
 
 	TRANSFER_OR_RESERVE_TEST(FailureWhenTransactionSignerIsUnknown) {
 		// Arrange: do not register the signer with the cache
-		auto sender = test::GenerateRandomData<Key_Size>();
+		auto sender = test::GenerateRandomByteArray<Key>();
 		auto recipient = test::GenerateRandomUnresolvedAddress();
 		auto notification = model::BalanceTransferNotification(sender, recipient, test::UnresolveXor(Currency_Mosaic_Id), Amount(0));
 		auto cache = test::CreateEmptyCatapultCache();
@@ -143,7 +143,7 @@ namespace catapult { namespace validators {
 
 	VARIABLE_BALANCE_TEST(Currency) {
 		// Arrange:
-		auto sender = test::GenerateRandomData<Key_Size>();
+		auto sender = test::GenerateRandomByteArray<Key>();
 		auto recipient = test::GenerateRandomUnresolvedAddress();
 		auto notification = model::BalanceTransferNotification(sender, recipient, test::UnresolveXor(Currency_Mosaic_Id), Amount(234));
 		auto cache = test::CreateCache(sender, { { Currency_Mosaic_Id, TTraits::Adjust(Amount(234)) } });
@@ -154,7 +154,7 @@ namespace catapult { namespace validators {
 
 	VARIABLE_BALANCE_TEST(Currency_SeededByAddress) {
 		// Arrange:
-		auto sender = test::GenerateRandomData<Key_Size>();
+		auto sender = test::GenerateRandomByteArray<Key>();
 		auto recipient = test::GenerateRandomUnresolvedAddress();
 		auto notification = model::BalanceTransferNotification(sender, recipient, test::UnresolveXor(Currency_Mosaic_Id), Amount(234));
 
@@ -173,7 +173,7 @@ namespace catapult { namespace validators {
 
 	VARIABLE_BALANCE_TEST(OtherMosaic) {
 		// Arrange:
-		auto sender = test::GenerateRandomData<Key_Size>();
+		auto sender = test::GenerateRandomByteArray<Key>();
 		auto recipient = test::GenerateRandomUnresolvedAddress();
 		auto notification = model::BalanceTransferNotification(sender, recipient, test::UnresolveXor(MosaicId(12)), Amount(234));
 		auto cache = test::CreateCache(sender, { { MosaicId(12), TTraits::Adjust(Amount(234)) } });

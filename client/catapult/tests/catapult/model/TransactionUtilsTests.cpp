@@ -54,7 +54,7 @@ namespace catapult { namespace model {
 					sub.notify(AccountPublicKeyNotification(transaction.Signer));
 					sub.notify(AccountPublicKeyNotification(transaction.Recipient));
 				} else {
-					sub.notify(EntityNotification(transaction.Network(), 0, 0, transaction.EntityVersion()));
+					sub.notify(EntityNotification(transaction.Network(), transaction.EntityVersion(), 0, 0));
 				}
 			}
 
@@ -65,8 +65,8 @@ namespace catapult { namespace model {
 		void RunExtractAddressesTest(MockNotificationPublisher::Mode mode) {
 			// Arrange:
 			auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
-					test::GenerateRandomData<Key_Size>(),
-					test::GenerateRandomData<Key_Size>());
+					test::GenerateRandomByteArray<Key>(),
+					test::GenerateRandomByteArray<Key>());
 			auto senderAddress = extensions::CopyToUnresolvedAddress(PublicKeyToAddress(pTransaction->Signer, Network_Identifier));
 			auto recipientAddress = extensions::CopyToUnresolvedAddress(PublicKeyToAddress(pTransaction->Recipient, Network_Identifier));
 
@@ -95,8 +95,8 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, ExtractAddressesDoesNotExtractAddressesFromOtherNotifications) {
 		// Arrange:
 		auto pTransaction = mocks::CreateMockTransactionWithSignerAndRecipient(
-				test::GenerateRandomData<Key_Size>(),
-				test::GenerateRandomData<Key_Size>());
+				test::GenerateRandomByteArray<Key>(),
+				test::GenerateRandomByteArray<Key>());
 
 		MockNotificationPublisher notificationPublisher(MockNotificationPublisher::Mode::Other);
 

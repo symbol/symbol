@@ -34,11 +34,14 @@ namespace catapult { namespace config {
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
 		LOAD_PROPERTY(MaxTransactionsPerAggregate);
 		LOAD_PROPERTY(MaxCosignaturesPerAggregate);
+
 		LOAD_PROPERTY(EnableStrictCosignatureCheck);
 		LOAD_PROPERTY(EnableBondedAggregateSupport);
+
+		LOAD_PROPERTY(MaxBondedTransactionLifetime);
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 4);
+		utils::VerifyBagSizeLte(bag, 5);
 		return config;
 	}
 }}

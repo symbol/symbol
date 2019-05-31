@@ -31,5 +31,8 @@ namespace catapult { namespace cache {
 			, public state::RootNamespaceHistorySerializer {
 		/// Loads \a history into \a cacheDelta.
 		static void LoadInto(const ValueType& history, DestinationType& cacheDelta);
+
+		/// Purges \a history from \a cacheDelta.
+		static void Purge(const ValueType& history, DestinationType& cacheDelta);
 	};
 }}

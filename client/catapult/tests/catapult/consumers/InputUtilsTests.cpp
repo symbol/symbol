@@ -32,10 +32,10 @@ namespace catapult { namespace consumers {
 
 	namespace {
 		auto CreateMultiBlockElements() {
-			auto pBlock1 = test::GenerateBlockWithTransactionsAtHeight(1, 246);
-			auto pBlock2 = test::GenerateBlockWithTransactionsAtHeight(0, 247);
-			auto pBlock3 = test::GenerateBlockWithTransactionsAtHeight(3, 248);
-			auto pBlock4 = test::GenerateBlockWithTransactionsAtHeight(2, 249);
+			auto pBlock1 = test::GenerateBlockWithTransactions(1, Height(246));
+			auto pBlock2 = test::GenerateBlockWithTransactions(0, Height(247));
+			auto pBlock3 = test::GenerateBlockWithTransactions(3, Height(248));
+			auto pBlock4 = test::GenerateBlockWithTransactions(2, Height(249));
 			return test::CreateBlockElements({ pBlock1.get(), pBlock2.get(), pBlock3.get(), pBlock4.get() });
 		}
 	}
@@ -187,8 +187,8 @@ namespace catapult { namespace consumers {
 	TEST(TEST_CLASS, CollectRevertedTransactionInfos_ReturnsAllInfosWhenHashesMatchNoTransactions) {
 		// Arrange:
 		auto transactionInfos = test::CreateTransactionInfos(4);
-		auto hash1 = test::GenerateRandomData<Hash256_Size>();
-		auto hash2 = test::GenerateRandomData<Hash256_Size>();
+		auto hash1 = test::GenerateRandomByteArray<Hash256>();
+		auto hash2 = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto revertedTransactionsInfos = CollectRevertedTransactionInfos({ &hash1, &hash2 }, test::CopyTransactionInfos(transactionInfos));
@@ -202,8 +202,8 @@ namespace catapult { namespace consumers {
 	TEST(TEST_CLASS, CollectRevertedTransactionInfos_OnlyReturnsInfosWithoutMatchingHashes) {
 		// Arrange:
 		auto transactionInfos = test::CreateTransactionInfos(4);
-		auto hash1 = test::GenerateRandomData<Hash256_Size>();
-		auto hash2 = test::GenerateRandomData<Hash256_Size>();
+		auto hash1 = test::GenerateRandomByteArray<Hash256>();
+		auto hash2 = test::GenerateRandomByteArray<Hash256>();
 
 		// Act:
 		auto revertedTransactionsInfos = CollectRevertedTransactionInfos(

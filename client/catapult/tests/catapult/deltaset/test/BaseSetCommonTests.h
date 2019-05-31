@@ -95,7 +95,7 @@ namespace catapult { namespace test {
 			EXPECT_TRUE(found);
 		}
 
-		static void AssertContainsReturnsFalseForNonExistingElement() {
+		static void AssertContainsReturnsFalseForNonexistentElement() {
 			// Arrange:
 			auto pSet = TTraits::CreateWithElements(3);
 			auto element1 = TTraits::CreateElement("TestElement", 123);
@@ -146,7 +146,7 @@ namespace catapult { namespace test {
 			EXPECT_EQ(*TTraits::ToPointer(element), *pFoundElement2);
 		}
 
-		static void AssertCannotFindNonExistingElement() {
+		static void AssertCannotFindNonexistentElement() {
 			// Arrange:
 			auto pSet = TTraits::CreateWithElements(3);
 			auto element1 = TTraits::CreateElement("TestElement", 123);
@@ -176,9 +176,9 @@ namespace catapult { namespace test {
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, EmptyReturnsFalseForNonEmptySet) \
 	\
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, ContainsReturnsTrueForExistingElement) \
-	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, ContainsReturnsFalseForNonExistingElement) \
+	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, ContainsReturnsFalseForNonexistentElement) \
 	\
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, CanFindExistingElement) \
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, CanFindExistingElementMultipleTimes) \
-	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, CannotFindNonExistingElement)
+	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, CannotFindNonexistentElement)
 }}

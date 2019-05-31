@@ -57,7 +57,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(Timestamp(123456), networkTime3);
 	}
 
-	TEST(TEST_CLASS, ToNetworkTimeThrowsIfSuppliedTimestampIsBeforeEpochTime) {
+	TEST(TEST_CLASS, ToNetworkTimeThrowsWhenSuppliedTimestampIsBeforeEpochTime) {
 		// Arrange:
 		Timestamp ts1(Epoch_Time.count() - 1);
 		Timestamp ts2(Epoch_Time.count() - 10);

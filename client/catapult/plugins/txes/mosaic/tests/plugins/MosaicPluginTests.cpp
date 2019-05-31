@@ -21,6 +21,7 @@
 #include "src/plugins/MosaicPlugin.h"
 #include "src/cache/MosaicCache.h"
 #include "src/model/MosaicEntityType.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
 #include "tests/test/plugins/PluginTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -39,19 +40,15 @@ namespace catapult { namespace plugins {
 					"",
 					{
 						{ "maxMosaicsPerAccount", "0" },
-
 						{ "maxMosaicDuration", "0h" },
-
-						{ "isMosaicLevyUpdateAllowed", "false" },
 						{ "maxMosaicDivisibility", "0" },
-						{ "maxMosaicDivisibleUnits", "0" },
 
 						{ "mosaicRentalFeeSinkPublicKey", "0000000000000000000000000000000000000000000000000000000000000000" },
 						{ "mosaicRentalFee", "0" }
 					}
 				}}));
 
-				PluginManager manager(config, StorageConfiguration());
+				auto manager = test::CreatePluginManager(config);
 				RegisterMosaicSubsystem(manager);
 
 				// Act:

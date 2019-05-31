@@ -41,7 +41,7 @@ namespace catapult { namespace extensions {
 				hooks.addNewBlockSink(sink);
 			}
 
-			static auto CreateConsumerData() {
+			static auto CreateConsumerInput() {
 				return std::shared_ptr<const model::Block>(test::GenerateEmptyRandomBlock());
 			}
 		};
@@ -55,7 +55,7 @@ namespace catapult { namespace extensions {
 				hooks.addNewTransactionsSink(sink);
 			}
 
-			static auto CreateConsumerData() {
+			static auto CreateConsumerInput() {
 				return consumers::TransactionInfos();
 			}
 		};
@@ -69,7 +69,7 @@ namespace catapult { namespace extensions {
 				hooks.addPacketPayloadSink(sink);
 			}
 
-			static auto CreateConsumerData() {
+			static auto CreateConsumerInput() {
 				return ionet::PacketPayload();
 			}
 		};
@@ -83,7 +83,7 @@ namespace catapult { namespace extensions {
 				hooks.addTransactionsChangeHandler(handler);
 			}
 
-			static auto CreateConsumerData() {
+			static auto CreateConsumerInput() {
 				// dangling references are ok because the struct fields are not accessed
 				return consumers::TransactionsChangeInfo({}, {});
 			}
@@ -98,7 +98,7 @@ namespace catapult { namespace extensions {
 				hooks.addTransactionEventHandler(handler);
 			}
 
-			static auto CreateConsumerData() {
+			static auto CreateConsumerInput() {
 				// dangling references are ok because the struct fields are not accessed
 				return TransactionEventData({}, TransactionEvent::Dependency_Removed);
 			}

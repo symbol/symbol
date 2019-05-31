@@ -118,7 +118,7 @@ namespace catapult { namespace timesync {
 
 			void addHighValueAccounts(size_t count) {
 				for (auto i = 0u; i < count; ++i)
-					AddAccount(m_cache, test::GenerateRandomData<Key_Size>(), Importance(100'000), model::ImportanceHeight(1));
+					AddAccount(m_cache, test::GenerateRandomByteArray<Key>(), Importance(100'000), model::ImportanceHeight(1));
 			}
 
 		private:
@@ -165,7 +165,7 @@ namespace catapult { namespace timesync {
 		EXPECT_EQ(TimeOffset(), timeOffset);
 	}
 
-	TEST(TEST_CLASS, TimeSynchronizerSucceedsIfOnlyAddressIsKnownToAccountStateCache) {
+	TEST(TEST_CLASS, TimeSynchronizerSucceedsWhenOnlyAddressIsKnownToAccountStateCache) {
 		// Arrange: seed account state cache only with addresses
 		TestContext context({ { 100, 500'000'000 }, { 200, 500'000'000 } }, {}, KeyType::Address);
 

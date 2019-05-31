@@ -35,6 +35,12 @@ namespace catapult { namespace tools {
 			gen.seed(seed);
 			return static_cast<uint8_t>(gen());
 		}
+
+		void NextKey(Key& key) {
+			Hash256 hash;
+			crypto::Sha3_256(key, hash);
+			std::copy(hash.cbegin(), hash.cend(), key.begin());
+		}
 	}
 
 	crypto::KeyPair LoadServerKeyPair() {
@@ -51,7 +57,7 @@ namespace catapult { namespace tools {
 
 		addresses.reserve(count);
 		while (count != addresses.size()) {
-			crypto::Sha3_256(seedKey, seedKey);
+			NextKey(seedKey);
 			auto address = model::PublicKeyToAddress(seedKey, model::NetworkIdentifier::Mijin_Test);
 
 			// just to have addresses starting with 'SA'

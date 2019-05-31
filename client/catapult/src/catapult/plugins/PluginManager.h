@@ -21,6 +21,7 @@
 #pragma once
 #include "catapult/cache/CacheConfiguration.h"
 #include "catapult/cache/CatapultCacheBuilder.h"
+#include "catapult/config/InflationConfiguration.h"
 #include "catapult/ionet/PacketHandlers.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/NotificationPublisher.h"
@@ -72,8 +73,11 @@ namespace catapult { namespace plugins {
 		using PublisherPointer = std::unique_ptr<model::NotificationPublisher>;
 
 	public:
-		/// Creates a new plugin manager around \a config and \a storageConfig.
-		explicit PluginManager(const model::BlockChainConfiguration& config, const StorageConfiguration& storageConfig);
+		/// Creates a new plugin manager around \a config, \a storageConfig and \a inflationConfig.
+		PluginManager(
+				const model::BlockChainConfiguration& config,
+				const StorageConfiguration& storageConfig,
+				const config::InflationConfiguration& inflationConfig);
 
 	public:
 		// region config
@@ -86,6 +90,9 @@ namespace catapult { namespace plugins {
 
 		/// Gets the cache configuration for cache with \a name.
 		cache::CacheConfiguration cacheConfig(const std::string& name) const;
+
+		/// Gets the inflation configuration.
+		const config::InflationConfiguration& inflationConfig() const;
 
 		// endregion
 
@@ -101,13 +108,13 @@ namespace catapult { namespace plugins {
 
 		// region cache
 
-		/// Adds support for a subcache described by \a pSubCache.
+		/// Adds support for a sub cache described by \a pSubCache.
 		template<typename TStorageTraits, typename TCache>
 		void addCacheSupport(std::unique_ptr<TCache>&& pSubCache) {
 			m_cacheBuilder.add<TStorageTraits>(std::move(pSubCache));
 		}
 
-		/// Adds support for a subcache registered by \a pSubCachePlugin.
+		/// Adds support for a sub cache registered by \a pSubCachePlugin.
 		void addCacheSupport(std::unique_ptr<cache::SubCachePlugin>&& pSubCachePlugin);
 
 		/// Creates a catapult cache.
@@ -202,6 +209,7 @@ namespace catapult { namespace plugins {
 	private:
 		model::BlockChainConfiguration m_config;
 		StorageConfiguration m_storageConfig;
+		config::InflationConfiguration m_inflationConfig;
 		model::TransactionRegistry m_transactionRegistry;
 		cache::CatapultCacheBuilder m_cacheBuilder;
 

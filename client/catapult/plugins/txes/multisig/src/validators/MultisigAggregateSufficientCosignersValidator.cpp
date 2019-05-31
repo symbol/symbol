@@ -64,6 +64,24 @@ namespace catapult { namespace validators {
 					: OperationType::Removal == operationType ? multisigEntry.minRemoval() : multisigEntry.minApproval();
 		}
 
+		utils::KeySet GetRequiredCosignerPublicKeys(const model::EmbeddedTransaction& transaction) {
+			utils::KeySet requiredCosignerPublicKeys;
+			requiredCosignerPublicKeys.insert(transaction.Signer);
+			if (model::Entity_Type_Modify_Multisig_Account != transaction.Type)
+				return requiredCosignerPublicKeys;
+
+			const auto& modifyMultisig = static_cast<const model::EmbeddedModifyMultisigAccountTransaction&>(transaction);
+			const auto* pModification = modifyMultisig.ModificationsPtr();
+			for (auto i = 0u; i < modifyMultisig.ModificationsCount; ++i) {
+				if (model::CosignatoryModificationType::Add == pModification->ModificationType)
+					requiredCosignerPublicKeys.insert(pModification->CosignatoryPublicKey);
+
+				++pModification;
+			}
+
+			return requiredCosignerPublicKeys;
+		}
+
 		class AggregateCosignaturesChecker {
 		public:
 			explicit AggregateCosignaturesChecker(
@@ -78,7 +96,11 @@ namespace catapult { namespace validators {
 
 		public:
 			bool hasSufficientCosigners() {
-				return isSatisfied(m_notification.Transaction.Signer, GetOperationType(m_notification.Transaction));
+				auto requiredPublicKeys = GetRequiredCosignerPublicKeys(m_notification.Transaction);
+				auto operationType = GetOperationType(m_notification.Transaction);
+				return std::all_of(requiredPublicKeys.cbegin(), requiredPublicKeys.cend(), [this, operationType](const auto& publicKey) {
+					return this->isSatisfied(publicKey, operationType);
+				});
 			}
 
 		private:

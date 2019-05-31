@@ -31,7 +31,7 @@ namespace catapult { namespace observers {
 	void LockStatusAccountBalanceObserver(const typename TTraits::Notification& notification, ObserverContext& context) {
 		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
 		auto& cache = context.Cache.template sub<typename TTraits::CacheType>();
-		const auto& key = TTraits::NotificationToKey(notification);
+		const auto& key = TTraits::NotificationToKey(notification, context.Resolvers);
 		auto lockInfoIter = cache.find(key);
 		auto& lockInfo = lockInfoIter.get();
 

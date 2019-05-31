@@ -32,7 +32,7 @@ namespace catapult { namespace observers {
 		constexpr size_t Current_Height = 10;
 
 		model::BlockNotification CreateBlockNotification(uint32_t numTransactions) {
-			auto notification = model::BlockNotification(Key(), Timestamp(), Difficulty());
+			auto notification = model::BlockNotification(Key(), Key(), Timestamp(), Difficulty());
 			notification.NumTransactions = numTransactions;
 			return notification;
 		}

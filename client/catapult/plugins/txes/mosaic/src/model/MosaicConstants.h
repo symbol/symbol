@@ -19,5 +19,4 @@
 **/
 
 #pragma once
-#include "plugins/txes/mosaic/src/constants.h"
 #include "plugins/txes/mosaic/src/types.h"

@@ -407,7 +407,7 @@ namespace catapult { namespace state {
 		test::AssertChildren(CreateDefaultChildren(), originalRoot.children());
 	}
 
-	TEST(TEST_CLASS, AddingRootWithOriginalOwnerDoesNotShareChildrenIfRootWithDifferentOwnerIsInbetween) {
+	TEST(TEST_CLASS, AddingRootWithOriginalOwnerDoesNotShareChildrenWhenRootWithDifferentOwnerIsInbetween) {
 		// Arrange:
 		auto owner = test::CreateRandomOwner();
 		RootNamespaceHistory history(NamespaceId(123));
@@ -500,6 +500,8 @@ namespace catapult { namespace state {
 	// region prune
 
 	namespace {
+		constexpr auto Grace_Period_Duration = 7u;
+
 		void AssertPrunedNamespaceIds(
 				Height::ValueType pruneHeight,
 				size_t expectedHistoryDepth,
@@ -552,7 +554,7 @@ namespace catapult { namespace state {
 		AssertPrunedNamespaceIds(688, 1u, ids);
 	}
 
-	TEST(TEST_CLASS, PruneReturnsNamespaceIdsIncludingRootIdIfAllEntriesWerePruned) {
+	TEST(TEST_CLASS, PruneReturnsNamespaceIdsIncludingRootIdWhenAllEntriesWerePruned) {
 		// Assert: all roots have expired, even root id should be removed
 		std::initializer_list<NamespaceId::ValueType> ids{ 123u, 357u, 124u, 125u, 128u, 298u };
 		AssertPrunedNamespaceIds(689, 0u, ids);
@@ -574,6 +576,35 @@ namespace catapult { namespace state {
 		EXPECT_TRUE(history.empty());
 	}
 
+	TEST(TEST_CLASS, PruneDoesNotRemoveExpiredRootsWithinGracePeriod) {
+		for (auto i = 0u; i < Grace_Period_Duration; ++i) {
+			// Arrange:
+			RootNamespaceHistory history(NamespaceId(123));
+			history.push_back(test::CreateRandomOwner(), test::CreateLifetime(234, 321, Grace_Period_Duration));
+
+			// Sanity:
+			EXPECT_EQ(1u, history.historyDepth());
+
+			// Act + Assert:
+			EXPECT_TRUE(history.prune(Height(321 + i)).empty()) << "for duration " << i;
+		}
+	}
+
+	TEST(TEST_CLASS, PrunePrunesExpiredRootsAfterGracePeriodEnds) {
+		for (auto offset : { 0u, 1u, 1000u, 1234567u }) {
+			// Arrange:
+			RootNamespaceHistory history(NamespaceId(123));
+			history.push_back(test::CreateRandomOwner(), test::CreateLifetime(234, 321, Grace_Period_Duration));
+
+			// Sanity:
+			EXPECT_EQ(1u, history.historyDepth());
+
+			// Act + Assert:
+			auto expectedIds = std::set<NamespaceId>{ NamespaceId(123) };
+			EXPECT_EQ(expectedIds, history.prune(Height(321 + Grace_Period_Duration + offset))) << "for offset " << offset;
+		}
+	}
+
 	// endregion
 
 	// region isActiveAndUnlocked
@@ -593,7 +624,7 @@ namespace catapult { namespace state {
 		// Arrange:
 		// - root1 expires at height 173
 		// - root2 expires at height 273
-		auto owner = test::GenerateRandomData<Key_Size>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		RootNamespaceHistory history(NamespaceId(123));
 		history.push_back(owner, test::CreateLifetime(123, 173, 50));
 		history.push_back(owner, test::CreateLifetime(173, 273, 50));
@@ -631,7 +662,7 @@ namespace catapult { namespace state {
 		// Arrange:
 		// - root1 expires at height 173
 		// - root2 expires at height 273
-		auto owner = test::GenerateRandomData<Key_Size>();
+		auto owner = test::GenerateRandomByteArray<Key>();
 		RootNamespaceHistory history(NamespaceId(123));
 		history.push_back(owner, test::CreateLifetime(123, 173, 50));
 		history.push_back(owner, test::CreateLifetime(173, 273, 50));

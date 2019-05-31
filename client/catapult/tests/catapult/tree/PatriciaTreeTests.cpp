@@ -20,7 +20,7 @@
 
 #include "catapult/tree/PatriciaTree.h"
 #include "catapult/tree/MemoryDataSource.h"
-#include "tests/catapult/tree/test/PatriciaTreeTests.h"
+#include "tests/test/tree/PatriciaTreeTests.h"
 
 namespace catapult { namespace tree {
 

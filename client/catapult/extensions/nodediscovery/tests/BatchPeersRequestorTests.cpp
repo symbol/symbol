@@ -123,7 +123,7 @@ namespace catapult { namespace nodediscovery {
 		TestContext context;
 
 		// - configure one picker to return a packet io with a failure interaction
-		auto partnerKey = test::GenerateRandomData<Key_Size>();
+		auto partnerKey = test::GenerateRandomByteArray<Key>();
 		context.Writers2.setPacketIo(CreateFailureMockPacketIo());
 		context.Writers2.setNodeIdentity(partnerKey);
 
@@ -152,7 +152,7 @@ namespace catapult { namespace nodediscovery {
 		TestContext context;
 
 		// - configure one picker to return a packet io with a successful interaction
-		auto partnerKey = test::GenerateRandomData<Key_Size>();
+		auto partnerKey = test::GenerateRandomByteArray<Key>();
 		context.Writers2.setPacketIo(CreateSuccessMockPacketIo(partnerKey, "alice"));
 		context.Writers2.setNodeIdentity(partnerKey);
 
@@ -173,11 +173,11 @@ namespace catapult { namespace nodediscovery {
 		TestContext context;
 
 		// - configure two pickers to return a packet io with a successful interaction
-		auto partnerKey1 = test::GenerateRandomData<Key_Size>();
+		auto partnerKey1 = test::GenerateRandomByteArray<Key>();
 		context.Writers1.setPacketIo(CreateSuccessMockPacketIo(partnerKey1, "alice"));
 		context.Writers1.setNodeIdentity(partnerKey1);
 
-		auto partnerKey2 = test::GenerateRandomData<Key_Size>();
+		auto partnerKey2 = test::GenerateRandomByteArray<Key>();
 		context.Writers2.setPacketIo(CreateSuccessMockPacketIo(partnerKey2, "bob"));
 		context.Writers2.setNodeIdentity(partnerKey2);
 
@@ -203,15 +203,15 @@ namespace catapult { namespace nodediscovery {
 
 		// - configure two pickers to return a packet io with a successful interaction
 		//   and one to return a packet io with a failure interaction
-		auto partnerKey1 = test::GenerateRandomData<Key_Size>();
+		auto partnerKey1 = test::GenerateRandomByteArray<Key>();
 		context.Writers1.setPacketIo(CreateSuccessMockPacketIo(partnerKey1, "alice"));
 		context.Writers1.setNodeIdentity(partnerKey1);
 
-		auto partnerKey2 = test::GenerateRandomData<Key_Size>();
+		auto partnerKey2 = test::GenerateRandomByteArray<Key>();
 		context.Writers2.setPacketIo(CreateFailureMockPacketIo());
 		context.Writers2.setNodeIdentity(partnerKey2);
 
-		auto partnerKey3 = test::GenerateRandomData<Key_Size>();
+		auto partnerKey3 = test::GenerateRandomByteArray<Key>();
 		context.Writers3.setPacketIo(CreateSuccessMockPacketIo(partnerKey3, "bob"));
 		context.Writers3.setNodeIdentity(partnerKey3);
 

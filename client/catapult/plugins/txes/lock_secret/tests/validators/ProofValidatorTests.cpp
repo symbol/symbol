@@ -21,6 +21,7 @@
 #include "src/validators/Validators.h"
 #include "tests/test/SecretLockInfoCacheTestUtils.h"
 #include "tests/test/SecretLockNotificationsTestUtils.h"
+#include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 
 namespace catapult { namespace validators {
@@ -37,10 +38,12 @@ namespace catapult { namespace validators {
 			return test::ProofNotificationBuilder(Default_Height);
 		}
 
-		auto CreateDefaultLockInfo(const Hash256& hash) {
+		auto CreateDefaultLockInfo(const Hash256& hash, const UnresolvedAddress& recipient) {
 			auto lockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo(Expiration_Height);
 			lockInfo.HashAlgorithm = model::LockHashAlgorithm::Op_Sha3_256;
 			lockInfo.Secret = hash;
+			lockInfo.Recipient = test::CreateResolverContextXor().resolve(recipient);
+			lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.Recipient);
 			return lockInfo;
 		}
 
@@ -53,8 +56,10 @@ namespace catapult { namespace validators {
 
 		auto CreateDefaultSeededCache() {
 			auto cache = test::SecretLockInfoCacheFactory::Create();
-			for (auto i = 0u; i < 10; ++i)
-				AddToCache(cache, CreateDefaultLockInfo(test::GenerateRandomData<Hash256_Size>()));
+			for (auto i = 0u; i < 10; ++i) {
+				auto lockInfo = CreateDefaultLockInfo(test::GenerateRandomByteArray<Hash256>(), test::GenerateRandomUnresolvedAddress());
+				AddToCache(cache, lockInfo);
+			}
 
 			return cache;
 		}
@@ -72,7 +77,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, FailureIfSecretIsNotInCache) {
+	TEST(TEST_CLASS, FailureWhenSecretIsNotInCache) {
 		// Arrange: notification has random secret
 		auto notificationBuilder = CreateNotificationBuilder();
 		auto cache = CreateDefaultSeededCache();
@@ -82,11 +87,11 @@ namespace catapult { namespace validators {
 		auto result = RunValidator(cache, *pValidator, notificationBuilder);
 
 		// Assert:
-		EXPECT_EQ(Failure_LockSecret_Unknown_Secret, result);
+		EXPECT_EQ(Failure_LockSecret_Unknown_Composite_Key, result);
 	}
 
 	namespace {
-		void AssertValidatorResult(
+		void AssertValidationResult(
 				ValidationResult expectedResult,
 				const state::SecretLockInfo& lockInfo,
 				const test::ProofNotificationBuilder& notificationBuilder) {
@@ -101,44 +106,45 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(expectedResult, result);
 		}
 
-		void AssertValidatorResult(ValidationResult expectedResult, const test::ProofNotificationBuilder& notificationBuilder) {
-			AssertValidatorResult(expectedResult, CreateDefaultLockInfo(notificationBuilder.hash()), notificationBuilder);
+		void AssertValidationResult(ValidationResult expectedResult, const test::ProofNotificationBuilder& notificationBuilder) {
+			auto lockInfo = CreateDefaultLockInfo(notificationBuilder.hash(), notificationBuilder.recipient());
+			AssertValidationResult(expectedResult, lockInfo, notificationBuilder);
 		}
 	}
 
-	TEST(TEST_CLASS, FailureIfSecretIsNotActive) {
+	TEST(TEST_CLASS, FailureWhenSecretIsNotActive) {
 		// Arrange:
 		auto notificationBuilder = CreateNotificationBuilder();
 		notificationBuilder.setHeight(Expiration_Height);
 
 		// Assert:
-		AssertValidatorResult(Failure_LockSecret_Inactive_Secret, notificationBuilder);
+		AssertValidationResult(Failure_LockSecret_Inactive_Secret, notificationBuilder);
 	}
 
-	TEST(TEST_CLASS, FailureIfHashAlgorithmDoesNotMatch) {
+	TEST(TEST_CLASS, FailureWhenHashAlgorithmDoesNotMatch) {
 		// Arrange:
 		auto notificationBuilder = CreateNotificationBuilder();
 		notificationBuilder.setAlgorithm(model::LockHashAlgorithm::Op_Keccak_256);
 
 		// Assert:
-		AssertValidatorResult(Failure_LockSecret_Hash_Algorithm_Mismatch, notificationBuilder);
+		AssertValidationResult(Failure_LockSecret_Hash_Algorithm_Mismatch, notificationBuilder);
 	}
 
-	TEST(TEST_CLASS, FailureIfLockHasAlreadyBeenUsed) {
+	TEST(TEST_CLASS, FailureWhenLockHasAlreadyBeenUsed) {
 		// Arrange:
 		auto notificationBuilder = CreateNotificationBuilder();
-		auto lockInfo = CreateDefaultLockInfo(notificationBuilder.hash());
+		auto lockInfo = CreateDefaultLockInfo(notificationBuilder.hash(), notificationBuilder.recipient());
 		lockInfo.Status = state::LockStatus::Used;
 
 		// Assert:
-		AssertValidatorResult(Failure_LockSecret_Inactive_Secret, lockInfo, notificationBuilder);
+		AssertValidationResult(Failure_LockSecret_Inactive_Secret, lockInfo, notificationBuilder);
 	}
 
-	TEST(TEST_CLASS, SuccessIfValidSecretIsInCache) {
+	TEST(TEST_CLASS, SuccessWhenValidSecretIsInCache) {
 		// Arrange:
 		auto notificationBuilder = CreateNotificationBuilder();
 
 		// Assert:
-		AssertValidatorResult(ValidationResult::Success, notificationBuilder);
+		AssertValidationResult(ValidationResult::Success, notificationBuilder);
 	}
 }}

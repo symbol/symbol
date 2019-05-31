@@ -29,10 +29,13 @@ namespace catapult { namespace extensions {
 	enum class VerifyFullBlockResult {
 		/// Block is valid.
 		Success,
+
 		/// Block signature is invalid.
 		Invalid_Block_Signature,
+
 		/// Block transactions hash is invalid.
 		Invalid_Block_Transactions_Hash,
+
 		/// A transaction signature is invalid.
 		Invalid_Transaction_Signature,
 	};
@@ -40,11 +43,13 @@ namespace catapult { namespace extensions {
 	/// Extensions for working with blocks.
 	class BlockExtensions {
 	public:
-		/// Creates extensions for a block containing only basic transactions.
-		BlockExtensions();
+		/// Creates extensions for blocks containing only basic transactions for the network with the specified
+		/// generation hash (\a generationHash).
+		explicit BlockExtensions(const GenerationHash& generationHash);
 
-		/// Creates extensions for a block containing transactions registered in \a transactionRegistry.
-		explicit BlockExtensions(const model::TransactionRegistry& transactionRegistry);
+		/// Creates extensions for blocks containing transactions registered in \a transactionRegistry for the network with the specified
+		/// generation hash (\a generationHash).
+		BlockExtensions(const GenerationHash& generationHash, const model::TransactionRegistry& transactionRegistry);
 
 	public:
 		/// Calculates and updates the block transactions hash of \a block.
@@ -61,11 +66,12 @@ namespace catapult { namespace extensions {
 		/// Cryptographically verifies a full \a block by checking all signatures and hashes.
 		VerifyFullBlockResult verifyFullBlock(const model::Block& block) const;
 
-		/// Converts \a block to a block element with the specified generation hash (\a generationHash).
+		/// Converts \a block to a block element with the specified block generation hash (\a generationHash).
 		/// \note This function requires a full block and will calculate all block and transaction hashes.
-		model::BlockElement convertBlockToBlockElement(const model::Block& block, const Hash256& generationHash) const;
+		model::BlockElement convertBlockToBlockElement(const model::Block& block, const GenerationHash& generationHash) const;
 
 	private:
+		GenerationHash m_generationHash;
 		std::function<Hash256 (const model::Transaction&)> m_calculateTransactionEntityHash;
 		std::function<Hash256 (const model::Transaction&, const Hash256&)> m_calculateTransactionMerkleComponentHash;
 	};

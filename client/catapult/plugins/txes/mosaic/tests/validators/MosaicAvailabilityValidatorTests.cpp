@@ -84,7 +84,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, CanAddUnknownMosaic) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = CreateNotification(signer, MosaicId(123));
 
 		// - seed the cache with an unrelated mosaic
@@ -101,7 +101,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenMosaicExistsButIsNotActive) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = CreateNotification(signer, MosaicId(123));
 
 		// - seed the cache
@@ -120,7 +120,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, CannotReplaceActiveMosaicWhenDefinitionIsUnchanged) {
 		// Arrange: create a transaction with matching properties
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = CreateNotification(signer, MosaicId(123), BlockDuration(0));
 
 		// - seed the cache with an active mosaic with the same id (notice that added mosaic has duration of 100)
@@ -138,7 +138,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertCanReplaceActiveMosaicWhenSupplyIsZero(uint8_t divisibility) {
 			// Arrange:
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = CreateNotification(signer, MosaicId(123), divisibility, BlockDuration(200));
 
 			// - seed the cache with an active mosaic with the same id and zero supply
@@ -162,7 +162,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, CannotReplaceActiveMosaicWhenSupplyIsNonZero) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = CreateNotification(signer, MosaicId(123), BlockDuration(200));
 
 		// - seed the cache with an active mosaic with the same id

@@ -62,33 +62,35 @@ namespace catapult { namespace ionet {
 
 	// region NodeContainerView
 
-	NodeContainerView::NodeContainerView(const NodeContainerData& data, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
-			: m_data(data)
+	NodeContainerView::NodeContainerView(
+			const NodeContainerData& nodeContainerData,
+			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+			: m_nodeContainerData(nodeContainerData)
 			, m_readLock(std::move(readLock))
 	{}
 
 	size_t NodeContainerView::size() const {
-		return m_data.NodeDataContainer.size();
+		return m_nodeContainerData.NodeDataContainer.size();
 	}
 
 	Timestamp NodeContainerView::time() const {
-		return m_data.TimeSupplier();
+		return m_nodeContainerData.TimeSupplier();
 	}
 
 	bool NodeContainerView::contains(const Key& identityKey) const {
-		return m_data.NodeDataContainer.cend() != m_data.NodeDataContainer.find(identityKey);
+		return m_nodeContainerData.NodeDataContainer.cend() != m_nodeContainerData.NodeDataContainer.find(identityKey);
 	}
 
 	const NodeInfo& NodeContainerView::getNodeInfo(const Key& identityKey) const {
-		auto iter = m_data.NodeDataContainer.find(identityKey);
-		if (m_data.NodeDataContainer.cend() == iter)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot get node info for unknown node", utils::HexFormat(identityKey));
+		auto iter = m_nodeContainerData.NodeDataContainer.find(identityKey);
+		if (m_nodeContainerData.NodeDataContainer.cend() == iter)
+			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot get node info for unknown node", identityKey);
 
 		return iter->second.Info;
 	}
 
 	void NodeContainerView::forEach(const consumer<const Node&, const NodeInfo&>& consumer) const {
-		for (const auto& pair : m_data.NodeDataContainer)
+		for (const auto& pair : m_nodeContainerData.NodeDataContainer)
 			consumer(pair.second.Node, pair.second.Info);
 	}
 
@@ -96,63 +98,68 @@ namespace catapult { namespace ionet {
 
 	// region NodeContainerModifier
 
-	NodeContainerModifier::NodeContainerModifier(NodeContainerData& data, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
-			: m_data(data)
+	NodeContainerModifier::NodeContainerModifier(
+			NodeContainerData& nodeContainerData,
+			utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+			: m_nodeContainerData(nodeContainerData)
 			, m_readLock(std::move(readLock))
 			, m_writeLock(m_readLock.promoteToWriter())
 	{}
 
 	bool NodeContainerModifier::add(const Node& node, NodeSource source) {
-		auto iter = m_data.NodeDataContainer.find(node.identityKey());
-		if (m_data.NodeDataContainer.end() == iter) {
+		auto iter = m_nodeContainerData.NodeDataContainer.find(node.identityKey());
+		if (m_nodeContainerData.NodeDataContainer.end() == iter) {
 			if (!ensureAtLeastOneEmptySlot()) {
 				CATAPULT_LOG(warning)
 						<< "node container is full and no nodes are eligible for pruning"
-						<< " (size = " << m_data.NodeDataContainer.size() << ", max = " << m_data.MaxNodes << ")";
+						<< " (size = " << m_nodeContainerData.NodeDataContainer.size()
+						<< ", max = " << m_nodeContainerData.MaxNodes << ")";
 				return false;
 			}
 
-			auto emplaceResult = m_data.NodeDataContainer.emplace(node.identityKey(), NodeData(node, source, m_data.NextNodeId++));
+			auto emplaceResult = m_nodeContainerData.NodeDataContainer.emplace(
+					node.identityKey(),
+					NodeData(node, source, m_nodeContainerData.NextNodeId++));
 			autoProvisionConnectionStates(emplaceResult.first->second);
 			return true;
 		}
 
 		// if the source is no worse, update the node information
-		auto& data = iter->second;
-		if (data.Info.source() > source)
+		auto& nodeData = iter->second;
+		if (nodeData.Info.source() > source)
 			return true;
 
-		data.Node = node;
-		data.Info.source(source);
-		autoProvisionConnectionStates(data);
+		nodeData.Node = node;
+		nodeData.Info.source(source);
+		autoProvisionConnectionStates(nodeData);
 		return true;
 	}
 
 	namespace {
-		void ProvisionIfMatch(NodeData& data, ServiceIdentifier serviceId, ionet::NodeRoles role) {
-			if (HasFlag(role, data.Node.metadata().Roles))
-				data.Info.provisionConnectionState(serviceId);
+		void ProvisionIfMatch(NodeData& nodeData, ServiceIdentifier serviceId, ionet::NodeRoles role) {
+			if (HasFlag(role, nodeData.Node.metadata().Roles))
+				nodeData.Info.provisionConnectionState(serviceId);
 		}
 	}
 
 	void NodeContainerModifier::addConnectionStates(ServiceIdentifier serviceId, ionet::NodeRoles role) {
-		for (auto& pair : m_data.NodeDataContainer)
+		for (auto& pair : m_nodeContainerData.NodeDataContainer)
 			ProvisionIfMatch(pair.second, serviceId, role);
 
 		// save mapping to automatically provision connection states for added nodes
-		m_data.ServiceRolesMap.emplace_back(serviceId, role);
+		m_nodeContainerData.ServiceRolesMap.emplace_back(serviceId, role);
 	}
 
 	ConnectionState& NodeContainerModifier::provisionConnectionState(ServiceIdentifier serviceId, const Key& identityKey) {
-		auto iter = m_data.NodeDataContainer.find(identityKey);
-		if (m_data.NodeDataContainer.end() == iter)
-			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot provision connection state for unknown node", utils::HexFormat(identityKey));
+		auto iter = m_nodeContainerData.NodeDataContainer.find(identityKey);
+		if (m_nodeContainerData.NodeDataContainer.end() == iter)
+			CATAPULT_THROW_INVALID_ARGUMENT_1("cannot provision connection state for unknown node", identityKey);
 
 		return iter->second.Info.provisionConnectionState(serviceId);
 	}
 
 	void NodeContainerModifier::ageConnections(ServiceIdentifier serviceId, const utils::KeySet& identities) {
-		for (auto& pair : m_data.NodeDataContainer) {
+		for (auto& pair : m_nodeContainerData.NodeDataContainer) {
 			auto& nodeInfo = pair.second.Info;
 			if (identities.cend() != identities.find(pair.first))
 				++nodeInfo.provisionConnectionState(serviceId).Age;
@@ -165,28 +172,28 @@ namespace catapult { namespace ionet {
 			ServiceIdentifier serviceId,
 			uint32_t maxConnectionBanAge,
 			uint32_t numConsecutiveFailuresBeforeBanning) {
-		for (auto& pair : m_data.NodeDataContainer)
+		for (auto& pair : m_nodeContainerData.NodeDataContainer)
 			pair.second.Info.updateBan(serviceId, maxConnectionBanAge, numConsecutiveFailuresBeforeBanning);
 	}
 
 	void NodeContainerModifier::incrementSuccesses(const Key& identityKey) {
-		auto timestamp = m_data.TimeSupplier();
+		auto timestamp = m_nodeContainerData.TimeSupplier();
 		incrementInteraction(identityKey, [timestamp](auto& info) { info.incrementSuccesses(timestamp); });
 	}
 
 	void NodeContainerModifier::incrementFailures(const Key& identityKey) {
-		auto timestamp = m_data.TimeSupplier();
+		auto timestamp = m_nodeContainerData.TimeSupplier();
 		incrementInteraction(identityKey, [timestamp](auto& info) { info.incrementFailures(timestamp); });
 	}
 
-	void NodeContainerModifier::autoProvisionConnectionStates(NodeData& data) {
-		for (const auto& pair : m_data.ServiceRolesMap)
-			ProvisionIfMatch(data, pair.first, pair.second);
+	void NodeContainerModifier::autoProvisionConnectionStates(NodeData& nodeData) {
+		for (const auto& pair : m_nodeContainerData.ServiceRolesMap)
+			ProvisionIfMatch(nodeData, pair.first, pair.second);
 	}
 
 	bool NodeContainerModifier::ensureAtLeastOneEmptySlot() {
-		auto& nodeContainer = m_data.NodeDataContainer;
-		if (nodeContainer.size() < m_data.MaxNodes)
+		auto& nodeContainer = m_nodeContainerData.NodeDataContainer;
+		if (nodeContainer.size() < m_nodeContainerData.MaxNodes)
 			return true;
 
 		const NodeData* pMatchingNodeData = nullptr;
@@ -219,8 +226,8 @@ namespace catapult { namespace ionet {
 	}
 
 	void NodeContainerModifier::incrementInteraction(const Key& identityKey, const consumer<NodeInfo&>& incrementer) {
-		auto iter = m_data.NodeDataContainer.find(identityKey);
-		if (m_data.NodeDataContainer.cend() == iter)
+		auto iter = m_nodeContainerData.NodeDataContainer.find(identityKey);
+		if (m_nodeContainerData.NodeDataContainer.cend() == iter)
 			return;
 
 		incrementer(iter->second.Info);

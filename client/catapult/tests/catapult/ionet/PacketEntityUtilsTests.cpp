@@ -433,7 +433,7 @@ namespace catapult { namespace ionet {
 			// Arrange:
 			ByteBuffer buffer(size);
 			test::FillWithRandomData(buffer);
-			auto& packet = reinterpret_cast<Packet&>(*buffer.data());
+			auto& packet = reinterpret_cast<Packet&>(buffer[0]);
 			packet.Size = size;
 
 			// Act:
@@ -458,7 +458,7 @@ namespace catapult { namespace ionet {
 		constexpr auto Packet_Size = sizeof(Packet) + Fixed_Size;
 		ByteBuffer buffer(Packet_Size);
 		test::FillWithRandomData(buffer);
-		auto& packet = reinterpret_cast<Packet&>(*buffer.data());
+		auto& packet = reinterpret_cast<Packet&>(buffer[0]);
 		packet.Size = Packet_Size;
 
 		// Act:
@@ -475,7 +475,7 @@ namespace catapult { namespace ionet {
 		constexpr auto Packet_Size = sizeof(Packet) + 3 * Fixed_Size;
 		ByteBuffer buffer(Packet_Size);
 		test::FillWithRandomData(buffer);
-		auto& packet = reinterpret_cast<Packet&>(*buffer.data());
+		auto& packet = reinterpret_cast<Packet&>(buffer[0]);
 		packet.Size = Packet_Size;
 
 		// Act:

@@ -19,7 +19,7 @@
 **/
 
 #include "LocalTestUtils.h"
-#include "catapult/cache/MemoryUtCache.h"
+#include "catapult/cache_tx/MemoryUtCache.h"
 #include "catapult/chain/UtUpdater.h"
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/extensions/PluginUtils.h"
@@ -28,6 +28,7 @@
 #include "tests/test/nodeps/MijinConstants.h"
 #include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/TestConstants.h"
+#include "tests/test/other/MutableCatapultConfiguration.h"
 
 namespace catapult { namespace test {
 
@@ -82,8 +83,8 @@ namespace catapult { namespace test {
 
 		void SetNetwork(model::NetworkInfo& network) {
 			network.Identifier = model::NetworkIdentifier::Mijin_Test;
-			network.PublicKey = crypto::KeyPair::FromString(test::Mijin_Test_Nemesis_Private_Key).publicKey();
-			network.GenerationHash = test::GetNemesisGenerationHash();
+			network.PublicKey = crypto::KeyPair::FromString(Mijin_Test_Nemesis_Private_Key).publicKey();
+			network.GenerationHash = GetNemesisGenerationHash();
 		}
 	}
 
@@ -91,7 +92,7 @@ namespace catapult { namespace test {
 		return crypto::KeyPair::FromPrivate(crypto::PrivateKey::FromString(Local_Node_Private_Key));
 	}
 
-	model::BlockChainConfiguration CreateLocalNodeBlockChainConfiguration() {
+	model::BlockChainConfiguration CreatePrototypicalBlockChainConfiguration() {
 		auto config = model::BlockChainConfiguration::Uninitialized();
 		SetNetwork(config.Network);
 
@@ -106,6 +107,9 @@ namespace catapult { namespace test {
 		config.MaxRollbackBlocks = 10;
 		config.MaxDifficultyBlocks = 60;
 
+		config.InitialCurrencyAtomicUnits = Amount(8'999'999'998'000'000);
+		config.MaxMosaicAtomicUnits = Amount(9'000'000'000'000'000);
+
 		config.TotalChainImportance = Importance(17'000);
 		config.MinHarvesterBalance = Amount(500'000);
 
@@ -114,41 +118,32 @@ namespace catapult { namespace test {
 		return config;
 	}
 
-	config::LocalNodeConfiguration CreateLocalNodeConfiguration(const std::string& dataDirectory) {
-		return CreateLocalNodeConfiguration(CreateLocalNodeBlockChainConfiguration(), dataDirectory);
+	config::CatapultConfiguration CreateUninitializedCatapultConfiguration() {
+		MutableCatapultConfiguration config;
+		config.BlockChain.ImportanceGrouping = 1;
+		config.BlockChain.MaxRollbackBlocks = 0;
+		config.User.BootKey = Local_Node_Private_Key;
+		return config.ToConst();
 	}
 
-	config::LocalNodeConfiguration CreateLocalNodeConfiguration(
-			model::BlockChainConfiguration&& blockChainConfiguration,
+	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration() {
+		return CreatePrototypicalCatapultConfiguration(""); // create the configuration without a valid data directory
+	}
+
+	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(const std::string& dataDirectory) {
+		return CreatePrototypicalCatapultConfiguration(CreatePrototypicalBlockChainConfiguration(), dataDirectory);
+	}
+
+	config::CatapultConfiguration CreatePrototypicalCatapultConfiguration(
+			model::BlockChainConfiguration&& blockChainConfig,
 			const std::string& dataDirectory) {
-		auto userConfig = config::UserConfiguration::Uninitialized();
-		userConfig.BootKey = Local_Node_Private_Key;
-		userConfig.DataDirectory = dataDirectory;
+		MutableCatapultConfiguration config;
+		config.BlockChain = std::move(blockChainConfig);
+		config.Node = CreateNodeConfiguration();
 
-		return config::LocalNodeConfiguration(
-				std::move(blockChainConfiguration),
-				CreateNodeConfiguration(),
-				config::LoggingConfiguration::Uninitialized(),
-				std::move(userConfig));
-	}
-
-	config::LocalNodeConfiguration CreatePrototypicalLocalNodeConfiguration() {
-		return CreateLocalNodeConfiguration(""); // create the configuration without a valid data directory
-	}
-
-	config::LocalNodeConfiguration CreateUninitializedLocalNodeConfiguration() {
-		auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-		blockChainConfig.ImportanceGrouping = 1;
-		blockChainConfig.MaxRollbackBlocks = 0;
-
-		auto userConfig = config::UserConfiguration::Uninitialized();
-		userConfig.BootKey = Local_Node_Private_Key;
-
-		return config::LocalNodeConfiguration(
-				std::move(blockChainConfig),
-				config::NodeConfiguration::Uninitialized(),
-				config::LoggingConfiguration::Uninitialized(),
-				std::move(userConfig));
+		config.User.BootKey = Local_Node_Private_Key;
+		config.User.DataDirectory = dataDirectory;
+		return config.ToConst();
 	}
 
 	std::unique_ptr<cache::MemoryUtCache> CreateUtCache() {
@@ -159,7 +154,7 @@ namespace catapult { namespace test {
 		return std::make_unique<cache::MemoryUtCacheProxy>(cache::MemoryCacheOptions(1024, 1000));
 	}
 
-	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManager() {
+	std::shared_ptr<plugins::PluginManager> CreateDefaultPluginManagerWithRealPlugins() {
 		auto config = model::BlockChainConfiguration::Uninitialized();
 		SetNetwork(config.Network);
 		config.MaxTransactionLifetime = utils::TimeSpan::FromHours(1);
@@ -167,15 +162,16 @@ namespace catapult { namespace test {
 		config.MaxDifficultyBlocks = 123;
 		config.TotalChainImportance = Importance(15);
 		config.BlockPruneInterval = 360;
-		return CreatePluginManager(config);
+		return CreatePluginManagerWithRealPlugins(config);
 	}
 
 	namespace {
 		std::shared_ptr<plugins::PluginManager> CreatePluginManager(
 				const model::BlockChainConfiguration& config,
-				const plugins::StorageConfiguration& storageConfig) {
+				const plugins::StorageConfiguration& storageConfig,
+				const config::InflationConfiguration& inflationConfig) {
 			std::vector<plugins::PluginModule> modules;
-			auto pPluginManager = std::make_shared<plugins::PluginManager>(config, storageConfig);
+			auto pPluginManager = std::make_shared<plugins::PluginManager>(config, storageConfig, inflationConfig);
 			LoadPluginByName(*pPluginManager, modules, "", "catapult.coresystem");
 
 			for (const auto& pair : config.Plugins)
@@ -191,11 +187,11 @@ namespace catapult { namespace test {
 		}
 	}
 
-	std::shared_ptr<plugins::PluginManager> CreatePluginManager(const model::BlockChainConfiguration& config) {
-		return CreatePluginManager(config, plugins::StorageConfiguration());
+	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const model::BlockChainConfiguration& config) {
+		return CreatePluginManager(config, plugins::StorageConfiguration(), config::InflationConfiguration::Uninitialized());
 	}
 
-	std::shared_ptr<plugins::PluginManager> CreatePluginManager(const config::LocalNodeConfiguration& config) {
-		return CreatePluginManager(config.BlockChain, extensions::CreateStorageConfiguration(config));
+	std::shared_ptr<plugins::PluginManager> CreatePluginManagerWithRealPlugins(const config::CatapultConfiguration& config) {
+		return CreatePluginManager(config.BlockChain, extensions::CreateStorageConfiguration(config), config.Inflation);
 	}
 }}

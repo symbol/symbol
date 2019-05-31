@@ -29,15 +29,13 @@ namespace catapult { namespace deltaset {
 		using SetVirtualizedTraits = test::BaseSetTraits<
 			TMutabilityTraits,
 			SetStorageTraits<
-				std::set<TElement, detail::OrderedSetDefaultComparator<TElement>>,
+				std::set<TElement, std::less<TElement>>,
 				std::unordered_set<TElement, test::Hasher<TElement>, test::EqualityChecker<TElement>>
 			>
 		>;
 
 		using SetVirtualizedMutableTraits = SetVirtualizedTraits<test::MutableElementValueTraits>;
-		using SetVirtualizedMutablePointerTraits = SetVirtualizedTraits<test::MutableElementPointerTraits>;
 		using SetVirtualizedImmutableTraits = SetVirtualizedTraits<test::ImmutableElementValueTraits>;
-		using SetVirtualizedImmutablePointerTraits = SetVirtualizedTraits<test::ImmutablePointerValueTraits>;
 	}
 
 // iteration is not supported by virtualized sets
@@ -48,17 +46,13 @@ namespace catapult { namespace deltaset {
 
 // base (mutable)
 DEFINE_MUTABLE_BASE_SET_TESTS_FOR(SetVirtualizedMutable);
-DEFINE_MUTABLE_BASE_SET_TESTS_FOR(SetVirtualizedMutablePointer);
 
 // base (immutable)
 DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(SetVirtualizedImmutable);
-DEFINE_IMMUTABLE_BASE_SET_TESTS_FOR(SetVirtualizedImmutablePointer);
 
 // delta (mutable)
 DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(SetVirtualizedMutable);
-DEFINE_MUTABLE_BASE_SET_DELTA_TESTS_FOR(SetVirtualizedMutablePointer);
 
 // delta (immutable)
 DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(SetVirtualizedImmutable);
-DEFINE_IMMUTABLE_BASE_SET_DELTA_TESTS_FOR(SetVirtualizedImmutablePointer);
 }}

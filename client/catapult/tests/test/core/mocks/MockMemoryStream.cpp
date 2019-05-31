@@ -19,23 +19,13 @@
 **/
 
 #include "MockMemoryStream.h"
-#include "catapult/exceptions.h"
 
 namespace catapult { namespace mocks {
 
-	using VectorInputStream = io::BufferInputStreamAdapter<std::vector<uint8_t>>;
-
-	MockMemoryStream::MockMemoryStream(const std::string& name, std::vector<uint8_t>& buffer)
-			: VectorInputStream(buffer)
-			, m_name(name)
-			, m_buffer(buffer)
-			, m_flushCount(0) {
-		m_buffer.reserve(1024);
-	}
-
-	void MockMemoryStream::write(const RawBuffer& buffer) {
-		m_buffer.insert(m_buffer.end(), buffer.pData, buffer.pData + buffer.Size);
-	}
+	MockMemoryStream::MockMemoryStream(std::vector<uint8_t>& buffer)
+			: MemoryStream(buffer)
+			, m_flushCount(0)
+	{}
 
 	void MockMemoryStream::flush() {
 		++m_flushCount;

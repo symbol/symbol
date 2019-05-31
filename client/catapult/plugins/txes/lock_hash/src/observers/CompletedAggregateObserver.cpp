@@ -35,7 +35,7 @@ namespace catapult { namespace observers {
 			using Notification = observers::Notification;
 			static auto constexpr Receipt_Type = model::Receipt_Type_LockHash_Completed;
 
-			static auto NotificationToKey(const Notification& notification) {
+			static auto NotificationToKey(const Notification& notification, const model::ResolverContext&) {
 				return notification.TransactionHash;
 			}
 

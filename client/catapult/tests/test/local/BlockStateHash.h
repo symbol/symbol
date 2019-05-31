@@ -23,7 +23,7 @@
 
 namespace catapult {
 	namespace cache { class CatapultCacheDelta; }
-	namespace config { class LocalNodeConfiguration; }
+	namespace config { class CatapultConfiguration; }
 	namespace model {
 		struct Block;
 		struct BlockElement;
@@ -34,7 +34,7 @@ namespace catapult {
 namespace catapult { namespace test {
 
 	/// Calculate nemesis state hash of \a blockElement given \a config.
-	Hash256 CalculateNemesisStateHash(const model::BlockElement& blockElement, const config::LocalNodeConfiguration& config);
+	Hash256 CalculateNemesisStateHash(const model::BlockElement& blockElement, const config::CatapultConfiguration& config);
 
 	/// Calculates the state hash after executing \a block given \a cache for the network configured with \a pluginManager.
 	Hash256 CalculateBlockStateHash(

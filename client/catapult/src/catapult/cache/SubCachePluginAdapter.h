@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "CacheChangesStorageAdapter.h"
 #include "CacheStorageAdapter.h"
 #include "SubCachePlugin.h"
 #include <memory>
@@ -79,6 +80,10 @@ namespace catapult { namespace cache {
 			return IsCacheStorageSupported(*m_pCache)
 					? std::make_unique<CacheStorageAdapter<TCache, TStorageTraits>>(*m_pCache)
 					: nullptr;
+		}
+
+		std::unique_ptr<CacheChangesStorage> createChangesStorage() const override {
+			return std::make_unique<CacheChangesStorageAdapter<TCache, TStorageTraits>>(*m_pCache);
 		}
 
 	public:

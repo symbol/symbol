@@ -20,7 +20,7 @@
 
 #pragma once
 #include "MongoStorageContext.h"
-#include "catapult/cache/PtChangeSubscriber.h"
+#include "catapult/cache_tx/PtChangeSubscriber.h"
 
 namespace catapult { namespace mongo { class MongoTransactionRegistry; } }
 

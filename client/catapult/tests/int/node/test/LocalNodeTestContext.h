@@ -23,9 +23,9 @@
 #include "LocalNodeNemesisHashTestUtils.h"
 #include "LocalNodeTestUtils.h"
 #include "catapult/crypto/KeyPair.h"
-#include "catapult/extensions/LocalNodeBootstrapper.h"
+#include "catapult/extensions/ProcessBootstrapper.h"
 #include "catapult/extensions/ServiceState.h"
-#include "catapult/local/BasicLocalNode.h"
+#include "catapult/local/server/LocalNode.h"
 #include "tests/test/core/StorageTestUtils.h"
 #include "tests/test/nemesis/NemesisCompatibleConfiguration.h"
 #include "tests/test/nodeps/Filesystem.h"
@@ -36,14 +36,12 @@ namespace catapult { namespace test {
 	struct LocalNodePeerTraits {
 		static constexpr auto CountersToLocalNodeStats = test::CountersToPeerLocalNodeStats;
 		static constexpr auto AddPluginExtensions = test::AddPeerPluginExtensions;
-		static constexpr auto ShouldRegisterPreLoadHandler = false;
 	};
 
 	/// Traits for an api node.
 	struct LocalNodeApiTraits {
 		static constexpr auto CountersToLocalNodeStats = test::CountersToBasicLocalNodeStats;
 		static constexpr auto AddPluginExtensions = test::AddApiPluginExtensions;
-		static constexpr auto ShouldRegisterPreLoadHandler = true;
 	};
 
 	/// A common test context for local node tests.
@@ -64,14 +62,13 @@ namespace catapult { namespace test {
 		LocalNodeTestContext(
 				NodeFlag nodeFlag,
 				const std::vector<ionet::Node>& nodes,
-				const consumer<config::LocalNodeConfiguration&>& configTransform,
+				const consumer<config::CatapultConfiguration&>& configTransform,
 				const std::string& tempDirPostfix)
 				: m_nodeFlag(nodeFlag)
 				, m_nodes(nodes)
 				, m_configTransform(configTransform)
 				, m_serverKeyPair(loadServerKeyPair())
 				, m_partnerServerKeyPair(LoadPartnerServerKeyPair())
-				, m_numPreLoadHandlerCalls(0)
 				, m_tempDir("lntc" + tempDirPostfix)
 				, m_partnerTempDir("lntc_partner" + tempDirPostfix) {
 			initializeDataDirectory(m_tempDir.name());
@@ -79,7 +76,10 @@ namespace catapult { namespace test {
 			if (HasFlag(NodeFlag::With_Partner, nodeFlag)) {
 				initializeDataDirectory(m_partnerTempDir.name());
 
-				m_pLocalPartnerNode = BootLocalPartnerNode(m_partnerTempDir.name(), m_partnerServerKeyPair, nodeFlag);
+				// need to call configTransform first so that partner node loads all required transaction plugins
+				auto config = CreatePrototypicalCatapultConfiguration(m_partnerTempDir.name());
+				m_configTransform(config);
+				m_pLocalPartnerNode = BootLocalPartnerNode(std::move(config), m_partnerServerKeyPair, nodeFlag);
 			}
 
 			if (!HasFlag(NodeFlag::Require_Explicit_Boot, nodeFlag))
@@ -95,8 +95,8 @@ namespace catapult { namespace test {
 				SetNemesisReceiptsHash(directory);
 
 			if (HasFlag(NodeFlag::Verify_State, m_nodeFlag)) {
-				auto config = CreateLocalNodeConfiguration(directory);
-				prepareLocalNodeConfiguration(config);
+				auto config = CreatePrototypicalCatapultConfiguration(directory);
+				prepareCatapultConfiguration(config);
 
 				SetNemesisStateHash(directory, config);
 			}
@@ -113,8 +113,8 @@ namespace catapult { namespace test {
 			return m_tempDir.name() + "/resources";
 		}
 
-		/// Gets the primary (first) booted local node.
-		local::BootedLocalNode& localNode() const {
+		/// Gets the primary (first) local node.
+		local::LocalNode& localNode() const {
 			return *m_pLocalNode;
 		}
 
@@ -123,18 +123,26 @@ namespace catapult { namespace test {
 			return TTraits::CountersToLocalNodeStats(m_pLocalNode->counters());
 		}
 
+		/// Loads saved height from persisted state.
+		Height loadSavedStateChainHeight() const {
+			auto path = boost::filesystem::path(m_tempDir.name()) / "state" / "supplemental.dat";
+			io::RawFile file(path.generic_string(), io::OpenMode::Read_Only);
+			file.seek(file.size() - sizeof(Height));
+			return io::Read<Height>(file);
+		}
+
 	public:
-		/// Creates a copy of the default local node configuration.
-		config::LocalNodeConfiguration createConfig() const {
-			return CreateLocalNodeConfiguration(m_tempDir.name());
+		/// Creates a copy of the default catapult configuration.
+		config::CatapultConfiguration createConfig() const {
+			return CreatePrototypicalCatapultConfiguration(m_tempDir.name());
 		}
 
 		/// Prepares a fresh data \a directory and returns corresponding configuration.
-		config::LocalNodeConfiguration prepareFreshDataDirectory(const std::string& directory) const {
+		config::CatapultConfiguration prepareFreshDataDirectory(const std::string& directory) const {
 			initializeDataDirectory(directory);
 
-			auto config = CreateLocalNodeConfiguration(directory);
-			prepareLocalNodeConfiguration(config);
+			auto config = CreatePrototypicalCatapultConfiguration(directory);
+			prepareCatapultConfiguration(config);
 			return config;
 		}
 
@@ -149,36 +157,55 @@ namespace catapult { namespace test {
 		}
 
 		/// Boots a new local node around \a config.
-		std::unique_ptr<local::BootedLocalNode> boot(config::LocalNodeConfiguration&& config) const {
-			prepareLocalNodeConfiguration(config);
+		std::unique_ptr<local::LocalNode> boot(config::CatapultConfiguration&& config) {
+			return boot(std::move(config), [](const auto&) {});
+		}
 
-			auto pBootstrapper = std::make_unique<extensions::LocalNodeBootstrapper>(
+		/// Boots a new local node allowing additional customization via \a configure.
+		std::unique_ptr<local::LocalNode> boot(const consumer<extensions::ProcessBootstrapper&>& configure) {
+			return boot(createConfig(), configure);
+		}
+
+		/// Resets this context and shuts down the local node.
+		void reset() {
+			if (m_pLocalPartnerNode)
+				CATAPULT_THROW_INVALID_ARGUMENT("local node's partner node is expected to be uninitialized");
+
+			m_pLocalNode->shutdown();
+			m_pLocalNode.reset();
+		}
+
+	private:
+		std::unique_ptr<local::LocalNode> boot(
+				config::CatapultConfiguration&& config,
+				const consumer<extensions::ProcessBootstrapper&>& configure) {
+			prepareCatapultConfiguration(config);
+
+			auto pBootstrapper = std::make_unique<extensions::ProcessBootstrapper>(
 					std::move(config),
 					resourcesDirectory(),
+					extensions::ProcessDisposition::Production,
 					"LocalNodeTests");
 			pBootstrapper->addStaticNodes(m_nodes);
 
 			auto& extensionManager = pBootstrapper->extensionManager();
-			if (TTraits::ShouldRegisterPreLoadHandler) {
-				auto& counter = const_cast<uint32_t&>(m_numPreLoadHandlerCalls);
-				extensionManager.addPreLoadHandler([&counter](const auto&) { ++counter; });
-			}
-
 			extensionManager.addServiceRegistrar(std::make_unique<CapturingServiceRegistrar>(m_capturedServiceState));
 			pBootstrapper->loadExtensions();
 
-			return local::CreateBasicLocalNode(m_serverKeyPair, std::move(pBootstrapper));
+			configure(*pBootstrapper);
+
+			return local::CreateLocalNode(m_serverKeyPair, std::move(pBootstrapper));
 		}
 
 	private:
-		void prepareLocalNodeConfiguration(config::LocalNodeConfiguration& config) const {
-			PrepareLocalNodeConfiguration(config, TTraits::AddPluginExtensions, m_nodeFlag);
+		void prepareCatapultConfiguration(config::CatapultConfiguration& config) const {
+			PrepareCatapultConfiguration(config, TTraits::AddPluginExtensions, m_nodeFlag);
 			m_configTransform(config);
 		}
 
 		crypto::KeyPair loadServerKeyPair() const {
-			// can pass empty string to CreateLocalNodeConfiguration because this config is only being used to get boot key
-			auto config = CreateLocalNodeConfiguration("");
+			// can pass empty string to CreateCatapultConfiguration because this config is only being used to get boot key
+			auto config = CreatePrototypicalCatapultConfiguration("");
 			m_configTransform(config);
 			return crypto::KeyPair::FromString(config.User.BootKey);
 		}
@@ -203,17 +230,6 @@ namespace catapult { namespace test {
 		/// Gets the captured node subscriber.
 		subscribers::NodeSubscriber& nodeSubscriber() const {
 			return *m_capturedServiceState.pNodeSubscriber;
-		}
-
-	protected:
-		/// Gets the number of times the pre load handler was called.
-		uint32_t numPreLoadHandlerCalls() const {
-			return m_numPreLoadHandlerCalls;
-		}
-
-		/// Gets the supplemental state path.
-		boost::filesystem::path getSupplementalStatePath() const {
-			return boost::filesystem::path(m_tempDir.name()) / "state" / "supplemental.dat";
 		}
 
 	private:
@@ -248,15 +264,14 @@ namespace catapult { namespace test {
 	private:
 		NodeFlag m_nodeFlag;
 		std::vector<ionet::Node> m_nodes;
-		consumer<config::LocalNodeConfiguration&> m_configTransform;
+		consumer<config::CatapultConfiguration&> m_configTransform;
 		crypto::KeyPair m_serverKeyPair;
 		crypto::KeyPair m_partnerServerKeyPair;
-		uint32_t m_numPreLoadHandlerCalls;
 		TempDirectoryGuard m_tempDir;
 		TempDirectoryGuard m_partnerTempDir;
 
-		std::unique_ptr<local::BootedLocalNode> m_pLocalPartnerNode;
-		std::unique_ptr<local::BootedLocalNode> m_pLocalNode;
+		std::unique_ptr<local::LocalNode> m_pLocalPartnerNode;
+		std::unique_ptr<local::LocalNode> m_pLocalNode;
 		mutable CapturedServiceState m_capturedServiceState;
 	};
 }}

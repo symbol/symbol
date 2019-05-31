@@ -19,8 +19,10 @@
 **/
 
 #include "catapult/cache/CacheStorageAdapter.h"
+#include "catapult/cache/CatapultCache.h"
 #include "catapult/cache/SubCachePluginAdapter.h"
 #include "tests/catapult/cache/test/CacheSerializationTestUtils.h"
+#include "tests/catapult/cache/test/UnsupportedSubCachePlugin.h"
 #include "tests/test/cache/SimpleCache.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
@@ -39,7 +41,7 @@ namespace catapult { namespace cache {
 		void AssertAreEqual(const std::vector<TestEntry>& entries, const std::vector<uint8_t>& buffer) {
 			// Assert:
 			ASSERT_EQ(sizeof(uint64_t) + entries.size() * sizeof(TestEntry), buffer.size());
-			EXPECT_EQ(entries.size(), reinterpret_cast<const uint64_t&>(*buffer.data()));
+			EXPECT_EQ(entries.size(), reinterpret_cast<const uint64_t&>(buffer[0]));
 			EXPECT_EQ_MEMORY(entries.data(), buffer.data() + sizeof(uint64_t), entries.size() * sizeof(TestEntry));
 		}
 
@@ -65,6 +67,10 @@ namespace catapult { namespace cache {
 
 		class VectorToCacheAdapter {
 		public:
+			using CacheViewType = ViewAdapter;
+
+		public:
+			static constexpr size_t Id = 0;
 			static constexpr auto Name = "TestEntry Cache!";
 
 		public:
@@ -84,9 +90,9 @@ namespace catapult { namespace cache {
 			}
 
 		public:
-			std::unique_ptr<ViewAdapter> createView() const {
+			CacheViewType createView() const {
 				++m_counts.NumCreateViewCalls;
-				return std::make_unique<ViewAdapter>(m_entries);
+				return CacheViewType(m_entries);
 			}
 
 			std::vector<TestEntry>* createDelta() {
@@ -105,6 +111,8 @@ namespace catapult { namespace cache {
 
 		// endregion
 
+		// region TestEntryStorageTraits
+
 		struct TestEntryStorageTraits : public TestEntryLoaderTraits {
 			using SourceType = ViewAdapter;
 
@@ -112,6 +120,46 @@ namespace catapult { namespace cache {
 				output.write({ reinterpret_cast<const uint8_t*>(&entry), sizeof(TestEntry) });
 			}
 		};
+
+		// endregion
+
+		// region VectorToCacheAdapterSubCachePlugin
+
+		class VectorToCacheAdapterSubCachePlugin : public test::UnsupportedSubCachePlugin<VectorToCacheAdapter> {
+		public:
+			explicit VectorToCacheAdapterSubCachePlugin(std::vector<TestEntry>& entries) : m_cache(entries)
+			{}
+
+		public:
+			auto& cache() {
+				return m_cache;
+			}
+
+		public:
+			std::unique_ptr<const SubCacheView> createView() const override {
+				return std::make_unique<VectorToCacheAdapterSubCacheView>(m_cache.createView());
+			}
+
+		private:
+			class VectorToCacheAdapterSubCacheView : public test::UnsupportedSubCacheView {
+			public:
+				explicit VectorToCacheAdapterSubCacheView(const ViewAdapter& view) : m_view(view)
+				{}
+
+			public:
+				const void* get() const override {
+					return &m_view;
+				}
+
+			private:
+				ViewAdapter m_view;
+			};
+
+		private:
+			VectorToCacheAdapter m_cache;
+		};
+
+		// endregion
 	}
 
 	TEST(TEST_CLASS, CanGetNameFromStorageAdapter) {
@@ -128,37 +176,59 @@ namespace catapult { namespace cache {
 	}
 
 	namespace {
-		void AssertCanSaveViaCacheStorageAdapter(uint64_t numEntries) {
+		void AssertCanSaveAllViaCacheStorageAdapter(uint64_t numEntries) {
 			// Arrange:
 			auto seed = GenerateRandomEntries(numEntries);
-			VectorToCacheAdapter cache(seed);
-			CacheStorageAdapter<VectorToCacheAdapter, TestEntryStorageTraits> storage(cache);
+			auto pPlugin = std::make_unique<VectorToCacheAdapterSubCachePlugin>(seed);
+			CacheStorageAdapter<VectorToCacheAdapter, TestEntryStorageTraits> storage(pPlugin->cache());
+			const auto& typedCache = pPlugin->cache();
+
+			std::vector<std::unique_ptr<SubCachePlugin>> subCaches;
+			subCaches.push_back(std::move(pPlugin));
+			CatapultCache catapultCache(std::move(subCaches));
+			auto cacheView = catapultCache.createView();
 
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 
 			// Act:
-			storage.saveAll(stream);
+			storage.saveAll(cacheView, stream);
 
 			// Assert:
-			EXPECT_EQ(1u, cache.counts().NumCreateViewCalls);
-			EXPECT_EQ(0u, cache.counts().NumCreateDeltaCalls);
-			EXPECT_EQ(0u, cache.counts().NumCommitCalls);
+			EXPECT_EQ(1u, typedCache.counts().NumCreateViewCalls);
+			EXPECT_EQ(0u, typedCache.counts().NumCreateDeltaCalls);
+			EXPECT_EQ(0u, typedCache.counts().NumCommitCalls);
 
 			AssertAreEqual(seed, buffer);
-			EXPECT_EQ(numEntries, reinterpret_cast<uint64_t&>(*buffer.data()));
+			EXPECT_EQ(numEntries, reinterpret_cast<uint64_t&>(buffer[0]));
 			EXPECT_EQ(1u, stream.numFlushes());
 		}
 	}
 
-	TEST(TEST_CLASS, CanSaveEmptyDataViaCacheStorageAdapter) {
+	TEST(TEST_CLASS, CanSaveAllEmptyDataViaCacheStorageAdapter) {
 		// Assert:
-		AssertCanSaveViaCacheStorageAdapter(0);
+		AssertCanSaveAllViaCacheStorageAdapter(0);
 	}
 
-	TEST(TEST_CLASS, CanSaveNonEmptyDataViaCacheStorageAdapter) {
+	TEST(TEST_CLASS, CanSaveAllNonEmptyDataViaCacheStorageAdapter) {
 		// Assert:
-		AssertCanSaveViaCacheStorageAdapter(8);
+		AssertCanSaveAllViaCacheStorageAdapter(8);
+	}
+
+	TEST(TEST_CLASS, CannotSaveSummaryDataViaCacheStorageAdapter) {
+		// Arrange:
+		auto seed = GenerateRandomEntries(3);
+		VectorToCacheAdapter cache(seed);
+		CacheStorageAdapter<VectorToCacheAdapter, TestEntryStorageTraits> storage(cache);
+
+		CatapultCache catapultCache({});
+		auto cacheDelta = catapultCache.createDelta();
+
+		std::vector<uint8_t> buffer;
+		mocks::MockMemoryStream stream(buffer);
+
+		// Act + Assert:
+		EXPECT_THROW(storage.saveSummary(cacheDelta, stream), catapult_invalid_argument);
 	}
 
 	namespace {
@@ -170,7 +240,7 @@ namespace catapult { namespace cache {
 
 			auto seed = GenerateRandomEntries(numEntries);
 			auto buffer = CopyEntriesToStreamBuffer(seed);
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 
 			// Act:
 			storage.loadAll(stream, batchSize);

@@ -57,7 +57,7 @@ namespace catapult { namespace subscribers {
 	TEST(TEST_CLASS, NotifyIncomingNodeForwardsToAllSubscribers) {
 		// Arrange:
 		TestContext<mocks::MockNodeSubscriber> context;
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Sanity:
 		EXPECT_EQ(3u, context.subscribers().size());

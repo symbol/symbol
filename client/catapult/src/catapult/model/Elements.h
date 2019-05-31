@@ -66,9 +66,9 @@ namespace catapult { namespace model {
 		Hash256 EntityHash;
 
 		/// Generation hash of the block.
-		Hash256 GenerationHash;
+		catapult::GenerationHash GenerationHash;
 
-		/// Merkle roots for all subcaches at the current block.
+		/// Merkle roots for all sub caches at the current block.
 		std::vector<Hash256> SubCacheMerkleRoots;
 
 		/// Transaction elements.

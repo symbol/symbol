@@ -25,14 +25,24 @@
 #include "catapult/crypto/KeyUtils.h"
 #include "catapult/crypto/Signer.h"
 #include "catapult/model/VerifiableEntity.h"
+#include "catapult/utils/HexParser.h"
+#include "tests/test/nodeps/TestConstants.h"
 #include <memory>
 
 namespace catapult { namespace test {
 
+	GenerationHash GetDefaultGenerationHash() {
+		return utils::ParseByteArray<GenerationHash>("AAAABBBBCCCCDDDDEEEEFFFFAAAABBBBCCCCDDDDEEEEFFFFAAAABBBBCCCCDDDD");
+	}
+
 	std::unique_ptr<model::Transaction> GenerateRandomTransaction() {
+		return GenerateRandomTransaction(GetDefaultGenerationHash());
+	}
+
+	std::unique_ptr<model::Transaction> GenerateRandomTransaction(const GenerationHash& generationHash) {
 		auto signer = GenerateKeyPair();
 		auto pTransaction = GenerateRandomTransaction(signer.publicKey());
-		extensions::SignTransaction(signer, *pTransaction);
+		extensions::TransactionExtensions(generationHash).sign(signer, *pTransaction);
 		return pTransaction;
 	}
 
@@ -84,12 +94,9 @@ namespace catapult { namespace test {
 		pTransaction->Recipient = crypto::ParseKey("72B69A64B20AF34C3815073647C8A2354800E8E83B718303909ABDC0F38E7ED7");
 		reinterpret_cast<uint64_t&>(*pTransaction->DataPtr()) = 12345;
 
-		extensions::SignTransaction(keyPair, *pTransaction);
+		auto generationHash = utils::ParseByteArray<GenerationHash>(test::Deterministic_Network_Generation_Hash_String);
+		extensions::TransactionExtensions(generationHash).sign(keyPair, *pTransaction);
 		return std::move(pTransaction);
-	}
-
-	std::unique_ptr<model::Transaction> CopyTransaction(const model::Transaction& transaction) {
-		return CopyEntity(transaction);
 	}
 
 	namespace {
@@ -117,9 +124,9 @@ namespace catapult { namespace test {
 
 	model::DetachedCosignature CreateRandomCosignature() {
 		return model::DetachedCosignature{
-			test::GenerateRandomData<Key_Size>(),
-			test::GenerateRandomData<Signature_Size>(),
-			test::GenerateRandomData<Hash256_Size>(),
+			test::GenerateRandomByteArray<Key>(),
+			test::GenerateRandomByteArray<Signature>(),
+			test::GenerateRandomByteArray<Hash256>(),
 		};
 	}
 }}

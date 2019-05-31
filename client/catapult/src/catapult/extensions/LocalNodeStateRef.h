@@ -22,7 +22,7 @@
 
 namespace catapult {
 	namespace cache { class CatapultCache; }
-	namespace config { class LocalNodeConfiguration; }
+	namespace config { class CatapultConfiguration; }
 	namespace extensions { class LocalNodeChainScore; }
 	namespace io { class BlockStorageCache; }
 	namespace state { struct CatapultState; }
@@ -36,7 +36,7 @@ namespace catapult { namespace extensions {
 		/// Creates a local node state ref referencing state composed of
 		/// \a config, \a state, \a cache, \a storage and \a score.
 		LocalNodeStateRef(
-				const config::LocalNodeConfiguration& config,
+				const config::CatapultConfiguration& config,
 				state::CatapultState& state,
 				cache::CatapultCache& cache,
 				io::BlockStorageCache& storage,
@@ -49,8 +49,8 @@ namespace catapult { namespace extensions {
 		{}
 
 	public:
-		/// Local node configuration.
-		const config::LocalNodeConfiguration& Config;
+		/// Catapult configuration.
+		const config::CatapultConfiguration& Config;
 
 		/// Local node state.
 		state::CatapultState& State;
@@ -63,40 +63,5 @@ namespace catapult { namespace extensions {
 
 		/// Local node score.
 		LocalNodeChainScore& Score;
-	};
-
-	/// A const reference to a local node's basic state.
-	struct LocalNodeStateConstRef {
-	public:
-		/// Creates a local node state const ref referencing state composed of
-		/// \a config, \a state, \a cache, \a storage and \a score.
-		LocalNodeStateConstRef(
-				const config::LocalNodeConfiguration& config,
-				const state::CatapultState& state,
-				const cache::CatapultCache& cache,
-				const io::BlockStorageCache& storage,
-				const LocalNodeChainScore& score)
-				: Config(config)
-				, State(state)
-				, Cache(cache)
-				, Storage(storage)
-				, Score(score)
-		{}
-
-	public:
-		/// Local node configuration.
-		const config::LocalNodeConfiguration& Config;
-
-		/// Local node state.
-		const state::CatapultState& State;
-
-		/// Local node cache.
-		const cache::CatapultCache& Cache;
-
-		/// Local node storage.
-		const io::BlockStorageCache& Storage;
-
-		/// Local node score.
-		const LocalNodeChainScore& Score;
 	};
 }}

@@ -24,6 +24,7 @@
 #include "catapult/model/BlockUtils.h"
 #include "catapult/model/ChainScore.h"
 #include "tests/int/node/stress/test/BlockChainBuilder.h"
+#include "tests/int/node/stress/test/TransactionsBuilder.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 #include "tests/int/node/test/LocalNodeTestContext.h"
 #include "tests/test/nodeps/Logging.h"
@@ -46,7 +47,6 @@ namespace catapult { namespace local {
 		struct HappyLocalNodeTraits {
 			static constexpr auto CountersToLocalNodeStats = test::CountersToBasicLocalNodeStats;
 			static constexpr auto AddPluginExtensions = test::AddSimplePartnerPluginExtensions;
-			static constexpr auto ShouldRegisterPreLoadHandler = false;
 		};
 
 		using NodeTestContext = test::LocalNodeTestContext<HappyLocalNodeTraits>;
@@ -78,7 +78,7 @@ namespace catapult { namespace local {
 			blockChainConfig.MaxDifficultyBlocks = Max_Rollback_Blocks - 1;
 		}
 
-		void UpdateConfigurationForNode(config::LocalNodeConfiguration& config, uint32_t id) {
+		void UpdateConfigurationForNode(config::CatapultConfiguration& config, uint32_t id) {
 			// 1. give each node its own ports
 			auto port = GetPortForNode(id);
 			auto& nodeConfig = const_cast<config::NodeConfiguration&>(config.Node);
@@ -105,11 +105,11 @@ namespace catapult { namespace local {
 			pt::read_ini(configFilePath, properties);
 
 			// 1. reconnect more rapidly so nodes have a better chance to find each other
-			properties.put("connect peers task for service Sync.startDelay", "2s");
+			properties.put("connect peers task for service Sync.startDelay", "1s");
 			properties.put("connect peers task for service Sync.repeatDelay", "500ms");
 
-			// 2. run far more frequent sync rounds but delay initial sync to allow all nodes to receive their initial chains via push
-			properties.put("synchronizer task.startDelay", "10s");
+			// 2. run far more frequent sync rounds
+			properties.put("synchronizer task.startDelay", "1s");
 			properties.put("synchronizer task.repeatDelay", "500ms");
 
 			pt::write_ini(configFilePath, properties);
@@ -131,36 +131,37 @@ namespace catapult { namespace local {
 				const std::string& resourcesPath,
 				const test::BlockChainBuilder::BlockReceiptsHashCalculator& blockReceiptsHashCalculator,
 				size_t numBlocks,
-				Timestamp blockTimeInterval) {
+				utils::TimeSpan blockTimeInterval) {
 			constexpr uint32_t Num_Accounts = 11;
 			test::Accounts accounts(Num_Accounts);
 
-			auto blockChainConfig = test::CreateLocalNodeBlockChainConfiguration();
+			test::TransactionsBuilder transactionsBuilder(accounts);
+			for (auto i = 0u; i < numBlocks; ++i) {
+				// don't allow account 0 to be recipient because it is sender
+				auto recipientId = RandomByteClamped(Num_Accounts - 2) + 1u;
+				transactionsBuilder.addTransfer(0, recipientId, Amount(1'000'000));
+			}
+
+			auto blockChainConfig = test::CreatePrototypicalBlockChainConfiguration();
 			UpdateBlockChainConfiguration(blockChainConfig);
 
 			test::BlockChainBuilder builder(accounts, stateHashCalculator, blockChainConfig, resourcesPath);
 			builder.setBlockTimeInterval(blockTimeInterval);
 			builder.setBlockReceiptsHashCalculator(blockReceiptsHashCalculator);
-
-			for (auto i = 0u; i < numBlocks; ++i) {
-				// don't allow account 0 to be recipient because it is sender
-				auto recipientId = RandomByteClamped(Num_Accounts - 2) + 1u;
-				builder.addTransfer(0, recipientId, Amount(1'000'000));
-			}
-
-			auto blocks = builder.asBlockChain();
+			auto blocks = builder.asBlockChain(transactionsBuilder);
 
 			test::ExternalSourceConnection connection(node);
 			test::PushEntities(connection, ionet::PacketType::Push_Block, blocks);
 
 			const auto& lastBlock = *blocks.back();
 			ChainStatistics chainStats;
+			chainStats.Score = model::ChainScore(1); // initial nemesis chain score
 			chainStats.StateHash = lastBlock.StateHash;
 			chainStats.Height = lastBlock.Height;
 
 			mocks::MockMemoryBlockStorage storage;
 			auto pNemesisBlockElement = storage.loadBlockElement(Height(1));
-			chainStats.Score = model::ChainScore(chain::CalculateScore(pNemesisBlockElement->Block, *blocks[0]));
+			chainStats.Score += model::ChainScore(chain::CalculateScore(pNemesisBlockElement->Block, *blocks[0]));
 			for (auto i = 0u; i < blocks.size() - 1; ++i)
 				chainStats.Score += model::ChainScore(chain::CalculateScore(*blocks[i], *blocks[i + 1]));
 
@@ -189,7 +190,7 @@ namespace catapult { namespace local {
 			CATAPULT_LOG(debug)
 					<< "*** CHAIN STATISTICS FOR NODE: " << node << " ***" << std::endl
 					<< " ------ score " << stats.Score << std::endl
-					<< " - state hash " << utils::HexFormat(stats.StateHash) << std::endl
+					<< " - state hash " << stats.StateHash << std::endl
 					<< " ----- height " << stats.Height;
 		}
 
@@ -197,7 +198,7 @@ namespace catapult { namespace local {
 			CATAPULT_LOG(debug)
 					<< "*** STATISTICS FOR NODE: " << node << " ***" << std::endl
 					<< " ------ score " << stats.Score << std::endl
-					<< " - state hash " << utils::HexFormat(stats.StateHash) << std::endl
+					<< " - state hash " << stats.StateHash << std::endl
 					<< " ----- height " << stats.Height << std::endl
 					<< " ---- readers " << stats.NumActiveReaders << std::endl
 					<< " ---- writers " << stats.NumActiveWriters;
@@ -306,6 +307,8 @@ namespace catapult { namespace local {
 			auto networkNodes = CreateNodes(networkSize);
 
 			// Act: boot all nodes
+			CATAPULT_LOG(debug) << "booting nodes";
+
 			std::vector<std::unique_ptr<NodeTestContext>> contexts;
 			std::vector<ChainStatistics> chainStatsPerNode;
 			chainStatsPerNode.resize(networkSize);
@@ -320,41 +323,48 @@ namespace catapult { namespace local {
 				};
 				auto postfix = "_" + std::to_string(i);
 				contexts.push_back(std::make_unique<NodeTestContext>(nodeFlag, peers, configTransform, postfix));
+
+				// - (re)schedule a few tasks and boot the node
+				auto& context = *contexts[i];
+				RescheduleTasks(context.resourcesDirectory());
+				context.boot();
+
+				// - push a random number of different (valid) blocks to each node
+				// - vary time spacing so that all chains will have different scores
+				auto numBlocks = RandomByteClamped(Max_Rollback_Blocks - 1) + 1u; // always generate at least one block
+
+				// - when stateHashCalculator data directory is empty, there is no cache lock so node resources can be used directly
+				CATAPULT_LOG(debug) << "pushing initial chain to node " << i;
+				auto stateHashCalculator = verifyTraits.createStateHashCalculator(context, i);
+				auto chainStats = PushRandomBlockChainToNode(
+						networkNodes[i],
+						stateHashCalculator,
+						stateHashCalculator.dataDirectory().empty() ? context.dataDirectory() : stateHashCalculator.dataDirectory(),
+						[&verifyTraits](const auto& block) { return verifyTraits.calculateReceiptsHash(block); },
+						numBlocks,
+						utils::TimeSpan::FromSeconds(60 + i));
+
+				// - wait for the first block element to get processed
+				//   note that this is needed because else the node is shut down before processing the initial chain
+				WAIT_FOR_VALUE_EXPR_SECONDS(1u, test::GetCounterValue(context.localNode().counters(), "BLK ELEM TOT"), 30);
+				WAIT_FOR_VALUE_EXPR_SECONDS(0u, test::GetCounterValue(context.localNode().counters(), "BLK ELEM ACT"), 30);
+
+				chainStatsPerNode[i] = chainStats;
+				LogStatistics(networkNodes[i], chainStats);
+
+				// reset context
+				context.reset();
 			}
-
-			boost::thread_group threads;
-			for (auto i = 0u; i < networkSize; ++i) {
-				threads.create_thread([&contexts, &networkNodes, &chainStatsPerNode, &verifyTraits, i] {
-					// - (re)schedule a few tasks and boot the node
-					auto& context = *contexts[i];
-					RescheduleTasks(context.resourcesDirectory());
-					context.boot();
-
-					// - push a random number of different (valid) blocks to each node
-					// - vary time spacing so that all chains will have different scores
-					auto numBlocks = RandomByteClamped(Max_Rollback_Blocks - 1) + 1u; // always generate at least one block
-
-					// - when stateHashCalculator data directory is empty, there is no cache lock so node resources can be used directly
-					auto stateHashCalculator = verifyTraits.createStateHashCalculator(context, i);
-					auto chainStats = PushRandomBlockChainToNode(
-							networkNodes[i],
-							stateHashCalculator,
-							stateHashCalculator.dataDirectory().empty() ? context.dataDirectory() : stateHashCalculator.dataDirectory(),
-							[&verifyTraits](const auto& block) { return verifyTraits.calculateReceiptsHash(block); },
-							numBlocks,
-							Timestamp(60'000 + i * 1'000));
-
-					chainStatsPerNode[i] = chainStats;
-					LogStatistics(networkNodes[i], chainStats);
-				});
-			}
-
-			// - wait for all nodes to get booted and receive an initial chain
-			threads.join_all();
 
 			for (const auto& chainStats : chainStatsPerNode) {
 				if (chainStats.Score > bestChainStats.Score)
 					bestChainStats = chainStats;
+			}
+
+			// - boot network again
+			for (auto i = 0u; i < networkSize; ++i) {
+				contexts[i]->boot();
+				CATAPULT_LOG(debug) << "node " << i << " rebooted";
 			}
 
 			// Assert: wait for nodes to sync among themselves
@@ -367,8 +377,10 @@ namespace catapult { namespace local {
 
 				try {
 					// - block chain sync consumer updates score and then cache, so need to wait for both to avoid race condition
-					WAIT_FOR_VALUE_EXPR_SECONDS(bestChainStats.Score, context.localNode().score(), 30);
-					WAIT_FOR_VALUE_EXPR_SECONDS(bestChainStats.Height, context.localNode().cache().createView().height(), 10);
+					const auto& cache = context.localNode().cache();
+					WAIT_FOR_VALUE_EXPR_SECONDS(bestChainStats.Score, context.localNode().score(), 45);
+					WAIT_FOR_VALUE_EXPR_SECONDS(bestChainStats.Height, cache.createView().height(), 10);
+					WAIT_FOR_VALUE_EXPR_SECONDS(bestChainStats.StateHash, cache.createView().calculateStateHash().StateHash, 10);
 
 					const auto& stats = GetStatistics(context);
 					LogStatistics(node, stats);

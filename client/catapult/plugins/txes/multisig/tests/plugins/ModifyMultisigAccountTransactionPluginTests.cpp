@@ -35,7 +35,7 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS ModifyMultisigAccountTransactionPluginTests
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(ModifyMultisigAccount, 3, 3)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(ModifyMultisigAccount, 3, 3,)
 
 		template<typename TTraits>
 		auto CreateTransactionWithModifications(uint8_t numModifications) {
@@ -49,7 +49,7 @@ namespace catapult { namespace plugins {
 		}
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Entity_Type_Modify_Multisig_Account)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ONLY_EMBEDDABLE(TEST_CLASS, , , Entity_Type_Modify_Multisig_Account)
 
 	PLUGIN_TEST(CanCalculateSize) {
 		// Arrange:
@@ -105,9 +105,9 @@ namespace catapult { namespace plugins {
 		// Arrange:
 		auto pTransaction = CreateTransactionWithModifications<TTraits>(3);
 		auto* pModification = pTransaction->ModificationsPtr();
-		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomData<Key_Size>() };
-		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomData<Key_Size>() };
-		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomData<Key_Size>() };
+		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomByteArray<Key>() };
+		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomByteArray<Key>() };
+		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomByteArray<Key>() };
 
 		// Assert:
 		AssertNumNotifications<TTraits>(2, *pTransaction);
@@ -117,9 +117,9 @@ namespace catapult { namespace plugins {
 		// Arrange:
 		auto pTransaction = CreateTransactionWithModifications<TTraits>(3);
 		auto* pModification = pTransaction->ModificationsPtr();
-		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomData<Key_Size>() };
-		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomData<Key_Size>() };
-		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomData<Key_Size>() };
+		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomByteArray<Key>() };
+		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomByteArray<Key>() };
+		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomByteArray<Key>() };
 
 		// Assert:
 		AssertNumNotifications<TTraits>(5, *pTransaction, [](const auto& sub) {
@@ -166,9 +166,9 @@ namespace catapult { namespace plugins {
 
 		auto pTransaction = CreateTransactionWithModifications<TTraits>(3);
 		auto* pModification = pTransaction->ModificationsPtr();
-		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomData<Key_Size>() };
-		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomData<Key_Size>() };
-		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomData<Key_Size>() };
+		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomByteArray<Key>() };
+		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomByteArray<Key>() };
+		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomByteArray<Key>() };
 
 		// Act:
 		test::PublishTransaction(*pPlugin, *pTransaction, sub);
@@ -181,7 +181,7 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ(pTransaction->ModificationsPtr(), notification.ModificationsPtr);
 	}
 
-	PLUGIN_TEST(NoCosignersNotificationIfNoModificationIsPresent) {
+	PLUGIN_TEST(NoCosignersNotificationWhenNoModificationIsPresent) {
 		// Arrange:
 		mocks::MockTypedNotificationSubscriber<ModifyMultisigCosignersNotification> sub;
 		auto pPlugin = TTraits::CreatePlugin();
@@ -208,9 +208,9 @@ namespace catapult { namespace plugins {
 
 		auto pTransaction = CreateTransactionWithModifications<TTraits>(3);
 		auto* pModification = pTransaction->ModificationsPtr();
-		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomData<Key_Size>() };
-		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomData<Key_Size>() };
-		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomData<Key_Size>() };
+		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomByteArray<Key>() };
+		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomByteArray<Key>() };
+		*pModification++ = { CosignatoryModificationType::Add, test::GenerateRandomByteArray<Key>() };
 
 		// Act:
 		test::PublishTransaction(*pPlugin, *pTransaction, sub);
@@ -225,16 +225,16 @@ namespace catapult { namespace plugins {
 		EXPECT_EQ(pTransaction->ModificationsPtr()[2].CosignatoryPublicKey, sub.matchingNotifications()[1].CosignatoryKey);
 	}
 
-	PLUGIN_TEST(NoNewCosignerNotificationsIfNoAddModificationsArePresent) {
+	PLUGIN_TEST(NoNewCosignerNotificationsWhenNoAddModificationsArePresent) {
 		// Arrange:
 		mocks::MockTypedNotificationSubscriber<ModifyMultisigNewCosignerNotification> sub;
 		auto pPlugin = TTraits::CreatePlugin();
 
 		auto pTransaction = CreateTransactionWithModifications<TTraits>(3);
 		auto* pModification = pTransaction->ModificationsPtr();
-		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomData<Key_Size>() };
-		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomData<Key_Size>() };
-		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomData<Key_Size>() };
+		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomByteArray<Key>() };
+		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomByteArray<Key>() };
+		*pModification++ = { CosignatoryModificationType::Del, test::GenerateRandomByteArray<Key>() };
 
 		// Act:
 		test::PublishTransaction(*pPlugin, *pTransaction, sub);
@@ -281,7 +281,7 @@ namespace catapult { namespace plugins {
 			auto modificationTypes = GenerateRandomModificationTypeSequence(numAddModifications, numDelModifications);
 			auto* pModification = pTransaction->ModificationsPtr();
 			for (auto modificationType : modificationTypes)
-				*pModification++ = { modificationType, test::GenerateRandomData<Key_Size>() };
+				*pModification++ = { modificationType, test::GenerateRandomByteArray<Key>() };
 
 			// Act:
 			test::PublishTransaction(*pPlugin, *pTransaction, sub);
@@ -294,7 +294,7 @@ namespace catapult { namespace plugins {
 				const auto& notification = sub.matchingNotifications()[0];
 				EXPECT_EQ(pTransaction->Signer, notification.Source);
 				EXPECT_EQ(pTransaction->Type, notification.TransactionType);
-				EXPECT_EQ(model::UnresolvedAddressSet{}, notification.ParticipantsByAddress);
+				EXPECT_EQ(model::UnresolvedAddressSet(), notification.ParticipantsByAddress);
 				EXPECT_EQ(addedKeys, notification.ParticipantsByKey);
 			}
 		}

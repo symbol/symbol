@@ -35,13 +35,13 @@ namespace catapult { namespace mongo { namespace plugins {
 			using ModelType = state::SecretLockInfo;
 
 			static constexpr auto Collection_Name = "secretLockInfos";
-			static constexpr auto Id_Property_Name = "lock.secret";
+			static constexpr auto Id_Property_Name = "lock.compositeHash";
 
 			static constexpr auto CreateCacheStorage = CreateMongoSecretLockInfoCacheStorage;
 			static constexpr auto AssertEqualLockInfoData = test::AssertEqualLockInfoData;
 
 			static auto GetId(const ModelType& lockInfo) {
-				return lockInfo.Secret;
+				return lockInfo.CompositeHash;
 			}
 
 			static cache::CatapultCache CreateCache() {

@@ -39,7 +39,7 @@ namespace catapult { namespace state {
 		public:
 			explicit TestContext(const std::vector<model::PropertyModificationType>& modificationTypes) {
 				for (auto modificationType : modificationTypes)
-					Modifications.push_back({ modificationType, test::GenerateRandomData<Custom_Property_Size>() });
+					Modifications.push_back({ modificationType, test::GenerateRandomArray<Custom_Property_Size>() });
 			}
 
 		public:
@@ -81,7 +81,7 @@ namespace catapult { namespace state {
 
 		// Act + Assert:
 		EXPECT_TRUE(property.contains(context.Modifications[1].Value));
-		EXPECT_FALSE(property.contains(test::GenerateRandomData<Custom_Property_Size>()));
+		EXPECT_FALSE(property.contains(test::GenerateRandomArray<Custom_Property_Size>()));
 	}
 
 	TEST(TEST_CLASS, CanAllowDelegatesToUnderlyingProperty) {
@@ -91,10 +91,10 @@ namespace catapult { namespace state {
 		auto property = CreateTypedPropertyWithValues(rawProperty, OperationType::Allow, context.Modifications);
 
 		// Act + Assert:
-		EXPECT_TRUE(property.canAllow({ Add, test::GenerateRandomData<Custom_Property_Size>() }));
+		EXPECT_TRUE(property.canAllow({ Add, test::GenerateRandomArray<Custom_Property_Size>() }));
 		EXPECT_FALSE(property.canAllow({ Add, context.Modifications[1].Value }));
 		EXPECT_TRUE(property.canAllow({ Del, context.Modifications[1].Value }));
-		EXPECT_FALSE(property.canAllow({ Del, test::GenerateRandomData<Custom_Property_Size>() }));
+		EXPECT_FALSE(property.canAllow({ Del, test::GenerateRandomArray<Custom_Property_Size>() }));
 	}
 
 	TEST(TEST_CLASS, CanBlockDelegatesToUnderlyingProperty) {
@@ -104,9 +104,9 @@ namespace catapult { namespace state {
 		auto property = CreateTypedPropertyWithValues(rawProperty, OperationType::Block, context.Modifications);
 
 		// Act + Assert:
-		EXPECT_TRUE(property.canBlock({ Add, test::GenerateRandomData<Custom_Property_Size>() }));
+		EXPECT_TRUE(property.canBlock({ Add, test::GenerateRandomArray<Custom_Property_Size>() }));
 		EXPECT_FALSE(property.canBlock({ Add, context.Modifications[1].Value }));
 		EXPECT_TRUE(property.canBlock({ Del, context.Modifications[1].Value }));
-		EXPECT_FALSE(property.canBlock({ Del, test::GenerateRandomData<Custom_Property_Size>() }));
+		EXPECT_FALSE(property.canBlock({ Del, test::GenerateRandomArray<Custom_Property_Size>() }));
 	}
 }}

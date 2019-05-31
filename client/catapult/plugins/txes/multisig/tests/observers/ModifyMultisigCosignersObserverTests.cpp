@@ -74,8 +74,7 @@ namespace catapult { namespace observers {
 
 			void assertHasCosignatories(const Key& accountKey, const std::vector<Key>& cosignatoryKeys) const {
 				// Assert:
-				ASSERT_TRUE(m_multisigCache.contains(accountKey))
-						<< "cache is missing account " << utils::HexFormat(accountKey);
+				ASSERT_TRUE(m_multisigCache.contains(accountKey)) << "cache is missing account " << accountKey;
 
 				auto& multisigEntry = m_multisigCache.find(accountKey).get();
 				assertAccountsInSet(cosignatoryKeys, multisigEntry.cosignatories());
@@ -83,7 +82,7 @@ namespace catapult { namespace observers {
 
 			void assertHasMultisigAccounts(const Key& accountKey, const std::vector<Key>& multisigAccountKeys) const {
 				// Assert:
-				ASSERT_TRUE(m_multisigCache.contains(accountKey)) << "cache is missing account " << utils::HexFormat(accountKey);
+				ASSERT_TRUE(m_multisigCache.contains(accountKey)) << "cache is missing account " << accountKey;
 
 				auto& multisigEntry = m_multisigCache.find(accountKey).get();
 				assertAccountsInSet(multisigAccountKeys, multisigEntry.multisigAccounts());
@@ -91,14 +90,13 @@ namespace catapult { namespace observers {
 
 		private:
 			void assertNoMultisigEntryInCache(const Key& accountKey) const {
-				EXPECT_FALSE(m_multisigCache.contains(accountKey))
-						<< "cache should not have account " << utils::HexFormat(accountKey);
+				EXPECT_FALSE(m_multisigCache.contains(accountKey)) << "cache should not have account " << accountKey;
 			}
 
 			void assertAccountsInSet(const std::vector<Key>& expectedKeys, const utils::SortedKeySet& keys) const {
 				// Assert:
 				for (const auto& key : expectedKeys)
-					EXPECT_TRUE(m_multisigCache.contains(key)) << "cache is missing account " << utils::HexFormat(key);
+					EXPECT_TRUE(m_multisigCache.contains(key)) << "cache is missing account " << key;
 
 				test::AssertContents(expectedKeys, keys);
 			}

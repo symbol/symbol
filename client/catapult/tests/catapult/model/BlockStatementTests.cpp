@@ -87,7 +87,7 @@ namespace catapult { namespace model {
 		auto result = TTraits::Calculate(statement);
 
 		// Assert:
-		TTraits::AssertResult({ Hash256{} }, result);
+		TTraits::AssertResult({ Hash256() }, result);
 	}
 
 	// endregion
@@ -118,7 +118,7 @@ namespace catapult { namespace model {
 
 	MERKLE_TEST(CanCalculateMerkleForSingleAddressResolutionStatement) {
 		// Assert:
-		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(AddressResolutionStatement(UnresolvedAddress{ { { 88 } } }));
+		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(AddressResolutionStatement(UnresolvedAddress{ { 88 } }));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForSingleMosaicResolutionStatement) {
@@ -175,9 +175,9 @@ namespace catapult { namespace model {
 	MERKLE_TEST(CanCalculateMerkleForMultipleAddressResolutionStatements) {
 		// Assert:
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
-				AddressResolutionStatement(UnresolvedAddress{ { { 88 } } }),
-				AddressResolutionStatement(UnresolvedAddress{ { { 92 } } }),
-				AddressResolutionStatement(UnresolvedAddress{ { { 94 } } }));
+				AddressResolutionStatement(UnresolvedAddress{ { 88 } }),
+				AddressResolutionStatement(UnresolvedAddress{ { 92 } }),
+				AddressResolutionStatement(UnresolvedAddress{ { 94 } }));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleMosaicResolutionStatements) {
@@ -196,7 +196,7 @@ namespace catapult { namespace model {
 		// Assert:
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
 				TransactionStatement({ 10, 10 }),
-				AddressResolutionStatement(UnresolvedAddress{ { { 92 } } }),
+				AddressResolutionStatement(UnresolvedAddress{ { 92 } }),
 				MosaicResolutionStatement(UnresolvedMosaicId(300)));
 	}
 
@@ -204,9 +204,9 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto componentStatement1 = TransactionStatement({ 10, 10 });
 		auto componentStatement2 = TransactionStatement({ 24, 11 });
-		auto componentStatement3 = AddressResolutionStatement(UnresolvedAddress{ { { 88 } } });
-		auto componentStatement4 = AddressResolutionStatement(UnresolvedAddress{ { { 92 } } });
-		auto componentStatement5 = AddressResolutionStatement(UnresolvedAddress{ { { 94 } } });
+		auto componentStatement3 = AddressResolutionStatement(UnresolvedAddress{ { 88 } });
+		auto componentStatement4 = AddressResolutionStatement(UnresolvedAddress{ { 92 } });
+		auto componentStatement5 = AddressResolutionStatement(UnresolvedAddress{ { 94 } });
 		auto componentStatement6 = MosaicResolutionStatement(UnresolvedMosaicId(100));
 		auto componentStatement7 = MosaicResolutionStatement(UnresolvedMosaicId(200));
 

@@ -27,9 +27,7 @@ namespace catapult { namespace cache {
 
 	/// Policy for saving and loading mosaic cache data.
 	struct MosaicCacheStorage
-			: public CacheStorageFromDescriptor<MosaicCacheDescriptor>
-			, public state::MosaicEntrySerializer {
-		/// Loads \a entry into \a cacheDelta.
-		static void LoadInto(const ValueType& entry, DestinationType& cacheDelta);
-	};
+			: public CacheStorageForBasicInsertRemoveCache<MosaicCacheDescriptor>
+			, public state::MosaicEntrySerializer
+	{};
 }}

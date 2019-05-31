@@ -19,6 +19,8 @@
 **/
 
 #include "catapult/cache_core/AccountStateCacheSubCachePlugin.h"
+#include "catapult/model/BlockChainConfiguration.h"
+#include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/cache/SummaryAwareCacheStoragePluginTests.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
@@ -27,26 +29,23 @@ namespace catapult { namespace cache {
 
 #define TEST_CLASS AccountStateCacheSubCachePluginTests
 
-	// region AccountStateCacheSummaryCacheStorage - saveAll
+	// region AccountStateCacheSummaryCacheStorage - saveAll / saveSummary
 
 	namespace {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
 
-		std::vector<Address> AddAccountsWithBalances(AccountStateCache& cache, const std::vector<Amount>& balances) {
-			auto delta = cache.createDelta();
-
+		std::vector<Address> AddAccountsWithBalances(AccountStateCacheDelta& delta, const std::vector<Amount>& balances) {
 			auto addresses = test::GenerateRandomDataVector<Address>(balances.size());
 			for (auto i = 0u; i < balances.size(); ++i) {
-				delta->addAccount(addresses[i], Height(1));
-				delta->find(addresses[i]).get().Balances.credit(Harvesting_Mosaic_Id, balances[i]);
+				delta.addAccount(addresses[i], Height(1));
+				delta.find(addresses[i]).get().Balances.credit(Harvesting_Mosaic_Id, balances[i]);
 			}
 
-			cache.commit();
 			return addresses;
 		}
 
 		template<typename TAction>
-		void RunSummarySaveTest(Amount minHighValueAccountBalance, size_t numExpectedAccounts, TAction checkAddresses) {
+		void RunCacheStorageTest(Amount minHighValueAccountBalance, TAction action) {
 			// Arrange:
 			AccountStateCacheTypes::Options options;
 			options.MinHighValueAccountBalance = minHighValueAccountBalance;
@@ -54,33 +53,66 @@ namespace catapult { namespace cache {
 			AccountStateCache cache(CacheConfiguration(), options);
 			AccountStateCacheSummaryCacheStorage storage(cache);
 
-			auto balances = { Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) };
-			auto addresses = AddAccountsWithBalances(cache, balances);
+			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
+			blockChainConfig.MinHarvesterBalance = minHighValueAccountBalance;
+			blockChainConfig.HarvestingMosaicId = Harvesting_Mosaic_Id;
 
-			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream stream("", buffer);
+			// Act + Assert:
+			action(storage, blockChainConfig, cache);
+		}
 
-			// Act:
-			storage.saveAll(stream);
+		template<typename TAction>
+		void RunSummarySaveTest(Amount minHighValueAccountBalance, size_t numExpectedAccounts, TAction checkAddresses) {
+			// Arrange:
+			RunCacheStorageTest(minHighValueAccountBalance, [numExpectedAccounts, checkAddresses](
+					const auto& storage,
+					const auto& blockChainConfig,
+					const auto&) {
+				auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+				auto cacheDelta = catapultCache.createDelta();
+				auto& delta = cacheDelta.template sub<AccountStateCache>();
+				auto balances = { Amount(1'000'000), Amount(500'000), Amount(750'000), Amount(1'250'000) };
+				auto addresses = AddAccountsWithBalances(delta, balances);
 
-			// Assert: all addresses were saved
-			ASSERT_EQ(sizeof(uint64_t) + numExpectedAccounts * sizeof(Address), buffer.size());
+				std::vector<uint8_t> buffer;
+				mocks::MockMemoryStream stream(buffer);
 
-			auto numAddresses = reinterpret_cast<uint64_t&>(*buffer.data());
-			EXPECT_EQ(numExpectedAccounts, numAddresses);
+				// Act:
+				storage.saveSummary(cacheDelta, stream);
 
-			model::AddressSet savedAddresses;
-			for (auto i = 0u; i < numAddresses; ++i)
-				savedAddresses.insert(reinterpret_cast<Address&>(*(buffer.data() + sizeof(uint64_t) + i * sizeof(Address))));
+				// Assert: all addresses were saved
+				ASSERT_EQ(sizeof(uint64_t) + numExpectedAccounts * sizeof(Address), buffer.size());
 
-			checkAddresses(addresses, savedAddresses);
+				auto numAddresses = reinterpret_cast<uint64_t&>(buffer[0]);
+				EXPECT_EQ(numExpectedAccounts, numAddresses);
 
-			// - there was a single flush
-			EXPECT_EQ(1u, stream.numFlushes());
+				model::AddressSet savedAddresses;
+				for (auto i = 0u; i < numAddresses; ++i)
+					savedAddresses.insert(reinterpret_cast<Address&>(buffer[sizeof(uint64_t) + i * sizeof(Address)]));
+
+				checkAddresses(addresses, savedAddresses);
+
+				// - there was a single flush
+				EXPECT_EQ(1u, stream.numFlushes());
+			});
 		}
 	}
 
-	TEST(TEST_CLASS, CanSaveZeroHighValueAddresses) {
+	TEST(TEST_CLASS, CannotSaveAll) {
+		// Arrange:
+		RunCacheStorageTest(Amount(2'000'000), [](const auto& storage, const auto& blockChainConfig, const auto&) {
+			auto catapultCache = test::CoreSystemCacheFactory::Create(blockChainConfig);
+			auto cacheView = catapultCache.createView();
+
+			std::vector<uint8_t> buffer;
+			mocks::MockMemoryStream stream(buffer);
+
+			// Act + Assert:
+			EXPECT_THROW(storage.saveAll(cacheView, stream), catapult_invalid_argument);
+		});
+	}
+
+	TEST(TEST_CLASS, CanSaveSummaryWithZeroHighValueAddresses) {
 		// Act:
 		RunSummarySaveTest(Amount(2'000'000), 0, [](const auto&, const auto& savedAddresses) {
 			// Assert:
@@ -88,7 +120,7 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	TEST(TEST_CLASS, CanSaveSingleHighValueAddress) {
+	TEST(TEST_CLASS, CanSaveSummaryWithSingleHighValueAddress) {
 		// Act:
 		RunSummarySaveTest(Amount(1'111'111), 1, [](const auto& originalAddresses, const auto& savedAddresses) {
 			// Assert:
@@ -96,7 +128,7 @@ namespace catapult { namespace cache {
 		});
 	}
 
-	TEST(TEST_CLASS, CanSaveMultipleHighValueAddresses) {
+	TEST(TEST_CLASS, CanSaveSummaryWithMultipleHighValueAddresses) {
 		// Act:
 		RunSummarySaveTest(Amount(700'000), 3, [](const auto& originalAddresses, const auto& savedAddresses) {
 			// Assert:
@@ -118,7 +150,7 @@ namespace catapult { namespace cache {
 			auto addresses = test::GenerateRandomDataVector<Address>(numAccounts);
 
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream stream("", buffer);
+			mocks::MockMemoryStream stream(buffer);
 			io::Write64(stream, numAccounts);
 			stream.write({ reinterpret_cast<const uint8_t*>(addresses.data()), numAccounts * sizeof(Address) });
 
@@ -132,17 +164,17 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(TEST_CLASS, CanLoadZeroHighValueAddresses) {
+	TEST(TEST_CLASS, CanLoadSummaryZeroHighValueAddresses) {
 		// Assert:
 		RunSummaryLoadTest(0);
 	}
 
-	TEST(TEST_CLASS, CanLoadSingleHighValueAddress) {
+	TEST(TEST_CLASS, CanLoadSummarySingleHighValueAddress) {
 		// Assert:
 		RunSummaryLoadTest(1);
 	}
 
-	TEST(TEST_CLASS, CanLoadMultipleHighValueAddresses) {
+	TEST(TEST_CLASS, CanLoadSummaryMultipleHighValueAddresses) {
 		// Assert:
 		RunSummaryLoadTest(3);
 	}

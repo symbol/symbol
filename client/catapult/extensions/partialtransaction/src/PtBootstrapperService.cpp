@@ -19,8 +19,7 @@
 **/
 
 #include "PtBootstrapperService.h"
-#include "catapult/cache/MemoryPtCache.h"
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/cache_tx/MemoryPtCache.h"
 #include "catapult/extensions/Results.h"
 #include "catapult/extensions/ServiceLocator.h"
 #include "catapult/extensions/ServiceState.h"

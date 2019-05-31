@@ -27,6 +27,7 @@ namespace catapult { namespace state {
 	enum class LockStatus : uint8_t {
 		/// Lock is unused.
 		Unused,
+
 		/// Lock was already used.
 		Used
 	};

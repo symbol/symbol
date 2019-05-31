@@ -19,6 +19,7 @@
 **/
 
 #include "tests/int/node/stress/test/LocalNodeSyncIntegrityTestUtils.h"
+#include "tests/int/node/stress/test/TransactionsBuilder.h"
 #include "tests/int/node/test/LocalNodeRequestTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -27,7 +28,6 @@ namespace catapult { namespace local {
 #define TEST_CLASS LocalNodeSyncBlockIntegrityTests
 
 	namespace {
-		using Accounts = test::Accounts;
 		using BlockChainBuilder = test::BlockChainBuilder;
 	}
 
@@ -38,26 +38,30 @@ namespace catapult { namespace local {
 		std::vector<Hash256> RunInvalidSignatureTest(TTestContext& context) {
 			// Arrange:
 			std::vector<Hash256> stateHashes;
-			Accounts accounts(3);
+			test::Accounts accounts(3);
 
 			// - prepare a better (unsigned) block
 			std::shared_ptr<model::Block> pUnsignedBlock;
 			{
+				test::TransactionsBuilder transactionsBuilder(accounts);
+				transactionsBuilder.addTransfer(0, 1, Amount(1'000'000));
+
 				auto stateHashCalculator = context.createStateHashCalculator();
 				BlockChainBuilder builder(accounts, stateHashCalculator);
-				builder.setBlockTimeInterval(Timestamp(58'000)); // better block time will yield better chain
-				builder.addTransfer(0, 1, Amount(1'000'000));
-				pUnsignedBlock = builder.asSingleBlock();
+				builder.setBlockTimeInterval(utils::TimeSpan::FromSeconds(58)); // better block time will yield better chain
+				pUnsignedBlock = builder.asSingleBlock(transactionsBuilder);
 				test::FillWithRandomData(pUnsignedBlock->Signature);
 			}
 
 			// - prepare a worse (signed) block
 			std::shared_ptr<model::Block> pSignedBlock;
 			{
+				test::TransactionsBuilder transactionsBuilder(accounts);
+				transactionsBuilder.addTransfer(0, 2, Amount(550'000));
+
 				auto stateHashCalculator = context.createStateHashCalculator();
 				BlockChainBuilder builder(accounts, stateHashCalculator);
-				builder.addTransfer(0, 2, Amount(550'000));
-				pSignedBlock = builder.asSingleBlock();
+				pSignedBlock = builder.asSingleBlock(transactionsBuilder);
 			}
 
 			// Act:

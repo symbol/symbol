@@ -34,7 +34,7 @@ namespace catapult { namespace validators {
 
 		void AssertValidationResult(ValidationResult expectedResult, const std::vector<model::CosignatoryModification>& modifications) {
 			// Arrange:
-			auto signer = test::GenerateRandomData<Key_Size>();
+			auto signer = test::GenerateRandomByteArray<Key>();
 			model::ModifyMultisigCosignersNotification notification(
 					signer,
 					static_cast<uint8_t>(modifications.size()),
@@ -56,7 +56,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenSingleAddModificationIsPresent) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Assert:
 		AssertValidationResult(ValidationResult::Success, { { Add, key } });
@@ -64,7 +64,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenSingleDelModificationIsPresent) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Assert:
 		AssertValidationResult(ValidationResult::Success, { { Del, key } });
@@ -72,7 +72,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenSingleUnsupportedModificationIsPresent) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 
 		// Assert:
 		constexpr auto expectedResult = Failure_Multisig_Modify_Unsupported_Modification_Type;
@@ -90,7 +90,7 @@ namespace catapult { namespace validators {
 			std::vector<model::CosignatoryModification> modifications;
 
 			for (auto modificationType : modificationTypes) {
-				auto key = test::GenerateRandomData<Key_Size>();
+				auto key = test::GenerateRandomByteArray<Key>();
 				modifications.push_back({ modificationType, key });
 			}
 
@@ -127,7 +127,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertResultWhenSameAccountUsed(ValidationResult expectedResult, ModificationTypes modificationTypes) {
 			// Arrange:
-			auto key = test::GenerateRandomData<Key_Size>();
+			auto key = test::GenerateRandomByteArray<Key>();
 			std::vector<model::CosignatoryModification> modifications;
 
 			for (auto modificationType : modificationTypes)

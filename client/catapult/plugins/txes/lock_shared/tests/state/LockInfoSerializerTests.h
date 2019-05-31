@@ -69,7 +69,7 @@ namespace catapult { namespace state {
 		static void AssertCanSaveLockInfos(size_t numLockInfos) {
 			// Arrange:
 			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream outputStream("", buffer);
+			mocks::MockMemoryStream outputStream(buffer);
 			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(numLockInfos);
 
 			// Act:

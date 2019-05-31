@@ -446,8 +446,8 @@ namespace catapult { namespace chain {
 		// Arrange:
 		TestContext context;
 		context.sub().enableUndo();
-		auto signer = test::GenerateRandomData<Key_Size>();
-		auto hash = test::GenerateRandomData<Hash256_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
+		auto hash = test::GenerateRandomByteArray<Hash256>();
 		auto notification1 = model::AccountPublicKeyNotification(signer);
 		auto notification2 = test::CreateNotification(Notification_Type_All);
 		auto notification3 = model::EntityNotification(model::NetworkIdentifier::Mijin_Test, 0, 0, 0);

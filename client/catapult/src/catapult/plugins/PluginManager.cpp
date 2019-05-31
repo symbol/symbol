@@ -23,9 +23,13 @@
 
 namespace catapult { namespace plugins {
 
-	PluginManager::PluginManager(const model::BlockChainConfiguration& config, const StorageConfiguration& storageConfig)
+	PluginManager::PluginManager(
+			const model::BlockChainConfiguration& config,
+			const StorageConfiguration& storageConfig,
+			const config::InflationConfiguration& inflationConfig)
 			: m_config(config)
 			, m_storageConfig(storageConfig)
+			, m_inflationConfig(inflationConfig)
 	{}
 
 	// region config
@@ -36,6 +40,10 @@ namespace catapult { namespace plugins {
 
 	const StorageConfiguration& PluginManager::storageConfig() const {
 		return m_storageConfig;
+	}
+
+	const config::InflationConfiguration& PluginManager::inflationConfig() const {
+		return m_inflationConfig;
 	}
 
 	cache::CacheConfiguration PluginManager::cacheConfig(const std::string& name) const {

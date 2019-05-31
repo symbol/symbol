@@ -31,12 +31,12 @@ namespace catapult { namespace mocks {
 			return mocks::MockTransaction::Entity_Type;
 		}
 
-		uint64_t calculateRealSize(const model::Transaction&) const override {
-			CATAPULT_THROW_RUNTIME_ERROR("calculateRealSize - not implemented in mock");
+		model::TransactionAttributes attributes() const override {
+			CATAPULT_THROW_RUNTIME_ERROR("attributes - not implemented in mock");
 		}
 
-		model::SupportedVersions supportedVersions() const override {
-			CATAPULT_THROW_RUNTIME_ERROR("supportedVersions - not implemented in mock");
+		uint64_t calculateRealSize(const model::Transaction&) const override {
+			CATAPULT_THROW_RUNTIME_ERROR("calculateRealSize - not implemented in mock");
 		}
 
 		void publish(const model::WeakEntityInfoT<model::Transaction>&, model::NotificationSubscriber&) const override {
@@ -49,6 +49,10 @@ namespace catapult { namespace mocks {
 
 		std::vector<RawBuffer> merkleSupplementaryBuffers(const model::Transaction&) const override {
 			CATAPULT_THROW_RUNTIME_ERROR("merkleSupplementaryBuffers - not implemented in mock");
+		}
+
+		bool supportsTopLevel() const override {
+			return true;
 		}
 
 		bool supportsEmbedding() const override {

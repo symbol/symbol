@@ -21,6 +21,7 @@
 #pragma once
 #include "IdentifierGroupCacheUtils.h"
 #include "catapult/deltaset/BaseSetDelta.h"
+#include "catapult/deltaset/BaseSetDeltaIterationView.h"
 #include "catapult/deltaset/BaseSetIterationView.h"
 #include "catapult/utils/Casting.h"
 #include "catapult/utils/HexFormatter.h"

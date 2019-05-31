@@ -78,7 +78,7 @@ namespace catapult { namespace validators {
 				auto cacheDelta = cache.createDelta();
 
 				// make the aggregate signer a cosigner of a different account
-				test::MakeMultisig(cacheDelta, test::GenerateRandomData<Key_Size>(), { aggregateSigner });
+				test::MakeMultisig(cacheDelta, test::GenerateRandomByteArray<Key>(), { aggregateSigner });
 
 				cache.commit(Height());
 				return cache;
@@ -105,7 +105,7 @@ namespace catapult { namespace validators {
 	TEST(TEST_CLASS, TEST_NAME##_CosignatoryAccount) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<CosignatoryAccountTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	NON_MULTISIG_TRAITS_TEST(CosignerIsEligibleIfItMatchesEmbeddedTransactionSigner) {
+	NON_MULTISIG_TRAITS_TEST(CosignerIsEligibleWhenItMatchesEmbeddedTransactionSigner) {
 		// Arrange:
 		auto embeddedSigners = test::GenerateRandomDataVector<Key>(3);
 
@@ -117,25 +117,25 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	NON_MULTISIG_TRAITS_TEST(CosignerIsIneligibleIfItIsUnrelatedAccount) {
+	NON_MULTISIG_TRAITS_TEST(CosignerIsIneligibleWhenItIsUnrelatedAccount) {
 		// Arrange:
 		auto embeddedSigners = test::GenerateRandomDataVector<Key>(3);
-		auto ineligibleSigner = test::GenerateRandomData<Key_Size>();
+		auto ineligibleSigner = test::GenerateRandomByteArray<Key>();
 
 		// Assert: invalid because cosigner is not an embedded transaction signer
 		AssertValidationResult<TTraits>(Failure_Aggregate_Ineligible_Cosigners, embeddedSigners[0], embeddedSigners, { ineligibleSigner });
 	}
 
-	NON_MULTISIG_TRAITS_TEST(AggregateSignerIsIneligibleIfItIsUnrelatedAccount) {
+	NON_MULTISIG_TRAITS_TEST(AggregateSignerIsIneligibleWhenItIsUnrelatedAccount) {
 		// Arrange:
 		auto embeddedSigners = test::GenerateRandomDataVector<Key>(3);
-		auto ineligibleSigner = test::GenerateRandomData<Key_Size>();
+		auto ineligibleSigner = test::GenerateRandomByteArray<Key>();
 
 		// Assert: invalid because aggregate signer is not an embedded transaction signer
 		AssertValidationResult<TTraits>(Failure_Aggregate_Ineligible_Cosigners, ineligibleSigner, embeddedSigners, { embeddedSigners[1] });
 	}
 
-	NON_MULTISIG_TRAITS_TEST(CosignersAreEligibleIfAllMatchEmbeddedTransactionSigners) {
+	NON_MULTISIG_TRAITS_TEST(CosignersAreEligibleWhenAllMatchEmbeddedTransactionSigners) {
 		// Arrange:
 		auto embeddedSigners = test::GenerateRandomDataVector<Key>(3);
 
@@ -143,10 +143,10 @@ namespace catapult { namespace validators {
 		AssertValidationResult<TTraits>(ValidationResult::Success, embeddedSigners[0], embeddedSigners, embeddedSigners);
 	}
 
-	NON_MULTISIG_TRAITS_TEST(CosignersAreIneligibleIfAnyDoesNotMatchEmbeddedTransactionSigner) {
+	NON_MULTISIG_TRAITS_TEST(CosignersAreIneligibleWhenAnyDoesNotMatchEmbeddedTransactionSigner) {
 		// Arrange:
 		auto embeddedSigners = test::GenerateRandomDataVector<Key>(3);
-		auto cosigners = { embeddedSigners[0], test::GenerateRandomData<Key_Size>(), embeddedSigners[2] };
+		auto cosigners = { embeddedSigners[0], test::GenerateRandomByteArray<Key>(), embeddedSigners[2] };
 
 		// Assert: invalid because a single cosigner is not an embedded transaction signer
 		AssertValidationResult<TTraits>(Failure_Aggregate_Ineligible_Cosigners, embeddedSigners[0], embeddedSigners, cosigners);
@@ -168,7 +168,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, CosignerIsEligibleIfItMatchesDirectEmbeddedTransactionSignerCosigner) {
+	TEST(TEST_CLASS, CosignerIsEligibleWhenItMatchesDirectEmbeddedTransactionSignerCosigner) {
 		// Arrange:
 		auto embeddedSigners = test::GenerateRandomDataVector<Key>(3);
 		auto embeddedCosignatories = test::GenerateRandomDataVector<Key>(4);
@@ -182,7 +182,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, AggregateSignerIsEligibleIfItMatchesDirectEmbeddedTransactionSignerCosigner) {
+	TEST(TEST_CLASS, AggregateSignerIsEligibleWhenItMatchesDirectEmbeddedTransactionSignerCosigner) {
 		// Arrange:
 		auto embeddedSigners = test::GenerateRandomDataVector<Key>(3);
 		auto embeddedCosignatories = test::GenerateRandomDataVector<Key>(4);
@@ -212,7 +212,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, CosignerIsEligibleIfItMatchesIndirectEmbeddedTransactionSignerCosigner) {
+	TEST(TEST_CLASS, CosignerIsEligibleWhenItMatchesIndirectEmbeddedTransactionSignerCosigner) {
 		// Arrange:
 		auto embeddedSigners = test::GenerateRandomDataVector<Key>(3);
 		auto embeddedCosignatories = test::GenerateRandomDataVector<Key>(4);
@@ -227,7 +227,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	TEST(TEST_CLASS, AggregateSignerIsEligibleIfItMatchesIndirectEmbeddedTransactionSignerCosigner) {
+	TEST(TEST_CLASS, AggregateSignerIsEligibleWhenItMatchesIndirectEmbeddedTransactionSignerCosigner) {
 		// Arrange:
 		auto embeddedSigners = test::GenerateRandomDataVector<Key>(3);
 		auto embeddedCosignatories = test::GenerateRandomDataVector<Key>(4);
@@ -273,7 +273,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, ModifyMultisigAccountAddedAccountsGainEligibility) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto pTransaction = test::CreateModifyMultisigAccountTransaction(signer, { Add, Del, Add, Del });
 		auto cache = test::MultisigCacheFactory::Create();
 
@@ -288,7 +288,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, ModifyMultisigAccountDeletedAccountsDoNotGainEligibility) {
 		// Arrange:
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto pTransaction = test::CreateModifyMultisigAccountTransaction(signer, { Add, Del, Add, Del });
 		auto cache = test::MultisigCacheFactory::Create();
 
@@ -303,7 +303,7 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, MultisigAccountDeletedAccountsRetainExistingEligibility) {
 		// Arrange: delete the (original eligible) embedded tx signer
-		auto signer = test::GenerateRandomData<Key_Size>();
+		auto signer = test::GenerateRandomByteArray<Key>();
 		auto pTransaction = test::CreateModifyMultisigAccountTransaction(signer, { Add, Del, Add, Del });
 		pTransaction->ModificationsPtr()[1].CosignatoryPublicKey = signer;
 		auto cache = test::MultisigCacheFactory::Create();

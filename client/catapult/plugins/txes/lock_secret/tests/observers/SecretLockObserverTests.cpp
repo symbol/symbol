@@ -45,13 +45,17 @@ namespace catapult { namespace observers {
 			}
 
 			static auto GenerateRandomLockInfo(const NotificationType& notification) {
+				auto resolver = test::CreateResolverContextXor();
 				auto lockInfo = test::BasicSecretLockInfoTestTraits::CreateLockInfo();
 				lockInfo.Secret = notification.Secret;
+				lockInfo.Recipient = resolver.resolve(notification.Recipient);
+				lockInfo.CompositeHash = model::CalculateSecretLockInfoHash(lockInfo.Secret, lockInfo.Recipient);
 				return lockInfo;
 			}
 
-			static const auto& ToKey(const NotificationType& notification) {
-				return notification.Secret;
+			static auto ToKey(const NotificationType& notification) {
+				auto resolver = test::CreateResolverContextXor();
+				return model::CalculateSecretLockInfoHash(notification.Secret, resolver.resolve(notification.Recipient));
 			}
 
 			static void AssertAddedLockInfo(const state::SecretLockInfo& lockInfo, const NotificationType& notification) {

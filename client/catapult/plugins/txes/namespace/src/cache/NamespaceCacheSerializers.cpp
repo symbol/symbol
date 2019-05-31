@@ -26,6 +26,7 @@ namespace catapult { namespace cache {
 	std::string NamespaceFlatMapTypesSerializer::SerializeValue(const ValueType& value) {
 		io::StringOutputStream output(sizeof(ValueType));
 
+		StateVersion<NamespaceFlatMapTypesSerializer>::Write(output);
 		io::Write64(output, value.path().size());
 		for (auto id : value.path())
 			io::Write(output, id);
@@ -35,6 +36,7 @@ namespace catapult { namespace cache {
 
 	state::Namespace NamespaceFlatMapTypesSerializer::DeserializeValue(const RawBuffer& buffer) {
 		io::BufferInputStreamAdapter<RawBuffer> input(buffer);
+		StateVersion<NamespaceFlatMapTypesSerializer>::ReadAndCheck(input);
 
 		state::Namespace::Path path;
 		auto size = io::Read64(input);

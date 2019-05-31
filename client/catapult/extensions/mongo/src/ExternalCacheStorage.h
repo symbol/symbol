@@ -19,12 +19,12 @@
 **/
 
 #pragma once
-#include "catapult/cache/CatapultCache.h"
+#include "catapult/cache/CacheChanges.h"
 #include "catapult/functions.h"
 
 namespace catapult { namespace mongo {
 
-	/// Abstract class for loading and saving cache data to external storage.
+	/// Abstract class for saving cache data to external storage.
 	class ExternalCacheStorage {
 	protected:
 		/// Creates an external cache storage around \a name and \a id.
@@ -48,47 +48,31 @@ namespace catapult { namespace mongo {
 		}
 
 	public:
-		/// Saves \a cache delta data to external storage.
-		virtual void saveDelta(const cache::CatapultCacheDelta& cache) = 0;
-
-		/// Loads data from external storage into \a cache given the current chain height (\a chainHeight).
-		virtual void loadAll(cache::CatapultCache& cache, Height chainHeight) const = 0;
+		/// Saves cache \a changes to external storage.
+		virtual void saveDelta(const cache::CacheChanges& changes) = 0;
 
 	private:
 		std::string m_name;
 		size_t m_id;
 	};
 
-	/// Typed interface for loading and saving cache data to external storage.
+	/// Typed interface for saving cache data to external storage.
 	template<typename TCache>
 	class ExternalCacheStorageT : public ExternalCacheStorage {
-	protected:
-		/// Load checkpoint function.
-		using LoadCheckpointFunc = action;
-
 	public:
 		/// Creates an external cache storage.
 		ExternalCacheStorageT() : ExternalCacheStorage(TCache::Name, TCache::Id)
 		{}
 
 	public:
-		void saveDelta(const cache::CatapultCacheDelta& cache) final override {
-			saveDelta(cache.sub<TCache>());
-		}
-
-		void loadAll(cache::CatapultCache& cache, Height chainHeight) const final override {
-			auto delta = cache.createDelta();
-			LoadCheckpointFunc checkpoint = [&cache, chainHeight]() { cache.commit(chainHeight); };
-			loadAll(delta.sub<TCache>(), chainHeight, checkpoint);
-			checkpoint();
+		void saveDelta(const cache::CacheChanges& changes) final override {
+			saveDelta(changes.sub<TCache>());
 		}
 
 	private:
-		/// Saves \a cache delta data to external storage.
-		virtual void saveDelta(const typename TCache::CacheDeltaType& cache) = 0;
+		using CacheChangesType = cache::SingleCacheChangesT<typename TCache::CacheDeltaType, typename TCache::CacheValueType>;
 
-		/// Loads data from external storage into \a cache given the current chain height (\a chainHeight)
-		/// with optional checkpoints created by calling \a checkpoint.
-		virtual void loadAll(typename TCache::CacheDeltaType& cache, Height chainHeight, const LoadCheckpointFunc& checkpoint) const = 0;
+		/// Saves cache \a changes to external storage.
+		virtual void saveDelta(const CacheChangesType& changes) = 0;
 	};
 }}

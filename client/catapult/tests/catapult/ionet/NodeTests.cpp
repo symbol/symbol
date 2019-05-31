@@ -94,7 +94,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanCreateCustomNode) {
 		// Act:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		Node node(key, { "bob.com", 1234 }, { model::NetworkIdentifier::Mijin_Test, "bob", NodeVersion(7), NodeRoles::Peer });
 
 		// Assert:
@@ -117,8 +117,8 @@ namespace catapult { namespace ionet {
 		const char* Default_Key = "default";
 
 		std::unordered_map<std::string, Node> GenerateEqualityInstanceMap() {
-			auto key1 = test::GenerateRandomData<Key_Size>();
-			auto key2 = test::GenerateRandomData<Key_Size>();
+			auto key1 = test::GenerateRandomByteArray<Key>();
+			auto key2 = test::GenerateRandomByteArray<Key>();
 			auto networkIdentifier1 = static_cast<model::NetworkIdentifier>(0x25);
 			auto networkIdentifier2 = static_cast<model::NetworkIdentifier>(0x26);
 			return {
@@ -165,7 +165,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanOutputNodeWithName) {
 		// Arrange:
-		Node node({ test::GenerateRandomData<Key_Size>(), { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
+		Node node({ test::GenerateRandomByteArray<Key>(), { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
 
 		// Assert:
 		AssertOutputOperator(node, "alice @ bob.com:1234");
@@ -174,7 +174,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanOutputNodeWithUnprintableNameCharacters) {
 		// Arrange:
 		std::string name = "al\a" + std::string(1, '\0') + "ce\t";
-		Node node({ test::GenerateRandomData<Key_Size>(), { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, name) });
+		Node node({ test::GenerateRandomByteArray<Key>(), { "bob.com", 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, name) });
 
 		// Assert:
 		AssertOutputOperator(node, "al??ce? @ bob.com:1234");
@@ -183,7 +183,7 @@ namespace catapult { namespace ionet {
 	TEST(TEST_CLASS, CanOutputNodeWithUnprintableHostCharacters) {
 		// Arrange:
 		std::string host = "bo\a" + std::string(1, '\0') + "b.co\tm";
-		Node node({ test::GenerateRandomData<Key_Size>(), { host, 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
+		Node node({ test::GenerateRandomByteArray<Key>(), { host, 1234 }, NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
 
 		// Assert:
 		AssertOutputOperator(node, "alice @ bo??b.co?m:1234");
@@ -212,7 +212,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, CanOutputNodeWithoutHost) {
 		// Assert:
-		Node node({ test::GenerateRandomData<Key_Size>(), NodeEndpoint(), NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
+		Node node({ test::GenerateRandomByteArray<Key>(), NodeEndpoint(), NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
 		AssertOutputOperator(node, "alice");
 	}
 
@@ -222,7 +222,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, Hasher_EqualNodesWithSameKeyReturnSameHash) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		Node node1({ key, NodeEndpoint(), NodeMetadata() });
 		Node node2({ key, NodeEndpoint(), NodeMetadata() });
 
@@ -239,7 +239,7 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, Hasher_UnequalNodesWithSameKeyReturnSameHash) {
 		// Arrange:
-		auto key = test::GenerateRandomData<Key_Size>();
+		auto key = test::GenerateRandomByteArray<Key>();
 		Node node1({ key, NodeEndpoint(), NodeMetadata(model::NetworkIdentifier::Zero) });
 		Node node2({ key, NodeEndpoint(), NodeMetadata(model::NetworkIdentifier::Mijin) });
 
@@ -256,8 +256,8 @@ namespace catapult { namespace ionet {
 
 	TEST(TEST_CLASS, Hasher_NodesWithDifferentKeysReturnDifferentHash) {
 		// Arrange:
-		Node node1({ test::GenerateRandomData<Key_Size>(), NodeEndpoint(), NodeMetadata() });
-		Node node2({ test::GenerateRandomData<Key_Size>(), NodeEndpoint(), NodeMetadata() });
+		Node node1({ test::GenerateRandomByteArray<Key>(), NodeEndpoint(), NodeMetadata() });
+		Node node2({ test::GenerateRandomByteArray<Key>(), NodeEndpoint(), NodeMetadata() });
 
 		// Act:
 		auto result1 = NodeHasher()(node1);

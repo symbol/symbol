@@ -50,7 +50,7 @@ namespace catapult { namespace api {
 			}
 
 			static void ValidateResponse(const ionet::Packet&, const ionet::Node& node) {
-				EXPECT_EQ(Key({ { 12 } }), node.identityKey());
+				EXPECT_EQ(Key{ { 12 } }, node.identityKey());
 				EXPECT_EQ("alice.com", node.endpoint().Host);
 				EXPECT_EQ(ionet::NodeVersion(1234), node.metadata().Version);
 				EXPECT_EQ("xyz", node.metadata().Name);
@@ -92,13 +92,13 @@ namespace catapult { namespace api {
 				});
 
 				EXPECT_EQ("alice", sortedNodes[0].metadata().Name);
-				EXPECT_EQ(Key({ { 12 } }), sortedNodes[0].identityKey());
+				EXPECT_EQ(Key{ { 12 } }, sortedNodes[0].identityKey());
 
 				EXPECT_EQ("bob", sortedNodes[1].metadata().Name);
-				EXPECT_EQ(Key({ { 25 } }), sortedNodes[1].identityKey());
+				EXPECT_EQ(Key{ { 25 } }, sortedNodes[1].identityKey());
 
 				EXPECT_EQ("charlie", sortedNodes[2].metadata().Name);
-				EXPECT_EQ(Key({ { 37 } }), sortedNodes[2].identityKey());
+				EXPECT_EQ(Key{ { 37 } }, sortedNodes[2].identityKey());
 			}
 		};
 

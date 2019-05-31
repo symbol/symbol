@@ -55,7 +55,8 @@ namespace catapult { namespace consumers {
 		public:
 			void checkHeader(InputSource expectedSource, const Key& expectedSourcePublicKey) {
 				auto source = static_cast<InputSource>(io::Read32(m_file));
-				auto sourcePublicKey = io::Read<Key>(m_file);
+				Key sourcePublicKey;
+				m_file.read(sourcePublicKey);
 
 				EXPECT_EQ(expectedSource, source) << m_filename;
 				EXPECT_EQ(expectedSourcePublicKey, sourcePublicKey) << m_filename;
@@ -65,7 +66,7 @@ namespace catapult { namespace consumers {
 				std::vector<uint8_t> entityBuffer(expectedEntity.Size);
 				m_file.read(entityBuffer);
 
-				EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(*entityBuffer.data()), expectedEntity) << m_filename;
+				EXPECT_EQ(reinterpret_cast<const model::VerifiableEntity&>(entityBuffer[0]), expectedEntity) << m_filename;
 			}
 
 			void checkEof() {
@@ -96,7 +97,7 @@ namespace catapult { namespace consumers {
 			RunAuditConsumerTest([rangeFactory, numEntities](const auto& consumer, const auto& auditDirectory) {
 				auto range = rangeFactory(numEntities);
 				auto rangeCopy = decltype(range)::CopyRange(range);
-				auto key = test::GenerateRandomData<Key_Size>();
+				auto key = test::GenerateRandomByteArray<Key>();
 
 				// Act:
 				using AnnotatedEntityRange = model::AnnotatedEntityRange<typename decltype(range)::value_type>;

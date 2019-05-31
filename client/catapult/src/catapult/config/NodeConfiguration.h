@@ -24,7 +24,6 @@
 #include "catapult/model/TransactionSelectionStrategy.h"
 #include "catapult/utils/FileSize.h"
 #include "catapult/utils/TimeSpan.h"
-#include <vector>
 
 namespace catapult { namespace utils { class ConfigurationBag; } }
 
@@ -47,6 +46,10 @@ namespace catapult { namespace config {
 
 		/// \c true if cache data should be saved in a database.
 		bool ShouldUseCacheDatabaseStorage;
+
+		/// \c true if temporary sync files should be automatically cleaned up.
+		/// \note This should be \c false if broker process is running.
+		bool ShouldEnableAutoSyncCleanup;
 
 		/// \c true if transaction spam throttling should be enabled.
 		bool ShouldEnableTransactionSpamThrottling;
@@ -118,9 +121,6 @@ namespace catapult { namespace config {
 		/// \c true if all dispatcher inputs should be audited.
 		bool ShouldAuditDispatcherInputs;
 
-		/// \c true if all transaction addresses should be extracted during dispatcher processing.
-		bool ShouldPrecomputeTransactionAddresses;
-
 		/// Security mode of outgoing connections initiated by this node.
 		ionet::ConnectionSecurityMode OutgoingSecurityMode;
 
@@ -132,10 +132,6 @@ namespace catapult { namespace config {
 
 		/// Maximum number of nodes to track in memory.
 		uint32_t MaxTrackedNodes;
-
-		/// Named extensions to enable.
-		/// \note Extensions need to registered in deterministic order so that cross extension dependencies can be wired up properly.
-		std::vector<std::string> Extensions;
 
 	public:
 		/// Local node configuration.

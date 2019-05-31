@@ -37,32 +37,42 @@ namespace catapult { namespace model {
 			sub.notify(test::CreateBlockNotification(transaction.Signer));
 		}
 
+		template<TransactionPluginFactoryOptions Options>
 		struct RegularTraits {
 			using TransactionType = mocks::MockTransaction;
 			static constexpr auto Min_Supported_Version = TransactionType::Current_Version;
 			static constexpr auto Max_Supported_Version = TransactionType::Current_Version;
 
 			static auto CreatePlugin() {
-				return TransactionPluginFactory::Create<mocks::MockTransaction, mocks::EmbeddedMockTransaction>(
+				return TransactionPluginFactory<Options>::template Create<mocks::MockTransaction, mocks::EmbeddedMockTransaction>(
 						Publish<mocks::MockTransaction>,
 						Publish<mocks::EmbeddedMockTransaction>);
 			}
 		};
 
+		using DefaultRegularTraits = RegularTraits<TransactionPluginFactoryOptions::Default>;
+		using OnlyEmbeddableRegularTraits = RegularTraits<TransactionPluginFactoryOptions::Only_Embeddable>;
+
+		template<TransactionPluginFactoryOptions Options>
 		struct EmbeddedTraits {
 			using TransactionType = mocks::EmbeddedMockTransaction;
 			static constexpr auto Min_Supported_Version = TransactionType::Current_Version;
 			static constexpr auto Max_Supported_Version = TransactionType::Current_Version;
 
 			static auto CreatePlugin() {
-				return TransactionPluginFactory::CreateEmbedded<mocks::EmbeddedMockTransaction>(Publish<mocks::EmbeddedMockTransaction>);
+				return TransactionPluginFactory<Options>::template CreateEmbedded<mocks::EmbeddedMockTransaction>(
+						Publish<mocks::EmbeddedMockTransaction>);
 			}
 		};
+
+		using DefaultEmbeddedTraits = EmbeddedTraits<TransactionPluginFactoryOptions::Default>;
+		using OnlyEmbeddableEmbeddedTraits = EmbeddedTraits<TransactionPluginFactoryOptions::Only_Embeddable>;
 	}
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_WITH_PREFIXED_TRAITS(TEST_CLASS, , , Mock_Transaction_Type)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Default, _Default, Mock_Transaction_Type)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ONLY_EMBEDDABLE(TEST_CLASS, OnlyEmbeddable, _OnlyEmbeddable, Mock_Transaction_Type)
 
-	PLUGIN_TEST(CanCalculateSize) {
+	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanCalculateSize, Default, _Default) {
 		// Arrange:
 		auto pPlugin = TTraits::CreatePlugin();
 
@@ -77,7 +87,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(sizeof(typename TTraits::TransactionType) + 100, realSize);
 	}
 
-	PLUGIN_TEST(CanPublishNotifications) {
+	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishNotifications, Default, _Default) {
 		// Arrange:
 		auto pPlugin = TTraits::CreatePlugin();
 

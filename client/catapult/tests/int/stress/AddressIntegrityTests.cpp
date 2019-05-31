@@ -46,7 +46,7 @@ namespace catapult {
 
 	namespace {
 		struct MijinTestNetworkTraits {
-			static const auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
+			static constexpr auto Network_Identifier = model::NetworkIdentifier::Mijin_Test;
 			static constexpr auto Nemesis_Private_Key = test::Mijin_Test_Nemesis_Private_Key;
 #ifdef SIGNATURE_SCHEME_NIS1
 			static constexpr auto Expected_Nemesis_Address = "SDXZPM4GUCEYAMMJH6QRPTRMEZ4JIXUU5W276BYK";

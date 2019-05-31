@@ -36,7 +36,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	private:
 		static void StreamLockMetadata(mappers::bson_stream::document& builder) {
-			builder << "meta"
+			builder
+					<< "meta"
 					<< mappers::bson_stream::open_document
 					<< mappers::bson_stream::close_document;
 		}

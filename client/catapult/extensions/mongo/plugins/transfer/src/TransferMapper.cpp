@@ -32,7 +32,8 @@ namespace catapult { namespace mongo { namespace plugins {
 			if (0 == messageSize)
 				return;
 
-			builder << "message"
+			builder
+					<< "message"
 					<< bson_stream::open_document
 						<< "type" << pMessage[0]
 						// cannot pass nullptr when 1 == messageSize because libbson asserts that data pointer is not null

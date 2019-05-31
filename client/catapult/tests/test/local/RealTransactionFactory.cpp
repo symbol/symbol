@@ -31,6 +31,7 @@
 #include "catapult/model/NetworkInfo.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/test/core/BlockTestUtils.h"
+#include "tests/test/nodeps/Nemesis.h"
 #include "tests/test/nodeps/Random.h"
 #include "tests/test/nodeps/TestConstants.h"
 #include <string.h>
@@ -78,7 +79,7 @@ namespace catapult { namespace test {
 			const UnresolvedAddress& recipient,
 			Amount amount) {
 		auto pTransaction = CreateUnsignedTransferTransaction(signer.publicKey(), recipient, amount);
-		extensions::SignTransaction(signer, *pTransaction);
+		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
 		return pTransaction;
 	}
 
@@ -103,7 +104,7 @@ namespace catapult { namespace test {
 		builder.setDuration(duration);
 		auto pTransaction = builder.build();
 
-		extensions::SignTransaction(signer, *pTransaction);
+		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
 		return std::move(pTransaction);
 	}
 
@@ -117,7 +118,7 @@ namespace catapult { namespace test {
 		builder.setAddress(address);
 		auto pTransaction = builder.build();
 
-		extensions::SignTransaction(signer, *pTransaction);
+		extensions::TransactionExtensions(GetNemesisGenerationHash()).sign(signer, *pTransaction);
 		return std::move(pTransaction);
 	}
 

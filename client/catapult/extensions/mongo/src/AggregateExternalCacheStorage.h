@@ -25,7 +25,7 @@
 
 namespace catapult { namespace mongo {
 
-	/// Aggregate for loading and saving cache data to external storage.
+	/// Aggregate for saving cache data to external storage.
 	class AggregateExternalCacheStorage : public ExternalCacheStorage {
 	public:
 		/// Container of sub cache storages.
@@ -39,14 +39,9 @@ namespace catapult { namespace mongo {
 		{}
 
 	public:
-		void saveDelta(const cache::CatapultCacheDelta& cache) override {
+		void saveDelta(const cache::CacheChanges& changes) override {
 			for (const auto& pStorage : m_storages)
-				pStorage->saveDelta(cache);
-		}
-
-		void loadAll(cache::CatapultCache& cache, Height chainHeight) const override {
-			for (const auto& pStorage : m_storages)
-				pStorage->loadAll(cache, chainHeight);
+				pStorage->saveDelta(changes);
 		}
 
 	private:

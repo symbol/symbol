@@ -58,8 +58,10 @@ namespace catapult { namespace test {
 	enum class CacheOrderingMode {
 		/// Cache is unordered.
 		Unordered,
+
 		/// Cache is ordered but has no insert / remove constraints.
 		Ordered,
+
 		/// Cache is strictly ordered and expects inserts and removes of consecutive elements.
 		Strictly_Ordered
 	};
@@ -503,7 +505,7 @@ namespace catapult { namespace test {
 			EXPECT_FALSE(view->contains(TTraits::MakeId(16)));
 		}
 
-		static void AssertCannotRemoveNonExistentValueFromCache() {
+		static void AssertCannotRemoveNonexistentValueFromCache() {
 			// Arrange:
 			CacheType cache;
 			detail::InsertMultiple<TTraits>(cache, { 9, 25, 16 });
@@ -531,7 +533,7 @@ namespace catapult { namespace test {
 	MAKE_CACHE_MUTATION_TEST(CACHE_TRAITS, VIEW_TRAITS, SUFFIX, CanInsertValueIntoCache) \
 	MAKE_CACHE_MUTATION_TEST(CACHE_TRAITS, VIEW_TRAITS, SUFFIX, CannotInsertExistingValueIntoCache) \
 	MAKE_CACHE_MUTATION_TEST(CACHE_TRAITS, VIEW_TRAITS, SUFFIX, CanRemoveValueFromCache) \
-	MAKE_CACHE_MUTATION_TEST(CACHE_TRAITS, VIEW_TRAITS, SUFFIX, CannotRemoveNonExistentValueFromCache)
+	MAKE_CACHE_MUTATION_TEST(CACHE_TRAITS, VIEW_TRAITS, SUFFIX, CannotRemoveNonexistentValueFromCache)
 
 	// endregion
 

@@ -224,7 +224,7 @@ namespace catapult { namespace observers {
 	TEST(TEST_CLASS, TEST_NAME##_Rollback) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RollbackTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	TRAITS_BASED_TEST(RecalculationIsBypassedIfImportanceHeightEqualsLastCalculationHeight) {
+	TRAITS_BASED_TEST(RecalculationIsBypassedWhenImportanceHeightEqualsLastCalculationHeight) {
 		// Assert:
 		auto mode = TTraits::Mode;
 		auto baseHeight = TTraits::Base_Height;
@@ -234,7 +234,7 @@ namespace catapult { namespace observers {
 		AssertNoRecalculation<TTraits>(mode, baseHeight, baseHeight + Height(Importance_Grouping - 1));
 	}
 
-	TRAITS_BASED_TEST(RecalculationIsTriggeredIfImportanceHeightIsNotEqualToLastCalculationHeight) {
+	TRAITS_BASED_TEST(RecalculationIsTriggeredWhenImportanceHeightIsNotEqualToLastCalculationHeight) {
 		// Assert:
 		auto mode = TTraits::Mode;
 		auto baseHeight = TTraits::Base_Height;

@@ -577,7 +577,7 @@ namespace catapult { namespace disruptor {
 		}
 	}
 
-	TEST(TEST_CLASS, DispatcherThrowsIfDisruptorSpaceIsExhausted) {
+	TEST(TEST_CLASS, DispatcherThrowsWhenDisruptorSpaceIsExhausted) {
 		// Act:
 		static constexpr auto Disruptor_Size = 8u;
 		RunDispatcherFullTest({ "ConsumerDispatcherTests", Disruptor_Size }, [](auto& dispatcher, const auto&) {
@@ -587,11 +587,11 @@ namespace catapult { namespace disruptor {
 		});
 	}
 
-	TEST(TEST_CLASS, DispatcherReturnsZeroIfDisruptorSpaceIsExhaustedAndShouldThrowIfFullIsFalse) {
+	TEST(TEST_CLASS, DispatcherReturnsZeroWhenDisruptorSpaceIsExhaustedAndShouldThrowWhenFullIsFalse) {
 		// Arrange:
 		static constexpr auto Disruptor_Size = 8u;
 		auto options = ConsumerDispatcherOptions{ "ConsumerDispatcherTests", Disruptor_Size };
-		options.ShouldThrowIfFull = false;
+		options.ShouldThrowWhenFull = false;
 
 		// Act:
 		RunDispatcherFullTest(options, [](auto& dispatcher, const auto&) {
@@ -609,7 +609,7 @@ namespace catapult { namespace disruptor {
 		// Arrange:
 		static constexpr auto Disruptor_Size = 8u;
 		auto options = ConsumerDispatcherOptions{ "ConsumerDispatcherTests", Disruptor_Size };
-		options.ShouldThrowIfFull = false;
+		options.ShouldThrowWhenFull = false;
 
 		// Act:
 		RunDispatcherFullTest(options, [](auto& dispatcher, auto& continueFlag) {
@@ -701,11 +701,11 @@ namespace catapult { namespace disruptor {
 		}
 	}
 
-	TEST(TEST_CLASS, DispatcherThrowsIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions_NoWrapAround) {
+	TEST(TEST_CLASS, DispatcherThrowsWhenDisruptorSpaceIsExhaustedEvenWhenOtherConsumersHaveNearbyPositions_NoWrapAround) {
 		AssertDeathIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions(1);
 	}
 
-	TEST(TEST_CLASS, DispatcherThrowsIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions_WrapAround) {
+	TEST(TEST_CLASS, DispatcherThrowsWhenDisruptorSpaceIsExhaustedEvenWhenOtherConsumersHaveNearbyPositions_WrapAround) {
 		AssertDeathIfDisruptorSpaceIsExhaustedEvenIfOtherConsumersHaveNearbyPositions(10);
 	}
 

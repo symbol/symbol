@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "catapult/config/LocalNodeConfiguration.h"
+#include "catapult/config/CatapultConfiguration.h"
 #include <string>
 
 namespace catapult { namespace test {
@@ -28,21 +28,18 @@ namespace catapult { namespace test {
 	void AddNemesisPluginExtensions(model::BlockChainConfiguration& config);
 
 	/// Adds configuration for all extensions required by api nodes to \a config.
-	void AddApiPluginExtensions(config::NodeConfiguration& config);
+	void AddApiPluginExtensions(config::ExtensionsConfiguration& config);
 
 	/// Adds configuration for all extensions required by p2p nodes to \a config.
-	void AddPeerPluginExtensions(config::NodeConfiguration& config);
+	void AddPeerPluginExtensions(config::ExtensionsConfiguration& config);
 
 	/// Adds configuration for all extensions required by simple partner nodes to \a config.
-	void AddSimplePartnerPluginExtensions(config::NodeConfiguration& config);
+	void AddSimplePartnerPluginExtensions(config::ExtensionsConfiguration& config);
 
-	/// Enables receipts verification on \a config.
-	void EnableReceiptsVerification(config::LocalNodeConfiguration& config);
+	/// Adds configuration for all extensions required by recovery process to \a config.
+	void AddRecoveryPluginExtensions(config::ExtensionsConfiguration& config);
 
-	/// Enables state verification on \a config.
-	void EnableStateVerification(config::LocalNodeConfiguration& config);
-
-	/// Creates a test configuration for a local node with a storage in the specified directory (\a dataDirectory)
+	/// Creates a test catapult configuration with a storage in the specified directory (\a dataDirectory)
 	/// that includes configuration for all plugins required by the default nemesis block.
-	config::LocalNodeConfiguration CreateLocalNodeConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory);
+	config::CatapultConfiguration CreateCatapultConfigurationWithNemesisPluginExtensions(const std::string& dataDirectory);
 }}

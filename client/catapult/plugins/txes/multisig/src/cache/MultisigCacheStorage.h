@@ -27,9 +27,7 @@ namespace catapult { namespace cache {
 
 	/// Policy for saving and loading multisig cache data.
 	struct MultisigCacheStorage
-			: public CacheStorageFromDescriptor<MultisigCacheDescriptor>
-			, public state::MultisigEntrySerializer {
-		/// Loads \a entry into \a cacheDelta.
-		static void LoadInto(const ValueType& entry, DestinationType& cacheDelta);
-	};
+			: public CacheStorageForBasicInsertRemoveCache<MultisigCacheDescriptor>
+			, public state::MultisigEntrySerializer
+	{};
 }}

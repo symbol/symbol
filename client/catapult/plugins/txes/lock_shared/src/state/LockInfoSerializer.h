@@ -31,7 +31,7 @@ namespace catapult { namespace state {
 	public:
 		/// Saves \a lockInfo to \a output.
 		static void Save(const TLockInfo& lockInfo, io::OutputStream& output){
-			io::Write(output, lockInfo.Account);
+			output.write(lockInfo.Account);
 			io::Write(output, lockInfo.MosaicId);
 			io::Write(output, lockInfo.Amount);
 			io::Write(output, lockInfo.Height);
@@ -42,7 +42,7 @@ namespace catapult { namespace state {
 		/// Loads a single value from \a input.
 	static TLockInfo Load(io::InputStream& input){
 			TLockInfo lockInfo;
-			io::Read(input, lockInfo.Account);
+			input.read(lockInfo.Account);
 			io::Read(input, lockInfo.MosaicId);
 			io::Read(input, lockInfo.Amount);
 			io::Read(input, lockInfo.Height);

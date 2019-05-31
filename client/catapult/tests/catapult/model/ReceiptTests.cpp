@@ -59,8 +59,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateBalanceTransferReceipt) {
 		// Arrange:
-		auto sender = test::GenerateRandomData<Key_Size>();
-		auto recipient = test::GenerateRandomData<Address_Decoded_Size>();
+		auto sender = test::GenerateRandomByteArray<Key>();
+		auto recipient = test::GenerateRandomByteArray<Address>();
 
 		// Act:
 		BalanceTransferReceipt receipt(static_cast<ReceiptType>(123), sender, recipient, MosaicId(88), Amount(452));
@@ -94,7 +94,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateBalanceChangeReceipt) {
 		// Arrange:
-		auto account = test::GenerateRandomData<Key_Size>();
+		auto account = test::GenerateRandomByteArray<Key>();
 
 		// Act:
 		BalanceChangeReceipt receipt(static_cast<ReceiptType>(124), account, MosaicId(88), Amount(452));
@@ -104,6 +104,34 @@ namespace catapult { namespace model {
 		EXPECT_EQ(1u, receipt.Version);
 		EXPECT_EQ(static_cast<ReceiptType>(124), receipt.Type);
 		EXPECT_EQ(account, receipt.Account);
+		EXPECT_EQ(MosaicId(88), receipt.MosaicId);
+		EXPECT_EQ(Amount(452), receipt.Amount);
+	}
+
+	// endregion
+
+	// region InflationReceipt
+
+	TEST(TEST_CLASS, InflationReceiptHasExpectedSize) {
+		// Arrange:
+		auto expectedSize =
+				sizeof(Receipt) // base
+				+ sizeof(MosaicId) // mosaic id
+				+ sizeof(Amount); // amount
+
+		// Assert:
+		EXPECT_EQ(expectedSize, sizeof(InflationReceipt));
+		EXPECT_EQ(8u + 16, sizeof(InflationReceipt));
+	}
+
+	TEST(TEST_CLASS, CanCreateInflationReceipt) {
+		// Act:
+		InflationReceipt receipt(static_cast<ReceiptType>(124), MosaicId(88), Amount(452));
+
+		// Assert:
+		ASSERT_EQ(sizeof(InflationReceipt), receipt.Size);
+		EXPECT_EQ(1u, receipt.Version);
+		EXPECT_EQ(static_cast<ReceiptType>(124), receipt.Type);
 		EXPECT_EQ(MosaicId(88), receipt.MosaicId);
 		EXPECT_EQ(Amount(452), receipt.Amount);
 	}
