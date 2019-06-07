@@ -24,6 +24,7 @@ const sinon = require('sinon');
 const test = require('./utils/routeTestUtils');
 
 const { convert } = catapult.utils;
+
 const { expect } = require('chai');
 
 const invalidObjectIdStrings = [

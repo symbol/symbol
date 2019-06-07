@@ -19,10 +19,15 @@
  */
 
 const catapult = require('catapult-sdk');
-const namespaceRoutes = require('../../../src/plugins/routes/namespaceRoutes');
+const MongoDb = require('mongodb');
+const namespaceRoutes = require('../../../src/plugins/namespace/namespaceRoutes');
+const namespaceUtils = require('../../../src/plugins/namespace/namespaceUtils');
+const sinon = require('sinon');
 const test = require('../../routes/utils/routeTestUtils');
+const { convertToLong } = require('../../../src/db/dbUtils');
 const { expect } = require('chai');
 
+const { Binary } = MongoDb;
 const { convert } = catapult.utils;
 const { address } = catapult.model;
 
@@ -276,5 +281,236 @@ describe('namespace routes', () => {
 			],
 			expectedNumDbQueries: 3
 		}));
+	});
+
+	describe('get mosaic names', () => {
+		describe('calls aliasNamesRoutesProcessor with correct params', () => {
+			it('is called once for each endpoint using it with correct parameters', () => {
+				// Arrange:
+				const aliasNamesRoutesProcessorSpy = sinon.spy(namespaceUtils, 'aliasNamesRoutesProcessor');
+				const routes = {};
+				const server = {
+					get: (path, handler) => { routes[path] = handler; },
+					post: (path, handler) => { routes[path] = handler; }
+				};
+
+				// Act:
+				namespaceRoutes.register(server, {}, {});
+
+				// Assert:
+				expect(aliasNamesRoutesProcessorSpy.calledTwice).to.equal(true);
+				expect(aliasNamesRoutesProcessorSpy.firstCall.args[1]).to.equal(catapult.model.namespace.aliasType.mosaic);
+				expect(aliasNamesRoutesProcessorSpy.firstCall.args[4]).to.equal('mosaicId');
+				expect(aliasNamesRoutesProcessorSpy.firstCall.args[5]).to.equal('mosaicNamesTuples');
+
+				aliasNamesRoutesProcessorSpy.restore();
+			});
+
+			describe('getParams parses mosaic ids correctly', () => {
+				const aliasNamesRoutesProcessorSpy = sinon.spy(namespaceUtils, 'aliasNamesRoutesProcessor');
+				const routes = {};
+				const server = {
+					get: (path, handler) => { routes[path] = handler; },
+					post: (path, handler) => { routes[path] = handler; }
+				};
+
+				namespaceRoutes.register(server, {}, {});
+				const getParams = aliasNamesRoutesProcessorSpy.firstCall.args[2];
+				aliasNamesRoutesProcessorSpy.restore();
+
+				it('parses mosaic ids correctly', () => {
+					// Arrange:
+					const req = { params: { mosaicIds: ['78A4895CB6653DE4', '56AB67FF45468988'] } };
+
+					// Act + Assert:
+					expect(getParams(req)).to.deep.equal([[0xB6653DE4, 0x78A4895C], [0x45468988, 0x56AB67FF]]);
+				});
+
+				it('parses empty mosaic ids list correctly', () => {
+					// Arrange:
+					const req = { params: { mosaicIds: [] } };
+
+					// Act + Assert:
+					expect(getParams(req)).to.deep.equal([]);
+				});
+
+				it('returns 409 if provided mosaic id is invalid', () => {
+					// Arrange:
+					const req = { params: { mosaicIds: ['78A4895CB6653DE4', '123XXX', '56AB67FF45468988'] } };
+
+					// Act + Assert:
+					expect(() => { getParams(req); })
+						.to.throw('element in array mosaicIds has an invalid format');
+				});
+			});
+
+			describe('namespaceFilter filters namespaces correctly', () => {
+				const aliasNamesRoutesProcessorSpy = sinon.spy(namespaceUtils, 'aliasNamesRoutesProcessor');
+				const routes = {};
+				const server = {
+					get: (path, handler) => { routes[path] = handler; },
+					post: (path, handler) => { routes[path] = handler; }
+				};
+
+				namespaceRoutes.register(server, {}, {});
+				const namespaceFilter = aliasNamesRoutesProcessorSpy.firstCall.args[3];
+				aliasNamesRoutesProcessorSpy.restore();
+
+				it('filters namespaces aliasing mosaicId correctly', () => {
+					// Arrange:
+					const id = 12345;
+					const namespace1 = {
+						namespace: { alias: { mosaicId: convertToLong(id) } }
+					};
+
+					// Act + Assert:
+					expect(namespaceFilter(namespace1, convertToLong(id))).to.equal(true);
+					expect(namespaceFilter(namespace1, convertToLong(id + 1))).to.equal(false);
+				});
+			});
+		});
+	});
+
+	describe('get account names', () => {
+		describe('calls aliasNamesRoutesProcessor with correct params', () => {
+			const testAddress = {
+				one: 'SBZ22LWA7GDZLPLQF7PXTMNLWSEZ7ZRVGRMWLXWV',
+				two: 'SCFZFP7N5C3P6EHP5D2UJ7GQD7Q7ZIENV4NZ6ELN'
+			};
+			const testPublicKey = {
+				one: '7DE16AEDF57EB9561D3E6EFA4AE66F27ABDA8AEC8BC020B6277360E31619DCE7',
+				two: 'E6B9584AA679CADAD6569F04CD624054C0946EC49057E7AE394CEB510B606467'
+			};
+
+			it('is called once for each endpoint using it with correct parameters', () => {
+				// Arrange:
+				const aliasNamesRoutesProcessorSpy = sinon.spy(namespaceUtils, 'aliasNamesRoutesProcessor');
+				const routes = {};
+				const server = {
+					get: (path, handler) => { routes[path] = handler; },
+					post: (path, handler) => { routes[path] = handler; }
+				};
+
+				// Act:
+				namespaceRoutes.register(server, {});
+
+				// Assert:
+				expect(aliasNamesRoutesProcessorSpy.calledTwice).to.equal(true);
+				expect(aliasNamesRoutesProcessorSpy.secondCall.args[1]).to.equal(catapult.model.namespace.aliasType.address);
+				expect(aliasNamesRoutesProcessorSpy.secondCall.args[4]).to.equal('address');
+				expect(aliasNamesRoutesProcessorSpy.secondCall.args[5]).to.equal('accountNamesTuples');
+
+				aliasNamesRoutesProcessorSpy.restore();
+			});
+
+			describe('getParams parses addresses and public keys correctly', () => {
+				const aliasNamesRoutesProcessorSpy = sinon.spy(namespaceUtils, 'aliasNamesRoutesProcessor');
+				const routes = {};
+				const server = {
+					get: (path, handler) => { routes[path] = handler; },
+					post: (path, handler) => { routes[path] = handler; }
+				};
+				const services = {
+					config: { network: { name: 'mijinTest' } }
+				};
+
+				namespaceRoutes.register(server, {}, services);
+				const getParams = aliasNamesRoutesProcessorSpy.secondCall.args[2];
+				aliasNamesRoutesProcessorSpy.restore();
+
+				it('parses public keys correctly', () => {
+					// Arrange:
+					const req = { params: { publicKeys: [testPublicKey.one, testPublicKey.two] } };
+
+					// Act + Assert:
+					expect(getParams(req)).to.deep.equal([
+						address.stringToAddress(testAddress.one),
+						address.stringToAddress(testAddress.two)
+					]);
+				});
+
+				it('parses addresses correctly', () => {
+					// Arrange:
+					const req = { params: { addresses: [testAddress.one, testAddress.two] } };
+
+					// Act + Assert:
+					expect(getParams(req)).to.deep.equal([
+						address.stringToAddress(testAddress.one),
+						address.stringToAddress(testAddress.two)
+					]);
+				});
+
+				it('parses empty public keys list correctly', () => {
+					// Arrange:
+					const req = { params: { publicKeys: [] } };
+
+					// Act + Assert:
+					expect(getParams(req)).to.deep.equal([]);
+				});
+
+				it('parses empty addresses list correctly', () => {
+					// Arrange:
+					const req = { params: { addresses: [] } };
+
+					// Act + Assert:
+					expect(getParams(req)).to.deep.equal([]);
+				});
+
+				it('does not support publicKeys and addresses provided at the same time', () => {
+					// Arrange:
+					const req = { params: { publicKeys: [], addresses: [] } };
+
+					// Act + Assert:
+					expect(() => { getParams(req); })
+						.to.throw('publicKeys and addresses cannot both be provided');
+				});
+
+				it('returns 409 if public keys are invalid', () => {
+					// Arrange:
+					const req = { params: { publicKeys: [testPublicKey.one, '12345ABCDE'] } };
+
+					// Act + Assert:
+					expect(() => { getParams(req); })
+						.to.throw('element in array publicKeys has an invalid format');
+				});
+
+				it('returns 409 if addresses are invalid', () => {
+					// Arrange:
+					const req = { params: { addresses: [testAddress.one, '12345ABCDE'] } };
+
+					// Act + Assert:
+					expect(() => { getParams(req); })
+						.to.throw('element in array addresses has an invalid format');
+				});
+			});
+
+			describe('namespaceFilter filters namespaces correctly', () => {
+				const aliasNamesRoutesProcessorSpy = sinon.spy(namespaceUtils, 'aliasNamesRoutesProcessor');
+				const routes = {};
+				const server = {
+					get: (path, handler) => { routes[path] = handler; },
+					post: (path, handler) => { routes[path] = handler; }
+				};
+
+				namespaceRoutes.register(server, {});
+				const namespaceFilter = aliasNamesRoutesProcessorSpy.secondCall.args[3];
+				aliasNamesRoutesProcessorSpy.restore();
+
+				it('filters namespaces aliasing addresses correctly', () => {
+					// Arrange:
+					const id = address.stringToAddress(testAddress.one);
+					const namespace1 = {
+						namespace: { alias: { address: new Binary(Buffer.from(id)) } }
+					};
+					const namespace2 = {
+						namespace: { alias: { address: new Binary(Buffer.from(id)) } }
+					};
+
+					// Act + Assert:
+					expect(namespaceFilter(namespace1, address.stringToAddress(testAddress.one))).to.equal(true);
+					expect(namespaceFilter(namespace2, address.stringToAddress(testAddress.two))).to.equal(false);
+				});
+			});
+		});
 	});
 });

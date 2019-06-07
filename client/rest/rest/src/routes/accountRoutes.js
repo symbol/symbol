@@ -52,7 +52,6 @@ module.exports = {
 				.then(sender.sendArray(idOptions.keyName, res, next));
 		});
 
-
 		const transactionStates = [
 			{ dbPostfix: 'All', routePostfix: '' },
 			{ dbPostfix: 'Incoming', routePostfix: '/incoming' },

@@ -20,13 +20,19 @@
 
 const AccountType = require('../AccountType');
 const catapult = require('catapult-sdk');
+const dbUtils = require('../../db/dbUtils');
 const errors = require('../../server/errors');
+const MongoDb = require('mongodb');
+const namespaceUtils = require('./namespaceUtils');
 const routeUtils = require('../../routes/routeUtils');
 
+const { address, networkInfo } = catapult.model;
+const { Binary } = MongoDb;
+const { convertToLong } = dbUtils;
 const { uint64 } = catapult.utils;
 
 module.exports = {
-	register: (server, db) => {
+	register: (server, db, services) => {
 		const namespaceSender = routeUtils.createSender('namespaceDescriptor');
 
 		server.get('/namespace/:namespaceId', (req, res, next) => {
@@ -92,5 +98,41 @@ module.exports = {
 
 			return nameTuplesFuture.then(routeUtils.createSender('namespaceNameTuple').sendArray('namespaceIds', res, next));
 		});
+
+		server.post('/mosaic/names', namespaceUtils.aliasNamesRoutesProcessor(
+			db,
+			catapult.model.namespace.aliasType.mosaic,
+			req => routeUtils.parseArgumentAsArray(req.params, 'mosaicIds', uint64.fromHex),
+			(namespace, id) => namespace.namespace.alias.mosaicId.equals(convertToLong(id)),
+			'mosaicId',
+			'mosaicNamesTuples'
+		));
+
+		const accountIdToAddress = (type, accountId) => ((AccountType.publicKey === type)
+			? address.publicKeyToAddress(accountId, networkInfo.networks[services.config.network.name].id)
+			: accountId);
+
+		const getParams = req => {
+			if (req.params.publicKeys && req.params.addresses)
+				throw errors.createInvalidArgumentError('publicKeys and addresses cannot both be provided');
+
+			const idOptions = Array.isArray(req.params.publicKeys)
+				? { keyName: 'publicKeys', parserName: 'publicKey', type: AccountType.publicKey }
+				: { keyName: 'addresses', parserName: 'address', type: AccountType.address };
+
+			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
+
+			return accountIds.map(accountId => accountIdToAddress(idOptions.type, accountId));
+		};
+
+		server.post('/account/names', namespaceUtils.aliasNamesRoutesProcessor(
+			db,
+			catapult.model.namespace.aliasType.address,
+			getParams,
+			(namespace, id) => Buffer.from(namespace.namespace.alias.address.value())
+				.equals(Buffer.from(new Binary(Buffer.from(id)).value())),
+			'address',
+			'accountNamesTuples',
+		));
 	}
 };

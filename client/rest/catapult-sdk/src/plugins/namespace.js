@@ -95,6 +95,24 @@ const namespacePlugin = {
 			name: ModelType.string,
 			parentId: ModelType.uint64
 		});
+
+		builder.addSchema('mosaicNamesTuples', {
+			mosaicNames: { type: ModelType.array, schemaName: 'mosaicNamesTuple' }
+		});
+
+		builder.addSchema('mosaicNamesTuple', {
+			mosaicId: ModelType.uint64,
+			names: { type: ModelType.array, schemaName: ModelType.string }
+		});
+
+		builder.addSchema('accountNamesTuples', {
+			accountNames: { type: ModelType.array, schemaName: 'accountNamesTuple' }
+		});
+
+		builder.addSchema('accountNamesTuple', {
+			address: ModelType.binary,
+			names: { type: ModelType.array, schemaName: ModelType.string }
+		});
 	},
 
 	registerCodecs: codecBuilder => {

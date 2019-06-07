@@ -19,7 +19,9 @@
  */
 
 const AccountType = require('../AccountType');
+const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
+const { convertToLong } = require('../../db/dbUtils');
 
 const { Long } = MongoDb;
 
@@ -79,7 +81,47 @@ class NamespaceDb {
 			.then(this.catapultDb.sanitizer.copyAndDeleteIds);
 	}
 
+	/**
+	 * Retrieves non expired namespaces aliasing mosaics or addresses.
+	 * @param {Array.<module:catapult.model.namespace/aliasType>} aliasType The alias type.
+	 * @param {*} ids Set of mosaic or address ids.
+	 * @returns {Promise.<array>} Active namespaces aliasing ids.
+	 */
+	activeNamespacesWithAlias(aliasType, ids) {
+		const aliasFilterCondition = {
+			[catapult.model.namespace.aliasType.mosaic]: () => ({ 'namespace.alias.mosaicId': { $in: ids.map(convertToLong) } }),
+			[catapult.model.namespace.aliasType.address]: () => ({ 'namespace.alias.address': { $in: ids.map(id => Buffer.from(id)) } })
+		};
+
+		return this.catapultDb.database.collection('blocks').count()
+			.then(numBlocks => {
+				const conditions = { $and: [] };
+				conditions.$and.push(aliasFilterCondition[aliasType]());
+				conditions.$and.push({ 'namespace.alias.type': aliasType });
+				conditions.$and.push({
+					$or: [
+						{ 'namespace.endHeight': convertToLong(-1) },
+						{ 'namespace.endHeight': { $gt: numBlocks } }]
+				});
+
+				return this.catapultDb.queryDocuments('namespaces', conditions);
+			});
+	}
+
 	// endregion
+
+	/**
+	 * Retrieves transactions that registered the specified namespaces.
+	 * @param {Array.<module:catapult.utils/uint64~uint64>} namespaceIds The namespaces ids.
+	 * @returns {Promise.<array>} Register namespace transactions.
+	 */
+	registerNamespaceTransactionsByNamespaceIds(namespaceIds) {
+		const type = catapult.model.EntityType.registerNamespace;
+		const conditions = { $and: [] };
+		conditions.$and.push({ 'transaction.namespaceId': { $in: namespaceIds } });
+		conditions.$and.push({ 'transaction.type': type });
+		return this.catapultDb.queryDocuments('transactions', conditions);
+	}
 }
 
 module.exports = NamespaceDb;

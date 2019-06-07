@@ -19,7 +19,7 @@
  */
 
 const namespace = require('../../src/plugins/namespace');
-const NamespaceDb = require('../../src/plugins/db/NamespaceDb');
+const NamespaceDb = require('../../src/plugins/namespace/NamespaceDb');
 const pluginTest = require('./utils/pluginTestUtils');
 const test = require('../routes/utils/routeTestUtils');
 
@@ -55,7 +55,9 @@ describe('namespace plugin', () => {
 			// Assert:
 			test.assert.assertRoutes(routes, [
 				'/account/namespaces',
-				'/namespace/names'
+				'/namespace/names',
+				'/mosaic/names',
+				'/account/names'
 			]);
 		});
 	});

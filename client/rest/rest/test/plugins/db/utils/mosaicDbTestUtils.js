@@ -19,13 +19,11 @@
  */
 
 const dbTestUtils = require('../../../db/utils/dbTestUtils');
-const dbUtils = require('../../../../src/db/dbUtils');
 const MongoDb = require('mongodb');
 const MosaicDb = require('../../../../src/plugins/db/MosaicDb');
 const test = require('../../../testUtils');
 
 const { Binary, Long } = MongoDb;
-const { convertToLong } = dbUtils;
 
 const createMosaic = (id, mosaicId, owner, parentId) => {
 	// mosaic data
@@ -51,57 +49,12 @@ const createMosaics = (owner, numNamespaces, numMosaicsPerNamespace) => {
 	return mosaics;
 };
 
-const createNamespace = (namespaceId, mosaicId, aliasType, depth, lifetime) => ({
-	namespace: {
-		depth,
-		level0: 1 >= depth ? convertToLong(namespaceId) : '',
-		level1: 2 === depth ? convertToLong(namespaceId) : '',
-		level2: 3 === depth ? convertToLong(namespaceId) : '',
-		alias: {
-			type: aliasType,
-			mosaicId: convertToLong(mosaicId)
-		},
-		startHeight: convertToLong(lifetime.start),
-		endHeight: convertToLong(lifetime.end)
-	}
-});
-
-const createRegisterNamespaceTransaction = (namespaceId, type, name) => ({
-	transaction: {
-		type,
-		namespaceId: convertToLong(namespaceId),
-		name
-	}
-});
-
 const mosaicDbTestUtils = {
 	db: {
 		createMosaic,
 		createMosaics,
 		runDbTest: (dbEntities, issueDbCommand, assertDbCommandResult) =>
 			dbTestUtils.db.runDbTest(dbEntities, 'mosaics', db => new MosaicDb(db), issueDbCommand, assertDbCommandResult)
-	},
-	namespacesDb: {
-		createNamespace,
-		runDbTest: (dbEntities, issueDbCommand, assertDbCommandResult) =>
-			dbTestUtils.db.runDbTest(
-				dbEntities,
-				'namespaces',
-				db => new MosaicDb(db),
-				issueDbCommand,
-				assertDbCommandResult
-			)
-	},
-	registerNamespaceTransactionDb: {
-		createRegisterNamespaceTransaction,
-		runDbTest: (dbEntities, issueDbCommand, assertDbCommandResult) =>
-			dbTestUtils.db.runDbTest(
-				dbEntities,
-				'transactions',
-				db => new MosaicDb(db),
-				issueDbCommand,
-				assertDbCommandResult
-			)
 	}
 };
 Object.assign(mosaicDbTestUtils, test);

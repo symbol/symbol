@@ -46,15 +46,13 @@ describe('mosaic plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 7);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 5);
 			expect(modelSchema).to.contain.all.keys(
 				'mosaicDefinition',
 				'mosaicDefinition.mosaicProperty',
 				'mosaicDescriptor',
 				'mosaicDescriptor.mosaic',
-				'mosaicSupplyChange',
-				'mosaicNamesTuples',
-				'mosaicNamesTuple'
+				'mosaicSupplyChange'
 			);
 
 			// - mosaic definition
@@ -78,14 +76,6 @@ describe('mosaic plugin', () => {
 			// - mosaic supply change
 			expect(Object.keys(modelSchema.mosaicSupplyChange).length).to.equal(Object.keys(modelSchema.transaction).length + 2);
 			expect(modelSchema.mosaicSupplyChange).to.contain.all.keys(['mosaicId', 'delta']);
-
-			// - mosaic names tuples
-			expect(Object.keys(modelSchema.mosaicNamesTuples).length).to.equal(1);
-			expect(modelSchema.mosaicNamesTuples).to.contain.all.keys(['mosaicNames']);
-
-			// - mosaic names tuple
-			expect(Object.keys(modelSchema.mosaicNamesTuple).length).to.equal(2);
-			expect(modelSchema.mosaicNamesTuple).to.contain.all.keys(['mosaicId', 'names']);
 		});
 	});
 

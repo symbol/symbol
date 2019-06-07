@@ -19,8 +19,8 @@
  */
 
 /** @module plugins/namespace */
-const NamespaceDb = require('./db/NamespaceDb');
-const namespaceRoutes = require('./routes/namespaceRoutes');
+const NamespaceDb = require('./namespace/NamespaceDb');
+const namespaceRoutes = require('./namespace/namespaceRoutes');
 
 /**
  * Creates a namespace plugin.
