@@ -93,8 +93,7 @@ const receiptsPlugin = {
 		builder.addSchema('receipts.unknown', {});
 	},
 
-	/* eslint-disable-next-line no-unused-vars */
-	registerCodecs: codecBuilder => {}
+	registerCodecs: () => {}
 };
 
 module.exports = receiptsPlugin;
