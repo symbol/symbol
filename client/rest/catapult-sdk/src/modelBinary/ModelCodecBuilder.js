@@ -89,8 +89,8 @@ class ModelCodecBuilder {
 
 	/**
 	 * Adds support for a typed transaction.
-	 * @param {module:model/EntityType} type The transaction type.
-	 * @param {object} codec The transaction codec.
+	 * @param {module:model/EntityType} type Transaction type.
+	 * @param {object} codec Transaction codec.
 	 */
 	addTransactionSupport(type, codec) {
 		if (isBlockType(type) || this.codecs[type])
@@ -101,7 +101,7 @@ class ModelCodecBuilder {
 
 	/**
 	 * Builds and returns an appropriate aggregate model codec.
-	 * @returns {module:modelBinary/AggregateModelCodec} The aggregate model codec.
+	 * @returns {module:modelBinary/AggregateModelCodec} Aggregate model codec.
 	 */
 	build() {
 		const txCodecs = this.codecs;

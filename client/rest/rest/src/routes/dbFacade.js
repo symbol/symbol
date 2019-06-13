@@ -30,10 +30,10 @@ module.exports = {
 
 	/**
 	 * Runs a database operation that is dependent on current chain height.
-	 * @param {module:db/CatapultDb} db The catapult database.
-	 * @param {numeric} height The request height.
-	 * @param {function} operation The height-dependent operation that returns a promise.
-	 * @returns {object} The operation result if the request height is no greater than the chain height, undefined otherwise.
+	 * @param {module:db/CatapultDb} db Catapult database.
+	 * @param {numeric} height Request height.
+	 * @param {function} operation Height-dependent operation that returns a promise.
+	 * @returns {object} Operation result if the request height is no greater than the chain height, undefined otherwise.
 	 */
 	runHeightDependentOperation: (db, height, operation) => {
 		// notice that both the chain height and height-dependent operation are started at the same time in order to
@@ -53,7 +53,7 @@ module.exports = {
 
 	/**
 	 * Retrieves transaction statuses by specified hashes.
-	 * @param {module:db/CatapultDb} db The catapult database.
+	 * @param {module:db/CatapultDb} db Catapult database.
 	 * @param {array} hashes Hashes of transactions to query.
 	 * @param {array} additionalTransactionStates Additional transaction states.
 	 * @returns {Promise.<array>} Array of failed, unconfirmed and confirmed transactions.

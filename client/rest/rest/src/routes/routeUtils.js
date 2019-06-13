@@ -89,10 +89,10 @@ const namedParserMap = {
 const routeUtils = {
 	/**
 	 * Parses an argument and throws an invalid argument error if it is invalid.
-	 * @param {object} args The container containing the argument to parse.
-	 * @param {string} key The name of the argument to parse.
-	 * @param {Function|string} parser The parser to use or the name of a named parser.
-	 * @returns {object} The parsed value.
+	 * @param {object} args Container containing the argument to parse.
+	 * @param {string} key Name of the argument to parse.
+	 * @param {Function|string} parser Parser to use or the name of a named parser.
+	 * @returns {object} Parsed value.
 	 */
 	parseArgument: (args, key, parser) => {
 		try {
@@ -104,10 +104,10 @@ const routeUtils = {
 
 	/**
 	 * Parses an argument as an array and throws an invalid argument error if any element is invalid.
-	 * @param {object} args The container containing the argument to parse.
-	 * @param {string} key The name of the argument to parse.
-	 * @param {Function|string} parser The parser to use or the name of a named parser.
-	 * @returns {object} The array with parsed values.
+	 * @param {object} args Container containing the argument to parse.
+	 * @param {string} key Name of the argument to parse.
+	 * @param {Function|string} parser Parser to use or the name of a named parser.
+	 * @returns {object} Array with parsed values.
 	 */
 	parseArgumentAsArray: (args, key, parser) => {
 		const realParser = 'string' === typeof parser ? namedParserMap[parser] : parser;
@@ -123,8 +123,8 @@ const routeUtils = {
 
 	/**
 	 * Parses optional paging arguments and throws an invalid argument error if any is invalid.
-	 * @param {object} args The arguments to parse.
-	 * @returns {object} The parsed paging options.
+	 * @param {object} args Arguments to parse.
+	 * @returns {object} Parsed paging options.
 	 */
 	parsePagingArguments: args => {
 		const parsedOptions = { id: undefined, pageSize: 0 };
@@ -145,8 +145,8 @@ const routeUtils = {
 
 	/**
 	 * Generates valid page sizes from page size config.
-	 * @param {object} config The page size config.
-	 * @returns {object} The valid limits.
+	 * @param {object} config Page size config.
+	 * @returns {object} Valid limits.
 	 */
 	generateValidPageSizes: config => {
 		const pageSizes = [];
@@ -162,15 +162,15 @@ const routeUtils = {
 
 	/**
 	 * Creates a sender for forwarding one or more objects of a given type.
-	 * @param {module:routes/routeResultTypes} type The object type.
-	 * @returns {object} The sender.
+	 * @param {module:routes/routeResultTypes} type Object type.
+	 * @returns {object} Sender.
 	 */
 	createSender: type => ({
 		/**
 		 * Creates an array handler that forwards an array.
-		 * @param {object} id The array identifier.
-		 * @param {object} res The restify response object.
-		 * @param {Function} next The restify next callback handler.
+		 * @param {object} id Array identifier.
+		 * @param {object} res Restify response object.
+		 * @param {Function} next Restify next callback handler.
 		 * @returns {Function} An appropriate array handler.
 		 */
 		sendArray(id, res, next) {
@@ -187,9 +187,9 @@ const routeUtils = {
 		/**
 		 * Creates an object handler that either forwards an object corresponding to an identifier
 		 * or sends a not found error if no such object exists.
-		 * @param {object} id The object identifier.
-		 * @param {object} res The restify response object.
-		 * @param {Function} next The restify next callback handler.
+		 * @param {object} id Object identifier.
+		 * @param {object} res Restify response object.
+		 * @param {Function} next Restify next callback handler.
 		 * @returns {Function} An appropriate object handler.
 		 */
 		sendOne(id, res, next) {
@@ -217,11 +217,11 @@ const routeUtils = {
 
 	/**
 	 * Adds GET and POST routes for looking up documents of a single type.
-	 * @param {object} server The server on which to register the routes.
-	 * @param {object} sender The sender to use for sending the results.
+	 * @param {object} server Server on which to register the routes.
+	 * @param {object} sender Sender to use for sending the results.
 	 * @param {object} routeInfo Information about the routes.
 	 * @param {Function} documentRetriever Lookup function for retrieving the documents.
-	 * @param {Function|string} parser The parser to use or the name of a named parser.
+	 * @param {Function|string} parser Parser to use or the name of a named parser.
 	 */
 	addGetPostDocumentRoutes: (server, sender, routeInfo, documentRetriever, parser) => {
 		const routes = {
@@ -246,10 +246,10 @@ const routeUtils = {
 
 	/**
 	 * Adds PUT route for sending a packet to an api server.
- 	 * @param {object} server The server on which to register the routes.
- 	 * @param {object} connections The api server connection pool.
+ 	 * @param {object} server Server on which to register the routes.
+ 	 * @param {object} connections Api server connection pool.
 	 * @param {object} routeInfo Information about the route.
-	 * @param {Function} parser The parser to use to parse the route parameters into a packet payload.
+	 * @param {Function} parser Parser to use to parse the route parameters into a packet payload.
 	 */
 	addPutPacketRoute: (server, connections, routeInfo, parser) => {
 		const createPacketFromBuffer = (data, packetType) => {
@@ -272,10 +272,10 @@ const routeUtils = {
 
 	/**
 	 * Returns function for processing merkle tree path requests.
-	 * @param {module:db/CatapultDb} db The catapult database.
+	 * @param {module:db/CatapultDb} db Catapult database.
 	 * @param {string} blockMetaCountField Field name for block meta count.
 	 * @param {string} blockMetaTreeField Field name for block meta merkle tree.
-	 * @returns {Function} The restify response function to process merkle path requests.
+	 * @returns {Function} Restify response function to process merkle path requests.
 	 */
 	blockRouteMerkleProcessor: (db, blockMetaCountField, blockMetaTreeField) => (req, res, next) => {
 		const height = routeUtils.parseArgument(req.params, 'height', 'uint');

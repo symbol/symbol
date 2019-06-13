@@ -74,8 +74,8 @@ const decodeBlock = (input, inputOffset, output, outputOffset) => {
 const base32 = {
 	/**
 	 * Base32 encodes a binary buffer.
-	 * @param {Uint8Array} data The binary data to encode.
-	 * @returns {string} The base32 encoded string corresponding to the input data.
+	 * @param {Uint8Array} data Binary data to encode.
+	 * @returns {string} Base32 encoded string corresponding to the input data.
 	 */
 	encode: data => {
 		if (0 !== data.length % Decoded_Block_Size)
@@ -90,8 +90,8 @@ const base32 = {
 
 	/**
 	 * Base32 decodes a base32 encoded string.
-	 * @param {string} encoded The base32 encoded string to decode.
-	 * @returns {Uint8Array} The binary data corresponding to the input string.
+	 * @param {string} encoded Base32 encoded string to decode.
+	 * @returns {Uint8Array} Binary data corresponding to the input string.
 	 */
 	decode: encoded => {
 		if (0 !== encoded.length % Encoded_Block_Size)

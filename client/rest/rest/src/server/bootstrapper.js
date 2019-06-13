@@ -76,9 +76,9 @@ const catapultRestifyPlugins = {
 module.exports = {
 	/**
 	 * Creates a REST api server.
-	 * @param {array} crossDomainHttpMethods The HTTP methods that are allowed to be accessed cross-domain.
-	 * @param {object} formatters The formatters to use for formatting responses.
-	 * @returns {object} The server.
+	 * @param {array} crossDomainHttpMethods HTTP methods that are allowed to be accessed cross-domain.
+	 * @param {object} formatters Formatters to use for formatting responses.
+	 * @returns {object} Server.
 	 */
 	createServer: (crossDomainHttpMethods, formatters) => {
 		// create the server using a custom formatter

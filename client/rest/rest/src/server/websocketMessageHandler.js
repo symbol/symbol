@@ -39,9 +39,9 @@ const parseSubscriptionRequest = request => {
 module.exports = {
 	/**
 	 * Handles a websocket message.
-	 * @param {object} client The client that sent the message.
-	 * @param {string} messageJson The JSON message.
-	 * @param {object} subscriptionManager The subscription manager.
+	 * @param {object} client Client that sent the message.
+	 * @param {string} messageJson JSON message.
+	 * @param {object} subscriptionManager Subscription manager.
 	 * @returns {array} Error information or undefined if no error occurred.
 	 */
 	handleMessage: (client, messageJson, subscriptionManager) => {

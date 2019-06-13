@@ -27,8 +27,8 @@ const readUint32At = (bytes, i) => (bytes[i] + (bytes[i + 1] << 8) + (bytes[i + 
 /**
  * An exact uint64 representation composed of two 32bit values.
  * @typedef {Array} uint64
- * @property {numeric} 0 The low 32bit value.
- * @property {numeric} 1 The high 32bit value.
+ * @property {numeric} 0 Low 32bit value.
+ * @property {numeric} 1 High 32bit value.
  */
 const uint64Module = {
 	/**
@@ -51,8 +51,8 @@ const uint64Module = {
 
 	/**
 	 * Converts a numeric unsigned integer into a uint64.
-	 * @param {Numeric} number The unsigned integer.
-	 * @returns {module:utils/uint64~uint64} The uint64 representation of the input.
+	 * @param {Numeric} number Unsigned integer.
+	 * @returns {module:utils/uint64~uint64} Uint64 representation of the input.
 	 */
 	fromUint: number => {
 		const value = [(number & 0xFFFFFFFF) >>> 0, (number / 0x100000000) >>> 0];
@@ -65,7 +65,7 @@ const uint64Module = {
 	/**
 	 * Converts a (64bit) uint8 array into a uint64.
 	 * @param {Uint8Array} uint8Array A uint8 array.
-	 * @returns {module:utils/uint64~uint64} The uint64 representation of the input.
+	 * @returns {module:utils/uint64~uint64} Uint64 representation of the input.
 	 */
 	fromBytes: uint8Array => {
 		if (8 !== uint8Array.length)
@@ -77,7 +77,7 @@ const uint64Module = {
 	/**
 	 * Converts a (32bit) uint8 array into a uint64.
 	 * @param {Uint8Array} uint8Array A uint8 array.
-	 * @returns {module:utils/uint64~uint64} The uint64 representation of the input.
+	 * @returns {module:utils/uint64~uint64} Uint64 representation of the input.
 	 */
 	fromBytes32: uint8Array => {
 		if (4 !== uint8Array.length)
@@ -89,7 +89,7 @@ const uint64Module = {
 	/**
 	 * Parses a hex string into a uint64.
 	 * @param {string} input A hex encoded string.
-	 * @returns {module:utils/uint64~uint64} The uint64 representation of the input.
+	 * @returns {module:utils/uint64~uint64} Uint64 representation of the input.
 	 */
 	fromHex: input => {
 		if (16 !== input.length)

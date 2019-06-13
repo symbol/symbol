@@ -35,9 +35,9 @@ const challengeModule = {
 
 	/**
 	 * Generates a client response to a server challenge.
-	 * @param {object} request The parsed server challenge request.
-	 * @param {module:crypto/keyPair~KeyPair} keyPair The client key pair.
-	 * @param {Numeric} securityMode The desired connection security mode.
+	 * @param {object} request Parsed server challenge request.
+	 * @param {module:crypto/keyPair~KeyPair} keyPair Client key pair.
+	 * @param {Numeric} securityMode Desired connection security mode.
 	 * @returns {Buffer} A buffer composed of the binary response packet.
 	 */
 	generateServerChallengeResponse: (request, keyPair, securityMode) => {
@@ -65,9 +65,9 @@ const challengeModule = {
 
 	/**
 	 * Verifies a server's response to a challenge.
-	 * @param {object} response The parsed client challenge response.
-	 * @param {module:crypto/keyPair~PublicKey} publicKey The server public key.
-	 * @param {Uint8Array} challenge The challenge presented to the server.
+	 * @param {object} response Parsed client challenge response.
+	 * @param {module:crypto/keyPair~PublicKey} publicKey Server public key.
+	 * @param {Uint8Array} challenge Challenge presented to the server.
 	 * @returns {boolean} true if the response can be verified, false otherwise.
 	 */
 	verifyClientChallengeResponse: (response, publicKey, challenge) => verify(publicKey, challenge, response.signature),
@@ -95,8 +95,8 @@ const challengeModule = {
 
 	/**
 	 * Verifies a client's response to a challenge.
-	 * @param {object} response The parsed server challenge response.
-	 * @param {Uint8Array} challenge The challenge presented to the client.
+	 * @param {object} response Parsed server challenge response.
+	 * @param {Uint8Array} challenge Challenge presented to the client.
 	 * @returns {boolean} true if the response can be verified, false otherwise.
 	 */
 	verifyServerChallengeResponse: (response, challenge) => {
@@ -106,8 +106,8 @@ const challengeModule = {
 
 	/**
 	 * Generates a server response to a client challenge.
-	 * @param {object} request The parsed client challenge request.
-	 * @param {module:crypto/keyPair~KeyPair} keyPair The server key pair.
+	 * @param {object} request Parsed client challenge request.
+	 * @param {module:crypto/keyPair~KeyPair} keyPair Server key pair.
 	 * @returns {Buffer} A buffer composed of the binary response packet.
 	 */
 	generateClientChallengeResponse: (request, keyPair) => {

@@ -27,9 +27,9 @@
 /**
  * A transaction state descriptor.
  * @typedef {object} TransactionStateDescriptor
- * @property {string} friendlyName The friendly name.
- * @property {string} dbPostfix The database function name postfix.
- * @property {string} routePostfix The route postfix.
+ * @property {string} friendlyName Friendly name.
+ * @property {string} dbPostfix Database function name postfix.
+ * @property {string} routePostfix Route postfix.
  */
 
 /**
@@ -40,28 +40,28 @@ module.exports = {
 	/**
 	 * Creates a plugin specific database.
 	 * @instance
-	 * @param {module:db/CatapultDb} db The catapult database.
+	 * @param {module:db/CatapultDb} db Catapult database.
 	 */
 	createDb: db => {},
 
 	/**
 	 * Registers transaction state descriptors.
 	 * @instance
-	 * @param {array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} states The transaction state descriptors.
+	 * @param {array<module:plugins/CatapultRestPlugin~TransactionStateDescriptor>} states Transaction state descriptors.
 	 */
 	registerTransactionStates: states => {},
 
 	/**
 	 * Registers message channels.
 	 * @instance
-	 * @param {module:connection/MessageChannelBuilder~MessageChannelBuilder} builder The message channel builder.
+	 * @param {module:connection/MessageChannelBuilder~MessageChannelBuilder} builder Message channel builder.
 	 */
 	registerMessageChannels: builder => {},
 
 	/**
 	 * Registers route extensions.
 	 * @instance
-	 * @param {...args} args The arguments needed to register the routes.
+	 * @param {...args} args Arguments needed to register the routes.
 	 */
 	registerRoutes: (...args) => {}
 };

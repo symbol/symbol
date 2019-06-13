@@ -21,15 +21,15 @@
 /** @exports packet/header */
 const packetHeader = {
 	/**
-	 * @property {numeric} size The size (in bytes) of a packet header.
+	 * @property {numeric} size Size (in bytes) of a packet header.
 	 */
 	size: 8,
 
 	/**
 	 * Creates a packet header buffer.
-	 * @param {module:packet/types} type The packet type.
-	 * @param {numeric} size The packet size.
-	 * @returns {Buffer} The packet header buffer.
+	 * @param {module:packet/types} type Packet type.
+	 * @param {numeric} size Packet size.
+	 * @returns {Buffer} Packet header buffer.
 	 */
 	createBuffer: (type, size) => {
 		const header = Buffer.alloc(packetHeader.size);

@@ -29,9 +29,9 @@ const serializeToBuffer = (codec, transaction) => serialize.toBuffer(codec, tran
 const transactionExtensions = {
 	/**
 	 * Calculates the hash of a transaction.
-	 * @param {module:modelBinary/ModelCodec} codec The transaction codec.
-	 * @param {object} transaction The transaction to hash.
-	 * @returns {Uint8Array} The transaction hash.
+	 * @param {module:modelBinary/ModelCodec} codec Transaction codec.
+	 * @param {object} transaction Transaction to hash.
+	 * @returns {Uint8Array} Transaction hash.
 	 */
 	hash: (codec, transaction) => {
 		const transactionHash = new Uint8Array(32);
@@ -54,9 +54,9 @@ const transactionExtensions = {
 
 	/**
 	 * Signs a transaction using a signer's private key.
-	 * @param {module:modelBinary/ModelCodec} codec The transaction codec.
-	 * @param {object} keyPair The signer's key pair.
-	 * @param {object} transaction The transaction to sign.
+	 * @param {module:modelBinary/ModelCodec} codec Transaction codec.
+	 * @param {object} keyPair Signer's key pair.
+	 * @param {object} transaction Transaction to sign.
 	 */
 	sign: (codec, keyPair, transaction) => {
 		const transactionBuffer = serializeToBuffer(codec, transaction);
@@ -65,8 +65,8 @@ const transactionExtensions = {
 
 	/**
 	 * Verifies the signature of a transaction.
-	 * @param {module:modelBinary/ModelCodec} codec The transaction codec.
-	 * @param {object} transaction The transaction to verify.
+	 * @param {module:modelBinary/ModelCodec} codec Transaction codec.
+	 * @param {object} transaction Transaction to verify.
 	 * @returns {boolean} true if the transaction signature is valid.
 	 */
 	verify: (codec, transaction) => {

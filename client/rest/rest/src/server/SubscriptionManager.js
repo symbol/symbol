@@ -35,8 +35,8 @@ class SubscriptionManager {
 
 	/**
 	 * Subscribes a client to a channel.
-	 * @param {string} channel The channel to subscribe.
-	 * @param {object} client The client.
+	 * @param {string} channel Channel to subscribe.
+	 * @param {object} client Client.
 	 */
 	add(channel, client) {
 		if (!(channel in this.subscriptions)) {
@@ -58,8 +58,8 @@ class SubscriptionManager {
 
 	/**
 	 * Unsubscribes a client from a channel.
-	 * @param {string} channel The channel to unsubscribe.
-	 * @param {object} client The client.
+	 * @param {string} channel Channel to unsubscribe.
+	 * @param {object} client Client.
 	 */
 	delete(channel, client) {
 		const subscriptions = this.subscriptions[channel];
@@ -76,8 +76,8 @@ class SubscriptionManager {
 
 	/**
 	 * Gets all active subscriptions for a client.
-	 * @param {object} client The client.
-	 * @returns {array<string>} The client's subscribed channels.
+	 * @param {object} client Client.
+	 * @returns {array<string>} Client's subscribed channels.
 	 */
 	clientSubscriptions(client) {
 		return Object.keys(this.subscriptions).filter(channel => this.subscriptions[channel].has(client));
@@ -85,7 +85,7 @@ class SubscriptionManager {
 
 	/**
 	 * Unsubscribes a client from all channels.
-	 * @param {object} client The client.
+	 * @param {object} client Client.
 	 */
 	deleteClient(client) {
 		Object.keys(this.subscriptions).forEach(channel => {

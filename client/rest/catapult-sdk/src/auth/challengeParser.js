@@ -34,8 +34,8 @@ const isPacketHeaderValid = (packet, packetTypeName) => {
 const challengeParser = {
 	/**
 	 * Tries to parse a server challenge request packet.
-	 * @param {module:parser/PacketParser~RawPacket} packet The raw packet to parse.
-	 * @returns {object} The parsed packet or undefined.
+	 * @param {module:parser/PacketParser~RawPacket} packet Raw packet to parse.
+	 * @returns {object} Parsed packet or undefined.
 	 */
 	tryParseServerChallengeRequest: packet => {
 		if (!isPacketHeaderValid(packet, 'server'))
@@ -49,8 +49,8 @@ const challengeParser = {
 
 	/**
 	 * Tries to parse a client challenge request packet.
-	 * @param {module:parser/PacketParser~RawPacket} packet The raw packet to parse.
-	 * @returns {object} The parsed packet or undefined.
+	 * @param {module:parser/PacketParser~RawPacket} packet Raw packet to parse.
+	 * @returns {object} Parsed packet or undefined.
 	 */
 	tryParseClientChallengeResponse: packet => {
 		if (!isPacketHeaderValid(packet, 'client'))

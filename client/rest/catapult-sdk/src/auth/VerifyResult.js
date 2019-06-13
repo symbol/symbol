@@ -25,16 +25,16 @@
  * @enum {numeric}
  */
 const VerifyResult = {
-	/** The peer was verified. */
+	/** Peer was verified. */
 	success: 0,
 
 	/** An i/o error was encountered during verification. */
 	ioError: 1,
 
-	/** The peer sent malformed data. */
+	/** Peer sent malformed data. */
 	malformedData: 2,
 
-	/** The peer failed the challenge. */
+	/** Peer failed the challenge. */
 	failedChallenge: 3
 };
 

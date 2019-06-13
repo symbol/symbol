@@ -32,14 +32,14 @@ const rejectOnClose = reject => () => reject(errors.createServiceUnavailableErro
 module.exports = {
 	/**
 	 * Wraps a catapult connection around a socket connection.
-	 * @param {net.Socket} connection The socket connection to wrap.
+	 * @param {net.Socket} connection Socket connection to wrap.
 	 * @returns {object} A catapult connection wrapped around the socket connection.
 	 */
 	wrap: connection => ({
 		/**
 		 * Initiates a write operation.
-		 * @param {Buffer} payload The payload to write.
-		 * @returns {Promise} The promise that is resolved upon completion of the write operation.
+		 * @param {Buffer} payload Payload to write.
+		 * @returns {Promise} Promise that is resolved upon completion of the write operation.
 		 */
 		send: payload =>
 			new Promise((resolve, reject) => {
@@ -53,9 +53,9 @@ module.exports = {
 
 		/**
 		 * Sends a payload and waits for a response.
-		 * @param {Buffer} payload The payload to be sent through the connection.
-		 * @param {number} timeoutMs The timeout after which the promise is rejected because data is missing.
-		 * @returns {Promise} The promise that is resolved upon completion of the read operation.
+		 * @param {Buffer} payload Payload to be sent through the connection.
+		 * @param {number} timeoutMs Timeout after which the promise is rejected because data is missing.
+		 * @returns {Promise} Promise that is resolved upon completion of the read operation.
 		 */
 		pushPull(payload, timeoutMs) {
 			const listen = () => new Promise((resolve, reject) => {

@@ -302,9 +302,9 @@ class CatapultDb {
 	/**
 	 * Return (id, name, parent) tuples for transactions with type and with id in set of ids.
 	 * @param {*} ids Set of transaction ids.
-	 * @param {*} transactionType The transaction type.
-	 * @param {object} fieldNames The descriptor for fields used in query.
-	 * @returns {Promise.<array>} The promise that is resolved when tuples are ready.
+	 * @param {*} transactionType Transaction type.
+	 * @param {object} fieldNames Descriptor for fields used in query.
+	 * @returns {Promise.<array>} Promise that is resolved when tuples are ready.
 	 */
 	findNamesByIds(ids, transactionType, fieldNames) {
 		const queriedIds = ids.map(convertToLong);
@@ -389,8 +389,8 @@ class CatapultDb {
 
 	/**
 	 * Retrieves transaction results for the given hashes.
-	 * @param {Array.<Uint8Array>} hashes The transaction hashes.
-	 * @returns {Promise.<Array>} The promise that resolves to the array of hash / validation result pairs.
+	 * @param {Array.<Uint8Array>} hashes Transaction hashes.
+	 * @returns {Promise.<Array>} Promise that resolves to the array of hash / validation result pairs.
 	 */
 	transactionsByHashesFailed(hashes) {
 		const buffers = hashes.map(hash => Buffer.from(hash));

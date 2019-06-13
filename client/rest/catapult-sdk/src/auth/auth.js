@@ -25,12 +25,12 @@ const VerifyResult = require('./VerifyResult');
 
 /**
  * An error that indicates a failed verification handshake.
- * @property {module:auth/VerifyResult} verifyResult The result of a verify operation.
+ * @property {module:auth/VerifyResult} verifyResult Result of a verify operation.
  */
 class VerifyError extends Error {
 	/**
 	 * Creates a new verify error.
-	 * @param {module:auth/VerifyResult} result The result of a verify operation.
+	 * @param {module:auth/VerifyResult} result Result of a verify operation.
 	 */
 	constructor(result) {
 		super(`verify failed with ${result}`);
@@ -42,8 +42,8 @@ const auth = {
 	/**
 	 * Starts an authentication handshake with a catapult server.
 	 * @param {net.Socket} serverSocket A socket connection to the catapult server.
-	 * @param {module:crypto/keyPair~KeyPair} clientKeyPair The key pair of the connecting client.
-	 * @param {module:crypto/keyPair~PublicKey} serverPublicKey The public key of the catapult server.
+	 * @param {module:crypto/keyPair~KeyPair} clientKeyPair Key pair of the connecting client.
+	 * @param {module:crypto/keyPair~PublicKey} serverPublicKey Public key of the catapult server.
 	 * @param {Function} [logger=empty] A logging function that is passed status messages.
 	 * @returns {Promise}
 	 * A promise that is completed when authentication completes and either resolved with a

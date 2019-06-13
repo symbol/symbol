@@ -38,16 +38,16 @@ const serializeToBuffer = (codec, entity) => {
 const serialize = {
 	/**
 	 * Serializes an entity to a hex string using a codec.
-	 * @param {module:modelBinary/ModelCodec} codec The model codec.
-	 * @param {object} entity The entity to serialize.
+	 * @param {module:modelBinary/ModelCodec} codec Model codec.
+	 * @param {object} entity Entity to serialize.
 	 * @returns {string} A hex string representing the entity.
 	 */
 	toHex: (codec, entity) => convert.uint8ToHex(serializeToBuffer(codec, entity)),
 
 	/**
 	 * Serializes an entity to a buffer using a codec.
-	 * @param {module:modelBinary/ModelCodec} codec The model codec.
-	 * @param {object} entity The entity to serialize.
+	 * @param {module:modelBinary/ModelCodec} codec Model codec.
+	 * @param {object} entity Entity to serialize.
 	 * @returns {Buffer} A buffer representing the entity.
 	 */
 	toBuffer: serializeToBuffer

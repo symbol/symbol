@@ -48,9 +48,9 @@ const tryParseByte = (char1, char2) => {
 const convert = {
 	/**
 	 * Decodes two hex characters into a byte.
-	 * @param {string} char1 The first hex digit.
-	 * @param {string} char2 The second hex digit.
-	 * @returns {numeric} The decoded byte.
+	 * @param {string} char1 First hex digit.
+	 * @param {string} char2 Second hex digit.
+	 * @returns {numeric} Decoded byte.
 	 */
 	toByte: (char1, char2) => {
 		const byte = tryParseByte(char1, char2);
@@ -62,7 +62,7 @@ const convert = {
 
 	/**
 	 * Determines whether or not a string is a hex string.
-	 * @param {string} input The string to test.
+	 * @param {string} input String to test.
 	 * @returns {boolean} true if the input is a hex string, false otherwise.
 	 */
 	isHexString: input => {
@@ -110,8 +110,8 @@ const convert = {
 
 	/**
 	 * Tries to parse a string representing an unsigned integer.
-	 * @param {string} str The string to parse.
-	 * @returns {numeric} The number represented by the input or undefined.
+	 * @param {string} str String to parse.
+	 * @returns {numeric} Number represented by the input or undefined.
 	 */
 	tryParseUint: str => {
 		if ('0' === str)

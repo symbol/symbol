@@ -26,8 +26,8 @@ const constants = { sizes };
 const embeddedEntityCodec = {
 	/**
 	 * Parses an embedded entity.
-	 * @param {object} parser The parser.
-	 * @returns {object} The parsed entity.
+	 * @param {object} parser Parser.
+	 * @returns {object} Parsed entity.
 	 */
 	deserialize: parser => {
 		const entity = {};
@@ -39,8 +39,8 @@ const embeddedEntityCodec = {
 
 	/**
 	 * Serializes an embedded entity.
-	 * @param {object} entity The entity.
-	 * @param {object} serializer The serializer.
+	 * @param {object} entity Entity.
+	 * @param {object} serializer Serializer.
 	 */
 	serialize: (entity, serializer) => {
 		serializer.writeBuffer(entity.signer);

@@ -22,32 +22,32 @@
 
 const sizes = {
 	/**
-	 * @property {numeric} The size of a signature.
+	 * @property {numeric} Size of a signature.
 	 */
 	signature: 64,
 
 	/**
-	 * @property {numeric} The size of a signer (public key).
+	 * @property {numeric} Size of a signer (public key).
 	 */
 	signer: 32,
 
 	/**
-	 * @property {numeric} The size of a decoded address.
+	 * @property {numeric} Size of a decoded address.
 	 */
 	addressDecoded: 25,
 
 	/**
-	 * @property {numeric} The size of a transaction header.
+	 * @property {numeric} Size of a transaction header.
 	 */
 	transactionHeader: 4 + 64 + 32,
 
 	/**
-	 * @property {numeric} The size of a sha3 256 hash.
+	 * @property {numeric} Size of a sha3 256 hash.
 	 */
 	hash256: 32,
 
 	/**
-	 * @property {numeric} The size of a sha3 512 hash.
+	 * @property {numeric} Size of a sha3 512 hash.
 	 */
 	hash512: 64
 };

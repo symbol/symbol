@@ -70,7 +70,7 @@ class BufferContainer {
 class BinarySerializer {
 	/**
 	 * Creates a binary serializer.
-	 * @param {numeric} size The size of the underlying fixed size buffer.
+	 * @param {numeric} size Size of the underlying fixed size buffer.
 	 */
 	constructor(size) {
 		if (!Number.isInteger(size) || 0 >= size)
@@ -81,7 +81,7 @@ class BinarySerializer {
 
 	/**
 	 * Gets the size of the underlying fixed size buffer.
-	 * @returns {Numeric} The size of the underlying buffer.
+	 * @returns {Numeric} Size of the underlying buffer.
 	 */
 	bufferSize() {
 		return this.container.buffer.length;
@@ -89,7 +89,7 @@ class BinarySerializer {
 
 	/**
 	 * Gets the underlying fixed size buffer.
-	 * @returns {Buffer} The underlying buffer.
+	 * @returns {Buffer} Underlying buffer.
 	 */
 	buffer() {
 		return this.container.buffer;
@@ -97,7 +97,7 @@ class BinarySerializer {
 
 	/**
 	 * Writes a uint8 to the working buffer.
-	 * @param {numeric} value The value to write.
+	 * @param {numeric} value Value to write.
 	 */
 	writeUint8(value) {
 		this.container.writeUint8(value);
@@ -105,7 +105,7 @@ class BinarySerializer {
 
 	/**
 	 * Writes a uint16 to the working buffer.
-	 * @param {numeric} value The value to write.
+	 * @param {numeric} value Value to write.
 	 */
 	writeUint16(value) {
 		this.container.writeUint16(value);
@@ -113,7 +113,7 @@ class BinarySerializer {
 
 	/**
 	 * Writes a uint32 to the working buffer.
-	 * @param {numeric} value The value to write.
+	 * @param {numeric} value Value to write.
 	 */
 	writeUint32(value) {
 		this.container.writeUint32(value);
@@ -121,7 +121,7 @@ class BinarySerializer {
 
 	/**
 	 * Writes a uint64 to the working buffer.
-	 * @param {numeric} value The value to write.
+	 * @param {numeric} value Value to write.
 	 */
 	writeUint64(value) {
 		this.container.writeUint64(value);
@@ -129,7 +129,7 @@ class BinarySerializer {
 
 	/**
 	 * Writes a buffer of bytes to the working buffer.
-	 * @param {Buffer} buffer The buffer to write.
+	 * @param {Buffer} buffer Buffer to write.
 	 */
 	writeBuffer(buffer) {
 		this.container.writeBuffer(buffer);

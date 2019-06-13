@@ -33,7 +33,7 @@ const AggregateModelCodec = {
 	/**
 	 * Determines whether or not an entity type is supported.
 	 * @instance
-	 * @param {module:model/EntityType} type The entity type.
+	 * @param {module:model/EntityType} type Entity type.
 	 * @returns {boolean} true if the type is supported.
 	 */
 	supports: type => false

@@ -41,8 +41,8 @@ class NamespaceDb {
 
 	/**
 	 * Retrieves a namespace.
-	 * @param {module:catapult.utils/uint64~uint64} id The namespace id.
-	 * @returns {Promise.<object>} The namespace.
+	 * @param {module:catapult.utils/uint64~uint64} id Namespace id.
+	 * @returns {Promise.<object>} Namespace.
 	 */
 	namespaceById(id) {
 		const namespaceId = new Long(id[0], id[1]);
@@ -62,8 +62,8 @@ class NamespaceDb {
 
 	/**
 	 * Retrieves namespaces owned by specified owners.
-	 * @param {module:db/AccountType} type The type of account ids.
-	 * @param {array<object>} accountIds The account ids.
+	 * @param {module:db/AccountType} type Type of account ids.
+	 * @param {array<object>} accountIds Account ids.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} options Additional options.

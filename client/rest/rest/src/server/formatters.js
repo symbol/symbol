@@ -47,16 +47,16 @@ const formatBody = (modelFormatter, body) => {
 module.exports = {
 	/**
 	 * Creates server formatters around a model formatter.
-	 * @param {array<object>} modelFormatters The model formatters.
-	 * @returns {object} The server formatters.
+	 * @param {array<object>} modelFormatters Model formatters.
+	 * @returns {object} Server formatters.
 	 */
 	create: modelFormatters => ({
 		/**
 		 * Restify compatible formatter for JSON responses.
-		 * @param {object} req The request.
-		 * @param {object} res The response.
-		 * @param {object} body The body.
-		 * @returns {object} The result of the callback.
+		 * @param {object} req Request.
+		 * @param {object} res Response.
+		 * @param {object} body Body.
+		 * @returns {object} Result of the callback.
 		 */
 		json: (req, res, body) => {
 			// implementation based on https://github.com/restify/node-restify/blob/4.x/lib/formatters/json.js
@@ -72,8 +72,8 @@ module.exports = {
 
 		/**
 		 * Websocket formatter.
-		 * @param {object} body The body.
-		 * @returns {object} The formatted body.
+		 * @param {object} body Body.
+		 * @returns {object} Formatted body.
 		 */
 		ws: body => (isCatapultObject(body) && 'raw' === body.type ? body.payload : formatBody(modelFormatters.ws, body).json)
 	})

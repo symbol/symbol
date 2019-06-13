@@ -32,14 +32,14 @@ const CatapultPlugin = {
 	/**
 	 * Registers schema extensions.
 	 * @instance
-	 * @param {module:model/ModelSchemaBuilder} schemaBuilder The schema builder to augment.
+	 * @param {module:model/ModelSchemaBuilder} schemaBuilder Schema builder to augment.
 	 */
 	registerSchema: schemaBuilder => {},
 
 	/**
 	 * Registers codecs for serializing and deserializing transactions.
 	 * @instance
-	 * @param {module:modelBinary/ModelCodecBuilder} codecBuilder The codec builder to augment.
+	 * @param {module:modelBinary/ModelCodecBuilder} codecBuilder Codec builder to augment.
 	 */
 	registerCodecs: codecBuilder => {}
 };

@@ -38,8 +38,8 @@ const constants = {
 const address = {
 	/**
 	 * Converts an encoded address string to a decoded address.
-	 * @param {string} encoded The encoded address string.
-	 * @returns {Uint8Array} The decoded address corresponding to the input.
+	 * @param {string} encoded Encoded address string.
+	 * @returns {Uint8Array} Decoded address corresponding to the input.
 	 */
 	stringToAddress: encoded => {
 		if (constants.sizes.addressEncoded !== encoded.length)
@@ -50,8 +50,8 @@ const address = {
 
 	/**
 	 * Converts a decoded address to an encoded address string.
-	 * @param {Uint8Array} decoded The decoded address.
-	 * @returns {string} The encoded address string corresponding to the input.
+	 * @param {Uint8Array} decoded Decoded address.
+	 * @returns {string} Encoded address string corresponding to the input.
 	 */
 	addressToString: decoded => {
 		if (constants.sizes.addressDecoded !== decoded.length)
@@ -62,9 +62,9 @@ const address = {
 
 	/**
 	 * Converts a public key to a decoded address for a specific network.
-	 * @param {module:crypto/keyPair~PublicKey} publicKey The public key.
-	 * @param {numeric} networkIdentifier The network identifier.
-	 * @returns {Uint8Array} The decoded address corresponding to the inputs.
+	 * @param {module:crypto/keyPair~PublicKey} publicKey Public key.
+	 * @param {numeric} networkIdentifier Network identifier.
+	 * @returns {Uint8Array} Decoded address corresponding to the inputs.
 	 */
 	publicKeyToAddress: (publicKey, networkIdentifier) => {
 		// step 1: sha3 hash of the public key
@@ -87,7 +87,7 @@ const address = {
 
 	/**
 	 * Determines the validity of a decoded address.
-	 * @param {Uint8Array} decoded The decoded address.
+	 * @param {Uint8Array} decoded Decoded address.
 	 * @returns {boolean} true if the decoded address is valid, false otherwise.
 	 */
 	isValidAddress: decoded => {
@@ -101,7 +101,7 @@ const address = {
 
 	/**
 	 * Determines the validity of an encoded address string.
-	 * @param {string} encoded The encoded address string.
+	 * @param {string} encoded Encoded address string.
 	 * @returns {boolean} true if the encoded address string is valid, false otherwise.
 	 */
 	isValidEncodedAddress: encoded => {

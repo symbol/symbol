@@ -23,7 +23,7 @@
 const arrayUtils = {
 	/**
 	 * Creates a Uint8Array view on top of input.
-	 * @param {ArrayBuffer|Uint8Array} input The input array.
+	 * @param {ArrayBuffer|Uint8Array} input Input array.
 	 * @returns {Uint8Array} A Uint8Array view on top of input.
 	 */
 	uint8View: input => {
@@ -37,11 +37,11 @@ const arrayUtils = {
 
 	/**
 	 * Copies elements from a source array to a destination array.
-	 * @param {Array} dest The destination array.
-	 * @param {Array} src The source array.
-	 * @param {numeric} [numElementsToCopy=undefined] The number of elements to copy.
-	 * @param {numeric} [destOffset=0] The first index of the destination to write.
-	 * @param {numeric} [srcOffset=0] The first index of the source to read.
+	 * @param {Array} dest Destination array.
+	 * @param {Array} src Source array.
+	 * @param {numeric} [numElementsToCopy=undefined] Number of elements to copy.
+	 * @param {numeric} [destOffset=0] First index of the destination to write.
+	 * @param {numeric} [srcOffset=0] First index of the source to read.
 	 */
 	copy: (dest, src, numElementsToCopy, destOffset = 0, srcOffset = 0) => {
 		const length = undefined === numElementsToCopy ? dest.length : numElementsToCopy;
@@ -51,7 +51,7 @@ const arrayUtils = {
 
 	/**
 	 * Determines whether or not an array is zero-filled.
-	 * @param {Array} array The array to check.
+	 * @param {Array} array Array to check.
 	 * @returns {boolean} true if the array is zero-filled, false otherwise.
 	 */
 	isZero: array => array.every(value => 0 === value),
@@ -60,7 +60,7 @@ const arrayUtils = {
 	 * Deeply checks the equality of two arrays.
 	 * @param {Array} lhs First array to compare.
 	 * @param {Array} rhs Second array to compare.
-	 * @param {numeric} [numElementsToCompare=undefined] The number of elements to compare.
+	 * @param {numeric} [numElementsToCompare=undefined] Number of elements to compare.
 	 * @returns {boolean} true if all compared elements are equal, false otherwise.
 	 */
 	deepEqual: (lhs, rhs, numElementsToCompare) => {

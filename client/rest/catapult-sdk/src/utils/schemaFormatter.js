@@ -46,8 +46,8 @@ const getSchemaName = (schemaName, entity) => ('function' === typeof schemaName 
 
 /**
  * @function format
- * @param {object} entity The entity to format.
- * @returns {object} The formatted entity.
+ * @param {object} entity Entity to format.
+ * @returns {object} Formatted entity.
  * @memberof module:utils/schemaFormatter~EntityFormatter
  * @instance
  */
@@ -56,11 +56,11 @@ const getSchemaName = (schemaName, entity) => ('function' === typeof schemaName 
 const schemaFormatter = {
 	/**
 	 * Formats an entity according to a schema and rules.
-	 * @param {object} entity The entity to format.
-	 * @param {object} entitySchema The schema corresponding to the entity.
+	 * @param {object} entity Entity to format.
+	 * @param {object} entitySchema Schema corresponding to the entity.
 	 * @param {object} schemaDictionary A map of schema names to schemas for looking up component schemas.
 	 * @param {object} formattingRules A map for looking up formatting rules given a schema property type.
-	 * @returns {object} The formatted entity.
+	 * @returns {object} Formatted entity.
 	 */
 	format: (entity, entitySchema, schemaDictionary, formattingRules) => {
 		formattingRules[SchemaType.object] = (value, format) => format(value);

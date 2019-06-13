@@ -50,7 +50,7 @@ class ModelFormatterBuilder {
 
 	/**
 	 * Adds support for a named formatter.
-	 * @param {string} type The formatter type.
+	 * @param {string} type Formatter type.
 	 */
 	addFormatter(type) {
 		if (this.subFormatterTypes.has(type))
@@ -61,9 +61,9 @@ class ModelFormatterBuilder {
 
 	/**
 	 * Returns an appropriate aggregate formatter object.
-	 * @param {object} modelSchema The model schema.
+	 * @param {object} modelSchema Model schema.
 	 * @param {object} formattingRules A map for looking up formatting rules given a schema property type.
-	 * @returns {object} The aggregate formatter object.
+	 * @returns {object} Aggregate formatter object.
 	 */
 	build(modelSchema, formattingRules) {
 		const formatter = {};

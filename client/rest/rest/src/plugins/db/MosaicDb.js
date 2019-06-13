@@ -38,8 +38,8 @@ class MosaicDb {
 
 	/**
 	 * Retrieves mosaics.
-	 * @param {Array.<module:catapult.utils/uint64~uint64>} ids The mosaic ids.
-	 * @returns {Promise.<array>} The mosaics.
+	 * @param {Array.<module:catapult.utils/uint64~uint64>} ids Mosaic ids.
+	 * @returns {Promise.<array>} Mosaics.
 	 */
 	mosaicsByIds(ids) {
 		const mosaicIds = ids.map(id => new Long(id[0], id[1]));
@@ -55,7 +55,7 @@ class MosaicDb {
 
 	/**
 	 * Retrieves non expired namespaces aliasing specified mosaics.
-	 * @param {Array.<module:catapult.utils/uint64~uint64>} mosaicsIds The mosaic ids.
+	 * @param {Array.<module:catapult.utils/uint64~uint64>} mosaicsIds Mosaic ids.
 	 * @returns {Promise.<array>} Mosaic alias namespaces.
 	 */
 	activeNamespacesByMosaicsIds(mosaicsIds) {
@@ -78,7 +78,7 @@ class MosaicDb {
 
 	/**
 	 * Retrieves transactions that registered the specified namespaces.
-	 * @param {Array.<module:catapult.utils/uint64~uint64>} namespaceIds The namespaces ids.
+	 * @param {Array.<module:catapult.utils/uint64~uint64>} namespaceIds Namespace ids.
 	 * @returns {Promise.<array>} Register namespace transactions.
 	 */
 	registerNamespaceTransactionsByNamespaceIds(namespaceIds) {

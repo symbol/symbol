@@ -28,9 +28,9 @@ const getHasher = (length = 64) => ({ 32: sha3_256, 64: sha3_512 }[length]);
 const sha3Hasher = {
 	/**
 	 * Calculates the hash of data.
-	 * @param {Uint8Array} dest The computed hash destination.
-	 * @param {Uint8Array} data The data to hash.
-	 * @param {numeric} length The hash length in bytes.
+	 * @param {Uint8Array} dest Computed hash destination.
+	 * @param {Uint8Array} data Data to hash.
+	 * @param {numeric} length Hash length in bytes.
 	 */
 	func: (dest, data, length) => {
 		const hasher = getHasher(length);
@@ -40,8 +40,8 @@ const sha3Hasher = {
 
 	/**
 	 * Creates a hasher object.
-	 * @param {numeric} length The hash length in bytes.
-	 * @returns {object} The hasher.
+	 * @param {numeric} length Hash length in bytes.
+	 * @returns {object} Hasher.
 	 */
 	createHasher: length => {
 		let hash;

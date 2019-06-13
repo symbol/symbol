@@ -24,7 +24,7 @@ const uint64 = require('../utils/uint64');
 const idReducer = {
 	/**
 	 * Creates an id to name lookup object around namespace name tuples.
-	 * @param {array} nameTuples The namespace name tuples.
+	 * @param {array} nameTuples Namespace name tuples.
 	 * @returns {object} An id to name lookup object.
 	 */
 	createIdToNameLookup: nameTuples => {
@@ -72,7 +72,7 @@ const idReducer = {
 
 		return {
 			/**
-			 * The number of id to name mappings known by this object.
+			 * Number of id to name mappings known by this object.
 			 * @property {numeric}
 			 */
 			length: nameTuples.length,
@@ -80,7 +80,7 @@ const idReducer = {
 			/**
 			 * Returns the name for an id or undefined if no mapping exists
 			 * @param {module:utils/uint64~uint64} id A uint64 value representing a namespace id.
-			 * @returns {string} The fully qualified namespace name corresponding to the id.
+			 * @returns {string} Fully qualified namespace name corresponding to the id.
 			 */
 			findName: id => (lookupMap[uint64.toHex(id)] || {}).fqn
 		};

@@ -23,8 +23,8 @@
 const transactionCodec = {
 	/**
 	 * Parses a transaction.
-	 * @param {object} parser The parser.
-	 * @returns {object} The parsed transaction.
+	 * @param {object} parser Parser.
+	 * @returns {object} Parsed transaction.
 	 */
 	deserialize: parser => {
 		const transaction = {};
@@ -35,8 +35,8 @@ const transactionCodec = {
 
 	/**
 	 * Serializes a transaction.
-	 * @param {object} transaction The transaction.
-	 * @param {object} serializer The serializer.
+	 * @param {object} transaction Transaction.
+	 * @param {object} serializer Serializer.
 	 */
 	serialize: (transaction, serializer) => {
 		serializer.writeUint64(transaction.maxFee);

@@ -33,7 +33,7 @@ const { createKeyPairFromPrivateKeyString } = catapult.crypto;
  * @param {Function} connectionFactory Factory for creating new net.Socket connections.
  * @param {Function} authPromiseFactory Factory for creating an auth promise around a net.Socket.
  * @param {Function} logger A logging function.
- * @returns {object} The catapult connection service.
+ * @returns {object} Catapult connection service.
  */
 module.exports.createConnectionService = (config, connectionFactory, authPromiseFactory, logger = () => {}) => {
 	const node = config.apiNode;

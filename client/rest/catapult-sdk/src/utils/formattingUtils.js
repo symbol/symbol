@@ -23,8 +23,8 @@
 const formattingUtils = {
 	/**
 	 * Formats all entities in an array.
-	 * @param {module:utils/schemaFormatter~EntityFormatter} formatter The formatter.
-	 * @param {Array} collection The array.
+	 * @param {module:utils/schemaFormatter~EntityFormatter} formatter Formatter.
+	 * @param {Array} collection Array.
 	 * @returns {Array} A new array of formatted entities.
 	 */
 	formatArray(formatter, collection) {

@@ -194,8 +194,8 @@ class ModelSchemaBuilder {
 
 	/**
 	 * Adds support for a transaction type.
-	 * @param {module:model/EntityType} transactionType The transaction type.
-	 * @param {object} schema The transaction schema.
+	 * @param {module:model/EntityType} transactionType Transaction type.
+	 * @param {object} schema Transaction schema.
 	 */
 	addTransactionSupport(transactionType, schema) {
 		const name = this.typeToName(transactionType);
@@ -205,8 +205,8 @@ class ModelSchemaBuilder {
 
 	/**
 	 * Adds support for a named schema.
-	 * @param {string} name The schema name.
-	 * @param {object} schema The schema.
+	 * @param {string} name Schema name.
+	 * @param {object} schema Schema.
 	 */
 	addSchema(name, schema) {
 		if (this.schema[name])
@@ -217,7 +217,7 @@ class ModelSchemaBuilder {
 
 	/**
 	 * Returns a function that returns the best known schema for a given transaction.
-	 * @returns {function} The transaction schema lookup function.
+	 * @returns {function} Transaction schema lookup function.
 	 */
 	transactionSchemaNameSupplier() {
 		// default to transaction
@@ -229,7 +229,7 @@ class ModelSchemaBuilder {
 
 	/**
 	 * Builds the schema and returns an appropriate aggregate schema object.
-	 * @returns {object} The aggregate schema object.
+	 * @returns {object} Aggregate schema object.
 	 */
 	build() {
 		this.schema.transactionWithMetadata.transaction.schemaName = this.transactionSchemaNameSupplier();

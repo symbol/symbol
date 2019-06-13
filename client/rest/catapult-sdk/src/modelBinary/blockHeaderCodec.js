@@ -26,8 +26,8 @@ const constants = { sizes };
 const blockHeaderCodec = {
 	/**
 	 * Parses a block header.
-	 * @param {object} parser The parser.
-	 * @returns {object} The parsed block header.
+	 * @param {object} parser Parser.
+	 * @returns {object} Parsed block header.
 	 */
 	deserialize: parser => {
 		const blockHeader = {};
@@ -41,8 +41,8 @@ const blockHeaderCodec = {
 
 	/**
 	 * Serializes a block header.
-	 * @param {object} blockHeader The block header.
-	 * @param {object} serializer The serializer.
+	 * @param {object} blockHeader Block header.
+	 * @param {object} serializer Serializer.
 	 */
 	serialize: (blockHeader, serializer) => {
 		serializer.writeUint64(blockHeader.height);

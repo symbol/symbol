@@ -25,7 +25,7 @@
  * @enum {numeric}
  */
 const SchemaType = {
-	/** The default schema property type. */
+	/** Default schema property type. */
 	none: 0,
 
 	/** Schema property type indicating an object. */
@@ -37,7 +37,7 @@ const SchemaType = {
 	/** Schema property type indicating a dictionary. */
 	dictionary: 3,
 
-	/** The maximum value in this enumeration. */
+	/** Maximum value in this enumeration. */
 	max: 3
 };
 

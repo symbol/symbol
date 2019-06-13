@@ -29,7 +29,7 @@ class AccountPropertiesDb {
 
 	/**
 	 * Retrieves account properties of the given addresses.
-	 * @param {array<object>} addresses The given addresses.
+	 * @param {array<object>} addresses Given addresses.
 	 * @returns {Promise.<array>} Owned account properties.
 	 */
 	accountPropertiesByAddresses(addresses) {

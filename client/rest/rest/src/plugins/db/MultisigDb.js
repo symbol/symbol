@@ -33,9 +33,9 @@ class MultisigDb {
 
 	/**
 	 * Retrieves the multisig entries for given accounts.
-	 * @param {module:db/AccountType} type The type of account ids.
-	 * @param {array<object>} accountIds The account ids.
-	 * @returns {Promise.<array>} The multisig entries for all accounts.
+	 * @param {module:db/AccountType} type Type of account ids.
+	 * @param {array<object>} accountIds Account ids.
+	 * @returns {Promise.<array>} Multisig entries for all accounts.
 	 */
 	multisigsByAccounts(type, accountIds) {
 		const buffers = accountIds.map(accountId => Buffer.from(accountId));

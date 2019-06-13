@@ -26,8 +26,8 @@ const { Long } = MongoDb;
 const dbUtils = {
 	/**
 	 * Converts number to long.
-	 * @param {object} value The value to convert.
-	 * @returns {MongoDb.Long} The converted value.
+	 * @param {object} value Value to convert.
+	 * @returns {MongoDb.Long} Converted value.
 	 */
 	convertToLong: value => {
 		if (Number.isInteger(value))
@@ -45,8 +45,8 @@ const dbUtils = {
 
 	/**
 	 * Converts long to uint64.
-	 * @param {Long} value The value to convert.
-	 * @returns {uint64} The converted value.
+	 * @param {Long} value Value to convert.
+	 * @returns {uint64} Converted value.
 	 */
 	longToUint64: value => {
 		if (value instanceof Long)

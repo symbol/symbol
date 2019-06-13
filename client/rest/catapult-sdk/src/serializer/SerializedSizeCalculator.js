@@ -33,7 +33,7 @@ class SerializedSizeCalculator {
 
 	/**
 	 * Gets the calculated size.
-	 * @returns {numeric} The calculated size.
+	 * @returns {numeric} Calculated size.
 	 */
 	size() {
 		return this.totalSize;
@@ -69,7 +69,7 @@ class SerializedSizeCalculator {
 
 	/**
 	 * Writes a buffer of bytes to the working buffer.
-	 * @param {Buffer} buffer The buffer to write.
+	 * @param {Buffer} buffer Buffer to write.
 	 */
 	writeBuffer(buffer) {
 		this.totalSize += buffer.length;

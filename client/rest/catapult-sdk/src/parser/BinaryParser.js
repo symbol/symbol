@@ -119,7 +119,7 @@ class BinaryParser {
 
 	/**
 	 * Accepts a binary buffer and appends it to the end of the working buffer.
-	 * @param {Buffer} buffer The binary buffer.
+	 * @param {Buffer} buffer Binary buffer.
 	 */
 	push(buffer) {
 		this.buffers.push(buffer);
@@ -127,7 +127,7 @@ class BinaryParser {
 
 	/**
 	 * Reads a uint8 from the working buffer.
-	 * @returns {numeric} The read uint8.
+	 * @returns {numeric} Read uint8.
 	 */
 	uint8() {
 		return this.buffers.nextByte();
@@ -135,7 +135,7 @@ class BinaryParser {
 
 	/**
 	 * Reads a uint16 from the working buffer.
-	 * @returns {numeric} The read uint16.
+	 * @returns {numeric} Read uint16.
 	 */
 	uint16() {
 		return this.buffers.nextInteger(2);
@@ -143,7 +143,7 @@ class BinaryParser {
 
 	/**
 	 * Reads a uint32 from the working buffer.
-	 * @returns {numeric} The read uint32.
+	 * @returns {numeric} Read uint32.
 	 */
 	uint32() {
 		return this.buffers.nextInteger(4);
@@ -151,7 +151,7 @@ class BinaryParser {
 
 	/**
 	 * Reads a uint64 from the working buffer.
-	 * @returns {module:utils/uint64~uint64} The read uint64.
+	 * @returns {module:utils/uint64~uint64} Read uint64.
 	 */
 	uint64() {
 		this.buffers.requireUnprocessed(8);
@@ -160,8 +160,8 @@ class BinaryParser {
 
 	/**
 	 * Reads a specific number of bytes from the working buffer.
-	 * @param {numeric} size The number of bytes to read.
-	 * @returns {Buffer} The read bytes.
+	 * @param {numeric} size Number of bytes to read.
+	 * @returns {Buffer} Read bytes.
 	 */
 	buffer(size) {
 		return this.buffers.nextBuffer(size);
@@ -169,7 +169,7 @@ class BinaryParser {
 
 	/**
 	 * Gets the number of unprocessed bytes remaining in the working buffer.
-	 * @returns {numeric} The number of unprocessed bytes.
+	 * @returns {numeric} Number of unprocessed bytes.
 	 */
 	numUnprocessedBytes() {
 		return this.buffers.size();

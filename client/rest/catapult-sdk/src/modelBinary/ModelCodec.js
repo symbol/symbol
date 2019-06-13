@@ -32,17 +32,17 @@ const ModelCodec = {
 	/**
 	 * Deserializes a model.
 	 * @instance
-	 * @param {object} parser The parser.
+	 * @param {object} parser Parser.
 	 * @param {object} options Optional implementation-dependent deserialization options.
-	 * @returns {object} The parsed model.
+	 * @returns {object} Parsed model.
 	 */
 	deserialize: (parser, options) => undefined,
 
 	/**
 	 * Serializes a model.
 	 * @instance
-	 * @param {object} entity The model.
-	 * @param {object} serializer The serializer.
+	 * @param {object} entity Model.
+	 * @param {object} serializer Serializer.
 	 */
 	serialize: (entity, serializer) => {}
 };

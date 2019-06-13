@@ -33,12 +33,12 @@ class LockDb {
 
 	/**
 	 * Retrieves hash infos for given accounts.
-	 * @param {module:db/AccountType} type The type of account ids.
-	 * @param {array<object>} accountIds The account ids.
+	 * @param {module:db/AccountType} type Type of account ids.
+	 * @param {array<object>} accountIds Account ids.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} options Additional options.
-	 * @returns {Promise.<array>} The hash lock infos for all accounts.
+	 * @returns {Promise.<array>} Hash lock infos for all accounts.
 	 */
 	hashLocksByAccounts(type, accountIds, id, pageSize, options) {
 		return this.locksByAccounts('hash', type, accountIds, id, pageSize, options);
@@ -46,25 +46,25 @@ class LockDb {
 
 	/**
 	 * Retrieves secret infos for given accounts.
-	 * @param {module:db/AccountType} type The type of account ids.
-	 * @param {array<object>} accountIds The account ids.
+	 * @param {module:db/AccountType} type Type of account ids.
+	 * @param {array<object>} accountIds Account ids.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} options Additional options.
-	 * @returns {Promise.<array>} The secret lock infos for all accounts.
+	 * @returns {Promise.<array>} Secret lock infos for all accounts.
 	 */
 	secretLocksByAccounts(type, accountIds, id, pageSize, options) {
 		return this.locksByAccounts('secret', type, accountIds, id, pageSize, options);
 	}
 
 	/**
-	 * @param {string} lockName The type of lock.
-	 * @param {module:db/AccountType} type The type of account ids.
-	 * @param {array<object>} accountIds The account ids.
+	 * @param {string} lockName Type of lock.
+	 * @param {module:db/AccountType} type Type of account ids.
+	 * @param {array<object>} accountIds Account ids.
 	 * @param {string} id Paging id.
 	 * @param {int} pageSize Page size.
 	 * @param {object} options Additional options.
-	 * @returns {Promise.<array>} The lock infos for all accounts.
+	 * @returns {Promise.<array>} Lock infos for all accounts.
 	 */
 	locksByAccounts(lockName, type, accountIds, id, pageSize, options) {
 		const buffers = accountIds.map(accountId => Buffer.from(accountId));
@@ -77,7 +77,7 @@ class LockDb {
 	/**
 	 * Retrieves hash info for given hash.
 	 * @param {Uint8Array} hash Lock hash.
-	 * @returns {Promise.<object>} The hash lock info for a hash.
+	 * @returns {Promise.<object>} Hash lock info for a hash.
 	 */
 	hashLockByHash(hash) {
 		return this.catapultDb.queryDocument('hashLockInfos', { 'lock.hash': Buffer.from(hash) })
@@ -87,7 +87,7 @@ class LockDb {
 	/**
 	 * Retrieves secret info for given secret.
 	 * @param {Uint8Array} secret Secret hash.
-	 * @returns {Promise.<object>} The secret lock info for a secret.
+	 * @returns {Promise.<object>} Secret lock info for a secret.
 	 */
 	secretLockBySecret(secret) {
 		return this.catapultDb.queryDocument('secretLockInfos', { 'lock.secret': Buffer.from(secret) })

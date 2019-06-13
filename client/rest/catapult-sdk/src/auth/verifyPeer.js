@@ -104,15 +104,15 @@ class AuthPacketHandler {
  * @class Verifier
  *
  * @fires status Messages about verification progress.
- * @fires verify The verification result.
+ * @fires verify Verification result.
  */
 
 const verifyPeer = {
 	/**
 	 * Creates a server verifier for performing a verification handshake with a catapult server.
 	 * @param {net.Socket} serverSocket A socket connection to the catapult server.
-	 * @param {module:crypto/keyPair~KeyPair} clientKeyPair The key pair of the connecting client.
-	 * @param {module:crypto/keyPair~PublicKey} serverPublicKey The public key of the catapult server.
+	 * @param {module:crypto/keyPair~KeyPair} clientKeyPair Key pair of the connecting client.
+	 * @param {module:crypto/keyPair~PublicKey} serverPublicKey Public key of the catapult server.
 	 * @returns {module:auth/verifyPeer~Verifier} A verifier for the specified server.
 	 */
 	createServerVerifier(serverSocket, clientKeyPair, serverPublicKey) {
@@ -128,9 +128,9 @@ const verifyPeer = {
 
 			/**
 			 * Subscribes to verifier events.
-			 * @param {string} eventName The name of the event.
-			 * @param {Function} eventHandler The function that should be called when the event is emitted.
-			 * @returns {module:auth/verifyPeer~Verifier} The verifier (for chaining).
+			 * @param {string} eventName Name of the event.
+			 * @param {Function} eventHandler Function that should be called when the event is emitted.
+			 * @returns {module:auth/verifyPeer~Verifier} Verifier (for chaining).
 			 * @memberof module:auth/verifyPeer~Verifier
 			 * @instance
 			 */

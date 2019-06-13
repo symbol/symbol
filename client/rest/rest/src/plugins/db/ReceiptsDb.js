@@ -31,8 +31,8 @@ class ReceiptsDb {
 
 	/**
 	* Retrieves all the statements in a given collection and block.
-	* @param {module:catapult.utils/uint64~uint64} height The given block height.
-	* @param {string} statementsCollection The statements collection.
+	* @param {module:catapult.utils/uint64~uint64} height Given block height.
+	* @param {string} statementsCollection Statements collection.
 	* @returns {Promise.<array>} Statements from a collection in a block.
 	*/
 	statementsAtHeight(height, statementsCollection) {

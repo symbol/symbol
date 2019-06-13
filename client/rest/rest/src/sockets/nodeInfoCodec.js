@@ -26,8 +26,8 @@ const { sizes } = catapult.constants;
 const nodeInfoCodec = {
 	/**
 	 * Parses a node info.
-	 * @param {object} parser The parser.
-	 * @returns {object} The parsed node info.
+	 * @param {object} parser Parser.
+	 * @returns {object} Parsed node info.
 	 */
 	deserialize: parser => {
 		const nodeInfo = {};
