@@ -23,9 +23,9 @@ function generate_all {
 		"namespace/address_alias"
 		"namespace/mosaic_alias"
 		"namespace/register_namespace"
-		"property/address_property"
-		"property/mosaic_property"
-		"property/transaction_type_property"
+		"restriction_account/account_address_restriction"
+		"restriction_account/account_mosaic_restriction"
+		"restriction_account/account_operation_restriction"
 		"transfer/transfer"
 	)
 
