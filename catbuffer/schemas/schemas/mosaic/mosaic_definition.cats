@@ -13,9 +13,6 @@ enum MosaicFlags : uint8
 	# mosaic is transferable
 	transferable = 0x02
 
-	# mosaic levy is mutable
-	levyMutable = 0x04
-
 # available mosaic property ids
 enum MosaicPropertyId : uint8
 	# mosaic duration
