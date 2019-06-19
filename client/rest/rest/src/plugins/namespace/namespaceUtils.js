@@ -21,13 +21,13 @@
 const namespaceUtils = {
 	/**
 	 * Returns function for processing alias names requests.
-	 * @param {module:db/CatapultDb} catapultDb The catapult database.
-	 * @param {numeric} aliasType The alias type.
+	 * @param {module:db/CatapultDb} catapultDb Catapult database.
+	 * @param {numeric} aliasType Alias type.
 	 * @param {Function} getParams Function to parse request params into ids.
 	 * @param {Function} namespaceFilter Function to filter namespaces based on ids.
 	 * @param {string} aliasFieldName Alias field name to show in the results.
 	 * @param {string} schemaName Schema name to parse results.
-	 * @returns {Function} The restify response function to process alias names requests.
+	 * @returns {Function} Restify response function to process alias names requests.
 	 */
 	aliasNamesRoutesProcessor: (
 		catapultDb,

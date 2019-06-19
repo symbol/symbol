@@ -83,7 +83,7 @@ class NamespaceDb {
 
 	/**
 	 * Retrieves non expired namespaces aliasing mosaics or addresses.
-	 * @param {Array.<module:catapult.model.namespace/aliasType>} aliasType The alias type.
+	 * @param {Array.<module:catapult.model.namespace/aliasType>} aliasType Alias type.
 	 * @param {*} ids Set of mosaic or address ids.
 	 * @returns {Promise.<array>} Active namespaces aliasing ids.
 	 */
@@ -112,7 +112,7 @@ class NamespaceDb {
 
 	/**
 	 * Retrieves transactions that registered the specified namespaces.
-	 * @param {Array.<module:catapult.utils/uint64~uint64>} namespaceIds The namespaces ids.
+	 * @param {Array.<module:catapult.utils/uint64~uint64>} namespaceIds Namespace ids.
 	 * @returns {Promise.<array>} Register namespace transactions.
 	 */
 	registerNamespaceTransactionsByNamespaceIds(namespaceIds) {
