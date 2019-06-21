@@ -29,9 +29,9 @@ module.exports = {
 	[ModelType.none]: value => value,
 	// `binary` should support both mongo binary buffers and intermediate js buffers
 	[ModelType.binary]: value => (convert.uint8ToHex(value.buffer instanceof ArrayBuffer ? value : value.buffer)),
-	[ModelType.uint64]: value => (value instanceof Binary ? uint64.fromBytes(value.buffer) : longToUint64(value)),
-	[ModelType.uint16]: value => (value instanceof Binary ? Buffer.from(value.buffer).readInt16LE(0) : value),
 	[ModelType.objectId]: value => value.toHexString().toUpperCase(),
+	[ModelType.statusCode]: value => status.toString(value >>> 0),
 	[ModelType.string]: value => value.toString(),
-	[ModelType.statusCode]: value => status.toString(value >>> 0)
+	[ModelType.uint16]: value => (value instanceof Binary ? Buffer.from(value.buffer).readInt16LE(0) : value),
+	[ModelType.uint64]: value => (value instanceof Binary ? uint64.fromBytes(value.buffer) : longToUint64(value))
 };

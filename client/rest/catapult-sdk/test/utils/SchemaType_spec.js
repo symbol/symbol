@@ -26,9 +26,9 @@ describe('schema type enumeration', () => {
 		// Assert:
 		expect(SchemaType).to.deep.equal({
 			none: 0,
-			object: 1,
-			array: 2,
-			dictionary: 3,
+			array: 1,
+			dictionary: 2,
+			object: 3,
 			max: 3
 		});
 	});

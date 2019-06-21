@@ -30,23 +30,23 @@ const ModelType = {
 	/** Schema property type indicating a binary value. */
 	binary: SchemaType.max + 1,
 
-	/** Schema property type indicating a uint64 value. */
-	uint64: SchemaType.max + 2,
-
 	/** Schema property type indicating an object identifier. */
-	objectId: SchemaType.max + 3,
+	objectId: SchemaType.max + 2,
+
+	/** Schema property type indicating a status code. */
+	statusCode: SchemaType.max + 3,
 
 	/** Schema property type indicating a string value. */
 	string: SchemaType.max + 4,
 
-	/** Schema property type indicating a status code. */
-	statusCode: SchemaType.max + 5,
-
 	/** Schema property type indicating a uint16. */
-	uint16: SchemaType.max + 6
+	uint16: SchemaType.max + 5,
+
+	/** Schema property type indicating a uint64 value. */
+	uint64: SchemaType.max + 6
 };
 
 Object.assign(ModelType, SchemaType);
-ModelType.max = ModelType.uint16;
+ModelType.max = ModelType.uint64;
 
 module.exports = ModelType;

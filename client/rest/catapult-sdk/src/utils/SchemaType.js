@@ -28,14 +28,14 @@ const SchemaType = {
 	/** Default schema property type. */
 	none: 0,
 
-	/** Schema property type indicating an object. */
-	object: 1,
-
 	/** Schema property type indicating an array. */
-	array: 2,
+	array: 1,
 
 	/** Schema property type indicating a dictionary. */
-	dictionary: 3,
+	dictionary: 2,
+
+	/** Schema property type indicating an object. */
+	object: 3,
 
 	/** Maximum value in this enumeration. */
 	max: 3

@@ -21,8 +21,8 @@
 const catapult = require('catapult-sdk');
 const formattingRules = require('../../src/db/dbFormattingRules');
 const test = require('../testUtils');
-const { convertToLong } = require('../../src/db/dbUtils');
 const { Binary } = require('mongodb');
+const { convertToLong } = require('../../src/db/dbUtils');
 const { expect } = require('chai');
 
 const { ModelType } = catapult.model;
@@ -61,29 +61,37 @@ describe('db formatting rules', () => {
 		expect(result).to.equal('FEDCBA9876543210');
 	});
 
-	it('can format uint64 type from Long', () => {
+	it('can format object id type', () => {
 		// Arrange:
-		const object = convertToLong([1, 2]);
+		const object = test.factory.createObjectIdFromHexString('3AEDCBA9876F94725732547F');
 
 		// Act:
-		const result = formattingRules[ModelType.uint64](object);
+		const result = formattingRules[ModelType.objectId](object);
 
 		// Assert:
-		expect(result).to.deep.equal([1, 2]);
+		expect(result).to.equal('3AEDCBA9876F94725732547F');
 	});
 
-	it('can format uint64 type from Binary', () => {
+	it('can format status code type', () => {
+		// Arrange: notice that codes are signed in db
+		[0x80530008, -2142044152].forEach(code => {
+			// Act:
+			const result = formattingRules[ModelType.statusCode](code);
+
+			// Assert:
+			expect(result, `${code} code`).to.equal('Failure_Signature_Not_Verifiable');
+		});
+	});
+
+	it('can format string type', () => {
 		// Arrange:
-		const buffer = Buffer.alloc(8, 0);
-		buffer.writeUInt32LE(0x00ABCDEF, 0);
-		buffer.writeUInt32LE(0x000FDFFF, 4);
-		const object = new Binary(buffer);
+		const object = test.factory.createBinary(Buffer.from('6361746170756C74', 'hex'));
 
 		// Act:
-		const result = formattingRules[ModelType.uint64](object);
+		const result = formattingRules[ModelType.string](object);
 
 		// Assert:
-		expect(result).to.deep.equal([0x00ABCDEF, 0x000FDFFF]);
+		expect(result).to.equal('catapult');
 	});
 
 	it('can format uint16 type', () => {
@@ -107,25 +115,28 @@ describe('db formatting rules', () => {
 		expect(result).to.deep.equal(17434);
 	});
 
-	it('can format object id type', () => {
+	it('can format uint64 type from Long', () => {
 		// Arrange:
-		const object = test.factory.createObjectIdFromHexString('3AEDCBA9876F94725732547F');
+		const object = convertToLong([1, 2]);
 
 		// Act:
-		const result = formattingRules[ModelType.objectId](object);
+		const result = formattingRules[ModelType.uint64](object);
 
 		// Assert:
-		expect(result).to.equal('3AEDCBA9876F94725732547F');
+		expect(result).to.deep.equal([1, 2]);
 	});
 
-	it('can format status code type', () => {
-		// Arrange: notice that codes are signed in db
-		[0x80530008, -2142044152].forEach(code => {
-			// Act:
-			const result = formattingRules[ModelType.statusCode](code);
+	it('can format uint64 type from Binary', () => {
+		// Arrange:
+		const buffer = Buffer.alloc(8, 0);
+		buffer.writeUInt32LE(0x00ABCDEF, 0);
+		buffer.writeUInt32LE(0x000FDFFF, 4);
+		const object = new Binary(buffer);
 
-			// Assert:
-			expect(result, `${code} code`).to.equal('Failure_Signature_Not_Verifiable');
-		});
+		// Act:
+		const result = formattingRules[ModelType.uint64](object);
+
+		// Assert:
+		expect(result).to.deep.equal([0x00ABCDEF, 0x000FDFFF]);
 	});
 });
