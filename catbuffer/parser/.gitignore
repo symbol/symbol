@@ -4,4 +4,8 @@
 __pycache__/
 .idea
 .vscode/
+.DS_Store
 _generated/
+.python-version
+node_modules/
+
