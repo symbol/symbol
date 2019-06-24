@@ -29,7 +29,7 @@ struct AggregateTransactionBody
 
 # binary layout for an aggregate complete transaction
 struct AggregateCompleteTransaction
-	const uint8 version = 2
+	const uint8 version = 1
 	const EntityType entityType = 0x4141
 
 	inline Transaction
@@ -37,7 +37,7 @@ struct AggregateCompleteTransaction
 
 # binary layout for an aggregate bonded transaction
 struct AggregateBondedTransaction
-	const uint8 version = 2
+	const uint8 version = 1
 	const EntityType entityType = 0x4142
 
 	inline Transaction

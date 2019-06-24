@@ -23,7 +23,7 @@ struct RegisterNamespaceTransactionBody
 
 # binary layout for a non-embedded register namespace transaction
 struct RegisterNamespaceTransaction
-	const uint8 version = 2
+	const uint8 version = 1
 	const EntityType entityType = 0x414E
 
 	inline Transaction

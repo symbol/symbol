@@ -18,7 +18,7 @@ struct AccountLinkTransactionBody
 
 # binary layout for a non-embedded account link transaction
 struct AccountLinkTransaction
-	const uint8 version = 2
+	const uint8 version = 1
 	const EntityType entityType = 0x414C
 
 	inline Transaction
