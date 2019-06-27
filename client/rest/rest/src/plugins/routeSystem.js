@@ -18,15 +18,15 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const accountProperties = require('./accountProperties');
-const aggregate = require('./aggregate');
+const accountProperties = require('./accountProperties/accountProperties');
+const aggregate = require('./aggregate/aggregate');
 const empty = require('./empty');
-const lock = require('./lock');
+const lock = require('./lock/lock');
 const MessageChannelBuilder = require('../connection/MessageChannelBuilder');
-const mosaic = require('./mosaic');
-const multisig = require('./multisig');
-const namespace = require('./namespace');
-const receipts = require('./receipts');
+const mosaic = require('./mosaic/mosaic');
+const multisig = require('./multisig/multisig');
+const namespace = require('./namespace/namespace');
+const receipts = require('./receipts/receipts');
 
 const plugins = {
 	accountLink: empty, accountProperties, aggregate, lock, mosaic, multisig, namespace, receipts, transfer: empty
