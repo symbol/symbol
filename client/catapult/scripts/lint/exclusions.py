@@ -38,7 +38,6 @@ NAMESPACES_FALSEPOSITIVES = (
     re.compile(r'plugins.txes.lock_shared.src.validators.LockDurationValidator.h'),
     re.compile(r'plugins.txes.mosaic.src.model.MosaicConstants.h'),
     re.compile(r'plugins.txes.namespace.src.model.NamespaceConstants.h'),
-    re.compile(r'plugins.txes.property.src.model.PropertyNotifications.h'),
     re.compile(r'tests.test.nodeps.Stress.h'),
     re.compile(r'internal.tools.*Generators.h'),
 
@@ -133,17 +132,18 @@ CORE_FIRSTINCLUDES = {
 
 PLUGINS_FIRSTINCLUDES = {
     # plugins
-    'plugins/coresystem/src/observers/PosImportanceCalculator.cpp': 'ImportanceCalculator.h',
-    'plugins/coresystem/src/observers/RestoreImportanceCalculator.cpp': 'ImportanceCalculator.h',
+    'plugins/coresystem/src/importance/PosImportanceCalculator.cpp': 'ImportanceCalculator.h',
+    'plugins/coresystem/src/importance/RestoreImportanceCalculator.cpp': 'ImportanceCalculator.h',
 
-    'plugins/coresystem/tests/observers/PosImportanceCalculatorTests.cpp': 'src/observers/ImportanceCalculator.h',
-    'plugins/coresystem/tests/observers/RestoreImportanceCalculatorTests.cpp': 'src/observers/ImportanceCalculator.h',
+    'plugins/coresystem/tests/importance/PosImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
+    'plugins/coresystem/tests/importance/RestoreImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
 
-    'plugins/txes/property/tests/model/PropertyTransactionTests.cpp': 'src/model/AddressPropertyTransaction.h',
+    'plugins/txes/restriction_account/tests/model/AccountRestrictionTransactionTests.cpp':
+        'src/model/AccountAddressRestrictionTransaction.h',
 
     # sdk
     'sdk/tests/builders/AliasBuilderTests.cpp': 'src/builders/AddressAliasBuilder.h',
-    'sdk/tests/builders/PropertyBuilderTests.cpp': 'src/builders/AddressPropertyBuilder.h',
+    'sdk/tests/builders/AccountRestrictionBuilderTests.cpp': 'src/builders/AccountAddressRestrictionBuilder.h',
 }
 
 TOOLS_FIRSTINCLUDES = {

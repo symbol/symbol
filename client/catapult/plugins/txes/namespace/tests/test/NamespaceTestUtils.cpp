@@ -19,12 +19,13 @@
 **/
 
 #include "NamespaceTestUtils.h"
+#include "src/state/RootNamespaceHistory.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace test {
 
 	Key CreateRandomOwner() {
-		return test::GenerateRandomByteArray<Key>();
+		return GenerateRandomByteArray<Key>();
 	}
 
 	std::string GenerateValidName(size_t size) {
@@ -33,7 +34,7 @@ namespace catapult { namespace test {
 
 		std::string name(size, '\0');
 		std::generate(name.begin(), name.end(), [alphabetLength]() {
-			return Valid_Alphabet[test::Random() % alphabetLength];
+			return Valid_Alphabet[Random() % alphabetLength];
 		});
 		return name;
 	}
@@ -101,4 +102,52 @@ namespace catapult { namespace test {
 			break;
 		}
 	}
+
+	// region AssertNonHistoricalEqual / AssertHistoricalEqual
+
+	namespace {
+		void AssertEqual(const state::RootNamespace& expected, const state::RootNamespace& actual, const std::string& message) {
+			// Assert: compare root namespace properties (including alias)
+			EXPECT_EQ(expected, actual) << message;
+			EXPECT_EQ(expected.lifetime(), actual.lifetime()) << message;
+			EXPECT_EQ(expected.sortedChildPaths(), actual.sortedChildPaths()) << message;
+			AssertEqualAlias(expected.alias(expected.id()), actual.alias(actual.id()), message);
+
+			// - compare each child namespace alias
+			for (const auto& pair : expected.children()) {
+				auto aliasMessage = message + " " + std::to_string(pair.first.unwrap());
+				AssertEqualAlias(expected.alias(pair.first), actual.alias(pair.first), aliasMessage);
+			}
+		}
+	}
+
+	void AssertNonHistoricalEqual(const state::RootNamespaceHistory& expected, const state::RootNamespaceHistory& actual) {
+		// Assert: history ids match
+		EXPECT_EQ(expected.id(), actual.id());
+
+		// - only latest root namespace should be saved
+		ASSERT_LE(1u, expected.historyDepth());
+		ASSERT_EQ(1u, actual.historyDepth());
+
+		// - compare most recent root namespace
+		AssertEqual(expected.back(), actual.back(), "most recent root namespace");
+	}
+
+	void AssertHistoricalEqual(const state::RootNamespaceHistory& expected, const state::RootNamespaceHistory& actual) {
+		// Assert: history ids match with same depth
+		EXPECT_EQ(expected.id(), actual.id());
+		EXPECT_EQ(expected.historyDepth(), actual.historyDepth());
+
+		// - compare all root namespaces
+		auto expectedIter = expected.begin();
+		auto actualIter = actual.begin();
+		for (auto i = 0u; i < expected.historyDepth(); ++i, ++expectedIter, ++actualIter)
+			AssertEqual(*expectedIter, *actualIter, "root namespace at " + std::to_string(i));
+
+		// - all root namespaces have been processed
+		EXPECT_EQ(expected.end(), expectedIter);
+		EXPECT_EQ(actual.end(), actualIter);
+	}
+
+	// endregion
 }}

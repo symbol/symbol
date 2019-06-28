@@ -42,10 +42,10 @@ namespace catapult { namespace disruptor {
 		/// Returns \c true if this input is empty and has no elements.
 		bool empty() const;
 
-		/// Returns \c true if this input is non-empty and has blocks.
+		/// Returns \c true if this input is not empty and has blocks.
 		bool hasBlocks() const;
 
-		/// Returns \c true if this input is non-empty and has transactions.
+		/// Returns \c true if this input is not empty and has transactions.
 		bool hasTransactions() const;
 
 	public:

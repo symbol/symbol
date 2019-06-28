@@ -36,10 +36,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 	private:
 		static void StreamLockMetadata(mappers::bson_stream::document& builder) {
-			builder
-					<< "meta"
-					<< mappers::bson_stream::open_document
-					<< mappers::bson_stream::close_document;
+			builder << "meta" << mappers::bson_stream::open_document << mappers::bson_stream::close_document;
 		}
 
 		static void StreamLockInfo(
@@ -70,28 +67,6 @@ namespace catapult { namespace mongo { namespace plugins {
 			return doc
 					<< mappers::bson_stream::close_document
 					<< mappers::bson_stream::finalize;
-		}
-
-		// endregion
-
-		// region ToModel
-
-	private:
-		static void ReadLockInfo(state::LockInfo& lockInfo, const bsoncxx::document::element dbLockInfo) {
-			using namespace catapult::mongo::mappers;
-
-			DbBinaryToModelArray(lockInfo.Account, dbLockInfo["account"].get_binary());
-			lockInfo.MosaicId = GetValue64<MosaicId>(dbLockInfo["mosaicId"]);
-			lockInfo.Amount = GetValue64<Amount>(dbLockInfo["amount"]);
-			lockInfo.Height = GetValue64<Height>(dbLockInfo["height"]);
-			lockInfo.Status = static_cast<state::LockStatus>(ToUint8(dbLockInfo["status"].get_int32()));
-		}
-
-	public:
-		static void ToLockInfo(const bsoncxx::document::view& document, LockInfoType& lockInfo) {
-			auto dbLockInfo = document["lock"];
-			ReadLockInfo(lockInfo, dbLockInfo);
-			TTraits::ReadLockInfo(lockInfo, dbLockInfo);
 		}
 
 		// endregion

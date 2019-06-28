@@ -80,7 +80,7 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, AdditionOfAlreadyAddedAccountHasNoEffect) {
 		// Arrange:
-		constexpr auto Private_Key_String = "3485d98efd7eb07adafcfd1a157d89de2796a95e780813c0258af3f5f84ed8cb";
+		constexpr auto Private_Key_String = "3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB";
 		auto keyPair1 = crypto::KeyPair::FromString(Private_Key_String);
 		auto keyPair2 = crypto::KeyPair::FromString(Private_Key_String);
 		auto publicKey = keyPair1.publicKey();

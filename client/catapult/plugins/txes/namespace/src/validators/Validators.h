@@ -27,11 +27,11 @@
 
 namespace catapult { namespace validators {
 
-	/// A validator implementation that applies to namespace notifications and validates that:
+	/// Validator that applies to namespace notifications and validates that:
 	/// - namespace type is valid
 	DECLARE_STATELESS_VALIDATOR(NamespaceType, model::NamespaceNotification)();
 
-	/// A validator implementation that applies to namespace name notifications and validates that:
+	/// Validator that applies to namespace name notifications and validates that:
 	/// - namespace name has a maximum size of \a maxNameSize
 	/// - namespace name consists only of allowed characters
 	/// - for root namespaces, name is not in \a reservedRootNamespaceNames
@@ -40,47 +40,47 @@ namespace catapult { namespace validators {
 			uint8_t maxNameSize,
 			const std::unordered_set<std::string>& reservedRootNamespaceNames);
 
-	/// A validator implementation that applies to root namespace notifications and validates that:
+	/// Validator that applies to root namespace notifications and validates that:
 	/// - namespace duration is less than or equal to \a maxDuration for root namespace
 	/// - namespace duration is zero for child namespace
 	DECLARE_STATELESS_VALIDATOR(RootNamespace, model::RootNamespaceNotification)(BlockDuration maxDuration);
 
-	/// A validator implementation that applies to root namespace notifications and validates that:
+	/// Validator that applies to root namespace notifications and validates that:
 	/// - namespace is available and can be created or renewed
 	DECLARE_STATEFUL_VALIDATOR(RootNamespaceAvailability, model::RootNamespaceNotification)();
 
-	/// A validator implementation that applies to root namespace notifications and validates that:
+	/// Validator that applies to root namespace notifications and validates that:
 	/// - namespace duration is acceptable given \a maxNamespaceDuration
 	DECLARE_STATEFUL_VALIDATOR(NamespaceDurationOverflow, model::RootNamespaceNotification)(BlockDuration maxNamespaceDuration);
 
-	/// A validator implementation that applies to child namespace notifications and validates that:
+	/// Validator that applies to child namespace notifications and validates that:
 	/// - namespace is available and can be created
 	DECLARE_STATEFUL_VALIDATOR(ChildNamespaceAvailability, model::ChildNamespaceNotification)();
 
-	/// A validator implementation that applies to child namespace notifications and validates that:
+	/// Validator that applies to child namespace notifications and validates that:
 	/// - maximum number of children (\a maxChildren) for a root namespace is not exceeded
 	DECLARE_STATEFUL_VALIDATOR(RootNamespaceMaxChildren, model::ChildNamespaceNotification)(uint16_t maxChildren);
 
-	/// A validator implementation that applies to alias owner notifications and validates that:
+	/// Validator that applies to alias owner notifications and validates that:
 	/// - alias action is valid
 	DECLARE_STATELESS_VALIDATOR(AliasAction, model::AliasOwnerNotification)();
 
-	/// A validator implementation that applies to alias owner notifications and validates that:
+	/// Validator that applies to alias owner notifications and validates that:
 	/// - namespace exists
 	/// - link does not overwrite existing link
 	/// - unlinked alias exists
 	/// - owner of namespace matches alias owner
 	DECLARE_STATEFUL_VALIDATOR(AliasAvailability, model::AliasOwnerNotification)();
 
-	/// A validator implementation that applies to aliased address notifications and validates that:
+	/// Validator that applies to aliased address notifications and validates that:
 	/// - unlink operation matches existing link
 	DECLARE_STATEFUL_VALIDATOR(UnlinkAliasedAddressConsistency, model::AliasedAddressNotification)();
 
-	/// A validator implementation that applies to aliased mosaic id notifications and validates that:
+	/// Validator that applies to aliased mosaic id notifications and validates that:
 	/// - unlink operation matches existing link
 	DECLARE_STATEFUL_VALIDATOR(UnlinkAliasedMosaicIdConsistency, model::AliasedMosaicIdNotification)();
 
-	/// A validator implementation that applies to aliased address notifications and validates that:
+	/// Validator that applies to aliased address notifications and validates that:
 	/// - account is known
 	DECLARE_STATEFUL_VALIDATOR(AddressAlias, model::AliasedAddressNotification)();
 }}

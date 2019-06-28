@@ -25,6 +25,44 @@
 
 namespace catapult { namespace io {
 
+	// region WriteBlockElement
+
+	namespace {
+		void WriteTransactionHashes(OutputStream& outputStream, const std::vector<model::TransactionElement>& transactionElements) {
+			auto numTransactions = static_cast<uint32_t>(transactionElements.size());
+			Write32(outputStream, numTransactions);
+			std::vector<Hash256> hashes(2 * numTransactions);
+			auto iter = hashes.begin();
+			for (const auto& transactionElement : transactionElements) {
+				*iter++ = transactionElement.EntityHash;
+				*iter++ = transactionElement.MerkleComponentHash;
+			}
+
+			outputStream.write({ reinterpret_cast<const uint8_t*>(hashes.data()), hashes.size() * Hash256_Size });
+		}
+
+		void WriteSubCacheMerkleRoots(OutputStream& outputStream, const std::vector<Hash256>& subCacheMerkleRoots) {
+			auto numHashes = static_cast<uint32_t>(subCacheMerkleRoots.size());
+			Write32(outputStream, numHashes);
+			outputStream.write({ reinterpret_cast<const uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256_Size });
+		}
+	}
+
+	void WriteBlockElement(const model::BlockElement& blockElement, OutputStream& outputStream) {
+		// 1. write constant size data
+		outputStream.write({ reinterpret_cast<const uint8_t*>(&blockElement.Block), blockElement.Block.Size });
+		outputStream.write(blockElement.EntityHash);
+		outputStream.write(blockElement.GenerationHash);
+
+		// 2. write transaction hashes
+		WriteTransactionHashes(outputStream, blockElement.Transactions);
+
+		// 3. write sub cache merkle roots
+		WriteSubCacheMerkleRoots(outputStream, blockElement.SubCacheMerkleRoots);
+	}
+
+	// endregion
+
 	// region ReadBlockElement
 
 	namespace {
@@ -74,44 +112,6 @@ namespace catapult { namespace io {
 		ReadTransactionHashes(inputStream, *pBlockElement);
 		ReadSubCacheMerkleRoots(inputStream, pBlockElement->SubCacheMerkleRoots);
 		return pBlockElement;
-	}
-
-	// endregion
-
-	// region WriteBlockElement
-
-	namespace {
-		void WriteTransactionHashes(OutputStream& outputStream, const std::vector<model::TransactionElement>& transactionElements) {
-			auto numTransactions = static_cast<uint32_t>(transactionElements.size());
-			Write32(outputStream, numTransactions);
-			std::vector<Hash256> hashes(2 * numTransactions);
-			auto iter = hashes.begin();
-			for (const auto& transactionElement : transactionElements) {
-				*iter++ = transactionElement.EntityHash;
-				*iter++ = transactionElement.MerkleComponentHash;
-			}
-
-			outputStream.write({ reinterpret_cast<const uint8_t*>(hashes.data()), hashes.size() * Hash256_Size });
-		}
-
-		void WriteSubCacheMerkleRoots(OutputStream& outputStream, const std::vector<Hash256>& subCacheMerkleRoots) {
-			auto numHashes = static_cast<uint32_t>(subCacheMerkleRoots.size());
-			Write32(outputStream, numHashes);
-			outputStream.write({ reinterpret_cast<const uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256_Size });
-		}
-	}
-
-	void WriteBlockElement(OutputStream& outputStream, const model::BlockElement& blockElement) {
-		// 1. write constant size data
-		outputStream.write({ reinterpret_cast<const uint8_t*>(&blockElement.Block), blockElement.Block.Size });
-		outputStream.write(blockElement.EntityHash);
-		outputStream.write(blockElement.GenerationHash);
-
-		// 2. write transaction hashes
-		WriteTransactionHashes(outputStream, blockElement.Transactions);
-
-		// 3. write sub cache merkle roots
-		WriteSubCacheMerkleRoots(outputStream, blockElement.SubCacheMerkleRoots);
 	}
 
 	// endregion

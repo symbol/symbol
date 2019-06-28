@@ -97,7 +97,7 @@ namespace catapult { namespace cache {
 
 	void BasicBlockDifficultyCacheDelta::checkRemove(Height height) const {
 		// remove is only allowed if both
-		// - the set is non-empty
+		// - the set is not empty
 		// - the height is equal to the largest height in the set
 		if (m_pOrderedDelta->empty())
 			CATAPULT_THROW_RUNTIME_ERROR("remove called on empty cache");

@@ -40,6 +40,9 @@ namespace catapult { namespace model {
 		/// Lock secret facility code.
 		LockSecret = 0x52,
 
+		/// Metadata facility code.
+		Metadata = 0x44,
+
 		/// Mosaic facility code.
 		Mosaic = 0x4D,
 
@@ -49,8 +52,11 @@ namespace catapult { namespace model {
 		/// Namespace facility code.
 		Namespace = 0x4E,
 
-		/// Property facility code.
-		Property = 0x50,
+		/// Account restriction facility code.
+		RestrictionAccount = 0x50,
+
+		/// Mosaic restriction facility code.
+		RestrictionMosaic = 0x51,
 
 		/// Transfer facility code.
 		Transfer = 0x54

@@ -52,6 +52,10 @@ namespace catapult { namespace builders {
 		void setRecipient(const UnresolvedAddress& recipient);
 
 	public:
+		/// Returns size of secret lock transaction.
+		/// \note This returns size of a normal transaction not embedded transaction.
+		size_t size() const;
+
 		/// Builds a new secret lock transaction.
 		std::unique_ptr<Transaction> build() const;
 
@@ -59,6 +63,9 @@ namespace catapult { namespace builders {
 		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
 	private:
+		template<typename TTransaction>
+		size_t sizeImpl() const;
+
 		template<typename TTransaction>
 		std::unique_ptr<TTransaction> buildImpl() const;
 

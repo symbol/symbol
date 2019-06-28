@@ -34,18 +34,10 @@ namespace catapult { namespace mongo { namespace plugins {
 			static void StreamLockInfo(bson_stream::document& builder, const state::HashLockInfo& hashLockInfo) {
 				builder << "hash" << ToBinary(hashLockInfo.Hash);
 			}
-
-			static void ReadLockInfo(state::HashLockInfo& hashLockInfo, const bsoncxx::document::element dbLockInfo) {
-				DbBinaryToModelArray(hashLockInfo.Hash, dbLockInfo["hash"].get_binary());
-			}
 		};
 	}
 
 	bsoncxx::document::value ToDbModel(const state::HashLockInfo& hashLockInfo, const Address& accountAddress) {
 		return LockInfoMapper<HashLockInfoMapperTraits>::ToDbModel(hashLockInfo, accountAddress);
-	}
-
-	void ToLockInfo(const bsoncxx::document::view& document, state::HashLockInfo& hashLockInfo) {
-		LockInfoMapper<HashLockInfoMapperTraits>::ToLockInfo(document, hashLockInfo);
 	}
 }}}

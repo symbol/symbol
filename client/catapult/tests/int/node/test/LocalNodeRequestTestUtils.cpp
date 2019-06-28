@@ -133,7 +133,7 @@ namespace catapult { namespace test {
 			return currentHeight;
 		};
 
-		WAIT_FOR_VALUE_EXPR(height, heightSupplierWithBackoff());
+		WAIT_FOR_VALUE_EXPR_SECONDS(height, heightSupplierWithBackoff(), 15);
 
 	}
 

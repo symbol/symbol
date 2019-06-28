@@ -61,6 +61,17 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(123u, ReadOnlyAccountStateCache(*originalCache.createDelta()).importanceGrouping());
 	}
 
+	TEST(TEST_CLASS, MinHarvesterBalanceIsExposed) {
+		// Arrange:
+		auto options = Default_Cache_Options;
+		options.MinHarvesterBalance = Amount(336644);
+		AccountStateCache originalCache(CacheConfiguration(), options);
+
+		// Act + Assert:
+		EXPECT_EQ(Amount(336644), ReadOnlyAccountStateCache(*originalCache.createView()).minHarvesterBalance());
+		EXPECT_EQ(Amount(336644), ReadOnlyAccountStateCache(*originalCache.createDelta()).minHarvesterBalance());
+	}
+
 	TEST(TEST_CLASS, HarvestingMosaicIdIsExposed) {
 		// Arrange:
 		auto options = Default_Cache_Options;

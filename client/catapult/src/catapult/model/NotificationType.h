@@ -118,7 +118,7 @@ namespace catapult { namespace model {
 	DEFINE_CORE_NOTIFICATION(Source_Change, 0x000B, Observer);
 
 	/// Transaction fee was received.
-	DEFINE_CORE_NOTIFICATION(Transaction_Fee, 0x000C, Validator);
+	DEFINE_CORE_NOTIFICATION(Transaction_Fee, 0x000C, All);
 
 	/// Transaction deadline was received.
 	DEFINE_CORE_NOTIFICATION(Transaction_Deadline, 0x000D, Validator);

@@ -246,7 +246,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ("", out.str());
 	}
 
-	STRING_BUFFER_TRAITS_BASED_TEST(CanOutputNonEmptyRawString) {
+	STRING_BUFFER_TRAITS_BASED_TEST(CanOutputRawString) {
 		// Arrange:
 		std::string input("abcdef");
 		typename TTraits::Type str(&input[0], 3);

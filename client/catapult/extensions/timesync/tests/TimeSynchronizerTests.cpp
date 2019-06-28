@@ -52,7 +52,7 @@ namespace catapult { namespace timesync {
 			auto delta = cache.createDelta();
 			delta->addAccount(key, Height(100));
 			auto& accountState = delta->find(key).get();
-			accountState.ImportanceInfo.set(importance, importanceHeight);
+			accountState.ImportanceSnapshots.set(importance, importanceHeight);
 			accountState.Balances.credit(Harvesting_Mosaic_Id, Amount(1000));
 			cache.commit();
 		}
@@ -105,9 +105,9 @@ namespace catapult { namespace timesync {
 				auto view = m_cache.createView();
 				for (auto i = 0u; i < keys.size(); ++i) {
 					if (KeyType::PublicKey == keyType)
-						EXPECT_EQ(importances[i], view->find(keys[i]).get().ImportanceInfo.current()) << "at index " << i;
+						EXPECT_EQ(importances[i], view->find(keys[i]).get().ImportanceSnapshots.current()) << "at index " << i;
 					else
-						EXPECT_EQ(importances[i], view->find(addresses[i]).get().ImportanceInfo.current()) << "at index " << i;
+						EXPECT_EQ(importances[i], view->find(addresses[i]).get().ImportanceSnapshots.current()) << "at index " << i;
 				}
 			}
 

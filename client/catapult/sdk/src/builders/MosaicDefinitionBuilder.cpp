@@ -50,6 +50,10 @@ namespace catapult { namespace builders {
 		});
 	}
 
+	size_t MosaicDefinitionBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
+
 	std::unique_ptr<MosaicDefinitionBuilder::Transaction> MosaicDefinitionBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
@@ -59,11 +63,17 @@ namespace catapult { namespace builders {
 	}
 
 	template<typename TransactionType>
-	std::unique_ptr<TransactionType> MosaicDefinitionBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
+	size_t MosaicDefinitionBuilder::sizeImpl() const {
+		// calculate transaction size
 		auto size = sizeof(TransactionType);
 		size += m_properties.size() * sizeof(model::MosaicProperty);
-		auto pTransaction = createTransaction<TransactionType>(size);
+		return size;
+	}
+
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> MosaicDefinitionBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
 		pTransaction->MosaicNonce = m_mosaicNonce;

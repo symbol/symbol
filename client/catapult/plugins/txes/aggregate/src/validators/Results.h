@@ -29,22 +29,22 @@ namespace catapult { namespace validators {
 #define DEFINE_AGGREGATE_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Aggregate, DESCRIPTION, CODE, None)
 
 	/// Validation failed because aggregate has too many transactions.
-	DEFINE_AGGREGATE_RESULT(Too_Many_Transactions, 0x0001);
+	DEFINE_AGGREGATE_RESULT(Too_Many_Transactions, 1);
 
 	/// Validation failed because aggregate does not have any transactions.
-	DEFINE_AGGREGATE_RESULT(No_Transactions, 0x0002);
+	DEFINE_AGGREGATE_RESULT(No_Transactions, 2);
 
 	/// Validation failed because aggregate has too many cosignatures.
-	DEFINE_AGGREGATE_RESULT(Too_Many_Cosignatures, 0x0003);
+	DEFINE_AGGREGATE_RESULT(Too_Many_Cosignatures, 3);
 
 	/// Validation failed because redundant cosignatures are present.
-	DEFINE_AGGREGATE_RESULT(Redundant_Cosignatures, 0x0004);
+	DEFINE_AGGREGATE_RESULT(Redundant_Cosignatures, 4);
 
 	/// Validation failed because at least one cosigner is ineligible.
-	DEFINE_AGGREGATE_RESULT(Ineligible_Cosigners, 0x1001);
+	DEFINE_AGGREGATE_RESULT(Ineligible_Cosigners, 5);
 
 	/// Validation failed because at least one required cosigner is missing.
-	DEFINE_AGGREGATE_RESULT(Missing_Cosigners, 0x1002);
+	DEFINE_AGGREGATE_RESULT(Missing_Cosigners, 6);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

@@ -90,7 +90,7 @@ namespace catapult { namespace zeromq {
 
 	// region basic tests
 
-	TEST(TEST_CLASS, CanDestroyPublisherWithNonEmptyQueueWithoutCrash) {
+	TEST(TEST_CLASS, CanDestroyPublisherWithUnprocessedMessagesWithoutCrash) {
 		// Arrange:
 		EntityPublisherContext context;
 		context.subscribe(BlockMarker::Drop_Blocks_Marker);

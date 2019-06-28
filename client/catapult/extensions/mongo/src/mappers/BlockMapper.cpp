@@ -91,12 +91,4 @@ namespace catapult { namespace mongo { namespace mappers {
 		builder << bson_stream::close_document;
 		return builder << bson_stream::finalize;
 	}
-
-	state::BlockDifficultyInfo ToDifficultyInfo(const bsoncxx::document::view& document) {
-		state::BlockDifficultyInfo difficultyInfo;
-		difficultyInfo.BlockHeight = GetValue64<Height>(document["height"]);
-		difficultyInfo.BlockDifficulty = GetValue64<Difficulty>(document["difficulty"]);
-		difficultyInfo.BlockTimestamp = GetValue64<Timestamp>(document["timestamp"]);
-		return difficultyInfo;
-	}
 }}}

@@ -40,6 +40,9 @@ namespace catapult { namespace config {
 
 			if (100u < config.HarvestBeneficiaryPercentage)
 				CATAPULT_THROW_VALIDATION_ERROR("HarvestBeneficiaryPercentage must not be greater than 100");
+
+			if (99u < config.ImportanceActivityPercentage)
+				CATAPULT_THROW_VALIDATION_ERROR("ImportanceActivityPercentage must not be greater than 99");
 		}
 
 		void ValidateConfiguration(

@@ -26,6 +26,8 @@
 #include "tests/test/nodeps/Random.h"
 #include <vector>
 
+namespace catapult { namespace state { class RootNamespaceHistory; } }
+
 namespace catapult { namespace test {
 
 	using ChildNamespaces = state::RootNamespace::Children;
@@ -62,4 +64,12 @@ namespace catapult { namespace test {
 			const state::NamespaceAlias& expectedAlias,
 			const state::NamespaceAlias& actualAlias,
 			const std::string& message = "");
+
+	/// Asserts that root namespace \a actual is shallow equal to \a expected.
+	/// \note This only compares the most recent root namespace in the history.
+	void AssertNonHistoricalEqual(const state::RootNamespaceHistory& expected, const state::RootNamespaceHistory& actual);
+
+	/// Asserts that root namespace \a actual is deep equal to \a expected.
+	/// \note This compares all root namespaces in the history.
+	void AssertHistoricalEqual(const state::RootNamespaceHistory& expected, const state::RootNamespaceHistory& actual);
 }}

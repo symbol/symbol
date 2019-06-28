@@ -81,6 +81,8 @@ namespace catapult { namespace plugins {
 					"AccountPublicKeyObserver",
 					"BalanceDebitObserver",
 					"BalanceTransferObserver",
+					"BeneficiaryObserver",
+					"TransactionFeeActivityObserver",
 					"HarvestFeeObserver",
 					"TotalTransactionsObserver",
 					"RecalculateImportancesObserver",
@@ -96,6 +98,8 @@ namespace catapult { namespace plugins {
 					"AccountPublicKeyObserver",
 					"BalanceDebitObserver",
 					"BalanceTransferObserver",
+					"BeneficiaryObserver",
+					"TransactionFeeActivityObserver",
 					"HarvestFeeObserver",
 					"TotalTransactionsObserver"
 				};

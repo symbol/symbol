@@ -19,6 +19,7 @@
 **/
 
 #include "catapult/tree/PatriciaTreeSerializer.h"
+#include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace tree {
@@ -111,7 +112,7 @@ namespace catapult { namespace tree {
 
 	// endregion
 
-	// region serialization - value
+	// region Serialize - value
 
 	TEST(TEST_CLASS, SerializeNodeFailsWhenNodeIsEmpty) {
 		// Act + Assert:
@@ -121,28 +122,28 @@ namespace catapult { namespace tree {
 	PTSERIALIZER_TRAITS_BASED_TEST(CanSerializeLeaf) {
 		// Arrange:
 		auto leafValue = test::GenerateRandomByteArray<Hash256>();
-		auto node = LeafTreeNode(TPathTraits::CreatePath(), leafValue);
+		auto originalNode = LeafTreeNode(TPathTraits::CreatePath(), leafValue);
 
 		// Act:
-		auto result = Serializer::SerializeValue(TreeNode(node));
+		auto result = Serializer::SerializeValue(TreeNode(originalNode));
 
 		// Assert:
-		AssertSerializedLeaf<TPathTraits>(node, result);
+		AssertSerializedLeaf<TPathTraits>(originalNode, result);
 	}
 
 	namespace {
 		template<typename TPathTraits, typename TIndexGenerator>
 		void AssertCanSerializeBranch(size_t numLinks, TIndexGenerator indexGenerator, uint16_t expectedMask) {
 			// Arrange:
-			auto node = BranchTreeNode(TPathTraits::CreatePath());
+			auto originalNode = BranchTreeNode(TPathTraits::CreatePath());
 			for (auto i = 0u; i < numLinks; ++i)
-				node.setLink(test::GenerateRandomByteArray<Hash256>(), indexGenerator(i));
+				originalNode.setLink(test::GenerateRandomByteArray<Hash256>(), indexGenerator(i));
 
 			// Act:
-			auto result = Serializer::SerializeValue(TreeNode(node));
+			auto result = Serializer::SerializeValue(TreeNode(originalNode));
 
 			// Assert:
-			AssertSerializedBranch<TPathTraits>(node, numLinks, indexGenerator, expectedMask, result);
+			AssertSerializedBranch<TPathTraits>(originalNode, numLinks, indexGenerator, expectedMask, result);
 		}
 	}
 
@@ -158,7 +159,7 @@ namespace catapult { namespace tree {
 
 	// endregion
 
-	// region deserialization - helpers
+	// region Deserialize - helpers
 
 	namespace {
 		template<typename TDestContainer, typename TSourceContainer>
@@ -217,7 +218,7 @@ namespace catapult { namespace tree {
 
 	// endregion
 
-	// region deserialize - not enough data
+	// region Deserialize - not enough data
 
 	PTSERIALIZER_TRAITS_BASED_TEST(DeserializeFailsWhenThereIsNotEnoughData_Leaf) {
 		// Arrange:
@@ -246,7 +247,7 @@ namespace catapult { namespace tree {
 
 	// endregion
 
-	// region deserialize - invalid marker
+	// region Deserialize - invalid marker
 
 	PTSERIALIZER_TRAITS_BASED_TEST(DeserializeFailsWhenMarkerIsInvalid_Leaf) {
 		// Arrange:
@@ -263,7 +264,7 @@ namespace catapult { namespace tree {
 
 	// endregion
 
-	// region path deserializing throws
+	// region Deserialize - path deserialization throws
 
 	TEST(TEST_CLASS, DeserializeValueFailsWhenPathSizeIsOddAndHasWrongFillerNibble) {
 		// Arrange: make sure filler nibble is non-zero
@@ -287,7 +288,7 @@ namespace catapult { namespace tree {
 
 	// endregion
 
-	// region deseralize - valid
+	// region Deserialize - valid
 
 	PTSERIALIZER_TRAITS_BASED_TEST(CanDeserializeLeaf) {
 		// Arrange:
@@ -350,6 +351,51 @@ namespace catapult { namespace tree {
 	PTSERIALIZER_TRAITS_BASED_TEST(CanDeserializeBranchWithLinks) {
 		// Act + Assert:
 		AssertCanDeserializeBranch<TPathTraits>(4, 0x8421);
+	}
+
+	// endregion
+
+	// region Roundtrip
+
+	PTSERIALIZER_TRAITS_BASED_TEST(CanRoundtripLeaf) {
+		// Arrange:
+		auto leafValue = test::GenerateRandomByteArray<Hash256>();
+		auto originalNode = LeafTreeNode(TPathTraits::CreatePath(), leafValue);
+
+		// Act:
+		auto result = test::RunRoundtripStringTest<Serializer>(TreeNode(originalNode));
+
+		// Assert:
+		EXPECT_EQ(originalNode.path(), result.path());
+		EXPECT_EQ(originalNode.hash(), result.hash());
+	}
+
+	namespace {
+		template<typename TPathTraits, typename TIndexGenerator>
+		void AssertCanRoundtripBranch(size_t numLinks, TIndexGenerator indexGenerator) {
+			// Arrange:
+			auto originalNode = BranchTreeNode(TPathTraits::CreatePath());
+			for (auto i = 0u; i < numLinks; ++i)
+				originalNode.setLink(test::GenerateRandomByteArray<Hash256>(), indexGenerator(i));
+
+			// Act:
+			auto result = test::RunRoundtripStringTest<Serializer>(TreeNode(originalNode));
+
+			// Assert:
+			EXPECT_EQ(originalNode.path(), result.path());
+			EXPECT_EQ(originalNode.hash(), result.hash());
+			EXPECT_EQ(numLinks, result.asBranchNode().numLinks());
+		}
+	}
+
+	PTSERIALIZER_TRAITS_BASED_TEST(CanRoundtripBranchWithoutLinks) {
+		// Act + Assert:
+		AssertCanRoundtripBranch<TPathTraits>(0, [](auto) { return 0u; });
+	}
+
+	PTSERIALIZER_TRAITS_BASED_TEST(CanRoundtripBranchWithLinks) {
+		// Act + Assert: mask: 0010'0100'1001'0010 = 0x2492
+		AssertCanRoundtripBranch<TPathTraits>(5, [](auto i) { return i * 3 + 1u; });
 	}
 
 	// endregion

@@ -62,6 +62,10 @@ namespace catapult { namespace cache {
 		return m_options.ImportanceGrouping;
 	}
 
+	Amount BasicAccountStateCacheView::minHarvesterBalance() const {
+		return m_options.MinHarvesterBalance;
+	}
+
 	MosaicId BasicAccountStateCacheView::harvestingMosaicId() const {
 		return m_options.HarvestingMosaicId;
 	}

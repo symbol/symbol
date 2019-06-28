@@ -68,6 +68,10 @@ namespace catapult { namespace cache {
 		return m_options.ImportanceGrouping;
 	}
 
+	Amount BasicAccountStateCacheDelta::minHarvesterBalance() const {
+		return m_options.MinHarvesterBalance;
+	}
+
 	MosaicId BasicAccountStateCacheDelta::harvestingMosaicId() const {
 		return m_options.HarvestingMosaicId;
 	}
@@ -175,34 +179,61 @@ namespace catapult { namespace cache {
 	}
 
 	namespace {
-		using DeltasSet = AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType::SetType::MemorySetType;
+		class HighValueAddressesUpdater {
+		private:
+			using DeltasSet = AccountStateCacheTypes::PrimaryTypes::BaseSetDeltaType::SetType::MemorySetType;
 
-		void UpdateAddresses(model::AddressSet& addresses, const DeltasSet& source, const predicate<const state::AccountState&>& include) {
-			for (const auto& pair : source) {
-				const auto& accountState = pair.second;
-				if (include(accountState))
-					addresses.insert(accountState.Address);
-				else
-					addresses.erase(accountState.Address);
+		public:
+			HighValueAddressesUpdater(
+					const model::AddressSet& originalHighValueAddresses,
+					BasicAccountStateCacheDelta::HighValueAddressesTuple& highValueAddressesTuple)
+					: m_original(originalHighValueAddresses)
+					, m_current(highValueAddressesTuple.Current)
+					, m_removed(highValueAddressesTuple.Removed)
+			{}
+
+		public:
+			void update(const DeltasSet& source, const predicate<const state::AccountState&>& include) {
+				for (const auto& pair : source) {
+					const auto& accountState = pair.second;
+					const auto& address = accountState.Address;
+					if (include(accountState)) {
+						m_current.insert(address);
+
+						// don't need to modify m_removed because an element can't be in both Added and Copied
+					} else {
+						m_current.erase(address);
+
+						if (m_original.cend() != m_original.find(address))
+							m_removed.insert(address);
+					}
+				}
 			}
-		}
+
+		private:
+			const model::AddressSet& m_original;
+			model::AddressSet& m_current;
+			model::AddressSet& m_removed;
+		};
 	}
 
-	model::AddressSet BasicAccountStateCacheDelta::highValueAddresses() const {
+	BasicAccountStateCacheDelta::HighValueAddressesTuple BasicAccountStateCacheDelta::highValueAddresses() const {
 		// 1. copy original high value addresses
-		auto highValueAddresses = m_highValueAddresses;
+		HighValueAddressesTuple highValueAddresses;
+		highValueAddresses.Current = m_highValueAddresses;
 
 		// 2. update for changes
-		auto minBalance = m_options.MinHighValueAccountBalance;
+		auto minBalance = m_options.MinHarvesterBalance;
 		auto harvestingMosaicId = m_options.HarvestingMosaicId;
 		auto hasHighValue = [minBalance, harvestingMosaicId](const auto& accountState) {
 			return accountState.Balances.get(harvestingMosaicId) >= minBalance;
 		};
 
 		auto deltas = m_pStateByAddress->deltas();
-		UpdateAddresses(highValueAddresses, deltas.Added, hasHighValue);
-		UpdateAddresses(highValueAddresses, deltas.Copied, hasHighValue);
-		UpdateAddresses(highValueAddresses, deltas.Removed, [](const auto&) { return false; });
+		HighValueAddressesUpdater updater(m_highValueAddresses, highValueAddresses);
+		updater.update(deltas.Added, hasHighValue);
+		updater.update(deltas.Copied, hasHighValue);
+		updater.update(deltas.Removed, [](const auto&) { return false; });
 		return highValueAddresses;
 	}
 }}

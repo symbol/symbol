@@ -96,19 +96,10 @@ namespace catapult { namespace ionet {
 	/* Network time information has been requested by a peer. */ \
 	ENUM_VALUE(Time_Sync_Network_Time, 700) \
 	\
-	/* state path packets have types [800, 1100) */ \
+	/* state path packets have types [800, 1100) - ordered by facility code name */ \
 	\
 	/* Account state path has been requested by a client. */ \
 	ENUM_VALUE(Account_State_Path, FACILITY_BASED_CODE(800, Core)) \
-	\
-	/* Account properties state path has been requested by a client. */ \
-	ENUM_VALUE(Account_Properties_State_Path, FACILITY_BASED_CODE(800, Property)) \
-	\
-	/* Namespace state path has been requested by a client. */ \
-	ENUM_VALUE(Namespace_State_Path, FACILITY_BASED_CODE(800, Namespace)) \
-	\
-	/* Mosaic state path has been requested by a client. */ \
-	ENUM_VALUE(Mosaic_State_Path, FACILITY_BASED_CODE(800, Mosaic)) \
 	\
 	/* Hash lock state path has been requested by a client. */ \
 	ENUM_VALUE(Hash_Lock_State_Path, FACILITY_BASED_CODE(800, LockHash)) \
@@ -116,10 +107,25 @@ namespace catapult { namespace ionet {
 	/* Secret lock state path has been requested by a client. */ \
 	ENUM_VALUE(Secret_Lock_State_Path, FACILITY_BASED_CODE(800, LockSecret)) \
 	\
+	/* Metadata state path has been requested by a client. */ \
+	ENUM_VALUE(Metadata_State_Path, FACILITY_BASED_CODE(800, Metadata)) \
+	\
+	/* Mosaic state path has been requested by a client. */ \
+	ENUM_VALUE(Mosaic_State_Path, FACILITY_BASED_CODE(800, Mosaic)) \
+	\
 	/* Multisig state path has been requested by a client. */ \
 	ENUM_VALUE(Multisig_State_Path, FACILITY_BASED_CODE(800, Multisig)) \
 	\
-	/* diagnostic packets have types [1100, 2000) */ \
+	/* Namespace state path has been requested by a client. */ \
+	ENUM_VALUE(Namespace_State_Path, FACILITY_BASED_CODE(800, Namespace)) \
+	\
+	/* Account restrictions state path has been requested by a client. */ \
+	ENUM_VALUE(Account_Restrictions_State_Path, FACILITY_BASED_CODE(800, RestrictionAccount)) \
+	\
+	/* Mosaic restrictions state path has been requested by a client. */ \
+	ENUM_VALUE(Mosaic_Restrictions_State_Path, FACILITY_BASED_CODE(800, RestrictionMosaic)) \
+	\
+	/* diagnostic packets have types [1100, 2000) - ordered by facility code name */ \
 	\
 	/* Request for the current diagnostic counter values. */ \
 	ENUM_VALUE(Diagnostic_Counters, 1100) \
@@ -136,23 +142,29 @@ namespace catapult { namespace ionet {
 	/* Account infos have been requested by a client. */ \
 	ENUM_VALUE(Account_Infos, FACILITY_BASED_CODE(1200, Core)) \
 	\
-	/* Account properties infos have been requested by a client. */ \
-	ENUM_VALUE(Account_Properties_Infos, FACILITY_BASED_CODE(1200, Property)) \
-	\
-	/* Namespace infos have been requested by a client. */ \
-	ENUM_VALUE(Namespace_Infos, FACILITY_BASED_CODE(1200, Namespace)) \
-	\
-	/* Mosaic infos have been requested by a client. */ \
-	ENUM_VALUE(Mosaic_Infos, FACILITY_BASED_CODE(1200, Mosaic)) \
-	\
 	/* Hash lock infos have been requested by a client. */ \
 	ENUM_VALUE(Hash_Lock_Infos, FACILITY_BASED_CODE(1200, LockHash)) \
 	\
 	/* Secret lock infos have been requested by a client. */ \
 	ENUM_VALUE(Secret_Lock_Infos, FACILITY_BASED_CODE(1200, LockSecret)) \
 	\
+	/* Metadata infos have been requested by a client. */ \
+	ENUM_VALUE(Metadata_Infos, FACILITY_BASED_CODE(1200, Metadata)) \
+	\
+	/* Mosaic infos have been requested by a client. */ \
+	ENUM_VALUE(Mosaic_Infos, FACILITY_BASED_CODE(1200, Mosaic)) \
+	\
 	/* Multisig infos have been requested by a client. */ \
-	ENUM_VALUE(Multisig_Infos, FACILITY_BASED_CODE(1200, Multisig))
+	ENUM_VALUE(Multisig_Infos, FACILITY_BASED_CODE(1200, Multisig)) \
+	\
+	/* Namespace infos have been requested by a client. */ \
+	ENUM_VALUE(Namespace_Infos, FACILITY_BASED_CODE(1200, Namespace)) \
+	\
+	/* Account restrictions infos have been requested by a client. */ \
+	ENUM_VALUE(Account_Restrictions_Infos, FACILITY_BASED_CODE(1200, RestrictionAccount)) \
+	\
+	/* Mosaic restrictions infos have been requested by a client. */ \
+	ENUM_VALUE(Mosaic_Restrictions_Infos, FACILITY_BASED_CODE(1200, RestrictionMosaic))
 
 #define ENUM_VALUE(LABEL, VALUE) LABEL = VALUE,
 	/// An enumeration of known packet types.

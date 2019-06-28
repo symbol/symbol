@@ -24,29 +24,31 @@
 
 namespace catapult { namespace model {
 
-	// region lock secret notification types
+	// region secret lock notification types
 
-/// Defines a lock secret notification type with \a DESCRIPTION, \a CODE and \a CHANNEL.
-#define DEFINE_LOCKSECRET_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, LockSecret, DESCRIPTION, CODE)
+/// Defines a secret lock notification type with \a DESCRIPTION, \a CODE and \a CHANNEL.
+#define DEFINE_SECRET_LOCK_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, LockSecret, DESCRIPTION, CODE)
 
-	/// Lock secret duration.
-	DEFINE_LOCKSECRET_NOTIFICATION(Secret_Duration, 0x0001, Validator);
+	/// Secret lock duration.
+	DEFINE_SECRET_LOCK_NOTIFICATION(Secret_Duration, 0x0001, Validator);
 
-	/// Lock hash algorithm.
-	DEFINE_LOCKSECRET_NOTIFICATION(Hash_Algorithm, 0x0002, Validator);
+	/// Secret lock hash algorithm.
+	DEFINE_SECRET_LOCK_NOTIFICATION(Hash_Algorithm, 0x0002, Validator);
 
-	/// Lock secret.
-	DEFINE_LOCKSECRET_NOTIFICATION(Secret, 0x0003, All);
+	/// Secret lock creation.
+	DEFINE_SECRET_LOCK_NOTIFICATION(Secret, 0x0003, All);
 
 	/// Proof and secret.
-	DEFINE_LOCKSECRET_NOTIFICATION(Proof_Secret, 0x0004, Validator);
+	DEFINE_SECRET_LOCK_NOTIFICATION(Proof_Secret, 0x0004, Validator);
 
 	/// Proof publication.
-	DEFINE_LOCKSECRET_NOTIFICATION(Proof_Publication, 0x0005, All);
+	DEFINE_SECRET_LOCK_NOTIFICATION(Proof_Publication, 0x0005, All);
 
-#undef DEFINE_LOCKSECRET_NOTIFICATION
+#undef DEFINE_SECRET_LOCK_NOTIFICATION
 
 	// endregion
+
+	// region SecretLockDurationNotification
 
 	/// Notification of a secret lock duration
 	struct SecretLockDurationNotification : public BaseLockDurationNotification<SecretLockDurationNotification> {
@@ -57,6 +59,10 @@ namespace catapult { namespace model {
 	public:
 		using BaseLockDurationNotification<SecretLockDurationNotification>::BaseLockDurationNotification;
 	};
+
+	// endregion
+
+	// region SecretLockHashAlgorithmNotification
 
 	/// Notification of a secret lock hash algorithm.
 	struct SecretLockHashAlgorithmNotification : public Notification {
@@ -75,6 +81,10 @@ namespace catapult { namespace model {
 		/// Hash algorithm.
 		LockHashAlgorithm HashAlgorithm;
 	};
+
+	// endregion
+
+	// region SecretLockNotification
 
 	/// Notification of a secret lock.
 	struct SecretLockNotification : public BaseLockNotification<SecretLockNotification> {
@@ -108,6 +118,10 @@ namespace catapult { namespace model {
 		UnresolvedAddress Recipient;
 	};
 
+	// endregion
+
+	// region ProofSecretNotification
+
 	/// Notification of a secret and its proof.
 	struct ProofSecretNotification : public Notification {
 	public:
@@ -133,6 +147,10 @@ namespace catapult { namespace model {
 		/// Proof.
 		RawBuffer Proof;
 	};
+
+	// endregion
+
+	// region ProofPublicationNotification
 
 	/// Notification of a proof publication.
 	struct ProofPublicationNotification : public Notification {
@@ -167,4 +185,6 @@ namespace catapult { namespace model {
 		/// Recipient of the locked mosaic.
 		UnresolvedAddress Recipient;
 	};
+
+	// endregion
 }}

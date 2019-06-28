@@ -60,6 +60,9 @@ namespace catapult { namespace model {
 		/// \note Importances will only be calculated at blocks that are multiples of this grouping number.
 		uint64_t ImportanceGrouping;
 
+		/// Percentage of importance resulting from fee generation and beneficiary usage.
+		uint8_t ImportanceActivityPercentage;
+
 		/// Maximum number of blocks that can be rolled back.
 		uint32_t MaxRollbackBlocks;
 

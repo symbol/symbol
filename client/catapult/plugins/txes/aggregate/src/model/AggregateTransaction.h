@@ -32,7 +32,7 @@ namespace catapult { namespace model {
 	/// Binary layout for an aggregate transaction header.
 	struct AggregateTransactionHeader : public Transaction {
 	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Aggregate_Complete, 2)
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Aggregate_Complete, 1)
 
 	public:
 		/// Transaction payload size in bytes.

@@ -24,6 +24,8 @@
 
 namespace catapult { namespace io {
 
+	// region WriteBlockStatement
+
 	namespace {
 		template<typename T>
 		auto ToBytePointer(T& data) {
@@ -31,6 +33,46 @@ namespace catapult { namespace io {
 			return reinterpret_cast<Pointer>(&data);
 		}
 
+		void WriteStatement(OutputStream& outputStream, const model::ReceiptSource& key, const model::TransactionStatement& statement) {
+			outputStream.write({ ToBytePointer(key), sizeof(model::ReceiptSource) });
+
+			Write32(outputStream, utils::checked_cast<size_t, uint32_t>(statement.size()));
+			for (auto i = 0u; i < statement.size(); ++i) {
+				const auto& receipt = statement.receiptAt(i);
+				outputStream.write({ ToBytePointer(receipt), receipt.Size });
+			}
+		}
+
+		template<typename TUnresolvedKey, typename TResolutionStatement>
+		void WriteStatement(OutputStream& outputStream, const TUnresolvedKey& key, const TResolutionStatement& statement) {
+			outputStream.write({ ToBytePointer(key), sizeof(TUnresolvedKey) });
+
+			Write32(outputStream, utils::checked_cast<size_t, uint32_t>(statement.size()));
+			for (auto i = 0u; i < statement.size(); ++i) {
+				const auto& entry = statement.entryAt(i);
+				outputStream.write({ ToBytePointer(entry), sizeof(entry) });
+			}
+		}
+
+		template<typename TKey, typename TValue>
+		void WriteStatements(OutputStream& outputStream, const std::map<TKey, TValue>& statements) {
+			Write32(outputStream, utils::checked_cast<size_t, uint32_t>(statements.size()));
+			for (const auto& pair : statements)
+				WriteStatement(outputStream, pair.first, pair.second);
+		}
+	}
+
+	void WriteBlockStatement(const model::BlockStatement& blockStatement, OutputStream& outputStream) {
+		WriteStatements(outputStream, blockStatement.TransactionStatements);
+		WriteStatements(outputStream, blockStatement.AddressResolutionStatements);
+		WriteStatements(outputStream, blockStatement.MosaicResolutionStatements);
+	}
+
+	// endregion
+
+	// region ReadBlockStatement
+
+	namespace {
 		void ReadStatement(InputStream& inputStream, std::map<model::ReceiptSource, model::TransactionStatement>& statements) {
 			model::ReceiptSource key;
 			inputStream.read({ ToBytePointer(key), sizeof(model::ReceiptSource) });
@@ -84,39 +126,5 @@ namespace catapult { namespace io {
 		ReadStatements(inputStream, blockStatement.MosaicResolutionStatements);
 	}
 
-	namespace {
-		void WriteStatement(OutputStream& outputStream, const model::ReceiptSource& key, const model::TransactionStatement& statement) {
-			outputStream.write({ ToBytePointer(key), sizeof(model::ReceiptSource) });
-
-			Write32(outputStream, utils::checked_cast<size_t, uint32_t>(statement.size()));
-			for (auto i = 0u; i < statement.size(); ++i) {
-				const auto& receipt = statement.receiptAt(i);
-				outputStream.write({ ToBytePointer(receipt), receipt.Size });
-			}
-		}
-
-		template<typename TUnresolvedKey, typename TResolutionStatement>
-		void WriteStatement(OutputStream& outputStream, const TUnresolvedKey& key, const TResolutionStatement& statement) {
-			outputStream.write({ ToBytePointer(key), sizeof(TUnresolvedKey) });
-
-			Write32(outputStream, utils::checked_cast<size_t, uint32_t>(statement.size()));
-			for (auto i = 0u; i < statement.size(); ++i) {
-				const auto& entry = statement.entryAt(i);
-				outputStream.write({ ToBytePointer(entry), sizeof(entry) });
-			}
-		}
-
-		template<typename TKey, typename TValue>
-		void WriteStatements(OutputStream& outputStream, const std::map<TKey, TValue>& statements) {
-			Write32(outputStream, utils::checked_cast<size_t, uint32_t>(statements.size()));
-			for (const auto& pair : statements)
-				WriteStatement(outputStream, pair.first, pair.second);
-		}
-	}
-
-	void WriteBlockStatement(OutputStream& outputStream, const model::BlockStatement& blockStatement) {
-		WriteStatements(outputStream, blockStatement.TransactionStatements);
-		WriteStatements(outputStream, blockStatement.AddressResolutionStatements);
-		WriteStatements(outputStream, blockStatement.MosaicResolutionStatements);
-	}
+	// endregion
 }}

@@ -134,7 +134,7 @@ namespace catapult { namespace tree {
 		AssertPath(subpath, 0, {});
 	}
 
-	TEST(TEST_CLASS, CanCreateEmptySubpathFromNonEmptyPath) {
+	TEST(TEST_CLASS, CanCreateEmptySubpathFromPath) {
 		// Act:
 		TreeNodePath path(static_cast<uint32_t>(0x12C05437));
 		auto subpath = path.subpath(3, 0);

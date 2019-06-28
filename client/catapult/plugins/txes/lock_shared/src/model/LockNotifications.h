@@ -24,6 +24,8 @@
 
 namespace catapult { namespace model {
 
+	// region BaseLockDurationNotification
+
 	/// Base for lock duration notification.
 	template<typename TDerivedNotification>
 	struct BaseLockDurationNotification : public Notification {
@@ -38,6 +40,10 @@ namespace catapult { namespace model {
 		/// Lock duration.
 		BlockDuration Duration;
 	};
+
+	// endregion
+
+	// region BaseLockNotification
 
 	/// Base for lock transaction notification.
 	template<typename TDerivedNotification>
@@ -61,4 +67,6 @@ namespace catapult { namespace model {
 		/// Lock duration.
 		BlockDuration Duration;
 	};
+
+	// endregion
 }}

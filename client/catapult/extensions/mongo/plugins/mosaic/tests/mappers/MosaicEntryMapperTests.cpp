@@ -63,30 +63,4 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	// endregion
-
-	// region ToMosaicEntry
-
-	namespace {
-		bsoncxx::document::value CreateDbMosaicEntry() {
-			return ToDbModel(CreateMosaicEntry());
-		}
-	}
-
-	TEST(TEST_CLASS, CanMapMosaicEntry_DbModelToModel) {
-		// Arrange:
-		auto dbEntry = CreateDbMosaicEntry();
-
-		// Act:
-		auto entry = ToMosaicEntry(dbEntry);
-
-		// Assert: only the mosaic field (not meta) is mapped to the model
-		auto view = dbEntry.view();
-		EXPECT_EQ(2u, test::GetFieldCount(view));
-
-		auto mosaicView = view["mosaic"].get_document().view();
-		EXPECT_EQ(6u, test::GetFieldCount(mosaicView));
-		test::AssertEqualMosaicData(entry, mosaicView);
-	}
-
-	// endregion
 }}}

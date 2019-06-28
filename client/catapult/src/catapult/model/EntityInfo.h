@@ -48,7 +48,7 @@ namespace catapult { namespace model {
 		Hash256 EntityHash;
 
 	public:
-		/// Returns \c true if the info is non-empty and contains a valid entity pointer, \c false otherwise.
+		/// Returns \c true if the info is not empty and contains a valid entity pointer, \c false otherwise.
 		explicit operator bool() const noexcept {
 			return !!pEntity;
 		}

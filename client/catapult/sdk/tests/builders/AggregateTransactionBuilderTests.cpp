@@ -37,18 +37,18 @@ namespace catapult { namespace builders {
 		public:
 			explicit TestContext(size_t numTransactions)
 					: m_networkId(static_cast<model::NetworkIdentifier>(0x62))
-					, m_signer(test::GenerateRandomByteArray<Key>()) {
+					, m_signer(test::GenerateRandomByteArray<Key>())
+					, m_builder(m_networkId, m_signer) {
 				for (auto i = 0u; i < numTransactions; ++i)
 					m_pTransactions.push_back(mocks::CreateEmbeddedMockTransaction(static_cast<uint16_t>(31 + i)));
 			}
 
 		public:
 			auto buildTransaction() {
-				AggregateTransactionBuilder builder(m_networkId, m_signer);
 				for (const auto& pTransaction : m_pTransactions)
-					builder.addTransaction(test::CopyEntity(*pTransaction));
+					m_builder.addTransaction(test::CopyEntity(*pTransaction));
 
-				return builder.build();
+				return m_builder.build();
 			}
 
 			void assertTransaction(const model::AggregateTransaction& transaction, size_t numCosignatures, model::EntityType type) {
@@ -57,10 +57,13 @@ namespace catapult { namespace builders {
 				for (auto i = 0u; i < numTransactions; ++i)
 					additionalSize += 31 + i;
 
+				// aggregate builder does not include cosignatures in size()
+				RegularTraits::CheckBuilderSize(additionalSize, m_builder);
+
 				additionalSize += numCosignatures * sizeof(model::Cosignature);
 				RegularTraits::CheckFields(additionalSize, transaction);
 				EXPECT_EQ(m_signer, transaction.Signer);
-				EXPECT_EQ(0x6202, transaction.Version);
+				EXPECT_EQ(0x6201, transaction.Version);
 				EXPECT_EQ(type, transaction.Type);
 
 				auto i = 0u;
@@ -74,6 +77,7 @@ namespace catapult { namespace builders {
 		private:
 			const model::NetworkIdentifier m_networkId;
 			const Key m_signer;
+			AggregateTransactionBuilder m_builder;
 			std::vector<std::unique_ptr<mocks::EmbeddedMockTransaction>> m_pTransactions;
 		};
 

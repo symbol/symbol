@@ -133,7 +133,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanRoundtripArbitraryStrings) {
-		// Arrange: try to round trip some candidate strings
+		// Arrange: try to roundtrip some candidate strings
 		for (const auto& name : { "W SPC", "X", "DD  SPC", "ACT RDR", "WOSPC", "ABC", "ZY BA", "CAT", "ABCDEFGH", "MAXLENAA" })
 			AssertCanRoundtripName(name);
 	}

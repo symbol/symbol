@@ -46,12 +46,19 @@ namespace catapult { namespace state {
 		EXPECT_EQ(AccountType::Unlinked, state.AccountType);
 		EXPECT_EQ(Key(), state.LinkedAccountKey);
 
-		EXPECT_EQ(0u, state.Balances.size());
-
-		for (const auto& pair : state.ImportanceInfo) {
-			EXPECT_EQ(Importance(0), pair.Importance);
-			EXPECT_EQ(model::ImportanceHeight(0), pair.Height);
+		for (const auto& snapshot : state.ImportanceSnapshots) {
+			EXPECT_EQ(Importance(0), snapshot.Importance);
+			EXPECT_EQ(model::ImportanceHeight(0), snapshot.Height);
 		}
+
+		for (const auto& bucket : state.ActivityBuckets) {
+			EXPECT_EQ(model::ImportanceHeight(0), bucket.StartHeight);
+			EXPECT_EQ(Amount(0), bucket.TotalFeesPaid);
+			EXPECT_EQ(0u, bucket.BeneficiaryCount);
+			EXPECT_EQ(0u, bucket.RawScore);
+		}
+
+		EXPECT_EQ(0u, state.Balances.size());
 	}
 
 	// endregion

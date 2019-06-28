@@ -98,6 +98,9 @@ namespace catapult { namespace cache {
 		/// Gets the network importance grouping.
 		uint64_t importanceGrouping() const;
 
+		/// Gets the minimum harvester balance.
+		Amount minHarvesterBalance() const;
+
 		/// Gets the harvesting mosaic id.
 		MosaicId harvestingMosaicId() const;
 
@@ -125,8 +128,17 @@ namespace catapult { namespace cache {
 		void commitRemovals();
 
 	public:
+		/// Tuple composed of information about high value addresses that is returned by highValueAddresses.
+		struct HighValueAddressesTuple {
+			/// Addresses of accounts that are high value after application of all delta changes.
+			model::AddressSet Current;
+
+			/// Addresses of accounts that were high value but are no longer high value after application of all delta changes.
+			model::AddressSet Removed;
+		};
+
 		/// Gets all high value addresses.
-		model::AddressSet highValueAddresses() const;
+		HighValueAddressesTuple highValueAddresses() const;
 
 	private:
 		Address getAddress(const Key& publicKey);

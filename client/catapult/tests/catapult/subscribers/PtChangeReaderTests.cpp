@@ -38,7 +38,7 @@ namespace catapult { namespace subscribers {
 			io::Write8(outputStream, utils::to_underlying_type(operationType));
 			io::Write32(outputStream, static_cast<uint32_t>(transactionInfos.size()));
 			for (const auto& transactionInfo : transactionInfos)
-				io::WriteTransactionInfo(outputStream, transactionInfo);
+				io::WriteTransactionInfo(transactionInfo, outputStream);
 		}
 
 		void RunCanReadPtChangeTest(
@@ -108,7 +108,7 @@ namespace catapult { namespace subscribers {
 		io::Write8(stream, utils::to_underlying_type(PtChangeOperationType::Add_Cosignature));
 		stream.write(signer);
 		stream.write(signature);
-		io::WriteTransactionInfo(stream, *transactionInfos.cbegin());
+		io::WriteTransactionInfo(*transactionInfos.cbegin(), stream);
 
 		mocks::MockPtChangeSubscriber subscriber;
 

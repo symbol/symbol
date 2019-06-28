@@ -64,13 +64,13 @@ namespace catapult { namespace harvesting {
 			return options;
 		}
 
-		void PruneUnlockedAccounts(UnlockedAccounts& unlockedAccounts, const cache::CatapultCache& cache, Amount minHarvesterBalance) {
+		void PruneUnlockedAccounts(UnlockedAccounts& unlockedAccounts, const cache::CatapultCache& cache) {
 			auto cacheView = cache.createView();
 			auto height = cacheView.height() + Height(1);
 			auto readOnlyAccountStateCache = cache::ReadOnlyAccountStateCache(cacheView.sub<cache::AccountStateCache>());
-			unlockedAccounts.modifier().removeIf([height, minHarvesterBalance, &readOnlyAccountStateCache](const auto& key) {
+			unlockedAccounts.modifier().removeIf([height, &readOnlyAccountStateCache](const auto& key) {
 				cache::ImportanceView view(readOnlyAccountStateCache);
-				return !view.canHarvest(key, height, minHarvesterBalance);
+				return !view.canHarvest(key, height);
 			});
 		}
 
@@ -87,10 +87,9 @@ namespace catapult { namespace harvesting {
 					CreateHarvesterTaskOptions(state),
 					std::make_unique<Harvester>(cache, blockChainConfig, beneficiary, unlockedAccounts, blockGenerator));
 
-			auto minHarvesterBalance = blockChainConfig.MinHarvesterBalance;
-			return thread::CreateNamedTask("harvesting task", [&cache, &unlockedAccounts, pHarvesterTask, minHarvesterBalance]() {
+			return thread::CreateNamedTask("harvesting task", [&cache, &unlockedAccounts, pHarvesterTask]() {
 				// prune accounts that are not eligible to harvest the next block
-				PruneUnlockedAccounts(unlockedAccounts, cache, minHarvesterBalance);
+				PruneUnlockedAccounts(unlockedAccounts, cache);
 
 				// harvest the next block
 				pHarvesterTask->harvest();

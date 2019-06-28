@@ -48,9 +48,10 @@ namespace catapult { namespace mongo { namespace plugins {
 		auto view = builder.view();
 
 		// Assert:
-		EXPECT_EQ(3u, test::GetFieldCount(view));
+		EXPECT_EQ(4u, test::GetFieldCount(view));
 		EXPECT_EQ(utils::to_underlying_type(pTransaction->HashAlgorithm), test::GetUint8(view, "hashAlgorithm"));
 		EXPECT_EQ(pTransaction->Secret, test::GetHashValue(view, "secret"));
+		EXPECT_EQ(pTransaction->Recipient, test::GetUnresolvedAddressValue(view, "recipient"));
 
 		const auto* pProof = pTransaction->ProofPtr();
 		const auto* pDbProof = test::GetBinary(view, "proof");

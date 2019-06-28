@@ -89,7 +89,8 @@ namespace catapult { namespace mongo {
 			const auto& dbName = dbConfig.DatabaseName;
 
 			// create mongo writer
-			auto numWriterThreads = std::min(std::thread::hardware_concurrency(), dbConfig.MaxWriterThreads);
+			// keep the minimum high enough in order to avoid deadlock while waiting for mongo operations due to blocking io threads
+			auto numWriterThreads = std::max(4u, std::min(std::thread::hardware_concurrency(), dbConfig.MaxWriterThreads));
 			auto pBulkWriterPool = bootstrapper.pool().pushIsolatedPool("bulk writer", numWriterThreads);
 			auto pMongoBulkWriter = MongoBulkWriter::Create(
 					dbUri,

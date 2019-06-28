@@ -68,7 +68,7 @@ namespace catapult { namespace harvesting {
 			for (auto i = 0u; i < keyPairs.size(); ++i) {
 				cache.addAccount(keyPairs[i].publicKey(), Height(123));
 				auto& accountState = cache.find(keyPairs[i].publicKey()).get();
-				accountState.ImportanceInfo.set(importances[i], model::ImportanceHeight(1));
+				accountState.ImportanceSnapshots.set(importances[i], model::ImportanceHeight(1));
 			}
 		}
 
@@ -184,7 +184,7 @@ namespace catapult { namespace harvesting {
 			uint64_t referenceTarget = static_cast<uint64_t>(chain::CalculateTarget(
 					utils::TimeSpan::FromMilliseconds(1000),
 					difficulty,
-					accountState.ImportanceInfo.current(),
+					accountState.ImportanceSnapshots.current(),
 					config));
 			uint64_t seconds = hit / referenceTarget;
 			return Timestamp((seconds + 1) * 1000);
@@ -311,7 +311,7 @@ namespace catapult { namespace harvesting {
 			for (const auto& keyPair : context.KeyPairs) {
 				// - next block has height 2 and thus importance is expected to be set at height 1
 				auto& accountState = accountStateCache.find(keyPair.publicKey()).get();
-				accountState.ImportanceInfo.set(accountState.ImportanceInfo.current(), model::ImportanceHeight(360));
+				accountState.ImportanceSnapshots.set(accountState.ImportanceSnapshots.current(), model::ImportanceHeight(360));
 			}
 
 			context.Cache.commit(Height());

@@ -176,7 +176,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(TTraits::begin(array), TTraits::end(array));
 	}
 
-	ITERATOR_BASED_TEST(IteratorsReturnProperRepresentation_NonEmptyArray) {
+	ITERATOR_BASED_TEST(IteratorsReturnProperRepresentation_ArrayWithValues) {
 		for (auto i = 1u; i <= Default_Size; ++i)
 			AssertIteratorsReturnProperRepresentation<TTraits>(i);
 	}

@@ -13,5 +13,5 @@ catapult.mongo.plugins.locksecret = true
 catapult.mongo.plugins.mosaic = true
 catapult.mongo.plugins.multisig = true
 catapult.mongo.plugins.namespace = true
-catapult.mongo.plugins.property = true
+catapult.mongo.plugins.restrictionaccount = true
 catapult.mongo.plugins.transfer = true

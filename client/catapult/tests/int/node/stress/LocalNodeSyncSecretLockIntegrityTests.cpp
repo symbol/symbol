@@ -18,9 +18,14 @@
 *** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
 **/
 
+#include "sdk/src/extensions/ConversionExtensions.h"
+#include "sdk/src/extensions/TransactionExtensions.h"
+#include "catapult/model/Address.h"
 #include "tests/int/node/stress/test/ExpiryTestUtils.h"
 #include "tests/int/node/stress/test/LocalNodeSyncIntegrityTestUtils.h"
 #include "tests/int/node/stress/test/SecretLockTransactionsBuilder.h"
+#include "tests/test/local/RealTransactionFactory.h"
+#include "tests/test/nodeps/Nemesis.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace local {
@@ -501,23 +506,28 @@ namespace catapult { namespace local {
 				// - wait for boot
 				test::WaitForBoot(m_context);
 
+				// - seed cache with mijin test private keys
+				//   this is needed since those keys are used to sign blocks and can lead to unexpected state changes when
+				//   they are added to the account state cache
+				auto builder = seedCache(allBlocks);
+
 				// - fund accounts
-				auto builder = fundAccounts(allBlocks);
+				auto builder2 = fundAccounts(builder, allBlocks);
 
 				// - add secret lock and then force rollback
 				test::SecretLockTransactionsBuilder transactionsBuilder(m_accounts);
 				auto secretProof = transactionsBuilder.addSecretLock(2, 3, Amount(100'000), Lock_Duration);
-				auto worseBlocks = createBlocks(transactionsBuilder, builder, allBlocks);
+				auto worseBlocks = createBlocks(transactionsBuilder, builder2, allBlocks);
 
 				test::SecretLockTransactionsBuilder transactionsBuilder2(m_accounts);
 				transactionsBuilder2.addTransfer(0, 1, Amount(1));
 
-				auto betterBlocks = createBlocks(transactionsBuilder2, builder, allBlocks, utils::TimeSpan::FromSeconds(58));
+				auto betterBlocks = createBlocks(transactionsBuilder2, builder2, allBlocks, utils::TimeSpan::FromSeconds(58));
 				allBlocks.push_back(betterBlocks[0]);
 
 				test::PushEntities(m_connection, ionet::PacketType::Push_Block, worseBlocks);
 				test::PushEntities(m_connection, ionet::PacketType::Push_Block, betterBlocks);
-				test::WaitForHeightAndElements(m_context, Height(4), 3, 1);
+				test::WaitForHeightAndElements(m_context, Height(5), 4, 1);
 
 				// Sanity: the cache has expected balances
 				test::AssertCurrencyBalances(m_accounts, m_context.localNode().cache(), {
@@ -529,26 +539,26 @@ namespace catapult { namespace local {
 				// - readd secret lock
 				auto stateHashCalculator = m_context.createStateHashCalculator();
 				test::SeedStateHashCalculator(stateHashCalculator, allBlocks);
-				auto builder2 = builder.createChainedBuilder(stateHashCalculator, *allBlocks.back());
+				auto builder3 = builder2.createChainedBuilder(stateHashCalculator, *allBlocks.back());
 
 				test::SecretLockTransactionsBuilder transactionsBuilder3(m_accounts);
 				transactionsBuilder3.addSecretLock(2, 3, Amount(100'000), Lock_Duration, secretProof);
-				auto blocks2 = builder2.asBlockChain(transactionsBuilder3);
+				auto blocks2 = builder3.asBlockChain(transactionsBuilder3);
 				test::PushEntities(m_connection, ionet::PacketType::Push_Block, blocks2);
-				test::WaitForHeightAndElements(m_context, Height(5), 4, 1);
+				test::WaitForHeightAndElements(m_context, Height(6), 5, 1);
 
 				// - add empty blocks up to height where first added secret lock would expire next block
 				for (auto i = 0u; i < 8; ++i)
-					allBlocks.push_back(pushBlockAndWait(builder2, Height(6u + i)));
+					allBlocks.push_back(pushBlockAndWait(builder3, Height(7u + i)));
 
 				stateHashes.emplace_back(GetStateHash(m_context), GetComponentStateHash(m_context, 0));
 
 				// Act: add a single block, secret lock should not expire
-				allBlocks.push_back(pushBlockAndWait(builder2, Height(14)));
+				allBlocks.push_back(pushBlockAndWait(builder3, Height(15)));
 				stateHashes.emplace_back(GetStateHash(m_context), GetComponentStateHash(m_context, 0));
 
 				// - add another block, secret lock will expire
-				allBlocks.push_back(pushBlockAndWait(builder2, Height(15)));
+				allBlocks.push_back(pushBlockAndWait(builder3, Height(16)));
 				stateHashes.emplace_back(GetStateHash(m_context), GetComponentStateHash(m_context, 0));
 
 				return stateHashes;
@@ -561,21 +571,52 @@ namespace catapult { namespace local {
 			}
 
 		private:
-			BlockChainBuilder fundAccounts(BlockChainBuilder::Blocks& allBlocks) {
-				auto stateHashCalculator = m_context.createStateHashCalculator();
+			struct CacheSeedingTransactionsBuilder : public test::TransactionsGenerator {
+			public:
+				size_t size() const {
+					return std::size(test::Mijin_Test_Private_Keys);
+				}
 
+				std::unique_ptr<model::Transaction> generateAt(size_t index, Timestamp deadline) const {
+					auto keyPair = crypto::KeyPair::FromString(test::Mijin_Test_Private_Keys[index]);
+					auto recipient = model::PublicKeyToAddress(keyPair.publicKey(), model::NetworkIdentifier::Mijin_Test);
+					auto unresolvedRecipient = extensions::CopyToUnresolvedAddress(recipient);
+					auto pTransaction = test::CreateTransferTransaction(keyPair, unresolvedRecipient, Amount(0));
+					pTransaction->Deadline = deadline;
+					pTransaction->MaxFee = Amount(pTransaction->Size);
+					extensions::TransactionExtensions(test::GetNemesisGenerationHash()).sign(keyPair, *pTransaction);
+					return pTransaction;
+				}
+			};
+
+			BlockChainBuilder seedCache(BlockChainBuilder::Blocks& allBlocks) {
+				CacheSeedingTransactionsBuilder transactionsBuilder;
+				auto stateHashCalculator = m_context.createStateHashCalculator();
+				BlockChainBuilder builder(m_accounts, stateHashCalculator);
+				auto pBlock = utils::UniqueToShared(builder.asSingleBlock(transactionsBuilder));
+				allBlocks.push_back(pBlock);
+
+				test::PushEntity(m_connection, ionet::PacketType::Push_Block, pBlock);
+				test::WaitForHeightAndElements(m_context, Height(2), 1, 1);
+
+				return builder;
+			}
+
+			BlockChainBuilder fundAccounts(BlockChainBuilder& builder, BlockChainBuilder::Blocks& allBlocks) {
 				// - fund accounts
 				test::SecretLockTransactionsBuilder transactionsBuilder(m_accounts);
 				transactionsBuilder.addTransfer(0, 2, Amount(1'000'000));
 				transactionsBuilder.addTransfer(0, 3, Amount(1'000'000));
 
 				// - send chain
-				BlockChainBuilder builder(m_accounts, stateHashCalculator);
-				auto blocks = builder.asBlockChain(transactionsBuilder);
+				auto stateHashCalculator = m_context.createStateHashCalculator();
+				test::SeedStateHashCalculator(stateHashCalculator, allBlocks);
+				auto chainedBuilder = builder.createChainedBuilder(stateHashCalculator);
+				auto blocks = chainedBuilder.asBlockChain(transactionsBuilder);
 				allBlocks.insert(allBlocks.cend(), blocks.cbegin(), blocks.cend());
 
 				test::PushEntities(m_connection, ionet::PacketType::Push_Block, blocks);
-				test::WaitForHeightAndElements(m_context, Height(3), 1, 1);
+				test::WaitForHeightAndElements(m_context, Height(4), 2, 1);
 
 				// Sanity: the cache has expected balances
 				test::AssertCurrencyBalances(m_accounts, m_context.localNode().cache(), {
@@ -583,7 +624,7 @@ namespace catapult { namespace local {
 					{ 3, Amount(1'000'000) }
 				});
 
-				return builder;
+				return chainedBuilder;
 			}
 
 			BlockChainBuilder::Blocks createBlocks(

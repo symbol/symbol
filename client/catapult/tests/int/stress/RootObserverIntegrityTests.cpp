@@ -188,9 +188,10 @@ namespace catapult { namespace extensions {
 				const auto message = "importance for account " + std::to_string(accountId);
 				auto accountStateCacheView = m_cache.sub<cache::AccountStateCache>().createView();
 
+				// tests only calculate importance once, therefore only the raw score in the bucket will be non-zero
 				const auto& accountState = accountStateCacheView->find(Key{ { accountId } }).get();
-				EXPECT_EQ(expectedImportanceHeight, accountState.ImportanceInfo.height()) << message;
-				EXPECT_EQ(expectedImportance, accountState.ImportanceInfo.current()) << message;
+				EXPECT_EQ(expectedImportanceHeight, accountState.ImportanceSnapshots.height()) << message;
+				EXPECT_EQ(expectedImportance, Importance(accountState.ActivityBuckets.get(expectedImportanceHeight).RawScore)) << message;
 			}
 
 			void assertLinearImportances(const AssertOptions& options) {
@@ -220,6 +221,7 @@ namespace catapult { namespace extensions {
 						: test::GenerateBlockWithTransactions(transactionsIter->second);
 				pBlock->Height = height;
 				pBlock->FeeMultiplier = BlockFeeMultiplier(0);
+				pBlock->Beneficiary = Key();
 
 				// in order to emulate correctly, block must have same signer when executed and reverted
 				auto signerIter = m_heightToBlockSigner.find(height);

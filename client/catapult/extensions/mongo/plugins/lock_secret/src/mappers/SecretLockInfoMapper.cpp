@@ -38,21 +38,10 @@ namespace catapult { namespace mongo { namespace plugins {
 						<< "recipient" << ToBinary(secretLockInfo.Recipient)
 						<< "compositeHash" << ToBinary(secretLockInfo.CompositeHash);
 			}
-
-			static void ReadLockInfo(state::SecretLockInfo& secretLockInfo, const bsoncxx::document::element dbLockInfo) {
-				secretLockInfo.HashAlgorithm = static_cast<model::LockHashAlgorithm>(ToUint8(dbLockInfo["hashAlgorithm"].get_int32()));
-				DbBinaryToModelArray(secretLockInfo.Secret, dbLockInfo["secret"].get_binary());
-				DbBinaryToModelArray(secretLockInfo.Recipient, dbLockInfo["recipient"].get_binary());
-				DbBinaryToModelArray(secretLockInfo.CompositeHash, dbLockInfo["compositeHash"].get_binary());
-			}
 		};
 	}
 
 	bsoncxx::document::value ToDbModel(const state::SecretLockInfo& secretLockInfo, const Address& accountAddress) {
 		return LockInfoMapper<SecretLockInfoMapperTraits>::ToDbModel(secretLockInfo, accountAddress);
-	}
-
-	void ToLockInfo(const bsoncxx::document::view& document, state::SecretLockInfo& secretLockInfo) {
-		LockInfoMapper<SecretLockInfoMapperTraits>::ToLockInfo(document, secretLockInfo);
 	}
 }}}

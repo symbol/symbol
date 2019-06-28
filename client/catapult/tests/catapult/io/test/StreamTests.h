@@ -53,7 +53,7 @@ namespace catapult { namespace test {
 			EXPECT_TRUE(pInput->eof());
 		}
 
-		static void AssertNonEmptyStreamIsInitiallyNotAtEof() {
+		static void AssertStreamWithDataIsInitiallyNotAtEof() {
 			// Arrange:
 			TContext context("test.dat");
 			{
@@ -68,7 +68,7 @@ namespace catapult { namespace test {
 			EXPECT_FALSE(pInput->eof());
 		}
 
-		static void AssertNonEmptyStreamCanAdvanceToEof() {
+		static void AssertStreamWithDataCanAdvanceToEof() {
 			// Arrange:
 			TContext context("test.dat");
 			{
@@ -195,8 +195,8 @@ namespace catapult { namespace test {
 /// Adds all stream tests for the specified stream traits (\a TRAITS_NAME).
 #define DEFINE_STREAM_TESTS(TRAITS_NAME) \
 	MAKE_STREAM_TEST(TRAITS_NAME, EmptyStreamIsInitiallyAtEof) \
-	MAKE_STREAM_TEST(TRAITS_NAME, NonEmptyStreamIsInitiallyNotAtEof) \
-	MAKE_STREAM_TEST(TRAITS_NAME, NonEmptyStreamCanAdvanceToEof) \
+	MAKE_STREAM_TEST(TRAITS_NAME, StreamWithDataIsInitiallyNotAtEof) \
+	MAKE_STREAM_TEST(TRAITS_NAME, StreamWithDataCanAdvanceToEof) \
 	\
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, SingleWritePolicy, SingleReadPolicy) \
 	MAKE_STREAM_ROUNDTRIP_TEST(TRAITS_NAME, SingleWritePolicy, ChunkedReadPolicy) \

@@ -29,7 +29,6 @@ namespace {
 		// fixup config for broker-specific optimizations
 		const_cast<bool&>(config.BlockChain.ShouldEnableVerifiableState) = false;
 
-		const_cast<bool&>(config.Node.ShouldUseSingleThreadPool) = true;
 		const_cast<bool&>(config.Node.ShouldUseCacheDatabaseStorage) = false;
 	}
 }

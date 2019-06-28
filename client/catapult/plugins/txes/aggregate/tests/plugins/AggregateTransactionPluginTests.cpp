@@ -138,8 +138,8 @@ namespace catapult { namespace plugins {
 		auto attributes = pPlugin->attributes();
 
 		// Assert:
-		EXPECT_EQ(2u, attributes.MinVersion);
-		EXPECT_EQ(2u, attributes.MaxVersion);
+		EXPECT_EQ(1u, attributes.MinVersion);
+		EXPECT_EQ(1u, attributes.MaxVersion);
 
 		// - zero denotes default lifetime should be used
 		EXPECT_EQ(utils::TimeSpan(), attributes.MaxLifetime);
@@ -154,8 +154,8 @@ namespace catapult { namespace plugins {
 		auto attributes = pPlugin->attributes();
 
 		// Assert:
-		EXPECT_EQ(2u, attributes.MinVersion);
-		EXPECT_EQ(2u, attributes.MaxVersion);
+		EXPECT_EQ(1u, attributes.MinVersion);
+		EXPECT_EQ(1u, attributes.MaxVersion);
 
 		EXPECT_EQ(utils::TimeSpan::FromMinutes(1234), attributes.MaxLifetime);
 	}
@@ -504,7 +504,7 @@ namespace catapult { namespace plugins {
 		AssertCanExtractDataBufferFromAggregate(0, 0);
 	}
 
-	TEST(TEST_CLASS, CanExtractDataBufferFromNonEmptyAggregate) {
+	TEST(TEST_CLASS, CanExtractDataBufferFromAggregate) {
 		// Assert:
 		AssertCanExtractDataBufferFromAggregate(2, 3);
 	}
@@ -541,7 +541,7 @@ namespace catapult { namespace plugins {
 		AssertCanExtractMerkleSupplementaryBuffersFromAggregate(0, 0);
 	}
 
-	TEST(TEST_CLASS, CanExtractMerkleSupplementaryBuffersFromNonEmptyAggregate) {
+	TEST(TEST_CLASS, CanExtractMerkleSupplementaryBuffersFromAggregate) {
 		// Assert:
 		AssertCanExtractMerkleSupplementaryBuffersFromAggregate(2, 3);
 	}

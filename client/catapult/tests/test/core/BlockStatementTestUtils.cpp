@@ -86,7 +86,7 @@ namespace catapult { namespace test {
 	std::vector<uint8_t> SerializeBlockStatement(const model::BlockStatement& blockStatement) {
 		std::vector<uint8_t> serialized;
 		mocks::MockMemoryStream stream(serialized);
-		io::WriteBlockStatement(stream, blockStatement);
+		io::WriteBlockStatement(blockStatement, stream);
 		return serialized;
 	}
 

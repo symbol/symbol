@@ -53,6 +53,10 @@ namespace catapult { namespace builders {
 		m_name.assign(name.pData, name.pData + name.Size);
 	}
 
+	size_t RegisterNamespaceBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
+
 	std::unique_ptr<RegisterNamespaceBuilder::Transaction> RegisterNamespaceBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
@@ -62,11 +66,17 @@ namespace catapult { namespace builders {
 	}
 
 	template<typename TransactionType>
-	std::unique_ptr<TransactionType> RegisterNamespaceBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
+	size_t RegisterNamespaceBuilder::sizeImpl() const {
+		// calculate transaction size
 		auto size = sizeof(TransactionType);
 		size += m_name.size();
-		auto pTransaction = createTransaction<TransactionType>(size);
+		return size;
+	}
+
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> RegisterNamespaceBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
 		pTransaction->NamespaceType = m_namespaceType;

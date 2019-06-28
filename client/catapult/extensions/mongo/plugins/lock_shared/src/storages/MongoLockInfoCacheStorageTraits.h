@@ -42,12 +42,5 @@ namespace catapult { namespace mongo { namespace plugins {
 		static auto MapToMongoDocument(const ModelType& lockInfo, model::NetworkIdentifier networkIdentifier) {
 			return plugins::ToDbModel(lockInfo, model::PublicKeyToAddress(lockInfo.Account, networkIdentifier));
 		}
-
-		/// Inserts the lock info represented by \a document into \a cache.
-		static void Insert(CacheDeltaType& cache, const bsoncxx::document::view& document) {
-			ModelType lockInfo;
-			ToLockInfo(document, lockInfo);
-			cache.insert(lockInfo);
-		}
 	};
 }}}

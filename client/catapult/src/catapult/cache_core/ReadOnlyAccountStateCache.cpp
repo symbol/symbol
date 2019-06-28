@@ -46,6 +46,10 @@ namespace catapult { namespace cache {
 		return m_pCache ? m_pCache->importanceGrouping() : m_pCacheDelta->importanceGrouping();
 	}
 
+	Amount ReadOnlyAccountStateCache::minHarvesterBalance() const {
+		return m_pCache ? m_pCache->minHarvesterBalance() : m_pCacheDelta->minHarvesterBalance();
+	}
+
 	MosaicId ReadOnlyAccountStateCache::harvestingMosaicId() const {
 		return m_pCache ? m_pCache->harvestingMosaicId() : m_pCacheDelta->harvestingMosaicId();
 	}

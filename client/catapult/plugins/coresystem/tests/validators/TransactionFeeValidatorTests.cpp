@@ -31,7 +31,7 @@ namespace catapult { namespace validators {
 	namespace {
 		void AssertValidationResult(ValidationResult expectedResult, uint32_t transactionSize, Amount fee, Amount maxFee) {
 			// Arrange:
-			model::TransactionFeeNotification notification(transactionSize, fee, maxFee);
+			model::TransactionFeeNotification notification(Key(), transactionSize, fee, maxFee);
 			auto pValidator = CreateTransactionFeeValidator();
 
 			// Act:

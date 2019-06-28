@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "tests/test/core/BalanceTransfers.h"
+#include "BalanceTransfers.h"
 #include <memory>
 
 namespace catapult {

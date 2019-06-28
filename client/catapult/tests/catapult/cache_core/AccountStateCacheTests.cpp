@@ -297,7 +297,7 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region network identifier / importance grouping
+	// region cache properties
 
 	TEST(TEST_CLASS, CacheExposesNetworkIdentifier) {
 		// Arrange:
@@ -331,6 +331,18 @@ namespace catapult { namespace cache {
 
 		// Act + Assert:
 		EXPECT_EQ(234u, cache.importanceGrouping());
+	}
+
+	TEST(TEST_CLASS, CacheWrappersExposeMinHarvesterBalance) {
+		// Arrange:
+		auto options = Default_Cache_Options;
+		options.MinHarvesterBalance = Amount(336644);
+		AccountStateCache cache(CacheConfiguration(), options);
+
+		// Act + Assert:
+		EXPECT_EQ(Amount(336644), cache.createView()->minHarvesterBalance());
+		EXPECT_EQ(Amount(336644), cache.createDelta()->minHarvesterBalance());
+		EXPECT_EQ(Amount(336644), cache.createDetachedDelta().tryLock()->minHarvesterBalance());
 	}
 
 	TEST(TEST_CLASS, CacheWrappersExposeHarvestingMosaicId) {
@@ -610,7 +622,7 @@ namespace catapult { namespace cache {
 		void AssertAddAccountViaStateDoesNotOverrideKnownAccounts(TAdd add) {
 			// Arrange:
 			auto accountState = CreateAccountStateWithRandomAddressAndPublicKey();
-			accountState.ImportanceInfo.set(Importance(777), model::ImportanceHeight(1));
+			accountState.ImportanceSnapshots.set(Importance(777), model::ImportanceHeight(1));
 
 			AccountStateCache cache(CacheConfiguration(), Default_Cache_Options);
 			auto delta = cache.createDelta();
@@ -618,7 +630,7 @@ namespace catapult { namespace cache {
 			// Act: add the state using add and set importance to 123
 			add(*delta, accountState);
 			auto& addedAccountState = delta->find(accountState.Address).get();
-			addedAccountState.ImportanceInfo.set(Importance(123), model::ImportanceHeight(2));
+			addedAccountState.ImportanceSnapshots.set(Importance(123), model::ImportanceHeight(2));
 
 			// - add the state again (with importance 777)
 			delta->addAccount(accountState);
@@ -629,7 +641,7 @@ namespace catapult { namespace cache {
 			// Assert: the second add had no effect (the importance is still 123)
 			ASSERT_TRUE(!!pAccountState);
 			EXPECT_EQ(&addedAccountState, pAccountState);
-			EXPECT_EQ(Importance(123), pAccountState->ImportanceInfo.current());
+			EXPECT_EQ(Importance(123), pAccountState->ImportanceSnapshots.current());
 		}
 	}
 
@@ -1012,7 +1024,7 @@ namespace catapult { namespace cache {
 		void RunHighValueAddressesTest(const std::vector<Amount>& balances, TDeltaAction deltaAction, TViewAction viewAction) {
 			// Arrange: set min balance to 1M
 			auto options = Default_Cache_Options;
-			options.MinHighValueAccountBalance = Amount(1'000'000);
+			options.MinHarvesterBalance = Amount(1'000'000);
 			AccountStateCache cache(CacheConfiguration(), options);
 
 			// - prepare delta with requested accounts
@@ -1033,26 +1045,38 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, HighValueAddressesReturnsEmptySetWhenNoAccountsMeetCriteria) {
 		// Arrange:
-		auto deltaViewAction = [](const auto&, const auto& view) {
+		auto deltaAction = [](const auto&, const auto& delta) {
+			// Act + Assert:
+			auto highValueAddresses = delta->highValueAddresses();
+			EXPECT_TRUE(highValueAddresses.Current.empty());
+			EXPECT_TRUE(highValueAddresses.Removed.empty());
+		};
+		auto viewAction = [](const auto&, const auto& view) {
 			// Act + Assert:
 			EXPECT_TRUE(view->highValueAddresses().empty());
 		};
 
 		// - add 0/3 with sufficient balance
 		auto balances = std::vector<Amount>{ Amount(999'999), Amount(1'000), Amount(1) };
-		RunHighValueAddressesTest(balances, deltaViewAction, deltaViewAction);
+		RunHighValueAddressesTest(balances, deltaAction, viewAction);
 	}
 
 	TEST(TEST_CLASS, HighValueAddressesReturnsOriginalAccountsMeetingCriteria) {
 		// Arrange:
-		auto deltaViewAction = [](const auto& addresses, const auto& view) {
+		auto deltaAction = [](const auto& addresses, const auto& delta) {
+			// Act + Assert:
+			auto highValueAddresses = delta->highValueAddresses();
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses.Current);
+			EXPECT_TRUE(highValueAddresses.Removed.empty());
+		};
+		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
 			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), view->highValueAddresses());
 		};
 
 		// - add 2/3 accounts with sufficient balance
 		auto balances = std::vector<Amount>{ Amount(1'100'000), Amount(900'000), Amount(1'000'000) };
-		RunHighValueAddressesTest(balances, deltaViewAction, deltaViewAction);
+		RunHighValueAddressesTest(balances, deltaAction, viewAction);
 	}
 
 	TEST(TEST_CLASS, HighValueAddressesReturnsAddedAccountsMeetingCriteria) {
@@ -1063,7 +1087,9 @@ namespace catapult { namespace cache {
 			auto addresses = AddAccountsWithBalances(*delta, balances);
 
 			// Act + Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), delta->highValueAddresses());
+			auto highValueAddresses = delta->highValueAddresses();
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses.Current);
+			EXPECT_TRUE(highValueAddresses.Removed.empty());
 		};
 		auto viewAction = [](const auto&, const auto& view) {
 			// Act + Assert:
@@ -1081,7 +1107,9 @@ namespace catapult { namespace cache {
 				delta->find(address).get().Balances.credit(Harvesting_Mosaic_Id, Amount(1));
 
 			// Act + Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), delta->highValueAddresses());
+			auto highValueAddresses = delta->highValueAddresses();
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses.Current);
+			EXPECT_TRUE(highValueAddresses.Removed.empty());
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
@@ -1102,7 +1130,9 @@ namespace catapult { namespace cache {
 			delta->commitRemovals();
 
 			// Act + Assert:
-			EXPECT_TRUE(delta->highValueAddresses().empty());
+			auto highValueAddresses = delta->highValueAddresses();
+			EXPECT_TRUE(highValueAddresses.Current.empty());
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2] }), highValueAddresses.Removed);
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
@@ -1130,7 +1160,9 @@ namespace catapult { namespace cache {
 			delta->commitRemovals();
 
 			// Act + Assert:
-			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[1], uncommittedAddresses[2] }), delta->highValueAddresses());
+			auto highValueAddresses = delta->highValueAddresses();
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[1], uncommittedAddresses[2] }), highValueAddresses.Current);
+			EXPECT_EQ(model::AddressSet({ addresses[2], addresses[4] }), highValueAddresses.Removed);
 		};
 		auto viewAction = [](const auto& addresses, const auto& view) {
 			// Act + Assert:
@@ -1145,7 +1177,7 @@ namespace catapult { namespace cache {
 	TEST(TEST_CLASS, HighValueAddressesReturnsAllAccountsMeetingCriteriaAfterDeltaChangesAreThrownAway) {
 		// Arrange: set min balance to 1M
 		auto options = Default_Cache_Options;
-		options.MinHighValueAccountBalance = Amount(1'000'000);
+		options.MinHarvesterBalance = Amount(1'000'000);
 		AccountStateCache cache(CacheConfiguration(), options);
 
 		// - prepare delta with requested accounts
@@ -1173,7 +1205,12 @@ namespace catapult { namespace cache {
 		}
 
 		// Assert: only original accounts with highValue addresses are returned from new views
-		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), cache.createDelta()->highValueAddresses());
+		{
+			auto highValueAddresses = cache.createDelta()->highValueAddresses();
+			EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), highValueAddresses.Current);
+			EXPECT_TRUE(highValueAddresses.Removed.empty());
+		}
+
 		EXPECT_EQ(model::AddressSet({ addresses[0], addresses[2], addresses[4] }), cache.createView()->highValueAddresses());
 	}
 

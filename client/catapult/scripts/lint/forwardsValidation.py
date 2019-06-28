@@ -276,7 +276,7 @@ class ForwardsValidator(SimpleValidator):
         return temp
 
     @staticmethod
-    def identNonEmpty(line):
+    def indentNotEmpty(line):
         return '\t' + line if line else line
 
     @staticmethod
@@ -302,7 +302,7 @@ class ForwardsValidator(SimpleValidator):
                 else:
                     content += 'namespace %s {' % namespaceName
                     result.append(content)
-                    indentLines = map(ForwardsValidator.identNonEmpty, lines)
+                    indentLines = map(ForwardsValidator.indentNotEmpty, lines)
                     result.extend(indentLines)
                     result.append('}')
 

@@ -176,19 +176,25 @@ namespace catapult { namespace sync {
 		EXPECT_TRUE(config.Tasks.empty());
 	}
 
-	TEST(TEST_CLASS, Tasks_LoadFromBagCanLoadFromNonEmptyBag) {
+	TEST(TEST_CLASS, Tasks_LoadFromBagCanLoadFromBagWithValues) {
 		// Arrange: mix uniform and decelerating tasks
 		utils::ConfigurationBag bag({
 			{ "alpha", { { "startDelay", "20s" }, { "repeatDelay", "45s" } } },
-			{ "beta", {
-				{ "startDelay", "11m" }, { "minDelay", "22m" }, { "maxDelay", "99m" },
-				{ "numPhaseOneRounds", "14" }, { "numTransitionRounds", "123" }
-			} },
+			{
+				"beta",
+				{
+					{ "startDelay", "11m" }, { "minDelay", "22m" }, { "maxDelay", "99m" },
+					{ "numPhaseOneRounds", "14" }, { "numTransitionRounds", "123" }
+				}
+			},
 			{ "gamma", { { "startDelay", "10s" }, { "repeatDelay", "2m" } } },
-			{ "eta", {
-				{ "startDelay", "27m" }, { "minDelay", "34m" }, { "maxDelay", "35m" },
-				{ "numPhaseOneRounds", "65" }, { "numTransitionRounds", "11" }
-			} },
+			{
+				"eta",
+				{
+					{ "startDelay", "27m" }, { "minDelay", "34m" }, { "maxDelay", "35m" },
+					{ "numPhaseOneRounds", "65" }, { "numTransitionRounds", "11" }
+				}
+			},
 		});
 
 		// Act:

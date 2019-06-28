@@ -43,6 +43,10 @@ namespace catapult { namespace builders {
 		void setLinkAction(model::AccountLinkAction linkAction);
 
 	public:
+		/// Returns size of account link transaction.
+		/// \note This returns size of a normal transaction not embedded transaction.
+		size_t size() const;
+
 		/// Builds a new account link transaction.
 		std::unique_ptr<Transaction> build() const;
 
@@ -50,6 +54,9 @@ namespace catapult { namespace builders {
 		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
 	private:
+		template<typename TTransaction>
+		size_t sizeImpl() const;
+
 		template<typename TTransaction>
 		std::unique_ptr<TTransaction> buildImpl() const;
 

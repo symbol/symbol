@@ -170,7 +170,7 @@ namespace catapult { namespace extensions {
 
 		std::vector<uint8_t> serialized;
 		BufferOutputStream stream(serialized);
-		io::WriteBlockStatement(stream, *pBlockStatement);
+		io::WriteBlockStatement(*pBlockStatement, stream);
 		return std::make_pair(std::move(serialized), true);
 	}
 

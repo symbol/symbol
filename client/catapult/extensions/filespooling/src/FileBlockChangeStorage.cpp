@@ -35,10 +35,10 @@ namespace catapult { namespace filespooling {
 		public:
 			void notifyBlock(const model::BlockElement& blockElement) override {
 				io::Write8(*m_pOutputStream, utils::to_underlying_type(subscribers::BlockChangeOperationType::Block));
-				io::WriteBlockElement(*m_pOutputStream, blockElement);
+				io::WriteBlockElement(blockElement, *m_pOutputStream);
 				if (blockElement.OptionalStatement) {
 					io::Write8(*m_pOutputStream, 0xFF);
-					io::WriteBlockStatement(*m_pOutputStream, *blockElement.OptionalStatement);
+					io::WriteBlockStatement(*blockElement.OptionalStatement, *m_pOutputStream);
 				} else {
 					io::Write8(*m_pOutputStream, 0);
 				}

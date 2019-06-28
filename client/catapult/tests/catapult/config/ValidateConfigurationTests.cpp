@@ -113,7 +113,7 @@ namespace catapult { namespace config {
 	// region harvest beneficiary percentage validation
 
 	namespace {
-		auto CreateCatapultConfiguration(uint8_t harvestBeneficiaryPercentage) {
+		auto CreateCatapultConfigurationWithHarvestBeneficiaryPercentage(uint8_t harvestBeneficiaryPercentage) {
 			auto mutableConfig = CreateMutableCatapultConfiguration();
 			mutableConfig.BlockChain.HarvestBeneficiaryPercentage = harvestBeneficiaryPercentage;
 			return mutableConfig.ToConst();
@@ -123,12 +123,12 @@ namespace catapult { namespace config {
 	TEST(TEST_CLASS, HarvestBeneficiaryPercentageIsValidated) {
 		// Arrange:
 		auto assertNoThrow = [](uint8_t harvestBeneficiaryPercentage) {
-			auto config = CreateCatapultConfiguration(harvestBeneficiaryPercentage);
+			auto config = CreateCatapultConfigurationWithHarvestBeneficiaryPercentage(harvestBeneficiaryPercentage);
 			EXPECT_NO_THROW(ValidateConfiguration(config)) << "HBP " << harvestBeneficiaryPercentage;
 		};
 
 		auto assertThrow = [](uint8_t harvestBeneficiaryPercentage) {
-			auto config = CreateCatapultConfiguration(harvestBeneficiaryPercentage);
+			auto config = CreateCatapultConfigurationWithHarvestBeneficiaryPercentage(harvestBeneficiaryPercentage);
 			EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error) << "HBP " << harvestBeneficiaryPercentage;
 		};
 
@@ -141,6 +141,44 @@ namespace catapult { namespace config {
 		assertNoThrow(100);
 
 		// - exceptions
+		assertThrow(101);
+		assertThrow(156);
+		assertThrow(255);
+	}
+
+	// endregion
+
+	// region importance activity percentage validation
+
+	namespace {
+		auto CreateCatapultConfigurationWithImportanceActivityPercentage(uint8_t importanceActivityPercentage) {
+			auto mutableConfig = CreateMutableCatapultConfiguration();
+			mutableConfig.BlockChain.ImportanceActivityPercentage = importanceActivityPercentage;
+			return mutableConfig.ToConst();
+		}
+	}
+
+	TEST(TEST_CLASS, ImportanceActivityPercentageIsValidated) {
+		// Arrange:
+		auto assertNoThrow = [](uint8_t importanceActivityPercentage) {
+			auto config = CreateCatapultConfigurationWithImportanceActivityPercentage(importanceActivityPercentage);
+			EXPECT_NO_THROW(ValidateConfiguration(config)) << "IAP " << importanceActivityPercentage;
+		};
+
+		auto assertThrow = [](uint8_t importanceActivityPercentage) {
+			auto config = CreateCatapultConfigurationWithImportanceActivityPercentage(importanceActivityPercentage);
+			EXPECT_THROW(ValidateConfiguration(config), utils::property_malformed_error) << "IAP " << importanceActivityPercentage;
+		};
+
+		// Act + Assert:
+		// - no exceptions
+		assertNoThrow(0);
+		assertNoThrow(1);
+		assertNoThrow(57);
+		assertNoThrow(99);
+
+		// - exceptions
+		assertThrow(100);
 		assertThrow(101);
 		assertThrow(156);
 		assertThrow(255);

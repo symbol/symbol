@@ -69,7 +69,7 @@ namespace catapult { namespace tools { namespace statusgen {
 				#include "../../plugins/txes/mosaic/src/validators/Results.h"
 				#include "../../plugins/txes/multisig/src/validators/Results.h"
 				#include "../../plugins/txes/namespace/src/validators/Results.h"
-				#include "../../plugins/txes/property/src/validators/Results.h"
+				#include "../../plugins/txes/restriction_account/src/validators/Results.h"
 				#include "../../plugins/txes/transfer/src/validators/Results.h"
 				#include "../../src/catapult/chain/ChainResults.h"
 				#include "../../src/catapult/consumers/ConsumerResults.h"

@@ -90,6 +90,9 @@ namespace catapult { namespace cache {
 		/// Gets the network importance grouping.
 		uint64_t importanceGrouping() const;
 
+		/// Gets the minimum harvester balance.
+		Amount minHarvesterBalance() const;
+
 		/// Gets the harvesting mosaic id.
 		MosaicId harvestingMosaicId() const;
 

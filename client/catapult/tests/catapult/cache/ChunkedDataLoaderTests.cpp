@@ -68,7 +68,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(TEST_CLASS, CanLoadStorageFromNonEmptyStreamInOneShot) {
+	TEST(TEST_CLASS, CanLoadStorageFromStreamInOneShot) {
 		// Assert:
 		AssertCanLoadAllInOneShot(7, 7);
 	}
@@ -78,7 +78,7 @@ namespace catapult { namespace cache {
 		AssertCanLoadAllInOneShot(7, 100);
 	}
 
-	TEST(TEST_CLASS, CanLoadStorageFromNonEmptyStreamInMultipleBatches) {
+	TEST(TEST_CLASS, CanLoadStorageFromStreamInMultipleBatches) {
 		// Arrange:
 		auto seed = GenerateRandomEntries(7);
 		auto buffer = CopyEntriesToStreamBuffer(seed);

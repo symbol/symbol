@@ -33,10 +33,12 @@ namespace catapult { namespace validators {
 		COPY_FACILITY_CODE(Core),
 		COPY_FACILITY_CODE(LockHash),
 		COPY_FACILITY_CODE(LockSecret),
+		COPY_FACILITY_CODE(Metadata),
 		COPY_FACILITY_CODE(Mosaic),
 		COPY_FACILITY_CODE(Multisig),
 		COPY_FACILITY_CODE(Namespace),
-		COPY_FACILITY_CODE(Property),
+		COPY_FACILITY_CODE(RestrictionAccount),
+		COPY_FACILITY_CODE(RestrictionMosaic),
 		COPY_FACILITY_CODE(Transfer),
 
 		/// Chain facility code.
@@ -49,7 +51,7 @@ namespace catapult { namespace validators {
 		Extension = 0x45,
 
 		/// Hash facility code.
-		Hash = 0x48,
+		Hash = 0x49,
 
 		/// Signature facility code.
 		Signature = 0x53

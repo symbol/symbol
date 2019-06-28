@@ -219,7 +219,7 @@ namespace catapult { namespace timesync {
 		}
 
 		timesync::TimeSynchronizationSample CreateTimeSyncSampleWithTimeOffset(int64_t timeOffset) {
-			// zero round trip time is not realistic but identical send / receive timestamps are needed for tests since
+			// zero roundtrip time is not realistic but identical send / receive timestamps are needed for tests since
 			// the calls to the network time provider are not guaranteed to be in a deterministic order
 			return timesync::TimeSynchronizationSample(
 					ionet::Node(test::GenerateRandomByteArray<Key>(), { "alice.com", 1234 }, { model::NetworkIdentifier::Zero, "alice" }),

@@ -57,59 +57,35 @@ namespace catapult { namespace state {
 	template<typename TLockInfoTraits>
 	class LockInfoSerializerTests {
 	private:
-		static void AssertBuffer(const std::vector<typename TLockInfoTraits::ValueType>& values, const std::vector<uint8_t>& buffer) {
+		static void AssertBuffer(const typename TLockInfoTraits::ValueType& expectedValue, const std::vector<uint8_t>& buffer) {
 			std::vector<typename TLockInfoTraits::PackedValueType> packedValues;
-			for (const auto& value : values)
-				packedValues.emplace_back(value);
+			packedValues.emplace_back(expectedValue);
 
 			ASSERT_EQ(sizeof(typename TLockInfoTraits::PackedValueType) * packedValues.size(), buffer.size());
 			EXPECT_EQ_MEMORY(packedValues.data(), buffer.data(), buffer.size());
 		}
 
-		static void AssertCanSaveLockInfos(size_t numLockInfos) {
+	public:
+		static void AssertCanSaveSingleLockInfo() {
 			// Arrange:
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream outputStream(buffer);
-			auto lockInfos = test::CreateLockInfos<TLockInfoTraits>(numLockInfos);
+
+			auto lockInfo = test::CreateLockInfos<TLockInfoTraits>(1)[0];
 
 			// Act:
-			for (const auto& lockInfo : lockInfos)
-				TLockInfoTraits::SerializerType::Save(lockInfo, outputStream);
+			TLockInfoTraits::SerializerType::Save(lockInfo, outputStream);
 
 			// Assert:
-			AssertBuffer(lockInfos, buffer);
+			AssertBuffer(lockInfo, buffer);
 		}
 
-	public:
-		static void AssertCanSaveSingleLockInfo() {
-			// Assert:
-			AssertCanSaveLockInfos(1);
-		}
-
-	private:
-		static std::vector<uint8_t> CreateBuffer(const std::vector<typename TLockInfoTraits::ValueType>& lockInfos) {
-			std::vector<uint8_t> buffer(lockInfos.size() * TLockInfoTraits::ValueTypeSize());
-
-			auto* pData = buffer.data();
-			for (const auto& lockInfo : lockInfos) {
-				using PackedValueType = typename TLockInfoTraits::PackedValueType;
-				PackedValueType packedInfo(lockInfo);
-				memcpy(pData, &packedInfo, sizeof(PackedValueType));
-				pData += sizeof(PackedValueType);
-			}
-
-			return buffer;
-		}
-
-	public:
-		static void AssertCanLoadSingleLockInfo() {
+		static void AssertCanRoundtripSingleLockInfo() {
 			// Arrange:
 			auto originalLockInfo = test::CreateLockInfos<TLockInfoTraits>(1)[0];
-			auto buffer = CreateBuffer({ originalLockInfo });
 
 			// Act:
-			typename TLockInfoTraits::ValueType result;
-			test::RunLoadValueTest<typename TLockInfoTraits::SerializerType>(buffer, result);
+			auto result = test::RunRoundtripBufferTest<typename TLockInfoTraits::SerializerType>(originalLockInfo);
 
 			// Assert:
 			TLockInfoTraits::AssertEqual(originalLockInfo, result);
@@ -122,4 +98,4 @@ namespace catapult { namespace state {
 
 #define DEFINE_LOCK_INFO_SERIALIZER_TESTS(TRAITS_NAME) \
 	MAKE_LOCK_INFO_SERIALIZER_TEST(TRAITS_NAME, CanSaveSingleLockInfo) \
-	MAKE_LOCK_INFO_SERIALIZER_TEST(TRAITS_NAME, CanLoadSingleLockInfo)
+	MAKE_LOCK_INFO_SERIALIZER_TEST(TRAITS_NAME, CanRoundtripSingleLockInfo)

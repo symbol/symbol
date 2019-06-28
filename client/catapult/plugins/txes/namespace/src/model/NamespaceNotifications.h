@@ -49,6 +49,8 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region NamespaceNameNotification
+
 	/// Notification of a namespace name.
 	struct NamespaceNameNotification : public Notification {
 	public:
@@ -57,7 +59,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a nameSize and \a pName given \a namespaceId and \a parentId.
-		explicit NamespaceNameNotification(
+		NamespaceNameNotification(
 				catapult::NamespaceId namespaceId,
 				catapult::NamespaceId parentId,
 				uint8_t nameSize,
@@ -83,6 +85,10 @@ namespace catapult { namespace model {
 		const uint8_t* NamePtr;
 	};
 
+	// endregion
+
+	// region NamespaceNotification
+
 	/// Notification of a namespace registration.
 	struct NamespaceNotification : public Notification {
 	public:
@@ -101,6 +107,10 @@ namespace catapult { namespace model {
 		model::NamespaceType NamespaceType;
 	};
 
+	// endregion
+
+	// region RootNamespaceNotification
+
 	/// Notification of a root namespace registration.
 	struct RootNamespaceNotification : public Notification {
 	public:
@@ -109,7 +119,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a signer, \a namespaceId and \a duration.
-		explicit RootNamespaceNotification(const Key& signer, NamespaceId namespaceId, BlockDuration duration)
+		RootNamespaceNotification(const Key& signer, NamespaceId namespaceId, BlockDuration duration)
 				: Notification(Notification_Type, sizeof(RootNamespaceNotification))
 				, Signer(signer)
 				, NamespaceId(namespaceId)
@@ -127,6 +137,10 @@ namespace catapult { namespace model {
 		BlockDuration Duration;
 	};
 
+	// endregion
+
+	// region ChildNamespaceNotification
+
 	/// Notification of a child namespace registration.
 	struct ChildNamespaceNotification : public Notification {
 	public:
@@ -135,7 +149,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a signer, \a namespaceId and \a parentId.
-		explicit ChildNamespaceNotification(const Key& signer, NamespaceId namespaceId, NamespaceId parentId)
+		ChildNamespaceNotification(const Key& signer, NamespaceId namespaceId, NamespaceId parentId)
 				: Notification(Notification_Type, sizeof(ChildNamespaceNotification))
 				, Signer(signer)
 				, NamespaceId(namespaceId)
@@ -153,7 +167,9 @@ namespace catapult { namespace model {
 		catapult::NamespaceId ParentId;
 	};
 
-	// region rental fee
+	// endregion
+
+	// region NamespaceRentalFeeNotification
 
 	/// Notification of a namespace rental fee.
 	struct NamespaceRentalFeeNotification : public BasicBalanceNotification<NamespaceRentalFeeNotification> {
@@ -163,7 +179,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
-		explicit NamespaceRentalFeeNotification(
+		NamespaceRentalFeeNotification(
 				const Key& sender,
 				const UnresolvedAddress& recipient,
 				UnresolvedMosaicId mosaicId,

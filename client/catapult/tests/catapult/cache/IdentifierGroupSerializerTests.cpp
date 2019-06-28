@@ -21,6 +21,7 @@
 #include "catapult/cache/IdentifierGroupSerializer.h"
 #include "catapult/utils/Hashers.h"
 #include "catapult/utils/IdentifierGroup.h"
+#include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -69,16 +70,33 @@ namespace catapult { namespace cache {
 		}
 	}
 
+	// region Serialize
+
 	TEST(TEST_CLASS, CanSerializeGroupWithZeroIdentifiers) {
 		// Arrange:
-		auto value = GenerateRandomIdentifierGroup(0);
+		auto originalValue = GenerateRandomIdentifierGroup(0);
 
 		// Act:
-		auto result = Serializer::SerializeValue(value);
+		auto result = Serializer::SerializeValue(originalValue);
 
 		// Assert:
-		AssertSerializedValue(value, result);
+		AssertSerializedValue(originalValue, result);
 	}
+
+	TEST(TEST_CLASS, CanSerializeGroupWithIdentifiers) {
+		// Arrange:
+		auto originalValue = GenerateRandomIdentifierGroup(5);
+
+		// Act:
+		auto result = Serializer::SerializeValue(originalValue);
+
+		// Assert:
+		AssertSerializedValue(originalValue, result);
+	}
+
+	// endregion
+
+	// region Deserialize
 
 	TEST(TEST_CLASS, CanDeserializeGroupWithZeroIdentifiers) {
 		// Arrange:
@@ -93,18 +111,7 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(value.empty());
 	}
 
-	TEST(TEST_CLASS, CanSerializeValue) {
-		// Arrange:
-		auto value = GenerateRandomIdentifierGroup(5);
-
-		// Act:
-		auto result = Serializer::SerializeValue(value);
-
-		// Assert:
-		AssertSerializedValue(value, result);
-	}
-
-	TEST(TEST_CLASS, CanDeserializeValue) {
+	TEST(TEST_CLASS, CanDeserializeGroupWithIdentifiers) {
 		// Arrange: generate data with 5 elements
 		auto buffer = test::GenerateRandomDataVector<uint64_t>(1 + 1 + 5);
 		buffer[1] = 5;
@@ -122,4 +129,34 @@ namespace catapult { namespace cache {
 
 		EXPECT_TRUE(value.empty());
 	}
+
+	// endregion
+
+	// region Roundtrip
+
+	TEST(TEST_CLASS, CanRoundtripGroupWithZeroIdentifiers) {
+		// Arrange:
+		auto originalValue = GenerateRandomIdentifierGroup(0);
+
+		// Act:
+		auto result = test::RunRoundtripStringTest<Serializer>(originalValue);
+
+		// Assert:
+		EXPECT_EQ(originalValue.key(), result.key());
+		EXPECT_EQ(originalValue.identifiers(), result.identifiers());
+	}
+
+	TEST(TEST_CLASS, CanRoundtripGroupWithIdentifiers) {
+		// Arrange:
+		auto originalValue = GenerateRandomIdentifierGroup(5);
+
+		// Act:
+		auto result = test::RunRoundtripStringTest<Serializer>(originalValue);
+
+		// Assert:
+		EXPECT_EQ(originalValue.key(), result.key());
+		EXPECT_EQ(originalValue.identifiers(), result.identifiers());
+	}
+
+	// endregion
 }}

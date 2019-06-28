@@ -26,35 +26,35 @@ namespace catapult { namespace validators {
 
 #endif
 
-/// Defines a lock secret validation result with \a DESCRIPTION and \a CODE.
-#define DEFINE_LOCKSECRET_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, LockSecret, DESCRIPTION, CODE, None)
+/// Defines a secret lock validation result with \a DESCRIPTION and \a CODE.
+#define DEFINE_SECRET_LOCK_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, LockSecret, DESCRIPTION, CODE, None)
 
 	/// Validation failed because hash algorithm for lock type secret is invalid.
-	DEFINE_LOCKSECRET_RESULT(Invalid_Hash_Algorithm, 1);
+	DEFINE_SECRET_LOCK_RESULT(Invalid_Hash_Algorithm, 1);
 
 	/// Validation failed because hash is already present in cache.
-	DEFINE_LOCKSECRET_RESULT(Hash_Exists, 2);
+	DEFINE_SECRET_LOCK_RESULT(Hash_Exists, 2);
 
 	/// Validation failed because hash is not implemented yet.
-	DEFINE_LOCKSECRET_RESULT(Hash_Not_Implemented, 3);
+	DEFINE_SECRET_LOCK_RESULT(Hash_Not_Implemented, 3);
 
 	/// Validation failed because proof is too small or too large.
-	DEFINE_LOCKSECRET_RESULT(Proof_Size_Out_Of_Bounds, 4);
+	DEFINE_SECRET_LOCK_RESULT(Proof_Size_Out_Of_Bounds, 4);
 
 	/// Validation failed because secret does not match proof.
-	DEFINE_LOCKSECRET_RESULT(Secret_Mismatch, 5);
+	DEFINE_SECRET_LOCK_RESULT(Secret_Mismatch, 5);
 
 	/// Validation failed because composite key is unknown.
-	DEFINE_LOCKSECRET_RESULT(Unknown_Composite_Key, 6);
+	DEFINE_SECRET_LOCK_RESULT(Unknown_Composite_Key, 6);
 
 	/// Validation failed because secret is inactive.
-	DEFINE_LOCKSECRET_RESULT(Inactive_Secret, 7);
+	DEFINE_SECRET_LOCK_RESULT(Inactive_Secret, 7);
 
 	/// Validation failed because hash algorithm does not match.
-	DEFINE_LOCKSECRET_RESULT(Hash_Algorithm_Mismatch, 8);
+	DEFINE_SECRET_LOCK_RESULT(Hash_Algorithm_Mismatch, 8);
 
 	/// Validation failed because duration is too long.
-	DEFINE_LOCKSECRET_RESULT(Invalid_Duration, 9);
+	DEFINE_SECRET_LOCK_RESULT(Invalid_Duration, 9);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

@@ -210,7 +210,7 @@ namespace catapult { namespace cache {
 		AssertCanSaveAllViaCacheStorageAdapter(0);
 	}
 
-	TEST(TEST_CLASS, CanSaveAllNonEmptyDataViaCacheStorageAdapter) {
+	TEST(TEST_CLASS, CanSaveAllDataViaCacheStorageAdapter) {
 		// Assert:
 		AssertCanSaveAllViaCacheStorageAdapter(8);
 	}

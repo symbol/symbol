@@ -53,29 +53,6 @@ namespace catapult { namespace mongo { namespace plugins {
 			EXPECT_EQ(6u + TLockInfoTraits::Num_Additional_Fields, test::GetFieldCount(lockInfoView));
 			TLockInfoTraits::AssertEqualLockInfoData(lockInfo, address, lockInfoView);
 		}
-
-		static void AssertCanMapLockInfo_DbModelToModel() {
-			// Arrange:
-			auto originalLockInfo = TLockInfoTraits::CreateLockInfo(Height(123));
-			auto address = test::GenerateRandomByteArray<Address>();
-			originalLockInfo.Status = state::LockStatus::Used;
-			auto dbLockInfo = ToDbModel(originalLockInfo, address);
-
-			// Act:
-			typename TLockInfoTraits::ValueType lockInfo;
-			ToLockInfo(dbLockInfo, lockInfo);
-
-			// Assert:
-			auto view = dbLockInfo.view();
-			EXPECT_EQ(2u, test::GetFieldCount(view));
-
-			auto metaView = view["meta"].get_document().view();
-			AssertEqualLockMetadata(metaView);
-
-			auto lockInfoView = view["lock"].get_document().view();
-			EXPECT_EQ(6u + TLockInfoTraits::Num_Additional_Fields, test::GetFieldCount(lockInfoView));
-			TLockInfoTraits::AssertEqualLockInfoData(lockInfo, address, lockInfoView);
-		}
 	};
 }}}
 
@@ -83,5 +60,4 @@ namespace catapult { namespace mongo { namespace plugins {
 	TEST(TEST_CLASS, TEST_NAME) { LockInfoMapperTests<TRAITS>::Assert##TEST_NAME(); }
 
 #define DEFINE_LOCK_INFO_MAPPER_TESTS(TRAITS) \
-	MAKE_LOCK_INFO_MAPPER_TEST(TRAITS, CanMapLockInfo_ModelToDbModel) \
-	MAKE_LOCK_INFO_MAPPER_TEST(TRAITS, CanMapLockInfo_DbModelToModel)
+	MAKE_LOCK_INFO_MAPPER_TEST(TRAITS, CanMapLockInfo_ModelToDbModel)

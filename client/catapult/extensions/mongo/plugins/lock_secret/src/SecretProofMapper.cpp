@@ -33,6 +33,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			builder
 					<< "hashAlgorithm" << utils::to_underlying_type(transaction.HashAlgorithm)
 					<< "secret" << ToBinary(transaction.Secret)
+					<< "recipient" << ToBinary(transaction.Recipient)
 					<< "proof" << ToBinary(transaction.ProofPtr(), transaction.ProofSize);
 		}
 	}

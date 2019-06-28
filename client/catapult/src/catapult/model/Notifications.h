@@ -30,6 +30,8 @@
 
 namespace catapult { namespace model {
 
+	// region base notification
+
 	/// A basic notification.
 	struct Notification {
 	public:
@@ -46,6 +48,8 @@ namespace catapult { namespace model {
 		/// Notification size.
 		size_t Size;
 	};
+
+	// endregion
 
 	// region account
 
@@ -283,15 +287,19 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Transaction_Fee_Notification;
 
 	public:
-		/// Creates a transaction fee notification around \a transactionSize, \a fee and \a maxFee.
-		TransactionFeeNotification(uint32_t transactionSize, Amount fee, Amount maxFee)
+		/// Creates a transaction fee notification around \a signer, \a transactionSize, \a fee and \a maxFee.
+		TransactionFeeNotification(const Key& signer, uint32_t transactionSize, Amount fee, Amount maxFee)
 				: Notification(Notification_Type, sizeof(TransactionFeeNotification))
+				, Signer(signer)
 				, TransactionSize(transactionSize)
 				, Fee(fee)
 				, MaxFee(maxFee)
 		{}
 
 	public:
+		/// Transaction signer.
+		const Key& Signer;
+
 		/// Transaction size.
 		uint32_t TransactionSize;
 

@@ -32,13 +32,13 @@ namespace catapult { namespace test {
 		using BaseType = BasicBatchHandlerTests<TTraits>;
 
 	public:
-		/// Asserts that a valid packet with an empty payload is accepted.
+		/// Asserts that a valid packet with a payload composed of no elements is accepted.
 		static void AssertValidPacketWithEmptyPayloadIsAccepted() {
 			BaseType::AssertValidPacketWithElementsIsAccepted(0, TTraits::Data_Header_Size);
 		}
 
-		/// Asserts that a valid packet with a non-empty payload is accepted.
-		static void AssertValidPacketWithNonEmptyPayloadIsAccepted() {
+		/// Asserts that a valid packet with a payload composed of some elements is accepted.
+		static void AssertValidPacketWithPayloadIsAccepted() {
 			BaseType::AssertValidPacketWithElementsIsAccepted(3, TTraits::Data_Header_Size);
 		}
 	};
@@ -52,7 +52,7 @@ namespace catapult { namespace test {
 	MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, PacketWithInvalidPayloadIsRejected) \
 	\
 	MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithEmptyPayloadIsAccepted) \
-	MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithNonEmptyPayloadIsAccepted)
+	MAKE_PULL_HANDLER_EDGE_CASE_TEST(TEST_CLASS, HANDLER_NAME, ValidPacketWithPayloadIsAccepted)
 
 #define MAKE_PULL_HANDLER_REQUEST_RESPONSE_TEST(TEST_CLASS, ASSERT_FUNC, TEST_NAME, NUM_REQUESTS, NUM_RESPONSES) \
 	TEST(TEST_CLASS, PullHandlerBehavesCorrectlyWhen##TEST_NAME) { ASSERT_FUNC(NUM_REQUESTS, NUM_RESPONSES); }

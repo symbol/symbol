@@ -65,6 +65,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(3000u, config.BlockTimeSmoothingFactor);
 
 			EXPECT_EQ(39u, config.ImportanceGrouping);
+			EXPECT_EQ(5u, config.ImportanceActivityPercentage);
 			EXPECT_EQ(40u, config.MaxRollbackBlocks);
 			EXPECT_EQ(60u, config.MaxDifficultyBlocks);
 

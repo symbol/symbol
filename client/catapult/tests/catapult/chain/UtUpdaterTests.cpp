@@ -656,7 +656,7 @@ namespace catapult { namespace chain {
 		using AssertContextFunc = consumer<const UpdaterTestContext&, const model::WeakEntityInfos&, const model::WeakEntityInfos&>;
 
 		template<typename TTraits>
-		void AssertCanUpdateNonEmptyCacheWithMultipleTransactions(const AssertContextFunc& assertContext) {
+		void AssertCanUpdateCacheWithMultipleTransactions(const AssertContextFunc& assertContext) {
 			// Arrange: initialize the UT cache with 3 transactions
 			UpdaterTestContext context;
 			auto originalTransactionData = CreateTransactionData(3);
@@ -681,9 +681,9 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	TEST(TEST_CLASS, CanUpdateNonEmptyCacheWithMultipleNewTransactions) {
+	TEST(TEST_CLASS, CanUpdateCacheWithMultipleNewTransactions) {
 		// Assert:
-		AssertCanUpdateNonEmptyCacheWithMultipleTransactions<NewTransactionsTraits>(
+		AssertCanUpdateCacheWithMultipleTransactions<NewTransactionsTraits>(
 				[](const auto& context, const auto&, const auto& entityInfos) {
 			// - only new entities were executed
 			context.assertContexts(UtUpdater::TransactionSource::New);
@@ -691,9 +691,9 @@ namespace catapult { namespace chain {
 		});
 	}
 
-	TEST(TEST_CLASS, CanUpdateNonEmptyCacheWithMultipleRevertedTransactions) {
+	TEST(TEST_CLASS, CanUpdateCacheWithMultipleRevertedTransactions) {
 		// Assert:
-		AssertCanUpdateNonEmptyCacheWithMultipleTransactions<RevertedTransactionsTraits>(
+		AssertCanUpdateCacheWithMultipleTransactions<RevertedTransactionsTraits>(
 				[](const auto& context, const auto& originalEntityInfos, const auto& entityInfos) {
 			// - both new and original entities were executed
 			context.assertContexts(CreateRevertedAndExistingSources(4, 3));

@@ -71,28 +71,28 @@ namespace catapult { namespace validators {
 	DEFINE_MOSAIC_RESULT(Invalid_Supply_Change_Amount, 105);
 
 	/// Validation failed because the mosaic id is invalid.
-	DEFINE_MOSAIC_RESULT(Invalid_Id, 107);
+	DEFINE_MOSAIC_RESULT(Invalid_Id, 106);
 
 	/// Validation failed because mosaic modification is not allowed.
-	DEFINE_MOSAIC_RESULT(Modification_Disallowed, 150);
+	DEFINE_MOSAIC_RESULT(Modification_Disallowed, 107);
 
 	/// Validation failed because mosaic modification would not result in any changes.
-	DEFINE_MOSAIC_RESULT(Modification_No_Changes, 151);
+	DEFINE_MOSAIC_RESULT(Modification_No_Changes, 108);
 
 	/// Validation failed because the mosaic supply is immutable.
-	DEFINE_MOSAIC_RESULT(Supply_Immutable, 161);
+	DEFINE_MOSAIC_RESULT(Supply_Immutable, 109);
 
 	/// Validation failed because the resulting mosaic supply is negative.
-	DEFINE_MOSAIC_RESULT(Supply_Negative, 162);
+	DEFINE_MOSAIC_RESULT(Supply_Negative, 110);
 
 	/// Validation failed because the resulting mosaic supply exceeds the maximum allowed value.
-	DEFINE_MOSAIC_RESULT(Supply_Exceeded, 163);
+	DEFINE_MOSAIC_RESULT(Supply_Exceeded, 111);
 
 	/// Validation failed because the mosaic is not transferable.
-	DEFINE_MOSAIC_RESULT(Non_Transferable, 164);
+	DEFINE_MOSAIC_RESULT(Non_Transferable, 112);
 
 	/// Validation failed because the credit of the mosaic would exceed the maximum of different mosaics an account is allowed to own.
-	DEFINE_MOSAIC_RESULT(Max_Mosaics_Exceeded, 170);
+	DEFINE_MOSAIC_RESULT(Max_Mosaics_Exceeded, 113);
 
 	// endregion
 

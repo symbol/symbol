@@ -39,6 +39,8 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region TransferMessageNotification
+
 	/// Notification of a transfer transaction with a message.
 	struct TransferMessageNotification : public Notification {
 	public:
@@ -57,6 +59,10 @@ namespace catapult { namespace model {
 		uint16_t MessageSize;
 	};
 
+	// endregion
+
+	// region TransferMosaicsNotification
+
 	/// Notification of a transfer transaction with mosaics.
 	struct TransferMosaicsNotification : public Notification {
 	public:
@@ -65,7 +71,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a mosaicsCount and \a pMosaics.
-		explicit TransferMosaicsNotification(uint8_t mosaicsCount, const UnresolvedMosaic* pMosaics)
+		TransferMosaicsNotification(uint8_t mosaicsCount, const UnresolvedMosaic* pMosaics)
 				: Notification(Notification_Type, sizeof(TransferMosaicsNotification))
 				, MosaicsCount(mosaicsCount)
 				, MosaicsPtr(pMosaics)
@@ -78,4 +84,6 @@ namespace catapult { namespace model {
 		/// Const pointer to the first mosaic.
 		const UnresolvedMosaic* MosaicsPtr;
 	};
+
+	// endregion
 }}

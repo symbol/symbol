@@ -29,19 +29,19 @@ namespace catapult { namespace chain {
 #define DEFINE_CHAIN_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Chain, DESCRIPTION, CODE, None)
 
 	/// Validation failed because a block was received that did not link with the existing chain.
-	DEFINE_CHAIN_RESULT(Unlinked, 102);
+	DEFINE_CHAIN_RESULT(Unlinked, 1);
 
 	/// Validation failed because a block was received that is not a hit.
-	DEFINE_CHAIN_RESULT(Block_Not_Hit, 104);
+	DEFINE_CHAIN_RESULT(Block_Not_Hit, 2);
 
 	/// Validation failed because a block was received that has an inconsistent state hash.
-	DEFINE_CHAIN_RESULT(Block_Inconsistent_State_Hash, 105);
+	DEFINE_CHAIN_RESULT(Block_Inconsistent_State_Hash, 3);
 
 	/// Validation failed because a block was received that has an inconsistent receipts hash.
-	DEFINE_CHAIN_RESULT(Block_Inconsistent_Receipts_Hash, 106);
+	DEFINE_CHAIN_RESULT(Block_Inconsistent_Receipts_Hash, 4);
 
 	/// Validation failed because the unconfirmed cache is too full.
-	DEFINE_CHAIN_RESULT(Unconfirmed_Cache_Too_Full, 201);
+	DEFINE_CHAIN_RESULT(Unconfirmed_Cache_Too_Full, 5);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

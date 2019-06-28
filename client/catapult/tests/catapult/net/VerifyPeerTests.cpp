@@ -40,7 +40,7 @@ namespace catapult { namespace net {
 
 	namespace {
 		constexpr bool Verify_Client_Key = true;
-		constexpr auto Client_Private_Key = "3485d98efd7eb07adafcfd1a157d89de2796a95e780813c0258af3f5f84ed8cb";
+		constexpr auto Client_Private_Key = "3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB";
 		constexpr auto Default_Security_Mode = ionet::ConnectionSecurityMode::Signed;
 		constexpr auto Default_Allowed_Security_Mode_Mask = static_cast<ionet::ConnectionSecurityMode>(0xA);
 
@@ -60,9 +60,9 @@ namespace catapult { namespace net {
 			return result;
 		}
 
-		VerifyResult VerifyClient(const std::shared_ptr<ionet::PacketIo>& pClientIo, bool shouldExpectNonEmptyPeerInfo = false) {
+		VerifyResult VerifyClient(const std::shared_ptr<ionet::PacketIo>& pClientIo, bool shouldExpectPeerInfo = false) {
 			// Assert: verified client key should be correct only for certain results
-			auto expectedPeerInfo = shouldExpectNonEmptyPeerInfo
+			auto expectedPeerInfo = shouldExpectPeerInfo
 					? VerifiedPeerInfo{ crypto::KeyPair::FromString(Client_Private_Key).publicKey(), Default_Security_Mode }
 					: VerifiedPeerInfo{ Key(), static_cast<ionet::ConnectionSecurityMode>(0) };
 

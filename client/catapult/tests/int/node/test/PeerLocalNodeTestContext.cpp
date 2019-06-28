@@ -38,11 +38,11 @@ namespace catapult { namespace test {
 				}}));
 			}
 
-			if (NonNemesisTransactionPlugins::Property == additionalPlugins) {
-				plugins.emplace("catapult.plugins.property", utils::ConfigurationBag({{
+			if (NonNemesisTransactionPlugins::Restriction_Account == additionalPlugins) {
+				plugins.emplace("catapult.plugins.restrictionaccount", utils::ConfigurationBag({{
 					"",
 					{
-						{ "maxPropertyValues", "10" },
+						{ "maxAccountRestrictionValues", "10" },
 					}
 				}}));
 			}

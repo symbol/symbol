@@ -48,7 +48,7 @@ namespace catapult { namespace filespooling {
 				io::Write8(*m_pOutputStream, utils::to_underlying_type(subscribers::PtChangeOperationType::Add_Cosignature));
 				m_pOutputStream->write(signer);
 				m_pOutputStream->write(signature);
-				io::WriteTransactionInfo(*m_pOutputStream, parentTransactionInfo);
+				io::WriteTransactionInfo(parentTransactionInfo, *m_pOutputStream);
 			}
 
 			void flush() override {
@@ -58,7 +58,7 @@ namespace catapult { namespace filespooling {
 		private:
 			void saveInfos(subscribers::PtChangeOperationType operationType, const TransactionInfos& transactionInfos) {
 				io::Write8(*m_pOutputStream, utils::to_underlying_type(operationType));
-				io::WriteTransactionInfos(*m_pOutputStream, transactionInfos);
+				io::WriteTransactionInfos(transactionInfos, *m_pOutputStream);
 			}
 
 		private:

@@ -20,6 +20,7 @@
 
 #include "src/cache/NamespaceCacheSerializers.h"
 #include "tests/test/NamespaceTestUtils.h"
+#include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -29,6 +30,8 @@ namespace catapult { namespace cache {
 	namespace {
 		using Serializer = NamespaceFlatMapTypesSerializer;
 	}
+
+	// region NamespaceFlatMapTypesSerializer Serialize
 
 	TEST(TEST_CLASS, FlatMapTypesSerializer_CanSerializePartialValue) {
 		// Arrange:
@@ -63,6 +66,10 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(7u, pValues[2]);
 		EXPECT_EQ(21u, pValues[3]);
 	}
+
+	// endregion
+
+	// region NamespaceFlatMapTypesSerializer Deserialize
 
 	TEST(TEST_CLASS, FlatMapTypesSerializer_CannotDeserializeWithInvalidVersion) {
 		// Arrange:
@@ -111,4 +118,32 @@ namespace catapult { namespace cache {
 		EXPECT_EQ(NamespaceId(7), ns.path()[1]);
 		EXPECT_EQ(NamespaceId(21), ns.path()[2]);
 	}
+
+	// endregion
+
+	// region  NamespaceFlatMapTypesSerializer Roundtrip
+
+	TEST(TEST_CLASS, FlatMapTypesSerializer_CanRoundtripPartialValue) {
+		// Arrange:
+		auto ns = state::Namespace(test::CreatePath({ 11 }));
+
+		// Act:
+		auto result = test::RunRoundtripStringTest<Serializer>(ns);
+
+		// Assert:
+		EXPECT_EQ(ns, result);
+	}
+
+	TEST(TEST_CLASS, FlatMapTypesSerializer_CanRoundtripFullValue) {
+		// Arrange:
+		auto ns = state::Namespace(test::CreatePath({ 11, 7, 21 }));
+
+		// Act:
+		auto result = test::RunRoundtripStringTest<Serializer>(ns);
+
+		// Assert:
+		EXPECT_EQ(ns, result);
+	}
+
+	// endregion
 }}

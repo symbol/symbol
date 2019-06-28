@@ -44,7 +44,7 @@ namespace catapult { namespace utils {
 		EXPECT_EQ(result, 12345);
 	}
 
-	TEST(TEST_CLASS, RunningReduceOnNonEmptyContainerExecutesCallbackOnAllElements) {
+	TEST(TEST_CLASS, RunningReduceOnContainerExecutesCallbackOnAllElements) {
 		// Arrange:
 		std::vector<int> vec{ 8, 13, 21, 34, 55 };
 

@@ -82,21 +82,6 @@ namespace catapult { namespace test {
 
 	// endregion
 
-	/// Policy for creating an empty block.
-	struct EmptyBlockPolicy {
-		static auto Create() {
-			return GenerateEmptyRandomBlock();
-		}
-	};
-
-	/// Policy for creating a non-empty block.
-	struct NonEmptyBlockPolicy {
-		static auto Create() {
-			auto transactions = GenerateRandomTransactions(3);
-			return GenerateBlockWithTransactions(transactions);
-		}
-	};
-
 	/// Creates a buffer containing \a numBlocks random blocks (all with no transactions).
 	std::vector<uint8_t> CreateRandomBlockBuffer(size_t numBlocks);
 

@@ -53,6 +53,10 @@ namespace catapult { namespace builders {
 		m_proof.assign(proof.pData, proof.pData + proof.Size);
 	}
 
+	size_t SecretProofBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
+
 	std::unique_ptr<SecretProofBuilder::Transaction> SecretProofBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
@@ -62,11 +66,17 @@ namespace catapult { namespace builders {
 	}
 
 	template<typename TransactionType>
-	std::unique_ptr<TransactionType> SecretProofBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
+	size_t SecretProofBuilder::sizeImpl() const {
+		// calculate transaction size
 		auto size = sizeof(TransactionType);
 		size += m_proof.size();
-		auto pTransaction = createTransaction<TransactionType>(size);
+		return size;
+	}
+
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> SecretProofBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
 		pTransaction->HashAlgorithm = m_hashAlgorithm;

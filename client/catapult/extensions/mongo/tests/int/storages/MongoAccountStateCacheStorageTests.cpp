@@ -63,7 +63,7 @@ namespace catapult { namespace mongo { namespace storages {
 				auto randomImportance = Importance(test::Random() % 1'000'000'000 + 1'000'000'000);
 				auto randomImportanceHeight = test::GenerateRandomValue<model::ImportanceHeight>();
 				accountState.Balances.credit(Currency_Mosaic_Id, randomAmount);
-				accountState.ImportanceInfo.set(randomImportance, randomImportanceHeight);
+				accountState.ImportanceSnapshots.set(randomImportance, randomImportanceHeight);
 				return accountState;
 			}
 
@@ -73,8 +73,8 @@ namespace catapult { namespace mongo { namespace storages {
 				auto& accountStateFromCache = accountStateCacheDelta.find(accountState.PublicKey).get();
 				accountStateFromCache.Balances.credit(Currency_Mosaic_Id, accountState.Balances.get(Currency_Mosaic_Id));
 
-				auto height = accountState.ImportanceInfo.height();
-				accountStateFromCache.ImportanceInfo.set(accountState.ImportanceInfo.get(height), height);
+				auto height = accountState.ImportanceSnapshots.height();
+				accountStateFromCache.ImportanceSnapshots.set(accountState.ImportanceSnapshots.get(height), height);
 			}
 
 			static void Remove(cache::CatapultCacheDelta& delta, const ModelType& accountState) {

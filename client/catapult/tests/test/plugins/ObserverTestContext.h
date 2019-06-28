@@ -21,6 +21,7 @@
 #pragma once
 #include "catapult/cache/CatapultCache.h"
 #include "catapult/model/BlockChainConfiguration.h"
+#include "catapult/observers/ObserverContext.h"
 #include "catapult/state/AccountState.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/ResolverTestUtils.h"

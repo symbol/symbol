@@ -57,35 +57,4 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	// endregion
-
-	// region ToModel
-
-	namespace {
-		void ReadKeySet(utils::SortedKeySet& keySet, const bsoncxx::array::view& dbKeys) {
-			for (const auto& dbKey : dbKeys) {
-				Key key;
-				DbBinaryToModelArray(key, dbKey.get_binary());
-				keySet.emplace(key);
-			}
-		}
-	}
-
-	state::MultisigEntry ToMultisigEntry(const bsoncxx::document::view& document) {
-		auto dbMultisigEntry = document["multisig"];
-		Key account;
-		DbBinaryToModelArray(account, dbMultisigEntry["account"].get_binary());
-		state::MultisigEntry entry(account);
-
-		auto minApproval = ToUint8(dbMultisigEntry["minApproval"].get_int32());
-		auto minRemoval = ToUint8(dbMultisigEntry["minRemoval"].get_int32());
-		entry.setMinApproval(minApproval);
-		entry.setMinRemoval(minRemoval);
-
-		ReadKeySet(entry.cosignatories(), dbMultisigEntry["cosignatories"].get_array().value);
-		ReadKeySet(entry.multisigAccounts(), dbMultisigEntry["multisigAccounts"].get_array().value);
-
-		return entry;
-	}
-
-	// endregion
 }}}

@@ -29,7 +29,7 @@ namespace catapult { namespace validators {
 
 	// region MosaicChangeTransaction
 
-	/// A validator implementation that applies to mosaic required notifications and validates that:
+	/// Validator that applies to mosaic required notifications and validates that:
 	/// - mosaic exists and is active
 	/// - mosaic owner matches requesting signer
 	DECLARE_STATEFUL_VALIDATOR(ProperMosaic, model::MosaicRequiredNotification)();
@@ -38,7 +38,7 @@ namespace catapult { namespace validators {
 
 	// region MosaicDefinitionTransaction
 
-	/// A validator implementation that applies to mosaic properties notifications and validates that:
+	/// Validator that applies to mosaic properties notifications and validates that:
 	/// - definition has valid mosaic flags
 	/// - definition has divisibility no greater than \a maxDivisibility
 	/// - mosaic duration has a value not larger than \a maxMosaicDuration
@@ -47,15 +47,15 @@ namespace catapult { namespace validators {
 			uint8_t maxDivisibility,
 			BlockDuration maxMosaicDuration);
 
-	/// A validator implementation that applies to mosaic nonce notifications and validates that:
+	/// Validator that applies to mosaic nonce notifications and validates that:
 	/// - mosaic id is the expected id generated from signer and nonce
 	DECLARE_STATELESS_VALIDATOR(MosaicId, model::MosaicNonceNotification)();
 
-	/// A validator implementation that applies to mosaic definition notifications and validates that:
+	/// Validator that applies to mosaic definition notifications and validates that:
 	/// - the mosaic is available and can be created or modified
 	DECLARE_STATEFUL_VALIDATOR(MosaicAvailability, model::MosaicDefinitionNotification)();
 
-	/// A validator implementation that applies to mosaic definition notifications and validates that:
+	/// Validator that applies to mosaic definition notifications and validates that:
 	/// - the resulting mosaic duration is not larger than \a maxMosaicDuration and there was no overflow
 	DECLARE_STATEFUL_VALIDATOR(MosaicDuration, model::MosaicDefinitionNotification)(BlockDuration maxMosaicDuration);
 
@@ -63,24 +63,24 @@ namespace catapult { namespace validators {
 
 	// region MosaicSupplyChangeTransaction
 
-	/// A validator implementation that applies to mosaic supply change notifications and validates that:
+	/// Validator that applies to mosaic supply change notifications and validates that:
 	/// - direction has a valid value
 	/// - delta amount is non-zero
 	DECLARE_STATELESS_VALIDATOR(MosaicSupplyChange, model::MosaicSupplyChangeNotification)();
 
-	/// A validator implementation that applies to all balance transfer notifications and validates that:
+	/// Validator that applies to all balance transfer notifications and validates that:
 	/// - transferred mosaic is active and is transferable
 	/// - as an optimization, special currency mosaic (\a currencyMosaicId) transfers are always allowed
 	DECLARE_STATEFUL_VALIDATOR(MosaicTransfer, model::BalanceTransferNotification)(UnresolvedMosaicId currencyMosaicId);
 
-	/// A validator implementation that applies to mosaic supply change notifications and validates that:
+	/// Validator that applies to mosaic supply change notifications and validates that:
 	/// - the affected mosaic has mutable supply
 	/// - decrease does not cause owner amount to become negative
 	/// - increase does not cause total atomic units to exceed \a maxAtomicUnits
 	/// \note This validator is dependent on MosaicChangeAllowedValidator.
 	DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, model::MosaicSupplyChangeNotification)(Amount maxAtomicUnits);
 
-	/// A validator implementation that applies to mosaic supply change notifications and validates that:
+	/// Validator that applies to mosaic supply change notifications and validates that:
 	/// - the account changing the supply does not exceed the maximum number of mosaics (\a maxMosaics) an account is allowed to own
 	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsSupplyChange, model::MosaicSupplyChangeNotification)(uint16_t maxMosaics);
 
@@ -88,7 +88,7 @@ namespace catapult { namespace validators {
 
 	// region TransferTransaction
 
-	/// A validator implementation that applies to all balance transfer notifications and validates that:
+	/// Validator that applies to all balance transfer notifications and validates that:
 	/// - the recipient does not exceed the maximum number of mosaics (\a maxMosaics) an account is allowed to own
 	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsBalanceTransfer, model::BalanceTransferNotification)(uint16_t maxMosaics);
 

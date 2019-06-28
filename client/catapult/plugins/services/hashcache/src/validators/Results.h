@@ -26,7 +26,7 @@ namespace catapult { namespace validators {
 
 #endif
 	/// Validation failed because the entity hash is already known.
-	DEFINE_VALIDATION_RESULT(Failure, Hash, Exists, 7, Verbose);
+	DEFINE_VALIDATION_RESULT(Failure, Hash, Exists, 1, Verbose);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

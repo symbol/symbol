@@ -37,7 +37,7 @@ namespace catapult { namespace model {
 			// Arrange:
 			auto expectedSize =
 					baseSize // base
-					+ sizeof(Address) // recipient
+					+ sizeof(UnresolvedAddress) // recipient
 					+ sizeof(uint16_t) // message size
 					+ sizeof(uint8_t); // mosaics count
 
@@ -50,7 +50,7 @@ namespace catapult { namespace model {
 		void AssertTransactionHasExpectedProperties() {
 			// Assert:
 			EXPECT_EQ(Entity_Type_Transfer, T::Entity_Type);
-			EXPECT_EQ(3u, T::Current_Version);
+			EXPECT_EQ(1u, T::Current_Version);
 		}
 	}
 

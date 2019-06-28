@@ -40,6 +40,8 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region RemoteAccountLinkNotification
+
 	/// Notification of a remote account link.
 	struct RemoteAccountLinkNotification : public Notification {
 	public:
@@ -66,6 +68,10 @@ namespace catapult { namespace model {
 		AccountLinkAction LinkAction;
 	};
 
+	// endregion
+
+	// region NewRemoteAccountNotification
+
 	/// Notification of a new remote account.
 	struct NewRemoteAccountNotification : public Notification {
 	public:
@@ -83,4 +89,6 @@ namespace catapult { namespace model {
 		/// Remote account key.
 		const Key& RemoteAccountKey;
 	};
+
+	// endregion
 }}

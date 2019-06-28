@@ -29,25 +29,25 @@ namespace catapult { namespace validators {
 #define DEFINE_ACCOUNT_LINK_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, AccountLink, DESCRIPTION, CODE, None)
 
 	/// Validation failed because account link action is invalid.
-	DEFINE_ACCOUNT_LINK_RESULT(Invalid_Action, 170);
+	DEFINE_ACCOUNT_LINK_RESULT(Invalid_Action, 1);
 
 	/// Validation failed because main account is already linked to another account.
-	DEFINE_ACCOUNT_LINK_RESULT(Link_Already_Exists, 172);
+	DEFINE_ACCOUNT_LINK_RESULT(Link_Already_Exists, 2);
 
 	/// Validation failed because main account is not linked to another account.
-	DEFINE_ACCOUNT_LINK_RESULT(Link_Does_Not_Exist, 173);
+	DEFINE_ACCOUNT_LINK_RESULT(Link_Does_Not_Exist, 3);
 
 	/// Validation failed because unlink data is not consistent with existing account link.
-	DEFINE_ACCOUNT_LINK_RESULT(Unlink_Data_Inconsistency, 176);
+	DEFINE_ACCOUNT_LINK_RESULT(Unlink_Data_Inconsistency, 4);
 
 	/// Validation failed because link is attempting to convert ineligible account to remote.
-	DEFINE_ACCOUNT_LINK_RESULT(Remote_Account_Ineligible, 177);
+	DEFINE_ACCOUNT_LINK_RESULT(Remote_Account_Ineligible, 5);
 
 	/// Validation failed because remote is not allowed to sign a transaction.
-	DEFINE_ACCOUNT_LINK_RESULT(Remote_Account_Signer_Not_Allowed, 178);
+	DEFINE_ACCOUNT_LINK_RESULT(Remote_Account_Signer_Not_Allowed, 6);
 
 	/// Validation failed because remote is not allowed to participate in the transaction.
-	DEFINE_ACCOUNT_LINK_RESULT(Remote_Account_Participant_Not_Allowed, 179);
+	DEFINE_ACCOUNT_LINK_RESULT(Remote_Account_Participant_Not_Allowed, 7);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

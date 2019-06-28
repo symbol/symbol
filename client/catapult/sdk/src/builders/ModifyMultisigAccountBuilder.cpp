@@ -41,6 +41,10 @@ namespace catapult { namespace builders {
 		m_modifications.push_back(modification);
 	}
 
+	size_t ModifyMultisigAccountBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
+
 	std::unique_ptr<ModifyMultisigAccountBuilder::Transaction> ModifyMultisigAccountBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
@@ -50,11 +54,17 @@ namespace catapult { namespace builders {
 	}
 
 	template<typename TransactionType>
-	std::unique_ptr<TransactionType> ModifyMultisigAccountBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
+	size_t ModifyMultisigAccountBuilder::sizeImpl() const {
+		// calculate transaction size
 		auto size = sizeof(TransactionType);
 		size += m_modifications.size() * sizeof(model::CosignatoryModification);
-		auto pTransaction = createTransaction<TransactionType>(size);
+		return size;
+	}
+
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> ModifyMultisigAccountBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
 		pTransaction->MinRemovalDelta = m_minRemovalDelta;

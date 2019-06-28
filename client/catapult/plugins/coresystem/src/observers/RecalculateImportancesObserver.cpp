@@ -19,7 +19,7 @@
 **/
 
 #include "Observers.h"
-#include "ImportanceCalculator.h"
+#include "src/importance/ImportanceCalculator.h"
 #include "catapult/cache_core/AccountStateCache.h"
 
 namespace catapult { namespace observers {
@@ -53,8 +53,8 @@ namespace catapult { namespace observers {
 		class RecalculateImportancesObserver : public NotificationObserverT<model::BlockNotification> {
 		public:
 			explicit RecalculateImportancesObserver(
-					std::unique_ptr<ImportanceCalculator>&& pCommitCalculator,
-					std::unique_ptr<ImportanceCalculator>&& pRollbackCalculator)
+					std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
+					std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator)
 					: m_pCommitCalculator(std::move(pCommitCalculator))
 					, m_pRollbackCalculator(std::move(pRollbackCalculator))
 					, m_name("RecalculateImportancesObserver")
@@ -77,15 +77,15 @@ namespace catapult { namespace observers {
 			}
 
 		private:
-			std::unique_ptr<ImportanceCalculator> m_pCommitCalculator;
-			std::unique_ptr<ImportanceCalculator> m_pRollbackCalculator;
+			std::unique_ptr<importance::ImportanceCalculator> m_pCommitCalculator;
+			std::unique_ptr<importance::ImportanceCalculator> m_pRollbackCalculator;
 			std::string m_name;
 		};
 	}
 
 	DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)(
-			std::unique_ptr<ImportanceCalculator>&& pCommitCalculator,
-			std::unique_ptr<ImportanceCalculator>&& pRollbackCalculator) {
+			std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
+			std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator) {
 		return std::make_unique<RecalculateImportancesObserver>(std::move(pCommitCalculator), std::move(pRollbackCalculator));
 	}
 }}

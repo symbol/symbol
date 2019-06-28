@@ -32,7 +32,7 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS AccountLinkTransactionPluginTests
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AccountLink, 2, 2,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AccountLink, 1, 1,)
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Account_Link)

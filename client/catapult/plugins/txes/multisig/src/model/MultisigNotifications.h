@@ -42,6 +42,8 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region ModifyMultisigCosignersNotification
+
 	/// Notification of a multisig cosigners modification.
 	struct ModifyMultisigCosignersNotification : public Notification {
 	public:
@@ -50,10 +52,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a signer, \a modificationsCount and \a pModifications.
-		explicit ModifyMultisigCosignersNotification(
-				const Key& signer,
-				uint8_t modificationsCount,
-				const CosignatoryModification* pModifications)
+		ModifyMultisigCosignersNotification(const Key& signer, uint8_t modificationsCount, const CosignatoryModification* pModifications)
 				: Notification(Notification_Type, sizeof(ModifyMultisigCosignersNotification))
 				, Signer(signer)
 				, ModificationsCount(modificationsCount)
@@ -71,6 +70,10 @@ namespace catapult { namespace model {
 		const CosignatoryModification* ModificationsPtr;
 	};
 
+	// endregion
+
+	// region ModifyMultisigNewCosignerNotification
+
 	/// Notification of a new cosigner.
 	struct ModifyMultisigNewCosignerNotification : public Notification {
 	public:
@@ -79,7 +82,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a multisigAccountKey and \a cosignatoryKey.
-		explicit ModifyMultisigNewCosignerNotification(const Key& multisigAccountKey, const Key& cosignatoryKey)
+		ModifyMultisigNewCosignerNotification(const Key& multisigAccountKey, const Key& cosignatoryKey)
 				: Notification(Notification_Type, sizeof(ModifyMultisigNewCosignerNotification))
 				, MultisigAccountKey(multisigAccountKey)
 				, CosignatoryKey(cosignatoryKey)
@@ -93,6 +96,10 @@ namespace catapult { namespace model {
 		const Key& CosignatoryKey;
 	};
 
+	// endregion
+
+	// region ModifyMultisigSettingsNotification
+
 	/// Notification of a multisig settings modification.
 	struct ModifyMultisigSettingsNotification : public Notification {
 	public:
@@ -101,7 +108,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a signer, \a minRemovalDelta and \a minApprovalDelta.
-		explicit ModifyMultisigSettingsNotification(const Key& signer, int8_t minRemovalDelta, int8_t minApprovalDelta)
+		ModifyMultisigSettingsNotification(const Key& signer, int8_t minRemovalDelta, int8_t minApprovalDelta)
 				: Notification(Notification_Type, sizeof(ModifyMultisigSettingsNotification))
 				, Signer(signer)
 				, MinRemovalDelta(minRemovalDelta)
@@ -118,4 +125,6 @@ namespace catapult { namespace model {
 		/// Relative change of cosigs needed to approve a transaction.
 		int8_t MinApprovalDelta;
 	};
+
+	// endregion
 }}

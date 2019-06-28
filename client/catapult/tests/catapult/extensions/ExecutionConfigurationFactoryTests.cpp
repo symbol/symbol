@@ -44,6 +44,8 @@ namespace catapult { namespace extensions {
 			"AccountPublicKeyObserver",
 			"BalanceDebitObserver",
 			"BalanceTransferObserver",
+			"BeneficiaryObserver",
+			"TransactionFeeActivityObserver",
 			"HarvestFeeObserver",
 			"TotalTransactionsObserver",
 			"RecalculateImportancesObserver",

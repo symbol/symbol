@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS EligibleHarvesterValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(EligibleHarvester, Amount(1234))
+	DEFINE_COMMON_VALIDATOR_TESTS(EligibleHarvester,)
 
 	namespace {
 		constexpr auto Harvesting_Mosaic_Id = MosaicId(9876);
@@ -42,10 +42,11 @@ namespace catapult { namespace validators {
 			return model::ConvertToImportanceHeight(height, Importance_Grouping);
 		}
 
-		auto CreateEmptyCatapultCache() {
+		auto CreateEmptyCatapultCache(Amount minHarvesterBalance) {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = Importance_Grouping;
+			config.MinHarvesterBalance = minHarvesterBalance;
 			return test::CreateEmptyCatapultCache(config);
 		}
 
@@ -59,7 +60,7 @@ namespace catapult { namespace validators {
 			auto& accountStateCache = delta.sub<cache::AccountStateCache>();
 			accountStateCache.addAccount(publicKey, Height(100));
 			auto& accountState = accountStateCache.find(publicKey).get();
-			accountState.ImportanceInfo.set(importance, importanceHeight);
+			accountState.ImportanceSnapshots.set(importance, importanceHeight);
 			accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
 			cache.commit(Height());
 		}
@@ -67,12 +68,12 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenAccountIsUnknown) {
 		// Arrange:
-		auto cache = CreateEmptyCatapultCache();
+		auto cache = CreateEmptyCatapultCache(Amount(0));
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto height = Height(1000);
 		AddAccount(cache, key, Importance(1000), ConvertToImportanceHeight(height), Amount(9999));
 
-		auto pValidator = CreateEligibleHarvesterValidator(Amount(1234));
+		auto pValidator = CreateEligibleHarvesterValidator();
 
 		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = test::CreateBlockNotification(signer);
@@ -92,12 +93,12 @@ namespace catapult { namespace validators {
 				model::ImportanceHeight importanceHeight,
 				Height blockHeight) {
 			// Arrange:
-			auto cache = CreateEmptyCatapultCache();
+			auto cache = CreateEmptyCatapultCache(Amount(1234));
 			auto key = test::GenerateRandomByteArray<Key>();
 			auto initialBalance = Amount(static_cast<Amount::ValueType>(1234 + minBalanceDelta));
 			AddAccount(cache, key, importance, importanceHeight, initialBalance);
 
-			auto pValidator = CreateEligibleHarvesterValidator(Amount(1234));
+			auto pValidator = CreateEligibleHarvesterValidator();
 			auto notification = test::CreateBlockNotification(key);
 
 			// Act:

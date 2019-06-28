@@ -33,7 +33,9 @@ namespace catapult { namespace cache {
 		Multisig,
 		HashLockInfo,
 		SecretLockInfo,
-		Property
+		AccountRestriction,
+		MosaicRestriction,
+		Metadata
 	};
 
 /// Defines cache constants for a cache with \a NAME.

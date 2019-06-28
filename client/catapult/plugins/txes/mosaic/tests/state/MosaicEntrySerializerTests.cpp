@@ -19,6 +19,8 @@
 **/
 
 #include "src/state/MosaicEntrySerializer.h"
+#include "tests/test/MosaicTestUtils.h"
+#include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
@@ -103,50 +105,19 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region Load
+	// region Roundtrip
 
-	namespace {
-		void AssertMosaicEntry(
-				const state::MosaicEntry& entry,
-				MosaicId mosaicId,
-				Amount supply,
-				Height height,
-				const Key& owner,
-				uint32_t revision,
-				const decltype(MosaicEntryHeader::PropertyValues)& propertyValues) {
-			auto message = "entry " + std::to_string(entry.mosaicId().unwrap());
-
-			// - entry
-			EXPECT_EQ(mosaicId, entry.mosaicId()) << message;
-			EXPECT_EQ(supply, entry.supply()) << message;
-
-			// - definition
-			const auto& definition = entry.definition();
-			EXPECT_EQ(height, definition.height()) << message;
-			EXPECT_EQ(owner, definition.owner()) << message;
-			EXPECT_EQ(revision, definition.revision()) << message;
-
-			uint8_t i = 0;
-			for (const auto& property : definition.properties()) {
-				EXPECT_EQ(static_cast<model::MosaicPropertyId>(i), property.Id) << message << " property " << i;
-				EXPECT_EQ(propertyValues[i], property.Value) << message << " property " << i;
-				++i;
-			}
-		}
-	}
-
-	TEST(TEST_CLASS, CanLoadEntry) {
+	TEST(TEST_CLASS, CanRoundtripEntry) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
-		std::vector<uint8_t> buffer(sizeof(MosaicEntryHeader));
-		reinterpret_cast<MosaicEntryHeader&>(buffer[0]) = { MosaicId(123), Amount(786), Height(222), owner, 5, { { 9, 8, 7 } } };
-		mocks::MockMemoryStream stream(buffer);
+		auto definition = MosaicDefinition(Height(888), test::GenerateRandomByteArray<Key>(), 5, CreateMosaicProperties(17));
+		auto originalEntry = MosaicEntry(MosaicId(123), definition);
+		originalEntry.increaseSupply(Amount(111));
 
 		// Act:
-		auto entry = MosaicEntrySerializer::Load(stream);
+		auto result = test::RunRoundtripBufferTest<MosaicEntrySerializer>(originalEntry);
 
 		// Assert:
-		AssertMosaicEntry(entry, MosaicId(123), Amount(786), Height(222), owner, 5, { { 9, 8, 7 } });
+		test::AssertEqual(originalEntry, result);
 	}
 
 	// endregion

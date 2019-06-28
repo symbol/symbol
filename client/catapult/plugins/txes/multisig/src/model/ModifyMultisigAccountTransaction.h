@@ -52,7 +52,7 @@ namespace catapult { namespace model {
 		using TransactionType = ModifyMultisigAccountTransactionBody<THeader>;
 
 	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Modify_Multisig_Account, 3)
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Modify_Multisig_Account, 1)
 
 	public:
 		/// Relative change of the minimal number of cosignatories required when removing an account.

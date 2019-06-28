@@ -126,16 +126,16 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanOutputPluginEnumValues) {
-		// Assert:
-		EXPECT_EQ("Account_Link", test::ToString(ToEntityType(0x414C)));
+		// Assert: ordered by facility code
 		EXPECT_EQ("Aggregate_Complete", test::ToString(ToEntityType(0x4141)));
 		EXPECT_EQ("Hash_Lock", test::ToString(ToEntityType(0x4148)));
+		EXPECT_EQ("Account_Link", test::ToString(ToEntityType(0x414C)));
 		EXPECT_EQ("Mosaic_Supply_Change", test::ToString(ToEntityType(0x424D)));
-		EXPECT_EQ("Mosaic_Property", test::ToString(ToEntityType(0x4250)));
-		EXPECT_EQ("Modify_Multisig_Account", test::ToString(ToEntityType(0x4155)));
 		EXPECT_EQ("Register_Namespace", test::ToString(ToEntityType(0x414E)));
+		EXPECT_EQ("Account_Mosaic_Restriction", test::ToString(ToEntityType(0x4250)));
 		EXPECT_EQ("Secret_Lock", test::ToString(ToEntityType(0x4152)));
 		EXPECT_EQ("Transfer", test::ToString(ToEntityType(0x4154)));
+		EXPECT_EQ("Modify_Multisig_Account", test::ToString(ToEntityType(0x4155)));
 	}
 
 	TEST(TEST_CLASS, CanOutputUnknownEnumValues) {

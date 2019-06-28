@@ -40,12 +40,14 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region BasicAggregateNotification
+
 	/// A basic aggregate notification.
 	template<typename TDerivedNotification>
 	struct BasicAggregateNotification : public Notification {
-	public:
+	protected:
 		/// Creates a notification around \a signer, \a cosignaturesCount and \a pCosignatures.
-		explicit BasicAggregateNotification(const Key& signer, size_t cosignaturesCount, const Cosignature* pCosignatures)
+		BasicAggregateNotification(const Key& signer, size_t cosignaturesCount, const Cosignature* pCosignatures)
 				: Notification(TDerivedNotification::Notification_Type, sizeof(TDerivedNotification))
 				, Signer(signer)
 				, CosignaturesCount(cosignaturesCount)
@@ -63,6 +65,10 @@ namespace catapult { namespace model {
 		const Cosignature* CosignaturesPtr;
 	};
 
+	// endregion
+
+	// region AggregateEmbeddedTransactionNotification
+
 	/// Notification of an embedded aggregate transaction with cosignatures.
 	struct AggregateEmbeddedTransactionNotification : public BasicAggregateNotification<AggregateEmbeddedTransactionNotification> {
 	public:
@@ -71,7 +77,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a signer, \a transaction, \a cosignaturesCount and \a pCosignatures.
-		explicit AggregateEmbeddedTransactionNotification(
+		AggregateEmbeddedTransactionNotification(
 				const Key& signer,
 				const EmbeddedTransaction& transaction,
 				size_t cosignaturesCount,
@@ -85,6 +91,10 @@ namespace catapult { namespace model {
 		const EmbeddedTransaction& Transaction;
 	};
 
+	// endregion
+
+	// region AggregateCosignaturesNotification
+
 	/// Notification of an aggregate transaction with transactions and cosignatures.
 	/// \note TransactionsPtr and CosignaturesPtr are provided instead of minimally required keys in order to support undoing.
 	struct AggregateCosignaturesNotification : public BasicAggregateNotification<AggregateCosignaturesNotification> {
@@ -94,7 +104,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a signer, \a transactionsCount, \a pTransactions, \a cosignaturesCount and \a pCosignatures.
-		explicit AggregateCosignaturesNotification(
+		AggregateCosignaturesNotification(
 				const Key& signer,
 				size_t transactionsCount,
 				const EmbeddedTransaction* pTransactions,
@@ -112,4 +122,6 @@ namespace catapult { namespace model {
 		/// Const pointer to the first transaction.
 		const EmbeddedTransaction* TransactionsPtr;
 	};
+
+	// endregion
 }}

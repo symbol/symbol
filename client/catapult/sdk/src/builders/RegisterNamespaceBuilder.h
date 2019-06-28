@@ -46,6 +46,10 @@ namespace catapult { namespace builders {
 		void setName(const RawBuffer& name);
 
 	public:
+		/// Returns size of register namespace transaction.
+		/// \note This returns size of a normal transaction not embedded transaction.
+		size_t size() const;
+
 		/// Builds a new register namespace transaction.
 		std::unique_ptr<Transaction> build() const;
 
@@ -53,6 +57,9 @@ namespace catapult { namespace builders {
 		std::unique_ptr<EmbeddedTransaction> buildEmbedded() const;
 
 	private:
+		template<typename TTransaction>
+		size_t sizeImpl() const;
+
 		template<typename TTransaction>
 		std::unique_ptr<TTransaction> buildImpl() const;
 

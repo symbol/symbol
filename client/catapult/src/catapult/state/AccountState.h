@@ -19,8 +19,9 @@
 **/
 
 #pragma once
+#include "AccountActivityBuckets.h"
 #include "AccountBalances.h"
-#include "AccountImportance.h"
+#include "AccountImportanceSnapshots.h"
 
 namespace catapult { namespace state {
 
@@ -71,8 +72,11 @@ namespace catapult { namespace state {
 		/// Public key of linked account.
 		Key LinkedAccountKey;
 
-		/// Importance information of the account.
-		AccountImportance ImportanceInfo;
+		/// Importance snapshots of the account.
+		AccountImportanceSnapshots ImportanceSnapshots;
+
+		/// Activity buckets of the account.
+		AccountActivityBuckets ActivityBuckets;
 
 		/// Balances of an account.
 		AccountBalances Balances;

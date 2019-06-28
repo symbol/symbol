@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 			// Arrange:
 			auto expectedSize =
 					baseSize // base
-					+ sizeof(MosaicId) // mosaic id
+					+ sizeof(UnresolvedMosaicId) // mosaic id
 					+ sizeof(uint8_t) // direction
 					+ sizeof(Amount); // delta
 
@@ -47,7 +47,7 @@ namespace catapult { namespace model {
 		void AssertTransactionHasExpectedProperties() {
 			// Assert:
 			EXPECT_EQ(Entity_Type_Mosaic_Supply_Change, T::Entity_Type);
-			EXPECT_EQ(2u, T::Current_Version);
+			EXPECT_EQ(1u, T::Current_Version);
 		}
 	}
 

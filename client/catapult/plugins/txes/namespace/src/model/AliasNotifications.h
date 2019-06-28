@@ -44,6 +44,8 @@ namespace catapult { namespace model {
 
 	// endregion
 
+	// region BaseAliasNotification
+
 	/// Base alias notification.
 	struct BaseAliasNotification : public Notification {
 	public:
@@ -66,6 +68,10 @@ namespace catapult { namespace model {
 		model::AliasAction AliasAction;
 	};
 
+	// endregion
+
+	// region AliasOwnerNotification
+
 	/// Notification of alias owner.
 	struct AliasOwnerNotification : public BaseAliasNotification {
 	public:
@@ -83,6 +89,10 @@ namespace catapult { namespace model {
 		/// Alias owner.
 		const Key& Owner;
 	};
+
+	// endregion
+
+	// region AliasedDataNotification
 
 	/// Notification of aliased data.
 	template<typename TAliasedData, NotificationType Aliased_Notification_Type>
@@ -110,4 +120,6 @@ namespace catapult { namespace model {
 
 	/// Notification of an aliased mosaic id.
 	using AliasedMosaicIdNotification = AliasedDataNotification<MosaicId, Namespace_Aliased_MosaicId_Notification>;
+
+	// endregion
 }}

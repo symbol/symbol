@@ -25,25 +25,25 @@
 
 namespace catapult { namespace validators {
 
-	/// A validator implementation that applies to remote account link notifications and validates that:
+	/// Validator that applies to remote account link notifications and validates that:
 	/// - account link action is valid
 	DECLARE_STATELESS_VALIDATOR(AccountLinkAction, model::RemoteAccountLinkNotification)();
 
-	/// A validator implementation that applies to remote account link notifications and validates that:
+	/// Validator that applies to remote account link notifications and validates that:
 	/// - link action is consistent with current state
 	/// - only main account can unlink
 	/// - unlink data matches current state
 	DECLARE_STATEFUL_VALIDATOR(AccountLinkAvailability, model::RemoteAccountLinkNotification)();
 
-	/// A validator implementation that applies to new remote account notifications and validates that:
+	/// Validator that applies to new remote account notifications and validates that:
 	/// - remote account does not exist
 	DECLARE_STATEFUL_VALIDATOR(NewRemoteAccountAvailability, model::NewRemoteAccountNotification)();
 
-	/// A validator implementation that applies to transaction notifications and validates that:
+	/// Validator that applies to transaction notifications and validates that:
 	/// - remote account is not the transaction signer
 	DECLARE_STATEFUL_VALIDATOR(RemoteSender, model::TransactionNotification)();
 
-	/// A validator implementation that applies to address interaction notifications and validates that:
+	/// Validator that applies to address interaction notifications and validates that:
 	/// - remote account is allowed to participate in the interaction
 	DECLARE_STATEFUL_VALIDATOR(RemoteInteraction, model::AddressInteractionNotification)();
 }}

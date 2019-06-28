@@ -189,7 +189,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, TEST_NAME##_OrderedVector) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<OrderedVectorTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	CONTAINER_BASED_TEST(ExtractSectionAsContainerCanExtractKnownSectionAsNonEmptyContainer) {
+	CONTAINER_BASED_TEST(ExtractSectionAsContainerCanExtractKnownSectionAsContainer) {
 		// Arrange:
 		using ContainerType = typename TTraits::ContainerType;
 		auto bag = ConfigurationBag({

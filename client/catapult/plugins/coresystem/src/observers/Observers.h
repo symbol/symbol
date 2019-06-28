@@ -19,11 +19,13 @@
 **/
 
 #pragma once
-#include "ImportanceCalculator.h"
 #include "catapult/model/Notifications.h"
 #include "catapult/observers/ObserverTypes.h"
 
-namespace catapult { namespace model { class InflationCalculator; } }
+namespace catapult {
+	namespace importance { class ImportanceCalculator; }
+	namespace model { class InflationCalculator; }
+}
 
 namespace catapult { namespace observers {
 
@@ -42,8 +44,8 @@ namespace catapult { namespace observers {
 	/// Observes block notifications and triggers importance recalculations using either \a pCommitCalculator (for commits)
 	/// or \a pRollbackCalculator (for rollbacks).
 	DECLARE_OBSERVER(RecalculateImportances, model::BlockNotification)(
-			std::unique_ptr<ImportanceCalculator>&& pCommitCalculator,
-			std::unique_ptr<ImportanceCalculator>&& pRollbackCalculator);
+			std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
+			std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator);
 
 	/// Observes block notifications and credits the harvester and optionally the beneficiary account with transaction fees
 	/// given the currency mosaic id (\a currencyMosaicId), the harvest beneficiary percentage (\a harvestBeneficiaryPercentage)
@@ -52,6 +54,9 @@ namespace catapult { namespace observers {
 			MosaicId currencyMosaicId,
 			uint8_t harvestBeneficiaryPercentage,
 			const model::InflationCalculator& calculator);
+
+	/// Observes block beneficiary.
+	DECLARE_OBSERVER(Beneficiary, model::BlockNotification)();
 
 	/// Observes block difficulties.
 	DECLARE_OBSERVER(BlockDifficulty, model::BlockNotification)();
@@ -68,6 +73,9 @@ namespace catapult { namespace observers {
 
 	/// Observes balance changes triggered by balance debit notifications.
 	DECLARE_OBSERVER(BalanceDebit, model::BalanceDebitNotification)();
+
+	/// Observes transaction fee notifications and updates account activity information.
+	DECLARE_OBSERVER(TransactionFeeActivity, model::TransactionFeeNotification)();
 
 	// endregion
 

@@ -22,6 +22,7 @@
 #include "catapult/model/Mosaic.h"
 #include "tests/test/core/AccountStateTestUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
+#include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
@@ -30,21 +31,28 @@ namespace catapult { namespace state {
 #define TEST_CLASS AccountStateSerializerTests
 
 	namespace {
+		constexpr uint8_t Regular_Format_Tag = 0;
+		constexpr uint8_t High_Value_Format_Tag = 1;
+
 		size_t GetManyMosaicsCount() {
 			return test::GetStressIterationCount() ? 65535 : 1000;
 		}
-	}
 
-	// region raw serialization
+		// region raw structures
 
-#ifdef _MSC_VER
-#define MAY_ALIAS
-#else
-#define MAY_ALIAS __attribute__((may_alias))
-#endif
-
-	namespace {
 #pragma pack(push, 1)
+
+		struct PackedImportanceSnapshot {
+			catapult::Importance Importance;
+			model::ImportanceHeight Height;
+		};
+
+		struct PackedActivityBucket {
+			model::ImportanceHeight StartHeight;
+			Amount TotalFeesPaid;
+			uint32_t BeneficiaryCount;
+			uint64_t RawScore;
+		};
 
 		struct AccountStateHeader {
 			catapult::Address Address;
@@ -55,155 +63,35 @@ namespace catapult { namespace state {
 			state::AccountType AccountType;
 			Key LinkedAccountKey;
 
-			Importance Importance1;
-			model::ImportanceHeight ImportanceHeight1;
+			uint8_t Format;
+		};
 
+		struct HighValueImportanceHeader {
+			PackedImportanceSnapshot Snapshot;
+			PackedActivityBucket Buckets[5];
+		};
+
+		struct MosaicHeader {
 			MosaicId OptimizedMosaicId;
 			uint16_t MosaicsCount;
 		};
 
-		struct MAY_ALIAS HistoricalImportancesHeader {
-			Importance Importance3;
-			model::ImportanceHeight ImportanceHeight3;
+		struct HistoricalRegularHeader {
+			PackedImportanceSnapshot HistoricalSnapshots[3];
+			PackedActivityBucket HistoricalBuckets[7];
+		};
 
-			Importance Importance2;
-			model::ImportanceHeight ImportanceHeight2;
+		struct HistoricalHighValueHeader {
+			PackedImportanceSnapshot HistoricalSnapshots[2];
+			PackedActivityBucket HistoricalBuckets[2];
 		};
 
 #pragma pack(pop)
 
-		size_t CalculatePackedSize(const AccountState& accountState) {
-			return sizeof(AccountStateHeader) + sizeof(HistoricalImportancesHeader) + accountState.Balances.size() * sizeof(model::Mosaic);
-		}
+		// endregion
 
-		void SetImportance(AccountState& accountState, Importance importance, model::ImportanceHeight height) {
-			if (model::ImportanceHeight() != height)
-				accountState.ImportanceInfo.set(importance, height);
-		}
+		// region account state utils
 
-		const model::Mosaic* GetMosaicPointer(const AccountStateHeader& header) {
-			const auto* pHeaderData = reinterpret_cast<const uint8_t*>(&header + 1);
-			return reinterpret_cast<const model::Mosaic*>(pHeaderData);
-		}
-
-		template<typename TTraits>
-		AccountState CopyHeaderToAccountState(const AccountStateHeader& header) {
-			auto accountState = AccountState(header.Address, header.AddressHeight);
-			accountState.PublicKey = header.PublicKey;
-			accountState.PublicKeyHeight = header.PublicKeyHeight;
-
-			accountState.AccountType = header.AccountType;
-			accountState.LinkedAccountKey = header.LinkedAccountKey;
-
-			accountState.Balances.optimize(header.OptimizedMosaicId);
-			const auto* pMosaic = GetMosaicPointer(header);
-			for (auto i = 0u; i < header.MosaicsCount; ++i, ++pMosaic)
-				accountState.Balances.credit(pMosaic->MosaicId, pMosaic->Amount);
-
-			if (TTraits::Has_Historical_Importances) {
-				const auto& historicalImportancesHeader = reinterpret_cast<const HistoricalImportancesHeader&>(*pMosaic);
-				SetImportance(accountState, historicalImportancesHeader.Importance3, historicalImportancesHeader.ImportanceHeight3);
-				SetImportance(accountState, historicalImportancesHeader.Importance2, historicalImportancesHeader.ImportanceHeight2);
-			}
-
-			SetImportance(accountState, header.Importance1, header.ImportanceHeight1);
-			return accountState;
-		}
-
-		void FillImportanceSnapshots(const AccountImportance& accountImportance, AccountImportance::ImportanceSnapshot* pSnapshot) {
-			for (const auto& snapshot : accountImportance)
-				*pSnapshot++ = snapshot;
-		}
-
-		std::vector<uint8_t> CopyToBuffer(const AccountState& accountState) {
-			std::vector<uint8_t> buffer(CalculatePackedSize(accountState));
-
-			AccountStateHeader header;
-			header.Address = accountState.Address;
-			header.AddressHeight = accountState.AddressHeight;
-			header.PublicKey = accountState.PublicKey;
-			header.PublicKeyHeight = accountState.PublicKeyHeight;
-
-			header.AccountType = accountState.AccountType;
-			header.LinkedAccountKey = accountState.LinkedAccountKey;
-
-			header.Importance1 = accountState.ImportanceInfo.current();
-			header.ImportanceHeight1 = accountState.ImportanceInfo.height();
-
-			header.OptimizedMosaicId = accountState.Balances.optimizedMosaicId();
-			header.MosaicsCount = static_cast<uint16_t>(accountState.Balances.size());
-
-			auto* pData = buffer.data();
-			std::memcpy(pData, &header, sizeof(AccountStateHeader));
-			pData += sizeof(AccountStateHeader);
-
-			auto* pUint64Data = reinterpret_cast<uint64_t*>(pData);
-			for (const auto& pair : accountState.Balances) {
-				*pUint64Data++ = pair.first.unwrap();
-				*pUint64Data++ = pair.second.unwrap();
-			}
-
-			AccountImportance::ImportanceSnapshot snapshots[Importance_History_Size];
-			FillImportanceSnapshots(accountState.ImportanceInfo, snapshots);
-
-			for (auto i = Importance_History_Size; i > 1; --i) {
-				const auto& snapshot = snapshots[i - 1];
-				*pUint64Data++ = snapshot.Importance.unwrap();
-				*pUint64Data++ = snapshot.Height.unwrap();
-			}
-
-			return buffer;
-		}
-	}
-
-	// endregion
-
-	// region traits
-
-	namespace {
-		struct FullTraits {
-			using Serializer = AccountStateSerializer;
-
-			static constexpr auto Has_Historical_Importances = true;
-			static constexpr auto Buffer_Padding_Size = 0u;
-
-			static void AssertEqual(const AccountState& expected, const AccountState& actual) {
-				test::AssertEqual(expected, actual);
-			}
-		};
-
-		// notice that CopyToBuffer always writes historical importances, so tests implicitly verify
-		// that ex-history serialized data is a subset of full serialized data
-		struct NonHistoricalTraits {
-			using Serializer = AccountStateNonHistoricalSerializer;
-
-			static constexpr auto Has_Historical_Importances = false;
-			static constexpr auto Buffer_Padding_Size = 4 * sizeof(uint64_t); // two historical importances
-
-			static void AssertEqual(const AccountState& expected, const AccountState& actual) {
-				// strip historical importances
-				auto expectedCopy = expected;
-				auto& expectedImportanceInfo = expectedCopy.ImportanceInfo;
-				while (model::ImportanceHeight() != expectedImportanceInfo.height())
-					expectedImportanceInfo.pop();
-
-				expectedImportanceInfo.set(expected.ImportanceInfo.current(), expected.ImportanceInfo.height());
-				test::AssertEqual(expectedCopy, actual);
-			}
-		};
-	}
-
-#define SERIALIZER_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<FullTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NonHistorical) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonHistoricalTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
-
-	// endregion
-
-	// region Save
-
-	namespace {
 		AccountState CreateRandomAccountState(size_t numMosaics) {
 			auto accountState = AccountState(test::GenerateRandomAddress(), Height(123));
 			test::FillWithRandomData(accountState.PublicKey);
@@ -212,11 +100,375 @@ namespace catapult { namespace state {
 			accountState.AccountType = static_cast<AccountType>(33);
 			test::FillWithRandomData(accountState.LinkedAccountKey);
 
-			test::RandomFillAccountData(0, accountState, numMosaics);
+			test::RandomFillAccountData(1, accountState, numMosaics);
 			accountState.Balances.optimize(test::GenerateRandomValue<MosaicId>());
 			return accountState;
 		}
 
+		auto CopySnapshots(const AccountState& accountState) {
+			std::array<AccountImportanceSnapshots::ImportanceSnapshot, Importance_History_Size> copy;
+			std::copy(accountState.ImportanceSnapshots.begin(), accountState.ImportanceSnapshots.end(), copy.begin());
+			return copy;
+		}
+
+		auto CopyBuckets(const AccountState& accountState) {
+			std::array<AccountActivityBuckets::ActivityBucket, Activity_Bucket_History_Size> copy;
+			std::copy(accountState.ActivityBuckets.begin(), accountState.ActivityBuckets.end(), copy.begin());
+			return copy;
+		}
+
+		template<typename TSnapshot1, typename TSnapshot2>
+		void CopySnapshotTo(const TSnapshot1& source, TSnapshot2& dest) {
+			dest.Importance = source.Importance;
+			dest.Height = source.Height;
+		}
+
+		template<typename TBucket1, typename TBucket2>
+		void CopyBucketTo(const TBucket1& source, TBucket2& dest) {
+			dest.StartHeight = source.StartHeight;
+			dest.TotalFeesPaid = source.TotalFeesPaid;
+			dest.BeneficiaryCount = source.BeneficiaryCount;
+			dest.RawScore = source.RawScore;
+		}
+
+		template<typename TSnapshot>
+		void PushSnapshot(AccountState& accountState, const TSnapshot& snapshot) {
+			accountState.ImportanceSnapshots.set(snapshot.Importance, snapshot.Height);
+		}
+
+		template<typename TBucket>
+		void PushBucket(AccountState& accountState, const TBucket& bucket) {
+			accountState.ActivityBuckets.update(bucket.StartHeight, [&bucket](auto& accountStateBucket) {
+				accountStateBucket.TotalFeesPaid = bucket.TotalFeesPaid;
+				accountStateBucket.BeneficiaryCount = bucket.BeneficiaryCount;
+				accountStateBucket.RawScore = bucket.RawScore;
+			});
+		}
+
+		void ClearSnapshotsAndBuckets(AccountState& accountState) {
+			while (model::ImportanceHeight() != accountState.ImportanceSnapshots.height())
+				accountState.ImportanceSnapshots.pop();
+
+			while (model::ImportanceHeight() != accountState.ActivityBuckets.begin()->StartHeight)
+				accountState.ActivityBuckets.pop();
+		}
+
+		// endregion
+
+		// region header => account state utils
+
+		AccountState CreateAccountStateFromHeader(const AccountStateHeader& header) {
+			auto accountState = AccountState(header.Address, header.AddressHeight);
+			accountState.PublicKey = header.PublicKey;
+			accountState.PublicKeyHeight = header.PublicKeyHeight;
+
+			accountState.AccountType = header.AccountType;
+			accountState.LinkedAccountKey = header.LinkedAccountKey;
+			return accountState;
+		}
+
+		void ProcessSnapshots(AccountState& accountState, const PackedImportanceSnapshot* pSnapshots, size_t count) {
+			for (auto i = count; i > 0; --i)
+				PushSnapshot(accountState, pSnapshots[i - 1]);
+		}
+
+		void ProcessBuckets(AccountState& accountState, const PackedActivityBucket* pBuckets, size_t count) {
+			for (auto i = count; i > 0; --i)
+				PushBucket(accountState, pBuckets[i - 1]);
+		}
+
+		void ProcessHighValueImportanceHeader(AccountState& accountState, const HighValueImportanceHeader& header) {
+			PushSnapshot(accountState, header.Snapshot);
+			ProcessBuckets(accountState, header.Buckets, CountOf(header.Buckets));
+		}
+
+		void ProcessMosaicHeader(AccountState& accountState, const MosaicHeader& header) {
+			accountState.Balances.optimize(header.OptimizedMosaicId);
+
+			const auto* pMosaic = reinterpret_cast<const model::Mosaic*>(&header + 1);
+			for (auto i = 0u; i < header.MosaicsCount; ++i, ++pMosaic)
+				accountState.Balances.credit(pMosaic->MosaicId, pMosaic->Amount);
+		}
+
+		AccountState DeserializeNonHistoricalFromBuffer(const uint8_t* pData, uint8_t format) {
+			// 1. process AccountStateHeader
+			const auto& accountStateHeader = reinterpret_cast<const AccountStateHeader&>(*pData);
+			pData += sizeof(AccountStateHeader);
+			auto accountState = CreateAccountStateFromHeader(accountStateHeader);
+
+			if (High_Value_Format_Tag == format) {
+				// 2. process HighValueImportanceHeader
+				const auto& importanceHeader = reinterpret_cast<const HighValueImportanceHeader&>(*pData);
+				pData += sizeof(HighValueImportanceHeader);
+				ProcessHighValueImportanceHeader(accountState, importanceHeader);
+			}
+
+			// 3. process MosaicHeader and following mosaics
+			const auto& mosaicHeader = reinterpret_cast<const MosaicHeader&>(*pData);
+			pData += sizeof(MosaicHeader);
+			ProcessMosaicHeader(accountState, mosaicHeader);
+
+			// 4. sanity checks
+			EXPECT_EQ(format, accountStateHeader.Format);
+			return accountState;
+		}
+
+		// endregion
+
+		// region account state => header utils
+
+		void SerializeNonHistoricalToBuffer(const AccountState& accountState, uint8_t format, std::vector<uint8_t>& buffer) {
+			auto* pData = buffer.data();
+
+			auto& accountStateHeader = reinterpret_cast<AccountStateHeader&>(*pData);
+			accountStateHeader.Address = accountState.Address;
+			accountStateHeader.AddressHeight = accountState.AddressHeight;
+			accountStateHeader.PublicKey = accountState.PublicKey;
+			accountStateHeader.PublicKeyHeight = accountState.PublicKeyHeight;
+			accountStateHeader.AccountType = accountState.AccountType;
+			accountStateHeader.LinkedAccountKey = accountState.LinkedAccountKey;
+			accountStateHeader.Format = format;
+			pData += sizeof(AccountStateHeader);
+
+			if (High_Value_Format_Tag == format) {
+				auto& importanceHeader = reinterpret_cast<HighValueImportanceHeader&>(*pData);
+				importanceHeader.Snapshot.Importance = accountState.ImportanceSnapshots.current();
+				importanceHeader.Snapshot.Height = accountState.ImportanceSnapshots.height();
+
+				auto accountStateBucketIter = accountState.ActivityBuckets.begin();
+				for (auto& bucket : importanceHeader.Buckets) {
+					CopyBucketTo(*accountStateBucketIter, bucket);
+					++accountStateBucketIter;
+				}
+
+				pData += sizeof(HighValueImportanceHeader);
+			}
+
+			auto& mosaicHeader = reinterpret_cast<MosaicHeader&>(*pData);
+			mosaicHeader.OptimizedMosaicId = accountState.Balances.optimizedMosaicId();
+			mosaicHeader.MosaicsCount = static_cast<uint16_t>(accountState.Balances.size());
+			pData += sizeof(MosaicHeader);
+
+			auto* pUint64Data = reinterpret_cast<uint64_t*>(pData);
+			for (const auto& pair : accountState.Balances) {
+				*pUint64Data++ = pair.first.unwrap();
+				*pUint64Data++ = pair.second.unwrap();
+			}
+		}
+
+		// endregion
+
+		// region traits (regular)
+
+		struct BasicRegularTraits {
+			static constexpr size_t Mosaic_Header_Offset = sizeof(AccountStateHeader);
+
+			static void CoerceToDesiredFormat(AccountState& accountState) {
+				// push a zero importance to indicate a regular account
+				auto nextHeight = accountState.ImportanceSnapshots.height() + model::ImportanceHeight(1);
+				accountState.ImportanceSnapshots.set(Importance(), nextHeight);
+			}
+		};
+
+		struct RegularNonHistoricalTraits : public BasicRegularTraits {
+			using Serializer = AccountStateNonHistoricalSerializer;
+
+			static size_t CalculatePackedSize(const AccountState& accountState) {
+				return sizeof(AccountStateHeader) + sizeof(MosaicHeader) + accountState.Balances.size() * sizeof(model::Mosaic);
+			}
+
+			static AccountState DeserializeFromBuffer(const uint8_t* pData) {
+				return DeserializeNonHistoricalFromBuffer(pData, Regular_Format_Tag);
+			}
+
+			static std::vector<uint8_t> CopyToBuffer(const AccountState& accountState) {
+				std::vector<uint8_t> buffer(CalculatePackedSize(accountState));
+				SerializeNonHistoricalToBuffer(accountState, Regular_Format_Tag, buffer);
+				return buffer;
+			}
+
+			static void AssertEqual(const AccountState& expected, const AccountState& actual) {
+				// preprocess expected before comparing it to actual
+				// 1. regular non-historical serialization doesn't save any snapshots (top importance is zero)
+				// 2. regular non-historical serialization doesn't save any activity buckets
+				auto expectedCopy = expected;
+				ClearSnapshotsAndBuckets(expectedCopy);
+
+				test::AssertEqual(expectedCopy, actual);
+			}
+		};
+
+		struct RegularHistoricalTraits : public BasicRegularTraits {
+			using Serializer = AccountStateSerializer;
+
+			static size_t CalculatePackedSize(const AccountState& accountState) {
+				return RegularNonHistoricalTraits::CalculatePackedSize(accountState)
+						+ 3 * sizeof(PackedImportanceSnapshot)
+						+ 7 * sizeof(PackedActivityBucket);
+			}
+
+			static AccountState DeserializeFromBuffer(const uint8_t* pData) {
+				// 1. process non-historical data
+				auto accountState = RegularNonHistoricalTraits::DeserializeFromBuffer(pData);
+				pData += RegularNonHistoricalTraits::CalculatePackedSize(accountState);
+
+				// 2. process HistoricalRegularHeader
+				const auto& historicalHeader = reinterpret_cast<const HistoricalRegularHeader&>(*pData);
+				pData += sizeof(HistoricalRegularHeader);
+				ProcessSnapshots(accountState, historicalHeader.HistoricalSnapshots, CountOf(historicalHeader.HistoricalSnapshots));
+				ProcessBuckets(accountState, historicalHeader.HistoricalBuckets, CountOf(historicalHeader.HistoricalBuckets));
+				return accountState;
+			}
+
+			static std::vector<uint8_t> CopyToBuffer(const AccountState& accountState) {
+				auto buffer = RegularNonHistoricalTraits::CopyToBuffer(accountState);
+				buffer.resize(CalculatePackedSize(accountState));
+
+				auto* pData = buffer.data() + RegularNonHistoricalTraits::CalculatePackedSize(accountState);
+				for (const auto& snapshot : accountState.ImportanceSnapshots) {
+					CopySnapshotTo(snapshot, reinterpret_cast<PackedImportanceSnapshot&>(*pData));
+					pData += sizeof(PackedImportanceSnapshot);
+				}
+
+				for (const auto& bucket : accountState.ActivityBuckets) {
+					CopyBucketTo(bucket, reinterpret_cast<PackedActivityBucket&>(*pData));
+					pData += sizeof(PackedActivityBucket);
+				}
+
+				return buffer;
+			}
+
+			static void AssertEqual(const AccountState& expected, const AccountState& actual) {
+				test::AssertEqual(expected, actual);
+			}
+		};
+
+		// endregion
+
+		// region traits (high value)
+
+		template<typename TContainer, typename TPush>
+		void ReapplyNonHistoricalValues(AccountState& accountState, const TContainer& values, TPush push) {
+			for (auto i = 0u; i < values.size() - Rollback_Buffer_Size; ++i)
+				push(accountState, values[values.size() - Rollback_Buffer_Size - 1 - i]);
+		}
+
+		struct BasicHighValueTraits {
+			static constexpr size_t Mosaic_Header_Offset = sizeof(AccountStateHeader) + sizeof(HighValueImportanceHeader);
+
+			static void CoerceToDesiredFormat(const AccountState&)
+			{}
+		};
+
+		struct HighValueNonHistoricalTraits : public BasicHighValueTraits {
+			using Serializer = AccountStateNonHistoricalSerializer;
+
+			static size_t CalculatePackedSize(const AccountState& accountState) {
+				return RegularNonHistoricalTraits::CalculatePackedSize(accountState) + sizeof(HighValueImportanceHeader);
+			}
+
+			static AccountState DeserializeFromBuffer(const uint8_t* pData) {
+				return DeserializeNonHistoricalFromBuffer(pData, High_Value_Format_Tag);
+			}
+
+			static std::vector<uint8_t> CopyToBuffer(const AccountState& accountState) {
+				std::vector<uint8_t> buffer(CalculatePackedSize(accountState));
+				SerializeNonHistoricalToBuffer(accountState, High_Value_Format_Tag, buffer);
+				return buffer;
+			}
+
+			static void AssertEqual(const AccountState& expected, const AccountState& actual) {
+				// preprocess expected before comparing it to actual
+				// 1. high value non-historical serialization doesn't save any rollback buffer snapshots
+				// 2. high value non-historical serialization doesn't save any rollback buffer activity buckets
+				auto expectedCopy = expected;
+				auto snapshots = CopySnapshots(expectedCopy);
+				auto buckets = CopyBuckets(expectedCopy);
+
+				ClearSnapshotsAndBuckets(expectedCopy);
+
+				ReapplyNonHistoricalValues(expectedCopy, snapshots, PushSnapshot<AccountImportanceSnapshots::ImportanceSnapshot>);
+				ReapplyNonHistoricalValues(expectedCopy, buckets, PushBucket<AccountActivityBuckets::ActivityBucket>);
+
+				test::AssertEqual(expectedCopy, actual);
+			}
+		};
+
+		struct HighValueHistoricalTraits : public BasicHighValueTraits {
+			using Serializer = AccountStateSerializer;
+
+			static size_t CalculatePackedSize(const AccountState& accountState) {
+				return RegularHistoricalTraits::CalculatePackedSize(accountState);
+			}
+
+			static AccountState DeserializeFromBuffer(const uint8_t* pData) {
+				// 1. process non-historical data
+				auto accountState = HighValueNonHistoricalTraits::DeserializeFromBuffer(pData);
+				pData += HighValueNonHistoricalTraits::CalculatePackedSize(accountState);
+
+				// 2. copy non historical importance information
+				auto nonHistoricalSnapshots = CopySnapshots(accountState);
+				auto nonHistoricalBuckets = CopyBuckets(accountState);
+				ClearSnapshotsAndBuckets(accountState);
+
+				// 3. process HistoricalHighValueHeader
+				const auto& historicalHeader = reinterpret_cast<const HistoricalHighValueHeader&>(*pData);
+				pData += sizeof(HistoricalHighValueHeader);
+				ProcessSnapshots(accountState, historicalHeader.HistoricalSnapshots, CountOf(historicalHeader.HistoricalSnapshots));
+				ProcessBuckets(accountState, historicalHeader.HistoricalBuckets, CountOf(historicalHeader.HistoricalBuckets));
+
+				// 4. reapply non historical importance information
+				constexpr auto PushImportanceSnapshot = PushSnapshot<AccountImportanceSnapshots::ImportanceSnapshot>;
+				ReapplyNonHistoricalValues(accountState, nonHistoricalSnapshots, PushImportanceSnapshot);
+				ReapplyNonHistoricalValues(accountState, nonHistoricalBuckets, PushBucket<AccountActivityBuckets::ActivityBucket>);
+				return accountState;
+			}
+
+			static std::vector<uint8_t> CopyToBuffer(const AccountState& accountState) {
+				auto buffer = HighValueNonHistoricalTraits::CopyToBuffer(accountState);
+				buffer.resize(CalculatePackedSize(accountState));
+
+				auto i = 0u;
+				auto* pData = buffer.data() + HighValueNonHistoricalTraits::CalculatePackedSize(accountState);
+				for (const auto& snapshot : accountState.ImportanceSnapshots) {
+					if (i++ < Importance_History_Size - Rollback_Buffer_Size)
+						continue;
+
+					CopySnapshotTo(snapshot, reinterpret_cast<PackedImportanceSnapshot&>(*pData));
+					pData += sizeof(PackedImportanceSnapshot);
+				}
+
+				i = 0;
+				for (const auto& bucket : accountState.ActivityBuckets) {
+					if (i++ < Activity_Bucket_History_Size - Rollback_Buffer_Size)
+						continue;
+
+					CopyBucketTo(bucket, reinterpret_cast<PackedActivityBucket&>(*pData));
+					pData += sizeof(PackedActivityBucket);
+				}
+
+				return buffer;
+			}
+
+			static void AssertEqual(const AccountState& expected, const AccountState& actual) {
+				test::AssertEqual(expected, actual);
+			}
+		};
+
+		// endregion
+	}
+
+#define SERIALIZER_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_RegularNonHistorical) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularNonHistoricalTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_RegularHistorical) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<RegularHistoricalTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_HighValueNonHistorical) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HighValueNonHistoricalTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_HighValueHistorical) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<HighValueHistoricalTraits>(); } \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+
+	// region Save
+
+	namespace {
 		template<typename TTraits, typename TAction>
 		void AssertCanSaveValueWithMosaics(size_t numMosaics, TAction action) {
 			// Arrange:
@@ -225,16 +477,14 @@ namespace catapult { namespace state {
 
 			// - create a random account state
 			auto originalAccountState = CreateRandomAccountState(numMosaics);
+			TTraits::CoerceToDesiredFormat(originalAccountState);
 
 			// Act:
 			TTraits::Serializer::Save(originalAccountState, stream);
 
 			// Assert:
-			ASSERT_EQ(CalculatePackedSize(originalAccountState) - TTraits::Buffer_Padding_Size, buffer.size());
-
-			const auto& savedAccountStateHeader = reinterpret_cast<const AccountStateHeader&>(buffer[0]);
-			EXPECT_EQ(numMosaics, savedAccountStateHeader.MosaicsCount);
-			action(originalAccountState, savedAccountStateHeader);
+			ASSERT_EQ(TTraits::CalculatePackedSize(originalAccountState), buffer.size());
+			action(originalAccountState, buffer);
 
 			// Sanity: no stream flushes
 			EXPECT_EQ(0u, stream.numFlushes());
@@ -243,15 +493,21 @@ namespace catapult { namespace state {
 		template<typename TTraits>
 		void AssertCanSaveValueWithMosaics(size_t numMosaics) {
 			// Act:
-			AssertCanSaveValueWithMosaics<TTraits>(numMosaics, [](const auto& originalAccountState, const auto& savedAccountStateHeader) {
+			AssertCanSaveValueWithMosaics<TTraits>(numMosaics, [numMosaics](const auto& originalAccountState, const auto& buffer) {
 				// Assert:
-				auto savedAccountState = CopyHeaderToAccountState<TTraits>(savedAccountStateHeader);
+				auto savedAccountState = TTraits::DeserializeFromBuffer(buffer.data());
+				EXPECT_EQ(numMosaics, savedAccountState.Balances.size());
 				TTraits::AssertEqual(originalAccountState, savedAccountState);
 			});
 		}
 	}
 
-	SERIALIZER_TEST(CanSaveValue) {
+	SERIALIZER_TEST(CanSaveValueWithNoMosaics) {
+		// Assert:
+		AssertCanSaveValueWithMosaics<TTraits>(0);
+	}
+
+	SERIALIZER_TEST(CanSaveValueWithSomeMosaics) {
 		// Assert:
 		AssertCanSaveValueWithMosaics<TTraits>(3);
 	}
@@ -263,10 +519,12 @@ namespace catapult { namespace state {
 
 	SERIALIZER_TEST(MosaicsAreSavedInSortedOrder) {
 		// Assert:
-		AssertCanSaveValueWithMosaics<TTraits>(128, [](const auto&, const auto& savedAccountStateHeader) {
+		static constexpr auto Num_Mosaics = 128u;
+		AssertCanSaveValueWithMosaics<TTraits>(Num_Mosaics, [](const auto&, const auto& buffer) {
 			auto lastMosaicId = MosaicId();
-			const auto* pMosaic = GetMosaicPointer(savedAccountStateHeader);
-			for (auto i = 0u; i < savedAccountStateHeader.MosaicsCount; ++i, ++pMosaic) {
+			auto firstMosaicOffset = TTraits::Mosaic_Header_Offset + sizeof(MosaicHeader);
+			const auto* pMosaic = reinterpret_cast<const model::Mosaic*>(buffer.data() + firstMosaicOffset);
+			for (auto i = 0u; i < Num_Mosaics; ++i, ++pMosaic) {
 				EXPECT_LT(lastMosaicId, pMosaic->MosaicId) << "expected ordering at " << i;
 
 				lastMosaicId = pMosaic->MosaicId;
@@ -280,24 +538,18 @@ namespace catapult { namespace state {
 
 	namespace {
 		template<typename TTraits>
-		static void AssertCannotLoad(io::InputStream& inputStream) {
-			// Assert:
-			EXPECT_THROW(TTraits::Serializer::Load(inputStream), catapult_runtime_error);
-		}
-
-		template<typename TTraits>
 		void AssertCanLoadValueWithMosaics(size_t numMosaics) {
-			// Arrange: create a random account info
+			// Arrange: create a random account state
 			auto originalAccountState = CreateRandomAccountState(numMosaics);
-			auto buffer = CopyToBuffer(originalAccountState);
+			auto buffer = TTraits::CopyToBuffer(originalAccountState);
 
 			// Act: load the account state
 			mocks::MockMemoryStream stream(buffer);
-			auto result = TTraits::Serializer::Load(stream);
+			auto loadedAccountState = TTraits::Serializer::Load(stream);
 
 			// Assert:
-			EXPECT_EQ(numMosaics, result.Balances.size());
-			TTraits::AssertEqual(originalAccountState, result);
+			EXPECT_EQ(numMosaics, loadedAccountState.Balances.size());
+			TTraits::AssertEqual(originalAccountState, loadedAccountState);
 		}
 	}
 
@@ -316,17 +568,63 @@ namespace catapult { namespace state {
 		AssertCanLoadValueWithMosaics<TTraits>(GetManyMosaicsCount());
 	}
 
-	SERIALIZER_TEST(CannotLoadAccountInfoExtendingPastEndOfStream) {
-		// Arrange: create a random account info
-		auto originalAccountState = CreateRandomAccountState(2);
-		auto buffer = CopyToBuffer(originalAccountState);
+	SERIALIZER_TEST(CannotLoadAccountStateExtendingPastEndOfStream) {
+		// Arrange: create a random account state
+		auto buffer = TTraits::CopyToBuffer(CreateRandomAccountState(2));
 
 		// - size the buffer one byte too small
-		buffer.resize(buffer.size() - TTraits::Buffer_Padding_Size - 1);
+		buffer.resize(buffer.size() - 1);
 		mocks::MockMemoryStream stream(buffer);
 
 		// Act + Assert:
-		AssertCannotLoad<TTraits>(stream);
+		EXPECT_THROW(TTraits::Serializer::Load(stream), catapult_runtime_error);
+	}
+
+	SERIALIZER_TEST(CannotLoadAccountStateWithUnsupportedFormat) {
+		// Arrange: create a random account state
+		auto buffer = TTraits::CopyToBuffer(CreateRandomAccountState(2));
+
+		// - set an unsupported format
+		reinterpret_cast<AccountStateHeader&>(buffer[0]).Format = 2;
+		mocks::MockMemoryStream stream(buffer);
+
+		// Act + Assert:
+		EXPECT_THROW(TTraits::Serializer::Load(stream), catapult_invalid_argument);
+	}
+
+	// endregion
+
+	// region Roundtrip
+
+	namespace {
+		template<typename TTraits>
+		void AssertCanRoundtripValueWithMosaics(size_t numMosaics) {
+			// Arrange: create a random account state
+			auto originalAccountState = CreateRandomAccountState(numMosaics);
+			TTraits::CoerceToDesiredFormat(originalAccountState);
+
+			// Act:
+			auto result = test::RunRoundtripBufferTest<typename TTraits::Serializer>(originalAccountState);
+
+			// Assert:
+			EXPECT_EQ(numMosaics, result.Balances.size());
+			TTraits::AssertEqual(originalAccountState, result);
+		}
+	}
+
+	SERIALIZER_TEST(CanRoundtripValueWithNoMosaics) {
+		// Assert:
+		AssertCanRoundtripValueWithMosaics<TTraits>(0);
+	}
+
+	SERIALIZER_TEST(CanRoundtripValueWithSomeMosaics) {
+		// Assert:
+		AssertCanRoundtripValueWithMosaics<TTraits>(3);
+	}
+
+	SERIALIZER_TEST(CanRoundtripValueWithManyMosaics) {
+		// Assert:
+		AssertCanRoundtripValueWithMosaics<TTraits>(GetManyMosaicsCount());
 	}
 
 	// endregion

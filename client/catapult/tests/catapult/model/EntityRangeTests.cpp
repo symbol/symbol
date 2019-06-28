@@ -101,7 +101,7 @@ namespace catapult { namespace model {
 			EXPECT_FALSE(!!range.data());
 		}
 
-		void AssertBasicNonEmptyRange(const EntityRange<uint32_t>& range, const std::vector<uint32_t>& expected, size_t excessSize = 0) {
+		void AssertBasicRange(const EntityRange<uint32_t>& range, const std::vector<uint32_t>& expected, size_t excessSize = 0) {
 			// Assert: the range has the correct size
 			EXPECT_FALSE(range.empty());
 			EXPECT_EQ(expected.size(), range.size());
@@ -114,9 +114,9 @@ namespace catapult { namespace model {
 			AssertIteration(range.cbegin(), range.cend(), expected);
 		}
 
-		void AssertNonEmptyRange(const EntityRange<uint32_t>& range, const std::vector<uint32_t>& expected, size_t excessSize = 0) {
+		void AssertRange(const EntityRange<uint32_t>& range, const std::vector<uint32_t>& expected, size_t excessSize = 0) {
 			// Assert:
-			AssertBasicNonEmptyRange(range, expected, excessSize);
+			AssertBasicRange(range, expected, excessSize);
 
 			// - data pointers should point to first element
 			auto& mutableRange = const_cast<EntityRange<uint32_t>&>(range);
@@ -124,12 +124,12 @@ namespace catapult { namespace model {
 			EXPECT_EQ(&*range.begin(), range.data());
 		}
 
-		void AssertNonEmptyRangeWithNonContiguousData(
+		void AssertRangeWithNonContiguousData(
 				const EntityRange<uint32_t>& range,
 				const std::vector<uint32_t>& expected,
 				size_t excessSize = 0) {
 			// Assert:
-			AssertBasicNonEmptyRange(range, expected, excessSize);
+			AssertBasicRange(range, expected, excessSize);
 
 			// - data pointers are not accessible
 			auto& mutableRange = const_cast<EntityRange<uint32_t>&>(range);
@@ -234,7 +234,7 @@ namespace catapult { namespace model {
 		EXPECT_FALSE(range.empty());
 		EXPECT_EQ(3u, range.size());
 		EXPECT_EQ(3u * sizeof(uint32_t), range.totalSize());
-		AssertNonEmptyRange(range, GetExpectedMultiEntityBufferValues());
+		AssertRange(range, GetExpectedMultiEntityBufferValues());
 	}
 
 	// endregion
@@ -268,7 +268,7 @@ namespace catapult { namespace model {
 		auto range = TTraits::CreateRange(Single_Entity_Buffer, { 0 });
 
 		// Assert:
-		AssertNonEmptyRange(range, GetExpectedSingleEntityBufferValues());
+		AssertRange(range, GetExpectedSingleEntityBufferValues());
 	}
 
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanCopyRangeAroundSingleEntityBuffer) {
@@ -277,8 +277,8 @@ namespace catapult { namespace model {
 		auto range = EntityRange<uint32_t>::CopyRange(original);
 
 		// Assert:
-		AssertNonEmptyRange(original, GetExpectedSingleEntityBufferValues());
-		AssertNonEmptyRange(range, GetExpectedSingleEntityBufferValues());
+		AssertRange(original, GetExpectedSingleEntityBufferValues());
+		AssertRange(range, GetExpectedSingleEntityBufferValues());
 		AssertDifferentBackingMemory(original, range);
 	}
 
@@ -287,7 +287,7 @@ namespace catapult { namespace model {
 		auto range = TTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
 
 		// Assert:
-		AssertNonEmptyRange(range, GetExpectedMultiEntityBufferValues());
+		AssertRange(range, GetExpectedMultiEntityBufferValues());
 	}
 
 	VARIABLE_OR_FIXED_FACTORY_TEST(CanCopyRangeAroundMultipleEntityBuffer) {
@@ -296,8 +296,8 @@ namespace catapult { namespace model {
 		auto range = EntityRange<uint32_t>::CopyRange(original);
 
 		// Assert:
-		AssertNonEmptyRange(original, GetExpectedMultiEntityBufferValues());
-		AssertNonEmptyRange(range, GetExpectedMultiEntityBufferValues());
+		AssertRange(original, GetExpectedMultiEntityBufferValues());
+		AssertRange(range, GetExpectedMultiEntityBufferValues());
 		AssertDifferentBackingMemory(original, range);
 	}
 
@@ -344,7 +344,7 @@ namespace catapult { namespace model {
 		auto range = EntityRange<uint32_t>::CopyVariable(Multi_Entity_Overlay_Buffer.data(), Multi_Entity_Overlay_Buffer.size(), { 2, 6 });
 
 		// Assert: the range is 8 bytes larger than expected (only 2 uint32_t in a 16 byte buffer are used)
-		AssertNonEmptyRange(range, GetExpectedMultiEntityOverlayBufferValues(), 8);
+		AssertRange(range, GetExpectedMultiEntityOverlayBufferValues(), 8);
 	}
 
 	TEST(TEST_CLASS, CanCopyOverlayRangeAroundPartOfMultipleEntityBuffer) {
@@ -356,8 +356,8 @@ namespace catapult { namespace model {
 		auto range = EntityRange<uint32_t>::CopyRange(original);
 
 		// Assert: the range is 8 bytes larger than expected (only 2 uint32_t in a 16 byte buffer are used)
-		AssertNonEmptyRange(original, GetExpectedMultiEntityOverlayBufferValues(), 8);
-		AssertNonEmptyRange(range, GetExpectedMultiEntityOverlayBufferValues(), 8);
+		AssertRange(original, GetExpectedMultiEntityOverlayBufferValues(), 8);
+		AssertRange(range, GetExpectedMultiEntityOverlayBufferValues(), 8);
 		AssertDifferentBackingMemory(original, range);
 	}
 
@@ -394,7 +394,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCreateRangeAroundSingleVerifiableEntity) {
 		// Arrange:
-		auto pBlock = test::NonEmptyBlockPolicy::Create();
+		auto pBlock = test::GenerateBlockWithTransactions(3);
 		auto pBlockCopy = test::CopyEntity(*pBlock);
 
 		// Act:
@@ -409,7 +409,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanCopyRangeAroundSingleVerifiableEntity) {
 		// Arrange:
-		auto pBlock = test::NonEmptyBlockPolicy::Create();
+		auto pBlock = test::GenerateBlockWithTransactions(3);
 		auto pBlockCopy = test::CopyEntity(*pBlock);
 
 		// Act:
@@ -427,7 +427,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, CanExtractEntitiesFromSingleVerifiableEntityRange) {
 		// Arrange:
-		auto pBlock = test::NonEmptyBlockPolicy::Create();
+		auto pBlock = test::GenerateBlockWithTransactions(3);
 		auto pBlockRaw = pBlock.get();
 		auto pBlockCopy = test::CopyEntity(*pBlock);
 
@@ -484,7 +484,7 @@ namespace catapult { namespace model {
 		AssertEmptyRange(mergedRange);
 	}
 
-	VARIABLE_OR_FIXED_FACTORY_TEST(CanMergeSingleNonEmptyEntityRange) {
+	VARIABLE_OR_FIXED_FACTORY_TEST(CanMergeSingleEntityRange) {
 		// Arrange
 		std::vector<EntityRange<uint32_t>> ranges;
 		auto range = TTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
@@ -494,22 +494,22 @@ namespace catapult { namespace model {
 		auto mergedRange = EntityRange<uint32_t>::MergeRanges(std::move(ranges));
 
 		// Assert:
-		AssertNonEmptyRangeWithNonContiguousData(mergedRange, GetExpectedMultiEntityBufferValues());
+		AssertRangeWithNonContiguousData(mergedRange, GetExpectedMultiEntityBufferValues());
 	}
 
 	namespace {
-		constexpr std::array<uint8_t, 12> Multi_Entity_Buffer_2{ {
+		constexpr std::array<uint8_t, 12> Multi_Entity_Buffer_2{{
 			0x23, 0x34, 0x45, 0x56,
 			0x19, 0x28, 0x37, 0x46,
 			0x24, 0x35, 0x46, 0x57,
-		} };
+		}};
 
 		std::vector<uint32_t> GetExpectedMultiEntityBuffer2Values() {
 			return { 0x56453423, 0x46372819, 0x57463524 };
 		}
 	}
 
-	VARIABLE_OR_FIXED_FACTORY_TEST(CanMergeMultipleNonEmptyEntityRanges) {
+	VARIABLE_OR_FIXED_FACTORY_TEST(CanMergeMultipleEntityRanges) {
 		// Arrange
 		std::vector<EntityRange<uint32_t>> ranges;
 		auto range1 = TTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 });
@@ -529,10 +529,10 @@ namespace catapult { namespace model {
 		expectedEntities.insert(expectedEntities.end(), expectedEntities2.begin(), expectedEntities2.end());
 		expectedEntities.insert(expectedEntities.end(), expectedEntities3.begin(), expectedEntities3.end());
 
-		AssertNonEmptyRangeWithNonContiguousData(mergedRange, expectedEntities);
+		AssertRangeWithNonContiguousData(mergedRange, expectedEntities);
 	}
 
-	VARIABLE_OR_FIXED_FACTORY_TEST(CanMergeEmptyAndNonEmptyEntityRanges) {
+	VARIABLE_OR_FIXED_FACTORY_TEST(CanMergeMultipleEntityRangesWithEmptyEntityRanges) {
 		// Arrange
 		std::vector<EntityRange<uint32_t>> ranges;
 		ranges.push_back(TTraits::CreateRange(Multi_Entity_Buffer, { 0, 4, 8 }));
@@ -549,7 +549,7 @@ namespace catapult { namespace model {
 		auto expectedEntities2 = GetExpectedSingleEntityBufferValues();
 		expectedEntities.insert(expectedEntities.end(), expectedEntities2.begin(), expectedEntities2.end());
 
-		AssertNonEmptyRangeWithNonContiguousData(mergedRange, expectedEntities);
+		AssertRangeWithNonContiguousData(mergedRange, expectedEntities);
 	}
 
 	namespace {

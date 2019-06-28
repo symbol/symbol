@@ -89,9 +89,10 @@ namespace catapult { namespace builders {
 			auto pTransaction = TTraits::InvokeBuilder(builder);
 
 			// Assert:
+			TTraits::CheckBuilderSize(namespaceName.size(), builder);
 			TTraits::CheckFields(namespaceName.size(), *pTransaction);
 			EXPECT_EQ(signer, pTransaction->Signer);
-			EXPECT_EQ(0x6202, pTransaction->Version);
+			EXPECT_EQ(0x6201, pTransaction->Version);
 			EXPECT_EQ(model::Entity_Type_Register_Namespace, pTransaction->Type);
 
 			AssertTransactionProperties(expectedProperties, *pTransaction);

@@ -104,8 +104,8 @@ namespace catapult { namespace extensions {
 			static constexpr auto Friendly_Name = "account infos";
 		};
 
-		struct AccountPropertiesInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Properties_Infos> {
-			static constexpr auto Friendly_Name = "account properties infos";
+		struct AccountRestrictionsInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Restrictions_Infos> {
+			static constexpr auto Friendly_Name = "account restrictions infos";
 		};
 
 		struct NamespaceInfosTraits : public InfosTraits<NamespaceId, ionet::PacketType::Namespace_Infos> {
@@ -145,8 +145,8 @@ namespace catapult { namespace extensions {
 				return m_impl.dispatch(AccountInfosTraits(), std::move(addresses));
 			}
 
-			FutureType<AccountPropertiesInfosTraits> accountPropertiesInfos(model::AddressRange&& addresses) const override {
-				return m_impl.dispatch(AccountPropertiesInfosTraits(), std::move(addresses));
+			FutureType<AccountRestrictionsInfosTraits> accountRestrictionsInfos(model::AddressRange&& addresses) const override {
+				return m_impl.dispatch(AccountRestrictionsInfosTraits(), std::move(addresses));
 			}
 
 			FutureType<NamespaceInfosTraits> namespaceInfos(model::EntityRange<NamespaceId>&& namespaceIds) const override {

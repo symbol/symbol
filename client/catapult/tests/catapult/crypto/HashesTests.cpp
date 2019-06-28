@@ -70,7 +70,7 @@ namespace catapult { namespace crypto {
 				return "52783243C1697BDBE16D37F97F68F08325DC1528";
 			}
 
-			static std::vector<std::string> CatapultNonEmptyStringTestVectors() {
+			static std::vector<std::string> CatapultStringTestVectors() {
 				return {
 					"37F332F68DB77BD9D7EDD4969571AD671CF9DD3B",
 					"114C70B78838555E6C3AB418F3052A949F73544A",
@@ -116,7 +116,7 @@ namespace catapult { namespace crypto {
 				};
 			}
 
-			static std::vector<std::string> CatapultNonEmptyStringTestVectors() {
+			static std::vector<std::string> CatapultStringTestVectors() {
 				return {
 					"0E3397B4ABC7A382B3EA2365883C3C7CA5F07600",
 					"5367F36F9B941E14EBE4B30783B8A32274481A62",
@@ -161,7 +161,7 @@ namespace catapult { namespace crypto {
 
 			// those vectors were generated
 			// non authorative results: https://github.com/DeathAndTaxes/BitCrypto/blob/master/BitCrypto.Test/Sha256Tests.cs
-			static std::vector<std::string> CatapultNonEmptyStringTestVectors() {
+			static std::vector<std::string> CatapultStringTestVectors() {
 				return {
 					"6D37795021E544D82B41850EDF7AABAB9A0EBE274E54A519840C4666F35B3937",
 					"DB6F466A6C6B50BE9AE850C01693BA95BEDC4A8CF8028D2B52B8429F406F6F2F",
@@ -375,7 +375,7 @@ namespace catapult { namespace crypto {
 		}
 
 		template<typename TTraits>
-		void AssertCatapultNonEmptyStringHasExpectedHash() {
+		void AssertCatapultStringHasExpectedHash() {
 			// Arrange:
 			std::vector<std::string> dataSet{
 				u8"The quick brown fox jumps over the lazy dog",
@@ -384,7 +384,7 @@ namespace catapult { namespace crypto {
 				u8"GimreJaguar0625BloodyRookie",
 				u8"The ripe taste of cheese improves with age",
 			};
-			auto expectedHashes = TTraits::CatapultNonEmptyStringTestVectors();
+			auto expectedHashes = TTraits::CatapultStringTestVectors();
 
 			// Sanity:
 			ASSERT_EQ(dataSet.size(), expectedHashes.size());
@@ -416,7 +416,7 @@ namespace catapult { namespace crypto {
 	MAKE_HASH_TEST(Ripemd160, EmptyStringHasExpectedHash)
 	MAKE_HASH_TEST(Ripemd160, SampleTestVectors)
 	MAKE_HASH_TEST(Ripemd160, MillionTimesAHasExpectedHash)
-	MAKE_HASH_TEST(Ripemd160, CatapultNonEmptyStringHasExpectedHash)
+	MAKE_HASH_TEST(Ripemd160, CatapultStringHasExpectedHash)
 
 	// endregion
 
@@ -425,7 +425,7 @@ namespace catapult { namespace crypto {
 	MAKE_HASH_TEST(Bitcoin160, EmptyStringHasExpectedHash)
 	MAKE_HASH_TEST(Bitcoin160, SampleTestVectors)
 	// MillionTimesAHasExpectedHash left out, couldn't find any resource on the network, that would confirm the value
-	MAKE_HASH_TEST(Bitcoin160, CatapultNonEmptyStringHasExpectedHash)
+	MAKE_HASH_TEST(Bitcoin160, CatapultStringHasExpectedHash)
 
 	// endregion
 
@@ -434,7 +434,7 @@ namespace catapult { namespace crypto {
 	MAKE_HASH_TEST(Sha256Double, EmptyStringHasExpectedHash)
 	MAKE_HASH_TEST(Sha256Double, SampleTestVectors)
 	MAKE_HASH_TEST(Sha256Double, MillionTimesAHasExpectedHash)
-	MAKE_HASH_TEST(Sha256Double, CatapultNonEmptyStringHasExpectedHash)
+	MAKE_HASH_TEST(Sha256Double, CatapultStringHasExpectedHash)
 
 	// endregion
 
@@ -461,7 +461,7 @@ namespace catapult { namespace crypto {
 		AssertMillionTimesAHasExpectedHash<TTraits>();
 	}
 
-	// CatapultNonEmptyStringHasExpectedHash are intentionally left out
+	// CatapultStringHasExpectedHash is intentionally left out
 
 	// endregion
 

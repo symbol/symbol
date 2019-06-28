@@ -268,13 +268,13 @@ namespace catapult { namespace extensions {
 
 		// endregion
 
-		// region AccountPropertiesInfosTraits
+		// region AccountRestrictionsInfosTraits
 
-		struct AccountPropertiesInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Properties_Infos> {
+		struct AccountRestrictionsInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Restrictions_Infos> {
 			static constexpr auto Request_Entity_Size = Address_Decoded_Size;
 
 			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
-				return api.accountPropertiesInfos(std::move(param));
+				return api.accountRestrictionsInfos(std::move(param));
 			}
 		};
 
@@ -365,11 +365,11 @@ namespace catapult { namespace extensions {
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, ActiveNodeInfos)
 
 	using DiagnosticAccountInfosTraits = DiagnosticApiTraits<AccountInfosTraits>;
-	using DiagnosticAccountPropertiesInfosTraits = DiagnosticApiTraits<AccountPropertiesInfosTraits>;
+	using DiagnosticAccountRestrictionsInfosTraits = DiagnosticApiTraits<AccountRestrictionsInfosTraits>;
 	using DiagnosticNamespaceInfosTraits = DiagnosticApiTraits<NamespaceInfosTraits>;
 	using DiagnosticMosaicInfosTraits = DiagnosticApiTraits<MosaicInfosTraits>;
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticAccountInfos)
-	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticAccountPropertiesInfos)
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticAccountRestrictionsInfos)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticNamespaceInfos)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticMosaicInfos)
 }}

@@ -120,7 +120,7 @@ class TestClassMacroValidator(SimpleValidator):
     @staticmethod
     def formatError(err):
         name = err.path
-        errMsg = '{}:{} TEST_CLASS should be followed by an empty line and match file name: >>{}<<'
+        errMsg = '{}:{} TEST_CLASS should be followed by an empty line and match filename: >>{}<<'
         return errMsg.format(name, err.lineno, err.line)
 
 
@@ -308,12 +308,13 @@ class TypoChecker(SimpleValidator):
     def __init__(self, errorReporter):
         super().__init__(errorReporter)
         self.errors = {
-            re.compile(r'imeStamp'): 'Timestamp not TimeStamp',
-            re.compile(r'ileSystem'): 'Filesystem not FileSystem',
-            re.compile(r'ileName'): 'Filename not FileName',
-            re.compile(r'ile_Name'): 'Filename not File_Name',
+            re.compile(r'imeStamp|ime [sS]tamp'): 'Timestamp not TimeStamp or Time Stamp',
+            re.compile(r'ileSystem|ile [sS]ystem'): 'Filesystem not FileSystem or File System',
+            re.compile(r'ile_?Name|ile [nN]ame'): 'Filename not FileName or File_Name or File Name',
             re.compile(r'hreadpool'): 'ThreadPool not Threadpool',
             re.compile(r'lockchain'): 'BlockChain not Blockchain',
+            re.compile(r'onEmpty|on-empty'): 'NotEmpty not NonEmpty or non-empty',
+            re.compile(r'oundTrip|ound [tT]rip'): 'Roundtrip not RoundTrip or Round Trip',
             re.compile(r'alidatorResult'): 'ValidationResult not ValidatorResult',
             re.compile(r'ub-?cache'): 'SubCache or sub cache not Subcache or sub-cache',
             re.compile(r'on[eE]xisting|onExistent'): 'Nonexistent',
@@ -395,7 +396,8 @@ class TypoChecker(SimpleValidator):
             re.compile(r'\bdata[0-9]* =|std::vector<uint8_t> data'): 'prefer buffer',
             re.compile(r' ;$'): 'no space before semicolon',
             re.compile(r'(struct|class) \S+{'): 'add space before {',
-            re.compile(r'\b[A-Z]\w+{}'): 'zero initialize with () not \\{\\}'
+            re.compile(r'\b[A-Z]\w+{}'): 'zero initialize with () not \\{\\}',
+            re.compile(r'^\s+} }|{ {$'): 'remove space between braces'
         }
 
     def check(self, lineNumber, line):

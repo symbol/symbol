@@ -227,7 +227,7 @@ namespace catapult { namespace handlers {
 
 		AssertPacketIsAccepted(
 				[&expectedResponse](auto& testContext) {
-					// - make tryLookup return negative non-empty proof
+					// - make tryLookup return negative proof
 					expectedResponse = testContext.getCache().setLookupResult(false, 5);
 				},
 				[&expectedResponse](const auto& context) {
@@ -243,7 +243,7 @@ namespace catapult { namespace handlers {
 
 		AssertPacketIsAccepted(
 				[&expectedResponse](auto& testContext) {
-					// - make tryLookup return positive non-empty proof
+					// - make tryLookup return positive proof
 					expectedResponse = testContext.getCache().setLookupResult(true, 10);
 				},
 				[&expectedResponse](const auto& context) {

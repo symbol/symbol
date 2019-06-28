@@ -88,7 +88,7 @@ namespace catapult { namespace sync {
 			auto& accountStateCache = delta.sub<cache::AccountStateCache>();
 			accountStateCache.addAccount(signer.publicKey(), Height(1));
 			auto& accountState = accountStateCache.find(signer.publicKey()).get();
-			accountState.ImportanceInfo.set(Importance(1'000'000'000), model::ImportanceHeight(1));
+			accountState.ImportanceSnapshots.set(Importance(1'000'000'000), model::ImportanceHeight(1));
 
 			// commit all changes
 			cache.commit(Height(1));

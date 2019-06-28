@@ -73,7 +73,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 
 	# - Wno-maybe-uninitialized: false positives where gcc isn't sure if an uninitialized variable is used or not
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -Wno-maybe-uninitialized -g1")
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -Wno-maybe-uninitialized -g1 -fno-omit-frame-pointer")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-maybe-uninitialized")
 
 	# add memset_s
@@ -390,4 +390,15 @@ function(catapult_test_executable_target_header_only TARGET_NAME TEST_DEPENDENCY
 
 	target_link_libraries(${TARGET_NAME} tests.catapult.test.${TEST_DEPENDENCY_NAME})
 	catapult_target(${TARGET_NAME})
+endfunction()
+
+# used to define a catapult tool executable
+function(catapult_define_tool TOOL_NAME)
+    set(TARGET_NAME catapult.tools.${TOOL_NAME})
+
+    catapult_executable(${TARGET_NAME})
+    target_link_libraries(${TARGET_NAME} catapult.tools)
+    catapult_target(${TARGET_NAME})
+
+    add_dependencies(tools ${TARGET_NAME})
 endfunction()

@@ -36,6 +36,10 @@ namespace catapult { namespace builders {
 		m_linkAction = linkAction;
 	}
 
+	size_t AccountLinkBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
+
 	std::unique_ptr<AccountLinkBuilder::Transaction> AccountLinkBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
@@ -45,10 +49,16 @@ namespace catapult { namespace builders {
 	}
 
 	template<typename TransactionType>
+	size_t AccountLinkBuilder::sizeImpl() const {
+		// calculate transaction size
+		auto size = sizeof(TransactionType);
+		return size;
+	}
+
+	template<typename TransactionType>
 	std::unique_ptr<TransactionType> AccountLinkBuilder::buildImpl() const {
 		// 1. allocate, zero (header), set model::Transaction fields
-		auto size = sizeof(TransactionType);
-		auto pTransaction = createTransaction<TransactionType>(size);
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
 		pTransaction->RemoteAccountKey = m_remoteAccountKey;

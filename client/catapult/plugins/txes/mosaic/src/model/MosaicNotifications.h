@@ -50,7 +50,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region definition
+	// region MosaicPropertiesNotification
 
 	/// Notification of mosaic properties.
 	/// \note This is required due to potentially lossy conversion from raw properties to MosaicProperties.
@@ -61,7 +61,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a propertiesHeader and \a pProperties.
-		explicit MosaicPropertiesNotification(const MosaicPropertiesHeader& propertiesHeader, const MosaicProperty* pProperties)
+		MosaicPropertiesNotification(const MosaicPropertiesHeader& propertiesHeader, const MosaicProperty* pProperties)
 				: Notification(Notification_Type, sizeof(MosaicPropertiesNotification))
 				, PropertiesHeader(propertiesHeader)
 				, PropertiesPtr(pProperties)
@@ -75,6 +75,10 @@ namespace catapult { namespace model {
 		const MosaicProperty* PropertiesPtr;
 	};
 
+	// endregion
+
+	// region MosaicDefinitionNotification
+
 	/// Notification of a mosaic definition.
 	struct MosaicDefinitionNotification : public Notification {
 	public:
@@ -83,7 +87,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a signer, \a mosaicId and \a properties.
-		explicit MosaicDefinitionNotification(const Key& signer, MosaicId mosaicId, const MosaicProperties& properties)
+		MosaicDefinitionNotification(const Key& signer, MosaicId mosaicId, const MosaicProperties& properties)
 				: Notification(Notification_Type, sizeof(MosaicDefinitionNotification))
 				, Signer(signer)
 				, MosaicId(mosaicId)
@@ -101,6 +105,10 @@ namespace catapult { namespace model {
 		MosaicProperties Properties;
 	};
 
+	// endregion
+
+	// region MosaicNonceNotification
+
 	/// Notification of a mosaic nonce and id.
 	struct MosaicNonceNotification : public Notification {
 	public:
@@ -109,7 +117,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a signer, \a mosaicNonce and \a mosaicId.
-		explicit MosaicNonceNotification(const Key& signer, MosaicNonce mosaicNonce, catapult::MosaicId mosaicId)
+		MosaicNonceNotification(const Key& signer, MosaicNonce mosaicNonce, catapult::MosaicId mosaicId)
 				: Notification(Notification_Type, sizeof(MosaicNonceNotification))
 				, Signer(signer)
 				, MosaicNonce(mosaicNonce)
@@ -129,7 +137,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region change
+	// region MosaicSupplyChangeNotification
 
 	/// Notification of a mosaic supply change.
 	struct MosaicSupplyChangeNotification : public Notification {
@@ -163,7 +171,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region rental fee
+	// region rental MosaicRentalFeeNotification
 
 	/// Notification of a mosaic rental fee.
 	struct MosaicRentalFeeNotification : public BasicBalanceNotification<MosaicRentalFeeNotification> {
@@ -173,7 +181,7 @@ namespace catapult { namespace model {
 
 	public:
 		/// Creates a notification around \a sender, \a recipient, \a mosaicId and \a amount.
-		explicit MosaicRentalFeeNotification(
+		MosaicRentalFeeNotification(
 				const Key& sender,
 				const UnresolvedAddress& recipient,
 				UnresolvedMosaicId mosaicId,

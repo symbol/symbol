@@ -130,7 +130,7 @@ namespace catapult { namespace cache {
 		auto historyIter = m_pHistoryById->find(id);
 		auto* pHistory = historyIter.get();
 		if (1 == pHistory->historyDepth() && !pHistory->back().empty())
-			CATAPULT_THROW_RUNTIME_ERROR_1("cannot remove non-empty root namespace", id);
+			CATAPULT_THROW_RUNTIME_ERROR_1("cannot remove root namespace with children", id);
 
 		// make a copy of the current root and remove it
 		auto removedRoot = pHistory->back();

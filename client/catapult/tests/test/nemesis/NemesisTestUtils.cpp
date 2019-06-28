@@ -65,8 +65,8 @@ namespace catapult { namespace test {
 			EXPECT_EQ(Amount(0), accountState.Balances.get(Default_Currency_Mosaic_Id));
 			EXPECT_EQ(Amount(0), accountState.Balances.get(Default_Harvesting_Mosaic_Id));
 
-			EXPECT_EQ(model::ImportanceHeight(0), accountState.ImportanceInfo.height());
-			EXPECT_EQ(Importance(0), accountState.ImportanceInfo.current());
+			EXPECT_EQ(model::ImportanceHeight(0), accountState.ImportanceSnapshots.height());
+			EXPECT_EQ(Importance(0), accountState.ImportanceSnapshots.current());
 		}
 
 		void AssertRentalFeeAccount(const cache::AccountStateCacheView& view, const Key& publicKey) {
@@ -84,8 +84,8 @@ namespace catapult { namespace test {
 			EXPECT_EQ(Amount(0), accountState.Balances.get(Default_Currency_Mosaic_Id)) << message;
 			EXPECT_EQ(Amount(0), accountState.Balances.get(Default_Harvesting_Mosaic_Id)) << message;
 
-			EXPECT_EQ(model::ImportanceHeight(0), accountState.ImportanceInfo.height()) << message;
-			EXPECT_EQ(Importance(0), accountState.ImportanceInfo.current()) << message;
+			EXPECT_EQ(model::ImportanceHeight(0), accountState.ImportanceSnapshots.height()) << message;
+			EXPECT_EQ(Importance(0), accountState.ImportanceSnapshots.current()) << message;
 		}
 
 		void AssertRecipientAccount(const cache::AccountStateCacheView& view, const Key& publicKey) {
@@ -105,10 +105,10 @@ namespace catapult { namespace test {
 			EXPECT_EQ(Amount(expectedImportance.unwrap() * 1000), accountState.Balances.get(Default_Harvesting_Mosaic_Id)) << message;
 
 			if (expectedImportance > Importance(0)) {
-				EXPECT_EQ(model::ImportanceHeight(1), accountState.ImportanceInfo.height()) << message;
-				EXPECT_EQ(expectedImportance, accountState.ImportanceInfo.current()) << message;
+				EXPECT_EQ(model::ImportanceHeight(1), accountState.ImportanceSnapshots.height()) << message;
+				EXPECT_EQ(expectedImportance, accountState.ImportanceSnapshots.current()) << message;
 			} else {
-				EXPECT_EQ(model::ImportanceHeight(0), accountState.ImportanceInfo.height()) << message;
+				EXPECT_EQ(model::ImportanceHeight(0), accountState.ImportanceSnapshots.height()) << message;
 			}
 		}
 

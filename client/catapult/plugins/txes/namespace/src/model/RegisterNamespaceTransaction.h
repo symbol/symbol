@@ -35,7 +35,7 @@ namespace catapult { namespace model {
 		using TransactionType = RegisterNamespaceTransactionBody<THeader>;
 
 	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Register_Namespace, 2)
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Register_Namespace, 1)
 
 	public:
 		/// Creates a register namespace transaction body.

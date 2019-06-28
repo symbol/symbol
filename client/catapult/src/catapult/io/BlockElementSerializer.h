@@ -31,10 +31,10 @@ namespace catapult {
 
 namespace catapult { namespace io {
 
+	/// Writes \a blockElement into \a outputStream.
+	void WriteBlockElement(const model::BlockElement& blockElement, OutputStream& outputStream);
+
 	/// Reads block element from \a inputStream into an allocated block element.
 	/// \note Shared pointer is returned for memory management reasons.
 	std::shared_ptr<model::BlockElement> ReadBlockElement(InputStream& inputStream);
-
-	/// Writes \a blockElement into \a outputStream.
-	void WriteBlockElement(OutputStream& outputStream, const model::BlockElement& blockElement);
 }}

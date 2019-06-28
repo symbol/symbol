@@ -47,9 +47,18 @@ namespace catapult { namespace mongo { namespace mappers {
 			accountState.AccountType = static_cast<state::AccountType>(34);
 			test::FillWithRandomData(accountState.LinkedAccountKey);
 
-			auto numImportances = 1u + test::Random() % 3;
-			for (auto i = 0u; i < numImportances; ++i)
-				accountState.ImportanceInfo.set(Importance(234 + i * 100), model::ImportanceHeight(345 + i * 10));
+			auto numImportanceSnapshots = 1u + test::Random() % Importance_History_Size;
+			for (auto i = 0u; i < numImportanceSnapshots; ++i)
+				accountState.ImportanceSnapshots.set(Importance(234 + i * 100), model::ImportanceHeight(345 + i * 10));
+
+			auto numActivityBuckets = 1u + test::Random() % Activity_Bucket_History_Size;
+			for (auto i = 0u; i < numActivityBuckets; ++i) {
+				accountState.ActivityBuckets.update(model::ImportanceHeight(345 + i * 10), [i](auto& bucket) {
+					bucket.TotalFeesPaid = Amount(2 * i);
+					bucket.BeneficiaryCount = i * i;
+					bucket.RawScore = i * i * i;
+				});
+			}
 
 			for (const auto& mosaic : mosaics)
 				accountState.Balances.credit(mosaic.MosaicId, mosaic.Amount);
@@ -72,7 +81,7 @@ namespace catapult { namespace mongo { namespace mappers {
 			AssertEqualAccountStateMetadata(metaView);
 
 			auto account = view["account"].get_document().view();
-			EXPECT_EQ(8u, test::GetFieldCount(account));
+			EXPECT_EQ(9u, test::GetFieldCount(account));
 			test::AssertEqualAccountState(accountState, account);
 		}
 	}
@@ -109,85 +118,6 @@ namespace catapult { namespace mongo { namespace mappers {
 		AssertCanMapAccountState(
 				Height(456),
 				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
-	}
-
-	// endregion
-
-	// region ToAccountState
-
-	namespace {
-		void AssertCanMapDbAccountState(Height publicKeyHeight, std::initializer_list<model::Mosaic> mosaics) {
-			// Arrange:
-			auto accountState = CreateAccountState(publicKeyHeight, mosaics);
-			auto dbAccount = ToDbModel(accountState);
-
-			// Act:
-			state::AccountState newAccountState(Address(), Height(0));
-			ToAccountState(dbAccount, [&newAccountState](const auto& address, auto height) -> state::AccountState& {
-				newAccountState.Address = address;
-				newAccountState.AddressHeight = height;
-				return newAccountState;
-			});
-
-			// Assert:
-			auto accountData = dbAccount.view()["account"].get_document();
-			test::AssertEqualAccountState(newAccountState, accountData.view());
-		}
-	}
-
-	TEST(TEST_CLASS, CanMapDbAccountStateWithNeitherPublicKeyNorMosaics) {
-		// Assert:
-		AssertCanMapDbAccountState(Height(0), {});
-	}
-
-	TEST(TEST_CLASS, CanMapDbAccountStateWithPublicKeyButWithoutMosaics) {
-		// Assert:
-		AssertCanMapDbAccountState(Height(456), {});
-	}
-
-	TEST(TEST_CLASS, CanMapDbAccountStateWithoutPublicKeyButWithSingleMosaic) {
-		// Assert:
-		AssertCanMapDbAccountState(Height(0), { { MosaicId(1234), Amount(234) } });
-	}
-
-	TEST(TEST_CLASS, CanMapDbAccountStateWithoutPublicKeyButWithMultipleMosaics) {
-		// Assert:
-		AssertCanMapDbAccountState(
-				Height(0),
-				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
-	}
-
-	TEST(TEST_CLASS, CanMapDbAccountStateWithPublicKeyAndSingleMosaic) {
-		// Assert:
-		AssertCanMapDbAccountState(Height(456), { { MosaicId(1234), Amount(234) } });
-	}
-
-	TEST(TEST_CLASS, CanMapDbAccountStateWithPublicKeyAndMultipleMosaics) {
-		// Assert:
-		AssertCanMapDbAccountState(
-				Height(456),
-				{ { MosaicId(1234), Amount(234) }, { MosaicId(1357), Amount(345) }, { MosaicId(31), Amount(45) } });
-	}
-
-	TEST(TEST_CLASS, CanMapDbAccountStateWithImportanceNotSet) {
-		// Arrange:
-		state::AccountState accountState(test::GenerateRandomAddress(), Height(123));
-		auto dbAccount = ToDbModel(accountState);
-
-		// Sanity:
-		EXPECT_TRUE(dbAccount.view()["account"]["importances"].get_array().value.empty());
-
-		// Act:
-		state::AccountState newAccountState(Address(), Height(0));
-		ToAccountState(dbAccount, [&newAccountState](const auto& address, auto height) -> state::AccountState& {
-			newAccountState.Address = address;
-			newAccountState.AddressHeight = height;
-			return newAccountState;
-		});
-
-		// Assert:
-		auto accountData = dbAccount.view()["account"].get_document();
-		test::AssertEqualAccountState(newAccountState, accountData.view());
 	}
 
 	// endregion

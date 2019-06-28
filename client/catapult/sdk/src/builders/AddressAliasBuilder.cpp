@@ -41,6 +41,10 @@ namespace catapult { namespace builders {
 		m_address = address;
 	}
 
+	size_t AddressAliasBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
+
 	std::unique_ptr<AddressAliasBuilder::Transaction> AddressAliasBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
@@ -50,10 +54,16 @@ namespace catapult { namespace builders {
 	}
 
 	template<typename TransactionType>
+	size_t AddressAliasBuilder::sizeImpl() const {
+		// calculate transaction size
+		auto size = sizeof(TransactionType);
+		return size;
+	}
+
+	template<typename TransactionType>
 	std::unique_ptr<TransactionType> AddressAliasBuilder::buildImpl() const {
 		// 1. allocate, zero (header), set model::Transaction fields
-		auto size = sizeof(TransactionType);
-		auto pTransaction = createTransaction<TransactionType>(size);
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
 		pTransaction->AliasAction = m_aliasAction;

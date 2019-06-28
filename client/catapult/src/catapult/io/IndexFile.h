@@ -27,7 +27,7 @@ namespace catapult { namespace io {
 	/// Index file containing a uint64_t value.
 	class IndexFile {
 	public:
-		/// Creates an index file named \a filename with file locking specified by \a lockMode.
+		/// Creates an index file with name \a filename and file locking specified by \a lockMode.
 		explicit IndexFile(const std::string& filename, LockMode lockMode = LockMode::File);
 
 	public:

@@ -40,7 +40,7 @@ namespace catapult { namespace state {
 		}
 
 		/// Loads a single value from \a input.
-	static TLockInfo Load(io::InputStream& input){
+		static TLockInfo Load(io::InputStream& input){
 			TLockInfo lockInfo;
 			input.read(lockInfo.Account);
 			io::Read(input, lockInfo.MosaicId);

@@ -137,10 +137,12 @@ namespace catapult { namespace extensions {
 				auto cacheDelta = cache.createDelta();
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 				accountStateCacheDelta.addAccount(knownKeyWrongHeight, Height(1));
-				accountStateCacheDelta.find(knownKeyWrongHeight).get().ImportanceInfo.set(Importance(222), model::ImportanceHeight(100));
+				accountStateCacheDelta.find(knownKeyWrongHeight).get().ImportanceSnapshots.set(
+						Importance(222),
+						model::ImportanceHeight(100));
 
 				accountStateCacheDelta.addAccount(knownKey, Height(1));
-				accountStateCacheDelta.find(knownKey).get().ImportanceInfo.set(Importance(111), model::ImportanceHeight(999));
+				accountStateCacheDelta.find(knownKey).get().ImportanceSnapshots.set(Importance(111), model::ImportanceHeight(999));
 				cache.commit(Height(1000));
 			}
 

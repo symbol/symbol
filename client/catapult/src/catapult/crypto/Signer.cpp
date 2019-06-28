@@ -42,10 +42,10 @@ namespace catapult { namespace crypto {
 		const size_t Encoded_Size = Signature_Size / 2;
 		static_assert(Encoded_Size * 2 == Hash512_Size, "hash must be big enough to hold two encoded elements");
 
-		/// Indicates that the encoded S part of the signature is less than the group order.
+		// indicates that the encoded S part of the signature is less than the group order
 		constexpr int Is_Reduced = 1;
 
-		/// Indicates that the encoded S part of the signature is zero.
+		// indicates that the encoded S part of the signature is zero
 		constexpr int Is_Zero = 2;
 
 		int ValidateEncodedSPart(const uint8_t* encodedS) {
@@ -87,7 +87,7 @@ namespace catapult { namespace crypto {
 		uint8_t *RESTRICT encodedR = computedSignature.data();
 		uint8_t *RESTRICT encodedS = computedSignature.data() + Encoded_Size;
 
-		// Hash the private key to improve randomness.
+		// hash the private key to improve randomness
 		Hash512 privHash;
 		HashPrivateKey(keyPair.privateKey(), privHash);
 
@@ -100,7 +100,7 @@ namespace catapult { namespace crypto {
 		hasher_r.update(buffersList);
 		hasher_r.final(r);
 
-		// Reduce size of r since we are calculating mod group order anyway
+		// reduce size of r since we are calculating mod group order anyway
 		sc_reduce(r.data());
 
 		// R = rModQ * base point
@@ -126,9 +126,9 @@ namespace catapult { namespace crypto {
 		// S = (r + h * a) mod group order
 		sc_muladd(encodedS, h.data(), privHash.data(), r.data());
 
-		// Signature is (encodedR, encodedS)
+		// signature is (encodedR, encodedS)
 
-		// Throw if encodedS is not less than the group order, don't fail in case encodedS == 0
+		// throw if encodedS is not less than the group order, don't fail in case encodedS == 0
 		// (this should only throw if there is a bug in the signing code)
 		CheckEncodedS(encodedS);
 	}
@@ -168,7 +168,7 @@ namespace catapult { namespace crypto {
 		ge_p2 R;
 		ge_double_scalarmult_vartime(&R, h.data(), &A, encodedS);
 
-		// Compare calculated R to given R.
+		// compare calculated R to given R
 		uint8_t checkr[Encoded_Size];
 		ge_tobytes(checkr, &R);
 		return 0 == crypto_verify_32(checkr, encodedR);

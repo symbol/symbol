@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 		using TransactionType = TransferTransactionBody<THeader>;
 
 	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Transfer, 3)
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Transfer, 1)
 
 	public:
 		/// Transaction recipient.

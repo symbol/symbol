@@ -47,7 +47,7 @@ namespace catapult { namespace sync {
 			auto publicKey = test::GenerateRandomByteArray<Key>();
 			delta.addAccount(publicKey, Height(1));
 			auto& accountState = delta.find(publicKey).get();
-			accountState.ImportanceInfo.set(importance, model::ImportanceHeight(1));
+			accountState.ImportanceSnapshots.set(importance, model::ImportanceHeight(1));
 			return publicKey;
 		}
 

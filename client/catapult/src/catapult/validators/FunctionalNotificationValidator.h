@@ -24,7 +24,7 @@
 
 namespace catapult { namespace validators {
 
-	/// A notification validator implementation that wraps a function.
+	/// Notification validator that wraps a function.
 	template<typename TNotification, typename... TArgs>
 	class FunctionalNotificationValidatorT : public NotificationValidatorT<TNotification, TArgs...> {
 	private:

@@ -34,7 +34,7 @@ namespace catapult { namespace cache {
 
 	public:
 		void saveAll(const CacheChanges& changes, io::OutputStream& output) const override {
-			WriteCacheChanges<TStorageTraits>(output, changes.sub<TCache>());
+			WriteCacheChanges<TStorageTraits>(changes.sub<TCache>(), output);
 		}
 
 		std::unique_ptr<const MemoryCacheChanges> loadAll(io::InputStream& input) const override {

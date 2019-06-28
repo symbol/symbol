@@ -64,7 +64,7 @@ namespace catapult { namespace test {
 
 	// endregion
 
-	// region byte vector serializer
+	// region ByteVectorSerializer
 
 	/// Byte vector serializer.
 	struct ByteVectorSerializer {

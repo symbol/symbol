@@ -54,10 +54,6 @@ namespace catapult { namespace state {
 		struct SecretLockInfoStorageTraits : public test::BasicSecretLockInfoTestTraits {
 			using PackedValueType = PackedSecretLockInfo;
 			using SerializerType = SecretLockInfoSerializer;
-
-			static size_t ValueTypeSize() {
-				return sizeof(PackedValueType);
-			}
 		};
 	}
 

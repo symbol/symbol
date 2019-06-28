@@ -25,22 +25,22 @@
 
 namespace catapult { namespace validators {
 
-	/// A validator implementation that applies to hash lock notifications and validates that:
+	/// Validator that applies to hash lock notifications and validates that:
 	/// - lock duration is at most \a maxHashLockDuration
 	DECLARE_STATELESS_VALIDATOR(HashLockDuration, model::HashLockDurationNotification)(BlockDuration maxHashLockDuration);
 
-	/// A validator implementation that applies to hash lock mosaic notifications and validates that:
+	/// Validator that applies to hash lock mosaic notifications and validates that:
 	/// - mosaic id is \a currencyMosaicId
 	/// - mosaic amount is equal to \a lockedFundsPerAggregate
 	DECLARE_STATEFUL_VALIDATOR(HashLockMosaic, model::HashLockMosaicNotification)(
 			MosaicId currencyMosaicId,
 			Amount lockedFundsPerAggregate);
 
-	/// A validator implementation that applies to hash lock notifications and validates that:
+	/// Validator that applies to hash lock notifications and validates that:
 	/// - attached hash is not present in hash lock info cache
 	DECLARE_STATEFUL_VALIDATOR(HashLockCacheUnique, model::HashLockNotification)();
 
-	/// A validator implementation that applies to transaction notifications and validates that:
+	/// Validator that applies to transaction notifications and validates that:
 	/// - incomplete aggregate transactions must have an active, unused hash lock info present in cache
 	DECLARE_STATEFUL_VALIDATOR(AggregateHashPresent, model::TransactionNotification)();
 }}

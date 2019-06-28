@@ -50,6 +50,10 @@ namespace catapult { namespace builders {
 		});
 	}
 
+	size_t TransferBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
+
 	std::unique_ptr<TransferBuilder::Transaction> TransferBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
@@ -59,12 +63,18 @@ namespace catapult { namespace builders {
 	}
 
 	template<typename TransactionType>
-	std::unique_ptr<TransactionType> TransferBuilder::buildImpl() const {
-		// 1. allocate, zero (header), set model::Transaction fields
+	size_t TransferBuilder::sizeImpl() const {
+		// calculate transaction size
 		auto size = sizeof(TransactionType);
 		size += m_message.size();
 		size += m_mosaics.size() * sizeof(model::UnresolvedMosaic);
-		auto pTransaction = createTransaction<TransactionType>(size);
+		return size;
+	}
+
+	template<typename TransactionType>
+	std::unique_ptr<TransactionType> TransferBuilder::buildImpl() const {
+		// 1. allocate, zero (header), set model::Transaction fields
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
 		pTransaction->Recipient = m_recipient;

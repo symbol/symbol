@@ -24,6 +24,21 @@
 
 namespace catapult { namespace io {
 
+	void WriteTransactionInfo(const model::TransactionInfo& transactionInfo, OutputStream& outputStream) {
+		outputStream.write(transactionInfo.EntityHash);
+		outputStream.write(transactionInfo.MerkleComponentHash);
+
+		if (transactionInfo.OptionalExtractedAddresses) {
+			Write64(outputStream, transactionInfo.OptionalExtractedAddresses->size());
+			for (const auto& address : *transactionInfo.OptionalExtractedAddresses)
+				outputStream.write({ reinterpret_cast<const uint8_t*>(address.data()), address.size() });
+		} else {
+			Write64(outputStream, std::numeric_limits<uint64_t>::max());
+		}
+
+		WriteEntity(outputStream, *transactionInfo.pEntity);
+	}
+
 	void ReadTransactionInfo(InputStream& inputStream, model::TransactionInfo& transactionInfo) {
 		inputStream.read(transactionInfo.EntityHash);
 		inputStream.read(transactionInfo.MerkleComponentHash);
@@ -43,19 +58,10 @@ namespace catapult { namespace io {
 		transactionInfo.pEntity = ReadEntity<model::Transaction>(inputStream);
 	}
 
-	void WriteTransactionInfo(OutputStream& outputStream, const model::TransactionInfo& transactionInfo) {
-		outputStream.write(transactionInfo.EntityHash);
-		outputStream.write(transactionInfo.MerkleComponentHash);
-
-		if (transactionInfo.OptionalExtractedAddresses) {
-			Write64(outputStream, transactionInfo.OptionalExtractedAddresses->size());
-			for (const auto& address : *transactionInfo.OptionalExtractedAddresses)
-				outputStream.write({ reinterpret_cast<const uint8_t*>(address.data()), address.size() });
-		} else {
-			Write64(outputStream, std::numeric_limits<uint64_t>::max());
-		}
-
-		WriteEntity(outputStream, *transactionInfo.pEntity);
+	void WriteTransactionInfos(const model::TransactionInfosSet& transactionInfos, OutputStream& outputStream) {
+		Write32(outputStream, static_cast<uint32_t>(transactionInfos.size()));
+		for (const auto& transactionInfo : transactionInfos)
+			WriteTransactionInfo(transactionInfo, outputStream);
 	}
 
 	void ReadTransactionInfos(InputStream& inputStream, model::TransactionInfosSet& transactionInfos) {
@@ -65,11 +71,5 @@ namespace catapult { namespace io {
 			ReadTransactionInfo(inputStream, transactionInfo);
 			transactionInfos.insert(std::move(transactionInfo));
 		}
-	}
-
-	void WriteTransactionInfos(OutputStream& outputStream, const model::TransactionInfosSet& transactionInfos) {
-		Write32(outputStream, static_cast<uint32_t>(transactionInfos.size()));
-		for (const auto& transactionInfo : transactionInfos)
-			WriteTransactionInfo(outputStream, transactionInfo);
 	}
 }}

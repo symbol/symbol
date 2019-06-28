@@ -123,7 +123,7 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(delta->contains(CreateInfo(2)));
 	}
 
-	TEST(TEST_CLASS, CanInsertElementWhenOriginalSetIsNonEmpty) {
+	TEST(TEST_CLASS, CanInsertElementWhenOriginalSetIsNotEmpty) {
 		// Arrange:
 		BlockDifficultyCache cache(300);
 		SeedCache(cache, 3);
@@ -202,7 +202,7 @@ namespace catapult { namespace cache {
 		EXPECT_FALSE(delta->contains(element2));
 	}
 
-	TEST(TEST_CLASS, CanRemoveElementWhenOriginalSetIsNonEmpty) {
+	TEST(TEST_CLASS, CanRemoveElementWhenOriginalSetIsNotEmpty) {
 		// Arrange:
 		BlockDifficultyCache cache(300);
 		SeedCache(cache, 3);

@@ -19,7 +19,7 @@
 **/
 
 #include "src/observers/Observers.h"
-#include "src/observers/ImportanceCalculator.h"
+#include "src/importance/ImportanceCalculator.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "tests/test/cache/CacheTestUtils.h"
 #include "tests/test/core/NotificationTestUtils.h"
@@ -31,7 +31,10 @@ namespace catapult { namespace observers {
 
 #define TEST_CLASS RecalculateImportancesObserverTests
 
-	DEFINE_COMMON_OBSERVER_TESTS(RecalculateImportances, CreateRestoreImportanceCalculator(), CreateRestoreImportanceCalculator())
+	DEFINE_COMMON_OBSERVER_TESTS(
+			RecalculateImportances,
+			importance::CreateRestoreImportanceCalculator(),
+			importance::CreateRestoreImportanceCalculator())
 
 	namespace {
 		constexpr auto Importance_Grouping = 345u;
@@ -51,7 +54,7 @@ namespace catapult { namespace observers {
 		using ParamsVector = std::vector<ImportanceCalculatorParams>;
 
 		class MockImportanceCalculator final
-				: public ImportanceCalculator
+				: public importance::ImportanceCalculator
 				, public test::ParamsCapture<ImportanceCalculatorParams> {
 		public:
 			void recalculate(model::ImportanceHeight importanceHeight, cache::AccountStateCacheDelta& cache) const override {
@@ -59,7 +62,7 @@ namespace catapult { namespace observers {
 			}
 		};
 
-		class MockFailingImportanceCalculator final : public ImportanceCalculator {
+		class MockFailingImportanceCalculator final : public importance::ImportanceCalculator {
 		public:
 			void recalculate(model::ImportanceHeight, cache::AccountStateCacheDelta&) const override {
 				CATAPULT_THROW_RUNTIME_ERROR("unexpected call to MockFailingImportanceCalculator::recalculate");
@@ -70,7 +73,7 @@ namespace catapult { namespace observers {
 			return std::make_unique<MockImportanceCalculator>();
 		}
 
-		std::unique_ptr<ImportanceCalculator> CreateFailingCalculator() {
+		std::unique_ptr<importance::ImportanceCalculator> CreateFailingCalculator() {
 			return std::make_unique<MockFailingImportanceCalculator>();
 		}
 
@@ -78,7 +81,7 @@ namespace catapult { namespace observers {
 			static constexpr auto Mode = NotifyMode::Commit;
 			static constexpr auto Base_Height = Height(Importance_Grouping);
 
-			static auto CreateObserver(std::unique_ptr<ImportanceCalculator>&& pCalculator) {
+			static auto CreateObserver(std::unique_ptr<importance::ImportanceCalculator>&& pCalculator) {
 				return CreateRecalculateImportancesObserver(std::move(pCalculator), CreateFailingCalculator());
 			}
 		};
@@ -87,7 +90,7 @@ namespace catapult { namespace observers {
 			static constexpr auto Mode = NotifyMode::Rollback;
 			static constexpr auto Base_Height = Height(Importance_Grouping + 1);
 
-			static auto CreateObserver(std::unique_ptr<ImportanceCalculator>&& pCalculator) {
+			static auto CreateObserver(std::unique_ptr<importance::ImportanceCalculator>&& pCalculator) {
 				return CreateRecalculateImportancesObserver(CreateFailingCalculator(), std::move(pCalculator));
 			}
 		};

@@ -35,7 +35,7 @@ namespace catapult { namespace model {
 		using TransactionType = MosaicSupplyChangeTransactionBody<THeader>;
 
 	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Supply_Change, 2)
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Supply_Change, 1)
 
 	public:
 		/// Id of the affected mosaic.

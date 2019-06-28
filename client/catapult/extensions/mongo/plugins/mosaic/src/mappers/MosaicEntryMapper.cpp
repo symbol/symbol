@@ -66,39 +66,4 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	// endregion
-
-	// region ToModel
-
-	namespace {
-		using PropertyValuesContainer = model::MosaicProperties::PropertyValuesContainer;
-
-		PropertyValuesContainer ReadProperties(const bsoncxx::array::view& dbProperties) {
-			PropertyValuesContainer container{};
-			for (const auto& property : dbProperties) {
-				auto id = utils::checked_cast<int32_t, uint8_t>(property["id"].get_int32().value);
-				container[id] = static_cast<uint64_t>(property["value"].get_int64().value);
-			}
-
-			return container;
-		}
-	}
-
-	state::MosaicEntry ToMosaicEntry(const bsoncxx::document::view& document) {
-		auto dbMosaic = document["mosaic"];
-		auto id = GetValue64<MosaicId>(dbMosaic["mosaicId"]);
-		auto supply = GetValue64<Amount>(dbMosaic["supply"]);
-
-		auto height = GetValue64<Height>(dbMosaic["height"]);
-		Key owner;
-		DbBinaryToModelArray(owner, dbMosaic["owner"].get_binary());
-		auto revision = ToUint32(dbMosaic["revision"].get_int32());
-		auto container = ReadProperties(dbMosaic["properties"].get_array().value);
-
-		auto definition = state::MosaicDefinition(height, owner, revision, model::MosaicProperties::FromValues(container));
-		auto entry = state::MosaicEntry(id, definition);
-		entry.increaseSupply(supply);
-		return entry;
-	}
-
-	// endregion
 }}}

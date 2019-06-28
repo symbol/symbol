@@ -32,7 +32,7 @@ namespace catapult { namespace test {
 			model::ImportanceHeight importanceHeight) {
 		delta.addAccount(publicKey, Height(100));
 		auto& accountState = delta.find(publicKey).get();
-		accountState.ImportanceInfo.set(importance, importanceHeight);
+		accountState.ImportanceSnapshots.set(importance, importanceHeight);
 	}
 
 	void AddNode(ionet::NodeContainer& container, const Key& identityKey, const std::string& nodeName) {

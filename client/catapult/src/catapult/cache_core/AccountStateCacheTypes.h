@@ -83,8 +83,9 @@ namespace catapult { namespace cache {
 			/// Importance grouping.
 			uint64_t ImportanceGrouping;
 
-			/// Minimum high value account balance.
-			Amount MinHighValueAccountBalance;
+			/// Minimum harvester balance.
+			/// \note This doubles as the minimum balance of tracked high value accounts.
+			Amount MinHarvesterBalance;
 
 			/// Mosaic id used as primary chain currency.
 			MosaicId CurrencyMosaicId;

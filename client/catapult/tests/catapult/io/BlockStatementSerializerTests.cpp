@@ -20,6 +20,7 @@
 
 #include "catapult/io/BlockStatementSerializer.h"
 #include "tests/test/core/BlockStatementTestUtils.h"
+#include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
 #include "tests/TestHarness.h"
 
@@ -254,7 +255,7 @@ namespace catapult { namespace io {
 			// Act:
 			std::vector<uint8_t> outputBuffer;
 			mocks::MockMemoryStream outputStream(outputBuffer);
-			WriteBlockStatement(outputStream, blockStatement);
+			WriteBlockStatement(blockStatement, outputStream);
 
 			// Assert:
 			ASSERT_EQ(expectedBuffer.size(), outputBuffer.size());
@@ -263,6 +264,35 @@ namespace catapult { namespace io {
 
 		// endregion
 	}
+
+	// region WriteBlockStatement
+
+	TEST(TEST_CLASS, CanWriteBlockStatementWithoutStatements) {
+		// Act + Assert:
+		AssertWrite(model::BlockStatement(), std::vector<uint8_t>(3 * sizeof(uint32_t), 0));
+	}
+
+	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyTransactionStatements) {
+		// Act + Assert: ordering is required to have output in deterministic order
+		PrepareOnlyTransactionStatementsTest(true, AssertWrite);
+	}
+
+	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyAddressResolutions) {
+		// Act + Assert: ordering is required to have output in deterministic order
+		PrepareOnlyAddressResolutionsTest(true, AssertWrite);
+	}
+
+	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyMosaicResolutions) {
+		// Act + Assert: ordering is required to have output in deterministic order
+		PrepareOnlyMosaicResolutionsTest(true, AssertWrite);
+	}
+
+	TEST(TEST_CLASS, CanWriteBlockStatementWithAllStatements) {
+		// Act + Assert: ordering is required to have output in deterministic order
+		PrepareAllStatementsTest(true, AssertWrite);
+	}
+
+	// endregion
 
 	// region ReadBlockStatement
 
@@ -294,52 +324,19 @@ namespace catapult { namespace io {
 
 	// endregion
 
-	// region WriteBlockStatement
-
-	TEST(TEST_CLASS, CanWriteBlockStatementWithoutStatements) {
-		// Act + Assert:
-		AssertWrite(model::BlockStatement(), std::vector<uint8_t>(3 * sizeof(uint32_t), 0));
-	}
-
-	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyTransactionStatements) {
-		// Act + Assert: ordering is required to have output in deterministic order
-		PrepareOnlyTransactionStatementsTest(true, AssertWrite);
-	}
-
-	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyAddressResolutions) {
-		// Act + Assert: ordering is required to have output in deterministic order
-		PrepareOnlyAddressResolutionsTest(true, AssertWrite);
-	}
-
-	TEST(TEST_CLASS, CanWriteBlockStatementWithOnlyMosaicResolutions) {
-		// Act + Assert: ordering is required to have output in deterministic order
-		PrepareOnlyMosaicResolutionsTest(true, AssertWrite);
-	}
-
-	TEST(TEST_CLASS, CanWriteBlockStatementWithAllStatements) {
-		// Act + Assert: ordering is required to have output in deterministic order
-		PrepareAllStatementsTest(true, AssertWrite);
-	}
-
-	// endregion
-
-	// region roundtrip
+	// region Roundtrip
 
 	namespace {
 		void AssertCanRoundtripBlockWithStatement(const std::vector<size_t>& numStatements) {
 			// Arrange:
 			auto pOriginalBlockStatement = test::GenerateRandomStatements(numStatements);
-			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream outputStream(buffer);
-			WriteBlockStatement(outputStream, *pOriginalBlockStatement);
 
 			// Act:
-			model::BlockStatement blockStatement;
-			mocks::MockMemoryStream inputStream(buffer);
-			ReadBlockStatement(inputStream, blockStatement);
+			model::BlockStatement result;
+			test::RunRoundtripBufferTest(*pOriginalBlockStatement, result, WriteBlockStatement, ReadBlockStatement);
 
 			// Assert:
-			test::AssertEqual(*pOriginalBlockStatement, blockStatement);
+			test::AssertEqual(*pOriginalBlockStatement, result);
 		}
 	}
 

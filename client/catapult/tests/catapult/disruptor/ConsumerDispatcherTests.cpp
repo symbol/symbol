@@ -493,6 +493,7 @@ namespace catapult { namespace disruptor {
 		// - push multiple elements
 		ProcessAll(dispatcher, std::move(ranges));
 		WAIT_FOR_VALUE_EXPR(5u, inspectedHeights.size());
+		WAIT_FOR_ZERO_EXPR(dispatcher.numActiveElements());
 
 		// Assert:
 		EXPECT_EQ(ranges.size(), dispatcher.numAddedElements());

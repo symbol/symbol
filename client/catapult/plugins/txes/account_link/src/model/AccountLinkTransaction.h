@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 		using TransactionType = AccountLinkTransactionBody<THeader>;
 
 	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Account_Link, 2)
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Account_Link, 1)
 
 	public:
 		/// Remote account key.

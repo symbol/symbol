@@ -35,7 +35,7 @@ namespace catapult { namespace model {
 		using TransactionType = MosaicDefinitionTransactionBody<THeader>;
 
 	public:
-		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Definition, 3)
+		DEFINE_TRANSACTION_CONSTANTS(Entity_Type_Mosaic_Definition, 1)
 
 	public:
 		/// Mosaic nonce.

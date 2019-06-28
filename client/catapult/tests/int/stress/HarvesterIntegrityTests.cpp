@@ -136,7 +136,7 @@ namespace catapult { namespace harvesting {
 				auto accountStateIter = accountStateCacheDelta.find(keyPair.publicKey());
 				accountStateIter.get().Balances.credit(currencyMosaicId, Amount(GetNumIterations()));
 				accountStateIter.get().Balances.credit(harvestingMosaicId, Amount(10'000'000));
-				accountStateIter.get().ImportanceInfo.set(Importance(10'000'000), model::ImportanceHeight(1));
+				accountStateIter.get().ImportanceSnapshots.set(Importance(10'000'000), model::ImportanceHeight(1));
 				m_cache.commit(Height(1));
 
 				// 2. unlock the account

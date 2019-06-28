@@ -227,12 +227,12 @@ namespace catapult { namespace test {
 	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, WellFormedRequestIsWrittenToRemoteNode) \
 	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, WellFormedResponseFromRemoteNodeIsCoercedIntoDesiredType)
 
-// For those requests where a non-empty response is expected
+// for those requests where empty responses are not allowed
 #define DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(API_CLASS, API_FUNCTION) \
 	DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
 	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, ExceptionIsThrownWhenRemoteNodeReturnsEmptyPacket)
 
-// For those requests where a non-empty response is common
+// for those requests where empty responses are allowed
 #define DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_VALID(API_CLASS, API_FUNCTION) \
 	DEFINE_REMOTE_API_TESTS_BASIC(API_CLASS, API_FUNCTION) \
 	MAKE_REMOTE_API_METHOD_TEST(API_CLASS, API_FUNCTION, EmptyResponseIsConsideredValid)

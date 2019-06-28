@@ -65,13 +65,32 @@ namespace catapult { namespace model {
 			auto registry = mocks::CreateDefaultTransactionRegistry();
 			return IsSizeValid(entity, registry);
 		}
+
+		struct TransactionTraits {
+			static auto Create() {
+				return test::GenerateRandomTransaction();
+			}
+		};
+
+		struct EmptyBlockTraits {
+			static auto Create() {
+				return test::GenerateEmptyRandomBlock();
+			}
+		};
+
+		struct BlockWithTransactionsTraits {
+			static auto Create() {
+				auto transactions = test::GenerateRandomTransactions(3);
+				return test::GenerateBlockWithTransactions(transactions);
+			}
+		};
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Transaction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::TransactionPolicy>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_EmptyBlock) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::EmptyBlockPolicy>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NonEmptyBlock) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonEmptyBlockPolicy>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Transaction) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<TransactionTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_EmptyBlock) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<EmptyBlockTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_BlockWithTransactions) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<BlockWithTransactionsTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region IsSizeValid - basic tests

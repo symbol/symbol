@@ -16,6 +16,7 @@ blockGenerationTargetTime = 15s
 blockTimeSmoothingFactor = 3000
 
 importanceGrouping = 39
+importanceActivityPercentage = 5
 maxRollbackBlocks = 40
 maxDifficultyBlocks = 60
 
@@ -88,9 +89,9 @@ childNamespaceRentalFee = 100'000'000
 
 maxChildNamespaces = 500
 
-[plugin:catapult.plugins.property]
+[plugin:catapult.plugins.restrictionaccount]
 
-maxPropertyValues = 512
+maxAccountRestrictionValues = 512
 
 [plugin:catapult.plugins.transfer]
 

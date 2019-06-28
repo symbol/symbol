@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 		std::vector<uint8_t> buffer;
 		mocks::MockMemoryStream stream(buffer);
 
-		io::WriteTransactionInfo(stream, transactionInfo);
+		io::WriteTransactionInfo(transactionInfo, stream);
 		return buffer;
 	}
 }}

@@ -40,7 +40,7 @@ namespace catapult { namespace cache {
 		constexpr auto Default_Cache_Options = AccountStateCacheTypes::Options{
 			model::NetworkIdentifier::Mijin_Test,
 			123,
-			Amount(std::numeric_limits<Amount::ValueType>::max()),
+			Amount(),
 			MosaicId(1111),
 			Harvesting_Mosaic_Id
 		};
@@ -96,7 +96,7 @@ namespace catapult { namespace cache {
 			auto delta = cache.createDelta();
 			auto accountStateIter = TTraits::AddAccount(*delta, publicKey, Height(100));
 			auto& accountState = accountStateIter.get();
-			accountState.ImportanceInfo.set(importance, importanceHeight);
+			accountState.ImportanceSnapshots.set(importance, importanceHeight);
 			accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
 			cache.commit();
 		}
@@ -105,8 +105,10 @@ namespace catapult { namespace cache {
 			return model::ConvertToImportanceHeight(height, Default_Cache_Options.ImportanceGrouping);
 		}
 
-		auto CreateAccountStateCache() {
-			return std::make_unique<AccountStateCache>(CacheConfiguration(), Default_Cache_Options);
+		auto CreateAccountStateCache(Amount minHarvesterBalance = Amount(std::numeric_limits<Amount::ValueType>::max())) {
+			auto options = Default_Cache_Options;
+			options.MinHarvesterBalance = minHarvesterBalance;
+			return std::make_unique<AccountStateCache>(CacheConfiguration(), options);
 		}
 	}
 
@@ -196,9 +198,9 @@ namespace catapult { namespace cache {
 
 	namespace {
 		struct CanHarvestViaMemberTraits {
-			static bool CanHarvest(const AccountStateCache& cache, const Key& publicKey, Height height, Amount minBalance) {
+			static bool CanHarvest(const AccountStateCache& cache, const Key& publicKey, Height height) {
 				auto pView = test::CreateImportanceView(cache);
-				return pView->canHarvest(publicKey, height, minBalance);
+				return pView->canHarvest(publicKey, height);
 			}
 		};
 
@@ -220,11 +222,11 @@ namespace catapult { namespace cache {
 		// Arrange:
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto height = Height(1000);
-		auto pCache = CreateAccountStateCache();
+		auto pCache = CreateAccountStateCache(Amount(1234));
 		AddAccount<TTraits>(*pCache, key, Importance(1000), ConvertToImportanceHeight(height));
 
 		// Act + Assert:
-		EXPECT_FALSE(TTraits::CanHarvest(*pCache, test::GenerateRandomByteArray<Key>(), height, Amount(1234)));
+		EXPECT_FALSE(TTraits::CanHarvest(*pCache, test::GenerateRandomByteArray<Key>(), height));
 	}
 
 	namespace {
@@ -232,12 +234,12 @@ namespace catapult { namespace cache {
 		bool CanHarvest(int64_t minBalanceDelta, Importance importance, ImportanceHeight importanceHeight, Height testHeight) {
 			// Arrange:
 			auto key = test::GenerateRandomByteArray<Key>();
-			auto pCache = CreateAccountStateCache();
+			auto pCache = CreateAccountStateCache(Amount(1234));
 			auto initialBalance = Amount(static_cast<Amount::ValueType>(1234 + minBalanceDelta));
 			AddAccount<TTraits>(*pCache, key, importance, importanceHeight, initialBalance);
 
 			// Act:
-			return TTraits::CanHarvest(*pCache, key, testHeight, Amount(1234));
+			return TTraits::CanHarvest(*pCache, key, testHeight);
 		}
 	}
 
@@ -287,7 +289,7 @@ namespace catapult { namespace cache {
 
 		struct CanHarvestTraits {
 			static void Act(const ImportanceView& view, const Key& publicKey) {
-				view.canHarvest(publicKey, Height(111), Amount());
+				view.canHarvest(publicKey, Height(111));
 			}
 		};
 	}

@@ -132,6 +132,48 @@ namespace catapult { namespace test {
 		}
 	}
 
+	namespace {
+		void AssertEqualAccountImportanceSnapshots(
+				const state::AccountImportanceSnapshots& snapshots,
+				const bsoncxx::document::view& dbImportances) {
+			size_t numImportances = 0;
+			for (const auto& importanceElement : dbImportances) {
+				auto importanceDocument = importanceElement.get_document();
+				auto importanceHeight = GetUint64(importanceDocument.view(), "height");
+
+				auto expectedImportance = snapshots.get(model::ImportanceHeight(importanceHeight));
+				EXPECT_EQ(expectedImportance, Importance(GetUint64(importanceDocument.view(), "value")));
+				++numImportances;
+			}
+
+			auto expectedNumImportances = std::count_if(snapshots.begin(), snapshots.end(), [](const auto& snapshot) {
+				return model::ImportanceHeight(0) != snapshot.Height;
+			});
+			EXPECT_EQ(static_cast<size_t>(expectedNumImportances), numImportances);
+		}
+
+		void AssertEqualAccountActivityBuckets(
+				const state::AccountActivityBuckets& buckets,
+				const bsoncxx::document::view& dbActivityBuckets) {
+			size_t numActivityBuckets = 0;
+			for (const auto& activityBucketElement : dbActivityBuckets) {
+				auto activityBucketDocument = activityBucketElement.get_document();
+				auto importanceHeight = GetUint64(activityBucketDocument.view(), "startHeight");
+
+				auto expectedBucket = buckets.get(model::ImportanceHeight(importanceHeight));
+				EXPECT_EQ(expectedBucket.TotalFeesPaid, Amount(GetUint64(activityBucketDocument.view(), "totalFeesPaid")));
+				EXPECT_EQ(expectedBucket.BeneficiaryCount, GetUint32(activityBucketDocument.view(), "beneficiaryCount"));
+				EXPECT_EQ(expectedBucket.RawScore, GetUint64(activityBucketDocument.view(), "rawScore"));
+				++numActivityBuckets;
+			}
+
+			auto expectedNumActivityBuckets = std::count_if(buckets.begin(), buckets.end(), [](const auto& bucket) {
+				return model::ImportanceHeight(0) != bucket.StartHeight;
+			});
+			EXPECT_EQ(static_cast<size_t>(expectedNumActivityBuckets), numActivityBuckets);
+		}
+	}
+
 	void AssertEqualAccountState(const state::AccountState& accountState, const bsoncxx::document::view& dbAccount) {
 		EXPECT_EQ(accountState.Address, GetAddressValue(dbAccount, "address"));
 		EXPECT_EQ(accountState.AddressHeight, Height(GetUint64(dbAccount, "addressHeight")));
@@ -141,22 +183,8 @@ namespace catapult { namespace test {
 		EXPECT_EQ(accountState.AccountType, static_cast<state::AccountType>(GetInt32(dbAccount, "accountType")));
 		EXPECT_EQ(accountState.LinkedAccountKey, GetKeyValue(dbAccount, "linkedAccountKey"));
 
-		auto dbImportances = dbAccount["importances"].get_array().value;
-		const auto& accountImportances = accountState.ImportanceInfo;
-		size_t numImportances = 0;
-		for (const auto& importanceElement : dbImportances) {
-			auto importanceDocument = importanceElement.get_document();
-			auto importanceHeight = GetUint64(importanceDocument.view(), "height");
-
-			auto importance = accountImportances.get(model::ImportanceHeight(importanceHeight));
-			EXPECT_EQ(importance, Importance(GetUint64(importanceDocument.view(), "value")));
-			++numImportances;
-		}
-
-		auto expectedNumImportances = std::count_if(accountImportances.begin(), accountImportances.end(), [](const auto& importanceInfo){
-			return model::ImportanceHeight(0) != importanceInfo.Height;
-		});
-		EXPECT_EQ(static_cast<size_t>(expectedNumImportances), numImportances);
+		AssertEqualAccountImportanceSnapshots(accountState.ImportanceSnapshots, dbAccount["importances"].get_array().value);
+		AssertEqualAccountActivityBuckets(accountState.ActivityBuckets, dbAccount["activityBuckets"].get_array().value);
 
 		auto dbMosaics = dbAccount["mosaics"].get_array().value;
 		size_t numMosaics = 0;

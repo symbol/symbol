@@ -25,6 +25,120 @@
 
 namespace catapult { namespace state {
 
+	namespace {
+		// region AccountStateFormat
+
+		enum class AccountStateFormat : uint8_t { Regular = 0, High_Value = 1 };
+
+		AccountStateFormat GetFormat(const AccountState& accountState) {
+			return Importance() == accountState.ImportanceSnapshots.current()
+					? AccountStateFormat::Regular
+					: AccountStateFormat::High_Value;
+		}
+
+		// endregion
+
+		// region ImportanceReader
+
+		class ImportanceReader {
+		public:
+			ImportanceReader()
+					: m_snapshotsIndex(0)
+					, m_bucketsIndex(0)
+			{}
+
+		public:
+			bool hasSnapshots() const {
+				return 0 != m_snapshotsIndex;
+			}
+
+		public:
+			void readSnapshots(io::InputStream& input, size_t count) {
+				for (auto i = 0u ; i < count; ++i) {
+					auto& snapshot = m_snapshots[Importance_History_Size - 1 - m_snapshotsIndex];
+					snapshot.Importance = io::Read<Importance>(input);
+					snapshot.Height = io::Read<model::ImportanceHeight>(input);
+					++m_snapshotsIndex;
+				}
+			}
+
+			void readBuckets(io::InputStream& input, size_t count) {
+				for (auto i = 0u ; i < count; ++i) {
+					auto& bucket = m_buckets[Activity_Bucket_History_Size - 1 - m_bucketsIndex];
+					bucket.StartHeight = io::Read<model::ImportanceHeight>(input);
+					bucket.TotalFeesPaid = io::Read<Amount>(input);
+					bucket.BeneficiaryCount = io::Read32(input);
+					bucket.RawScore = io::Read64(input);
+					++m_bucketsIndex;
+				}
+			}
+
+		public:
+			void apply(AccountState& accountState) {
+				for (const auto& snapshot : m_snapshots) {
+					if (model::ImportanceHeight() == snapshot.Height)
+						continue;
+
+					accountState.ImportanceSnapshots.set(snapshot.Importance, snapshot.Height);
+				}
+
+				for (const auto& bucket : m_buckets) {
+					if (model::ImportanceHeight() == bucket.StartHeight)
+						continue;
+
+					accountState.ActivityBuckets.update(bucket.StartHeight, [&bucket](auto& accountStateBucket) {
+						accountStateBucket = bucket;
+					});
+				}
+			}
+
+		private:
+			size_t m_snapshotsIndex;
+			std::array<AccountImportanceSnapshots::ImportanceSnapshot, Importance_History_Size> m_snapshots;
+			size_t m_bucketsIndex;
+			std::array<AccountActivityBuckets::ActivityBucket, Activity_Bucket_History_Size> m_buckets;
+		};
+
+		// endregion
+
+		// region WriteSnapshots / WriteBuckets
+
+		template<typename TContainer, typename TAction>
+		void ProcessRange(const TContainer& container, size_t start, size_t count, TAction action) {
+			auto i = 0u;
+			for (const auto& value : container) {
+				if (i < start) {
+					++i;
+					continue;
+				}
+
+				if (i == start + count)
+					break;
+
+				action(value);
+				++i;
+			}
+		}
+
+		void WriteSnapshots(io::OutputStream& output, const AccountImportanceSnapshots& snapshots, size_t start, size_t count) {
+			ProcessRange(snapshots, start, count, [&output](const auto& snapshot) {
+				io::Write(output, snapshot.Importance);
+				io::Write(output, snapshot.Height);
+			});
+		}
+
+		void WriteBuckets(io::OutputStream& output, const AccountActivityBuckets& buckets, size_t start, size_t count) {
+			ProcessRange(buckets, start, count, [&output](const auto& bucket) {
+				io::Write(output, bucket.StartHeight);
+				io::Write(output, bucket.TotalFeesPaid);
+				io::Write32(output, bucket.BeneficiaryCount);
+				io::Write64(output, bucket.RawScore);
+			});
+		}
+
+		// endregion
+	}
+
 	// region AccountStateNonHistoricalSerializer
 
 	void AccountStateNonHistoricalSerializer::Save(const AccountState& accountState, io::OutputStream& output) {
@@ -38,9 +152,13 @@ namespace catapult { namespace state {
 		io::Write8(output, utils::to_underlying_type(accountState.AccountType));
 		output.write(accountState.LinkedAccountKey);
 
-		// write last importance
-		io::Write(output, accountState.ImportanceInfo.current());
-		io::Write(output, accountState.ImportanceInfo.height());
+		// write importance information for high value accounts
+		auto format = GetFormat(accountState);
+		io::Write8(output, utils::to_underlying_type(format));
+		if (AccountStateFormat::High_Value == format) {
+			WriteSnapshots(output, accountState.ImportanceSnapshots, 0, Importance_History_Size - Rollback_Buffer_Size);
+			WriteBuckets(output, accountState.ActivityBuckets, 0, Activity_Bucket_History_Size - Rollback_Buffer_Size);
+		}
 
 		// write mosaics
 		io::Write(output, accountState.Balances.optimizedMosaicId());
@@ -52,19 +170,7 @@ namespace catapult { namespace state {
 	}
 
 	namespace {
-		AccountImportance::ImportanceSnapshot ReadImportanceSnapshot(io::InputStream& input) {
-			AccountImportance::ImportanceSnapshot snapshot;
-			snapshot.Importance = io::Read<Importance>(input);
-			snapshot.Height = io::Read<model::ImportanceHeight>(input);
-			return snapshot;
-		}
-
-		void SetImportance(AccountState& accountState, const AccountImportance::ImportanceSnapshot& snapshot) {
-			if (model::ImportanceHeight() != snapshot.Height)
-				accountState.ImportanceInfo.set(snapshot.Importance, snapshot.Height);
-		}
-
-		AccountState LoadAccountStateWithoutHistory(io::InputStream& input, AccountImportance::ImportanceSnapshot& lastSnapshot) {
+		AccountState LoadAccountStateWithoutHistory(io::InputStream& input, ImportanceReader& importanceReader) {
 			// read identifying information
 			Address address;
 			input.read(address);
@@ -79,8 +185,14 @@ namespace catapult { namespace state {
 			accountState.AccountType = static_cast<state::AccountType>(io::Read8(input));
 			input.read(accountState.LinkedAccountKey);
 
-			// read last importance
-			lastSnapshot = ReadImportanceSnapshot(input);
+			// read importance information for high value accounts
+			auto format = static_cast<AccountStateFormat>(io::Read8(input));
+			if (AccountStateFormat::High_Value == format) {
+				importanceReader.readSnapshots(input, Importance_History_Size - Rollback_Buffer_Size);
+				importanceReader.readBuckets(input, Activity_Bucket_History_Size - Rollback_Buffer_Size);
+			} else if (AccountStateFormat::Regular != format) {
+				CATAPULT_THROW_INVALID_ARGUMENT_1("cannot load account state with unsupported format", static_cast<uint16_t>(format));
+			}
 
 			// read mosaics
 			accountState.Balances.optimize(io::Read<MosaicId>(input));
@@ -96,10 +208,10 @@ namespace catapult { namespace state {
 	}
 
 	AccountState AccountStateNonHistoricalSerializer::Load(io::InputStream& input) {
-		AccountImportance::ImportanceSnapshot lastSnapshot;
-		auto accountState = LoadAccountStateWithoutHistory(input, lastSnapshot);
+		ImportanceReader importanceReader;
+		auto accountState = LoadAccountStateWithoutHistory(input, importanceReader);
 
-		SetImportance(accountState, lastSnapshot);
+		importanceReader.apply(accountState);
 		return accountState;
 	}
 
@@ -107,38 +219,36 @@ namespace catapult { namespace state {
 
 	// region AccountStateSerializer
 
-	namespace {
-		void FillImportanceSnapshots(const AccountImportance& accountImportance, AccountImportance::ImportanceSnapshot* pSnapshot) {
-			for (const auto& snapshot : accountImportance)
-				*pSnapshot++ = snapshot;
-		}
-	}
-
 	void AccountStateSerializer::Save(const AccountState& accountState, io::OutputStream& output) {
 		// write non-historical information
 		AccountStateNonHistoricalSerializer::Save(accountState, output);
 
-		// write historical importances (reverse order)
-		AccountImportance::ImportanceSnapshot snapshots[Importance_History_Size];
-		FillImportanceSnapshots(accountState.ImportanceInfo, snapshots);
-
-		for (auto i = Importance_History_Size; i > 1; --i) {
-			const auto& snapshot = snapshots[i - 1];
-			io::Write(output, snapshot.Importance);
-			io::Write(output, snapshot.Height);
+		// write historical importance information
+		if (AccountStateFormat::High_Value == GetFormat(accountState)) {
+			WriteSnapshots(output, accountState.ImportanceSnapshots, Importance_History_Size - Rollback_Buffer_Size, Rollback_Buffer_Size);
+			WriteBuckets(output, accountState.ActivityBuckets, Activity_Bucket_History_Size - Rollback_Buffer_Size, Rollback_Buffer_Size);
+		} else {
+			WriteSnapshots(output, accountState.ImportanceSnapshots, 0, Importance_History_Size);
+			WriteBuckets(output, accountState.ActivityBuckets, 0, Activity_Bucket_History_Size);
 		}
 	}
 
 	AccountState AccountStateSerializer::Load(io::InputStream& input) {
 		// read non-historical information
-		AccountImportance::ImportanceSnapshot lastSnapshot;
-		auto accountState = LoadAccountStateWithoutHistory(input, lastSnapshot);
+		ImportanceReader importanceReader;
+		auto accountState = LoadAccountStateWithoutHistory(input, importanceReader);
 
-		// read historical importances and set all importances
-		for (auto i = 0u; i < Importance_History_Size - 1; ++i)
-			SetImportance(accountState, ReadImportanceSnapshot(input));
+		// read historical importance information
+		auto isHighValue = importanceReader.hasSnapshots();
+		if (isHighValue) {
+			importanceReader.readSnapshots(input, Rollback_Buffer_Size);
+			importanceReader.readBuckets(input, Rollback_Buffer_Size);
+		} else {
+			importanceReader.readSnapshots(input, Importance_History_Size);
+			importanceReader.readBuckets(input, Activity_Bucket_History_Size);
+		}
 
-		SetImportance(accountState, lastSnapshot);
+		importanceReader.apply(accountState);
 		return accountState;
 	}
 

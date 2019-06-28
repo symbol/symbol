@@ -31,6 +31,11 @@ namespace catapult { namespace test {
 			return builder.build();
 		}
 
+		template<typename TBuilder>
+		static void CheckBuilderSize(size_t additionalSize, const TBuilder& builder) {
+			EXPECT_EQ(sizeof(TTransaction) + additionalSize, builder.size());
+		}
+
 		static void CheckFields(size_t additionalSize, const TTransaction& transaction) {
 			ASSERT_EQ(sizeof(TTransaction) + additionalSize, transaction.Size);
 
@@ -47,6 +52,10 @@ namespace catapult { namespace test {
 		static auto InvokeBuilder(TBuilder& builder) {
 			return builder.buildEmbedded();
 		}
+
+		template<typename TBuilder>
+		static void CheckBuilderSize(size_t, const TBuilder&)
+		{}
 
 		static void CheckFields(size_t additionalSize, const TTransaction& transaction) {
 			ASSERT_EQ(sizeof(TTransaction) + additionalSize, transaction.Size);

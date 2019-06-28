@@ -370,7 +370,7 @@ namespace catapult { namespace ionet {
 		});
 	}
 
-	READ_TRAITS_BASED_TEST(ReadSucceedsWhenReadingNonEmptyPacketWithValidSignature) {
+	READ_TRAITS_BASED_TEST(ReadSucceedsWhenReadingPacketWithValidSignature) {
 		// Assert:
 		RunReadSuccessPayloadTest<TTraits>(234u, [](const auto& readPacket) {
 			// Sanity:
@@ -380,7 +380,7 @@ namespace catapult { namespace ionet {
 
 	// endregion
 
-	// region PacketIo - round trip
+	// region PacketIo - roundtrip
 
 	TEST(TEST_CLASS, CanRoundtripWriteAndRead) {
 		// Arrange:

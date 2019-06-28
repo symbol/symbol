@@ -33,7 +33,7 @@ namespace catapult { namespace test {
 		void WriteTransactionInfos(io::OutputStream& outputStream, uint8_t operationType) {
 			auto transactionInfos = CopyTransactionInfosToSet(CreateTransactionInfosWithOptionalAddresses(3));
 			io::Write8(outputStream, operationType);
-			io::WriteTransactionInfos(outputStream, transactionInfos);
+			io::WriteTransactionInfos(transactionInfos, outputStream);
 		}
 
 		void WriteCosignature(io::OutputStream& outputStream) {
@@ -45,7 +45,7 @@ namespace catapult { namespace test {
 			io::Write8(outputStream, utils::to_underlying_type(subscribers::PtChangeOperationType::Add_Cosignature));
 			outputStream.write(signer);
 			outputStream.write(signature);
-			io::WriteTransactionInfo(outputStream, transactionInfo);
+			io::WriteTransactionInfo(transactionInfo, outputStream);
 		}
 	}
 

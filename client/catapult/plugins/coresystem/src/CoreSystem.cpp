@@ -19,6 +19,7 @@
 **/
 
 #include "CoreSystem.h"
+#include "importance/ImportanceCalculator.h"
 #include "observers/Observers.h"
 #include "validators/Validators.h"
 #include "catapult/cache_core/AccountStateCache.h"
@@ -96,7 +97,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateAddressValidator(config.Network.Identifier))
 				.add(validators::CreateDeadlineValidator(config.MaxTransactionLifetime))
 				.add(validators::CreateNemesisSinkValidator())
-				.add(validators::CreateEligibleHarvesterValidator(config.MinHarvesterBalance))
+				.add(validators::CreateEligibleHarvesterValidator())
 				.add(validators::CreateBalanceDebitValidator())
 				.add(validators::CreateBalanceTransferValidator());
 		});
@@ -109,14 +110,16 @@ namespace catapult { namespace plugins {
 				.add(observers::CreateAccountPublicKeyObserver())
 				.add(observers::CreateBalanceDebitObserver())
 				.add(observers::CreateBalanceTransferObserver())
+				.add(observers::CreateBeneficiaryObserver())
+				.add(observers::CreateTransactionFeeActivityObserver())
 				.add(observers::CreateHarvestFeeObserver(config.CurrencyMosaicId, config.HarvestBeneficiaryPercentage, calculator))
 				.add(observers::CreateTotalTransactionsObserver());
 		});
 
 		manager.addTransientObserverHook([&config](auto& builder) {
 			auto pRecalculateImportancesObserver = observers::CreateRecalculateImportancesObserver(
-					observers::CreateImportanceCalculator(config),
-					observers::CreateRestoreImportanceCalculator());
+					importance::CreateImportanceCalculator(config),
+					importance::CreateRestoreImportanceCalculator());
 			builder
 				.add(std::move(pRecalculateImportancesObserver))
 				.add(observers::CreateBlockDifficultyObserver())

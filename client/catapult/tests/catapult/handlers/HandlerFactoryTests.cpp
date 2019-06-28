@@ -318,7 +318,7 @@ namespace catapult { namespace handlers {
 		});
 	}
 
-	TEST(TEST_CLASS, RegisterOne_ValidRequestPacketCanYieldNonEmptyResponse) {
+	TEST(TEST_CLASS, RegisterOne_ValidRequestPacketCanYieldResponse) {
 		// Arrange:
 		RunOneValidRequestTest<SimpleEntityTraits>(ionet::ServerPacketHandlers(), 3, [](const auto& context) {
 			// Assert:
@@ -338,7 +338,7 @@ namespace catapult { namespace handlers {
 		});
 	}
 
-	TEST(TEST_CLASS, RegisterOne_ValidRequestPacketCanYieldNonEmptyResponse_AsValues) {
+	TEST(TEST_CLASS, RegisterOne_ValidRequestPacketCanYieldResponse_AsValues) {
 		// Arrange:
 		RunOneValidRequestTest<SimpleEntityAsValuesTraits>(ionet::ServerPacketHandlers(), 3, [](const auto& context) {
 			// Assert:

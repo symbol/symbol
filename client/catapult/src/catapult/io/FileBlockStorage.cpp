@@ -225,12 +225,12 @@ namespace catapult { namespace io {
 			// write element
 			auto pBlockFile = OpenBlockFile(m_dataDirectory, height, OpenMode::Read_Write);
 			RawFileOutputStreamAdapter streamAdapter(*pBlockFile);
-			WriteBlockElement(streamAdapter, blockElement);
+			WriteBlockElement(blockElement, streamAdapter);
 
 			// write statements
 			if (blockElement.OptionalStatement) {
 				BufferedOutputFileStream blockStatementOutputStream(OpenBlockStatementFile(m_dataDirectory, height, OpenMode::Read_Write));
-				WriteBlockStatement(blockStatementOutputStream, *blockElement.OptionalStatement);
+				WriteBlockStatement(*blockElement.OptionalStatement, blockStatementOutputStream);
 				blockStatementOutputStream.flush();
 			}
 		}

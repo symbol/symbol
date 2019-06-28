@@ -41,12 +41,6 @@ namespace catapult { namespace chain {
 			return test::GetStressIterationCount() ? 5'000 : 250;
 		}
 
-		std::shared_ptr<plugins::PluginManager> CreatePluginManager() {
-			auto config = test::CreatePrototypicalBlockChainConfiguration();
-			config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
-			return test::CreatePluginManagerWithRealPlugins(config);
-		}
-
 		// region UpdaterTestContext
 
 		class UpdaterTestContext {
@@ -54,7 +48,7 @@ namespace catapult { namespace chain {
 			UpdaterTestContext()
 					: m_pPluginManager(CreatePluginManager())
 					, m_transactionsCache(cache::MemoryCacheOptions(1024, GetNumIterations() * 2))
-					, m_cache(test::CreateCatapultCacheWithMarkerAccount())
+					, m_cache(CreateCatapultCache())
 					, m_updater(
 							m_transactionsCache,
 							m_cache,
@@ -76,6 +70,19 @@ namespace catapult { namespace chain {
 
 			UtUpdater& updater() {
 				return m_updater;
+			}
+
+		private:
+			static std::shared_ptr<plugins::PluginManager> CreatePluginManager() {
+				auto config = test::CreatePrototypicalBlockChainConfiguration();
+				config.Plugins.emplace("catapult.plugins.transfer", utils::ConfigurationBag({{ "", { { "maxMessageSize", "0" } } }}));
+				return test::CreatePluginManagerWithRealPlugins(config);
+			}
+
+			static cache::CatapultCache CreateCatapultCache() {
+				auto cache = test::CoreSystemCacheFactory::Create(test::CreatePrototypicalBlockChainConfiguration());
+				test::AddMarkerAccount(cache);
+				return cache;
 			}
 
 		private:

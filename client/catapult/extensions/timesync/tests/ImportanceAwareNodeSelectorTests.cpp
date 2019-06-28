@@ -47,7 +47,7 @@ namespace catapult { namespace timesync {
 			for (auto i = 0u; i < keys.size(); ++i) {
 				delta->addAccount(keys[i], Height(100));
 				auto& accountState = delta->find(keys[i]).get();
-				accountState.ImportanceInfo.set(importances[i], importanceHeight);
+				accountState.ImportanceSnapshots.set(importances[i], importanceHeight);
 			}
 
 			cache.commit();

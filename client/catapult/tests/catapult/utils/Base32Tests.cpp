@@ -317,39 +317,39 @@ namespace catapult { namespace utils {
 
 	// endregion
 
-	// region round trip
+	// region roundtrip
 
-	TEST(TEST_CLASS, RoundTripStartingFromEncodedDoesNotChangeAnything) {
-		std::string encodedForRoundTrip[] {
+	TEST(TEST_CLASS, RoundtripStartingFromEncodedDoesNotChangeAnything) {
+		std::string encodedForRoundtrip[] {
 			"BDS73DQ5NC33MKYI3K6GXLJ53C2HJ35A",
 			"46FNYP7T4DD3SWAO6C4NX62FJI5CBA26"
 		};
 
-		for (size_t i = 0; i < CountOf(encodedForRoundTrip); ++i) {
+		for (size_t i = 0; i < CountOf(encodedForRoundtrip); ++i) {
 			// Act:
-			auto decoded = Base32Decode(encodedForRoundTrip[i]);
+			auto decoded = Base32Decode(encodedForRoundtrip[i]);
 			auto actual = Base32Encode(decoded);
 
 			// Assert:
-			EXPECT_EQ(encodedForRoundTrip[i], actual.data());
+			EXPECT_EQ(encodedForRoundtrip[i], actual.data());
 		}
 	}
 
-	TEST(TEST_CLASS, RoundTripStartingFromDecodedDoesNotChangeAnything) {
+	TEST(TEST_CLASS, RoundtripStartingFromDecodedDoesNotChangeAnything) {
 		// Arrange:
-		std::string decodedForRoundTrip[] {
+		std::string decodedForRoundtrip[] {
 			"8A4E7DF5B61CC0F97ED572A95F6ACA",
 			"2D96E4ABB65F0AD3C29FEA48C132CE"
 		};
 
-		for (size_t i = 0; i < CountOf(decodedForRoundTrip); ++i) {
+		for (size_t i = 0; i < CountOf(decodedForRoundtrip); ++i) {
 			// Act:
-			auto buffer = test::ToVector(decodedForRoundTrip[i]);
+			auto buffer = test::ToVector(decodedForRoundtrip[i]);
 			auto encoded = Base32Encode(buffer);
 			auto actual = Base32Decode(encoded);
 
 			// Assert:
-			EXPECT_EQ(decodedForRoundTrip[i], test::ToHexString(actual));
+			EXPECT_EQ(decodedForRoundtrip[i], test::ToHexString(actual));
 		}
 	}
 

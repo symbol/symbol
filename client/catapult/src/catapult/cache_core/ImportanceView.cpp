@@ -42,7 +42,7 @@ namespace catapult { namespace cache {
 			}
 
 			auto importanceHeight = model::ConvertToImportanceHeight(height, cache.importanceGrouping());
-			if (importanceHeight != accountState.ImportanceInfo.height())
+			if (importanceHeight != accountState.ImportanceSnapshots.height())
 				return false;
 
 			return action(accountState);
@@ -63,9 +63,12 @@ namespace catapult { namespace cache {
 		}
 	}
 
+	ImportanceView::ImportanceView(const ReadOnlyAccountStateCache& cache) : m_cache(cache)
+	{}
+
 	bool ImportanceView::tryGetAccountImportance(const Key& publicKey, Height height, Importance& importance) const {
 		return FindAccountStateWithImportance(m_cache, publicKey, height, [&importance](const auto& accountState) {
-			importance = accountState.ImportanceInfo.current();
+			importance = accountState.ImportanceSnapshots.current();
 			return true;
 		});
 	}
@@ -75,10 +78,12 @@ namespace catapult { namespace cache {
 		return tryGetAccountImportance(publicKey, height, importance) ? importance : Importance(0);
 	}
 
-	bool ImportanceView::canHarvest(const Key& publicKey, Height height, Amount minHarvestingBalance) const {
+	bool ImportanceView::canHarvest(const Key& publicKey, Height height) const {
 		auto mosaicId = m_cache.harvestingMosaicId();
-		return FindAccountStateWithImportance(m_cache, publicKey, height, [mosaicId, minHarvestingBalance](const auto& accountState) {
-			return accountState.ImportanceInfo.current() > Importance(0) && accountState.Balances.get(mosaicId) >= minHarvestingBalance;
+		auto minHarvesterBalance = m_cache.minHarvesterBalance();
+		return FindAccountStateWithImportance(m_cache, publicKey, height, [mosaicId, minHarvesterBalance](const auto& accountState) {
+			auto currentImportance = accountState.ImportanceSnapshots.current();
+			return currentImportance > Importance(0) && accountState.Balances.get(mosaicId) >= minHarvesterBalance;
 		});
 	}
 }}

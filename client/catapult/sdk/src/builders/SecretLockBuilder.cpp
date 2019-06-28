@@ -51,6 +51,10 @@ namespace catapult { namespace builders {
 		m_recipient = recipient;
 	}
 
+	size_t SecretLockBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
+
 	std::unique_ptr<SecretLockBuilder::Transaction> SecretLockBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
@@ -60,10 +64,16 @@ namespace catapult { namespace builders {
 	}
 
 	template<typename TransactionType>
+	size_t SecretLockBuilder::sizeImpl() const {
+		// calculate transaction size
+		auto size = sizeof(TransactionType);
+		return size;
+	}
+
+	template<typename TransactionType>
 	std::unique_ptr<TransactionType> SecretLockBuilder::buildImpl() const {
 		// 1. allocate, zero (header), set model::Transaction fields
-		auto size = sizeof(TransactionType);
-		auto pTransaction = createTransaction<TransactionType>(size);
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
 		pTransaction->Mosaic = m_mosaic;

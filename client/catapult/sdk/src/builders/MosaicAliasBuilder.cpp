@@ -41,6 +41,10 @@ namespace catapult { namespace builders {
 		m_mosaicId = mosaicId;
 	}
 
+	size_t MosaicAliasBuilder::size() const {
+		return sizeImpl<Transaction>();
+	}
+
 	std::unique_ptr<MosaicAliasBuilder::Transaction> MosaicAliasBuilder::build() const {
 		return buildImpl<Transaction>();
 	}
@@ -50,10 +54,16 @@ namespace catapult { namespace builders {
 	}
 
 	template<typename TransactionType>
+	size_t MosaicAliasBuilder::sizeImpl() const {
+		// calculate transaction size
+		auto size = sizeof(TransactionType);
+		return size;
+	}
+
+	template<typename TransactionType>
 	std::unique_ptr<TransactionType> MosaicAliasBuilder::buildImpl() const {
 		// 1. allocate, zero (header), set model::Transaction fields
-		auto size = sizeof(TransactionType);
-		auto pTransaction = createTransaction<TransactionType>(size);
+		auto pTransaction = createTransaction<TransactionType>(sizeImpl<TransactionType>());
 
 		// 2. set fixed transaction fields
 		pTransaction->AliasAction = m_aliasAction;

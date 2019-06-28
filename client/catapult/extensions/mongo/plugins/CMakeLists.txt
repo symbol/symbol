@@ -6,6 +6,8 @@ function(catapult_mongo_plugin_src_no_deps PLUGIN_BASE_NAME)
 	catapult_shared_library_target(${PLUGIN_BASE_NAME})
 	catapult_add_mongo_dependencies(${PLUGIN_BASE_NAME})
 	target_link_libraries(${PLUGIN_BASE_NAME} ${PLUGIN_CATAPULT_LIBS})
+
+	add_dependencies(mongo ${PLUGIN_BASE_NAME})
 endfunction()
 
 function(catapult_mongo_plugin_src_with_deps PLUGIN_BASE_NAME)
@@ -17,6 +19,8 @@ function(catapult_mongo_plugin_src_with_deps PLUGIN_BASE_NAME)
 	# create a plugin dll
 	catapult_shared_library_target(${PLUGIN_BASE_NAME})
 	target_link_libraries(${PLUGIN_BASE_NAME} ${PLUGIN_BASE_NAME}.deps)
+
+	add_dependencies(mongo ${PLUGIN_BASE_NAME})
 endfunction()
 
 function(catapult_mongo_plugin_tests_no_deps TARGET_NAME)
@@ -60,5 +64,5 @@ add_subdirectory(lock_shared)
 add_subdirectory(mosaic)
 add_subdirectory(multisig)
 add_subdirectory(namespace)
-add_subdirectory(property)
+add_subdirectory(restriction_account)
 add_subdirectory(transfer)

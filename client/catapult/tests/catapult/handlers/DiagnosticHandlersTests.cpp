@@ -460,7 +460,7 @@ namespace catapult { namespace handlers {
 		AssertWritesBlockStatementDataInResponseToValidRequest({ 0, 0, 0 });
 	}
 
-	TEST(TEST_CLASS, DiagnosticBlockStatementHandler_WritesBlockStatementDataInResponseToValidRequest_NonEmptyBlockStatement) {
+	TEST(TEST_CLASS, DiagnosticBlockStatementHandler_WritesBlockStatementDataInResponseToValidRequest_BlockStatement) {
 		AssertWritesBlockStatementDataInResponseToValidRequest({ 6, 2, 5 });
 	}
 

@@ -53,8 +53,8 @@ namespace catapult { namespace extensions {
 		/// Gets account infos for all accounts with addresses in \a addresses.
 		virtual future<model::EntityRange<model::CacheEntryInfo<Address>>> accountInfos(model::AddressRange&& addresses) const = 0;
 
-		/// Gets account properties infos for all accounts with addresses in \a addresses.
-		virtual future<model::EntityRange<model::CacheEntryInfo<Address>>> accountPropertiesInfos(
+		/// Gets account restrictions infos for all accounts with addresses in \a addresses.
+		virtual future<model::EntityRange<model::CacheEntryInfo<Address>>> accountRestrictionsInfos(
 				model::AddressRange&& addresses) const = 0;
 
 		/// Gets namespace infos for all namespace ids in \a namespaceIds.

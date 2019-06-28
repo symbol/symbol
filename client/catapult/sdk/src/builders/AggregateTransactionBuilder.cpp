@@ -35,13 +35,17 @@ namespace catapult { namespace builders {
 		m_pTransactions.push_back(std::move(pTransaction));
 	}
 
+	size_t AggregateTransactionBuilder::size() const {
+		auto payloadSize = utils::Sum(m_pTransactions, [](const auto& pEmbeddedTransaction) { return pEmbeddedTransaction->Size; });
+		return sizeof(TransactionType) + payloadSize;
+	}
+
 	std::unique_ptr<TransactionType> AggregateTransactionBuilder::build() const {
 		// 1. allocate, zero (header), set model::Transaction fields
-		auto payloadSize = utils::Sum(m_pTransactions, [](const auto& pEmbeddedTransaction) { return pEmbeddedTransaction->Size; });
-		auto size = sizeof(TransactionType) + payloadSize;
-		auto pTransaction = createTransaction<TransactionType>(size);
+		auto pTransaction = createTransaction<TransactionType>(size());
 
 		// 2. set transaction fields
+		auto payloadSize = utils::Sum(m_pTransactions, [](const auto& pEmbeddedTransaction) { return pEmbeddedTransaction->Size; });
 		pTransaction->Type = model::Entity_Type_Aggregate_Bonded;
 		pTransaction->PayloadSize = payloadSize;
 

@@ -29,10 +29,43 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	namespace {
 		void StreamAccountMetadata(bson_stream::document& builder) {
-			builder
-					<< "meta"
-					<< bson_stream::open_document
-					<< bson_stream::close_document;
+			builder << "meta" << bson_stream::open_document << bson_stream::close_document;
+		}
+
+		auto& StreamAccountImportanceSnapshots(bson_stream::document& builder, const state::AccountImportanceSnapshots& snapshots) {
+			auto importancesArray = builder << "importances" << bson_stream::open_array;
+			for (const auto& snapshot : snapshots) {
+				if (model::ImportanceHeight(0) == snapshot.Height)
+					break;
+
+				importancesArray
+						<< bson_stream::open_document
+							<< "value" << ToInt64(snapshot.Importance)
+							<< "height" << ToInt64(snapshot.Height)
+						<< bson_stream::close_document;
+			}
+
+			importancesArray << bson_stream::close_array;
+			return builder;
+		}
+
+		auto& StreamAccountActivityBuckets(bson_stream::document& builder, const state::AccountActivityBuckets& buckets) {
+			auto activityBucketsArray = builder << "activityBuckets" << bson_stream::open_array;
+			for (const auto& bucket : buckets) {
+				if (model::ImportanceHeight(0) == bucket.StartHeight)
+					break;
+
+				activityBucketsArray
+						<< bson_stream::open_document
+							<< "startHeight" << ToInt64(bucket.StartHeight)
+							<< "totalFeesPaid" << ToInt64(bucket.TotalFeesPaid)
+							<< "beneficiaryCount" << static_cast<int32_t>(bucket.BeneficiaryCount)
+							<< "rawScore" << static_cast<int64_t>(bucket.RawScore)
+						<< bson_stream::close_document;
+			}
+
+			activityBucketsArray << bson_stream::close_array;
+			return builder;
 		}
 
 		auto& StreamAccountBalances(bson_stream::document& builder, const state::AccountBalances& balances) {
@@ -41,36 +74,6 @@ namespace catapult { namespace mongo { namespace mappers {
 				StreamMosaic(mosaicsArray, entry.first, entry.second);
 
 			mosaicsArray << bson_stream::close_array;
-			return builder;
-		}
-
-		auto& StreamImportanceSnapshot(
-				bson_stream::array_context& context,
-				const state::AccountImportance::ImportanceSnapshot& importanceSnapshot) {
-			context
-					<< bson_stream::open_document
-						<< "value" << ToInt64(importanceSnapshot.Importance)
-						<< "height" << ToInt64(importanceSnapshot.Height)
-					<< bson_stream::close_document;
-			return context;
-		}
-
-		auto& StreamAccountImportances(bson_stream::document& builder, const state::AccountImportance& importances) {
-			// note: storing in db in reverse order, cause when loading, importanceInfo.set() allows only increasing heights
-			std::array<state::AccountImportance::ImportanceSnapshot, Importance_History_Size> reverseSnapshots;
-			auto index = 0u;
-			for (const auto& snapshot : importances)
-				reverseSnapshots[Importance_History_Size - index++ - 1] = snapshot;
-
-			auto importancesArray = builder << "importances" << bson_stream::open_array;
-			for (const auto& snapshot : reverseSnapshots) {
-				if (model::ImportanceHeight(0) == snapshot.Height)
-					continue;
-
-				StreamImportanceSnapshot(importancesArray, snapshot);
-			}
-
-			importancesArray << bson_stream::close_array;
 			return builder;
 		}
 	}
@@ -90,48 +93,11 @@ namespace catapult { namespace mongo { namespace mappers {
 					<< "publicKeyHeight" << ToInt64(accountState.PublicKeyHeight)
 					<< "accountType" << utils::to_underlying_type(accountState.AccountType)
 					<< "linkedAccountKey" << ToBinary(accountState.LinkedAccountKey);
-		StreamAccountImportances(builder, accountState.ImportanceInfo);
+		StreamAccountImportanceSnapshots(builder, accountState.ImportanceSnapshots);
+		StreamAccountActivityBuckets(builder, accountState.ActivityBuckets);
 		StreamAccountBalances(builder, accountState.Balances);
 		builder << bson_stream::close_document;
 		return builder << bson_stream::finalize;
-	}
-
-	// endregion
-
-	// region ToAccountState
-
-	namespace {
-		void ToAccountImportance(state::AccountImportance& accountImportance, const bsoncxx::document::view& importanceDocument) {
-			accountImportance.set(
-					GetValue64<Importance>(importanceDocument["value"]),
-					GetValue64<model::ImportanceHeight>(importanceDocument["height"]));
-		}
-
-		void ToAccountBalance(state::AccountBalances& accountBalances, const bsoncxx::document::view& mosaicDocument) {
-			accountBalances.credit(GetValue64<MosaicId>(mosaicDocument["id"]), GetValue64<Amount>(mosaicDocument["amount"]));
-		}
-	}
-
-	void ToAccountState(const bsoncxx::document::view& document, const AccountStateFactory& accountStateFactory) {
-		auto accountDocument = document["account"];
-		Address accountAddress;
-		DbBinaryToModelArray(accountAddress, accountDocument["address"].get_binary());
-		auto accountAddressHeight = GetValue64<Height>(accountDocument["addressHeight"]);
-
-		auto& accountState = accountStateFactory(accountAddress, accountAddressHeight);
-		DbBinaryToModelArray(accountState.PublicKey, accountDocument["publicKey"].get_binary());
-		accountState.PublicKeyHeight = GetValue64<Height>(accountDocument["publicKeyHeight"]);
-
-		accountState.AccountType = static_cast<state::AccountType>(ToUint8(accountDocument["accountType"].get_int32()));
-		DbBinaryToModelArray(accountState.LinkedAccountKey, accountDocument["linkedAccountKey"].get_binary());
-
-		auto dbImportances = accountDocument["importances"].get_array().value;
-		for (const auto& importanceEntry : dbImportances)
-			ToAccountImportance(accountState.ImportanceInfo, importanceEntry.get_document().view());
-
-		auto dbMosaics = accountDocument["mosaics"].get_array().value;
-		for (const auto& mosaicEntry : dbMosaics)
-			ToAccountBalance(accountState.Balances, mosaicEntry.get_document().view());
 	}
 
 	// endregion

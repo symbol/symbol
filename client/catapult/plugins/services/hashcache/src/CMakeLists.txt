@@ -13,3 +13,5 @@ target_link_libraries(${PLUGIN_BASE_NAME}.deps ${PLUGIN_CATAPULT_LIBS} ${PLUGIN_
 # create a plugin dll
 catapult_shared_library_target(${PLUGIN_BASE_NAME} plugins)
 target_link_libraries(${PLUGIN_BASE_NAME} ${PLUGIN_BASE_NAME}.deps)
+
+add_dependencies(plugins ${PLUGIN_BASE_NAME})

@@ -357,9 +357,10 @@ namespace catapult { namespace model {
 		pTransaction->MaxFee = Amount(765);
 
 		// Act:
-		PublishOne<TransactionFeeNotification>(*pTransaction, [transactionSize = pTransaction->Size](const auto& notification) {
+		PublishOne<TransactionFeeNotification>(*pTransaction, [&transaction = *pTransaction](const auto& notification) {
 			// Assert: max fee is used when there is no associated block
-			EXPECT_EQ(transactionSize, notification.TransactionSize);
+			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(transaction.Size, notification.TransactionSize);
 			EXPECT_EQ(Amount(765), notification.Fee);
 			EXPECT_EQ(Amount(765), notification.MaxFee);
 		});
@@ -371,14 +372,16 @@ namespace catapult { namespace model {
 		auto pTransaction = test::GenerateRandomTransactionWithSize(234);
 		pTransaction->Type = mocks::MockTransaction::Entity_Type;
 		pTransaction->MaxFee = Amount(765);
+
 		BlockHeader blockHeader;
 		blockHeader.FeeMultiplier = BlockFeeMultiplier(4);
+		auto weakEntityInfo = WeakEntityInfo(*pTransaction, hash, blockHeader);
 
 		// Act:
-		PublishOne<TransactionFeeNotification>(WeakEntityInfo(*pTransaction, hash, blockHeader), [transactionSize = pTransaction->Size](
-				const auto& notification) {
+		PublishOne<TransactionFeeNotification>(weakEntityInfo, [&transaction = *pTransaction](const auto& notification) {
 			// Assert: calculated fee is used when there is associated block
-			EXPECT_EQ(transactionSize, notification.TransactionSize);
+			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(transaction.Size, notification.TransactionSize);
 			EXPECT_EQ(Amount(4 * 234), notification.Fee);
 			EXPECT_EQ(Amount(765), notification.MaxFee);
 		});

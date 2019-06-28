@@ -408,7 +408,7 @@ namespace catapult { namespace cache {
 
 	// region storages
 
-	TEST(TEST_CLASS, CanRoundTripCacheViaStorages) {
+	TEST(TEST_CLASS, CanRoundtripCacheViaStorages) {
 		// Arrange: seed the cache with 9 items per sub cache
 		std::vector<std::vector<uint8_t>> serializedSubCaches;
 		{
@@ -455,7 +455,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(TEST_CLASS, CanRoundTripCacheViaStoragesWhenSomeSubCachesDoNotSupportStorage) {
+	TEST(TEST_CLASS, CanRoundtripCacheViaStoragesWhenSomeSubCachesDoNotSupportStorage) {
 		// Arrange: seed the cache with 9 items per sub cache
 		std::vector<std::vector<uint8_t>> serializedSubCaches;
 		{
@@ -516,7 +516,7 @@ namespace catapult { namespace cache {
 		}
 	}
 
-	TEST(TEST_CLASS, CanRoundTripCacheChangesViaChangesStorages) {
+	TEST(TEST_CLASS, CanRoundtripCacheChangesViaChangesStorages) {
 		// Arrange: seed the cache with custom elements such that: A { 0 }, R { 1, 3 }, M { 2 }
 		std::vector<std::vector<uint8_t>> serializedSubCacheChanges;
 		{

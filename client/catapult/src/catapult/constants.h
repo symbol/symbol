@@ -23,8 +23,15 @@
 
 namespace catapult {
 
+	/// Number of buffer values required to guarantee deterministic rollbacks.
+	constexpr size_t Rollback_Buffer_Size = 2;
+
 	/// Number of historical importances associated with a single account.
-	constexpr size_t Importance_History_Size = 3;
+	constexpr size_t Importance_History_Size = 1 + Rollback_Buffer_Size;
+
+	/// Number of historical activity buckets associated with a single account.
+	/// \note This allows four full buckets and one partial (WIP) bucket.
+	constexpr size_t Activity_Bucket_History_Size = 5 + Rollback_Buffer_Size;
 
 	/// Size of hashes in the hash cache.
 	/// \note Reducing below `Hash256_Size` can save memory but will increase possibility of false positive rejections.

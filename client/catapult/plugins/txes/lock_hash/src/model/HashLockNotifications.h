@@ -23,23 +23,25 @@
 
 namespace catapult { namespace model {
 
-	// region lock hash notification types
+	// region hash lock notification types
 
-/// Defines a lock hash notification type with \a DESCRIPTION, \a CODE and \a CHANNEL.
-#define DEFINE_LOCKHASH_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, LockHash, DESCRIPTION, CODE)
+/// Defines a hash lock notification type with \a DESCRIPTION, \a CODE and \a CHANNEL.
+#define DEFINE_HASH_LOCK_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, LockHash, DESCRIPTION, CODE)
 
-	/// Lock hash duration.
-	DEFINE_LOCKHASH_NOTIFICATION(Hash_Duration, 0x0001, Validator);
+	/// Hash lock duration.
+	DEFINE_HASH_LOCK_NOTIFICATION(Hash_Duration, 0x0001, Validator);
 
-	/// Lock mosaic.
-	DEFINE_LOCKHASH_NOTIFICATION(Mosaic, 0x0002, Validator);
+	/// Hash lock mosaic.
+	DEFINE_HASH_LOCK_NOTIFICATION(Mosaic, 0x0002, Validator);
 
-	/// Lock hash.
-	DEFINE_LOCKHASH_NOTIFICATION(Hash, 0x0003, All);
+	/// Hash lock creation.
+	DEFINE_HASH_LOCK_NOTIFICATION(Hash, 0x0003, All);
 
-#undef DEFINE_LOCKHASH_NOTIFICATION
+#undef DEFINE_HASH_LOCK_NOTIFICATION
 
 	// endregion
+
+	// region HashLockMosaicNotification
 
 	/// Notification of a hash lock mosaic.
 	struct HashLockMosaicNotification : public Notification {
@@ -59,6 +61,10 @@ namespace catapult { namespace model {
 		UnresolvedMosaic Mosaic;
 	};
 
+	// endregion
+
+	// region HashLockDurationNotification
+
 	/// Notification of a hash lock duration.
 	struct HashLockDurationNotification : public BaseLockDurationNotification<HashLockDurationNotification> {
 	public:
@@ -68,6 +74,10 @@ namespace catapult { namespace model {
 	public:
 		using BaseLockDurationNotification<HashLockDurationNotification>::BaseLockDurationNotification;
 	};
+
+	// endregion
+
+	// region HashLockNotification
 
 	/// Notification of a hash lock.
 	struct HashLockNotification : public BaseLockNotification<HashLockNotification> {
@@ -86,4 +96,6 @@ namespace catapult { namespace model {
 		/// Hash.
 		const Hash256& Hash;
 	};
+
+	// endregion
 }}

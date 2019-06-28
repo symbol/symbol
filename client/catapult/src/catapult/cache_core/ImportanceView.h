@@ -29,8 +29,7 @@ namespace catapult { namespace cache {
 	class ImportanceView {
 	public:
 		/// Creates a view around \a cache.
-		explicit ImportanceView(const ReadOnlyAccountStateCache& cache) : m_cache(cache)
-		{}
+		explicit ImportanceView(const ReadOnlyAccountStateCache& cache);
 
 	public:
 		/// Tries to populate \a importance with the importance for \a publicKey at \a height.
@@ -39,9 +38,8 @@ namespace catapult { namespace cache {
 		/// Gets the importance for \a publicKey at \a height or a default importance if no importance is set.
 		Importance getAccountImportanceOrDefault(const Key& publicKey, Height height) const;
 
-		/// Returns \c true if \a publicKey can harvest at \a height, given a minimum harvesting balance of
-		/// \a minHarvestingBalance.
-		bool canHarvest(const Key& publicKey, Height height, Amount minHarvestingBalance) const;
+		/// Returns \c true if \a publicKey can harvest at \a height.
+		bool canHarvest(const Key& publicKey, Height height) const;
 
 	private:
 		const ReadOnlyAccountStateCache& m_cache;

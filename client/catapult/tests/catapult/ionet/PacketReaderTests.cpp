@@ -28,7 +28,7 @@ namespace catapult { namespace ionet {
 #define TEST_CLASS PacketReaderTests
 
 	namespace {
-		PacketReader CreateNonEmptyPacketReader(const Packet& packet) {
+		PacketReader CreatePacketReaderAroundPacket(const Packet& packet) {
 			// Arrange:
 			auto reader = PacketReader(packet);
 
@@ -87,7 +87,7 @@ namespace catapult { namespace ionet {
 		auto pPacket = test::CreateRandomPacket(4, PacketType::Undefined);
 		reinterpret_cast<uint32_t&>(*pPacket->Data()) = 0x98562712;
 
-		auto reader = CreateNonEmptyPacketReader(*pPacket);
+		auto reader = CreatePacketReaderAroundPacket(*pPacket);
 
 		// Act:
 		auto value = *reader.readFixed<uint32_t>();
@@ -104,7 +104,7 @@ namespace catapult { namespace ionet {
 		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 4)) = 0xAB7528BC;
 		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 8)) = 0x00012352;
 
-		auto reader = CreateNonEmptyPacketReader(*pPacket);
+		auto reader = CreatePacketReaderAroundPacket(*pPacket);
 
 		// Act:
 		auto value1 = *reader.readFixed<uint32_t>();
@@ -122,7 +122,7 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		auto pPacket = test::CreateRandomPacket(3, PacketType::Undefined);
 
-		auto reader = CreateNonEmptyPacketReader(*pPacket);
+		auto reader = CreatePacketReaderAroundPacket(*pPacket);
 
 		// Act:
 		const auto* pValue = reader.readFixed<uint32_t>();
@@ -141,7 +141,7 @@ namespace catapult { namespace ionet {
 		auto pPacket = test::CreateRandomPacket(76, PacketType::Undefined);
 		reinterpret_cast<uint32_t&>(*pPacket->Data()) = 76;
 
-		auto reader = CreateNonEmptyPacketReader(*pPacket);
+		auto reader = CreatePacketReaderAroundPacket(*pPacket);
 
 		// Act:
 		const auto& entity = *reader.readVariable<model::VerifiableEntity>();
@@ -159,7 +159,7 @@ namespace catapult { namespace ionet {
 		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 12)) = 50;
 		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 12 + 50)) = 26;
 
-		auto reader = CreateNonEmptyPacketReader(*pPacket);
+		auto reader = CreatePacketReaderAroundPacket(*pPacket);
 
 		// Act:
 		const auto& entity1 = *reader.readVariable<model::VerifiableEntity>();
@@ -180,7 +180,7 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		auto pPacket = test::CreateRandomPacket(3, PacketType::Undefined);
 
-		auto reader = CreateNonEmptyPacketReader(*pPacket);
+		auto reader = CreatePacketReaderAroundPacket(*pPacket);
 
 		// Act:
 		const auto* pEntity = reader.readVariable<model::VerifiableEntity>();
@@ -195,7 +195,7 @@ namespace catapult { namespace ionet {
 		auto pPacket = test::CreateRandomPacket(80, PacketType::Undefined);
 		reinterpret_cast<uint32_t&>(*pPacket->Data()) = 80 + 1;
 
-		auto reader = CreateNonEmptyPacketReader(*pPacket);
+		auto reader = CreatePacketReaderAroundPacket(*pPacket);
 
 		// Act:
 		const auto* pEntity = reader.readVariable<model::VerifiableEntity>();
@@ -217,7 +217,7 @@ namespace catapult { namespace ionet {
 		reinterpret_cast<uint16_t&>(*(pPacket->Data() + 4 + 12)) = 0x77FF;
 		reinterpret_cast<uint32_t&>(*(pPacket->Data() + 4 + 12 + 2)) = 25;
 
-		auto reader = CreateNonEmptyPacketReader(*pPacket);
+		auto reader = CreatePacketReaderAroundPacket(*pPacket);
 
 		// Act:
 		auto value1 = *reader.readFixed<uint32_t>();

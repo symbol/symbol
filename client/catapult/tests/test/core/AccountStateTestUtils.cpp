@@ -24,14 +24,57 @@
 
 namespace catapult { namespace test {
 
-	void RandomFillAccountData(uint64_t seed, state::AccountState& state, size_t numMosaics) {
+	void RandomFillAccountData(uint64_t seed, state::AccountState& accountState, size_t numMosaics) {
 		for (auto i = 0u; i < numMosaics; ++i)
-			state.Balances.credit(MosaicId(10 + i + ((0 == i % 2) ? 100 : 0)), Amount(seed * 1000 + i + 1));
+			accountState.Balances.credit(MosaicId(10 + i + ((0 == i % 2) ? 100 : 0)), Amount(seed * 1000 + i + 1));
 
-		for (auto i = 0u; i < 3; ++i) {
+		for (auto i = 0u; i < Importance_History_Size; ++i) {
 			auto importance = Importance(seed * (777 + i));
 			auto importanceHeight = model::ConvertToImportanceHeight(Height(seed * 7 + (i + 1) * 23), 13);
-			state.ImportanceInfo.set(importance, importanceHeight);
+			accountState.ImportanceSnapshots.set(importance, importanceHeight);
+		}
+
+		for (auto i = 0u; i < Activity_Bucket_History_Size; ++i) {
+			auto importanceHeight = model::ConvertToImportanceHeight(Height(seed * 6 + (i + 1) * 23), 13);
+			accountState.ActivityBuckets.update(importanceHeight, [seed, i](auto& bucket) {
+				bucket.TotalFeesPaid = Amount(seed * (i + 1));
+				bucket.BeneficiaryCount = static_cast<uint32_t>(seed + i);
+				bucket.RawScore = seed * (i + 1) * (i + 1);
+			});
+		}
+	}
+
+	namespace {
+		void AssertEqual(
+				const state::AccountImportanceSnapshots& expected,
+				const state::AccountImportanceSnapshots& actual,
+				const std::string& message) {
+			auto expectedIter = expected.begin();
+			auto actualIter = actual.begin();
+			for (auto i = 0u; i < Importance_History_Size; ++i, ++expectedIter, ++actualIter) {
+				EXPECT_EQ(expectedIter->Importance, actualIter->Importance) << message << " at " << i;
+				EXPECT_EQ(expectedIter->Height, actualIter->Height) << message << " at " << i;
+			}
+
+			EXPECT_EQ(expected.end(), expectedIter) << message;
+			EXPECT_EQ(actual.end(), actualIter) << message;
+		}
+
+		void AssertEqual(
+				const state::AccountActivityBuckets& expected,
+				const state::AccountActivityBuckets& actual,
+				const std::string& message) {
+			auto expectedIter = expected.begin();
+			auto actualIter = actual.begin();
+			for (auto i = 0u; i < Activity_Bucket_History_Size; ++i, ++expectedIter, ++actualIter) {
+				EXPECT_EQ(expectedIter->StartHeight, actualIter->StartHeight) << message << " at " << i;
+				EXPECT_EQ(expectedIter->TotalFeesPaid, actualIter->TotalFeesPaid) << message << " at " << i;
+				EXPECT_EQ(expectedIter->BeneficiaryCount, actualIter->BeneficiaryCount) << message << " at " << i;
+				EXPECT_EQ(expectedIter->RawScore, actualIter->RawScore) << message << " at " << i;
+			}
+
+			EXPECT_EQ(expected.end(), expectedIter) << message;
+			EXPECT_EQ(actual.end(), actualIter) << message;
 		}
 	}
 
@@ -45,16 +88,8 @@ namespace catapult { namespace test {
 		EXPECT_EQ(expected.AccountType, actual.AccountType) << message;
 		EXPECT_EQ(expected.LinkedAccountKey, actual.LinkedAccountKey) << message;
 
-		auto expectedIter = expected.ImportanceInfo.begin();
-		auto actualIter = actual.ImportanceInfo.begin();
-		for (auto i = 0u; i < Importance_History_Size; ++i, ++expectedIter, ++actualIter) {
-			const auto importanceMessage = message + ": importance at " + std::to_string(i);
-			EXPECT_EQ(expectedIter->Importance, actualIter->Importance) << importanceMessage;
-			EXPECT_EQ(expectedIter->Height, actualIter->Height) << importanceMessage;
-		}
-
-		EXPECT_EQ(expected.ImportanceInfo.end(), expectedIter) << message;
-		EXPECT_EQ(actual.ImportanceInfo.end(), actualIter) << message;
+		AssertEqual(expected.ImportanceSnapshots, actual.ImportanceSnapshots, message + ": importance snapshot");
+		AssertEqual(expected.ActivityBuckets, actual.ActivityBuckets, message + ": activity bucket");
 
 		EXPECT_EQ(expected.Balances.optimizedMosaicId(), actual.Balances.optimizedMosaicId()) << message;
 		EXPECT_EQ(expected.Balances.size(), actual.Balances.size()) << message;
@@ -66,7 +101,7 @@ namespace catapult { namespace test {
 		auto address = test::GenerateRandomAddress();
 		auto pState = std::make_shared<state::AccountState>(address, Height(height));
 		pState->Balances.credit(MosaicId(1111), Amount(1));
-		pState->ImportanceInfo.set(Importance(123456), model::ImportanceHeight(height));
+		pState->ImportanceSnapshots.set(Importance(123456), model::ImportanceHeight(height));
 		return pState;
 	}
 

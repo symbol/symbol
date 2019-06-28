@@ -31,6 +31,8 @@ namespace catapult { namespace state {
 #define TEST_CLASS MultisigEntrySerializerTests
 
 	namespace {
+		// region test context
+
 		class TestContext {
 		public:
 			explicit TestContext(size_t numAccounts = 10)
@@ -70,6 +72,10 @@ namespace catapult { namespace state {
 			mocks::MockMemoryStream m_stream;
 			std::vector<Key> m_accountKeys;
 		};
+
+		// endregion
+
+		// region test utils
 
 		Key ExtractKey(const uint8_t* data) {
 			Key key;
@@ -111,6 +117,8 @@ namespace catapult { namespace state {
 
 			EXPECT_EQ(pExpectedEnd, pData);
 		}
+
+		// endregion
 	}
 
 	// region Save
@@ -129,7 +137,7 @@ namespace catapult { namespace state {
 		AssertEntryBuffer(entry, context.buffer().data(), expectedSize);
 	}
 
-	TEST(TEST_CLASS, CanSaveSingleEntry) {
+	TEST(TEST_CLASS, CanSaveSingleEntryWithBothCosignersAndMultisigAccounts) {
 		// Arrange:
 		TestContext context;
 		auto entry = context.createEntry(0, 3, 4);
@@ -142,6 +150,10 @@ namespace catapult { namespace state {
 		ASSERT_EQ(expectedSize, context.buffer().size());
 		AssertEntryBuffer(entry, context.buffer().data(), expectedSize);
 	}
+
+	// endregion
+
+	// region Save - Ordering
 
 	namespace {
 		struct MultisigEntrySerializerOrderingTraits {
@@ -192,75 +204,36 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region Load
+	// region Roundtrip
 
 	namespace {
-		void CopyKeySetIntoBuffer(uint8_t*& pData, const utils::SortedKeySet& keySet) {
-			auto* pKey = reinterpret_cast<Key*>(pData);
-			for (const auto& key : keySet)
-				*pKey++ = key;
-
-			pData += Key_Size * keySet.size();
-		}
-
-		std::vector<uint8_t> CreateBuffer(const MultisigEntry& entry) {
-			// minApproval / minRemoval / key / cosignatories / multisigAccounts
-			size_t cosignatoriesSize = entry.cosignatories().size();
-			size_t multisigAccountsSize = entry.multisigAccounts().size();
-			size_t bufferSize = 1 + 1 + Key_Size + 2 * sizeof(uint64_t) + Key_Size * (cosignatoriesSize + multisigAccountsSize);
-			std::vector<uint8_t> buffer(bufferSize);
-
-			// - minApproval / minRemoval
-			buffer[0] = entry.minApproval();
-			buffer[1] = entry.minRemoval();
-
-			// - multisig account key
-			auto* pData = buffer.data() + 2;
-			memcpy(pData, entry.key().data(), Key_Size);
-			pData += Key_Size;
-
-			// - cosignatories
-			memcpy(pData, &cosignatoriesSize, sizeof(uint64_t));
-			pData += sizeof(uint64_t);
-			CopyKeySetIntoBuffer(pData, entry.cosignatories());
-
-			// - multisig accounts
-			memcpy(pData, &multisigAccountsSize, sizeof(uint64_t));
-			pData += sizeof(uint64_t);
-			CopyKeySetIntoBuffer(pData, entry.multisigAccounts());
-
-			return buffer;
-		}
-
-		void AssertCanLoadSingleEntry(size_t numCosignatories, size_t numMultisigAccounts) {
+		void AssertCanRoundtripSingleEntry(size_t numCosignatories, size_t numMultisigAccounts) {
 			// Arrange:
 			TestContext context;
 			auto originalEntry = context.createEntry(0, numCosignatories, numMultisigAccounts);
-			auto buffer = CreateBuffer(originalEntry);
 
 			// Act:
-			MultisigEntry result(test::GenerateRandomByteArray<Key>());
-			test::RunLoadValueTest<MultisigEntrySerializer>(buffer, result);
+			auto result = test::RunRoundtripBufferTest<MultisigEntrySerializer>(originalEntry);
 
 			// Assert:
 			test::AssertEqual(originalEntry, result);
 		}
 	}
 
-	TEST(TEST_CLASS, CanLoadSingleEntryWithNeitherCosignatoriesNorMultisigAccounts) {
-		AssertCanLoadSingleEntry(0, 0);
+	TEST(TEST_CLASS, CanRoundtripSingleEntryWithNeitherCosignatoriesNorMultisigAccounts) {
+		AssertCanRoundtripSingleEntry(0, 0);
 	}
 
-	TEST(TEST_CLASS, CanLoadSingleEntryWithCosignatoriesButWithoutMultisigAccounts) {
-		AssertCanLoadSingleEntry(5, 0);
+	TEST(TEST_CLASS, CanRoundtripSingleEntryWithCosignatoriesButWithoutMultisigAccounts) {
+		AssertCanRoundtripSingleEntry(5, 0);
 	}
 
-	TEST(TEST_CLASS, CanLoadSingleEntryWithoutCosignatoriesButWithMultisigAccounts) {
-		AssertCanLoadSingleEntry(0, 5);
+	TEST(TEST_CLASS, CanRoundtripSingleEntryWithoutCosignatoriesButWithMultisigAccounts) {
+		AssertCanRoundtripSingleEntry(0, 5);
 	}
 
-	TEST(TEST_CLASS, CanLoadSingleEntryWithCosignatoriesAndMultisigAccounts) {
-		AssertCanLoadSingleEntry(3, 4);
+	TEST(TEST_CLASS, CanRoundtripSingleEntryWithCosignatoriesAndMultisigAccounts) {
+		AssertCanRoundtripSingleEntry(3, 4);
 	}
 
 	// endregion

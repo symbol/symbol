@@ -30,9 +30,9 @@ namespace catapult {
 
 namespace catapult { namespace io {
 
+	/// Writes \a blockStatement into \a outputStream.
+	void WriteBlockStatement(const model::BlockStatement& blockStatement, OutputStream& outputStream);
+
 	/// Reads block statement from \a inputStream into \a blockStatement.
 	void ReadBlockStatement(InputStream& inputStream, model::BlockStatement& blockStatement);
-
-	/// Writes \a blockStatement into \a outputStream.
-	void WriteBlockStatement(OutputStream& outputStream, const model::BlockStatement& blockStatement);
 }}

@@ -29,10 +29,10 @@ namespace catapult { namespace extensions {
 #define DEFINE_EXTENSION_RESULT(DESCRIPTION, CODE) DEFINE_VALIDATION_RESULT(Failure, Extension, DESCRIPTION, CODE, None)
 
 	/// Validation failed because the partial transaction was pruned from the temporal cache.
-	DEFINE_EXTENSION_RESULT(Partial_Transaction_Cache_Prune, 0x0101);
+	DEFINE_EXTENSION_RESULT(Partial_Transaction_Cache_Prune, 1);
 
 	/// Validation failed because the partial transaction was pruned from the temporal cache due to its dependency being removed.
-	DEFINE_EXTENSION_RESULT(Partial_Transaction_Dependency_Removed, 0x0102);
+	DEFINE_EXTENSION_RESULT(Partial_Transaction_Dependency_Removed, 2);
 
 #ifndef CUSTOM_RESULT_DEFINITION
 }}

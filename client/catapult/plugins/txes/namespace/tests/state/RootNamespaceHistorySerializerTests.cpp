@@ -20,6 +20,7 @@
 
 #include "src/state/RootNamespaceHistorySerializer.h"
 #include "tests/test/RootNamespaceHistoryLoadTests.h"
+#include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {
@@ -186,7 +187,7 @@ namespace catapult { namespace state {
 		}
 	}
 
-	TEST(TEST_CLASS, CanSaveEmptyHistory) {
+	TEST(TEST_CLASS, CanSaveEmptyHistory_Historical) {
 		// Arrange:
 		std::vector<uint8_t> buffer;
 		mocks::MockMemoryStream stream(buffer);
@@ -690,6 +691,166 @@ namespace catapult { namespace state {
 
 	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_TESTS(LoadTraits<FullTraits>,)
 	DEFINE_ROOT_NAMESPACE_HISTORY_LOAD_NON_EMPTY_TESTS(LoadTraits<NonHistoricalTraits>, _NonHistorical)
+
+	// endregion
+
+	// region Roundtrip
+
+	TEST(TEST_CLASS, CanRoundtripEmptyHistory_Historical) {
+		// Arrange:
+		RootNamespaceHistory originalHistory(NamespaceId(123));
+
+		// Act:
+		auto result = test::RunRoundtripBufferTest<RootNamespaceHistorySerializer>(originalHistory);
+
+		// Assert:
+		test::AssertHistoricalEqual(originalHistory, result);
+	}
+
+	namespace {
+		template<typename TTraits>
+		void AssertCanRoundtripHistoryWithDepthOneWithoutChildren(const NamespaceAlias& alias) {
+			// Arrange:
+			auto owner = test::CreateRandomOwner();
+			RootNamespaceHistory originalHistory(NamespaceId(123));
+			originalHistory.push_back(owner, test::CreateLifetime(222, 333));
+			originalHistory.back().setAlias(NamespaceId(123), alias);
+
+			// Act:
+			auto result = test::RunRoundtripBufferTest<typename TTraits::Serializer>(originalHistory);
+
+			// Assert:
+			test::AssertHistoricalEqual(originalHistory, result);
+		}
+	}
+
+	SERIALIZER_TEST(CanRoundtripHistoryWithDepthOneWithoutChildren) {
+		// Assert:
+		AssertCanRoundtripHistoryWithDepthOneWithoutChildren<TTraits>(NamespaceAlias());
+	}
+
+	SERIALIZER_TEST(CanRoundtripHistoryWithDepthOneWithoutChildren_RootMosaicAlias) {
+		// Assert:
+		AssertCanRoundtripHistoryWithDepthOneWithoutChildren<TTraits>(NamespaceAlias(MosaicId(567)));
+	}
+
+	SERIALIZER_TEST(CanRoundtripHistoryWithDepthOneWithoutChildren_RootAddressAlias) {
+		// Assert:
+		AssertCanRoundtripHistoryWithDepthOneWithoutChildren<TTraits>(NamespaceAlias(test::GenerateRandomByteArray<Address>()));
+	}
+
+	namespace {
+		template<typename TTraits, typename TPrepareAliases>
+		void AssertCanRoundtripHistoryWithDepthOneWithChildren(TPrepareAliases prepareAliases) {
+			// Arrange:
+			auto owner = test::CreateRandomOwner();
+			RootNamespaceHistory originalHistory(NamespaceId(123));
+			originalHistory.push_back(owner, test::CreateLifetime(222, 333));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 124 })));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 124, 125 })));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 126 })));
+			prepareAliases(originalHistory);
+
+			// Act:
+			auto result = test::RunRoundtripBufferTest<typename TTraits::Serializer>(originalHistory);
+
+			// Assert:
+			test::AssertHistoricalEqual(originalHistory, result);
+		}
+	}
+
+	SERIALIZER_TEST(CanRoundtripHistoryWithDepthOneWithChildren) {
+		// Assert:
+		AssertCanRoundtripHistoryWithDepthOneWithChildren<TTraits>([](const auto&) {});
+	}
+
+	SERIALIZER_TEST(CanRoundtripHistoryWithDepthOneWithChildren_WithAliases) {
+		// Assert:
+		AssertCanRoundtripHistoryWithDepthOneWithChildren<TTraits>([](auto& history) {
+			// Arrange:
+			history.back().setAlias(NamespaceId(124), NamespaceAlias(MosaicId(444)));
+			history.back().setAlias(NamespaceId(125), NamespaceAlias(test::GenerateRandomByteArray<Address>()));
+			history.back().setAlias(NamespaceId(126), NamespaceAlias(MosaicId(987)));
+		});
+	}
+
+	namespace {
+		template<typename TTraits, typename TPrepareAliases>
+		void AssertCanRoundtripHistoryWithDepthGreaterThanOneSameOwner(TPrepareAliases prepareAliases) {
+			// Arrange:
+			auto owner = test::CreateRandomOwner();
+			RootNamespaceHistory originalHistory(NamespaceId(123));
+			originalHistory.push_back(owner, test::CreateLifetime(11, 111));
+			originalHistory.push_back(owner, test::CreateLifetime(222, 333));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 124 })));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 124, 125 })));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 126 })));
+			prepareAliases(originalHistory);
+			originalHistory.push_back(owner, test::CreateLifetime(444, 555));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 126, 129 })));
+
+			// Act:
+			auto result = test::RunRoundtripBufferTest<typename TTraits::Serializer>(originalHistory);
+
+			// Assert:
+			(TTraits::Has_Historical_Entries ? test::AssertHistoricalEqual : test::AssertNonHistoricalEqual)(originalHistory, result);
+		}
+	}
+
+	SERIALIZER_TEST(CanRoundtripHistoryWithDepthGreaterThanOneSameOwner) {
+		// Assert:
+		AssertCanRoundtripHistoryWithDepthGreaterThanOneSameOwner<TTraits>([](const auto&) {});
+	}
+
+	SERIALIZER_TEST(CanRoundtripHistoryWithDepthGreaterThanOneSameOwner_WithAliases) {
+		// Assert:
+		AssertCanRoundtripHistoryWithDepthGreaterThanOneSameOwner<TTraits>([](auto& history) {
+			// Arrange: aliases are set on the middle history entry
+			history.back().setAlias(NamespaceId(124), NamespaceAlias(MosaicId(444)));
+			history.back().setAlias(NamespaceId(125), NamespaceAlias(test::GenerateRandomByteArray<Address>()));
+			history.back().setAlias(NamespaceId(126), NamespaceAlias(MosaicId(987)));
+		});
+	}
+
+	namespace {
+		template<typename TTraits, typename TPrepareAliases>
+		void AssertCanRoundtripHistoryWithDepthGreaterThanOneDifferentOwner(TPrepareAliases prepareAliases) {
+			// Arrange:
+			auto owner1 = test::CreateRandomOwner();
+			auto owner2 = test::CreateRandomOwner();
+			auto owner3 = test::CreateRandomOwner();
+			RootNamespaceHistory originalHistory(NamespaceId(123));
+			originalHistory.push_back(owner1, test::CreateLifetime(11, 111));
+			originalHistory.push_back(owner2, test::CreateLifetime(222, 333));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 124 })));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 124, 125 })));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 126 })));
+			prepareAliases(originalHistory);
+			originalHistory.push_back(owner3, test::CreateLifetime(444, 555));
+			originalHistory.back().add(Namespace(test::CreatePath({ 123, 126 })));
+
+			// Act:
+			auto result = test::RunRoundtripBufferTest<typename TTraits::Serializer>(originalHistory);
+
+			// Assert:
+			(TTraits::Has_Historical_Entries ? test::AssertHistoricalEqual : test::AssertNonHistoricalEqual)(originalHistory, result);
+		}
+	}
+
+	SERIALIZER_TEST(CanRoundtripHistoryWithDepthGreaterThanOneDifferentOwner) {
+		// Assert:
+		AssertCanRoundtripHistoryWithDepthGreaterThanOneDifferentOwner<TTraits>([](const auto&) {});
+	}
+
+	SERIALIZER_TEST(CanRoundtripHistoryWithDepthGreaterThanOneDifferentOwner_WithAliases) {
+		// Assert:
+		AssertCanRoundtripHistoryWithDepthGreaterThanOneDifferentOwner<TTraits>([](auto& history) {
+			// Arrange: aliases are set on the middle history entry
+			history.back().setAlias(NamespaceId(124), NamespaceAlias(MosaicId(444)));
+			history.back().setAlias(NamespaceId(125), NamespaceAlias(test::GenerateRandomByteArray<Address>()));
+			history.back().setAlias(NamespaceId(126), NamespaceAlias(MosaicId(987)));
+		});
+	}
 
 	// endregion
 }}

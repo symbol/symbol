@@ -212,7 +212,7 @@ namespace catapult { namespace extensions {
 			EXPECT_TRUE(boost::filesystem::exists(directory.path()));
 		}
 
-		void PrepareNonEmptyDirectory(const config::CatapultDirectory& directory) {
+		void PrepareDirectoryWithSentinel(const config::CatapultDirectory& directory) {
 			// Arrange:
 			boost::filesystem::create_directories(directory.path());
 			io::IndexFile(directory.file("sentinel")).set(1);
@@ -283,8 +283,8 @@ namespace catapult { namespace extensions {
 			auto cacheConfig = cache::CacheConfiguration(databaseDirectory, utils::FileSize(), cache::PatriciaTreeStorageMode::Enabled);
 
 			cache::AccountStateCacheTypes::Options options;
-			options.MinHighValueAccountBalance = Amount(1);
 			options.ImportanceGrouping = 1;
+			options.MinHarvesterBalance = Amount(1);
 			options.HarvestingMosaicId = Harvesting_Mosaic_Id;
 
 			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches;
@@ -381,9 +381,9 @@ namespace catapult { namespace extensions {
 		RunMoveToTest(PrepareEmptyDirectory);
 	}
 
-	TEST(TEST_CLASS, CanMoveTo_NonEmptyDirectoryExists) {
+	TEST(TEST_CLASS, CanMoveTo_DirectoryWithFilesExists) {
 		// Act + Assert:
-		RunMoveToTest(PrepareNonEmptyDirectory);
+		RunMoveToTest(PrepareDirectoryWithSentinel);
 	}
 
 	// endregion

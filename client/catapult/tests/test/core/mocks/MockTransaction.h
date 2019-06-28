@@ -19,10 +19,10 @@
 **/
 
 #pragma once
+#include "catapult/model/Mosaic.h"
 #include "catapult/model/Notifications.h"
 #include "catapult/model/Transaction.h"
 #include "catapult/model/TransactionPlugin.h"
-#include "tests/test/core/BalanceTransfers.h"
 
 namespace catapult { namespace mocks {
 

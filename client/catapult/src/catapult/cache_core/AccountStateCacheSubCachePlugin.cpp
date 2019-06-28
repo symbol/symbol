@@ -28,7 +28,7 @@ namespace catapult { namespace cache {
 
 	void AccountStateCacheSummaryCacheStorage::saveSummary(const CatapultCacheDelta& cacheDelta, io::OutputStream& output) const {
 		const auto& delta = cacheDelta.sub<AccountStateCache>();
-		const auto& addresses = delta.highValueAddresses();
+		const auto& addresses = delta.highValueAddresses().Current;
 		io::Write64(output, addresses.size());
 		for (const auto& address : addresses)
 			output.write(address);

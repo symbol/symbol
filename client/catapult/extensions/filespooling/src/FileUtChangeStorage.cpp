@@ -48,7 +48,7 @@ namespace catapult { namespace filespooling {
 		private:
 			void saveInfos(subscribers::UtChangeOperationType operationType, const TransactionInfos& transactionInfos) {
 				io::Write8(*m_pOutputStream, utils::to_underlying_type(operationType));
-				io::WriteTransactionInfos(*m_pOutputStream, transactionInfos);
+				io::WriteTransactionInfos(transactionInfos, *m_pOutputStream);
 			}
 
 		private:

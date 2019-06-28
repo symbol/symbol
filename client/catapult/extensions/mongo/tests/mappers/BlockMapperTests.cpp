@@ -100,37 +100,4 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 	// endregion
-
-	// region ToDifficultyInfo
-
-	namespace {
-		state::BlockDifficultyInfo GenerateRandomDifficultyInfo() {
-			return state::BlockDifficultyInfo(
-					test::GenerateRandomValue<Height>(),
-					test::GenerateRandomValue<Timestamp>(),
-					test::GenerateRandomValue<Difficulty>());
-		}
-
-		auto GenerateValue(const state::BlockDifficultyInfo& difficultyInfo) {
-			return bson_stream::document()
-					<< "height" << ToInt64(difficultyInfo.BlockHeight)
-					<< "timestamp" << ToInt64(difficultyInfo.BlockTimestamp)
-					<< "difficulty" << ToInt64(difficultyInfo.BlockDifficulty)
-					<< bson_stream::finalize;
-		}
-	}
-
-	TEST(TEST_CLASS, CanMapDifficultyInfo) {
-		// Arrange:
-		auto expectedDifficultyInfo = GenerateRandomDifficultyInfo();
-		auto value = GenerateValue(expectedDifficultyInfo);
-
-		// Act:
-		auto result = ToDifficultyInfo(value.view());
-
-		// Assert:
-		EXPECT_EQ(expectedDifficultyInfo, result);
-	}
-
-	// endregion
 }}}

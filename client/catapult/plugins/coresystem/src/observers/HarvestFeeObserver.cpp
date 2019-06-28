@@ -20,6 +20,7 @@
 
 #include "Observers.h"
 #include "catapult/cache_core/AccountStateCache.h"
+#include "catapult/cache_core/AccountStateCacheUtils.h"
 #include "catapult/model/InflationCalculator.h"
 #include "catapult/model/Mosaic.h"
 
@@ -48,21 +49,9 @@ namespace catapult { namespace observers {
 
 		void ApplyFee(const Key& publicKey, const model::Mosaic& feeMosaic, ObserverContext& context) {
 			auto& cache = context.Cache.template sub<cache::AccountStateCache>();
-			auto accountStateIter = cache.find(publicKey);
-			auto& accountState = accountStateIter.get();
-
-			if (state::AccountType::Remote != accountState.AccountType) {
+			cache::ProcessForwardedAccountState(cache, publicKey, [&feeMosaic, &context](auto& accountState) {
 				ApplyFee(accountState, context.Mode, feeMosaic, context.StatementBuilder());
-				return;
-			}
-
-			auto linkedAccountStateIter = cache.find(accountState.LinkedAccountKey);
-			auto& linkedAccountState = linkedAccountStateIter.get();
-
-			// this check is merely a precaution and will only fire if there is a bug that has corrupted links
-			RequireLinkedRemoteAndMainAccounts(accountState, linkedAccountState);
-
-			ApplyFee(linkedAccountState, context.Mode, feeMosaic, context.StatementBuilder());
+			});
 		}
 
 		bool ShouldShareFees(const Key& signer, const Key& harvesterBeneficiary, uint8_t harvestBeneficiaryPercentage) {

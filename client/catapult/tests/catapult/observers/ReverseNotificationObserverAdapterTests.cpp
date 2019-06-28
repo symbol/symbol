@@ -69,10 +69,11 @@ namespace catapult { namespace observers {
 
 			// Assert: the mock transaction plugin sends one additional public key notification and 6 custom notifications
 			//         (notice that only 4/6 are raised on observer channel)
-			ASSERT_EQ(4u + 5, observer.notificationTypes().size());
-			EXPECT_EQ(model::Core_Source_Change_Notification, observer.notificationTypes()[8]);
-			EXPECT_EQ(model::Core_Register_Account_Public_Key_Notification, observer.notificationTypes()[7]);
-			EXPECT_EQ(model::Core_Transaction_Notification, observer.notificationTypes()[6]);
+			ASSERT_EQ(5u + 1 + 4, observer.notificationTypes().size());
+			EXPECT_EQ(model::Core_Source_Change_Notification, observer.notificationTypes()[9]);
+			EXPECT_EQ(model::Core_Register_Account_Public_Key_Notification, observer.notificationTypes()[8]);
+			EXPECT_EQ(model::Core_Transaction_Notification, observer.notificationTypes()[7]);
+			EXPECT_EQ(model::Core_Transaction_Fee_Notification, observer.notificationTypes()[6]);
 			EXPECT_EQ(model::Core_Balance_Debit_Notification, observer.notificationTypes()[5]);
 
 			// - mock transaction notifications
@@ -99,7 +100,7 @@ namespace catapult { namespace observers {
 			ObserveEntity(adapter, *pTransaction, context);
 
 			// Assert: the context was forwarded to the notification observer
-			ASSERT_EQ(4u + 5, observer.contextPointers().size());
+			ASSERT_EQ(5u + 1 + 4, observer.contextPointers().size());
 			for (auto i = 0u; i < observer.contextPointers().size(); ++i)
 				EXPECT_EQ(&context.observerContext(), observer.contextPointers()[i]) << "context at " << i;
 		});

@@ -45,16 +45,16 @@ namespace catapult { namespace cache {
 		}
 
 		template<typename TAction>
-		void RunCacheStorageTest(Amount minHighValueAccountBalance, TAction action) {
+		void RunCacheStorageTest(Amount minHarvesterBalance, TAction action) {
 			// Arrange:
 			AccountStateCacheTypes::Options options;
-			options.MinHighValueAccountBalance = minHighValueAccountBalance;
+			options.MinHarvesterBalance = minHarvesterBalance;
 			options.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			AccountStateCache cache(CacheConfiguration(), options);
 			AccountStateCacheSummaryCacheStorage storage(cache);
 
 			auto blockChainConfig = model::BlockChainConfiguration::Uninitialized();
-			blockChainConfig.MinHarvesterBalance = minHighValueAccountBalance;
+			blockChainConfig.MinHarvesterBalance = minHarvesterBalance;
 			blockChainConfig.HarvestingMosaicId = Harvesting_Mosaic_Id;
 
 			// Act + Assert:
@@ -62,9 +62,9 @@ namespace catapult { namespace cache {
 		}
 
 		template<typename TAction>
-		void RunSummarySaveTest(Amount minHighValueAccountBalance, size_t numExpectedAccounts, TAction checkAddresses) {
+		void RunSummarySaveTest(Amount minHarvesterBalance, size_t numExpectedAccounts, TAction checkAddresses) {
 			// Arrange:
-			RunCacheStorageTest(minHighValueAccountBalance, [numExpectedAccounts, checkAddresses](
+			RunCacheStorageTest(minHarvesterBalance, [numExpectedAccounts, checkAddresses](
 					const auto& storage,
 					const auto& blockChainConfig,
 					const auto&) {

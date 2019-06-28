@@ -50,10 +50,6 @@ namespace catapult { namespace state {
 		struct HashLockInfoStorageTraits : public test::BasicHashLockInfoTestTraits {
 			using PackedValueType = PackedHashLockInfo;
 			using SerializerType = HashLockInfoSerializer;
-
-			static size_t ValueTypeSize() {
-				return sizeof(PackedValueType);
-			}
 		};
 	}
 

@@ -205,16 +205,16 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, CanCreatePrivateKeyFromString) {
 		// Arrange:
-		auto rawKeyString = std::string("3485d98efd7eb07adafcfd1a157d89de2796a95e780813c0258af3f5f84ed8cb");
+		auto rawKeyString = std::string("3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB");
 
 		// Act:
 		auto key = PrivateKey::FromString(rawKeyString);
 
 		// Assert:
-		Key rawKey{ {
+		Key rawKey{{
 			0x34, 0x85, 0xD9, 0x8E, 0xFD, 0x7E, 0xB0, 0x7A, 0xDA, 0xFC, 0xFD, 0x1A, 0x15, 0x7D, 0x89, 0xDE,
 			0x27, 0x96, 0xA9, 0x5E, 0x78, 0x08, 0x13, 0xC0, 0x25, 0x8A, 0xF3, 0xF5, 0xF8, 0x4E, 0xD8, 0xCB
-		} };
+		}};
 		EXPECT_TRUE(std::equal(rawKey.cbegin(), rawKey.cend(), key.data(), key.data() + key.size()));
 
 		// - note that the factory function should not have zeroed out the input string
@@ -224,16 +224,16 @@ namespace catapult { namespace crypto {
 	TEST(TEST_CLASS, CanCreatePrivateKeyFromStringSecure) {
 		// Arrange:
 		std::string zeroString(Key_Size * 2, '\0');
-		auto rawKeyString = std::string("3485d98efd7eb07adafcfd1a157d89de2796a95e780813c0258af3f5f84ed8cb");
+		auto rawKeyString = std::string("3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB");
 
 		// Act:
 		auto key = PrivateKey::FromStringSecure(&rawKeyString[0], rawKeyString.size());
 
 		// Assert:
-		Key rawKey{ {
+		Key rawKey{{
 			0x34, 0x85, 0xD9, 0x8E, 0xFD, 0x7E, 0xB0, 0x7A, 0xDA, 0xFC, 0xFD, 0x1A, 0x15, 0x7D, 0x89, 0xDE,
 			0x27, 0x96, 0xA9, 0x5E, 0x78, 0x08, 0x13, 0xC0, 0x25, 0x8A, 0xF3, 0xF5, 0xF8, 0x4E, 0xD8, 0xCB
-		} };
+		}};
 		EXPECT_TRUE(std::equal(rawKey.cbegin(), rawKey.cend(), key.data(), key.data() + key.size()));
 
 		// - note that the factory function should have zeroed out the input string
@@ -250,10 +250,10 @@ namespace catapult { namespace crypto {
 		});
 
 		// Assert:
-		Key rawKey{ {
+		Key rawKey{{
 			0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 			0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A
-		} };
+		}};
 		EXPECT_TRUE(std::equal(rawKey.cbegin(), rawKey.cend(), key.data(), key.data() + key.size()));
 	}
 

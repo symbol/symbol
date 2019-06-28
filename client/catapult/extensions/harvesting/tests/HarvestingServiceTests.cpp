@@ -86,10 +86,6 @@ namespace catapult { namespace harvesting {
 			}
 
 		public:
-			void setMinHarvesterBalance(Amount balance) {
-				const_cast<model::BlockChainConfiguration&>(testState().state().config().BlockChain).MinHarvesterBalance = balance;
-			}
-
 			void enableVerifiableState() {
 				auto& config = testState().state().config();
 				const_cast<bool&>(config.Node.ShouldUseCacheDatabaseStorage) = true;
@@ -204,6 +200,7 @@ namespace catapult { namespace harvesting {
 			auto config = model::BlockChainConfiguration::Uninitialized();
 			config.HarvestingMosaicId = Harvesting_Mosaic_Id;
 			config.ImportanceGrouping = Importance_Grouping;
+			config.MinHarvesterBalance = Account_Balance;
 			auto cache = test::CreateEmptyCatapultCache(config, cacheConfig);
 			auto delta = cache.createDelta();
 
@@ -211,7 +208,7 @@ namespace catapult { namespace harvesting {
 			auto& accountStateCache = delta.sub<cache::AccountStateCache>();
 			accountStateCache.addAccount(publicKey, Height(100));
 			auto& accountState = accountStateCache.find(publicKey).get();
-			accountState.ImportanceInfo.set(Importance(123), importanceHeight);
+			accountState.ImportanceSnapshots.set(Importance(123), importanceHeight);
 			accountState.Balances.credit(Harvesting_Mosaic_Id, balance);
 
 			// - add a block difficulty info
@@ -243,7 +240,6 @@ namespace catapult { namespace harvesting {
 		auto importanceHeight = model::ImportanceHeight(Importance_Grouping);
 		auto keyPair = test::GenerateKeyPair();
 		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), Account_Balance, importanceHeight));
-		context.setMinHarvesterBalance(Account_Balance);
 
 		// Sanity:
 		EXPECT_EQ(importanceHeight, ConvertToImportanceHeight(height + Height(1)));
@@ -266,7 +262,6 @@ namespace catapult { namespace harvesting {
 		auto importanceHeight = model::ImportanceHeight(Importance_Grouping);
 		auto keyPair = test::GenerateKeyPair();
 		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), Account_Balance, importanceHeight));
-		context.setMinHarvesterBalance(Account_Balance);
 
 		// Sanity:
 		EXPECT_NE(importanceHeight, ConvertToImportanceHeight(height + Height(1)));
@@ -288,8 +283,7 @@ namespace catapult { namespace harvesting {
 		auto height = Height(2 * Importance_Grouping - 1);
 		auto importanceHeight = model::ImportanceHeight(Importance_Grouping);
 		auto keyPair = test::GenerateKeyPair();
-		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), Account_Balance, importanceHeight));
-		context.setMinHarvesterBalance(Account_Balance + Amount(1));
+		TestContext context(CreateCacheWithAccount(height, keyPair.publicKey(), Account_Balance - Amount(1), importanceHeight));
 
 		// Sanity:
 		EXPECT_EQ(importanceHeight, ConvertToImportanceHeight(height + Height(1)));

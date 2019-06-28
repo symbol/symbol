@@ -65,13 +65,13 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, AdvanceToEndCanAdvanceToEndOfStrings) {
 		// Arrange:
 		auto empty = "";
-		auto nonempty = "hello";
+		auto token = "hello";
 		auto whitespace = "foo bar";
 		auto embeddedNuls = "foo\0bar";
 
 		// Act + Assert:
 		EXPECT_EQ(empty + 0, AdvanceToEnd(empty));
-		EXPECT_EQ(nonempty + 5, AdvanceToEnd(nonempty));
+		EXPECT_EQ(token + 5, AdvanceToEnd(token));
 		EXPECT_EQ(whitespace + 7, AdvanceToEnd(whitespace));
 		EXPECT_EQ(embeddedNuls + 3, AdvanceToEnd(embeddedNuls));
 	}

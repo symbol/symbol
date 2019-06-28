@@ -71,7 +71,7 @@ namespace catapult { namespace test {
 			EXPECT_TRUE(pSet->empty());
 		}
 
-		static void AssertEmptyReturnsFalseForNonEmptySet() {
+		static void AssertEmptyReturnsFalseForSetWithValues() {
 			// Act:
 			auto pSet = TTraits::CreateWithElements(3);
 
@@ -173,7 +173,7 @@ namespace catapult { namespace test {
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, CanCreateBaseSetWithForwardedArguments) \
 	\
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, EmptyReturnsTrueForEmptySet) \
-	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, EmptyReturnsFalseForNonEmptySet) \
+	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, EmptyReturnsFalseForSetWithValues) \
 	\
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, ContainsReturnsTrueForExistingElement) \
 	MAKE_COMMON_BASE_SET_TEST(TEST_CLASS, TRAITS, ContainsReturnsFalseForNonexistentElement) \

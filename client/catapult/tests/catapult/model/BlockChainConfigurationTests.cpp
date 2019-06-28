@@ -61,6 +61,7 @@ namespace catapult { namespace model {
 							{ "blockTimeSmoothingFactor", "765" },
 
 							{ "importanceGrouping", "444" },
+							{ "importanceActivityPercentage", "15" },
 							{ "maxRollbackBlocks", "720" },
 							{ "maxDifficultyBlocks", "15" },
 
@@ -114,6 +115,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(0u, config.BlockTimeSmoothingFactor);
 
 				EXPECT_EQ(0u, config.ImportanceGrouping);
+				EXPECT_EQ(0u, config.ImportanceActivityPercentage);
 				EXPECT_EQ(0u, config.MaxRollbackBlocks);
 				EXPECT_EQ(0u, config.MaxDifficultyBlocks);
 
@@ -149,6 +151,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(765u, config.BlockTimeSmoothingFactor);
 
 				EXPECT_EQ(444u, config.ImportanceGrouping);
+				EXPECT_EQ(15u, config.ImportanceActivityPercentage);
 				EXPECT_EQ(720u, config.MaxRollbackBlocks);
 				EXPECT_EQ(15u, config.MaxDifficultyBlocks);
 

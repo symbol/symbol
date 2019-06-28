@@ -65,40 +65,40 @@ namespace catapult { namespace validators {
 	DEFINE_NAMESPACE_RESULT(Parent_Unknown, 103);
 
 	/// Validation failed because the namespace already exists.
-	DEFINE_NAMESPACE_RESULT(Already_Exists, 150);
+	DEFINE_NAMESPACE_RESULT(Already_Exists, 104);
 
 	/// Validation failed because the namespace is already active.
-	DEFINE_NAMESPACE_RESULT(Already_Active, 151);
+	DEFINE_NAMESPACE_RESULT(Already_Active, 105);
 
 	/// Validation failed because an eternal namespace was received after the nemesis block.
-	DEFINE_NAMESPACE_RESULT(Eternal_After_Nemesis_Block, 152);
+	DEFINE_NAMESPACE_RESULT(Eternal_After_Nemesis_Block, 106);
 
 	/// Validation failed because the maximum number of children for a root namespace was exceeded.
-	DEFINE_NAMESPACE_RESULT(Max_Children_Exceeded, 153);
+	DEFINE_NAMESPACE_RESULT(Max_Children_Exceeded, 107);
 
 	/// Validation failed because alias action is invalid.
-	DEFINE_NAMESPACE_RESULT(Alias_Invalid_Action, 170);
+	DEFINE_NAMESPACE_RESULT(Alias_Invalid_Action, 108);
 
 	/// Validation failed because namespace does not exist.
-	DEFINE_NAMESPACE_RESULT(Alias_Namespace_Unknown, 171);
+	DEFINE_NAMESPACE_RESULT(Alias_Namespace_Unknown, 109);
 
 	/// Validation failed because namespace is already linked to an alias.
-	DEFINE_NAMESPACE_RESULT(Alias_Already_Exists, 172);
+	DEFINE_NAMESPACE_RESULT(Alias_Already_Exists, 110);
 
 	/// Validation failed because namespace is not linked to an alias.
-	DEFINE_NAMESPACE_RESULT(Alias_Does_Not_Exist, 173);
+	DEFINE_NAMESPACE_RESULT(Alias_Does_Not_Exist, 111);
 
 	/// Validation failed because namespace has different owner.
-	DEFINE_NAMESPACE_RESULT(Alias_Owner_Conflict, 174);
+	DEFINE_NAMESPACE_RESULT(Alias_Owner_Conflict, 112);
 
 	/// Validation failed because unlink type is not consistent with existing alias.
-	DEFINE_NAMESPACE_RESULT(Alias_Unlink_Type_Inconsistency, 175);
+	DEFINE_NAMESPACE_RESULT(Alias_Unlink_Type_Inconsistency, 113);
 
 	/// Validation failed because unlink data is not consistent with existing alias.
-	DEFINE_NAMESPACE_RESULT(Alias_Unlink_Data_Inconsistency, 176);
+	DEFINE_NAMESPACE_RESULT(Alias_Unlink_Data_Inconsistency, 114);
 
 	/// Validation failed because aliased address is invalid.
-	DEFINE_NAMESPACE_RESULT(Alias_Invalid_Address, 177);
+	DEFINE_NAMESPACE_RESULT(Alias_Invalid_Address, 115);
 
 	// endregion
 

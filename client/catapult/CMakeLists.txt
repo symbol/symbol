@@ -40,6 +40,13 @@ function(catapult_add_rocksdb_dependencies TARGET_NAME)
 	endif()
 endfunction()
 
+# cmake grouping targets
+add_custom_target(extensions)
+add_custom_target(mongo)
+add_custom_target(plugins)
+add_custom_target(server)
+add_custom_target(tools)
+
 ### add source directories
 add_subdirectory(external)
 

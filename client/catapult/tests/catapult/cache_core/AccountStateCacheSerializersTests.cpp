@@ -20,6 +20,7 @@
 
 #include "catapult/cache_core/AccountStateCacheSerializers.h"
 #include "tests/test/core/AccountStateTestUtils.h"
+#include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace cache {
@@ -28,15 +29,15 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, KeyAddressPairSerializer_CanSerializeValue) {
 		// Arrange:
-		auto pair = std::make_pair(test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Address>());
+		auto originalPair = std::make_pair(test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Address>());
 
 		// Act:
-		auto result = KeyAddressPairSerializer::SerializeValue(pair);
+		auto result = KeyAddressPairSerializer::SerializeValue(originalPair);
 
 		// Assert:
 		ASSERT_EQ(Key_Size + Address_Decoded_Size, result.size());
-		EXPECT_EQ(pair.first, reinterpret_cast<const Key&>(result[0]));
-		EXPECT_EQ(pair.second, reinterpret_cast<const Address&>(result[Key_Size]));
+		EXPECT_EQ(originalPair.first, reinterpret_cast<const Key&>(result[0]));
+		EXPECT_EQ(originalPair.second, reinterpret_cast<const Address&>(result[Key_Size]));
 	}
 
 	TEST(TEST_CLASS, KeyAddressPairSerializer_CanDeserializeValue) {
@@ -49,5 +50,17 @@ namespace catapult { namespace cache {
 		// Assert:
 		EXPECT_EQ(reinterpret_cast<const Key&>(buffer[0]), pair.first);
 		EXPECT_EQ(reinterpret_cast<const Address&>(buffer[Key_Size]), pair.second);
+	}
+
+	TEST(TEST_CLASS, KeyAddressPairSerializer_CanRoundtripValue) {
+		// Arrange:
+		auto originalPair = std::make_pair(test::GenerateRandomByteArray<Key>(), test::GenerateRandomByteArray<Address>());
+
+		// Act:
+		auto result = test::RunRoundtripStringTest<KeyAddressPairSerializer>(originalPair);
+
+		// Assert:
+		EXPECT_EQ(originalPair.first, result.first);
+		EXPECT_EQ(originalPair.second, result.second);
 	}
 }}

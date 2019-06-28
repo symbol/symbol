@@ -21,6 +21,7 @@
 #include "catapult/io/TransactionInfoSerializer.h"
 #include "catapult/io/PodIoUtils.h"
 #include "tests/test/core/AddressTestUtils.h"
+#include "tests/test/core/SerializerTestUtils.h"
 #include "tests/test/core/TransactionInfoTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/mocks/MockMemoryStream.h"
@@ -29,6 +30,77 @@
 namespace catapult { namespace io {
 
 #define TEST_CLASS TransactionInfoSerializerTests
+
+	// region WriteTransactionInfo
+
+	namespace {
+		model::TransactionInfo CreateTransactionInfoWithSize(uint32_t entitySize) {
+			auto transactionInfo = model::TransactionInfo(test::GenerateRandomTransactionWithSize(entitySize));
+			test::FillWithRandomData(transactionInfo.EntityHash);
+			test::FillWithRandomData(transactionInfo.MerkleComponentHash);
+			return transactionInfo;
+		}
+
+		void AssertCanWriteTransactionInfo(
+				uint64_t expectedAddressCount,
+				uint64_t expectedAddressSize,
+				const std::shared_ptr<const model::UnresolvedAddressSet>& pAddresses) {
+			// Arrange:
+			auto transactionInfo = CreateTransactionInfoWithSize(123);
+			transactionInfo.OptionalExtractedAddresses = pAddresses;
+
+			// Act:
+			std::vector<uint8_t> buffer;
+			mocks::MockMemoryStream outputStream(buffer);
+			WriteTransactionInfo(transactionInfo, outputStream);
+
+			// Assert:
+			auto expectedSize = 2u * Hash256_Size + sizeof(uint64_t) + expectedAddressSize + 123;
+			ASSERT_EQ(expectedSize, buffer.size());
+
+			auto offset = 0u;
+			EXPECT_EQ(transactionInfo.EntityHash, reinterpret_cast<const Hash256&>(buffer[offset]));
+			offset += Hash256_Size;
+
+			EXPECT_EQ(transactionInfo.MerkleComponentHash, reinterpret_cast<const Hash256&>(buffer[offset]));
+			offset += Hash256_Size;
+
+			ASSERT_EQ(expectedAddressCount, reinterpret_cast<uint64_t&>(buffer[offset]));
+			offset += sizeof(uint64_t);
+
+			if (0 != expectedAddressSize) {
+				for (const auto& address : *transactionInfo.OptionalExtractedAddresses) {
+					EXPECT_EQ(address, reinterpret_cast<const UnresolvedAddress&>(buffer[offset]))
+							<< "address at offset " << offset;
+					offset += Address_Decoded_Size;
+				}
+			}
+
+			EXPECT_EQ(reinterpret_cast<const model::Transaction&>(buffer[offset]), *transactionInfo.pEntity);
+		}
+	}
+
+	TEST(TEST_CLASS, CanWriteTransactionInfoWithoutOptionalExtractedAddresses) {
+		// Assert:
+		AssertCanWriteTransactionInfo(std::numeric_limits<size_t>::max(), 0, nullptr);
+	}
+
+	TEST(TEST_CLASS, CanWriteTransactionInfoWithZeroExtractedAddresses) {
+		// Assert:
+		AssertCanWriteTransactionInfo(0, 0, std::make_shared<model::UnresolvedAddressSet>());
+	}
+
+	TEST(TEST_CLASS, CanWriteTransactionInfoWithSingleExtractedAddress) {
+		// Assert:
+		AssertCanWriteTransactionInfo(1, Address_Decoded_Size, test::GenerateRandomUnresolvedAddressSetPointer(1));
+	}
+
+	TEST(TEST_CLASS, CanWriteTransactionInfoWithMultipleExtractedAddresses) {
+		// Assert:
+		AssertCanWriteTransactionInfo(3, 3 * Address_Decoded_Size, test::GenerateRandomUnresolvedAddressSetPointer(3));
+	}
+
+	// endregion
 
 	// region ReadTransactionInfo
 
@@ -99,73 +171,90 @@ namespace catapult { namespace io {
 
 	// endregion
 
-	// region WriteTransactionInfo
+	// region Roundtrip - TransactionInfo
 
 	namespace {
-		model::TransactionInfo CreateTransactionInfoWithSize(uint32_t entitySize) {
-			auto transactionInfo = model::TransactionInfo(test::GenerateRandomTransactionWithSize(entitySize));
-			test::FillWithRandomData(transactionInfo.EntityHash);
-			test::FillWithRandomData(transactionInfo.MerkleComponentHash);
-			return transactionInfo;
-		}
-
-		void AssertCanWriteTransactionInfo(
-				uint64_t expectedAddressCount,
-				uint64_t expectedAddressSize,
-				const std::shared_ptr<const model::UnresolvedAddressSet>& pAddresses) {
+		void AssertCanRoundtripTransactionInfo(const std::shared_ptr<const model::UnresolvedAddressSet>& pAddresses) {
 			// Arrange:
-			auto transactionInfo = CreateTransactionInfoWithSize(123);
-			transactionInfo.OptionalExtractedAddresses = pAddresses;
+			auto originalTransactionInfo = CreateTransactionInfoWithSize(123);
+			originalTransactionInfo.OptionalExtractedAddresses = pAddresses;
 
 			// Act:
-			std::vector<uint8_t> buffer;
-			mocks::MockMemoryStream outputStream(buffer);
-			WriteTransactionInfo(outputStream, transactionInfo);
+			model::TransactionInfo result;
+			test::RunRoundtripBufferTest(originalTransactionInfo, result, WriteTransactionInfo, ReadTransactionInfo);
 
 			// Assert:
-			auto expectedSize = 2u * Hash256_Size + sizeof(uint64_t) + expectedAddressSize + 123;
-			ASSERT_EQ(expectedSize, buffer.size());
-
-			auto offset = 0u;
-			EXPECT_EQ(transactionInfo.EntityHash, reinterpret_cast<const Hash256&>(buffer[offset]));
-			offset += Hash256_Size;
-
-			EXPECT_EQ(transactionInfo.MerkleComponentHash, reinterpret_cast<const Hash256&>(buffer[offset]));
-			offset += Hash256_Size;
-
-			ASSERT_EQ(expectedAddressCount, reinterpret_cast<uint64_t&>(buffer[offset]));
-			offset += sizeof(uint64_t);
-
-			if (0 != expectedAddressSize) {
-				for (const auto& address : *transactionInfo.OptionalExtractedAddresses) {
-					EXPECT_EQ(address, reinterpret_cast<const UnresolvedAddress&>(buffer[offset]))
-							<< "address at offset " << offset;
-					offset += Address_Decoded_Size;
-				}
-			}
-
-			EXPECT_EQ(reinterpret_cast<const model::Transaction&>(buffer[offset]), *transactionInfo.pEntity);
+			test::AssertEqual(originalTransactionInfo, result);
 		}
 	}
 
-	TEST(TEST_CLASS, CanWriteTransactionInfoWithoutOptionalExtractedAddresses) {
+	TEST(TEST_CLASS, CanRoundtripTransactionInfoWithoutOptionalExtractedAddresses) {
 		// Assert:
-		AssertCanWriteTransactionInfo(std::numeric_limits<size_t>::max(), 0, nullptr);
+		AssertCanRoundtripTransactionInfo(nullptr);
 	}
 
-	TEST(TEST_CLASS, CanWriteTransactionInfoWithZeroExtractedAddresses) {
+	TEST(TEST_CLASS, CanRoundtripTransactionInfoWithZeroExtractedAddresses) {
 		// Assert:
-		AssertCanWriteTransactionInfo(0, 0, std::make_shared<model::UnresolvedAddressSet>());
+		AssertCanRoundtripTransactionInfo(std::make_shared<model::UnresolvedAddressSet>());
 	}
 
-	TEST(TEST_CLASS, CanWriteTransactionInfoWithSingleExtractedAddress) {
+	TEST(TEST_CLASS, CanRoundtripTransactionInfoWithSingleExtractedAddress) {
 		// Assert:
-		AssertCanWriteTransactionInfo(1, Address_Decoded_Size, test::GenerateRandomUnresolvedAddressSetPointer(1));
+		AssertCanRoundtripTransactionInfo(test::GenerateRandomUnresolvedAddressSetPointer(1));
 	}
 
-	TEST(TEST_CLASS, CanWriteTransactionInfoWithMultipleExtractedAddresses) {
+	TEST(TEST_CLASS, CanRoundtripTransactionInfoWithMultipleExtractedAddresses) {
 		// Assert:
-		AssertCanWriteTransactionInfo(3, 3 * Address_Decoded_Size, test::GenerateRandomUnresolvedAddressSetPointer(3));
+		AssertCanRoundtripTransactionInfo(test::GenerateRandomUnresolvedAddressSetPointer(3));
+	}
+
+	// endregion
+
+	// region WriteTransactionInfos
+
+	namespace {
+		model::TransactionInfosSet CreateTransactionInfosSetWithOptionalAddresses(size_t count) {
+			auto transactionInfos = test::CreateTransactionInfosWithOptionalAddresses(count);
+			return test::CopyTransactionInfosToSet(transactionInfos);
+		}
+	}
+
+	TEST(TEST_CLASS, CanWriteEmptyTransactionInfos) {
+		// Arrange:
+		model::TransactionInfosSet transactionInfos;
+		std::vector<uint8_t> outputBuffer;
+		mocks::MockMemoryStream outputStream(outputBuffer);
+
+		// Act:
+		WriteTransactionInfos(transactionInfos, outputStream);
+
+		// Assert:
+		EXPECT_EQ(std::vector<uint8_t>(sizeof(uint32_t), 0), outputBuffer);
+	}
+
+	TEST(TEST_CLASS, CanWriteTransactionInfos) {
+		// Arrange:
+		auto expectedTransactionInfos = CreateTransactionInfosSetWithOptionalAddresses(3);
+		std::vector<uint8_t> outputBuffer;
+		mocks::MockMemoryStream outputStream(outputBuffer);
+
+		// Act:
+		WriteTransactionInfos(expectedTransactionInfos, outputStream);
+
+		// Assert: all expected transaction infos are in outputBuffer
+		BufferInputStreamAdapter inputStream(outputBuffer);
+
+		auto numTransactionInfos = Read32(inputStream);
+		ASSERT_EQ(expectedTransactionInfos.size(), numTransactionInfos);
+
+		model::TransactionInfosSet transactionInfos;
+		for (auto i = 0u; i < numTransactionInfos; ++i) {
+			model::TransactionInfo transactionInfo;
+			ReadTransactionInfo(inputStream, transactionInfo);
+			transactionInfos.insert(std::move(transactionInfo));
+		}
+
+		test::AssertEquivalent(expectedTransactionInfos, transactionInfos);
 	}
 
 	// endregion
@@ -177,13 +266,8 @@ namespace catapult { namespace io {
 			std::vector<uint8_t> buffer;
 			mocks::MockMemoryStream stream(buffer);
 
-			WriteTransactionInfo(stream, transactionInfo);
+			WriteTransactionInfo(transactionInfo, stream);
 			return buffer;
-		}
-
-		model::TransactionInfosSet CreateTransactionInfosSetWithOptionalAddresses(size_t count) {
-			auto transactionInfos = test::CreateTransactionInfosWithOptionalAddresses(count);
-			return test::CopyTransactionInfosToSet(transactionInfos);
 		}
 	}
 
@@ -223,44 +307,27 @@ namespace catapult { namespace io {
 
 	// endregion
 
-	// region WriteTransactionInfos
+	// region Roundtrip - TransactionInfos
 
-	TEST(TEST_CLASS, CanWriteEmptyTransactionInfos) {
-		// Arrange:
-		model::TransactionInfosSet transactionInfos;
-		std::vector<uint8_t> outputBuffer;
-		mocks::MockMemoryStream outputStream(outputBuffer);
+	namespace {
+		void AssertCanRoundtripTransactionInfos(const model::TransactionInfosSet& originalTransactionInfos) {
+			// Act:
+			model::TransactionInfosSet result;
+			test::RunRoundtripBufferTest(originalTransactionInfos, result, WriteTransactionInfos, ReadTransactionInfos);
 
-		// Act:
-		WriteTransactionInfos(outputStream, transactionInfos);
-
-		// Assert:
-		EXPECT_EQ(std::vector<uint8_t>(sizeof(uint32_t), 0), outputBuffer);
+			// Assert:
+			test::AssertEquivalent(originalTransactionInfos, result);
+		}
 	}
 
-	TEST(TEST_CLASS, CanWriteTransactionInfos) {
-		// Arrange:
-		auto expectedTransactionInfos = CreateTransactionInfosSetWithOptionalAddresses(3);
-		std::vector<uint8_t> outputBuffer;
-		mocks::MockMemoryStream outputStream(outputBuffer);
+	TEST(TEST_CLASS, CanRoundtripEmptyTransactionInfos) {
+		// Assert:
+		AssertCanRoundtripTransactionInfos(model::TransactionInfosSet());
+	}
 
-		// Act:
-		WriteTransactionInfos(outputStream, expectedTransactionInfos);
-
-		// Assert: all expected transaction infos are in outputBuffer
-		BufferInputStreamAdapter inputStream(outputBuffer);
-
-		auto numTransactionInfos = Read32(inputStream);
-		ASSERT_EQ(expectedTransactionInfos.size(), numTransactionInfos);
-
-		model::TransactionInfosSet transactionInfos;
-		for (auto i = 0u; i < numTransactionInfos; ++i) {
-			model::TransactionInfo transactionInfo;
-			ReadTransactionInfo(inputStream, transactionInfo);
-			transactionInfos.insert(std::move(transactionInfo));
-		}
-
-		test::AssertEquivalent(expectedTransactionInfos, transactionInfos);
+	TEST(TEST_CLASS, CanRoundtripTransactionInfos) {
+		// Assert:
+		AssertCanRoundtripTransactionInfos(CreateTransactionInfosSetWithOptionalAddresses(3));
 	}
 
 	// endregion

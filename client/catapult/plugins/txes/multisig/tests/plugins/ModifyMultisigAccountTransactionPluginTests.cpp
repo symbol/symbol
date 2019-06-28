@@ -35,7 +35,7 @@ namespace catapult { namespace plugins {
 #define TEST_CLASS ModifyMultisigAccountTransactionPluginTests
 
 	namespace {
-		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(ModifyMultisigAccount, 3, 3,)
+		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(ModifyMultisigAccount, 1, 1,)
 
 		template<typename TTraits>
 		auto CreateTransactionWithModifications(uint8_t numModifications) {
