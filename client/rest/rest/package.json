@@ -12,7 +12,7 @@
     "test": "mocha --full-trace --recursive",
     "test:coverage": "nyc yarn test && nyc report --reporter=text-lcov",
     "test:jenkins": "cross-env JUNIT_REPORT_PATH=test-results.xml mocha --reporter mocha-jenkins-reporter --mongoHost db --forbid-only --full-trace --recursive test || exit 0",
-    "test:travis": "nyc yarn test && nyc report --reporter=text-lcov | coveralls",
+    "test:travis": "nyc npm run test && nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint src test",
     "lint:jenkins": "eslint -o tests.catapult.lint.xml -f junit src test || exit 0"
   },
