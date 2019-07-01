@@ -74,7 +74,7 @@ describe('db formatting rules', () => {
 
 	it('can format status code type', () => {
 		// Arrange: notice that codes are signed in db
-		[0x80530008, -2142044152].forEach(code => {
+		[0x80530001, -2142044159].forEach(code => {
 			// Act:
 			const result = formattingRules[ModelType.statusCode](code);
 

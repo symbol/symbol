@@ -55,7 +55,7 @@ describe('message formatting rules', () => {
 
 	it('can format status code type', () => {
 		// Arrange:
-		const code = 0x80530008;
+		const code = 0x80530001;
 
 		// Act:
 		const result = formattingRules[ModelType.statusCode](code);
