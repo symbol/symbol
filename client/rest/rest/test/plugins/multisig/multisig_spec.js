@@ -21,7 +21,7 @@
 const multisig = require('../../../src/plugins/multisig/multisig');
 const MultisigDb = require('../../../src/plugins/multisig/MultisigDb');
 const pluginTest = require('../utils/pluginTestUtils');
-const test = require('../../routes/utils/routeTestUtils');
+const { test } = require('../../routes/utils/routeTestUtils');
 
 describe('multisig plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(multisig, MultisigDb);

@@ -21,7 +21,7 @@
 const pluginTest = require('../utils/pluginTestUtils');
 const receipts = require('../../../src/plugins/receipts/receipts');
 const ReceiptsDb = require('../../../src/plugins/receipts/ReceiptsDb');
-const test = require('../../routes/utils/routeTestUtils');
+const { test } = require('../../routes/utils/routeTestUtils');
 
 describe('receipts plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(receipts, ReceiptsDb);

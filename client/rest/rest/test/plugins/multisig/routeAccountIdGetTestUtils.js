@@ -19,7 +19,7 @@
  */
 
 const catapult = require('catapult-sdk');
-const test = require('../../routes/utils/routeTestUtils');
+const { test } = require('../../routes/utils/routeTestUtils');
 
 const Valid_Address = test.sets.addresses.valid[0];
 const Valid_Public_Key = test.sets.publicKeys.valid[0];

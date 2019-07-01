@@ -19,7 +19,7 @@
  */
 
 const aggregateRoutes = require('../../../src/plugins/aggregate/aggregateRoutes');
-const test = require('../../routes/utils/routeTestUtils');
+const { test } = require('../../routes/utils/routeTestUtils');
 
 describe('aggregate routes', () => {
 	describe('PUT transaction partial', () => {

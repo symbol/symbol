@@ -19,7 +19,7 @@
  */
 
 const mosaicRoutes = require('../../../src/plugins/mosaic/mosaicRoutes');
-const test = require('../../routes/utils/routeTestUtils');
+const { test } = require('../../routes/utils/routeTestUtils');
 
 describe('mosaic routes', () => {
 	describe('by id', () => {

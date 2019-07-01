@@ -21,8 +21,8 @@
 const catapult = require('catapult-sdk');
 const multisigRoutes = require('../../../src/plugins/multisig/multisigRoutes');
 const routeAccountIdGetTestUtils = require('./routeAccountIdGetTestUtils');
-const test = require('../../routes/utils/routeTestUtils');
 const { expect } = require('chai');
+const { test } = require('../../routes/utils/routeTestUtils');
 
 const { convert } = catapult.utils;
 

@@ -20,7 +20,7 @@
 
 const accountPropertiesRoutes = require('../../../src/plugins/accountProperties/accountPropertiesRoutes');
 const catapult = require('catapult-sdk');
-const test = require('../../routes/utils/routeTestUtils');
+const { test } = require('../../routes/utils/routeTestUtils');
 
 const { address, networkInfo } = catapult.model;
 const { addresses, publicKeys } = test.sets;

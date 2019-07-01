@@ -21,6 +21,7 @@
 const receiptsRoutes = require('../../../src/plugins/receipts/receiptsRoutes');
 const routeUtils = require('../../../src/routes/routeUtils');
 const sinon = require('sinon');
+const { MockServer } = require('../../routes/utils/routeTestUtils');
 
 const { expect } = require('chai');
 
@@ -40,40 +41,25 @@ describe('receipts routes', () => {
 		statementsFake.withArgs(correctQueriedHeight, orderedStatementsCollections[1]).returns(addressResolutionStatementData);
 		statementsFake.withArgs(correctQueriedHeight, orderedStatementsCollections[2]).returns(mosaicResolutionStatementData);
 
-		const routes = {};
-		const server = {
-			get: (path, handler) => {
-				routes[path] = handler;
-			}
-		};
+		const mockServer = new MockServer();
 
-		receiptsRoutes.register(server, {
+		receiptsRoutes.register(mockServer.server, {
 			catapultDb: {
 				chainInfo: () => Promise.resolve({ height: highestHeight })
 			},
 			statementsAtHeight: statementsFake
 		});
 
-		let sentResponse;
-		const next = () => {};
-		const res = {
-			send: response => {
-				sentResponse = response;
-			},
-			redirect: () => {
-				next();
-			}
-		};
-
 		beforeEach(() => statementsFake.resetHistory());
+		beforeEach(() => mockServer.resetStats());
 
 		it('returns result if provided height is valid', () => {
 			// Arrange:
 			const req = { params: { height: correctQueriedHeight.toString() } };
 
 			// Act:
-			const route = routes[endpointUnderTest];
-			return route(req, res, next).then(() => {
+			const route = mockServer.routes[endpointUnderTest];
+			return mockServer.callRoute(route, req).then(() => {
 				// Assert:
 				expect(statementsFake.calledThrice).to.equal(true);
 				orderedStatementsCollections.forEach((statementCollection, index) => expect(
@@ -81,7 +67,7 @@ describe('receipts routes', () => {
 					`failed at index ${index}`
 				).to.equal(true));
 
-				expect(sentResponse).to.deep.equal({
+				expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 					payload: {
 						transactionStatements: transactionStatementData,
 						addressResolutionStatements: addressResolutionStatementData,
@@ -98,12 +84,12 @@ describe('receipts routes', () => {
 			const req = { params: { height: queriedHeight.toString() } };
 
 			// Act:
-			const route = routes[endpointUnderTest];
-			return route(req, res, next).then(() => {
+			const route = mockServer.routes[endpointUnderTest];
+			return mockServer.callRoute(route, req).then(() => {
 				// Assert:
 				expect(statementsFake.calledThrice).to.equal(true);
-				expect(sentResponse.statusCode).to.equal(404);
-				expect(sentResponse.message).to.equal(`no resource exists with id '${highestHeight + 10}'`);
+				expect(mockServer.send.firstCall.args[0].statusCode).to.equal(404);
+				expect(mockServer.send.firstCall.args[0].message).to.equal(`no resource exists with id '${highestHeight + 10}'`);
 			});
 		});
 
@@ -112,8 +98,8 @@ describe('receipts routes', () => {
 			const req = { params: { height: '10A' } };
 
 			// Act:
-			const route = routes[endpointUnderTest];
-			const apiResponse = expect(() => route(req, res, next).then(() => {})).to;
+			const route = mockServer.routes[endpointUnderTest];
+			const apiResponse = expect(() => mockServer.callRoute(route, req).then(() => {})).to;
 
 			// Assert:
 			apiResponse.throw('height has an invalid format');
@@ -126,16 +112,11 @@ describe('receipts routes', () => {
 	describe('get receipts merkle path', () => {
 		it('calls blockRouteMerkleProcessor with correct params', () => {
 			// Arrange:
+			const mockServer = new MockServer();
 			const blockRouteMerkleProcessorSpy = sinon.spy(routeUtils, 'blockRouteMerkleProcessor');
-			const routes = {};
-			const server = {
-				get: (path, handler) => {
-					routes[path] = handler;
-				}
-			};
 
 			// Act:
-			receiptsRoutes.register(server, {}, {});
+			receiptsRoutes.register(mockServer.server, {}, {});
 
 			// Assert:
 			expect(blockRouteMerkleProcessorSpy.calledOnce).to.equal(true);

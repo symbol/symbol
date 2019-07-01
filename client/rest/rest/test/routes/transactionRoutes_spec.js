@@ -19,8 +19,8 @@
  */
 
 const catapult = require('catapult-sdk');
-const test = require('./utils/routeTestUtils');
 const transactionRoutes = require('../../src/routes/transactionRoutes');
+const { test } = require('./utils/routeTestUtils');
 
 const { convert } = catapult.utils;
 

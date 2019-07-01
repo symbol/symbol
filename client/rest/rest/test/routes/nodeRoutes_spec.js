@@ -23,7 +23,7 @@ const { expect } = require('chai');
 
 const { convert } = catapult.utils;
 const nodeRoutes = require('../../src/routes/nodeRoutes');
-const test = require('./utils/routeTestUtils');
+const { test } = require('./utils/routeTestUtils');
 
 describe('node routes', () => {
 	describe('get', () => {

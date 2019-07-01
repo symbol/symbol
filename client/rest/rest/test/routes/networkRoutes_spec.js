@@ -21,7 +21,7 @@
 const { expect } = require('chai');
 
 const networkRoutes = require('../../src/routes/networkRoutes');
-const test = require('./utils/routeTestUtils');
+const { test } = require('./utils/routeTestUtils');
 
 describe('network routes', () => {
 	describe('get', () => {

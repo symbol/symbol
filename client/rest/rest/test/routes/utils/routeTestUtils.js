@@ -18,10 +18,40 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const sinon = require('sinon');
 const test = require('../../testUtils');
 const { expect } = require('chai');
 
 const makeTestName = (base, desc) => (desc ? `${base} ${desc}` : base);
+
+
+class MockServer {
+	constructor() {
+		this.routes = {};
+		this.server = {};
+		['get', 'put', 'post'].forEach(method => {
+			this.server[method] = (path, handler) => { this.routes[path] = handler; };
+		});
+
+		this.next = sinon.fake();
+		this.send = sinon.fake();
+		this.redirect = sinon.fake();
+		this.res = {
+			send: this.send,
+			redirect: this.redirect
+		};
+	}
+
+	resetStats() {
+		this.next.resetHistory();
+		this.send.resetHistory();
+		this.redirect.resetHistory();
+	}
+
+	callRoute(route, params) {
+		return route(params, this.res, this.next);
+	}
+}
 
 const routeTestUtils = {
 	setup: {
@@ -604,4 +634,7 @@ const routeTestUtils = {
 };
 Object.assign(routeTestUtils, test);
 
-module.exports = routeTestUtils;
+module.exports = {
+	MockServer,
+	test: routeTestUtils
+};

@@ -21,7 +21,7 @@
 const blockRoutes = require('../../src/routes/blockRoutes');
 const routeUtils = require('../../src/routes/routeUtils');
 const sinon = require('sinon');
-const test = require('./utils/routeTestUtils');
+const { MockServer, test } = require('./utils/routeTestUtils');
 
 const { expect } = require('chai');
 
@@ -130,16 +130,11 @@ describe('block routes', () => {
 	describe('block with merkle tree', () => {
 		it('calls blockRouteMerkleProcessor with correct params', () => {
 			// Arrange:
+			const mockServer = new MockServer();
 			const blockRouteMerkleProcessorSpy = sinon.spy(routeUtils, 'blockRouteMerkleProcessor');
-			const routes = {};
-			const server = {
-				get: (path, handler) => {
-					routes[path] = handler;
-				}
-			};
 
 			// Act:
-			blockRoutes.register(server, {}, { config: routeConfig });
+			blockRoutes.register(mockServer.server, {}, { config: routeConfig });
 
 			// Assert:
 			expect(blockRouteMerkleProcessorSpy.calledOnce).to.equal(true);

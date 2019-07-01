@@ -19,8 +19,8 @@
  */
 
 const diagnosticRoutes = require('../../src/routes/diagnosticRoutes');
-const test = require('./utils/routeTestUtils');
 const { expect } = require('chai');
+const { MockServer, test } = require('./utils/routeTestUtils');
 const { version: restVersion } = require('../../package.json');
 const { version: sdkVersion } = require('../../../catapult-sdk/package.json');
 
@@ -50,32 +50,15 @@ describe('diagnostic routes', () => {
 		it('can retrieve info', () => {
 			// Arrange:
 			const endpointUnderTest = '/diagnostic/server';
-			const routes = {};
-			const server = {
-				get: (path, handler) => {
-					routes[path] = handler;
-				}
-			};
-
-			diagnosticRoutes.register(server, {});
-
-			let capturedResponse;
-			const next = () => {};
-			const res = {
-				send: response => {
-					capturedResponse = response;
-				},
-				redirect: () => {
-					next();
-				}
-			};
+			const mockServer = new MockServer();
+			diagnosticRoutes.register(mockServer.server, {});
 
 			// Act:
-			const route = routes[endpointUnderTest];
-			route({}, res, next);
+			const route = mockServer.routes[endpointUnderTest];
+			mockServer.callRoute(route, {});
 
 			// Assert:
-			expect(capturedResponse).to.deep.equal({
+			expect(mockServer.send.firstCall.args[0]).to.deep.equal({
 				payload: {
 					serverInfo: {
 						restVersion,

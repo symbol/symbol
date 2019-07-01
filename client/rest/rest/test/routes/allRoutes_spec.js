@@ -19,7 +19,7 @@
  */
 
 const allRoutes = require('../../src/routes/allRoutes');
-const test = require('./utils/routeTestUtils');
+const { test } = require('./utils/routeTestUtils');
 
 describe('all routes', () => {
 	const registerAll = server => {

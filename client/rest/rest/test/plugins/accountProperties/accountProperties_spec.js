@@ -21,7 +21,7 @@
 const accountProperties = require('../../../src/plugins/accountProperties/accountProperties');
 const AccountPropertiesDb = require('../../../src/plugins/accountProperties/AccountPropertiesDb');
 const pluginTest = require('../utils/pluginTestUtils');
-const test = require('../../routes/utils/routeTestUtils');
+const { test } = require('../../routes/utils/routeTestUtils');
 
 describe('account properties plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(accountProperties, AccountPropertiesDb);

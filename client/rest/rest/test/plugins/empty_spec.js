@@ -20,7 +20,7 @@
 
 const empty = require('../../src/plugins/empty');
 const pluginTest = require('./utils/pluginTestUtils');
-const test = require('../routes/utils/routeTestUtils');
+const { test } = require('../routes/utils/routeTestUtils');
 
 describe('transfer plugin', () => {
 	pluginTest.assertThat.pluginDoesNotCreateDb(empty);

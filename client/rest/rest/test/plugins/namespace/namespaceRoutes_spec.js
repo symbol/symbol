@@ -23,9 +23,9 @@ const MongoDb = require('mongodb');
 const namespaceRoutes = require('../../../src/plugins/namespace/namespaceRoutes');
 const namespaceUtils = require('../../../src/plugins/namespace/namespaceUtils');
 const sinon = require('sinon');
-const test = require('../../routes/utils/routeTestUtils');
 const { convertToLong } = require('../../../src/db/dbUtils');
 const { expect } = require('chai');
+const { test } = require('../../routes/utils/routeTestUtils');
 
 const { Binary } = MongoDb;
 const { convert } = catapult.utils;

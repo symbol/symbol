@@ -20,8 +20,8 @@
 
 const accountRoutes = require('../../src/routes/accountRoutes');
 const catapult = require('catapult-sdk');
-const test = require('./utils/routeTestUtils');
 const { expect } = require('chai');
+const { test } = require('./utils/routeTestUtils');
 
 const { address } = catapult.model;
 const { convert } = catapult.utils;
