@@ -20,7 +20,7 @@ struct AccountOperationRestrictionTransactionBody
 # binary layout for a non-embedded account operation restriction transaction
 struct AccountOperationRestrictionTransaction
 	const uint8 version = 1
-	const EntityType entityType = 0x4153
+	const EntityType entityType = 0x4350
 
 	inline Transaction
 	inline AccountOperationRestrictionTransactionBody

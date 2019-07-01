@@ -20,7 +20,7 @@ struct AccountMosaicRestrictionTransactionBody
 # binary layout for a non-embedded account mosaic restriction transaction
 struct AccountMosaicRestrictionTransaction
 	const uint8 version = 1
-	const EntityType entityType = 0x4152
+	const EntityType entityType = 0x4250
 
 	inline Transaction
 	inline AccountMosaicRestrictionTransactionBody

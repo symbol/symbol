@@ -7,11 +7,15 @@ enum MosaicFlags : uint8
 	# no flags present
 	none = 0x00
 
-	# mosaic supply is mutable
+	# mosaic supports supply changes even when mosaic owner owns partial supply
 	supplyMutable = 0x01
 
-	# mosaic is transferable
+	# mosaic supports transfers between arbitrary accounts
+	# \note when not set, mosaic can only be transferred to and from mosaic owner
 	transferable = 0x02
+
+	# mosaic supports custom restrictions configured by mosaic owner
+	restrictable = 0x04
 
 # available mosaic property ids
 enum MosaicPropertyId : uint8
