@@ -53,7 +53,11 @@ class CatsParser(ScopeManager):
 
         active_factories = self.type_parser_factories if not self.active_parser else self.active_parser.factories()
 
-        factory = next(factory for factory in active_factories if factory.is_match(line_stripped))
+        try:
+            factory = next(factory for factory in active_factories if factory.is_match(line_stripped))
+        except StopIteration:
+            raise CatsParseException('none of the parsers matched the line "{0}"'.format(line_stripped))
+
         parser = factory.create()
         parse_result = parser.process_line(line_stripped)
 
