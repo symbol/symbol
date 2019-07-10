@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class AccountPropertiesDb {
+class AccountRestrictionsDb {
 	/**
-	 * Creates AccountPropertiesDb around CatapultDb.
+	 * Creates AccountRestrictionsDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
 	 */
 	constructor(db) {
@@ -28,15 +28,15 @@ class AccountPropertiesDb {
 	}
 
 	/**
-	 * Retrieves account properties of the given addresses.
+	 * Retrieves account restrictions of the given addresses.
 	 * @param {array<object>} addresses Given addresses.
-	 * @returns {Promise.<array>} Owned account properties.
+	 * @returns {Promise.<array>} Owned account restrictions.
 	 */
-	accountPropertiesByAddresses(addresses) {
+	accountRestrictionsByAddresses(addresses) {
 		const buffers = addresses.map(address => Buffer.from(address));
-		const conditions = { 'accountProperties.address': { $in: buffers } };
-		return this.catapultDb.queryDocuments('accountProperties', conditions);
+		const conditions = { 'accountRestrictions.address': { $in: buffers } };
+		return this.catapultDb.queryDocuments('accountRestrictions', conditions);
 	}
 }
 
-module.exports = AccountPropertiesDb;
+module.exports = AccountRestrictionsDb;

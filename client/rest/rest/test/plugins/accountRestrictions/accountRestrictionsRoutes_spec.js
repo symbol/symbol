@@ -18,7 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const accountPropertiesRoutes = require('../../../src/plugins/accountProperties/accountPropertiesRoutes');
+const accountRestrictionsRoutes = require('../../../src/plugins/accountRestrictions/accountRestrictionsRoutes');
 const catapult = require('catapult-sdk');
 const { test } = require('../../routes/utils/routeTestUtils');
 
@@ -28,12 +28,12 @@ const { convert } = catapult.utils;
 
 const publicKeyToAddress = publicKey => address.publicKeyToAddress(convert.hexToUint8(publicKey), networkInfo.networks.mijinTest.id);
 
-describe('account properties routes', () => {
+describe('account restrictions routes', () => {
 	const config = { network: { name: 'mijinTest' } };
 
 	describe('get by address', () => {
-		test.route.document.addGetPostDocumentRouteTests(accountPropertiesRoutes.register, {
-			routes: { singular: '/account/:accountId/properties', plural: '/account/properties' },
+		test.route.document.addGetPostDocumentRouteTests(accountRestrictionsRoutes.register, {
+			routes: { singular: '/account/:accountId/restrictions', plural: '/account/restrictions' },
 			inputs: {
 				valid: {
 					object: { accountId: addresses.valid[0] },
@@ -53,15 +53,15 @@ describe('account properties routes', () => {
 					error: 'element in array addresses has an invalid format'
 				}
 			},
-			dbApiName: 'accountPropertiesByAddresses',
-			type: 'accountProperties',
+			dbApiName: 'accountRestrictionsByAddresses',
+			type: 'accountRestrictions',
 			config
 		});
 	});
 
 	describe('get by public key', () => {
-		test.route.document.addGetPostDocumentRouteTests(accountPropertiesRoutes.register, {
-			routes: { singular: '/account/:accountId/properties', plural: '/account/properties' },
+		test.route.document.addGetPostDocumentRouteTests(accountRestrictionsRoutes.register, {
+			routes: { singular: '/account/:accountId/restrictions', plural: '/account/restrictions' },
 			inputs: {
 				valid: {
 					object: { accountId: publicKeys.valid[0] },
@@ -82,8 +82,8 @@ describe('account properties routes', () => {
 					error: 'element in array publicKeys has an invalid format'
 				}
 			},
-			dbApiName: 'accountPropertiesByAddresses',
-			type: 'accountProperties',
+			dbApiName: 'accountRestrictionsByAddresses',
+			type: 'accountRestrictions',
 			config
 		});
 	});
@@ -91,14 +91,14 @@ describe('account properties routes', () => {
 	it('does not support publicKeys and addresses provided at the same time', () => {
 		// Arrange:
 		const keyGroups = [];
-		const db = test.setup.createCapturingDb('accountPropertiesByAddresses', keyGroups, [{ value: 'this is nonsense' }]);
+		const db = test.setup.createCapturingDb('accountRestrictionsByAddresses', keyGroups, [{ value: 'this is nonsense' }]);
 
 		// Act:
-		const registerRoutes = accountPropertiesRoutes.register;
+		const registerRoutes = accountRestrictionsRoutes.register;
 		const errorMessage = 'publicKeys and addresses cannot both be provided';
 		return test.route.executeThrows(
 			registerRoutes,
-			'/account/properties',
+			'/account/restrictions',
 			'post',
 			{ addresses: addresses.valid, publicKeys: publicKeys.valid },
 			db,

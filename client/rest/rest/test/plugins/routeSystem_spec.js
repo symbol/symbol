@@ -39,7 +39,7 @@ describe('route system', () => {
 		// Assert:
 		expect(supportedPluginNames).to.deep.equal([
 			'accountLink',
-			'accountProperties',
+			'accountRestrictions',
 			'aggregate',
 			'lock',
 			'mosaic',

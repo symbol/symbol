@@ -60,14 +60,14 @@ const EntityType = {
 	/** Secret proof transaction. */
 	secretProof: 0x4252,
 
-	/** Account properties address modification transaction. */
-	accountPropertiesAddress: 0x4150,
+	/** Account address restriction modification transaction. */
+	accountRestrictionAddress: 0x4150,
 
-	/** Account properties mosaic modification transaction. */
-	accountPropertiesMosaic: 0x4250,
+	/** Account mosaic restriction modification transaction. */
+	accountRestrictionMosaic: 0x4250,
 
-	/** Account properties entity type modification transaction. */
-	accountPropertiesEntityType: 0x4350,
+	/** Account operation restriction modification transaction. */
+	accountRestrictionOperation: 0x4350,
 
 	/** Account link transaction. */
 	accountLink: 0x414C

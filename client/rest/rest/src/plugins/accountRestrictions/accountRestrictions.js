@@ -18,22 +18,22 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module plugins/accountProperties */
-const AccountPropertiesDb = require('./AccountPropertiesDb');
-const accountPropertiesRoutes = require('./accountPropertiesRoutes');
+/** @module plugins/accountRestrictions */
+const AccountRestrictionsDb = require('./AccountRestrictionsDb');
+const accountRestrictionsRoutes = require('./accountRestrictionsRoutes');
 
 /**
- * Creates an accountProperties plugin.
+ * Creates an accountRestrictions plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
 module.exports = {
-	createDb: db => new AccountPropertiesDb(db),
+	createDb: db => new AccountRestrictionsDb(db),
 
 	registerTransactionStates: () => {},
 
 	registerMessageChannels: () => {},
 
 	registerRoutes: (...args) => {
-		accountPropertiesRoutes.register(...args);
+		accountRestrictionsRoutes.register(...args);
 	}
 };

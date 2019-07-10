@@ -31,15 +31,15 @@ module.exports = {
 			? address.publicKeyToAddress(accountId, networkInfo.networks[services.config.network.name].id)
 			: accountId);
 
-		const accountPropertiesSender = routeUtils.createSender('accountProperties');
+		const accountRestrictionsSender = routeUtils.createSender('accountRestrictions');
 
-		server.get('/account/:accountId/properties', (req, res, next) => {
+		server.get('/account/:accountId/restrictions', (req, res, next) => {
 			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-			return db.accountPropertiesByAddresses([accountIdToAddress(type, accountId)])
-				.then(accountPropertiesSender.sendOne(req.params.accountId, res, next));
+			return db.accountRestrictionsByAddresses([accountIdToAddress(type, accountId)])
+				.then(accountRestrictionsSender.sendOne(req.params.accountId, res, next));
 		});
 
-		server.post('/account/properties', (req, res, next) => {
+		server.post('/account/restrictions', (req, res, next) => {
 			if (req.params.publicKeys && req.params.addresses)
 				throw errors.createInvalidArgumentError('publicKeys and addresses cannot both be provided');
 
@@ -49,8 +49,8 @@ module.exports = {
 
 			const accountIds = routeUtils.parseArgumentAsArray(req.params, idOptions.keyName, idOptions.parserName);
 
-			return db.accountPropertiesByAddresses(accountIds.map(accountId => accountIdToAddress(idOptions.type, accountId)))
-				.then(accountPropertiesSender.sendArray(idOptions.keyName, res, next));
+			return db.accountRestrictionsByAddresses(accountIds.map(accountId => accountIdToAddress(idOptions.type, accountId)))
+				.then(accountRestrictionsSender.sendArray(idOptions.keyName, res, next));
 		});
 	}
 };

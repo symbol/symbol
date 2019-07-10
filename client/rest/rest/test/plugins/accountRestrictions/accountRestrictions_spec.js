@@ -18,28 +18,28 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const accountProperties = require('../../../src/plugins/accountProperties/accountProperties');
-const AccountPropertiesDb = require('../../../src/plugins/accountProperties/AccountPropertiesDb');
+const accountRestrictions = require('../../../src/plugins/accountRestrictions/accountRestrictions');
+const AccountRestrictionsDb = require('../../../src/plugins/accountRestrictions/AccountRestrictionsDb');
 const pluginTest = require('../utils/pluginTestUtils');
 const { test } = require('../../routes/utils/routeTestUtils');
 
-describe('account properties plugin', () => {
-	pluginTest.assertThat.pluginCreatesDb(accountProperties, AccountPropertiesDb);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(accountProperties);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(accountProperties);
+describe('account restrictions plugin', () => {
+	pluginTest.assertThat.pluginCreatesDb(accountRestrictions, AccountRestrictionsDb);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(accountRestrictions);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(accountRestrictions);
 
 	describe('register routes', () => {
-		it('registers account properties GET routes', () => {
+		it('registers account restrictions GET routes', () => {
 			// Arrange:
 			const routes = [];
 			const server = test.setup.createCapturingMockServer('get', routes);
 
 			// Act:
-			accountProperties.registerRoutes(server, {}, { network: { name: 'mijinTest' } });
+			accountRestrictions.registerRoutes(server, {}, { network: { name: 'mijinTest' } });
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/:accountId/properties'
+				'/account/:accountId/restrictions'
 			]);
 		});
 
@@ -49,11 +49,11 @@ describe('account properties plugin', () => {
 			const server = test.setup.createCapturingMockServer('post', routes);
 
 			// Act:
-			accountProperties.registerRoutes(server, {}, { network: { name: 'mijinTest' } });
+			accountRestrictions.registerRoutes(server, {}, { network: { name: 'mijinTest' } });
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
-				'/account/properties'
+				'/account/restrictions'
 			]);
 		});
 	});

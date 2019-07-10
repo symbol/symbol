@@ -18,7 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const AccountPropertiesDb = require('../../../src/plugins/accountProperties/AccountPropertiesDb');
+const AccountRestrictionsDb = require('../../../src/plugins/accountRestrictions/AccountRestrictionsDb');
 const catapult = require('catapult-sdk');
 const dbTestUtils = require('../../db/utils/dbTestUtils');
 const MongoDb = require('mongodb');
@@ -27,61 +27,61 @@ const test = require('../../testUtils');
 const { Binary } = MongoDb;
 const { EntityType } = catapult.model;
 
-const createProperties = properties => {
-	const propertiesObject = [];
+const createRestrictions = restrictions => {
+	const restrictionsObject = [];
 
 	let values = [];
-	for (let i = 0; i < properties.numAddresses; ++i)
+	for (let i = 0; i < restrictions.numAddresses; ++i)
 		values.push(new Binary(test.random.address()));
 
-	propertiesObject.push({
-		propertyType: 0.5 > Math.random() ? 1 : 129,
+	restrictionsObject.push({
+		restrictionType: 0.5 > Math.random() ? 1 : 129,
 		values
 	});
 
 	values = [];
-	for (let i = 0; i < properties.numMosaics; ++i)
+	for (let i = 0; i < restrictions.numMosaics; ++i)
 		values.push(Math.floor(Math.random() * 1000));
 
-	propertiesObject.push({
-		propertyType: 0.5 > Math.random() ? 2 : 130,
+	restrictionsObject.push({
+		restrictionType: 0.5 > Math.random() ? 2 : 130,
 		values
 	});
 
 	values = [];
-	for (let i = 0; i < properties.numEntityTypes; ++i) {
-		const entityKeys = Object.keys(EntityType);
-		values.push(EntityType[entityKeys[Math.floor(entityKeys.length * Math.random())]]);
+	for (let i = 0; i < restrictions.numOperations; ++i) {
+		const operationTypes = Object.keys(EntityType);
+		values.push(EntityType[operationTypes[Math.floor(operationTypes.length * Math.random())]]);
 	}
 
-	propertiesObject.push({
-		propertyType: 0.5 > Math.random() ? 4 : 132,
+	restrictionsObject.push({
+		restrictionType: 0.5 > Math.random() ? 4 : 132,
 		values
 	});
 
-	return propertiesObject;
+	return restrictionsObject;
 };
 
-const createAccountProperties = (address, propertiesDescriptor) => {
-	const accountProperties = {
+const createAccountRestrictions = (address, restrictionsDescriptor) => {
+	const accountRestrictions = {
 		address: new Binary(address),
-		properties: createProperties(propertiesDescriptor)
+		restrictions: createRestrictions(restrictionsDescriptor)
 	};
-	return { _id: dbTestUtils.db.createObjectId(Math.floor(Math.random() * 10000)), meta: {}, accountProperties };
+	return { _id: dbTestUtils.db.createObjectId(Math.floor(Math.random() * 10000)), meta: {}, accountRestrictions };
 };
 
-const accountPropertiesDbTestUtils = {
+const accountRestrictionsDbTestUtils = {
 	db: {
-		createAccountProperties,
+		createAccountRestrictions,
 		runDbTest: (dbEntities, issueDbCommand, assertDbCommandResult) => dbTestUtils.db.runDbTest(
 			dbEntities,
-			'accountProperties',
-			db => new AccountPropertiesDb(db),
+			'accountRestrictions',
+			db => new AccountRestrictionsDb(db),
 			issueDbCommand,
 			assertDbCommandResult
 		)
 	}
 };
-Object.assign(accountPropertiesDbTestUtils, test);
+Object.assign(accountRestrictionsDbTestUtils, test);
 
-module.exports = accountPropertiesDbTestUtils;
+module.exports = accountRestrictionsDbTestUtils;
