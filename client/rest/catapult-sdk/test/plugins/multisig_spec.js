@@ -132,9 +132,9 @@ describe('multisig plugin', () => {
 				data.buffer.writeUInt8(3, constants.sizes.modifyMultisigAccount - 1);
 
 				data.object.modifications = [
-					{ type: 0x31, cosignatoryPublicKey: key1 },
-					{ type: 0x20, cosignatoryPublicKey: key2 },
-					{ type: 0x86, cosignatoryPublicKey: key3 }
+					{ modificationType: 0x31, cosignatoryPublicKey: key1 },
+					{ modificationType: 0x20, cosignatoryPublicKey: key2 },
+					{ modificationType: 0x86, cosignatoryPublicKey: key3 }
 				];
 				return data;
 			};

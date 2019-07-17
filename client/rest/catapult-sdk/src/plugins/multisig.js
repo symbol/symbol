@@ -64,9 +64,9 @@ const multisigPlugin = {
 				transaction.modifications = [];
 
 				while (transaction.modifications.length < numModifications) {
-					const type = parser.uint8();
+					const modificationType = parser.uint8();
 					const cosignatoryPublicKey = parser.buffer(constants.sizes.signer);
-					transaction.modifications.push({ type, cosignatoryPublicKey });
+					transaction.modifications.push({ modificationType, cosignatoryPublicKey });
 				}
 
 				return transaction;
@@ -80,7 +80,7 @@ const multisigPlugin = {
 				serializer.writeUint8(numModifications);
 
 				transaction.modifications.forEach(modification => {
-					serializer.writeUint8(modification.type);
+					serializer.writeUint8(modification.modificationType);
 					serializer.writeBuffer(modification.cosignatoryPublicKey);
 				});
 			}
