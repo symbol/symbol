@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { test } = require('./utils/routeTestUtils');
 const chainRoutes = require('../../src/routes/chainRoutes');
 const { expect } = require('chai');
-const { test } = require('./utils/routeTestUtils');
 
 describe('chain routes', () => {
 	const executeRoute = (routeName, db, assertResponse) =>

@@ -19,8 +19,8 @@
  */
 
 const entityEmitterFactory = require('../../src/db/entityEmitterFactory');
-const EventEmitter = require('events');
 const { expect } = require('chai');
+const EventEmitter = require('events');
 
 describe('entity emitter factory', () => {
 	it('registers block listener', () => {

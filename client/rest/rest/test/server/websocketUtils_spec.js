@@ -219,4 +219,3 @@ describe('websocketUtils', () => {
 		});
 	});
 });
-

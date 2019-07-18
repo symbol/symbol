@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const EventEmitter = require('events');
 const winston = require('winston');
+const EventEmitter = require('events');
 
 module.exports = {
 	createEntityEmitter: createOpEmitter => {

@@ -19,9 +19,9 @@
  */
 
 const convert = require('../src/utils/convert');
-const crypto = require('crypto');
 const sizes = require('../src/modelBinary/sizes');
 const { createKeyPairFromPrivateKeyString } = require('../src/crypto/keyPair');
+const crypto = require('crypto');
 
 module.exports = {
 	constants: { sizes },

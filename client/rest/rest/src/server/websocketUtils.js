@@ -19,11 +19,10 @@
  */
 
 const catapult = require('catapult-sdk');
-const crypto = require('crypto');
 const winston = require('winston');
+const crypto = require('crypto');
 
 const { base32 } = catapult.utils;
-
 
 module.exports = {
 	/**

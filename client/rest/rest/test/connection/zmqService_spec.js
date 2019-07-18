@@ -18,11 +18,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
 const test = require('../testUtils');
-const zmq = require('zeromq');
 const { createZmqConnectionService } = require('../../src/connection/zmqService');
+const zmq = require('zeromq');
+const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 
 describe('zmq service', () => {

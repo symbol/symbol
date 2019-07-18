@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const MongoDb = require('mongodb');
 const test = require('./receiptsDbTestUtils');
+const MongoDb = require('mongodb');
 const { expect } = require('chai');
 
 const { Long } = MongoDb;

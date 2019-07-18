@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const AccountType = require('../../../src/plugins/AccountType');
 const entitiesByAccounts = require('./entriesByAccountsTestUtils');
 const test = require('./multisigDbTestUtils');
+const AccountType = require('../../../src/plugins/AccountType');
 
 describe('multisig db', () => {
 	describe('multisigs by publicKey', () =>

@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const connector = require('../../src/db/connector');
 const testDbOptions = require('./utils/testDbOptions');
+const connector = require('../../src/db/connector');
 const { expect } = require('chai');
 
 describe('connector', () => {
@@ -41,6 +41,6 @@ describe('connector', () => {
 
 				// Assert:
 				expect(client).to.not.equal(null);
-				expect(client.db().s.databaseName).to.equal('tokyo');
+				expect(client.db().s.namespace.db).to.equal('tokyo');
 			}));
 });

@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const networkTime = require('../utils/networkTime');
 const random = require('../utils/random');
+const catapult = require('catapult-sdk');
 
 const { uint64 } = catapult.utils;
 

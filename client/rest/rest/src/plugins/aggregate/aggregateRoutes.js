@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const routeUtils = require('../../routes/routeUtils');
+const catapult = require('catapult-sdk');
 
 const { convert } = catapult.utils;
 const { PacketType } = catapult.packet;

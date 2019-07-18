@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const dbFacade = require('./dbFacade');
-const errors = require('../server/errors');
 const routeResultTypes = require('./routeResultTypes');
+const errors = require('../server/errors');
+const catapult = require('catapult-sdk');
 
 const { address } = catapult.model;
 const { buildAuditPath, indexOfLeafWithHash } = catapult.crypto.merkle;
@@ -67,7 +67,7 @@ const namedParserMap = {
 	accountId: str => {
 		if (constants.sizes.hexPublicKey === str.length)
 			return ['publicKey', convert.hexToUint8(str)];
-		else if (constants.sizes.addressEncoded === str.length)
+		if (constants.sizes.addressEncoded === str.length)
 			return ['address', address.stringToAddress(str)];
 
 		throw Error(`invalid length of account id '${str.length}'`);

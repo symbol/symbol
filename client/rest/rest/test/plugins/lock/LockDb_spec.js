@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const AccountType = require('../../../src/plugins/AccountType');
 const test = require('./lockDbTestUtils');
+const AccountType = require('../../../src/plugins/AccountType');
 const testUtils = require('../../testUtils');
 const { expect } = require('chai');
 

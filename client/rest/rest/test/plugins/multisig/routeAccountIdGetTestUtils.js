@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const { test } = require('../../routes/utils/routeTestUtils');
+const catapult = require('catapult-sdk');
 
 const Valid_Address = test.sets.addresses.valid[0];
 const Valid_Public_Key = test.sets.publicKeys.valid[0];

@@ -20,17 +20,17 @@
 
 const allRoutes = require('./routes/allRoutes');
 const bootstrapper = require('./server/bootstrapper');
-const catapult = require('catapult-sdk');
 const CatapultDb = require('./db/CatapultDb');
 const dbFormattingRules = require('./db/dbFormattingRules');
 const formatters = require('./server/formatters');
-const fs = require('fs');
 const messageFormattingRules = require('./server/messageFormattingRules');
 const routeSystem = require('./plugins/routeSystem');
-const winston = require('winston');
-const { createConnection } = require('net');
 const { createConnectionService } = require('./connection/connectionService');
 const { createZmqConnectionService } = require('./connection/zmqService');
+const winston = require('winston');
+const catapult = require('catapult-sdk');
+const { createConnection } = require('net');
+const fs = require('fs');
 
 const configureLogging = config => {
 	winston.remove(winston.transports.Console);

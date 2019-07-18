@@ -65,8 +65,10 @@ const namespaceUtils = {
 			const namespaceIds = [];
 			namespaces.forEach(n => {
 				namespaceIds.push(n.namespace.level0);
-				if (2 <= n.namespace.depth) namespaceIds.push(n.namespace.level1);
-				if (3 <= n.namespace.depth) namespaceIds.push(n.namespace.level2);
+				if (2 <= n.namespace.depth)
+					namespaceIds.push(n.namespace.level1);
+				if (3 <= n.namespace.depth)
+					namespaceIds.push(n.namespace.level2);
 			});
 
 			return catapultDb.registerNamespaceTransactionsByNamespaceIds(namespaceIds).then(transactions => {

@@ -19,8 +19,8 @@
  */
 
 const accountRestrictionsRoutes = require('../../../src/plugins/accountRestrictions/accountRestrictionsRoutes');
-const catapult = require('catapult-sdk');
 const { test } = require('../../routes/utils/routeTestUtils');
+const catapult = require('catapult-sdk');
 
 const { address, networkInfo } = catapult.model;
 const { addresses, publicKeys } = test.sets;

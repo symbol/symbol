@@ -23,14 +23,14 @@ const accountLink = require('./accountLink');
 const accountRestrictions = require('./accountRestrictions');
 const aggregate = require('./aggregate');
 const lock = require('./lock');
-const ModelCodecBuilder = require('../modelBinary/ModelCodecBuilder');
-const ModelFormatterBuilder = require('../model/ModelFormatterBuilder');
-const ModelSchemaBuilder = require('../model/ModelSchemaBuilder');
 const mosaic = require('./mosaic');
 const multisig = require('./multisig');
 const namespace = require('./namespace');
 const receipts = require('./receipts');
 const transfer = require('./transfer');
+const ModelSchemaBuilder = require('../model/ModelSchemaBuilder');
+const ModelFormatterBuilder = require('../model/ModelFormatterBuilder');
+const ModelCodecBuilder = require('../modelBinary/ModelCodecBuilder');
 
 const plugins = {
 	accountLink, accountRestrictions, aggregate, lock, mosaic, multisig, namespace, receipts, transfer

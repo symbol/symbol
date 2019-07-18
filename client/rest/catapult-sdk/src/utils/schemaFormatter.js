@@ -21,7 +21,6 @@
 /** @module utils/schemaFormatter */
 const SchemaType = require('./SchemaType');
 
-
 // if 'definition' is a number, it is the type
 // otherwise, it is an object with an optional type property (default type is none)
 const getSchemaType = definition => ('number' === typeof definition ? definition : definition.type || SchemaType.none);

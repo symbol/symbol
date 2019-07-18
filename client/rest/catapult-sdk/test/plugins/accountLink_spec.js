@@ -21,9 +21,8 @@
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const test = require('../binaryTestUtils');
-const { expect } = require('chai');
-
 const accountLinkPlugin = require('../../src/plugins/accountLink');
+const { expect } = require('chai');
 
 describe('account link plugin', () => {
 	describe('register schema', () => {

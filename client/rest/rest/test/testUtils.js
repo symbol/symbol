@@ -19,9 +19,9 @@
  */
 
 const catapult = require('catapult-sdk');
-const crypto = require('crypto');
 const MongoDb = require('mongodb');
 const winston = require('winston');
+const crypto = require('crypto');
 
 const { sizes } = catapult.constants;
 const random = {

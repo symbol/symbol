@@ -20,9 +20,9 @@
 
 /** @module modelBinary/ModelCodecBuilder */
 const blockHeaderCodec = require('./blockHeaderCodec');
-const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
 const transactionCodec = require('./transactionCodec');
 const verifiableEntityCodec = require('./verifiableEntityCodec');
+const SerializedSizeCalculator = require('../serializer/SerializedSizeCalculator');
 
 const constants = {
 	sizes: {

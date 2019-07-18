@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const dbFacade = require('./dbFacade');
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
+const catapult = require('catapult-sdk');
 
 const { convert } = catapult.utils;
 const { constants } = catapult;

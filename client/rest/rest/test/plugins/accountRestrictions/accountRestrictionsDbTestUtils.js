@@ -19,10 +19,10 @@
  */
 
 const AccountRestrictionsDb = require('../../../src/plugins/accountRestrictions/AccountRestrictionsDb');
-const catapult = require('catapult-sdk');
 const dbTestUtils = require('../../db/utils/dbTestUtils');
-const MongoDb = require('mongodb');
 const test = require('../../testUtils');
+const catapult = require('catapult-sdk');
+const MongoDb = require('mongodb');
 
 const { Binary } = MongoDb;
 const { EntityType } = catapult.model;

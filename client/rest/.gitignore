@@ -4,6 +4,7 @@ node_modules/
 __pycache__/
 catapult-*.log*
 npm-*.log*
+yarn-*.log*
 .idea
 .vscode/
 typings.json

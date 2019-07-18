@@ -18,14 +18,13 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
-const routeUtils = require('../../src/routes/routeUtils');
-const sinon = require('sinon');
 const { test } = require('./utils/routeTestUtils');
+const routeUtils = require('../../src/routes/routeUtils');
+const catapult = require('catapult-sdk');
+const { expect } = require('chai');
+const sinon = require('sinon');
 
 const { convert } = catapult.utils;
-
-const { expect } = require('chai');
 
 const invalidObjectIdStrings = [
 	'112233445566778899AABB', // too short

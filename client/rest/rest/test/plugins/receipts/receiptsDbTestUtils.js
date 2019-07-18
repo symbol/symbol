@@ -19,9 +19,9 @@
  */
 
 const dbTestUtils = require('../../db/utils/dbTestUtils');
-const MongoDb = require('mongodb');
 const ReceiptsDb = require('../../../src/plugins/receipts/ReceiptsDb');
 const test = require('../../testUtils');
+const MongoDb = require('mongodb');
 
 const { Binary, Long } = MongoDb;
 

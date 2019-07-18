@@ -18,10 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { expect } = require('chai');
-
-const networkRoutes = require('../../src/routes/networkRoutes');
 const { test } = require('./utils/routeTestUtils');
+const networkRoutes = require('../../src/routes/networkRoutes');
+const { expect } = require('chai');
 
 describe('network routes', () => {
 	describe('get', () => {

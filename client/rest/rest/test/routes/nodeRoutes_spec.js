@@ -18,12 +18,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { test } = require('./utils/routeTestUtils');
+const nodeRoutes = require('../../src/routes/nodeRoutes');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 
 const { convert } = catapult.utils;
-const nodeRoutes = require('../../src/routes/nodeRoutes');
-const { test } = require('./utils/routeTestUtils');
 
 describe('node routes', () => {
 	describe('get', () => {
@@ -39,7 +39,6 @@ describe('node routes', () => {
 				apiNode: { timeout: 1000 }
 			}
 		});
-
 
 		it('can retrieve node information', () => {
 			// Arrange:

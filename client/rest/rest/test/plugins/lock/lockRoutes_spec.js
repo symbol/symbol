@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const lockRoutes = require('../../../src/plugins/lock/lockRoutes');
 const { test } = require('../../routes/utils/routeTestUtils');
+const catapult = require('catapult-sdk');
 
 const { addresses, publicKeys } = test.sets;
 const { address } = catapult.model;

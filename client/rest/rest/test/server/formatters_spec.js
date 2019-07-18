@@ -179,7 +179,8 @@ describe('formatters', () => {
 					}
 				};
 
-				if (object) object.formatter = 'anotherFormatter';
+				if (object)
+					object.formatter = 'anotherFormatter';
 
 				// Act:
 				const result = createFormatters('anotherFormatter').json(req, res, object);

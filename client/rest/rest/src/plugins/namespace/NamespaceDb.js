@@ -19,9 +19,9 @@
  */
 
 const AccountType = require('../AccountType');
+const { convertToLong } = require('../../db/dbUtils');
 const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
-const { convertToLong } = require('../../db/dbUtils');
 
 const { Long } = MongoDb;
 

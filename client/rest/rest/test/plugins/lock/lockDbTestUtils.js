@@ -20,8 +20,8 @@
 
 const dbTestUtils = require('../../db/utils/dbTestUtils');
 const LockDb = require('../../../src/plugins/lock/LockDb');
-const MongoDb = require('mongodb');
 const test = require('../../testUtils');
+const MongoDb = require('mongodb');
 
 const { Binary } = MongoDb;
 

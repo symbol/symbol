@@ -5,8 +5,6 @@ env:
 extends: airbnb
 parserOptions:
   sourceType: module
-plugins:
-  - sort-requires
 
 rules:
   indent:
@@ -31,6 +29,12 @@ rules:
   max-len:
   - error
   - code: 140
+
+  nonblock-statement-body-position:
+  - error
+  - below
+  implicit-arrow-linebreak:
+  - off
 
   no-tabs:
   - off
@@ -89,6 +93,17 @@ rules:
       Object: object
       String: string
 
+  import/order:
+    - error
+    - newlines-between: never
+      groups:
+      - index
+      - sibling
+      - parent
+      - internal
+      - external
+      - builtin
+
   import/extensions:
   - error
   - never
@@ -100,6 +115,3 @@ rules:
   - error
   import/named:
   - error
-
-  sort-requires/sort-requires:
-  - 2

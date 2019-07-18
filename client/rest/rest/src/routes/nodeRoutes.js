@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
+const routeResultTypes = require('./routeResultTypes');
 const nodeInfoCodec = require('../sockets/nodeInfoCodec');
 const nodeTimeCodec = require('../sockets/nodeTimeCodec');
-const routeResultTypes = require('./routeResultTypes');
+const catapult = require('catapult-sdk');
 
 const packetHeader = catapult.packet.header;
 const { PacketType } = catapult.packet;

@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const catapultConnection = require('./catapultConnection');
 const errors = require('../server/errors');
+const catapult = require('catapult-sdk');
 
 const { convert } = catapult.utils;
 const { createKeyPairFromPrivateKeyString } = catapult.crypto;

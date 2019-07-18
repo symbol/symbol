@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { longToUint64 } = require('./dbUtils');
 const catapult = require('catapult-sdk');
 const { Binary } = require('mongodb');
-const { longToUint64 } = require('./dbUtils');
 
 const { ModelType, status } = catapult.model;
 const { convert, uint64 } = catapult.utils;

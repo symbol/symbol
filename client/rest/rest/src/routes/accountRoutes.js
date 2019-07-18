@@ -18,11 +18,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const AccountType = require('../plugins/AccountType');
-const catapult = require('catapult-sdk');
-const errors = require('../server/errors');
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
+const AccountType = require('../plugins/AccountType');
+const errors = require('../server/errors');
+const catapult = require('catapult-sdk');
 
 const { convert } = catapult.utils;
 

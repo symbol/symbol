@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
-const fs = require('fs');
 const modelFormatter = require('./model/modelFormatter');
+const catapult = require('catapult-sdk');
 const winston = require('winston');
+const fs = require('fs');
 const { createConnection } = require('net');
 
 const { createAuthPromise } = catapult.auth;

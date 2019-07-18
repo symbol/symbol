@@ -19,9 +19,9 @@
  */
 
 const dbTestUtils = require('../../db/utils/dbTestUtils');
-const MongoDb = require('mongodb');
 const MultisigDb = require('../../../src/plugins/multisig/MultisigDb');
 const test = require('../../testUtils');
+const MongoDb = require('mongodb');
 
 const { Binary } = MongoDb;
 

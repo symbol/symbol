@@ -19,8 +19,8 @@
  */
 
 const routeSystem = require('../../src/plugins/routeSystem');
-const { expect } = require('chai');
 const { test } = require('../routes/utils/routeTestUtils');
+const { expect } = require('chai');
 
 describe('route system', () => {
 	const servicesTemplate = { config: { websocket: {} }, connections: {} };

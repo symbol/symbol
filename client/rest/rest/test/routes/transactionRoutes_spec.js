@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
-const transactionRoutes = require('../../src/routes/transactionRoutes');
 const { test } = require('./utils/routeTestUtils');
+const transactionRoutes = require('../../src/routes/transactionRoutes');
+const catapult = require('catapult-sdk');
 
 const { convert } = catapult.utils;
 

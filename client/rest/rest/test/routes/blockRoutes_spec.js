@@ -18,11 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const { MockServer, test } = require('./utils/routeTestUtils');
 const blockRoutes = require('../../src/routes/blockRoutes');
 const routeUtils = require('../../src/routes/routeUtils');
 const sinon = require('sinon');
-const { MockServer, test } = require('./utils/routeTestUtils');
-
 const { expect } = require('chai');
 
 describe('block routes', () => {

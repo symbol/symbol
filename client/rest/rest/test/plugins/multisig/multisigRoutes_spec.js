@@ -18,11 +18,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
-const multisigRoutes = require('../../../src/plugins/multisig/multisigRoutes');
 const routeAccountIdGetTestUtils = require('./routeAccountIdGetTestUtils');
-const { expect } = require('chai');
+const multisigRoutes = require('../../../src/plugins/multisig/multisigRoutes');
 const { test } = require('../../routes/utils/routeTestUtils');
+const catapult = require('catapult-sdk');
+const { expect } = require('chai');
 
 const { convert } = catapult.utils;
 

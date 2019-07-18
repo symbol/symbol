@@ -20,9 +20,8 @@
 
 const receiptsRoutes = require('../../../src/plugins/receipts/receiptsRoutes');
 const routeUtils = require('../../../src/routes/routeUtils');
-const sinon = require('sinon');
 const { MockServer } = require('../../routes/utils/routeTestUtils');
-
+const sinon = require('sinon');
 const { expect } = require('chai');
 
 describe('receipts routes', () => {

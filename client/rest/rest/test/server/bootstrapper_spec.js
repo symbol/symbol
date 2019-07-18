@@ -19,17 +19,17 @@
  */
 
 const bootstrapper = require('../../src/server/bootstrapper');
-const catapult = require('catapult-sdk');
 const errors = require('../../src/server/errors');
-const EventEmitter = require('events');
 const formatters = require('../../src/server/formatters');
-const hippie = require('hippie');
 const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
 const test = require('../testUtils');
+const { createZmqConnectionService } = require('../../src/connection/zmqService');
+const hippie = require('hippie');
 const WebSocket = require('ws');
 const zmq = require('zeromq');
-const { createZmqConnectionService } = require('../../src/connection/zmqService');
+const catapult = require('catapult-sdk');
 const { expect } = require('chai');
+const EventEmitter = require('events');
 
 const supportedHttpMethods = ['get', 'post', 'put'];
 
@@ -194,8 +194,7 @@ describe('server (bootstrapper)', () => {
 			const shouldHaveContent = undefined !== expectedContentLength;
 
 			const message = `received headers: ${JSON.stringify(headers)}`;
-			const numExpectedHeaders =
-				2
+			const numExpectedHeaders = 2
 				+ (options.numAdditionalHeaders | 0)
 				+ (shouldAllowCrossDomain ? 3 : 0)
 				+ (shouldHaveContent ? 2 : 0);
@@ -477,9 +476,9 @@ describe('server (bootstrapper)', () => {
 				runBasicOptionsTest('/dummy', 'POST', done);
 			});
 
-			it('prefers exact matches', done => {
-				// notice that /dummy/names could potentially match GET /dummy/:dummyId
-				runBasicOptionsTest('/dummy/names', 'POST', done);
+			it('allows all matches', done => {
+				// notice that /dummy/names could also match GET /dummy/:dummyId
+				runBasicOptionsTest('/dummy/names', 'GET, POST', done);
 			});
 
 			it('handles non existent route properly', done => {

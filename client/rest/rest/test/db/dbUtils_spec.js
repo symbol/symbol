@@ -20,7 +20,6 @@
 
 const dbUtils = require('../../src/db/dbUtils');
 const MongoDb = require('mongodb');
-
 const { expect } = require('chai');
 
 describe('db utils', () => {

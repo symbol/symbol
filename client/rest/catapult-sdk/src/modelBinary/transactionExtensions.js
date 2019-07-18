@@ -18,10 +18,10 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const crypto = require('../crypto/keyPair');
 const serialize = require('./serialize');
-const sha3Hasher = require('../crypto/sha3Hasher');
 const sizes = require('./sizes');
+const crypto = require('../crypto/keyPair');
+const sha3Hasher = require('../crypto/sha3Hasher');
 
 // serialize.toBuffer returns a nodejs buffer that does not copy any data when slicing
 const serializeToBuffer = (codec, transaction) => serialize.toBuffer(codec, transaction).slice(sizes.transactionHeader);

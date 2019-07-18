@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
+const catapult = require('catapult-sdk');
 
 const { convert } = catapult.utils;
 const { PacketType } = catapult.packet;
@@ -62,7 +62,7 @@ module.exports = {
 
 				if (constants.sizes.objectId === transactionId.length)
 					return parseObjectId(transactionId);
-				else if (constants.sizes.hash === transactionId.length)
+				if (constants.sizes.hash === transactionId.length)
 					return convert.hexToUint8(transactionId);
 
 				throw Error(`invalid length of transaction id '${transactionId}'`);

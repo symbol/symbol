@@ -19,9 +19,9 @@
  */
 
 const AccountType = require('../AccountType');
-const catapult = require('catapult-sdk');
 const errors = require('../../server/errors');
 const routeUtils = require('../../routes/routeUtils');
+const catapult = require('catapult-sdk');
 
 const { address, networkInfo } = catapult.model;
 

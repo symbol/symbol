@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const nodeInfoCodec = require('../../src/sockets/nodeInfoCodec');
+const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 
 const { BinaryParser } = catapult.parser;

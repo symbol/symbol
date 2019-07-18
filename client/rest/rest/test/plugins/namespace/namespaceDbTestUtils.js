@@ -19,9 +19,9 @@
  */
 
 const dbTestUtils = require('../../db/utils/dbTestUtils');
-const MongoDb = require('mongodb');
 const NamespaceDb = require('../../../src/plugins/namespace/NamespaceDb');
 const test = require('../../testUtils');
+const MongoDb = require('mongodb');
 
 const { Binary, Long } = MongoDb;
 

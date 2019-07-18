@@ -21,9 +21,8 @@
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const ModelType = require('../../src/model/ModelType');
 const schemaFormatter = require('../../src/utils/schemaFormatter');
-const { expect } = require('chai');
-
 const receiptsPlugin = require('../../src/plugins/receipts');
+const { expect } = require('chai');
 
 describe('receipts plugin', () => {
 	describe('register schema', () => {
@@ -123,7 +122,6 @@ describe('receipts plugin', () => {
 			expect(Object.keys(modelSchema['receipts.unknown']).length).to.equal(0);
 		});
 	});
-
 
 	describe('conditional schema', () => {
 		describe('uses the correct conditional schema depending on receipt type', () => {

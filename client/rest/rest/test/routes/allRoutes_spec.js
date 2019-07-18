@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const allRoutes = require('../../src/routes/allRoutes');
 const { test } = require('./utils/routeTestUtils');
+const allRoutes = require('../../src/routes/allRoutes');
 
 describe('all routes', () => {
 	const registerAll = server => {

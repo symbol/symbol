@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
 const { createConnectionService } = require('../../src/connection/connectionService');
+const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 
 const { convert } = catapult.utils;

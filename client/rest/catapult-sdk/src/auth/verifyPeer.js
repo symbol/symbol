@@ -21,8 +21,8 @@
 /** @module auth/verifyPeer */
 const challengeHandler = require('./challenge');
 const challengeParser = require('./challengeParser');
-const EventEmitter = require('events');
 const VerifyResult = require('./VerifyResult');
+const EventEmitter = require('events');
 
 class AuthPacketHandler {
 	constructor(serverSocket, clientKeyPair, serverPublicKey) {

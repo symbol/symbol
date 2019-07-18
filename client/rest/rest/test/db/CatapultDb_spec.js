@@ -18,11 +18,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapult = require('catapult-sdk');
-const CatapultDb = require('../../src/db/CatapultDb');
-const MongoDb = require('mongodb');
 const test = require('./utils/dbTestUtils');
 const testDbOptions = require('./utils/testDbOptions');
+const CatapultDb = require('../../src/db/CatapultDb');
+const catapult = require('catapult-sdk');
+const MongoDb = require('mongodb');
 const { expect } = require('chai');
 
 const { address, EntityType } = catapult.model;
@@ -698,9 +698,9 @@ describe('catapult db', () => {
 		);
 
 		const createExpected = (parentId, markerId) => ({
-			markerId: Long.fromNumber(markerId),
+			markerId,
 			markerName: `marker-${markerId}`,
-			parentMarkerId: Long.fromNumber(parentId)
+			parentMarkerId: parentId
 		});
 
 		it('returns empty array for unknown ids', () =>

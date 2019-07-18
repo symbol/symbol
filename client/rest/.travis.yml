@@ -2,7 +2,7 @@ language: node_js
 
 node_js:
   - "8"
-  - "9"
+  - "10"
 
 addons:
   apt:
@@ -24,4 +24,4 @@ cache: yarn
 
 before_script: sh yarn_setup.sh
 
-script: cd ${SUBPROJECT} && yarn run test:travis
+script: cd ${SUBPROJECT} && yarn run lint && yarn run test:travis

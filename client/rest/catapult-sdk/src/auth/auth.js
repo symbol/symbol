@@ -19,9 +19,9 @@
  */
 
 /** @module auth/auth */
-const PacketParser = require('../parser/PacketParser');
 const verifyPeer = require('./verifyPeer');
 const VerifyResult = require('./VerifyResult');
+const PacketParser = require('../parser/PacketParser');
 
 /**
  * An error that indicates a failed verification handshake.

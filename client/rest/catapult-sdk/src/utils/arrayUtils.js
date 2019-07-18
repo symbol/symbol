@@ -29,7 +29,7 @@ const arrayUtils = {
 	uint8View: input => {
 		if (ArrayBuffer === input.constructor)
 			return new Uint8Array(input); // note that wrapping an ArrayBuffer in an Uint8Array does not make a copy
-		else if (Uint8Array === input.constructor)
+		if (Uint8Array === input.constructor)
 			return input;
 
 		throw Error('unsupported type passed to uint8View');
