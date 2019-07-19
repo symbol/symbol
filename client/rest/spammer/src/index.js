@@ -18,12 +18,12 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const random = require('./utils/random');
-const spammerOptions = require('./utils/spammerOptions');
 const spammerUtils = require('./model/spammerUtils');
 const transactionFactory = require('./model/transactionFactory');
-const restify = require('restify');
+const random = require('./utils/random');
+const spammerOptions = require('./utils/spammerOptions');
 const catapult = require('catapult-sdk');
+const restify = require('restify');
 const winston = require('winston');
 const crypto = require('crypto');
 

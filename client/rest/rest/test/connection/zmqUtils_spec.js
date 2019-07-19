@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('../testUtils');
 const zmqUtils = require('../../src/connection/zmqUtils');
+const test = require('../testUtils');
 const { expect } = require('chai');
 
 describe('zmqUtils', () => {

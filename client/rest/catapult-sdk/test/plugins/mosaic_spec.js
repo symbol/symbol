@@ -18,11 +18,11 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const BinarySerializer = require('../../src/serializer/BinarySerializer');
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const ModelType = require('../../src/model/ModelType');
 const mosaic = require('../../src/plugins/mosaic');
+const BinarySerializer = require('../../src/serializer/BinarySerializer');
 const test = require('../binaryTestUtils');
 const { expect } = require('chai');
 

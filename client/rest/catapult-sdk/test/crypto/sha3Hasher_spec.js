@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const convert = require('../../src/utils/convert');
 const sha3Hasher = require('../../src/crypto/sha3Hasher');
+const convert = require('../../src/utils/convert');
 const { expect } = require('chai');
 
 describe('hasher', () => {

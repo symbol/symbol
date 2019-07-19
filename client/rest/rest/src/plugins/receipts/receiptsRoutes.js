@@ -19,9 +19,9 @@
  */
 
 const dbFacade = require('../../routes/dbFacade');
-const errors = require('../../server/errors');
 const routeResultTypes = require('../../routes/routeResultTypes');
 const routeUtils = require('../../routes/routeUtils');
+const errors = require('../../server/errors');
 
 const parseHeight = params => routeUtils.parseArgument(params, 'height', 'uint');
 

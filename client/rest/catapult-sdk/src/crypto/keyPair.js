@@ -20,9 +20,9 @@
 
 /** @module crypto/keyPair */
 const sha3Hasher = require('./sha3Hasher');
+const nacl = require('../external/nacl_catapult');
 const arrayUtils = require('../utils/arrayUtils');
 const convert = require('../utils/convert');
-const nacl = require('../external/nacl_catapult');
 
 const Key_Size = 32;
 const Signature_Size = 64;

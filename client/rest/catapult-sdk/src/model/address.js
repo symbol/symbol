@@ -21,8 +21,8 @@
 const arrayUtils = require('../utils/arrayUtils');
 const base32 = require('../utils/base32');
 const convert = require('../utils/convert');
-const Ripemd160 = require('ripemd160');
 const { sha3_256 } = require('js-sha3');
+const Ripemd160 = require('ripemd160');
 
 const constants = {
 	sizes: {

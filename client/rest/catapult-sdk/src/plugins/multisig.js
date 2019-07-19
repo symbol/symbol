@@ -19,10 +19,10 @@
  */
 
 /** @module plugins/multisig */
-const convert = require('../utils/convert');
 const EntityType = require('../model/EntityType');
 const ModelType = require('../model/ModelType');
 const sizes = require('../modelBinary/sizes');
+const convert = require('../utils/convert');
 
 const constants = { sizes };
 

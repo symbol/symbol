@@ -19,14 +19,14 @@
  */
 
 const test = require('./namespaceDbTestUtils');
-const AccountType = require('../../../src/plugins/AccountType');
 const CatapultDb = require('../../../src/db/CatapultDb');
 const dbUtils = require('../../../src/db/dbUtils');
+const AccountType = require('../../../src/plugins/AccountType');
 const NamespaceDb = require('../../../src/plugins/namespace/NamespaceDb');
 const testDbOptions = require('../../db/utils/testDbOptions');
-const MongoDb = require('mongodb');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
+const MongoDb = require('mongodb');
 
 const { address } = catapult.model;
 const { convertToLong } = dbUtils;

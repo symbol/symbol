@@ -24,8 +24,8 @@ const websocketMessageHandler = require('./websocketMessageHandler');
 const websocketUtils = require('./websocketUtils');
 const restify = require('restify');
 const restifyErrors = require('restify-errors');
-const WebSocket = require('ws');
 const winston = require('winston');
+const WebSocket = require('ws');
 
 const isPromise = object => object && object.catch;
 

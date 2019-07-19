@@ -20,8 +20,8 @@
 
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const ModelType = require('../../src/model/ModelType');
-const schemaFormatter = require('../../src/utils/schemaFormatter');
 const receiptsPlugin = require('../../src/plugins/receipts');
+const schemaFormatter = require('../../src/utils/schemaFormatter');
 const { expect } = require('chai');
 
 describe('receipts plugin', () => {

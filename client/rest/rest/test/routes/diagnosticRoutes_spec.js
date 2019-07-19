@@ -19,9 +19,9 @@
  */
 
 const { MockServer, test } = require('./utils/routeTestUtils');
-const diagnosticRoutes = require('../../src/routes/diagnosticRoutes');
-const { version: restVersion } = require('../../package.json');
 const { version: sdkVersion } = require('../../../catapult-sdk/package.json');
+const { version: restVersion } = require('../../package.json');
+const diagnosticRoutes = require('../../src/routes/diagnosticRoutes');
 const { expect } = require('chai');
 
 describe('diagnostic routes', () => {

@@ -19,11 +19,11 @@
  */
 
 const formattingRules = require('../../src/db/dbFormattingRules');
-const test = require('../testUtils');
 const { convertToLong } = require('../../src/db/dbUtils');
-const { Binary } = require('mongodb');
+const test = require('../testUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
+const { Binary } = require('mongodb');
 
 const { ModelType } = catapult.model;
 

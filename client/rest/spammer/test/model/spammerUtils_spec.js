@@ -19,8 +19,8 @@
  */
 
 const spammerUtils = require('../../src/model/spammerUtils');
-const test = require('../testUtils');
 const transactionFactory = require('../../src/model/transactionFactory');
+const test = require('../testUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 

@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const dbTestUtils = require('../../db/utils/dbTestUtils');
 const ReceiptsDb = require('../../../src/plugins/receipts/ReceiptsDb');
+const dbTestUtils = require('../../db/utils/dbTestUtils');
 const test = require('../../testUtils');
 const MongoDb = require('mongodb');
 

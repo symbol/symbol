@@ -20,8 +20,8 @@
 
 const namespace = require('../../../src/plugins/namespace/namespace');
 const NamespaceDb = require('../../../src/plugins/namespace/NamespaceDb');
-const pluginTest = require('../utils/pluginTestUtils');
 const { test } = require('../../routes/utils/routeTestUtils');
+const pluginTest = require('../utils/pluginTestUtils');
 
 describe('namespace plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(namespace, NamespaceDb);

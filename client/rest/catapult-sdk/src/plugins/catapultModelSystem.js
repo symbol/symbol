@@ -28,8 +28,8 @@ const multisig = require('./multisig');
 const namespace = require('./namespace');
 const receipts = require('./receipts');
 const transfer = require('./transfer');
-const ModelSchemaBuilder = require('../model/ModelSchemaBuilder');
 const ModelFormatterBuilder = require('../model/ModelFormatterBuilder');
+const ModelSchemaBuilder = require('../model/ModelSchemaBuilder');
 const ModelCodecBuilder = require('../modelBinary/ModelCodecBuilder');
 
 const plugins = {

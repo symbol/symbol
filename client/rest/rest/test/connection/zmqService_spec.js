@@ -19,11 +19,11 @@
  */
 
 const MessageChannelBuilder = require('../../src/connection/MessageChannelBuilder');
-const test = require('../testUtils');
 const { createZmqConnectionService } = require('../../src/connection/zmqService');
-const zmq = require('zeromq');
+const test = require('../testUtils');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
+const zmq = require('zeromq');
 
 describe('zmq service', () => {
 	const cleanupActions = [];

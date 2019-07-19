@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const transactionFactory = require('../../src/model/transactionFactory');
 const networkTime = require('../../src/utils/networkTime');
 const test = require('../testUtils');
-const transactionFactory = require('../../src/model/transactionFactory');
 const catapult = require('catapult-sdk');
 const { expect } = require('chai');
 

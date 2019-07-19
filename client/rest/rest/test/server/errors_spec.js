@@ -19,8 +19,8 @@
  */
 
 const errors = require('../../src/server/errors');
-const restifyErrors = require('restify-errors');
 const { expect } = require('chai');
+const restifyErrors = require('restify-errors');
 
 describe('errors', () => {
 	describe('toRestError', () => {

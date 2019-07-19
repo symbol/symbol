@@ -19,8 +19,8 @@
  */
 
 const dbUtils = require('../../src/db/dbUtils');
-const MongoDb = require('mongodb');
 const { expect } = require('chai');
+const MongoDb = require('mongodb');
 
 describe('db utils', () => {
 	describe('convertToLong', () => {

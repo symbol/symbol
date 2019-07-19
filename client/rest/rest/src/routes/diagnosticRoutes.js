@@ -20,8 +20,8 @@
 
 const routeResultTypes = require('./routeResultTypes');
 const routeUtils = require('./routeUtils');
-const { version: restVersion } = require('../../package.json');
 const { version: sdkVersion } = require('../../../catapult-sdk/package.json');
+const { version: restVersion } = require('../../package.json');
 
 module.exports = {
 	register: (server, db) => {

@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const AccountType = require('../AccountType');
 const routeUtils = require('../../routes/routeUtils');
+const AccountType = require('../AccountType');
 
 module.exports = {
 	register: (server, db) => {

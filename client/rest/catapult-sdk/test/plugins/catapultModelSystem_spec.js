@@ -18,9 +18,9 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const catapultModelSystem = require('../../src/plugins/catapultModelSystem');
 const EntityType = require('../../src/model/EntityType');
 const ModelType = require('../../src/model/ModelType');
+const catapultModelSystem = require('../../src/plugins/catapultModelSystem');
 const { expect } = require('chai');
 
 const formattingRules = {

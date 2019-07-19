@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const AccountType = require('../AccountType');
 const { convertToLong } = require('../../db/dbUtils');
+const AccountType = require('../AccountType');
 const catapult = require('catapult-sdk');
 const MongoDb = require('mongodb');
 

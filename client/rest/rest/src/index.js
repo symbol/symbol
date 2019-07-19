@@ -18,19 +18,19 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const allRoutes = require('./routes/allRoutes');
-const bootstrapper = require('./server/bootstrapper');
-const CatapultDb = require('./db/CatapultDb');
-const dbFormattingRules = require('./db/dbFormattingRules');
-const formatters = require('./server/formatters');
-const messageFormattingRules = require('./server/messageFormattingRules');
-const routeSystem = require('./plugins/routeSystem');
 const { createConnectionService } = require('./connection/connectionService');
 const { createZmqConnectionService } = require('./connection/zmqService');
-const winston = require('winston');
+const CatapultDb = require('./db/CatapultDb');
+const dbFormattingRules = require('./db/dbFormattingRules');
+const routeSystem = require('./plugins/routeSystem');
+const allRoutes = require('./routes/allRoutes');
+const bootstrapper = require('./server/bootstrapper');
+const formatters = require('./server/formatters');
+const messageFormattingRules = require('./server/messageFormattingRules');
 const catapult = require('catapult-sdk');
-const { createConnection } = require('net');
+const winston = require('winston');
 const fs = require('fs');
+const { createConnection } = require('net');
 
 const configureLogging = config => {
 	winston.remove(winston.transports.Console);

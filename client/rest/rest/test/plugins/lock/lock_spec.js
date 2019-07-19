@@ -20,8 +20,8 @@
 
 const lock = require('../../../src/plugins/lock/lock');
 const LockDb = require('../../../src/plugins/lock/LockDb');
-const pluginTest = require('../utils/pluginTestUtils');
 const { test } = require('../../routes/utils/routeTestUtils');
+const pluginTest = require('../utils/pluginTestUtils');
 
 describe('lock plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(lock, LockDb);

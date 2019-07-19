@@ -19,8 +19,8 @@
  */
 
 const test = require('../../testUtils');
-const sinon = require('sinon');
 const { expect } = require('chai');
+const sinon = require('sinon');
 
 const makeTestName = (base, desc) => (desc ? `${base} ${desc}` : base);
 

@@ -18,8 +18,8 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const BinaryParser = require('../../src/parser/BinaryParser');
 const ModelCodecBuilder = require('../../src/modelBinary/ModelCodecBuilder');
+const BinaryParser = require('../../src/parser/BinaryParser');
 const test = require('../binaryTestUtils');
 const { expect } = require('chai');
 

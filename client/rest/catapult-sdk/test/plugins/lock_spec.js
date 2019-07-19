@@ -19,9 +19,9 @@
  */
 
 const EntityType = require('../../src/model/EntityType');
-const lock = require('../../src/plugins/lock');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const sizes = require('../../src/modelBinary/sizes');
+const lock = require('../../src/plugins/lock');
 const test = require('../binaryTestUtils');
 const { expect } = require('chai');
 

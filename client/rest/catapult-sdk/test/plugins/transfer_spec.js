@@ -21,8 +21,8 @@
 const EntityType = require('../../src/model/EntityType');
 const ModelSchemaBuilder = require('../../src/model/ModelSchemaBuilder');
 const ModelType = require('../../src/model/ModelType');
-const test = require('../binaryTestUtils');
 const transfer = require('../../src/plugins/transfer');
+const test = require('../binaryTestUtils');
 const { expect } = require('chai');
 
 const constants = {

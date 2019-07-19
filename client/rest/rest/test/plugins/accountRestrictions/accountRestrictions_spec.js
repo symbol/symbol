@@ -20,8 +20,8 @@
 
 const accountRestrictions = require('../../../src/plugins/accountRestrictions/accountRestrictions');
 const AccountRestrictionsDb = require('../../../src/plugins/accountRestrictions/AccountRestrictionsDb');
-const pluginTest = require('../utils/pluginTestUtils');
 const { test } = require('../../routes/utils/routeTestUtils');
+const pluginTest = require('../utils/pluginTestUtils');
 
 describe('account restrictions plugin', () => {
 	pluginTest.assertThat.pluginCreatesDb(accountRestrictions, AccountRestrictionsDb);

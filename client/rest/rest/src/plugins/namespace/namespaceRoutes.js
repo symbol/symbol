@@ -19,12 +19,12 @@
  */
 
 const namespaceUtils = require('./namespaceUtils');
-const AccountType = require('../AccountType');
 const dbUtils = require('../../db/dbUtils');
-const errors = require('../../server/errors');
 const routeUtils = require('../../routes/routeUtils');
-const MongoDb = require('mongodb');
+const errors = require('../../server/errors');
+const AccountType = require('../AccountType');
 const catapult = require('catapult-sdk');
+const MongoDb = require('mongodb');
 
 const { address, networkInfo } = catapult.model;
 const { Binary } = MongoDb;

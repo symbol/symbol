@@ -22,8 +22,8 @@ const test = require('./utils/dbTestUtils');
 const testDbOptions = require('./utils/testDbOptions');
 const CatapultDb = require('../../src/db/CatapultDb');
 const catapult = require('catapult-sdk');
-const MongoDb = require('mongodb');
 const { expect } = require('chai');
+const MongoDb = require('mongodb');
 
 const { address, EntityType } = catapult.model;
 

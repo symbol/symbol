@@ -19,8 +19,8 @@
  */
 
 const test = require('./receiptsDbTestUtils');
-const MongoDb = require('mongodb');
 const { expect } = require('chai');
+const MongoDb = require('mongodb');
 
 const { Long } = MongoDb;
 

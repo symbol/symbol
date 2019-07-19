@@ -19,8 +19,8 @@
  */
 
 const sizes = require('../../src/modelBinary/sizes');
-const test = require('../testUtils');
 const transactionExtensions = require('../../src/modelBinary/transactionExtensions');
+const test = require('../testUtils');
 const { expect } = require('chai');
 
 describe('transaction extensions', () => {
