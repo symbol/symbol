@@ -31,14 +31,14 @@ using namespace bsoncxx::builder::stream;
 
 namespace catapult { namespace mongo { namespace plugins {
 
-#define TEST_CLASS MongoAccountRestrictionStorageTests
+#define TEST_CLASS MongoAccountRestrictionCacheStorageTests
 
 	namespace {
 		constexpr auto Modification_Type_Add = model::AccountRestrictionModificationType::Add;
 
 		void InsertRandom(state::AccountRestriction& restriction, size_t count) {
 			for (auto i = 0u; i < count; ++i)
-				restriction.allow({ Modification_Type_Add, test::GenerateRandomVector(Address_Decoded_Size) });
+				restriction.allow({ Modification_Type_Add, test::GenerateRandomVector(Address::Size) });
 		}
 
 		struct AccountRestrictionCacheTraits {
@@ -76,7 +76,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 			static void Mutate(cache::CatapultCacheDelta& delta, ModelType& restrictions) {
 				// update expected
-				auto value = test::GenerateRandomVector(Address_Decoded_Size);
+				auto value = test::GenerateRandomVector(Address::Size);
 				auto& restriction = restrictions.restriction(model::AccountRestrictionType::Address);
 				restriction.allow({ Modification_Type_Add, value });
 

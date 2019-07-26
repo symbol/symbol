@@ -180,17 +180,14 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanEraseFirstElement) {
-		// Assert:
 		RunEraseTest([](auto& container) { return container.begin(); }, { 7, 3, 2 });
 	}
 
 	TEST(TEST_CLASS, CanEraseMiddleElement) {
-		// Assert:
 		RunEraseTest([](auto& container) { return ++container.begin(); }, { 5, 3, 2 });
 	}
 
 	TEST(TEST_CLASS, CanEraseLastElement) {
-		// Assert:
 		RunEraseTest([](auto& container) { return --container.end(); }, { 5, 7, 3 });
 	}
 
@@ -219,7 +216,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, NextBehavesCorrectlyAfterEraseFirstElement) {
-		// Assert:
 		auto getIterator = [](auto& container) { return container.begin(); };
 		RunNextAfterEraseTest(getIterator, {}, { 7, 3, 2, 7 });
 		RunNextAfterEraseTest(getIterator, { 5 }, { 7, 3, 2, 7 });
@@ -229,7 +225,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, NextBehavesCorrectlyAfterEraseMiddleElement) {
-		// Assert:
 		auto getIterator = [](auto& container) { return ++container.begin(); };
 		RunNextAfterEraseTest(getIterator, {}, { 5, 3, 2, 5, 3 });
 		RunNextAfterEraseTest(getIterator, { 5 }, { 3, 2, 5, 3 });
@@ -239,7 +234,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, NextBehavesCorrectlyAfterEraseLastElement) {
-		// Assert:
 		auto getIterator = [](auto& container) { return --container.end(); };
 		RunNextAfterEraseTest(getIterator, {}, { 5, 7, 3, 5 });
 		RunNextAfterEraseTest(getIterator, { 5 }, { 7, 3, 5 });

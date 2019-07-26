@@ -43,7 +43,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a view around around a maximum response size (\a maxResponseSize), a partial transaction data container
 		/// (\a transactionDataContainer) with lock context \a readLock.
-		explicit MemoryPtCacheView(
+		MemoryPtCacheView(
 				uint64_t maxResponseSize,
 				const PtDataContainer& transactionDataContainer,
 				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock);

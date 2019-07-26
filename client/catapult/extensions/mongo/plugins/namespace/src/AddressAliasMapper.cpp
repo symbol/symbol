@@ -32,7 +32,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
 			builder
 					<< "namespaceId" << ToInt64(transaction.NamespaceId)
-					<< "action" << utils::to_underlying_type(transaction.AliasAction)
+					<< "aliasAction" << utils::to_underlying_type(transaction.AliasAction)
 					<< "address" << ToBinary(transaction.Address);
 		}
 	}

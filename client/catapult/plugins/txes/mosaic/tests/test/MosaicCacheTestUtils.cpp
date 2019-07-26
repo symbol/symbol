@@ -26,17 +26,19 @@
 namespace catapult { namespace test {
 
 	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, BlockDuration duration, Amount supply) {
-		auto& mosaicCacheDelta = cache.sub<cache::MosaicCache>();
-		auto definition = state::MosaicDefinition(height, Key(), 1, test::CreateMosaicPropertiesWithDuration(duration));
-		auto entry = state::MosaicEntry(id, definition);
-		entry.increaseSupply(supply);
-		mosaicCacheDelta.insert(entry);
+		AddMosaic(cache, id, height, duration, supply, Key());
 	}
 
 	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, BlockDuration duration, const Key& owner) {
+		AddMosaic(cache, id, height, duration, Amount(), owner);
+	}
+
+	void AddMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height, BlockDuration duration, Amount supply, const Key& owner) {
 		auto& mosaicCacheDelta = cache.sub<cache::MosaicCache>();
 		auto definition = state::MosaicDefinition(height, owner, 1, test::CreateMosaicPropertiesWithDuration(duration));
-		mosaicCacheDelta.insert(state::MosaicEntry(id, definition));
+		auto entry = state::MosaicEntry(id, definition);
+		entry.increaseSupply(supply);
+		mosaicCacheDelta.insert(entry);
 	}
 
 	void AddEternalMosaic(cache::CatapultCacheDelta& cache, MosaicId id, Height height) {

@@ -128,14 +128,12 @@ namespace catapult { namespace crypto {
 	}
 
 	TEST(TEST_CLASS, SignatureDoesNotVerifyWhenRPartOfSignatureIsModified) {
-		// Assert:
-		for (auto i = 0u; i < Signature_Size / 2; ++i)
+		for (auto i = 0u; i < Signature::Size / 2; ++i)
 			AssertSignatureChangeInvalidatesSignature(i);
 	}
 
 	TEST(TEST_CLASS, SignatureDoesNotVerifyWhenSPartOfSignatureIsModified) {
-		// Assert:
-		for (auto i = Signature_Size / 2; i < Signature_Size; ++i)
+		for (auto i = Signature::Size / 2; i < Signature::Size; ++i)
 			AssertSignatureChangeInvalidatesSignature(i);
 	}
 
@@ -217,9 +215,9 @@ namespace catapult { namespace crypto {
 	namespace {
 		void ScalarAddGroupOrder(uint8_t* scalar) {
 			// 2^252 + 27742317777372353535851937790883648493, little endian.
-			const auto Group_Order = test::ToArray<Signature_Size / 2>("EDD3F55C1A631258D69CF7A2DEF9DE1400000000000000000000000000000010");
+			const auto Group_Order = test::ToArray<Signature::Size / 2>("EDD3F55C1A631258D69CF7A2DEF9DE1400000000000000000000000000000010");
 			uint8_t r = 0;
-			for (auto i = 0u; i < Signature_Size / 2; ++i) {
+			for (auto i = 0u; i < Signature::Size / 2; ++i) {
 				auto t = static_cast<uint16_t>(scalar[i]) + static_cast<uint16_t>(Group_Order[i]);
 				scalar[i] += Group_Order[i] + r;
 				r = static_cast<uint8_t>(t >> 8);
@@ -235,7 +233,7 @@ namespace catapult { namespace crypto {
 		auto canonicalSignature = SignPayload(keyPair, payload);
 		// this is signature with group order added to 'encodedS' part of signature
 		auto nonCanonicalSignature = canonicalSignature;
-		ScalarAddGroupOrder(nonCanonicalSignature.data() + Signature_Size / 2);
+		ScalarAddGroupOrder(nonCanonicalSignature.data() + Signature::Size / 2);
 
 		// Act:
 		bool isCanonicalVerified = Verify(keyPair.publicKey(), payload, canonicalSignature);

@@ -37,12 +37,12 @@ namespace catapult { namespace test {
 		{}
 
 		/// Creates a test context around \a mode and \a height.
-		explicit ObserverTestContextT(observers::NotifyMode mode, Height height)
+		ObserverTestContextT(observers::NotifyMode mode, Height height)
 				: ObserverTestContextT(mode, height, model::BlockChainConfiguration::Uninitialized())
 		{}
 
 		/// Creates a test context around \a mode, \a height and \a config.
-		explicit ObserverTestContextT(observers::NotifyMode mode, Height height, const model::BlockChainConfiguration& config)
+		ObserverTestContextT(observers::NotifyMode mode, Height height, const model::BlockChainConfiguration& config)
 				: m_cache(TCacheFactory::Create(config))
 				, m_cacheDelta(m_cache.createDelta())
 				, m_context({ m_cacheDelta, m_state, m_blockStatementBuilder }, height, mode, CreateResolverContextXor())

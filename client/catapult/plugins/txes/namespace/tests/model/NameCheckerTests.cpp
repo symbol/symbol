@@ -60,25 +60,21 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, NameIsValidWhenAllCharactersAreAlphaNumeric) {
-		// Assert:
 		for (const auto& name : { "a", "be", "cat", "doom" })
 			EXPECT_TRUE(IsValidName(name));
 	}
 
 	TEST(TEST_CLASS, NameIsValidWhenItContainsSeparator) {
-		// Assert:
 		for (const auto& name : { "al-ce", "al_ce", "alice-", "alice_" })
 			EXPECT_TRUE(IsValidName(name));
 	}
 
 	TEST(TEST_CLASS, NameIsInvalidWhenItStartsWithSeparator) {
-		// Assert:
 		for (const auto& name : { "-alice", "_alice" })
 			EXPECT_FALSE(IsValidName(name));
 	}
 
 	TEST(TEST_CLASS, NameIsInvalidWhenItContainsInvalidCharacters) {
-		// Assert:
 		for (const auto& name : { "al.ce", "alIce", "al ce", "al@ce", "al#ce" })
 			EXPECT_FALSE(IsValidName(name));
 	}

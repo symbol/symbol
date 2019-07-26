@@ -7,9 +7,6 @@ class Line:  # pylint: disable=too-few-public-methods
 
 
 class SimpleValidator:
-    def __init__(self, errorReporter):
-        self.errorReporter = errorReporter
-
     # reset() is called per every file, before processing any lines
     # check() per every line in file
     # finalize() is called per every file, after processing all lines
@@ -18,8 +15,14 @@ class SimpleValidator:
     # it's ok to supress this warning, as reset() will be called for every file
     # so it's fine to set fields inside it
     # pylint: disable=attribute-defined-outside-init
-    def reset(self, path):
+    def reset(self, path, errorReporter):
         self.path = path
+        self.errorReporter = errorReporter
 
     def finalize(self):
         pass
+
+    @staticmethod
+    def formatError(err):
+        name = err.path
+        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)

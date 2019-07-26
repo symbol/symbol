@@ -145,12 +145,10 @@ namespace catapult { namespace observers {
 	}
 
 	ACCOUNT_KEY_TEST(RollbackQueuesRemovalOfAccountAtSameHeight) {
-		// Assert:
 		AssertAccountObserverRollback<TTraits>(1, Height(1234), Height(1234));
 	}
 
 	ACCOUNT_KEY_TEST(RollbackDoesNotQueueRemovalAtDifferentHeight) {
-		// Assert:
 		AssertAccountObserverRollback<TTraits>(0, Height(1234), Height(1235));
 	}
 

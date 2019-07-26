@@ -116,6 +116,10 @@ namespace catapult { namespace extensions {
 			static constexpr auto Friendly_Name = "mosaic infos";
 		};
 
+		struct MetadataInfosTraits : public InfosTraits<Hash256, ionet::PacketType::Metadata_Infos> {
+			static constexpr auto Friendly_Name = "metadata infos";
+		};
+
 		// endregion
 
 		class DefaultRemoteDiagnosticApi : public RemoteDiagnosticApi {
@@ -155,6 +159,10 @@ namespace catapult { namespace extensions {
 
 			FutureType<MosaicInfosTraits> mosaicInfos(model::EntityRange<MosaicId>&& mosaicIds) const override {
 				return m_impl.dispatch(MosaicInfosTraits(), std::move(mosaicIds));
+			}
+
+			FutureType<MetadataInfosTraits> metadataInfos(model::EntityRange<Hash256>&& uniqueKeys) const override {
+				return m_impl.dispatch(MetadataInfosTraits(), std::move(uniqueKeys));
 			}
 
 		private:

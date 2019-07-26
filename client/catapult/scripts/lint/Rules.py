@@ -23,6 +23,16 @@ def getMajorComponentName(component):
     return component[0:separatorIndex]
 
 
+def splitPath(fullPath):
+    return re.split(r'[/\\]', fullPath)
+
+
+def splitPathAndStripUnderscores(fullPath):
+    # ignore trailing '_foo' as part of namespace
+    splittedPath = splitPath(fullPath)
+    return [part if part.rfind('_') < 0 else part[0:part.rfind('_')] for part in splittedPath]
+
+
 class DefaultRules:
     @staticmethod
     def checkCatapultTest(pathUnified, splittedPath):
@@ -38,9 +48,7 @@ class DefaultRules:
 
     @staticmethod
     def namespaceCheck(nsUnified, fullPath):
-        # ignore trailing '_foo' as part of namespace
-        splittedPath = re.split(r'[/\\]', fullPath)
-        splittedPath[:] = [part if part.rfind('_') < 0 else part[0:part.rfind('_')] for part in splittedPath]
+        splittedPath = splitPathAndStripUnderscores(fullPath)
 
         pathUnified = ':'.join(splittedPath)
         if nsUnified == 'catapult:test:':
@@ -113,7 +121,7 @@ class DefaultRules:
 class PluginRules:
     @staticmethod
     def namespaceCheck(nsUnified, fullPath):
-        pathElements = re.split(r'[/\\]', fullPath)
+        pathElements = splitPath(fullPath)
         if 'src' in pathElements:
             elementId = pathElements.index('src')
         elif 'int' in pathElements:
@@ -212,7 +220,7 @@ class PluginRules:
 class ExtensionRules:
     @staticmethod
     def namespaceCheck(nsUnified, fullPath):
-        pathElements = re.split(r'[/\\]', fullPath)
+        pathElements = splitPath(fullPath)
         expectedUnified = 'catapult:' + pathElements[1] + ':'
 
         elementId = None
@@ -342,7 +350,8 @@ class ExtensionRules:
 class ToolsRules:
     @staticmethod
     def namespaceCheck(nsUnified, fullPath):
-        splittedPath = re.split(r'[/\\]', fullPath)
+        splittedPath = splitPathAndStripUnderscores(fullPath)
+
         pathUnified = ':'.join(splittedPath)
         if nsUnified.startswith('catapult:tools'):
             nsUnified = nsUnified[len('catapult:'):]

@@ -89,11 +89,11 @@ namespace catapult { namespace observers {
 		RunTest(NotifyMode::Rollback, Amount(333), Amount(0), Amount(333));
 	}
 
-	TEST(TEST_CLASS, TotalFeesPaidIsUpdatedWhenNotificationFeeIsNonZero_Commit) {
+	TEST(TEST_CLASS, TotalFeesPaidIsUpdatedWhenNotificationFeeIsNonzero_Commit) {
 		RunTest(NotifyMode::Commit, Amount(333), Amount(100), Amount(433));
 	}
 
-	TEST(TEST_CLASS, TotalFeesPaidIsUpdatedWhenNotificationFeeIsNonZero_Rollback) {
+	TEST(TEST_CLASS, TotalFeesPaidIsUpdatedWhenNotificationFeeIsNonzero_Rollback) {
 		RunTest(NotifyMode::Rollback, Amount(333), Amount(100), Amount(233));
 	}
 

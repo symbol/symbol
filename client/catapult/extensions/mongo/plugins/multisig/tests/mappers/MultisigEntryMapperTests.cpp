@@ -66,22 +66,18 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanMapMultisigEntryWithNeitherCosignatoriesNorMultisigAccounts_ModelToDbModel) {
-		// Assert:
 		AssertCanMapMultisigEntry(0, 0);
 	}
 
 	TEST(TEST_CLASS, CanMapMultisigEntryWithCosignatoriesButNoMultisigAccounts_ModelToDbModel) {
-		// Assert:
 		AssertCanMapMultisigEntry(5, 0);
 	}
 
 	TEST(TEST_CLASS, CanMapMultisigEntryWithoutCosignatoriesButWithMultisigAccounts_ModelToDbModel) {
-		// Assert:
 		AssertCanMapMultisigEntry(0, 5);
 	}
 
 	TEST(TEST_CLASS, CanMapMultisigEntryWithCosignatoriesAndWithMultisigAccounts_ModelToDbModel) {
-		// Assert:
 		AssertCanMapMultisigEntry(4, 5);
 	}
 

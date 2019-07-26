@@ -106,7 +106,7 @@ namespace catapult { namespace zeromq {
 				, OptionalAddresses(element.OptionalExtractedAddresses.get())
 		{}
 
-		explicit WeakTransactionInfo(const model::Transaction& transaction, const Hash256& hash)
+		WeakTransactionInfo(const model::Transaction& transaction, const Hash256& hash)
 				: Transaction(transaction)
 				, EntityHash(hash)
 				, MerkleComponentHash(hash)
@@ -146,8 +146,8 @@ namespace catapult { namespace zeromq {
 		auto marker = BlockMarker::Block_Marker;
 		multipart.addmem(&marker, sizeof(marker));
 		multipart.addmem(static_cast<const void*>(&blockElement.Block), sizeof(model::BlockHeader));
-		multipart.addmem(static_cast<const void*>(&blockElement.EntityHash), Hash256_Size);
-		multipart.addmem(static_cast<const void*>(&blockElement.GenerationHash), Hash256_Size);
+		multipart.addmem(static_cast<const void*>(&blockElement.EntityHash), Hash256::Size);
+		multipart.addmem(static_cast<const void*>(&blockElement.GenerationHash), Hash256::Size);
 		pMessageGroup->add(std::move(multipart));
 		m_pSynchronizedPublisher->queue(std::move(pMessageGroup));
 	}
@@ -190,7 +190,7 @@ namespace catapult { namespace zeromq {
 	void ZeroMqEntityPublisher::publishTransactionHash(TransactionMarker topicMarker, const model::TransactionInfo& transactionInfo) {
 		const auto& hash = transactionInfo.EntityHash;
 		publish("transaction hash", topicMarker, WeakTransactionInfo(transactionInfo), [&hash](auto& multipart) {
-			multipart.addmem(static_cast<const void*>(&hash), Hash256_Size);
+			multipart.addmem(static_cast<const void*>(&hash), Hash256::Size);
 		});
 	}
 
@@ -201,8 +201,8 @@ namespace catapult { namespace zeromq {
 		publish("transaction", topicMarker, transactionInfo, [&transactionInfo, height](auto& multipart) {
 			const auto& transaction = transactionInfo.Transaction;
 			multipart.addmem(static_cast<const void*>(&transaction), transaction.Size);
-			multipart.addmem(static_cast<const void*>(&transactionInfo.EntityHash), Hash256_Size);
-			multipart.addmem(static_cast<const void*>(&transactionInfo.MerkleComponentHash), Hash256_Size);
+			multipart.addmem(static_cast<const void*>(&transactionInfo.EntityHash), Hash256::Size);
+			multipart.addmem(static_cast<const void*>(&transactionInfo.MerkleComponentHash), Hash256::Size);
 			multipart.addtyp(height);
 		});
 	}

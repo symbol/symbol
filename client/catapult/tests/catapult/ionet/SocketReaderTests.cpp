@@ -45,7 +45,7 @@ namespace catapult { namespace ionet {
 			ReaderFactory() : ReaderFactory(test::GenerateRandomByteArray<Key>(), std::string())
 			{}
 
-			explicit ReaderFactory(const Key& clientPublicKey, const std::string& clientHost)
+			ReaderFactory(const Key& clientPublicKey, const std::string& clientHost)
 					: m_pPool(test::CreateStartedIoThreadPool())
 					, m_clientPublicKey(clientPublicKey)
 					, m_clientHost(clientHost)
@@ -66,7 +66,7 @@ namespace catapult { namespace ionet {
 				});
 			}
 
-			/// Starts a reader around \a handlers to update \a readResult.
+			// starts a reader around \a handlers to update \a readResult
 			template<typename TContinuation>
 			void startReader(const ServerPacketHandlers& handlers, SocketReadResult& readResult, TContinuation continuation) {
 				createReader(handlers, [this, &readResult, continuation](const auto& pSocket, auto&& pReader) {
@@ -75,7 +75,7 @@ namespace catapult { namespace ionet {
 				});
 			}
 
-			/// Starts a reader on \a pSocket, around \a handlers to update \a readResult.
+			// starts a reader on \a pSocket, around \a handlers to update \a readResult
 			template<typename TContinuation>
 			void startReader(
 					const std::shared_ptr<PacketSocket>& pSocket,
@@ -112,14 +112,14 @@ namespace catapult { namespace ionet {
 			std::string m_clientHost;
 		};
 
-		/// Creates server packet handlers that have a noop registered for the default packet type.
+		// creates server packet handlers that have a noop registered for the default packet type
 		ServerPacketHandlers CreateNoOpHandlers() {
 			ServerPacketHandlers handlers;
 			handlers.registerHandler(test::Default_Packet_Type, [](const auto&, const auto&) {});
 			return handlers;
 		}
 
-		/// Writes all \a sendBuffers to a socket and reads them with a reader.
+		// writes all \a sendBuffers to a socket and reads them with a reader
 		std::pair<std::vector<ByteBuffer>, SocketReadResult> SendBuffers(const std::vector<ByteBuffer>& sendBuffers) {
 			// Arrange: set up a packet handler that copies the received packet bytes into receivedBuffers
 			ReaderFactory factory;
@@ -141,7 +141,7 @@ namespace catapult { namespace ionet {
 			return std::make_pair(receivedBuffers, readResult);
 		}
 
-		/// Sets a response packet in \a context with payload \a responseBytes.
+		// sets a response packet in \a context with payload \a responseBytes
 		void RespondWithBytes(ServerPacketHandlerContext& context, const std::vector<uint8_t>& responseBytes) {
 			auto numResponseBytes = static_cast<uint32_t>(responseBytes.size());
 			auto pResponsePacket = CreateSharedPacket<Packet>(numResponseBytes);

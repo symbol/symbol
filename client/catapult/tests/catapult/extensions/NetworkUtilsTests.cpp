@@ -91,7 +91,6 @@ namespace catapult { namespace extensions {
 	// region GetMaxIncomingConnectionsPerIdentity
 
 	TEST(TEST_CLASS, GetMaxIncomingConnectionsPerIdentityReturnsCorrectValueBasedOnRoles) {
-		// Act + Assert:
 		EXPECT_EQ(1u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::None));
 		EXPECT_EQ(2u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Peer));
 		EXPECT_EQ(2u, GetMaxIncomingConnectionsPerIdentity(ionet::NodeRoles::Api));

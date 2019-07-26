@@ -36,7 +36,9 @@ namespace catapult { namespace validators {
 	}
 
 	DECLARE_STATEFUL_VALIDATOR(Deadline, Notification)(const utils::TimeSpan& maxTransactionLifetime) {
-		return MAKE_STATEFUL_VALIDATOR(Deadline, [maxTransactionLifetime](const auto& notification, const auto& context) {
+		return MAKE_STATEFUL_VALIDATOR(Deadline, [maxTransactionLifetime](
+				const Notification& notification,
+				const ValidatorContext& context) {
 			return ValidateTransactionDeadline(
 					context.BlockTime,
 					notification.Deadline,

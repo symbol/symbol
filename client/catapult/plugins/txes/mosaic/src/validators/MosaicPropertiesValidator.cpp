@@ -50,7 +50,7 @@ namespace catapult { namespace validators {
 	}
 
 	DECLARE_STATELESS_VALIDATOR(MosaicProperties, Notification)(uint8_t maxDivisibility, BlockDuration maxMosaicDuration) {
-		return MAKE_STATELESS_VALIDATOR(MosaicProperties, ([maxDivisibility, maxMosaicDuration](const auto& notification) {
+		return MAKE_STATELESS_VALIDATOR(MosaicProperties, ([maxDivisibility, maxMosaicDuration](const Notification& notification) {
 			if (!IsValidFlags(notification.PropertiesHeader.Flags))
 				return Failure_Mosaic_Invalid_Flags;
 

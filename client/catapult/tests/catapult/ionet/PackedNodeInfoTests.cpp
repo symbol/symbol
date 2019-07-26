@@ -52,7 +52,7 @@ namespace catapult { namespace ionet {
 		// Arrange:
 		auto expectedSize =
 				sizeof(uint32_t) // size
-				+ Key_Size // identity key
+				+ Key::Size // identity key
 				+ sizeof(NodeSource) // node source
 				+ sizeof(NodeInteractions) // node interactions
 				+ sizeof(uint8_t); // number of connection states

@@ -28,13 +28,13 @@ namespace catapult { namespace utils {
 #define TEST_CLASS ByteArrayTests
 
 	namespace {
-		struct TestArray_tag {};
-		using TestArray = ByteArray<8, TestArray_tag>;
+		struct TestArray_tag { static constexpr size_t Size = 8; };
+		using TestArray = ByteArray<TestArray_tag>;
 
 		using AliasedArray = TestArray;
 
-		struct SameSizeArray_tag {};
-		using SameSizeArray = ByteArray<8, SameSizeArray_tag>;
+		struct SameSizeArray_tag { static constexpr size_t Size = 8; };
+		using SameSizeArray = ByteArray<SameSizeArray_tag>;
 
 		// region ReadAll utils
 
@@ -178,19 +178,16 @@ namespace catapult { namespace utils {
 	// region type convertibility
 
 	TEST(TEST_CLASS, CanAssignAliasedType) {
-		// Assert:
 		auto isConvertible = std::is_convertible_v<TestArray, AliasedArray>;
 		EXPECT_TRUE(isConvertible);
 	}
 
 	TEST(TEST_CLASS, CannotAssignUsingDifferentType) {
-		// Assert:
 		auto isConvertible = std::is_convertible_v<TestArray, SameSizeArray>;
 		EXPECT_FALSE(isConvertible);
 	}
 
 	TEST(TEST_CLASS, CatapultTypesTests) {
-		// Assert:
 		test::TypeConvertibilityTests::AssertCannotConvertTypes<Signature, Hash512>();
 		test::TypeConvertibilityTests::AssertCannotConvertTypes<Key, Hash256, GenerationHash>();
 	}

@@ -24,6 +24,6 @@
 
 namespace catapult { namespace mongo { namespace plugins {
 
-	/// Maps a \a restrictions to the corresponding db model value.
+	/// Maps \a restrictions to the corresponding db model value.
 	bsoncxx::document::value ToDbModel(const state::AccountRestrictions& restrictions);
 }}}

@@ -77,8 +77,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, ExtractFilenameExtractsCorrectPartOfPath) {
-		// Act + Assert:
-		// - edge cases
+		// Assert: edge cases
 		EXPECT_STREQ("", ExtractFilename(""));
 		EXPECT_STREQ("a", ExtractFilename("a"));
 		EXPECT_STREQ("", ExtractFilename(SEPARATOR));
@@ -100,8 +99,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, ExtractDirectoryAndFilenameExtractsCorrectPartOfPath) {
-		// Act + Assert:
-		// - edge cases
+		// Assert: edge cases
 		EXPECT_STREQ("", ExtractDirectoryAndFilename(""));
 		EXPECT_STREQ("a", ExtractDirectoryAndFilename("a"));
 		EXPECT_STREQ(SEPARATOR, ExtractDirectoryAndFilename(SEPARATOR));

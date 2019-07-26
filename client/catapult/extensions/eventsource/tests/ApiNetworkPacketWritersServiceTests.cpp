@@ -110,12 +110,10 @@ namespace catapult { namespace eventsource {
 	}
 
 	TEST(TEST_CLASS, CanBroadcastBlockToAcceptedConnections) {
-		// Assert:
 		AssertCanBroadcastEntityToAcceptedConnections<test::BlockBroadcastTraits>();
 	}
 
 	TEST(TEST_CLASS, CanBroadcastTransactionToAcceptedConnections) {
-		// Assert:
 		AssertCanBroadcastEntityToAcceptedConnections<test::TransactionBroadcastTraits>();
 	}
 
@@ -124,7 +122,6 @@ namespace catapult { namespace eventsource {
 	// region tasks
 
 	TEST(TEST_CLASS, AgePeersTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), 1, "age peers task for service Api Writers");
 	}
 

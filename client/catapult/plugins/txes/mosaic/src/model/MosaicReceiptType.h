@@ -26,7 +26,7 @@ namespace catapult { namespace model {
 
 #endif
 
-	/// Mosaic expiry.
+	/// Mosaic expired (transition caused by mosaic lifetime elapsing).
 	DEFINE_RECEIPT_TYPE(ArtifactExpiry, Mosaic, Mosaic_Expired, 1);
 
 	/// Mosaic rental fee.

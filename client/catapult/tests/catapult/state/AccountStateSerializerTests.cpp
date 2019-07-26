@@ -503,22 +503,18 @@ namespace catapult { namespace state {
 	}
 
 	SERIALIZER_TEST(CanSaveValueWithNoMosaics) {
-		// Assert:
 		AssertCanSaveValueWithMosaics<TTraits>(0);
 	}
 
 	SERIALIZER_TEST(CanSaveValueWithSomeMosaics) {
-		// Assert:
 		AssertCanSaveValueWithMosaics<TTraits>(3);
 	}
 
 	SERIALIZER_TEST(CanSaveValueWithManyMosaics) {
-		// Assert:
 		AssertCanSaveValueWithMosaics<TTraits>(GetManyMosaicsCount());
 	}
 
 	SERIALIZER_TEST(MosaicsAreSavedInSortedOrder) {
-		// Assert:
 		static constexpr auto Num_Mosaics = 128u;
 		AssertCanSaveValueWithMosaics<TTraits>(Num_Mosaics, [](const auto&, const auto& buffer) {
 			auto lastMosaicId = MosaicId();
@@ -554,17 +550,14 @@ namespace catapult { namespace state {
 	}
 
 	SERIALIZER_TEST(CanLoadValueWithNoMosaics) {
-		// Assert:
 		AssertCanLoadValueWithMosaics<TTraits>(0);
 	}
 
 	SERIALIZER_TEST(CanLoadValueWithSomeMosaics) {
-		// Assert:
 		AssertCanLoadValueWithMosaics<TTraits>(3);
 	}
 
 	SERIALIZER_TEST(CanLoadValueWithManyMosaics) {
-		// Assert:
 		AssertCanLoadValueWithMosaics<TTraits>(GetManyMosaicsCount());
 	}
 
@@ -613,17 +606,14 @@ namespace catapult { namespace state {
 	}
 
 	SERIALIZER_TEST(CanRoundtripValueWithNoMosaics) {
-		// Assert:
 		AssertCanRoundtripValueWithMosaics<TTraits>(0);
 	}
 
 	SERIALIZER_TEST(CanRoundtripValueWithSomeMosaics) {
-		// Assert:
 		AssertCanRoundtripValueWithMosaics<TTraits>(3);
 	}
 
 	SERIALIZER_TEST(CanRoundtripValueWithManyMosaics) {
-		// Assert:
 		AssertCanRoundtripValueWithMosaics<TTraits>(GetManyMosaicsCount());
 	}
 

@@ -33,7 +33,7 @@ namespace catapult { namespace state {
 
 	public:
 		/// Creates an account restriction around \a restrictionType and \a restrictionValueSize.
-		explicit AccountRestriction(model::AccountRestrictionType restrictionType, size_t restrictionValueSize);
+		AccountRestriction(model::AccountRestrictionType restrictionType, size_t restrictionValueSize);
 
 	public:
 		/// Gets the restriction descriptor.

@@ -71,7 +71,7 @@ namespace catapult { namespace state {
 	private:
 		template<typename TRestrictionsMap, typename TAccountRestriction>
 		static TAccountRestriction& restriction(TRestrictionsMap& restrictionsMap, model::AccountRestrictionType restrictionType) {
-			auto iter = restrictionsMap.find(AccountRestrictionDescriptor(restrictionType).restrictionType());
+			auto iter = restrictionsMap.find(AccountRestrictionDescriptor(restrictionType).directionalRestrictionType());
 			if (restrictionsMap.cend() == iter)
 				CATAPULT_THROW_INVALID_ARGUMENT_1("unknown account restriction type", static_cast<uint16_t>(restrictionType));
 

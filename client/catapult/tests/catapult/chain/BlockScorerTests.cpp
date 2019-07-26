@@ -118,7 +118,7 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, HitCalculationDeviationFromHitCalculationWithDoublesIsTolerable) {
-		for (auto i = 0u; i < Hash256_Size; ++i) {
+		for (auto i = 0u; i < Hash256::Size; ++i) {
 			uint8_t value = 8;
 			for (auto j = 0; j < 16; ++j) {
 				// Arrange:
@@ -396,22 +396,18 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, BlockTargetWithSmoothingIsGreaterThanTargetWithoutSmoothingWhenLastBlockTimeIsLarger) {
-		// Assert:
 		AssertLargerSmoothingFactorBiasesTowardsLargerTargetWhenLastBlockTimeIsLarger(0, 6000);
 	}
 
 	TEST(TEST_CLASS, BlockTargetWithSmoothingIsLessThanTargetWithoutSmoothingWhenLastBlockTimeIsSmaller) {
-		// Assert:
 		AssertLargerSmoothingFactorBiasesTowardsSmallerTargetWhenLastBlockTimeIsSmaller(0, 6000);
 	}
 
 	TEST(TEST_CLASS, LargerSmoothingFactorBiasesTowardsLargerTargetWhenLastBlockTimeIsLarger) {
-		// Assert:
 		AssertLargerSmoothingFactorBiasesTowardsLargerTargetWhenLastBlockTimeIsLarger(3000, 6000);
 	}
 
 	TEST(TEST_CLASS, LargerSmoothingFactorBiasesTowardsSmallerTargetWhenLastBlockTimeIsSmaller) {
-		// Assert:
 		AssertLargerSmoothingFactorBiasesTowardsSmallerTargetWhenLastBlockTimeIsSmaller(3000, 6000);
 	}
 

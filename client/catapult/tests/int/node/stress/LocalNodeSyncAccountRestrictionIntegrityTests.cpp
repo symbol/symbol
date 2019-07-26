@@ -176,7 +176,7 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunAddAccountRestrictionTest(context));
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashesPair.first, 2);
+		test::AssertAllNonzero(stateHashesPair.first, 2);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - restriction cache merkle root is only nonzero when restriction is added
@@ -236,7 +236,7 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunRemoveAccountRestrictionTest(context));
 
 		// Assert: all state hashes are nonzero (since importance is recalculated every block none of the hashes are the same)
-		test::AssertAllNonZero(stateHashesPair.first, 3);
+		test::AssertAllNonzero(stateHashesPair.first, 3);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - restriction cache merkle root is initially zero (no restrictions in nemesis)
@@ -308,7 +308,7 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunAddAndRemoveAccountRestrictionTest(context));
 
 		// Assert: all state hashes are nonzero (since importance is recalculated every block none of the hashes are the same)
-		test::AssertAllNonZero(stateHashesPair.first, 2);
+		test::AssertAllNonzero(stateHashesPair.first, 2);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - all restriction merkle roots are zero because restriction is only active inbetween

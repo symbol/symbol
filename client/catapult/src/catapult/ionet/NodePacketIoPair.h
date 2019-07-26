@@ -33,7 +33,7 @@ namespace catapult { namespace ionet {
 		{}
 
 		/// Creates a pair around \a node and \a pPacketIo.
-		explicit NodePacketIoPair(const Node& node, const std::shared_ptr<PacketIo>& pPacketIo)
+		NodePacketIoPair(const Node& node, const std::shared_ptr<PacketIo>& pPacketIo)
 				: m_node(node)
 				, m_pPacketIo(pPacketIo)
 		{}

@@ -72,7 +72,7 @@ namespace catapult { namespace ionet {
 		{}
 
 		/// Creates an info around \a host and \a pPacketSocket.
-		explicit AcceptedPacketSocketInfo(const std::string& host, const std::shared_ptr<PacketSocket>& pPacketSocket)
+		AcceptedPacketSocketInfo(const std::string& host, const std::shared_ptr<PacketSocket>& pPacketSocket)
 				: m_host(host)
 				, m_pPacketSocket(pPacketSocket)
 		{}

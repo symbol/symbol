@@ -140,12 +140,10 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
@@ -211,7 +209,6 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CanOutputNodeWithoutHost) {
-		// Assert:
 		Node node({ test::GenerateRandomByteArray<Key>(), NodeEndpoint(), NodeMetadata(model::NetworkIdentifier::Zero, "alice") });
 		AssertOutputOperator(node, "alice");
 	}

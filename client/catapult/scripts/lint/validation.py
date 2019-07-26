@@ -21,8 +21,8 @@ class WhitespaceLineValidator(SimpleValidator):
     SUITE_NAME = 'Whitespaces'
     NAME = 'whitespaceLines'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternWhitespaces = re.compile(r'[^\s]\s+$')
         self.patternSpacesStart = re.compile(r'\t* +')
         self.patternTabsStart = re.compile(r'^\t+$')
@@ -34,41 +34,36 @@ class WhitespaceLineValidator(SimpleValidator):
         self.patternComma = re.compile(r',[^ ]')
 
     # pylint: disable=attribute-defined-outside-init
-    def reset(self, path):
-        super().reset(path)
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         self.carriageReturnCount = 0
 
     def check(self, lineNumber, line):
-        if re.search(self.patternWhitespaces, line):
+        if self.patternWhitespaces.search(line):
             self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'Whitespace at line ending'))
-        if re.match(self.patternSpacesStart, line):
+        if self.patternSpacesStart.match(line):
             self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'Spaces at beginning of a line'))
-        if re.match(self.patternTabsStart, line):
+        if self.patternTabsStart.match(line):
             self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'Tabs in empty line'))
 
-        operatorMatch = re.search(self.patternSpaceOperator, line)
+        operatorMatch = self.patternSpaceOperator.search(line)
         if operatorMatch:
             errorMsg = 'Space after operator >>{}<<'.format(operatorMatch.group(1))
             self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, errorMsg))
-        if re.search(self.patternTabInside, line):
+        if self.patternTabInside.search(line):
             self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'Tab present inside the text'))
 
-        if re.search(self.patternSpacesMiddle, line) or re.search(self.patternComma, line):
+        if self.patternSpacesMiddle.search(line) or self.patternComma.search(line):
             temp = stripCommentsAndStrings(line)
-            if re.search(self.patternSpacesMiddle, temp):
+            if self.patternSpacesMiddle.search(temp):
                 self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'Spaces in the middle'))
 
-            gotComma = re.search(self.patternComma, temp)
+            gotComma = self.patternComma.search(temp)
             if gotComma and gotComma.group(0) not in [',)']:
                 self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'Comma should be followed by a space'))
 
-        if re.search(self.patternCarriageReturn, line):
+        if self.patternCarriageReturn.search(line):
             self.carriageReturnCount += 1
-
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
     def finalize(self):
         if 0 < self.carriageReturnCount:
@@ -80,13 +75,13 @@ class TestClassMacroValidator(SimpleValidator):
     SUITE_NAME = 'TestClassMacro'
     NAME = 'testClassMacro'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternTestClass = re.compile(r'#define [A-Z_]*TEST_CLASS (\s+)')
 
     # pylint: disable=attribute-defined-outside-init
-    def reset(self, path):
-        super().reset(path)
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         self.lineTestClass = None
         self.matchLineNumber = 0
         self.hasMismatchedTestClass = False
@@ -95,7 +90,7 @@ class TestClassMacroValidator(SimpleValidator):
         self.filename = splitted[-1]
 
     def match(self, line, lineNumber):
-        hasMatch = re.search(self.patternTestClass, line)
+        hasMatch = self.patternTestClass.search(line)
         if hasMatch:
             self.lineTestClass = line
             self.matchLineNumber = lineNumber
@@ -128,8 +123,8 @@ class LineLengthValidator(SimpleValidator):
     SUITE_NAME = 'LongLines'
     NAME = 'tooLongLines'
 
-    def __init__(self, errorReporter, lineLengthLimit=140):
-        super().__init__(errorReporter)
+    def __init__(self, lineLengthLimit=140):
+        super().__init__()
         self.lineLengthLimit = lineLengthLimit
 
     def check(self, lineNumber, line):
@@ -147,37 +142,27 @@ class TemplateSpaceValidator(SimpleValidator):
     SUITE_NAME = 'Template'
     NAME = 'templateFollowedBySpace'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternTemplate = re.compile(r'template\s+<')
 
     def check(self, lineNumber, line):
-        if re.search(self.patternTemplate, line):
+        if self.patternTemplate.search(line):
             self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'Template followed by space'))
-
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
 class CatchWithoutClosingTryBrace(SimpleValidator):
     SUITE_NAME = 'Catch Formatting'
     NAME = 'catchAndClosingTryBraceOnSeparateLines'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternTemplate = re.compile(r'^\s+catch')
 
     def check(self, lineNumber, line):
-        if re.search(self.patternTemplate, line):
+        if self.patternTemplate.search(line):
             errorMsg = 'catch and closing try brace must be on same line'
             self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, errorMsg))
-
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
 class SingleLineValidator(SimpleValidator):
@@ -185,8 +170,8 @@ class SingleLineValidator(SimpleValidator):
     NAME = 'singleLine'
 
     # pylint: disable=attribute-defined-outside-init
-    def reset(self, path):
-        super().reset(path)
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         self.numOpen = 0
         self.firstLine = 0
         self.long = ''
@@ -233,19 +218,14 @@ class SingleLineValidator(SimpleValidator):
             self.firstLine = lineNumber
             self.long = line
 
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
-
 
 class PragmaOnceValidator(SimpleValidator):
     SUITE_NAME = 'Pragmas'
     NAME = 'pragmaErrors'
 
     # pylint: disable=attribute-defined-outside-init
-    def reset(self, path):
-        super().reset(path)
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         # only .h files need pragma once
         self.gotPragmaOnce = None if path.endswith('.h') else True
         self.gotLicense = False
@@ -305,12 +285,13 @@ class TypoChecker(SimpleValidator):
     SUITE_NAME = 'Typos'
     NAME = 'nameTypo'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.errors = {
             re.compile(r'imeStamp|ime [sS]tamp'): 'Timestamp not TimeStamp or Time Stamp',
             re.compile(r'ileSystem|ile [sS]ystem'): 'Filesystem not FileSystem or File System',
             re.compile(r'ile_?Name|ile [nN]ame'): 'Filename not FileName or File_Name or File Name',
+            re.compile(r'o[nt]Zero|[nN]o[nt] [zZ]ero'): 'Nonzero not NonZero or Non Zero or NotZero or Not Zero',
             re.compile(r'hreadpool'): 'ThreadPool not Threadpool',
             re.compile(r'lockchain'): 'BlockChain not Blockchain',
             re.compile(r'onEmpty|on-empty'): 'NotEmpty not NonEmpty or non-empty',
@@ -331,8 +312,6 @@ class TypoChecker(SimpleValidator):
             re.compile(r'operator new \('): 'no space after new',
             re.compile(r'\)override'): 'missing space before override',
             re.compile(r'[^}][^ ]else {'): 'missing brace before else',
-            # mind that this pattern matches only simple case where ctor is in a single line
-            re.compile(r'explicit\s+\w+\(\)'): 'no-arg ctor should not be explicit',
             re.compile(r'constexpr char (.*)\[\] = "'): 'use constexpr auto ... for constexpr strings',
             re.compile(r'using T[A-Z].* ='): 'do not start aliases with T followed by upper case letter',
             re.compile(r'using Base ='): 'use BaseType instead of Base in alias declaration',
@@ -397,18 +376,16 @@ class TypoChecker(SimpleValidator):
             re.compile(r' ;$'): 'no space before semicolon',
             re.compile(r'(struct|class) \S+{'): 'add space before {',
             re.compile(r'\b[A-Z]\w+{}'): 'zero initialize with () not \\{\\}',
-            re.compile(r'^\s+} }|{ {$'): 'remove space between braces'
+            re.compile(r'^\s+} }|{ {$'): 'remove space between braces',
+            re.compile(r'_tag::'): 'use ByteArray instead of _tag',
+            re.compile(r'Observes.*including'): 'use and instead of including',
+            re.compile(r'/// (Arrange|Act|Assert):'): 'use //'
         }
 
     def check(self, lineNumber, line):
         for k, errorMsg in self.errors.items():
-            if re.search(k, line):
+            if k.search(line):
                 self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, errorMsg))
-
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} TYPO {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
 class BasicFunctionAliasValidator(SimpleValidator):
@@ -417,8 +394,8 @@ class BasicFunctionAliasValidator(SimpleValidator):
     SUITE_NAME = 'FunctionAlias'
     NAME = 'functionAlias'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.errors = {
             re.compile(r'std::function<.*\(\)>'): 'use supplier alias',
             re.compile(r'std::function<void'): 'use action or consumer alias',
@@ -431,13 +408,8 @@ class BasicFunctionAliasValidator(SimpleValidator):
             return
 
         for k, errorMsg in self.errors.items():
-            if re.search(k, line):
+            if k.search(line):
                 self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, errorMsg))
-
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} TYPO {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
 class SpaceBraceValidator(SimpleValidator):
@@ -446,8 +418,8 @@ class SpaceBraceValidator(SimpleValidator):
     SUITE_NAME = 'SpaceBrace'
     NAME = 'spaceBrace'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternNameSpaceBrace = re.compile(r'([a-zA-Z][a-zA-Z0-9:<>_]+) +{')
         self.skip = [
             # skip if line contains 'namespace', that line shouldn't be interesting
@@ -488,7 +460,7 @@ class SpaceBraceValidator(SimpleValidator):
     def check(self, lineNumber, line):
         # we want to match things like Foo {
         # and things like std::set<Foo> {
-        result = re.search(self.patternNameSpaceBrace, line)
+        result = self.patternNameSpaceBrace.search(line)
         if not result:
             return
 
@@ -502,7 +474,7 @@ class SpaceBraceValidator(SimpleValidator):
             return
 
         for pattern in self.skip:
-            if re.search(pattern, line):
+            if pattern.search(line):
                 return
 
         self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, matched))
@@ -519,8 +491,8 @@ class ReturnOnNewLineValidator(SimpleValidator):
     SUITE_NAME = 'ReturnOnNewLine'
     NAME = 'returnOnNewLine'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternReturn = re.compile(r'\S\s*return .*;')
         self.skip = [
             # skip if it looks like lambda
@@ -534,12 +506,12 @@ class ReturnOnNewLineValidator(SimpleValidator):
         ]
 
     def check(self, lineNumber, line):
-        result = re.search(self.patternReturn, line)
+        result = self.patternReturn.search(line)
         if not result:
             return
 
         for pattern in self.skip:
-            if re.search(pattern, line):
+            if pattern.search(line):
                 return
 
         self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber))
@@ -563,8 +535,8 @@ class MultiConditionChecker(SimpleValidator):
     SUITE_NAME = 'MultiConditionChecker'
     NAME = 'multiConditionChecker'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternOperatorBool = re.compile(r'operator bool')
         self.patternOperatorBoolWithExplicit = re.compile(r'explicit operator bool')
         self.patternTest = re.compile(r'\s+(NO_STRESS_)?TEST\(')
@@ -581,10 +553,10 @@ class MultiConditionChecker(SimpleValidator):
         self.patternOperator = re.compile(r'operator')
         self.patternTryParseValue = re.compile(r'TryParseValue')
         self.patternFileSizeCast = re.compile(r'const_cast<utils::FileSize&>.* = ')
-        self.patternTestExpectedSize = re.compile(r'expected\w*Size =.')
+        self.patternTestExpectedSize = re.compile(r'expected\w*Size =[^=]')
 
         # never allow memcmp in an assert
-        self.patternTestMemcmpAssert = re.compile('(ASSERT|EXPECT).*memcmp')
+        self.patternTestMemcmpAssert = re.compile(r'(ASSERT|EXPECT).*memcmp')
 
         # disallow == and != in an assert unless (1) iterator check with `ASSERT_TRUE(c.end() != iter)` or (2) explicit operators
         self.patternTestBoolAssert = re.compile(r'(ASSERT|EXPECT)_(TRUE|FALSE).*(==|!=)')
@@ -597,6 +569,10 @@ class MultiConditionChecker(SimpleValidator):
 
         self.patternTestNameIf = re.compile(r'TEST.*If|\b(Next|Remove)When')
         self.patternTestNameIfExclusions = re.compile(r'\b(Next|Remove)If')
+
+        self.patternDoxygenComment = re.compile(r'///')
+
+        self.patternAutoContextParam = re.compile(r'auto& (context|notification)')
 
         self.errors = {
             self.checkTestLine: 'TEST should use TEST_CLASS',
@@ -611,28 +587,30 @@ class MultiConditionChecker(SimpleValidator):
             self.checkTestAsserts: 'use a different EXPECT or ASSERT macro',
             self.checkDeclareMacroNoParams: 'use DEFINE macro',
             self.checkSingleLineFunction: 'reformat info multiple lines',
-            self.checkTestNameIf: 'use When instead of If'
+            self.checkTestNameIf: 'use When instead of If',
+            self.checkCppDoxygenComment: '/// unexpected in cpp file',
+            self.checkAutoContextParam: 'use type name instead of auto'
         }
 
-    def reset(self, path):
-        super().reset(path)
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         # match common part of validation, validator
         self.isTestValidator = re.search(r'validat', path, re.IGNORECASE) and re.search(r'test', path, re.IGNORECASE)
 
-    def checkExplicitOperatorBool(self, line):
-        return re.search(self.patternOperatorBool, line) and not re.search(self.patternOperatorBoolWithExplicit, line)
+    def checkExplicitOperatorBool(self, line, _):
+        return self.patternOperatorBool.search(line) and not self.patternOperatorBoolWithExplicit.search(line)
 
-    def checkTestLine(self, line):
+    def checkTestLine(self, line, _):
         # special file, skip it
         if self.path.endswith('Stress.h'):
             return False
 
         # if doesn't contain TEST( it's not interesting at all
-        if not re.search(self.patternTest, line):
+        if not self.patternTest.search(line):
             return False
 
         # if contains TEST(TEST_CLASS, mark as ok
-        if re.search(self.patternTestClass, line):
+        if self.patternTestClass.search(line):
             return False
 
         # macros redefining TEST should use TEST_NAME
@@ -646,8 +624,8 @@ class MultiConditionChecker(SimpleValidator):
         # mark as invalid
         return True
 
-    def checkExplicitCtor(self, line):
-        match = re.match(self.patternMissingExplicitCtor, line)
+    def checkExplicitCtor(self, line, _):
+        match = self.patternMissingExplicitCtor.match(line)
         if not match:
             return False
 
@@ -665,81 +643,81 @@ class MultiConditionChecker(SimpleValidator):
 
         return True
 
-    def checkValidationResult(self, line):
+    def checkValidationResult(self, line, _):
         if not self.isTestValidator:
             return False
 
-        match = re.search(self.patternValidationResult, line)
+        match = self.patternValidationResult.search(line)
         if match:
             return match.group(1) != 'value'
 
         return False
 
-    def checkEnumClass(self, line):
-        return re.search(self.patternEnum, line) and not re.search(self.patternEnumClass, line)
+    def checkEnumClass(self, line, _):
+        return self.patternEnum.search(line) and not self.patternEnumClass.search(line)
 
-    def checkCoerce(self, line):
-        match = re.search(self.patternCoerce, line)
+    def checkCoerce(self, line, _):
+        match = self.patternCoerce.search(line)
         if match:
             return match.group(1) != 'const ' or match.group(2) != '*'
 
         return False
 
-    def checkDefineTests(self, line):
-        return re.match(self.patternDefineTests, line) and not re.match(self.patternDefineTestTraits, line)
+    def checkDefineTests(self, line, _):
+        return self.patternDefineTests.match(line) and not self.patternDefineTestTraits.match(line)
 
-    def checkFileSize(self, line):
-        if not re.search(self.patternFileSize, line):
+    def checkFileSize(self, line, _):
+        if not self.patternFileSize.search(line):
             return False
 
         # ignore operator, TryParseValue
-        if re.search(self.patternOperator, line) or re.search(self.patternTryParseValue, line):
+        if self.patternOperator.search(line) or self.patternTryParseValue.search(line):
             return False
 
         # ignore cast
-        if re.search(self.patternFileSizeCast, line):
+        if self.patternFileSizeCast.search(line):
             return False
 
         return True
 
-    def checkTestExpectedSize(self, line):
-        return re.search(self.patternTestExpectedSize, line) and ';' not in line
+    def checkTestExpectedSize(self, line, _):
+        return self.patternTestExpectedSize.search(line) and ';' not in line
 
-    def checkTestAsserts(self, line):
+    def checkTestAsserts(self, line, _):
         # special file, skip it
         if self.path.endswith('TestHarness.h'):
             return False
 
         # fail if memcmp is used in a test assert
-        if re.search(self.patternTestMemcmpAssert, line):
+        if self.patternTestMemcmpAssert.search(line):
             return True
 
         # fail if == or != are used in a test assert
-        return re.search(self.patternTestBoolAssert, line) and not re.search(self.patternTestBoolAssertAllowed, line)
+        return self.patternTestBoolAssert.search(line) and not self.patternTestBoolAssertAllowed.search(line)
 
-    def checkDeclareMacroNoParams(self, line):
+    def checkDeclareMacroNoParams(self, line, _):
         # rule only applies to cpp files
-        if not self.path.endswith('.cpp'):
-            return False
+        return self.path.endswith('.cpp') and self.patternDeclareMacroNoParams.search(line)
 
-        return re.search(self.patternDeclareMacroNoParams, line)
+    def checkSingleLineFunction(self, line, _):
+        return self.patternSingleLineFunction.search(line) and not self.patternTestSingleLineFunction.search(line)
 
-    def checkSingleLineFunction(self, line):
-        return re.search(self.patternSingleLineFunction, line) and not re.search(self.patternTestSingleLineFunction, line)
+    def checkTestNameIf(self, line, _):
+        return self.patternTestNameIf.search(line) and not self.patternTestNameIfExclusions.search(line)
 
-    def checkTestNameIf(self, line):
-        return re.search(self.patternTestNameIf, line) and not re.search(self.patternTestNameIfExclusions, line)
+    def checkCppDoxygenComment(self, _, rawLine):
+        # rule only applies to cpp files
+        return self.path.endswith('.cpp') and self.patternDoxygenComment.search(rawLine)
+
+    def checkAutoContextParam(self, line, _):
+        # rule only applies to observer and validator implementations
+        return self.path.endswith(('Observer.cpp', 'Validator.cpp')) and self.patternAutoContextParam.search(line)
 
     def check(self, lineNumber, line):
         strippedLine = stripCommentsAndStrings(line)
         for func, errorMsg in self.errors.items():
-            if func(strippedLine):
+            if func(strippedLine, line):
                 self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, errorMsg))
-
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
 class Cpp17TraitsValidator(SimpleValidator):
@@ -749,8 +727,8 @@ class Cpp17TraitsValidator(SimpleValidator):
     NAME = 'cpp17Traits'
 
     # pylint: disable=attribute-defined-outside-init
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.typePattern = re.compile(r'>::type\b')
         self.valuePattern = re.compile(r'>::value\b')
 
@@ -760,22 +738,17 @@ class Cpp17TraitsValidator(SimpleValidator):
             return
 
         errorMessage = ''
-        if re.search(self.valuePattern, line):
+        if self.valuePattern.search(line):
             errorMessage = 'use _v instead of ::value'
 
         #  boost::logging requires one usage of ::type
-        if not self.path.endswith('Logging.h') and re.search(self.typePattern, line):
+        if not self.path.endswith('Logging.h') and self.typePattern.search(line):
             errorMessage = 'use _t instead of ::type'
 
         if not errorMessage:
             return
 
         self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, errorMessage))
-
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
 def rindex(lst, searched):
@@ -789,8 +762,8 @@ class UtilsSubdirValidator(SimpleValidator):
     NAME = 'utilsSubdir'
 
     # pylint: disable=attribute-defined-outside-init
-    def reset(self, path):
-        super().reset(path)
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         self.hasUtils = False
         splitted = re.split(r'[/\\]', path)
         if 'tests' in splitted and 'utils' in splitted:
@@ -819,8 +792,8 @@ class StressTestNameValidator(SimpleValidator):
     NAME = 'stressTestName'
 
     # pylint: disable=attribute-defined-outside-init
-    def reset(self, path):
-        super().reset(path)
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         self.hasImproperName = False
         splitted = re.split(r'[/\\]', path)
         if 'tests' in splitted:
@@ -851,13 +824,13 @@ class RegionValidator(SimpleValidator):
     SUITE_NAME = 'RegionValidator'
     NAME = 'regionValidator'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternRegion = re.compile(r'//(.*)region')
 
     # pylint: disable=attribute-defined-outside-init
-    def reset(self, path):
-        super().reset(path)
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         self.counter = 0
         self.previousRegionLine = None
         self.previousRegionLineNumber = 0
@@ -866,7 +839,7 @@ class RegionValidator(SimpleValidator):
         self.errors = []
 
     def check(self, lineNumber, line):
-        result = re.search(self.patternRegion, line)
+        result = self.patternRegion.search(line)
         if not result:
             return
 
@@ -901,11 +874,6 @@ class RegionValidator(SimpleValidator):
             for error in self.errors:
                 self.errorReporter(self.NAME, error)
 
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
-
 
 class MacroSemicolonValidator(SimpleValidator):
     """Validator for ensuring that macros don't have trailing semicolons."""
@@ -913,8 +881,8 @@ class MacroSemicolonValidator(SimpleValidator):
     SUITE_NAME = 'MacroSemicolonChecker'
     NAME = 'macroSemicolonChecker'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.macroCall = re.compile(r'^\s+[A-Z_]+\([^\)]*\);')
 
         # exclude special macros that should have semicolons some or most of the time
@@ -932,19 +900,14 @@ class MacroSemicolonValidator(SimpleValidator):
     def check(self, lineNumber, line):
         strippedLine = stripCommentsAndStrings(line)
 
-        if not re.match(self.macroCall, strippedLine):
+        if not self.macroCall.match(strippedLine):
             return
 
         for pattern in self.skip:
-            if re.search(pattern, strippedLine):
+            if pattern.search(strippedLine):
                 return
 
         self.errorReporter(self.NAME, Line(self.path, line.strip('\n\r'), lineNumber, 'macro should not have trailing semicolon'))
-
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
 class EnumValueBlankLineValidator(SimpleValidator):
@@ -953,8 +916,8 @@ class EnumValueBlankLineValidator(SimpleValidator):
     SUITE_NAME = 'EnumValueBlankLineChecker'
     NAME = 'enumValueBlankLineChecker'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternEnumValue = re.compile(r'\s*ENUM_VALUE\(.*\) \\')
         self.patternBlankLine = re.compile(r'\s*\\')
         self.previousLine = ''
@@ -962,15 +925,10 @@ class EnumValueBlankLineValidator(SimpleValidator):
     def check(self, lineNumber, line):
         strippedLine = line.strip('\n\r')
 
-        if re.match(self.patternEnumValue, self.previousLine) and not re.match(self.patternBlankLine, strippedLine):
+        if self.patternEnumValue.match(self.previousLine) and not self.patternBlankLine.match(strippedLine):
             self.errorReporter(self.NAME, Line(self.path, self.previousLine, lineNumber - 1, 'enum value is missing following blank line'))
 
         self.previousLine = strippedLine
-
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
 class ClosingBraceVerticalSpacingValidator(SimpleValidator):
@@ -979,11 +937,15 @@ class ClosingBraceVerticalSpacingValidator(SimpleValidator):
     SUITE_NAME = 'ClosingBraceVerticalSpacingChecker'
     NAME = 'closingBraceVerticalSpacingVChecker'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternClosingBrace = re.compile(r'^\s*}\s*$')
         self.patternInbetweenClosingBrace = re.compile(r'^\s*}[}\)]*;?\s*$')
         self.patternLineAfterClosingBrace = re.compile(r'^#|^\s*(}[}\)]*[;,]?|namespace .*|break;|} catch.*|} else.*|])$')
+        self.recentLines = None
+
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         self.recentLines = ['', '', '']
 
     def check(self, lineNumber, line):
@@ -997,21 +959,16 @@ class ClosingBraceVerticalSpacingValidator(SimpleValidator):
         # 4. break statement within switch
         # 5. catch statement
         # 6. closing square bracket (inline JSON)
-        if re.match(self.patternClosingBrace, self.recentLines[1]):
-            if self.recentLines[2] and not re.match(self.patternLineAfterClosingBrace, self.recentLines[2]):
+        if self.patternClosingBrace.match(self.recentLines[1]):
+            if self.recentLines[2] and not self.patternLineAfterClosingBrace.match(self.recentLines[2]):
                 self.errorReporter(self.NAME, Line(self.path, self.recentLines[2], lineNumber, 'improper line following closing brace'))
 
         # check if line between closing braces is valid:
         # 1. blank
         # 2. valid line following brace
-        if re.match(self.patternClosingBrace, self.recentLines[2]) and re.match(self.patternClosingBrace, self.recentLines[0]):
-            if not self.recentLines[1] or not re.match(self.patternLineAfterClosingBrace, self.recentLines[1]):
+        if self.patternClosingBrace.match(self.recentLines[2]) and self.patternClosingBrace.match(self.recentLines[0]):
+            if not self.recentLines[1] or not self.patternLineAfterClosingBrace.match(self.recentLines[1]):
                 self.errorReporter(self.NAME, Line(self.path, self.recentLines[1], lineNumber - 1, 'improper line between closing braces'))
-
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
 
 
 class NamespaceOpeningBraceVerticalSpacingValidator(SimpleValidator):
@@ -1020,11 +977,15 @@ class NamespaceOpeningBraceVerticalSpacingValidator(SimpleValidator):
     SUITE_NAME = 'NamespaceOpeningBraceVerticalSpacingChecker'
     NAME = 'namespaceOpeningBraceVerticalSpacingChecker'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternNamespaceOpening = re.compile(r'^(\s*(inline )?namespace \w+ {)+$')
         self.patternAnonNamespaceOpening = re.compile(r'^\s*namespace {')
         self.patternForwardDeclaration = re.compile(r'^\s*(namespace \w+ { )*(class|struct) \w+;')
+        self.recentLines = None
+
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         self.recentLines = ['', '', '']
 
     def check(self, lineNumber, line):
@@ -1033,18 +994,18 @@ class NamespaceOpeningBraceVerticalSpacingValidator(SimpleValidator):
 
         isOuterNamespace = False
         isInnerOrAnonNamespace = False
-        if re.match(self.patternNamespaceOpening, self.recentLines[1]):
+        if self.patternNamespaceOpening.match(self.recentLines[1]):
             if '\t' != self.recentLines[1][0]:
                 isOuterNamespace = True
             else:
                 isInnerOrAnonNamespace = True
-        elif re.match(self.patternAnonNamespaceOpening, self.recentLines[1]):
+        elif self.patternAnonNamespaceOpening.match(self.recentLines[1]):
             isInnerOrAnonNamespace = True
 
         # check line following outer namespace opening
         followingLine = self.recentLines[2]
         if isOuterNamespace and followingLine:
-            if not (re.match(self.patternNamespaceOpening, followingLine) or re.match(self.patternForwardDeclaration, followingLine)):
+            if not (self.patternNamespaceOpening.match(followingLine) or self.patternForwardDeclaration.match(followingLine)):
                 self.reportError(lineNumber, 'line following namespace opening must be blank or namespace opening or forward declaration')
 
         # check line following inner or anon namespace opening
@@ -1054,11 +1015,6 @@ class NamespaceOpeningBraceVerticalSpacingValidator(SimpleValidator):
     def reportError(self, lineNumber, message):
         self.errorReporter(self.NAME, Line(self.path, self.recentLines[1], lineNumber - 1, message))
 
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
-
 
 class CopyrightCommentValidator(SimpleValidator):
     """Validator for ensuring copyright comment consistency."""
@@ -1066,13 +1022,13 @@ class CopyrightCommentValidator(SimpleValidator):
     SUITE_NAME = 'CopyrightCommentChecker'
     NAME = 'copyrightCommentChecker'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.expectedHash = unhexlify('6d244ea9972afcb6b17d695594958de6dc162f50')
 
     # pylint: disable=attribute-defined-outside-init
-    def reset(self, path):
-        super().reset(path)
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         self.hasher = sha1()
         self.lastLineNumber = 0
 
@@ -1112,8 +1068,8 @@ class EmptyStatementValidator(SimpleValidator):
     SUITE_NAME = 'EmptyStatementChecker'
     NAME = 'emptyStatementChecker'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.isOpeningBraceUnclosed = False
         self.previousStrippedLine = ''
 
@@ -1155,19 +1111,15 @@ class EmptyStatementValidator(SimpleValidator):
     def reportError(self, lineNumber, line, message):
         self.errorReporter(self.NAME, Line(self.path, line, lineNumber, message))
 
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
-
 
 class DocumentationVerticalSpacingValidator(SimpleValidator):
     """Validator for ensuring documentation has appropriate vertical spacing."""
+
     SUITE_NAME = 'DocumentationVerticalSpacingChecker'
     NAME = 'documentationVerticalSpacingChecker'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.previousStrippedLine = ''
 
     def check(self, lineNumber, line):
@@ -1184,19 +1136,15 @@ class DocumentationVerticalSpacingValidator(SimpleValidator):
     def reportError(self, lineNumber, line, message):
         self.errorReporter(self.NAME, Line(self.path, line, lineNumber, message))
 
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
-
 
 class InsertionOperatorFormattingValidator(SimpleValidator):
     """Validator for ensuring insertion operator has appropriate formatting."""
+
     SUITE_NAME = 'InsertionOperatorFormattingChecker'
     NAME = 'insertionOperatorFormattingChecker'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.previousStrippedLine = ''
 
     def check(self, lineNumber, line):
@@ -1214,13 +1162,97 @@ class InsertionOperatorFormattingValidator(SimpleValidator):
     def reportError(self, lineNumber, line, message):
         self.errorReporter(self.NAME, Line(self.path, line, lineNumber, message))
 
-    @staticmethod
-    def formatError(err):
-        name = err.path
-        return '{}:{} {}: >>{}<<'.format(name, err.lineno, err.kind, err.line)
+
+class TestFirstLineCommentValidator(SimpleValidator):
+    """Validator for ensuring that first comments of test functions are well formed."""
+
+    SUITE_NAME = 'TestFirstLineCommentChecker'
+    NAME = 'testFirstLineCommentChecker'
+
+    def __init__(self):
+        super().__init__()
+        self.patternTestFunction = re.compile(r'TEST\(')
+        self.patternEndsAssertComment = re.compile(r'//( -|.*Assert:$)')
+        self.previousStrippedLine = ''
+
+    def check(self, lineNumber, line):
+        strippedLine = line.strip('\n\r\t')  # also strip tabs
+
+        if self.patternTestFunction.search(self.previousStrippedLine):
+            if self.patternEndsAssertComment.match(strippedLine):
+                self.reportError(lineNumber, line, 'should remove redundant assert comment')
+
+        self.previousStrippedLine = strippedLine
+
+    def reportError(self, lineNumber, line, message):
+        self.errorReporter(self.NAME, Line(self.path, line, lineNumber, message))
 
 
-def createValidators(errorReporter):
+class ExplicitCtorValidator(SimpleValidator):
+    """Validator for ensuring that only single argument constructors have explicit keyword."""
+
+    SUITE_NAME = 'ExplicitCtorChecker'
+    NAME = 'explicitCtorChecker'
+
+    def __init__(self):
+        super().__init__()
+        self.patternExplicitCtor = re.compile(r'(constexpr )?explicit \w+\(')
+
+        self.ctorLineNumber = 0
+        self.ctorStartLine = ''
+
+        self.openParenCount = 0
+        self.openAngleBracketCount = 0
+        self.ctorArguments = ''
+
+    def check(self, lineNumber, line):
+        strippedLine = line.strip('\n\r\t')  # also strip tabs
+
+        if 0 == self.openParenCount and not self.patternExplicitCtor.match(strippedLine):
+            return
+
+        if 0 == self.openParenCount:
+            # save for error reporting
+            self.ctorLineNumber = lineNumber
+            self.ctorStartLine = strippedLine
+
+        for char in strippedLine:
+            if '<' == char:
+                self.openAngleBracketCount += 1
+            elif '>' == char:
+                self.openAngleBracketCount -= 1
+            if '(' == char:
+                self.openParenCount += 1
+            elif ')' == char:
+                self.openParenCount -= 1
+                if 0 == self.openParenCount:
+                    self.checkExplicitCtorLine()
+                    self.ctorArguments = ''
+                    break
+            else:
+                if 0 == self.openAngleBracketCount and 0 != self.openParenCount:
+                    self.ctorArguments += char
+
+    def checkExplicitCtorLine(self):
+        if not self.ctorArguments:
+            self.reportError('empty ctor should not use explicit')
+
+        # single arg ctor can always be explicit
+        splitArgs = self.ctorArguments.split(',')
+        if 1 == len(splitArgs):
+            return
+
+        # if second arg has default, explicit is allowed
+        if any(defaultMarker in splitArgs[1] for defaultMarker in ['=', '...']):
+            return
+
+        self.reportError('multi arg ctor should not use explicit')
+
+    def reportError(self, message):
+        self.errorReporter(self.NAME, Line(self.path, self.ctorStartLine, self.ctorLineNumber, message))
+
+
+def createValidators():
     validators = [
         WhitespaceLineValidator,
         TestClassMacroValidator,
@@ -1246,6 +1278,8 @@ def createValidators(errorReporter):
         CopyrightCommentValidator,
         EmptyStatementValidator,
         DocumentationVerticalSpacingValidator,
-        InsertionOperatorFormattingValidator
+        InsertionOperatorFormattingValidator,
+        TestFirstLineCommentValidator,
+        ExplicitCtorValidator
     ]
-    return list(map(lambda validator: validator(errorReporter), validators))
+    return list(map(lambda validator: validator(), validators))

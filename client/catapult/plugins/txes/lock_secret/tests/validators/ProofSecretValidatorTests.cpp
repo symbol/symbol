@@ -112,22 +112,18 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Sha3) {
-		// Assert:
 		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Sha3_256);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Keccak) {
-		// Assert:
 		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Keccak_256);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Bitcoin160) {
-		// Assert:
 		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_160);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSecretMatchesProof_Sha256Double) {
-		// Assert:
 		AssertSuccessIfSecretMatchesProof(model::LockHashAlgorithm::Op_Hash_256);
 	}
 

@@ -74,7 +74,6 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, CanProcessZeroEntities) {
-		// Assert:
 		ConsumerTestContext context(GetRemoteMask());
 		test::AssertPassthroughForEmptyInput(context.Consumer);
 	}
@@ -115,25 +114,21 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, SingleBlockMatchingMaskIsForwarded) {
-		// Assert:
 		AssertBlockForwarded(CreateInput(1, InputSource::Remote_Pull));
 		AssertBlockForwarded(CreateInput(1, InputSource::Remote_Push));
 	}
 
 	TEST(TEST_CLASS, SingleBlockNotMatchingMaskIsNotForwarded) {
-		// Assert:
 		AssertBlockNotForwarded(CreateInput(1, InputSource::Unknown));
 		AssertBlockNotForwarded(CreateInput(1, InputSource::Local));
 	}
 
 	TEST(TEST_CLASS, MultipleBlocksMatchingMaskAreNotForwarded) {
-		// Assert:
 		AssertBlockNotForwarded(CreateInput(3, InputSource::Remote_Pull));
 		AssertBlockNotForwarded(CreateInput(3, InputSource::Remote_Push));
 	}
 
 	TEST(TEST_CLASS, MultipleBlocksNotMatchingMaskAreNotForwarded) {
-		// Assert:
 		AssertBlockNotForwarded(CreateInput(3, InputSource::Unknown));
 		AssertBlockNotForwarded(CreateInput(3, InputSource::Local));
 	}

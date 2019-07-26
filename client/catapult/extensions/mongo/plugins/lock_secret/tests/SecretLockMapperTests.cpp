@@ -22,7 +22,7 @@
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/lock_secret/src/model/SecretLockTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
 #include "tests/test/SecretLockMapperTestUtils.h"
 
@@ -36,7 +36,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		template<typename TTransaction>
 		void AssertSecretLockTransaction(const TTransaction& transaction, const bsoncxx::document::view& dbTransaction) {
 			EXPECT_EQ(utils::to_underlying_type(transaction.HashAlgorithm), test::GetUint32(dbTransaction, "hashAlgorithm"));
-			EXPECT_EQ(transaction.Secret, test::GetBinaryArray<Hash256_Size>(dbTransaction, "secret"));
+			EXPECT_EQ(transaction.Secret, test::GetBinaryArray<Hash256::Size>(dbTransaction, "secret"));
 			EXPECT_EQ(transaction.Recipient, test::GetUnresolvedAddressValue(dbTransaction, "recipient"));
 		}
 	}

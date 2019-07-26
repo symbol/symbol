@@ -35,16 +35,6 @@ namespace catapult { namespace mongo {
 				: MongoTransactionMetadata(element, catapult::Height(), 0)
 		{}
 
-		/// Creates a new metadata around \a element, \a height and \a index.
-		explicit MongoTransactionMetadata(const model::TransactionElement& element, Height height, uint32_t index)
-				: MongoTransactionMetadata(
-						element.EntityHash,
-						element.MerkleComponentHash,
-						*element.OptionalExtractedAddresses,
-						height,
-						index)
-		{}
-
 		/// Creates a new metadata around \a info.
 		explicit MongoTransactionMetadata(const model::TransactionInfo& transactionInfo)
 				: MongoTransactionMetadata(
@@ -53,6 +43,16 @@ namespace catapult { namespace mongo {
 						*transactionInfo.OptionalExtractedAddresses,
 						catapult::Height(),
 						0)
+		{}
+
+		/// Creates a new metadata around \a element, \a height and \a index.
+		MongoTransactionMetadata(const model::TransactionElement& element, Height height, uint32_t index)
+				: MongoTransactionMetadata(
+						element.EntityHash,
+						element.MerkleComponentHash,
+						*element.OptionalExtractedAddresses,
+						height,
+						index)
 		{}
 
 	private:

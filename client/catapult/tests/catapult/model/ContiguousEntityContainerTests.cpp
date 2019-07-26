@@ -160,22 +160,18 @@ namespace catapult { namespace model {
 	}
 
 	TRAITS_BASED_TEST(CanIterateOverMultipleEntitiesWithPostfixOperator) {
-		// Assert:
 		AssertCanIterateOverMultipleEntitiesWithPostfixOperator<TTraits, TContainerTraits, EntityHeader>();
 	}
 
 	TRAITS_BASED_TEST(CanIterateOverMultipleEntitiesWithPrefixOperator) {
-		// Assert:
 		AssertCanIterateOverMultipleEntitiesWithPrefixOperator<TTraits, TContainerTraits, EntityHeader>();
 	}
 
 	TRAITS_BASED_TEST(CanIterateOverMultipleConstEntitiesWithPostfixOperator) {
-		// Assert:
 		AssertCanIterateOverMultipleEntitiesWithPostfixOperator<TTraits, TContainerTraits, const EntityHeader>();
 	}
 
 	TRAITS_BASED_TEST(CanIterateOverMultipleConstEntitiesWithPrefixOperator) {
-		// Assert:
 		AssertCanIterateOverMultipleEntitiesWithPrefixOperator<TTraits, TContainerTraits, const EntityHeader>();
 	}
 
@@ -411,12 +407,10 @@ namespace catapult { namespace model {
 	}
 
 	POSITIONAL_TRAITS_BASED_TEST(AbortsWhenEntitySizeIsZero) {
-		// Assert:
 		AssertShortCircuitOnInsufficientEntitySize<TContainerTraits, TPositionalTraits>(0);
 	}
 
 	POSITIONAL_TRAITS_BASED_TEST(AbortsWhenEntityHeaderExtendsBeyondBuffer) {
-		// Assert:
 		AssertShortCircuitOnInsufficientEntitySize<TContainerTraits, TPositionalTraits>(sizeof(EntityHeader) - 1);
 	}
 
@@ -492,22 +486,18 @@ namespace catapult { namespace model {
 	}
 
 	TRAITS_BASED_TEST(CannotAdvancePostfixIteratorAfterError) {
-		// Assert:
 		AssertCannotAdvanceIteratorAfterError<TTraits, TContainerTraits, PostfixIteratorTraits>();
 	}
 
 	TRAITS_BASED_TEST(CannotAdvancePrefixIteratorAfterError) {
-		// Assert:
 		AssertCannotAdvanceIteratorAfterError<TTraits, TContainerTraits, PrefixIteratorTraits>();
 	}
 
 	TRAITS_BASED_TEST(CannotAdvancePostfixIteratorAfterErrorAtEnd) {
-		// Assert:
 		AssertCannotAdvanceIteratorAfterErrorAtEnd<TTraits, TContainerTraits, PostfixIteratorTraits>();
 	}
 
 	TRAITS_BASED_TEST(CannotAdvancePrefixIteratorAfterErrorAtEnd) {
-		// Assert:
 		AssertCannotAdvanceIteratorAfterErrorAtEnd<TTraits, TContainerTraits, PrefixIteratorTraits>();
 	}
 

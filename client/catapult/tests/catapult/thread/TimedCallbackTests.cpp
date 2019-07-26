@@ -170,7 +170,6 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, CanExecuteTimedCallbackWhenTimerCompletesBeforeCallback) {
-		// Assert:
 		RunNonDeterministicTriggerTest([&]() {
 			// Arrange:
 			TestContext context;
@@ -184,7 +183,6 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, CanExecuteTimedCallbackWhenTimerCompletesAfterCallback) {
-		// Assert:
 		RunNonDeterministicTriggerTest([&]() {
 			// Arrange:
 			TestContext context;
@@ -222,7 +220,6 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, CanTimeoutWhenTimeoutHandlerIsNotSet) {
-		// Assert:
 		RunNonDeterministicTriggerTest([&]() {
 			// Arrange: create a context without setting a timeout handler
 			TestContext context(false);
@@ -241,7 +238,6 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, TimeoutOnlyTriggersLastTimeoutHandler) {
-		// Assert:
 		RunNonDeterministicTriggerTest([&]() {
 			// Arrange: override the default timeout handler
 			TestContext context;
@@ -263,7 +259,6 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, TimeoutHandlerSetAfterTimeoutIsExecutedWhenSet) {
-		// Assert:
 		RunNonDeterministicTriggerTest([&]() {
 			// Arrange:
 			TestContext context;
@@ -286,7 +281,6 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, TimeoutHandlerSetAfterNonTimeoutIsNotExecutedWhenSet) {
-		// Assert:
 		RunNonDeterministicTriggerTest([&]() {
 			// Arrange:
 			TestContext context;
@@ -327,7 +321,6 @@ namespace catapult { namespace thread {
 	}
 
 	TRAITS_BASED_TEST(TimeoutHandlerDestroysCallbacksAfterInvocation) {
-		// Assert:
 		RunNonDeterministicTriggerTest([&]() {
 			// Arrange: make sure both handlers capture pObject and extend its life
 			auto pObject = std::make_shared<int>(7);
@@ -354,7 +347,6 @@ namespace catapult { namespace thread {
 	}
 
 	TRAITS_BASED_TEST(TimeoutHandlerDestroysTimeoutHandlerCallbackWhenHandlerIsSetAfterInvocation) {
-		// Assert:
 		RunNonDeterministicTriggerTest([&]() {
 			// Arrange: make sure both handlers capture pObject and extend its life
 			auto pObject = std::make_shared<int>(7);

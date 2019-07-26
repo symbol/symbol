@@ -48,12 +48,10 @@ namespace catapult { namespace state {
 			, m_definition(definition)
 	{}
 
-	/// Gets the mosaic id.
 	MosaicId MosaicEntry::mosaicId() const {
 		return m_id;
 	}
 
-	/// Gets the mosaic definition.
 	const MosaicDefinition& MosaicEntry::definition() const {
 		return m_definition;
 	}

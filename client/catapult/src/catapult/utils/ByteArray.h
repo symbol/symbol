@@ -25,10 +25,10 @@
 namespace catapult { namespace utils {
 
 	/// Base class for wrappers of byte array types, to provide some type-safety.
-	template<size_t N, typename TTag>
-	class ByteArray : TTag {
+	template<typename TTag>
+	class ByteArray : public TTag {
 	public:
-		using const_iterator = typename std::array<uint8_t, N>::const_iterator;
+		using const_iterator = typename std::array<uint8_t, TTag::Size>::const_iterator;
 
 	public:
 		/// Creates a zero-initialized byte array.
@@ -36,7 +36,7 @@ namespace catapult { namespace utils {
 		{}
 
 		/// Creates a byte array around \a array.
-		constexpr ByteArray(const std::array<uint8_t, N>& array) : m_array(array)
+		constexpr ByteArray(const std::array<uint8_t, TTag::Size>& array) : m_array(array)
 		{}
 
 		/// Creates a copy of \a rhs.
@@ -145,10 +145,10 @@ namespace catapult { namespace utils {
 		}
 
 	private:
-		std::array<uint8_t, N> m_array;
+		std::array<uint8_t, TTag::Size> m_array;
 	};
 
 	// force compilation error if HexFormat is used with ByteArray
-	template<size_t N, typename TTag>
-	constexpr void HexFormat(const ByteArray<N, TTag>&);
+	template<typename TTag>
+	constexpr void HexFormat(const ByteArray<TTag>&);
 }}

@@ -41,7 +41,7 @@ namespace catapult { namespace extensions {
 							? thread::MultiServicePool::IsolatedPoolMode::Disabled
 							: thread::MultiServicePool::IsolatedPoolMode::Enabled))
 			, m_subscriptionManager(config)
-			, m_pluginManager(m_config.BlockChain, CreateStorageConfiguration(config), m_config.Inflation)
+			, m_pluginManager(m_config.BlockChain, CreateStorageConfiguration(config), m_config.User, m_config.Inflation)
 	{}
 
 	const config::CatapultConfiguration& ProcessBootstrapper::config() const {

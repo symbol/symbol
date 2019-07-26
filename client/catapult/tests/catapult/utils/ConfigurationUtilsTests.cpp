@@ -28,22 +28,19 @@ namespace catapult { namespace utils {
 	// region GetIniPropertyName
 
 	TEST(TEST_CLASS, GetIniPropertyNameThrowsWhenCppVariableNameIsTooShort) {
-		// Act + Assert:
 		EXPECT_THROW(GetIniPropertyName(nullptr), catapult_invalid_argument);
 		EXPECT_THROW(GetIniPropertyName(""), catapult_invalid_argument);
 		EXPECT_THROW(GetIniPropertyName("a"), catapult_invalid_argument);
 	}
 
 	TEST(TEST_CLASS, GetIniPropertyNameThrowsWhenCppVariableNameDoesNotStartWithLetter) {
-		// Act + Assert:
 		EXPECT_THROW(GetIniPropertyName("0abcd"), catapult_invalid_argument);
 		EXPECT_THROW(GetIniPropertyName("9abcd"), catapult_invalid_argument);
 		EXPECT_THROW(GetIniPropertyName("!abcd"), catapult_invalid_argument);
 	}
 
 	TEST(TEST_CLASS, GetIniPropertyNameCanConvertValidCppVariableNames) {
-		// Act + Assert:
-		// - min length
+		// Assert: min length
 		EXPECT_EQ("aa", GetIniPropertyName("aa"));
 		EXPECT_EQ("zZ", GetIniPropertyName("ZZ"));
 

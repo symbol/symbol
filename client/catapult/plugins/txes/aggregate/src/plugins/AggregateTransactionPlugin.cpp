@@ -68,9 +68,10 @@ namespace catapult { namespace plugins {
 				// publish aggregate notifications
 				// (notice that this must be raised before embedded transaction notifications in order for cosigner aggregation to work)
 				auto numCosignatures = aggregate.CosignaturesCount();
+				auto numTransactions = std::distance(aggregate.Transactions().cbegin(), aggregate.Transactions().cend());
 				sub.notify(AggregateCosignaturesNotification(
 						aggregate.Signer,
-						static_cast<uint32_t>(std::distance(aggregate.Transactions().cbegin(), aggregate.Transactions().cend())),
+						static_cast<uint32_t>(numTransactions),
 						aggregate.TransactionsPtr(),
 						numCosignatures,
 						aggregate.CosignaturesPtr()));
@@ -82,7 +83,7 @@ namespace catapult { namespace plugins {
 					sub.notify(SourceChangeNotification(Relative, 0, Relative, 1));
 
 					// - signers and entity
-					sub.notify(AccountPublicKeyNotification(subTransaction.Signer));
+					model::PublishNotifications(subTransaction, sub);
 					const auto& plugin = m_transactionRegistry.findPlugin(subTransaction.Type)->embeddedPlugin();
 					auto subTransactionAttributes = plugin.attributes();
 

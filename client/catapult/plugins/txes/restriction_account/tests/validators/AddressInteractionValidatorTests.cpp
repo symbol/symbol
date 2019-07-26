@@ -35,6 +35,8 @@ namespace catapult { namespace validators {
 
 		using CacheContents = std::unordered_map<Key, std::vector<Key>, utils::ArrayHasher<Key>>;
 
+		// region Address / Key traits
+
 		struct AddressTraits {
 			static model::UnresolvedAddressSet ParticipantsByAddress(const std::vector<Key>& keys) {
 				model::UnresolvedAddressSet addresses;
@@ -59,15 +61,42 @@ namespace catapult { namespace validators {
 			}
 		};
 
+		// endregion
+
+		// region Incoming / Outgoing traits
+
+		struct IncomingTraits {
+			static constexpr auto Restriction_Type = model::AccountRestrictionType::Address;
+
+			static const std::pair<Key, Key> GetPartnersOrdered(const Key& source, const Key& partner) {
+				return { source, partner };
+			}
+		};
+
+		struct OutgoingTraits {
+			static constexpr auto Restriction_Type = model::AccountRestrictionType::Address | model::AccountRestrictionType::Outgoing;
+
+			static const std::pair<Key, Key> GetPartnersOrdered(const Key& source, const Key& partner) {
+				return { partner, source };
+			}
+		};
+
+		// endregion
+
+		// region test utils
+
 		template<typename TOperationTraits>
-		void PopulateCache(cache::CatapultCache& cache, const CacheContents& cacheContents) {
+		void PopulateCache(
+				cache::CatapultCache& cache,
+				model::AccountRestrictionType restrictionType,
+				const CacheContents& cacheContents) {
 			auto delta = cache.createDelta();
 			auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
 			for (const auto& pair : cacheContents) {
 				auto sourceAddress = model::PublicKeyToAddress(pair.first, Default_Network);
 				restrictionCacheDelta.insert(state::AccountRestrictions(sourceAddress));
 				auto& restrictions = restrictionCacheDelta.find(sourceAddress).get();
-				auto& restriction = restrictions.restriction(model::AccountRestrictionType::Address);
+				auto& restriction = restrictions.restriction(restrictionType);
 				for (const auto& value : pair.second)
 					TOperationTraits::Add(restriction, state::ToVector(model::PublicKeyToAddress(value, Default_Network)));
 			}
@@ -79,12 +108,13 @@ namespace catapult { namespace validators {
 		void AssertValidationResult(
 				ValidationResult expectedResult,
 				const CacheContents& cacheContents,
+				model::AccountRestrictionType restrictionType,
 				const Key& source,
 				const model::UnresolvedAddressSet& participantsByAddress,
 				const utils::KeySet& participantsByKey) {
 			// Arrange:
 			auto cache = test::AccountRestrictionCacheFactory::Create();
-			PopulateCache<TOperationTraits>(cache, cacheContents);
+			PopulateCache<TOperationTraits>(cache, restrictionType, cacheContents);
 			auto pValidator = CreateAddressInteractionValidator();
 			auto entityType = static_cast<model::EntityType>(0x4123);
 			auto notification = model::AddressInteractionNotification(source, entityType, participantsByAddress, participantsByKey);
@@ -95,44 +125,52 @@ namespace catapult { namespace validators {
 			// Assert:
 			EXPECT_EQ(expectedResult, result);
 		}
+
+		// endregion
 	}
 
 #define TRAITS_BASED_TEST(TEST_NAME) \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_Key) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyTraits>(); } \
-	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
+	template<typename TTraits, typename TDirectionTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Address_Incoming) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits, IncomingTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Key_Incoming) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyTraits, IncomingTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Address_Outgoing) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AddressTraits, OutgoingTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Key_Outgoing) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<KeyTraits, OutgoingTraits>(); } \
+	template<typename TTraits, typename TDirectionTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	// region failure
 
-	TRAITS_BASED_TEST(FailureWhenDestinationIsKnownAndSourceIsNotContainedInValues_Allow) {
+	TRAITS_BASED_TEST(FailureWhenOneAddressIsKnownAndOtherAddressIsNotContainedInValues_Allow) {
 		// Arrange:
 		auto sourceKey = test::GenerateRandomByteArray<Key>();
 		auto values = test::GenerateRandomDataVector<Key>(3);
 		CacheContents cacheContents{ { sourceKey, values } };
+		auto pair = TDirectionTraits::GetPartnersOrdered(test::GenerateRandomByteArray<Key>(), sourceKey);
 
 		// Act:
 		AssertValidationResult<test::AllowTraits>(
-				Failure_RestrictionAccount_Signer_Address_Interaction_Not_Allowed,
+				Failure_RestrictionAccount_Address_Interaction_Not_Allowed,
 				cacheContents,
-				test::GenerateRandomByteArray<Key>(),
-				TTraits::ParticipantsByAddress({ sourceKey }),
-				TTraits::ParticipantsByKey({ sourceKey }));
+				TDirectionTraits::Restriction_Type,
+				pair.first,
+				TTraits::ParticipantsByAddress({ pair.second }),
+				TTraits::ParticipantsByKey({ pair.second }));
 	}
 
-	TRAITS_BASED_TEST(FailureWhenDestinationIsKnownAndSourceIsContainedInValues_Block) {
+	TRAITS_BASED_TEST(FailureWhenOneAddressIsKnownAndOtherAddressIsNotContainedInValues_Block) {
 		// Arrange:
 		auto sourceKey = test::GenerateRandomByteArray<Key>();
 		auto values = test::GenerateRandomDataVector<Key>(3);
 		CacheContents cacheContents{ { sourceKey, values } };
+		auto pair = TDirectionTraits::GetPartnersOrdered(values[1], sourceKey);
 
 		// Act:
 		AssertValidationResult<test::BlockTraits>(
-				Failure_RestrictionAccount_Signer_Address_Interaction_Not_Allowed,
+				Failure_RestrictionAccount_Address_Interaction_Not_Allowed,
 				cacheContents,
-				values[1],
-				TTraits::ParticipantsByAddress({ sourceKey }),
-				TTraits::ParticipantsByKey({ sourceKey }));
+				TDirectionTraits::Restriction_Type,
+				pair.first,
+				TTraits::ParticipantsByAddress({ pair.second }),
+				TTraits::ParticipantsByKey({ pair.second }));
 	}
 
 	// endregion
@@ -140,69 +178,71 @@ namespace catapult { namespace validators {
 	// region success
 
 	namespace {
-		template<typename TOperationTraits, typename TTraits>
-		void AssertSuccessWhenDestinationAddressIsNotKnown() {
+		template<typename TOperationTraits, typename TTraits, typename TDirectionTraits>
+		void AssertSuccessWhenAddressIsNotKnown() {
 			// Arrange:
 			auto sourceKey = test::GenerateRandomByteArray<Key>();
 			auto values = test::GenerateRandomDataVector<Key>(3);
 			CacheContents cacheContents{ { sourceKey, values } };
+			auto pair = TDirectionTraits::GetPartnersOrdered(values[1], test::GenerateRandomByteArray<Key>());
 
 			// Act:
 			AssertValidationResult<TOperationTraits>(
 					ValidationResult::Success,
 					cacheContents,
-					values[1],
-					TTraits::ParticipantsByAddress({ test::GenerateRandomByteArray<Key>() }),
-					TTraits::ParticipantsByKey({ test::GenerateRandomByteArray<Key>() }));
+					TDirectionTraits::Restriction_Type,
+					pair.first,
+					TTraits::ParticipantsByAddress({ pair.second }),
+					TTraits::ParticipantsByKey({ pair.second }));
 		}
 	}
 
-	TRAITS_BASED_TEST(SuccessWhenDestinationAddressIsNotKnown_Allow) {
-		// Assert: note that this situation will not occur during normal operation
-		AssertSuccessWhenDestinationAddressIsNotKnown<test::AllowTraits, TTraits>();
+	TRAITS_BASED_TEST(SuccessWhenAddressIsNotKnown_Allow_Incoming) {
+		// note that this situation will not occur during normal operation
+		AssertSuccessWhenAddressIsNotKnown<test::AllowTraits, TTraits, TDirectionTraits>();
 	}
 
-	TRAITS_BASED_TEST(SuccessWhenDestinationAddressIsNotKnown_Block) {
-		// Assert:
-		AssertSuccessWhenDestinationAddressIsNotKnown<test::BlockTraits, TTraits>();
+	TRAITS_BASED_TEST(SuccessWhenAddressIsNotKnown_Block_Incoming) {
+		AssertSuccessWhenAddressIsNotKnown<test::BlockTraits, TTraits, TDirectionTraits>();
 	}
 
 	namespace {
-		template<typename TOperationTraits, typename TTraits>
+		template<typename TOperationTraits, typename TTraits, typename TDirectionTraits>
 		void AssertSuccessWhenValuesAreEmpty() {
 			// Arrange:
 			auto sourceKey = test::GenerateRandomByteArray<Key>();
 			CacheContents cacheContents{ { sourceKey, {} } };
+			auto pair = TDirectionTraits::GetPartnersOrdered(test::GenerateRandomByteArray<Key>(), sourceKey);
 
 			// Act:
 			AssertValidationResult<TOperationTraits>(
 					ValidationResult::Success,
 					cacheContents,
-					test::GenerateRandomByteArray<Key>(),
-					TTraits::ParticipantsByAddress({ sourceKey }),
-					TTraits::ParticipantsByKey({ sourceKey }));
+					TDirectionTraits::Restriction_Type,
+					pair.first,
+					TTraits::ParticipantsByAddress({ pair.second }),
+					TTraits::ParticipantsByKey({ pair.second }));
 		}
 	}
 
-	TRAITS_BASED_TEST(SuccessWhenDestinationAddressIsKnownAndValuesAreEmpty_Allow) {
-		// Assert:
-		AssertSuccessWhenValuesAreEmpty<test::AllowTraits, TTraits>();
+	TRAITS_BASED_TEST(SuccessWhenAddressIsKnownAndValuesAreEmpty_Allow) {
+		AssertSuccessWhenValuesAreEmpty<test::AllowTraits, TTraits, TDirectionTraits>();
 	}
 
-	TRAITS_BASED_TEST(SuccessWhenDestinationAddressIsKnownAndValuesAreEmpty_Block) {
-		// Assert:
-		AssertSuccessWhenValuesAreEmpty<test::BlockTraits, TTraits>();
+	TRAITS_BASED_TEST(SuccessWhenAddressIsKnownAndValuesAreEmpty_Block) {
+		AssertSuccessWhenValuesAreEmpty<test::BlockTraits, TTraits, TDirectionTraits>();
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenSourceEqualsDestination_Allow) {
-		// Arrange: source is not an allowed value
+		// Arrange: source is not an allowed value and values are not empty
 		auto sourceKey = test::GenerateRandomByteArray<Key>();
-		CacheContents cacheContents{ { sourceKey, {} } };
+		CacheContents cacheContents{ { sourceKey, { test::GenerateRandomByteArray<Key>() } } };
 
-		// Act:
+		// Act: no need for direction traits to retrieve partners because source and destination are equal
 		AssertValidationResult<test::AllowTraits>(
 				ValidationResult::Success,
 				cacheContents,
+				TDirectionTraits::Restriction_Type,
 				sourceKey,
 				TTraits::ParticipantsByAddress({ sourceKey }),
 				TTraits::ParticipantsByKey({ sourceKey }));
@@ -213,10 +253,11 @@ namespace catapult { namespace validators {
 		auto sourceKey = test::GenerateRandomByteArray<Key>();
 		CacheContents cacheContents{ { sourceKey, { sourceKey } } };
 
-		// Act:
+		// Act: no need for direction traits to retrieve partners because source and destination are equal
 		AssertValidationResult<test::BlockTraits>(
 				ValidationResult::Success,
 				cacheContents,
+				TDirectionTraits::Restriction_Type,
 				sourceKey,
 				TTraits::ParticipantsByAddress({ sourceKey }),
 				TTraits::ParticipantsByKey({ sourceKey }));
@@ -227,14 +268,16 @@ namespace catapult { namespace validators {
 		auto sourceKey = test::GenerateRandomByteArray<Key>();
 		auto values = test::GenerateRandomDataVector<Key>(3);
 		CacheContents cacheContents{ { sourceKey, values } };
+		auto pair = TDirectionTraits::GetPartnersOrdered(values[1], sourceKey);
 
-		// Act: destination address is known and source address is an allowed value
+		// Act: pair.first is known and pair.second is an allowed value
 		AssertValidationResult<test::AllowTraits>(
 				ValidationResult::Success,
 				cacheContents,
-				values[1],
-				TTraits::ParticipantsByAddress({ sourceKey }),
-				TTraits::ParticipantsByKey({ sourceKey }));
+				TDirectionTraits::Restriction_Type,
+				pair.first,
+				TTraits::ParticipantsByAddress({ pair.second }),
+				TTraits::ParticipantsByKey({ pair.second }));
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenAllConditionsAreMet_Block) {
@@ -242,14 +285,16 @@ namespace catapult { namespace validators {
 		auto sourceKey = test::GenerateRandomByteArray<Key>();
 		auto values = test::GenerateRandomDataVector<Key>(3);
 		CacheContents cacheContents{ { sourceKey, values } };
+		auto pair = TDirectionTraits::GetPartnersOrdered(test::GenerateRandomByteArray<Key>(), sourceKey);
 
-		// Act: destination address is known and source address is not a blocked value
+		// Act: pair.first is known and pair.second is not a blocked value
 		AssertValidationResult<test::BlockTraits>(
 				ValidationResult::Success,
 				cacheContents,
-				test::GenerateRandomByteArray<Key>(),
-				TTraits::ParticipantsByAddress({ sourceKey }),
-				TTraits::ParticipantsByKey({ sourceKey }));
+				TDirectionTraits::Restriction_Type,
+				pair.first,
+				TTraits::ParticipantsByAddress({ pair.second }),
+				TTraits::ParticipantsByKey({ pair.second }));
 	}
 
 	// endregion

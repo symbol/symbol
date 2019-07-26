@@ -45,7 +45,7 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	DEFINE_OBSERVER(CompletedAggregate, Notification, [](const auto& notification, auto& context) {
+	DEFINE_OBSERVER(CompletedAggregate, Notification, [](const Notification& notification, ObserverContext& context) {
 		if (model::Entity_Type_Aggregate_Bonded != notification.TransactionType)
 			return;
 

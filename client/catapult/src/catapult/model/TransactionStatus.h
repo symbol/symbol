@@ -29,7 +29,7 @@ namespace catapult { namespace model {
 	struct TransactionStatus {
 	public:
 		/// Creates a TransactionStatus around \a hash, \a status and \a deadline.
-		explicit TransactionStatus(const Hash256& hash, uint32_t status, catapult::Timestamp deadline)
+		TransactionStatus(const Hash256& hash, uint32_t status, catapult::Timestamp deadline)
 				: Hash(hash)
 				, Status(status)
 				, Deadline(deadline)

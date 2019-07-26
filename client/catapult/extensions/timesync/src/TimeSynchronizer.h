@@ -36,7 +36,7 @@ namespace catapult { namespace timesync {
 	class TimeSynchronizer {
 	public:
 		/// Creates a time synchronizer around \a filter, \a totalChainImportance and \a warningThresholdMillis.
-		explicit TimeSynchronizer(
+		TimeSynchronizer(
 				const filters::AggregateSynchronizationFilter& filter,
 				Importance totalChainImportance,
 				int64_t warningThresholdMillis = Warning_Threshold_Millis);

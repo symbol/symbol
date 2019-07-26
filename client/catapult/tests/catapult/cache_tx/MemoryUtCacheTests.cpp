@@ -492,17 +492,14 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, ForEachForwardsNoTransactionInfosWhenCacheIsEmpty) {
-		// Assert:
 		AssertForEachBehavior(0, 3, 0);
 	}
 
 	TEST(TEST_CLASS, ForEachForwardsAllTransactionsWhenNotShortCircuited) {
-		// Assert:
 		AssertForEachBehavior(10, 100, 10);
 	}
 
 	TEST(TEST_CLASS, ForEachForwardsSubsetOfTransactionsWhenShortCircuited) {
-		// Assert:
 		AssertForEachBehavior(10, 5, 5);
 	}
 
@@ -633,7 +630,6 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, UnknownTransactionsFiltersTransactionsByFeeMultiplier) {
-		// Assert:
 		AssertFeeMultiplierIsRespected(BlockFeeMultiplier(59), { 4, 6, 8, 10 });
 		AssertFeeMultiplierIsRespected(BlockFeeMultiplier(60), { 4, 6, 8, 10 });
 		AssertFeeMultiplierIsRespected(BlockFeeMultiplier(61), { 6, 8, 10 });

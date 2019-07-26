@@ -51,6 +51,7 @@ namespace catapult { namespace io {
 		constexpr const char* Error_Seek = "couldn't seek in file";
 		constexpr const char* Error_Seek_Outside = "couldn't seek past end of file";
 		constexpr const char* Error_Desc = "invalid file descriptor";
+		constexpr const char* Error_Close = "couldn't close the file";
 
 		// endregion
 
@@ -139,6 +140,8 @@ namespace catapult { namespace io {
 		constexpr auto File_Locking_Exclusive = LOCK_NB | LOCK_EX;
 		constexpr auto File_Locking_Shared_Read = LOCK_NB | LOCK_SH;
 		constexpr auto File_Locking_None = 0;
+
+		constexpr auto close = ::close; // ::close unlocks all files, so explicit flock is not needed
 		using StatStruct = struct stat;
 
 		template<typename TSize>
@@ -170,18 +173,13 @@ namespace catapult { namespace io {
 
 			return MakeSuccessResult(0);
 		}
-
-		inline void close(int fd) {
-			::flock(fd, LOCK_UN);
-			::close(fd);
-		}
 #endif
 		// endregion
 
 		// region platform-independent nem file io wrappers
 
-		void nemClose(int fd) {
-			close(fd);
+		FileOperationResult<bool> nemClose(int fd) {
+			return -1 == close(fd) ? MakeFailureResult(false) : MakeSuccessResult(true);
 		}
 
 		template<typename TIoOperation, typename TBuffer>
@@ -254,10 +252,18 @@ namespace catapult { namespace io {
 	}
 
 	RawFile::FileDescriptorHolder::~FileDescriptorHolder() {
-		if (Invalid_Descriptor != m_fd)
-			nemClose(m_fd);
+		if (Invalid_Descriptor == m_fd)
+			return;
 
-		m_fd = Invalid_Descriptor;
+		auto closeResult = nemClose(m_fd);
+		if (closeResult.IsSuccess) {
+			m_fd = Invalid_Descriptor;
+			return;
+		}
+
+		CATAPULT_LOG(error)
+				<< Error_Close << " " << m_fd << ": "
+				<< closeResult.Message << " (" << closeResult.ErrorCode << ")";
 	}
 
 	bool RawFile::FileDescriptorHolder::isValid() const {

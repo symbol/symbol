@@ -157,12 +157,10 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, NeutralInteractionWhenCompareChainsReturnsEqualScoreResult) {
-		// Assert:
 		AssertNeutralInteraction(ChainScore(10), ChainScore(10));
 	}
 
 	TEST(TEST_CLASS, NeutralInteractionWhenCompareChainsReturnsLowerScoreResult) {
-		// Assert:
 		AssertNeutralInteraction(ChainScore(11), ChainScore(10));
 	}
 

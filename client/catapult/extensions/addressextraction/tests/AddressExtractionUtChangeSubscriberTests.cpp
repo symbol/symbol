@@ -35,21 +35,18 @@ namespace catapult { namespace addressextraction {
 	}
 
 	TEST(TEST_CLASS, NotifyAddsExtractsTransactionAddresses) {
-		// Act + Assert:
 		TestContext().assertTransactionInfosExtractions([](auto& subscriber, const auto& transactionInfos) {
 			subscriber.notifyAdds(transactionInfos);
 		});
 	}
 
 	TEST(TEST_CLASS, NotifyRemovesExtractsTransactionAddresses) {
-		// Act + Assert:
 		TestContext().assertTransactionInfosExtractions([](auto& subscriber, const auto& transactionInfos) {
 			subscriber.notifyRemoves(transactionInfos);
 		});
 	}
 
 	TEST(TEST_CLASS, FlushDoesNotExtractTransactionAddresses) {
-		// Act + Assert:
 		TestContext().assertNoExtractions([](auto& subscriber) {
 			subscriber.flush();
 		});

@@ -28,20 +28,50 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS AddressValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(Address, static_cast<model::NetworkIdentifier>(123))
+	DEFINE_COMMON_VALIDATOR_TESTS(Address, model::NetworkIdentifier())
 
 	namespace {
-		constexpr auto Network_Identifier = static_cast<model::NetworkIdentifier>(123);
+		constexpr auto Network_Identifier = static_cast<model::NetworkIdentifier>(0xC8);
+
+		Address GenerateRandomAddress() {
+			return model::PublicKeyToAddress(test::GenerateRandomByteArray<Key>(), Network_Identifier);
+		}
+
+		model::ResolverContext CreateResolverContextXor() {
+			auto xorResolver = test::CreateResolverContextXor();
+			return model::ResolverContext(
+					[xorResolver](const auto& unresolved) {
+						return xorResolver.resolve(unresolved);
+					},
+					[xorResolver](const auto& unresolved) {
+						// resolved addresses must have low bit cleared
+						auto resolved = xorResolver.resolve(unresolved);
+						resolved[0] ^= 0xFF;
+						resolved[0] &= 0xFE;
+						return resolved;
+					});
+		}
+
+		UnresolvedAddress UnresolveXor(const Address& address) {
+			auto unresolved = test::UnresolveXor(address);
+			unresolved[0] ^= 0xFF;
+			return unresolved;
+		}
 
 		void AssertValidationResult(ValidationResult expectedResult, const Address& address) {
-			// Arrange:
+			// Arrange: create validator context with custom resolver context
 			auto cache = test::CreateEmptyCatapultCache();
+			auto cacheView = cache.createView();
+			auto readOnlyCache = cacheView.toReadOnly();
 
-			model::AccountAddressNotification notification(test::UnresolveXor(address));
+			auto resolverContext = CreateResolverContextXor();
+			auto validatorContext = ValidatorContext(Height(1), Timestamp(0), model::NetworkInfo(), resolverContext, readOnlyCache);
+
+			model::AccountAddressNotification notification(UnresolveXor(address));
 			auto pValidator = CreateAddressValidator(Network_Identifier);
 
 			// Act:
-			auto result = test::ValidateNotification(*pValidator, notification, cache);
+			auto result = test::ValidateNotification(*pValidator, notification, validatorContext);
 
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "address " << address;
@@ -52,24 +82,43 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SuccessWhenAddressIsCompatibleWithNetwork) {
 		// Arrange:
-		auto address = PublicKeyToAddress(test::GenerateRandomByteArray<Key>(), Network_Identifier);
+		auto address = GenerateRandomAddress();
 
 		// Assert:
 		AssertValidationResult(ValidationResult::Success, address);
 	}
 
-	TEST(TEST_CLASS, FailureWhenAddressHasInvalidChecksum) {
+	TEST(TEST_CLASS, SuccessWhenAddressIsCompatibleWithNetwork_Resolvable) {
 		// Arrange:
-		auto address = PublicKeyToAddress(test::GenerateRandomByteArray<Key>(), Network_Identifier);
-		address[Address_Decoded_Size / 2] ^= 0xFF;
+		auto address = GenerateRandomAddress();
+		address[0] |= 0x01;
+
+		// Assert:
+		AssertValidationResult(ValidationResult::Success, address);
+	}
+
+	TEST(TEST_CLASS, FailureWhenAddressIsIncompatibleWithNetwork) {
+		// Arrange:
+		auto address = GenerateRandomAddress();
+		address[0] |= 0x02;
 
 		// Assert:
 		AssertValidationResult(Failure_Core_Invalid_Address, address);
 	}
 
-	TEST(TEST_CLASS, FailureWhenAddressIsIncompatibleWithNetwork) {
+	TEST(TEST_CLASS, FailureWhenAddressIsIncompatibleWithNetwork_Resolvable) {
 		// Arrange:
-		auto address = PublicKeyToAddress(test::GenerateRandomByteArray<Key>(), model::NetworkIdentifier::Mijin_Test);
+		auto address = GenerateRandomAddress();
+		address[0] |= 0x03;
+
+		// Assert:
+		AssertValidationResult(Failure_Core_Invalid_Address, address);
+	}
+
+	TEST(TEST_CLASS, FailureWhenAddressHasInvalidChecksum) {
+		// Arrange:
+		auto address = GenerateRandomAddress();
+		address[Address::Size / 2] ^= 0xFF;
 
 		// Assert:
 		AssertValidationResult(Failure_Core_Invalid_Address, address);

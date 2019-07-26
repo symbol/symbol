@@ -55,12 +55,16 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	DEFINE_OBSERVER(AccountAddress, model::AccountAddressNotification, [](const auto& notification, const auto& context) {
+	DEFINE_OBSERVER(AccountAddress, model::AccountAddressNotification, [](
+			const model::AccountAddressNotification& notification,
+			const ObserverContext& context) {
 		DefaultAccountVisitor visitor(context);
 		visitor.visit(notification.Address);
 	});
 
-	DEFINE_OBSERVER(AccountPublicKey, model::AccountPublicKeyNotification, [](const auto& notification, const auto& context) {
+	DEFINE_OBSERVER(AccountPublicKey, model::AccountPublicKeyNotification, [](
+			const model::AccountPublicKeyNotification& notification,
+			const ObserverContext& context) {
 		DefaultAccountVisitor visitor(context);
 		visitor.visit(notification.PublicKey);
 	});

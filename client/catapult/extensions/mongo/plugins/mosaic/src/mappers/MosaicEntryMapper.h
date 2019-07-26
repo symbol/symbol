@@ -24,6 +24,6 @@
 
 namespace catapult { namespace mongo { namespace plugins {
 
-	/// Maps a mosaic \a entry to the corresponding db model value.
-	bsoncxx::document::value ToDbModel(const state::MosaicEntry& entry);
+	/// Maps a mosaic \a mosaicEntry to the corresponding db model value.
+	bsoncxx::document::value ToDbModel(const state::MosaicEntry& mosaicEntry);
 }}}

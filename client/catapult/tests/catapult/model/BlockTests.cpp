@@ -35,11 +35,11 @@ namespace catapult { namespace model {
 				+ sizeof(uint64_t) // timestamp
 				+ sizeof(uint64_t) // difficulty
 				+ sizeof(uint32_t) // fee multiplier
-				+ Hash256_Size // previous block hash
-				+ Hash256_Size // block transactions hash
-				+ Hash256_Size // block receipts hash
-				+ Hash256_Size // state hash
-				+ Key_Size; // beneficiary
+				+ Hash256::Size // previous block hash
+				+ Hash256::Size // block transactions hash
+				+ Hash256::Size // block receipts hash
+				+ Hash256::Size // state hash
+				+ Key::Size; // beneficiary
 
 		// Assert:
 		EXPECT_EQ(expectedSize, sizeof(BlockHeader));

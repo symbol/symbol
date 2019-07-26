@@ -44,7 +44,7 @@ namespace catapult { namespace timesync {
 
 		class SimpleResultSupplier {
 		public:
-			explicit SimpleResultSupplier(std::vector<CommunicationTimestamps>&& communicationTimestampsContainer, size_t numValidNodes)
+			SimpleResultSupplier(std::vector<CommunicationTimestamps>&& communicationTimestampsContainer, size_t numValidNodes)
 					: m_communicationTimestampsContainer(std::move(communicationTimestampsContainer))
 					, m_numValidNodes(numValidNodes)
 					, m_index(0)
@@ -272,7 +272,6 @@ namespace catapult { namespace timesync {
 	}
 
 	TEST(TEST_CLASS, TaskProcessesSamples_Single) {
-		// Assert:
 		AssertStateChange({ 250 }, { Importance(1'000'000) }, [](const auto& timeSyncState) {
 			EXPECT_EQ(TimeOffset(250), timeSyncState.offset());
 			EXPECT_EQ(NodeAge(1), timeSyncState.nodeAge());

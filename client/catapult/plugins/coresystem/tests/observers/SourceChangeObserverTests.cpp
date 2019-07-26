@@ -52,22 +52,18 @@ namespace catapult { namespace observers {
 	}
 
 	TEST(TEST_CLASS, RollbackRelativeRelativeDoesNotChangeObserverSource) {
-		// Assert:
 		AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Relative, SourceChangeType::Relative);
 	}
 
 	TEST(TEST_CLASS, RollbackAbsoluteRelativeDoesNotChangeObserverSource) {
-		// Assert:
 		AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Absolute, SourceChangeType::Relative);
 	}
 
 	TEST(TEST_CLASS, RollbackRelativeAbsoluteDoesNotChangeObserverSource) {
-		// Assert:
 		AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Relative, SourceChangeType::Absolute);
 	}
 
 	TEST(TEST_CLASS, RollbackAbsoluteAbsoluteDoesNotChangeObserverSource) {
-		// Assert:
 		AssertRollbackDoesNotChangeObserverSource(SourceChangeType::Absolute, SourceChangeType::Absolute);
 	}
 
@@ -98,22 +94,18 @@ namespace catapult { namespace observers {
 	}
 
 	TEST(TEST_CLASS, CommitRelativeRelativeChangesObserverSource) {
-		// Assert:
 		AssertCommitChangesObserverSource(SourceChangeType::Relative, SourceChangeType::Relative, { 15 + 10, 22 + 5 });
 	}
 
 	TEST(TEST_CLASS, CommitAbsoluteRelativeChangesObserverSource) {
-		// Assert:
 		AssertCommitChangesObserverSource(SourceChangeType::Absolute, SourceChangeType::Relative, { 10, 22 + 5 });
 	}
 
 	TEST(TEST_CLASS, CommitRelativeAbsoluteChangesObserverSource) {
-		// Assert:
 		AssertCommitChangesObserverSource(SourceChangeType::Relative, SourceChangeType::Absolute, { 15 + 10, 5 });
 	}
 
 	TEST(TEST_CLASS, CommitAbsoluteAbsoluteChangesObserverSource) {
-		// Assert:
 		AssertCommitChangesObserverSource(SourceChangeType::Absolute, SourceChangeType::Absolute, { 10, 5 });
 	}
 

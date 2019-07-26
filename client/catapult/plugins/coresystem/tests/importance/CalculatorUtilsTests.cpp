@@ -387,8 +387,8 @@ namespace catapult { namespace importance {
 	}
 
 	TEST(TEST_CLASS, ActivityImportanceIsAsExpected_FeesPaidAndBeneficiaryCount_ActivityPercentageEqualToZero) {
-		// -    stake importance: 9'000 * (500 / 1'000) * (100 / 100) = 4'500
-		// - activity importance: 0 + 0 = 0
+		// Assert:    stake importance: 9'000 * (500 / 1'000) * (100 / 100) = 4'500
+		//         activity importance: 0 + 0 = 0
 		AssertActivityImportance(0, Importance(4'500), Importance());
 	}
 

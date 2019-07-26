@@ -102,7 +102,7 @@ namespace catapult { namespace model {
 		});
 	}
 
-	TEST(TEST_CLASS, CanRaiseBlockAccountNotifications_NonZeroBeneficiary) {
+	TEST(TEST_CLASS, CanRaiseBlockAccountNotifications_NonzeroBeneficiary) {
 		// Arrange:
 		auto pBlock = test::GenerateEmptyRandomBlock();
 		test::FillWithRandomData(pBlock->Signer);

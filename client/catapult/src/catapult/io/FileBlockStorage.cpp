@@ -108,7 +108,7 @@ namespace catapult { namespace io {
 			auto hashFilePath = GetHashFilePath(baseDirectory, height);
 			auto pHashFile = std::make_unique<RawFile>(hashFilePath.generic_string().c_str(), openMode, LockMode::None);
 			// check that first hash file has at least two hashes inside.
-			if (height.unwrap() < Files_Per_Directory && Hash256_Size * 2 > pHashFile->size())
+			if (height.unwrap() < Files_Per_Directory && Hash256::Size * 2 > pHashFile->size())
 				CATAPULT_THROW_RUNTIME_ERROR_1("hashes.dat has invalid size", pHashFile->size());
 
 			return pHashFile;
@@ -116,7 +116,7 @@ namespace catapult { namespace io {
 
 		void SeekHashFile(RawFile& hashFile, Height height) {
 			auto index = height.unwrap() % Files_Per_Directory;
-			hashFile.seek(index * Hash256_Size);
+			hashFile.seek(index * Hash256::Size);
 		}
 	}
 
@@ -131,9 +131,9 @@ namespace catapult { namespace io {
 			auto count = Files_Per_Directory - (height.unwrap() % Files_Per_Directory);
 			count = std::min<size_t>(numHashes, count);
 
-			pHashFile->read(MutableRawBuffer(pData, count * Hash256_Size));
+			pHashFile->read(MutableRawBuffer(pData, count * Hash256::Size));
 
-			pData += count * Hash256_Size;
+			pData += count * Hash256::Size;
 			numHashes -= count;
 			height = height + Height(count);
 		}

@@ -50,7 +50,7 @@ namespace catapult { namespace plugins {
 		});
 
 		auto config = model::LoadPluginConfiguration<config::MultisigConfiguration>(manager.config(), "catapult.plugins.multisig");
-		manager.addStatefulValidatorHook([config](auto& builder) {
+		manager.addStatefulValidatorHook([config, &transactionRegistry = manager.transactionRegistry()](auto& builder) {
 			builder
 				.add(validators::CreateMultisigPermittedOperationValidator())
 				.add(validators::CreateModifyMultisigMaxCosignedAccountsValidator(config.MaxCosignedAccountsPerAccount))
@@ -60,8 +60,8 @@ namespace catapult { namespace plugins {
 				// notice that ModifyMultisigLoopAndLevelValidator must be called before multisig aggregate validators
 				.add(validators::CreateModifyMultisigLoopAndLevelValidator(config.MaxMultisigDepth))
 				// notice that ineligible cosigners must dominate missing cosigners in order for cosigner aggregation to work
-				.add(validators::CreateMultisigAggregateEligibleCosignersValidator())
-				.add(validators::CreateMultisigAggregateSufficientCosignersValidator());
+				.add(validators::CreateMultisigAggregateEligibleCosignersValidator(transactionRegistry))
+				.add(validators::CreateMultisigAggregateSufficientCosignersValidator(transactionRegistry));
 		});
 
 		manager.addObserverHook([](auto& builder) {

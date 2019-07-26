@@ -25,7 +25,9 @@
 
 namespace catapult { namespace observers {
 
-	DEFINE_OBSERVER(ExpiredHashLockInfo, model::BlockNotification, [](const auto& notification, auto& context) {
+	DEFINE_OBSERVER(ExpiredHashLockInfo, model::BlockNotification, [](
+			const model::BlockNotification& notification,
+			ObserverContext& context) {
 		ExpiredLockInfoObserver<cache::HashLockInfoCache>(context, [&notification](const auto&) { return notification.Signer; });
 	});
 }}

@@ -67,11 +67,11 @@ namespace catapult { namespace cache {
 			if (subCacheMerkleRoots.empty()) {
 				stateHash = Hash256();
 			} else {
-				RawBuffer subCacheMerkleRootsBuffer{
-					reinterpret_cast<const uint8_t*>(subCacheMerkleRoots.data()),
-					subCacheMerkleRoots.size() * Hash256_Size
-				};
-				crypto::Sha3_256(subCacheMerkleRootsBuffer, stateHash);
+				crypto::Sha3_256_Builder stateHashBuilder;
+				for (const auto& subCacheMerkleRoot : subCacheMerkleRoots)
+					stateHashBuilder.update(subCacheMerkleRoot);
+
+				stateHashBuilder.final(stateHash);
 			}
 
 			return stateHash;

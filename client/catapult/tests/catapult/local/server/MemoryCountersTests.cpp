@@ -79,7 +79,7 @@ namespace catapult { namespace local {
 #endif
 	}
 
-	TEST(TEST_CLASS, CountersHaveNonZeroValues) {
+	TEST(TEST_CLASS, CountersHaveNonzeroValues) {
 		// Arrange:
 		Counters counters;
 		AddMemoryCounters(counters);

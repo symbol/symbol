@@ -53,14 +53,12 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingValidMosaicFlags) {
-		// Assert:
-		for (auto flags : { 0x00, 0x02, 0x03 })
+		for (auto flags : { 0x00, 0x02, 0x05, 0x07 })
 			AssertFlagsResult(ValidationResult::Success, static_cast<model::MosaicFlags>(flags));
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingInvalidMosaicFlags) {
-		// Assert:
-		for (auto flags : { 0x04, 0x07, 0x08, 0x09, 0xFF })
+		for (auto flags : { 0x08, 0x09, 0xFF })
 			AssertFlagsResult(Failure_Mosaic_Invalid_Flags, static_cast<model::MosaicFlags>(flags));
 	}
 
@@ -87,17 +85,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityLessThanMax) {
-		// Assert:
 		AssertDivisibilityValidationResult(ValidationResult::Success, 7, 11);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDivisibilityEqualToMax) {
-		// Assert:
 		AssertDivisibilityValidationResult(ValidationResult::Success, 11, 11);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingDivisibilityGreaterThanMax) {
-		// Assert:
 		AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 12, 11);
 		AssertDivisibilityValidationResult(Failure_Mosaic_Invalid_Divisibility, 111, 11);
 	}
@@ -124,17 +119,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDurationLessThanMax) {
-		// Assert:
 		AssertDurationValidationResult(ValidationResult::Success, 12312, 12345);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingDurationEqualToMax) {
-		// Assert:
 		AssertDurationValidationResult(ValidationResult::Success, 12345, 12345);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingDurationGreaterThanMax) {
-		// Assert:
 		AssertDurationValidationResult(Failure_Mosaic_Invalid_Duration, 12346, 12345);
 		AssertDurationValidationResult(Failure_Mosaic_Invalid_Duration, 65432, 12345);
 	}
@@ -198,17 +190,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingMosaicWithInvalidOptionalProperty) {
-		// Assert:
 		AssertInvalidOptionalProperty({ model::MosaicPropertyId::Divisibility, 123 });
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingMosaicWithUnkownOptionalProperty) {
-		// Assert:
 		AssertInvalidOptionalProperty({ model::MosaicPropertyId::Sentinel_Property_Id, 123 });
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingMosaicWithKnownOptionalPropertyWithDefaultValue) {
-		// Assert:
 		AssertInvalidOptionalProperty(
 				{ model::MosaicPropertyId::Duration, Eternal_Artifact_Duration.unwrap() },
 				Failure_Mosaic_Invalid_Duration);
@@ -232,7 +221,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingMosaicWithTooManyOptionalProperties) {
-		// Assert:
 		AssertInvalidOptionalPropertyCount(2);
 		AssertInvalidOptionalPropertyCount(100);
 	}

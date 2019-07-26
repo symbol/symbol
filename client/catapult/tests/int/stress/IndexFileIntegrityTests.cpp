@@ -76,12 +76,10 @@ namespace catapult { namespace io {
 	}
 
 	TEST(TEST_CLASS, GetAndSetFromDifferentThreadsDoNotCauseCrash) {
-		// Assert:
 		AssertMixedOperationsDoNotCauseCrash([](auto& indexFile, auto i) { indexFile.set(i); });
 	}
 
 	TEST(TEST_CLASS, GetAndIncrementFromDifferentThreadsDoNotCauseCrash) {
-		// Assert:
 		AssertMixedOperationsDoNotCauseCrash([](auto& indexFile, auto) { indexFile.increment(); });
 	}
 }}

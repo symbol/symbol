@@ -308,7 +308,7 @@ namespace catapult { namespace config {
 
 	TEST(TEST_CLASS, CanExtractLocalNodeFromConfiguration) {
 		// Arrange:
-		auto privateKeyString = test::GenerateRandomHexString(2 * Key_Size);
+		auto privateKeyString = test::GenerateRandomHexString(2 * Key::Size);
 		auto keyPair = crypto::KeyPair::FromString(privateKeyString);
 		auto config = CreateCatapultConfiguration(privateKeyString);
 

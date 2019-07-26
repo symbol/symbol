@@ -39,8 +39,8 @@ extern "C" {
 namespace catapult { namespace crypto {
 
 	namespace {
-		const size_t Encoded_Size = Signature_Size / 2;
-		static_assert(Encoded_Size * 2 == Hash512_Size, "hash must be big enough to hold two encoded elements");
+		const size_t Encoded_Size = Signature::Size / 2;
+		static_assert(Encoded_Size * 2 == Hash512::Size, "hash must be big enough to hold two encoded elements");
 
 		// indicates that the encoded S part of the signature is less than the group order
 		constexpr int Is_Reduced = 1;
@@ -49,7 +49,7 @@ namespace catapult { namespace crypto {
 		constexpr int Is_Zero = 2;
 
 		int ValidateEncodedSPart(const uint8_t* encodedS) {
-			uint8_t encodedBuf[Signature_Size];
+			uint8_t encodedBuf[Signature::Size];
 			uint8_t *RESTRICT encodedTempR = encodedBuf;
 			uint8_t *RESTRICT encodedZero = encodedBuf + Encoded_Size;
 
@@ -96,7 +96,7 @@ namespace catapult { namespace crypto {
 		//  different messages will lead to different, hard-to-predict values of r."
 		Hash512 r;
 		HashBuilder hasher_r;
-		hasher_r.update({ privHash.data() + Hash512_Size / 2, Hash512_Size / 2 });
+		hasher_r.update({ privHash.data() + Hash512::Size / 2, Hash512::Size / 2 });
 		hasher_r.update(buffersList);
 		hasher_r.final(r);
 

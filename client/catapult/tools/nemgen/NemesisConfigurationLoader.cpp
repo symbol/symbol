@@ -70,6 +70,7 @@ namespace catapult { namespace tools { namespace nemgen {
 						<< " - Duration: " << properties.duration() << " blocks (0 = eternal)" << std::endl
 						<< " - IsTransferable: " << properties.is(model::MosaicFlags::Transferable) << std::endl
 						<< " - IsSupplyMutable: " << properties.is(model::MosaicFlags::Supply_Mutable) << std::endl
+						<< " - IsRestrictable: " << properties.is(model::MosaicFlags::Restrictable) << std::endl
 						<< std::endl;
 
 				if (!mosaicIds.insert(id).second) {

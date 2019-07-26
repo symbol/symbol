@@ -645,14 +645,13 @@ namespace catapult { namespace cache {
 		auto shortHashPairs = cache.view().shortHashPairs();
 
 		// Assert:
-		ValidateShortHashPairs(
-				transactionInfos,
-				shortHashPairs,
-				[&expectedCosignaturesHash, &targetEntityHash = transactionInfos[1].EntityHash](const auto& transactionShortHash) {
+		const auto& targetEntityHash = transactionInfos[1].EntityHash;
+		auto getExpectedCosignaturesShortHash = [&expectedCosignaturesHash, &targetEntityHash](const auto& transactionShortHash) {
 			return utils::ToShortHash(targetEntityHash) == transactionShortHash
 					? utils::ToShortHash(expectedCosignaturesHash)
 					: utils::ShortHash();
-		});
+		};
+		ValidateShortHashPairs(transactionInfos, shortHashPairs, getExpectedCosignaturesShortHash);
 	}
 
 	TEST(TEST_CLASS, ShortHashesReturnOrderIndependentCosignaturesShortHash) {
@@ -904,17 +903,14 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, UnknownTransactionsReturnsTransactionsWithTotalSizeOfAtMostMaxResponseSize_OnlyTransactions) {
-		// Assert:
 		RunMaxResponseSizeTest(sizeof(Hash256) + GetTransactionSize(), AssertMaxResponseSizeIsRespectedOnlyTransactions);
 	}
 
 	TEST(TEST_CLASS, UnknownTransactionsReturnsTransactionsWithTotalSizeOfAtMostMaxResponseSize_OnlyCosignatures) {
-		// Assert:
 		RunMaxResponseSizeTest(sizeof(Hash256) + 3 * sizeof(model::Cosignature), AssertMaxResponseSizeIsRespectedOnlyCosignatures);
 	}
 
 	TEST(TEST_CLASS, UnknownTransactionsReturnsTransactionsWithTotalSizeOfAtMostMaxResponseSize_TransactionsWithCosignatures) {
-		// Assert:
 		RunMaxResponseSizeTest(
 				sizeof(Hash256) + GetTransactionSize() + 3 * sizeof(model::Cosignature),
 				AssertMaxResponseSizeIsRespectedTransactionsWithCosignatures);

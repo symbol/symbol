@@ -43,12 +43,10 @@ namespace catapult { namespace utils {
 	// region or (equals) operator
 
 	TEST(TEST_CLASS, CanOrBitwiseFlags) {
-		// Act + Assert:
 		EXPECT_EQ(0x05, utils::to_underlying_type(TestEnum::Alpha | TestEnum::Gamma));
 	}
 
 	TEST(TEST_CLASS, OrIsIdempotent) {
-		// Act + Assert:
 		EXPECT_EQ(0x03, utils::to_underlying_type(TestEnum::Alpha | TestEnum::Beta | TestEnum::Beta));
 	}
 
@@ -81,19 +79,16 @@ namespace catapult { namespace utils {
 	// region has flag
 
 	TEST(TEST_CLASS, HasFlagReturnsTrueWhenAllFlagsAreSet) {
-		// Act + Assert:
 		for (auto flag : { TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::All })
 			EXPECT_TRUE(HasFlag(flag, TestEnum::All)) << "flag " << utils::to_underlying_type(flag);
 	}
 
 	TEST(TEST_CLASS, HasFlagReturnsFalseWhenAllFlagsAreUnset) {
-		// Act + Assert:
 		for (auto flag : { TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::All })
 			EXPECT_FALSE(HasFlag(flag, TestEnum::None)) << "flag " << utils::to_underlying_type(flag);
 	}
 
 	TEST(TEST_CLASS, HasFlagAlwaysReturnsTrueWhenTestedFlagIsZero) {
-		// Act + Assert:
 		for (auto flags : { TestEnum::None, TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta, TestEnum::All })
 			EXPECT_TRUE(HasFlag(TestEnum::None, flags)) << "flags " << utils::to_underlying_type(flags);
 	}
@@ -114,18 +109,15 @@ namespace catapult { namespace utils {
 	// region has single flag
 
 	TEST(TEST_CLASS, HasSingleFlagReturnsFalseWhenNoBitsAreSet) {
-		// Act + Assert:
 		EXPECT_FALSE(HasSingleFlag(TestEnum::None));
 	}
 
 	TEST(TEST_CLASS, HasSingleFlagReturnsTrueWhenSingleBitIsSet) {
-		// Act + Assert:
 		for (auto flag : { TestEnum::Alpha, TestEnum::Beta, TestEnum::Gamma, TestEnum::Delta })
 			EXPECT_TRUE(HasSingleFlag(flag)) << "flag " << utils::to_underlying_type(flag);
 	}
 
 	TEST(TEST_CLASS, HasSingleFlagReturnsFalseWhenMultipleBitsAreSet) {
-		// Act + Assert:
 		for (auto flag1 : { TestEnum::Alpha, TestEnum::Beta }) {
 			for (auto flag2 : { TestEnum::Gamma, TestEnum::Delta }) {
 				EXPECT_FALSE(HasSingleFlag(flag1 | flag2))
@@ -136,7 +128,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, HasSingleFlagReturnsFalseWhenAllBitsAreSet) {
-		// Act + Assert:
 		EXPECT_FALSE(HasSingleFlag(TestEnum::All));
 	}
 

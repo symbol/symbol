@@ -157,7 +157,6 @@ namespace catapult {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	EXCEPTION_TRAITS_BASED_TEST(ExceptionDerivesFromBasicExceptionTypes) {
-		// Act + Assert:
 		EXPECT_THROW(throw typename TTraits::ExceptionType("error"), std::exception);
 		EXPECT_THROW(throw typename TTraits::ExceptionType("error"), boost::exception);
 	}
@@ -318,7 +317,6 @@ namespace catapult {
 	}
 
 	TEST(TEST_CLASS, CanThrowCustomMessageUsingExceptionMacro) {
-		// Assert:
 		ASSERT_THROW_MACRO_0(CATAPULT_THROW_RUNTIME_ERROR, RuntimeErrorTraits);
 		ASSERT_THROW_MACRO_0(CATAPULT_THROW_INVALID_ARGUMENT, InvalidArgumentTraits);
 		ASSERT_THROW_MACRO_0(CATAPULT_THROW_OUT_OF_RANGE, OutOfRangeTraits);
@@ -337,7 +335,6 @@ namespace catapult {
 	}
 
 	TEST(TEST_CLASS, CanThrowCustomMessageWithOneParamterUsingExceptionMacro) {
-		// Assert:
 		ASSERT_THROW_MACRO_1(CATAPULT_THROW_RUNTIME_ERROR_1, RuntimeErrorTraits);
 		ASSERT_THROW_MACRO_1(CATAPULT_THROW_INVALID_ARGUMENT_1, InvalidArgumentTraits);
 	}
@@ -355,7 +352,6 @@ namespace catapult {
 	}
 
 	TEST(TEST_CLASS, CanThrowCustomMessageWithTwoParamtersUsingExceptionMacro) {
-		// Assert:
 		ASSERT_THROW_MACRO_2(CATAPULT_THROW_RUNTIME_ERROR_2, RuntimeErrorTraits);
 		ASSERT_THROW_MACRO_2(CATAPULT_THROW_INVALID_ARGUMENT_2, InvalidArgumentTraits);
 	}
@@ -436,7 +432,6 @@ namespace catapult {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TAG_TRAITS_BASED_TEST(ConvertToValueSupports) {
-		// Act + Assert:
 		EXPECT_EQ(123, exception_detail::ConvertToValue(typename TTraits::template Type<int>(123)));
 		EXPECT_EQ(8u, exception_detail::ConvertToValue(typename TTraits::template Type<unsigned int>(8)));
 		EXPECT_EQ('h', exception_detail::ConvertToValue(typename TTraits::template Type<char>('h')));

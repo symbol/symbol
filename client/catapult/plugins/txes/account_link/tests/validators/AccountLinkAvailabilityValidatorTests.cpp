@@ -79,17 +79,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, LinkFailsWhenExistingAccountHasMainLink) {
-		// Assert:
 		AssertLinkValidationForAccountWithType(Failure_AccountLink_Link_Already_Exists, state::AccountType::Main);
 	}
 
 	TEST(TEST_CLASS, LinkFailsWhenExistingAccountHasRemoteLink) {
-		// Assert:
 		AssertLinkValidationForAccountWithType(Failure_AccountLink_Link_Already_Exists, state::AccountType::Remote);
 	}
 
 	TEST(TEST_CLASS, LinkSucceedsWhenExistingAccountHasNoLink) {
-		// Assert:
 		AssertLinkValidationForAccountWithType(ValidationResult::Success, state::AccountType::Unlinked);
 	}
 
@@ -105,17 +102,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, UnlinkSucceedsWhenExistingAccountHasMainLink) {
-		// Assert:
 		AssertUnlinkValidationForAccountWithType(ValidationResult::Success, state::AccountType::Main);
 	}
 
 	TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasRemoteLink) {
-		// Assert:
 		AssertUnlinkValidationForAccountWithType(Failure_AccountLink_Link_Does_Not_Exist, state::AccountType::Remote);
 	}
 
 	TEST(TEST_CLASS, UnlinkFailsWhenExistingAccountHasNoLink) {
-		// Assert:
 		AssertUnlinkValidationForAccountWithType(Failure_AccountLink_Link_Does_Not_Exist, state::AccountType::Unlinked);
 	}
 

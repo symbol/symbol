@@ -62,12 +62,10 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundEmptyString) {
-		// Assert:
 		AssertCanCreateIdFromString("", 0);
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundZeroValue) {
-		// Assert:
 		AssertCanCreateIdFromValue(0, "");
 	}
 
@@ -76,27 +74,22 @@ namespace catapult { namespace utils {
 	// region known / max
 
 	TEST(TEST_CLASS, CanCreateAroundKnownString) {
-		// Assert:
 		AssertCanCreateIdFromString("Z CAT", 26u * 27 * 27 * 27 * 27 + 3u * 27 * 27 + 1u * 27 + 20);
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundKnownValue) {
-		// Assert:
 		AssertCanCreateIdFromValue(26u * 27 * 27 * 27 * 27 + 3u * 27 * 27 + 1u * 27 + 20u, "Z CAT");
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundMaxString) {
-		// Assert:
 		AssertCanCreateIdFromString(std::string(DiagnosticCounterId::Max_Counter_Name_Size, 'Z'), Max_Id_Value);
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundMaxValue) {
-		// Assert:
 		AssertCanCreateIdFromValue(Max_Id_Value, std::string(DiagnosticCounterId::Max_Counter_Name_Size, 'Z'));
 	}
 
 	TEST(TEST_CLASS, MaxValueConstantIsCorrect) {
-		// Assert:
 		auto maxValue = std::numeric_limits<decltype(DiagnosticCounterId().value())>::max();
 		EXPECT_LT(std::pow(27, DiagnosticCounterId::Max_Counter_Name_Size), maxValue);
 		EXPECT_GT(std::pow(27, DiagnosticCounterId::Max_Counter_Name_Size + 1), maxValue);
@@ -107,13 +100,11 @@ namespace catapult { namespace utils {
 	// region single char strings
 
 	TEST(TEST_CLASS, CanCreateAroundSingleCharStrings) {
-		// Assert:
 		for (auto ch = 'A'; ch <= 'Z'; ++ch)
 			AssertCanCreateIdFromString(std::string{ ch }, static_cast<uint8_t>(ch - 'A') + 1);
 	}
 
 	TEST(TEST_CLASS, CanCreateAroundSingleCharValues) {
-		// Assert:
 		for (auto ch = 'A'; ch <= 'Z'; ++ch)
 			AssertCanCreateIdFromValue(static_cast<uint8_t>(ch - 'A') + 1, std::string{ ch });
 	}
@@ -139,7 +130,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanRoundtripMaxLengthSingleCharStrings) {
-		// Assert:
 		for (auto ch = 'A'; ch <= 'Z'; ++ch)
 			AssertCanRoundtripName(std::string(DiagnosticCounterId::Max_Counter_Name_Size, ch));
 	}
@@ -156,7 +146,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotCreateAroundStringTooLong) {
-		// Assert:
 		for (const auto& name : { "ABCDEFGHIJKLMN", "ABC EFG IJKLMN", "ABCD    IJKLMN", "ABCDEFGHIJKLMNOP" })
 			AssertInvalidName(name);
 
@@ -165,7 +154,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotCreateAroundStringWithInvalidChars) {
-		// Assert:
 		for (const auto& name : { "-", "T@SK", "ABCDEFG!", "$ABC", "ABC$" })
 			AssertInvalidName(name);
 	}
@@ -175,18 +163,15 @@ namespace catapult { namespace utils {
 	// region invalid strings - whitespace
 
 	TEST(TEST_CLASS, CannotCreateAroundWhitespaceString) {
-		// Assert:
 		for (auto size : { 1u, 4u, DiagnosticCounterId::Max_Counter_Name_Size })
 			AssertInvalidName(std::string(size, ' '));
 	}
 
 	TEST(TEST_CLASS, CannotCreateAroundStringWithLeadingWhitespace) {
-		// Assert:
 		AssertInvalidName("   J");
 	}
 
 	TEST(TEST_CLASS, CannotCreateAroundStringWithTrailingWhitespace) {
-		// Assert:
 		AssertInvalidName("J   ");
 	}
 
@@ -202,7 +187,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotCreateIdAroundValueGreaterThanMax) {
-		// Assert:
 		AssertInvalidValue(Max_Id_Value + 1);
 		AssertInvalidValue(std::numeric_limits<uint64_t>::max());
 	}

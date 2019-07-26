@@ -22,6 +22,7 @@
 #include "catapult/cache/CacheConfiguration.h"
 #include "catapult/cache/CatapultCacheBuilder.h"
 #include "catapult/config/InflationConfiguration.h"
+#include "catapult/config/UserConfiguration.h"
 #include "catapult/ionet/PacketHandlers.h"
 #include "catapult/model/BlockChainConfiguration.h"
 #include "catapult/model/NotificationPublisher.h"
@@ -73,10 +74,11 @@ namespace catapult { namespace plugins {
 		using PublisherPointer = std::unique_ptr<model::NotificationPublisher>;
 
 	public:
-		/// Creates a new plugin manager around \a config, \a storageConfig and \a inflationConfig.
+		/// Creates a new plugin manager around \a config, \a storageConfig \a userConfig and \a inflationConfig.
 		PluginManager(
 				const model::BlockChainConfiguration& config,
 				const StorageConfiguration& storageConfig,
+				const config::UserConfiguration& userConfig,
 				const config::InflationConfiguration& inflationConfig);
 
 	public:
@@ -88,11 +90,14 @@ namespace catapult { namespace plugins {
 		/// Gets the storage configuration.
 		const StorageConfiguration& storageConfig() const;
 
-		/// Gets the cache configuration for cache with \a name.
-		cache::CacheConfiguration cacheConfig(const std::string& name) const;
+		/// Gets the user configuration.
+		const config::UserConfiguration& userConfig() const;
 
 		/// Gets the inflation configuration.
 		const config::InflationConfiguration& inflationConfig() const;
+
+		/// Gets the cache configuration for cache with \a name.
+		cache::CacheConfiguration cacheConfig(const std::string& name) const;
 
 		// endregion
 
@@ -209,6 +214,7 @@ namespace catapult { namespace plugins {
 	private:
 		model::BlockChainConfiguration m_config;
 		StorageConfiguration m_storageConfig;
+		config::UserConfiguration m_userConfig;
 		config::InflationConfiguration m_inflationConfig;
 		model::TransactionRegistry m_transactionRegistry;
 		cache::CatapultCacheBuilder m_cacheBuilder;

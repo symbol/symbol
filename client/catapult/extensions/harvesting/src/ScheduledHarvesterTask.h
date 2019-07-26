@@ -51,7 +51,7 @@ namespace catapult { namespace harvesting {
 
 	public:
 		/// Creates a scheduled harvesting task around \a options and a \a pHarvester.
-		explicit ScheduledHarvesterTask(const ScheduledHarvesterTaskOptions& options, std::unique_ptr<Harvester>&& pHarvester)
+		ScheduledHarvesterTask(const ScheduledHarvesterTaskOptions& options, std::unique_ptr<Harvester>&& pHarvester)
 				: m_harvestingAllowed(options.HarvestingAllowed)
 				, m_lastBlockElementSupplier(options.LastBlockElementSupplier)
 				, m_timeSupplier(options.TimeSupplier)

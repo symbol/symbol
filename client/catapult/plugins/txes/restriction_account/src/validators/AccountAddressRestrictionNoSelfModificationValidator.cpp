@@ -27,7 +27,8 @@ namespace catapult { namespace validators {
 	using Notification = model::ModifyAccountAddressRestrictionValueNotification;
 
 	DECLARE_STATELESS_VALIDATOR(AccountAddressRestrictionNoSelfModification, Notification)(model::NetworkIdentifier networkIdentifier) {
-		return MAKE_STATELESS_VALIDATOR(AccountAddressRestrictionNoSelfModification, [networkIdentifier](const auto& notification) {
+		return MAKE_STATELESS_VALIDATOR(AccountAddressRestrictionNoSelfModification, [networkIdentifier](
+				const Notification& notification) {
 			auto address = model::PublicKeyToAddress(notification.Key, networkIdentifier);
 			return address != model::ResolverContext().resolve(notification.Modification.Value)
 					? ValidationResult::Success

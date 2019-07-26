@@ -41,7 +41,9 @@ namespace catapult { namespace validators {
 	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsBalanceTransfer, model::BalanceTransferNotification)(uint16_t maxMosaics) {
 		using ValidatorType = stateful::FunctionalNotificationValidatorT<model::BalanceTransferNotification>;
 		auto name = "MaxMosaicsBalanceTransferValidator";
-		return std::make_unique<ValidatorType>(name, [maxMosaics](const auto& notification, const auto& context) {
+		return std::make_unique<ValidatorType>(name, [maxMosaics](
+				const model::BalanceTransferNotification& notification,
+				const ValidatorContext& context) {
 			if (Amount() == notification.Amount)
 				return ValidationResult::Success;
 
@@ -56,7 +58,9 @@ namespace catapult { namespace validators {
 	DECLARE_STATEFUL_VALIDATOR(MaxMosaicsSupplyChange, model::MosaicSupplyChangeNotification)(uint16_t maxMosaics) {
 		using ValidatorType = stateful::FunctionalNotificationValidatorT<model::MosaicSupplyChangeNotification>;
 		auto name = "MaxMosaicsSupplyChangeValidator";
-		return std::make_unique<ValidatorType>(name, [maxMosaics](const auto& notification, const auto& context) {
+		return std::make_unique<ValidatorType>(name, [maxMosaics](
+				const model::MosaicSupplyChangeNotification& notification,
+				const ValidatorContext& context) {
 			if (model::MosaicSupplyChangeDirection::Decrease == notification.Direction)
 				return ValidationResult::Success;
 

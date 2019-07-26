@@ -59,13 +59,10 @@ namespace catapult { namespace state {
 			io::Write64(output, sortedChildPaths.size());
 			for (const auto& path : sortedChildPaths) {
 				// don't write the first part of the path (the root id) because it is redundant
-				auto i = 1u;
-				for (; i < path.size(); ++i)
-					io::Write(output, path[i]);
+				io::Write8(output, utils::checked_cast<size_t, uint8_t>(path.size() - 1));
 
-				// pad the storage so that all children have a fixed size in the storage
-				for (; i < path.capacity(); ++i)
-					io::Write(output, NamespaceId());
+				for (auto i = 1u; i < path.size(); ++i)
+					io::Write(output, path[i]);
 
 				SaveAlias(output, root.alias(path[path.size() - 1]));
 			}
@@ -112,14 +109,10 @@ namespace catapult { namespace state {
 		Namespace::Path LoadPath(io::InputStream& input, NamespaceId rootId) {
 			Namespace::Path path;
 			path.push_back(rootId);
-			for (auto i = 0u; i < path.capacity() - 1; ++i) {
-				NamespaceId idPart;
-				io::Read(input, idPart);
-				if (NamespaceId() == idPart)
-					continue;
 
-				path.push_back(idPart);
-			}
+			auto childDepth = io::Read8(input);
+			for (auto i = 0u; i < childDepth; ++i)
+				path.push_back(io::Read<NamespaceId>(input));
 
 			return path;
 		}

@@ -35,7 +35,7 @@ namespace catapult { namespace tools { namespace nemgen {
 
 	PluginLoader::PluginLoader(const config::CatapultConfiguration& config)
 			: m_config(config)
-			, m_pluginManager(m_config.BlockChain, CreateStorageConfiguration(config), m_config.Inflation)
+			, m_pluginManager(m_config.BlockChain, CreateStorageConfiguration(config), m_config.User, m_config.Inflation)
 	{}
 
 	plugins::PluginManager& PluginLoader::manager() {

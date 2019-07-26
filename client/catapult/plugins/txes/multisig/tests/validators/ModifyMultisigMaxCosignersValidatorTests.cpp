@@ -79,25 +79,21 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanAddCosignersWhenMaxCosignersIsNotExceeded) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 0, { Add, Add, Add, Add, Add }, 10);
 	}
 
 	TEST(TEST_CLASS, CanAddAndDeleteCosignersWhenResultingNumberOfCosignerDoesNotExceedMaxCosigners) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 9, { Add, Add, Add, Del, Del }, 10);
 		AssertValidationResult(ValidationResult::Success, 9, { Del, Del, Add, Add, Add }, 10);
 		AssertValidationResult(ValidationResult::Success, 9, { Del, Add, Add, Del, Add }, 10);
 	}
 
 	TEST(TEST_CLASS, CannotAddCosignersWhenMaxCosignersIsExceeded) {
-		// Assert:
 		AssertValidationResult(Failure_Multisig_Modify_Max_Cosigners, 10, { Add }, 10);
 		AssertValidationResult(Failure_Multisig_Modify_Max_Cosigners, 8, { Add, Add, Add }, 10);
 	}
 
 	TEST(TEST_CLASS, CannotAddAndDeleteCosignersWhenResultingNumberOfCosignerDoesExceedMaxCosigners) {
-		// Assert:
 		AssertValidationResult(Failure_Multisig_Modify_Max_Cosigners, 9, { Add, Add, Add, Del }, 10);
 		AssertValidationResult(Failure_Multisig_Modify_Max_Cosigners, 9, { Del, Add, Add, Add }, 10);
 		AssertValidationResult(Failure_Multisig_Modify_Max_Cosigners, 9, { Del, Add, Del, Add, Add, Add }, 10);

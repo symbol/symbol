@@ -57,23 +57,19 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNamespaceWithNameSizeLessThanMax) {
-		// Assert:
 		AssertSizeValidationResult(ValidationResult::Success, 100, 123);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNamespaceWithNameSizeEqualToMax) {
-		// Assert:
 		AssertSizeValidationResult(ValidationResult::Success, 123, 123);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNamespaceWithNameSizeGreaterThanMax) {
-		// Assert:
 		AssertSizeValidationResult(Failure_Namespace_Invalid_Name, 124, 123);
 		AssertSizeValidationResult(Failure_Namespace_Invalid_Name, 200, 123);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingEmptyNamespaceName) {
-		// Assert:
 		AssertSizeValidationResult(Failure_Namespace_Invalid_Name, 0, 123);
 	}
 
@@ -98,13 +94,11 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingValidNamespaceNames) {
-		// Assert:
 		for (const auto& name : { "a", "be", "cat", "doom", "al-ce", "al_ce", "alice-", "alice_" })
 			AssertNameValidationResult(ValidationResult::Success, name);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingInvalidNamespaceNames) {
-		// Assert:
 		for (const auto& name : { "-alice", "_alice", "al.ce", "alIce", "al ce", "al@ce", "al#ce", "!@#$%" })
 			AssertNameValidationResult(Failure_Namespace_Invalid_Name, name);
 	}
@@ -182,25 +176,21 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingAllowedRootNamespaceNames) {
-		// Assert:
 		for (const auto& name : { "fo", "foo123", "bar", "bazz", "qux" })
 			AssertReservedRootNamesValidationResult(ValidationResult::Success, name, CreateRootNamespaceNotification);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingReservedRootNamespaceNames) {
-		// Assert:
 		for (const auto& name : { "foo", "foobar" })
 			AssertReservedRootNamesValidationResult(Failure_Namespace_Root_Name_Reserved, name, CreateRootNamespaceNotification);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingChildNamespaceWithAllowedParentNamespaceNames) {
-		// Assert:
 		for (const auto& name : { "fo", "foo123", "bar", "bazz", "qux" })
 			AssertReservedRootNamesValidationResult(ValidationResult::Success, name, CreateChildNamespaceNotification);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingChildNamespaceWithReservedParentNamespaceNames) {
-		// Assert:
 		for (const auto& name : { "foo", "foobar" })
 			AssertReservedRootNamesValidationResult(Failure_Namespace_Root_Name_Reserved, name, CreateChildNamespaceNotification);
 	}

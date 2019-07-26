@@ -98,42 +98,36 @@ namespace catapult { namespace cache {
 	// so their presence or not should have no effect
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_Primary_1) {
-		// Assert:
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePrimarySerializer>(
 				"../tests/int/stress/resources/1.patricia-tree-account.dat",
 				"FCC1555BF49CAF3DEB8E13FCA5F7BDCE139742FF9C9F4CD33FFD0429887F1338");
 	}
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_PatriciaTree_1) {
-		// Assert:
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePatriciaTreeSerializer>(
 				"../tests/int/stress/resources/1.patricia-tree-account.dat",
 				"FCC1555BF49CAF3DEB8E13FCA5F7BDCE139742FF9C9F4CD33FFD0429887F1338");
 	}
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_Primary_2) {
-		// Assert:
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePrimarySerializer>(
 				"../tests/int/stress/resources/2.patricia-tree-account.dat",
 				"58F90DC0C8FDB102594223C9C07EE27E2BF191CA90FB5ABF5CF2A09DD05F9FF3");
 	}
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_PatriciaTree_2) {
-		// Assert:
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePatriciaTreeSerializer>(
 				"../tests/int/stress/resources/2.patricia-tree-account.dat",
 				"58F90DC0C8FDB102594223C9C07EE27E2BF191CA90FB5ABF5CF2A09DD05F9FF3");
 	}
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_Primary_3) {
-		// Assert:
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePrimarySerializer>(
 				"../tests/int/stress/resources/3.patricia-tree-account.dat",
 				"E433C70F3A9CA59A924BC19CB0263898F49FA7507CBAA7F4A982755F99998111");
 	}
 
 	TEST(TEST_CLASS, AccountStateCacheMerkleRootIsCalculatedCorrectly_PatriciaTree_3) {
-		// Assert:
 		AssertAccountStateMerkleRootIsCalculatedCorrectly<AccountStatePatriciaTreeSerializer>(
 				"../tests/int/stress/resources/3.patricia-tree-account.dat",
 				"E433C70F3A9CA59A924BC19CB0263898F49FA7507CBAA7F4A982755F99998111");
@@ -199,12 +193,10 @@ namespace catapult { namespace cache {
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, Stress_CanApplyManyAddsToTree) {
-		// Assert:
 		AssertCanApplyManyAddsToTree(1);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, Stress_CanApplyManyAddsToTree_MultipleBatches) {
-		// Assert:
 		AssertCanApplyManyAddsToTree(10);
 	}
 

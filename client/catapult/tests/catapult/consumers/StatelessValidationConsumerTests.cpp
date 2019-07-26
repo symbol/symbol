@@ -40,7 +40,7 @@ namespace catapult { namespace consumers {
 
 		struct DispatchParams {
 		public:
-			explicit DispatchParams(const model::WeakEntityInfos& entityInfos, const ValidationFunctions& validationFunctions)
+			DispatchParams(const model::WeakEntityInfos& entityInfos, const ValidationFunctions& validationFunctions)
 					: EntityInfos(entityInfos)
 					, NumValidationFunctions(validationFunctions.size()) {
 				for (const auto& entityInfo : EntityInfos)
@@ -250,12 +250,10 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(BLOCK_TEST_CLASS, NeutralValidationResultIsMappedToSkipConsumerResult) {
-		// Assert:
 		AssertBlockSkipResult(ValidationResult::Neutral);
 	}
 
 	TEST(BLOCK_TEST_CLASS, FailureValidationResultIsMappedToSkipConsumerResult) {
-		// Assert:
 		AssertBlockSkipResult(ValidationResult::Failure);
 	}
 
@@ -303,13 +301,13 @@ namespace catapult { namespace consumers {
 			TransactionTestContext()
 					: pValidator(std::make_shared<stateless::AggregateEntityValidator>(ValidatorVectorT<>()))
 					, pPolicy(std::make_shared<MockParallelAllValidationPolicy>())
-					, Consumer(CreateTransactionStatelessValidationConsumer(
-							pValidator,
-							pPolicy,
-							[this](const auto& transaction, const auto& hash, auto result) {
-								// notice that transaction.Deadline is used as transaction marker
-								FailedTransactionStatuses.emplace_back(hash, utils::to_underlying_type(result), transaction.Deadline);
-							}))
+					, Consumer(CreateTransactionStatelessValidationConsumer(pValidator, pPolicy, [this](
+							const auto& transaction,
+							const auto& hash,
+							auto result) {
+						// notice that transaction.Deadline is used as transaction marker
+						FailedTransactionStatuses.emplace_back(hash, utils::to_underlying_type(result), transaction.Deadline);
+					}))
 			{}
 
 		public:

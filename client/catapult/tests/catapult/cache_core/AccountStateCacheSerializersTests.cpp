@@ -35,21 +35,21 @@ namespace catapult { namespace cache {
 		auto result = KeyAddressPairSerializer::SerializeValue(originalPair);
 
 		// Assert:
-		ASSERT_EQ(Key_Size + Address_Decoded_Size, result.size());
+		ASSERT_EQ(Key::Size + Address::Size, result.size());
 		EXPECT_EQ(originalPair.first, reinterpret_cast<const Key&>(result[0]));
-		EXPECT_EQ(originalPair.second, reinterpret_cast<const Address&>(result[Key_Size]));
+		EXPECT_EQ(originalPair.second, reinterpret_cast<const Address&>(result[Key::Size]));
 	}
 
 	TEST(TEST_CLASS, KeyAddressPairSerializer_CanDeserializeValue) {
 		// Arrange:
-		auto buffer = test::GenerateRandomArray<Key_Size + Address_Decoded_Size>();
+		auto buffer = test::GenerateRandomArray<Key::Size + Address::Size>();
 
 		// Act:
 		auto pair = KeyAddressPairSerializer::DeserializeValue(buffer);
 
 		// Assert:
 		EXPECT_EQ(reinterpret_cast<const Key&>(buffer[0]), pair.first);
-		EXPECT_EQ(reinterpret_cast<const Address&>(buffer[Key_Size]), pair.second);
+		EXPECT_EQ(reinterpret_cast<const Address&>(buffer[Key::Size]), pair.second);
 	}
 
 	TEST(TEST_CLASS, KeyAddressPairSerializer_CanRoundtripValue) {

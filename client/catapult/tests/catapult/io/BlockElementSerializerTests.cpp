@@ -68,13 +68,13 @@ namespace catapult { namespace io {
 			hashes.insert(hashes.end(), pHash, pHash + 2);
 
 			// 2. extract transaction element hashes
-			const auto* pData = buffer.data() + blockSize + hashes.size() * Hash256_Size;
+			const auto* pData = buffer.data() + blockSize + hashes.size() * Hash256::Size;
 			auto numTransactionHashes = reinterpret_cast<const uint32_t&>(*pData);
 			pHash = reinterpret_cast<const Hash256*>(pData + sizeof(uint32_t));
 			hashes.insert(hashes.end(), pHash, pHash + 2 * numTransactionHashes);
 
 			// 3. extract sub cache merkle roots
-			pData += sizeof(uint32_t) + 2 * numTransactionHashes * Hash256_Size;
+			pData += sizeof(uint32_t) + 2 * numTransactionHashes * Hash256::Size;
 			auto numSubCacheMerkleRoots = reinterpret_cast<const uint32_t&>(*pData);
 			pHash = reinterpret_cast<const Hash256*>(pData + sizeof(uint32_t));
 			hashes.insert(hashes.end(), pHash, pHash + numSubCacheMerkleRoots);
@@ -94,7 +94,7 @@ namespace catapult { namespace io {
 		WriteBlockElement(*context.pBlockElement, outputStream);
 
 		// Assert:
-		ASSERT_EQ(context.pBlock->Size + 2 * Hash256_Size + 2 * sizeof(uint32_t), buffer.size());
+		ASSERT_EQ(context.pBlock->Size + 2 * Hash256::Size + 2 * sizeof(uint32_t), buffer.size());
 		EXPECT_EQ(*context.pBlock, reinterpret_cast<const model::Block&>(buffer[0]));
 
 		auto savedHashes = ExtractHashes(buffer, context.pBlock->Size);
@@ -113,7 +113,7 @@ namespace catapult { namespace io {
 		WriteBlockElement(*context.pBlockElement, outputStream);
 
 		// Assert:
-		ASSERT_EQ(context.pBlock->Size + 8 * Hash256_Size + 2 * sizeof(uint32_t), buffer.size());
+		ASSERT_EQ(context.pBlock->Size + 8 * Hash256::Size + 2 * sizeof(uint32_t), buffer.size());
 		EXPECT_EQ(*context.pBlock, reinterpret_cast<const model::Block&>(buffer[0]));
 
 		auto savedHashes = ExtractHashes(buffer, context.pBlock->Size);
@@ -132,7 +132,7 @@ namespace catapult { namespace io {
 		WriteBlockElement(*context.pBlockElement, outputStream);
 
 		// Assert:
-		ASSERT_EQ(context.pBlock->Size + 6 * Hash256_Size + 2 * sizeof(uint32_t), buffer.size());
+		ASSERT_EQ(context.pBlock->Size + 6 * Hash256::Size + 2 * sizeof(uint32_t), buffer.size());
 		EXPECT_EQ(*context.pBlock, reinterpret_cast<const model::Block&>(buffer[0]));
 
 		auto savedHashes = ExtractHashes(buffer, context.pBlock->Size);
@@ -151,7 +151,7 @@ namespace catapult { namespace io {
 		WriteBlockElement(*context.pBlockElement, outputStream);
 
 		// Assert:
-		ASSERT_EQ(context.pBlock->Size + 12 * Hash256_Size + 2 * sizeof(uint32_t), buffer.size());
+		ASSERT_EQ(context.pBlock->Size + 12 * Hash256::Size + 2 * sizeof(uint32_t), buffer.size());
 		EXPECT_EQ(*context.pBlock, reinterpret_cast<const model::Block&>(buffer[0]));
 
 		auto savedHashes = ExtractHashes(buffer, context.pBlock->Size);
@@ -175,22 +175,22 @@ namespace catapult { namespace io {
 			ReadTestContext context;
 			context.pBlock = test::GenerateBlockWithTransactions(numTransactions);
 			context.Hashes = test::GenerateRandomDataVector<Hash256>(2 + 2 * numTransactions + numSubCacheMerkleRoots);
-			context.Buffer.resize(context.pBlock->Size + context.Hashes.size() * Hash256_Size + 2 * sizeof(uint32_t));
+			context.Buffer.resize(context.pBlock->Size + context.Hashes.size() * Hash256::Size + 2 * sizeof(uint32_t));
 			std::copy(context.Hashes[1].cbegin(), context.Hashes[1].cend(), context.GenerationHash.begin());
 
 			const auto* pNextHash = context.Hashes.data();
 			std::memcpy(&context.Buffer[0], context.pBlock.get(), context.pBlock->Size);
-			std::memcpy(&context.Buffer[context.pBlock->Size], pNextHash, 2 * Hash256_Size);
+			std::memcpy(&context.Buffer[context.pBlock->Size], pNextHash, 2 * Hash256::Size);
 
-			auto offset = context.pBlock->Size + 2 * Hash256_Size;
+			auto offset = context.pBlock->Size + 2 * Hash256::Size;
 			pNextHash += 2;
 			std::memcpy(&context.Buffer[offset], &numTransactions, sizeof(uint32_t));
-			std::memcpy(&context.Buffer[offset + sizeof(uint32_t)], pNextHash, 2 * numTransactions * Hash256_Size);
+			std::memcpy(&context.Buffer[offset + sizeof(uint32_t)], pNextHash, 2 * numTransactions * Hash256::Size);
 
-			offset += sizeof(uint32_t) + 2 * numTransactions * Hash256_Size;
+			offset += sizeof(uint32_t) + 2 * numTransactions * Hash256::Size;
 			pNextHash += 2 * numTransactions;
 			std::memcpy(&context.Buffer[offset], &numSubCacheMerkleRoots, sizeof(uint32_t));
-			std::memcpy(&context.Buffer[offset + sizeof(uint32_t)], pNextHash, numSubCacheMerkleRoots * Hash256_Size);
+			std::memcpy(&context.Buffer[offset + sizeof(uint32_t)], pNextHash, numSubCacheMerkleRoots * Hash256::Size);
 			return context;
 		}
 
@@ -215,7 +215,7 @@ namespace catapult { namespace io {
 		mocks::MockMemoryStream inputStream(context.Buffer);
 
 		// Sanity:
-		ASSERT_EQ(context.pBlock->Size + 2 * Hash256_Size + 2 * sizeof(uint32_t), context.Buffer.size());
+		ASSERT_EQ(context.pBlock->Size + 2 * Hash256::Size + 2 * sizeof(uint32_t), context.Buffer.size());
 
 		// Act:
 		auto pBlockElement = ReadBlockElement(inputStream);
@@ -236,7 +236,7 @@ namespace catapult { namespace io {
 		mocks::MockMemoryStream inputStream(context.Buffer);
 
 		// Sanity:
-		ASSERT_EQ(context.pBlock->Size + 8 * Hash256_Size + 2 * sizeof(uint32_t), context.Buffer.size());
+		ASSERT_EQ(context.pBlock->Size + 8 * Hash256::Size + 2 * sizeof(uint32_t), context.Buffer.size());
 
 		// Act:
 		auto pBlockElement = ReadBlockElement(inputStream);
@@ -258,7 +258,7 @@ namespace catapult { namespace io {
 		mocks::MockMemoryStream inputStream(context.Buffer);
 
 		// Sanity:
-		ASSERT_EQ(context.pBlock->Size + 6 * Hash256_Size + 2 * sizeof(uint32_t), context.Buffer.size());
+		ASSERT_EQ(context.pBlock->Size + 6 * Hash256::Size + 2 * sizeof(uint32_t), context.Buffer.size());
 
 		// Act:
 		auto pBlockElement = ReadBlockElement(inputStream);
@@ -280,7 +280,7 @@ namespace catapult { namespace io {
 		mocks::MockMemoryStream inputStream(context.Buffer);
 
 		// Sanity:
-		ASSERT_EQ(context.pBlock->Size + 12 * Hash256_Size + 2 * sizeof(uint32_t), context.Buffer.size());
+		ASSERT_EQ(context.pBlock->Size + 12 * Hash256::Size + 2 * sizeof(uint32_t), context.Buffer.size());
 
 		// Act:
 		auto pBlockElement = ReadBlockElement(inputStream);

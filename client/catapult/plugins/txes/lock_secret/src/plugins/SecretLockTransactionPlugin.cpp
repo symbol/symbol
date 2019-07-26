@@ -43,6 +43,9 @@ namespace catapult { namespace plugins {
 					transaction.HashAlgorithm,
 					transaction.Secret,
 					transaction.Recipient));
+
+			// raise a zero-transfer notification in order to trigger all mosaic authorization validators
+			sub.notify(BalanceTransferNotification(transaction.Signer, transaction.Recipient, transaction.Mosaic.MosaicId, Amount(0)));
 		}
 	}
 

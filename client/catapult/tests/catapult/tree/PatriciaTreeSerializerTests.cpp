@@ -73,7 +73,7 @@ namespace catapult { namespace tree {
 
 		template<typename TPathTraits>
 		void AssertSerializedLeaf(const LeafTreeNode& value, const std::string& result) {
-			auto expectedSize = 2 * sizeof(uint8_t) + TPathTraits::Path_Size + Hash256_Size;
+			auto expectedSize = 2 * sizeof(uint8_t) + TPathTraits::Path_Size + Hash256::Size;
 			ASSERT_EQ(expectedSize, result.size());
 
 			const auto* pData = AssertCommonData<TPathTraits>(0xFF, value.path(), result);
@@ -89,7 +89,7 @@ namespace catapult { namespace tree {
 				TIndexGenerator indexGenerator,
 				uint16_t expectedLinksMask,
 				const std::string& result) {
-			auto expectedSize = 2 * sizeof(uint8_t) + TPathTraits::Path_Size + sizeof(uint16_t) + numLinks * Hash256_Size;
+			auto expectedSize = 2 * sizeof(uint8_t) + TPathTraits::Path_Size + sizeof(uint16_t) + numLinks * Hash256::Size;
 			ASSERT_EQ(expectedSize, result.size());
 
 			const auto* pData = AssertCommonData<TPathTraits>(0, value.path(), result);
@@ -115,7 +115,6 @@ namespace catapult { namespace tree {
 	// region Serialize - value
 
 	TEST(TEST_CLASS, SerializeNodeFailsWhenNodeIsEmpty) {
-		// Act + Assert:
 		EXPECT_THROW(Serializer::SerializeValue(TreeNode()), catapult_invalid_argument);
 	}
 
@@ -148,7 +147,6 @@ namespace catapult { namespace tree {
 	}
 
 	PTSERIALIZER_TRAITS_BASED_TEST(CanSerializeBranchWithoutLinks) {
-		// Act + Assert:
 		AssertCanSerializeBranch<TPathTraits>(0, [](auto) { return 0u; }, 0x0000);
 	}
 
@@ -344,12 +342,10 @@ namespace catapult { namespace tree {
 	}
 
 	PTSERIALIZER_TRAITS_BASED_TEST(CanDeserializeBranchWithoutLinks) {
-		// Act + Assert:
 		AssertCanDeserializeBranch<TPathTraits>(0, 0x0000);
 	}
 
 	PTSERIALIZER_TRAITS_BASED_TEST(CanDeserializeBranchWithLinks) {
-		// Act + Assert:
 		AssertCanDeserializeBranch<TPathTraits>(4, 0x8421);
 	}
 
@@ -389,7 +385,6 @@ namespace catapult { namespace tree {
 	}
 
 	PTSERIALIZER_TRAITS_BASED_TEST(CanRoundtripBranchWithoutLinks) {
-		// Act + Assert:
 		AssertCanRoundtripBranch<TPathTraits>(0, [](auto) { return 0u; });
 	}
 

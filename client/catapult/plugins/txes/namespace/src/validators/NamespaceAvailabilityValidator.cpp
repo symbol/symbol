@@ -33,23 +33,23 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DEFINE_STATEFUL_VALIDATOR(RootNamespaceAvailability, [](const auto& notification, const ValidatorContext& context) {
+	DEFINE_STATEFUL_VALIDATOR(RootNamespaceAvailability, [](const Notification& notification, const ValidatorContext& context) {
 		const auto& cache = context.Cache.sub<cache::NamespaceCache>();
 		auto height = context.Height;
 
 		if (Height(1) != height && Eternal_Artifact_Duration == notification.Duration)
 			return Failure_Namespace_Eternal_After_Nemesis_Block;
 
-		if (!cache.contains(notification.NamespaceId))
+		auto namespaceIter = cache.find(notification.NamespaceId);
+		if (!namespaceIter.tryGet())
 			return ValidationResult::Success;
 
-		auto namespaceIter = cache.find(notification.NamespaceId);
 		const auto& root = namespaceIter.get().root();
 		if (IsEternal(root.lifetime()) || Eternal_Artifact_Duration == notification.Duration)
 			return Failure_Namespace_Invalid_Duration;
 
 		// if grace period after expiration has passed, any signer can claim the namespace
-		if (!root.lifetime().isActiveOrGracePeriod(height))
+		if (!root.lifetime().isActive(height))
 			return ValidationResult::Success;
 
 		return root.owner() == notification.Signer ? ValidationResult::Success : Failure_Namespace_Owner_Conflict;

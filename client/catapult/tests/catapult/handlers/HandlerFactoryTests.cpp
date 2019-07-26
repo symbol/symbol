@@ -54,7 +54,7 @@ namespace catapult { namespace handlers {
 
 			struct Producer {
 			public:
-				explicit Producer(uint16_t seed, uint16_t count)
+				Producer(uint16_t seed, uint16_t count)
 						: m_seed(seed)
 						, m_count(count)
 						, m_index(0)
@@ -134,17 +134,14 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, RegisterZero_RequestPacketTooSmallIsRejected) {
-		// Assert:
 		AssertZeroRequestPacketIsRejected(0, Valid_Packet_Type, 1);
 	}
 
 	TEST(TEST_CLASS, RegisterZero_RequestPacketTooLargeIsRejected) {
-		// Assert:
 		AssertZeroRequestPacketIsRejected(1, Valid_Packet_Type);
 	}
 
 	TEST(TEST_CLASS, RegisterZero_RequestPacketWithWrongTypeIsRejected) {
-		// Assert:
 		AssertZeroRequestPacketIsRejected(0, ionet::PacketType::Pull_Transactions);
 	}
 
@@ -254,7 +251,6 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, RegisterOne_RequestPacketTooSmallIsRejected) {
-		// Assert:
 		AssertOneRequestPacketIsRejected(Valid_Payload_Size, Valid_Packet_Type, 1);
 	}
 

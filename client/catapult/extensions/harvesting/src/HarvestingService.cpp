@@ -107,10 +107,9 @@ namespace catapult { namespace harvesting {
 			}
 
 			void registerServiceCounters(extensions::ServiceLocator& locator) override {
-				locator.registerServiceCounter<UnlockedAccounts>(
-						"unlockedAccounts",
-						"UNLKED ACCTS",
-						[](const auto& accounts) { return accounts.view().size(); });
+				locator.registerServiceCounter<UnlockedAccounts>("unlockedAccounts", "UNLKED ACCTS", [](const auto& accounts) {
+					return accounts.view().size();
+				});
 			}
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {

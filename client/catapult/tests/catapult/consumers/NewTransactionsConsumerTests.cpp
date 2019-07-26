@@ -98,7 +98,6 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, CanProcessZeroEntities) {
-		// Assert:
 		ConsumerTestContext context;
 		test::AssertPassthroughForEmptyInput(context.Consumer);
 	}
@@ -199,7 +198,6 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, SuccessResultWhenAtLeastOneResultIsSuccessAndNoResultIsFailure) {
-		// Assert:
 		AssertAggregateResult(validators::ValidationResult::Success, {
 			disruptor::ConsumerResultSeverity::Success,
 			disruptor::ConsumerResultSeverity::Success,
@@ -215,7 +213,6 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, NeutralResultWhenAllResultsAreNeutral) {
-		// Assert:
 		AssertAggregateResult(validators::ValidationResult::Neutral, {
 			disruptor::ConsumerResultSeverity::Neutral,
 			disruptor::ConsumerResultSeverity::Neutral,
@@ -224,7 +221,6 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, FailureResultWhenAtLeastOneResultIsFailure) {
-		// Assert:
 		AssertAggregateResult(validators::ValidationResult::Failure, {
 			disruptor::ConsumerResultSeverity::Success,
 			disruptor::ConsumerResultSeverity::Failure,

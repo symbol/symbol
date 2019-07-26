@@ -476,39 +476,32 @@ namespace catapult { namespace mongo {
 	}
 
 	TEST(TEST_CLASS, CanSaveBlockWithoutTransactions) {
-		// Assert:
 		AssertCanSaveBlock({ 0, 0, 0, 0 }, 0, 0);
 	}
 
 	TEST(TEST_CLASS, CanSaveBlockWithTransactionsButNoStatements) {
-		// Assert:
 		AssertCanSaveBlock({ 10, 0, 0, 0 }, 0, 10);
 	}
 
 	TEST(TEST_CLASS, CanSaveBlockWithTransactionsContainingDependentDocuments) {
-		// Assert:
 		AssertCanSaveBlock({ 10, 0, 0, 0 }, 3, 40);
 	}
 
 	// note that all statements are created prior to saveBlock, so it does not add anything to test with dependent documents
 
 	TEST(TEST_CLASS, CanSaveBlockWithTransactionsAndOnlyTransactionStatements) {
-		// Assert:
 		AssertCanSaveBlock({ 10, 3, 0, 0 }, 0, 10);
 	}
 
 	TEST(TEST_CLASS, CanSaveBlockWithTransactionsAndOnlyAddressResolutionStatements) {
-		// Assert:
 		AssertCanSaveBlock({ 10, 0, 3, 0 }, 0, 10);
 	}
 
 	TEST(TEST_CLASS, CanSaveBlockWithTransactionsAndOnlyMosaicResolutionStatements) {
-		// Assert:
 		AssertCanSaveBlock({ 10, 0, 0, 3 }, 0, 10);
 	}
 
 	TEST(TEST_CLASS, CanSaveBlockWithTransactionsAndAllStatements) {
-		// Assert:
 		AssertCanSaveBlock({ 10, 4, 2, 3 }, 0, 10);
 	}
 
@@ -614,12 +607,10 @@ namespace catapult { namespace mongo {
 	}
 
 	TEST(TEST_CLASS, CannotSaveOutOfOrderBlockWhenModeIsStrict) {
-		// Assert:
 		AssertCannotSaveOutOfOrderBlock(MongoErrorPolicy::Mode::Strict);
 	}
 
 	TEST(TEST_CLASS, CannotSaveOutOfOrderBlockWhenModeIsIdempotent) {
-		// Assert:
 		AssertCannotSaveOutOfOrderBlock(MongoErrorPolicy::Mode::Idempotent);
 	}
 

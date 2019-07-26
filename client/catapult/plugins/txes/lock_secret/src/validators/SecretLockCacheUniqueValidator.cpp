@@ -26,8 +26,8 @@ namespace catapult { namespace validators {
 
 	using Notification = model::SecretLockNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(SecretLockCacheUnique, [](const auto& notification, const auto& context) {
-		const auto& cache = context.Cache.template sub<cache::SecretLockInfoCache>();
+	DEFINE_STATEFUL_VALIDATOR(SecretLockCacheUnique, [](const Notification& notification, const ValidatorContext& context) {
+		const auto& cache = context.Cache.sub<cache::SecretLockInfoCache>();
 		auto key = model::CalculateSecretLockInfoHash(notification.Secret, context.Resolvers.resolve(notification.Recipient));
 		return cache.contains(key) ? Failure_LockSecret_Hash_Exists : ValidationResult::Success;
 	})

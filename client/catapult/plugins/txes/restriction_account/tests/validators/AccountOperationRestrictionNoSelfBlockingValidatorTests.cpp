@@ -36,6 +36,7 @@ namespace catapult { namespace validators {
 		constexpr auto Add = model::AccountRestrictionModificationType::Add;
 		constexpr auto Del = model::AccountRestrictionModificationType::Del;
 		constexpr auto Relevant_Entity_Type = model::AccountOperationRestrictionTransaction::Entity_Type;
+		constexpr auto Restriction_Type = model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing;
 		constexpr auto Failure_Result = Failure_RestrictionAccount_Modification_Not_Allowed;
 
 		struct AccountOperationRestrictionTraits : public test::BaseAccountOperationRestrictionTraits {
@@ -52,7 +53,7 @@ namespace catapult { namespace validators {
 			auto& restrictionCacheDelta = delta.sub<cache::AccountRestrictionCache>();
 			auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
 			auto restrictions = state::AccountRestrictions(address);
-			auto& restriction = restrictions.restriction(model::AccountRestrictionType::TransactionType);
+			auto& restriction = restrictions.restriction(Restriction_Type);
 			for (auto value : values)
 				TOperationTraits::Add(restriction, state::ToVector(value));
 

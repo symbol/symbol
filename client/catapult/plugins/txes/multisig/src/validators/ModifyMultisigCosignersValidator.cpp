@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DEFINE_STATELESS_VALIDATOR(ModifyMultisigCosigners, [](const auto& notification) {
+	DEFINE_STATELESS_VALIDATOR(ModifyMultisigCosigners, [](const Notification& notification) {
 		utils::KeyPointerSet addedAccounts;
 		utils::KeyPointerSet removedAccounts;
 

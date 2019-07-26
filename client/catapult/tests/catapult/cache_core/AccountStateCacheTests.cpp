@@ -646,21 +646,18 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, AddAccountViaStateDoesNotOverrideKnownAccounts_Address) {
-		// Assert:
 		AssertAddAccountViaStateDoesNotOverrideKnownAccounts([](auto& delta, const auto& accountState) {
 			delta.addAccount(accountState.Address, accountState.AddressHeight);
 		});
 	}
 
 	TEST(TEST_CLASS, AddAccountViaStateDoesNotOverrideKnownAccounts_PublicKey) {
-		// Assert:
 		AssertAddAccountViaStateDoesNotOverrideKnownAccounts([](auto& delta, const auto& accountState) {
 			delta.addAccount(accountState.PublicKey, accountState.PublicKeyHeight);
 		});
 	}
 
 	TEST(TEST_CLASS, AddAccountViaStateDoesNotOverrideKnownAccounts_AccountState) {
-		// Assert:
 		AssertAddAccountViaStateDoesNotOverrideKnownAccounts([](auto& delta, const auto& accountState) {
 			delta.addAccount(accountState);
 		});

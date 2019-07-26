@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.6.0.1] - 26-July-2019
+
+### Added
+ - Restriction mosaic plugin
+ - Metadata plugin
+ - Outgoing address account restrictions
+
+### Changed
+ - Prevent creation of secret locks that violate restrictions at creation time
+ - Add receipt when namespace transitions from active to locked
+ - Allow configurable namespace depth and min namespace duration
+ - Update AddressValidator to always check network byte
+
+### Fixed
+ - Bug in namespace lifetime grace period handling
+ - Do not delete deactivated mosaics from state hash
+ - Apply fee surplus to activity bucket total fees paid in harvester
+ - Synchronize FileTransactionStatusStorage::flush to avoid race condition
+
 ## [0.5.0.1] - 28-June-2019
 
 ### Added
@@ -11,9 +30,11 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
  - Breaking, all transaction versions are now 1
  - Rename `property` transaction/plugin to `restriction account`
+ - Renumber validation result codes
+ - Add cmake component groups
 
 ### Fixed
- - Deadlock in broker process, due to small number of threads in thread pool
+ - Deadlock in broker process when small number of threads in thread pool
 
 ### Removed
  - Mongo mapping functions from model to dbmodel
@@ -87,7 +108,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 - Initial code release.
 
-
+[0.6.0.1]: https://github.com/nemtech/catapult-server/compare/v0.5.0.1...v0.6.0.1
+[0.5.0.1]: https://github.com/nemtech/catapult-server/compare/v0.4.0.1...v0.5.0.1
 [0.4.0.1]: https://github.com/nemtech/catapult-server/compare/v0.3.0.2...v0.4.0.1
 [0.3.0.2]: https://github.com/nemtech/catapult-server/compare/v0.3.0.1...v0.3.0.2
 [0.3.0.1]: https://github.com/nemtech/catapult-server/compare/v0.2.0.2...v0.3.0.1

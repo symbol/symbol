@@ -79,22 +79,18 @@ namespace catapult { namespace observers {
 	}
 
 	TEST(TEST_CLASS, IncreaseCommitIncreasesSupply) {
-		// Assert:
 		AssertSupplyIncrease(model::MosaicSupplyChangeDirection::Increase, NotifyMode::Commit);
 	}
 
 	TEST(TEST_CLASS, DecreaseCommitDecreasesSupply) {
-		// Assert:
 		AssertSupplyDecrease(model::MosaicSupplyChangeDirection::Decrease, NotifyMode::Commit);
 	}
 
 	TEST(TEST_CLASS, IncreaseRollbackDecreasesSupply) {
-		// Assert:
 		AssertSupplyDecrease(model::MosaicSupplyChangeDirection::Increase, NotifyMode::Rollback);
 	}
 
 	TEST(TEST_CLASS, DecreaseRollbackIncreasesSupply) {
-		// Assert:
 		AssertSupplyIncrease(model::MosaicSupplyChangeDirection::Decrease, NotifyMode::Rollback);
 	}
 }}

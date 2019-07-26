@@ -69,7 +69,7 @@ namespace catapult { namespace handlers {
 
 			class Producer : BasicProducer<ionet::NodeSet> {
 			public:
-				explicit Producer(ionet::NodeContainerView&& view, const ionet::NodeSet& nodes)
+				Producer(ionet::NodeContainerView&& view, const ionet::NodeSet& nodes)
 						: BasicProducer<ionet::NodeSet>(nodes)
 						, m_view(std::move(view))
 				{}

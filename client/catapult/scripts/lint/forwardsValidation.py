@@ -68,13 +68,13 @@ class ForwardsValidator(SimpleValidator):
     SUITE_NAME = 'ForwardDeclaration'
     NAME = 'forward'
 
-    def __init__(self, errorReporter):
-        super().__init__(errorReporter)
+    def __init__(self):
+        super().__init__()
         self.patternNamespace = re.compile(r'\s*namespace')
 
     # pylint: disable=attribute-defined-outside-init
-    def reset(self, path):
-        super().reset(path)
+    def reset(self, path, errorReporter):
+        super().reset(path, errorReporter)
         self.matchLineNumber = 0
         self.parsingDone = False
         self.mode = Mode.Normal
@@ -96,7 +96,7 @@ class ForwardsValidator(SimpleValidator):
 
     def check(self, lineNumber, line):
         if 0 == self.matchLineNumber:
-            result = re.match(self.patternNamespace, line)
+            result = self.patternNamespace.match(line)
             if not result:
                 return
             self.matchLineNumber = lineNumber

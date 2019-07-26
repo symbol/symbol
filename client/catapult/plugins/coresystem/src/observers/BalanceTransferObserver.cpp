@@ -30,7 +30,9 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(BalanceTransfer, model::BalanceTransferNotification, [](const auto& notification, const ObserverContext& context) {
+	DEFINE_OBSERVER(BalanceTransfer, model::BalanceTransferNotification, [](
+			const model::BalanceTransferNotification& notification,
+			const ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::AccountStateCache>();
 		auto senderIter = cache.find(notification.Sender);
 		auto recipientIter = cache.find(context.Resolvers.resolve(notification.Recipient));

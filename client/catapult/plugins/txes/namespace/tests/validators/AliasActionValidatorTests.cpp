@@ -44,7 +44,7 @@ namespace catapult { namespace validators {
 			}
 
 			static auto CreateNotification(EnumType value) {
-				return model::AliasOwnerNotification(Key(), NamespaceId(), value);
+				return model::AliasLinkNotification(NamespaceId(), value);
 			}
 		};
 	}

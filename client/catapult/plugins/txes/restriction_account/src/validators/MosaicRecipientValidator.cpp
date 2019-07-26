@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 	using Notification = model::BalanceTransferNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(MosaicRecipient, [](const auto& notification, const ValidatorContext& context) {
+	DEFINE_STATEFUL_VALIDATOR(MosaicRecipient, [](const Notification& notification, const ValidatorContext& context) {
 		AccountRestrictionView view(context.Cache);
 		if (!view.initialize(context.Resolvers.resolve(notification.Recipient)))
 			return ValidationResult::Success;

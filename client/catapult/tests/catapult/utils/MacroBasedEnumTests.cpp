@@ -68,7 +68,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, KnownValuesAreOutputAsLabel) {
-		// Assert:
 		EXPECT_EQ("Gamma", test::ToString(GreekLetters::Gamma));
 
 		// (0, 1 ... N/2 ... N-2, N-1)
@@ -80,7 +79,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, UnknownValuesAreOutputAsRawValue) {
-		// Assert:
 		EXPECT_EQ("GreekLetters(0x00000007)", test::ToString(static_cast<GreekLetters>(Num_Greek_Letters)));
 		EXPECT_EQ("GreekLetters(0x00000087)", test::ToString(static_cast<GreekLetters>(0x87)));
 		EXPECT_EQ("GreekLetters(0x00001234)", test::ToString(static_cast<GreekLetters>(0x1234)));
@@ -197,7 +195,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, KnownExplicitValuesAreOutputAsLabel) {
-		// Assert:
 		EXPECT_EQ("Gamma", test::ToString(GreekLetters::Gamma));
 
 		// positional (0, 1 ... N/2 ... N-2, N-1)
@@ -209,7 +206,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, UnknownExplicitValuesAreOutputAsRawValue) {
-		// Assert:
 		EXPECT_EQ("GreekLettersExplicit(0x00000000)", test::ToString(static_cast<GreekLettersExplicit>(0)));
 		EXPECT_EQ("GreekLettersExplicit(0x00000003)", test::ToString(static_cast<GreekLettersExplicit>(3)));
 		EXPECT_EQ("GreekLettersExplicit(0x00000087)", test::ToString(static_cast<GreekLettersExplicit>(0x87)));
@@ -268,12 +264,10 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanSpecifyImplicitEnumBackingType) {
-		// Assert:
 		AssertHasBackingType<SingleValueEnumImplicit, int32_t>();
 	}
 
 	TEST(TEST_CLASS, CanSpecifyExplicitEnumBackingType) {
-		// Assert:
 		AssertHasBackingType<SingleValueEnumUInt8, uint8_t>();
 		AssertHasBackingType<SingleValueEnumUInt64, uint64_t>();
 	}

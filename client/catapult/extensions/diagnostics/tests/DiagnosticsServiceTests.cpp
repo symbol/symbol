@@ -40,12 +40,10 @@ namespace catapult { namespace diagnostics {
 	ADD_SERVICE_REGISTRAR_INFO_TEST(Diagnostics, Initial)
 
 	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
-		// Assert:
 		test::AssertNoServicesOrCountersAreRegistered<TestContext>();
 	}
 
 	TEST(TEST_CLASS, LoggingTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), 1, "logging task");
 	}
 

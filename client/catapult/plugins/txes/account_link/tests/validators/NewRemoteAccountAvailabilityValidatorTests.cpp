@@ -65,17 +65,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailsWhenAccountExistsAndHasTypeUnlinked) {
-		// Assert:
 		AssertFailsWhenAccountExistsWithType(state::AccountType::Unlinked);
 	}
 
 	TEST(TEST_CLASS, FailsWhenAccountExistsAndHasTypeMain) {
-		// Assert:
 		AssertFailsWhenAccountExistsWithType(state::AccountType::Main);
 	}
 
 	TEST(TEST_CLASS, FailsWhenAccountExistsAndHasTypeRemote) {
-		// Assert:
 		AssertFailsWhenAccountExistsWithType(state::AccountType::Remote);
 	}
 

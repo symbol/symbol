@@ -52,7 +52,7 @@ namespace catapult { namespace partialtransaction {
 		Hash256 ToHash(const model::DetachedCosignature& cosignature) {
 			// the R-part of the signature is good enough for a hash
 			Hash256 hash;
-			std::memcpy(hash.data(), cosignature.Signature.data(), Hash256_Size);
+			std::memcpy(hash.data(), cosignature.Signature.data(), Hash256::Size);
 			return hash;
 		}
 

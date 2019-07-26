@@ -69,7 +69,6 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, RequireThrowsWhenFuncIsNotSet) {
-		// Act + Assert:
 		EXPECT_THROW(Require(BasicFunc()), catapult_invalid_argument);
 	}
 

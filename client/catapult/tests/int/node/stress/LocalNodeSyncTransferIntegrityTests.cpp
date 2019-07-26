@@ -139,7 +139,7 @@ namespace catapult { namespace local {
 		auto stateHashes = RunApplyTest<TTraits>(context);
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashes, 2);
+		test::AssertAllNonzero(stateHashes, 2);
 		test::AssertUnique(stateHashes);
 	}
 
@@ -252,7 +252,7 @@ namespace catapult { namespace local {
 		auto stateHashes = RunRollbackTest<TTraits>(context);
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashes, 2);
+		test::AssertAllNonzero(stateHashes, 2);
 		test::AssertUnique(stateHashes);
 	}
 
@@ -354,7 +354,7 @@ namespace catapult { namespace local {
 		auto stateHashes = RunRejectInvalidValidationApplyTest<TTraits>(context);
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashes, 2);
+		test::AssertAllNonzero(stateHashes, 2);
 		test::AssertUnique(stateHashes);
 	}
 
@@ -401,7 +401,7 @@ namespace catapult { namespace local {
 		auto stateHashes = RunRejectInvalidStateHashApplyTest<TTraits>(context);
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashes, 2);
+		test::AssertAllNonzero(stateHashes, 2);
 		test::AssertUnique(stateHashes);
 	}
 
@@ -506,7 +506,7 @@ namespace catapult { namespace local {
 		auto stateHashes = RunRejectInvalidValidationRollbackTest<TTraits>(context);
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashes, 2);
+		test::AssertAllNonzero(stateHashes, 2);
 		test::AssertUnique(stateHashes);
 	}
 
@@ -555,7 +555,7 @@ namespace catapult { namespace local {
 		auto stateHashes = RunRejectInvalidStateHashRollbackTest<TTraits>(context);
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashes, 2);
+		test::AssertAllNonzero(stateHashes, 2);
 		test::AssertUnique(stateHashes);
 	}
 

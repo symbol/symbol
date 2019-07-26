@@ -96,19 +96,16 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth1) {
-		// Assert:
 		AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Inactive, TTraits::CreateAlias());
 		AssertCanMapNamespaceDescriptor(1, NamespaceStatus::Active, TTraits::CreateAlias());
 	}
 
 	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth2) {
-		// Assert:
 		AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Inactive, TTraits::CreateAlias());
 		AssertCanMapNamespaceDescriptor(2, NamespaceStatus::Active, TTraits::CreateAlias());
 	}
 
 	ALIAS_TRAITS_BASED_TEST(CanMapNamespaceDescriptor_ModelToDbModel_Depth3) {
-		// Assert:
 		AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Inactive, TTraits::CreateAlias());
 		AssertCanMapNamespaceDescriptor(3, NamespaceStatus::Active, TTraits::CreateAlias());
 	}

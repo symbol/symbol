@@ -25,11 +25,16 @@ namespace catapult { namespace state {
 
 #define TEST_CLASS AccountRestrictionDescriptorTests
 
+	namespace {
+		constexpr auto Outgoing_Address = model::AccountRestrictionType::Address | model::AccountRestrictionType::Outgoing;
+	}
+
 	TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_Allow) {
 		// Act:
 		AccountRestrictionDescriptor restrictionDescriptor(model::AccountRestrictionType::Address);
 
 		// Assert:
+		EXPECT_EQ(model::AccountRestrictionType::Address, restrictionDescriptor.directionalRestrictionType());
 		EXPECT_EQ(model::AccountRestrictionType::Address, restrictionDescriptor.restrictionType());
 		EXPECT_EQ(AccountRestrictionOperationType::Allow, restrictionDescriptor.operationType());
 		EXPECT_EQ(model::AccountRestrictionType::Address, restrictionDescriptor.raw());
@@ -40,8 +45,31 @@ namespace catapult { namespace state {
 		AccountRestrictionDescriptor restrictionDescriptor(model::AccountRestrictionType::Address | model::AccountRestrictionType::Block);
 
 		// Assert:
+		EXPECT_EQ(model::AccountRestrictionType::Address, restrictionDescriptor.directionalRestrictionType());
 		EXPECT_EQ(model::AccountRestrictionType::Address, restrictionDescriptor.restrictionType());
 		EXPECT_EQ(AccountRestrictionOperationType::Block, restrictionDescriptor.operationType());
 		EXPECT_EQ(model::AccountRestrictionType::Address | model::AccountRestrictionType::Block, restrictionDescriptor.raw());
+	}
+
+	TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_OutgoingAllow) {
+		// Act:
+		AccountRestrictionDescriptor restrictionDescriptor(Outgoing_Address);
+
+		// Assert:
+		EXPECT_EQ(Outgoing_Address, restrictionDescriptor.directionalRestrictionType());
+		EXPECT_EQ(model::AccountRestrictionType::Address, restrictionDescriptor.restrictionType());
+		EXPECT_EQ(AccountRestrictionOperationType::Allow, restrictionDescriptor.operationType());
+		EXPECT_EQ(Outgoing_Address, restrictionDescriptor.raw());
+	}
+
+	TEST(TEST_CLASS, CanCreateAccountRestrictionDescriptor_OutgoingBlock) {
+		// Act:
+		AccountRestrictionDescriptor restrictionDescriptor(Outgoing_Address | model::AccountRestrictionType::Block);
+
+		// Assert:
+		EXPECT_EQ(Outgoing_Address, restrictionDescriptor.directionalRestrictionType());
+		EXPECT_EQ(model::AccountRestrictionType::Address, restrictionDescriptor.restrictionType());
+		EXPECT_EQ(AccountRestrictionOperationType::Block, restrictionDescriptor.operationType());
+		EXPECT_EQ(Outgoing_Address | model::AccountRestrictionType::Block, restrictionDescriptor.raw());
 	}
 }}

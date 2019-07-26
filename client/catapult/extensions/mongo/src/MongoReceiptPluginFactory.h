@@ -20,6 +20,7 @@
 
 #pragma once
 #include "MongoReceiptPlugin.h"
+#include "mappers/ReceiptMapper.h"
 #include "catapult/model/Receipt.h"
 #include "catapult/functions.h"
 
@@ -44,7 +45,7 @@ namespace catapult { namespace mongo {
 			using StreamFunc = consumer<bsoncxx::builder::stream::document&, const TReceipt&>;
 
 		public:
-			explicit ReceiptPluginT(model::ReceiptType type, const StreamFunc& streamFunc)
+			ReceiptPluginT(model::ReceiptType type, const StreamFunc& streamFunc)
 					: m_type(type)
 					, m_streamFunc(streamFunc)
 			{}
@@ -78,4 +79,10 @@ namespace catapult { namespace mongo {
 
 	/// Creates a mongo inflation receipt plugin around \a type.
 	std::unique_ptr<MongoReceiptPlugin> CreateInflationReceiptMongoPlugin(model::ReceiptType type);
+
+	/// Creates a mongo artifact expiry receipt plugin around \a type.
+	template<typename TArtifactId>
+	std::unique_ptr<MongoReceiptPlugin> CreateArtifactExpiryReceiptMongoPlugin(model::ReceiptType type) {
+		return MongoReceiptPluginFactory::Create<model::ArtifactExpiryReceipt<TArtifactId>>(type, mappers::StreamReceipt<TArtifactId>);
+	}
 }}

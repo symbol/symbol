@@ -840,12 +840,10 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, IncrementsSuccessesOnSuccess) {
-		// Assert:
 		AssertCanAddInteraction(1, 0, [](auto& modifier, const auto& identityKey) { modifier.incrementSuccesses(identityKey); });
 	}
 
 	TEST(TEST_CLASS, IncrementsFailuresOnFailure) {
-		// Assert:
 		AssertCanAddInteraction(0, 1, [](auto& modifier, const auto& identityKey) { modifier.incrementFailures(identityKey); });
 	}
 

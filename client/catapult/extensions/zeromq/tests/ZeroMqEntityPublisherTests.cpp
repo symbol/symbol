@@ -190,14 +190,12 @@ namespace catapult { namespace zeromq {
 	}
 
 	TEST(TEST_CLASS, CanPublishTransaction_TransactionInfo) {
-		// Assert:
 		AssertCanPublishTransactionInfo([](const auto& transactionInfo) {
 			return test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
 		});
 	}
 
 	TEST(TEST_CLASS, CanPublishTransactionToCustomAddresses_TransactionInfo) {
-		// Assert:
 		AssertCanPublishTransactionInfo([](auto& transactionInfo) {
 			transactionInfo.OptionalExtractedAddresses = GenerateRandomExtractedAddresses();
 			return *transactionInfo.OptionalExtractedAddresses;
@@ -205,14 +203,12 @@ namespace catapult { namespace zeromq {
 	}
 
 	TEST(TEST_CLASS, CanPublishTransaction_TransactionElement) {
-		// Assert:
 		AssertCanPublishTransactionElement([](const auto& transactionElement) {
 			return test::ExtractAddresses(test::ToMockTransaction(transactionElement.Transaction));
 		});
 	}
 
 	TEST(TEST_CLASS, CanPublishTransactionToCustomAddresses_TransactionElement) {
-		// Assert:
 		AssertCanPublishTransactionElement([](auto& transactionElement) {
 			transactionElement.OptionalExtractedAddresses = GenerateRandomExtractedAddresses();
 			return *transactionElement.OptionalExtractedAddresses;
@@ -290,14 +286,12 @@ namespace catapult { namespace zeromq {
 	}
 
 	TEST(TEST_CLASS, CanPublishTransactionHash) {
-		// Assert:
 		AssertCanPublishTransactionHash([](const auto& transactionInfo) {
 			return test::ExtractAddresses(test::ToMockTransaction(*transactionInfo.pEntity));
 		});
 	}
 
 	TEST(TEST_CLASS, CanPublishTransactionHashToCustomAddresses) {
-		// Assert:
 		AssertCanPublishTransactionHash([](auto& transactionInfo) {
 			transactionInfo.OptionalExtractedAddresses = GenerateRandomExtractedAddresses();
 			return *transactionInfo.OptionalExtractedAddresses;

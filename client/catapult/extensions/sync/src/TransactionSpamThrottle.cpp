@@ -50,7 +50,7 @@ namespace catapult { namespace sync {
 			using TransactionSource = chain::UtUpdater::TransactionSource;
 
 		public:
-			explicit TransactionSpamThrottle(const SpamThrottleConfiguration& config, const predicate<const model::Transaction&>& isBonded)
+			TransactionSpamThrottle(const SpamThrottleConfiguration& config, const predicate<const model::Transaction&>& isBonded)
 					: m_config(config)
 					, m_isBonded(isBonded)
 			{}

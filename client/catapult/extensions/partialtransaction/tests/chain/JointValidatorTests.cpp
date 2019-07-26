@@ -206,22 +206,18 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, StatelessSuccessAndStatefulSuccessYieldSuccess) {
-		// Assert:
 		AssertJointValidationResult(ValidationResult::Success, ValidationResult::Success, ValidationResult::Success);
 	}
 
 	TEST(TEST_CLASS, StatelessNeutralDominatesStatefulSuccess) {
-		// Assert:
 		AssertJointValidationResult(ValidationResult::Neutral, ValidationResult::Success, ValidationResult::Neutral);
 	}
 
 	TEST(TEST_CLASS, StatefulNeutralDominatesStatelessSuccess) {
-		// Assert:
 		AssertJointValidationResult(ValidationResult::Neutral, ValidationResult::Success, ValidationResult::Neutral);
 	}
 
 	TEST(TEST_CLASS, StatefulFailureDominatesStatelessNeutral) {
-		// Assert:
 		AssertJointValidationResult(ValidationResult::Failure, ValidationResult::Neutral, ValidationResult::Failure);
 	}
 

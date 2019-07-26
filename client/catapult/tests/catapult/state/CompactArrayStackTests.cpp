@@ -418,12 +418,10 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, CanAdvanceIteratorsToEndPostfixOperator) {
-		// Assert:
 		AssertCanAdvanceIteratorsToEnd([](auto& iter) { iter++; });
 	}
 
 	TEST(TEST_CLASS, CanAdvanceIteratorsToEndPrefixOperator) {
-		// Assert:
 		AssertCanAdvanceIteratorsToEnd([](auto& iter) { ++iter; });
 	}
 

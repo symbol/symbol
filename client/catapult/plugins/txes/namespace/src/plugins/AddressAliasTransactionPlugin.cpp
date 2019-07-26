@@ -21,6 +21,7 @@
 #include "AddressAliasTransactionPlugin.h"
 #include "src/model/AddressAliasTransaction.h"
 #include "src/model/AliasNotifications.h"
+#include "src/model/NamespaceNotifications.h"
 #include "catapult/model/NotificationSubscriber.h"
 #include "catapult/model/TransactionPluginFactory.h"
 
@@ -31,7 +32,8 @@ namespace catapult { namespace plugins {
 	namespace {
 		template<typename TTransaction>
 		void Publish(const TTransaction& transaction, NotificationSubscriber& sub) {
-			sub.notify(AliasOwnerNotification(transaction.Signer, transaction.NamespaceId, transaction.AliasAction));
+			sub.notify(NamespaceRequiredNotification(transaction.Signer, transaction.NamespaceId));
+			sub.notify(AliasLinkNotification(transaction.NamespaceId, transaction.AliasAction));
 			sub.notify(AliasedAddressNotification(transaction.NamespaceId, transaction.AliasAction, transaction.Address));
 		}
 	}

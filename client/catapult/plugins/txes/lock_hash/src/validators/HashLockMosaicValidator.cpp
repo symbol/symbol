@@ -27,8 +27,8 @@ namespace catapult { namespace validators {
 
 	DECLARE_STATEFUL_VALIDATOR(HashLockMosaic, Notification)(MosaicId currencyMosaicId, Amount lockedFundsPerAggregate) {
 		return MAKE_STATEFUL_VALIDATOR(HashLockMosaic, ([currencyMosaicId, lockedFundsPerAggregate](
-				const auto& notification,
-				const auto& context) {
+				const Notification& notification,
+				const ValidatorContext& context) {
 			if (lockedFundsPerAggregate != notification.Mosaic.Amount)
 				return Failure_LockHash_Invalid_Mosaic_Amount;
 

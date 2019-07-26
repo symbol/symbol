@@ -105,7 +105,7 @@ namespace catapult { namespace net {
 
 		class MultiConnectionStateGuard {
 		public:
-			explicit MultiConnectionStateGuard(PacketWriters& writers, MultiConnectionState& state)
+			MultiConnectionStateGuard(PacketWriters& writers, MultiConnectionState& state)
 					: m_writers(writers)
 					, m_state(state)
 			{}
@@ -949,8 +949,8 @@ namespace catapult { namespace net {
 	namespace {
 		using IoOperationCallback = consumer<ionet::SocketOperationCode>;
 		void AssertOperationCanCompleteWithDestroyedWriters(
-				const consumer<ionet::PacketIo&, const IoOperationCallback&>& operation,
-				const consumer<ionet::SocketOperationCode>& assertCallbackCode) {
+				const consumer<ionet::SocketOperationCode>& assertCallbackCode,
+				const consumer<ionet::PacketIo&, const IoOperationCallback&>& operation) {
 			// Act: create a connection
 			PacketWritersTestContext context;
 			RunConnectedSocketTest(context, [&](auto, const auto&) {
@@ -982,27 +982,21 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, PickOneReadCanCompleteWithDestroyedWriters) {
-		// Assert:
-		AssertOperationCanCompleteWithDestroyedWriters(
-				[](auto& io, const auto& callback) {
-					io.read([callback](auto code, const auto*) {
-						callback(code);
-					});
-				},
-				test::AssertSocketClosedDuringRead);
+		AssertOperationCanCompleteWithDestroyedWriters(test::AssertSocketClosedDuringRead, [](auto& io, const auto& callback) {
+			io.read([callback](auto code, const auto*) {
+				callback(code);
+			});
+		});
 	}
 
 	TEST(TEST_CLASS, PickOneWriteCanCompleteWithDestroyedWriters) {
-		// Assert:
-		AssertOperationCanCompleteWithDestroyedWriters(
-				[](auto& io, const auto& callback) {
-					// use a large packet to ensure the operation gets cancelled
-					auto pPacket = test::BufferToPacketPayload(test::GenerateRandomPacketBuffer(5 * 1024 * 1024));
-					io.write(std::move(pPacket), [callback](auto code) {
-						callback(code);
-					});
-				},
-				test::AssertSocketClosedDuringWrite);
+		AssertOperationCanCompleteWithDestroyedWriters(test::AssertSocketClosedDuringWrite, [](auto& io, const auto& callback) {
+			// use a large packet to ensure the operation gets cancelled
+			auto pPacket = test::BufferToPacketPayload(test::GenerateRandomPacketBuffer(5 * 1024 * 1024));
+			io.write(std::move(pPacket), [callback](auto code) {
+				callback(code);
+			});
+		});
 	}
 
 	// endregion
@@ -1070,24 +1064,20 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, BroadcastDataIsWrittenCorrectlyWhenSingleSocketIsActive) {
-		// Assert:
 		RunVerifyWrittenDataTest(1, [](auto& writers, const auto& payload) { writers.broadcast(payload); });
 	}
 
 	TEST(TEST_CLASS, BroadcastDataIsWrittenCorrectlyWhenMultipleSocketsAreActive) {
-		// Assert:
 		RunVerifyWrittenDataTest(4, [](auto& writers, const auto& payload) { writers.broadcast(payload); });
 	}
 
 	TEST(TEST_CLASS, PickOneWrapperWritesDataCorrectly) {
-		// Assert:
 		RunVerifyWrittenDataTest(1, [](auto& writers, const auto& payload) {
 			writers.pickOne(Default_Timeout).io()->write(payload, EmptyWriteCallback);
 		});
 	}
 
 	TEST(TEST_CLASS, PickOneWrapperWritesDataCorrectlyWithDestroyedWrapper) {
-		// Assert:
 		RunVerifyWrittenDataTest(1, [](auto& writers, const auto& payload) {
 			auto pIo = writers.pickOne(Default_Timeout).io();
 			pIo->write(payload, [](auto) { CATAPULT_LOG(debug) << "write completed"; });
@@ -1097,14 +1087,12 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, PickOneWrapperReadsDataCorrectly) {
-		// Assert:
 		RunVerifyReadDataTest([](auto& writers, const auto& callback) {
 			writers.pickOne(Default_Timeout).io()->read([callback](auto, const auto* pPacket) { callback(*pPacket); });
 		});
 	}
 
 	TEST(TEST_CLASS, PickOneWrapperReadsDataCorrectlyWithDestroyedWrapper) {
-		// Assert:
 		RunVerifyReadDataTest([](auto& writers, const auto& callback) {
 			auto pIo = writers.pickOne(Default_Timeout).io();
 			pIo->read([callback](auto, const auto* pPacket) {

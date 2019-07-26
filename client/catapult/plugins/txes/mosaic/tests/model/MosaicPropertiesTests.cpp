@@ -31,7 +31,7 @@ namespace catapult { namespace model {
 	namespace {
 		void SetTestPropertyValues(MosaicProperties::PropertyValuesContainer& values) {
 			// Arrange:
-			values[0] = utils::to_underlying_type(MosaicFlags::Supply_Mutable);
+			values[0] = utils::to_underlying_type(MosaicFlags::Supply_Mutable | MosaicFlags::Restrictable);
 			values[1] = 5u;
 			values[2] = 234u;
 		}
@@ -69,6 +69,7 @@ namespace catapult { namespace model {
 
 		EXPECT_TRUE(properties.is(MosaicFlags::Supply_Mutable));
 		EXPECT_FALSE(properties.is(MosaicFlags::Transferable));
+		EXPECT_TRUE(properties.is(MosaicFlags::Restrictable));
 
 		EXPECT_EQ(5u, properties.divisibility());
 		EXPECT_EQ(BlockDuration(234), properties.duration());
@@ -80,7 +81,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, ExtractPropertiesCanExtractRequiredProperties) {
 		// Arrange:
-		auto flags = MosaicFlags::Supply_Mutable | MosaicFlags::Transferable;
+		auto flags = MosaicFlags::All;
 		auto header = MosaicPropertiesHeader{ 0, flags, 123 };
 
 		// Act:
@@ -93,7 +94,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, ExtractPropertiesCanExtractOptionalProperties) {
 		// Arrange:
-		auto flags = MosaicFlags::Supply_Mutable | MosaicFlags::Transferable;
+		auto flags = MosaicFlags::All;
 		auto optionalProperties = std::vector<MosaicProperty>{ { MosaicPropertyId::Duration, 12345678u } };
 		auto header = MosaicPropertiesHeader{ static_cast<uint8_t>(optionalProperties.size()), flags, 123 };
 
@@ -107,7 +108,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, ExtractPropertiesIgnoresOutOfRangeProperties) {
 		// Arrange:
-		auto flags = MosaicFlags::Supply_Mutable | MosaicFlags::Transferable;
+		auto flags = MosaicFlags::All;
 		auto optionalProperties = std::vector<MosaicProperty>{
 			{ static_cast<MosaicPropertyId>(0), 0xDEAD }, // reserved (required)
 			{ MosaicPropertyId::Duration, 12345678u }, // valid
@@ -175,12 +176,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 

@@ -46,18 +46,15 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithProperMosaicIdAndAmount) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, Currency_Mosaic_Id, Amount(500), Amount(500));
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithInvalidMosaicId) {
-		// Assert:
 		auto mosaicId = test::GenerateRandomValue<MosaicId>();
 		AssertValidationResult(Failure_LockHash_Invalid_Mosaic_Id, mosaicId, Amount(500), Amount(500));
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithInvalidAmount) {
-		// Assert:
 		for (auto amount : { 0ull, 1ull, 10ull, 100ull, 499ull, 501ull, 1000ull })
 			AssertValidationResult(Failure_LockHash_Invalid_Mosaic_Amount, MosaicId(123), Amount(amount), Amount(500));
 	}

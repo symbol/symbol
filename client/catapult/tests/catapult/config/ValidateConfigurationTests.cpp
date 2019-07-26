@@ -66,7 +66,6 @@ namespace catapult { namespace config {
 	}
 
 	TEST(TEST_CLASS, ValidationFailsWhenBootKeyIsInvalid) {
-		// Assert:
 		AssertInvalidBootKey(Invalid_Private_Key);
 		AssertInvalidBootKey("");
 	}

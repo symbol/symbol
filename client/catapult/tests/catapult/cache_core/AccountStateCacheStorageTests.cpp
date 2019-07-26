@@ -71,12 +71,10 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanLoadValueIntoCache) {
-		// Assert:
 		test::BasicInsertRemoveCacheStorageTests<AccountStateCacheStorageTraits>::AssertCanLoadValueIntoCache();
 	}
 
 	TEST(TEST_CLASS, CanPurgeNonexistentValueFromCache) {
-		// Assert:
 		test::BasicInsertRemoveCacheStorageTests<AccountStateCacheStorageTraits>::AssertCanPurgeNonexistentValueFromCache();
 	}
 

@@ -150,17 +150,19 @@ namespace catapult { namespace observers {
 	// region forwarding
 
 	TEST(TEST_CLASS, NotificationsAreForwardedToChildObservers) {
-		// Assert:
-		test::AssertNotificationsAreForwardedToChildObservers(
-				AggregateObserverBuilder<model::Notification>(),
-				[](auto& builder, auto&& pObserver) { builder.add(std::move(pObserver)); });
+		test::AssertNotificationsAreForwardedToChildObservers(AggregateObserverBuilder<model::Notification>(), [](
+				auto& builder,
+				auto&& pObserver) {
+			builder.add(std::move(pObserver));
+		});
 	}
 
 	TEST(TEST_CLASS, ContextsAreForwardedToChildObservers) {
-		// Assert:
-		test::AssertContextsAreForwardedToChildObservers(
-				AggregateObserverBuilder<model::Notification>(),
-				[](auto& builder, auto&& pObserver) { builder.add(std::move(pObserver)); });
+		test::AssertContextsAreForwardedToChildObservers(AggregateObserverBuilder<model::Notification>(), [](
+				auto& builder,
+				auto&& pObserver) {
+			builder.add(std::move(pObserver));
+		});
 	}
 
 	// endregion

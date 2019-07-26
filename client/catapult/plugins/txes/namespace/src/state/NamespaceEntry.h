@@ -21,6 +21,7 @@
 #pragma once
 #include "Namespace.h"
 #include "RootNamespace.h"
+#include "catapult/exceptions.h"
 
 namespace catapult { namespace state {
 
@@ -34,7 +35,7 @@ namespace catapult { namespace state {
 		{}
 
 		/// Creates an entry around \a ns and \a root.
-		explicit NamespaceEntry(const Namespace& ns, const RootNamespace& root)
+		NamespaceEntry(const Namespace& ns, const RootNamespace& root)
 				: m_pNamespace(&ns)
 				, m_pRoot(&root) {
 			if (m_pNamespace->rootId() != m_pRoot->id())

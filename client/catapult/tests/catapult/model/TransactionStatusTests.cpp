@@ -32,7 +32,7 @@ namespace catapult { namespace model {
 		TransactionStatus result(hash, 123, Timestamp(234));
 
 		// Assert:
-		EXPECT_EQ(Hash256_Size + sizeof(uint32_t) + sizeof(Timestamp), sizeof(result));
+		EXPECT_EQ(Hash256::Size + sizeof(uint32_t) + sizeof(Timestamp), sizeof(result));
 		EXPECT_EQ(hash, result.Hash);
 		EXPECT_EQ(123u, result.Status);
 		EXPECT_EQ(Timestamp(234), result.Deadline);
@@ -59,12 +59,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 

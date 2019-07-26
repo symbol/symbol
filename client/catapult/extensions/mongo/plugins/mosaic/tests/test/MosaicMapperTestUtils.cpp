@@ -39,16 +39,16 @@ namespace catapult { namespace test {
 		}
 	}
 
-	void AssertEqualMosaicData(const state::MosaicEntry& entry, const bsoncxx::document::view& dbMosaic) {
-		EXPECT_EQ(entry.mosaicId(), MosaicId(GetUint64(dbMosaic, "mosaicId")));
-		EXPECT_EQ(entry.supply(), Amount(GetUint64(dbMosaic, "supply")));
+	void AssertEqualMosaicData(const state::MosaicEntry& mosaicEntry, const bsoncxx::document::view& dbMosaicEntry) {
+		EXPECT_EQ(mosaicEntry.mosaicId(), MosaicId(GetUint64(dbMosaicEntry, "mosaicId")));
+		EXPECT_EQ(mosaicEntry.supply(), Amount(GetUint64(dbMosaicEntry, "supply")));
 
-		const auto& definition = entry.definition();
-		EXPECT_EQ(definition.height(), Height(GetUint64(dbMosaic, "height")));
-		EXPECT_EQ(definition.owner(), GetKeyValue(dbMosaic, "owner"));
-		EXPECT_EQ(definition.revision(), GetUint32(dbMosaic, "revision"));
+		const auto& definition = mosaicEntry.definition();
+		EXPECT_EQ(definition.height(), Height(GetUint64(dbMosaicEntry, "height")));
+		EXPECT_EQ(definition.owner(), GetKeyValue(dbMosaicEntry, "owner"));
+		EXPECT_EQ(definition.revision(), GetUint32(dbMosaicEntry, "revision"));
 
-		auto dbProperties = dbMosaic["properties"].get_array().value;
+		auto dbProperties = dbMosaicEntry["properties"].get_array().value;
 		const auto& properties = definition.properties();
 
 		// two required and one optional property

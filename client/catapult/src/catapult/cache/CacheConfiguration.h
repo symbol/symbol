@@ -44,7 +44,7 @@ namespace catapult { namespace cache {
 
 		/// Creates a cache configuration around \a databaseDirectory, \a maxCacheDatabaseWriteBatchSize
 		/// and specified patricia tree storage \a mode.
-		explicit CacheConfiguration(
+		CacheConfiguration(
 				const std::string& databaseDirectory,
 				utils::FileSize maxCacheDatabaseWriteBatchSize,
 				PatriciaTreeStorageMode mode)

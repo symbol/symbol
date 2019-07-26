@@ -108,14 +108,12 @@ namespace catapult { namespace tree {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
-		// Assert:
 		RunEqualityTest([](const auto& defaultKey, const auto& descToEntityMap, const auto& equalityTags) {
 			test::AssertOperatorEqualReturnsTrueForEqualObjects(defaultKey, descToEntityMap, equalityTags);
 		});
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
-		// Assert:
 		RunEqualityTest([](const auto& defaultKey, const auto& descToEntityMap, const auto& equalityTags) {
 			test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(defaultKey, descToEntityMap, equalityTags);
 		});

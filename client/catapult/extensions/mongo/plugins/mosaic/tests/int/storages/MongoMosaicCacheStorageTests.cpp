@@ -51,32 +51,32 @@ namespace catapult { namespace mongo { namespace plugins {
 				return test::CreateMosaicEntry(MosaicId(id), Height(345), owner, Amount(456), BlockDuration(567));
 			}
 
-			static void Add(cache::CatapultCacheDelta& delta, const ModelType& entry) {
+			static void Add(cache::CatapultCacheDelta& delta, const ModelType& mosaicEntry) {
 				auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
-				mosaicCacheDelta.insert(entry);
+				mosaicCacheDelta.insert(mosaicEntry);
 			}
 
-			static void Remove(cache::CatapultCacheDelta& delta, const ModelType& entry) {
+			static void Remove(cache::CatapultCacheDelta& delta, const ModelType& mosaicEntry) {
 				auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
-				mosaicCacheDelta.remove(entry.mosaicId());
+				mosaicCacheDelta.remove(mosaicEntry.mosaicId());
 			}
 
-			static void Mutate(cache::CatapultCacheDelta& delta, ModelType& entry) {
+			static void Mutate(cache::CatapultCacheDelta& delta, ModelType& mosaicEntry) {
 				// update expected
-				entry.increaseSupply(Amount(1));
+				mosaicEntry.increaseSupply(Amount(1));
 
 				// update cache
 				auto& mosaicCacheDelta = delta.sub<cache::MosaicCache>();
-				auto& entryFromCache = mosaicCacheDelta.find(entry.mosaicId()).get();
-				entryFromCache.increaseSupply(Amount(1));
+				auto& mosaicEntryFromCache = mosaicCacheDelta.find(mosaicEntry.mosaicId()).get();
+				mosaicEntryFromCache.increaseSupply(Amount(1));
 			}
 
-			static auto GetFindFilter(const ModelType& entry) {
-				return document() << "mosaic.mosaicId" << mappers::ToInt64(entry.mosaicId()) << finalize;
+			static auto GetFindFilter(const ModelType& mosaicEntry) {
+				return document() << "mosaic.mosaicId" << mappers::ToInt64(mosaicEntry.mosaicId()) << finalize;
 			}
 
-			static void AssertEqual(const ModelType& entry, const bsoncxx::document::view& view) {
-				test::AssertEqualMosaicData(entry, view["mosaic"].get_document().view());
+			static void AssertEqual(const ModelType& mosaicEntry, const bsoncxx::document::view& view) {
+				test::AssertEqualMosaicData(mosaicEntry, view["mosaic"].get_document().view());
 			}
 		};
 	}

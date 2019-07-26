@@ -120,10 +120,10 @@ namespace catapult { namespace state {
 
 		public:
 			/// Creates an iterator around \a storage with initial \a stage.
-			explicit basic_iterator(FirstLevelStorage& storage, Stage stage);
+			basic_iterator(FirstLevelStorage& storage, Stage stage);
 
 			/// Creates an iterator around \a storage pointing to the mosaic at \a location.
-			explicit basic_iterator(FirstLevelStorage& storage, const MosaicLocation& location);
+			basic_iterator(FirstLevelStorage& storage, const MosaicLocation& location);
 
 		public:
 			/// Returns \c true if this iterator and \a rhs are equal.

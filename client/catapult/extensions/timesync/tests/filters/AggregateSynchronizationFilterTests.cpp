@@ -67,17 +67,14 @@ namespace catapult { namespace timesync { namespace filters {
 	}
 
 	TEST(TEST_CLASS, CanCreateAggregateAroundZeroFilters) {
-		// Assert:
 		RunDelegationTest(0);
 	}
 
 	TEST(TEST_CLASS, CanCreateAggregateAroundSingleFilter) {
-		// Assert:
 		RunDelegationTest(1);
 	}
 
 	TEST(TEST_CLASS, CanCreateAggregateAroundMultipleFilters) {
-		// Assert:
 		RunDelegationTest(3);
 	}
 

@@ -42,15 +42,15 @@ namespace catapult { namespace disruptor {
 	}
 
 	std::vector<DisruptorConsumer> DisruptorConsumersFromBlockConsumers(const std::vector<BlockConsumer>& blockConsumers) {
-		return DisruptorConsumersFromTypedConsumers(
-				blockConsumers,
-				[](const auto& blockConsumer, auto& input) { return blockConsumer(input.blocks()); });
+		return DisruptorConsumersFromTypedConsumers(blockConsumers, [](const auto& blockConsumer, auto& input) {
+			return blockConsumer(input.blocks());
+		});
 	}
 
 	std::vector<DisruptorConsumer> DisruptorConsumersFromTransactionConsumers(
 			const std::vector<TransactionConsumer>& transactionConsumers) {
-		return DisruptorConsumersFromTypedConsumers(
-				transactionConsumers,
-				[](const auto& transactionConsumer, auto& input) { return transactionConsumer(input.transactions()); });
+		return DisruptorConsumersFromTypedConsumers(transactionConsumers, [](const auto& transactionConsumer, auto& input) {
+			return transactionConsumer(input.transactions());
+		});
 	}
 }}

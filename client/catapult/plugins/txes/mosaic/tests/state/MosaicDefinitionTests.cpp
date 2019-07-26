@@ -34,6 +34,7 @@ namespace catapult { namespace state {
 		void AssertDefaultRequiredProperties(const model::MosaicProperties& properties) {
 			EXPECT_FALSE(properties.is(model::MosaicFlags::Supply_Mutable));
 			EXPECT_FALSE(properties.is(model::MosaicFlags::Transferable));
+			EXPECT_FALSE(properties.is(model::MosaicFlags::Restrictable));
 			EXPECT_EQ(0u, properties.divisibility());
 		}
 
@@ -119,21 +120,18 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, IsActiveReturnsTrueWhenMosaicDefinitionIsActive) {
-		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();
 		AssertActiveOrNot(duration, { height, height + 1, height + 22, height + duration - 2, height + duration - 1 }, true);
 	}
 
 	TEST(TEST_CLASS, IsActiveReturnsTrueWhenMosaicDefinitionIsEternal) {
-		// Assert:
 		auto duration = Eternal_Artifact_Duration.unwrap();
 		auto height = Default_Height.unwrap();
 		AssertActiveOrNot(duration, { height - 1, height, height + 1, 500u, 5000u, std::numeric_limits<Height::ValueType>::max() }, true);
 	}
 
 	TEST(TEST_CLASS, IsActiveReturnsFalseWhenMosaicDefinitionIsNotActive) {
-		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();
 		AssertActiveOrNot(duration, { 1u, height - 2, height - 1, height + duration, height + duration + 1, height + 10'000 }, false);
@@ -155,21 +153,18 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, IsExpiredReturnsTrueWhenMosaicDefinitionIsExpired) {
-		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();
 		AssertExpiredOrNot(duration, { height + duration, height + duration + 1, height + 10'000 }, true);
 	}
 
 	TEST(TEST_CLASS, IsExpiredReturnsFalseWhenMosaicDefinitionIsEternal) {
-		// Assert:
 		auto duration = Eternal_Artifact_Duration.unwrap();
 		auto height = Default_Height.unwrap();
 		AssertExpiredOrNot(duration, { 1, height - 1, height, height + 1, 5000u, std::numeric_limits<Height::ValueType>::max() }, false);
 	}
 
 	TEST(TEST_CLASS, IsExpiredReturnsFalseWhenMosaicDefinitionIsNotExpired) {
-		// Assert:
 		auto duration = 57u;
 		auto height = Default_Height.unwrap();
 		AssertExpiredOrNot(duration, { 1, height - 1, height, height + 1, height + duration - 2, height + duration - 1 }, false);

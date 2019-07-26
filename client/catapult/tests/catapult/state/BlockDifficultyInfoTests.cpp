@@ -64,7 +64,6 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, OperatorLessThanReturnsTrueForSmallerValuesAndFalseOtherwise) {
-		// Assert:
 		EXPECT_FALSE(Difficulty_Info1 < Difficulty_Info2);
 		EXPECT_FALSE(Difficulty_Info2 < Difficulty_Info1);
 		EXPECT_FALSE(Difficulty_Info1 < Difficulty_Info3);
@@ -74,14 +73,12 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(
 				{ Difficulty_Info1, Difficulty_Info2, Difficulty_Info3 },
 				{ Difficulty_Info4 } );
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(
 				{ Difficulty_Info1, Difficulty_Info2, Difficulty_Info3 },
 				{ Difficulty_Info4 });

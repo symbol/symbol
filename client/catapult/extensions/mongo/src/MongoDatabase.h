@@ -31,7 +31,7 @@ namespace catapult { namespace mongo {
 	class MongoDatabase {
 	public:
 		/// Creates a mongo database around \a connectionPool and \a databaseName.
-		explicit MongoDatabase(mongocxx::pool& connectionPool, const std::string& databaseName)
+		MongoDatabase(mongocxx::pool& connectionPool, const std::string& databaseName)
 				: m_pConnection(connectionPool.acquire())
 				, m_database(m_pConnection->database(databaseName))
 		{}

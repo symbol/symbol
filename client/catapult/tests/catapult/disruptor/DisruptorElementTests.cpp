@@ -76,12 +76,10 @@ namespace catapult { namespace disruptor {
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanCreateDisruptorElementAroundSingleEntity) {
-		// Assert:
 		TTraits::AssertDisruptorElementCreation(1);
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanCreateDisruptorElementAroundMultipleEntities) {
-		// Assert:
 		TTraits::AssertDisruptorElementCreation(3);
 	}
 
@@ -140,7 +138,6 @@ namespace catapult { namespace disruptor {
 	}
 
 	TEST(TEST_CLASS, MarkProcessingCompleteDelegatesToCompletionHandlerWhenElementIsNotSkipped) {
-		// Assert:
 		AssertProcessingCompleteDelegatesToCompletionHandler([](const auto&) {}, ConsumerCompletionResult());
 	}
 
@@ -162,7 +159,6 @@ namespace catapult { namespace disruptor {
 	// region IsIntervalElementId
 
 	TEST(TEST_CLASS, IsIntervalElementIdReturnsFalseWhenIntervalIsZero) {
-		// Assert:
 		EXPECT_FALSE(IsIntervalElementId(4, 0));
 		EXPECT_FALSE(IsIntervalElementId(7, 0));
 		EXPECT_FALSE(IsIntervalElementId(8, 0));
@@ -170,7 +166,6 @@ namespace catapult { namespace disruptor {
 	}
 
 	TEST(TEST_CLASS, IsIntervalElementIdReturnsFalseWhenIdIsNotAMultipleOfInterval) {
-		// Assert:
 		EXPECT_FALSE(IsIntervalElementId(4, 8));
 		EXPECT_FALSE(IsIntervalElementId(7, 3));
 		EXPECT_FALSE(IsIntervalElementId(8, 3));
@@ -178,7 +173,6 @@ namespace catapult { namespace disruptor {
 	}
 
 	TEST(TEST_CLASS, IsIntervalElementIdReturnsTrueWhenIdIsMultipleOfInterval) {
-		// Assert:
 		EXPECT_TRUE(IsIntervalElementId(4, 4));
 		EXPECT_TRUE(IsIntervalElementId(7, 7));
 		EXPECT_TRUE(IsIntervalElementId(8, 2));

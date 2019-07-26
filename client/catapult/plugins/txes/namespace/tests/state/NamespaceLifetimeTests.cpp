@@ -36,7 +36,6 @@ namespace catapult { namespace state {
 		// Assert:
 		EXPECT_EQ(Height(123), lifetime.Start);
 		EXPECT_EQ(Height(234), lifetime.End);
-		EXPECT_EQ(Height(234), lifetime.GracePeriodEnd);
 	}
 
 	TEST(TEST_CLASS, CanCreateEternalNamespaceLifetimeWithoutGracePeriod) {
@@ -46,7 +45,6 @@ namespace catapult { namespace state {
 		// Assert:
 		EXPECT_EQ(Height(123), lifetime.Start);
 		EXPECT_EQ(Height(0xFFFF'FFFF'FFFF'FFFF), lifetime.End);
-		EXPECT_EQ(Height(0xFFFF'FFFF'FFFF'FFFF), lifetime.GracePeriodEnd);
 	}
 
 	TEST(TEST_CLASS, CanCreateNamespaceLifetimeWithGracePeriod) {
@@ -55,8 +53,7 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(Height(123), lifetime.Start);
-		EXPECT_EQ(Height(234), lifetime.End);
-		EXPECT_EQ(Height(284), lifetime.GracePeriodEnd);
+		EXPECT_EQ(Height(284), lifetime.End);
 	}
 
 	TEST(TEST_CLASS, CanCreateEternalNamespaceLifetimeWithGracePeriod) {
@@ -66,7 +63,6 @@ namespace catapult { namespace state {
 		// Assert:
 		EXPECT_EQ(Height(123), lifetime.Start);
 		EXPECT_EQ(Height(0xFFFF'FFFF'FFFF'FFFF), lifetime.End);
-		EXPECT_EQ(Height(0xFFFF'FFFF'FFFF'FFFF), lifetime.GracePeriodEnd);
 	}
 
 	TEST(TEST_CLASS, CanCreateNamespaceLifetimeWithMinLifetimeWithoutGracePeriod) {
@@ -76,7 +72,6 @@ namespace catapult { namespace state {
 		// Assert:
 		EXPECT_EQ(Height(233), lifetime.Start);
 		EXPECT_EQ(Height(234), lifetime.End);
-		EXPECT_EQ(Height(234), lifetime.GracePeriodEnd);
 	}
 
 	TEST(TEST_CLASS, CanCreateNamespaceLifetimeWithMinLifetimeWithGracePeriod) {
@@ -85,8 +80,7 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(Height(233), lifetime.Start);
-		EXPECT_EQ(Height(234), lifetime.End);
-		EXPECT_EQ(Height(284), lifetime.GracePeriodEnd);
+		EXPECT_EQ(Height(284), lifetime.End);
 	}
 
 	TEST(TEST_CLASS, CanCreateNamespaceLifetimeWithMaxGracePeriodEnd) {
@@ -96,19 +90,16 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(Height(123), lifetime.Start);
-		EXPECT_EQ(Height(234), lifetime.End);
-		EXPECT_EQ(Height(maxValue), lifetime.GracePeriodEnd);
+		EXPECT_EQ(Height(maxValue), lifetime.End);
 	}
 
 	TEST(TEST_CLASS, CannotCreateNamespaceLifetimeWithZeroLifetime) {
-		// Act + Assert:
 		EXPECT_THROW(NamespaceLifetime(Height(123), Height(123)), catapult_invalid_argument);
 
 		EXPECT_THROW(NamespaceLifetime(Height(123), Height(123), BlockDuration(50)), catapult_invalid_argument);
 	}
 
 	TEST(TEST_CLASS, CannotCreateNamespaceLifetimeWithNegativeLifetime) {
-		// Act + Assert:
 		EXPECT_THROW(NamespaceLifetime(Height(125), Height(124)), catapult_invalid_argument);
 		EXPECT_THROW(NamespaceLifetime(Height(125), Height(63)), catapult_invalid_argument);
 
@@ -117,7 +108,6 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, CannotCreateNamespaceWithGracePeriodEndOverflow) {
-		// Act + Assert:
 		auto maxValue = std::numeric_limits<uint64_t>::max();
 		EXPECT_THROW(NamespaceLifetime(Height(123), Height(234), BlockDuration(maxValue - 234 + 1)), catapult_invalid_argument);
 		EXPECT_THROW(NamespaceLifetime(Height(123), Height(234), BlockDuration(maxValue - 123 + 1)), catapult_invalid_argument);
@@ -126,42 +116,64 @@ namespace catapult { namespace state {
 
 	// endregion
 
-	// region isActiveAndUnlocked / isActiveOrGracePeriod
+	// region isActive / isActiveExcludingGracePeriod
 
-	TEST(TEST_CLASS, IsActiveAndUnlockedReturnsTrueWhenHeightIsWithinLifetime) {
-		// Arrange:
-		NamespaceLifetime lifetime(Height(123), Height(234), BlockDuration(50));
-
-		// Assert:
-		for (auto height : { 123u, 124u, 213u, 232u, 233u })
-			EXPECT_TRUE(lifetime.isActiveAndUnlocked(Height(height))) << "at height " << height;
-	}
-
-	TEST(TEST_CLASS, IsActiveAndUnlockedReturnsFalseWhenHeightIsNotWithinLifetime) {
-		// Arrange:
-		NamespaceLifetime lifetime(Height(123), Height(234), BlockDuration(50));
-
-		// Assert:
-		for (auto height : { 1u, 2u, 121u, 122u, 234u, 235u, 5000u, 100000u })
-			EXPECT_FALSE(lifetime.isActiveAndUnlocked(Height(height))) << "at height " << height;
-	}
-
-	TEST(TEST_CLASS, IsActiveOrGracePeriodReturnsTrueWhenHeightIsWithinLifetimeOrGracePeriod) {
+	TEST(TEST_CLASS, IsActiveReturnsTrueWhenHeightIsWithinLifetimeOrGracePeriod) {
 		// Arrange:
 		NamespaceLifetime lifetime(Height(123), Height(234), BlockDuration(50));
 
 		// Assert:
 		for (auto height : { 123u, 124u, 213u, 232u, 233u, 234u, 235u, 283u })
-			EXPECT_TRUE(lifetime.isActiveOrGracePeriod(Height(height))) << "at height " << height;
+			EXPECT_TRUE(lifetime.isActive(Height(height))) << "at height " << height;
 	}
 
-	TEST(TEST_CLASS, IsActiveOrGracePeriodReturnsFalseWhenHeightIsNotWithinLifetimeOrGracePeriod) {
+	TEST(TEST_CLASS, IsActiveReturnsFalseWhenHeightIsNotWithinLifetimeOrGracePeriod) {
 		// Arrange:
 		NamespaceLifetime lifetime(Height(123), Height(234), BlockDuration(50));
 
 		// Assert:
 		for (auto height : { 1u, 2u, 121u, 122u, 284u, 285u, 5000u, 100000u })
-			EXPECT_FALSE(lifetime.isActiveOrGracePeriod(Height(height))) << "at height " << height;
+			EXPECT_FALSE(lifetime.isActive(Height(height))) << "at height " << height;
+	}
+
+	TEST(TEST_CLASS, IsActiveExcludingGracePeriodReturnsTrueWhenHeightIsWithinLifetime) {
+		// Arrange:
+		NamespaceLifetime lifetime(Height(123), Height(259), BlockDuration(25));
+
+		// Assert: notice that isActiveExcludingGracePeriod uses grace period passed in (50), not from constructor (25)
+		for (auto height : { 123u, 124u, 213u, 232u, 233u })
+			EXPECT_TRUE(lifetime.isActiveExcludingGracePeriod(Height(height), BlockDuration(50))) << "at height " << height;
+	}
+
+	TEST(TEST_CLASS, IsActiveExcludingGracePeriodReturnsFalseWhenHeightIsNotWithinLifetime) {
+		// Arrange:
+		NamespaceLifetime lifetime(Height(123), Height(259), BlockDuration(25));
+
+		// Assert: notice that isActiveExcludingGracePeriod uses grace period passed in (50), not from constructor (25)
+		for (auto height : { 1u, 2u, 121u, 122u, 234u, 235u, 5000u, 100000u })
+			EXPECT_FALSE(lifetime.isActiveExcludingGracePeriod(Height(height), BlockDuration(50))) << "at height " << height;
+	}
+
+	TEST(TEST_CLASS, IsActiveExcludingGracePeriodSucceedsWhenGracePeriodIsLessThanLifetime) {
+		// Arrange: lifetime is 259 + 25 - 123 = 161
+		NamespaceLifetime lifetime(Height(123), Height(259), BlockDuration(25));
+
+		// Assert: notice that isActiveExcludingGracePeriod uses grace period passed in (50), not from constructor (25)
+		for (auto gracePeriodDuration : { 0u, 1u, 100u, 159u, 160u }) {
+			EXPECT_TRUE(lifetime.isActiveExcludingGracePeriod(Height(123), BlockDuration(gracePeriodDuration)))
+					<< "with grace period duration " << gracePeriodDuration;
+		}
+	}
+
+	TEST(TEST_CLASS, IsActiveExcludingGracePeriodFailsWhenGracePeriodIsGreaterThanOrEqualToLifetime) {
+		// Arrange: lifetime is 259 + 25 - 123 = 161
+		NamespaceLifetime lifetime(Height(123), Height(259), BlockDuration(25));
+
+		// Assert: notice that isActiveExcludingGracePeriod uses grace period passed in (50), not from constructor (25)
+		for (auto gracePeriodDuration : { 161u, 162u, 259u, 260u, 5000u, 100000u }) {
+			EXPECT_THROW(lifetime.isActiveExcludingGracePeriod(Height(222), BlockDuration(gracePeriodDuration)), catapult_invalid_argument)
+					<< "with grace period duration " << gracePeriodDuration;
+		}
 	}
 
 	// endregion
@@ -188,12 +200,10 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 

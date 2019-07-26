@@ -56,13 +56,13 @@ namespace catapult { namespace validators {
 
 			auto address = model::PublicKeyToAddress(notification.Key, context.Network.Identifier);
 			const auto* pModifications = notification.ModificationsPtr;
-			const auto& cache = context.Cache.template sub<cache::AccountRestrictionCache>();
+			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
 			if (!cache.contains(address))
 				return ValidationResult::Success;
 
 			auto restrictionsIter = cache.find(address);
 			const auto& restrictions = restrictionsIter.get();
-			auto restrictionType = notification.AccountRestrictionDescriptor.restrictionType();
+			auto restrictionType = notification.AccountRestrictionDescriptor.directionalRestrictionType();
 			auto typedRestriction = restrictions.template restriction<TRestrictionValue>(restrictionType);
 			auto modificationCounters = ExtractModificationCounters<TRestrictionValue>(pModifications, notification.ModificationsCount);
 
@@ -78,8 +78,8 @@ namespace catapult { namespace validators {
 	DECLARE_STATEFUL_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE)(uint16_t maxAccountRestrictionValues) { \
 		using ValidatorType = stateful::FunctionalNotificationValidatorT<NOTIFICATION_TYPE>; \
 		return std::make_unique<ValidatorType>(#VALIDATOR_NAME "Validator", [maxAccountRestrictionValues]( \
-				const auto& notification, \
-				const auto& context) { \
+				const NOTIFICATION_TYPE& notification, \
+				const ValidatorContext& context) { \
 			return Validate<ACCOUNT_RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>(maxAccountRestrictionValues, notification, context); \
 		}); \
 	}

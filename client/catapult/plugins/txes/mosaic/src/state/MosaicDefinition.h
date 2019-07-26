@@ -28,7 +28,7 @@ namespace catapult { namespace state {
 	class MosaicDefinition {
 	public:
 		/// Creates a mosaic definition around \a height, \a owner, mosaic \a revision and mosaic \a properties.
-		explicit MosaicDefinition(Height height, const Key& owner, uint32_t revision, const model::MosaicProperties& properties)
+		MosaicDefinition(Height height, const Key& owner, uint32_t revision, const model::MosaicProperties& properties)
 				: m_height(height)
 				, m_owner(owner)
 				, m_revision(revision)

@@ -26,9 +26,11 @@ namespace catapult { namespace plugins {
 	PluginManager::PluginManager(
 			const model::BlockChainConfiguration& config,
 			const StorageConfiguration& storageConfig,
+			const config::UserConfiguration& userConfig,
 			const config::InflationConfiguration& inflationConfig)
 			: m_config(config)
 			, m_storageConfig(storageConfig)
+			, m_userConfig(userConfig)
 			, m_inflationConfig(inflationConfig)
 	{}
 
@@ -40,6 +42,10 @@ namespace catapult { namespace plugins {
 
 	const StorageConfiguration& PluginManager::storageConfig() const {
 		return m_storageConfig;
+	}
+
+	const config::UserConfiguration& PluginManager::userConfig() const {
+		return m_userConfig;
 	}
 
 	const config::InflationConfiguration& PluginManager::inflationConfig() const {

@@ -83,12 +83,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, ExtractAddressesExtractsAddressesFromAddressNotifications) {
-		// Assert:
 		RunExtractAddressesTest(MockNotificationPublisher::Mode::Address);
 	}
 
 	TEST(TEST_CLASS, ExtractAddressesExtractsAddressesFromPublicKeyNotifications) {
-		// Assert:
 		RunExtractAddressesTest(MockNotificationPublisher::Mode::Public_Key);
 	}
 

@@ -361,12 +361,10 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, CanInsertAndThenOptimizeMosaicFromArray) {
-		// Assert:
 		AssertCanInsertAndThenOptimize(MosaicId(101));
 	}
 
 	TEST(TEST_CLASS, CanInsertAndThenOptimizeMosaicFromMap) {
-		// Assert:
 		AssertCanInsertAndThenOptimize(MosaicId(303));
 	}
 

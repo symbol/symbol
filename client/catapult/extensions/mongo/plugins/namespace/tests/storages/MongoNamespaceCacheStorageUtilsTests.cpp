@@ -45,7 +45,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		struct PathIndexPair {
 		public:
-			explicit PathIndexPair(const Path& path, uint32_t index)
+			PathIndexPair(const Path& path, uint32_t index)
 					: NamespacePath(path)
 					, Index(index)
 			{}
@@ -144,12 +144,10 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanConvertFromRootNamespaceHistoryWithDepthOne_WithoutChildren) {
-		// Assert:
 		AssertCanConvertFromRootNamespaceHistoryWithDepthOne_WithoutChildren([](const auto&) {});
 	}
 
 	TEST(TEST_CLASS, CanConvertFromRootNamespaceHistoryWithDepthOne_WithoutChildren_WithAlias) {
-		// Assert:
 		AssertCanConvertFromRootNamespaceHistoryWithDepthOne_WithoutChildren([](auto& root) {
 			// Arrange: set a root alias
 			root.setAlias(NamespaceId(123), state::NamespaceAlias(MosaicId(444)));
@@ -181,12 +179,10 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanConvertFromRootNamespaceHistoryWithDepthOne_WithChildren) {
-		// Assert:
 		AssertCanConvertFromRootNamespaceHistoryWithDepthOne_WithChildren([](const auto&) {});
 	}
 
 	TEST(TEST_CLASS, CanConvertFromRootNamespaceHistoryWithDepthOne_WithChildren_WithAlias) {
-		// Assert:
 		AssertCanConvertFromRootNamespaceHistoryWithDepthOne_WithChildren([](auto& root) {
 			// Arrange: set child aliases
 			root.setAlias(NamespaceId(124), state::NamespaceAlias(MosaicId(444)));

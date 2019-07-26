@@ -19,8 +19,11 @@
 **/
 
 #include "src/validators/Validators.h"
+#include "src/plugins/ModifyMultisigAccountTransactionPlugin.h"
+#include "catapult/model/TransactionPlugin.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
+#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -28,9 +31,19 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MultisigAggregateEligibleCosignersValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MultisigAggregateEligibleCosigners,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MultisigAggregateEligibleCosigners, model::TransactionRegistry())
 
 	namespace {
+		auto CreateTransactionRegistry() {
+			// use a registry with mock and multilevel multisig transactions registered
+			//   mock is used to test default behavior
+			//   multilevel multisig is used to test transactions with custom approval requirements
+			model::TransactionRegistry transactionRegistry;
+			transactionRegistry.registerPlugin(mocks::CreateMockTransactionPlugin(mocks::PluginOptionFlags::Not_Top_Level));
+			transactionRegistry.registerPlugin(plugins::CreateModifyMultisigAccountTransactionPlugin());
+			return transactionRegistry;
+		}
+
 		void AssertValidationResult(
 				ValidationResult expectedResult,
 				const cache::CatapultCache& cache,
@@ -42,17 +55,18 @@ namespace catapult { namespace validators {
 			auto* pTransactions = reinterpret_cast<model::EmbeddedTransaction*>(txBuffer.data());
 			for (auto i = 0u; i < embeddedSigners.size(); ++i) {
 				auto& transaction = pTransactions[i];
-				transaction.Type = static_cast<model::EntityType>(0xFFFF);
+				transaction.Type = mocks::MockTransaction::Entity_Type;
 				transaction.Size = sizeof(model::EmbeddedTransaction);
 				transaction.Signer = embeddedSigners[i];
 			}
 
-			// - setup cosignatures
+			// - setup cosignatures and registry
 			auto cosignatures = test::GenerateCosignaturesFromCosigners(cosigners);
+			auto transactionRegistry = CreateTransactionRegistry();
 
 			using Notification = model::AggregateCosignaturesNotification;
 			Notification notification(signer, embeddedSigners.size(), pTransactions, cosignatures.size(), cosignatures.data());
-			auto pValidator = CreateMultisigAggregateEligibleCosignersValidator();
+			auto pValidator = CreateMultisigAggregateEligibleCosignersValidator(transactionRegistry);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
@@ -256,12 +270,13 @@ namespace catapult { namespace validators {
 				const Key& signer,
 				const model::EmbeddedTransaction& transaction,
 				const std::vector<Key>& cosigners) {
-			// Arrange: setup cosignatures
+			// Arrange: setup cosignatures and registry
 			auto cosignatures = test::GenerateCosignaturesFromCosigners(cosigners);
+			auto transactionRegistry = CreateTransactionRegistry();
 
 			using Notification = model::AggregateCosignaturesNotification;
 			Notification notification(signer, 1, &transaction, cosignatures.size(), cosignatures.data());
-			auto pValidator = CreateMultisigAggregateEligibleCosignersValidator();
+			auto pValidator = CreateMultisigAggregateEligibleCosignersValidator(transactionRegistry);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);

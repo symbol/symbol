@@ -25,7 +25,7 @@
 #include "plugins/txes/restriction_account/src/model/AccountOperationRestrictionTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/test/AccountRestrictionCacheTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -77,7 +77,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				auto view = iter->get_document().view();
 				EXPECT_EQ(
 						pModification->ModificationType,
-						static_cast<model::AccountRestrictionModificationType>(test::GetUint8(view, "type")));
+						static_cast<model::AccountRestrictionModificationType>(test::GetUint8(view, "restrictionType")));
 
 				RawBuffer buffer(view["value"].get_binary().bytes, view["value"].get_binary().size);
 				EXPECT_EQ(pModification->Value, TRestrictionValueTraits::FromBuffer(buffer));

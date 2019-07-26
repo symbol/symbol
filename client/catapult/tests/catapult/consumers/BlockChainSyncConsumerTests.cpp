@@ -365,9 +365,7 @@ namespace catapult { namespace consumers {
 							std::make_unique<mocks::MockMemoryBlockStorage>())
 			{}
 
-			explicit ConsumerTestContext(
-					std::unique_ptr<io::BlockStorage>&& pStorage,
-					std::unique_ptr<io::PrunableBlockStorage>&& pStagingStorage)
+			ConsumerTestContext(std::unique_ptr<io::BlockStorage>&& pStorage, std::unique_ptr<io::PrunableBlockStorage>&& pStagingStorage)
 					: Cache(test::CreateCatapultCacheWithMarkerAccount())
 					, Storage(std::move(pStorage), std::move(pStagingStorage)) {
 				State.LastRecalculationHeight = Initial_Last_Recalculation_Height;
@@ -624,36 +622,44 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, RemoteChainWithHeightLessThanTwoIsRejected) {
-		// Assert:
+		// Arrange:
 		for (auto source : GetAllInputSources()) {
 			LogInputSource(source);
+
+			// Act + Assert:
 			AssertInvalidHeight(Height(1), Height(0), 3, source);
 			AssertInvalidHeight(Height(1), Height(1), 3, source);
 		}
 	}
 
 	TEST(TEST_CLASS, RemoteChainWithHeightAtLeastTwoIsValid) {
-		// Assert:
+		// Arrange:
 		for (auto source : GetAllInputSources()) {
 			LogInputSource(source);
+
+			// Act + Assert:
 			AssertValidHeight(Height(1), Height(2), 3, source);
 			AssertValidHeight(Height(2), Height(3), 3, source);
 		}
 	}
 
 	TEST(TEST_CLASS, RemoteChainWithHeightMoreThanOneGreaterThanLocalHeightIsRejected) {
-		// Assert:
+		// Arrange:
 		for (auto source : GetAllInputSources()) {
 			LogInputSource(source);
+
+			// Act + Assert:
 			AssertInvalidHeight(Height(100), Height(102), 3, source);
 			AssertInvalidHeight(Height(100), Height(200), 3, source);
 		}
 	}
 
 	TEST(TEST_CLASS, RemoteChainWithHeightLessThanLocalHeightIsOnlyValidForRemotePullSource) {
-		// Assert:
+		// Arrange:
 		for (auto source : GetAllInputSources()) {
 			LogInputSource(source);
+
+			// Act + Assert:
 			auto assertFunc = InputSource::Remote_Pull == source ? AssertValidHeight : AssertInvalidHeight;
 			assertFunc(Height(100), Height(99), 1, source);
 			assertFunc(Height(100), Height(90), 1, source);
@@ -661,9 +667,11 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, RemoteChainWithHeightAtOrOneGreaterThanLocalHeightIsValidForAllSources) {
-		// Assert:
+		// Arrange:
 		for (auto source : GetAllInputSources()) {
 			LogInputSource(source);
+
+			// Act + Assert:
 			AssertValidHeight(Height(100), Height(100), 1, source);
 			AssertValidHeight(Height(100), Height(101), 1, source);
 		}
@@ -772,12 +780,10 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, RemoteChainWithProcessorFailureIsRejected_Neutral) {
-		// Assert:
 		AssertRemoteChainWithNonSuccessProcessorResultIsRejected(ValidationResult::Neutral);
 	}
 
 	TEST(TEST_CLASS, RemoteChainWithProcessorFailureIsRejected_Failure) {
-		// Assert:
 		AssertRemoteChainWithNonSuccessProcessorResultIsRejected(ValidationResult::Failure);
 	}
 

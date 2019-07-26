@@ -152,8 +152,9 @@ namespace catapult { namespace plugins {
 			auto rentalFeeConfig = ToNamespaceRentalFeeConfiguration(manager.config().Network, currencyMosaicId, config);
 			manager.addTransactionSupport(CreateRegisterNamespaceTransactionPlugin(rentalFeeConfig));
 
-			auto gracePeriodDuration = config.NamespaceGracePeriodDuration.blocks(manager.config().BlockGenerationTargetTime);
+			auto minDuration = config.MinNamespaceDuration.blocks(manager.config().BlockGenerationTargetTime);
 			auto maxDuration = config.MaxNamespaceDuration.blocks(manager.config().BlockGenerationTargetTime);
+			auto gracePeriodDuration = config.NamespaceGracePeriodDuration.blocks(manager.config().BlockGenerationTargetTime);
 			model::NamespaceLifetimeConstraints constraints(maxDuration, gracePeriodDuration);
 
 			RegisterNamespaceAliasResolvers(manager);
@@ -170,31 +171,36 @@ namespace catapult { namespace plugins {
 				counters.emplace_back(utils::DiagnosticCounterId("NS C DS"), [&cache]() { return GetNamespaceView(cache)->deepSize(); });
 			});
 
-			manager.addStatelessValidatorHook([config, maxDuration](auto& builder) {
+			manager.addStatelessValidatorHook([config, minDuration, maxDuration](auto& builder) {
 				const auto& reservedNames = config.ReservedRootNamespaceNames;
 				builder
 					.add(validators::CreateNamespaceTypeValidator())
 					.add(validators::CreateNamespaceNameValidator(config.MaxNameSize, reservedNames))
-					.add(validators::CreateRootNamespaceValidator(maxDuration));
+					.add(validators::CreateRootNamespaceValidator(minDuration, maxDuration));
 			});
 
-			manager.addStatefulValidatorHook([constraints, maxChildNamespaces = config.MaxChildNamespaces](auto& builder) {
+			manager.addStatefulValidatorHook([constraints, config](auto& builder) {
 				builder
 					.add(validators::CreateRootNamespaceAvailabilityValidator())
 					.add(validators::CreateNamespaceDurationOverflowValidator(constraints.MaxNamespaceDuration))
 					// note that the following validator needs to run before the RootNamespaceMaxChildrenValidator
-					.add(validators::CreateChildNamespaceAvailabilityValidator())
-					.add(validators::CreateRootNamespaceMaxChildrenValidator(maxChildNamespaces));
+					.add(validators::CreateChildNamespaceAvailabilityValidator(config.MaxNamespaceDepth))
+					.add(validators::CreateRootNamespaceMaxChildrenValidator(config.MaxChildNamespaces))
+					.add(validators::CreateRequiredNamespaceValidator());
 			});
 
 			auto maxRollbackBlocks = BlockDuration(manager.config().MaxRollbackBlocks);
-			manager.addObserverHook([maxRollbackBlocks](auto& builder) {
+			manager.addObserverHook([gracePeriodDuration, maxRollbackBlocks](auto& builder) {
 				auto rentalFeeReceiptType = model::Receipt_Type_Namespace_Rental_Fee;
-				auto expiryReceiptType = model::Receipt_Type_Namespace_Expired;
+				auto expiryReceiptType = model::Receipt_Type_Namespace_Deleted;
 				builder
 					.add(observers::CreateRootNamespaceObserver())
 					.add(observers::CreateChildNamespaceObserver())
 					.add(observers::CreateRentalFeeObserver<model::NamespaceRentalFeeNotification>("Namespace", rentalFeeReceiptType))
+					.add(observers::CreateCacheBlockTouchObserver<cache::NamespaceCache>(
+							"NamespaceGracePeriod",
+							model::Receipt_Type_Namespace_Expired,
+							gracePeriodDuration))
 					.add(observers::CreateCacheBlockTouchObserver<cache::NamespaceCache>("Namespace", expiryReceiptType))
 					.add(observers::CreateCacheBlockPruningObserver<cache::NamespaceCache>("Namespace", 1, maxRollbackBlocks));
 			});

@@ -109,12 +109,10 @@ namespace catapult { namespace disruptor {
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputAroundSingleEntity) {
-		// Assert:
 		TTraits::AssertConsumerInputCreation(1);
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanCreateConsumerInputAroundMultipleEntities) {
-		// Assert:
 		TTraits::AssertConsumerInputCreation(3);
 	}
 

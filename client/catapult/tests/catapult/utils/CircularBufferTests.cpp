@@ -162,22 +162,18 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanRandomAccessElementInBuffer) {
-		// Assert:
 		AssertCanRandomAccessThirdElementInBuffer(2);
 	}
 
 	TEST(TEST_CLASS, CanRandomAccessElementInBufferWithWrapAroundIndex) {
-		// Assert:
 		AssertCanRandomAccessThirdElementInBuffer(10 + 2);
 	}
 
 	TEST(TEST_CLASS, CanRandomAccessElementInConstBuffer) {
-		// Assert:
 		AssertCanRandomAccessThirdElementInConstBuffer(2);
 	}
 
 	TEST(TEST_CLASS, CanRandomAccessElementInConstBufferWithWrapAroundIndex) {
-		// Assert:
 		AssertCanRandomAccessThirdElementInConstBuffer(10 + 2);
 	}
 }}

@@ -44,7 +44,7 @@ namespace catapult { namespace crypto {
 				auto i = 0u;
 				for (; i < numRemainingHashes; i += 2) {
 					if (i + 1 < numRemainingHashes) {
-						Sha3_256({ hashes[i].data(), 2 * Hash256_Size }, hashes[i / 2]);
+						Sha3_256({ hashes[i].data(), 2 * Hash256::Size }, hashes[i / 2]);
 						hashConsumer(&hashes[i / 2], 1);
 						continue;
 					}

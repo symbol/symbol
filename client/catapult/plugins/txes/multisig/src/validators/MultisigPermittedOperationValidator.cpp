@@ -26,7 +26,7 @@ namespace catapult { namespace validators {
 
 	using Notification = model::TransactionNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(MultisigPermittedOperation, [](const auto& notification, const ValidatorContext& context) {
+	DEFINE_STATEFUL_VALIDATOR(MultisigPermittedOperation, [](const Notification& notification, const ValidatorContext& context) {
 		const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
 		if (!multisigCache.contains(notification.Signer))
 			return ValidationResult::Success;

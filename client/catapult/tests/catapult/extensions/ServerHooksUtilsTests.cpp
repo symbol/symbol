@@ -88,12 +88,10 @@ namespace catapult { namespace extensions {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	PUSH_ENTITY_TEST(CanPushWhenSynced) {
-		// Assert:
 		AssertPush<TTraits>(true);
 	}
 
 	PUSH_ENTITY_TEST(CannotPushWhenNotSynced) {
-		// Assert:
 		AssertPush<TTraits>(false);
 	}
 

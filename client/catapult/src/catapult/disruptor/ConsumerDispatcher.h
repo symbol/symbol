@@ -43,7 +43,7 @@ namespace catapult { namespace disruptor {
 				const DisruptorInspector& inspector);
 
 		/// Creates a dispatcher of \a consumers configured with \a options.
-		explicit ConsumerDispatcher(const ConsumerDispatcherOptions& options, const std::vector<DisruptorConsumer>& consumers);
+		ConsumerDispatcher(const ConsumerDispatcherOptions& options, const std::vector<DisruptorConsumer>& consumers);
 
 		~ConsumerDispatcher();
 

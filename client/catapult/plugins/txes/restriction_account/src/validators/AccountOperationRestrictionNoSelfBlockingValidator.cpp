@@ -31,6 +31,7 @@ namespace catapult { namespace validators {
 
 	namespace {
 		constexpr auto Relevant_Entity_Type = model::AccountOperationRestrictionTransaction::Entity_Type;
+		constexpr auto Restriction_Type = model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing;
 
 		bool Validate(const Notification& notification, const ValidatorContext& context) {
 			AccountRestrictionView view(context.Cache);
@@ -43,7 +44,7 @@ namespace catapult { namespace validators {
 
 			size_t numTypedRestrictions = 0;
 			if (view.initialize(model::PublicKeyToAddress(notification.Key, context.Network.Identifier))) {
-				auto typedRestriction = view.get<model::EntityType>(model::AccountRestrictionType::TransactionType);
+				auto typedRestriction = view.get<model::EntityType>(Restriction_Type);
 				numTypedRestrictions = typedRestriction.size();
 			}
 
@@ -56,7 +57,9 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DEFINE_STATEFUL_VALIDATOR(AccountOperationRestrictionNoSelfBlocking, [](const auto& notification, const ValidatorContext& context) {
+	DEFINE_STATEFUL_VALIDATOR(AccountOperationRestrictionNoSelfBlocking, [](
+			const Notification& notification,
+			const ValidatorContext& context) {
 		return Validate(notification, context) ? ValidationResult::Success : Failure_RestrictionAccount_Modification_Not_Allowed;
 	});
 }}

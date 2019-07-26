@@ -32,7 +32,7 @@ namespace catapult { namespace mongo {
 	class MongoPluginManager {
 	public:
 		/// Creates a new plugin manager around \a mongoContext and \a networkIdentifier.
-		explicit MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier)
+		MongoPluginManager(MongoStorageContext& mongoContext, model::NetworkIdentifier networkIdentifier)
 				: m_mongoContext(mongoContext)
 				, m_networkIdentifier(networkIdentifier)
 		{}

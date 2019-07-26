@@ -34,12 +34,10 @@ namespace catapult { namespace cache {
 	// region mixin traits based tests
 
 	namespace {
-		constexpr auto Grace_Period_Duration = 7u;
-
 		struct NamespaceCacheMixinTraits {
 			class CacheType : public NamespaceCache {
 			public:
-				CacheType() : NamespaceCache(CacheConfiguration(), NamespaceCacheTypes::Options{ BlockDuration(Grace_Period_Duration) })
+				CacheType() : NamespaceCache(CacheConfiguration(), NamespaceCacheTypes::Options{ BlockDuration(11) })
 				{}
 			};
 
@@ -64,7 +62,7 @@ namespace catapult { namespace cache {
 			}
 
 			static state::RootNamespace CreateWithIdAndExpiration(uint8_t id, Height height) {
-				return state::RootNamespace(MakeId(id), Key{ { 1 } }, test::CreateLifetime(0, height.unwrap() - Grace_Period_Duration));
+				return state::RootNamespace(MakeId(id), Key{ { 1 } }, test::CreateLifetime(0, height.unwrap()));
 			}
 		};
 	}
@@ -109,6 +107,20 @@ namespace catapult { namespace cache {
 			delta->insert(delta->find(NamespaceId(1)).get().root().renew(test::CreateLifetime(345, 456)));
 		}
 	}
+
+	// region properties
+
+	TEST(TEST_CLASS, CacheWrappersExposeGracePeriodDuration) {
+		// Arrange:
+		NamespaceCache cache(CacheConfiguration(), NamespaceCacheTypes::Options{ BlockDuration(44) });
+
+		// Act + Assert:
+		EXPECT_EQ(BlockDuration(44), cache.createView()->gracePeriodDuration());
+		EXPECT_EQ(BlockDuration(44), cache.createDelta()->gracePeriodDuration());
+		EXPECT_EQ(BlockDuration(44), cache.createDetachedDelta().tryLock()->gracePeriodDuration());
+	}
+
+	// endregion
 
 	// region deep size
 
@@ -482,41 +494,6 @@ namespace catapult { namespace cache {
 
 	// endregion
 
-	// region isActive
-
-	DELTA_VIEW_BASED_TEST(IsActiveReturnsTrueForKnownActiveNamespace) {
-		// Act:
-		TTraits::RunTest([](const auto& view) {
-			// Assert: namespace with id 5 has lifetime (234, 321)
-			EXPECT_TRUE(view->isActive(NamespaceId(5), Height(234)));
-			EXPECT_TRUE(view->isActive(NamespaceId(5), Height(298)));
-			EXPECT_TRUE(view->isActive(NamespaceId(5), Height(320)));
-		});
-	}
-
-	DELTA_VIEW_BASED_TEST(IsActiveReturnsFalseForUnknownNamespaces) {
-		// Act:
-		TTraits::RunTest([](const auto& view) {
-			// Assert:
-			EXPECT_FALSE(view->isActive(NamespaceId(123), Height(1)));
-			EXPECT_FALSE(view->isActive(NamespaceId(234), Height(2)));
-			EXPECT_FALSE(view->isActive(NamespaceId(345), Height(123)));
-			EXPECT_FALSE(view->isActive(NamespaceId(456), Height(10000)));
-		});
-	}
-
-	DELTA_VIEW_BASED_TEST(IsActiveReturnsFalseForKnownInactiveNamespace) {
-		// Act:
-		TTraits::RunTest([](const auto& view) {
-			// Assert: namespace with id 5 has lifetime (234, 321)
-			EXPECT_FALSE(view->isActive(NamespaceId(5), Height(1)));
-			EXPECT_FALSE(view->isActive(NamespaceId(5), Height(233)));
-			EXPECT_FALSE(view->isActive(NamespaceId(5), Height(321)));
-		});
-	}
-
-	// endregion
-
 	// region insert
 
 	namespace {
@@ -524,7 +501,6 @@ namespace catapult { namespace cache {
 			// Assert:
 			EXPECT_EQ(Height(expectedStart), lifetime.Start);
 			EXPECT_EQ(Height(expectedEnd), lifetime.End);
-			EXPECT_EQ(Height(expectedEnd + Grace_Period_Duration), lifetime.GracePeriodEnd);
 		}
 	}
 
@@ -721,12 +697,10 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanSetRootNamespaceAlias) {
-		// Assert:
 		AssertCanSetNamespace(NamespaceId(123));
 	}
 
 	TEST(TEST_CLASS, CanSetChildNamespaceAlias) {
-		// Assert:
 		AssertCanSetNamespace(NamespaceId(127));
 	}
 
@@ -994,16 +968,16 @@ namespace catapult { namespace cache {
 		}
 
 		// Act: reinsert namespace with id 5 and expiry height 123
-		// - note that the new expiry height has to be lower so that pruning will see an expired root at height 321 + Grace_Period_Duration
+		// - note that the new expiry height has to be lower so that pruning will see an expired root at height 321
 		auto delta = cache.createDelta();
 		auto newOwner = test::CreateRandomOwner();
 		delta->insert(state::RootNamespace(NamespaceId(5), newOwner, test::CreateLifetime(100, 123)));
 
 		// Assert:
-		auto removedIds1 = delta->prune(Height(321 + Grace_Period_Duration));
+		auto removedIds1 = delta->prune(Height(321));
 		EXPECT_FALSE(Contains(removedIds1, NamespaceId(5)));
 
-		auto removedIds2 = delta->prune(Height(123 + Grace_Period_Duration));
+		auto removedIds2 = delta->prune(Height(123));
 		EXPECT_CONTAINS(removedIds2, NamespaceId(5));
 	}
 
@@ -1047,7 +1021,7 @@ namespace catapult { namespace cache {
 		{
 			// - prune at height 321
 			auto delta = cache.createDelta();
-			delta->prune(Height(321 + Grace_Period_Duration));
+			delta->prune(Height(321));
 			cache.commit();
 		}
 
@@ -1055,13 +1029,13 @@ namespace catapult { namespace cache {
 		auto delta = cache.createDelta();
 		EXPECT_EQ(Height(345), delta->find(NamespaceId(5)).get().root().lifetime().End);
 
-		// Assert: if the height based map would contain an entry at height 432 + Grace_Period_Duration, then the last root
+		// Assert: if the height based map would contain an entry at height 432, then the last root
 		//         would be pruned and the root id would be collected
-		auto removedIds1 = delta->prune(Height(432 + Grace_Period_Duration));
+		auto removedIds1 = delta->prune(Height(432));
 		EXPECT_FALSE(Contains(removedIds1, NamespaceId(5)));
 
-		// - the height based map does contain an entry at height 345 + Grace_Period_Duration
-		auto removedIds2 = delta->prune(Height(345 + Grace_Period_Duration));
+		// - the height based map does contain an entry at height 345
+		auto removedIds2 = delta->prune(Height(345));
 		EXPECT_CONTAINS(removedIds2, NamespaceId(5));
 	}
 
@@ -1127,7 +1101,7 @@ namespace catapult { namespace cache {
 			test::AssertCacheSizes(*delta, 5, 15, 15);
 
 			// Act: prune root with id 2 and the associated children
-			prunedIds = delta->prune(Height(30 + Grace_Period_Duration));
+			prunedIds = delta->prune(Height(30));
 			cache.commit();
 
 			// Assert:
@@ -1152,7 +1126,7 @@ namespace catapult { namespace cache {
 			test::AssertCacheSizes(*delta, 5, 16, 20);
 
 			// Act: prune root with id 0 (note that only the old root 0 is pruned, all children are protected by the newer version)
-			prunedIds = delta->prune(Height(10 + Grace_Period_Duration));
+			prunedIds = delta->prune(Height(10));
 			cache.commit();
 
 			// Assert:
@@ -1180,7 +1154,7 @@ namespace catapult { namespace cache {
 			// Act: prune all roots at their original expiration heights
 			//      the old root with id 4 had two children (that get pruned) and the renewed root has one child (that stays)
 			for (auto height = Height(10); height <= Height(50); height = height + Height(10))
-				prunedIdGroups.push_back(delta->prune(Height(height.unwrap() + Grace_Period_Duration)));
+				prunedIdGroups.push_back(delta->prune(height));
 
 			cache.commit();
 
@@ -1206,7 +1180,7 @@ namespace catapult { namespace cache {
 			delta->insert(state::RootNamespace(NamespaceId(5), owner, test::CreateLifetime(100, 120)));
 			delta->insert(state::RootNamespace(NamespaceId(5), owner, test::CreateLifetime(120, 121)));
 			delta->insert(state::RootNamespace(NamespaceId(6), owner, test::CreateLifetime(100, 120)));
-			delta->insert(state::RootNamespace(NamespaceId(6), owner, test::CreateLifetime(120, 120 + Grace_Period_Duration)));
+			delta->insert(state::RootNamespace(NamespaceId(6), owner, test::CreateLifetime(120, 131)));
 			delta->insert(state::RootNamespace(NamespaceId(7), owner, test::CreateLifetime(100, 110)));
 			delta->insert(state::RootNamespace(NamespaceId(7), owner, test::CreateLifetime(110, 120)));
 			cache.commit();
@@ -1220,7 +1194,7 @@ namespace catapult { namespace cache {
 			test::AssertCacheSizes(*delta, 3, 3, 6);
 
 			// Act: note that only the roots with expiry height less than or equal to 120 should be pruned
-			prunedIds = delta->prune(Height(120 + Grace_Period_Duration));
+			prunedIds = delta->prune(Height(120));
 			cache.commit();
 
 			// Assert:

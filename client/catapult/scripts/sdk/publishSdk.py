@@ -180,7 +180,8 @@ def publish_all():
         publisher.publish_component(component)
 
     transactions = [
-        'account_link', 'aggregate', 'lock_hash', 'lock_secret', 'mosaic', 'multisig', 'namespace', 'restriction_account', 'transfer'
+        'account_link', 'aggregate', 'lock_hash', 'lock_secret', 'metadata', 'mosaic', 'multisig', 'namespace',
+        'restriction_account', 'restriction_mosaic', 'transfer'
     ]
     for transaction in transactions:
         publisher.publish_plugin('txes', transaction, ['model', 'plugins', 'state'])

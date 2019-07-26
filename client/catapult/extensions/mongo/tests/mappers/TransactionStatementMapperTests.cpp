@@ -55,17 +55,14 @@ namespace catapult { namespace mongo { namespace mappers {
 	}
 
 	TEST(TEST_CLASS, CanMapTransactionStatement_NoReceipts) {
-		// Assert:
 		AssertCanMapTransactionStatement(0);
 	}
 
 	TEST(TEST_CLASS, CanMapTransactionStatement_SingleReceipt) {
-		// Assert:
 		AssertCanMapTransactionStatement(1);
 	}
 
 	TEST(TEST_CLASS, CanMapTransactionStatement_MultipleReceipts) {
-		// Assert:
 		AssertCanMapTransactionStatement(5);
 	}
 }}}

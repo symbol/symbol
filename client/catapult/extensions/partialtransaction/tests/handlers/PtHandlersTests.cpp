@@ -141,7 +141,7 @@ namespace catapult { namespace handlers {
 			auto responseSize() const {
 				return utils::Sum(m_transactionInfos, [](const auto& transactionInfo){
 					return sizeof(uint16_t) // tag
-							+ (transactionInfo.pTransaction ? transactionInfo.pTransaction->Size : Hash256_Size)
+							+ (transactionInfo.pTransaction ? transactionInfo.pTransaction->Size : Hash256::Size)
 							+ transactionInfo.Cosignatures.size() * sizeof(model::Cosignature);
 				});
 			}

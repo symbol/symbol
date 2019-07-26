@@ -56,17 +56,14 @@ namespace catapult { namespace subscribers {
 	}
 
 	TEST(TEST_CLASS, CanCreateAggregateAroundZeroSubscribers) {
-		// Assert:
 		RunDelegationTest(0);
 	}
 
 	TEST(TEST_CLASS, CanCreateAggregateAroundSingleSubscriber) {
-		// Assert:
 		RunDelegationTest(1);
 	}
 
 	TEST(TEST_CLASS, CanCreateAggregateAroundMultipleSubscribers) {
-		// Assert:
 		RunDelegationTest(3);
 	}
 }}

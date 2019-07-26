@@ -20,8 +20,7 @@
 
 #include "Validators.h"
 #include "src/cache/MultisigCache.h"
-#include "src/model/ModifyMultisigAccountTransaction.h"
-#include "catapult/utils/ArraySet.h"
+#include "catapult/model/TransactionPlugin.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
@@ -64,30 +63,14 @@ namespace catapult { namespace validators {
 					: OperationType::Removal == operationType ? multisigEntry.minRemoval() : multisigEntry.minApproval();
 		}
 
-		utils::KeySet GetRequiredCosignerPublicKeys(const model::EmbeddedTransaction& transaction) {
-			utils::KeySet requiredCosignerPublicKeys;
-			requiredCosignerPublicKeys.insert(transaction.Signer);
-			if (model::Entity_Type_Modify_Multisig_Account != transaction.Type)
-				return requiredCosignerPublicKeys;
-
-			const auto& modifyMultisig = static_cast<const model::EmbeddedModifyMultisigAccountTransaction&>(transaction);
-			const auto* pModification = modifyMultisig.ModificationsPtr();
-			for (auto i = 0u; i < modifyMultisig.ModificationsCount; ++i) {
-				if (model::CosignatoryModificationType::Add == pModification->ModificationType)
-					requiredCosignerPublicKeys.insert(pModification->CosignatoryPublicKey);
-
-				++pModification;
-			}
-
-			return requiredCosignerPublicKeys;
-		}
-
 		class AggregateCosignaturesChecker {
 		public:
-			explicit AggregateCosignaturesChecker(
+			AggregateCosignaturesChecker(
 					const Notification& notification,
+					const model::TransactionRegistry& transactionRegistry,
 					const cache::MultisigCache::CacheReadOnlyType& multisigCache)
 					: m_notification(notification)
+					, m_transactionRegistry(transactionRegistry)
 					, m_multisigCache(multisigCache) {
 				m_cosigners.emplace(&m_notification.Signer);
 				for (auto i = 0u; i < m_notification.CosignaturesCount; ++i)
@@ -96,7 +79,10 @@ namespace catapult { namespace validators {
 
 		public:
 			bool hasSufficientCosigners() {
-				auto requiredPublicKeys = GetRequiredCosignerPublicKeys(m_notification.Transaction);
+				const auto& transactionPlugin = m_transactionRegistry.findPlugin(m_notification.Transaction.Type)->embeddedPlugin();
+				auto requiredPublicKeys = transactionPlugin.additionalRequiredCosigners(m_notification.Transaction);
+				requiredPublicKeys.insert(m_notification.Transaction.Signer);
+
 				auto operationType = GetOperationType(m_notification.Transaction);
 				return std::all_of(requiredPublicKeys.cbegin(), requiredPublicKeys.cend(), [this, operationType](const auto& publicKey) {
 					return this->isSatisfied(publicKey, operationType);
@@ -126,13 +112,18 @@ namespace catapult { namespace validators {
 
 		private:
 			const Notification& m_notification;
+			const model::TransactionRegistry& m_transactionRegistry;
 			const cache::MultisigCache::CacheReadOnlyType& m_multisigCache;
 			utils::KeyPointerSet m_cosigners;
 		};
 	}
 
-	DEFINE_STATEFUL_VALIDATOR(MultisigAggregateSufficientCosigners, [](const auto& notification, const ValidatorContext& context) {
-		AggregateCosignaturesChecker checker(notification, context.Cache.sub<cache::MultisigCache>());
-		return checker.hasSufficientCosigners() ? ValidationResult::Success : Failure_Aggregate_Missing_Cosigners;
-	});
+	DECLARE_STATEFUL_VALIDATOR(MultisigAggregateSufficientCosigners, Notification)(const model::TransactionRegistry& transactionRegistry) {
+		return MAKE_STATEFUL_VALIDATOR(MultisigAggregateSufficientCosigners, [&transactionRegistry](
+				const Notification& notification,
+				const ValidatorContext& context) {
+			AggregateCosignaturesChecker checker(notification, transactionRegistry, context.Cache.sub<cache::MultisigCache>());
+			return checker.hasSufficientCosigners() ? ValidationResult::Success : Failure_Aggregate_Missing_Cosigners;
+		});
+	}
 }}

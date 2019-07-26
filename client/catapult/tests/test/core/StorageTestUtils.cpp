@@ -53,7 +53,7 @@ namespace catapult { namespace test {
 		const std::string nemesisDirectory = "/00000";
 		const std::string nemesisHashFilename = destination + nemesisDirectory + "/hashes.dat";
 
-		std::vector<uint8_t> hashesBuffer(height * Hash256_Size);
+		std::vector<uint8_t> hashesBuffer(height * Hash256::Size);
 		{
 			io::RawFile file(nemesisHashFilename, io::OpenMode::Read_Write);
 			file.write(hashesBuffer);

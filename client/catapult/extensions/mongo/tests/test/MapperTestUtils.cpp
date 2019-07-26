@@ -35,7 +35,7 @@ namespace catapult { namespace test {
 	namespace {
 		UnresolvedAddress ToUnresolvedAddress(const uint8_t* pByteArray) {
 			UnresolvedAddress address;
-			std::memcpy(address.data(), pByteArray, Address_Decoded_Size);
+			std::memcpy(address.data(), pByteArray, Address::Size);
 			return address;
 		}
 
@@ -83,7 +83,7 @@ namespace catapult { namespace test {
 		auto dbAddresses = dbTransactionMetadata["addresses"].get_array().value;
 		model::UnresolvedAddressSet addresses;
 		for (const auto& dbAddress : dbAddresses) {
-			ASSERT_EQ(Address_Decoded_Size, dbAddress.get_binary().size);
+			ASSERT_EQ(Address::Size, dbAddress.get_binary().size);
 			addresses.insert(ToUnresolvedAddress(dbAddress.get_binary().bytes));
 		}
 

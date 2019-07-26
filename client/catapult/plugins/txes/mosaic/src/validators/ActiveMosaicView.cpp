@@ -30,11 +30,10 @@ namespace catapult { namespace validators {
 	validators::ValidationResult ActiveMosaicView::tryGet(MosaicId id, Height height, FindIterator& iter) const {
 		// ensure that the mosic is active
 		const auto& mosaicCache = m_cache.sub<cache::MosaicCache>();
-		if (!mosaicCache.isActive(id, height))
-			return Failure_Mosaic_Expired;
-
 		iter = mosaicCache.find(id);
-		return ValidationResult::Success;
+		return !iter.tryGet() || !iter.get().definition().isActive(height)
+				? Failure_Mosaic_Expired
+				: ValidationResult::Success;
 	}
 
 	validators::ValidationResult ActiveMosaicView::tryGet(MosaicId id, Height height, const Key& owner, FindIterator& iter) const {

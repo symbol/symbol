@@ -65,17 +65,14 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, SaveAllAndSaveSummaryWriteSameData_ZeroValues) {
-		// Act + Assert:
 		RunSaveConsistencyTest(0);
 	}
 
 	TEST(TEST_CLASS, SaveAllAndSaveSummaryWriteSameData_SingleValue) {
-		// Act + Assert:
 		RunSaveConsistencyTest(1);
 	}
 
 	TEST(TEST_CLASS, SaveAllAndSaveSummaryWriteSameData_MultipleValues) {
-		// Act + Assert:
 		RunSaveConsistencyTest(11);
 	}
 

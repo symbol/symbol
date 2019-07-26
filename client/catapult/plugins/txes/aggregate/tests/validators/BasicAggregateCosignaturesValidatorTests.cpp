@@ -52,23 +52,19 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithZeroTransactions) {
-		// Assert:
 		AssertMaxTransactionsValidationResult(Failure_Aggregate_No_Transactions, 0, 100);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithLessThanMaxTransactions) {
-		// Assert:
 		AssertMaxTransactionsValidationResult(ValidationResult::Success, 1, 100);
 		AssertMaxTransactionsValidationResult(ValidationResult::Success, 99, 100);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithExactlyMaxTransactions) {
-		// Assert:
 		AssertMaxTransactionsValidationResult(ValidationResult::Success, 100, 100);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithGreaterThanMaxTransactions) {
-		// Assert:
 		AssertMaxTransactionsValidationResult(Failure_Aggregate_Too_Many_Transactions, 101, 100);
 		AssertMaxTransactionsValidationResult(Failure_Aggregate_Too_Many_Transactions, 999, 100);
 	}
@@ -101,18 +97,15 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithLessThanMaxCosignatures) {
-		// Assert:
 		AssertMaxCosignaturesValidationResult(ValidationResult::Success, 1, 100);
 		AssertMaxCosignaturesValidationResult(ValidationResult::Success, 98, 100);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithExactlyMaxCosignatures) {
-		// Assert:
 		AssertMaxCosignaturesValidationResult(ValidationResult::Success, 99, 100);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithGreaterThanMaxCosignatures) {
-		// Assert:
 		AssertMaxCosignaturesValidationResult(Failure_Aggregate_Too_Many_Cosignatures, 100, 100);
 		AssertMaxCosignaturesValidationResult(Failure_Aggregate_Too_Many_Cosignatures, 222, 100);
 	}

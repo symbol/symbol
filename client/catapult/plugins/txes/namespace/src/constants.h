@@ -23,9 +23,6 @@
 
 namespace catapult {
 
-	/// Maximum number of parts for a namespace.
-	constexpr size_t Namespace_Max_Depth = 3;
-
 	/// Base id for namespaces.
 	constexpr NamespaceId Namespace_Base_Id(0);
 }

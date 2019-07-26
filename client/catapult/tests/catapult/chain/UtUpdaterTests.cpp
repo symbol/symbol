@@ -93,7 +93,7 @@ namespace catapult { namespace chain {
 
 		struct ThrottleParams {
 		public:
-			explicit ThrottleParams(const model::TransactionInfo& transactionInfo, const UtUpdater::ThrottleContext& context)
+			ThrottleParams(const model::TransactionInfo& transactionInfo, const UtUpdater::ThrottleContext& context)
 					: TransactionInfo(transactionInfo.copy())
 					, TransactionSource(context.TransactionSource)
 					, CacheHeight(context.CacheHeight)
@@ -507,17 +507,14 @@ namespace catapult { namespace chain {
 	}
 
 	NEW_TRANSACTIONS_TRAITS_BASED_TEST(CanApplyZeroNewTransactionsToCache) {
-		// Assert:
 		AssertCanApplyNewTransactionsToCache<TTraits>(0);
 	}
 
 	NEW_TRANSACTIONS_TRAITS_BASED_TEST(CanApplySingleNewTransactionToCache) {
-		// Assert:
 		AssertCanApplyNewTransactionsToCache<TTraits>(1);
 	}
 
 	NEW_TRANSACTIONS_TRAITS_BASED_TEST(CanApplyMultipleTransactionsToCache) {
-		// Assert:
 		AssertCanApplyNewTransactionsToCache<TTraits>(5);
 	}
 
@@ -682,20 +679,19 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, CanUpdateCacheWithMultipleNewTransactions) {
-		// Assert:
-		AssertCanUpdateCacheWithMultipleTransactions<NewTransactionsTraits>(
-				[](const auto& context, const auto&, const auto& entityInfos) {
-			// - only new entities were executed
+		AssertCanUpdateCacheWithMultipleTransactions<NewTransactionsTraits>([](const auto& context, const auto&, const auto& entityInfos) {
+			// Assert: only new entities were executed
 			context.assertContexts(UtUpdater::TransactionSource::New);
 			context.assertEntityInfos(entityInfos);
 		});
 	}
 
 	TEST(TEST_CLASS, CanUpdateCacheWithMultipleRevertedTransactions) {
-		// Assert:
-		AssertCanUpdateCacheWithMultipleTransactions<RevertedTransactionsTraits>(
-				[](const auto& context, const auto& originalEntityInfos, const auto& entityInfos) {
-			// - both new and original entities were executed
+		AssertCanUpdateCacheWithMultipleTransactions<RevertedTransactionsTraits>([](
+				const auto& context,
+				const auto& originalEntityInfos,
+				const auto& entityInfos) {
+			// Assert: both new and original entities were executed
 			context.assertContexts(CreateRevertedAndExistingSources(4, 3));
 			context.assertEntityInfos(ConcatContainers(entityInfos, originalEntityInfos));
 		});
@@ -739,10 +735,11 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, NewTransactionsThatAreAlreadyInCacheDoNotGetExecuted) {
-		// Assert:
-		AssertTransactionsAlreadyInCacheDoNotGetExecuted<NewTransactionsTraits>(
-				[](const auto& context, const auto&, const auto& entityInfos) {
-			// - observer only gets called for (unique) entities that were added
+		AssertTransactionsAlreadyInCacheDoNotGetExecuted<NewTransactionsTraits>([](
+				const auto& context,
+				const auto&,
+				const auto& entityInfos) {
+			// Assert: observer only gets called for (unique) entities that were added
 			//   E[0] V0,O1,V1,O2; E[1]; E[2] V2,O3,V3,O4; E[3]; E[4] V4,O5,V5,O6
 			context.assertContexts(UtUpdater::TransactionSource::New, { 0, 1, 2, 3, 4, 5 });
 
@@ -752,10 +749,11 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, RevertedTransactionsThatAreAlreadyInCacheDoNotGetExecuted) {
-		// Assert:
-		AssertTransactionsAlreadyInCacheDoNotGetExecuted<RevertedTransactionsTraits>(
-				[](const auto& context, const auto& originalEntityInfos, const auto& entityInfos) {
-			// - observer only gets called for (unique) entities that were added
+		AssertTransactionsAlreadyInCacheDoNotGetExecuted<RevertedTransactionsTraits>([](
+				const auto& context,
+				const auto& originalEntityInfos,
+				const auto& entityInfos) {
+			// Assert: observer only gets called for (unique) entities that were added
 			//   new: E[0] V0,O1,V1,O2; E[1] V2,O3,V3,O4; E[2] V4,O5,V5,O6; E[3] V6,O7,V7,O8; E[4] V8,O9,V9,O10
 			//   old: E[0]; E[1] V0,O1,V1,O2; E[2]
 			context.assertContexts(CreateRevertedAndExistingSources(5, 3), ConcatIds({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, { 0, 1 }, 10));

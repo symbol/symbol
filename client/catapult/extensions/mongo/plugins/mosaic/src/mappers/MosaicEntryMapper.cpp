@@ -46,14 +46,14 @@ namespace catapult { namespace mongo { namespace plugins {
 		}
 	}
 
-	bsoncxx::document::value ToDbModel(const state::MosaicEntry& entry) {
-		const auto& definition = entry.definition();
+	bsoncxx::document::value ToDbModel(const state::MosaicEntry& mosaicEntry) {
+		const auto& definition = mosaicEntry.definition();
 		bson_stream::document builder;
 		StreamMosaicEntryMetadata(builder);
 		auto doc = builder
 				<< "mosaic" << bson_stream::open_document
-					<< "mosaicId" << ToInt64(entry.mosaicId())
-					<< "supply" << ToInt64(entry.supply())
+					<< "mosaicId" << ToInt64(mosaicEntry.mosaicId())
+					<< "supply" << ToInt64(mosaicEntry.supply())
 					<< "height" << ToInt64(definition.height())
 					<< "owner" << ToBinary(definition.owner())
 					<< "revision" << static_cast<int32_t>(definition.revision());

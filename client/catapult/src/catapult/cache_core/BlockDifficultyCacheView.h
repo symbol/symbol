@@ -58,7 +58,7 @@ namespace catapult { namespace cache {
 	class BlockDifficultyCacheView : public ReadOnlyViewSupplier<BasicBlockDifficultyCacheView> {
 	public:
 		/// Creates a view around \a difficultyInfoSets and \a options
-		explicit BlockDifficultyCacheView(
+		BlockDifficultyCacheView(
 				const BlockDifficultyCacheTypes::BaseSets& difficultyInfoSets,
 				const BlockDifficultyCacheTypes::Options& options)
 				: ReadOnlyViewSupplier(difficultyInfoSets, options)

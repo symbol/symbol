@@ -261,23 +261,19 @@ namespace catapult { namespace ionet {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	PACKET_HEADER_FAILURE_TEST(CannotExtractFromPacketWithInvalidSize) {
-		// Assert:
 		AssertCannotExtractFromPacketHeaderWithNoData<TTraits>(sizeof(Packet) - 1);
 	}
 
 	PACKET_HEADER_FAILURE_TEST(CannotExtractFromPacketWithNoData) {
-		// Assert:
 		AssertCannotExtractFromPacketHeaderWithNoData<TTraits>(sizeof(Packet));
 	}
 
 	PACKET_FAILURE_TEST(CannotExtractFromPacketWithoutFullEntityHeader) {
-		// Assert:
 		for (auto size : std::vector<uint32_t>{ 1, sizeof(model::VerifiableEntity) - 1 })
 			AssertCannotExtractEntitiesFromPacketWithSize<TTraits>(size);
 	}
 
 	PACKET_FAILURE_TEST(CannotExtractFromPacketWithoutFullEntityData) {
-		// Assert:
 		for (auto size : std::vector<uint32_t>{ sizeof(model::VerifiableEntity), sizeof(model::BlockHeader) - 1 })
 			AssertCannotExtractEntitiesFromPacketWithSize<TTraits>(size);
 	}
@@ -445,7 +441,6 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CannotExtractFromPacketWithPartialStructures_FixedSizeStructures) {
-		// Assert:
 		AssertCannotExtractFixedSizeStructuresFromPacketWithSize(sizeof(Packet) + 1);
 		AssertCannotExtractFixedSizeStructuresFromPacketWithSize(sizeof(Packet) + Fixed_Size - 1);
 		AssertCannotExtractFixedSizeStructuresFromPacketWithSize(sizeof(Packet) + Fixed_Size + 1);

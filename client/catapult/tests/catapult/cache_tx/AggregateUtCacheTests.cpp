@@ -107,7 +107,7 @@ namespace catapult { namespace cache {
 	namespace {
 		class MockCountUtCacheModifier : public UnsupportedUtCacheModifier {
 		public:
-			explicit MockCountUtCacheModifier(size_t& numCountCalls, std::vector<Key>& keys)
+			MockCountUtCacheModifier(size_t& numCountCalls, std::vector<Key>& keys)
 					: m_numCountCalls(numCountCalls)
 					, m_keys(keys) {
 				m_numCountCalls = 0;
@@ -148,7 +148,7 @@ namespace catapult { namespace cache {
 	namespace {
 		class MockRemoveAllUtCacheModifier : public UnsupportedUtCacheModifier {
 		public:
-			explicit MockRemoveAllUtCacheModifier(size_t& numRemoveAllCalls, std::vector<model::TransactionInfo>&& transactionInfos)
+			MockRemoveAllUtCacheModifier(size_t& numRemoveAllCalls, std::vector<model::TransactionInfo>&& transactionInfos)
 					: m_numRemoveAllCalls(numRemoveAllCalls)
 					, m_transactionInfos(std::move(transactionInfos)) {
 				m_numRemoveAllCalls = 0;

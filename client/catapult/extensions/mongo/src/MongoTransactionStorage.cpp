@@ -32,7 +32,7 @@ namespace catapult { namespace mongo {
 	namespace {
 		class DefaultMongoTransactionStorage final : public cache::UtChangeSubscriber {
 		public:
-			explicit DefaultMongoTransactionStorage(
+			DefaultMongoTransactionStorage(
 					MongoStorageContext& context,
 					const MongoTransactionRegistry& transactionRegistry,
 					const std::string& collectionName)

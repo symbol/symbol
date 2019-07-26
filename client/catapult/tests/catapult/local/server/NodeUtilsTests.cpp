@@ -47,7 +47,7 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, SeedNodeContainerAddsOnlyLocalNodeWhenThereAreNoStaticNodes) {
 		// Arrange:
-		auto hexPrivateKey = test::GenerateRandomHexString(2 * Key_Size);
+		auto hexPrivateKey = test::GenerateRandomHexString(2 * Key::Size);
 		auto bootstrapper = CreateBootstrapper(CreateCatapultConfiguration(hexPrivateKey, "127.0.0.1", "LOCAL"));
 
 		// Act:
@@ -65,7 +65,7 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, SeedNodeContainerAddsLocalAndStaticNodes) {
 		// Arrange:
-		auto hexPrivateKey = test::GenerateRandomHexString(2 * Key_Size);
+		auto hexPrivateKey = test::GenerateRandomHexString(2 * Key::Size);
 		auto bootstrapper = CreateBootstrapper(CreateCatapultConfiguration(hexPrivateKey, "127.0.0.1", "LOCAL"));
 
 		auto keys = test::GenerateRandomDataVector<Key>(3);
@@ -119,7 +119,7 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, SeedNodeContainerSucceedsWhenMaxStringLengthsAreUsed) {
 		// Arrange:
-		auto hexPrivateKey = test::GenerateRandomHexString(2 * Key_Size);
+		auto hexPrivateKey = test::GenerateRandomHexString(2 * Key::Size);
 		auto peerKey = test::GenerateRandomByteArray<Key>();
 
 		// Act:
@@ -138,7 +138,7 @@ namespace catapult { namespace local {
 
 	TEST(TEST_CLASS, SeedNodeContainerFailsWhenMaxStringLengthsAreExceeded) {
 		// Arrange:
-		auto hexPrivateKey = test::GenerateRandomHexString(2 * Key_Size);
+		auto hexPrivateKey = test::GenerateRandomHexString(2 * Key::Size);
 		auto peerKey = test::GenerateRandomByteArray<Key>();
 		ionet::NodeContainer nodes;
 

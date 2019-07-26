@@ -54,7 +54,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Add) {
-		// Assert:
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
 		AssertValidationResult(Failure_RestrictionAccount_Modification_Address_Invalid, key, {
@@ -64,7 +63,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenSignerIsValueInModification_Del) {
-		// Assert:
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = model::PublicKeyToAddress(key, model::NetworkIdentifier::Zero);
 		AssertValidationResult(Failure_RestrictionAccount_Modification_Address_Invalid, key, {
@@ -74,7 +72,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenSignerIsNotValueInModification) {
-		// Assert:
 		auto key = test::GenerateRandomByteArray<Key>();
 		auto address = test::GenerateRandomByteArray<Address>();
 		AssertValidationResult(ValidationResult::Success, key, { Add, extensions::CopyToUnresolvedAddress(address) });

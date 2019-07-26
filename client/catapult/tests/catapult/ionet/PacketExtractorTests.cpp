@@ -74,7 +74,6 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CannotExtractPacketWithIncompleteSize) {
-		// Assert:
 		AssertCannotExtractPacketWithIncompleteSize(0);
 		AssertCannotExtractPacketWithIncompleteSize(3);
 	}
@@ -92,12 +91,10 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CannotExtractPacketWithSizeLessThanMin) {
-		// Assert:
 		AssertCannotExtractPacketWithSize(sizeof(PacketHeader) - 1);
 	}
 
 	TEST(TEST_CLASS, CannotExtractPacketWithSizeGreaterThanMax) {
-		// Assert:
 		AssertCannotExtractPacketWithSize(Default_Max_Packet_Size + 1);
 		AssertCannotExtractPacketWithSize(21, 20 - sizeof(PacketHeader));
 	}
@@ -115,7 +112,6 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CannotExtractIncompletePacketWithKnownSize) {
-		// Assert:
 		AssertCannotExtractIncompletePacketWithKnownSize(sizeof(PacketHeader));
 		AssertCannotExtractIncompletePacketWithKnownSize(10);
 		AssertCannotExtractIncompletePacketWithKnownSize(Default_Max_Packet_Size);
@@ -135,13 +131,11 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CanExtractCompletePacketWithLessThanMaxSize) {
-		// Assert:
 		AssertCanExtractCompletePacket(19, 20 - sizeof(PacketHeader));
 		AssertCanExtractCompletePacket(sizeof(PacketHeader), 20 - sizeof(PacketHeader));
 	}
 
 	TEST(TEST_CLASS, CanExtractCompletePacketWithMaxSize) {
-		// Assert:
 		AssertCanExtractCompletePacket(20, 20 - sizeof(PacketHeader));
 	}
 

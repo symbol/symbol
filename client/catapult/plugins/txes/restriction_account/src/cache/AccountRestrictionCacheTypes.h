@@ -75,7 +75,7 @@ namespace catapult { namespace cache {
 		using CacheReadOnlyType = ReadOnlyArtifactCache<
 			BasicAccountRestrictionCacheView,
 			BasicAccountRestrictionCacheDelta,
-			const Address&,
+			Address,
 			state::AccountRestrictions>;
 
 		using BaseSetDeltaPointers = AccountRestrictionBaseSetDeltaPointers;

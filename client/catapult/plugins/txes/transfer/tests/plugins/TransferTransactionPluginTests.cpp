@@ -33,6 +33,8 @@ namespace catapult { namespace plugins {
 
 #define TEST_CLASS TransferTransactionPluginTests
 
+	// region test utils
+
 	namespace {
 		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(Transfer, 1, 1,)
 
@@ -52,151 +54,211 @@ namespace catapult { namespace plugins {
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Transfer)
 
-	PLUGIN_TEST(CanCalculateSize) {
-		// Arrange:
-		auto pPlugin = TTraits::CreatePlugin();
+	// endregion
 
-		typename TTraits::TransactionType transaction;
-		transaction.Size = 0;
-		transaction.MessageSize = 100;
-		transaction.MosaicsCount = 7;
+	// region publish - neither message nor mosaics
 
-		// Act:
-		auto realSize = pPlugin->calculateRealSize(transaction);
-
-		// Assert:
-		EXPECT_EQ(sizeof(typename TTraits::TransactionType) + 100 + 7 * sizeof(Mosaic), realSize);
+	namespace {
+		template<typename TTraits>
+		void AddCommonExpectations(
+				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
+				const typename TTraits::TransactionType& transaction) {
+			builder.template addExpectation<AccountAddressNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.Recipient, notification.Address);
+			});
+			builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.Signer, notification.Source);
+				EXPECT_EQ(transaction.Type, notification.TransactionType);
+				EXPECT_EQ(model::UnresolvedAddressSet{ transaction.Recipient }, notification.ParticipantsByAddress);
+				EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
+			});
+		}
 	}
 
-	PLUGIN_TEST(CanExtractAccounts) {
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenNeitherMessageNorMosaicsArePresent) {
 		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		auto pPlugin = TTraits::CreatePlugin();
-
 		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
 		transaction.MessageSize = 0;
 		transaction.MosaicsCount = 0;
-		test::FillWithRandomData(transaction.Signer);
-		test::FillWithRandomData(transaction.Recipient);
 
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, sub);
-
-		// Assert:
-		EXPECT_EQ(2u, sub.numNotifications());
-		EXPECT_EQ(1u, sub.numAddresses());
-		EXPECT_EQ(0u, sub.numKeys());
-
-		EXPECT_TRUE(sub.contains(transaction.Recipient));
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			AccountAddressNotification::Notification_Type,
+			AddressInteractionNotification::Notification_Type
+		});
 	}
 
-	PLUGIN_TEST(CanExtractAddressInteraction) {
+	PLUGIN_TEST(CanPublishAllNotificationsWhenNeitherMessageNorMosaicsArePresent) {
 		// Arrange:
-		mocks::MockTypedNotificationSubscriber<AddressInteractionNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-
 		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
 		transaction.MessageSize = 0;
 		transaction.MosaicsCount = 0;
-		test::FillWithRandomData(transaction.Signer);
-		test::FillWithRandomData(transaction.Recipient);
-		transaction.Type = static_cast<model::EntityType>(0x0815);
 
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, sub);
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, transaction);
 
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(transaction.Signer, notification.Source);
-		EXPECT_EQ(transaction.Type, notification.TransactionType);
-		EXPECT_EQ(model::UnresolvedAddressSet{ transaction.Recipient }, notification.ParticipantsByAddress);
-		EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
-	}
-
-	// region balance change
-
-	PLUGIN_TEST(CanExtractZeroTransfers) {
-		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		auto pPlugin = TTraits::CreatePlugin();
-
-		auto pTransaction = CreateTransactionWithMosaics<TTraits>(0);
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		EXPECT_EQ(2u, sub.numNotifications());
-		EXPECT_EQ(0u, sub.numTransfers());
-	}
-
-	PLUGIN_TEST(CanExtractSingleTransfer) {
-		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		mocks::MockTypedNotificationSubscriber<TransferMosaicsNotification> mosaicsSub;
-		auto pPlugin = TTraits::CreatePlugin();
-
-		auto pTransaction = CreateTransactionWithMosaics<TTraits>(1);
-		*pTransaction->MosaicsPtr() = { UnresolvedMosaicId(123), Amount(9876) };
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-		test::PublishTransaction(*pPlugin, *pTransaction, mosaicsSub);
-
-		// Assert:
-		EXPECT_EQ(4u, sub.numNotifications());
-		EXPECT_EQ(1u, sub.numTransfers());
-		EXPECT_TRUE(sub.contains(pTransaction->Signer, pTransaction->Recipient, UnresolvedMosaicId(123), Amount(9876)));
-
-		ASSERT_EQ(1u, mosaicsSub.numMatchingNotifications());
-		EXPECT_EQ(1u, mosaicsSub.matchingNotifications()[0].MosaicsCount);
-		EXPECT_EQ(pTransaction->MosaicsPtr(), mosaicsSub.matchingNotifications()[0].MosaicsPtr);
-	}
-
-	PLUGIN_TEST(CanExtractMultipleTransfers) {
-		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		mocks::MockTypedNotificationSubscriber<TransferMosaicsNotification> mosaicsSub;
-		auto pPlugin = TTraits::CreatePlugin();
-
-		auto pTransaction = CreateTransactionWithMosaics<TTraits>(3);
-		auto pMosaic = pTransaction->MosaicsPtr();
-		*pMosaic++ = { UnresolvedMosaicId(123), Amount(9876) };
-		*pMosaic++ = { UnresolvedMosaicId(777), Amount(444) };
-		*pMosaic++ = { UnresolvedMosaicId(625), Amount(25) };
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-		test::PublishTransaction(*pPlugin, *pTransaction, mosaicsSub);
-
-		// Assert:
-		EXPECT_EQ(6u, sub.numNotifications());
-		EXPECT_EQ(3u, sub.numTransfers());
-		EXPECT_TRUE(sub.contains(pTransaction->Signer, pTransaction->Recipient, UnresolvedMosaicId(123), Amount(9876)));
-		EXPECT_TRUE(sub.contains(pTransaction->Signer, pTransaction->Recipient, UnresolvedMosaicId(777), Amount(444)));
-		EXPECT_TRUE(sub.contains(pTransaction->Signer, pTransaction->Recipient, UnresolvedMosaicId(625), Amount(25)));
-
-		ASSERT_EQ(1u, mosaicsSub.numMatchingNotifications());
-		EXPECT_EQ(3u, mosaicsSub.matchingNotifications()[0].MosaicsCount);
-		EXPECT_EQ(pTransaction->MosaicsPtr(), mosaicsSub.matchingNotifications()[0].MosaicsPtr);
+		// Act + Assert:
+		builder.runTest(transaction);
 	}
 
 	// endregion
 
-	PLUGIN_TEST(CanExtractMessage) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<TransferMessageNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
+	// region publish - message only
 
-		auto pTransaction = CreateTransactionWithMosaics<TTraits>(0, 17);
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		EXPECT_EQ(3u, sub.numNotifications());
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		EXPECT_EQ(17u, sub.matchingNotifications()[0].MessageSize);
+	namespace {
+		template<typename TTransaction>
+		void PrepareMessageOnlyTransaction(TTransaction& transaction) {
+			test::FillWithRandomData(transaction);
+			transaction.MosaicsCount = 0;
+			transaction.MessageSize = 17;
+			transaction.Size = static_cast<uint32_t>(TTransaction::CalculateRealSize(transaction));
+		}
 	}
+
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenMessageOnlyIsPresent) {
+		// Arrange:
+		auto pTransaction = CreateTransactionWithMosaics<TTraits>(0, 17);
+		PrepareMessageOnlyTransaction(*pTransaction);
+
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			AccountAddressNotification::Notification_Type,
+			AddressInteractionNotification::Notification_Type,
+			TransferMessageNotification::Notification_Type
+		});
+	}
+
+	PLUGIN_TEST(CanPublishAllNotificationsWhenMessageOnlyIsPresent) {
+		// Arrange:
+		auto pTransaction = CreateTransactionWithMosaics<TTraits>(0, 17);
+		PrepareMessageOnlyTransaction(*pTransaction);
+
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, *pTransaction);
+		builder.template addExpectation<TransferMessageNotification>([](const auto& notification) {
+			EXPECT_EQ(17u, notification.MessageSize);
+		});
+
+		// Act + Assert:
+		builder.runTest(*pTransaction);
+	}
+
+	// endregion
+
+	// region publish - mosaics only
+
+	namespace {
+		template<typename TTransaction>
+		void PrepareMosaicsOnlyTransaction(TTransaction& transaction) {
+			test::FillWithRandomData(transaction);
+			transaction.MosaicsCount = 2;
+			transaction.MessageSize = 0;
+			transaction.Size = static_cast<uint32_t>(TTransaction::CalculateRealSize(transaction));
+		}
+	}
+
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenMosaicsOnlyArePresent) {
+		// Arrange:
+		auto pTransaction = CreateTransactionWithMosaics<TTraits>(2, 0);
+		PrepareMosaicsOnlyTransaction(*pTransaction);
+
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			AccountAddressNotification::Notification_Type,
+			AddressInteractionNotification::Notification_Type,
+			BalanceTransferNotification::Notification_Type,
+			BalanceTransferNotification::Notification_Type,
+			TransferMosaicsNotification::Notification_Type
+		});
+	}
+
+	PLUGIN_TEST(CanPublishAllNotificationsWhenMosaicsOnlyArePresent) {
+		// Arrange:
+		auto pTransaction = CreateTransactionWithMosaics<TTraits>(2, 0);
+		PrepareMosaicsOnlyTransaction(*pTransaction);
+
+		const auto& transaction = *pTransaction;
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, transaction);
+		for (auto i = 0u; i < 2u; ++i) {
+			builder.template addExpectation<BalanceTransferNotification>(i, [&transaction, i](const auto& notification) {
+				EXPECT_EQ(transaction.Signer, notification.Sender);
+				EXPECT_EQ(transaction.MosaicsPtr()[i].MosaicId, notification.MosaicId);
+				EXPECT_EQ(transaction.MosaicsPtr()[i].Amount, notification.Amount);
+				EXPECT_EQ(transaction.Recipient, notification.Recipient);
+			});
+		}
+
+		builder.template addExpectation<TransferMosaicsNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.MosaicsCount, notification.MosaicsCount);
+			EXPECT_EQ(transaction.MosaicsPtr(), notification.MosaicsPtr);
+		});
+
+		// Act + Assert:
+		builder.runTest(transaction);
+	}
+
+	// endregion
+
+	// region publish - both message and mosaics
+
+	namespace {
+		template<typename TTransaction>
+		void PrepareMessageAndMosaicsTransaction(TTransaction& transaction) {
+			test::FillWithRandomData(transaction);
+			transaction.MosaicsCount = 3;
+			transaction.MessageSize = 17;
+			transaction.Size = static_cast<uint32_t>(TTransaction::CalculateRealSize(transaction));
+		}
+	}
+
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenMessageAndMosaicsArePresent) {
+		// Arrange:
+		auto pTransaction = CreateTransactionWithMosaics<TTraits>(3, 17);
+		PrepareMessageAndMosaicsTransaction(*pTransaction);
+
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+			AccountAddressNotification::Notification_Type,
+			AddressInteractionNotification::Notification_Type,
+			BalanceTransferNotification::Notification_Type,
+			BalanceTransferNotification::Notification_Type,
+			BalanceTransferNotification::Notification_Type,
+			TransferMessageNotification::Notification_Type,
+			TransferMosaicsNotification::Notification_Type
+		});
+	}
+
+	PLUGIN_TEST(CanPublishAllNotificationsWhenMessageAndMosaicsArePresent) {
+		// Arrange:
+		auto pTransaction = CreateTransactionWithMosaics<TTraits>(3, 17);
+		PrepareMessageAndMosaicsTransaction(*pTransaction);
+
+		const auto& transaction = *pTransaction;
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, transaction);
+		for (auto i = 0u; i < 3u; ++i) {
+			builder.template addExpectation<BalanceTransferNotification>(i, [&transaction, i](const auto& notification) {
+				EXPECT_EQ(transaction.Signer, notification.Sender);
+				EXPECT_EQ(transaction.MosaicsPtr()[i].MosaicId, notification.MosaicId);
+				EXPECT_EQ(transaction.MosaicsPtr()[i].Amount, notification.Amount);
+				EXPECT_EQ(transaction.Recipient, notification.Recipient);
+			});
+		}
+
+		builder.template addExpectation<TransferMessageNotification>([](const auto& notification) {
+			EXPECT_EQ(17u, notification.MessageSize);
+		});
+		builder.template addExpectation<TransferMosaicsNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.MosaicsCount, notification.MosaicsCount);
+			EXPECT_EQ(transaction.MosaicsPtr(), notification.MosaicsPtr);
+		});
+
+		// Act + Assert:
+		builder.runTest(transaction);
+	}
+
+	// endregion
 }}

@@ -177,7 +177,6 @@ namespace catapult { namespace state {
 	}
 
 	CONSTRUCTOR_TEST(CanConstructHistoryWithSingleOwner_WithoutChildren) {
-		// Assert:
 		AssertCanConstructHistoryWithSingleOwnerWithoutChildren<TTraits>(
 				[](auto) { return NamespaceAlias(); },
 				[](const auto& rootAlias, auto, const auto& message) {
@@ -186,7 +185,6 @@ namespace catapult { namespace state {
 	}
 
 	CONSTRUCTOR_TEST(CanConstructHistoryWithSingleOwner_WithoutChildren_WithAlias) {
-		// Assert:
 		AssertCanConstructHistoryWithSingleOwnerWithoutChildren<TTraits>(
 				[](auto i) { return NamespaceAlias(MosaicId(999 + 2 * i)); },
 				[](const auto& rootAlias, auto i, const auto& message) {
@@ -540,8 +538,7 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, PruneRespectsRenewalOfNamespace) {
-		// Assert:
-		// - although the first root in the list has expired, the second root prevents the children from being pruned
+		// Assert: although the first root in the list has expired, the second root prevents the children from being pruned
 		//   because it renewed the owner's namespace
 		// - the most recent root is not yet active (lifetime begins at height 567), still prune will not touch it
 		AssertPrunedNamespaceIds(431, 2u, {});
@@ -603,44 +600,6 @@ namespace catapult { namespace state {
 			auto expectedIds = std::set<NamespaceId>{ NamespaceId(123) };
 			EXPECT_EQ(expectedIds, history.prune(Height(321 + Grace_Period_Duration + offset))) << "for offset " << offset;
 		}
-	}
-
-	// endregion
-
-	// region isActiveAndUnlocked
-
-	TEST(TEST_CLASS, IsActiveAndUnlockedReturnsFalseWhenHistoryIsEmpty) {
-		// Arrange:
-		RootNamespaceHistory history(NamespaceId(123));
-
-		// Sanity:
-		EXPECT_TRUE(history.empty());
-
-		// Act + Assert:
-		EXPECT_FALSE(history.isActiveAndUnlocked(Height(250)));
-	}
-
-	TEST(TEST_CLASS, IsActiveAndUnlockedReturnsCorrectValueWhenHistoryIsNotEmpty) {
-		// Arrange:
-		// - root1 expires at height 173
-		// - root2 expires at height 273
-		auto owner = test::GenerateRandomByteArray<Key>();
-		RootNamespaceHistory history(NamespaceId(123));
-		history.push_back(owner, test::CreateLifetime(123, 173, 50));
-		history.push_back(owner, test::CreateLifetime(173, 273, 50));
-
-		// Act + Assert:
-		EXPECT_FALSE(history.isActiveAndUnlocked(Height(50)));
-		EXPECT_FALSE(history.isActiveAndUnlocked(Height(122)));
-		EXPECT_FALSE(history.isActiveAndUnlocked(Height(123))); // isActive only checks latest lifetime
-		EXPECT_FALSE(history.isActiveAndUnlocked(Height(172))); // isActive only checks latest lifetime
-
-		EXPECT_TRUE(history.isActiveAndUnlocked(Height(173)));
-		EXPECT_TRUE(history.isActiveAndUnlocked(Height(250)));
-		EXPECT_TRUE(history.isActiveAndUnlocked(Height(272)));
-
-		EXPECT_FALSE(history.isActiveAndUnlocked(Height(273)));
-		EXPECT_FALSE(history.isActiveAndUnlocked(Height(350)));
 	}
 
 	// endregion

@@ -44,13 +44,11 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, ConstantsAreInitializedCorrectly) {
-		// Act + Assert:
 		EXPECT_EQ(TestValue(-17), TestValue::Min());
 		EXPECT_EQ(TestValue(100), TestValue::Max());
 	}
 
 	TEST(TEST_CLASS, UnclampedTypeDoesNotClampValues) {
-		// Act + Assert:
 		EXPECT_EQ(-1000, TestValue::Unclamped(-1000).unwrap());
 		EXPECT_EQ(1000, TestValue::Unclamped(1000).unwrap());
 	}
@@ -66,14 +64,12 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, ClampedValueCannotBeSetBelowMin) {
-		// Assert:
 		std::vector<int64_t> deltas{ 1, 1000 };
 		for (auto delta : deltas)
 			AssertClampedValue(TestValueRange::Min_Value - delta, TestValueRange::Min_Value);
 	}
 
 	TEST(TEST_CLASS, ClampedValueCannotBeSetAboveMax) {
-		// Assert:
 		std::vector<int64_t> deltas{ 1, 1000 };
 		for (auto delta : deltas)
 			AssertClampedValue(TestValueRange::Max_Value + delta, TestValueRange::Max_Value);

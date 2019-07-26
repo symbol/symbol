@@ -63,7 +63,7 @@ namespace catapult { namespace cache {
 		auto result = Serializer::SerializeValue(value);
 
 		// Assert:
-		ASSERT_EQ(sizeof(uint16_t) + 5 + Hash512_Size, result.size());
+		ASSERT_EQ(sizeof(uint16_t) + 5 + Hash512::Size, result.size());
 		EXPECT_EQ(MockStorage::State_Version, reinterpret_cast<const uint16_t&>(result[0]));
 		EXPECT_EQ_MEMORY("alpha", result.data() + sizeof(uint16_t), 5);
 		EXPECT_EQ(value, reinterpret_cast<const Hash512&>(result[sizeof(uint16_t) + 5]));
@@ -71,7 +71,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, DeserializeValueFailsWhenThereIsNotEnoughData) {
 		// Arrange:
-		auto serialized = test::GenerateRandomArray<sizeof(uint16_t) + Hash512_Size - 1>();
+		auto serialized = test::GenerateRandomArray<sizeof(uint16_t) + Hash512::Size - 1>();
 		reinterpret_cast<uint16_t&>(serialized[0]) = MockStorage::State_Version;
 
 		// Act + Assert:
@@ -80,7 +80,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, DeserializeValueFailsWhenVersionIsIncorrect) {
 		// Arrange:
-		auto serialized = test::GenerateRandomArray<sizeof(uint16_t) + Hash512_Size>();
+		auto serialized = test::GenerateRandomArray<sizeof(uint16_t) + Hash512::Size>();
 		reinterpret_cast<uint16_t&>(serialized[0]) = MockStorage::State_Version ^ 0xFFFF;
 
 		// Act + Assert:
@@ -89,7 +89,7 @@ namespace catapult { namespace cache {
 
 	TEST(TEST_CLASS, DeserializeValueForwardsToStorageLoad) {
 		// Arrange:
-		auto serialized = test::GenerateRandomArray<sizeof(uint16_t) + Hash512_Size>();
+		auto serialized = test::GenerateRandomArray<sizeof(uint16_t) + Hash512::Size>();
 		reinterpret_cast<uint16_t&>(serialized[0]) = MockStorage::State_Version;
 
 		// Act:

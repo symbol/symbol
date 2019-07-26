@@ -32,7 +32,7 @@ namespace catapult { namespace ionet {
 	struct ServerPacketHandlerContext : utils::MoveOnly {
 	public:
 		/// Creates a context around \a key and \ host.
-		explicit ServerPacketHandlerContext(const Key& key, const std::string& host);
+		ServerPacketHandlerContext(const Key& key, const std::string& host);
 
 	public:
 		/// Gets the public key associated with the client.

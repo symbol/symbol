@@ -70,38 +70,35 @@ namespace catapult { namespace parsers {
 	}
 
 	TEST(TEST_CLASS, CannotParsePacketWithoutCompleteDataPayload) {
-		// Assert:
 		AssertCannotParsePacketWithInvalidHashes(1, 2);
 		AssertCannotParsePacketWithInvalidHashes(1, 100);
 		AssertCannotParsePacketWithInvalidHashes(100, 101);
 	}
 
 	TEST(TEST_CLASS, CannotParsePacketWithoutHashes) {
-		// Assert:
 		AssertCannotParsePacketWithInvalidHashes(0, 0);
 	}
 
 	TEST(TEST_CLASS, CannotParsePacketWithInvalidHashes) {
 		// Assert: data must be evenly divisible
-		for (auto size : std::initializer_list<uint32_t>{ Hash256_Size - 1, 3 * Hash256_Size - 1 })
+		for (auto size : std::initializer_list<uint32_t>{ Hash256::Size - 1, 3 * Hash256::Size - 1 })
 			AssertCannotParsePacketWithInvalidHashes(size, size);
 	}
 
 	TEST(TEST_CLASS, CannotParsePacketWithoutEntities) {
-		// Assert:
-		AssertCannotParsePacketWithInvalidHashes(2 * Hash256_Size, 2 * Hash256_Size);
+		AssertCannotParsePacketWithInvalidHashes(2 * Hash256::Size, 2 * Hash256::Size);
 	}
 
 	namespace {
 		auto CreatePacketWithHashesAndEntities(uint32_t numHashes, uint32_t numEntities) {
-			uint32_t payloadSize = sizeof(uint32_t) + numHashes * Hash256_Size + numEntities * Transaction_Size;
+			uint32_t payloadSize = sizeof(uint32_t) + numHashes * Hash256::Size + numEntities * Transaction_Size;
 			auto pPacket = ionet::CreateSharedPacket<ionet::Packet>(payloadSize);
 			test::FillWithRandomData({ pPacket->Data(), pPacket->Size - sizeof(ionet::PacketHeader) });
-			reinterpret_cast<uint32_t&>(*pPacket->Data()) = numHashes * Hash256_Size;
+			reinterpret_cast<uint32_t&>(*pPacket->Data()) = numHashes * Hash256::Size;
 
 			// - set entity sizes
 			for (auto i = 0u; i < numEntities; ++i) {
-				auto entityOffset = sizeof(uint32_t) + numHashes * Hash256_Size + i * Transaction_Size;
+				auto entityOffset = sizeof(uint32_t) + numHashes * Hash256::Size + i * Transaction_Size;
 				auto& transaction = reinterpret_cast<mocks::MockTransaction&>(*(pPacket->Data() + entityOffset));
 				transaction.Size = Transaction_Size;
 				transaction.Type = mocks::MockTransaction::Entity_Type;
@@ -144,7 +141,6 @@ namespace catapult { namespace parsers {
 	}
 
 	TEST(TEST_CLASS, CannotParsePacketWithWrongNumberOfEntities) {
-		// Assert:
 		AssertCannotParsePacketWithWrongNumberOfEntities(1, 2);
 		AssertCannotParsePacketWithWrongNumberOfEntities(2, 3);
 		AssertCannotParsePacketWithWrongNumberOfEntities(2, 5);
@@ -181,12 +177,10 @@ namespace catapult { namespace parsers {
 	}
 
 	TEST(TEST_CLASS, CanParsePacketWithSingleEntity) {
-		// Assert:
 		AssertCanParsePacketWithEntities(1);
 	}
 
 	TEST(TEST_CLASS, CanParsePacketWithMultipleEntities) {
-		// Assert:
 		AssertCanParsePacketWithEntities(3);
 	}
 

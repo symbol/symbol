@@ -30,10 +30,10 @@ namespace catapult { namespace model {
 #define DEFINE_TRANSFER_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, Transfer, DESCRIPTION, CODE)
 
 	/// Transfer was received with a message.
-	DEFINE_TRANSFER_NOTIFICATION(Message, 0x001, Validator);
+	DEFINE_TRANSFER_NOTIFICATION(Message, 0x0001, Validator);
 
 	/// Transfer was received with at least one mosaic.
-	DEFINE_TRANSFER_NOTIFICATION(Mosaics, 0x002, Validator);
+	DEFINE_TRANSFER_NOTIFICATION(Mosaics, 0x0002, Validator);
 
 #undef DEFINE_TRANSFER_NOTIFICATION
 

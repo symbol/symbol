@@ -34,6 +34,10 @@ namespace catapult { namespace config {
 #define LOAD_PROPERTY(NAME) utils::LoadIniProperty(bag, "", #NAME, config.NAME)
 
 		LOAD_PROPERTY(MaxNameSize);
+		LOAD_PROPERTY(MaxChildNamespaces);
+		LOAD_PROPERTY(MaxNamespaceDepth);
+
+		LOAD_PROPERTY(MinNamespaceDuration);
 		LOAD_PROPERTY(MaxNamespaceDuration);
 		LOAD_PROPERTY(NamespaceGracePeriodDuration);
 		LOAD_PROPERTY(ReservedRootNamespaceNames);
@@ -42,11 +46,9 @@ namespace catapult { namespace config {
 		LOAD_PROPERTY(RootNamespaceRentalFeePerBlock);
 		LOAD_PROPERTY(ChildNamespaceRentalFee);
 
-		LOAD_PROPERTY(MaxChildNamespaces);
-
 #undef LOAD_PROPERTY
 
-		utils::VerifyBagSizeLte(bag, 8);
+		utils::VerifyBagSizeLte(bag, 10);
 		return config;
 	}
 }}

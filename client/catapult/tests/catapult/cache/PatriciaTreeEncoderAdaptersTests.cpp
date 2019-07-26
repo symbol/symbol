@@ -67,7 +67,6 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanEncodeValue_PlainKey) {
-		// Assert:
 		AssertCanEncodeValue<PlainKeyEncoder>();
 	}
 
@@ -88,7 +87,6 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanEncodeValue_HashedKey) {
-		// Assert:
 		AssertCanEncodeValue<HashedKeyEncoder>();
 	}
 

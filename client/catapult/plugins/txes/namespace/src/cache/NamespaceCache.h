@@ -36,7 +36,7 @@ namespace catapult { namespace cache {
 	class BasicNamespaceCache : public NamespaceBasicCache {
 	public:
 		/// Creates a cache around \a config and \a options.
-		explicit BasicNamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
+		BasicNamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
 				: BasicNamespaceCache(config, options, std::make_unique<NamespaceSizes>())
 		{}
 
@@ -74,7 +74,7 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a cache around \a config and options.
-		explicit NamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
+		NamespaceCache(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options)
 				: SynchronizedCacheWithInit<BasicNamespaceCache>(BasicNamespaceCache(config, options))
 		{}
 	};

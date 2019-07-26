@@ -29,7 +29,7 @@ namespace catapult { namespace consumers {
 
 		class NewBlockConsumer {
 		public:
-			explicit NewBlockConsumer(const NewBlockSink& newBlockSink, InputSource sinkSourceMask)
+			NewBlockConsumer(const NewBlockSink& newBlockSink, InputSource sinkSourceMask)
 					: m_newBlockSink(newBlockSink)
 					, m_sinkSourceMask(sinkSourceMask)
 			{}

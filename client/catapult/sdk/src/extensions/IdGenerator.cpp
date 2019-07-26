@@ -44,13 +44,6 @@ namespace catapult { namespace extensions {
 			return partName;
 		}
 
-		void Append(NamespacePath& path, NamespaceId id, const RawString& name) {
-			if (path.capacity() == path.size())
-				ThrowInvalidFqn("too many parts", name);
-
-			path.push_back(id);
-		}
-
 		template<typename TProcessor>
 		size_t Split(const RawString& name, TProcessor processor) {
 			auto start = 0u;
@@ -72,16 +65,16 @@ namespace catapult { namespace extensions {
 		return UnresolvedMosaicId(namespaceId.unwrap());
 	}
 
-	NamespacePath GenerateNamespacePath(const RawString& name) {
+	std::vector<NamespaceId> GenerateNamespacePath(const RawString& name) {
 		auto namespaceId = Namespace_Base_Id;
-		NamespacePath path;
+		std::vector<NamespaceId> path;
 		auto start = Split(name, [&name, &namespaceId, &path](auto substringStart, auto size) {
 			namespaceId = model::GenerateNamespaceId(namespaceId, ExtractPartName(name, substringStart, size));
-			Append(path, namespaceId, name);
+			path.push_back(namespaceId);
 		});
 
 		namespaceId = model::GenerateNamespaceId(namespaceId, ExtractPartName(name, start, name.Size - start));
-		Append(path, namespaceId, name);
+		path.push_back(namespaceId);
 		return path;
 	}
 }}

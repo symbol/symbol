@@ -163,28 +163,23 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(BLOCK_TEST_CLASS, CanProcessZeroEntities) {
-		// Assert:
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		test::AssertPassthroughForEmptyInput(CreateBlockHashCalculatorConsumer(GetNetworkGenerationHash(), registry));
 	}
 
 	TEST(BLOCK_TEST_CLASS, CanProcessSingleEntity) {
-		// Assert:
 		AssertBlockHashesAreCalculatedCorrectly(1, 0);
 	}
 
 	TEST(BLOCK_TEST_CLASS, CanProcessSingleEntityWithTransactions) {
-		// Assert:
 		AssertBlockHashesAreCalculatedCorrectly(1, 3);
 	}
 
 	TEST(BLOCK_TEST_CLASS, CanProcessMultipleEntities) {
-		// Assert:
 		AssertBlockHashesAreCalculatedCorrectly(3, 0);
 	}
 
 	TEST(BLOCK_TEST_CLASS, CanProcessMultipleEntitiesWithTransactions) {
-		// Assert:
 		AssertBlockHashesAreCalculatedCorrectly(3, 4);
 	}
 
@@ -243,13 +238,11 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(BLOCK_TEST_CLASS, SingleEntityIsSkippedWhenBlockTransactionsHashDoesNotMatch) {
-		// Assert:
 		AssertBlockWithMismatchedBlockTransactionsHashIsSkipped(1, 0, 0);
 		AssertBlockWithMismatchedBlockTransactionsHashIsSkipped(1, 3, 0);
 	}
 
 	TEST(BLOCK_TEST_CLASS, MultipleEntitiesAreSkippedWhenAnyBlockTransactionsHashDoesNotMatch) {
-		// Assert:
 		AssertBlockWithMismatchedBlockTransactionsHashIsSkipped(3, 0, 1);
 		AssertBlockWithMismatchedBlockTransactionsHashIsSkipped(3, 4, 1);
 	}
@@ -292,18 +285,15 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TRANSACTION_TEST_CLASS, CanProcessZeroEntities) {
-		// Assert:
 		auto registry = mocks::CreateDefaultTransactionRegistry();
 		test::AssertPassthroughForEmptyInput(CreateTransactionHashCalculatorConsumer(GetNetworkGenerationHash(), registry));
 	}
 
 	TEST(TRANSACTION_TEST_CLASS, CanProcessSingleEntity) {
-		// Assert:
 		AssertTransactionHashesAreCalculatedCorrectly(1);
 	}
 
 	TEST(TRANSACTION_TEST_CLASS, CanProcessMultipleEntities) {
-		// Assert:
 		AssertTransactionHashesAreCalculatedCorrectly(3);
 	}
 

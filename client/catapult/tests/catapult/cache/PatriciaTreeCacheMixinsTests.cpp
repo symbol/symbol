@@ -430,22 +430,18 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, DeltaMixin_SetToEmptyRootSucceedsWhenTreeIsValid) {
-		// Assert:
 		AssertSetToEmptyRootSucceedsWhenTreeIsValid(ChangeOptions::None);
 	}
 
 	TEST(TEST_CLASS, DeltaMixin_SetToPreviousRootSucceedsWhenTreeIsValid) {
-		// Assert:
 		AssertSetToPreviousRootSucceedsWhenTreeIsValid(ChangeOptions::None);
 	}
 
 	TEST(TEST_CLASS, DeltaMixin_SetToEmptyRootSucceedsWhenTreeIsValidWithPendingChanges) {
-		// Assert:
 		AssertSetToEmptyRootSucceedsWhenTreeIsValid(ChangeOptions::Pending);
 	}
 
 	TEST(TEST_CLASS, DeltaMixin_SetToPreviousRootSucceedsWhenTreeIsValidWithPendingChanges) {
-		// Assert:
 		AssertSetToPreviousRootSucceedsWhenTreeIsValid(ChangeOptions::Pending);
 	}
 

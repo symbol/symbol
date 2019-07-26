@@ -45,6 +45,6 @@ namespace catapult { namespace cache {
 	class NamespaceCacheSubCachePlugin : public BaseNamespaceCacheSubCachePlugin {
 	public:
 		/// Creates a plugin around \a config and \a options.
-		explicit NamespaceCacheSubCachePlugin(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options);
+		NamespaceCacheSubCachePlugin(const CacheConfiguration& config, const NamespaceCacheTypes::Options& options);
 	};
 }}

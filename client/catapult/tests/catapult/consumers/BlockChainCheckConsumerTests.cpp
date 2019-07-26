@@ -41,7 +41,6 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, CanProcessZeroEntities) {
-		// Assert:
 		test::AssertPassthroughForEmptyInput(CreateDefaultBlockChainCheckConsumer());
 	}
 
@@ -66,17 +65,14 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, BlockChainSizeCanBeLessThanBlockLimit) {
-		// Assert:
 		AssertBlockChainSizeValidation(Test_Block_Chain_Limit - 1, disruptor::CompletionStatus::Normal);
 	}
 
 	TEST(TEST_CLASS, BlockChainSizeCanBeEqualToBlockLimit) {
-		// Assert:
 		AssertBlockChainSizeValidation(Test_Block_Chain_Limit, disruptor::CompletionStatus::Normal);
 	}
 
 	TEST(TEST_CLASS, BlockChainSizeCannotBeGreaterThanBlockLimit) {
-		// Assert:
 		AssertBlockChainSizeValidation(Test_Block_Chain_Limit + 1, disruptor::CompletionStatus::Aborted);
 	}
 
@@ -212,12 +208,10 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, AllBlocksInChainMustHaveCorrectHeight) {
-		// Assert:
 		AssertUnlinkedChain([](auto& block) { block.Height = Height(12 + 4); });
 	}
 
 	TEST(TEST_CLASS, AllBlocksInChainMustHaveCorrectPreviousBlockHash) {
-		// Assert:
 		AssertUnlinkedChain([](auto& block) { ++block.PreviousBlockHash[0]; });
 	}
 

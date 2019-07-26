@@ -100,7 +100,6 @@ namespace catapult { namespace validators {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithRedundantAdds) {
-		// Assert:
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Redundant, [](const auto& values) {
 			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },
@@ -112,7 +111,6 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithRedundantDels) {
-		// Assert:
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Redundant, [](const auto& values) {
 			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
 				{ Del, values[2] },
@@ -124,7 +122,6 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithRedundantAddAndDelete) {
-		// Assert:
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Redundant, [](const auto& values) {
 			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },
@@ -147,7 +144,6 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenValidatingNotificationWithUnknownAddressAndNoRedundantOperationAndNoDelete) {
-		// Assert:
 		AssertValidationResult<TTraits>(ValidationResult::Success, [](const auto& values) {
 			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },
@@ -158,7 +154,6 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenValidatingNotificationWithKnownAddressAndNoRedundantOperationAndValidDelete) {
-		// Assert:
 		AssertValidationResult<TTraits>(ValidationResult::Success, CacheSeed::Yes, [](const auto& values) {
 			return std::vector<model::AccountRestrictionModification<typename TTraits::UnresolvedValueType>>{
 				{ Add, values[2] },

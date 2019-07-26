@@ -58,25 +58,21 @@ namespace catapult { namespace validators {
 	// region basic tests
 
 	TEST(TEST_CLASS, FailureWhenTransactionDeadlineIsLessThanBlockTime) {
-		// Assert:
 		for (auto i = 0u; i < 4; ++i)
 			AssertValidationResult(Failure_Core_Past_Deadline, Block_Time - Timestamp(1), TimeSpanFromHours(i));
 	}
 
 	TEST(TEST_CLASS, SuccessWhenTransactionDeadlineIsEqualToBlockTime) {
-		// Assert:
 		for (auto i = 0u; i < 4; ++i)
 			AssertValidationResult(ValidationResult::Success, Block_Time, TimeSpanFromHours(i));
 	}
 
 	TEST(TEST_CLASS, SuccessWhenTransactionDeadlineIsValid) {
-		// Assert:
 		for (auto i = 0u; i < 4; ++i)
 			AssertValidationResult(ValidationResult::Success, Block_Time + utils::TimeSpan::FromMinutes(30), TimeSpanFromHours(i));
 	}
 
 	TEST(TEST_CLASS, SuccessWhenTransactionDeadlineIsEqualToBlockTimePlusLifetime) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, Block_Time + TimeSpanFromHours(2), utils::TimeSpan());
 
 		for (auto i = 1u; i < 4; ++i)
@@ -84,7 +80,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenTransactionDeadlineIsGreaterThanBlockTimePlusLifetime) {
-		// Assert:
 		AssertValidationResult(Failure_Core_Future_Deadline, Block_Time + TimeSpanFromHours(3), utils::TimeSpan());
 
 		for (auto i = 1u; i < 4; ++i)

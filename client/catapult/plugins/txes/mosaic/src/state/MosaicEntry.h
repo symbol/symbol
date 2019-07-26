@@ -49,6 +49,9 @@ namespace catapult { namespace state {
 	/// A tuple composed of a mosaic definition and its current state.
 	class MosaicEntry : public MosaicEntrySupplyMixin {
 	public:
+		static constexpr auto Is_Deactivation_Destructive = false;
+
+	public:
 		/// Creates a mosaic entry around mosaic \a id and mosaic \a definition.
 		MosaicEntry(MosaicId id, const MosaicDefinition& definition);
 

@@ -129,27 +129,22 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, CanProcessInputWithSingleTransaction) {
-		// Assert:
 		AssertCanProcessInputWithEntities(test::CreateTransactionEntityRange, 1);
 	}
 
 	TEST(TEST_CLASS, CanProcessInputWithSingleBlock) {
-		// Assert:
 		AssertCanProcessInputWithEntities(test::CreateBlockEntityRange, 1);
 	}
 
 	TEST(TEST_CLASS, CanProcessInputWithMultipleTransactions) {
-		// Assert:
 		AssertCanProcessInputWithEntities(test::CreateTransactionEntityRange, 3);
 	}
 
 	TEST(TEST_CLASS, CanProcessInputWithMultipleBlocks) {
-		// Assert:
 		AssertCanProcessInputWithEntities(test::CreateBlockEntityRange, 3);
 	}
 
 	TEST(TEST_CLASS, CanProcessMultipleInputs) {
-		// Assert:
 		RunAuditConsumerTest([](const auto& consumer, const auto& auditDirectory) {
 			// Arrange:
 			auto range1 = test::CreateTransactionEntityRange(1);

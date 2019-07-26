@@ -24,9 +24,12 @@
 namespace catapult { namespace state {
 
 	AccountRestrictions::AccountRestrictions(const Address& address) : m_address(address) {
-		addRestriction(model::AccountRestrictionType::Address, Address_Decoded_Size);
+		addRestriction(model::AccountRestrictionType::Address, Address::Size);
+		addRestriction(model::AccountRestrictionType::Address | model::AccountRestrictionType::Outgoing, Address::Size);
 		addRestriction(model::AccountRestrictionType::MosaicId, sizeof(MosaicId));
-		addRestriction(model::AccountRestrictionType::TransactionType, sizeof(model::EntityType));
+		addRestriction(
+				model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing,
+				sizeof(model::EntityType));
 	}
 
 	const Address& AccountRestrictions::address() const {

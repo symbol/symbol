@@ -28,7 +28,9 @@ namespace catapult { namespace model {
 		bool TryCalculateRealSize(const Transaction& transaction, const TransactionRegistry& registry, uint64_t& realSize) {
 			const auto* pPlugin = registry.findPlugin(transaction.Type);
 			if (!pPlugin || !pPlugin->supportsTopLevel()) {
-				CATAPULT_LOG(warning) << "rejected transaction with type: " << transaction.Type;
+				CATAPULT_LOG(warning)
+						<< "rejected transaction with type: " << transaction.Type
+						<< (pPlugin ? " (top level not supported)" : "");
 				return false;
 			}
 

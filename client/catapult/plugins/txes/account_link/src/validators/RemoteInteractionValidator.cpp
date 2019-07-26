@@ -45,11 +45,11 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DEFINE_STATEFUL_VALIDATOR(RemoteInteraction, ([](const auto& notification, const auto& context) {
+	DEFINE_STATEFUL_VALIDATOR(RemoteInteraction, ([](const Notification& notification, const ValidatorContext& context) {
 		if (model::AccountLinkTransaction::Entity_Type == notification.TransactionType)
 			return ValidationResult::Success;
 
-		const auto& cache = context.Cache.template sub<cache::AccountStateCache>();
+		const auto& cache = context.Cache.sub<cache::AccountStateCache>();
 		const auto& addresses = notification.ParticipantsByAddress;
 		const auto& keys = notification.ParticipantsByKey;
 		auto predicate = [&cache, &context](const auto& key) {

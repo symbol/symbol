@@ -38,13 +38,13 @@ namespace catapult { namespace io {
 				*iter++ = transactionElement.MerkleComponentHash;
 			}
 
-			outputStream.write({ reinterpret_cast<const uint8_t*>(hashes.data()), hashes.size() * Hash256_Size });
+			outputStream.write({ reinterpret_cast<const uint8_t*>(hashes.data()), hashes.size() * Hash256::Size });
 		}
 
 		void WriteSubCacheMerkleRoots(OutputStream& outputStream, const std::vector<Hash256>& subCacheMerkleRoots) {
 			auto numHashes = static_cast<uint32_t>(subCacheMerkleRoots.size());
 			Write32(outputStream, numHashes);
-			outputStream.write({ reinterpret_cast<const uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256_Size });
+			outputStream.write({ reinterpret_cast<const uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256::Size });
 		}
 	}
 
@@ -90,7 +90,7 @@ namespace catapult { namespace io {
 		void ReadTransactionHashes(InputStream& inputStream, model::BlockElement& blockElement) {
 			auto numTransactions = Read32(inputStream);
 			std::vector<Hash256> hashes(2 * numTransactions);
-			inputStream.read({ reinterpret_cast<uint8_t*>(hashes.data()), hashes.size() * Hash256_Size });
+			inputStream.read({ reinterpret_cast<uint8_t*>(hashes.data()), hashes.size() * Hash256::Size });
 
 			size_t i = 0;
 			for (const auto& transaction : blockElement.Block.Transactions()) {
@@ -103,7 +103,7 @@ namespace catapult { namespace io {
 		void ReadSubCacheMerkleRoots(InputStream& inputStream, std::vector<Hash256>& subCacheMerkleRoots) {
 			auto numHashes = Read32(inputStream);
 			subCacheMerkleRoots.resize(numHashes);
-			inputStream.read({ reinterpret_cast<uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256_Size });
+			inputStream.read({ reinterpret_cast<uint8_t*>(subCacheMerkleRoots.data()), numHashes * Hash256::Size });
 		}
 	}
 

@@ -72,7 +72,6 @@ namespace catapult { namespace crypto {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidKeyString) {
-		// Act + Assert:
 		EXPECT_THROW(ParseKey("031729D10DB52ECT0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C"), catapult_invalid_argument);
 	}
 

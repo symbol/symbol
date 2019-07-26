@@ -63,12 +63,10 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanCreateCacheStorageViaPluginForFullStorage) {
-		// Assert:
 		AssertCanCreateStorageViaPlugin(test::SimpleCacheViewMode::Iterable, "SimpleCache");
 	}
 
 	TEST(TEST_CLASS, CanCreateCacheStorageViaPluginForSummaryStorage) {
-		// Assert:
 		AssertCanCreateStorageViaPlugin(test::SimpleCacheViewMode::Basic, "SimpleCache_summary");
 	}
 }}

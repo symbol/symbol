@@ -41,7 +41,7 @@ namespace catapult { namespace utils {
 				m_hasOutput = true;
 			}
 
-			void writeNonZero(uint64_t value, const char* postfix) {
+			void writeNonzero(uint64_t value, const char* postfix) {
 				if (0 == value)
 					return;
 
@@ -63,16 +63,16 @@ namespace catapult { namespace utils {
 
 	std::ostream& operator<<(std::ostream& out, const FileSize& fileSize) {
 		// calculate components
-		auto totalBytes = fileSize.bytes();
-		auto bytes = DivideAndGetRemainder<uint64_t>(totalBytes, 1024);
-		auto kilobytes = DivideAndGetRemainder<uint64_t>(totalBytes, 1024);
-		auto megabytes = totalBytes;
+		auto remainder = fileSize.bytes();
+		auto bytes = DivideAndGetRemainder<uint64_t>(remainder, 1024);
+		auto kilobytes = DivideAndGetRemainder<uint64_t>(remainder, 1024);
+		auto megabytes = remainder;
 
 		// output as [0MB][ ][0KB][ ][0B]
 		OutputWriter writer(out);
-		writer.writeNonZero(megabytes, "MB");
-		writer.writeNonZero(kilobytes, "KB");
-		writer.writeNonZero(bytes, "B");
+		writer.writeNonzero(megabytes, "MB");
+		writer.writeNonzero(kilobytes, "KB");
+		writer.writeNonzero(bytes, "B");
 		writer.writeIfEmpty(0, "B"); // if file size is 0, output "0B"
 		return out;
 	}

@@ -170,7 +170,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, TryGetReturnsFalseWhenEitherSectionOrNameDoesNotMatch) {
-		// Assert:
 		AssertTryGetFailure(Foo_Beta_Key, static_cast<uint32_t>(17)); // different name
 		AssertTryGetFailure(Bar_Alpha_Key, static_cast<uint32_t>(18)); // different section
 		AssertTryGetFailure(Bar_Beta_Key, static_cast<uint32_t>(19)); // unrelated
@@ -216,7 +215,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, GetThrowsWhenEitherSectionOrNameDoesNotMatch) {
-		// Assert:
 		using ExceptionType = property_not_found_error;
 		AssertGetFailure<FooAlphaType, ExceptionType>(Foo_Beta_Key); // different name
 		AssertGetFailure<FooAlphaType, ExceptionType>(Bar_Alpha_Key); // different section
@@ -224,7 +222,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, GetThrowsWhenValueCannotBeParsed) {
-		// Assert:
 		using ExceptionType = property_malformed_error;
 		AssertGetFailure<utils::TimeSpan, ExceptionType>(Foo_Alpha_Key);
 	}

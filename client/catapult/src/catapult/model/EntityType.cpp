@@ -48,10 +48,12 @@ namespace catapult { namespace model {
 			#include "plugins/txes/aggregate/src/model/AggregateEntityType.h"
 			#include "plugins/txes/lock_hash/src/model/HashLockEntityType.h"
 			#include "plugins/txes/lock_secret/src/model/SecretLockEntityType.h"
+			#include "plugins/txes/metadata/src/model/MetadataEntityType.h"
 			#include "plugins/txes/mosaic/src/model/MosaicEntityType.h"
 			#include "plugins/txes/multisig/src/model/MultisigEntityType.h"
 			#include "plugins/txes/namespace/src/model/NamespaceEntityType.h"
 			#include "plugins/txes/restriction_account/src/model/AccountRestrictionEntityType.h"
+			#include "plugins/txes/restriction_mosaic/src/model/MosaicRestrictionEntityType.h"
 			#include "plugins/txes/transfer/src/model/TransferEntityType.h"
 			}
 

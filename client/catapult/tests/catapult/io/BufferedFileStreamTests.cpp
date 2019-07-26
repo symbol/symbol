@@ -128,92 +128,7 @@ namespace catapult { namespace io {
 		};
 	}
 
-	// region read tests
-
-	TEST(TEST_CLASS, ReadingLessThanBufferSize_FileLarger) {
-		// Arrange:
-		constexpr auto Data_Size = 3 * Default_Test_Buffer_Size;
-		ReadWriteTest test;
-		test.rawWrite({ Data_Size });
-
-		// Act + Assert:
-		test.assertRead(Data_Size, { Default_Test_Buffer_Size - 1 });
-	}
-
-	TEST(TEST_CLASS, ReadingLessThanBufferSize_FileEqual) {
-		// Arrange:
-		constexpr auto Data_Size = Default_Test_Buffer_Size - 1;
-		ReadWriteTest test;
-		test.rawWrite({ Data_Size });
-
-		// Act + Assert:
-		test.assertRead(Data_Size, { Default_Test_Buffer_Size - 1 });
-	}
-
-	TEST(TEST_CLASS, ReadingLessThanBufferSize_FileSmaller_Throws) {
-		// Arrange:
-		constexpr auto Data_Size = Default_Test_Buffer_Size - 2;
-		ReadWriteTest test;
-		test.rawWrite({ Data_Size });
-
-		// Act + Assert:
-		test.assertReadThrows(Data_Size, Default_Test_Buffer_Size - 1);
-	}
-
-	TEST(TEST_CLASS, ReadingLessThanBufferSize_Multiple) {
-		// Arrange:
-		constexpr auto Data_Size = 2 * Default_Test_Buffer_Size;
-		ReadWriteTest test;
-		test.rawWrite({ Data_Size });
-
-		// Act + Assert:
-		test.assertRead(Data_Size, { Default_Test_Buffer_Size - 1, Default_Test_Buffer_Size - 1, 2 });
-	}
-
-	TEST(TEST_CLASS, ReadingLessThanBufferSize_FollowedByLargeRead) {
-		// Arrange:
-		constexpr auto Data_Size = 2 * Default_Test_Buffer_Size;
-		ReadWriteTest test;
-		test.rawWrite({ Data_Size });
-
-		// Act + Assert:
-		test.assertRead(Data_Size, { 10, 2 * Default_Test_Buffer_Size - 10 });
-	}
-
-	TEST(TEST_CLASS, ReadingLessThanBufferSize_CrossBufferSizeBoundary) {
-		// Arrange:
-		constexpr auto Data_Size = 2 * Default_Test_Buffer_Size;
-		ReadWriteTest test;
-		test.rawWrite({ Data_Size });
-
-		// Act + Assert: (second read crosses buffer boundary)
-		test.assertRead(Data_Size, { Default_Test_Buffer_Size - 10, 20, Default_Test_Buffer_Size - 10 });
-	}
-
-	TEST(TEST_CLASS, ReadingMoreThanBufferSize_FollowedBySmall) {
-		// Arrange:
-		constexpr auto Data_Size = 2 * Default_Test_Buffer_Size;
-		ReadWriteTest test;
-		test.rawWrite({ Data_Size });
-
-		// Act + Assert:
-		test.assertRead(Data_Size, { 2 * Default_Test_Buffer_Size - 10, 10 });
-	}
-
-	TEST(TEST_CLASS, ReadingEqualToBufferSize_FollowedBySmall) {
-		// Arrange:
-		constexpr auto Data_Size = 2 * Default_Test_Buffer_Size;
-		ReadWriteTest test;
-		test.rawWrite({ Data_Size });
-
-		// Act + Assert:
-		constexpr auto Small = Default_Test_Buffer_Size / 2;
-		test.assertRead(Data_Size, { Default_Test_Buffer_Size, Small, Default_Test_Buffer_Size - Small });
-	}
-
-	// endregion
-
-	// region flush/write tests
+	// region write/flush tests
 
 	TEST(TEST_CLASS, WritingLessThanBufferSizeDoesNotFlush) {
 		// Arrange:
@@ -309,6 +224,91 @@ namespace catapult { namespace io {
 		// Assert:
 		constexpr auto Expected_File_Size = 2 * Default_Test_Buffer_Size;
 		test.assertRead(Expected_File_Size, { Expected_File_Size });
+	}
+
+	// endregion
+
+	// region read tests
+
+	TEST(TEST_CLASS, ReadingLessThanBufferSize_FileLarger) {
+		// Arrange:
+		constexpr auto Data_Size = 3 * Default_Test_Buffer_Size;
+		ReadWriteTest test;
+		test.rawWrite({ Data_Size });
+
+		// Act + Assert:
+		test.assertRead(Data_Size, { Default_Test_Buffer_Size - 1 });
+	}
+
+	TEST(TEST_CLASS, ReadingLessThanBufferSize_FileEqual) {
+		// Arrange:
+		constexpr auto Data_Size = Default_Test_Buffer_Size - 1;
+		ReadWriteTest test;
+		test.rawWrite({ Data_Size });
+
+		// Act + Assert:
+		test.assertRead(Data_Size, { Default_Test_Buffer_Size - 1 });
+	}
+
+	TEST(TEST_CLASS, ReadingLessThanBufferSize_FileSmaller_Throws) {
+		// Arrange:
+		constexpr auto Data_Size = Default_Test_Buffer_Size - 2;
+		ReadWriteTest test;
+		test.rawWrite({ Data_Size });
+
+		// Act + Assert:
+		test.assertReadThrows(Data_Size, Default_Test_Buffer_Size - 1);
+	}
+
+	TEST(TEST_CLASS, ReadingLessThanBufferSize_Multiple) {
+		// Arrange:
+		constexpr auto Data_Size = 2 * Default_Test_Buffer_Size;
+		ReadWriteTest test;
+		test.rawWrite({ Data_Size });
+
+		// Act + Assert:
+		test.assertRead(Data_Size, { Default_Test_Buffer_Size - 1, Default_Test_Buffer_Size - 1, 2 });
+	}
+
+	TEST(TEST_CLASS, ReadingLessThanBufferSize_FollowedByLargeRead) {
+		// Arrange:
+		constexpr auto Data_Size = 2 * Default_Test_Buffer_Size;
+		ReadWriteTest test;
+		test.rawWrite({ Data_Size });
+
+		// Act + Assert:
+		test.assertRead(Data_Size, { 10, 2 * Default_Test_Buffer_Size - 10 });
+	}
+
+	TEST(TEST_CLASS, ReadingLessThanBufferSize_CrossBufferSizeBoundary) {
+		// Arrange:
+		constexpr auto Data_Size = 2 * Default_Test_Buffer_Size;
+		ReadWriteTest test;
+		test.rawWrite({ Data_Size });
+
+		// Act + Assert: (second read crosses buffer boundary)
+		test.assertRead(Data_Size, { Default_Test_Buffer_Size - 10, 20, Default_Test_Buffer_Size - 10 });
+	}
+
+	TEST(TEST_CLASS, ReadingMoreThanBufferSize_FollowedBySmall) {
+		// Arrange:
+		constexpr auto Data_Size = 2 * Default_Test_Buffer_Size;
+		ReadWriteTest test;
+		test.rawWrite({ Data_Size });
+
+		// Act + Assert:
+		test.assertRead(Data_Size, { 2 * Default_Test_Buffer_Size - 10, 10 });
+	}
+
+	TEST(TEST_CLASS, ReadingEqualToBufferSize_FollowedBySmall) {
+		// Arrange:
+		constexpr auto Data_Size = 2 * Default_Test_Buffer_Size;
+		ReadWriteTest test;
+		test.rawWrite({ Data_Size });
+
+		// Act + Assert:
+		constexpr auto Small = Default_Test_Buffer_Size / 2;
+		test.assertRead(Data_Size, { Default_Test_Buffer_Size, Small, Default_Test_Buffer_Size - Small });
 	}
 
 	// endregion

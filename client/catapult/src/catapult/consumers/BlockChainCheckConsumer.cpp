@@ -37,7 +37,7 @@ namespace catapult { namespace consumers {
 
 		class BlockChainCheckConsumer {
 		public:
-			explicit BlockChainCheckConsumer(
+			BlockChainCheckConsumer(
 					uint32_t maxChainSize,
 					const utils::TimeSpan& maxBlockFutureTime,
 					const chain::TimeSupplier& timeSupplier)

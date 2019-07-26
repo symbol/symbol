@@ -26,11 +26,11 @@ namespace catapult { namespace utils {
 
 	std::ostream& operator<<(std::ostream& out, const TimeSpan& timeSpan) {
 		// calculate components
-		auto totalMillis = timeSpan.millis();
-		auto millis = DivideAndGetRemainder<uint64_t>(totalMillis, 1000);
-		auto seconds = DivideAndGetRemainder<uint64_t>(totalMillis, 60);
-		auto minutes = DivideAndGetRemainder<uint64_t>(totalMillis, 60);
-		auto hours = totalMillis;
+		auto remainder = timeSpan.millis();
+		auto millis = DivideAndGetRemainder<uint64_t>(remainder, 1000);
+		auto seconds = DivideAndGetRemainder<uint64_t>(remainder, 60);
+		auto minutes = DivideAndGetRemainder<uint64_t>(remainder, 60);
+		auto hours = remainder;
 
 		// output as 00:00:00[.000]
 		StreamFormatGuard guard(out, std::ios::dec, '0');

@@ -80,7 +80,7 @@ namespace catapult { namespace plugins {
 				.add(validators::CreateAccountOperationRestrictionRedundantModificationValidator())
 				.add(validators::CreateAccountOperationRestrictionValueModificationValidator())
 				.add(validators::CreateMaxAccountOperationRestrictionValuesValidator(maxAccountRestrictionValues))
-				.add(validators::CreateTransactionValidator())
+				.add(validators::CreateOperationRestrictionValidator())
 				.add(validators::CreateAccountOperationRestrictionNoSelfBlockingValidator());
 		});
 

@@ -146,12 +146,15 @@ namespace catapult { namespace mocks {
 	std::unique_ptr<EmbeddedMockTransaction> CreateEmbeddedMockTransaction(uint16_t dataSize);
 
 	/// Creates a mock transaction with a \a fee and \a transfers.
-	std::unique_ptr<mocks::MockTransaction> CreateTransactionWithFeeAndTransfers(
+	std::unique_ptr<MockTransaction> CreateTransactionWithFeeAndTransfers(
 			Amount fee,
 			const std::vector<model::UnresolvedMosaic>& transfers);
 
 	/// Creates a mock transaction with \a signer and \a recipient.
 	std::unique_ptr<MockTransaction> CreateMockTransactionWithSignerAndRecipient(const Key& signer, const Key& recipient);
+
+	/// Extracts public keys of additional accounts that must approve \a transaction.
+	utils::KeySet ExtractAdditionalRequiredCosigners(const EmbeddedMockTransaction& transaction);
 
 	/// Mock transaction plugin options.
 	enum class PluginOptionFlags : uint8_t {

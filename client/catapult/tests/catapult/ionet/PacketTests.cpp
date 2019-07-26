@@ -154,17 +154,14 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CannotCoercePacketWithWrongType) {
-		// Assert:
 		AssertCannotCoercePacket([](auto& packet) { packet.Type = PacketType::Push_Block; });
 	}
 
 	TEST(TEST_CLASS, CannotCoercePacketWithSizeTooSmall) {
-		// Assert:
 		AssertCannotCoercePacket([](auto& packet) { --packet.Size; });
 	}
 
 	TEST(TEST_CLASS, CannotCoercePacketWithSizeTooLarge) {
-		// Assert:
 		AssertCannotCoercePacket([](auto& packet) { ++packet.Size; });
 	}
 
@@ -199,17 +196,14 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, PacketWithWrongTypeIsNotValid) {
-		// Assert:
 		AssertPacketIsNotValid([](auto& packet) { packet.Type = PacketType::Push_Block; });
 	}
 
 	TEST(TEST_CLASS, PacketWithSizeTooSmallIsNotValid) {
-		// Assert:
 		AssertPacketIsNotValid([](auto& packet) { --packet.Size; });
 	}
 
 	TEST(TEST_CLASS, PacketWithSizeTooLargeIsNotValid) {
-		// Assert:
 		AssertPacketIsNotValid([](auto& packet) { ++packet.Size; });
 	}
 

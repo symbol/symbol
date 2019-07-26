@@ -101,12 +101,10 @@ namespace catapult { namespace partialtransaction {
 	// region tasks
 
 	TEST(TEST_CLASS, ConnectPeersTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, "connect peers task for service Pt");
 	}
 
 	TEST(TEST_CLASS, PullPtTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, "pull partial transactions task");
 	}
 

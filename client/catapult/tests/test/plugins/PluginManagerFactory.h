@@ -25,7 +25,11 @@ namespace catapult { namespace test {
 
 	/// Creates a plugin manager around \a config.
 	inline plugins::PluginManager CreatePluginManager(const model::BlockChainConfiguration& config) {
-		return plugins::PluginManager(config, plugins::StorageConfiguration(), config::InflationConfiguration::Uninitialized());
+		return plugins::PluginManager(
+				config,
+				plugins::StorageConfiguration(),
+				config::UserConfiguration::Uninitialized(),
+				config::InflationConfiguration::Uninitialized());
 	}
 
 	/// Creates a default plugin manager.

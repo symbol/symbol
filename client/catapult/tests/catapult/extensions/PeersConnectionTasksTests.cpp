@@ -162,7 +162,6 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, CanCreateSelectorSettingsWithRole) {
-		// Assert:
 		AssertCanCreateSelectorSettings(ionet::NodeRoles::Api, [](
 				const auto& cache,
 				auto totalChainImportance,
@@ -174,7 +173,6 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, CanCreateSelectorSettingsWithoutRole) {
-		// Assert:
 		AssertCanCreateSelectorSettings(ionet::NodeRoles::None, [](
 				const auto& cache,
 				auto totalChainImportance,
@@ -320,7 +318,6 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, ConnectPeersTask_MatchingServiceNodesAreAged) {
-		// Assert:
 		AssertMatchingServiceNodesAreAged([](auto& container, auto& writers, auto serviceId) {
 			RunConnectPeersTask(container, writers, serviceId);
 		});
@@ -357,7 +354,6 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, ConnectPeersTask_RemoveCandidatesAreClosedInWriters) {
-		// Assert:
 		AssertRemoveCandidatesAreClosedInWriters([](auto& container, auto& writers, auto serviceId, const auto& removeCandidates) {
 			RunConnectPeersTask(container, writers, serviceId, [&removeCandidates]() {
 				auto result = NodeSelectionResult();
@@ -566,14 +562,12 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, AgePeersTask_MatchingServiceNodesAreAged) {
-		// Assert:
 		AssertMatchingServiceNodesAreAged([](auto& container, auto& writers, auto serviceId) {
 			RunAgePeersTask(container, writers, serviceId);
 		});
 	}
 
 	TEST(TEST_CLASS, AgePeersTask_RemoveCandidatesAreClosedInWriters) {
-		// Assert:
 		AssertRemoveCandidatesAreClosedInWriters([](auto& container, auto& writers, auto serviceId, const auto& removeCandidates) {
 			RunAgePeersTask(container, writers, serviceId, [&removeCandidates]() {
 				return removeCandidates;

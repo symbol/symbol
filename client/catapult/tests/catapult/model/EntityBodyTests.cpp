@@ -28,9 +28,8 @@ namespace catapult { namespace model {
 	// region MakeVersion
 
 	TEST(TEST_CLASS, CanMakeVersionFromNetworkIdentifierAndEntityVersion) {
-		// Assert:
 		EXPECT_EQ(0x0000u, MakeVersion(NetworkIdentifier::Zero, 0)); // zero version
-		EXPECT_EQ(0x9002u, MakeVersion(NetworkIdentifier::Mijin_Test, 2)); // non zero version
+		EXPECT_EQ(0x9002u, MakeVersion(NetworkIdentifier::Mijin_Test, 2)); // nonzero version
 		EXPECT_EQ(0x6802u, MakeVersion(NetworkIdentifier::Public, 2)); // vary network
 		EXPECT_EQ(0x9054u, MakeVersion(NetworkIdentifier::Mijin_Test, 0x54)); // vary version
 
@@ -61,14 +60,12 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, NetworkReturnsNetworkPartOfVersion) {
-		// Assert:
 		AssertNetwork(0x0000, 0x00);
 		AssertNetwork(0x9002, 0x90);
 		AssertNetwork(0xFF54, 0xFF);
 	}
 
 	TEST(TEST_CLASS, EntityVersionReturnsEntityVersionPartOfVersion) {
-		// Assert:
 		AssertEntityVersion(0x0000, 0x00);
 		AssertEntityVersion(0x9002, 0x02);
 		AssertEntityVersion(0x90FF, 0xFF);

@@ -119,7 +119,6 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, CannotProcessNotificationWithInvalidSize) {
-		// Assert:
 		AssertCannotProcessNotificationWithInvalidSize(0);
 		AssertCannotProcessNotificationWithInvalidSize(sizeof(model::Notification) - 1);
 	}

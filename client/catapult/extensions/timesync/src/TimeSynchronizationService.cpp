@@ -42,7 +42,7 @@ namespace catapult { namespace timesync {
 
 		class TimeSynchronizationServiceRegistrar : public extensions::ServiceRegistrar {
 		public:
-			explicit TimeSynchronizationServiceRegistrar(
+			TimeSynchronizationServiceRegistrar(
 					const TimeSynchronizationConfiguration& timeSyncConfig,
 					const std::shared_ptr<TimeSynchronizationState>& pTimeSyncState)
 					: m_timeSyncConfig(timeSyncConfig)
@@ -55,19 +55,17 @@ namespace catapult { namespace timesync {
 			}
 
 			void registerServiceCounters(extensions::ServiceLocator& locator) override {
-				locator.registerServiceCounter<TimeSynchronizationState>(State_Service_Name, "TS OFFSET ABS", [](const auto& state) {
-					return state.absoluteOffset();
-				});
-				locator.registerServiceCounter<TimeSynchronizationState>(State_Service_Name, "TS OFFSET DIR", [](const auto& state) {
-					return utils::to_underlying_type(state.offsetDirection());
-				});
-				locator.registerServiceCounter<TimeSynchronizationState>(State_Service_Name, "TS NODE AGE", [](const auto& state) {
-					return static_cast<uint64_t>(state.nodeAge().unwrap());
-				});
-				locator.registerServiceCounter<NodeNetworkTimeRequestor>(
-						Requestor_Service_Name,
-						"TS TOTAL REQ",
-						[](const auto& requestor) { return requestor.numTotalRequests(); });
+				auto addStateCounter = [&locator](const auto& counterName, auto supplier) {
+					locator.registerServiceCounter<TimeSynchronizationState>(State_Service_Name, counterName, supplier);
+				};
+				addStateCounter("TS OFFSET ABS", [](const auto& state) { return state.absoluteOffset(); });
+				addStateCounter("TS OFFSET DIR", [](const auto& state) { return utils::to_underlying_type(state.offsetDirection()); });
+				addStateCounter("TS NODE AGE", [](const auto& state) { return static_cast<uint64_t>(state.nodeAge().unwrap()); });
+
+				auto addRequestorCounter = [&locator](const auto& counterName, auto supplier) {
+					locator.registerServiceCounter<NodeNetworkTimeRequestor>(Requestor_Service_Name, counterName, supplier);
+				};
+				addRequestorCounter("TS TOTAL REQ", [](const auto& requestor) { return requestor.numTotalRequests();});
 			}
 
 			void registerServices(extensions::ServiceLocator& locator, extensions::ServiceState& state) override {

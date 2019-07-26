@@ -40,7 +40,7 @@ namespace catapult { namespace test {
 
 	private:
 		// add a second parameter to disambiguate construction around string literal
-		explicit TempDirectoryGuard(const boost::filesystem::path& directoryPath, bool);
+		TempDirectoryGuard(const boost::filesystem::path& directoryPath, bool);
 
 	public:
 		/// Gets the name of the guarded directory.

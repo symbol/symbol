@@ -86,7 +86,7 @@ namespace catapult { namespace test {
 	void AssertAllZero(const std::pair<std::vector<Hash256>, std::vector<Hash256>>& hashes, size_t numExpected);
 
 	/// Asserts that every hash in \a hashes is nonzero and \a numExpected hashes are provided with optional \a message.
-	void AssertAllNonZero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message = "");
+	void AssertAllNonzero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message = "");
 
 	/// Asserts that every hash in \a hashes is unique.
 	void AssertUnique(const std::vector<Hash256>& hashes);

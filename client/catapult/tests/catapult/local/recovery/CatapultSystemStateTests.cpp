@@ -151,27 +151,22 @@ namespace catapult { namespace local {
 	}
 
 	TEST(TEST_CLASS, CanResetFromNoFiles) {
-		// Assert:
 		AssertCanResetFrom({ false, false, false, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanResetFromOnlyBrokerLock) {
-		// Assert:
 		AssertCanResetFrom({ true, false, false, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanResetFromOnlyServerLock) {
-		// Assert:
 		AssertCanResetFrom({ false, true, false, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanResetFromOnlyCommitStep) {
-		// Assert:
 		AssertCanResetFrom({ false, false, true, consumers::CommitOperationStep::Blocks_Written });
 	}
 
 	TEST(TEST_CLASS, CanResetFromAllFiles) {
-		// Assert:
 		AssertCanResetFrom({ true, true, true, consumers::CommitOperationStep::Blocks_Written });
 	}
 

@@ -87,9 +87,10 @@ namespace catapult { namespace observers {
 		}
 
 		auto SeedCacheWithRoot25TreeSigner(const Key& signer) {
-			return [&signer](auto& namespaceCacheDelta) {
+			return [signer](auto& namespaceCacheDelta) {
 				// Arrange: create a cache with { 25 } and { 25, 36 }
-				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, test::CreateLifetime(10, 123)));
+				auto lifetime = test::CreateLifetime(10, 123 + Grace_Period_Duration);
+				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, lifetime));
 				namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36 })));
 
 				// Sanity:
@@ -128,14 +129,11 @@ namespace catapult { namespace observers {
 		notification.Duration = BlockDuration(1100);
 
 		// Act: add it
-		RunRootTest(
-				notification,
-				ObserverTestContext(NotifyMode::Commit, Height(777)),
-				SeedCacheEmpty,
-				[&signer](auto& namespaceCacheDelta) {
-					// Assert: the root was added
-					AssertRootAdded(namespaceCacheDelta, signer, Height(777), Height(1877));
-				});
+		auto seedCache = SeedCacheEmpty;
+		RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, Height(777)), seedCache, [&signer](auto& namespaceCacheDelta) {
+			// Assert: the root was added
+			AssertRootAdded(namespaceCacheDelta, signer, Height(777), Height(1877 + Grace_Period_Duration));
+		});
 	}
 
 	TEST(TEST_CLASS, ObserverAddsNamespaceOnCommit_RootEternal) {
@@ -145,14 +143,11 @@ namespace catapult { namespace observers {
 		notification.Duration = Eternal_Artifact_Duration;
 
 		// Act: add it (note that adding eternal namespaces after nemesis is prevented by a validator)
-		RunRootTest(
-				notification,
-				ObserverTestContext(NotifyMode::Commit, Height(777)),
-				SeedCacheEmpty,
-				[&signer](auto& namespaceCacheDelta) {
-					// Assert: the root was added
-					AssertRootAdded(namespaceCacheDelta, signer, Height(777), Height(0xFFFF'FFFF'FFFF'FFFF));
-				});
+		auto seedCache = SeedCacheEmpty;
+		RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, Height(777)), seedCache, [&signer](auto& namespaceCacheDelta) {
+			// Assert: the root was added
+			AssertRootAdded(namespaceCacheDelta, signer, Height(777), Height(0xFFFF'FFFF'FFFF'FFFF));
+		});
 	}
 
 	namespace {
@@ -186,14 +181,11 @@ namespace catapult { namespace observers {
 			notification.Duration = BlockDuration(1100);
 
 			// Act: renew it before its expiry
-			RunRootTest(
-					notification,
-					ObserverTestContext(NotifyMode::Commit, height),
-					SeedCacheWithRoot25TreeSigner(signer),
-					[&signer](auto& namespaceCacheDelta) {
-						// Assert: the root was renewed - [initial start, initial end + duration)
-						AssertRootRenewed(namespaceCacheDelta, signer, Height(10), Height(1223));
-					});
+			auto seedCache = SeedCacheWithRoot25TreeSigner(signer);
+			RunRootTest(notification, ObserverTestContext(NotifyMode::Commit, height), seedCache, [&signer](auto& namespaceCacheDelta) {
+				// Assert: the root was renewed - [initial start, initial end + duration)
+				AssertRootRenewed(namespaceCacheDelta, signer, Height(10), Height(1223 + Grace_Period_Duration));
+			});
 		}
 	}
 
@@ -206,14 +198,12 @@ namespace catapult { namespace observers {
 			notification.Duration = BlockDuration(1100);
 
 			// Act: renew it after its expiry
-			RunRootTest(
-					notification,
-					ObserverTestContext(NotifyMode::Commit, height),
-					SeedCacheWithRoot25TreeSigner(signer),
-					[height, &signer](auto& namespaceCacheDelta) {
-						// Assert: the root was renewed - [block height, block height + duration)
-						AssertRootRenewed(namespaceCacheDelta, signer, height, height + Height(1100));
-					});
+			auto testContext = ObserverTestContext(NotifyMode::Commit, height);
+			auto seedCache = SeedCacheWithRoot25TreeSigner(signer);
+			RunRootTest(notification, std::move(testContext), seedCache, [height, &signer](auto& namespaceCacheDelta) {
+				// Assert: the root was renewed - [block height, block height + duration)
+				AssertRootRenewed(namespaceCacheDelta, signer, height, height + Height(1100 + Grace_Period_Duration));
+			});
 		}
 	}
 
@@ -248,14 +238,12 @@ namespace catapult { namespace observers {
 			notification.Duration = BlockDuration(1100);
 
 			// Act: change owner before its expiry (this is prevented by a validator)
-			RunRootTest(
-					notification,
-					ObserverTestContext(NotifyMode::Commit, height),
-					SeedCacheWithRoot25TreeSigner(test::CreateRandomOwner()),
-					[height, &signer](auto& namespaceCacheDelta) {
-						// Assert: the root was renewed - [block height, block height + duration)
-						AssertRootOwnerChanged(namespaceCacheDelta, signer, height, height + Height(1100));
-					});
+			auto testContext = ObserverTestContext(NotifyMode::Commit, height);
+			auto seedCache = SeedCacheWithRoot25TreeSigner(test::CreateRandomOwner());
+			RunRootTest(notification, std::move(testContext), seedCache, [height, &signer](auto& namespaceCacheDelta) {
+				// Assert: the root was renewed - [block height, block height + duration)
+				AssertRootOwnerChanged(namespaceCacheDelta, signer, height, height + Height(1100 + Grace_Period_Duration));
+			});
 		}
 	}
 
@@ -268,14 +256,12 @@ namespace catapult { namespace observers {
 			notification.Duration = BlockDuration(1100);
 
 			// Act: change owner after its expiry
-			RunRootTest(
-					notification,
-					ObserverTestContext(NotifyMode::Commit, height),
-					SeedCacheWithRoot25TreeSigner(test::CreateRandomOwner()),
-					[height, &signer](auto& namespaceCacheDelta) {
-						// Assert: the root was renewed - [block height, block height + duration)
-						AssertRootOwnerChanged(namespaceCacheDelta, signer, height, height + Height(1100));
-					});
+			auto testContext = ObserverTestContext(NotifyMode::Commit, height);
+			auto seedCache = SeedCacheWithRoot25TreeSigner(test::CreateRandomOwner());
+			RunRootTest(notification, std::move(testContext), seedCache, [height, &signer](auto& namespaceCacheDelta) {
+				// Assert: the root was renewed - [block height, block height + duration)
+				AssertRootOwnerChanged(namespaceCacheDelta, signer, height, height + Height(1100 + Grace_Period_Duration));
+			});
 		}
 	}
 

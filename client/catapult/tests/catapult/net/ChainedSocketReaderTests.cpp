@@ -46,7 +46,7 @@ namespace catapult { namespace net {
 			});
 		}
 
-		/// Options for configuring SendBuffers.
+		// options for configuring SendBuffers
 		struct SendBuffersOptions {
 		public:
 			SendBuffersOptions()
@@ -55,10 +55,10 @@ namespace catapult { namespace net {
 			{}
 
 		public:
-			/// Number of reads to confirm.
+			// number of reads to confirm
 			size_t NumReadsToConfirm;
 
-			/// Hook that is passed every packet as it is read.
+			// hook that is passed every packet as it is read
 			consumer<ChainedSocketReader&> HookPacketReceived;
 		};
 
@@ -104,7 +104,7 @@ namespace catapult { namespace net {
 			return { test::GenerateRandomByteArray<Key>(), "alice.com" };
 		}
 
-		/// Writes all \a sendBuffers to a socket and reads them with a reader.
+		// writes all \a sendBuffers to a socket and reads them with a reader
 		std::pair<std::vector<ionet::ByteBuffer>, ionet::SocketOperationCode> SendBuffers(
 				const std::vector<ionet::ByteBuffer>& sendBuffers,
 				SendBuffersOptions options = SendBuffersOptions()) {

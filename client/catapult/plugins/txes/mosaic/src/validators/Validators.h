@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 	/// Validator that applies to mosaic required notifications and validates that:
 	/// - mosaic exists and is active
 	/// - mosaic owner matches requesting signer
-	DECLARE_STATEFUL_VALIDATOR(ProperMosaic, model::MosaicRequiredNotification)();
+	DECLARE_STATEFUL_VALIDATOR(RequiredMosaic, model::MosaicRequiredNotification)();
 
 	// endregion
 
@@ -77,7 +77,7 @@ namespace catapult { namespace validators {
 	/// - the affected mosaic has mutable supply
 	/// - decrease does not cause owner amount to become negative
 	/// - increase does not cause total atomic units to exceed \a maxAtomicUnits
-	/// \note This validator is dependent on MosaicChangeAllowedValidator.
+	/// \note This validator is dependent on RequiredMosaicValidator.
 	DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, model::MosaicSupplyChangeNotification)(Amount maxAtomicUnits);
 
 	/// Validator that applies to mosaic supply change notifications and validates that:

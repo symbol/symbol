@@ -41,7 +41,6 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidStrategyValue) {
-		// Assert:
 		test::AssertEnumParseFailure("minimize", TransactionSelectionStrategy::Oldest, [](const auto& str, auto& parsedValue) {
 			return TryParseValue(str, parsedValue);
 		});

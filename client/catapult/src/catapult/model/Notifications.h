@@ -32,11 +32,11 @@ namespace catapult { namespace model {
 
 	// region base notification
 
-	/// A basic notification.
+	/// Basic notification.
 	struct Notification {
 	public:
 		/// Creates a new notification with \a type and \a size.
-		explicit Notification(NotificationType type, size_t size)
+		Notification(NotificationType type, size_t size)
 				: Type(type)
 				, Size(size)
 		{}
@@ -93,7 +93,7 @@ namespace catapult { namespace model {
 
 	// region balance
 
-	/// A basic balance notification.
+	/// Basic balance notification.
 	template<typename TDerivedNotification>
 	struct BasicBalanceNotification : public Notification {
 	public:
@@ -412,19 +412,21 @@ namespace catapult { namespace model {
 		static constexpr auto Notification_Type = Core_Mosaic_Required_Notification;
 
 	public:
-		/// Creates a notification around \a signer and \a mosaicId.
-		MosaicRequiredNotification(const Key& signer, MosaicId mosaicId)
+		/// Creates a notification around \a signer, \a mosaicId and optional \a propertyFlagMask.
+		MosaicRequiredNotification(const Key& signer, MosaicId mosaicId, uint8_t propertyFlagMask = 0)
 				: Notification(Notification_Type, sizeof(MosaicRequiredNotification))
 				, Signer(signer)
 				, MosaicId(mosaicId)
+				, PropertyFlagMask(propertyFlagMask)
 				, ProvidedMosaicType(MosaicType::Resolved)
 		{}
 
-		/// Creates a notification around \a signer and \a mosaicId.
-		MosaicRequiredNotification(const Key& signer, UnresolvedMosaicId mosaicId)
+		/// Creates a notification around \a signer, \a mosaicId and optional \a propertyFlagMask.
+		MosaicRequiredNotification(const Key& signer, UnresolvedMosaicId mosaicId, uint8_t propertyFlagMask = 0)
 				: Notification(Notification_Type, sizeof(MosaicRequiredNotification))
 				, Signer(signer)
 				, UnresolvedMosaicId(mosaicId)
+				, PropertyFlagMask(propertyFlagMask)
 				, ProvidedMosaicType(MosaicType::Unresolved)
 		{}
 
@@ -437,6 +439,9 @@ namespace catapult { namespace model {
 
 		/// Mosaic id (unresolved).
 		catapult::UnresolvedMosaicId UnresolvedMosaicId;
+
+		/// Mask of required property flags that must be set on the mosaic.
+		uint8_t PropertyFlagMask;
 
 		/// Type of mosaic provided and attached to this notification.
 		MosaicType ProvidedMosaicType;

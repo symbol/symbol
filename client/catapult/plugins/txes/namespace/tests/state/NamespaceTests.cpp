@@ -73,7 +73,7 @@ namespace catapult { namespace state {
 
 	TEST(TEST_CLASS, CanCreateChild) {
 		// Arrange:
-		auto path = test::CreatePath({ test::Default_Root_Id, 357 });
+		auto path = test::CreatePath({ test::Default_Root_Id, 357, 468 });
 		Namespace ns(path);
 
 		// Act:
@@ -84,16 +84,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(ns.id(), child.parentId());
 		EXPECT_EQ(ns.rootId(), child.rootId());
 		EXPECT_FALSE(child.isRoot());
-		EXPECT_EQ(test::CreatePath({ test::Default_Root_Id, 357, 123 }), child.path());
-	}
-
-	TEST(TEST_CLASS, CannotCreateChildWhenMaxDepthIsExceeded) {
-		// Arrange:
-		auto path = test::CreatePath({ test::Default_Root_Id, 357, 468 });
-		Namespace ns(path);
-
-		// Act + Assert:
-		EXPECT_THROW(ns.createChild(NamespaceId(123)), catapult_out_of_range);
+		EXPECT_EQ(test::CreatePath({ test::Default_Root_Id, 357, 468, 123 }), child.path());
 	}
 
 	// endregion
@@ -127,12 +118,10 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 

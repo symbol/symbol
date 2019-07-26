@@ -52,10 +52,10 @@ namespace catapult { namespace mocks {
 		return CreateMockTransactionT<EmbeddedMockTransaction>(dataSize);
 	}
 
-	std::unique_ptr<mocks::MockTransaction> CreateTransactionWithFeeAndTransfers(
+	std::unique_ptr<MockTransaction> CreateTransactionWithFeeAndTransfers(
 			Amount fee,
 			const std::vector<model::UnresolvedMosaic>& transfers) {
-		auto pTransaction = mocks::CreateMockTransaction(static_cast<uint16_t>(transfers.size() * sizeof(Mosaic)));
+		auto pTransaction = CreateMockTransaction(static_cast<uint16_t>(transfers.size() * sizeof(Mosaic)));
 		pTransaction->MaxFee = fee;
 		pTransaction->Version = 0;
 
@@ -74,6 +74,10 @@ namespace catapult { namespace mocks {
 		pTransaction->Recipient = recipient;
 		pTransaction->Version = MakeVersion(NetworkIdentifier::Mijin_Test, 1);
 		return pTransaction;
+	}
+
+	utils::KeySet ExtractAdditionalRequiredCosigners(const EmbeddedMockTransaction& transaction) {
+		return { Key{ { 1 } }, transaction.Recipient, Key{ { 2 } } };
 	}
 
 	bool IsPluginOptionFlagSet(PluginOptionFlags options, PluginOptionFlags flag) {
@@ -111,7 +115,7 @@ namespace catapult { namespace mocks {
 		template<typename TTransaction, typename TDerivedTransaction, typename TPlugin>
 		class MockTransactionPluginT : public TPlugin {
 		public:
-			explicit MockTransactionPluginT(EntityType type, PluginOptionFlags options)
+			MockTransactionPluginT(EntityType type, PluginOptionFlags options)
 					: m_type(type)
 					, m_options(options)
 			{}
@@ -137,12 +141,16 @@ namespace catapult { namespace mocks {
 		class EmbeddedMockTransactionPlugin
 				: public MockTransactionPluginT<EmbeddedTransaction, EmbeddedMockTransaction, EmbeddedTransactionPlugin> {
 		public:
-			explicit EmbeddedMockTransactionPlugin(EntityType type, PluginOptionFlags options)
+			EmbeddedMockTransactionPlugin(EntityType type, PluginOptionFlags options)
 					: MockTransactionPluginT<EmbeddedTransaction, EmbeddedMockTransaction, EmbeddedTransactionPlugin>(type, options)
 					, m_options(options)
 			{}
 
 		public:
+			utils::KeySet additionalRequiredCosigners(const EmbeddedTransaction&) const override {
+				return utils::KeySet();
+			}
+
 			void publish(const EmbeddedTransaction& transaction, NotificationSubscriber& sub) const override {
 				Publish(static_cast<const EmbeddedMockTransaction&>(transaction), m_options, sub);
 			}
@@ -153,7 +161,7 @@ namespace catapult { namespace mocks {
 
 		class MockTransactionPlugin : public MockTransactionPluginT<Transaction, MockTransaction, TransactionPlugin> {
 		public:
-			explicit MockTransactionPlugin(EntityType type, PluginOptionFlags options)
+			MockTransactionPlugin(EntityType type, PluginOptionFlags options)
 					: MockTransactionPluginT<Transaction, MockTransaction, TransactionPlugin>(type, options)
 					, m_options(options) {
 				if (IsPluginOptionFlagSet(m_options, PluginOptionFlags::Not_Embeddable))

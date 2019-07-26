@@ -28,6 +28,8 @@ namespace catapult { namespace io {
 	/// Default stream buffer size.
 	constexpr size_t Default_Stream_Buffer_Size = 4096;
 
+	// region BufferedOutputFileStream
+
 	/// Provides a buffered output stream around raw file.
 	class BufferedOutputFileStream final : public OutputStream {
 	public:
@@ -44,6 +46,10 @@ namespace catapult { namespace io {
 		std::vector<uint8_t> m_buffer;
 		size_t m_bufferPosition; // position of next write
 	};
+
+	// endregion
+
+	// region BufferedInputFileStream
 
 	/// Provides a buffered input stream around raw file.
 	class BufferedInputFileStream final : public InputStream {
@@ -63,4 +69,6 @@ namespace catapult { namespace io {
 		// during reading m_numBytesInBuffer mostly will be m_buffer.size() and might be smaller near the end of file
 		size_t m_numBytesInBuffer;
 	};
+
+	// endregion
 }}

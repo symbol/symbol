@@ -216,6 +216,7 @@ namespace catapult { namespace harvesting {
 			blockDifficultyCache.insert(state::BlockDifficultyInfo(Height(1)));
 
 			// - commit changes
+			delta.calculateStateHash(Height(1));
 			cache.commit(height);
 			return cache;
 		}
@@ -226,7 +227,6 @@ namespace catapult { namespace harvesting {
 	}
 
 	TEST(TEST_CLASS, HarvestingTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), 1, Task_Name);
 	}
 
@@ -351,7 +351,7 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(Hash256(), harvestedStateHash);
 	}
 
-	TEST(TEST_CLASS, HarvestingTaskGeneratesNonZeroStateHashWhenVerifiableStateIsEnabled) {
+	TEST(TEST_CLASS, HarvestingTaskGeneratesNonzeroStateHashWhenVerifiableStateIsEnabled) {
 		// Act:
 		Hash256 harvestedStateHash;
 		RunHarvestingStateHashTest(true, harvestedStateHash);

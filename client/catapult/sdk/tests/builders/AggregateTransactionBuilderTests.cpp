@@ -134,22 +134,18 @@ namespace catapult { namespace builders {
 	}
 
 	TEST(TEST_CLASS, AggregateBuilderCreatesProperTransaction_SingleTransaction) {
-		// Assert:
 		AssertAggregateBuilderTransaction(1);
 	}
 
 	TEST(TEST_CLASS, AggregateBuilderCreatesProperTransaction_MultipleTransactions) {
-		// Assert:
 		AssertAggregateBuilderTransaction(3);
 	}
 
 	TEST(TEST_CLASS, AggregateCosignatureAppenderAddsProperSignature_SingleCosignatory) {
-		// Assert:
 		AssertAggregateCosignaturesTransaction(1);
 	}
 
 	TEST(TEST_CLASS, AggregateCosignatureAppenderAddsProperSignature_MultipleCosignatories) {
-		// Assert:
 		AssertAggregateCosignaturesTransaction(3);
 	}
 }}

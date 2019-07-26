@@ -34,9 +34,9 @@ namespace catapult { namespace plugins {
 			if (AccountLinkAction::Link == transaction.LinkAction) {
 				// NewRemoteAccountNotification must be raised before AccountPublicKeyNotification because the latter adds account to cache
 				sub.notify(NewRemoteAccountNotification(transaction.RemoteAccountKey));
+				sub.notify(AccountPublicKeyNotification(transaction.RemoteAccountKey));
 			}
 
-			sub.notify(AccountPublicKeyNotification(transaction.RemoteAccountKey));
 			sub.notify(AddressInteractionNotification(transaction.Signer, transaction.Type, {}, { transaction.RemoteAccountKey }));
 			sub.notify(RemoteAccountLinkNotification(transaction.Signer, transaction.RemoteAccountKey, transaction.LinkAction));
 		}

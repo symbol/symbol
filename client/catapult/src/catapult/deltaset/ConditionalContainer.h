@@ -70,13 +70,13 @@ namespace catapult { namespace deltaset {
 			ConditionalIterator() = default;
 
 			/// Creates a conditional iterator around \a iter for a storage container.
-			explicit ConditionalIterator(typename StorageSetType::const_iterator&& iter, StorageFlag)
+			ConditionalIterator(typename StorageSetType::const_iterator&& iter, StorageFlag)
 					: m_storageIter(std::move(iter))
 					, m_mode(ConditionalContainerMode::Storage)
 			{}
 
 			/// Creates a conditional iterator around \a iter for a memory container.
-			explicit ConditionalIterator(typename MemorySetType::const_iterator&& iter, MemoryFlag)
+			ConditionalIterator(typename MemorySetType::const_iterator&& iter, MemoryFlag)
 					: m_memoryIter(std::move(iter))
 					, m_mode(ConditionalContainerMode::Memory)
 			{}

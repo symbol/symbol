@@ -53,16 +53,22 @@ namespace catapult { namespace plugins {
 		auto storageConfig = StorageConfiguration();
 		storageConfig.CacheDatabaseDirectory = "abc";
 
+		auto userConfig = config::UserConfiguration::Uninitialized();
+		userConfig.DataDirectory = "xyz";
+
 		auto inflationConfig = config::InflationConfiguration::Uninitialized();
 		inflationConfig.InflationCalculator.add(Height(123), Amount(234));
 
 		// Act:
-		PluginManager manager(config, storageConfig, inflationConfig);
+		PluginManager manager(config, storageConfig, userConfig, inflationConfig);
 
-		// Assert: compare BlockPruneInterval, CacheDatabaseDirectory and InflationCalculator as sentinel values
-		//         because the manager copies the configs
+		// Assert: compare sentinel values from component configs because the manager copies the configs
 		EXPECT_EQ(15u, manager.config().BlockPruneInterval);
+
 		EXPECT_EQ("abc", manager.storageConfig().CacheDatabaseDirectory);
+
+		EXPECT_EQ("xyz", manager.userConfig().DataDirectory);
+
 		EXPECT_EQ(1u, manager.inflationConfig().InflationCalculator.size());
 		EXPECT_TRUE(manager.inflationConfig().InflationCalculator.contains(Height(123), Amount(234)));
 	}
@@ -85,6 +91,7 @@ namespace catapult { namespace plugins {
 		PluginManager manager(
 				model::BlockChainConfiguration::Uninitialized(),
 				storageConfig,
+				config::UserConfiguration::Uninitialized(),
 				config::InflationConfiguration::Uninitialized());
 
 		// Assert: cache configuration is constructed appropriately
@@ -216,7 +223,6 @@ namespace catapult { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanRegisterCustomHandlers) {
-		// Assert:
 		AssertCanRegisterCustomHandlers<NonDiagnosticHandlerTraits>();
 	}
 
@@ -237,7 +243,6 @@ namespace catapult { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanRegisterCustomDiagnosticHandlers) {
-		// Assert:
 		AssertCanRegisterCustomHandlers<DiagnosticHandlerTraits>();
 	}
 

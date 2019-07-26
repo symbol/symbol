@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 	DECLARE_STATEFUL_VALIDATOR(RootNamespaceMaxChildren, Notification)(uint16_t maxChildren) {
 		return MAKE_STATEFUL_VALIDATOR(RootNamespaceMaxChildren, ([maxChildren](
-				const auto& notification,
+				const Notification& notification,
 				const ValidatorContext& context) {
 			const auto& cache = context.Cache.sub<cache::NamespaceCache>();
 			auto namespaceIter = cache.find(notification.ParentId);

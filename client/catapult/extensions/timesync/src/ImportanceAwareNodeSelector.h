@@ -38,11 +38,11 @@ namespace catapult { namespace timesync {
 	public:
 		/// Creates a selector that can pick up to \a maxNodes nodes with a minimum importance of \a minImportance
 		/// that have active connections with service id \a serviceId.
-		explicit ImportanceAwareNodeSelector(ionet::ServiceIdentifier serviceId, uint8_t maxNodes, Importance minImportance);
+		ImportanceAwareNodeSelector(ionet::ServiceIdentifier serviceId, uint8_t maxNodes, Importance minImportance);
 
 		/// Creates a selector around a custom \a selector that can pick up to \a maxNodes nodes with
 		/// a minimum importance of \a minImportance that have active connections with service id \a serviceId.
-		explicit ImportanceAwareNodeSelector(
+		ImportanceAwareNodeSelector(
 				ionet::ServiceIdentifier serviceId,
 				uint8_t maxNodes,
 				Importance minImportance,

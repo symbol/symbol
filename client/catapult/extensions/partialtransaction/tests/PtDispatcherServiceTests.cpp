@@ -481,7 +481,6 @@ namespace catapult { namespace partialtransaction {
 	}
 
 	TEST(TEST_CLASS, CosignedTransactionInfosConsumerForwardsTransactionRangeToDispatcher) {
-		// Assert:
 		AssertInvokeForwardsTransactionRangeToDispatcher([](const auto& hooks, auto&& transactionRange) {
 			// Arrange:
 			CosignedTransactionInfos transactionInfos;
@@ -497,7 +496,6 @@ namespace catapult { namespace partialtransaction {
 	}
 
 	TEST(TEST_CLASS, PtRangeConsumerForwardsTransactionRangeToDispatcher) {
-		// Assert:
 		AssertInvokeForwardsTransactionRangeToDispatcher([](const auto& hooks, auto&& transactionRange) {
 			// Act:
 			hooks.ptRangeConsumer()(std::move(transactionRange));
@@ -567,7 +565,6 @@ namespace catapult { namespace partialtransaction {
 	}
 
 	TEST(TEST_CLASS, CosignedTransactionInfosConsumerForwardsCosignaturesToUpdater) {
-		// Assert:
 		AssertInvokeForwardsCosignatureRangeToUpdater([](const auto& hooks, auto&& cosignatureRange) {
 			// Arrange: create a separate info for each cosignature
 			CosignedTransactionInfos transactionInfos;
@@ -584,7 +581,6 @@ namespace catapult { namespace partialtransaction {
 	}
 
 	TEST(TEST_CLASS, CosignatureRangeConsumerForwardsCosignatureRangeToUpdater) {
-		// Assert:
 		AssertInvokeForwardsCosignatureRangeToUpdater([](const auto& hooks, auto&& cosignatureRange) {
 			// Act:
 			hooks.cosignatureRangeConsumer()(std::move(cosignatureRange));

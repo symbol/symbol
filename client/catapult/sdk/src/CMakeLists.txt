@@ -7,6 +7,7 @@ target_link_libraries(${TARGET_NAME}
 	catapult.model
 	catapult.state
 	catapult.plugins.aggregate.sdk
+	catapult.plugins.metadata.sdk
 	catapult.plugins.mosaic.sdk
 	catapult.plugins.namespace.sdk
 	catapult.plugins.restrictionaccount.sdk)

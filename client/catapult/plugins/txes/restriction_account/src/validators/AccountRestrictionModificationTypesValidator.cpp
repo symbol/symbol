@@ -34,7 +34,7 @@ namespace catapult { namespace validators {
 	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_TYPE_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE, RESTRICTION_VALUE_TYPE) \
-	DEFINE_STATELESS_VALIDATOR_WITH_TYPE(VALIDATOR_NAME, NOTIFICATION_TYPE, [](const auto& notification) { \
+	DEFINE_STATELESS_VALIDATOR_WITH_TYPE(VALIDATOR_NAME, NOTIFICATION_TYPE, [](const NOTIFICATION_TYPE& notification) { \
 		auto areAllValid = AreAllAccountRestrictionModificationTypesValid<RESTRICTION_VALUE_TYPE>( \
 				notification.ModificationsPtr, \
 				notification.ModificationsCount); \

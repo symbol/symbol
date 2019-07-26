@@ -35,22 +35,22 @@ namespace catapult { namespace model {
 	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Type, 0x0001, Validator);
 
 	/// Account address restriction modification.
-	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Address_Modification, 0x0010, All);
+	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Address_Modification, 0x0002, All);
 
 	/// Account mosaic restriction modification.
-	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Mosaic_Modification, 0x0011, All);
+	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Mosaic_Modification, 0x0003, All);
 
 	/// Account operation restriction modification.
-	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Operation_Modification, 0x0012, All);
+	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Operation_Modification, 0x0004, All);
 
 	/// Account address restriction modifications.
-	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Address_Modifications, 0x0020, Validator);
+	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Address_Modifications, 0x0005, Validator);
 
 	/// Account mosaic restriction modifications.
-	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Mosaic_Modifications, 0x0021, Validator);
+	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Mosaic_Modifications, 0x0006, Validator);
 
 	/// Account operation restriction modifications.
-	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Operation_Modifications, 0x0022, Validator);
+	DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION(Operation_Modifications, 0x0007, Validator);
 
 #undef DEFINE_ACCOUNT_RESTRICTION_NOTIFICATION
 
@@ -68,12 +68,12 @@ namespace catapult { namespace model {
 		/// Creates a notification around \a restrictionType.
 		explicit AccountRestrictionTypeNotification(model::AccountRestrictionType restrictionType)
 				: Notification(Notification_Type, sizeof(AccountRestrictionTypeNotification))
-				, AccountRestrictionType(restrictionType)
+				, RestrictionType(restrictionType)
 		{}
 
 	public:
 		/// Account restriction type.
-		model::AccountRestrictionType AccountRestrictionType;
+		AccountRestrictionType RestrictionType;
 	};
 
 	// endregion
@@ -107,7 +107,6 @@ namespace catapult { namespace model {
 		state::AccountRestrictionDescriptor AccountRestrictionDescriptor;
 
 		/// Account restriction modification.
-		/// \note TRestrictionValue is the resolved value.
 		AccountRestrictionModification<TRestrictionValue> Modification;
 	};
 

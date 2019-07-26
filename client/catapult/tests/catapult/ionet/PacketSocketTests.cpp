@@ -172,7 +172,6 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, WriteCanWriteMultipleConsecutivePayloads) {
-		// Assert:
 		test::AssertWriteCanWriteMultipleConsecutivePayloads([](const auto& pSocket) { return pSocket; });
 	}
 
@@ -556,7 +555,6 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, ReadCanReadMultipleConsecutivePayloads) {
-		// Assert:
 		test::AssertReadCanReadMultipleConsecutivePayloads([](const auto& pSocket) { return pSocket; });
 	}
 

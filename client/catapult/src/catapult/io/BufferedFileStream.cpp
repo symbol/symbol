@@ -24,16 +24,13 @@
 
 namespace catapult { namespace io {
 
+	// region BufferedOutputFileStream
+
 	BufferedOutputFileStream::BufferedOutputFileStream(RawFile&& rawFile, size_t bufferSize)
 			: m_rawFile(std::move(rawFile))
 			, m_buffer(bufferSize)
 			, m_bufferPosition(0)
 	{}
-
-	void BufferedOutputFileStream::flush() {
-		m_rawFile.write({ m_buffer.data(), m_bufferPosition });
-		m_bufferPosition = 0;
-	}
 
 	void BufferedOutputFileStream::write(const RawBuffer& buffer) {
 		// bypass caching if write buffer is larger than internal buffer
@@ -62,6 +59,15 @@ namespace catapult { namespace io {
 			}
 		}
 	}
+
+	void BufferedOutputFileStream::flush() {
+		m_rawFile.write({ m_buffer.data(), m_bufferPosition });
+		m_bufferPosition = 0;
+	}
+
+	// endregion
+
+	// region BufferedInputFileStream
 
 	BufferedInputFileStream::BufferedInputFileStream(RawFile&& rawFile, size_t bufferSize)
 			: m_rawFile(std::move(rawFile))
@@ -120,4 +126,6 @@ namespace catapult { namespace io {
 		std::memcpy(buffer.pData + outputPosition, m_buffer.data(), remainingRequestedBytes);
 		m_bufferPosition += remainingRequestedBytes;
 	}
+
+	// endregion
 }}

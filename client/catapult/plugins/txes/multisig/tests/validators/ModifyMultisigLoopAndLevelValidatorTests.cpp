@@ -116,17 +116,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanCreateMultisigChainWithLessThanMaxDepth) {
-		// Assert:
 		RunMaxMultisigDepthTests(ValidationResult::Success, 10);
 	}
 
 	TEST(TEST_CLASS, CanCreateMultisigChainWithMaxDepth) {
-		// Assert:
 		RunMaxMultisigDepthTests(ValidationResult::Success, 0);
 	}
 
 	TEST(TEST_CLASS, CannotCreateMultisigChainWithGreaterThanMaxDepth) {
-		// Assert:
 		RunMaxMultisigDepthTests(Failure_Multisig_Modify_Max_Multisig_Depth, -1);
 	}
 
@@ -135,13 +132,11 @@ namespace catapult { namespace validators {
 	// region loop check
 
 	TEST(TEST_CLASS, CannotCreateSelfLoop) {
-		// Assert:
 		AssertValidationResult(Failure_Multisig_Modify_Loop, 100, 0, 0); // in cache
 		AssertValidationResult(Failure_Multisig_Modify_Loop, 100, 18, 18); // not in cache
 	}
 
 	TEST(TEST_CLASS, CannotCreateMultiAccountLoop) {
-		// Assert:
 		AssertValidationResult(Failure_Multisig_Modify_Loop, 100, 6, 3);
 		AssertValidationResult(Failure_Multisig_Modify_Loop, 100, 6, 13);
 		AssertValidationResult(Failure_Multisig_Modify_Loop, 100, 10, 1);

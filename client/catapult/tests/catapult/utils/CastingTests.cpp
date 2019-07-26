@@ -100,13 +100,11 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, ToUnderlyingTypePreservesEnumValues) {
-		// Assert:
 		AssertToUnderlyingTypePreservesEnumValues<int8_t>("int8_t");
 		AssertToUnderlyingTypePreservesEnumValues<uint64_t>("uint64_t");
 	}
 
 	TEST(TEST_CLASS, ToUnderlyingTypePreservesEnumType) {
-		// Assert:
 		AssertToUnderlyingTypePreservesEnumType<int8_t>("int8_t");
 		AssertToUnderlyingTypePreservesEnumType<uint64_t>("uint64_t");
 	}

@@ -73,8 +73,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, IsScalarReturnsTrueOnlyForIntegralAndIntegralLikeTypes) {
-		// Assert:
-		// - basic and pointer types
+		// Assert: basic and pointer types
 		AssertIsScalar<int>(__LINE__);
 		AssertIsScalar<void*>(__LINE__);
 		AssertIsNotScalar<std::shared_ptr<int>>(__LINE__);
@@ -93,8 +92,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, IsPodReturnsTrueOnlyForIntegralAndIntegralLikeTypes) {
-		// Assert:
-		// - basic and pointer types
+		// Assert: basic and pointer types
 		AssertIsPod<int>(__LINE__);
 		AssertIsNotPod<void*>(__LINE__);
 		AssertIsNotPod<std::shared_ptr<int>>(__LINE__);
@@ -132,8 +130,7 @@ namespace catapult { namespace utils {
 	EXPECT_EQ(EXPECTED, (traits::is_base_of_ignore_reference_v<TLEFT, TRIGHT&&>));
 
 	TEST(TEST_CLASS, IsBaseOfIgnoreReferenceReturnsTrueWhenLeftStrippedOfReferenceIsDerivedFromBase) {
-		// Assert:
-		// - (Base, Base) with any reference qualifiers is true
+		// Assert: (Base, Base) with any reference qualifiers is true
 		EXPECT_IS_BASE_OF_IGNORE_REFERENCE_RESULT(true, Base, Base);
 
 		// - (Base, Derived) with any reference qualifiers is true

@@ -178,7 +178,7 @@ namespace catapult { namespace state {
 		AccountRestriction restriction(Custom_RestrictionAccount_Type, Custom_Value_Size);
 
 		// Assert:
-		EXPECT_EQ(Custom_RestrictionAccount_Type, restriction.descriptor().restrictionType());
+		EXPECT_EQ(Custom_RestrictionAccount_Type, restriction.descriptor().directionalRestrictionType());
 		EXPECT_EQ(OperationType::Block, restriction.descriptor().operationType());
 		EXPECT_EQ(
 				model::AccountRestrictionType(Custom_RestrictionAccount_Type | model::AccountRestrictionType::Block),

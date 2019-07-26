@@ -269,15 +269,19 @@ namespace catapult { namespace chain {
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, HitProbabilityIsLinearlyCorrelatedWithImportance) {
-		// Assert:
+		// Arrange:
 		auto config = CreateConfiguration();
+
+		// Act + Assert:
 		AssertHitProbabilityIsLinearlyCorrelatedWithImportance(config);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, HitProbabilityIsLinearlyCorrelatedWithImportanceWhenSmoothingIsEnabled) {
-		// Assert:
+		// Arrange:
 		auto config = CreateConfiguration();
 		config.BlockTimeSmoothingFactor = 10000;
+
+		// Act + Assert:
 		AssertHitProbabilityIsLinearlyCorrelatedWithImportance(config);
 	}
 }}

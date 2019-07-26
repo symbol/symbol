@@ -102,64 +102,60 @@ namespace catapult { namespace zeromq {
 
 	// region notifyAdd
 
+	namespace {
+		template<typename TAddAll>
+		void AssertCanAddMultipleTransactions(TAddAll addAll) {
+			test::AssertCanAddMultipleTransactions<MqSubscriberContext>(Add_Marker, Num_Transactions, addAll);
+		}
+	}
+
 	TEST(TEST_CLASS, CanAddSingleTransaction) {
-		// Assert:
 		test::AssertCanAddSingleTransaction<MqSubscriberContext>(Add_Marker, [](auto& context, const auto& transactionInfo) {
 			context.notifyAdd(transactionInfo);
 		});
 	}
 
 	TEST(TEST_CLASS, CanAddMultipleTransactions_SingleCall) {
-		// Assert:
-		test::AssertCanAddMultipleTransactions<MqSubscriberContext>(
-				Add_Marker,
-				Num_Transactions,
-				[](auto& context, const auto& transactionInfos) {
-					context.notifyAdds(transactionInfos);
-				});
+		AssertCanAddMultipleTransactions([](auto& context, const auto& transactionInfos) {
+			context.notifyAdds(transactionInfos);
+		});
 	}
 
 	TEST(TEST_CLASS, CanAddMultipleTransactions_MultipleCalls) {
-		// Assert:
-		test::AssertCanAddMultipleTransactions<MqSubscriberContext>(
-				Add_Marker,
-				Num_Transactions,
-				[](auto& context, const auto& transactionInfos) {
-					for (const auto& transactionInfo : transactionInfos)
-						context.notifyAdd(transactionInfo);
-				});
+		AssertCanAddMultipleTransactions([](auto& context, const auto& transactionInfos) {
+			for (const auto& transactionInfo : transactionInfos)
+				context.notifyAdd(transactionInfo);
+		});
 	}
 
 	// endregion
 
 	// region notifyRemove
 
+	namespace {
+		template<typename TRemoveAll>
+		void AssertCanRemoveMultipleTransactions(TRemoveAll removeAll) {
+			test::AssertCanRemoveMultipleTransactions<MqSubscriberContext>(Remove_Marker, Num_Transactions, removeAll);
+		}
+	}
+
 	TEST(TEST_CLASS, CanRemoveSingleTransaction) {
-		// Assert:
 		test::AssertCanRemoveSingleTransaction<MqSubscriberContext>(Remove_Marker, [](auto& context, const auto& transactionInfo) {
 			context.notifyRemove(transactionInfo);
 		});
 	}
 
 	TEST(TEST_CLASS, CanRemoveMultipleTransactions_SingleCall) {
-		// Assert:
-		test::AssertCanRemoveMultipleTransactions<MqSubscriberContext>(
-				Remove_Marker,
-				Num_Transactions,
-				[](auto& context, const auto& transactionInfos) {
-					context.notifyRemoves(transactionInfos);
-				});
+		AssertCanRemoveMultipleTransactions([](auto& context, const auto& transactionInfos) {
+			context.notifyRemoves(transactionInfos);
+		});
 	}
 
 	TEST(TEST_CLASS, CanRemoveMultipleTransactions_MultipleCalls) {
-		// Assert:
-		test::AssertCanRemoveMultipleTransactions<MqSubscriberContext>(
-				Remove_Marker,
-				Num_Transactions,
-				[](auto& context, const auto& transactionInfos) {
-					for (const auto& transactionInfo : transactionInfos)
-						context.notifyRemove(transactionInfo);
-				});
+		AssertCanRemoveMultipleTransactions([](auto& context, const auto& transactionInfos) {
+			for (const auto& transactionInfo : transactionInfos)
+				context.notifyRemove(transactionInfo);
+		});
 	}
 
 	// endregion
@@ -167,7 +163,6 @@ namespace catapult { namespace zeromq {
 	// region flush
 
 	TEST(TEST_CLASS, FlushDoesNotSendMessages) {
-		// Assert:
 		test::AssertFlushDoesNotSendMessages<MqSubscriberContext>();
 	}
 

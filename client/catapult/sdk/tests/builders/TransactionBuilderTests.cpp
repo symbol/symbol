@@ -91,7 +91,6 @@ namespace catapult { namespace builders {
 	// region constructor
 
 	TEST(TEST_CLASS, CanCreateTransaction) {
-		// Assert:
 		AssertCanBuildTransaction(TransactionProperties(), [](const auto&) {});
 	}
 

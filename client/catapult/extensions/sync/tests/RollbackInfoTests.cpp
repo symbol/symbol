@@ -248,7 +248,6 @@ namespace catapult { namespace sync {
 		AssertOperationPrunesRecentStats(
 				// Act:
 				[](auto& info) { info.reset(); },
-
 				// Assert: except for info added in line above, both recent stats should be reset
 				[](const auto& info) { AssertInfo({ 4, 0, 6 }, { 4, 1, 12 }, info); });
 	}

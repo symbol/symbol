@@ -94,12 +94,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, BlockTransactionsHashChangesWhenAnyTransactionMerkleComponentHashChanges) {
-		// Assert:
 		AssertSignificantChange(5, [](auto& context) { context.TransactionInfos[2].MerkleComponentHash[0] ^= 0xFF; });
 	}
 
 	TEST(TEST_CLASS, BlockTransactionsHashChangesWhenTransactionOrderChanges) {
-		// Assert:
 		AssertSignificantChange(5, [](auto& context) {
 			std::swap(context.TransactionInfoPointers[1], context.TransactionInfoPointers[2]);
 		});
@@ -126,18 +124,17 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, BlockTransactionsHashDoesNotChangeWhenAnyTransactionEntityHashChanges) {
-		// Assert:
 		AssertInsignificantChange(5, [](auto& context) { context.TransactionInfos[2].EntityHash[0] ^= 0xFF; });
 	}
 
 	TEST(TEST_CLASS, CanCalculateBlockTransactionsHash_Deterministic) {
 		// Arrange:
 		auto seedHashes = {
-			test::ToArray<Hash256_Size>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
-			test::ToArray<Hash256_Size>("8A316E48F35CDADD3F827663F7535E840289A16A43E7134B053A86773E474C28"),
-			test::ToArray<Hash256_Size>("6D80E71F00DFB73B358B772AD453AEB652AE347D3E098AE269005A88DA0B84A7"),
-			test::ToArray<Hash256_Size>("2AE2CA59B5BB29721BFB79FE113929B6E52891CAA29CBF562EBEDC46903FF681"),
-			test::ToArray<Hash256_Size>("421D6B68A6DF8BB1D5C9ACF7ED44515E77945D42A491BECE68DA009B551EE6CE")
+			test::ToArray<Hash256::Size>("36C8213162CDBC78767CF43D4E06DDBE0D3367B6CEAEAEB577A50E2052441BC8"),
+			test::ToArray<Hash256::Size>("8A316E48F35CDADD3F827663F7535E840289A16A43E7134B053A86773E474C28"),
+			test::ToArray<Hash256::Size>("6D80E71F00DFB73B358B772AD453AEB652AE347D3E098AE269005A88DA0B84A7"),
+			test::ToArray<Hash256::Size>("2AE2CA59B5BB29721BFB79FE113929B6E52891CAA29CBF562EBEDC46903FF681"),
+			test::ToArray<Hash256::Size>("421D6B68A6DF8BB1D5C9ACF7ED44515E77945D42A491BECE68DA009B551EE6CE")
 		};
 
 		std::vector<TransactionInfo> transactionInfos;
@@ -165,8 +162,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, GenerationHashIsCalculatedAsExpected) {
 		// Arrange:
-		auto previousGenerationHash = test::ToArray<Hash256_Size>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6");
-		Key publicKey = test::ToArray<Key_Size>("6FB9C930C0AC6BEF09D6DFEBD091AE83C91B35F2C0305B05B4F6F7AF4B6FC1F0");
+		auto previousGenerationHash = test::ToArray<Hash256::Size>("57F7DA205008026C776CB6AED843393F04CD458E0AA2D9F1D5F31A402072B2D6");
+		Key publicKey = test::ToArray<Key::Size>("6FB9C930C0AC6BEF09D6DFEBD091AE83C91B35F2C0305B05B4F6F7AF4B6FC1F0");
 
 		// Act:
 		auto hash = CalculateGenerationHash(previousGenerationHash, publicKey);
@@ -439,12 +436,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanCreateBlockWithoutTransactions) {
-		// Assert:
 		AssertCanCreateBlock<SharedPointerTraits>(0);
 	}
 
 	TEST(TEST_CLASS, CanCreateBlockWithTransactions) {
-		// Assert:
 		AssertCanCreateBlock<SharedPointerTraits>(5);
 	}
 
@@ -478,12 +473,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanStitchBlockWithoutTransactions) {
-		// Assert:
 		AssertCanStitchBlock<SharedPointerTraits>(0);
 	}
 
 	TEST(TEST_CLASS, CanStitchBlockWithTransactions) {
-		// Assert:
 		AssertCanStitchBlock<SharedPointerTraits>(5);
 	}
 

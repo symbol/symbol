@@ -101,31 +101,26 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, CanFilterSingleKnownTimestampedHash) {
-		// Assert:
 		for (auto i = 0u; i < Num_Timestamped_Hashes; i += 2)
 			AssertCanFilterTimestampedHashes({ i }, {});
 	}
 
 	TEST(TEST_CLASS, SingleUnknownTimestampedHashDoesNotGetFiltered) {
-		// Assert:
 		for (auto i = 1u; i < Num_Timestamped_Hashes; i += 2)
 			AssertCanFilterTimestampedHashes({ i }, { i });
 	}
 
 	TEST(TEST_CLASS, CanFilterMultipleKnownTimestampedHashes) {
-		// Assert:
 		AssertCanFilterTimestampedHashes({ 0, 4, 8 }, {});
 		AssertCanFilterTimestampedHashes({ 0, 8 }, {});
 	}
 
 	TEST(TEST_CLASS, MultipleUnknownTimestampedHashesDoNotGetFiltered) {
-		// Assert:
 		AssertCanFilterTimestampedHashes({ 1, 5, 9 }, { 1, 5, 9 });
 		AssertCanFilterTimestampedHashes({ 5, 9 }, { 5, 9 });
 	}
 
 	TEST(TEST_CLASS, OnlyKnownTimestampedHashesGetFiltered) {
-		// Assert:
 		AssertCanFilterTimestampedHashes({ 1, 2, 4 }, { 1 });
 		AssertCanFilterTimestampedHashes({ 2, 4, 5, 8 }, { 5 });
 		AssertCanFilterTimestampedHashes({ 4, 5, 7 }, { 5, 7 });

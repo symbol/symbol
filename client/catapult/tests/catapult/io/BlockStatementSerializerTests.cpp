@@ -268,7 +268,6 @@ namespace catapult { namespace io {
 	// region WriteBlockStatement
 
 	TEST(TEST_CLASS, CanWriteBlockStatementWithoutStatements) {
-		// Act + Assert:
 		AssertWrite(model::BlockStatement(), std::vector<uint8_t>(3 * sizeof(uint32_t), 0));
 	}
 
@@ -297,28 +296,23 @@ namespace catapult { namespace io {
 	// region ReadBlockStatement
 
 	TEST(TEST_CLASS, CanReadBlockStatementWithoutStatements) {
-		// Act + Assert:
 		auto buffer = std::vector<uint8_t>(3 * sizeof(uint32_t), 0);
 		AssertRead(model::BlockStatement(), buffer);
 	}
 
 	TEST(TEST_CLASS, CanReadBlockStatementWithOnlyTransactionStatements) {
-		// Act + Assert:
 		PrepareOnlyTransactionStatementsTest(false, AssertRead);
 	}
 
 	TEST(TEST_CLASS, CanReadBlockStatementWithOnlyAddressResolutions) {
-		// Act + Assert:
 		PrepareOnlyAddressResolutionsTest(false, AssertRead);
 	}
 
 	TEST(TEST_CLASS, CanReadBlockStatementWithOnlyMosaicResolutions) {
-		// Act + Assert:
 		PrepareOnlyMosaicResolutionsTest(false, AssertRead);
 	}
 
 	TEST(TEST_CLASS, CanReadBlockStatementWithAllStatements) {
-		// Act + Assert:
 		PrepareAllStatementsTest(false, AssertRead);
 	}
 
@@ -341,27 +335,22 @@ namespace catapult { namespace io {
 	}
 
 	TEST(TEST_CLASS, CanRoundtripBlockStatementWithoutStatements) {
-		// Assert:
 		AssertCanRoundtripBlockWithStatement({ 0, 0, 0 });
 	}
 
 	TEST(TEST_CLASS, CanRoundtripBlockStatementWithOnlyTransactionStatements) {
-		// Assert:
 		AssertCanRoundtripBlockWithStatement({ 5, 0, 0 });
 	}
 
 	TEST(TEST_CLASS, CanRoundtripBlockStatementWithOnlyAddressResolutions) {
-		// Assert:
 		AssertCanRoundtripBlockWithStatement({ 0, 8, 0 });
 	}
 
 	TEST(TEST_CLASS, CanRoundtripBlockStatementWithOnlyMosaicResolutions) {
-		// Assert:
 		AssertCanRoundtripBlockWithStatement({ 0, 0, 13 });
 	}
 
 	TEST(TEST_CLASS, CanRoundtripBlockStatementWithAllStatements) {
-		// Assert:
 		AssertCanRoundtripBlockWithStatement({ 5, 8, 13 });
 	}
 

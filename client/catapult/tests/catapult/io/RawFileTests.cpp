@@ -552,23 +552,19 @@ namespace catapult { namespace io {
 	}
 
 	WRITING_TRAITS_BASED_TEST(CannotOpenForWriteWhenOpenedForRead) {
-		// Assert:
 		AssertCannotOpenForIfOpened(OpenMode::Read_Only, TTraits::Mode);
 	}
 
 	WRITING_TRAITS_BASED_TEST(CannotOpenForReadWhenOpenedForWrite) {
-		// Assert:
 		AssertCannotOpenForIfOpened(TTraits::Mode, OpenMode::Read_Only);
 	}
 
 	WRITING_TRAITS_BASED_TEST(CannotOpenMixedAppendWrite) {
-		// Assert:
 		auto oppositeMode = OpenMode::Read_Write == TTraits::Mode ? OpenMode::Read_Append : OpenMode::Read_Write;
 		AssertCannotOpenForIfOpened(TTraits::Mode, oppositeMode);
 	}
 
 	WRITING_TRAITS_BASED_TEST(CannotOpenForWriteWhenOpenedForWrite) {
-		// Assert:
 		AssertCannotOpenForIfOpened(TTraits::Mode, TTraits::Mode);
 	}
 
@@ -598,12 +594,10 @@ namespace catapult { namespace io {
 	}
 
 	WRITING_TRAITS_BASED_TEST(CanOpenForReadWhenOpenedForWriteNonLocking) {
-		// Assert:
 		AssertCanOpenForReadIfOpenedNonLocking(TTraits::Mode, SubsequentOpens::Close);
 	}
 
 	WRITING_TRAITS_BASED_TEST(CanOpenMultipleForReadWhenOpenedForWriteNonLocking) {
-		// Assert:
 		AssertCanOpenForReadIfOpenedNonLocking(TTraits::Mode, SubsequentOpens::Keep_Open);
 	}
 
@@ -664,12 +658,10 @@ namespace catapult { namespace io {
 	}
 
 	WRITING_TRAITS_BASED_TEST(CanOpenMultipleWhenNonLocking_SameMode) {
-		// Assert:
 		AssertCanOpenMultipleWhenNonLocking(TTraits::Mode, TTraits::Mode);
 	}
 
 	WRITING_TRAITS_BASED_TEST(CanOpenMultipleWhenNonLocking_MixedMode) {
-		// Assert:
 		auto oppositeMode = OpenMode::Read_Write == TTraits::Mode ? OpenMode::Read_Append : OpenMode::Read_Write;
 		AssertCanOpenMultipleWhenNonLocking(TTraits::Mode, oppositeMode);
 	}

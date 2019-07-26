@@ -107,7 +107,6 @@ namespace catapult { namespace builders {
 	// region basic
 
 	TRAITS_BASED_TEST(CanCreateTransferWithoutMessageOrMosaics) {
-		// Assert:
 		AssertCanBuildTransfer<TTraits>(0, TransactionProperties(), [](const auto&) {});
 	}
 
@@ -213,12 +212,10 @@ namespace catapult { namespace builders {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_MOSAICS_TEST(CanCreateTransferWithSingleMosaic) {
-		// Assert:
 		AssertCanCreateTransferWithMosaics<TTraits>(1);
 	}
 
 	TRAITS_BASED_MOSAICS_TEST(CanCreateTransferWithMultipleMosaics) {
-		// Assert:
 		AssertCanCreateTransferWithMosaics<TTraits>(3);
 	}
 

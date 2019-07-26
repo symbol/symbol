@@ -54,9 +54,13 @@ namespace catapult { namespace utils {
 
 		struct ParseByteArrayTraits {
 			template<typename TContainer>
+			struct ByteArrayTag {
+				static constexpr size_t Size = std::tuple_size_v<TContainer>;
+			};
+
+			template<typename TContainer>
 			static void ParseString(const char* const pHexData, size_t dataSize, TContainer& outputContainer) {
-				struct Tag {};
-				using ByteArrayContainer = ByteArray<std::tuple_size_v<TContainer>, Tag>;
+				using ByteArrayContainer = ByteArray<ByteArrayTag<TContainer>>;
 				auto hexString = std::string(pHexData, dataSize);
 				auto byteArray = ParseByteArray<ByteArrayContainer>(hexString);
 				std::copy(byteArray.cbegin(), byteArray.cend(), outputContainer.begin());
@@ -64,8 +68,7 @@ namespace catapult { namespace utils {
 
 			template<typename TContainer>
 			static void AssertBadParse(const char* const pHexData, size_t dataSize, TContainer&) {
-				struct Tag {};
-				using ByteArrayContainer = ByteArray<std::tuple_size_v<TContainer>, Tag>;
+				using ByteArrayContainer = ByteArray<ByteArrayTag<TContainer>>;
 				auto hexString = std::string(pHexData, dataSize);
 				EXPECT_THROW(ParseByteArray<ByteArrayContainer>(hexString), catapult_invalid_argument);
 			}
@@ -142,7 +145,6 @@ namespace catapult { namespace utils {
 	}
 
 	PARSE_BYTE_TRAITS_BASED_TEST(CannotConvertInvalidHexCharsToByte) {
-		// Assert:
 		TTraits::AssertBadParse('G', '6');
 		TTraits::AssertBadParse('7', 'g');
 		TTraits::AssertBadParse('*', '8');
@@ -172,7 +174,6 @@ namespace catapult { namespace utils {
 	}
 
 	PARSE_TRAITS_BASED_TEST(CannotParseHexStringWithInvalidHexCharsIntoContainer) {
-		// Assert:
 		std::array<uint8_t, 11> array;
 		TTraits::AssertBadParse("abcdef012345G789ABCDEF", 22, array);
 	}

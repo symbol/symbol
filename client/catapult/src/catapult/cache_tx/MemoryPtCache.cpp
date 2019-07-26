@@ -167,7 +167,7 @@ namespace catapult { namespace cache {
 
 		class MemoryPtCacheModifier : public PtCacheModifier {
 		public:
-			explicit MemoryPtCacheModifier(
+			MemoryPtCacheModifier(
 					uint64_t maxCacheSize,
 					PtDataContainer& transactionDataContainer,
 					std::set<state::TimestampedHash>& timestampedHashes,

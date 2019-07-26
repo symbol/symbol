@@ -96,7 +96,7 @@ namespace catapult { namespace model {
 		auto originalHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Act:
-		pEntity->Signature[Signature_Size / 2] ^= 0xFF;
+		pEntity->Signature[Signature::Size / 2] ^= 0xFF;
 		auto modifiedHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Assert:
@@ -110,7 +110,7 @@ namespace catapult { namespace model {
 		auto originalHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Act:
-		pEntity->Signer[Key_Size / 2] ^= 0xFF;
+		pEntity->Signer[Key::Size / 2] ^= 0xFF;
 		auto modifiedHash = TTraits::CalculateHash(*pEntity, generationHash);
 
 		// Assert:

@@ -60,14 +60,12 @@ namespace catapult { namespace validators {
 	// region failure
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithSingleInvalidAccountRestrictionModificationValue) {
-		// Assert:
 		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x8000 });
 		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x2001 });
 		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x0049 });
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithValidAndInvalidAccountRestrictionModificationValue) {
-		// Assert:
 		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x4000, 0x8000, 0x4149 });
 		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x2001, 0x4149, 0x4123 });
 		AssertValidationResult(Failure_RestrictionAccount_Value_Invalid, { 0x4149, 0x0000, 0x4100 });
@@ -78,19 +76,16 @@ namespace catapult { namespace validators {
 	// region success
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithNoAccountRestrictionModification) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, {});
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithSingleValidAccountRestrictionModificationValue) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, { 0x4000 });
 		AssertValidationResult(ValidationResult::Success, { 0x4001 });
 		AssertValidationResult(ValidationResult::Success, { 0x4149 });
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMultipleValidAccountRestrictionModificationValues) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, { 0x4000, 0x4001, 0x4149 });
 	}
 

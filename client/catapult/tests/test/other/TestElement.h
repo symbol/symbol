@@ -38,7 +38,7 @@ namespace catapult { namespace test {
 		explicit TestElement(unsigned int value) : TestElement("TestElement", value)
 		{}
 
-		explicit TestElement(const std::string& name, unsigned int value)
+		TestElement(const std::string& name, unsigned int value)
 				: Name(name)
 				, Value(value)
 				, Hash(calculateHash())

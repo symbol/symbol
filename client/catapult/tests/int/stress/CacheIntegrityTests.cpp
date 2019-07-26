@@ -55,7 +55,7 @@ namespace catapult { namespace cache {
 
 		Key GetKeyFromId(size_t id) {
 			Key key{};
-			for (auto i = 0u; i < Key_Size / 2; ++i) {
+			for (auto i = 0u; i < Key::Size / 2; ++i) {
 				key[2 * i] = static_cast<uint8_t>(id / 256);
 				key[2 * i + 1] = static_cast<uint8_t>(id % 256);
 			}
@@ -122,12 +122,10 @@ namespace catapult { namespace cache {
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, CacheCommitIsThreadSafeWithSingleReaderSingleWriter) {
-		// Assert:
 		RunMultithreadedReadWriteTest(1);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, CacheCommitIsThreadSafeWithMultipleReadersSingleWriter) {
-		// Assert:
 		RunMultithreadedReadWriteTest(test::GetNumDefaultPoolThreads());
 	}
 
@@ -163,10 +161,10 @@ namespace catapult { namespace cache {
 
 		class Stopwatch final {
 		public:
-			explicit Stopwatch(size_t numIterations, const std::string& message)
-				: m_numIterations(numIterations)
-				, m_message(message)
-				, m_start(std::chrono::steady_clock::now())
+			Stopwatch(size_t numIterations, const std::string& message)
+					: m_numIterations(numIterations)
+					, m_message(message)
+					, m_start(std::chrono::steady_clock::now())
 			{}
 
 			~Stopwatch() {

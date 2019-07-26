@@ -22,6 +22,7 @@
 #include "AccountActivityBuckets.h"
 #include "AccountBalances.h"
 #include "AccountImportanceSnapshots.h"
+#include "catapult/model/Mosaic.h"
 
 namespace catapult { namespace state {
 
@@ -44,7 +45,7 @@ namespace catapult { namespace state {
 	struct AccountState {
 	public:
 		/// Creates an account state from an \a address and a height (\a addressHeight).
-		explicit AccountState(const catapult::Address& address, Height addressHeight)
+		AccountState(const catapult::Address& address, Height addressHeight)
 				: Address(address)
 				, AddressHeight(addressHeight)
 				, PublicKey()
@@ -87,4 +88,7 @@ namespace catapult { namespace state {
 
 	/// Requires that \a remoteAccountState and \a mainAccountState state are linked.
 	void RequireLinkedRemoteAndMainAccounts(const AccountState& remoteAccountState, const AccountState& mainAccountState);
+
+	/// Applys a \a fee surplus at \a importanceHeight to \a accountState.
+	void ApplyFeeSurplus(AccountState& accountState, const model::Mosaic& fee, model::ImportanceHeight importanceHeight);
 }}

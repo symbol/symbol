@@ -26,18 +26,18 @@ namespace catapult { namespace state {
 	/// Lifetime of a namespace.
 	struct NamespaceLifetime {
 	public:
-		/// Creates a lifetime with \a start height and \a end height.
+		/// Creates a lifetime with \a start height and \a end height (including grace period).
 		NamespaceLifetime(Height start, Height end);
 
-		/// Creates a lifetime with \a start height, \a end height and a grace period (\a gracePeriodDuration).
+		/// Creates a lifetime with \a start height, \a end height (excluding grace period) and grace period (\a gracePeriodDuration).
 		NamespaceLifetime(Height start, Height end, BlockDuration gracePeriodDuration);
 
 	public:
-		/// Returns \c true if history is active at \a height (excluding grace period).
-		bool isActiveAndUnlocked(Height height) const;
+		/// Returns \c true if history is active at \a height.
+		bool isActive(Height height) const;
 
-		/// Returns \c true if history is active at \a height (including grace period).
-		bool isActiveOrGracePeriod(Height height) const;
+		/// Returns \c true if history is active at \a height excluding grace period (\a gracePeriodDuration).
+		bool isActiveExcludingGracePeriod(Height height, BlockDuration gracePeriodDuration) const;
 
 	public:
 		/// Returns \c true if this NamespaceLifetime is equal to \a rhs.
@@ -50,10 +50,7 @@ namespace catapult { namespace state {
 		/// Start height.
 		Height Start;
 
-		/// End height excluding grace period.
-		Height End;
-
 		/// End height including grace period.
-		Height GracePeriodEnd;
+		Height End;
 	};
 }}

@@ -441,7 +441,6 @@ namespace catapult { namespace io {
 	}
 
 	DIRECTORY_TRAITS_BASED_TEST(PendingReturnsCorrectValueWhenWriterIndexIsLessThanReaderIndex) {
-		// Assert:
 		AssertPendingCount<TTraits>(119, 120, 0);
 		AssertPendingCount<TTraits>(72, 120, 0);
 		AssertPendingCount<TTraits>(1, 120, 0);
@@ -449,7 +448,6 @@ namespace catapult { namespace io {
 	}
 
 	DIRECTORY_TRAITS_BASED_TEST(PendingReturnsCorrectValueWhenWriterIndexIsEqualToReaderIndex) {
-		// Assert:
 		AssertPendingCount<TTraits>(120, 120, 0);
 		AssertPendingCount<TTraits>(72, 72, 0);
 		AssertPendingCount<TTraits>(1, 1, 0);
@@ -457,7 +455,6 @@ namespace catapult { namespace io {
 	}
 
 	DIRECTORY_TRAITS_BASED_TEST(PendingReturnsCorrectValueWhenWriterIndexIsGreaterThanReaderIndex) {
-		// Assert:
 		AssertPendingCount<TTraits>(120, 119, 1);
 		AssertPendingCount<TTraits>(120, 72, 48);
 		AssertPendingCount<TTraits>(120, 1, 119);
@@ -522,13 +519,11 @@ namespace catapult { namespace io {
 	}
 
 	DIRECTORY_TRAITS_BASED_TEST(CannotReadWhenReaderIndexIsGreaterThanWriterIndex) {
-		// Assert:
 		AssertCannotReadWithIndexValues<TTraits>(120, 121);
 		AssertCannotReadWithIndexValues<TTraits>(120, 500);
 	}
 
 	DIRECTORY_TRAITS_BASED_TEST(CannotReadWhenReaderIndexIsEqualToWriterIndex) {
-		// Assert:
 		AssertCannotReadWithIndexValues<TTraits>(120, 120);
 	}
 
@@ -679,22 +674,18 @@ namespace catapult { namespace io {
 	}
 
 	DIRECTORY_TRAITS_BASED_TEST(SkipHasNoEffectWhenReaderIndexIsGreaterThanWriterIndex) {
-		// Assert:
 		AssertSkipHasNoEffect<TTraits>(120, 130, 5);
 	}
 
 	DIRECTORY_TRAITS_BASED_TEST(SkipHasNoEffectWhenReaderIndexIsEqualToWriterIndex) {
-		// Assert:
 		AssertSkipHasNoEffect<TTraits>(120, 120, 5);
 	}
 
 	DIRECTORY_TRAITS_BASED_TEST(SkipWillSkipAtMostCountMessages) {
-		// Assert:
 		AssertCanSkip<TTraits>(120, 110, 6, 116);
 	}
 
 	DIRECTORY_TRAITS_BASED_TEST(SkipWillNotSkipPastWriterIndex) {
-		// Assert:
 		AssertCanSkip<TTraits>(120, 118, 6, 120);
 	}
 

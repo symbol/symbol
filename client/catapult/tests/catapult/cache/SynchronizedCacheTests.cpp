@@ -86,7 +86,6 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanCreateMultipleLockedReadOnlyViews) {
-		// Assert:
 		test::CanCreateSubObjectOnMultipleThreads(
 				test::SimpleCache(),
 				[](const auto& cache) { return cache.createView(); },

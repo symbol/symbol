@@ -41,14 +41,14 @@ namespace catapult { namespace state {
 		/// Creates an unset namespace alias.
 		NamespaceAlias();
 
-		/// Copy constructor that makes a copy of \a alias.
-		NamespaceAlias(const NamespaceAlias& alias);
-
 		/// Creates a namespace alias around \a mosaicId.
 		explicit NamespaceAlias(MosaicId mosaicId);
 
 		/// Creates a namespace alias around \a address.
 		explicit NamespaceAlias(const Address& address);
+
+		/// Copy constructor that makes a copy of \a alias.
+		NamespaceAlias(const NamespaceAlias& alias);
 
 	public:
 		/// Assignment operator that makes a copy of \a alias.

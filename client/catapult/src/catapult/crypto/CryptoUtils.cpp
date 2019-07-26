@@ -33,7 +33,7 @@ namespace catapult { namespace crypto {
 		Key reversedKey;
 		std::reverse_copy(privateKey.begin(), privateKey.end(), reversedKey.begin());
 		Keccak_512(reversedKey, hash);
-		SecureZero(reversedKey.data(), Key_Size);
+		SecureZero(reversedKey.data(), Key::Size);
 #else
 		Sha3_512({ privateKey.data(), privateKey.size() }, hash);
 #endif

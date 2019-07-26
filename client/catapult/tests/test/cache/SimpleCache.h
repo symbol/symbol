@@ -117,7 +117,7 @@ namespace catapult { namespace test {
 	class SimpleCacheDisabledMerkleRootViewExtension {
 	public:
 		/// Creates a view extension.
-		explicit SimpleCacheDisabledMerkleRootViewExtension(SimpleCacheViewMode, const SimpleCacheState&)
+		SimpleCacheDisabledMerkleRootViewExtension(SimpleCacheViewMode, const SimpleCacheState&)
 		{}
 	};
 
@@ -125,12 +125,12 @@ namespace catapult { namespace test {
 	class SimpleCacheDefaultViewExtension {
 	public:
 		/// Creates a view extension around \a mode and \a state.
-		explicit SimpleCacheDefaultViewExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
+		SimpleCacheDefaultViewExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
 				: SimpleCacheDefaultViewExtension(mode, state.MerkleRoot)
 		{}
 
 		/// Creates a view extension around \a mode and \a merkleRoot.
-		explicit SimpleCacheDefaultViewExtension(SimpleCacheViewMode mode, const Hash256& merkleRoot)
+		SimpleCacheDefaultViewExtension(SimpleCacheViewMode mode, const Hash256& merkleRoot)
 				: m_mode(mode)
 				, m_merkleRoot(merkleRoot)
 		{}
@@ -161,12 +161,12 @@ namespace catapult { namespace test {
 	class SimpleCacheDefaultDeltaExtension : public SimpleCacheDefaultViewExtension {
 	public:
 		/// Creates a delta extension around \a mode and \a state.
-		explicit SimpleCacheDefaultDeltaExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
+		SimpleCacheDefaultDeltaExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
 				: SimpleCacheDefaultDeltaExtension(mode, std::make_unique<Hash256>(state.MerkleRoot))
 		{}
 
 	private:
-		explicit SimpleCacheDefaultDeltaExtension(SimpleCacheViewMode mode, std::unique_ptr<Hash256>&& pMerkleRoot)
+		SimpleCacheDefaultDeltaExtension(SimpleCacheViewMode mode, std::unique_ptr<Hash256>&& pMerkleRoot)
 				: SimpleCacheDefaultViewExtension(mode, *pMerkleRoot)
 				, m_pMerkleRoot(std::move(pMerkleRoot))
 		{}
@@ -207,7 +207,7 @@ namespace catapult { namespace test {
 
 	public:
 		/// Creates a view around \a mode and \a state.
-		explicit BasicSimpleCacheViewExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
+		BasicSimpleCacheViewExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
 				: TViewExtension(mode, state)
 				, m_mode(mode)
 				, m_id(state.Id)
@@ -303,7 +303,7 @@ namespace catapult { namespace test {
 
 	public:
 		/// Creates a view around \a mode and \a state.
-		explicit BasicSimpleCacheDeltaExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
+		BasicSimpleCacheDeltaExtension(SimpleCacheViewMode mode, const SimpleCacheState& state)
 				: TDeltaExtension(mode, state)
 				, m_id(state.Id)
 		{}

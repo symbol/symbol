@@ -77,12 +77,10 @@ namespace catapult { namespace consumers {
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanProcessSingleEntity) {
-		// Assert:
 		AssertCanReclaimMemory(TTraits::CreateInput(1));
 	}
 
 	ENTITY_TRAITS_BASED_TEST(CanProcessMultipleEntities) {
-		// Assert:
 		AssertCanReclaimMemory(TTraits::CreateInput(3));
 	}
 }}

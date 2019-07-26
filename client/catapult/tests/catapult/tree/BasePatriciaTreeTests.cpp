@@ -315,12 +315,10 @@ namespace catapult { namespace tree {
 	}
 
 	TEST(TEST_CLASS, CommitChangesBasePatriciaTree) {
-		// Assert:
 		AssertCommitChangesBasePatriciaTree(1);
 	}
 
 	TEST(TEST_CLASS, CommitIsIdempotent) {
-		// Assert:
 		AssertCommitChangesBasePatriciaTree(9);
 	}
 

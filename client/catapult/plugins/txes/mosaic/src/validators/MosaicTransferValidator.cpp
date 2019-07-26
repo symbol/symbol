@@ -46,7 +46,9 @@ namespace catapult { namespace validators {
 	}
 
 	DECLARE_STATEFUL_VALIDATOR(MosaicTransfer, Notification)(UnresolvedMosaicId currencyMosaicId) {
-		return MAKE_STATEFUL_VALIDATOR(MosaicTransfer, [currencyMosaicId](const auto& notification, const auto& context) {
+		return MAKE_STATEFUL_VALIDATOR(MosaicTransfer, [currencyMosaicId](
+				const Notification& notification,
+				const ValidatorContext& context) {
 			// 0. allow currency mosaic id
 			if (currencyMosaicId == notification.MosaicId)
 				return ValidationResult::Success;

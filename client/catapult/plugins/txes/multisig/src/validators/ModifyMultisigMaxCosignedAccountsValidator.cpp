@@ -28,7 +28,7 @@ namespace catapult { namespace validators {
 
 	DECLARE_STATEFUL_VALIDATOR(ModifyMultisigMaxCosignedAccounts, Notification)(uint8_t maxCosignedAccountsPerAccount) {
 		return MAKE_STATEFUL_VALIDATOR(ModifyMultisigMaxCosignedAccounts, [maxCosignedAccountsPerAccount](
-				const auto& notification,
+				const Notification& notification,
 				const ValidatorContext& context) {
 			const auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
 			if (!multisigCache.contains(notification.CosignatoryKey))

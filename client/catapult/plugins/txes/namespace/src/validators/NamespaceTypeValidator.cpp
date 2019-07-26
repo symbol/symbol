@@ -25,7 +25,7 @@ namespace catapult { namespace validators {
 
 	using Notification = model::NamespaceNotification;
 
-	DEFINE_STATELESS_VALIDATOR(NamespaceType, [](const auto& notification) {
+	DEFINE_STATELESS_VALIDATOR(NamespaceType, [](const Notification& notification) {
 		return ValidateLessThanOrEqual(notification.NamespaceType, model::NamespaceType::Child, Failure_Namespace_Invalid_Namespace_Type);
 	});
 }}

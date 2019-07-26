@@ -64,7 +64,7 @@ namespace catapult { namespace cache {
 				explicit CacheViewType(const TBaseSet& set) : Set(set)
 				{}
 
-				explicit CacheViewType(const TBaseSet& set, int tag)
+				CacheViewType(const TBaseSet& set, int tag)
 						: Set(set)
 						, Tag(tag)
 				{}
@@ -82,7 +82,7 @@ namespace catapult { namespace cache {
 				explicit CacheDeltaType(const DeltaPointerType& pDeltaParam) : pDelta(pDeltaParam)
 				{}
 
-				explicit CacheDeltaType(const DeltaPointerType& pDeltaParam, int tag)
+				CacheDeltaType(const DeltaPointerType& pDeltaParam, int tag)
 						: pDelta(pDeltaParam)
 						, Tag(tag)
 				{}

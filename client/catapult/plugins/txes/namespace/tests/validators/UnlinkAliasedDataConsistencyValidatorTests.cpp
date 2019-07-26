@@ -85,7 +85,7 @@ namespace catapult { namespace validators {
 				auto notification = CreateNotification();
 
 				// Assert:
-				RunUnlinkValidatorTest(validators::Failure_Namespace_Alias_Namespace_Unknown, notification, [](const auto&) {});
+				RunUnlinkValidatorTest(validators::Failure_Namespace_Unknown, notification, [](const auto&) {});
 			}
 
 			static void AssertFailureWhenNamespaceDoesNotHaveAlias() {

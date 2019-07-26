@@ -21,7 +21,7 @@
 #include "src/cache/AccountRestrictionCacheStorage.h"
 #include "src/cache/AccountRestrictionCache.h"
 #include "src/model/AccountRestrictionTypes.h"
-#include "tests/test/AccountRestrictionsTestUtils.h"
+#include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/cache/CacheStorageTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -46,7 +46,7 @@ namespace catapult { namespace cache {
 				state::AccountRestrictions restrictions(address);
 				auto& restriction = restrictions.restriction(model::AccountRestrictionType::Address);
 				for (auto i = 0u; i < 3; ++i)
-					restriction.allow({ ModificationType::Add, test::GenerateRandomVector(Address_Decoded_Size) });
+					restriction.allow({ ModificationType::Add, test::GenerateRandomVector(Address::Size) });
 
 				return restrictions;
 			}

@@ -19,8 +19,8 @@
 **/
 
 #pragma once
-#include "src/model/NamespaceConstants.h"
-#include "src/model/NamespaceTypes.h"
+#include "NamespaceConstants.h"
+#include "NamespaceTypes.h"
 #include "catapult/model/Notifications.h"
 
 namespace catapult { namespace model {
@@ -31,19 +31,22 @@ namespace catapult { namespace model {
 #define DEFINE_NAMESPACE_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, Namespace, DESCRIPTION, CODE)
 
 	/// Namespace name was provided.
-	DEFINE_NAMESPACE_NOTIFICATION(Name, 0x0011, Validator);
+	DEFINE_NAMESPACE_NOTIFICATION(Name, 0x0001, Validator);
 
 	/// Namespace was registered.
-	DEFINE_NAMESPACE_NOTIFICATION(Registration, 0x0012, Validator);
+	DEFINE_NAMESPACE_NOTIFICATION(Registration, 0x0002, Validator);
 
 	/// Root namespace was registered.
-	DEFINE_NAMESPACE_NOTIFICATION(Root_Registration, 0x0021, All);
+	DEFINE_NAMESPACE_NOTIFICATION(Root_Registration, 0x0003, All);
 
 	/// Child namespace was registered.
-	DEFINE_NAMESPACE_NOTIFICATION(Child_Registration, 0x0022, All);
+	DEFINE_NAMESPACE_NOTIFICATION(Child_Registration, 0x0004, All);
 
 	/// Namespace rental fee has been sent.
-	DEFINE_NAMESPACE_NOTIFICATION(Rental_Fee, 0x0030, Observer);
+	DEFINE_NAMESPACE_NOTIFICATION(Rental_Fee, 0x0005, Observer);
+
+	/// Namespace is required.
+	DEFINE_NAMESPACE_NOTIFICATION(Required, 0x0006, Validator);
 
 #undef DEFINE_NAMESPACE_NOTIFICATION
 
@@ -191,6 +194,32 @@ namespace catapult { namespace model {
 	public:
 		/// Recipient.
 		UnresolvedAddress Recipient;
+	};
+
+	// endregion
+
+	// region namespace required
+
+	/// Notification of a required namespace.
+	struct NamespaceRequiredNotification : public Notification {
+	public:
+		/// Matching notification type.
+		static constexpr auto Notification_Type = Namespace_Required_Notification;
+
+	public:
+		/// Creates a notification around \a signer and \a namespaceId.
+		NamespaceRequiredNotification(const Key& signer, NamespaceId namespaceId)
+				: Notification(Notification_Type, sizeof(NamespaceRequiredNotification))
+				, Signer(signer)
+				, NamespaceId(namespaceId)
+		{}
+
+	public:
+		/// Signer.
+		const Key& Signer;
+
+		/// Namespace id.
+		catapult::NamespaceId NamespaceId;
 	};
 
 	// endregion

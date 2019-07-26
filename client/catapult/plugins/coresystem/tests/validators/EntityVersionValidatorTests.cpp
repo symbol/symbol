@@ -48,19 +48,16 @@ namespace catapult { namespace validators {
 	// region validation
 
 	TEST(TEST_CLASS, FailureWhenEntityHasVersionLowerThanMinVersion) {
-		// Assert:
 		for (uint8_t version = 0u; version < Min_Entity_Version; ++version)
 			AssertValidationResult(Failure_Core_Invalid_Version, version);
 	}
 
 	TEST(TEST_CLASS, FailureWhenEntityHasVersionGreaterThanMaxVersion) {
-		// Assert:
 		for (uint8_t version = Max_Entity_Version + 1; 0 != version; ++version)
 			AssertValidationResult(Failure_Core_Invalid_Version, version);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenEntityHasVersionWithinBounds) {
-		// Assert:
 		for (uint8_t version = Min_Entity_Version; version <= Max_Entity_Version; ++version)
 			AssertValidationResult(ValidationResult::Success, version);
 	}

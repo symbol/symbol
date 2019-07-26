@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 	namespace {
 		class LoopAndLevelChecker {
 		public:
-			explicit LoopAndLevelChecker(const cache::MultisigCache::CacheReadOnlyType& multisigCache, uint8_t maxMultisigDepth)
+			LoopAndLevelChecker(const cache::MultisigCache::CacheReadOnlyType& multisigCache, uint8_t maxMultisigDepth)
 					: m_multisigCache(multisigCache)
 					, m_maxMultisigDepth(maxMultisigDepth)
 			{}
@@ -62,7 +62,7 @@ namespace catapult { namespace validators {
 
 	DECLARE_STATEFUL_VALIDATOR(ModifyMultisigLoopAndLevel, Notification)(uint8_t maxMultisigDepth) {
 		return MAKE_STATEFUL_VALIDATOR(ModifyMultisigLoopAndLevel, [maxMultisigDepth](
-					const auto& notification,
+					const Notification& notification,
 					const ValidatorContext& context) {
 			auto checker = LoopAndLevelChecker(context.Cache.sub<cache::MultisigCache>(), maxMultisigDepth);
 			return checker.validate(notification.MultisigAccountKey, notification.CosignatoryKey);

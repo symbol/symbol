@@ -30,7 +30,7 @@ namespace catapult { namespace subscribers {
 #define TEST_CLASS BlockChangeReaderTests
 
 	namespace {
-		constexpr auto Empty_Block_Element_Size = sizeof(model::BlockHeader) + 2 * Hash256_Size + 2 * sizeof(uint32_t);
+		constexpr auto Empty_Block_Element_Size = sizeof(model::BlockHeader) + 2 * Hash256::Size + 2 * sizeof(uint32_t);
 
 		std::vector<uint8_t> CreateSerializedDataBuffer(BlockChangeOperationType operationType, Height height) {
 			std::vector<uint8_t> buffer(1 + sizeof(Height));
@@ -69,12 +69,10 @@ namespace catapult { namespace subscribers {
 	}
 
 	TEST(TEST_CLASS, CanReadSingleBlockChange_BlockWithoutStatements) {
-		// Assert:
 		AssertCanReadSingleBlockChange(false);
 	}
 
 	TEST(TEST_CLASS, CanReadSingleBlockChange_BlockWithStatements) {
-		// Assert:
 		AssertCanReadSingleBlockChange(true);
 	}
 

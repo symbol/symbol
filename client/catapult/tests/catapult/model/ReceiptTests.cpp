@@ -47,8 +47,8 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize =
 				sizeof(Receipt) // base
-				+ Key_Size // sender
-				+ Address_Decoded_Size // receipient
+				+ Key::Size // sender
+				+ Address::Size // receipient
 				+ sizeof(MosaicId) // mosaic id
 				+ sizeof(Amount); // amount
 
@@ -83,7 +83,7 @@ namespace catapult { namespace model {
 		// Arrange:
 		auto expectedSize =
 				sizeof(Receipt) // base
-				+ Key_Size // account
+				+ Key::Size // account
 				+ sizeof(MosaicId) // mosaic id
 				+ sizeof(Amount); // amount
 

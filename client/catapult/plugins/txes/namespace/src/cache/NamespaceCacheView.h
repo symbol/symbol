@@ -22,8 +22,8 @@
 #include "NamespaceCacheMixins.h"
 #include "NamespaceCacheSerializers.h"
 #include "NamespaceCacheTypes.h"
+#include "ReadOnlyNamespaceCache.h"
 #include "catapult/cache/CacheMixinAliases.h"
-#include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 
 namespace catapult { namespace cache {
@@ -62,7 +62,7 @@ namespace catapult { namespace cache {
 		/// Creates a view around \a namespaceSets, \a options and \a namespaceSizes.
 		BasicNamespaceCacheView(
 				const NamespaceCacheTypes::BaseSets& namespaceSets,
-				const NamespaceCacheTypes::Options&,
+				const NamespaceCacheTypes::Options& options,
 				const NamespaceSizes& namespaceSizes)
 				: NamespaceCacheViewMixins::Size(namespaceSets.Primary)
 				, NamespaceCacheViewMixins::Contains(namespaceSets.FlatMap)
@@ -70,7 +70,17 @@ namespace catapult { namespace cache {
 				, NamespaceCacheViewMixins::PatriciaTreeView(namespaceSets.PatriciaTree.get())
 				, NamespaceCacheViewMixins::NamespaceDeepSize(namespaceSizes)
 				, NamespaceCacheViewMixins::NamespaceLookup(namespaceSets.Primary, namespaceSets.FlatMap)
+				, m_gracePeriodDuration(options.GracePeriodDuration)
 		{}
+
+	public:
+		/// Gets the grace period duration.
+		BlockDuration gracePeriodDuration() const {
+			return m_gracePeriodDuration;
+		}
+
+	private:
+		BlockDuration m_gracePeriodDuration;
 	};
 
 	/// View on top of the namespace cache.

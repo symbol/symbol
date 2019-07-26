@@ -61,7 +61,7 @@ namespace catapult { namespace cache {
 			static void Modify(AccountRestrictionCacheDelta& delta, const state::AccountRestrictions& restrictions) {
 				auto& restrictionsFromCache = delta.find(restrictions.address()).get();
 				auto& restriction = restrictionsFromCache.restriction(model::AccountRestrictionType::Address);
-				restriction.allow({ model::AccountRestrictionModificationType::Add, test::GenerateRandomVector(Address_Decoded_Size) });
+				restriction.allow({ model::AccountRestrictionModificationType::Add, test::GenerateRandomVector(Address::Size) });
 			}
 		};
 	}

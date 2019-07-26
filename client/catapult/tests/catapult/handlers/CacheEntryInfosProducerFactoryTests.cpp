@@ -184,19 +184,16 @@ namespace catapult { namespace handlers {
 	// region basic
 
 	TEST(TEST_CLASS, CanSupplySingleValue) {
-		// Assert:
 		for (auto i = 1u; i <= 10; ++i)
 			AssertCanSupplyCacheEntryInfos({ i });
 	}
 
 	TEST(TEST_CLASS, CanSupplyMultipleValues) {
-		// Assert:
 		AssertCanSupplyCacheEntryInfos({ 1, 3, 5 });
 		AssertCanSupplyCacheEntryInfos({ 2, 4 });
 	}
 
 	TEST(TEST_CLASS, CanSupplyAllValues) {
-		// Assert:
 		auto ids = std::vector<MosaicId::ValueType>(10);
 		std::iota(ids.begin(), ids.end(), 1);
 		AssertCanSupplyCacheEntryInfos(ids);

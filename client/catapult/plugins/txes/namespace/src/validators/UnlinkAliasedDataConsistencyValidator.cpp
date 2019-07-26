@@ -32,10 +32,10 @@ namespace catapult { namespace validators {
 			if (model::AliasAction::Unlink != notification.AliasAction)
 				return ValidationResult::Success;
 
-			const auto& cache = context.Cache.template sub<cache::NamespaceCache>();
+			const auto& cache = context.Cache.sub<cache::NamespaceCache>();
 			auto namespaceIter = cache.find(notification.NamespaceId);
 			if (!namespaceIter.tryGet())
-				return Failure_Namespace_Alias_Namespace_Unknown;
+				return Failure_Namespace_Unknown;
 
 			const auto& entry = namespaceIter.get();
 			auto aliasType = entry.root().alias(notification.NamespaceId).type();

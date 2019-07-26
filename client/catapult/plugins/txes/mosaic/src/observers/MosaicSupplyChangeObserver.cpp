@@ -34,7 +34,7 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(MosaicSupplyChange, Notification, [](const auto& notification, const ObserverContext& context) {
+	DEFINE_OBSERVER(MosaicSupplyChange, Notification, [](const Notification& notification, const ObserverContext& context) {
 		auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
 		auto& accountStateCache = context.Cache.sub<cache::AccountStateCache>();
 		auto& cache = context.Cache.sub<cache::MosaicCache>();

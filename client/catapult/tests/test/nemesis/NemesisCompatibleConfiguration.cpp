@@ -49,16 +49,17 @@ namespace catapult { namespace test {
 			"",
 			{
 				{ "maxNameSize", "64" },
+				{ "maxChildNamespaces", "100" },
+				{ "maxNamespaceDepth", "3" },
 
+				{ "minNamespaceDuration", "1m" },
 				{ "maxNamespaceDuration", "365d" },
 				{ "namespaceGracePeriodDuration", "1h" },
 				{ "reservedRootNamespaceNames", "cat" },
 
 				{ "namespaceRentalFeeSinkPublicKey", Namespace_Rental_Fee_Sink_Public_Key },
 				{ "rootNamespaceRentalFeePerBlock", "10" },
-				{ "childNamespaceRentalFee", "10000" },
-
-				{ "maxChildNamespaces", "100" }
+				{ "childNamespaceRentalFee", "10000" }
 			}
 		}}));
 	}

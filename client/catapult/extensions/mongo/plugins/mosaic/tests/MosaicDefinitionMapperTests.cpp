@@ -23,7 +23,7 @@
 #include "mongo/src/mappers/MapperUtils.h"
 #include "catapult/constants.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -38,11 +38,8 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		model::MosaicFlags GetFlags(const model::MosaicProperties& properties) {
 			auto flags = model::MosaicFlags::None;
-			auto allFlags = std::initializer_list<model::MosaicFlags>{
-				model::MosaicFlags::Supply_Mutable, model::MosaicFlags::Transferable
-			};
-
-			for (auto flag : allFlags) {
+			for (auto i = 1u; i < utils::to_underlying_type(model::MosaicFlags::All); i <<= 1) {
+				auto flag = static_cast<model::MosaicFlags>(i);
 				if (properties.is(flag))
 					flags |= flag;
 			}
@@ -88,7 +85,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		template<typename TTraits>
 		void AssertCanMapTransaction(BlockDuration duration, size_t numExpectedProperties) {
-			PropertyValuesContainer propertyValues{ { 3, 5, duration.unwrap() } };
+			PropertyValuesContainer propertyValues{ { 4, 5, duration.unwrap() } };
 			auto properties = model::MosaicProperties::FromValues(propertyValues);
 			auto signer = test::GenerateRandomByteArray<Key>();
 			auto mosaicNonce = test::GenerateRandomValue<MosaicNonce>();
@@ -112,12 +109,10 @@ namespace catapult { namespace mongo { namespace plugins {
 	// region streamTransaction
 
 	PLUGIN_TEST(CanMapMosaicDefinitionTransaction_DefaultDuration) {
-		// Assert:
 		AssertCanMapTransaction<TTraits>(Eternal_Artifact_Duration, 2);
 	}
 
 	PLUGIN_TEST(CanMapMosaicDefinitionTransaction_CustomDuration) {
-		// Assert:
 		AssertCanMapTransaction<TTraits>(BlockDuration(321), 3);
 	}
 

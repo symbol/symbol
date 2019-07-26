@@ -90,12 +90,10 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanIncreaseImmutableSupplyWhenOwnerHasCompleteSupply) {
-		// Assert:
 		AssertCanChangeImmutableSupplyWhenOwnerHasCompleteSupply(model::MosaicSupplyChangeDirection::Increase);
 	}
 
 	TEST(TEST_CLASS, CanDecreaseImmutableSupplyWhenOwnerHasCompleteSupply) {
-		// Assert:
 		AssertCanChangeImmutableSupplyWhenOwnerHasCompleteSupply(model::MosaicSupplyChangeDirection::Decrease);
 	}
 
@@ -114,12 +112,10 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CannotIncreaseImmutableSupplyWhenOwnerHasPartialSupply) {
-		// Assert:
 		AssertCannotChangeImmutableSupplyWhenOwnerHasPartialSupply(model::MosaicSupplyChangeDirection::Increase);
 	}
 
 	TEST(TEST_CLASS, CannotDecreaseImmutableSupplyWhenOwnerHasPartialSupply) {
-		// Assert:
 		AssertCannotChangeImmutableSupplyWhenOwnerHasPartialSupply(model::MosaicSupplyChangeDirection::Decrease);
 	}
 
@@ -143,18 +139,15 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanDecreaseMutableSupplyByLessThanOwnerSupply) {
-		// Assert:
 		AssertDecreaseValidationResult(ValidationResult::Success, Amount(500), Amount(400), Amount(300));
 		AssertDecreaseValidationResult(ValidationResult::Success, Amount(500), Amount(400), Amount(399));
 	}
 
 	TEST(TEST_CLASS, CanDecreaseMutableSupplyByEntireOwnerSupply) {
-		// Assert:
 		AssertDecreaseValidationResult(ValidationResult::Success, Amount(500), Amount(400), Amount(400));
 	}
 
 	TEST(TEST_CLASS, CannotDecreaseMutableSupplyByGreaterThanOwnerSupply) {
-		// Assert:
 		AssertDecreaseValidationResult(Failure_Mosaic_Supply_Negative, Amount(500), Amount(400), Amount(401));
 		AssertDecreaseValidationResult(Failure_Mosaic_Supply_Negative, Amount(500), Amount(400), Amount(500));
 	}
@@ -179,24 +172,20 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanIncreaseMutableSupplyToLessThanAtomicUnits) {
-		// Assert:
 		AssertIncreaseValidationResult(ValidationResult::Success, Amount(900), Amount(500), Amount(300));
 		AssertIncreaseValidationResult(ValidationResult::Success, Amount(900), Amount(500), Amount(399));
 	}
 
 	TEST(TEST_CLASS, CanIncreaseMutableSupplyToExactlyAtomicUnits) {
-		// Assert:
 		AssertIncreaseValidationResult(ValidationResult::Success, Amount(900), Amount(500), Amount(400));
 	}
 
 	TEST(TEST_CLASS, CannotIncreaseMutableSupplyToGreaterThanAtomicUnits) {
-		// Assert:
 		AssertIncreaseValidationResult(Failure_Mosaic_Supply_Exceeded, Amount(900), Amount(500), Amount(401));
 		AssertIncreaseValidationResult(Failure_Mosaic_Supply_Exceeded, Amount(900), Amount(500), Amount(500));
 	}
 
 	TEST(TEST_CLASS, CannotIncreaseMutableSupplyWhenOverflowIsDetected) {
-		// Assert:
 		AssertIncreaseValidationResult(Failure_Mosaic_Supply_Exceeded, Amount(900), Amount(500), Max_Atomic_Units);
 	}
 

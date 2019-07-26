@@ -78,7 +78,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidEnumValue) {
-		// Assert:
 		test::AssertEnumParseFailure("two", 7, [](const auto& str, auto& parsedValue) {
 			return TryParseEnumValue(String_To_Square_Mapping, str, parsedValue);
 		});
@@ -89,35 +88,30 @@ namespace catapult { namespace utils {
 	// region bitwise enums
 
 	TEST(TEST_CLASS, CanParseEmptyStringAsBitwiseEnumValue) {
-		// Act + Assert:
 		test::AssertParse("", 0, [](const auto& str, auto& parsedValue) {
 			return TryParseBitwiseEnumValue(String_To_Square_Mapping, str, parsedValue);
 		});
 	}
 
 	TEST(TEST_CLASS, CanParseSingleValueAsBitwiseEnumValue) {
-		// Act + Assert:
 		test::AssertParse("three", 9, [](const auto& str, auto& parsedValue) {
 			return TryParseBitwiseEnumValue(String_To_Square_Mapping, str, parsedValue);
 		});
 	}
 
 	TEST(TEST_CLASS, CanParseMultipleValuesAsBitwiseEnumValue) {
-		// Act + Assert:
 		test::AssertParse("two,four", 20, [](const auto& str, auto& parsedValue) {
 			return TryParseBitwiseEnumValue(String_To_Square_Mapping, str, parsedValue);
 		});
 	}
 
 	TEST(TEST_CLASS, CannotParseMalformedSetAsBitwiseEnumValue) {
-		// Act + Assert:
 		test::AssertFailedParse("two,,four", 0, [](const auto& str, auto& parsedValue) {
 			return TryParseBitwiseEnumValue(String_To_Square_Mapping, str, parsedValue);
 		});
 	}
 
 	TEST(TEST_CLASS, CannotParseSetWithUnknownValueAsBitwiseEnumValue) {
-		// Act + Assert:
 		test::AssertFailedParse("two,five,four", 0, [](const auto& str, auto& parsedValue) {
 			return TryParseBitwiseEnumValue(String_To_Square_Mapping, str, parsedValue);
 		});
@@ -128,7 +122,6 @@ namespace catapult { namespace utils {
 	// region log related enums
 
 	TEST(TEST_CLASS, CanParseValidLogLevel) {
-		// Assert:
 		using T = LogLevel;
 		AssertSuccessfulParse("Trace", T::Trace);
 		AssertSuccessfulParse("Debug", T::Debug);
@@ -141,24 +134,20 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidLogLevel) {
-		// Assert:
 		AssertEnumParseFailure("Warning", LogLevel::Info);
 	}
 
 	TEST(TEST_CLASS, CanParseValidLogSinkType) {
-		// Assert:
 		using T = LogSinkType;
 		AssertSuccessfulParse("Sync", T::Sync);
 		AssertSuccessfulParse("Async", T::Async);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidLogSinkType) {
-		// Assert:
 		AssertEnumParseFailure("Sync", LogSinkType::Async);
 	}
 
 	TEST(TEST_CLASS, CanParseValidLogColorMode) {
-		// Assert:
 		using T = LogColorMode;
 		AssertSuccessfulParse("Ansi", T::Ansi);
 		AssertSuccessfulParse("AnsiBold", T::AnsiBold);
@@ -166,7 +155,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidLogColorMode) {
-		// Assert:
 		AssertEnumParseFailure("Ansi", LogColorMode::None);
 	}
 
@@ -175,13 +163,11 @@ namespace catapult { namespace utils {
 	// region bool
 
 	TEST(TEST_CLASS, CanParseValidBoolean) {
-		// Assert:
 		AssertSuccessfulParse("true", true);
 		AssertSuccessfulParse("false", false);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidBoolean) {
-		// Assert:
 		AssertEnumParseFailure("false", true);
 	}
 
@@ -302,42 +288,34 @@ namespace catapult { namespace utils {
 	// region int
 
 	TEST(TEST_CLASS, CanParseValidUInt8) {
-		// Assert:
 		AssertUnsignedIntDecimalParseSuccess(static_cast<uint8_t>(0xFF));
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidUInt8) {
-		// Assert:
 		AssertUnsignedIntDecimalParseFailure<uint8_t>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidUInt16) {
-		// Assert:
 		AssertUnsignedIntDecimalParseSuccess(static_cast<uint16_t>(0xFFFF));
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidUInt16) {
-		// Assert:
 		AssertUnsignedIntDecimalParseFailure<uint16_t>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidUInt32) {
-		// Assert:
 		AssertUnsignedIntDecimalParseSuccess(static_cast<uint32_t>(0xFFFF'FFFF));
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidUInt32) {
-		// Assert:
 		AssertUnsignedIntDecimalParseFailure<uint32_t>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidUInt64) {
-		// Assert:
 		AssertUnsignedIntDecimalParseSuccess(static_cast<uint64_t>(0xFFFF'FFFF'FFFF'FFFF));
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidUInt64) {
-		// Assert:
 		AssertUnsignedIntDecimalParseFailure<uint64_t>();
 	}
 
@@ -346,59 +324,48 @@ namespace catapult { namespace utils {
 	// region custom types
 
 	TEST(TEST_CLASS, CanParseValidAmount) {
-		// Assert:
 		AssertUnsignedIntDecimalParseSuccess<Amount, Amount::ValueType>(0xFFFF'FFFF'FFFF'FFFF);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidAmount) {
-		// Assert:
 		AssertUnsignedIntDecimalParseFailure<Amount, Amount::ValueType>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidBlockFeeMultiplier) {
-		// Assert:
 		AssertUnsignedIntDecimalParseSuccess<BlockFeeMultiplier, BlockFeeMultiplier::ValueType>(0xFFFF'FFFF);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidBlockFeeMultiplier) {
-		// Assert:
 		AssertUnsignedIntDecimalParseFailure<BlockFeeMultiplier, BlockFeeMultiplier::ValueType>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidHeight) {
-		// Assert:
 		AssertUnsignedIntDecimalParseSuccess<Height, Height::ValueType>(0xFFFF'FFFF'FFFF'FFFF);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidHeight) {
-		// Assert:
 		AssertUnsignedIntDecimalParseFailure<Height, Height::ValueType>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidImportance) {
-		// Assert:
 		AssertUnsignedIntDecimalParseSuccess<Importance, Importance::ValueType>(0xFFFF'FFFF'FFFF'FFFF);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidImportance) {
-		// Assert:
 		AssertUnsignedIntDecimalParseFailure<Importance, Importance::ValueType>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidMosaicId) {
-		// Assert:
 		AssertUnsignedIntHexParseSuccess<MosaicId::ValueType>(0xFFFF'FFFF'FFFF'FFFF, "", [](auto value) {
 			return MosaicId(static_cast<MosaicId::ValueType>(value));
 		});
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidMosaicId) {
-		// Assert:
 		AssertUnsignedIntHexParseFailure<MosaicId, MosaicId::ValueType>(MosaicId(177), "");
 	}
 
 	TEST(TEST_CLASS, CanParseValidTimeSpan) {
-		// Assert:
 		auto maxValue = 0xFFFF'FFFF'FFFF'FFFF;
 		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "ms", TimeSpan::FromMilliseconds);
 		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "s", TimeSpan::FromSeconds);
@@ -407,7 +374,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidTimeSpan) {
-		// Assert:
 		auto initialValue = TimeSpan::FromMinutes(8888);
 		AssertUnsignedIntDecimalParseFailure<TimeSpan, uint64_t>(initialValue, "m");
 
@@ -418,14 +384,13 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanParseValidBlockSpan) {
-		// Assert:
 		auto maxValue = 0xFFFF'FFFF'FFFF'FFFF;
+		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "m", BlockSpan::FromMinutes);
 		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "h", BlockSpan::FromHours);
 		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "d", BlockSpan::FromDays);
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidBlockSpan) {
-		// Assert:
 		auto initialValue = BlockSpan::FromHours(8888);
 		AssertUnsignedIntDecimalParseFailure<BlockSpan, uint64_t>(initialValue, "h");
 
@@ -436,7 +401,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanParseValidFileSize) {
-		// Assert:
 		auto maxValue = 0xFFFF'FFFF'FFFF'FFFF;
 		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "B", FileSize::FromBytes);
 		AssertUnsignedIntDecimalParseSuccess<uint64_t>(maxValue, "KB", FileSize::FromKilobytes);
@@ -444,7 +408,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidFileSize) {
-		// Assert:
 		auto initialValue = FileSize::FromKilobytes(8888);
 		AssertUnsignedIntDecimalParseFailure<FileSize, uint64_t>(initialValue, "KB");
 
@@ -487,32 +450,26 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanParseValidKey) {
-		// Assert:
 		AssertCanParseValidByteArray<Key>();
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidKey) {
-		// Assert:
 		AssertCannotParseInvalidByteArray<Key>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidHash256) {
-		// Assert:
 		AssertCanParseValidByteArray<Hash256>();
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidHash256) {
-		// Assert:
 		AssertCannotParseInvalidByteArray<Hash256>();
 	}
 
 	TEST(TEST_CLASS, CanParseValidGenerationHash) {
-		// Assert:
 		AssertCanParseValidByteArray<GenerationHash>();
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidGenerationHash) {
-		// Assert:
 		AssertCannotParseInvalidByteArray<GenerationHash>();
 	}
 
@@ -521,7 +478,6 @@ namespace catapult { namespace utils {
 	// region string
 
 	TEST(TEST_CLASS, CanParseString) {
-		// Assert:
 		AssertSuccessfulParse("Foo BAR", std::string("Foo BAR"));
 		AssertSuccessfulParse("Ac$D*a98p124!", std::string("Ac$D*a98p124!"));
 	}

@@ -20,7 +20,7 @@
 
 #include "src/state/AccountRestrictions.h"
 #include "catapult/model/EntityType.h"
-#include "tests/test/AccountRestrictionsTestUtils.h"
+#include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace state {
@@ -38,6 +38,14 @@ namespace catapult { namespace state {
 			}
 		};
 
+		struct AccountAddressOutgoingRestrictionTraits {
+			using ValueType = Address;
+
+			static constexpr model::AccountRestrictionType AccountRestrictionType() {
+				return model::AccountRestrictionType::Address | model::AccountRestrictionType::Outgoing;
+			}
+		};
+
 		struct AccountMosaicRestrictionTraits {
 			using ValueType = MosaicId;
 
@@ -50,7 +58,7 @@ namespace catapult { namespace state {
 			using ValueType = model::EntityType;
 
 			static constexpr model::AccountRestrictionType AccountRestrictionType() {
-				return model::AccountRestrictionType::TransactionType;
+				return model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing;
 			}
 		};
 
@@ -74,6 +82,7 @@ namespace catapult { namespace state {
 #define ACCOUNT_RESTRICTION_TRAITS_BASED_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
 	TEST(TEST_CLASS, TEST_NAME##_Address) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressRestrictionTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_AddressOutgoing) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountAddressOutgoingRestrictionTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Mosaic) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountMosaicRestrictionTraits>(); } \
 	TEST(TEST_CLASS, TEST_NAME##_Operation) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<AccountOperationRestrictionTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
@@ -87,7 +96,7 @@ namespace catapult { namespace state {
 
 		// Assert:
 		EXPECT_EQ(address, restrictions.address());
-		EXPECT_EQ(3u, restrictions.size());
+		EXPECT_EQ(4u, restrictions.size());
 	}
 
 	TEST(TEST_CLASS, CanCreateAccountRestrictionsWithDifferentAccountRestrictionOperationTypes) {
@@ -97,7 +106,7 @@ namespace catapult { namespace state {
 		auto& mosaicRestriction = restrictions.restriction(model::AccountRestrictionType::MosaicId);
 
 		// Act:
-		addressRestriction.block({ Add, test::GenerateRandomVector(Address_Decoded_Size) });
+		addressRestriction.block({ Add, test::GenerateRandomVector(Address::Size) });
 		mosaicRestriction.allow({ Add, test::GenerateRandomVector(sizeof(MosaicId)) });
 
 		// Assert:
@@ -109,19 +118,21 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, IsEmptyReturnsTrueWhenNoAccountRestrictionHasValues) {
-		// Assert:
-		AssertIsEmpty({ 0, 0, 0 }, true);
+		AssertIsEmpty({ 0, 0, 0, 0 }, true);
 	}
 
 	TEST(TEST_CLASS, IsEmptyReturnsFalseWhenAtLeastOneAccountRestrictionHasAtLeastOneValue) {
-		// Assert:
-		AssertIsEmpty({ 1, 0, 0 }, false);
-		AssertIsEmpty({ 0, 1, 0 }, false);
-		AssertIsEmpty({ 0, 0, 1 }, false);
-		AssertIsEmpty({ 5, 0, 0 }, false);
-		AssertIsEmpty({ 0, 5, 0 }, false);
-		AssertIsEmpty({ 0, 0, 5 }, false);
-		AssertIsEmpty({ 20, 17, 13 }, false);
+		AssertIsEmpty({ 1, 0, 0, 0 }, false);
+		AssertIsEmpty({ 0, 1, 0, 0 }, false);
+		AssertIsEmpty({ 0, 0, 1, 0 }, false);
+		AssertIsEmpty({ 0, 0, 0, 1 }, false);
+
+		AssertIsEmpty({ 5, 0, 0, 0 }, false);
+		AssertIsEmpty({ 0, 5, 0, 0 }, false);
+		AssertIsEmpty({ 0, 0, 5, 0 }, false);
+		AssertIsEmpty({ 0, 0, 0, 5 }, false);
+
+		AssertIsEmpty({ 20, 17, 13, 9 }, false);
 	}
 
 	TEST(TEST_CLASS, CanIterateThroughAccountRestrictions) {
@@ -135,7 +146,8 @@ namespace catapult { namespace state {
 		std::vector<model::AccountRestrictionType> expectedTypes{
 			model::AccountRestrictionType::Address,
 			model::AccountRestrictionType::MosaicId,
-			model::AccountRestrictionType::TransactionType
+			model::AccountRestrictionType::Address | model::AccountRestrictionType::Outgoing,
+			model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing
 		};
 		EXPECT_EQ(expectedTypes, types);
 	}
@@ -167,7 +179,7 @@ namespace catapult { namespace state {
 		auto& restriction = restrictions.restriction(TTraits::AccountRestrictionType());
 
 		// Assert:
-		EXPECT_EQ(TTraits::AccountRestrictionType(), restriction.descriptor().restrictionType());
+		EXPECT_EQ(TTraits::AccountRestrictionType(), restriction.descriptor().directionalRestrictionType());
 	}
 
 	TEST(TEST_CLASS, RestrictionThrowsWhenAccountRestrictionTypeIsUnknown) {
@@ -186,7 +198,7 @@ namespace catapult { namespace state {
 		auto& restriction = const_cast<const AccountRestrictions&>(restrictions).restriction(TTraits::AccountRestrictionType());
 
 		// Assert:
-		EXPECT_EQ(TTraits::AccountRestrictionType(), restriction.descriptor().restrictionType());
+		EXPECT_EQ(TTraits::AccountRestrictionType(), restriction.descriptor().directionalRestrictionType());
 	}
 
 	TEST(TEST_CLASS, RestrictionThrowsWhenAccountRestrictionTypeIsUnknown_Const) {

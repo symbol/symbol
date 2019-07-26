@@ -153,22 +153,18 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, DefaultCallback_ActionIsSkippedWhenNoPeerIsAvailable) {
-		// Assert:
 		AssertActionIsSkippedWhenNoPeerIsAvailable<DefaultCallbackTraits>();
 	}
 
 	TEST(TEST_CLASS, DefaultCallback_ActionIsCalledWhenPeerIsAvailableAndChainIsNotSynched) {
-		// Assert:
 		AssertCallbackCallsAction<DefaultCallbackTraits>(false);
 	}
 
 	TEST(TEST_CLASS, DefaultCallback_ActionIsCalledWhenPeerIsAvailableAndChainIsSynched) {
-		// Assert:
 		AssertCallbackCallsAction<DefaultCallbackTraits>(true);
 	}
 
 	TEST(TEST_CLASS, ChainSyncedCallback_ActionIsSkippedWhenNoPeerIsAvailable) {
-		// Assert:
 		AssertActionIsSkippedWhenNoPeerIsAvailable<ChainSyncAwareCallbackTraits>();
 	}
 
@@ -198,7 +194,6 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, ChainSyncedCallback_ActionIsCalledWhenPeerIsAvailableAndChainIsSynched) {
-		// Assert:
 		AssertCallbackCallsAction<ChainSyncAwareCallbackTraits>(true);
 	}
 
@@ -237,26 +232,22 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, NodeInteractionsAreUpdatedOnSuccessfulInteraction) {
-		// Assert:
 		AssertNodeInteractionResultIsInspected(ionet::NodeInteractionResultCode::Success, [](const auto& interactions) {
 			test::AssertNodeInteractions(1, 0, interactions);
 		});
 	}
 
 	TEST(TEST_CLASS, NodeInteractionsAreUpdatedOnFailedInteraction) {
-		// Assert:
 		AssertNodeInteractionResultIsInspected(ionet::NodeInteractionResultCode::Failure, [](const auto& interactions) {
 			test::AssertNodeInteractions(0, 1, interactions);
 		});
 	}
 
 	TEST(TEST_CLASS, NodeInteractionsAreNotUpdatedOnNeutralInteraction) {
-		// Assert:
 		AssertNodeInteractionsAreNotUpdated(ionet::NodeInteractionResultCode::Neutral);
 	}
 
 	TEST(TEST_CLASS, NodeInteractionsAreNotUpdatedOnNoneInteraction) {
-		// Assert:
 		AssertNodeInteractionsAreNotUpdated(ionet::NodeInteractionResultCode::None);
 	}
 }}

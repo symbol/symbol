@@ -30,7 +30,7 @@ namespace catapult { namespace ionet {
 			constexpr auto Error_Raised = 2u;
 		}
 
-		/// Encapsulates a packet read and write operation.
+		// encapsulates a packet read and write operation
 		class PacketReadWriteOperation : public std::enable_shared_from_this<PacketReadWriteOperation> {
 		public:
 			PacketReadWriteOperation(

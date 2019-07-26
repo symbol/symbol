@@ -35,7 +35,7 @@ namespace catapult { namespace model {
 	struct VerifiableEntityHeader : public SizePrefixedEntity {
 	public:
 		/// Size of the VerifiableEntity part that can be skipped when signing/verifying.
-		static constexpr size_t Header_Size = sizeof(uint32_t) + Signature_Size + Key_Size;
+		static constexpr size_t Header_Size = sizeof(uint32_t) + catapult::Signature::Size + Key::Size;
 
 		/// Entity signature.
 		catapult::Signature Signature;

@@ -26,8 +26,8 @@ namespace catapult { namespace validators {
 
 	using Notification = model::HashLockNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(HashLockCacheUnique, [](const auto& notification, const auto& context) {
-		const auto& cache = context.Cache.template sub<cache::HashLockInfoCache>();
+	DEFINE_STATEFUL_VALIDATOR(HashLockCacheUnique, [](const Notification& notification, const ValidatorContext& context) {
+		const auto& cache = context.Cache.sub<cache::HashLockInfoCache>();
 		return cache.contains(notification.Hash)
 				? Failure_LockHash_Hash_Exists
 				: ValidationResult::Success;

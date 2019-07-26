@@ -49,7 +49,6 @@ namespace catapult { namespace deltaset {
 	}
 
 	TEST(TEST_CLASS, HasChangesReturnsTrueWhenAnySetHasChanges) {
-		// Assert:
 		AssertHasChanges({ 1 }, {}, {});
 		AssertHasChanges({}, { 1 }, {});
 		AssertHasChanges({}, {}, { 1 });
@@ -60,7 +59,6 @@ namespace catapult { namespace deltaset {
 	}
 
 	TEST(TEST_CLASS, HasChangesReturnsTrueWhenAllSetsHaveChanges) {
-		// Assert:
 		AssertHasChanges({ 1 }, { 1 }, { 1 });
 	}
 }}

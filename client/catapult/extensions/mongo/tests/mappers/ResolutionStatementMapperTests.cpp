@@ -52,17 +52,14 @@ namespace catapult { namespace mongo { namespace mappers {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	RESOLUTION_STATEMENT_MAPPER_TEST(CanMapResolutionStatement_NoResolutions) {
-		// Assert:
 		AssertCanMapResolutionStatement<TTraits>(0);
 	}
 
 	RESOLUTION_STATEMENT_MAPPER_TEST(CanMapResolutionStatement_SingleResolution) {
-		// Assert:
 		AssertCanMapResolutionStatement<TTraits>(1);
 	}
 
 	RESOLUTION_STATEMENT_MAPPER_TEST(CanMapResolutionStatement_MultipleResolutions) {
-		// Assert:
 		AssertCanMapResolutionStatement<TTraits>(5);
 	}
 }}}

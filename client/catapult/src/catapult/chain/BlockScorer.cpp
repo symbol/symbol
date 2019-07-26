@@ -38,7 +38,7 @@ namespace catapult { namespace chain {
 		}
 
 		uint32_t NumLeadingZeros(const GenerationHash& generationHash) {
-			for (auto i = 0u; i < Hash256_Size; ++i) {
+			for (auto i = 0u; i < Hash256::Size; ++i) {
 				if (0 != generationHash[i])
 					return 8u * i + 7u - utils::Log2(generationHash[i]);
 			}
@@ -59,7 +59,7 @@ namespace catapult { namespace chain {
 		GenerationHashInfo ExtractGenerationHashInfo(const GenerationHash& generationHash) {
 			auto numLeadingZeros = NumLeadingZeros(generationHash);
 			if (224 <= numLeadingZeros)
-				return GenerationHashInfo{ ExtractFromHashAtPosition(generationHash, Hash256_Size - 4), 224 };
+				return GenerationHashInfo{ ExtractFromHashAtPosition(generationHash, Hash256::Size - 4), 224 };
 
 			auto quotient = numLeadingZeros / 8;
 			auto remainder = numLeadingZeros % 8;

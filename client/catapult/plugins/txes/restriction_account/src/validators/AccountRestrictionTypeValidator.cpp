@@ -27,14 +27,26 @@ namespace catapult { namespace validators {
 
 	namespace {
 		bool IsValidAccountRestrictionType(model::AccountRestrictionType restrictionType) {
-			auto restrictionTypeWithoutMsb = state::AccountRestrictionDescriptor(restrictionType).restrictionType();
-			auto hasSingleAccountRestriction = HasSingleFlag(restrictionTypeWithoutMsb);
-			return hasSingleAccountRestriction && restrictionTypeWithoutMsb < model::AccountRestrictionType::Sentinel;
+			auto strippedRestrictionType = state::AccountRestrictionDescriptor(restrictionType).restrictionType();
+			auto directionalRestrictionType = state::AccountRestrictionDescriptor(restrictionType).directionalRestrictionType();
+			switch (strippedRestrictionType) {
+			case model::AccountRestrictionType::Address:
+				return true;
+
+			case model::AccountRestrictionType::MosaicId:
+				return HasSingleFlag(directionalRestrictionType);
+
+			case model::AccountRestrictionType::TransactionType:
+				return HasFlag(model::AccountRestrictionType::Outgoing, directionalRestrictionType);
+
+			default:
+				return false;
+			}
 		}
 	}
 
-	DEFINE_STATELESS_VALIDATOR(AccountRestrictionType, [](const auto& notification) {
-		return IsValidAccountRestrictionType(notification.AccountRestrictionType)
+	DEFINE_STATELESS_VALIDATOR(AccountRestrictionType, [](const Notification& notification) {
+		return IsValidAccountRestrictionType(notification.RestrictionType)
 				? ValidationResult::Success
 				: Failure_RestrictionAccount_Invalid_Restriction_Type;
 	});

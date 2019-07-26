@@ -48,10 +48,9 @@ namespace catapult { namespace validators {
 		}
 
 		template<typename TSeedCacheFunc>
-		void RunAvailabilityTest(ValidationResult expectedResult, const AliasOwnerNotification& notification, TSeedCacheFunc seedCache) {
+		void RunAvailabilityTest(ValidationResult expectedResult, const AliasLinkNotification& notification, TSeedCacheFunc seedCache) {
 			// Arrange:
 			auto cache = CreateAndSeedCache(seedCache);
-
 			auto pValidator = CreateAliasAvailabilityValidator();
 
 			// Act:
@@ -64,35 +63,10 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, FailureWhenNamespaceIsUnknown) {
 		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
-		AliasOwnerNotification notification(owner, Default_Namespace_Id, AliasAction::Link);
+		AliasLinkNotification notification(Default_Namespace_Id, AliasAction::Link);
 
 		// Assert:
-		RunAvailabilityTest(Failure_Namespace_Alias_Namespace_Unknown, notification, [](const auto&) {});
-	}
-
-	TEST(TEST_CLASS, FailureWhenOwnerDoesNotMatch) {
-		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
-		AliasOwnerNotification notification(owner, Default_Namespace_Id, AliasAction::Link);
-
-		// Assert:
-		RunAvailabilityTest(Failure_Namespace_Alias_Owner_Conflict, notification, [&owner](auto& cache) {
-			auto namespaceOwner = owner;
-			namespaceOwner[0] ^= 0xFF;
-			cache.insert(state::RootNamespace(Default_Namespace_Id, namespaceOwner, test::CreateLifetime(100, 300)));
-		});
-	}
-
-	TEST(TEST_CLASS, FailureWhenNamespaceExpired) {
-		// Arrange:
-		auto owner = test::GenerateRandomByteArray<Key>();
-		AliasOwnerNotification notification(owner, Default_Namespace_Id, AliasAction::Link);
-
-		// Assert: notification is at height 200, so limit lifetime to 150
-		RunAvailabilityTest(Failure_Namespace_Expired, notification, [&owner](auto& cache) {
-			cache.insert(state::RootNamespace(Default_Namespace_Id, owner, test::CreateLifetime(100, 150)));
-		});
+		RunAvailabilityTest(Failure_Namespace_Unknown, notification, [](const auto&) {});
 	}
 
 	// endregion
@@ -127,11 +101,11 @@ namespace catapult { namespace validators {
 		template<typename TTraits>
 		void RunTest(ValidationResult expectedResult, AliasAction aliasAction, LinkState linkState) {
 			// Arrange:
-			auto owner = test::GenerateRandomByteArray<Key>();
-			AliasOwnerNotification notification(owner, TTraits::Notification_Namespace_Id, aliasAction);
+			AliasLinkNotification notification(TTraits::Notification_Namespace_Id, aliasAction);
 
 			// Assert:
-			RunAvailabilityTest(expectedResult, notification, [&owner, linkState](auto& cache) {
+			RunAvailabilityTest(expectedResult, notification, [linkState](auto& cache) {
+				auto owner = test::GenerateRandomByteArray<Key>();
 				cache.insert(state::RootNamespace(Default_Namespace_Id, owner, test::CreateLifetime(100, 300)));
 				cache.insert(state::Namespace(test::CreatePath({ 123, 234 })));
 				TTraits::Prepare(cache);

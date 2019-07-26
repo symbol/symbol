@@ -185,7 +185,7 @@ namespace catapult { namespace cache {
 		EXPECT_TRUE(isEmpty);
 	}
 
-	TEST(TEST_CLASS, EmptyReturnsFalseWhenContainerSizeIsNonZero) {
+	TEST(TEST_CLASS, EmptyReturnsFalseWhenContainerSizeIsNonzero) {
 		// Arrange:
 		MockDb db;
 		auto container = CreateContainer(db);

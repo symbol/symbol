@@ -45,7 +45,7 @@ namespace catapult { namespace cache {
 		auto result = SerializeKey(key);
 
 		// Assert:
-		ASSERT_EQ(Hash256_Size, result.Size);
+		ASSERT_EQ(Hash256::Size, result.Size);
 		EXPECT_EQ(key.data(), result.pData);
 	}
 }}

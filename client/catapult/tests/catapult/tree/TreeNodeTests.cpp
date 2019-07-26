@@ -414,19 +414,16 @@ namespace catapult { namespace tree {
 	}
 
 	TEST(TEST_CLASS, BranchTreeNodeHighestLinkIndexReturnsCorrectValueWhenNoLinksAreSet) {
-		// Assert:
 		AssertHighestLinkIndex(0xFF, {});
 	}
 
 	TEST(TEST_CLASS, BranchTreeNodeHighestLinkIndexReturnsCorrectValueWhenSingleLinkIsSet) {
-		// Assert:
 		AssertHighestLinkIndex(0, { 0 });
 		AssertHighestLinkIndex(7, { 7 });
 		AssertHighestLinkIndex(15, { 15 });
 	}
 
 	TEST(TEST_CLASS, BranchTreeNodeHighestLinkIndexReturnsCorrectValueWhenMultipleLinksAreSet) {
-		// Assert:
 		AssertHighestLinkIndex(4, { 1, 2, 3, 4 });
 		AssertHighestLinkIndex(11, { 9, 11, 8 });
 		AssertHighestLinkIndex(15, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });

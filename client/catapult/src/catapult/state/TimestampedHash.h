@@ -43,7 +43,7 @@ namespace catapult { namespace state {
 		{}
 
 		/// Creates a timestamped hash from a \a timestamp and a \a hash.
-		explicit TimestampedHash(Timestamp timestamp, const Hash256& hash) : Time(timestamp) {
+		TimestampedHash(Timestamp timestamp, const Hash256& hash) : Time(timestamp) {
 			std::memcpy(Hash.data(), hash.data(), Hash.size());
 		}
 

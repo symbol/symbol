@@ -21,6 +21,7 @@
 #pragma once
 #include "MultisigEntityType.h"
 #include "catapult/model/Transaction.h"
+#include "catapult/utils/ArraySet.h"
 
 namespace catapult { namespace model {
 
@@ -83,4 +84,16 @@ namespace catapult { namespace model {
 	DEFINE_EMBEDDABLE_TRANSACTION(ModifyMultisigAccount)
 
 #pragma pack(pop)
+
+	/// Extracts public keys of additional accounts that must approve \a transaction.
+	inline utils::KeySet ExtractAdditionalRequiredCosigners(const EmbeddedModifyMultisigAccountTransaction& transaction) {
+		utils::KeySet addedCosignatoryKeys;
+		const auto* pModifications = transaction.ModificationsPtr();
+		for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
+			if (model::CosignatoryModificationType::Add == pModifications[i].ModificationType)
+				addedCosignatoryKeys.insert(pModifications[i].CosignatoryPublicKey);
+		}
+
+		return addedCosignatoryKeys;
+	}
 }}

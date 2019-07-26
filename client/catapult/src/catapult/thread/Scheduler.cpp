@@ -35,7 +35,7 @@ namespace catapult { namespace thread {
 			return std::chrono::milliseconds(timeSpan.millis());
 		}
 
-		/// Wraps a task using an implicit strand.
+		// wraps a task using an implicit strand
 		template<typename TCallbackWrapper>
 		class BasicTaskWrapper {
 		public:
@@ -97,8 +97,7 @@ namespace catapult { namespace thread {
 			bool m_isStopped;
 		};
 
-		/// Wraps a task using using an explicit strand and ensures deterministic shutdown by using
-		/// enable_shared_from_this.
+		// wraps a task using using an explicit strand and ensures deterministic shutdown by using enable_shared_from_this
 		class StrandedTaskWrapper : public std::enable_shared_from_this<StrandedTaskWrapper> {
 		public:
 			StrandedTaskWrapper(boost::asio::io_context& ioContext, const Task& task)

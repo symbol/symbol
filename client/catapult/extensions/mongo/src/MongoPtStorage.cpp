@@ -73,7 +73,7 @@ namespace catapult { namespace mongo {
 
 		class DefaultMongoPtStorage final : public cache::PtChangeSubscriber {
 		public:
-			explicit DefaultMongoPtStorage(MongoStorageContext& context, const MongoTransactionRegistry& transactionRegistry)
+			DefaultMongoPtStorage(MongoStorageContext& context, const MongoTransactionRegistry& transactionRegistry)
 					: m_pTransactionStorage(CreateMongoTransactionStorage(context, transactionRegistry, Pt_Collection_Name))
 					, m_database(context.createDatabaseConnection())
 			{}

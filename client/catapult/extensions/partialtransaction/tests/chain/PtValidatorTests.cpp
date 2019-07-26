@@ -218,27 +218,22 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, ValidatePartialMapsSuccessToTrue) {
-		// Assert:
 		RunValidatePartialTest(ValidationResult::Success, { true, false });
 	}
 
 	TEST(TEST_CLASS, ValidatePartialMapsNeutralToFalse) {
-		// Assert:
 		RunValidatePartialTest(ValidationResult::Neutral, { false, false });
 	}
 
 	TEST(TEST_CLASS, ValidatePartialMapsGenericFailureToFalse) {
-		// Assert:
 		RunValidatePartialTest(ValidationResult::Failure, { false, true });
 	}
 
 	TEST(TEST_CLASS, ValidatePartialMapsFailureAggregateIneligibleCosignersToFalse) {
-		// Assert:
 		RunValidatePartialTest(Failure_Aggregate_Ineligible_Cosigners, { false, true });
 	}
 
 	TEST(TEST_CLASS, ValidatePartialMapsFailureAggregateMissingCosignersToTrue) {
-		// Assert:
 		RunValidatePartialTest(Failure_Aggregate_Missing_Cosigners, { true, false });
 	}
 
@@ -363,27 +358,22 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, ValidateCosignersMapsSuccessToSuccess) {
-		// Assert:
 		RunValidateCosignersTest(ValidationResult::Success, { CosignersValidationResult::Success, false });
 	}
 
 	TEST(TEST_CLASS, ValidateCosignersMapsNeutralToFailure) {
-		// Assert:
 		RunValidateCosignersTest(ValidationResult::Neutral, { CosignersValidationResult::Failure, false });
 	}
 
 	TEST(TEST_CLASS, ValidateCosignersMapsGenericFailureToFailure) {
-		// Assert:
 		RunValidateCosignersTest(ValidationResult::Failure, { CosignersValidationResult::Failure, true });
 	}
 
 	TEST(TEST_CLASS, ValidateCosignersMapsFailureAggregateIneligibleCosignersToIneligible) {
-		// Assert:
 		RunValidateCosignersTest(Failure_Aggregate_Ineligible_Cosigners, { CosignersValidationResult::Ineligible, true });
 	}
 
 	TEST(TEST_CLASS, ValidateCosignersMapsFailureAggregateMissingCosignersToMissing) {
-		// Assert:
 		RunValidateCosignersTest(Failure_Aggregate_Missing_Cosigners, { CosignersValidationResult::Missing, true });
 	}
 

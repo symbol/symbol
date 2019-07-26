@@ -79,12 +79,10 @@ namespace catapult { namespace timesync {
 	}
 
 	TEST(TEST_CLASS, UpdateDoesNotChangeOffsetWhenSuppliedOffsetIsSmallerThanThreshold_Positive) {
-		// Assert:
 		AssertUpdateDoesNotChangeState(Default_Threshold, 50);
 	}
 
 	TEST(TEST_CLASS, UpdateDoesNotChangeOffsetWhenSuppliedOffsetIsSmallerThanThreshold_Negative) {
-		// Assert:
 		AssertUpdateDoesNotChangeState(Default_Threshold, -50);
 	}
 

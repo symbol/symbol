@@ -39,7 +39,7 @@ namespace catapult { namespace chain {
 
 		class UnprocessedElements : public std::enable_shared_from_this<UnprocessedElements> {
 		public:
-			explicit UnprocessedElements(const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer, size_t maxSize)
+			UnprocessedElements(const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer, size_t maxSize)
 					: m_blockRangeConsumer(blockRangeConsumer)
 					, m_maxSize(maxSize)
 					, m_numBytes(0)
@@ -227,7 +227,7 @@ namespace catapult { namespace chain {
 		public:
 			// note: the synchronizer will only request config.MaxRollbackBlocks blocks so that even if the peer returns
 			//       a chain part that is a fork of the real chain, that fork is still resolvable because it can be rolled back
-			explicit DefaultChainSynchronizer(
+			DefaultChainSynchronizer(
 					const std::shared_ptr<const api::ChainApi>& pLocalChainApi,
 					const ChainSynchronizerConfiguration& config,
 					const CompletionAwareBlockRangeConsumerFunc& blockRangeConsumer)

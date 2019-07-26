@@ -50,12 +50,10 @@ namespace catapult { namespace validators {
 	// region validation
 
 	TEST(TEST_CLASS, SuccessWhenBlockContainsNoTransactions) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 0);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenBlockContainsLessThanMaxTransactions) {
-		// Assert:
 		constexpr auto expectedResult = ValidationResult::Success;
 		AssertValidationResult(expectedResult, 1);
 		AssertValidationResult(expectedResult, 5);
@@ -63,12 +61,10 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenBlockContainsMaxTransactions) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, Max_Transactions);
 	}
 
 	TEST(TEST_CLASS, FailureWhenBlockContainsMoreThanMaxTransactions) {
-		// Assert:
 		constexpr auto expectedResult = Failure_Core_Too_Many_Transactions;
 		AssertValidationResult(expectedResult, Max_Transactions + 1);
 		AssertValidationResult(expectedResult, Max_Transactions + 10);

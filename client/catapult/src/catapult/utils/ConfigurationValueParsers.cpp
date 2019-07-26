@@ -249,6 +249,9 @@ namespace catapult { namespace utils {
 		};
 
 		switch (str[str.size() - 1]) {
+		case 'm':
+			return tryParse(BlockSpan::FromMinutes);
+
 		case 'h':
 			return tryParse(BlockSpan::FromHours);
 

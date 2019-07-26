@@ -77,14 +77,20 @@ namespace catapult { namespace test {
 	/// Fills \a value with random data.
 	template<typename TValue, typename TTag, typename TBaseValue>
 	void FillWithRandomData(utils::BasicBaseValue<TValue, TTag, TBaseValue>& value) {
-		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(&value), sizeof(TValue) });
+		FillWithRandomData({ reinterpret_cast<uint8_t*>(&value), sizeof(TValue) });
+	}
+
+	/// Fills \a structure with random data.
+	template<typename TStruct>
+	void FillWithRandomData(TStruct& structure) {
+		FillWithRandomData({ reinterpret_cast<uint8_t*>(&structure), sizeof(TStruct) });
 	}
 
 	/// Generates random vector of \a count elements.
 	template<typename T>
 	std::vector<T> GenerateRandomDataVector(size_t count) {
 		std::vector<T> vec(count);
-		test::FillWithRandomData({ reinterpret_cast<uint8_t*>(vec.data()), count * sizeof(T) });
+		FillWithRandomData({ reinterpret_cast<uint8_t*>(vec.data()), count * sizeof(T) });
 		return vec;
 	}
 

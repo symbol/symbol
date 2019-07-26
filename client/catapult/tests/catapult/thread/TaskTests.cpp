@@ -47,7 +47,6 @@ namespace catapult { namespace thread {
 	// region CreateIncreasingDelayGenerator
 
 	TEST(TEST_CLASS, IncreasingDelayGenerator_RequiresMinDelayToBeLessThanMaxDelay) {
-		// Act + Assert:
 		EXPECT_THROW(CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(3), 7, TimeSpan::FromSeconds(3), 5), catapult_invalid_argument);
 		EXPECT_THROW(CreateIncreasingDelayGenerator(TimeSpan::FromSeconds(4), 7, TimeSpan::FromSeconds(3), 5), catapult_invalid_argument);
 	}

@@ -22,7 +22,9 @@
 
 namespace catapult { namespace observers {
 
-	DEFINE_OBSERVER(SourceChange, model::SourceChangeNotification, [](const auto& notification, auto& context) {
+	DEFINE_OBSERVER(SourceChange, model::SourceChangeNotification, [](
+			const model::SourceChangeNotification& notification,
+			ObserverContext& context) {
 		// source is only changed during commit (never rollback) because it is only used for supplemental receipt generation;
 		// never any intrinsic state changes
 		if (NotifyMode::Commit != context.Mode)

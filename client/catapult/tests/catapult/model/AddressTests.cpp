@@ -41,7 +41,7 @@ namespace catapult { namespace model {
 
 		Key ParseKey(const std::string& publicKeyString) {
 			Key publicKey;
-			utils::ParseHexStringIntoContainer(publicKeyString.c_str(), 2 * Key_Size, publicKey);
+			utils::ParseHexStringIntoContainer(publicKeyString.c_str(), 2 * Key::Size, publicKey);
 			return publicKey;
 		}
 
@@ -68,7 +68,6 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CannotCreateAddressFromEncodedStringWithWrongLength) {
-		// Assert:
 		AssertCannotCreateAddress(std::string(Encoded_Address) + "ABCDEFGH");
 	}
 
@@ -93,7 +92,7 @@ namespace catapult { namespace model {
 		auto expected = Encoded_Address;
 
 		// Act:
-		auto encoded = AddressToString(test::ToArray<Address_Decoded_Size>(decodedHex));
+		auto encoded = AddressToString(test::ToArray<Address::Size>(decodedHex));
 
 		// Assert:
 		EXPECT_TRUE(IsValidEncodedAddress(encoded, Network_Identifier));
@@ -190,7 +189,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, IsValidAddressReturnsTrueForValidAddress) {
 		// Arrange:
-		auto decoded = test::ToArray<Address_Decoded_Size>(Decoded_Address);
+		auto decoded = test::ToArray<Address::Size>(Decoded_Address);
 
 		// Assert:
 		EXPECT_TRUE(IsValidAddress(decoded, Network_Identifier));
@@ -198,7 +197,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, IsValidAddressReturnsFalseForWrongNetworkAddress) {
 		// Arrange:
-		auto decoded = test::ToArray<Address_Decoded_Size>(Decoded_Address);
+		auto decoded = test::ToArray<Address::Size>(Decoded_Address);
 
 		// Assert:
 		EXPECT_FALSE(IsValidAddress(decoded, static_cast<NetworkIdentifier>(123)));
@@ -206,8 +205,8 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, IsValidAddressReturnsFalseForAddressWithInvalidChecksum) {
 		// Arrange:
-		auto decoded = test::ToArray<Address_Decoded_Size>(Decoded_Address);
-		decoded[Address_Decoded_Size - 1] ^= 0xFF; // ruin checksum
+		auto decoded = test::ToArray<Address::Size>(Decoded_Address);
+		decoded[Address::Size - 1] ^= 0xFF; // ruin checksum
 
 		// Assert:
 		EXPECT_FALSE(IsValidAddress(decoded, Network_Identifier));
@@ -215,7 +214,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, IsValidAddressReturnsFalseForAddressWithInvalidHash) {
 		// Arrange:
-		auto decoded = test::ToArray<Address_Decoded_Size>(Decoded_Address);
+		auto decoded = test::ToArray<Address::Size>(Decoded_Address);
 		decoded[5] ^= 0xFF; // ruin ripemd160 hash
 
 		// Assert:

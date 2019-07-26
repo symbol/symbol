@@ -19,6 +19,7 @@
 **/
 
 #include "Validators.h"
+#include "ActiveMosaicView.h"
 #include "src/cache/MosaicCache.h"
 #include "catapult/cache_core/AccountStateCache.h"
 #include "catapult/validators/ValidatorContext.h"
@@ -38,17 +39,16 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DEFINE_STATEFUL_VALIDATOR(MosaicAvailability, [](const auto& notification, const ValidatorContext& context) {
-		const auto& cache = context.Cache.sub<cache::MosaicCache>();
-
-		// always allow a new mosaic
-		auto mosaicIter = cache.find(notification.MosaicId);
-		if (!mosaicIter.tryGet())
-			return ValidationResult::Success;
+	DEFINE_STATEFUL_VALIDATOR(MosaicAvailability, [](const Notification& notification, const ValidatorContext& context) {
+		auto view = ActiveMosaicView(context.Cache);
 
 		// mosaic has to be active
-		if (!cache.isActive(notification.MosaicId, context.Height))
-			return Failure_Mosaic_Expired;
+		ActiveMosaicView::FindIterator mosaicIter;
+		auto result = view.tryGet(notification.MosaicId, context.Height, notification.Signer, mosaicIter);
+
+		// always allow a new mosaic
+		if (IsValidationResultFailure(result))
+			return mosaicIter.tryGet() ? result : ValidationResult::Success;
 
 		// disallow a noop modification
 		// 1) if any required property changed then it is not a noop modification

@@ -28,7 +28,7 @@ namespace catapult { namespace ionet {
 	namespace {
 		class WriteRequest {
 		public:
-			explicit WriteRequest(PacketIo& io, const PacketPayload& payload)
+			WriteRequest(PacketIo& io, const PacketPayload& payload)
 					: m_io(io)
 					, m_payload(payload)
 			{}
@@ -117,7 +117,7 @@ namespace catapult { namespace ionet {
 			std::deque<std::pair<TRequest, TCallback>> m_requests;
 		};
 
-		/// Protects RequestQueue via a strand.
+		// protects RequestQueue via a strand
 		template<typename TRequest, typename TCallback>
 		class QueuedOperation {
 		public:

@@ -97,19 +97,16 @@ namespace catapult { namespace validators {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(FailureWhenValidatingNotificationWithUnknownAccountRestrictionModificationType) {
-		// Assert:
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Type_Invalid, { Add, Del, CreateType(0x02), Del });
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Type_Invalid, { CreateType(0x12) });
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Type_Invalid, { CreateType(0xFF), CreateType(0x12) });
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenValidatingNotificationWithNoAccountRestrictionModificationTypes) {
-		// Assert:
 		AssertValidationResult<TTraits>(ValidationResult::Success, {});
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenValidatingNotificationWithKnownAccountRestrictionModificationTypes) {
-		// Assert:
 		AssertValidationResult<TTraits>(ValidationResult::Success, { Add, Add, Del, Add, Del, Del });
 	}
 }}

@@ -20,7 +20,10 @@
 
 #include "src/plugins/AddressAliasTransactionPlugin.h"
 #include "src/model/AddressAliasTransaction.h"
-#include "tests/test/AliasTransactionPluginTests.h"
+#include "src/model/AliasNotifications.h"
+#include "src/model/NamespaceNotifications.h"
+#include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 
@@ -28,31 +31,54 @@ namespace catapult { namespace plugins {
 
 #define TEST_CLASS AddressAliasTransactionPluginTests
 
-	// region TransactionPlugin
+	// region test utils
 
 	namespace {
 		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AddressAlias, 1, 1,)
-
-		struct NotificationTraits {
-		public:
-			using Notification_Type = model::AliasedAddressNotification;
-
-		public:
-			static constexpr size_t NumNotifications() {
-				return 2u;
-			}
-
-		public:
-			template<typename TTransaction>
-			static auto& TransactionAlias(TTransaction& transaction) {
-				return transaction.Address;
-			}
-		};
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Alias_Address)
 
-	DEFINE_ALIAS_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, AddressAlias, NotificationTraits)
+	// endregion
+
+	// region publish
+
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder) {
+		// Arrange:
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			NamespaceRequiredNotification::Notification_Type,
+			AliasLinkNotification::Notification_Type,
+			AliasedAddressNotification::Notification_Type
+		});
+	}
+
+	PLUGIN_TEST(CanPublishAllNotifications) {
+		// Arrange:
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
+		});
+		builder.template addExpectation<AliasLinkNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
+			EXPECT_EQ(transaction.AliasAction, notification.AliasAction);
+		});
+		builder.template addExpectation<AliasedAddressNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
+			EXPECT_EQ(transaction.AliasAction, notification.AliasAction);
+			EXPECT_EQ(transaction.Address, notification.AliasedData);
+		});
+
+		// Act + Assert:
+		builder.runTest(transaction);
+	}
 
 	// endregion
 }}

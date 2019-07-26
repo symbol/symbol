@@ -82,7 +82,7 @@ namespace catapult { namespace chain {
 			static constexpr auto Name = "hashes";
 
 		public:
-			explicit HashesTraits(const HashesSupplier& hashesSupplier, const HashRangeConsumerFunc& hashRangeConsumer)
+			HashesTraits(const HashesSupplier& hashesSupplier, const HashRangeConsumerFunc& hashRangeConsumer)
 					: m_hashesSupplier(hashesSupplier)
 					, m_hashRangeConsumer(hashRangeConsumer)
 			{}

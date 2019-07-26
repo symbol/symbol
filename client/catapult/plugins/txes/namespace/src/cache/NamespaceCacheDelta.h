@@ -22,8 +22,8 @@
 #include "NamespaceBaseSets.h"
 #include "NamespaceCacheMixins.h"
 #include "NamespaceCacheSerializers.h"
+#include "ReadOnlyNamespaceCache.h"
 #include "catapult/cache/CacheMixinAliases.h"
-#include "catapult/cache/ReadOnlyArtifactCache.h"
 #include "catapult/cache/ReadOnlyViewSupplier.h"
 
 namespace catapult { namespace cache {
@@ -69,6 +69,10 @@ namespace catapult { namespace cache {
 				const NamespaceCacheTypes::BaseSetDeltaPointers& namespaceSets,
 				const NamespaceCacheTypes::Options& options,
 				const NamespaceSizes& namespaceSizes);
+
+	public:
+		/// Gets the grace period duration.
+		BlockDuration gracePeriodDuration() const;
 
 	public:
 		/// Inserts the root namespace \a ns into the cache.

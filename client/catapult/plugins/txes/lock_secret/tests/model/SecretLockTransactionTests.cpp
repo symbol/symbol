@@ -40,7 +40,7 @@ namespace catapult { namespace model {
 					+ sizeof(Mosaic) // mosaic
 					+ sizeof(Height) // height
 					+ sizeof(LockHashAlgorithm) // lock hash algorithm
-					+ Hash256_Size // hash
+					+ Hash256::Size // hash
 					+ sizeof(Address); // address
 
 			// Assert:

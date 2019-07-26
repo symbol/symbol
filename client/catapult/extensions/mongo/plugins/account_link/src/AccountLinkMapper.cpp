@@ -32,7 +32,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		void StreamTransaction(bson_stream::document& builder, const TTransaction& transaction) {
 			builder
 					<< "remoteAccountKey" << ToBinary(transaction.RemoteAccountKey)
-					<< "action" << utils::to_underlying_type(transaction.LinkAction);
+					<< "linkAction" << utils::to_underlying_type(transaction.LinkAction);
 		}
 	}
 

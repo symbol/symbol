@@ -138,7 +138,6 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenAccountIsUnknown) {
-		// Act + Assert:
 		auto createNotification = CreateNotificationWithRandomKey<TRestrictionValueTraits, TOperationTraits>;
 		constexpr auto Success = ValidationResult::Success;
 		AssertValidationResult<TRestrictionValueTraits, TOperationTraits>(Success, 0, createNotification, [](const auto&) {
@@ -150,7 +149,6 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(FailureWhenAccountRestrictionAlreadyContainsValue_Add) {
-		// Act + Assert:
 		auto createNotification = CreateNotification<TRestrictionValueTraits, TOperationTraits>;
 		constexpr auto Failure = Failure_RestrictionAccount_Modification_Not_Allowed;
 		AssertValidationResult<TRestrictionValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto& values) {
@@ -162,7 +160,6 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenAccountRestrictionDoesNotContainValue_Add) {
-		// Act + Assert:
 		auto createNotification = CreateNotification<TRestrictionValueTraits, TOperationTraits>;
 		constexpr auto Success = ValidationResult::Success;
 		AssertValidationResult<TRestrictionValueTraits, TOperationTraits>(Success, 3, createNotification, [](const auto& values) {
@@ -174,7 +171,6 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(FailureWhenAccountRestrictionDoesNotContainValue_Del) {
-		// Act + Assert:
 		auto createNotification = CreateNotification<TRestrictionValueTraits, TOperationTraits>;
 		constexpr auto Failure = Failure_RestrictionAccount_Modification_Not_Allowed;
 		AssertValidationResult<TRestrictionValueTraits, TOperationTraits>(Failure, 3, createNotification, [](const auto& values) {
@@ -186,7 +182,6 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenAccountRestrictionContainsValue_Del) {
-		// Act + Assert:
 		auto createNotification = CreateNotification<TRestrictionValueTraits, TOperationTraits>;
 		constexpr auto Success = ValidationResult::Success;
 		AssertValidationResult<TRestrictionValueTraits, TOperationTraits>(Success, 3, createNotification, [](const auto& values) {
@@ -222,7 +217,6 @@ namespace catapult { namespace validators {
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenOperationConflictsExistingAccountRestrictionAndValuesAreEmpty) {
-		// Act + Assert:
 		auto createNotification = test::CreateNotificationWithOppositeOperation<TRestrictionValueTraits, TOperationTraits>;
 		constexpr auto Success = ValidationResult::Success;
 		AssertValidationResult<TRestrictionValueTraits, TOperationTraits>(Success, 0, createNotification, [](const auto&) {

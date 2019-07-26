@@ -138,12 +138,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingUnknownEntityType) {
-		// Assert:
 		AssertFailureForBlockWithEntityType(static_cast<EntityType>(1234));
 	}
 
 	TEST(TEST_CLASS, SizeIsInvalidWhenValidatingBlockContainingIncompatibleEntityType) {
-		// Assert:
 		AssertFailureForBlockWithEntityType(Entity_Type_Nemesis_Block);
 	}
 

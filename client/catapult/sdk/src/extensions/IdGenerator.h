@@ -28,9 +28,6 @@ namespace catapult { namespace extensions {
 	/// Generates a mosaic id given mosaic alias \a name.
 	UnresolvedMosaicId GenerateMosaicAliasId(const RawString& name);
 
-	/// A namespace path.
-	using NamespacePath = utils::CheckedArray<NamespaceId, Namespace_Max_Depth>;
-
 	/// Parses a unified namespace \a name into a path.
-	NamespacePath GenerateNamespacePath(const RawString& name);
+	std::vector<NamespaceId> GenerateNamespacePath(const RawString& name);
 }}

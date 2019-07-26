@@ -105,13 +105,11 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, EmptyAggregateDoesNotRaiseEmbeddedTransactionNotifications) {
-		// Assert:
 		for (auto transactionType : { Entity_Type_Aggregate_Complete, Entity_Type_Aggregate_Bonded })
 			AssertCanRaiseEmbeddedTransactionNotifications(0, 0, transactionType);
 	}
 
 	TEST(TEST_CLASS, CanRaiseEmbeddedTransactionNotificationsFromAggregate) {
-		// Assert:
 		for (auto transactionType : { Entity_Type_Aggregate_Complete, Entity_Type_Aggregate_Bonded })
 			AssertCanRaiseEmbeddedTransactionNotifications(2, 3, transactionType);
 	}

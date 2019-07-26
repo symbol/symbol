@@ -193,19 +193,16 @@ namespace catapult { namespace utils {
 	// region type convertibility
 
 	TEST(TEST_CLASS, CanAssignAliasedType) {
-		// Assert:
 		auto isConvertible = std::is_convertible_v<TestValue, AliasedValue>;
 		EXPECT_TRUE(isConvertible);
 	}
 
 	TEST(TEST_CLASS, CannotAssignUsingDifferentType) {
-		// Assert:
 		auto isConvertible = std::is_convertible_v<TestValue, SameSizeValue>;
 		EXPECT_FALSE(isConvertible);
 	}
 
 	TEST(TEST_CLASS, CatapultTypesTests) {
-		// Assert:
 		test::TypeConvertibilityTests::AssertCannotConvertTypes<Timestamp, Amount, Height, Difficulty>();
 	}
 

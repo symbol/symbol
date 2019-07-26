@@ -137,7 +137,7 @@ namespace catapult { namespace observers {
 				ObserverTestContext(TDirectionTraits::Notify_Mode, Height(888)),
 				SeedCacheWithoutLink,
 				[&notification](const auto& namespaceCacheDelta, auto namespaceId) {
-					/// Assert: validate alias that namespace should have
+					// Assert: validate alias that namespace should have
 					auto namespaceIter = namespaceCacheDelta.find(namespaceId);
 					ASSERT_TRUE(!!namespaceIter.tryGet());
 
@@ -160,7 +160,7 @@ namespace catapult { namespace observers {
 				ObserverTestContext(TDirectionTraits::Notify_Mode, Height(888)),
 				SeedCacheWithLink<TTraits>,
 				[](const auto& namespaceCacheDelta, auto namespaceId) {
-					/// Assert: alias does not exist anymore
+					// Assert: alias does not exist anymore
 					auto namespaceIter = namespaceCacheDelta.find(namespaceId);
 					ASSERT_TRUE(!!namespaceIter.tryGet());
 

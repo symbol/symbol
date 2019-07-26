@@ -25,7 +25,11 @@
 
 namespace catapult { namespace model {
 
+#define TEST_CLASS TransactionContainerTests
+
 	namespace {
+		// region Block (implicit size) emulation
+
 #pragma pack(push, 1)
 
 		// emulates BlockHeader
@@ -47,12 +51,38 @@ namespace catapult { namespace model {
 			return header.Size - sizeof(ContainerHeader);
 		}
 
-		std::unique_ptr<Container> CreateContainer(uint32_t extraSize, std::initializer_list<uint32_t> attachmentExtraSizes) {
+		// endregion
+
+		// region AggregateTransaction (explicit size) emulation
+
+#pragma pack(push, 1)
+
+		// emulates AggregateTransactionHeader
+		struct ContainerWithPayloadSizeHeader : public SizePrefixedEntity {
+			uint32_t Tag;
+			uint32_t PayloadSize;
+		};
+
+#pragma pack(pop)
+
+		// emulates AggregateTransaction
+		struct ContainerWithPayloadSize : public TransactionContainer<ContainerWithPayloadSizeHeader, ContainerComponent> {};
+
+		size_t GetTransactionPayloadSize(const ContainerWithPayloadSizeHeader& header) {
+			return header.PayloadSize;
+		}
+
+		// endregion
+
+		// region CreateContainer
+
+		template<typename TContainer>
+		std::unique_ptr<TContainer> CreateContainer(uint32_t extraSize, std::initializer_list<uint32_t> attachmentExtraSizes) {
 			uint32_t size = sizeof(ContainerHeader) + extraSize;
 			for (auto attachmentExtraSize : attachmentExtraSizes)
 				size += sizeof(ContainerComponent) + attachmentExtraSize;
 
-			auto pContainer = utils::MakeUniqueWithSize<Container>(size);
+			auto pContainer = utils::MakeUniqueWithSize<TContainer>(size);
 			pContainer->Size = size;
 
 			auto* pData = reinterpret_cast<uint8_t*>(pContainer.get() + 1);
@@ -65,27 +95,32 @@ namespace catapult { namespace model {
 			return pContainer;
 		}
 
-		// region traits
-
-		using ConstTraits = test::ConstTraitsT<Container>;
-		using NonConstTraits = test::NonConstTraitsT<Container>;
-
 		// endregion
 	}
 
-#define TEST_CLASS TransactionContainerTests
+	// region traits
 
-#define DATA_POINTER_TEST(TEST_NAME) \
+#define IMPLICIT_DATA_POINTER_TEST(TEST_NAME) \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
-	TEST(TEST_CLASS, TEST_NAME##_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<ConstTraits>(); } \
-	TEST(TEST_CLASS, TEST_NAME##_NonConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonConstTraits>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<Container>>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<Container>>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	// region valid
+#define EXPLICIT_DATA_POINTER_TEST(TEST_NAME) \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)(); \
+	TEST(TEST_CLASS, TEST_NAME##_Const) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::ConstTraitsT<ContainerWithPayloadSize>>(); } \
+	TEST(TEST_CLASS, TEST_NAME##_NonConst) { \
+		TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<test::NonConstTraitsT<ContainerWithPayloadSize>>(); \
+	} \
+	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	DATA_POINTER_TEST(TransactionsAreInaccessibleWhenContainerHasNoTransactions) {
+	// endregion
+
+	// region implicit size
+
+	IMPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenContainerHasNoTransactions_ImplicitSize) {
 		// Arrange:
-		auto pContainer = CreateContainer(0, {});
+		auto pContainer = CreateContainer<Container>(0, {});
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
 		// Act + Assert:
@@ -93,9 +128,9 @@ namespace catapult { namespace model {
 		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
 	}
 
-	DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize) {
+	IMPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ImplicitSize) {
 		// Arrange:
-		auto pContainer = CreateContainer(0, { 100, 50, 75 });
+		auto pContainer = CreateContainer<Container>(0, { 100, 50, 75 });
 		const auto* pContainerEnd = test::AsVoidPointer(pContainer.get() + 1);
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
@@ -104,13 +139,9 @@ namespace catapult { namespace model {
 		EXPECT_EQ(3u, test::CountTransactions(accessor.Transactions()));
 	}
 
-	// endregion
-
-	// region invalid
-
-	DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize) {
+	IMPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ImplicitSize) {
 		// Arrange:
-		auto pContainer = CreateContainer(0, {});
+		auto pContainer = CreateContainer<Container>(0, {});
 		--pContainer->Size;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
@@ -119,10 +150,65 @@ namespace catapult { namespace model {
 		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
 	}
 
-	DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize) {
+	IMPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ImplicitSize) {
 		// Arrange:
-		auto pContainer = CreateContainer(0, { 100, 50, 75 });
+		auto pContainer = CreateContainer<Container>(0, { 100, 50, 75 });
 		--pContainer->Size;
+		auto& accessor = TTraits::GetAccessor(*pContainer);
+
+		// Act + Assert:
+		EXPECT_TRUE(!!accessor.TransactionsPtr());
+		EXPECT_EQ(2u, test::CountTransactions(accessor.Transactions(EntityContainerErrorPolicy::Suppress)));
+		EXPECT_THROW(test::CountTransactions(accessor.Transactions()), catapult_runtime_error);
+	}
+
+	// endregion
+
+	// region explicit size
+
+	EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenContainerHasNoTransactions_ExplicitSize) {
+		// Arrange:
+		auto pContainer = CreateContainer<ContainerWithPayloadSize>(0, { 100, 50, 75 });
+		pContainer->PayloadSize = 0;
+		auto& accessor = TTraits::GetAccessor(*pContainer);
+
+		// Sanity:
+		EXPECT_LT(sizeof(ContainerWithPayloadSize), pContainer->Size);
+
+		// Act + Assert:
+		EXPECT_FALSE(!!accessor.TransactionsPtr());
+		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+	}
+
+	EXPLICIT_DATA_POINTER_TEST(TransactionsAreAccessibleWhenContainerHasTransactionsWithSizesEqualToPayloadSize_ExplicitSize) {
+		// Arrange:
+		auto pContainer = CreateContainer<ContainerWithPayloadSize>(0, { 100, 50, 75 });
+		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 50 + 75;
+		const auto* pContainerEnd = test::AsVoidPointer(pContainer.get() + 1);
+		auto& accessor = TTraits::GetAccessor(*pContainer);
+
+		// Act + Assert:
+		EXPECT_EQ(pContainerEnd, accessor.TransactionsPtr());
+		EXPECT_EQ(3u, test::CountTransactions(accessor.Transactions()));
+	}
+
+	EXPLICIT_DATA_POINTER_TEST(TransactionsAreInaccessibleWhenReportedSizeIsLessThanContainerHeaderSize_ExplicitSize) {
+		// Arrange:
+		auto pContainer = CreateContainer<ContainerWithPayloadSize>(0, { 100, 50, 75 });
+		pContainer->PayloadSize = 0;
+		--pContainer->Size;
+		auto& accessor = TTraits::GetAccessor(*pContainer);
+
+		// Act + Assert:
+		EXPECT_FALSE(!!accessor.TransactionsPtr());
+		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+	}
+
+	EXPLICIT_DATA_POINTER_TEST(TransactionsArePartiallyAccessibleWhenContainerHasTransactionsWithSizesNotEqualToPayloadSize_ExplicitSize) {
+		// Arrange:
+		auto pContainer = CreateContainer<ContainerWithPayloadSize>(0, { 100, 50, 75 });
+		pContainer->PayloadSize = 3 * sizeof(ContainerComponent) + 100 + 50 + 75;
+		--pContainer->PayloadSize;
 		auto& accessor = TTraits::GetAccessor(*pContainer);
 
 		// Act + Assert:

@@ -36,8 +36,8 @@ namespace catapult { namespace mongo { namespace plugins {
 				return mappers::ToInt64(key);
 			}
 
-			static auto MapToMongoDocument(const ModelType& entry, model::NetworkIdentifier) {
-				return plugins::ToDbModel(entry);
+			static auto MapToMongoDocument(const ModelType& mosaicEntry, model::NetworkIdentifier) {
+				return plugins::ToDbModel(mosaicEntry);
 			}
 		};
 	}

@@ -28,7 +28,7 @@
 namespace catapult { namespace net {
 
 	namespace {
-		/// Allow at most one pending accept at a time.
+		// allow at most one pending accept at a time
 		const uint32_t Max_Pending_Accepts = 1;
 
 		void EnableAddressReuse(boost::asio::ip::tcp::acceptor& acceptor) {

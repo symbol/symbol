@@ -31,9 +31,7 @@ namespace catapult { namespace mocks {
 	namespace {
 		class MockTransactionPluginWithCustomBuffers : public MockTransactionPluginUnsupported {
 		public:
-			explicit MockTransactionPluginWithCustomBuffers(
-					const OffsetRange& dataRange,
-					const std::vector<OffsetRange>& supplementalRanges)
+			MockTransactionPluginWithCustomBuffers(const OffsetRange& dataRange, const std::vector<OffsetRange>& supplementalRanges)
 					: m_dataRange(dataRange)
 					, m_supplementalRanges(supplementalRanges)
 			{}

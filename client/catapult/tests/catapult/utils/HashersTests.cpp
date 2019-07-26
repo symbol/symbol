@@ -28,8 +28,8 @@ namespace catapult { namespace utils {
 	// region ArrayHasher
 
 	namespace {
-		struct TestArray_tag {};
-		using TestArray = ByteArray<4 + sizeof(size_t), TestArray_tag>;
+		struct TestArray_tag { static constexpr size_t Size = 4 + sizeof(size_t); };
+		using TestArray = ByteArray<TestArray_tag>;
 	}
 
 	TEST(TEST_CLASS, Array_SameObjectReturnsSameHash) {

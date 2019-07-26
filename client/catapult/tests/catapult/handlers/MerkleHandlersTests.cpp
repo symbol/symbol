@@ -69,7 +69,7 @@ namespace catapult { namespace handlers {
 
 			// Assert:
 			const auto Num_Expected_Hashes = 3u;
-			auto expectedSize = sizeof(ionet::PacketHeader) + Num_Expected_Hashes * Hash256_Size;
+			auto expectedSize = sizeof(ionet::PacketHeader) + Num_Expected_Hashes * Hash256::Size;
 			test::AssertPacketHeader(context, expectedSize, SubCacheMerkleRootsRequestPacket::Packet_Type);
 
 			auto pBlockElementFromStorage = pStorage->view().loadBlockElement(requestHeight);
@@ -82,12 +82,10 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, SubCacheMerkleRootsHandler_WritesSubCacheMerkleRootsWhenPresent) {
-		// Assert:
 		AssertCanRetrieveSubCacheMerkleRoots(12, Height(7));
 	}
 
 	TEST(TEST_CLASS, SubCacheMerkleRootsHandler_CanRetrieveLastBlockSubCacheMerkleRoots) {
-		// Assert:
 		AssertCanRetrieveSubCacheMerkleRoots(12, Height(12));
 	}
 

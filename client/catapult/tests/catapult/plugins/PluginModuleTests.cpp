@@ -41,17 +41,14 @@ namespace catapult { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CannotLoadPluginFromWrongDirectory) {
-		// Assert:
 		AssertCannotLoadPlugin("foobar", Valid_Plugin_Name);
 	}
 
 	TEST(TEST_CLASS, CannotLoadUnkownPlugin_ExplicitDirectory) {
-		// Assert:
 		AssertCannotLoadPlugin(test::GetExplicitPluginsDirectory(), "catapult.plugins.awesome");
 	}
 
 	TEST(TEST_CLASS, CannotLoadUnkownPlugin_ImplicitDirectory) {
-		// Assert:
 		AssertCannotLoadPlugin("", "catapult.plugins.awesome");
 	}
 
@@ -96,12 +93,10 @@ namespace catapult { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanExtractKnownSymbol_ExplicitDirectory) {
-		// Assert:
 		AssertCanLoadPluginAndExtractSymbol(test::GetExplicitPluginsDirectory());
 	}
 
 	TEST(TEST_CLASS, CanExtractKnownSymbol_ImplicitDirectory) {
-		// Assert:
 		AssertCanLoadPluginAndExtractSymbol("");
 	}
 
@@ -141,12 +136,10 @@ namespace catapult { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CannotExtractKnownSymbolAfterRelease) {
-		// Assert:
 		AssertCannotExtractKnownSymbolAfterRelease(1);
 	}
 
 	TEST(TEST_CLASS, ReleaseIsIdempotent) {
-		// Assert:
 		AssertCannotExtractKnownSymbolAfterRelease(4);
 	}
 

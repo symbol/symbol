@@ -169,7 +169,7 @@ class HeaderParser:
         multiline = False
 
         for validator in self.simpleValidators:
-            validator.reset(self.path)
+            validator.reset(self.path, self.errorReporter)
 
         for rawLine in inputStream:
             line = rawLine.decode('utf8')
@@ -183,20 +183,20 @@ class HeaderParser:
                 validator.check(self.lineNumber, line)
 
             prevEmptyLine = isEmptyLine
-            isEmptyLine = bool(re.match(self.patternEmptyLine, line))
+            isEmptyLine = bool(self.patternEmptyLine.match(line))
             if isEmptyLine and prevEmptyLine:
                 self.errorReporter('consecutiveEmpty', Line(self.path, pprev + prev + temp, self.lineNumber))
 
             if multiline:
                 multiline = self.processContinuation(line)
             else:
-                if re.match(self.patternInclude, line):
+                if self.patternInclude.match(line):
                     self.parseInclude(line)
                     self.fixes.append(IndentFix(MultilineMacro.PpLine, self.lineNumber, line))
-                elif re.match(self.patternPreprocessor, line):
+                elif self.patternPreprocessor.match(line):
                     self.parsePreprocessor(line)
                     multiline = self.processPreprocessor(line)
-                elif re.match(self.patternExtern, line):
+                elif self.patternExtern.match(line):
                     self.parseExtern(line)
             self.lineNumber += 1
 
@@ -207,12 +207,12 @@ class HeaderParser:
             validator.finalize()
 
     def parseInclude(self, line):
-        res = re.match(self.patternInclude, line)
+        res = self.patternInclude.match(line)
         self.preprocessor.append(Include(line, self.lineNumber, res.group(1), res.group(2)))
         self.includes.append(res.group(1))
 
     def parsePreprocessor(self, line):
-        res = re.match(self.patternPreprocessor, line)
+        res = self.patternPreprocessor.match(line)
         self.preprocessor.append(Preproc(line, self.lineNumber, res.group(1)))
 
     def parseExtern(self, line):

@@ -30,7 +30,7 @@ namespace catapult { namespace model {
 
 	TEST(TEST_CLASS, GenerateMosaicId_GeneratesCorrectId) {
 		// Arrange:
-		auto buffer = std::array<uint8_t, Key_Size + sizeof(uint32_t)>();
+		auto buffer = std::array<uint8_t, Key::Size + sizeof(uint32_t)>();
 		Hash256 zeroHash;
 		crypto::Sha3_256(buffer, zeroHash);
 		auto expected = reinterpret_cast<const uint64_t&>(zeroHash[0]) & 0x7FFF'FFFF'FFFF'FFFF;

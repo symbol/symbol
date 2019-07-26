@@ -32,19 +32,19 @@ namespace catapult { namespace model {
 #define DEFINE_MOSAIC_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, Mosaic, DESCRIPTION, CODE)
 
 	/// Mosaic properties were provided.
-	DEFINE_MOSAIC_NOTIFICATION(Properties, 0x0012, Validator);
+	DEFINE_MOSAIC_NOTIFICATION(Properties, 0x0001, Validator);
 
 	/// Mosaic was defined.
-	DEFINE_MOSAIC_NOTIFICATION(Definition, 0x0013, All);
+	DEFINE_MOSAIC_NOTIFICATION(Definition, 0x0002, All);
 
 	/// Mosaic nonce and id were provided.
-	DEFINE_MOSAIC_NOTIFICATION(Nonce, 0x0014, Validator);
+	DEFINE_MOSAIC_NOTIFICATION(Nonce, 0x0003, Validator);
 
 	/// Mosaic supply was changed.
-	DEFINE_MOSAIC_NOTIFICATION(Supply_Change, 0x0022, All);
+	DEFINE_MOSAIC_NOTIFICATION(Supply_Change, 0x0004, All);
 
 	/// Mosaic rental fee has been sent.
-	DEFINE_MOSAIC_NOTIFICATION(Rental_Fee, 0x0030, Observer);
+	DEFINE_MOSAIC_NOTIFICATION(Rental_Fee, 0x0005, Observer);
 
 #undef DEFINE_MOSAIC_NOTIFICATION
 

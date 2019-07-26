@@ -63,7 +63,6 @@ namespace catapult { namespace syncsource {
 	ADD_SERVICE_REGISTRAR_INFO_TEST(SyncSource, Post_Range_Consumers)
 
 	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
-		// Assert:
 		test::AssertNoServicesOrCountersAreRegistered<TestContext>();
 	}
 
@@ -109,12 +108,10 @@ namespace catapult { namespace syncsource {
 	}
 
 	TEST(TEST_CLASS, CanPushBlockWhenSynced) {
-		// Assert:
 		AssertBlockPush(true, 1);
 	}
 
 	TEST(TEST_CLASS, CannotPushBlockWhenNotSynced) {
-		// Assert:
 		AssertBlockPush(false, 0);
 	}
 

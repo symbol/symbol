@@ -46,11 +46,11 @@ namespace catapult { namespace filespooling {
 
 		// Assert:
 		EXPECT_EQ(0u, stream.numFlushes());
-		ASSERT_EQ(123u + Hash256_Size + sizeof(uint32_t), buffer.size());
+		ASSERT_EQ(123u + Hash256::Size + sizeof(uint32_t), buffer.size());
 
 		EXPECT_EQ(hash, reinterpret_cast<const Hash256&>(buffer[0]));
-		EXPECT_EQ(status, reinterpret_cast<const uint32_t&>(buffer[Hash256_Size]));
-		EXPECT_EQ(*pTransaction, reinterpret_cast<const model::Transaction&>(buffer[Hash256_Size + sizeof(uint32_t)]));
+		EXPECT_EQ(status, reinterpret_cast<const uint32_t&>(buffer[Hash256::Size]));
+		EXPECT_EQ(*pTransaction, reinterpret_cast<const model::Transaction&>(buffer[Hash256::Size + sizeof(uint32_t)]));
 	}
 
 	TEST(TEST_CLASS, FlushFlushesUnderlyingStream) {

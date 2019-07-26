@@ -103,12 +103,10 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CanAddSuccessfulNodeInteractionWithAutoPruning) {
-		// Assert:
 		AssertCanAddInteraction(1, 0, [](auto& nodeInfo, auto timestamp) { nodeInfo.incrementSuccesses(timestamp); });
 	}
 
 	TEST(TEST_CLASS, CanAddFailureNodeInteractionWithAutoPruning) {
-		// Assert:
 		AssertCanAddInteraction(0, 1, [](auto& nodeInfo, auto timestamp) { nodeInfo.incrementFailures(timestamp); });
 	}
 
@@ -339,22 +337,18 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, UpdateBanIncrementsBanAgeOfKnownServiceIdentifierWithExactConsecutiveFailures) {
-		// Assert:
 		AssertUpdateBan(87, 4, 88, 4);
 	}
 
 	TEST(TEST_CLASS, UpdateBanIncrementsBanAgeOfKnownServiceIdentifierWithTooManyConsecutiveFailures) {
-		// Assert:
 		AssertUpdateBan(87, 5, 88, 5);
 	}
 
 	TEST(TEST_CLASS, UpdateBanClearsBanOfKnownServiceIdentifierWithTooFewConsecutiveFailures) {
-		// Assert:
 		AssertUpdateBan(87, 3, 0, 3);
 	}
 
 	TEST(TEST_CLASS, UpdateBanClearsBanOfKnownServiceIdentifierWithMaximumBanAge) {
-		// Assert:
 		AssertUpdateBan(100, 5, 0, 0);
 	}
 

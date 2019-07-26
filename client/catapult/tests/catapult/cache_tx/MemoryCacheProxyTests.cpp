@@ -49,7 +49,7 @@ namespace catapult { namespace cache {
 	namespace {
 		class MockMutableCache : public Cache {
 		public:
-			explicit MockMutableCache(MemoryCache& memoryCache, size_t& numModifyCalls)
+			MockMutableCache(MemoryCache& memoryCache, size_t& numModifyCalls)
 					: m_memoryCache(memoryCache)
 					, m_numModifierCalls(numModifyCalls)
 			{}

@@ -259,7 +259,7 @@ namespace catapult { namespace extensions {
 		// region AccountInfosTraits
 
 		struct AccountInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Infos> {
-			static constexpr auto Request_Entity_Size = Address_Decoded_Size;
+			static constexpr auto Request_Entity_Size = Address::Size;
 
 			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
 				return api.accountInfos(std::move(param));
@@ -271,7 +271,7 @@ namespace catapult { namespace extensions {
 		// region AccountRestrictionsInfosTraits
 
 		struct AccountRestrictionsInfosTraits : public InfosTraits<Address, ionet::PacketType::Account_Restrictions_Infos> {
-			static constexpr auto Request_Entity_Size = Address_Decoded_Size;
+			static constexpr auto Request_Entity_Size = Address::Size;
 
 			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
 				return api.accountRestrictionsInfos(std::move(param));
@@ -299,6 +299,18 @@ namespace catapult { namespace extensions {
 
 			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
 				return api.mosaicInfos(std::move(param));
+			}
+		};
+
+		// endregion
+
+		// region MetadataInfosTraits
+
+		struct MetadataInfosTraits : public InfosTraits<Hash256, ionet::PacketType::Metadata_Infos> {
+			static constexpr auto Request_Entity_Size = sizeof(Hash256);
+
+			static auto Invoke(const RemoteDiagnosticApi& api, RequestParamType&& param) {
+				return api.metadataInfos(std::move(param));
 			}
 		};
 
@@ -368,8 +380,10 @@ namespace catapult { namespace extensions {
 	using DiagnosticAccountRestrictionsInfosTraits = DiagnosticApiTraits<AccountRestrictionsInfosTraits>;
 	using DiagnosticNamespaceInfosTraits = DiagnosticApiTraits<NamespaceInfosTraits>;
 	using DiagnosticMosaicInfosTraits = DiagnosticApiTraits<MosaicInfosTraits>;
+	using DiagnosticMetadataInfosTraits = DiagnosticApiTraits<MetadataInfosTraits>;
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticAccountInfos)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticAccountRestrictionsInfos)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticNamespaceInfos)
 	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticMosaicInfos)
+	DEFINE_REMOTE_API_TESTS_EMPTY_RESPONSE_INVALID(RemoteDiagnosticApi, DiagnosticMetadataInfos)
 }}

@@ -105,12 +105,10 @@ namespace catapult { namespace local {
 	}
 
 	TEST(TEST_CLASS, BootUnlocksAccountWhenAutoHarvestIsEnabled) {
-		// Assert:
 		AssertNumUnlockedAccounts(Auto_Harvest, 1);
 	}
 
 	TEST(TEST_CLASS, BootDoesNotUnlockAccountWhenAutoHarvestIsDisabled) {
-		// Assert:
 		AssertNumUnlockedAccounts(!Auto_Harvest, 0);
 	}
 

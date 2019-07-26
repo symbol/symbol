@@ -32,6 +32,15 @@ namespace catapult { namespace config {
 		/// Maximum namespace and mosaic name size.
 		uint8_t MaxNameSize;
 
+		/// Maximum number of children for a root namespace.
+		uint16_t MaxChildNamespaces;
+
+		/// Maximum namespace depth.
+		uint8_t MaxNamespaceDepth;
+
+		/// Minimum namespace duration.
+		utils::BlockSpan MinNamespaceDuration;
+
 		/// Maximum namespace duration.
 		utils::BlockSpan MaxNamespaceDuration;
 
@@ -49,9 +58,6 @@ namespace catapult { namespace config {
 
 		/// Child namespace rental fee.
 		Amount ChildNamespaceRentalFee;
-
-		/// Maximum number of children for a root namespace.
-		uint16_t MaxChildNamespaces;
 
 	private:
 		NamespaceConfiguration() = default;

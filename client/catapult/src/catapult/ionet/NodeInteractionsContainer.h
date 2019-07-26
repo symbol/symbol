@@ -33,7 +33,7 @@ namespace catapult { namespace ionet {
 		{}
 
 		/// Constructs node interactions around \a numSuccesses and \a numFailures.
-		explicit NodeInteractions(uint32_t numSuccesses, uint32_t numFailures)
+		NodeInteractions(uint32_t numSuccesses, uint32_t numFailures)
 				: NumSuccesses(numSuccesses)
 				, NumFailures(numFailures)
 		{}

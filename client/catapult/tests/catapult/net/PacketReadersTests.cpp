@@ -437,17 +437,14 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, SingleReaderPassesPayloadToHandlers) {
-		// Assert:
 		RunPacketHandlerTest(1, false);
 	}
 
 	TEST(TEST_CLASS, MultipleReadersPassPayloadToHandlers) {
-		// Assert:
 		RunPacketHandlerTest(4, false);
 	}
 
 	TEST(TEST_CLASS, MultipleReadersWithSharedIdentityPassPayloadToHandlers) {
-		// Assert:
 		RunPacketHandlerTest(4, true);
 	}
 

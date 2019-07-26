@@ -46,12 +46,10 @@ namespace catapult { namespace partialtransaction {
 	}
 
 	TEST(TEST_CLASS, StitchAggregateCanStitchTransactionWithoutCosignatures) {
-		// Assert:
 		AssertCanStitchAggregate(0);
 	}
 
 	TEST(TEST_CLASS, StitchAggregateCanStitchTransactionWithCosignatures) {
-		// Assert:
 		AssertCanStitchAggregate(3);
 	}
 

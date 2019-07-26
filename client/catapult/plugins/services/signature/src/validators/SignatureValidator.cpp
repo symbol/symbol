@@ -26,7 +26,7 @@ namespace catapult { namespace validators {
 	using Notification = model::SignatureNotification;
 
 	DECLARE_STATELESS_VALIDATOR(Signature, Notification)(const GenerationHash& generationHash) {
-		return MAKE_STATELESS_VALIDATOR(Signature, [generationHash](const auto& notification) {
+		return MAKE_STATELESS_VALIDATOR(Signature, [generationHash](const Notification& notification) {
 
 			auto isVerified = Notification::ReplayProtectionMode::Enabled == notification.DataReplayProtectionMode
 					? crypto::Verify(notification.Signer, { generationHash, notification.Data }, notification.Signature)

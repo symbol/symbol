@@ -44,7 +44,7 @@ namespace catapult { namespace mongo {
 	private:
 		struct BulkWriteParams {
 		public:
-			explicit BulkWriteParams(MongoBulkWriter& mongoBulkWriter, const std::string& collectionName)
+			BulkWriteParams(MongoBulkWriter& mongoBulkWriter, const std::string& collectionName)
 					: pConnection(mongoBulkWriter.m_connectionPool.acquire())
 					, Database(pConnection->database(mongoBulkWriter.m_dbName))
 					, Collection(Database[collectionName])

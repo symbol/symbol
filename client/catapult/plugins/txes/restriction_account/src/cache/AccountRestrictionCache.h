@@ -39,7 +39,7 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a cache around \a config and \a networkIdentifier.
-		explicit AccountRestrictionCache(const CacheConfiguration& config, model::NetworkIdentifier networkIdentifier)
+		AccountRestrictionCache(const CacheConfiguration& config, model::NetworkIdentifier networkIdentifier)
 				: SynchronizedCache<BasicAccountRestrictionCache>(BasicAccountRestrictionCache(config, std::move(networkIdentifier)))
 		{}
 	};

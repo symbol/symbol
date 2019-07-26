@@ -95,12 +95,10 @@ namespace catapult { namespace io {
 	}
 
 	TEST(TEST_CLASS, GetReturnsZeroWhenFileSizeIsZero) {
-		// Assert:
 		AssertGetReturnsExpectedValue(0, 0);
 	}
 
 	TEST(TEST_CLASS, GetReturnsZeroWhenFileSizeIsNeitherZeroNorEight) {
-		// Assert:
 		AssertGetReturnsExpectedValue(1, 0);
 		AssertGetReturnsExpectedValue(5, 0);
 		AssertGetReturnsExpectedValue(7, 0);
@@ -108,7 +106,6 @@ namespace catapult { namespace io {
 	}
 
 	TEST(TEST_CLASS, GetReturnsCorrectValueWhenFileSizeIsEight) {
-		// Assert:
 		AssertGetReturnsExpectedValue(8, 0x0101010101010101);
 	}
 

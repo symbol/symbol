@@ -23,7 +23,7 @@
 #include "plugins/txes/aggregate/src/model/AggregateTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "mongo/tests/test/mocks/MockTransactionMapper.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
@@ -106,17 +106,14 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanMapAggregateTransactionWithoutCosignatures) {
-		// Assert:
 		AssertCanMapAggregateTransactionWithCosignatures(0);
 	}
 
 	TEST(TEST_CLASS, CanMapAggregateTransactionWithSingleCosignature) {
-		// Assert:
 		AssertCanMapAggregateTransactionWithCosignatures(1);
 	}
 
 	TEST(TEST_CLASS, CanMapAggregateTransactionWithMultipleCosignatures) {
-		// Assert:
 		AssertCanMapAggregateTransactionWithCosignatures(3);
 	}
 
@@ -180,17 +177,14 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, NoDependentDocumentsAreExtractedWhenThereAreNoSubTransactions) {
-		// Assert:
 		AssertExtractDependentDocuments(0);
 	}
 
 	TEST(TEST_CLASS, SingleDependentDocumentIsExtractedWhenThereIsOneSubTransaction) {
-		// Assert:
 		AssertExtractDependentDocuments(1);
 	}
 
 	TEST(TEST_CLASS, MultipleDependentDocumentsAreExtractedWhenThereAreMultipleSubTransactions) {
-		// Assert:
 		AssertExtractDependentDocuments(3);
 	}
 

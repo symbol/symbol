@@ -20,8 +20,7 @@
 
 #include "Validators.h"
 #include "src/cache/MultisigCache.h"
-#include "src/model/MultisigEntityType.h"
-#include "catapult/utils/ArraySet.h"
+#include "catapult/model/TransactionPlugin.h"
 #include "catapult/validators/ValidatorContext.h"
 
 namespace catapult { namespace validators {
@@ -36,10 +35,12 @@ namespace catapult { namespace validators {
 
 		class AggregateCosignaturesChecker {
 		public:
-			explicit AggregateCosignaturesChecker(
+			AggregateCosignaturesChecker(
 					const Notification& notification,
+					const model::TransactionRegistry& transactionRegistry,
 					const cache::MultisigCache::CacheReadOnlyType& multisigCache)
 					: m_notification(notification)
+					, m_transactionRegistry(transactionRegistry)
 					, m_multisigCache(multisigCache) {
 				m_cosigners.emplace(&m_notification.Signer, false);
 				for (auto i = 0u; i < m_notification.CosignaturesCount; ++i)
@@ -52,10 +53,10 @@ namespace catapult { namespace validators {
 				const auto* pTransaction = m_notification.TransactionsPtr;
 				for (auto i = 0u; i < m_notification.TransactionsCount; ++i) {
 					findEligibleCosigners(pTransaction->Signer);
-					if (model::Entity_Type_Modify_Multisig_Account == pTransaction->Type) {
-						const auto& multisigModify = static_cast<const model::EmbeddedModifyMultisigAccountTransaction&>(*pTransaction);
-						findEligibleCosigners(multisigModify);
-					}
+
+					const auto& transactionPlugin = m_transactionRegistry.findPlugin(pTransaction->Type)->embeddedPlugin();
+					for (const auto& requiredCosigner : transactionPlugin.additionalRequiredCosigners(*pTransaction))
+						findEligibleCosigners(requiredCosigner);
 
 					pTransaction = AdvanceNext(pTransaction);
 				}
@@ -87,18 +88,6 @@ namespace catapult { namespace validators {
 					findEligibleCosigners(cosignatoryPublicKey);
 			}
 
-			void findEligibleCosigners(const model::EmbeddedModifyMultisigAccountTransaction& transaction) {
-				// since AggregateCosignaturesNotification is the first notification raised by an aggregate,
-				// treat initial and added cosignatories as eligible
-				const auto* pModification = transaction.ModificationsPtr();
-				for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
-					if (model::CosignatoryModificationType::Add == pModification->ModificationType)
-						markEligible(pModification->CosignatoryPublicKey);
-
-					++pModification;
-				}
-			}
-
 			void markEligible(const Key& key) {
 				auto iter = m_cosigners.find(&key);
 				if (m_cosigners.cend() != iter)
@@ -107,13 +96,18 @@ namespace catapult { namespace validators {
 
 		private:
 			const Notification& m_notification;
+			const model::TransactionRegistry& m_transactionRegistry;
 			const cache::MultisigCache::CacheReadOnlyType& m_multisigCache;
 			utils::ArrayPointerFlagMap<Key> m_cosigners;
 		};
 	}
 
-	DEFINE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosigners, [](const auto& notification, const ValidatorContext& context) {
-		AggregateCosignaturesChecker checker(notification, context.Cache.sub<cache::MultisigCache>());
-		return checker.hasIneligibleCosigners() ? Failure_Aggregate_Ineligible_Cosigners : ValidationResult::Success;
-	});
+	DECLARE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosigners, Notification)(const model::TransactionRegistry& transactionRegistry) {
+		return MAKE_STATEFUL_VALIDATOR(MultisigAggregateEligibleCosigners, [&transactionRegistry](
+				const Notification& notification,
+				const ValidatorContext& context) {
+			AggregateCosignaturesChecker checker(notification, transactionRegistry, context.Cache.sub<cache::MultisigCache>());
+			return checker.hasIneligibleCosigners() ? Failure_Aggregate_Ineligible_Cosigners : ValidationResult::Success;
+		});
+	}
 }}

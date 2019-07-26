@@ -40,7 +40,6 @@ namespace catapult { namespace hashcache {
 	ADD_SERVICE_REGISTRAR_INFO_TEST(HashCache, Initial)
 
 	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
-		// Assert:
 		test::AssertNoServicesOrCountersAreRegistered<TestContext>();
 	}
 

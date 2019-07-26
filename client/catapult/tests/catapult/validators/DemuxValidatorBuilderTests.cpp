@@ -158,14 +158,12 @@ namespace catapult { namespace validators {
 	// region forwarding
 
 	TEST(TEST_CLASS, NotificationsAreForwardedToChildValidators) {
-		// Assert:
 		test::AssertNotificationsAreForwardedToChildValidators(stateful::DemuxValidatorBuilder(), [](auto& builder, auto&& pValidator) {
 			builder.add(std::move(pValidator));
 		});
 	}
 
 	TEST(TEST_CLASS, ContextsAreForwardedToChildValidators) {
-		// Assert:
 		test::AssertContextsAreForwardedToChildValidators(stateful::DemuxValidatorBuilder(), [](auto& builder, auto&& pValidator) {
 			builder.add(std::move(pValidator));
 		});
@@ -241,12 +239,10 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanFilterValidatorsBasedOnNotificationType) {
-		// Assert:
 		AssertCanFilterValidatorsBasedOnNotificationType([](const auto&) {});
 	}
 
 	TEST(TEST_CLASS, CanFilterValidatorsBasedOnNotificationTypeIgnoringChannel) {
-		// Assert:
 		AssertCanFilterValidatorsBasedOnNotificationType([](auto& notification) {
 			// Arrange: change notification by changing channel
 			model::SetNotificationChannel(notification.Type, model::NotificationChannel::None);

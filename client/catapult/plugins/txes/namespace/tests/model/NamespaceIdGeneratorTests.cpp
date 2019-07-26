@@ -53,17 +53,14 @@ namespace catapult { namespace model {
 	// region GenerateRootNamespaceId
 
 	TEST(TEST_CLASS, GenerateRootNamespaceId_GeneratesCorrectWellKnownIds) {
-		// Assert:
 		EXPECT_EQ(NamespaceId(test::Default_Namespace_Id), GenerateRootNamespaceId("cat"));
 	}
 
 	TEST(TEST_CLASS, GenerateRootNamespaceId_DifferentNamesProduceDifferentIds) {
-		// Assert:
 		AssertDifferentNamesProduceDifferentIds(GenerateRootNamespaceId);
 	}
 
 	TEST(TEST_CLASS, GenerateRootNamespaceId_NamesAreCaseSensitive) {
-		// Assert:
 		AssertDifferentlyCasedNamesProduceDifferentIds(GenerateRootNamespaceId);
 	}
 
@@ -72,27 +69,22 @@ namespace catapult { namespace model {
 	// region GenerateNamespaceId
 
 	TEST(TEST_CLASS, GenerateNamespaceId_GeneratesCorrectWellKnownIds) {
-		// Assert:
 		EXPECT_EQ(NamespaceId(test::Default_Namespace_Id), GenerateNamespaceId(NamespaceId(), "cat"));
 	}
 
 	TEST(TEST_CLASS, GenerateNamespaceId_DifferentNamesProduceDifferentIds) {
-		// Assert:
 		AssertDifferentNamesProduceDifferentIds([](const auto& name) { return GenerateNamespaceId(NamespaceId(), name); });
 	}
 
 	TEST(TEST_CLASS, GenerateNamespaceId_NamesAreCaseSensitive) {
-		// Assert:
 		AssertDifferentlyCasedNamesProduceDifferentIds([](const auto& name) { return GenerateNamespaceId(NamespaceId(), name); });
 	}
 
 	TEST(TEST_CLASS, GenerateNamespaceId_DifferentParentNamespaceIdsProduceDifferentIds) {
-		// Assert:
 		AssertDifferentParentNamespaceIdsProduceDifferentIds([](const auto& nsId) { return GenerateNamespaceId(nsId, "cat"); });
 	}
 
 	TEST(TEST_CLASS, GenerateNamespaceId_CanGenerateRootNamespaceIds) {
-		// Assert:
 		for (const auto name : { "jeff", "bloodyrookie", "cat.token", "catx" })
 			EXPECT_EQ(GenerateRootNamespaceId(name), GenerateNamespaceId(NamespaceId(), name)) << "ns: " << name;
 	}

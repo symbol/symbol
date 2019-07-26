@@ -101,7 +101,7 @@ namespace catapult { namespace local {
 		auto stateHashes = RunInvalidSignatureTest(context);
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashes, 1);
+		test::AssertAllNonzero(stateHashes, 1);
 	}
 
 	// endregion

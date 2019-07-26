@@ -36,7 +36,7 @@ namespace catapult { namespace validators {
 
 		class MockNotificationValidator : public stateless::NotificationValidator {
 		public:
-			explicit MockNotificationValidator(const std::string& name, ValidationResult value)
+			MockNotificationValidator(const std::string& name, ValidationResult value)
 					: m_name(name)
 					, m_result(value)
 					, m_numValidateCalls(0)

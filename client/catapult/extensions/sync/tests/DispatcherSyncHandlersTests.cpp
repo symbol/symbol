@@ -95,12 +95,10 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, CommitStepFileIsUpdatedWhenOperationIsBlocksWritten) {
-		// Assert:
 		AssertOnlyCommitStepFileIsUpdated(consumers::CommitOperationStep::Blocks_Written);
 	}
 
 	TEST(TEST_CLASS, CommitStepFileIsUpdatedWhenOperationIsStateWritten) {
-		// Assert:
 		AssertOnlyCommitStepFileIsUpdated(consumers::CommitOperationStep::State_Written);
 	}
 
@@ -219,12 +217,10 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, AddSupplementalDataResiliency_CommitStepDoesNothingWhenOperationIsBlocksWritten) {
-		// Assert:
 		AssertAddSupplementalDataResiliencyCommitStepDoesNothing(consumers::CommitOperationStep::Blocks_Written);
 	}
 
 	TEST(TEST_CLASS, AddSupplementalDataResiliency_CommitStepDoesNothingWhenOperationIsStateWritten) {
-		// Assert:
 		AssertAddSupplementalDataResiliencyCommitStepDoesNothing(consumers::CommitOperationStep::State_Written);
 	}
 

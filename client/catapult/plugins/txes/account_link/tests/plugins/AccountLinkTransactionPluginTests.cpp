@@ -31,155 +31,99 @@ namespace catapult { namespace plugins {
 
 #define TEST_CLASS AccountLinkTransactionPluginTests
 
+	// region test utils
+
 	namespace {
 		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AccountLink, 1, 1,)
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Account_Link)
 
-	// region basic tests
+	// endregion
 
-	PLUGIN_TEST(CanCalculateSize) {
-		// Arrange:
-		auto pPlugin = TTraits::CreatePlugin();
+	// region publish - account link action link
 
-		typename TTraits::TransactionType transaction;
-		transaction.Size = 0;
-
-		// Act:
-		auto realSize = pPlugin->calculateRealSize(transaction);
-
-		// Assert:
-		EXPECT_EQ(sizeof(typename TTraits::TransactionType), realSize);
+	namespace {
+		template<typename TTraits>
+		void AddCommonExpectations(
+				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
+				const typename TTraits::TransactionType& transaction) {
+			builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.Signer, notification.Source);
+				EXPECT_EQ(transaction.Type, notification.TransactionType);
+				EXPECT_EQ(UnresolvedAddressSet(), notification.ParticipantsByAddress);
+				EXPECT_EQ(utils::KeySet{ transaction.RemoteAccountKey }, notification.ParticipantsByKey);
+			});
+			builder.template addExpectation<RemoteAccountLinkNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.Signer, notification.MainAccountKey);
+				EXPECT_EQ(transaction.RemoteAccountKey, notification.RemoteAccountKey);
+				EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
+			});
+		}
 	}
 
-	PLUGIN_TEST(CanExtractAccounts) {
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenAccountLinkActionIsLink) {
 		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		auto pPlugin = TTraits::CreatePlugin();
-
 		typename TTraits::TransactionType transaction;
-		test::FillWithRandomData(transaction.Signer);
-		test::FillWithRandomData(transaction.RemoteAccountKey);
+		test::FillWithRandomData(transaction);
 		transaction.LinkAction = AccountLinkAction::Link;
 
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, sub);
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			NewRemoteAccountNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
+			AddressInteractionNotification::Notification_Type,
+			RemoteAccountLinkNotification::Notification_Type
+		});
+	}
 
-		// Assert:
-		EXPECT_EQ(4u, sub.numNotifications());
-		EXPECT_EQ(0u, sub.numAddresses());
-		EXPECT_EQ(1u, sub.numKeys());
+	PLUGIN_TEST(CanPublishAllNotificationsWhenAccountLinkActionIsLink) {
+		// Arrange:
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+		transaction.LinkAction = AccountLinkAction::Link;
 
-		EXPECT_TRUE(sub.contains(transaction.RemoteAccountKey));
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, transaction);
+		builder.template addExpectation<AccountPublicKeyNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.RemoteAccountKey, notification.PublicKey);
+		});
+		builder.template addExpectation<NewRemoteAccountNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.RemoteAccountKey, notification.RemoteAccountKey);
+		});
+
+		// Act + Assert:
+		builder.runTest(transaction);
 	}
 
 	// endregion
 
-	// region single notification tests
+	// region publish - account link action unlink
 
-	PLUGIN_TEST(CanExtractNewRemoteAccount) {
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenAccountLinkActionIsUnlink) {
 		// Arrange:
-		mocks::MockTypedNotificationSubscriber<NewRemoteAccountNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-
 		typename TTraits::TransactionType transaction;
-		test::FillWithRandomData(transaction.Signer);
-		test::FillWithRandomData(transaction.RemoteAccountKey);
-		transaction.LinkAction = AccountLinkAction::Link;
-
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		EXPECT_EQ(transaction.RemoteAccountKey, sub.matchingNotifications()[0].RemoteAccountKey);
-	}
-
-	PLUGIN_TEST(CanExtractAddressInteraction) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<AddressInteractionNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-
-		typename TTraits::TransactionType transaction;
-		test::FillWithRandomData(transaction.Signer);
-		transaction.Type = static_cast<EntityType>(0x0815);
-		test::FillWithRandomData(transaction.RemoteAccountKey);
-
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(transaction.Signer, notification.Source);
-		EXPECT_EQ(transaction.Type, notification.TransactionType);
-		EXPECT_EQ(UnresolvedAddressSet(), notification.ParticipantsByAddress);
-		EXPECT_EQ(utils::KeySet{ transaction.RemoteAccountKey }, notification.ParticipantsByKey);
-	}
-
-	PLUGIN_TEST(CanExtractRemoteAccountLink) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<RemoteAccountLinkNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-
-		typename TTraits::TransactionType transaction;
-		test::FillWithRandomData(transaction.Signer);
-		test::FillWithRandomData(transaction.RemoteAccountKey);
+		test::FillWithRandomData(transaction);
 		transaction.LinkAction = AccountLinkAction::Unlink;
 
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(transaction.Signer, notification.MainAccountKey);
-		EXPECT_EQ(transaction.RemoteAccountKey, notification.RemoteAccountKey);
-		EXPECT_EQ(transaction.LinkAction, notification.LinkAction);
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			AddressInteractionNotification::Notification_Type,
+			RemoteAccountLinkNotification::Notification_Type
+		});
 	}
 
-	// endregion
-
-	// region multiple notification tests
-
-	PLUGIN_TEST(CanExtractAllNotificationsWhenAccountLinkActionIsLink) {
+	PLUGIN_TEST(CanPublishAllNotificationsWhenAccountLinkActionIsUnlink) {
 		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		auto pPlugin = TTraits::CreatePlugin();
-
 		typename TTraits::TransactionType transaction;
-		transaction.LinkAction = AccountLinkAction::Link;
-
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, sub);
-
-		// Assert:
-		const auto& notificationTypes = sub.notificationTypes();
-		ASSERT_EQ(4u, notificationTypes.size());
-		EXPECT_EQ(AccountLink_New_Remote_Account_Notification, notificationTypes[0]);
-		EXPECT_EQ(Core_Register_Account_Public_Key_Notification, notificationTypes[1]);
-		EXPECT_EQ(Core_Address_Interaction_Notification, notificationTypes[2]);
-		EXPECT_EQ(AccountLink_Remote_Notification, notificationTypes[3]);
-	}
-
-	PLUGIN_TEST(CanExtractAllNotificationsWhenAccountLinkActionIsUnlink) {
-		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		auto pPlugin = TTraits::CreatePlugin();
-
-		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
 		transaction.LinkAction = AccountLinkAction::Unlink;
 
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, sub);
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, transaction);
 
-		// Assert:
-		const auto& notificationTypes = sub.notificationTypes();
-		ASSERT_EQ(3u, notificationTypes.size());
-		EXPECT_EQ(Core_Register_Account_Public_Key_Notification, notificationTypes[0]);
-		EXPECT_EQ(Core_Address_Interaction_Notification, notificationTypes[1]);
-		EXPECT_EQ(AccountLink_Remote_Notification, notificationTypes[2]);
+		// Act + Assert:
+		builder.runTest(transaction);
 	}
 
 	// endregion

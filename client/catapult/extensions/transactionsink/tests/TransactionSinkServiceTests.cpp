@@ -63,12 +63,10 @@ namespace catapult { namespace transactionsink {
 	ADD_SERVICE_REGISTRAR_INFO_TEST(TransactionSink, Post_Range_Consumers)
 
 	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
-		// Assert:
 		test::AssertNoServicesOrCountersAreRegistered<TestContext>();
 	}
 
 	TEST(TEST_CLASS, PacketHandlersAreRegistered) {
-		// Assert:
 		test::AssertSinglePacketHandlerIsRegistered<TestContext>(ionet::PacketType::Push_Transactions);
 	}
 
@@ -94,12 +92,10 @@ namespace catapult { namespace transactionsink {
 	}
 
 	TEST(TEST_CLASS, CanPushTransactionWhenSynced) {
-		// Assert:
 		AssertTransactionPush(true, 1);
 	}
 
 	TEST(TEST_CLASS, CannotPushTransactionWhenNotSynced) {
-		// Assert:
 		AssertTransactionPush(false, 0);
 	}
 

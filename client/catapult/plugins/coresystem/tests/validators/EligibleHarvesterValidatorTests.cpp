@@ -110,7 +110,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenBalanceIsBelowMinBalance) {
-		// Assert:
 		constexpr auto expectedResult = Failure_Core_Block_Harvester_Ineligible;
 		auto height = Height(10000);
 		AssertValidationResult(expectedResult, -1, Importance(123), ConvertToImportanceHeight(height), height);
@@ -118,18 +117,15 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenImportanceIsZero) {
-		// Assert:
 		auto height = Height(10000);
 		AssertValidationResult(Failure_Core_Block_Harvester_Ineligible, 12345, Importance(0), ConvertToImportanceHeight(height), height);
 	}
 
 	TEST(TEST_CLASS, FailureWhenImportanceIsNotSetAtCorrectHeight) {
-		// Assert:
 		AssertValidationResult(Failure_Core_Block_Harvester_Ineligible, 12345, Importance(0), model::ImportanceHeight(123), Height(1234));
 	}
 
 	TEST(TEST_CLASS, SuccessWhenAllCriteriaAreMet) {
-		// Assert:
 		constexpr auto expectedResult = ValidationResult::Success;
 		auto height = Height(10000);
 		AssertValidationResult(expectedResult, 0, Importance(123), ConvertToImportanceHeight(height), height);

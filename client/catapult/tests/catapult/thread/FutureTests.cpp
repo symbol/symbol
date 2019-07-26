@@ -493,22 +493,18 @@ namespace catapult { namespace thread {
 	}
 
 	PROMISE_FUTURE_TRAITS_BASED_TEST(ContinuationSetBeforeValueIsTriggeredWhenValueIsSet) {
-		// Assert:
 		AssertContinuationSetBeforeValueIsTriggeredWhenValueIsSet<NonVoidContinuationTraits<TTraits>>();
 	}
 
 	PROMISE_FUTURE_TRAITS_BASED_TEST(VoidContinuationSetBeforeValueIsTriggeredWhenValueIsSet) {
-		// Assert:
 		AssertContinuationSetBeforeValueIsTriggeredWhenValueIsSet<VoidContinuationTraits<TTraits>>();
 	}
 
 	PROMISE_FUTURE_TRAITS_BASED_TEST(ContinuationSetAfterValueIsTriggeredImmediately) {
-		// Assert:
 		AssertContinuationSetAfterValueIsTriggeredImmediately<NonVoidContinuationTraits<TTraits>>();
 	}
 
 	PROMISE_FUTURE_TRAITS_BASED_TEST(VoidContinuationSetAfterValueIsTriggeredImmediately) {
-		// Assert:
 		AssertContinuationSetAfterValueIsTriggeredImmediately<VoidContinuationTraits<TTraits>>();
 	}
 

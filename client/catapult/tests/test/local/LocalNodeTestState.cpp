@@ -30,7 +30,7 @@ namespace catapult { namespace test {
 
 	struct LocalNodeTestState::Impl {
 	public:
-		explicit Impl(config::CatapultConfiguration&& config, cache::CatapultCache&& cache)
+		Impl(config::CatapultConfiguration&& config, cache::CatapultCache&& cache)
 				: m_config(std::move(config))
 				, m_cache(std::move(cache))
 				, m_storage(std::make_unique<mocks::MockMemoryBlockStorage>(), std::make_unique<mocks::MockMemoryBlockStorage>())

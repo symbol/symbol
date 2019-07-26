@@ -19,7 +19,6 @@
 **/
 
 #include "MosaicDefinitionMapper.h"
-#include "MosaicExpiryReceiptMapper.h"
 #include "MosaicSupplyChangeMapper.h"
 #include "storages/MongoMosaicCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
@@ -28,16 +27,16 @@
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
+	using namespace catapult;
+
 	// transaction support
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicDefinitionTransactionMongoPlugin());
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicSupplyChangeTransactionMongoPlugin());
+	manager.addTransactionSupport(mongo::plugins::CreateMosaicDefinitionTransactionMongoPlugin());
+	manager.addTransactionSupport(mongo::plugins::CreateMosaicSupplyChangeTransactionMongoPlugin());
 
 	// cache storage support
-	manager.addStorageSupport(catapult::mongo::plugins::CreateMongoMosaicCacheStorage(
-			manager.mongoContext(),
-			manager.networkIdentifier()));
+	manager.addStorageSupport(mongo::plugins::CreateMongoMosaicCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 
 	// receipt support
-	manager.addReceiptSupport(catapult::mongo::plugins::CreateMosaicExpiryReceiptMongoPlugin());
-	manager.addReceiptSupport(catapult::mongo::CreateBalanceTransferReceiptMongoPlugin(catapult::model::Receipt_Type_Mosaic_Rental_Fee));
+	manager.addReceiptSupport(mongo::CreateArtifactExpiryReceiptMongoPlugin<MosaicId>(model::Receipt_Type_Mosaic_Expired));
+	manager.addReceiptSupport(mongo::CreateBalanceTransferReceiptMongoPlugin(model::Receipt_Type_Mosaic_Rental_Fee));
 }

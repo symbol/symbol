@@ -106,32 +106,30 @@ namespace catapult { namespace zeromq {
 
 	// region notifyAddPartial
 
+	namespace {
+		template<typename TAddAll>
+		void AssertCanAddMultipleTransactions(TAddAll addAll) {
+			test::AssertCanAddMultipleTransactions<MqSubscriberContext>(Add_Marker, Num_Transactions, addAll);
+		}
+	}
+
 	TEST(TEST_CLASS, CanAddSinglePartialTransaction) {
-		// Assert:
 		test::AssertCanAddSingleTransaction<MqSubscriberContext>(Add_Marker, [](auto& context, const auto& transactionInfo) {
 			context.notifyAddPartial(transactionInfo);
 		});
 	}
 
 	TEST(TEST_CLASS, CanAddMultiplePartialTransactions_SingleCall) {
-		// Assert:
-		test::AssertCanAddMultipleTransactions<MqSubscriberContext>(
-				Add_Marker,
-				Num_Transactions,
-				[](auto& context, const auto& transactionInfos) {
-					context.notifyAddPartials(transactionInfos);
-				});
+		AssertCanAddMultipleTransactions([](auto& context, const auto& transactionInfos) {
+			context.notifyAddPartials(transactionInfos);
+		});
 	}
 
 	TEST(TEST_CLASS, CanAddMultiplePartialTransactions_MultipleCalls) {
-		// Assert:
-		test::AssertCanAddMultipleTransactions<MqSubscriberContext>(
-				Add_Marker,
-				Num_Transactions,
-				[](auto& context, const auto& transactionInfos) {
-					for (const auto& transactionInfo : transactionInfos)
-						context.notifyAddPartial(transactionInfo);
-				});
+		AssertCanAddMultipleTransactions([](auto& context, const auto& transactionInfos) {
+			for (const auto& transactionInfo : transactionInfos)
+				context.notifyAddPartial(transactionInfo);
+		});
 	}
 
 	// endregion
@@ -195,32 +193,30 @@ namespace catapult { namespace zeromq {
 
 	// region notifyRemovePartial
 
+	namespace {
+		template<typename TRemoveAll>
+		void AssertCanRemoveMultipleTransactions(TRemoveAll removeAll) {
+			test::AssertCanRemoveMultipleTransactions<MqSubscriberContext>(Remove_Marker, Num_Transactions, removeAll);
+		}
+	}
+
 	TEST(TEST_CLASS, CanRemoveSinglePartialTransaction) {
-		// Assert:
 		test::AssertCanRemoveSingleTransaction<MqSubscriberContext>(Remove_Marker, [](auto& context, const auto& transactionInfo) {
 			context.notifyRemovePartial(transactionInfo);
 		});
 	}
 
 	TEST(TEST_CLASS, CanRemoveMultiplePartialTransactions_SingleCall) {
-		// Assert:
-		test::AssertCanRemoveMultipleTransactions<MqSubscriberContext>(
-				Remove_Marker,
-				Num_Transactions,
-				[](auto& context, const auto& transactionInfos) {
-					context.notifyRemovePartials(transactionInfos);
-				});
+		AssertCanRemoveMultipleTransactions([](auto& context, const auto& transactionInfos) {
+			context.notifyRemovePartials(transactionInfos);
+		});
 	}
 
 	TEST(TEST_CLASS, CanRemoveMultiplePartialTransactions_MultipleCalls) {
-		// Assert:
-		test::AssertCanRemoveMultipleTransactions<MqSubscriberContext>(
-				Remove_Marker,
-				Num_Transactions,
-				[](auto& context, const auto& transactionInfos) {
-					for (const auto& transactionInfo : transactionInfos)
-						context.notifyRemovePartial(transactionInfo);
-				});
+		AssertCanRemoveMultipleTransactions([](auto& context, const auto& transactionInfos) {
+			for (const auto& transactionInfo : transactionInfos)
+				context.notifyRemovePartial(transactionInfo);
+		});
 	}
 
 	// endregion
@@ -228,7 +224,6 @@ namespace catapult { namespace zeromq {
 	// region flush
 
 	TEST(TEST_CLASS, FlushDoesNotSendMessages) {
-		// Assert:
 		test::AssertFlushDoesNotSendMessages<MqSubscriberContext>();
 	}
 

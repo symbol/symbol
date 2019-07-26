@@ -19,16 +19,24 @@
 **/
 
 #include "Validators.h"
-#include "catapult/utils/Hashers.h"
+#include "catapult/constants.h"
 
 namespace catapult { namespace validators {
 
 	using Notification = model::RootNamespaceNotification;
 
-	DECLARE_STATELESS_VALIDATOR(RootNamespace, Notification)(BlockDuration maxDuration) {
-		return MAKE_STATELESS_VALIDATOR(RootNamespace, [maxDuration](const auto& notification) {
-			// note that zero duration is acceptable because it is eternal
-			return maxDuration < notification.Duration ? Failure_Namespace_Invalid_Duration : ValidationResult::Success;
-		});
+	namespace {
+		constexpr bool IsEternal(BlockDuration duration) {
+			return Eternal_Artifact_Duration == duration;
+		}
+	}
+
+	DECLARE_STATELESS_VALIDATOR(RootNamespace, Notification)(BlockDuration minDuration, BlockDuration maxDuration) {
+		return MAKE_STATELESS_VALIDATOR(RootNamespace, ([minDuration, maxDuration](const Notification& notification) {
+			auto isInRange = minDuration <= notification.Duration && notification.Duration <= maxDuration;
+			return !IsEternal(notification.Duration) && !isInRange
+					? Failure_Namespace_Invalid_Duration
+					: ValidationResult::Success;
+		}));
 	}
 }}

@@ -28,13 +28,13 @@ namespace catapult { namespace cache {
 
 	struct TransactionData : public model::TransactionInfo, public utils::NonCopyable {
 	public:
-		explicit TransactionData(const model::TransactionInfo& transactionInfo, size_t id)
-				: model::TransactionInfo(transactionInfo.copy())
+		explicit TransactionData(size_t id)
+				: model::TransactionInfo()
 				, Id(id)
 		{}
 
-		explicit TransactionData(size_t id)
-				: model::TransactionInfo()
+		TransactionData(const model::TransactionInfo& transactionInfo, size_t id)
+				: model::TransactionInfo(transactionInfo.copy())
 				, Id(id)
 		{}
 
@@ -118,7 +118,7 @@ namespace catapult { namespace cache {
 			using IdLookup = std::unordered_map<Hash256, size_t, utils::ArrayHasher<Hash256>>;
 
 		public:
-			explicit MemoryUtCacheModifier(
+			MemoryUtCacheModifier(
 					uint64_t maxCacheSize,
 					size_t& idSequence,
 					TransactionDataContainer& transactionDataContainer,

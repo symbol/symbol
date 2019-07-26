@@ -69,7 +69,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CheckedAddCanAddValuesBelowMax) {
-		// Assert:
 		AssertCheckedAddCanAdd<uint32_t>({
 			{ 0xFFFF'FFFE, 0x0000'0000, 0xFFFF'FFFE },
 			{ 0xFFFF'FFFD, 0x0000'0001, 0xFFFF'FFFE },
@@ -88,7 +87,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CheckedAddCanAddValuesUpToMax) {
-		// Assert:
 		AssertCheckedAddCanAdd<uint32_t>({
 			{ 0xFFFF'FFFF, 0x0000'0000, 0xFFFF'FFFF },
 			{ 0xFFFF'FFFE, 0x0000'0001, 0xFFFF'FFFF },
@@ -130,7 +128,6 @@ namespace catapult { namespace utils {
 	// region GetNumBits
 
 	TEST(TEST_CLASS, GetNumBitsReturnsCorrectNumberOfBits) {
-		// Assert:
 		EXPECT_EQ(8, GetNumBits<int8_t>());
 		EXPECT_EQ(8u, GetNumBits<uint8_t>());
 
@@ -142,8 +139,7 @@ namespace catapult { namespace utils {
 
 	// region Log2
 
-	TEST(TEST_CLASS, Log2ForNonZeroValuesReturnsHighBit) {
-		// Assert:
+	TEST(TEST_CLASS, Log2ForNonzeroValuesReturnsHighBit) {
 		EXPECT_EQ(0u, Log2<uint8_t>(0x01));
 		EXPECT_EQ(6u, Log2<uint8_t>(0x73));
 		EXPECT_EQ(7u, Log2<uint8_t>(0x80));
@@ -156,7 +152,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, Log2ForZeroValuesReturnsMax) {
-		// Assert:
 		EXPECT_EQ(0xFFu, Log2<uint8_t>(0));
 		EXPECT_EQ(0xFFFFFFFFu, Log2<uint32_t>(0));
 	}
@@ -166,7 +161,6 @@ namespace catapult { namespace utils {
 	// region Log2TimesPowerOfTwo
 
 	TEST(TEST_CLASS, Log2TimesPowerOfTwoThrowsForZero) {
-		// Assert:
 		EXPECT_THROW(Log2TimesPowerOfTwo(0, 0), catapult_invalid_argument);
 		EXPECT_THROW(Log2TimesPowerOfTwo(0, 1), catapult_invalid_argument);
 		EXPECT_THROW(Log2TimesPowerOfTwo(0, 10), catapult_invalid_argument);
@@ -225,7 +219,6 @@ namespace catapult { namespace utils {
 	// region Pow2
 
 	TEST(TEST_CLASS, Pow2ReturnsCorrectValueForInRangeResults) {
-		// Assert:
 		EXPECT_EQ(0x01u, Pow2<uint8_t>(0));
 		EXPECT_EQ(0x04u, Pow2<uint8_t>(2));
 		EXPECT_EQ(0x80u, Pow2<uint8_t>(7));
@@ -236,7 +229,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, Pow2ReturnsZeroForOutOfRangeResults) {
-		// Assert:
 		EXPECT_EQ(0u, Pow2<uint8_t>(8));
 		EXPECT_EQ(0u, Pow2<uint8_t>(18));
 
@@ -271,7 +263,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, DivideAndGetRemainderUpdatesValueAndReturnsRemainder) {
-		// Assert:
 		AssertDivideAndGetRemainderForType<uint32_t>();
 		AssertDivideAndGetRemainderForType<uint16_t>();
 	}
@@ -281,35 +272,30 @@ namespace catapult { namespace utils {
 	// region IsPowerMultiple
 
 	TEST(TEST_CLASS, IsPowerMultipleReturnsFalseWhenMultipleIsLess) {
-		// Assert:
 		EXPECT_FALSE(IsPowerMultiple<uint64_t>(200, 199, 10));
 		EXPECT_FALSE(IsPowerMultiple<uint32_t>(200, 20, 10));
 		EXPECT_FALSE(IsPowerMultiple<uint16_t>(200, 2, 10));
 	}
 
 	TEST(TEST_CLASS, IsPowerMultipleReturnsFalseWhenMultipleIsNotMultiple) {
-		// Assert:
 		EXPECT_FALSE(IsPowerMultiple<uint64_t>(200, 201, 10));
 		EXPECT_FALSE(IsPowerMultiple<uint32_t>(200, 399, 10));
 		EXPECT_FALSE(IsPowerMultiple<uint16_t>(200, 650, 10));
 	}
 
 	TEST(TEST_CLASS, IsPowerMultipleReturnsFalseWhenMultipleIsNotPowerMultiple) {
-		// Assert:
 		EXPECT_FALSE(IsPowerMultiple<uint64_t>(200, 200 * 2, 10));
 		EXPECT_FALSE(IsPowerMultiple<uint32_t>(200, 200 * 20, 10));
 		EXPECT_FALSE(IsPowerMultiple<uint16_t>(200, 200 * 7, 10));
 	}
 
 	TEST(TEST_CLASS, IsPowerMultipleReturnsTrueWhenMultipleIsEqual) {
-		// Assert:
 		EXPECT_TRUE(IsPowerMultiple<uint64_t>(200, 200, 10));
 		EXPECT_TRUE(IsPowerMultiple<uint32_t>(300, 300, 20));
 		EXPECT_TRUE(IsPowerMultiple<uint16_t>(400, 400, 30));
 	}
 
 	TEST(TEST_CLASS, IsPowerMultipleReturnsTrueWhenMultipleIsPowerMultiple) {
-		// Assert:
 		EXPECT_TRUE(IsPowerMultiple<uint64_t>(200, 200 * 100, 10));
 		EXPECT_TRUE(IsPowerMultiple<uint32_t>(300, 300 * 20, 20));
 		EXPECT_TRUE(IsPowerMultiple<uint16_t>(400, 400 * 8, 2));

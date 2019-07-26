@@ -93,7 +93,7 @@ namespace catapult { namespace ionet {
 			EXPECT_EQ(PacketType::Secure_Signed, writtenPacket.Type);
 
 			const auto& signature = reinterpret_cast<const Signature&>(*(&writtenPacket + 1));
-			const auto& childPacket = reinterpret_cast<const Packet&>(*(reinterpret_cast<const uint8_t*>(&signature) + Signature_Size));
+			const auto& childPacket = reinterpret_cast<const Packet&>(*(reinterpret_cast<const uint8_t*>(&signature) + Signature::Size));
 			ASSERT_EQ(sizeof(PacketHeader) + numEntitiesBytes, childPacket.Size);
 			EXPECT_EQ(PacketType::Push_Transactions, childPacket.Type);
 
@@ -211,7 +211,7 @@ namespace catapult { namespace ionet {
 
 		Packet& GetSecureSignedChildPacket(Packet& packet) {
 			auto& signature = GetSecureSignedSignature(packet);
-			return reinterpret_cast<Packet&>(*(reinterpret_cast<uint8_t*>(&signature) + Signature_Size));
+			return reinterpret_cast<Packet&>(*(reinterpret_cast<uint8_t*>(&signature) + Signature::Size));
 		}
 
 		std::shared_ptr<Packet> CreateSecureSignedPacket(const crypto::KeyPair& keyPair, uint32_t childPayloadSize) {
@@ -307,7 +307,6 @@ namespace catapult { namespace ionet {
 	}
 
 	READ_TRAITS_BASED_TEST(ReadFailsWhenEnvelopePacketSizeIsTooSmall) {
-		// Assert:
 		RunFailedReadTest<TTraits>(SocketOperationCode::Malformed_Data, 0, [](auto& packet, auto& childPacket, const auto&) {
 			--packet.Size;
 			--childPacket.Size;
@@ -315,23 +314,20 @@ namespace catapult { namespace ionet {
 	}
 
 	READ_TRAITS_BASED_TEST(ReadFailsWhenEnvelopePacketSizeIsTooLargeRelativeToChildPacketSize) {
-		// Assert:
 		RunFailedReadTest<TTraits>(SocketOperationCode::Malformed_Data, 123, [](const auto&, auto& childPacket, const auto&) {
 			--childPacket.Size;
 		});
 	}
 
 	READ_TRAITS_BASED_TEST(ReadFailsWhenEnvelopePacketSizeIsTooSmallRelativeToChildPacketSize) {
-		// Assert:
 		RunFailedReadTest<TTraits>(SocketOperationCode::Malformed_Data, 123, [](const auto&, auto& childPacket, const auto&) {
 			++childPacket.Size;
 		});
 	}
 
 	READ_TRAITS_BASED_TEST(ReadFailsWhenEnvelopePacketSignatureDoesNotVerify) {
-		// Assert:
 		RunFailedReadTest<TTraits>(SocketOperationCode::Security_Error, 123, [](const auto&, const auto&, auto& signature) {
-			signature[Signature_Size / 2] ^= 0xFF;
+			signature[Signature::Size / 2] ^= 0xFF;
 		});
 	}
 
@@ -363,7 +359,6 @@ namespace catapult { namespace ionet {
 	}
 
 	READ_TRAITS_BASED_TEST(ReadSucceedsWhenReadingEmptyPacketWithValidSignature) {
-		// Assert:
 		RunReadSuccessPayloadTest<TTraits>(0u, [](const auto& readPacket) {
 			// Sanity:
 			EXPECT_FALSE(!!readPacket.Data());
@@ -371,7 +366,6 @@ namespace catapult { namespace ionet {
 	}
 
 	READ_TRAITS_BASED_TEST(ReadSucceedsWhenReadingPacketWithValidSignature) {
-		// Assert:
 		RunReadSuccessPayloadTest<TTraits>(234u, [](const auto& readPacket) {
 			// Sanity:
 			EXPECT_TRUE(!!readPacket.Data());

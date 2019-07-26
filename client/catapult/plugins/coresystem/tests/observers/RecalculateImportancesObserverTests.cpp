@@ -41,7 +41,7 @@ namespace catapult { namespace observers {
 
 		struct ImportanceCalculatorParams {
 		public:
-			explicit ImportanceCalculatorParams(model::ImportanceHeight importanceHeight, const cache::AccountStateCacheDelta& cache)
+			ImportanceCalculatorParams(model::ImportanceHeight importanceHeight, const cache::AccountStateCacheDelta& cache)
 					: ImportanceHeight(importanceHeight)
 					, Cache(cache)
 			{}
@@ -228,9 +228,11 @@ namespace catapult { namespace observers {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(RecalculationIsBypassedWhenImportanceHeightEqualsLastCalculationHeight) {
-		// Assert:
+		// Arrange:
 		auto mode = TTraits::Mode;
 		auto baseHeight = TTraits::Base_Height;
+
+		// Act + Assert:
 		for (auto i = 1u; i < 10; ++i)
 			AssertNoRecalculation<TTraits>(mode, baseHeight, baseHeight + Height(i));
 
@@ -238,9 +240,11 @@ namespace catapult { namespace observers {
 	}
 
 	TRAITS_BASED_TEST(RecalculationIsTriggeredWhenImportanceHeightIsNotEqualToLastCalculationHeight) {
-		// Assert:
+		// Arrange:
 		auto mode = TTraits::Mode;
 		auto baseHeight = TTraits::Base_Height;
+
+		// Act + Assert:
 		AssertRecalculation<TTraits>(mode, baseHeight, Height(1));
 		AssertRecalculation<TTraits>(mode, baseHeight, baseHeight - Height(1));
 		AssertRecalculation<TTraits>(mode, baseHeight, baseHeight + Height(Importance_Grouping));

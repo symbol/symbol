@@ -66,7 +66,7 @@ namespace catapult { namespace test {
 			{}
 #endif
 
-			explicit StringHeightPair(const std::string& str, Height deactivateHeight)
+			StringHeightPair(const std::string& str, Height deactivateHeight)
 					: m_str(str)
 					, m_deactivateHeight(deactivateHeight)
 			{}

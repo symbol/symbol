@@ -33,7 +33,7 @@ namespace catapult { namespace ionet {
 		{}
 
 		/// Creates builder for a packet with the specified \a type and max packet data size (\a maxPacketDataSize).
-		explicit PacketPayloadBuilder(PacketType type, uint32_t maxPacketDataSize)
+		PacketPayloadBuilder(PacketType type, uint32_t maxPacketDataSize)
 				: m_maxPacketDataSize(maxPacketDataSize)
 				, m_payload(type)
 				, m_hasError(false)

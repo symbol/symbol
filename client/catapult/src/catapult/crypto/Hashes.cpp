@@ -44,7 +44,7 @@ namespace catapult { namespace crypto {
 	void Ripemd160(const RawBuffer& dataBuffer, Hash160& hash) noexcept {
 		struct ripemd160 context;
 		ripemd160(&context, dataBuffer.pData, dataBuffer.Size);
-		memcpy(hash.data(), context.u.u8, Hash160_Size);
+		memcpy(hash.data(), context.u.u8, hash.size());
 	}
 
 	namespace {
@@ -143,7 +143,7 @@ namespace catapult { namespace crypto {
 
 	template<typename TModeTag, typename THashTag>
 	void KeccakBuilder<TModeTag, THashTag>::final(OutputType& output) noexcept {
-		KeccakFinal(m_hashContext, output.data(), THashTag::Byte_Size, TModeTag());
+		KeccakFinal(m_hashContext, output.data(), THashTag::Size, TModeTag());
 	}
 
 	template class KeccakBuilder<Sha3ModeTag, Hash256_tag>;

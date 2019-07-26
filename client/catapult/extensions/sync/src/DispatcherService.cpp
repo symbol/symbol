@@ -282,10 +282,10 @@ namespace catapult { namespace sync {
 				auto disruptorConsumers = DisruptorConsumersFromTransactionConsumers(m_consumers);
 				disruptorConsumers.push_back(CreateNewTransactionsConsumer(
 						[&utUpdater, newTransactionsSink = m_state.hooks().newTransactionsSink()](auto&& transactionInfos) {
-					/// Note that all transaction infos are broadcast even though some transactions might fail stateful validation because:
-					/// 1. even though a transaction can fail stateful validation on one node, it might pass the validation on another
-					/// 2. if the node is not synced it might reject many transactions that are perfectly valid due to missing account
-					///    state information
+					// Note that all transaction infos are broadcast even though some transactions might fail stateful validation because:
+					// 1. even though a transaction can fail stateful validation on one node, it might pass the validation on another
+					// 2. if the node is not synced it might reject many transactions that are perfectly valid due to missing account
+					//    state information
 					newTransactionsSink(transactionInfos);
 					utUpdater.update(std::move(transactionInfos));
 				}));

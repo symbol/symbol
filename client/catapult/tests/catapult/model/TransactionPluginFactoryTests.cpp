@@ -72,27 +72,12 @@ namespace catapult { namespace model {
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Default, _Default, Mock_Transaction_Type)
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS_ONLY_EMBEDDABLE(TEST_CLASS, OnlyEmbeddable, _OnlyEmbeddable, Mock_Transaction_Type)
 
-	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanCalculateSize, Default, _Default) {
-		// Arrange:
-		auto pPlugin = TTraits::CreatePlugin();
-
-		typename TTraits::TransactionType transaction;
-		transaction.Size = 0;
-		transaction.Data.Size = 100;
-
-		// Act:
-		auto realSize = pPlugin->calculateRealSize(transaction);
-
-		// Assert:
-		EXPECT_EQ(sizeof(typename TTraits::TransactionType) + 100, realSize);
-	}
-
 	PLUGIN_TEST_WITH_PREFIXED_TRAITS(CanPublishNotifications, Default, _Default) {
 		// Arrange:
 		auto pPlugin = TTraits::CreatePlugin();
 
 		typename TTraits::TransactionType transaction;
-		test::FillWithRandomData(transaction.Signer);
+		test::FillWithRandomData(transaction);
 		mocks::MockTypedNotificationSubscriber<BlockNotification> sub;
 
 		// Act:
@@ -102,5 +87,20 @@ namespace catapult { namespace model {
 		EXPECT_EQ(1u, sub.numNotifications());
 		ASSERT_EQ(1u, sub.numMatchingNotifications());
 		EXPECT_EQ(transaction.Signer, sub.matchingNotifications()[0].Signer);
+	}
+
+	TEST(TEST_CLASS, PluginExposesCustomAdditionalRequiredCosigners_OnlyEmbeddable) {
+		// Arrange:
+		auto pPlugin = OnlyEmbeddableEmbeddedTraits::CreatePlugin();
+
+		OnlyEmbeddableEmbeddedTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+
+		// Act:
+		auto additionalCosigners = pPlugin->additionalRequiredCosigners(transaction);
+
+		// Assert:
+		utils::KeySet expectedAdditionalCosigners{ Key{ { 1 } }, Key{ { 2 } }, transaction.Recipient };
+		EXPECT_EQ(expectedAdditionalCosigners, additionalCosigners);
 	}
 }}

@@ -157,14 +157,12 @@ namespace catapult { namespace observers {
 	// region forwarding
 
 	TEST(TEST_CLASS, NotificationsAreForwardedToChildObservers) {
-		// Assert:
 		test::AssertNotificationsAreForwardedToChildObservers(DemuxObserverBuilder(), [](auto& builder, auto&& pObserver) {
 			builder.template add<model::Notification>(std::move(pObserver));
 		});
 	}
 
 	TEST(TEST_CLASS, ContextsAreForwardedToChildObservers) {
-		// Assert:
 		test::AssertContextsAreForwardedToChildObservers(DemuxObserverBuilder(), [](auto& builder, auto&& pObserver) {
 			builder.template add<model::Notification>(std::move(pObserver));
 		});
@@ -238,12 +236,10 @@ namespace catapult { namespace observers {
 	}
 
 	TEST(TEST_CLASS, CanFilterObserversBasedOnNotificationType) {
-		// Assert:
 		AssertCanFilterObserversBasedOnNotificationType([](const auto&) {});
 	}
 
 	TEST(TEST_CLASS, CanFilterObserversBasedOnNotificationTypeIgnoringChannel) {
-		// Assert:
 		AssertCanFilterObserversBasedOnNotificationType([](auto& notification) {
 			// Arrange: change notification by changing channel
 			model::SetNotificationChannel(notification.Type, model::NotificationChannel::None);

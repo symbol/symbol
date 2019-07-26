@@ -48,7 +48,7 @@ namespace catapult { namespace tree {
 
 		std::string SerializeLeaf(const LeafTreeNode& node) {
 			// marker and path size - uint8, path - hash, value - hash
-			io::StringOutputStream out(2 * sizeof(uint8_t) + 2 * Hash256_Size);
+			io::StringOutputStream out(2 * sizeof(uint8_t) + 2 * Hash256::Size);
 			io::Write8(out, 0xFF);
 			SerializePath(out, node.path());
 
@@ -58,7 +58,7 @@ namespace catapult { namespace tree {
 
 		std::string SerializeBranch(const BranchTreeNode& node) {
 			// marker and path size - uint8, path - hash, at least two links - hashes
-			io::StringOutputStream out(2 * sizeof(uint8_t) + 3 * Hash256_Size);
+			io::StringOutputStream out(2 * sizeof(uint8_t) + 3 * Hash256::Size);
 			io::Write8(out, 0x00);
 			SerializePath(out, node.path());
 

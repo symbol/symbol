@@ -41,6 +41,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			static std::vector<model::ReceiptType> GetReceiptTypes() {
 				return {
 					model::Receipt_Type_Namespace_Expired,
+					model::Receipt_Type_Namespace_Deleted,
 					model::Receipt_Type_Namespace_Rental_Fee
 				};
 			}

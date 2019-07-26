@@ -105,7 +105,6 @@ namespace catapult { namespace io {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ROUNDTRIP_SIZE_TEST(CanRoundtripInteger) {
-		// Assert:
 		AssertCanRoundtripInteger<TTraits>();
 	}
 

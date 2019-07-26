@@ -43,7 +43,6 @@ namespace catapult { namespace unbondedpruning {
 	ADD_SERVICE_REGISTRAR_INFO_TEST(UnbondedPruning, Post_Transaction_Event_Handlers)
 
 	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
-		// Assert:
 		test::AssertNoServicesOrCountersAreRegistered<TestContext>();
 	}
 

@@ -526,14 +526,12 @@ namespace catapult { namespace disruptor {
 			// Arrange:
 			auto ranges = test::PrepareRanges(1);
 
-			ConsumerDispatcher dispatcher(
-					Test_Dispatcher_Options,
-					{
-						[](const auto&) {
-							CATAPULT_THROW_RUNTIME_ERROR("dummy consumer exception");
-							return ConsumerResult::Continue();
-						}
-					});
+			ConsumerDispatcher dispatcher(Test_Dispatcher_Options, {
+				[](const auto&) {
+					CATAPULT_THROW_RUNTIME_ERROR("dummy consumer exception");
+					return ConsumerResult::Continue();
+				}
+			});
 
 			// Act:
 			ProcessAll(dispatcher, std::move(ranges));

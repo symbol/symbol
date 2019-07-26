@@ -64,23 +64,19 @@ namespace catapult { namespace harvesting {
 	// region harvest key
 
 	TEST(TEST_CLASS, ValidationFailsWhenHarvestKeyIsInvalid) {
-		// Assert:
 		AssertInvalidHarvestingConfiguration(Invalid_Key, true, Valid_Key);
 		AssertInvalidHarvestingConfiguration(Invalid_Key, false, Valid_Key);
 	}
 
 	TEST(TEST_CLASS, ValidationFailsWhenHarvestKeyIsUnspecifiedAndAutoHarvestingIsEnabled) {
-		// Assert:
 		AssertInvalidHarvestingConfiguration("", true, Valid_Key);
 	}
 
 	TEST(TEST_CLASS, ValidationSucceedsWhenHarvestKeyIsValidAndAutoHarvestingIsEnabled) {
-		// Assert:
 		AssertValidHarvestingConfiguration(Valid_Key, true, Valid_Key);
 	}
 
 	TEST(TEST_CLASS, ValidationSucceedsWhenHarvestKeyIsUnspecifiedAndAutoHarvestingIsDisabled) {
-		// Assert:
 		AssertValidHarvestingConfiguration("", false, Valid_Key);
 	}
 
@@ -89,12 +85,10 @@ namespace catapult { namespace harvesting {
 	// region beneficiary
 
 	TEST(TEST_CLASS, ValidationFailsWhenBeneficiaryIsInvalid) {
-		// Assert:
 		AssertInvalidHarvestingConfiguration(Valid_Key, false, Invalid_Key);
 	}
 
 	TEST(TEST_CLASS, ValidationSucceedsWhenBeneficiaryIsValid) {
-		// Assert:
 		AssertValidHarvestingConfiguration(Valid_Key, false, Valid_Key);
 	}
 

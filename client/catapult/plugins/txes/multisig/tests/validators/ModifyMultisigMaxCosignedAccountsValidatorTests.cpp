@@ -71,13 +71,11 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanCosignAdditionalAccountsWhenLessThanMaxAreCurrentlyCosigned) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 1, 10);
 		AssertValidationResult(ValidationResult::Success, 9, 10);
 	}
 
 	TEST(TEST_CLASS, CannotCosignAdditionalAccountsWhenAtLeastMaxAreCurrentlyCosigned) {
-		// Assert:
 		AssertValidationResult(Failure_Multisig_Modify_Max_Cosigned_Accounts, 10, 10);
 		AssertValidationResult(Failure_Multisig_Modify_Max_Cosigned_Accounts, 11, 10);
 		AssertValidationResult(Failure_Multisig_Modify_Max_Cosigned_Accounts, 223, 10);

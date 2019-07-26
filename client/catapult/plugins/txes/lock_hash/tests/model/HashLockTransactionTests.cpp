@@ -39,7 +39,7 @@ namespace catapult { namespace model {
 					baseSize // base
 					+ sizeof(Mosaic) // mosaic
 					+ sizeof(Height) // height
-					+ Hash256_Size; // hash
+					+ Hash256::Size; // hash
 
 			// Assert:
 			EXPECT_EQ(expectedSize, sizeof(T));

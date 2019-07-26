@@ -95,7 +95,7 @@ namespace catapult { namespace local {
 
 		void AssertDeactivatingSecretLock(const std::pair<std::vector<Hash256>, std::vector<Hash256>>& stateHashesPair) {
 			// Assert: all state hashes are nonzero (since importance is recalculated every block none of the hashes are the same)
-			test::AssertAllNonZero(stateHashesPair.first, 4);
+			test::AssertAllNonzero(stateHashesPair.first, 4);
 			test::AssertUnique(stateHashesPair.first);
 
 			// - secret lock cache merkle root is initially zero (no locks in nemesis)
@@ -221,7 +221,7 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunLockSecretLockTest(context));
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashesPair.first, 2);
+		test::AssertAllNonzero(stateHashesPair.first, 2);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - secret lock cache merkle root is only nonzero when lock is active
@@ -407,7 +407,7 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunUnlockAndRollbackSecretLockTest(context));
 
 		// Assert: all state hashes are nonzero (since importance is recalculated every block none of the hashes are the same)
-		test::AssertAllNonZero(stateHashesPair.first, 4);
+		test::AssertAllNonzero(stateHashesPair.first, 4);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - secret lock cache merkle root is initially zero (no locks in nemesis)
@@ -750,7 +750,7 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunLockAndUnlockSecretLockTest(context));
 
 		// Assert: all state hashes are nonzero (since importance is recalculated every block none of the hashes are the same)
-		test::AssertAllNonZero(stateHashesPair.first, 2);
+		test::AssertAllNonzero(stateHashesPair.first, 2);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - all secret lock merkle roots are zero because lock is only active inbetween

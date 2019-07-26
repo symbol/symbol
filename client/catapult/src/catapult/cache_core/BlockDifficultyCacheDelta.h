@@ -45,7 +45,7 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a delta around \a difficultyInfoSets and \a options.
-		explicit BasicBlockDifficultyCacheDelta(
+		BasicBlockDifficultyCacheDelta(
 				const BlockDifficultyCacheTypes::BaseSetDeltaPointers& difficultyInfoSets,
 				const BlockDifficultyCacheTypes::Options& options);
 
@@ -93,7 +93,7 @@ namespace catapult { namespace cache {
 	class BlockDifficultyCacheDelta : public ReadOnlyViewSupplier<BasicBlockDifficultyCacheDelta> {
 	public:
 		/// Creates a delta around \a difficultyInfoSets and \a options.
-		explicit BlockDifficultyCacheDelta(
+		BlockDifficultyCacheDelta(
 				const BlockDifficultyCacheTypes::BaseSetDeltaPointers& difficultyInfoSets,
 				const BlockDifficultyCacheTypes::Options& options)
 				: ReadOnlyViewSupplier(difficultyInfoSets, options)

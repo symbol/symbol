@@ -31,111 +31,55 @@ namespace catapult { namespace plugins {
 
 #define TEST_CLASS SecretProofTransactionPluginTests
 
-	// region TransactionPlugin
+	// region test utils
 
 	namespace {
 		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretProof, 1, 1,)
-
-		template<typename TTraits>
-		auto CreateSecretProofTransaction() {
-			return test::CreateRandomSecretProofTransaction<TTraits>(123);
-		}
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Secret_Proof)
 
-	PLUGIN_TEST(CanCalculateSize) {
+	// endregion
+
+	// region publish
+
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder) {
 		// Arrange:
-		auto pPlugin = TTraits::CreatePlugin();
 		typename TTraits::TransactionType transaction;
-		transaction.ProofSize = 100;
+		test::FillWithRandomData(transaction);
 
-		// Act:
-		auto realSize = pPlugin->calculateRealSize(transaction);
-
-		// Assert:
-		EXPECT_EQ(sizeof(typename TTraits::TransactionType) + 100, realSize);
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			SecretLockHashAlgorithmNotification::Notification_Type,
+			ProofSecretNotification::Notification_Type,
+			ProofPublicationNotification::Notification_Type
+		});
 	}
 
-	// endregion
-
-	// region accounts extraction
-
-	PLUGIN_TEST(CanExtractAccounts) {
+	PLUGIN_TEST(CanPublishAllNotifications) {
 		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		auto pPlugin = TTraits::CreatePlugin();
+		auto pTransaction = test::CreateRandomSecretProofTransaction<TTraits>(123);
 
-		typename TTraits::TransactionType transaction;
-
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, sub);
-
-		// Assert:
-		EXPECT_EQ(3u, sub.numNotifications());
-		EXPECT_EQ(0u, sub.numAddresses());
-		EXPECT_EQ(0u, sub.numKeys());
-	}
-
-	// endregion
-
-	// region lock hash algorithm notification
-
-	PLUGIN_TEST(CanPublishHashAlgorithmNotification) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<SecretLockHashAlgorithmNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-		auto pTransaction = CreateSecretProofTransaction<TTraits>();
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(pTransaction->HashAlgorithm, notification.HashAlgorithm);
-	}
-
-	// endregion
-
-	// region proof notification
-
-	PLUGIN_TEST(CanPublishSecretProofSecretNotification) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<ProofSecretNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-		auto pTransaction = CreateSecretProofTransaction<TTraits>();
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
 		const auto& transaction = *pTransaction;
-		EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
-		EXPECT_EQ(transaction.Secret, notification.Secret);
-		ASSERT_EQ(transaction.ProofSize, notification.Proof.Size);
-		EXPECT_EQ_MEMORY(transaction.ProofPtr(), notification.Proof.pData, notification.Proof.Size);
-	}
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		builder.template addExpectation<SecretLockHashAlgorithmNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
+		});
+		builder.template addExpectation<ProofSecretNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
+			EXPECT_EQ(transaction.Secret, notification.Secret);
+			ASSERT_EQ(transaction.ProofSize, notification.Proof.Size);
+			EXPECT_EQ_MEMORY(transaction.ProofPtr(), notification.Proof.pData, notification.Proof.Size);
+		});
+		builder.template addExpectation<ProofPublicationNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
+			EXPECT_EQ(transaction.Secret, notification.Secret);
+			EXPECT_EQ(transaction.Recipient, notification.Recipient);
+		});
 
-	PLUGIN_TEST(CanPublishSecretProofPublicationNotification) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<ProofPublicationNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-		auto pTransaction = CreateSecretProofTransaction<TTraits>();
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		const auto& transaction = *pTransaction;
-		EXPECT_EQ(transaction.Signer, notification.Signer);
-		EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
-		EXPECT_EQ(transaction.Secret, notification.Secret);
-		EXPECT_EQ(transaction.Recipient, notification.Recipient);
+		// Act + Assert:
+		builder.runTest(transaction);
 	}
 
 	// endregion

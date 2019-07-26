@@ -45,7 +45,6 @@ namespace catapult { namespace plugins {
 				}
 
 				sub.notify(ModifyMultisigCosignersNotification(transaction.Signer, transaction.ModificationsCount, pModifications));
-
 			}
 
 			if (!addedCosignatoryKeys.empty())

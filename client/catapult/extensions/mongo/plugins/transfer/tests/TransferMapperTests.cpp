@@ -23,7 +23,7 @@
 #include "mongo/src/MongoTransactionPlugin.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -106,41 +106,34 @@ namespace catapult { namespace mongo { namespace plugins {
 	// region streamTransaction
 
 	PLUGIN_TEST(CanMapTransferTransactionWithNeitherMessageNorMosaics) {
-		// Assert:
 		AssertCanMapTransferTransaction<TTraits>({}, {});
 	}
 
 	PLUGIN_TEST(CanMapTransferTransactionWithTypeOnlyMessageButWithoutMosaics) {
-		// Assert:
 		AssertCanMapTransferTransaction<TTraits>({ 0x48 }, {});
 	}
 
 	PLUGIN_TEST(CanMapTransferTransactionWithMessageButWithoutMosaics) {
-		// Assert:
 		AssertCanMapTransferTransaction<TTraits>({ 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64 }, {});
 	}
 
 	PLUGIN_TEST(CanMapTransferTransactionWithoutMessageButWithSingleMosaic) {
-		// Assert:
 		AssertCanMapTransferTransaction<TTraits>({}, { { Test_Mosaic_Id, Amount(234) } });
 	}
 
 	PLUGIN_TEST(CanMapTransferTransactionWithoutMessageButWithMultipleMosaics) {
-		// Assert:
 		AssertCanMapTransferTransaction<TTraits>(
 				{},
 				{ { Test_Mosaic_Id, Amount(234) }, { UnresolvedMosaicId(1357), Amount(345) }, { UnresolvedMosaicId(31), Amount(45) } });
 	}
 
 	PLUGIN_TEST(CanMapTransferTransactionWithMessageAndSingleMosaic) {
-		// Assert:
 		AssertCanMapTransferTransaction<TTraits>(
 				{ 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64 },
 				{ { Test_Mosaic_Id, Amount(234) } });
 	}
 
 	PLUGIN_TEST(CanMapTransferTransactionWithMessageAndMultipleMosaics) {
-		// Assert:
 		AssertCanMapTransferTransaction<TTraits>(
 				{ 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64 },
 				{ { Test_Mosaic_Id, Amount(234) }, { UnresolvedMosaicId(1357), Amount(345) }, { UnresolvedMosaicId(31), Amount(45) } });

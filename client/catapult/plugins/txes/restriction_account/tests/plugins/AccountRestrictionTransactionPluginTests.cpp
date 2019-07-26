@@ -28,9 +28,13 @@
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 #include "tests/TestHarness.h"
 
+using namespace catapult::model;
+
 namespace catapult { namespace plugins {
 
 #define TEST_CLASS AccountRestrictionTransactionPluginTests
+
+	// region test traits
 
 	namespace {
 		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(AccountAddressRestriction, 1, 1, AccountAddressRestriction)
@@ -42,183 +46,158 @@ namespace catapult { namespace plugins {
 			using TransactionType = TTransaction;
 			using UnresolvedValueType = UnresolvedAddress;
 			using ValueType = Address;
-			using ModifyAccountRestrictionValueNotification = model::ModifyAccountAddressRestrictionValueNotification;
-			using ModifyAccountRestrictionNotification = model::ModifyAccountAddressRestrictionNotification;
+			using ModifyAccountRestrictionValueNotification = ModifyAccountAddressRestrictionValueNotification;
+			using ModifyAccountRestrictionNotification = ModifyAccountAddressRestrictionNotification;
 		};
 
-		using AddressRegularTraits = AddressTraits<model::AccountAddressRestrictionTransaction, AccountAddressRestrictionRegularTraits>;
-		using AddressEmbeddedTraits = AddressTraits<
-			model::EmbeddedAccountAddressRestrictionTransaction,
-			AccountAddressRestrictionEmbeddedTraits>;
+		using AddressRegularTraits = AddressTraits<AccountAddressRestrictionTransaction, AccountAddressRestrictionRegularTraits>;
+		using AddressEmbeddedTraits = AddressTraits<EmbeddedAccountAddressRestrictionTransaction, AccountAddressRestrictionEmbeddedTraits>;
 
 		template<typename TTransaction, typename TTransactionTraits>
 		struct MosaicTraits : public TTransactionTraits {
 			using TransactionType = TTransaction;
 			using UnresolvedValueType = UnresolvedMosaicId;
 			using ValueType = MosaicId;
-			using ModifyAccountRestrictionValueNotification = model::ModifyAccountMosaicRestrictionValueNotification;
-			using ModifyAccountRestrictionNotification = model::ModifyAccountMosaicRestrictionNotification;
+			using ModifyAccountRestrictionValueNotification = ModifyAccountMosaicRestrictionValueNotification;
+			using ModifyAccountRestrictionNotification = ModifyAccountMosaicRestrictionNotification;
 		};
 
-		using MosaicRegularTraits = MosaicTraits<model::AccountMosaicRestrictionTransaction, AccountMosaicRestrictionRegularTraits>;
-		using MosaicEmbeddedTraits = MosaicTraits<
-			model::EmbeddedAccountMosaicRestrictionTransaction,
-			AccountMosaicRestrictionEmbeddedTraits>;
+		using MosaicRegularTraits = MosaicTraits<AccountMosaicRestrictionTransaction, AccountMosaicRestrictionRegularTraits>;
+		using MosaicEmbeddedTraits = MosaicTraits<EmbeddedAccountMosaicRestrictionTransaction, AccountMosaicRestrictionEmbeddedTraits>;
 
 		template<typename TTransaction, typename TTransactionTraits>
 		struct OperationTraits : public TTransactionTraits {
 			using TransactionType = TTransaction;
-			using UnresolvedValueType = model::EntityType;
-			using ValueType = model::EntityType;
-			using ModifyAccountRestrictionValueNotification = model::ModifyAccountOperationRestrictionValueNotification;
-			using ModifyAccountRestrictionNotification = model::ModifyAccountOperationRestrictionNotification;
+			using UnresolvedValueType = EntityType;
+			using ValueType = EntityType;
+			using ModifyAccountRestrictionValueNotification = ModifyAccountOperationRestrictionValueNotification;
+			using ModifyAccountRestrictionNotification = ModifyAccountOperationRestrictionNotification;
 		};
 
-		using OperationRegularTraits = OperationTraits<
-			model::AccountOperationRestrictionTransaction,
-			AccountOperationRestrictionRegularTraits>;
+		using OperationRegularTraits = OperationTraits<AccountOperationRestrictionTransaction, AccountOperationRestrictionRegularTraits>;
 		using OperationEmbeddedTraits = OperationTraits<
-			model::EmbeddedAccountOperationRestrictionTransaction,
+			EmbeddedAccountOperationRestrictionTransaction,
 			AccountOperationRestrictionEmbeddedTraits>;
 	}
+
+	// endregion
 
 	template<typename TTraits>
 	class AccountRestrictionTransactionPluginTests {
 	private:
-		static uint32_t AccountRestrictionModificationSize() {
-			return sizeof(decltype(*typename TTraits::TransactionType().ModificationsPtr()));
-		}
+		// region test utils
 
-		static auto CreateAccountRestrictionTransaction() {
+		static constexpr auto Modification_Size = sizeof(decltype(*typename TTraits::TransactionType().ModificationsPtr()));
+
+		static auto CreateTransactionWithModifications(uint8_t numModifications) {
 			using TransactionType = typename TTraits::TransactionType;
-			uint32_t entitySize = sizeof(TransactionType) + 12 * AccountRestrictionModificationSize();
+			uint32_t entitySize = sizeof(TransactionType) + numModifications * Modification_Size;
 			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
-			pTransaction->Size = entitySize;
-			pTransaction->ModificationsCount = 12;
-			auto* pModification = pTransaction->ModificationsPtr();
-			for (auto i = 0u; i < 12; ++i) {
-				pModification->ModificationType = model::AccountRestrictionModificationType(i);
-				++pModification;
-			}
+			test::FillWithRandomData({ reinterpret_cast<uint8_t*>(pTransaction.get()), entitySize });
 
+			pTransaction->Size = entitySize;
+			pTransaction->ModificationsCount = numModifications;
 			return pTransaction;
 		}
 
+		static void AddCommonExpectations(
+				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
+				const typename TTraits::TransactionType& transaction) {
+			builder.template addExpectation<AccountRestrictionTypeNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.RestrictionType, notification.RestrictionType);
+			});
+			builder.template addExpectation<typename TTraits::ModifyAccountRestrictionNotification>([&transaction](
+					const auto& notification) {
+				EXPECT_EQ(transaction.Signer, notification.Key);
+				EXPECT_EQ(transaction.RestrictionType, notification.AccountRestrictionDescriptor.raw());
+				EXPECT_EQ(transaction.ModificationsCount, notification.ModificationsCount);
+				EXPECT_EQ(transaction.ModificationsPtr(), notification.ModificationsPtr);
+			});
+		}
+
+		// endregion
+
 	public:
-		// region TransactionPlugin
+		// region publish - no modifications
 
-		static void AssertCanCalculateSize() {
+		static void AssertCanPublishAllNotificationsInCorrectOrderWhenNoModifications() {
 			// Arrange:
-			auto pPlugin = TTraits::CreatePlugin();
+			auto pTransaction = CreateTransactionWithModifications(0);
 
-			typename TTraits::TransactionType transaction;
-			transaction.ModificationsCount = 123;
+			// Act + Assert:
+			test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+				AccountRestrictionTypeNotification::Notification_Type,
+				TTraits::ModifyAccountRestrictionNotification::Notification_Type
+			});
+		}
 
-			// Act:
-			auto realSize = pPlugin->calculateRealSize(transaction);
+		static void AssertCanPublishAllNotificationsWhenNoModifications() {
+			// Arrange:
+			auto pTransaction = CreateTransactionWithModifications(0);
 
-			// Assert:
-			EXPECT_EQ(sizeof(typename TTraits::TransactionType) + 123 * AccountRestrictionModificationSize(), realSize);
+			typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+			AddCommonExpectations(builder, *pTransaction);
+
+			// Act + Assert:
+			builder.runTest(*pTransaction);
 		}
 
 		// endregion
 
-		// region accounts extraction
+		// region publish - modifications
 
-		static void AssertCanExtractAccounts() {
+		static void AssertCanPublishAllNotificationsInCorrectOrderWhenModifications() {
 			// Arrange:
-			mocks::MockNotificationSubscriber sub;
-			auto pPlugin = TTraits::CreatePlugin();
-
-			typename TTraits::TransactionType transaction;
-			transaction.ModificationsCount = 0;
-
-			// Act:
-			test::PublishTransaction(*pPlugin, transaction, sub);
-
-			// Assert:
-			EXPECT_EQ(2u, sub.numNotifications());
-			EXPECT_EQ(0u, sub.numAddresses());
-			EXPECT_EQ(0u, sub.numKeys());
-		}
-
-		// endregion
-
-		// region restriction type notification
-
-		static void AssertCanPublishAccountRestrictionTypeNotification() {
-			// Arrange:
-			mocks::MockTypedNotificationSubscriber<model::AccountRestrictionTypeNotification> sub;
-			auto pPlugin = TTraits::CreatePlugin();
-
-			auto pTransaction = CreateAccountRestrictionTransaction();
-
-			// Act:
-			test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-			// Assert:
-			ASSERT_EQ(2u + 12, sub.numNotifications());
-			ASSERT_EQ(1u, sub.numMatchingNotifications());
-			EXPECT_EQ(pTransaction->RestrictionType, sub.matchingNotifications()[0].AccountRestrictionType);
-		}
-
-		// endregion
-
-		// region typed account restriction modifications notification
-
-		static void AssertCanPublishTypedAccountRestrictionModificationsNotification() {
-			// Arrange:
-			mocks::MockTypedNotificationSubscriber<typename TTraits::ModifyAccountRestrictionNotification> sub;
-			auto pPlugin = TTraits::CreatePlugin();
-
-			auto pTransaction = CreateAccountRestrictionTransaction();
-
-			// Act:
-			test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-			// Assert:
-			ASSERT_EQ(2u + 12, sub.numNotifications());
-			ASSERT_EQ(1u, sub.numMatchingNotifications());
-
-			const auto& notification = sub.matchingNotifications()[0];
-			EXPECT_EQ(pTransaction->Signer, notification.Key);
-			EXPECT_EQ(pTransaction->RestrictionType, notification.AccountRestrictionDescriptor.raw());
-			EXPECT_EQ(pTransaction->ModificationsCount, notification.ModificationsCount);
-			EXPECT_EQ(pTransaction->ModificationsPtr(), notification.ModificationsPtr);
-		}
-
-		// endregion
-
-		// region typed account restriction value modification notification
-
-		static void AssertCanPublishTypedAccountRestrictionValueModificationNotification() {
-			// Arrange:
-			mocks::MockTypedNotificationSubscriber<typename TTraits::ModifyAccountRestrictionValueNotification> sub;
-			auto pPlugin = TTraits::CreatePlugin();
-
-			auto pTransaction = CreateAccountRestrictionTransaction();
-
-			// Act:
-			test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-			// Assert:
-			ASSERT_EQ(2u + 12, sub.numNotifications());
-			ASSERT_EQ(12u, sub.numMatchingNotifications());
-
-			for (auto i = 0u; i < 12; ++i) {
-				const auto& notification = sub.matchingNotifications()[i];
-				EXPECT_EQ(pTransaction->Signer, notification.Key);
-				EXPECT_EQ(pTransaction->RestrictionType, notification.AccountRestrictionDescriptor.raw());
-				EXPECT_EQ(model::AccountRestrictionModificationType(i), notification.Modification.ModificationType);
+			auto pTransaction = CreateTransactionWithModifications(4);
+			for (auto i = 0u; i < 4; ++i) {
+				auto modificationType = 0 == i % 2 ? AccountRestrictionModificationType::Add : AccountRestrictionModificationType::Del;
+				pTransaction->ModificationsPtr()[i].ModificationType = modificationType;
 			}
+
+			// Act + Assert:
+			test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(*pTransaction, {
+				AccountRestrictionTypeNotification::Notification_Type,
+				TTraits::ModifyAccountRestrictionNotification::Notification_Type,
+				TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
+				TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
+				TTraits::ModifyAccountRestrictionValueNotification::Notification_Type,
+				TTraits::ModifyAccountRestrictionValueNotification::Notification_Type
+			});
+		}
+
+		static void AssertCanPublishAllNotificationsWhenModifications() {
+			// Arrange:
+			auto pTransaction = CreateTransactionWithModifications(4);
+			for (auto i = 0u; i < 4; ++i) {
+				auto modificationType = 0 == i % 2 ? AccountRestrictionModificationType::Add : AccountRestrictionModificationType::Del;
+				pTransaction->ModificationsPtr()[i].ModificationType = modificationType;
+			}
+
+			const auto& transaction = *pTransaction;
+			typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+			AddCommonExpectations(builder, transaction);
+			for (auto i = 0u; i < 4; ++i) {
+				builder.template addExpectation<typename TTraits::ModifyAccountRestrictionValueNotification>(i, [&transaction, i](
+						const auto& notification) {
+					EXPECT_EQ(transaction.Signer, notification.Key);
+					EXPECT_EQ(transaction.RestrictionType, notification.AccountRestrictionDescriptor.raw());
+					EXPECT_EQ(transaction.ModificationsPtr()[i].ModificationType, notification.Modification.ModificationType);
+					EXPECT_EQ(transaction.ModificationsPtr()[i].Value, notification.Modification.Value);
+				});
+			}
+
+			// Act + Assert:
+			builder.runTest(transaction);
 		}
 
 		// endregion
 	};
 
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Address, _Address, model::Entity_Type_Account_Address_Restriction)
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Mosaic, _Mosaic, model::Entity_Type_Account_Mosaic_Restriction)
-	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Operation, _Operation, model::Entity_Type_Account_Operation_Restriction)
+	// region test macro expansion
+
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Address, _Address, Entity_Type_Account_Address_Restriction)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Mosaic, _Mosaic, Entity_Type_Account_Mosaic_Restriction)
+	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, Operation, _Operation, Entity_Type_Account_Operation_Restriction)
 
 #define MAKE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TEST(TRAITS_PREFIX, TEST_POSTFIX, TEST_NAME) \
 	TEST(TEST_CLASS, TEST_NAME##_Regular##TEST_POSTFIX) { \
@@ -229,19 +208,20 @@ namespace catapult { namespace plugins {
 	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TESTS(TRAITS_PREFIX, TEST_POSTFIX) \
-	MAKE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TEST(TRAITS_PREFIX, TEST_POSTFIX, CanCalculateSize) \
-	MAKE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TEST(TRAITS_PREFIX, TEST_POSTFIX, CanExtractAccounts) \
-	MAKE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TEST(TRAITS_PREFIX, TEST_POSTFIX, CanPublishAccountRestrictionTypeNotification) \
 	MAKE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TEST( \
 			TRAITS_PREFIX, \
 			TEST_POSTFIX, \
-			CanPublishTypedAccountRestrictionModificationsNotification) \
+			CanPublishAllNotificationsInCorrectOrderWhenNoModifications) \
+	MAKE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TEST(TRAITS_PREFIX, TEST_POSTFIX, CanPublishAllNotificationsWhenNoModifications) \
 	MAKE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TEST( \
 			TRAITS_PREFIX, \
 			TEST_POSTFIX, \
-			CanPublishTypedAccountRestrictionValueModificationNotification)
+			CanPublishAllNotificationsInCorrectOrderWhenModifications) \
+	MAKE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TEST(TRAITS_PREFIX, TEST_POSTFIX, CanPublishAllNotificationsWhenModifications) \
 
 	DEFINE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TESTS(Address, _Address)
 	DEFINE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TESTS(Mosaic, _Mosaic)
 	DEFINE_ACCOUNT_RESTRICTION_TRANSACTION_PLUGIN_TESTS(Operation, _Operation)
+
+	// endregion
 }}

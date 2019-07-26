@@ -183,12 +183,10 @@ namespace catapult { namespace cache {
 	}
 
 	KEY_TRAITS_BASED_TEST(CanRetrieveZeroImportanceFromAccount) {
-		// Assert:
 		AssertCanFindImportance<TTraits>(Importance(0));
 	}
 
-	KEY_TRAITS_BASED_TEST(CanRetrieveNonZeroImportanceFromAccount) {
-		// Assert:
+	KEY_TRAITS_BASED_TEST(CanRetrieveNonzeroImportanceFromAccount) {
 		AssertCanFindImportance<TTraits>(Importance(1234));
 	}
 
@@ -244,25 +242,21 @@ namespace catapult { namespace cache {
 	}
 
 	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenBalanceIsBelowMinBalance) {
-		// Assert:
 		auto height = Height(10000);
 		EXPECT_FALSE(CanHarvest<TTraits>(-1, Importance(123), ConvertToImportanceHeight(height), height));
 		EXPECT_FALSE(CanHarvest<TTraits>(-100, Importance(123), ConvertToImportanceHeight(height), height));
 	}
 
 	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenImportanceIsZero) {
-		// Assert:
 		auto height = Height(10000);
 		EXPECT_FALSE(CanHarvest<TTraits>(12345, Importance(0), ConvertToImportanceHeight(height), height));
 	}
 
 	CAN_HARVEST_TRAITS_BASED_TEST(CannotHarvestWhenImportanceIsNotSetAtCorrectHeight) {
-		// Assert:
 		EXPECT_FALSE(CanHarvest<TTraits>(12345, Importance(0), ImportanceHeight(123), Height(1234)));
 	}
 
 	CAN_HARVEST_TRAITS_BASED_TEST(CanHarvestWhenAllCriteriaAreMet) {
-		// Assert:
 		auto height = Height(10000);
 		EXPECT_TRUE(CanHarvest<TTraits>(0, Importance(123), ConvertToImportanceHeight(height), height));
 		EXPECT_TRUE(CanHarvest<TTraits>(1, Importance(123), ConvertToImportanceHeight(height), height));
@@ -323,7 +317,6 @@ namespace catapult { namespace cache {
 	}
 
 	IMPROPER_LINKS_TRAITS_BASED_TEST(FailureWhenLinkedAccountHasWrongType) {
-		// Assert:
 		AssertImproperLink<TTraits>([](auto& accountState) {
 			// Arrange: change the main account to have the wrong type
 			accountState.AccountType = state::AccountType::Remote;
@@ -331,7 +324,6 @@ namespace catapult { namespace cache {
 	}
 
 	IMPROPER_LINKS_TRAITS_BASED_TEST(FailureWhenLinkedAccountDoesNotReferenceRemoteAccount) {
-		// Assert:
 		AssertImproperLink<TTraits>([](auto& accountState) {
 			// Arrange: change the main account to point to a different account
 			test::FillWithRandomData(accountState.LinkedAccountKey);

@@ -46,14 +46,14 @@ namespace catapult { namespace model {
 
 		/// Returns a pointer to transactions contained in this container.
 		TComponentEntity* TransactionsPtr() {
-			return TEntityHeader::Size <= sizeof(TEntityHeader)
+			return TEntityHeader::Size <= sizeof(TEntityHeader) || 0 == GetTransactionPayloadSize(*this)
 					? nullptr
 					: reinterpret_cast<TComponentEntity*>(reinterpret_cast<uint8_t*>(this) + sizeof(TEntityHeader));
 		}
 
 		/// Returns a const pointer to transactions contained in this container.
 		const TComponentEntity* TransactionsPtr() const {
-			return TEntityHeader::Size <= sizeof(TEntityHeader)
+			return TEntityHeader::Size <= sizeof(TEntityHeader) || 0 == GetTransactionPayloadSize(*this)
 					? nullptr
 					: reinterpret_cast<const TComponentEntity*>(reinterpret_cast<const uint8_t*>(this) + sizeof(TEntityHeader));
 		}

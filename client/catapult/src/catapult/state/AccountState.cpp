@@ -62,4 +62,11 @@ namespace catapult { namespace state {
 				<< model::AddressToString(mainAccountState.Address) << " is improper";
 		CATAPULT_THROW_RUNTIME_ERROR(out.str().c_str());
 	}
+
+	void ApplyFeeSurplus(AccountState& accountState, const model::Mosaic& fee, model::ImportanceHeight importanceHeight) {
+		accountState.Balances.credit(fee.MosaicId, fee.Amount);
+		accountState.ActivityBuckets.tryUpdate(importanceHeight, [surplus = fee.Amount](auto& bucket) {
+			bucket.TotalFeesPaid = bucket.TotalFeesPaid - surplus;
+		});
+	}
 }}

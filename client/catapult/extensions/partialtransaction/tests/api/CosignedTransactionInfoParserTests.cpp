@@ -163,22 +163,18 @@ namespace catapult { namespace api {
 	}
 
 	TEST(TEST_CLASS, CanExtractHashOnlyEntry) {
-		// Assert:
 		AssertSingleEntryParse(HashGenerator(0));
 	}
 
 	TEST(TEST_CLASS, CanExtractHashAndCosignaturesEntry) {
-		// Assert:
 		AssertSingleEntryParse(HashGenerator(3));
 	}
 
 	TEST(TEST_CLASS, CanExtractTransactionOnlyEntry) {
-		// Assert:
 		AssertSingleEntryParse(TransactionGenerator(0));
 	}
 
 	TEST(TEST_CLASS, CanExtractTransactionAndCosignaturesEntry) {
-		// Assert:
 		AssertSingleEntryParse(TransactionGenerator(3));
 	}
 
@@ -236,7 +232,6 @@ namespace catapult { namespace api {
 	}
 
 	TEST(TEST_CLASS, FailureWhenTagCannotBeExtracted) {
-		// Assert:
 		AssertParseFailure([](auto& builder) {
 			// Arrange: only partial tag is written (tag is uint16_t)
 			builder.appendValue(static_cast<uint8_t>(0x00));
@@ -244,7 +239,6 @@ namespace catapult { namespace api {
 	}
 
 	TEST(TEST_CLASS, FailureWhenHashCannotBeExtracted) {
-		// Assert:
 		AssertParseFailure([](auto& builder) {
 			// Arrange: hash is expected but not present
 			builder.appendValue(static_cast<uint16_t>(0x0000));
@@ -252,7 +246,6 @@ namespace catapult { namespace api {
 	}
 
 	TEST(TEST_CLASS, FailureWhenTransactionCannotBeExtracted) {
-		// Assert:
 		AssertParseFailure([](auto& builder) {
 			// Arrange: transaction is expected but not present
 			builder.appendValue(static_cast<uint16_t>(0x8000));
@@ -260,7 +253,6 @@ namespace catapult { namespace api {
 	}
 
 	TEST(TEST_CLASS, FailureWhenTransactionDataCannotBeExtracted) {
-		// Assert:
 		AssertParseFailure([](auto& builder) {
 			// Arrange: transaction is expected but only header (size) is present
 			builder.appendValue(static_cast<uint16_t>(0x8000));
@@ -269,7 +261,6 @@ namespace catapult { namespace api {
 	}
 
 	TEST(TEST_CLASS, FailureWhenCosignatureCannotBeExtracted) {
-		// Assert:
 		AssertParseFailure([](auto& builder) {
 			// Arrange: two cosignatures are present but only one is written
 			builder.appendValue(static_cast<uint16_t>(0x0002));

@@ -367,22 +367,18 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanPurgeHistoryWithDepthOneWithoutChildren) {
-		// Assert:
 		test::RootNamespaceHistoryLoadTests<PurgeTraits>::AssertCanLoadHistoryWithDepthOneWithoutChildren();
 	}
 
 	TEST(TEST_CLASS, CanPurgeHistoryWithDepthOneWithChildren) {
-		// Assert:
 		test::RootNamespaceHistoryLoadTests<PurgeTraits>::AssertCanLoadHistoryWithDepthOneWithChildren();
 	}
 
 	TEST(TEST_CLASS, CanPurgeHistoryWithDepthGreaterThanOneSameOwner) {
-		// Assert:
 		test::RootNamespaceHistoryLoadTests<PurgeTraits>::AssertCanLoadHistoryWithDepthGreaterThanOneSameOwner();
 	}
 
 	TEST(TEST_CLASS, CanPurgeHistoryWithDepthGreaterThanOneDifferentOwner) {
-		// Assert:
 		test::RootNamespaceHistoryLoadTests<PurgeTraits>::AssertCanLoadHistoryWithDepthGreaterThanOneDifferentOwner();
 	}
 

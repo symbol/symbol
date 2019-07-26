@@ -59,7 +59,6 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, IsChainLinkReturnsFalseWhenHeightIsMismatched) {
-		// Assert:
 		AssertNotLinkedForHeights(Height(70), Height(60));
 		AssertNotLinkedForHeights(Height(70), Height(69));
 		AssertNotLinkedForHeights(Height(70), Height(70));
@@ -96,7 +95,6 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, IsChainLinkReturnsFalseWhenTimestampsAreNotIncreasing) {
-		// Assert:
 		AssertNotLinkedForTimestamps(Timestamp(70), Timestamp(60));
 		AssertNotLinkedForTimestamps(Timestamp(70), Timestamp(69));
 		AssertNotLinkedForTimestamps(Timestamp(70), Timestamp(70));
@@ -118,7 +116,6 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, IsChainLinkReturnsTrueWhenBothHeightAndHashesAreCorrectAndTimestampsAreIncreasing) {
-		// Assert:
 		AssertLinkedForTimestamps(Timestamp(70), Timestamp(71));
 		AssertLinkedForTimestamps(Timestamp(70), Timestamp(700));
 		AssertLinkedForTimestamps(Timestamp(70), Timestamp(12345));
@@ -218,12 +215,10 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, DifficultiesAreValidWhenAllDifficultiesAreCorrectAndFullHistoryIsPresent_Equal) {
-		// Assert:
 		AssertDifficultiesAreValidForBlocksWithEqualDifficulties(15, Height(20));
 	}
 
 	TEST(TEST_CLASS, DifficultiesAreValidWhenAllDifficultiesAreCorrectAndPartialHistoryIsPresent_Equal) {
-		// Assert:
 		AssertDifficultiesAreValidForBlocksWithEqualDifficulties(15, Height(5));
 	}
 
@@ -271,12 +266,10 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, DifficultiesAreValidWhenAllDifficultiesAreCorrectAndFullHistoryIsPresent_Increasing) {
-		// Assert:
 		AssertDifficultiesAreValidForBlocksWithIncreasingDifficulties(15, Height(20));
 	}
 
 	TEST(TEST_CLASS, DifficultiesAreValidWhenAllDifficultiesAreCorrectAndPartialHistoryIsPresent_Increasing) {
-		// Assert:
 		AssertDifficultiesAreValidForBlocksWithIncreasingDifficulties(15, Height(5));
 	}
 
@@ -308,17 +301,14 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, DifficultiesAreInvalidWhenFirstBlockHasIncorrectDifficulty) {
-		// Assert:
 		AssertDifficultiesAreInvalidForDifferenceAt(15, Height(20), 5, 0);
 	}
 
 	TEST(TEST_CLASS, DifficultiesAreInvalidWhenMiddleBlockHasIncorrectDifficulty) {
-		// Assert:
 		AssertDifficultiesAreInvalidForDifferenceAt(15, Height(20), 5, 2);
 	}
 
 	TEST(TEST_CLASS, DifficultiesAreInvalidWhenLastBlockHasIncorrectDifficulty) {
-		// Assert:
 		AssertDifficultiesAreInvalidForDifferenceAt(15, Height(20), 5, 4);
 	}
 

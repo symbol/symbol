@@ -65,9 +65,8 @@ namespace catapult { namespace ionet {
 			return SocketOperationCode::Write_Error;
 		}
 
-		/// Implements packet based socket conventions with an implicit strand.
-		/// \note User callbacks are executed in the context of the strand,
-		///       so they are effectively serialized.
+		// implements packet based socket conventions with an implicit strand
+		// \note user callbacks are executed in the context of the strand, so they are effectively serialized.
 		template<typename TSocketCallbackWrapper>
 		class BasicPacketSocket final {
 		public:
@@ -243,8 +242,7 @@ namespace catapult { namespace ionet {
 			size_t m_maxPacketDataSize;
 		};
 
-		/// Implements PacketSocket using an explicit strand and ensures deterministic shutdown by using
-		/// enable_shared_from_this.
+		// implements PacketSocket using an explicit strand and ensures deterministic shutdown by using enable_shared_from_this
 		class StrandedPacketSocket final
 				: public PacketSocket
 				, public std::enable_shared_from_this<StrandedPacketSocket> {
@@ -392,7 +390,7 @@ namespace catapult { namespace ionet {
 	// region Connect
 
 	namespace {
-		/// Basic connect handler implementation using an implicit strand.
+		// basic connect handler implementation using an implicit strand
 		template<typename TCallbackWrapper>
 		class BasicConnectHandler final {
 		private:
@@ -480,8 +478,7 @@ namespace catapult { namespace ionet {
 			boost::asio::ip::tcp::endpoint m_endpoint;
 		};
 
-		/// Implements connect handler using an explicit strand and ensures deterministic shutdown by using
-		/// enable_shared_from_this.
+		// implements connect handler using an explicit strand and ensures deterministic shutdown by using enable_shared_from_this
 		class StrandedConnectHandler : public std::enable_shared_from_this<StrandedConnectHandler> {
 		public:
 			StrandedConnectHandler(

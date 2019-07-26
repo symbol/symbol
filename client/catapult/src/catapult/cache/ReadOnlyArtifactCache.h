@@ -82,15 +82,15 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Finds the cache value identified by \a key.
-		auto find(TKey id) const {
+		auto find(const TKey& key) const {
 			// note: having alias within function instead of at class scope allows forward declaration of caches
-			using FindIterator = ReadOnlyFindIterator<decltype(m_pCache->find(id)), decltype(m_pCacheDelta->find(id))>;
-			return m_pCache ? FindIterator(m_pCache->find(id)) : FindIterator(m_pCacheDelta->find(id));
+			using FindIterator = ReadOnlyFindIterator<decltype(m_pCache->find(key)), decltype(m_pCacheDelta->find(key))>;
+			return m_pCache ? FindIterator(m_pCache->find(key)) : FindIterator(m_pCacheDelta->find(key));
 		}
 
-		/// Gets a value indicating whether or not an artifact with \a id is active at \a height.
-		bool isActive(TKey id, Height height) const {
-			return m_pCache ? m_pCache->isActive(id, height) : m_pCacheDelta->isActive(id, height);
+		/// Gets a value indicating whether or not an artifact with \a key is active at \a height.
+		bool isActive(const TKey& key, Height height) const {
+			return m_pCache ? m_pCache->isActive(key, height) : m_pCacheDelta->isActive(key, height);
 		}
 
 	private:

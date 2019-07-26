@@ -22,7 +22,7 @@
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/account_link/src/model/AccountLinkTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {
@@ -52,7 +52,7 @@ namespace catapult { namespace mongo { namespace plugins {
 
 		// Assert:
 		EXPECT_EQ(2u, test::GetFieldCount(view));
-		EXPECT_EQ(model::AccountLinkAction::Unlink, static_cast<model::AccountLinkAction>(test::GetUint32(view, "action")));
+		EXPECT_EQ(model::AccountLinkAction::Unlink, static_cast<model::AccountLinkAction>(test::GetUint32(view, "linkAction")));
 		EXPECT_EQ(transaction.RemoteAccountKey, test::GetKeyValue(view, "remoteAccountKey"));
 	}
 

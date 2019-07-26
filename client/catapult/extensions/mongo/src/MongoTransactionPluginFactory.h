@@ -76,7 +76,7 @@ namespace catapult { namespace mongo {
 		class TransactionPluginT : public BasicTransactionPluginT<model::Transaction, TTransaction, TransactionPlugin> {
 		public:
 			template<typename TStreamFunc, typename TStreamEmbeddedFunc>
-			explicit TransactionPluginT(TStreamFunc streamFunc, TStreamEmbeddedFunc streamEmbeddedFunc)
+			TransactionPluginT(TStreamFunc streamFunc, TStreamEmbeddedFunc streamEmbeddedFunc)
 					: BasicTransactionPluginT<model::Transaction, TTransaction, TransactionPlugin>(streamFunc)
 					, m_pEmbeddedTransactionPlugin(CreateEmbedded<TEmbeddedTransaction>(streamEmbeddedFunc))
 			{}

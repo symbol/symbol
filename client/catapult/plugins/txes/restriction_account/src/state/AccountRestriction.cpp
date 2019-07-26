@@ -54,12 +54,12 @@ namespace catapult { namespace state {
 	void AccountRestriction::allow(const model::RawAccountRestrictionModification& modification) {
 		update(modification);
 		m_restrictionDescriptor = m_values.empty()
-				? AccountRestrictionDescriptor(m_restrictionDescriptor.restrictionType() | model::AccountRestrictionType::Block)
-				: AccountRestrictionDescriptor(m_restrictionDescriptor.restrictionType());
+				? AccountRestrictionDescriptor(m_restrictionDescriptor.directionalRestrictionType() | model::AccountRestrictionType::Block)
+				: AccountRestrictionDescriptor(m_restrictionDescriptor.directionalRestrictionType());
 	}
 
 	void AccountRestriction::block(const model::RawAccountRestrictionModification& modification) {
-		auto blockRestrictionType = m_restrictionDescriptor.restrictionType() | model::AccountRestrictionType::Block;
+		auto blockRestrictionType = m_restrictionDescriptor.directionalRestrictionType() | model::AccountRestrictionType::Block;
 		m_restrictionDescriptor = AccountRestrictionDescriptor(blockRestrictionType);
 		update(modification);
 	}

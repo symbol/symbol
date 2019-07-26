@@ -35,14 +35,12 @@ namespace catapult { namespace addressextraction {
 	}
 
 	TEST(TEST_CLASS, NotifyAddPartialsExtractsTransactionAddresses) {
-		// Act + Assert:
 		TestContext().assertTransactionInfosExtractions([](auto& subscriber, const auto& transactionInfos) {
 			subscriber.notifyAddPartials(transactionInfos);
 		});
 	}
 
 	TEST(TEST_CLASS, NotifyAddCosignatureExtractsTransactionAddresses) {
-		// Act + Assert:
 		TestContext().assertTransactionInfoExtractions([](auto& subscriber, const auto& transactionInfo) {
 			subscriber.notifyAddCosignature(
 					transactionInfo,
@@ -52,14 +50,12 @@ namespace catapult { namespace addressextraction {
 	}
 
 	TEST(TEST_CLASS, NotifyRemovePartialsExtractsTransactionAddresses) {
-		// Act + Assert:
 		TestContext().assertTransactionInfosExtractions([](auto& subscriber, const auto& transactionInfos) {
 			subscriber.notifyRemovePartials(transactionInfos);
 		});
 	}
 
 	TEST(TEST_CLASS, FlushDoesNotExtractTransactionAddresses) {
-		// Act + Assert:
 		TestContext().assertNoExtractions([](auto& subscriber) {
 			subscriber.flush();
 		});

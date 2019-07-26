@@ -80,7 +80,7 @@ namespace catapult { namespace validators {
 	DEFINE_NAMESPACE_RESULT(Alias_Invalid_Action, 108);
 
 	/// Validation failed because namespace does not exist.
-	DEFINE_NAMESPACE_RESULT(Alias_Namespace_Unknown, 109);
+	DEFINE_NAMESPACE_RESULT(Unknown, 109);
 
 	/// Validation failed because namespace is already linked to an alias.
 	DEFINE_NAMESPACE_RESULT(Alias_Already_Exists, 110);
@@ -88,17 +88,14 @@ namespace catapult { namespace validators {
 	/// Validation failed because namespace is not linked to an alias.
 	DEFINE_NAMESPACE_RESULT(Alias_Does_Not_Exist, 111);
 
-	/// Validation failed because namespace has different owner.
-	DEFINE_NAMESPACE_RESULT(Alias_Owner_Conflict, 112);
-
 	/// Validation failed because unlink type is not consistent with existing alias.
-	DEFINE_NAMESPACE_RESULT(Alias_Unlink_Type_Inconsistency, 113);
+	DEFINE_NAMESPACE_RESULT(Alias_Unlink_Type_Inconsistency, 112);
 
 	/// Validation failed because unlink data is not consistent with existing alias.
-	DEFINE_NAMESPACE_RESULT(Alias_Unlink_Data_Inconsistency, 114);
+	DEFINE_NAMESPACE_RESULT(Alias_Unlink_Data_Inconsistency, 113);
 
 	/// Validation failed because aliased address is invalid.
-	DEFINE_NAMESPACE_RESULT(Alias_Invalid_Address, 115);
+	DEFINE_NAMESPACE_RESULT(Alias_Invalid_Address, 114);
 
 	// endregion
 

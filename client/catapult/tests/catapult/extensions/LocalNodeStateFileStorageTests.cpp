@@ -265,12 +265,10 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, CanSaveAndLoadCompleteState_DirectoryDoesNotExist) {
-		// Act + Assert:
 		RunSaveAndLoadCompleteStateTest(PrepareNonexistentDirectory);
 	}
 
 	TEST(TEST_CLASS, CanSaveAndLoadCompleteState_DirectoryExists) {
-		// Act + Assert:
 		RunSaveAndLoadCompleteStateTest(PrepareEmptyDirectory);
 	}
 
@@ -333,12 +331,10 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, CanSaveAndLoadSummaryState_DirectoryDoesNotExist) {
-		// Act + Assert:
 		RunSaveAndLoadSummaryStateTest(PrepareNonexistentDirectory);
 	}
 
 	TEST(TEST_CLASS, CanSaveAndLoadSummaryState_DirectoryExists) {
-		// Act + Assert:
 		RunSaveAndLoadSummaryStateTest(PrepareEmptyDirectory);
 	}
 
@@ -372,17 +368,14 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, CanMoveTo_DirectoryDoesNotExist) {
-		// Act + Assert:
 		RunMoveToTest(PrepareNonexistentDirectory);
 	}
 
 	TEST(TEST_CLASS, CanMoveTo_EmptyDirectoryExists) {
-		// Act + Assert:
 		RunMoveToTest(PrepareEmptyDirectory);
 	}
 
 	TEST(TEST_CLASS, CanMoveTo_DirectoryWithFilesExists) {
-		// Act + Assert:
 		RunMoveToTest(PrepareDirectoryWithSentinel);
 	}
 

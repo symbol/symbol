@@ -40,8 +40,8 @@ namespace catapult { namespace model {
 			auto expectedSize =
 					baseSize // base
 					+ sizeof(uint8_t) // lock hash algorithm
-					+ Hash256_Size // secret
-					+ Address_Decoded_Size // recipient
+					+ Hash256::Size // secret
+					+ Address::Size // recipient
 					+ sizeof(uint16_t); // proof size
 
 			// Assert:

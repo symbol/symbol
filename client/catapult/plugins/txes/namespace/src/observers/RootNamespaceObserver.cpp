@@ -27,11 +27,41 @@ namespace catapult { namespace observers {
 
 	namespace {
 		bool IsRenewal(const state::RootNamespace& root, const model::RootNamespaceNotification& notification, Height height) {
-			return root.lifetime().isActiveOrGracePeriod(height) && root.owner() == notification.Signer;
+			return root.lifetime().isActive(height) && root.owner() == notification.Signer;
+		}
+
+		state::NamespaceLifetime CalculateNewLifetime(
+				const model::RootNamespaceNotification& notification,
+				Height height,
+				BlockDuration gracePeriodDuration) {
+			auto lifetimeEnd = Eternal_Artifact_Duration == notification.Duration
+					? Height(std::numeric_limits<Height::ValueType>::max())
+					: height + Height(notification.Duration.unwrap());
+			return state::NamespaceLifetime(height, lifetimeEnd, gracePeriodDuration);
+		}
+
+		state::NamespaceLifetime CalculateLifetime(
+				const cache::NamespaceCacheDelta& cache,
+				const model::RootNamespaceNotification& notification,
+				Height height) {
+			auto newLifetime = CalculateNewLifetime(notification, height, cache.gracePeriodDuration());
+			auto namespaceIter = cache.find(notification.NamespaceId);
+			if (!namespaceIter.tryGet())
+				return newLifetime;
+
+			const auto& rootEntry = namespaceIter.get();
+			if (!IsRenewal(rootEntry.root(), notification, height))
+				return newLifetime;
+
+			// if a renewal, duration should add onto current expiry
+			auto currentLifetime = rootEntry.root().lifetime();
+			return state::NamespaceLifetime(currentLifetime.Start, currentLifetime.End + Height(notification.Duration.unwrap()));
 		}
 	}
 
-	DEFINE_OBSERVER(RootNamespace, model::RootNamespaceNotification, [](const auto& notification, const ObserverContext& context) {
+	DEFINE_OBSERVER(RootNamespace, model::RootNamespaceNotification, [](
+			const model::RootNamespaceNotification& notification,
+			const ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::NamespaceCache>();
 
 		if (NotifyMode::Rollback == context.Mode) {
@@ -39,20 +69,7 @@ namespace catapult { namespace observers {
 			return;
 		}
 
-		auto lifetimeEnd = Eternal_Artifact_Duration == notification.Duration
-				? Height(std::numeric_limits<Height::ValueType>::max())
-				: context.Height + Height(notification.Duration.unwrap());
-		auto lifetime = state::NamespaceLifetime(context.Height, lifetimeEnd);
-		if (cache.contains(notification.NamespaceId)) {
-			// if a renewal, duration should add onto current expiry
-			auto namespaceIter = cache.find(notification.NamespaceId);
-			const auto& rootEntry = namespaceIter.get();
-			if (IsRenewal(rootEntry.root(), notification, context.Height)) {
-				lifetime = rootEntry.root().lifetime();
-				lifetime.End = lifetime.End + Height(notification.Duration.unwrap());
-			}
-		}
-
+		auto lifetime = CalculateLifetime(cache, notification, context.Height);
 		auto root = state::RootNamespace(notification.NamespaceId, notification.Signer, lifetime);
 		cache.insert(root);
 	});

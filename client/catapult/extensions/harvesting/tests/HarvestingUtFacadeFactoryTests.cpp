@@ -512,9 +512,13 @@ namespace catapult { namespace harvesting {
 	namespace {
 		struct FacadeTestContext {
 		public:
-			FacadeTestContext(const model::BlockChainConfiguration& config, const chain::ExecutionConfiguration& executionConfig)
+			FacadeTestContext(
+					const model::BlockChainConfiguration& config,
+					const chain::ExecutionConfiguration& executionConfig,
+					Height height)
 					: m_config(config)
 					, m_executionConfig(executionConfig)
+					, m_height(height)
 					, m_cache(test::CreateEmptyCatapultCache(m_config, CreateCacheConfiguration(m_dbDirGuard.name()))) {
 				test::AddMarkerAccount(m_cache);
 				setCacheHeight(Default_Height);
@@ -531,6 +535,18 @@ namespace catapult { namespace harvesting {
 
 				auto& accountStateCacheDelta = cacheDelta.sub<cache::AccountStateCache>();
 				accountStateCacheDelta.addAccount(signer, Height(1));
+
+				// set importance in order to mark account as high value (so that activity buckets influence state hash)
+				auto importanceHeight = model::ConvertToImportanceHeight(m_height, m_config.ImportanceGrouping);
+				auto accountStateIter = accountStateCacheDelta.find(signer);
+				accountStateIter.get().ImportanceSnapshots.set(Importance(1), importanceHeight);
+
+				// set buckets on half of accounts
+				if (0 == signer[signer.size() - 1] % 2) {
+					accountStateIter.get().ActivityBuckets.update(importanceHeight, [](auto& bucket) {
+						bucket.TotalFeesPaid = Amount(1000);
+					});
+				}
 
 				// recalculate the state hash and commit changes
 				cacheDelta.calculateStateHash(Default_Height);
@@ -576,6 +592,7 @@ namespace catapult { namespace harvesting {
 			test::TempDirectoryGuard m_dbDirGuard;
 			model::BlockChainConfiguration m_config;
 			chain::ExecutionConfiguration m_executionConfig;
+			Height m_height;
 			cache::CatapultCache m_cache;
 		};
 	}
@@ -621,7 +638,15 @@ namespace catapult { namespace harvesting {
 			for (auto& transactionInfo : transactionInfos) {
 				auto& accountStateCacheDelta = pCacheDelta->sub<cache::AccountStateCache>();
 				auto accountStateIter = accountStateCacheDelta.find(transactionInfo.pEntity->Signer);
-				accountStateIter.get().Balances.credit(Currency_Mosaic_Id, Amount(i * transactionInfo.pEntity->Size));
+				auto& accountState = accountStateIter.get();
+
+				// apply fee surplus to balance and fees paid
+				auto surplus = Amount(i * transactionInfo.pEntity->Size);
+				accountState.Balances.credit(Currency_Mosaic_Id, surplus);
+				accountState.ActivityBuckets.tryUpdate(accountState.ImportanceSnapshots.height(), [surplus](auto& bucket) {
+					bucket.TotalFeesPaid = bucket.TotalFeesPaid - surplus;
+				});
+
 				++i;
 			}
 
@@ -633,7 +658,7 @@ namespace catapult { namespace harvesting {
 			// Arrange: prepare context
 			test::MockExecutionConfiguration executionConfig;
 			executionConfig.pObserver->enableReceiptGeneration();
-			FacadeTestContext context(CreateBlockChainConfiguration(verifyOptions), executionConfig.Config);
+			FacadeTestContext context(CreateBlockChainConfiguration(verifyOptions), executionConfig.Config, Default_Height + Height(1));
 
 			auto pBlockHeader = CreateBlockHeaderWithHeight(Default_Height + Height(1));
 			pBlockHeader->FeeMultiplier = BlockFeeMultiplier(1);
@@ -663,7 +688,7 @@ namespace catapult { namespace harvesting {
 		});
 	}
 
-	TEST(TEST_CLASS, NonZeroReceiptsHashIsReturnedWhenVerifiableReceiptsIsEnabled) {
+	TEST(TEST_CLASS, NonzeroReceiptsHashIsReturnedWhenVerifiableReceiptsIsEnabled) {
 		// Act:
 		RunEnabledTest(StateVerifyOptions::Receipts, 3, [](const auto& expectedReceiptsHash, const auto&, const auto& block) {
 			// Sanity:
@@ -675,7 +700,7 @@ namespace catapult { namespace harvesting {
 		});
 	}
 
-	TEST(TEST_CLASS, NonZeroStateHashIsReturnedWhenVerifiableStateIsEnabled) {
+	TEST(TEST_CLASS, NonzeroStateHashIsReturnedWhenVerifiableStateIsEnabled) {
 		// Act:
 		RunEnabledTest(StateVerifyOptions::State, 3, [](const auto&, const auto& expectedStateHash, const auto& block) {
 			// Sanity:
@@ -687,7 +712,7 @@ namespace catapult { namespace harvesting {
 		});
 	}
 
-	TEST(TEST_CLASS, NonZeroHashesAreReturnedWhenVerifiableReceiptsAndStateAreEnabled) {
+	TEST(TEST_CLASS, NonzeroHashesAreReturnedWhenVerifiableReceiptsAndStateAreEnabled) {
 		// Act:
 		RunEnabledTest(StateVerifyOptions::All, 3, [](const auto& expectedReceiptsHash, const auto& expectedStateHash, const auto& block) {
 			// Sanity:
@@ -704,12 +729,15 @@ namespace catapult { namespace harvesting {
 
 	// region commit - verifiable state correct after undo
 
-	TEST(TEST_CLASS, NonZeroHashesAreReturnedWhenVerifiableReceiptsAndStateAreEnabledAfterUnapplyOperation) {
+	TEST(TEST_CLASS, NonzeroHashesAreReturnedWhenVerifiableReceiptsAndStateAreEnabledAfterUnapplyOperation) {
 		// Arrange: prepare context
 		test::MockExecutionConfiguration executionConfig;
 		executionConfig.pObserver->enableReceiptGeneration();
 		executionConfig.pObserver->enableRollbackEmulation();
-		FacadeTestContext context(CreateBlockChainConfiguration(StateVerifyOptions::All), executionConfig.Config);
+		FacadeTestContext context(
+				CreateBlockChainConfiguration(StateVerifyOptions::All),
+				executionConfig.Config,
+				Default_Height + Height(1));
 
 		auto pBlockHeader = CreateBlockHeaderWithHeight(Default_Height + Height(1));
 		pBlockHeader->FeeMultiplier = BlockFeeMultiplier(1);

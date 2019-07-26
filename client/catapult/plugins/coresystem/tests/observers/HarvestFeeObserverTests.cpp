@@ -502,7 +502,6 @@ namespace catapult { namespace observers {
 	}
 
 	TEST(TEST_CLASS, FailureWhenLinkedAccountHasWrongType) {
-		// Assert:
 		AssertImproperLink([](auto& accountState) {
 			// Arrange: change the main account to have the wrong type
 			accountState.AccountType = state::AccountType::Remote;
@@ -510,7 +509,6 @@ namespace catapult { namespace observers {
 	}
 
 	TEST(TEST_CLASS, FailureWhenLinkedAccountDoesNotReferenceRemoteAccount) {
-		// Assert:
 		AssertImproperLink([](auto& accountState) {
 			// Arrange: change the main account to point to a different account
 			test::FillWithRandomData(accountState.LinkedAccountKey);

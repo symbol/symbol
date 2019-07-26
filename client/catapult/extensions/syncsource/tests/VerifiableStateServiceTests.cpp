@@ -40,7 +40,6 @@ namespace catapult { namespace syncsource {
 	ADD_SERVICE_REGISTRAR_INFO_TEST(VerifiableState, Initial)
 
 	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
-		// Assert:
 		test::AssertNoServicesOrCountersAreRegistered<TestContext>();
 	}
 

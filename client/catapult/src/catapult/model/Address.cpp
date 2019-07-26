@@ -26,25 +26,26 @@
 
 namespace catapult { namespace model {
 
-	const uint8_t Checksum_Size = 4;
-
-	Address StringToAddress(const std::string& str) {
-		if (Address_Encoded_Size != str.size())
-			CATAPULT_THROW_RUNTIME_ERROR_1("encoded address has wrong size", str.size());
-
-		return utils::Base32Decode<Address_Decoded_Size>(str);
-	}
-
-	std::string AddressToString(const Address& address) {
-		return utils::Base32Encode(address);
-	}
-
 	namespace {
+		constexpr uint8_t Checksum_Size = 4;
+		constexpr size_t Address_Encoded_Size = 40;
+
 #ifdef SIGNATURE_SCHEME_NIS1
 		constexpr auto CatapultHash = crypto::Keccak_256;
 #else
 		constexpr auto CatapultHash = crypto::Sha3_256;
 #endif
+	}
+
+	Address StringToAddress(const std::string& str) {
+		if (Address_Encoded_Size != str.size())
+			CATAPULT_THROW_RUNTIME_ERROR_1("encoded address has wrong size", str.size());
+
+		return utils::Base32Decode<Address::Size>(str);
+	}
+
+	std::string AddressToString(const Address& address) {
+		return utils::Base32Encode(address);
 	}
 
 	Address PublicKeyToAddress(const Key& publicKey, NetworkIdentifier networkIdentifier) {
@@ -61,8 +62,8 @@ namespace catapult { namespace model {
 
 		// step 4: concatenate (3) and the checksum of (3)
 		Hash256 step3Hash;
-		CatapultHash(RawBuffer{ decoded.data(), Hash160_Size + 1 }, step3Hash);
-		std::copy(step3Hash.cbegin(), step3Hash.cbegin() + Checksum_Size, decoded.begin() + Hash160_Size + 1);
+		CatapultHash(RawBuffer{ decoded.data(), Hash160::Size + 1 }, step3Hash);
+		std::copy(step3Hash.cbegin(), step3Hash.cbegin() + Checksum_Size, decoded.begin() + Hash160::Size + 1);
 
 		return decoded;
 	}
@@ -72,7 +73,7 @@ namespace catapult { namespace model {
 			return false;
 
 		Hash256 hash;
-		auto checksumBegin = Address_Decoded_Size - Checksum_Size;
+		auto checksumBegin = Address::Size - Checksum_Size;
 		CatapultHash(RawBuffer{ address.data(), checksumBegin }, hash);
 
 		return std::equal(hash.begin(), hash.begin() + Checksum_Size, address.begin() + checksumBegin);

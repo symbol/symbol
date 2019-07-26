@@ -104,37 +104,37 @@ namespace catapult { namespace test {
 	/// Converts binary field \a name from a document (\a doc) to a hash.
 	template<typename TDocument>
 	Hash256 GetHashValue(const TDocument& doc, const std::string& name) {
-		return GetBinaryArray<Hash256_Size>(doc, name);
+		return GetBinaryArray<Hash256::Size>(doc, name);
 	}
 
 	/// Converts binary field \a name from a document (\a doc) to a generation hash.
 	template<typename TDocument>
 	GenerationHash GetGenerationHashValue(const TDocument& doc, const std::string& name) {
-		return GetBinaryArray<Hash256_Size>(doc, name);
+		return GetBinaryArray<Hash256::Size>(doc, name);
 	}
 
 	/// Converts binary field \a name from a document (\a doc) to a 512 bit hash.
 	template<typename TDocument>
 	Hash512 GetHash512Value(const TDocument& doc, const std::string& name) {
-		return GetBinaryArray<Hash512_Size>(doc, name);
+		return GetBinaryArray<Hash512::Size>(doc, name);
 	}
 
 	/// Converts binary field \a name from a document (\a doc) to a public key.
 	template<typename TDocument>
 	Key GetKeyValue(const TDocument& doc, const std::string& name) {
-		return GetBinaryArray<Key_Size>(doc, name);
+		return GetBinaryArray<Key::Size>(doc, name);
 	}
 
 	/// Converts binary field \a name from a document (\a doc) to a signature.
 	template<typename TDocument>
 	Signature GetSignatureValue(const TDocument& doc, const std::string& name) {
-		return GetBinaryArray<Signature_Size>(doc, name);
+		return GetBinaryArray<Signature::Size>(doc, name);
 	}
 
 	/// Converts binary field \a name from a document (\a doc) to a (decoded) address.
 	template<typename TDocument>
 	Address GetAddressValue(const TDocument& doc, const std::string& name) {
-		return GetBinaryArray<Address_Decoded_Size>(doc, name);
+		return GetBinaryArray<Address::Size>(doc, name);
 	}
 
 	/// Converts binary field \a name from a document (\a doc) to a (decoded) address.

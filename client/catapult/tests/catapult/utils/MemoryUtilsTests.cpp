@@ -54,7 +54,6 @@ namespace catapult { namespace utils {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	POINTER_TEST(CannotCreatePointerWithInsufficientSize) {
-		// Act + Assert:
 		EXPECT_THROW(TTraits::template MakeWithSize<Foo>(sizeof(Foo) - 1), catapult_invalid_argument);
 	}
 

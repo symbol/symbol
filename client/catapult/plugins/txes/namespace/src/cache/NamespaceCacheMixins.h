@@ -135,25 +135,12 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a mixin around (history by id) \a set and \a flatMap.
-		explicit NamespaceLookupMixin(const TPrimarySet& set, const TFlatMap& flatMap)
+		NamespaceLookupMixin(const TPrimarySet& set, const TFlatMap& flatMap)
 				: m_set(set)
 				, m_flatMap(flatMap)
 		{}
 
 	public:
-		/// Returns \c true if the value specified by identifier \a id is active at \a height.
-		bool isActive(NamespaceId id, Height height) const {
-			auto namespaceIter = m_flatMap.find(id);
-			if (!namespaceIter.get())
-				return false;
-
-			auto historyIter = m_set.find(namespaceIter.get()->rootId());
-			if (!historyIter.get())
-				CATAPULT_THROW_RUNTIME_ERROR_1("no history for root namespace found", namespaceIter.get()->rootId());
-
-			return historyIter.get()->isActiveAndUnlocked(height);
-		}
-
 		/// Finds the cache value identified by \a id.
 		const_iterator find(NamespaceId id) const {
 			auto namespaceIter = m_flatMap.find(id);

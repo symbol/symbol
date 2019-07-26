@@ -31,7 +31,7 @@ namespace catapult { namespace mocks {
 		template<typename TTransaction, typename TDerivedTransaction, typename TPlugin>
 		class MockMongoTransactionPluginT : public TPlugin {
 		public:
-			explicit MockMongoTransactionPluginT(model::EntityType type, PluginOptionFlags options)
+			MockMongoTransactionPluginT(model::EntityType type, PluginOptionFlags options)
 					: m_type(type)
 					, m_options(options)
 			{}
@@ -57,7 +57,7 @@ namespace catapult { namespace mocks {
 		class MockMongoTransactionPlugin
 				: public MockMongoTransactionPluginT<model::Transaction, MockTransaction, MongoTransactionPlugin> {
 		public:
-			explicit MockMongoTransactionPlugin(model::EntityType type, PluginOptionFlags options, size_t numDependentDocuments)
+			MockMongoTransactionPlugin(model::EntityType type, PluginOptionFlags options, size_t numDependentDocuments)
 					: MockMongoTransactionPluginT<model::Transaction, MockTransaction, MongoTransactionPlugin>(type, options)
 					, m_numDependentDocuments(numDependentDocuments) {
 				if (IsPluginOptionFlagSet(options, PluginOptionFlags::Not_Embeddable))

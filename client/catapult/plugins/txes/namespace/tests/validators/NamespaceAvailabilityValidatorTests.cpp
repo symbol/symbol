@@ -33,7 +33,7 @@ namespace catapult { namespace validators {
 #define CHILD_TEST_CLASS ChildNamespaceAvailabilityValidatorTests
 
 	DEFINE_COMMON_VALIDATOR_TESTS(RootNamespaceAvailability,)
-	DEFINE_COMMON_VALIDATOR_TESTS(ChildNamespaceAvailability,)
+	DEFINE_COMMON_VALIDATOR_TESTS(ChildNamespaceAvailability, 0)
 
 	namespace {
 		constexpr BlockDuration Default_Duration(10);
@@ -77,7 +77,7 @@ namespace catapult { namespace validators {
 				TSeedCacheFunc seedCache) {
 			// Arrange:
 			auto cache = CreateAndSeedCache(seedCache);
-			auto pValidator = CreateChildNamespaceAvailabilityValidator();
+			auto pValidator = CreateChildNamespaceAvailabilityValidator(3);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache, height);
@@ -94,7 +94,8 @@ namespace catapult { namespace validators {
 	namespace {
 		void SeedCacheWithRoot25(cache::NamespaceCacheDelta& namespaceCacheDelta) {
 			// Arrange: create a cache with { 25 }
-			namespaceCacheDelta.insert(CreateRootNamespace(NamespaceId(25), test::CreateLifetime(10, 20)));
+			auto lifetime = test::CreateLifetime(10, 20 + Grace_Period_Duration.unwrap());
+			namespaceCacheDelta.insert(CreateRootNamespace(NamespaceId(25), lifetime));
 
 			// Sanity:
 			test::AssertCacheContents(namespaceCacheDelta, { 25 });
@@ -103,7 +104,8 @@ namespace catapult { namespace validators {
 		auto SeedCacheWithRoot25Signer(const Key& signer) {
 			return [&signer](auto& namespaceCacheDelta) {
 				// Arrange: create a cache with { 25 }
-				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, test::CreateLifetime(10, 20)));
+				auto lifetime = test::CreateLifetime(10, 20 + Grace_Period_Duration.unwrap());
+				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, lifetime));
 
 				// Sanity:
 				test::AssertCacheContents(namespaceCacheDelta, { 25 });
@@ -201,17 +203,13 @@ namespace catapult { namespace validators {
 			// Act: try to extend a root that is already in the cache
 			auto signer = test::GenerateRandomByteArray<Key>();
 			auto notification = model::RootNamespaceNotification(signer, NamespaceId(25), duration);
-			RunRootTest(
-					Failure_Namespace_Invalid_Duration,
-					notification,
-					height,
-					[&signer, &lifetime](auto& namespaceCacheDelta) {
-						// Arrange: create a cache with { 25 }
-						namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, lifetime));
+			RunRootTest(Failure_Namespace_Invalid_Duration, notification, height, [&signer, &lifetime](auto& namespaceCacheDelta) {
+				// Arrange: create a cache with { 25 }
+				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, lifetime));
 
-						// Sanity:
-						test::AssertCacheContents(namespaceCacheDelta, { 25 });
-					});
+				// Sanity:
+				test::AssertCacheContents(namespaceCacheDelta, { 25 });
+			});
 		}
 	}
 
@@ -232,7 +230,8 @@ namespace catapult { namespace validators {
 		auto SeedCacheWithRoot25TreeSigner(const Key& signer) {
 			return [&signer](auto& namespaceCacheDelta) {
 				// Arrange: create a cache with { 25 }, { 25, 36 } and { 25, 36, 49 }
-				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, test::CreateLifetime(10, 20)));
+				auto lifetime = test::CreateLifetime(10, 20 + Grace_Period_Duration.unwrap());
+				namespaceCacheDelta.insert(state::RootNamespace(NamespaceId(25), signer, lifetime));
 				namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36 })));
 				namespaceCacheDelta.insert(state::Namespace(test::CreatePath({ 25, 36, 49 })));
 

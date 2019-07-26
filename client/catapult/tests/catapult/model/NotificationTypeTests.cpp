@@ -38,8 +38,7 @@ namespace catapult { namespace model {
 	// region MakeNotificationType / DEFINE_NOTIFICATION_TYPE
 
 	TEST(TEST_CLASS, CanMakeNotificationType) {
-		// Assert:
-		// - zeros
+		// Assert: zeros
 		EXPECT_EQ(NotificationType(0x00000000), MakeNotificationType(0, 0, 0));
 
 		// - max single component value
@@ -68,8 +67,7 @@ namespace catapult { namespace model {
 	// region IsSet
 
 	TEST(TEST_CLASS, CanCheckWhetherOrNotChannelFlagIsSet) {
-		// Act + Assert:
-		// - none
+		// Assert: none
 		auto type = MakeNotificationType(NotificationChannel::None, 0, 0);
 		EXPECT_FALSE(IsSet(type, static_cast<NotificationChannel>(0x01)));
 		EXPECT_FALSE(IsSet(type, static_cast<NotificationChannel>(0x20)));
@@ -98,8 +96,7 @@ namespace catapult { namespace model {
 	// region GetNotificationChannel
 
 	TEST(TEST_CLASS, CanGetNotificationChannelFromNotificationType) {
-		// Act + Assert:
-		// - none
+		// Assert: none
 		auto type = MakeNotificationType(NotificationChannel::None, 0, 0);
 		EXPECT_EQ(NotificationChannel::None, GetNotificationChannel(type));
 

@@ -71,7 +71,7 @@ namespace catapult { namespace cache {
 	struct MultisigCacheTypes {
 		using PrimaryTypes = MutableUnorderedMapAdapter<MultisigCacheDescriptor, utils::ArrayHasher<Key>>;
 
-		using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMultisigCacheView, BasicMultisigCacheDelta, const Key&, state::MultisigEntry>;
+		using CacheReadOnlyType = ReadOnlyArtifactCache<BasicMultisigCacheView, BasicMultisigCacheDelta, Key, state::MultisigEntry>;
 
 		using BaseSetDeltaPointers = MultisigBaseSetDeltaPointers;
 		using BaseSets = MultisigBaseSets;

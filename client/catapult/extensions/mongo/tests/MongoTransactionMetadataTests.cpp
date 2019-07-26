@@ -54,6 +54,21 @@ namespace catapult { namespace mongo {
 		EXPECT_EQ(0u, metadata.Index);
 	}
 
+	TEST(TEST_CLASS, CanCreateMetadataAroundTransactionInfo) {
+		// Arrange:
+		auto transactionInfo = test::CreateRandomTransactionInfo();
+
+		// Act:
+		auto metadata = MongoTransactionMetadata(transactionInfo);
+
+		// Assert:
+		EXPECT_EQ(transactionInfo.EntityHash, metadata.EntityHash);
+		EXPECT_EQ(transactionInfo.MerkleComponentHash, metadata.MerkleComponentHash);
+		EXPECT_EQ(transactionInfo.OptionalExtractedAddresses.get(), &metadata.Addresses);
+		EXPECT_EQ(Height(), metadata.Height);
+		EXPECT_EQ(0u, metadata.Index);
+	}
+
 	TEST(TEST_CLASS, CanCreateMetadataAroundTransactionElementAndContainingBlockInformation) {
 		// Arrange:
 		auto pTransaction = test::GenerateRandomTransaction();
@@ -68,21 +83,6 @@ namespace catapult { namespace mongo {
 		EXPECT_EQ(element.OptionalExtractedAddresses.get(), &metadata.Addresses);
 		EXPECT_EQ(Height(17), metadata.Height);
 		EXPECT_EQ(12u, metadata.Index);
-	}
-
-	TEST(TEST_CLASS, CanCreateMetadataAroundTransactionInfo) {
-		// Arrange:
-		auto transactionInfo = test::CreateRandomTransactionInfo();
-
-		// Act:
-		auto metadata = MongoTransactionMetadata(transactionInfo);
-
-		// Assert:
-		EXPECT_EQ(transactionInfo.EntityHash, metadata.EntityHash);
-		EXPECT_EQ(transactionInfo.MerkleComponentHash, metadata.MerkleComponentHash);
-		EXPECT_EQ(transactionInfo.OptionalExtractedAddresses.get(), &metadata.Addresses);
-		EXPECT_EQ(Height(), metadata.Height);
-		EXPECT_EQ(0u, metadata.Index);
 	}
 
 	TEST(TEST_CLASS, ObjectIdIsUniqueAcrossInstances) {

@@ -69,7 +69,7 @@ namespace catapult { namespace sync {
 
 		class TestContext {
 		public:
-			explicit TestContext(cache::CatapultCache&& catapultCache, Height height)
+			TestContext(cache::CatapultCache&& catapultCache, Height height)
 					: m_catapultCache(std::move(catapultCache))
 					, m_catapultCacheView(m_catapultCache.createView())
 					, m_readOnlyCatapultCache(m_catapultCacheView.toReadOnly())
@@ -351,7 +351,6 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, ThrottlingBehavesAsExpected_HighFillLevel) {
-		// Act + Assert:
 		AssertThrottling(CreateSettings(1000, Importance(), Amount()), true); // no importance and fee
 		AssertThrottling(CreateSettings(1000, Importance(), Amount(100'000)), true); // no importance, medium fee
 		AssertThrottling(CreateSettings(1000, Importance(), Amount(1000'000)), false); // no importance, high fee
@@ -364,7 +363,6 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, ThrottlingBehavesAsExpected_MediumFillLevel) {
-		// Act + Assert:
 		AssertThrottling(CreateSettings(250, Importance(), Amount()), true); // no importance and fee
 		AssertThrottling(CreateSettings(250, Importance(), Amount(100'000)), false); // no importance, medium fee
 		AssertThrottling(CreateSettings(250, Importance(), Amount(1000'000)), false); // no importance, high fee
@@ -377,7 +375,6 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, ThrottlingBehavesAsExpected_LowFillLevel) {
-		// Act + Assert:
 		AssertThrottling(CreateSettings(100, Importance(), Amount()), false); // no importance and fee
 		AssertThrottling(CreateSettings(100, Importance(), Amount(100'000)), false); // no importance, medium fee
 		AssertThrottling(CreateSettings(100, Importance(), Amount(1000'000)), false); // no importance, high fee

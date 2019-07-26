@@ -43,7 +43,6 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, TransactionHasExpectedProperties) {
-		// Assert:
 		EXPECT_EQ(Entity_Type_Aggregate_Complete, AggregateTransaction::Entity_Type);
 		EXPECT_EQ(1u, AggregateTransaction::Current_Version);
 	}
@@ -86,7 +85,7 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region transactions
+	// region data pointer traits
 
 	namespace {
 		using ConstTraits = test::ConstTraitsT<AggregateTransaction>;
@@ -99,30 +98,73 @@ namespace catapult { namespace model {
 	TEST(TEST_CLASS, TEST_NAME##_NonConst) { TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)<NonConstTraits>(); } \
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
-	DATA_POINTER_TEST(TransactionsAreInaccessibleWhenAggregateHasNoTransactions) {
+	// endregion
+
+	// region transaction + cosignature permutations
+
+	DATA_POINTER_TEST(TransactionsAndCosignaturesAreInaccessibleWhenAggregateContainsNeither) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, {});
 		auto& accessor = TTraits::GetAccessor(*pTransaction);
 
 		// Act + Assert:
-		EXPECT_FALSE(!!accessor.TransactionsPtr());
 		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_FALSE(!!accessor.TransactionsPtr());
+
+		EXPECT_EQ(0u, accessor.CosignaturesCount());
+		EXPECT_FALSE(!!accessor.CosignaturesPtr());
 	}
 
-	DATA_POINTER_TEST(TransactionsAreAccessibleWhenAggregateHasTransactions) {
+	DATA_POINTER_TEST(OnlyTransactionsAreAccessibleWhenAggregateOnlyContainsTransactions) {
 		// Arrange:
 		auto pTransaction = CreateAggregateTransaction(0, { 1, 2, 3 });
-		const auto* pTransactionEnd = test::AsVoidPointer(pTransaction.get() + 1);
+		const auto* pAggregateEnd = test::AsVoidPointer(pTransaction.get() + 1);
 		auto& accessor = TTraits::GetAccessor(*pTransaction);
 
 		// Act + Assert:
-		EXPECT_EQ(pTransactionEnd, accessor.TransactionsPtr());
 		EXPECT_EQ(3u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(pAggregateEnd, accessor.TransactionsPtr());
+
+		EXPECT_EQ(0u, accessor.CosignaturesCount());
+		EXPECT_FALSE(!!accessor.CosignaturesPtr());
+	}
+
+	DATA_POINTER_TEST(OnlyCosignaturesAreAccessibleWhenAggregateOnlyContainsCosignatures) {
+		// Arrange:
+		auto pTransaction = CreateAggregateTransaction(2 * sizeof(Cosignature), {});
+		const auto* pAggregateEnd = reinterpret_cast<const uint8_t*>(pTransaction.get() + 1);
+		const auto* pTransactionsEnd = test::AsVoidPointer(pAggregateEnd + pTransaction->PayloadSize);
+		auto& accessor = TTraits::GetAccessor(*pTransaction);
+
+		// Act + Assert:
+		EXPECT_EQ(0u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_FALSE(!!accessor.TransactionsPtr());
+
+		EXPECT_EQ(2u, accessor.CosignaturesCount());
+		EXPECT_EQ(pTransactionsEnd, accessor.CosignaturesPtr());
+
+		// Sanity:
+		EXPECT_EQ(pAggregateEnd, pTransactionsEnd);
+	}
+
+	DATA_POINTER_TEST(TransactionsAndCosignaturesAreAccessibleWhenAggregateContainsBoth) {
+		// Arrange:
+		auto pTransaction = CreateAggregateTransaction(sizeof(Cosignature), { 1, 2, 3 });
+		const auto* pAggregateEnd = reinterpret_cast<const uint8_t*>(pTransaction.get() + 1);
+		const auto* pTransactionsEnd = test::AsVoidPointer(pAggregateEnd + pTransaction->PayloadSize);
+		auto& accessor = TTraits::GetAccessor(*pTransaction);
+
+		// Act + Assert:
+		EXPECT_EQ(3u, test::CountTransactions(accessor.Transactions()));
+		EXPECT_EQ(test::AsVoidPointer(pAggregateEnd), accessor.TransactionsPtr());
+
+		EXPECT_EQ(1u, accessor.CosignaturesCount());
+		EXPECT_EQ(pTransactionsEnd, accessor.CosignaturesPtr());
 	}
 
 	// endregion
 
-	// region cosignatures
+	// region cosignatures - edge cases
 
 	DATA_POINTER_TEST(CosignaturesAreInacessibleWhenReportedSizeIsLessThanHeaderSize) {
 		// Arrange:
@@ -133,46 +175,6 @@ namespace catapult { namespace model {
 		// Act + Assert:
 		EXPECT_EQ(0u, accessor.CosignaturesCount());
 		EXPECT_FALSE(!!accessor.CosignaturesPtr());
-	}
-
-	DATA_POINTER_TEST(CosignaturesAreInacessibleWhenThereAreNoCosignatures) {
-		// Arrange:
-		auto pTransaction = CreateAggregateTransaction(0, {});
-		auto& accessor = TTraits::GetAccessor(*pTransaction);
-
-		// Act + Assert:
-		EXPECT_EQ(0u, accessor.CosignaturesCount());
-		EXPECT_FALSE(!!accessor.CosignaturesPtr());
-	}
-
-	DATA_POINTER_TEST(CosignaturesAreAccessibleWhenThereAreNoTransactionsButCosignatures) {
-		// Arrange:
-		auto pTransaction = CreateAggregateTransaction(2 * sizeof(Cosignature), {});
-		const auto* pAggregateEnd = reinterpret_cast<const uint8_t*>(pTransaction.get() + 1);
-		const auto* pTransactionsEnd = test::AsVoidPointer(pAggregateEnd + pTransaction->PayloadSize);
-		auto& accessor = TTraits::GetAccessor(*pTransaction);
-
-		// Act + Assert:
-		EXPECT_EQ(2u, accessor.CosignaturesCount());
-		EXPECT_EQ(pTransactionsEnd, accessor.CosignaturesPtr());
-
-		// Sanity:
-		EXPECT_EQ(pAggregateEnd, pTransactionsEnd);
-	}
-
-	DATA_POINTER_TEST(CosignaturesAreAccessibleWhenThereAreTransactionsAndCosignatures) {
-		// Arrange:
-		auto pTransaction = CreateAggregateTransaction(sizeof(Cosignature), { 1, 2, 3 });
-		const auto* pAggregateEnd = reinterpret_cast<const uint8_t*>(pTransaction.get() + 1);
-		const auto* pTransactionsEnd = test::AsVoidPointer(pAggregateEnd + pTransaction->PayloadSize);
-		auto& accessor = TTraits::GetAccessor(*pTransaction);
-
-		// Act + Assert:
-		EXPECT_EQ(1u, accessor.CosignaturesCount());
-		EXPECT_EQ(pTransactionsEnd, accessor.CosignaturesPtr());
-
-		// Sanity:
-		EXPECT_NE(pAggregateEnd, pTransactionsEnd);
 	}
 
 	DATA_POINTER_TEST(CosignaturesAreAccessibleWhenThereAreTransactionsAndPartialCosignatures) {

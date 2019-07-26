@@ -120,7 +120,7 @@ namespace catapult { namespace test {
 		AssertAllZero(hashes.second, numExpected, "second");
 	}
 
-	void AssertAllNonZero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message) {
+	void AssertAllNonzero(const std::vector<Hash256>& hashes, size_t numExpected, const std::string& message) {
 		// Sanity:
 		EXPECT_EQ(numExpected, hashes.size());
 

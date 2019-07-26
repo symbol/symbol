@@ -27,7 +27,6 @@ namespace catapult { namespace ionet {
 #define TEST_CLASS ConnectionSecurityModeTests
 
 	TEST(TEST_CLASS, CanParseValidConnectionSecurityModes) {
-		// Assert:
 		test::AssertParse("None", ConnectionSecurityMode::None, TryParseValue);
 		test::AssertParse("Signed", ConnectionSecurityMode::Signed, TryParseValue);
 		test::AssertParse("None,Signed", ConnectionSecurityMode::None | ConnectionSecurityMode::Signed, TryParseValue);

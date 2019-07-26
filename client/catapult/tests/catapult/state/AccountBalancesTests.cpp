@@ -139,42 +139,34 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, CanCopyConstructAccountBalances) {
-		// Assert:
 		AssertCanCopyConstructAccountBalances(Test_Mosaic_Id2);
 	}
 
 	TEST(TEST_CLASS, CanCopyConstructAccountBalances_NoOptimization) {
-		// Assert:
 		AssertCanCopyConstructAccountBalances(MosaicId());
 	}
 
 	TEST(TEST_CLASS, CanMoveConstructAccountBalances) {
-		// Assert:
 		AssertCanMoveConstructAccountBalances(Test_Mosaic_Id2);
 	}
 
 	TEST(TEST_CLASS, CanMoveConstructAccountBalances_NoOptimization) {
-		// Assert:
 		AssertCanMoveConstructAccountBalances(MosaicId());
 	}
 
 	TEST(TEST_CLASS, CanAssignAccountBalances) {
-		// Assert:
 		AssertCanAssignAccountBalances(Test_Mosaic_Id2);
 	}
 
 	TEST(TEST_CLASS, CanAssignAccountBalances_NoOptimization) {
-		// Assert:
 		AssertCanAssignAccountBalances(MosaicId());
 	}
 
 	TEST(TEST_CLASS, CanMoveAssignAccountBalances) {
-		// Assert:
 		AssertCanMoveAssignAccountBalances(Test_Mosaic_Id2);
 	}
 
 	TEST(TEST_CLASS, CanMoveAssignAccountBalances_NoOptimization) {
-		// Assert:
 		AssertCanMoveAssignAccountBalances(MosaicId());
 	}
 
@@ -281,7 +273,7 @@ namespace catapult { namespace state {
 		EXPECT_EQ(Amount(3456 - 1111), balances.get(Test_Mosaic_Id2));
 	}
 
-	TEST(TEST_CLASS, DebitDoesNotAllowUnderflowOfNonZeroBalance) {
+	TEST(TEST_CLASS, DebitDoesNotAllowUnderflowOfNonzeroBalance) {
 		// Arrange:
 		AccountBalances balances;
 		balances.credit(Test_Mosaic_Id1, Amount(12345));

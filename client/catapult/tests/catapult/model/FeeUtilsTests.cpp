@@ -43,13 +43,11 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanCalculateTransactionFeeWhenFeeMultiplierIsZero) {
-		// Assert:
 		AssertCanCalculateTransactionFee(123, BlockFeeMultiplier(0), Amount(0));
 		AssertCanCalculateTransactionFee(842, BlockFeeMultiplier(0), Amount(0));
 	}
 
 	TEST(TEST_CLASS, CanCalculateTransactionFeeWhenFeeMultiplierIsNonzero) {
-		// Assert:
 		AssertCanCalculateTransactionFee(123, BlockFeeMultiplier(4), Amount(123 * 4));
 		AssertCanCalculateTransactionFee(842, BlockFeeMultiplier(11), Amount(842 * 11));
 	}
@@ -74,14 +72,12 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanCalculateCalculateTransactionMaxFeeMultiplierWhenMaxFeeIsSizeMultiple) {
-		// Assert:
 		AssertCanCalculateTransactionMaxFeeMultiplier(123, Amount(0), BlockFeeMultiplier(0));
 		AssertCanCalculateTransactionMaxFeeMultiplier(222, Amount(222 * 3), BlockFeeMultiplier(3));
 		AssertCanCalculateTransactionMaxFeeMultiplier(558, Amount(558 * 999), BlockFeeMultiplier(999));
 	}
 
 	TEST(TEST_CLASS, CanCalculateCalculateTransactionMaxFeeMultiplierWhenMaxFeeIsNotSizeMultiple) {
-		// Assert:
 		AssertCanCalculateTransactionMaxFeeMultiplier(123, Amount(123 * 3 - 122), BlockFeeMultiplier(2));
 		AssertCanCalculateTransactionMaxFeeMultiplier(222, Amount(222 * 3 - 50), BlockFeeMultiplier(2));
 		AssertCanCalculateTransactionMaxFeeMultiplier(558, Amount(558 * 3 - 1), BlockFeeMultiplier(2));
@@ -91,7 +87,6 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanCalculateCalculateTransactionMaxFeeMultiplierWhenMultiplierOverflowIsDetected) {
-		// Assert:
 		AssertCanCalculateTransactionMaxFeeMultiplier(123, Amount(0xFFFF'FFFF'FFFF'FFFF), BlockFeeMultiplier(0xFFFF'FFFF));
 		AssertCanCalculateTransactionMaxFeeMultiplier(558, Amount(0xFFFF'FFFF'FFFF'FF00), BlockFeeMultiplier(0xFFFF'FFFF));
 	}

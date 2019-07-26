@@ -34,13 +34,16 @@ namespace catapult { namespace state {
 
 	/// A lock info.
 	struct LockInfo {
+	public:
+		static constexpr auto Is_Deactivation_Destructive = true;
+
 	protected:
 		/// Creates a default lock info.
 		LockInfo()
 		{}
 
 		/// Creates a lock info around \a account, \a mosaicId, \a amount and \a height.
-		explicit LockInfo(const Key& account, catapult::MosaicId mosaicId, catapult::Amount amount, catapult::Height height)
+		LockInfo(const Key& account, catapult::MosaicId mosaicId, catapult::Amount amount, catapult::Height height)
 				: Account(account)
 				, MosaicId(mosaicId)
 				, Amount(amount)

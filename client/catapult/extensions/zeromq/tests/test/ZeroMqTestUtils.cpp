@@ -99,8 +99,8 @@ namespace catapult { namespace test {
 		auto marker = zeromq::BlockMarker::Block_Marker;
 		AssertMessagePart(message[0], &marker, sizeof(marker));
 		AssertMessagePart(message[1], &blockElement.Block, sizeof(model::BlockHeader));
-		AssertMessagePart(message[2], &blockElement.EntityHash, Hash256_Size);
-		AssertMessagePart(message[3], &blockElement.GenerationHash, Hash256_Size);
+		AssertMessagePart(message[2], &blockElement.EntityHash, Hash256::Size);
+		AssertMessagePart(message[3], &blockElement.GenerationHash, Hash256::Size);
 	}
 
 	void AssertDropBlocksMessage(const zmq::multipart_t& message, Height height) {
@@ -121,8 +121,8 @@ namespace catapult { namespace test {
 		const auto& transaction = transactionElement.Transaction;
 		AssertMessagePart(message[0], topic.data(), topic.size());
 		AssertMessagePart(message[1], &transaction, transaction.Size);
-		AssertMessagePart(message[2], &transactionElement.EntityHash, Hash256_Size);
-		AssertMessagePart(message[3], &transactionElement.MerkleComponentHash, Hash256_Size);
+		AssertMessagePart(message[2], &transactionElement.EntityHash, Hash256::Size);
+		AssertMessagePart(message[3], &transactionElement.MerkleComponentHash, Hash256::Size);
 		AssertMessagePart(message[4], &height, sizeof(Height));
 	}
 
@@ -136,8 +136,8 @@ namespace catapult { namespace test {
 		const auto& transaction = *transactionInfo.pEntity;
 		AssertMessagePart(message[0], topic.data(), topic.size());
 		AssertMessagePart(message[1], &transaction, transaction.Size);
-		AssertMessagePart(message[2], &transactionInfo.EntityHash, Hash256_Size);
-		AssertMessagePart(message[3], &transactionInfo.MerkleComponentHash, Hash256_Size);
+		AssertMessagePart(message[2], &transactionInfo.EntityHash, Hash256::Size);
+		AssertMessagePart(message[3], &transactionInfo.MerkleComponentHash, Hash256::Size);
 		AssertMessagePart(message[4], &height, sizeof(Height));
 	}
 
@@ -145,7 +145,7 @@ namespace catapult { namespace test {
 		ASSERT_EQ(2u, message.size());
 
 		AssertMessagePart(message[0], topic.data(), topic.size());
-		AssertMessagePart(message[1], &hash, Hash256_Size);
+		AssertMessagePart(message[1], &hash, Hash256::Size);
 	}
 
 	void AssertTransactionStatusMessage(

@@ -74,7 +74,6 @@ namespace catapult { namespace cache {
 	// region contains
 
 	TEST(TEST_CLASS, ReadOnlyViewOnlyContainsCommittedElements) {
-		// Assert:
 		RunReadOnlyViewTest([](const auto& readOnlyCache) {
 			EXPECT_TRUE(readOnlyCache.contains(1));
 			EXPECT_TRUE(readOnlyCache.contains(2));
@@ -85,7 +84,6 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, ReadOnlyDeltaContainsBothCommittedAndUncommittedElements) {
-		// Assert:
 		RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
 			EXPECT_TRUE(readOnlyCache.contains(1));
 			EXPECT_TRUE(readOnlyCache.contains(2));
@@ -100,7 +98,6 @@ namespace catapult { namespace cache {
 	// region find
 
 	TEST(TEST_CLASS, ReadOnlyViewCanAccessCommittedElementsViaGet) {
-		// Assert:
 		RunReadOnlyViewTest([](const auto& readOnlyCache) {
 			EXPECT_EQ(1u, readOnlyCache.find(1).get());
 			EXPECT_EQ(4u, readOnlyCache.find(2).get());
@@ -108,7 +105,6 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, ReadOnlyViewCannotAccessUncommittedElementsViaGet) {
-		// Act + Assert:
 		RunReadOnlyViewTest([](const auto& readOnlyCache) {
 			EXPECT_THROW(readOnlyCache.find(3).get(), catapult_out_of_range);
 			EXPECT_THROW(readOnlyCache.find(4).get(), catapult_out_of_range);
@@ -116,7 +112,6 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, ReadOnlyDeltaCanAccessBothCommittedAndUncommittedElementsViaGet) {
-		// Assert:
 		RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
 			EXPECT_EQ(1u, readOnlyCache.find(1).get());
 			EXPECT_EQ(4u, readOnlyCache.find(2).get());
@@ -130,9 +125,8 @@ namespace catapult { namespace cache {
 	// region isActive
 
 	TEST(TEST_CLASS, ReadOnlyViewCanDetermineWhetherOrNotArtifactIsActive) {
-		// Assert:
 		RunReadOnlyViewTest([](const auto& readOnlyCache) {
-			// - { 1, 2 } committed
+			// Assert: { 1, 2 } committed
 			// - height 2 (ids % 2 are active)
 			EXPECT_FALSE(readOnlyCache.isActive(1, Height(2)));
 			EXPECT_TRUE(readOnlyCache.isActive(2, Height(2)));
@@ -155,9 +149,8 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, ReadOnlyDeltaCanDetermineWhetherOrNotArtifactIsActive) {
-		// Assert:
 		RunReadOnlyDeltaTest([](const auto& readOnlyCache) {
-			// - { 1, 2 } committed, { 3, 4 } uncommitted
+			// Assert: { 1, 2 } committed, { 3, 4 } uncommitted
 			// - height 2 (ids % 2 are active)
 			EXPECT_FALSE(readOnlyCache.isActive(1, Height(2)));
 			EXPECT_TRUE(readOnlyCache.isActive(2, Height(2)));

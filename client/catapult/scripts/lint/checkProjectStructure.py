@@ -68,7 +68,7 @@ SOURCE_DIRS = dict((k, RULE_ID_TO_CLASS_MAP[v]) for k, v in USER_SOURCE_DIRS.ite
 
 def isSpecialInclude(includePath):
     for filtered in SPECIAL_INCLUDES:
-        if re.match(filtered, includePath):
+        if filtered.match(includePath):
             return True
     return False
 
@@ -94,7 +94,7 @@ def checkExternalInclude(incA, incB):
 
 
 def isCppInclude(inc):
-    cppIncludes = ['<boost', '<mongocxx', '<bsoncxx', '<rocksdb', '<benchmark']
+    cppIncludes = ['<boost', '<mongocxx', '<bsoncxx', '<rocksdb', '<benchmark', '<tiny-aes-c']
     return any(map(inc.startswith, cppIncludes))
 
 
@@ -255,7 +255,7 @@ class Entry:
     def check(self):
         self.expectedNamespace = ''
         for filtered in NAMESPACES_FALSEPOSITIVES:
-            if re.match(filtered, self.fullPath()):
+            if filtered.match(self.fullPath()):
                 return CheckResult.Success
 
         if not self.namespaces:
@@ -375,12 +375,12 @@ class FilteredReporter:
         name = os.path.basename(err.path)
         if 'emptyNearEnd' == groupName:
             for filtered in EMPTYLINES_FALSEPOSITIVES:
-                if re.match(filtered, err.path):
+                if filtered.match(err.path):
                     skip = True
                     break
         elif 'tooLongLines' == groupName:
             for filtered in LONGLINES_FALSEPOSITIVES:
-                if re.match(filtered, name):
+                if filtered.match(name):
                     skip = True
                     break
         if not skip:
@@ -463,10 +463,10 @@ class Analyzer:
         self.context = AutoContainer()
         self.dependencyViolations = []
         self.conReporter = ConReporter()
-        self.simpleValidators = None
         self.presentExclusions = defaultdict(set)
         self.options = options
         self.sourceDirs = []
+        self.simpleValidators = validation.createValidators()
 
     @staticmethod
     def getShortestNamespaceSet(cppHeader):
@@ -522,7 +522,7 @@ class Analyzer:
         self.validateMaps(path)
 
         for skipFile in SKIP_FILES:
-            if re.match(skipFile, path):
+            if skipFile.match(path):
                 return
 
         if self.options.depsFilter:
@@ -538,7 +538,6 @@ class Analyzer:
 
         self.includes[path] = entry
         errorReporter = FilteredReporter(self.context)
-        self.simpleValidators = validation.createValidators(errorReporter)
         headers = HeaderParser.HeaderParser(errorReporter, path, self.simpleValidators, fixIndentsInFiles=self.options.fixIndents)
 
         entry.setIncludes(filterNonProjectIncludes(headers.includes))
@@ -844,8 +843,26 @@ def printSectionSeparator():
     print()
 
 
+def processDirectory(sourceDir, ruleset, analyzer):
+    startTime = time.perf_counter()
+    numFiles = 0
+    print('> parsing directory', sourceDir)
+    for root, _, files in os.walk(sourceDir):
+        for filename in files:
+            if not filename.endswith('.h') and not filename.endswith('.cpp'):
+                continue
+
+            analyzer.add(Entry(root, filename, ruleset))
+            numFiles = numFiles + 1
+
+    endTime = time.perf_counter()
+    elapsedSeconds = endTime - startTime
+    print('< elapsed {0:.3f}s {1} files ({2:.3f}ms / file)'.format(elapsedSeconds, numFiles, (elapsedSeconds * 1000) / numFiles))
+
+
 def main():
     colorama.init()
+    startTime = time.perf_counter()
 
     args = parseArgs()
     analyzerOptions = AnalyzerOptions()
@@ -862,20 +879,7 @@ def main():
         if sourceDir not in analyzer.sourceDirs:
             continue
 
-        startTime = time.perf_counter()
-        numFiles = 0
-        print('> parsing directory', sourceDir)
-        for root, _, files in os.walk(sourceDir):
-            for filename in files:
-                if not filename.endswith('.h') and not filename.endswith('.cpp'):
-                    continue
-
-                analyzer.add(Entry(root, filename, ruleset))
-                numFiles = numFiles + 1
-
-        endTime = time.perf_counter()
-        elapsedSeconds = endTime - startTime
-        print('< elapsed {0:.3f}s {1} files ({2:.3f}ms / file)'.format(elapsedSeconds, numFiles, (elapsedSeconds * 1000) / numFiles))
+        processDirectory(sourceDir, ruleset, analyzer)
 
     printSectionSeparator()
 
@@ -891,6 +895,11 @@ def main():
     if args.sub == 'deps':
         deps = DepsConsole(args)
         deps.check(analyzer.includes)
+
+    endTime = time.perf_counter()
+    elapsedSeconds = endTime - startTime
+    print('*** lint elapsed {0:.3f}s ***'.format(elapsedSeconds))
+    print()
 
 
 if __name__ == '__main__':

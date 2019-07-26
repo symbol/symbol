@@ -32,7 +32,7 @@ namespace catapult { namespace validators {
 
 	public:
 		/// Creates a functional notification validator around \a func with \a name.
-		explicit FunctionalNotificationValidatorT(const std::string& name, const FunctionType& func)
+		FunctionalNotificationValidatorT(const std::string& name, const FunctionType& func)
 				: m_name(name)
 				, m_func(func)
 		{}

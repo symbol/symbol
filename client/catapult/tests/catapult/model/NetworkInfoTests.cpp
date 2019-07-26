@@ -77,7 +77,6 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CannotParseInvalidNetworkValue) {
-		// Assert:
 		test::AssertEnumParseFailure("mijin", NetworkIdentifier::Public, [](const auto& str, auto& parsedValue) {
 			return TryParseValue(str, parsedValue);
 		});

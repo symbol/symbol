@@ -38,7 +38,7 @@ namespace catapult { namespace mongo { namespace plugins {
 				const std::vector<uint8_t>& value) {
 			context
 					<< bson_stream::open_document
-						<< "type" << utils::to_underlying_type(type)
+						<< "restrictionType" << utils::to_underlying_type(type)
 						<< "value" << ToBinary(value.data(), value.size())
 					<< bson_stream::close_document;
 		}

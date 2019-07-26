@@ -61,7 +61,6 @@ namespace catapult { namespace validators {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	AGGREGATE_RESULT_TRAITS_BASED_TEST(CanAggregateFromTrueSuccess) {
-		// Assert:
 		EXPECT_EQ(Success_Result, TTraits::AggregateTwo(Success_Result, Success_Result));
 		EXPECT_EQ(Success_Result, TTraits::AggregateTwo(Success_Result, Success2_Result));
 		EXPECT_EQ(Neutral_Result, TTraits::AggregateTwo(Success_Result, Neutral_Result));
@@ -69,7 +68,6 @@ namespace catapult { namespace validators {
 	}
 
 	AGGREGATE_RESULT_TRAITS_BASED_TEST(CanAggregateFromOtherSuccess) {
-		// Assert:
 		EXPECT_EQ(Success2_Result, TTraits::AggregateTwo(Success2_Result, Success_Result));
 		EXPECT_EQ(Success2_Result, TTraits::AggregateTwo(Success2_Result, Success2_Result));
 		EXPECT_EQ(Neutral_Result, TTraits::AggregateTwo(Success2_Result, Neutral_Result));
@@ -77,7 +75,6 @@ namespace catapult { namespace validators {
 	}
 
 	AGGREGATE_RESULT_TRAITS_BASED_TEST(CanAggregateFromNeutral) {
-		// Assert:
 		EXPECT_EQ(Neutral_Result, TTraits::AggregateTwo(Neutral_Result, Success_Result));
 		EXPECT_EQ(Neutral_Result, TTraits::AggregateTwo(Neutral_Result, Success2_Result));
 		EXPECT_EQ(Neutral_Result, TTraits::AggregateTwo(Neutral_Result, Neutral_Result));
@@ -85,13 +82,10 @@ namespace catapult { namespace validators {
 	}
 
 	AGGREGATE_RESULT_TRAITS_BASED_TEST(CanAggregateFromFailure) {
-		// Assert:
 		EXPECT_EQ(Failure_Result, TTraits::AggregateTwo(Failure_Result, Success_Result));
 		EXPECT_EQ(Failure_Result, TTraits::AggregateTwo(Failure_Result, Success2_Result));
 		EXPECT_EQ(Failure_Result, TTraits::AggregateTwo(Failure_Result, Neutral_Result));
 		EXPECT_EQ(Failure_Result, TTraits::AggregateTwo(Failure_Result, Failure_Result));
-
-		// - note that FIRST failure has highest precedence
-		EXPECT_EQ(Failure_Result, TTraits::AggregateTwo(Failure_Result, Failure2_Result));
+		EXPECT_EQ(Failure_Result, TTraits::AggregateTwo(Failure_Result, Failure2_Result)); // FIRST failure has highest precedence
 	}
 }}

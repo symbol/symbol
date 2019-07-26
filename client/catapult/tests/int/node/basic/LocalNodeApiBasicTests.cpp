@@ -80,7 +80,6 @@ namespace catapult { namespace local {
 	// region connection tests
 
 	TEST(TEST_CLASS, CannotConnectToApiPort) {
-		// Assert:
 		test::AssertConnectionError<TestContext>(test::GetLocalNodeApiPort());
 	}
 

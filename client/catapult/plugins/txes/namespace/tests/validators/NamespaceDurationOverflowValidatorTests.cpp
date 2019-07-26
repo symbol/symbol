@@ -78,7 +78,7 @@ namespace catapult { namespace validators {
 	// region new
 
 	namespace {
-		void AssertCanAddWithDuration(BlockDuration duration) {
+		void AssertCanAddWithDuration(ValidationResult expectedResult, BlockDuration duration) {
 			// Arrange:
 			TestOptions options;
 			options.MaxDuration = BlockDuration(105);
@@ -89,22 +89,20 @@ namespace catapult { namespace validators {
 
 				// Act: try to create a (new) root with a specified duration
 				auto notification = model::RootNamespaceNotification(Key(), NamespaceId(26), duration);
-				RunRootTest(ValidationResult::Success, notification, options);
+				RunRootTest(expectedResult, notification, options);
 			}
 		}
 	}
 
 	TEST(TEST_CLASS, CanAddNewRootNamespaceWithEternalDuration) {
-		// Assert:
-		AssertCanAddWithDuration(Eternal_Artifact_Duration);
+		AssertCanAddWithDuration(ValidationResult::Success, Eternal_Artifact_Duration);
 	}
 
 	TEST(TEST_CLASS, CanAddNewRootNamespaceWithNonEternalDuration) {
-		// Assert:
-		AssertCanAddWithDuration(BlockDuration(111));
+		AssertCanAddWithDuration(ValidationResult::Success, BlockDuration(99));
 	}
 
-	TEST(TEST_CLASS, CanAddNewRootNamespaceWithNonEternalMaxDuration) {
+	TEST(TEST_CLASS, CanAddNewRootNamespaceWithNonEternalDurationResultingInMaxLifetimeEnd) {
 		// Arrange:
 		TestOptions options;
 		options.MaxDuration = BlockDuration(105);
@@ -116,7 +114,7 @@ namespace catapult { namespace validators {
 		RunRootTest(ValidationResult::Success, notification, options);
 	}
 
-	TEST(TEST_CLASS, CannotAddNewRootNamespaceWithDurationThatCausesOverflow) {
+	TEST(TEST_CLASS, CannotAddNewRootNamespaceWithNonEternalDurationThatCausesOverflow) {
 		// Arrange:
 		TestOptions options;
 		options.MaxDuration = BlockDuration(105);

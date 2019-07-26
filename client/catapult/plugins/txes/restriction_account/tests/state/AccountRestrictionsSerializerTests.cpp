@@ -20,7 +20,7 @@
 
 #include "src/state/AccountRestrictionsSerializer.h"
 #include "catapult/model/EntityType.h"
-#include "tests/test/AccountRestrictionsTestUtils.h"
+#include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/core/SerializerOrderingTests.h"
 #include "tests/test/core/SerializerTestUtils.h"
 #include "tests/TestHarness.h"
@@ -31,7 +31,7 @@ namespace catapult { namespace state {
 
 	namespace {
 		auto CalculateExpectedSize(const AccountRestrictions& restrictions) {
-			auto size = Address_Decoded_Size + sizeof(uint64_t);
+			auto size = Address::Size + sizeof(uint64_t);
 			for (const auto& pair : restrictions)
 				size += sizeof(uint8_t) + sizeof(uint64_t) + pair.second.values().size() * pair.second.valueSize();
 
@@ -47,7 +47,7 @@ namespace catapult { namespace state {
 
 			const auto* pData = buffer.data();
 			EXPECT_EQ(restrictions.address(), reinterpret_cast<const Address&>(*pData));
-			pData += Address_Decoded_Size;
+			pData += Address::Size;
 
 			EXPECT_EQ(restrictions.size(), reinterpret_cast<const uint64_t&>(*pData));
 			pData += sizeof(uint64_t);
@@ -92,21 +92,19 @@ namespace catapult { namespace state {
 	// region Save
 
 	TEST(TEST_CLASS, CanSaveAccountRestrictions_AllRestrictionsEmpty) {
-		// Assert:
-		AssertCanSaveAccountRestrictions({ 0, 0, 0 });
+		AssertCanSaveAccountRestrictions({ 0, 0, 0, 0 });
 	}
 
 	TEST(TEST_CLASS, CanSaveAccountRestrictions_SingleRestrictionNotEmpty) {
-		// Assert:
-		AssertCanSaveAccountRestrictions({ 1, 0, 0 });
-		AssertCanSaveAccountRestrictions({ 0, 1, 0 });
-		AssertCanSaveAccountRestrictions({ 0, 0, 1 });
+		AssertCanSaveAccountRestrictions({ 1, 0, 0, 0 });
+		AssertCanSaveAccountRestrictions({ 0, 1, 0, 0 });
+		AssertCanSaveAccountRestrictions({ 0, 0, 1, 0 });
+		AssertCanSaveAccountRestrictions({ 0, 0, 0, 1 });
 	}
 
 	TEST(TEST_CLASS, CanSaveAccountRestrictions_NoRestrictionsEmpty) {
-		// Assert:
-		AssertCanSaveAccountRestrictions({ 5, 3, 6 });
-		AssertCanSaveAccountRestrictions({ 123, 97, 24 });
+		AssertCanSaveAccountRestrictions({ 5, 3, 6, 7 });
+		AssertCanSaveAccountRestrictions({ 123, 97, 24, 31 });
 	}
 
 	namespace {
@@ -126,21 +124,21 @@ namespace catapult { namespace state {
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {
-				return Address_Decoded_Size + sizeof(uint64_t) + sizeof(uint8_t);
+				return Address::Size + sizeof(uint64_t) + sizeof(uint8_t);
 			}
 		};
 	}
 
 	TEST(TEST_CLASS, SavedValuesAreOrdered) {
-		// Assert:
 		test::SerializerOrderingTests<AccountRestrictionsSerializerOrderingTraits>::AssertSaveOrdersEntriesByKey();
 	}
 
 	namespace {
 		size_t GetValueSize(model::AccountRestrictionType restrictionType) {
-			switch (restrictionType) {
+			auto strippedRestrictionType = AccountRestrictionDescriptor(restrictionType).restrictionType();
+			switch (strippedRestrictionType) {
 			case model::AccountRestrictionType::Address:
-				return Address_Decoded_Size;
+				return Address::Size;
 			case model::AccountRestrictionType::MosaicId:
 				return sizeof(MosaicId);
 			case model::AccountRestrictionType::TransactionType:
@@ -166,7 +164,7 @@ namespace catapult { namespace state {
 				++pData;
 
 				auto numValues = reinterpret_cast<const uint64_t&>(*pData);
-				pData += sizeof(uint64_t) + numValues * GetValueSize(restrictionDescriptor.restrictionType());
+				pData += sizeof(uint64_t) + numValues * GetValueSize(restrictionDescriptor.directionalRestrictionType());
 			}
 		}
 
@@ -185,17 +183,18 @@ namespace catapult { namespace state {
 			AccountRestrictionsSerializer::Save(restrictions, stream);
 
 			// Assert:
+			constexpr auto Block = model::AccountRestrictionType::Block;
 			std::vector<model::AccountRestrictionType> orderedAccountRestrictionTypes{
-				model::AccountRestrictionType::Address | model::AccountRestrictionType::Block,
+				model::AccountRestrictionType::Address | Block,
 				model::AccountRestrictionType::MosaicId,
-				model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Block
+				model::AccountRestrictionType::Address | model::AccountRestrictionType::Outgoing | Block,
+				model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing | Block
 			};
-			AssertAccountRestrictionTypes(orderedAccountRestrictionTypes, buffer, Address_Decoded_Size);
+			AssertAccountRestrictionTypes(orderedAccountRestrictionTypes, buffer, Address::Size);
 		}
 	}
 
 	TEST(TEST_CLASS, SavedRestrictionsAreOrdered) {
-		// Assert:
 		AssertOrderedRestrictions();
 	}
 
@@ -217,22 +216,25 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, CanRoundtripAccountRestrictions_AllRestrictionsEmpty) {
-		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Allow, { 0, 0, 0 });
-		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 0, 0 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Allow, { 0, 0, 0, 0 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 0, 0, 0 });
 	}
 
 	TEST(TEST_CLASS, CanRoundtripAccountRestrictions_SingleRestrictionNotEmpty) {
-		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Allow, { 1, 0, 0 });
-		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 1, 0 });
-		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 0, 1 });
-		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Allow, { 5, 0, 0 });
-		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 5, 0 });
-		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 0, 5 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Allow, { 1, 0, 0, 0 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 1, 0, 0 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 0, 1, 0 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 0, 0, 1 });
+
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Allow, { 5, 0, 0, 0 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 5, 0, 0 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 0, 5, 0 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 0, 0, 0, 5 });
 	}
 
 	TEST(TEST_CLASS, CanRoundtripAccountRestrictions_NoRestrictionsEmpty) {
-		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Allow, { 1, 1, 1 });
-		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 5, 7, 4 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Allow, { 1, 1, 1, 1 });
+		AssertCanRoundtripAccountRestrictions(AccountRestrictionOperationType::Block, { 5, 7, 4, 3 });
 	}
 
 	// endregion

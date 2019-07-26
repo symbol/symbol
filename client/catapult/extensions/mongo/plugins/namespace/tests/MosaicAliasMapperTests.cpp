@@ -22,7 +22,7 @@
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/namespace/src/model/MosaicAliasTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {
@@ -54,7 +54,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		// Assert:
 		EXPECT_EQ(3u, test::GetFieldCount(view));
 		EXPECT_EQ(753u, test::GetUint64(view, "namespaceId"));
-		EXPECT_EQ(model::AliasAction::Unlink, static_cast<model::AliasAction>(test::GetUint32(view, "action")));
+		EXPECT_EQ(model::AliasAction::Unlink, static_cast<model::AliasAction>(test::GetUint32(view, "aliasAction")));
 		EXPECT_EQ(286u, test::GetUint64(view, "mosaicId"));
 	}
 

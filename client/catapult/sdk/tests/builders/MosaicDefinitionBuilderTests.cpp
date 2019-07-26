@@ -104,7 +104,6 @@ namespace catapult { namespace builders {
 	// region constructor
 
 	TRAITS_BASED_TEST(CanCreateTransaction) {
-		// Assert:
 		AssertCanBuildTransaction<TTraits>(0, TransactionProperties(), [](const auto&) {});
 	}
 
@@ -124,25 +123,15 @@ namespace catapult { namespace builders {
 		}
 	}
 
-	TRAITS_BASED_TEST(CanSetFlags_SupplyMutable) {
-		// Assert:
-		AssertCanSetFlags<TTraits>(model::MosaicFlags::Supply_Mutable, [](auto& builder) {
-			builder.setFlags(model::MosaicFlags::Supply_Mutable);
-		});
-	}
-
-	TRAITS_BASED_TEST(CanSetFlags_Transferable) {
-		// Assert:
+	TRAITS_BASED_TEST(CanSetFlags_Single) {
 		AssertCanSetFlags<TTraits>(model::MosaicFlags::Transferable, [](auto& builder) {
 			builder.setFlags(model::MosaicFlags::Transferable);
 		});
 	}
 
 	TRAITS_BASED_TEST(CanSetFlags_All) {
-		// Assert:
-		auto flags = model::MosaicFlags::Supply_Mutable | model::MosaicFlags::Transferable;
-		AssertCanSetFlags<TTraits>(flags, [](auto& builder) {
-			builder.setFlags(model::MosaicFlags::Supply_Mutable | model::MosaicFlags::Transferable);
+		AssertCanSetFlags<TTraits>(model::MosaicFlags::All, [](auto& builder) {
+			builder.setFlags(model::MosaicFlags::All);
 		});
 	}
 

@@ -41,6 +41,9 @@ namespace catapult { namespace model {
 		/// Account restriction type sentinel.
 		Sentinel = 0x05,
 
+		/// Account restriction is interpreted as outgoing restriction.
+		Outgoing = 0x40,
+
 		/// Account restriction is interpreted as blocking operation.
 		Block = 0x80
 	};

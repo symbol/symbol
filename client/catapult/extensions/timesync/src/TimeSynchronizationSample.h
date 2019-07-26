@@ -35,7 +35,7 @@ namespace catapult { namespace timesync {
 		/// Creates a time synchronization sample around \a node, \a localTimestamps and \a remoteTimestamps.
 		/// \a localTimestamps (\a remoteTimestamps) are the timestamps at which the local (remote) node sent and received
 		/// a request and a response.
-		explicit TimeSynchronizationSample(
+		TimeSynchronizationSample(
 				const ionet::Node& node,
 				const CommunicationTimestamps& localTimestamps,
 				const CommunicationTimestamps& remoteTimestamps);

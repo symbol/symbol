@@ -66,13 +66,11 @@ namespace catapult { namespace state {
 	// region IsRemote
 
 	TEST(TEST_CLASS, IsRemoteReturnsTrueForRemoteAccountTypes) {
-		// Assert:
 		EXPECT_TRUE(IsRemote(AccountType::Remote));
 		EXPECT_TRUE(IsRemote(AccountType::Remote_Unlinked));
 	}
 
 	TEST(TEST_CLASS, IsRemoteReturnsFalseForNonRemoteAccountTypes) {
-		// Assert:
 		EXPECT_FALSE(IsRemote(AccountType::Unlinked));
 		EXPECT_FALSE(IsRemote(AccountType::Main));
 		EXPECT_FALSE(IsRemote(static_cast<AccountType>(234)));
@@ -156,6 +154,44 @@ namespace catapult { namespace state {
 			// Act + Assert:
 			EXPECT_THROW(RequireLinkedRemoteAndMainAccounts(remoteAccountState, mainAccountState), catapult_runtime_error);
 		});
+	}
+
+	// endregion
+
+	// region ApplyFeeSurplus
+
+	TEST(TEST_CLASS, ApplyFeeSurplus_AppliesFeeSurplusToAccountWithoutActivityBucket) {
+		// Arrange:
+		AccountState accountState(test::GenerateRandomAddress(), Height(1));
+		accountState.Balances.credit(MosaicId(123), Amount(1000));
+
+		// Act:
+		ApplyFeeSurplus(accountState, { MosaicId(123), Amount(111) }, model::ImportanceHeight(100));
+
+		// Assert: balance was credited but no new activity bucket was created
+		EXPECT_EQ(Amount(1111), accountState.Balances.get(MosaicId(123)));
+
+		auto activityBucket = accountState.ActivityBuckets.get(model::ImportanceHeight(100));
+		EXPECT_EQ(model::ImportanceHeight(), activityBucket.StartHeight);
+	}
+
+	TEST(TEST_CLASS, ApplyFeeSurplus_AppliesFeeSurplusToAccountWithActivityBucket) {
+		// Arrange:
+		AccountState accountState(test::GenerateRandomAddress(), Height(1));
+		accountState.Balances.credit(MosaicId(123), Amount(1000));
+		accountState.ActivityBuckets.update(model::ImportanceHeight(100), [](auto& bucket) {
+			bucket.TotalFeesPaid = Amount(333);
+		});
+
+		// Act:
+		ApplyFeeSurplus(accountState, { MosaicId(123), Amount(111) }, model::ImportanceHeight(100));
+
+		// Assert: balance was credited and total fees paid was reduced
+		EXPECT_EQ(Amount(1111), accountState.Balances.get(MosaicId(123)));
+
+		auto activityBucket = accountState.ActivityBuckets.get(model::ImportanceHeight(100));
+		EXPECT_EQ(model::ImportanceHeight(100), activityBucket.StartHeight);
+		EXPECT_EQ(Amount(222), activityBucket.TotalFeesPaid);
 	}
 
 	// endregion

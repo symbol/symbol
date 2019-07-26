@@ -113,7 +113,6 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, NodeInteractionsWithLessThanFourAttemptsAreGivenMedianWeight) {
-		// Act + Assert:
 		for (auto i = 0u; i <= 3; ++i) {
 			for (auto j = 0u; j <= 3 - i; ++j)
 				EXPECT_EQ(5'000u, CalculateWeightFromAttempts(i, j)) << "NumSuccesses " << i << " NumFailures " << j;
@@ -121,14 +120,12 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, NodeInteractionsWithAllSuccessesIsGivenMaxWeight) {
-		// Act + Assert:
 		EXPECT_EQ(10'000u, CalculateWeightFromAttempts(4, 0));
 		EXPECT_EQ(10'000u, CalculateWeightFromAttempts(99, 0));
 		EXPECT_EQ(10'000u, CalculateWeightFromAttempts(10'000, 0));
 	}
 
 	TEST(TEST_CLASS, NodeInteractionsWithAllFailuresIsGivenMinWeight) {
-		// Act + Assert:
 		EXPECT_EQ(500u, CalculateWeightFromAttempts(0, 4));
 		EXPECT_EQ(500u, CalculateWeightFromAttempts(0, 99));
 		EXPECT_EQ(500u, CalculateWeightFromAttempts(0, 10'000));
@@ -165,21 +162,16 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, NodeWithAtLeastSupernodeImportanceIsGivenMaxWeight) {
-		// Act + Assert:
-		for (auto rawImportance : { 3'000'000ull, 5'000'000ull, 1'000'000'000ull, 9'000'000'000ull }) {
+		for (auto rawImportance : { 3'000'000ull, 5'000'000ull, 1'000'000'000ull, 9'000'000'000ull })
 			EXPECT_EQ(10'000u, CalculateWeightFromImportance(rawImportance));
-		}
 	}
 
 	TEST(TEST_CLASS, NodeWithLowImportanceIsGivenMinWeight) {
-		// Act + Assert:
-		for (auto rawImportance : { 150'000ull, 100'000ull, 10'000ull, 1'000ull }) {
+		for (auto rawImportance : { 150'000ull, 100'000ull, 10'000ull, 1'000ull })
 			EXPECT_EQ(500u, CalculateWeightFromImportance(rawImportance));
-		}
 	}
 
 	TEST(TEST_CLASS, NodeIsGivenWeightAccordingToFormula) {
-		// Act + Assert:
 		EXPECT_EQ(750u, CalculateWeightFromImportance(225'000));
 		EXPECT_EQ(1000u, CalculateWeightFromImportance(300'000));
 		EXPECT_EQ(2000u, CalculateWeightFromImportance(600'000));
@@ -249,14 +241,12 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, ReturnsAllCandidatesWhenContainerSizeIsLessThanMaxCandidates_SelectCandidatesBasedOnWeight) {
-		// Assert:
 		AssertReturnsAllCandidates(1, 5);
 		AssertReturnsAllCandidates(2, 5);
 		AssertReturnsAllCandidates(4, 5);
 	}
 
 	TEST(TEST_CLASS, ReturnsAllCandidatesWhenContainerSizeIsEqualToMaxCandidates_SelectCandidatesBasedOnWeight) {
-		// Assert:
 		AssertReturnsAllCandidates(1, 1);
 		AssertReturnsAllCandidates(5, 5);
 		AssertReturnsAllCandidates(10, 10);
@@ -432,12 +422,10 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, NoAddCandidatesWhenContainerHasNoMatchingServiceNodes) {
-		// Assert:
 		AssertNoAddOrRemoveCandidatesWhenContainerHasNoMatchingServiceNodes(0, 8);
 	}
 
 	TEST(TEST_CLASS, NoRemoveCandidatesWhenContainerHasNoMatchingServiceNodes) {
-		// Assert:
 		AssertNoAddOrRemoveCandidatesWhenContainerHasNoMatchingServiceNodes(10, 8);
 	}
 
@@ -457,12 +445,10 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, NoAddCandidatesWhenContainerHasNoMatchingRoleNodes) {
-		// Assert:
 		AssertNoAddOrRemoveCandidatesWhenContainerHasNoMatchingRoleNodes(0, 8);
 	}
 
 	TEST(TEST_CLASS, NoRemoveCandidatesWhenContainerHasNoMatchingRoleNodes) {
-		// Assert:
 		AssertNoAddOrRemoveCandidatesWhenContainerHasNoMatchingRoleNodes(10, 8);
 	}
 
@@ -482,7 +468,6 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, NoAddCandidatesWhenContainerHasOnlyLocalMatchingServiceNodes) {
-		// Assert:
 		AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyLocalMatchingServiceNodes(0, 8);
 	}
 
@@ -509,12 +494,10 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, NoAddCandidatesWhenContainerHasOnlyBannedDynamicNodes) {
-		// Assert:
 		AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes(0, 8);
 	}
 
 	TEST(TEST_CLASS, NoRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes) {
-		// Assert:
 		AssertNoAddOrRemoveCandidatesWhenContainerHasOnlyBannedDynamicNodes(10, 8);
 	}
 
@@ -549,12 +532,10 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, ActiveAndAddCandidatesSumToMaxConnectionsWhenNoNodesAreInitiallyActive) {
-		// Assert:
 		AssertAdds(5, 10, 5, [](const auto&, const auto&) {});
 	}
 
 	TEST(TEST_CLASS, ActiveAndAddCandidatesSumToMaxConnectionsWhenFewerThanMaxConnectionsNodesAreInitiallyActive) {
-		// Assert:
 		AssertAdds(5, 10, 3, [](auto& container, auto& nodes) {
 			// Arrange: activate 2/5 nodes
 			AgeAndErase(container, nodes, 3, 1);
@@ -563,7 +544,6 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, ActiveAndAddCandidatesSumToMaxConnectionsWhenOneLessThanMaxConnectionsNodesAreInitiallyActive) {
-		// Assert:
 		AssertAdds(5, 10, 1, [](auto& container, auto& nodes) {
 			// Arrange: activate 4/5 nodes
 			AgeAndErase(container, nodes, 8, 1);

@@ -42,7 +42,7 @@ namespace catapult { namespace model {
 		{}
 
 		/// Creates a chain score from a 128-bit value composed of two 64-bit values (\a scoreHigh and \a scoreLow).
-		explicit ChainScore(uint64_t scoreHigh, uint64_t scoreLow) {
+		ChainScore(uint64_t scoreHigh, uint64_t scoreLow) {
 			m_score = scoreHigh;
 			m_score <<= Bits_Per_Value;
 			m_score += scoreLow;

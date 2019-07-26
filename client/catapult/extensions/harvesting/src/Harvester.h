@@ -35,7 +35,7 @@ namespace catapult { namespace harvesting {
 	public:
 		/// Creates a harvester around a catapult \a cache, a block chain \a config, a \a beneficiary,
 		/// an unlocked accounts set (\a unlockedAccounts) and \a blockGenerator used to customize block generation.
-		explicit Harvester(
+		Harvester(
 				const cache::CatapultCache& cache,
 				const model::BlockChainConfiguration& config,
 				const Key& beneficiary,

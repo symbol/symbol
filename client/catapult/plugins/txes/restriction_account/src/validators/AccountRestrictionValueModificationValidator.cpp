@@ -38,13 +38,13 @@ namespace catapult { namespace validators {
 		template<typename TRestrictionValue, typename TNotification>
 		ValidationResult Validate(const TNotification& notification, const ValidatorContext& context) {
 			auto address = model::PublicKeyToAddress(notification.Key, context.Network.Identifier);
-			const auto& cache = context.Cache.template sub<cache::AccountRestrictionCache>();
+			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
 			if (!cache.contains(address))
 				return ValidationResult::Success;
 
 			auto restrictionsIter = cache.find(address);
 			const auto& restrictions = restrictionsIter.get();
-			auto restrictionType = notification.AccountRestrictionDescriptor.restrictionType();
+			auto restrictionType = notification.AccountRestrictionDescriptor.directionalRestrictionType();
 			auto typedRestriction = restrictions.template restriction<TRestrictionValue>(restrictionType);
 			auto operationType = notification.AccountRestrictionDescriptor.operationType();
 
@@ -63,7 +63,9 @@ namespace catapult { namespace validators {
 	}
 
 #define DEFINE_ACCOUNT_RESTRICTION_MODIFICATION_VALIDATOR(VALIDATOR_NAME, NOTIFICATION_TYPE, RESTRICTION_VALUE_TYPE) \
-	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(VALIDATOR_NAME, NOTIFICATION_TYPE, ([](const auto& notification, const auto& context) { \
+	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(VALIDATOR_NAME, NOTIFICATION_TYPE, ([]( \
+			const NOTIFICATION_TYPE& notification, \
+			const ValidatorContext& context) { \
 		return Validate<RESTRICTION_VALUE_TYPE, NOTIFICATION_TYPE>(notification, context); \
 	}));
 

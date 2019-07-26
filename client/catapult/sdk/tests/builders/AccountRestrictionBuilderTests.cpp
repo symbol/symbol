@@ -159,7 +159,6 @@ namespace catapult { namespace builders {
 	// region constructor
 
 	TRAITS_BASED_TEST(CanCreateTransactionWithDefaultValues) {
-		// Assert:
 		auto expectedProperties = typename TRestrictionTraits::TransactionProperties();
 		AssertCanBuildTransaction<TTraits, TRestrictionTraits>(0, expectedProperties, [](const auto&) {});
 	}

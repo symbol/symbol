@@ -52,7 +52,7 @@ namespace catapult { namespace observers {
 
 		class RecalculateImportancesObserver : public NotificationObserverT<model::BlockNotification> {
 		public:
-			explicit RecalculateImportancesObserver(
+			RecalculateImportancesObserver(
 					std::unique_ptr<importance::ImportanceCalculator>&& pCommitCalculator,
 					std::unique_ptr<importance::ImportanceCalculator>&& pRollbackCalculator)
 					: m_pCommitCalculator(std::move(pCommitCalculator))

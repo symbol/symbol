@@ -498,7 +498,7 @@ namespace catapult { namespace validators {
 		void ValidateMany(MultiThreadedValidatorStates& states, size_t numValidators, size_t numEntities) {
 			// Arrange:
 			if (0 == numEntities) {
-				// (Num_Default_Threads is 2 * cores, so Num_Default_Threads / 4 is non zero when there are
+				// (Num_Default_Threads is 2 * cores, so Num_Default_Threads / 4 is nonzero when there are
 				// at least two cores)
 				CATAPULT_LOG(fatal) << "Skipping test on single core system";
 				return;
@@ -581,22 +581,18 @@ namespace catapult { namespace validators {
 	}
 
 	PARALLEL_POLICY_TEST(CanHandleManyValidatorsAndEntitiesWhenEntitiesAreMultipleOfThreads) {
-		// Assert:
 		AssertCanHandleManyValidatorsAndEntities<TTraits>(100, Num_Default_Threads * 20);
 	}
 
 	PARALLEL_POLICY_TEST(CanHandleManyValidatorsAndEntitiesWhenEntitiesAreNotMultipleOfThreads) {
-		// Assert:
 		AssertCanHandleManyValidatorsAndEntities<TTraits>(100, Num_Default_Threads / 4 * 81);
 	}
 
 	PARALLEL_POLICY_TEST(CanDistributeWorkEvenlyWhenEntitiesAreMultipleOfThreads) {
-		// Assert:
 		AssertCanDistributeWorkEvenly<TTraits>(100, Num_Default_Threads * 20);
 	}
 
 	PARALLEL_POLICY_TEST(CanDistributeWorkEvenlyWhenEntitiesAreNotMultipleOfThreads) {
-		// Assert:
 		AssertCanDistributeWorkEvenly<TTraits>(100, Num_Default_Threads / 4 * 81);
 	}
 

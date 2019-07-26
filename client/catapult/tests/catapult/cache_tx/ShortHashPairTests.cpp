@@ -47,12 +47,10 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("default", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 

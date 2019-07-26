@@ -253,23 +253,26 @@ namespace catapult { namespace extensions {
 			SetNemesisBlock(state.ref().Storage, nemesisBlockSignerPair, config.Network, modification);
 
 			{
-				// - create the publisher, observer and loader
-				auto pluginManager = CreatePluginManager();
+				// Sanity: state hash calculation is configured properly on the cache
 				auto cacheDelta = state.ref().Cache.createDelta();
-				NemesisBlockLoader loader(cacheDelta, pluginManager, CreateObserver());
+				cacheDelta.sub<cache::AccountStateCache>().addAccount(test::GenerateRandomByteArray<Address>(), Height(1));
 
-				// Act + Assert:
-				EXPECT_THROW(TTraits::Execute(loader, state.ref(), StateHashVerification::Enabled), TException)
-						<< "total chain importance " << nemesisOptions.TotalChainImportance
-						<< ", initial currency atomic units " << nemesisOptions.InitialCurrencyAtomicUnits;
+				auto cacheStateHash = cacheDelta.calculateStateHash(Height(1)).StateHash;
+				if (enableVerifiableState)
+					EXPECT_NE(Hash256(), cacheStateHash);
+				else
+					EXPECT_EQ(Hash256(), cacheStateHash);
 			}
 
-			// Sanity:
-			auto cacheStateHash = state.ref().Cache.createView().calculateStateHash().StateHash;
-			if (enableVerifiableState)
-				EXPECT_NE(Hash256(), cacheStateHash);
-			else
-				EXPECT_EQ(Hash256(), cacheStateHash);
+			// Arrange:  create the publisher, observer and loader
+			auto pluginManager = CreatePluginManager();
+			auto cacheDelta = state.ref().Cache.createDelta();
+			NemesisBlockLoader loader(cacheDelta, pluginManager, CreateObserver());
+
+			// Act + Assert:
+			EXPECT_THROW(TTraits::Execute(loader, state.ref(), StateHashVerification::Enabled), TException)
+					<< "total chain importance " << nemesisOptions.TotalChainImportance
+					<< ", initial currency atomic units " << nemesisOptions.InitialCurrencyAtomicUnits;
 		}
 
 		template<typename TTraits, typename TException = catapult_invalid_argument>
@@ -391,7 +394,6 @@ namespace catapult { namespace extensions {
 	}
 
 	TRAITS_BASED_TEST(CanLoadValidNemesisBlock_SingleMosaicTransfer) {
-		// Assert:
 		AssertCanLoadValidNemesisBlockWithSingleMosaicTransfer<TTraits>(Importance(1234), Amount(1234));
 	}
 
@@ -733,7 +735,7 @@ namespace catapult { namespace extensions {
 
 	// region failure - fee multiplier
 
-	TRAITS_BASED_TEST(CannotLoadNemesisBlockWithNonZeroFeeMultiplier) {
+	TRAITS_BASED_TEST(CannotLoadNemesisBlockWithNonzeroFeeMultiplier) {
 		// Arrange: create a valid nemesis block with a single (mosaic) transaction
 		auto nemesisBlockSignerPair = CreateNemesisBlock({ { MakeHarvestingMosaic(1234) } });
 

@@ -77,14 +77,10 @@ namespace catapult { namespace mongo { namespace plugins {
 		builder
 				<< "namespace" << bson_stream::open_document
 					<< "type" << (descriptor.IsRoot() ? Root_Type : Child_Type)
-					<< "depth" << static_cast<int32_t>(path.size())
-					<< "level0" << ToInt64(path[0]);
+					<< "depth" << static_cast<int32_t>(path.size());
 
-		if (1 < depth)
-			builder << "level1" << ToInt64(path[1]);
-
-		if (2 < depth)
-			builder << "level2" << ToInt64(path[2]);
+		for (auto i = 0u; i < depth; ++i)
+			builder << "level" + std::to_string(i) << ToInt64(path[i]);
 
 		StreamAlias(builder, descriptor.Alias);
 

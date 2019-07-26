@@ -89,7 +89,7 @@ namespace catapult { namespace plugins {
 
 			static std::vector<std::string> GetStatefulValidatorNames() {
 				return {
-					"ProperMosaicValidator",
+					"RequiredMosaicValidator",
 					"MosaicAvailabilityValidator",
 					"MosaicDurationValidator",
 					"MosaicTransferValidator",

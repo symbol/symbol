@@ -308,12 +308,10 @@ namespace catapult { namespace extensions {
 		public:
 			void addKnownHashPredicate(const std::vector<model::TransactionInfo>& transactionInfos) {
 				m_hooks.addKnownHashPredicate([&transactionInfos](auto timestamp, const auto& hash) {
-					return std::any_of(
-							transactionInfos.cbegin(),
-							transactionInfos.cend(),
-							[timestamp, &hash](const auto& transactionInfo) {
-								return timestamp == transactionInfo.pEntity->Deadline && hash == transactionInfo.EntityHash;
-							});
+					return std::any_of(transactionInfos.cbegin(), transactionInfos.cend(), [timestamp, &hash](
+							const auto& transactionInfo) {
+						return timestamp == transactionInfo.pEntity->Deadline && hash == transactionInfo.EntityHash;
+					});
 				});
 			}
 

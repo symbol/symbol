@@ -138,12 +138,10 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, DifficultyIsDynamicallyIncreasedWhenTimeIsBelowTarget) {
-		// Assert:
 		AssertDifficultyChangesOverTime(95'000, 94'000, 1);
 	}
 
 	TEST(TEST_CLASS, DifficultyIsDynamicallyDecreasedWhenTimeIsAboveTarget) {
-		// Assert:
 		AssertDifficultyChangesOverTime(95'000, 96'000, -1);
 	}
 
@@ -189,13 +187,11 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, DifficultyIncreasesAtMostFivePercentPerBlockWhenTimeIsFarBelowTarget) {
-		// Assert:
 		AssertPercentageChange(60'000, 2'000, 5);
 	}
 
 	TEST(TEST_CLASS, DifficultyDecreasesAtMostFivePercentPerBlockWhenTimeIsFarAboveTarget) {
-		// Assert:
-		// it is ok that a larger difference (248 - 60) is required for a 5% decrease than a 5% increase (60 - 2)
+		// Assert: it is ok that a larger difference (248 - 60) is required for a 5% decrease than a 5% increase (60 - 2)
 		AssertPercentageChange(60'000, 248'000, -5);
 	}
 

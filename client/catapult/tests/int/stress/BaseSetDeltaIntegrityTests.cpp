@@ -84,37 +84,30 @@ namespace catapult { namespace cache {
 	// region single delta set action type
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_All_No_Operation) {
-		// Act + Assert:
 		RunGenerationIdTest(1, std::vector<DeltaSetAction>(5, DeltaSetAction::No_Operation));
 	}
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_All_Increment_Generation) {
-		// Act + Assert:
 		RunGenerationIdTest(1, std::vector<DeltaSetAction>(5, DeltaSetAction::Increment_Generation));
 	}
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_All_Find) {
-		// Act + Assert:
 		RunGenerationIdTest(1, std::vector<DeltaSetAction>(5, DeltaSetAction::Find));
 	}
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_All_Find_Const) {
-		// Act + Assert:
 		RunGenerationIdTest(1, std::vector<DeltaSetAction>(5, DeltaSetAction::Find_Const));
 	}
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_All_Insert) {
-		// Act + Assert:
 		RunGenerationIdTest(1, std::vector<DeltaSetAction>(5, DeltaSetAction::Insert));
 	}
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_All_Remove) {
-		// Act + Assert:
 		RunGenerationIdTest(1, std::vector<DeltaSetAction>(5, DeltaSetAction::Remove));
 	}
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_All_Commit) {
-		// Act + Assert:
 		RunGenerationIdTest(0, std::vector<DeltaSetAction>(5, DeltaSetAction::Commit));
 	}
 
@@ -123,7 +116,6 @@ namespace catapult { namespace cache {
 	// region mixed delta set action types
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_Intermediate_Commit) {
-		// Act + Assert:
 		RunGenerationIdTest(0, {
 			DeltaSetAction::Insert,
 			DeltaSetAction::Increment_Generation,
@@ -134,7 +126,6 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, GenerationIdIsCorrect_Intermediate_Increment) {
-		// Act + Assert:
 		RunGenerationIdTest(2, {
 			DeltaSetAction::No_Operation,
 			DeltaSetAction::Increment_Generation,

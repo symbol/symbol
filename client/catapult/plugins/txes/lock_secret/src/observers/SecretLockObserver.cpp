@@ -47,7 +47,7 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(SecretLock, Notification, [](const auto& notification, ObserverContext& context) {
+	DEFINE_OBSERVER(SecretLock, Notification, [](const Notification& notification, ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::SecretLockInfoCache>();
 		if (NotifyMode::Commit == context.Mode) {
 			auto endHeight = context.Height + Height(notification.Duration.unwrap());

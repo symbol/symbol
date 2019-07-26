@@ -42,25 +42,21 @@ namespace catapult { namespace utils {
 	// region integral types
 
 	TEST(TEST_CLASS, CanFormatByteIntegralType) {
-		// Assert:
 		AssertHexString("24", static_cast<char>(0x24));
 		AssertHexString("0C", static_cast<char>(0x0C));
 	}
 
 	TEST(TEST_CLASS, CanFormatShortIntegralType) {
-		// Assert:
 		AssertHexString("24C8", static_cast<short>(0x24C8));
 		AssertHexString("0024", static_cast<short>(0x0024));
 	}
 
 	TEST(TEST_CLASS, CanFormatIntegralType) {
-		// Assert:
 		AssertHexString("24C81357", 0x24C81357);
 		AssertHexString("0024C813", 0x0024C813);
 	}
 
 	TEST(TEST_CLASS, CanFormatLongIntegralType) {
-		// Assert:
 		AssertHexString("24C8135787645623", 0x24C8135787645623);
 		AssertHexString("0024C81357876456", 0x0024C81357876456);
 	}
@@ -80,7 +76,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanFormatLongBaseValueType) {
-		// Assert:
 		AssertHexString("24C8135787645623", Height(0x24C8135787645623));
 		AssertHexString("0024C81357876456", Height(0x0024C81357876456));
 	}
@@ -250,7 +245,6 @@ namespace catapult { namespace utils {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CONTAINER_TRAITS_BASED_TEST(CanFormatArrayByteIntegralType) {
-		// Assert:
 		TTraits::AssertHexString("", std::array<uint8_t, 0>());
 		TTraits::AssertHexString("24", std::array<uint8_t, 1>{ { 0x24 } });
 		TTraits::AssertHexString("02", std::array<uint8_t, 1>{ { 0x02 } });
@@ -258,7 +252,6 @@ namespace catapult { namespace utils {
 	}
 
 	CONTAINER_TRAITS_BASED_TEST(CanFormatVectorShortIntegralType) {
-		// Assert:
 		TTraits::AssertHexString("", std::vector<short>());
 		TTraits::AssertHexString("2468", std::vector<short>{ 0x2468 });
 		TTraits::AssertHexString("0024", std::vector<short>{ 0x0024 });
@@ -279,7 +272,6 @@ namespace catapult { namespace utils {
 	}
 
 	CONTAINER_TRAITS_BASED_TEST(CanFormatContainerIntegralTypeWithSeparator) {
-		// Assert:
 		TTraits::AssertHexString("", std::vector<short>(), ',');
 		TTraits::AssertHexString("2468", std::vector<short>{ 0x2468 }, ',');
 		TTraits::AssertHexString("0024", std::vector<short>{ 0x0024 }, ',');

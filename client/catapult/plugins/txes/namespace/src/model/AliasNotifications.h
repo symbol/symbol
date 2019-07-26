@@ -29,18 +29,19 @@ namespace catapult { namespace model {
 
 /// Defines a namespace alias notification type with \a DESCRIPTION, \a CODE and \a CHANNEL.
 /// \note Alias notifications reuse Namespace facility code.
-#define DEFINE_NAMESPACE_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, Namespace, DESCRIPTION, CODE)
+#define DEFINE_NAMESPACE_ALIAS_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) \
+	DEFINE_NOTIFICATION_TYPE(CHANNEL, Namespace, DESCRIPTION, 0x1000 | CODE)
 
-	/// Alias owner was provided.
-	DEFINE_NAMESPACE_NOTIFICATION(Alias_Owner, 0x0081, Validator);
+	/// Alias link was provided.
+	DEFINE_NAMESPACE_ALIAS_NOTIFICATION(Alias_Link, 0x0001, Validator);
 
 	/// Address alias was un/linked.
-	DEFINE_NAMESPACE_NOTIFICATION(Aliased_Address, 0x0091, All);
+	DEFINE_NAMESPACE_ALIAS_NOTIFICATION(Aliased_Address, 0x0002, All);
 
 	/// Mosaic alias was un/linked.
-	DEFINE_NAMESPACE_NOTIFICATION(Aliased_MosaicId, 0x0092, All);
+	DEFINE_NAMESPACE_ALIAS_NOTIFICATION(Aliased_MosaicId, 0x0003, All);
 
-#undef DEFINE_NAMESPACE_NOTIFICATION
+#undef DEFINE_NAMESPACE_ALIAS_NOTIFICATION
 
 	// endregion
 
@@ -70,24 +71,19 @@ namespace catapult { namespace model {
 
 	// endregion
 
-	// region AliasOwnerNotification
+	// region AliasLinkNotification
 
-	/// Notification of alias owner.
-	struct AliasOwnerNotification : public BaseAliasNotification {
+	/// Notification of alias link.
+	struct AliasLinkNotification : public BaseAliasNotification {
 	public:
 		/// Matching notification type.
-		static constexpr auto Notification_Type = Namespace_Alias_Owner_Notification;
+		static constexpr auto Notification_Type = Namespace_Alias_Link_Notification;
 
 	public:
-		/// Creates a notification around \a owner, \a namespaceId and \a aliasAction.
-		AliasOwnerNotification(const Key& owner, catapult::NamespaceId namespaceId, model::AliasAction aliasAction)
-				: BaseAliasNotification(Notification_Type, sizeof(AliasOwnerNotification), namespaceId, aliasAction)
-				, Owner(owner)
+		/// Creates a notification around \a namespaceId and \a aliasAction.
+		AliasLinkNotification(catapult::NamespaceId namespaceId, model::AliasAction aliasAction)
+				: BaseAliasNotification(Notification_Type, sizeof(AliasLinkNotification), namespaceId, aliasAction)
 		{}
-
-	public:
-		/// Alias owner.
-		const Key& Owner;
 	};
 
 	// endregion

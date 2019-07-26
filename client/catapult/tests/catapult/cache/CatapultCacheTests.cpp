@@ -152,11 +152,12 @@ namespace catapult { namespace cache {
 			AddSubCacheWithId<8>(builder);
 			AddSubCacheWithId<2>(builder, test::SimpleCacheViewMode::Merkle_Root);
 			AddSubCacheWithId<4>(builder);
+			AddSubCacheWithId<10>(builder, test::SimpleCacheViewMode::Merkle_Root);
 			return builder.build();
 		}
 	}
 
-	VIEW_DELTA_TEST(StateHashIsNonZeroWhenStateCalculationIsEnabled) {
+	VIEW_DELTA_TEST(StateHashIsNonzeroWhenStateCalculationIsEnabled) {
 		// Arrange:
 		auto cache = CreateSimpleCatapultCacheForStateHashTests();
 		auto view = TTraits::CreateView(cache);
@@ -165,6 +166,7 @@ namespace catapult { namespace cache {
 		crypto::Sha3_256_Builder stateHashBuilder;
 		stateHashBuilder.update(TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<2>>()));
 		stateHashBuilder.update(TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<6>>()));
+		stateHashBuilder.update(TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<10>>()));
 		stateHashBuilder.final(expectedStateHash);
 
 		// Act + Assert:
@@ -178,7 +180,8 @@ namespace catapult { namespace cache {
 
 		std::vector<Hash256> expectedSubCacheMerkleRoots{
 			TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<2>>()),
-			TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<6>>())
+			TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<6>>()),
+			TTraits::GetMerkleRoot(view.template sub<test::SimpleCacheT<10>>())
 		};
 
 		// Act + Assert:
@@ -198,27 +201,25 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CannotSetTooFewSubCacheMerkleRoots) {
-		// Assert:
-		AssertCannotSetWrongNumberOfSubCacheMerkleRoots(1);
+		AssertCannotSetWrongNumberOfSubCacheMerkleRoots(2);
 	}
 
 	TEST(TEST_CLASS, CannotSetTooManySubCacheMerkleHashes) {
-		// Assert:
-		AssertCannotSetWrongNumberOfSubCacheMerkleRoots(3);
+		AssertCannotSetWrongNumberOfSubCacheMerkleRoots(4);
 	}
 
 	TEST(TEST_CLASS, CanSetExactNumberSubCacheMerkleHashes) {
 		// Arrange:
 		auto cache = CreateSimpleCatapultCacheForStateHashTests();
 		auto view = cache.createDelta();
-		auto hashes = test::GenerateRandomDataVector<Hash256>(2);
+		auto hashes = test::GenerateRandomDataVector<Hash256>(3);
 
 		// Act:
 		view.setSubCacheMerkleRoots(hashes);
 
 		// Assert:
 		const auto& subCacheMerkleRoots = view.calculateStateHash(Height(123)).SubCacheMerkleRoots;
-		EXPECT_EQ(2u, subCacheMerkleRoots.size());
+		EXPECT_EQ(3u, subCacheMerkleRoots.size());
 
 		// - adjust expected hashes because SimpleCache updateMerkleRoot changes the first byte of the merkle root
 		for (auto& hash : hashes)

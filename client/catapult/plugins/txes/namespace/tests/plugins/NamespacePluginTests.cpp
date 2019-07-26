@@ -46,15 +46,17 @@ namespace catapult { namespace plugins {
 					"",
 					{
 						{ "maxNameSize", "0" },
+						{ "maxChildNamespaces", "0" },
+						{ "maxNamespaceDepth", "0" },
+
+						{ "minNamespaceDuration", "0h" },
 						{ "maxNamespaceDuration", "0h" },
 						{ "namespaceGracePeriodDuration", "0h" },
 						{ "reservedRootNamespaceNames", "reserved" },
 
 						{ "namespaceRentalFeeSinkPublicKey", "0000000000000000000000000000000000000000000000000000000000000000" },
 						{ "rootNamespaceRentalFeePerBlock", "0" },
-						{ "childNamespaceRentalFee", "0" },
-
-						{ "maxChildNamespaces", "0" }
+						{ "childNamespaceRentalFee", "0" }
 					}
 				}}));
 
@@ -105,6 +107,7 @@ namespace catapult { namespace plugins {
 					"NamespaceDurationOverflowValidator",
 					"ChildNamespaceAvailabilityValidator",
 					"RootNamespaceMaxChildrenValidator",
+					"RequiredNamespaceValidator",
 					"AliasAvailabilityValidator",
 					"UnlinkAliasedAddressConsistencyValidator",
 					"UnlinkAliasedMosaicIdConsistencyValidator",
@@ -117,6 +120,7 @@ namespace catapult { namespace plugins {
 					"RootNamespaceObserver",
 					"ChildNamespaceObserver",
 					"NamespaceRentalFeeObserver",
+					"NamespaceGracePeriodTouchObserver",
 					"NamespaceTouchObserver",
 					"NamespacePruningObserver",
 					"AliasedAddressObserver",

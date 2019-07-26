@@ -34,7 +34,7 @@ namespace catapult { namespace nodediscovery {
 
 	public:
 		/// Creates a requestor around \a packetIoPickers, which is used to find partners. Forwards found nodes to \a nodesConsumer.
-		explicit BatchPeersRequestor(const net::PacketIoPickerContainer& packetIoPickers, const NodesConsumer& nodesConsumer);
+		BatchPeersRequestor(const net::PacketIoPickerContainer& packetIoPickers, const NodesConsumer& nodesConsumer);
 
 	public:
 		/// Finds and forwards peers of peers within the specified \a timeout.

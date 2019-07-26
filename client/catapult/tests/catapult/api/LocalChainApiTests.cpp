@@ -85,12 +85,10 @@ namespace catapult { namespace api {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	CHAIN_API_HEIGHT_ERROR_TRAITS_BASED_TEST(RequestAtHeightZeroFails) {
-		// Assert:
 		AssertApiErrorForHeight<TTraits>(12, Height(0));
 	}
 
 	CHAIN_API_HEIGHT_ERROR_TRAITS_BASED_TEST(RequestAtHeightGreaterThanLocalChainHeightFails) {
-		// Assert:
 		AssertApiErrorForHeight<TTraits>(12, Height(13));
 		AssertApiErrorForHeight<TTraits>(12, Height(100));
 	}
@@ -130,17 +128,14 @@ namespace catapult { namespace api {
 	}
 
 	TEST(TEST_CLASS, CanRetrieveAtMostMaxHashes) {
-		// Assert:
 		AssertCanRetrieveHashes(12, 5, Height(3), { Height(3), Height(4), Height(5), Height(6), Height(7) });
 	}
 
 	TEST(TEST_CLASS, RetreivedHashesAreBoundedByLastBlock) {
-		// Assert:
 		AssertCanRetrieveHashes(12, 10, Height(10), { Height(10), Height(11), Height(12) });
 	}
 
 	TEST(TEST_CLASS, CanRetrieveLastBlockHash) {
-		// Assert:
 		AssertCanRetrieveHashes(12, 5, Height(12), { Height(12) });
 	}
 

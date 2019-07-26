@@ -70,12 +70,10 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, ToRequiresValidationPredicateAlwaysReturnsTrueForBlockType) {
-		// Assert:
 		AssertAlwaysRequiresValidation(model::BasicEntityType::Block);
 	}
 
 	TEST(TEST_CLASS, ToRequiresValidationPredicateAlwaysReturnsTrueForOtherType) {
-		// Assert:
 		AssertAlwaysRequiresValidation(static_cast<model::BasicEntityType>(88));
 	}
 
@@ -163,7 +161,6 @@ namespace catapult { namespace sync {
 	// region CreateUtUpdaterThrottle (no spam filtering)
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsFalseWhenCacheSizeIsLessThanMaxCacheSize_NoSpamFiltering) {
-		// Assert:
 		AssertUtUpdaterThrottleResult(false, No_Spam_Test_Settings, 0);
 		AssertUtUpdaterThrottleResult(false, No_Spam_Test_Settings, 49);
 		AssertUtUpdaterThrottleResult(false, No_Spam_Test_Settings, 51);
@@ -171,12 +168,10 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsTrueWhenCacheSizeIsEqualToMaxCacheSize_NoSpamFiltering) {
-		// Assert:
 		AssertUtUpdaterThrottleResult(true, No_Spam_Test_Settings, 100);
 	}
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsTrueWhenCacheSizeIsGreaterThanMaxCacheSize_NoSpamFiltering) {
-		// Assert:
 		AssertUtUpdaterThrottleResult(true, No_Spam_Test_Settings, 101);
 		AssertUtUpdaterThrottleResult(true, No_Spam_Test_Settings, 200);
 	}
@@ -186,7 +181,6 @@ namespace catapult { namespace sync {
 	// region CreateUtUpdaterThrottle (spam filtering)
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsFalseWhenCacheSizeIsLessThanMaxBlockSize_SpamFiltering) {
-		// Assert:
 		AssertUtUpdaterThrottleResult(false, Spam_Test_Settings, 0);
 		AssertUtUpdaterThrottleResult(false, Spam_Test_Settings, 49);
 	}
@@ -205,12 +199,10 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsTrueWhenCacheSizeIsEqualToMaxCacheSize_SpamFiltering) {
-		// Assert:
 		AssertUtUpdaterThrottleResult(true, Spam_Test_Settings, 100);
 	}
 
 	TEST(TEST_CLASS, UtUpdaterThrottleReturnsTrueWhenCacheSizeIsGreaterThanMaxCacheSize_SpamFiltering) {
-		// Assert:
 		AssertUtUpdaterThrottleResult(true, Spam_Test_Settings, 101);
 		AssertUtUpdaterThrottleResult(true, Spam_Test_Settings, 200);
 	}

@@ -192,287 +192,257 @@ namespace catapult { namespace plugins {
 
 	// endregion
 
-	// region publish - basic
+	// region publish - neither sub transactions nor signatures
 
-	TEST(TEST_CLASS, CanRaiseCorrectNumberOfNotificationsFromEmptyAggregate) {
+	namespace {
+		struct AggregateTransactionTraits {
+		public:
+			using TransactionType = AggregateTransaction;
+
+		public:
+			static auto CreatePlugin(const TransactionRegistry& transactionRegistry) {
+				return CreateAggregateTransactionPlugin(transactionRegistry, Entity_Type);
+			}
+		};
+	}
+
+	TEST(TEST_CLASS, CanPublishAllNotificationsInCorrectOrderWhenNeitherSubTransactionsNorCosignaturesArePresent) {
 		// Arrange:
-		mocks::MockNotificationSubscriber sub;
 		auto registry = mocks::CreateDefaultTransactionRegistry();
-		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
 		auto wrapper = CreateAggregateTransaction(0, 0);
 
-		// Act:
-		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
-
-		// Assert:
-		// - 1 AggregateCosignaturesNotification
-		ASSERT_EQ(1u, sub.numNotifications());
-
-		// - aggregate cosignatures notification must be the first raised notification
-		EXPECT_EQ(Aggregate_Cosignatures_Notification, sub.notificationTypes()[0]);
+		// Act + Assert:
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
+			// aggregate cosignatures notification must be the first raised notification
+			AggregateCosignaturesNotification::Notification_Type
+		}, registry);
 	}
 
-	TEST(TEST_CLASS, CanRaiseCorrectNumberOfNotificationsFromAggregate) {
+	TEST(TEST_CLASS, CanPublishAllNotificationsWhenNeitherSubTransactionsNorCosignaturesArePresent) {
 		// Arrange:
-		mocks::MockNotificationSubscriber sub;
 		auto registry = mocks::CreateDefaultTransactionRegistry();
-		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
-		auto wrapper = CreateAggregateTransaction(2, 3);
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
-
-		// Assert:
-		// - 1 AggregateCosignaturesNotification
-		// - 3 SignatureNotification (one per cosigner)
-		// - 2 SourceChangeNotification (one per embedded-mock)
-		// - 4 AccountPublicKeyNotification (two per embedded-mock; one signer and one recipient each)
-		// - 2 EntityNotification (one per embedded-mock)
-		// - 2 AggregateEmbeddedTransactionNotification (one per embedded-mock)
-		ASSERT_EQ(1u + 3 + 2 + 4 + 2 + 2, sub.numNotifications());
-
-		// - aggregate cosignatures notification must be the first raised notification
-		EXPECT_EQ(Aggregate_Cosignatures_Notification, sub.notificationTypes()[0]);
-
-		// - source change notification must be the first raised sub-transaction notification
-		for (auto i = 0u; i < 2u; ++i) {
-			auto offset = i * 5;
-			auto message = "sub-transaction at " + std::to_string(i);
-			EXPECT_EQ(Core_Source_Change_Notification, sub.notificationTypes()[offset + 1]) << message;
-			EXPECT_EQ(Core_Register_Account_Public_Key_Notification, sub.notificationTypes()[offset + 2]) << message;
-			EXPECT_EQ(Core_Entity_Notification, sub.notificationTypes()[offset + 3]) << message;
-			EXPECT_EQ(Aggregate_EmbeddedTransaction_Notification, sub.notificationTypes()[offset + 4]) << message;
-			EXPECT_EQ(Core_Register_Account_Public_Key_Notification, sub.notificationTypes()[offset + 5]) << message;
-		}
-
-		// - signature notifications are raised last (and with wrong source) for performance reasons
-		EXPECT_EQ(Core_Signature_Notification, sub.notificationTypes()[11]);
-		EXPECT_EQ(Core_Signature_Notification, sub.notificationTypes()[12]);
-		EXPECT_EQ(Core_Signature_Notification, sub.notificationTypes()[13]);
-	}
-
-	// endregion
-
-	// region publish - account (including nested)
-
-	namespace {
-		void AssertContainsAllKeys(const mocks::MockNotificationSubscriber& sub, const AggregateTransactionWrapper& wrapper) {
-			auto i = 0u;
-			for (const auto& key : wrapper.SubTransactionSigners) {
-				EXPECT_TRUE(sub.contains(key)) << "sub transaction signer " << i;
-				++i;
-			}
-
-			for (const auto& key : wrapper.SubTransactionRecipients) {
-				EXPECT_TRUE(sub.contains(key)) << "sub transaction recipient " << i;
-				++i;
-			}
-
-			// Sanity:
-			EXPECT_EQ(i, sub.numKeys());
-		}
-	}
-
-	TEST(TEST_CLASS, CanRaiseAccountNotificationsFromAggregate) {
-		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		auto registry = mocks::CreateDefaultTransactionRegistry();
-		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
-		auto wrapper = CreateAggregateTransaction(2, 3);
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
-
-		// Assert: 2 sub signer and 2 sub recipient notifications are raised
-		EXPECT_EQ(0u, sub.numAddresses());
-		EXPECT_EQ(4u, sub.numKeys());
-		AssertContainsAllKeys(sub, wrapper);
-	}
-
-	// endregion
-
-	// region publish - source change notification
-
-	TEST(TEST_CLASS, CanRaiseSourceChangeNotificationsFromAggregate) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<SourceChangeNotification> sub;
-		auto registry = mocks::CreateDefaultTransactionRegistry();
-		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
-		auto wrapper = CreateAggregateTransaction(2, 3);
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
-
-		// Assert: one notification is raised for each embedded transaction
-		ASSERT_EQ(2u, sub.numMatchingNotifications());
-		for (auto i = 0u; i < 2; ++i) {
-			auto message = "transaction at " + std::to_string(i);
-			const auto& notification = sub.matchingNotifications()[i];
-
-			EXPECT_EQ(0u, notification.PrimaryId) << message;
-			EXPECT_EQ(1u, notification.SecondaryId) << message;
-			EXPECT_EQ(SourceChangeNotification::SourceChangeType::Relative, notification.PrimaryChangeType) << message;
-			EXPECT_EQ(SourceChangeNotification::SourceChangeType::Relative, notification.SecondaryChangeType) << message;
-		}
-	}
-
-	// endregion
-
-	// region publish - entity notification
-
-	TEST(TEST_CLASS, CanRaiseEntityNotificationsFromAggregate) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<EntityNotification> sub;
-		auto registry = mocks::CreateDefaultTransactionRegistry();
-		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
-		auto wrapper = CreateAggregateTransaction(2, 3);
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
-
-		// Assert: one notification is raised for each embedded transaction
-		ASSERT_EQ(2u, sub.numMatchingNotifications());
-		for (auto i = 0u; i < 2; ++i) {
-			auto message = "transaction at " + std::to_string(i);
-			const auto& notification = sub.matchingNotifications()[i];
-
-			// - min/max version comes from MockTransactionPlugin created in CreateDefaultTransactionRegistry
-			EXPECT_EQ(static_cast<NetworkIdentifier>(100 + i), notification.NetworkIdentifier) << message;
-			EXPECT_EQ((i + 1) * 2, notification.EntityVersion) << message;
-			EXPECT_EQ(0x02u, notification.MinVersion) << message;
-			EXPECT_EQ(0xFEu, notification.MaxVersion) << message;
-		}
-	}
-
-	// endregion
-
-	// region publish - aggregate embedded transaction
-
-	namespace {
-		void AssertCanRaiseEmbeddedTransactionNotifications(uint8_t numTransactions, uint8_t numCosignatures) {
-			// Arrange:
-			mocks::MockTypedNotificationSubscriber<AggregateEmbeddedTransactionNotification> sub;
-			auto registry = mocks::CreateDefaultTransactionRegistry();
-			auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
-			auto wrapper = CreateAggregateTransaction(numTransactions, numCosignatures);
-
-			// Act:
-			test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
-
-			// Assert: the plugin raises an embedded transaction notification for each transaction
-			ASSERT_EQ(numTransactions, sub.numMatchingNotifications());
-			for (auto i = 0u; i < numTransactions; ++i) {
-				auto message = "transaction at " + std::to_string(i);
-				const auto& notification = sub.matchingNotifications()[i];
-
-				EXPECT_EQ(wrapper.pTransaction->Signer, notification.Signer) << message;
-				EXPECT_EQ(*wrapper.SubTransactions[i], notification.Transaction) << message;
-				EXPECT_EQ(numCosignatures, notification.CosignaturesCount) << message;
-				EXPECT_EQ(wrapper.pTransaction->CosignaturesPtr(), notification.CosignaturesPtr) << message;
-			}
-		}
-	}
-
-	TEST(TEST_CLASS, EmptyAggregateDoesNotRaiseEmbeddedTransactionNotifications) {
-		// Assert:
-		AssertCanRaiseEmbeddedTransactionNotifications(0, 0);
-	}
-
-	TEST(TEST_CLASS, CanRaiseEmbeddedTransactionNotificationsFromAggregate) {
-		// Assert:
-		AssertCanRaiseEmbeddedTransactionNotifications(2, 3);
-	}
-
-	// endregion
-
-	// region publish - signature
-
-	namespace {
-		void AssertCanRaiseSignatureNotifications(uint8_t numTransactions, uint8_t numCosignatures) {
-			// Arrange:
-			mocks::MockTypedNotificationSubscriber<SignatureNotification> sub;
-			auto registry = mocks::CreateDefaultTransactionRegistry();
-			auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
-			auto wrapper = CreateAggregateTransaction(numTransactions, numCosignatures);
-
-			auto aggregateDataHash = test::GenerateRandomByteArray<Hash256>();
-
-			// Act:
-			test::PublishTransaction(*pPlugin, WeakEntityInfoT<Transaction>(*wrapper.pTransaction, aggregateDataHash), sub);
-
-			// Assert: the plugin only raises signature notifications for explicit cosigners
-			//         (the signature notification for the signer is raised as part of normal processing)
-			ASSERT_EQ(numCosignatures, sub.numMatchingNotifications());
-			for (auto i = 0u; i < numCosignatures; ++i) {
-				auto message = "cosigner at " + std::to_string(i);
-				const auto& notification = sub.matchingNotifications()[i];
-
-				// - notifications should refer to cosigners
-				EXPECT_EQ(wrapper.Cosigners[i], notification.Signer) << message;
-				EXPECT_EQ(wrapper.CosignerSignatures[i], notification.Signature) << message;
-
-				// - notifications should refer to same (aggregate) data hash
-				EXPECT_EQ(aggregateDataHash.data(), notification.Data.pData) << message;
-				EXPECT_EQ(Hash256_Size, notification.Data.Size) << message;
-
-				// - notifications should not have replay protection because they represent cosignatures
-				EXPECT_EQ(SignatureNotification::ReplayProtectionMode::Disabled, notification.DataReplayProtectionMode);
-			}
-		}
-	}
-
-	TEST(TEST_CLASS, EmptyAggregateDoesNotRaiseSignatureNotifications) {
-		// Assert:
-		AssertCanRaiseSignatureNotifications(0, 0);
-	}
-
-	TEST(TEST_CLASS, CanRaiseSignatureNotificationsFromAggregate) {
-		// Assert:
-		AssertCanRaiseSignatureNotifications(2, 3);
-	}
-
-	// endregion
-
-	// region publish - aggregate cosignatures
-
-	TEST(TEST_CLASS, CanRaiseAggregateCosignaturesNotificationsFromEmptyAggregate) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<AggregateCosignaturesNotification> sub;
-		auto registry = mocks::CreateDefaultTransactionRegistry();
-		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
 		auto wrapper = CreateAggregateTransaction(0, 0);
 
-		// Act:
-		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
+		const auto& transaction = *wrapper.pTransaction;
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
+		builder.addExpectation<AggregateCosignaturesNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(0u, notification.TransactionsCount);
+			EXPECT_FALSE(!!notification.TransactionsPtr);
+			EXPECT_EQ(0u, notification.CosignaturesCount);
+			EXPECT_FALSE(!!notification.CosignaturesPtr);
+		});
 
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(wrapper.pTransaction->Signer, notification.Signer);
-		EXPECT_EQ(0u, notification.TransactionsCount);
-		EXPECT_FALSE(!!notification.TransactionsPtr);
-		EXPECT_EQ(0u, notification.CosignaturesCount);
-		EXPECT_FALSE(!!notification.CosignaturesPtr);
+		// Act + Assert:
+		builder.runTest(transaction, registry);
 	}
 
-	TEST(TEST_CLASS, CanRaiseAggregateCosignaturesNotificationsFromAggregate) {
+	// endregion
+
+	// region publish - only sub transactions
+
+	namespace {
+		void AddSubTransactionExpectations(
+				test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder& builder,
+				const AggregateTransactionWrapper& wrapper,
+				uint8_t count) {
+			for (auto i = 0u; i < count; ++i) {
+				builder.addExpectation<SourceChangeNotification>(i, [](const auto& notification) {
+					EXPECT_EQ(0u, notification.PrimaryId);
+					EXPECT_EQ(1u, notification.SecondaryId);
+					EXPECT_EQ(SourceChangeNotification::SourceChangeType::Relative, notification.PrimaryChangeType);
+					EXPECT_EQ(SourceChangeNotification::SourceChangeType::Relative, notification.SecondaryChangeType);
+				});
+				builder.addExpectation<AccountPublicKeyNotification>(i * 2, [&wrapper, i](const auto& notification) {
+					EXPECT_EQ(wrapper.SubTransactions[i]->Signer, notification.PublicKey);
+				});
+				builder.addExpectation<EntityNotification>(i, [i](const auto& notification) {
+					// min/max version comes from MockTransactionPlugin created in CreateDefaultTransactionRegistry
+					EXPECT_EQ(static_cast<NetworkIdentifier>(100 + i), notification.NetworkIdentifier);
+					EXPECT_EQ((i + 1) * 2, notification.EntityVersion);
+					EXPECT_EQ(0x02u, notification.MinVersion);
+					EXPECT_EQ(0xFEu, notification.MaxVersion);
+				});
+				builder.addExpectation<AggregateEmbeddedTransactionNotification>(i, [&wrapper, i](const auto& notification) {
+					EXPECT_EQ(wrapper.pTransaction->Signer, notification.Signer);
+					EXPECT_EQ(*wrapper.SubTransactions[i], notification.Transaction);
+					EXPECT_EQ(wrapper.pTransaction->CosignaturesCount(), notification.CosignaturesCount);
+					EXPECT_EQ(wrapper.pTransaction->CosignaturesPtr(), notification.CosignaturesPtr);
+				});
+				builder.addExpectation<AccountPublicKeyNotification>(i * 2 + 1, [&wrapper, i](const auto& notification) {
+					EXPECT_EQ(wrapper.SubTransactions[i]->Recipient, notification.PublicKey);
+				});
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, CanPublishAllNotificationsInCorrectOrderWhenOnlySubTransactionsArePresent) {
 		// Arrange:
-		mocks::MockTypedNotificationSubscriber<AggregateCosignaturesNotification> sub;
 		auto registry = mocks::CreateDefaultTransactionRegistry();
-		auto pPlugin = CreateAggregateTransactionPlugin(registry, Entity_Type);
+		auto wrapper = CreateAggregateTransaction(2, 0);
+
+		// Act + Assert:
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
+			// aggregate cosignatures notification must be the first raised notification
+			AggregateCosignaturesNotification::Notification_Type,
+
+			// source change notification must be the first raised sub-transaction notification
+			SourceChangeNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
+			EntityNotification::Notification_Type,
+			AggregateEmbeddedTransactionNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
+
+			SourceChangeNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
+			EntityNotification::Notification_Type,
+			AggregateEmbeddedTransactionNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
+		}, registry);
+	}
+
+	TEST(TEST_CLASS, CanPublishAllNotificationsWhenOnlySubTransactionsArePresent) {
+		// Arrange:
+		auto registry = mocks::CreateDefaultTransactionRegistry();
+		auto wrapper = CreateAggregateTransaction(2, 0);
+
+		const auto& transaction = *wrapper.pTransaction;
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
+		builder.addExpectation<AggregateCosignaturesNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(2u, notification.TransactionsCount);
+			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
+			EXPECT_EQ(0u, notification.CosignaturesCount);
+			EXPECT_FALSE(!!notification.CosignaturesPtr);
+		});
+
+		AddSubTransactionExpectations(builder, wrapper, 2);
+
+		// Act + Assert:
+		builder.runTest(transaction, registry);
+	}
+
+	// endregion
+
+	// region publish - only cosignatures
+
+	namespace {
+		void AddCosignatureExpectations(
+				test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder& builder,
+				const AggregateTransactionWrapper& wrapper,
+				const Hash256& aggregateDataHash,
+				uint8_t count) {
+			for (auto i = 0u; i < count; ++i) {
+				builder.addExpectation<SignatureNotification>(i, [&wrapper, &aggregateDataHash, i](const auto& notification) {
+					// notifications should refer to cosigners
+					EXPECT_EQ(wrapper.Cosigners[i], notification.Signer);
+					EXPECT_EQ(wrapper.CosignerSignatures[i], notification.Signature);
+
+					// notifications should refer to same (aggregate) data hash
+					EXPECT_EQ(aggregateDataHash.data(), notification.Data.pData);
+					EXPECT_EQ(Hash256::Size, notification.Data.Size);
+
+					// notifications should not have replay protection because they represent cosignatures
+					EXPECT_EQ(SignatureNotification::ReplayProtectionMode::Disabled, notification.DataReplayProtectionMode);
+				});
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, CanPublishAllNotificationsInCorrectOrderWhenOnlyCosignaturesArePresent) {
+		// Arrange:
+		auto registry = mocks::CreateDefaultTransactionRegistry();
+		auto wrapper = CreateAggregateTransaction(0, 3);
+
+		// Act + Assert:
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
+			// aggregate cosignatures notification must be the first raised notification
+			AggregateCosignaturesNotification::Notification_Type,
+
+			// signature notifications are raised last (and with wrong source) for performance reasons
+			SignatureNotification::Notification_Type,
+			SignatureNotification::Notification_Type,
+			SignatureNotification::Notification_Type
+		}, registry);
+	}
+
+	TEST(TEST_CLASS, CanPublishAllNotificationsWhenOnlyCosignaturesArePresent) {
+		// Arrange:
+		auto registry = mocks::CreateDefaultTransactionRegistry();
+		auto wrapper = CreateAggregateTransaction(0, 3);
+		auto aggregateDataHash = test::GenerateRandomByteArray<Hash256>();
+
+		const auto& transaction = *wrapper.pTransaction;
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
+		builder.addExpectation<AggregateCosignaturesNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(0u, notification.TransactionsCount);
+			EXPECT_FALSE(!!notification.TransactionsPtr);
+			EXPECT_EQ(3u, notification.CosignaturesCount);
+			EXPECT_EQ(transaction.CosignaturesPtr(), notification.CosignaturesPtr);
+		});
+
+		AddCosignatureExpectations(builder, wrapper, aggregateDataHash, 3);
+
+		// Act + Assert:
+		builder.runTestWithHash(transaction, aggregateDataHash, registry);
+	}
+
+	// endregion
+
+	// region sub transactions and cosignatures
+
+	TEST(TEST_CLASS, CanPublishAllNotificationsInCorrectOrderWhenSubTransactionsAndCosignaturesArePresent) {
+		// Arrange:
+		auto registry = mocks::CreateDefaultTransactionRegistry();
 		auto wrapper = CreateAggregateTransaction(2, 3);
 
-		// Act:
-		test::PublishTransaction(*pPlugin, *wrapper.pTransaction, sub);
+		// Act + Assert:
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::AssertNotificationTypes(*wrapper.pTransaction, {
+			// aggregate cosignatures notification must be the first raised notification
+			AggregateCosignaturesNotification::Notification_Type,
 
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(wrapper.pTransaction->Signer, notification.Signer);
-		EXPECT_EQ(2u, notification.TransactionsCount);
-		EXPECT_EQ(wrapper.pTransaction->TransactionsPtr(), notification.TransactionsPtr);
-		EXPECT_EQ(3u, notification.CosignaturesCount);
-		EXPECT_EQ(wrapper.pTransaction->CosignaturesPtr(), notification.CosignaturesPtr);
+			// source change notification must be the first raised sub-transaction notification
+			SourceChangeNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
+			EntityNotification::Notification_Type,
+			AggregateEmbeddedTransactionNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
+
+			SourceChangeNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
+			EntityNotification::Notification_Type,
+			AggregateEmbeddedTransactionNotification::Notification_Type,
+			AccountPublicKeyNotification::Notification_Type,
+
+			// signature notifications are raised last (and with wrong source) for performance reasons
+			SignatureNotification::Notification_Type,
+			SignatureNotification::Notification_Type,
+			SignatureNotification::Notification_Type
+		}, registry);
+	}
+
+	TEST(TEST_CLASS, CanPublishAllNotificationsWhenSubTransactionsAndCosignaturesArePresent) {
+		// Arrange:
+		auto registry = mocks::CreateDefaultTransactionRegistry();
+		auto wrapper = CreateAggregateTransaction(2, 3);
+		auto aggregateDataHash = test::GenerateRandomByteArray<Hash256>();
+
+		const auto& transaction = *wrapper.pTransaction;
+		test::TransactionPluginTestUtils<AggregateTransactionTraits>::PublishTestBuilder builder;
+		builder.addExpectation<AggregateCosignaturesNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(2u, notification.TransactionsCount);
+			EXPECT_EQ(transaction.TransactionsPtr(), notification.TransactionsPtr);
+			EXPECT_EQ(3u, notification.CosignaturesCount);
+			EXPECT_EQ(transaction.CosignaturesPtr(), notification.CosignaturesPtr);
+		});
+
+		AddSubTransactionExpectations(builder, wrapper, 2);
+		AddCosignatureExpectations(builder, wrapper, aggregateDataHash, 3);
+
+		// Act + Assert:
+		builder.runTestWithHash(transaction, aggregateDataHash, registry);
 	}
 
 	// endregion
@@ -500,12 +470,10 @@ namespace catapult { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanExtractDataBufferFromEmptyAggregate) {
-		// Assert:
 		AssertCanExtractDataBufferFromAggregate(0, 0);
 	}
 
 	TEST(TEST_CLASS, CanExtractDataBufferFromAggregate) {
-		// Assert:
 		AssertCanExtractDataBufferFromAggregate(2, 3);
 	}
 
@@ -530,19 +498,17 @@ namespace catapult { namespace plugins {
 			for (auto i = 0u; i < numCosignatures; ++i) {
 				auto message = "buffer " + std::to_string(i);
 				EXPECT_EQ(pCosignature->Signer.data(), buffers[i].pData) << message;
-				EXPECT_EQ(Key_Size, buffers[i].Size) << message;
+				EXPECT_EQ(Key::Size, buffers[i].Size) << message;
 				++pCosignature;
 			}
 		}
 	}
 
 	TEST(TEST_CLASS, CanExtractMerkleSupplementaryBuffersFromEmptyAggregate) {
-		// Assert:
 		AssertCanExtractMerkleSupplementaryBuffersFromAggregate(0, 0);
 	}
 
 	TEST(TEST_CLASS, CanExtractMerkleSupplementaryBuffersFromAggregate) {
-		// Assert:
 		AssertCanExtractMerkleSupplementaryBuffersFromAggregate(2, 3);
 	}
 

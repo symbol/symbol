@@ -50,7 +50,6 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, NeutralWhenConsumerResultIsNeutral) {
-		// Assert:
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Neutral, validators::ValidationResult::Neutral);
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Neutral, consumers::Neutral_Consumer_Hash_In_Recency_Cache);
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Neutral, static_cast<validators::ValidationResult>(0x40001234));
@@ -58,14 +57,12 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenConsumerResultIsSuccess) {
-		// Assert:
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Success, validators::ValidationResult::Success);
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Success, static_cast<validators::ValidationResult>(0x00001234));
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Success, static_cast<validators::ValidationResult>(0x01234567));
 	}
 
 	TEST(TEST_CLASS, FailureWhenConsumerResultIsFailure) {
-		// Assert:
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Failure, validators::ValidationResult::Failure);
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Failure, static_cast<validators::ValidationResult>(0x80001234));
 		AssertNodeInteractionResult(ionet::NodeInteractionResultCode::Failure, static_cast<validators::ValidationResult>(0x81234567));

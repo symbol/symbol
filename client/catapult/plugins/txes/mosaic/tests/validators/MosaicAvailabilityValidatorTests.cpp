@@ -67,7 +67,7 @@ namespace catapult { namespace validators {
 
 		void AddMosaic(cache::CatapultCache& cache, MosaicId id, Amount mosaicSupply, const Key& owner, Amount ownerSupply) {
 			auto delta = cache.createDelta();
-			test::AddMosaic(delta, id, Height(50), BlockDuration(100), mosaicSupply);
+			test::AddMosaic(delta, id, Height(50), BlockDuration(100), mosaicSupply, owner);
 			test::AddMosaicOwner(delta, id, owner, ownerSupply);
 			cache.commit(Height());
 		}
@@ -114,6 +114,19 @@ namespace catapult { namespace validators {
 		AssertValidationResult(Failure_Mosaic_Expired, cache, Height(999), notification);
 	}
 
+	TEST(TEST_CLASS, FailureWhenSignerIsNotMosaicOwner) {
+		// Arrange:
+		auto signer = test::GenerateRandomByteArray<Key>();
+		auto notification = CreateNotification(signer, MosaicId(123), 3, BlockDuration(200));
+
+		// - seed the cache with an active mosaic with the same id and zero supply
+		auto cache = test::MosaicCacheFactory::Create(model::BlockChainConfiguration::Uninitialized());
+		AddMosaic(cache, MosaicId(123), Amount(0), test::GenerateRandomByteArray<Key>(), Amount(0));
+
+		// Assert:
+		AssertValidationResult(Failure_Mosaic_Owner_Conflict, cache, Height(100), notification);
+	}
+
 	// endregion
 
 	// region properties check
@@ -151,16 +164,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanReplaceActiveMosaicWhenSupplyIsZero_RequiredPropertiesChanged) {
-		// Assert:
 		AssertCanReplaceActiveMosaicWhenSupplyIsZero(3);
 	}
 
 	TEST(TEST_CLASS, CanReplaceActiveMosaicWhenSupplyIsZero_RequiredPropertiesUnchanged) {
-		// Assert:
 		AssertCanReplaceActiveMosaicWhenSupplyIsZero(0);
 	}
 
-	TEST(TEST_CLASS, CannotReplaceActiveMosaicWhenSupplyIsNonZero) {
+	TEST(TEST_CLASS, CannotReplaceActiveMosaicWhenSupplyIsNonzero) {
 		// Arrange:
 		auto signer = test::GenerateRandomByteArray<Key>();
 		auto notification = CreateNotification(signer, MosaicId(123), BlockDuration(200));

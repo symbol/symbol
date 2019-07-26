@@ -85,10 +85,8 @@ namespace catapult { namespace test {
 				auto future = pPromise->get_future();
 
 				// perform the read
-				boost::asio::async_read(
-						m_socket,
-						boost::asio::buffer(receiveBuffer),
-						[pThis = shared_from_this(), pPromise](const auto& ec, auto numBytes) {
+				auto asioBuffer = boost::asio::buffer(receiveBuffer);
+				boost::asio::async_read(m_socket, asioBuffer, [pThis = shared_from_this(), pPromise](const auto& ec, auto numBytes) {
 					CATAPULT_LOG(debug) << "client socket read " << numBytes << " bytes " << ToMessage(ec);
 					if (ec && boost::asio::error::eof != ec)
 						return SetPromiseException(*pPromise, ec);

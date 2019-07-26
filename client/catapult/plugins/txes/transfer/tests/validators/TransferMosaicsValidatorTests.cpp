@@ -45,25 +45,21 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithZeroMosaics) {
-		// Assert:
 		AssertValidationResult(Success_Result, {});
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithOneMosaic) {
-		// Assert:
 		AssertValidationResult(Success_Result, { { UnresolvedMosaicId(71), Amount(5) } });
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMultipleOrderedMosaics) {
-		// Assert:
 		AssertValidationResult(
 				Success_Result,
 				{ { UnresolvedMosaicId(71), Amount(5) }, { UnresolvedMosaicId(182), Amount(4) }, { UnresolvedMosaicId(200), Amount(1) } });
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMultipleOutOfOrderMosaics) {
-		// Assert:
-		// - first and second are out of order
+		// Assert: first and second are out of order
 		AssertValidationResult(
 				Failure_Transfer_Out_Of_Order_Mosaics,
 				{ { UnresolvedMosaicId(200), Amount(5) }, { UnresolvedMosaicId(71), Amount(1) }, { UnresolvedMosaicId(182), Amount(4) } });

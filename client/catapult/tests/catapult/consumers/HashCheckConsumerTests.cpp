@@ -99,7 +99,6 @@ namespace catapult { namespace consumers {
 	// region shared tests
 
 	SINGLE_ENTITY_BASED_TEST(CanProcessZeroEntities) {
-		// Assert:
 		test::AssertPassthroughForEmptyInput(CreateDefaultConsumer<TTraits>());
 	}
 
@@ -516,7 +515,7 @@ namespace catapult { namespace consumers {
 	namespace {
 		struct KnownHashPredicateParams {
 		public:
-			explicit KnownHashPredicateParams(Timestamp timestamp, const Hash256& hash)
+			KnownHashPredicateParams(Timestamp timestamp, const Hash256& hash)
 					: Time(timestamp)
 					, Hash(hash)
 			{}

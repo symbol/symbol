@@ -58,17 +58,14 @@ namespace catapult { namespace sync {
 	// region tasks
 
 	TEST(TEST_CLASS, ConnectPeersTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, "connect peers task for service Sync");
 	}
 
 	TEST(TEST_CLASS, SynchronizerTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, "synchronizer task");
 	}
 
 	TEST(TEST_CLASS, PullUtTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, "pull unconfirmed transactions task");
 	}
 

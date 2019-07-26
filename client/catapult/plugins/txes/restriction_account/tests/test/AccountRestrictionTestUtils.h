@@ -19,167 +19,21 @@
 **/
 
 #pragma once
-#include "src/state/AccountRestriction.h"
-#include "tests/test/core/AddressTestUtils.h"
-#include "tests/test/core/ResolverTestUtils.h"
-#include "tests/test/nodeps/Random.h"
+#include "src/model/AccountRestrictionTypes.h"
+#include "src/state/AccountRestrictionDescriptor.h"
+
+namespace catapult { namespace state { class AccountRestrictions; } }
 
 namespace catapult { namespace test {
 
-	// region restriction traits
+	/// Collects all available account restriction types.
+	std::vector<model::AccountRestrictionType> CollectAccountRestrictionTypes();
 
-	struct BaseAccountAddressRestrictionTraits {
-		using UnresolvedValueType = UnresolvedAddress;
-		using ValueType = Address;
+	/// Creates random account restrictions around \a operationType and \a valuesSizes.
+	state::AccountRestrictions CreateAccountRestrictions(
+			state::AccountRestrictionOperationType operationType,
+			const std::vector<size_t>& valuesSizes);
 
-		static constexpr auto Restriction_Type = model::AccountRestrictionType::Address;
-		static constexpr auto Restriction_Value_Size = Address_Decoded_Size;
-
-		static auto RandomUnresolvedValue() {
-			return test::GenerateRandomUnresolvedAddress();
-		}
-
-		static auto RandomValue() {
-			return test::GenerateRandomByteArray<Address>();
-		}
-
-		static UnresolvedValueType Unresolve(const ValueType& value) {
-			return test::UnresolveXor(value);
-		}
-
-		static auto FromBuffer(const RawBuffer& buffer) {
-			UnresolvedValueType address;
-			std::memcpy(address.data(), buffer.pData, buffer.Size);
-			return address;
-		}
-	};
-
-	struct BaseAccountMosaicRestrictionTraits {
-		using UnresolvedValueType = UnresolvedMosaicId;
-		using ValueType = MosaicId;
-
-		static constexpr auto Restriction_Type = model::AccountRestrictionType::MosaicId;
-		static constexpr auto Restriction_Value_Size = sizeof(ValueType);
-
-		static auto RandomUnresolvedValue() {
-			return test::GenerateRandomValue<UnresolvedValueType>();
-		}
-
-		static auto RandomValue() {
-			return test::GenerateRandomValue<ValueType>();
-		}
-
-		static UnresolvedValueType Unresolve(const ValueType& value) {
-			return test::UnresolveXor(value);
-		}
-
-		static auto FromBuffer(const RawBuffer& buffer) {
-			return reinterpret_cast<const UnresolvedValueType&>(*buffer.pData);
-		}
-	};
-
-	struct BaseAccountOperationRestrictionTraits {
-		using UnresolvedValueType = model::EntityType;
-		using ValueType = model::EntityType;
-
-		static constexpr auto Restriction_Type = model::AccountRestrictionType::TransactionType;
-		static constexpr auto Restriction_Value_Size = sizeof(ValueType);
-
-		static auto RandomUnresolvedValue() {
-			return static_cast<UnresolvedValueType>(test::RandomByte());
-		}
-
-		static auto RandomValue() {
-			return static_cast<ValueType>(test::RandomByte());
-		}
-
-		static UnresolvedValueType Unresolve(const ValueType& value) {
-			return value;
-		}
-
-		static auto FromBuffer(const RawBuffer& buffer) {
-			return reinterpret_cast<const UnresolvedValueType&>(*buffer.pData);
-		}
-	};
-
-	// endregion
-
-	// region allow/block traits
-
-	/// Traits for operation type 'Allow'.
-	struct AllowTraits {
-		/// Given \a restrictionType gets the restriction type including the operation type.
-		static model::AccountRestrictionType CompleteAccountRestrictionType(model::AccountRestrictionType restrictionType) {
-			return restrictionType;
-		}
-
-		/// Given \a restrictionType gets the restriction type including the opposite operation type.
-		static model::AccountRestrictionType OppositeCompleteAccountRestrictionType(model::AccountRestrictionType restrictionType) {
-			return restrictionType | model::AccountRestrictionType::Block;
-		}
-
-		/// Adds \a value to \a restriction for operation type 'Allow'.
-		static void Add(state::AccountRestriction& restriction, const state::AccountRestriction::RawValue& value) {
-			restriction.allow({ model::AccountRestrictionModificationType::Add, value });
-		}
-	};
-
-	/// Traits for operation type 'Block'.
-	struct BlockTraits {
-		/// Given \a restrictionType gets the restriction type including the operation type.
-		static model::AccountRestrictionType CompleteAccountRestrictionType(model::AccountRestrictionType restrictionType) {
-			return restrictionType | model::AccountRestrictionType::Block;
-		}
-
-		/// Given \a restrictionType gets the restriction type including the opposite operation type.
-		static model::AccountRestrictionType OppositeCompleteAccountRestrictionType(model::AccountRestrictionType restrictionType) {
-			return restrictionType;
-		}
-
-		/// Adds \a value to \a restriction for operation type 'Block'.
-		static void Add(state::AccountRestriction& restriction, const state::AccountRestriction::RawValue& value) {
-			restriction.block({ model::AccountRestrictionModificationType::Add, value });
-		}
-	};
-
-	// endregion
-
-	// region CreateNotification
-
-	/// Creates a notification around \a key and \a modification.
-	template<typename TRestrictionValueTraits, typename TOperationTraits = AllowTraits>
-	auto CreateNotification(
-			const Key& key,
-			const model::AccountRestrictionModification<typename TRestrictionValueTraits::UnresolvedValueType>& modification) {
-		return typename TRestrictionValueTraits::NotificationType{
-			key,
-			TOperationTraits::CompleteAccountRestrictionType(TRestrictionValueTraits::Restriction_Type),
-			modification
-		};
-	}
-
-	/// Creates a notification with opposite operation type around \a key and \a modification.
-	template<typename TRestrictionValueTraits, typename TOperationTraits = AllowTraits>
-	auto CreateNotificationWithOppositeOperation(
-			const Key& key,
-			const model::AccountRestrictionModification<typename TRestrictionValueTraits::UnresolvedValueType>& modification) {
-		return typename TRestrictionValueTraits::NotificationType{
-			key,
-			TOperationTraits::OppositeCompleteAccountRestrictionType(TRestrictionValueTraits::Restriction_Type),
-			modification
-		};
-	}
-
-	/// Creates a notification around \a key and \a modifications.
-	template<typename TRestrictionValueTraits, typename TValueType, typename TOperationTraits = AllowTraits>
-	auto CreateNotification(const Key& key, const std::vector<model::AccountRestrictionModification<TValueType>>& modifications) {
-		return typename TRestrictionValueTraits::NotificationType{
-			key,
-			TOperationTraits::CompleteAccountRestrictionType(TRestrictionValueTraits::Restriction_Type),
-			utils::checked_cast<size_t, uint8_t>(modifications.size()),
-			modifications.data()
-		};
-	}
-
-	// endregion
+	/// Asserts that account restrictions \a actual is equal to \a expected.
+	void AssertEqual(const state::AccountRestrictions& expected, const state::AccountRestrictions& actual);
 }}

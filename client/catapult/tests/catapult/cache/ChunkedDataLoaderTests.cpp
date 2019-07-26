@@ -69,7 +69,6 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanLoadStorageFromStreamInOneShot) {
-		// Assert:
 		AssertCanLoadAllInOneShot(7, 7);
 	}
 

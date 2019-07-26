@@ -26,12 +26,13 @@ namespace catapult { namespace utils {
 
 	std::ostream& operator<<(std::ostream& out, const BlockSpan& blockSpan) {
 		// calculate components
-		auto totalHours = blockSpan.hours();
-		auto hours = DivideAndGetRemainder<uint64_t>(totalHours, 24);
-		auto days = totalHours;
+		auto remainder = blockSpan.minutes();
+		auto minutes = DivideAndGetRemainder<uint64_t>(remainder, 60);
+		auto hours = DivideAndGetRemainder<uint64_t>(remainder, 24);
+		auto days = remainder;
 
-		// output as 0d 0h
-		out << days << "d " << hours << "h";
+		// output as 0d 0h 0m
+		out << days << "d " << hours << "h " << minutes << "m";
 		return out;
 	}
 }}

@@ -122,7 +122,7 @@ namespace catapult { namespace cache {
 			using CosignatureInfo = std::pair<Hash256, model::Cosignature>;
 
 		public:
-			explicit MockAddCosignaturePtCacheModifier(
+			MockAddCosignaturePtCacheModifier(
 					std::vector<CosignatureInfo>& cosignatureInfos,
 					const model::DetachedTransactionInfo& transactionInfo)
 					: m_cosignatureInfos(cosignatureInfos)
@@ -205,7 +205,7 @@ namespace catapult { namespace cache {
 	namespace {
 		class MockPruneTimestampPtCacheModifier : public UnsupportedPtCacheModifier {
 		public:
-			explicit MockPruneTimestampPtCacheModifier(
+			MockPruneTimestampPtCacheModifier(
 					std::vector<Timestamp>& timestamps,
 					std::vector<model::DetachedTransactionInfo>&& transactionInfos)
 					: m_timestamps(timestamps)

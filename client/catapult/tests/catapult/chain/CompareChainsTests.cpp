@@ -144,12 +144,10 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, LocalChainInfoExceptionIsPropagated) {
-		// Assert:
 		AssertLocalChainExceptionPropagation(MockChainApi::EntryPoint::Chain_Info);
 	}
 
 	TEST(TEST_CLASS, RemoteChainInfoExceptionIsPropagated) {
-		// Assert:
 		AssertRemoteChainExceptionPropagation(MockChainApi::EntryPoint::Chain_Info);
 	}
 
@@ -174,17 +172,14 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, RemoteIsTooFarBehindWhenRemoteIsMoreThanMaxBlocksToRewriteBehindLocal) {
-		// Assert:
 		AssertIsTooFarBehind(Height(18), Height(7), 10, true);
 	}
 
 	TEST(TEST_CLASS, RemoteIsNotTooFarBehindWhenRemoteIsMaxBlocksToRewriteBehindLocal) {
-		// Assert:
 		AssertIsTooFarBehind(Height(17), Height(7), 10, false);
 	}
 
 	TEST(TEST_CLASS, LocalCanBeMoreThanMaxBlocksToRewriteBehindRemote) {
-		// Assert:
 		AssertIsTooFarBehind(Height(7), Height(18), 10, false);
 	}
 
@@ -213,27 +208,22 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, RemoteReturnedTooManyHashesWhenItReturnedMoreThanMaxBlocksToAnalyze) {
-		// Assert:
 		AssertRemoteReturnedTooManyHashes(21, 20, 10, true);
 	}
 
 	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesWhenItReturnedExactlyMaxBlocksToAnalyze) {
-		// Assert:
 		AssertRemoteReturnedTooManyHashes(20, 20, 10, false);
 	}
 
 	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesWhenItReturnedLessThanRewriteLimit) {
-		// Assert:
 		AssertRemoteReturnedTooManyHashes(21, 20, 30, false);
 	}
 
 	TEST(TEST_CLASS, RemoteDidNotReturnTooManyHashesWhenItMatchesRewriteLimit) {
-		// Assert:
 		AssertRemoteReturnedTooManyHashes(32, 20, 30, false);
 	}
 
 	TEST(TEST_CLASS, RemoteReturnedTooManyHashesWhenItReturnedMoreThanRewriteLimit) {
-		// Assert:
 		AssertRemoteReturnedTooManyHashes(33, 20, 30, true);
 	}
 
@@ -325,12 +315,10 @@ namespace catapult { namespace chain {
 	}
 
 	TEST(TEST_CLASS, LocalHashesFromExceptionIsPropagated) {
-		// Assert:
 		AssertLocalChainExceptionPropagation(MockChainApi::EntryPoint::Hashes_From);
 	}
 
 	TEST(TEST_CLASS, RemoteHashesFromExceptionIsPropagated) {
-		// Assert:
 		AssertRemoteChainExceptionPropagation(MockChainApi::EntryPoint::Hashes_From);
 	}
 

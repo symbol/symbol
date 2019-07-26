@@ -43,17 +43,14 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMessageSizeLessThanMax) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 100, 1234);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithMessageSizeEqualToMax) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 1234, 1234);
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMessageSizeGreaterThanMax) {
-		// Assert:
 		AssertValidationResult(Failure_Transfer_Message_Too_Large, 1235, 1234);
 	}
 }}

@@ -46,7 +46,7 @@ namespace catapult { namespace state {
 		auto numRestrictions = io::Read64(input);
 		for (auto i = 0u; i < numRestrictions; ++i) {
 			auto restrictionDescriptor = state::AccountRestrictionDescriptor(static_cast<model::AccountRestrictionType>(io::Read8(input)));
-			auto& restriction = restrictions.restriction(restrictionDescriptor.restrictionType());
+			auto& restriction = restrictions.restriction(restrictionDescriptor.directionalRestrictionType());
 
 			AccountRestriction::RawValue value(restriction.valueSize());
 			auto numValues = io::Read64(input);

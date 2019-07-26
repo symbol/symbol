@@ -126,6 +126,15 @@ namespace catapult { namespace model {
 
 				// raise transaction notifications
 				auto fee = pBlockHeader ? CalculateTransactionFee(pBlockHeader->FeeMultiplier, transaction) : transaction.MaxFee;
+				CATAPULT_LOG(trace)
+						<< "[Transaction Fee Info]" << std::endl
+						<< "+       pBlockHeader: " << !!pBlockHeader << std::endl
+						<< "+      FeeMultiplier: " << (pBlockHeader ? pBlockHeader->FeeMultiplier : BlockFeeMultiplier()) << std::endl
+						<< "+ transaction.MaxFee: " << transaction.MaxFee << std::endl
+						<< "+                fee: " << fee << std::endl
+						<< "+   transaction.Size: " << transaction.Size << std::endl
+						<< "+   transaction.Type: " << transaction.Type;
+
 				sub.notify(TransactionNotification(transaction.Signer, hash, transaction.Type, transaction.Deadline));
 				sub.notify(TransactionDeadlineNotification(transaction.Deadline, attributes.MaxLifetime));
 				sub.notify(TransactionFeeNotification(transaction.Signer, transaction.Size, fee, transaction.MaxFee));

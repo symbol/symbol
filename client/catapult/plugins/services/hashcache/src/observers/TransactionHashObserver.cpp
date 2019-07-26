@@ -23,7 +23,9 @@
 
 namespace catapult { namespace observers {
 
-	DEFINE_OBSERVER(TransactionHash, model::TransactionNotification, [](const auto& notification, const ObserverContext& context) {
+	DEFINE_OBSERVER(TransactionHash, model::TransactionNotification, [](
+			const model::TransactionNotification& notification,
+			const ObserverContext& context) {
 		auto timestampedHash = state::TimestampedHash(notification.Deadline, notification.TransactionHash);
 		auto& cache = context.Cache.sub<cache::HashCache>();
 

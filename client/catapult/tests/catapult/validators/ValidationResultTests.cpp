@@ -38,8 +38,7 @@ namespace catapult { namespace validators {
 	// region MakeValidationResult / DEFINE_VALIDATION_RESULT
 
 	TEST(TEST_CLASS, CanMakeValidationResult) {
-		// Assert:
-		// - zeros
+		// Assert: zeros
 		EXPECT_EQ(static_cast<ValidationResult>(0x00000000), MakeValidationResult(0, 0, 0, 0));
 
 		// - max single component value
@@ -86,8 +85,7 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, CanCheckWhetherOrNotResultFlagIsSet) {
-		// Assert:
-		// - none
+		// Assert: none
 		auto result = MakeValidationResult(ResultSeverity::Success, 0, 0, static_cast<ResultFlags>(0));
 		EXPECT_FALSE(IsSet(result, static_cast<ResultFlags>(0x01)));
 		EXPECT_FALSE(IsSet(result, static_cast<ResultFlags>(0x20)));
@@ -122,7 +120,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, IsValidationResultSuccessReturnsTrueOnlyInCaseOfSuccess) {
-		// Assert:
 		EXPECT_TRUE(IsValidationResultSuccess(ValidationResult::Success));
 		EXPECT_TRUE(IsValidationResultSuccess(CreateCustomValidationResult(ResultSeverity::Success)));
 
@@ -134,7 +131,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, IsValidationResultFailureReturnsTrueOnlyInCaseOfFailure) {
-		// Assert:
 		EXPECT_FALSE(IsValidationResultFailure(ValidationResult::Success));
 		EXPECT_FALSE(IsValidationResultFailure(CreateCustomValidationResult(ResultSeverity::Success)));
 
@@ -150,7 +146,6 @@ namespace catapult { namespace validators {
 	// region MapToLogLevel
 
 	TEST(TEST_CLASS, MapToLogLevelReturnsCorrectLevelBasedOnVerbosity) {
-		// Assert:
 		EXPECT_EQ(utils::LogLevel::Trace, MapToLogLevel(MakeValidationResult(ResultSeverity::Success, 0, 0, ResultFlags::Verbose)));
 		EXPECT_EQ(utils::LogLevel::Warning, MapToLogLevel(MakeValidationResult(ResultSeverity::Success, 0, 0, ResultFlags::None)));
 	}
@@ -160,7 +155,6 @@ namespace catapult { namespace validators {
 	// region insertion operator
 
 	TEST(TEST_CLASS, CanOutputWellKnownEnumValues) {
-		// Assert:
 		EXPECT_EQ("Success", test::ToString(ValidationResult::Success));
 		EXPECT_EQ("Neutral", test::ToString(ValidationResult::Neutral));
 		EXPECT_EQ("Failure", test::ToString(ValidationResult::Failure));
@@ -176,16 +170,17 @@ namespace catapult { namespace validators {
 		EXPECT_EQ("Failure_Hash_Exists", test::ToString(static_cast<ValidationResult>(0x81490001)));
 		EXPECT_EQ("Failure_LockHash_Invalid_Mosaic_Amount", test::ToString(static_cast<ValidationResult>(0x80480002)));
 		EXPECT_EQ("Failure_LockSecret_Invalid_Hash_Algorithm", test::ToString(static_cast<ValidationResult>(0x80520001)));
+		EXPECT_EQ("Failure_Metadata_Value_Too_Large", test::ToString(static_cast<ValidationResult>(0x80440002)));
 		EXPECT_EQ("Failure_Mosaic_Invalid_Name", test::ToString(static_cast<ValidationResult>(0x804D0002)));
 		EXPECT_EQ("Failure_Multisig_Modify_Redundant_Modifications", test::ToString(static_cast<ValidationResult>(0x80550003)));
 		EXPECT_EQ("Failure_Namespace_Invalid_Name", test::ToString(static_cast<ValidationResult>(0x804E0002)));
 		EXPECT_EQ("Failure_RestrictionAccount_Modification_Address_Invalid", test::ToString(static_cast<ValidationResult>(0x80500003)));
+		EXPECT_EQ("Failure_RestrictionMosaic_Max_Restrictions_Exceeded", test::ToString(static_cast<ValidationResult>(0x80510004)));
 		EXPECT_EQ("Failure_Signature_Not_Verifiable", test::ToString(static_cast<ValidationResult>(0x80530001)));
 		EXPECT_EQ("Failure_Transfer_Message_Too_Large", test::ToString(static_cast<ValidationResult>(0x80540001)));
 	}
 
 	TEST(TEST_CLASS, CanOutputUnknownEnumValues) {
-		// Assert:
 		EXPECT_EQ("ValidationResult<0xABCD9812>", test::ToString(static_cast<ValidationResult>(0xABCD9812)));
 		EXPECT_EQ("ValidationResult<0x00CD9812>", test::ToString(static_cast<ValidationResult>(0x00CD9812)));
 	}

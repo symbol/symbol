@@ -169,7 +169,7 @@ namespace catapult { namespace test {
 
 		class MockRemoveCacheModifier : public UnsupportedCacheModifierType {
 		public:
-			explicit MockRemoveCacheModifier(std::vector<Hash256>& hashes, const TransactionInfoType& info)
+			MockRemoveCacheModifier(std::vector<Hash256>& hashes, const TransactionInfoType& info)
 					: m_hashes(hashes)
 					, m_info(TTraits::Copy(info))
 			{}

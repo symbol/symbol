@@ -34,15 +34,15 @@ namespace catapult { namespace plugins {
 
 #define TEST_CLASS MosaicDefinitionTransactionPluginTests
 
+	// region test utils
+
 	namespace {
 		DEFINE_TRANSACTION_PLUGIN_WITH_CONFIG_TEST_TRAITS(MosaicDefinition, MosaicRentalFeeConfiguration, 1, 1,)
-
-		constexpr UnresolvedMosaicId Currency_Mosaic_Id(1234);
 
 		MosaicRentalFeeConfiguration CreateRentalFeeConfiguration(Amount fee) {
 			return {
 				test::GenerateRandomByteArray<Key>(),
-				Currency_Mosaic_Id,
+				UnresolvedMosaicId(1234),
 				test::GenerateRandomUnresolvedAddress(),
 				fee,
 				test::GenerateRandomByteArray<Key>()
@@ -57,212 +57,118 @@ namespace catapult { namespace plugins {
 			Entity_Type_Mosaic_Definition,
 			CreateRentalFeeConfiguration(Amount(0)))
 
-	PLUGIN_TEST(CanCalculateSize) {
-		// Arrange:
-		auto pPlugin = TTraits::CreatePlugin(CreateRentalFeeConfiguration(Amount(0)));
+	// endregion
 
-		typename TTraits::TransactionType transaction;
-		transaction.Size = 0;
-		transaction.PropertiesHeader.Count = 2;
-
-		// Act:
-		auto realSize = pPlugin->calculateRealSize(transaction);
-
-		// Assert:
-		EXPECT_EQ(sizeof(typename TTraits::TransactionType) + 2 * sizeof(MosaicProperty), realSize);
-	}
-
-	PLUGIN_TEST(CanExtractAccounts) {
-		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		auto config = CreateRentalFeeConfiguration(Amount(0));
-		auto pPlugin = TTraits::CreatePlugin(config);
-
-		typename TTraits::TransactionType transaction;
-		transaction.PropertiesHeader.Count = 0;
-		test::FillWithRandomData(transaction.Signer);
-
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, sub);
-
-		// Assert:
-		EXPECT_EQ(6u, sub.numNotifications());
-		EXPECT_EQ(0u, sub.numAddresses());
-		EXPECT_EQ(1u, sub.numKeys());
-
-		EXPECT_TRUE(sub.contains(config.SinkPublicKey));
-	}
-
-	// region balance change
+	// region publish - nemesis signer
 
 	namespace {
-		template<typename TTraits, typename TAssertTransfers>
-		void RunBalanceChangeObserverTest(bool isSignerExempt, TAssertTransfers assertTransfers) {
-			// Arrange:
-			mocks::MockNotificationSubscriber sub;
-			auto config = CreateRentalFeeConfiguration(Amount(987));
-			auto pPlugin = TTraits::CreatePlugin(config);
-
-			// - prepare the transaction
-			typename TTraits::TransactionType transaction;
-			transaction.PropertiesHeader.Count = 0;
-			test::FillWithRandomData(transaction.Signer);
-			if (isSignerExempt)
-				transaction.Signer = config.NemesisPublicKey;
-
-			// Act:
-			test::PublishTransaction(*pPlugin, transaction, sub);
-
-			// Assert:
-			assertTransfers(sub, transaction.Signer, config.SinkAddress);
+		template<typename TTraits>
+		void AddCommonExpectations(
+				typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder& builder,
+				const MosaicRentalFeeConfiguration& config,
+				const typename TTraits::TransactionType& transaction) {
+			builder.template addExpectation<AccountPublicKeyNotification>([&config](const auto& notification) {
+				EXPECT_EQ(config.SinkPublicKey, notification.PublicKey);
+			});
+			builder.template addExpectation<MosaicNonceNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.Signer, notification.Signer);
+				EXPECT_EQ(transaction.MosaicNonce, notification.MosaicNonce);
+				EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+			});
+			builder.template addExpectation<MosaicPropertiesNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(&transaction.PropertiesHeader, &notification.PropertiesHeader);
+				EXPECT_EQ(transaction.PropertiesPtr(), notification.PropertiesPtr);
+			});
+			builder.template addExpectation<MosaicDefinitionNotification>([&transaction](const auto& notification) {
+				EXPECT_EQ(transaction.Signer, notification.Signer);
+				EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+				EXPECT_EQ(ExtractAllProperties(transaction.PropertiesHeader, transaction.PropertiesPtr()), notification.Properties);
+			});
 		}
 	}
 
-	PLUGIN_TEST(RentalFeeIsExtractedFromNonNemesis) {
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenNemesisIsSigner) {
 		// Arrange:
-		RunBalanceChangeObserverTest<TTraits>(false, [](const auto& sub, const auto& signer, const auto& recipient) {
-			// Assert:
-			EXPECT_EQ(6u, sub.numNotifications());
-			EXPECT_EQ(1u, sub.numTransfers());
-			EXPECT_TRUE(sub.contains(signer, recipient, Currency_Mosaic_Id, Amount(987)));
-		});
+		auto config = CreateRentalFeeConfiguration(Amount(987));
+
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+		transaction.Signer = config.NemesisPublicKey;
+		transaction.PropertiesHeader.Count = 0;
+
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			AccountPublicKeyNotification::Notification_Type,
+			MosaicNonceNotification::Notification_Type,
+			MosaicPropertiesNotification::Notification_Type,
+			MosaicDefinitionNotification::Notification_Type
+		}, config);
 	}
 
-	PLUGIN_TEST(RentalFeeIsExemptedFromNemesis) {
+	PLUGIN_TEST(CanPublishAllNotificationsWhenNemesisIsSigner) {
 		// Arrange:
-		RunBalanceChangeObserverTest<TTraits>(true, [](const auto& sub, const auto&, const auto&) {
-			// Assert:
-			EXPECT_EQ(4u, sub.numNotifications());
-			EXPECT_EQ(0u, sub.numTransfers());
-		});
+		auto config = CreateRentalFeeConfiguration(Amount(987));
+
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+		transaction.Signer = config.NemesisPublicKey;
+		transaction.PropertiesHeader.Count = 0;
+
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, config, transaction);
+
+		// Act + Assert:
+		builder.runTest(transaction, config);
 	}
 
 	// endregion
 
-	// region registration
+	// region publish - nemesis not signer
 
-	namespace {
-		constexpr Amount Default_Rental_Fee(543);
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrderWhenNemesisIsNotSigner) {
+		// Arrange:
+		auto config = CreateRentalFeeConfiguration(Amount(987));
 
-		template<typename TTraits>
-		auto CreateTransactionWithProperties(uint8_t numProperties) {
-			using TransactionType = typename TTraits::TransactionType;
-			uint32_t entitySize = sizeof(TransactionType) + numProperties * sizeof(MosaicProperty);
-			auto pTransaction = utils::MakeUniqueWithSize<TransactionType>(entitySize);
-			pTransaction->Size = entitySize;
-			pTransaction->PropertiesHeader.Count = numProperties;
-			test::FillWithRandomData(pTransaction->Signer);
-			return pTransaction;
-		}
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+		transaction.PropertiesHeader.Count = 0;
 
-		template<typename TTransaction>
-		void FillDefaultTransactionData(TTransaction& transaction) {
-			transaction.MosaicNonce = MosaicNonce(12345);
-			transaction.MosaicId = MosaicId(123);
-			transaction.PropertiesHeader.Flags = static_cast<MosaicFlags>(2);
-			transaction.PropertiesHeader.Divisibility = 7;
-		}
-
-		template<typename TTraits>
-		struct MosaicDefinitionTransactionPluginTestContext {
-		public:
-			using TransactionType = typename TTraits::TransactionType;
-
-		public:
-			template<typename TTransactionPlugin>
-			void PublishTransaction(const TTransactionPlugin& plugin, const TransactionType& transaction) {
-				test::PublishTransaction(plugin, transaction, NonceIdSub);
-				test::PublishTransaction(plugin, transaction, PropertiesSub);
-				test::PublishTransaction(plugin, transaction, DefinitionSub);
-				test::PublishTransaction(plugin, transaction, RentalFeeSub);
-			}
-
-			void AssertMosaicNonceNotification(const Key& signer) {
-				ASSERT_EQ(1u, NonceIdSub.numMatchingNotifications());
-				const auto& notification = NonceIdSub.matchingNotifications()[0];
-				EXPECT_EQ(signer, notification.Signer);
-				EXPECT_EQ(MosaicNonce(12345), notification.MosaicNonce);
-				EXPECT_EQ(MosaicId(123), notification.MosaicId);
-			}
-
-			void AssertOptionalMosaicProperties(const MosaicPropertiesHeader& mosaicPropertiesHeader, const MosaicProperty& property) {
-				ASSERT_EQ(1u, PropertiesSub.numMatchingNotifications());
-				const auto& notification = PropertiesSub.matchingNotifications()[0];
-				EXPECT_EQ(&mosaicPropertiesHeader, &notification.PropertiesHeader);
-				EXPECT_EQ(&property, notification.PropertiesPtr);
-			}
-
-			void AssertNoOptionalMosaicProperties(const MosaicPropertiesHeader& mosaicPropertiesHeader) {
-				ASSERT_EQ(1u, PropertiesSub.numMatchingNotifications());
-				const auto& notification = PropertiesSub.matchingNotifications()[0];
-				EXPECT_EQ(&mosaicPropertiesHeader, &notification.PropertiesHeader);
-				EXPECT_FALSE(!!notification.PropertiesPtr);
-			}
-
-			void AssertMosaicDefinitionTransaction(const Key& signer, const MosaicProperties& expectedProperties) {
-				ASSERT_EQ(1u, DefinitionSub.numMatchingNotifications());
-				const auto& notification = DefinitionSub.matchingNotifications()[0];
-				EXPECT_EQ(signer, notification.Signer);
-				EXPECT_EQ(MosaicId(123), notification.MosaicId);
-				EXPECT_EQ(expectedProperties, notification.Properties);
-			}
-
-			void AssertMosaicRentalFeeNotification(const Key& signer, const UnresolvedAddress& recipientSink) {
-				ASSERT_EQ(1u, RentalFeeSub.numMatchingNotifications());
-				const auto& notification = RentalFeeSub.matchingNotifications()[0];
-				EXPECT_EQ(signer, notification.Sender);
-				EXPECT_EQ(recipientSink, notification.Recipient);
-				EXPECT_EQ(Currency_Mosaic_Id, notification.MosaicId);
-				EXPECT_EQ(Default_Rental_Fee, notification.Amount);
-			}
-
-		public:
-			mocks::MockTypedNotificationSubscriber<MosaicNonceNotification> NonceIdSub;
-			mocks::MockTypedNotificationSubscriber<MosaicPropertiesNotification> PropertiesSub;
-			mocks::MockTypedNotificationSubscriber<MosaicDefinitionNotification> DefinitionSub;
-			mocks::MockTypedNotificationSubscriber<MosaicRentalFeeNotification> RentalFeeSub;
-		};
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			AccountPublicKeyNotification::Notification_Type,
+			BalanceTransferNotification::Notification_Type,
+			MosaicRentalFeeNotification::Notification_Type,
+			MosaicNonceNotification::Notification_Type,
+			MosaicPropertiesNotification::Notification_Type,
+			MosaicDefinitionNotification::Notification_Type
+		}, config);
 	}
 
-	PLUGIN_TEST(CanExtractDefinitionNotificationsWhenOptionalPropertiesArePresent) {
+	PLUGIN_TEST(CanPublishAllNotificationsWhenNemesisIsNotSigner) {
 		// Arrange:
-		MosaicDefinitionTransactionPluginTestContext<TTraits> testContext;
-		auto config = CreateRentalFeeConfiguration(Default_Rental_Fee);
-		auto pPlugin = TTraits::CreatePlugin(config);
+		auto config = CreateRentalFeeConfiguration(Amount(987));
 
-		auto pTransaction = CreateTransactionWithProperties<TTraits>(1);
-		FillDefaultTransactionData(*pTransaction);
-		pTransaction->PropertiesPtr()[0] = { MosaicPropertyId::Duration, 5 };
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+		transaction.PropertiesHeader.Count = 0;
 
-		// Act:
-		testContext.PublishTransaction(*pPlugin, *pTransaction);
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		AddCommonExpectations<TTraits>(builder, config, transaction);
+		builder.template addExpectation<BalanceTransferNotification>([&config, &transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Sender);
+			EXPECT_EQ(config.SinkAddress, notification.Recipient);
+			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
+			EXPECT_EQ(config.Fee, notification.Amount);
+		});
+		builder.template addExpectation<MosaicRentalFeeNotification>([&config, &transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Sender);
+			EXPECT_EQ(config.SinkAddress, notification.Recipient);
+			EXPECT_EQ(config.CurrencyMosaicId, notification.MosaicId);
+			EXPECT_EQ(config.Fee, notification.Amount);
+		});
 
-		// Assert:
-		const auto& signer = pTransaction->Signer;
-		testContext.AssertMosaicNonceNotification(signer);
-		testContext.AssertOptionalMosaicProperties(pTransaction->PropertiesHeader, *pTransaction->PropertiesPtr());
-		testContext.AssertMosaicDefinitionTransaction(signer, MosaicProperties::FromValues({ { 2, 7, 5 } }));
-		testContext.AssertMosaicRentalFeeNotification(signer, config.SinkAddress);
-	}
-
-	PLUGIN_TEST(CanExtractDefinitionNotificationsWhenNoOptionalPropertiesArePresent) {
-		// Arrange:
-		MosaicDefinitionTransactionPluginTestContext<TTraits> testContext;
-		auto config = CreateRentalFeeConfiguration(Default_Rental_Fee);
-		auto pPlugin = TTraits::CreatePlugin(config);
-
-		auto pTransaction = CreateTransactionWithProperties<TTraits>(0);
-		FillDefaultTransactionData(*pTransaction);
-
-		// Act:
-		testContext.PublishTransaction(*pPlugin, *pTransaction);
-
-		// Assert:
-		const auto& signer = pTransaction->Signer;
-		testContext.AssertMosaicNonceNotification(signer);
-		testContext.AssertNoOptionalMosaicProperties(pTransaction->PropertiesHeader);
-		testContext.AssertMosaicDefinitionTransaction(signer, MosaicProperties::FromValues({ { 2, 7, 0 } }));
-		testContext.AssertMosaicRentalFeeNotification(signer, config.SinkAddress);
+		// Act + Assert:
+		builder.runTest(transaction, config);
 	}
 
 	// endregion

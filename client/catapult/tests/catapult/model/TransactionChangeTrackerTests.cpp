@@ -69,12 +69,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanAddSingleTransaction) {
-		// Assert:
 		AssertCanAddTransactionInfos(1);
 	}
 
 	TEST(TEST_CLASS, CanAddMultipleTransactions) {
-		// Assert:
 		AssertCanAddTransactionInfos(3);
 	}
 
@@ -120,12 +118,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanRemoveSingleTransaction) {
-		// Assert:
 		AssertCanRemoveTransactionInfos(1);
 	}
 
 	TEST(TEST_CLASS, CanRemoveMultipleTransactions) {
-		// Assert:
 		AssertCanRemoveTransactionInfos(3);
 	}
 

@@ -138,12 +138,14 @@ PLUGINS_FIRSTINCLUDES = {
     'plugins/coresystem/tests/importance/PosImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
     'plugins/coresystem/tests/importance/RestoreImportanceCalculatorTests.cpp': 'src/importance/ImportanceCalculator.h',
 
+    'plugins/txes/metadata/tests/model/MetadataTransactionTests.cpp': 'src/model/AccountMetadataTransaction.h',
     'plugins/txes/restriction_account/tests/model/AccountRestrictionTransactionTests.cpp':
         'src/model/AccountAddressRestrictionTransaction.h',
 
     # sdk
     'sdk/tests/builders/AliasBuilderTests.cpp': 'src/builders/AddressAliasBuilder.h',
     'sdk/tests/builders/AccountRestrictionBuilderTests.cpp': 'src/builders/AccountAddressRestrictionBuilder.h',
+    'sdk/tests/builders/MetadataBuilderTests.cpp': 'src/builders/AccountMetadataBuilder.h'
 }
 
 TOOLS_FIRSTINCLUDES = {
@@ -151,9 +153,11 @@ TOOLS_FIRSTINCLUDES = {
 }
 
 EXTENSION_FIRSTINCLUDES = {
+    'extensions/mongo/plugins/metadata/src/MongoMetadataPlugin.cpp': 'AccountMetadataMapper.h',
     'extensions/mongo/plugins/mosaic/src/MongoMosaicPlugin.cpp': 'MosaicDefinitionMapper.h',
     'extensions/mongo/plugins/multisig/src/MongoMultisigPlugin.cpp': 'ModifyMultisigAccountMapper.h',
     'extensions/mongo/plugins/namespace/src/MongoNamespacePlugin.cpp': 'AddressAliasMapper.h',
+    'extensions/mongo/plugins/restriction_mosaic/src/MongoMosaicRestrictionPlugin.cpp': 'MosaicAddressRestrictionMapper.h'
 }
 
 SKIP_FORWARDS = (

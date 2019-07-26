@@ -140,22 +140,18 @@ namespace catapult { namespace deltaset {
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetFindIterator_CanCreateUnset_Single) {
-		// Assert:
 		AssertCanCreateUnset<BaseSetFindIteratorTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetFindIterator_CanCreateAroundStorageContainerIterator_Single) {
-		// Assert:
 		AssertCanCreateAroundStorageContainer<BaseSetFindIteratorTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetFindIterator_CanCreateUnset_Dual) {
-		// Assert:
 		AssertCanCreateUnset<BaseSetFindIteratorDualTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetFindIterator_CanCreateAroundStorageContainerIterator_Dual) {
-		// Assert:
 		AssertCanCreateAroundStorageContainer<BaseSetFindIteratorDualTraits<TTraits>>();
 	}
 
@@ -183,22 +179,18 @@ namespace catapult { namespace deltaset {
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindIterator_CanCreateUnset_Single) {
-		// Assert:
 		AssertCanCreateUnset<BaseSetDeltaFindIteratorTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindIterator_CanCreateAroundMemoryContainerIterator_Single) {
-		// Assert:
 		AssertCanCreateAroundMemoryContainer<BaseSetDeltaFindIteratorTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindIterator_CanCreateUnset_Dual) {
-		// Assert:
 		AssertCanCreateUnset<BaseSetDeltaFindIteratorDualTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindIterator_CanCreateAroundMemoryContainerIterator_Dual) {
-		// Assert:
 		AssertCanCreateAroundMemoryContainerDual<BaseSetDeltaFindIteratorDualTraits<TTraits>>();
 	}
 
@@ -226,32 +218,26 @@ namespace catapult { namespace deltaset {
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindConstIterator_CanCreateUnset_Single) {
-		// Assert:
 		AssertCanCreateUnset<BaseSetDeltaFindConstIteratorTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindConstIterator_CanCreateAroundStorageContainerIterator_Single) {
-		// Assert:
 		AssertCanCreateAroundStorageContainer<BaseSetDeltaFindConstIteratorTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindConstIterator_CanCreateAroundMemoryContainerIterator_Single) {
-		// Assert:
 		AssertCanCreateAroundMemoryContainer<BaseSetDeltaFindConstIteratorTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindConstIterator_CanCreateUnset_Dual) {
-		// Assert:
 		AssertCanCreateUnset<BaseSetDeltaFindConstIteratorDualTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindConstIterator_CanCreateAroundStorageContainerIterator_Dual) {
-		// Assert:
 		AssertCanCreateAroundStorageContainer<BaseSetDeltaFindConstIteratorDualTraits<TTraits>>();
 	}
 
 	FIND_ITERATOR_TRAITS_BASED_TEST(BaseSetDeltaFindConstIterator_CanCreateAroundMemoryContainerIterator_Dual) {
-		// Assert:
 		AssertCanCreateAroundMemoryContainerDual<BaseSetDeltaFindConstIteratorDualTraits<TTraits>>();
 	}
 

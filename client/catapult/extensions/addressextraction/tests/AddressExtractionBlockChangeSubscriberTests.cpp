@@ -35,14 +35,12 @@ namespace catapult { namespace addressextraction {
 	}
 
 	TEST(TEST_CLASS, NotifyBlockExtractsTransactionAddresses) {
-		// Act + Assert:
 		TestContext().assertBlockElementExtractions([](auto& subscriber, const auto& blockElement) {
 			subscriber.notifyBlock(blockElement);
 		});
 	}
 
 	TEST(TEST_CLASS, NotifyDropBlocksAfterDoesNotExtractTransactionAddresses) {
-		// Act + Assert:
 		TestContext().assertNoExtractions([](auto& subscriber) {
 			subscriber.notifyDropBlocksAfter(Height(123));
 		});

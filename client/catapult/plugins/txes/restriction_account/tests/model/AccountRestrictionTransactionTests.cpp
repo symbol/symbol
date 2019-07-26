@@ -29,8 +29,6 @@
 
 namespace catapult { namespace model {
 
-	using TransactionType = AccountAddressRestrictionTransaction;
-
 #define TEST_CLASS AccountRestrictionTransactionTests
 
 	// region traits
@@ -65,7 +63,7 @@ namespace catapult { namespace model {
 
 	namespace {
 		template<typename T>
-		void AssertEntityHasExpectedSize(size_t baseSize) {
+		void AssertEntityHasExpectedSize(size_t baseSize, EntityType) {
 			// Arrange:
 			auto expectedSize =
 					baseSize // base

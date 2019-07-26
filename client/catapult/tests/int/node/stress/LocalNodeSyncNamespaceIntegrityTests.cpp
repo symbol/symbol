@@ -188,11 +188,11 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunRegisterNamespaceTest(context));
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashesPair.first, 2);
+		test::AssertAllNonzero(stateHashesPair.first, 2);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - all namespace cache merkle roots are nonzero
-		test::AssertAllNonZero(stateHashesPair.second, 2);
+		test::AssertAllNonzero(stateHashesPair.second, 2);
 		test::AssertUnique(stateHashesPair.second);
 	}
 
@@ -260,11 +260,11 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunExpireNamespaceTest(context));
 
 		// Assert: all state hashes are nonzero (since importance is recalculated every block none of the hashes are the same)
-		test::AssertAllNonZero(stateHashesPair.first, 4);
+		test::AssertAllNonzero(stateHashesPair.first, 4);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - all namespace cache merkle roots are nonzero
-		test::AssertAllNonZero(stateHashesPair.second, 4);
+		test::AssertAllNonzero(stateHashesPair.second, 4);
 		EXPECT_EQ(stateHashesPair.second[1], stateHashesPair.second[2]); // hash includes new namespaces
 		EXPECT_EQ(stateHashesPair.second[2], stateHashesPair.second[3]); // hash includes new namespaces (expired but in grace period)
 		EXPECT_NE(stateHashesPair.second[0], stateHashesPair.second[3]);
@@ -307,11 +307,11 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunPruneNamespaceTest(context));
 
 		// Assert: all state hashes are nonzero (since importance is recalculated every block none of the hashes are the same)
-		test::AssertAllNonZero(stateHashesPair.first, 4);
+		test::AssertAllNonzero(stateHashesPair.first, 4);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - all namespace cache merkle roots are nonzero
-		test::AssertAllNonZero(stateHashesPair.second, 4);
+		test::AssertAllNonzero(stateHashesPair.second, 4);
 		EXPECT_EQ(stateHashesPair.second[0], stateHashesPair.second[2]); // hash does not include new namespaces (expired)
 		EXPECT_EQ(stateHashesPair.second[0], stateHashesPair.second[3]); // hash does not include new namespaces (pruned)
 	}
@@ -384,11 +384,11 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunExpireAndRollbackNamespaceTest(context));
 
 		// Assert: all state hashes are nonzero (since importance is recalculated every block none of the hashes are the same)
-		test::AssertAllNonZero(stateHashesPair.first, 4);
+		test::AssertAllNonzero(stateHashesPair.first, 4);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - all namespace cache merkle roots are nonzero
-		test::AssertAllNonZero(stateHashesPair.second, 4);
+		test::AssertAllNonzero(stateHashesPair.second, 4);
 		EXPECT_EQ(stateHashesPair.second[1], stateHashesPair.second[2]); // hash includes new namespaces
 		EXPECT_EQ(stateHashesPair.second[2], stateHashesPair.second[3]); // hash includes new namespaces (expired but in grace period)
 		EXPECT_NE(stateHashesPair.second[0], stateHashesPair.second[3]);
@@ -425,11 +425,11 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunPruneAndRollbackNamespaceTest(context));
 
 		// Assert: all state hashes are nonzero (since importance is recalculated every block none of the hashes are the same)
-		test::AssertAllNonZero(stateHashesPair.first, 4);
+		test::AssertAllNonzero(stateHashesPair.first, 4);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - all namespace cache merkle roots are nonzero
-		test::AssertAllNonZero(stateHashesPair.second, 4);
+		test::AssertAllNonzero(stateHashesPair.second, 4);
 		EXPECT_EQ(stateHashesPair.second[0], stateHashesPair.second[2]); // hash does not include new namespaces (expired)
 		EXPECT_EQ(stateHashesPair.second[0], stateHashesPair.second[3]); // hash does not include new namespaces (pruned)
 	}
@@ -511,11 +511,11 @@ namespace catapult { namespace local {
 		auto stateHashesPair = test::Unzip(RunRegisterAndDeactivateNamespaceTest(context));
 
 		// Assert: all state hashes are nonzero (since importance is recalculated every block none of the hashes are the same)
-		test::AssertAllNonZero(stateHashesPair.first, 2);
+		test::AssertAllNonzero(stateHashesPair.first, 2);
 		test::AssertUnique(stateHashesPair.first);
 
 		// - all namespace cache merkle roots are nonzero
-		test::AssertAllNonZero(stateHashesPair.second, 2);
+		test::AssertAllNonzero(stateHashesPair.second, 2);
 		EXPECT_EQ(stateHashesPair.second[0], stateHashesPair.second[1]); // hash doesn't include new namespaces
 	}
 

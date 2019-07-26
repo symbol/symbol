@@ -32,7 +32,7 @@ namespace catapult { namespace mocks {
 	struct TransactionStatusSubscriberStatusParams {
 	public:
 		/// Creates params around \a transaction, \a hash and \a status.
-		explicit TransactionStatusSubscriberStatusParams(const model::Transaction& transaction, const Hash256& hash, uint32_t status)
+		TransactionStatusSubscriberStatusParams(const model::Transaction& transaction, const Hash256& hash, uint32_t status)
 				: Transaction(transaction)
 				, pTransactionCopy(test::CopyEntity(transaction))
 				, Hash(hash)

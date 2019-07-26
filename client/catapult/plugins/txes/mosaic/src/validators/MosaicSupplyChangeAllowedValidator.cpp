@@ -29,9 +29,9 @@ namespace catapult { namespace validators {
 
 	DECLARE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, Notification)(Amount maxAtomicUnits) {
 		return MAKE_STATEFUL_VALIDATOR(MosaicSupplyChangeAllowed, [maxAtomicUnits](
-				const auto& notification,
+				const Notification& notification,
 				const ValidatorContext& context) {
-			// notice that MosaicChangeAllowedValidator is required to run first, so both mosaic and owning account must exist
+			// notice that RequiredMosaicValidator will run first, so both mosaic and owning account must exist
 			auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
 			const auto& cache = context.Cache.sub<cache::MosaicCache>();
 			auto mosaicIter = cache.find(mosaicId);

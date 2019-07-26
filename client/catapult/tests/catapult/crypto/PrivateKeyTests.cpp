@@ -53,7 +53,7 @@ namespace catapult { namespace crypto {
 		auto key = PrivateKey();
 
 		// Assert:
-		EXPECT_EQ(Key_Size, key.size());
+		EXPECT_EQ(Key::Size, key.size());
 		// nothing else to validate since std::array is default initialized with garbage
 	}
 
@@ -65,7 +65,7 @@ namespace catapult { namespace crypto {
 		auto key = CreatePrivateKey(rawKey);
 
 		// Assert:
-		EXPECT_EQ(Key_Size, key.size());
+		EXPECT_EQ(Key::Size, key.size());
 		EXPECT_TRUE(std::equal(rawKey.begin(), rawKey.end(), key.data(), key.data() + key.size())); // raw data
 		EXPECT_TRUE(std::equal(rawKey.begin(), rawKey.end(), key.begin(), key.end())); // const iterator
 	}
@@ -77,7 +77,7 @@ namespace catapult { namespace crypto {
 		auto pKey = new (keyMemory) PrivateKey;
 		*pKey = CreatePrivateKey(keyData);
 
-		// Sanity: the key's backing memory is non zero
+		// Sanity: the key's backing memory is nonzero
 		EXPECT_FALSE(IsZeroKey(keyMemory));
 
 		// Act: destroy the key
@@ -94,7 +94,7 @@ namespace catapult { namespace crypto {
 		auto pKey = new (keyMemory) PrivateKey;
 		*pKey = CreatePrivateKey(keyData);
 
-		// Sanity: the key's backing memory is non zero
+		// Sanity: the key's backing memory is nonzero
 		EXPECT_FALSE(IsZeroKey(keyMemory));
 
 		// Act: trigger the move constructor
@@ -114,7 +114,7 @@ namespace catapult { namespace crypto {
 		auto pKey = new (keyMemory) PrivateKey;
 		*pKey = CreatePrivateKey(keyData);
 
-		// Sanity: the key's backing memory is non zero
+		// Sanity: the key's backing memory is nonzero
 		EXPECT_FALSE(IsZeroKey(keyMemory));
 
 		// Act: trigger the move assignment operator
@@ -143,12 +143,12 @@ namespace catapult { namespace crypto {
 
 		void AssertCannotCreatePrivateKeyFromStringWithInvalidCharacter(char invalidChar) {
 			// Arrange:
-			auto rawKeyString = test::GenerateRandomHexString(Key_Size * 2);
-			rawKeyString[Key_Size] = invalidChar;
+			auto rawKeyString = test::GenerateRandomHexString(Key::Size * 2);
+			rawKeyString[Key::Size] = invalidChar;
 
 			// Act + Assert: key creation should fail but string should not be cleared
 			EXPECT_THROW(PrivateKey::FromString(rawKeyString), catapult_invalid_argument) << "invalid char: " << invalidChar;
-			EXPECT_EQ(invalidChar, rawKeyString[Key_Size]);
+			EXPECT_EQ(invalidChar, rawKeyString[Key::Size]);
 		}
 
 		void AssertCannotCreatePrivateKeyFromSecureStringWithSize(size_t size) {
@@ -165,9 +165,9 @@ namespace catapult { namespace crypto {
 
 		void AssertCannotCreatePrivateKeyFromSecureStringWithInvalidCharacter(char invalidChar) {
 			// Arrange:
-			std::string zeroString(Key_Size * 2, '\0');
-			auto rawKeyString = test::GenerateRandomHexString(Key_Size * 2);
-			rawKeyString[Key_Size] = invalidChar;
+			std::string zeroString(Key::Size * 2, '\0');
+			auto rawKeyString = test::GenerateRandomHexString(Key::Size * 2);
+			rawKeyString[Key::Size] = invalidChar;
 
 			// Act + Assert: key creation should fail but string should still be cleared
 			EXPECT_THROW(
@@ -178,27 +178,23 @@ namespace catapult { namespace crypto {
 	}
 
 	TEST(TEST_CLASS, CannotCreatePrivateKeyFromIncorrectlySizedString) {
-		// Assert:
 		AssertCannotCreatePrivateKeyFromStringWithSize(0, '\0');
 		AssertCannotCreatePrivateKeyFromStringWithSize(50, 'c');
 		AssertCannotCreatePrivateKeyFromStringWithSize(120, 'd');
 	}
 
 	TEST(TEST_CLASS, CannotCreatePrivateKeyFromIncorrectlySizedSecureString) {
-		// Assert:
 		AssertCannotCreatePrivateKeyFromSecureStringWithSize(0);
 		AssertCannotCreatePrivateKeyFromSecureStringWithSize(50);
 		AssertCannotCreatePrivateKeyFromSecureStringWithSize(120);
 	}
 
 	TEST(TEST_CLASS, CannotCreatePrivateKeyFromStringWithInvalidCharacter) {
-		// Assert:
 		AssertCannotCreatePrivateKeyFromStringWithInvalidCharacter('g');
 		AssertCannotCreatePrivateKeyFromStringWithInvalidCharacter('-');
 	}
 
 	TEST(TEST_CLASS, CannotCreatePrivateKeyFromSecureStringWithInvalidCharacter) {
-		// Assert:
 		AssertCannotCreatePrivateKeyFromSecureStringWithInvalidCharacter('g');
 		AssertCannotCreatePrivateKeyFromSecureStringWithInvalidCharacter('-');
 	}
@@ -223,7 +219,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, CanCreatePrivateKeyFromStringSecure) {
 		// Arrange:
-		std::string zeroString(Key_Size * 2, '\0');
+		std::string zeroString(Key::Size * 2, '\0');
 		auto rawKeyString = std::string("3485D98EFD7EB07ADAFCFD1A157D89DE2796A95E780813C0258AF3F5F84ED8CB");
 
 		// Act:
@@ -275,12 +271,10 @@ namespace catapult { namespace crypto {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 }}

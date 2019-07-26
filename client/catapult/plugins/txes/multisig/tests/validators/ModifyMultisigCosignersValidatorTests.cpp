@@ -50,7 +50,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenZeroModificationsArePresent) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, {});
 	}
 
@@ -100,14 +99,12 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenMultipleDifferentAccountsAreAdded) {
-		// Assert:
 		AssertResultWhenDifferentAccountsUsed(ValidationResult::Success, { Add, Add, Add });
 		AssertResultWhenDifferentAccountsUsed(ValidationResult::Success, { Add, Add, Del });
 		AssertResultWhenDifferentAccountsUsed(ValidationResult::Success, { Add, Del, Add });
 	}
 
 	TEST(TEST_CLASS, FailureWhenMultipleDifferentAccountsAreDeleted) {
-		// Assert:
 		constexpr auto expectedResult = Failure_Multisig_Modify_Multiple_Deletes;
 		AssertResultWhenDifferentAccountsUsed(expectedResult, { Del, Del, Add });
 		AssertResultWhenDifferentAccountsUsed(expectedResult, { Del, Add, Del });
@@ -116,7 +113,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenAnyAccountHasUnsupportedModification) {
-		// Assert:
 		constexpr auto expectedResult = Failure_Multisig_Modify_Unsupported_Modification_Type;
 		for (auto type : { 2, 3, 0xFF }) {
 			CATAPULT_LOG(debug) << "validating modification with type " << type;
@@ -139,21 +135,18 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenSameAccountIsAddedAndDeleted) {
-		// Assert:
 		constexpr auto expectedResult = Failure_Multisig_Modify_Account_In_Both_Sets;
 		AssertResultWhenSameAccountUsed(expectedResult, { Add, Del });
 		AssertResultWhenSameAccountUsed(expectedResult, { Del, Add });
 	}
 
 	TEST(TEST_CLASS, FailureWhenSameAccountIsAddedMultipleTimes) {
-		// Assert:
 		constexpr auto expectedResult = Failure_Multisig_Modify_Redundant_Modifications;
 		AssertResultWhenSameAccountUsed(expectedResult, { Add, Add });
 		AssertResultWhenSameAccountUsed(expectedResult, { Add, Add, Add });
 	}
 
 	TEST(TEST_CLASS, FailureWhenSameAccountIsDeletedMultipleTimes) {
-		// Assert:
 		constexpr auto expectedResult = Failure_Multisig_Modify_Redundant_Modifications;
 		AssertResultWhenSameAccountUsed(expectedResult, { Del, Del });
 		AssertResultWhenSameAccountUsed(expectedResult, { Del, Del, Del });

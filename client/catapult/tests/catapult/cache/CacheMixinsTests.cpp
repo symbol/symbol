@@ -257,17 +257,14 @@ namespace catapult { namespace cache {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ITERATION_TRAITS_BASED_TEST(CanIterate_ZeroElements) {
-		// Assert:
 		TTraits::AssertIteration({});
 	}
 
 	ITERATION_TRAITS_BASED_TEST(CanIterate_SingleElement) {
-		// Assert:
 		TTraits::AssertIteration({ "a" });
 	}
 
 	ITERATION_TRAITS_BASED_TEST(CanIterate_MultipleElements) {
-		// Assert:
 		TTraits::AssertIteration({ "a", "ccc", "fffff" });
 	}
 

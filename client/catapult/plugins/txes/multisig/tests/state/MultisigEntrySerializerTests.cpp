@@ -79,7 +79,7 @@ namespace catapult { namespace state {
 
 		Key ExtractKey(const uint8_t* data) {
 			Key key;
-			memcpy(key.data(), data, Key_Size);
+			memcpy(key.data(), data, Key::Size);
 			return key;
 		}
 
@@ -107,13 +107,13 @@ namespace catapult { namespace state {
 
 			auto accountKey = ExtractKey(pData);
 			EXPECT_EQ(entry.key(), accountKey);
-			pData += Key_Size;
+			pData += Key::Size;
 
 			AssertAccountKeys(entry.cosignatories(), pData);
-			pData += sizeof(uint64_t) + entry.cosignatories().size() * Key_Size;
+			pData += sizeof(uint64_t) + entry.cosignatories().size() * Key::Size;
 
 			AssertAccountKeys(entry.multisigAccounts(), pData);
-			pData += sizeof(uint64_t) + entry.multisigAccounts().size() * Key_Size;
+			pData += sizeof(uint64_t) + entry.multisigAccounts().size() * Key::Size;
 
 			EXPECT_EQ(pExpectedEnd, pData);
 		}
@@ -174,7 +174,7 @@ namespace catapult { namespace state {
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {
-				return 2u * sizeof(uint8_t) + Key_Size;
+				return 2u * sizeof(uint8_t) + Key::Size;
 			}
 		};
 
@@ -186,7 +186,7 @@ namespace catapult { namespace state {
 			}
 
 			static constexpr size_t GetKeyStartBufferOffset() {
-				return 2u * sizeof(uint8_t) + Key_Size + sizeof(uint64_t);
+				return 2u * sizeof(uint8_t) + Key::Size + sizeof(uint64_t);
 			}
 		};
 	}
@@ -198,7 +198,6 @@ namespace catapult { namespace state {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ENTRY_TRAITS_BASED_TEST(SavedKeysAreOrdered) {
-		// Assert:
 		test::SerializerOrderingTests<TTraits>::AssertSaveOrdersEntriesByKey();
 	}
 

@@ -87,27 +87,22 @@ namespace catapult { namespace cache {
 	}
 
 	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersReturnsNoTransactionInfosWhenCacheIsEmpty) {
-		// Assert:
 		RunGetFirstTest<TTraits>(0, 3, 0);
 	}
 
 	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersReturnsNoTransactionInfosWhenZeroAreRequested) {
-		// Assert:
 		RunGetFirstTest<TTraits>(10, 0, 0);
 	}
 
 	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersReturnsFirstCountTransactionInfosWhenCacheHasEnoughTransactions) {
-		// Assert:
 		RunGetFirstTest<TTraits>(10, 3, 3);
 	}
 
 	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersReturnsAllTransactionInfosWhenCacheHasExactlyRequestedTransactions) {
-		// Assert:
 		RunGetFirstTest<TTraits>(10, 10, 10);
 	}
 
 	GET_FIRST_TRAITS_BASED_TEST(GetFirstTransactionInfoPointersReturnsAllTransactionInfosWhenCacheHasLessThanRequestedTransactions) {
-		// Assert:
 		RunGetFirstTest<TTraits>(10, 15, 10);
 	}
 

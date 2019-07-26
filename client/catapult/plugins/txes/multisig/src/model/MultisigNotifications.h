@@ -36,7 +36,7 @@ namespace catapult { namespace model {
 	DEFINE_MULTISIG_NOTIFICATION(Modify_New_Cosigner, 0x0002, Validator);
 
 	/// Multisig account settings were modified.
-	DEFINE_MULTISIG_NOTIFICATION(Modify_Settings, 0x1001, All);
+	DEFINE_MULTISIG_NOTIFICATION(Modify_Settings, 0x0003, All);
 
 #undef DEFINE_MULTISIG_NOTIFICATION
 

@@ -49,7 +49,7 @@ namespace catapult { namespace validators {
 	private:
 		class DefaultAggregateNotificationValidator : public AggregateNotificationValidatorT<TNotification, TArgs...> {
 		public:
-			explicit DefaultAggregateNotificationValidator(
+			DefaultAggregateNotificationValidator(
 					NotificationValidatorPointerVector&& validators,
 					const ValidationResultPredicate& isSuppressedFailure)
 					: m_validators(std::move(validators))

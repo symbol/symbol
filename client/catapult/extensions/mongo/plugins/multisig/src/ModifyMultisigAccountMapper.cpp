@@ -31,7 +31,7 @@ namespace catapult { namespace mongo { namespace plugins {
 		void StreamModification(bson_stream::array_context& context, model::CosignatoryModificationType type, const Key& key) {
 			context
 					<< bson_stream::open_document
-						<< "type" << utils::to_underlying_type(type)
+						<< "modificationType" << utils::to_underlying_type(type)
 						<< "cosignatoryPublicKey" << ToBinary(key)
 					<< bson_stream::close_document;
 		}

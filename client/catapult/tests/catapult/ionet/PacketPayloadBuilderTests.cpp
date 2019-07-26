@@ -245,7 +245,7 @@ namespace catapult { namespace ionet {
 			}
 
 			static uint32_t GetDataSize(const DataType&) {
-				return Hash256_Size;
+				return Hash256::Size;
 			}
 
 			static bool Append(PacketPayloadBuilder& builder, const DataType& value) {
@@ -257,7 +257,7 @@ namespace catapult { namespace ionet {
 				ASSERT_EQ(1u, buffers.size());
 
 				auto buffer = buffers[0];
-				ASSERT_EQ(Hash256_Size, buffer.Size);
+				ASSERT_EQ(Hash256::Size, buffer.Size);
 				EXPECT_EQ(value, reinterpret_cast<const Hash256&>(*buffer.pData));
 			}
 
@@ -274,7 +274,7 @@ namespace catapult { namespace ionet {
 			}
 
 			static uint32_t GetDataSize(const DataType& values) {
-				return static_cast<uint32_t>(values.size() * Hash256_Size);
+				return static_cast<uint32_t>(values.size() * Hash256::Size);
 			}
 
 			static bool Append(PacketPayloadBuilder& builder, const DataType& values) {

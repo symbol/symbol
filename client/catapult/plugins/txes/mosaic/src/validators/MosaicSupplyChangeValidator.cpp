@@ -30,7 +30,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DEFINE_STATELESS_VALIDATOR(MosaicSupplyChange, [](const auto& notification) {
+	DEFINE_STATELESS_VALIDATOR(MosaicSupplyChange, [](const Notification& notification) {
 		if (!IsValidDirection(notification.Direction))
 			return Failure_Mosaic_Invalid_Supply_Change_Direction;
 

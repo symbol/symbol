@@ -31,7 +31,7 @@ namespace catapult { namespace harvesting {
 	namespace {
 		struct NextBlockContext {
 		public:
-			explicit NextBlockContext(const model::BlockElement& parentBlockElement, Timestamp nextTimestamp)
+			NextBlockContext(const model::BlockElement& parentBlockElement, Timestamp nextTimestamp)
 					: ParentBlock(parentBlockElement.Block)
 					, ParentContext(parentBlockElement)
 					, Timestamp(nextTimestamp)

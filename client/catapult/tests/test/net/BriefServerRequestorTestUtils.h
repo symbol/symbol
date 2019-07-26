@@ -162,9 +162,8 @@ namespace catapult { namespace test {
 	protected:
 		void prepareValidResponse(const crypto::KeyPair& partnerKeyPair, const std::shared_ptr<ionet::Packet>& pResponsePacket) {
 			std::shared_ptr<ionet::PacketSocket> pServerSocket;
-			test::SpawnPacketServerWork(
-					m_acceptor,
-					[&partnerKeyPair, pResponsePacket, &pServerSocket = m_pServerSocket](const auto& pSocket) {
+			test::SpawnPacketServerWork(m_acceptor, [&partnerKeyPair, pResponsePacket, &pServerSocket = m_pServerSocket](
+					const auto& pSocket) {
 				pServerSocket = pSocket;
 				net::VerifyClient(pSocket, partnerKeyPair, ionet::ConnectionSecurityMode::None, [pResponsePacket, pSocket](
 						auto,

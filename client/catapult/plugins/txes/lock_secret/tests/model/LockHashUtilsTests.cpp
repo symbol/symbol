@@ -67,7 +67,7 @@ namespace catapult { namespace model {
 			// Assert: if expected hash is shorter than 256bits, validate that rest is zero initialized
 			EXPECT_EQ_MEMORY(expected.data(), result.data(), expected.size());
 			if constexpr (!std::is_same_v<Hash256, typename TTraits::HashType>) {
-				std::array<uint8_t, Hash256_Size - expected.size()> zeroMemory{};
+				std::array<uint8_t, Hash256::Size - expected.size()> zeroMemory{};
 				EXPECT_EQ_MEMORY(zeroMemory.data(), result.data() + expected.size(), zeroMemory.size());
 			}
 		}

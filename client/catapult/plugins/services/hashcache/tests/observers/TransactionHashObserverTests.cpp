@@ -38,9 +38,8 @@ namespace catapult { namespace observers {
 		constexpr size_t Num_Hashes = 10;
 
 		void SeedCache(cache::HashCacheDelta& cache) {
-			for (auto i = 0u; i < Num_Hashes; ++i) {
+			for (auto i = 0u; i < Num_Hashes; ++i)
 				cache.insert(state::TimestampedHash(Timestamp(i), test::GenerateRandomByteArray<Hash256>()));
-			}
 		}
 
 		state::TimestampedHash CreateTimestampedHash(Timestamp deadline, const Hash256& hash) {

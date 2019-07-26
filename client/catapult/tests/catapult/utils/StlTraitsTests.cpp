@@ -52,8 +52,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, IsMapReturnsTrueOnlyForOrderedAndUnorderedMaps) {
-		// Assert:
-		// - non maps
+		// Assert: non maps
 		AssertIsNotMap<int>(__LINE__);
 		AssertIsNotMap<std::set<int>>(__LINE__);
 		AssertIsNotMap<std::unordered_set<int>>(__LINE__);

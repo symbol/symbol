@@ -42,3 +42,6 @@ hash_sha256_cp.c
 modified:
 export.h
 utils.[ch]
+
+aes - tiny-aes-c, unlicense.org
+https://github.com/kokke/tiny-AES-c.git ca85e00de963102d3999ea5fa865c0deff6370d3

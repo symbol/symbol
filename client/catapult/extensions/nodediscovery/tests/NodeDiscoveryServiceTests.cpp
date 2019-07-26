@@ -323,7 +323,6 @@ namespace catapult { namespace nodediscovery {
 	// region ping task
 
 	TEST(TEST_CLASS, PingTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, Ping_Task_Name);
 	}
 
@@ -413,7 +412,6 @@ namespace catapult { namespace nodediscovery {
 	}
 
 	TEST(TEST_CLASS, PeersTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), Num_Expected_Tasks, Peers_Task_Name);
 	}
 

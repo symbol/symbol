@@ -1,0 +1,106 @@
+/**
+*** Copyright (c) 2016-present,
+*** Jaguar0625, gimre, BloodyRookie, Tech Bureau, Corp. All rights reserved.
+***
+*** This file is part of Catapult.
+***
+*** Catapult is free software: you can redistribute it and/or modify
+*** it under the terms of the GNU Lesser General Public License as published by
+*** the Free Software Foundation, either version 3 of the License, or
+*** (at your option) any later version.
+***
+*** Catapult is distributed in the hope that it will be useful,
+*** but WITHOUT ANY WARRANTY; without even the implied warranty of
+*** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+*** GNU Lesser General Public License for more details.
+***
+*** You should have received a copy of the GNU Lesser General Public License
+*** along with Catapult. If not, see <http://www.gnu.org/licenses/>.
+**/
+
+#include "src/plugins/MosaicRestrictionPlugin.h"
+#include "src/model/MosaicRestrictionEntityType.h"
+#include "tests/test/plugins/PluginManagerFactory.h"
+#include "tests/test/plugins/PluginTestUtils.h"
+#include "tests/TestHarness.h"
+
+namespace catapult { namespace plugins {
+
+	namespace {
+		struct MosaicRestrictionPluginTraits {
+		public:
+			template<typename TAction>
+			static void RunTestAfterRegistration(TAction action) {
+				// Arrange:
+				auto config = model::BlockChainConfiguration::Uninitialized();
+				config.Plugins.emplace("catapult.plugins.restrictionmosaic", utils::ConfigurationBag({{
+					"",
+					{
+						{ "maxMosaicRestrictionValues", "10" },
+					}
+				}}));
+
+				auto manager = test::CreatePluginManager(config);
+				RegisterMosaicRestrictionSubsystem(manager);
+
+				// Act:
+				action(manager);
+			}
+
+		public:
+			static std::vector<model::EntityType> GetTransactionTypes() {
+				return {
+					model::Entity_Type_Mosaic_Address_Restriction,
+					model::Entity_Type_Mosaic_Global_Restriction
+				};
+			}
+
+			static std::vector<std::string> GetCacheNames() {
+				return { "MosaicRestrictionCache" };
+			}
+
+			static std::vector<ionet::PacketType> GetNonDiagnosticPacketTypes() {
+				return { ionet::PacketType::Mosaic_Restrictions_State_Path };
+			}
+
+			static std::vector<ionet::PacketType> GetDiagnosticPacketTypes() {
+				return { ionet::PacketType::Mosaic_Restrictions_Infos };
+			}
+
+			static std::vector<std::string> GetDiagnosticCounterNames() {
+				return { "MOSAICREST C" };
+			}
+
+			static std::vector<std::string> GetStatelessValidatorNames() {
+				return { "MosaicRestrictionTypeValidator" };
+			}
+
+			static std::vector<std::string> GetStatefulValidatorNames() {
+				return {
+					"MosaicRestrictionBalanceDebitValidator",
+					"MosaicRestrictionBalanceTransferValidator",
+					"MosaicRestrictionRequiredValidator",
+					"MosaicGlobalRestrictionMaxValuesValidator",
+					"MosaicGlobalRestrictionModificationValidator",
+					"MosaicAddressRestrictionMaxValuesValidator",
+					"MosaicAddressRestrictionModificationValidator"
+				};
+			}
+
+			static std::vector<std::string> GetObserverNames() {
+				return {
+					"MosaicGlobalRestrictionCommitModificationObserver",
+					"MosaicGlobalRestrictionRollbackModificationObserver",
+					"MosaicAddressRestrictionCommitModificationObserver",
+					"MosaicAddressRestrictionRollbackModificationObserver"
+				};
+			}
+
+			static std::vector<std::string> GetPermanentObserverNames() {
+				return GetObserverNames();
+			}
+		};
+	}
+
+	DEFINE_PLUGIN_TESTS(MosaicRestrictionPluginTests, MosaicRestrictionPluginTraits)
+}}

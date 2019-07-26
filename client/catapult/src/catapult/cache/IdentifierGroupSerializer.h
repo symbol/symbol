@@ -67,8 +67,8 @@ namespace catapult { namespace cache {
 			io::Read(input, value);
 		}
 
-		template<size_t N, typename TTag>
-		static void Read(io::InputStream& input, utils::ByteArray<N, TTag>& value) {
+		template<typename TTag>
+		static void Read(io::InputStream& input, utils::ByteArray<TTag>& value) {
 			input.read(value);
 		}
 
@@ -77,8 +77,8 @@ namespace catapult { namespace cache {
 			io::Write(input, value);
 		}
 
-		template<size_t N, typename TTag>
-		static void Write(io::OutputStream& input, const utils::ByteArray<N, TTag>& value) {
+		template<typename TTag>
+		static void Write(io::OutputStream& input, const utils::ByteArray<TTag>& value) {
 			input.write(value);
 		}
 

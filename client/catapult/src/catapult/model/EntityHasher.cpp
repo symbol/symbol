@@ -36,7 +36,7 @@ namespace catapult { namespace model {
 			Hash256 entityHash;
 			crypto::Sha3_256_Builder sha3;
 			// "R" part of a signature
-			sha3.update({ entity.Signature.data(), Signature_Size / 2 });
+			sha3.update({ entity.Signature.data(), Signature::Size / 2 });
 
 			// public key is added here to match Sign/Verify behavior, which explicitly hashes it
 			sha3.update(entity.Signer);

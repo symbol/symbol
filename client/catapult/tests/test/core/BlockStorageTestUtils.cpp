@@ -30,7 +30,7 @@ namespace catapult { namespace test {
 			auto pBlock = GenerateBlockWithTransactions(5, height);
 			auto blockElement = BlockToBlockElement(*pBlock);
 			blockElement.EntityHash = Hash256();
-			blockElement.EntityHash[Hash256_Size - 1] = static_cast<uint8_t>(height.unwrap());
+			blockElement.EntityHash[Hash256::Size - 1] = static_cast<uint8_t>(height.unwrap());
 			storage.saveBlock(blockElement);
 		}
 	}

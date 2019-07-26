@@ -34,7 +34,7 @@ namespace catapult { namespace model {
 		// Arrange + Act:
 		EntityInfo<Block> entityInfo;
 
-		// Assert: notice that hash is not zero-initialized by default constructor
+		// Assert: notice that hash is not initialized by default constructor
 		EXPECT_FALSE(!!entityInfo);
 		EXPECT_FALSE(!!entityInfo.pEntity);
 	}
@@ -172,7 +172,7 @@ namespace catapult { namespace model {
 		// Act:
 		typename TTraits::TransactionInfoType transactionInfo;
 
-		// Assert: notice that hash(es) are not zero-initialized by default constructor
+		// Assert: notice that hash(es) are not initialized by default constructor
 		EXPECT_FALSE(!!transactionInfo.pEntity);
 		EXPECT_FALSE(!!transactionInfo.OptionalExtractedAddresses);
 	}

@@ -93,7 +93,7 @@ namespace catapult { namespace thread {
 	namespace {
 		struct PartitionAggregateCapture {
 		public:
-			explicit PartitionAggregateCapture(size_t numItems, size_t numPartitions)
+			PartitionAggregateCapture(size_t numItems, size_t numPartitions)
 					: Sum(0)
 					, IndexFlags(numItems, 0)
 					, BatchIndexFlags(numPartitions, 0)
@@ -157,17 +157,14 @@ namespace catapult { namespace thread {
 	}
 
 	CONTAINER_TEST(CanProcessMultiplePartitionsConcurrently_MinusOne) {
-		// Assert:
 		AssertCanProcessMultiplePartitionsConcurrently<TTraits>(-1);
 	}
 
 	CONTAINER_TEST(CanProcessMultiplePartitionsConcurrently) {
-		// Assert:
 		AssertCanProcessMultiplePartitionsConcurrently<TTraits>(0);
 	}
 
 	CONTAINER_TEST(CanProcessMultiplePartitionsConcurrently_PlusOne) {
-		// Assert:
 		AssertCanProcessMultiplePartitionsConcurrently<TTraits>(1);
 	}
 
@@ -259,17 +256,14 @@ namespace catapult { namespace thread {
 	}
 
 	CONTAINER_TEST(CanProcessMultipleItemsConcurrently_MinusOne) {
-		// Assert:
 		AssertCanProcessMultipleItemsConcurrently<TTraits>(-1);
 	}
 
 	CONTAINER_TEST(CanProcessMultipleItemsConcurrently) {
-		// Assert:
 		AssertCanProcessMultipleItemsConcurrently<TTraits>(0);
 	}
 
 	CONTAINER_TEST(CanProcessMultipleItemsConcurrently_PlusOne) {
-		// Assert:
 		AssertCanProcessMultipleItemsConcurrently<TTraits>(1);
 	}
 
@@ -393,7 +387,7 @@ namespace catapult { namespace thread {
 			auto numItems = numThreads * multiplier / divisor;
 			auto items = CreateIncrementingValues(numItems);
 
-			// Sanity: Num_Default_Threads is 2 * cores, so Num_Default_Threads / 4 is non zero when there are at least two cores
+			// Sanity: Num_Default_Threads is 2 * cores, so Num_Default_Threads / 4 is nonzero when there are at least two cores
 			ASSERT_NE(0u, numItems) << "test is not supported on single core system";
 
 			// Act:
@@ -423,12 +417,10 @@ namespace catapult { namespace thread {
 	}
 
 	DISTRIBUTE_TEST(CanDistributeWorkEvenlyWhenItemsAreMultipleOfThreads) {
-		// Assert:
 		AssertCanDistributeWorkEvenly(20, 1, TTraits::ParallelFor);
 	}
 
 	DISTRIBUTE_TEST(CanDistributeWorkEvenlyWhenItemsAreNotMultipleOfThreads) {
-		// Assert:
 		AssertCanDistributeWorkEvenly(81, 4, TTraits::ParallelFor);
 	}
 

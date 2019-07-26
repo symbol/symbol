@@ -41,7 +41,7 @@ namespace catapult { namespace mongo {
 
 	public:
 		/// Creates an error policy around \a collectionName using error policy \a mode.
-		explicit MongoErrorPolicy(const std::string& collectionName, Mode mode);
+		MongoErrorPolicy(const std::string& collectionName, Mode mode);
 
 	public:
 		/// Gets the error policy mode.

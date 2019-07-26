@@ -35,8 +35,7 @@ namespace catapult { namespace model {
 	// region MakeReceiptType
 
 	TEST(TEST_CLASS, CanMakeReceiptType) {
-		// Assert:
-		// - zeros
+		// Assert: zeros
 		EXPECT_EQ(static_cast<ReceiptType>(0x00000000), MakeReceiptType(0, 0, 0));
 
 		// - max single component value
@@ -71,7 +70,6 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanOutputWellKnownEnumValues) {
-		// Assert:
 		EXPECT_EQ("Harvest_Fee", test::ToString(Receipt_Type_Harvest_Fee));
 		EXPECT_EQ("Inflation", test::ToString(Receipt_Type_Inflation));
 		EXPECT_EQ("Transaction_Group", test::ToString(Receipt_Type_Transaction_Group));
@@ -80,11 +78,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanOutputPluginEnumValues) {
-		// Assert:
 		EXPECT_EQ("LockHash_Expired", test::ToString(ToReceiptType(0x2348)));
 		EXPECT_EQ("LockSecret_Created", test::ToString(ToReceiptType(0x3152)));
 		EXPECT_EQ("Mosaic_Expired", test::ToString(ToReceiptType(0x414D)));
-		EXPECT_EQ("Namespace_Expired", test::ToString(ToReceiptType(0x414E)));
+		EXPECT_EQ("Namespace_Deleted", test::ToString(ToReceiptType(0x424E)));
 	}
 
 	TEST(TEST_CLASS, CanOutputUnknownEnumValues) {

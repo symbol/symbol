@@ -161,13 +161,11 @@ namespace catapult { namespace ionet {
 	}
 
 	BUFFER_FAILURE_TEST(CannotExtractFromBufferWithoutFullEntityHeader) {
-		// Assert:
 		for (auto size : std::vector<uint32_t>{ 1, sizeof(model::VerifiableEntity) - 1 })
 			AssertCannotParseBufferWithSize<TTraits>(size);
 	}
 
 	BUFFER_FAILURE_TEST(CannotExtractFromBufferWithoutFullEntityData) {
-		// Assert:
 		for (auto size : std::vector<uint32_t>{ sizeof(model::VerifiableEntity), sizeof(model::BlockHeader) - 1 })
 			AssertCannotParseBufferWithSize<TTraits>(size);
 	}
@@ -302,7 +300,6 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CannotExtractFromBufferWithPartialStructures_CountFixedSizeStructures) {
-		// Assert:
 		AssertCannotCountFixedSizeStructuresFromBufferWithSize(1);
 		AssertCannotCountFixedSizeStructuresFromBufferWithSize(Fixed_Size - 1);
 		AssertCannotCountFixedSizeStructuresFromBufferWithSize(Fixed_Size + 1);

@@ -99,7 +99,6 @@ namespace catapult { namespace observers {
 	}
 
 	TEST(TEST_CLASS, ObserverIgnoresUnknownTransactionType) {
-		// Assert:
 		for (auto type : { model::Entity_Type_Aggregate_Complete, static_cast<model::EntityType>(0xFFFF) })
 			AssertObserverIgnoresUnknownTransactionType(type);
 	}

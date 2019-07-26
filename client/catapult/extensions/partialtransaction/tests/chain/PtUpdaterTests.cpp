@@ -84,7 +84,7 @@ namespace catapult { namespace chain {
 			InclusiveRangeMatchPredicate() : InclusiveRangeMatchPredicate(0, 0)
 			{}
 
-			explicit InclusiveRangeMatchPredicate(size_t minValue, size_t maxValue)
+			InclusiveRangeMatchPredicate(size_t minValue, size_t maxValue)
 					: m_minValue(minValue)
 					, m_maxValue(maxValue)
 			{}
@@ -372,7 +372,7 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			/// Asserts that the pt cache contains a \em single \a aggregateTransaction with \a aggregateHash and \a cosignatures.
+			// asserts that the pt cache contains a \em single \a aggregateTransaction with \a aggregateHash and \a cosignatures
 			void assertSingleTransactionInCache(
 					const Hash256& aggregateHash,
 					const model::AggregateTransaction& aggregateTransaction,
@@ -415,8 +415,8 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			/// Asserts that the transaction cache contains correct extended properties for transaction info (\a transactionInfo).
-			/// \note This will modify the cache.
+			// asserts that the transaction cache contains correct extended properties for transaction info (\a transactionInfo)
+			// \note this will modify the cache
 			void assertTransactionInCacheHasCorrectExtendedProperties(const model::TransactionInfo& transactionInfo) {
 				// Assert: expected transaction is in the cache (remove is only way to get *full* cache info)
 				auto modifier = m_transactionsCache.modifier();
@@ -430,7 +430,7 @@ namespace catapult { namespace chain {
 			}
 
 		public:
-			/// Asserts that the failed transaction callback was called with \a expectedResult for transaction info (\a transactionInfo).
+			// asserts that the failed transaction callback was called with \a expectedResult for transaction info (\a transactionInfo)
 			void assertSingleFailedTransaction(
 					const model::TransactionInfo& transactionInfo,
 					validators::ValidationResult expectedResult) {

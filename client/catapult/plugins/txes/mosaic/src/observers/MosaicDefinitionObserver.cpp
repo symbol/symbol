@@ -20,7 +20,6 @@
 
 #include "Observers.h"
 #include "src/cache/MosaicCache.h"
-#include "catapult/cache_core/AccountStateCache.h"
 
 namespace catapult { namespace observers {
 
@@ -57,7 +56,9 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(MosaicDefinition, model::MosaicDefinitionNotification, [](const auto& notification, const ObserverContext& context) {
+	DEFINE_OBSERVER(MosaicDefinition, model::MosaicDefinitionNotification, [](
+			const model::MosaicDefinitionNotification& notification,
+			const ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::MosaicCache>();
 
 		// mosaic supply will always be zero when a mosaic definition is observed

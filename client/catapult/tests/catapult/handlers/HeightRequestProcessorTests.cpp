@@ -78,13 +78,11 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, AbortsProcessingWhenRequestHeightIsLargerThanLocalHeight) {
-		// Assert:
 		AssertWritesEmptyResponse(12, Height(13), false);
 		AssertWritesEmptyResponse(12, Height(100), false);
 	}
 
 	TEST(TEST_CLASS, AbortsProcessingWhenRequestHeightIsZeroAndZeroIsDisallowed) {
-		// Assert:
 		AssertWritesEmptyResponse(12, Height(0), false);
 	}
 
@@ -113,7 +111,6 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, AllowsProcessingWhenRequestHeightIsLessThanChainHeight) {
-		// Assert:
 		AssertAllowsProcessingOfValidHeight(12, Height(7), false, [](const auto& heightRequestInfo) {
 			ASSERT_TRUE(!!heightRequestInfo.pRequest);
 			EXPECT_EQ(Height(7), heightRequestInfo.pRequest->Height);
@@ -125,7 +122,6 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, AllowsProcessingWhenRequestHeightIsEqualToChainHeight) {
-		// Assert:
 		AssertAllowsProcessingOfValidHeight(12, Height(12), false, [](const auto& heightRequestInfo) {
 			ASSERT_TRUE(!!heightRequestInfo.pRequest);
 			EXPECT_EQ(Height(12), heightRequestInfo.pRequest->Height);
@@ -137,7 +133,6 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, AllowsProcessingWhenRequestHeightIsZeroAndZeroIsAllowed) {
-		// Assert:
 		AssertAllowsProcessingOfValidHeight(12, Height(0), true, [](const auto& heightRequestInfo) {
 			ASSERT_TRUE(!!heightRequestInfo.pRequest);
 			EXPECT_EQ(Height(0), heightRequestInfo.pRequest->Height);

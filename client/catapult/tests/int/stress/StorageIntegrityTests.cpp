@@ -99,12 +99,10 @@ namespace catapult { namespace io {
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, StorageIsThreadSafeWithSingleReaderSingleWriter) {
-		// Assert:
 		RunMultithreadedReadWriteTest(1);
 	}
 
 	NO_STRESS_TEST(TEST_CLASS, StorageIsThreadSafeWithMultipleReadersSingleWriter) {
-		// Assert:
 		RunMultithreadedReadWriteTest(test::GetNumDefaultPoolThreads());
 	}
 }}

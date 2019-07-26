@@ -37,6 +37,10 @@ namespace catapult { namespace config {
 						"",
 						{
 							{ "maxNameSize", "123" },
+							{ "maxChildNamespaces", "1234" },
+							{ "maxNamespaceDepth", "99" },
+
+							{ "minNamespaceDuration", "32h" },
 							{ "maxNamespaceDuration", "234h" },
 							{ "namespaceGracePeriodDuration", "20d" },
 							{ "reservedRootNamespaceNames", "alpha,omega" },
@@ -44,8 +48,6 @@ namespace catapult { namespace config {
 							{ "namespaceRentalFeeSinkPublicKey", Namespace_Rental_Fee_Sink_Public_Key },
 							{ "rootNamespaceRentalFeePerBlock", "78" },
 							{ "childNamespaceRentalFee", "11223322" },
-
-							{ "maxChildNamespaces", "1234" }
 						}
 					}
 				};
@@ -58,6 +60,10 @@ namespace catapult { namespace config {
 			static void AssertZero(const NamespaceConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(0u, config.MaxNameSize);
+				EXPECT_EQ(0u, config.MaxChildNamespaces);
+				EXPECT_EQ(0u, config.MaxNamespaceDepth);
+
+				EXPECT_EQ(utils::BlockSpan(), config.MinNamespaceDuration);
 				EXPECT_EQ(utils::BlockSpan(), config.MaxNamespaceDuration);
 				EXPECT_EQ(utils::BlockSpan(), config.NamespaceGracePeriodDuration);
 				EXPECT_EQ(std::unordered_set<std::string>(), config.ReservedRootNamespaceNames);
@@ -65,13 +71,15 @@ namespace catapult { namespace config {
 				EXPECT_EQ(Key(), config.NamespaceRentalFeeSinkPublicKey);
 				EXPECT_EQ(Amount(), config.RootNamespaceRentalFeePerBlock);
 				EXPECT_EQ(Amount(), config.ChildNamespaceRentalFee);
-
-				EXPECT_EQ(0u, config.MaxChildNamespaces);
 			}
 
 			static void AssertCustom(const NamespaceConfiguration& config) {
 				// Assert:
 				EXPECT_EQ(123u, config.MaxNameSize);
+				EXPECT_EQ(1234u, config.MaxChildNamespaces);
+				EXPECT_EQ(99u, config.MaxNamespaceDepth);
+
+				EXPECT_EQ(utils::BlockSpan::FromHours(32), config.MinNamespaceDuration);
 				EXPECT_EQ(utils::BlockSpan::FromHours(234), config.MaxNamespaceDuration);
 				EXPECT_EQ(utils::BlockSpan::FromDays(20), config.NamespaceGracePeriodDuration);
 				EXPECT_EQ((std::unordered_set<std::string>{ "alpha", "omega" }), config.ReservedRootNamespaceNames);
@@ -79,8 +87,6 @@ namespace catapult { namespace config {
 				EXPECT_EQ(crypto::ParseKey(Namespace_Rental_Fee_Sink_Public_Key), config.NamespaceRentalFeeSinkPublicKey);
 				EXPECT_EQ(Amount(78), config.RootNamespaceRentalFeePerBlock);
 				EXPECT_EQ(Amount(11223322), config.ChildNamespaceRentalFee);
-
-				EXPECT_EQ(1234u, config.MaxChildNamespaces);
 			}
 		};
 	}

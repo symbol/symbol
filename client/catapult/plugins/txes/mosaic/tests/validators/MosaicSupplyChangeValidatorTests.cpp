@@ -51,13 +51,11 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingValidDirection) {
-		// Assert:
 		for (auto direction : { 0x00, 0x01 })
 			AssertValidationResult(ValidationResult::Success, ToDirection(direction), Amount(123));
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingInvalidDirection) {
-		// Assert:
 		for (auto direction : { 0x02, 0xFF })
 			AssertValidationResult(Failure_Mosaic_Invalid_Supply_Change_Direction, ToDirection(direction), Amount(123));
 	}
@@ -66,14 +64,12 @@ namespace catapult { namespace validators {
 
 	// region amount
 
-	TEST(TEST_CLASS, SuccessWhenDeltaIsNonZero) {
-		// Assert:
+	TEST(TEST_CLASS, SuccessWhenDeltaIsNonzero) {
 		for (auto direction : { 0x00, 0x01 })
 			AssertValidationResult(ValidationResult::Success, ToDirection(direction), Amount(1));
 	}
 
 	TEST(TEST_CLASS, FailureWhenDeltaIsZero) {
-		// Assert:
 		for (auto direction : { 0x00, 0x01 })
 			AssertValidationResult(Failure_Mosaic_Invalid_Supply_Change_Amount, ToDirection(direction), Amount());
 	}

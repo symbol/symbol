@@ -31,10 +31,10 @@ namespace catapult { namespace model {
 #define DEFINE_ACCOUNT_LINK_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, AccountLink, DESCRIPTION, CODE)
 
 	/// Remote account was un/linked.
-	DEFINE_ACCOUNT_LINK_NOTIFICATION(Remote, 0x001, All);
+	DEFINE_ACCOUNT_LINK_NOTIFICATION(Remote, 0x0001, All);
 
 	/// New remote account was created.
-	DEFINE_ACCOUNT_LINK_NOTIFICATION(New_Remote_Account, 0x002, Validator);
+	DEFINE_ACCOUNT_LINK_NOTIFICATION(New_Remote_Account, 0x0002, Validator);
 
 #undef DEFINE_ACCOUNTLINK_NOTIFICATION
 

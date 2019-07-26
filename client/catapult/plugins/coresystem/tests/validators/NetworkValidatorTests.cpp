@@ -48,12 +48,10 @@ namespace catapult { namespace validators {
 	// region validation
 
 	TEST(TEST_CLASS, SuccessWhenEntityHasSpecifiedCorrectNetwork) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 123);
 	}
 
 	TEST(TEST_CLASS, FailureWhenEntityHasSpecifiedIncorrectNetwork) {
-		// Assert:
 		for (uint8_t identifier = 0; identifier < 255; ++identifier) {
 			if (123u == identifier)
 				continue;

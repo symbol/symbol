@@ -30,12 +30,10 @@ namespace catapult { namespace utils {
 	// region creation
 
 	TEST(TEST_CLASS, CanCreateDefaultFileSize) {
-		// Assert:
 		EXPECT_EQ(0u, FileSize().bytes());
 	}
 
 	TEST(TEST_CLASS, CanCreateFileSizeFromMegabytes) {
-		// Assert:
 		EXPECT_EQ(1024 * 1024u, FileSize::FromMegabytes(1).bytes());
 		EXPECT_EQ(2 * 1024 * 1024u, FileSize::FromMegabytes(2).bytes());
 		EXPECT_EQ(10 * 1024 * 1024u, FileSize::FromMegabytes(10).bytes());
@@ -43,7 +41,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanCreateFileSizeFromKilobytes) {
-		// Assert:
 		EXPECT_EQ(1024u, FileSize::FromKilobytes(1).bytes());
 		EXPECT_EQ(2 * 1024u, FileSize::FromKilobytes(2).bytes());
 		EXPECT_EQ(10 * 1024u, FileSize::FromKilobytes(10).bytes());
@@ -51,7 +48,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanCreateFileSizeFromBytes) {
-		// Assert:
 		EXPECT_EQ(1u, FileSize::FromBytes(1).bytes());
 		EXPECT_EQ(2u, FileSize::FromBytes(2).bytes());
 		EXPECT_EQ(10u, FileSize::FromBytes(10).bytes());
@@ -63,7 +59,6 @@ namespace catapult { namespace utils {
 	// region accessor conversions
 
 	TEST(TEST_CLASS, MegabytesAreTruncatedWhenConverted) {
-		// Assert:
 		constexpr uint64_t Base_Bytes = 10 * 1024 * 1024u;
 		EXPECT_EQ(9u, FileSize::FromBytes(Base_Bytes - 1).megabytes());
 		EXPECT_EQ(10u, FileSize::FromBytes(Base_Bytes).megabytes());
@@ -71,7 +66,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, KilobytesAreTruncatedWhenConverted) {
-		// Assert:
 		constexpr uint64_t Base_Bytes = 10 * 1024u;
 		EXPECT_EQ(9u, FileSize::FromBytes(Base_Bytes - 1).kilobytes());
 		EXPECT_EQ(10u, FileSize::FromBytes(Base_Bytes).kilobytes());
@@ -99,7 +93,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, Bytes32ReturnsBytesWhenBytes64FitsInto32Bit) {
-		// Assert:
 		using NumericLimits = std::numeric_limits<uint32_t>;
 		Assert32BitFileSize(NumericLimits::min()); // min
 		Assert32BitFileSize(1); // other values
@@ -109,7 +102,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, Bytes32ThrowsWhenBytes64DoesNotFitInto32Bit) {
-		// Assert:
 		uint64_t max32 = std::numeric_limits<uint32_t>::max();
 		Assert64BitFileSize(max32 + 1);
 		Assert64BitFileSize(max32 + 1234);
@@ -141,12 +133,10 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueOnlyForEqualValues) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects("10240 B", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueOnlyForUnequalValues) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects("10240 B", GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
@@ -186,8 +176,7 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, CanOutputFileSize) {
-		// Assert:
-		// - zero
+		// Assert: zero
 		AssertStringRepresentation("0B", 0, 0, 0);
 
 		// - ones

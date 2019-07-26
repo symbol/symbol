@@ -26,11 +26,6 @@ namespace catapult { namespace state {
 	NamespaceAlias::NamespaceAlias() : m_type(AliasType::None)
 	{}
 
-	NamespaceAlias::NamespaceAlias(const NamespaceAlias& alias)
-			: m_type(alias.m_type)
-			, m_address(alias.m_address)
-	{}
-
 	NamespaceAlias::NamespaceAlias(MosaicId mosaicId)
 			: m_type(AliasType::Mosaic)
 			, m_mosaicId(mosaicId)
@@ -39,6 +34,11 @@ namespace catapult { namespace state {
 	NamespaceAlias::NamespaceAlias(const Address& address)
 			: m_type(AliasType::Address)
 			, m_address(address)
+	{}
+
+	NamespaceAlias::NamespaceAlias(const NamespaceAlias& alias)
+			: m_type(alias.m_type)
+			, m_address(alias.m_address)
 	{}
 
 	NamespaceAlias& NamespaceAlias::operator=(const NamespaceAlias& alias) {

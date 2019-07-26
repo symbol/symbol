@@ -70,7 +70,7 @@ namespace catapult { namespace mongo {
 
 	// endregion
 
-	// region specific receipts
+	// region balance transfer
 
 	TEST(TEST_CLASS, CreateBalanceTransferReceiptMongoPluginRespectsSuppliedType) {
 		// Act:
@@ -106,6 +106,10 @@ namespace catapult { namespace mongo {
 		EXPECT_EQ(receipt.Amount, Amount(test::GetUint64(view, "amount")));
 	}
 
+	// endregion
+
+	// region balance change
+
 	TEST(TEST_CLASS, CreateBalanceChangeReceiptMongoPluginRespectsSuppliedType) {
 		// Act:
 		auto pPlugin = CreateBalanceChangeReceiptMongoPlugin(static_cast<model::ReceiptType>(1234));
@@ -134,6 +138,10 @@ namespace catapult { namespace mongo {
 		EXPECT_EQ(receipt.Amount, Amount(test::GetUint64(view, "amount")));
 	}
 
+	// endregion
+
+	// region inflation
+
 	TEST(TEST_CLASS, CreateInflationReceiptMongoPluginRespectsSuppliedType) {
 		// Act:
 		auto pPlugin = CreateInflationReceiptMongoPlugin(static_cast<model::ReceiptType>(1234));
@@ -159,6 +167,36 @@ namespace catapult { namespace mongo {
 
 		EXPECT_EQ(receipt.MosaicId, MosaicId(test::GetUint64(view, "mosaicId")));
 		EXPECT_EQ(receipt.Amount, Amount(test::GetUint64(view, "amount")));
+	}
+
+	// endregion
+
+	// region artifact expiry
+
+	TEST(TEST_CLASS, CreateArtifactExpiryReceiptMongoPluginRespectsSuppliedType) {
+		// Act:
+		auto pPlugin = CreateArtifactExpiryReceiptMongoPlugin<MosaicId>(static_cast<model::ReceiptType>(1234));
+
+		// Assert:
+		EXPECT_EQ(static_cast<model::ReceiptType>(1234), pPlugin->type());
+	}
+
+	TEST(TEST_CLASS, CanStreamArtifactExpiryReceipt) {
+		// Arrange:
+		auto pPlugin = CreateArtifactExpiryReceiptMongoPlugin<MosaicId>(model::ReceiptType());
+		bsoncxx::builder::stream::document builder;
+
+		model::ArtifactExpiryReceipt<MosaicId> receipt(model::ReceiptType(), MosaicId(234));
+
+		// Act:
+		pPlugin->streamReceipt(builder, receipt);
+		auto dbReceipt = builder << bsoncxx::builder::stream::finalize;
+
+		// Assert:
+		auto view = dbReceipt.view();
+		EXPECT_EQ(1u, test::GetFieldCount(view));
+
+		EXPECT_EQ(receipt.ArtifactId, MosaicId(test::GetUint64(view, "artifactId")));
 	}
 
 	// endregion

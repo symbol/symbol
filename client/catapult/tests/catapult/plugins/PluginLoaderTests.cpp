@@ -81,32 +81,26 @@ namespace catapult { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanLoadKnownStaticallyLinkedPlugins_ExplicitDirectory) {
-		// Assert:
 		AssertCanLoadKnownStaticallyLinkedPlugins(test::GetExplicitPluginsDirectory());
 	}
 
 	TEST(TEST_CLASS, CanLoadKnownStaticallyLinkedPlugins_ImplicitDirectory) {
-		// Assert:
 		AssertCanLoadKnownStaticallyLinkedPlugins("");
 	}
 
 	TEST(TEST_CLASS, CanLoadKnownDynamicallyLinkedPlugins_ExplicitDirectory) {
-		// Assert:
 		AssertCanLoadKnownDynamicallyLinkedPlugins(test::GetExplicitPluginsDirectory());
 	}
 
 	TEST(TEST_CLASS, CanLoadKnownDynamicallyLinkedPlugins_ImplicitDirectory) {
-		// Assert:
 		AssertCanLoadKnownDynamicallyLinkedPlugins("");
 	}
 
 	TEST(TEST_CLASS, CannotLoadUnknownPlugin_ExplicitDirectory) {
-		// Assert:
 		AssertCannotLoadUnknownPlugin(test::GetExplicitPluginsDirectory());
 	}
 
 	TEST(TEST_CLASS, CannotLoadUnknownPlugin_ImplicitDirectory) {
-		// Assert:
 		AssertCannotLoadUnknownPlugin("");
 	}
 

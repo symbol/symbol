@@ -26,29 +26,33 @@ namespace catapult { namespace validators {
 
 	using Notification = model::ChildNamespaceNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(ChildNamespaceAvailability, [](const auto& notification, const ValidatorContext& context) {
-		const auto& cache = context.Cache.sub<cache::NamespaceCache>();
-		auto height = context.Height;
+	DECLARE_STATEFUL_VALIDATOR(ChildNamespaceAvailability, Notification)(uint8_t maxNamespaceDepth) {
+		return MAKE_STATEFUL_VALIDATOR(ChildNamespaceAvailability, ([maxNamespaceDepth](
+				const Notification& notification,
+				const ValidatorContext& context) {
+			const auto& cache = context.Cache.sub<cache::NamespaceCache>();
+			auto height = context.Height;
 
-		if (cache.contains(notification.NamespaceId))
-			return Failure_Namespace_Already_Exists;
+			if (cache.contains(notification.NamespaceId))
+				return Failure_Namespace_Already_Exists;
 
-		if (!cache.contains(notification.ParentId))
-			return Failure_Namespace_Parent_Unknown;
+			auto namespaceIter = cache.find(notification.ParentId);
+			if (!namespaceIter.tryGet())
+				return Failure_Namespace_Parent_Unknown;
 
-		auto namespaceIter = cache.find(notification.ParentId);
-		const auto& parentEntry = namespaceIter.get();
-		const auto& parentPath = parentEntry.ns().path();
-		if (parentPath.size() == parentPath.capacity())
-			return Failure_Namespace_Too_Deep;
+			const auto& parentEntry = namespaceIter.get();
+			const auto& parentPath = parentEntry.ns().path();
+			if (maxNamespaceDepth == parentPath.size())
+				return Failure_Namespace_Too_Deep;
 
-		const auto& root = parentEntry.root();
-		if (!root.lifetime().isActiveAndUnlocked(height))
-			return Failure_Namespace_Expired;
+			const auto& root = parentEntry.root();
+			if (!root.lifetime().isActiveExcludingGracePeriod(height, cache.gracePeriodDuration()))
+				return Failure_Namespace_Expired;
 
-		if (root.owner() != notification.Signer)
-			return Failure_Namespace_Owner_Conflict;
+			if (root.owner() != notification.Signer)
+				return Failure_Namespace_Owner_Conflict;
 
-		return ValidationResult::Success;
-	});
+			return ValidationResult::Success;
+		}));
+	}
 }}

@@ -53,7 +53,7 @@ namespace catapult { namespace test {
 
 	struct MockNotification : public model::Notification {
 	public:
-		explicit MockNotification(const Hash256& hash, size_t id)
+		MockNotification(const Hash256& hash, size_t id)
 				: Notification(static_cast<model::NotificationType>(-1), sizeof(MockNotification))
 				, Hash(hash)
 				, Id(id)
@@ -79,7 +79,7 @@ namespace catapult { namespace test {
 
 	struct ObserverParams {
 	public:
-		explicit ObserverParams(const MockNotification& notification, const observers::ObserverContext& context)
+		ObserverParams(const MockNotification& notification, const observers::ObserverContext& context)
 				: HashCopy(notification.Hash)
 				, SequenceId(notification.Id)
 				, Context(context)
@@ -166,7 +166,7 @@ namespace catapult { namespace test {
 
 	struct StatefulValidateParams {
 	public:
-		explicit StatefulValidateParams(const MockNotification& notification, const validators::ValidatorContext& context)
+		StatefulValidateParams(const MockNotification& notification, const validators::ValidatorContext& context)
 				: HashCopy(notification.Hash)
 				, SequenceId(notification.Id)
 				, Context(context)

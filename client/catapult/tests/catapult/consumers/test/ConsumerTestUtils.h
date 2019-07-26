@@ -34,7 +34,7 @@ namespace catapult { namespace test {
 	protected:
 		/// Creates a facade around \a input and \a accessor.
 		template<typename TElementsAccessor>
-		explicit BasicElementsInputFacade(disruptor::ConsumerInput&& input, TElementsAccessor accessor)
+		BasicElementsInputFacade(disruptor::ConsumerInput&& input, TElementsAccessor accessor)
 				: m_input(std::move(input))
 				, m_elements(accessor(m_input))
 		{}

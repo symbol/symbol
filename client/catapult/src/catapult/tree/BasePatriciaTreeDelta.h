@@ -37,7 +37,7 @@ namespace catapult { namespace tree {
 
 	public:
 		/// Creates a tree around a \a dataSource with root \a rootHash.
-		explicit BasePatriciaTreeDelta(const TDataSource& dataSource, const Hash256& rootHash)
+		BasePatriciaTreeDelta(const TDataSource& dataSource, const Hash256& rootHash)
 				: m_dataSource(dataSource)
 				, m_baseRootHash(rootHash)
 				, m_tree(m_dataSource) {

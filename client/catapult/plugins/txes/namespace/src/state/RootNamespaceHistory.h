@@ -30,6 +30,9 @@ namespace catapult { namespace state {
 	/// A root namespace history.
 	class RootNamespaceHistory {
 	public:
+		static constexpr auto Is_Deactivation_Destructive = true;
+
+	public:
 		/// Creates a root namespace history around \a id.
 		explicit RootNamespaceHistory(NamespaceId id);
 
@@ -87,9 +90,6 @@ namespace catapult { namespace state {
 		std::list<RootNamespace>::const_iterator end() const;
 
 	public:
-		/// Returns \c true if history is active at \a height (excluding grace period).
-		bool isActiveAndUnlocked(Height height) const;
-
 		/// Returns \c true if history is active at \a height (including grace period).
 		/// \note This needs to be called isActive in order for it to dictate state lifetime.
 		bool isActive(Height height) const;

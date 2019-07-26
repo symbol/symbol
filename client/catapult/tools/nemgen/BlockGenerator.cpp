@@ -57,11 +57,8 @@ namespace catapult { namespace tools { namespace nemgen {
 
 		model::MosaicFlags GetFlags(const model::MosaicProperties& properties) {
 			auto flags = model::MosaicFlags::None;
-			auto allFlags = std::initializer_list<model::MosaicFlags>{
-				model::MosaicFlags::Supply_Mutable, model::MosaicFlags::Transferable
-			};
-
-			for (auto flag : allFlags) {
+			for (auto i = 1u; i < utils::to_underlying_type(model::MosaicFlags::All); i <<= 1) {
+				auto flag = static_cast<model::MosaicFlags>(i);
 				if (properties.is(flag))
 					flags |= flag;
 			}

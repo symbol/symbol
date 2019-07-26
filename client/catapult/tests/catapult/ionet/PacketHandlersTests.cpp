@@ -314,7 +314,6 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, CanProcessPacketWithZeroMatchingHandlers) {
-		// Assert:
 		AssertNoMatchingHandlers(4); // empty slot
 		AssertNoMatchingHandlers(44); // beyond end
 	}

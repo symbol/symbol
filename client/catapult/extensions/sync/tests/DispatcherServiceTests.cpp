@@ -144,7 +144,7 @@ namespace catapult { namespace sync {
 			ValidationResults() : ValidationResults(ValidationResult::Success, ValidationResult::Success)
 			{}
 
-			explicit ValidationResults(ValidationResult statelessResult, ValidationResult statefulResult)
+			ValidationResults(ValidationResult statelessResult, ValidationResult statefulResult)
 					: Stateless(statelessResult)
 					, Stateful(statefulResult)
 			{}
@@ -462,7 +462,6 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, CanConsumeBlockRange_InvalidElement) {
-		// Assert:
 		AssertCanConsumeBlockRange(test::CreateBlockEntityRange(1), AssertBlockRangeInvalidElement);
 	}
 
@@ -793,13 +792,13 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, CanConsumeTransactionRange_InvalidElement_Stateless) {
-		// Assert:
+		// Arrange:
 		ValidationResults transactionValidationResults;
 		transactionValidationResults.Stateless = ValidationResult::Failure;
 		AssertCanConsumeTransactionRange(transactionValidationResults, test::CreateTransactionEntityRange(1), [](const auto& context) {
 			WAIT_FOR_ONE_EXPR(context.numTransactionStatuses());
 
-			// - the transaction was not forwarded to the sink
+			// Assert: the transaction was not forwarded to the sink
 			EXPECT_EQ(0u, context.numNewBlockSinkCalls());
 			EXPECT_EQ(0u, context.numNewTransactionsSinkCalls());
 			EXPECT_EQ(1u, context.numTransactionStatuses());
@@ -807,14 +806,14 @@ namespace catapult { namespace sync {
 	}
 
 	TEST(TEST_CLASS, CanConsumeTransactionRange_InvalidElement_Stateful) {
-		// Assert:
+		// Arrange:
 		ValidationResults transactionValidationResults;
 		transactionValidationResults.Stateful = ValidationResult::Failure;
 		AssertCanConsumeTransactionRange(transactionValidationResults, test::CreateTransactionEntityRange(1), [](const auto& context) {
 			WAIT_FOR_ONE_EXPR(context.numNewTransactionsSinkCalls());
 			WAIT_FOR_ONE_EXPR(context.numTransactionStatuses());
 
-			// - the transaction was forwarded to the sink (it could theoretically pass validation on another node)
+			// Assert: the transaction was forwarded to the sink (it could theoretically pass validation on another node)
 			EXPECT_EQ(0u, context.numNewBlockSinkCalls());
 			EXPECT_EQ(1u, context.numNewTransactionsSinkCalls());
 			EXPECT_EQ(1u, context.numTransactionStatuses());

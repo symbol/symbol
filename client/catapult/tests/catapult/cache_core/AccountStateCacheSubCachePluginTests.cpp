@@ -165,17 +165,14 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanLoadSummaryZeroHighValueAddresses) {
-		// Assert:
 		RunSummaryLoadTest(0);
 	}
 
 	TEST(TEST_CLASS, CanLoadSummarySingleHighValueAddress) {
-		// Assert:
 		RunSummaryLoadTest(1);
 	}
 
 	TEST(TEST_CLASS, CanLoadSummaryMultipleHighValueAddresses) {
-		// Assert:
 		RunSummaryLoadTest(3);
 	}
 

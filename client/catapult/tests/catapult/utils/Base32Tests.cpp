@@ -57,7 +57,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, GetEncodedDataSizeReturnsCorrectSizes) {
-		// Assert:
 		EXPECT_EQ(0u, GetEncodedDataSize(0));
 		EXPECT_EQ(8u, GetEncodedDataSize(5));
 		EXPECT_EQ(16u, GetEncodedDataSize(10));
@@ -187,7 +186,6 @@ namespace catapult { namespace utils {
 	}
 
 	TEST(TEST_CLASS, GetDecodedDataSizeReturnsCorrectSizes) {
-		// Assert:
 		EXPECT_EQ(0u, GetDecodedDataSize(0));
 		EXPECT_EQ(5u, GetDecodedDataSize(8));
 		EXPECT_EQ(10u, GetDecodedDataSize(16));

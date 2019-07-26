@@ -43,13 +43,11 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, ConstructorResizesBufferWhenLessThanHalfRequestedSizeIsAvailable) {
-		// Assert:
 		AssertAppendBufferSize(26, 100, 150, 176); // (100 - 26) < 150 / 2
 		AssertAppendBufferSize(12, 12, 100, 112);
 	}
 
 	TEST(TEST_CLASS, ConstructorDoesNotResizeBufferWhenAtLeastHalfRequestedSizeIsAvailable) {
-		// Assert:
 		AssertAppendBufferSize(25, 100, 150, 100); // (100 - 25) == 150 / 2
 		AssertAppendBufferSize(24, 100, 150, 100); // (100 - 24) > 150 / 2
 		AssertAppendBufferSize(8, 100, 50, 58);

@@ -38,7 +38,7 @@ namespace catapult { namespace state {
 		{}
 
 		/// Creates a block difficulty info from a \a height, a \a timestamp and a \a difficulty.
-		constexpr explicit BlockDifficultyInfo(Height height, Timestamp timestamp, Difficulty difficulty)
+		constexpr BlockDifficultyInfo(Height height, Timestamp timestamp, Difficulty difficulty)
 				: BlockHeight(height)
 				, BlockTimestamp(timestamp)
 				, BlockDifficulty(difficulty)

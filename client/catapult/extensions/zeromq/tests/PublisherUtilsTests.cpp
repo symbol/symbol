@@ -35,8 +35,8 @@ namespace catapult { namespace zeromq {
 		auto topic = CreateTopic(marker, address);
 
 		// Assert:
-		ASSERT_EQ(Address_Decoded_Size + 1, topic.size());
+		ASSERT_EQ(Address::Size + 1, topic.size());
 		EXPECT_EQ(marker, TransactionMarker(topic[0]));
-		EXPECT_EQ_MEMORY(address.data(), topic.data() + 1, Address_Decoded_Size);
+		EXPECT_EQ_MEMORY(address.data(), topic.data() + 1, Address::Size);
 	}
 }}

@@ -177,7 +177,6 @@ namespace catapult { namespace packetserver {
 	// region tasks
 
 	TEST(TEST_CLASS, AgePeersTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), 1, "age peers task for service Readers");
 	}
 

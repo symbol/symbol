@@ -53,9 +53,7 @@ namespace catapult { namespace harvesting {
 	class UnlockedAccountsView : utils::MoveOnly {
 	public:
 		/// Creates a view around \a keyPairs with lock context \a readLock.
-		explicit UnlockedAccountsView(
-				const std::vector<crypto::KeyPair>& keyPairs,
-				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
+		UnlockedAccountsView(const std::vector<crypto::KeyPair>& keyPairs, utils::SpinReaderWriterLock::ReaderLockGuard&& readLock)
 				: m_keyPairs(keyPairs)
 				, m_readLock(std::move(readLock))
 		{}

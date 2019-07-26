@@ -31,7 +31,7 @@ namespace catapult { namespace chain {
 			static constexpr auto Name = "unconfirmed transactions";
 
 		public:
-			explicit UtTraits(
+			UtTraits(
 					BlockFeeMultiplier minFeeMultiplier,
 					const ShortHashesSupplier& shortHashesSupplier,
 					const handlers::TransactionRangeHandler& transactionRangeConsumer)

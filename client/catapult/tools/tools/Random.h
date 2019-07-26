@@ -46,4 +46,7 @@ namespace catapult { namespace tools {
 
 	/// Generates a uint8_t random number.
 	uint8_t RandomByte();
+
+	/// Generates random vector data of \a size.
+	std::vector<uint8_t> GenerateRandomVector(size_t size);
 }}

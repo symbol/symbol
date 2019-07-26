@@ -115,12 +115,10 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingUnknownMosaic) {
-		// Assert:
 		AssertMosaicsTest(Failure_Mosaic_Expired, Unresolved_Unknown_Mosaic_Id);
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingKnownMosaic) {
-		// Assert:
 		AssertMosaicsTest(ValidationResult::Success, test::UnresolveXor(Valid_Mosaic_Id));
 	}
 

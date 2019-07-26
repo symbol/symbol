@@ -204,7 +204,7 @@ namespace catapult { namespace thread {
 
 		class AbstractBlockingWork {
 		public:
-			explicit AbstractBlockingWork(IoThreadPool& pool, const test::WaitFunction& wait)
+			AbstractBlockingWork(IoThreadPool& pool, const test::WaitFunction& wait)
 					: m_pool(pool)
 					, m_wait(wait)
 					, m_shouldWait(true)

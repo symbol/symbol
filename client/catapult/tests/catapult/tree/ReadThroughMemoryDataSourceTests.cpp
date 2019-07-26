@@ -119,12 +119,10 @@ namespace catapult { namespace tree {
 	}
 
 	TEST(TEST_CLASS, SetLeafNodeDoesNotModifyBackingSet) {
-		// Assert:
 		AssertSetDoesNotModifyBackingSet(LeafTreeNode(TreeNodePath(0x64'6F'67'00), test::GenerateRandomByteArray<Hash256>()));
 	}
 
 	TEST(TEST_CLASS, SetBranchNodeDoesNotModifyBackingSet) {
-		// Assert:
 		AssertSetDoesNotModifyBackingSet(BranchTreeNode(TreeNodePath(0x64'6F'67'00)));
 	}
 

@@ -38,9 +38,9 @@ namespace catapult { namespace crypto {
 	}
 
 	TEST(TEST_CLASS, CannotCreateKeyPairFromInvalidString) {
-		AssertCannotCreatePrivateKeyFromStringWithSize(Key_Size * 1, 'a');
-		AssertCannotCreatePrivateKeyFromStringWithSize(Key_Size * 2, 'g');
-		AssertCannotCreatePrivateKeyFromStringWithSize(Key_Size * 3, 'a');
+		AssertCannotCreatePrivateKeyFromStringWithSize(Key::Size * 1, 'a');
+		AssertCannotCreatePrivateKeyFromStringWithSize(Key::Size * 2, 'g');
+		AssertCannotCreatePrivateKeyFromStringWithSize(Key::Size * 3, 'a');
 	}
 
 	TEST(TEST_CLASS, CanCreateKeyPairFromValidString) {
@@ -62,7 +62,7 @@ namespace catapult { namespace crypto {
 
 	TEST(TEST_CLASS, CanCreateKeyPairFromPrivateKey) {
 		// Arrange:
-		auto privateKeyStr = test::GenerateRandomHexString(Key_Size * 2);
+		auto privateKeyStr = test::GenerateRandomHexString(Key::Size * 2);
 		auto privateKey = PrivateKey::FromString(privateKeyStr);
 		Key expectedPublicKey;
 		ExtractPublicKeyFromPrivateKey(privateKey, expectedPublicKey);

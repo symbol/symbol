@@ -26,11 +26,14 @@ namespace catapult { namespace model {
 
 #endif
 
-	/// Namespace expiry.
+	/// Namespace expired (transition caused by namespace lifetime elapsing).
 	DEFINE_RECEIPT_TYPE(ArtifactExpiry, Namespace, Namespace_Expired, 1);
 
+	/// Namespace deleted (transition caused by namespace grace period elapsing).
+	DEFINE_RECEIPT_TYPE(ArtifactExpiry, Namespace, Namespace_Deleted, 2);
+
 	/// Namespace rental fee.
-	DEFINE_RECEIPT_TYPE(BalanceTransfer, Namespace, Namespace_Rental_Fee, 2);
+	DEFINE_RECEIPT_TYPE(BalanceTransfer, Namespace, Namespace_Rental_Fee, 3);
 
 #ifndef CUSTOM_RECEIPT_TYPE_DEFINITION
 }}

@@ -33,22 +33,18 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, WriteCanWriteMultipleConsecutivePayloads) {
-		// Assert:
 		test::AssertWriteCanWriteMultipleConsecutivePayloads(Transform);
 	}
 
 	TEST(TEST_CLASS, WriteCanWriteMultipleSimultaneousPayloadsWithoutInterleaving) {
-		// Assert:
 		test::AssertWriteCanWriteMultipleSimultaneousPayloadsWithoutInterleaving(Transform);
 	}
 
 	TEST(TEST_CLASS, ReadCanReadMultipleConsecutivePayloads) {
-		// Assert:
 		test::AssertReadCanReadMultipleConsecutivePayloads(Transform);
 	}
 
 	TEST(TEST_CLASS, ReadCanReadMultipleSimultaneousPayloadsWithoutInterleaving) {
-		// Assert:
 		test::AssertReadCanReadMultipleSimultaneousPayloadsWithoutInterleaving(Transform);
 	}
 }}

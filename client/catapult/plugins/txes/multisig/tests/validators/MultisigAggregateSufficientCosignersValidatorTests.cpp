@@ -19,8 +19,11 @@
 **/
 
 #include "src/validators/Validators.h"
+#include "src/plugins/ModifyMultisigAccountTransactionPlugin.h"
+#include "catapult/model/TransactionPlugin.h"
 #include "tests/test/MultisigCacheTestUtils.h"
 #include "tests/test/MultisigTestUtils.h"
+#include "tests/test/core/mocks/MockTransaction.h"
 #include "tests/test/plugins/ValidatorTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -28,7 +31,7 @@ namespace catapult { namespace validators {
 
 #define TEST_CLASS MultisigAggregateSufficientCosignersValidatorTests
 
-	DEFINE_COMMON_VALIDATOR_TESTS(MultisigAggregateSufficientCosigners,)
+	DEFINE_COMMON_VALIDATOR_TESTS(MultisigAggregateSufficientCosigners, model::TransactionRegistry())
 
 	namespace {
 		void AssertValidationResult(
@@ -40,9 +43,16 @@ namespace catapult { namespace validators {
 			// Arrange: setup cosignatures
 			auto cosignatures = test::GenerateCosignaturesFromCosigners(cosigners);
 
+			// - use a registry with mock and multilevel multisig transactions registered
+			//   mock is used to test default behavior
+			//   multilevel multisig is used to test transactions with custom approval requirements
+			model::TransactionRegistry transactionRegistry;
+			transactionRegistry.registerPlugin(mocks::CreateMockTransactionPlugin(mocks::PluginOptionFlags::Not_Top_Level));
+			transactionRegistry.registerPlugin(plugins::CreateModifyMultisigAccountTransactionPlugin());
+
 			using Notification = model::AggregateEmbeddedTransactionNotification;
 			Notification notification(signer, subTransaction, cosignatures.size(), cosignatures.data());
-			auto pValidator = CreateMultisigAggregateSufficientCosignersValidator();
+			auto pValidator = CreateMultisigAggregateSufficientCosignersValidator(transactionRegistry);
 
 			// Act:
 			auto result = test::ValidateNotification(*pValidator, notification, cache);
@@ -53,6 +63,7 @@ namespace catapult { namespace validators {
 
 		std::unique_ptr<model::EmbeddedTransaction> CreateEmbeddedTransaction(const Key& signer) {
 			auto pTransaction = std::make_unique<model::EmbeddedTransaction>();
+			pTransaction->Type = mocks::MockTransaction::Entity_Type;
 			pTransaction->Signer = signer;
 			return pTransaction;
 		}
@@ -170,23 +181,23 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SufficientWhenMultisigEmbeddedTransactionSignerHasMinApprovers) {
 		// Assert: 3 == 3
-		AssertBasicMultisigResult(
-				ValidationResult::Success,
-				[](const auto& cosignatories) { return std::vector<Key>{ cosignatories[0], cosignatories[2], cosignatories[3] }; });
+		AssertBasicMultisigResult(ValidationResult::Success, [](const auto& cosignatories) {
+			return std::vector<Key>{ cosignatories[0], cosignatories[2], cosignatories[3] };
+		});
 	}
 
 	TEST(TEST_CLASS, SufficientWhenMultisigEmbeddedTransactionSignerHasGreaterThanMinApprovers) {
 		// Assert: 4 > 3
-		AssertBasicMultisigResult(
-				ValidationResult::Success,
-				[](const auto& cosignatories) { return cosignatories; });
+		AssertBasicMultisigResult(ValidationResult::Success, [](const auto& cosignatories) {
+			return cosignatories;
+		});
 	}
 
 	TEST(TEST_CLASS, InsufficientWhenMultisigEmbeddedTransactionSignerHasLessThanMinApprovers) {
 		// Assert: 2 < 3
-		AssertBasicMultisigResult(
-				Failure_Aggregate_Missing_Cosigners,
-				[](const auto& cosignatories) { return std::vector<Key>{ cosignatories[0], cosignatories[2] }; });
+		AssertBasicMultisigResult(Failure_Aggregate_Missing_Cosigners, [](const auto& cosignatories) {
+			return std::vector<Key>{ cosignatories[0], cosignatories[2] };
+		});
 	}
 
 	TEST(TEST_CLASS, SufficientWhenMultisigEmbeddedTransactionSignerHasMinApproversIncludingAggregateSigner) {
@@ -248,23 +259,23 @@ namespace catapult { namespace validators {
 
 	TEST(TEST_CLASS, SufficientWhenMultilevelMultisigEmbeddedTransactionSignerHasMinApprovers) {
 		// Assert: 3 == 3
-		AssertBasicMultilevelMultisigResult(
-				ValidationResult::Success,
-				[](const auto& cosignatories) { return std::vector<Key>{ cosignatories[0], cosignatories[2], cosignatories[3] }; });
+		AssertBasicMultilevelMultisigResult(ValidationResult::Success, [](const auto& cosignatories) {
+			return std::vector<Key>{ cosignatories[0], cosignatories[2], cosignatories[3] };
+		});
 	}
 
 	TEST(TEST_CLASS, SufficientWhenMultilevelMultisigEmbeddedTransactionSignerHasGreaterThanMinApprovers) {
 		// Assert: 4 > 3
-		AssertBasicMultilevelMultisigResult(
-				ValidationResult::Success,
-				[](const auto& cosignatories) { return cosignatories; });
+		AssertBasicMultilevelMultisigResult(ValidationResult::Success, [](const auto& cosignatories) {
+			return cosignatories;
+		});
 	}
 
 	TEST(TEST_CLASS, InsufficientWhenMultilevelMultisigEmbeddedTransactionSignerHasLessThanMinApprovers) {
 		// Assert: 2 < 3
-		AssertBasicMultilevelMultisigResult(
-				Failure_Aggregate_Missing_Cosigners,
-				[](const auto& cosignatories) { return std::vector<Key>{ cosignatories[0], cosignatories[2] }; });
+		AssertBasicMultilevelMultisigResult(Failure_Aggregate_Missing_Cosigners, [](const auto& cosignatories) {
+			return std::vector<Key>{ cosignatories[0], cosignatories[2] };
+		});
 	}
 
 	TEST(TEST_CLASS, SuccessWhenMultisigTransactionSignerHasMinApproversSharedAcrossLevels) {
@@ -336,37 +347,30 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SingleAddModificationRequiresMinApproval) {
-		// Assert:
 		AssertMinApprovalLimit(3, { Add }, 3, 4);
 	}
 
 	TEST(TEST_CLASS, MultipleAddModificationsRequireMinApproval) {
-		// Assert:
 		AssertMinApprovalLimit(3, { Add, Add, Add }, 3, 4);
 	}
 
 	TEST(TEST_CLASS, SingleDelModificationRequiresMinRemoval) {
-		// Assert:
 		AssertMinApprovalLimit(4, { Del }, 3, 4);
 	}
 
 	TEST(TEST_CLASS, MixedDelAndAddModificationsRequireMinRemovalWhenMinRemovalIsGreater) {
-		// Assert:
 		AssertMinApprovalLimit(4, { Add, Del, Add }, 3, 4);
 	}
 
 	TEST(TEST_CLASS, MixedDelAndAddModificationsRequireMinApprovalWhenMinApprovalIsGreater) {
-		// Assert:
 		AssertMinApprovalLimit(4, { Add, Del, Add }, 4, 3);
 	}
 
 	TEST(TEST_CLASS, SingleUnknownModificationRequiresMinApproval) {
-		// Assert:
 		AssertMinApprovalLimit(3, { static_cast<model::CosignatoryModificationType>(0xCC) }, 3, 4);
 	}
 
 	TEST(TEST_CLASS, NonCosignatoryModificationRequiresMinApproval) {
-		// Assert:
 		AssertMinApprovalLimit(3, {}, 3, 4);
 	}
 
@@ -498,32 +502,26 @@ namespace catapult { namespace validators {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	COSIGNER_APPROVAL_TEST(CosignatoryApproval_SingleAdd_NotMultisig) {
-		// Assert:
 		AssertCosignatoriesMustApproveTransaction(TTraits::ExpectedResult, { Add }, { AccountPolicy::Regular }, TTraits::MergeKeys);
 	}
 
 	COSIGNER_APPROVAL_TEST(CosignatoryApproval_SingleAdd_Multisig) {
-		// Assert:
 		AssertCosignatoriesMustApproveTransaction(TTraits::ExpectedResult, { Add }, { AccountPolicy::Multisig }, TTraits::MergeKeys);
 	}
 
 	COSIGNER_APPROVAL_TEST(CosignatoryApproval_MultipleAdds_NoneMultisig) {
-		// Assert:
 		AssertCosignatoriesMustApproveTransaction<TTraits>({ AccountPolicy::Regular, AccountPolicy::Regular, AccountPolicy::Regular });
 	}
 
 	COSIGNER_APPROVAL_TEST(CosignatoryApproval_MultipleAdds_SomeMultisig) {
-		// Assert:
 		AssertCosignatoriesMustApproveTransaction<TTraits>({ AccountPolicy::Multisig, AccountPolicy::Regular, AccountPolicy::Multisig });
 	}
 
 	COSIGNER_APPROVAL_TEST(CosignatoryApproval_MultipleAdds_AllMultisig) {
-		// Assert:
 		AssertCosignatoriesMustApproveTransaction<TTraits>({ AccountPolicy::Multisig, AccountPolicy::Multisig, AccountPolicy::Multisig });
 	}
 
 	COSIGNER_APPROVAL_TEST(CosignatoryApproval_AddsAndDelete_SomeMultisig) {
-		// Assert:
 		AssertCosignatoriesMustApproveTransaction(
 				TTraits::ExpectedResult,
 				{ Add, Del, Add },
@@ -536,7 +534,6 @@ namespace catapult { namespace validators {
 	// region cosignatory approval - failure
 
 	TEST(TEST_CLASS, InsuffientWhenOnlySomeCosignatoriesApprove) {
-		// Assert:
 		AssertCosignatoriesMustApproveTransaction(
 				Failure_Aggregate_Missing_Cosigners,
 				{ Add, Del, Add },
@@ -553,7 +550,6 @@ namespace catapult { namespace validators {
 	// region cosignatory approval - success
 
 	TEST(TEST_CLASS, SufficientWhenOnlyDeleteModification_NotMultisig) {
-		// Assert:
 		constexpr auto Success = ValidationResult::Success;
 		AssertCosignatoriesMustApproveTransaction(Success, { Del }, { AccountPolicy::Regular }, [](const auto& cosigners, const auto&) {
 			return cosigners;
@@ -561,7 +557,6 @@ namespace catapult { namespace validators {
 	}
 
 	TEST(TEST_CLASS, SufficientWhenOnlyDeleteModification_Multisig) {
-		// Assert:
 		constexpr auto Success = ValidationResult::Success;
 		AssertCosignatoriesMustApproveTransaction(Success, { Del }, { AccountPolicy::Multisig }, [](const auto& cosigners, const auto&) {
 			return cosigners;

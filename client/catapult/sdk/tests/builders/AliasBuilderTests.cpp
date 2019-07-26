@@ -69,7 +69,7 @@ namespace catapult { namespace builders {
 		public:
 			struct TransactionProperties {
 			public:
-				explicit TransactionProperties(catapult::NamespaceId namespaceId, model::AliasAction aliasAction)
+				TransactionProperties(catapult::NamespaceId namespaceId, model::AliasAction aliasAction)
 						: NamespaceId(namespaceId)
 						, AliasAction(aliasAction)
 						, Aliased()

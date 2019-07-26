@@ -49,19 +49,16 @@ namespace catapult { namespace validators {
 	// region fee <= max fee
 
 	TEST(TEST_CLASS, SuccessWhenFeeIsLessThanMaxFee) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 200, Amount(0), Amount(234));
 		AssertValidationResult(ValidationResult::Success, 300, Amount(123), Amount(234));
 		AssertValidationResult(ValidationResult::Success, 400, Amount(233), Amount(234));
 	}
 
 	TEST(TEST_CLASS, SuccessWhenFeeIsEqualToMaxFee) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 200, Amount(234), Amount(234));
 	}
 
 	TEST(TEST_CLASS, FailureWhenFeeIsGreaterThanMaxFee) {
-		// Assert:
 		AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 300, Amount(235), Amount(234));
 		AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 400, Amount(1000), Amount(234));
 	}
@@ -71,21 +68,18 @@ namespace catapult { namespace validators {
 	// region max fee multiplier can't overflow
 
 	TEST(TEST_CLASS, SuccessWhenMaxFeeMultiplierIsLessThanMax) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 200, Amount(200ull * 0xFFFF'FFFE));
 		AssertValidationResult(ValidationResult::Success, 300, Amount(300ull * 0xFFFF'FF00));
 		AssertValidationResult(ValidationResult::Success, 400, Amount(400ull * 0xFFFF'FFFE));
 	}
 
 	TEST(TEST_CLASS, SuccessWhenMaxFeeMultiplierIsEqualToMax) {
-		// Assert:
 		AssertValidationResult(ValidationResult::Success, 200, Amount(200ull * 0xFFFF'FFFF));
 		AssertValidationResult(ValidationResult::Success, 300, Amount(300ull * 0xFFFF'FFFF));
 		AssertValidationResult(ValidationResult::Success, 400, Amount(400ull * 0xFFFF'FFFF));
 	}
 
 	TEST(TEST_CLASS, FailureWhenMaxFeeMultiplierIsGreaterThanMax) {
-		// Assert:
 		AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 200, Amount(200ull * 0xFFFF'FFFF + 1));
 		AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 300, Amount(300ull * 0x1'0000'FFFF));
 		AssertValidationResult(Failure_Core_Invalid_Transaction_Fee, 400, Amount(400ull * 0x1'0000'0000));

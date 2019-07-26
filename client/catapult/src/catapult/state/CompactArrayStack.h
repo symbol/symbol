@@ -44,7 +44,7 @@ namespace catapult { namespace state {
 
 		public:
 			/// Creates an iterator around \a pArray with \a index current position.
-			explicit const_iterator(const std::array<T, N>* pArray, size_t index)
+			const_iterator(const std::array<T, N>* pArray, size_t index)
 					: m_pArray(pArray)
 					, m_index(index)
 			{}

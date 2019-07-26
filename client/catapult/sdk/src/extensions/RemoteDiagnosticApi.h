@@ -19,6 +19,7 @@
 **/
 
 #pragma once
+#include "plugins/txes/metadata/src/state/MetadataKey.h"
 #include "plugins/txes/namespace/src/types.h"
 #include "catapult/ionet/PackedNodeInfo.h"
 #include "catapult/model/CacheEntryInfo.h"
@@ -64,6 +65,10 @@ namespace catapult { namespace extensions {
 		/// Gets mosaic infos for all mosaic ids in \a mosaicIds.
 		virtual future<model::EntityRange<model::CacheEntryInfo<MosaicId>>> mosaicInfos(
 				model::EntityRange<MosaicId>&& mosaicIds) const = 0;
+
+		/// Gets metadata infos for all unique keys in \a uniqueKeys.
+		virtual future<model::EntityRange<model::CacheEntryInfo<Hash256>>> metadataInfos(
+				model::EntityRange<Hash256>&& uniqueKeys) const = 0;
 	};
 
 	/// Creates a diagnostic api for interacting with a remote node with the specified \a io.

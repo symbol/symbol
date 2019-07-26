@@ -19,8 +19,11 @@
 **/
 
 #include "src/plugins/MosaicAliasTransactionPlugin.h"
+#include "src/model/AliasNotifications.h"
 #include "src/model/MosaicAliasTransaction.h"
-#include "tests/test/AliasTransactionPluginTests.h"
+#include "src/model/NamespaceNotifications.h"
+#include "tests/test/plugins/TransactionPluginTestUtils.h"
+#include "tests/TestHarness.h"
 
 using namespace catapult::model;
 
@@ -28,53 +31,61 @@ namespace catapult { namespace plugins {
 
 #define TEST_CLASS MosaicAliasTransactionPluginTests
 
-	// region TransactionPlugin
+	// region test utils
 
 	namespace {
 		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(MosaicAlias, 1, 1,)
-
-		struct NotificationTraits {
-		public:
-			using Notification_Type = model::AliasedMosaicIdNotification;
-
-		public:
-			static constexpr size_t NumNotifications() {
-				return 3u;
-			}
-
-		public:
-			template<typename TTransaction>
-			static auto& TransactionAlias(TTransaction& transaction) {
-				return transaction.MosaicId;
-			}
-		};
 	}
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Alias_Mosaic)
 
-	DEFINE_ALIAS_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, MosaicAlias, NotificationTraits)
+	// endregion
 
-	PLUGIN_TEST(CanExtractMosaicRequiredNotification) {
+	// region publish
+
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder) {
 		// Arrange:
-		mocks::MockTypedNotificationSubscriber<model::MosaicRequiredNotification> mosaicSub;
-		auto pPlugin = TTraits::CreatePlugin();
-
 		typename TTraits::TransactionType transaction;
-		transaction.NamespaceId = NamespaceId(123);
-		transaction.AliasAction = model::AliasAction::Unlink;
-		transaction.Signer = test::GenerateRandomByteArray<Key>();
-		transaction.MosaicId = test::GenerateRandomValue<MosaicId>();
+		test::FillWithRandomData(transaction);
 
-		// Act:
-		test::PublishTransaction(*pPlugin, transaction, mosaicSub);
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			NamespaceRequiredNotification::Notification_Type,
+			AliasLinkNotification::Notification_Type,
+			AliasedMosaicIdNotification::Notification_Type,
+			MosaicRequiredNotification::Notification_Type
+		});
+	}
 
-		// Assert:
-		ASSERT_EQ(1u, mosaicSub.numMatchingNotifications());
-		const auto& notification = mosaicSub.matchingNotifications()[0];
-		EXPECT_EQ(transaction.Signer, notification.Signer);
-		EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
-		EXPECT_EQ(UnresolvedMosaicId(), notification.UnresolvedMosaicId);
-		EXPECT_EQ(MosaicRequiredNotification::MosaicType::Resolved, notification.ProvidedMosaicType);
+	PLUGIN_TEST(CanPublishAllNotifications) {
+		// Arrange:
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
+
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		builder.template addExpectation<NamespaceRequiredNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
+		});
+		builder.template addExpectation<AliasLinkNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
+			EXPECT_EQ(transaction.AliasAction, notification.AliasAction);
+		});
+		builder.template addExpectation<AliasedMosaicIdNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.NamespaceId, notification.NamespaceId);
+			EXPECT_EQ(transaction.AliasAction, notification.AliasAction);
+			EXPECT_EQ(transaction.MosaicId, notification.AliasedData);
+		});
+		builder.template addExpectation<MosaicRequiredNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Signer);
+			EXPECT_EQ(transaction.MosaicId, notification.MosaicId);
+			EXPECT_EQ(UnresolvedMosaicId(), notification.UnresolvedMosaicId);
+			EXPECT_EQ(0u, notification.PropertyFlagMask);
+			EXPECT_EQ(MosaicRequiredNotification::MosaicType::Resolved, notification.ProvidedMosaicType);
+		});
+
+		// Act + Assert:
+		builder.runTest(transaction);
 	}
 
 	// endregion

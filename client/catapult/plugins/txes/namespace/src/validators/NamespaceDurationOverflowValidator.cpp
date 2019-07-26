@@ -43,7 +43,7 @@ namespace catapult { namespace validators {
 
 	DECLARE_STATEFUL_VALIDATOR(NamespaceDurationOverflow, Notification)(BlockDuration maxNamespaceDuration) {
 		return MAKE_STATEFUL_VALIDATOR(NamespaceDurationOverflow, [maxNamespaceDuration](
-				const auto& notification,
+				const Notification& notification,
 				const ValidatorContext& context) {
 			const auto& cache = context.Cache.sub<cache::NamespaceCache>();
 			auto height = context.Height;
@@ -51,13 +51,13 @@ namespace catapult { namespace validators {
 			if (AddOverflows(height, notification.Duration))
 				return Failure_Namespace_Invalid_Duration;
 
-			if (!cache.contains(notification.NamespaceId))
+			auto namespaceIter = cache.find(notification.NamespaceId);
+			if (!namespaceIter.tryGet())
 				return ValidationResult::Success;
 
 			// if grace period after expiration has passed, overflow check above is sufficient
-			auto namespaceIter = cache.find(notification.NamespaceId);
 			const auto& root = namespaceIter.get().root();
-			if (!root.lifetime().isActiveOrGracePeriod(height))
+			if (!root.lifetime().isActive(height))
 				return ValidationResult::Success;
 
 			if (AddOverflows(root.lifetime().End, notification.Duration))

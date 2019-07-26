@@ -30,7 +30,7 @@ namespace catapult { namespace io {
 	class BlockStorageView : utils::MoveOnly {
 	public:
 		/// Creates a view around \a storage and cache data (\a cachedData) with lock context \a readLock.
-		explicit BlockStorageView(
+		BlockStorageView(
 				const BlockStorage& storage,
 				utils::SpinReaderWriterLock::ReaderLockGuard&& readLock,
 				const CachedData& cachedData);

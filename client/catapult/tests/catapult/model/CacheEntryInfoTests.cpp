@@ -120,13 +120,11 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, IsTooLargeReturnsFalseWhenDataSizeIsLessThanMax) {
-		// Assert:
 		for (auto dataSize : { 0u, 100u, 10000u, Max_Data_Size - 1u })
 			EXPECT_FALSE(IsTooLarge(dataSize)) << "for data size " << dataSize;
 	}
 
 	TEST(TEST_CLASS, IsTooLargeReturnsTrueWhenDataSizeIsGreaterOrEqualToMax) {
-		// Assert:
 		for (auto dataSize : { Max_Data_Size, Max_Data_Size + 1, Max_Data_Size + 1000 })
 			EXPECT_TRUE(IsTooLarge(dataSize)) << "for data size " << dataSize;
 	}

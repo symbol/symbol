@@ -52,12 +52,10 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, ObserverDoesNotSupportRollback) {
-		// Assert:
 		AssertUnsupported(observers::NotifyMode::Rollback, Height(1));
 	}
 
 	TEST(TEST_CLASS, ObserverDoesNotSupportNonNemesisBlock) {
-		// Assert:
 		AssertUnsupported(observers::NotifyMode::Commit, Height(2));
 	}
 

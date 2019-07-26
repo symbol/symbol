@@ -30,27 +30,41 @@ namespace catapult { namespace validators {
 	using CacheReadOnlyType = typename cache::AccountRestrictionCacheTypes::CacheReadOnlyType;
 
 	namespace {
-		bool IsInteractionAllowed(const cache::ReadOnlyCatapultCache& cache, const Address& source, const Address& participant) {
+		constexpr auto Address_Restriction_Type = model::AccountRestrictionType::Address;
+		constexpr auto Address_Outgoing_Restriction_Type = Address_Restriction_Type | model::AccountRestrictionType::Outgoing;
+
+		bool IsInteractionAllowed(
+				const cache::ReadOnlyCatapultCache& cache,
+				model::AccountRestrictionType restrictionType,
+				const Address& source,
+				const Address& participant) {
 			if (source == participant)
 				return true;
 
 			AccountRestrictionView view(cache);
-			return !view.initialize(participant) || view.isAllowed(model::AccountRestrictionType::Address, source);
+			return !view.initialize(participant) || view.isAllowed(restrictionType, source);
+		}
+
+		bool IsInteractionAllowed(const cache::ReadOnlyCatapultCache& cache, const Address& source, const Address& participant) {
+			return
+					IsInteractionAllowed(cache, Address_Restriction_Type, source, participant) &&
+					IsInteractionAllowed(cache, Address_Outgoing_Restriction_Type, participant, source);
 		}
 	}
 
-	DEFINE_STATEFUL_VALIDATOR(AddressInteraction, [](const auto& notification, const ValidatorContext& context) {
+	DEFINE_STATEFUL_VALIDATOR(AddressInteraction, [](const Notification& notification, const ValidatorContext& context) {
 		auto networkIdentifier = context.Network.Identifier;
 		auto sourceAddress = model::PublicKeyToAddress(notification.Source, networkIdentifier);
 		for (const auto& address : notification.ParticipantsByAddress) {
-			if (!IsInteractionAllowed(context.Cache, sourceAddress, context.Resolvers.resolve(address)))
-				return Failure_RestrictionAccount_Signer_Address_Interaction_Not_Allowed;
+			auto participant = context.Resolvers.resolve(address);
+			if (!IsInteractionAllowed(context.Cache, sourceAddress, participant))
+				return Failure_RestrictionAccount_Address_Interaction_Not_Allowed;
 		}
 
 		for (const auto& key : notification.ParticipantsByKey) {
-			auto address = model::PublicKeyToAddress(key, networkIdentifier);
-			if (!IsInteractionAllowed(context.Cache, sourceAddress, address))
-				return Failure_RestrictionAccount_Signer_Address_Interaction_Not_Allowed;
+			auto participant = model::PublicKeyToAddress(key, networkIdentifier);
+			if (!IsInteractionAllowed(context.Cache, sourceAddress, participant))
+				return Failure_RestrictionAccount_Address_Interaction_Not_Allowed;
 		}
 
 		return ValidationResult::Success;

@@ -27,7 +27,10 @@ namespace catapult { namespace validators {
 	using Notification = model::AccountAddressNotification;
 
 	DECLARE_STATEFUL_VALIDATOR(Address, Notification)(model::NetworkIdentifier networkIdentifier) {
-		return MAKE_STATEFUL_VALIDATOR(Address, [networkIdentifier](const auto& notification, const auto& context) {
+		return MAKE_STATEFUL_VALIDATOR(Address, [networkIdentifier](const Notification& notification, const ValidatorContext& context) {
+			if (utils::to_underlying_type(networkIdentifier) != (notification.Address[0] & 0xFE))
+				return Failure_Core_Invalid_Address;
+
 			auto isValidAddress = IsValidAddress(context.Resolvers.resolve(notification.Address), networkIdentifier);
 			return isValidAddress ? ValidationResult::Success : Failure_Core_Invalid_Address;
 		});

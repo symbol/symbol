@@ -48,14 +48,14 @@ namespace catapult { namespace model {
 		{}
 
 		/// Creates an entity info around \a entity and \a hash.
-		constexpr explicit WeakEntityInfoT(const TEntity& entity, const Hash256& hash)
+		constexpr WeakEntityInfoT(const TEntity& entity, const Hash256& hash)
 				: m_pEntity(&entity)
 				, m_pHash(&hash)
 				, m_pAssociatedBlockHeader(nullptr)
 		{}
 
 		/// Creates an entity info around \a entity, \a hash and \a associatedBlockHeader.
-		constexpr explicit WeakEntityInfoT(const TEntity& entity, const Hash256& hash, const BlockHeader& associatedBlockHeader)
+		constexpr WeakEntityInfoT(const TEntity& entity, const Hash256& hash, const BlockHeader& associatedBlockHeader)
 				: m_pEntity(&entity)
 				, m_pHash(&hash)
 				, m_pAssociatedBlockHeader(&associatedBlockHeader)

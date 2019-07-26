@@ -137,7 +137,7 @@ namespace catapult { namespace utils {
 	/// File logger options.
 	struct FileLoggerOptions : public BasicLoggerOptions {
 		/// Creates options that specify the creation of log files with the pattern \a filePattern in the \a directory.
-		explicit FileLoggerOptions(const std::string& directory, const std::string& filePattern)
+		FileLoggerOptions(const std::string& directory, const std::string& filePattern)
 				: Directory(directory)
 				, FilePattern(filePattern)
 		{}

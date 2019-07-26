@@ -155,7 +155,7 @@ namespace catapult { namespace thread {
 			};
 
 		public:
-			explicit SchedulerWork(const test::WaitFunction& wait, WaitStrategy waitStrategy)
+			SchedulerWork(const test::WaitFunction& wait, WaitStrategy waitStrategy)
 					: m_pPool(test::CreateStartedIoThreadPool(1))
 					, m_pState(std::make_shared<State>(wait, waitStrategy, m_pPool->ioContext()))
 			{}
@@ -241,12 +241,10 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, SchedulerShutdownSucceedsWhenSchedulerHasNoTasks) {
-		// Assert:
 		AssertCanShutdownScheduler(1);
 	}
 
 	TEST(TEST_CLASS, SchedulerShutdownIsIdempotent) {
-		// Assert:
 		AssertCanShutdownScheduler(3);
 	}
 
@@ -330,12 +328,10 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, SchedulerShutdownDoesNotAbortExecutingBlockingCallbacks) {
-		// Assert:
 		AssertSchedulerShutdownDoesNotAbortExecutingCallbacks(test::CreateSyncWaitFunction(Wait_Duration_Millis));
 	}
 
 	TEST(TEST_CLASS, SchedulerShutdownDoesNotAbortExecutingNonBlockingCallbacks) {
-		// Assert:
 		AssertSchedulerShutdownDoesNotAbortExecutingCallbacks(test::CreateAsyncWaitFunction(Wait_Duration_Millis));
 	}
 
@@ -592,7 +588,6 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, RepeatDelayIsRelativeToCallbackTime_Blocking) {
-		// Assert:
 		AssertRepeatDelayIsRelativeToCallbackTime(CreateContinuousTaskWithCounter);
 	}
 

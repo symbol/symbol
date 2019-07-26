@@ -34,16 +34,25 @@ namespace catapult { namespace state {
 	// region traits
 
 	namespace {
+		size_t GetExpectedChildGroupBufferSize(std::initializer_list<size_t> childGroup) {
+			auto size = sizeof(RootNamespaceHeader);
+
+			for (const auto& childDepth : childGroup)
+				size += 2 + childDepth * sizeof(NamespaceId); // 1 (child depth) + 1 (alias type)
+
+			return size;
+		}
+
 		struct FullTraits {
 			using NamespaceHistoryHeader = test::NamespaceHistoryHeader;
 			using Serializer = RootNamespaceHistorySerializer;
 
 			static constexpr auto Has_Historical_Entries = true;
 
-			static size_t GetExpectedBufferSize(std::initializer_list<size_t> childCounts) {
+			static size_t GetExpectedBufferSize(std::initializer_list<std::initializer_list<size_t>> childGroups) {
 				auto size = sizeof(NamespaceHistoryHeader);
-				for (auto childCount : childCounts)
-					size += sizeof(RootNamespaceHeader) + childCount * sizeof(NamespaceData);
+				for (const auto& childGroup : childGroups)
+					size += GetExpectedChildGroupBufferSize(childGroup);
 
 				return size;
 			}
@@ -67,8 +76,8 @@ namespace catapult { namespace state {
 
 			static constexpr auto Has_Historical_Entries = false;
 
-			static size_t GetExpectedBufferSize(std::initializer_list<size_t> childCounts) {
-				return sizeof(NamespaceHistoryHeader) + sizeof(RootNamespaceHeader) + *childCounts.begin() * sizeof(NamespaceData);
+			static size_t GetExpectedBufferSize(std::initializer_list<std::initializer_list<size_t>> childGroups) {
+				return sizeof(NamespaceHistoryHeader) + GetExpectedChildGroupBufferSize(*childGroups.begin());
 			}
 
 			static NamespaceHistoryHeader CreateHistoryHeader(NamespaceId namespaceId, uint64_t) {
@@ -122,7 +131,7 @@ namespace catapult { namespace state {
 			} else {
 				const auto& address = reinterpret_cast<const Address&>(*pAliasData);
 				EXPECT_EQ(alias.address(), address) << message;
-				pAliasData += Address_Decoded_Size;
+				pAliasData += Address::Size;
 			}
 
 			auto numActualChildren = reinterpret_cast<const uint64_t&>(*pAliasData);
@@ -133,12 +142,31 @@ namespace catapult { namespace state {
 			return lhs.Part1 == rhs.Part1 && lhs.Part2 == rhs.Part2 && lhs.Alias.type() == rhs.AliasType;
 		}
 
+		NamespaceData ReadNamespaceData(const uint8_t*& pData) {
+			NamespaceData result;
+
+			auto childDepth = *pData++;
+			if (childDepth > 0) {
+				result.Part1 = reinterpret_cast<const NamespaceId&>(*pData);
+				pData += sizeof(NamespaceId);
+			}
+
+			if (childDepth > 1) {
+				result.Part2 = reinterpret_cast<const NamespaceId&>(*pData);
+				pData += sizeof(NamespaceId);
+			}
+
+			result.AliasType = static_cast<state::AliasType>(*pData++);
+			return result;
+		}
+
 		void AssertOrderedNamespaceData(
 				const std::vector<uint8_t>& buffer,
 				size_t offset,
 				const std::vector<NamespaceDataWithAliasPayload>& expected) {
+			auto* pData = &buffer[offset];
 			for (auto i = 0u; i < expected.size(); ++i) {
-				const auto& namespaceData = reinterpret_cast<const NamespaceData&>(buffer[offset + i * sizeof(NamespaceData)]);
+				auto namespaceData = ReadNamespaceData(pData);
 				EXPECT_TRUE(AreEqual(expected[i], namespaceData))
 						<< "actual at " << i << " (" << namespaceData.Part1 << ", " << namespaceData.Part2 << ")";
 			}
@@ -148,9 +176,10 @@ namespace catapult { namespace state {
 				const std::vector<uint8_t>& buffer,
 				size_t offset,
 				const std::vector<NamespaceDataWithAliasPayload>& expected) {
-			auto* pData = buffer.data() + offset;
+			auto* pData = &buffer[offset];
 			for (auto i = 0u; i < expected.size(); ++i) {
-				const auto& namespaceData = reinterpret_cast<const NamespaceData&>(*pData);
+				// 1. check path and alias type
+				auto namespaceData = ReadNamespaceData(pData);
 
 				bool hasMatch = false;
 				NamespaceAlias expectedAlias;
@@ -167,8 +196,7 @@ namespace catapult { namespace state {
 				message << " at " << i << " (" << namespaceData.Part1 << ", " << namespaceData.Part2 << ")";
 				EXPECT_TRUE(hasMatch) << "actual" << message.str();
 
-				pData += sizeof(NamespaceData);
-
+				// 2. check alias payload
 				switch (namespaceData.AliasType) {
 				case AliasType::Mosaic:
 					EXPECT_EQ(expectedAlias.mosaicId(), reinterpret_cast<const MosaicId&>(*pData)) << "mosaic alias" << message.str();
@@ -177,7 +205,7 @@ namespace catapult { namespace state {
 
 				case AliasType::Address:
 					EXPECT_EQ(expectedAlias.address(), reinterpret_cast<const Address&>(*pData)) << "address alias" << message.str();
-					pData += Address_Decoded_Size;
+					pData += Address::Size;
 					break;
 
 				default:
@@ -229,27 +257,22 @@ namespace catapult { namespace state {
 			TTraits::Serializer::Save(history, stream);
 
 			// Assert:
-			ASSERT_EQ(TTraits::GetExpectedBufferSize({ 0 }) + aliasDataSize, buffer.size());
+			ASSERT_EQ(TTraits::GetExpectedBufferSize({ {} }) + aliasDataSize, buffer.size());
 			TTraits::AssertHistoryHeader(buffer, NamespaceId(123), 1);
 			AssertRootHeader(buffer, sizeof(typename TTraits::NamespaceHistoryHeader), owner, Height(222), Height(333), 0, alias);
 		}
 	}
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthOneWithoutChildren) {
-		// Assert:
 		AssertCanSaveHistoryWithDepthOneWithoutChildren<TTraits>(NamespaceAlias(), 0);
 	}
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthOneWithoutChildren_RootMosaicAlias) {
-		// Assert:
 		AssertCanSaveHistoryWithDepthOneWithoutChildren<TTraits>(NamespaceAlias(MosaicId(567)), sizeof(MosaicId));
 	}
 
 	SERIALIZER_TEST(CanSaveHistoryWithDepthOneWithoutChildren_RootAddressAlias) {
-		// Assert:
-		AssertCanSaveHistoryWithDepthOneWithoutChildren<TTraits>(
-				NamespaceAlias(test::GenerateRandomByteArray<Address>()),
-				Address_Decoded_Size);
+		AssertCanSaveHistoryWithDepthOneWithoutChildren<TTraits>(NamespaceAlias(test::GenerateRandomByteArray<Address>()), Address::Size);
 	}
 
 	namespace {
@@ -274,7 +297,7 @@ namespace catapult { namespace state {
 			TTraits::Serializer::Save(history, stream);
 
 			// Assert:
-			ASSERT_EQ(TTraits::GetExpectedBufferSize({ 3 }) + expectedAliasDataSize, buffer.size());
+			ASSERT_EQ(TTraits::GetExpectedBufferSize({ { 1, 2, 1 } }) + expectedAliasDataSize, buffer.size());
 			TTraits::AssertHistoryHeader(buffer, NamespaceId(123), 1);
 			AssertRootHeader(buffer, sizeof(typename TTraits::NamespaceHistoryHeader), owner, Height(222), Height(333), 3);
 
@@ -305,7 +328,7 @@ namespace catapult { namespace state {
 		};
 
 		// Assert:
-		auto aliasDataSize = 2 * sizeof(MosaicId) + Address_Decoded_Size;
+		auto aliasDataSize = 2 * sizeof(MosaicId) + Address::Size;
 		AssertCanSaveHistoryWithDepthOneWithChildren<TTraits>(expectedChildNamespaceData, aliasDataSize, [&aliasedAddress](auto& history) {
 			// Arrange:
 			history.back().setAlias(NamespaceId(124), NamespaceAlias(MosaicId(444)));
@@ -318,15 +341,15 @@ namespace catapult { namespace state {
 		void SeedRootNamespaceWithOutOfOrderChildren(RootNamespace& root) {
 			// add more 3 element paths, to increase chance one of them will be first in unordered map
 			std::vector<std::vector<NamespaceId::ValueType>> paths{
-					{ 123, 753 },
-					{ 123, 753, 129 },
-					{ 123, 753, 127 },
-					{ 123, 753, 128 },
-					{ 123, 753, 125 },
-					{ 123, 753, 126 },
-					{ 123, 124 },
-					{ 123, 124, 122 },
-					{ 123, 124, 121 }
+				{ 123, 753 },
+				{ 123, 753, 129 },
+				{ 123, 753, 127 },
+				{ 123, 753, 128 },
+				{ 123, 753, 125 },
+				{ 123, 753, 126 },
+				{ 123, 124 },
+				{ 123, 124, 122 },
+				{ 123, 124, 121 }
 			};
 
 			for (const auto& rawPath : paths)
@@ -352,7 +375,7 @@ namespace catapult { namespace state {
 		TTraits::Serializer::Save(history, stream);
 
 		// Assert:
-		ASSERT_EQ(TTraits::GetExpectedBufferSize({ 9 }), buffer.size());
+		ASSERT_EQ(TTraits::GetExpectedBufferSize({ { 1, 2, 2, 2, 2, 2, 1, 2, 2 } }), buffer.size());
 		TTraits::AssertHistoryHeader(buffer, NamespaceId(123), 1);
 		AssertRootHeader(buffer, sizeof(typename TTraits::NamespaceHistoryHeader), owner, Height(222), Height(333), 9);
 
@@ -395,7 +418,7 @@ namespace catapult { namespace state {
 			TTraits::Serializer::Save(history, stream);
 
 			// Assert:
-			ASSERT_EQ(TTraits::GetExpectedBufferSize({ 4, 0, 0 }) + expectedAliasDataSize, buffer.size());
+			ASSERT_EQ(TTraits::GetExpectedBufferSize({ { 1, 2, 1, 2 }, {}, {} }) + expectedAliasDataSize, buffer.size());
 			TTraits::AssertHistoryHeader(buffer, NamespaceId(123), 3);
 
 			auto offset = sizeof(typename TTraits::NamespaceHistoryHeader);
@@ -404,7 +427,7 @@ namespace catapult { namespace state {
 				offset += sizeof(RootNamespaceHeader);
 
 				AssertNamespaceData(buffer, offset, expectedChildNamespaceData);
-				offset += 4 * sizeof(NamespaceData) + expectedAliasDataSize;
+				offset += 4 * 2 + 6 * sizeof(NamespaceId) + expectedAliasDataSize;
 
 				AssertRootHeader(buffer, offset, owner, Height(222), Height(333), 0);
 				offset += sizeof(RootNamespaceHeader);
@@ -444,7 +467,7 @@ namespace catapult { namespace state {
 		};
 
 		// Assert:
-		auto aliasDataSize = 2 * sizeof(MosaicId) + Address_Decoded_Size;
+		auto aliasDataSize = 2 * sizeof(MosaicId) + Address::Size;
 		AssertCanSaveHistoryWithDepthGreaterThanOneSameOwner<TTraits>(expectedChildNamespaceData, aliasDataSize, [&aliasedAddress](
 				auto& history) {
 			// Arrange: aliases are set on the middle history entry
@@ -484,7 +507,7 @@ namespace catapult { namespace state {
 			if (!TTraits::Has_Historical_Entries)
 				expectedAliasDataSize = 0; // aliases are only attached to second entry
 
-			ASSERT_EQ(TTraits::GetExpectedBufferSize({ 1, 3, 0 }) + expectedAliasDataSize, buffer.size());
+			ASSERT_EQ(TTraits::GetExpectedBufferSize({ { 1 }, { 1, 2, 1 }, {} }) + expectedAliasDataSize, buffer.size());
 			TTraits::AssertHistoryHeader(buffer, NamespaceId(123), 3);
 
 			auto offset = sizeof(typename TTraits::NamespaceHistoryHeader);
@@ -496,7 +519,7 @@ namespace catapult { namespace state {
 				offset += sizeof(RootNamespaceHeader);
 
 				AssertNamespaceData(buffer, offset, expectedChildNamespaceData);
-				offset += 3 * sizeof(NamespaceData) + expectedAliasDataSize;
+				offset += 3 * 2 + 4 * sizeof(NamespaceId) + expectedAliasDataSize;
 			}
 
 			// - since namespace owner is different, all children are always serialized
@@ -531,7 +554,7 @@ namespace catapult { namespace state {
 		};
 
 		// Assert:
-		auto aliasDataSize = 2 * sizeof(MosaicId) + Address_Decoded_Size;
+		auto aliasDataSize = 2 * sizeof(MosaicId) + Address::Size;
 		AssertCanSaveHistoryWithDepthGreaterThanOneDifferentOwner<TTraits>(expectedChildNamespaceData, aliasDataSize, [&aliasedAddress](
 				auto& history) {
 			// Arrange: aliases are set on the middle history entry
@@ -725,17 +748,14 @@ namespace catapult { namespace state {
 	}
 
 	SERIALIZER_TEST(CanRoundtripHistoryWithDepthOneWithoutChildren) {
-		// Assert:
 		AssertCanRoundtripHistoryWithDepthOneWithoutChildren<TTraits>(NamespaceAlias());
 	}
 
 	SERIALIZER_TEST(CanRoundtripHistoryWithDepthOneWithoutChildren_RootMosaicAlias) {
-		// Assert:
 		AssertCanRoundtripHistoryWithDepthOneWithoutChildren<TTraits>(NamespaceAlias(MosaicId(567)));
 	}
 
 	SERIALIZER_TEST(CanRoundtripHistoryWithDepthOneWithoutChildren_RootAddressAlias) {
-		// Assert:
 		AssertCanRoundtripHistoryWithDepthOneWithoutChildren<TTraits>(NamespaceAlias(test::GenerateRandomByteArray<Address>()));
 	}
 
@@ -760,12 +780,10 @@ namespace catapult { namespace state {
 	}
 
 	SERIALIZER_TEST(CanRoundtripHistoryWithDepthOneWithChildren) {
-		// Assert:
 		AssertCanRoundtripHistoryWithDepthOneWithChildren<TTraits>([](const auto&) {});
 	}
 
 	SERIALIZER_TEST(CanRoundtripHistoryWithDepthOneWithChildren_WithAliases) {
-		// Assert:
 		AssertCanRoundtripHistoryWithDepthOneWithChildren<TTraits>([](auto& history) {
 			// Arrange:
 			history.back().setAlias(NamespaceId(124), NamespaceAlias(MosaicId(444)));
@@ -798,12 +816,10 @@ namespace catapult { namespace state {
 	}
 
 	SERIALIZER_TEST(CanRoundtripHistoryWithDepthGreaterThanOneSameOwner) {
-		// Assert:
 		AssertCanRoundtripHistoryWithDepthGreaterThanOneSameOwner<TTraits>([](const auto&) {});
 	}
 
 	SERIALIZER_TEST(CanRoundtripHistoryWithDepthGreaterThanOneSameOwner_WithAliases) {
-		// Assert:
 		AssertCanRoundtripHistoryWithDepthGreaterThanOneSameOwner<TTraits>([](auto& history) {
 			// Arrange: aliases are set on the middle history entry
 			history.back().setAlias(NamespaceId(124), NamespaceAlias(MosaicId(444)));
@@ -838,12 +854,10 @@ namespace catapult { namespace state {
 	}
 
 	SERIALIZER_TEST(CanRoundtripHistoryWithDepthGreaterThanOneDifferentOwner) {
-		// Assert:
 		AssertCanRoundtripHistoryWithDepthGreaterThanOneDifferentOwner<TTraits>([](const auto&) {});
 	}
 
 	SERIALIZER_TEST(CanRoundtripHistoryWithDepthGreaterThanOneDifferentOwner_WithAliases) {
-		// Assert:
 		AssertCanRoundtripHistoryWithDepthGreaterThanOneDifferentOwner<TTraits>([](auto& history) {
 			// Arrange: aliases are set on the middle history entry
 			history.back().setAlias(NamespaceId(124), NamespaceAlias(MosaicId(444)));

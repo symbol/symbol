@@ -37,29 +37,31 @@ namespace catapult { namespace state {
 
 	NamespaceLifetime::NamespaceLifetime(Height start, Height end, BlockDuration gracePeriodDuration)
 			: Start(start)
-			, End(end)
-			, GracePeriodEnd(end.unwrap() + gracePeriodDuration.unwrap()) {
-		// if end is max height, there can be no grace period
-		if (End == Height(std::numeric_limits<Height::ValueType>::max()))
-			GracePeriodEnd = End;
-
+			, End(end) {
 		if (Start >= End)
 			ThrowInvalidLifetimeException("namespace lifetime must be positive", start, end, gracePeriodDuration);
 
-		if (GracePeriodEnd < End)
+		// if end is max height, there can be no grace period
+		if (end != Height(std::numeric_limits<Height::ValueType>::max()))
+			End = Height(End.unwrap() + gracePeriodDuration.unwrap());
+
+		if (End < end)
 			ThrowInvalidLifetimeException("namespace grace period end overflow detected", start, end, gracePeriodDuration);
 	}
 
-	bool NamespaceLifetime::isActiveAndUnlocked(Height height) const {
+	bool NamespaceLifetime::isActive(Height height) const {
 		return height >= Start && height < End;
 	}
 
-	bool NamespaceLifetime::isActiveOrGracePeriod(Height height) const {
-		return height >= Start && height < GracePeriodEnd;
+	bool NamespaceLifetime::isActiveExcludingGracePeriod(Height height, BlockDuration gracePeriodDuration) const {
+		if (gracePeriodDuration.unwrap() >= (End - Start).unwrap())
+			CATAPULT_THROW_INVALID_ARGUMENT_1("grace period duration cannot be larger than lifetime", gracePeriodDuration);
+
+		return height >= Start && height < Height(End.unwrap() - gracePeriodDuration.unwrap());
 	}
 
 	bool NamespaceLifetime::operator==(const NamespaceLifetime& rhs) const {
-		return Start == rhs.Start && End == rhs.End && GracePeriodEnd == rhs.GracePeriodEnd;
+		return Start == rhs.Start && End == rhs.End;
 	}
 
 	bool NamespaceLifetime::operator!=(const NamespaceLifetime& rhs) const {

@@ -22,7 +22,7 @@
 #include "sdk/src/builders/ModifyMultisigAccountBuilder.h"
 #include "mongo/src/mappers/MapperUtils.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/test/core/AddressTestUtils.h"
 #include "tests/TestHarness.h"
 
@@ -61,7 +61,7 @@ namespace catapult { namespace mongo { namespace plugins {
 			for (auto i = 0u; i < transaction.ModificationsCount; ++i) {
 				EXPECT_EQ(
 						pModification->ModificationType,
-						static_cast<ModificationType>(test::GetUint32(iter->get_document().view(), "type")));
+						static_cast<ModificationType>(test::GetUint32(iter->get_document().view(), "modificationType")));
 				EXPECT_EQ(pModification->CosignatoryPublicKey, test::GetKeyValue(iter->get_document().view(), "cosignatoryPublicKey"));
 				++pModification;
 				++iter;
@@ -95,17 +95,14 @@ namespace catapult { namespace mongo { namespace plugins {
 	// region streamTransaction
 
 	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithoutModification) {
-		// Assert:
 		AssertCanMapModifyMultisigAccountTransaction<TTraits>(3, 5, {});
 	}
 
 	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithSingleModification) {
-		// Assert:
 		AssertCanMapModifyMultisigAccountTransaction<TTraits>(3, 5, { { ModificationType::Add, test::GenerateRandomByteArray<Key>() } });
 	}
 
 	PLUGIN_TEST(CanMapModifiyMultisigAccountTransactionWithMultipleModification) {
-		// Assert:
 		AssertCanMapModifyMultisigAccountTransaction<TTraits>(3, 5, {
 			{ ModificationType::Add, test::GenerateRandomByteArray<Key>() },
 			{ ModificationType::Del, test::GenerateRandomByteArray<Key>() },

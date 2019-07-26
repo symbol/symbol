@@ -35,7 +35,7 @@ namespace catapult { namespace observers {
 
 		class MultisigAccountFacade {
 		public:
-			explicit MultisigAccountFacade(cache::MultisigCacheDelta& multisigCache, const Key& multisigAccountKey)
+			MultisigAccountFacade(cache::MultisigCacheDelta& multisigCache, const Key& multisigAccountKey)
 					: m_multisigCache(multisigCache)
 					, m_multisigAccountKey(multisigAccountKey)
 					, m_multisigIter(GetMultisigEntry(m_multisigCache, m_multisigAccountKey))
@@ -77,7 +77,7 @@ namespace catapult { namespace observers {
 		};
 	}
 
-	DEFINE_OBSERVER(ModifyMultisigCosigners, Notification, [](const auto& notification, const ObserverContext& context) {
+	DEFINE_OBSERVER(ModifyMultisigCosigners, Notification, [](const Notification& notification, const ObserverContext& context) {
 		auto& multisigCache = context.Cache.sub<cache::MultisigCache>();
 
 		MultisigAccountFacade multisigAccountFacade(multisigCache, notification.Signer);

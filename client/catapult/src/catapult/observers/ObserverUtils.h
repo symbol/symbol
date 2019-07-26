@@ -69,16 +69,21 @@ namespace catapult { namespace observers {
 		});
 	}
 
-	/// Creates a block-based cache touch observer with \a name that touches the cache at every block height
-	/// and creates a receipt of type \a receiptType for all deactivating elements.
+	/// Creates a block-based cache touch observer with \a name that touches the cache at every block height taking into account
+	/// \a gracePeriod and creates a receipt of type \a receiptType for all deactivating elements.
 	template<typename TCache>
 	NotificationObserverPointerT<model::BlockNotification> CreateCacheBlockTouchObserver(
 			const std::string& name,
-			model::ReceiptType receiptType) {
+			model::ReceiptType receiptType,
+			BlockDuration gracePeriod = BlockDuration()) {
 		using ObserverType = FunctionalNotificationObserverT<model::BlockNotification>;
-		return std::make_unique<ObserverType>(name + "TouchObserver", [receiptType](const auto&, auto& context) {
+		return std::make_unique<ObserverType>(name + "TouchObserver", [receiptType, gracePeriod](const auto&, auto& context) {
+			if (context.Height.unwrap() <= gracePeriod.unwrap())
+				return;
+
+			auto touchHeight = Height(context.Height.unwrap() - gracePeriod.unwrap());
 			auto& cache = context.Cache.template sub<TCache>();
-			auto expiryIds = cache.touch(context.Height);
+			auto expiryIds = cache.touch(touchHeight);
 
 			if (NotifyMode::Rollback == context.Mode)
 				return;

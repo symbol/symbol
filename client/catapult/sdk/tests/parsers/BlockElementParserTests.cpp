@@ -32,7 +32,7 @@ namespace catapult { namespace parsers {
 		std::vector<uint8_t> PrepareBlockElementBuffer(size_t numTransactions, size_t bufferPadding = 0) {
 			// plus 1 because block metadata is composed of two hashes too
 			auto pBlock = test::GenerateBlockWithTransactions(numTransactions);
-			std::vector<uint8_t> buffer(pBlock->Size + (1 + numTransactions) * 2 * Hash256_Size + bufferPadding);
+			std::vector<uint8_t> buffer(pBlock->Size + (1 + numTransactions) * 2 * Hash256::Size + bufferPadding);
 			test::FillWithRandomData(buffer);
 			memcpy(buffer.data(), pBlock.get(), pBlock->Size);
 			return buffer;
@@ -62,7 +62,7 @@ namespace catapult { namespace parsers {
 	TEST(TEST_CLASS, CannotParseBlockElementWhenAnyHashIsMissing) {
 		// Arrange: use a buffer missing a single hash
 		auto buffer = PrepareBlockElementBuffer(3);
-		buffer.resize(buffer.size() - Hash256_Size);
+		buffer.resize(buffer.size() - Hash256::Size);
 
 		// Act + Assert:
 		size_t numBytesConsumed;
@@ -126,22 +126,18 @@ namespace catapult { namespace parsers {
 	}
 
 	TEST(TEST_CLASS, CanParseBlockElementWithoutTransactions) {
-		// Assert:
 		AssertCanParseBlockElement(0, 0);
 	}
 
 	TEST(TEST_CLASS, CanParseBlockElementWithoutTransactionsWithPadding) {
-		// Assert:
 		AssertCanParseBlockElement(0, 123);
 	}
 
 	TEST(TEST_CLASS, CanParseBlockElementWithTransactions) {
-		// Assert:
 		AssertCanParseBlockElement(3, 0);
 	}
 
 	TEST(TEST_CLASS, CanParseBlockElementWithTransactionsWithPadding) {
-		// Assert:
 		AssertCanParseBlockElement(3, 123);
 	}
 

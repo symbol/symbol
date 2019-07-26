@@ -88,7 +88,7 @@ namespace catapult { namespace mocks {
 	struct StatefulNotificationValidatorParams {
 	public:
 		/// Creates params around \a notification and \a context.
-		explicit StatefulNotificationValidatorParams(const model::Notification& notification, const validators::ValidatorContext& context)
+		StatefulNotificationValidatorParams(const model::Notification& notification, const validators::ValidatorContext& context)
 				: Notification(notification)
 				, TransactionNotificationInfo(notification)
 				, Height(context.Height)

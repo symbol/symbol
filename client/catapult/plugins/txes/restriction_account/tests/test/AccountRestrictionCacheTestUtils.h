@@ -19,7 +19,7 @@
 **/
 
 #pragma once
-#include "AccountRestrictionTestUtils.h"
+#include "AccountRestrictionTestTraits.h"
 #include "src/cache/AccountRestrictionCache.h"
 #include "src/cache/AccountRestrictionCacheStorage.h"
 #include "catapult/model/Address.h"
@@ -31,11 +31,11 @@ namespace catapult { namespace test {
 	/// Cache factory for creating a catapult cache composed of account restriction cache and core caches.
 	struct AccountRestrictionCacheFactory {
 	private:
-		static auto CreateSubCachesWithAccountRestrictionCache() {
+		static auto CreateSubCachesWithAccountRestrictionCache(model::NetworkIdentifier networkIdentifier) {
 			auto cacheId = cache::AccountRestrictionCache::Id;
 			std::vector<std::unique_ptr<cache::SubCachePlugin>> subCaches(cacheId + 1);
 			subCaches[cacheId] = MakeSubCachePlugin<cache::AccountRestrictionCache, cache::AccountRestrictionCacheStorage>(
-					model::NetworkIdentifier::Zero);
+					networkIdentifier);
 			return subCaches;
 		}
 
@@ -47,7 +47,7 @@ namespace catapult { namespace test {
 
 		/// Creates an empty catapult cache around \a config.
 		static cache::CatapultCache Create(const model::BlockChainConfiguration& config) {
-			auto subCaches = CreateSubCachesWithAccountRestrictionCache();
+			auto subCaches = CreateSubCachesWithAccountRestrictionCache(config.Network.Identifier);
 			CoreSystemCacheFactory::CreateSubCaches(config, subCaches);
 			return cache::CatapultCache(std::move(subCaches));
 		}

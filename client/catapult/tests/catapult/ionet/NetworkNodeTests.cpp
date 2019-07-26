@@ -33,7 +33,7 @@ namespace catapult { namespace ionet {
 		auto expectedSize =
 				sizeof(uint32_t) // size of network node
 				+ sizeof(uint16_t) // port
-				+ Key_Size // identity key
+				+ Key::Size // identity key
 				+ sizeof(model::NetworkIdentifier) // network identifier
 				+ sizeof(NodeVersion) // version
 				+ sizeof(NodeRoles) // roles

@@ -25,11 +25,11 @@
 
 namespace catapult { namespace observers {
 
-	/// Observes changes triggered by mosaic definition notifications, including:
-	/// - creation of mosaics
+	/// Observes changes triggered by mosaic definition notifications and:
+	/// - creates mosaics
 	DECLARE_OBSERVER(MosaicDefinition, model::MosaicDefinitionNotification)();
 
-	/// Observes changes triggered by mosaic supply change notifications, including:
-	/// - increase or decrease of supply
+	/// Observes changes triggered by mosaic supply change notifications and:
+	/// - increases or decreases supply
 	DECLARE_OBSERVER(MosaicSupplyChange, model::MosaicSupplyChangeNotification)();
 }}

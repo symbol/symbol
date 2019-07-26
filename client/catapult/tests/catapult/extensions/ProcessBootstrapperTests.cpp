@@ -110,22 +110,18 @@ namespace catapult { namespace extensions {
 	}
 
 	TEST(TEST_CLASS, CanLoadKnownDynamicallyLinkedPlugins_ExplicitDirectory) {
-		// Assert:
 		AssertCanLoadKnownDynamicallyLinkedPlugins(test::GetExplicitPluginsDirectory());
 	}
 
 	TEST(TEST_CLASS, CanLoadKnownDynamicallyLinkedPlugins_ImplicitDirectory) {
-		// Assert:
 		AssertCanLoadKnownDynamicallyLinkedPlugins("");
 	}
 
 	TEST(TEST_CLASS, CannotLoadUnknownPlugin_ExplicitDirectory) {
-		// Assert:
 		AssertCannotLoadUnknownPlugin(test::GetExplicitPluginsDirectory());
 	}
 
 	TEST(TEST_CLASS, CannotLoadUnknownPlugin_ImplicitDirectory) {
-		// Assert:
 		AssertCannotLoadUnknownPlugin("");
 	}
 

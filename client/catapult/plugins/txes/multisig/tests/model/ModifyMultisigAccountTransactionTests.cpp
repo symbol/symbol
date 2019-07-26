@@ -20,6 +20,7 @@
 
 #include "src/model/ModifyMultisigAccountTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
+#include "tests/test/MultisigTestUtils.h"
 #include "tests/test/core/TransactionTestUtils.h"
 #include "tests/test/core/VariableSizedEntityTestUtils.h"
 #include "tests/test/nodeps/NumericTestUtils.h"
@@ -112,6 +113,73 @@ namespace catapult { namespace model {
 		ASSERT_EQ(0xFFFFFFFF, transaction.Size);
 		EXPECT_EQ(sizeof(TransactionType) + 0xFF * sizeof(CosignatoryModification), realSize);
 		EXPECT_GT(0xFFFFFFFF, realSize);
+	}
+
+	// endregion
+
+	// region ExtractAdditionalRequiredCosigners
+
+	namespace {
+		auto CreateEmbeddedTransactionWithModifications(const std::vector<CosignatoryModificationType>& modificationTypes) {
+			return test::CreateModifyMultisigAccountTransaction(test::GenerateRandomByteArray<Key>(), modificationTypes);
+		}
+	}
+
+	TEST(TEST_CLASS, ExtractAdditionalRequiredCosigners_NoModifications) {
+		// Arrange:
+		auto pTransaction = CreateEmbeddedTransactionWithModifications({});
+
+		// Act:
+		auto additionalCosigners = ExtractAdditionalRequiredCosigners(*pTransaction);
+
+		// Assert:
+		EXPECT_EQ(utils::KeySet(), additionalCosigners);
+	}
+
+	TEST(TEST_CLASS, ExtractAdditionalRequiredCosigners_AddModifications) {
+		// Arrange:
+		auto pTransaction = CreateEmbeddedTransactionWithModifications({
+			CosignatoryModificationType::Add,
+			CosignatoryModificationType::Add
+		});
+
+		// Act:
+		auto additionalCosigners = ExtractAdditionalRequiredCosigners(*pTransaction);
+
+		// Assert:
+		const auto* pModifications = pTransaction->ModificationsPtr();
+		EXPECT_EQ(utils::KeySet({ pModifications[0].CosignatoryPublicKey, pModifications[1].CosignatoryPublicKey }), additionalCosigners);
+	}
+
+	TEST(TEST_CLASS, ExtractAdditionalRequiredCosigners_DelModifications) {
+		// Arrange:
+		auto pTransaction = CreateEmbeddedTransactionWithModifications({
+			CosignatoryModificationType::Del,
+			CosignatoryModificationType::Del
+		});
+
+		// Act:
+		auto additionalCosigners = ExtractAdditionalRequiredCosigners(*pTransaction);
+
+		// Assert:
+		EXPECT_EQ(utils::KeySet(), additionalCosigners);
+	}
+
+	TEST(TEST_CLASS, ExtractAdditionalRequiredCosigners_AddAndDelModifications) {
+		// Arrange:
+		auto pTransaction = CreateEmbeddedTransactionWithModifications({
+			CosignatoryModificationType::Add,
+			CosignatoryModificationType::Del,
+			CosignatoryModificationType::Add,
+			CosignatoryModificationType::Del
+		});
+
+		// Act:
+		auto additionalCosigners = ExtractAdditionalRequiredCosigners(*pTransaction);
+
+		// Assert:
+		const auto* pModifications = pTransaction->ModificationsPtr();
+		EXPECT_EQ(utils::KeySet({ pModifications[0].CosignatoryPublicKey, pModifications[2].CosignatoryPublicKey }), additionalCosigners);
 	}
 
 	// endregion

@@ -55,7 +55,7 @@ namespace catapult { namespace mongo { namespace mappers {
 
 	TEST(TEST_CLASS, CanMapDbHashes) {
 		// Arrange:
-		auto expectedRange = model::HashRange::CopyFixed(test::GenerateRandomArray<3 * Hash256_Size>().data(), 3);
+		auto expectedRange = model::HashRange::CopyFixed(test::GenerateRandomArray<3 * Hash256::Size>().data(), 3);
 		auto values = GenerateValues(expectedRange);
 		auto views = CreateViews(values);
 

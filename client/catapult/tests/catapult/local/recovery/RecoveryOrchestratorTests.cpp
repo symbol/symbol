@@ -475,12 +475,10 @@ namespace catapult { namespace local {
 	}
 
 	TEST(TEST_CLASS, BlocksAreMovedFromBlockSyncWhenStepIsStateWritten) {
-		// Assert:
 		RunCanMoveBlocksTest(consumers::CommitOperationStep::State_Written, Height(5));
 	}
 
 	TEST(TEST_CLASS, BlocksAreNotMovedFromBlockSyncWhenStepIsBlocksWritten) {
-		// Assert:
 		RunCanMoveBlocksTest(consumers::CommitOperationStep::Blocks_Written, Height(1));
 	}
 
@@ -646,12 +644,10 @@ namespace catapult { namespace local {
 	}
 
 	TEST(TEST_CLASS, TemporarySupplementalDataIsPurgedWhenCommitStepIsBlocksWritten) {
-		// Act + Assert:
 		AssertTemporarySupplementalDataIsPurged(consumers::CommitOperationStep::Blocks_Written);
 	}
 
 	TEST(TEST_CLASS, TemporarySupplementalDataIsPurgedWhenCommitStepIsAllUpdated) {
-		// Act + Assert:
 		AssertTemporarySupplementalDataIsPurged(consumers::CommitOperationStep::All_Updated);
 	}
 
@@ -732,27 +728,22 @@ namespace catapult { namespace local {
 	}
 
 	TEST(TEST_CLASS, CanLoadChainWhenCacheIsEmptyAndOnlyNemesisIsInStorage_CacheDatabaseDisabled) {
-		// Assert:
 		AssertLoadChainTest(Height(0), Height(1));
 	}
 
 	TEST(TEST_CLASS, CanLoadChainWhenCacheIsEmptyAndMultipleBlocksInStorage_CacheDatabaseDisabled) {
-		// Assert:
 		AssertLoadChainTest(Height(0), Height(4));
 	}
 
 	TEST(TEST_CLASS, CanLoadChainWhenCacheHeightIsLessThanStorageHeight_CacheDatabaseDisabled) {
-		// Assert:
 		AssertLoadChainTest(Height(4), Height(6));
 	}
 
 	TEST(TEST_CLASS, CanLoadChainWhenCacheHeightIsEqualToStorageHeight_CacheDatabaseDisabled) {
-		// Assert:
 		AssertLoadChainTest(Height(6), Height(6));
 	}
 
 	TEST(TEST_CLASS, LoadingChainThrowsWhenCacheHeightIsGreaterThanStorageHeight_CacheDatabaseDisabled) {
-		// Assert:
 		AssertThrowsLoadChainTest(Flags::Default, Height(8), Height(6));
 	}
 
@@ -796,27 +787,22 @@ namespace catapult { namespace local {
 	}
 
 	TEST(TEST_CLASS, CanLoadChainWhenCacheIsEmptyAndOnlyNemesisIsInStorage_CacheDatabaseEnabled) {
-		// Assert:
 		AssertLoadsOnlyNemesis(Height(0), Height(1));
 	}
 
 	TEST(TEST_CLASS, LoadsOnlyNemesisWhenCacheIsEmptyAndMultipleBlocksInStorage_CacheDatabaseEnabled) {
-		// Assert:
 		AssertLoadsOnlyNemesis(Height(0), Height(4));
 	}
 
 	TEST(TEST_CLASS, CanLoadChainWhenCacheHeightIsLessThanStorageHeight_CacheDatabaseEnabled) {
-		// Assert:
 		AssertLoadsFromState(Height(4), Height(6));
 	}
 
 	TEST(TEST_CLASS, CanLoadChainWhenCacheHeightIsEqualToStorageHeight_CacheDatabaseEnabled) {
-		// Assert:
 		AssertLoadsFromState(Height(6), Height(6));
 	}
 
 	TEST(TEST_CLASS, LoadingChainThrowsWhenCacheHeightIsGreaterThanStorageHeight_CacheDatabaseEnabled) {
-		// Assert:
 		AssertThrowsLoadChainTest(Flags::Cache_Database_Enabled, Height(8), Height(6));
 	}
 

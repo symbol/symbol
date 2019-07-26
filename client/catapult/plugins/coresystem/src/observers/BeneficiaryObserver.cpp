@@ -27,7 +27,7 @@ namespace catapult { namespace observers {
 
 	namespace {
 		void UpdateBeneficiaryActivity(const Key& publicKey, ObserverContext& context) {
-			auto& cache = context.Cache.template sub<cache::AccountStateCache>();
+			auto& cache = context.Cache.sub<cache::AccountStateCache>();
 			cache::ProcessForwardedAccountState(cache, publicKey, [&context](auto& accountState) {
 				importance::UpdateActivity(
 					accountState.PublicKey,
@@ -42,7 +42,7 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(Beneficiary, model::BlockNotification, ([](const auto& notification, auto& context) {
+	DEFINE_OBSERVER(Beneficiary, model::BlockNotification, ([](const model::BlockNotification& notification, ObserverContext& context) {
 		if (IsOwnBlock(notification.Signer, notification.Beneficiary))
 			return;
 

@@ -63,7 +63,6 @@ namespace catapult { namespace cache {
 	// region constructor
 
 	TEST(TEST_CLASS, RdbThrowsWhenNoColumnsAreGiven) {
-		// Act + Assert:
 		EXPECT_THROW(RocksDatabase(CreateSettings({})), catapult_invalid_argument);
 	}
 
@@ -81,7 +80,6 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, RdbThrowsWhenBatchSizeIsTooSmall) {
-		// Act + Assert:
 		test::TempDirectoryGuard dbDirGuard;
 		EXPECT_THROW(RocksDatabase(CreateSettings({ "default" }, 99)), catapult_invalid_argument);
 	}
@@ -546,22 +544,18 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, SinglePutDoesNotTriggerBatchedWrite) {
-		// Assert:
 		RunPutTest(Flush::No, KeyState::Nonexistent);
 	}
 
 	TEST(TEST_CLASS, FinalizeBatchCommitsBatchedPuts) {
-		// Assert:
 		RunPutTest(Flush::Yes, KeyState::Existent);
 	}
 
 	TEST(TEST_CLASS, SingleDelDoesNotTriggerBatchedWrite) {
-		// Assert:
 		RunDelTest(Flush::No, KeyState::Existent);
 	}
 
 	TEST(TEST_CLASS, FinalizeBatchCommitsBatchedDels) {
-		// Assert:
 		RunDelTest(Flush::Yes, KeyState::Nonexistent);
 	}
 

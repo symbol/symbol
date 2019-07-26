@@ -171,19 +171,19 @@ namespace catapult { namespace test {
 				const plugins::StorageConfiguration& storageConfig,
 				const config::InflationConfiguration& inflationConfig) {
 			std::vector<plugins::PluginModule> modules;
-			auto pPluginManager = std::make_shared<plugins::PluginManager>(config, storageConfig, inflationConfig);
+			auto userConfig = config::UserConfiguration::Uninitialized();
+			auto pPluginManager = std::make_shared<plugins::PluginManager>(config, storageConfig, userConfig, inflationConfig);
 			LoadPluginByName(*pPluginManager, modules, "", "catapult.coresystem");
 
 			for (const auto& pair : config.Plugins)
 				LoadPluginByName(*pPluginManager, modules, "", pair.first);
 
-			return std::shared_ptr<plugins::PluginManager>(
-					pPluginManager.get(),
-					[pPluginManager, modules = std::move(modules)](const auto*) mutable {
-						// destroy the modules after the plugin manager
-						pPluginManager.reset();
-						modules.clear();
-					});
+			return std::shared_ptr<plugins::PluginManager>(pPluginManager.get(), [pPluginManager, modules = std::move(modules)](
+					const auto*) mutable {
+				// destroy the modules after the plugin manager
+				pPluginManager.reset();
+				modules.clear();
+			});
 		}
 	}
 

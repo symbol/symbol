@@ -51,14 +51,18 @@ namespace catapult { namespace model {
 		/// No flags present.
 		None = 0x00,
 
-		/// Mosaic supply is mutable.
+		/// Mosaic supports supply changes even when mosaic owner owns partial supply.
 		Supply_Mutable = 0x01,
 
-		/// Mosaic is transferable.
+		/// Mosaic supports transfers between arbitrary accounts.
+		/// \note When not set, mosaic can only be transferred to and from mosaic owner.
 		Transferable = 0x02,
 
+		/// Mosaic supports custom restrictions configured by mosaic owner.
+		Restrictable = 0x04,
+
 		/// All flags.
-		All = 0x03
+		All = 0x07
 	};
 
 	MAKE_BITWISE_ENUM(MosaicFlags)

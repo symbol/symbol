@@ -20,7 +20,6 @@
 
 #include "MongoReceiptPluginFactory.h"
 #include "mappers/MapperUtils.h"
-#include "mappers/ReceiptMapper.h"
 
 namespace catapult { namespace mongo {
 

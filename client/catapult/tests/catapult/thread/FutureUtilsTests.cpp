@@ -228,9 +228,9 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, ComposeDoesNotBlock) {
 		// Arrange:
-		auto composedFuture = compose(
-				CreateSleepValueFuture(25, 7),
-				[](auto&& future) { return CreateSleepContinuationFuture(25, std::move(future)); });
+		auto composedFuture = compose(CreateSleepValueFuture(25, 7), [](auto&& future) {
+			return CreateSleepContinuationFuture(25, std::move(future));
+		});
 
 		// Assert:
 		EXPECT_FALSE(composedFuture.is_ready());
@@ -238,9 +238,9 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, CanComposeNonExceptionalFutures) {
 		// Arrange:
-		auto composedFuture = compose(
-				CreateSleepValueFuture(15, 7),
-				[](auto&& future) { return CreateSleepContinuationFuture(10, std::move(future)); });
+		auto composedFuture = compose(CreateSleepValueFuture(15, 7), [](auto&& future) {
+			return CreateSleepContinuationFuture(10, std::move(future));
+		});
 
 		// Act:
 		auto result = composedFuture.get();
@@ -252,9 +252,9 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, CanComposeFuturesWhenFirstIsExceptional) {
 		// Arrange:
-		auto composedFuture = compose(
-				CreateSleepExceptionFuture(15),
-				[](auto&& future) { return CreateSleepContinuationFuture(10, std::move(future)); });
+		auto composedFuture = compose(CreateSleepExceptionFuture(15), [](auto&& future) {
+			return CreateSleepContinuationFuture(10, std::move(future));
+		});
 
 		// Act + Assert:
 		EXPECT_THROW(composedFuture.get(), catapult_runtime_error);
@@ -277,9 +277,9 @@ namespace catapult { namespace thread {
 
 	TEST(TEST_CLASS, CanComposeFuturesWhenSecondIsExceptional) {
 		// Arrange:
-		auto composedFuture = compose(
-				CreateSleepValueFuture(15, 7),
-				[](const auto&) { return CreateSleepExceptionFuture(10); });
+		auto composedFuture = compose(CreateSleepValueFuture(15, 7), [](const auto&) {
+			return CreateSleepExceptionFuture(10);
+		});
 
 		// Act + Assert:
 		EXPECT_THROW(composedFuture.get(), catapult_runtime_error);
@@ -293,12 +293,10 @@ namespace catapult { namespace thread {
 		std::unique_ptr<int> pIntRawFromContinuation;
 
 		// Act
-		auto composedFuture = compose(
-				make_ready_future(std::move(pInt)),
-				[&pIntRawFromContinuation](auto&& future) {
-					pIntRawFromContinuation = future.get();
-					return make_ready_future(true);
-				});
+		auto composedFuture = compose(make_ready_future(std::move(pInt)), [&pIntRawFromContinuation](auto&& future) {
+			pIntRawFromContinuation = future.get();
+			return make_ready_future(true);
+		});
 		auto result = composedFuture.get();
 
 		// Assert: the composed future completed

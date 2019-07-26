@@ -142,17 +142,14 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, PullBlockHandler_WritesBlockAtHeightToResponse) {
-		// Assert:
 		AssertCanRetrieveBlock(12, Height(7), Height(7));
 	}
 
 	TEST(TEST_CLASS, PullBlockHandler_CanExplicitlyRetrieveLastBlockAtHeight) {
-		// Assert:
 		AssertCanRetrieveBlock(12, Height(12), Height(12));
 	}
 
 	TEST(TEST_CLASS, PullBlockHandler_CanImplicitlyRetrieveLastBlock) {
-		// Assert:
 		AssertCanRetrieveBlock(12, Height(0), Height(12));
 	}
 
@@ -266,22 +263,18 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, BlockHashesHandler_WritesAtMostMaxHashesOnRemote) {
-		// Assert:
 		AssertCanRetrieveHashes(100, Height(3), { Height(3), Height(4), Height(5), Height(6), Height(7), Height(8), Height(9) });
 	}
 
 	TEST(TEST_CLASS, BlockHashesHandler_WritesAtMostMaxRequestedHashes) {
-		// Assert:
 		AssertCanRetrieveHashes(5, Height(3), { Height(3), Height(4), Height(5), Height(6), Height(7) });
 	}
 
 	TEST(TEST_CLASS, BlockHashesHandler_WritesAreBoundedByLastBlock) {
-		// Assert:
 		AssertCanRetrieveHashes(5, Height(10), { Height(10), Height(11), Height(12) });
 	}
 
 	TEST(TEST_CLASS, BlockHashesHandler_CanRetrieveLastBlockHash) {
-		// Assert:
 		AssertCanRetrieveHashes(5, Height(12), { Height(12) });
 	}
 
@@ -391,26 +384,22 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_WritesAtMostMaxBlocks) {
-		// Assert:
 		std::vector<Height> expectedBlockHeights{ Height(3), Height(4), Height(5), Height(6), Height(7) };
 		AssertCanRetrieveBlocks(10, 5, Ten_Megabytes, Ten_Megabytes, Height(3), expectedBlockHeights);
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_WritesAtMostMaxResponseBytes) {
-		// Assert:
 		AssertWritesAtMostMaxBytes([](auto responseBytes, const auto& expectedBlockHeights) {
 			AssertCanRetrieveBlocks(5, 5, Ten_Megabytes, responseBytes, Height(3), expectedBlockHeights);
 		});
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_RespectsRequestNumBlocks) {
-		// Assert:
 		std::vector<Height> expectedBlockHeights{ Height(3), Height(4), Height(5) };
 		AssertCanRetrieveBlocks(3, 5, Ten_Megabytes, Ten_Megabytes, Height(3), expectedBlockHeights);
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_RespectsRequestMaxResponseBytes) {
-		// Assert:
 		AssertWritesAtMostMaxBytes([](auto responseBytes, const auto& expectedBlockHeights) {
 			AssertCanRetrieveBlocks(5, 5, responseBytes, Ten_Megabytes, Height(3), expectedBlockHeights);
 		});
@@ -422,12 +411,10 @@ namespace catapult { namespace handlers {
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_WritesAreBoundedByLastBlock) {
-		// Assert:
 		AssertCanRetrieveBlocks(10, Ten_Megabytes, Height(10), { Height(10), Height(11), Height(12) });
 	}
 
 	TEST(TEST_CLASS, PullBlocksHandler_CanRetrieveLastBlock) {
-		// Assert:
 		AssertCanRetrieveBlocks(5, Ten_Megabytes, Height(12), { Height(12) });
 	}
 

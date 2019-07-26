@@ -507,12 +507,10 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, ExecuteShortCircutsOnProcessorResult_Neutral) {
-		// Assert:
 		AssertShortCircutsOnProcessorResult(ValidationResult::Neutral);
 	}
 
 	TEST(TEST_CLASS, ExecuteShortCircutsOnProcessorResult_Failure) {
-		// Assert:
 		AssertShortCircutsOnProcessorResult(ValidationResult::Failure);
 	}
 
@@ -609,12 +607,10 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, SetsGenerationHashesInSingleBlockInput) {
-		// Assert:
 		AssertGenerationHashesAreUpdatedCorrectly(1);
 	}
 
 	TEST(TEST_CLASS, SetsGenerationHashesInMultiBlockInput) {
-		// Assert:
 		AssertGenerationHashesAreUpdatedCorrectly(3);
 	}
 
@@ -652,12 +648,10 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, SetsSubCacheMerkleRootsInSingleBlockInput) {
-		// Assert:
 		AssertSubCacheMerkleRootsAreUpdatedCorrectly(1);
 	}
 
 	TEST(TEST_CLASS, SetsSubCacheMerkleRootsInMultiBlockInput) {
-		// Assert:
 		AssertSubCacheMerkleRootsAreUpdatedCorrectly(3);
 	}
 
@@ -692,12 +686,10 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, DoesNotSetBlockStatementsInSingleBlockInputWhenReceiptValidationIsDisabled) {
-		// Assert:
 		AssertBlockStatementsAreNotSetWhenReceiptValidationIsDisabled(1);
 	}
 
 	TEST(TEST_CLASS, DoesNotSetBlockStatementsInMultiBlockInputWhenReceiptValidationIsDisabled) {
-		// Assert:
 		AssertBlockStatementsAreNotSetWhenReceiptValidationIsDisabled(3);
 	}
 
@@ -732,12 +724,10 @@ namespace catapult { namespace consumers {
 	}
 
 	TEST(TEST_CLASS, SetsBlockStatementsInSingleBlockInputWhenReceiptValidationIsEnabled) {
-		// Assert:
 		AssertBlockStatementsAreUpdatedCorrectlyWhenReceiptValidationIsEnabled(1);
 	}
 
 	TEST(TEST_CLASS, SetsBlockStatementsInMultiBlockInputWhenReceiptValidationIsEnabled) {
-		// Assert:
 		AssertBlockStatementsAreUpdatedCorrectlyWhenReceiptValidationIsEnabled(3);
 	}
 

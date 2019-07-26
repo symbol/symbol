@@ -67,7 +67,7 @@ namespace catapult { namespace handlers {
 
 		class MockCacheView {
 		public:
-			explicit MockCacheView(bool result, const StatePath& path)
+			MockCacheView(bool result, const StatePath& path)
 					: m_result(result)
 					, m_path(path)
 			{}

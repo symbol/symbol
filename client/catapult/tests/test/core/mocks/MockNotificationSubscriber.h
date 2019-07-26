@@ -104,7 +104,7 @@ namespace catapult { namespace mocks {
 					: Transfer(notification.Sender, notification.Recipient, notification.MosaicId, notification.Amount)
 			{}
 
-			explicit Transfer(const Key& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount)
+			Transfer(const Key& sender, const UnresolvedAddress& recipient, UnresolvedMosaicId mosaicId, Amount amount)
 					: Sender(sender)
 					, Recipient(recipient)
 					, MosaicId(mosaicId)

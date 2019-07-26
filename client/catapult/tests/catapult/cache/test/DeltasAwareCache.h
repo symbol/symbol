@@ -56,7 +56,7 @@ namespace catapult { namespace test {
 		// stub out view-required functions and expose deltas
 		struct CacheDeltaType : public CacheViewType, public deltaset::DeltaElementsMixin<ByteVectorCacheDeltas> {
 		public:
-			explicit CacheDeltaType(const ByteVectorCacheDeltas& deltas, BasicDeltasAwareCache::Breadcrumbs& breadcrumbs)
+			CacheDeltaType(const ByteVectorCacheDeltas& deltas, BasicDeltasAwareCache::Breadcrumbs& breadcrumbs)
 					: deltaset::DeltaElementsMixin<ByteVectorCacheDeltas>::DeltaElementsMixin(deltas)
 					, m_breadcrumbs(breadcrumbs)
 			{}
@@ -76,7 +76,7 @@ namespace catapult { namespace test {
 		using CacheReadOnlyType = CacheViewType;
 
 	public:
-		explicit BasicDeltasAwareCache(const ByteVectorCacheDeltas& deltas, Breadcrumbs& breadcrumbs)
+		BasicDeltasAwareCache(const ByteVectorCacheDeltas& deltas, Breadcrumbs& breadcrumbs)
 				: m_deltas(deltas)
 				, m_breadcrumbs(breadcrumbs)
 		{}

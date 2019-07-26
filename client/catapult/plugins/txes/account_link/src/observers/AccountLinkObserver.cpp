@@ -31,8 +31,10 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(AccountLink, model::RemoteAccountLinkNotification, [](const auto& notification, const auto& context) {
-		auto& cache = context.Cache.template sub<cache::AccountStateCache>();
+	DEFINE_OBSERVER(AccountLink, model::RemoteAccountLinkNotification, [](
+			const model::RemoteAccountLinkNotification& notification,
+			const ObserverContext& context) {
+		auto& cache = context.Cache.sub<cache::AccountStateCache>();
 
 		auto mainAccountStateIter = cache.find(notification.MainAccountKey);
 		auto& mainAccountState = mainAccountStateIter.get();

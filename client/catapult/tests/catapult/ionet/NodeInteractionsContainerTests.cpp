@@ -29,7 +29,6 @@ namespace catapult { namespace ionet {
 	// region constants + constructor
 
 	TEST(TEST_CLASS, ConstantsHaveExpectedValues) {
-		// Assert:
 		EXPECT_EQ(utils::TimeSpan::FromSeconds(24 * 60 * 60), NodeInteractionsContainer::BucketDuration());
 		EXPECT_EQ(utils::TimeSpan::FromSeconds(7 * 24 * 60 * 60), NodeInteractionsContainer::InteractionDuration());
 	}
@@ -180,7 +179,6 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, NoPruningWhenAllBucketsAreLessThanOneWeekOld) {
-		// Assert:
 		AssertPruningBehavior(1, 2, {
 			Timestamp(), // first bucket is added
 			Timestamp(23456),
@@ -190,7 +188,6 @@ namespace catapult { namespace ionet {
 	}
 
 	TEST(TEST_CLASS, PrunesWhenBucketAreAtLeastOneWeekOld) {
-		// Assert:
 		AssertPruningBehavior(0, 1, {
 			Timestamp(), // first bucket is added
 			Timestamp(23456),

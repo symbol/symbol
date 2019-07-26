@@ -33,7 +33,7 @@ namespace catapult { namespace validators {
 		}
 	}
 
-	DEFINE_STATELESS_VALIDATOR(StrictAggregateCosignatures, [](const auto& notification) {
+	DEFINE_STATELESS_VALIDATOR(StrictAggregateCosignatures, [](const Notification& notification) {
 		// collect all cosigners (initially set used flag to false)
 		utils::ArrayPointerFlagMap<Key> cosigners;
 		cosigners.emplace(&notification.Signer, false);

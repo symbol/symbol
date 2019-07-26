@@ -24,24 +24,21 @@
 
 namespace catapult { namespace validators {
 
-	using Notification = model::AliasOwnerNotification;
+	using Notification = model::AliasLinkNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(AliasAvailability, [](const auto& notification, const auto& context) {
-		const auto& cache = context.Cache.template sub<cache::NamespaceCache>();
+	DEFINE_STATEFUL_VALIDATOR(AliasAvailability, [](const Notification& notification, const ValidatorContext& context) {
+		const auto& cache = context.Cache.sub<cache::NamespaceCache>();
 		auto namespaceIter = cache.find(notification.NamespaceId);
 		if (!namespaceIter.tryGet())
-			return Failure_Namespace_Alias_Namespace_Unknown;
+			return Failure_Namespace_Unknown;
 
 		const auto& root = namespaceIter.get().root();
-		if (!root.lifetime().isActiveAndUnlocked(context.Height))
-			return Failure_Namespace_Expired;
-
 		auto aliasType = root.alias(notification.NamespaceId).type();
 		if (model::AliasAction::Link == notification.AliasAction && state::AliasType::None != aliasType)
 			return Failure_Namespace_Alias_Already_Exists;
 		else if (model::AliasAction::Unlink == notification.AliasAction && state::AliasType::None == aliasType)
 			return Failure_Namespace_Alias_Does_Not_Exist;
 
-		return root.owner() == notification.Owner ? ValidationResult::Success : Failure_Namespace_Alias_Owner_Conflict;
+		return ValidationResult::Success;
 	});
 }}

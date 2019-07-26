@@ -322,22 +322,18 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, CanCreateBlockStatementWithSingleAddressResolutionStatement) {
-		// Assert:
 		AssertCanCreateBlockStatementWithSingleResolutionStatement<AddressResolutionTraits>();
 	}
 
 	TEST(TEST_CLASS, CanCreateBlockStatementWithSingleMosaicResolutionStatement) {
-		// Assert:
 		AssertCanCreateBlockStatementWithSingleResolutionStatement<MosaicResolutionTraits>();
 	}
 
 	TEST(TEST_CLASS, CanCreateBlockStatementWithMultipleAddressResolutionStatements) {
-		// Assert:
 		AssertCanCreateBlockStatementWithMultipleResolutionStatements<AddressResolutionTraits>();
 	}
 
 	TEST(TEST_CLASS, CanCreateBlockStatementWithMultipleMosaicResolutionStatements) {
-		// Assert:
 		AssertCanCreateBlockStatementWithMultipleResolutionStatements<MosaicResolutionTraits>();
 	}
 

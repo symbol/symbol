@@ -84,11 +84,11 @@ namespace catapult { namespace importance {
 			{}
 
 		public:
-			void seedDelta(const std::vector<AccountSeed>& accountSeeds, model::ImportanceHeight height) {
+			void seedDelta(const std::vector<AccountSeed>& accountSeeds, model::ImportanceHeight importanceHeight) {
 				uint8_t i = 0;
 				for (auto accountData : accountSeeds) {
 					auto key = Key{ { ++i } };
-					Delta->addAccount(key, Height(height.unwrap()));
+					Delta->addAccount(key, Height(importanceHeight.unwrap()));
 					auto& accountState = Delta->find(key).get();
 					accountState.Balances.credit(Harvesting_Mosaic_Id, accountData.Amount);
 					for (const auto& dataBucket : accountData.Buckets) {
@@ -128,7 +128,7 @@ namespace catapult { namespace importance {
 		}
 
 		template<typename TTraits>
-		void AssertPosImportanceCalculatorRespectsCustomMinBalance(uint64_t minBalance, int64_t delta, bool hasNonZeroImportance) {
+		void AssertPosImportanceCalculatorRespectsCustomMinBalance(uint64_t minBalance, int64_t delta, bool hasNonzeroImportance) {
 			// Arrange:
 			auto config = TTraits::CreateConfiguration();
 
@@ -147,7 +147,7 @@ namespace catapult { namespace importance {
 			const auto& accountState2 = holder.get(Key{ { 2 } });
 
 			// Assert:
-			EXPECT_EQ(hasNonZeroImportance, Importance() < accountState1.ImportanceSnapshots.current());
+			EXPECT_EQ(hasNonzeroImportance, Importance() < accountState1.ImportanceSnapshots.current());
 			EXPECT_LT(Importance(), accountState2.ImportanceSnapshots.current());
 		}
 	}
@@ -182,7 +182,6 @@ namespace catapult { namespace importance {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	ACTIVITY_BASED_TEST(PosImportanceCalculatorRespectsCustomMinBalance) {
-		// Assert:
 		AssertPosImportanceCalculatorRespectsCustomMinBalance<TTraits>(1'000'000, -1, false);
 		AssertPosImportanceCalculatorRespectsCustomMinBalance<TTraits>(1'000'000, 0, true);
 		AssertPosImportanceCalculatorRespectsCustomMinBalance<TTraits>(1'000'000, 1, true);

@@ -38,7 +38,6 @@ namespace catapult { namespace pluginhandlers {
 	ADD_SERVICE_REGISTRAR_INFO_TEST(PluginHandlers, Initial)
 
 	TEST(TEST_CLASS, NoServicesOrCountersAreRegistered) {
-		// Assert:
 		test::AssertNoServicesOrCountersAreRegistered<TestContext>();
 	}
 

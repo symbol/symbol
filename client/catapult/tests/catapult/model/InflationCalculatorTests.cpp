@@ -245,7 +245,7 @@ namespace catapult { namespace model {
 		EXPECT_EQ(Amount(), totalInflation.first);
 	}
 
-	TEST(TEST_CLASS, SumAllReturnsFalseWhenLastInflationEntryIsNotZero) {
+	TEST(TEST_CLASS, SumAllReturnsFalseWhenLastInflationEntryIsNonzero) {
 		// Arrange:
 		std::vector<InflationEntry> entries{ { Height(5), Amount(345) }, { Height(15), Amount(234) }, { Height(25), Amount(3) } };
 		auto calculator = CreateInflationCalculator(entries);

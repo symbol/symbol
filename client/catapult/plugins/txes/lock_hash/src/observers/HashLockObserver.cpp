@@ -33,7 +33,7 @@ namespace catapult { namespace observers {
 		}
 	}
 
-	DEFINE_OBSERVER(HashLock, Notification, [](const auto& notification, ObserverContext& context) {
+	DEFINE_OBSERVER(HashLock, Notification, [](const Notification& notification, ObserverContext& context) {
 		auto& cache = context.Cache.sub<cache::HashLockInfoCache>();
 		if (NotifyMode::Commit == context.Mode) {
 			auto endHeight = context.Height + Height(notification.Duration.unwrap());

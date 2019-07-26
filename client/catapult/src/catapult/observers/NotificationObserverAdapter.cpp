@@ -27,7 +27,7 @@ namespace catapult { namespace observers {
 	namespace {
 		class ObservingNotificationSubscriber : public model::NotificationSubscriber {
 		public:
-			explicit ObservingNotificationSubscriber(const NotificationObserver& observer, ObserverContext& context)
+			ObservingNotificationSubscriber(const NotificationObserver& observer, ObserverContext& context)
 					: m_observer(observer)
 					, m_context(context)
 			{}

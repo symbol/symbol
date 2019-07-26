@@ -34,8 +34,8 @@ namespace catapult {
 	constexpr size_t Activity_Bucket_History_Size = 5 + Rollback_Buffer_Size;
 
 	/// Size of hashes in the hash cache.
-	/// \note Reducing below `Hash256_Size` can save memory but will increase possibility of false positive rejections.
-	constexpr size_t Cached_Hash_Size = Hash256_Size;
+	/// \note Reducing below `Hash256::Size` can save memory but will increase possibility of false positive rejections.
+	constexpr size_t Cached_Hash_Size = Hash256::Size;
 
 	/// Duration of eternal artifact.
 	constexpr BlockDuration Eternal_Artifact_Duration(0);

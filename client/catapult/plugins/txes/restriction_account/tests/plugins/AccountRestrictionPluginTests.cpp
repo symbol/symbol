@@ -100,7 +100,7 @@ namespace catapult { namespace plugins {
 					"AccountOperationRestrictionRedundantModificationValidator",
 					"AccountOperationRestrictionValueModificationValidator",
 					"MaxAccountOperationRestrictionValuesValidator",
-					"TransactionValidator",
+					"OperationRestrictionValidator",
 					"AccountOperationRestrictionNoSelfBlockingValidator"
 				};
 			}

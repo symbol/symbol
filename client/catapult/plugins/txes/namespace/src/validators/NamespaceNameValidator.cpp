@@ -33,7 +33,7 @@ namespace catapult { namespace validators {
 		for (const auto& name : reservedRootNamespaceNames)
 			reservedRootIds.emplace(model::GenerateNamespaceId(Namespace_Base_Id, name));
 
-		return MAKE_STATELESS_VALIDATOR(NamespaceName, ([maxNameSize, reservedRootIds](const auto& notification) {
+		return MAKE_STATELESS_VALIDATOR(NamespaceName, ([maxNameSize, reservedRootIds](const Notification& notification) {
 			if (maxNameSize < notification.NameSize || !model::IsValidName(notification.NamePtr, notification.NameSize))
 				return Failure_Namespace_Invalid_Name;
 

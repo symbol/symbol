@@ -109,7 +109,7 @@ namespace catapult { namespace local {
 		auto stateHashes = RunApplyAliasTest(context);
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashes, 2);
+		test::AssertAllNonzero(stateHashes, 2);
 		test::AssertUnique(stateHashes);
 	}
 
@@ -224,7 +224,7 @@ namespace catapult { namespace local {
 		auto stateHashes = RunRollbackAliasTest(context);
 
 		// Assert: all state hashes are nonzero
-		test::AssertAllNonZero(stateHashes, 2);
+		test::AssertAllNonzero(stateHashes, 2);
 		test::AssertUnique(stateHashes);
 	}
 

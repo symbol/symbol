@@ -27,8 +27,8 @@ namespace catapult { namespace validators {
 
 	using Notification = model::BlockNotification;
 
-	DEFINE_STATEFUL_VALIDATOR(EligibleHarvester, [](const auto& notification, const auto& context) {
-		cache::ImportanceView view(context.Cache.template sub<cache::AccountStateCache>());
+	DEFINE_STATEFUL_VALIDATOR(EligibleHarvester, [](const Notification& notification, const ValidatorContext& context) {
+		cache::ImportanceView view(context.Cache.sub<cache::AccountStateCache>());
 		return view.canHarvest(notification.Signer, context.Height)
 				? ValidationResult::Success
 				: Failure_Core_Block_Harvester_Ineligible;

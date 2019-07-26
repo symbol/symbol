@@ -208,7 +208,7 @@ namespace catapult { namespace importance {
 
 	namespace {
 		template<typename TUpdateBucket>
-		void AssertUpdateActivityRollbackDoesNotRemoveNonZeroBucket(const char* message, TUpdateBucket updateBucket) {
+		void AssertUpdateActivityRollbackDoesNotRemoveNonzeroBucket(const char* message, TUpdateBucket updateBucket) {
 			// Arrange:
 			TestContext context(observers::NotifyMode::Rollback, Amount(1000));
 			auto signerPublicKey = test::GenerateRandomByteArray<Key>();
@@ -227,15 +227,14 @@ namespace catapult { namespace importance {
 		}
 	}
 
-	TEST(TEST_CLASS, UpdateActivityRollbackDoesNotRemoveNonZeroBucket) {
-		// Assert:
-		AssertUpdateActivityRollbackDoesNotRemoveNonZeroBucket("TotalFeesPaid", [](auto& bucket) {
+	TEST(TEST_CLASS, UpdateActivityRollbackDoesNotRemoveNonzeroBucket) {
+		AssertUpdateActivityRollbackDoesNotRemoveNonzeroBucket("TotalFeesPaid", [](auto& bucket) {
 			bucket.TotalFeesPaid = bucket.TotalFeesPaid + Amount(1);
 		});
-		AssertUpdateActivityRollbackDoesNotRemoveNonZeroBucket("BeneficiaryCount", [](auto& bucket) {
+		AssertUpdateActivityRollbackDoesNotRemoveNonzeroBucket("BeneficiaryCount", [](auto& bucket) {
 			++bucket.BeneficiaryCount;
 		});
-		AssertUpdateActivityRollbackDoesNotRemoveNonZeroBucket("RawScore", [](auto& bucket) {
+		AssertUpdateActivityRollbackDoesNotRemoveNonzeroBucket("RawScore", [](auto& bucket) {
 			++bucket.RawScore;
 		});
 	}

@@ -144,7 +144,6 @@ namespace catapult { namespace zeromq {
 	// region flush
 
 	TEST(TEST_CLASS, FlushDoesNotSendMessages) {
-		// Assert:
 		test::AssertFlushDoesNotSendMessages<MqSubscriberContext>();
 	}
 

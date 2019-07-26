@@ -58,7 +58,8 @@ namespace catapult { namespace cache {
 
 			template<typename T>
 			static bool IsActive(const T& value, Height height, SupportedIsActiveFlag) {
-				return value.isActive(height);
+				// if deactivation is not destructive, it should not trigger any change in state
+				return !T::Is_Deactivation_Destructive || value.isActive(height);
 			}
 		};
 	}

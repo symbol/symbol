@@ -104,25 +104,22 @@ namespace catapult { namespace local {
 	}
 
 	TEST(TEST_CLASS, CanPushBlockToLocalNodeWithCacheDatabaseStorageDisabled) {
-		// Assert:
 		AssertCanPushBlockToLocalNode(test::NodeFlag::Regular, [](const auto& context, const auto&) {
-			// - supplemental state should not have been updated
+			// Assert: supplemental state should not have been updated
 			EXPECT_EQ(Height(1), context.loadSavedStateChainHeight());
 		});
 	}
 
 	TEST(TEST_CLASS, CanPushBlockToLocalNodeWithCacheDatabaseStorageEnabled) {
-		// Assert:
 		AssertCanPushBlockToLocalNode(test::NodeFlag::Cache_Database_Storage, [](const auto& context, const auto&) {
-			// - supplemental state should have been updated
+			// Assert: supplemental state should have been updated
 			EXPECT_EQ(Height(2), context.loadSavedStateChainHeight());
 		});
 	}
 
 	TEST(TEST_CLASS, CanPushBlockToLocalNodeWithoutAutoSyncCleanup) {
-		// Assert:
 		AssertCanPushBlockToLocalNode(test::NodeFlag::Regular, [](const auto&, const auto& dataDirectory) {
-			// - state_change subscriber produces two files each in boot and per sync
+			// Assert: state_change subscriber produces two files each in boot and per sync
 			EXPECT_EQ(2u, ReadIndexFileValue(dataDirectory.commitStep()));
 			EXPECT_EQ(4u, ReadIndexFileValue(dataDirectory.stateChangeWriterIndex()));
 			EXPECT_FALSE(boost::filesystem::exists(dataDirectory.stateChangeReaderIndex()));
@@ -130,9 +127,8 @@ namespace catapult { namespace local {
 	}
 
 	TEST(TEST_CLASS, CanPushBlockToLocalNodeWithAutoSyncCleanup) {
-		// Assert:
 		AssertCanPushBlockToLocalNode(test::NodeFlag::Auto_Sync_Cleanup, [](const auto&, const auto& dataDirectory) {
-			// - state_change subscriber produces two files each in boot and per sync and all files were consumed
+			// Assert: state_change subscriber produces two files each in boot and per sync and all files were consumed
 			EXPECT_EQ(2u, ReadIndexFileValue(dataDirectory.commitStep()));
 			EXPECT_EQ(4u, ReadIndexFileValue(dataDirectory.stateChangeWriterIndex()));
 			EXPECT_EQ(4u, ReadIndexFileValue(dataDirectory.stateChangeReaderIndex()));

@@ -21,8 +21,8 @@
 #include "src/mappers/AccountRestrictionsMapper.h"
 #include "plugins/txes/restriction_account/src/state/AccountRestriction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
+#include "tests/test/AccountRestrictionTestUtils.h"
 #include "tests/test/AccountRestrictionsMapperTestUtils.h"
-#include "tests/test/AccountRestrictionsTestUtils.h"
 #include "tests/TestHarness.h"
 #include <bsoncxx/builder/stream/document.hpp>
 #include <set>
@@ -69,20 +69,18 @@ namespace catapult { namespace mongo { namespace plugins {
 	}
 
 	TEST(TEST_CLASS, CanMapAccountRestrictionsWithAllRestrictionsEmpty_ModelToDbModel) {
-		// Assert:
-		AssertCanMapAccountRestrictions({ 0, 0, 0 }, 0);
+		AssertCanMapAccountRestrictions({ 0, 0, 0, 0 }, 0);
 	}
 
 	TEST(TEST_CLASS, CanMapAccountRestrictionsWithSingleRestrictionNotEmpty_ModelToDbModel) {
-		// Assert:
-		AssertCanMapAccountRestrictions({ 5, 0, 0 }, 5);
-		AssertCanMapAccountRestrictions({ 0, 5, 0 }, 5);
-		AssertCanMapAccountRestrictions({ 0, 0, 5 }, 5);
+		AssertCanMapAccountRestrictions({ 5, 0, 0, 0 }, 5);
+		AssertCanMapAccountRestrictions({ 0, 5, 0, 0 }, 5);
+		AssertCanMapAccountRestrictions({ 0, 0, 5, 0 }, 5);
+		AssertCanMapAccountRestrictions({ 0, 0, 0, 5 }, 5);
 	}
 
 	TEST(TEST_CLASS, CanMapAccountRestrictionsWithNoRestrictionsEmpty_ModelToDbModel) {
-		// Assert:
-		AssertCanMapAccountRestrictions({ 5, 7, 11 }, 23);
+		AssertCanMapAccountRestrictions({ 5, 7, 11, 3 }, 26);
 	}
 
 	// endregion

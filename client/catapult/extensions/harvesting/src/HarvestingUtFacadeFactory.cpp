@@ -62,13 +62,16 @@ namespace catapult { namespace harvesting {
 		std::unique_ptr<model::Block> commit(const model::BlockHeader& blockHeader, const model::Transactions& transactions) {
 			// 1. stitch block
 			auto pBlock = model::StitchBlock(blockHeader, transactions);
+			auto importanceHeight = model::ConvertToImportanceHeight(pBlock->Height, m_blockChainConfig.ImportanceGrouping);
 
 			// 2. add back fee surpluses to accounts (skip cache lookup if no surplus)
 			auto& accountStateCache = m_pCacheDelta->sub<cache::AccountStateCache>();
 			for (const auto& transaction : pBlock->Transactions()) {
 				auto surplus = transaction.MaxFee - model::CalculateTransactionFee(blockHeader.FeeMultiplier, transaction);
-				if (Amount(0) != surplus)
-					accountStateCache.find(transaction.Signer).get().Balances.credit(m_blockChainConfig.CurrencyMosaicId, surplus);
+				if (Amount(0) != surplus) {
+					auto accountStateIter = accountStateCache.find(transaction.Signer);
+					state::ApplyFeeSurplus(accountStateIter.get(), { m_blockChainConfig.CurrencyMosaicId, surplus }, importanceHeight);
+				}
 			}
 
 			// 3. execute block (using zero hash)

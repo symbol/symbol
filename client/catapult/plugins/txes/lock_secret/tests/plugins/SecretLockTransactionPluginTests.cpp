@@ -21,7 +21,7 @@
 #include "src/plugins/SecretLockTransactionPlugin.h"
 #include "src/model/SecretLockNotifications.h"
 #include "src/model/SecretLockTransaction.h"
-#include "tests/test/SecretLockTransactionUtils.h"
+#include "plugins/txes/lock_shared/tests/test/LockTransactionUtils.h"
 #include "tests/test/core/mocks/MockNotificationSubscriber.h"
 #include "tests/test/plugins/TransactionPluginTestUtils.h"
 
@@ -31,7 +31,7 @@ namespace catapult { namespace plugins {
 
 #define TEST_CLASS SecretLockTransactionPluginTests
 
-	// region TransactionPlugin
+	// region test utils
 
 	namespace {
 		DEFINE_TRANSACTION_PLUGIN_TEST_TRAITS(SecretLock, 1, 1,)
@@ -39,147 +39,68 @@ namespace catapult { namespace plugins {
 
 	DEFINE_BASIC_EMBEDDABLE_TRANSACTION_PLUGIN_TESTS(TEST_CLASS, , , Entity_Type_Secret_Lock)
 
-	PLUGIN_TEST(CanCalculateSize) {
+	// endregion
+
+	// region publish
+
+	PLUGIN_TEST(CanPublishAllNotificationsInCorrectOrder) {
 		// Arrange:
-		auto pPlugin = TTraits::CreatePlugin();
 		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
 
-		// Act:
-		auto realSize = pPlugin->calculateRealSize(transaction);
-
-		// Assert:
-		EXPECT_EQ(sizeof(typename TTraits::TransactionType), realSize);
+		// Act + Assert:
+		test::TransactionPluginTestUtils<TTraits>::AssertNotificationTypes(transaction, {
+			AccountAddressNotification::Notification_Type,
+			SecretLockDurationNotification::Notification_Type,
+			SecretLockHashAlgorithmNotification::Notification_Type,
+			AddressInteractionNotification::Notification_Type,
+			BalanceDebitNotification::Notification_Type,
+			SecretLockNotification::Notification_Type,
+			BalanceTransferNotification::Notification_Type
+		});
 	}
 
-	// endregion
-
-	// region accounts extraction
-
-	PLUGIN_TEST(CanExtractAccounts) {
+	PLUGIN_TEST(CanPublishAllNotifications) {
 		// Arrange:
-		mocks::MockNotificationSubscriber sub;
-		auto pPlugin = TTraits::CreatePlugin();
-		auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
-		test::FillWithRandomData(pTransaction->Recipient);
+		typename TTraits::TransactionType transaction;
+		test::FillWithRandomData(transaction);
 
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		EXPECT_EQ(6u, sub.numNotifications());
-		EXPECT_EQ(1u, sub.numAddresses());
-		EXPECT_EQ(0u, sub.numKeys());
-
-		EXPECT_TRUE(sub.contains(pTransaction->Recipient));
-	}
-
-	PLUGIN_TEST(CanPublishAddressInteractionNotification) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<AddressInteractionNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-		auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
-		pTransaction->Type = static_cast<model::EntityType>(0x0815);
-		test::FillWithRandomData(pTransaction->Recipient);
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(pTransaction->Signer, notification.Source);
-		EXPECT_EQ(pTransaction->Type, notification.TransactionType);
-		EXPECT_EQ(model::UnresolvedAddressSet{ pTransaction->Recipient }, notification.ParticipantsByAddress);
-		EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
-	}
-
-	// endregion
-
-	// region duration notification
-
-	PLUGIN_TEST(CanPublishDurationNotification) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<SecretLockDurationNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-		auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
-		pTransaction->Duration = test::GenerateRandomValue<BlockDuration>();
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(pTransaction->Duration, notification.Duration);
-	}
-
-	// endregion
-
-	// region lock hash algorithm notification
-
-	PLUGIN_TEST(CanPublishHashAlgorithmNotification) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<SecretLockHashAlgorithmNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-		auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(pTransaction->HashAlgorithm, notification.HashAlgorithm);
-	}
-
-	// endregion
-
-	// region secret notification
-
-	namespace {
-		template<typename TTransaction>
-		void AssertSecretLockNotification(const SecretLockNotification& notification, const TTransaction& transaction) {
+		typename test::TransactionPluginTestUtils<TTraits>::PublishTestBuilder builder;
+		builder.template addExpectation<AccountAddressNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Recipient, notification.Address);
+		});
+		builder.template addExpectation<SecretLockDurationNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Duration, notification.Duration);
+		});
+		builder.template addExpectation<SecretLockHashAlgorithmNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
+		});
+		builder.template addExpectation<AddressInteractionNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Source);
+			EXPECT_EQ(transaction.Type, notification.TransactionType);
+			EXPECT_EQ(model::UnresolvedAddressSet{ transaction.Recipient }, notification.ParticipantsByAddress);
+			EXPECT_EQ(utils::KeySet(), notification.ParticipantsByKey);
+		});
+		builder.template addExpectation<BalanceDebitNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Sender);
+			EXPECT_EQ(transaction.Mosaic.MosaicId, notification.MosaicId);
+			EXPECT_EQ(transaction.Mosaic.Amount, notification.Amount);
+		});
+		builder.template addExpectation<SecretLockNotification>([&transaction](const auto& notification) {
 			test::AssertBaseLockNotification(notification, transaction);
 			EXPECT_EQ(transaction.HashAlgorithm, notification.HashAlgorithm);
 			EXPECT_EQ(transaction.Secret, notification.Secret);
 			EXPECT_EQ(transaction.Recipient, notification.Recipient);
-		}
-	}
+		});
+		builder.template addExpectation<BalanceTransferNotification>([&transaction](const auto& notification) {
+			EXPECT_EQ(transaction.Signer, notification.Sender);
+			EXPECT_EQ(transaction.Recipient, notification.Recipient);
+			EXPECT_EQ(transaction.Mosaic.MosaicId, notification.MosaicId);
+			EXPECT_EQ(Amount(0), notification.Amount);
+		});
 
-	PLUGIN_TEST(CanPublishSecretNotification) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<SecretLockNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-		auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		AssertSecretLockNotification(notification, *pTransaction);
-	}
-
-	// endregion
-
-	// region balance debit
-
-	PLUGIN_TEST(CanPublishBalanceDebitNotification) {
-		// Arrange:
-		mocks::MockTypedNotificationSubscriber<model::BalanceDebitNotification> sub;
-		auto pPlugin = TTraits::CreatePlugin();
-		auto pTransaction = test::CreateRandomLockTransaction<TTraits>();
-
-		// Act:
-		test::PublishTransaction(*pPlugin, *pTransaction, sub);
-
-		// Assert:
-		ASSERT_EQ(1u, sub.numMatchingNotifications());
-		const auto& notification = sub.matchingNotifications()[0];
-		EXPECT_EQ(pTransaction->Signer, notification.Sender);
-		EXPECT_EQ(pTransaction->Mosaic.MosaicId, notification.MosaicId);
-		EXPECT_EQ(pTransaction->Mosaic.Amount, notification.Amount);
+		// Act + Assert:
+		builder.runTest(transaction);
 	}
 
 	// endregion

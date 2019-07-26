@@ -137,12 +137,10 @@ namespace catapult { namespace model {
 	}
 
 	BYTE_POINTER_TEST(PayloadStartReturnsNullPointer_WhenEntitySizeIsTooLarge) {
-		// Assert:
 		AssertPayloadStartReturnsNullPointerForSize<TTraits>(sizeof(CustomSizePrefixedEntity) + 1);
 	}
 
 	BYTE_POINTER_TEST(PayloadStartReturnsNullPointer_WhenEntitySizeIsTooSmall) {
-		// Assert:
 		AssertPayloadStartReturnsNullPointerForSize<TTraits>(sizeof(CustomSizePrefixedEntity) - 1);
 	}
 
@@ -195,12 +193,10 @@ namespace catapult { namespace model {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 

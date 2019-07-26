@@ -39,7 +39,7 @@ namespace catapult { namespace net {
 				: public ClientConnector
 				, public std::enable_shared_from_this<DefaultClientConnector> {
 		public:
-			explicit DefaultClientConnector(
+			DefaultClientConnector(
 					const std::shared_ptr<thread::IoThreadPool>& pPool,
 					const crypto::KeyPair& keyPair,
 					const ConnectionSettings& settings)

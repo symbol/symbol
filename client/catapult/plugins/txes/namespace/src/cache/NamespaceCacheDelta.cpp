@@ -57,10 +57,13 @@ namespace catapult { namespace cache {
 			, m_gracePeriodDuration(options.GracePeriodDuration)
 	{}
 
+	BlockDuration BasicNamespaceCacheDelta::gracePeriodDuration() const {
+		return m_gracePeriodDuration;
+	}
+
 	void BasicNamespaceCacheDelta::insert(const state::RootNamespace& ns) {
 		// register the namespace for expiration at the end of its lifetime (if its lifetime changes later, it will not be pruned)
-		auto nsLifetimeWithGracePeriod = state::NamespaceLifetime(ns.lifetime().Start, ns.lifetime().End, m_gracePeriodDuration);
-		AddIdentifierWithGroup(*m_pRootNamespaceIdsByExpiryHeight, nsLifetimeWithGracePeriod.GracePeriodEnd, ns.id());
+		AddIdentifierWithGroup(*m_pRootNamespaceIdsByExpiryHeight, ns.lifetime().End, ns.id());
 
 		auto historyIter = m_pHistoryById->find(ns.id());
 		auto* pHistory = historyIter.get();
@@ -74,13 +77,13 @@ namespace catapult { namespace cache {
 				incrementDeepSize(activeChildren.size());
 			}
 
-			pHistory->push_back(ns.owner(), nsLifetimeWithGracePeriod);
+			pHistory->push_back(ns.owner(), ns.lifetime());
 			incrementDeepSize();
 			return;
 		}
 
 		state::RootNamespaceHistory history(ns.id());
-		history.push_back(ns.owner(), nsLifetimeWithGracePeriod);
+		history.push_back(ns.owner(), ns.lifetime());
 		m_pHistoryById->insert(std::move(history));
 		incrementActiveSize();
 		incrementDeepSize();
@@ -137,7 +140,7 @@ namespace catapult { namespace cache {
 		pHistory->pop_back();
 
 		// remove the height based entry
-		RemoveIdentifierWithGroup(*m_pRootNamespaceIdsByExpiryHeight, removedRoot.lifetime().GracePeriodEnd, id);
+		RemoveIdentifierWithGroup(*m_pRootNamespaceIdsByExpiryHeight, removedRoot.lifetime().End, id);
 
 		if (pHistory->empty()) {
 			// note that the last root in the history is always empty when getting removed
@@ -185,11 +188,8 @@ namespace catapult { namespace cache {
 
 	BasicNamespaceCacheDelta::CollectedIds BasicNamespaceCacheDelta::prune(Height height) {
 		BasicNamespaceCacheDelta::CollectedIds collectedIds;
-		ForEachIdentifierWithGroup(
-				*m_pHistoryById,
-				*m_pRootNamespaceIdsByExpiryHeight,
-				height,
-				[this, height, &collectedIds](auto& history) {
+		const auto& heightGroupedSet = *m_pRootNamespaceIdsByExpiryHeight;
+		ForEachIdentifierWithGroup(*m_pHistoryById, heightGroupedSet, height, [this, height, &collectedIds](auto& history) {
 			auto originalSizes = GetNamespaceSizes(history);
 			auto removedIds = history.prune(height);
 			auto newSizes = GetNamespaceSizes(history);

@@ -223,7 +223,6 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, CanAddSingleIsolatedPoolWithDefaultNumberOfThreads_Implicit) {
-		// Assert:
 		AssertCanAddSingleIsolatedPool(std::thread::hardware_concurrency(), [](auto& pool, const auto& name) {
 			return pool.pushIsolatedPool(name);
 		});
@@ -251,14 +250,12 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, CanAddSingleMergedPoolWithCustomNumberOfThreads) {
-		// Assert:
 		AssertCanAddSingleMergedPool([](auto& pool, const auto& name) {
 			return pool.pushIsolatedPool(name, 2);
 		});
 	}
 
 	TEST(TEST_CLASS, CanAddSingleMergedPoolWithDefaultNumberOfThreads) {
-		// Assert:
 		AssertCanAddSingleMergedPool([](auto& pool, const auto& name) {
 			return pool.pushIsolatedPool(name);
 		});
@@ -357,12 +354,10 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, CanShutdownPool) {
-		// Assert:
 		AssertCanShutdownPool(1);
 	}
 
 	TEST(TEST_CLASS, PoolShutdownIsIdempotent) {
-		// Assert:
 		AssertCanShutdownPool(7);
 	}
 
@@ -423,7 +418,6 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, ShutdownWaitsForOutstandingServices) {
-		// Assert:
 		AssertShutdownWaitsForOutstandingServices([](auto& pool, auto id, auto& shutdownIds) {
 			auto pServiceGroup = pool.pushServiceGroup("zeta");
 			return pServiceGroup->pushService(CreateFooService, id, shutdownIds);
@@ -431,7 +425,6 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, ShutdownWaitsForOutstandingExternalServices) {
-		// Assert:
 		AssertShutdownWaitsForOutstandingServices([](auto& pool, auto id, auto& shutdownIds) {
 			auto pExternalPool = utils::UniqueToShared(test::CreateStartedIoThreadPool(1));
 
@@ -441,9 +434,8 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, ShutdownWaitsForOutstandingServiceGroups) {
-		// Assert:
 		AssertShutdownWaitsForOutstandingServices([](auto& pool, auto id, auto& shutdownIds) {
-			// - add an extra service because service groups do not have ids
+			// Arrange: add an extra service because service groups do not have ids
 			auto pServiceGroup = pool.pushServiceGroup("zeta");
 			pool.pushServiceGroup("epsilon")->pushService(CreateFooService, id, shutdownIds);
 			return pServiceGroup;
@@ -451,9 +443,8 @@ namespace catapult { namespace thread {
 	}
 
 	TEST(TEST_CLASS, ShutdownWaitsForOutstandingIsolatedPools) {
-		// Assert:
 		AssertShutdownWaitsForOutstandingServices([](auto& pool, auto id, auto& shutdownIds) {
-			// - add an extra service because isolated pools do not have ids
+			// Arrange: add an extra service because isolated pools do not have ids
 			auto pPool = pool.pushIsolatedPool("pool", 1);
 			pool.pushServiceGroup("epsilon")->pushService(CreateFooService, id, shutdownIds);
 			return pPool;

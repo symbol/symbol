@@ -41,34 +41,49 @@ namespace catapult { namespace validators {
 			EXPECT_EQ(expectedResult, result) << "notification with restriction type " << utils::to_underlying_type(restrictionType);
 		}
 
-		void AssertValidTypes(std::initializer_list<model::AccountRestrictionType> restrictionTypes) {
+		void AssertValidTypes(const std::vector<model::AccountRestrictionType>& restrictionTypes) {
 			for (auto restrictionType : restrictionTypes) {
 				AssertValidationResult(ValidationResult::Success, restrictionType);
 				AssertValidationResult(ValidationResult::Success, restrictionType | model::AccountRestrictionType::Block);
 			}
 		}
+
+		void AssertInvalidTypes(const std::vector<model::AccountRestrictionType>& restrictionTypes) {
+			constexpr auto Invalid_Type = Failure_RestrictionAccount_Invalid_Restriction_Type;
+			for (auto restrictionType : restrictionTypes) {
+				AssertValidationResult(Invalid_Type, restrictionType);
+				AssertValidationResult(Invalid_Type, restrictionType | model::AccountRestrictionType::Block);
+			}
+		}
 	}
 
 	TEST(TEST_CLASS, SuccessWhenValidatingNotificationWithKnownAccountRestrictionType) {
-		// Assert:
-		AssertValidTypes({ model::AccountRestrictionType::Address, model::AccountRestrictionType::MosaicId });
+		AssertValidTypes({
+				model::AccountRestrictionType::Address,
+				model::AccountRestrictionType::Address | model::AccountRestrictionType::Outgoing,
+				model::AccountRestrictionType::MosaicId,
+				model::AccountRestrictionType::TransactionType | model::AccountRestrictionType::Outgoing
+		});
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithUnknownAccountRestrictionType) {
-		// Assert:
 		AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Type, model::AccountRestrictionType::Sentinel);
 		AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Type, static_cast<model::AccountRestrictionType>(0x10));
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithNoFlagsSet) {
-		// Assert:
 		AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Type, static_cast<model::AccountRestrictionType>(0));
 	}
 
 	TEST(TEST_CLASS, FailureWhenValidatingNotificationWithMultipleFlagsSet) {
-		// Assert:
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Type, static_cast<model::AccountRestrictionType>(3));
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Type, static_cast<model::AccountRestrictionType>(7));
-		AssertValidationResult(Failure_RestrictionAccount_Invalid_Restriction_Type, static_cast<model::AccountRestrictionType>(0xFF));
+		AssertInvalidTypes({
+			model::AccountRestrictionType::MosaicId | model::AccountRestrictionType::Outgoing,
+			model::AccountRestrictionType::TransactionType,
+			static_cast<model::AccountRestrictionType>(3),
+			static_cast<model::AccountRestrictionType>(3) | model::AccountRestrictionType::Outgoing,
+			static_cast<model::AccountRestrictionType>(7),
+			static_cast<model::AccountRestrictionType>(7) | model::AccountRestrictionType::Outgoing,
+			static_cast<model::AccountRestrictionType>(0xFF)
+		});
 	}
 }}

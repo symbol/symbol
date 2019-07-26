@@ -206,12 +206,10 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanSaveAllEmptyDataViaCacheStorageAdapter) {
-		// Assert:
 		AssertCanSaveAllViaCacheStorageAdapter(0);
 	}
 
 	TEST(TEST_CLASS, CanSaveAllDataViaCacheStorageAdapter) {
-		// Assert:
 		AssertCanSaveAllViaCacheStorageAdapter(8);
 	}
 
@@ -256,12 +254,10 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, CanLoadViaCacheStorageAdapter_SingleBatch) {
-		// Assert:
 		AssertCanLoadViaCacheStorageAdapter(7, 100, 1);
 	}
 
 	TEST(TEST_CLASS, CanLoadViaCacheStorageAdapter_MultipleBatches) {
-		// Assert:
 		AssertCanLoadViaCacheStorageAdapter(7, 2, 4);
 	}
 }}

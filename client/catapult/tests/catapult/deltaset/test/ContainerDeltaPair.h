@@ -32,7 +32,7 @@ namespace catapult { namespace test {
 
 	public:
 		/// Wraps \a pContainer and \a pContainerDelta.
-		explicit ContainerDeltaPair(const std::shared_ptr<Type>& pContainer, const std::shared_ptr<DeltaType>& pContainerDelta)
+		ContainerDeltaPair(const std::shared_ptr<Type>& pContainer, const std::shared_ptr<DeltaType>& pContainerDelta)
 				: m_pContainer(pContainer)
 				, m_pContainerDelta(pContainerDelta)
 		{}

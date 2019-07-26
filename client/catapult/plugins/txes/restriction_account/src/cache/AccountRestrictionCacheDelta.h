@@ -47,7 +47,7 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a delta around \a restrictionSets and \a networkIdentifier.
-		explicit BasicAccountRestrictionCacheDelta(
+		BasicAccountRestrictionCacheDelta(
 				const AccountRestrictionCacheTypes::BaseSetDeltaPointers& restrictionSets,
 				model::NetworkIdentifier networkIdentifier)
 				: AccountRestrictionCacheDeltaMixins::Size(*restrictionSets.pPrimary)
@@ -80,7 +80,7 @@ namespace catapult { namespace cache {
 	class AccountRestrictionCacheDelta : public ReadOnlyViewSupplier<BasicAccountRestrictionCacheDelta> {
 	public:
 		/// Creates a delta around \a restrictionSets and \a networkIdentifier.
-		explicit AccountRestrictionCacheDelta(
+		AccountRestrictionCacheDelta(
 				const AccountRestrictionCacheTypes::BaseSetDeltaPointers& restrictionSets,
 				model::NetworkIdentifier networkIdentifier)
 				: ReadOnlyViewSupplier(restrictionSets, networkIdentifier)

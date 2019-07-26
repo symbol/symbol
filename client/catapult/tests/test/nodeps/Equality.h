@@ -61,11 +61,9 @@ namespace catapult { namespace test {
 			const std::string& defaultKey,
 			const std::unordered_map<std::string, TEntity>& descToEntityMap,
 			const std::unordered_set<std::string>& equalityTags) {
-		AssertEqualReturnsTrueForEqualObjects<TEntity>(
-				defaultKey,
-				descToEntityMap,
-				equalityTags,
-				[](const auto& lhs, const auto& rhs) { return lhs == rhs; });
+		AssertEqualReturnsTrueForEqualObjects<TEntity>(defaultKey, descToEntityMap, equalityTags, [](const auto& lhs, const auto& rhs) {
+			return lhs == rhs;
+		});
 	}
 
 	/// Asserts that operator== returns the correct results when comparing entities in \a descToEntityMap against
@@ -76,11 +74,11 @@ namespace catapult { namespace test {
 			const std::string& defaultKey,
 			const std::unordered_map<std::string, std::unique_ptr<TEntity>>& descToEntityMap,
 			const std::unordered_set<std::string>& equalityTags) {
-		AssertEqualReturnsTrueForEqualObjects<std::unique_ptr<TEntity>>(
-				defaultKey,
-				descToEntityMap,
-				equalityTags,
-				[](const auto& pLhs, const auto& pRhs) { return *pLhs == *pRhs; });
+		AssertEqualReturnsTrueForEqualObjects<std::unique_ptr<TEntity>>(defaultKey, descToEntityMap, equalityTags, [](
+				const auto& pLhs,
+				const auto& pRhs) {
+			return *pLhs == *pRhs;
+		});
 	}
 
 	/// Asserts that operator!= returns the correct results when comparing entities in \a descToEntityMap against
@@ -116,11 +114,11 @@ namespace catapult { namespace test {
 			const std::string& defaultKey,
 			const std::unordered_map<std::string, TEntity>& descToEntityMap,
 			const std::unordered_set<std::string>& equalityTags) {
-		AssertNotEqualReturnsTrueForUnequalObjects<TEntity>(
-				defaultKey,
-				descToEntityMap,
-				equalityTags,
-				[](const auto& lhs, const auto& rhs) { return lhs != rhs; });
+		AssertNotEqualReturnsTrueForUnequalObjects<TEntity>(defaultKey, descToEntityMap, equalityTags, [](
+				const auto& lhs,
+				const auto& rhs) {
+			return lhs != rhs;
+		});
 	}
 
 	/// Asserts that operator!= returns the correct results when comparing entities in \a descToEntityMap against
@@ -131,11 +129,11 @@ namespace catapult { namespace test {
 			const std::string& defaultKey,
 			const std::unordered_map<std::string, std::unique_ptr<TEntity>>& descToEntityMap,
 			const std::unordered_set<std::string>& equalityTags) {
-		AssertNotEqualReturnsTrueForUnequalObjects<std::unique_ptr<TEntity>>(
-				defaultKey,
-				descToEntityMap,
-				equalityTags,
-				[](const auto& pLhs, const auto& pRhs) { return *pLhs != *pRhs; });
+		AssertNotEqualReturnsTrueForUnequalObjects<std::unique_ptr<TEntity>>(defaultKey, descToEntityMap, equalityTags, [](
+				const auto& pLhs,
+				const auto& pRhs) {
+			return *pLhs != *pRhs;
+		});
 	}
 
 	namespace detail {

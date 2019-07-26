@@ -112,18 +112,15 @@ namespace catapult { namespace validators {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	TRAITS_BASED_TEST(FailureWhenMaxModificationsIsExceeded) {
-		// Assert:
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Modification_Count_Exceeded, 10, 0, 11, 0);
 	}
 
 	TRAITS_BASED_TEST(FailureWhenResultingAccountRestrictionValuesExceedsMaximum) {
-		// Assert:
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Values_Count_Exceeded, 10, 5, 6, 0);
 		AssertValidationResult<TTraits>(Failure_RestrictionAccount_Values_Count_Exceeded, 10, 5, 8, 2);
 	}
 
 	TRAITS_BASED_TEST(SuccessWhenResultingAccountRestrictionValuesDoesNotExceedMaximum) {
-		// Assert:
 		AssertValidationResult<TTraits>(ValidationResult::Success, 10, 0, 9, 0);
 		AssertValidationResult<TTraits>(ValidationResult::Success, 10, 0, 10, 0);
 		AssertValidationResult<TTraits>(ValidationResult::Success, 10, 5, 5, 0);

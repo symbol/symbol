@@ -86,13 +86,13 @@ namespace catapult { namespace plugins {
 		auto maxAtomicUnits = manager.config().MaxMosaicAtomicUnits;
 		manager.addStatefulValidatorHook([maxMosaics, maxAtomicUnits, maxDuration, currencyMosaicId](auto& builder) {
 			builder
-				.add(validators::CreateProperMosaicValidator())
+				.add(validators::CreateRequiredMosaicValidator())
 				.add(validators::CreateMosaicAvailabilityValidator())
 				.add(validators::CreateMosaicDurationValidator(maxDuration))
 				.add(validators::CreateMosaicTransferValidator(currencyMosaicId))
 				.add(validators::CreateMaxMosaicsBalanceTransferValidator(maxMosaics))
 				.add(validators::CreateMaxMosaicsSupplyChangeValidator(maxMosaics))
-				// note that the following validator depends on MosaicChangeAllowedValidator
+				// note that the following validator depends on RequiredMosaicValidator
 				.add(validators::CreateMosaicSupplyChangeAllowedValidator(maxAtomicUnits));
 		});
 

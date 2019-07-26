@@ -48,7 +48,7 @@ namespace catapult { namespace observers {
 		}
 
 		void ApplyFee(const Key& publicKey, const model::Mosaic& feeMosaic, ObserverContext& context) {
-			auto& cache = context.Cache.template sub<cache::AccountStateCache>();
+			auto& cache = context.Cache.sub<cache::AccountStateCache>();
 			cache::ProcessForwardedAccountState(cache, publicKey, [&feeMosaic, &context](auto& accountState) {
 				ApplyFee(accountState, context.Mode, feeMosaic, context.StatementBuilder());
 			});
@@ -65,7 +65,9 @@ namespace catapult { namespace observers {
 			const model::InflationCalculator& calculator) {
 		auto mosaicId = currencyMosaicId;
 		auto percentage = harvestBeneficiaryPercentage;
-		return MAKE_OBSERVER(HarvestFee, Notification, ([mosaicId, percentage, calculator](const auto& notification, auto& context) {
+		return MAKE_OBSERVER(HarvestFee, Notification, ([mosaicId, percentage, calculator](
+				const Notification& notification,
+				ObserverContext& context) {
 			auto inflationAmount = calculator.getSpotAmount(context.Height);
 			auto totalAmount = notification.TotalFee + inflationAmount;
 			auto beneficiaryAmount = ShouldShareFees(notification.Signer, notification.Beneficiary, percentage)

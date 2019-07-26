@@ -55,15 +55,15 @@ namespace catapult { namespace io {
 			WriteTransactionInfo(transactionInfo, outputStream);
 
 			// Assert:
-			auto expectedSize = 2u * Hash256_Size + sizeof(uint64_t) + expectedAddressSize + 123;
+			auto expectedSize = 2u * Hash256::Size + sizeof(uint64_t) + expectedAddressSize + 123;
 			ASSERT_EQ(expectedSize, buffer.size());
 
 			auto offset = 0u;
 			EXPECT_EQ(transactionInfo.EntityHash, reinterpret_cast<const Hash256&>(buffer[offset]));
-			offset += Hash256_Size;
+			offset += Hash256::Size;
 
 			EXPECT_EQ(transactionInfo.MerkleComponentHash, reinterpret_cast<const Hash256&>(buffer[offset]));
-			offset += Hash256_Size;
+			offset += Hash256::Size;
 
 			ASSERT_EQ(expectedAddressCount, reinterpret_cast<uint64_t&>(buffer[offset]));
 			offset += sizeof(uint64_t);
@@ -72,7 +72,7 @@ namespace catapult { namespace io {
 				for (const auto& address : *transactionInfo.OptionalExtractedAddresses) {
 					EXPECT_EQ(address, reinterpret_cast<const UnresolvedAddress&>(buffer[offset]))
 							<< "address at offset " << offset;
-					offset += Address_Decoded_Size;
+					offset += Address::Size;
 				}
 			}
 
@@ -81,23 +81,19 @@ namespace catapult { namespace io {
 	}
 
 	TEST(TEST_CLASS, CanWriteTransactionInfoWithoutOptionalExtractedAddresses) {
-		// Assert:
 		AssertCanWriteTransactionInfo(std::numeric_limits<size_t>::max(), 0, nullptr);
 	}
 
 	TEST(TEST_CLASS, CanWriteTransactionInfoWithZeroExtractedAddresses) {
-		// Assert:
 		AssertCanWriteTransactionInfo(0, 0, std::make_shared<model::UnresolvedAddressSet>());
 	}
 
 	TEST(TEST_CLASS, CanWriteTransactionInfoWithSingleExtractedAddress) {
-		// Assert:
-		AssertCanWriteTransactionInfo(1, Address_Decoded_Size, test::GenerateRandomUnresolvedAddressSetPointer(1));
+		AssertCanWriteTransactionInfo(1, Address::Size, test::GenerateRandomUnresolvedAddressSetPointer(1));
 	}
 
 	TEST(TEST_CLASS, CanWriteTransactionInfoWithMultipleExtractedAddresses) {
-		// Assert:
-		AssertCanWriteTransactionInfo(3, 3 * Address_Decoded_Size, test::GenerateRandomUnresolvedAddressSetPointer(3));
+		AssertCanWriteTransactionInfo(3, 3 * Address::Size, test::GenerateRandomUnresolvedAddressSetPointer(3));
 	}
 
 	// endregion
@@ -111,20 +107,20 @@ namespace catapult { namespace io {
 			auto merkleComponentHash = test::GenerateRandomByteArray<Hash256>();
 			auto pTransaction = test::GenerateRandomTransactionWithSize(140);
 
-			std::vector<uint8_t> buffer(2 * Hash256_Size + sizeof(uint64_t) + addresses.size() * Address_Decoded_Size + 140);
+			std::vector<uint8_t> buffer(2 * Hash256::Size + sizeof(uint64_t) + addresses.size() * Address::Size + 140);
 			auto offset = 0u;
-			std::memcpy(buffer.data() + offset, &entityHash, Hash256_Size);
-			offset += Hash256_Size;
+			std::memcpy(buffer.data() + offset, &entityHash, Hash256::Size);
+			offset += Hash256::Size;
 
-			std::memcpy(buffer.data() + offset, &merkleComponentHash, Hash256_Size);
-			offset += Hash256_Size;
+			std::memcpy(buffer.data() + offset, &merkleComponentHash, Hash256::Size);
+			offset += Hash256::Size;
 
 			std::memcpy(buffer.data() + offset, &addressCount, sizeof(uint64_t));
 			offset += sizeof(uint64_t);
 
 			for (const auto& address : addresses) {
-				std::memcpy(buffer.data() + offset, &address, Address_Decoded_Size);
-				offset += Address_Decoded_Size;
+				std::memcpy(buffer.data() + offset, &address, Address::Size);
+				offset += Address::Size;
 			}
 
 			std::memcpy(buffer.data() + offset, pTransaction.get(), pTransaction->Size);
@@ -150,22 +146,18 @@ namespace catapult { namespace io {
 	}
 
 	TEST(TEST_CLASS, CanReadTransactionInfoWithoutOptionalExtractedAddresses) {
-		// Assert:
 		AssertCanReadTransactionInfo(std::numeric_limits<size_t>::max(), {});
 	}
 
 	TEST(TEST_CLASS, CanReadTransactionInfoWithZeroExtractedAddresses) {
-		// Assert:
 		AssertCanReadTransactionInfo(0, {});
 	}
 
 	TEST(TEST_CLASS, CanReadTransactionInfoWithSingleExtractedAddress) {
-		// Assert:
 		AssertCanReadTransactionInfo(1, *test::GenerateRandomUnresolvedAddressSetPointer(1));
 	}
 
 	TEST(TEST_CLASS, CanReadTransactionInfoWithMultipleExtractedAddresses) {
-		// Assert:
 		AssertCanReadTransactionInfo(3, *test::GenerateRandomUnresolvedAddressSetPointer(3));
 	}
 
@@ -189,22 +181,18 @@ namespace catapult { namespace io {
 	}
 
 	TEST(TEST_CLASS, CanRoundtripTransactionInfoWithoutOptionalExtractedAddresses) {
-		// Assert:
 		AssertCanRoundtripTransactionInfo(nullptr);
 	}
 
 	TEST(TEST_CLASS, CanRoundtripTransactionInfoWithZeroExtractedAddresses) {
-		// Assert:
 		AssertCanRoundtripTransactionInfo(std::make_shared<model::UnresolvedAddressSet>());
 	}
 
 	TEST(TEST_CLASS, CanRoundtripTransactionInfoWithSingleExtractedAddress) {
-		// Assert:
 		AssertCanRoundtripTransactionInfo(test::GenerateRandomUnresolvedAddressSetPointer(1));
 	}
 
 	TEST(TEST_CLASS, CanRoundtripTransactionInfoWithMultipleExtractedAddresses) {
-		// Assert:
 		AssertCanRoundtripTransactionInfo(test::GenerateRandomUnresolvedAddressSetPointer(3));
 	}
 
@@ -321,12 +309,10 @@ namespace catapult { namespace io {
 	}
 
 	TEST(TEST_CLASS, CanRoundtripEmptyTransactionInfos) {
-		// Assert:
 		AssertCanRoundtripTransactionInfos(model::TransactionInfosSet());
 	}
 
 	TEST(TEST_CLASS, CanRoundtripTransactionInfos) {
-		// Assert:
 		AssertCanRoundtripTransactionInfos(CreateTransactionInfosSetWithOptionalAddresses(3));
 	}
 

@@ -116,7 +116,7 @@ namespace catapult { namespace state {
 	std::set<NamespaceId> RootNamespaceHistory::prune(Height height) {
 		std::set<NamespaceId> ids;
 		for (auto iter = m_rootHistory.begin(); m_rootHistory.end() != iter;) {
-			if (iter->lifetime().GracePeriodEnd <= height) {
+			if (iter->lifetime().End <= height) {
 				AddAllIds(ids, iter->children());
 				iter = m_rootHistory.erase(iter);
 			} else {
@@ -139,11 +139,7 @@ namespace catapult { namespace state {
 		return m_rootHistory.cend();
 	}
 
-	bool RootNamespaceHistory::isActiveAndUnlocked(Height height) const {
-		return !empty() && back().lifetime().isActiveAndUnlocked(height);
-	}
-
 	bool RootNamespaceHistory::isActive(Height height) const {
-		return !empty() && back().lifetime().isActiveOrGracePeriod(height);
+		return !empty() && back().lifetime().isActive(height);
 	}
 }}

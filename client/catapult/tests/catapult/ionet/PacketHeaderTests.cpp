@@ -29,25 +29,31 @@ namespace catapult { namespace ionet {
 	// region IsPacketDataSizeValid
 
 	TEST(TEST_CLASS, IsPacketDataSizeValid_ReturnsFalseWhenPacketSizeIsTooSmall) {
-		// Act + Assert:
+		// Arrange:
 		for (auto size : std::initializer_list<uint32_t>{ 0, sizeof(PacketHeader) / 2, sizeof(PacketHeader) - 1 }){
 			auto header = PacketHeader{ size, PacketType::Undefined };
+
+			// Act + Assert:
 			EXPECT_FALSE(IsPacketDataSizeValid(header, 1234)) << size;
 		}
 	}
 
 	TEST(TEST_CLASS, IsPacketDataSizeValid_ReturnsTrueWhenPacketSizeIsInAllowableRange) {
-		// Act + Assert:
+		// Arrange:
 		for (auto size : std::initializer_list<uint32_t>{ 0, 789, 1234 }) {
 			auto header = PacketHeader{ static_cast<uint32_t>(sizeof(PacketHeader) + size), PacketType::Undefined };
+
+			// Act + Assert:
 			EXPECT_TRUE(IsPacketDataSizeValid(header, 1234)) << size;
 		}
 	}
 
 	TEST(TEST_CLASS, IsPacketDataSizeValid_ReturnsFalseWhenPacketSizeIsTooLarge) {
-		// Act + Assert:
+		// Arrange:
 		for (auto size : std::initializer_list<uint32_t>{ 1235, 9999, std::numeric_limits<uint32_t>::max() }) {
 			auto header = PacketHeader{ static_cast<uint32_t>(sizeof(PacketHeader) + size), PacketType::Undefined };
+
+			// Act + Assert:
 			EXPECT_FALSE(IsPacketDataSizeValid(header, 1234)) << size;
 		}
 	}

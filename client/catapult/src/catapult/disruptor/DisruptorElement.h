@@ -35,7 +35,7 @@ namespace catapult { namespace disruptor {
 		{}
 
 		/// Creates a disruptor element around \a input with \a id and a completion handler \a processingComplete.
-		explicit DisruptorElement(ConsumerInput&& input, DisruptorElementId id, const ProcessingCompleteFunc& processingComplete)
+		DisruptorElement(ConsumerInput&& input, DisruptorElementId id, const ProcessingCompleteFunc& processingComplete)
 				: m_input(std::move(input))
 				, m_id(id)
 				, m_processingComplete(processingComplete)

@@ -112,17 +112,14 @@ namespace catapult { namespace model {
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForSingleTransactionStatement) {
-		// Assert:
 		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(TransactionStatement({ 11, 12 }));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForSingleAddressResolutionStatement) {
-		// Assert:
 		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(AddressResolutionStatement(UnresolvedAddress{ { 88 } }));
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForSingleMosaicResolutionStatement) {
-		// Assert:
 		AssertCanCalculateMerkleForSingleComponentStatement<TTraits>(MosaicResolutionStatement(UnresolvedMosaicId(100)));
 	}
 
@@ -165,7 +162,6 @@ namespace catapult { namespace model {
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleTransactionStatements) {
-		// Assert:
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
 				TransactionStatement({ 10, 10 }),
 				TransactionStatement({ 11, 12 }),
@@ -173,7 +169,6 @@ namespace catapult { namespace model {
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleAddressResolutionStatements) {
-		// Assert:
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
 				AddressResolutionStatement(UnresolvedAddress{ { 88 } }),
 				AddressResolutionStatement(UnresolvedAddress{ { 92 } }),
@@ -181,7 +176,6 @@ namespace catapult { namespace model {
 	}
 
 	MERKLE_TEST(CanCalculateMerkleForMultipleMosaicResolutionStatements) {
-		// Assert:
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
 				MosaicResolutionStatement(UnresolvedMosaicId(100)),
 				MosaicResolutionStatement(UnresolvedMosaicId(200)),
@@ -193,7 +187,6 @@ namespace catapult { namespace model {
 	// region multiple statements (heterogenous)
 
 	MERKLE_TEST(CanCalculateMerkleForHeterogenousComponentStatementsOneEach) {
-		// Assert:
 		AssertCanCalculateMerkleForMultipleComponentStatements<TTraits>(
 				TransactionStatement({ 10, 10 }),
 				AddressResolutionStatement(UnresolvedAddress{ { 92 } }),

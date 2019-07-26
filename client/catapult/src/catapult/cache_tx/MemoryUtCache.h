@@ -46,7 +46,7 @@ namespace catapult { namespace cache {
 	public:
 		/// Creates a view around a maximum response size (\a maxResponseSize), a transaction data container
 		/// (\a transactionDataContainer) and an id lookup (\a idLookup) with lock context \a readLock.
-		explicit MemoryUtCacheView(
+		MemoryUtCacheView(
 				uint64_t maxResponseSize,
 				const TransactionDataContainer& transactionDataContainer,
 				const IdLookup& idLookup,

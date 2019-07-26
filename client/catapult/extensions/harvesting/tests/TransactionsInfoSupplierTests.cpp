@@ -183,12 +183,10 @@ namespace catapult { namespace harvesting {
 	}
 
 	STRATEGY_BASED_TEST(SupplierReturnsNoTransactionInfosWhenCacheIsEmpty) {
-		// Assert:
 		AssertEmptySupplierResults(Strategy, 0, 3);
 	}
 
 	STRATEGY_BASED_TEST(SupplierReturnsNoTransactionInfosWhenZeroInfosAreRequested) {
-		// Assert:
 		AssertEmptySupplierResults(Strategy, 10, 0);
 	}
 

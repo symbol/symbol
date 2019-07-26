@@ -31,7 +31,7 @@ namespace catapult { namespace chain {
 			static constexpr auto Name = "partial transactions";
 
 		public:
-			explicit PtTraits(
+			PtTraits(
 					const partialtransaction::ShortHashPairsSupplier& shortHashPairsSupplier,
 					const partialtransaction::CosignedTransactionInfosConsumer& transactionInfosConsumer)
 					: m_shortHashPairsSupplier(shortHashPairsSupplier)

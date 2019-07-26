@@ -142,7 +142,6 @@ namespace catapult { namespace networkheight {
 	}
 
 	TEST(TEST_CLASS, ChainSyncedPredicateHookReturnsTrueWhenLocalChainHeightIsWithinAcceptedRange) {
-		// Assert:
 		AssertChainSyncedPredicate(100, 23, true);
 		AssertChainSyncedPredicate(24, 23, true);
 		AssertChainSyncedPredicate(23, 23, true);
@@ -152,7 +151,6 @@ namespace catapult { namespace networkheight {
 	}
 
 	TEST(TEST_CLASS, ChainSyncedPredicateHookReturnsFalseWhenLocalChainHeightIsOutsideOfAcceptedRange) {
-		// Assert:
 		AssertChainSyncedPredicate(23, 27, false);
 		AssertChainSyncedPredicate(23, 28, false);
 		AssertChainSyncedPredicate(23, 100, false);
@@ -190,7 +188,6 @@ namespace catapult { namespace networkheight {
 	}
 
 	TEST(TEST_CLASS, NetworkChainHeightDetectionTaskIsScheduled) {
-		// Assert:
 		test::AssertRegisteredTask(TestContext(), 1, Task_Name);
 	}
 
@@ -251,7 +248,7 @@ namespace catapult { namespace networkheight {
 		});
 	}
 
-	TEST(TEST_CLASS, NetworkChainHeightDetectionIsNoOpWhenEmptyHeightVectorIsReturnedAndLocalHeightIsNonZero) {
+	TEST(TEST_CLASS, NetworkChainHeightDetectionIsNoOpWhenEmptyHeightVectorIsReturnedAndLocalHeightIsNonzero) {
 		// Arrange:
 		TestContext context;
 		RunTaskTest(context, Task_Name, [](auto& networkChainHeight, const auto& task) {

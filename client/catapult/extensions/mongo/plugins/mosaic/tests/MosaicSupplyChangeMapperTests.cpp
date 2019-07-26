@@ -22,7 +22,7 @@
 #include "mongo/src/mappers/MapperUtils.h"
 #include "plugins/txes/mosaic/src/model/MosaicSupplyChangeTransaction.h"
 #include "mongo/tests/test/MapperTestUtils.h"
-#include "mongo/tests/test/MongoTransactionPluginTestUtils.h"
+#include "mongo/tests/test/MongoTransactionPluginTests.h"
 #include "tests/TestHarness.h"
 
 namespace catapult { namespace mongo { namespace plugins {

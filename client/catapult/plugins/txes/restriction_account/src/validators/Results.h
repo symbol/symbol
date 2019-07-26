@@ -60,8 +60,8 @@ namespace catapult { namespace validators {
 	/// Validation failed because the account restriction value is invalid.
 	DEFINE_RESTRICTION_ACCOUNT_RESULT(Value_Invalid, 10);
 
-	/// Validation failed because the signer is not allowed to interact with an address involved in the transaction.
-	DEFINE_RESTRICTION_ACCOUNT_RESULT(Signer_Address_Interaction_Not_Allowed, 11);
+	/// Validation failed because the addresses involved in the transaction are not allowed to interact.
+	DEFINE_RESTRICTION_ACCOUNT_RESULT(Address_Interaction_Not_Allowed, 11);
 
 	/// Validation failed because the mosaic transfer is prohibited by the recipient.
 	DEFINE_RESTRICTION_ACCOUNT_RESULT(Mosaic_Transfer_Not_Allowed, 12);

@@ -20,7 +20,6 @@
 
 #include "AddressAliasMapper.h"
 #include "MosaicAliasMapper.h"
-#include "NamespaceExpiryReceiptMapper.h"
 #include "RegisterNamespaceMapper.h"
 #include "storages/MongoNamespaceCacheStorage.h"
 #include "mongo/src/MongoPluginManager.h"
@@ -30,18 +29,18 @@
 
 extern "C" PLUGIN_API
 void RegisterMongoSubsystem(catapult::mongo::MongoPluginManager& manager) {
+	using namespace catapult;
+
 	// transaction support
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateAddressAliasTransactionMongoPlugin());
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateMosaicAliasTransactionMongoPlugin());
-	manager.addTransactionSupport(catapult::mongo::plugins::CreateRegisterNamespaceTransactionMongoPlugin());
+	manager.addTransactionSupport(mongo::plugins::CreateAddressAliasTransactionMongoPlugin());
+	manager.addTransactionSupport(mongo::plugins::CreateMosaicAliasTransactionMongoPlugin());
+	manager.addTransactionSupport(mongo::plugins::CreateRegisterNamespaceTransactionMongoPlugin());
 
 	// cache storage support
-	manager.addStorageSupport(catapult::mongo::plugins::CreateMongoNamespaceCacheStorage(
-			manager.mongoContext(),
-			manager.networkIdentifier()));
+	manager.addStorageSupport(mongo::plugins::CreateMongoNamespaceCacheStorage(manager.mongoContext(), manager.networkIdentifier()));
 
 	// receipt support
-	manager.addReceiptSupport(catapult::mongo::plugins::CreateNamespaceExpiryReceiptMongoPlugin());
-	manager.addReceiptSupport(catapult::mongo::CreateBalanceTransferReceiptMongoPlugin(
-			catapult::model::Receipt_Type_Namespace_Rental_Fee));
+	manager.addReceiptSupport(mongo::CreateArtifactExpiryReceiptMongoPlugin<NamespaceId>(model::Receipt_Type_Namespace_Expired));
+	manager.addReceiptSupport(mongo::CreateArtifactExpiryReceiptMongoPlugin<NamespaceId>(model::Receipt_Type_Namespace_Deleted));
+	manager.addReceiptSupport(mongo::CreateBalanceTransferReceiptMongoPlugin(model::Receipt_Type_Namespace_Rental_Fee));
 }

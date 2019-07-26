@@ -271,17 +271,14 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, CanRemoveSingleChild) {
-		// Assert:
 		AssertCanRemoveChildren({ 128 });
 	}
 
 	TEST(TEST_CLASS, CanRemoveMultipleChildren) {
-		// Assert:
 		AssertCanRemoveChildren({ 357, 128, 125 });
 	}
 
 	TEST(TEST_CLASS, CanRemoveAllChildren) {
-		// Assert:
 		AssertCanRemoveChildren({ 357, 128, 125, 124 });
 	}
 
@@ -329,12 +326,10 @@ namespace catapult { namespace state {
 	}
 
 	TEST(TEST_CLASS, OperatorEqualReturnsTrueForEqualObjects) {
-		// Assert:
 		test::AssertOperatorEqualReturnsTrueForEqualObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 
 	TEST(TEST_CLASS, OperatorNotEqualReturnsTrueForUnequalObjects) {
-		// Assert:
 		test::AssertOperatorNotEqualReturnsTrueForUnequalObjects(Default_Key, GenerateEqualityInstanceMap(), GetEqualTags());
 	}
 

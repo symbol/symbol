@@ -203,12 +203,10 @@ namespace catapult { namespace local {
 	}
 
 	COMMIT_STEP_TEST(CanRepairSpoolingWhenAllDirectoriesArePresent) {
-		// Assert:
 		AssertCanRepairSpoolingWhenAllDirectoriesArePresent<TTraits>(1);
 	}
 
 	COMMIT_STEP_TEST(RepairSpoolingWhenAllDirectoriesArePresentIsIdempotent) {
-		// Assert:
 		AssertCanRepairSpoolingWhenAllDirectoriesArePresent<TTraits>(3);
 	}
 

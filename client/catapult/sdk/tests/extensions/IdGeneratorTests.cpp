@@ -28,6 +28,8 @@ namespace catapult { namespace extensions {
 
 #define TEST_CLASS IdGeneratorTests
 
+	// region basic (shared) tests
+
 	namespace {
 		template<typename TGenerator>
 		void AssertDifferentNamesProduceDifferentResults(TGenerator generator) {
@@ -39,25 +41,22 @@ namespace catapult { namespace extensions {
 		template<typename TGenerator>
 		void AssertNamesWithUppercaseCharactersAreRejected(TGenerator generator) {
 			// Act + Assert:
-			for (const auto name : { "CAT.token", "CAT.TOKEN", "cat.TOKEN", "cAt.ToKeN", "CaT.tOkEn" }) {
+			for (const auto name : { "CAT.token", "CAT.TOKEN", "cat.TOKEN", "cAt.ToKeN", "CaT.tOkEn" })
 				EXPECT_THROW(generator(name), catapult_invalid_argument) << "name " << name;
-			}
 		}
 
 		template<typename TGenerator>
 		void AssertImproperQualifiedNamesAreRejected(TGenerator generator) {
 			// Act + Assert:
-			for (const auto name : { ".", "..", "...", ".a", "b.", "a..b", ".a.b", "b.a." }) {
+			for (const auto name : { ".", "..", "...", ".a", "b.", "a..b", ".a.b", "b.a." })
 				EXPECT_THROW(generator(name), catapult_invalid_argument) << "name " << name;
-			}
 		}
 
 		template<typename TGenerator>
 		void AssertImproperPartNamesAreRejected(TGenerator generator) {
 			// Act + Assert:
-			for (const auto name : { "alpha.bet@.zeta", "a!pha.beta.zeta", "alpha.beta.ze^a" }) {
+			for (const auto name : { "alpha.bet@.zeta", "a!pha.beta.zeta", "alpha.beta.ze^a" })
 				EXPECT_THROW(generator(name), catapult_invalid_argument) << "name " << name;
-			}
 		}
 
 		template<typename TGenerator>
@@ -65,14 +64,16 @@ namespace catapult { namespace extensions {
 			// Act + Assert:
 			EXPECT_THROW(generator(""), catapult_invalid_argument) << "empty string";
 		}
+	}
 
 #define ADD_BASIC_TESTS(PREFIX, GENERATOR) \
-		TEST(TEST_CLASS, PREFIX##_DifferentNamesProduceDifferentResults) { AssertDifferentNamesProduceDifferentResults(GENERATOR); } \
-		TEST(TEST_CLASS, PREFIX##_RejectsNamesWithUppercaseCharacters) { AssertNamesWithUppercaseCharactersAreRejected(GENERATOR); } \
-		TEST(TEST_CLASS, PREFIX##_RejectsImproperQualifiedNames) { AssertImproperQualifiedNamesAreRejected(GENERATOR); } \
-		TEST(TEST_CLASS, PREFIX##_RejectsImproperPartNames) { AssertImproperPartNamesAreRejected(GENERATOR); } \
-		TEST(TEST_CLASS, PREFIX##_RejectsEmptyString) { AssertEmptyStringIsRejected(GENERATOR); }
-	}
+	TEST(TEST_CLASS, PREFIX##_DifferentNamesProduceDifferentResults) { AssertDifferentNamesProduceDifferentResults(GENERATOR); } \
+	TEST(TEST_CLASS, PREFIX##_RejectsNamesWithUppercaseCharacters) { AssertNamesWithUppercaseCharactersAreRejected(GENERATOR); } \
+	TEST(TEST_CLASS, PREFIX##_RejectsImproperQualifiedNames) { AssertImproperQualifiedNamesAreRejected(GENERATOR); } \
+	TEST(TEST_CLASS, PREFIX##_RejectsImproperPartNames) { AssertImproperPartNamesAreRejected(GENERATOR); } \
+	TEST(TEST_CLASS, PREFIX##_RejectsEmptyString) { AssertEmptyStringIsRejected(GENERATOR); }
+
+	// endregion
 
 	// region GenerateMosaicAliasId
 
@@ -86,23 +87,16 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, GenerateMosaicAliasId_SupportsMultiLevelMosaics) {
 		// Arrange:
-		auto expected = model::GenerateNamespaceId(model::GenerateNamespaceId(model::GenerateRootNamespaceId("foo"), "bar"), "baz");
+		auto namespaceId = model::GenerateNamespaceId(model::GenerateNamespaceId(model::GenerateRootNamespaceId("foo"), "bar"), "baz");
+		auto expected = model::GenerateNamespaceId(namespaceId, "xyz");
 
 		// Assert:
-		EXPECT_EQ(UnresolvedMosaicId(expected.unwrap()), GenerateMosaicAliasId("foo.bar.baz"));
+		EXPECT_EQ(UnresolvedMosaicId(expected.unwrap()), GenerateMosaicAliasId("foo.bar.baz.xyz"));
 	}
 
 	TEST(TEST_CLASS, GenerateMosaicAliasId_CanGenerateIdFromTopLevelNamespace) {
-		// Act + Assert:
 		for (const auto name : { "cat", "token", "alpha" })
 			EXPECT_NE(UnresolvedMosaicId(), GenerateMosaicAliasId(name)) << "name " << name;
-	}
-
-	TEST(TEST_CLASS, GenerateMosaicAliasId_RejectsNamesWithTooManyParts) {
-		// Act + Assert:
-		for (const auto name : { "a.b.c.d", "a.b.c.d.e.f" }) {
-			EXPECT_THROW(GenerateMosaicAliasId(name), catapult_invalid_argument) << "name " << name;
-		}
 	}
 
 	namespace {
@@ -142,20 +136,14 @@ namespace catapult { namespace extensions {
 
 	TEST(TEST_CLASS, GenerateNamespacePath_SupportsMultiLevelNamespaces) {
 		// Arrange:
-		NamespacePath expected;
+		std::vector<NamespaceId> expected;
 		expected.push_back(model::GenerateRootNamespaceId("foo"));
 		expected.push_back(model::GenerateNamespaceId(expected[0], "bar"));
 		expected.push_back(model::GenerateNamespaceId(expected[1], "baz"));
+		expected.push_back(model::GenerateNamespaceId(expected[2], "xyz"));
 
 		// Assert:
-		EXPECT_EQ(expected, GenerateNamespacePath("foo.bar.baz"));
-	}
-
-	TEST(TEST_CLASS, GenerateNamespacePath_RejectsNamesWithTooManyParts) {
-		// Act + Assert:
-		for (const auto name : { "a.b.c.d", "a.b.c.d.e" }) {
-			EXPECT_THROW(GenerateNamespacePath(name), catapult_invalid_argument) << "name " << name;
-		}
+		EXPECT_EQ(expected, GenerateNamespacePath("foo.bar.baz.xyz"));
 	}
 
 	ADD_BASIC_TESTS(GenerateNamespacePath, GenerateNamespacePath)

@@ -157,17 +157,17 @@ namespace catapult { namespace validators {
 	// region forwarding
 
 	TEST(TEST_CLASS, NotificationsAreForwardedToChildValidators) {
-		// Assert:
-		test::AssertNotificationsAreForwardedToChildValidators(
-				AggregateValidatorBuilder<model::Notification, const ValidatorContext&>(),
-				[](auto& builder, auto&& pValidator) { builder.add(std::move(pValidator)); });
+		using BuilderType = AggregateValidatorBuilder<model::Notification, const ValidatorContext&>;
+		test::AssertNotificationsAreForwardedToChildValidators(BuilderType(), [](auto& builder, auto&& pValidator) {
+			builder.add(std::move(pValidator));
+		});
 	}
 
 	TEST(TEST_CLASS, ContextsAreForwardedToChildValidators) {
-		// Assert:
-		test::AssertContextsAreForwardedToChildValidators(
-				AggregateValidatorBuilder<model::Notification, const ValidatorContext&>(),
-				[](auto& builder, auto&& pValidator) { builder.add(std::move(pValidator)); });
+		using BuilderType = AggregateValidatorBuilder<model::Notification, const ValidatorContext&>;
+		test::AssertContextsAreForwardedToChildValidators(BuilderType(), [](auto& builder, auto&& pValidator) {
+			builder.add(std::move(pValidator));
+		});
 	}
 
 	// endregion

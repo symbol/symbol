@@ -55,7 +55,7 @@ namespace catapult { namespace validators {
 				return Failure_RestrictionAccount_Modification_Redundant;
 
 			auto address = model::PublicKeyToAddress(notification.Key, context.Network.Identifier);
-			const auto& cache = context.Cache.template sub<cache::AccountRestrictionCache>();
+			const auto& cache = context.Cache.sub<cache::AccountRestrictionCache>();
 			return modificationsInfo.HasDeleteModification && !cache.contains(address)
 					? Failure_RestrictionAccount_Modification_Not_Allowed
 					: ValidationResult::Success;
@@ -64,8 +64,8 @@ namespace catapult { namespace validators {
 
 #define DEFINE_ACCOUNT_RESTRICTION_REDUNDANT_MODIFICATION_VALIDATOR(RESTRICTION_NAME, RESTRICTION_VALUE_TYPE, HASHER_TYPE) \
 	DEFINE_STATEFUL_VALIDATOR_WITH_TYPE(RESTRICTION_NAME##RedundantModification, model::Modify##RESTRICTION_NAME##Notification, ([]( \
-			const auto& notification, \
-			const auto& context) { \
+			const model::Modify##RESTRICTION_NAME##Notification& notification, \
+			const ValidatorContext& context) { \
 		return Validate<RESTRICTION_VALUE_TYPE, model::Modify##RESTRICTION_NAME##Notification, HASHER_TYPE>(notification, context); \
 	}));
 

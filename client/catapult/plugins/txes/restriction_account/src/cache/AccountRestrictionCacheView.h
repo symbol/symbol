@@ -44,7 +44,7 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a view around \a restrictionSets and \a networkIdentifier.
-		explicit BasicAccountRestrictionCacheView(
+		BasicAccountRestrictionCacheView(
 				const AccountRestrictionCacheTypes::BaseSets& restrictionSets,
 				model::NetworkIdentifier networkIdentifier)
 				: AccountRestrictionCacheViewMixins::Size(restrictionSets.Primary)
@@ -69,7 +69,7 @@ namespace catapult { namespace cache {
 	class AccountRestrictionCacheView : public ReadOnlyViewSupplier<BasicAccountRestrictionCacheView> {
 	public:
 		/// Creates a view around \a restrictionSets and \a networkIdentifier.
-		explicit AccountRestrictionCacheView(
+		AccountRestrictionCacheView(
 				const AccountRestrictionCacheTypes::BaseSets& restrictionSets,
 				model::NetworkIdentifier networkIdentifier)
 				: ReadOnlyViewSupplier(restrictionSets, networkIdentifier)

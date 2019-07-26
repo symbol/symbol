@@ -23,7 +23,9 @@
 
 namespace catapult { namespace observers {
 
-	DEFINE_OBSERVER(TransactionFeeActivity, model::TransactionFeeNotification, ([](const auto& notification, auto& context) {
+	DEFINE_OBSERVER(TransactionFeeActivity, model::TransactionFeeNotification, ([](
+			const model::TransactionFeeNotification& notification,
+			ObserverContext& context) {
 		auto fee = notification.Fee;
 		if (Amount() == fee)
 			return;

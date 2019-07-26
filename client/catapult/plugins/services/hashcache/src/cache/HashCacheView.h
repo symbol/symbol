@@ -41,7 +41,7 @@ namespace catapult { namespace cache {
 
 	public:
 		/// Creates a view around \a hashSets and \a options.
-		explicit BasicHashCacheView(const HashCacheTypes::BaseSets& hashSets, const HashCacheTypes::Options& options)
+		BasicHashCacheView(const HashCacheTypes::BaseSets& hashSets, const HashCacheTypes::Options& options)
 				: HashCacheViewMixins::Size(hashSets.Primary)
 				, HashCacheViewMixins::Contains(hashSets.Primary)
 				, HashCacheViewMixins::Iteration(hashSets.Primary)
@@ -62,7 +62,7 @@ namespace catapult { namespace cache {
 	class HashCacheView : public ReadOnlyViewSupplier<BasicHashCacheView> {
 	public:
 		/// Creates a view around \a hashSets and \a options.
-		explicit HashCacheView(const HashCacheTypes::BaseSets& hashSets, const HashCacheTypes::Options& options)
+		HashCacheView(const HashCacheTypes::BaseSets& hashSets, const HashCacheTypes::Options& options)
 				: ReadOnlyViewSupplier(hashSets, options)
 		{}
 	};

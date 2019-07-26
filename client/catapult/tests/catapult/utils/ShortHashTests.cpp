@@ -88,7 +88,7 @@ namespace catapult { namespace utils {
 	TEST(TEST_CLASS, CanConvertHashToShortHash) {
 		// Arrange:
 		Hash256 hash;
-		ParseHexStringIntoContainer("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", 2 * Hash256_Size, hash);
+		ParseHexStringIntoContainer("031729D10DB52ECF0AD3684558DB31895DDFA5CD7F4143AF6E822E114E16E31C", 2 * Hash256::Size, hash);
 
 		// Act:
 		auto shortHash = ToShortHash(hash);

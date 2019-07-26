@@ -261,7 +261,7 @@ namespace catapult { namespace test {
 			auto i = 0u;
 			for (const auto& hash : hashes) {
 				auto expectedHash = Hash256();
-				expectedHash[Hash256_Size - 1] = expectedHashes[i++];
+				expectedHash[Hash256::Size - 1] = expectedHashes[i++];
 				EXPECT_EQ(expectedHash, hash);
 			}
 		}
@@ -313,7 +313,7 @@ namespace catapult { namespace test {
 			auto i = 0u;
 			for (const auto& hash : hashes) {
 				auto expectedHash = Hash256();
-				expectedHash[Hash256_Size - 1] = expectedHashes[i++];
+				expectedHash[Hash256::Size - 1] = expectedHashes[i++];
 				EXPECT_EQ(expectedHash, hash);
 			}
 		}

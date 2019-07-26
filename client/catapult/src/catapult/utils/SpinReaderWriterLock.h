@@ -83,7 +83,7 @@ namespace catapult { namespace utils {
 		struct WriterLockGuard : public LockGuard {
 		public:
 			/// Creates a guard around \a value and \a isActive.
-			explicit WriterLockGuard(std::atomic<uint16_t>& value, bool& isActive)
+			WriterLockGuard(std::atomic<uint16_t>& value, bool& isActive)
 					: LockGuard([&value, &isActive]() {
 						// unset the active writer flag and change the writer to a reader
 						value.fetch_sub(Active_Writer_Flag + Pending_Writer_Increment - Active_Reader_Increment);
@@ -99,7 +99,7 @@ namespace catapult { namespace utils {
 		struct ReaderLockGuard : public LockGuard {
 		public:
 			/// Creates a guard around \a value and \a notificationPolicy.
-			explicit ReaderLockGuard(std::atomic<uint16_t>& value, TReaderNotificationPolicy& notificationPolicy)
+			ReaderLockGuard(std::atomic<uint16_t>& value, TReaderNotificationPolicy& notificationPolicy)
 					: LockGuard([&value, &notificationPolicy]() {
 						// decrease the number of readers by one
 						value.fetch_sub(Active_Reader_Increment);

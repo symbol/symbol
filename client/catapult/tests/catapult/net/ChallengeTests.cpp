@@ -62,7 +62,6 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, GenerateServerChallengeRequestCreatesRandomChallenge) {
-		// Assert:
 		AssertRandomChallengeGenerator([]() { return GenerateServerChallengeRequest()->Challenge; });
 	}
 
@@ -94,7 +93,6 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, GenerateServerChallengeResponseCreatesRandomChallenge) {
-		// Assert:
 		AssertRandomChallengeGenerator([]() {
 			auto securityMode = ionet::ConnectionSecurityMode::None;
 			auto pResponse = GenerateServerChallengeResponse(ServerChallengeRequest(), test::GenerateKeyPair(), securityMode);

@@ -27,7 +27,9 @@ namespace catapult { namespace validators {
 	using Notification = model::MosaicDefinitionNotification;
 
 	DECLARE_STATEFUL_VALIDATOR(MosaicDuration, Notification)(BlockDuration maxMosaicDuration) {
-		return MAKE_STATEFUL_VALIDATOR(MosaicDuration, [maxMosaicDuration](const auto& notification, const ValidatorContext& context) {
+		return MAKE_STATEFUL_VALIDATOR(MosaicDuration, [maxMosaicDuration](
+				const Notification& notification,
+				const ValidatorContext& context) {
 			const auto& cache = context.Cache.sub<cache::MosaicCache>();
 
 			// always allow a new mosaic (MosaicPropertiesValidator checks for valid duration in this case)

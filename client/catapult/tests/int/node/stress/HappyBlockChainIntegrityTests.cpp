@@ -433,12 +433,10 @@ namespace catapult { namespace local {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	VERIFY_OPTIONS_BASED_TEST(MultiNodeDenseNetworkCanReachConsensus) {
-		// Assert:
 		AssertMultiNodeNetworkCanReachConsensus<DenseNetworkTraits>(TTraits(), TTraits::Dense_Network_Size);
 	}
 
 	VERIFY_OPTIONS_BASED_TEST(MultiNodeSparseNetworkCanReachConsensus) {
-		// Assert:
 		AssertMultiNodeNetworkCanReachConsensus<SparseNetworkTraits>(TTraits(), TTraits::Sparse_Network_Size);
 	}
 }}

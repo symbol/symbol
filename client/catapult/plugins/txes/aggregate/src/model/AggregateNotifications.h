@@ -31,10 +31,10 @@ namespace catapult { namespace model {
 #define DEFINE_AGGREGATE_NOTIFICATION(DESCRIPTION, CODE, CHANNEL) DEFINE_NOTIFICATION_TYPE(CHANNEL, Aggregate, DESCRIPTION, CODE)
 
 	/// Aggregate was received with cosignatures.
-	DEFINE_AGGREGATE_NOTIFICATION(Cosignatures, 0x001, Validator);
+	DEFINE_AGGREGATE_NOTIFICATION(Cosignatures, 0x0001, Validator);
 
 	/// Aggregate was received with an embedded transaction.
-	DEFINE_AGGREGATE_NOTIFICATION(EmbeddedTransaction, 0x002, Validator);
+	DEFINE_AGGREGATE_NOTIFICATION(EmbeddedTransaction, 0x0002, Validator);
 
 #undef DEFINE_AGGREGATE_NOTIFICATION
 

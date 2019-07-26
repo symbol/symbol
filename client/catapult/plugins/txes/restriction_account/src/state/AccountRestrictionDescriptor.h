@@ -42,9 +42,14 @@ namespace catapult { namespace state {
 		{}
 
 	public:
-		/// Gets the value specific part of the restriction type.
-		constexpr model::AccountRestrictionType restrictionType() const {
+		/// Gets the value specific part of the restriction type including the direction.
+		constexpr model::AccountRestrictionType directionalRestrictionType() const {
 			return StripFlag(m_restrictionType, model::AccountRestrictionType::Block);
+		}
+
+		/// Gets the value specific part of the restriction type excluding the direction.
+		constexpr model::AccountRestrictionType restrictionType() const {
+			return StripFlag(m_restrictionType, model::AccountRestrictionType::Outgoing | model::AccountRestrictionType::Block);
 		}
 
 		/// Gets the operation type.

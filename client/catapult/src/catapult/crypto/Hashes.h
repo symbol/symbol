@@ -60,7 +60,7 @@ namespace catapult { namespace crypto {
 	template<typename TModeTag, typename THashTag>
 	class alignas(32) KeccakBuilder {
 	public:
-		using OutputType = utils::ByteArray<THashTag::Byte_Size, THashTag>;
+		using OutputType = utils::ByteArray<THashTag>;
 
 	public:
 		/// Creates a builder.

@@ -112,7 +112,7 @@ namespace catapult { namespace cache {
 		template<typename TView>
 		class SubCacheViewAdapter : public SubCacheView {
 		public:
-			explicit SubCacheViewAdapter(TView&& view, const SubCacheViewIdentifier& id)
+			SubCacheViewAdapter(TView&& view, const SubCacheViewIdentifier& id)
 					: m_view(std::move(view))
 					, m_id(id)
 			{}
@@ -237,7 +237,7 @@ namespace catapult { namespace cache {
 		template<typename TLockableCacheDelta>
 		class DetachedSubCacheViewAdapter : public DetachedSubCacheView {
 		public:
-			explicit DetachedSubCacheViewAdapter(TLockableCacheDelta&& lockableCacheDelta, const SubCacheViewIdentifier& id)
+			DetachedSubCacheViewAdapter(TLockableCacheDelta&& lockableCacheDelta, const SubCacheViewIdentifier& id)
 					: m_lockableCacheDelta(std::move(lockableCacheDelta))
 					, m_id(id)
 			{}

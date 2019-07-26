@@ -34,11 +34,11 @@ namespace catapult { namespace cache {
 
 	/// A read-only overlay on top of an account cache.
 	class ReadOnlyAccountStateCache
-			: public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, const Address&, state::AccountState>
-			, public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, const Key&, state::AccountState> {
+			: public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Address, state::AccountState>
+			, public ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, Key, state::AccountState> {
 	private:
 		template<typename TKey, typename TValue>
-		using ReadOnlySubCache = ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, const TKey&, TValue>;
+		using ReadOnlySubCache = ReadOnlyArtifactCache<BasicAccountStateCacheView, BasicAccountStateCacheDelta, TKey, TValue>;
 
 		using AddressBasedCache = ReadOnlySubCache<Address, state::AccountState>;
 		using KeyBasedCache = ReadOnlySubCache<Key, state::AccountState>;

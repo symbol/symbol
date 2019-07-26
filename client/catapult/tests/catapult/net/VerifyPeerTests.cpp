@@ -178,12 +178,10 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, VerifyClientFailsOnInvalidSecurityMode) {
-		// Assert:
 		AssertVerifyClientFailsOnInvalidSecurityMode(static_cast<ionet::ConnectionSecurityMode>(4));
 	}
 
 	TEST(TEST_CLASS, VerifyClientFailsOnMultipleSecurityModes) {
-		// Assert:
 		AssertVerifyClientFailsOnInvalidSecurityMode(Default_Allowed_Security_Mode_Mask);
 	}
 
@@ -228,7 +226,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(2u, pMockIo->numWrites());
 	}
 
-	TEST(TEST_CLASS, VerifyClientWritesServerChallengeRequestWithNonZeroChallenge) {
+	TEST(TEST_CLASS, VerifyClientWritesServerChallengeRequestWithNonzeroChallenge) {
 		// Arrange:
 		auto pMockIo = CreateSuccessfulClientIo();
 
@@ -236,7 +234,7 @@ namespace catapult { namespace net {
 		VerifyClient(pMockIo, Verify_Client_Key);
 		const auto& packet = pMockIo->writtenPacketAt<ServerChallengeRequest>(0);
 
-		// Assert: the challenge is non zero
+		// Assert: the challenge is nonzero
 		EXPECT_NE(Challenge(), packet.Challenge);
 	}
 
@@ -257,7 +255,7 @@ namespace catapult { namespace net {
 		net::VerifyClient(pMockIo, serverKeyPair, Default_Allowed_Security_Mode_Mask, [](auto, const auto&) {});
 		const auto& packet = pMockIo->writtenPacketAt<ClientChallengeResponse>(1);
 
-		// Assert: the signature is non zero and is verifiable
+		// Assert: the signature is nonzero and is verifiable
 		EXPECT_NE(Signature(), packet.Signature);
 		EXPECT_TRUE(crypto::Verify(serverKeyPair.publicKey(), challenge, packet.Signature));
 	}
@@ -274,14 +272,12 @@ namespace catapult { namespace net {
 			VerifyResult result;
 			VerifiedPeerInfo verifiedPeerInfo;
 			auto serverPeerInfo = VerifiedPeerInfo{ serverKeyPair.publicKey(), Default_Security_Mode };
-			net::VerifyServer(
-					pServerIo,
-					serverPeerInfo,
-					clientKeyPair,
-					[&result, &verifiedPeerInfo](auto verifyResult, const auto& peerInfo) {
-						result = verifyResult;
-						verifiedPeerInfo = peerInfo;
-					});
+			net::VerifyServer(pServerIo, serverPeerInfo, clientKeyPair, [&result, &verifiedPeerInfo](
+					auto verifyResult,
+					const auto& peerInfo) {
+				result = verifyResult;
+				verifiedPeerInfo = peerInfo;
+			});
 
 			// Assert: verified server key should be correct for all results
 			EXPECT_EQ(serverKeyPair.publicKey(), verifiedPeerInfo.PublicKey);
@@ -444,7 +440,7 @@ namespace catapult { namespace net {
 		EXPECT_EQ(1u, pMockIo->numWrites());
 	}
 
-	TEST(TEST_CLASS, VerifyServerWritesServerChallengeRequestWithNonZeroChallenge) {
+	TEST(TEST_CLASS, VerifyServerWritesServerChallengeRequestWithNonzeroChallenge) {
 		// Arrange:
 		auto serverKeyPair = test::GenerateKeyPair();
 		auto clientKeyPair = test::GenerateKeyPair();
@@ -454,7 +450,7 @@ namespace catapult { namespace net {
 		VerifyServer(serverKeyPair, clientKeyPair, pMockIo);
 		const auto& packet = pMockIo->writtenPacketAt<ServerChallengeResponse>(0);
 
-		// Assert: the challenge is non zero
+		// Assert: the challenge is nonzero
 		EXPECT_NE(Challenge(), packet.Challenge);
 	}
 
@@ -482,7 +478,7 @@ namespace catapult { namespace net {
 		std::memcpy(signedData.data(), challenge.data(), Challenge_Size);
 		signedData[Challenge_Size] = utils::to_underlying_type(Default_Security_Mode);
 
-		// Assert: the signature is non zero and is verifiable
+		// Assert: the signature is nonzero and is verifiable
 		EXPECT_NE(Signature(), packet.Signature);
 		EXPECT_TRUE(crypto::Verify(clientKeyPair.publicKey(), signedData, packet.Signature));
 	}
@@ -539,12 +535,10 @@ namespace catapult { namespace net {
 	}
 
 	TEST(TEST_CLASS, VerifyClientAndVerifyServerCanMutuallyValidate_ExactMatch) {
-		// Assert:
 		AssertVerifyClientAndVerifyServerCanMutuallyValidate(ionet::ConnectionSecurityMode::Signed, ionet::ConnectionSecurityMode::Signed);
 	}
 
 	TEST(TEST_CLASS, VerifyClientAndVerifyServerCanMutuallyValidate_Subset) {
-		// Assert:
 		AssertVerifyClientAndVerifyServerCanMutuallyValidate(ionet::ConnectionSecurityMode::Signed, Default_Allowed_Security_Mode_Mask);
 	}
 
