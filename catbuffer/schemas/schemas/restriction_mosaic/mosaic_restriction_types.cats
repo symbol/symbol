@@ -1,22 +1,22 @@
 # mosaic restriction types
 enum MosaicRestrictionType : uint8
 	# uninitialized value indicating no restriction
-	none = 0
+	none = 0x00
 
 	# allow if equal
-	eq = 1
+	eq = 0x01
 
 	# allow if not equal
-	ne = 2
+	ne = 0x02
 
 	# allow if less than
-	lt = 3
+	lt = 0x03
 
 	# allow if less than or equal
-	le = 4
+	le = 0x04
 
 	# allow if greater than
-	gt = 5
+	gt = 0x05
 
 	# allow if greater than or equal
-	ge = 6
+	ge = 0x06

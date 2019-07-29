@@ -3,7 +3,7 @@ import "types.cats"
 # enumeration of entity types
 enum EntityType : uint16
 	# reserved entity type
-	reserved = 0
+	reserved = 0x0000
 
 # binary layout for a size-prefixed entity
 struct SizePrefixedEntity

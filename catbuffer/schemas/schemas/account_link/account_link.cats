@@ -3,10 +3,10 @@ import "transaction.cats"
 # account link transaction action
 enum AccountLinkAction : uint8
 	# link account
-	link = 0
+	link = 0x00
 
 	# unlink account
-	unlink = 1
+	unlink = 0x01
 
 # binary layout for an account link transaction
 struct AccountLinkTransactionBody

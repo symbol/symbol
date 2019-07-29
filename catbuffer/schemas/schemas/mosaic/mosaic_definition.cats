@@ -20,7 +20,7 @@ enum MosaicFlags : uint8
 # available mosaic property ids
 enum MosaicPropertyId : uint8
 	# mosaic duration
-	duration = 2
+	duration = 0x02
 
 # mosaic property compose of an id and a value
 struct MosaicProperty
