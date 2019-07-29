@@ -1,8 +1,8 @@
 import "multisig/multisig_types.cats"
 import "transaction.cats"
 
-# binary layout for a modify multisig account transaction
-struct ModifyMultisigAccountTransactionBody
+# binary layout for a multisig account modification transaction
+struct MultisigAccountModificationTransactionBody
 	# relative change of the minimal number of cosignatories required when removing an account
 	minRemovalDelta = int8
 
@@ -15,15 +15,15 @@ struct ModifyMultisigAccountTransactionBody
 	# attached cosignatory modifications
 	modifications = array(CosignatoryModification, modificationsCount)
 
-# binary layout for a non-embedded modify multisig account transaction
-struct ModifyMultisigAccountTransaction
+# binary layout for a non-embedded multisig account modification transaction
+struct MultisigAccountModificationTransaction
 	const uint8 version = 1
 	const EntityType entityType = 0x4155
 
 	inline Transaction
-	inline ModifyMultisigAccountTransactionBody
+	inline MultisigAccountModificationTransactionBody
 
-# binary layout for an embedded modify multisig account transaction
-struct EmbeddedModifyMultisigAccountTransaction
+# binary layout for an embedded multisig account modification transaction
+struct EmbeddedMultisigAccountModificationTransaction
 	inline EmbeddedTransaction
-	inline ModifyMultisigAccountTransactionBody
+	inline MultisigAccountModificationTransactionBody

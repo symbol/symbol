@@ -3,11 +3,11 @@ import "transaction.cats"
 
 # binary layout for a mosaic supply change transaction
 struct MosaicSupplyChangeTransactionBody
-	# id of the affected mosaic
+	# affected mosaic id
 	mosaicId = UnresolvedMosaicId
 
-	# supply change direction
-	direction = MosaicSupplyChangeDirection
+	# supply change action
+	action = MosaicSupplyChangeAction
 
 	# amount of the change
 	delta = Amount

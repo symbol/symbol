@@ -28,8 +28,8 @@ struct MosaicProperty
 	# mosaic property value
 	value = uint64
 
-# supply change directions
-enum MosaicSupplyChangeDirection : uint8
+# supply change action
+enum MosaicSupplyChangeAction : uint8
 	# decreases the supply
 	decrease = 0x00
 

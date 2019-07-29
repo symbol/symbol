@@ -1,7 +1,7 @@
 import "types.cats"
 
-# cosignatory modification type
-enum CosignatoryModificationType : uint8
+# cosignatory modification action
+enum CosignatoryModificationAction : uint8
 	# add cosignatory
 	add = 0x00
 
@@ -10,8 +10,8 @@ enum CosignatoryModificationType : uint8
 
 # binary layout for a cosignatory modification
 struct CosignatoryModification
-	# modification type
-	modificationType = CosignatoryModificationType
+	# modification action
+	modificationAction = CosignatoryModificationAction
 
 	# cosignatory account public key
 	cosignatoryPublicKey = Key

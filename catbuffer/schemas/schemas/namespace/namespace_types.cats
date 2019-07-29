@@ -1,11 +1,11 @@
 using NamespaceId = uint64
 
-# namespace types
-enum NamespaceType : uint8
-	# a root namespace
+# namespace registration type
+enum NamespaceRegistrationType : uint8
+	# root namespace
 	root = 0x00
 
-	# a child namespace
+	# child namespace
 	child = 0x01
 
 # alias transaction action

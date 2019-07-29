@@ -4,10 +4,10 @@ import "transaction.cats"
 # binary layout for a mosaic definition transaction
 struct MosaicDefinitionTransactionBody
 	# mosaic nonce
-	mosaicNonce = MosaicNonce
+	nonce = MosaicNonce
 
-	# id of the mosaic
-	mosaicId = MosaicId
+	# mosaic id
+	id = MosaicId
 
 	# number of elements in optional properties
 	propertiesCount = uint8

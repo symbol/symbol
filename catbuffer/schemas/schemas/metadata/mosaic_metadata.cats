@@ -9,7 +9,7 @@ struct MosaicMetadataTransactionBody
 	scopedMetadataKey = uint64
 
 	# unresolved mosaic id
-	targetId = UnresolvedMosaicId
+	targetMosaicId = UnresolvedMosaicId
 
 	# change in value size in bytes
 	valueSizeDelta = int16
@@ -17,7 +17,9 @@ struct MosaicMetadataTransactionBody
 	# value size in bytes
 	valueSize = uint16
 
-	# value data
+	# difference between existing value and new value
+	# \note when there is no existing value, new value is same this value
+	# \note when there is an existing value, new value is calculated as xor(previous-value, value)
 	value = array(byte, valueSize)
 
 # binary layout for a non-embedded mosaic metadata transaction

@@ -17,8 +17,8 @@ enum AccountRestrictionType : uint8
 	# account restriction is interpreted as blocking operation
 	block = 0x80
 
-# account restriction modification type
-enum AccountRestrictionModificationType : uint8
+# account restriction modification action
+enum AccountRestrictionModificationAction : uint8
 	# add account restriction value
 	add = 0x00
 
@@ -27,22 +27,22 @@ enum AccountRestrictionModificationType : uint8
 
 # account restriction basic modification
 struct AccountRestrictionModification
-	# type of account restriction
-	modificationType = AccountRestrictionModificationType
+	# modification action
+	modificationAction = AccountRestrictionModificationAction
 
 # account address restriction modification
 struct AccountAddressRestrictionModification
 	inline AccountRestrictionModification
 
 	# address restriction value
-	value = Address
+	value = UnresolvedAddress
 
 # account mosaic restriction modification
 struct AccountMosaicRestrictionModification
 	inline AccountRestrictionModification
 
 	# mosaic id restriction value
-	value = MosaicId
+	value = UnresolvedMosaicId
 
 # account operation restriction modification
 struct AccountOperationRestrictionModification
