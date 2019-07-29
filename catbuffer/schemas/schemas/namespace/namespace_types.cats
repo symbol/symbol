@@ -10,8 +10,8 @@ enum NamespaceRegistrationType : uint8
 
 # alias transaction action
 enum AliasAction : uint8
-	# link alias
-	link = 0x00
-
 	# unlink alias
-	unlink = 0x01
+	unlink = 0x00
+
+	# link alias
+	link = 0x01

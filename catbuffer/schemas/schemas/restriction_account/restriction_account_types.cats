@@ -19,11 +19,11 @@ enum AccountRestrictionType : uint8
 
 # account restriction modification action
 enum AccountRestrictionModificationAction : uint8
-	# add account restriction value
-	add = 0x00
-
 	# remove account restriction value
-	del = 0x01
+	del = 0x00
+
+	# add account restriction value
+	add = 0x01
 
 # account restriction basic modification
 struct AccountRestrictionModification

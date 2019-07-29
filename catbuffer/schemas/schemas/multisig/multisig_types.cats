@@ -2,11 +2,11 @@ import "types.cats"
 
 # cosignatory modification action
 enum CosignatoryModificationAction : uint8
-	# add cosignatory
-	add = 0x00
-
 	# remove cosignatory
-	del = 0x01
+	del = 0x00
+
+	# add cosignatory
+	add = 0x01
 
 # binary layout for a cosignatory modification
 struct CosignatoryModification
