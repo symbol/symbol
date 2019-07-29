@@ -15,6 +15,7 @@ class MultiFileParser:
     def __init__(self):
         self.cats_parser = CatsParser(self._process_import_file)
         self.dirname = None
+        self.imported_filenames = []
 
     def set_include_path(self, include_path):
         self.dirname = include_path
@@ -23,6 +24,10 @@ class MultiFileParser:
         self._process_file(schema_filename)
 
     def _process_import_file(self, filename):
+        if filename in self.imported_filenames:
+            return
+
+        self.imported_filenames.append(filename)
         filename = os.path.join(self.dirname, filename)
         self._process_file(filename)
 
