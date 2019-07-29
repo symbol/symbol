@@ -1,10 +1,5 @@
-import "restriction_account/account_restriction_types.cats"
+import "restriction_account/restriction_account_types.cats"
 import "transaction.cats"
-
-# account address restriction modification
-struct AccountAddressRestrictionModification
-	inline AccountRestrictionModification
-	value = Address
 
 # binary layout for an account address restriction transaction
 struct AccountAddressRestrictionTransactionBody

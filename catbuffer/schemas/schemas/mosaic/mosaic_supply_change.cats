@@ -1,12 +1,5 @@
+import "mosaic/mosaic_types.cats"
 import "transaction.cats"
-
-# supply change directions
-enum MosaicSupplyChangeDirection : uint8
-	# decreases the supply
-	decrease = 0x00
-
-	# increases the supply
-	increase = 0x01
 
 # binary layout for a mosaic supply change transaction
 struct MosaicSupplyChangeTransactionBody

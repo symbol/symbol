@@ -1,10 +1,5 @@
-import "restriction_account/account_restriction_types.cats"
+import "restriction_account/restriction_account_types.cats"
 import "transaction.cats"
-
-# account operation restriction modification
-struct AccountOperationRestrictionModification
-	inline AccountRestrictionModification
-	value = EntityType
 
 # binary layout for an account operation restriction transaction
 struct AccountOperationRestrictionTransactionBody

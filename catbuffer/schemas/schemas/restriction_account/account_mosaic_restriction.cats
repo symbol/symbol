@@ -1,10 +1,5 @@
-import "restriction_account/account_restriction_types.cats"
+import "restriction_account/restriction_account_types.cats"
 import "transaction.cats"
-
-# account mosaic restriction modification
-struct AccountMosaicRestrictionModification
-	inline AccountRestrictionModification
-	value = MosaicId
 
 # binary layout for an account mosaic restriction transaction
 struct AccountMosaicRestrictionTransactionBody

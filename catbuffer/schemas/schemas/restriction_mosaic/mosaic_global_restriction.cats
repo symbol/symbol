@@ -1,4 +1,4 @@
-import "restriction_mosaic/mosaic_restriction_types.cats"
+import "restriction_mosaic/restriction_mosaic_types.cats"
 import "transaction.cats"
 
 # binary layout for a mosaic global restriction transaction

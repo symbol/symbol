@@ -1,3 +1,5 @@
+import "entity.cats"
+
 # account restriction types
 enum AccountRestrictionType : uint8
 	# account restriction type is an address
@@ -25,4 +27,26 @@ enum AccountRestrictionModificationType : uint8
 
 # account restriction basic modification
 struct AccountRestrictionModification
+	# type of account restriction
 	modificationType = AccountRestrictionModificationType
+
+# account address restriction modification
+struct AccountAddressRestrictionModification
+	inline AccountRestrictionModification
+
+	# address restriction value
+	value = Address
+
+# account mosaic restriction modification
+struct AccountMosaicRestrictionModification
+	inline AccountRestrictionModification
+
+	# mosaic id restriction value
+	value = MosaicId
+
+# account operation restriction modification
+struct AccountOperationRestrictionModification
+	inline AccountRestrictionModification
+
+	# entity type restriction value
+	value = EntityType
