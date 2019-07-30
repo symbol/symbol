@@ -6,7 +6,7 @@ struct MosaicDefinitionTransactionBody
 	# mosaic nonce
 	nonce = MosaicNonce
 
-	# mosaic id
+	# mosaic identifier
 	id = MosaicId
 
 	# number of elements in optional properties

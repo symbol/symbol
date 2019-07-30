@@ -1,6 +1,6 @@
 using NamespaceId = uint64
 
-# namespace registration type
+# enumeration of namespace registration types
 enum NamespaceRegistrationType : uint8
 	# root namespace
 	root = 0x00
@@ -8,7 +8,7 @@ enum NamespaceRegistrationType : uint8
 	# child namespace
 	child = 0x01
 
-# alias transaction action
+# enumeration of alias actions
 enum AliasAction : uint8
 	# unlink alias
 	unlink = 0x00

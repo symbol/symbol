@@ -9,7 +9,7 @@ struct MosaicGlobalRestrictionTransactionBody
 	# identifier of the mosaic providing the restriction key
 	referenceMosaicId = UnresolvedMosaicId
 
-	# restriction key relative to the reference mosaic id
+	# restriction key relative to the reference mosaic identifier
 	restrictionKey = uint64
 
 	# previous restriction value

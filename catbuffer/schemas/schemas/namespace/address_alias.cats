@@ -6,7 +6,7 @@ struct AddressAliasTransactionBody
 	# alias action
 	aliasAction = AliasAction
 
-	# id of a namespace that will become an alias
+	# identifier of the namespace that will become an alias
 	namespaceId = NamespaceId
 
 	# aliased address

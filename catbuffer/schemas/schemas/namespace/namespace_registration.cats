@@ -3,19 +3,19 @@ import "transaction.cats"
 
 # binary layout for a namespace registration transaction
 struct NamespaceRegistrationTransactionBody
-	# type of the registered namespace
+	# namespace registration type
 	registrationType = NamespaceRegistrationType
 
 	# namespace duration
 	duration = BlockDuration if registrationType equals root
 
-	# parent namespace id
+	# parent namespace identifier
 	parentId = NamespaceId if registrationType equals child
 
-	# namespace id
+	# namespace identifier
 	id = NamespaceId
 
-	# size of the namespace name
+	# namespace name size
 	nameSize = uint8
 
 	# namespace name

@@ -1,6 +1,6 @@
 using MosaicNonce = uint32
 
-# mosaic property flags
+# enumeration of mosaic property flags
 enum MosaicFlags : uint8
 	# no flags present
 	none = 0x00
@@ -15,20 +15,20 @@ enum MosaicFlags : uint8
 	# mosaic supports custom restrictions configured by mosaic owner
 	restrictable = 0x04
 
-# available mosaic property ids
+# enumeration of optional mosaic property identifiers
 enum MosaicPropertyId : uint8
 	# mosaic duration
 	duration = 0x02
 
-# mosaic property compose of an id and a value
+# mosaic property composed of an identifier and a value
 struct MosaicProperty
-	# mosaic property id
+	# mosaic property identifier
 	id = MosaicPropertyId
 
 	# mosaic property value
 	value = uint64
 
-# supply change action
+# enumeration of mosaic supply change actions
 enum MosaicSupplyChangeAction : uint8
 	# decreases the supply
 	decrease = 0x00

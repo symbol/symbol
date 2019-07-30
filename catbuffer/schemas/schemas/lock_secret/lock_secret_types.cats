@@ -1,4 +1,4 @@
-# lock secret hash algorithm
+# enumeration of lock hash algorithms
 enum LockHashAlgorithm : uint8
 	# input is hashed using sha-3 256
 	sha3_256 = 0x00

@@ -3,13 +3,13 @@ import "transaction.cats"
 
 # binary layout for a mosaic supply change transaction
 struct MosaicSupplyChangeTransactionBody
-	# affected mosaic id
+	# affected mosaic identifier
 	mosaicId = UnresolvedMosaicId
 
 	# supply change action
 	action = MosaicSupplyChangeAction
 
-	# amount of the change
+	# change amount
 	delta = Amount
 
 # binary layout for a non-embedded mosaic supply change transaction

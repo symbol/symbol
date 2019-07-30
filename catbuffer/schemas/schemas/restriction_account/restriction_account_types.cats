@@ -1,23 +1,23 @@
 import "entity.cats"
 
-# account restriction types
+# enumeration of account restriction types
 enum AccountRestrictionType : uint8
-	# account restriction type is an address
+	# restriction type is an address
 	address = 0x01
 
-	# account restriction type is a mosaic id
+	# restriction type is a mosaic identifier
 	mosaicId = 0x02
 
-	# account restriction type is a transaction type
+	# restriction type is a transaction type
 	transactionType = 0x04
 
-	# account restriction type sentinel
-	sentinel = 0x05
+	# restriction is interpreted as outgoing
+	outgoing = 0x40
 
-	# account restriction is interpreted as blocking operation
+	# restriction is interpreted as blocking operation
 	block = 0x80
 
-# account restriction modification action
+# enumeration of account restriction modification actions
 enum AccountRestrictionModificationAction : uint8
 	# remove account restriction value
 	del = 0x00
@@ -41,12 +41,12 @@ struct AccountAddressRestrictionModification
 struct AccountMosaicRestrictionModification
 	inline AccountRestrictionModification
 
-	# mosaic id restriction value
+	# mosaic identifier restriction value
 	value = UnresolvedMosaicId
 
 # account operation restriction modification
 struct AccountOperationRestrictionModification
 	inline AccountRestrictionModification
 
-	# entity type restriction value
+	# transaction type restriction value
 	value = EntityType

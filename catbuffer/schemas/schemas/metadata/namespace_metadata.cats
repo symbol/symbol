@@ -3,13 +3,13 @@ import "transaction.cats"
 
 # binary layout for a namespace metadata transaction
 struct NamespaceMetadataTransactionBody
-	# public key of the metadata target
+	# metadata target public key
 	targetPublicKey = Key
 
 	# metadata key scoped to source, target and type
 	scopedMetadataKey = uint64
 
-	# namespace id
+	# target namespace identifier
 	targetNamespaceId = NamespaceId
 
 	# change in value size in bytes

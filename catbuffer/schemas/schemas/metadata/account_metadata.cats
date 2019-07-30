@@ -2,7 +2,7 @@ import "transaction.cats"
 
 # binary layout for an account metadata transaction
 struct AccountMetadataTransactionBody
-	# public key of the metadata target
+	# metadata target public key
 	targetPublicKey = Key
 
 	# metadata key scoped to source, target and type

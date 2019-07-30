@@ -6,10 +6,10 @@ struct MosaicAliasTransactionBody
 	# alias action
 	aliasAction = AliasAction
 
-	# id of a namespace that will become an alias
+	# identifier of the namespace that will become an alias
 	namespaceId = NamespaceId
 
-	# aliased mosaic id
+	# aliased mosaic identifier
 	mosaicId = MosaicId
 
 # binary layout for a non-embedded mosaic alias transaction

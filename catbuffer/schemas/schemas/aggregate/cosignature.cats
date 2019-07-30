@@ -1,6 +1,6 @@
 import "types.cats"
 
-# a cosignature
+# cosignature attached to an aggregate transaction
 struct Cosignature
 	# cosigner public key
 	signer = Key
@@ -8,9 +8,9 @@ struct Cosignature
 	# cosigner signature
 	signature = Signature
 
-# a detached cosignature
+# cosignature detached from an aggregate transaction
 struct DetachedCosignature
 	inline Cosignature
 
-	# hash of the corresponding parent
+	# hash of the aggregate transaction that is signed by this cosignature
 	parentHash = Hash256

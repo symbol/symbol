@@ -1,6 +1,6 @@
 import "types.cats"
 
-# cosignatory modification action
+# enumeration of cosignatory modification actions
 enum CosignatoryModificationAction : uint8
 	# remove cosignatory
 	del = 0x00
