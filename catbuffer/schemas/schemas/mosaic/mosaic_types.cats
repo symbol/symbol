@@ -15,19 +15,6 @@ enum MosaicFlags : uint8
 	# mosaic supports custom restrictions configured by mosaic owner
 	restrictable = 0x04
 
-# enumeration of optional mosaic property identifiers
-enum MosaicPropertyId : uint8
-	# mosaic duration
-	duration = 0x02
-
-# mosaic property composed of an identifier and a value
-struct MosaicProperty
-	# mosaic property identifier
-	id = MosaicPropertyId
-
-	# mosaic property value
-	value = uint64
-
 # enumeration of mosaic supply change actions
 enum MosaicSupplyChangeAction : uint8
 	# decreases the supply

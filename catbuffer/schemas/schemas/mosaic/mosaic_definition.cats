@@ -9,17 +9,14 @@ struct MosaicDefinitionTransactionBody
 	# mosaic identifier
 	id = MosaicId
 
-	# number of elements in optional properties
-	propertiesCount = uint8
-
 	# mosaic flags
 	flags = MosaicFlags
 
 	# mosaic divisibility
 	divisibility = uint8
 
-	# optional properties
-	properties = array(MosaicProperty, propertiesCount, sort_key=id)
+	# mosaic duration
+	duration = BlockDuration
 
 # binary layout for a non-embedded mosaic definition transaction
 struct MosaicDefinitionTransaction
