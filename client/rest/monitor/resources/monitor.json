@@ -6,11 +6,10 @@
   },
   "logging": {
     "console": {
-      "colorize": true,
+      "formats": ["colorize", "simple"],
+
       "level": "verbose",
-      "handleExceptions": true,
-      "prettyPrint": true,
-      "timestamp": true
+      "handleExceptions": true
     }
   }
 }

@@ -32,12 +32,26 @@ const winston = require('winston');
 const fs = require('fs');
 const { createConnection } = require('net');
 
-const configureLogging = config => {
-	winston.remove(winston.transports.Console);
-	if ('production' !== process.env.NODE_ENV)
-		winston.add(winston.transports.Console, config.console);
+const createLoggingTransportConfiguration = loggingConfig => {
+	const transportConfig = Object.assign({}, loggingConfig);
 
-	winston.add(winston.transports.File, config.file);
+	// map specified formats into a winston function
+	delete transportConfig.formats;
+	const logFormatters = loggingConfig.formats.map(name => winston.format[name]());
+	transportConfig.format = winston.format.combine(...logFormatters);
+	return transportConfig;
+};
+
+const configureLogging = config => {
+	const transports = [new winston.transports.File(createLoggingTransportConfiguration(config.file))];
+	if ('production' !== process.env.NODE_ENV)
+		transports.push(new winston.transports.Console(createLoggingTransportConfiguration(config.console)));
+
+	// configure default logger so that it adds timestamp to all logs
+	winston.configure({
+		format: winston.format.timestamp(),
+		transports
+	});
 };
 
 const loadConfig = () => {

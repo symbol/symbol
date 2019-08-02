@@ -40,8 +40,21 @@ const { convert } = catapult.utils;
 
 	// 2. configure logging
 	(() => {
-		winston.remove(winston.transports.Console);
-		winston.add(winston.transports.Console, config.logging.console);
+		const createLoggingTransportConfiguration = loggingConfig => {
+			const transportConfig = Object.assign({}, loggingConfig);
+
+			// map specified formats into a winston function
+			delete transportConfig.formats;
+			const logFormatters = loggingConfig.formats.map(name => winston.format[name]());
+			transportConfig.format = winston.format.combine(...logFormatters);
+			return transportConfig;
+		};
+
+		// configure default logger so that it adds timestamp to all logs
+		winston.configure({
+			format: winston.format.timestamp(),
+			transports: [new winston.transports.Console(createLoggingTransportConfiguration(config.logging.console))]
+		});
 	})();
 
 	winston.verbose('finished loading monitor config', config);
