@@ -7,5 +7,3 @@ __pycache__/
 .DS_Store
 _generated/
 .python-version
-node_modules/
-

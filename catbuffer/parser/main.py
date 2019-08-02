@@ -3,7 +3,11 @@ import argparse
 import os
 import pprint
 from catparser.CatsParser import CatsParser
-from generators.All import AVAILABLE_GENERATORS
+
+try:
+    from generators.All import AVAILABLE_GENERATORS
+except ImportError:
+    AVAILABLE_GENERATORS = {}
 
 
 class MultiFileParser:
