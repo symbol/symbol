@@ -6,14 +6,20 @@ function generate_batch {
 	local end_color="\033[0m"
 
 	local inputs=$1
+	local folder="$2"
 	for input in ${inputs[*]}
 	do
 		echo "generating ${input}"
-		if [ "$#" -lt 2 ]; then
-			python3 main.py --schema ./schemas/${input}.cats
-		else
-			python3 main.py --schema ./schemas/${input}.cats --output _generated --generator $2 --copyright $3
+		python_args=(${folder}/main.py)
+		python_args+=(--schema ${folder}/schemas/${input}.cats)
+		python_args+=(--include ${folder}/schemas)
+		if [ "$#" -ge 3 ]; then
+			python_args+=(--output ${folder}/_generated)
+			python_args+=(--generator "$3")
+			python_args+=(--copyright "${folder}/HEADER.inc")
 		fi
+
+		python3 "${python_args[@]}"
 
 		if [ $? -ne 0 ]; then
 			echo "${start_error_color}ERROR: failed generating ${input}${end_color}"
