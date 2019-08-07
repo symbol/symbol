@@ -979,7 +979,7 @@ components:
                 description: Array of addresses.
                 items:
                   $ref: "#/components/schemas/Address"
-      required: true
+      required: false
     cosignature:
       content:
         application/json:
