@@ -1886,13 +1886,16 @@ components:
       type: object
       required:
         - height
-        - hash
-        - merkleComponentHash
         - index
         - id
       properties:
         height:
           $ref: "#/components/schemas/Height"
+        aggregateHash:
+          $ref: "#/components/schemas/Hash256"
+        aggregateId:
+          type: integer
+          format: int32
         hash:
           $ref: "#/components/schemas/Hash256"
         merkleComponentHash:
