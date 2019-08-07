@@ -1,5 +1,7 @@
 # nem2-openapi
 
+[![Build Status](https://travis-ci.org/nemtech/nem2-openapi.svg?branch=master)](https://travis-ci.org/nemtech/nem2-openapi)
+
 OpenAPI specification for catapult-rest.
 
 ## Contributing
