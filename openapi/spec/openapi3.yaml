@@ -967,98 +967,44 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              publicKeys:
-                type: array
-                description: Array of public keys.
-                items:
-                  $ref: "#/components/schemas/PublicKey"
-              addresses:
-                type: array
-                description: Array of addresses.
-                items:
-                  $ref: "#/components/schemas/Address"
+            $ref: "#/components/schemas/accountIds"
       required: false
     cosignature:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              parentHash:
-                $ref: "#/components/schemas/Hash256"
-              signature:
-                $ref: "#/components/schemas/Signature"
-              signer:
-                $ref: "#/components/schemas/PublicKey"
+            $ref: "#/components/schemas/cosignature"
       required: true
     mosaicIds:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              mosaicIds:
-                type: array
-                description: Array of mosaic identifiers.
-                items:
-                  type: string
-                  format: hex
-                example:
-                  - d525ad41d95fcf29
+            $ref: "#/components/schemas/mosaicIds"
       required: true
     transactionPayload:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              payload:
-                type: string
-                description: Transaction payload.
+            $ref: "#/components/schemas/transactionPayload"
       required: true
     namespaceIds:
       content:
         application/json:
           schema:
+            $ref: "#/components/schemas/namespaceIds"
             type: object
-            properties:
-              namespaceIds:
-                type: array
-                description: Array of namespace identifiers.
-                items:
-                  type: string
-                  format: hex
-                example:
-                  - 84b3552d375ffa4b
       required: true
     transactionIds:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              transactionIds:
-                type: array
-                description: Array of transaction ids.
-                items:
-                  type: string
-                example:
-                  - 59B8DA0F0CB2720001103922
-                  - 59B8D8E60CB2720001103904
+            $ref: "#/components/schemas/transactionIds"
       required: true
     transactionHashes:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              hashes:
-                type: array
-                description: Array of transaction hashes.
-                items:
-                  $ref: "#/components/schemas/Hash256"
+            $ref: "#/components/schemas/transactionHashes"
       required: true
   schemas:
     # Generic types
@@ -2746,7 +2692,7 @@ components:
           type: array
           description: Address to restrict.
           items:
-              $ref: "#/components/schemas/UnresolvedAddress"
+            $ref: "#/components/schemas/UnresolvedAddress"
     AccountAddressRestrictionTransactionBodyDTO:
       type: object
       required:
@@ -2955,6 +2901,76 @@ components:
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/TransferTransactionBodyDTO"
+    # Request bodies
+    accountIds:
+      type: object
+      properties:
+        publicKeys:
+          type: array
+          description: Array of public keys.
+          items:
+            $ref: "#/components/schemas/PublicKey"
+        addresses:
+          type: array
+          description: Array of addresses.
+          items:
+            $ref: "#/components/schemas/Address"
+    cosignature:
+      type: object
+      properties:
+        parentHash:
+          $ref: "#/components/schemas/Hash256"
+        signature:
+          $ref: "#/components/schemas/Signature"
+        signer:
+          $ref: "#/components/schemas/PublicKey"
+    mosaicIds:
+      type: object
+      properties:
+        mosaicIds:
+          type: array
+          description: Array of mosaic identifiers.
+          items:
+            type: string
+            format: hex
+          example:
+            - d525ad41d95fcf29
+    transactionPayload:
+      type: object
+      properties:
+        payload:
+          type: string
+          description: Transaction payload.
+    namespaceIds:
+      type: object
+      properties:
+        namespaceIds:
+          type: array
+          description: Array of namespace identifiers.
+          items:
+            type: string
+            format: hex
+          example:
+            - 84b3552d375ffa4b
+    transactionIds:
+      type: object
+      properties:
+        transactionIds:
+          type: array
+          description: Array of transaction ids.
+          items:
+            type: string
+          example:
+            - 59B8DA0F0CB2720001103922
+            - 59B8D8E60CB2720001103904
+    transactionHashes:
+      type: object
+      properties:
+        hashes:
+          type: array
+          description: Array of transaction hashes.
+          items:
+            $ref: "#/components/schemas/Hash256"
   responses:
     ResourceNotFound:
       description: ResourceNotFound
