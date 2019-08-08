@@ -15,6 +15,7 @@ tags:
   - name: Transaction routes
   - name: Network routes
   - name: Node routes
+  - name: Metadata routes
 paths:
   "/account/{accountId}":
     get:
@@ -840,6 +841,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NodeTimeDTO"
+  "/account/{accountId}/metadata":
+    get:
+      tags:
+      - Metadata routes
+      summary: Get account metadata
+      description: Returns the account metadata given an account id.
+      operationId: getAccountMetadata
+      parameters:
+      - name: accountId
+        in: path
+        description: Account id.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Array of account metadata.
+                items:
+                  $ref: "#/components/schemas/KeyMetadataDTO"
+        "404":
+          description: resource not found
+        "409":
+          description: invalid argument
+
 externalDocs:
   description: NEM Developer Center
   url: https://nemtech.github.io/
@@ -2971,6 +3001,55 @@ components:
       allOf:
         - $ref: "#/components/schemas/EmbeddedTransactionDTO"
         - $ref: "#/components/schemas/TransferTransactionBodyDTO"
+
+    # Schemas - Metadata
+    KeyMetadataDTO:
+      type: object
+      required:
+      - key
+      - metadata
+      properties:
+        key:
+          type: string
+          format: hex
+          description: Metadata key.
+          example: EB6839C7E6BD0031FDD5F8CB5137E9BC950D7EE7756C46B767E68F3F58C24390
+        metadata:
+          type: array
+          description: Array of metadata objects.
+          items:
+            anyOf:
+              - $ref: "#/components/schemas/MetadataDTO"
+              - $ref: "#/components/schemas/MetadataDTO"
+              - $ref: "#/components/schemas/MetadataDTO"
+          example: metadata-key
+    MetadataDTO:
+      type: object
+      required:
+        - compositeHash
+        - sourcePublicKey
+        - targetPublicKey
+        - scopedMetadataKey
+        - targetId
+        - metadataType
+        - value
+      properties:
+        compositeHash:
+          $ref: "#/components/schemas/Hash256"
+        sourcePublicKey:
+          $ref: "#/components/schemas/PublicKey"
+        targetPublicKey:
+          $ref: "#/components/schemas/PublicKey"
+        scopedMetadataKey:
+          $ref: "#/components/schemas/UInt64"
+        targetId:
+          $ref: "#/components/schemas/UInt64"
+        metadataType:
+          type: integer
+          format: uint8
+        value:
+          type: string
+
     # Request bodies
     accountIds:
       type: object
