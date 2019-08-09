@@ -856,12 +856,7 @@ paths:
       description: Returns the account metadata given an account id.
       operationId: getAccountMetadata
       parameters:
-      - name: accountId
-        in: path
-        description: Account id.
-        required: true
-        schema:
-          type: string
+        - $ref: "#/components/parameters/accountId"
       responses:
         "200":
           description: success
