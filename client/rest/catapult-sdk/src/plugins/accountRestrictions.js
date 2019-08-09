@@ -111,6 +111,9 @@ const accountRestrictionsPlugin = {
 			});
 		});
 
+		// account restriction fallback
+		builder.addSchema('accountRestriction.fallback', {});
+
 		// aggregated account restrictions schemas
 		builder.addSchema('accountRestrictions', {
 			accountRestrictions: { type: ModelType.object, schemaName: 'accountRestriction.restrictions' }
@@ -121,10 +124,10 @@ const accountRestrictionsPlugin = {
 				type: ModelType.array,
 				schemaName: entity => {
 					for (let i = 0; i < accountRestrictionTypeDescriptors.length; i++) {
-						if ((entity.restrictionType & 0x7F) === accountRestrictionTypeDescriptors[i].flag)
+						if ((entity.restrictionType & 0x3F) === accountRestrictionTypeDescriptors[i].flag)
 							return `accountRestriction.${accountRestrictionTypeDescriptors[i].schemaPrefix}AccountRestriction`;
 					}
-					return undefined;
+					return 'accountRestriction.fallback';
 				}
 			}
 		});

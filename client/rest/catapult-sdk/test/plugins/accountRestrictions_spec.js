@@ -61,13 +61,14 @@ describe('account restrictions plugin', () => {
 			const modelSchema = builder.build();
 
 			// Assert:
-			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 11);
+			expect(Object.keys(modelSchema).length).to.equal(numDefaultKeys + 12);
 			expect(modelSchema).to.contain.all.keys([
 				'accountRestrictionAddress',
 				'accountRestrictionMosaic',
 				'accountRestrictionOperation',
 				'accountRestrictions',
-				'accountRestriction.restrictions'
+				'accountRestriction.restrictions',
+				'accountRestriction.fallback'
 			].concat(modificationTypeSchemas).concat(accountRestrictionSchemas));
 
 			// - accountRestrictionAddress
@@ -124,6 +125,8 @@ describe('account restrictions plugin', () => {
 					.to.equal('accountRestriction.operationAccountRestriction');
 				expect(accountRestrictionSchema({ restrictionType: AccountRestrictionType.operationBlock }))
 					.to.equal('accountRestriction.operationAccountRestriction');
+				expect(accountRestrictionSchema({ restrictionType: 99 }))
+					.to.equal('accountRestriction.fallback');
 			});
 		});
 	});
