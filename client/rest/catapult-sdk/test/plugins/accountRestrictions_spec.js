@@ -179,7 +179,7 @@ describe('account restrictions plugin', () => {
 			const splitModificationValues = values => {
 				const mods = [];
 				for (let i = 0; i < values.length; ++i)
-					mods.push({ restrictionType: values[i][0], value: values[i][1] });
+					mods.push({ modificationAction: values[i][0], value: values[i][1] });
 				return mods;
 			};
 
