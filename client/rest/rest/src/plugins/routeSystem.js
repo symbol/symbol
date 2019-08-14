@@ -21,7 +21,8 @@
 const accountRestrictions = require('./accountRestrictions/accountRestrictions');
 const aggregate = require('./aggregate/aggregate');
 const empty = require('./empty');
-const lock = require('./lock/lock');
+const lockHash = require('./lockHash/lockHash');
+const lockSecret = require('./lockSecret/lockSecret');
 const mosaic = require('./mosaic/mosaic');
 const multisig = require('./multisig/multisig');
 const namespace = require('./namespace/namespace');
@@ -29,7 +30,7 @@ const receipts = require('./receipts/receipts');
 const MessageChannelBuilder = require('../connection/MessageChannelBuilder');
 
 const plugins = {
-	accountLink: empty, accountRestrictions, aggregate, lock, mosaic, multisig, namespace, receipts, transfer: empty
+	accountLink: empty, accountRestrictions, aggregate, lockHash, lockSecret, mosaic, multisig, namespace, receipts, transfer: empty
 };
 
 module.exports = {

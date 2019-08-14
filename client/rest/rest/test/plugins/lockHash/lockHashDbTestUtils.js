@@ -18,14 +18,14 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const LockDb = require('../../../src/plugins/lock/LockDb');
+const LockHashDb = require('../../../src/plugins/lockHash/LockHashDb');
 const dbTestUtils = require('../../db/utils/dbTestUtils');
 const test = require('../../testUtils');
 const MongoDb = require('mongodb');
 
 const { Binary } = MongoDb;
 
-const createLockInfo = (id, owner, hashPropertyName, value) => ({
+const createLockHashInfo = (id, owner, hashPropertyName, value) => ({
 	_id: dbTestUtils.db.createObjectId(id),
 	meta: {},
 	lock: {
@@ -35,25 +35,23 @@ const createLockInfo = (id, owner, hashPropertyName, value) => ({
 	}
 });
 
-const createLockInfos = ((numRounds, owner, hashPropertyName, startdId = 0) => {
+const createLockHashInfos = ((numRounds, owner, hashPropertyName, startdId = 0) => {
 	const lockInfos = [];
 
 	for (let i = 0; i < numRounds; ++i)
-		lockInfos.push(createLockInfo(startdId + i, owner, hashPropertyName, test.random.hash()));
+		lockInfos.push(createLockHashInfo(startdId + i, owner, hashPropertyName, test.random.hash()));
 
 	return lockInfos;
 });
 
-const lockDbTestUtils = {
+const lockHashDbTestUtils = {
 	db: {
-		createHashLockInfo: (id, owner, value) => createLockInfo(id, owner, 'hash', value),
-		createHashLockInfos: (numRounds, owner, startdId = 0) => createLockInfos(numRounds, owner, 'hash', startdId),
-		createSecretLockInfo: (id, owner, value) => createLockInfo(id, owner, 'secret', value),
-		createSecretLockInfos: (numRounds, owner, startdId = 0) => createLockInfos(numRounds, owner, 'secret', startdId),
+		createHashLockInfo: (id, owner, value) => createLockHashInfo(id, owner, 'hash', value),
+		createHashLockInfos: (numRounds, owner, startdId = 0) => createLockHashInfos(numRounds, owner, 'hash', startdId),
 		runDbTest: (lockName, dbEntities, issueDbCommand, assertDbCommandResult) =>
-			dbTestUtils.db.runDbTest(dbEntities, `${lockName}LockInfos`, db => new LockDb(db), issueDbCommand, assertDbCommandResult)
+			dbTestUtils.db.runDbTest(dbEntities, `${lockName}LockInfos`, db => new LockHashDb(db), issueDbCommand, assertDbCommandResult)
 	}
 };
-Object.assign(lockDbTestUtils, test);
+Object.assign(lockHashDbTestUtils, test);
 
-module.exports = lockDbTestUtils;
+module.exports = lockHashDbTestUtils;

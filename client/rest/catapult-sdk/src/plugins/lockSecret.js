@@ -18,69 +18,37 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module plugins/lock */
+/** @module plugins/lockSecret */
 const EntityType = require('../model/EntityType');
 const ModelType = require('../model/ModelType');
 const sizes = require('../modelBinary/sizes');
 
 const constants = { sizes };
 
-const commonLockInfoSchema = {
-	account: ModelType.binary,
-	accountAddress: ModelType.binary,
-	mosaicId: ModelType.uint64,
-	amount: ModelType.uint64,
-	height: ModelType.uint64
-	/* status */
-};
-
-const commonLockTransactionSchema = {
-	mosaicId: ModelType.uint64,
-	amount: ModelType.uint64,
-	duration: ModelType.uint64
-};
-
-const parseLockData = (parser, transaction) => {
-	transaction.mosaicId = parser.uint64();
-	transaction.amount = parser.uint64();
-	transaction.duration = parser.uint64();
-};
-
-const serializeLockData = (transaction, serializer) => {
-	serializer.writeUint64(transaction.mosaicId);
-	serializer.writeUint64(transaction.amount);
-	serializer.writeUint64(transaction.duration);
-};
-
 /**
- * Creates a lock plugin.
+ * Creates a lock secret plugin.
  * @type {module:plugins/CatapultPlugin}
  */
-const lockPlugin = {
+const lockSecretPlugin = {
 	registerSchema: builder => {
-		builder.addSchema('hashLockInfo', {
-			lock: { type: ModelType.object, schemaName: 'hashLockInfo.lock' }
-		});
-		builder.addSchema('hashLockInfo.lock', Object.assign({}, commonLockInfoSchema, {
-			hash: ModelType.binary
-		}));
-
 		builder.addSchema('secretLockInfo', {
 			lock: { type: ModelType.object, schemaName: 'secretLockInfo.lock' }
 		});
-		builder.addSchema('secretLockInfo.lock', Object.assign({}, commonLockInfoSchema, {
-			/* hashAlgorithm */
+		builder.addSchema('secretLockInfo.lock', {
+			account: ModelType.binary,
+			accountAddress: ModelType.binary,
+			mosaicId: ModelType.uint64,
+			height: ModelType.uint64,
 			secret: ModelType.binary,
 			recipient: ModelType.binary
-		}));
+		});
 
-		builder.addTransactionSupport(EntityType.hashLock, Object.assign({}, commonLockTransactionSchema, {
-			hash: ModelType.binary
-		}));
-		builder.addTransactionSupport(EntityType.secretLock, Object.assign({}, commonLockTransactionSchema, {
+		builder.addTransactionSupport(EntityType.secretLock, {
+			mosaicId: ModelType.uint64,
+			duration: ModelType.uint64,
 			secret: ModelType.binary,
 			recipient: ModelType.binary
-		}));
+		});
 		builder.addTransactionSupport(EntityType.secretProof, {
 			secret: ModelType.binary,
 			recipient: ModelType.binary,
@@ -89,27 +57,11 @@ const lockPlugin = {
 	},
 
 	registerCodecs: codecBuilder => {
-		codecBuilder.addTransactionSupport(EntityType.hashLock, {
-			deserialize: parser => {
-				const transaction = {};
-				parseLockData(parser, transaction);
-
-				transaction.hash = parser.buffer(constants.sizes.hash256);
-				return transaction;
-			},
-
-			serialize: (transaction, serializer) => {
-				serializeLockData(transaction, serializer);
-
-				serializer.writeBuffer(transaction.hash);
-			}
-		});
-
 		codecBuilder.addTransactionSupport(EntityType.secretLock, {
 			deserialize: parser => {
 				const transaction = {};
-				parseLockData(parser, transaction);
-
+				transaction.mosaic = parser.uint64();
+				transaction.duration = parser.uint64();
 				transaction.hashAlgorithm = parser.uint8();
 				transaction.secret = parser.buffer(constants.sizes.hash256);
 				transaction.recipient = parser.buffer(constants.sizes.addressDecoded);
@@ -117,8 +69,8 @@ const lockPlugin = {
 			},
 
 			serialize: (transaction, serializer) => {
-				serializeLockData(transaction, serializer);
-
+				serializer.writeUint64(transaction.mosaic);
+				serializer.writeUint64(transaction.duration);
 				serializer.writeUint8(transaction.hashAlgorithm);
 				serializer.writeBuffer(transaction.secret);
 				serializer.writeBuffer(transaction.recipient);
@@ -148,4 +100,4 @@ const lockPlugin = {
 	}
 };
 
-module.exports = lockPlugin;
+module.exports = lockSecretPlugin;

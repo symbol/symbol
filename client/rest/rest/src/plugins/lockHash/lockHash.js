@@ -18,22 +18,22 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @module plugins/lock */
-const LockDb = require('./LockDb');
-const lockRoutes = require('./lockRoutes');
+/** @module plugins/lockHash */
+const LockHashDb = require('./LockHashDb');
+const lockHashRoutes = require('./lockHashRoutes');
 
 /**
- * Creates a lock plugin.
+ * Creates a lock hash plugin.
  * @type {module:plugins/CatapultRestPlugin}
  */
 module.exports = {
-	createDb: db => new LockDb(db),
+	createDb: db => new LockHashDb(db),
 
 	registerTransactionStates: () => {},
 
 	registerMessageChannels: () => {},
 
 	registerRoutes: (...args) => {
-		lockRoutes.register(...args);
+		lockHashRoutes.register(...args);
 	}
 };

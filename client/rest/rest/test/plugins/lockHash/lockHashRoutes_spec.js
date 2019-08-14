@@ -18,7 +18,7 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const lockRoutes = require('../../../src/plugins/lock/lockRoutes');
+const lockHashRoutes = require('../../../src/plugins/lockHash/lockHashRoutes');
 const { test } = require('../../routes/utils/routeTestUtils');
 const catapult = require('catapult-sdk');
 
@@ -26,10 +26,10 @@ const { addresses, publicKeys } = test.sets;
 const { address } = catapult.model;
 const { convert } = catapult.utils;
 
-describe('lock routes', () => {
+describe('lock hash routes', () => {
 	const factory = {
-		createLockPagingRouteInfo: (routeName, routeCaptureMethod, dbMethod) => ({
-			routes: lockRoutes,
+		createLockHashPagingRouteInfo: (routeName, routeCaptureMethod, dbMethod) => ({
+			routes: lockHashRoutes,
 			routeName,
 			createDb: (keyGroups, documents) => ({
 				[dbMethod]: (type, accountIds, pageId, pageSize) => {
@@ -47,7 +47,7 @@ describe('lock routes', () => {
 		describe('get by account', () => {
 			const addGetTests = traits => {
 				const pagingTestsFactory = test.setup.createPagingTestsFactory(
-					factory.createLockPagingRouteInfo('/account/:accountId/lock/hash', 'get', 'hashLocksByAccounts'),
+					factory.createLockHashPagingRouteInfo('/account/:accountId/lock/hash', 'get', 'hashLocksByAccounts'),
 					traits.valid.params,
 					traits.valid.expected,
 					'hashLockInfo'
@@ -81,47 +81,9 @@ describe('lock routes', () => {
 		});
 	});
 
-	describe('get secret lock infos by account', () => {
-		describe('get by account', () => {
-			const addGetTests = traits => {
-				const pagingTestsFactory = test.setup.createPagingTestsFactory(
-					factory.createLockPagingRouteInfo('/account/:accountId/lock/secret', 'get', 'secretLocksByAccounts'),
-					traits.valid.params,
-					traits.valid.expected,
-					'secretLockInfo'
-				);
-
-				pagingTestsFactory.addDefault();
-				pagingTestsFactory.addNonPagingParamFailureTest('accountId', traits.invalid.accountId);
-			};
-
-			describe('by address', () => addGetTests({
-				valid: {
-					params: { accountId: addresses.valid[0] },
-					expected: { type: 'address', accountIds: [address.stringToAddress(addresses.valid[0])] }
-				},
-				invalid: {
-					accountId: addresses.invalid,
-					error: 'illegal base32 character 1'
-				}
-			}));
-
-			describe('by publicKey', () => addGetTests({
-				valid: {
-					params: { accountId: publicKeys.valid[0] },
-					expected: { type: 'publicKey', accountIds: [convert.hexToUint8(publicKeys.valid[0])] }
-				},
-				invalid: {
-					accountId: publicKeys.invalid,
-					error: 'unrecognized hex char \'1G\''
-				}
-			}));
-		});
-	});
-
 	describe('get hash lock info by hash', () => {
 		const hash = 'C54AFD996DF1F52748EBC5B40F8D0DC242A6A661299149F5F96A0C21ECCB653F';
-		test.route.document.addGetDocumentRouteTests(lockRoutes.register, {
+		test.route.document.addGetDocumentRouteTests(lockHashRoutes.register, {
 			route: '/lock/hash/:hash',
 			inputs: {
 				valid: { object: { hash }, parsed: [convert.hexToUint8(hash)], printable: hash },
@@ -132,22 +94,6 @@ describe('lock routes', () => {
 			},
 			dbApiName: 'hashLockByHash',
 			type: 'hashLockInfo'
-		});
-	});
-
-	describe('get secret lock info by hash', () => {
-		const secret = '5994471ABB01112AFCC18159F6CC74B4F511B99806DA59B3CAF5A9C173CACFC5';
-		test.route.document.addGetDocumentRouteTests(lockRoutes.register, {
-			route: '/lock/secret/:secret',
-			inputs: {
-				valid: { object: { secret }, parsed: [convert.hexToUint8(secret)], printable: secret },
-				invalid: {
-					object: { secret: '12345' },
-					error: 'secret has an invalid format'
-				}
-			},
-			dbApiName: 'secretLockBySecret',
-			type: 'secretLockInfo'
 		});
 	});
 });

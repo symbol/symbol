@@ -18,16 +18,16 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const test = require('./lockDbTestUtils');
+const test = require('./lockHashDbTestUtils');
 const AccountType = require('../../../src/plugins/AccountType');
 const testUtils = require('../../testUtils');
 const { expect } = require('chai');
 
-describe('lock db', () => {
+describe('lock hash db', () => {
 	const createOwner = testUtils.random.account;
 
-	describe('fetch locks by account', () => {
-		const addLockByAccountTests = traits => {
+	describe('fetch locks hash by account', () => {
+		const addLockHashByAccountTests = traits => {
 			const assertLocks = (dbCallParams, lockGroups) =>
 				// Assert:
 				test.db.runDbTest(
@@ -49,7 +49,7 @@ describe('lock db', () => {
 			const createRandomLocks = (startId, count) => {
 				const locks = [];
 				for (let id = startId; id < startId + count; ++id)
-					locks.push(traits.createLockInfo(id, createOwner(), traits.createRandomHash()));
+					locks.push(traits.createLockHashInfo(id, createOwner(), traits.createRandomHash()));
 				return locks;
 			};
 
@@ -57,7 +57,7 @@ describe('lock db', () => {
 
 			it('returns empty array for account with no locks', () => {
 				// Arrange: create 3 locks
-				const allLocks = traits.createLockInfos(3, createOwner());
+				const allLocks = traits.createLockHashInfos(3, createOwner());
 
 				// Assert:
 				return assertLocks([traits.type, ownerToDbApiIds(createOwner())], {
@@ -69,7 +69,7 @@ describe('lock db', () => {
 			it('returns all locks for single account with locks', () => {
 				// Arrange: create 10 locks
 				const owner = createOwner();
-				const seedLocks = traits.createLockInfos(10, owner);
+				const seedLocks = traits.createLockHashInfos(10, owner);
 
 				// - create additional 5 locks with random owner
 				const additionalLocks = createRandomLocks(20, 5);
@@ -85,7 +85,7 @@ describe('lock db', () => {
 				it('query respects supplied document id', () => {
 					// Arrange: create 10 locks
 					const owner = createOwner();
-					const seedLocks = traits.createLockInfos(10, owner).reverse();
+					const seedLocks = traits.createLockHashInfos(10, owner).reverse();
 					const expectedLocks = seedLocks.slice(8);
 
 					// Assert:
@@ -98,7 +98,7 @@ describe('lock db', () => {
 				const assertPageSize = (pageSize, expectedSize) => {
 					// Arrange: create 200 locks
 					const owner = createOwner();
-					const seedLocks = traits.createLockInfos(200, owner);
+					const seedLocks = traits.createLockHashInfos(200, owner);
 					const expectedLocks = seedLocks.slice(0, 200).reverse().slice(0, expectedSize);
 
 					// Assert:
@@ -118,12 +118,12 @@ describe('lock db', () => {
 			const runMultiOwnerTest = createAccountIds => {
 				// Arrange: create 5 locks and 5 inactive locks with known owner
 				const owner1 = createOwner();
-				const seedLocks1 = traits.createLockInfos(5, owner1);
+				const seedLocks1 = traits.createLockHashInfos(5, owner1);
 				const activeLocks1 = seedLocks1.slice(0, 5);
 
 				// - create 3 locks and 3 inactive locks with (other) known owner
 				const owner2 = createOwner();
-				const seedLocks2 = traits.createLockInfos(3, owner2, 10);
+				const seedLocks2 = traits.createLockHashInfos(3, owner2, 10);
 				const activeLocks2 = seedLocks2.slice(0, 3);
 
 				// - create additional 5 locks with random owner
@@ -149,44 +149,22 @@ describe('lock db', () => {
 		};
 
 		describe('hashLocks by owners', () => {
-			describe('by publicKey', () => addLockByAccountTests({
+			describe('by publicKey', () => addLockHashByAccountTests({
 				collectionName: 'hash',
 				dbMethodName: 'hashLocksByAccounts',
 				createRandomHash: testUtils.random.hash,
-				createLockInfo: test.db.createHashLockInfo,
-				createLockInfos: test.db.createHashLockInfos,
+				createLockHashInfo: test.db.createHashLockInfo,
+				createLockHashInfos: test.db.createHashLockInfos,
 				type: AccountType.publicKey,
 				toDbApiId: owner => owner.publicKey
 			}));
 
-			describe('by address', () => addLockByAccountTests({
+			describe('by address', () => addLockHashByAccountTests({
 				collectionName: 'hash',
 				dbMethodName: 'hashLocksByAccounts',
 				createRandomHash: testUtils.random.hash,
-				createLockInfo: test.db.createHashLockInfo,
-				createLockInfos: test.db.createHashLockInfos,
-				type: AccountType.address,
-				toDbApiId: owner => owner.address
-			}));
-		});
-
-		describe('secretLocks by owners', () => {
-			describe('by publicKey', () => addLockByAccountTests({
-				collectionName: 'secret',
-				dbMethodName: 'secretLocksByAccounts',
-				createRandomHash: testUtils.random.secret,
-				createLockInfo: test.db.createSecretLockInfo,
-				createLockInfos: test.db.createSecretLockInfos,
-				type: AccountType.publicKey,
-				toDbApiId: owner => owner.publicKey
-			}));
-
-			describe('by address', () => addLockByAccountTests({
-				collectionName: 'secret',
-				dbMethodName: 'secretLocksByAccounts',
-				createRandomHash: testUtils.random.secret,
-				createLockInfo: test.db.createSecretLockInfo,
-				createLockInfos: test.db.createSecretLockInfos,
+				createLockHashInfo: test.db.createHashLockInfo,
+				createLockHashInfos: test.db.createHashLockInfos,
 				type: AccountType.address,
 				toDbApiId: owner => owner.address
 			}));
@@ -196,9 +174,9 @@ describe('lock db', () => {
 	describe('fetch individual', () => {
 		const addTests = traits => {
 			it('returns undefined', () => {
-				// Arrange: create lock info
+				// Arrange: create lock hash info
 				const hash = traits.createRandomHash();
-				const lockInfo = traits.createLockInfo(0, createOwner(), hash);
+				const lockInfo = traits.createLockHashInfo(0, createOwner(), hash);
 
 				// Assert:
 				return test.db.runDbTest(
@@ -210,9 +188,9 @@ describe('lock db', () => {
 			});
 
 			it('returns an entity', () => {
-				// Arrange: create lock info
+				// Arrange: create lock hash info
 				const hash = traits.createRandomHash();
-				const lockInfo = traits.createLockInfo(0, createOwner(), hash);
+				const lockInfo = traits.createLockHashInfo(0, createOwner(), hash);
 
 				// Assert:
 				return test.db.runDbTest(
@@ -228,16 +206,9 @@ describe('lock db', () => {
 
 		describe('hash lock by hash', () => addTests({
 			createRandomHash: testUtils.random.hash,
-			createLockInfo: test.db.createHashLockInfo,
+			createLockHashInfo: test.db.createHashLockInfo,
 			type: 'hash',
 			dbFunctionName: 'hashLockByHash'
-		}));
-
-		describe('secret lock by secret', () => addTests({
-			createRandomHash: testUtils.random.secret,
-			createLockInfo: test.db.createSecretLockInfo,
-			type: 'secret',
-			dbFunctionName: 'secretLockBySecret'
 		}));
 	});
 });

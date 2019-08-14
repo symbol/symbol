@@ -30,26 +30,11 @@ module.exports = {
 				.then(routeUtils.createSender('hashLockInfo').sendArray('accountId', res, next));
 		});
 
-		server.get('/account/:accountId/lock/secret', (req, res, next) => {
-			const [type, accountId] = routeUtils.parseArgument(req.params, 'accountId', 'accountId');
-			const pagingOptions = routeUtils.parsePagingArguments(req.params);
-
-			return db.secretLocksByAccounts(type, [accountId], pagingOptions.id, pagingOptions.pageSize)
-				.then(routeUtils.createSender('secretLockInfo').sendArray('accountId', res, next));
-		});
-
 		server.get('/lock/hash/:hash', (req, res, next) => {
 			const hash = routeUtils.parseArgument(req.params, 'hash', 'hash256');
 
 			return db.hashLockByHash(hash)
 				.then(routeUtils.createSender('hashLockInfo').sendOne(req.params.hash, res, next));
-		});
-
-		server.get('/lock/secret/:secret', (req, res, next) => {
-			const secret = routeUtils.parseArgument(req.params, 'secret', 'hash256');
-
-			return db.secretLockBySecret(secret)
-				.then(routeUtils.createSender('secretLockInfo').sendOne(req.params.secret, res, next));
 		});
 	}
 };

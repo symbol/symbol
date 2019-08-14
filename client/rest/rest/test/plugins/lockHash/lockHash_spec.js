@@ -18,31 +18,29 @@
  * along with Catapult.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const lock = require('../../../src/plugins/lock/lock');
-const LockDb = require('../../../src/plugins/lock/LockDb');
+const lockHash = require('../../../src/plugins/lockHash/lockHash');
+const LockHashDb = require('../../../src/plugins/lockHash/LockHashDb');
 const { test } = require('../../routes/utils/routeTestUtils');
 const pluginTest = require('../utils/pluginTestUtils');
 
-describe('lock plugin', () => {
-	pluginTest.assertThat.pluginCreatesDb(lock, LockDb);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(lock);
-	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(lock);
+describe('lock hash plugin', () => {
+	pluginTest.assertThat.pluginCreatesDb(lockHash, LockHashDb);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalTransactionStates(lockHash);
+	pluginTest.assertThat.pluginDoesNotRegisterAdditionalMessageChannels(lockHash);
 
 	describe('register routes', () => {
-		it('registers lock GET routes', () => {
+		it('registers lock hash GET routes', () => {
 			// Arrange:
 			const routes = [];
 			const server = test.setup.createCapturingMockServer('get', routes);
 
 			// Act:
-			lock.registerRoutes(server, {});
+			lockHash.registerRoutes(server, {});
 
 			// Assert:
 			test.assert.assertRoutes(routes, [
 				'/account/:accountId/lock/hash',
-				'/account/:accountId/lock/secret',
-				'/lock/hash/:hash',
-				'/lock/secret/:secret'
+				'/lock/hash/:hash'
 			]);
 		});
 	});

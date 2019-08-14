@@ -20,9 +20,9 @@
 
 const AccountType = require('../AccountType');
 
-class LockDb {
+class LockHashDb {
 	/**
-	 * Creates LockDb around CatapultDb.
+	 * Creates LockHashDb around CatapultDb.
 	 * @param {module:db/CatapultDb} db Catapult db instance.
 	 */
 	constructor(db) {
@@ -41,36 +41,10 @@ class LockDb {
 	 * @returns {Promise.<array>} Hash lock infos for all accounts.
 	 */
 	hashLocksByAccounts(type, accountIds, id, pageSize, options) {
-		return this.locksByAccounts('hash', type, accountIds, id, pageSize, options);
-	}
-
-	/**
-	 * Retrieves secret infos for given accounts.
-	 * @param {module:db/AccountType} type Type of account ids.
-	 * @param {array<object>} accountIds Account ids.
-	 * @param {string} id Paging id.
-	 * @param {int} pageSize Page size.
-	 * @param {object} options Additional options.
-	 * @returns {Promise.<array>} Secret lock infos for all accounts.
-	 */
-	secretLocksByAccounts(type, accountIds, id, pageSize, options) {
-		return this.locksByAccounts('secret', type, accountIds, id, pageSize, options);
-	}
-
-	/**
-	 * @param {string} lockName Type of lock.
-	 * @param {module:db/AccountType} type Type of account ids.
-	 * @param {array<object>} accountIds Account ids.
-	 * @param {string} id Paging id.
-	 * @param {int} pageSize Page size.
-	 * @param {object} options Additional options.
-	 * @returns {Promise.<array>} Lock infos for all accounts.
-	 */
-	locksByAccounts(lockName, type, accountIds, id, pageSize, options) {
 		const buffers = accountIds.map(accountId => Buffer.from(accountId));
 		const fieldName = (AccountType.publicKey === type) ? 'lock.account' : 'lock.accountAddress';
 		const conditions = { $and: [{ [fieldName]: { $in: buffers } }] };
-		return this.catapultDb.queryPagedDocuments(`${lockName}LockInfos`, conditions, id, pageSize, options)
+		return this.catapultDb.queryPagedDocuments('hashLockInfos', conditions, id, pageSize, options)
 			.then(this.catapultDb.sanitizer.copyAndDeleteIds);
 	}
 
@@ -84,17 +58,7 @@ class LockDb {
 			.then(this.catapultDb.sanitizer.copyAndDeleteId);
 	}
 
-	/**
-	 * Retrieves secret info for given secret.
-	 * @param {Uint8Array} secret Secret hash.
-	 * @returns {Promise.<object>} Secret lock info for a secret.
-	 */
-	secretLockBySecret(secret) {
-		return this.catapultDb.queryDocument('secretLockInfos', { 'lock.secret': Buffer.from(secret) })
-			.then(this.catapultDb.sanitizer.copyAndDeleteId);
-	}
-
 	// endregion
 }
 
-module.exports = LockDb;
+module.exports = LockHashDb;
