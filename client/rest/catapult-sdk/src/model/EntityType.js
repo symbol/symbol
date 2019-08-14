@@ -69,6 +69,12 @@ const EntityType = {
 	/** Account operation restriction modification transaction. */
 	accountRestrictionOperation: 0x4350,
 
+	/** Mosaic address restriction modification transaction. */
+	mosaicRestrictionAddress: 0x4251,
+
+	/** Mosaic global restriction modification transaction. */
+	mosaicRestrictionGlobal: 0x4151,
+
 	/** Account link transaction. */
 	accountLink: 0x414C,
 

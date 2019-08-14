@@ -50,6 +50,7 @@ describe('catapult model system', () => {
 				'lock',
 				'metadata',
 				'mosaic',
+				'mosaicRestrictions',
 				'multisig',
 				'namespace',
 				'receipts',

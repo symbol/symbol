@@ -21,6 +21,7 @@
 /** @module plugins/catapultModelSystem */
 const accountLink = require('./accountLink');
 const accountRestrictions = require('./accountRestrictions');
+const mosaicRestrictions = require('./mosaicRestrictions');
 const aggregate = require('./aggregate');
 const lock = require('./lock');
 const metadata = require('./metadata');
@@ -34,7 +35,7 @@ const ModelSchemaBuilder = require('../model/ModelSchemaBuilder');
 const ModelCodecBuilder = require('../modelBinary/ModelCodecBuilder');
 
 const plugins = {
-	accountLink, accountRestrictions, aggregate, lock, metadata, mosaic, multisig, namespace, receipts, transfer
+	accountLink, accountRestrictions, aggregate, lock, metadata, mosaic, mosaicRestrictions, multisig, namespace, receipts, transfer
 };
 
 /**
