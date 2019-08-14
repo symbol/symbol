@@ -83,7 +83,7 @@ describe('model schema builder', () => {
 
 				'account',
 				'mosaic',
-				'accountMetadata',
+				'accountMeta',
 				'accountWithMetadata',
 
 				'chainInfo',

@@ -122,10 +122,10 @@ class ModelSchemaBuilder {
 				id: ModelType.uint64,
 				amount: ModelType.uint64
 			},
-			accountMetadata: {
+			accountMeta: {
 			},
 			accountWithMetadata: {
-				meta: { type: ModelType.object, schemaName: 'accountMetadata' },
+				meta: { type: ModelType.object, schemaName: 'accountMeta' },
 				account: { type: ModelType.object, schemaName: 'account' }
 			},
 

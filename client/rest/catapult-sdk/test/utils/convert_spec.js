@@ -307,4 +307,68 @@ describe('convert', () => {
 			});
 		});
 	});
+
+	describe('signed <-> unsigned 16bits integer', () => {
+		const testCases = [
+			{ signed: -32768, unsigned: 0x8000, description: 'min negative' },
+			{ signed: -32767, unsigned: 0x8001, description: 'min negative plus one' },
+			{ signed: -287, unsigned: 0xFEE1, description: 'negative' },
+			{ signed: -1, unsigned: 0xFFFF, description: 'negative one' },
+			{ signed: 0, unsigned: 0, description: 'zero' },
+			{ signed: 1, unsigned: 0x0001, description: 'positive one' },
+			{ signed: 257, unsigned: 0x0101, description: 'positive' },
+			{ signed: 32766, unsigned: 0x7FFE, description: 'max positive minus one' },
+			{ signed: 32767, unsigned: 0x7FFF, description: 'max positive' }
+		];
+
+		describe('uint16ToInt16', () => {
+			const failureTestCases = [
+				{ input: 65536, description: 'one too large' },
+				{ input: 100000, description: 'very large' }
+			];
+
+			failureTestCases.forEach(testCase => {
+				it(`cannot convert number that is ${testCase.description}`, () => {
+					// Assert:
+					expect(() => convert.uint16ToInt16(testCase.input)).to.throw(`input '${testCase.input}' is out of range`);
+				});
+			});
+
+			testCases.forEach(testCase => {
+				it(`can convert ${testCase.description}`, () => {
+					// Act:
+					const value = convert.uint16ToInt16(testCase.unsigned);
+
+					// Assert:
+					expect(value).to.equal(testCase.signed);
+				});
+			});
+		});
+
+		describe('int16ToUint16', () => {
+			const failureTestCases = [
+				{ input: -100000, description: 'very small' },
+				{ input: -32769, description: 'one too small' },
+				{ input: 32768, description: 'one too large' },
+				{ input: 100000, description: 'very large' }
+			];
+
+			failureTestCases.forEach(testCase => {
+				it(`cannot convert number that is ${testCase.description}`, () => {
+					// Assert:
+					expect(() => convert.int16ToUint16(testCase.input)).to.throw(`input '${testCase.input}' is out of range`);
+				});
+			});
+
+			testCases.forEach(testCase => {
+				it(`can convert ${testCase.description}`, () => {
+					// Act:
+					const value = convert.int16ToUint16(testCase.signed);
+
+					// Assert:
+					expect(value).to.equal(testCase.unsigned);
+				});
+			});
+		});
+	});
 });

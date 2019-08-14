@@ -40,7 +40,10 @@ describe('entity type enumeration', () => {
 			accountRestrictionAddress: 0x4150,
 			accountRestrictionMosaic: 0x4250,
 			accountRestrictionOperation: 0x4350,
-			accountLink: 0x414C
+			accountLink: 0x414C,
+			accountMetadata: 0x4144,
+			mosaicMetadata: 0x4244,
+			namespaceMetadata: 0x4344
 		});
 	});
 

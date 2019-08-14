@@ -70,7 +70,16 @@ const EntityType = {
 	accountRestrictionOperation: 0x4350,
 
 	/** Account link transaction. */
-	accountLink: 0x414C
+	accountLink: 0x414C,
+
+	/** Account metadata transaction */
+	accountMetadata: 0x4144,
+
+	/** Mosaic metadata transaction */
+	mosaicMetadata: 0x4244,
+
+	/** Namespace metadata transaction */
+	namespaceMetadata: 0x4344
 };
 
 module.exports = EntityType;

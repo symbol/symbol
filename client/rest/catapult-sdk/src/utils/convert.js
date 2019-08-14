@@ -168,6 +168,28 @@ const convert = {
 			throw Error(`input '${input}' is out of range`);
 
 		return input & 0xFF;
+	},
+
+	/** Converts an unsigned 16bits integer to a signed 16bits integer with the same binary representation.
+	 * @param {Numeric} input An unsigned 16bits integer.
+	 * @returns {Numeric} A signed 16bits integer with the same binary representation as the input.
+	 */
+	uint16ToInt16: input => {
+		if (0xFFFF < input)
+			throw Error(`input '${input}' is out of range`);
+
+		return input << 48 >> 48;
+	},
+
+	/** Converts a signed 16bits integer to an unsigned 16bits integer with the same binary representation.
+	 * @param {Numeric} input A signed 16bits integer.
+	 * @returns {Numeric} An unsigned 16bits integer with the same binary representation as the input.
+	 */
+	int16ToUint16: input => {
+		if (32767 < input || -32768 > input)
+			throw Error(`input '${input}' is out of range`);
+
+		return input & 0xFFFF;
 	}
 };
 
