@@ -2948,10 +2948,7 @@ components:
       - metadata
       properties:
         key:
-          type: string
-          format: hex
-          description: Metadata key.
-          example: EB6839C7E6BD0031FDD5F8CB5137E9BC950D7EE7756C46B767E68F3F58C24390
+          $ref: "#/components/schemas/UInt64"
         metadata:
           type: array
           description: Array of metadata objects.
