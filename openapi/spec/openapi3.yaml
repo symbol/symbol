@@ -1863,10 +1863,10 @@ components:
     TransactionBodyDTO:
       type: object
       required:
-        - max_fee
+        - maxFee
         - deadline
       properties:
-        max_fee:
+        maxFee:
           $ref: "#/components/schemas/Amount"
         deadline:
           $ref: "#/components/schemas/BlockDuration"
