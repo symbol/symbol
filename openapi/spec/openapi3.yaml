@@ -534,10 +534,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                description: Array of mosaic names.
-                items:
-                  $ref: "#/components/schemas/MosaicNamesDTO"
+                $ref: "#/components/schemas/MosaicsNamesDTO"
         "400":
           $ref : "#/components/responses/InvalidContent"
         "409":
@@ -625,10 +622,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                description: Array of account names.
-                items:
-                  $ref: "#/components/schemas/AccountNamesDTO"
+                $ref: "#/components/schemas/AccountsNamesDTO"
         "400":
           $ref : "#/components/responses/InvalidContent"
         "409":
@@ -2260,6 +2254,16 @@ components:
             - alias2
           items:
             type: string
+    AccountsNamesDTO:
+      type: object
+      required:
+        - accountNames
+      properties:
+        accountNames:
+          type: array
+          description: Array of account names.
+          items:
+            $ref: "#/components/schemas/AccountNamesDTO"
     MosaicNamesDTO:
       type: object
       required:
@@ -2275,6 +2279,16 @@ components:
             - cat.currency
           items:
             type: string
+    MosaicsNamesDTO:
+      type: object
+      required:
+        - accountNames
+      properties:
+        accountNames:
+          type: array
+          description: Array of mosaic names.
+          items:
+            $ref: "#/components/schemas/MosaicNamesDTO"
     NamespaceMetaDTO:
       type: object
       required:
