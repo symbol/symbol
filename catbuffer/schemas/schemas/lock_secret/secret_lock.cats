@@ -15,8 +15,8 @@ struct SecretLockTransactionBody
 	# secret
 	secret = Hash256
 
-	# locked mosaic recipient
-	recipient = UnresolvedAddress
+	# locked mosaic recipient address
+	recipientAddress = UnresolvedAddress
 
 # binary layout for a non-embedded secret lock transaction
 struct SecretLockTransaction

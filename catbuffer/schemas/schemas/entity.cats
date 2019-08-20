@@ -18,7 +18,7 @@ struct VerifiableEntity
 # binary layout for a blockchain entity (block or transaction)
 struct EntityBody
 	# entity signer's public key
-	signer = Key
+	signerPublicKey = Key
 
 	# entity version
 	version = uint16

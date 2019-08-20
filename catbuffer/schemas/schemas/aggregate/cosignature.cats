@@ -3,7 +3,7 @@ import "types.cats"
 # cosignature attached to an aggregate transaction
 struct Cosignature
 	# cosigner public key
-	signer = Key
+	signerPublicKey = Key
 
 	# cosigner signature
 	signature = Signature
