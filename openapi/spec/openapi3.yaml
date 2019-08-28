@@ -1095,8 +1095,8 @@ components:
         * 1 - Balance-holding account that is linked to a remote harvester account.
         * 2 - Remote harvester account that is linked to a balance-holding account.
         * 3 - Remote harvester eligible account that is unlinked.
-    # Enumerations - Entity
-    EntityTypeEnum:
+    # Enumerations - Transaction
+    TransactionTypeEnum:
       type: integer
       enum:
         - 16716
@@ -1117,10 +1117,8 @@ components:
         - 16721
         - 16977
         - 16724
-        - 32835
-        - 33091
       description: |
-        Type of entity:
+        Type of transaction:
         * 0x414C (16716 decimal) - AccountLinkTransaction.
         * 0x4141 (16705 decimal) - AggregateCompleteTransaction.
         * 0x4241 (16961 decimal) - AggregateBondedTransaction.
@@ -1139,8 +1137,6 @@ components:
         * 0x4151 (16721 decimal) - MosaicGlobalRestrictionTransaction.
         * 0x4251 (16977 decimal) - MosaicAddressRestrictionTransaction.
         * 0x4154 (16724 decimal) - TransferTransaction.
-        * 0x8043 (32835 decimal) - Nemesis block.
-        * 0x8143 (33091 decimal) - Regular block.
     # Enumerations - Network
     NetworkTypeEnum:
       type: integer
@@ -1191,7 +1187,6 @@ components:
         * 1 (Op_Keccak_256) - Proof is hashed using Keccak (ETH compatibility).
         * 2 (Op_Hash_160) - Proof is hashed twice: first with Sha-256 and then with RIPEMD-160 (bitcoin’s OP_HASH160).
         * 3 (Op_Hash_256) - Proof is hashed twice with Sha-256 (bitcoin’s OP_HASH256).
-
     # Enumerations - Mosaic
     MosaicPropertyIdEnum:
       type: integer
@@ -1655,7 +1650,8 @@ components:
         version:
           $ref: "#/components/schemas/NetworkTypeEnum"
         type:
-          $ref: "#/components/schemas/EntityTypeEnum"
+          type: integer
+          format: int32
     VerifiableEntityDTO:
       type: object
       required:
@@ -2620,7 +2616,7 @@ components:
           items:
             anyOf:
               - $ref: "#/components/schemas/UnresolvedAddress"
-              - $ref: "#/components/schemas/EntityTypeEnum"
+              - $ref: "#/components/schemas/TransactionTypeEnum"
               - $ref: "#/components/schemas/UnresolvedMosaicId"
     AccountAddressRestrictionModificationDTO:
       type: object
@@ -2704,9 +2700,9 @@ components:
           $ref: "#/components/schemas/AccountRestrictionModificationTypeEnum"
         values:
           type: array
-          description: Identifier of the entity to restrict.
+          description: Identifier of the transaction type to restrict.
           items:
-            $ref: "#/components/schemas/EntityTypeEnum"
+            $ref: "#/components/schemas/TransactionTypeEnum"
     AccountOperationRestrictionTransactionBodyDTO:
       type: object
       required:
