@@ -1477,7 +1477,7 @@ components:
         activityBuckets:
           type: array
           items:
-            type: object
+            $ref: "#/components/schemas/ActivityBucketDTO"
         mosaics:
           type: array
           description: |
@@ -1490,6 +1490,25 @@ components:
           $ref: "#/components/schemas/Importance"
         importanceHeight:
           $ref: "#/components/schemas/Height"
+    ActivityBucketDTO:
+      type: object
+      required:
+        - startHeight
+        - totalFeesPaid
+        - beneficiaryCount
+        - rawScore
+      properties:
+        startHeight:
+          type: string
+        totalFeesPaid:
+          type: number
+          format: int64
+        beneficiaryCount:
+          type: number
+          format: int32
+        rawScore:
+          type: number
+          format: int64
     # Schemas - Block
     BlockInfoDTO:
       type: object
