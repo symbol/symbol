@@ -38,12 +38,12 @@ module.exports = {
 	runHeightDependentOperation: (db, height, operation) => {
 		// notice that both the chain height and height-dependent operation are started at the same time in order to
 		// optimize the common case when the request height is valid
-		const chainInfoPromise = db.chainInfo();
+		const chainStatisticPromise = db.chainStatistic();
 		const operationPromise = operation();
 
-		return Promise.all([chainInfoPromise, operationPromise]).then(results => {
-			const chainInfo = results[0];
-			const isRequestValid = height <= chainInfo.height;
+		return Promise.all([chainStatisticPromise, operationPromise]).then(results => {
+			const chainStatistic = results[0];
+			const isRequestValid = height <= chainStatistic.height;
 			return {
 				isRequestValid,
 				payload: isRequestValid ? results[1] : undefined

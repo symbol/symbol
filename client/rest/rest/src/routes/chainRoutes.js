@@ -20,25 +20,25 @@
 
 const routeResultTypes = require('./routeResultTypes');
 
-const curryStripProperties = (properties, next) => chainInfo => {
+const curryStripProperties = (properties, next) => chainStatistic => {
 	properties.forEach(property => {
-		delete chainInfo[property];
+		delete chainStatistic[property];
 	});
 
-	next(chainInfo);
+	next(chainStatistic);
 };
 
-const currySend = (db, res, next) => chainInfo => {
-	res.send({ payload: chainInfo, type: routeResultTypes.chainInfo });
+const currySend = (db, res, next) => chainStatistic => {
+	res.send({ payload: chainStatistic, type: routeResultTypes.chainStatistic });
 	next();
 };
 
 module.exports = {
 	register: (server, db) => {
 		server.get('/chain/height', (req, res, next) =>
-			db.chainInfo().then(curryStripProperties(['scoreLow', 'scoreHigh'], currySend(db, res, next))));
+			db.chainStatistic().then(curryStripProperties(['scoreLow', 'scoreHigh'], currySend(db, res, next))));
 
 		server.get('/chain/score', (req, res, next) =>
-			db.chainInfo().then(curryStripProperties(['height'], currySend(db, res, next))));
+			db.chainStatistic().then(curryStripProperties(['height'], currySend(db, res, next))));
 	}
 };

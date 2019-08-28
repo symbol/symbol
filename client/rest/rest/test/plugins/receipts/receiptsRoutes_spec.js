@@ -44,7 +44,7 @@ describe('receipts routes', () => {
 
 		receiptsRoutes.register(mockServer.server, {
 			catapultDb: {
-				chainInfo: () => Promise.resolve({ height: highestHeight })
+				chainStatistic: () => Promise.resolve({ height: highestHeight })
 			},
 			statementsAtHeight: statementsFake
 		});

@@ -28,10 +28,10 @@ module.exports = {
 		const aggregateHash = transactionExtensions.hash(codec, transaction);
 
 		if (keyPairs.find(keyPair => aggregateSignerKeyPair.publicKey === keyPair.publicKey))
-			throw Error('aggregate signer key present in list of cosigners');
+			throw Error('aggregate signer public key present in list of cosigners');
 
 		transaction.cosignatures = keyPairs.map(keyPair => ({
-			signer: keyPair.publicKey,
+			signerPublicKey: keyPair.publicKey,
 			signature: catapult.crypto.sign(keyPair, aggregateHash)
 		}));
 	}

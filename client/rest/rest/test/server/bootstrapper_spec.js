@@ -46,7 +46,7 @@ const dummyIds = {
 // region dummy route
 
 // note that custom formatting will strip high part
-const createChainInfo = (height, scoreLow, scoreHigh) => ({
+const createChainStatistic = (height, scoreLow, scoreHigh) => ({
 	id: 123,
 	height: [height, height],
 	scoreLow: [scoreLow, scoreLow],
@@ -61,16 +61,16 @@ const addRestRoutes = server => {
 			switch (dummyId) {
 			case dummyIds.valid: {
 				// respond with a valid chain info
-				const chainInfo = createChainInfo(10, 16, 11);
-				res.send({ payload: chainInfo, type: 'chainInfo' });
+				const chainStatistic = createChainStatistic(10, 16, 11);
+				res.send({ payload: chainStatistic, type: 'chainStatistic' });
 				break;
 			}
 
 			case dummyIds.replayTag: {
 				// respond with a valid chain info computed from the tag parameter
 				const tag = req.params.tag | 0; // query parameters are parsed as strings so convert to int
-				const chainInfo = createChainInfo(tag, tag, tag);
-				res.send({ payload: chainInfo, type: 'chainInfo' });
+				const chainStatistic = createChainStatistic(tag, tag, tag);
+				res.send({ payload: chainStatistic, type: 'chainStatistic' });
 				break;
 			}
 
@@ -84,8 +84,8 @@ const addRestRoutes = server => {
 
 			case dummyIds.asyncValid:
 				return Promise.resolve({ height: [11, 11] })
-					.then(chainInfo => {
-						res.send({ payload: chainInfo, type: 'chainInfo' });
+					.then(chainStatistic => {
+						res.send({ payload: chainStatistic, type: 'chainStatistic' });
 						next();
 					});
 
@@ -110,15 +110,15 @@ const servers = [];
 const createServer = options => {
 	const serverFormatters = formatters.create({
 		[(options && options.formatterName) || 'json']: {
-			chainInfo: {
+			chainStatistic: {
 				// real formatting is not actually being tested, so just drop high part
-				format: chainInfo => {
+				format: chainStatistic => {
 					const formatUint64 = uint64 => (uint64 ? [uint64[0], 0] : undefined);
 					return {
-						id: chainInfo.id,
-						height: formatUint64(chainInfo.height),
-						scoreLow: formatUint64(chainInfo.scoreLow),
-						scoreHigh: formatUint64(chainInfo.scoreHigh)
+						id: chainStatistic.id,
+						height: formatUint64(chainStatistic.height),
+						scoreLow: formatUint64(chainStatistic.scoreLow),
+						scoreHigh: formatUint64(chainStatistic.scoreHigh)
 					};
 				}
 			},
@@ -128,7 +128,7 @@ const createServer = options => {
 					const { block } = blockHeaderWithMetadata;
 					return {
 						height: block.height,
-						signer: catapult.utils.convert.uint8ToHex(block.signer)
+						signerPublicKey: catapult.utils.convert.uint8ToHex(block.signerPublicKey)
 					};
 				}
 			}
@@ -553,7 +553,7 @@ describe('server (bootstrapper)', () => {
 		const createBlockBuffer = tag => Buffer.concat([
 			Buffer.of(0xC0, 0x00, 0x00, 0x00), // size
 			Buffer.from(test.random.bytes(test.constants.sizes.signature)), // signature
-			Buffer.from('A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F', 'hex'), // signer
+			Buffer.from('A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F', 'hex'), // signerPublicKey
 			Buffer.of(0x03, 0x00, 0x00, 0x80), // version, type
 			Buffer.of(0x97, 0x87, 0x45, 0x0E, tag || 0xE1, 0x6C, 0xB6, 0x62), // height
 			Buffer.from(test.random.bytes(8)), // timestamp
@@ -562,10 +562,10 @@ describe('server (bootstrapper)', () => {
 			Buffer.from(test.random.bytes(test.constants.sizes.hash256)) // block transactions hash
 		]);
 
-		// notice that the formatter only returns height and signer
+		// notice that the formatter only returns height and signerPublicKey
 		const createFormattedBlock = tag => ({
 			height: [0x0E458797, 0x62B66C00 | (tag || 0xE1)],
-			signer: 'A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F'
+			signerPublicKey: 'A4C656B45C02A02DEF64F15DD781DD5AF29698A353F414FAAA9CDB364A09F98F'
 		});
 
 		const registerRoute = (server, route) => {
@@ -792,7 +792,7 @@ describe('server (bootstrapper)', () => {
 					onAllConnected: (zsocket, sockets) => {
 						// Act: unsubscribe the second websocket from an unknown channel (this should have no effect)
 						test.log('unsubscribing second websocket');
-						sockets[1].send(JSON.stringify({ uid: sockets[1].uid, unsubscribe: 'chainInfo' }));
+						sockets[1].send(JSON.stringify({ uid: sockets[1].uid, unsubscribe: 'chainStatistic' }));
 						defaultOnAllConnected(zsocket, sockets);
 					}
 				})
@@ -880,7 +880,7 @@ describe('server (bootstrapper)', () => {
 		it('unsupported topic subscribe request disconnects client', done => {
 			runInvalidClientTest(done, (ws, messageJson) => {
 				// Act: try to subscribe to an unsupported topic
-				const responseJson = JSON.stringify(Object.assign(JSON.parse(messageJson), { subscribe: 'chainInfo' }));
+				const responseJson = JSON.stringify(Object.assign(JSON.parse(messageJson), { subscribe: 'chainStatistic' }));
 				ws.send(responseJson);
 			});
 		});

@@ -27,9 +27,9 @@ const sizes = {
 	signature: 64,
 
 	/**
-	 * @property {numeric} Size of a signer (public key).
+	 * @property {numeric} Size of a signer public key.
 	 */
-	signer: 32,
+	signerPublicKey: 32,
 
 	/**
 	 * @property {numeric} Size of a decoded address.

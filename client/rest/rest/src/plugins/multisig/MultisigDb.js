@@ -39,7 +39,7 @@ class MultisigDb {
 	 */
 	multisigsByAccounts(type, accountIds) {
 		const buffers = accountIds.map(accountId => Buffer.from(accountId));
-		const fieldName = (AccountType.publicKey === type) ? 'multisig.account' : 'multisig.accountAddress';
+		const fieldName = (AccountType.publicKey === type) ? 'multisig.accountPublicKey' : 'multisig.address';
 		return this.catapultDb.queryDocuments('multisigs', { [fieldName]: { $in: buffers } });
 	}
 

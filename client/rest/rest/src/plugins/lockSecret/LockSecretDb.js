@@ -42,7 +42,7 @@ class LockSecretDb {
 	 */
 	secretLocksByAccounts(type, accountIds, id, pageSize, options) {
 		const buffers = accountIds.map(accountId => Buffer.from(accountId));
-		const fieldName = (AccountType.publicKey === type) ? 'lock.account' : 'lock.accountAddress';
+		const fieldName = (AccountType.publicKey === type) ? 'lock.senderPublicKey' : 'lock.senderAddress';
 		const conditions = { $and: [{ [fieldName]: { $in: buffers } }] };
 		return this.catapultDb.queryPagedDocuments('secretLockInfos', conditions, id, pageSize, options)
 			.then(this.catapultDb.sanitizer.copyAndDeleteIds);

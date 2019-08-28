@@ -84,7 +84,7 @@ describe('metadata plugin', () => {
 		const getCodec = entityType => getCodecs()[entityType];
 
 		describe('supports account metadata', () => {
-			const targetPublicKey = test.random.bytes(test.constants.sizes.signer); // 32
+			const targetPublicKey = test.random.bytes(test.constants.sizes.signerPublicKey); // 32
 
 			test.binary.test.addAll(getCodec(EntityType.accountMetadata), 60, () => ({
 				buffer: Buffer.concat([
@@ -106,7 +106,7 @@ describe('metadata plugin', () => {
 		});
 
 		describe('supports mosaic metadata', () => {
-			const targetPublicKey = test.random.bytes(test.constants.sizes.signer); // 32
+			const targetPublicKey = test.random.bytes(test.constants.sizes.signerPublicKey); // 32
 
 			test.binary.test.addAll(getCodec(EntityType.mosaicMetadata), 68, () => ({
 				buffer: Buffer.concat([
@@ -130,7 +130,7 @@ describe('metadata plugin', () => {
 		});
 
 		describe('supports mosaic metadata', () => {
-			const targetPublicKey = test.random.bytes(test.constants.sizes.signer); // 32
+			const targetPublicKey = test.random.bytes(test.constants.sizes.signerPublicKey); // 32
 
 			test.binary.test.addAll(getCodec(EntityType.namespaceMetadata), 68, () => ({
 				buffer: Buffer.concat([

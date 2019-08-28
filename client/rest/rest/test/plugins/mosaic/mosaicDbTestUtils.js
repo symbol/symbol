@@ -25,25 +25,25 @@ const MongoDb = require('mongodb');
 
 const { Binary, Long } = MongoDb;
 
-const createMosaic = (id, mosaicId, owner, parentId) => {
+const createMosaic = (id, mosaicId, ownerPublicKey, parentId) => {
 	// mosaic data
 	const mosaic = {
-		owner: new Binary(owner),
-		mosaicId: Long.fromNumber(mosaicId),
+		ownerPublicKey: new Binary(ownerPublicKey),
+		id: Long.fromNumber(mosaicId),
 		namespaceId: Long.fromNumber(parentId)
 	};
 
-	return { _id: dbTestUtils.db.createObjectId(id), mosaic, meta: {} };
+	return { _id: dbTestUtils.db.createObjectId(id), mosaic };
 };
 
-const createMosaics = (owner, numNamespaces, numMosaicsPerNamespace) => {
+const createMosaics = (ownerPublicKey, numNamespaces, numMosaicsPerNamespace) => {
 	// mosaic ids start at 10000, namespace ids start at 20000 in order to differentiate from db _id
 	const mosaics = [];
 	let dbId = 0;
-	let mosaicId = 10000;
+	let id = 10000;
 	for (let namespaceId = 0; namespaceId < numNamespaces; ++namespaceId) {
 		for (let i = 0; i < numMosaicsPerNamespace; ++i)
-			mosaics.push(createMosaic(dbId++, mosaicId++, owner, 20000 + namespaceId));
+			mosaics.push(createMosaic(dbId++, id++, ownerPublicKey, 20000 + namespaceId));
 	}
 
 	return mosaics;

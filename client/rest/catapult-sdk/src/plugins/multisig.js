@@ -43,8 +43,8 @@ const multisigPlugin = {
 			multisig: { type: ModelType.object, schemaName: 'multisigEntry.multisig' }
 		});
 		builder.addSchema('multisigEntry.multisig', {
-			account: ModelType.binary,
-			accountAddress: ModelType.binary,
+			accountPublicKey: ModelType.binary,
+			address: ModelType.binary,
 			multisigAccounts: { type: ModelType.array, schemaName: ModelType.binary },
 			cosignatories: { type: ModelType.array, schemaName: ModelType.binary }
 		});
@@ -65,7 +65,7 @@ const multisigPlugin = {
 
 				while (transaction.modifications.length < modificationsCount) {
 					const modificationAction = parser.uint8();
-					const cosignatoryPublicKey = parser.buffer(constants.sizes.signer);
+					const cosignatoryPublicKey = parser.buffer(constants.sizes.signerPublicKey);
 					transaction.modifications.push({ modificationAction, cosignatoryPublicKey });
 				}
 

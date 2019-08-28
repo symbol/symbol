@@ -25,7 +25,7 @@ const { expect } = require('chai');
 
 describe('transaction extensions', () => {
 	const createMockTransaction = (alpha, beta) => ({
-		signer: test.random.bytes(sizes.signer),
+		signerPublicKey: test.random.bytes(sizes.signerPublicKey),
 		signature: test.random.bytes(sizes.signature),
 		alpha,
 		beta
@@ -36,7 +36,7 @@ describe('transaction extensions', () => {
 			// write header (will be ignored)
 			serializer.writeUint32(sizes.transactionHeader + 2 + 4);
 			serializer.writeBuffer(transaction.signature);
-			serializer.writeBuffer(transaction.signer);
+			serializer.writeBuffer(transaction.signerPublicKey);
 
 			// write data
 			serializer.writeUint16(transaction.alpha);
@@ -71,13 +71,13 @@ describe('transaction extensions', () => {
 			expect(modifiedHash).to.deep.equal(hash);
 		});
 
-		it('changes if signer changes', () => {
+		it('changes if signer public key changes', () => {
 			// Arrange:
 			const transaction = createMockTransaction(12, 56);
 			const hash = transactionExtensions.hash(codec, transaction);
 
 			// Act:
-			transaction.signer[sizes.signer / 2] ^= 0xFF;
+			transaction.signerPublicKey[sizes.signerPublicKey / 2] ^= 0xFF;
 			const modifiedHash = transactionExtensions.hash(codec, transaction);
 
 			// Assert:
@@ -114,7 +114,7 @@ describe('transaction extensions', () => {
 			// Arrange:
 			const transaction = createMockTransaction(12, 56);
 			const signerKeyPair = test.random.keyPair();
-			transaction.signer = signerKeyPair.publicKey;
+			transaction.signerPublicKey = signerKeyPair.publicKey;
 			transactionExtensions.sign(codec, signerKeyPair, transaction);
 
 			// Act:
@@ -128,7 +128,7 @@ describe('transaction extensions', () => {
 			// Arrange:
 			const transaction = createMockTransaction(12, 56);
 			const signerKeyPair = test.random.keyPair();
-			transaction.signer = signerKeyPair.publicKey;
+			transaction.signerPublicKey = signerKeyPair.publicKey;
 			transactionExtensions.sign(codec, signerKeyPair, transaction);
 
 			++transaction.alpha;
@@ -144,7 +144,7 @@ describe('transaction extensions', () => {
 			// Arrange:
 			const transaction = createMockTransaction(12, 56);
 			const signerKeyPair = test.random.keyPair();
-			transaction.signer = signerKeyPair.publicKey;
+			transaction.signerPublicKey = signerKeyPair.publicKey;
 			transactionExtensions.sign(codec, signerKeyPair, transaction);
 
 			transaction.signature[0] ^= 0xFF;

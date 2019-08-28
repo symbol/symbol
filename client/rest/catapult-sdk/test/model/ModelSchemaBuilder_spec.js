@@ -86,7 +86,7 @@ describe('model schema builder', () => {
 				'accountMeta',
 				'accountWithMetadata',
 
-				'chainInfo',
+				'chainStatistic',
 				'nodeInfo',
 				'communicationTimestamps',
 				'nodeTime',
@@ -177,22 +177,22 @@ describe('model schema builder', () => {
 			// Assert:
 			expect(matchingProperties).to.deep.equal([
 				'verifiableEntity.signature',
-				'verifiableEntity.signer',
+				'verifiableEntity.signerPublicKey',
 
 				'blockHeader.previousBlockHash',
-				'blockHeader.blockTransactionsHash',
-				'blockHeader.blockReceiptsHash',
+				'blockHeader.transactionsHash',
+				'blockHeader.receiptsHash',
 				'blockHeader.stateHash',
-				'blockHeader.beneficiary',
+				'blockHeader.beneficiaryPublicKey',
 				'blockHeader.signature',
-				'blockHeader.signer',
+				'blockHeader.signerPublicKey',
 				'blockHeaderMetadata.hash',
 				'blockHeaderMetadata.generationHash',
 				'blockHeaderMetadata.subCacheMerkleRoots.schemaName',
 				'merkleProofInfoPathNode.hash',
 
 				'transaction.signature',
-				'transaction.signer',
+				'transaction.signerPublicKey',
 				'transactionMetadata.aggregateHash',
 				'transactionMetadata.hash',
 				'transactionMetadata.merkleComponentHash',
@@ -231,9 +231,9 @@ describe('model schema builder', () => {
 				'mosaic.id',
 				'mosaic.amount',
 
-				'chainInfo.height',
-				'chainInfo.scoreLow',
-				'chainInfo.scoreHigh',
+				'chainStatistic.height',
+				'chainStatistic.scoreLow',
+				'chainStatistic.scoreHigh',
 
 				'communicationTimestamps.receiveTimestamp',
 				'communicationTimestamps.sendTimestamp'

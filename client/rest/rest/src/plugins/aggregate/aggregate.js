@@ -42,10 +42,10 @@ module.exports = {
 			const parser = new BinaryParser();
 			parser.push(buffer);
 
-			const signer = parser.buffer(catapult.constants.sizes.signer);
+			const signerPublicKey = parser.buffer(catapult.constants.sizes.signerPublicKey);
 			const signature = parser.buffer(catapult.constants.sizes.signature);
 			const parentHash = parser.buffer(catapult.constants.sizes.hash256);
-			emit({ type: 'aggregate.cosignature', payload: { signer, signature, parentHash } });
+			emit({ type: 'aggregate.cosignature', payload: { signerPublicKey, signature, parentHash } });
 		});
 	},
 

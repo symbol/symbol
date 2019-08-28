@@ -28,8 +28,8 @@ module.exports = {
 
 	random: {
 		bytes: size => crypto.randomBytes(size),
-		publicKey: () => crypto.randomBytes(sizes.signer),
-		keyPair: () => createKeyPairFromPrivateKeyString(convert.uint8ToHex(crypto.randomBytes(sizes.signer)))
+		publicKey: () => crypto.randomBytes(sizes.signerPublicKey),
+		keyPair: () => createKeyPairFromPrivateKeyString(convert.uint8ToHex(crypto.randomBytes(sizes.signerPublicKey)))
 	},
 
 	buffer: {

@@ -29,7 +29,7 @@ const constants = { sizes: {} };
 Object.assign(constants.sizes, sizes, {
 	aggregate: 120 + 4, // size passed into deserialize includes full transaction size (even previously processed parts)
 	embedded: 40,
-	cosignature: sizes.signer + sizes.signature
+	cosignature: sizes.signerPublicKey + sizes.signature
 });
 
 const createSubTransactionCodec = txCodecs => {
@@ -97,7 +97,7 @@ const aggregatePlugin = {
 		builder.addTransactionSupport(EntityType.aggregateBonded, aggregateSchema);
 
 		builder.addSchema('aggregate.cosignature', {
-			signer: ModelType.binary,
+			signerPublicKey: ModelType.binary,
 			signature: ModelType.binary,
 			parentHash: ModelType.binary
 		});
@@ -141,7 +141,7 @@ const aggregatePlugin = {
 					transaction.cosignatures = [];
 					for (let i = 0; i < numCosignatures; ++i) {
 						const cosignature = {};
-						cosignature.signer = parser.buffer(constants.sizes.signer);
+						cosignature.signerPublicKey = parser.buffer(constants.sizes.signerPublicKey);
 						cosignature.signature = parser.buffer(constants.sizes.signature);
 						transaction.cosignatures.push(cosignature);
 					}
@@ -178,7 +178,7 @@ const aggregatePlugin = {
 				// 3. serialize cosignatures
 				if (transaction.cosignatures) {
 					transaction.cosignatures.forEach(cosignature => {
-						serializer.writeBuffer(cosignature.signer);
+						serializer.writeBuffer(cosignature.signerPublicKey);
 						serializer.writeBuffer(cosignature.signature);
 					});
 				}

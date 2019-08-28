@@ -24,7 +24,7 @@ const test = require('../binaryTestUtils');
 describe('block header codec', () => {
 	const generateBlockHeader = () => {
 		const Previous_Block_Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
-		const Block_Transactions_Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
+		const Transactions_Hash_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.hash256));
 
 		return {
 			buffer: Buffer.concat([
@@ -32,14 +32,14 @@ describe('block header codec', () => {
 				Buffer.of(0x30, 0x3A, 0x46, 0x8B, 0x15, 0x2D, 0x60, 0x54), // timestamp
 				Buffer.of(0x86, 0x02, 0x75, 0x30, 0xE8, 0x50, 0x78, 0xE8), // difficulty
 				Previous_Block_Hash_Buffer,
-				Block_Transactions_Hash_Buffer
+				Transactions_Hash_Buffer
 			]),
 			object: {
 				height: [0x0E458797, 0x62B66CE1],
 				timestamp: [0x8B463A30, 0x54602D15],
 				difficulty: [0x30750286, 0xE87850E8],
 				previousBlockHash: Previous_Block_Hash_Buffer,
-				blockTransactionsHash: Block_Transactions_Hash_Buffer
+				transactionsHash: Transactions_Hash_Buffer
 			}
 		};
 	};

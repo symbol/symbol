@@ -25,7 +25,7 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 
 describe('block routes', () => {
-	const addChainInfoToDb = db => { db.chainInfo = () => Promise.resolve({ height: 10 }); };
+	const addChainStatisticToDb = db => { db.chainStatistic = () => Promise.resolve({ height: 10 }); };
 	const routeConfig = { pageSize: { min: 30, max: 80, step: 12 } };
 
 	describe('block', () => {
@@ -33,7 +33,7 @@ describe('block routes', () => {
 			route: '/block/:height',
 			dbApiName: 'blockAtHeight',
 			type: 'blockHeaderWithMetadata',
-			extendDb: addChainInfoToDb,
+			extendDb: addChainStatisticToDb,
 			config: routeConfig
 		});
 		builder.addDefault({
@@ -90,7 +90,7 @@ describe('block routes', () => {
 			route: '/block/:height/transactions',
 			dbApiName: 'transactionsAtHeight',
 			type: 'transactionWithMetadata',
-			extendDb: addChainInfoToDb,
+			extendDb: addChainStatisticToDb,
 			config: routeConfig
 		});
 
@@ -112,7 +112,7 @@ describe('block routes', () => {
 							queriedIdentifiers.push({ height, pageId, pageSize });
 							return Promise.resolve(transactions);
 						},
-						chainInfo: () => Promise.resolve({ height: 10 })
+						chainStatistic: () => Promise.resolve({ height: 10 })
 					}),
 					config: routeConfig
 				},

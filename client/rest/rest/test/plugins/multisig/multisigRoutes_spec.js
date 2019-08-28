@@ -78,7 +78,7 @@ describe('multisig routes', () => {
 
 			return {
 				multisig: {
-					account: { buffer: test.random.publicKey() },
+					accountPublicKey: { buffer: test.random.publicKey() },
 					multisigAccounts: upstreamArray,
 					cosignatories: downstreamArray
 				}

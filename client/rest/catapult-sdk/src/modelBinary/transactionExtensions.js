@@ -42,7 +42,7 @@ const transactionExtensions = {
 		hasher.update(transaction.signature.slice(0, 32));
 
 		// pubkey
-		hasher.update(transaction.signer);
+		hasher.update(transaction.signerPublicKey);
 
 		// data
 		const transactionBuffer = serializeToBuffer(codec, transaction);
@@ -71,7 +71,7 @@ const transactionExtensions = {
 	 */
 	verify: (codec, transaction) => {
 		const transactionBuffer = serializeToBuffer(codec, transaction);
-		return crypto.verify(transaction.signer, transactionBuffer, transaction.signature);
+		return crypto.verify(transaction.signerPublicKey, transactionBuffer, transaction.signature);
 	}
 };
 

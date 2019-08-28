@@ -69,14 +69,14 @@ const receiptsPlugin = {
 		});
 
 		builder.addSchema('receipts.balanceChange', {
-			account: ModelType.binary,
+			targetPublicKey: ModelType.binary,
 			mosaicId: ModelType.uint64,
 			amount: ModelType.uint64
 		});
 
 		builder.addSchema('receipts.balanceTransfer', {
-			sender: ModelType.binary,
-			recipient: ModelType.binary,
+			senderPublicKey: ModelType.binary,
+			recipientAddress: ModelType.binary,
 			mosaicId: ModelType.uint64,
 			amount: ModelType.uint64
 		});

@@ -32,7 +32,7 @@ const nodeInfoCodec = {
 	deserialize: parser => {
 		const nodeInfo = {};
 		parser.uint32(); // Node size
-		nodeInfo.publicKey = parser.buffer(sizes.signer);
+		nodeInfo.publicKey = parser.buffer(sizes.signerPublicKey);
 		nodeInfo.port = parser.uint16();
 		nodeInfo.networkIdentifier = parser.uint8();
 		nodeInfo.version = parser.uint32();

@@ -25,7 +25,7 @@ describe('db facade', () => {
 	describe('run height dependent operation', () => {
 		const runHeightDependentOperationTest = (requestHeight, chainHeight, isRequestValid) => {
 			// Arrange:
-			const db = { chainInfo: () => Promise.resolve({ height: chainHeight }) };
+			const db = { chainStatistic: () => Promise.resolve({ height: chainHeight }) };
 
 			// Act:
 			return dbFacade.runHeightDependentOperation(db, requestHeight, () => Promise.resolve(17))

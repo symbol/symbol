@@ -23,8 +23,8 @@ const { expect } = require('chai');
 
 describe('mosaic db', () => {
 	const createMosaics = (numNamespaces, numMosaicsPerNamespace) => {
-		const owner = test.random.publicKey();
-		return test.db.createMosaics(owner, numNamespaces, numMosaicsPerNamespace);
+		const ownerPublicKey = test.random.publicKey();
+		return test.db.createMosaics(ownerPublicKey, numNamespaces, numMosaicsPerNamespace);
 	};
 
 	describe('mosaics by ids', () => {

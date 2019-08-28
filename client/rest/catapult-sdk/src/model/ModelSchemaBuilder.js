@@ -35,7 +35,7 @@ class ModelSchemaBuilder {
 
 			verifiableEntity: {
 				signature: ModelType.binary,
-				signer: ModelType.binary
+				signerPublicKey: ModelType.binary
 			},
 
 			// endregion
@@ -47,10 +47,10 @@ class ModelSchemaBuilder {
 				timestamp: ModelType.uint64,
 				difficulty: ModelType.uint64,
 				previousBlockHash: ModelType.binary,
-				blockTransactionsHash: ModelType.binary,
-				blockReceiptsHash: ModelType.binary,
+				transactionsHash: ModelType.binary,
+				receiptsHash: ModelType.binary,
 				stateHash: ModelType.binary,
-				beneficiary: ModelType.binary
+				beneficiaryPublicKey: ModelType.binary
 			},
 			blockHeaderMetadata: {
 				hash: ModelType.binary,
@@ -133,7 +133,7 @@ class ModelSchemaBuilder {
 
 			// region other
 
-			chainInfo: {
+			chainStatistic: {
 				height: ModelType.uint64,
 				scoreLow: ModelType.uint64,
 				scoreHigh: ModelType.uint64

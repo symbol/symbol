@@ -29,39 +29,42 @@ const modelCodec = catapult.plugins.catapultModelSystem.configure(['transfer', '
 
 describe('spammer utils', () => {
 	describe('sign and stitch aggregate transaction', () => {
-		const createTransaction = signer =>
-			transactionFactory.createAggregateTransaction({ signerPublicKey: signer.publicKey, networkId: 0xA5 }, []);
+		const createTransaction = signer => transactionFactory.createAggregateTransaction({
+			signerPublicKey: signer.publicKey, networkId: 0xA5
+		}, []);
 
-		const createRandomKey = () => createKey(catapult.utils.convert.uint8ToHex(test.random.bytes(catapult.constants.sizes.signer)));
+		const createRandomKey = () => createKey(
+			catapult.utils.convert.uint8ToHex(test.random.bytes(catapult.constants.sizes.signerPublicKey))
+		);
 
 		it('adds expected number of cosignatures', () => {
 			// Arrange:
-			const signer = createRandomKey();
+			const signerPublicKey = createRandomKey();
 			const cosigners = [createRandomKey(), createRandomKey()];
-			const transaction = createTransaction(signer);
+			const transaction = createTransaction(signerPublicKey);
 
 			// Sanity:
 			expect(transaction.cosignatures).to.equal(undefined);
 
 			// Act:
-			spammerUtils.signAndStitchAggregateTransaction(modelCodec, signer, cosigners, transaction);
+			spammerUtils.signAndStitchAggregateTransaction(modelCodec, signerPublicKey, cosigners, transaction);
 
 			// Assert:
 			expect(transaction.cosignatures.length).to.equal(cosigners.length);
 			cosigners.forEach((keyPair, i) => {
-				expect(keyPair.publicKey).to.deep.equal(transaction.cosignatures[i].signer);
+				expect(keyPair.publicKey).to.deep.equal(transaction.cosignatures[i].signerPublicKey);
 			});
 		});
 
 		it('throws if signer key is in cosigners', () => {
 			// Arrange:
-			const signer = createRandomKey();
-			const cosigners = [createRandomKey(), signer, createRandomKey()];
-			const transaction = createTransaction(signer);
+			const signerPublicKey = createRandomKey();
+			const cosigners = [createRandomKey(), signerPublicKey, createRandomKey()];
+			const transaction = createTransaction(signerPublicKey);
 
 			// Act:
-			expect(() => spammerUtils.signAndStitchAggregateTransaction(modelCodec, signer, cosigners, transaction))
-				.to.throw('aggregate signer key present in list of cosigners');
+			expect(() => spammerUtils.signAndStitchAggregateTransaction(modelCodec, signerPublicKey, cosigners, transaction))
+				.to.throw('aggregate signer public key present in list of cosigners');
 		});
 	});
 });

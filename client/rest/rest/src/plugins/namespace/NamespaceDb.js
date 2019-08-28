@@ -74,7 +74,7 @@ class NamespaceDb {
 	namespacesByOwners(type, accountIds, id, pageSize, options) {
 		const buffers = accountIds.map(accountId => Buffer.from(accountId));
 		const conditions = createActiveConditions();
-		const fieldName = (AccountType.publicKey === type) ? 'namespace.owner' : 'namespace.ownerAddress';
+		const fieldName = (AccountType.publicKey === type) ? 'namespace.ownerPublicKey' : 'namespace.ownerAddress';
 		conditions.$and.push({ [fieldName]: { $in: buffers } });
 
 		return this.catapultDb.queryPagedDocuments('namespaces', conditions, id, pageSize, options)
@@ -118,7 +118,7 @@ class NamespaceDb {
 	registerNamespaceTransactionsByNamespaceIds(namespaceIds) {
 		const type = catapult.model.EntityType.registerNamespace;
 		const conditions = { $and: [] };
-		conditions.$and.push({ 'transaction.namespaceId': { $in: namespaceIds } });
+		conditions.$and.push({ 'transaction.id': { $in: namespaceIds } });
 		conditions.$and.push({ 'transaction.type': type });
 		return this.catapultDb.queryDocuments('transactions', conditions);
 	}

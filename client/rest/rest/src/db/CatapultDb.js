@@ -37,7 +37,7 @@ const createAccountTransactionsAllConditions = (publicKey, networkId) => {
 	const bufferAddress = Buffer.from(decodedAddress);
 	return {
 		$or: [
-			{ 'transaction.cosignatures.signer': bufferPublicKey },
+			{ 'transaction.cosignatures.signerPublicKey': bufferPublicKey },
 			{ 'meta.addresses': bufferAddress }
 		]
 	};
@@ -73,7 +73,6 @@ const createSanitizer = () => ({
 		dbObjects.forEach(dbObject => {
 			delete dbObject._id;
 		});
-
 		return dbObjects;
 	}
 });
@@ -180,8 +179,8 @@ class CatapultDb {
 			.then(storageInfo => ({ numBlocks: storageInfo[0], numTransactions: storageInfo[1], numAccounts: storageInfo[2] }));
 	}
 
-	chainInfo() {
-		return this.queryDocument('chainInfo', {}, { _id: 0 });
+	chainStatistic() {
+		return this.queryDocument('chainStatistic', {}, { _id: 0 });
 	}
 
 	blockAtHeight(height) {
@@ -205,9 +204,9 @@ class CatapultDb {
 		if (0 === numBlocks)
 			return Promise.resolve([]);
 
-		return this.chainInfo().then(chainInfo => {
+		return this.chainStatistic().then(chainStatistic => {
 			const blockCollection = this.database.collection('blocks');
-			const options = buildBlocksFromOptions(convertToLong(height), convertToLong(numBlocks), chainInfo.height);
+			const options = buildBlocksFromOptions(convertToLong(height), convertToLong(numBlocks), chainStatistic.height);
 
 			return blockCollection.find({ 'block.height': { $gte: options.startHeight, $lt: options.endHeight } })
 				.project({ 'meta.transactionMerkleTree': 0, 'meta.statementMerkleTree': 0 })
@@ -341,12 +340,12 @@ class CatapultDb {
 	accountTransactionsIncoming(publicKey, id, pageSize, ordering) {
 		const decoded = address.publicKeyToAddress(publicKey, this.networkId);
 		const bufferAddress = Buffer.from(decoded);
-		return this.queryTransactions({ 'transaction.recipient': bufferAddress }, id, pageSize, { sortOrder: ordering });
+		return this.queryTransactions({ 'transaction.recipientAddress': bufferAddress }, id, pageSize, { sortOrder: ordering });
 	}
 
 	accountTransactionsOutgoing(publicKey, id, pageSize, ordering) {
 		const bufferPublicKey = Buffer.from(publicKey);
-		return this.queryTransactions({ 'transaction.signer': bufferPublicKey }, id, pageSize, { sortOrder: ordering });
+		return this.queryTransactions({ 'transaction.signerPublicKey': bufferPublicKey }, id, pageSize, { sortOrder: ordering });
 	}
 
 	accountTransactionsUnconfirmed(publicKey, id, pageSize, ordering) {

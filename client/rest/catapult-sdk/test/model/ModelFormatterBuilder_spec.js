@@ -47,7 +47,7 @@ describe('model formatter builder', () => {
 				'blockHeaderWithMetadata',
 				'transactionWithMetadata',
 
-				'chainInfo',
+				'chainStatistic',
 				'merkleProofInfo',
 				'nodeInfo',
 				'nodeTime',
@@ -70,7 +70,7 @@ describe('model formatter builder', () => {
 				},
 				transaction: {
 					signature: 0,
-					signer: 0,
+					signerPublicKey: 0,
 					version: 0,
 					type: 0,
 
@@ -88,7 +88,7 @@ describe('model formatter builder', () => {
 				},
 				transaction: {
 					signature: 'binary',
-					signer: 'binary',
+					signerPublicKey: 'binary',
 					version: 'none',
 					type: 'none',
 
@@ -113,7 +113,7 @@ describe('model formatter builder', () => {
 				},
 				block: {
 					signature: 0,
-					signer: 0,
+					signerPublicKey: 0,
 					version: 0,
 					type: 0,
 
@@ -121,10 +121,10 @@ describe('model formatter builder', () => {
 					timestamp: 0,
 					difficulty: 0,
 					previousBlockHash: 0,
-					blockTransactionsHash: 0,
-					blockReceiptsHash: 0,
+					transactionsHash: 0,
+					receiptsHash: 0,
 					stateHash: 0,
-					beneficiary: 0
+					beneficiaryPublicKey: 0
 				}
 			});
 
@@ -139,7 +139,7 @@ describe('model formatter builder', () => {
 				},
 				block: {
 					signature: 'binary',
-					signer: 'binary',
+					signerPublicKey: 'binary',
 					version: 'none',
 					type: 'none',
 
@@ -147,10 +147,10 @@ describe('model formatter builder', () => {
 					timestamp: 'uint64',
 					difficulty: 'uint64',
 					previousBlockHash: 'binary',
-					blockTransactionsHash: 'binary',
-					blockReceiptsHash: 'binary',
+					transactionsHash: 'binary',
+					receiptsHash: 'binary',
 					stateHash: 'binary',
-					beneficiary: 'binary'
+					beneficiaryPublicKey: 'binary'
 				}
 			});
 		});
@@ -201,7 +201,7 @@ describe('model formatter builder', () => {
 			const formatter = new ModelFormatterBuilder().build(modelSchema, formattingRules);
 
 			// Act:
-			const result = formatter.chainInfo.format({
+			const result = formatter.chainStatistic.format({
 				height: 0,
 				scoreLow: 0,
 				scoreHigh: 0

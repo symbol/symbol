@@ -44,7 +44,7 @@ const authUtils = {
 				type: response.readInt32LE(4),
 				challenge: response.slice(8, 8 + Challenge_Size),
 				signature: response.slice(72, 72 + test.constants.sizes.signature),
-				publicKey: response.slice(136, 136 + test.constants.sizes.signer),
+				publicKey: response.slice(136, 136 + test.constants.sizes.signerPublicKey),
 				securityMode: response.readUInt8(168)
 			};
 		},

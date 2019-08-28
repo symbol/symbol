@@ -115,20 +115,20 @@ const createDbBlock = height => {
 	// block header data
 	const block = {
 		signature: new Binary(test.random.signature()),
-		signer: new Binary(test.random.publicKey()),
+		signerPublicKey: new Binary(test.random.publicKey()),
 		version: 234,
 		type: 345,
 		timestamp: Long.fromNumber(23456),
 		height: Long.fromNumber(height),
 		difficulty: Long.fromNumber(45678),
 		previousBlockHash: new Binary(test.random.hash()),
-		blockTransactionsHash: new Binary(test.random.hash())
+		transactionsHash: new Binary(test.random.hash())
 	};
 
 	return { meta, block };
 };
 
-const createDbTransaction = (id, signer, recipient, options) => {
+const createDbTransaction = (id, signerPublicKey, recipientAddress, options) => {
 	// meta data
 	const meta = {
 		hash: new Binary(test.random.hash()),
@@ -139,13 +139,13 @@ const createDbTransaction = (id, signer, recipient, options) => {
 	// transaction data
 	const transaction = {
 		signature: new Binary(test.random.signature()),
-		signer: new Binary(signer),
+		signerPublicKey: new Binary(signerPublicKey),
 		version: 432,
 		type: 543,
 		timestamp: Long.fromNumber(65432),
 		maxFee: Long.fromNumber(76543),
 		deadline: Long.fromNumber(87654),
-		recipient: new Binary(recipient),
+		recipientAddress: new Binary(recipientAddress),
 		message: { size: 12, payload: new Binary(test.random.bytes(12)) },
 		mosaics: []
 	};
@@ -155,16 +155,16 @@ const createDbTransaction = (id, signer, recipient, options) => {
 	return { _id: id, meta, transaction };
 };
 
-const createDbTransactions = (numRounds, signer, recipient) => {
+const createDbTransactions = (numRounds, signerPublicKey, recipientAddress) => {
 	// Each round consists of
 	// - 1 random transaction
-	// - 1 transaction with signer
+	// - 1 transaction with signerPublicKey
 	// - 1 random transaction
 	// - 1 transaction with recipient
 	// - 1 random transaction
-	// - 1 transaction with signer and recipient
+	// - 1 transaction with signerPublicKey and recipient address
 	// - 1 random transaction with aggregateId
-	// - 1 transaction with signer and aggregateId
+	// - 1 transaction with signerPublicKey and aggregateId
 	// all in all we have 8 * numRounds transactions
 	let id = 0;
 	const transactions = [];
@@ -175,28 +175,29 @@ const createDbTransactions = (numRounds, signer, recipient) => {
 
 	for (let i = 0; i < numRounds; ++i) {
 		push(test.random.publicKey(), test.random.address());
-		push(signer, test.random.address());
+		push(signerPublicKey, test.random.address());
 		push(test.random.publicKey(), test.random.address());
-		push(test.random.publicKey(), recipient);
+		push(test.random.publicKey(), recipientAddress);
 		push(test.random.publicKey(), test.random.address());
-		push(signer, recipient);
+		push(signerPublicKey, recipientAddress);
 		push(test.random.publicKey(), test.random.address());
 		transactions[transactions.length - 1].meta.aggregateId = createObjectId(id);
-		push(signer, test.random.address());
+		push(signerPublicKey, test.random.address());
 		transactions[transactions.length - 1].meta.aggregateId = createObjectId(id);
 	}
 
 	return transactions;
 };
 
-const createChainInfo = (height, scorelow, scoreHigh) => ({
+const createChainStatistic = (height, scorelow, scoreHigh) => ({
 	height: Long.fromNumber(height),
 	scoreLow: Long.fromNumber(scorelow),
 	scoreHigh: Long.fromNumber(scoreHigh)
 });
 
 const collectionUtils = {
-	names: ['blocks', 'transactions', 'unconfirmedTransactions', 'partialTransactions', 'transactionStatuses', 'accounts', 'chainInfo'],
+	names: ['blocks', 'transactions', 'unconfirmedTransactions', 'partialTransactions',
+		'transactionStatuses', 'accounts', 'chainStatistic'],
 	findInEntities: (dbEntities, collectionName) => {
 		if ('blocks' !== collectionName)
 			return dbEntities[collectionName];
@@ -262,7 +263,7 @@ const dbTestUtils = {
 		createDbBlock,
 		createDbTransaction,
 		createDbTransactions,
-		createChainInfo,
+		createChainStatistic,
 		populateCollection,
 		populateDatabase,
 		sanitizeDbEntities,

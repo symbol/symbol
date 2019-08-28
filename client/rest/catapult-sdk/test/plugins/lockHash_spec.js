@@ -48,11 +48,12 @@ describe('lock hash plugin', () => {
 
 			// - hash lock infos
 			assertSchema(modelSchema.hashLockInfo, 1, 'lock');
-			assertSchema(modelSchema['hashLockInfo.lock'], 5, 'account', 'accountAddress', 'mosaicId', 'height', 'hash');
+			assertSchema(modelSchema['hashLockInfo.lock'], 6,
+				'senderPublicKey', 'senderAddress', 'mosaicId', 'amount', 'endHeight', 'hash');
 
 			// - hash lock transaction
 			const transactionSchemaSize = Object.keys(modelSchema.transaction).length;
-			assertSchema(modelSchema.hashLock, transactionSchemaSize + 3, 'mosaic', 'duration', 'hash');
+			assertSchema(modelSchema.hashLock, transactionSchemaSize + 4, 'duration', 'hash', 'mosaicId', 'amount');
 		});
 	});
 
@@ -80,14 +81,16 @@ describe('lock hash plugin', () => {
 		describe('supports hash lock', () => {
 			const hash = test.random.bytes(test.constants.sizes.hash256);
 
-			test.binary.test.addAll(getCodec(EntityType.hashLock), 48, () => ({
+			test.binary.test.addAll(getCodec(EntityType.hashLock), 56, () => ({
 				buffer: Buffer.concat([
-					Buffer.of(0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF), // mosaic
+					Buffer.of(0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF), // mosaicId
+					Buffer.of(0xCA, 0xD0, 0x8E, 0x6E, 0xFF, 0x21, 0x2F, 0x49), // amount
 					Buffer.of(0x99, 0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF), // duration
 					Buffer.from(hash) // hash 32b
 				]),
 				object: {
-					mosaic: [0x78563412, 0xEFCDAB90],
+					mosaicId: [0x78563412, 0xEFCDAB90],
+					amount: [0x6E8ED0CA, 0x492F21FF],
 					duration: [0xBBAA0099, 0xFFEEDDCC],
 					hash
 				}

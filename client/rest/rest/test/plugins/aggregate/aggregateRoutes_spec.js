@@ -49,15 +49,15 @@ describe('aggregate routes', () => {
 			packetType: '501',
 			inputs: {
 				valid: {
-					params: { signer: '123456', signature: '998811', parentHash: 'ABEF' },
+					params: { signerPublicKey: '123456', signature: '998811', parentHash: 'ABEF' },
 					parsed: Buffer.of(
 						0x10, 0x00, 0x00, 0x00, // size (header)
 						0xF5, 0x01, 0x00, 0x00, // type (header)
-						0x12, 0x34, 0x56, 0x99, 0x88, 0x11, 0xAB, 0xEF // payload (signer, signature, parentHash)
+						0x12, 0x34, 0x56, 0x99, 0x88, 0x11, 0xAB, 0xEF // payload (signerPublicKey, signature, parentHash)
 					)
 				},
 				invalid: {
-					params: { signer: '123456', signature: '998S11', parentHash: 'ABEF' },
+					params: { signerPublicKey: '123456', signature: '998S11', parentHash: 'ABEF' },
 					error: { key: 'signature' }
 				}
 			}

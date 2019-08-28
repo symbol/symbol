@@ -70,7 +70,7 @@ describe('model codec builder', () => {
 
 	const generateVerifiableEntity = (size, type = 0x451C) => {
 		const Signature_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signature));
-		const Signer_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signer));
+		const Signer_Buffer = Buffer.from(test.random.bytes(test.constants.sizes.signerPublicKey));
 
 		return {
 			buffer: Buffer.concat([
@@ -81,7 +81,7 @@ describe('model codec builder', () => {
 			]),
 			object: {
 				signature: Signature_Buffer,
-				signer: Signer_Buffer,
+				signerPublicKey: Signer_Buffer,
 				version: 0x812A,
 				type
 			}
@@ -107,7 +107,7 @@ describe('model codec builder', () => {
 			timestamp: [0x8B463A30, 0x54602D15],
 			difficulty: [0x30750286, 0xE87850E8],
 			previousBlockHash: Previous_Block_Hash_Buffer,
-			blockTransactionsHash: Block_Transactions_Hash_Buffer
+			transactionsHash: Block_Transactions_Hash_Buffer
 		});
 		return data;
 	};

@@ -35,7 +35,7 @@ const blockHeaderCodec = {
 		blockHeader.timestamp = parser.uint64();
 		blockHeader.difficulty = parser.uint64();
 		blockHeader.previousBlockHash = parser.buffer(constants.sizes.hash256);
-		blockHeader.blockTransactionsHash = parser.buffer(constants.sizes.hash256);
+		blockHeader.transactionsHash = parser.buffer(constants.sizes.hash256);
 		return blockHeader;
 	},
 
@@ -49,7 +49,7 @@ const blockHeaderCodec = {
 		serializer.writeUint64(blockHeader.timestamp);
 		serializer.writeUint64(blockHeader.difficulty);
 		serializer.writeBuffer(blockHeader.previousBlockHash);
-		serializer.writeBuffer(blockHeader.blockTransactionsHash);
+		serializer.writeBuffer(blockHeader.transactionsHash);
 	}
 };
 

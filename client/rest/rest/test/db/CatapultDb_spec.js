@@ -124,9 +124,9 @@ describe('catapult db', () => {
 		it('can retrieve chain info', () =>
 			// Assert:
 			runDbTest(
-				{ chainInfo: test.db.createChainInfo(1357, 2468, 3579) },
-				db => db.chainInfo(),
-				chainInfo => expect(chainInfo).to.deep.equal(test.db.createChainInfo(1357, 2468, 3579))
+				{ chainStatistic: test.db.createChainStatistic(1357, 2468, 3579) },
+				db => db.chainStatistic(),
+				chainStatistic => expect(chainStatistic).to.deep.equal(test.db.createChainStatistic(1357, 2468, 3579))
 			));
 	});
 
@@ -276,7 +276,7 @@ describe('catapult db', () => {
 		};
 
 		const createDbEntities = numBlocks => ({
-			chainInfo: test.db.createChainInfo(Default_Height + numBlocks - 1, 0, 0),
+			chainStatistic: test.db.createChainStatistic(Default_Height + numBlocks - 1, 0, 0),
 			blocks: createBlocks(Default_Height, numBlocks)
 		});
 
@@ -347,7 +347,7 @@ describe('catapult db', () => {
 		it('returns top blocks when requesting from "0" height even if more blocks are in the database', () => {
 			// Arrange: set height to 4
 			const dbEntities = {
-				chainInfo: test.db.createChainInfo(4, 0, 0),
+				chainStatistic: test.db.createChainStatistic(4, 0, 0),
 				blocks: createBlocks(1, 10)
 			};
 
@@ -362,7 +362,7 @@ describe('catapult db', () => {
 		it('returns last block when requesting from "0" height with alignment 1', () => {
 			// Arrange: set height to 134
 			const dbEntities = {
-				chainInfo: test.db.createChainInfo(134, 0, 0),
+				chainStatistic: test.db.createChainStatistic(134, 0, 0),
 				blocks: createBlocks(120, 15)
 			};
 
@@ -378,7 +378,7 @@ describe('catapult db', () => {
 			// Arrange: try to insert in random order
 			runDbTest(
 				{
-					chainInfo: test.db.createChainInfo(Default_Height + 2, 0, 0),
+					chainStatistic: test.db.createChainStatistic(Default_Height + 2, 0, 0),
 					blocks: [
 						test.db.createDbBlock(Default_Height + 2),
 						test.db.createDbBlock(Default_Height),
@@ -736,7 +736,7 @@ describe('catapult db', () => {
 		const getCollectionName = traits => [traits.collectionName || 'transactions'];
 
 		const createTransactionMetadata = transaction => ({
-			addresses: [keyToAddress(transaction.signer.buffer), transaction.recipient.buffer]
+			addresses: [keyToAddress(transaction.signerPublicKey.buffer), transaction.recipientAddress.buffer]
 		});
 
 		const dbTransactionTraits = {
@@ -748,14 +748,14 @@ describe('catapult db', () => {
 		};
 
 		describe('can customize queries', () => {
-			// creates transactions for three accounts such that: A is sender, B is recipient, C is sender and recipient
+			// creates transactions for three accounts such that: A is sender, B is recipient address, C is sender and recipient address
 			// [0001] A -> B, [0002] A -> C, [0003] C -> B, [0004] C -> C
 			const createDirectionalTransactions = (key1, key2, key3) => {
 				const keys = [key1, key2, key3];
 				const addresses = keys.map(keyToAddress);
 
-				const createTransactionTemplate = (signer, recipient) => ({
-					signer: new Binary(signer), recipient: new Binary(recipient)
+				const createTransactionTemplate = (signerPublicKey, recipientAddress) => ({
+					signerPublicKey: new Binary(signerPublicKey), recipientAddress: new Binary(recipientAddress)
 				});
 
 				const transactionTemplates = [
@@ -867,10 +867,12 @@ describe('catapult db', () => {
 		});
 
 		describe('can page', () => {
-			const addTransactions = (transactions, id, signer, recipient, numDependentDocuments) => {
+			const addTransactions = (transactions, id, signerPublicKey, recipientAddress, numDependentDocuments) => {
 				const aggregateId = test.db.createObjectId(id);
 				const aggregateType = 0 === transactions.length % 2 ? EntityType.aggregateComplete : EntityType.aggregateBonded;
-				const transaction = { type: aggregateType, signer: new Binary(signer), recipient: new Binary(recipient) };
+				const transaction = {
+					type: aggregateType, signerPublicKey: new Binary(signerPublicKey), recipientAddress: new Binary(recipientAddress)
+				};
 				transactions.push({ _id: aggregateId, meta: createTransactionMetadata(transaction), transaction });
 
 				for (let j = 0; j < numDependentDocuments; ++j)
@@ -882,9 +884,9 @@ describe('catapult db', () => {
 
 				let id = 0;
 				const transactions = [];
-				keys.forEach(signer => addresses.forEach(recipient => {
+				keys.forEach(signerPublicKey => addresses.forEach(recipientAddress => {
 					const numDependentDocuments = (options || {}).numDependentDocuments || 0;
-					addTransactions(transactions, id, signer, recipient, numDependentDocuments);
+					addTransactions(transactions, id, signerPublicKey, recipientAddress, numDependentDocuments);
 					id += 1 + numDependentDocuments;
 				}));
 
@@ -901,9 +903,10 @@ describe('catapult db', () => {
 					// create a matching transaction every even iteration
 					const senderRecipientPair = 0 === id % 2
 						? createMatchingSenderRecipientPair()
-						: { signer: randomKey, recipient: randomAddress };
+						: { signerPublicKey: randomKey, recipientAddress: randomAddress };
 					const numDependentDocuments = (options || {}).numDependentDocuments || 0;
-					addTransactions(transactions, id, senderRecipientPair.signer, senderRecipientPair.recipient, numDependentDocuments);
+					addTransactions(transactions, id, senderRecipientPair.signerPublicKey, senderRecipientPair.recipientAddress,
+						numDependentDocuments);
 					id += 1 + numDependentDocuments;
 				}
 
@@ -913,27 +916,29 @@ describe('catapult db', () => {
 			// helper functions for creating transactions for paging tests
 			const createPagingSeedTransactionsFactory = {
 				curryIncoming: options => (numMatchingTransactions, key) => {
-					// incoming recipient should match
-					const signer = test.random.publicKey();
-					const recipient = keyToAddress(key);
-					return createAlternatingTransactions(numMatchingTransactions, () => ({ signer, recipient }), options);
+					// incoming recipient address should match
+					const signerPublicKey = test.random.publicKey();
+					const recipientAddress = keyToAddress(key);
+					return createAlternatingTransactions(numMatchingTransactions, () => ({ signerPublicKey, recipientAddress }), options);
 				},
 
 				curryOutgoing: options => (numMatchingTransactions, key) => {
 					// outgoing signer should match
-					const recipient = keyToAddress(test.random.publicKey());
-					return createAlternatingTransactions(numMatchingTransactions, () => ({ signer: key, recipient }), options);
+					const recipientAddress = keyToAddress(test.random.publicKey());
+					return createAlternatingTransactions(numMatchingTransactions,
+						() => ({ signerPublicKey: key, recipientAddress }), options);
 				},
 
 				curryAll: options => (numMatchingTransactions, key) => {
-					// incoming recipient and/or outgoing signer should match, so alternate
+					// incoming recipient address and/or outgoing signer public key should match, so alternate
 					let i = 0;
-					const recipient = keyToAddress(key);
+					const recipientAddress = keyToAddress(key);
 					const randomSigner = test.random.publicKey();
 					const randomRecipient = keyToAddress(test.random.publicKey());
 					return createAlternatingTransactions(
 						numMatchingTransactions,
-						() => (0 === i++ % 2 ? { signer: key, recipient: randomRecipient } : { signer: randomSigner, recipient }),
+						() => (0 === i++ % 2 ? { signerPublicKey: key, recipientAddress: randomRecipient }
+							: { signerPublicKey: randomSigner, recipientAddress }),
 						options
 					);
 				}
@@ -1091,8 +1096,10 @@ describe('catapult db', () => {
 				const keys = [test.random.publicKey(), test.random.publicKey(), key, test.random.publicKey()];
 				const addresses = keys.map(keyToAddress);
 
-				const createTransactionTemplate = (signer, recipient, participants) => {
-					const transaction = { type: aggregateType, signer: new Binary(signer), recipient: new Binary(recipient) };
+				const createTransactionTemplate = (signerPublicKey, recipientAddress, participants) => {
+					const transaction = {
+						type: aggregateType, signerPublicKey: new Binary(signerPublicKey), recipientAddress: new Binary(recipientAddress)
+					};
 					return { transaction, participants };
 				};
 
@@ -1192,7 +1199,7 @@ describe('catapult db', () => {
 				describe('cosignature only', () => {
 					// Arrange: add participants as cosigners
 					addParticipantTests(aggregateDescriptor.type, (transaction, meta, participants) => {
-						transaction.cosignatures = participants.map(cosigner => ({ signer: new Binary(cosigner) }));
+						transaction.cosignatures = participants.map(cosigner => ({ signerPublicKey: new Binary(cosigner) }));
 					});
 				});
 

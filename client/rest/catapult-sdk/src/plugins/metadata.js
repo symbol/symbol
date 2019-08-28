@@ -61,7 +61,7 @@ const metadataPlugin = {
 		codecBuilder.addTransactionSupport(EntityType.accountMetadata, {
 			deserialize: parser => {
 				const transaction = {};
-				transaction.targetPublicKey = parser.buffer(constants.sizes.signer);
+				transaction.targetPublicKey = parser.buffer(constants.sizes.signerPublicKey);
 				transaction.scopedMetadataKey = parser.uint64();
 				transaction.valueSizeDelta = convert.uint16ToInt16(parser.uint16());
 				const valueSize = parser.uint16();
@@ -82,7 +82,7 @@ const metadataPlugin = {
 		codecBuilder.addTransactionSupport(EntityType.mosaicMetadata, {
 			deserialize: parser => {
 				const transaction = {};
-				transaction.targetPublicKey = parser.buffer(constants.sizes.signer);
+				transaction.targetPublicKey = parser.buffer(constants.sizes.signerPublicKey);
 				transaction.scopedMetadataKey = parser.uint64();
 				transaction.targetMosaicId = parser.uint64();
 				transaction.valueSizeDelta = convert.uint16ToInt16(parser.uint16());
@@ -105,7 +105,7 @@ const metadataPlugin = {
 		codecBuilder.addTransactionSupport(EntityType.namespaceMetadata, {
 			deserialize: parser => {
 				const transaction = {};
-				transaction.targetPublicKey = parser.buffer(constants.sizes.signer);
+				transaction.targetPublicKey = parser.buffer(constants.sizes.signerPublicKey);
 				transaction.scopedMetadataKey = parser.uint64();
 				transaction.targetNamespaceId = parser.uint64();
 				transaction.valueSizeDelta = convert.uint16ToInt16(parser.uint16());

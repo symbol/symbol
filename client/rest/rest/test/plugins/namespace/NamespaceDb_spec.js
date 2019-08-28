@@ -397,7 +397,7 @@ describe('namespace db', () => {
 	describe('register namespace transactions by namespace ids', () => {
 		const transactionType = catapult.model.EntityType.registerNamespace;
 		const createRegisterNamespaceTransaction = (namespaceId, type, name) => ({
-			transaction: { type, namespaceId: convertToLong(namespaceId), name }
+			transaction: { type, id: convertToLong(namespaceId), name }
 		});
 
 		it('returns register namespace transactions by namespace ids', () => {

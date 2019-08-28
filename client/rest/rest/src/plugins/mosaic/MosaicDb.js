@@ -40,12 +40,12 @@ class MosaicDb {
 	 */
 	mosaicsByIds(ids) {
 		const mosaicIds = ids.map(id => new Long(id[0], id[1]));
-		const conditions = { 'mosaic.mosaicId': { $in: mosaicIds } };
+		const conditions = { 'mosaic.id': { $in: mosaicIds } };
 		const collection = this.catapultDb.database.collection('mosaics');
 		return collection.find(conditions)
 			.sort({ _id: -1 })
 			.toArray()
-			.then(entities => Promise.resolve(this.catapultDb.sanitizer.copyAndDeleteIds(entities)));
+			.then(entities => Promise.resolve(this.catapultDb.sanitizer.deleteIds(entities)));
 	}
 
 	// endregion
