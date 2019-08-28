@@ -7,7 +7,20 @@
   "port": 3000,
   "crossDomainHttpMethods": ["GET", "POST", "PUT", "OPTIONS"],
   "clientPrivateKey": "0000000000000000000000000000000000000000000000000000000000000000",
-  "extensions": ["accountLink", "accountRestrictions", "aggregate", "lockHash", "lockSecret", "mosaic", "multisig", "namespace", "receipts", "transfer"],
+  "extensions": [
+    "accountLink",
+    "accountRestrictions",
+    "aggregate",
+    "lockHash",
+    "lockSecret",
+    "mosaic",
+    "mosaicRestrictions",
+    "metadata",
+    "multisig",
+    "namespace",
+    "receipts",
+    "transfer"
+  ],
 
   "db": {
     "url": "mongodb://localhost:27017/",

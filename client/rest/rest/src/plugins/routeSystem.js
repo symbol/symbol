@@ -30,7 +30,18 @@ const receipts = require('./receipts/receipts');
 const MessageChannelBuilder = require('../connection/MessageChannelBuilder');
 
 const plugins = {
-	accountLink: empty, accountRestrictions, aggregate, lockHash, lockSecret, mosaic, multisig, namespace, receipts, transfer: empty
+	accountLink: empty,
+	accountRestrictions,
+	aggregate,
+	lockHash,
+	lockSecret,
+	metadata: empty,
+	mosaic,
+	mosaicRestrictions: empty,
+	multisig,
+	namespace,
+	receipts,
+	transfer: empty
 };
 
 module.exports = {

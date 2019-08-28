@@ -39,21 +39,21 @@ const metadataPlugin = {
 		builder.addTransactionSupport(EntityType.accountMetadata, {
 			targetPublicKey: ModelType.binary,
 			scopedMetadataKey: ModelType.uint64,
-			value: ModelType.string
+			value: ModelType.binary
 		});
 
 		builder.addTransactionSupport(EntityType.mosaicMetadata, {
 			targetPublicKey: ModelType.binary,
 			scopedMetadataKey: ModelType.uint64,
 			targetMosaicId: ModelType.uint64,
-			value: ModelType.string
+			value: ModelType.binary
 		});
 
 		builder.addTransactionSupport(EntityType.namespaceMetadata, {
 			targetPublicKey: ModelType.binary,
 			scopedMetadataKey: ModelType.uint64,
 			targetNamespaceId: ModelType.uint64,
-			value: ModelType.string
+			value: ModelType.binary
 		});
 	},
 
