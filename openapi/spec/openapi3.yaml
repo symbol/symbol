@@ -1992,6 +1992,7 @@ components:
       required:
         - hashAlgorithm
         - secret
+        - recipient
         - proof
       properties:
         hashAlgorithm:
@@ -2618,16 +2619,13 @@ components:
     AccountAddressRestrictionModificationDTO:
       type: object
       required:
-        - modificationType
-        - values
+        - restrictionType
+        - value
       properties:
-        modificationType:
+        restrictionType:
           $ref: "#/components/schemas/AccountRestrictionModificationTypeEnum"
-        values:
-          type: array
-          description: Address to restrict.
-          items:
-            $ref: "#/components/schemas/UnresolvedAddress"
+        value:
+          $ref: "#/components/schemas/UnresolvedAddress"
     AccountAddressRestrictionTransactionBodyDTO:
       type: object
       required:
@@ -2654,16 +2652,13 @@ components:
     AccountMosaicRestrictionModificationDTO:
       type: object
       required:
-        - modificationType
-        - values
+        - restrictionType
+        - value
       properties:
-        modificationType:
+        restrictionType:
           $ref: "#/components/schemas/AccountRestrictionModificationTypeEnum"
-        values:
-          type: array
-          description: Identifier of the mosaic to restrict.
-          items:
-            $ref: "#/components/schemas/UnresolvedMosaicId"
+        value:
+          $ref: "#/components/schemas/UnresolvedMosaicId"
     AccountMosaicRestrictionTransactionBodyDTO:
       type: object
       required:
@@ -2690,16 +2685,13 @@ components:
     AccountOperationRestrictionModificationDTO:
       type: object
       required:
-        - modificationType
-        - values
+        - restrictionType
+        - value
       properties:
-        modificationType:
+        restrictionType:
           $ref: "#/components/schemas/AccountRestrictionModificationTypeEnum"
-        values:
-          type: array
-          description: Identifier of the transaction type to restrict.
-          items:
-            $ref: "#/components/schemas/TransactionTypeEnum"
+        value:
+          $ref: "#/components/schemas/TransactionTypeEnum"
     AccountOperationRestrictionTransactionBodyDTO:
       type: object
       required:
