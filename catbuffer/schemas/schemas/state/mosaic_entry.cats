@@ -1,6 +1,6 @@
 import "state/mosaic_entry_types.cats"
 
-# binary layout for mosaic entry serializer
+# binary layout for mosaic entry
 struct MosaicEntry
 	# entry id
 	mosaicId = MosaicId

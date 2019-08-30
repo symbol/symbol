@@ -1,3 +1,5 @@
+using MosaicRestrictionKey = uint64
+
 # enumeration of mosaic restriction types
 enum MosaicRestrictionType : uint8
 	# uninitialized value indicating no restriction

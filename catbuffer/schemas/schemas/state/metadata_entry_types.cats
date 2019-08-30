@@ -1,8 +1,9 @@
 import "types.cats"
 
-# enum for the different types of metadata 
-enum MetadataType : uint8
+using ScopedMetadataKey = uint64
 
+# enum for the different types of metadata
+enum MetadataType : uint8
 	# account metadata
 	account = 0
 
@@ -12,11 +13,10 @@ enum MetadataType : uint8
 	# namespace metadata
 	namespace = 2
 
-
 # binary layout of a metadata entry value
 struct MetadataValue
-	# data size
+	# size of the value
 	size = uint16
 
-	# actual data
-	data = uint8
+	# data of the value
+	data = array(byte, size)

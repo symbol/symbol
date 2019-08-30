@@ -3,10 +3,11 @@ using BlockDuration = uint64
 using BlockFeeMultiplier = uint32
 using Difficulty = uint64
 using Height = uint64
+using Importance = uint64
+using ImportanceHeight = uint64
 using UnresolvedMosaicId = uint64
 using MosaicId = uint64
 using Timestamp = uint64
-using Height = uint64
 
 using UnresolvedAddress = binary_fixed(25)
 using Address = binary_fixed(25)

@@ -1,7 +1,8 @@
 import "types.cats"
 
 # linked account type that indicates the account's link status
-enum AccountType : uint8 
+enum AccountType : uint8
+	# account is not linked to another account
 	unlinked = 0
 
 	# account is a balance-holding account that is linked to a remote harvester account
@@ -13,13 +14,32 @@ enum AccountType : uint8
 	# account is a remote harvester eligible account that is unlinked
 	remoteUnlinked = 3
 
-# binary layout for account balances
-struct AccountBalance
-	# mosaic id for balance
-	mosaicId = MosaicId
+# account state format
+enum AccountStateFormat : uint8
+	# regular account
+	regular = 0
 
-	# optimized mosaic id
-	optimizedMosaicId = MosaicId
+	# high value account eligible to harvest
+	highValue = 1
 
-	# balance amount
-	balance = Amount
+# temporal importance information
+struct ImportanceSnapshot
+	# account importance
+	importance = Importance
+
+	# importance height
+	height = ImportanceHeight
+
+# account activity bucket
+struct HeightActivityBucket
+	# activity start height
+	startHeight = ImportanceHeight
+
+	# total fees paid by account
+	totalFeesPaid = Amount
+
+	# number of times account has been used as a beneficiary
+	beneficiaryCount = uint32
+
+	# raw importance score
+	rawScore = uint64
