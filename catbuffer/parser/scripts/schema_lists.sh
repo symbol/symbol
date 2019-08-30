@@ -7,6 +7,18 @@ receipt_inputs=(
 	"receipts"
 	"namespace/namespace_receipts")
 
+state_inputs=(
+	"state/account_state"
+	"state/hash_lock"
+	"state/lock_info"
+	"state/metadata_entry"
+	"state/mosaic_entry"
+	"state/multisig_entry"
+	"state/namespace_history"
+	"state/restriction_account"
+	"state/restriction_mosaic_entry"
+	"state/secret_lock")
+
 transaction_inputs=(
 	"account_link/account_link"
 	"aggregate/aggregate"
@@ -29,16 +41,3 @@ transaction_inputs=(
 	"restriction_mosaic/mosaic_global_restriction"
 	"transfer/transfer")
 
-
-state_inputs=(
-	"state/resriction_account_serializer"
-	"state/account_state_serializer"
-	"state/hash_lock_serializer"
-	"state/lock_info_serializer"
-	"state/metadata_entry_serializer"
-	"state/mosaic_entry_serializer"
-	"state/mosaic_restriction_entry_serializer"
-	"state/multisig_entry_serializer"
-	"state/namespace_history_serializer"
-	"state/secret_lock_serializer"
-)
